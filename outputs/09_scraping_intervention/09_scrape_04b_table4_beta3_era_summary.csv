@@ -1,0 +1,16 @@
+Well,Role,Era,beta_3,CI_95,p_value,Sig
+CEH36,Treatment,Baseline,0.16,"[0.026, 0.293]",0.02045,*
+CEH36,Treatment,Pure Scraping,0.145,"[-0.016, 0.306]",0.07567,ns
+CEH36,Treatment,Felling Pulse,0.19,"[0.095, 0.284]",<0.001,***
+CEH18,Treatment,Baseline,0.133,"[0.055, 0.211]",<0.001,***
+CEH18,Treatment,Felling Pulse,0.226,"[0.087, 0.366]",0.00216,**
+CEH18,Treatment,After Scraping,0.203,"[-0.005, 0.411]",0.05494,ns
+CEH21,Treatment,Baseline,0.156,"[0.055, 0.257]",0.00284,**
+CEH21,Treatment,Coastal Drawdown,0.198,"[0.083, 0.314]",0.00126,**
+CEH21,Treatment,After Scraping,0.197,"[-0.033, 0.427]",0.08904,ns
+CEH4,Control,Baseline,0.148,"[0.064, 0.232]",<0.001,***
+CEH4,Control,Pure Scraping,0.152,"[-0.004, 0.309]",0.05650,ns
+CEH4,Control,Felling Pulse,0.212,"[0.119, 0.305]",<0.001,***
+CEH22,Control,Baseline,0.235,"[0.137, 0.333]",<0.001,***
+CEH22,Control,Coastal Drawdown,0.351,"[0.216, 0.486]",<0.001,***
+CEH22,Control,After Scraping,0.295,"[0.140, 0.451]",<0.001,***

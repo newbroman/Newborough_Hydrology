@@ -1,0 +1,5 @@
+Cluster,Sy_assumed,Sy_OLS_winter,Sy_OLS_SE,Sy_OLS_R2,Sy_OLS_n,Sy_event_median,Sy_event_Q25,Sy_event_Q75,Sy_event_n
+C1 Eastern Lake-buffer,0.08,5.8688,0.7066,-0.806,36,0.2228,0.1406,0.3135,49
+C2 Eastern Mature Dune,0.12,6.3923,0.6892,-0.81,41,0.2338,0.1511,0.3478,48
+C3 Western Mature Dune,0.12,6.2321,0.5754,-0.577,45,0.2585,0.1358,0.3438,40
+C4 Forest,0.12,6.4565,0.5628,-0.201,42,0.2151,0.1549,0.3292,38

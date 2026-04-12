@@ -1,0 +1,5 @@
+Cluster,LCSC (%),Recharge (m/month),Atm. Draw (m/month),Drainage (m/month),Total Loss (m/month),Boundary Subsidy (m/month),Boundary Subsidy (m/year)
+C1_Eastern_Lake-buffer,48.6,0.148,0.279,0.1625,0.4415,0.2935,3.522
+C2_Eastern_Mature_Dune,53.1,0.1352,0.2547,0.1305,0.3852,0.25,2.999
+C3_Western_Mature_Dune,77.3,0.0929,0.201,0.1319,0.3329,0.24,2.88
+C4_Forest,113.4,0.0634,0.1978,0.1407,0.3385,0.2579,3.094

@@ -220,10 +220,13 @@ def copy_web_files() -> None:
     else:
         print(f"  [!] Scatter plot not found — run script 14 first")
 
-    if VIEWER_OUTPUT.exists():
-        dest = ROOT_DIR / "scenario_viewer.html"
-        shutil.copy2(VIEWER_OUTPUT, dest)
-        print(f"  [OK] Copied: {dest.name}")
+    linked_viewer = ROOT_DIR / "scenario_viewer.html"
+    if linked_viewer.exists():
+        print(f"  [OK] Linked viewer already in root: {linked_viewer.name}")
+    elif VIEWER_OUTPUT.exists():
+        # Fallback: old standalone version — warn about size
+        size_mb = VIEWER_OUTPUT.stat().st_size / 1_048_576
+        print(f"  [!] Only standalone viewer found ({size_mb:.1f} MB) — run option 4 to build the linked version")
     else:
         print(f"  [!] Scenario viewer not found — run option 4 to build it")
     print()

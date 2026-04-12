@@ -141,7 +141,8 @@ def run_scenario(scenario_key, subfolder, params, label, base_dir, mod):
 
     mod.main(scenario=scenario_key,
              scenario_params=params,
-             output_dir=scenario_dir)
+             output_dir=scenario_dir,
+             supplementary=True)
 
     return scenario_dir
 

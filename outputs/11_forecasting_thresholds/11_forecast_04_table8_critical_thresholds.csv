@@ -1,0 +1,5 @@
+Cluster,Label,beta_1,beta_3,libreoffice_formula,latex_formula
+C1,C1: Eastern Block Lake,0.0015646708114823943,0.3660382441166248,=(h_gap + (0.3660 * h_prev)) / 0.0016,P_{flood} = \frac{h_{gap} + (0.3660 \cdot h_{prev})}{0.0016}
+C2,C2: Eastern Block Mature Dune,0.0016738073800520042,0.19999920342514702,=(h_gap + (0.2000 * h_prev)) / 0.0017,P_{flood} = \frac{h_{gap} + (0.2000 \cdot h_{prev})}{0.0017}
+C3,C3: Western Block Mature Dune,0.0012007031918836717,0.11794068299845423,=(h_gap + (0.1179 * h_prev)) / 0.0012,P_{flood} = \frac{h_{gap} + (0.1179 \cdot h_{prev})}{0.0012}
+C4,C4: Forest,0.0009565707113432798,0.07764741371620784,=(h_gap + (0.0776 * h_prev)) / 0.0010,P_{flood} = \frac{h_{gap} + (0.0776 \cdot h_{prev})}{0.0010}

@@ -1,0 +1,95 @@
+
+Loading input data...
+  [OK] 201 monthly rows loaded | Columns: C1, C2, C3, C4, C5, C6, Western_Block, Eastern_Block, Forest, Coastal, P_mm, PET_mm
+
+======================================================================
+SECTION 1: MECHANISTIC STATE-SPACE EQUATIONS  (Δh = β₁P − β₂PET − β₃h_prev)
+======================================================================
+  OLS without intercept — enforces physical mass balance (zero forcing → zero change)
+
+  C1: Eastern Block Lake:  Δh = (0.0016·P) − (0.0050·PET) − (0.3660·h_prev)   |  R² = 0.660   n = 187
+        p-values:  P = 0.0000   PET = 0.0000   h_prev = 0.0000
+  C2: Eastern Block Mature Dune:  Δh = (0.0017·P) − (0.0044·PET) − (0.2000·h_prev)   |  R² = 0.603   n = 199
+        p-values:  P = 0.0000   PET = 0.0000   h_prev = 0.0000
+  C3: Western Block Mature Dune:  Δh = (0.0012·P) − (0.0036·PET) − (0.1179·h_prev)   |  R² = 0.505   n = 199
+        p-values:  P = 0.0000   PET = 0.0000   h_prev = 0.0000
+  C4: Forest:  Δh = (0.0010·P) − (0.0034·PET) − (0.0776·h_prev)   |  R² = 0.461   n = 187
+        p-values:  P = 0.0007   PET = 0.0000   h_prev = 0.0000
+
+  Excluded from mechanistic model: C5, C6  (boundary-condition clusters — see script header)
+
+======================================================================
+SECTION 2: PEAK FLOOD TRANSFER FUNCTIONS  (h_peak = β₁·P_winter + β₂·h_min + c)
+======================================================================
+  OLS with intercept | Hydrological year: Oct 1 – Sep 30
+  Macro-blocks: Eastern Block (C1 & C2), Western Block (C3), Forest (C4).
+
+  Note: C6 is a boundary outlier (lake/tidal) and is excluded from standard unconfined assumptions.
+
+  Western_Block:
+    h_peak = (0.00010·P_winter) + (1.169·h_min) + 0.830
+    R² = 0.684   |   n = 20 hydrological years
+    p-values:  P_winter = 0.8183   h_min = 0.0001   intercept = 0.0630
+
+  Eastern_Block:
+    h_peak = (0.00057·P_winter) + (0.305·h_min) - 0.089
+    R² = 0.240   |   n = 20 hydrological years
+    p-values:  P_winter = 0.1948   h_min = 0.4687   intercept = 0.8633
+
+  Forest:
+    h_peak = (-0.00020·P_winter) + (1.314·h_min) + 1.251
+    R² = 0.894   |   n = 19 hydrological years
+    p-values:  P_winter = 0.5572   h_min = 0.0000   intercept = 0.0008
+
+
+======================================================================
+SECTION 4: SUMMER DROUGHT TRANSFER FUNCTIONS  (h_min = β₁·P_summer + β₂·h_max_winter + c)
+======================================================================
+  OLS with intercept | Hydrological year: Oct 1 – Sep 30
+  Predicting summer minimum from antecedent winter peak and summer rain.
+
+  Western_Block:
+    h_min_summer = (0.00096·P_summer) + (0.577·h_max_winter) - 1.214
+    R² = 0.774   |   n = 20 hydrological years
+    p-values:  P_summer = 0.0176   h_max_winter = 0.0000   intercept = 0.0000
+
+  Eastern_Block:
+    h_min_summer = (0.00093·P_summer) + (0.333·h_max_winter) - 1.183
+    R² = 0.411   |   n = 20 hydrological years
+    p-values:  P_summer = 0.0152   h_max_winter = 0.0139   intercept = 0.0000
+
+  Forest:
+    h_min_summer = (0.00079·P_summer) + (0.717·h_max_winter) - 1.180
+    R² = 0.921   |   n = 19 hydrological years
+    p-values:  P_summer = 0.0262   h_max_winter = 0.0000   intercept = 0.0000
+
+
+======================================================================
+SECTION 3: CRITICAL RAINFALL THRESHOLD EQUATIONS  (P_flood)
+======================================================================
+  Algebraically inverted from Section 1 state-space mechanics.
+  Assumes winter PET = 0 (defensible for peak-saturation events).
+
+  C1: Eastern Block Lake Management Tool:
+    LibreOffice: =(h_gap + (0.3660 * h_prev)) / 0.0016
+    LaTeX:       P_{flood} = \frac{h_{gap} + (0.3660 \cdot h_{prev})}{0.0016}
+
+  C2: Eastern Block Mature Dune Management Tool:
+    LibreOffice: =(h_gap + (0.2000 * h_prev)) / 0.0017
+    LaTeX:       P_{flood} = \frac{h_{gap} + (0.2000 \cdot h_{prev})}{0.0017}
+
+  C3: Western Block Mature Dune Management Tool:
+    LibreOffice: =(h_gap + (0.1179 * h_prev)) / 0.0012
+    LaTeX:       P_{flood} = \frac{h_{gap} + (0.1179 \cdot h_{prev})}{0.0012}
+
+  C4: Forest Management Tool:
+    LibreOffice: =(h_gap + (0.0776 * h_prev)) / 0.0010
+    LaTeX:       P_{flood} = \frac{h_{gap} + (0.0776 \cdot h_{prev})}{0.0010}
+
+Note: Threshold equations are reported for all fitted non-boundary clusters (C1-C4).
+
+
+======================================================================
+  Analysis complete.
+======================================================================
+

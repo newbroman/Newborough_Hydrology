@@ -10,6 +10,7 @@ Usage
   python run_analysis.py --viewer     # non-interactive: build scenario viewer only
 """
 
+import shutil
 import subprocess
 import sys
 import textwrap
@@ -41,7 +42,7 @@ PHASE_3 = [
     ("11b_spatial_thresholds.py",     "12/23  Spatial eco-hydrological threshold maps"),
 ]
 PHASE_4 = [
-    ("00_climate_summary.py",            "13/23  Climate summary outputs", ["--profile", "short"]),
+    ("00_climate_summary.py",            "13/23  Climate summary outputs", ["--profile", "both"]),
     ("14_climate_projections.py",        "14/23  Figure: Climate trajectory projections"),
     ("12_figure_site_overview.py",       "15/23  Figure: DEM site overview"),
     ("13_figure_experimental_design.py", "16/23  Figure: Experimental design GIS map"),
@@ -197,6 +198,7 @@ def run_full_pipeline(from_step: int = 1) -> None:
         validate_outputs(REQUIRED_PHASE9_OUTPUTS, "Phase 9")
     run_phase(PHASE_10, "PHASE 10 — Forestry Scenario Analysis",                  from_step)
     validate_outputs(REQUIRED_PHASE10_OUTPUTS, "Phase 10")
+    build_viewer()
     _banner("PIPELINE COMPLETE — all 23 steps written to outputs/")
 
 def build_viewer() -> None:
@@ -238,6 +240,18 @@ def build_viewer() -> None:
         print(f"\n  [OK] Viewer ready: {VIEWER_OUTPUT}")
         print(f"       File size: {size_mb:.1f} MB")
         print("       Open in any browser — no server required.")
+        # Copy to repository root for GitHub Pages deployment
+        root_copy = ROOT_DIR / "scenario_viewer.html"
+        shutil.copy2(VIEWER_OUTPUT, root_copy)
+        print(f"  [OK] Copied to repository root: {root_copy.name}")
+        # Copy seasonal extremes scatter plot to repository root
+        scatter_src = OUT_DIR / "14_climate_projections" / "14_seasonal_extremes_scatter.html"
+        if scatter_src.exists():
+            scatter_dest = ROOT_DIR / "seasonal_extremes_scatter.html"
+            shutil.copy2(scatter_src, scatter_dest)
+            print(f"  [OK] Copied to repository root: {scatter_dest.name}")
+        else:
+            print(f"  [!] Scatter plot not found — run script 14 first: {scatter_src.name}")
     else:
         print(f"\n  [!] Viewer not found at expected path: {VIEWER_OUTPUT}")
 

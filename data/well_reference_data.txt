@@ -1,0 +1,166 @@
+NEWBOROUGH WARREN — WELL REFERENCE DATA
+Extracted from Newborough_well_records-A.ods (sheet: measured)
+========================================================
+
+CRITICAL NOTE FOR WATER TABLE CALCULATION:
+  Depth to water is measured from TOP OF PIPE (not ground surface)
+  True water table elevation = (Ground elevation + Upstand) − Depth to water
+  i.e. use PIPE TOP ELEVATION, not ground elevation
+
+WELL DATA TABLE
+Columns: Well ID | Ground Elev (m AOD) | Upstand (m) | Pipe Top Elev (m AOD) | Field/Alternative Name
+-----------------------------------------------------------------------------------------------
+ll       | —          | —      | —       | —
+ceh6     | 8.461      | 0.150  | 8.611   | ccw car park
+ceh25    | 9.051      | 0.025  | 9.076   | nr ceh6
+ceh5     | 9.588      | 0.050  | 9.638   | nr ceh6
+ceh23    | 9.958      | 0.060  | 10.018  | —
+ceh26    | 10.425     | 0.025  | 10.450  | nr ceh5
+ceh27    | 10.900     | 0.040  | 10.940  | nr 1c
+ceh28    | 10.536     | -0.140 | 10.396  | near NW3 by path  ← NEGATIVE UPSTAND
+d6       | 10.825     | 0.050  | 10.875  | —
+nw3      | 10.656     | 0.050  | 10.706  | 1e
+d5       | 10.500     | 0.100  | 10.600  | —
+d15      | 10.371     | 0.150  | 10.521  | —
+1d       | —          | —      | —       | same location as wmc4/nw13
+wmc4     | —          | —      | —       | same location as 1d/nw13
+nw1      | 12.363     | 0.270  | 12.633  | bh1
+nw2      | 11.474     | 0.590  | 12.064  | ob1
+1c       | —          | —      | —       | (= nw11: 11.950 + 0.150 = 12.100)
+1b       | —          | —      | —       | (= nw10: 11.660 + 0.140 = 11.800)
+ceh14    | 14.420     | 0.000  | 14.420  | nr 1a
+ceh13    | 11.235     | 0.090  | 11.325  | nr 2a
+ceh32    | 11.030     | 0.040  | 11.070  | near 1b
+ceh33    | 8.770      | 0.060  | 8.830   | near cp
+cp       | —          | —      | —       | —
+f        | —          | —      | —       | —
+e        | —          | —      | —       | —
+ceh3     | 4.362      | 0.010  | 4.372   | forest nr fes
+ceh35    | —          | 0.040  | —       | nr path CEH4
+ceh38    | —          | 0.000  | —       | nr fence CEH4
+ceh4     | 4.479      | 0.070  | 4.549   | fes
+ceh36    | —          | 0.030  | —       | N CEH4
+w        | —          | —      | —       | —
+nw6      | 6.361      | 0.080  | 6.441   | 2e
+nw7      | 8.474      | 0.030  | 8.504   | mb
+nw8      | 7.244      | 0.090  | 7.334   | 2d
+wmc3     | 8.610      | 0.080  | 8.690   | 2dish
+ceh31    | 6.320      | 0.170  | 6.490   | nr wmc2
+nw9      | 5.149      | 0.031  | 5.180   | 2b
+ceh1     | 10.652     | 0.040  | 10.692  | nr path in pool
+c        | —          | —      | —       | —
+ceh30    | 8.610      | 0.060  | 8.670   | nr ceh20
+ceh20    | —          | —      | —       | —
+ceh34    | 9.750      | 0.050  | 9.800   | —
+ceh2     | 11.320     | 0.710  | 12.030  | in forest nr ceh1  ← LARGE 71cm UPSTAND
+ceh9     | 7.983      | 0.000  | 7.983   | nr nw6
+ceh39    | —          | 0.040  | —       | SW CEH9
+ceh22    | 3.231      | 0.050  | 3.281   | sea/SD13
+ceh21    | 4.172      | 0.050  | 4.222   | r1
+nw5      | 5.725      | 0.000  | 5.725   | 2f
+wmc2     | 4.502      | 0.050  | 4.552   | nr 2g
+d25      | 5.351      | 0.050  | 5.401   | —
+ceh11    | 3.534      | 0.050  | 3.584   | aber menai
+d38      | 4.661      | 0.110  | 4.771   | —
+ceh10    | 5.778      | 0.040  | 5.818   | beyond nw5
+t41a     | 5.490      | 0.400  | 5.890   | —  ← LARGE 40cm UPSTAND
+t41b     | 5.710      | 0.000  | 5.710   | —
+t41c     | 5.800      | 0.090  | 5.890   | —
+t41d     | 6.190      | 0.110  | 6.300   | —
+d41      | 5.840      | 0.080  | 5.920   | —
+d44      | 5.730      | 0.080  | 5.810   | —
+ceh37    | 5.840      | 0.000  | 5.840   | W CEH24
+ceh24    | 5.808      | 0.150  | 5.958   | nr d44
+ceh8     | 5.494      | 0.200  | 5.694   | 2 slacks in from nw4
+ceh7     | 5.379      | 0.070  | 5.449   | braint
+wmc1     | 7.285      | 0.050  | 7.335   | —
+d43      | 6.907      | 0.000  | 6.907   | —
+d17      | 7.929      | 0.050  | 7.979   | —
+nw4      | 9.160      | 0.070  | 9.230   | 1f
+nw4b     | 9.256      | 0.080  | 9.336   | —
+d9       | 9.136      | 0.020  | 9.156   | —
+d8       | 9.276      | 0.050  | 9.326   | —
+d10      | 9.603      | 0.040  | 9.643   | —
+d7       | 9.775      | 0.100  | 9.875   | —
+l1       | 9.246      | 0.120  | 9.366   | —
+ceh40    | 7.804      | —      | —       | scraped slack
+ceh41    | 6.869      | 0.060  | —       | scraped slack
+ceh42    | 3.615      | 0.130  | —       | scraped slack with water hole
+nw8b     | —          | —      | —       | —
+f1       | —          | —      | —       | —
+f2       | —          | —      | —       | —
+f3       | —          | —      | —       | —
+lis1     | —          | —      | —       | —
+f4       | —          | —      | —       | —
+p2       | —          | —      | —       | —
+pw       | —          | —      | —       | —
+pe       | —          | —      | —       | —
+pdfs     | —          | —      | —       | —
+p1       | —          | —      | —       | —
+
+WELLS WITH SIGNIFICANT UPSTANDS (>10cm) — most important for accurate WTE:
+  ceh28:  −14cm  (pipe BELOW ground — sunken/damaged casing)
+  ceh2:   +71cm  (large upstand — biggest correction needed)
+  t41a:   +40cm
+  ceh8:   +20cm
+  ceh19:  +15cm  (EDGE)
+  ceh24:  +15cm
+  d15:    +15cm
+  ceh31:  +17cm
+  nw2:    +59cm  (ob1)
+  nw1:    +27cm  (bh1)
+
+FIELD NAME → RECORDSHEET NAME ALIASES (53 mappings):
+  bh1          → nw1
+  ob1          → nw2
+  1e           → nw3
+  1f           → nw4
+  2f           → nw5
+  2e           → nw6
+  mb           → nw7
+  2d           → nw8
+  2b           → nw9
+  1b           → nw10
+  1c           → nw11
+  1a           → nw12
+  1d           → wmc4  (same physical location)
+  nw13         → wmc4  (same physical location)
+  nr path in pool     → ceh1
+  in forest nr ceh1   → ceh2
+  forest nr fes       → ceh3
+  fes                 → ceh4
+  nr ceh6             → ceh5
+  ccw car park        → ceh6
+  braint              → ceh7
+  2 slacks in from nw4 → ceh8
+  nr nw6              → ceh9
+  beyond nw5          → ceh10
+  aber menai          → ceh11
+  nr fc 7             → ceh12
+  nr 2a               → ceh13
+  nr 1a               → ceh14
+  Forest carpark      → ceh15
+  clearing            → ceh16
+  forest              → ceh17
+  warren              → ceh18
+  EDGE                → ceh19
+  r1                  → ceh21
+  sea/SD13            → ceh22
+  nr d44              → ceh24
+  nr ceh6             → ceh25
+  nr ceh5             → ceh26
+  nr 1c               → ceh27
+  near NW3 by path    → ceh28
+  nr ceh20            → ceh30
+  nr wmc2             → ceh31
+  near 1b             → ceh32
+  near cp             → ceh33
+  nr path CEH4        → ceh35
+  N CEH4              → ceh36
+  W CEH24             → ceh37
+  Nr fence CEH4       → ceh38
+  SW CEH9             → ceh39
+  scraped slack       → ceh40/ceh41
+  scraped slack w water hole → ceh42
+  nr 2g               → wmc2
+  2dish               → wmc3

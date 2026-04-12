@@ -1,0 +1,5 @@
+Cluster,Sy_WTF,Recharge (mm/yr),Atm. Draw (mm/yr),Drainage (mm/yr),Total Loss (mm/yr),Boundary Subsidy (mm/yr),Subsidy (% rainfall)
+C1_Eastern_Lake-buffer,0.2228,396,746,434,1180,785,88
+C2_Eastern_Mature_Dune,0.2338,379,715,366,1081,701,79
+C3_Western_Mature_Dune,0.2585,288,624,409,1033,744,84
+C4_Forest,0.2151,164,511,363,874,666,75

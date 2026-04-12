@@ -1,0 +1,7 @@
+Cluster,Label,SSM_Iterative_NSE,DDP_Iterative_NSE,Delta_NSE,Best_Lambda_m-1,DDP_b1,DDP_b2,DDP_b3,SSM_OneStep_R2,DDP_OneStep_R2
+C1,C1: Eastern Block Lake-buffer,0.753,0.761,0.009,0.45,2.1811,6.0866,0.2233,0.701,0.71
+C2,C2: Eastern Block Mature Dune,0.683,0.683,0.0,0.05,1.8085,4.8366,0.1985,0.63,0.629
+C3,C3: Western Block Mature Dune,0.582,0.62,0.037,0.45,1.4739,5.546,0.0743,0.575,0.566
+C4,C4: Forest,0.41,0.41,0.0,0.0,0.8337,3.6945,0.093,0.492,0.492
+C5,C5: Coastal,-9.836,0.432,10.268,3.0,1.1915,49.0909,0.0,0.24,0.391
+C6,C6: Lake,0.231,0.231,0.0,0.0,0.9514,0.109,0.1877,0.424,0.424

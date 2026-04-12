@@ -1,0 +1,16 @@
+Well,Era,beta_1_recharge,beta_2_atmospheric_draw,beta_3_internal_brake
+CEH36,1_Baseline,1.324,3.394,0.131
+CEH36,2_Pure_Scraping,0.659,2.878,0.156
+CEH36,3_Felling_Pulse,1.664,3.374,0.129
+CEH4,1_Baseline,1.143,2.799,0.135
+CEH4,2_Pure_Scraping,0.878,3.289,0.143
+CEH4,3_Felling_Pulse,1.759,4.158,0.157
+CEH18,1_Baseline,0.862,3.467,0.149
+CEH18,2_Felling_Pulse,0.5,4.608,0.248
+CEH18,3_After_Scraping,2.592,3.876,0.069
+CEH21,1_Baseline,0.46,2.759,0.112
+CEH21,2_Coastal_Drawdown,0.707,3.089,0.114
+CEH21,3_After_Scraping,1.87,3.057,0.051
+CEH22,1_Baseline,0.779,2.67,0.176
+CEH22,2_Coastal_Drawdown,1.145,2.887,0.143
+CEH22,3_After_Scraping,1.134,3.23,0.186

@@ -1,0 +1,14 @@
+adjustText
+contextily
+fiona
+geopandas
+matplotlib
+numpy
+pandas
+pyproj
+rasterio
+scikit-image
+scikit-learn
+scipy
+statsmodels
+Pillow

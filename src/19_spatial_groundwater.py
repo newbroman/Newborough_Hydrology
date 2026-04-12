@@ -599,28 +599,38 @@ def make_site_mask(grid_x, grid_y):
         streams_path = DATA_DIR / "streams.kml"
         if streams_path.exists():
             try:
-                import fiona as _fiona
-                _fiona.drvsupport.supported_drivers["KML"] = "rw"
-                layers = _fiona.listlayers(str(streams_path))
-                gdfs = [
-                    gpd.read_file(str(streams_path), layer=lyr, driver="KML")
-                       .set_crs(epsg=4326, allow_override=True)
-                       .to_crs("EPSG:27700")
-                    for lyr in layers
-                ]
-                gdf = pd.concat(gdfs, ignore_index=True)
-                # Find the largest polygon — that is the site boundary
-                polys = gdf[gdf.geometry.geom_type.isin(["Polygon", "MultiPolygon"])]
-                if not polys.empty:
-                    site_poly = polys.loc[polys.geometry.area.idxmax()].geometry
-                    from matplotlib.path import Path as MplPath
-                    if site_poly.geom_type == "Polygon":
-                        coords = list(site_poly.exterior.coords)
-                    else:
-                        coords = list(site_poly.geoms[0].exterior.coords)
-                    path = MplPath([(c[0], c[1]) for c in coords])
-                    inside = path.contains_points(flat)
-                    return inside.reshape(grid_x.shape)
+                from osgeo import ogr, osr
+                ds = ogr.Open(str(streams_path))
+                if ds is not None:
+                    best_poly = None
+                    best_area = 0
+                    src_srs = osr.SpatialReference()
+                    src_srs.ImportFromEPSG(4326)
+                    tgt_srs = osr.SpatialReference()
+                    tgt_srs.ImportFromEPSG(27700)
+                    transform = osr.CoordinateTransformation(src_srs, tgt_srs)
+                    for i in range(ds.GetLayerCount()):
+                        lyr = ds.GetLayer(i)
+                        for feat in lyr:
+                            geom = feat.GetGeometryRef()
+                            if geom is None:
+                                continue
+                            geom = geom.Clone()
+                            geom.Transform(transform)
+                            if geom.GetGeometryType() in (ogr.wkbPolygon,
+                                                          ogr.wkbMultiPolygon):
+                                area = geom.GetArea()
+                                if area > best_area:
+                                    best_area = area
+                                    best_poly = geom
+                    if best_poly is not None:
+                        ring = best_poly.GetGeometryRef(0)
+                        coords = [ring.GetPoint(i)[:2]
+                                  for i in range(ring.GetPointCount())]
+                        from matplotlib.path import Path as MplPath
+                        path = MplPath(coords)
+                        inside = path.contains_points(flat)
+                        return inside.reshape(grid_x.shape)
             except Exception as e:
                 warnings.warn(f"streams.kml boundary load failed ({e}) — "
                               "falling back to rectangular sea-boundary mask.")

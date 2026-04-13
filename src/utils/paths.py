@@ -75,6 +75,7 @@ DATA_DEM            = DATA_DIR / "newborough_dem.tif"
 DATA_KML_FEATURES   = DATA_DIR / "Features.kml"
 DATA_KML_STREAMS    = DATA_DIR / "streams.kml"
 DATA_KML_CLEARFELL  = DATA_DIR / "clearfell.kml"
+DATA_KML_SITE_BOUNDARY = DATA_DIR / "site_boundary.kml"  # dissolved stream cells — site mask for script 19
 # Broadleaf restock block boundary — geometry also embedded in Features.kml
 # for automatic rendering via add_kml_features(); this entry retained for
 # any script that loads the boundary explicitly.
@@ -236,7 +237,8 @@ OUT_18_SY_CONTOUR_EXT       = DIR_18 / "18_wtf_04_sy_contour_extended.png"
 
 # Script 19 — Spatial groundwater analysis
 OUT_19_THICKNESS_MAP  = DIR_19 / "19_aquifer_thickness.png"
-OUT_19_HEAD_MEAN_MAP  = DIR_19 / "19_head_mean_map.png"
+OUT_19_HEAD_MEAN_MAP   = DIR_19 / "19_head_mean_map.png"
+OUT_19_HEAD_MEAN_DARCY = DIR_19 / "19_head_mean_darcy.png"
 OUT_19_HEAD_WINTER    = DIR_19 / "19_head_surface_winter.png"
 OUT_19_HEAD_SUMMER    = DIR_19 / "19_head_surface_summer.png"
 OUT_19_BETA1          = DIR_19 / "19_beta1_field.png"
@@ -256,7 +258,7 @@ OUT_19_THICKNESS_CSV  = DIR_19 / "19_thickness_surface.csv"
 OUT_19_HEAD_MEAN_CSV  = DIR_19 / "19_head_surface_mean.csv"
 OUT_19_WB_SUMMARY_CSV = DIR_19 / "19_water_balance_summary.csv"
 # Legacy aliases for file-store script compatibility
-OUT_19_HEAD_SEASONAL  = OUT_19_HEAD_WINTER
+OUT_19_HEAD_SEASONAL  = OUT_19_HEAD_WINTER  # alias — winter panel is the primary seasonal figure
 OUT_19_BETA_FIELDS    = OUT_19_BETA1
 OUT_19_WATER_BALANCE  = OUT_19_WB_RECHARGE
 OUT_19_DEPTH_TO_WT    = OUT_19_DEPTH_SUMMER

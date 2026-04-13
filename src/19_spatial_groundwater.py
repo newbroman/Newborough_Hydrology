@@ -594,46 +594,59 @@ def make_site_mask(grid_x, grid_y):
     """
     flat = np.column_stack([grid_x.ravel(), grid_y.ravel()])
 
-    # ── Primary: streams.kml site boundary polygon ───────────────────────────
-    if HAS_GEO:
-        streams_path = DATA_DIR / "streams.kml"
-        if streams_path.exists():
-            try:
-                from osgeo import ogr, osr
-                ds = ogr.Open(str(streams_path))
-                if ds is not None:
-                    best_poly = None
-                    best_area = 0
-                    src_srs = osr.SpatialReference()
-                    src_srs.ImportFromEPSG(4326)
-                    tgt_srs = osr.SpatialReference()
-                    tgt_srs.ImportFromEPSG(27700)
-                    transform = osr.CoordinateTransformation(src_srs, tgt_srs)
-                    for i in range(ds.GetLayerCount()):
-                        lyr = ds.GetLayer(i)
-                        for feat in lyr:
-                            geom = feat.GetGeometryRef()
-                            if geom is None:
-                                continue
-                            geom = geom.Clone()
-                            geom.Transform(transform)
-                            if geom.GetGeometryType() in (ogr.wkbPolygon,
-                                                          ogr.wkbMultiPolygon):
-                                area = geom.GetArea()
-                                if area > best_area:
-                                    best_area = area
-                                    best_poly = geom
-                    if best_poly is not None:
-                        ring = best_poly.GetGeometryRef(0)
-                        coords = [ring.GetPoint(i)[:2]
-                                  for i in range(ring.GetPointCount())]
-                        from matplotlib.path import Path as MplPath
-                        path = MplPath(coords)
-                        inside = path.contains_points(flat)
-                        return inside.reshape(grid_x.shape)
-            except Exception as e:
-                warnings.warn(f"streams.kml boundary load failed ({e}) — "
-                              "falling back to rectangular sea-boundary mask.")
+    # ── Primary: site_boundary.kml — union of stream cells ──────────────────
+    # Uses pure XML + pyproj + shapely. No fiona/osgeo KML driver needed.
+    # site_boundary.kml contains the dissolved stream-cell polygons that
+    # define the exact study area boundary.
+    _bnd_path = DATA_DIR / "site_boundary.kml"
+    if not _bnd_path.exists():
+        _bnd_path = DATA_DIR / "streams.kml"   # fallback to streams.kml
+    if _bnd_path.exists():
+        try:
+            import xml.etree.ElementTree as _ET
+            from pyproj import Transformer as _Tr
+            from shapely.geometry import Polygon as _Poly
+            from shapely.ops import unary_union as _union
+            from matplotlib.path import Path as _MplPath
+
+            _tr = _Tr.from_crs("EPSG:4326", "EPSG:27700", always_xy=True)
+            _root = _ET.parse(str(_bnd_path)).getroot()
+            _polys = []
+
+            def _parse(el):
+                tag = el.tag.split("}")[-1] if "}" in el.tag else el.tag
+                if tag == "coordinates":
+                    pts = []
+                    for tok in (el.text or "").strip().split():
+                        p = tok.split(",")
+                        if len(p) >= 2:
+                            try: pts.append((float(p[0]), float(p[1])))
+                            except ValueError: pass
+                    if len(pts) >= 3:
+                        lons = [p[0] for p in pts]
+                        lats = [p[1] for p in pts]
+                        ex, ny = _tr.transform(lons, lats)
+                        try: _polys.append(_Poly(zip(ex, ny)))
+                        except Exception: pass
+                for child in el:
+                    _parse(child)
+
+            _parse(_root)
+
+            if _polys:
+                _dissolved = _union(_polys)
+                # Buffer 100m to fill gaps, then get outer boundary
+                _dissolved = _dissolved.buffer(100)
+                if _dissolved.geom_type == "MultiPolygon":
+                    _dissolved = max(_dissolved.geoms, key=lambda g: g.area)
+                _coords = list(_dissolved.exterior.coords)
+                _path = _MplPath([(c[0], c[1]) for c in _coords])
+                _inside = _path.contains_points(flat)
+                print(f"  Site mask: {_inside.sum()} of {len(_inside)} grid cells inside boundary")
+                return _inside.reshape(grid_x.shape)
+        except Exception as e:
+            warnings.warn(f"site_boundary.kml mask failed ({e}) — "
+                          "falling back to rectangular sea-boundary mask.")
 
     # ── Fallback: rectangular mask clipped to sea boundaries ─────────────────
     mask = np.ones(grid_x.shape, dtype=bool)
@@ -805,6 +818,16 @@ def build_well_table(data):
     wt["lateral_inflow_m_mon"] = (
         wt["et_draw_m_mon"] + wt["drainage_m_mon"] - wt["recharge_m_mon"])
     wt["storage_change_mm"] = wt["sy"] * wt["head_swing"] * 1000.0
+
+    # Exclude outlier wells from spatial interpolation
+    # ceh3:  perched above regional water table
+    # ceh17: lowest R²=0.427, β₁=0.694 and β₃=0.049 both site minima
+    SPATIAL_EXCLUDE = {"ceh3", "ceh17"}
+    excluded = wt["well"].isin(SPATIAL_EXCLUDE)
+    if excluded.any():
+        excl_list = wt.loc[excluded, "well"].tolist()
+        wt = wt.loc[~excluded].copy()
+        print(f"  Excluding {len(excl_list)} outlier wells from interpolation: {excl_list}")
 
     wt = wt.dropna(subset=["E", "N", "mean_head"])
 
@@ -1412,6 +1435,11 @@ def apply_scenario(wt, P_bar, PET_bar, scenario="baseline", params=None):
             df["et_draw_m_mon"] + df["drainage_m_mon"] - df["recharge_m_mon"])
         df["head_swing"]        = df["winter_head"] - df["summer_head"]
         df["storage_change_mm"] = df["sy"] * df["head_swing"] * 1000.0
+        # Recompute depth columns from updated head values
+        if "dem_elev" in df.columns:
+            df["mean_depth_bg"]   = df["dem_elev"] - df["mean_head"]
+            df["winter_depth_bg"] = df["dem_elev"] - df["winter_head"]
+            df["summer_depth_bg"] = df["dem_elev"] - df["summer_head"]
         return df
 
     c4 = wt_s["cluster"] == 4
@@ -2443,8 +2471,9 @@ def main(scenario="baseline", scenario_params=None, output_dir=None,
 
     wb_cols = ["well", "E", "N", "cluster", "beta1", "beta2", "beta3", "sy",
                "mean_head", "winter_head", "summer_head", "head_swing",
+               "mean_depth_bg", "winter_depth_bg", "summer_depth_bg",
                "P_eff", "recharge_m_mon", "et_draw_m_mon", "drainage_m_mon",
-               "lateral_inflow_m_mon", "storage_change_mm"]
+               "lateral_inflow_m_mon", "storage_change_mm", "dem_elev"]
     wt[[c for c in wb_cols if c in wt.columns]].to_csv(
         _paths["wb_summary_csv"], index=False)
     print(f"  Saved: {OUT_19_WB_SUMMARY_CSV.name}  ({len(wt)} wells)")

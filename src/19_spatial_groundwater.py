@@ -155,7 +155,8 @@ K_HIGH    = 9.0   # m/day
 GRID_RES  = 50    # m — IDW grid resolution
 
 # Canopy interception fraction — Forest cluster only (Freeman 2008)
-FOREST_INTERCEPTION = 0.24
+FOREST_INTERCEPTION    = 0.24   # Freeman (2008) Corsican pine canopy interception
+BROADLEAF_INTERCEPTION = 0.25   # broadleaf deciduous interception — close to pine, hence minimal hydrological shift
 
 # Monitoring period bounds — restricts climate means to the dipwell record
 MONITOR_START = "2005-04"

@@ -1,3 +1,4 @@
+# VERSION: 2026-04-15-JPG
 """
 19a_scenario_runner.py  v2026-04-13-clean
 ==========================================
@@ -127,6 +128,10 @@ DIFF_FIELDS = [
 # Figure constants
 FIG_DPI=300; FIG_W=7.09; FIG_H=5.8
 FT=9; FL=8; FK=7; FA=6; FC=7
+
+# Output format for difference maps — JPEG only
+DIFF_MAP_FORMAT  = "jpg"
+DIFF_MAP_QUALITY = 85
 
 # Module-level references set by main() for use in diff map functions
 _MOD = None
@@ -270,7 +275,12 @@ def plot_diff_map(col, lbl, units, cmap, delta_vals, pts, gx, gy, label,
     ax.set_ylabel("Northing (m, OSGB36)", fontsize=FL)
     ax.tick_params(labelsize=FK)
     fig.tight_layout()
-    fig.savefig(out_path, dpi=FIG_DPI, bbox_inches="tight")
+    print(f"    [DEBUG] saving {Path(out_path).name} as {DIFF_MAP_FORMAT} (format={DIFF_MAP_FORMAT})")
+    if DIFF_MAP_FORMAT == "jpg":
+        fig.savefig(out_path, dpi=FIG_DPI, bbox_inches="tight",
+                    format="jpeg", pil_kwargs={"quality": DIFF_MAP_QUALITY})
+    else:
+        fig.savefig(out_path, dpi=FIG_DPI, bbox_inches="tight")
     plt.close(fig)
 
 
@@ -313,7 +323,7 @@ def diff_one_scenario(subfolder, label, base_dir, diff_dir):
             print(f"    {col}: max|Δ|={max_abs:.2e} — skipping (no meaningful change)")
             continue
 
-        out = out_dir / f"diff_{subfolder}_{col}.png"
+        out = out_dir / f"diff_{subfolder}_{col}.{DIFF_MAP_FORMAT}"
         plot_diff_map(col, lbl, units, cmap, delta, pts, gx, gy, label,
                       subfolder, out)
         print(f"    {col}: saved  (mean Δ = {np.nanmean(delta):+.4f} {units})")
@@ -328,9 +338,9 @@ def plot_difference_maps(base_dir, scenarios, diff_dir, mod=None):
     # This prevents stale files from previous runs appearing in the viewer
     for sf_dir in diff_dir.iterdir():
         if sf_dir.is_dir():
-            for png in sf_dir.glob("diff_*.png"):
-                png.unlink()
-                print(f"  Removed stale: {sf_dir.name}/{png.name}")
+            for old_file in list(sf_dir.glob("diff_*.png")) + list(sf_dir.glob("diff_*.jpg")):
+                old_file.unlink()
+                print(f"  Removed stale: {sf_dir.name}/{old_file.name}")
     for _, sf, params, label in scenarios:
         if sf == "baseline":
             continue

@@ -88,7 +88,7 @@ References:
     Young, P.C. (2011) Recursive Estimation and Time-Series Analysis. Springer.
 """
 
-__version__ = "1.0.0"  # Hollingham (2026) — last revised 2026-04-10
+__version__ = "2026-04-15"  # Hollingham (2026) — last revised 2026-04-15
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
@@ -130,6 +130,8 @@ from utils.paths import (
     OUT_19_THICKNESS_MAP,
     OUT_19_HEAD_MEAN_MAP,
     OUT_19_HEAD_SEASONAL,
+    OUT_19_HEAD_WINTER,
+    OUT_19_HEAD_SUMMER,
     OUT_19_BETA_FIELDS,
     OUT_19_WATER_BALANCE,
     OUT_19_FLUX_MAP,
@@ -155,8 +157,7 @@ K_HIGH    = 9.0   # m/day
 GRID_RES  = 50    # m — IDW grid resolution
 
 # Canopy interception fraction — Forest cluster only (Freeman 2008)
-FOREST_INTERCEPTION    = 0.24   # Freeman (2008) Corsican pine canopy interception
-BROADLEAF_INTERCEPTION = 0.25   # broadleaf deciduous interception — close to pine, hence minimal hydrological shift
+FOREST_INTERCEPTION = 0.24
 
 # Monitoring period bounds — restricts climate means to the dipwell record
 MONITOR_START = "2005-04"
@@ -1654,7 +1655,7 @@ def plot_thickness(grid_x, grid_y, thickness, wt, features, out_path=None):
               "CEH7/CEH8 = 1 m (estuarine pinch-out).  "
               "Borehole constraints: Bristow (2002) / Connell (2003).  IDW power = 1.")
     fig.tight_layout()
-    fig.savefig(out_path or OUT_19_THICKNESS_MAP, dpi=FIG_DPI, bbox_inches="tight")
+    fig.savefig(out_path or OUT_19_THICKNESS_MAP, dpi=FIG_DPI, bbox_inches="tight", format="jpeg", pil_kwargs={"quality": 85})
     plt.close(fig)
     print(f"  Saved: {OUT_19_THICKNESS_MAP.name}")
 
@@ -1745,90 +1746,89 @@ def plot_head_mean(grid_x, grid_y, head_mean, Qx, Qy, wt, features,
               f"K = {K_CENTRAL} m/day (range {K_LOW}–{K_HIGH} m/day).\n"
               "Curreli et al. (2013) ecological thresholds.")
     fig.tight_layout()
-    fig.savefig(out_path or OUT_19_HEAD_MEAN_MAP, dpi=FIG_DPI, bbox_inches="tight")
+    fig.savefig(out_path or OUT_19_HEAD_MEAN_MAP, dpi=FIG_DPI, bbox_inches="tight", format="jpeg", pil_kwargs={"quality": 85})
     plt.close(fig)
     print(f"  Saved: {OUT_19_HEAD_MEAN_MAP.name}")
 
 
-def plot_seasonal(grid_x, grid_y, head_winter, head_summer, wt, features,
-                  depth_winter=None, depth_summer=None, out_path=None):
-    """
-    Seasonal head contrast — winter max and summer min.
-    Shows depth below ground if depth surfaces are supplied,
-    otherwise falls back to absolute head (m AOD).
-    """
+def _plot_seasonal_single(grid_x, grid_y, head_surf, depth_surf,
+                           wt, features, title, out_path):
+    """Single-panel seasonal water table figure with ecological zone colouring."""
     from matplotlib.colors import LinearSegmentedColormap, BoundaryNorm
+    SD15b, SD15b_REC, SD16, SD16_REC = 0.61, 0.75, 0.98, 1.20
+    bounds   = [0.0, SD15b, SD15b_REC, SD16, SD16_REC, 3.5]
+    colors_z = ["#1a7abf", "#a8d8a8", "#ffffb2", "#fd8d3c", "#bd0026"]
+    cmap_z   = LinearSegmentedColormap.from_list("slack", colors_z, N=256)
+    norm_z   = BoundaryNorm(bounds, ncolors=256)
 
-    use_depth = (depth_winter is not None and depth_summer is not None
-                 and not np.all(np.isnan(depth_winter)))
+    use_depth = (depth_surf is not None and not np.all(np.isnan(depth_surf)))
+    surf = depth_surf if use_depth else head_surf
 
-    fig, axes = plt.subplots(1, 2, figsize=(FIG_TWO_PANEL_W, FIG_TWO_PANEL_H), dpi=FIG_DPI)
+    fig, ax = plt.subplots(figsize=(FIG_SINGLE_W, FIG_SINGLE_H), dpi=FIG_DPI)
+    kml_h = _base_map(ax, features, title)
 
     if use_depth:
-        # Ecological zone colouring — same as 11b and plot_head_mean
-        SD15b, SD15b_REC, SD16, SD16_REC = 0.61, 0.75, 0.98, 1.20
-        bounds   = [0.0, SD15b, SD15b_REC, SD16, SD16_REC, 3.5]
-        colors_z = ["#1a7abf","#a8d8a8","#ffffb2","#fd8d3c","#bd0026"]
-        cmap_z   = LinearSegmentedColormap.from_list("slack", colors_z, N=256)
-        norm_z   = BoundaryNorm(bounds, ncolors=256)
-        pairs = [(depth_winter, "Mean Winter Depth Below Ground (Nov–Mar, m)",
-                  head_winter),
-                 (depth_summer, "Mean Summer Depth Below Ground (May–Sep, m)",
-                  head_summer)]
-        cb_label = "Depth below ground (m)"
-    else:
-        vmin = np.nanmin([np.nanpercentile(head_winter, 2),
-                          np.nanpercentile(head_summer, 2)])
-        vmax = np.nanmax([np.nanpercentile(head_winter, 98),
-                          np.nanpercentile(head_summer, 98)])
-        pairs = [(head_winter, "Mean Winter Water Table (Nov–Mar, m AOD)", None),
-                 (head_summer, "Mean Summer Water Table (May–Sep, m AOD)", None)]
-        cb_label = "Water table elevation (m AOD)"
-
-    for ax, (surf, lbl, head_surf) in zip(axes, pairs):
-        kml_h = _base_map(ax, features, lbl)
-        if use_depth:
-            im = ax.pcolormesh(grid_x, grid_y, surf, cmap=cmap_z,
-                               norm=norm_z, shading="auto", alpha=0.72, zorder=2)
-            for level, col, lw, ls in [(SD15b, "#005fa3", 1.5, "--"),
-                                        (SD16,  "#a30000", 1.5, "--")]:
-                try:
-                    import warnings as _w
-                    with _w.catch_warnings():
-                        _w.simplefilter("ignore")
-                        ax.contour(grid_x, grid_y, surf, levels=[level],
-                                   colors=[col], linewidths=lw, linestyles=ls,
-                                   alpha=0.80, zorder=3)
-                except Exception:
-                    pass
-            if head_surf is not None:
-                try:
-                    cs = ax.contour(grid_x, grid_y, head_surf, levels=8,
-                                    colors="navy", linewidths=0.4,
-                                    alpha=0.30, zorder=3)
-                    ax.clabel(cs, inline=True, fontsize=5, fmt="%.0f m AOD")
-                except Exception:
-                    pass
-        else:
-            im = ax.pcolormesh(grid_x, grid_y, surf, cmap="Blues_r",
-                               shading="auto", vmin=vmin, vmax=vmax,
-                               alpha=0.75, zorder=2)
+        im = ax.pcolormesh(grid_x, grid_y, surf, cmap=cmap_z,
+                           norm=norm_z, shading="auto", alpha=0.72, zorder=2)
+        for level, col, lw in [(SD15b, "#005fa3", 1.5), (SD16, "#a30000", 1.5)]:
             try:
-                cs = ax.contour(grid_x, grid_y, surf, levels=8,
-                                colors="navy", linewidths=0.5, alpha=0.5, zorder=3)
-                ax.clabel(cs, inline=True, fontsize=6, fmt="%.1f m")
+                import warnings as _w
+                with _w.catch_warnings():
+                    _w.simplefilter("ignore")
+                    ax.contour(grid_x, grid_y, surf, levels=[level],
+                               colors=[col], linewidths=lw, linestyles="--",
+                               alpha=0.80, zorder=3)
             except Exception:
                 pass
-        _scatter_wells(ax, wt, s=20)
-        cb = fig.colorbar(im, ax=ax, fraction=0.035, pad=0.02)
-        cb.set_label(cb_label, fontsize=9)
-        _kml_legend(ax, kml_h)
+        if head_surf is not None:
+            try:
+                cs = ax.contour(grid_x, grid_y, head_surf, levels=8,
+                                colors="navy", linewidths=0.4,
+                                alpha=0.30, zorder=3)
+                ax.clabel(cs, inline=True, fontsize=5, fmt="%.0f m AOD")
+            except Exception:
+                pass
+        cb_label = "Depth below ground (m)"
+    else:
+        vmin, vmax = np.nanpercentile(surf, 2), np.nanpercentile(surf, 98)
+        im = ax.pcolormesh(grid_x, grid_y, surf, cmap="Blues_r",
+                           shading="auto", vmin=vmin, vmax=vmax,
+                           alpha=0.75, zorder=2)
+        cb_label = "Water table elevation (m AOD)"
 
-    fig.suptitle("Seasonal Water Table Contrast — Newborough Warren 2005–2026",
-                 fontsize=11, fontweight="bold", y=1.01)
+    _scatter_wells(ax, wt, s=25)
+    cb = fig.colorbar(im, ax=ax, fraction=0.03, pad=0.02, shrink=0.85)
+    cb.set_label(cb_label, fontsize=FIG_FONT_LABEL)
+    _kml_legend(ax, kml_h)
     fig.tight_layout()
-    fig.savefig(out_path or OUT_19_HEAD_SEASONAL, dpi=FIG_DPI, bbox_inches="tight")
+    fig.savefig(out_path, dpi=FIG_DPI, bbox_inches="tight", format="jpeg", pil_kwargs={"quality": 85})
     plt.close(fig)
+    print(f"  Saved: {Path(out_path).name}")
+
+
+def plot_seasonal(grid_x, grid_y, head_winter, head_summer, wt, features,
+                  depth_winter=None, depth_summer=None,
+                  out_path=None, out_dir=None):
+    """
+    Produces two separate single-panel seasonal figures:
+      - 19_head_surface_winter.png  (Nov–Mar mean depth / head)
+      - 19_head_surface_summer.png  (May–Sep mean depth / head)
+    out_path kept for compatibility but is ignored; out_dir overrides output folder.
+    """
+    _out = Path(out_dir) if out_dir else OUT_19_HEAD_WINTER.parent
+
+    _plot_seasonal_single(
+        grid_x, grid_y, head_winter, depth_winter, wt, features,
+        f"Mean Winter Depth Below Ground (Nov–Mar, m)\n"
+        f"Newborough Warren 2005–2026",
+        _out / OUT_19_HEAD_WINTER.name
+    )
+    _plot_seasonal_single(
+        grid_x, grid_y, head_summer, depth_summer, wt, features,
+        f"Mean Summer Depth Below Ground (May–Sep, m)\n"
+        f"Newborough Warren 2005–2026",
+        _out / OUT_19_HEAD_SUMMER.name
+    )
     print(f"  Saved: {OUT_19_HEAD_SEASONAL.name}")
 
 
@@ -1859,7 +1859,7 @@ def plot_beta_fields(grid_x, grid_y, b1_surf, b2_surf, b3_surf, wt, features, ou
         f"(IDW from {INT_MASTER_DATA.name}, reference wells only)",
         fontsize=12, fontweight="bold")
     fig.tight_layout()
-    fig.savefig(out_path or OUT_19_BETA_FIELDS, dpi=FIG_DPI, bbox_inches="tight")
+    fig.savefig(out_path or OUT_19_BETA_FIELDS, dpi=FIG_DPI, bbox_inches="tight", format="jpeg", pil_kwargs={"quality": 85})
     plt.close(fig)
     print(f"  Saved: {OUT_19_BETA_FIELDS.name}")
 
@@ -1896,7 +1896,7 @@ def plot_water_balance(grid_x, grid_y, wt, features,
         f"(β coefficients from {INT_MASTER_DATA.name}, IDW-interpolated)",
         fontsize=12, fontweight="bold")
     fig.tight_layout()
-    fig.savefig(out_path or OUT_19_WATER_BALANCE, dpi=FIG_DPI, bbox_inches="tight")
+    fig.savefig(out_path or OUT_19_WATER_BALANCE, dpi=FIG_DPI, bbox_inches="tight", format="jpeg", pil_kwargs={"quality": 85})
     plt.close(fig)
     print(f"  Saved: {OUT_19_WATER_BALANCE.name}")
 
@@ -1923,7 +1923,7 @@ def plot_flux_magnitude(grid_x, grid_y, Qx, Qy, wt, features, out_path=None):
               "Exploratory analysis only. K uncertain at field scale.\n"
               "Values should not be used without independent calibration.")
     fig.tight_layout()
-    fig.savefig(out_path or OUT_19_FLUX_MAP, dpi=FIG_DPI, bbox_inches="tight")
+    fig.savefig(out_path or OUT_19_FLUX_MAP, dpi=FIG_DPI, bbox_inches="tight", format="jpeg", pil_kwargs={"quality": 85})
     plt.close(fig)
     print(f"  Saved: {OUT_19_FLUX_MAP.name}")
 
@@ -1993,7 +1993,7 @@ def plot_residual_comparison(wt, Qx, Qy, grid_x, grid_y, features, mask, sea_pts
         "Spatial agreement confirms ridge-derived boundary subsidy",
         fontsize=11, fontweight="bold")
     fig.tight_layout()
-    fig.savefig(out_path or OUT_19_RESIDUAL_COMP, dpi=FIG_DPI, bbox_inches="tight")
+    fig.savefig(out_path or OUT_19_RESIDUAL_COMP, dpi=FIG_DPI, bbox_inches="tight", format="jpeg", pil_kwargs={"quality": 85})
     plt.close(fig)
     print(f"  Saved: {OUT_19_RESIDUAL_COMP.name}")
 
@@ -2023,7 +2023,7 @@ def plot_storage_change(grid_x, grid_y, storage_surf, wt, features, out_path=Non
               "Storage change = Sy × (mean winter head − mean summer head) × 1000.\n"
               f"Sy source: {sy_source}.")
     fig.tight_layout()
-    fig.savefig(out_path or OUT_19_STORAGE_MAP, dpi=FIG_DPI, bbox_inches="tight")
+    fig.savefig(out_path or OUT_19_STORAGE_MAP, dpi=FIG_DPI, bbox_inches="tight", format="jpeg", pil_kwargs={"quality": 85})
     plt.close(fig)
     print(f"  Saved: {OUT_19_STORAGE_MAP.name}")
 
@@ -2217,7 +2217,7 @@ def plot_depth_to_watertable(grid_x, grid_y, wt, features, out_path=None):
         "Slack thresholds: Curreli et al. (2013)",
         fontsize=FIG_FONT_TITLE, fontweight="bold")
     fig.tight_layout()
-    fig.savefig(out_path or OUT_19_DEPTH_TO_WT, dpi=FIG_DPI, bbox_inches="tight")
+    fig.savefig(out_path or OUT_19_DEPTH_TO_WT, dpi=FIG_DPI, bbox_inches="tight", format="jpeg", pil_kwargs={"quality": 85})
     plt.close(fig)
     print(f"  Saved: {OUT_19_DEPTH_TO_WT.name}")
 
@@ -2331,13 +2331,14 @@ def plot_winter_flooding(grid_x, grid_y, wt, features, out_path=None):
         "Thresholds: Curreli et al. (2013)",
         fontsize=FIG_FONT_TITLE, fontweight="bold")
     fig.tight_layout()
-    fig.savefig(out_path or OUT_19_WINTER_FLOOD, dpi=FIG_DPI, bbox_inches="tight")
+    fig.savefig(out_path or OUT_19_WINTER_FLOOD, dpi=FIG_DPI, bbox_inches="tight", format="jpeg", pil_kwargs={"quality": 85})
     plt.close(fig)
     print(f"  Saved: {OUT_19_WINTER_FLOOD.name}")
 
 
 def main(scenario="baseline", scenario_params=None, output_dir=None,
-         supplementary=False):
+         supplementary=True):
+    print(f"{Path(__file__).name}  v{__version__}")
     # Resolve output directory — defaults to DIR_19 from paths.py
     # When called from the scenario runner, output_dir points to the
     # scenario-specific subfolder so all outputs land there cleanly.
@@ -2540,7 +2541,7 @@ if __name__ == "__main__":
     parser.add_argument("--scenario", default="baseline",
                         choices=["baseline", "forest_removal", "forest_thinning",
                                  "species_change", "climate_change", "annual_prediction"])
-    parser.add_argument("--supplementary", action="store_true",
+    parser.add_argument("--supplementary", action="store_true", default=True,
                         help="Also generate supplementary figures (thickness, "
                              "seasonal, beta fields, water balance, flux, storage, "
                              "depth-to-WT, winter flooding). Default: paper figures only.")

@@ -11,6 +11,8 @@ Tab structure
   Seasonal Profiles  — hydrographs + scatter link
 """
 
+__version__ = "2026-04-15"  # Hollingham (2026) — last revised 2026-04-15
+
 import base64, shutil
 from pathlib import Path
 import sys
@@ -26,6 +28,9 @@ _REL_BASE = "outputs/19_spatial_groundwater"
 _REL_DIFF = f"{_REL_BASE}/difference_maps"
 
 SCATTER_SRC  = OUT_DIR / "14_climate_projections" / "14_seasonal_extremes_scatter.html"
+
+# Difference map format — must match 19a_scenario_runner.py
+DIFF_MAP_FORMAT = "jpg"
 SCATTER_ROOT = ROOT_DIR / "seasonal_extremes_scatter.html"
 
 # ── Figure definitions ─────────────────────────────────────────────────────────
@@ -51,19 +56,18 @@ DIFF_FIELDS = [
     ("summer_depth_bg",     "Summer depth below ground (m)"),
 ]
 BASELINE_FIGS = [
-    ("19_head_mean_darcy.png",     "Mean water table + Darcy flux"),
-    ("19_head_mean_map.png",       "Mean water table (m AOD)"),
-    ("19_head_surface_winter.png", "Winter mean water table"),
-    ("19_head_surface_summer.png", "Summer minimum water table"),
-    ("19_aquifer_thickness.png",   "Aquifer thickness"),
-    ("19_wb_recharge.png",         "Recharge"),
-    ("19_wb_et.png",               "ET draw"),
-    ("19_wb_drainage.png",         "Drainage"),
-    ("19_lateral_flux.png",        "Darcy lateral flux"),
-    ("19_winter_flooding.png",     "Winter flooding"),
-    ("19_depth_to_watertable.png", "Depth to water table"),
-    ("19_storage_change.png",      "Seasonal storage change"),
-    ("19_residual_comparison.png", "SSM lateral inflow residual"),
+    ("19_head_mean_map.jpg",        "Mean water table + Darcy flux"),
+    ("19_head_surface_winter.jpg", "Winter mean water table"),
+    ("19_head_surface_summer.jpg", "Summer minimum water table"),
+    ("19_aquifer_thickness.jpg",   "Aquifer thickness"),
+    ("19_wb_recharge.jpg",         "Recharge"),
+    ("19_wb_et.jpg",               "ET draw"),
+    ("19_wb_drainage.jpg",         "Drainage"),
+    ("19_lateral_flux.jpg",        "Darcy lateral flux"),
+    ("19_winter_flooding.jpg",     "Winter flooding"),
+    ("19_depth_to_watertable.jpg", "Depth to water table"),
+    ("19_storage_change.jpg",      "Seasonal storage change"),
+    ("19_residual_comparison.jpg", "SSM lateral inflow residual"),
 ]
 HYGRO_FIGS = [
     ("cluster_hydrographs.png", "Seasonal hydrographs — all scenarios"),
@@ -170,7 +174,7 @@ def build(linked=False):
         return img(path, fname, rel if linked else None)
 
     def _dimg(sf, col):
-        fname = f"diff_{sf}_{col}.png"
+        fname = f"diff_{sf}_{col}.{DIFF_MAP_FORMAT}"
         path  = DIFF_DIR / sf / fname
         rel   = f"{_REL_DIFF}/{sf}/{fname}"
         return img(path, fname, rel if linked else None)
@@ -295,6 +299,7 @@ def build(linked=False):
 # ── Main ───────────────────────────────────────────────────────────────────────
 def main():
     # Standalone
+    print(f"{Path(__file__).name}  v{__version__}")
     html = build(linked=False)
     out  = BASE_DIR / "scenario_viewer.html"
     out.write_text(html, encoding="utf-8")

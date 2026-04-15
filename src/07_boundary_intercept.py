@@ -263,16 +263,58 @@ def plot_metric_map(map_df, value_col, title, output_path, cmap, vmin=None, vmax
         ctx.add_basemap(ax, crs=gdf_tmp.crs.to_string(), source=ctx.providers.OpenStreetMap.Mapnik, zorder=1, alpha=0.7)
     # --- KML Features (via map_utils — includes broadleaf restock block) ---
     site_feature_handles = add_kml_features(ax, DATA_DIR)
-    # --- Clip NSE_Intercept_Effect to ±0.3 before plotting to prevent CEH3 outlier
-    #     from dominating the colour scale. Raw values are preserved in the CSV output.
-    NSE_CLIP = 0.3
+    # --- Clip NSE_Intercept_Effect asymmetrically before plotting.
+    #     The positive tail (CEH3 = +8.93) is clipped to +0.3 to prevent it dominating
+    #     the colour scale. The negative tail is clipped to -0.05 to match the actual
+    #     data range (worst value = -0.026), giving negative wells proper colour
+    #     separation rather than compressing them all into 9% of a ±0.3 scale.
+    #     Raw values are preserved in the CSV output.
+    # Clip bounds chosen to match the actual data range (excluding CEH3 outlier):
+    # negatives reach -0.026; positives reach +0.266 at CEH17 (excl. CEH3).
+    # Clipping tightly ensures the bulk of the distribution spreads across the
+    # full colour scale rather than being compressed into a narrow central band.
+    NSE_CLIP_POS = 0.30   # CEH17 (+0.266) near max; CEH14/CEH21 at ~25-30% — but colormap
+    #                        anchors are lightened so even the max is pale, not dark navy
+    NSE_CLIP_NEG = -0.03  # CEH32 (-0.026) near max red; mid-range negatives visible
+    NSE_CLIP = NSE_CLIP_POS   # retained for colorbar label
     if value_col == 'NSE_Intercept_Effect':
         valid = valid.copy()
-        valid[value_col] = valid[value_col].clip(-NSE_CLIP, NSE_CLIP)
+        valid[value_col] = valid[value_col].clip(NSE_CLIP_NEG, NSE_CLIP_POS)
+
+    # --- Build colour norm and cmap BEFORE scatter loop so all clusters use them ---
+    import matplotlib.colors as mcolors
+    if value_col.lower().startswith('model_b_intercept'):
+        if vmin is not None and vmax is not None:
+            plot_norm = mcolors.TwoSlopeNorm(vmin=float(vmin), vcenter=0.0, vmax=float(vmax))
+        else:
+            max_abs = np.nanpercentile(np.abs(valid[value_col].to_numpy(dtype=float)), 99)
+            max_abs = max(float(max_abs) * 1.15, 0.08)
+            plot_norm = mcolors.TwoSlopeNorm(vmin=-max_abs, vcenter=0.0, vmax=max_abs)
+        plot_cmap = cmap
+    elif value_col == 'NSE_Intercept_Effect':
+        # Asymmetric norm — tight negative clip (-0.03) so negative wells spread
+        # across the full red range; positive side up to +0.30.
+        plot_norm = mcolors.TwoSlopeNorm(vmin=NSE_CLIP_NEG, vcenter=0.0, vmax=NSE_CLIP_POS)
+        # Custom colormap: tops out at pale steel blue so no part of the positive
+        # range goes dark navy (which looks identical to dark red at a glance).
+        plot_cmap = mcolors.LinearSegmentedColormap.from_list(
+            'RdWBu',
+            [(0.0,  '#CC0000'),   # medium red      — strongly detrimental
+             (0.30, '#FF9999'),   # pale red         — mildly detrimental
+             (0.5,  '#FFFFFF'),   # white            — neutral
+             (0.70, '#87CEEB'),   # sky blue         — mildly beneficial
+             (0.85, '#4A90D9'),   # medium blue      — moderately beneficial
+             (1.0,  '#1E6FBF')],  # deeper blue      — strongly beneficial (clipped max)
+            N=256)
+    else:
+        max_abs = np.nanpercentile(np.abs(valid[value_col].to_numpy(dtype=float)), 99)
+        max_abs = max(float(max_abs) * 1.15, 0.02)
+        plot_norm = mcolors.TwoSlopeNorm(vmin=-max_abs, vcenter=0.0, vmax=max_abs)
+        plot_cmap = cmap
 
     # --- Plot Wells by Cluster Shape ---
     handles = []
-    scatter_kwargs = {'cmap': cmap, 'vmin': vmin, 'vmax': vmax, 'norm': None}
+    scatter_kwargs = {'cmap': plot_cmap, 'norm': plot_norm, 'vmin': None, 'vmax': None}
     for cluster_id in sorted(valid['Cluster_ID'].dropna().unique()):
         marker = CLUSTER_MARKERS.get(int(cluster_id), 'o')
         cluster_points = valid[valid['Cluster_ID'] == cluster_id]
@@ -286,44 +328,24 @@ def plot_metric_map(map_df, value_col, title, output_path, cmap, vmin=None, vmax
             edgecolor='black',
             linewidth=0.6,
             alpha=0.9,
-            norm=scatter_kwargs.get('norm', None),
-            vmin=scatter_kwargs.get('vmin', None),
-            vmax=scatter_kwargs.get('vmax', None),
+            norm=scatter_kwargs['norm'],
             label=CLUSTER_LABELS.get(int(cluster_id), f"C{int(cluster_id)}")
         )
         handles.append(
             plt.Line2D([0], [0], marker=marker, color='w', label=CLUSTER_LABELS.get(int(cluster_id), f"C{int(cluster_id)}"),
                        markerfacecolor='gray', markeredgecolor='black', markersize=12, linestyle='None')
         )
-    # --- Enhanced color scaling for visibility ---
-    import matplotlib.colors as mcolors
-    if value_col.lower().startswith('model_b_intercept'):
-        # Use caller-supplied symmetric bounds when available; otherwise infer robust bounds.
-        if vmin is not None and vmax is not None:
-            norm = mcolors.TwoSlopeNorm(vmin=float(vmin), vcenter=0.0, vmax=float(vmax))
-        else:
-            max_abs = np.nanpercentile(np.abs(valid[value_col].to_numpy(dtype=float)), 99)
-            max_abs = max(float(max_abs) * 1.15, 0.08)
-            norm = mcolors.TwoSlopeNorm(vmin=-max_abs, vcenter=0.0, vmax=max_abs)
-        sc.set_norm(norm)
-    elif value_col == 'NSE_Intercept_Effect':
-        # Data already clipped to ±0.3 above; set norm to match exactly.
-        norm = mcolors.TwoSlopeNorm(vmin=-NSE_CLIP, vcenter=0.0, vmax=NSE_CLIP)
-        sc.set_norm(norm)
-        sc.set_cmap('RdBu')
-    elif value_col.lower().startswith('nse_intercept_effect') or 'intercept_effect' in value_col.lower():
-        # Fallback for any other intercept effect columns
-        max_abs = np.nanpercentile(np.abs(valid[value_col].to_numpy(dtype=float)), 99)
-        max_abs = max(float(max_abs) * 1.15, 0.02)
-        norm = mcolors.TwoSlopeNorm(vmin=-max_abs, vcenter=0.0, vmax=max_abs)
-        sc.set_norm(norm)
-        sc.set_cmap('RdBu')
 
     divider = make_axes_locatable(ax)
     cax_metric = divider.append_axes("right", size="2.75%", pad=0.598)
     cbar = fig.colorbar(sc, cax=cax_metric)
     if value_col == 'NSE_Intercept_Effect':
-        cbar.set_label('NSE Intercept Effect (Model B - Model A)\nCEH3 = +8.93, clipped to ±0.3', rotation=270, labelpad=32, fontsize=14)
+        cbar.set_label('NSE Intercept Effect (Model B - Model A)\nCEH3 = +8.93; clipped to −0.03 / +0.30', rotation=270, labelpad=32, fontsize=14)
+        # Explicit ticks to ensure negative side is labelled — automatic
+        # placement puts nearly all ticks on the positive side given the asymmetric norm.
+        cbar.set_ticks([-0.03, -0.02, -0.01, 0.0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30])
+        cbar.set_ticklabels(['-0.03', '-0.02', '-0.01', '0', '+0.05', '+0.10',
+                             '+0.15', '+0.20', '+0.25', '+0.30'])
     else:
         cbar.set_label(value_col.replace('_', ' '), rotation=270, labelpad=32, fontsize=14)
     # Place DEM scale to the right of the metric scale.

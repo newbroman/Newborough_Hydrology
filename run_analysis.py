@@ -57,10 +57,10 @@ PHASE_7 = [
     ("16_water_bal.py", "19/23  Water balance decomposition"),
 ]
 PHASE_8 = [
-    ("18_wtf_spatial.py", "20/23  WTF spatial analysis and Sy mapping"),
+    ("18_wtf_spatial.py", "20/23  WTF spatial analysis and Sy mapping", ["--supplementary"]),
 ]
 PHASE_9 = [
-    ("19_spatial_groundwater.py", "21/23  Spatial groundwater analysis"),
+    ("19_spatial_groundwater.py", "21/23  Spatial groundwater analysis", ["--supplementary"]),
     ("20_spatial_figures.py",     "22/23  Spatial paper figures"),
 ]
 PHASE_10 = [

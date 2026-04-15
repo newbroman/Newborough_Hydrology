@@ -46,6 +46,10 @@ python run_analysis.py --viewer        # build scenario viewer only
 ```text
 Newborough_Hydro_Models/
 ├── data/                        Input CSV, KML, and DEM assets (not versioned)
+│   ├── streams.kml              SAGA-derived stream network (used by scripts 19, 20)
+│   ├── site_boundary.kml        Dissolved stream-cell boundary — study area mask for script 19
+│   ├── Features.kml             Site features (dipwell transects, forest boundary, lake)
+│   └── clearfell.kml            Clearfell experiment boundary
 ├── outputs/                     Generated tables and figures (not versioned)
 │   ├── 01_locations.csv                ┐
 │   ├── 01_climate.csv                  │
@@ -59,29 +63,16 @@ Newborough_Hydro_Models/
 │   ├── 03_regional_averages.csv        │
 │   ├── 03_cluster_averages_maod.csv    │  Cluster mean heads in maOD (feeds 21)
 │   └── 17_wtf_well_sy.csv             ┘  Per-well Sy intermediate (feeds 18, 19)
-│   ├── 00_climate_summary/
-│   ├── 02_clustering/
-│   ├── 03_state_space_model/
-│   ├── 04_cluster_visualisations/
-│   ├── 05_pearson_affinity/
-│   ├── 06_pearson_extended/
-│   ├── 07_boundary_intercept/
-│   ├── 08_model_benchmarking/
-│   ├── 09_scraping_intervention/
-│   ├── 10_clearfell_baci/
-│   ├── 11_forecasting_thresholds/
-│   ├── 11b_spatial_thresholds/
-│   ├── 12_figure_site_overview/
-│   ├── 13_figure_experimental_design/
-│   ├── 14_climate_projections/
-│   ├── 15_depth_dependent_pet/
-│   ├── 16_water_balance/
-│   ├── 17_wtf_specific_yield/
-│   ├── 18_wtf_spatial/
 │   ├── 19_spatial_groundwater/
-│   │   └── scenario_viewer.html       ← self-contained interactive viewer
-│   ├── 20_spatial_figures/
-│   └── 21_forestry_scenarios/
+│   │   ├── scenario_viewer.html        ← self-contained interactive viewer (standalone)
+│   │   ├── baseline/                   ← baseline scenario outputs
+│   │   ├── forest_removal/             ← clearfell scenario outputs
+│   │   ├── forest_thinning/            ← 50% thinning scenario outputs
+│   │   ├── species_change/             ← broadleaf conversion scenario outputs
+│   │   ├── climate_dry/                ← climate dry scenario outputs
+│   │   ├── climate_wet/                ← climate wet scenario outputs
+│   │   └── difference_maps/            ← per-field Δ maps vs baseline
+│   └── [other output directories]
 ├── src/                         Analysis scripts (23 steps + 2 viewer scripts)
 │   ├── utils/
 │   │   ├── config.py            Cluster colours and labels
@@ -89,31 +80,12 @@ Newborough_Hydro_Models/
 │   │   ├── map_utils.py         DEM, KML, and basemap helpers
 │   │   ├── model_utils.py       SSM fitting helpers
 │   │   └── paths.py             All path constants — single source of truth
-│   ├── 00_climate_summary.py
-│   ├── 01_data_prep.py
-│   ├── 02_clustering.py
-│   ├── 03_state_space_model.py
-│   ├── 04_cluster_visualisations.py
-│   ├── 05_pearson_affinity.py
-│   ├── 06_pearson_extended.py
-│   ├── 07_boundary_intercept.py
-│   ├── 08_model_benchmarking.py
-│   ├── 09_scraping_intervention.py
-│   ├── 10_clearfell_baci.py
-│   ├── 11_forecasting_thresholds.py
-│   ├── 11b_spatial_thresholds.py
-│   ├── 12_figure_site_overview.py
-│   ├── 13_figure_experimental_design.py
-│   ├── 14_climate_projections.py
-│   ├── 15_depth_dependent_pet.py
-│   ├── 16_water_bal.py
-│   ├── 17_wtf_specific_yield.py
-│   ├── 18_wtf_spatial.py
 │   ├── 19_spatial_groundwater.py
-│   ├── 19a_scenario_runner.py   Generates scenario head surfaces for viewer
-│   ├── 19b_build_viewer.py      Assembles self-contained HTML viewer
-│   ├── 20_spatial_figures.py
-│   └── 21_forestry_scenarios.py
+│   ├── 19a_scenario_runner.py   Runs all scenarios; generates per-field difference maps
+│   ├── 19b_build_viewer.py      Assembles self-contained HTML scenario viewer
+│   └── [other scripts]
+├── scenario_viewer.html         Lightweight linked viewer for GitHub Pages
+├── seasonal_extremes_scatter.html  Interactive scatter plot (from script 14)
 ├── readme.md
 ├── requirements.txt
 └── run_analysis.py              Interactive pipeline orchestrator
@@ -130,6 +102,7 @@ Ten sequential phases, 23 steps total. Validation checkpoints run after Phases 1
 - Script 18 (WTF spatial) must run before script 19 (spatial groundwater)
 - Script 11b runs after scripts 11 and 06
 - Script 21 requires `03_cluster_averages_maod.csv` from script 03
+- Option 4 (scenario viewer) requires script 19 to have run; script 14 should also have run for the seasonal extremes scatter to be populated
 
 | Phase | Scripts | Steps | Purpose |
 |-------|---------|-------|---------|
@@ -148,15 +121,51 @@ Ten sequential phases, 23 steps total. Validation checkpoints run after Phases 1
 
 ## Scenario Viewer
 
-The interactive scenario viewer is a self-contained HTML file that opens in any browser with no server required. It is built by running option 4 from the menu (or `python run_analysis.py --viewer`), which calls scripts 19a and 19b in sequence.
+The interactive scenario viewer is built by running **option 4** from the menu (or `python run_analysis.py --viewer`). This calls scripts 19a and 19b in sequence and produces two output files:
 
-The viewer contains three tabs:
+- `outputs/19_spatial_groundwater/scenario_viewer.html` — standalone self-contained file (all images base64-embedded; ~60–130 MB depending on scenarios run); opens directly in any browser with no server required
+- `scenario_viewer.html` — lightweight linked viewer (~22 KB) for use with GitHub Pages; images are loaded from the `outputs/` folder by relative path
 
-- **Scenario Figures** — IDW head surfaces, Darcy flux, water balance, winter flooding, and storage change maps under six management/climate scenarios (baseline, full clearfell, 50% thinning, broadleaf conversion, climate dry, climate wet)
-- **Difference Maps** — scenario vs baseline anomaly maps (blue = wetter, red = drier)
-- **Seasonal Extremes** — interactive scatter plot of mean annual summer minimum vs winter maximum water table depth per well, coloured by hydrogeological cluster, with Curreli et al. (2013) ecological threshold lines and a well-search function
+The viewer has four tabs:
 
-Script 14 must have been run before the viewer is built for the seasonal extremes tab to be populated.
+- **Forest Management** — per-field difference maps (Δ vs baseline) for clearfell, 50% thinning, and broadleaf conversion scenarios
+- **Climate Change** — per-field difference maps for climate dry (ΔP −10%, ΔPET +10%) and climate wet (ΔP +10%, ΔPET −5%) scenarios
+- **Baseline Maps** — all spatial groundwater figures under observed 2005–2026 conditions
+- **Seasonal Profiles** — cluster seasonal water table hydrographs with Curreli et al. (2013) ecological thresholds; link to seasonal extremes scatter plot
+
+**Colour convention throughout:** red = drier / more than baseline; blue = wetter / less than baseline. Maps are auto-scaled from the p5–p95 of actual well Δ values. Maps where |Δ| is below a meaningful threshold are omitted rather than shown as noise.
+
+**Scenario definitions:**
+
+| Scenario | Parameters | Site-wide mean Δh |
+|----------|-----------|-------------------|
+| Full clearfell | β₂ ×1.15 for C4; interception removed | C4 only: −0.145 m |
+| Forest thinning | 50% of clearfell effect | C4 only: −0.073 m |
+| Broadleaf conversion | β₁ ×0.90 for C4 in autumn | C4 only: −0.003 m |
+| Climate dry | ΔP = −89 mm/yr, ΔPET = +54 mm/yr | −0.165 m |
+| Climate wet | ΔP = +89 mm/yr, ΔPET = −27 mm/yr | +0.112 m |
+
+---
+
+## Data Dependencies for Script 19
+
+Script 19 requires the following files in `data/`:
+
+| File | Purpose |
+|------|---------|
+| `site_boundary.kml` | Study area boundary mask — dissolved SAGA stream-cell polygons in WGS84. Used by `make_site_mask()` to clip interpolated surfaces to the dune system outline. Read via pure XML + pyproj + shapely (no fiona KML driver required). Falls back to a rectangular sea-boundary mask if absent. |
+| `streams.kml` | SAGA stream network — used for stream polyline rendering in figures. Separate from `site_boundary.kml`. |
+| `newborough_dem.tif` | LiDAR DEM — used for greyscale hillshade base layer. |
+| `Features.kml` | Site features overlay (transects, forest boundary, lake, clearfell area). |
+
+**Wells excluded from spatial interpolation:**
+
+| Well | Reason |
+|------|--------|
+| CEH3 | Perched above the regional water table — unrepresentative head values |
+| CEH17 | Poorest SSM fit on site (R² = 0.427); β₁ = 0.694 and β₃ = 0.049 are both site minima; inflates lateral inflow residual |
+
+These wells remain in all SSM fitting and clustering analyses — they are excluded only from the spatial interpolation figures in script 19.
 
 ---
 
@@ -164,7 +173,7 @@ Script 14 must have been run before the viewer is built for the seasonal extreme
 
 - Python 3.10 or later required (3.12 tested).
 - All file paths are defined in `src/utils/paths.py` — no hardcoded paths in any analysis script.
-- KML support requires Fiona with the LIBKML driver enabled.
+- KML support in script 19 uses pure XML + pyproj + shapely (no fiona KML driver required).
 - Stream network skeletonisation (script 20) requires scikit-image.
 - The `outputs/` directory should be excluded from version control.
 - Scripts 18 and 19 accept a `--supplementary` flag to generate diagnostic figures not cited in the main paper body.

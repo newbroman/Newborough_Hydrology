@@ -405,7 +405,6 @@
     <li><a href="#publications">Publications</a></li>
     <li><a href="#about">About the study</a></li>
     <li><a href="#pipeline">Running the pipeline</a></li>
-    <li><a href="https://doi.org/10.5281/zenodo.19567643" target="_blank" rel="noopener">Data archive ↗</a></li>
   </ul>
 </nav>
 
@@ -453,21 +452,6 @@
         </a>
       </div>
 
-      <div class="tool-card">
-        <span class="tool-card-tag">Data archive</span>
-        <h3>Zenodo Research Archive</h3>
-        <p>
-          Permanent archive of the full analysis pipeline, input datasets, and
-          supporting outputs. Citable DOI for use in academic references and
-          the manuscript Data Availability Statement.
-        </p>
-        <a class="btn btn-primary"
-           href="https://doi.org/10.5281/zenodo.19567643"
-           target="_blank" rel="noopener">
-          View on Zenodo →
-        </a>
-      </div>
-
     </div>
   </section>
 
@@ -503,20 +487,6 @@
             newbroman.github.io/Newborough_Hydrology/scenario_viewer.html
           </a>
         </span>
-      </li>
-
-      <li>
-        <span class="pub-title">
-          Newborough Warren Groundwater Analysis Pipeline
-        </span>
-        <span class="pub-detail">
-          Hollingham, M. (2026b) — analysis pipeline and dataset archive [Software/Data].
-          Zenodo. <a href="https://doi.org/10.5281/zenodo.19567643">doi.org/10.5281/zenodo.19567643</a>
-        </span>
-        <div class="pub-links">
-          <a class="btn btn-secondary" href="https://doi.org/10.5281/zenodo.19567643"
-             target="_blank" rel="noopener">View archive →</a>
-        </div>
       </li>
 
     </ul>
@@ -620,13 +590,11 @@
     </div>
 
     <div class="requirements-note">
-      <strong>Note:</strong> Stream network skeletonisation (script 20) requires scikit-image.
-      Site boundary masking (script 19) uses shapely, pyproj, and scipy — no GDAL KML driver required.
+      <strong>Note:</strong> KML support requires Fiona with the LIBKML driver enabled.
+      Stream network skeletonisation (script 20) requires scikit-image.
       The <code>outputs/</code> directory should be excluded from version control.
       See <code>readme.md</code> in the repository for a full description of each
       script's inputs, outputs, and ordering constraints.
-      Full pipeline and datasets archived at
-      <a href="https://doi.org/10.5281/zenodo.19567643">doi.org/10.5281/zenodo.19567643</a>.
     </div>
   </section>
 
@@ -646,10 +614,6 @@
       <span>M. Hollingham, 2026</span><br>
       <a href="https://github.com/newbroman/Newborough_Hydrology" style="font-size:0.78rem;">
         GitHub repository
-      </a>
-      &nbsp;·&nbsp;
-      <a href="https://doi.org/10.5281/zenodo.19567643" style="font-size:0.78rem;">
-        Zenodo archive
       </a>
     </div>
   </div>

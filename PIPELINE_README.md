@@ -68,6 +68,8 @@ utils/                         ← shared utility modules
 | DEM `.tif` files | LiDAR Digital Terrain Model (NRW, 2023) | 04, 05, 06, 07, 08, 12, 13 |
 | KML boundary files | Site features (clearfell, hydro boundaries) | 04, 12, 13 |
 | `broadleaf_restock.kml` | 1993/1996 broadleaf restocking block boundary; geometry also embedded in `Features.kml` | 12, 13 |
+| `streams.kml` | SAGA-derived stream network (2×2 m cells, 9,847 cells) | 19, 20 |
+| `site_boundary.kml` | Dissolved stream-cell polygons — study area mask for script 19 spatial interpolation | 19 |
 
 ---
 
@@ -609,6 +611,19 @@ SCRIPT 17 → SCRIPT 16 → SCRIPT 18 → SCRIPT 19 → SCRIPT 20
 - geopandas/fiona CAN read this file (MultiPolygon geometries intact)
 - Scripts 19 and 20 skeletonise this grid to produce connected stream polylines
 
+## Site Boundary KML
+
+`data/site_boundary.kml` defines the spatial interpolation domain for script 19:
+- Source: dissolved SAGA stream-cell polygons (same source as streams.kml)
+- Format: WGS84 MultiPolygon KML — 23,094 small polygons covering the dune system
+- Used by: `make_site_mask()` in script 19 only
+- Method: read via pure XML + pyproj + shapely (no fiona KML driver required);
+  all polygon coordinates projected to OSGB36, dissolved via shapely unary_union,
+  buffered 100 m to fill inter-cell gaps, exterior used as matplotlib Path mask
+- Fallback: if file absent or shapely fails, rectangular sea-boundary mask applied
+- Do NOT use as a substitute for streams.kml in scripts 19 or 20 — these are
+  separate files with separate purposes
+
 ---
 
 ## DEM Corrections for Scraped Wells
@@ -662,6 +677,35 @@ Two wells were scraped after the LiDAR survey was flown. Scripts 11b, 19, and
 - Script 19: Connell (2003) K reference corrected to Betson et al. (2002)
 - Script 19: D8 stream network uses SAGA KML skeletonisation rather than
   pure D8 flow accumulation (cleaner lines on flat dune plain)
+
+### Script 19 — spatial analysis updates (April 2026)
+- **Well exclusions:** CEH3 (perched water table) and CEH17 (R² = 0.427,
+  β₁ = 0.694 and β₃ = 0.049 both site minima) excluded from spatial
+  interpolation via `SPATIAL_EXCLUDE` set in `build_well_table()`. Both wells
+  remain in all SSM fitting and clustering analyses.
+- **Depth columns in water balance CSV:** `mean_depth_bg`, `winter_depth_bg`,
+  `summer_depth_bg`, and `dem_elev` now written to
+  `19_water_balance_summary.csv` for use by scenario difference maps.
+- **Depth recomputation in scenarios:** `_recompute()` now updates all three
+  depth columns after any scenario head shift, so scenario CSVs carry correct
+  depth values rather than baseline values.
+- **Site boundary mask:** `make_site_mask()` now uses `data/site_boundary.kml`
+  (dissolved stream-cell polygons) via pure XML + pyproj + shapely to produce
+  a geographically accurate interpolation mask. Falls back to the rectangular
+  sea-boundary mask if the file is absent or any dependency fails.
+
+### Scripts 19a and 19b — scenario viewer (April 2026)
+- Complete rewrite of both scripts.
+- 19a generates per-field difference maps (Δ scenario vs baseline) for all
+  six scenarios across ten water balance and head fields. Maps are auto-scaled
+  from well-level p5–p95 Δ values; maps below a per-field threshold are omitted.
+- 19b builds a four-tab HTML viewer: Forest Management, Climate Change,
+  Baseline Maps, Seasonal Profiles. Produces both a standalone base64-embedded
+  viewer and a lightweight linked viewer for GitHub Pages.
+- Colour convention: red = drier/more than baseline; blue = wetter/less.
+  RdBu colourmap for head and recharge (positive = wetter = blue);
+  RdBu_r for depth, ET, and drainage (positive = drier = red);
+  YlOrRd for seasonal storage change (magnitude only).
 
 ### Script 19 — map extent
 - All figures now explicitly set xlim(240100, 243900), ylim(362200, 365800)

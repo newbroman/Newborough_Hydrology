@@ -1,548 +1,205 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Newborough Warren — Scenario Viewer</title>
-<style>
-  :root {
-    --bg: #1a1a2e;
-    --surface: #16213e;
-    --card: #0f3460;
-    --accent: #e94560;
-    --text: #eaeaea;
-    --muted: #8892b0;
-    --border: #334;
-    --green: #64ffda;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: "Segoe UI", system-ui, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-  }
-
-  /* ── Header ── */
-  header {
-    background: var(--surface);
-    border-bottom: 2px solid var(--accent);
-    padding: 16px 24px;
-    display: flex;
-    align-items: baseline;
-    gap: 16px;
-  }
-  header h1 { font-size: 1.3rem; color: var(--green); }
-  header p  { font-size: 0.8rem; color: var(--muted); }
-  .badge {
-    margin-left: auto;
-    font-size: 0.72rem;
-    color: var(--muted);
-    background: var(--card);
-    padding: 4px 10px;
-    border-radius: 12px;
-  }
-
-  /* ── Main tabs ── */
-  .main-nav {
-    display: flex;
-    gap: 4px;
-    padding: 12px 24px 0;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-  }
-  .main-tab {
-    padding: 8px 18px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-bottom: none;
-    border-radius: 6px 6px 0 0;
-    color: var(--muted);
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .main-tab.active {
-    background: var(--bg);
-    color: var(--green);
-    border-color: var(--accent);
-  }
-
-  /* ── Figure sub-tabs ── */
-  .fig-nav {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    padding: 12px 24px;
-    background: var(--bg);
-    border-bottom: 1px solid var(--border);
-  }
-  .tab-btn {
-    padding: 5px 12px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    color: var(--muted);
-    font-size: 0.78rem;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .tab-btn.active {
-    background: var(--accent);
-    color: white;
-    border-color: var(--accent);
-  }
-  .tab-btn:hover { color: var(--text); }
-
-  /* ── Content ── */
-  .content { padding: 20px 24px; }
-  h2 {
-    font-size: 1rem;
-    color: var(--green);
-    margin-bottom: 16px;
-    padding-bottom: 6px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  /* ── Scenarios grid ── */
-  .scenarios-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
-    gap: 16px;
-  }
-  .scenarios-grid.single {
-    grid-template-columns: 1fr;
-    max-width: 900px;
-  }
-  .scenario-panel {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
-    transition: box-shadow 0.2s;
-  }
-  .scenario-panel:hover {
-    box-shadow: 0 4px 20px rgba(100,255,218,0.15);
-  }
-  .scenario-panel.wide { grid-column: 1 / -1; }
-  .scenario-label {
-    padding: 8px 14px;
-    background: var(--card);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-  }
-  .scen-name { font-size: 0.85rem; font-weight: 600; color: var(--green); }
-  .scen-desc { font-size: 0.72rem; color: var(--muted); }
-  .scenario-img { width: 100%; height: auto; display: block; cursor: zoom-in; }
-  .missing {
-    padding: 40px;
-    text-align: center;
-    color: var(--muted);
-    font-size: 0.8rem;
-    background: var(--card);
-    min-height: 100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .hidden { display: none !important; }
-
-  /* ── Lightbox ── */
-  #lightbox {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.92);
-    z-index: 1000;
-    cursor: zoom-out;
-    align-items: center;
-    justify-content: center;
-  }
-  #lightbox.show { display: flex; }
-  #lightbox img {
-    max-width: 96vw;
-    max-height: 96vh;
-    object-fit: contain;
-    border: 2px solid var(--green);
-    border-radius: 4px;
-  }
-  #lightbox-close {
-    position: absolute;
-    top: 16px; right: 20px;
-    font-size: 2rem;
-    color: var(--green);
-    cursor: pointer;
-    background: none;
-    border: none;
-    line-height: 1;
-  }
-
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
-  /* ── Scatter ── */
-  .scatter-wrap {
-    background: white;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-  .scatter-wrap iframe {
-    width: 100%;
-    height: 620px;
-    border: none;
-    display: block;
-  }
-  .scatter-missing {
-    padding: 60px 40px;
-    text-align: center;
-    color: var(--muted);
-    font-size: 0.85rem;
-    background: var(--surface);
-    border: 1px dashed var(--border);
-    border-radius: 8px;
-  }
-  .scatter-missing code {
-    display: block;
-    margin-top: 10px;
-    font-size: 0.75rem;
-    color: var(--accent);
-  }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Newborough Warren — Scenario Viewer</title>
+  <style>
+:root{--bg:#0d1117;--surf:#161b22;--card:#1f2937;--border:#30363d;
+      --text:#e6edf3;--muted:#8b949e;--accent:#64ffda;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);
+     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+     font-size:14px;line-height:1.5;}
+/* ── Nav bar ── */
+.navbar{background:var(--surf);border-bottom:2px solid var(--accent);
+        position:sticky;top:0;z-index:100;}
+.navbar-top{display:flex;align-items:center;padding:8px 12px 6px;
+            border-bottom:1px solid var(--border);}
+.navbar h1{font-size:1.05rem;color:var(--accent);font-weight:700;
+           white-space:nowrap;margin:0;}
+.scatter-nav-link{margin-left:auto;padding:4px 12px;
+                  color:var(--accent);font-size:0.82rem;
+                  text-decoration:none;white-space:nowrap;}
+.scatter-nav-link:hover{text-decoration:underline;}
+.navbar-tabs{display:flex;align-items:center;padding:0 8px;}
+.nav-tab{background:none;border:none;color:var(--muted);font-size:0.85rem;
+         padding:10px 16px;cursor:pointer;
+         border-bottom:3px solid transparent;
+         transition:color 0.15s;white-space:nowrap;}
+.nav-tab:hover{color:var(--text);}
+.nav-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+/* ── Panels ── */
+.panel{padding:18px 22px;}
+.hidden{display:none!important;}
+.sec-title{font-size:1.0rem;color:var(--accent);font-weight:600;
+           border-bottom:1px solid var(--border);padding-bottom:5px;
+           margin-bottom:4px;}
+.sec-desc{color:var(--muted);font-size:0.78rem;margin-bottom:14px;}
+/* ── Grids ── */
+.grid-1{display:grid;grid-template-columns:1fr;gap:16px;}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+.grid-auto{display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(480px,1fr));gap:14px;}
+/* ── Scenario groups ── */
+.scen-group{margin-bottom:24px;}
+.scen-group-title{font-size:0.95rem;font-weight:700;color:var(--accent);
+                  padding:6px 0;border-bottom:1px solid var(--border);
+                  margin-bottom:10px;}
+/* ── Cards ── */
+.card{background:var(--surf);border:1px solid var(--border);
+      border-radius:8px;overflow:hidden;}
+.card:hover{border-color:var(--accent);}
+.card-label{background:var(--card);border-bottom:1px solid var(--border);
+            padding:5px 11px;font-size:0.74rem;color:var(--muted);}
+.card-label strong{color:var(--text);}
+.fig-img{width:100%;display:block;}
+.missing{padding:20px;text-align:center;color:var(--muted);
+         font-size:0.75rem;border:1px dashed var(--border);margin:6px;}
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
 </style>
 </head>
 <body>
-
-<header>
-  <h1>Newborough Warren — Groundwater Scenario Viewer</h1>
-  <p>Hydrogeological Dynamics, Behavioural Clustering and Management
-     Intervention Analysis &nbsp;|&nbsp; Hollingham (2026)</p>
-  <span class="badge">8/45 scenario figures &nbsp;·&nbsp;
-    7/7 difference maps &nbsp;·&nbsp; GitHub Pages</span>
-</header>
-
-<nav class="main-nav">
-  <button class="main-tab active" onclick="showMain('scenarios')">Scenario Figures</button>
-  <button class="main-tab" onclick="showMain('diffs')">Difference Maps</button>
-  <button class="main-tab" onclick="showMain('scatter')">Seasonal Extremes</button>
+<nav class="navbar">
+  <div class="navbar-top">
+    <h1>Newborough Warren — Groundwater Scenario Viewer</h1>
+    <a class="scatter-nav-link" href="seasonal_extremes_scatter.html" target="_blank">&#x2197; Seasonal Extremes scatter</a>
+  </div>
+  <div class="navbar-tabs">
+    <button class="nav-tab active" data-tab="forest"
+            onclick="showTab('forest')">Forest Management</button>
+    <button class="nav-tab" data-tab="climate"
+            onclick="showTab('climate')">Climate Change</button>
+    <button class="nav-tab" data-tab="baseline"
+            onclick="showTab('baseline')">Baseline Maps</button>
+    <button class="nav-tab" data-tab="hygro"
+            onclick="showTab('hygro')">Seasonal Profiles</button>
+  </div>
 </nav>
 
-<div id="main-scenarios">
-  <div class="fig-nav"><button class="tab-btn active" onclick="showTab('fig_0')">Mean head + Darcy flux</button>
-<button class="tab-btn " onclick="showTab('fig_1')">Seasonal head (winter/summer)</button>
-<button class="tab-btn " onclick="showTab('fig_2')">Darcy lateral flux</button>
-<button class="tab-btn " onclick="showTab('fig_3')">Water balance components</button>
-<button class="tab-btn " onclick="showTab('fig_4')">Winter flooding</button>
-<button class="tab-btn " onclick="showTab('fig_5')">Depth to water table</button>
-<button class="tab-btn " onclick="showTab('fig_6')">Seasonal storage change</button>
-<button class="tab-btn " onclick="showTab('fig_7')">β coefficient fields</button>
-<button class="tab-btn " onclick="showTab('fig_8')">Aquifer thickness</button>
-<button class="tab-btn " onclick="showTab('fig_9')">Residual comparison</button>
-</div>
-  <div class="content">
-        <div id="fig_0" class="tab-panel ">
-          <h2>Mean head + Darcy flux</h2>
-          <div class="scenarios-grid">
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Baseline</span><span class="scen-desc">2005–2026 observed mean</span></div>
-              <div class="missing">Image not found:<br>Baseline — Mean head + Darcy flux</div>
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Full clearfell</span><span class="scen-desc">β₂ ×1.15, interception removed</span></div>
-              <div class="missing">Image not found:<br>Full clearfell — Mean head + Darcy flux</div>
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Forest thinning 50%</span><span class="scen-desc">Partial removal effect</span></div>
-              <div class="missing">Image not found:<br>Forest thinning 50% — Mean head + Darcy flux</div>
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Broadleaf conversion</span><span class="scen-desc">β₁ ×0.90 in autumn</span></div>
-              <img src="outputs/19_spatial_groundwater/species_change/19_head_surface_mean.png" alt="Broadleaf conversion — Mean head + Darcy flux" class="scenario-img" onclick="zoom(this)" />
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Climate — dry</span><span class="scen-desc">ΔP −10%, ΔPET +10%</span></div>
-              <div class="missing">Image not found:<br>Climate — dry — Mean head + Darcy flux</div>
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Climate — wet</span><span class="scen-desc">ΔP +10%, ΔPET −5%</span></div>
-              <div class="missing">Image not found:<br>Climate — wet — Mean head + Darcy flux</div>
-            </div></div>
-        </div>
-        <div id="fig_1" class="tab-panel hidden">
-          <h2>Seasonal head (winter/summer)</h2>
-          <div class="scenarios-grid">
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Baseline</span><span class="scen-desc">2005–2026 observed mean</span></div>
-              <div class="missing">Image not found:<br>Baseline — Seasonal head (winter/summer)</div>
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Full clearfell</span><span class="scen-desc">β₂ ×1.15, interception removed</span></div>
-              <div class="missing">Image not found:<br>Full clearfell — Seasonal head (winter/summer)</div>
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Forest thinning 50%</span><span class="scen-desc">Partial removal effect</span></div>
-              <div class="missing">Image not found:<br>Forest thinning 50% — Seasonal head (winter/summer)</div>
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Broadleaf conversion</span><span class="scen-desc">β₁ ×0.90 in autumn</span></div>
-              <img src="outputs/19_spatial_groundwater/species_change/19_head_surface_seasonal.png" alt="Broadleaf conversion — Seasonal head (winter/summer)" class="scenario-img" onclick="zoom(this)" />
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Climate — dry</span><span class="scen-desc">ΔP −10%, ΔPET +10%</span></div>
-              <div class="missing">Image not found:<br>Climate — dry — Seasonal head (winter/summer)</div>
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Climate — wet</span><span class="scen-desc">ΔP +10%, ΔPET −5%</span></div>
-              <div class="missing">Image not found:<br>Climate — wet — Seasonal head (winter/summer)</div>
-            </div></div>
-        </div>
-        <div id="fig_2" class="tab-panel hidden">
-          <h2>Darcy lateral flux</h2>
-          <div class="scenarios-grid">
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Baseline</span><span class="scen-desc">2005–2026 observed mean</span></div>
-              <div class="missing">Image not found:<br>Baseline — Darcy lateral flux</div>
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Full clearfell</span><span class="scen-desc">β₂ ×1.15, interception removed</span></div>
-              <div class="missing">Image not found:<br>Full clearfell — Darcy lateral flux</div>
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Forest thinning 50%</span><span class="scen-desc">Partial removal effect</span></div>
-              <div class="missing">Image not found:<br>Forest thinning 50% — Darcy lateral flux</div>
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Broadleaf conversion</span><span class="scen-desc">β₁ ×0.90 in autumn</span></div>
-              <img src="outputs/19_spatial_groundwater/species_change/19_lateral_flux.png" alt="Broadleaf conversion — Darcy lateral flux" class="scenario-img" onclick="zoom(this)" />
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Climate — dry</span><span class="scen-desc">ΔP −10%, ΔPET +10%</span></div>
-              <div class="missing">Image not found:<br>Climate — dry — Darcy lateral flux</div>
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Climate — wet</span><span class="scen-desc">ΔP +10%, ΔPET −5%</span></div>
-              <div class="missing">Image not found:<br>Climate — wet — Darcy lateral flux</div>
-            </div></div>
-        </div>
-        <div id="fig_3" class="tab-panel hidden">
-          <h2>Water balance components</h2>
-          <div class="scenarios-grid">
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Baseline</span><span class="scen-desc">2005–2026 observed mean</span></div>
-              <div class="missing">Image not found:<br>Baseline — Water balance components</div>
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Full clearfell</span><span class="scen-desc">β₂ ×1.15, interception removed</span></div>
-              <div class="missing">Image not found:<br>Full clearfell — Water balance components</div>
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Forest thinning 50%</span><span class="scen-desc">Partial removal effect</span></div>
-              <div class="missing">Image not found:<br>Forest thinning 50% — Water balance components</div>
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Broadleaf conversion</span><span class="scen-desc">β₁ ×0.90 in autumn</span></div>
-              <img src="outputs/19_spatial_groundwater/species_change/19_water_balance.png" alt="Broadleaf conversion — Water balance components" class="scenario-img" onclick="zoom(this)" />
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Climate — dry</span><span class="scen-desc">ΔP −10%, ΔPET +10%</span></div>
-              <div class="missing">Image not found:<br>Climate — dry — Water balance components</div>
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Climate — wet</span><span class="scen-desc">ΔP +10%, ΔPET −5%</span></div>
-              <div class="missing">Image not found:<br>Climate — wet — Water balance components</div>
-            </div></div>
-        </div>
-        <div id="fig_4" class="tab-panel hidden">
-          <h2>Winter flooding</h2>
-          <div class="scenarios-grid">
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Baseline</span><span class="scen-desc">2005–2026 observed mean</span></div>
-              <div class="missing">Image not found:<br>Baseline — Winter flooding</div>
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Full clearfell</span><span class="scen-desc">β₂ ×1.15, interception removed</span></div>
-              <div class="missing">Image not found:<br>Full clearfell — Winter flooding</div>
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Forest thinning 50%</span><span class="scen-desc">Partial removal effect</span></div>
-              <div class="missing">Image not found:<br>Forest thinning 50% — Winter flooding</div>
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Broadleaf conversion</span><span class="scen-desc">β₁ ×0.90 in autumn</span></div>
-              <img src="outputs/19_spatial_groundwater/species_change/19_winter_flooding.png" alt="Broadleaf conversion — Winter flooding" class="scenario-img" onclick="zoom(this)" />
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Climate — dry</span><span class="scen-desc">ΔP −10%, ΔPET +10%</span></div>
-              <div class="missing">Image not found:<br>Climate — dry — Winter flooding</div>
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Climate — wet</span><span class="scen-desc">ΔP +10%, ΔPET −5%</span></div>
-              <div class="missing">Image not found:<br>Climate — wet — Winter flooding</div>
-            </div></div>
-        </div>
-        <div id="fig_5" class="tab-panel hidden">
-          <h2>Depth to water table</h2>
-          <div class="scenarios-grid">
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Baseline</span><span class="scen-desc">2005–2026 observed mean</span></div>
-              <div class="missing">Image not found:<br>Baseline — Depth to water table</div>
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Full clearfell</span><span class="scen-desc">β₂ ×1.15, interception removed</span></div>
-              <div class="missing">Image not found:<br>Full clearfell — Depth to water table</div>
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Forest thinning 50%</span><span class="scen-desc">Partial removal effect</span></div>
-              <div class="missing">Image not found:<br>Forest thinning 50% — Depth to water table</div>
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Broadleaf conversion</span><span class="scen-desc">β₁ ×0.90 in autumn</span></div>
-              <img src="outputs/19_spatial_groundwater/species_change/19_depth_to_watertable.png" alt="Broadleaf conversion — Depth to water table" class="scenario-img" onclick="zoom(this)" />
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Climate — dry</span><span class="scen-desc">ΔP −10%, ΔPET +10%</span></div>
-              <div class="missing">Image not found:<br>Climate — dry — Depth to water table</div>
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Climate — wet</span><span class="scen-desc">ΔP +10%, ΔPET −5%</span></div>
-              <div class="missing">Image not found:<br>Climate — wet — Depth to water table</div>
-            </div></div>
-        </div>
-        <div id="fig_6" class="tab-panel hidden">
-          <h2>Seasonal storage change</h2>
-          <div class="scenarios-grid">
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Baseline</span><span class="scen-desc">2005–2026 observed mean</span></div>
-              <div class="missing">Image not found:<br>Baseline — Seasonal storage change</div>
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Full clearfell</span><span class="scen-desc">β₂ ×1.15, interception removed</span></div>
-              <div class="missing">Image not found:<br>Full clearfell — Seasonal storage change</div>
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Forest thinning 50%</span><span class="scen-desc">Partial removal effect</span></div>
-              <div class="missing">Image not found:<br>Forest thinning 50% — Seasonal storage change</div>
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Broadleaf conversion</span><span class="scen-desc">β₁ ×0.90 in autumn</span></div>
-              <img src="outputs/19_spatial_groundwater/species_change/19_storage_change.png" alt="Broadleaf conversion — Seasonal storage change" class="scenario-img" onclick="zoom(this)" />
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Climate — dry</span><span class="scen-desc">ΔP −10%, ΔPET +10%</span></div>
-              <div class="missing">Image not found:<br>Climate — dry — Seasonal storage change</div>
-            </div>
-            <div class="scenario-panel">
-              <div class="scenario-label"><span class="scen-name">Climate — wet</span><span class="scen-desc">ΔP +10%, ΔPET −5%</span></div>
-              <div class="missing">Image not found:<br>Climate — wet — Seasonal storage change</div>
-            </div></div>
-        </div>
-        <div id="fig_7" class="tab-panel hidden">
-          <h2>β coefficient fields</h2>
-          <div class="scenarios-grid single">
-            <div class="scenario-panel wide">
-              <div class="scenario-label"><span class="scen-name">Baseline</span><span class="scen-desc">Baseline (all scenarios identical)</span></div>
-              <div class="missing">Image not found:<br>Baseline — β coefficient fields</div>
-            </div></div>
-        </div>
-        <div id="fig_8" class="tab-panel hidden">
-          <h2>Aquifer thickness</h2>
-          <div class="scenarios-grid single">
-            <div class="scenario-panel wide">
-              <div class="scenario-label"><span class="scen-name">Baseline</span><span class="scen-desc">Baseline (all scenarios identical)</span></div>
-              <div class="missing">Image not found:<br>Baseline — Aquifer thickness</div>
-            </div></div>
-        </div>
-        <div id="fig_9" class="tab-panel hidden">
-          <h2>Residual comparison</h2>
-          <div class="scenarios-grid single">
-            <div class="scenario-panel wide">
-              <div class="scenario-label"><span class="scen-name">Baseline</span><span class="scen-desc">Baseline (all scenarios identical)</span></div>
-              <img src="outputs/19_spatial_groundwater/baseline/19_residual_comparison.png" alt="Baseline — Residual comparison" class="scenario-img" onclick="zoom(this)" />
-            </div></div>
-        </div></div>
-</div>
-
-<div id="main-diffs" class="hidden">
-  <div class="content">
-    <h2>Difference Maps — Scenario vs Baseline</h2>
-    <p style="font-size:0.8rem;color:var(--muted);margin-bottom:16px">
-      Blue = wetter than baseline &nbsp;|&nbsp; Red = drier than baseline
-    </p>
-    <div class="scenarios-grid">
-        <div class="scenario-panel">
-          <div class="scenario-label"><span class="scen-name">Full clearfell vs baseline</span></div>
-          <img src="outputs/19_spatial_groundwater/difference_maps/diff_forest_removal.png" alt="Full clearfell vs baseline" class="scenario-img" onclick="zoom(this)" />
-        </div>
-        <div class="scenario-panel">
-          <div class="scenario-label"><span class="scen-name">Forest thinning vs baseline</span></div>
-          <img src="outputs/19_spatial_groundwater/difference_maps/diff_forest_thinning.png" alt="Forest thinning vs baseline" class="scenario-img" onclick="zoom(this)" />
-        </div>
-        <div class="scenario-panel">
-          <div class="scenario-label"><span class="scen-name">Broadleaf conversion vs baseline</span></div>
-          <img src="outputs/19_spatial_groundwater/difference_maps/diff_species_change.png" alt="Broadleaf conversion vs baseline" class="scenario-img" onclick="zoom(this)" />
-        </div>
-        <div class="scenario-panel">
-          <div class="scenario-label"><span class="scen-name">Climate dry vs baseline</span></div>
-          <img src="outputs/19_spatial_groundwater/difference_maps/diff_climate_dry.png" alt="Climate dry vs baseline" class="scenario-img" onclick="zoom(this)" />
-        </div>
-        <div class="scenario-panel">
-          <div class="scenario-label"><span class="scen-name">Climate wet vs baseline</span></div>
-          <img src="outputs/19_spatial_groundwater/difference_maps/diff_climate_wet.png" alt="Climate wet vs baseline" class="scenario-img" onclick="zoom(this)" />
-        </div>
-        <div class="scenario-panel">
-          <div class="scenario-label"><span class="scen-name">All scenarios — summary</span></div>
-          <img src="outputs/19_spatial_groundwater/difference_maps/scenario_summary.png" alt="All scenarios — summary" class="scenario-img" onclick="zoom(this)" />
-        </div>
-        <div class="scenario-panel">
-          <div class="scenario-label"><span class="scen-name">Cluster seasonal hydrographs</span></div>
-          <img src="outputs/19_spatial_groundwater/difference_maps/cluster_hydrographs.png" alt="Cluster seasonal hydrographs" class="scenario-img" onclick="zoom(this)" />
-        </div></div>
+<div id="p-forest" class="panel">
+  <div class="sec-title">Forest Management — Difference Maps vs Baseline</div>
+  <div class="sec-desc">
+    Red = higher than baseline &nbsp;|&nbsp; Blue = lower than baseline.<br>
+    Head (m AOD): red = wetter, blue = drier. &nbsp;
+    Depth below ground: red = shallower (wetter), blue = deeper (drier).<br>
+    Maps auto-scaled from p5–p95 of actual well Δ values.
+    Maps omitted where |Δ| &lt; threshold (no meaningful change).
+    Source: Hollingham (2026).
   </div>
+  <div class="grid-1"><div class="scen-group"><div class="scen-group-title">Full clearfell vs baseline</div><div class="grid-auto"><div class="card"><div class="card-label"><strong>Mean water table (m AOD)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/forest_removal/diff_forest_removal_mean_head.png" alt="diff_forest_removal_mean_head.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Winter mean water table (m AOD)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/forest_removal/diff_forest_removal_winter_head.png" alt="diff_forest_removal_winter_head.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Summer minimum water table (m AOD)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/forest_removal/diff_forest_removal_summer_head.png" alt="diff_forest_removal_summer_head.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Recharge (m/month)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/forest_removal/diff_forest_removal_recharge_m_mon.png" alt="diff_forest_removal_recharge_m_mon.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>ET draw (m/month)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/forest_removal/diff_forest_removal_et_draw_m_mon.png" alt="diff_forest_removal_et_draw_m_mon.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Drainage (m/month)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/forest_removal/diff_forest_removal_drainage_m_mon.png" alt="diff_forest_removal_drainage_m_mon.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Lateral inflow residual (m/month)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/forest_removal/diff_forest_removal_lateral_inflow_m_mon.png" alt="diff_forest_removal_lateral_inflow_m_mon.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Seasonal storage change (mm)</strong></div><div class="missing">Not found: diff_forest_removal_storage_change_mm.png</div></div>
+<div class="card"><div class="card-label"><strong>Winter depth below ground (m)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/forest_removal/diff_forest_removal_winter_depth_bg.png" alt="diff_forest_removal_winter_depth_bg.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Summer depth below ground (m)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/forest_removal/diff_forest_removal_summer_depth_bg.png" alt="diff_forest_removal_summer_depth_bg.png" class="fig-img"></div>
+</div></div>
+<div class="scen-group"><div class="scen-group-title">Forest thinning 50% vs baseline</div><div class="grid-auto"><div class="card"><div class="card-label"><strong>Mean water table (m AOD)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/forest_thinning/diff_forest_thinning_mean_head.png" alt="diff_forest_thinning_mean_head.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Winter mean water table (m AOD)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/forest_thinning/diff_forest_thinning_winter_head.png" alt="diff_forest_thinning_winter_head.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Summer minimum water table (m AOD)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/forest_thinning/diff_forest_thinning_summer_head.png" alt="diff_forest_thinning_summer_head.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Recharge (m/month)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/forest_thinning/diff_forest_thinning_recharge_m_mon.png" alt="diff_forest_thinning_recharge_m_mon.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>ET draw (m/month)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/forest_thinning/diff_forest_thinning_et_draw_m_mon.png" alt="diff_forest_thinning_et_draw_m_mon.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Drainage (m/month)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/forest_thinning/diff_forest_thinning_drainage_m_mon.png" alt="diff_forest_thinning_drainage_m_mon.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Lateral inflow residual (m/month)</strong></div><div class="missing">Not found: diff_forest_thinning_lateral_inflow_m_mon.png</div></div>
+<div class="card"><div class="card-label"><strong>Seasonal storage change (mm)</strong></div><div class="missing">Not found: diff_forest_thinning_storage_change_mm.png</div></div>
+<div class="card"><div class="card-label"><strong>Winter depth below ground (m)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/forest_thinning/diff_forest_thinning_winter_depth_bg.png" alt="diff_forest_thinning_winter_depth_bg.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Summer depth below ground (m)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/forest_thinning/diff_forest_thinning_summer_depth_bg.png" alt="diff_forest_thinning_summer_depth_bg.png" class="fig-img"></div>
+</div></div>
+<div class="scen-group"><div class="scen-group-title">Broadleaf conversion vs baseline</div><div class="grid-auto"><div class="card"><div class="card-label"><strong>Mean water table (m AOD)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/species_change/diff_species_change_mean_head.png" alt="diff_species_change_mean_head.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Winter mean water table (m AOD)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/species_change/diff_species_change_winter_head.png" alt="diff_species_change_winter_head.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Summer minimum water table (m AOD)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/species_change/diff_species_change_summer_head.png" alt="diff_species_change_summer_head.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Recharge (m/month)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/species_change/diff_species_change_recharge_m_mon.png" alt="diff_species_change_recharge_m_mon.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>ET draw (m/month)</strong></div><div class="missing">Not found: diff_species_change_et_draw_m_mon.png</div></div>
+<div class="card"><div class="card-label"><strong>Drainage (m/month)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/species_change/diff_species_change_drainage_m_mon.png" alt="diff_species_change_drainage_m_mon.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Lateral inflow residual (m/month)</strong></div><div class="missing">Not found: diff_species_change_lateral_inflow_m_mon.png</div></div>
+<div class="card"><div class="card-label"><strong>Seasonal storage change (mm)</strong></div><div class="missing">Not found: diff_species_change_storage_change_mm.png</div></div>
+<div class="card"><div class="card-label"><strong>Winter depth below ground (m)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/species_change/diff_species_change_winter_depth_bg.png" alt="diff_species_change_winter_depth_bg.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Summer depth below ground (m)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/species_change/diff_species_change_summer_depth_bg.png" alt="diff_species_change_summer_depth_bg.png" class="fig-img"></div>
+</div></div>
+</div>
 </div>
 
-<div id="main-scatter" class="hidden">
-  <div class="content">
-    <h2>Seasonal Extremes — Well Network vs Ecological Thresholds</h2>
-    <p style="font-size:0.8rem;color:var(--muted);margin-bottom:16px">
-      Mean annual summer minimum vs winter maximum water table depth per well,
-      coloured by hydrogeological cluster. Dashed lines: Curreli et al. (2013)
-      eco-hydrological thresholds.
-    </p>
-    <div class="scatter-wrap"><iframe src="seasonal_extremes_scatter.html" title="Seasonal extremes scatter plot"></iframe></div>
+<div id="p-climate" class="panel hidden">
+  <div class="sec-title">Climate Change — Difference Maps vs Baseline</div>
+  <div class="sec-desc">
+    Climate dry: ΔP = −89 mm/yr, ΔPET = +54 mm/yr. &nbsp;
+    Climate wet: ΔP = +89 mm/yr, ΔPET = −27 mm/yr.<br>
+    Red = higher than baseline &nbsp;|&nbsp; Blue = lower than baseline.<br>
+    Head: red = wetter, blue = drier. Site-wide mean Δh: dry −0.23 m, wet +0.16 m.
+    Source: Hollingham (2026).
   </div>
+  <div class="grid-1"><div class="scen-group"><div class="scen-group-title">Climate dry vs baseline</div><div class="grid-auto"><div class="card"><div class="card-label"><strong>Mean water table (m AOD)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/climate_dry/diff_climate_dry_mean_head.png" alt="diff_climate_dry_mean_head.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Winter mean water table (m AOD)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/climate_dry/diff_climate_dry_winter_head.png" alt="diff_climate_dry_winter_head.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Summer minimum water table (m AOD)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/climate_dry/diff_climate_dry_summer_head.png" alt="diff_climate_dry_summer_head.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Recharge (m/month)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/climate_dry/diff_climate_dry_recharge_m_mon.png" alt="diff_climate_dry_recharge_m_mon.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>ET draw (m/month)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/climate_dry/diff_climate_dry_et_draw_m_mon.png" alt="diff_climate_dry_et_draw_m_mon.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Drainage (m/month)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/climate_dry/diff_climate_dry_drainage_m_mon.png" alt="diff_climate_dry_drainage_m_mon.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Lateral inflow residual (m/month)</strong></div><div class="missing">Not found: diff_climate_dry_lateral_inflow_m_mon.png</div></div>
+<div class="card"><div class="card-label"><strong>Seasonal storage change (mm)</strong></div><div class="missing">Not found: diff_climate_dry_storage_change_mm.png</div></div>
+<div class="card"><div class="card-label"><strong>Winter depth below ground (m)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/climate_dry/diff_climate_dry_winter_depth_bg.png" alt="diff_climate_dry_winter_depth_bg.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Summer depth below ground (m)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/climate_dry/diff_climate_dry_summer_depth_bg.png" alt="diff_climate_dry_summer_depth_bg.png" class="fig-img"></div>
+</div></div>
+<div class="scen-group"><div class="scen-group-title">Climate wet vs baseline</div><div class="grid-auto"><div class="card"><div class="card-label"><strong>Mean water table (m AOD)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/climate_wet/diff_climate_wet_mean_head.png" alt="diff_climate_wet_mean_head.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Winter mean water table (m AOD)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/climate_wet/diff_climate_wet_winter_head.png" alt="diff_climate_wet_winter_head.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Summer minimum water table (m AOD)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/climate_wet/diff_climate_wet_summer_head.png" alt="diff_climate_wet_summer_head.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Recharge (m/month)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/climate_wet/diff_climate_wet_recharge_m_mon.png" alt="diff_climate_wet_recharge_m_mon.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>ET draw (m/month)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/climate_wet/diff_climate_wet_et_draw_m_mon.png" alt="diff_climate_wet_et_draw_m_mon.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Drainage (m/month)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/climate_wet/diff_climate_wet_drainage_m_mon.png" alt="diff_climate_wet_drainage_m_mon.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Lateral inflow residual (m/month)</strong></div><div class="missing">Not found: diff_climate_wet_lateral_inflow_m_mon.png</div></div>
+<div class="card"><div class="card-label"><strong>Seasonal storage change (mm)</strong></div><div class="missing">Not found: diff_climate_wet_storage_change_mm.png</div></div>
+<div class="card"><div class="card-label"><strong>Winter depth below ground (m)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/climate_wet/diff_climate_wet_winter_depth_bg.png" alt="diff_climate_wet_winter_depth_bg.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Summer depth below ground (m)</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/climate_wet/diff_climate_wet_summer_depth_bg.png" alt="diff_climate_wet_summer_depth_bg.png" class="fig-img"></div>
+</div></div>
+</div>
 </div>
 
-<div id="lightbox" onclick="closeLightbox()">
-  <button id="lightbox-close" onclick="closeLightbox()">✕</button>
-  <img id="lightbox-img" src="" alt="">
+<div id="p-baseline" class="panel hidden">
+  <div class="sec-title">Baseline Maps — 2005–2026 Observed Mean</div>
+  <div class="sec-desc">
+    Spatial distribution of hydrogeological variables under baseline conditions.
+    K = 6.0 m/day (Connell 2003). C4 canopy interception 24% (Freeman 2008).
+  </div>
+  <div class="grid-2"><div class="card"><div class="card-label"><strong>Mean water table + Darcy flux</strong></div><div class="missing">Not found: 19_head_mean_darcy.png</div></div>
+<div class="card"><div class="card-label"><strong>Mean water table (m AOD)</strong></div><img src="outputs/19_spatial_groundwater/baseline/19_head_mean_map.png" alt="19_head_mean_map.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Winter mean water table</strong></div><img src="outputs/19_spatial_groundwater/baseline/19_head_surface_winter.png" alt="19_head_surface_winter.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Summer minimum water table</strong></div><div class="missing">Not found: 19_head_surface_summer.png</div></div>
+<div class="card"><div class="card-label"><strong>Aquifer thickness</strong></div><img src="outputs/19_spatial_groundwater/baseline/19_aquifer_thickness.png" alt="19_aquifer_thickness.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Recharge</strong></div><img src="outputs/19_spatial_groundwater/baseline/19_wb_recharge.png" alt="19_wb_recharge.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>ET draw</strong></div><div class="missing">Not found: 19_wb_et.png</div></div>
+<div class="card"><div class="card-label"><strong>Drainage</strong></div><div class="missing">Not found: 19_wb_drainage.png</div></div>
+<div class="card"><div class="card-label"><strong>Darcy lateral flux</strong></div><img src="outputs/19_spatial_groundwater/baseline/19_lateral_flux.png" alt="19_lateral_flux.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Winter flooding</strong></div><img src="outputs/19_spatial_groundwater/baseline/19_winter_flooding.png" alt="19_winter_flooding.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Depth to water table</strong></div><img src="outputs/19_spatial_groundwater/baseline/19_depth_to_watertable.png" alt="19_depth_to_watertable.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Seasonal storage change</strong></div><img src="outputs/19_spatial_groundwater/baseline/19_storage_change.png" alt="19_storage_change.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>SSM lateral inflow residual</strong></div><img src="outputs/19_spatial_groundwater/baseline/19_residual_comparison.png" alt="19_residual_comparison.png" class="fig-img"></div>
+</div>
+</div>
+
+<div id="p-hygro" class="panel hidden">
+  <div class="sec-title">Seasonal Water Table Profiles</div>
+  <div class="sec-desc">
+    Mean monthly depth below ground (m) per cluster. Y-axis inverted:
+    0 = surface at top, 2 m at bottom. Summer dips downward.
+    Thresholds: Curreli et al. (2013). Hollingham (2026).
+  </div>
+  <div class="grid-1"><div class="card"><div class="card-label"><strong>Seasonal hydrographs — all scenarios</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/cluster_hydrographs.png" alt="cluster_hydrographs.png" class="fig-img"></div>
+<div class="card"><div class="card-label"><strong>Scenario summary — Δ summer depth</strong></div><img src="outputs/19_spatial_groundwater/difference_maps/scenario_summary.png" alt="scenario_summary.png" class="fig-img"></div>
+</div>
 </div>
 
 <script>
-  function showTab(id) {
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(id).classList.remove('hidden');
-    event.currentTarget.classList.add('active');
-  }
-  function showMain(which) {
-    ['scenarios', 'diffs', 'scatter'].forEach(id => {
-      document.getElementById('main-' + id).classList.toggle('hidden', id !== which);
-    });
-    document.querySelectorAll('.main-tab').forEach(b => b.classList.remove('active'));
-    event.currentTarget.classList.add('active');
-  }
-  function zoom(img) {
-    document.getElementById('lightbox-img').src = img.src;
-    document.getElementById('lightbox').classList.add('show');
-  }
-  function closeLightbox() {
-    document.getElementById('lightbox').classList.remove('show');
-  }
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closeLightbox();
-  });
+function showTab(w){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.add('hidden'));
+  document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('p-'+w).classList.remove('hidden');
+  document.querySelector('[data-tab="'+w+'"]').classList.add('active');
+}
 </script>
 </body>
 </html>

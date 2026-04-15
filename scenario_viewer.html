@@ -1,118 +1,157 @@
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-.sw{padding:1rem 0;font-family:var(--font-sans);}
-h2.t{font-size:18px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px;}
-p.sub{font-size:13px;color:var(--color-text-secondary);margin-bottom:1.25rem;}
-.pg{display:grid;grid-template-columns:255px 1fr;gap:1.5rem;align-items:start;}
-.cp{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:0.9rem;}
-.cp h3{font-size:11px;font-weight:500;color:var(--color-text-secondary);margin-bottom:0.6rem;border-bottom:0.5px solid var(--color-border-tertiary);padding-bottom:5px;text-transform:uppercase;letter-spacing:0.05em;}
-.sb{display:block;width:100%;text-align:left;padding:6px 9px;margin-bottom:3px;background:transparent;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);cursor:pointer;font-size:12px;color:var(--color-text-primary);}
-.sb:hover{background:var(--color-background-primary);}
-.sb.active{border:1.5px solid #185FA5;background:var(--color-background-info);color:var(--color-text-info);}
-.cr{display:flex;align-items:center;gap:7px;margin-bottom:6px;}
-.cr label{font-size:12px;color:var(--color-text-secondary);flex:1;}
-.cv{font-size:11px;font-weight:500;color:var(--color-text-primary);min-width:40px;text-align:right;}
-.div{height:0.5px;background:var(--color-border-tertiary);margin:0.7rem 0;}
-.mr{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-bottom:0.9rem;}
-.mc{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:9px 11px;}
-.mc .ml{font-size:11px;color:var(--color-text-secondary);margin-bottom:3px;}
-.mc .mv{font-size:17px;font-weight:500;}
-.mc .mu{font-size:11px;color:var(--color-text-secondary);}
-.cb{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:0.9rem;margin-bottom:0.9rem;}
-.cb h4{font-size:12px;font-weight:500;color:var(--color-text-secondary);margin-bottom:8px;}
-.stabs{display:flex;gap:6px;margin-bottom:0.9rem;}
-.st{padding:4px 12px;border-radius:20px;font-size:12px;border:0.5px solid var(--color-border-secondary);background:transparent;cursor:pointer;color:var(--color-text-secondary);}
-.st.active{background:var(--color-text-primary);color:var(--color-background-primary);border-color:var(--color-text-primary);}
-.wb{background:var(--color-background-warning);border:0.5px solid var(--color-border-warning);border-radius:var(--border-radius-md);padding:7px 11px;font-size:12px;color:var(--color-text-warning);margin-bottom:0.8rem;line-height:1.5;}
-.map-wrap{position:relative;width:100%;}
-.map-leg{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:6px;font-size:11px;color:var(--color-text-secondary);}
-.ls{width:12px;height:12px;border-radius:2px;display:inline-block;vertical-align:middle;margin-right:2px;}
-.rtabs{display:flex;gap:5px;}
-.rtab{padding:3px 9px;border-radius:12px;font-size:11px;border:0.5px solid var(--color-border-secondary);background:transparent;cursor:pointer;color:var(--color-text-secondary);}
-.rtab.active{background:var(--color-background-secondary);border-color:var(--color-border-primary);color:var(--color-text-primary);}
-.hg{display:grid;grid-template-columns:115px repeat(5,minmax(0,1fr));gap:3px;}
-.hh{font-size:11px;color:var(--color-text-secondary);text-align:center;padding:4px 2px;font-weight:500;}
-.hl{font-size:11px;color:var(--color-text-secondary);display:flex;align-items:center;padding-right:4px;}
-.hc{border-radius:4px;padding:5px 4px;text-align:center;font-size:11px;font-weight:500;background:var(--color-background-secondary);color:var(--color-text-primary);}
+.wrap{padding:0.5rem 0;font-family:var(--font-sans);}
+
+/* ── Two-column PC layout, single-column mobile ── */
+.outer{display:grid;grid-template-columns:200px minmax(0,1fr);gap:0.75rem;align-items:start;}
+@media(max-width:640px){.outer{grid-template-columns:1fr;}}
+
+/* ── Controls sidebar ── */
+.ctrl{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:0.65rem;}
+@media(min-width:641px){.ctrl{position:sticky;top:0;max-height:98vh;overflow-y:auto;}}
+.ch{font-size:10px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.05em;border-bottom:.5px solid var(--color-border-tertiary);padding-bottom:3px;margin-bottom:6px;}
+.sc{display:block;width:100%;text-align:left;padding:4px 7px;margin-bottom:2px;background:transparent;border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);cursor:pointer;font-size:11px;color:var(--color-text-primary);line-height:1.3;}
+.sc:hover{background:var(--color-background-primary);}
+.sc.on{border:1.5px solid #185FA5;background:var(--color-background-info);color:var(--color-text-info);}
+.sl{display:flex;align-items:center;gap:4px;margin-bottom:4px;}
+.sl label{font-size:11px;color:var(--color-text-secondary);flex:1;}
+.sl .v{font-size:10px;font-weight:500;min-width:32px;text-align:right;color:var(--color-text-primary);}
+.sl input[type=range]{flex:1;min-width:0;}
+.ck{display:flex;align-items:center;gap:5px;margin-bottom:3px;font-size:11px;color:var(--color-text-secondary);}
+.hr{height:.5px;background:var(--color-border-tertiary);margin:6px 0;}
+
+/* ── Right column ── */
+.rght{min-width:0;display:flex;flex-direction:column;gap:0.6rem;}
+
+/* Season tabs */
+.tabs{display:flex;gap:4px;flex-wrap:wrap;}
+.tab{padding:3px 9px;border-radius:20px;font-size:11px;border:.5px solid var(--color-border-secondary);background:transparent;cursor:pointer;color:var(--color-text-secondary);}
+.tab.on{background:var(--color-text-primary);color:var(--color-background-primary);border-color:var(--color-text-primary);}
+
+/* Warning banner */
+.warn{background:var(--color-background-warning);border:.5px solid var(--color-border-warning);border-radius:var(--border-radius-md);padding:5px 9px;font-size:11px;color:var(--color-text-warning);line-height:1.4;}
+
+/* Metric cards — 4-wide on PC, 2×2 on mobile */
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;}
+@media(max-width:400px){.metrics{grid-template-columns:repeat(2,1fr);}}
+.mcard{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:6px 8px;}
+.mcard .lbl{font-size:10px;color:var(--color-text-secondary);margin-bottom:1px;}
+.mcard .val{font-size:14px;font-weight:500;}
+.mcard .unt{font-size:10px;color:var(--color-text-secondary);}
+
+/* Panels */
+.panel{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:0.6rem;}
+.phead{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;flex-wrap:wrap;gap:4px;}
+.phead h4{font-size:11px;font-weight:500;color:var(--color-text-secondary);margin:0;}
+.rtabs{display:flex;gap:3px;flex-wrap:wrap;}
+.rt{padding:2px 7px;border-radius:10px;font-size:10px;border:.5px solid var(--color-border-secondary);background:transparent;cursor:pointer;color:var(--color-text-secondary);}
+.rt.on{background:var(--color-background-secondary);border-color:var(--color-border-primary);color:var(--color-text-primary);}
+
+/* Map — height via JS-set height attribute, aspect ~0.48 */
+.mapwrap{position:relative;width:100%;overflow:hidden;border-radius:var(--border-radius-md);}
+.mapwrap canvas{display:block;width:100%;}
+#mapBg{position:relative;}
+#mapC{position:absolute;top:0;left:0;cursor:crosshair;}
+.leg{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:4px;font-size:10px;color:var(--color-text-secondary);}
+.ls{width:10px;height:10px;border-radius:2px;display:inline-block;vertical-align:middle;margin-right:1px;}
+
+/* Chart */
+.chwrap{position:relative;width:100%;height:150px;}
+
+/* Table */
+.tbl{display:grid;grid-template-columns:100px repeat(5,minmax(0,1fr));gap:2px;font-size:10px;}
+.th{color:var(--color-text-secondary);text-align:center;padding:2px 1px;font-weight:500;}
+.tl{color:var(--color-text-secondary);display:flex;align-items:center;padding-right:2px;}
+.tc{border-radius:3px;padding:3px 2px;text-align:center;font-weight:500;background:var(--color-background-secondary);color:var(--color-text-primary);}
+
+.tip{font-size:11px;color:var(--color-text-secondary);margin-top:3px;min-height:13px;}
+.fn{font-size:10px;color:var(--color-text-secondary);line-height:1.4;}
 </style>
 
-<div class="sw">
-<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;">Newborough Warren hydrological scenario simulator</h2>
-<h2 class="t">Newborough Warren — hydrological scenario simulator</h2>
-<p class="sub">68 dipwells · WTF Sy · SSM β (Hollingham 2026) · KML reprojected EPSG:4326→27700 · IDW masked to site boundary</p>
+<div class="wrap">
+<h2 class="sr-only">Newborough Warren hydrological scenario simulator — 68-dipwell SSM model</h2>
 
-<div class="pg">
-<div class="cp">
-  <h3>Scenarios</h3>
-  <button class="sb active" id="btn_baseline" onclick="loadSc('baseline')">Baseline (observed 2005–2026)</button>
-  <button class="sb" id="btn_climate_wet" onclick="loadSc('climate_wet')">Climate — wet (+15% P)</button>
-  <button class="sb" id="btn_climate_dry" onclick="loadSc('climate_dry')">Climate — dry (−15% P, +10% PET)</button>
-  <button class="sb" id="btn_clearfell" onclick="loadSc('clearfell')">Clearfell (interception→0, β₂↑)</button>
-  <button class="sb" id="btn_broadleaf" onclick="loadSc('broadleaf')">Broadleaf conversion</button>
-  <button class="sb" id="btn_thinning" onclick="loadSc('thinning')">Forest thinning (partial)</button>
-  <div class="div"></div>
-  <h3>Climate forcing</h3>
-  <div class="cr"><label>Rainfall scaling (P)</label><input type="range" min="0.5" max="1.5" step="0.01" value="1" id="sP" oninput="onSl()"><span class="cv" id="vP">1.00×</span></div>
-  <div class="cr"><label>PET scaling</label><input type="range" min="0.5" max="1.5" step="0.01" value="1" id="sPET" oninput="onSl()"><span class="cv" id="vPET">1.00×</span></div>
-  <div class="div"></div>
-  <h3>Forest (C4) management</h3>
-  <div class="cr"><label>Canopy interception</label><input type="range" min="0" max="0.4" step="0.01" value="0.24" id="sI" oninput="onSl()"><span class="cv" id="vI">24%</span></div>
-  <div class="cr"><label>β₂ (PET draw) scaling</label><input type="range" min="0.5" max="2" step="0.05" value="1" id="sB2" oninput="onSl()"><span class="cv" id="vB2">1.00×</span></div>
-  <div class="div"></div>
-  <h3>Specific yield</h3>
-  <div class="cr"><label>Sy scaling (all clusters)</label><input type="range" min="0.5" max="2" step="0.05" value="1" id="sSy" oninput="onSl()"><span class="cv" id="vSy">1.00×</span></div>
-  <div style="font-size:11px;color:var(--color-text-secondary);line-height:1.5;margin-top:2px;">WTF defaults: C1=21%, C2=22%, C3=26%, C4=20%. Floor: 6% (C1), 12% (C2–C4).</div>
-  <div class="div"></div>
-  <h3>Map options</h3>
-  <div class="cr"><label>Show KML overlays</label><input type="checkbox" id="chkKml" checked onchange="drawMap()"></div>
-  <div class="cr"><label>Show well labels</label><input type="checkbox" id="chkLbl" onchange="drawMap()"></div>
-  <div class="div"></div>
-  <div style="font-size:11px;color:var(--color-text-secondary);line-height:1.5;">K=6 m/day · α=+0.222 m/mo (CEH14)</div>
+<div class="outer" id="og">
+
+<!-- ── CONTROLS ── -->
+<div class="ctrl">
+  <div class="ch">Scenarios</div>
+  <button class="sc on" id="btn_baseline" onclick="loadSc('baseline')">Baseline (2005–2026)</button>
+  <button class="sc" id="btn_climate_wet" onclick="loadSc('climate_wet')">Climate wet (+15% P)</button>
+  <button class="sc" id="btn_climate_dry" onclick="loadSc('climate_dry')">Climate dry (−15% P +10%)</button>
+  <button class="sc" id="btn_clearfell" onclick="loadSc('clearfell')">Clearfell (interception→0)</button>
+  <button class="sc" id="btn_broadleaf" onclick="loadSc('broadleaf')">Broadleaf conversion</button>
+  <button class="sc" id="btn_thinning" onclick="loadSc('thinning')">Forest thinning</button>
+  <div class="hr"></div>
+  <div class="ch">Climate</div>
+  <div class="sl"><label>P scaling</label><input type="range" min="0.5" max="1.5" step="0.01" value="1" id="sP" oninput="onSl()"><span class="v" id="vP">1.00×</span></div>
+  <div class="sl"><label>PET scaling</label><input type="range" min="0.5" max="1.5" step="0.01" value="1" id="sPET" oninput="onSl()"><span class="v" id="vPET">1.00×</span></div>
+  <div class="hr"></div>
+  <div class="ch">Forest C4</div>
+  <div class="sl"><label>Interception</label><input type="range" min="0" max="0.4" step="0.01" value="0.24" id="sI" oninput="onSl()"><span class="v" id="vI">24%</span></div>
+  <div class="sl"><label>β₂ scaling</label><input type="range" min="0.5" max="2" step="0.05" value="1" id="sB2" oninput="onSl()"><span class="v" id="vB2">1.00×</span></div>
+  <div class="hr"></div>
+  <div class="ch">Sy</div>
+  <div class="sl"><label>Sy scaling</label><input type="range" min="0.5" max="2" step="0.05" value="1" id="sSy" oninput="onSl()"><span class="v" id="vSy">1.00×</span></div>
+  <div style="font-size:10px;color:var(--color-text-secondary);line-height:1.35;margin-top:2px;">WTF: C1=21% C2=22% C3=26% C4=20%. Floor 6/12%.</div>
+  <div class="hr"></div>
+  <div class="ch">Map</div>
+  <label class="ck"><input type="checkbox" id="chkKml" checked onchange="drawMap()"> KML overlays</label>
+  <label class="ck"><input type="checkbox" id="chkLbl" onchange="drawMap()"> Well labels</label>
 </div>
 
-<div>
-  <div class="stabs">
-    <button class="st active" id="tab_annual" onclick="setSeas('annual')">Annual mean</button>
-    <button class="st" id="tab_winter" onclick="setSeas('winter')">Winter (Oct–Mar)</button>
-    <button class="st" id="tab_summer" onclick="setSeas('summer')">Summer (Apr–Sep)</button>
-  </div>
-  <div id="warnBox" class="wb" style="display:none"></div>
-  <div class="mr" id="metricRow"></div>
+<!-- ── RIGHT COLUMN ── -->
+<div class="rght">
 
-  <div class="cb">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-      <h4 style="margin:0;">IDW head map (masked to site boundary)</h4>
+  <div class="tabs">
+    <button class="tab on" id="tab_annual" onclick="setSeas('annual')">Annual</button>
+    <button class="tab" id="tab_winter" onclick="setSeas('winter')">Winter (Oct–Mar)</button>
+    <button class="tab" id="tab_summer" onclick="setSeas('summer')">Summer (Apr–Sep)</button>
+  </div>
+
+  <div id="warnBox" class="warn" style="display:none"></div>
+
+  <div class="metrics" id="mrow"></div>
+
+  <!-- Map panel -->
+  <div class="panel">
+    <div class="phead">
+      <h4>IDW head map — masked to site boundary</h4>
       <div class="rtabs">
-        <button class="rtab active" id="rt_dh" onclick="setMapMode('dh')">Δh vs baseline</button>
-        <button class="rtab" id="rt_abs" onclick="setMapMode('abs')">Absolute head</button>
+        <button class="rt on" id="rt_dh" onclick="setMM('dh')">Δh vs baseline</button>
+        <button class="rt" id="rt_abs" onclick="setMM('abs')">Absolute head</button>
       </div>
     </div>
-    <div class="map-wrap">
-      <canvas id="mapBg" width="700" height="390" style="width:100%;display:block;border-radius:var(--border-radius-md);"></canvas>
-      <canvas id="mapC" width="700" height="390" style="width:100%;display:block;position:absolute;top:0;left:0;" role="img" aria-label="IDW groundwater head map"></canvas>
+    <div class="mapwrap" id="mwrap">
+      <canvas id="mapBg"></canvas>
+      <canvas id="mapC" role="img" aria-label="IDW groundwater head map"></canvas>
     </div>
-    <div class="map-leg" id="mapLeg"></div>
-    <div id="wellTip" style="font-size:12px;color:var(--color-text-secondary);margin-top:5px;min-height:16px;"></div>
+    <div class="leg" id="legDiv"></div>
+    <div class="tip" id="tipDiv"></div>
   </div>
 
-  <div class="cb">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-      <h4 style="margin:0;">Head by cluster</h4>
+  <!-- Chart panel -->
+  <div class="panel">
+    <div class="phead">
+      <h4>Head by cluster</h4>
       <div class="rtabs">
-        <button class="rtab active" id="ct_delta" onclick="setChartMode('delta')">Δh from baseline (m)</button>
-        <button class="rtab" id="ct_abs" onclick="setChartMode('abs')">Absolute head (m AOD)</button>
+        <button class="rt on" id="ct_dh" onclick="setCM('dh')">Δh (m)</button>
+        <button class="rt" id="ct_abs" onclick="setCM('abs')">Absolute (m AOD)</button>
       </div>
     </div>
-    <div style="position:relative;width:100%;height:200px;"><canvas id="hC" role="img" aria-label="Cluster head chart"></canvas></div>
+    <div class="chwrap"><canvas id="hC" aria-label="Cluster head chart"></canvas></div>
   </div>
 
-  <div class="cb">
+  <!-- Table panel -->
+  <div class="panel">
     <h4>Cluster summary</h4>
-    <div class="hg" id="tbl"></div>
+    <div class="tbl" id="tbl"></div>
   </div>
-  <div style="font-size:11px;color:var(--color-text-secondary);margin-top:4px;line-height:1.6;">Δh = (net balance change) / Sy_WTF, floored at Sy_min. KML reprojected via pyproj. IDW outside site boundary masked. Illustrative — not a substitute for Script 19.</div>
+
+  <div class="fn">Δh = (net balance change) / Sy_WTF, floored at Sy_min. KML reprojected EPSG:4326→27700. IDW masked to site boundary. Illustrative — not a substitute for Script 19.</div>
 </div>
+
 </div>
 </div>
 
@@ -120,261 +159,214 @@ p.sub{font-size:13px;color:var(--color-text-secondary);margin-bottom:1.25rem;}
 <script>
 var WELLS=[{n:"nw1",cl:3,E:241725,N:364139,mh:11.352,wh:11.482,sh:11.229,sy:0.173},{n:"nw2",cl:3,E:241703,N:364112,mh:11.921,wh:12.041,sh:11.806,sy:0.204},{n:"nw3",cl:2,E:242092,N:363939,mh:10.283,wh:10.425,sh:10.155,sy:0.254},{n:"nw4",cl:2,E:242431,N:363745,mh:8.980,wh:9.080,sh:8.885,sy:0.233},{n:"nw4b",cl:2,E:242415,N:363752,mh:9.055,wh:9.169,sh:8.947,sy:0.213},{n:"nw5",cl:3,E:241712,N:363024,mh:5.116,wh:5.197,sh:5.039,sy:0.254},{n:"nw6",cl:3,E:241444,N:363317,mh:6.075,wh:6.174,sh:5.983,sy:0.238},{n:"nw7",cl:3,E:241424,N:363585,mh:7.302,wh:7.380,sh:7.230,sy:0.265},{n:"nw9",cl:3,E:240937,N:363567,mh:4.477,wh:4.545,sh:4.412,sy:0.282},{n:"nw10",cl:4,E:241435,N:364325,mh:10.845,wh:10.889,sh:10.803,sy:0.210},{n:"nw11",cl:3,E:241689,N:364237,mh:11.415,wh:11.525,sh:11.309,sy:0.203},{n:"nw13",cl:2,E:241761,N:364180,mh:11.379,wh:11.549,sh:11.217,sy:0.207},{n:"ceh1",cl:3,E:241596,N:363948,mh:10.087,wh:10.190,sh:9.989,sy:0.232},{n:"ceh2",cl:4,E:241421,N:363979,mh:11.490,wh:11.518,sh:11.462,sy:0.182},{n:"ceh3",cl:5,E:240743,N:363388,mh:3.378,wh:3.449,sh:3.310,sy:null},{n:"ceh4",cl:3,E:241132,N:363211,mh:3.968,wh:4.065,sh:3.876,sy:0.243},{n:"ceh5",cl:1,E:242521,N:364466,mh:9.289,wh:9.484,sh:9.105,sy:0.192},{n:"ceh6",cl:1,E:242622,N:364725,mh:8.497,wh:8.709,sh:8.297,sy:0.212},{n:"ceh9",cl:3,E:241711,N:363459,mh:7.269,wh:7.328,sh:7.213,sy:0.275},{n:"ceh10",cl:2,E:242538,N:363174,mh:4.569,wh:4.748,sh:4.399,sy:0.245},{n:"ceh11",cl:1,E:242619,N:362688,mh:3.124,wh:3.295,sh:2.962,sy:0.223},{n:"ceh13",cl:4,E:240964,N:364066,mh:10.302,wh:10.284,sh:10.319,sy:0.238},{n:"ceh14",cl:4,E:241292,N:364488,mh:13.306,wh:13.230,sh:13.380,sy:0.154},{n:"ceh16",cl:3,E:240988,N:363615,mh:5.350,wh:5.408,sh:5.294,sy:0.250},{n:"ceh17",cl:3,E:240805,N:363576,mh:4.108,wh:4.162,sh:4.054,sy:0.282},{n:"ceh18",cl:3,E:241267,N:363203,mh:4.435,wh:4.525,sh:4.346,sy:0.260},{n:"ceh19",cl:3,E:240846,N:363533,mh:4.009,wh:4.070,sh:3.951,sy:0.360},{n:"ceh20",cl:4,E:241153,N:363829,mh:7.530,wh:7.556,sh:7.504,sy:0.197},{n:"ceh21",cl:3,E:241471,N:362938,mh:3.207,wh:3.271,sh:3.143,sy:0.307},{n:"ceh22",cl:1,E:241375,N:362907,mh:2.766,wh:2.856,sh:2.678,sy:0.313},{n:"ceh23",cl:1,E:242325,N:364428,mh:9.704,wh:9.892,sh:9.531,sy:0.192},{n:"ceh24",cl:2,E:242939,N:363392,mh:5.740,wh:5.892,sh:5.592,sy:0.216},{n:"ceh25",cl:1,E:242513,N:364639,mh:8.696,wh:8.958,sh:8.440,sy:0.173},{n:"ceh26",cl:1,E:242172,N:364362,mh:10.086,wh:10.255,sh:9.924,sy:0.223},{n:"ceh27",cl:1,E:242005,N:364330,mh:10.617,wh:10.801,sh:10.439,sy:0.212},{n:"ceh28",cl:2,E:242331,N:364122,mh:9.793,wh:9.935,sh:9.661,sy:0.227},{n:"ceh30",cl:4,E:241072,N:363760,mh:6.942,wh:6.968,sh:6.916,sy:0.223},{n:"ceh31",cl:3,E:241075,N:363538,mh:5.059,wh:5.119,sh:4.999,sy:0.275},{n:"Ceh32",cl:4,E:241167,N:364003,mh:9.280,wh:9.278,sh:9.281,sy:0.197},{n:"ceh33",cl:4,E:240936,N:363808,mh:7.075,wh:7.092,sh:7.058,sy:0.221},{n:"ceh34",cl:4,E:241251,N:363920,mh:8.889,wh:8.895,sh:8.883,sy:0.196},{n:"ceh36",cl:3,E:241161,N:363306,mh:4.657,wh:4.755,sh:4.562,sy:0.290},{n:"ceh39",cl:3,E:241719,N:363435,mh:7.352,wh:7.428,sh:7.279,sy:0.263},{n:"ceh40",cl:2,E:242060,N:363399,mh:7.234,wh:7.317,sh:7.152,sy:0.271},{n:"ceh41",cl:2,E:242284,N:363325,mh:6.728,wh:6.825,sh:6.630,sy:0.222},{n:"ceh42",cl:3,E:242121,N:362743,mh:3.294,wh:3.431,sh:3.157,sy:0.254},{n:"WMC1",cl:2,E:242766,N:363644,mh:6.847,wh:6.954,sh:6.743,sy:0.232},{n:"WMC2",cl:3,E:241885,N:362856,mh:3.967,wh:4.066,sh:3.872,sy:0.234},{n:"wmc3",cl:3,E:241217,N:363562,mh:7.505,wh:7.550,sh:7.460,sy:0.258},{n:"wmc4",cl:2,E:241761,N:364180,mh:11.330,wh:11.491,sh:11.177,sy:0.199},{n:"L7",cl:2,E:242812,N:364395,mh:8.781,wh:8.925,sh:8.640,sy:0.212},{n:"D5",cl:2,E:242083,N:363902,mh:10.153,wh:10.275,sh:10.033,sy:0.259},{n:"D6",cl:2,E:242115,N:364022,mh:10.390,wh:10.533,sh:10.251,sy:0.267},{n:"D7",cl:2,E:242611,N:364205,mh:9.477,wh:9.633,sh:9.327,sy:0.213},{n:"D8",cl:2,E:242677,N:364024,mh:8.981,wh:9.088,sh:8.879,sy:0.219},{n:"D9",cl:2,E:242711,N:363911,mh:8.634,wh:8.761,sh:8.516,sy:0.211},{n:"D10",cl:2,E:242614,N:364119,mh:9.267,wh:9.384,sh:9.153,sy:0.235},{n:"D15",cl:2,E:241981,N:363896,mh:10.290,wh:10.414,sh:10.169,sy:0.198},{n:"D17",cl:2,E:242447,N:363535,mh:7.671,wh:7.802,sh:7.543,sy:0.251},{n:"D25",cl:3,E:242215,N:363144,mh:4.910,wh:5.017,sh:4.807,sy:0.264},{n:"D38",cl:2,E:242712,N:363069,mh:4.237,wh:4.436,sh:4.047,sy:0.216},{n:"D41",cl:2,E:242772,N:363343,mh:5.584,wh:5.719,sh:5.452,sy:0.227},{n:"T41a",cl:2,E:242710,N:363276,mh:5.858,wh:6.047,sh:5.674,sy:0.201},{n:"T41b",cl:2,E:242715,N:363310,mh:5.345,wh:5.485,sh:5.209,sy:0.212},{n:"T41c",cl:2,E:242721,N:363324,mh:5.586,wh:5.729,sh:5.447,sy:0.253},{n:"T41d",cl:2,E:242732,N:363353,mh:5.817,wh:5.952,sh:5.686,sy:0.215},{n:"D43",cl:2,E:242665,N:363429,mh:6.297,wh:6.451,sh:6.146,sy:0.226},{n:"D44",cl:2,E:242819,N:363280,mh:5.225,wh:5.382,sh:5.073,sy:0.237}];
 
-// KML polygons — pyproj EPSG:4326→27700
 var CF_POLY=[[241062,363621],[241170,363796],[241354,363679],[241235,363505],[241062,363621]];
 var BL_POLY=[[241298,364491],[241316,364469],[241348,364365],[241428,364295],[241424,364259],[241411,364210],[241406,364158],[241607,364051],[241717,364207],[241692,364218],[241654,364245],[241629,364259],[241539,364315],[241465,364360],[241327,364543],[241298,364491]];
 var LAKE_POLY=[[242613,364937],[242576,364938],[242543,364924],[242512,364902],[242479,364860],[242457,364849],[242429,364818],[242397,364788],[242360,364764],[242352,364750],[242356,364729],[242384,364730],[242405,364749],[242435,364773],[242476,364786],[242507,364807],[242531,364822],[242554,364832],[242574,364853],[242597,364869],[242619,364882],[242631,364899],[242628,364919],[242613,364937]];
-
-// Forest boundary from Features.kml clipped to map extent (pyproj Helmert)
 var FOREST_POLY=[[241554,364966],[241380,364725],[241715,364622],[241805,364349],[241024,363184],[240920,363331],[240650,363417],[240650,365100],[241409,365100],[241554,364966]];
-
-// Site boundary (simplified 15-pt outline from site_boundary.kml, pyproj)
 var SITE_POLY=[[241088,362784],[240016,363370],[240000,364300],[240954,365000],[241436,365096],[242932,365034],[243680,364434],[243762,364180],[243604,363794],[243962,363656],[243816,363012],[243036,362266],[242066,362294],[241780,362156],[241088,362784]];
 
-var CL_LABS={1:'C1 E-Block Lake',2:'C2 E-Block Dune',3:'C3 W-Block Dune',4:'C4 Forest',5:'C5 Coastal'};
-var CL_COLS={1:'#185FA5',2:'#1D9E75',3:'#D85A30',4:'#3B6D11',5:'#534AB7'};
-var SY_WTF={1:0.212,2:0.224,3:0.258,4:0.202,5:0.12};
-var SY_MIN={1:0.06,2:0.12,3:0.12,4:0.12,5:0.12};
-var BETA={1:{b1:1.5647,b2:4.9783,b3:0.3660},2:{b1:1.6738,b2:4.3755,b3:0.2000},3:{b1:1.2007,b2:3.5917,b3:0.1179},4:{b1:0.9566,b2:3.4141,b3:0.0776},5:{b1:0.9766,b2:1.4702,b3:0.0171}};
+var LABS={1:'C1 E-Block',2:'C2 E-Block',3:'C3 W-Block',4:'C4 Forest',5:'C5 Coastal'};
+var COLS={1:'#185FA5',2:'#1D9E75',3:'#D85A30',4:'#3B6D11',5:'#534AB7'};
+var SY={1:0.212,2:0.224,3:0.258,4:0.202,5:0.12};
+var SYFL={1:0.06,2:0.12,3:0.12,4:0.12,5:0.12};
+var B={1:{b1:1.5647,b2:4.9783,b3:0.3660},2:{b1:1.6738,b2:4.3755,b3:0.2000},3:{b1:1.2007,b2:3.5917,b3:0.1179},4:{b1:0.9566,b2:3.4141,b3:0.0776},5:{b1:0.9766,b2:1.4702,b3:0.0171}};
 var HO={annual:{1:7.652,2:8.015,3:6.588,4:9.862,5:3.378},winter:{1:7.835,2:8.135,3:6.659,4:9.839,5:3.449},summer:{1:7.479,2:7.902,3:6.520,4:9.884,5:3.310}};
 var PM={annual:0.07145,winter:0.08265,summer:0.06019};
 var PETM={annual:0.05312,winter:0.02664,summer:0.07969};
-
-var season='annual',hChart=null,mapMode='dh',chartMode='delta';
-var CUR_DH={},CUR_SCENH={},CUR_SL={};
-
-var SC={baseline:{sP:1,sPET:1,sI:0.24,sB2:1,sSy:1},climate_wet:{sP:1.15,sPET:1,sI:0.24,sB2:1,sSy:1},climate_dry:{sP:0.85,sPET:1.1,sI:0.24,sB2:1,sSy:1},clearfell:{sP:1,sPET:1,sI:0,sB2:1.35,sSy:1},broadleaf:{sP:1,sPET:1,sI:0.08,sB2:1.45,sSy:1},thinning:{sP:1,sPET:1,sI:0.12,sB2:1.15,sSy:1}};
-var SN={clearfell:'Post-felling: interception removed, β₂ increases. Study finding: clearfell deepens summer minima — the dominant control on winter flooding probability.',broadleaf:'Broadleaf conversion: higher β₂ than Corsican pine. Study finding: hydrologically worse for wet slack conservation.',climate_dry:'Dry scenario: −15% rainfall, +10% PET. Summer minima deepen across all clusters.'};
-
-function rSl(){return{sP:+document.getElementById('sP').value,sPET:+document.getElementById('sPET').value,sI:+document.getElementById('sI').value,sB2:+document.getElementById('sB2').value,sSy:+document.getElementById('sSy').value};}
-function refreshL(){var s=rSl();document.getElementById('vP').textContent=s.sP.toFixed(2)+'×';document.getElementById('vPET').textContent=s.sPET.toFixed(2)+'×';document.getElementById('vI').textContent=(s.sI*100).toFixed(0)+'%';document.getElementById('vB2').textContent=s.sB2.toFixed(2)+'×';document.getElementById('vSy').textContent=s.sSy.toFixed(2)+'×';}
-function onSl(){refreshL();compute();}
-function loadSc(name){document.querySelectorAll('.sb').forEach(function(b){b.classList.remove('active');});document.getElementById('btn_'+name).classList.add('active');var sc=SC[name];['sP','sPET','sI','sB2','sSy'].forEach(function(k){document.getElementById(k).value=sc[k];});refreshL();var wb=document.getElementById('warnBox');if(SN[name]){wb.textContent=SN[name];wb.style.display='block';}else wb.style.display='none';compute();}
-function setSeas(s){season=s;document.querySelectorAll('.st').forEach(function(b){b.classList.remove('active');});document.getElementById('tab_'+s).classList.add('active');compute();}
-function setMapMode(m){mapMode=m;document.querySelectorAll('[id^="rt_"]').forEach(function(b){b.classList.remove('active');});document.getElementById('rt_'+m).classList.add('active');drawMap();}
-function setChartMode(m){chartMode=m;document.querySelectorAll('[id^="ct_"]').forEach(function(b){b.classList.remove('active');});document.getElementById('ct_'+m).classList.add('active');renderBar();}
-function getSyEff(cl,sl){return Math.max(SY_WTF[cl]*(sl?sl.sSy:1),SY_MIN[cl]);}
-
-function compute(){
-  var sl=rSl(); CUR_SL=sl;
-  var P=PM[season],PET=PETM[season];
-  var dh={},scenH={};
-  [1,2,3,4,5].forEach(function(cl){
-    var b=BETA[cl],h=HO[season][cl];
-    var Peb=cl===4?P*(1-0.24):P;
-    var nBase=b.b1*Peb-b.b2*PET-b.b3*h;
-    var Pes=cl===4?P*sl.sP*(1-sl.sI):P*sl.sP;
-    var PETs=PET*sl.sPET;
-    var b2s=cl===4?b.b2*sl.sB2:b.b2;
-    var nSc=b.b1*Pes-b2s*PETs-b.b3*h;
-    dh[cl]=(nSc-nBase)/getSyEff(cl,sl);
-    scenH[cl]=h+dh[cl];
-  });
-  CUR_DH=dh; CUR_SCENH=scenH;
-  drawMap(); renderBar(); renderTable(); renderMetrics(dh,sl);
-}
-
-// ── MAP ───────────────────────────────────────────────────────────────────
 var EMIN=240650,EMAX=243200,NMIN=362600,NMAX=365100;
-var W=700,H=390;
 
-function toC(E,N){return{x:(E-EMIN)/(EMAX-EMIN)*W,y:H-(N-NMIN)/(NMAX-NMIN)*H};}
+var sea='annual',hChart=null,mm='dh',cm='dh';
+var DH={},SH={},SL={sSy:1};
+var MW=0,MH=0;
 
-// Point-in-polygon (ray casting)
-function ptInPoly(px,py,poly){
-  var inside=false,n=poly.length;
-  for(var i=0,j=n-1;i<n;j=i++){
-    var xi=poly[i][0],yi=poly[i][1],xj=poly[j][0],yj=poly[j][1];
-    if(((yi>py)!==(yj>py))&&(px<(xj-xi)*(py-yi)/(yj-yi)+xi)) inside=!inside;
-  }
-  return inside;
+var SCEN={baseline:{sP:1,sPET:1,sI:0.24,sB2:1,sSy:1},climate_wet:{sP:1.15,sPET:1,sI:0.24,sB2:1,sSy:1},climate_dry:{sP:0.85,sPET:1.1,sI:0.24,sB2:1,sSy:1},clearfell:{sP:1,sPET:1,sI:0,sB2:1.35,sSy:1},broadleaf:{sP:1,sPET:1,sI:0.08,sB2:1.45,sSy:1},thinning:{sP:1,sPET:1,sI:0.12,sB2:1.15,sSy:1}};
+var WARN={clearfell:'Post-felling: interception removed, β₂ increases. Study finding: clearfell deepens summer minima — the dominant control on winter flooding probability.',broadleaf:'Broadleaf conversion: higher β₂ than Corsican pine. Study finding: hydrologically worse for wet slack conservation.',climate_dry:'Dry scenario: −15% P, +10% PET. Summer minima deepen across all clusters.'};
+
+function gs(){return{sP:+document.getElementById('sP').value,sPET:+document.getElementById('sPET').value,sI:+document.getElementById('sI').value,sB2:+document.getElementById('sB2').value,sSy:+document.getElementById('sSy').value};}
+function rl(){var s=gs();document.getElementById('vP').textContent=s.sP.toFixed(2)+'×';document.getElementById('vPET').textContent=s.sPET.toFixed(2)+'×';document.getElementById('vI').textContent=(s.sI*100).toFixed(0)+'%';document.getElementById('vB2').textContent=s.sB2.toFixed(2)+'×';document.getElementById('vSy').textContent=s.sSy.toFixed(2)+'×';}
+function onSl(){rl();go();}
+function loadSc(n){document.querySelectorAll('.sc').forEach(function(b){b.classList.remove('on');});document.getElementById('btn_'+n).classList.add('on');var sc=SCEN[n];['sP','sPET','sI','sB2','sSy'].forEach(function(k){document.getElementById(k).value=sc[k];});rl();var wb=document.getElementById('warnBox');if(WARN[n]){wb.textContent=WARN[n];wb.style.display='block';}else wb.style.display='none';go();}
+function setSeas(s){sea=s;document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('on');});document.getElementById('tab_'+s).classList.add('on');go();}
+function setMM(m){mm=m;document.querySelectorAll('[id^="rt_"]').forEach(function(b){b.classList.remove('on');});document.getElementById('rt_'+m).classList.add('on');drawMap();}
+function setCM(m){cm=m;document.querySelectorAll('[id^="ct_"]').forEach(function(b){b.classList.remove('on');});document.getElementById('ct_'+m).classList.add('on');renderBar();}
+function syEff(cl,sl){return Math.max(SY[cl]*(sl?sl.sSy:1),SYFL[cl]);}
+
+function go(){
+  var sl=gs();SL=sl;
+  var P=PM[sea],PET=PETM[sea];
+  [1,2,3,4,5].forEach(function(cl){
+    var bk=B[cl],h=HO[sea][cl];
+    var Pb=cl===4?P*(1-0.24):P;
+    var nBase=bk.b1*Pb-bk.b2*PET-bk.b3*h;
+    var Ps=cl===4?P*sl.sP*(1-sl.sI):P*sl.sP;
+    var b2s=cl===4?bk.b2*sl.sB2:bk.b2;
+    DH[cl]=(bk.b1*Ps-b2s*PET*sl.sPET-bk.b3*h-nBase)/syEff(cl,sl);
+    SH[cl]=h+DH[cl];
+  });
+  drawMap();renderBar();renderTable();renderMetrics();
 }
 
-// Colours: positive Δh (wetter/higher head) = blue, negative (drier/lower) = red
-function dhCol(t){
-  t=Math.max(-1,Math.min(1,t));
-  if(t>0){var f=t;return'rgb('+Math.round(255*(1-f*0.75))+','+Math.round(255*(1-f*0.75))+',255)';}
-  if(t<0){var f=-t;return'rgb(255,'+Math.round(255*(1-f*0.75))+','+Math.round(255*(1-f*0.75))+')';}
-  return'rgb(255,255,255)';
-}
-var GSTOPS=[[0,'#08306b'],[0.25,'#2171b5'],[0.5,'#74c476'],[0.75,'#fed976'],[1,'#e31a1c']];
-function absCol(t){t=Math.max(0,Math.min(1,t));for(var i=0;i<GSTOPS.length-1;i++){if(t<=GSTOPS[i+1][0]){var f=(t-GSTOPS[i][0])/(GSTOPS[i+1][0]-GSTOPS[i][0]),a=GSTOPS[i][1],b=GSTOPS[i+1][1];var ar=[parseInt(a.slice(1,3),16),parseInt(a.slice(3,5),16),parseInt(a.slice(5,7),16)];var br=[parseInt(b.slice(1,3),16),parseInt(b.slice(3,5),16),parseInt(b.slice(5,7),16)];return'rgb('+Math.round(ar[0]+(br[0]-ar[0])*f)+','+Math.round(ar[1]+(br[1]-ar[1])*f)+','+Math.round(ar[2]+(br[2]-ar[2])*f)+')';}}}
+function pip(px,py,poly){var ins=false,n=poly.length;for(var i=0,j=n-1;i<n;j=i++){var xi=poly[i][0],yi=poly[i][1],xj=poly[j][0],yj=poly[j][1];if(((yi>py)!==(yj>py))&&(px<(xj-xi)*(py-yi)/(yj-yi)+xi))ins=!ins;}return ins;}
+function tc(E,N){return{x:(E-EMIN)/(EMAX-EMIN)*MW,y:MH-(N-NMIN)/(NMAX-NMIN)*MH};}
 
+function dhC(t){t=Math.max(-1,Math.min(1,t));if(t>0){var f=t;return[Math.round(255*(1-f*0.75)),Math.round(255*(1-f*0.75)),255];}if(t<0){var f=-t;return[255,Math.round(255*(1-f*0.75)),Math.round(255*(1-f*0.75))];}return[255,255,255];}
+var GS=[[0,'#08306b'],[0.25,'#2171b5'],[0.5,'#74c476'],[0.75,'#fed976'],[1,'#e31a1c']];
+function abC(t){t=Math.max(0,Math.min(1,t));for(var i=0;i<GS.length-1;i++){if(t<=GS[i+1][0]){var f=(t-GS[i][0])/(GS[i+1][0]-GS[i][0]),a=GS[i][1],b=GS[i+1][1];return[Math.round(parseInt(a.slice(1,3),16)+(parseInt(b.slice(1,3),16)-parseInt(a.slice(1,3),16))*f),Math.round(parseInt(a.slice(3,5),16)+(parseInt(b.slice(3,5),16)-parseInt(a.slice(3,5),16))*f),Math.round(parseInt(a.slice(5,7),16)+(parseInt(b.slice(5,7),16)-parseInt(a.slice(5,7),16))*f)];}}return[8,48,107];}
 function idw(px,py,pts){var n=0,d=0;for(var i=0;i<pts.length;i++){var dx=px-pts[i].E,dy=py-pts[i].N,d2=dx*dx+dy*dy;if(d2<1)return pts[i].v;var w=1/d2;n+=w*pts[i].v;d+=w;}return d>0?n/d:0;}
 
-function drawPolyCtx(ctx,poly,fill,stroke,lw,dash){
-  if(!poly||poly.length<2)return;
-  var p0=toC(poly[0][0],poly[0][1]);
-  ctx.beginPath();ctx.moveTo(p0.x,p0.y);
-  for(var i=1;i<poly.length;i++){var p=toC(poly[i][0],poly[i][1]);ctx.lineTo(p.x,p.y);}
-  ctx.closePath();
-  if(fill){ctx.fillStyle=fill;ctx.fill();}
-  if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw||1.8;ctx.setLineDash(dash||[]);ctx.stroke();ctx.setLineDash([]);}
+function sizeMap(){
+  var wrap=document.getElementById('mwrap');
+  MW=wrap.clientWidth;
+  MH=Math.round(MW*0.48);
+  ['mapBg','mapC'].forEach(function(id){
+    var c=document.getElementById(id);
+    c.width=MW;c.height=MH;
+    c.style.height=MH+'px';
+  });
 }
 
-// Draw background canvas once (grey outside, green inside site boundary)
-function drawBackground(){
-  var bgCanvas=document.getElementById('mapBg');
-  var ctx=bgCanvas.getContext('2d');
-  ctx.clearRect(0,0,W,H);
-  // Full canvas grey (outside study area)
-  ctx.fillStyle='#b8c8b0';
-  ctx.fillRect(0,0,W,H);
-  // Site boundary fill — inside is light green
-  var p0=toC(SITE_POLY[0][0],SITE_POLY[0][1]);
-  ctx.beginPath();ctx.moveTo(p0.x,p0.y);
-  for(var i=1;i<SITE_POLY.length;i++){var p=toC(SITE_POLY[i][0],SITE_POLY[i][1]);ctx.lineTo(p.x,p.y);}
+function drawBg(){
+  var c=document.getElementById('mapBg'),ctx=c.getContext('2d');
+  ctx.fillStyle='#b0c8a8';ctx.fillRect(0,0,MW,MH);
+  ctx.beginPath();
+  var p0=tc(SITE_POLY[0][0],SITE_POLY[0][1]);ctx.moveTo(p0.x,p0.y);
+  for(var i=1;i<SITE_POLY.length;i++){var p=tc(SITE_POLY[i][0],SITE_POLY[i][1]);ctx.lineTo(p.x,p.y);}
+  ctx.closePath();ctx.fillStyle='#d4e8cc';ctx.fill();
+  ctx.strokeStyle='#6a9a60';ctx.lineWidth=1.2;ctx.stroke();
+}
+
+function dpoly(ctx,poly,fill,stroke,lw){
+  if(!poly||poly.length<2)return;
+  ctx.beginPath();var p0=tc(poly[0][0],poly[0][1]);ctx.moveTo(p0.x,p0.y);
+  for(var i=1;i<poly.length;i++){var p=tc(poly[i][0],poly[i][1]);ctx.lineTo(p.x,p.y);}
   ctx.closePath();
-  ctx.fillStyle='#d4e8cc';ctx.fill();
-  // Site boundary outline
-  ctx.strokeStyle='#6a9a60';ctx.lineWidth=1.5;ctx.setLineDash([]);ctx.stroke();
+  if(fill){ctx.fillStyle=fill;ctx.fill();}
+  if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw||1.5;ctx.setLineDash([]);ctx.stroke();}
 }
 
 function drawMap(){
-  var showKml=document.getElementById('chkKml').checked;
-  var showLbl=document.getElementById('chkLbl').checked;
-  var canvas=document.getElementById('mapC');
-  var ctx=canvas.getContext('2d');
-  ctx.clearRect(0,0,W,H);
-
-  var dh=CUR_DH,scenH=CUR_SCENH;
+  if(!MW)return;
+  var canvas=document.getElementById('mapC'),ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,MW,MH);
   var wpts=WELLS.map(function(w){
-    var v=mapMode==='dh'?(dh[w.cl]||0):(scenH[w.cl]||HO[season][w.cl]);
-    return{E:w.E,N:w.N,v:v,cl:w.cl,sy:w.sy,name:w.n,mh:season==='annual'?w.mh:season==='winter'?w.wh:w.sh};
+    var v=mm==='dh'?(DH[w.cl]||0):(SH[w.cl]||HO[sea][w.cl]);
+    return{E:w.E,N:w.N,v:v,cl:w.cl,sy:w.sy,name:w.n,mh:sea==='annual'?w.mh:sea==='winter'?w.wh:w.sh};
   });
-
   var vals=wpts.map(function(w){return w.v;});
-  var vMin=Math.min.apply(null,vals),vMax=Math.max.apply(null,vals);
-  var dhMax=Math.max(Math.abs(vMin),Math.abs(vMax),0.005);
-
-  // IDW raster — only render pixels inside site boundary
-  var STEP=18;
-  var imgD=ctx.createImageData(W,H);
-  // Initialise all pixels transparent
-  for(var k=0;k<imgD.data.length;k+=4){imgD.data[k+3]=0;}
-
-  for(var py=0;py<H;py+=STEP){
-    for(var px=0;px<W;px+=STEP){
-      var E=EMIN+(px/W)*(EMAX-EMIN);
-      var N=NMIN+((H-py)/H)*(NMAX-NMIN);
-      // Only colour pixels inside site boundary
-      if(!ptInPoly(E,N,SITE_POLY)) continue;
+  var vMn=Math.min.apply(null,vals),vMx=Math.max.apply(null,vals);
+  var dhMx=Math.max(Math.abs(vMn),Math.abs(vMx),0.005);
+  var ST=Math.max(10,Math.round(MW/50));
+  var img=ctx.createImageData(MW,MH);
+  for(var k=0;k<img.data.length;k+=4)img.data[k+3]=0;
+  for(var py=0;py<MH;py+=ST){
+    for(var px=0;px<MW;px+=ST){
+      var E=EMIN+(px/MW)*(EMAX-EMIN),N=NMIN+((MH-py)/MH)*(NMAX-NMIN);
+      if(!pip(E,N,SITE_POLY))continue;
       var v=idw(E,N,wpts);
-      var col=mapMode==='dh'?dhCol(v/dhMax):absCol((v-vMin)/(vMax-vMin));
-      var rgb=col.match(/\d+/g).map(Number);
-      for(var dy=0;dy<STEP&&py+dy<H;dy++){
-        for(var dx=0;dx<STEP&&px+dx<W;dx++){
-          // Re-check each sub-pixel for accuracy at boundary
-          var E2=EMIN+((px+dx)/W)*(EMAX-EMIN);
-          var N2=NMIN+((H-py-dy)/H)*(NMAX-NMIN);
-          if(!ptInPoly(E2,N2,SITE_POLY)) continue;
-          var idx=4*((py+dy)*W+(px+dx));
-          imgD.data[idx]=rgb[0];imgD.data[idx+1]=rgb[1];imgD.data[idx+2]=rgb[2];imgD.data[idx+3]=215;
+      var rgb=mm==='dh'?dhC(v/dhMx):abC((v-vMn)/(vMx-vMn));
+      for(var dy=0;dy<ST&&py+dy<MH;dy++){
+        for(var dx=0;dx<ST&&px+dx<MW;dx++){
+          var E2=EMIN+((px+dx)/MW)*(EMAX-EMIN),N2=NMIN+((MH-py-dy)/MH)*(NMAX-NMIN);
+          if(!pip(E2,N2,SITE_POLY))continue;
+          var idx=4*((py+dy)*MW+(px+dx));
+          img.data[idx]=rgb[0];img.data[idx+1]=rgb[1];img.data[idx+2]=rgb[2];img.data[idx+3]=215;
         }
       }
     }
   }
-  ctx.putImageData(imgD,0,0);
-
-  if(showKml){
-    // Forest boundary (actual KML polygon clipped to map extent)
-    drawPolyCtx(ctx,FOREST_POLY,'rgba(80,40,130,0.12)','#6a0dad',2.0,[]);
-    // Broadleaf restock
-    drawPolyCtx(ctx,BL_POLY,'rgba(30,158,117,0.35)','#1D9E75',2.0,[]);
-    // Clearfell
-    drawPolyCtx(ctx,CF_POLY,'rgba(230,100,30,0.45)','#e6641e',2.2,[]);
-    // Llyn Rhos-ddu
-    drawPolyCtx(ctx,LAKE_POLY,'rgba(20,80,200,0.50)','#1a5ab5',1.8,[]);
+  ctx.putImageData(img,0,0);
+  if(document.getElementById('chkKml').checked){
+    dpoly(ctx,FOREST_POLY,'rgba(80,40,130,0.12)','#6a0dad',1.6);
+    dpoly(ctx,BL_POLY,'rgba(30,158,117,0.35)','#1D9E75',1.8);
+    dpoly(ctx,CF_POLY,'rgba(230,100,30,0.45)','#e6641e',2.0);
+    dpoly(ctx,LAKE_POLY,'rgba(20,80,200,0.5)','#1a5ab5',1.5);
   }
-
-  // Well dots — size proportional to WTF Sy
   var syV=WELLS.filter(function(w){return w.sy;}).map(function(w){return w.sy;});
   var syMn=Math.min.apply(null,syV),syMx=Math.max.apply(null,syV);
+  var showLbl=document.getElementById('chkLbl').checked;
   wpts.forEach(function(w){
-    var p=toC(w.E,w.N);
-    var r=w.sy?3+((w.sy-syMn)/(syMx-syMn))*5:3;
+    var p=tc(w.E,w.N),r=w.sy?2+((w.sy-syMn)/(syMx-syMn))*3.5:2;
     ctx.beginPath();ctx.arc(p.x,p.y,r,0,2*Math.PI);
     ctx.fillStyle='rgba(255,255,255,0.92)';ctx.fill();
-    ctx.strokeStyle='rgba(0,0,0,0.55)';ctx.lineWidth=0.8;ctx.stroke();
-    if(showLbl){ctx.fillStyle='rgba(0,0,0,0.65)';ctx.font='8px sans-serif';ctx.textAlign='left';ctx.fillText(w.name,p.x+r+1,p.y+3);}
+    ctx.strokeStyle='rgba(0,0,0,0.5)';ctx.lineWidth=0.6;ctx.stroke();
+    if(showLbl&&MW>350){ctx.fillStyle='rgba(0,0,0,0.62)';ctx.font='7px sans-serif';ctx.textAlign='left';ctx.fillText(w.name,p.x+r+1,p.y+2.5);}
   });
-
-  // Legend
-  var leg=document.getElementById('mapLeg');
-  var kmlLeg=showKml?'<span><span class="ls" style="background:rgba(230,100,30,0.55);border:1.5px solid #e6641e;"></span>Clearfell</span><span><span class="ls" style="background:rgba(30,158,117,0.45);border:1.5px solid #1D9E75;"></span>Broadleaf restock</span><span><span class="ls" style="background:rgba(80,40,130,0.3);border:1.5px solid #6a0dad;"></span>Forest boundary (KML)</span><span><span class="ls" style="background:rgba(20,80,200,0.5);border:1.5px solid #1a5ab5;"></span>Llyn Rhos-ddu</span>':'';
-  if(mapMode==='dh'){
-    var neg=vMin.toFixed(3),pos=(vMax>=0?'+':'')+vMax.toFixed(3);
-    leg.innerHTML='<span style="color:#c04040">'+neg+' m (drier)</span><canvas id="legC" width="100" height="10" style="width:100px;height:10px;border-radius:3px;vertical-align:middle;"></canvas><span style="color:#4040c0">'+pos+' m (wetter)</span>'+kmlLeg+'<span style="color:var(--color-text-tertiary)">● r∝Sy</span>';
-    setTimeout(function(){var lc=document.getElementById('legC');if(!lc)return;var lx=lc.getContext('2d');var g=lx.createLinearGradient(0,0,100,0);g.addColorStop(0,'rgb(255,100,100)');g.addColorStop(0.5,'rgb(255,255,255)');g.addColorStop(1,'rgb(100,100,255)');lx.fillStyle=g;lx.fillRect(0,0,100,10);},30);
-  }else{
-    leg.innerHTML='<span>Low</span><canvas id="legC" width="100" height="10" style="width:100px;height:10px;border-radius:3px;vertical-align:middle;"></canvas><span>High head (m AOD)</span>'+kmlLeg;
-    setTimeout(function(){var lc=document.getElementById('legC');if(!lc)return;var lx=lc.getContext('2d');var g=lx.createLinearGradient(0,0,100,0);GSTOPS.forEach(function(s){g.addColorStop(s[0],s[1]);});lx.fillStyle=g;lx.fillRect(0,0,100,10);},30);
-  }
   canvas._wpts=wpts;
+
+  var ld=document.getElementById('legDiv');
+  var kl=document.getElementById('chkKml').checked?'<span><span class="ls" style="background:rgba(230,100,30,0.55);border:1px solid #e6641e;"></span>Clearfell</span><span><span class="ls" style="background:rgba(30,158,117,0.45);border:1px solid #1D9E75;"></span>Broadleaf</span><span><span class="ls" style="background:rgba(80,40,130,0.3);border:1px solid #6a0dad;"></span>Forest</span><span><span class="ls" style="background:rgba(20,80,200,0.5);border:1px solid #1a5ab5;"></span>Llyn Rhos-ddu</span>':'';
+  if(mm==='dh'){
+    ld.innerHTML='<span style="color:#b03030">'+vMn.toFixed(3)+'m</span><canvas id="lc" width="70" height="9" style="width:70px;height:9px;border-radius:2px;vertical-align:middle;"></canvas><span style="color:#3030b0">+'+(vMx).toFixed(3)+'m</span><span>red=drier · blue=wetter</span>'+kl;
+    setTimeout(function(){var c=document.getElementById('lc');if(!c)return;var x=c.getContext('2d'),g=x.createLinearGradient(0,0,70,0);g.addColorStop(0,'rgb(255,100,100)');g.addColorStop(0.5,'rgb(255,255,255)');g.addColorStop(1,'rgb(100,100,255)');x.fillStyle=g;x.fillRect(0,0,70,9);},30);
+  }else{
+    ld.innerHTML='<span>Low</span><canvas id="lc" width="70" height="9" style="width:70px;height:9px;border-radius:2px;vertical-align:middle;"></canvas><span>High (m AOD)</span>'+kl;
+    setTimeout(function(){var c=document.getElementById('lc');if(!c)return;var x=c.getContext('2d'),g=x.createLinearGradient(0,0,70,0);GS.forEach(function(s){g.addColorStop(s[0],s[1]);});x.fillStyle=g;x.fillRect(0,0,70,9);},30);
+  }
 }
 
 document.getElementById('mapC').addEventListener('mousemove',function(e){
-  var rect=this.getBoundingClientRect(),sx=this.width/rect.width;
-  var mx=(e.clientX-rect.left)*sx,my=(e.clientY-rect.top)*sx;
-  if(!this._wpts)return;
+  if(!this._wpts||!MW)return;
+  var r=this.getBoundingClientRect(),sx=MW/r.width;
+  var mx=(e.clientX-r.left)*sx,my=(e.clientY-r.top)*sx;
   var best=null,bd=Infinity;
-  this._wpts.forEach(function(w){var p=toC(w.E,w.N),d=Math.hypot(mx-p.x,my-p.y);if(d<bd){bd=d;best=w;}});
-  var tip=document.getElementById('wellTip');
-  if(best&&bd<18){
-    var dh=CUR_DH[best.cl]||0;
-    tip.textContent=best.name+' · C'+best.cl+' · baseline: '+best.mh.toFixed(2)+' m AOD · scenario: '+(best.mh+dh).toFixed(2)+' m AOD · Δh: '+(dh>=0?'+':'')+dh.toFixed(3)+' m'+(best.sy?' · Sy: '+(best.sy*100).toFixed(1)+'%':'');
-  }else tip.textContent='';
+  this._wpts.forEach(function(w){var p=tc(w.E,w.N),d=Math.hypot(mx-p.x,my-p.y);if(d<bd){bd=d;best=w;}});
+  var tip=document.getElementById('tipDiv');
+  if(best&&bd<16){var dh=DH[best.cl]||0;tip.textContent=best.name+' · C'+best.cl+' · base '+best.mh.toFixed(2)+' · scen '+(best.mh+dh).toFixed(2)+' m AOD · Δh '+(dh>=0?'+':'')+dh.toFixed(3)+'m'+(best.sy?' · Sy '+(best.sy*100).toFixed(1)+'%':'');}
+  else tip.textContent='';
 });
 
-// ── BAR CHART ─────────────────────────────────────────────────────────────
 function renderBar(){
   var cls=[1,2,3,4,5];
   if(hChart)hChart.destroy();
-  var datasets,yLabel;
-  if(chartMode==='delta'){
-    yLabel='Δh from baseline (m)';
-    datasets=[{label:'Δh (scenario − baseline)',data:cls.map(function(c){return +(CUR_DH[c]||0).toFixed(4);}),backgroundColor:cls.map(function(c){var v=CUR_DH[c]||0;return v>0.001?'rgba(65,105,225,0.65)':v<-0.001?'rgba(205,50,50,0.65)':'rgba(136,135,128,0.35)';}),borderColor:cls.map(function(c){var v=CUR_DH[c]||0;return v>0.001?'#4169E1':v<-0.001?'#CD3232':'rgba(136,135,128,0.6)';}),borderWidth:1.5}];
+  var ds,yL;
+  if(cm==='dh'){
+    yL='Δh (m)';
+    ds=[{label:'Δh',data:cls.map(function(c){return+(DH[c]||0).toFixed(4);}),backgroundColor:cls.map(function(c){var v=DH[c]||0;return v>0.001?'rgba(65,105,225,0.65)':v<-0.001?'rgba(205,50,50,0.65)':'rgba(136,135,128,0.35)';}),borderColor:cls.map(function(c){var v=DH[c]||0;return v>0.001?'#4169E1':v<-0.001?'#CD3232':'rgba(136,135,128,0.6)';}),borderWidth:1.5}];
   }else{
-    yLabel='m AOD';
-    datasets=[{label:'Observed baseline',data:cls.map(function(c){return +HO[season][c].toFixed(3);}),backgroundColor:'rgba(136,135,128,0.25)',borderColor:'rgba(136,135,128,0.6)',borderWidth:1},{label:'Scenario',data:cls.map(function(c){return +(CUR_SCENH[c]||HO[season][c]).toFixed(3);}),backgroundColor:cls.map(function(c){return CL_COLS[c]+'99';}),borderColor:cls.map(function(c){return CL_COLS[c];}),borderWidth:1.5}];
+    yL='m AOD';
+    ds=[{label:'Baseline',data:cls.map(function(c){return+HO[sea][c].toFixed(3);}),backgroundColor:'rgba(136,135,128,0.22)',borderColor:'rgba(136,135,128,0.55)',borderWidth:1},{label:'Scenario',data:cls.map(function(c){return+(SH[c]||HO[sea][c]).toFixed(3);}),backgroundColor:cls.map(function(c){return COLS[c]+'99';}),borderColor:cls.map(function(c){return COLS[c];}),borderWidth:1.5}];
   }
-  hChart=new Chart(document.getElementById('hC').getContext('2d'),{type:'bar',data:{labels:cls.map(function(c){return CL_LABS[c];}),datasets:datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:11},boxWidth:10,padding:10}}},scales:{y:{title:{display:true,text:yLabel,font:{size:11}},grid:{color:'rgba(128,128,128,0.12)'}},x:{ticks:{font:{size:10},maxRotation:18}}}}});
+  hChart=new Chart(document.getElementById('hC').getContext('2d'),{type:'bar',data:{labels:cls.map(function(c){return LABS[c];}),datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:10},boxWidth:8,padding:7}}},scales:{y:{title:{display:true,text:yL,font:{size:10}},ticks:{font:{size:10}},grid:{color:'rgba(128,128,128,0.12)'}},x:{ticks:{font:{size:10},maxRotation:15}}}}});
 }
 
-// ── SUMMARY TABLE ─────────────────────────────────────────────────────────
 function renderTable(){
-  var cls=[1,2,3,4,5],sl=CUR_SL||{sSy:1};
-  var P=PM[season],PET=PETM[season];
+  var cls=[1,2,3,4,5],sl=SL,P=PM[sea],PET=PETM[sea];
   var rows=[
-    {l:'Baseline (m AOD)',v:cls.map(function(c){return HO[season][c].toFixed(2);}),d:false},
-    {l:'Scenario (m AOD)',v:cls.map(function(c){return (CUR_SCENH[c]||HO[season][c]).toFixed(2);}),d:false},
-    {l:'Δ head (m)',v:cls.map(function(c){return (CUR_DH[c]>=0?'+':'')+(CUR_DH[c]||0).toFixed(3);}),d:true},
-    {l:'Sy used (%)',v:cls.map(function(c){return (getSyEff(c,sl)*100).toFixed(1)+'%';}),d:false},
-    {l:'Recharge mm/mo',v:cls.map(function(c){var b=BETA[c],Pes=c===4?P*sl.sP*(1-sl.sI):P*sl.sP;return(b.b1*Pes*1000).toFixed(1);}),d:false},
-    {l:'PET draw mm/mo',v:cls.map(function(c){var b=BETA[c],PETs=PET*sl.sPET,b2s=c===4?b.b2*sl.sB2:b.b2;return(b2s*PETs*1000).toFixed(1);}),d:false},
+    {l:'Baseline (m AOD)',v:cls.map(function(c){return HO[sea][c].toFixed(2);}),d:false},
+    {l:'Scenario (m AOD)',v:cls.map(function(c){return(SH[c]||HO[sea][c]).toFixed(2);}),d:false},
+    {l:'Δ head (m)',v:cls.map(function(c){return(DH[c]>=0?'+':'')+(DH[c]||0).toFixed(3);}),d:true},
+    {l:'Sy used (%)',v:cls.map(function(c){return(syEff(c,sl)*100).toFixed(1)+'%';}),d:false},
+    {l:'Recharge mm/mo',v:cls.map(function(c){var Ps=c===4?P*sl.sP*(1-sl.sI):P*sl.sP;return(B[c].b1*Ps*1000).toFixed(1);}),d:false},
+    {l:'PET draw mm/mo',v:cls.map(function(c){var b2s=c===4?B[c].b2*sl.sB2:B[c].b2;return(b2s*PET*sl.sPET*1000).toFixed(1);}),d:false},
   ];
   function bg(v,d){if(!d)return'var(--color-background-secondary)';var n=parseFloat(v);return n>0.005?'#ddf0e8':n<-0.005?'#f9e0e0':'var(--color-background-secondary)';}
   function tx(v,d){if(!d)return'var(--color-text-primary)';var n=parseFloat(v);return n>0.005?'#085041':n<-0.005?'#7a1515':'var(--color-text-secondary)';}
   document.getElementById('tbl').innerHTML=
-    '<div class="hh"></div>'+cls.map(function(c){return'<div class="hh">C'+c+'</div>';}).join('')+
-    rows.map(function(r){return'<div class="hl">'+r.l+'</div>'+r.v.map(function(v){return'<div class="hc" style="background:'+bg(v,r.d)+';color:'+tx(v,r.d)+'">'+v+'</div>';}).join('');}).join('');
+    '<div class="th"></div>'+cls.map(function(c){return'<div class="th">C'+c+'</div>';}).join('')+
+    rows.map(function(r){return'<div class="tl">'+r.l+'</div>'+r.v.map(function(v){return'<div class="tc" style="background:'+bg(v,r.d)+';color:'+tx(v,r.d)+'">'+v+'</div>';}).join('');}).join('');
 }
 
-// ── METRICS ───────────────────────────────────────────────────────────────
-function renderMetrics(dh,sl){
-  var cls=[1,2,3,4,5];
-  var mDH=cls.reduce(function(s,c){return s+dh[c];},0)/5;
-  var c4DH=dh[4];
+function renderMetrics(){
+  var cls=[1,2,3,4,5],sl=SL;
+  var mDH=cls.reduce(function(s,c){return s+(DH[c]||0);},0)/5,c4DH=DH[4]||0;
   function dc(v){return v>0.002?'#185FA5':v<-0.002?'#A32D2D':'var(--color-text-primary)';}
-  function mc(l,v,u,col){return'<div class="mc"><div class="ml">'+l+'</div><div class="mv" style="color:'+col+'">'+v+' <span class="mu">'+u+'</span></div></div>';}
-  document.getElementById('metricRow').innerHTML=
-    mc('Mean Δh vs baseline',(mDH>=0?'+':'')+mDH.toFixed(3),'m',dc(mDH))+
-    mc('C4 Forest Δh',(c4DH>=0?'+':'')+c4DH.toFixed(3),'m',dc(c4DH))+
-    mc('Mean Sy used',(([1,2,3,4,5].reduce(function(s,c){return s+getSyEff(c,sl);},0)/5)*100).toFixed(1),'%','var(--color-text-primary)')+
-    mc('C4 Sy used',(getSyEff(4,sl)*100).toFixed(1),'%','var(--color-text-primary)');
+  function mc(l,v,u,col){return'<div class="mcard"><div class="lbl">'+l+'</div><div class="val" style="color:'+col+'">'+v+' <span class="unt">'+u+'</span></div></div>';}
+  document.getElementById('mrow').innerHTML=
+    mc('Mean Δh',(mDH>=0?'+':'')+mDH.toFixed(3),'m',dc(mDH))+
+    mc('C4 Δh',(c4DH>=0?'+':'')+c4DH.toFixed(3),'m',dc(c4DH))+
+    mc('Mean Sy',(([1,2,3,4,5].reduce(function(s,c){return s+syEff(c,sl);},0)/5)*100).toFixed(1),'%','var(--color-text-primary)')+
+    mc('C4 Sy',(syEff(4,sl)*100).toFixed(1),'%','var(--color-text-primary)');
 }
 
-// Initialise
-drawBackground();
-compute();
+function init(){
+  sizeMap();
+  drawBg();
+  go();
+}
+setTimeout(init,60);
+window.addEventListener('resize',function(){
+  var og=document.getElementById('og');
+  og.style.gridTemplateColumns=window.innerWidth<640?'1fr':'200px minmax(0,1fr)';
+  sizeMap();drawBg();drawMap();
+});
 </script>

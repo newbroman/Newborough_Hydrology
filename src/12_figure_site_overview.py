@@ -157,6 +157,22 @@ def generate_dem_map():
         zorder=5
     )
 
+    # 6b. Label each well with its name
+    print("  [INFO] Adding well name labels...")
+    import matplotlib.patheffects as pe
+    for _, row in gdf_wells.iterrows():
+        ax.annotate(
+            row['Name'],
+            xy=(row['E'], row['N']),
+            xytext=(4, 4),
+            textcoords='offset points',
+            fontsize=5,
+            color='black',
+            fontweight='bold',
+            zorder=6,
+            path_effects=[pe.withStroke(linewidth=1.5, foreground='white')],
+        )
+
     # If DEM didn't load, frame around the wells instead
     if not dem_loaded:
         x_min, y_min, x_max, y_max = gdf_wells.total_bounds

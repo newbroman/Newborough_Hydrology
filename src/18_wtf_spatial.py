@@ -43,6 +43,81 @@ from utils.paths import (
 )
 make_all_dirs()
 
+# ── Site boundary constants (shared with script 19) ───────────────────────────
+SEA_SOUTH_N = 362350   # m OSGB36 — southern shoreline Northing
+SEA_EAST_E  = 243850   # m OSGB36 — eastern (Menai Strait) Easting
+SEA_WEST_E  = 239200   # m OSGB36 — western estuary Easting
+
+
+def make_site_mask(grid_x, grid_y):
+    """
+    Boolean mask for the IDW interpolation domain, clipped to the actual
+    site boundary.
+
+    Primary: pure XML + pyproj + shapely parse of site_boundary.kml
+    (falls back to streams.kml). No fiona/KML driver needed.
+    Fallback: rectangular clip to the three sea-boundary lines.
+    """
+    import warnings
+    flat = np.column_stack([grid_x.ravel(), grid_y.ravel()])
+
+    _bnd_path = DATA_DIR / "site_boundary.kml"
+    if not _bnd_path.exists():
+        _bnd_path = DATA_DIR / "streams.kml"
+    if _bnd_path.exists():
+        try:
+            import xml.etree.ElementTree as _ET
+            from pyproj import Transformer as _Tr
+            from shapely.geometry import Polygon as _Poly
+            from shapely.ops import unary_union as _union
+            from matplotlib.path import Path as _MplPath
+
+            _tr = _Tr.from_crs("EPSG:4326", "EPSG:27700", always_xy=True)
+            _root = _ET.parse(str(_bnd_path)).getroot()
+            _polys = []
+
+            def _parse(el):
+                tag = el.tag.split("}")[-1] if "}" in el.tag else el.tag
+                if tag == "coordinates":
+                    pts = []
+                    for tok in (el.text or "").strip().split():
+                        p = tok.split(",")
+                        if len(p) >= 2:
+                            try: pts.append((float(p[0]), float(p[1])))
+                            except ValueError: pass
+                    if len(pts) >= 3:
+                        lons = [p[0] for p in pts]
+                        lats = [p[1] for p in pts]
+                        ex, ny = _tr.transform(lons, lats)
+                        try: _polys.append(_Poly(zip(ex, ny)))
+                        except Exception: pass
+                for child in el:
+                    _parse(child)
+
+            _parse(_root)
+
+            if _polys:
+                _dissolved = _union(_polys)
+                _dissolved = _dissolved.buffer(100)
+                if _dissolved.geom_type == "MultiPolygon":
+                    _dissolved = max(_dissolved.geoms, key=lambda g: g.area)
+                _coords = list(_dissolved.exterior.coords)
+                _path = _MplPath([(c[0], c[1]) for c in _coords])
+                _inside = _path.contains_points(flat)
+                print(f"  Site mask: {_inside.sum()} of {len(_inside)} grid cells inside boundary")
+                return _inside.reshape(grid_x.shape)
+        except Exception as e:
+            warnings.warn(f"site_boundary.kml mask failed ({e}) — "
+                          "falling back to rectangular sea-boundary mask.")
+
+    # Fallback: rectangular clip to sea boundaries
+    mask = np.ones(grid_x.shape, dtype=bool)
+    mask[grid_y < SEA_SOUTH_N] = False
+    mask[grid_x > SEA_EAST_E]  = False
+    mask[grid_x < SEA_WEST_E]  = False
+    return mask
+
+
 # Wells excluded from contour interpolation — physically outside sand aquifer
 # CEH12 sits on the bedrock ridge in a forested area; its WTF Sy reflects
 # fractured rock response rather than dune sand storage and must not be
@@ -169,10 +244,11 @@ def plot_spatial_map(well_results, out_path):
     import sys, os
     sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'utils'))
 
-    plot_metric_map = None
     data_dir = DATA_DIR
 
-    if plot_metric_map is None:
+    try:
+        from utils.map_utils import plot_metric_map
+    except ImportError:
         print("  [WARNING] map_utils not available — skipping point map")
         return
 
@@ -200,94 +276,65 @@ def plot_spatial_map(well_results, out_path):
 def plot_contour_map(well_results, out_path):
     """
     IDW-interpolated contour surface of WTF Sy across the site.
-    Uses OSM basemap + KML overlays (no DEM — avoids competing colour dimensions).
+    Greyscale hillshade DEM background (load_dem_hillshade) with semi-transparent
+    Sy surface overlaid. Interpolation clipped to fixed study area bounds
+    (E 240200–243800, N 362200–365800) matching the rest of the pipeline.
     Forest cluster wells hatched to signal interception uncertainty.
     """
-    import sys, os
-    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'utils'))
+    from matplotlib.lines import Line2D
+    from utils.map_utils import load_dem_hillshade, add_kml_features
 
-    from scipy.spatial import ConvexHull
-    from matplotlib.path import Path as MplPath
+    # ── Study area bounds (consistent with add_idw_surface defaults) ──────────
+    XI_MIN, XI_MAX = 240200, 243800
+    YI_MIN, YI_MAX = 362200, 365800
+    GRID_STEP = 50
 
-    # ── Load map utilities ────────────────────────────────────────────────────
-    add_osm  = None
-    add_kml  = None
-    data_dir = Path(__file__).parent.parent / "data"
-    try:
-        import geopandas as gpd
-        from utils.map_utils import add_osm_basemap, add_kml_features
-        from utils.paths import DATA_DIR
-        add_osm  = add_osm_basemap
-        add_kml  = add_kml_features
-        data_dir = DATA_DIR
-    except ImportError:
-        gpd = None
-
-    # ── Interpolation ─────────────────────────────────────────────────────────
     x  = well_results["Easting"].values
     y  = well_results["Northing"].values
     sy = well_results["Sy_median"].values
 
-    margin = 200
-    xi = np.linspace(x.min()-margin, x.max()+margin, 300)
-    yi = np.linspace(y.min()-margin, y.max()+margin, 300)
+    xi = np.arange(XI_MIN, XI_MAX, GRID_STEP)
+    yi = np.arange(YI_MIN, YI_MAX, GRID_STEP)
     Xi, Yi = np.meshgrid(xi, yi)
 
     def idw(xq, yq, xs, ys, vs, power=2):
         dist = np.sqrt((xq - xs[:,None,None])**2 + (yq - ys[:,None,None])**2)
         dist = np.where(dist == 0, 1e-10, dist)
-        weights = 1.0 / dist**power
-        return np.sum(weights * vs[:,None,None], axis=0) / np.sum(weights, axis=0)
+        w = 1.0 / dist**power
+        return np.sum(w * vs[:,None,None], axis=0) / np.sum(w, axis=0)
 
     Zi = idw(Xi, Yi, x, y, sy)
-
-    # Convex hull mask
-    hull = ConvexHull(np.column_stack([x, y]))
-    hull_path = MplPath(np.column_stack([x[hull.vertices], y[hull.vertices]]))
-    mask = ~hull_path.contains_points(
-        np.column_stack([Xi.ravel(), Yi.ravel()])
-    ).reshape(Xi.shape)
-    Zi_masked = np.ma.masked_where(mask, Zi)
+    site_mask = make_site_mask(Xi, Yi)
+    Zi_masked = np.ma.masked_where(~site_mask | np.isnan(Zi), Zi)
 
     # ── Figure ────────────────────────────────────────────────────────────────
     fig, ax = plt.subplots(figsize=(12, 10), facecolor="white", dpi=200)
-    ax.set_facecolor("#EEF2F6")
-
-    # OSM basemap — must set axis limits first so contextily knows extent
-    ax.set_xlim(x.min()-margin, x.max()+margin)
-    ax.set_ylim(y.min()-margin, y.max()+margin)
+    ax.set_xlim(XI_MIN, XI_MAX)
+    ax.set_ylim(YI_MIN, YI_MAX)
     ax.set_aspect("equal")
 
-    if add_osm is not None and gpd is not None:
-        try:
-            gdf_tmp = gpd.GeoDataFrame(
-                well_results,
-                geometry=gpd.points_from_xy(
-                    well_results["Easting"], well_results["Northing"]),
-                crs="EPSG:27700")
-            add_osm(ax, gdf_tmp)
-            print("  OSM basemap added")
-        except Exception as e:
-            print(f"  [WARNING] OSM basemap failed: {e}")
+    # Layer 1 — greyscale hillshade DEM
+    _, dem_loaded, dem_e_arr, dem_n_arr, dem_data = load_dem_hillshade(
+        ax, DATA_DIR, alpha=0.35, vert_exag=3.0, zorder=1)
+    if not dem_loaded:
+        print("  [WARNING] DEM hillshade unavailable — plain background used")
+        ax.set_facecolor("#EEF2F6")
 
-    # Contour fill (semi-transparent over basemap)
+    # Layer 2 — semi-transparent Sy surface
     cf = ax.contourf(Xi, Yi, Zi_masked, levels=20,
                      cmap="RdYlGn", vmin=0.10, vmax=0.40,
-                     alpha=0.70, zorder=2)
-
-    # Contour lines
+                     alpha=0.65, zorder=2)
     cl = ax.contour(Xi, Yi, Zi_masked, levels=10,
                     colors="white", linewidths=0.6, alpha=0.6, zorder=3)
     ax.clabel(cl, fmt="%.2f", fontsize=7, colors="white")
 
-    # KML features (forest boundary, clearfell, streams)
+    # Layer 3 — KML site features
     site_feature_handles = []
-    if add_kml is not None:
-        try:
-            site_feature_handles = add_kml(ax, data_dir)
-            print(f"  KML features added ({len(site_feature_handles)} layers)")
-        except Exception as e:
-            print(f"  [WARNING] KML features failed: {e}")
+    try:
+        site_feature_handles = add_kml_features(ax, DATA_DIR)
+        print(f"  KML features added ({len(site_feature_handles)} layers)")
+    except Exception as e:
+        print(f"  [WARNING] KML features failed: {e}")
 
     # Colourbar
     cbar = fig.colorbar(cf, ax=ax, fraction=0.025, pad=0.01, shrink=0.75)
@@ -309,14 +356,13 @@ def plot_contour_map(well_results, out_path):
         sub = well_results[well_results["Cluster"] == cid]
         if sub.empty:
             continue
-        sizes  = 60 + (sub["n_events"] - 20) * 1.2
-        hatch  = "//" if cid == 4 else None
+        sizes = 60 + (sub["n_events"] - 20) * 1.2
+        hatch = "//" if cid == 4 else None
         ax.scatter(sub["Easting"], sub["Northing"],
                    c=CLUSTER_COLOURS[cid],
                    s=sizes, marker=CLUSTER_MARKERS[cid],
                    edgecolors="black", linewidths=0.8,
                    alpha=0.92, zorder=5, hatch=hatch)
-        from matplotlib.lines import Line2D
         cluster_handles.append(Line2D(
             [0],[0], marker=CLUSTER_MARKERS[cid], color="w",
             markerfacecolor=CLUSTER_COLOURS[cid],
@@ -336,26 +382,22 @@ def plot_contour_map(well_results, out_path):
         title="Cluster  (// = interception correction applied)",
         fontsize=8, framealpha=0.95, edgecolor="#CCCCCC")
     ax.add_artist(cluster_leg)
-
     if site_feature_handles:
-        ax.legend(
-            handles=site_feature_handles, title="Site Features",
-            loc="upper right", fontsize=8,
-            framealpha=0.95, edgecolor="#CCCCCC")
+        ax.legend(handles=site_feature_handles, title="Site Features",
+                  loc="upper right", fontsize=8,
+                  framealpha=0.95, edgecolor="#CCCCCC")
 
     ax.set_xlabel("Easting (m, OSGB36)", fontsize=10)
     ax.set_ylabel("Northing (m, OSGB36)", fontsize=10)
     ax.set_title(
         "Interpolated WTF Specific Yield Surface — Newborough Warren 2005–2026\n"
         "IDW interpolation (power=2) of event-based median Sy per well  |  "
-        "OSM basemap + KML overlays\n"
+        "Greyscale hillshade DEM + KML overlays\n"
         "C4 Forest values interception-corrected (Freeman, 2008) — "
         "contours in Forest zone are approximate",
         fontsize=9, fontweight="bold", pad=10)
 
-    ax.grid(True, lw=0.3, alpha=0.2, color="#CCCCCC")
     ax.tick_params(labelsize=8)
-
     plt.tight_layout()
     fig.savefig(out_path, dpi=200, bbox_inches="tight", facecolor="white")
     plt.close()
@@ -463,30 +505,17 @@ def wtf_extended_wells(climate, locations, out_root):
 def plot_contour_map_extended(ref_results, ext_results, out_path):
     """
     IDW contour surface using reference + extended wells combined.
+    Greyscale hillshade DEM background; interpolation clipped to fixed study
+    area bounds (E 240200–243800, N 362200–365800).
     Extended wells shown as open symbols to distinguish from reference wells.
-    Otherwise identical layout to plot_contour_map.
     """
-    import sys, os
-    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'utils'))
+    from matplotlib.lines import Line2D
+    from utils.map_utils import load_dem_hillshade, add_kml_features
 
-    from scipy.spatial import ConvexHull
-    from matplotlib.path import Path as MplPath
-
-    # ── Map utilities ─────────────────────────────────────────────────────────
-    add_osm  = None
-    add_kml  = None
-    gpd_mod  = None
-    data_dir = Path(__file__).parent.parent / "data"
-    try:
-        import geopandas as _gpd
-        from utils.map_utils import add_osm_basemap, add_kml_features
-        from utils.paths import DATA_DIR
-        add_osm  = add_osm_basemap
-        add_kml  = add_kml_features
-        data_dir = DATA_DIR
-        gpd_mod  = _gpd
-    except ImportError:
-        gpd_mod = None
+    # ── Study area bounds ─────────────────────────────────────────────────────
+    XI_MIN, XI_MAX = 240200, 243800
+    YI_MIN, YI_MAX = 362200, 365800
+    GRID_STEP = 50
 
     # Add Network column to ref_results if missing
     ref = ref_results.copy()
@@ -499,20 +528,17 @@ def plot_contour_map_extended(ref_results, ext_results, out_path):
     if 'Ridge_Flag' not in ext.columns:
         ext['Ridge_Flag'] = False
 
-    # Exclude ridge wells from interpolation — shown separately on map
     ext_interp = ext[~ext['Ridge_Flag']].copy()
     ext_ridge  = ext[ext['Ridge_Flag']].copy()
 
-    # Combined for interpolation (reference + non-ridge extended)
     combined = pd.concat([ref, ext_interp], ignore_index=True)
 
     x  = combined['Easting'].values
     y  = combined['Northing'].values
     sy = combined['Sy_median'].values
 
-    margin = 200
-    xi = np.linspace(x.min()-margin, x.max()+margin, 300)
-    yi = np.linspace(y.min()-margin, y.max()+margin, 300)
+    xi = np.arange(XI_MIN, XI_MAX, GRID_STEP)
+    yi = np.arange(YI_MIN, YI_MAX, GRID_STEP)
     Xi, Yi = np.meshgrid(xi, yi)
 
     def idw(xq, yq, xs, ys, vs, power=2):
@@ -522,46 +548,37 @@ def plot_contour_map_extended(ref_results, ext_results, out_path):
         return np.sum(w * vs[:,None,None], axis=0) / np.sum(w, axis=0)
 
     Zi = idw(Xi, Yi, x, y, sy)
-
-    hull = ConvexHull(np.column_stack([x, y]))
-    hull_path = MplPath(np.column_stack([x[hull.vertices], y[hull.vertices]]))
-    mask = ~hull_path.contains_points(
-        np.column_stack([Xi.ravel(), Yi.ravel()])).reshape(Xi.shape)
-    Zi_masked = np.ma.masked_where(mask, Zi)
+    site_mask = make_site_mask(Xi, Yi)
+    Zi_masked = np.ma.masked_where(~site_mask | np.isnan(Zi), Zi)
 
     # ── Figure ────────────────────────────────────────────────────────────────
     fig, ax = plt.subplots(figsize=(12, 10), facecolor='white', dpi=200)
-    ax.set_facecolor('#EEF2F6')
-    ax.set_xlim(x.min()-margin, x.max()+margin)
-    ax.set_ylim(y.min()-margin, y.max()+margin)
+    ax.set_xlim(XI_MIN, XI_MAX)
+    ax.set_ylim(YI_MIN, YI_MAX)
     ax.set_aspect('equal')
 
-    if add_osm is not None and gpd_mod is not None:
-        try:
-            gdf_tmp = gpd_mod.GeoDataFrame(
-                combined,
-                geometry=gpd_mod.points_from_xy(
-                    combined['Easting'], combined['Northing']),
-                crs='EPSG:27700')
-            add_osm(ax, gdf_tmp)
-            print("  OSM basemap added")
-        except Exception as e:
-            print(f"  [WARNING] OSM basemap failed: {e}")
+    # Layer 1 — greyscale hillshade DEM
+    _, dem_loaded, dem_e_arr, dem_n_arr, dem_data = load_dem_hillshade(
+        ax, DATA_DIR, alpha=0.35, vert_exag=3.0, zorder=1)
+    if not dem_loaded:
+        print("  [WARNING] DEM hillshade unavailable — plain background used")
+        ax.set_facecolor('#EEF2F6')
 
+    # Layer 2 — semi-transparent Sy surface
     cf = ax.contourf(Xi, Yi, Zi_masked, levels=20,
                      cmap='RdYlGn', vmin=0.10, vmax=0.40,
-                     alpha=0.70, zorder=2)
+                     alpha=0.65, zorder=2)
     cl = ax.contour(Xi, Yi, Zi_masked, levels=10,
                     colors='white', linewidths=0.6, alpha=0.6, zorder=3)
     ax.clabel(cl, fmt='%.2f', fontsize=7, colors='white')
 
+    # Layer 3 — KML site features
     site_feature_handles = []
-    if add_kml is not None:
-        try:
-            site_feature_handles = add_kml(ax, data_dir)
-            print(f"  KML features added ({len(site_feature_handles)} layers)")
-        except Exception as e:
-            print(f"  [WARNING] KML features failed: {e}")
+    try:
+        site_feature_handles = add_kml_features(ax, DATA_DIR)
+        print(f"  KML features added ({len(site_feature_handles)} layers)")
+    except Exception as e:
+        print(f"  [WARNING] KML features failed: {e}")
 
     cbar = fig.colorbar(cf, ax=ax, fraction=0.025, pad=0.01, shrink=0.75)
     cbar.set_label('Specific yield Sy  (WTF event median, IDW interpolation)',
@@ -574,7 +591,6 @@ def plot_contour_map_extended(ref_results, ext_results, out_path):
         3:'C3 Western Mature Dune',   4:'C4 Forest (interception-corrected)',
     }
 
-    from matplotlib.lines import Line2D
     cluster_handles = []
 
     # Reference wells — filled
@@ -630,7 +646,6 @@ def plot_contour_map_extended(ref_results, ext_results, out_path):
         ax.scatter(ext_ridge['Easting'], ext_ridge['Northing'],
                    marker='x', c='red', s=120,
                    linewidths=2.0, zorder=7)
-        # Reason labels per well
         reasons = {
             'ceh12': 'ridge/bedrock',
             'ceh15': 'forest slack floor',
@@ -663,12 +678,11 @@ def plot_contour_map_extended(ref_results, ext_results, out_path):
     ax.set_title(
         'Interpolated WTF Specific Yield Surface — Reference + Extended Network\n'
         'Newborough Warren 2005–2026  |  IDW interpolation (power=2)  |  '
-        'OSM basemap + KML overlays\n'
+        'Greyscale hillshade DEM + KML overlays\n'
         'Filled markers = reference wells; open markers = extended wells  |  '
         'C4 Forest interception-corrected (Freeman, 2008)',
         fontsize=9, fontweight='bold', pad=10)
 
-    ax.grid(True, lw=0.3, alpha=0.2, color='#CCCCCC')
     ax.tick_params(labelsize=8)
     plt.tight_layout()
     fig.savefig(out_path, dpi=200, bbox_inches='tight', facecolor='white')
@@ -676,7 +690,7 @@ def plot_contour_map_extended(ref_results, ext_results, out_path):
     print(f"  Extended contour map saved → {out_path.name}")
 
 
-def main(supplementary=False):
+def main(supplementary=True):
     # ── Paths ──────────────────────────────────────────────────────────────────
     script_dir   = Path(__file__).parent
     project_root = script_dir.parent
@@ -736,8 +750,9 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(
         description="Script 18 — WTF Spatial Analysis")
-    parser.add_argument("--supplementary", action="store_true",
-                        help="Also generate Sy IDW contour maps for supplementary "
-                             "materials. Default: point map only.")
+    parser.add_argument("--no-supplementary", action="store_false",
+                        dest="supplementary",
+                        help="Skip Sy IDW contour maps for supplementary materials.")
+    parser.set_defaults(supplementary=True)
     args = parser.parse_args()
     main(supplementary=args.supplementary)

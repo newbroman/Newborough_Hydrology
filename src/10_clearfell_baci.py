@@ -21,7 +21,7 @@ The complete, peer-review-ready pipeline for the clear-felling experiment.
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
 from utils.paths import (
-    make_all_dirs, DATA_CLIMATE_RAW, DATA_WELLS_RAW, DIR_10,
+    make_all_dirs, DATA_CLIMATE_RAW, DATA_WELLS_RAW, INT_WELLS_CLEAN, INT_WELLS_EXTENDED, DIR_10,
     INT_MASTER_DATA,
     OUT_10_DUAL_BACI,
     OUT_10_BETA3_SLOPES,
@@ -31,6 +31,9 @@ from utils.paths import (
     OUT_10_COEFF_SLOPES,
     OUT_10_BACI_TIMESERIES,
     OUT_10_TABLE5_SUMMARY,
+    OUT_10_TRANSECT,
+    OUT_10_TRANSECT_CSV,
+    OUT_10_NW10_TREND,
 )
 from utils.data_utils import parse_met_date, clean_well_series, calculate_cusum
 import pandas as pd
@@ -116,11 +119,13 @@ def export_table5_summary(stats_df: pd.DataFrame) -> None:
         "NW8B": "Edge Zone",  "CEH31": "Edge Zone",
         "CEH32": "Regional Ctrl", "CEH34": "Regional Ctrl",
         "CEH33": "Regional Ctrl", "NW10":  "Regional Ctrl",
-        "CEH19": "Regional Ctrl",
+        "CEH19": "Regional Ctrl", "CEH9":  "Regional Ctrl",
+        "NW7":   "Regional Ctrl", "NW6":   "Regional Ctrl",
     }
     well_order = [
         "FE2", "FE4", "WMC3", "FE1", "FE3", "LIS1", "CEH20", "CEH30",
         "CEH16", "NW8B", "CEH31", "CEH32", "CEH34", "CEH33", "NW10", "CEH19",
+        "CEH9", "NW7", "NW6",
     ]
 
     s = stats_df.copy()
@@ -207,7 +212,7 @@ scraping_date_2   = pd.Timestamp('2023-10-01')    # October 2023 scraping event 
 
 impact_wells = ['fe2', 'fe4', 'wmc3']
 edge_wells = ['fe1', 'fe3', 'ceh31', 'lis1', 'ceh20', 'ceh30', 'ceh16', 'nw8b']
-control_wells = ['ceh32', 'ceh34', 'ceh33', 'nw10', 'ceh19']
+control_wells = ['ceh32', 'ceh34', 'ceh33', 'nw10', 'ceh19', 'ceh9', 'nw7', 'nw6']
 
 # Diagnostics include all 3 tiers so edge-zone decay can be quantified.
 all_targets = impact_wells + edge_wells + control_wells
@@ -231,14 +236,41 @@ try:
     ) / 2
     climate['PET'] = thornthwaite_pet_m(t_mean)
 
-    wells_raw = pd.read_csv(DATA_WELLS_RAW, header=1)
-    wells = wells_raw.set_index(wells_raw.columns[0]).transpose()
-    wells.index = pd.to_datetime(wells.index, dayfirst=True, errors='coerce').to_period('M').to_timestamp()
-    wells = wells.apply(pd.to_numeric, errors='coerce').groupby(level=0).mean()
-    wells.columns = wells.columns.str.lower().str.replace(' ', '')
-
-    for col in wells.columns:
-        wells[col] = clean_well_series(wells[col])
+    # Load wells by merging two pipeline outputs:
+    #   01_wells_clean.csv    — main network including CEH9, NW7, NW6
+    #   01_wells_extended.csv — FE series and edge wells (FE1-4, LIS1, NW8B)
+    # Falls back to raw file if pipeline outputs are absent.
+    if INT_WELLS_CLEAN.exists() and INT_WELLS_EXTENDED.exists():
+        wells_main = pd.read_csv(INT_WELLS_CLEAN, index_col=0, parse_dates=True)
+        wells_main.index = pd.to_datetime(wells_main.index)
+        wells_main.columns = wells_main.columns.str.lower().str.replace(' ', '')
+        wells_ext = pd.read_csv(INT_WELLS_EXTENDED, index_col=0, parse_dates=True)
+        wells_ext.index = pd.to_datetime(wells_ext.index)
+        wells_ext.columns = wells_ext.columns.str.lower().str.replace(' ', '')
+        # Merge: add extended columns not already in main; main takes priority
+        # for any overlapping column names to preserve CEH9/NW7/NW6 from clean.
+        new_cols = [c for c in wells_ext.columns if c not in wells_main.columns]
+        wells = pd.concat([wells_main, wells_ext[new_cols]], axis=1)
+        # Diagnostic: confirm key wells are present
+        for _w in ['ceh9', 'nw7', 'nw6', 'fe2', 'wmc3']:
+            if _w not in wells.columns:
+                print(f'  [WARNING] {_w} not found in merged wells dataframe')
+        print(f'  Merged wells: {len(wells.columns)} columns; '
+              f'ceh9={"ceh9" in wells.columns}, '
+              f'nw7={"nw7" in wells.columns}, '
+              f'nw6={"nw6" in wells.columns}, '
+              f'fe2={"fe2" in wells.columns}')
+        for col in wells.columns:
+            wells[col] = clean_well_series(wells[col])
+    else:
+        print('  [WARNING] Pipeline well files not found — falling back to raw file')
+        wells_raw = pd.read_csv(DATA_WELLS_RAW, header=1)
+        wells = wells_raw.set_index(wells_raw.columns[0]).transpose()
+        wells.index = pd.to_datetime(wells.index, dayfirst=True, errors='coerce').to_period('M').to_timestamp()
+        wells = wells.apply(pd.to_numeric, errors='coerce').groupby(level=0).mean()
+        wells.columns = wells.columns.str.lower().str.replace(' ', '')
+        for col in wells.columns:
+            wells[col] = clean_well_series(wells[col])
 
     # Load canonical LCSC03 master output (with backward-compatible fallback)
     master_candidates = [
@@ -886,144 +918,84 @@ for part_idx, well_group in enumerate(well_groups, start=1):
     plt.close(fig2)
     drainage_outputs.append(output_name)
 
-# --- PLOT 3: OLS Slopes for Before/After Periods (Whisker Plots with CI) ---
-if not diagnostic_df.empty:
-    valid_upper = [w.upper() for w in valid_targets]
-    x_labels = []
-    for w in valid_targets:
-        if w in valid_impact:
-            x_labels.append(f"{w.upper()}\n(Impact)")
-        elif w in valid_edge:
-            x_labels.append(f"{w.upper()}\n(Edge)")
-        else:
-            x_labels.append(f"{w.upper()}\n(Control)")
-
-    # For each well, fit OLS to all "Before" and "After" periods separately
-    slope_rows = []
-    for well in valid_upper:
-        for period, color, marker, mfc in [
-            ('Before',        '#009E73', 'o', 'white'),
-            ('After',         '#D55E00', 's', '#D55E00'),
-            ('After_Scrape2', '#0072B2', 'D', '#0072B2'),
-        ]:
-            sub = diagnostic_df[(diagnostic_df['Well_Name'] == well) & (diagnostic_df['Period'] == period)].dropna()
-            slope_b1 = np.nan
-            slope_b2 = np.nan
-            slope_b3 = np.nan
-            ci_b1_low = np.nan
-            ci_b1_high = np.nan
-            ci_b2_low = np.nan
-            ci_b2_high = np.nan
-            ci_b3_low = np.nan
-            ci_b3_high = np.nan
-            if len(sub) > 12:
-                X = pd.DataFrame({
-                    'beta_1_recharge': sub['P_m'],
-                    'beta_2_atmospheric_draw': -sub['PET'],
-                    'beta_3_internal_brake': -sub['h_prev']
-                })
-                model = sm.OLS(sub['Delta_h'], X).fit()
-                slope_b1 = model.params['beta_1_recharge']
-                slope_b2 = model.params['beta_2_atmospheric_draw']
-                slope_b3 = model.params['beta_3_internal_brake']
-                ci = model.conf_int()
-                ci_b1_low = ci.loc['beta_1_recharge', 0]
-                ci_b1_high = ci.loc['beta_1_recharge', 1]
-                ci_b2_low = ci.loc['beta_2_atmospheric_draw', 0]
-                ci_b2_high = ci.loc['beta_2_atmospheric_draw', 1]
-                ci_b3_low = ci.loc['beta_3_internal_brake', 0]
-                ci_b3_high = ci.loc['beta_3_internal_brake', 1]
-            slope_rows.append({
-                'Well': well,
-                'Zone': 'Impact' if well.lower() in valid_impact else ('Edge' if well.lower() in valid_edge else 'Control'),
-                'Period': period,
-                'beta_1_slope': slope_b1,
-                'beta_1_ci_low': ci_b1_low,
-                'beta_1_ci_high': ci_b1_high,
-                'beta_2_slope': slope_b2,
-                'beta_2_ci_low': ci_b2_low,
-                'beta_2_ci_high': ci_b2_high,
-                'beta_3_slope': slope_b3,
-                'beta_3_ci_low': ci_b3_low,
-                'beta_3_ci_high': ci_b3_high,
-            })
-
-    slope_df = pd.DataFrame(slope_rows)
-    slope_df.to_csv(OUT_10_COEFF_SLOPES, index=False)
-
-    # ── Redesigned Plot 3: zone-grouped whisker plot with summary insets ──────
+# --- PLOT 3: SSM Coefficient Shifts (driven by full_param_df) ---
+# Uses the same era-split OLS estimates as the console output and CSV exports,
+# ensuring figure values are consistent with reported numbers throughout.
+if not full_param_df.empty:
     ZONE_ORDER   = ['Impact', 'Edge', 'Control']
     ZONE_COLOURS = {'Impact': '#D55E00', 'Edge': '#FFB000', 'Control': '#009E73'}
     ZONE_ALPHA   = {'Impact': 0.12,      'Edge': 0.08,      'Control': 0.06}
-    BEFORE_MARKER = ('o', 'white')   # hollow circle = Before
-    AFTER_MARKER  = ('s', None)      # filled square = After (zone colour)
+    BEFORE_MARKER = ('o', 'white')
+    AFTER_MARKER  = ('s', None)
 
-    # Build ordered well list grouped by zone
-    ordered_wells = []
-    zone_boundaries = {}   # zone -> (x_start, x_end)
+    # Assign zone to each well in full_param_df
+    def _zone(w):
+        wl = w.lower()
+        if wl in valid_impact: return 'Impact'
+        if wl in valid_edge:   return 'Edge'
+        return 'Control'
+
+    fp = full_param_df.copy()
+    fp['Zone'] = fp['Well'].apply(_zone)
+
+    # Build ordered well list grouped by zone (Before period only to get unique wells)
+    ordered_wells_fp = []
+    zone_boundaries_fp = {}
     for zone in ZONE_ORDER:
-        zone_wells = [w for w in valid_upper
-                      if slope_df[slope_df['Well']==w]['Zone'].iloc[0] == zone
-                      if not slope_df[slope_df['Well']==w].empty]
-        zone_boundaries[zone] = (len(ordered_wells), len(ordered_wells) + len(zone_wells) - 1)
-        ordered_wells.extend(zone_wells)
+        zw = fp[(fp['Zone'] == zone) & (fp['Period'] == 'Before')]['Well'].tolist()
+        # include wells that only have After (no Before pre-felling record)
+        zw_after = fp[(fp['Zone'] == zone) & (~fp['Well'].isin(zw))]['Well'].unique().tolist()
+        zone_wells = zw + [w for w in zw_after if w not in zw]
+        zone_boundaries_fp[zone] = (len(ordered_wells_fp),
+                                    len(ordered_wells_fp) + len(zone_wells) - 1)
+        ordered_wells_fp.extend(zone_wells)
 
-    # x-axis labels — well name only (zone shown via shading)
-    x_labels_new = [w for w in ordered_wells]
-
-    coeffs = [
-        ('beta_1_slope', 'beta_1_ci_low', 'beta_1_ci_high',
-         r'Recharge sensitivity ($\beta_1$)', r'$\Delta\beta_1$'),
-        ('beta_2_slope', 'beta_2_ci_low', 'beta_2_ci_high',
-         r'Atmospheric draw ($\beta_2$)',     r'$\Delta\beta_2$'),
-        ('beta_3_slope', 'beta_3_ci_low', 'beta_3_ci_high',
-         r'Drainage coefficient ($\beta_3$)', r'$\Delta\beta_3$'),
+    coeffs_fp = [
+        ('beta_1_recharge',         'beta_1_conf_low',  'beta_1_conf_high',
+         r'Recharge sensitivity ($\beta_1$)',  r'$\Delta\beta_1$'),
+        ('beta_2_atmospheric_draw', 'beta_2_conf_low',  'beta_2_conf_high',
+         r'Atmospheric draw ($\beta_2$)',      r'$\Delta\beta_2$'),
+        ('beta_3_internal_brake',   'beta_3_conf_low',  'beta_3_conf_high',
+         r'Drainage coefficient ($-\beta_3$)', r'$\Delta(-\beta_3)$'),
     ]
 
-    # ── Temporarily increase font sizes for this figure ──────────────────────
     _orig_rc = {k: plt.rcParams[k] for k in
                 ['font.size','axes.labelsize','axes.titlesize',
                  'xtick.labelsize','ytick.labelsize','legend.fontsize']}
     plt.rcParams.update({
-        'font.size':       13,
-        'axes.labelsize':  14,
-        'axes.titlesize':  13,
-        'xtick.labelsize': 12,
-        'ytick.labelsize': 12,
-        'legend.fontsize': 12,
+        'font.size': 13, 'axes.labelsize': 14, 'axes.titlesize': 13,
+        'xtick.labelsize': 12, 'ytick.labelsize': 12, 'legend.fontsize': 12,
     })
 
     fig3 = plt.figure(figsize=(18, 22), dpi=300)
-    outer_gs = GridSpec(3, 2, figure=fig3, width_ratios=[4, 1], hspace=0.30, wspace=0.18)
+    outer_gs = GridSpec(3, 2, figure=fig3, width_ratios=[4, 1],
+                        hspace=0.30, wspace=0.18)
 
-    for row_idx, (col, ci_lo, ci_hi, ylabel, delta_label) in enumerate(coeffs):
+    for row_idx, (col, ci_lo, ci_hi, ylabel, delta_label) in enumerate(coeffs_fp):
         ax_main = fig3.add_subplot(outer_gs[row_idx, 0])
         ax_sum  = fig3.add_subplot(outer_gs[row_idx, 1])
 
-        # ── Zone background shading ──────────────────────────────────────
+        # Zone shading and labels
         for zone in ZONE_ORDER:
-            x0, x1 = zone_boundaries[zone]
+            x0, x1 = zone_boundaries_fp[zone]
             ax_main.axvspan(x0 - 0.5, x1 + 0.5,
                             alpha=ZONE_ALPHA[zone],
                             color=ZONE_COLOURS[zone], zorder=0)
-            # Zone labels in lower portion of axes
             _zt = ax_main.text((x0 + x1) / 2, 0.04, zone,
-                         transform=ax_main.get_xaxis_transform(),
-                         ha='center', va='bottom',
-                         color=ZONE_COLOURS[zone], fontweight='bold')
-            _zt.set_fontsize(13)
+                               transform=ax_main.get_xaxis_transform(),
+                               ha='center', va='bottom',
+                               color=ZONE_COLOURS[zone], fontweight='bold',
+                               fontsize=13)
 
-        # ── Per-well whiskers ────────────────────────────────────────────
         delta_by_zone = {z: [] for z in ZONE_ORDER}
         legend_done = set()
 
-        for i, well in enumerate(ordered_wells):
-            zone = slope_df[slope_df['Well'] == well]['Zone'].iloc[0]
+        for i, well in enumerate(ordered_wells_fp):
+            zone = _zone(well)
             zc   = ZONE_COLOURS[zone]
 
             for period in ['Before', 'After']:
-                row_s = slope_df[(slope_df['Well'] == well) &
-                                 (slope_df['Period'] == period)]
+                row_s = fp[(fp['Well'] == well) & (fp['Period'] == period)]
                 if row_s.empty:
                     continue
                 val  = row_s[col].iloc[0]
@@ -1033,14 +1005,13 @@ if not diagnostic_df.empty:
                     continue
 
                 if period == 'Before':
-                    mk, mfc = BEFORE_MARKER
+                    mk, mfc = 'o', 'white'
                     colour  = '#444444'
                     x_pos   = i - 0.15
                 else:
-                    mk  = 's'
-                    mfc = zc
-                    colour = zc
-                    x_pos  = i + 0.15
+                    mk, mfc = 's', zc
+                    colour  = zc
+                    x_pos   = i + 0.15
 
                 err_lo = val - low  if not np.isnan(low)  else 0
                 err_hi = high - val if not np.isnan(high) else 0
@@ -1052,13 +1023,12 @@ if not diagnostic_df.empty:
                     fmt=mk, color=colour,
                     markerfacecolor=mfc, markeredgecolor=colour,
                     markersize=7, capsize=5, linewidth=1.2,
-                    label=lbl, zorder=3
-                )
+                    label=lbl, zorder=3)
                 legend_done.add(period)
 
-            # Collect delta for summary
-            b_row = slope_df[(slope_df['Well']==well) & (slope_df['Period']=='Before')]
-            a_row = slope_df[(slope_df['Well']==well) & (slope_df['Period']=='After')]
+            # Delta for summary inset (paired Before/After only)
+            b_row = fp[(fp['Well'] == well) & (fp['Period'] == 'Before')]
+            a_row = fp[(fp['Well'] == well) & (fp['Period'] == 'After')]
             if not b_row.empty and not a_row.empty:
                 bv = b_row[col].iloc[0]
                 av = a_row[col].iloc[0]
@@ -1067,19 +1037,16 @@ if not diagnostic_df.empty:
 
         # Zone separator lines
         for zone in ZONE_ORDER[:-1]:
-            sep = zone_boundaries[zone][1] + 0.5
+            sep = zone_boundaries_fp[zone][1] + 0.5
             ax_main.axvline(sep, color='#AAAAAA', lw=1.0, ls='--', zorder=1)
 
-        ax_main.set_xticks(range(len(ordered_wells)))
-        ax_main.set_xticklabels(x_labels_new, rotation=45, ha='right')
-        ax_main.tick_params(axis='x', labelsize=12)
-        ax_main.tick_params(axis='y', labelsize=12)
-        ax_main.set_xlim(-0.6, len(ordered_wells) - 0.4)
-        ax_main.set_ylabel(ylabel)
-        ax_main.yaxis.label.set_size(14)
+        ax_main.set_xticks(range(len(ordered_wells_fp)))
+        ax_main.set_xticklabels(ordered_wells_fp, rotation=45, ha='right',
+                                fontsize=12)
+        ax_main.set_xlim(-0.6, len(ordered_wells_fp) - 0.4)
+        ax_main.set_ylabel(ylabel, fontsize=14)
         ax_main.set_title(f'({"abc"[row_idx]})  {ylabel}: before (○) vs after (■) clearfell',
-                          fontweight='bold', loc='left', pad=8)
-        ax_main.title.set_size(13)
+                          fontweight='bold', loc='left', pad=8, fontsize=13)
         ax_main.axhline(0, color='black', lw=0.8, ls=':', alpha=0.4)
         _leg = ax_main.legend(loc='upper right', framealpha=0.85)
         for _lt in _leg.get_texts():
@@ -1087,15 +1054,12 @@ if not diagnostic_df.empty:
         ax_main.grid(axis='y', linestyle='--', alpha=0.5, zorder=0)
         for sp in ['top', 'right']: ax_main.spines[sp].set_visible(False)
 
-        # ── Summary inset: zones on x, Δ on y ────────────────────────────
-        all_mean_d = []
+        # Zone Δ summary inset
         for j, zone in enumerate(ZONE_ORDER):
             deltas = np.array(delta_by_zone[zone])
             if len(deltas) == 0:
-                all_mean_d.append(np.nan)
                 continue
             mean_d = deltas.mean()
-            all_mean_d.append(mean_d)
             boot = np.array([np.random.choice(deltas, len(deltas), replace=True).mean()
                              for _ in range(2000)])
             ci_lo_b = np.percentile(boot, 2.5)
@@ -1104,38 +1068,313 @@ if not diagnostic_df.empty:
             ax_sum.errorbar(
                 j, mean_d,
                 yerr=[[mean_d - ci_lo_b], [ci_hi_b - mean_d]],
-                fmt='D', color=zc,
-                markerfacecolor=zc, markeredgecolor=zc,
-                markersize=11, capsize=7, linewidth=2.0,
-            )
-            # Value label — placed to the RIGHT of each point to avoid
-            # overlap with the Zone Δ title and the errorbar caps
-            _vt = ax_sum.text(j + 0.12, mean_d,
-                        f'{mean_d:+.3f}',
-                        ha='left', va='center',
-                        color=zc, fontweight='bold')
-            _vt.set_fontsize(12)
+                fmt='D', color=zc, markerfacecolor=zc, markeredgecolor=zc,
+                markersize=11, capsize=7, linewidth=2.0)
+            _vt = ax_sum.text(j + 0.12, mean_d, f'{mean_d:+.3f}',
+                              ha='left', va='center',
+                              color=zc, fontweight='bold', fontsize=12)
 
         ax_sum.axhline(0, color='black', lw=0.9, ls='--', alpha=0.6)
         ax_sum.set_xticks(list(range(len(ZONE_ORDER))))
-        ax_sum.set_xticklabels(ZONE_ORDER, rotation=20, ha='right')
-        ax_sum.tick_params(axis='x', labelsize=12)
-        ax_sum.tick_params(axis='y', labelsize=12)
-        ax_sum.set_ylabel(delta_label)
-        ax_sum.yaxis.label.set_size(13)
-        ax_sum.set_title('Zone Δ\n(mean ± 95% CI)', fontweight='bold', pad=8)
-        ax_sum.title.set_size(12)
+        ax_sum.set_xticklabels(ZONE_ORDER, rotation=20, ha='right', fontsize=12)
+        ax_sum.set_ylabel(delta_label, fontsize=13)
+        ax_sum.set_title('Zone Δ\n(mean ± 95% CI)', fontweight='bold',
+                         pad=8, fontsize=12)
         ax_sum.set_xlim(-0.5, len(ZONE_ORDER) - 0.3)
         ax_sum.grid(axis='y', linestyle='--', alpha=0.5)
         for sp in ['top', 'right']: ax_sum.spines[sp].set_visible(False)
 
     fig3.suptitle(
         'SSM coefficient shifts: before vs after clearfell (Dec 2017)',
-        fontsize=14, fontweight='bold', y=0.99
-    )
+        fontsize=14, fontweight='bold', y=0.99)
     plt.savefig(OUT_10_BETA3_SLOPES, bbox_inches='tight', dpi=300)
     plt.close(fig3)
     plt.rcParams.update(_orig_rc)  # restore global font settings
+
+# ============================================================
+# CLEARFELL SPATIAL TRANSECT ANALYSIS
+# Plantation interior → clearfell core → open dune edge
+# ============================================================
+# Transect wells in order from plantation interior to edge,
+# with distances from clearfell centroid (E=241177, N=363645).
+# Uses depth-below-pipe-top (same convention as rest of script 10).
+TRANSECT_WELLS = {
+    'ceh2':  {'label': 'CEH2\nPine/BL margin', 'dist_m': 414, 'role': 'reference'},
+    'ceh34': {'label': 'CEH34\nRegional control', 'dist_m': 285, 'role': 'control'},
+    'wmc3':  {'label': 'WMC3\nCore impact', 'dist_m': 92,  'role': 'impact'},
+    'nw8b':  {'label': 'NW8B\nEdge E', 'dist_m': 184, 'role': 'edge'},
+    'ceh20': {'label': 'CEH20\nEdge N', 'dist_m': 186, 'role': 'edge'},
+    'ceh16': {'label': 'CEH16\nEdge W', 'dist_m': 191, 'role': 'edge'},
+}
+TRANSECT_COLOURS = {
+    'reference': '#888888',
+    'control':   '#2CA02C',
+    'impact':    '#D55E00',
+    'edge':      '#1F77B4',
+}
+# CEH34 uses green dashed to match regional control convention
+TRANSECT_LINESTYLES = {
+    'ceh2':  ('--', '#888888'),
+    'ceh34': ('--', '#2CA02C'),
+    'wmc3':  ('-',  '#D55E00'),
+    'nw8b':  ('-',  '#FF7F0E'),
+    'ceh20': ('-',  '#1F77B4'),
+    'ceh16': ('-',  '#9467BD'),
+}
+
+def plot_clearfell_transect(wells, scraping_date, intervention_date, scraping_date_2,
+                             mean_post_scraping_impact):
+    """
+    Three-panel spatial transect figure.
+    Upper: depth hydrographs for transect wells.
+    Lower left: anomaly relative to transect mean (6-month rolling).
+    Lower right: post-felling step change bar chart vs scrape era baseline.
+    """
+    transect_available = {w: cfg for w, cfg in TRANSECT_WELLS.items()
+                          if w in wells.columns}
+    if len(transect_available) < 3:
+        print("  [TRANSECT] Too few transect wells available — skipping figure.")
+        return None, {}
+
+    # Era masks
+    mask_scrape = (wells.index >= scraping_date) & (wells.index < intervention_date)
+    mask_post   = wells.index >= intervention_date
+
+    # Step changes: post-felling mean minus scrape-era mean per well.
+    # The scrape era (Apr 2015 - Dec 2017) is the clean baseline for the
+    # clearfell step, consistent with the ANCOVA model. Positive values
+    # indicate the well became shallower post-felling relative to this
+    # baseline — a consequence of the anomalously wet 2015-16 period
+    # inflating the scrape era reference rather than genuine improvement.
+    # The key finding is the absence of a spatial gradient: WMC3 (92m)
+    # is not notably different from CEH34 (285m) or CEH2 (414m).
+    step_changes = {}
+    for w in transect_available:
+        s = wells[w]
+        pre  = s[mask_scrape].mean()
+        post = s[mask_post].mean()
+        if pd.notna(pre) and pd.notna(post):
+            step_changes[w] = post - pre
+
+    # Transect mean for anomaly panel (all available transect wells)
+    transect_mean = wells[[w for w in transect_available]].mean(axis=1)
+    roll_mean = transect_mean.rolling(6, min_periods=3).mean()
+
+    fig = plt.figure(figsize=(14, 10), facecolor='white')
+    fig.subplots_adjust(top=0.88, bottom=0.09, left=0.08, right=0.97,
+                        hspace=0.35, wspace=0.35)
+    ax_top = fig.add_subplot(2, 1, 1)
+    ax_bot_l = fig.add_subplot(2, 2, 3)
+    ax_bot_r = fig.add_subplot(2, 2, 4)
+
+    # ── Upper panel: hydrographs ──────────────────────────────────────────────
+    for w, cfg in transect_available.items():
+        ls, col = TRANSECT_LINESTYLES[w]
+        lw = 1.8 if cfg['role'] == 'impact' else 1.4
+        ax_top.plot(wells.index, wells[w], ls=ls, color=col, lw=lw,
+                    label=f"{cfg['label'].replace(chr(10), ' ')} ({cfg['dist_m']}m)",
+                    alpha=0.85)
+
+    for vdate, vcol, vlbl in [
+            (scraping_date,   '#2166AC', 'Scrape\nApr 2015'),
+            (intervention_date, '#CC0000', 'Clearfell\nDec 2017'),
+            (scraping_date_2, '#888888',  'Scrape\nOct 2023')]:
+        ax_top.axvline(pd.Timestamp(vdate), color=vcol, lw=1.3,
+                       ls='--' if vcol != '#CC0000' else '--', alpha=0.8)
+        ax_top.text(pd.Timestamp(vdate), ax_top.get_ylim()[0] if ax_top.get_ylim()[0] != 0 else -0.3,
+                    vlbl, color=vcol, fontsize=7, ha='center', va='top',
+                    rotation=90)
+
+    # Era shading
+    ax_top.axvspan(pd.Timestamp(scraping_date), pd.Timestamp(intervention_date),
+                   alpha=0.07, color='#2166AC')
+    ax_top.axvspan(pd.Timestamp(intervention_date), wells.index.max(),
+                   alpha=0.07, color='#CC0000')
+
+    ax_top.invert_yaxis()
+    ax_top.set_ylabel('Depth below pipe top (m)', fontsize=10)
+    ax_top.legend(fontsize=7.5, loc='lower left', framealpha=0.9, ncol=2)
+    ax_top.grid(axis='y', alpha=0.25, lw=0.5)
+    ax_top.set_title(
+        'Transect: Plantation Interior → Clearfell Core → Open Dune Edge\n'
+        'Dashed = reference/control wells  |  Solid = impact/edge wells',
+        fontsize=9, fontweight='bold')
+
+    # ── Lower left: anomaly relative to rolling transect mean ────────────────
+    for w, cfg in transect_available.items():
+        ls, col = TRANSECT_LINESTYLES[w]
+        anom = wells[w].rolling(6, min_periods=3).mean() - roll_mean
+        ax_bot_l.plot(wells.index, anom, ls=ls, color=col, lw=1.3, alpha=0.8,
+                      label=cfg['label'].split('\n')[0])
+    ax_bot_l.axhline(0, color='black', lw=0.8, ls='-', alpha=0.5)
+    for vdate, vcol in [(scraping_date, '#2166AC'),
+                         (intervention_date, '#CC0000'),
+                         (scraping_date_2, '#888888')]:
+        ax_bot_l.axvline(pd.Timestamp(vdate), color=vcol, lw=1.1, ls='--', alpha=0.7)
+    ax_bot_l.axvspan(pd.Timestamp(scraping_date), pd.Timestamp(intervention_date),
+                     alpha=0.07, color='#2166AC')
+    ax_bot_l.axvspan(pd.Timestamp(intervention_date), wells.index.max(),
+                     alpha=0.07, color='#CC0000')
+    ax_bot_l.set_ylabel('Anomaly vs transect mean\n(6-month rolling, m)', fontsize=9)
+    ax_bot_l.set_title('Relative position\nRising = shallowing vs transect mean',
+                        fontsize=8, fontweight='bold')
+    ax_bot_l.grid(axis='y', alpha=0.2, lw=0.5)
+    ax_bot_l.legend(fontsize=6.5, framealpha=0.9)
+
+    # ── Lower right: step change bar chart ────────────────────────────────────
+    if step_changes:
+        bar_wells  = list(step_changes.keys())
+        bar_vals   = [step_changes[w] for w in bar_wells]
+        bar_labels = [f"{TRANSECT_WELLS[w]['label'].replace(chr(10), chr(10))}"
+                      f"\n({TRANSECT_WELLS[w]['dist_m']}m)"
+                      for w in bar_wells]
+        bar_cols   = [TRANSECT_LINESTYLES[w][1] for w in bar_wells]
+        y_pos = range(len(bar_wells))
+        bars = ax_bot_r.barh(list(y_pos), bar_vals, color=bar_cols, alpha=0.8,
+                              edgecolor='white', height=0.6)
+        ax_bot_r.set_yticks(list(y_pos))
+        ax_bot_r.set_yticklabels(bar_labels, fontsize=7.5)
+        ax_bot_r.axvline(0, color='black', lw=0.8)
+        for bar, val in zip(bars, bar_vals):
+            ax_bot_r.text(val - 0.002, bar.get_y() + bar.get_height()/2,
+                          f'{val:+.3f}m', ha='right', va='center', fontsize=7.5,
+                          color='white', fontweight='bold')
+        # Annotation
+        ax_bot_r.text(0.62, 0.5,
+                      'No distance gradient →\nclimate baseline\neffect, not\nclearfell',
+                      transform=ax_bot_r.transAxes, fontsize=7, color='#CC0000',
+                      ha='right', va='center', style='italic',
+                      bbox=dict(fc='white', alpha=0.85, edgecolor='lightgrey', pad=2))
+        ax_bot_r.set_xlabel('Post-fell step vs scrape era baseline (m)\n'
+                            'Uniform across distance — no clearfell gradient', fontsize=8)
+        ax_bot_r.set_title('Step change\npost-fell vs scrape era', fontsize=8,
+                            fontweight='bold')
+        ax_bot_r.grid(axis='x', alpha=0.2, lw=0.5)
+
+    fig.suptitle(
+        'Clearfell Transect Analysis  [v10.5.4]\n'
+        'Post-felling step change is spatially uniform across all wells — '
+        'no distance gradient consistent with a clearfell-specific effect',
+        fontsize=10, fontweight='bold', y=0.97)
+
+    plt.savefig(OUT_10_TRANSECT, bbox_inches='tight', dpi=300)
+    plt.close(fig)
+    print(f' -> Saved transect figure: {OUT_10_TRANSECT.name}')
+
+    # Export step change CSV
+    import pandas as _pd
+    rows = [{'Well': w.upper(),
+             'Label': TRANSECT_WELLS[w]['label'].replace('\n', ' '),
+             'Distance_m': TRANSECT_WELLS[w]['dist_m'],
+             'Role': TRANSECT_WELLS[w]['role'],
+             'Scrape_era_mean': float(wells[w][mask_scrape].mean()),
+             'Post_fell_mean': float(wells[w][mask_post].mean()),
+             'Step_change_m': float(step_changes.get(w, float('nan')))}
+            for w in transect_available]
+    _pd.DataFrame(rows).to_csv(OUT_10_TRANSECT_CSV, index=False)
+    print(f' -> Saved transect CSV: {OUT_10_TRANSECT_CSV.name}')
+
+    return fig, step_changes
+
+
+# Run transect analysis
+if not baci_df.empty:
+    _transect_fig, _transect_steps = plot_clearfell_transect(
+        wells, scraping_date, intervention_date, scraping_date_2,
+        mean_post_scraping_impact)
+
+
+# ============================================================
+# NW10 BROADLEAF TREND ANALYSIS (Section 4.6.8)
+# Fits OLS trend to NW10 normalised summer minimum anomaly
+# over 2019-2025, relative to pine interior composite.
+# Pine interior composite: CEH2, CEH32, CEH33, CEH34.
+# ============================================================
+_pine_interior = ['ceh2', 'ceh32', 'ceh33', 'ceh34']
+_pine_avail    = [w for w in _pine_interior if w in wells.columns]
+
+if 'nw10' in wells.columns and len(_pine_avail) >= 2:
+    # Annual summer minimum (Jun-Sep) for NW10 and pine composite
+    _SUMMER = [6, 7, 8, 9]
+    _nw10_mins  = {}
+    _pine_mins  = {}
+
+    for _yr in range(2007, 2026):
+        _mask = ((wells.index.year == _yr) &
+                 (wells.index.month.isin(_SUMMER)))
+        _nw10_s = wells['nw10'][_mask].dropna()
+        if len(_nw10_s) >= 2:
+            _nw10_mins[_yr] = float(_nw10_s.max())  # max depth = summer minimum
+
+        _pine_s = wells[_pine_avail][_mask].mean(axis=1).dropna()
+        if len(_pine_s) >= 2:
+            _pine_mins[_yr] = float(_pine_s.max())
+
+    _common_yrs = sorted(set(_nw10_mins) & set(_pine_mins))
+    if len(_common_yrs) >= 5:
+        _anom = pd.Series(
+            {yr: _nw10_mins[yr] - _pine_mins[yr] for yr in _common_yrs})
+
+        # Full-record mean anomaly (bramble-dominated phase 2010-2021)
+        _bramble = _anom[((_anom.index >= 2010) & (_anom.index <= 2021))]
+        _mean_anom_bramble = float(_bramble.mean()) if len(_bramble) > 0 else np.nan
+
+        # OLS trend over 2019-2025
+        _trend_data = _anom[(_anom.index >= 2019) & (_anom.index <= 2025)]
+        _trend_rows = []
+        if len(_trend_data) >= 4:
+            _X = np.column_stack([np.ones(len(_trend_data)),
+                                   _trend_data.index.astype(float)])
+            _y = _trend_data.values
+            _b = np.linalg.lstsq(_X, _y, rcond=None)[0]
+            _n, _k = len(_y), 2
+            _r = _y - _X @ _b
+            _s2 = (_r @ _r) / (_n - _k)
+            _se_b1 = np.sqrt(_s2 * np.linalg.inv(_X.T @ _X)[1, 1])
+            _t = _b[1] / _se_b1
+            from scipy import stats as _sp_stats
+            _p = float(2 * _sp_stats.t.sf(abs(_t), df=_n - _k))
+            _slope_m_yr = float(_b[1])
+            _slope_mm_yr = _slope_m_yr * 1000
+
+            print(f'\n--- NW10 Broadleaf Trend Analysis (Section 4.6.8) ---')
+            print(f'  Pine composite wells: {[w.upper() for w in _pine_avail]}')
+            print(f'  Mean NW10 anomaly vs pine (2010-2021): {_mean_anom_bramble:+.3f} m')
+            print(f'  OLS trend 2019-2025: {_slope_mm_yr:+.1f} mm/yr ')
+            print(f'    ({_slope_m_yr:+.4f} m/yr, p={_p:.3f}, n={_n})')
+
+            _trend_rows = [{
+                'Analysis': 'NW10_broadleaf_trend',
+                'Pine_composite_wells': str([w.upper() for w in _pine_avail]),
+                'Mean_anomaly_2010_2021_m': round(_mean_anom_bramble, 4),
+                'Trend_period': '2019-2025',
+                'Slope_m_yr': round(_slope_m_yr, 5),
+                'Slope_mm_yr': round(_slope_mm_yr, 1),
+                'P_value': round(_p, 4),
+                'N_years': _n,
+            }]
+        else:
+            print('  [NW10 trend] Insufficient data for 2019-2025 trend (n < 4)')
+
+        # Export anomaly series and trend result
+        _export = pd.DataFrame({
+            'Year': _common_yrs,
+            'NW10_summer_min_m': [_nw10_mins[yr] for yr in _common_yrs],
+            'Pine_composite_min_m': [_pine_mins[yr] for yr in _common_yrs],
+            'NW10_anomaly_m': [float(_anom[yr]) for yr in _common_yrs],
+        })
+        if _trend_rows:
+            _export_trend = pd.DataFrame(_trend_rows)
+            _export = pd.concat([_export.assign(Type='annual_data'),
+                                  _export_trend.assign(Type='trend_result')],
+                                 ignore_index=True)
+        _export.to_csv(OUT_10_NW10_TREND, index=False)
+        print(f' -> Saved NW10 trend data: {OUT_10_NW10_TREND.name}')
+    else:
+        print('  [NW10 trend] Insufficient common years between NW10 and pine composite')
+else:
+    print('  [NW10 trend] NW10 or pine interior wells not available — skipping')
+
 
 print("\n=======================================================")
 print(f"   OMNIBUS CLEAR-FELL SUMMARY")
@@ -1176,6 +1415,8 @@ print(OUT_10_RAW_BACI  if 'OUT_10_RAW_BACI' in dir() else '(raw BACI: baci_df wa
 for output_name in drainage_outputs:
     print(output_name)
 print(OUT_10_BETA3_SLOPES)
+print(OUT_10_TRANSECT)
+print(OUT_10_TRANSECT_CSV)
 print(OUT_10_DRAINAGE_DATA)
 print(OUT_10_STAT_VERIFICATION)
 print(OUT_10_FULL_PARAMS)

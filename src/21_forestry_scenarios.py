@@ -26,7 +26,8 @@ Hydrograph figure:
 
   Broadleaf conversion uses seasonally-varying β₂ to capture deciduous
   phenology: lower ET in winter (leaves off, Oct-Mar) and higher in summer
-  (leaves on, Jun-Sep), combined with reduced interception (15% vs 24%).
+  (leaves on, Jun-Sep), combined with reduced annual interception (15% uniform annual average,
+  approximating ~20% growing-season interception with zero winter interception, vs 24% pine).
 
   The BACI-observed clearfell displacement (-0.218 m summer, -0.145 m annual)
   is shown as a benchmark band. The gap between modelled and BACI clearfell
@@ -58,7 +59,7 @@ Usage
 References
 ----------
   Curreli et al. (2013) — ecological thresholds SD15b, SD16
-  Freeman (2008)        — canopy interception 24% (pine), 15% (broadleaf)
+  Freeman (2008)        — canopy interception 24% (pine); broadleaf assumed 15% annual average (~20% growing season, zero winter)
   Hollingham (2026)     — BACI clearfell result: -0.145 m annual, -0.218 m summer
 """
 
@@ -75,10 +76,11 @@ from matplotlib.lines import Line2D
 from utils.paths import (
     INT_MASTER_DATA, INT_INTERCEPT_METRICS, INT_CLIMATE,
     INT_CLUSTER_AVG_MAOD,
-    DATA_WELLS_RAW, DATA_LOCATIONS_RAW,
+    DATA_WELLS_RAW, DATA_LOCATIONS_RAW, INT_WELLS_CLEAN, INT_WELLS_EXTENDED,
     OUT_DIR, make_all_dirs,
     DIR_21,
-    OUT_21_HYDROGRAPH, OUT_21_DISTRIBUTIONS, OUT_21_SCRAPING, OUT_21_BACI_VIOLIN,
+    OUT_21_HYDROGRAPH, OUT_21_DISTRIBUTIONS, OUT_21_DISTRIBUTIONS_CSV,
+    OUT_21_SCRAPING, OUT_21_SCRAPING_CSV, OUT_21_BACI_VIOLIN, OUT_21_BACI_CSV,
 )
 
 DATA_WELL_LOCATIONS = DATA_LOCATIONS_RAW
@@ -168,15 +170,39 @@ def load_data():
 
 
 def load_raw_well_data():
-    """Load original well depth data from Newborough_Cleaned_For_Model.csv."""
-    df = pd.read_csv(DATA_CLEANED_MODEL, header=None)
-    dates      = pd.to_datetime(df.iloc[1, 1:], dayfirst=True, errors="coerce")
-    well_names = df.iloc[2:, 0].str.strip().str.lower().values
+    """Load well depth data from 01_wells_clean.csv (pipeline output).
+
+    Switched from Newborough_Cleaned_For_Model.csv to ensure the most
+    up-to-date quality-controlled data is used, including 2025 field
+    readings that were not present in the original raw input file.
+
+    Returns (df, dates, well_names) in a format compatible with all
+    downstream functions via get_well_monthly().
+    """
+    df_main = pd.read_csv(INT_WELLS_CLEAN, index_col=0, parse_dates=True)
+    df_main.columns = df_main.columns.str.strip().str.lower().str.replace(" ", "")
+    if INT_WELLS_EXTENDED.exists():
+        df_ext = pd.read_csv(INT_WELLS_EXTENDED, index_col=0, parse_dates=True)
+        df_ext.columns = df_ext.columns.str.strip().str.lower().str.replace(" ", "")
+        new_cols = [c for c in df_ext.columns if c not in df_main.columns]
+        df = pd.concat([df_main, df_ext[new_cols]], axis=1)
+    else:
+        df = df_main
+    dates      = df.index
+    well_names = df.columns.values
     return df, dates, well_names
 
 
 def get_well_monthly(w, df, dates, well_names):
-    """Return monthly-resampled depth series for a single well."""
+    """Return monthly-resampled depth series for a single well.
+
+    Handles both the old raw-file format (df is a 2D array with well
+    names in column 0) and the new clean-file format (df is a DataFrame
+    with well names as columns).
+    """
+    if isinstance(df, pd.DataFrame) and w in df.columns:
+        return df[w].dropna().resample("MS").mean()
+    # Legacy fallback for old raw format
     row = [i for i, n in enumerate(well_names) if n == w]
     if not row:
         return None
@@ -430,7 +456,7 @@ def plot_hydrograph(scenario_shifts, obs_monthly, monthly_P, monthly_PET,
         "Modelled lines: equilibrium shift applied to observed C4 seasonal cycle.\n"
         "BACI benchmark: observed post-felling displacement (Section 4.6);\n"
         "gap to modelled clearfell reflects unparameterised boundary subsidy pathway.\n"
-        "Broadleaf: seasonally-varying β₂ (deciduous phenology) + 15% interception.\n"
+        "Broadleaf: seasonally-varying β₂ (deciduous phenology) + 15% annual interception (illustrative; ~20% growing season).\n"
         "C1 and C2 unaffected by any forest management scenario.",
         xy=(0.02, 0.03), xycoords="axes fraction", fontsize=7.2,
         color="dimgrey",
@@ -501,12 +527,10 @@ FELL_DATE_21 = "2018-01-01"   # December 2017 clearfell
 
 def _get_maod_monthly_21(w, df, dates, well_names, elev):
     """Return monthly maOD series for one well."""
-    row = [i for i, n in enumerate(well_names) if n == w]
-    if not row:
+    raw = get_well_monthly(w, df, dates, well_names)
+    if raw is None:
         return None
-    d   = pd.to_numeric(df.iloc[row[0] + 2, 1:], errors="coerce").values
-    raw = pd.Series(d, index=dates).dropna().resample("MS").mean()
-    pt  = elev[elev["well"] == w]["Pipe_Top_Elev"]
+    pt = elev[elev["well"] == w]["Pipe_Top_Elev"]
     if pt.empty:
         return None
     return pt.values[0] + raw
@@ -763,11 +787,13 @@ def plot_distributions(master, df, dates, well_names, elev, dpi=FIG_DPI):
     plt.close(fig)
     print(f"  Saved: {OUT_21_DISTRIBUTIONS.name}")
 
-    # Print summary statistics
+    # Print summary statistics and save CSV
     print("\n  === Summer minimum distributions — summary statistics ===")
     print(f"  {'Group':<28} {'Phase':<20} {'n':>4} {'Mean':>7} "
           f"{'SD':>7} {'%>SD16':>8}")
     print("  " + "-" * 76)
+    import pandas as _pd
+    dist_rows = []
     for gi, (grp_lbl, _, mins_fn) in enumerate(groups):
         for pi, (phase_lbl, start, end, _, _) in enumerate(phases):
             arr = mins_fn(start, end)
@@ -778,6 +804,21 @@ def plot_distributions(master, df, dates, well_names, elev, dpi=FIG_DPI):
             p = phase_lbl.replace("\n", " ")
             print(f"  {g:<28} {p:<20} {len(arr):>4} "
                   f"{arr.mean():>7.3f} {arr.std():>7.3f} {p16:>7.0f}%")
+            dist_rows.append({
+                "Group":          g,
+                "Phase":          p,
+                "Phase_start":    start or "record_start",
+                "Phase_end":      end   or "record_end",
+                "N_summers":      len(arr),
+                "Mean_depth_m":   round(float(arr.mean()),  4),
+                "Median_depth_m": round(float(np.median(arr)), 4),
+                "SD_depth_m":     round(float(arr.std()),   4) if len(arr) > 1 else None,
+                "Min_depth_m":    round(float(arr.min()),   4),
+                "Max_depth_m":    round(float(arr.max()),   4),
+                "Pct_below_SD16": round(p16, 1),
+            })
+    _pd.DataFrame(dist_rows).to_csv(OUT_21_DISTRIBUTIONS_CSV, index=False)
+    print(f"  Saved: {OUT_21_DISTRIBUTIONS_CSV.name}")
 
 
 # ============================================================================
@@ -805,11 +846,9 @@ def _well_summer_mins_era(w, df, dates, well_names, elev,
                            start=None, end=None):
     """Annual summer minimum depths for a single well over an era."""
     SUMMER = [6, 7, 8, 9]
-    row = [i for i, n in enumerate(well_names) if n == w]
-    if not row:
+    raw = get_well_monthly(w, df, dates, well_names)
+    if raw is None:
         return np.array([])
-    d   = pd.to_numeric(df.iloc[row[0] + 2, 1:], errors="coerce").values
-    raw = pd.Series(d, index=dates).dropna().resample("MS").mean()
     pt  = elev[elev["well"] == w]["Pipe_Top_Elev"]
     dem = elev[elev["well"] == w]["DEM_Ground_Elev"]
     if pt.empty or dem.empty:
@@ -1004,6 +1043,29 @@ def plot_scraping_eras(df, dates, well_names, elev, dpi=FIG_DPI):
     plt.close(fig)
     print(f"  Saved: {OUT_21_SCRAPING.name}")
 
+    # Export era means and SDs to CSV for reporting verification
+    rows = []
+    for w_pos, (well_lbl, well_id, col) in zip(well_positions, wells_cfg):
+        for pi, (era_lbl, start, end, mk) in enumerate(eras):
+            arr = _well_summer_mins_era(well_id, df, dates, well_names, elev,
+                                        start, end)
+            rows.append({
+                "Well":     well_lbl.replace("\n", " ").strip(),
+                "Well_ID":  well_id,
+                "Era":      era_lbl.replace("\n", " ").strip(),
+                "Era_start": start or "record_start",
+                "Era_end":   end   or "record_end",
+                "N_summers": len(arr),
+                "Mean_depth_m": round(float(arr.mean()), 4) if len(arr) > 0 else None,
+                "SD_depth_m":   round(float(arr.std()),  4) if len(arr) > 1 else None,
+                "Min_depth_m":  round(float(arr.min()),  4) if len(arr) > 0 else None,
+                "Max_depth_m":  round(float(arr.max()),  4) if len(arr) > 0 else None,
+            })
+    import pandas as _pd
+    era_df = _pd.DataFrame(rows)
+    era_df.to_csv(OUT_21_SCRAPING_CSV, index=False)
+    print(f"  Saved: {OUT_21_SCRAPING_CSV.name}")
+
 
 # ============================================================================
 # FIGURE 4 — BACI ZONE SUMMER MINIMUM VIOLIN
@@ -1015,16 +1077,16 @@ BACI_ZONE_WELLS = {
         ["fe2", "fe4", "wmc3"],
     "Edge zone\n(FE1, FE3, CEH31, LIS1,\nCEH20, CEH30, CEH16, NW8B)":
         ["fe1", "fe3", "ceh31", "lis1", "ceh20", "ceh30", "ceh16", "nw8b"],
-    "Forest interior\n(CEH2, CEH13,\nCEH32, CEH33, CEH34)":
-        ["ceh2", "ceh13", "ceh32", "ceh33", "ceh34"],
-    "Regional control\n(CEH19, NW10)":
-        ["ceh19", "nw10"],
+    "Plantation controls\n(CEH32, CEH34, CEH33, NW10, CEH19)":
+        ["ceh32", "ceh34", "ceh33", "nw10", "ceh19"],
+    "Open warren controls\n(CEH9, NW7, NW6)":
+        ["ceh9", "nw7", "nw6"],
 }
 BACI_ZONE_COLOURS = {
-    "Core impact\n(FE2, FE4, WMC3)":                        "#D73027",
-    "Edge zone\n(FE1, FE3, CEH31, LIS1,\nCEH20, CEH30, CEH16, NW8B)":    "#F46D43",
-    "Forest interior\n(CEH2, CEH13,\nCEH32, CEH33, CEH34)": "#4DAC26",
-    "Regional control\n(CEH19, NW10)":         "#888888",
+    "Core impact\n(FE2, FE4, WMC3)":                                   "#D73027",
+    "Edge zone\n(FE1, FE3, CEH31, LIS1,\nCEH20, CEH30, CEH16, NW8B)":"#F46D43",
+    "Plantation controls\n(CEH32, CEH34, CEH33, NW10, CEH19)":         "#4DAC26",
+    "Open warren controls\n(CEH9, NW7, NW6)":                          "#888888",
 }
 
 
@@ -1033,11 +1095,9 @@ def _zone_summer_mins(wells, df, dates, well_names, elev, start=None, end=None):
     SUMMER = [6, 7, 8, 9]
     well_depths = []
     for w in wells:
-        row = [i for i, n in enumerate(well_names) if n == w]
-        if not row:
+        raw = get_well_monthly(w, df, dates, well_names)
+        if raw is None:
             continue
-        d = pd.to_numeric(df.iloc[row[0] + 2, 1:], errors="coerce").values
-        raw = pd.Series(d, index=dates).dropna().resample("MS").mean()
         pt  = elev[elev["well"] == w]["Pipe_Top_Elev"]
         dem = elev[elev["well"] == w]["DEM_Ground_Elev"]
         if pt.empty or dem.empty:
@@ -1212,10 +1272,11 @@ def plot_baci_zone_violin(df, dates, well_names, elev, dpi=FIG_DPI):
             "Median bar; diamond = mean; bar = \u00b11 SD.\n"
             "Core impact pre-2015 violin (hatched) = WMC3 only "
             "(FE wells not installed until Aug 2015).\n"
-            "Core impact: FE2, FE4, WMC3.  "
+            "Core impact: FE2, FE4, WMC3.\n"
             "Edge zone: FE1, FE3, CEH31, LIS1, CEH20, CEH30, CEH16, NW8B.\n"
-            "Forest interior: CEH2, CEH13, CEH32, CEH33, CEH34.  "
-            "Regional control: CEH19, NW10.",
+            "Plantation controls: CEH32, CEH34, CEH33, NW10, CEH19.\n"
+            "Open warren controls: CEH9, NW7, NW6.\n"
+            "All eight control wells = BACI regional control pool (Section 3.5.5).",
             fontsize=7.2, color="dimgrey", va="top", ha="left",
             transform=ax.transAxes,
             bbox=dict(boxstyle="round,pad=0.4", fc="white", alpha=0.92,
@@ -1226,10 +1287,12 @@ def plot_baci_zone_violin(df, dates, well_names, elev, dpi=FIG_DPI):
     plt.close(fig)
     print(f"  Saved: {OUT_21_BACI_VIOLIN.name}")
 
-    # Summary statistics
+    # Summary statistics and CSV export
     print(f"\n  {'Zone':<22} {'Phase':<16} {'n':>4} "
           f"{'Mean':>7} {'SD':>7}")
     print("  " + "-" * 60)
+    import pandas as _pd
+    baci_rows = []
     for zone_lbl, wells in BACI_ZONE_WELLS.items():
         for phase_lbl, start, end, _, _ in BACI_PHASES:
             arr = _zone_summer_mins(wells, df, dates, well_names, elev,
@@ -1239,6 +1302,20 @@ def plot_baci_zone_violin(df, dates, well_names, elev, dpi=FIG_DPI):
                 p = phase_lbl.replace("\n", " ")
                 print(f"  {z:<22} {p:<16} {len(arr):>4} "
                       f"{arr.mean():>7.3f} {arr.std():>7.3f}")
+                baci_rows.append({
+                    "Zone":          z,
+                    "Phase":         p,
+                    "Phase_start":   start or "record_start",
+                    "Phase_end":     end   or "record_end",
+                    "N_summers":     len(arr),
+                    "Mean_depth_m":  round(float(arr.mean()),     4),
+                    "Median_depth_m":round(float(np.median(arr)), 4),
+                    "SD_depth_m":    round(float(arr.std()),      4) if len(arr) > 1 else None,
+                    "Min_depth_m":   round(float(arr.min()),      4),
+                    "Max_depth_m":   round(float(arr.max()),      4),
+                })
+    _pd.DataFrame(baci_rows).to_csv(OUT_21_BACI_CSV, index=False)
+    print(f"  Saved: {OUT_21_BACI_CSV.name}")
 
 
 # ============================================================================

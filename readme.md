@@ -28,7 +28,7 @@ python run_analysis.py           # opens interactive menu
 | **1 — Run full pipeline** | Runs all 23 steps in order from the beginning |
 | **2 — Resume from step** | Skips completed steps; useful after a partial run |
 | **3 — Run a single step** | Runs one script in isolation for debugging or re-running |
-| **4 — Prepare scenario viewer** | Runs scripts 19a and 19b to build the self-contained HTML viewer |
+| **4 — Prepare scenario viewer** | Runs script 19 to build the self-contained HTML viewer |
 | **5 — Show step list** | Lists all 23 steps with script names and availability status |
 
 For non-interactive use (e.g. in a batch job):
@@ -64,14 +64,7 @@ Newborough_Hydro_Models/
 │   ├── 03_cluster_averages_maod.csv    │  Cluster mean heads in maOD (feeds 21)
 │   └── 17_wtf_well_sy.csv             ┘  Per-well Sy intermediate (feeds 18, 19)
 │   ├── 19_spatial_groundwater/
-│   │   ├── scenario_viewer.html        ← self-contained interactive viewer (standalone)
-│   │   ├── baseline/                   ← baseline scenario outputs
-│   │   ├── forest_removal/             ← clearfell scenario outputs
-│   │   ├── forest_thinning/            ← 50% thinning scenario outputs
-│   │   ├── species_change/             ← broadleaf conversion scenario outputs
-│   │   ├── climate_dry/                ← climate dry scenario outputs
-│   │   ├── climate_wet/                ← climate wet scenario outputs
-│   │   └── difference_maps/            ← per-field Δ maps vs baseline
+│   │   └── scenario_viewer.html        ← self-contained interactive viewer (standalone)
 │   └── [other output directories]
 ├── src/                         Analysis scripts (23 steps + 2 viewer scripts)
 │   ├── utils/
@@ -81,8 +74,6 @@ Newborough_Hydro_Models/
 │   │   ├── model_utils.py       SSM fitting helpers
 │   │   └── paths.py             All path constants — single source of truth
 │   ├── 19_spatial_groundwater.py
-│   ├── 19a_scenario_runner.py   Runs all scenarios; generates per-field difference maps
-│   ├── 19b_build_viewer.py      Assembles self-contained HTML scenario viewer
 │   └── [other scripts]
 ├── scenario_viewer.html         Lightweight linked viewer for GitHub Pages
 ├── seasonal_extremes_scatter.html  Interactive scatter plot (from script 14)
@@ -102,7 +93,7 @@ Ten sequential phases, 23 steps total. Validation checkpoints run after Phases 1
 - Script 18 (WTF spatial) must run before script 19 (spatial groundwater)
 - Script 11b runs after scripts 11 and 06
 - Script 21 requires `03_cluster_averages_maod.csv` from script 03
-- Option 4 (scenario viewer) requires script 19 to have run; script 14 should also have run for the seasonal extremes scatter to be populated
+- Option 4 (scenario viewer) runs script 19 standalone — it reads pipeline outputs directly. Script 14 should have run for seasonal extremes to be available
 
 | Phase | Scripts | Steps | Purpose |
 |-------|---------|-------|---------|
@@ -121,29 +112,25 @@ Ten sequential phases, 23 steps total. Validation checkpoints run after Phases 1
 
 ## Scenario Viewer
 
-The interactive scenario viewer is built by running **option 4** from the menu (or `python run_analysis.py --viewer`). This calls scripts 19a and 19b in sequence and produces two output files:
+The interactive scenario viewer is built by running **option 4** from the menu (or `python run_analysis.py --viewer`). This runs script 19 which reads pipeline outputs directly and produces a single self-contained HTML file:
 
-- `outputs/19_spatial_groundwater/scenario_viewer.html` — standalone self-contained file (all images base64-embedded; ~60–130 MB depending on scenarios run); opens directly in any browser with no server required
-- `scenario_viewer.html` — lightweight linked viewer (~22 KB) for use with GitHub Pages; images are loaded from the `outputs/` folder by relative path
+- `outputs/19_spatial_groundwater/scenario_viewer.html` — standalone self-contained file; opens directly in any browser with no server required
 
-The viewer has four tabs:
+Scenario Δh values are computed dynamically in JavaScript via the SSM equilibrium equation — no precomputed difference maps are produced. The viewer supports interactive exploration of six scenarios with per-well Δh visualisation.
 
-- **Forest Management** — per-field difference maps (Δ vs baseline) for clearfell, 50% thinning, and broadleaf conversion scenarios
-- **Climate Change** — per-field difference maps for climate dry (ΔP −10%, ΔPET +10%) and climate wet (ΔP +10%, ΔPET −5%) scenarios
-- **Baseline Maps** — all spatial groundwater figures under observed 2005–2026 conditions
-- **Seasonal Profiles** — cluster seasonal water table hydrographs with Curreli et al. (2013) ecological thresholds; link to seasonal extremes scatter plot
+**Colour convention:** red = drier / deeper than baseline; blue = wetter / shallower than baseline.
 
-**Colour convention throughout:** red = drier / more than baseline; blue = wetter / less than baseline. Maps are auto-scaled from the p5–p95 of actual well Δ values. Maps where |Δ| is below a meaningful threshold are omitted rather than shown as noise.
+**Scenario definitions (JavaScript parameters in scenario_viewer.html):**
 
-**Scenario definitions:**
+| Scenario | sP | sPET | sI | sB2 | C4 Δh (depth convention) |
+|----------|-----|------|-----|------|---------------------------|
+| Full clearfell | 1.00 | 1.00 | 0 | 1.35 | +0.145 m (deeper) |
+| Forest thinning | 1.00 | 1.00 | I×0.5 | 1.15 | +0.073 m |
+| Broadleaf conversion | 1.00 | 1.00 | 0.25 | 1.45 | +0.003 m |
+| Climate dry | 0.90 (−10% P) | 1.10 (+10% PET) | — | — | all clusters |
+| Climate wet | 1.10 (+10% P) | 1.00 (unchanged) | — | — | all clusters |
 
-| Scenario | Parameters | Site-wide mean Δh |
-|----------|-----------|-------------------|
-| Full clearfell | β₂ ×1.15 for C4; interception removed | C4 only: −0.145 m |
-| Forest thinning | 50% of clearfell effect | C4 only: −0.073 m |
-| Broadleaf conversion | β₁ ×0.90 for C4 in autumn | C4 only: −0.003 m |
-| Climate dry | ΔP = −89 mm/yr, ΔPET = +54 mm/yr | −0.165 m |
-| Climate wet | ΔP = +89 mm/yr, ΔPET = −27 mm/yr | +0.112 m |
+Δh sign convention: **positive = water table deepens (drier)**; negative = shallower (wetter).
 
 ---
 

@@ -7,7 +7,7 @@ the paper as figures, tables or into downstream scripts.
 
 Run order: 01 → 02 → 03 → 04 → 05 → 06 → 07 → 08 → 09 → 10 → 11 → 11b → 12 → 13 → 14 → 15 → 17 → 16 → 18 → 19 → 20 → 21
 
-Scripts 19a and 19b are not part of the numbered pipeline. They build the
+Script 19 is not part of the numbered pipeline. It builds the
 self-contained HTML scenario viewer and are run separately via option 4 in
 the interactive menu, or with `python run_analysis.py --viewer`.
 
@@ -16,7 +16,7 @@ Critical ordering constraints:
 - Script 18 (WTF spatial) must run before script 19 (spatial groundwater)
 - Script 11b requires outputs from scripts 11 and 06
 - Script 21 requires `03_cluster_averages_maod.csv` from script 03
-- Script 19a/19b (viewer) requires script 19 to have run; script 14 should
+- Script 19 (viewer) requires pipeline outputs; script 14 should
   also have run for the seasonal extremes tab to be populated
 
 ---
@@ -339,34 +339,46 @@ against regional mean; Tier 2 isolates pure scraping signal.
 ## Script 10 — Clearfell BACI Experiment
 **Purpose:** Three-zone hierarchical BACI experiment (core impact, edge zone,
 regional control) assessing the December 2017 plantation clearfell. Includes
-ANCOVA-BACI climate correction, CUSUM analysis, and SSM coefficient shifts.
+ANCOVA-BACI climate correction, CUSUM analysis, SSM coefficient shifts,
+spatial transect analysis, and NW10 broadleaf trend analysis.
 
-**Reads (raw — bypasses intermediate files):**
+**Reads:**
 - `data/RAF_Valley_Climate.csv`
-- `data/Newborough_Cleaned_For_Model.csv`
+- `outputs/01_wells_clean.csv` (main network including CEH9, NW7, NW6)
+- `outputs/01_wells_extended.csv` (FE series and edge wells — merged at load time)
 - `outputs/03_master_data.csv`
+
+**Control pool (8 wells):** CEH32, CEH34, CEH33, NW10, CEH19, CEH9, NW7, NW6
 
 **Produces (outputs/10_clearfell_baci/):**
 
 | File | Type | Paper destination |
 |---|---|---|
 | `10_cfell_04_diagnostic_drainage_data.csv` | Data | Diagnostic/reproducibility |
-| `10_cfell_05_baci_statistical_verification.csv` | Data | Paper Sections 4.6.1, 4.6.3 |
-| `10_cfell_06_full_parameters.csv` | Data | Paper Section 4.6.4, Figure caption |
-| `10_cfell_08_baci_timeseries_plotdata.csv` | Data | Paper Section 4.6.1 |
+| `10_cfell_05_baci_statistical_verification.csv` | Data | Paper Sections 4.6.2, 4.6.3 |
+| `10_cfell_06_full_parameters.csv` | Data | Paper Section 4.6.5, Figure caption |
+| `10_cfell_08_baci_timeseries_plotdata.csv` | Data | Paper Section 4.6.2 |
 | `10_cfell_09_table5_beta3_before_after.csv` | Table | **Paper Table 5** |
-| `10_cfell_09b_climate_corrected_cusum.csv` | Data | Paper Section 4.6.2 verification |
-| `10_cfell_01_dual_control_baci.png` | Figure | Figure 17 (ANCOVA-BACI) |
-| `10_cfell_01b_raw_baci.png` | Figure | Figure 18 (raw BACI) |
+| `10_cfell_09b_climate_corrected_cusum.csv` | Data | Paper Section 4.6.3 verification |
+| `10_cfell_11_nw10_broadleaf_trend.csv` | Data | **Paper Section 4.6.8** — NW10 broadleaf anomaly and OLS trend |
+| `10_cfell_01_dual_control_baci.png` | Figure | **Figure 22** (ANCOVA-BACI) |
+| `10_cfell_01b_raw_baci.png` | Figure | **Figure 21** (raw BACI) |
 | `10_cfell_02_drainage_diagnostic_part1.png` | Figure | Supplementary / public repo |
 | `10_cfell_02_drainage_diagnostic_part2.png` | Figure | Supplementary / public repo |
-| `10_cfell_03_beta3_ols_slopes.png` | Figure | Figure 19 (−β₃ shifts) |
+| `10_cfell_03_beta3_ols_slopes.png` | Figure | **Figure 24** (SSM coefficient shifts) |
+| `10_cfell_10_clearfell_transect.png` | Figure | **Figure 23** (spatial transect) |
+| `10_cfell_10_clearfell_transect_steps.csv` | Data | Paper Section 4.6.4 verification |
 
-**Key verified numbers from this script:**
-- Raw BACI scraping step: −0.207 m; felling step: −0.043 m; combined: −0.251 m
-- ANCOVA Model 2: R²=0.600, scraping −0.119 m, clearfell −0.094 m, combined −0.214 m
-- Climate sensitivity reduction post-felling: 79.3%
-- Climate-corrected CUSUM at clearfell: +6.40 m; zero crossing June 2025; final −0.46 m
+**Key verified numbers from this script (8-well control pool):**
+- Raw BACI pre-scraping: −0.107 m; post-scraping: −0.325 m; post-felling: −0.370 m
+- Raw step change (felling): −0.045 m; combined hydrological cost: −0.263 m
+- ANCOVA Model 2: R²=0.729, scraping −0.137 m ***, clearfell −0.093 m [−0.131, −0.055] ***, combined −0.230 m
+- Climate sensitivity reduction post-felling: 79.3% (pre: −0.0618 m/100mm; post: −0.0127 m/100mm)
+- Climate-corrected CUSUM at clearfell date: +7.29 m; final value Feb 2026: +0.64 m
+- −β₃ zone mean gains: core impact +0.021, edge +0.022, regional control +0.013
+- Transect step changes (post-fell vs scrape era): WMC3 +0.142 m, NW8B +0.127 m, CEH20 +0.108 m, CEH16 +0.026 m, CEH34 +0.094 m, CEH2 +0.130 m — no distance gradient
+- NW10 broadleaf anomaly vs pine composite (CEH2, CEH32, CEH33, CEH34), mean 2010–2021: +0.267 m
+- NW10 trend 2019–2025: −11.2 mm/yr, p = 0.094, n = 7 (non-significant)
 
 ---
 
@@ -384,9 +396,9 @@ prediction. All results in m/mm units (× 1000 relative to Table 2).
 | File | Type | Paper destination |
 |---|---|---|
 | `11_forecast_01_results.txt` | Text | Reference/verification |
-| `11_forecast_02_table6_winter_transfer.csv` | Table | **Paper Table 6** |
-| `11_forecast_03_table7_summer_transfer.csv` | Table | **Paper Table 7** |
-| `11_forecast_04_table8_critical_thresholds.csv` | Table | **Paper Table 8** |
+| `11_forecast_winter_transfer_functions.csv` | Table | **Paper Table 6** |
+| `11_forecast_summer_transfer_functions.csv` | Table | **Paper Table 7** |
+| `11_forecast_pflood_threshold_equations.csv` | Table | **Paper Table 8** |
 
 **Key Pflood equations (correct values):**
 - C1: (h_gap + 0.3660 × h_prev) / 0.0016
@@ -453,49 +465,52 @@ Identifies 2030–2039 critical intervention window.
 | `14_seasonal_extremes_scatter.html` | Interactive figure | Seasonal Extremes tab in scenario viewer |
 
 **Key verified numbers:**
-- C1: −0.0100 m yr⁻¹ (R²=0.247, p=0.026, n=20)
+- C1: −0.0100 m yr⁻¹ (R²=0.247, p=0.026, n=20 — missing summer 2005)
 - C2: −0.0115 m yr⁻¹ (R²=0.172, p=0.061, n=21)
 - C3: −0.0149 m yr⁻¹ (R²=0.166, p=0.067, n=21)
 - Winter flooding (wet slack): C1 14/21 yrs (67%), C2 11/21 (52%), C3 1/21 (5%)
+- **April 2026:** Winter panel now shows cluster mean (dashed) and median (dotted)
+  horizontal lines per cluster with μ/ø annotations. Applied to both
+  `render_winter_figure()` and `render_stacked_figure()`.
 
 ---
 
-## Scripts 19a and 19b — Hydrological Scenario Viewer
+## Script 19 — Hydrological Scenario Viewer
 
-These two scripts are not part of the numbered 23-step pipeline. They are run
-separately to build the self-contained HTML scenario viewer. Use option 4 in
-the interactive menu, or `python run_analysis.py --viewer`.
+Script 19 is a **standalone self-contained HTML scenario viewer**. It is not
+part of the numbered 23-step pipeline. It reads pipeline outputs directly and
+generates an interactive browser-based tool for exploring management and climate
+scenarios. Run separately via option 4 in the interactive menu, or
+`python run_analysis.py --viewer`.
 
-**Script 19a — Scenario Runner**
-Applies management and climate perturbations to the baseline IDW head surfaces
-produced by script 19 and writes scenario-specific PNG outputs to
-`outputs/19_spatial_groundwater/{scenario}/`.
-
-**Reads:**
-- `outputs/19_spatial_groundwater/baseline/` — baseline head surfaces from script 19
-- `outputs/02_cluster_stats.csv` — cluster assignments
-
-**Produces (outputs/19_spatial_groundwater/):**
-- One subfolder per scenario: `forest_removal/`, `forest_thinning/`, `species_change/`, `climate_dry/`, `climate_wet/`
-- `difference_maps/` — scenario vs baseline anomaly PNGs
-- `difference_maps/scenario_summary.png` — all-scenario summary panel
-
-**Script 19b — Viewer Builder**
-Assembles all scenario images and the script 14 seasonal scatter into a single
-self-contained HTML file. All images are embedded as base64; the file opens in
-any browser with no server required.
+**Note:** Scripts 19a and 19b no longer exist. Script 19 now handles everything
+previously split across those two scripts — it loads data, computes per-well
+scenario Δh dynamically in JavaScript, and outputs a single HTML file.
 
 **Reads:**
-- `outputs/19_spatial_groundwater/{scenario}/` — all scenario PNGs from 19a
-- `outputs/14_climate_projections/14_seasonal_extremes_scatter.html` — from script 14 (optional; tab shows placeholder if missing)
+- `outputs/03_master_data.csv` — SSM coefficients and cluster assignments
+- `outputs/01_climate.csv` — climate record
+- `outputs/01_well_elevations.csv` — pipe top elevations
+- `outputs/01_wells_clean_maod.csv` — reference well maOD time series
+- `data/Features.kml`, `data/site_boundary.kml` — KML overlays
 
 **Produces:**
-- `outputs/19_spatial_groundwater/scenario_viewer.html`
+- `outputs/19_spatial_groundwater/scenario_viewer.html` — self-contained viewer
 
-**Viewer tabs:**
-- **Scenario Figures** — maps under six scenarios with click-to-zoom
-- **Difference Maps** — anomaly maps (blue = wetter, red = drier)
-- **Seasonal Extremes** — interactive scatter plot of summer minimum vs winter maximum per well, with cluster colouring, threshold lines, and well search
+**Scenario parameters (JavaScript, computed per-well dynamically):**
+- baseline: sP=1.00, sPET=1.00, sI=FOREST_INTERCEPTION(0.24), sB2=1.00
+- climate_dry: sP=0.90 (−10% P), sPET=1.10 (+10% PET)
+- climate_wet: sP=1.10 (+10% P), sPET=1.00 (PET unchanged — conservative)
+- clearfell: sI=0 (interception removed), sB2=1.35 (β₂ ×1.35)
+- thinning: sI=FOREST_INTERCEPTION×0.5, sB2=1.15
+- broadleaf: sI=BROADLEAF_INTERCEPTION(0.25), sB2=1.45
+
+**Δh sign convention:** positive = water table deepens (drier); negative = shallower (wetter)
+
+**No precomputed difference maps are produced.** Scenario Δh is computed
+dynamically in the browser via the SSM equilibrium equation. Interactive
+visualisation is the primary output; for paper-cited cluster-level shifts see
+Section 4.9 and script 19a_scenario_runner.py (now retired).
 
 ---
 
@@ -579,7 +594,10 @@ SCRIPT 11 outputs
 └── 11_forecast_04_table8_thresholds ───→ Paper Table 8
 
 SCRIPT 11b outputs
-└── 11b_01_summer_minima_depth.png ─────→ Paper Figure (Section 4.7)
+└── 11b_01_summer_minima_depth.png ─────→ Figure 26 (Section 4.7.4)
+└── 11b_02_winter_maxima_depth.png ─────→ Figure 27 (Section 4.7.4)
+└── 11b_03_pflood.png ────────────────→ Figure 28 (Section 4.7.4)
+└── 11b_04_flood_frequency.png ────────→ Figure 29 (Section 4.7.4)
 
 SCRIPT 14 outputs
 └── 14_climate_trajectory_stacked.png ──→ Paper Figure 20
@@ -663,6 +681,25 @@ Two wells were scraped after the LiDAR survey was flown. Scripts 11b, 19, and
 - Ecological zones use Curreli et al. (2013) thresholds with BACI scraping
   recovery limits from Hollingham (2026): SD15b recovery = 0.75 m,
   SD16 recovery = 1.20 m
+- **April 2026:** Three new figures added — winter maxima depth map,
+  P_flood map (521 mm threshold = mean annual Oct–Mar rainfall, monitoring
+  period), and flood frequency map. These are Paper Figures 27, 28 and 29
+  respectively. Figures formerly attributed to script 19 or missing from
+  the pipeline are now fully reproduced in 11b.
+
+**Produces (outputs/11b_spatial_thresholds/):**
+
+| File | Type | Paper destination |
+|---|---|---|
+| `11b_01_summer_minima_depth.png` | Figure | **Figure 26** — mean summer minimum depth |
+| `11b_02_winter_maxima_depth.png` | Figure | **Figure 27** — mean winter maximum depth |
+| `11b_03_pflood.png` | Figure | **Figure 28** — P_flood spatial distribution |
+| `11b_04_flood_frequency.png` | Figure | **Figure 29** — winter flooding frequency |
+
+**Key constants:**
+- `MEAN_WINTER_RAINFALL_MM = 521` — mean annual Oct–Mar rainfall, monitoring period 2005–2026
+- P_flood equation: `(h_gap + β₃ × h_prev) / β₁` using per-well SSM coefficients from `03_master_data.csv`
+- Flood frequency: % of hydrological years (Oct–Sep) where winter maximum maOD ≥ DEM ground elevation
 
 ### Script 14
 - Added p-value output to console
@@ -694,12 +731,12 @@ Two wells were scraped after the LiDAR survey was flown. Scripts 11b, 19, and
   a geographically accurate interpolation mask. Falls back to the rectangular
   sea-boundary mask if the file is absent or any dependency fails.
 
-### Scripts 19a and 19b — scenario viewer (April 2026)
+### Script 19 — scenario viewer (April 2026, revised)
 - Complete rewrite of both scripts.
-- 19a generates per-field difference maps (Δ scenario vs baseline) for all
+- Scripts 19a and 19b retired; script 19 now a standalone scenario viewer
   six scenarios across ten water balance and head fields. Maps are auto-scaled
   from well-level p5–p95 Δ values; maps below a per-field threshold are omitted.
-- 19b builds a four-tab HTML viewer: Forest Management, Climate Change,
+- Climate scenario parameters: climate_dry sP=0.90/sPET=1.10; climate_wet sP=1.10/sPET=1.00
   Baseline Maps, Seasonal Profiles. Produces both a standalone base64-embedded
   viewer and a lightweight linked viewer for GitHub Pages.
 - Colour convention: red = drier/more than baseline; blue = wetter/less.
@@ -745,9 +782,9 @@ Two wells were scraped after the LiDAR survey was flown. Scripts 11b, 19, and
 | Table 3: Model benchmarking | 08 | `08_lcsc_04_table3_benchmark_summary.csv` |
 | Table 4: Scraping −β₃ era summary | 09 | `09_scrape_04b_table4_beta3_era_summary.csv` |
 | Table 5: Clearfell −β₃ before/after | 10 | `10_cfell_09_table5_beta3_before_after.csv` |
-| Table 6: Winter transfer functions | 11 | `11_forecast_02_table6_winter_transfer.csv` |
-| Table 7: Summer transfer functions | 11 | `11_forecast_03_table7_summer_transfer.csv` |
-| Table 8: Pflood equations | 11 | `11_forecast_04_table8_critical_thresholds.csv` |
+| Table 6: Winter transfer functions | 11 | `11_forecast_winter_transfer_functions.csv` |
+| Table 7: Summer transfer functions | 11 | `11_forecast_summer_transfer_functions.csv` |
+| Table 8: Pflood equations | 11 | `11_forecast_pflood_threshold_equations.csv` |
 
 ## Paper Figures Quick Reference
 
@@ -776,7 +813,10 @@ Two wells were scraped after the LiDAR survey was flown. Scripts 11b, 19, and
 | Figure 21: ANCOVA-BACI | 10 | `10_cfell_02_drainage_diagnostic_part2.png` |
 | Figure 22: OLS coefficients | 10 | `10_cfell_03_beta3_ols_slopes.png` |
 | Figure 23: BACI zone violin | 21 | `21_forestry_04_baci_zone_violin.png` |
-| Figure 24: Summer min depth map | 11b | `11b_01_summer_minima_depth.png` |
+| Figure 26: Summer min depth map | 11b | `11b_01_summer_minima_depth.png` |
+| Figure 27: Winter max depth map | 11b | `11b_02_winter_maxima_depth.png` |
+| Figure 28: P_flood map | 11b | `11b_03_pflood.png` |
+| Figure 29: Flood frequency map | 11b | `11b_04_flood_frequency.png` |
 | Figure 25: Winter max depth map | 11b | `11b_02_winter_maximum_depth.png` |
 | Figure 26: P_flood map | 11b | `11b_03_pflood_map.png` |
 | Figure 27: Flood frequency | 11b | `11b_04_flood_frequency.png` |

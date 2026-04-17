@@ -10,7 +10,6 @@ Usage
   python run_analysis.py --viewer     # non-interactive: build scenario viewer only
 """
 
-import shutil
 import subprocess
 import sys
 import textwrap
@@ -24,25 +23,25 @@ OUT_DIR  = ROOT_DIR / "outputs"
 # ── Phase / step definitions ──────────────────────────────────────────────────
 
 PHASE_1 = [
-    ("00_climate_summary.py",         " 1/23  Climate summary outputs", ["--profile", "both"]),
-    ("01_data_prep.py",              " 2/23  Data preparation"),
-    ("02_clustering.py",             " 3/23  Behavioural clustering"),
-    ("03_state_space_model.py",      " 4/23  State-space regression + LCSC"),
-    ("04_cluster_visualisations.py", " 5/23  Core cluster visualisation"),
+    ("01_data_prep.py",              " 1/23  Data preparation"),
+    ("02_clustering.py",             " 2/23  Behavioural clustering"),
+    ("03_state_space_model.py",      " 3/23  State-space regression + LCSC"),
+    ("04_cluster_visualisations.py", " 4/23  Core cluster visualisation"),
 ]
 PHASE_2 = [
-    ("05_pearson_affinity.py",  " 6/23  Pearson membership audit"),
-    ("06_pearson_extended.py",  " 7/23  Pearson extended network integration"),
+    ("05_pearson_affinity.py",  " 5/23  Pearson membership audit"),
+    ("06_pearson_extended.py",  " 6/23  Pearson extended network integration"),
 ]
 PHASE_3 = [
-    ("07_boundary_intercept.py",      " 8/23  Site-wide intercept audit"),
-    ("08_model_benchmarking.py",      " 9/23  Model benchmarking (LCSC vs Traditional)"),
-    ("09_scraping_intervention.py",   "10/23  Scraping intervention BACI"),
-    ("10_clearfell_baci.py",          "11/23  Clear-fell BACI analysis"),
-    ("11_forecasting_thresholds.py",  "12/23  Forecasting and critical thresholds"),
-    ("11b_spatial_thresholds.py",     "13/23  Spatial eco-hydrological threshold maps"),
+    ("07_boundary_intercept.py",      " 7/23  Site-wide intercept audit"),
+    ("08_model_benchmarking.py",      " 8/23  Model benchmarking (LCSC vs Traditional)"),
+    ("09_scraping_intervention.py",   " 9/23  Scraping intervention BACI"),
+    ("10_clearfell_baci.py",          "10/23  Clear-fell BACI analysis"),
+    ("11_forecasting_thresholds.py",  "11/23  Forecasting and critical thresholds"),
+    ("11b_spatial_thresholds.py",     "12/23  Spatial eco-hydrological threshold maps"),
 ]
 PHASE_4 = [
+    ("00_climate_summary.py",            "13/23  Climate summary outputs", ["--profile", "short"]),
     ("14_climate_projections.py",        "14/23  Figure: Climate trajectory projections"),
     ("12_figure_site_overview.py",       "15/23  Figure: DEM site overview"),
     ("13_figure_experimental_design.py", "16/23  Figure: Experimental design GIS map"),
@@ -57,10 +56,10 @@ PHASE_7 = [
     ("16_water_bal.py", "19/23  Water balance decomposition"),
 ]
 PHASE_8 = [
-    ("18_wtf_spatial.py", "20/23  WTF spatial analysis and Sy mapping", ["--supplementary"]),
+    ("18_wtf_spatial.py", "20/23  WTF spatial analysis and Sy mapping"),
 ]
 PHASE_9 = [
-    ("19_spatial_groundwater.py", "21/23  Spatial groundwater analysis", ["--supplementary"]),
+    ("19_spatial_groundwater.py", "21/23  Spatial groundwater analysis"),
     ("20_spatial_figures.py",     "22/23  Spatial paper figures"),
 ]
 PHASE_10 = [
@@ -198,38 +197,7 @@ def run_full_pipeline(from_step: int = 1) -> None:
         validate_outputs(REQUIRED_PHASE9_OUTPUTS, "Phase 9")
     run_phase(PHASE_10, "PHASE 10 — Forestry Scenario Analysis",                  from_step)
     validate_outputs(REQUIRED_PHASE10_OUTPUTS, "Phase 10")
-    copy_web_files()
     _banner("PIPELINE COMPLETE — all 23 steps written to outputs/")
-
-def copy_web_files() -> None:
-    """Copy generated HTML files to repository root for GitHub Pages deployment.
-
-    Copies the seasonal extremes scatter plot (script 14) and the scenario
-    viewer (script 19b) if they exist. Does not run 19a/19b — call
-    build_viewer() for that.
-    """
-    print()
-    _hr()
-    print("  Copying web files to repository root")
-    _hr()
-    scatter_src = OUT_DIR / "14_climate_projections" / "14_seasonal_extremes_scatter.html"
-    if scatter_src.exists():
-        dest = ROOT_DIR / "seasonal_extremes_scatter.html"
-        shutil.copy2(scatter_src, dest)
-        print(f"  [OK] Copied: {dest.name}")
-    else:
-        print(f"  [!] Scatter plot not found — run script 14 first")
-
-    linked_viewer = ROOT_DIR / "scenario_viewer.html"
-    if linked_viewer.exists():
-        print(f"  [OK] Linked viewer already in root: {linked_viewer.name}")
-    elif VIEWER_OUTPUT.exists():
-        # Fallback: old standalone version — warn about size
-        size_mb = VIEWER_OUTPUT.stat().st_size / 1_048_576
-        print(f"  [!] Only standalone viewer found ({size_mb:.1f} MB) — run option 4 to build the linked version")
-    else:
-        print(f"  [!] Scenario viewer not found — run option 4 to build it")
-    print()
 
 def build_viewer() -> None:
     """Run 19a (scenario runner) then 19b (HTML viewer builder)."""
@@ -263,7 +231,10 @@ def build_viewer() -> None:
             print(f"\n  [ERROR] Script not found: {script_path}")
             return
         print(f"  Running {script} ...")
-        subprocess.run([sys.executable, str(script_path)], cwd=str(ROOT_DIR), check=True)
+        subprocess.run(
+            [sys.executable, str(script_path)],
+            cwd=str(ROOT_DIR), check=True
+        )
 
     if VIEWER_OUTPUT.exists():
         size_mb = VIEWER_OUTPUT.stat().st_size / 1_048_576
@@ -272,7 +243,6 @@ def build_viewer() -> None:
         print("       Open in any browser — no server required.")
     else:
         print(f"\n  [!] Viewer not found at expected path: {VIEWER_OUTPUT}")
-    copy_web_files()
 
 # ── Interactive menu ──────────────────────────────────────────────────────────
 

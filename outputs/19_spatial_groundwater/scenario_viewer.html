@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Newborough Warren — Hydrological Scenario Viewer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sand:#f4f0e6; --sand-dark:#e8e0cc; --dune:#c8b878;
+  --slate:#3a4a52; --slate-light:#5a6e78;
+  --water:#4a7a8a; --water-light:#6a9aaa; --water-pale:#e8f2f5;
+  --pine:#3d5c3a; --pine-light:#5a7d56;
+  --text:#2a3338; --text-light:#5a6a72; --border:#d4c8a8;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Source Sans 3',sans-serif;font-weight:400;
+     font-size:14px;background:var(--sand);color:var(--text);line-height:1.6;}
+
+/* Header */
+header{background:var(--slate);color:#fff;padding:1.3rem 1.5rem 1.1rem;
+       position:relative;overflow:hidden;}
+header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;
+              background:linear-gradient(90deg,var(--dune),var(--water),var(--pine));}
+.site-label{font-size:0.68rem;font-weight:600;letter-spacing:0.18em;
+            text-transform:uppercase;color:var(--dune);margin-bottom:0.45rem;}
+header h1{font-family:'Libre Baskerville',Georgia,serif;font-weight:700;
+          font-size:clamp(1.05rem,2.8vw,1.4rem);line-height:1.25;
+          color:#fff;margin-bottom:0.35rem;}
+header p{font-size:0.78rem;color:rgba(255,255,255,0.58);font-weight:300;}
+
+/* Layout grid */
+.main{display:grid;grid-template-columns:215px minmax(0,1fr);gap:12px;
+       padding:12px;align-items:start;}
+@media(max-width:640px){.main{grid-template-columns:1fr;}}
+
+/* Controls sidebar */
+.ctrl{background:#fff;border:1px solid var(--border);border-radius:4px;padding:12px;}
+@media(min-width:641px){.ctrl{position:sticky;top:0;max-height:98vh;overflow-y:auto;}}
+.ch{font-size:0.65rem;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;
+     color:var(--water);border-bottom:1px solid var(--border);
+     padding-bottom:4px;margin-bottom:7px;}
+.sc{display:block;width:100%;text-align:left;padding:5px 8px;margin-bottom:3px;
+     background:transparent;border:1px solid var(--border);border-radius:3px;
+     cursor:pointer;font-size:11px;color:var(--text);line-height:1.3;
+     font-family:'Source Sans 3',sans-serif;}
+.sc:hover{background:var(--water-pale);border-color:var(--water-light);}
+.sc.on{border:1.5px solid var(--water);background:var(--water-pale);
+        color:var(--water);font-weight:600;}
+.sc-note{font-size:10px;color:var(--text-light);line-height:1.45;margin-top:6px;
+          padding:5px 8px;background:var(--sand);
+          border-left:2px solid var(--dune);border-radius:0 3px 3px 0;}
+.srow{display:flex;align-items:center;gap:5px;margin-bottom:5px;}
+.srow label{font-size:11px;color:var(--text-light);flex:1;}
+.sv{font-size:10px;font-weight:600;min-width:34px;text-align:right;color:var(--slate);}
+.srow input[type=range]{flex:1;min-width:0;accent-color:var(--water);}
+.ckrow{display:flex;align-items:center;gap:6px;margin-bottom:4px;
+        font-size:11px;color:var(--text-light);cursor:pointer;}
+.hr{height:1px;background:var(--border);margin:8px 0;}
+
+/* Right column */
+.rp{min-width:0;display:flex;flex-direction:column;gap:10px;}
+
+/* Season tabs */
+.tabs{display:flex;gap:5px;flex-wrap:wrap;}
+.tab{padding:4px 11px;border-radius:20px;font-size:11px;border:1px solid var(--border);
+      background:transparent;cursor:pointer;color:var(--text-light);
+      font-family:'Source Sans 3',sans-serif;}
+.tab.on{background:var(--slate);color:#fff;border-color:var(--slate);}
+
+/* Warning banner */
+.warn{background:#fdf5e3;border:1px solid var(--dune);border-left:3px solid var(--dune);
+       border-radius:0 3px 3px 0;padding:6px 10px;
+       font-size:11px;color:var(--text);line-height:1.45;}
+
+/* Metric cards */
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;}
+@media(max-width:420px){.metrics{grid-template-columns:repeat(2,1fr);}}
+.mc{background:#fff;border:1px solid var(--border);border-radius:3px;padding:8px 10px;}
+.mc .ml{font-size:10px;color:var(--text-light);margin-bottom:2px;}
+.mc .mv{font-size:15px;font-weight:700;}
+.mc .mu{font-size:10px;color:var(--text-light);}
+
+/* Panels */
+.panel{background:#fff;border:1px solid var(--border);border-radius:4px;padding:12px;}
+.panel h4{font-size:11px;font-weight:600;color:var(--slate-light);margin-bottom:6px;
+          letter-spacing:0.04em;text-transform:uppercase;}
+.phead{display:flex;align-items:center;justify-content:space-between;
+        margin-bottom:7px;flex-wrap:wrap;gap:5px;}
+.phead h4{margin:0;}
+.rtabs{display:flex;gap:4px;flex-wrap:wrap;}
+.rt{padding:3px 8px;border-radius:3px;font-size:10px;border:1px solid var(--border);
+     background:transparent;cursor:pointer;color:var(--text-light);
+     font-family:'Source Sans 3',sans-serif;}
+.rt.on{background:var(--water-pale);border-color:var(--water);
+        color:var(--water);font-weight:600;}
+
+/* Map canvas */
+.mapwrap{position:relative;width:100%;overflow:hidden;border-radius:3px;}
+.mapwrap canvas{display:block;width:100%;}
+#mapBg{position:relative;}
+#mapC{position:absolute;top:0;left:0;cursor:crosshair;}
+.leg{display:flex;flex-wrap:wrap;align-items:center;gap:7px;
+      margin-top:5px;font-size:10px;color:var(--text-light);}
+.ls{width:10px;height:10px;border-radius:2px;display:inline-block;
+     vertical-align:middle;margin-right:2px;}
+.tip{font-size:11px;color:var(--text-light);margin-top:3px;min-height:14px;}
+
+/* Chart + table */
+.chwrap{position:relative;width:100%;height:155px;}
+.tblwrap{overflow-x:auto;}
+.tbl{display:grid;grid-template-columns:110px repeat(5,minmax(0,1fr));
+      gap:2px;min-width:480px;}
+.th{font-size:10px;color:var(--text-light);text-align:center;padding:3px 2px;font-weight:600;}
+.tl{font-size:10px;color:var(--text-light);display:flex;align-items:center;
+     padding-right:3px;white-space:nowrap;}
+.tc{border-radius:2px;padding:4px 3px;text-align:center;font-size:10px;
+     font-weight:500;background:var(--sand);color:var(--text);}
+
+/* Footer */
+.nav-links{background:var(--slate-light);border-bottom:1px solid rgba(255,255,255,0.08);
+           padding:0.4rem 1rem;display:flex;gap:0;flex-wrap:wrap;overflow-x:auto;}
+.nav-links a{display:block;padding:0.45rem 1rem;font-size:0.75rem;font-weight:600;
+             letter-spacing:0.05em;text-transform:uppercase;color:rgba(255,255,255,0.65);
+             text-decoration:none;white-space:nowrap;}
+.nav-links a:hover{color:#fff;}
+.nav-links a.active{color:#fff;border-bottom:2px solid var(--dune);}
+footer{background:var(--slate);color:rgba(255,255,255,0.5);
+        font-size:10px;padding:12px 18px;line-height:1.6;margin-top:4px;}
+footer a{color:var(--dune);text-decoration:none;}
+footer a:hover{text-decoration:underline;}
+</style>
+</head>
+<body>
+<header>
+  <div class="site-label">Newborough Warren NNR &middot; Anglesey SAC</div>
+  <h1>Hydrological Scenario Viewer</h1>
+  <p>71 dipwells &middot; 2005&#8211;2026 monitoring record &middot;
+     SSM state-space model &middot; Hollingham (2026)</p>
+</header>
+
+<nav class="nav-links">
+  <a href="index.html">&#8592; Home</a>
+  <a href="seasonal_extremes_scatter.html">Seasonal extremes</a>
+  <a href="scenario_viewer.html" class="active">Scenario viewer &#8594;</a>
+</nav>
+
+<div class="main" id="mainGrid">
+
+<div class="ctrl">
+  <div class="ch">Scenarios</div>
+  <button class="sc on" id="btn_baseline"    onclick="loadSc('baseline')">Baseline (2005&#8211;2026)</button>
+  <button class="sc"    id="btn_climate_wet" onclick="loadSc('climate_wet')">Climate wet (+10% P)</button>
+  <button class="sc"    id="btn_climate_dry" onclick="loadSc('climate_dry')">Climate dry (&#8722;10% P, +10% PET)</button>
+  <button class="sc"    id="btn_clearfell"   onclick="loadSc('clearfell')">Clearfell (interception&#8594;0, &#946;&#8322;&#8593;)</button>
+  <button class="sc"    id="btn_broadleaf"   onclick="loadSc('broadleaf')">Broadleaf conversion</button>
+  <button class="sc"    id="btn_thinning"    onclick="loadSc('thinning')">Forest thinning (50%)</button>
+  <div class="sc-note">Presets represent single discrete scenarios. Use the sliders to explore combined pressures &#8212; the SSM is additive so combinations are physically valid, but constitute exploratory analysis rather than named management scenarios.</div>
+  <div class="hr"></div>
+
+  <div class="ch">Climate</div>
+  <div class="srow"><label>P scaling</label>
+    <input type="range" min="0.5" max="1.5" step="0.01" value="1" id="sP" oninput="onSl()">
+    <span class="sv" id="vP">1.00&#215;</span></div>
+  <div class="srow"><label>PET scaling</label>
+    <input type="range" min="0.5" max="1.5" step="0.01" value="1" id="sPET" oninput="onSl()">
+    <span class="sv" id="vPET">1.00&#215;</span></div>
+  <div class="hr"></div>
+
+  <div class="ch">Forest C4</div>
+  <div class="srow"><label>Interception</label>
+    <input type="range" min="0" max="0.4" step="0.01" value="0.24" id="sI" oninput="onSl()">
+    <span class="sv" id="vI">24%</span></div>
+  <div class="srow"><label>&#946;&#8322; scaling</label>
+    <input type="range" min="0.5" max="2" step="0.05" value="1" id="sB2" oninput="onSl()">
+    <span class="sv" id="vB2">1.00&#215;</span></div>
+  <div class="hr"></div>
+
+  <div class="ch">Specific yield</div>
+  <div class="srow"><label>Sy scaling</label>
+    <input type="range" min="0.5" max="2" step="0.05" value="1" id="sSy" oninput="onSl()">
+    <span class="sv" id="vSy">1.00&#215;</span></div>
+  <div style="font-size:10px;color:var(--text-light);line-height:1.4;margin-top:3px;">
+    Per-well WTF medians (scripts 17/18).<br>Floor: C1&nbsp;6%, C2&#8211;C5&nbsp;12%.</div>
+  <div class="hr"></div>
+
+  <div class="ch">Map</div>
+  <label class="ckrow"><input type="checkbox" id="chkKml" checked onchange="drawMap()">
+    KML overlays</label>
+  <label class="ckrow"><input type="checkbox" id="chkLbl" onchange="drawMap()">
+    Well labels</label>
+</div>
+
+<div class="rp">
+  <div class="tabs">
+    <button class="tab on" id="tab_annual" onclick="setSeas('annual')">Annual</button>
+    <button class="tab" id="tab_winter" onclick="setSeas('winter')">Winter (Nov&#8211;Mar)</button>
+    <button class="tab" id="tab_summer" onclick="setSeas('summer')">Summer (May&#8211;Sep)</button>
+  </div>
+  <div id="warnBox" class="warn" style="display:none"></div>
+  <div class="metrics" id="mrow"></div>
+
+  <div class="panel">
+    <div class="phead">
+      <h4>IDW head surface &#8212; masked to site boundary</h4>
+      <div class="rtabs">
+        <button class="rt on" id="rt_dh"  onclick="setMM('dh')">&#916;h vs baseline</button>
+        <button class="rt"    id="rt_abs" onclick="setMM('abs')">Absolute head</button>
+      </div>
+    </div>
+    <div class="mapwrap" id="mwrap">
+      <canvas id="mapBg"></canvas>
+      <canvas id="mapC" role="img" aria-label="IDW groundwater head surface, Newborough Warren"></canvas>
+    </div>
+    <div class="leg" id="legDiv"></div>
+    <div class="tip" id="tipDiv"></div>
+  </div>
+
+  <div class="panel">
+    <div class="phead">
+      <h4>Head by cluster</h4>
+      <div class="rtabs">
+        <button class="rt on" id="ct_dh"  onclick="setCM('dh')">&#916;h (m)</button>
+        <button class="rt"    id="ct_abs" onclick="setCM('abs')">Absolute (m AOD)</button>
+      </div>
+    </div>
+    <div class="chwrap"><canvas id="hC" aria-label="Cluster head bar chart"></canvas></div>
+  </div>
+
+  <div class="panel">
+    <h4>Cluster summary</h4>
+    <div class="tblwrap"><div class="tbl" id="tbl"></div></div>
+  </div>
+</div>
+</div>
+
+<footer>
+  &#916;h from SSM increment model using per-well &#946;&#8321;, &#946;&#8322;, &#946;&#8323; (scripts 01&#8211;03).
+  IDW (power&nbsp;=&nbsp;2) masked to site boundary (EPSG:27700).
+  Interception: Corsican pine 24% (Freeman 2008); broadleaf 25%.
+  K&nbsp;=&nbsp;6&nbsp;m/day (Connell 2003). Sy: WTF medians (scripts 17/18);
+  floors C1&nbsp;=&nbsp;6%, C2&#8211;C5&nbsp;=&nbsp;12%.
+  CEH14 boundary subsidy &#945;&nbsp;=&nbsp;+0.222&nbsp;m/month (script 07).
+  <a href="https://newbroman.github.io/Newborough-Hydrology_models/">Newborough Hydrology Models</a>
+  &middot; Hollingham (2026) &#8212; <em>Journal of Hydrology: Regional Studies</em>.
+</footer>
+
+<script>
+var WELLS=[{"n":"nw1","cl":3,"E":241725,"N":364139,"mh":11.352,"wh":11.582,"sh":11.143,"sy":0.173,"b1":1.366909,"b2":5.599817,"b3":0.138344},{"n":"nw2","cl":3,"E":241703,"N":364112,"mh":11.92,"wh":12.14,"sh":11.721,"sy":0.2036,"b1":1.719522,"b2":4.974298,"b3":0.193694},{"n":"nw3","cl":2,"E":242092,"N":363939,"mh":10.283,"wh":10.507,"sh":10.075,"sy":0.2539,"b1":1.204694,"b2":4.518423,"b3":0.323307},{"n":"nw4","cl":2,"E":242431,"N":363745,"mh":8.98,"wh":9.15,"sh":8.818,"sy":0.2329,"b1":1.553807,"b2":3.798096,"b3":0.264648},{"n":"nw4b","cl":2,"E":242415,"N":363752,"mh":9.055,"wh":9.242,"sh":8.874,"sy":0.2125,"b1":1.494647,"b2":4.035833,"b3":0.290411},{"n":"nw5","cl":3,"E":241712,"N":363024,"mh":5.116,"wh":5.287,"sh":4.965,"sy":0.2543,"b1":1.432932,"b2":3.882078,"b3":0.158477},{"n":"nw6","cl":3,"E":241444,"N":363317,"mh":6.075,"wh":6.251,"sh":5.918,"sy":0.2375,"b1":1.301513,"b2":3.405817,"b3":0.193903},{"n":"nw7","cl":3,"E":241424,"N":363585,"mh":7.302,"wh":7.459,"sh":7.162,"sy":0.2649,"b1":0.91214,"b2":3.895457,"b3":0.114069},{"n":"nw9","cl":3,"E":240937,"N":363567,"mh":4.477,"wh":4.605,"sh":4.356,"sy":0.2821,"b1":1.09073,"b2":3.14605,"b3":0.113964},{"n":"nw10","cl":4,"E":241435,"N":364325,"mh":10.845,"wh":10.977,"sh":10.723,"sy":0.2098,"b1":1.531709,"b2":4.118611,"b3":0.099386},{"n":"nw11","cl":3,"E":241689,"N":364237,"mh":11.415,"wh":11.623,"sh":11.225,"sy":0.2025,"b1":1.974389,"b2":4.938791,"b3":0.156134},{"n":"ceh2","cl":4,"E":241421,"N":363979,"mh":11.49,"wh":11.605,"sh":11.388,"sy":0.1818,"b1":0.939205,"b2":4.22199,"b3":0.121297},{"n":"ceh1","cl":3,"E":241596,"N":363948,"mh":10.087,"wh":10.298,"sh":9.901,"sy":0.2323,"b1":2.358823,"b2":4.633989,"b3":0.118141},{"n":"ceh5","cl":1,"E":242521,"N":364466,"mh":9.289,"wh":9.58,"sh":9.024,"sy":0.1923,"b1":2.438036,"b2":5.476006,"b3":0.299306},{"n":"ceh6","cl":1,"E":242622,"N":364725,"mh":8.497,"wh":8.778,"sh":8.239,"sy":0.2115,"b1":2.445026,"b2":5.139275,"b3":0.430693},{"n":"ceh3","cl":5,"E":240743,"N":363388,"mh":3.378,"wh":3.474,"sh":3.284,"sy":0.1,"b1":1.047028,"b2":1.257809,"b3":0.002837},{"n":"ceh4","cl":3,"E":241132,"N":363211,"mh":3.968,"wh":4.128,"sh":3.823,"sy":0.243,"b1":1.393034,"b2":3.803167,"b3":0.15335},{"n":"ceh7","cl":3,"E":243386,"N":363613,"mh":5.059,"wh":5.239,"sh":4.91,"sy":0.12,"b1":null,"b2":null,"b3":null},{"n":"ceh8","cl":3,"E":243150,"N":363382,"mh":5.24,"wh":5.343,"sh":5.15,"sy":0.12,"b1":null,"b2":null,"b3":null},{"n":"ceh10","cl":2,"E":242538,"N":363174,"mh":4.569,"wh":4.847,"sh":4.321,"sy":0.2452,"b1":1.530005,"b2":5.780447,"b3":0.170919},{"n":"ceh9","cl":3,"E":241711,"N":363459,"mh":7.269,"wh":7.409,"sh":7.149,"sy":0.275,"b1":1.286924,"b2":3.688745,"b3":0.139087},{"n":"ceh25","cl":1,"E":242513,"N":364639,"mh":8.696,"wh":9.045,"sh":8.36,"sy":0.1725,"b1":2.660437,"b2":6.24757,"b3":0.394806},{"n":"ceh26","cl":1,"E":242172,"N":364362,"mh":10.086,"wh":10.321,"sh":9.844,"sy":0.2226,"b1":1.814396,"b2":4.855882,"b3":0.366984},{"n":"ceh11","cl":1,"E":242619,"N":362688,"mh":3.124,"wh":3.376,"sh":2.889,"sy":0.2232,"b1":1.856511,"b2":4.9019,"b3":0.26876},{"n":"ceh13","cl":4,"E":240964,"N":364066,"mh":10.302,"wh":10.359,"sh":10.263,"sy":0.2375,"b1":0.80209,"b2":3.048809,"b3":0.086736},{"n":"ceh14","cl":4,"E":241292,"N":364488,"mh":13.305,"wh":13.311,"sh":13.297,"sy":0.1541,"b1":0.881886,"b2":3.552396,"b3":0.101127},{"n":"ceh16","cl":3,"E":240988,"N":363615,"mh":5.35,"wh":5.469,"sh":5.236,"sy":0.2498,"b1":0.758534,"b2":3.055145,"b3":0.123511},{"n":"ceh17","cl":3,"E":240805,"N":363576,"mh":4.107,"wh":4.217,"sh":4.005,"sy":0.2823,"b1":0.694207,"b2":2.736742,"b3":0.049401},{"n":"ceh18","cl":3,"E":241267,"N":363203,"mh":4.435,"wh":4.603,"sh":4.278,"sy":0.2599,"b1":0.952939,"b2":4.009263,"b3":0.177962},{"n":"ceh19","cl":3,"E":240846,"N":363533,"mh":4.009,"wh":4.125,"sh":3.901,"sy":0.3602,"b1":0.848406,"b2":2.600677,"b3":0.088541},{"n":"ceh20","cl":4,"E":241153,"N":363829,"mh":7.53,"wh":7.636,"sh":7.429,"sy":0.1967,"b1":0.894369,"b2":3.455114,"b3":0.095593},{"n":"ceh21","cl":3,"E":241471,"N":362938,"mh":3.207,"wh":3.326,"sh":3.088,"sy":0.3074,"b1":0.813485,"b2":2.909299,"b3":0.098648},{"n":"ceh22","cl":1,"E":241375,"N":362907,"mh":2.766,"wh":2.898,"sh":2.628,"sy":0.3128,"b1":0.961055,"b2":2.876381,"b3":0.162765},{"n":"ceh23","cl":1,"E":242325,"N":364428,"mh":9.703,"wh":9.952,"sh":9.454,"sy":0.1915,"b1":1.839876,"b2":5.053416,"b3":0.419084},{"n":"ceh24","cl":2,"E":242939,"N":363392,"mh":5.74,"wh":5.986,"sh":5.493,"sy":0.2159,"b1":2.46604,"b2":4.676876,"b3":0.204753},{"n":"ceh34","cl":4,"E":241334,"N":363887,"mh":8.889,"wh":8.975,"sh":8.799,"sy":0.1958,"b1":1.123592,"b2":3.308916,"b3":0.099953},{"n":"ceh37","cl":3,"E":242886,"N":363346,"mh":5.639,"wh":5.87,"sh":5.428,"sy":0.12,"b1":null,"b2":null,"b3":null},{"n":"ceh27","cl":1,"E":242005,"N":364330,"mh":10.617,"wh":10.878,"sh":10.353,"sy":0.2124,"b1":2.262236,"b2":4.992419,"b3":0.320977},{"n":"ceh28","cl":2,"E":242331,"N":364122,"mh":9.793,"wh":10.012,"sh":9.574,"sy":0.2265,"b1":1.713204,"b2":4.633895,"b3":0.313774},{"n":"ceh30","cl":4,"E":241072,"N":363760,"mh":6.942,"wh":7.041,"sh":6.848,"sy":0.2228,"b1":0.46471,"b2":3.610309,"b3":0.095925},{"n":"ceh31","cl":3,"E":241075,"N":363538,"mh":5.059,"wh":5.181,"sh":4.942,"sy":0.2752,"b1":0.669485,"b2":3.257376,"b3":0.085748},{"n":"ceh32","cl":4,"E":241167,"N":364003,"mh":9.279,"wh":9.357,"sh":9.202,"sy":0.1972,"b1":0.690686,"b2":3.647867,"b3":0.084999},{"n":"ceh33","cl":4,"E":240936,"N":363808,"mh":7.075,"wh":7.166,"sh":6.987,"sy":0.2213,"b1":0.564642,"b2":3.560973,"b3":0.088354},{"n":"ceh40","cl":2,"E":242060,"N":363399,"mh":7.234,"wh":7.395,"sh":7.086,"sy":0.2714,"b1":1.060355,"b2":3.469353,"b3":0.189654},{"n":"ceh41","cl":2,"E":242284,"N":363325,"mh":6.728,"wh":6.92,"sh":6.553,"sy":0.2217,"b1":1.525221,"b2":3.739474,"b3":0.177254},{"n":"d7","cl":2,"E":242611,"N":364205,"mh":9.477,"wh":9.712,"sh":9.241,"sy":0.2131,"b1":1.662869,"b2":4.65878,"b3":0.282914},{"n":"wmc3","cl":3,"E":241217,"N":363562,"mh":7.505,"wh":7.622,"sh":7.398,"sy":0.2577,"b1":0.619233,"b2":3.621156,"b3":0.127045},{"n":"wmc2","cl":3,"E":241885,"N":362856,"mh":3.967,"wh":4.153,"sh":3.792,"sy":0.234,"b1":1.716865,"b2":3.813307,"b3":0.132252},{"n":"wmc1","cl":2,"E":242766,"N":363644,"mh":6.847,"wh":7.04,"sh":6.663,"sy":0.2323,"b1":1.556867,"b2":4.038453,"b3":0.199473},{"n":"ceh42","cl":3,"E":242121,"N":362743,"mh":3.294,"wh":3.509,"sh":3.085,"sy":0.2538,"b1":1.637783,"b2":3.582389,"b3":0.173617},{"n":"t41c","cl":2,"E":242721,"N":363324,"mh":5.586,"wh":5.809,"sh":5.361,"sy":0.2527,"b1":2.047733,"b2":4.357982,"b3":0.230548},{"n":"d41","cl":2,"E":242772,"N":363343,"mh":5.584,"wh":5.802,"sh":5.366,"sy":0.2265,"b1":1.852214,"b2":4.431611,"b3":0.25677},{"n":"t41a","cl":2,"E":242710,"N":363276,"mh":5.858,"wh":6.149,"sh":5.567,"sy":0.2012,"b1":2.678057,"b2":5.300786,"b3":0.226049},{"n":"d6","cl":2,"E":242115,"N":364022,"mh":10.39,"wh":10.628,"sh":10.153,"sy":0.2665,"b1":2.060324,"b2":4.899998,"b3":0.226333},{"n":"d5","cl":2,"E":242083,"N":363902,"mh":10.153,"wh":10.364,"sh":9.94,"sy":0.2589,"b1":1.946767,"b2":4.640517,"b3":0.209844},{"n":"d9","cl":2,"E":242711,"N":363911,"mh":8.634,"wh":8.868,"sh":8.422,"sy":0.2109,"b1":2.205158,"b2":4.590879,"b3":0.16659},{"n":"d10","cl":2,"E":242614,"N":364119,"mh":9.267,"wh":9.473,"sh":9.068,"sy":0.2346,"b1":1.992609,"b2":4.2591,"b3":0.201909},{"n":"d15","cl":2,"E":241981,"N":363896,"mh":10.29,"wh":10.511,"sh":10.072,"sy":0.1982,"b1":2.422728,"b2":4.449596,"b3":0.168274},{"n":"d8","cl":2,"E":242677,"N":364024,"mh":8.981,"wh":9.17,"sh":8.796,"sy":0.2193,"b1":1.885598,"b2":3.947188,"b3":0.198578},{"n":"d17","cl":2,"E":242447,"N":363535,"mh":7.671,"wh":7.887,"sh":7.458,"sy":0.2505,"b1":2.076484,"b2":4.160298,"b3":0.216742},{"n":"d25","cl":3,"E":242215,"N":363144,"mh":4.91,"wh":5.097,"sh":4.732,"sy":0.2636,"b1":1.640895,"b2":3.659116,"b3":0.16001},{"n":"d43","cl":2,"E":242665,"N":363429,"mh":6.296,"wh":6.547,"sh":6.053,"sy":0.2264,"b1":2.089499,"b2":5.033896,"b3":0.210554},{"n":"t41d","cl":2,"E":242732,"N":363353,"mh":5.817,"wh":6.033,"sh":5.601,"sy":0.2145,"b1":1.60776,"b2":4.669963,"b3":0.242101},{"n":"d44","cl":2,"E":242819,"N":363280,"mh":5.225,"wh":5.468,"sh":4.981,"sy":0.2373,"b1":1.939393,"b2":5.212213,"b3":0.230645},{"n":"t41b","cl":2,"E":242715,"N":363310,"mh":5.345,"wh":5.566,"sh":5.124,"sy":0.2124,"b1":1.95902,"b2":4.098373,"b3":0.228943},{"n":"d38","cl":2,"E":242712,"N":363069,"mh":4.237,"wh":4.528,"sh":3.95,"sy":0.2157,"b1":2.265777,"b2":5.685908,"b3":0.244607},{"n":"ceh39","cl":3,"E":241719,"N":363435,"mh":7.352,"wh":7.521,"sh":7.202,"sy":0.263,"b1":1.650982,"b2":3.388566,"b3":0.115071},{"n":"ceh36","cl":3,"E":241161,"N":363306,"mh":4.657,"wh":4.812,"sh":4.499,"sy":0.2899,"b1":1.253247,"b2":3.160889,"b3":0.141316},{"n":"nw13","cl":2,"E":241761,"N":364180,"mh":11.379,"wh":11.646,"sh":11.122,"sy":0.2067,"b1":1.880972,"b2":5.212007,"b3":0.19803},{"n":"l7","cl":2,"E":242812,"N":364395,"mh":8.781,"wh":9.031,"sh":8.547,"sy":0.2124,"b1":1.431384,"b2":6.180039,"b3":0.156325},{"n":"wmc4","cl":2,"E":241761,"N":364180,"mh":11.33,"wh":11.594,"sh":11.082,"sy":0.1993,"b1":1.851656,"b2":5.233924,"b3":0.195817}];
+var POLYS={"clearfell":[[241062,363621],[241170,363796],[241354,363679],[241235,363505],[241062,363621]],"lake":[[242613,364937],[242576,364938],[242541,364925],[242507,364903],[242470,364863],[242448,364851],[242417,364821],[242382,364791],[242341,364768],[242332,364754],[242335,364732],[242365,364734],[242389,364751],[242423,364775],[242466,364787],[242498,364807],[242525,364822],[242549,364831],[242572,364852],[242598,364867],[242621,364881],[242635,364897],[242633,364917],[242613,364937]],"broadleaf":[[241298,364491],[241316,364469],[241348,364365],[241428,364295],[241424,364259],[241411,364210],[241406,364158],[241607,364051],[241717,364207],[241692,364218],[241654,364245],[241629,364259],[241539,364315],[241465,364360],[241327,364543],[241298,364491]],"site":[[241088,362784],[240016,363370],[240000,364300],[240954,365000],[241436,365096],[242932,365034],[243680,364434],[243762,364180],[243604,363794],[243962,363656],[243816,363012],[243036,362266],[242066,362294],[241780,362156],[241088,362784]],"forest":[[241554,364966],[241380,364725],[241715,364622],[241805,364349],[241024,363184],[240920,363331],[240650,363417],[240650,365100],[241409,365100],[241554,364966]]};
+var CLIMATE={"annual":{"P":0.074457,"PET":0.0547952,"cluster_heads":{"1":7.8473,"2":7.8404,"3":6.2196,"4":9.5174,"5":3.3779}},"winter":{"P":0.0828365,"PET":0.0233591,"cluster_heads":{"1":8.1035,"2":8.0673,"3":6.3826,"4":9.603,"5":3.4737}},"summer":{"P":0.0641552,"PET":0.0882963,"cluster_heads":{"1":7.599,"2":7.6201,"3":6.0692,"4":9.4374,"5":3.284}},"cluster_betas":{"1":{"b1":2.034697,"b2":4.942856,"b3":0.332922},"2":{"b1":1.855744,"b2":4.63264,"b3":0.222349},"3":{"b1":1.276953,"b2":3.716461,"b3":0.134195},"4":{"b1":0.876988,"b2":3.613887,"b3":0.097041},"5":{"b1":1.047028,"b2":1.257809,"b3":0.002837}}};
+var SY_FLOOR={"1":0.06,"2":0.12,"3":0.12,"4":0.12,"5":0.12,"6":0.12};
+var FOREST_INTERCEPTION=0.24;
+var BROADLEAF_INTERCEPTION=0.25;
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+var CL_LABS={1:'C1 Eastern lake-buffer',2:'C2 Eastern mature dune',
+              3:'C3 Western mature dune',4:'C4 Forest',5:'C5 Coastal'};
+var CL_COLS={1:'#1565C0',2:'#00897B',3:'#E64A19',4:'#558B2F',5:'#6A1B9A'};
+var EMIN=240650,EMAX=243200,NMIN=362600,NMAX=365100;
+var SCEN={
+  baseline:    {sP:1,    sPET:1,   sI:FOREST_INTERCEPTION,           sB2:1,    sSy:1},
+  climate_wet: {sP:1.10, sPET:1,   sI:FOREST_INTERCEPTION,           sB2:1,    sSy:1},
+  climate_dry: {sP:0.90, sPET:1.1, sI:FOREST_INTERCEPTION,           sB2:1,    sSy:1},
+  clearfell:   {sP:1,    sPET:1,   sI:0,                             sB2:1.35, sSy:1},
+  broadleaf:   {sP:1,    sPET:1,   sI:BROADLEAF_INTERCEPTION,        sB2:1.45, sSy:1},
+  thinning:    {sP:1,    sPET:1,   sI:FOREST_INTERCEPTION*0.5,       sB2:1.15, sSy:1},
+};
+var WARN={
+  clearfell:   'Post-felling: canopy interception removed, \u03b2\u2082 increases. Study finding: clearfell deepens summer minima \u2014 the dominant control on winter flooding probability.',
+  broadleaf:   'Broadleaf conversion (25% interception, higher \u03b2\u2082). Study finding: hydrologically worse for wet slack conservation than Corsican pine.',
+  climate_dry: 'Climate dry: \u221210% P, +10% PET. Summer minima deepen across all clusters.',
+};
+var sea='annual',mm='dh',cm='dh',hChart=null;
+var DH={},SH={},CUR_SL={};
+var MW=0,MH=0;
+
+function gs(){return{sP:+document.getElementById('sP').value,sPET:+document.getElementById('sPET').value,sI:+document.getElementById('sI').value,sB2:+document.getElementById('sB2').value,sSy:+document.getElementById('sSy').value};}
+function rl(){var s=gs();document.getElementById('vP').textContent=s.sP.toFixed(2)+'\xd7';document.getElementById('vPET').textContent=s.sPET.toFixed(2)+'\xd7';document.getElementById('vI').textContent=(s.sI*100).toFixed(0)+'%';document.getElementById('vB2').textContent=s.sB2.toFixed(2)+'\xd7';document.getElementById('vSy').textContent=s.sSy.toFixed(2)+'\xd7';}
+function onSl(){rl();go();}
+function loadSc(n){document.querySelectorAll('.sc').forEach(function(b){b.classList.remove('on');});document.getElementById('btn_'+n).classList.add('on');var sc=SCEN[n];['sP','sPET','sI','sB2','sSy'].forEach(function(k){document.getElementById(k).value=sc[k];});rl();var wb=document.getElementById('warnBox');if(WARN[n]){wb.textContent=WARN[n];wb.style.display='block';}else wb.style.display='none';go();}
+function setSeas(s){sea=s;document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('on');});document.getElementById('tab_'+s).classList.add('on');go();}
+function setMM(m){mm=m;document.querySelectorAll('[id^="rt_"]').forEach(function(b){b.classList.remove('on');});document.getElementById('rt_'+m).classList.add('on');drawMap();}
+function setCM(m){cm=m;document.querySelectorAll('[id^="ct_"]').forEach(function(b){b.classList.remove('on');});document.getElementById('ct_'+m).classList.add('on');renderBar();}
+function syEff(w,sl){return Math.max((w.sy!=null?w.sy:0.12)*sl.sSy,SY_FLOOR[w.cl]||0.12);}
+
+function go(){
+  var sl=gs();CUR_SL=sl;
+  var cld=CLIMATE[sea],P0=cld.P,PET0=cld.PET;
+  var well_dh={};
+  for(var i=0;i<WELLS.length;i++){
+    var w=WELLS[i],b1=w.b1,b2=w.b2,b3=w.b3;
+    if(b1==null){var cb=CLIMATE.cluster_betas[w.cl]||{};b1=cb.b1;b2=cb.b2;b3=cb.b3;}
+    if(b1==null)continue;
+    var h=sea==='annual'?w.mh:sea==='winter'?w.wh:w.sh;
+    if(h==null)continue;
+    var Pb0=(w.cl===4)?P0*(1-FOREST_INTERCEPTION):P0;
+    var net0=b1*Pb0-b2*PET0-b3*Math.abs(h);
+    var Psc=P0*sl.sP,PETsc=PET0*sl.sPET;
+    var Peff_sc=(w.cl===4)?Psc*(1-sl.sI):Psc;
+    var b2sc=(w.cl===4)?b2*sl.sB2:b2;
+    well_dh[w.n]=(b1*Peff_sc-b2sc*PETsc-b3*Math.abs(h)-net0)/syEff(w,sl);
+  }
+  var dh={},sh={};
+  for(var cl=1;cl<=5;cl++){
+    var wc=WELLS.filter(function(w){return w.cl===cl;}),sum=0,cnt=0;
+    for(var i=0;i<wc.length;i++){if(well_dh[wc[i].n]!=null){sum+=well_dh[wc[i].n];cnt++;}}
+    dh[cl]=cnt>0?sum/cnt:0;
+    sh[cl]=(cld.cluster_heads[cl]||0)+dh[cl];
+  }
+  DH=dh;SH=sh;
+  for(var i=0;i<WELLS.length;i++){
+    WELLS[i]._dh=well_dh[WELLS[i].n]!=null?well_dh[WELLS[i].n]:null;
+    var hb=sea==='annual'?WELLS[i].mh:sea==='winter'?WELLS[i].wh:WELLS[i].sh;
+    WELLS[i]._sh=(hb!=null&&WELLS[i]._dh!=null)?hb+WELLS[i]._dh:null;
+  }
+  drawMap();renderBar();renderTable();renderMetrics();
+}
+
+function dhCol(t){t=Math.max(-1,Math.min(1,t));if(t>0){var f=t;return[Math.round(255*(1-f*0.75)),Math.round(255*(1-f*0.75)),255];}if(t<0){var f=-t;return[255,Math.round(255*(1-f*0.75)),Math.round(255*(1-f*0.75))];}return[255,255,255];}
+var GS=[[0,'#08306b'],[0.25,'#2171b5'],[0.5,'#74c476'],[0.75,'#fed976'],[1,'#e31a1c']];
+function abCol(t){t=Math.max(0,Math.min(1,t));for(var i=0;i<GS.length-1;i++){if(t<=GS[i+1][0]){var f=(t-GS[i][0])/(GS[i+1][0]-GS[i][0]),a=GS[i][1],b=GS[i+1][1];return[Math.round(parseInt(a.slice(1,3),16)+(parseInt(b.slice(1,3),16)-parseInt(a.slice(1,3),16))*f),Math.round(parseInt(a.slice(3,5),16)+(parseInt(b.slice(3,5),16)-parseInt(a.slice(3,5),16))*f),Math.round(parseInt(a.slice(5,7),16)+(parseInt(b.slice(5,7),16)-parseInt(a.slice(5,7),16))*f)];}}return[8,48,107];}
+function pip(px,py,poly){var ins=false,n=poly.length;for(var i=0,j=n-1;i<n;j=i++){var xi=poly[i][0],yi=poly[i][1],xj=poly[j][0],yj=poly[j][1];if(((yi>py)!==(yj>py))&&(px<(xj-xi)*(py-yi)/(yj-yi)+xi))ins=!ins;}return ins;}
+function idw(px,py,pts){var n=0,d=0;for(var i=0;i<pts.length;i++){var dx=px-pts[i].E,dy=py-pts[i].N,d2=dx*dx+dy*dy;if(d2<1)return pts[i].v;var w=1/d2;n+=w*pts[i].v;d+=w;}return d>0?n/d:0;}
+function tc(E,N){return{x:(E-EMIN)/(EMAX-EMIN)*MW,y:MH-(N-NMIN)/(NMAX-NMIN)*MH};}
+
+function sizeMap(){var wrap=document.getElementById('mwrap');MW=wrap.clientWidth;MH=Math.round(MW*(NMAX-NMIN)/(EMAX-EMIN));['mapBg','mapC'].forEach(function(id){var c=document.getElementById(id);c.width=MW;c.height=MH;c.style.height=MH+'px';});}
+function drawBg(){var c=document.getElementById('mapBg'),ctx=c.getContext('2d');ctx.fillStyle='#c0ccba';ctx.fillRect(0,0,MW,MH);var sp=POLYS.site;if(!sp||!sp.length)return;ctx.beginPath();var p0=tc(sp[0][0],sp[0][1]);ctx.moveTo(p0.x,p0.y);for(var i=1;i<sp.length;i++){var p=tc(sp[i][0],sp[i][1]);ctx.lineTo(p.x,p.y);}ctx.closePath();ctx.fillStyle='#daebd2';ctx.fill();ctx.strokeStyle='#7aaa70';ctx.lineWidth=1.3;ctx.stroke();}
+function dpoly(ctx,poly,fill,stroke,lw){if(!poly||poly.length<2)return;var p0=tc(poly[0][0],poly[0][1]);ctx.beginPath();ctx.moveTo(p0.x,p0.y);for(var i=1;i<poly.length;i++){var p=tc(poly[i][0],poly[i][1]);ctx.lineTo(p.x,p.y);}ctx.closePath();if(fill){ctx.fillStyle=fill;ctx.fill();}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw||1.6;ctx.setLineDash([]);ctx.stroke();};}
+
+function drawMap(){
+  if(!MW)return;
+  var canvas=document.getElementById('mapC'),ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,MW,MH);
+  var pts=[];
+  for(var i=0;i<WELLS.length;i++){var w=WELLS[i];if(!w.E||!w.N)continue;var v=(mm==='dh')?(w._dh!=null?w._dh:0):(w._sh!=null?w._sh:0);pts.push({E:w.E,N:w.N,v:v});}
+  if(!pts.length)return;
+  var vals=pts.map(function(p){return p.v;}),vMn=Math.min.apply(null,vals),vMx=Math.max.apply(null,vals);
+  var dhMx=Math.max(Math.abs(vMn),Math.abs(vMx),0.005);
+  var site=POLYS.site||[],ST=Math.max(10,Math.round(MW/55));
+  var img=ctx.createImageData(MW,MH);
+  for(var k=0;k<img.data.length;k+=4)img.data[k+3]=0;
+  for(var py=0;py<MH;py+=ST){for(var px=0;px<MW;px+=ST){
+    var E=EMIN+(px/MW)*(EMAX-EMIN),N=NMIN+((MH-py)/MH)*(NMAX-NMIN);
+    if(site.length&&!pip(E,N,site))continue;
+    var v=idw(E,N,pts),rgb=(mm==='dh')?dhCol(v/dhMx):abCol((v-vMn)/(vMx-vMn));
+    for(var dy=0;dy<ST&&py+dy<MH;dy++){for(var dx=0;dx<ST&&px+dx<MW;dx++){
+      if(site.length){var E2=EMIN+((px+dx)/MW)*(EMAX-EMIN),N2=NMIN+((MH-py-dy)/MH)*(NMAX-NMIN);if(!pip(E2,N2,site))continue;}
+      var idx=4*((py+dy)*MW+(px+dx));img.data[idx]=rgb[0];img.data[idx+1]=rgb[1];img.data[idx+2]=rgb[2];img.data[idx+3]=215;
+    }}
+  }}
+  ctx.putImageData(img,0,0);
+  var kml=document.getElementById('chkKml').checked;
+  if(kml){
+    if(POLYS.forest)    dpoly(ctx,POLYS.forest,   'rgba(80,40,130,0.12)','#6a0dad',1.7);
+    if(POLYS.broadleaf) dpoly(ctx,POLYS.broadleaf,'rgba(30,120,80,0.35)','#1a7a50',1.8);
+    if(POLYS.clearfell) dpoly(ctx,POLYS.clearfell,'rgba(230,100,20,0.45)','#e65014',2.0);
+    if(POLYS.lake)      dpoly(ctx,POLYS.lake,     'rgba(20,80,200,0.50)','#1a50b0',1.5);
+  }
+  var syV=WELLS.filter(function(w){return w.sy!=null;}).map(function(w){return w.sy;}),syMn=Math.min.apply(null,syV),syMx=Math.max.apply(null,syV);
+  var showLbl=document.getElementById('chkLbl').checked;
+  for(var i=0;i<WELLS.length;i++){
+    var w=WELLS[i];if(!w.E||!w.N)continue;
+    var p=tc(w.E,w.N),r=w.sy!=null?2.5+((w.sy-syMn)/(syMx-syMn))*3.5:2.5;
+    ctx.beginPath();ctx.arc(p.x,p.y,r,0,2*Math.PI);
+    ctx.fillStyle='rgba(255,255,255,0.9)';ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,0.48)';ctx.lineWidth=0.7;ctx.stroke();
+    if(showLbl&&MW>360){ctx.fillStyle='rgba(0,0,0,0.6)';ctx.font='7px sans-serif';ctx.textAlign='left';ctx.fillText(w.n,p.x+r+1,p.y+2.5);}
+  }
+  var ld=document.getElementById('legDiv');
+  var kl=kml?'<span><span class="ls" style="background:rgba(230,100,20,0.55);border:1px solid #e65014;"></span>Clearfell</span><span><span class="ls" style="background:rgba(30,120,80,0.45);border:1px solid #1a7a50;"></span>Broadleaf</span><span><span class="ls" style="background:rgba(80,40,130,0.25);border:1px solid #6a0dad;"></span>Forest</span><span><span class="ls" style="background:rgba(20,80,200,0.5);border:1px solid #1a50b0;"></span>Llyn Rhos-ddu</span>':'';
+  if(mm==='dh'){ld.innerHTML='<span style="color:#b71c1c">'+vMn.toFixed(3)+'&#8202;m</span><canvas id="lc" width="70" height="9" style="width:70px;height:9px;border-radius:2px;vertical-align:middle;"></canvas><span style="color:#0d47a1">+'+(vMx).toFixed(3)+'&#8202;m</span><span>red&#8202;=&#8202;drier &middot; blue&#8202;=&#8202;wetter</span>'+kl;setTimeout(function(){var c=document.getElementById('lc');if(!c)return;var x=c.getContext('2d'),g=x.createLinearGradient(0,0,70,0);g.addColorStop(0,'rgb(255,100,100)');g.addColorStop(0.5,'rgb(255,255,255)');g.addColorStop(1,'rgb(100,100,255)');x.fillStyle=g;x.fillRect(0,0,70,9);},30);}
+  else{ld.innerHTML='<span>Low</span><canvas id="lc" width="70" height="9" style="width:70px;height:9px;border-radius:2px;vertical-align:middle;"></canvas><span>High (m AOD)</span>'+kl;setTimeout(function(){var c=document.getElementById('lc');if(!c)return;var x=c.getContext('2d'),g=x.createLinearGradient(0,0,70,0);GS.forEach(function(s){g.addColorStop(s[0],s[1]);});x.fillStyle=g;x.fillRect(0,0,70,9);},30);}
+}
+
+document.addEventListener('DOMContentLoaded',function(){
+  document.getElementById('mapC').addEventListener('mousemove',function(e){
+    if(!MW)return;
+    var r=this.getBoundingClientRect(),sx=MW/r.width,mx=(e.clientX-r.left)*sx,my=(e.clientY-r.top)*sx;
+    var best=null,bd=Infinity;
+    for(var i=0;i<WELLS.length;i++){var w=WELLS[i];if(!w.E||!w.N)continue;var p=tc(w.E,w.N),d=Math.hypot(mx-p.x,my-p.y);if(d<bd){bd=d;best=w;}}
+    var tip=document.getElementById('tipDiv');
+    if(best&&bd<18){var hb=sea==='annual'?best.mh:sea==='winter'?best.wh:best.sh,dh=best._dh||0;tip.textContent=best.n+' \u00b7 C'+best.cl+' \u00b7 baseline '+hb.toFixed(2)+'\u00a0m\u00a0AOD \u00b7 scenario '+(hb+dh).toFixed(2)+'\u00a0m\u00a0AOD \u00b7 \u0394h '+(dh>=0?'+':'')+dh.toFixed(3)+'\u00a0m'+(best.sy?' \u00b7 Sy\u00a0'+(best.sy*100).toFixed(1)+'%':'');}else tip.textContent='';
+  });
+});
+
+function renderBar(){
+  var cls=[1,2,3,4,5];if(hChart)hChart.destroy();var ds,yL;
+  if(cm==='dh'){yL='\u0394h (m)';ds=[{label:'\u0394h vs baseline',data:cls.map(function(c){return+(DH[c]||0).toFixed(4);}),backgroundColor:cls.map(function(c){var v=DH[c]||0;return v>0.001?'rgba(21,101,192,0.65)':v<-0.001?'rgba(183,28,28,0.65)':'rgba(120,120,120,0.3)'}),borderColor:cls.map(function(c){var v=DH[c]||0;return v>0.001?'#1565c0':v<-0.001?'#b71c1c':'#aaa'}),borderWidth:1.5}];}
+  else{yL='m AOD';ds=[{label:'Baseline',data:cls.map(function(c){return+(CLIMATE[sea].cluster_heads[c]||0).toFixed(3);}),backgroundColor:'rgba(120,120,120,0.2)',borderColor:'rgba(120,120,120,0.55)',borderWidth:1},{label:'Scenario',data:cls.map(function(c){return+(SH[c]||0).toFixed(3);}),backgroundColor:cls.map(function(c){return CL_COLS[c]+'99';}),borderColor:cls.map(function(c){return CL_COLS[c];}),borderWidth:1.5}];}
+  hChart=new Chart(document.getElementById('hC').getContext('2d'),{type:'bar',data:{labels:cls.map(function(c){return CL_LABS[c];}),datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:10},boxWidth:9,padding:7}}},scales:{y:{title:{display:true,text:yL,font:{size:10}},ticks:{font:{size:10}},grid:{color:'rgba(0,0,0,0.06)'}},x:{ticks:{font:{size:10},maxRotation:15}}}}});
+}
+
+function renderTable(){
+  var cls=[1,2,3,4,5],sl=CUR_SL||{sSy:1},cld=CLIMATE[sea],P=cld.P,PET=cld.PET;
+  var rows=[
+    {l:'Baseline (m AOD)',v:cls.map(function(c){return(cld.cluster_heads[c]||0).toFixed(2);}),d:false},
+    {l:'Scenario (m AOD)',v:cls.map(function(c){return(SH[c]||0).toFixed(2);}),d:false},
+    {l:'\u0394 head (m)',v:cls.map(function(c){return(DH[c]>=0?'+':'')+(DH[c]||0).toFixed(3);}),d:true},
+    {l:'Mean Sy (%)',v:cls.map(function(c){var cw=WELLS.filter(function(w){return w.cl===c&&w.sy!=null;});if(!cw.length)return'\u2014';var s=cw.reduce(function(acc,w){return acc+Math.max((w.sy||0.12)*sl.sSy,SY_FLOOR[c]||0.12);},0)/cw.length;return(s*100).toFixed(1)+'%';}),d:false},
+    {l:'P\u2091\u2091 mm/mo',v:cls.map(function(c){return((c===4?P*sl.sP*(1-sl.sI):P*sl.sP)*1000).toFixed(1);}),d:false},
+    {l:'PET draw mm/mo',v:cls.map(function(c){var cb=CLIMATE.cluster_betas[c]||{},b2=cb.b2||0,b2s=(c===4)?b2*sl.sB2:b2;return(b2s*PET*sl.sPET*1000).toFixed(1);}),d:false},
+  ];
+  function bg(v,d){if(!d)return'#f5f5f5';var n=parseFloat(v);return n>0.005?'#c8e6c9':n<-0.005?'#ffcdd2':'#f5f5f5';}
+  function tx(v,d){if(!d)return'#333';var n=parseFloat(v);return n>0.005?'#1b5e20':n<-0.005?'#b71c1c':'#555';}
+  document.getElementById('tbl').innerHTML='<div class="th"></div>'+cls.map(function(c){return'<div class="th">C'+c+'</div>';}).join('')+rows.map(function(r){return'<div class="tl">'+r.l+'</div>'+r.v.map(function(v){return'<div class="tc" style="background:'+bg(v,r.d)+';color:'+tx(v,r.d)+'">'+v+'</div>';}).join('');}).join('');
+}
+
+function renderMetrics(){
+  var cls=[1,2,3,4,5],sl=CUR_SL||{sSy:1};
+  var mDH=cls.reduce(function(s,c){return s+(DH[c]||0);},0)/5,c4DH=DH[4]||0;
+  function dc(v){return v>0.002?'#0d47a1':v<-0.002?'#b71c1c':'#333';}
+  function mc(l,v,u,col){return'<div class="mc"><div class="ml">'+l+'</div><div class="mv" style="color:'+col+'">'+v+' <span class="mu">'+u+'</span></div></div>';}
+  var cw=WELLS.filter(function(w){return w.sy!=null;}),mSy=cw.length?cw.reduce(function(s,w){return s+Math.max((w.sy||0.12)*sl.sSy,SY_FLOOR[w.cl]||0.12);},0)/cw.length:0.15;
+  var c4w=WELLS.filter(function(w){return w.cl===4&&w.sy!=null;}),c4Sy=c4w.length?c4w.reduce(function(s,w){return s+Math.max((w.sy||0.12)*sl.sSy,SY_FLOOR[4]||0.12);},0)/c4w.length:0.12;
+  document.getElementById('mrow').innerHTML=mc('Mean \u0394h',(mDH>=0?'+':'')+mDH.toFixed(3),'m',dc(mDH))+mc('C4 \u0394h',(c4DH>=0?'+':'')+c4DH.toFixed(3),'m',dc(c4DH))+mc('Mean Sy',(mSy*100).toFixed(1),'%','#333')+mc('C4 Sy',(c4Sy*100).toFixed(1),'%','#333');
+}
+
+function applyLayout(){document.getElementById('mainGrid').style.gridTemplateColumns=window.innerWidth<640?'1fr':'210px minmax(0,1fr)';}
+function init(){applyLayout();sizeMap();drawBg();document.getElementById('sI').value=FOREST_INTERCEPTION;rl();go();}
+setTimeout(init,60);
+window.addEventListener('resize',function(){applyLayout();sizeMap();drawBg();drawMap();});
+</script>
+</body>
+</html>

@@ -178,15 +178,21 @@ OUT_10_FULL_PARAMS          = DIR_10 / "10_cfell_06_full_parameters.csv"
 OUT_10_COEFF_SLOPES         = DIR_10 / "10_cfell_07_coefficient_slopes.csv"
 OUT_10_BACI_TIMESERIES      = DIR_10 / "10_cfell_08_baci_timeseries_plotdata.csv"
 OUT_10_TABLE5_SUMMARY       = DIR_10 / "10_cfell_09_table5_beta3_before_after.csv"
+OUT_10_TRANSECT             = DIR_10 / "10_cfell_10_clearfell_transect.png"
+OUT_10_TRANSECT_CSV         = DIR_10 / "10_cfell_10_clearfell_transect_steps.csv"
+OUT_10_NW10_TREND           = DIR_10 / "10_cfell_11_nw10_broadleaf_trend.csv"
 
 # Script 11 — Forecasting thresholds
 OUT_11_RESULTS              = DIR_11 / "11_forecast_01_results.txt"
-OUT_11_TABLE6_WINTER        = DIR_11 / "11_forecast_02_table6_winter_transfer.csv"
-OUT_11_TABLE7_SUMMER        = DIR_11 / "11_forecast_03_table7_summer_transfer.csv"
-OUT_11_TABLE8_THRESHOLDS    = DIR_11 / "11_forecast_04_table8_critical_thresholds.csv"
+OUT_11_TABLE6_WINTER        = DIR_11 / "11_forecast_winter_transfer_functions.csv"
+OUT_11_TABLE7_SUMMER        = DIR_11 / "11_forecast_summer_transfer_functions.csv"
+OUT_11_TABLE8_THRESHOLDS    = DIR_11 / "11_forecast_pflood_threshold_equations.csv"
 
 # Script 11b — Spatial threshold maps
-OUT_11B_SUMMER_MAP = DIR_11B / "11b_01_summer_minima_depth.png"
+OUT_11B_SUMMER_MAP  = DIR_11B / "11b_01_summer_minima_depth.png"
+OUT_11B_WINTER_MAP  = DIR_11B / "11b_02_winter_maxima_depth.png"
+OUT_11B_PFLOOD_MAP  = DIR_11B / "11b_03_pflood.png"
+OUT_11B_FLOOD_FREQ  = DIR_11B / "11b_04_flood_frequency.png"
 
 # Script 14 — Climate projections
 OUT_14_CLIMATE_SUMMER     = DIR_14 / "14_climate_trajectory_summer.png"
@@ -268,7 +274,10 @@ OUT_20_RESIDUAL_SSM         = DIR_20 / "20_residual_ssm.png"
 OUT_20_SLOPE                = DIR_20 / "20_slope_gradient.png"
 
 # Script 21 — Forestry scenarios
-OUT_21_HYDROGRAPH    = DIR_21 / "21_forestry_01_hydrograph.png"
-OUT_21_DISTRIBUTIONS = DIR_21 / "21_forestry_02_distributions.png"
-OUT_21_SCRAPING      = DIR_21 / "21_forestry_03_scraping_eras.png"
-OUT_21_BACI_VIOLIN   = DIR_21 / "21_forestry_04_baci_zone_violin.png"
+OUT_21_HYDROGRAPH        = DIR_21 / "21_forestry_01_hydrograph.png"
+OUT_21_DISTRIBUTIONS     = DIR_21 / "21_forestry_02_distributions.png"
+OUT_21_DISTRIBUTIONS_CSV = DIR_21 / "21_forestry_02_distributions_means.csv"
+OUT_21_SCRAPING          = DIR_21 / "21_forestry_03_scraping_eras.png"
+OUT_21_SCRAPING_CSV      = DIR_21 / "21_forestry_03_scraping_era_means.csv"
+OUT_21_BACI_VIOLIN       = DIR_21 / "21_forestry_04_baci_zone_violin.png"
+OUT_21_BACI_CSV          = DIR_21 / "21_forestry_04_baci_zone_means.csv"

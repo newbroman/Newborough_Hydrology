@@ -500,9 +500,11 @@
     <p>
       Newborough Warren is one of Wales's most significant coastal sand dune systems
       and a designated Special Area of Conservation (SAC) under the EU Habitats
-      Directive. Its wet dune slacks — low-lying interdune hollows that flood seasonally —
+      Directive. Its wet dune slacks &mdash; low-lying interdune hollows that flood seasonally &mdash;
       support a range of priority habitats, including H2180 Wooded Dunes, and provide
       the hydrological conditions on which rare dune slack communities depend.
+      <a href="https://www.google.com/maps/d/viewer?mid=1hXLAauiMeaVsXhBR_IoUTziAtjk"
+         target="_blank" rel="noopener">View site map &rarr;</a>
     </p>
 
     <div class="stat-row" aria-label="Key study statistics">
@@ -614,10 +616,27 @@
       <span>M. Hollingham, 2026</span><br>
       <a href="https://github.com/newbroman/Newborough_Hydrology" style="font-size:0.78rem;">
         GitHub repository
+      </a><br>
+      <a id="contact-link" href="#" style="font-size:0.78rem;">
+        Feedback &amp; comments
       </a>
     </div>
   </div>
 </footer>
+
+<script>
+  // Assemble mailto link client-side to reduce scraper harvesting
+  (function () {
+    var user = 'martin.hollingham';
+    var domain = 'gmail.com';
+    var link = document.getElementById('contact-link');
+    if (link) {
+      link.href = 'mailto:' + user + '@' + domain +
+        '?subject=Newborough%20Warren%20research%20feedback';
+      link.textContent = user + '@' + domain;
+    }
+  })();
+</script>
 
 </body>
 </html>

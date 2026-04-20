@@ -21,7 +21,7 @@ python run_analysis.py           # opens interactive menu
 
 ## Running the Pipeline
 
-`run_analysis.py` provides an interactive menu with four options:
+`run_analysis.py` provides an interactive menu with five options:
 
 | Option | Description |
 |--------|-------------|
@@ -66,7 +66,7 @@ Newborough_Hydro_Models/
 │   ├── 19_spatial_groundwater/
 │   │   └── scenario_viewer.html        ← self-contained interactive viewer (standalone)
 │   └── [other output directories]
-├── src/                         Analysis scripts (23 steps + 2 viewer scripts)
+├── src/                         Analysis scripts (23 steps; script 19 also builds the viewer)
 │   ├── utils/
 │   │   ├── config.py            Cluster colours and labels
 │   │   ├── data_utils.py        Cleaning and normalisation helpers
@@ -150,7 +150,7 @@ Script 19 requires the following files in `data/`:
 | Well | Reason |
 |------|--------|
 | CEH3 | Perched above the regional water table — unrepresentative head values |
-| CEH17 | Poorest SSM fit on site (R² = 0.427); β₁ = 0.694 and β₃ = 0.049 are both site minima; inflates lateral inflow residual |
+| CEH17 | Poorest SSM fit on site (R² = 0.427); β₁ = 0.694 and β₃ = 0.049 are both site minima; inflates water balance residual |
 
 These wells remain in all SSM fitting and clustering analyses — they are excluded only from the spatial interpolation figures in script 19.
 
@@ -163,8 +163,9 @@ These wells remain in all SSM fitting and clustering analyses — they are exclu
 - KML support in script 19 uses pure XML + pyproj + shapely (no fiona KML driver required).
 - Stream network skeletonisation (script 20) requires scikit-image.
 - The `outputs/` directory should be excluded from version control.
-- Scripts 18 and 19 accept a `--supplementary` flag to generate diagnostic figures not cited in the main paper body.
+- Scripts 18 and 19 accept a `--supplementary` flag to generate diagnostic figures not cited in the main paper body. `run_analysis.py` passes this flag automatically.
 - Script 21 accepts a `--preview` flag for 150 dpi quick preview output.
+- Script 00 accepts `--profile {full,short,both}`; `run_analysis.py` invokes it with `--profile full` to produce the full 95-year record outputs including the summer warming trend figure (`00_03_summer_warming_trend.png`). The `short` variant restricts everything to the well-record overlap window (Apr 2005 – Feb 2026) and can be run manually if needed.
 
 ---
 

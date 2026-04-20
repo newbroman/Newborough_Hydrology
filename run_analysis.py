@@ -41,7 +41,7 @@ PHASE_3 = [
     ("11b_spatial_thresholds.py",     "12/23  Spatial eco-hydrological threshold maps"),
 ]
 PHASE_4 = [
-    ("00_climate_summary.py",            "13/23  Climate summary outputs", ["--profile", "short"]),
+    ("00_climate_summary.py",            "13/23  Climate summary outputs", ["--profile", "both"]),
     ("14_climate_projections.py",        "14/23  Figure: Climate trajectory projections"),
     ("12_figure_site_overview.py",       "15/23  Figure: DEM site overview"),
     ("13_figure_experimental_design.py", "16/23  Figure: Experimental design GIS map"),
@@ -56,10 +56,10 @@ PHASE_7 = [
     ("16_water_bal.py", "19/23  Water balance decomposition"),
 ]
 PHASE_8 = [
-    ("18_wtf_spatial.py", "20/23  WTF spatial analysis and Sy mapping"),
+    ("18_wtf_spatial.py", "20/23  WTF spatial analysis and Sy mapping", ["--supplementary"]),
 ]
 PHASE_9 = [
-    ("19_spatial_groundwater.py", "21/23  Spatial groundwater analysis"),
+    ("19_spatial_groundwater.py", "21/23  Spatial groundwater analysis", ["--supplementary"]),
     ("20_spatial_figures.py",     "22/23  Spatial paper figures"),
 ]
 PHASE_10 = [
@@ -108,8 +108,8 @@ REQUIRED_PHASE3_OUTPUTS = [
     "10_clearfell_baci/10_cfell_07_coefficient_slopes.csv",
 ]
 REQUIRED_PHASE9_OUTPUTS = [
-    "19_spatial_groundwater/19_head_surface_mean.csv",
-    "19_spatial_groundwater/19_water_balance_summary.csv",
+    "19_spatial_groundwater/scenario_viewer.html",
+    "19_spatial_groundwater/19_scenario_summary.csv",
 ]
 REQUIRED_PHASE10_OUTPUTS = [
     "21_forestry_scenarios/21_forestry_01_hydrograph.png",
@@ -118,11 +118,10 @@ REQUIRED_PHASE10_OUTPUTS = [
     "21_forestry_scenarios/21_forestry_04_baci_zone_violin.png",
 ]
 
-# Viewer pipeline: 19a then 19b, both in SRC_DIR
-VIEWER_SCRIPTS = [
-    ("19a_scenario_runner.py", "Scenario runner (19a)"),
-    ("19b_build_viewer.py",    "Viewer builder  (19b)"),
-]
+# Viewer is now generated directly by script 19 — no separate runner needed.
+# Kept as a separate menu option to allow rebuilding the viewer without
+# re-running the full pipeline (useful after parameter changes in script 19).
+VIEWER_SCRIPT = "19_spatial_groundwater.py"
 VIEWER_OUTPUT = OUT_DIR / "19_spatial_groundwater" / "scenario_viewer.html"
 
 # ── Low-level helpers ─────────────────────────────────────────────────────────
@@ -200,46 +199,32 @@ def run_full_pipeline(from_step: int = 1) -> None:
     _banner("PIPELINE COMPLETE — all 23 steps written to outputs/")
 
 def build_viewer() -> None:
-    """Run 19a (scenario runner) then 19b (HTML viewer builder)."""
+    """Run script 19 to generate the self-contained scenario viewer HTML."""
     print()
     _hr()
     print("  Hydrological Scenario Viewer")
     _hr()
     print()
-    print("  This will run:")
-    for script, desc in VIEWER_SCRIPTS:
-        status = "found" if (SRC_DIR / script).exists() else "NOT FOUND"
-        print(f"    {desc}  [{status}]")
+
+    script_path = SRC_DIR / VIEWER_SCRIPT
+    status = "found" if script_path.exists() else "NOT FOUND"
+    print(f"  This will run: {VIEWER_SCRIPT}  [{status}]")
     print()
 
-    # Warn if Phase 9 outputs are missing
-    missing_prereqs = [n for n in REQUIRED_PHASE9_OUTPUTS if not (OUT_DIR / n).exists()]
-    if missing_prereqs:
-        print("  WARNING: The following Phase 9 outputs are missing.")
-        print("  Run the full pipeline (or at least steps 21–22) first.")
-        for m in missing_prereqs:
-            print(f"    missing: outputs/{m}")
-        print()
-        ans = input("  Continue anyway? [y/N] ").strip().lower()
-        if ans != "y":
-            print("  Aborted.")
-            return
+    if not script_path.exists():
+        print(f"  [ERROR] Script not found: {script_path}")
+        return
 
-    for script, desc in VIEWER_SCRIPTS:
-        script_path = SRC_DIR / script
-        if not script_path.exists():
-            print(f"\n  [ERROR] Script not found: {script_path}")
-            return
-        print(f"  Running {script} ...")
-        subprocess.run(
-            [sys.executable, str(script_path)],
-            cwd=str(ROOT_DIR), check=True
-        )
+    print(f"  Running {VIEWER_SCRIPT} ...")
+    subprocess.run(
+        [sys.executable, str(script_path), "--supplementary"],
+        cwd=str(ROOT_DIR), check=True,
+    )
 
     if VIEWER_OUTPUT.exists():
-        size_mb = VIEWER_OUTPUT.stat().st_size / 1_048_576
+        size_kb = VIEWER_OUTPUT.stat().st_size / 1024
         print(f"\n  [OK] Viewer ready: {VIEWER_OUTPUT}")
-        print(f"       File size: {size_mb:.1f} MB")
+        print(f"       File size: {size_kb:.1f} KB")
         print("       Open in any browser — no server required.")
     else:
         print(f"\n  [!] Viewer not found at expected path: {VIEWER_OUTPUT}")

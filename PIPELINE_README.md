@@ -7,17 +7,19 @@ the paper as figures, tables or into downstream scripts.
 
 Run order: 01 → 02 → 03 → 04 → 05 → 06 → 07 → 08 → 09 → 10 → 11 → 11b → 12 → 13 → 14 → 15 → 17 → 16 → 18 → 19 → 20 → 21
 
-Script 19 is not part of the numbered pipeline. It builds the
-self-contained HTML scenario viewer and are run separately via option 4 in
-the interactive menu, or with `python run_analysis.py --viewer`.
+Script 19 is step 21 of the numbered pipeline. As a byproduct of running its
+main spatial analysis it also builds the self-contained HTML scenario viewer.
+Menu option 4 (`python run_analysis.py --viewer`) rebuilds the viewer alone
+by re-running script 19 without stepping through the earlier scripts.
 
 Critical ordering constraints:
 - Script 17 (WTF Sy) must run before script 16 (water balance)
 - Script 18 (WTF spatial) must run before script 19 (spatial groundwater)
 - Script 11b requires outputs from scripts 11 and 06
 - Script 21 requires `03_cluster_averages_maod.csv` from script 03
-- Script 19 (viewer) requires pipeline outputs; script 14 should
-  also have run for the seasonal extremes tab to be populated
+- Rebuilding the scenario viewer via option 4 requires that all earlier
+  pipeline outputs already exist; in particular script 14 should have run
+  for the seasonal extremes tab to be populated
 
 ---
 
@@ -79,17 +81,35 @@ utils/                         ← shared utility modules
 **Reads:**
 - `outputs/01_climate.csv` ← from script 01
 - `outputs/01_wells_clean.csv` ← from script 01
+- `data/RAF_Valley_Climate.csv` ← raw climate record (used by Figure 3 only)
 
-**Produces:**
+**Profiles:**
+Script 00 accepts `--profile {full,short,both}`. `run_analysis.py` invokes
+it with `--profile full`, producing the full 95-year record outputs. Running
+with `--profile short` restricts everything to the well-record overlap
+window (Apr 2005 – Feb 2026) and produces `_short`-suffixed variants of
+Figures 1 and 2. Figure 3 (warming trend) requires the full 95-year record
+and is produced under `--profile full` only.
+
+**Produces (full profile):**
 
 | File | Type | Paper destination |
 |---|---|---|
 | `00_01_climate_timeseries.png` | Figure | Figure 3 (full record) |
 | `00_02_well_network_summary.png` | Figure | Figure 4 |
-| `00_01_climate_timeseries_short.png` | Figure | Figure 3 (well-record period) |
-| `00_02_well_network_summary_short.png` | Figure | Figure 4 alternative |
+| `00_03_summer_warming_trend.png` | Figure | RAF Valley JJA max-temp anomaly, 1931–2025 |
 | `00_01_annual_climate_summary.csv` | Table | Table 1 source data |
 | `00_02_well_network_summary.csv` | Data | Section 4.1 statistics |
+| `00_03_summer_warming_stats.csv` | Data | Per-year summer means + linear regression stats (slope, R², p, pre/post-2013 split) |
+
+**Produces (short profile, additional):**
+
+| File | Type | Paper destination |
+|---|---|---|
+| `00_01_climate_timeseries_short.png` | Figure | Figure 3 (well-record period) |
+| `00_02_well_network_summary_short.png` | Figure | Figure 4 alternative |
+| `00_01_annual_climate_summary_short.csv` | Data | Monitoring-period climate summary |
+| `00_02_well_network_summary_short.csv` | Data | Monitoring-period network stats |
 
 ---
 
@@ -250,7 +270,7 @@ cluster centroids. Produces integrated site-wide affinity map.
 
 ## Script 07 — Boundary Intercept Audit
 **Purpose:** Compares Model A (intercept = 0) vs Model B (free intercept) for
-all 69 reference wells. Maps spatial pattern of boundary subsidies and NSE
+all 69 reference wells. Maps spatial pattern of water balance residuals and NSE
 improvement. Identifies tidal, lacustrine and ridge-front boundary wells.
 
 **Reads:**
@@ -770,6 +790,38 @@ Two wells were scraped after the LiDAR survey was flown. Scripts 11b, 19, and
 - `Features.kml` — broadleaf restocking block polygon added as named Placemark
 - `broadleaf_restock.kml` — source file added to data directory
 - All 22 numbered scripts carry `__version__ = "1.0.0"` for traceability
+
+### Terminology rename: "boundary subsidy" → "water balance residual" (2026-04-20)
+- Scripts 07, 08, 16, 19, 20, 21 — all figure titles, CSV column headers, legend
+  labels, docstring text, and internal variable names renamed. The underlying
+  quantity is unchanged; only the terminology differs, for alignment with the
+  academic summary document.
+- Script 16 — `SUBSIDY_PCT_SE` → `RESIDUAL_PCT_SE`; `C_SUB` → `C_RES`;
+  `subsidy`/`subsidy_se` → `residual`/`residual_se`
+- Script 16 CSV column headers now read "Water balance residual (m/month)",
+  "Residual (mm/yr)", "Residual (% rainfall)", "Residual SE (mm/yr)" (previously
+  "Boundary Subsidy (m/month)", "Subsidy (mm/yr)" etc.)
+- Script 20 — `lateral_residual` DataFrame column → `residual_wb`; figure title
+  "SSM Lateral Inflow Residual" → "SSM Water Balance Residual"
+
+### Script 00 (2026-04-20)
+- New Figure 3 (`00_03_summer_warming_trend.png`) — RAF Valley summer
+  (JJA) maximum-temperature anomaly plot with linear trend line over the
+  full 95-year record. Produced from raw `data/RAF_Valley_Climate.csv`;
+  accompanied by `00_03_summer_warming_stats.csv` containing per-year
+  values and regression statistics.
+- Figures 1 and 2 now generate on both profiles (previously skipped on
+  the full profile).
+- `run_analysis.py` now calls script 00 with `--profile full` (previously
+  passed `--profile short`), producing the full-record outputs by default.
+
+### run_analysis.py (2026-04-20)
+- Scripts 18 and 19 now invoked with `--supplementary` to produce their
+  complete output sets (WTF IDW contour maps for 18; thickness, seasonal,
+  β fields, water balance, flux, storage, depth-to-WT and winter flooding
+  maps for 19).
+- `VIEWER_SCRIPTS` list collapsed to `VIEWER_SCRIPT` constant — only
+  script 19 is now required for the viewer menu option (19b retired).
 
 ---
 

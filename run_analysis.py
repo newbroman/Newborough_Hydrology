@@ -41,7 +41,7 @@ PHASE_3 = [
     ("11b_spatial_thresholds.py",     "12/23  Spatial eco-hydrological threshold maps"),
 ]
 PHASE_4 = [
-    ("00_climate_summary.py",            "13/23  Climate summary outputs", ["--profile", "both"]),
+    ("00_climate_summary.py",            "13/23  Climate summary outputs", ["--profile", "full"]),
     ("14_climate_projections.py",        "14/23  Figure: Climate trajectory projections"),
     ("12_figure_site_overview.py",       "15/23  Figure: DEM site overview"),
     ("13_figure_experimental_design.py", "16/23  Figure: Experimental design GIS map"),
@@ -56,10 +56,10 @@ PHASE_7 = [
     ("16_water_bal.py", "19/23  Water balance decomposition"),
 ]
 PHASE_8 = [
-    ("18_wtf_spatial.py", "20/23  WTF spatial analysis and Sy mapping", ["--supplementary"]),
+    ("18_wtf_spatial.py", "20/23  WTF spatial analysis and Sy mapping"),
 ]
 PHASE_9 = [
-    ("19_spatial_groundwater.py", "21/23  Spatial groundwater analysis", ["--supplementary"]),
+    ("19_spatial_groundwater.py", "21/23  Spatial groundwater analysis"),
     ("20_spatial_figures.py",     "22/23  Spatial paper figures"),
 ]
 PHASE_10 = [
@@ -217,7 +217,7 @@ def build_viewer() -> None:
 
     print(f"  Running {VIEWER_SCRIPT} ...")
     subprocess.run(
-        [sys.executable, str(script_path), "--supplementary"],
+        [sys.executable, str(script_path)],
         cwd=str(ROOT_DIR), check=True,
     )
 

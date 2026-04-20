@@ -884,14 +884,19 @@ footer a:hover{{text-decoration:underline;}}
     <span class="sv" id="vB2">1.00&#215;</span></div>
   <div class="hr"></div>
 
-  <div class="ch">Specific yield (display)</div>
-  <div class="srow"><label>Sy scaling</label>
-    <input type="range" min="0.5" max="2" step="0.05" value="1" id="sSy" oninput="onSl()">
-    <span class="sv" id="vSy">1.00&#215;</span></div>
+  <div class="ch">Specific yield (storage)</div>
+  <div class="srow"><label>Sy endpoint</label>
+    <input type="range" min="0" max="1" step="1" value="0" id="sSyMode" oninput="onSl()">
+    <span class="sv" id="vSyMode">Fetter</span></div>
   <div style="font-size:10px;color:var(--text-light);line-height:1.4;margin-top:3px;">
-    Per-well WTF medians (scripts 17/18). Floor: C1&nbsp;6%, C2&#8211;C5&nbsp;12%.<br>
-    <em>Display only</em> &#8212; does not affect &#916;h, which is governed by
-    fitted &#946; coefficients that already embed the aquifer storage response.</div>
+    <strong>Fetter</strong> (lower bound): C1&nbsp;8%, C2&#8211;C4&nbsp;12%, C5/C6&nbsp;10% &#8212;
+    conservative literature values from Fetter (2001).<br>
+    <strong>WTF</strong> (upper bound): per-well WTF medians (scripts 17/18),
+    clamped to the cluster floor. Monthly WTF overestimates Sy through
+    capillary-fringe conflation (Healy &amp; Cook 2002), so these values
+    represent an empirical ceiling.<br>
+    Drives the <em>Storage shift</em> row (&#916;h&#8201;&#215;&#8201;Sy, mm of
+    equivalent water column). Does not affect &#916;h itself.</div>
   <div class="hr"></div>
 
   <div class="ch">Map</div>
@@ -975,6 +980,7 @@ var WELLS={wells_json};
 var POLYS={polys_json};
 var CLIMATE={climate_json};
 var SY_FLOOR={sy_floor_json};
+var SY_LOWER={sy_lower_json};
 var FOREST_INTERCEPTION={forest_interception};
 var BROADLEAF_INTERCEPTION={broadleaf_interception};
 var DEM_GRID={dem_grid_json};
@@ -990,12 +996,12 @@ var HILLSHADE_B64="{hillshade_b64}";
 var HILLSHADE_IMG=null;var HILLSHADE_READY=false;
 if(HILLSHADE_B64){{HILLSHADE_IMG=new Image();HILLSHADE_IMG.onload=function(){{HILLSHADE_READY=true;if(typeof drawBg==='function'){{drawBg();}}if(typeof drawMap==='function'){{drawMap();}}}};HILLSHADE_IMG.src=HILLSHADE_B64;}}
 var SCEN={{
-  baseline:     {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI:FOREST_INTERCEPTION,     sB2:1,    sSy:1}},
-  ukcp18_2050s: {{sP_w:1.10, sP_s:0.85, sPET_w:1.05, sPET_s:1.20, sI:FOREST_INTERCEPTION,     sB2:1,    sSy:1}},
-  ukcp18_2080s: {{sP_w:1.20, sP_s:0.70, sPET_w:1.10, sPET_s:1.35, sI:FOREST_INTERCEPTION,     sB2:1,    sSy:1}},
-  clearfell:    {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI:0,                       sB2:1.20, sSy:1}},
-  broadleaf:    {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI:BROADLEAF_INTERCEPTION,  sB2:1.00, sSy:1}},
-  thinning:     {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI:FOREST_INTERCEPTION*0.5, sB2:1.10, sSy:1}},
+  baseline:     {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI:FOREST_INTERCEPTION,     sB2:1}},
+  ukcp18_2050s: {{sP_w:1.10, sP_s:0.85, sPET_w:1.05, sPET_s:1.20, sI:FOREST_INTERCEPTION,     sB2:1}},
+  ukcp18_2080s: {{sP_w:1.20, sP_s:0.70, sPET_w:1.10, sPET_s:1.35, sI:FOREST_INTERCEPTION,     sB2:1}},
+  clearfell:    {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI:0,                       sB2:1.20}},
+  broadleaf:    {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI:BROADLEAF_INTERCEPTION,  sB2:1.00}},
+  thinning:     {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI:FOREST_INTERCEPTION*0.5, sB2:1.10}},
 }};
 var WARN={{
   clearfell:    'Post-felling: canopy interception removed, \u03b2\u2082 increases. Study finding: clearfell deepens summer minima \u2014 the dominant control on winter flooding probability.',
@@ -1007,14 +1013,14 @@ var sea='annual',mm='dh',cm='dh',hChart=null;
 var DH={{}},SH={{}},CUR_SL={{}};
 var MW=0,MH=0;
 
-function gs(){{return{{sP_w:+document.getElementById('sP_w').value,sP_s:+document.getElementById('sP_s').value,sPET_w:+document.getElementById('sPET_w').value,sPET_s:+document.getElementById('sPET_s').value,sI:+document.getElementById('sI').value,sB2:+document.getElementById('sB2').value,sSy:+document.getElementById('sSy').value}};}}
-function rl(){{var s=gs();document.getElementById('vP_w').textContent=s.sP_w.toFixed(2)+'\xd7';document.getElementById('vP_s').textContent=s.sP_s.toFixed(2)+'\xd7';document.getElementById('vPET_w').textContent=s.sPET_w.toFixed(2)+'\xd7';document.getElementById('vPET_s').textContent=s.sPET_s.toFixed(2)+'\xd7';document.getElementById('vI').textContent=(s.sI*100).toFixed(0)+'%';document.getElementById('vB2').textContent=s.sB2.toFixed(2)+'\xd7';document.getElementById('vSy').textContent=s.sSy.toFixed(2)+'\xd7';}}
+function gs(){{return{{sP_w:+document.getElementById('sP_w').value,sP_s:+document.getElementById('sP_s').value,sPET_w:+document.getElementById('sPET_w').value,sPET_s:+document.getElementById('sPET_s').value,sI:+document.getElementById('sI').value,sB2:+document.getElementById('sB2').value,sSyMode:+document.getElementById('sSyMode').value}};}}
+function rl(){{var s=gs();document.getElementById('vP_w').textContent=s.sP_w.toFixed(2)+'\xd7';document.getElementById('vP_s').textContent=s.sP_s.toFixed(2)+'\xd7';document.getElementById('vPET_w').textContent=s.sPET_w.toFixed(2)+'\xd7';document.getElementById('vPET_s').textContent=s.sPET_s.toFixed(2)+'\xd7';document.getElementById('vI').textContent=(s.sI*100).toFixed(0)+'%';document.getElementById('vB2').textContent=s.sB2.toFixed(2)+'\xd7';document.getElementById('vSyMode').textContent=s.sSyMode>=0.5?'WTF':'Fetter';}}
 function onSl(){{rl();go();}}
-function loadSc(n){{document.querySelectorAll('.sc').forEach(function(b){{b.classList.remove('on');}});document.getElementById('btn_'+n).classList.add('on');var sc=SCEN[n];['sP_w','sP_s','sPET_w','sPET_s','sI','sB2','sSy'].forEach(function(k){{document.getElementById(k).value=sc[k];}});rl();var wb=document.getElementById('warnBox');if(WARN[n]){{wb.textContent=WARN[n];wb.style.display='block';}}else wb.style.display='none';go();}}
+function loadSc(n){{document.querySelectorAll('.sc').forEach(function(b){{b.classList.remove('on');}});document.getElementById('btn_'+n).classList.add('on');var sc=SCEN[n];['sP_w','sP_s','sPET_w','sPET_s','sI','sB2'].forEach(function(k){{document.getElementById(k).value=sc[k];}});rl();var wb=document.getElementById('warnBox');if(WARN[n]){{wb.textContent=WARN[n];wb.style.display='block';}}else wb.style.display='none';go();}}
 function setSeas(s){{sea=s;document.querySelectorAll('.tab').forEach(function(b){{b.classList.remove('on');}});document.getElementById('tab_'+s).classList.add('on');go();}}
 function setMM(m){{mm=m;document.querySelectorAll('[id^="rt_"]').forEach(function(b){{b.classList.remove('on');}});document.getElementById('rt_'+m).classList.add('on');drawMap();}}
 function setCM(m){{cm=m;document.querySelectorAll('[id^="ct_"]').forEach(function(b){{b.classList.remove('on');}});document.getElementById('ct_'+m).classList.add('on');renderBar();}}
-function syEff(w,sl){{return Math.max((w.sy!=null?w.sy:0.12)*sl.sSy,SY_FLOOR[w.cl]||0.12);}}
+function syEff(w,mode){{if(mode>=0.5){{return Math.max((w.sy!=null?w.sy:(SY_LOWER[w.cl]||0.12)),SY_FLOOR[w.cl]||0.12);}}else{{return SY_LOWER[w.cl]||0.12;}}}}
 
 function go(){{
   var sl=gs();CUR_SL=sl;
@@ -1294,7 +1300,7 @@ function renderBar(){{
 }}
 
 function renderTable(){{
-  var cls=[1,2,3,4,5],sl=CUR_SL||{{sP_w:1,sP_s:1,sPET_w:1,sPET_s:1,sSy:1,sI:FOREST_INTERCEPTION,sB2:1}},cld=CLIMATE[sea],P=cld.P,PET=cld.PET;
+  var cls=[1,2,3,4,5],sl=CUR_SL||{{sP_w:1,sP_s:1,sPET_w:1,sPET_s:1,sSyMode:0,sI:FOREST_INTERCEPTION,sB2:1}},cld=CLIMATE[sea],P=cld.P,PET=cld.PET;
   // Choose multipliers matching the current seasonal view; annual = winter+summer average
   var sP=(sea==='winter')?sl.sP_w:(sea==='summer')?sl.sP_s:0.5*(sl.sP_w+sl.sP_s);
   var sPET=(sea==='winter')?sl.sPET_w:(sea==='summer')?sl.sPET_s:0.5*(sl.sPET_w+sl.sPET_s);
@@ -1302,7 +1308,8 @@ function renderTable(){{
     {{l:'Baseline (m AOD)',v:cls.map(function(c){{return(cld.cluster_heads[c]||0).toFixed(2);}}),d:false}},
     {{l:'Scenario (m AOD)',v:cls.map(function(c){{return(SH[c]||0).toFixed(2);}}),d:false}},
     {{l:'\u0394 head (m)',v:cls.map(function(c){{return(DH[c]>=0?'+':'')+(DH[c]||0).toFixed(3);}}),d:true}},
-    {{l:'Mean Sy (%)',v:cls.map(function(c){{var cw=WELLS.filter(function(w){{return w.cl===c&&w.sy!=null;}});if(!cw.length)return'\u2014';var s=cw.reduce(function(acc,w){{return acc+Math.max((w.sy||0.12)*sl.sSy,SY_FLOOR[c]||0.12);}},0)/cw.length;return(s*100).toFixed(1)+'%';}}),d:false}},
+    {{l:'Mean Sy (%)',v:cls.map(function(c){{var cw=WELLS.filter(function(w){{return w.cl===c;}});if(!cw.length)return'\u2014';var s=cw.reduce(function(acc,w){{return acc+syEff(w,sl.sSyMode);}},0)/cw.length;return(s*100).toFixed(1)+'%';}}),d:false}},
+    {{l:'Storage shift (mm)',v:cls.map(function(c){{var cw=WELLS.filter(function(w){{return w.cl===c;}});if(!cw.length||DH[c]==null)return'\u2014';var s=cw.reduce(function(acc,w){{return acc+syEff(w,sl.sSyMode);}},0)/cw.length;var shift=s*DH[c]*1000;return(shift>=0?'+':'')+shift.toFixed(1);}}),d:true}},
     {{l:'P\u2091\u2091 mm/mo',v:cls.map(function(c){{return((c===4?P*sP*(1-sl.sI):P*sP)*1000).toFixed(1);}}),d:false}},
     {{l:'PET draw mm/mo',v:cls.map(function(c){{var cb=CLIMATE.cluster_betas[c]||{{}},b2=cb.b2||0,b2s=(c===4)?b2*sl.sB2:b2;return(b2s*PET*sPET*1000).toFixed(1);}}),d:false}},
   ];
@@ -1335,13 +1342,17 @@ function renderMonthlyTable(){{
 }}
 
 function renderMetrics(){{
-  var cls=[1,2,3,4,5],sl=CUR_SL||{{sSy:1}};
+  var cls=[1,2,3,4,5],sl=CUR_SL||{{sSyMode:0}};
   var mDH=cls.reduce(function(s,c){{return s+(DH[c]||0);}},0)/5,c4DH=DH[4]||0;
   function dc(v){{return v>0.002?'#0d47a1':v<-0.002?'#b71c1c':'#333';}}
   function mc(l,v,u,col){{return'<div class="mc"><div class="ml">'+l+'</div><div class="mv" style="color:'+col+'">'+v+' <span class="mu">'+u+'</span></div></div>';}}
-  var cw=WELLS.filter(function(w){{return w.sy!=null;}}),mSy=cw.length?cw.reduce(function(s,w){{return s+Math.max((w.sy||0.12)*sl.sSy,SY_FLOOR[w.cl]||0.12);}},0)/cw.length:0.15;
-  var c4w=WELLS.filter(function(w){{return w.cl===4&&w.sy!=null;}}),c4Sy=c4w.length?c4w.reduce(function(s,w){{return s+Math.max((w.sy||0.12)*sl.sSy,SY_FLOOR[4]||0.12);}},0)/c4w.length:0.12;
-  document.getElementById('mrow').innerHTML=mc('Mean \u0394h',(mDH>=0?'+':'')+mDH.toFixed(3),'m',dc(mDH))+mc('C4 \u0394h',(c4DH>=0?'+':'')+c4DH.toFixed(3),'m',dc(c4DH))+mc('Mean Sy',(mSy*100).toFixed(1),'%','#333')+mc('C4 Sy',(c4Sy*100).toFixed(1),'%','#333');
+  var allW=WELLS.filter(function(w){{return cls.indexOf(w.cl)>=0;}});
+  var mSy=allW.length?allW.reduce(function(s,w){{return s+syEff(w,sl.sSyMode);}},0)/allW.length:0.12;
+  var c4w=WELLS.filter(function(w){{return w.cl===4;}});
+  var c4Sy=c4w.length?c4w.reduce(function(s,w){{return s+syEff(w,sl.sSyMode);}},0)/c4w.length:0.12;
+  var mShift=mSy*mDH*1000, c4Shift=c4Sy*c4DH*1000;
+  function fmtShift(v){{return(v>=0?'+':'')+v.toFixed(1);}}
+  document.getElementById('mrow').innerHTML=mc('Mean \u0394h',(mDH>=0?'+':'')+mDH.toFixed(3),'m',dc(mDH))+mc('C4 \u0394h',(c4DH>=0?'+':'')+c4DH.toFixed(3),'m',dc(c4DH))+mc('Mean Sy',(mSy*100).toFixed(1),'%','#333')+mc('C4 Sy',(c4Sy*100).toFixed(1),'%','#333')+mc('Mean storage shift',fmtShift(mShift),'mm',dc(mDH))+mc('C4 storage shift',fmtShift(c4Shift),'mm',dc(c4DH));
 }}
 
 function applyLayout(){{document.getElementById('mainGrid').style.gridTemplateColumns=window.innerWidth<640?'1fr':'210px minmax(0,1fr)';}}
@@ -1501,6 +1512,7 @@ def main(out_path=None):
     wells_list   = serialise_wells(wt)
     climate_data = serialise_climate(wt, climate_stats)
     sy_floor_js  = {str(k): v for k, v in SY_FLOOR.items()}
+    sy_lower_js  = {str(k): v for k, v in SY_DEFAULTS.items()}
 
     print("  Building DEM hillshade basemap...")
     hillshade_b64 = build_hillshade_base64(polys.get("site"))
@@ -1514,6 +1526,7 @@ def main(out_path=None):
         polys_json=json.dumps(polys, separators=(",", ":")),
         climate_json=json.dumps(climate_data, separators=(",", ":")),
         sy_floor_json=json.dumps(sy_floor_js, separators=(",", ":")),
+        sy_lower_json=json.dumps(sy_lower_js, separators=(",", ":")),
         forest_interception=FOREST_INTERCEPTION,
         broadleaf_interception=BROADLEAF_INTERCEPTION,
         hillshade_b64=hillshade_b64,

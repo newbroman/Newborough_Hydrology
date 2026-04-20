@@ -49,16 +49,13 @@ DIR_18 = OUT_DIR / "18_wtf_spatial"
 DIR_19 = OUT_DIR / "19_spatial_groundwater"
 DIR_20 = OUT_DIR / "20_spatial_figures"
 DIR_21 = OUT_DIR / "21_forestry_scenarios"
-DIR_22 = OUT_DIR / "22_residual_lag_analysis"
-DIR_23 = OUT_DIR / "23_ridge_recharge_lag_test"
-DIR_24 = OUT_DIR / "24_residual_seasonality"
 
 ALL_DIRS = [
     OUT_DIR,
     DIR_00, DIR_01,
     DIR_02, DIR_03, DIR_04, DIR_05, DIR_06, DIR_07,
     DIR_08, DIR_09, DIR_10, DIR_11, DIR_11B, DIR_12, DIR_13, DIR_14,
-    DIR_15, DIR_16, DIR_17, DIR_18, DIR_19, DIR_20, DIR_21, DIR_22, DIR_23, DIR_24,
+    DIR_15, DIR_16, DIR_17, DIR_18, DIR_19, DIR_20, DIR_21,
 ]
 
 
@@ -125,20 +122,17 @@ INT_LCSC_MODEL_STATS  = OUT_DIR / "08_lcsc_model_stats.csv"
 # Script 00 — Climate summary
 OUT_00_CLIMATE_TIMESERIES   = DIR_00 / "00_01_climate_timeseries.png"
 OUT_00_WELL_NETWORK_FIG     = DIR_00 / "00_02_well_network_summary.png"
-OUT_00_SUMMER_WARMING       = DIR_00 / "00_03_summer_warming_trend.png"
 OUT_00_ANNUAL_CLIMATE_TABLE = DIR_00 / "00_01_annual_climate_summary.csv"
 OUT_00_WELL_NETWORK_TABLE   = DIR_00 / "00_02_well_network_summary.csv"
-OUT_00_SUMMER_WARMING_TABLE = DIR_00 / "00_03_summer_warming_stats.csv"
 
 # Script 02 — Clustering
 OUT_02_DENDROGRAM       = DIR_02 / "02_01_dendrogram.png"
 OUT_02_VALIDATION       = DIR_02 / "02_02_validation_plots.png"
 
 # Script 03 — State-space model
-OUT_03_SIGNATURES          = DIR_03 / "03_01_mechanistic_signatures.png"
-OUT_03_SIGNATURES_WELLMEAN = DIR_03 / "03_01b_mechanistic_signatures_wellmean.png"
-OUT_03_CLUSTER_SUMMARY     = DIR_03 / "03_02_cluster_summary_table.csv"
-OUT_03_MECHANISTIC_TABLE   = DIR_03 / "03_03_cluster_mechanistic_coefficients.csv"
+OUT_03_SIGNATURES       = DIR_03 / "03_01_mechanistic_signatures.png"
+OUT_03_CLUSTER_SUMMARY  = DIR_03 / "03_02_cluster_summary_table.csv"
+OUT_03_MECHANISTIC_TABLE = DIR_03 / "03_03_cluster_mechanistic_coefficients.csv"
 
 # Script 04 — Cluster visualisations
 OUT_04_ARCHITECTURE_MAP = DIR_04 / "04_01_core_architecture_map.png"
@@ -290,28 +284,3 @@ OUT_21_SCRAPING          = DIR_21 / "21_forestry_03_scraping_eras.png"
 OUT_21_SCRAPING_CSV      = DIR_21 / "21_forestry_03_scraping_era_means.csv"
 OUT_21_BACI_VIOLIN       = DIR_21 / "21_forestry_04_baci_zone_violin.png"
 OUT_21_BACI_CSV          = DIR_21 / "21_forestry_04_baci_zone_means.csv"
-
-# Script 22 — SSM residuals and lag analysis (ridge-subsidy mechanistic test)
-INT_22_RESIDUALS_WIDE    = OUT_DIR / "22_residuals_wide.csv"
-INT_22_FITS_TABLE        = OUT_DIR / "22_model_b_fits.csv"
-OUT_22_AR1_HIST          = DIR_22 / "22_01_ar1_histogram.png"
-OUT_22_AR1_MAP           = DIR_22 / "22_02_ar1_spatial_map.png"
-OUT_22_ALPHA_PHI_SCATTER = DIR_22 / "22_03_alpha_phi_scatter.png"
-OUT_22_EXAMPLE_SERIES    = DIR_22 / "22_04_example_residuals_by_cluster.png"
-
-# Script 23 — Ridge-recharge lag hypothesis test
-INT_23_RESIDUALS_WIDE    = OUT_DIR / "23_residuals_extended_wide.csv"
-INT_23_FITS_TABLE        = OUT_DIR / "23_ridge_lag_fits.csv"
-OUT_23_CCF_HEADLINE      = DIR_23 / "23_01_ccf_headline_ridge_wells.png"
-OUT_23_LAG_VS_DISTANCE   = DIR_23 / "23_02_peak_lag_vs_ridge_distance.png"
-OUT_23_LAG_MAP           = DIR_23 / "23_03_peak_lag_spatial_map.png"
-OUT_23_BETAS_BY_CLUSTER  = DIR_23 / "23_04_b10_b11_by_cluster.png"
-OUT_23_TEST_SUMMARY      = DIR_23 / "23_05_hypothesis_test_summary.txt"
-
-# Script 24 — Seasonal residual diagnostic
-INT_24_CLIMATOLOGY_TABLE  = OUT_DIR / "24_residual_climatology.csv"
-OUT_24_CLIMATOLOGY_PANELS = DIR_24 / "24_01_climatology_panels_by_cluster.png"
-OUT_24_AMPLITUDE_MAP      = DIR_24 / "24_02_seasonal_amplitude_map.png"
-OUT_24_SUN_CORR_SCATTER   = DIR_24 / "24_03_sun_residual_correlation.png"
-OUT_24_PHASE_BARPLOT      = DIR_24 / "24_04_phase_by_cluster.png"
-OUT_24_SUMMARY            = DIR_24 / "24_05_diagnostic_summary.txt"

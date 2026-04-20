@@ -21,17 +21,17 @@ Two figures are produced:
     - Well symbols coloured by cluster
     - 1 m head contours with labels
 
-  Figure 2 — SSM Lateral Inflow Residual vs Ridge Hillslope Gradient
+  Figure 2 — SSM Water Balance Residual vs Ridge Hillslope Gradient
   -------------------------------------------------------------------
-  Output: outputs/20_spatial_figures/20_residual_d8_comparison.png
+  Output: outputs/20_spatial_figures/20_residual_ssm.png
 
   Two-panel validation figure:
-    Left:  SSM lateral inflow residual — where the water balance requires
-           external lateral inflow (β coefficients only, no DEM)
+    Left:  SSM water balance residual — where the water balance requires
+           external inflow (β coefficients only, no DEM)
     Right: Ridge hillslope gradient (50 m smoothed DEM) — independent
-           topographic evidence of where the ridge drives lateral recharge
-  Spatial correspondence in the NW forest/ridge zone corroborates the
-  ridge-derived boundary subsidy (CEH14 α = +0.222 m/month).
+           topographic evidence consistent with ridge-originating recharge
+  Spatial correspondence in the NW forest/ridge zone is consistent with
+  ridge-derived water balance residual (CEH14 α = +0.222 m/month).
   Note: there are no natural watercourses on the dune warren; D8 flow
   accumulation was discarded as it does not represent real recharge paths.
 
@@ -184,7 +184,7 @@ def load_data():
 def build_well_table(data):
     """
     Build per-well table with coordinates, cluster, mean head, β coefficients,
-    and lateral inflow residual. Extended wells are included for spatial
+    and water balance residual. Extended wells are included for spatial
     context (location + cluster) but have no SSM residual.
     """
     maod  = data["maod"]
@@ -226,8 +226,8 @@ def build_well_table(data):
         if pd.notna(r.get("cluster")) and int(r["cluster"]) == 4
         else P_bar, axis=1)
 
-    # SSM lateral inflow residual
-    wt["lateral_residual"] = np.where(
+    # SSM water balance residual
+    wt["residual_wb"] = np.where(
         wt["beta1"].notna(),
         wt["beta2"] * PET_bar + wt["beta3"] * wt["mean_head"].abs()
         - wt["beta1"] * wt["P_eff"],
@@ -261,7 +261,7 @@ def build_well_table(data):
             ext_rows.append({
                 "well": wn, "E": lrow.iloc[0]["E"], "N": lrow.iloc[0]["N"],
                 "cluster": cl, "mean_head": series.mean(),
-                "lateral_residual": np.nan, "network": "Extended",
+                "residual_wb": np.nan, "network": "Extended",
                 "beta1": np.nan, "beta2": np.nan, "beta3": np.nan,
             })
 
@@ -588,11 +588,11 @@ def plot_head_streams(wt, stream_cells, features, dpi=300):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# FIGURE 2a — SSM LATERAL INFLOW RESIDUAL
+# FIGURE 2a — SSM WATER BALANCE RESIDUAL
 # ─────────────────────────────────────────────────────────────────────────────
 def plot_residual_ssm(wt, features, dpi=300):
     """
-    SSM lateral inflow residual — single panel with Darcy flow direction arrows.
+    SSM water balance residual — single panel with Darcy flow direction arrows.
     β coefficients only — no DEM physics in the residual surface itself.
     Flow arrows derived independently from mean head gradient.
     """
@@ -601,9 +601,9 @@ def plot_residual_ssm(wt, features, dpi=300):
     sea_pts, sea_vals = _sea_boundary_points()
 
     # Residual surface — IDW with sea boundary anchors at zero
-    ref      = wt["lateral_residual"].notna()
+    ref      = wt["residual_wb"].notna()
     rpts     = wt.loc[ref, ["E","N"]].values
-    rval     = wt.loc[ref, "lateral_residual"].values
+    rval     = wt.loc[ref, "residual_wb"].values
     resid_surf = idw_surface(rpts, rval, gx, gy,
                              sea_pts=sea_pts,
                              sea_vals=np.zeros(len(sea_vals)),
@@ -639,7 +639,7 @@ def plot_residual_ssm(wt, features, dpi=300):
     fig.colorbar(
         plt.cm.ScalarMappable(norm=norm_r, cmap="RdBu_r"),
         ax=ax, fraction=0.03, pad=0.02, shrink=0.85
-    ).set_label("Lateral inflow residual (m/month)\n+ve = ridge boundary subsidy",
+    ).set_label("Water balance residual (m/month)\n+ve = ridge-derived residual",
                 fontsize=9)
 
     # Flow direction arrows (normalised, white)
@@ -671,7 +671,7 @@ def plot_residual_ssm(wt, features, dpi=300):
     ax.set_ylabel("Northing (m, OSGB36)", fontsize=9)
     ax.tick_params(labelsize=8)
     ax.set_title(
-        "SSM Lateral Inflow Residual (m/month) — Newborough Warren 2005–2026\n"
+        "SSM Water Balance Residual (m/month) — Newborough Warren 2005–2026\n"
         "(β₂·PET̄ + β₃·|h̄| − β₁·P̄_eff)  |  β coefficients only  |  "
         "Flow direction arrows from head gradient",
         fontsize=10, fontweight="bold")
@@ -688,7 +688,7 @@ def plot_residual_ssm(wt, features, dpi=300):
     ax.legend(handles=leg_h, fontsize=7, loc="lower left", framealpha=0.9)
     ax.annotate("Residual: SSM β coefficients only — independent of flow arrows.\n"
                 "Flow arrows: mean head gradient — independent of β coefficients.\n"
-                "CEH14 boundary subsidy α = +0.222 m/month.",
+                "CEH14 water balance residual α = +0.222 m/month.",
                 xy=(0.02, 0.97), xycoords="axes fraction",
                 fontsize=7, va="top", color="dimgrey",
                 bbox=dict(boxstyle="round,pad=0.3", fc="white", alpha=0.85))
@@ -787,7 +787,7 @@ def main(preview=False):
     print("[2/4] Building well table...")
     wt, P_bar, PET_bar = build_well_table(data)
     print(f"  Wells: {len(wt)}  "
-          f"(residual available for {wt['lateral_residual'].notna().sum()})")
+          f"(residual available for {wt['residual_wb'].notna().sum()})")
     print(f"  P̄ = {P_bar*1000:.1f} mm/month  "
           f"PET̄ = {PET_bar*1000:.1f} mm/month")
 
@@ -801,7 +801,7 @@ def main(preview=False):
     print("\nGenerating Figure 1 — Head surface + stream network...")
     plot_head_streams(wt, stream_cells, features, dpi=dpi)
 
-    print("Generating Figure 2a — SSM lateral inflow residual...")
+    print("Generating Figure 2a — SSM water balance residual...")
     plot_residual_ssm(wt, features, dpi=dpi)
 
     print("Generating Figure 2b — Ridge hillslope gradient...")

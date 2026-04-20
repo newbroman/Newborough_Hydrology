@@ -11,7 +11,13 @@ Outputs (intermediate):
     03_regional_averages.csv
 
 Outputs (final — outputs/03_state_space_model/):
-    03_01_mechanistic_signatures.png
+    03_01_mechanistic_signatures.png           — centroid-fit coefficients (matches
+                                                 03_03_cluster_mechanistic_coefficients.csv
+                                                 and the manuscript summary table)
+    03_01b_mechanistic_signatures_wellmean.png — mean of per-well fits (diagnostic view;
+                                                 will differ from the centroid-fit values
+                                                 because averaging coefficients is not the
+                                                 same as fitting to the averaged series)
 """
 
 import sys as _sys
@@ -30,7 +36,8 @@ from utils.paths import (
     INT_LOCATIONS, INT_CLIMATE, INT_WELLS_CLEAN, INT_WELL_ELEVATIONS, INT_CLUSTER_STATS,
     INT_MASTER_DATA, INT_REGIONAL_AVG, INT_CLUSTER_AVG_MAOD,
     INT_WELLS_CLEAN_MAOD,
-    OUT_03_SIGNATURES, OUT_03_CLUSTER_SUMMARY, OUT_03_MECHANISTIC_TABLE,
+    OUT_03_SIGNATURES, OUT_03_SIGNATURES_WELLMEAN,
+    OUT_03_CLUSTER_SUMMARY, OUT_03_MECHANISTIC_TABLE,
 )
 
 LCSC_DATA_LIMIT = 100
@@ -46,8 +53,93 @@ BLOCK_MAP = {
 }
 
 
-def create_full_coefficient_figure(master_df: pd.DataFrame) -> None:
-    print("\n -> Generating 3-Panel State-Space Coefficient Chart...")
+def _plot_mechanistic_signatures(b1, b2, b3, labels, colors, out_path,
+                                 subtitle: str) -> None:
+    """Shared plotting helper used by both the centroid and well-mean figure
+    functions. Plots β₁, β₂, |β₃| as a three-panel bar chart with value labels.
+
+    b3 is plotted as its absolute magnitude: the SSM fits a -β₃ decay term,
+    so the CSV stores β₃ as a negative number but the natural way to display
+    a decay rate is as a positive magnitude.
+    """
+    fig, axes = plt.subplots(1, 3, figsize=(15, 6), dpi=300)
+    fig.suptitle("State-Space Mechanistic Signatures by Hydrogeological Cluster",
+                 fontsize=18, fontweight="bold", y=1.03)
+    # Second title line clarifying which estimator this figure shows.
+    fig.text(0.5, 0.97, subtitle, ha="center", va="top",
+             fontsize=11, style="italic", color="#555555")
+
+    b3_mag = np.abs(b3)
+    for ax, vals, title, ylabel in [
+        (axes[0], b1,     r"Recharge Sensitivity ($\beta_1$)",     "Water Table Rise per mm Rain"),
+        (axes[1], b2,     r"Atmospheric Draw ($\beta_2$)",         "Water Table Drop per mm PET"),
+        (axes[2], b3_mag, r"Internal Drainage Brake ($\beta_3$)",  "Proportional Decay Rate"),
+    ]:
+        ax.bar(labels, vals, color=colors, edgecolor="black", linewidth=1.2, zorder=3)
+        ax.set_title(title, fontsize=14, pad=10)
+        ax.set_ylabel(ylabel, fontsize=12)
+        fmt = ".4f" if ax is not axes[2] else ".3f"
+        # Small offset above bar top so labels don't clip the frame.
+        vmax = np.nanmax(vals) if np.any(np.isfinite(vals)) else 1.0
+        offset = vmax * 0.015 if vmax > 0 else 0.001
+        for i, v in enumerate(vals):
+            if np.isfinite(v):
+                ax.text(i, v + offset, f"{v:{fmt}}",
+                        ha="center", va="bottom", fontweight="bold")
+        if np.any(np.isfinite(vals)):
+            ax.set_ylim(0, vmax * 1.18)
+        ax.grid(axis="y", linestyle="--", alpha=0.7, zorder=0)
+        ax.tick_params(axis="x", rotation=30)
+        ax.set_facecolor("#f8f9fa")
+
+    plt.tight_layout(rect=[0, 0, 1, 0.95])
+    plt.savefig(out_path, bbox_inches="tight")
+    plt.close()
+    print(f" -> Saved: {out_path.name}")
+
+
+def create_centroid_coefficient_figure(centroid_fits: dict) -> None:
+    """Primary figure: coefficients from SSM fitted once per cluster-mean hydrograph.
+
+    Values match 03_03_cluster_mechanistic_coefficients.csv and the manuscript
+    summary table. This is the canonical 03_01 figure.
+    """
+    print("\n -> Generating 3-Panel Centroid-Fit Coefficient Chart (canonical)...")
+    if not centroid_fits:
+        print(" -> Skipped (no centroid fits available).")
+        return
+
+    cluster_order = [1, 2, 3, 4, 5, 6]
+    labels = ["C1\nEast-Buf", "C2\nEast-Till", "C3\nWest-Sand",
+              "C4\nWest-For", "C5\nTidal", "C6\nLake"]
+    colors = ["#E69F00", "#009E73", "#CC79A7", "#D55E00", "#56B4E9", "#0072B2"]
+
+    b1, b2, b3 = [], [], []
+    for cid in cluster_order:
+        fit = centroid_fits.get(cid, {})
+        b1.append(fit.get("beta_1", np.nan))
+        b2.append(fit.get("beta_2", np.nan))
+        b3.append(fit.get("beta_3", np.nan))
+    b1 = np.asarray(b1, dtype=float)
+    b2 = np.asarray(b2, dtype=float)
+    b3 = np.asarray(b3, dtype=float)
+
+    _plot_mechanistic_signatures(
+        b1, b2, b3, labels, colors, OUT_03_SIGNATURES,
+        subtitle="Centroid fit: one SSM per cluster-mean hydrograph "
+                 "(matches 03_03_cluster_mechanistic_coefficients.csv)",
+    )
+
+
+def create_wellmean_coefficient_figure(master_df: pd.DataFrame) -> None:
+    """Diagnostic figure: arithmetic mean of individual well-level SSM coefficients.
+
+    This is a different estimator from the centroid fit and the two will not
+    generally agree — averaging coefficients is not the same as fitting to the
+    averaged series. Kept for diagnostic comparison only; the canonical values
+    used elsewhere in the manuscript are the centroid fits.
+    """
+    print("\n -> Generating 3-Panel Well-Mean Coefficient Chart (diagnostic)...")
     plot_df = master_df.copy()
     plot_df["Cluster"] = pd.to_numeric(plot_df["Cluster"], errors="coerce")
     cluster_summary = (
@@ -60,36 +152,18 @@ def create_full_coefficient_figure(master_df: pd.DataFrame) -> None:
         print(" -> Skipped (no valid C1–C6 coefficients).")
         return
 
-    labels = ["C1\nEast-Buf", "C2\nEast-Till", "C3\nWest-Sand", "C4\nWest-For", "C5\nTidal", "C6\nLake"]
+    labels = ["C1\nEast-Buf", "C2\nEast-Till", "C3\nWest-Sand",
+              "C4\nWest-For", "C5\nTidal", "C6\nLake"]
     colors = ["#E69F00", "#009E73", "#CC79A7", "#D55E00", "#56B4E9", "#0072B2"]
     b1 = cluster_summary["beta_1_recharge"].to_numpy()
     b2 = cluster_summary["beta_2_atmospheric_draw"].to_numpy()
     b3 = cluster_summary["beta_3_internal_brake"].to_numpy()
 
-    fig, axes = plt.subplots(1, 3, figsize=(15, 6), dpi=300)
-    fig.suptitle("State-Space Mechanistic Signatures by Hydrogeological Cluster",
-                 fontsize=18, fontweight="bold", y=1.02)
-    for ax, vals, title, ylabel in [
-        (axes[0], b1, r"Recharge Sensitivity ($\beta_1$)", "Water Table Rise per mm Rain"),
-        (axes[1], b2, r"Atmospheric Draw ($\beta_2$)",     "Water Table Drop per mm PET"),
-        (axes[2], b3, r"Internal Drainage Brake ($\beta_3$)", "Proportional Decay Rate"),
-    ]:
-        ax.bar(labels, vals, color=colors, edgecolor="black", linewidth=1.2, zorder=3)
-        ax.set_title(title, fontsize=14, pad=10)
-        ax.set_ylabel(ylabel, fontsize=12)
-        fmt = ".4f" if ax != axes[2] else ".3f"
-        offset = 0.0001 if ax != axes[2] else 0.01
-        for i, v in enumerate(vals):
-            if np.isfinite(v):
-                ax.text(i, v + offset, f"{v:{fmt}}", ha="center", va="bottom", fontweight="bold")
-        ax.grid(axis="y", linestyle="--", alpha=0.7, zorder=0)
-        ax.tick_params(axis="x", rotation=30)
-        ax.set_facecolor("#f8f9fa")
-
-    plt.tight_layout()
-    plt.savefig(OUT_03_SIGNATURES, bbox_inches="tight")
-    plt.close()
-    print(f" -> Saved: {OUT_03_SIGNATURES.name}")
+    _plot_mechanistic_signatures(
+        b1, b2, b3, labels, colors, OUT_03_SIGNATURES_WELLMEAN,
+        subtitle="Well-mean view: mean of per-well SSM fits within each cluster "
+                 "(diagnostic — not the centroid fit used in the summary table)",
+    )
 
 
 def export_cluster_summary_table(cluster_df: pd.DataFrame, centroid_fits: dict) -> None:
@@ -356,7 +430,9 @@ if __name__ == "__main__":
     master_df.to_csv(INT_MASTER_DATA, index=False)
     print(f" -> Saved: {INT_MASTER_DATA.name}")
 
-    create_full_coefficient_figure(master_df)
+    # Figure generation deferred: both chart variants are produced together after
+    # centroid_fits becomes available, so the canonical 03_01 figure can be built
+    # from the centroid coefficients (matching the CSV and the summary table).
 
     print("\n" + "=" * 70)
     print(f"   AVERAGE STATISTICS BY CLUSTER ({len(cluster_ids)} Clusters, limit {LCSC_DATA_LIMIT}mo)")
@@ -412,6 +488,12 @@ if __name__ == "__main__":
 
     centroid_fits = export_cluster_mechanistic_table(cluster_ts, climate)
     export_cluster_summary_table(cluster_df, centroid_fits)
+
+    # Both mechanistic-signature charts: the canonical centroid-fit version
+    # (matches the CSV and the summary table) and the diagnostic well-mean
+    # version (mean of per-well SSM fits within each cluster).
+    create_centroid_coefficient_figure(centroid_fits)
+    create_wellmean_coefficient_figure(master_df)
 
     df_export = pd.DataFrame(cluster_ts)
     df_export.index.name = "Date"

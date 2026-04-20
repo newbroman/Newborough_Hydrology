@@ -4,12 +4,15 @@
 Water Table Fluctuation (WTF) Method — Cluster-Level Specific Yield Estimation
 Newborough Warren Coastal Sand Dune Aquifer, 2005–2026
 
-Produces cluster-level WTF Sy estimates (Approaches A and B) and feeds
-the event-based median Sy values to script 16 (water balance decomposition).
+Produces cluster-level WTF Sy estimates (Approaches A and B) for C1–C4 and,
+for the Forest cluster (C4), an additional interception-corrected variant
+following Freeman (2008). The corrected value populates Table 3c of the
+manuscript and feeds the WTF-Sy volumetric water balance (Table 3d, Figure 8b).
+
 Individual well-level WTF analysis and spatial mapping are in script 18.
 
 Outputs:
-    17_wtf_01_sy_estimates.csv   — cluster Sy estimates (feeds script 16)
+    17_wtf_01_sy_estimates.csv   — cluster Sy estimates, inc. C4 corrected row
     17_wtf_02_regression.png     — OLS regression plots for Approach A
     17_wtf_03_event_boxplot.png  — Sy distribution plots for Approach B
     17_wtf_04_summary.txt        — plain-text summary for manuscript
@@ -17,6 +20,10 @@ Outputs:
 References:
     Healy, R.W. and Cook, P.G. (2002) Hydrogeology Journal 10, 91-109.
     Scanlon, B.R., Healy, R.W. and Cook, P.G. (2002) Hydrogeology Journal 10, 18-39.
+    Freeman, S. (2008) Hydrological impact of Corsican pine at Newborough Warren.
+
+See wtf_interception_methodology.md for full derivation of the interception
+handling, including why reducing only P (not PET) is not double-counting.
 """
 
 import sys
@@ -41,10 +48,13 @@ from utils.paths import (
 make_all_dirs()
 
 # ── Constants ──────────────────────────────────────────────────────────────────
-WINTER_MONTHS   = [11, 12, 1, 2, 3]   # Nov–Mar: PET negligible
-PET_MAX_WINTER  = 0.025                # m/month — exclude months above this
-MIN_RISE_M      = 0.005                # minimum detectable water table rise (m)
-MIN_NET_RECH    = 0.010                # minimum net recharge for event method (m)
+WINTER_MONTHS       = [11, 12, 1, 2, 3]   # Nov–Mar: PET negligible
+PET_MAX_WINTER      = 0.025                # m/month — exclude months above this
+MIN_RISE_M          = 0.005                # minimum detectable water table rise (m)
+MIN_NET_RECH        = 0.010                # minimum net recharge for event method (m)
+FOREST_INTERCEPTION = 0.24                 # Freeman (2008) — C4 canopy interception fraction
+SY_MIN_PLAUSIBLE    = 0.01                 # physical-plausibility lower bound
+SY_MAX_PLAUSIBLE    = 0.50                 # physical-plausibility upper bound
 
 CLUSTER_LABELS = {
     "C1": "C1 Eastern Lake-buffer",
@@ -181,9 +191,25 @@ def approach_a_ols(df):
 def approach_b_events(df):
     """
     Approach B: Event-based median Sy from rising limb months.
-    Sy_i = net_R / Δh for months where Δh > MIN_RISE and net_R > MIN_NET_RECH.
+    Sy_i = net_R / Δh for months where Δh > MIN_RISE and net_R > MIN_NET_RECH,
+    filtered to the physically plausible range SY_MIN_PLAUSIBLE < Sy < SY_MAX_PLAUSIBLE.
+
+    For the Forest cluster (C4), both uncorrected and interception-corrected
+    variants are computed. The corrected variant uses
+        R_effective = (1 − FOREST_INTERCEPTION)·P − PET
+    following Freeman (2008). The PET term is not reduced — Thornthwaite PET
+    is an energy-based atmospheric demand (independent of land cover), so
+    reducing only P is not double-counting (see wtf_interception_methodology.md).
+    The corrected C4 median is reported as a separate "C4_corrected" entry
+    alongside the uncorrected "C4" entry, to populate Table 3c of the manuscript.
     """
     results = {}
+
+    # Precompute corrected net recharge for C4
+    df = df.copy()
+    df["net_R_c4_corrected"] = df["P_m"] * (1.0 - FOREST_INTERCEPTION) - df["PET"]
+
+    # ── Open-dune clusters and uncorrected C4 ──────────────────────────────────
     for cid in ["C1", "C2", "C3", "C4"]:
         sub = df[["net_R", f"dh_{cid}"]].dropna().copy()
         events = sub[
@@ -191,8 +217,8 @@ def approach_b_events(df):
             (sub[f"dh_{cid}"] > MIN_RISE_M)
         ].copy()
         events["sy_i"] = events["net_R"] / events[f"dh_{cid}"]
-        # Remove physically implausible values
-        events = events[(events["sy_i"] > 0.01) & (events["sy_i"] < 0.50)]
+        events = events[(events["sy_i"] > SY_MIN_PLAUSIBLE) &
+                        (events["sy_i"] < SY_MAX_PLAUSIBLE)]
 
         med = events["sy_i"].median()
         q25 = events["sy_i"].quantile(0.25)
@@ -201,10 +227,32 @@ def approach_b_events(df):
 
         results[cid] = dict(
             sy_median=round(med, 4), q25=round(q25, 4), q75=round(q75, 4),
-            n=n, sy_values=events["sy_i"].values
+            n=n, sy_values=events["sy_i"].values, corrected=False
         )
         print(f"  {CLUSTER_LABELS[cid]}: Sy median = {med:.3f}  "
               f"IQR [{q25:.3f}, {q75:.3f}]  n = {n}")
+
+    # ── Interception-corrected C4 variant (Freeman, 2008) ──────────────────────
+    sub_c4c = df[["net_R_c4_corrected", "dh_C4"]].dropna().copy()
+    events_c4c = sub_c4c[
+        (sub_c4c["net_R_c4_corrected"] > MIN_NET_RECH) &
+        (sub_c4c["dh_C4"]              > MIN_RISE_M)
+    ].copy()
+    events_c4c["sy_i"] = events_c4c["net_R_c4_corrected"] / events_c4c["dh_C4"]
+    events_c4c = events_c4c[(events_c4c["sy_i"] > SY_MIN_PLAUSIBLE) &
+                            (events_c4c["sy_i"] < SY_MAX_PLAUSIBLE)]
+
+    med_c = events_c4c["sy_i"].median()
+    q25_c = events_c4c["sy_i"].quantile(0.25)
+    q75_c = events_c4c["sy_i"].quantile(0.75)
+    n_c   = len(events_c4c)
+
+    results["C4_corrected"] = dict(
+        sy_median=round(med_c, 4), q25=round(q25_c, 4), q75=round(q75_c, 4),
+        n=n_c, sy_values=events_c4c["sy_i"].values, corrected=True
+    )
+    print(f"  C4 Forest (interception-corrected): Sy median = {med_c:.3f}  "
+          f"IQR [{q25_c:.3f}, {q75_c:.3f}]  n = {n_c}")
 
     return results
 
@@ -318,13 +366,14 @@ def plot_event_boxplot(b_results, out_path):
 
 
 def export_csv(a_results, b_results, out_path):
-    """Export summary CSV."""
+    """Export summary CSV. Includes uncorrected and interception-corrected C4 rows."""
     rows = []
     for cid in ["C1", "C2", "C3", "C4"]:
         a = a_results[cid]
         b = b_results[cid]
         rows.append({
             "Cluster":               CLUSTER_LABELS[cid],
+            "Corrected":             False,
             "Sy_assumed":            SY_ASSUMED[cid],
             "Sy_OLS_winter":         a["sy"],
             "Sy_OLS_SE":             a["se"],
@@ -335,6 +384,21 @@ def export_csv(a_results, b_results, out_path):
             "Sy_event_Q75":          b["q75"],
             "Sy_event_n":            b["n"],
         })
+    # Interception-corrected C4 row (Freeman 2008)
+    b_c4c = b_results["C4_corrected"]
+    rows.append({
+        "Cluster":               "C4 Forest (corrected)",
+        "Corrected":             True,
+        "Sy_assumed":            SY_ASSUMED["C4"],
+        "Sy_OLS_winter":         np.nan,   # OLS variant not computed for corrected
+        "Sy_OLS_SE":             np.nan,
+        "Sy_OLS_R2":             np.nan,
+        "Sy_OLS_n":              np.nan,
+        "Sy_event_median":       b_c4c["sy_median"],
+        "Sy_event_Q25":          b_c4c["q25"],
+        "Sy_event_Q75":          b_c4c["q75"],
+        "Sy_event_n":            b_c4c["n"],
+    })
     pd.DataFrame(rows).to_csv(out_path, index=False)
     print(f"CSV saved → {out_path.name}")
 
@@ -373,6 +437,13 @@ def write_summary(a_results, b_results, out_path):
             f"  {CLUSTER_LABELS[cid]:<30}  Sy = {b['sy_median']:.3f}  "
             f"IQR [{b['q25']:.3f}, {b['q75']:.3f}]  n = {b['n']}"
         )
+    # Interception-corrected C4 variant
+    b_c4c = b_results["C4_corrected"]
+    lines.append(
+        f"  {'C4 Forest (corrected)':<30}  Sy = {b_c4c['sy_median']:.3f}  "
+        f"IQR [{b_c4c['q25']:.3f}, {b_c4c['q75']:.3f}]  n = {b_c4c['n']}   "
+        f"[Freeman 2008; R_eff = (1 − 0.24)·P − PET]"
+    )
 
     lines += [
         "",
@@ -386,6 +457,10 @@ def write_summary(a_results, b_results, out_path):
             f"  {CLUSTER_LABELS[cid]:<30}  {SY_ASSUMED[cid]:>8.3f}  "
             f"{a['sy']:>8.3f}  {b['sy_median']:>8.3f}"
         )
+    lines.append(
+        f"  {'C4 Forest (corrected)':<30}  {SY_ASSUMED['C4']:>8.3f}  "
+        f"{'n/a':>8}  {b_c4c['sy_median']:>8.3f}"
+    )
 
     lines += [
         "",
@@ -395,10 +470,21 @@ def write_summary(a_results, b_results, out_path):
         "- Winter OLS (Approach A) is most defensible: PET negligible so",
         "  net recharge approximates actual recharge well.",
         "- Event method (Approach B) is noisier but provides uncertainty bounds.",
+        "- Forest cluster (C4) reported as both uncorrected and interception-",
+        "  corrected (Freeman 2008) variants. The corrected variant applies",
+        "  R_effective = (1 − 0.24)·P − PET. PET is not reduced because",
+        "  Thornthwaite PET is an energy-based atmospheric demand (independent",
+        "  of land cover), so reducing only P is physically consistent and not",
+        "  double-counting. The corrected C4 median exceeds the uncorrected",
+        "  median through interaction with the Sy < 0.50 plausibility filter,",
+        "  which readmits previously-excluded high-Sy months into the event",
+        "  pool (see wtf_interception_methodology.md for full derivation).",
         "- Both approaches give indicative Sy only; slug tests or pumping tests",
         "  at representative wells per cluster remain the gold standard.",
         "- Reference: Healy, R.W. and Cook, P.G. (2002) Hydrogeology Journal",
         "  10, 91-109. doi:10.1007/s10040-001-0178-0",
+        "- Reference: Freeman, S. (2008) Hydrological impact of Corsican pine",
+        "  at Newborough Warren.",
         "",
     ]
 

@@ -155,7 +155,7 @@ def plot_dual_showdown(output_path, payload):
     # Top Panel: Diagnostic (One-Step)
     ax_top.plot(payload['index'], payload['h_obs'], color='black', lw=2.8, label='Observed')
     ax_top.plot(payload['index'], payload['h_one_a'], color='#0072B2', lw=2.2, ls='--', label=f"Model A: Strict Mass-Balance (R²={payload['r2_one_a']:.3f})")
-    ax_top.plot(payload['index'], payload['h_one_b'], color='#D55E00', lw=2.2, ls=':', label=f"Model B: w/ Intercept Subsidy (R²={payload['r2_one_b']:.3f})")
+    ax_top.plot(payload['index'], payload['h_one_b'], color='#D55E00', lw=2.2, ls=':', label=f"Model B: w/ Intercept Residual (R²={payload['r2_one_b']:.3f})")
     ax_top.set_title(f"Target: {payload['well_label']} | Top: Diagnostic Fit (One-Step)", fontweight='bold')
     ax_top.set_ylabel('Water Depth (m)')
     ax_top.grid(True, ls='--', alpha=0.5)
@@ -166,7 +166,7 @@ def plot_dual_showdown(output_path, payload):
     ax_bottom.plot(payload['index'], payload['h_iter_a'], color='#0072B2', lw=2.2, ls='--', 
                    label=f"Model A: Strict Mass-Balance (NSE={payload['nse_a']:.3f}, RMSE={payload['rmse_a']:.3f})")
     ax_bottom.plot(payload['index'], payload['h_iter_b'], color='#D55E00', lw=2.2, ls=':', 
-                   label=f"Model B: w/ Intercept Subsidy (NSE={payload['nse_b']:.3f}, RMSE={payload['rmse_b']:.3f})")
+                   label=f"Model B: w/ Intercept Residual (NSE={payload['nse_b']:.3f}, RMSE={payload['rmse_b']:.3f})")
     ax_bottom.set_title(f"Target: {payload['well_label']} | Bottom: Forecasting Stability (Iterative 100-month)", fontweight='bold')
     ax_bottom.set_xlabel('Date')
     ax_bottom.set_ylabel('Water Depth (m)')
@@ -443,7 +443,7 @@ if __name__ == '__main__':
         # Map 1: The Hidden Plumbing (Intercept)
         plot_metric_map(
             map_df, 'Model_B_Intercept', 
-            'The Hidden Plumbing: Unmeasured Boundary Subsidies (Intercept \u03B1, m/month)', 
+            'Unmeasured Water Balance Residuals (Intercept \u03B1, m/month)', 
             OUT_07_PLUMBING_MAP, 
             cmap='RdBu', vmin=-bound, vmax=bound
         )

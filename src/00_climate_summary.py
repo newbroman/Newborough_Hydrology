@@ -19,14 +19,20 @@ Outputs (outputs/00_climate_summary/):
     full profile:
     - 00_01_climate_timeseries.png
     - 00_02_well_network_summary.png
+    - 00_03_summer_warming_trend.png        (new — RAF Valley summer max-temp trend, full 95-year record)
     - 00_01_annual_climate_summary.csv
     - 00_02_well_network_summary.csv
+    - 00_03_summer_warming_stats.csv        (new — per-year summer means + regression stats)
 
     short profile:
     - 00_01_climate_timeseries_short.png
     - 00_02_well_network_summary_short.png
     - 00_01_annual_climate_summary_short.csv
     - 00_02_well_network_summary_short.csv
+
+    Note: the summer warming trend figure is generated on the 'full' profile
+    only — it exists to show the 95-year climate context, and plotting it
+    on the monitoring-period subset would defeat that purpose.
 ====================================================================================
 """
 
@@ -36,18 +42,23 @@ from utils.paths import (
     make_all_dirs,
     INT_CLIMATE,
     INT_WELLS_CLEAN,
+    DATA_CLIMATE_RAW,
     OUT_00_CLIMATE_TIMESERIES,
     OUT_00_WELL_NETWORK_FIG,
+    OUT_00_SUMMER_WARMING,
     OUT_00_ANNUAL_CLIMATE_TABLE,
     OUT_00_WELL_NETWORK_TABLE,
+    OUT_00_SUMMER_WARMING_TABLE,
 )
 
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import numpy as np
+import re
 import argparse
 import os
+from scipy.stats import linregress
 
 
 # Colorblind-safe palette used throughout the project
@@ -67,8 +78,10 @@ def _build_output_paths(profile: str) -> dict[str, str]:
     return {
         "fig1": os.path.join(os.path.dirname(OUT_00_CLIMATE_TIMESERIES), f"00_01_climate_timeseries{suffix}.png"),
         "fig2": os.path.join(os.path.dirname(OUT_00_WELL_NETWORK_FIG), f"00_02_well_network_summary{suffix}.png"),
+        "fig3": str(OUT_00_SUMMER_WARMING),  # full-record only; no _short variant
         "table1": os.path.join(os.path.dirname(OUT_00_ANNUAL_CLIMATE_TABLE), f"00_01_annual_climate_summary{suffix}.csv"),
         "table2": os.path.join(os.path.dirname(OUT_00_WELL_NETWORK_TABLE), f"00_02_well_network_summary{suffix}.csv"),
+        "table3": str(OUT_00_SUMMER_WARMING_TABLE),  # full-record only
     }
 
 
@@ -480,6 +493,137 @@ def make_figure2_well_network(wells: pd.DataFrame, table2: pd.DataFrame, out_png
     plt.close(fig)
 
 
+_MONTH_MAP = {"Jan": 1, "Feb": 2, "Mar": 3, "Apr": 4, "May": 5, "Jun": 6,
+              "Jul": 7, "Aug": 8, "Sep": 9, "Oct": 10, "Nov": 11, "Dec": 12}
+
+
+def _parse_raf_valley_date(s: str) -> tuple[int | None, int | None]:
+    """Parse the raw RAF Valley date format 'MMM YY' into (year, month).
+
+    Two-digit year rule: values 30-99 are 1930-1999; values 00-29 are 2000-2029.
+    This matches the record span (December 1930 onwards).
+    """
+    m = re.match(r"(\w+)\s*(\d+)", str(s))
+    if not m:
+        return None, None
+    mon = _MONTH_MAP.get(m.group(1))
+    if mon is None:
+        return None, None
+    yr_2d = int(m.group(2))
+    yr = 1900 + yr_2d if yr_2d >= 30 else 2000 + yr_2d
+    return yr, mon
+
+
+def make_figure3_summer_warming(out_png: str, out_csv: str) -> None:
+    """RAF Valley summer (JJA) maximum-temperature trend over the full 95-year record.
+
+    Loads the raw RAF_Valley_Climate.csv directly (not the pipeline-filtered
+    01_climate.csv, which is P/PET only) and plots year-by-year JJA mean max
+    temperature as red/blue bars relative to the pre-2013 mean, with a linear
+    trend overlay. Only years with all three summer months recorded are used.
+
+    Matches the 'Figure 5' style of the lay-summary document (Hollingham 2026,
+    Newborough_Public_Summary). Produced on the full profile only — running
+    it on the well-record subset (2005 onwards) would remove the long-baseline
+    context that makes the trend interpretable.
+    """
+    raw = pd.read_csv(DATA_CLIMATE_RAW)
+    raw.columns = ["date_str", "max_temp", "min_temp", "af_days", "rain_mm", "sun_hrs"]
+
+    parsed = raw["date_str"].apply(lambda s: pd.Series(_parse_raf_valley_date(s)))
+    parsed.columns = ["year", "month"]
+    df = pd.concat([parsed, raw[["max_temp"]]], axis=1)
+    df = df.dropna(subset=["year", "month", "max_temp"])
+    df["year"] = df["year"].astype(int)
+    df["month"] = df["month"].astype(int)
+
+    # JJA summer months only, and only years where all three are present
+    summer = df[df["month"].isin([6, 7, 8])].copy()
+    counts = summer.groupby("year").size()
+    complete_years = counts[counts == 3].index
+    summer = summer[summer["year"].isin(complete_years)]
+
+    annual = (summer.groupby("year", as_index=False)["max_temp"].mean()
+                    .rename(columns={"max_temp": "summer_max_mean"}))
+    annual = annual.sort_values("year").reset_index(drop=True)
+
+    # Regression + pre/post-2013 split
+    yrs = annual["year"].to_numpy()
+    vals = annual["summer_max_mean"].to_numpy()
+    reg = linregress(yrs, vals)
+
+    pre_mask = yrs < 2013
+    pre_mean = float(vals[pre_mask].mean()) if pre_mask.any() else float("nan")
+    post_mean = float(vals[~pre_mask].mean()) if (~pre_mask).any() else float("nan")
+    anomaly = post_mean - pre_mean
+
+    # ------------------------------------------------------------------
+    # Write stats table
+    # ------------------------------------------------------------------
+    annual_out = annual.copy()
+    annual_out["anomaly_vs_pre2013"] = annual_out["summer_max_mean"] - pre_mean
+    annual_out["is_post_2013"] = (annual_out["year"] >= 2013).astype(int)
+    # Append regression summary row
+    summary_row = pd.DataFrame({
+        "year": ["TREND_STATS"],
+        "summer_max_mean": [float("nan")],
+        "anomaly_vs_pre2013": [float("nan")],
+        "is_post_2013": [""],
+    })
+    annual_out = pd.concat([annual_out, summary_row], ignore_index=True)
+
+    meta_rows = pd.DataFrame([
+        {"year": "slope_C_per_yr",     "summer_max_mean": round(reg.slope, 5)},
+        {"year": "intercept_C",        "summer_max_mean": round(reg.intercept, 3)},
+        {"year": "r_squared",          "summer_max_mean": round(reg.rvalue ** 2, 4)},
+        {"year": "p_value",            "summer_max_mean": reg.pvalue},
+        {"year": "n_years",            "summer_max_mean": int(len(yrs))},
+        {"year": "year_range",         "summer_max_mean": f"{int(yrs.min())}-{int(yrs.max())}"},
+        {"year": "pre_2013_mean_C",    "summer_max_mean": round(pre_mean, 3)},
+        {"year": "post_2013_mean_C",   "summer_max_mean": round(post_mean, 3)},
+        {"year": "post_2013_anomaly",  "summer_max_mean": round(anomaly, 3)},
+    ])
+    annual_out = pd.concat([annual_out, meta_rows], ignore_index=True)
+    annual_out.to_csv(out_csv, index=False)
+
+    # ------------------------------------------------------------------
+    # Plot: red/blue bars relative to pre-2013 mean + trend line
+    # ------------------------------------------------------------------
+    fig, ax = plt.subplots(figsize=(11, 5.2))
+    anoms = vals - pre_mean
+    colors = [CB_RED if a >= 0 else CB_BLUE for a in anoms]
+    ax.bar(yrs, anoms, color=colors, edgecolor="white", linewidth=0.4,
+           alpha=0.85, zorder=3)
+
+    # Trend line — plotted in anomaly space (subtract pre-2013 baseline)
+    trend = reg.slope * yrs + reg.intercept - pre_mean
+    ax.plot(yrs, trend, color="black", lw=2.0, zorder=4,
+            label=f"Linear trend: {reg.slope:+.4f} °C yr⁻¹  (p = {reg.pvalue:.1e})")
+
+    # Post-2013 mean as a horizontal reference line
+    ax.axhline(anomaly, color=CB_RED, ls="--", lw=1.2, alpha=0.7, zorder=2,
+               label=f"Post-2013 mean: {anomaly:+.2f} °C above pre-2013 baseline")
+    ax.axhline(0.0, color="#555555", lw=0.8, zorder=1)
+
+    # Baseline annotation
+    ax.text(yrs.min() + 0.5, 0.02, f"Pre-2013 baseline ({pre_mean:.2f} °C)",
+            fontsize=8, color="#555555", style="italic")
+
+    ax.set_xlabel("Year")
+    ax.set_ylabel("Summer (JJA) max-temperature anomaly (°C, relative to pre-2013 mean)")
+    ax.set_title("RAF Valley summer maximum temperature, 1931–2025\n"
+                 "Anomaly relative to pre-2013 mean; bars coloured by sign",
+                 fontsize=11, fontweight="bold")
+    ax.set_xlim(yrs.min() - 1, yrs.max() + 1)
+    ax.grid(axis="y", linestyle=":", alpha=0.35, zorder=0)
+    ax.legend(loc="upper left", fontsize=9, framealpha=0.95)
+    ax.spines[["top", "right"]].set_visible(False)
+
+    fig.tight_layout()
+    fig.savefig(out_png, dpi=300, bbox_inches="tight")
+    plt.close(fig)
+
+
 def _run_profile(profile: str) -> None:
     paths = _build_output_paths(profile)
 
@@ -495,11 +639,16 @@ def _run_profile(profile: str) -> None:
     table1 = make_table1_annual_climate(climate, paths["table1"])
     table2 = make_table2_well_network(wells, paths["table2"])
 
-    if profile == "short":
-        make_figure1_climate_timeseries(climate, wells, paths["fig1"], profile)
-        make_figure2_well_network(wells, table2, paths["fig2"])
-    else:
-        print("Skipping PNG generation for full profile (only '_short' PNG outputs are enabled).")
+    # Figures 1 and 2 run on both profiles — they describe the climate and
+    # well network context regardless of window. Figure 3 is full-only (it
+    # needs the 95-year record to be informative).
+    make_figure1_climate_timeseries(climate, wells, paths["fig1"], profile)
+    make_figure2_well_network(wells, table2, paths["fig2"])
+
+    # Figure 3 — summer warming trend. Full-record only (95-year context).
+    if profile == "full":
+        print("Generating Figure 3 — RAF Valley summer warming trend (95-year record)...")
+        make_figure3_summer_warming(paths["fig3"], paths["table3"])
 
     n_wells = int(wells.shape[1])
     n_months = int(len(climate.index))
@@ -511,11 +660,14 @@ def _run_profile(profile: str) -> None:
     median_record_length = float(pd.to_numeric(table2["N_months"], errors="coerce").median())
 
     print("\nFiles created:")
-    if profile == "short":
-        print(f" - {paths['fig1']}")
-        print(f" - {paths['fig2']}")
+    print(f" - {paths['fig1']}")
+    print(f" - {paths['fig2']}")
+    if profile == "full":
+        print(f" - {paths['fig3']}")
     print(f" - {paths['table1']}")
     print(f" - {paths['table2']}")
+    if profile == "full":
+        print(f" - {paths['table3']}")
 
     print("\nHeadline statistics:")
     print(f" - Total climate record length: {total_record_years:.1f} years ({n_months} months)")

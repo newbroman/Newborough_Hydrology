@@ -13,7 +13,7 @@ Purpose:
     Outputs:
         - One-row-per-well metrics table for all wells in cleaned data.
         - Map 1: Iterative R² Improvement (Deep Storage vs Constrained Buckets).
-        - Map 2: Iterative NSE Improvement (Boundary Subsidies & Anomalies).
+        - Map 2: Iterative NSE Improvement (Water Balance Residuals & Anomalies).
 ====================================================================================
 """
 
@@ -721,12 +721,12 @@ if __name__ == '__main__':
             vmax=r2_vmax,
         )
 
-        # MAP 2: Delta NSE (Anomaly and Boundary Subsidy Detection)
+        # MAP 2: Delta NSE (Anomaly and Water Balance Residual Detection)
         nse_anomaly_map_path = OUT_08_NSE_MAP
         plot_metric_map(
             map_df,
             value_col='Iterative_NSE_Improvement',
-            title='Boundary Subsidies: Iterative NSE Improvement (Anomaly Detection)',
+            title='Water Balance Residuals: Iterative NSE Improvement (Anomaly Detection)',
             output_path=nse_anomaly_map_path,
             cmap='plasma',
             vmin=0.0,

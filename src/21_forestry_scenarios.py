@@ -31,7 +31,7 @@ Hydrograph figure:
 
   The BACI-observed clearfell displacement (-0.218 m summer, -0.145 m annual)
   is shown as a benchmark band. The gap between modelled and BACI clearfell
-  reflects the unparameterised boundary subsidy pathway not captured in the
+  reflects the unparameterised water balance residual pathway not captured in the
   β-coefficient equilibrium shift.
 
 Distribution figure:
@@ -107,9 +107,11 @@ SD16_REC    = 1.20   # m — SD16 recovery limit
 BACI_ANNUAL = 0.145  # m — mean annual deepening (positive = deeper)
 BACI_SUMMER = 0.218  # m — mean summer deepening
 
-# Clearfell β₂ increase from BACI (Section 4.6.4)
-CLEARFELL_B2_MULT = 1.15    # 15% increase in ET draw post-felling
-THINNING_B2_MULT  = 1.075   # 50% of clearfell effect
+# Clearfell β₂ increase from BACI (Section 4.6.6)
+# Derived from zone-mean pre/post β₂ ratios: impact 3.755/3.124 = 1.20,
+# edge 3.751/3.123 = 1.20, control 3.696/3.030 = 1.22 (10_cfell_07_coefficient_slopes.csv)
+CLEARFELL_B2_MULT = 1.20    # 20% increase in ET draw post-felling
+THINNING_B2_MULT  = 1.10    # 50% of clearfell effect (1 + 0.20/2)
 
 # Summer months (Jun-Sep inclusive, 1-based)
 SUMMER_MONTHS = [6, 7, 8, 9]
@@ -418,14 +420,14 @@ def plot_hydrograph(scenario_shifts, obs_monthly, monthly_P, monthly_PET,
     ax1.plot(x, np.clip(baci_summer, YMIN, YMAX),
              color="#D73027", lw=1.3, ls=(0, (3, 1, 1, 1)), alpha=0.6,
              zorder=3,
-             label="Clearfell — BACI observed (summer −0.218 m, annual −0.145 m)")
+             label="Clearfell BACI observed (scraping + 2015–16 wet legacy)")
 
     # C1 and C2 observed for ecological context
-    for obs_cl, lbl, col in [(obs_c1, "C1", "#aaa"), (obs_c2, "C2", "#666")]:
+    for obs_cl, lbl, col in [(obs_c1, "C1 Eastern lake-buffer (observed)", "#aaa"),
+                              (obs_c2, "C2 Eastern mature dune (observed)",  "#666")]:
         ax1.plot(x, np.clip(obs_cl, YMIN, YMAX),
-                 color=col, lw=1.0, ls="--", alpha=0.6, zorder=2)
-        ax1.text(12.25, np.clip(obs_cl[-1], YMIN, YMAX - 0.01),
-                 lbl, fontsize=7, color=col, va="center")
+                 color=col, lw=1.0, ls="--", alpha=0.6, zorder=2,
+                 label=lbl)
 
     # Scenario lines
     for name, d in depths.items():
@@ -449,16 +451,18 @@ def plot_hydrograph(scenario_shifts, obs_monthly, monthly_P, monthly_PET,
         "Forest Management Scenarios  |  Newborough Warren 2005–2026  |  "
         "Ecological thresholds: Curreli et al. (2013)",
         fontsize=10, fontweight="bold", fontname=FIG_FONT)
-    ax1.legend(loc="lower left", fontsize=8, framealpha=0.92, ncol=2)
+    ax1.legend(loc="upper left", fontsize=7.5, framealpha=0.92, ncol=3)
     ax1.grid(axis="y", alpha=0.25, lw=0.5)
 
     ax1.annotate(
         "Modelled lines: equilibrium shift applied to observed C4 seasonal cycle.\n"
-        "BACI benchmark: observed post-felling displacement (Section 4.6);\n"
-        "gap to modelled clearfell reflects unparameterised boundary subsidy pathway.\n"
-        "Broadleaf: seasonally-varying β₂ (deciduous phenology) + 15% annual interception (illustrative; ~20% growing season).\n"
+        "BACI observed: post-felling depth vs full pre-felling baseline; the baseline\n"
+        "includes the wet 2015–16 years and 2015 scraping intervention, which inflate\n"
+        "the apparent post-felling deepening (Section 4.6.4).\n"
+        "Broadleaf: seasonally-varying β₂ (deciduous phenology) +\n"
+        "15% annual-mean interception (Komatsu et al., 2011).\n"
         "C1 and C2 unaffected by any forest management scenario.",
-        xy=(0.02, 0.03), xycoords="axes fraction", fontsize=7.2,
+        xy=(0.02, 0.03), xycoords="axes fraction", fontsize=7.0,
         color="dimgrey",
         bbox=dict(boxstyle="round,pad=0.35", fc="white", alpha=0.88))
 

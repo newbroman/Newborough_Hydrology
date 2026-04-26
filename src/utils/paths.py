@@ -180,7 +180,7 @@ OUT_07_NSE_PENALTY_MAP      = DIR_07 / "07_intercept_03_nse_penalty_map.png"
 OUT_07_MAPS_MERGED_DATA     = DIR_07 / "07_intercept_maps_merged_data.csv"
 
 # Script 08 — Model benchmarking
-OUT_08_CEH19_WITH_MODEL_B   = DIR_08 / "08_lcsc_01_ceh19_with_model_b.png"
+OUT_08_SHOWDOWN             = DIR_08 / "08_lcsc_01_ceh6_showdown.png"
 OUT_08_R2_MAP               = DIR_08 / "08_lcsc_02_r2_improvement_map.png"
 OUT_08_NSE_MAP              = DIR_08 / "08_lcsc_03_nse_improvement_map.png"
 OUT_08_TABLE3_SUMMARY       = DIR_08 / "08_lcsc_04_table3_benchmark_summary.csv"

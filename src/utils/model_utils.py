@@ -2,13 +2,22 @@
 utils/model_utils.py
 Shared model evaluation helpers and the intercept audit computation
 used by 07_boundary_intercept.py and 08_model_benchmarking.py.
+
+Both the intercept audit and the benchmarking use the displacement
+formulation (h_disp = DRAINAGE_DATUM + h_depth) and lag-1 rainfall,
+matching Script 03's headline SSM specification.
 """
 
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 
+from utils.config import DRAINAGE_DATUM
+
 LCSC_DATA_LIMIT = 100
+
+# Lag-1 rainfall: matches Script 03's HEADLINE_LAG = 1.
+HEADLINE_LAG = 1
 
 
 def get_metrics(obs, sim):
@@ -44,6 +53,9 @@ def compute_intercept_audit(target_well_name, df_clean, df_climate):
     """
     Compute Model A (No Intercept / Strict Mass-Balance) vs
     Model B (Unconstrained / Fitted Intercept) for a single well.
+
+    Uses the displacement formulation (h_disp = DRAINAGE_DATUM + h_depth)
+    and lag-1 rainfall, matching Script 03.
 
     Returns:
         (metrics_row dict, plotting_payload dict | None)
@@ -84,8 +96,17 @@ def compute_intercept_audit(target_well_name, df_clean, df_climate):
             "PET": pd.to_numeric(climate["PET"], errors="coerce"),
         }
     ).dropna()
+
+    # Lag-1 rainfall (matching Script 03 HEADLINE_LAG = 1)
+    if HEADLINE_LAG > 0:
+        df["P"] = df["P"].shift(HEADLINE_LAG)
+
     df["h_prev"] = df["h"].shift(1)
     df["Delta_h"] = df["h"] - df["h_prev"]
+
+    # Displacement formulation: h_disp = DRAINAGE_DATUM + h_depth
+    df["h_disp_prev"] = DRAINAGE_DATUM + df["h_prev"]
+
     df = df.dropna()
 
     if len(df) < LCSC_DATA_LIMIT:
@@ -94,8 +115,10 @@ def compute_intercept_audit(target_well_name, df_clean, df_climate):
 
     df = df.iloc[-LCSC_DATA_LIMIT:].copy()
 
+    # Model A: no intercept; Model B: with intercept
+    # Both use displacement for the drainage predictor
     x_a = pd.DataFrame(
-        {"P": df["P"], "PET_neg": -df["PET"], "h_prev_neg": -df["h_prev"]}
+        {"P": df["P"], "PET_neg": -df["PET"], "h_disp_prev_neg": -df["h_disp_prev"]}
     )
     x_b = sm.add_constant(x_a, has_constant="add")
     y_fit = df["Delta_h"]
@@ -107,41 +130,46 @@ def compute_intercept_audit(target_well_name, df_clean, df_climate):
     pet_arr = df["PET"].values
     h_obs = df["h"].values
 
+    # Iterative simulation
     h_iter_a = np.full(len(h_obs), np.nan)
     h_iter_b = np.full(len(h_obs), np.nan)
     h_iter_a[0] = h_obs[0]
     h_iter_b[0] = h_obs[0]
 
     for t in range(1, len(h_obs)):
+        h_disp_sim_a = DRAINAGE_DATUM + h_iter_a[t - 1]
+        h_disp_sim_b = DRAINAGE_DATUM + h_iter_b[t - 1]
         dh_a = (
             model_a.params["P"] * p_arr[t]
             - model_a.params["PET_neg"] * pet_arr[t]
-            - model_a.params["h_prev_neg"] * h_iter_a[t - 1]
+            - model_a.params["h_disp_prev_neg"] * h_disp_sim_a
         )
         dh_b = (
             model_b.params["const"]
             + model_b.params["P"] * p_arr[t]
             - model_b.params["PET_neg"] * pet_arr[t]
-            - model_b.params["h_prev_neg"] * h_iter_b[t - 1]
+            - model_b.params["h_disp_prev_neg"] * h_disp_sim_b
         )
         h_iter_a[t] = h_iter_a[t - 1] + dh_a
         h_iter_b[t] = h_iter_b[t - 1] + dh_b
 
+    # One-step simulation
     h_one_a = np.full(len(h_obs), np.nan)
     h_one_b = np.full(len(h_obs), np.nan)
     h_one_a[0] = h_obs[0]
     h_one_b[0] = h_obs[0]
     for t in range(1, len(h_obs)):
+        h_disp_prev_obs = DRAINAGE_DATUM + h_obs[t - 1]
         h_one_a[t] = h_obs[t - 1] + (
             model_a.params["P"] * p_arr[t]
             - model_a.params["PET_neg"] * pet_arr[t]
-            - model_a.params["h_prev_neg"] * h_obs[t - 1]
+            - model_a.params["h_disp_prev_neg"] * h_disp_prev_obs
         )
         h_one_b[t] = h_obs[t - 1] + (
             model_b.params["const"]
             + model_b.params["P"] * p_arr[t]
             - model_b.params["PET_neg"] * pet_arr[t]
-            - model_b.params["h_prev_neg"] * h_obs[t - 1]
+            - model_b.params["h_disp_prev_neg"] * h_disp_prev_obs
         )
 
     nse_a, rmse_a, _ = get_metrics(h_obs, h_iter_a)

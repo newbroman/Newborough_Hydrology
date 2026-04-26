@@ -33,7 +33,7 @@ DIR_03 = OUT_DIR / "03_state_space_model"
 DIR_04 = OUT_DIR / "04_cluster_visualisations"
 DIR_05 = OUT_DIR / "05_pearson_affinity"
 DIR_06 = OUT_DIR / "06_pearson_extended"
-DIR_07 = OUT_DIR / "07_boundary_intercept"
+DIR_07 = OUT_DIR / "07_spatial_coefficients"
 DIR_08 = OUT_DIR / "08_model_benchmarking"
 DIR_09 = OUT_DIR / "09_scraping_intervention"
 DIR_10 = OUT_DIR / "10_clearfell_baci"
@@ -118,7 +118,7 @@ INT_PEAR_AUDIT      = OUT_DIR / "05_pear_membership_audit.csv"
 INT_PEAR_AUDIT_SITEWIDE = OUT_DIR / "06_pear_membership_audit_sitewide.csv"
 
 # Script 07
-INT_INTERCEPT_METRICS = OUT_DIR / "07_intercept_metrics.csv"
+INT_COEFF_SUMMARY     = OUT_DIR / "07_coefficient_summary.csv"
 
 # Script 08
 INT_LCSC_MODEL_STATS  = OUT_DIR / "08_lcsc_model_stats.csv"
@@ -172,12 +172,12 @@ OUT_05_CONFIDENCE_MAP   = DIR_05 / "05_pear_01_spatial_confidence_map.png"
 OUT_06_AFFINITY_CHART   = DIR_06 / "06_pear_01_affinity_chart_extended.png"
 OUT_06_INTEGRATION_MAP  = DIR_06 / "06_pear_02_integration_map.png"
 
-# Script 07 — Boundary intercept
-OUT_07_CEH14_SHOWDOWN       = DIR_07 / "07_intercept_01_ceh14_showdown.png"
-OUT_07_CEH14_SHOWDOWN_DATA  = DIR_07 / "07_intercept_ceh14_showdown_data.csv"
-OUT_07_PLUMBING_MAP         = DIR_07 / "07_intercept_02_plumbing_map.png"
-OUT_07_NSE_PENALTY_MAP      = DIR_07 / "07_intercept_03_nse_penalty_map.png"
-OUT_07_MAPS_MERGED_DATA     = DIR_07 / "07_intercept_maps_merged_data.csv"
+# Script 07 — Spatial coefficient maps
+OUT_07_BETA1_MAP            = DIR_07 / "07_coeff_01_beta1_recharge.png"
+OUT_07_BETA2_MAP            = DIR_07 / "07_coeff_02_beta2_atm_draw.png"
+OUT_07_BETA3_MAP            = DIR_07 / "07_coeff_03_beta3_drainage.png"
+OUT_07_R2_MAP               = DIR_07 / "07_coeff_04_r2_quality.png"
+OUT_07_MAPS_DATA            = DIR_07 / "07_coeff_maps_data.csv"
 
 # Script 08 — Model benchmarking
 OUT_08_SHOWDOWN             = DIR_08 / "08_lcsc_01_ceh6_showdown.png"

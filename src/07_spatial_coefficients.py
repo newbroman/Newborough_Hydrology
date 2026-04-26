@@ -88,7 +88,7 @@ OUT_MAPS_DATA    = DIR_07 / "07_coeff_maps_data.csv"
 GRID_XI = np.arange(240200, 243800, 50)
 GRID_YI = np.arange(362200, 365800, 50)
 XLIM = (240400, 243600)
-YLIM = (362400, 365400)
+YLIM = (362400, 365000)
 
 # ==========================================
 # AESTHETICS
@@ -379,19 +379,21 @@ if __name__ == "__main__":
     )
 
     # ------------------------------------------------------------------
-    # Map 3: β₃ Drainage Rate (log scale)
+    # Map 3: β₃ Drainage Rate (log scale, expressed as %)
     # ------------------------------------------------------------------
-    # β₃ spans nearly two orders of magnitude (C4 Forest: ~0.008; C1 Lake
-    # Edge: ~0.09–0.12). Log scale gives proper visual separation.
+    # β₃ spans nearly two orders of magnitude (C4 Forest: ~0.8%; C1 Lake
+    # Edge: ~9–12%). Log scale gives proper visual separation.
+    # Convert to percentage for intuitive reading.
+    df["beta_3_pct"] = df["beta_3_drainage"] * 100
     make_coefficient_map(
-        df, "beta_3_drainage",
+        df, "beta_3_pct",
         title=(
-            "β₃ Drainage Rate (month⁻¹, log scale)\n"
+            "β₃ Drainage Rate (% head drained / month, log scale)\n"
             "Per-well SSM coefficient — Newborough Warren"
         ),
         output_path=OUT_BETA3_MAP,
         cmap="plasma",
-        cbar_label="β₃ (month⁻¹, log scale)",
+        cbar_label="β₃ (% head drained / month)",
         log_scale=True,
     )
 

@@ -1,70 +1,67 @@
 Match_ID,Name_Original,Cluster,Cluster_Label
-nw1,nw1,3,C3 Western Block Mature Dune
-nw2,nw2,3,C3 Western Block Mature Dune
-nw3,nw3,2,C2 Eastern Block Mature Dune
-nw4,nw4,2,C2 Eastern Block Mature Dune
-nw4b,nw 4b,2,C2 Eastern Block Mature Dune
-nw5,nw5,3,C3 Western Block Mature Dune
-nw6,nw6,3,C3 Western Block Mature Dune
-nw7,nw7,3,C3 Western Block Mature Dune
-nw9,nw9,3,C3 Western Block Mature Dune
-nw10,nw10,4,C4 Forest
-nw11,nw11,3,C3 Western Block Mature Dune
-nw13,nw13,2,C2 Eastern Block Mature Dune
-ceh1,ceh 1,3,C3 Western Block Mature Dune
-ceh2,ceh2,4,C4 Forest
-ceh3,ceh3,5,C5 Coastal
-ceh4,ceh4,3,C3 Western Block Mature Dune
-ceh5,ceh5,1,C1 Eastern Block Lake
-ceh6,ceh6,1,C1 Eastern Block Lake
-ceh9,ceh9,3,C3 Western Block Mature Dune
-ceh10,ceh10,2,C2 Eastern Block Mature Dune
-ceh11,ceh11,1,C1 Eastern Block Lake
-ceh13,ceh13,4,C4 Forest
-ceh14,ceh14,4,C4 Forest
-ceh16,ceh16,3,C3 Western Block Mature Dune
-ceh17,ceh17,3,C3 Western Block Mature Dune
-ceh18,ceh18,3,C3 Western Block Mature Dune
-ceh19,ceh19,3,C3 Western Block Mature Dune
-ceh20,ceh20,4,C4 Forest
-ceh21,ceh21,3,C3 Western Block Mature Dune
-ceh22,ceh22,1,C1 Eastern Block Lake
-ceh23,ceh23,1,C1 Eastern Block Lake
-ceh24,ceh24,2,C2 Eastern Block Mature Dune
-ceh25,ceh25,1,C1 Eastern Block Lake
-ceh26,ceh26,1,C1 Eastern Block Lake
-ceh27,ceh27,1,C1 Eastern Block Lake
-ceh28,ceh28,2,C2 Eastern Block Mature Dune
-ceh30,ceh30,4,C4 Forest
-ceh31,ceh31,3,C3 Western Block Mature Dune
-ceh32,Ceh32,4,C4 Forest
-ceh33,ceh33,4,C4 Forest
-ceh34,ceh34,4,C4 Forest
-ceh36,ceh36,3,C3 Western Block Mature Dune
-ceh39,ceh39,3,C3 Western Block Mature Dune
-ceh40,ceh40,2,C2 Eastern Block Mature Dune
-ceh41,ceh41,2,C2 Eastern Block Mature Dune
-ceh42,ceh42,3,C3 Western Block Mature Dune
-wmc1,WMC1,2,C2 Eastern Block Mature Dune
-wmc2,WMC2,3,C3 Western Block Mature Dune
-wmc3,wmc3,3,C3 Western Block Mature Dune
-wmc4,wmc4,2,C2 Eastern Block Mature Dune
-l7,L7,2,C2 Eastern Block Mature Dune
-d5,D5,2,C2 Eastern Block Mature Dune
-d6,D6,2,C2 Eastern Block Mature Dune
-d7,D7,2,C2 Eastern Block Mature Dune
-d8,D8,2,C2 Eastern Block Mature Dune
-d9,D9,2,C2 Eastern Block Mature Dune
-d10,D10,2,C2 Eastern Block Mature Dune
-d15,D15,2,C2 Eastern Block Mature Dune
-d17,D17,2,C2 Eastern Block Mature Dune
-d25,D25,3,C3 Western Block Mature Dune
-d38,D38,2,C2 Eastern Block Mature Dune
-d41,D41,2,C2 Eastern Block Mature Dune
-t41a,T41a,2,C2 Eastern Block Mature Dune
-t41b,T41b,2,C2 Eastern Block Mature Dune
-t41c,T41c,2,C2 Eastern Block Mature Dune
-t41d,T41d,2,C2 Eastern Block Mature Dune
-d43,D43,2,C2 Eastern Block Mature Dune
-d44,D44,2,C2 Eastern Block Mature Dune
-llynrhos,llyn rhos,6,C6 Lake
+nw1,nw1,3,C3 (Western Residual)
+nw2,nw2,3,C3 (Western Residual)
+nw3,nw3,2,C2 (Dune)
+nw4,nw4,2,C2 (Dune)
+nw4b,nw 4b,2,C2 (Dune)
+nw5,nw5,3,C3 (Western Residual)
+nw6,nw6,3,C3 (Western Residual)
+nw7,nw7,3,C3 (Western Residual)
+nw9,nw9,5,C5 (Coastal Forest)
+nw10,nw10,4,C4 (Main Forest)
+nw11,nw11,3,C3 (Western Residual)
+nw13,nw13,3,C3 (Western Residual)
+ceh1,ceh 1,3,C3 (Western Residual)
+ceh2,ceh2,4,C4 (Main Forest)
+ceh4,ceh4,3,C3 (Western Residual)
+ceh5,ceh5,1,C1 (Lake Edge)
+ceh6,ceh6,1,C1 (Lake Edge)
+ceh9,ceh9,3,C3 (Western Residual)
+ceh10,ceh10,2,C2 (Dune)
+ceh11,ceh11,1,C1 (Lake Edge)
+ceh13,ceh13,4,C4 (Main Forest)
+ceh14,ceh14,4,C4 (Main Forest)
+ceh16,ceh16,5,C5 (Coastal Forest)
+ceh17,ceh17,5,C5 (Coastal Forest)
+ceh18,ceh18,3,C3 (Western Residual)
+ceh19,ceh19,5,C5 (Coastal Forest)
+ceh20,ceh20,4,C4 (Main Forest)
+ceh21,ceh21,3,C3 (Western Residual)
+ceh23,ceh23,1,C1 (Lake Edge)
+ceh24,ceh24,2,C2 (Dune)
+ceh25,ceh25,1,C1 (Lake Edge)
+ceh26,ceh26,1,C1 (Lake Edge)
+ceh27,ceh27,1,C1 (Lake Edge)
+ceh28,ceh28,2,C2 (Dune)
+ceh30,ceh30,4,C4 (Main Forest)
+ceh31,ceh31,5,C5 (Coastal Forest)
+ceh32,Ceh32,4,C4 (Main Forest)
+ceh33,ceh33,4,C4 (Main Forest)
+ceh34,ceh34,4,C4 (Main Forest)
+ceh36,ceh36,3,C3 (Western Residual)
+ceh39,ceh39,3,C3 (Western Residual)
+ceh40,ceh40,2,C2 (Dune)
+ceh41,ceh41,2,C2 (Dune)
+ceh42,ceh42,3,C3 (Western Residual)
+wmc1,WMC1,2,C2 (Dune)
+wmc2,WMC2,3,C3 (Western Residual)
+wmc3,wmc3,3,C3 (Western Residual)
+wmc4,wmc4,3,C3 (Western Residual)
+l7,L7,2,C2 (Dune)
+d5,D5,2,C2 (Dune)
+d6,D6,2,C2 (Dune)
+d7,D7,2,C2 (Dune)
+d8,D8,2,C2 (Dune)
+d9,D9,2,C2 (Dune)
+d10,D10,2,C2 (Dune)
+d15,D15,2,C2 (Dune)
+d17,D17,2,C2 (Dune)
+d25,D25,3,C3 (Western Residual)
+d38,D38,2,C2 (Dune)
+d41,D41,2,C2 (Dune)
+t41a,T41a,2,C2 (Dune)
+t41b,T41b,2,C2 (Dune)
+t41c,T41c,2,C2 (Dune)
+t41d,T41d,2,C2 (Dune)
+d43,D43,2,C2 (Dune)
+d44,D44,2,C2 (Dune)

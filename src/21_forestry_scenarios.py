@@ -41,7 +41,6 @@ Distribution figure:
 Inputs
 ------
   03_master_data.csv              — per-well SSM β coefficients and cluster
-  07_intercept_metrics.csv        — Model B intercepts (α) per well
   01_climate.csv                  — monthly P and PET (RAF Valley)
   03_regional_averages_maod.csv   — cluster-mean maOD heads
   Well_locations_height.csv       — DEM and pipe top elevations
@@ -74,7 +73,7 @@ import matplotlib.patches as mpatches
 from matplotlib.lines import Line2D
 
 from utils.paths import (
-    INT_MASTER_DATA, INT_INTERCEPT_METRICS, INT_CLIMATE,
+    INT_MASTER_DATA, INT_CLIMATE,
     INT_CLUSTER_AVG_MAOD, INT_WELL_ELEVATIONS,
     INT_WELLS_CLEAN, INT_WELLS_EXTENDED,
     OUT_DIR, make_all_dirs,
@@ -156,18 +155,16 @@ CLUSTER_COLOURS = {
 
 def load_data():
     master  = pd.read_csv(INT_MASTER_DATA)
-    metrics = pd.read_csv(INT_INTERCEPT_METRICS)
     elev    = pd.read_csv(INT_WELL_ELEVATIONS)
     reg     = pd.read_csv(INT_CLUSTER_AVG_MAOD,
                           parse_dates=["Date"]).set_index("Date")
     climate = pd.read_csv(INT_CLIMATE, parse_dates=["Date"]).set_index("Date")
 
     master["well"]  = master["Name_Original"].str.lower().str.replace(" ", "")
-    metrics["well"] = metrics["Well_Normalized"].str.lower().str.replace(" ", "")
     # INT_WELL_ELEVATIONS has Name_norm already; also derive "well" for compat
     elev["well"]    = elev["Name"].str.lower().str.replace(" ", "")
 
-    return master, metrics, elev, reg, climate
+    return master, elev, reg, climate
 
 
 def load_raw_well_data():
@@ -1333,9 +1330,8 @@ def main(preview=False):
     print(f"  DPI: {dpi}  ({'preview' if preview else 'publication'})")
 
     print("\n[1/5] Loading data...")
-    master, metrics, elev, reg, climate = load_data()
+    master, elev, reg, climate = load_data()
     print(f"  Master: {len(master)} wells  |  "
-          f"Metrics: {len(metrics)} wells  |  "
           f"Climate: {climate.index[0].date()} to {climate.index[-1].date()}")
 
     print("\n[2/5] Building scenarios...")

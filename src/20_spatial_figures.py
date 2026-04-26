@@ -90,7 +90,7 @@ from utils.paths import (
     INT_PEAR_AUDIT_SITEWIDE, INT_CLUSTER_STATS,
 )
 from utils.map_utils import load_dem_hillshade
-from utils.config import CLUSTER_COLOURS
+from utils.config import CLUSTER_COLOURS, DRAINAGE_DATUM
 from utils.data_utils import normalize_well_name
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -204,12 +204,12 @@ def build_well_table(data):
     # Merge β coefficients and cluster
     beta = md[["Name_Original", "Cluster",
                "beta_1_recharge", "beta_2_atmospheric_draw",
-               "beta_3_internal_brake"]].rename(columns={
+               "beta_3_drainage"]].rename(columns={
         "Name_Original":           "well",
         "Cluster":                 "cluster",
         "beta_1_recharge":         "beta1",
         "beta_2_atmospheric_draw": "beta2",
-        "beta_3_internal_brake":   "beta3",
+        "beta_3_drainage":         "beta3",
     })
     wt = wt.merge(beta, on="well", how="left")
 
@@ -217,8 +217,19 @@ def build_well_table(data):
     elev_map = dict(zip(elev["Name_norm"], elev["DEM_Ground_Elev"]))
     wt["dem_elev"] = wt["well"].map(elev_map)
 
+    # Pipe-top elevation — needed for displacement formulation
+    pipe_map = dict(zip(elev["Name_norm"], elev["Pipe_Top_Elev"]))
+    wt["pipe_top"] = wt["well"].map(pipe_map)
+
     # Mean annual head
     wt["mean_head"] = wt["well"].map(maod.mean(axis=0))
+
+    # Displacement above drainage datum.
+    # h_depth = maOD − pipe_top (negative convention, same as 01_wells_clean.csv).
+    # h_disp  = DRAINAGE_DATUM + h_depth (positive when water table is above
+    #           the drainage base; matches Script 03 SSM fitting formulation).
+    wt["mean_depth"] = wt["mean_head"] - wt["pipe_top"]
+    wt["h_disp"] = DRAINAGE_DATUM + wt["mean_depth"]
 
     # Effective P (canopy interception for C4)
     wt["P_eff"] = wt.apply(
@@ -226,10 +237,13 @@ def build_well_table(data):
         if pd.notna(r.get("cluster")) and int(r["cluster"]) == 4
         else P_bar, axis=1)
 
-    # SSM water balance residual
+    # SSM water balance residual.
+    # At steady state (Δh=0): 0 = β₁·P − β₂·PET − β₃·h_disp
+    # Residual = β₂·PET + β₃·h_disp − β₁·P_eff
+    # Positive = SSM drainage+ET exceeds recharge → lateral inflow required.
     wt["residual_wb"] = np.where(
-        wt["beta1"].notna(),
-        wt["beta2"] * PET_bar + wt["beta3"] * wt["mean_head"].abs()
+        wt["beta1"].notna() & wt["h_disp"].notna(),
+        wt["beta2"] * PET_bar + wt["beta3"] * wt["h_disp"]
         - wt["beta1"] * wt["P_eff"],
         np.nan)
 

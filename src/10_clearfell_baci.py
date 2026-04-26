@@ -22,7 +22,7 @@ import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
 from utils.paths import (
     make_all_dirs, DATA_CLIMATE_RAW, DATA_WELLS_RAW, INT_WELLS_CLEAN, INT_WELLS_EXTENDED, DIR_10,
-    INT_MASTER_DATA,
+    INT_MASTER_DATA, INT_CLIMATE,
     OUT_10_DUAL_BACI,
     OUT_10_BETA3_SLOPES,
     OUT_10_DRAINAGE_DATA,
@@ -178,6 +178,9 @@ def export_table5_summary(stats_df: pd.DataFrame) -> None:
 RAF_VALLEY_LAT_DEG = 53.25
 
 
+# NOTE: thornthwaite_pet_m() is no longer called — PET is now read from
+# INT_CLIMATE (Script 01 output). Retained for reference only; remove when
+# convenient.
 def thornthwaite_pet_m(t_mean: pd.Series, lat_deg: float = RAF_VALLEY_LAT_DEG) -> pd.Series:
     temps_pos = t_mean.clip(lower=0).fillna(0)
     i_monthly = (temps_pos / 5) ** 1.514
@@ -219,22 +222,10 @@ all_targets = impact_wells + edge_wells + control_wells
 
 print("1. Loading Data...")
 try:
-    climate = pd.read_csv(DATA_CLIMATE_RAW)
-    def parse_met_date(date_str):
-        try:
-            m, y = date_str.split()
-            year = int(y) + (2000 if int(y) <= 26 else 1900)
-            return pd.to_datetime(f"01-{m}-{year}")
-        except: return pd.NaT
-    climate['Date'] = climate['Unnamed: 0'].apply(parse_met_date)
-    climate = climate.set_index('Date')
-    climate['P_m'] = pd.to_numeric(climate['Rain (mm)'].replace('---', np.nan), errors='coerce') / 1000
-    t_max_col = "Max Temp ©" if "Max Temp ©" in climate.columns else "Max Temp (C)"
-    t_mean = (
-        pd.to_numeric(climate[t_max_col], errors="coerce")
-        + pd.to_numeric(climate["Min Temp (C)"], errors="coerce")
-    ) / 2
-    climate['PET'] = thornthwaite_pet_m(t_mean)
+    # Climate — read from pipeline intermediate (Script 01 output).
+    # INT_CLIMATE has columns: P_m, PET with a DatetimeIndex.
+    climate = pd.read_csv(INT_CLIMATE, index_col=0, parse_dates=True)
+    climate = climate.sort_index()
 
     # Load wells by merging two pipeline outputs:
     #   01_wells_clean.csv    — main network including CEH9, NW7, NW6
@@ -397,15 +388,16 @@ all_data = []
 
 for well in valid_targets:
     df = wells[well].to_frame(name='h').join(climate[['P_m', 'PET']], how='inner')
+    df['P_m_lag1'] = df['P_m'].shift(1)  # lag-1: water level reflects previous month's rainfall
     df['h_prev'] = df['h'].shift(1)
     df['Delta_h'] = df['h'] - df['h_prev']
     df = df.dropna()
 
-    X_base = pd.DataFrame({'beta_1_recharge': df['P_m'], 'beta_2_atmospheric_draw': -df['PET'], 'beta_3_internal_brake': -df['h_prev']})
+    X_base = pd.DataFrame({'beta_1_recharge': df['P_m_lag1'], 'beta_2_atmospheric_draw': -df['PET'], 'beta_3_internal_brake': -df['h_prev']})
     res_base = sm.OLS(df['Delta_h'], X_base).fit()
     b1, b2 = res_base.params['beta_1_recharge'], res_base.params['beta_2_atmospheric_draw']
 
-    df['Drainage_Component'] = df['Delta_h'] - (b1 * df['P_m']) - (b2 * -df['PET'])
+    df['Drainage_Component'] = df['Delta_h'] - (b1 * df['P_m_lag1']) - (b2 * -df['PET'])
     df['Well_Name'] = well.upper()
     df['Period'] = np.where(
         df.index < intervention_date, 'Before',
@@ -477,6 +469,7 @@ full_param_results = []
 
 for well in valid_targets:
     df = wells[well].to_frame(name='h').join(climate[['P_m', 'PET']], how='inner')
+    df['P_m_lag1'] = df['P_m'].shift(1)  # lag-1: consistent with HEADLINE_LAG = 1
     df['h_prev'] = df['h'].shift(1)
     df['Delta_h'] = df['h'] - df['h_prev']
     df = df.dropna()
@@ -489,7 +482,7 @@ for well in valid_targets:
         else:
             sub = df[df.index >= scraping_date_2]
         if len(sub) > 12:
-            X = pd.DataFrame({'beta_1_recharge': sub['P_m'], 'beta_2_atmospheric_draw': -sub['PET'], 'beta_3_internal_brake': -sub['h_prev']})
+            X = pd.DataFrame({'beta_1_recharge': sub['P_m_lag1'], 'beta_2_atmospheric_draw': -sub['PET'], 'beta_3_internal_brake': -sub['h_prev']})
             model = sm.OLS(sub['Delta_h'], X).fit()
             
             ci = model.conf_int()

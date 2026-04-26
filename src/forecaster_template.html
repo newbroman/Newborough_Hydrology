@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Newborough Warren — Groundwater Flooding Forecaster</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --sand:#f4f0e6;--sand-dark:#e8e0cc;--dune:#c8b878;
+    --slate:#3a4a52;--slate-light:#5a6e78;
+    --water:#4a7a8a;--water-light:#6a9aaa;--water-pale:#e8f2f5;
+    --pine:#3d5c3a;--pine-light:#5a7d56;
+    --text:#2a3338;--text-light:#5a6a72;--border:#d4c8a8;
+    --green:#5a7d56;--amber:#c9983d;--red:#b85c4a;--grey:#8e8577;
+  }
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Source Sans 3',sans-serif;font-weight:400;
+    background:var(--sand);color:var(--text);line-height:1.5;
+    min-height:100vh;display:flex;flex-direction:column;
+  }
+  header{
+    background:var(--slate);color:#fff;padding:1.25rem 2rem;
+    border-bottom:3px solid var(--dune);
+  }
+  header h1{
+    font-family:'Libre Baskerville',serif;font-weight:400;
+    font-size:1.35rem;letter-spacing:.02em;
+  }
+  header .subtitle{
+    font-size:.85rem;opacity:.75;margin-top:.15rem;font-style:italic;
+  }
+
+  /* ── LIVE λ BANNER ─────────────────────────── */
+  .live-banner{
+    background:var(--water-pale);border-bottom:1px solid var(--border);
+    padding:.5rem 2rem;font-size:.85rem;color:var(--text);
+    display:flex;justify-content:space-between;align-items:center;gap:1rem;
+  }
+  .live-banner .lb-status{font-weight:600;color:var(--slate)}
+  .live-banner .lb-items{display:flex;gap:2rem;flex-wrap:wrap}
+  .live-banner .lb-item{font-family:'JetBrains Mono',monospace;font-size:.82rem}
+  .live-banner .lb-item .label{color:var(--text-light);font-family:'Source Sans 3',sans-serif;font-size:.75rem;margin-right:.35rem}
+  .live-banner .lb-item .value{font-weight:500}
+  .live-banner button{
+    background:var(--water);color:#fff;border:none;
+    padding:.3rem .7rem;font-size:.75rem;cursor:pointer;border-radius:2px;
+    font-family:inherit;
+  }
+  .live-banner button:hover{background:var(--slate)}
+  .live-banner.state-loading{background:var(--sand-dark)}
+  .live-banner.state-error{background:#f5e6e0}
+  .live-banner.state-error .lb-status{color:var(--red)}
+
+  main{
+    flex:1;display:grid;
+    grid-template-columns:280px 1fr 360px;
+    gap:0;min-height:0;
+  }
+  aside.sidebar{
+    background:#fbf8f0;border-right:1px solid var(--border);
+    padding:1.5rem 1.25rem;overflow-y:auto;
+  }
+  .panel-heading{
+    font-family:'Libre Baskerville',serif;font-size:.85rem;
+    color:var(--slate);letter-spacing:.1em;text-transform:uppercase;
+    padding-bottom:.4rem;margin-bottom:.75rem;
+    border-bottom:1px solid var(--border);
+  }
+  .field{margin-bottom:1.1rem}
+  .field label{
+    display:block;font-size:.78rem;font-weight:600;
+    color:var(--text-light);margin-bottom:.3rem;
+    letter-spacing:.03em;text-transform:uppercase;
+  }
+  .field select,.field input[type=number],.field input[type=file]{
+    width:100%;padding:.5rem .6rem;font-size:.9rem;
+    font-family:inherit;background:#fff;
+    border:1px solid var(--border);border-radius:2px;
+    color:var(--text);
+  }
+  .field select:focus,.field input:focus{
+    outline:none;border-color:var(--water);
+    box-shadow:0 0 0 3px rgba(74,122,138,.15);
+  }
+  .field .hint{
+    font-size:.75rem;color:var(--text-light);
+    margin-top:.3rem;font-style:italic;
+  }
+  .well-meta{
+    background:#fff;border:1px solid var(--border);
+    padding:.7rem .8rem;border-radius:2px;
+    font-size:.82rem;margin-top:.5rem;
+  }
+  .well-meta-row{
+    display:flex;justify-content:space-between;
+    padding:.18rem 0;border-bottom:1px dotted var(--sand-dark);
+  }
+  .well-meta-row:last-child{border-bottom:none}
+  .well-meta-row .k{color:var(--text-light)}
+  .well-meta-row .v{font-weight:600;font-family:'JetBrains Mono',monospace;font-size:.78rem}
+
+  .ncot-tag{
+    display:inline-block;font-size:.65rem;padding:.05rem .35rem;
+    margin-left:.25rem;border-radius:3px;
+    background:#e8c98a;color:#5a4220;font-weight:600;
+    font-family:'Source Sans 3',sans-serif;letter-spacing:.02em;
+  }
+  .ncot-notice{
+    margin-top:.55rem;padding:.5rem .65rem;
+    background:#f5e9c8;border-left:3px solid #d4a84a;
+    font-size:.72rem;line-height:1.45;color:#5a4220;
+  }
+  .ncot-notice strong{font-weight:700}
+
+  section.map-wrap{
+    padding:1rem;overflow:hidden;position:relative;
+    background:var(--sand);
+    display:flex;flex-direction:column;
+  }
+  .map-heading{
+    display:flex;justify-content:space-between;align-items:baseline;
+    margin-bottom:.75rem;
+  }
+  .map-heading h2{
+    font-family:'Libre Baskerville',serif;font-size:1.1rem;
+    color:var(--slate);font-weight:400;
+  }
+  .map-svg-wrap{
+    flex:1;border:1px solid var(--border);background:#f8f3e4;
+    position:relative;border-radius:2px;overflow:hidden;
+  }
+  .map-svg-wrap svg{width:100%;height:100%;display:block;cursor:crosshair}
+  .well-dot{
+    stroke:#2a3338;stroke-width:.6;cursor:pointer;
+    transition:r .15s ease,stroke-width .15s ease;
+  }
+  .well-dot:hover{stroke-width:2;stroke:#000}
+  .well-dot.selected{stroke:#000;stroke-width:2.2}
+  .well-label{
+    font-family:'JetBrains Mono',monospace;font-size:8px;
+    fill:var(--text);pointer-events:none;
+    paint-order:stroke;stroke:#f8f3e4;stroke-width:2.5;stroke-linejoin:round;
+  }
+  .legend{
+    position:absolute;bottom:.75rem;left:.75rem;
+    background:rgba(255,255,255,.92);border:1px solid var(--border);
+    padding:.6rem .75rem;font-size:.75rem;border-radius:2px;
+    backdrop-filter:blur(3px);
+  }
+  .legend .title{
+    font-weight:600;color:var(--slate);margin-bottom:.35rem;
+    font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;
+  }
+  .legend-row{display:flex;align-items:center;gap:.4rem;margin:.15rem 0}
+  .legend-dot{width:10px;height:10px;border-radius:50%;border:1px solid #2a3338}
+  .rainfall-slider-wrap{
+    position:absolute;bottom:.75rem;right:.75rem;
+    background:rgba(255,255,255,.92);border:1px solid var(--border);
+    padding:.6rem .85rem;width:260px;border-radius:2px;
+    backdrop-filter:blur(3px);
+  }
+  .rainfall-slider-wrap .title{
+    font-weight:600;color:var(--slate);font-size:.72rem;
+    text-transform:uppercase;letter-spacing:.05em;margin-bottom:.3rem;
+  }
+  .rainfall-slider-wrap .value{
+    font-family:'JetBrains Mono',monospace;font-size:.82rem;
+    color:var(--text);margin-bottom:.35rem;
+  }
+  .rainfall-slider-wrap .preset-link{
+    font-size:.72rem;color:var(--water);cursor:pointer;text-decoration:underline;
+    margin-right:.6rem;font-family:'Source Sans 3',sans-serif;
+  }
+  .rainfall-slider-wrap .preset-link:hover{color:var(--slate)}
+  input[type=range]{width:100%}
+
+  aside.panel{
+    background:#fbf8f0;border-left:1px solid var(--border);
+    padding:1.5rem 1.25rem;overflow-y:auto;
+  }
+  .forecast-block{
+    background:#fff;border:1px solid var(--border);
+    padding:.9rem 1rem;margin-bottom:1rem;border-radius:2px;
+    border-left:3px solid var(--water);
+  }
+  .forecast-block.warn{border-left-color:var(--amber)}
+  .forecast-block.fail{border-left-color:var(--grey);opacity:.85}
+  .forecast-title{
+    font-family:'Libre Baskerville',serif;font-size:.95rem;
+    color:var(--slate);margin-bottom:.3rem;
+  }
+  .forecast-value{
+    font-family:'JetBrains Mono',monospace;font-size:1.4rem;
+    color:var(--text);font-weight:500;line-height:1.1;margin:.25rem 0;
+  }
+  .forecast-value .unit{font-size:.85rem;color:var(--text-light);margin-left:.15rem}
+  .forecast-sub{
+    font-size:.78rem;color:var(--text-light);margin-top:.3rem;
+    line-height:1.4;
+  }
+  .forecast-badge{
+    display:inline-block;padding:.08rem .5rem;
+    font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;
+    border-radius:2px;margin-left:.4rem;
+  }
+  .badge-green{background:var(--green);color:#fff}
+  .badge-amber{background:var(--amber);color:#fff}
+  .badge-red{background:var(--red);color:#fff}
+  .badge-grey{background:var(--grey);color:#fff}
+  .threshold-note{
+    font-size:.72rem;color:var(--text-light);
+    padding:.35rem .5rem;background:var(--sand);border-radius:2px;
+    margin-top:.4rem;font-style:italic;
+  }
+
+  /* ── FORECAST SOURCE TABS ────────────── */
+  .source-tabs{
+    display:inline-flex;gap:0;margin-bottom:.5rem;border:1px solid var(--border);border-radius:3px;overflow:hidden;font-size:.75rem;
+  }
+  .source-tab{
+    padding:.25rem .6rem;cursor:pointer;background:var(--sand);color:var(--text-light);
+    border-right:1px solid var(--border);user-select:none;
+  }
+  .source-tab:last-child{border-right:none;}
+  .source-tab.active{background:var(--water);color:#fff;font-weight:600;}
+  .source-tab:hover:not(.active){background:var(--sand-dark);}
+
+  /* ── MANUAL UPLOAD FALLBACK MODAL ────────────── */
+  .modal-backdrop{
+    position:fixed;inset:0;background:rgba(42,51,56,.55);
+    display:none;align-items:center;justify-content:center;z-index:100;
+  }
+  .modal-backdrop.active{display:flex}
+  .modal{
+    background:#fbf8f0;border-radius:3px;padding:1.5rem 1.75rem;
+    max-width:540px;width:90%;box-shadow:0 10px 30px rgba(0,0,0,.2);
+  }
+  .modal h3{
+    font-family:'Libre Baskerville',serif;font-size:1.1rem;
+    color:var(--slate);margin-bottom:.75rem;font-weight:400;
+  }
+  .modal p{font-size:.88rem;color:var(--text);margin-bottom:.75rem;line-height:1.5}
+  .modal ol{margin:.75rem 0 1rem 1.5rem;font-size:.85rem;color:var(--text)}
+  .modal ol li{margin-bottom:.35rem}
+  .modal code{
+    background:#fff;padding:.1rem .35rem;font-family:'JetBrains Mono',monospace;
+    font-size:.8rem;border:1px solid var(--border);border-radius:2px;
+  }
+  .modal .actions{display:flex;gap:.5rem;justify-content:flex-end;margin-top:1rem}
+  .modal button{
+    padding:.5rem 1rem;font-size:.85rem;font-family:inherit;cursor:pointer;
+    border-radius:2px;border:1px solid var(--border);
+  }
+  .modal button.primary{background:var(--water);color:#fff;border-color:var(--water)}
+  .modal button.primary:hover{background:var(--slate);border-color:var(--slate)}
+  .modal button.secondary{background:#fff;color:var(--text)}
+
+  footer{
+    background:var(--slate);color:rgba(255,255,255,.75);
+    font-size:.72rem;padding:.5rem 2rem;text-align:center;
+    border-top:1px solid var(--dune);
+  }
+  footer a{color:rgba(255,255,255,.9)}
+  @media(max-width:960px){
+    main{grid-template-columns:1fr}
+    aside.sidebar,aside.panel{border:none;border-bottom:1px solid var(--border)}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Newborough Warren — Groundwater Flooding Forecaster</h1>
+  <div class="subtitle">Per-well P<sub>flood</sub> forecasting · Hollingham (2026), §3.6.3 · Iterated closed-form SSM</div>
+</header>
+
+<!-- ── LIVE λ BANNER ─────────────────────────── -->
+<div class="live-banner state-loading" id="live-banner">
+  <div class="lb-status" id="lb-status">Fetching live RAF Valley rainfall...</div>
+  <div class="lb-items" id="lb-items"></div>
+  <div>
+    <button id="lb-retry" style="display:none">Retry</button>
+    <button id="lb-manual" style="display:none">Enter rainfall manually</button>
+  </div>
+</div>
+
+<main>
+  <aside class="sidebar">
+    <div class="panel-heading">Well selection</div>
+    <div class="field">
+      <label for="well-select">Dipwell</label>
+      <select id="well-select"></select>
+    </div>
+    <div class="field">
+      <label for="reading-input">Observed depth (m below ground)</label>
+      <input id="reading-input" type="number" step="0.01" min="0" max="5" value="1.20">
+      <div class="hint">Positive number. Prepopulated with cluster long-term summer minimum; edit to match your observation.</div>
+    </div>
+
+    <div class="panel-heading" style="margin-top:1.5rem">Well details</div>
+    <div class="well-meta" id="well-meta"></div>
+  </aside>
+
+  <section class="map-wrap">
+    <div class="map-heading">
+      <h2>P<sub>flood</sub> vulnerability map</h2>
+      <div style="font-size:.8rem;color:var(--text-light);font-style:italic">
+        Each well coloured by winter rainfall required to reach SD15b threshold
+      </div>
+    </div>
+    <div class="map-svg-wrap">
+      <svg id="map" viewBox="0 0 1000 900" preserveAspectRatio="xMidYMid meet"></svg>
+      <div class="legend">
+        <div class="title">P<sub>flood</sub> to SD15b (−0.10 m)</div>
+        <div class="legend-row"><div class="legend-dot" style="background:var(--green)"></div>Reachable (&lt; climatology)</div>
+        <div class="legend-row"><div class="legend-dot" style="background:var(--amber)"></div>Wet winter required (1.0–1.3×)</div>
+        <div class="legend-row"><div class="legend-dot" style="background:var(--red)"></div>Exceptional winter (1.3–2.0×)</div>
+        <div class="legend-row"><div class="legend-dot" style="background:var(--grey)"></div>Structurally unreachable (&gt;2.0×)</div>
+      </div>
+      <div class="rainfall-slider-wrap">
+        <div class="title">Assumed winter rainfall multiplier λ</div>
+        <div class="value" id="rainfall-value">Climatological (1.00×)</div>
+        <input type="range" id="rainfall-slider" min="0.6" max="2.0" step="0.05" value="1.0">
+        <div style="margin-top:.3rem" id="rainfall-presets"></div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="panel">
+    <div class="panel-heading">Forecasts — selected well</div>
+    <div id="forecast-panel"></div>
+  </aside>
+</main>
+
+<footer>
+  Transfer-function and state-space coefficients: Hollingham (2026), <em>Hydrogeological Dynamics, Behavioural Clustering and Management Intervention Analysis at Newborough Warren Coastal Sand Dune Aquifer, Wales</em>.
+  Climatology: RAF Valley 2005–2026 monthly means. Live rainfall: Met Office Historic Station Data, <a href="https://www.metoffice.gov.uk/pub/data/weather/uk/climate/stationdata/valleydata.txt" target="_blank" rel="noopener">valleydata.txt</a>
+  (UK Open Government License v3.0).
+</footer>
+
+<!-- ── MANUAL UPLOAD MODAL ─────────────────────────── -->
+<div class="modal-backdrop" id="manual-modal">
+  <div class="modal">
+    <h3>Enter RAF Valley rainfall manually</h3>
+    <p>The forecaster couldn't fetch live rainfall data from the Met Office. You can still use the tool; the live-λ banner will be populated from values you paste in below, or left empty if you'd rather just use climatological defaults.</p>
+    <ol>
+      <li>Open <a href="https://www.metoffice.gov.uk/pub/data/weather/uk/climate/stationdata/valleydata.txt" target="_blank" rel="noopener">valleydata.txt</a> in a new tab.</li>
+      <li>Copy the entire page (Ctrl+A, Ctrl+C).</li>
+      <li>Paste it in the box below and click <strong>Parse</strong>.</li>
+    </ol>
+    <textarea id="manual-paste" rows="6" style="width:100%;font-family:'JetBrains Mono',monospace;font-size:.72rem;padding:.4rem;border:1px solid var(--border);border-radius:2px;resize:vertical;"
+              placeholder="Paste the valleydata.txt contents here..."></textarea>
+    <div class="actions">
+      <button class="secondary" id="manual-cancel">Skip — use climatology</button>
+      <button class="primary" id="manual-parse">Parse</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   DATA BUNDLE (inserted by Script 11b build_forecaster_html)
+   ═══════════════════════════════════════════════════════════════════ */
+/*__DATA_BUNDLE__*/
+
+/* ═══════════════════════════════════════════════════════════════════
+   P_FLOOD — collapsed linear form (per cluster)
+       P_flood (mm) = A · d + B
+   where d is depth below ground in metres (positive).
+   A and B are baked into DATA.cluster_coeffs per-cluster by Script 11.
+   ═══════════════════════════════════════════════════════════════════ */
+function pFloodLinear(d_m, coeffs){
+  if(!coeffs || coeffs.slope_A === undefined) return null;
+  return coeffs.slope_A * Math.max(0, d_m) + coeffs.intercept_B;
+}
+function lambdaFromPFlood(P_flood_mm, coeffs){
+  if(!coeffs || !coeffs.P_clim_total_mm) return null;
+  return P_flood_mm / coeffs.P_clim_total_mm;
+}
+
+/* Winter-peak and summer-min block transfer functions (unchanged) */
+function forecastWinterPeak(hMinSummer, Pwinter, block){
+  if(!block) return null;
+  const {b1,b2,c,r2} = block.winter;
+  return { h_peak: b1*Pwinter + b2*hMinSummer + c, r2 };
+}
+function forecastSummerMin(hMaxWinter, Psummer, block){
+  if(!block) return null;
+  const {b1,b2,c,r2} = block.summer;
+  return { h_min: b1*Psummer + b2*hMaxWinter + c, r2 };
+}
+function clusterToBlock(clusterKey){
+  for(const [bname,b] of Object.entries(DATA.block_tf)){
+    if(b.winter.clusters.includes(clusterKey)) return {name:bname,...b};
+  }
+  return null;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   PER-WELL SSM FORWARD ITERATION
+   Iterates the monthly recurrence h_t = α·h_{t-1} + b1·λ·P_clim(t) − b2·PET_clim(t)
+   from h_0 over a sequence of calendar months. Returns the final head.
+   b1, b2 in m/mm; b3 dimensionless (α = 1 − b3).
+   ═══════════════════════════════════════════════════════════════════ */
+function horizonMonths(startMonth, endMonth){
+  // Return [startMonth, ..., endMonth] wrapping through 12→1
+  const months = [];
+  let m = startMonth;
+  for(let i = 0; i < 12; i++){
+    months.push(m);
+    if(m === endMonth) return months;
+    m = (m % 12) + 1;
+  }
+  return months;
+}
+
+function ssmIterate(h0, b1, b2, b3, months, lam){
+  // Forward-iterate the SSM through the given calendar months.
+  // P_clim and PET_clim come from DATA (monthly means in mm).
+  if(!DATA.P_clim || !DATA.PET_clim) return null;
+  const alpha = 1.0 - b3;
+  let h = h0;
+  for(const m of months){
+    const P = (DATA.P_clim[m] || 0) * lam;
+    const E = DATA.PET_clim[m] || 0;
+    h = alpha * h + b1 * P - b2 * E;
+  }
+  return h;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   LIVE MET OFFICE DATA
+   Fetch valleydata.txt, parse monthly rainfall, compute live λ for
+   current-in-progress and most-recently-completed winters.
+   Hydrological winter = Oct–Mar; climatological baseline is the
+   2005–2026 period baked into DATA.P_clim.
+   ═══════════════════════════════════════════════════════════════════ */
+const MET_URL = "https://www.metoffice.gov.uk/pub/data/weather/uk/climate/stationdata/valleydata.txt";
+const WINTER_MONTHS = [10,11,12,1,2,3];
+
+function parseValleyData(text){
+  // Return {rows: [{year, month, rain_mm}]}
+  const rows = [];
+  const lines = text.split("\n");
+  // Skip header; each data line has: yyyy mm tmax tmin af rain sun
+  // rain may be "---" (missing), "23.7*" (estimated), "50.3" (measured)
+  for(const line of lines){
+    const parts = line.trim().split(/\s+/);
+    if(parts.length < 6) continue;
+    const yr = parseInt(parts[0], 10);
+    const mo = parseInt(parts[1], 10);
+    if(isNaN(yr) || isNaN(mo) || yr < 1900 || mo < 1 || mo > 12) continue;
+    const rainTok = parts[5];
+    let rain = null;
+    if(rainTok !== "---" && rainTok !== undefined){
+      const cleaned = rainTok.replace(/[*#]/g, "");
+      const v = parseFloat(cleaned);
+      if(!isNaN(v)) rain = v;
+    }
+    rows.push({year: yr, month: mo, rain_mm: rain});
+  }
+  return rows;
+}
+
+function winterCumulative(rows, startYear){
+  // Start year = Oct year; winter runs Oct startYear → Mar (startYear+1)
+  const winter = WINTER_MONTHS;
+  let total = 0, monthsWithData = 0, monthsExpected = 0;
+  for(const m of winter){
+    const yr = (m >= 10) ? startYear : startYear + 1;
+    monthsExpected++;
+    const row = rows.find(r => r.year === yr && r.month === m);
+    if(row && row.rain_mm != null){
+      total += row.rain_mm;
+      monthsWithData++;
+    }
+  }
+  // Monthsa found: 0 → no data. Else return partial info.
+  if(monthsWithData === 0) return null;
+  // Number of months actually elapsed up to today, capped at 6 (whole winter)
+  return {
+    total_mm: total,
+    months_with_data: monthsWithData,
+    months_expected: monthsExpected,
+  };
+}
+
+function climatologicalWinterTotal(){
+  // Uses the authoritative Oct-Mar winter total from DATA.winter_climatology_mm
+  // (mean of hydrological-year sums over 2005-2026, ~521 mm to match the report).
+  // Falls back to the sum of monthly means if the constant is missing.
+  if(DATA.winter_climatology_mm) return DATA.winter_climatology_mm;
+  let sum = 0;
+  for(const m of WINTER_MONTHS){ sum += DATA.P_clim[m] || 0; }
+  return sum;
+}
+
+function currentHydroYear(){
+  // Returns the "Oct start year" of the currently-in-progress winter.
+  // Between Oct and Dec: current calendar year's winter.
+  // Between Jan and Sep: previous calendar year's winter.
+  const now = new Date();
+  const yr = now.getUTCFullYear(), mo = now.getUTCMonth() + 1;
+  return (mo >= 10) ? yr : yr - 1;
+}
+
+function buildLiveBanner(rows){
+  const banner = document.getElementById('live-banner');
+  const status = document.getElementById('lb-status');
+  const items = document.getElementById('lb-items');
+  banner.classList.remove('state-loading','state-error');
+
+  const climTotal = climatologicalWinterTotal();
+  const now = new Date();
+  const curMo = now.getUTCMonth() + 1;
+
+  const thisWinterStart = currentHydroYear();
+  const lastWinterStart = thisWinterStart - 1;
+
+  const thisWinter = winterCumulative(rows, thisWinterStart);
+  const lastWinter = winterCumulative(rows, lastWinterStart);
+
+  let html = '';
+  // Case (a): Oct-Dec — show "Last winter" prominently, this winter small
+  // Case (b): Jan-Apr — show both
+  // Case (c): May-Sep — show just most recently completed winter
+  const inWinter = (curMo >= 10 || curMo <= 4);
+  const inEarlyWinter = (curMo >= 10 && curMo <= 12);
+
+  const renderWinter = (label, w, startYr) => {
+    if(!w) return `<div class="lb-item"><span class="label">${label}:</span><span class="value">no data</span></div>`;
+    const lam = w.total_mm / climTotal;
+    const partial = (w.months_with_data < w.months_expected)
+      ? ` <span style="opacity:.7">(${w.months_with_data}/${w.months_expected} months)</span>`
+      : '';
+    const endYr = (startYr + 1).toString().slice(-2);
+    return `<div class="lb-item">
+      <span class="label">${label} (${startYr}–${endYr}):</span>
+      <span class="value">${w.total_mm.toFixed(0)} mm · λ = ${lam.toFixed(2)}${partial}</span>
+    </div>`;
+  };
+
+  if(inEarlyWinter){
+    html = renderWinter('Last winter', lastWinter, lastWinterStart) +
+           renderWinter('This winter', thisWinter, thisWinterStart);
+  } else if(inWinter){
+    html = renderWinter('This winter', thisWinter, thisWinterStart) +
+           renderWinter('Last winter', lastWinter, lastWinterStart);
+  } else {
+    html = renderWinter('Last winter', lastWinter, lastWinterStart);
+  }
+
+  status.textContent = 'Live Met Office data';
+  items.innerHTML = html;
+
+  // Seed slider from live λ if we have a meaningful winter total
+  const primaryWinter = inEarlyWinter ? lastWinter : (thisWinter || lastWinter);
+  if(primaryWinter && primaryWinter.months_with_data >= 3){
+    LIVE_LAMBDA = primaryWinter.total_mm / climTotal;
+    LIVE_LAMBDA_SOURCE = (primaryWinter === thisWinter)
+      ? `This winter (${primaryWinter.months_with_data}/${primaryWinter.months_expected} months)`
+      : `Last winter (${lastWinterStart}–${(lastWinterStart+1).toString().slice(-2)})`;
+    addLivePreset(LIVE_LAMBDA, LIVE_LAMBDA_SOURCE);
+  }
+}
+
+function showLiveError(msg){
+  const banner = document.getElementById('live-banner');
+  banner.classList.remove('state-loading');
+  banner.classList.add('state-error');
+  document.getElementById('lb-status').textContent = msg;
+  document.getElementById('lb-items').innerHTML = '';
+  document.getElementById('lb-retry').style.display = '';
+  document.getElementById('lb-manual').style.display = '';
+}
+
+async function loadLiveData(){
+  try{
+    const res = await fetch(MET_URL, {cache:'no-store'});
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const txt = await res.text();
+    const rows = parseValleyData(txt);
+    if(rows.length < 100) throw new Error('parse yielded too few rows');
+    buildLiveBanner(rows);
+    return true;
+  }catch(err){
+    console.warn('Met Office fetch failed:', err);
+    showLiveError("Couldn't fetch live Met Office data — using climatology (λ = 1.00)");
+    return false;
+  }
+}
+
+/* Manual fallback modal */
+function openManualModal(){
+  document.getElementById('manual-modal').classList.add('active');
+}
+function closeManualModal(){
+  document.getElementById('manual-modal').classList.remove('active');
+}
+function parseManualPaste(){
+  const txt = document.getElementById('manual-paste').value;
+  const rows = parseValleyData(txt);
+  if(rows.length < 50){
+    alert('Could not parse the pasted text — does it look like the valleydata.txt format (columns: yyyy mm tmax tmin af rain sun)?');
+    return;
+  }
+  closeManualModal();
+  buildLiveBanner(rows);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   MAP
+   ═══════════════════════════════════════════════════════════════════ */
+const MAP_PAD = 30;
+const MAP_W = 1000, MAP_H = 900;
+
+function mapBounds(wells){
+  // Use fixed extent from base layer if available — ensures hillshade,
+  // KML features, and well dots all share the same coordinate mapping.
+  if(DATA.base_layer && DATA.base_layer.extent){
+    const ext = DATA.base_layer.extent;
+    return {eMin:ext.eMin, eMax:ext.eMax, nMin:ext.nMin, nMax:ext.nMax};
+  }
+  const E = wells.map(w=>w.E), N = wells.map(w=>w.N);
+  const eMin=Math.min(...E), eMax=Math.max(...E);
+  const nMin=Math.min(...N), nMax=Math.max(...N);
+  const eR=(eMax-eMin)*0.05, nR=(nMax-nMin)*0.05;
+  return {eMin:eMin-eR, eMax:eMax+eR, nMin:nMin-nR, nMax:nMax+nR};
+}
+function project(E, N, bounds){
+  const fx = (E - bounds.eMin)/(bounds.eMax - bounds.eMin);
+  const fy = (N - bounds.nMin)/(bounds.nMax - bounds.nMin);
+  return {
+    x: MAP_PAD + fx*(MAP_W - 2*MAP_PAD),
+    y: MAP_PAD + (1-fy)*(MAP_H - 2*MAP_PAD),
+  };
+}
+function categoryForLambda(lam){
+  if(lam===null||lam===undefined||!isFinite(lam)||lam<0) return 'grey';
+  if(lam < 1.0) return 'green';
+  if(lam < 1.3) return 'amber';
+  if(lam < 2.0) return 'red';
+  return 'grey';
+}
+function categoryColor(cat){
+  return {green:'var(--green)',amber:'var(--amber)',red:'var(--red)',grey:'var(--grey)'}[cat];
+}
+
+let SELECTED = null;
+let GLOBAL_LAMBDA_MULT = 1.0;
+let LIVE_LAMBDA = null;
+let LIVE_LAMBDA_SOURCE = '';
+
+function renderMap(){
+  const svg = document.getElementById('map');
+  const bounds = mapBounds(DATA.wells);
+  let html = '';
+
+  // ── Clip path: restrict all rendering to the plot area ─────────────
+  const cx0 = MAP_PAD, cy0 = MAP_PAD;
+  const cw = MAP_W - 2*MAP_PAD, ch = MAP_H - 2*MAP_PAD;
+  html += `<defs><clipPath id="map-clip">
+    <rect x="${cx0}" y="${cy0}" width="${cw}" height="${ch}"/>
+  </clipPath></defs>`;
+
+  // ── Layer 1: hillshade base image ──────────────────────────────────
+  const bl = DATA.base_layer || {};
+  if(bl.hillshade_png){
+    html += `<image x="${cx0}" y="${cy0}" width="${cw}" height="${ch}"
+      href="data:image/png;base64,${bl.hillshade_png}"
+      preserveAspectRatio="none" opacity="0.85" clip-path="url(#map-clip)"/>`;
+  }
+
+  // ── Layer 2: KML feature polylines (clipped to plot area) ──────────
+  if(bl.features && bl.features.length){
+    html += `<g clip-path="url(#map-clip)">`;
+    for(const layer of bl.features){
+      const stroke = layer.colour || '#000';
+      const sw = (layer.width || 1.5) * 0.8;
+      const dash = layer.dash || '';
+      const fill = layer.fill || 'none';
+      for(const ring of layer.coords){
+        const pts = ring.map(c => {
+          const p = project(c[0], c[1], bounds);
+          return `${p.x.toFixed(1)},${p.y.toFixed(1)}`;
+        }).join(' ');
+        if(fill !== 'none'){
+          html += `<polygon points="${pts}" fill="${fill}" stroke="${stroke}"
+            stroke-width="${sw}" ${dash?'stroke-dasharray="'+dash+'"':''}/>`;
+        } else {
+          html += `<polyline points="${pts}" fill="none" stroke="${stroke}"
+            stroke-width="${sw}" ${dash?'stroke-dasharray="'+dash+'"':''}/>`;
+        }
+      }
+    }
+    html += `</g>`;
+  }
+
+  // ── Layer 3: well dots ─────────────────────────────────────────────
+  for(const w of DATA.wells){
+    const {x,y} = project(w.E, w.N, bounds);
+    const coeff = DATA.cluster_coeffs[w.cluster];
+    let lam = null;
+    const depth = Math.abs(w.default_h_prev);
+    if(w.slope_A_well !== undefined && w.slope_A_well !== null){
+      const pflood = w.slope_A_well * Math.max(0, depth) + w.intercept_B_well;
+      if(coeff && coeff.P_clim_total_mm) lam = (pflood / coeff.P_clim_total_mm) / GLOBAL_LAMBDA_MULT;
+    } else if(coeff && coeff.slope_A !== undefined){
+      const pflood = pFloodLinear(depth, coeff);
+      lam = lambdaFromPFlood(pflood, coeff) / GLOBAL_LAMBDA_MULT;
+    }
+    const cat = categoryForLambda(lam);
+    const r = (SELECTED===w.name)?8:6;
+    const cls = 'well-dot' + (SELECTED===w.name?' selected':'');
+    html += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}"
+      class="${cls}" fill="${categoryColor(cat)}" stroke="white" stroke-width="0.5"
+      data-well="${w.name}"></circle>`;
+  }
+  svg.innerHTML = html;
+  svg.querySelectorAll('.well-dot').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const name = el.dataset.well;
+      document.getElementById('well-select').value = name;
+      selectWell(name);
+    });
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   UI
+   ═══════════════════════════════════════════════════════════════════ */
+function populateWellSelect(){
+  const sel = document.getElementById('well-select');
+  const byCluster = {};
+  for(const w of DATA.wells){
+    if(!byCluster[w.cluster]) byCluster[w.cluster]=[];
+    byCluster[w.cluster].push(w);
+  }
+  // Order is derived from whichever clusters the bundle actually contains —
+  // sorted by trailing integer ('C1' < 'C2' < ... < 'C10'). This stays
+  // correct across partition changes without further template edits.
+  const order = Object.keys(DATA.cluster_coeffs)
+    .sort((a, b) => parseInt(a.slice(1), 10) - parseInt(b.slice(1), 10));
+  for(const c of order){
+    if(!byCluster[c]) continue;
+    const g = document.createElement('optgroup');
+    g.label = `${c} — ${DATA.cluster_coeffs[c].label} (${byCluster[c].length})`;
+    byCluster[c].sort((a,b)=>a.name.localeCompare(b.name));
+    for(const w of byCluster[c]){
+      const o = document.createElement('option');
+      o.value = w.name;
+      // Asterisk marks wells whose cluster assignment is nearest-type only,
+      // not core membership. The well-details panel explains in full.
+      o.textContent = w.nearest_cluster_only
+        ? `${w.display_name} *`
+        : w.display_name;
+      g.appendChild(o);
+    }
+    sel.appendChild(g);
+  }
+  sel.addEventListener('change', e=>selectWell(e.target.value));
+}
+
+function selectWell(name){
+  SELECTED = name;
+  const w = DATA.wells.find(x=>x.name===name);
+  if(!w) return;
+  document.getElementById('reading-input').value = Math.abs(w.default_h_prev).toFixed(2);
+  renderWellMeta(w);
+  renderForecasts(w);
+  renderMap();
+}
+
+function renderWellMeta(w){
+  const coeff = DATA.cluster_coeffs[w.cluster];
+  const clusterCell = w.nearest_cluster_only
+    ? `${w.cluster} — ${coeff.label} <span class="ncot-tag">nearest-type *</span>`
+    : `${w.cluster} — ${coeff.label}`;
+  const ncotNotice = w.nearest_cluster_only
+    ? `<div class="ncot-notice">
+         <strong>* Nearest-type assignment.</strong> This well sits outside
+         the SSM operational domain (boundary or upstream-excluded) and is
+         not a core member of the cluster shown. Forecasts use the
+         nearest-cluster's coefficients as a best-available estimate;
+         interpret with caution.
+       </div>`
+    : '';
+  document.getElementById('well-meta').innerHTML = `
+    <div class="well-meta-row"><span class="k">Name</span><span class="v">${w.display_name}</span></div>
+    <div class="well-meta-row"><span class="k">Easting</span><span class="v">${w.E.toFixed(0)}</span></div>
+    <div class="well-meta-row"><span class="k">Northing</span><span class="v">${w.N.toFixed(0)}</span></div>
+    <div class="well-meta-row"><span class="k">Ground elev (m AOD)</span><span class="v">${w.ground_elev.toFixed(2)}</span></div>
+    <div class="well-meta-row"><span class="k">Cluster</span><span class="v">${clusterCell}</span></div>
+    ${ncotNotice}
+  `;
+}
+
+let FORECAST_SOURCE = 'cluster';  // 'cluster' or 'well'
+
+function renderForecasts(w){
+  const panel = document.getElementById('forecast-panel');
+  const coeff = DATA.cluster_coeffs[w.cluster];
+  const block = clusterToBlock(w.cluster);
+  const userDepth = parseFloat(document.getElementById('reading-input').value);
+  const hPrev = -Math.abs(userDepth);
+  const depth_m = userDepth;
+
+  const hasWellCoeffs = (w.b1_well !== undefined && w.b1_well !== null);
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const peakMonth = coeff.peak_month;
+  const horizonName = (peakMonth && peakMonth >= 1 && peakMonth <= 12)
+    ? `Oct\u2013${monthNames[peakMonth - 1]}` : '';
+  const winterMonths = horizonMonths(10, peakMonth || 1);
+  const summerMonths = horizonMonths(4, 9);
+
+  let html = '';
+
+  // ── Source tabs ────────────────────────────────────────────────────
+  if(hasWellCoeffs){
+    html += `<div class="source-tabs">
+      <span class="source-tab${FORECAST_SOURCE==='cluster'?' active':''}" data-src="cluster">Cluster average</span>
+      <span class="source-tab${FORECAST_SOURCE==='well'?' active':''}" data-src="well">Per-well SSM</span>
+    </div>`;
+  }
+
+  const showWell = (FORECAST_SOURCE === 'well' && hasWellCoeffs);
+
+  // ── Helper: badge from head value ─────────────────────────────────
+  function peakBadge(h){ return h >= -0.10 ? ['SD15b met','badge-green'] : h >= -0.25 ? ['SD16 only','badge-amber'] : ['below SD16','badge-red']; }
+  function minBadge(h){ return h >= -0.61 ? ['SD15b viable','badge-green'] : h >= -0.98 ? ['SD16 only','badge-amber'] : ['below SD16','badge-red']; }
+
+  // ═════════════════════════════════════════════════════════════════════
+  // FORECAST 1: next winter peak
+  // ═════════════════════════════════════════════════════════════════════
+  if(block || showWell){
+    const Pwinter_clim = climatologicalWinterTotal();
+    const Pwinter = Pwinter_clim * GLOBAL_LAMBDA_MULT;
+
+    // Cluster-average (block TF)
+    let h_peak_cluster = null, r2_cluster = null, blockName = '';
+    if(block){
+      const f = forecastWinterPeak(hPrev, Pwinter, block);
+      h_peak_cluster = f.h_peak;
+      r2_cluster = f.r2;
+      blockName = block.name;
+    }
+
+    // Per-well SSM iteration
+    let h_peak_well = null;
+    if(hasWellCoeffs){
+      h_peak_well = ssmIterate(hPrev, w.b1_well, w.b2_well, w.b3_well, winterMonths, GLOBAL_LAMBDA_MULT);
+    }
+
+    const h_peak = showWell ? h_peak_well : h_peak_cluster;
+    const source = showWell ? 'per-well SSM' : `${blockName} block TF`;
+
+    if(h_peak !== null){
+      const peakDepth = -h_peak;
+      const [badge, badgeClass] = peakBadge(h_peak);
+      const r2Note = (!showWell && r2_cluster !== null) ? ` R\u00b2\u00a0=\u00a0${r2_cluster.toFixed(2)}.` : '';
+      const weakCaveat = (!showWell && r2_cluster !== null && r2_cluster < 0.5)
+        ? `<div class="threshold-note">Block regression has low explanatory power (R\u00b2\u00a0=\u00a0${r2_cluster.toFixed(2)}); treat as indicative only.</div>` : '';
+
+      // Comparison row
+      let compRow = '';
+      if(showWell && h_peak_cluster !== null){
+        const [cb, cbc] = peakBadge(h_peak_cluster);
+        compRow = `<div class="forecast-sub" style="margin-top:.4rem;border-top:1px solid #eee;padding-top:.4rem;">
+          <strong>Cluster-average:</strong> ${(-h_peak_cluster).toFixed(2)} m <span class="forecast-badge ${cbc}" style="font-size:.75rem">${cb}</span>
+          <span style="font-size:.8rem;color:#666;"> (${blockName} block TF; R\u00b2\u00a0=\u00a0${(r2_cluster||0).toFixed(2)})</span></div>`;
+      } else if(!showWell && h_peak_well !== null){
+        const [wb, wbc] = peakBadge(h_peak_well);
+        compRow = `<div class="forecast-sub" style="margin-top:.4rem;border-top:1px solid #eee;padding-top:.4rem;">
+          <strong>Per-well SSM:</strong> ${(-h_peak_well).toFixed(2)} m <span class="forecast-badge ${wbc}" style="font-size:.75rem">${wb}</span></div>`;
+      }
+
+      html += `<div class="forecast-block${(!showWell && r2_cluster!==null && r2_cluster<0.5)?' warn':''}">
+        <div class="forecast-title">Next winter peak (from summer minimum)</div>
+        <div class="forecast-value">${peakDepth.toFixed(2)}<span class="unit">m below ground</span> <span class="forecast-badge ${badgeClass}">${badge}</span></div>
+        <div class="forecast-sub">Given your reading and ${GLOBAL_LAMBDA_MULT.toFixed(2)}\u00d7 climatological winter rainfall (${Pwinter.toFixed(0)} mm). Source: ${source}.${r2Note}</div>
+        ${compRow}${weakCaveat}
+      </div>`;
+    }
+  }
+
+  // ═════════════════════════════════════════════════════════════════════
+  // FORECAST 2: following summer minimum
+  // ═════════════════════════════════════════════════════════════════════
+  if(block || showWell){
+    const Psummer_clim = [4,5,6,7,8,9].reduce((s,m)=>s+(DATA.P_clim[m]||0),0);
+    const hMaxWinter = w.default_h_max;
+
+    // Cluster-average (block TF)
+    let h_min_cluster = null, r2_cluster = null, blockName = '';
+    if(block){
+      const f = forecastSummerMin(hMaxWinter, Psummer_clim, block);
+      h_min_cluster = f.h_min;
+      r2_cluster = f.r2;
+      blockName = block.name;
+    }
+
+    // Per-well SSM iteration (from cluster-mean winter max through Apr–Sep)
+    let h_min_well = null;
+    if(hasWellCoeffs){
+      h_min_well = ssmIterate(hMaxWinter, w.b1_well, w.b2_well, w.b3_well, summerMonths, 1.0);
+    }
+
+    const h_min = showWell ? h_min_well : h_min_cluster;
+    const source = showWell ? 'per-well SSM' : `${blockName} block TF`;
+
+    if(h_min !== null){
+      const minDepth = -h_min;
+      const [badge, badgeClass] = minBadge(h_min);
+      const r2Note = (!showWell && r2_cluster !== null) ? ` R\u00b2\u00a0=\u00a0${r2_cluster.toFixed(2)}.` : '';
+
+      let compRow = '';
+      if(showWell && h_min_cluster !== null){
+        const [cb, cbc] = minBadge(h_min_cluster);
+        compRow = `<div class="forecast-sub" style="margin-top:.4rem;border-top:1px solid #eee;padding-top:.4rem;">
+          <strong>Cluster-average:</strong> ${(-h_min_cluster).toFixed(2)} m <span class="forecast-badge ${cbc}" style="font-size:.75rem">${cb}</span>
+          <span style="font-size:.8rem;color:#666;"> (${blockName} block TF; R\u00b2\u00a0=\u00a0${(r2_cluster||0).toFixed(2)})</span></div>`;
+      } else if(!showWell && h_min_well !== null){
+        const [wb, wbc] = minBadge(h_min_well);
+        compRow = `<div class="forecast-sub" style="margin-top:.4rem;border-top:1px solid #eee;padding-top:.4rem;">
+          <strong>Per-well SSM:</strong> ${(-h_min_well).toFixed(2)} m <span class="forecast-badge ${wbc}" style="font-size:.75rem">${wb}</span></div>`;
+      }
+
+      html += `<div class="forecast-block">
+        <div class="forecast-title">Following summer minimum (from cluster-mean winter max)</div>
+        <div class="forecast-value">${minDepth.toFixed(2)}<span class="unit">m below ground</span> <span class="forecast-badge ${badgeClass}">${badge}</span></div>
+        <div class="forecast-sub">Given cluster-mean winter peak (${(-hMaxWinter).toFixed(2)} m) and climatological summer rainfall (${Psummer_clim.toFixed(0)} mm Apr\u2013Sep). Source: ${source}.${r2Note}</div>
+        ${compRow}
+      </div>`;
+    }
+  }
+
+  // ═════════════════════════════════════════════════════════════════════
+  // FORECAST 3: P_flood
+  // ═════════════════════════════════════════════════════════════════════
+  // Cluster-level P_flood
+  const P_flood_cluster = pFloodLinear(depth_m, coeff);
+  const lam_cluster = lambdaFromPFlood(P_flood_cluster, coeff);
+
+  // Per-well P_flood
+  let P_flood_well = null, lam_well = null;
+  if(hasWellCoeffs && w.slope_A_well !== undefined && w.slope_A_well !== null){
+    P_flood_well = w.slope_A_well * Math.max(0, depth_m) + w.intercept_B_well;
+    lam_well = P_flood_well / coeff.P_clim_total_mm;
+  }
+
+  const P_flood_show = showWell ? P_flood_well : P_flood_cluster;
+  const lam_show = showWell ? lam_well : lam_cluster;
+  const pf_source = showWell ? 'per-well SSM' : 'cluster-average SSM';
+
+  function pfBadge(lam){
+    if(lam < 1.0) return ['reachable','badge-green'];
+    if(lam < 1.3) return ['wet winter required','badge-amber'];
+    if(lam < 2.0) return ['exceptional winter','badge-red'];
+    return ['structurally unreachable','badge-grey'];
+  }
+
+  if(P_flood_show !== null && lam_show !== null){
+    const [badge, badgeClass] = pfBadge(lam_show);
+
+    let compRow = '';
+    if(showWell && P_flood_cluster !== null){
+      const [cb, cbc] = pfBadge(lam_cluster);
+      compRow = `<div class="forecast-sub" style="margin-top:.4rem;border-top:1px solid #eee;padding-top:.4rem;">
+        <strong>Cluster-average:</strong> ${P_flood_cluster.toFixed(0)} mm (\u03bb\u00a0=\u00a0${lam_cluster.toFixed(2)}\u00d7) <span class="forecast-badge ${cbc}" style="font-size:.75rem">${cb}</span>
+        <span style="font-size:.8rem;color:#666;"> Equation: P<sub>flood</sub>\u00a0=\u00a0${coeff.slope_A.toFixed(2)}\u00a0\u00d7\u00a0d\u00a0+\u00a0${coeff.intercept_B.toFixed(2)}</span></div>`;
+    } else if(!showWell && P_flood_well !== null){
+      const [wb, wbc] = pfBadge(lam_well);
+      compRow = `<div class="forecast-sub" style="margin-top:.4rem;border-top:1px solid #eee;padding-top:.4rem;">
+        <strong>Per-well SSM:</strong> ${P_flood_well.toFixed(0)} mm (\u03bb\u00a0=\u00a0${lam_well.toFixed(2)}\u00d7) <span class="forecast-badge ${wbc}" style="font-size:.75rem">${wb}</span>
+        <span style="font-size:.8rem;color:#666;"> Equation: P<sub>flood</sub>\u00a0=\u00a0${w.slope_A_well.toFixed(2)}\u00a0\u00d7\u00a0d\u00a0+\u00a0${w.intercept_B_well.toFixed(2)}</span></div>`;
+    }
+
+    const eqn = showWell
+      ? `P<sub>flood</sub>\u00a0=\u00a0${w.slope_A_well.toFixed(2)}\u00a0\u00d7\u00a0d\u00a0+\u00a0${w.intercept_B_well.toFixed(2)}`
+      : `P<sub>flood</sub>\u00a0=\u00a0${coeff.slope_A.toFixed(2)}\u00a0\u00d7\u00a0d\u00a0+\u00a0${coeff.intercept_B.toFixed(2)}`;
+
+    html += `<div class="forecast-block${lam_show>=1.3?' warn':''}">
+      <div class="forecast-title">P<sub>flood</sub> to slack floor (0 m)</div>
+      <div class="forecast-value">${P_flood_show.toFixed(0)}<span class="unit">mm</span> <span class="forecast-badge ${badgeClass}">${badge}</span></div>
+      <div class="forecast-sub">Cumulative rainfall over ${horizonName} (${coeff.horizon_months} months) to reach surface from ${depth_m.toFixed(2)} m. <strong>${lam_show.toFixed(2)}\u00d7</strong> climatological rainfall (${coeff.P_clim_total_mm.toFixed(0)} mm). Source: ${pf_source}. ${eqn}.</div>
+      ${compRow}
+    </div>`;
+  }
+
+  // ── Method note ───────────────────────────────────────────────────
+  html += `<div class="threshold-note" style="margin-top:1rem">
+    <strong>Method.</strong> <em>Cluster average</em> uses block seasonal transfer functions (Tables 8 &amp; 9) for Forecasts 1 &amp; 2, and the cluster-centroid iterated P<sub>flood</sub> equation for Forecast 3. <em>Per-well SSM</em> uses each well's own lag-1 SSM coefficients (Script 03) to iterate the monthly recurrence forward. The assumed-rainfall slider scales climatological winter rainfall by \u03bb; live Met Office data provides an observational anchor.${!hasWellCoeffs ? ' <em>No per-well SSM is available for this well; cluster-average shown.</em>' : ''}
+  </div>`;
+
+  panel.innerHTML = html;
+
+  // ── Wire up tab clicks ────────────────────────────────────────────
+  panel.querySelectorAll('.source-tab').forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      FORECAST_SOURCE = tab.dataset.src;
+      renderForecasts(w);
+    });
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SLIDER + LIVE PRESET
+   ═══════════════════════════════════════════════════════════════════ */
+function updateSliderLabel(){
+  const valDisp = document.getElementById('rainfall-value');
+  const label = (GLOBAL_LAMBDA_MULT<0.9)?'Dry winter':
+                (GLOBAL_LAMBDA_MULT<1.1)?'Climatological':
+                (GLOBAL_LAMBDA_MULT<1.4)?'Wet winter':
+                (GLOBAL_LAMBDA_MULT<1.8)?'Very wet winter':
+                'Exceptional winter';
+  valDisp.textContent = `${label} (${GLOBAL_LAMBDA_MULT.toFixed(2)}×)`;
+}
+function addLivePreset(lam, label){
+  const wrap = document.getElementById('rainfall-presets');
+  wrap.innerHTML = `<span class="preset-link" id="preset-live">Use ${label}: λ = ${lam.toFixed(2)}</span>
+                    <span class="preset-link" id="preset-clim">Use climatological λ = 1.00</span>`;
+  document.getElementById('preset-live').addEventListener('click', ()=>{
+    const slider = document.getElementById('rainfall-slider');
+    slider.value = Math.max(0.6, Math.min(2.0, lam));
+    slider.dispatchEvent(new Event('input'));
+  });
+  document.getElementById('preset-clim').addEventListener('click', ()=>{
+    const slider = document.getElementById('rainfall-slider');
+    slider.value = 1.0;
+    slider.dispatchEvent(new Event('input'));
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════════════════════════════════ */
+function init(){
+  populateWellSelect();
+
+  const slider = document.getElementById('rainfall-slider');
+  slider.addEventListener('input', e=>{
+    GLOBAL_LAMBDA_MULT = parseFloat(e.target.value);
+    updateSliderLabel();
+    if(SELECTED){
+      const w = DATA.wells.find(x=>x.name===SELECTED);
+      if(w) renderForecasts(w);
+    }
+    renderMap();
+  });
+
+  document.getElementById('reading-input').addEventListener('input', ()=>{
+    if(SELECTED){
+      const w = DATA.wells.find(x=>x.name===SELECTED);
+      if(w) renderForecasts(w);
+    }
+  });
+
+  // Manual-fallback wiring
+  document.getElementById('lb-retry').addEventListener('click', loadLiveData);
+  document.getElementById('lb-manual').addEventListener('click', openManualModal);
+  document.getElementById('manual-cancel').addEventListener('click', closeManualModal);
+  document.getElementById('manual-parse').addEventListener('click', parseManualPaste);
+  document.getElementById('manual-modal').addEventListener('click', (e)=>{
+    if(e.target.id === 'manual-modal') closeManualModal();
+  });
+
+  // Default selection — first well in the bundle, regardless of cluster.
+  // Avoids hardcoding a specific cluster ID that may be renumbered when
+  // the partition changes.
+  if(DATA.wells.length){
+    const first = DATA.wells[0];
+    document.getElementById('well-select').value = first.name;
+    selectWell(first.name);
+  }
+
+  updateSliderLabel();
+  loadLiveData();   // kick off Met Office fetch asynchronously
+}
+
+if(document.readyState!=='loading') init();
+else document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

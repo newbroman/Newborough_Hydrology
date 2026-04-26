@@ -64,6 +64,7 @@ from utils.paths import (
 )
 from utils.data_utils import normalize_well_name
 from utils.map_utils import add_kml_features
+from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS
 
 
 # ==========================================
@@ -76,14 +77,7 @@ AR1_DIAG_PVAL = 0.05
 # Wells excluded from the lag analysis. See docstring for rationale per well.
 EXCLUDED_WELLS_NORM = {'ceh7', 'ceh8', 'ceh37', 'ceh3', 'ceh4'}
 
-CLUSTER_COLOURS = {
-    1: "#E69F00", 2: "#009E73", 3: "#CC79A7",
-    4: "#D55E00", 5: "#56B4E9", 6: "#0072B2",
-}
-CLUSTER_LABELS = {
-    1: "C1 East-Buf", 2: "C2 East-Till", 3: "C3 West-Sand",
-    4: "C4 West-For", 5: "C5 Tidal", 6: "C6 Lake",
-}
+# CLUSTER_LABELS and CLUSTER_COLOURS imported from utils.config (k=5 partition).
 
 plt.rcParams.update({
     'font.family': 'sans-serif',

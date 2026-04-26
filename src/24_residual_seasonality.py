@@ -74,6 +74,7 @@ from utils.paths import (
 )
 from utils.data_utils import normalize_well_name
 from utils.map_utils import add_kml_features
+from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS
 
 
 # ==========================================
@@ -84,16 +85,12 @@ EXCLUDED_WELLS_NORM = {'ceh7', 'ceh8', 'ceh37', 'ceh3', 'ceh4'}
 RIDGE_E = 241750.0
 RIDGE_N = 364500.0
 MAX_RIDGE_DISTANCE_M = 3000.0
-C3_SPLIT_DISTANCE_M = 1000.0  # C3 wells split into forest-adjacent and warren-interior
+C3_SPLIT_DISTANCE_M = 1000.0  # legacy: under the new partition the forest-adjacent
+                              # subset of the old C3 has been split out as C5
+                              # (Coastal Forest); this constant retains a within-
+                              # cluster diagnostic on the new C3 (Western Residual).
 
-CLUSTER_COLOURS = {
-    1: "#E69F00", 2: "#009E73", 3: "#CC79A7",
-    4: "#D55E00", 5: "#56B4E9", 6: "#0072B2",
-}
-CLUSTER_LABELS = {
-    1: "C1 East-Buf", 2: "C2 East-Till", 3: "C3 West-Sand",
-    4: "C4 West-For", 5: "C5 Tidal", 6: "C6 Lake",
-}
+# CLUSTER_LABELS and CLUSTER_COLOURS imported from utils.config (k=5 partition).
 MONTH_LABELS = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D']
 
 plt.rcParams.update({

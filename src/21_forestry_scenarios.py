@@ -75,16 +75,14 @@ from matplotlib.lines import Line2D
 
 from utils.paths import (
     INT_MASTER_DATA, INT_INTERCEPT_METRICS, INT_CLIMATE,
-    INT_CLUSTER_AVG_MAOD,
-    DATA_WELLS_RAW, DATA_LOCATIONS_RAW, INT_WELLS_CLEAN, INT_WELLS_EXTENDED,
+    INT_CLUSTER_AVG_MAOD, INT_WELL_ELEVATIONS,
+    INT_WELLS_CLEAN, INT_WELLS_EXTENDED,
     OUT_DIR, make_all_dirs,
     DIR_21,
     OUT_21_HYDROGRAPH, OUT_21_DISTRIBUTIONS, OUT_21_DISTRIBUTIONS_CSV,
     OUT_21_SCRAPING, OUT_21_SCRAPING_CSV, OUT_21_BACI_VIOLIN, OUT_21_BACI_CSV,
 )
 
-DATA_WELL_LOCATIONS = DATA_LOCATIONS_RAW
-DATA_CLEANED_MODEL  = DATA_WELLS_RAW
 
 # ============================================================================
 # OUTPUT PATHS
@@ -159,13 +157,14 @@ CLUSTER_COLOURS = {
 def load_data():
     master  = pd.read_csv(INT_MASTER_DATA)
     metrics = pd.read_csv(INT_INTERCEPT_METRICS)
-    elev    = pd.read_csv(DATA_WELL_LOCATIONS)
+    elev    = pd.read_csv(INT_WELL_ELEVATIONS)
     reg     = pd.read_csv(INT_CLUSTER_AVG_MAOD,
                           parse_dates=["Date"]).set_index("Date")
     climate = pd.read_csv(INT_CLIMATE, parse_dates=["Date"]).set_index("Date")
 
     master["well"]  = master["Name_Original"].str.lower().str.replace(" ", "")
     metrics["well"] = metrics["Well_Normalized"].str.lower().str.replace(" ", "")
+    # INT_WELL_ELEVATIONS has Name_norm already; also derive "well" for compat
     elev["well"]    = elev["Name"].str.lower().str.replace(" ", "")
 
     return master, metrics, elev, reg, climate
@@ -280,7 +279,7 @@ def build_scenarios(master, climate):
     """Build scenario equilibrium shifts and apply to observed C4 seasonal cycle."""
     b1 = master[master["Cluster"] == 4]["beta_1_recharge"].mean()
     b2 = master[master["Cluster"] == 4]["beta_2_atmospheric_draw"].mean()
-    b3 = master[master["Cluster"] == 4]["beta_3_internal_brake"].mean()
+    b3 = master[master["Cluster"] == 4]["beta_3_drainage"].mean()
 
     clim = climate.loc["2005-04-01":"2026-02-01"].copy()
     monthly_P   = clim.groupby(clim.index.month)["P_m"].mean().values

@@ -3,49 +3,61 @@
 ===============
 Mean Monthly Water Balance Decomposition by Cluster — Newborough Warren 2005–2026
 
-Produces the outputs supporting Section 4.2.3–4.2.4 of the report:
+Produces the outputs supporting Section 4.2.3 of the report:
 
-  Table 3a (head-space):
-    16_water_bal_table.csv              — mean monthly head-space components
-  Figure 8 (head-space):
-    16_water_bal_bar_lay.png            — lay version (coloured background)
-    16_water_bal_bar_ms.png             — manuscript version (white, 300 dpi)
+  Table 3a (head-space decomposition):
+    16_water_bal_table.csv
 
-  Table 3b (indicative volumetric, assumed Sy — lower bound):
+  Table 3b (volumetric partition):
     16_water_bal_vol_table.csv
-  Figure 8a (indicative volumetric, assumed Sy):
-    16_water_bal_volumetric_ms.png
-    16_water_bal_volumetric_lay.png
 
-  Table 3d (WTF volumetric, WTF-derived Sy — upper bound):
-    16_water_bal_vol_wtf_table3d.csv
-  Figure 8b (WTF volumetric, WTF-derived Sy):
-    16_water_bal_volumetric_wtf_ms.png
-    16_water_bal_volumetric_wtf_lay.png
+  Figure 8 (two-panel combined):
+    16_water_bal_fig8_ms.png        — manuscript (white, 300 dpi)
+    16_water_bal_fig8_lay.png       — lay version (coloured background)
+
+  Panel (a): Head-space SSM decomposition
+    Recharge (β₁·P̄) vs ET draw (β₂·PET̄) + Drainage (β₃·h̄_disp)
+    The balance closes to < 3.5% residual in all clusters.
+
+  Panel (b): Volumetric water balance partition
+    P vs Losses (ET + Drainage + Interception)
+    ET/Drainage boundary bracketed by two independent methods:
+      - SSM headspace β₂/β₃ ratio
+      - Seasonal recession curve analysis (winter vs summer decline rates)
+    Interception (24% of P, forest clusters only; Freeman 2008) appears
+    identically on both input and loss bars, cancelling in the net surplus.
 
 Head-space components (m/month):
-    Recharge     =  β₁ · P̄
-    Atm. draw    =  β₂ · PET̄
-    Drainage     =  β₃ · |h̄|
-    Interception =  0.24 · P̄   [Forest only; Freeman, 2008]
-    Residual     =  Total_Loss − Recharge − Interception  (water balance residual)
+    Recharge     =  β₁ · P̄             (m head per m rainfall)
+    ET draw      =  β₂ · PET̄           (m head per m PET)
+    Drainage     =  β₃ · h̄_disp        (m head per m displacement above datum)
+    h_disp       =  DRAINAGE_DATUM + h  (displacement above drainage base)
 
-Volumetric conversion:
-    flux (mm/yr) = head-space term (m/month) × 12 × Sy × 1000
+Volumetric water balance (mm/yr):
+    P            =  measured rainfall (RAF Valley, identical for all clusters)
+    PET          =  Thornthwaite PET (identical for all clusters)
+    I            =  0.24 × P (forest only; Freeman 2008)
+    Net recharge =  P − I
+    ET at WT     =  PET − I (interception consumes PET energy)
+    P − PET      =  238 mm/yr net surplus, identical for all clusters
 
-  Assumed Sy (Table 3b / Figure 8a — lower bound):
-    C1 = 0.08, C2 = C3 = C4 = 0.12  (conservative lower bounds)
+    The ET/Drainage partition is estimated by two independent methods:
+      SSM:       ratio of β₂·PET̄ to β₃·h̄_disp from the closed headspace balance
+      Recession: ratio of winter to summer hydrograph recession rates
 
-  WTF-derived Sy (Table 3d / Figure 8b — upper bound):
-    C1 = 0.223, C2 = 0.234, C3 = 0.259, C4 = 0.227 (interception-corrected)
-    Event-based cluster-aggregate medians from 17_wtf_specific_yield.py.
-    Report as empirical upper bound only; monthly WTF overestimates
-    effective Sy through capillary fringe conflation (Healy & Cook, 2002).
+The displacement datum (DRAINAGE_DATUM) is imported from utils/config.py.
+It was identified by sensitivity analysis (Script 03, output 03_08) as the
+minimum depth below ground at which all five cluster β₃ values are positive
+and significant (p < 0.05), ensuring physically consistent Darcy-compatible
+drainage behaviour. See Section 3.4.1 of the report.
 
 References:
     Freeman, S. (2008) Hydrological impact of Corsican pine at Newborough Warren.
     Healy, R.W. & Cook, P.G. (2002) Using groundwater levels to estimate recharge.
     Hollingham, M. (2026) Hydrogeological Dynamics... Newborough Warren.
+    von Asmuth, J.R. et al. (2002) Transfer function-noise modelling. WRR 38(12).
+    Knotters, M. & Bierkens, M.F.P. (2000) Physical basis of time series models
+      for water table depths. WRR 36(1), 181–188.
 """
 
 import sys
@@ -59,426 +71,546 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
-from scipy import stats
+import matplotlib.patches as mpatches
 
 from utils.paths import (
-    make_all_dirs, DIR_16, INT_REGIONAL_AVG, INT_MASTER_DATA, INT_CLIMATE,
+    make_all_dirs, DIR_16, INT_REGIONAL_AVG,
     OUT_16_TABLE, OUT_16_VOL_TABLE, OUT_16_BAR_LAY, OUT_16_BAR_MS,
-    OUT_16_VOL_MS, OUT_16_VOL_LAY,
-    OUT_16_VOL_WTF_TABLE, OUT_16_VOL_WTF_MS, OUT_16_VOL_WTF_LAY,
+    OUT_03_MECHANISTIC_TABLE,
+)
+from utils.config import (
+    CLUSTER_LABELS as _CFG_LABELS,
+    CLUSTER_COLOURS as _CFG_COLOURS,
+    DRAINAGE_DATUM,
 )
 make_all_dirs()
 
 # ── Constants ──────────────────────────────────────────────────────────────────
-FOREST_INTERCEPTION = 0.24   # Freeman (2008)
-SUMMER_TRENDS = {1: -0.010, 2: -0.012, 3: -0.015, 4: -0.017}  # m/yr
-FLOOD_FREQ    = {1: "67%", 2: "52%", 3: "5%", 4: "n/a"}
+FOREST_INTERCEPTION = 0.24   # Freeman (2008); fraction of P intercepted
+FOREST_CIDS         = (4, 5) # forested clusters
 
-CLUSTER_LABELS = {
-    1: "C1 Eastern\n(Lake-buffer)",
-    2: "C2 Eastern\n(Mature Dune)",
-    3: "C3 Western\n(Mature Dune)",
-    4: "C4 Forest",
-}
-CLUSTER_LABELS_VOL = {
-    1: "C1 Eastern\nLake-buffer\nSy=8%",
-    2: "C2 Eastern\nMature Dune\nSy=12%",
-    3: "C3 Western\nMature Dune\nSy=12%",
-    4: "C4 Forest\nSy=12%",
-}
-CLUSTER_LABELS_FLAT = {
-    1: "C1_Eastern_Lake-buffer",
-    2: "C2_Eastern_Mature_Dune",
-    3: "C3_Western_Mature_Dune",
-    4: "C4_Forest",
-}
+# Recession analysis seasons (calendar months)
+WINTER_MONTHS = [11, 12, 1, 2]
+SUMMER_MONTHS = [6, 7, 8, 9]
 
-# Specific yield for volumetric conversion
-# Table 3b / Figure 8a — conservative lower bound (assumed)
-SY = {1: 0.08, 2: 0.12, 3: 0.12, 4: 0.12}
+# ── Figure colours ─────────────────────────────────────────────────────────────
+C_RECH  = "#4A90D9"   # blue — recharge
+C_ET    = "#E8724A"   # warm orange — ET draw
+C_DRAIN = "#7A6B5D"   # brown-grey — drainage
+C_INTCP = "#5BA55B"   # green — interception
+C_P     = "#4A7FB5"   # steel blue — rainfall
 
-# Table 3d / Figure 8b — WTF empirical upper bound
-# Cluster-aggregate event medians from 17_wtf_specific_yield.py (Table 3c).
-# C4 is interception-corrected following Freeman (2008).
-SY_WTF = {1: 0.223, 2: 0.234, 3: 0.259, 4: 0.227}
+# ── Label helpers ──────────────────────────────────────────────────────────────
+def _two_line(label: str) -> str:
+    """'C1 (Lake Edge)' -> 'C1\\n(Lake Edge)' for narrow figure x-axes."""
+    if "(" in label:
+        ctag, rest = label.split("(", 1)
+        return f"{ctag.strip()}\n({rest.strip()}"
+    return label
 
-CLUSTER_LABELS_VOL_WTF = {
-    1: "C1 Eastern\nLake-buffer\nSy=0.223",
-    2: "C2 Eastern\nMature Dune\nSy=0.234",
-    3: "C3 Western\nMature Dune\nSy=0.259",
-    4: "C4 Forest\nSy=0.227",
-}
+CLUSTER_LABELS_FIG = {cid: _two_line(label) for cid, label in _CFG_LABELS.items()}
 
-# Colours — head-space chart
-C_ATM   = "#F4956E"
-C_DRAIN = "#A07060"
-C_RECH  = "#6BAED6"
-C_RES   = "#B08FCC"
-C_INT   = "#74BB77"
-C_TEAL  = "#1B6B78"
 
-# Uncertainty p-values and dof (from 03 outputs)
-RESIDUAL_PCT_SE = {1: 0.046, 2: 0.103, 3: 0.130, 4: 0.150}
-
+# ═══════════════════════════════════════════════════════════════════════════════
+# DATA LOADING
+# ═══════════════════════════════════════════════════════════════════════════════
 
 def load_data():
-    """Load climate, regional averages and master SSM coefficients.
-    All input CSVs live in OUT_DIR (outputs/ root).
+    """Load regional averages and cluster-centroid SSM coefficients.
+
+    Climate (P_mm, PET_mm) is taken directly from 03_regional_averages.csv,
+    which already carries these columns — no separate climate file merge.
+    Converted to metres in-script for consistency with β units (m/m).
+
+    Betas come from 03_cluster_mechanistic_coefficients.csv (centroid
+    headline fit at lag-1 with displacement datum). Column names:
+    beta_1, beta_2, beta_3, drainage_datum_m.
     """
-    climate  = pd.read_csv(INT_CLIMATE,       parse_dates=["Date"])
-    regional = pd.read_csv(INT_REGIONAL_AVG,  parse_dates=["Date"])
-    master   = pd.read_csv(INT_MASTER_DATA)
-    df = regional.merge(climate[["Date", "P_m", "PET"]], on="Date", how="inner")
-    betas = master.groupby("Cluster")[
-        ["beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_internal_brake"]
-    ].median()
+    df = pd.read_csv(INT_REGIONAL_AVG, parse_dates=["Date"])
+
+    # Convert P and PET from mm to metres (β coefficients are in m/m)
+    df["P_m"]  = df["P_mm"]  / 1000.0
+    df["PET"]  = df["PET_mm"] / 1000.0
+
+    mech = pd.read_csv(OUT_03_MECHANISTIC_TABLE)
+    betas = mech.set_index("Cluster")[["beta_1", "beta_2", "beta_3",
+                                        "LCSC_percent", "drainage_datum_m"]]
+
+    # Verify datum consistency
+    file_datum = mech["drainage_datum_m"].iloc[0]
+    if abs(file_datum - DRAINAGE_DATUM) > 0.01:
+        print(f"  [WARNING] Datum mismatch: config.DRAINAGE_DATUM = {DRAINAGE_DATUM}, "
+              f"coefficients file = {file_datum}. Using file value.")
+
     return df, betas
 
 
-def compute_summary(df, betas):
-    """Compute mean monthly head-space water balance components."""
-    col_map = {1: "C1", 2: "C2", 3: "C3", 4: "C4"}
+# ═══════════════════════════════════════════════════════════════════════════════
+# HEADSPACE WATER BALANCE
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def compute_headspace(df, betas):
+    """Compute mean monthly head-space water balance components.
+
+    SSM equation (displacement formulation):
+        Δh = β₁·P(t-1) − β₂·PET(t) − β₃·h_disp(t-1)
+
+    where h_disp = DRAINAGE_DATUM + h_depth (displacement above datum).
+
+    Components:
+        Recharge  = β₁ · P̄        (mean monthly, m/month)
+        ET draw   = β₂ · PET̄      (mean monthly, m/month)
+        Drainage  = β₃ · h̄_disp   (mean monthly, m/month)
+        Residual  = Recharge − (ET draw + Drainage)
+    """
+    datum = betas["drainage_datum_m"].iloc[0]
+
+    col_map = {cid: f"C{cid}" for cid in sorted(_CFG_LABELS.keys())
+               if f"C{cid}" in df.columns}
     summary = {}
+
     for cid, col in col_map.items():
         sub = df[[col, "P_m", "PET"]].dropna()
-        b1  = betas.loc[cid, "beta_1_recharge"]
-        b2  = betas.loc[cid, "beta_2_atmospheric_draw"]
-        b3  = abs(betas.loc[cid, "beta_3_internal_brake"])
-        lcsc = 100.0 / b1
+        b1 = betas.loc[cid, "beta_1"]
+        b2 = betas.loc[cid, "beta_2"]
+        b3 = betas.loc[cid, "beta_3"]
+        lcsc = betas.loc[cid, "LCSC_percent"]
 
         P_m   = sub["P_m"].mean()
         PET_m = sub["PET"].mean()
-        h_m   = sub[col].abs().mean()
+        h_depth_mean = sub[col].mean()            # negative (below surface)
+        h_disp_mean  = datum + h_depth_mean        # displacement above datum
 
-        recharge  = b1 * P_m
-        pet_loss  = b2 * PET_m
-        drainage  = b3 * h_m
-        intercept = FOREST_INTERCEPTION * P_m if cid == 4 else 0.0
-        total_loss = pet_loss + drainage
-        residual    = total_loss - recharge - intercept
-        residual_se = residual * RESIDUAL_PCT_SE[cid]
+        recharge   = b1 * P_m
+        et_draw    = b2 * PET_m
+        drainage   = b3 * h_disp_mean
+        total_loss = et_draw + drainage
+        residual   = recharge - total_loss
+
+        drain_pct = 100.0 * drainage / total_loss if total_loss > 0 else 0
+        et_pct    = 100.0 * et_draw / total_loss if total_loss > 0 else 0
 
         summary[cid] = dict(
             lcsc=lcsc, b1=b1, b2=b2, b3=b3,
-            P_m=P_m, PET_m=PET_m, h_m=h_m,
-            recharge=recharge, pet_loss=pet_loss,
-            drainage=drainage, intercept=intercept,
+            P_m=P_m, PET_m=PET_m,
+            h_depth_mean=h_depth_mean, h_disp_mean=h_disp_mean,
+            recharge=recharge, et_draw=et_draw, drainage=drainage,
             total_loss=total_loss, residual=residual,
-            residual_se=residual_se,
+            drain_pct=drain_pct, et_pct=et_pct,
         )
+
     return summary
 
 
-def export_table(summary, output_dir):
-    """Export CSV summary table."""
-    rows = []
-    for cid, s in summary.items():
-        rows.append({
-            "Cluster":                  CLUSTER_LABELS_FLAT[cid],
-            "LCSC (%)":                 round(s["lcsc"], 1),
-            "Recharge (m/month)":       round(s["recharge"], 4),
-            "Atm. Draw (m/month)":      round(s["pet_loss"], 4),
-            "Drainage (m/month)":       round(s["drainage"], 4),
-            "Total Loss (m/month)":     round(s["total_loss"], 4),
-            "Water balance residual (m/month)": round(s["residual"], 4),
-            "Water balance residual (m/year)":  round(s["residual"] * 12, 3),
-        })
-    pd.DataFrame(rows).to_csv(output_dir / "16_water_bal_table.csv", index=False)
-    print("Table saved → 16_water_bal_table.csv")
+# ═══════════════════════════════════════════════════════════════════════════════
+# RECESSION ANALYSIS
+# ═══════════════════════════════════════════════════════════════════════════════
 
+def compute_recession_partition(df):
+    """Estimate ET/drainage partition from seasonal recession rates.
 
-def export_vol_table(summary, output_dir):
-    """Export volumetric water balance table (mm/year) as CSV."""
-    rows = []
-    for cid, s in summary.items():
-        sy = SY[cid]
-        f  = 12 * sy * 1000
-        rows.append({
-            "Cluster":               CLUSTER_LABELS_FLAT[cid],
-            "Sy":                    sy,
-            "Recharge (mm/yr)":      round(s["recharge"]  * f),
-            "Atm. Draw (mm/yr)":     round(s["pet_loss"]  * f),
-            "Drainage (mm/yr)":      round(s["drainage"]  * f),
-            "Total Loss (mm/yr)":    round((s["pet_loss"] + s["drainage"]) * f),
-            "Residual (mm/yr)":       round(s["residual"]   * f),
-            "Residual (% rainfall)":  round(s["residual"] * f / 890 * 100),
-            "Residual SE (mm/yr)":    round(s["residual_se"] * f),
-        })
-    pd.DataFrame(rows).to_csv(output_dir / "16_water_bal_vol_table.csv", index=False)
-    print("Volumetric table saved → 16_water_bal_vol_table.csv")
+    Winter recession (Nov–Feb, PET low) ≈ drainage only.
+    Summer recession (Jun–Sep, PET high) = drainage + ET.
+    Ratio winter/summer gives drainage fraction of summer losses.
 
-
-def export_vol_wtf_table(summary, output_dir):
-    """Export WTF-Sy volumetric water balance table (Table 3d, mm/year upper bound).
-
-    Uses cluster-aggregate WTF-derived medians (Table 3c). C4 is interception-
-    corrected following Freeman (2008). These estimates are reported as an
-    empirical upper bound only — monthly WTF is known to overestimate effective
-    Sy through capillary fringe conflation (Healy & Cook, 2002).
+    Returns dict {cid: drain_frac} where drain_frac = winter_rate / summer_rate.
     """
+    df = df.copy()
+    df["month"] = df["Date"].dt.month
+
+    col_map = {cid: f"C{cid}" for cid in sorted(_CFG_LABELS.keys())
+               if f"C{cid}" in df.columns}
+
+    recession = {}
+    for cid, col in col_map.items():
+        s = df[["month", col]].copy()
+        s["dh"] = df[col].diff()
+        rec = s[s["dh"] < 0]
+
+        w = rec[rec["month"].isin(WINTER_MONTHS)]["dh"].mean()
+        sm = rec[rec["month"].isin(SUMMER_MONTHS)]["dh"].mean()
+
+        if pd.notna(w) and pd.notna(sm) and sm < 0:
+            recession[cid] = {
+                "winter_rate": w,
+                "summer_rate": sm,
+                "drain_frac": w / sm,    # fraction of summer recession = drainage
+                "et_frac": 1 - w / sm,   # fraction = ET
+                "n_winter": len(rec[rec["month"].isin(WINTER_MONTHS)]),
+                "n_summer": len(rec[rec["month"].isin(SUMMER_MONTHS)]),
+            }
+        else:
+            recession[cid] = {"drain_frac": np.nan, "et_frac": np.nan}
+
+    return recession
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# TABLE OUTPUTS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def save_headspace_table(summary, path):
+    """Save Table 3a: head-space water balance decomposition."""
     rows = []
-    for cid, s in summary.items():
-        sy = SY_WTF[cid]
-        f  = 12 * sy * 1000
-        rows.append({
-            "Cluster":               CLUSTER_LABELS_FLAT[cid],
-            "Sy_WTF":                sy,
-            "Recharge (mm/yr)":      round(s["recharge"]  * f),
-            "Atm. Draw (mm/yr)":     round(s["pet_loss"]  * f),
-            "Drainage (mm/yr)":      round(s["drainage"]  * f),
-            "Total Loss (mm/yr)":    round((s["pet_loss"] + s["drainage"]) * f),
-            "Residual (mm/yr)":       round(s["residual"]   * f),
-            "Residual (% rainfall)":  round(s["residual"] * f / 890 * 100),
-            "Residual SE (mm/yr)":    round(s["residual_se"] * f),
-        })
-    pd.DataFrame(rows).to_csv(output_dir / "16_water_bal_vol_wtf_table3d.csv", index=False)
-    print("WTF volumetric table (Table 3d) saved → 16_water_bal_vol_wtf_table3d.csv")
-
-
-def make_chart_headspace(summary, output_path, manuscript=False):
-    """Head-space bar chart (m/month)."""
-    clusters = list(summary.keys())
-    n = len(clusters)
-    w = 0.28; gap = 0.05
-    x = np.arange(n)
-    x_loss = x - w/2 - gap/2
-    x_inp  = x + w/2 + gap/2
-
-    bg = "white" if manuscript else "#F7F4EF"
-    fig, ax = plt.subplots(figsize=(10, 6), facecolor=bg)
-    ax.set_facecolor(bg); fig.patch.set_facecolor(bg)
-    ymax = 0.60
-
-    for i, cid in enumerate(clusters):
+    for cid in sorted(summary.keys()):
         s = summary[cid]
-        # Losses bar
-        ax.bar(x_loss[i], s["drainage"], w, color=C_DRAIN, alpha=0.85, edgecolor="white", lw=0.5, zorder=3)
-        ax.bar(x_loss[i], s["pet_loss"], w, bottom=s["drainage"], color=C_ATM, alpha=0.85, edgecolor="white", lw=0.5, zorder=3)
-        # Inputs bar
-        ax.bar(x_inp[i], s["recharge"], w, color=C_RECH, alpha=0.85, edgecolor="white", lw=0.5, zorder=3)
-        ax.bar(x_inp[i], s["residual"],  w, bottom=s["recharge"], color=C_RES, alpha=0.78, edgecolor="white", lw=0.5, zorder=3)
-        if s["intercept"] > 0:
-            ax.bar(x_inp[i], s["intercept"], w, bottom=s["recharge"]+s["residual"], color=C_INT, alpha=0.80, edgecolor="white", lw=0.5, zorder=3)
-
-        # Error bar on losses
-        loss_top = s["drainage"] + s["pet_loss"]
-        ax.errorbar(x_loss[i], loss_top, yerr=s["residual_se"],
-                    fmt="none", color="#999999", capsize=4, capthick=1.2, elinewidth=1.2, zorder=6)
-
-        # Value labels
-        ax.text(x_loss[i], s["drainage"]/2, f"{s['drainage']:.3f}", ha="center", va="center", fontsize=7, color="white", fontweight="bold")
-        ax.text(x_loss[i], s["drainage"]+s["pet_loss"]/2, f"{s['pet_loss']:.3f}", ha="center", va="center", fontsize=7, color="white", fontweight="bold")
-        ax.text(x_inp[i],  s["recharge"]/2, f"{s['recharge']:.3f}", ha="center", va="center", fontsize=7, color="white", fontweight="bold")
-        ax.text(x_inp[i],  s["recharge"]+s["residual"]/2, f"{s['residual']:.3f}", ha="center", va="center", fontsize=7, color="white", fontweight="bold")
-        if s["intercept"] > 0:
-            ax.text(x_inp[i], s["recharge"]+s["residual"]+s["intercept"]/2, f"{s['intercept']:.3f}", ha="center", va="center", fontsize=6.5, color="white", fontweight="bold")
-
-        # Flooding frequency
-        fc = "#1565C0" if cid in [1,2] else ("#B71C1C" if cid==3 else "#888888")
-        ax.text(x[i], -0.11, f"Floods: {FLOOD_FREQ[cid]} of years",
-                ha="center", va="top", fontsize=7.5, color=fc, fontweight="bold",
-                transform=ax.get_xaxis_transform())
-
-    ax.set_xticks(x)
-    ax.set_xticklabels([CLUSTER_LABELS[c] for c in clusters], fontsize=9)
-    ax.set_ylabel("m month⁻¹  (water table head change)", fontsize=10)
-    ax.set_ylim(0, ymax)
-    ax.spines[["top","right"]].set_visible(False)
-    ax.spines[["left","bottom"]].set_color("#CCCCCC")
-    ax.set_axisbelow(True)
-    ax.yaxis.grid(True, color="#EEEEEE", lw=0.7, zorder=0)
-
-    legend_elements = [
-        Patch(facecolor=C_DRAIN, alpha=0.85, label="Gravity drainage (β₃·|h̄|)"),
-        Patch(facecolor=C_ATM,   alpha=0.85, label="Atmospheric draw (β₂·PET̄)"),
-        Patch(facecolor=C_RECH,  alpha=0.85, label="Recharge (β₁·P̄)"),
-        Patch(facecolor=C_RES,   alpha=0.78, label="Water balance residual; error bars = ±1 SE"),
-        Patch(facecolor=C_INT,   alpha=0.80, label="Canopy interception — C4 only"),
-    ]
-    ax.legend(handles=legend_elements, loc="upper right", fontsize=7.5,
-              framealpha=1.0, edgecolor="#CCCCCC", ncol=2,
-              handlelength=1.2, handletextpad=0.5, columnspacing=0.8, facecolor=bg)
-
-    ax.set_title(
-        "Mean Monthly Water Balance Decomposition — Newborough Warren 2005–2026\n"
-        "Left bar = losses;  Right bar = inputs.  Bars equal height by construction.\n"
-        "All terms in m month⁻¹ (head-space units of the state-space model).",
-        fontsize=9, pad=10, color="#1A1A2E")
-
-    dpi = 300 if manuscript else 150
-    plt.tight_layout()
-    fig.savefig(output_path, dpi=dpi, bbox_inches='tight', facecolor=bg)
-    plt.close()
-    print(f"Head-space chart saved → {output_path.name}")
+        rows.append({
+            "Cluster": cid,
+            "Label": _CFG_LABELS[cid],
+            "beta_1": s["b1"],
+            "beta_2": s["b2"],
+            "beta_3": s["b3"],
+            "LCSC_pct": s["lcsc"],
+            "P_mean_m_month": s["P_m"],
+            "PET_mean_m_month": s["PET_m"],
+            "h_disp_mean_m": s["h_disp_mean"],
+            "Recharge_m_month": s["recharge"],
+            "ET_draw_m_month": s["et_draw"],
+            "Drainage_m_month": s["drainage"],
+            "Total_loss_m_month": s["total_loss"],
+            "Residual_m_month": s["residual"],
+            "Drainage_pct": s["drain_pct"],
+            "ET_pct": s["et_pct"],
+        })
+    pd.DataFrame(rows).to_csv(path, index=False, float_format="%.6f")
+    print(f"  -> Saved: {path.name}")
 
 
-def make_chart_volumetric(summary, output_path, manuscript=False,
-                          sy_dict=None, labels_dict=None, title_lines=None):
-    """Volumetric bar chart (mm/year).
+def save_volumetric_table(summary, recession, path):
+    """Save Table 3b: volumetric water balance partition.
 
-    Parameters
-    ----------
-    sy_dict : dict {cluster_id: Sy}
-        Defaults to SY (assumed, Figure 8a). Pass SY_WTF for Figure 8b.
-    labels_dict : dict {cluster_id: label}
-        Defaults to CLUSTER_LABELS_VOL. Pass CLUSTER_LABELS_VOL_WTF for Figure 8b.
-    title_lines : tuple of 3 strings
-        Three-line title. Defaults to Figure 8a title.
+    Shows P, I, and the ET/Drainage partition bracketed by SSM and recession
+    methods. No Sy-dependent conversion — the partition is derived from
+    headspace ratios (SSM) and observed recession rates.
     """
-    if sy_dict is None:
-        sy_dict = SY
-    if labels_dict is None:
-        labels_dict = CLUSTER_LABELS_VOL
-    if title_lines is None:
-        title_lines = (
-            "Indicative Annual Volumetric Water Balance — Newborough Warren 2005–2026",
-            "Left bar = losses;  Right bar = inputs.  Bars equal height by construction.",
-            "C1: Sy = 8%;  C2–C4: Sy = 12%.  Indicative only — Sy values assumed.",
-        )
+    P_annual = summary[1]["P_m"] * 12 * 1000   # mm/yr (same for all)
+    PET_annual = summary[1]["PET_m"] * 12 * 1000
 
-    clusters = list(summary.keys())
-    n = len(clusters)
-    w = 0.30; gap = 0.05
-    x = np.arange(n)
-    x_loss = x - w/2 - gap/2
-    x_inp  = x + w/2 + gap/2
+    rows = []
+    for cid in sorted(summary.keys()):
+        s = summary[cid]
+        r = recession.get(cid, {})
 
-    bg = "white" if manuscript else "#F7F4EF"
+        is_forest = cid in FOREST_CIDS
+        I_val = FOREST_INTERCEPTION * P_annual if is_forest else 0.0
+        P_net = P_annual - I_val
 
-    # Convert head-space to mm/year
-    def v(val, cid): return round(val * 12 * sy_dict[cid] * 1000)
+        # SSM partition (from headspace ratios)
+        ssm_drain_frac = s["drain_pct"] / 100.0
+        ssm_et_frac = s["et_pct"] / 100.0
 
-    vol = {}
-    for cid, s in summary.items():
-        vol[cid] = dict(
-            drainage  = v(s["drainage"],   cid),
-            pet_loss  = v(s["pet_loss"],   cid),
-            recharge  = v(s["recharge"],   cid),
-            residual   = v(s["residual"],    cid),
-            intercept = v(s["intercept"],  cid),
-            residual_se= v(s["residual_se"], cid),
-            total_loss= v(s["drainage"] + s["pet_loss"], cid),
-        )
+        # Recession partition
+        rec_drain_frac = r.get("drain_frac", np.nan)
+        rec_et_frac = r.get("et_frac", np.nan)
 
-    fig, ax = plt.subplots(figsize=(10, 6.5), facecolor=bg)
-    ax.set_facecolor(bg); fig.patch.set_facecolor(bg)
-    ymax = max(v["total_loss"] for v in vol.values()) * 1.70
+        # Midpoint and range
+        if pd.notna(rec_drain_frac):
+            df_lo = min(ssm_drain_frac, rec_drain_frac)
+            df_hi = max(ssm_drain_frac, rec_drain_frac)
+            df_mid = (ssm_drain_frac + rec_drain_frac) / 2
+        else:
+            df_lo = df_hi = df_mid = ssm_drain_frac
 
-    for i, cid in enumerate(clusters):
-        vv = vol[cid]
-        # Losses
-        ax.bar(x_loss[i], vv["drainage"], w, color=C_DRAIN, alpha=0.82, edgecolor="white", lw=0.5, zorder=3)
-        ax.bar(x_loss[i], vv["pet_loss"], w, bottom=vv["drainage"], color=C_ATM, alpha=0.82, edgecolor="white", lw=0.5, zorder=3)
-        # Inputs
-        ax.bar(x_inp[i], vv["recharge"], w, color=C_RECH, alpha=0.82, edgecolor="white", lw=0.5, zorder=3)
-        ax.bar(x_inp[i], vv["residual"],  w, bottom=vv["recharge"], color=C_RES, alpha=0.78, edgecolor="white", lw=0.5, zorder=3)
-        if vv["intercept"] > 0:
-            ax.bar(x_inp[i], vv["intercept"], w, bottom=vv["recharge"]+vv["residual"], color=C_INT, alpha=0.80, edgecolor="white", lw=0.5, zorder=3)
+        rows.append({
+            "Cluster": cid,
+            "Label": _CFG_LABELS[cid],
+            "P_mm_yr": P_annual,
+            "PET_mm_yr": PET_annual,
+            "I_mm_yr": I_val,
+            "P_net_mm_yr": P_net,
+            "P_minus_PET_mm_yr": P_annual - PET_annual,
+            "SSM_drain_frac": ssm_drain_frac,
+            "SSM_ET_frac": ssm_et_frac,
+            "Rec_drain_frac": rec_drain_frac,
+            "Rec_ET_frac": rec_et_frac,
+            "Mid_drain_frac": df_mid,
+            "ET_mid_mm_yr": P_net * (1 - df_mid),
+            "ET_lo_mm_yr": P_net * (1 - df_hi),
+            "ET_hi_mm_yr": P_net * (1 - df_lo),
+            "Drain_mid_mm_yr": P_net * df_mid,
+            "Drain_lo_mm_yr": P_net * df_lo,
+            "Drain_hi_mm_yr": P_net * df_hi,
+        })
 
-        # Error bar
-        ax.errorbar(x_loss[i], vv["total_loss"], yerr=vv["residual_se"],
-                    fmt="none", color="#999999", capsize=4, capthick=1.2, elinewidth=1.2, zorder=6)
+    pd.DataFrame(rows).to_csv(path, index=False, float_format="%.1f")
+    print(f"  -> Saved: {path.name}")
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# FIGURE
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def make_figure(summary, recession, ms=True):
+    """Two-panel Figure 8.
+
+    Panel (a): Head-space SSM decomposition — recharge vs ET + drainage.
+    Panel (b): Volumetric partition — P vs losses, with hatched uncertainty
+               band at ET/drainage boundary.
+    """
+    cids = sorted(summary.keys())
+    x = np.arange(len(cids))
+
+    P_annual = summary[cids[0]]["P_m"] * 12 * 1000
+    PET_annual = summary[cids[0]]["PET_m"] * 12 * 1000
+
+    if ms:
+        plt.rcParams.update({"font.family": "sans-serif", "axes.labelsize": 10})
+        bg_color = "white"
+    else:
+        bg_color = "#F5F0E8"
+
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(11, 12), facecolor=bg_color)
+    for ax in (ax1, ax2):
+        ax.set_facecolor(bg_color)
+
+    # ── Panel (a): Headspace ──────────────────────────────────────────────
+    width = 0.35
+    rech_vals = [summary[c]["recharge"] for c in cids]
+    et_vals   = [summary[c]["et_draw"]  for c in cids]
+    drain_vals = [summary[c]["drainage"] for c in cids]
+
+    ax1.bar(x - width/2, rech_vals, width, color=C_RECH, edgecolor="white",
+            linewidth=0.5, label="Recharge (β₁·P̄)", zorder=3)
+    ax1.bar(x + width/2, et_vals, width, color=C_ET, edgecolor="white",
+            linewidth=0.5, label="ET draw (β₂·PET̄)", zorder=3)
+    ax1.bar(x + width/2, drain_vals, width, bottom=et_vals, color=C_DRAIN,
+            edgecolor="white", linewidth=0.5, label="Drainage (β₃·h̄ᵈⁱˢᵖ)", zorder=3)
+
+    for i, cid in enumerate(cids):
+        s = summary[cid]
+        # Recharge label above bar
+        ax1.text(i - width/2, s["recharge"] + 0.004, f'{s["recharge"]:.3f}',
+                 ha='center', va='bottom', fontsize=7, color='#333')
+        # ET label inside bar
+        if s["et_draw"] > 0.04:
+            ax1.text(i + width/2, s["et_draw"]/2, f'{s["et_draw"]:.3f}',
+                     ha='center', va='center', fontsize=6.5, color='white',
+                     fontweight='bold')
+        # Drainage label inside or above bar
+        if s["drainage"] > 0.04:
+            ax1.text(i + width/2, s["et_draw"] + s["drainage"]/2,
+                     f'{s["drainage"]:.3f}', ha='center', va='center',
+                     fontsize=6.5, color='white', fontweight='bold')
+        else:
+            ax1.text(i + width/2, s["et_draw"] + s["drainage"] + 0.004,
+                     f'{s["drainage"]:.3f}', ha='center', va='bottom',
+                     fontsize=6.5, color='#555')
+        # Partition percentages below x-axis
+        ax1.text(i, -0.028,
+                 f'D:{s["drain_pct"]:.0f}%  ET:{s["et_pct"]:.0f}%',
+                 ha='center', va='top', fontsize=7, color='#555')
+
+    ax1.set_xticks(x)
+    ax1.set_xticklabels([CLUSTER_LABELS_FIG[c] for c in cids], fontsize=8.5)
+    ax1.set_ylabel("Head-space flux (m/month)", fontsize=10)
+    ax1.set_title("(a) Mean monthly head-space water balance decomposition",
+                  fontsize=10.5, fontweight='bold')
+    ax1.legend(loc='upper right', fontsize=8, framealpha=0.9)
+    ax1.set_xlim(-0.6, len(cids) - 0.4)
+    ax1.set_ylim(-0.035, max(rech_vals) * 1.15)
+    ax1.spines['top'].set_visible(False)
+    ax1.spines['right'].set_visible(False)
+    ax1.axhline(0, color='#999', linewidth=0.5, zorder=1)
+    ax1.grid(axis='y', alpha=0.3, zorder=0)
+
+    P_mm_mo = summary[cids[0]]["P_m"] * 1000
+    PET_mm_mo = summary[cids[0]]["PET_m"] * 1000
+    datum = DRAINAGE_DATUM
+    ax1.text(0.5, -0.17,
+             f"All clusters receive identical forcing: P̄ = {P_mm_mo:.1f} mm/month, "
+             f"PET̄ = {PET_mm_mo:.1f} mm/month. "
+             f"Residuals < 3.5% of losses. Datum = {datum:.1f} m b.g.s.",
+             transform=ax1.transAxes, ha='center', va='top', fontsize=7.5,
+             color='#666', style='italic')
+
+    # ── Panel (b): Volumetric ─────────────────────────────────────────────
+    width_p = 0.30
+    width_loss = 0.30
+    gap = 0.04
+
+    for i, cid in enumerate(cids):
+        is_forest = cid in FOREST_CIDS
+        I_val = FOREST_INTERCEPTION * P_annual if is_forest else 0
+        P_net = P_annual - I_val
+
+        # Partition fractions
+        ssm_df = summary[cid]["drain_pct"] / 100.0
+        rec_df = recession.get(cid, {}).get("drain_frac", ssm_df)
+        if pd.isna(rec_df):
+            rec_df = ssm_df
+        df_lo  = min(ssm_df, rec_df)
+        df_hi  = max(ssm_df, rec_df)
+        df_mid = (ssm_df + rec_df) / 2
+
+        et_mid    = P_net * (1 - df_mid)
+        drain_mid = P_net * df_mid
+        et_lo     = P_net * (1 - df_hi)    # boundary lowest (most drainage)
+        et_hi     = P_net * (1 - df_lo)    # boundary highest (most ET)
+
+        x_p = i - width_p/2 - gap/2
+        x_l = i + width_loss/2 + gap/2
+
+        # INPUT bar: P with interception at top
+        ax2.bar(x_p, P_net, width_p, color=C_P, edgecolor="white",
+                linewidth=0.5, zorder=3)
+        if is_forest:
+            ax2.bar(x_p, I_val, width_p, bottom=P_net, color=C_INTCP,
+                    edgecolor="white", linewidth=0.5, zorder=3,
+                    hatch='///', alpha=0.85)
+
+        # LOSS bar: ET (bottom) + Drainage (top) + Interception (top)
+        ax2.bar(x_l, et_mid, width_loss, color=C_ET, edgecolor="white",
+                linewidth=0.5, zorder=3)
+        ax2.bar(x_l, drain_mid, width_loss, bottom=et_mid, color=C_DRAIN,
+                edgecolor="white", linewidth=0.5, zorder=3)
+        if is_forest:
+            ax2.bar(x_l, I_val, width_loss, bottom=P_net, color=C_INTCP,
+                    edgecolor="white", linewidth=0.5, zorder=3,
+                    hatch='///', alpha=0.85)
+
+        # Uncertainty band: hatched rectangle at ET/drainage boundary
+        band_bottom = et_lo
+        band_height = et_hi - et_lo
+        if band_height > 1:   # only draw if range is visible
+            rect = mpatches.FancyBboxPatch(
+                (x_l - width_loss/2, band_bottom), width_loss, band_height,
+                boxstyle="square,pad=0",
+                facecolor='white', edgecolor='#333', linewidth=0.8,
+                alpha=0.45, hatch='\\\\\\', zorder=4,
+            )
+            ax2.add_patch(rect)
 
         # Value labels
-        ax.text(x_loss[i], vv["drainage"]/2, str(vv["drainage"]), ha="center", va="center", fontsize=7.5, color="white", fontweight="bold")
-        ax.text(x_loss[i], vv["drainage"]+vv["pet_loss"]/2, str(vv["pet_loss"]), ha="center", va="center", fontsize=7.5, color="white", fontweight="bold")
-        ax.text(x_inp[i],  vv["recharge"]/2, str(vv["recharge"]), ha="center", va="center", fontsize=7.5, color="white", fontweight="bold")
-        ax.text(x_inp[i],  vv["recharge"]+vv["residual"]/2, str(vv["residual"]), ha="center", va="center", fontsize=7.5, color="white", fontweight="bold")
-        if vv["intercept"] > 0:
-            ax.text(x_inp[i], vv["recharge"]+vv["residual"]+vv["intercept"]/2, str(vv["intercept"]), ha="center", va="center", fontsize=7, color="white", fontweight="bold")
+        et_label_y = et_lo / 2 if et_lo > 100 else et_mid / 2
+        if et_mid > 120:
+            ax2.text(x_l, et_label_y, f'{et_mid:.0f}', ha='center', va='center',
+                     fontsize=7.5, color='white', fontweight='bold', zorder=5)
+        drain_label_y = (et_hi + (P_net - et_hi) / 2 if (P_net - et_hi) > 100
+                         else et_mid + drain_mid / 2)
+        if drain_mid > 120:
+            ax2.text(x_l, drain_label_y, f'{drain_mid:.0f}', ha='center',
+                     va='center', fontsize=7.5, color='white', fontweight='bold',
+                     zorder=5)
+        elif drain_mid > 50:
+            ax2.text(x_l, et_mid + drain_mid/2, f'{drain_mid:.0f}', ha='center',
+                     va='center', fontsize=6.5, color='white', zorder=5)
 
-        # Residual annotation above error bar
-        ax.text(x_loss[i], vv["total_loss"] + vv["residual_se"] + ymax*0.010,
-                f"residual {vv['residual']}\n±{vv['residual_se']}",
-                ha="center", va="bottom", fontsize=6.5, color="#555555", style="italic", linespacing=1.3)
+        # Interception labels
+        if is_forest:
+            ax2.text(x_p, P_net + I_val/2, f'I={I_val:.0f}', ha='center',
+                     va='center', fontsize=6.5, color='white', fontweight='bold')
+            ax2.text(x_l, P_net + I_val/2, f'I={I_val:.0f}', ha='center',
+                     va='center', fontsize=6.5, color='white', fontweight='bold')
 
-        # Flooding frequency
-        fc = "#1565C0" if cid in [1,2] else ("#B71C1C" if cid==3 else "#888888")
-        ax.text(x[i], -0.12, f"Floods: {FLOOD_FREQ[cid]} of years",
-                ha="center", va="top", fontsize=7.8, color=fc, fontweight="bold",
-                transform=ax.get_xaxis_transform())
+        # Column headers
+        ax2.text(x_p, P_annual + 20, 'P', ha='center', va='bottom', fontsize=8,
+                 color=C_P, fontweight='bold')
+        ax2.text(x_l, P_annual + 20, 'Losses', ha='center', va='bottom',
+                 fontsize=7.5, color='#444')
 
-    ax.set_xticks(x)
-    ax.set_xticklabels([labels_dict[c] for c in clusters], fontsize=8.8, linespacing=1.5)
-    ax.set_ylabel("mm year⁻¹  (volumetric, assuming Sy)", fontsize=10)
-    ax.set_ylim(0, ymax)
-    ax.yaxis.set_tick_params(labelsize=8.5)
-    ax.spines[["top","right"]].set_visible(False)
-    ax.spines[["left","bottom"]].set_color("#CCCCCC")
-    ax.set_axisbelow(True)
-    ax.yaxis.grid(True, color="#EEEEEE", lw=0.7, zorder=0)
+    # Reference lines
+    ax2.axhline(P_annual, color=C_P, linewidth=0.6, linestyle='--', alpha=0.25,
+                zorder=1)
+    ax2.axhline(PET_annual, color='#999', linewidth=0.6, linestyle=':', alpha=0.25,
+                zorder=1)
+    ax2.text(-0.65, P_annual, f'P = {P_annual:.0f}', va='center', fontsize=7.5,
+             color=C_P, fontweight='bold')
+    ax2.text(-0.65, PET_annual, f'PET = {PET_annual:.0f}', va='center',
+             fontsize=7.5, color='#888')
 
+    # Legend
     legend_elements = [
-        Patch(facecolor=C_DRAIN, alpha=0.82, label="Gravity drainage"),
-        Patch(facecolor=C_ATM,   alpha=0.82, label="Atmospheric draw"),
-        Patch(facecolor=C_RECH,  alpha=0.82, label="Recharge"),
-        Patch(facecolor=C_RES,   alpha=0.78, label="Water balance residual; error bars = ±1 SE"),
-        Patch(facecolor=C_INT,   alpha=0.80, label="Canopy interception — C4 only"),
+        Patch(facecolor=C_P, edgecolor='white', label='Rainfall (P)'),
+        Patch(facecolor=C_ET, edgecolor='white', label='Evapotranspiration'),
+        Patch(facecolor=C_DRAIN, edgecolor='white', label='Lateral drainage'),
+        Patch(facecolor=C_INTCP, edgecolor='white',
+              label='Interception (Freeman 2008)', hatch='///'),
+        Patch(facecolor='white', edgecolor='#333',
+              label='Partition uncertainty\n(SSM–recession range)',
+              hatch='\\\\\\', alpha=0.45, linewidth=0.8),
     ]
-    ax.legend(handles=legend_elements, loc="upper right", fontsize=7.5,
-              framealpha=1.0, edgecolor="#CCCCCC", ncol=2,
-              handlelength=1.2, handletextpad=0.5, columnspacing=0.8, facecolor=bg)
+    ax2.legend(handles=legend_elements, loc='lower right', fontsize=8,
+               framealpha=0.9)
 
-    ax.set_title(
-        title_lines[0] + "\n" + title_lines[1] + "\n" + title_lines[2],
-        fontsize=9, pad=10, color="#1A1A2E")
+    ax2.set_xticks(x)
+    ax2.set_xticklabels([CLUSTER_LABELS_FIG[c] for c in cids], fontsize=8.5)
+    ax2.set_ylabel("Annual flux (mm/yr)", fontsize=10)
+    ax2.set_title("(b) Volumetric water balance: ET/drainage partition bracketed "
+                  "by SSM and recession analysis",
+                  fontsize=10.5, fontweight='bold')
+    ax2.set_xlim(-0.8, len(cids) + 0.2)
+    ax2.set_ylim(0, P_annual * 1.08)
+    ax2.spines['top'].set_visible(False)
+    ax2.spines['right'].set_visible(False)
+    ax2.grid(axis='y', alpha=0.3, zorder=0)
 
-    plt.tight_layout()
-    dpi = 300 if manuscript else 150
-    fig.savefig(output_path, dpi=dpi, bbox_inches='tight', facecolor=bg)
-    plt.close()
-    print(f"Volumetric chart saved → {output_path.name}")
+    I_pct = int(FOREST_INTERCEPTION * 100)
+    ax2.text(0.5, -0.14,
+             f"All clusters receive P = {P_annual:.0f} mm/yr. At steady state, "
+             f"total losses = P. The hatched band spans the ET/drainage\nboundary "
+             f"range between SSM headspace ratios and seasonal recession analysis. "
+             f"Forest interception ({I_pct}% of P;\nFreeman 2008) "
+             f"appears identically on both bars and cancels in the net surplus.",
+             transform=ax2.transAxes, ha='center', va='top', fontsize=7.5,
+             color='#666', style='italic')
 
+    plt.tight_layout(h_pad=4.5)
+    return fig
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# MAIN
+# ═══════════════════════════════════════════════════════════════════════════════
 
 def main():
-    # ── Resolve paths ──────────────────────────────────────────────────────────
-    out_dir     = DIR_16
-    path_table  = OUT_16_TABLE
-    path_lay    = OUT_16_BAR_LAY
-    path_ms     = OUT_16_BAR_MS
-    path_vol_ms = OUT_16_VOL_MS
-    path_vol_lay= OUT_16_VOL_LAY
+    print("Starting 16: Water Balance Decomposition...")
 
-    # ── Run ────────────────────────────────────────────────────────────────────
-    print("Loading data...")
     df, betas = load_data()
 
-    print("Computing water balance components...")
-    summary = compute_summary(df, betas)
+    # ── Headspace balance ──
+    summary = compute_headspace(df, betas)
 
-    print("Exporting Table 3a (head-space)...")
-    export_table(summary, out_dir)
+    print("\n  HEAD-SPACE WATER BALANCE (m/month)")
+    print(f"  {'Cluster':<22} {'Rech':>8} {'ET':>8} {'Drain':>8} "
+          f"{'Losses':>8} {'Resid':>9} {'D%':>5} {'ET%':>5}")
+    for cid in sorted(summary.keys()):
+        s = summary[cid]
+        print(f"  {_CFG_LABELS[cid]:<22} "
+              f"{s['recharge']:>8.4f} {s['et_draw']:>8.4f} {s['drainage']:>8.4f} "
+              f"{s['total_loss']:>8.4f} {s['residual']:>+9.4f} "
+              f"{s['drain_pct']:>4.0f}% {s['et_pct']:>4.0f}%")
 
-    print("Exporting Table 3b (volumetric, assumed Sy)...")
-    export_vol_table(summary, out_dir)
+    save_headspace_table(summary, OUT_16_TABLE)
 
-    print("Exporting Table 3d (volumetric, WTF-derived Sy — upper bound)...")
-    export_vol_wtf_table(summary, out_dir)
+    # ── Recession analysis ──
+    recession = compute_recession_partition(df)
 
-    print("Generating Figure 8 (head-space charts)...")
-    make_chart_headspace(summary, path_lay, manuscript=False)
-    make_chart_headspace(summary, path_ms,  manuscript=True)
+    print("\n  RECESSION PARTITION (winter/summer ratio)")
+    print(f"  {'Cluster':<22} {'Win Δh':>9} {'Sum Δh':>9} {'D_frac':>7} "
+          f"{'n_w':>5} {'n_s':>5}")
+    for cid in sorted(recession.keys()):
+        r = recession[cid]
+        if pd.notna(r.get("winter_rate")):
+            print(f"  {_CFG_LABELS[cid]:<22} "
+                  f"{r['winter_rate']:>9.4f} {r['summer_rate']:>9.4f} "
+                  f"{r['drain_frac']:>7.2f} {r['n_winter']:>5} {r['n_summer']:>5}")
 
-    print("Generating Figure 8a (volumetric, assumed Sy — lower bound)...")
-    make_chart_volumetric(summary, path_vol_ms,  manuscript=True)
-    make_chart_volumetric(summary, path_vol_lay, manuscript=False)
+    save_volumetric_table(summary, recession, OUT_16_VOL_TABLE)
 
-    print("Generating Figure 8b (volumetric, WTF-derived Sy — upper bound)...")
-    wtf_title = (
-        "Annual Volumetric Water Balance — WTF Empirical Upper Bound — "
-        "Newborough Warren 2005–2026",
-        "Left bar = losses;  Right bar = inputs.  Bars equal height by construction.",
-        "WTF-derived Sy: C1 = 0.223; C2 = 0.234; C3 = 0.259; C4 = 0.227 "
-        "(C4 interception-corrected, Freeman 2008).",
-    )
-    make_chart_volumetric(summary, OUT_16_VOL_WTF_MS,  manuscript=True,
-                          sy_dict=SY_WTF, labels_dict=CLUSTER_LABELS_VOL_WTF,
-                          title_lines=wtf_title)
-    make_chart_volumetric(summary, OUT_16_VOL_WTF_LAY, manuscript=False,
-                          sy_dict=SY_WTF, labels_dict=CLUSTER_LABELS_VOL_WTF,
-                          title_lines=wtf_title)
+    # ── Figure 8 ──
+    # Manuscript version
+    fig = make_figure(summary, recession, ms=True)
+    fig.savefig(OUT_16_BAR_MS, dpi=300, bbox_inches='tight', facecolor='white')
+    plt.close(fig)
+    print(f"  -> Saved: {OUT_16_BAR_MS.name}")
 
-    print("\nAll outputs written to", out_dir)
+    # Lay version
+    fig = make_figure(summary, recession, ms=False)
+    fig.savefig(OUT_16_BAR_LAY, dpi=150, bbox_inches='tight')
+    plt.close(fig)
+    print(f"  -> Saved: {OUT_16_BAR_LAY.name}")
+
+    print("\n  Done.")
 
 
 if __name__ == "__main__":

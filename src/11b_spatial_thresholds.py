@@ -20,20 +20,45 @@ LiDAR survey was flown:
     CEH21 (scraped October 2023, ~0.70 m removed): DEM corrected -0.70 m
     Both wells use post-2023 data only.
 
+P_FLOOD MAP (plot_pflood_map) — Section 3.6.3 of Hollingham (2026)
+------------------------------------------------------------------
+Revised 2026-04: iterated closed-form P_flood supersedes the earlier
+single-step inversion. For each well:
+    - cluster-level \u03b2 coefficients are taken from
+      03_03_cluster_mechanistic_coefficients.csv (hybrid architecture per
+      Section 3.6.3: cluster-\u03b2 provides dynamics, well-specific mean
+      summer minimum provides spatial resolution);
+    - the SSM is iterated from h_0 over a cluster-specific horizon
+      (October to the cluster's historical peak month, loaded from
+      03_cluster_peak_months.csv) with RAF Valley monthly PET and
+      rainfall climatology;
+    - closed-form solution for the rainfall multiplier \u03bb gives P_flood
+      in mm directly comparable to the 521 mm mean annual winter total.
+
+Wells whose cluster lacks an entry in CLUSTER_PEAK_MONTH or in the
+mechanistic coefficients table are omitted from the P_flood map (the
+check is data-driven, not hardcoded to specific cluster IDs).
+
 Outputs
 -------
     outputs/11b_spatial_thresholds/
-        11b_01_summer_minima_depth.png   — main ecological status map
+        11b_01_summer_minima_depth.png   \u2014 main ecological status map
+        11b_02_winter_maxima_depth.png   \u2014 winter peak depth map
+        11b_03_pflood.png                \u2014 P_flood spatial map (iterated)
+        11b_03_pflood_per_well.csv       \u2014 per-well P_flood CSV (new)
+        11b_04_flood_frequency.png       \u2014 winter flooding frequency map
 
 Inputs (all from pipeline outputs/ directory)
 -----------------------------------------------
-    01_wells_clean_maod.csv         — reference network maOD time series
-    01_wells_extended.csv           — extended network raw depths
-    01_well_elevations.csv          — well DEM elevations (Pipe_Top_Elev)
-    01_locations.csv                — well coordinates
-    03_master_data.csv              — reference well cluster assignments
-    06_pear_membership_audit_sitewide.csv  — extended well cluster assignments
-    data/Features.kml               — site feature overlays
+    01_wells_clean_maod.csv                    \u2014 reference network maOD time series
+    01_wells_extended.csv                      \u2014 extended network raw depths
+    01_well_elevations.csv                     \u2014 well DEM elevations (Pipe_Top_Elev)
+    01_locations.csv                           \u2014 well coordinates
+    03_master_data.csv                         \u2014 reference well cluster assignments
+    03_03_cluster_mechanistic_coefficients.csv \u2014 cluster-level SSM \u03b2 coefficients
+    03_regional_averages.csv                   \u2014 monthly P, PET and cluster means (for climatology)
+    06_pear_membership_audit_sitewide.csv      \u2014 extended well cluster assignments
+    data/Features.kml                          \u2014 site feature overlays
 
 Called by
 ---------
@@ -46,9 +71,12 @@ Dependencies
     Skeletonisation: not required (map_utils handles DEM/IDW)
 """
 
-__version__ = "1.0.0"  # Hollingham (2026) — last revised 2026-04-10
+__version__ = "1.1.0"  # Hollingham (2026) — last revised 2026-04-23
+#                        1.1.0: iterated P_flood (Section 3.6.3 revision)
+#                        1.0.0: single-step P_flood (superseded)
 
 import argparse
+import json
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -63,19 +91,38 @@ from utils.paths import (
     INT_MASTER_DATA,
     INT_LOCATIONS,
     INT_WELLS_CLEAN,
+    INT_WELLS_CLEAN_MAOD,
     INT_WELLS_EXTENDED,
+    INT_WELL_ELEVATIONS,
     INT_PEAR_AUDIT_SITEWIDE,
+    INT_REGIONAL_AVG,
+    INT_CLUSTER_PEAK_MONTHS,
+    OUT_03_MECHANISTIC_TABLE,
+    OUT_11_TABLE8_THRESHOLDS,
+    OUT_11_TABLE6_WINTER,
+    OUT_11_TABLE7_SUMMER,
+    DIR_11B,
+    OUT_11B_SUMMER_MAP,
+    OUT_11B_WINTER_MAP,
+    OUT_11B_PFLOOD_MAP,
+    OUT_11B_PFLOOD_PER_WELL,
+    OUT_11B_FLOOD_FREQ,
+    OUT_11B_TABLE10,
+    OUT_11B_FORECASTER_HTML,
+    SRC_FORECASTER_TEMPLATE,
 )
-from utils.map_utils import load_dem_hillshade, add_idw_surface, add_kml_features
+from utils.map_utils import load_dem_hillshade, add_idw_surface, add_kml_features, _safe_read_kml
+from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS
 
 # ─────────────────────────────────────────────────────────────────────────────
-# PATHS
+# LOCAL ALIASES
+# The two constants below are readability aliases for paths.py entries whose
+# names in paths.py don't match the names used throughout this script's
+# plotting functions. Kept here rather than renamed in paths.py to avoid
+# ripple-changes elsewhere in the pipeline.
 # ─────────────────────────────────────────────────────────────────────────────
-DIR_11B = OUT_DIR / "11b_spatial_thresholds"
-OUT_11B_SUMMER_MAP  = DIR_11B / "11b_01_summer_minima_depth.png"
-OUT_11B_WINTER_MAP  = DIR_11B / "11b_02_winter_maxima_depth.png"
-OUT_11B_PFLOOD_MAP  = DIR_11B / "11b_03_pflood.png"
-OUT_11B_FLOOD_FREQ  = DIR_11B / "11b_04_flood_frequency.png"
+INT_CLUSTER_MECHANISTIC = OUT_03_MECHANISTIC_TABLE   # 03_03_cluster_mechanistic_coefficients.csv
+INT_REGIONAL_AVERAGES   = INT_REGIONAL_AVG           # 03_regional_averages.csv
 
 # Mean annual winter rainfall (Oct-Mar, monitoring period 2005-2026)
 MEAN_WINTER_RAINFALL_MM = 521
@@ -84,9 +131,6 @@ MEAN_WINTER_RAINFALL_MM = 521
 SEA_SOUTH_N = 362350   # m OSGB36 — southern shoreline
 SEA_EAST_E  = 243850   # m OSGB36 — eastern Menai Strait
 SEA_WEST_E  = 239200   # m OSGB36 — western estuary
-
-INT_WELLS_CLEAN_MAOD = OUT_DIR / "01_wells_clean_maod.csv"
-INT_WELL_ELEVATIONS  = OUT_DIR / "01_well_elevations.csv"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # ECOLOGICAL THRESHOLDS (Curreli et al., 2013)
@@ -108,6 +152,56 @@ SCRAPED = {
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Wells whose Best_Match_Cluster is a "nearest-cluster" pattern match, NOT a
+# statement that the SSM model is valid for the well. These wells sit outside
+# the SSM operational domain (tidal boundary, upstream-script exclusions etc.)
+# but appear in the sitewide audit because their hydrograph happens to
+# correlate with one of the canonical cluster centroids. They are still
+# included in the forecaster — but flagged so the user knows the cluster
+# label is "nearest type", not "core member".
+#
+# Provenance (carried over from Scripts 07 / 22):
+#   ceh3, ceh4 — tidal boundary; outside SSM operational domain (report S4.4.2)
+#   ceh7, ceh8 — upstream exclusions
+#   ceh37     — same
+# ─────────────────────────────────────────────────────────────────────────────
+NEAREST_CLUSTER_ONLY_WELLS: set[str] = {"ceh3", "ceh4", "ceh7", "ceh8", "ceh37"}
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# P_FLOOD (iterated, Section 3.6.3 of Hollingham 2026) — CONFIGURATION
+# ─────────────────────────────────────────────────────────────────────────────
+def _load_cluster_peak_months_int() -> dict[int, int]:
+    """
+    Load CLUSTER_PEAK_MONTH (integer cluster-id → peak month) from
+    INT_CLUSTER_PEAK_MONTHS (written by Script 03's
+    export_cluster_peak_months). 11b uses integer keys throughout, unlike 11
+    which uses 'C{n}' string keys; both load from the same file.
+    """
+    if not INT_CLUSTER_PEAK_MONTHS.exists():
+        raise FileNotFoundError(
+            f"Cluster peak-months file not found:\n  {INT_CLUSTER_PEAK_MONTHS}\n"
+            f"Run script 03 (state-space model) first — it produces this file "
+            f"as part of its regional-averages exports."
+        )
+    df = pd.read_csv(INT_CLUSTER_PEAK_MONTHS)
+    if not {"cluster_id", "peak_month"}.issubset(df.columns):
+        raise RuntimeError(
+            f"{INT_CLUSTER_PEAK_MONTHS.name} is missing expected columns "
+            f"'cluster_id' and 'peak_month'. Re-run script 03 to regenerate."
+        )
+    return {int(row["cluster_id"]): int(row["peak_month"]) for _, row in df.iterrows()}
+
+
+# Cluster-specific horizon: months from October to historical peak-of-record.
+# Loaded from INT_CLUSTER_PEAK_MONTHS (script 03 output) so the values stay
+# in sync with the partition.
+CLUSTER_PEAK_MONTH = _load_cluster_peak_months_int()
+
+# Slack-floor target (0 = ground surface = full flooding)
+P_FLOOD_H_TARGET_M = 0.0
+
+# ─────────────────────────────────────────────────────────────────────────────
 # ZONE COLOURS
 # ─────────────────────────────────────────────────────────────────────────────
 ZONE_COLOURS = [
@@ -120,9 +214,9 @@ ZONE_COLOURS = [
 ZONE_BOUNDS = [0.0, SD15b, SD15b_REC, SD16, SD16_REC, 3.5]
 
 # ─────────────────────────────────────────────────────────────────────────────
-# CLUSTER COLOURS (must match utils/config.py CLUSTER_COLOURS)
+# CLUSTER COLOURS — imported from utils/config.py (single source of truth)
 # ─────────────────────────────────────────────────────────────────────────────
-CLUSTER_COLS = {1: "#E377C2", 2: "#17BECF", 3: "#2CA02C", 4: "#1F77B4"}
+CLUSTER_COLS = CLUSTER_COLOURS
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -204,11 +298,9 @@ def _fill_and_mask(surf, gx, gy, df_pts, values):
     filled = surf.copy().astype(float)
     nan_mask = np.isnan(filled)
     if nan_mask.any():
-        # Fill with nearest-neighbour where linear interpolation gives NaN
         pts = np.column_stack([df_pts["E"].values, df_pts["N"].values])
         nearest = _gd(pts, values, (gx, gy), method="nearest")
         filled[nan_mask] = nearest[nan_mask]
-    # Apply site boundary mask
     site_mask = _make_site_mask(gx, gy)
     filled[~site_mask] = np.nan
     return filled
@@ -230,7 +322,6 @@ def _winter_maxima(series: pd.Series) -> dict:
     """Return {hydro_year: Oct-Mar maximum maOD} for a maOD time series."""
     out = {}
     for yr in series.index.year.unique():
-        # Hydrological year: Oct yr-1 to Mar yr
         sub = series[
             ((series.index.year == yr - 1) & series.index.month.isin([10, 11, 12])) |
             ((series.index.year == yr) & series.index.month.isin([1, 2, 3]))
@@ -261,6 +352,156 @@ def _summer_mins(series: pd.Series, start_yr: int = None) -> dict:
         if len(sub) >= 1:
             out[yr] = sub.min()
     return out
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# P_FLOOD HELPERS (iterated closed form — Section 3.6.3)
+# ─────────────────────────────────────────────────────────────────────────────
+def _horizon_months(peak_month: int) -> list:
+    """Return [10, 11, ..., peak_month] as a sequence of calendar months."""
+    months, m = [], 10
+    for _ in range(12):
+        months.append(m)
+        if m == peak_month:
+            return months
+        m = (m % 12) + 1
+    return months
+
+
+def _load_cluster_coefficients() -> dict:
+    """
+    Load cluster-level \u03b2\u2081, \u03b2\u2082, \u03b2\u2083 from 03_03_cluster_mechanistic_coefficients.csv
+    and convert to the unit convention used by 11b's downstream P_flood code:
+    metres of head change per *millimetre* of forcing.
+
+    Script 03 fits the SSM in m head per m forcing (rainfall and PET in
+    m/month, head in m), so \u03b2\u2081 and \u03b2\u2082 in the CSV are dimensionless m/m.
+    11b's _p_flood_iterated and _load_climatology work in mm rainfall (the
+    P_mm / PET_mm columns of 03_regional_averages.csv), so we divide by
+    1000 here to convert m/m -> m/mm. \u03b2\u2083 is the per-month drainage fraction
+    (no unit conversion needed) and is stored negative in the CSV; the SSM
+    applies \u03b1 = 1 - |\u03b2\u2083| so we take the absolute value.
+
+    The Cluster column is read defensively because Script 03 writes integer
+    cluster IDs while Script 11 writes 'C1'-style strings; this loader
+    accepts either.
+    """
+    cc = pd.read_csv(INT_CLUSTER_MECHANISTIC)
+    coeffs = {}
+    for _, r in cc.iterrows():
+        cluster_int = _coerce_cluster_int(r["Cluster"])
+        if cluster_int is None:
+            continue
+        b3_val = float(r["beta_3"])
+        if b3_val < 0:
+            print(f"  [WARNING] Cluster {cluster_int}: β₃ = {b3_val:.4f} is negative "
+                  f"(expected positive under displacement formulation)")
+        coeffs[cluster_int] = {
+            "b1": float(r["beta_1"]) / 1000.0,
+            "b2": float(r["beta_2"]) / 1000.0,
+            "b3": abs(b3_val),
+        }
+    return coeffs
+
+
+def _coerce_cluster_int(value) -> int | None:
+    """
+    Coerce a Cluster column entry to an integer cluster ID.
+
+    Handles: integer (1..N), numpy integer, string '1', and 'C1'-style
+    string. Returns None if the value cannot be parsed (e.g. NaN).
+    """
+    if pd.isna(value):
+        return None
+    # Integer or numpy integer
+    if isinstance(value, (int,)) or (hasattr(value, "__int__") and not isinstance(value, str)):
+        return int(value)
+    s = str(value).strip()
+    if not s:
+        return None
+    # 'C1'-style string -> 1
+    if s[:1].upper() == "C" and s[1:].isdigit():
+        return int(s[1:])
+    # Plain digit string -> int
+    if s.isdigit():
+        return int(s)
+    return None
+
+
+def _load_climatology() -> tuple:
+    """Return (P_clim, PET_clim) as dicts keyed by calendar month 1..12."""
+    ra = pd.read_csv(INT_REGIONAL_AVERAGES, parse_dates=["Date"]).set_index("Date")
+    P_clim   = ra.groupby(ra.index.month)["P_mm"].mean().to_dict()
+    PET_clim = ra.groupby(ra.index.month)["PET_mm"].mean().to_dict()
+    return P_clim, PET_clim
+
+
+def _p_flood_iterated(
+    h_target: float,
+    h_0:      float,
+    b1:       float,
+    b2:       float,
+    b3:       float,
+    months:   list,
+    P_clim:   dict,
+    PET_clim: dict,
+) -> dict:
+    """
+    Iterated closed-form P_flood (Section 3.6.3 of Hollingham 2026).
+
+    Given the monthly recurrence h_t = (1-\u03b2\u2083)\u00b7h_{t-1} + \u03b2\u2081\u00b7P_t \u2212 \u03b2\u2082\u00b7E_t
+    with P_t = \u03bb\u00b7P_clim(t) and E_t = PET_clim(t), solves for the rainfall
+    multiplier \u03bb that brings h_n to h_target over the specified horizon.
+
+    Parameters
+    ----------
+    h_target : float
+        Target head in metres (0 = surface; -0.10 = SD15b; -0.25 = SD16).
+    h_0 : float
+        Antecedent head in metres (negative = below ground).
+    b1, b2, b3 : float
+        Cluster SSM coefficients in SSM-native units (m per mm for b1, b2;
+        dimensionless for b3, taken positive).
+    months : list[int]
+        Sequence of calendar months forming the horizon (e.g. [10,11,12,1]).
+    P_clim, PET_clim : dict
+        Monthly climatology keyed by calendar month 1..12 (mm).
+
+    Returns
+    -------
+    dict with keys: lam, P_flood_mm, S_P, S_E, alpha, alpha_n, n, horizon,
+    P_clim_total, PET_clim_total. lam < 0 or non-finite indicates an
+    unreachable well (target cannot be reached from h_0 under positive
+    rainfall given the drainage balance).
+    """
+    n = len(months)
+    alpha = 1.0 - b3
+    alpha_n = alpha ** n
+    S_P = sum(alpha ** (n - 1 - i) * P_clim[m]   for i, m in enumerate(months))
+    S_E = sum(alpha ** (n - 1 - i) * PET_clim[m] for i, m in enumerate(months))
+    P_clim_total   = sum(P_clim[m]   for m in months)
+    PET_clim_total = sum(PET_clim[m] for m in months)
+
+    denom = b1 * S_P
+    if denom == 0 or not np.isfinite(denom):
+        lam = float("nan")
+        pflood = float("nan")
+    else:
+        lam = (h_target - h_0 * alpha_n + b2 * S_E) / denom
+        pflood = lam * P_clim_total
+
+    return {
+        "lam": lam,
+        "P_flood_mm": pflood,
+        "S_P": S_P,
+        "S_E": S_E,
+        "alpha": alpha,
+        "alpha_n": alpha_n,
+        "n": n,
+        "horizon": months,
+        "P_clim_total": P_clim_total,
+        "PET_clim_total": PET_clim_total,
+    }
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -322,11 +563,17 @@ def load_well_data() -> pd.DataFrame:
             "well":     well,
             "E":        lrow.iloc[0]["E"],
             "N":        lrow.iloc[0]["N"],
-            "cluster":  int(mrow["Cluster"]),
+            "cluster":  _coerce_cluster_int(mrow["Cluster"]),
             "dem":      adj_dem,
             "depth_bg": adj_dem - mean_sm,
             "scraped":  wn in SCRAPED,
             "network":  "Reference",
+            # Per-well SSM coefficients from Script 03 (lag-1, m/m units).
+            # Converted to m/mm (÷ 1000) at point of use by P_flood routines.
+            "well_b1_mm":  float(mrow["beta_1_recharge"]),          # m/m
+            "well_b2_mm":  float(mrow["beta_2_atmospheric_draw"]),  # m/m
+            "well_b3":     float(mrow["beta_3_drainage"]),          # dimensionless
+            "well_r2":     float(mrow["Model_R2"]),
         })
 
     # ── Extended wells ────────────────────────────────────────────────────
@@ -344,7 +591,6 @@ def load_well_data() -> pd.DataFrame:
         if np.isnan(dem_e) or np.isnan(pipe_top):
             continue
 
-        # Extended raw depths are negative (below pipe) → maOD = pipe_top + raw
         maod   = pipe_top + ext_raw[col].dropna()
         mins   = _summer_mins(maod)
         if len(mins) < 2:
@@ -362,6 +608,11 @@ def load_well_data() -> pd.DataFrame:
             "depth_bg": dem_e - mean_sm,
             "scraped":  False,
             "network":  "Extended",
+            # No per-well SSM fit for extended wells (not in reference network)
+            "well_b1_mm":  np.nan,
+            "well_b2_mm":  np.nan,
+            "well_b3":     np.nan,
+            "well_r2":     np.nan,
         })
 
     df = pd.concat(
@@ -378,7 +629,7 @@ def load_well_data() -> pd.DataFrame:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# FIGURE
+# FIGURE 1 — SUMMER MINIMA DEPTH MAP
 # ─────────────────────────────────────────────────────────────────────────────
 def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
     """
@@ -398,14 +649,12 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
 
     fig, ax = plt.subplots(figsize=(12, 10), facecolor="white")
 
-    # ── 1. Hillshade base ─────────────────────────────────────────────────
     _, ok, dem_e_arr, dem_n_arr, dem_data = load_dem_hillshade(
         ax, DATA_DIR, alpha=1.0, vert_exag=3.0, zorder=1
     )
     if not ok:
         print("  [WARNING] DEM hillshade unavailable — map may lack context.")
 
-    # ── 2. IDW depth surface with ridge masking ───────────────────────────
     cmap_z = LinearSegmentedColormap.from_list("slack", ZONE_COLOURS, N=256)
     norm_z = BoundaryNorm(ZONE_BOUNDS, ncolors=256)
 
@@ -423,7 +672,6 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
         zorder=2,
     )
 
-    # ── 3. Colourbar ──────────────────────────────────────────────────────
     cb = fig.colorbar(
         mesh, ax=ax, fraction=0.03, pad=0.02, shrink=0.85,
         boundaries=ZONE_BOUNDS,
@@ -439,7 +687,6 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
         "3.0 m",
     ], fontsize=7.5)
 
-    # ── 4. Threshold contours ─────────────────────────────────────────────
     for level, col, lw, ls in [
         (SD15b,    "#005fa3", 2.0, "--"),
         (SD15b_REC,"#2e8b2e", 1.8, ":"),
@@ -453,10 +700,8 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
         except Exception:
             pass
 
-    # ── 5. KML feature overlays (zorder=4, below wells and legends) ───────
     kml_handles = add_kml_features(ax, DATA_DIR, include_streams=False)
 
-    # ── 6. Well symbols ───────────────────────────────────────────────────
     for cl, grp in df.groupby("cluster"):
         col_c = CLUSTER_COLS.get(cl, "grey")
         for net, mk, sz in [("Reference", "o", 32), ("Extended", "D", 28)]:
@@ -471,7 +716,6 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
                            s=sz, marker=mk, edgecolors="black",
                            lw=0.5, zorder=5)
 
-            # Scraped wells — red-border square, labelled
             if not scraped_sub.empty:
                 ax.scatter(scraped_sub["E"], scraped_sub["N"], c=col_c,
                            s=80, marker="s", edgecolors="red",
@@ -485,7 +729,6 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
                         fontweight="bold", zorder=6,
                     )
 
-        # Star symbol for wells above SD15b threshold
         star = grp[grp["well"].isin(above_sd15b)]
         if not star.empty:
             ax.scatter(star["E"], star["N"], c=col_c,
@@ -499,7 +742,6 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
                     fontsize=7, fontweight="bold", zorder=6,
                 )
 
-    # ── 7. Stats box — top right ──────────────────────────────────────────
     stats_txt = (
         f"Above SD15b — wet slack viable:              {n_wet}/{n_tot} "
         f"({100*n_wet/n_tot:.0f}%)\n"
@@ -525,7 +767,6 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
         zorder=7,
     )
 
-    # ── 8. Legends ────────────────────────────────────────────────────────
     zone_handles = [
         mpatches.Patch(facecolor="#1a7abf", alpha=0.8,
                        label=f"Wet slack — viable (< {SD15b} m)"),
@@ -547,7 +788,7 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
                label=f"SD16 excavation limit ~0.22 m depth ({SD16_REC} m)"),
         Line2D([0], [0], marker="*", color="w",
                markerfacecolor="grey", markeredgecolor="black",
-               markersize=12, label="Above SD15b on average (★ labelled)"),
+               markersize=12, label="Above SD15b on average (\u2605 labelled)"),
         Line2D([0], [0], marker="o", color="w",
                markerfacecolor="grey", markeredgecolor="black",
                markersize=8, label="Reference well"),
@@ -558,14 +799,13 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
                markerfacecolor="grey", markeredgecolor="red",
                markersize=8,
                label="Scraped well — DEM corrected, post-2023 data"),
-    ] + kml_handles  # KML feature entries appended at bottom
+    ] + kml_handles
 
     cluster_patches = [
         mpatches.Patch(color=v, label=f"C{k}")
         for k, v in CLUSTER_COLS.items()
     ]
 
-    # Zone legend — upper left
     l1 = ax.legend(
         handles=zone_handles, fontsize=7, loc="upper left",
         framealpha=0.95,
@@ -574,13 +814,11 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
     )
     ax.add_artist(l1)
 
-    # Cluster legend — lower right
     ax.legend(
         handles=cluster_patches, fontsize=8, loc="lower right",
         title="Cluster", title_fontsize=8,
     )
 
-    # ── 9. Axes formatting ────────────────────────────────────────────────
     ax.set_xlim(240100, 243900)
     ax.set_ylim(362200, 365800)
     ax.set_aspect("equal")
@@ -606,18 +844,12 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# ENTRY POINT
-# ─────────────────────────────────────────────────────────────────────────────
-
-
-# ─────────────────────────────────────────────────────────────────────────────
 # FIGURE 2 — WINTER MAXIMA DEPTH MAP
 # ─────────────────────────────────────────────────────────────────────────────
 def plot_winter_maxima_map(df: pd.DataFrame, dpi: int = 300) -> None:
     """Mean annual winter maximum depth below ground surface."""
     DIR_11B.mkdir(parents=True, exist_ok=True)
 
-    # Load full maOD record for winter maxima
     maod_ref = pd.read_csv(INT_WELLS_CLEAN_MAOD, index_col=0, parse_dates=True)
     ext_raw  = pd.read_csv(INT_WELLS_EXTENDED,   index_col=0, parse_dates=True)
     elev     = pd.read_csv(INT_WELL_ELEVATIONS)
@@ -627,7 +859,6 @@ def plot_winter_maxima_map(df: pd.DataFrame, dpi: int = 300) -> None:
         wn = _norm(row["well"])
         dem = row["dem"]
 
-        # Get maOD series
         col_ref = next((c for c in maod_ref.columns if _norm(c) == wn), None)
         if col_ref is not None:
             series = maod_ref[col_ref].dropna()
@@ -649,7 +880,7 @@ def plot_winter_maxima_map(df: pd.DataFrame, dpi: int = 300) -> None:
             "E": row["E"], "N": row["N"],
             "cluster": row["cluster"], "network": row["network"],
             "dem": dem,
-            "depth_bg": dem - mean_wmax,   # +ve = below surface, -ve = flooding
+            "depth_bg": dem - mean_wmax,
         })
 
     if not winter_rows:
@@ -662,7 +893,6 @@ def plot_winter_maxima_map(df: pd.DataFrame, dpi: int = 300) -> None:
     _, ok, dem_e_arr, dem_n_arr, dem_data = load_dem_hillshade(
         ax, DATA_DIR, alpha=1.0, vert_exag=3.0, zorder=1)
 
-    # Diverging colormap: blue = flooding/near surface, red = deep
     cmap = plt.cm.RdBu_r
     vmin, vmax = -0.25, 1.5
     sc, gx, gy, surf = add_idw_surface(ax, wdf, value_col="depth_bg",
@@ -676,7 +906,6 @@ def plot_winter_maxima_map(df: pd.DataFrame, dpi: int = 300) -> None:
                          alpha=0.72, zorder=2)
     surf = _fill_and_mask(surf, gx, gy, wdf, wdf["depth_bg"].values)
 
-    # Ecological threshold contours using returned interpolated surface
     WINTER_THRESHOLDS = [
         (0.00, "#1A237E", "-",  2.0, "Flooding (WT at surface, 0 m)"),
         (0.10, "#1565C0", "--", 1.5, "SD15b winter requirement (0.10 m)"),
@@ -690,7 +919,6 @@ def plot_winter_maxima_map(df: pd.DataFrame, dpi: int = 300) -> None:
         except Exception:
             pass
 
-    # Well symbols
     for _, row in wdf.iterrows():
         mk = "o" if row["network"] == "Reference" else "D"
         ax.scatter(row["E"], row["N"], c=CLUSTER_COLS.get(row["cluster"], "#999"),
@@ -699,10 +927,10 @@ def plot_winter_maxima_map(df: pd.DataFrame, dpi: int = 300) -> None:
     kml_handles = add_kml_features(ax, DATA_DIR, include_streams=False)
 
     cbar = fig.colorbar(sc, ax=ax, fraction=0.03, pad=0.02, shrink=0.85)
-    cbar.set_label("Mean winter maximum depth below ground (m)\n+ve = below surface, \u2212ve = flooding",
-                   fontsize=8)
+    cbar.set_label(
+        "Mean winter maximum depth below ground (m)\n+ve = below surface, \u2212ve = flooding",
+        fontsize=8)
 
-    # Legend
     legend_patches = [
         mpatches.Patch(color=col, label=lbl)
         for _, col, _, _, lbl in WINTER_THRESHOLDS
@@ -732,57 +960,97 @@ def plot_winter_maxima_map(df: pd.DataFrame, dpi: int = 300) -> None:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# FIGURE 3 — P_FLOOD MAP
+# FIGURE 3 — P_FLOOD MAP  (iterated closed form, Section 3.6.3)
 # ─────────────────────────────────────────────────────────────────────────────
 def plot_pflood_map(df: pd.DataFrame, dpi: int = 300) -> None:
-    """P_flood = minimum winter rainfall to reach slack floor from mean summer minimum."""
+    """
+    Per-well P_flood spatial map.
+
+    P_flood = cumulative winter rainfall (mm) required to raise the water
+    table from each well's mean summer minimum to the slack-floor target
+    (h_target = 0 m), using each well's OWN per-well SSM coefficients
+    (lag-1, from Script 03's 03_master_data.csv) and the cluster-specific
+    horizon from October to historical peak month.
+
+    Wells are excluded from the map if:
+      - their cluster lacks an entry in CLUSTER_PEAK_MONTH,
+      - their per-well beta_1 is non-positive, NaN, or missing
+        (extended-network wells have no per-well SSM fit).
+    """
     DIR_11B.mkdir(parents=True, exist_ok=True)
 
-    md = pd.read_csv(INT_MASTER_DATA)
-    beta_lookup = {
-        _norm(r["Name_Original"]): {
-            "b1": r["beta_1_recharge"],
-            "b3": r["beta_3_internal_brake"],
-            "cluster": int(r["Cluster"]),
-        }
-        for _, r in md.iterrows()
-    }
+    P_clim, PET_clim = _load_climatology()
 
-    # Cluster-level fallbacks
-    cluster_betas = {}
-    for cl in [1, 2, 3, 4]:
-        sub = md[md["Cluster"] == cl]
-        cluster_betas[cl] = {
-            "b1": sub["beta_1_recharge"].median(),
-            "b3": sub["beta_3_internal_brake"].median(),
-        }
-
+    # ── Compute per-well P_flood ─────────────────────────────────────────
     pf_rows = []
+    unreachable_n = 0
+    skipped_cluster = 0
+    skipped_beta = 0
     for _, row in df.iterrows():
-        wn = _norm(row["well"])
-        h_gap = row["depth_bg"]   # mean summer minimum depth below ground
-        if np.isnan(h_gap) or h_gap <= 0:
+        cluster = int(row["cluster"])
+        if cluster not in CLUSTER_PEAK_MONTH:
+            skipped_cluster += 1
             continue
-        betas = beta_lookup.get(wn, None)
-        if betas is None:
-            betas = cluster_betas.get(row["cluster"], None)
-        if betas is None:
+
+        depth_bg = row["depth_bg"]
+        if np.isnan(depth_bg) or depth_bg <= 0:
             continue
-        b1 = betas["b1"]
-        b3 = betas["b3"]
-        if b1 <= 0:
+
+        # Per-well beta from Script 03 (m/m units in the DataFrame).
+        # Convert to m/mm for the P_flood closed form.
+        wb1_mm = row.get("well_b1_mm", np.nan)
+        wb2_mm = row.get("well_b2_mm", np.nan)
+        wb3    = row.get("well_b3", np.nan)
+        if (not np.isfinite(wb1_mm) or wb1_mm <= 0
+                or not np.isfinite(wb2_mm)
+                or not np.isfinite(wb3)):
+            skipped_beta += 1
             continue
-        # P_flood = (h_gap + b3 * h_prev) / b1
-        # h_prev = h_gap (antecedent = mean summer minimum)
-        # Units: b1 in m/mm, h_gap in m → P_flood in mm
-        h_prev = h_gap
-        pflood = (h_gap + b3 * h_prev) / b1
+
+        b1 = wb1_mm / 1000.0    # m/m -> m/mm
+        b2 = wb2_mm / 1000.0    # m/m -> m/mm
+        if wb3 < 0:
+            print(f"  [WARNING] {row.get('well', '?')}: β₃ = {wb3:.4f} is negative "
+                  f"(expected positive under displacement formulation)")
+        b3 = abs(wb3)            # dimensionless, ensure positive
+
+        # SSM sign convention: h in metres, negative below surface
+        h_0 = -abs(depth_bg)
+
+        months = _horizon_months(CLUSTER_PEAK_MONTH[cluster])
+        res = _p_flood_iterated(
+            P_FLOOD_H_TARGET_M, h_0,
+            b1, b2, b3,
+            months, P_clim, PET_clim,
+        )
+
+        if not np.isfinite(res["P_flood_mm"]) or res["lam"] < 0:
+            unreachable_n += 1
+            pflood_val   = np.nan
+            lam_val      = res["lam"] if np.isfinite(res["lam"]) else np.nan
+            unreachable  = True
+        else:
+            pflood_val   = res["P_flood_mm"]
+            lam_val      = res["lam"]
+            unreachable  = False
+
         pf_rows.append({
-            "E": row["E"], "N": row["N"],
-            "cluster": row["cluster"], "network": row["network"],
-            "dem": row["dem"],
-            "pflood": pflood,
-            "exceeds_mean": pflood > MEAN_WINTER_RAINFALL_MM,
+            "well":         row["well"],
+            "E":            row["E"],
+            "N":            row["N"],
+            "cluster":      cluster,
+            "network":      row["network"],
+            "dem":          row["dem"],
+            "depth_bg":     depth_bg,
+            "h_0_m":        h_0,
+            "horizon_n":    res["n"],
+            "alpha":        res["alpha"],
+            "S_P_mm":       res["S_P"],
+            "S_E_mm":       res["S_E"],
+            "lambda":       lam_val,
+            "pflood_mm":    pflood_val,
+            "exceeds_mean": (pflood_val > MEAN_WINTER_RAINFALL_MM) if not unreachable else True,
+            "unreachable":  unreachable,
         })
 
     if not pf_rows:
@@ -790,74 +1058,103 @@ def plot_pflood_map(df: pd.DataFrame, dpi: int = 300) -> None:
         return
 
     pf = pd.DataFrame(pf_rows)
+    n_reachable = (~pf["unreachable"]).sum()
+    print(f"  P_flood computed for {len(pf)} wells "
+          f"({n_reachable} reachable, {unreachable_n} unreachable; "
+          f"{skipped_cluster} skipped — no peak month; "
+          f"{skipped_beta} skipped — invalid per-well beta)")
 
+    # Export per-well CSV for citation in report
+    pf.to_csv(OUT_11B_PFLOOD_PER_WELL, index=False)
+
+    # ── Figure ───────────────────────────────────────────────────────────
     fig, ax = plt.subplots(figsize=(12, 10), facecolor="white")
     _, ok, dem_e_arr, dem_n_arr, dem_data = load_dem_hillshade(
         ax, DATA_DIR, alpha=1.0, vert_exag=3.0, zorder=1)
 
     cmap = LinearSegmentedColormap.from_list(
         "pflood", ["#fff5eb", "#fdae6b", "#e6550d", "#a63603", "#67000d"])
-    # Scale to data — cap at 2x mean winter rainfall to show structure
-    vmin = 0
-    vmax = min(pf["pflood"].quantile(0.95), MEAN_WINTER_RAINFALL_MM * 3)
-    sc, gx, gy, surf = add_idw_surface(ax, pf, value_col="pflood",
-                         easting_col="E", northing_col="N",
-                         dem_col="dem",
-                         ridge_mask_threshold=1.0,
-                         dem_e_arr=dem_e_arr if ok else None,
-                         dem_n_arr=dem_n_arr if ok else None,
-                         dem_data=dem_data if ok else None,
-                         cmap=cmap, vmin=vmin, vmax=vmax,
-                         alpha=0.72, zorder=2)
-    surf = _fill_and_mask(surf, gx, gy, pf, pf["pflood"].values)
 
-    # Red outline for wells exceeding mean winter rainfall
-    for _, row in pf[pf["exceeds_mean"]].iterrows():
-        ax.scatter(row["E"], row["N"], c="none", s=55,
-                   marker="o" if row["network"] == "Reference" else "D",
-                   edgecolors="red", linewidths=1.5, zorder=8)
+    pf_reachable = pf[~pf["unreachable"]].copy()
+    if len(pf_reachable) < 3:
+        print("  [WARNING] Too few reachable wells for IDW surface; "
+              "plotting markers only.")
+        sc = None
+        gx = gy = surf = None
+    else:
+        # Colourbar range: cap at 3x mean annual winter rainfall to retain
+        # contrast across the reachable domain.
+        vmax = min(pf_reachable["pflood_mm"].quantile(0.95),
+                   MEAN_WINTER_RAINFALL_MM * 3)
+        sc, gx, gy, surf = add_idw_surface(
+            ax, pf_reachable, value_col="pflood_mm",
+            easting_col="E", northing_col="N",
+            dem_col="dem",
+            ridge_mask_threshold=1.0,
+            dem_e_arr=dem_e_arr if ok else None,
+            dem_n_arr=dem_n_arr if ok else None,
+            dem_data=dem_data if ok else None,
+            cmap=cmap, vmin=0, vmax=vmax,
+            alpha=0.72, zorder=2,
+        )
+        surf = _fill_and_mask(surf, gx, gy, pf_reachable,
+                              pf_reachable["pflood_mm"].values)
 
-    # All well symbols
+    # Wells: reachable filled dot in cluster colour; unreachable / over-climatology
+    # wells also get a red outline marker underneath.
     for _, row in pf.iterrows():
         mk = "o" if row["network"] == "Reference" else "D"
-        ax.scatter(row["E"], row["N"], c=CLUSTER_COLS.get(row["cluster"], "#999"),
-                   s=28, marker=mk, zorder=7, linewidths=0.4, edgecolors="white")
+        if row["unreachable"] or row["exceeds_mean"]:
+            ax.scatter(row["E"], row["N"],
+                       facecolors="none", edgecolors="red",
+                       s=66, marker=mk, linewidths=1.4, zorder=8)
+        ax.scatter(row["E"], row["N"],
+                   c=CLUSTER_COLS.get(row["cluster"], "#999"),
+                   s=28, marker=mk, zorder=9, linewidths=0.4, edgecolors="white")
 
     kml_handles = add_kml_features(ax, DATA_DIR, include_streams=False)
 
-    cbar = fig.colorbar(sc, ax=ax, fraction=0.03, pad=0.02, shrink=0.85)
-    cbar.ax.axhline(MEAN_WINTER_RAINFALL_MM, color="red", lw=1.5, ls="--")
-    cbar.set_label("P_flood — minimum winter rainfall to reach slack floor (mm)", fontsize=8)
+    if sc is not None:
+        cbar = fig.colorbar(sc, ax=ax, fraction=0.03, pad=0.02, shrink=0.85)
+        cbar.ax.axhline(MEAN_WINTER_RAINFALL_MM, color="red", lw=1.5, ls="--")
+        cbar.set_label(
+            f"P_flood — cumulative winter rainfall (mm)\n"
+            f"Red line: mean annual winter total ({MEAN_WINTER_RAINFALL_MM} mm)",
+            fontsize=8)
 
     legend_patches = [
-        mpatches.Patch(facecolor="#fdae6b", label="Low P_flood — floods readily"),
-        mpatches.Patch(facecolor="#a63603", label="High P_flood — rarely floods"),
-        Line2D([0],[0], marker="o", color="w", markerfacecolor="none",
-               markeredgecolor="red", ms=8, mew=1.5,
-               label=f"P_flood > {MEAN_WINTER_RAINFALL_MM} mm (structurally unable to flood)"),
-        Line2D([0],[0], marker="o", color="w", markerfacecolor="#999",
+        mpatches.Patch(facecolor="#fdae6b",
+                       label="Reachable under climatological winter"),
+        mpatches.Patch(facecolor="#a63603",
+                       label="Requires wet winter (> climatology)"),
+        Line2D([0], [0], marker="o", color="w", markerfacecolor="none",
+               markeredgecolor="red", ms=9, mew=1.4,
+               label="Structurally unreachable / above mean winter"),
+        Line2D([0], [0], marker="o", color="w", markerfacecolor="#999",
                markeredgecolor="grey", ms=6, label="Reference well"),
-        Line2D([0],[0], marker="D", color="w", markerfacecolor="#999",
+        Line2D([0], [0], marker="D", color="w", markerfacecolor="#999",
                markeredgecolor="grey", ms=6, label="Extended well"),
-    ] + [Line2D([0],[0], marker="o", color="w",
+    ] + [Line2D([0], [0], marker="o", color="w",
                 markerfacecolor=CLUSTER_COLS[c], ms=7, label=f"C{c}")
          for c in sorted(CLUSTER_COLS)]
     ax.legend(handles=legend_patches + kml_handles, fontsize=7,
               loc="upper left", framealpha=0.95, ncol=2)
 
-    ax.set_xlabel("Easting (m, OSGB36)"); ax.set_ylabel("Northing (m, OSGB36)")
+    ax.set_xlabel("Easting (m, OSGB36)")
+    ax.set_ylabel("Northing (m, OSGB36)")
     ax.set_title(
-        f"P_flood — Minimum Winter Rainfall to Reach Slack Floor (mm)\n"
-        f"Newborough Warren  |  Mean summer minimum antecedent condition  |  "
-        f"Dune ridges masked  |  "
-        f"Red outline: P_flood > {MEAN_WINTER_RAINFALL_MM} mm (mean annual winter rainfall)",
-        fontsize=10, fontweight="bold")
+        "P_flood — Cumulative Winter Rainfall Required to Reach Slack Floor (mm)\n"
+        "Newborough Warren  |  Iterated closed-form SSM  |  "
+        "Cluster-\u03b2 \u00b7 per-well summer minimum  |  Dune ridges masked",
+        fontsize=10, fontweight="bold",
+    )
     ax.set_xlim(240100, 243900)
     ax.set_ylim(362100, 365900)
     plt.tight_layout()
     fig.savefig(OUT_11B_PFLOOD_MAP, dpi=dpi, bbox_inches="tight")
     plt.close(fig)
     print(f"  Saved: {OUT_11B_PFLOOD_MAP.name}")
+    print(f"  Saved: {OUT_11B_PFLOOD_PER_WELL.name}")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -909,7 +1206,6 @@ def plot_flood_frequency_map(df: pd.DataFrame, dpi: int = 300) -> None:
     _, ok, dem_e_arr, dem_n_arr, dem_data = load_dem_hillshade(
         ax, DATA_DIR, alpha=1.0, vert_exag=3.0, zorder=1)
 
-    # Red (never floods) → white (50%) → blue (frequently floods)
     cmap = LinearSegmentedColormap.from_list(
         "floodfreq", ["#67001f", "#d73027", "#f4a582", "#f7f7f7",
                       "#92c5de", "#2166ac", "#053061"])
@@ -924,7 +1220,6 @@ def plot_flood_frequency_map(df: pd.DataFrame, dpi: int = 300) -> None:
                          alpha=0.72, zorder=2)
     surf = _fill_and_mask(surf, gx, gy, ff, ff["freq"].values)
 
-    # Frequency contours using returned interpolated surface
     for level, col, ls, lbl in [
         (25,  "#f0e442", "--", "25% frequency contour"),
         (50,  "#009e73", "--", "50% frequency contour"),
@@ -976,6 +1271,609 @@ def plot_flood_frequency_map(df: pd.DataFrame, dpi: int = 300) -> None:
     plt.close(fig)
     print(f"  Saved: {OUT_11B_FLOOD_FREQ.name}")
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# TABLE 10 EXPORT — spreadsheet-ready collapsed-form P_flood equations
+# ─────────────────────────────────────────────────────────────────────────────
+def export_table10_spreadsheet() -> None:
+    """
+    Re-export the collapsed-form P_flood equations from Script 11's full
+    threshold CSV as a compact report-ready table. The full CSV contains
+    20+ columns of derivation detail; Table 10 in the report shows only
+    the cluster, horizon, linear-form expression, climatological rainfall
+    total, and spreadsheet cell formula.
+
+    Reads:  OUT_11_TABLE8_THRESHOLDS  (11_forecast_pflood_threshold_equations.csv)
+    Writes: OUT_11B_TABLE10           (11b_05_table10_pflood_spreadsheet.csv)
+
+    Relies on slope_A, intercept_B, spreadsheet_formula, P_clim_total_mm,
+    horizon_months, peak_month columns written by Script 11 Section 3.
+    """
+    DIR_11B.mkdir(parents=True, exist_ok=True)
+
+    if not OUT_11_TABLE8_THRESHOLDS.exists():
+        print(f"  [WARNING] Script 11 output not found at {OUT_11_TABLE8_THRESHOLDS}; "
+              "cannot generate Table 10. Run Script 11 first.")
+        return
+
+    full = pd.read_csv(OUT_11_TABLE8_THRESHOLDS)
+
+    required = {"Cluster", "Label", "slope_A", "intercept_B",
+                "spreadsheet_formula", "P_clim_total_mm",
+                "horizon_months", "peak_month"}
+    missing = required - set(full.columns)
+    if missing:
+        print(f"  [WARNING] Script 11 output is missing expected columns: {missing}. "
+              "Run the updated Script 11 to regenerate the full CSV.")
+        return
+
+    MONTH_ABBREV = ["Jan","Feb","Mar","Apr","May","Jun",
+                    "Jul","Aug","Sep","Oct","Nov","Dec"]
+
+    rows = []
+    for _, r in full.iterrows():
+        peak_abbrev = MONTH_ABBREV[int(r["peak_month"]) - 1]
+        horizon_str = f"Oct\u2013{peak_abbrev} ({int(r['horizon_months'])} mo)"
+        pflood_expr = f"{r['slope_A']:.2f}\u00b7d + {r['intercept_B']:.2f}"
+        rows.append({
+            "Cluster":              r["Cluster"],
+            "Label":                r["Label"],
+            "Horizon":              horizon_str,
+            "P_flood_equation":     pflood_expr,
+            "Sum_P_clim_mm":        round(float(r["P_clim_total_mm"]), 0),
+            "Spreadsheet_formula":  r["spreadsheet_formula"],
+        })
+
+    table10 = pd.DataFrame(rows)
+    table10.to_csv(OUT_11B_TABLE10, index=False)
+
+    print(f"  Saved: {OUT_11B_TABLE10.name}")
+    print(f"\n  Table 10 contents (spreadsheet-ready, report paste-in):")
+    for _, r in table10.iterrows():
+        print(f"    {r['Cluster']:6s}  {r['Horizon']:18s}  "
+              f"P_flood = {r['P_flood_equation']:28s}  "
+              f"\u03a3P\u0304\u1d62 = {r['Sum_P_clim_mm']:.0f} mm")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# FORECASTER HTML BUILD
+# ─────────────────────────────────────────────────────────────────────────────
+def _raf_valley_winter_mean(fallback: float = 521.0) -> float:
+    """
+    Fetch the Met Office RAF Valley monthly record at build time and compute
+    the mean Oct-Mar winter total over complete hydrological years 2006-2025
+    (i.e., winters starting Oct 2005 through Oct 2024). This is the
+    authoritative climatology the report cites as ~521 mm.
+
+    If the fetch fails (offline build, Met Office unreachable, format
+    change), fall back to the supplied value and emit a warning. The
+    forecaster itself does its own live fetch at page load, so a missing
+    climatology constant at build time is not fatal for the tool.
+    """
+    import urllib.request, urllib.error
+    url = "https://www.metoffice.gov.uk/pub/data/weather/uk/climate/stationdata/valleydata.txt"
+    try:
+        with urllib.request.urlopen(url, timeout=15) as resp:
+            text = resp.read().decode("utf-8", errors="replace")
+    except (urllib.error.URLError, TimeoutError) as e:
+        print(f"  [INFO] Met Office fetch failed ({e}); using report-cited "
+              f"climatology {fallback} mm as fallback.")
+        return fallback
+
+    # Parse: each data line is "yyyy mm tmax tmin af rain sun"
+    totals = {}   # hy -> list of monthly mm
+    for line in text.splitlines():
+        parts = line.strip().split()
+        if len(parts) < 6:
+            continue
+        try:
+            yr, mo = int(parts[0]), int(parts[1])
+        except ValueError:
+            continue
+        if not (1900 <= yr <= 2100 and 1 <= mo <= 12):
+            continue
+        rain_tok = parts[5]
+        if rain_tok == "---":
+            continue
+        try:
+            rain = float(rain_tok.replace("*", "").replace("#", ""))
+        except ValueError:
+            continue
+        if mo in (10, 11, 12, 1, 2, 3):
+            hy = yr + 1 if mo >= 10 else yr
+            totals.setdefault(hy, []).append(rain)
+
+    complete = [sum(v) for hy, v in totals.items()
+                if 2006 <= hy <= 2025 and len(v) == 6]
+    if not complete:
+        print(f"  [INFO] Met Office data parsed but no complete winters found; "
+              f"using fallback {fallback} mm.")
+        return fallback
+    mean_mm = sum(complete) / len(complete)
+    print(f"  Met Office RAF Valley Oct-Mar mean: {mean_mm:.0f} mm "
+          f"(n={len(complete)} complete winters, 2006-2025)")
+    return float(mean_mm)
+
+
+def _build_forecaster_data_bundle() -> dict:
+    """
+    Assemble the runtime data bundle for the interactive forecaster from
+    pipeline CSVs. This is the single source of truth for the forecaster —
+    if the pipeline is re-run, the forecaster updates with it.
+
+    Returns a dict matching the structure the forecaster template expects:
+      {
+        cluster_coeffs: {C1..C5: {label, b1, b2, b3, peak_month,
+                                   slope_A, intercept_B, P_clim_total_mm,
+                                   horizon_months}},
+        block_tf: {Lake_Edge|Eastern_Block|Western_Block|Forest|Coastal_Forest:
+                   {winter: {...}, summer: {...}}},
+        P_clim: {1..12: mm},
+        wells: [{name, display_name, E, N, ground_elev, cluster,
+                 nearest_cluster_only, default_h_prev, default_h_max}],
+      }
+
+    Cluster scope (k=5 partition):
+      All five clusters are included. The old k=6 partition had two
+      small-n groups (old C5 Coastal n=1, old C6 Lake n=1) that were
+      dropped at the partition step; they do not correspond to any
+      current cluster ID.
+
+    The nearest_cluster_only flag marks wells whose cluster assignment is a
+    pattern-match nearest-type only — they sit outside the SSM operational
+    domain (tidal/boundary/upstream-excluded) but are still included with
+    their best-matching cluster's coefficients. The UI should communicate
+    this to the user.
+
+    Block schema change:
+      Under k=5 each cluster is its own block (one-to-one), so block_tf
+      now has 5 keys instead of the previous 3 (Eastern/Western/Forest).
+      The forecaster_template.html iterates with Object.entries so the
+      schema move is transparent to the JS.
+    """
+    bundle = {}
+
+    # ── Cluster coefficients (Script 03) merged with collapsed P_flood (Script 11) ──
+    cc = pd.read_csv(INT_CLUSTER_MECHANISTIC)
+    pf = pd.read_csv(OUT_11_TABLE8_THRESHOLDS)
+    # Script 11 writes 'C1'-style strings in the Cluster column; keep that as
+    # the bundle key convention since the forecaster template indexes
+    # DATA.cluster_coeffs by 'C1' / 'C2' / ... etc.
+    pf_by_cluster = {r["Cluster"]: r for _, r in pf.iterrows()}
+
+    # String-keyed labels from utils.config (k=5 partition).
+    cluster_labels = {f"C{cid}": label for cid, label in CLUSTER_LABELS.items()}
+
+    cluster_coeffs = {}
+    for _, r in cc.iterrows():
+        # Script 03 writes the Cluster column as integer; coerce to 'C{n}' so
+        # the bundle key style matches Script 11's. _coerce_cluster_int
+        # handles both int and 'C1'-string inputs defensively.
+        cid_int = _coerce_cluster_int(r["Cluster"])
+        if cid_int is None:
+            continue
+        c = f"C{cid_int}"
+        if c not in cluster_labels:
+            continue   # skip any cluster outside the canonical k=5 set
+        pfr = pf_by_cluster.get(c)
+        if pfr is None:
+            print(f"  [WARNING] No P_flood entry for {c}; skipping.")
+            continue
+        b3_fc = float(r["beta_3"])
+        if b3_fc < 0:
+            print(f"  [WARNING] {c}: β₃ = {b3_fc:.4f} is negative "
+                  f"(expected positive under displacement formulation)")
+        cluster_coeffs[c] = {
+            "label":             cluster_labels[c],
+            "b1":                float(r["beta_1"]) / 1000.0,
+            "b2":                float(r["beta_2"]) / 1000.0,
+            "b3":                abs(b3_fc),
+            "peak_month":        int(pfr["peak_month"]),
+            "slope_A":           float(pfr["slope_A"]),
+            "intercept_B":       float(pfr["intercept_B"]),
+            "P_clim_total_mm":   float(pfr["P_clim_total_mm"]),
+            "horizon_months":    int(pfr["horizon_months"]),
+        }
+    bundle["cluster_coeffs"] = cluster_coeffs
+
+    # ── Block transfer functions (Script 11 Tables 6 & 7) ──
+    t6 = pd.read_csv(OUT_11_TABLE6_WINTER)   # peak flood
+    t7 = pd.read_csv(OUT_11_TABLE7_SUMMER)   # summer drought
+
+    # Under the k=5 partition each cluster is its own block (no macro-
+    # aggregation). The block names below mirror BLOCK_MAP in Script 03 and
+    # the column names in 03_regional_averages.csv.
+    block_clusters = {
+        "Lake_Edge":      ["C1"],
+        "Eastern_Block":  ["C2"],
+        "Western_Block":  ["C3"],
+        "Forest":         ["C4"],
+        "Coastal_Forest": ["C5"],
+    }
+    # CSV "Block" column matches the dict key directly under k=5.
+    csv_block_names = {block: block for block in block_clusters}
+
+    block_tf = {}
+    for block, cs in block_clusters.items():
+        csv_name = csv_block_names[block]
+        w = t6[t6["Block"] == csv_name]
+        s = t7[t7["Block"] == csv_name]
+        if w.empty or s.empty:
+            print(f"  [WARNING] Transfer-function row missing for block {block}; skipping.")
+            continue
+        wr, sr = w.iloc[0], s.iloc[0]
+        block_tf[block] = {
+            "winter": {
+                "b1":       float(wr["beta_1_P_winter"]),
+                "b2":       float(wr["beta_2_h_min"]),
+                "c":        float(wr["intercept"]),
+                "r2":       float(wr["R2"]),
+                "clusters": cs,
+            },
+            "summer": {
+                "b1":       float(sr["beta_1_P_summer"]),
+                "b2":       float(sr["beta_2_h_max_winter"]),
+                "c":        float(sr["intercept"]),
+                "r2":       float(sr["R2"]),
+                "clusters": cs,
+            },
+        }
+    bundle["block_tf"] = block_tf
+
+    # ── Climatology: monthly P from 03_regional_averages.csv, 2005–2026 baseline ──
+    ra = pd.read_csv(INT_REGIONAL_AVERAGES, parse_dates=["Date"]).set_index("Date")
+    P_clim = ra.groupby(ra.index.month)["P_mm"].mean()
+    PET_clim = ra.groupby(ra.index.month)["PET_mm"].mean()
+    # Serialize keyed by string month (JSON-friendly; JS reads DATA.P_clim[m] with number key)
+    bundle["P_clim"] = {int(m): float(v) for m, v in P_clim.items()}
+    bundle["PET_clim"] = {int(m): float(v) for m, v in PET_clim.items()}
+
+    # Authoritative Oct-Mar winter climatology: fetched from the Met Office
+    # RAF Valley monthly record at build time. The climatology in
+    # 03_regional_averages.csv has gaps where groundwater data is missing
+    # which biases any rainfall average computed from it downwards. The
+    # Met Office file has no such gaps for 2005-2026.
+    bundle["winter_climatology_mm"] = _raf_valley_winter_mean(fallback=521.0)
+
+    # ── Well list: merge locations, elevations, cluster assignments, summer/winter defaults ──
+    locs  = pd.read_csv(INT_LOCATIONS)
+    elev  = pd.read_csv(INT_WELL_ELEVATIONS)
+    md    = pd.read_csv(INT_MASTER_DATA)         # reference cluster assignments
+    site  = pd.read_csv(INT_PEAR_AUDIT_SITEWIDE) # extended cluster assignments
+
+    # Build cluster defaults for the reading input pre-fill
+    cluster_default_h_prev = {}
+    cluster_default_h_max  = {}
+    # default_h_prev = cluster mean month-of-minimum head (most negative monthly mean)
+    # default_h_max  = cluster mean month-of-maximum head
+    for c in cluster_coeffs:
+        if c in ra.columns:
+            monthly = ra.groupby(ra.index.month)[c].mean()
+            cluster_default_h_prev[c] = float(monthly.min())
+            cluster_default_h_max[c]  = float(monthly.max())
+
+    # Reference-network wells — cluster comes from INT_MASTER_DATA
+    ref_clusters = {
+        _norm(r["Name_Original"]): f"C{int(r['Cluster'])}"
+        for _, r in md.iterrows()
+    }
+    # Extended-network wells — cluster comes from sitewide audit
+    ext_clusters = {
+        _norm(r["Well_Normalised"]): f"C{int(r['Best_Match_Cluster'])}"
+        for _, r in site[site["Network"] == "Extended"].iterrows()
+    }
+
+    # Locations + elevations by normalised well name
+    loc_by_norm = {}
+    for _, r in locs.iterrows():
+        for col in ("Match_ID", "Name"):
+            if col in r and pd.notna(r.get(col)):
+                loc_by_norm[_norm(r[col])] = r
+                break
+    elev_by_norm = {_norm(r["Name_norm"]): r for _, r in elev.iterrows()}
+
+    wells = []
+    # Per-well SSM coefficients from master_data (reference wells only)
+    well_betas = {}
+    for _, mr in md.iterrows():
+        wn_md = _norm(mr["Name_Original"])
+        b1_raw = mr.get("beta_1_recharge", np.nan)
+        b2_raw = mr.get("beta_2_atmospheric_draw", np.nan)
+        b3_raw = mr.get("beta_3_drainage", np.nan)
+        if (pd.notna(b1_raw) and float(b1_raw) > 0
+                and pd.notna(b2_raw) and pd.notna(b3_raw)):
+            b3_v = float(b3_raw)
+            if b3_v < 0:
+                print(f"  [WARNING] {wn_md}: β₃ = {b3_v:.4f} is negative "
+                      f"(expected positive under displacement formulation)")
+            well_betas[wn_md] = {
+                "b1": float(b1_raw) / 1000.0,   # m/m -> m/mm
+                "b2": float(b2_raw) / 1000.0,
+                "b3": abs(b3_v),
+            }
+
+    for wn, cluster in {**ref_clusters, **ext_clusters}.items():
+        if cluster not in cluster_coeffs:
+            continue   # skip wells whose cluster is outside the canonical k=5 set
+        if wn not in loc_by_norm or wn not in elev_by_norm:
+            continue
+        lrow, erow = loc_by_norm[wn], elev_by_norm[wn]
+        ground = erow.get("DEM_Ground_Elev")
+        if pd.isna(ground):
+            continue
+        display = str(lrow.get("Match_ID") or lrow.get("Name") or wn)
+        # nearest_cluster_only=True means the cluster label is a pattern-match
+        # nearest-type assignment, not a core-member assignment. The SSM
+        # forecast is still computed (using the matched cluster's coefficients)
+        # but the UI should make clear the user's interpretation should be
+        # tempered.
+        nearest_only = wn in NEAREST_CLUSTER_ONLY_WELLS
+
+        # Per-well P_flood coefficients (slope_A_well, intercept_B_well)
+        # computed from the well's own beta if available.
+        wb = well_betas.get(wn)
+        well_pflood = {}
+        if wb is not None:
+            cc_cluster = cluster_coeffs[cluster]
+            peak_month = cc_cluster["peak_month"]
+            months = _horizon_months(peak_month)
+            n = len(months)
+            alpha_w = 1.0 - wb["b3"]
+            alpha_n_w = alpha_w ** n
+            S_P_w = sum(alpha_w ** (n - 1 - i) * P_clim[m]
+                        for i, m in enumerate(months))
+            S_E_w = sum(alpha_w ** (n - 1 - i) * PET_clim[m]
+                        for i, m in enumerate(months))
+            P_clim_total = sum(P_clim[m] for m in months)
+            denom = wb["b1"] * S_P_w
+            if abs(denom) > 1e-12:
+                well_pflood = {
+                    "slope_A_well":      (alpha_n_w * P_clim_total) / denom,
+                    "intercept_B_well":  (wb["b2"] * S_E_w * P_clim_total) / denom,
+                    "b1_well":           wb["b1"],
+                    "b2_well":           wb["b2"],
+                    "b3_well":           wb["b3"],
+                }
+
+        wells.append({
+            "name":            wn,
+            "display_name":    display,
+            "E":               float(lrow["E"]),
+            "N":               float(lrow["N"]),
+            "ground_elev":     float(ground),
+            "cluster":         cluster,
+            "nearest_cluster_only": bool(nearest_only),
+            "default_h_prev":  cluster_default_h_prev.get(cluster, -1.0),
+            "default_h_max":   cluster_default_h_max.get(cluster, -0.5),
+            **well_pflood,
+        })
+    wells.sort(key=lambda w: (w["cluster"], w["name"]))
+    bundle["wells"] = wells
+
+    # ── Base layer: hillshade image + KML feature polylines ──────────────
+    # These are embedded into the bundle so the forecaster HTML can render
+    # a proper spatial context behind the well dots.
+    bundle["base_layer"] = _build_base_layer()
+
+    return bundle
+
+
+def _build_base_layer() -> dict:
+    """
+    Build the forecaster base layer data: a base64-encoded hillshade PNG
+    and KML feature polylines as coordinate arrays in OSGB36.
+
+    Uses the same fixed map extent as the 11b PNG maps:
+    E 240100–243900, N 362100–365900.
+    """
+    import base64
+    from io import BytesIO
+
+    EXTENT = {
+        "eMin": 240100, "eMax": 243900,
+        "nMin": 362100, "nMax": 365900,
+    }
+    result = {"extent": EXTENT, "hillshade_png": None, "features": []}
+
+    # ── Hillshade ────────────────────────────────────────────────────────
+    dem_path = DATA_DIR / "newborough_dem.tif"
+    if dem_path.exists():
+        try:
+            import rasterio
+            from matplotlib.colors import LightSource
+
+            with rasterio.open(str(dem_path)) as src:
+                raw = src.read(1).astype(float)
+                transform = src.transform
+                res_x = abs(transform.a)
+                res_y = abs(transform.e)
+                dem_e = transform.c + np.arange(raw.shape[1]) * transform.a
+                dem_n = transform.f + np.arange(raw.shape[0]) * transform.e
+                if src.nodata is not None:
+                    raw[raw == src.nodata] = np.nan
+
+            filled = np.nan_to_num(raw, nan=0.0)
+            ls = LightSource(azdeg=315, altdeg=35)
+            hs = ls.hillshade(filled, vert_exag=3.0, dx=res_x, dy=res_y)
+
+            # Crop to map extent
+            e_mask = (dem_e >= EXTENT["eMin"]) & (dem_e <= EXTENT["eMax"])
+            n_mask = (dem_n >= EXTENT["nMin"]) & (dem_n <= EXTENT["nMax"])
+            hs_crop = hs[np.ix_(n_mask, e_mask)]
+
+            # Render to PNG via matplotlib (no axes, no border)
+            fig_hs, ax_hs = plt.subplots(figsize=(8, 8), dpi=150)
+            ax_hs.imshow(hs_crop, cmap="gray", vmin=0.2, vmax=1.0,
+                         origin="upper", aspect="equal")
+            ax_hs.axis("off")
+            fig_hs.subplots_adjust(left=0, right=1, top=1, bottom=0)
+            buf = BytesIO()
+            fig_hs.savefig(buf, format="png", dpi=150, bbox_inches="tight",
+                           pad_inches=0, transparent=False)
+            plt.close(fig_hs)
+            buf.seek(0)
+            result["hillshade_png"] = base64.b64encode(buf.read()).decode("ascii")
+            print("  Forecaster base layer: hillshade embedded OK")
+        except Exception as exc:
+            print(f"  [WARNING] Hillshade embed failed: {exc}")
+    else:
+        print(f"  [WARNING] DEM not found at {dem_path}; forecaster will lack hillshade")
+
+    # ── KML features ─────────────────────────────────────────────────────
+    kml_layers = [
+        {"file": "Features.kml",  "filter": "forest|plantation|wood|boundary",
+         "colour": "purple",      "width": 2.2, "dash": "",     "label": "Forest Boundary"},
+        {"file": "Features.kml",  "filter": "lake|llyn|rhos",
+         "colour": "dodgerblue",  "width": 1.8, "dash": "",     "label": "Lake",
+         "fill": "rgba(30,144,255,0.15)"},
+        {"file": "Features.kml",  "filter": "broadleaf|restock",
+         "colour": "#228B22",     "width": 2.0, "dash": "6,3",  "label": "Broadleaf Restock"},
+        {"file": "Features.kml",  "filter": None,
+         "colour": "black",       "width": 1.3, "dash": "5,3",  "label": "Other Features"},
+        {"file": "clearfell.kml", "filter": None,
+         "colour": "darkorange",  "width": 2.2, "dash": "6,2,2,2", "label": "Felling Area"},
+    ]
+
+    for layer in kml_layers:
+        kml_path = DATA_DIR / layer["file"]
+        if not kml_path.exists():
+            continue
+        try:
+            gdf = _safe_read_kml(kml_path)
+            if gdf is None or gdf.empty:
+                continue
+            gdf.set_crs(epsg=4326, inplace=True, allow_override=True)
+            gdf = gdf.to_crs("EPSG:27700")
+
+            # Apply filter
+            if layer["filter"] is not None:
+                name_col = gdf.get("Name", pd.Series("", index=gdf.index)).fillna("").astype(str)
+                desc_col = gdf.get("description", pd.Series("", index=gdf.index)).fillna("").astype(str)
+                combined = name_col + " " + desc_col
+                mask = combined.str.contains(layer["filter"], case=False, na=False)
+                # "Other Features" is the negation of all named filters
+                if layer["label"] == "Other Features":
+                    lake_m = combined.str.contains("lake|llyn|rhos", case=False, na=False)
+                    forest_m = combined.str.contains("forest|plantation|wood|boundary", case=False, na=False)
+                    broad_m = combined.str.contains("broadleaf|restock", case=False, na=False)
+                    mask = ~(lake_m | forest_m | broad_m)
+                gdf = gdf[mask]
+
+            if gdf.empty:
+                continue
+
+            # Extract coordinate arrays from geometries
+            polys = []
+            for geom in gdf.geometry:
+                if geom is None:
+                    continue
+                coords_list = _extract_coords(geom)
+                for coords in coords_list:
+                    polys.append([[round(c[0], 1), round(c[1], 1)] for c in coords])
+
+            if polys:
+                feat = {
+                    "coords":  polys,
+                    "colour":  layer["colour"],
+                    "width":   layer["width"],
+                    "dash":    layer.get("dash", ""),
+                    "label":   layer["label"],
+                }
+                if "fill" in layer:
+                    feat["fill"] = layer["fill"]
+                result["features"].append(feat)
+
+        except Exception as exc:
+            print(f"  [WARNING] KML layer '{layer['file']}' failed: {exc}")
+
+    n_feat = sum(len(f["coords"]) for f in result["features"])
+    print(f"  Forecaster base layer: {n_feat} KML polylines from "
+          f"{len(result['features'])} layers")
+
+    return result
+
+
+def _extract_coords(geom) -> list:
+    """Extract coordinate arrays from a shapely geometry (any type)."""
+    from shapely.geometry import (
+        Polygon, MultiPolygon, LineString, MultiLineString,
+        GeometryCollection, Point, MultiPoint,
+    )
+    results = []
+    if isinstance(geom, Polygon):
+        results.append(list(geom.exterior.coords))
+    elif isinstance(geom, MultiPolygon):
+        for poly in geom.geoms:
+            results.append(list(poly.exterior.coords))
+    elif isinstance(geom, LineString):
+        results.append(list(geom.coords))
+    elif isinstance(geom, MultiLineString):
+        for line in geom.geoms:
+            results.append(list(line.coords))
+    elif isinstance(geom, GeometryCollection):
+        for sub in geom.geoms:
+            results.extend(_extract_coords(sub))
+    # Points/MultiPoints ignored — no polylines to draw
+    return results
+
+
+def build_forecaster_html() -> None:
+    """
+    Generate forecaster.html by injecting the pipeline-derived data bundle
+    into the forecaster HTML template. The template (src/forecaster_template.html)
+    contains all UI logic; this function only provides the data.
+
+    Live Met Office rainfall is fetched client-side at page load, so the
+    forecaster self-updates after pipeline runs stop. Script 11 and Script 03
+    outputs must exist before this runs.
+    """
+    DIR_11B.mkdir(parents=True, exist_ok=True)
+
+    if not SRC_FORECASTER_TEMPLATE.exists():
+        print(f"  [WARNING] Forecaster template not found at {SRC_FORECASTER_TEMPLATE}; "
+              "skipping forecaster HTML generation.")
+        return
+    for needed in (OUT_11_TABLE8_THRESHOLDS, INT_CLUSTER_MECHANISTIC,
+                   OUT_11_TABLE6_WINTER, OUT_11_TABLE7_SUMMER,
+                   INT_REGIONAL_AVERAGES):
+        if not needed.exists():
+            print(f"  [WARNING] Required input missing: {needed}. "
+                  "Run Scripts 03 and 11 first; skipping forecaster.")
+            return
+
+    bundle = _build_forecaster_data_bundle()
+
+    n_wells = len(bundle["wells"])
+    n_clusters = len(bundle["cluster_coeffs"])
+    n_blocks = len(bundle["block_tf"])
+    if n_wells == 0 or n_clusters == 0 or n_blocks == 0:
+        print(f"  [WARNING] Empty data bundle ({n_wells} wells, {n_clusters} "
+              f"clusters, {n_blocks} blocks); skipping forecaster HTML.")
+        return
+
+    # JSON encoder: default=str handles any stray numpy scalar or Timestamp;
+    # allow_nan=False would be stricter but we don't expect NaNs here.
+    data_js = "const DATA = " + json.dumps(bundle, indent=2, default=str) + ";"
+
+    template = SRC_FORECASTER_TEMPLATE.read_text(encoding="utf-8")
+    marker = "/*__DATA_BUNDLE__*/"
+    if marker not in template:
+        print(f"  [ERROR] Template marker '{marker}' not found in "
+              f"{SRC_FORECASTER_TEMPLATE}; cannot inject data.")
+        return
+    html = template.replace(marker, data_js)
+
+    OUT_11B_FORECASTER_HTML.write_text(html, encoding="utf-8")
+
+    print(f"  Saved: {OUT_11B_FORECASTER_HTML.name}")
+    print(f"    wells: {n_wells}  clusters: {n_clusters}  "
+          f"blocks: {n_blocks}  template size: {len(template):,} chars "
+          f"\u2192 rendered size: {len(html):,} chars")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ENTRY POINT
+# ─────────────────────────────────────────────────────────────────────────────
 def main(preview: bool = False) -> None:
     dpi = 150 if preview else 300
     print("\n=== 11b_spatial_thresholds.py ===")
@@ -985,10 +1883,14 @@ def main(preview: bool = False) -> None:
     plot_summer_minima_map(df, dpi=dpi)
     print("Generating winter maxima depth map...")
     plot_winter_maxima_map(df, dpi=dpi)
-    print("Generating P_flood map...")
+    print("Generating P_flood map (iterated, Section 3.6.3)...")
     plot_pflood_map(df, dpi=dpi)
     print("Generating flood frequency map...")
     plot_flood_frequency_map(df, dpi=dpi)
+    print("Exporting Table 10 (spreadsheet-ready P_flood equations)...")
+    export_table10_spreadsheet()
+    print("Building interactive forecaster HTML...")
+    build_forecaster_html()
     print("Done.")
 
 

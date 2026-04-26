@@ -428,10 +428,10 @@ def build_well_table(loc, cl, md, elev, maod, clim, sy_df):
     wt = wt.merge(cl[["id", "Cluster"]], on="id", how="left")
     wt = wt.merge(
         md[["id", "beta_1_recharge", "beta_2_atmospheric_draw",
-            "beta_3_internal_brake"]].rename(columns={
+            "beta_3_drainage"]].rename(columns={
             "beta_1_recharge": "b1",
             "beta_2_atmospheric_draw": "b2",
-            "beta_3_internal_brake": "b3",
+            "beta_3_drainage": "b3",
         }), on="id", how="left")
     # Join DEM ground elevation for viewer ridge masking (mirrors the
     # static-figure approach in map_utils.add_idw_surface).

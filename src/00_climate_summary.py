@@ -50,6 +50,7 @@ from utils.paths import (
     OUT_00_WELL_NETWORK_TABLE,
     OUT_00_SUMMER_WARMING_TABLE,
 )
+from utils.config import REFERENCE_CUTOFF_DATE
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -60,6 +61,7 @@ import argparse
 import os
 from scipy.stats import linregress
 
+__version__ = "1.0.1"  # Hollingham (2026) — last revised 2026-04-26
 
 # Colorblind-safe palette used throughout the project
 CB_BLUE = "#0072B2"
@@ -67,7 +69,7 @@ CB_GREEN = "#009E73"
 CB_ORANGE = "#E69F00"
 CB_RED = "#D55E00"
 CB_BROWN = "#8C564B"
-CUTOFF_DATE = pd.Timestamp("2026-02-01")
+CUTOFF_DATE = pd.Timestamp(REFERENCE_CUTOFF_DATE)
 MIN_RECORD_MONTHS = 100
 DETREND_START = pd.Timestamp("2004-12-01")
 DETREND_END = pd.Timestamp("2025-12-01")
@@ -119,9 +121,7 @@ def _filter_wells_min_record(
     cutoff: pd.Timestamp = CUTOFF_DATE,
     min_months: int = MIN_RECORD_MONTHS,
 ) -> pd.DataFrame:
-    """
-
-__version__ = "1.0.0"  # Hollingham (2026) — last revised 2026-04-10Keep wells with at least `min_months` non-null records up to `cutoff`."""
+    """Keep wells with at least `min_months` non-null records up to `cutoff`."""
     subset = wells.loc[wells.index <= cutoff].copy()
     valid_counts = subset.notna().sum(axis=0)
     keep = valid_counts[valid_counts >= min_months].index.tolist()

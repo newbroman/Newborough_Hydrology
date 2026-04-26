@@ -19,6 +19,7 @@ import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
 from utils.paths import (
     make_all_dirs, DATA_CLIMATE_RAW, DATA_WELLS_RAW,
+    INT_WELLS_CLEAN, INT_WELLS_EXTENDED,
     OUT_09_FULL_PARAMS,
     OUT_09_BETA3_SIG,
     OUT_09_BACI_SHIFTS,
@@ -27,6 +28,7 @@ from utils.paths import (
     OUT_09_TIER1_DRIFT,
     OUT_09_TIER2_SIGNAL,
     OUT_09_BETA3_CI,
+    OUT_09_ROBUSTNESS,
     INT_CLIMATE,
     DIR_09
 )
@@ -113,34 +115,6 @@ def export_table4_beta3_summary(significance_results: list[dict]) -> None:
     out.to_csv(OUT_09_TABLE4_SUMMARY, index=False)
 
 
-RAF_VALLEY_LAT_DEG = 53.25
-
-
-def thornthwaite_pet_m(t_mean: pd.Series, lat_deg: float = RAF_VALLEY_LAT_DEG) -> pd.Series:
-    temps_pos = t_mean.clip(lower=0).fillna(0)
-    i_monthly = (temps_pos / 5) ** 1.514
-    i_annual = i_monthly.groupby(t_mean.index.year).sum()
-    I = pd.Series(t_mean.index.year, index=t_mean.index).map(i_annual)
-    I = I.replace(0, np.nan)
-    alpha = (6.75e-7 * I**3) - (7.71e-5 * I**2) + (1.792e-2 * I) + 0.49239
-    pet_unadj = np.where(
-        temps_pos <= 0, 0.0,
-        np.where(
-            temps_pos < 26.5,
-            16.0 * (10.0 * temps_pos / I) ** alpha,
-            -415.85 + 32.24 * temps_pos - 0.43 * temps_pos ** 2,
-        ),
-    )
-    lat_rad = np.radians(lat_deg)
-    mid_doy = np.array([15, 46, 75, 106, 136, 167, 197, 228, 259, 289, 320, 350])
-    decl = np.radians(23.45 * np.sin(np.radians(360 * (mid_doy - 80) / 365)))
-    cos_ha = -np.tan(lat_rad) * np.tan(decl[t_mean.index.month - 1])
-    N = (24 / np.pi) * np.arccos(np.clip(cos_ha, -1, 1))
-    K = (N / 12) * (t_mean.index.days_in_month / 30)
-    pet_m = pd.Series(pet_unadj * K / 1000, index=t_mean.index, name="PET")
-    pet_m[t_mean.isna()] = np.nan
-    return pet_m
-
 # ====================================================================================
 # PATH CONFIGURATION
 # ====================================================================================
@@ -162,12 +136,6 @@ plt.rcParams.update({
     'legend.fontsize': 10,
 })
 
-def clean_well_series(series: pd.Series, max_depth: float = 4.0) -> pd.Series:
-    cleaned = series.where(series <= max_depth, np.nan)
-    return cleaned.interpolate(method='time', limit=3)
-
-def calculate_cusum(series: pd.Series, baseline_mean: float) -> pd.Series:
-    return (series - baseline_mean).cumsum()
 
 # ==========================================
 # 1. SETUP EXPERIMENTS & ERAS
@@ -180,26 +148,21 @@ date_2023 = pd.to_datetime('2023-10-01')
 
 print("1. Loading Climate and Well Data...")
 try:
-    climate = pd.read_csv(INT_CLIMATE)
-    def parse_met_date(date_str):
-        try:
-            m, y = date_str.split()
-            year = int(y) + (2000 if int(y) <= 26 else 1900)
-            return pd.to_datetime(f"01-{m}-{year}")
-        except: return pd.NaT
+    # Climate — read from pipeline intermediate (Script 01 output).
+    climate = pd.read_csv(INT_CLIMATE, index_col=0, parse_dates=True)
+    climate = climate.sort_index()
 
-    # outputs/01_climate.csv already has 'Date', 'P_m', 'PET' columns
-    climate['Date'] = pd.to_datetime(climate['Date'])
-    climate = climate.set_index('Date')
-
-    wells_raw = pd.read_csv(DATA_WELLS_RAW, header=1)
-    wells = wells_raw.set_index(wells_raw.columns[0]).transpose()
-    wells.index = pd.to_datetime(wells.index, dayfirst=True, errors='coerce').to_period('M').to_timestamp()
-    wells = wells.apply(pd.to_numeric, errors='coerce').groupby(level=0).mean()
-    wells.columns = wells.columns.str.lower().str.replace(' ', '')
-
-    for col in wells.columns:
-        wells[col] = clean_well_series(wells[col])
+    # Wells — read from pipeline intermediates (Script 01 output).
+    # Merge reference and extended networks to get all scraping and control wells.
+    wells_main = pd.read_csv(INT_WELLS_CLEAN, index_col=0, parse_dates=True)
+    wells_main.columns = wells_main.columns.str.lower().str.replace(' ', '')
+    if INT_WELLS_EXTENDED.exists():
+        wells_ext = pd.read_csv(INT_WELLS_EXTENDED, index_col=0, parse_dates=True)
+        wells_ext.columns = wells_ext.columns.str.lower().str.replace(' ', '')
+        new_cols = [c for c in wells_ext.columns if c not in wells_main.columns]
+        wells = pd.concat([wells_main, wells_ext[new_cols]], axis=1)
+    else:
+        wells = wells_main
 
     valid_controls = [w for w in controls if w in wells.columns]
 except Exception as e:
@@ -293,14 +256,15 @@ for well, config in well_eras.items():
     era_baci_means = {}
     
     df = wells[well].to_frame(name='h').join(climate[['P_m', 'PET']], how='inner')
+    df['P_m_lag1'] = df['P_m'].shift(1)  # lag-1: water level reflects previous month's rainfall
     df['h_prev'] = df['h'].shift(1)
     df['Delta_h'] = df['h'] - df['h_prev']
     df = df.dropna()
 
-    X_base = pd.DataFrame({'beta_1_recharge': df['P_m'], 'beta_2_atmospheric_draw': -df['PET'], 'beta_3_internal_brake': -df['h_prev']})
+    X_base = pd.DataFrame({'beta_1_recharge': df['P_m_lag1'], 'beta_2_atmospheric_draw': -df['PET'], 'beta_3_internal_brake': -df['h_prev']})
     res_base = sm.OLS(df['Delta_h'], X_base).fit()
     b1, b2 = res_base.params['beta_1_recharge'], res_base.params['beta_2_atmospheric_draw']
-    df['Drainage_Component'] = df['Delta_h'] - (b1 * df['P_m']) - (b2 * -df['PET'])
+    df['Drainage_Component'] = df['Delta_h'] - (b1 * df['P_m_lag1']) - (b2 * -df['PET'])
     df['neg_h_prev'] = -df['h_prev']
     
     era1_key = list(config['Eras'].keys())[0]
@@ -318,7 +282,7 @@ for well, config in well_eras.items():
         
         sub = filter_func(df)
         if len(sub) > 6:
-            X_full = pd.DataFrame({'beta_1_recharge': sub['P_m'], 'beta_2_atmospheric_draw': -sub['PET'], 'beta_3_internal_brake': -sub['h_prev']})
+            X_full = pd.DataFrame({'beta_1_recharge': sub['P_m_lag1'], 'beta_2_atmospheric_draw': -sub['PET'], 'beta_3_internal_brake': -sub['h_prev']})
             model_full = sm.OLS(sub['Delta_h'], X_full).fit()
             
             full_params_results.append({
@@ -629,3 +593,267 @@ if not df_sig.empty:
 
 print("\n--- Absolute Paired-BACI Shifts ---")
 print(pd.DataFrame(baci_results).to_string(index=False))
+
+# ====================================================================================
+# CEH36 SCRAPING ROBUSTNESS FIGURE — three independent methods
+# ====================================================================================
+# Three independent estimates of the CEH36 Pure Scraping era step change:
+#   (1) Raw BACI: CEH36 minus CEH4 (existing approach in main analysis)
+#   (2) Synthetic control: CEH36 minus a weighted composite of donor wells
+#   (3) SSM forward residual: observed minus model prediction calibrated on
+#       the pre-scraping baseline period
+#
+# Method convergence supports the inference that the +0.13 m benefit at CEH36
+# is not an artefact of CEH4's own progressive deepening. Method divergence
+# is interpretable: the raw BACI and synthetic control measure the relative
+# topographic benefit, while the SSM residual measures deviation from a
+# climate-driven trajectory and so reflects whether the benefit is
+# structural (permanent ground surface lowering) or hydrodynamic (sustained
+# departure from climate forecast).
+#
+# Convention: raw well depths are negative below ground; a POSITIVE step
+# value indicates a beneficial shift (water table closer to surface). This
+# matches the convention used elsewhere in Script 09.
+print("\nGenerating CEH36 scraping robustness figure...")
+try:
+    import matplotlib.patches as mpatches
+    from matplotlib.lines import Line2D
+
+    # Donor-well pool for synthetic control: long-record wells geographically
+    # outside the scraping management footprint, excluding CEH36 (target),
+    # CEH4 (already used as raw BACI control), and the felling-zone wells
+    # (which underwent their own intervention).
+    _donor_candidates = [
+        'ceh1', 'ceh2', 'ceh5', 'ceh6', 'ceh9', 'ceh16', 'ceh17',
+        'ceh19', 'ceh22', 'ceh23', 'ceh28',
+    ]
+    _donors = [w for w in _donor_candidates if w in wells.columns]
+
+    # Era boundaries for CEH36
+    _baseline_mask = wells.index < date_2015
+    _scraping_mask = (wells.index >= date_2015) & (wells.index < date_felling)
+    _felling_mask  = (wells.index >= date_felling) & (wells.index < date_2023)
+    _post23_mask   = wells.index >= date_2023
+
+    # ── (1) Raw BACI: CEH36 vs CEH4 ───────────────────────────────────────
+    _ceh36 = wells['ceh36']
+    _ceh4  = wells['ceh4']
+    _gap_raw = _ceh36 - _ceh4
+
+    _raw_baseline = _gap_raw[_baseline_mask].mean()
+    _raw_scraping = _gap_raw[_scraping_mask].mean()
+    _raw_step     = _raw_scraping - _raw_baseline
+
+    # ── (2) Synthetic control: weighted composite from donor wells ────────
+    # Weights computed by OLS on the baseline period: which combination of
+    # donors best matches CEH36 before scraping?
+    _baseline_X = wells.loc[_baseline_mask, _donors].dropna()
+    _baseline_y = _ceh36.loc[_baseline_X.index]
+    _valid_idx  = _baseline_y.notna()
+    _baseline_X = _baseline_X.loc[_valid_idx]
+    _baseline_y = _baseline_y.loc[_valid_idx]
+
+    if len(_baseline_X) >= 24:
+        # OLS without intercept — keeps the synthetic on the same depth datum
+        _ols = sm.OLS(_baseline_y.values, _baseline_X.values).fit()
+        _weights = pd.Series(_ols.params, index=_donors)
+
+        # Apply weights across full record to construct the synthetic series
+        _synthetic = wells[_donors].dot(_weights)
+        _gap_syn   = _ceh36 - _synthetic
+
+        _syn_baseline = _gap_syn[_baseline_mask].mean()
+        _syn_scraping = _gap_syn[_scraping_mask].mean()
+        _syn_step     = _syn_scraping - _syn_baseline
+    else:
+        _gap_syn  = pd.Series(np.nan, index=_ceh36.index)
+        _syn_step = np.nan
+        _weights  = pd.Series(dtype=float)
+        print(f"  [WARNING] Insufficient baseline overlap for synthetic control "
+              f"({len(_baseline_X)} months, need >=24)")
+
+    # ── (3) SSM forward residual ──────────────────────────────────────────
+    # Calibrate Δh = β₁·P − β₂·PET − β₃·h_prev on the baseline period at CEH36,
+    # then run forward through scraping/felling/post-2023 eras and compare
+    # observed vs predicted.
+    _ts = pd.DataFrame({
+        'h':   _ceh36,
+        'P':   climate['P_m'] * 1000.0,    # m -> mm
+        'PET': climate['PET'] * 1000.0,
+    }).dropna()
+
+    # Lag-1 rainfall: water level at month t reflects previous month's
+    # rainfall, consistent with HEADLINE_LAG = 1 in Script 03.
+    _ts['P_lag1'] = _ts['P'].shift(1)
+
+    _ts_base = _ts[_ts.index < date_2015].copy()
+    _ts_base['h_prev'] = _ts_base['h'].shift(1)
+    _ts_base['dh']     = _ts_base['h'] - _ts_base['h_prev']
+    _ts_base = _ts_base.dropna()
+
+    if len(_ts_base) >= 36:
+        _X_fit = pd.DataFrame({
+            'P':       _ts_base['P_lag1'],
+            'PET_neg': -_ts_base['PET'],
+            'h_neg':   -_ts_base['h_prev'],
+        })
+        _model = sm.OLS(_ts_base['dh'].values, _X_fit.values).fit()
+        _b1, _b2, _b3 = _model.params
+
+        # Forward simulation from end-of-baseline through end-of-record.
+        # Uses P_lag1 (previous month's rainfall) at each step.
+        _ts_fwd = _ts.copy()
+        _ts_fwd['h_pred'] = np.nan
+        _idx_list = list(_ts_fwd.index)
+        # Initialise at last observed baseline value
+        _last_base_dt = _ts_fwd.index[_ts_fwd.index < date_2015].max()
+        if pd.notna(_last_base_dt):
+            _h_pred = _ts_fwd.loc[_last_base_dt, 'h']
+            _ts_fwd.loc[_last_base_dt, 'h_pred'] = _h_pred
+            for _dt in _idx_list:
+                if _dt <= _last_base_dt:
+                    continue
+                _P_t   = _ts_fwd.loc[_dt, 'P_lag1']
+                _PET_t = _ts_fwd.loc[_dt, 'PET']
+                if np.isnan(_P_t) or np.isnan(_PET_t):
+                    continue
+                _dh_pred = _b1 * _P_t - _b2 * _PET_t - _b3 * _h_pred
+                _h_pred  = _h_pred + _dh_pred
+                _ts_fwd.loc[_dt, 'h_pred'] = _h_pred
+
+            _ts_fwd['residual'] = _ts_fwd['h'] - _ts_fwd['h_pred']
+
+            # Mask era boundaries against the SSM frame's own index, not the
+            # wells frame, because dropna may have removed rows.
+            _fwd_baseline_mask = _ts_fwd.index < date_2015
+            _fwd_scraping_mask = (
+                (_ts_fwd.index >= date_2015) & (_ts_fwd.index < date_felling)
+            )
+
+            _ssm_baseline = _ts_fwd.loc[_fwd_baseline_mask, 'residual'].mean()
+            _ssm_scraping = _ts_fwd.loc[_fwd_scraping_mask, 'residual'].mean()
+            _ssm_step = _ssm_scraping - (_ssm_baseline if pd.notna(_ssm_baseline) else 0.0)
+        else:
+            _ts_fwd = _ts.copy()
+            _ts_fwd['h_pred']   = np.nan
+            _ts_fwd['residual'] = np.nan
+            _ssm_step = np.nan
+    else:
+        _ts_fwd = _ts.copy()
+        _ts_fwd['h_pred']   = np.nan
+        _ts_fwd['residual'] = np.nan
+        _ssm_step = np.nan
+        print(f"  [WARNING] Insufficient baseline for SSM calibration "
+              f"({len(_ts_base)} months, need >=36)")
+
+    # ── FIGURE: three panels ──────────────────────────────────────────────
+    _fig = plt.figure(figsize=(13, 11), dpi=300)
+    _gs  = _fig.add_gridspec(3, 1, height_ratios=[1.2, 1.0, 0.9], hspace=0.45)
+
+    # Panel (a): raw BACI vs synthetic control gap series
+    _ax1 = _fig.add_subplot(_gs[0])
+    _ax1.plot(_gap_raw.index, _gap_raw.values,
+              color='#8b5a2b', lw=1.6, alpha=0.85,
+              label='CEH36 − CEH4 (raw BACI)')
+    if not np.isnan(_syn_step):
+        _ax1.plot(_gap_syn.index, _gap_syn.values,
+                  color='#1f77b4', lw=1.6, alpha=0.85,
+                  label='CEH36 − synthetic (donor composite)')
+
+    _ax1.axhline(_raw_baseline, color='#8b5a2b', ls='--', lw=1.0, alpha=0.6)
+    if not np.isnan(_syn_step):
+        _ax1.axhline(_syn_baseline, color='#1f77b4', ls='--', lw=1.0, alpha=0.6)
+        _ax1.axhline(_syn_scraping, color='#1f77b4', ls=':',  lw=1.0, alpha=0.6)
+    _ax1.axhline(_raw_scraping, color='#8b5a2b', ls=':', lw=1.0, alpha=0.6)
+
+    _ax1.axvline(date_2015,    color='black', ls='--', lw=0.8, alpha=0.5)
+    _ax1.axvline(date_felling, color='black', ls='--', lw=0.8, alpha=0.5)
+    _ax1.axvline(date_2023,    color='black', ls='--', lw=0.8, alpha=0.5)
+    _ax1.text(date_2015,    _ax1.get_ylim()[1]*0.95, ' 2015 scraping',
+              fontsize=8, va='top', alpha=0.7)
+    _ax1.text(date_felling, _ax1.get_ylim()[1]*0.95, ' felling',
+              fontsize=8, va='top', alpha=0.7)
+    _ax1.text(date_2023,    _ax1.get_ylim()[1]*0.95, ' 2023 rescrape',
+              fontsize=8, va='top', alpha=0.7)
+
+    _ax1.set_ylabel('CEH36 − reference (m)')
+    _ax1.set_title('(a) Raw BACI and synthetic control gap series',
+                   loc='left', fontweight='bold', fontsize=10)
+    _ax1.legend(loc='lower left', fontsize=8, framealpha=0.9)
+    _ax1.grid(axis='y', alpha=0.25)
+    _ax1.spines['top'].set_visible(False)
+    _ax1.spines['right'].set_visible(False)
+
+    # Panel (b): SSM forward residual
+    _ax2 = _fig.add_subplot(_gs[1])
+    if 'residual' in _ts_fwd.columns and _ts_fwd['residual'].notna().any():
+        # Only plot from the prediction start — the baseline period has NaN
+        # predictions (the SSM was calibrated there, not run forward), and
+        # plotting NaN residuals creates a misleading flat line at zero.
+        _resid = _ts_fwd['residual'].dropna()
+        _ax2.plot(_resid.index, _resid.values, color='#2c7a3f', lw=1.4, alpha=0.85,
+                  label='SSM forward residual (observed − predicted)')
+        _ax2.fill_between(_resid.index, 0, _resid.values,
+                          where=_resid.values >= 0,
+                          color='#2c7a3f', alpha=0.15, interpolate=True,
+                          label='Shallower than SSM prediction (beneficial)')
+        _ax2.fill_between(_resid.index, 0, _resid.values,
+                          where=_resid.values < 0,
+                          color='#b85c4a', alpha=0.15, interpolate=True,
+                          label='Deeper than SSM prediction')
+    _ax2.axhline(0, color='black', lw=0.6, alpha=0.6)
+    _ax2.axvline(date_2015,    color='black', ls='--', lw=0.8, alpha=0.5)
+    _ax2.axvline(date_felling, color='black', ls='--', lw=0.8, alpha=0.5)
+    _ax2.axvline(date_2023,    color='black', ls='--', lw=0.8, alpha=0.5)
+
+    _ax2.set_ylabel('Residual (m)')
+    _ax2.set_title('(b) SSM forward residual at CEH36 — calibrated on pre-2015 baseline',
+                   loc='left', fontweight='bold', fontsize=10)
+    _ax2.legend(loc='lower left', fontsize=7, framealpha=0.9, ncol=3)
+    _ax2.grid(axis='y', alpha=0.25)
+    _ax2.spines['top'].set_visible(False)
+    _ax2.spines['right'].set_visible(False)
+
+    # Panel (c): bar chart of step estimates from three methods
+    _ax3 = _fig.add_subplot(_gs[2])
+    _methods = ['Raw BACI (vs CEH4)', 'Synthetic control (11 donors)', 'SSM forward residual']
+    _values  = [_raw_step,
+                _syn_step if not np.isnan(_syn_step) else 0.0,
+                _ssm_step if not np.isnan(_ssm_step) else 0.0]
+    _colours = ['#8b5a2b', '#1f77b4', '#2c7a3f']
+    _bars = _ax3.bar(_methods, _values, color=_colours, alpha=0.85,
+                     edgecolor='black', linewidth=0.8)
+
+    # Annotate bars with values
+    for _bar, _val in zip(_bars, _values):
+        _y = _bar.get_height()
+        _ax3.text(_bar.get_x() + _bar.get_width() / 2,
+                  _y + (0.005 if _y >= 0 else -0.015),
+                  f'{_val:+.3f} m',
+                  ha='center', va='bottom' if _y >= 0 else 'top',
+                  fontsize=9, fontweight='bold')
+
+    _ax3.axhline(0, color='black', lw=0.8)
+    _ax3.set_ylabel('Pure Scraping era step change (m)')
+    _ax3.set_title('(c) Pure Scraping era step change — three independent methods',
+                   loc='left', fontweight='bold', fontsize=10)
+    _ax3.spines['top'].set_visible(False)
+    _ax3.spines['right'].set_visible(False)
+    _ax3.grid(axis='y', alpha=0.2)
+
+    _fig.suptitle(
+        'CEH36 Scraping Robustness Analysis — Three Independent Methods\n'
+        'Newborough Warren 2005–2026',
+        fontsize=11, fontweight='bold', y=0.975)
+
+    plt.savefig(OUT_09_ROBUSTNESS, bbox_inches='tight', dpi=300)
+    plt.close()
+    print(f" -> Saved: {OUT_09_ROBUSTNESS.name}")
+    print(f"   Raw BACI step:    {_raw_step:+.3f} m")
+    print(f"   Synthetic step:   {_syn_step:+.3f} m")
+    print(f"   SSM residual:     {_ssm_step:+.3f} m")
+
+except Exception as _e:
+    print(f"  [WARNING] Robustness figure failed — {_e}")
+    import traceback
+    traceback.print_exc()

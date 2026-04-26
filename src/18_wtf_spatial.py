@@ -11,8 +11,11 @@ Outputs:
     18_wtf_04_sy_contour_extended.png    — IDW contour surface, reference + extended wells
 
 Notes:
-    - C4 Forest wells receive interception correction: R_eff = (1-0.24)*P - PET
-    - C5 (tidal) and C6 (lake) excluded as physically unreliable
+    - Forest clusters (C4 Main Forest, C5 Coastal Forest) receive interception
+      correction: R_eff = (1-0.24)*P - PET. Interception fraction measured at
+      C5 and applied across both forested clusters.
+    - Under the k=5 partition all clusters are analytically usable; the old
+      EXCLUDE_CLUSTERS list (tidal / lake) is empty.
     - Extended wells use Best_Match_Cluster from 06_pear_membership_audit_sitewide.csv
     - Extended wells shown as open symbols on extended contour map
     - Forest contour values carry additional uncertainty (Freeman, 2008)
@@ -37,10 +40,12 @@ from scipy.interpolate import griddata
 from utils.paths import (
     make_all_dirs, OUT_DIR, DIR_18,
     INT_WELLS_CLEAN, INT_CLIMATE, INT_LOCATIONS, INT_CLUSTER_STATS,
-    INT_MASTER_DATA, INT_WELL_ELEVATIONS, DATA_DIR,
+    INT_MASTER_DATA, INT_WELL_ELEVATIONS, INT_WELLS_EXTENDED,
+    INT_PEAR_AUDIT_SITEWIDE, DATA_DIR,
     OUT_18_WELL_SY_TABLE, OUT_18_SY_MAP, OUT_18_SY_CONTOUR,
     OUT_18_SY_CONTOUR_EXT, INT_WTF_WELL_SY,
 )
+from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, CLUSTER_MARKERS
 make_all_dirs()
 
 # ── Site boundary constants (shared with script 19) ───────────────────────────
@@ -130,11 +135,12 @@ def make_site_mask(grid_x, grid_y):
 #         Sy relative to upland forest sand. Interception correction also
 #         unreliable for a partially-open slack canopy setting.
 RIDGE_EXCLUDE = ['ceh12', 'ceh15']
-FOREST_INTERCEPTION = 0.24    # Freeman (2008)
-EXCLUDE_CLUSTERS    = [5, 6]  # tidal / lake
-MIN_RISE_M          = 0.005   # m
-MIN_NET_RECH        = 0.010   # m
-MIN_EVENTS          = 15      # minimum qualifying events for confidence flag
+FOREST_INTERCEPTION = 0.24       # Freeman (2008); measured at C5, applied across all forested clusters
+FOREST_CIDS         = (4, 5)     # forested clusters that get the interception correction
+EXCLUDE_CLUSTERS    = []         # under k=5 all clusters are analytically usable
+MIN_RISE_M          = 0.005      # m
+MIN_NET_RECH        = 0.010      # m
+MIN_EVENTS          = 15         # minimum qualifying events for confidence flag
 
 plt.rcParams.update({
     'font.family': 'sans-serif',
@@ -146,15 +152,11 @@ plt.rcParams.update({
 
 def load_well_data(out_root):
     """Load individual well time series, climate, locations and cluster assignments."""
-    from pathlib import Path as _Path
-    if not (out_root / "01_wells_clean.csv").exists():
-        out_root = _Path("/mnt/project")
-
-    wells_df   = pd.read_csv(out_root / "01_wells_clean.csv",
+    wells_df   = pd.read_csv(INT_WELLS_CLEAN,
                               index_col=0, parse_dates=True)
-    climate    = pd.read_csv(out_root / "01_climate.csv", parse_dates=["Date"])
-    cluster_df = pd.read_csv(out_root / "02_cluster_stats.csv")
-    locations  = pd.read_csv(out_root / "01_locations.csv")
+    climate    = pd.read_csv(INT_CLIMATE, parse_dates=["Date"])
+    cluster_df = pd.read_csv(INT_CLUSTER_STATS)
+    locations  = pd.read_csv(INT_LOCATIONS)
 
     climate    = climate.set_index("Date")
     wells_df.index = pd.to_datetime(wells_df.index)
@@ -191,8 +193,8 @@ def wtf_individual_wells(wells_df, climate, cluster_df, locations):
         merged = merged.sort_index()
         merged["dh"] = merged[well].diff()
 
-        # Interception correction for Forest cluster
-        if cluster == 4:
+        # Interception correction for Forest clusters
+        if cluster in FOREST_CIDS:
             merged["net_R"] = merged["P_m"] * (1 - FOREST_INTERCEPTION) - merged["PET"]
             corrected = True
         else:
@@ -341,23 +343,15 @@ def plot_contour_map(well_results, out_path):
     cbar.set_label("Specific yield Sy  (WTF event median, IDW interpolation)",
                    fontsize=10, labelpad=10)
 
-    # Cluster colours and markers matching config.py
-    CLUSTER_COLOURS = {1:"#E69F00", 2:"#009E73", 3:"#CC79A7", 4:"#D55E00"}
-    CLUSTER_MARKERS = {1:"o", 2:"s", 3:"^", 4:"D"}
-    CLUSTER_LABELS  = {
-        1:"C1 Eastern Lake-buffer",
-        2:"C2 Eastern Mature Dune",
-        3:"C3 Western Mature Dune",
-        4:"C4 Forest (interception-corrected)"
-    }
+    # CLUSTER_COLOURS / CLUSTER_LABELS / CLUSTER_MARKERS imported from utils.config.
 
     cluster_handles = []
-    for cid in [1, 2, 3, 4]:
+    for cid in sorted(CLUSTER_LABELS.keys()):
         sub = well_results[well_results["Cluster"] == cid]
         if sub.empty:
             continue
         sizes = 60 + (sub["n_events"] - 20) * 1.2
-        hatch = "//" if cid == 4 else None
+        hatch = "//" if cid in FOREST_CIDS else None
         ax.scatter(sub["Easting"], sub["Northing"],
                    c=CLUSTER_COLOURS[cid],
                    s=sizes, marker=CLUSTER_MARKERS[cid],
@@ -393,7 +387,7 @@ def plot_contour_map(well_results, out_path):
         "Interpolated WTF Specific Yield Surface — Newborough Warren 2005–2026\n"
         "IDW interpolation (power=2) of event-based median Sy per well  |  "
         "Greyscale hillshade DEM + KML overlays\n"
-        "C4 Forest values interception-corrected (Freeman, 2008) — "
+        "Forest cluster values (C4, C5) interception-corrected (Freeman, 2008) — "
         "contours in Forest zone are approximate",
         fontsize=9, fontweight="bold", pad=10)
 
@@ -412,14 +406,10 @@ def wtf_extended_wells(climate, locations, out_root):
     Returns DataFrame in same format as wtf_individual_wells(), with
     Network='Extended' column added.
     """
-    from pathlib import Path as _Path
-
     try:
-        if not (out_root / "01_wells_extended.csv").exists():
-            out_root = _Path("/mnt/project")
-        wells_ext  = pd.read_csv(out_root / "01_wells_extended.csv",
+        wells_ext  = pd.read_csv(INT_WELLS_EXTENDED,
                                   index_col=0, parse_dates=True)
-        membership = pd.read_csv(out_root / "06_pear_membership_audit_sitewide.csv")
+        membership = pd.read_csv(INT_PEAR_AUDIT_SITEWIDE)
     except Exception as e:
         print(f"  [WARNING] Could not load extended well data: {e}")
         return None
@@ -455,7 +445,7 @@ def wtf_extended_wells(climate, locations, out_root):
         merged = merged.sort_index()
         merged['dh'] = merged[well].diff()
 
-        if cluster == 4:
+        if cluster in FOREST_CIDS:
             merged['net_R'] = merged['P_m'] * (1 - FOREST_INTERCEPTION) - merged['PET']
             corrected = True
         else:
@@ -584,22 +574,17 @@ def plot_contour_map_extended(ref_results, ext_results, out_path):
     cbar.set_label('Specific yield Sy  (WTF event median, IDW interpolation)',
                    fontsize=10, labelpad=10)
 
-    CLUSTER_COLOURS = {1:'#E69F00', 2:'#009E73', 3:'#CC79A7', 4:'#D55E00'}
-    CLUSTER_MARKERS = {1:'o', 2:'s', 3:'^', 4:'D'}
-    CLUSTER_LABELS  = {
-        1:'C1 Eastern Lake-buffer',   2:'C2 Eastern Mature Dune',
-        3:'C3 Western Mature Dune',   4:'C4 Forest (interception-corrected)',
-    }
+    # CLUSTER_COLOURS / CLUSTER_LABELS / CLUSTER_MARKERS imported from utils.config.
 
     cluster_handles = []
 
     # Reference wells — filled
-    for cid in [1, 2, 3, 4]:
+    for cid in sorted(CLUSTER_LABELS.keys()):
         sub = ref[ref['Cluster'] == cid]
         if sub.empty:
             continue
         sizes = 60 + (sub['n_events'] - 20) * 1.2
-        hatch = '//' if cid == 4 else None
+        hatch = '//' if cid in FOREST_CIDS else None
         ax.scatter(sub['Easting'], sub['Northing'],
                    c=CLUSTER_COLOURS[cid], s=sizes,
                    marker=CLUSTER_MARKERS[cid],
@@ -617,7 +602,7 @@ def plot_contour_map_extended(ref_results, ext_results, out_path):
             label=CLUSTER_LABELS[cid]))
 
     # Extended wells — open symbols (non-ridge only)
-    for cid in [1, 2, 3, 4]:
+    for cid in sorted(CLUSTER_LABELS.keys()):
         sub = ext_interp[ext_interp['Cluster'] == cid]
         if sub.empty:
             continue
@@ -680,7 +665,7 @@ def plot_contour_map_extended(ref_results, ext_results, out_path):
         'Newborough Warren 2005–2026  |  IDW interpolation (power=2)  |  '
         'Greyscale hillshade DEM + KML overlays\n'
         'Filled markers = reference wells; open markers = extended wells  |  '
-        'C4 Forest interception-corrected (Freeman, 2008)',
+        'Forest clusters (C4, C5) interception-corrected (Freeman, 2008)',
         fontsize=9, fontweight='bold', pad=10)
 
     ax.tick_params(labelsize=8)

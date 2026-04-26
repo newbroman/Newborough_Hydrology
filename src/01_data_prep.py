@@ -33,13 +33,78 @@ from utils.paths import (
     INT_WELL_ELEVATIONS,
 )
 from utils.data_utils import normalize_well_name, parse_met_date, clean_well_series
+from utils.config import REFERENCE_CUTOFF_DATE
 
 # Consolidated well elevation / upstand reference file (data directory).
 _WELL_ELEV_FILE = DATA_DIR / "Well_locations_height.csv"
 
 MIN_MONTHS_THRESH   = 100
-RECENCY_DATE        = pd.Timestamp("2026-02-01")
+RECENCY_DATE        = pd.Timestamp(REFERENCE_CUTOFF_DATE)
 MIN_EXTENDED_MONTHS = 24
+
+# ──────────────────────────────────────────────────────────────────────────────
+# REFERENCE NETWORK WHITELIST
+#
+# The cluster analysis (Script 02) and the mechanistic SSM fits (Script 03)
+# assume each cluster represents a coherent hydrogeological population whose
+# water-level response to climate forcing is stationary over the monitoring
+# period. Wells that have experienced a non-stationary regime change — for
+# instance, clearfelling which removes the canopy interception loss and
+# initiates an ongoing upward drift in the water table — violate this
+# assumption. Their single-β SSM fit does not describe any real physical
+# state; it averages over a pre-transition regime, a transition period,
+# and an incomplete post-transition equilibrium.
+#
+# This whitelist pins the reference network to the 69 wells that were
+# clustered and modelled in the published analysis (Hollingham 2026,
+# Table 2). It excludes:
+#
+#   - The five "FE" and "LIS" wells (FE1, FE2, FE3, FE4, LIS1) from the
+#     clearfell management footprint. These remain available in the
+#     extended-network analysis (Script 06) and form the treatment arm
+#     of the clearfell BACI analysis (Script 10 / Section 4.6).
+#
+#   - The Llyn Rhos well, which reads a lake surface rather than a water
+#     table. An SSM fit treating Llyn Rhos as a water-table response is
+#     physical nonsense; it is excluded from the reference network on
+#     the same "not in a stationary single-β regime" grounds as FE/LIS.
+#     Llyn Rhos remains available through the extended-network file for
+#     lake-level analysis where needed.
+#
+#   - CEH3 and CEH22, which Ward's hierarchical clustering consistently
+#     identifies as singleton outliers. Their correlation structure does
+#     not align with any of the behavioural groups in the rest of the
+#     network — a signature consistent with tidal-signal contamination
+#     on top of the climate-forcing response the SSM is designed to
+#     capture. Both wells are low-elevation and coastal (ground elevation
+#     3.3 m at CEH22; CEH3 shows the clearest tidal signature on
+#     inspection). Including them distorts the Ward's tree at lower k
+#     values: CEH3 suppresses the Lake/Dune split at k=4 on a 68-well
+#     network, and CEH22 is a persistent singleton at k=5..9 on a 67-
+#     well network. Like FE/LIS and Llyn Rhos, CEH3 and CEH22 remain in
+#     the extended network for per-well analyses.
+#
+#   - Any other wells that meet the automatic record-length criterion
+#     (>=100 monthly observations, record extending to 2026-02) but were
+#     not part of the original 2026 reference network. Those wells may
+#     have joined the network more recently and are available in the
+#     extended-network analyses.
+#
+# To restore the fully automatic reference-network selection (i.e., let
+# any well meeting MIN_MONTHS_THRESH and RECENCY_DATE into the reference
+# network), set REFERENCE_NETWORK_WHITELIST = None.
+# ──────────────────────────────────────────────────────────────────────────────
+REFERENCE_NETWORK_WHITELIST = frozenset({
+    "ceh1",  "ceh10", "ceh11", "ceh13", "ceh14", "ceh16", "ceh17", "ceh18",
+    "ceh19", "ceh2",  "ceh20", "ceh21", "ceh23", "ceh24", "ceh25",
+    "ceh26", "ceh27", "ceh28", "ceh30", "ceh31", "ceh32", "ceh33",
+    "ceh34", "ceh36", "ceh39", "ceh4",  "ceh40", "ceh41", "ceh42", "ceh5",
+    "ceh6",  "ceh9",  "d10",   "d15",   "d17",   "d25",   "d38",   "d41",
+    "d43",   "d44",   "d5",    "d6",    "d7",    "d8",    "d9",    "l7",
+    "nw1",   "nw10",  "nw11",  "nw13",  "nw2",   "nw3",   "nw4",
+    "nw4b",  "nw5",   "nw6",   "nw7",   "nw9",   "t41a",  "t41b",  "t41c",
+    "t41d",  "wmc1",  "wmc2",  "wmc3",  "wmc4",
+})
 
 # RAF Valley, Anglesey — site latitude for Thornthwaite day-length correction
 RAF_VALLEY_LAT_DEG  = 53.25
@@ -161,10 +226,22 @@ if __name__ == "__main__":
 
     # Wells
     wells = wells_raw.set_index(wells_raw.columns[0]).transpose()
-    wells.index = (
-        pd.to_datetime(wells.index, dayfirst=True, errors="coerce")
-        .to_period("M").to_timestamp()
-    )
+
+    # ── Month bucketing: assign each reading to its NEAREST month-start ──────
+    # The earlier pipeline version used `to_period("M").to_timestamp()` which
+    # truncates every reading to the start of its own calendar month. That
+    # creates phantom "missing" months when fieldwork straddled month-ends:
+    # e.g. readings on 2011-01-30 and 2011-03-01 would bucket as Jan and Mar,
+    # leaving February apparently empty even though the field interval was
+    # 30 days. Nearest-month assignment rounds readings on day 16 or later
+    # forward to the following month-start, eliminating the artefact while
+    # preserving all genuine extended gaps (Jul 2005, Jan 2023).
+    d = pd.to_datetime(wells.index, dayfirst=True, errors="coerce")
+    month_start = d.to_period("M").to_timestamp()
+    next_start = month_start + pd.DateOffset(months=1)
+    dist_prev = np.abs((d - month_start).total_seconds())
+    dist_next = np.abs((d - next_start).total_seconds())
+    wells.index = np.where(dist_next < dist_prev, next_start, month_start)
     wells = wells.apply(pd.to_numeric, errors="coerce").groupby(level=0).mean()
     if "NW8" in wells.columns and "NW8b" in wells.columns:
         wells["NW8"] = wells["NW8b"].combine_first(wells["NW8"])
@@ -176,12 +253,23 @@ if __name__ == "__main__":
     wells_clean.to_csv(INT_WELLS_CLEAN)
 
     reference_wells, extended_wells = [], []
+    demoted_wells = []   # wells that meet auto-criteria but are not whitelisted
     for col in wells.columns:
         series = wells[col].dropna()
         if series.empty:
             continue
-        if len(series) >= MIN_MONTHS_THRESH and series.index.max() >= RECENCY_DATE:
-            reference_wells.append(col)
+        meets_reference_criteria = (
+            len(series) >= MIN_MONTHS_THRESH
+            and series.index.max() >= RECENCY_DATE
+        )
+        if meets_reference_criteria:
+            col_norm = normalize_well_name(col)
+            if REFERENCE_NETWORK_WHITELIST is None or col_norm in REFERENCE_NETWORK_WHITELIST:
+                reference_wells.append(col)
+            else:
+                demoted_wells.append(col)
+                if len(series) >= MIN_EXTENDED_MONTHS:
+                    extended_wells.append(col)
         elif len(series) >= MIN_EXTENDED_MONTHS:
             extended_wells.append(col)
 
@@ -191,6 +279,10 @@ if __name__ == "__main__":
     print(f"Complete. Retained {len(wells_clean.columns)} wells.")
     print(f" -> Reference: {len(reference_wells)} wells")
     print(f" -> Extended:  {len(extended_wells)} wells")
+    if demoted_wells:
+        print(f" -> Demoted to extended (not on reference-network whitelist): "
+              f"{len(demoted_wells)} wells  "
+              f"[{', '.join(sorted(str(w) for w in demoted_wells))}]")
 
 
     # ------------------------------------------------------------------ #

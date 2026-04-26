@@ -53,6 +53,7 @@ from utils.paths import (
     OUT_15_LAMBDA_PROFILE, OUT_15_FIT_COMPARISON,
     OUT_15_BENCHMARK_TABLE, OUT_15_BEST_PARAMS,
 )
+from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS
 make_all_dirs()
 
 INT_WELL_ELEV       = INT_WELL_ELEVATIONS   # local alias used throughout script
@@ -69,22 +70,7 @@ LAMBDA_MAX   = 6.0
 LAMBDA_STEP  = 0.05
 DATA_LIMIT   = 100   # months — same cap as script 03
 
-CLUSTER_COLOURS = {
-    1: "#E69F00",
-    2: "#009E73",
-    3: "#CC79A7",
-    4: "#D55E00",
-    5: "#56B4E9",
-    6: "#0072B2",
-}
-CLUSTER_LABELS = {
-    1: "C1: Eastern Block Lake-buffer",
-    2: "C2: Eastern Block Mature Dune",
-    3: "C3: Western Block Mature Dune",
-    4: "C4: Forest",
-    5: "C5: Coastal",
-    6: "C6: Lake",
-}
+# CLUSTER_LABELS and CLUSTER_COLOURS imported from utils.config (k=5 partition).
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -347,7 +333,7 @@ def grid_search_lambda(df: pd.DataFrame, upstand: float) -> pd.DataFrame:
 # Plotting
 # ---------------------------------------------------------------------------
 
-CLUSTER_ORDER = [1, 2, 3, 4]   # C5 (1 well) and C6 (1 well) less meaningful
+CLUSTER_ORDER = sorted(CLUSTER_LABELS.keys())   # all clusters under k=5
 
 
 def plot_lambda_profiles(profiles: dict, ssm_baselines: dict):
@@ -355,7 +341,8 @@ def plot_lambda_profiles(profiles: dict, ssm_baselines: dict):
     One panel per cluster: NSE vs λ, with horizontal dashed line at SSM NSE.
     """
     n = len(CLUSTER_ORDER)
-    fig, axes = plt.subplots(2, 2, figsize=(12, 8), dpi=150)
+    # 2x3 grid accommodates up to 6 clusters; unused panels hidden after the loop.
+    fig, axes = plt.subplots(2, 3, figsize=(15, 8), dpi=150)
     axes = axes.flatten()
 
     for ax, cid in zip(axes, CLUSTER_ORDER):
@@ -389,6 +376,10 @@ def plot_lambda_profiles(profiles: dict, ssm_baselines: dict):
         ax.grid(True, alpha=0.3)
         ax.set_xlim(LAMBDA_MIN, LAMBDA_MAX)
 
+    # Hide any unused panels (e.g. the 6th in a 2x3 grid with 5 clusters).
+    for ax in axes[len(CLUSTER_ORDER):]:
+        ax.set_visible(False)
+
     fig.suptitle("Depth-Dependent PET Model: NSE vs Decay Parameter λ\n"
                  "(dashed = Standard SSM baseline)",
                  fontsize=13, fontweight="bold")
@@ -405,14 +396,15 @@ def plot_fit_comparison(regression_dfs: dict, centroids: dict, climate: pd.DataF
     depth-dependent model), shown as time series.
     """
     n = len(CLUSTER_ORDER)
-    fig = plt.figure(figsize=(14, 10), dpi=150)
-    gs  = gridspec.GridSpec(2, 2, hspace=0.45, wspace=0.3)
+    fig = plt.figure(figsize=(17, 10), dpi=150)
+    # 2x3 grid; unused cells stay empty.
+    gs  = gridspec.GridSpec(2, 3, hspace=0.45, wspace=0.3)
 
     for i, cid in enumerate(CLUSTER_ORDER):
         if cid not in regression_dfs or cid not in best_params:
             continue
 
-        ax  = fig.add_subplot(gs[i // 2, i % 2])
+        ax  = fig.add_subplot(gs[i // 3, i % 3])
         df  = regression_dfs[cid]
         bp  = best_params[cid]
         ssm = ssm_baselines[cid]
@@ -527,7 +519,7 @@ def main():
     print("-" * 65)
 
     benchmark_rows = []
-    for cid in [1, 2, 3, 4, 5, 6]:
+    for cid in sorted(CLUSTER_LABELS.keys()):
         ssm = ssm_baselines.get(cid)
         bp  = best_params.get(cid)
         if ssm is None:

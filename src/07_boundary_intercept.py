@@ -33,6 +33,7 @@ from utils.paths import (
 from utils.data_utils import normalize_well_name
 from utils.model_utils import get_metrics, get_r2
 from utils.map_utils import add_kml_features
+from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, CLUSTER_MARKERS
 from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
@@ -223,15 +224,7 @@ def plot_metric_map(map_df, value_col, title, output_path, cmap, vmin=None, vmax
     if valid.empty:
         print(f"  [WARNING] No mappable data for {value_col}. Skipping {output_path.name}")
         return
-    CLUSTER_MARKERS = {1: 'o', 2: 's', 3: '^', 4: 'D', 5: 'P', 6: '*'}
-    CLUSTER_LABELS = {
-        1: "C1 (Eastern Block Lake)",
-        2: "C2 (Eastern Block Mature Dune)",
-        3: "C3 (Western Block Mature Dune)",
-        4: "C4 (Forest)",
-        5: "C5 (Coastal)",
-        6: "C6 (Lake)"
-    }
+    # CLUSTER_MARKERS / CLUSTER_LABELS imported from utils.config (k=5 partition).
     dem_layer = None
     fig, ax = plt.subplots(figsize=(14, 11), dpi=300)
     # --- DEM Layer ---

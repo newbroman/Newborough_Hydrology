@@ -137,7 +137,7 @@ def approach_a_ols(df):
         from pathlib import Path as _Path
         master_path = INT_MASTER_DATA
         master = pd.read_csv(master_path)
-        b3 = master.groupby("Cluster")["beta_3_internal_brake"].median()
+        b3 = master.groupby("Cluster")["beta_3_drainage"].median()
         beta3 = {int(cid): abs(val) for cid, val in b3.items()}
     except Exception:
         print("  [WARNING] Could not load beta3 values — using uncorrected Δh")

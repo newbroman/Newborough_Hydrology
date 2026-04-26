@@ -10,25 +10,32 @@ Method: Healy and Cook (2002)
 
 APPROACH A — OLS Regression (winter months, origin-forced)
 ----------------------------------------------------------------------
-  C1 Eastern Lake-buffer          Sy = 5.869  ±0.7066 (SE)  R² = -0.806  n = 36
-  C2 Eastern Mature Dune          Sy = 6.392  ±0.6892 (SE)  R² = -0.810  n = 41
-  C3 Western Mature Dune          Sy = 6.232  ±0.5754 (SE)  R² = -0.577  n = 45
-  C4 Forest                       Sy = 6.457  ±0.5628 (SE)  R² = -0.201  n = 42
+  C1 (Lake Edge)                  Sy = 4.979  ±0.6635 (SE)  R² = -1.010  n = 42
+  C2 (Dune)                       Sy = 4.889  ±0.5788 (SE)  R² = -1.113  n = 53
+  C3 (Western Residual)           Sy = 4.980  ±0.5921 (SE)  R² = -1.175  n = 55
+  C4 (Main Forest)                Sy = 4.402  ±0.5166 (SE)  R² = -0.879  n = 48
+  C5 (Coastal Forest)             Sy = 3.594  ±0.4522 (SE)  R² = -1.266  n = 47
 
 APPROACH B — Event Median (rising limb months)
 ----------------------------------------------------------------------
-  C1 Eastern Lake-buffer          Sy = 0.223  IQR [0.141, 0.314]  n = 49
-  C2 Eastern Mature Dune          Sy = 0.234  IQR [0.151, 0.348]  n = 48
-  C3 Western Mature Dune          Sy = 0.259  IQR [0.136, 0.344]  n = 40
-  C4 Forest                       Sy = 0.215  IQR [0.155, 0.329]  n = 38
+  C1 (Lake Edge)                  Sy = 0.229  IQR [0.139, 0.292]  n = 53
+  C2 (Dune)                       Sy = 0.300  IQR [0.155, 0.392]  n = 52
+  C3 (Western Residual)           Sy = 0.234  IQR [0.132, 0.368]  n = 49
+  C4 (Main Forest)                Sy = 0.206  IQR [0.126, 0.310]  n = 44
+  C5 (Coastal Forest)             Sy = 0.204  IQR [0.143, 0.356]  n = 35
+  C4 (Main Forest) (corrected)    Sy = 0.219  IQR [0.126, 0.310]  n = 45   [Freeman 2008; R_eff = (1 − 0.24)·P − PET]
+  C5 (Coastal Forest) (corrected)  Sy = 0.251  IQR [0.141, 0.349]  n = 36   [Freeman 2008; R_eff = (1 − 0.24)·P − PET]
 
 COMPARISON WITH ASSUMED VALUES
 ----------------------------------------------------------------------
   Cluster                          Assumed       OLS     Event
-  C1 Eastern Lake-buffer             0.080     5.869     0.223
-  C2 Eastern Mature Dune             0.120     6.392     0.234
-  C3 Western Mature Dune             0.120     6.232     0.259
-  C4 Forest                          0.120     6.457     0.215
+  C1 (Lake Edge)                     0.080     4.979     0.229
+  C2 (Dune)                          0.120     4.889     0.300
+  C3 (Western Residual)              0.120     4.980     0.234
+  C4 (Main Forest)                   0.120     4.402     0.206
+  C5 (Coastal Forest)                0.120     3.594     0.204
+  C4 (Main Forest) (corrected)       0.120       n/a     0.219
+  C5 (Coastal Forest) (corrected)     0.120       n/a     0.251
 
 NOTES
 ----------------------------------------------------------------------
@@ -36,7 +43,19 @@ NOTES
 - Winter OLS (Approach A) is most defensible: PET negligible so
   net recharge approximates actual recharge well.
 - Event method (Approach B) is noisier but provides uncertainty bounds.
+- Forested clusters (C4 Main Forest, C5 Coastal Forest) are reported as
+  both uncorrected and interception-corrected (Freeman 2008) variants.
+  The corrected variant applies R_effective = (1 − 0.24)·P − PET. PET
+  is not reduced because Thornthwaite PET is an energy-based atmospheric
+  demand (independent of land cover), so reducing only P is physically
+  consistent and not double-counting. The interception fraction was
+  measured at C5 and applied across both forested clusters. The
+  corrected medians may exceed uncorrected through interaction with
+  the Sy < 0.50 plausibility filter, which readmits previously-excluded
+  high-Sy months into the event pool (see wtf_interception_methodology.md).
 - Both approaches give indicative Sy only; slug tests or pumping tests
   at representative wells per cluster remain the gold standard.
 - Reference: Healy, R.W. and Cook, P.G. (2002) Hydrogeology Journal
   10, 91-109. doi:10.1007/s10040-001-0178-0
+- Reference: Freeman, S. (2008) Hydrological impact of Corsican pine
+  at Newborough Warren.

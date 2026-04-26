@@ -81,7 +81,7 @@ from utils.paths import (
     INT_LOCATIONS, INT_CLIMATE, INT_WELLS_CLEAN, INT_WELL_ELEVATIONS,
     INT_CLUSTER_STATS,
     INT_MASTER_DATA, INT_REGIONAL_AVG, INT_CLUSTER_AVG_MAOD,
-    INT_WELLS_CLEAN_MAOD,
+    INT_WELLS_CLEAN_MAOD, INT_CLUSTER_PEAK_MONTHS,
     OUT_03_SIGNATURES, OUT_03_CLUSTER_SUMMARY, OUT_03_MECHANISTIC_TABLE,
     DIR_03,
     OUT_02_AMP_PER_WELL,
@@ -1293,6 +1293,46 @@ def export_regional_averages_maod(cluster_df: pd.DataFrame,
     print(f" -> Saved: {INT_CLUSTER_AVG_MAOD.name}")
 
 
+def export_cluster_peak_months(centroids: dict) -> None:
+    """
+    Derive each cluster's peak water-table month from the long-term monthly
+    mean of the cluster centroid hydrograph and write to
+    INT_CLUSTER_PEAK_MONTHS.
+
+    Peak month = the calendar month with the shallowest (least negative)
+    mean depth-below-ground, i.e. the month when the water table is closest
+    to the surface.
+
+    Output columns:
+        cluster_id     int   — numeric cluster ID (e.g. 1, 2, …)
+        cluster_label  str   — human-readable label from config.CLUSTER_LABELS
+        peak_month     int   — calendar month 1–12
+    """
+    rows = []
+    for cid in sorted(centroids):
+        ts = centroids[cid].dropna()
+        if len(ts) < 24:
+            print(f"    [WARNING] C{cid}: too few data points for peak month "
+                  f"({len(ts)}); skipping.")
+            continue
+        monthly_mean = ts.groupby(ts.index.month).mean()
+        # Shallowest = least negative (max) for depth convention
+        peak = int(monthly_mean.idxmax())
+        label = CLUSTER_LABELS.get(cid, f"C{cid}")
+        rows.append({
+            "cluster_id":    cid,
+            "cluster_label": label,
+            "peak_month":    peak,
+        })
+    df = pd.DataFrame(rows)
+    df.to_csv(INT_CLUSTER_PEAK_MONTHS, index=False)
+    print(f" -> Saved: {INT_CLUSTER_PEAK_MONTHS.name}  "
+          f"({len(df)} clusters)")
+    for _, r in df.iterrows():
+        print(f"    C{r['cluster_id']} ({r['cluster_label']}): "
+              f"peak month = {r['peak_month']}")
+
+
 # ==========================================================================
 # MAIN
 # ==========================================================================
@@ -1457,6 +1497,10 @@ def main() -> None:
     # ---- Regional averages exports ----
     export_regional_averages(centroids, climate, master_df)
     export_regional_averages_maod(cluster_df, climate)
+
+    # ---- Cluster peak months (consumed by scripts 11, 11b) ----
+    print("\n -> Exporting cluster peak months...")
+    export_cluster_peak_months(centroids)
 
     # ---- Hard halt if centroid sign assertions failed ----
     # Deferred until here so the diagnostic tables (03_04/05/06/07) and the

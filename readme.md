@@ -62,17 +62,21 @@ Newborough_Hydro_Models/
 │   ├── 03_master_data.csv              │
 │   ├── 03_regional_averages.csv        │
 │   ├── 03_cluster_averages_maod.csv    │  Cluster mean heads in maOD (feeds 21)
+│   ├── 03_cluster_peak_months.csv      │  Peak month per cluster (feeds 11, 11b)
 │   └── 17_wtf_well_sy.csv             ┘  Per-well Sy intermediate (feeds 18, 19)
+│   ├── 11b_spatial_thresholds/
+│   │   └── forecaster.html              ← interactive groundwater forecaster (built by 11b)
 │   ├── 19_spatial_groundwater/
 │   │   └── scenario_viewer.html        ← self-contained interactive viewer (standalone)
 │   └── [other output directories]
 ├── src/                         Analysis scripts (23 steps; script 19 also builds the viewer)
 │   ├── utils/
-│   │   ├── config.py            Cluster colours and labels
+│   │   ├── config.py            Cluster colours, labels — single source of truth for all scripts
 │   │   ├── data_utils.py        Cleaning and normalisation helpers
 │   │   ├── map_utils.py         DEM, KML, and basemap helpers
 │   │   ├── model_utils.py       SSM fitting helpers
 │   │   └── paths.py             All path constants — single source of truth
+│   ├── forecaster_template.html Static HTML/JS shell for the interactive forecaster (injected by 11b)
 │   ├── 19_spatial_groundwater.py
 │   └── [other scripts]
 ├── scenario_viewer.html         Lightweight linked viewer for GitHub Pages
@@ -87,6 +91,16 @@ Newborough_Hydro_Models/
 ## Pipeline Phases
 
 Ten sequential phases, 23 steps total. Validation checkpoints run after Phases 1, 3, and 10.
+
+**Reference network:** 66 wells (from a raw pool of ~80). Eight wells
+are excluded from the reference partition: FE1–4 and LIS1 (clearfell
+non-stationarity), Llyn Rhos (lake surface), CEH3 and CEH22 (tidal-
+signal singleton outliers). Excluded wells remain in the extended
+network. The reference network is partitioned into k=5 clusters using
+Ward's linkage on correlation distance: C1 Lake, C2 Dune, C3 Western
+Residual, C4 Main Forest, C5 Coastal Forest. Cluster definitions,
+colours and labels are centralised in `src/utils/config.py`.
+
 
 **Critical ordering constraints:**
 - Script 17 (WTF Sy) must run before script 16 (water balance)
@@ -122,13 +136,13 @@ Scenario Δh values are computed dynamically in JavaScript via the SSM equilibri
 
 **Scenario definitions (JavaScript parameters in scenario_viewer.html):**
 
-| Scenario | sP | sPET | sI | sB2 | C4 Δh (depth convention) |
-|----------|-----|------|-----|------|---------------------------|
-| Full clearfell | 1.00 | 1.00 | 0 | 1.35 | +0.145 m (deeper) |
-| Forest thinning | 1.00 | 1.00 | I×0.5 | 1.15 | +0.073 m |
-| Broadleaf conversion | 1.00 | 1.00 | 0.25 | 1.45 | +0.003 m |
-| Climate dry | 0.90 (−10% P) | 1.10 (+10% PET) | — | — | all clusters |
-| Climate wet | 1.10 (+10% P) | 1.00 (unchanged) | — | — | all clusters |
+| Scenario | sP | sPET | sI | sB2 |
+|----------|-----|------|-----|------|
+| UKCP18 2050s | sP_w=1.10, sP_s=0.85 | sPET_w=1.05, sPET_s=1.20 | 0.24 | 1.00 |
+| UKCP18 2080s | sP_w=1.20, sP_s=0.70 | sPET_w=1.10, sPET_s=1.35 | 0.24 | 1.00 |
+| Full clearfell | 1.00 | 1.00 | 0 | 1.20 |
+| Forest thinning | 1.00 | 1.00 | I×0.5 | 1.10 |
+| Broadleaf conversion | 1.00 | 1.00 | 0.15 | 1.00 |
 
 Δh sign convention: **positive = water table deepens (drier)**; negative = shallower (wetter).
 
@@ -149,8 +163,22 @@ Script 19 requires the following files in `data/`:
 
 | Well | Reason |
 |------|--------|
-| CEH3 | Perched above the regional water table — unrepresentative head values |
+| CEH3 | Excluded from reference network (tidal-signal contamination); also excluded from spatial interpolation due to unrepresentative head values. Appears in the forecaster as nearest-cluster-only (flagged, not dropped). |
 | CEH17 | Poorest SSM fit on site (R² = 0.427); β₁ = 0.694 and β₃ = 0.049 are both site minima; inflates water balance residual |
+| CEH22 | Excluded from reference network (tidal-signal contamination); retained in extended network only |
+
+**Nearest-cluster-only wells in the forecaster:** Five wells (CEH3, CEH4,
+CEH7, CEH8, CEH37) sit outside the SSM operational domain but appear in
+the interactive forecaster (Script 11b output) with their best-matching
+cluster's coefficients. The forecaster UI marks these with an asterisk and
+an explanatory notice so users know the cluster label is a nearest-type
+assignment, not core membership. See `NEAREST_CLUSTER_ONLY_WELLS` in
+`11b_spatial_thresholds.py`.
+
+Note: CEH22 may or may not also need excluding from Script 19's spatial
+interpolation — that depends on whether Script 19 uses the reference
+network or the full well set. Worth checking when Script 19 is next
+reviewed. If it uses only reference wells, CEH22 is already absent.
 
 These wells remain in all SSM fitting and clustering analyses — they are excluded only from the spatial interpolation figures in script 19.
 

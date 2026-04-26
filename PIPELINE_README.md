@@ -7,6 +7,9 @@ the paper as figures, tables or into downstream scripts.
 
 Run order: 01 → 02 → 03 → 04 → 05 → 06 → 07 → 08 → 09 → 10 → 11 → 11b → 12 → 13 → 14 → 15 → 17 → 16 → 18 → 19 → 20 → 21
 
+Supplementary scripts (not in automated pipeline; run manually):
+22 → 23 → 24 (residual diagnostics — require outputs from 01, 02)
+
 Script 19 is step 21 of the numbered pipeline. As a byproduct of running its
 main spatial analysis it also builds the self-contained HTML scenario viewer.
 Menu option 4 (`python run_analysis.py --viewer`) rebuilds the viewer alone
@@ -119,7 +122,7 @@ splits into reference and extended networks, exports upstand lookup.
 
 **Reads (raw data):**
 - `data/Newborough_Cleaned_For_Model.csv`
-- `data/Well__locations_height.csv`
+- `data/Well_locations_height.csv`
 - `data/RAF_Valley_Climate.csv`
 
 **Produces (intermediate — outputs/ root):**
@@ -128,39 +131,87 @@ splits into reference and extended networks, exports upstand lookup.
 |---|---|---|
 | `01_climate.csv` | Monthly P and PET (Thornthwaite) | 00, 02, 03, 07, 08, 11 |
 | `01_wells_clean.csv` | QC'd depth-to-water, all wells (negative convention) | 00, 02, 03, 05, 07, 08 |
-| `01_wells_reference.csv` | Reference network (≥100 months, to Feb 2026) | 02, 08 |
+| `01_wells_reference.csv` | Reference network (66 wells; ≥100 months, to Feb 2026) | 02, 08 |
 | `01_wells_extended.csv` | Extended network (shorter/earlier records) | 06 |
 | `01_locations.csv` | Well coordinates and elevations | 03, 04, 05, 06, 07, 08, 12, 13 |
 | `01_well_elevations.csv` | Upstand heights and pipe-top elevations | 03 |
+| `01_wells_clean_maod.csv` | QC'd heads in mAOD, all wells with elevation data | 03, 21 |
+
+**Reference-network exclusions:** The 66-well reference network is defined
+by a hard-coded whitelist (`REFERENCE_NETWORK_WHITELIST`). The following
+wells are excluded with documented physical rationale:
+- **FE1–4, LIS1** (5 wells) — post-December 2017 clearfell non-stationarity
+- **Llyn Rhos** (1 well) — reads a lake surface, not a water table
+- **CEH3, CEH22** (2 wells) — tidal-signal contamination; Ward's clustering
+  consistently identifies both as singleton outliers at every k from 4 to 9
+
+All excluded wells remain in the extended network for per-well analyses.
 
 **Note:** Depth convention in `01_wells_clean.csv` is **negative = below pipe top**
 (inverted from field recording convention). mAOD conversion formula:
 `h = pipe_top_elevation + depth` (because depth is negative).
-
 ---
 
 ## Script 02 — Hierarchical Clustering
-**Purpose:** Performs Ward's variance minimisation on z-scored depth-to-water
-time series to identify k=6 hydrogeological clusters.
+**Purpose:** Performs Ward's variance minimisation on correlation-based
+distance (d = 1 − r) to identify k=5 hydrogeological clusters from the
+66-well reference network. Includes bootstrap stability diagnostics and
+seasonal amplitude descriptors.
 
 **Reads:**
 - `outputs/01_climate.csv`
 - `outputs/01_wells_clean.csv`
 - `outputs/01_wells_reference.csv`
+- `data/RAF_Valley_Climate.csv` ← drought-summer identification for amplitude normalisation
 
-**Produces (intermediate):**
+**Produces (intermediate — outputs/ root):**
 
 | File | Description | Used by |
 |---|---|---|
-| `02_cluster_stats.csv` | Cluster assignments for all reference wells | 03, 04, 05, 06, 07, 08, 09, 10 |
+| `02_cluster_stats.csv` | Cluster assignments for all 66 reference wells | 03, 04, 05, 06, 07, 08, 09, 10 |
 
-**Produces (figures — outputs/02_clustering/):**
+**Produces (diagnostics and figures — outputs/02_clustering/):**
 
-| File | Type | Paper destination |
+| File | Type | Description |
 |---|---|---|
-| `02_01_dendrogram.png` | Figure | Figure 5 (dendrogram) |
-| `02_02_validation_plots.png` | Figure | Supplementary (elbow/silhouette) |
-| `02_03_cluster_hydrographs_wb.png` | Figure | Figure 6 (cluster hydrographs) |
+| `02_01_dendrogram.png` | Figure | Ward's dendrogram (Paper Figure 6) |
+| `02_02_validation_plots.png` | Figure | Elbow + silhouette validation |
+| `02_02b_validation_k_sweep.png` | Figure | Extended k-sweep: silhouette, Calinski–Harabasz, merge distance |
+| `02_03_cluster_hydrographs_wb.png` | Figure | Cluster hydrographs + water balance (Paper Figure 7) |
+| `02_04_bootstrap_stability_summary.csv` | Data | Per-cluster stability medians across k=4..7 |
+| `02_05_bootstrap_stability_per_well.csv` | Data | Per-well stability scores (long form, all candidate k) |
+| `02_06_coassignment_heatmap_k{k}.png` | Figure | Bootstrap co-assignment heatmap per candidate k |
+| `02_07_cluster_membership_k{k}.csv` | Data | Cluster memberships at each candidate k |
+| `02_08_cluster_amplitude_per_well.csv` | Data | Per-well amplitude descriptors (p90−p10, std, summer min; raw + climate-normalised) |
+| `02_09_cluster_amplitude_summary.csv` | Data | Per-cluster amplitude summary (medians, damping %, within-cluster spread) |
+| `02_10_cluster_amplitude_boxplot.png` | Figure | Post-2018 seasonal amplitude by cluster (box + strip) |
+
+**Cluster partition (k=5):**
+
+| ID | Name | n | Anchors | Colour |
+|---|---|---|---|---|
+| C1 | Lake | 7 | ceh5, ceh11 | `#1a6faf` blue |
+| C2 | Dune | 26 | d10 | `#2ca02c` green |
+| C3 | Western Residual | 19 | nw1 | `#d62728` red |
+| C4 | Main Forest | 9 | ceh2 | `#7f77dd` purple |
+| C5 | Coastal Forest | 5 | ceh16, nw9 | `#8B4513` brown |
+
+Cluster IDs are deterministically assigned via anchor-well identity so
+that integer IDs are stable across re-runs regardless of fcluster's
+arbitrary ordering. The anchor mapping is defined in `CLUSTER_ID_ANCHORS`
+in `02_clustering.py`; the script raises `ValueError` if any anchor well
+lands in a different Ward's cluster than expected.
+
+**Bootstrap stability:** 1000 resamples at each candidate k in {4, 5, 6, 7}.
+At k=5, four clusters have median per-well stability ≥ 0.93 (Main Forest
+1.00, Coastal Forest 0.99, Lake 0.98, Dune 0.93). Western Residual has
+moderate stability (~0.50) reflecting landscape heterogeneity.
+
+**Amplitude descriptors:** Per-well and per-cluster seasonal amplitude
+(p90 − p10) over three windows (full record, pre-2018, post-2018), with
+a climate-normalised variant that removes drought summers (2005, 2018,
+2022) identified from RAF Valley Jun–Sep rainfall. See §3.2.4 in the
+report methods.
 
 **Note:** Cluster hydrograph figure reads directly from `01_wells_clean.csv`
 (depth-to-water, NOT mAOD). Do not change this dependency.
@@ -182,11 +233,23 @@ to cluster average hydrographs. Exports LCSC values and mechanistic coefficients
 
 | File | Description | Used by |
 |---|---|---|
-| `03_master_data.csv` | Per-well LCSC, β coefficients, cluster | 07, 08 |
-| `03_regional_averages.csv` | Monthly cluster average hydrographs (depth from ground) | 11 |
+| `03_master_data.csv` | Per-well LCSC, β coefficients, cluster | 07, 08, 16, 17, 18, 19 |
+| `03_regional_averages.csv` | Monthly cluster average hydrographs (depth from ground) | 11, 14, 16 |
 | `03_cluster_averages_maod.csv` | Monthly cluster mean heads in maOD | 21 |
+| `03_cluster_peak_months.csv` | Long-term mean peak month per cluster (calendar month 1–12 of highest mean water table) | 11, 11b |
 | `03_cluster_summary_table.csv` | Table 1: cluster membership summary | Paper Table 1 |
-| `03_cluster_mechanistic_coefficients.csv` | Table 2: β₁, β₂, −β₃, LCSC per cluster | Paper Table 2 |
+| `03_cluster_mechanistic_coefficients.csv` | Table 2: β₁, β₂, −β₃, LCSC per cluster | Paper Table 2, 11b |
+
+**β column-name convention (two separate files):**
+
+| File | β columns | Units |
+|---|---|---|
+| `03_master_data.csv` (per-well) | `beta_1_recharge`, `beta_2_atmospheric_draw`, `beta_3_drainage` | m/m (rainfall & PET in m/month) |
+| `03_cluster_mechanistic_coefficients.csv` (per-cluster) | `beta_1`, `beta_2`, `beta_3` | m/m (same) |
+
+Downstream consumers must use the correct column names for each file.
+Scripts 11b and 16 apply a `/1000` conversion (m/m → m/mm) when they work
+with millimetre-denominated climatology.
 
 **Produces (figures — outputs/03_state_space_model/):**
 
@@ -198,6 +261,17 @@ to cluster average hydrographs. Exports LCSC values and mechanistic coefficients
 (`corrected[col] = wells_clean[col] - upstand`) before averaging, so all
 wells share a common ground-surface datum. Individual well SSM fits do NOT
 apply this correction (pipe-top offset cancels in Δh).
+
+**Peak-month derivation:** `export_cluster_peak_months()` computes the
+calendar month with the highest long-term mean cluster-centroid head for
+each cluster (depth-below-pipe convention; argmax = least-negative =
+highest water table). The output CSV (`03_cluster_peak_months.csv`) is the
+single source of truth for Script 11's forecasting horizon and Script 11b's
+P_flood iterated-SSM closed form.
+
+**LCSC print ordering:** the final manuscript LCSC block prints clusters
+sorted by integer cluster ID (`C1, C2, ..., C5`) with a `C{n}` prefix,
+not alphabetical by block label.
 
 ---
 
@@ -403,13 +477,18 @@ spatial transect analysis, and NW10 broadleaf trend analysis.
 ---
 
 ## Script 11 — Forecasting Thresholds
-**Purpose:** Derives cluster-level Pflood equations by algebraic inversion of
-SSM. Fits seasonal transfer functions for winter peak and summer minimum
-prediction. All results in m/mm units (× 1000 relative to Table 2).
+**Purpose:** Fits cluster-level mechanistic SSM equations (Section 1), derives
+P_flood threshold equations via the iterated closed-form SSM (§3.6.3,
+Section 3), and fits seasonal block transfer functions for winter peak
+(Section 2) and summer minimum (Section 4) prediction.
+
+Under the k=5 partition all five clusters are included. The old k=6
+EXCLUDED_CLUSTERS set (C5 tidal, C6 lake-buffered) has been emptied; those
+groups were cleaned out at the partition level.
 
 **Reads:**
 - `outputs/03_regional_averages.csv`
-- `outputs/01_climate.csv`
+- `outputs/03_cluster_peak_months.csv` ← cluster-specific peak month (from script 03)
 
 **Produces (outputs/11_forecasting_thresholds/):**
 
@@ -420,14 +499,80 @@ prediction. All results in m/mm units (× 1000 relative to Table 2).
 | `11_forecast_summer_transfer_functions.csv` | Table | **Paper Table 7** |
 | `11_forecast_pflood_threshold_equations.csv` | Table | **Paper Table 8** |
 
-**Key Pflood equations (correct values):**
-- C1: (h_gap + 0.3660 × h_prev) / 0.0016
-- C2: (h_gap + 0.2000 × h_prev) / 0.0017
-- C3: (h_gap + 0.1179 × h_prev) / 0.0012
-- C4: (h_gap + 0.0776 × h_prev) / 0.0010
+**Section 1** fits Δh = β₁P − β₂PET − β₃h_prev (OLS without intercept) on
+the cluster-mean hydrograph in mm units. β₁ for each cluster is used by
+Section 3 to derive the closed-form P_flood.
 
-**Note:** At typical Forest summer minima (−1.8 m), C4 Pflood ≈ 1,940 mm —
-physically impossible under any realistic rainfall scenario.
+**Section 2** fits peak-flood transfer functions per block
+(h_peak = β₁·P_winter + β₂·h_min + c). Under k=5, five separate blocks:
+Lake_Edge, Eastern_Block, Western_Block, Forest, Coastal_Forest.
+
+**Section 3** derives the iterated closed-form P_flood per cluster:
+`P_flood = slope_A × d + intercept_B` where d is depth below ground (m).
+`slope_A = αⁿ × P_clim_total / (β₁ × S_P)` and
+`intercept_B = β₂ × S_E × P_clim_total / (β₁ × S_P)`.
+The horizon months (Oct → peak_month) are loaded dynamically from
+`03_cluster_peak_months.csv`.
+
+**Section 4** fits summer-drought transfer functions per block
+(h_min = β₁·P_summer + β₂·h_max_winter + c).
+
+**!! Known issue — iterated-SSM / block-TF discrepancy:**
+The Section 1 SSM is fit on year-round monthly data but applied to a
+winter-only horizon in Section 3. This produces P_flood values that
+contradict the empirical block transfer functions (Section 2). For C1
+(Lake), block-TF inversion gives ~1.05× climatological rainfall to reach
+surface from 0.81 m depth; the iterated SSM gives 2.75×. For C4 (Main
+Forest), β₁ is negative (p=0.54) making the closed form meaningless.
+See `HANDOVER_PFLOOD_DIAGNOSIS.md` for full analysis and proposed fixes.
+
+---
+
+## Script 11b — Spatial Threshold Maps and Forecaster
+**Purpose:** Produces spatial threshold maps (summer minima, winter maxima,
+P_flood, flood frequency) and builds the interactive web forecaster by
+injecting pipeline data into the forecaster HTML template.
+
+**Reads:**
+- `outputs/03_master_data.csv` ← per-well SSM coefficients
+- `outputs/03_cluster_mechanistic_coefficients.csv` ← per-cluster β values
+- `outputs/03_regional_averages.csv` ← monthly climatology
+- `outputs/06_pear_membership_audit_sitewide.csv` ← extended-network cluster assignments
+- `outputs/11_forecast_pflood_threshold_equations.csv` ← Table 8 (slope_A, intercept_B)
+- `outputs/11_forecast_winter_transfer_functions.csv` ← Table 6
+- `outputs/11_forecast_summer_transfer_functions.csv` ← Table 7
+- `outputs/03_cluster_peak_months.csv` ← peak months per cluster
+- `src/forecaster_template.html` ← static HTML/JS shell for the forecaster
+
+**Produces (outputs/11b_spatial_thresholds/):**
+
+| File | Type | Paper destination |
+|---|---|---|
+| `11b_01_summer_minima_depth.png` | Figure | **Figure 26** — mean summer minimum depth |
+| `11b_02_winter_maxima_depth.png` | Figure | **Figure 27** — mean winter maximum depth |
+| `11b_03_pflood.png` | Figure | **Figure 28** — P_flood spatial distribution |
+| `11b_04_flood_frequency.png` | Figure | **Figure 29** — winter flooding frequency |
+| `11b_05_pflood_per_well.csv` | Data | Per-well P_flood and λ values (Table 10) |
+| `forecaster.html` | Interactive | Groundwater flooding forecaster web app |
+
+**Key features:**
+- Five separate blocks (one per cluster) under k=5 partition.
+- `NEAREST_CLUSTER_ONLY_WELLS = {ceh3, ceh4, ceh7, ceh8, ceh37}` — wells
+  whose cluster assignment is a pattern-match nearest-type, not a core
+  membership. These wells appear in the forecaster with a `nearest_cluster_only`
+  flag; the template renders them with an asterisk and an explanatory notice.
+- `_coerce_cluster_int()` helper handles the int-vs-string schema mismatch
+  between Script 03 (integer Cluster column) and Script 11 (string 'C1'
+  Cluster column) defensively.
+- β column names from `03_cluster_mechanistic_coefficients.csv` are `beta_1`,
+  `beta_2`, `beta_3` (short names). The `/1000` conversion (m/m → m/mm) is
+  correct and required because downstream P_flood arithmetic uses P_clim in mm.
+
+**Forecaster template (`src/forecaster_template.html`):**
+- Data-driven well selector (derived from `Object.keys(DATA.cluster_coeffs)`)
+- Horizon labels derived at runtime from `coeff.peak_month`
+- Default selection: first well in bundle (no hardcoded cluster ID)
+- Nearest-cluster-only wells badged with asterisk + explanatory notice
 
 ---
 
@@ -465,12 +610,27 @@ well zones, and scraping/clearfell intervention footprints.
 ---
 
 ## Script 14 — Climate Projections
-**Purpose:** Fits OLS trends to annual summer minima for C1, C2, C3 and
-extrapolates to 2040. Plots observed winter maxima against flooding thresholds.
-Identifies 2030–2039 critical intervention window.
+**Purpose:** Fits OLS trends to annual summer minima for the slack-ecology
+trajectory clusters (C1 Lake, C2 Dune, C3 Western Residual) and extrapolates
+to 2040. Plots observed winter maxima against flooding thresholds. Identifies
+2030–2039 critical intervention window.
+
+Forest clusters (C4 Main Forest, C5 Coastal Forest) are shown as faded
+background scatter on the trajectory panels — no trend lines are fitted
+because their summer minima lie below the slack ecohydrological viability
+thresholds (Curreli et al. 2013). A methods footnote explains this on each
+figure. The `TRAJECTORY_CLUSTERS` constant in the script controls scope;
+the `FOREST_CONTEXT_CLUSTERS` constant controls which clusters appear as
+faded context scatter.
+
+The interactive seasonal-extremes scatter (`14_seasonal_extremes_scatter.html`)
+uses all five clusters from `02_cluster_stats.csv` via config-derived label
+and colour dicts.
 
 **Reads:**
 - `outputs/03_regional_averages.csv`
+- `outputs/02_cluster_stats.csv` ← cluster assignments for scatter plot
+- `outputs/00_well_network_table.csv` ← well-level seasonal extremes
 
 **Produces (outputs/14_climate_projections/):**
 
@@ -484,14 +644,13 @@ Identifies 2030–2039 critical intervention window.
 | `14_winter_exceedance.csv` | Data | Paper Section 4.8.2 source data |
 | `14_seasonal_extremes_scatter.html` | Interactive figure | Seasonal Extremes tab in scenario viewer |
 
-**Key verified numbers:**
+**Key numbers (!! VERIFY — regenerate by running script 14):**
 - C1: −0.0100 m yr⁻¹ (R²=0.247, p=0.026, n=20 — missing summer 2005)
 - C2: −0.0115 m yr⁻¹ (R²=0.172, p=0.061, n=21)
 - C3: −0.0149 m yr⁻¹ (R²=0.166, p=0.067, n=21)
 - Winter flooding (wet slack): C1 14/21 yrs (67%), C2 11/21 (52%), C3 1/21 (5%)
-- **April 2026:** Winter panel now shows cluster mean (dashed) and median (dotted)
-  horizontal lines per cluster with μ/ø annotations. Applied to both
-  `render_winter_figure()` and `render_stacked_figure()`.
+- Winter panel shows cluster mean (dashed) and median (dotted)
+  horizontal lines per cluster with μ/ø annotations.
 
 ---
 
@@ -519,11 +678,11 @@ scenario Δh dynamically in JavaScript, and outputs a single HTML file.
 
 **Scenario parameters (JavaScript, computed per-well dynamically):**
 - baseline: sP=1.00, sPET=1.00, sI=FOREST_INTERCEPTION(0.24), sB2=1.00
-- climate_dry: sP=0.90 (−10% P), sPET=1.10 (+10% PET)
-- climate_wet: sP=1.10 (+10% P), sPET=1.00 (PET unchanged — conservative)
-- clearfell: sI=0 (interception removed), sB2=1.35 (β₂ ×1.35)
-- thinning: sI=FOREST_INTERCEPTION×0.5, sB2=1.15
-- broadleaf: sI=BROADLEAF_INTERCEPTION(0.25), sB2=1.45
+- ukcp18_2050s: sP_w=1.10, sP_s=0.85, sPET_w=1.05, sPET_s=1.20, sI=0.24, sB2=1.00
+- ukcp18_2080s: sP_w=1.20, sP_s=0.70, sPET_w=1.10, sPET_s=1.35, sI=0.24, sB2=1.00
+- clearfell: sI=0 (interception removed), sB2=1.20 (β₂ ×1.20)
+- thinning: sI=FOREST_INTERCEPTION×0.5, sB2=1.10
+- broadleaf: sI=BROADLEAF_INTERCEPTION(0.15), sB2=1.00
 
 **Δh sign convention:** positive = water table deepens (drier); negative = shallower (wetter)
 
@@ -570,6 +729,100 @@ intervention analysis sections of the report.
 
 ---
 
+## Script 22 — Residual Lag Analysis (supplementary)
+**Purpose:** Fits Model B (with free intercept) to all reference wells and
+examines AR(1) structure in the SSM residuals. Tests whether spatial
+patterns in residual autocorrelation correlate with hydrogeological
+position. Not included in the automated pipeline (`run_analysis.py`);
+run manually as needed.
+
+**Reads:**
+- `outputs/01_wells_clean.csv`
+- `outputs/01_climate.csv`
+- `outputs/01_locations.csv`
+- `outputs/02_cluster_stats.csv`
+
+**Produces (intermediate):**
+
+| File | Description |
+|---|---|
+| `22_residuals_wide.csv` | Per-well Model B residual time series (wide format) |
+| `22_model_b_fits.csv` | Per-well Model B fit statistics |
+
+**Produces (figures — outputs/22_residual_lag_analysis/):**
+
+| File | Type | Description |
+|---|---|---|
+| `22_01_ar1_histogram.png` | Figure | AR(1) φ distribution across wells |
+| `22_02_ar1_spatial_map.png` | Figure | Spatial map of AR(1) coefficients |
+| `22_03_alpha_phi_scatter.png` | Figure | Intercept α vs AR(1) φ scatter |
+| `22_04_example_residuals_by_cluster.png` | Figure | Example residual series per cluster |
+
+---
+
+## Script 23 — Ridge-Recharge Lag Test (supplementary)
+**Purpose:** Tests whether recharge from the ridge (higher-elevation
+bedrock boundary) arrives with a one-month lag at lowland wells. Fits an
+extended SSM with P(t) and P(t−1) as separate predictors. Examines
+whether the lagged-rainfall coefficient β₁₁ increases with distance
+from the ridge. Not included in the automated pipeline; run manually.
+
+**Reads:**
+- `outputs/01_wells_clean.csv`
+- `outputs/01_climate.csv`
+- `outputs/01_locations.csv`
+- `outputs/02_cluster_stats.csv`
+
+**Produces (intermediate):**
+
+| File | Description |
+|---|---|
+| `23_residuals_extended_wide.csv` | Per-well extended-model residuals (wide format) |
+| `23_ridge_lag_fits.csv` | Per-well β₁₀, β₁₁ fit statistics |
+
+**Produces (figures — outputs/23_ridge_recharge_lag_test/):**
+
+| File | Type | Description |
+|---|---|---|
+| `23_01_ccf_headline_ridge_wells.png` | Figure | CCF for headline ridge-proximate wells |
+| `23_02_peak_lag_vs_ridge_distance.png` | Figure | Peak lag vs distance from ridge |
+| `23_03_peak_lag_spatial_map.png` | Figure | Spatial map of peak CCF lag |
+| `23_04_b10_b11_by_cluster.png` | Figure | β₁₀ vs β₁₁ by cluster |
+| `23_05_hypothesis_test_summary.txt` | Text | Hypothesis test results |
+
+---
+
+## Script 24 — Residual Seasonality Diagnostic (supplementary)
+**Purpose:** Examines seasonal structure in SSM residuals to identify
+systematic model bias (e.g. underestimating summer ET or overestimating
+winter recharge). Tests correlation between residual amplitude and RAF
+Valley sunshine hours. Not included in the automated pipeline; run manually.
+
+**Reads:**
+- `outputs/01_wells_clean.csv`
+- `outputs/01_climate.csv`
+- `outputs/01_locations.csv`
+- `outputs/02_cluster_stats.csv`
+- `data/RAF_Valley_Climate.csv` ← sunshine hours column (not in 01_climate.csv)
+
+**Produces (intermediate):**
+
+| File | Description |
+|---|---|
+| `24_residual_climatology.csv` | Per-well monthly-mean residual climatology |
+
+**Produces (figures — outputs/24_residual_seasonality/):**
+
+| File | Type | Description |
+|---|---|---|
+| `24_01_climatology_panels_by_cluster.png` | Figure | Monthly residual climatology per cluster |
+| `24_02_seasonal_amplitude_map.png` | Figure | Spatial map of residual seasonal amplitude |
+| `24_03_sun_residual_correlation.png` | Figure | Sunshine hours vs residual correlation |
+| `24_04_phase_by_cluster.png` | Figure | Residual phase (peak month) by cluster |
+| `24_05_diagnostic_summary.txt` | Text | Diagnostic summary statistics |
+
+---
+
 ## Data Flow Diagram (simplified)
 
 ```
@@ -590,11 +843,12 @@ SCRIPT 02 outputs
 └── 02_cluster_stats.csv ───────────────→ 03, 04, 05, 06, 07, 08, 13
 
 SCRIPT 03 outputs
-├── 03_master_data.csv ─────────────────→ 07, 08, 10, 21
-├── 03_regional_averages.csv ───────────→ 11, 14
+├── 03_master_data.csv ─────────────────→ 07, 08, 10, 16, 17, 18, 19, 21
+├── 03_regional_averages.csv ───────────→ 11, 14, 16
 ├── 03_cluster_averages_maod.csv ───────→ 21
+├── 03_cluster_peak_months.csv ─────────→ 11, 11b
 ├── 03_cluster_summary_table.csv ───────→ Paper Table 1
-└── 03_cluster_mechanistic_coefficients → Paper Table 2
+└── 03_cluster_mechanistic_coefficients → Paper Table 2, 11b
 
 SCRIPT 05 output
 └── 05_pear_membership_audit.csv ───────→ 06
@@ -614,10 +868,12 @@ SCRIPT 11 outputs
 └── 11_forecast_04_table8_thresholds ───→ Paper Table 8
 
 SCRIPT 11b outputs
-└── 11b_01_summer_minima_depth.png ─────→ Figure 26 (Section 4.7.4)
-└── 11b_02_winter_maxima_depth.png ─────→ Figure 27 (Section 4.7.4)
-└── 11b_03_pflood.png ────────────────→ Figure 28 (Section 4.7.4)
-└── 11b_04_flood_frequency.png ────────→ Figure 29 (Section 4.7.4)
+├── 11b_01_summer_minima_depth.png ─────→ Figure 26 (Section 4.7.4)
+├── 11b_02_winter_maxima_depth.png ─────→ Figure 27 (Section 4.7.4)
+├── 11b_03_pflood.png ─────────────────→ Figure 28 (Section 4.7.4)
+├── 11b_04_flood_frequency.png ─────────→ Figure 29 (Section 4.7.4)
+├── 11b_05_pflood_per_well.csv ─────────→ Table 10 (per-well P_flood)
+└── forecaster.html ────────────────────→ Interactive forecaster web app
 
 SCRIPT 14 outputs
 └── 14_climate_trajectory_stacked.png ──→ Paper Figure 20
@@ -682,14 +938,53 @@ Two wells were scraped after the LiDAR survey was flown. Scripts 11b, 19, and
 - Added `01_well_elevations.csv` export (upstand heights and DEM ground elevations)
 - Removed mAOD conversion block (was causing sign problems)
 - Input file: `Well_locations_height.csv` (one underscore, not two)
+- Reference-network whitelist reduced from 69 to 66 wells. Three additional
+  exclusions: Llyn Rhos (lake surface), CEH3 and CEH22 (tidal-signal
+  singleton outliers). All three remain in the extended network.
+- Exclusion rationale documented in `REFERENCE_NETWORK_WHITELIST` docstring.
+- `01_wells_clean_maod.csv` output added to paths.py.
 
 ### Script 02
 - Cluster hydrograph figure now reads `01_wells_clean.csv` directly
 - Removed dependency on `03_regional_averages.csv` (was showing mAOD values)
+- **Distance metric bug fixed:** `pdist(1 - corr_matrix)` was computing
+  Euclidean distances on (1−r) row vectors rather than correlation distance.
+  Replaced with a dedicated `_correlation_distance()` helper that builds the
+  correct condensed distance matrix via `1 - corr`, clip, symmetrise,
+  `squareform`. All four consumers of Ward's tree (main partition, validation
+  plots, stability diagnostics, dendrogram) now agree on the same distance.
+- **k reduced from 6 to 5.** Bootstrap stability analysis (1000 resamples at
+  k=4..7) showed that k=6 produced a singleton or fragile 2-well cluster at
+  every configuration tested. k=5 gives four robust clusters (stability
+  ≥ 0.93) plus one moderate cluster (Western Residual, 0.50).
+- **Anchor-based canonical cluster IDs.** `CLUSTER_ID_ANCHORS` dict maps
+  fcluster's arbitrary integer labels to stable canonical IDs via named
+  anchor wells. Script raises `ValueError` if anchors land in different
+  Ward's clusters (fail-loudly partition-drift detection).
+- **Cluster renumbering** to match the old report ordering: C1=Lake,
+  C2=Dune, C3=Western Residual, C4=Main Forest, C5=Coastal Forest.
+  Colours matched to old report palette where possible; C5 Coastal Forest
+  uses brown (`#8B4513`).
+- **Bootstrap stability diagnostics added:** k-sweep (silhouette +
+  Calinski–Harabasz + merge distance, k=2..10), bootstrap co-assignment
+  heatmaps per candidate k, per-well stability CSV, per-cluster stability
+  summary.
+- **Amplitude descriptors added:** per-well and per-cluster seasonal
+  amplitude (p90 − p10) across full / pre-2018 / post-2018 windows, with
+  climate-normalised variant (drought summers 2005, 2018, 2022 removed).
+  Outputs: per-well CSV, cluster summary CSV, boxplot figure.
+- Old hardcoded labels ("Eastern Block Lake", "Forest", etc.) removed.
+  All labels now sourced from `utils/config.CLUSTER_LABELS`.
+
 
 ### Script 03
 - Upstand correction applied before cluster averaging
 - Exports corrected mechanistic coefficients table
+- **April 2026:** `export_cluster_peak_months()` added — writes
+  `03_cluster_peak_months.csv` (long-term mean peak month per cluster,
+  derived from cluster-centroid hydrograph). Consumed by scripts 11 and 11b.
+- **April 2026:** LCSC print block sorted by integer cluster ID (was
+  alphabetical by block label, which put Coastal Forest before Eastern Block).
 
 ### Script 10
 - Added `10_cfell_09b_climate_corrected_cusum.csv` export
@@ -702,10 +997,23 @@ Two wells were scraped after the LiDAR survey was flown. Scripts 11b, 19, and
   recovery limits from Hollingham (2026): SD15b recovery = 0.75 m,
   SD16 recovery = 1.20 m
 - **April 2026:** Three new figures added — winter maxima depth map,
-  P_flood map (521 mm threshold = mean annual Oct–Mar rainfall, monitoring
-  period), and flood frequency map. These are Paper Figures 27, 28 and 29
-  respectively. Figures formerly attributed to script 19 or missing from
-  the pipeline are now fully reproduced in 11b.
+  P_flood map, and flood frequency map (Paper Figures 27, 28, 29).
+- **April 2026 (cluster rebuild):**
+  - `EXCLUDED_CLUSTERS` emptied (old C5/C6 boundary groups retired under k=5).
+  - Five separate blocks (one per cluster) replacing the old 3-block
+    macro-aggregation (Eastern/Western/Forest).
+  - `NEAREST_CLUSTER_ONLY_WELLS = {ceh3, ceh4, ceh7, ceh8, ceh37}` — tidal
+    and upstream-excluded wells are flagged (not dropped) so the forecaster
+    UI can communicate "nearest-type assignment, not core member".
+  - `_coerce_cluster_int()` helper added to handle the int-vs-string
+    schema mismatch between Script 03 and Script 11 Cluster columns.
+  - β column names corrected: `beta_1`, `beta_2`, `beta_3` (matching
+    `03_cluster_mechanistic_coefficients.csv`). The `/1000` conversion
+    (m/m → m/mm) is correct — downstream P_flood works in mm.
+  - Forecaster HTML template (`forecaster_template.html`) patched:
+    data-driven well-selector order, peak-month-derived horizon labels,
+    nearest-cluster-only badging with explanatory notice, default selection
+    is first well in bundle (no hardcoded cluster ID).
 
 **Produces (outputs/11b_spatial_thresholds/):**
 
@@ -725,6 +1033,39 @@ Two wells were scraped after the LiDAR survey was flown. Scripts 11b, 19, and
 - Added p-value output to console
 - Fixed C1 winter n (was hardcoded as 20, corrected to 21)
 - Added three CSV exports for verification
+- **April 2026 (cluster rebuild):**
+  - Labels, colours, markers now sourced from `utils/config.py`.
+  - `TRAJECTORY_CLUSTERS = ("C1", "C2", "C3")` — explicit constant
+    separating trajectory scope from styling scope.
+  - Forest clusters (C4, C5) rendered as faded background scatter on all
+    three trajectory panels, with italic methods footnote: "Forest clusters
+    shown for context only — no trend fitted, as wells lie below the slack
+    ecohydrological viability thresholds (Curreli et al. 2013)."
+  - Summer y-axis widened from −1.60 to −2.10 m to accommodate forest wells.
+  - Seasonal scatter HTML: `_SCATTER_COLOURS`/`_SCATTER_LABELS` replaced
+    with config adapters; legacy "C5/C6 Boundary" grey aliases retired.
+    Cluster-map int-vs-string bug fixed. Silent `.fillna("C2")` default
+    replaced with explicit UNKNOWN constant.
+
+### Cluster-label standardisation pass (April 2026)
+All downstream scripts updated to source labels, colours, and markers from
+`utils/config.py` rather than hardcoded local dicts. Scripts touched:
+02, 03, 07, 08, 11, 11b, 14, 15, 16, 17, 18, 22, 23, 24, plus
+`paths.py` and `forecaster_template.html`. Key changes per script:
+
+- **07, 08, 22, 23, 24:** pure label/colour swap (local dicts → config import).
+- **15:** `CLUSTER_ORDER` from config; 2×2 grids → 2×3 with unused panel hidden.
+- **16:** programmatic label dicts (auto-sync with config + Sy values);
+  `FOREST_CIDS = (4, 5)` for interception correction; `col_map` derived
+  dynamically; `RESIDUAL_PCT_SE`/`FLOOD_FREQ`/`SY_WTF`/`SUMMER_TRENDS`
+  left as 4-entry dicts with `!! REGENERATE` flags pending C5 computation.
+  β column names corrected to match `03_master_data.csv` schema.
+- **17:** string-keyed adapter; `FOREST_CIDS = ("C4", "C5")`; all four-cluster
+  iterations extended to five; regression subplot 2×2 → 2×3.
+- **18:** label/colour swap; `EXCLUDE_CLUSTERS` emptied; `FOREST_CIDS = (4, 5)`.
+
+See `PARTITION_HISTORY.md` for the full renumber mapping, identity-vs-integer
+rule, Sy values, and list of stale dicts requiring regeneration.
 
 ### Scripts 18 and 19
 - `--supplementary` flag added; only paper figures generated by default
@@ -756,7 +1097,7 @@ Two wells were scraped after the LiDAR survey was flown. Scripts 11b, 19, and
 - Scripts 19a and 19b retired; script 19 now a standalone scenario viewer
   six scenarios across ten water balance and head fields. Maps are auto-scaled
   from well-level p5–p95 Δ values; maps below a per-field threshold are omitted.
-- Climate scenario parameters: climate_dry sP=0.90/sPET=1.10; climate_wet sP=1.10/sPET=1.00
+- Climate scenario parameters: ukcp18_2050s sP_w=1.10/sP_s=0.85/sPET_w=1.05/sPET_s=1.20; ukcp18_2080s sP_w=1.20/sP_s=0.70/sPET_w=1.10/sPET_s=1.35
   Baseline Maps, Seasonal Profiles. Produces both a standalone base64-embedded
   viewer and a lightweight linked viewer for GitHub Pages.
 - Colour convention: red = drier/more than baseline; blue = wetter/less.
@@ -767,6 +1108,12 @@ Two wells were scraped after the LiDAR survey was flown. Scripts 11b, 19, and
 ### Script 19 — map extent
 - All figures now explicitly set xlim(240100, 243900), ylim(362200, 365800)
   via _base_map() — previously the DEM extent was used
+
+### config.py:**
+- `CLUSTER_LABELS` updated to k=5 canonical names.
+- `CLUSTER_COLOURS` matched to old report palette; C5 = brown.
+- Module docstring added noting that `CLUSTER_LABELS.keys()` is
+  authoritative for "which clusters are in use".
 
 ### utils/map_utils.py
 - `load_dem_hillshade()` added — greyscale LightSource hillshade for
@@ -869,10 +1216,59 @@ Two wells were scraped after the LiDAR survey was flown. Scripts 11b, 19, and
 | Figure 27: Winter max depth map | 11b | `11b_02_winter_maxima_depth.png` |
 | Figure 28: P_flood map | 11b | `11b_03_pflood.png` |
 | Figure 29: Flood frequency map | 11b | `11b_04_flood_frequency.png` |
-| Figure 25: Winter max depth map | 11b | `11b_02_winter_maximum_depth.png` |
-| Figure 26: P_flood map | 11b | `11b_03_pflood_map.png` |
-| Figure 27: Flood frequency | 11b | `11b_04_flood_frequency.png` |
-| Figure 28: Climate trajectory | 14 | `14_climate_trajectory_stacked.png` |
-| Figure 29: Head surface + streams | 20 | `20_head_surface_streams.png` |
-| Figure 30: SSM residual | 20 | `20_residual_ssm.png` |
-| Figure 31: Synthetic hydrograph | 21 | `21_forestry_01_hydrograph.png` |
+| Figure 20: Climate trajectory | 14 | `14_climate_trajectory_stacked.png` |
+| Figure 30: Head surface + streams | 20 | `20_head_surface_streams.png` |
+| Figure 31: SSM residual | 20 | `20_residual_ssm.png` |
+| Figure 32: Synthetic hydrograph | 21 | `21_forestry_01_hydrograph.png` |
+
+---
+
+## Data Consistency Audit (2026-04-26)
+
+### Known issues requiring attention before data extension
+
+**HIGH priority (would cause incorrect results or runtime errors):**
+
+1. ~~**RAF Valley latitude:**~~ Confirmed correct at 53.25°N. Scripts 09, 10 have
+   duplicate `thornthwaite_pet_m()` functions that should be removed (Script 10
+   should read `01_climate.csv` instead of re-deriving PET from raw data).
+
+2. **β₃ column name mismatch:** Script 03 exports `beta_3_drainage` in
+   `03_master_data.csv` but Scripts 17, 20, 21 read `beta_3_internal_brake`.
+   This will KeyError on a fresh pipeline run.
+
+3. **Script 10 re-derives PET from raw climate** rather than reading
+   `01_climate.csv`. The duplicate PET will diverge from the pipeline
+   when the latitude is corrected or raw data is extended.
+
+**MEDIUM priority (reviewer flags / maintenance hazards):**
+
+4. **`FOREST_INTERCEPTION = 0.24`** hardcoded in six scripts (16–21).
+   Should be centralised in `config.py`.
+
+5. **`REFERENCE_CUTOFF_DATE`** defined in config but not imported by
+   Scripts 00, 01, 02 (which hardcode their own copies).
+
+6. **Script 09 reads `DATA_WELLS_RAW` directly,** bypassing Script 01's QC.
+
+7. **Scripts 22, 23, 24** are not in `run_analysis.py` and were previously
+   undocumented in this README (now documented above).
+
+### Constants that should be centralised in `config.py`
+
+| Constant | Current value | Currently in |
+|---|---|---|
+| `REFERENCE_CUTOFF_DATE` | "2026-02-01" | config (unused by 00, 01, 02) |
+
+### `|h|` vs displacement formulation
+
+Script 20 uses `abs(maOD)` for the β₃ drainage term in its water balance
+residual map, but β₃ was fitted against displacement (`h_disp = DRAINAGE_DATUM + h`)
+in Script 03. This makes the residual map systematically wrong. **Fix required.**
+
+Script 19 also uses `abs(h)` in its scenario computation, but the drainage term
+appears identically in both baseline and scenario, so it cancels in the difference.
+No fix needed.
+
+Script 17 does not multiply β₃ by a head value in its Sy calculation (Healy & Cook
+method works with Δh and P, not absolute head). No fix needed.

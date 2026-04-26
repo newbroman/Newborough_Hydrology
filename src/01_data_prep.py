@@ -33,13 +33,12 @@ from utils.paths import (
     INT_WELL_ELEVATIONS,
 )
 from utils.data_utils import normalize_well_name, parse_met_date, clean_well_series
-from utils.config import REFERENCE_CUTOFF_DATE
 
 # Consolidated well elevation / upstand reference file (data directory).
 _WELL_ELEV_FILE = DATA_DIR / "Well_locations_height.csv"
 
 MIN_MONTHS_THRESH   = 100
-RECENCY_DATE        = pd.Timestamp(REFERENCE_CUTOFF_DATE)
+RECENCY_DATE        = pd.Timestamp("2026-02-01")
 MIN_EXTENDED_MONTHS = 24
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -68,8 +67,9 @@ MIN_EXTENDED_MONTHS = 24
 #     table. An SSM fit treating Llyn Rhos as a water-table response is
 #     physical nonsense; it is excluded from the reference network on
 #     the same "not in a stationary single-β regime" grounds as FE/LIS.
-#     Llyn Rhos remains available through the extended-network file for
-#     lake-level analysis where needed.
+#     Llyn Rhos is also excluded from the extended network via the
+#     EXTENDED_NETWORK_BLACKLIST (see below) because its lake-stage
+#     signal is not interpretable as groundwater behaviour.
 #
 #   - CEH3 and CEH22, which Ward's hierarchical clustering consistently
 #     identifies as singleton outliers. Their correlation structure does
@@ -104,6 +104,28 @@ REFERENCE_NETWORK_WHITELIST = frozenset({
     "nw1",   "nw10",  "nw11",  "nw13",  "nw2",   "nw3",   "nw4",
     "nw4b",  "nw5",   "nw6",   "nw7",   "nw9",   "t41a",  "t41b",  "t41c",
     "t41d",  "wmc1",  "wmc2",  "wmc3",  "wmc4",
+})
+
+# ──────────────────────────────────────────────────────────────────────────────
+# EXTENDED NETWORK BLACKLIST
+#
+# Wells excluded from BOTH networks — not just the reference network.
+# The reference whitelist already keeps these out of the clustering and SSM,
+# but by default they still appear in the extended network (Script 06) because
+# they meet the minimum-record-length criterion.
+#
+# Llyn Rhos-ddu is a lake-stage measurement, not a water-table observation.
+# Including it in the extended Pearson affinity audit adds a physically
+# meaningless data point (best-match r = 0.66, lowest in the sitewide
+# audit) that cannot be interpreted as groundwater behaviour. It is
+# excluded here so that Scripts 05/06 remain purely algorithmic and the
+# exclusion rationale is documented in one place.
+#
+# To include a blacklisted well in the extended network (e.g. for a
+# lake-level comparison study), remove it from this set.
+# ──────────────────────────────────────────────────────────────────────────────
+EXTENDED_NETWORK_BLACKLIST = frozenset({
+    "llynrhos",   # lake surface, not a water-table response
 })
 
 # RAF Valley, Anglesey — site latitude for Thornthwaite day-length correction
@@ -254,16 +276,20 @@ if __name__ == "__main__":
 
     reference_wells, extended_wells = [], []
     demoted_wells = []   # wells that meet auto-criteria but are not whitelisted
+    blacklisted_wells = []  # wells excluded from both networks
     for col in wells.columns:
         series = wells[col].dropna()
         if series.empty:
+            continue
+        col_norm = normalize_well_name(col)
+        if col_norm in EXTENDED_NETWORK_BLACKLIST:
+            blacklisted_wells.append(col)
             continue
         meets_reference_criteria = (
             len(series) >= MIN_MONTHS_THRESH
             and series.index.max() >= RECENCY_DATE
         )
         if meets_reference_criteria:
-            col_norm = normalize_well_name(col)
             if REFERENCE_NETWORK_WHITELIST is None or col_norm in REFERENCE_NETWORK_WHITELIST:
                 reference_wells.append(col)
             else:
@@ -283,6 +309,10 @@ if __name__ == "__main__":
         print(f" -> Demoted to extended (not on reference-network whitelist): "
               f"{len(demoted_wells)} wells  "
               f"[{', '.join(sorted(str(w) for w in demoted_wells))}]")
+    if blacklisted_wells:
+        print(f" -> Excluded from both networks (blacklist): "
+              f"{len(blacklisted_wells)} wells  "
+              f"[{', '.join(sorted(str(w) for w in blacklisted_wells))}]")
 
 
     # ------------------------------------------------------------------ #

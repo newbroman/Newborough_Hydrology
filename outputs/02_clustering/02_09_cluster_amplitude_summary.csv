@@ -1,0 +1,6 @@
+cluster_id,cluster_name,n_wells,median_p90_p10_full,median_p90_p10_pre2018,median_p90_p10_post2018,median_p90_p10_pre2018_climnorm,median_p90_p10_post2018_climnorm,median_std_full,median_summer_min_post2018,amplitude_damping_pct,amplitude_damping_pct_climnorm,post2018_p90_p10_min,post2018_p90_p10_max,post2018_p90_p10_range
+1,C1 (Lake Edge),7.0,0.895,0.836,0.996,0.836,0.962,0.343,-1.04,-19.139,-15.072,0.853,1.233,0.38
+2,C2 (Dune),26.0,1.025,1.006,1.018,1.006,0.976,0.374,-1.12,-1.143,3.032,0.779,1.373,0.594
+3,C3 (Western Residual),19.0,1.065,1.048,1.052,1.048,1.018,0.374,-1.44,-0.382,2.863,0.643,1.275,0.632
+4,C4 (Main Forest),9.0,1.15,1.16,1.086,1.16,1.105,0.426,-1.94,6.379,4.741,0.906,1.488,0.582
+5,C5 (Coastal Forest),5.0,0.84,0.886,0.726,0.886,0.74,0.307,-1.49,18.059,16.479,0.58,0.799,0.219

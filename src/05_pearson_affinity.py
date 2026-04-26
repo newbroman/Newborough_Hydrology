@@ -18,7 +18,7 @@ from utils.paths import (make_all_dirs, DATA_DIR,
     OUT_05_CONFIDENCE_MAP)
 
 fiona.drvsupport.supported_drivers["KML"] = "rw"
-EXPECTED_CLUSTERS = [1,2,3,4,5,6]
+EXPECTED_CLUSTERS = sorted(CLUSTER_LABELS.keys())
 plt.rcParams.update({"font.family":"sans-serif","axes.labelsize":11,"axes.titlesize":13,
                      "xtick.labelsize":9,"ytick.labelsize":9,"legend.fontsize":9})
 

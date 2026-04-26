@@ -93,14 +93,17 @@ YLIM = (362400, 365000)
 # ==========================================
 # AESTHETICS
 # ==========================================
+# Font sizes chosen so that everything remains ≥ 6 pt when the figure
+# is scaled to half an A4 page width (210 mm).  Scale factor ≈ 0.69,
+# so 9 pt in-figure → 6.2 pt on page.  Nothing below 9 pt.
 DPI = 200
 plt.rcParams.update({
     "font.family": "sans-serif",
-    "axes.labelsize": 10,
-    "axes.titlesize": 11,
-    "xtick.labelsize": 8,
-    "ytick.labelsize": 8,
-    "legend.fontsize": 8,
+    "axes.labelsize": 11,
+    "axes.titlesize": 13,
+    "xtick.labelsize": 10,
+    "ytick.labelsize": 10,
+    "legend.fontsize": 10,
 })
 
 
@@ -211,7 +214,7 @@ def make_coefficient_map(
 
     # Colorbar
     cb = fig.colorbar(mesh, ax=ax, fraction=0.03, pad=0.02, shrink=0.85)
-    cb.set_label(cbar_label, fontsize=9)
+    cb.set_label(cbar_label, fontsize=11)
 
     # Contours
     if contour_levels is not None:
@@ -224,7 +227,7 @@ def make_coefficient_map(
                     colors="black", linewidths=0.6,
                     alpha=0.45, zorder=3,
                 )
-                ax.clabel(cs, inline=True, fontsize=6,
+                ax.clabel(cs, inline=True, fontsize=9,
                           fmt=contour_fmt, inline_spacing=2)
             except Exception:
                 pass
@@ -248,28 +251,28 @@ def make_coefficient_map(
                 [0], [0], marker=marker, color="w",
                 label=CLUSTER_LABELS.get(cid, f"C{cid}"),
                 markerfacecolor=col, markeredgecolor="black",
-                markersize=9, linestyle="None",
+                markersize=10, linestyle="None",
             )
 
     # Legends
     if kml_handles:
         l1 = ax.legend(
-            handles=kml_handles, fontsize=7,
+            handles=kml_handles, fontsize=10,
             loc="lower left", framealpha=0.92,
-            title="Site features", title_fontsize=8,
+            title="Site features", title_fontsize=10,
         )
         ax.add_artist(l1)
 
     ax.legend(
         handles=[cluster_handles[k] for k in sorted(cluster_handles)],
-        fontsize=8, loc="lower right",
-        title="Cluster", title_fontsize=8,
+        fontsize=10, loc="lower right",
+        title="Cluster", title_fontsize=10,
     )
 
-    ax.set_xlabel("Easting (m, OSGB36)", fontsize=9)
-    ax.set_ylabel("Northing (m, OSGB36)", fontsize=9)
-    ax.tick_params(labelsize=8)
-    ax.set_title(title, fontsize=11, fontweight="bold")
+    ax.set_xlabel("Easting (m, OSGB36)", fontsize=11)
+    ax.set_ylabel("Northing (m, OSGB36)", fontsize=11)
+    ax.tick_params(labelsize=10)
+    ax.set_title(title, fontsize=13, fontweight="bold")
 
     fig.tight_layout()
     fig.savefig(output_path, dpi=DPI, bbox_inches="tight")

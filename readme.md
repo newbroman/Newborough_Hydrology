@@ -136,13 +136,13 @@ Scenario Δh values are computed dynamically in JavaScript via the SSM equilibri
 
 **Scenario definitions (JavaScript parameters in scenario_viewer.html):**
 
-| Scenario | sP | sPET | sI | sB2 |
-|----------|-----|------|-----|------|
-| UKCP18 2050s | sP_w=1.10, sP_s=0.85 | sPET_w=1.05, sPET_s=1.20 | 0.24 | 1.00 |
-| UKCP18 2080s | sP_w=1.20, sP_s=0.70 | sPET_w=1.10, sPET_s=1.35 | 0.24 | 1.00 |
-| Full clearfell | 1.00 | 1.00 | 0 | 1.20 |
-| Forest thinning | 1.00 | 1.00 | I×0.5 | 1.10 |
-| Broadleaf conversion | 1.00 | 1.00 | 0.15 | 1.00 |
+| Scenario | sP | sPET | sI | sB2 | C4 Δh (depth convention) |
+|----------|-----|------|-----|------|---------------------------|
+| Full clearfell | 1.00 | 1.00 | 0 | 1.35 | +0.145 m (deeper) |
+| Forest thinning | 1.00 | 1.00 | I×0.5 | 1.15 | +0.073 m |
+| Broadleaf conversion | 1.00 | 1.00 | 0.25 | 1.45 | +0.003 m |
+| Climate dry | 0.90 (−10% P) | 1.10 (+10% PET) | — | — | all clusters |
+| Climate wet | 1.10 (+10% P) | 1.00 (unchanged) | — | — | all clusters |
 
 Δh sign convention: **positive = water table deepens (drier)**; negative = shallower (wetter).
 

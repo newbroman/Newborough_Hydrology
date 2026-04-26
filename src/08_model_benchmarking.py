@@ -10,6 +10,15 @@ Purpose:
     Bottom panel:
         Forecasting Stability (Iterative) with NSE, RMSE, and R².
 
+    Model formulations:
+        Traditional (TLM):
+            Δh(t) = α + β₁·P(t−1) − β₂·PET(t)
+        State-Space (SSM, displacement formulation):
+            Δh(t) = β₁·P(t−1) − β₂·PET(t) − β₃·h_disp_prev(t)
+            where h_disp = DRAINAGE_DATUM + h_depth
+
+    Both models use lag-1 rainfall (HEADLINE_LAG = 1), matching Script 03.
+
     Outputs:
         - One-row-per-well metrics table for all wells in cleaned data.
         - Map 1: Iterative R² Improvement (Deep Storage vs Constrained Buckets).
@@ -36,6 +45,7 @@ from utils.paths import (
 from utils.data_utils import normalize_well_name
 from utils.model_utils import compute_intercept_audit, get_metrics, get_r2
 from utils.map_utils import add_kml_features
+from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, CLUSTER_MARKERS, DRAINAGE_DATUM
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -55,6 +65,10 @@ MASTER_PATH = INT_MASTER_DATA
 LCSC_DATA_LIMIT = 100
 EXCLUDED_WELLS_NORM = {'ceh7', 'ceh8', 'ceh37'}
 
+# Lag-1 rainfall: matches Script 03's HEADLINE_LAG = 1.
+# The lag diagnostic (03_04) found every cluster prefers lag-1 over lag-0.
+HEADLINE_LAG = 1
+
 # ==========================================
 # AESTHETICS & PUBLICATION SETTINGS
 # ==========================================
@@ -71,43 +85,12 @@ plt.rcParams.update({
 })
 
 
-def get_metrics(obs, sim):
-    """Calculates NSE, RMSE, and bias."""
-    obs_arr = np.asarray(obs, dtype=float)
-    sim_arr = np.asarray(sim, dtype=float)
-    mask = ~np.isnan(obs_arr) & ~np.isnan(sim_arr)
-    if mask.sum() == 0:
-        return np.nan, np.nan, np.nan
-
-    o = obs_arr[mask]
-    s = sim_arr[mask]
-
-    mse = np.mean((o - s) ** 2)
-    rmse = np.sqrt(mse)
-    denom = np.sum((o - np.mean(o)) ** 2)
-    nse = np.nan if denom == 0 else 1 - (np.sum((o - s) ** 2) / denom)
-    bias = np.mean(s - o)
-    return nse, rmse, bias
-
-
-def get_r2(obs, sim):
-    """Coefficient of determination based on Pearson correlation."""
-    obs_arr = np.asarray(obs, dtype=float)
-    sim_arr = np.asarray(sim, dtype=float)
-    mask = ~np.isnan(obs_arr) & ~np.isnan(sim_arr)
-    if mask.sum() < 2:
-        return np.nan
-
-    corr = np.corrcoef(obs_arr[mask], sim_arr[mask])[0, 1]
-    return corr ** 2
-
-
-def normalize_well_name(value):
-    return str(value).strip().lower().replace(' ', '')
-
-
 def compute_showdown_metrics(target_well_name, df_clean, df_climate):
-    """Compute one-step and iterative showdown metrics for a single well."""
+    """Compute one-step and iterative showdown metrics for a single well.
+
+    Uses the displacement formulation (h_disp = DRAINAGE_DATUM + h_depth)
+    for the SSM drainage predictor and lag-1 rainfall, matching Script 03.
+    """
     target_norm = normalize_well_name(target_well_name)
 
     target_col = next(
@@ -138,7 +121,7 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate):
         'Intercept_Traditional': np.nan,
         'Beta_P_StateSpace': np.nan,
         'Beta_PET_StateSpace': np.nan,
-        'Beta_hprev_StateSpace': np.nan,
+        'Beta_hdisp_StateSpace': np.nan,
     }
 
     if target_col is None:
@@ -157,9 +140,20 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate):
         'PET': pd.to_numeric(climate['PET'], errors='coerce'),
     }).dropna()
 
+    # Lag-1 rainfall (matching Script 03 HEADLINE_LAG = 1)
+    if HEADLINE_LAG > 0:
+        df['P'] = df['P'].shift(HEADLINE_LAG)
+
     df['h_prev'] = df['h'].shift(1)
     df['Delta_h'] = df['h'] - df['h_prev']
-    df = df.dropna(subset=['Delta_h', 'P', 'PET', 'h_prev'])
+
+    # Displacement formulation: h_disp = DRAINAGE_DATUM + h_depth
+    # h_depth is depth below surface (positive downward in the raw data convention).
+    # h_disp is displacement above the drainage base — always positive for water
+    # tables shallower than DRAINAGE_DATUM.
+    df['h_disp_prev'] = DRAINAGE_DATUM + df['h_prev']
+
+    df = df.dropna(subset=['Delta_h', 'P', 'PET', 'h_prev', 'h_disp_prev'])
 
     if len(df) < LCSC_DATA_LIMIT:
         base_row['Status'] = 'insufficient_data'
@@ -168,8 +162,10 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate):
 
     df = df.iloc[-LCSC_DATA_LIMIT:].copy()
 
+    # Traditional model: Δh = α + β₁·P(t-1) - β₂·PET(t)
     x_trad = sm.add_constant(pd.DataFrame({'P': df['P'], 'PET': -df['PET']}), has_constant='add')
-    x_lcsc = pd.DataFrame({'P': df['P'], 'PET': -df['PET'], 'h_prev': -df['h_prev']})
+    # State-space model (displacement): Δh = β₁·P(t-1) - β₂·PET(t) - β₃·h_disp_prev
+    x_lcsc = pd.DataFrame({'P': df['P'], 'PET': -df['PET'], 'h_disp_prev': -df['h_disp_prev']})
     y_fit = df['Delta_h']
 
     model_trad = sm.OLS(y_fit, x_trad).fit()
@@ -179,6 +175,7 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate):
     pet_arr = df['PET'].values
     h_obs = df['h'].values
 
+    # ---- One-step simulation (uses observed h_prev at each step) ----
     h_trad_one = np.full(len(h_obs), np.nan)
     h_lcsc_one = np.full(len(h_obs), np.nan)
     h_trad_one[0] = h_obs[0]
@@ -186,27 +183,33 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate):
 
     for t in range(1, len(h_obs)):
         h_prev_obs = h_obs[t - 1]
-        dh_trad = model_trad.params['const'] + model_trad.params['P'] * p_arr[t] - model_trad.params['PET'] * pet_arr[t]
-        dh_lcsc = (
-            model_lcsc.params['P'] * p_arr[t]
-            - model_lcsc.params['PET'] * pet_arr[t]
-            - model_lcsc.params['h_prev'] * h_prev_obs
-        )
+        h_disp_prev_obs = DRAINAGE_DATUM + h_prev_obs
+
+        dh_trad = (model_trad.params['const']
+                   + model_trad.params['P'] * p_arr[t]
+                   - model_trad.params['PET'] * pet_arr[t])
+        dh_lcsc = (model_lcsc.params['P'] * p_arr[t]
+                   - model_lcsc.params['PET'] * pet_arr[t]
+                   - model_lcsc.params['h_disp_prev'] * h_disp_prev_obs)
         h_trad_one[t] = h_prev_obs + dh_trad
         h_lcsc_one[t] = h_prev_obs + dh_lcsc
 
+    # ---- Iterative (autonomous) simulation ----
     h_trad_iter = np.full(len(h_obs), np.nan)
     h_lcsc_iter = np.full(len(h_obs), np.nan)
     h_trad_iter[0] = h_obs[0]
     h_lcsc_iter[0] = h_obs[0]
 
     for t in range(1, len(h_obs)):
-        dh_trad = model_trad.params['const'] + model_trad.params['P'] * p_arr[t] - model_trad.params['PET'] * pet_arr[t]
-        dh_lcsc = (
-            model_lcsc.params['P'] * p_arr[t]
-            - model_lcsc.params['PET'] * pet_arr[t]
-            - model_lcsc.params['h_prev'] * h_lcsc_iter[t - 1]
-        )
+        # TLM iterative: no h_prev feedback, just accumulates Δh from climate
+        dh_trad = (model_trad.params['const']
+                   + model_trad.params['P'] * p_arr[t]
+                   - model_trad.params['PET'] * pet_arr[t])
+        # SSM iterative: uses simulated h from previous step in displacement
+        h_disp_sim = DRAINAGE_DATUM + h_lcsc_iter[t - 1]
+        dh_lcsc = (model_lcsc.params['P'] * p_arr[t]
+                   - model_lcsc.params['PET'] * pet_arr[t]
+                   - model_lcsc.params['h_disp_prev'] * h_disp_sim)
         h_trad_iter[t] = h_trad_iter[t - 1] + dh_trad
         h_lcsc_iter[t] = h_lcsc_iter[t - 1] + dh_lcsc
 
@@ -237,7 +240,7 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate):
         'Intercept_Traditional': model_trad.params['const'],
         'Beta_P_StateSpace': model_lcsc.params['P'],
         'Beta_PET_StateSpace': model_lcsc.params['PET'],
-        'Beta_hprev_StateSpace': model_lcsc.params['h_prev'],
+        'Beta_hdisp_StateSpace': model_lcsc.params['h_disp_prev'],
     })
 
     payload = {
@@ -266,13 +269,13 @@ def plot_overlay_with_lcsc07_modelb(output_path, payload_08, payload_07):
     well_label = payload_08.get('well_label', 'TARGET')
 
     ax_top.plot(payload_08['index'], payload_08['h_obs'], color='black', lw=2.8, label='Observed')
-    ax_top.plot(payload_08['index'], payload_08['h_trad_one'], color='#D55E00', lw=2.2, ls=':', label=f"SSM08 Traditional (R\u00b2={payload_08['r2_trad_one']:.3f})")
-    ax_top.plot(payload_08['index'], payload_08['h_lcsc_one'], color='#0072B2', lw=2.2, ls='--', label=f"SSM08 State-Space (R\u00b2={payload_08['r2_lcsc_one']:.3f})")
+    ax_top.plot(payload_08['index'], payload_08['h_trad_one'], color='#D55E00', lw=2.2, ls=':', label=f"TLM (R\u00b2={payload_08['r2_trad_one']:.3f})")
+    ax_top.plot(payload_08['index'], payload_08['h_lcsc_one'], color='#0072B2', lw=2.2, ls='--', label=f"SSM (R\u00b2={payload_08['r2_lcsc_one']:.3f})")
     ax_top.plot(payload_07['index'], payload_07['h_one_b'], color='#CC79A7', lw=2.2, ls='-.', label=f"SSM07 Model B (R\u00b2={payload_07['r2_one_b']:.3f})")
     ax_top.set_title(f'{well_label} Overlay: Top Diagnostic Fit (One-Step)', fontweight='bold')
     ax_top.set_ylabel('Water Depth (m below surface)')
     ax_top.grid(True, ls='--', alpha=0.5)
-    ax_top.legend(loc='lower left', frameon=True, edgecolor='black')
+    ax_top.legend(loc='upper left', frameon=True, edgecolor='black')
 
     ax_bottom.plot(payload_08['index'], payload_08['h_obs'], color='black', lw=2.8, label='Observed')
     ax_bottom.plot(
@@ -282,7 +285,7 @@ def plot_overlay_with_lcsc07_modelb(output_path, payload_08, payload_07):
         lw=2.2,
         ls=':',
         label=(
-            f"SSM08 Traditional (NSE={payload_08['nse_trad']:.3f}, "
+            f"TLM (NSE={payload_08['nse_trad']:.3f}, "
             f"RMSE={payload_08['rmse_trad']:.3f}, R²={payload_08['r2_trad_iter']:.3f})"
         ),
     )
@@ -293,7 +296,7 @@ def plot_overlay_with_lcsc07_modelb(output_path, payload_08, payload_07):
         lw=2.2,
         ls='--',
         label=(
-            f"SSM08 State-Space (NSE={payload_08['nse_lcsc']:.3f}, "
+            f"SSM (NSE={payload_08['nse_lcsc']:.3f}, "
             f"RMSE={payload_08['rmse_lcsc']:.3f}, R²={payload_08['r2_lcsc_iter']:.3f})"
         ),
     )
@@ -309,7 +312,7 @@ def plot_overlay_with_lcsc07_modelb(output_path, payload_08, payload_07):
     ax_bottom.set_xlabel('Date')
     ax_bottom.set_ylabel('Water Depth (m below surface)')
     ax_bottom.grid(True, ls='--', alpha=0.5)
-    ax_bottom.legend(loc='lower left', frameon=True, edgecolor='black')
+    ax_bottom.legend(loc='upper left', frameon=True, edgecolor='black')
 
     plt.tight_layout()
     plt.savefig(output_path, bbox_inches='tight', dpi=300)
@@ -317,7 +320,7 @@ def plot_overlay_with_lcsc07_modelb(output_path, payload_08, payload_07):
 
 
 def plot_metric_map(map_df, value_col, title, output_path, cmap, vmin=None, vmax=None):
-    """Create easting/northing scatter map for a metric, using marker shape for cluster (SSM04 key)."""
+    """Create easting/northing scatter map for a metric, using marker shape for cluster."""
     map_df = map_df.copy()
     required_cols = ['Easting', 'Northing', value_col]
     missing_required = [c for c in required_cols if c not in map_df.columns]
@@ -337,23 +340,6 @@ def plot_metric_map(map_df, value_col, title, output_path, cmap, vmin=None, vmax
         print(f"  [WARNING] No mappable data for {value_col}. Skipping {output_path.name}")
         return
 
-    # SSM04 marker key
-    CLUSTER_MARKERS = {
-        1: 'o',  # Circle
-        2: 's',  # Square
-        3: '^',  # Triangle up
-        4: 'D',  # Diamond
-        5: 'P',  # Plus (filled)
-        6: '*',  # Star
-    }
-    CLUSTER_LABELS = {
-        1: "C1 (Eastern Block Lake)",
-        2: "C2 (Eastern Block Mature Dune)",
-        3: "C3 (Western Block Mature Dune)",
-        4: "C4 (Forest)",
-        5: "C5 (Coastal)",
-        6: "C6 (Lake)"
-    }
     import geopandas as gpd
     import contextily as ctx
     import matplotlib.colors as mcolors
@@ -387,7 +373,7 @@ def plot_metric_map(map_df, value_col, title, output_path, cmap, vmin=None, vmax
                 custom_topo = mcolors.LinearSegmentedColormap.from_list("custom_topo", terrain_colors)
                 custom_topo.set_under("dodgerblue")
                 div_norm = mcolors.TwoSlopeNorm(vmin=0, vcenter=12.0, vmax=dem_data.max())
-                dem_layer = ax.imshow(dem_data, cmap=custom_topo, alpha=0.45, 
+                dem_layer = ax.imshow(dem_data, cmap=custom_topo, alpha=0.45,
                                       norm=div_norm, extent=extent, origin="upper", zorder=1)
                 ax.set_xlim(extent[0], extent[1])
                 ax.set_ylim(362000, 365000)
@@ -523,7 +509,7 @@ def plot_metric_map(map_df, value_col, title, output_path, cmap, vmin=None, vmax
     ax.grid(True, linestyle='--', alpha=0.4)
     ax.set_aspect('equal', adjustable='box')
 
-    # Add cluster shape legend (SSM04 style)
+    # Add cluster shape legend
     cluster_legend = ax.legend(handles=handles, title="Core Cluster Assignments", loc='lower left', frameon=True)
     ax.add_artist(cluster_legend)
     if site_feature_handles:
@@ -611,6 +597,8 @@ def export_table3_summary(ok_df: pd.DataFrame, output_path: Path) -> None:
 if __name__ == '__main__':
     make_all_dirs()
     print('Starting SSM08 Model Showdown Pipeline...')
+    print(f'  Displacement formulation: DRAINAGE_DATUM = {DRAINAGE_DATUM} m')
+    print(f'  Rainfall lag: {HEADLINE_LAG} month(s)')
 
     wells_clean = pd.read_csv(WELLS_PATH, index_col=0, parse_dates=True)
     climate = pd.read_csv(CLIMATE_PATH, index_col=0, parse_dates=True)
@@ -659,7 +647,7 @@ if __name__ == '__main__':
     export_table3_summary(ok_df, OUT_08_TABLE3_SUMMARY)
 
     # Generate detailed dual-panel plots for selected manuscript wells
-    
+
     # CEH19 overlay: add SSM07 Model B line onto the SSM08 CEH19 showdown.
     _, ceh19_payload_08 = compute_showdown_metrics('ceh19', wells_clean, climate)
     _, ceh19_payload_07 = compute_intercept_audit('ceh19', wells_clean, climate)

@@ -5,16 +5,9 @@
 Produces climate trajectory projection figures for Newborough Warren.
 
 Reads observed data from 03_regional_averages.csv, fits OLS linear
-regressions to annual summer minima for the slack-cluster trajectory set
-(C1 Lake, C2 Dune, C3 Western Residual), and plots observed winter maxima
-against ecohydrological flooding thresholds (Curreli et al. 2013).
-
-The forested clusters (C4 Main Forest, C5 Coastal Forest) are NOT fitted
-with trajectory trends. Their summer minima sit below the slack
-ecohydrological viability thresholds — they are outside the slack-
-restoration management context that this figure speaks to. They are
-instead rendered as faded background scatter on the trajectory panels for
-visual context, with a methods footnote explaining the choice.
+regressions to annual summer minima for all five clusters (C1–C5),
+and plots observed winter maxima against ecohydrological flooding
+thresholds (Curreli et al. 2013).
 
 Outputs:
     outputs/14_climate_projections/14_climate_trajectory_summer.png
@@ -22,17 +15,16 @@ Outputs:
     outputs/14_climate_projections/14_climate_trajectory_stacked.png
 
 Reviewer-facing method summary:
-    - Summer panel: observed annual summer minima with OLS trend and 95% CI,
-      for the trajectory clusters (C1, C2, C3). Forest clusters (C4, C5)
-      shown as faded context scatter — no trend.
+    - Summer panel: observed annual summer minima with OLS trend and 95% CI
+      for all five clusters (C1 Lake Edge, C2 Dune, C3 Western Residual,
+      C4 Main Forest, C5 Coastal Forest).
     - Winter panel: observed annual winter maxima only (no projection), with
-      threshold exceedance frequencies shown in an annotation box. Forest
-      clusters again shown as context only.
+      threshold exceedance frequencies shown in an annotation box.
 """
 
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — last revised 2026-04-10
+__version__ = "1.1.0"  # Hollingham (2026) — last revised 2026-04-26
 
 import sys
 from pathlib import Path
@@ -86,30 +78,48 @@ CLUSTER_LABELS:  dict[str, str] = {f"C{cid}": v for cid, v in _CFG_LABELS.items(
 CLUSTER_MARKERS: dict[str, str] = {f"C{cid}": v for cid, v in _CFG_MARKERS.items()}
 
 # Clusters that get fitted trajectory trends in the summer/winter figures.
-# Currently the dune/lake/western-residual triplet — the forested clusters
-# (C4, C5) are reported in the seasonal scatter only, not as trend lines,
-# pending a methods decision on whether their seasonal signature is
-# environmentally controlled in the same way.
-TRAJECTORY_CLUSTERS: tuple[str, ...] = ("C1", "C2", "C3")
-
-# Pre-calculated winter wet-slack exceedance counts from observed record
-# used in both winter figures to keep reporting consistent.
-# !! These counts were computed under the old k=6 partition and need
-# !! recomputing under the new k=5 partition. The cluster IDs map
-# !! one-to-one (old C1=Lake -> new C1=Lake, etc) so the headline numbers
-# !! are likely close, but the exact values should be regenerated.
-WINTER_EXCEEDANCE = {
-    "C1": {"wet": 14, "dry": 18, "n": 21},
-    "C2": {"wet": 11, "dry": 15, "n": 21},
-    "C3": {"wet": 1,  "dry": 2,  "n": 21},
-}
+# All five clusters under the k=5 partition. C4 and C5 (forested) are
+# included for completeness — future management may alter their canopy.
+TRAJECTORY_CLUSTERS: tuple[str, ...] = ("C1", "C2", "C3", "C4", "C5")
 
 
-def build_winter_exceedance_text() -> str:
+def _compute_winter_exceedance(filepath: Path) -> dict:
+    """
+    Compute winter wet-slack and dry-slack exceedance counts from observed
+    cluster centroid data. Uses hydrological year (Oct 1 – Sep 30).
+
+    Returns dict {cluster: {"wet": n_wet, "dry": n_dry, "n": n_years}}.
+    """
+    df = pd.read_csv(filepath, index_col="Date", parse_dates=True).sort_index()
+    df["hydro_year"] = df.index.year + (df.index.month >= 10).astype(int)
+    df = df[(df.index.year >= OBS_START) & (df.index.year <= OBS_END)]
+
+    result = {}
+    for c in TRAJECTORY_CLUSTERS:
+        if c not in df.columns:
+            continue
+        wet_count = 0
+        dry_count = 0
+        n_years = 0
+        for year, grp in df.groupby("hydro_year"):
+            winter = grp[grp.index.month.isin(WINTER_MONTHS)][c].dropna()
+            if len(winter) < MIN_MONTHS:
+                continue
+            n_years += 1
+            wmax = winter.max()
+            if wmax >= WET_SLACK_WINTER:
+                wet_count += 1
+            if wmax >= DRY_SLACK_WINTER:
+                dry_count += 1
+        result[c] = {"wet": wet_count, "dry": dry_count, "n": n_years}
+    return result
+
+
+def build_winter_exceedance_text(exceedance: dict) -> str:
     """Create a stable, reviewer-readable summary string for the inset box."""
     lines = ["Wet slack flooding frequency (SD15b threshold):"]
     for c in TRAJECTORY_CLUSTERS:
-        stats_c = WINTER_EXCEEDANCE.get(c)
+        stats_c = exceedance.get(c)
         if stats_c is None:
             continue
         pct_wet = int(round(100 * stats_c["wet"] / stats_c["n"]))
@@ -154,14 +164,14 @@ def add_winter_background(ax: plt.Axes) -> None:
     ax.axvspan(2030, 2039, color="#888888", alpha=0.07, zorder=1, label="2030s intervention window")
 
 
-def add_winter_exceedance_box(ax: plt.Axes) -> None:
+def add_winter_exceedance_box(ax: plt.Axes, exceedance: dict) -> None:
     """Render the standardized exceedance frequency inset."""
     ax.text(
         0.99,
         0.97,
-        build_winter_exceedance_text(),
+        build_winter_exceedance_text(exceedance),
         transform=ax.transAxes,
-        fontsize=8.5,
+        fontsize=8.0,
         family="monospace",
         bbox=dict(boxstyle="round,pad=0.5", facecolor="white", edgecolor="#cccccc", alpha=0.92),
         va="top",
@@ -239,84 +249,24 @@ def fit_trend(years: np.ndarray, values: np.ndarray, proj_end: int = PROJ_END):
     return years_proj, trend_proj, ci_upper, ci_lower, slope, intercept, r2, p_value
 
 
-# ─── Forest cluster context-scatter styling ──────────────────────────────────
-# Forest clusters (C4 Main Forest, C5 Coastal Forest) are not fitted with
-# trajectory trends because their summer minima are well below the slack
-# ecohydrological thresholds (Curreli et al. 2013) — they sit outside the
-# slack-restoration management context that this figure speaks to. They are
-# instead shown as faded background scatter to give the reader visual
-# context for where forest wells sit relative to the slack-cluster
-# trajectories, and the legend annotates the methods choice.
-FOREST_CONTEXT_CLUSTERS: tuple[str, ...] = ("C4", "C5")
-FOREST_CONTEXT_ALPHA = 0.35   # faded so trajectory points dominate the eye
-FOREST_CONTEXT_SIZE  = 18     # smaller than trajectory markers (s=30)
-
-
-def _add_forest_context_scatter(
-    ax: plt.Axes,
-    raw_observations: dict,
-) -> bool:
-    """
-    Plot forest-cluster observations as faded background scatter on a
-    trajectory panel.
-
-    raw_observations : dict {cluster_str: pd.Series(year -> value)} — the
-        unfiltered output of load_annual_extremes for either summer_min or
-        winter_max, depending on which panel.
-
-    Returns True if any forest points were plotted (so the caller can decide
-    whether to add the legend annotation).
-    """
-    plotted_any = False
-    for c in FOREST_CONTEXT_CLUSTERS:
-        series = raw_observations.get(c)
-        if series is None or series.empty:
-            continue
-        years = series.index.to_numpy(dtype=float)
-        vals  = series.values
-        ax.scatter(
-            years, vals,
-            color=CLUSTER_COLOURS.get(c, "#888780"),
-            marker=CLUSTER_MARKERS.get(c, "o"),
-            s=FOREST_CONTEXT_SIZE,
-            alpha=FOREST_CONTEXT_ALPHA,
-            edgecolors="none",
-            zorder=3,   # below trajectory scatter (zorder=5) and lines (zorder=4)
-            label=f"{CLUSTER_LABELS.get(c, c)} (context, no trend)",
-        )
-        plotted_any = True
-    return plotted_any
-
-
 
 def render_summer_figure(
     summer_data: dict,
     out_path: Path,
-    summer_min_raw: dict | None = None,
 ) -> None:
     """
     summer_data: {cluster: (years_obs, values_obs, years_proj, trend_proj,
                              ci_upper, ci_lower, slope, r2, p_value)}
-                 — only TRAJECTORY_CLUSTERS get an entry here.
-    summer_min_raw: optional {cluster: pd.Series} of raw observations for
-                    forest clusters; used to render context scatter points
-                    behind the trajectory data. None disables the context
-                    overlay.
+                 — all TRAJECTORY_CLUSTERS get an entry here.
     """
     fig, ax = plt.subplots(figsize=(12, 7))
     fig.patch.set_facecolor("white")
     ax.set_facecolor("white")
 
-    # Threshold bands. y-axis lower bound widened to -2.10 m to accommodate
-    # forest-cluster context scatter (forest C4 wells sit around -1.78 m
-    # h_0); without the widening they would be clipped off the panel.
+    # Threshold bands
     ax.axhspan(WET_SLACK_SUMMER, 0.10, alpha=0.06, color="#1155aa", zorder=0)
     ax.axhspan(DRY_SLACK_SUMMER, WET_SLACK_SUMMER, alpha=0.06, color="#ff9900", zorder=0)
     ax.axhspan(-2.10, DRY_SLACK_SUMMER, alpha=0.04, color="#cc0000", zorder=0)
-
-    # Forest context scatter (drawn first, so trajectory points sit above)
-    if summer_min_raw is not None:
-        _add_forest_context_scatter(ax, summer_min_raw)
 
     for c, (yobs, vobs, yproj, tproj, cu, cl, slope, *_extra) in summer_data.items():
         colour = CLUSTER_COLOURS[c]
@@ -388,19 +338,6 @@ def render_summer_figure(
     ax.set_axisbelow(True)
     ax.legend(loc="best", fontsize=8.2, frameon=True, framealpha=0.92, edgecolor="#cccccc", ncol=1)
 
-    if summer_min_raw is not None and any(
-        c in summer_min_raw and not summer_min_raw[c].empty
-        for c in FOREST_CONTEXT_CLUSTERS
-    ):
-        fig.text(
-            0.5, 0.012,
-            "Forest clusters (C4, C5) shown for context only — no trend fitted, "
-            "as wells lie below the slack ecohydrological viability thresholds "
-            "(Curreli et al. 2013).",
-            ha="center", va="bottom", fontsize=7.5, color="#555555",
-            style="italic",
-        )
-
     plt.tight_layout()
     plt.savefig(out_path, dpi=300, bbox_inches="tight", facecolor="white")
     plt.close(fig)
@@ -410,16 +347,13 @@ def render_summer_figure(
 def render_winter_figure(
     winter_data: dict,
     out_path: Path,
-    winter_max_raw: dict | None = None,
+    exceedance: dict,
 ) -> None:
     """
-    Plot observed annual winter maxima for the trajectory clusters against
+    Plot observed annual winter maxima for all trajectory clusters against
     ecological flooding thresholds. No projection lines — the figure presents
     the observed flooding record and annotates threshold exceedance
     frequencies directly.
-
-    winter_max_raw : optional {cluster: pd.Series} of raw observations for
-                     forest clusters; rendered as faded background context.
     """
     fig, ax = plt.subplots(figsize=(12, 7))
     fig.patch.set_facecolor("white")
@@ -427,11 +361,7 @@ def render_winter_figure(
 
     add_winter_background(ax)
 
-    # Forest context scatter (drawn first so trajectory points sit above)
-    if winter_max_raw is not None:
-        _add_forest_context_scatter(ax, winter_max_raw)
-
-    # Observed scatter per cluster (trajectory clusters only)
+    # Observed scatter per cluster
     for c, (yobs, vobs) in winter_data.items():
         colour = CLUSTER_COLOURS[c]
         marker = CLUSTER_MARKERS.get(c, "o")
@@ -467,7 +397,7 @@ def render_winter_figure(
             color=colour, va="center", zorder=5,
         )
 
-    add_winter_exceedance_box(ax)
+    add_winter_exceedance_box(ax, exceedance)
 
     ax.set_xlim(YEAR_MIN, YEAR_MAX)
     ax.set_ylim(-1.35, 0.25)
@@ -490,19 +420,6 @@ def render_winter_figure(
     ax.legend(handles=handles + extra_handles,
               loc="lower right", fontsize=8.2, frameon=True, framealpha=0.92, edgecolor="#cccccc")
 
-    if winter_max_raw is not None and any(
-        c in winter_max_raw and not winter_max_raw[c].empty
-        for c in FOREST_CONTEXT_CLUSTERS
-    ):
-        fig.text(
-            0.5, 0.012,
-            "Forest clusters (C4, C5) shown for context only — no trend fitted, "
-            "as wells lie below the slack ecohydrological viability thresholds "
-            "(Curreli et al. 2013).",
-            ha="center", va="bottom", fontsize=7.5, color="#555555",
-            style="italic",
-        )
-
     plt.tight_layout()
     plt.savefig(out_path, dpi=300, bbox_inches="tight", facecolor="white")
     plt.close(fig)
@@ -513,28 +430,19 @@ def render_stacked_figure(
     summer_data: dict,
     winter_data: dict,
     out_path: Path,
-    summer_min_raw: dict | None = None,
-    winter_max_raw: dict | None = None,
+    exceedance: dict,
 ) -> None:
     """
     Two-panel stacked figure (summer trajectory above, winter observed below).
-
-    summer_min_raw / winter_max_raw : optional raw observation dicts for
-                                       forest-cluster context scatter.
     """
     fig, (ax_top, ax_bot) = plt.subplots(2, 1, figsize=(12, 11), sharex=True)
     fig.patch.set_facecolor("white")
 
     # --- Top panel: summer ---
     ax_top.set_facecolor("white")
-    # y-axis lower bound widened to -2.10 m to accommodate forest context
-    # scatter (see render_summer_figure for rationale).
     ax_top.axhspan(WET_SLACK_SUMMER, 0.10, alpha=0.06, color="#1155aa", zorder=0)
     ax_top.axhspan(DRY_SLACK_SUMMER, WET_SLACK_SUMMER, alpha=0.06, color="#ff9900", zorder=0)
     ax_top.axhspan(-2.10, DRY_SLACK_SUMMER, alpha=0.04, color="#cc0000", zorder=0)
-
-    if summer_min_raw is not None:
-        _add_forest_context_scatter(ax_top, summer_min_raw)
 
     for c, (yobs, vobs, yproj, tproj, cu, cl, slope, *_extra) in summer_data.items():
         colour = CLUSTER_COLOURS[c]
@@ -581,9 +489,6 @@ def render_stacked_figure(
     ax_bot.set_facecolor("white")
     add_winter_background(ax_bot)
 
-    if winter_max_raw is not None:
-        _add_forest_context_scatter(ax_bot, winter_max_raw)
-
     for c, (yobs, vobs) in winter_data.items():
         colour = CLUSTER_COLOURS[c]
         marker = CLUSTER_MARKERS.get(c, "o")
@@ -619,7 +524,7 @@ def render_stacked_figure(
             color=colour, va="center", zorder=5,
         )
 
-    add_winter_exceedance_box(ax_bot)
+    add_winter_exceedance_box(ax_bot, exceedance)
 
     ax_bot.set_xlim(YEAR_MIN, YEAR_MAX)
     ax_bot.set_ylim(-1.35, 0.25)
@@ -644,20 +549,6 @@ def render_stacked_figure(
         y=0.985,
     )
 
-    if (summer_min_raw is not None or winter_max_raw is not None) and any(
-        (summer_min_raw and c in summer_min_raw and not summer_min_raw[c].empty)
-        or (winter_max_raw and c in winter_max_raw and not winter_max_raw[c].empty)
-        for c in FOREST_CONTEXT_CLUSTERS
-    ):
-        fig.text(
-            0.5, 0.008,
-            "Forest clusters (C4, C5) shown for context only — no trend fitted, "
-            "as wells lie below the slack ecohydrological viability thresholds "
-            "(Curreli et al. 2013).",
-            ha="center", va="bottom", fontsize=7.5, color="#555555",
-            style="italic",
-        )
-
     plt.tight_layout(rect=[0, 0.015, 1, 0.97])
     plt.savefig(out_path, dpi=300, bbox_inches="tight", facecolor="white")
     plt.close(fig)
@@ -669,6 +560,15 @@ def main() -> None:
     print("\n[14] Loading observed data and fitting summer trends per cluster...")
 
     summer_min, winter_max = load_annual_extremes(INT_REGIONAL_AVG)
+
+    # Compute winter exceedance from observed data (replaces old hardcoded dict)
+    winter_exceedance = _compute_winter_exceedance(INT_REGIONAL_AVG)
+    for c in TRAJECTORY_CLUSTERS:
+        if c in winter_exceedance:
+            exc = winter_exceedance[c]
+            pct = int(round(100 * exc["wet"] / exc["n"])) if exc["n"] > 0 else 0
+            print(f"  {c} winter exceedance: wet={exc['wet']}/{exc['n']} ({pct}%), "
+                  f"dry={exc['dry']}/{exc['n']}")
 
     summer_data = {}
     winter_data = {}
@@ -696,13 +596,11 @@ def main() -> None:
             )
             winter_data[c] = (w_years, w_vals)
 
-    render_summer_figure(summer_data, OUT_14_CLIMATE_SUMMER,
-                         summer_min_raw=summer_min)
+    render_summer_figure(summer_data, OUT_14_CLIMATE_SUMMER)
     render_winter_figure(winter_data, OUT_14_CLIMATE_WINTER,
-                         winter_max_raw=winter_max)
+                         exceedance=winter_exceedance)
     render_stacked_figure(summer_data, winter_data, OUT_14_CLIMATE_STACKED,
-                          summer_min_raw=summer_min,
-                          winter_max_raw=winter_max)
+                          exceedance=winter_exceedance)
 
     # ── Export summer trend stats and annual extremes to CSV ─────────────────
 
@@ -736,7 +634,7 @@ def main() -> None:
 
     # Winter exceedance summary
     exc_rows = []
-    for c, stats_c in WINTER_EXCEEDANCE.items():
+    for c, stats_c in winter_exceedance.items():
         exc_rows.append({
             "Cluster": c,
             "Wet_Slack_Exceedances": stats_c["wet"],

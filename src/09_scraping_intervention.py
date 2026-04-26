@@ -29,6 +29,7 @@ from utils.paths import (
     OUT_09_TIER2_SIGNAL,
     OUT_09_BETA3_CI,
     OUT_09_ROBUSTNESS,
+    OUT_09_REPORT_NUMBERS,
     INT_CLIMATE,
     DIR_09
 )
@@ -868,3 +869,84 @@ except Exception as _e:
     print(f"  [WARNING] Robustness figure failed — {_e}")
     import traceback
     traceback.print_exc()
+
+
+# ====================================================================================
+# EXPORT REPORT NUMBERS — single CSV with every value quoted in §4.5
+# ====================================================================================
+print("\nExporting report numbers CSV...")
+
+_report_rows = []
+
+def _rr(parameter, value, unit="m", well="", era="", note=""):
+    """Append a row to the report numbers list."""
+    _report_rows.append({
+        "Parameter": parameter,
+        "Well": well,
+        "Era": era,
+        "Value": round(value, 4) if pd.notna(value) else "",
+        "Unit": unit,
+        "Note": note,
+    })
+
+# 1. Tier 1 CUSUM terminal values
+for _w in tier1_wells:
+    if _w in plot_data:
+        _final_cusum = float(plot_data[_w]['cusum'].iloc[-1])
+        _rr("Tier1_CUSUM_terminal", _final_cusum, well=_w.upper(),
+            note="Final cumulative CUSUM vs Regional Mean")
+
+# 2. Tier 2 raw BACI shifts (from baci_results already computed)
+for _br in baci_results:
+    _rr("Tier2_BACI_shift", _br['Delta_m'],
+        well=_br['Well'], era=_br['Shift'],
+        note=f"vs {_br['Control']}")
+
+# 3. Tier 1 net benefits (from net_summary already computed)
+for _nb in net_summary:
+    _rr("Net_benefit", _nb['Net_Benefit_m'],
+        well=_nb['Well'], era=_nb['Shift'],
+        note="vs CEH21 coastal benchmark")
+
+# 4. Three-method CEH36 estimates (from robustness section)
+try:
+    _rr("CEH36_raw_BACI_step", _raw_step, well="CEH36", era="Pure_Scraping",
+        note="CEH36 minus CEH4")
+    _rr("CEH36_synthetic_control_step", _syn_step, well="CEH36", era="Pure_Scraping",
+        note=f"Synthetic control ({len(_donors)} donors)")
+    _rr("CEH36_SSM_forward_residual_step", _ssm_step, well="CEH36", era="Pure_Scraping",
+        note="SSM calibrated on pre-2015 baseline")
+except NameError:
+    pass  # robustness section failed — variables not defined
+
+# 5. Table 5 β₃ era estimates (from significance_results already computed)
+for _sr in significance_results:
+    _rr("Table5_beta3_era", _sr['beta_3_internal_brake'],
+        well=_sr['Well'], era=_sr['Era'],
+        note=f"CI=[{_sr['Conf_Low']:.4f},{_sr['Conf_High']:.4f}] "
+             f"p={format_p_value(_sr['P_Value'])}")
+
+# 6. Summer minimum depths by era for CEH4 and CEH36
+_SUMMER_MONTHS = [6, 7, 8, 9]
+for _sw in ['ceh4', 'ceh36']:
+    if _sw not in wells.columns:
+        continue
+    _sw_config = well_eras.get(_sw)
+    if _sw_config is None:
+        continue
+    _sw_series = wells[_sw].dropna()
+    for _era_name, _era_filter in _sw_config['Eras'].items():
+        _era_data = _era_filter(_sw_series)
+        _summer = _era_data[_era_data.index.month.isin(_SUMMER_MONTHS)]
+        if len(_summer) >= 2:
+            # Depths are negative below ground; summer minimum water table =
+            # maximum depth value (most negative). We report absolute depth.
+            _summer_min_depth = float(_summer.min())
+            _rr("Summer_minimum_depth", _summer_min_depth,
+                well=_sw.upper(), era=_era_name,
+                note="Mean of annual Jun-Sep minima")
+
+# Build and export
+_report_df = pd.DataFrame(_report_rows)
+_report_df.to_csv(OUT_09_REPORT_NUMBERS, index=False)
+print(f" -> Saved: {OUT_09_REPORT_NUMBERS.name} ({len(_report_rows)} rows)")

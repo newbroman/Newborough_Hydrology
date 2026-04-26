@@ -34,6 +34,7 @@ from utils.paths import (
     OUT_10_TRANSECT,
     OUT_10_TRANSECT_CSV,
     OUT_10_NW10_TREND,
+    OUT_10_REPORT_NUMBERS,
 )
 from utils.data_utils import parse_met_date, clean_well_series, calculate_cusum
 import pandas as pd
@@ -1414,6 +1415,171 @@ print(OUT_10_DRAINAGE_DATA)
 print(OUT_10_STAT_VERIFICATION)
 print(OUT_10_FULL_PARAMS)
 print(OUT_10_COEFF_SLOPES)
+
+# ====================================================================================
+# EXPORT REPORT NUMBERS — single CSV with every value quoted in §4.6
+# ====================================================================================
+print("\nExporting report numbers CSV...")
+
+_rpt_rows = []
+
+def _rn(parameter, value, unit="m", well="", era="", note=""):
+    """Append a row to the report numbers list."""
+    _rpt_rows.append({
+        "Parameter": parameter,
+        "Well": well,
+        "Era": era,
+        "Value": round(value, 4) if pd.notna(value) and not isinstance(value, str) else value,
+        "Unit": unit,
+        "Note": note,
+    })
+
+# 1. Pre-felling structural offset (core impact vs control before any intervention)
+if not baci_df.empty:
+    _rn("Pre_felling_structural_offset", mean_pre_scraping_impact,
+        note="Core impact mean displacement vs control before scraping")
+
+    # 2. Post-scraping pre-felling mean
+    _rn("Post_scraping_pre_felling_mean", mean_post_scraping_impact,
+        era="Post_scraping", note="Core impact displacement")
+
+    # 3. Post-felling mean
+    _rn("Post_felling_mean_impact", mean_post_felling_impact,
+        era="Post_felling", note="Core impact zone")
+
+    # 4. Step changes (from post-scraping baseline)
+    _rn("Step_change_impact", shift_impact,
+        era="Post_felling", note="From post-scraping baseline")
+    if not np.isnan(shift_edge):
+        _rn("Step_change_edge", shift_edge,
+            era="Post_felling", note="From post-scraping baseline")
+
+    # 5. Combined hydrological cost
+    _rn("Combined_hydrological_cost_impact", combined_cost_impact,
+        note="Pre-scraping to post-felling")
+    if not np.isnan(combined_cost_edge):
+        _rn("Combined_hydrological_cost_edge", combined_cost_edge,
+            note="Pre-scraping to post-felling")
+
+    # 6. Sub-era step changes
+    _rn("Step_PF_pre_scrape2_impact", shift_pf_pre_scrape2_impact,
+        era="Dec2017_Sep2023", note="Pure clearfell sub-era")
+    _rn("Step_PF_post_scrape2_impact", shift_pf_post_scrape2_impact,
+        era="Oct2023_onwards", note="Post-Oct-2023 scraping sub-era")
+
+# 7. ANCOVA coefficients (from Model 2 climate-corrected analysis)
+try:
+    _rn("ANCOVA_intercept", float(_b[0]), note="Model 2 intercept")
+    _rn("ANCOVA_cwb_coeff", float(_b[1]), unit="m/mm",
+        note=f"Cumulative water balance, p={'<0.001' if _p[1]<0.001 else f'{_p[1]:.4f}'}")
+    _rn("ANCOVA_scraping_step", float(_b[2]),
+        note=f"Apr 2015 scraping, p={'<0.001' if _p[2]<0.001 else f'{_p[2]:.4f}'}")
+    _rn("ANCOVA_clearfell_step", float(_b[3]),
+        note=f"Dec 2017 clearfell, p={'<0.001' if _p[3]<0.001 else f'{_p[3]:.4f}'}, "
+             f"CI=[{_b[3]-1.96*_se[3]:.4f},{_b[3]+1.96*_se[3]:.4f}]")
+    _rn("ANCOVA_interaction", float(_b[4]), unit="m/mm",
+        note=f"cwb×post interaction, p={'<0.001' if _p[4]<0.001 else f'{_p[4]:.4f}'}")
+except (NameError, IndexError):
+    pass  # ANCOVA section did not run
+
+# 8. Per-well BACI displacements (pre vs post felling)
+if not baci_df.empty:
+    for _zone_label, _zone_wells in [("Core_Impact", valid_impact),
+                                       ("Edge", valid_edge),
+                                       ("Control", valid_control)]:
+        for _w in _zone_wells:
+            if _w not in wells.columns:
+                continue
+            _w_series = wells[_w].dropna()
+            _pre_mean  = _w_series[_w_series.index < intervention_date].mean()
+            _post_mean = _w_series[_w_series.index >= intervention_date].mean()
+            _baci_pre  = float((_w_series[_w_series.index < intervention_date]
+                                - wells.loc[_w_series.index[_w_series.index < intervention_date],
+                                            valid_control].mean(axis=1)).mean()) \
+                         if len(_w_series[_w_series.index < intervention_date]) > 0 else np.nan
+            _baci_post = float((_w_series[_w_series.index >= intervention_date]
+                                - wells.loc[_w_series.index[_w_series.index >= intervention_date],
+                                            valid_control].mean(axis=1)).mean()) \
+                         if len(_w_series[_w_series.index >= intervention_date]) > 0 else np.nan
+            if pd.notna(_baci_pre):
+                _rn("Per_well_BACI_displacement", _baci_pre,
+                    well=_w.upper(), era="Pre_felling",
+                    note=f"Zone={_zone_label}")
+            if pd.notna(_baci_post):
+                _rn("Per_well_BACI_displacement", _baci_post,
+                    well=_w.upper(), era="Post_felling",
+                    note=f"Zone={_zone_label}")
+
+# 9. Table 6 β₃ before/after (from stats_results already computed)
+for _sr in stats_results:
+    if _sr.get('Well', '') == 'BACI_SUMMARY':
+        continue  # skip summary rows
+    _rn("Table6_beta3", _sr.get('beta_3_internal_brake', np.nan),
+        well=_sr['Well'], era=_sr['Period'],
+        note=f"CI=[{_sr.get('Conf_Low',np.nan):.4f},{_sr.get('Conf_High',np.nan):.4f}] "
+             f"p={_sr.get('P_Value',np.nan):.5f}" if pd.notna(_sr.get('P_Value')) else "")
+
+# 10. Transect step changes (from _transect_steps)
+try:
+    for _tw, _ts_val in _transect_steps.items():
+        _cfg = TRANSECT_WELLS.get(_tw, {})
+        _rn("Transect_step_change", float(_ts_val),
+            well=_tw.upper(), era="Post_felling",
+            note=f"Distance={_cfg.get('dist_m','?')}m, Role={_cfg.get('role','?')}")
+except NameError:
+    pass
+
+# 11. NW10 broadleaf trend
+try:
+    _rn("NW10_broadleaf_trend_slope", _slope_mm_yr, unit="mm/yr",
+        well="NW10", era="2019-2025",
+        note=f"p={_p:.4f}, n={_n}")
+    _rn("NW10_mean_anomaly_2010_2021", _mean_anom_bramble,
+        well="NW10", note="vs pine interior composite")
+except NameError:
+    pass
+
+# 12. Summer minimum distributions by zone and era
+if not baci_df.empty:
+    _SUMMER = [6, 7, 8, 9]
+    for _zone_label, _zone_wells in [("Impact", valid_impact),
+                                       ("Edge", valid_edge),
+                                       ("Control", valid_control)]:
+        for _era_label, _era_mask in [("Pre_felling", wells.index < intervention_date),
+                                        ("Post_felling", wells.index >= intervention_date)]:
+            _zone_summer = []
+            for _w in _zone_wells:
+                if _w not in wells.columns:
+                    continue
+                _ws = wells[_w][_era_mask]
+                _ws_summer = _ws[_ws.index.month.isin(_SUMMER)].dropna()
+                if len(_ws_summer) > 0:
+                    # Annual summer minima (most negative = deepest)
+                    _ann_mins = _ws_summer.groupby(_ws_summer.index.year).min()
+                    _zone_summer.extend(_ann_mins.values.tolist())
+            if _zone_summer:
+                _rn("Summer_minimum_median", float(np.median(_zone_summer)),
+                    era=_era_label,
+                    note=f"Zone={_zone_label}, n_years={len(_zone_summer)}")
+
+# 13. Coefficient slopes (β₁, β₂, β₃ pre vs post) from full_param_df
+if not full_param_df.empty:
+    for _coeff in ['beta_1_recharge', 'beta_2_atmospheric_draw', 'beta_3_internal_brake']:
+        for _zone_label, _zone_wells in [("Impact", valid_impact),
+                                           ("Edge", valid_edge),
+                                           ("Control", valid_control)]:
+            _fp_zone = full_param_df[full_param_df['Well'].str.lower().isin(_zone_wells)]
+            for _per in ['Before', 'After']:
+                _fp_per = _fp_zone[_fp_zone['Period'] == _per]
+                if not _fp_per.empty:
+                    _mean_val = float(_fp_per[_coeff].mean())
+                    _rn(f"Coefficient_zone_mean_{_coeff}", _mean_val,
+                        era=_per, note=f"Zone={_zone_label}, n_wells={len(_fp_per)}")
+
+# Build and export
+_rpt_df = pd.DataFrame(_rpt_rows)
+_rpt_df.to_csv(OUT_10_REPORT_NUMBERS, index=False)
+print(f" -> Saved: {OUT_10_REPORT_NUMBERS.name} ({len(_rpt_rows)} rows)")
 
 # === Save console output to file ===
 import io

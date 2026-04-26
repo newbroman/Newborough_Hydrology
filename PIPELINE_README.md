@@ -54,7 +54,7 @@ utils/                         ← shared utility modules
   config.py                    ← cluster colours, labels
   data_utils.py                ← cleaning, normalisation functions
   map_utils.py                 ← DEM, KML, basemap helpers
-  model_utils.py               ← SSM fitting helpers
+  model_utils.py               ← SSM fitting helpers, intercept audit (displacement formulation)
   paths.py                     ← all path constants
 ```
 
@@ -419,8 +419,10 @@ cluster centroids. Produces integrated site-wide affinity map.
 
 ## Script 07 — Boundary Intercept Audit
 **Purpose:** Compares Model A (intercept = 0) vs Model B (free intercept) for
-all 69 reference wells. Maps spatial pattern of water balance residuals and NSE
-improvement. Identifies tidal, lacustrine and ridge-front boundary wells.
+all 66 reference wells. Both models use the displacement formulation
+(`h_disp = DRAINAGE_DATUM + h_depth`) and lag-1 rainfall, matching Script 03.
+Maps spatial pattern of water balance residuals and NSE improvement. Identifies
+tidal, lacustrine and ridge-front boundary wells.
 
 **Reads:**
 - `outputs/01_wells_clean.csv`
@@ -448,8 +450,10 @@ improvement. Identifies tidal, lacustrine and ridge-front boundary wells.
 
 ## Script 08 — Model Benchmarking
 **Purpose:** Compares SSM vs Traditional Linear Model (TLM) performance across
-all 69 reference wells under one-step diagnostic and iterative 100-month
-forecasting modes. Maps spatial pattern of improvement.
+all 66 reference wells (minus CEH7, CEH8, CEH37) under one-step diagnostic and
+iterative 100-month forecasting modes. Per-well OLS is fitted independently for
+each well using the displacement formulation (`h_disp = DRAINAGE_DATUM + h_depth`)
+and lag-1 rainfall, matching Script 03. Maps spatial pattern of improvement.
 
 **Reads:**
 - `outputs/01_wells_clean.csv`
@@ -469,7 +473,7 @@ forecasting modes. Maps spatial pattern of improvement.
 
 | File | Type | Paper destination |
 |---|---|---|
-| `08_lcsc_01_ceh19_showdown.png` | Figure | Figure 12 (CEH19 comparison) |
+| `08_lcsc_01_ceh19_with_model_b.png` | Figure | Figure 12 (CEH19 TLM vs SSM showdown) |
 | `08_lcsc_02_r2_improvement_map.png` | Figure | Figure 13a (ΔR² map) |
 | `08_lcsc_03_nse_improvement_map.png` | Figure | Figure 13b (ΔNSE map) |
 
@@ -1284,7 +1288,7 @@ rule, Sy values, and list of stale dicts requiring regeneration.
 | Figure 9: WTF Sy surface | 18 | `18_wtf_02_spatial_sy_map.png` |
 | Figure 10: Pearson affinity | 05 | `05_pear_01_spatial_confidence_map.png` |
 | Figure 11: Cluster map | 06 | `06_pear_02_integration_map.png` |
-| Figure 12: CEH19 model fit | 08 | `08_lcsc_01_ceh19_with_model_b.png` |
+| Figure 12: CEH19 TLM vs SSM | 08 | `08_lcsc_01_ceh19_with_model_b.png` |
 | Figure 13: SSM gain over TLM | 08 | `08_lcsc_02_r2_improvement_map.png` |
 | Figure 14: CEH14 model fit | 07 | `07_intercept_01_ceh14_showdown.png` |
 | Figure 15: Boundary intercepts | 07 | `07_intercept_02_plumbing_map.png` |

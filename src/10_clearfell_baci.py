@@ -552,6 +552,8 @@ if not baci_df.empty:
                           _ab['cwb_c'].values * _ab['Post'].values])
     _b, _se, _p = _ols(_ab['impact'].values, _X)
     # b = [intercept, b_cwb, b_scraping, b_post, b_cwb_x_post]
+    # Preserve ANCOVA arrays — _b, _se, _p are later clobbered by NW10 trend.
+    _ancova_b, _ancova_se, _ancova_p = _b.copy(), _se.copy(), _p.copy()
 
     _ab['impact_corr'] = (_ab['impact']
                           - _b[1]*_ab['cwb_c']
@@ -1469,16 +1471,16 @@ if not baci_df.empty:
 
 # 7. ANCOVA coefficients (from Model 2 climate-corrected analysis)
 try:
-    _rn("ANCOVA_intercept", float(_b[0]), note="Model 2 intercept")
-    _rn("ANCOVA_cwb_coeff", float(_b[1]), unit="m/mm",
-        note=f"Cumulative water balance, p={'<0.001' if _p[1]<0.001 else f'{_p[1]:.4f}'}")
-    _rn("ANCOVA_scraping_step", float(_b[2]),
-        note=f"Apr 2015 scraping, p={'<0.001' if _p[2]<0.001 else f'{_p[2]:.4f}'}")
-    _rn("ANCOVA_clearfell_step", float(_b[3]),
-        note=f"Dec 2017 clearfell, p={'<0.001' if _p[3]<0.001 else f'{_p[3]:.4f}'}, "
-             f"CI=[{_b[3]-1.96*_se[3]:.4f},{_b[3]+1.96*_se[3]:.4f}]")
-    _rn("ANCOVA_interaction", float(_b[4]), unit="m/mm",
-        note=f"cwb×post interaction, p={'<0.001' if _p[4]<0.001 else f'{_p[4]:.4f}'}")
+    _rn("ANCOVA_intercept", float(_ancova_b[0]), note="Model 2 intercept")
+    _rn("ANCOVA_cwb_coeff", float(_ancova_b[1]), unit="m/mm",
+        note=f"Cumulative water balance, p={'<0.001' if _ancova_p[1]<0.001 else f'{_ancova_p[1]:.4f}'}")
+    _rn("ANCOVA_scraping_step", float(_ancova_b[2]),
+        note=f"Apr 2015 scraping, p={'<0.001' if _ancova_p[2]<0.001 else f'{_ancova_p[2]:.4f}'}")
+    _rn("ANCOVA_clearfell_step", float(_ancova_b[3]),
+        note=f"Dec 2017 clearfell, p={'<0.001' if _ancova_p[3]<0.001 else f'{_ancova_p[3]:.4f}'}, "
+             f"CI=[{_ancova_b[3]-1.96*_ancova_se[3]:.4f},{_ancova_b[3]+1.96*_ancova_se[3]:.4f}]")
+    _rn("ANCOVA_interaction", float(_ancova_b[4]), unit="m/mm",
+        note=f"cwb×post interaction, p={'<0.001' if _ancova_p[4]<0.001 else f'{_ancova_p[4]:.4f}'}")
 except (NameError, IndexError):
     pass  # ANCOVA section did not run
 

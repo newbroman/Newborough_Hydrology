@@ -1,0 +1,13 @@
+Zone,Phase,Phase_start,Phase_end,N_summers,Mean_depth_m,Median_depth_m,SD_depth_m,Min_depth_m,Max_depth_m
+"Core impact (FE2, FE4,",Pre-2015,record_start,2015-04-01,6,1.4106,1.3,0.201,1.23,1.71
+"Core impact (FE2, FE4,",2015–17,2015-04-01,2018-01-01,3,1.6933,1.78,0.1859,1.435,1.865
+"Core impact (FE2, FE4,",Post-fell 2018+,2018-01-01,record_end,8,1.7654,1.8483,0.2006,1.4233,1.9767
+"Edge zone (FE1, FE3, C",Pre-2015,record_start,2015-04-01,8,1.2566,1.3438,0.4953,0.51,2.0075
+"Edge zone (FE1, FE3, C",2015–17,2015-04-01,2018-01-01,3,1.5449,1.59,0.222,1.2533,1.7914
+"Edge zone (FE1, FE3, C",Post-fell 2018+,2018-01-01,record_end,8,1.6037,1.6856,0.2269,1.2293,1.8937
+Plantation controls (C,Pre-2015,record_start,2015-04-01,8,1.3279,1.234,0.4192,0.865,2.11
+Plantation controls (C,2015–17,2015-04-01,2018-01-01,3,1.4853,1.6,0.2288,1.166,1.69
+Plantation controls (C,Post-fell 2018+,2018-01-01,record_end,8,1.5287,1.644,0.2502,1.106,1.8059
+Open warren controls (,Pre-2015,record_start,2015-04-01,10,1.0133,0.955,0.2474,0.675,1.48
+Open warren controls (,2015–17,2015-04-01,2018-01-01,3,1.1321,1.2473,0.1713,0.89,1.259
+Open warren controls (,Post-fell 2018+,2018-01-01,record_end,8,1.1625,1.2441,0.1432,0.9,1.2773

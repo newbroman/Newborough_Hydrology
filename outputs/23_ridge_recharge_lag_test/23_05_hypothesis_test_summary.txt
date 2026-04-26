@@ -1,0 +1,55 @@
+==============================================================================
+  RIDGE-RECHARGE LAG HYPOTHESIS TEST — SUMMARY
+==============================================================================
+
+  Ridge reference point: E = 241750, N = 364500 (OSGB36)
+  Analysis model: Delta_h = alpha + b10*P(t) + b11*P(t-1) - b2*PET(t) - b3*h(t-1)
+  Wells analysed: 57 with n >= 140 months
+  Excluded: ['ceh3', 'ceh37', 'ceh4', 'ceh7', 'ceh8']
+
+------------------------------------------------------------------------------
+  HYPOTHESIS
+------------------------------------------------------------------------------
+  H1: If the water-balance residual reflects genuine lateral recharge from
+      the northern rock ridge, then the peak-correlation lag N* between
+      extended-model residuals and rainfall should increase with distance
+      from the ridge (longer travel time = longer lag).
+
+  H0: If the residual is model error rather than ridge recharge, no such
+      distance-lag relationship will exist.
+
+------------------------------------------------------------------------------
+  RESULT
+------------------------------------------------------------------------------
+  Spearman rank correlation of peak lag vs ridge distance:
+     rho = -0.1543
+     p   = 0.3292
+     n   = 42 wells with significant peak
+
+  Mean peak lag (all sig wells):      3.38 months
+  Median peak lag (all sig wells):    2.0 months
+  Peak lag standard deviation:        2.94 months
+
+  By cluster (significant wells only):
+     C1 East-Buf     n= 4  mean lag = 5.00  mean |r| = 0.193
+     C2 East-Till    n=14  mean lag = 4.43  mean |r| = 0.196
+     C3 West-Sand    n=15  mean lag = 2.33  mean |r| = 0.244
+     C4 West-For     n= 9  mean lag = 2.78  mean |r| = 0.284
+
+------------------------------------------------------------------------------
+  INTERPRETATION
+------------------------------------------------------------------------------
+  H0 NOT REJECTED: no significant distance-lag relationship detected.
+  The water-balance residual cannot be attributed to ridge-derived recharge
+  on lag-structure evidence. Either (a) the residual is largely model error
+  and should be reported as such, or (b) ridge recharge is delivered via a
+  mechanism that does not produce a month-scale distance-dependent lag
+  (e.g. a near-steady baseflow that is effectively smoothed in time by the
+  time it reaches the dune field).
+
+  Path (b) is not ruled out by a null result here; but it also cannot be
+  claimed from these data alone, because a steady baseflow is
+  observationally indistinguishable from a constant alpha, which is already
+  what Model B absorbs.
+
+==============================================================================

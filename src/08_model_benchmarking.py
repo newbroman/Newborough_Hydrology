@@ -43,7 +43,7 @@ from utils.paths import (
     OUT_08_TABLE3_SUMMARY,
 )
 from utils.data_utils import normalize_well_name
-from utils.model_utils import compute_intercept_audit, get_metrics, get_r2
+from utils.model_utils import get_metrics, get_r2
 from utils.map_utils import add_kml_features
 from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, CLUSTER_MARKERS, DRAINAGE_DATUM
 from pathlib import Path
@@ -263,52 +263,45 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate):
     return base_row, payload
 
 
-def plot_overlay_with_lcsc07_modelb(output_path, payload_08, payload_07):
-    """Overlay SSM07 Model B lines onto the SSM08 dual showdown layout for a target well."""
+def plot_ceh19_showdown(output_path, payload):
+    """Dual-panel TLM vs SSM showdown for CEH19 (or any target well)."""
     fig, (ax_top, ax_bottom) = plt.subplots(2, 1, figsize=(14, 10), dpi=300, sharex=True)
-    well_label = payload_08.get('well_label', 'TARGET')
+    well_label = payload.get('well_label', 'TARGET')
 
-    ax_top.plot(payload_08['index'], payload_08['h_obs'], color='black', lw=2.8, label='Observed')
-    ax_top.plot(payload_08['index'], payload_08['h_trad_one'], color='#D55E00', lw=2.2, ls=':', label=f"TLM (R\u00b2={payload_08['r2_trad_one']:.3f})")
-    ax_top.plot(payload_08['index'], payload_08['h_lcsc_one'], color='#0072B2', lw=2.2, ls='--', label=f"SSM (R\u00b2={payload_08['r2_lcsc_one']:.3f})")
-    ax_top.plot(payload_07['index'], payload_07['h_one_b'], color='#CC79A7', lw=2.2, ls='-.', label=f"SSM07 Model B (R\u00b2={payload_07['r2_one_b']:.3f})")
-    ax_top.set_title(f'{well_label} Overlay: Top Diagnostic Fit (One-Step)', fontweight='bold')
+    # Top Panel: Diagnostic Fit (One-Step)
+    ax_top.plot(payload['index'], payload['h_obs'], color='black', lw=2.8, label='Observed')
+    ax_top.plot(payload['index'], payload['h_trad_one'], color='#D55E00', lw=2.2, ls=':', label=f"TLM (R\u00b2={payload['r2_trad_one']:.3f})")
+    ax_top.plot(payload['index'], payload['h_lcsc_one'], color='#0072B2', lw=2.2, ls='--', label=f"SSM (R\u00b2={payload['r2_lcsc_one']:.3f})")
+    ax_top.set_title(f'{well_label}: Diagnostic Fit (One-Step)', fontweight='bold')
     ax_top.set_ylabel('Water Depth (m below surface)')
     ax_top.grid(True, ls='--', alpha=0.5)
     ax_top.legend(loc='upper left', frameon=True, edgecolor='black')
 
-    ax_bottom.plot(payload_08['index'], payload_08['h_obs'], color='black', lw=2.8, label='Observed')
+    # Bottom Panel: Forecasting Stability (Iterative)
+    ax_bottom.plot(payload['index'], payload['h_obs'], color='black', lw=2.8, label='Observed')
     ax_bottom.plot(
-        payload_08['index'],
-        payload_08['h_trad_iter'],
+        payload['index'],
+        payload['h_trad_iter'],
         color='#D55E00',
         lw=2.2,
         ls=':',
         label=(
-            f"TLM (NSE={payload_08['nse_trad']:.3f}, "
-            f"RMSE={payload_08['rmse_trad']:.3f}, R²={payload_08['r2_trad_iter']:.3f})"
+            f"TLM (NSE={payload['nse_trad']:.3f}, "
+            f"RMSE={payload['rmse_trad']:.3f}, R²={payload['r2_trad_iter']:.3f})"
         ),
     )
     ax_bottom.plot(
-        payload_08['index'],
-        payload_08['h_lcsc_iter'],
+        payload['index'],
+        payload['h_lcsc_iter'],
         color='#0072B2',
         lw=2.2,
         ls='--',
         label=(
-            f"SSM (NSE={payload_08['nse_lcsc']:.3f}, "
-            f"RMSE={payload_08['rmse_lcsc']:.3f}, R²={payload_08['r2_lcsc_iter']:.3f})"
+            f"SSM (NSE={payload['nse_lcsc']:.3f}, "
+            f"RMSE={payload['rmse_lcsc']:.3f}, R²={payload['r2_lcsc_iter']:.3f})"
         ),
     )
-    ax_bottom.plot(
-        payload_07['index'],
-        payload_07['h_iter_b'],
-        color='#CC79A7',
-        lw=2.2,
-        ls='-.',
-        label=f"SSM07 Model B (NSE={payload_07['nse_b']:.3f}, RMSE={payload_07['rmse_b']:.3f})",
-    )
-    ax_bottom.set_title(f'{well_label} Overlay: Bottom Forecasting Stability (Iterative)', fontweight='bold')
+    ax_bottom.set_title(f'{well_label}: Forecasting Stability (Iterative)', fontweight='bold')
     ax_bottom.set_xlabel('Date')
     ax_bottom.set_ylabel('Water Depth (m below surface)')
     ax_bottom.grid(True, ls='--', alpha=0.5)
@@ -648,15 +641,14 @@ if __name__ == '__main__':
 
     # Generate detailed dual-panel plots for selected manuscript wells
 
-    # CEH19 overlay: add SSM07 Model B line onto the SSM08 CEH19 showdown.
-    _, ceh19_payload_08 = compute_showdown_metrics('ceh19', wells_clean, climate)
-    _, ceh19_payload_07 = compute_intercept_audit('ceh19', wells_clean, climate)
-    if ceh19_payload_08 is not None and ceh19_payload_07 is not None:
-        overlay_path = OUT_08_CEH19_WITH_MODEL_B
-        plot_overlay_with_lcsc07_modelb(overlay_path, ceh19_payload_08, ceh19_payload_07)
-        print(f" -> Saved CEH19 overlay showdown: {overlay_path.name}")
+    # CEH19 dual-panel showdown: TLM vs SSM
+    _, ceh19_payload = compute_showdown_metrics('ceh19', wells_clean, climate)
+    if ceh19_payload is not None:
+        showdown_path = OUT_08_CEH19_WITH_MODEL_B
+        plot_ceh19_showdown(showdown_path, ceh19_payload)
+        print(f" -> Saved CEH19 showdown: {showdown_path.name}")
     else:
-        print("  [WARNING] Could not build CEH19 overlay showdown (missing CEH19 payload in SSM07 or SSM08).")
+        print("  [WARNING] Could not build CEH19 showdown (missing CEH19 payload).")
 
     # Join metrics with coordinates for map visualizations
     if MASTER_PATH.exists():

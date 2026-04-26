@@ -142,7 +142,10 @@ wells are excluded with documented physical rationale:
 - **CEH3, CEH22** (2 wells) — tidal-signal contamination; Ward's clustering
   consistently identifies both as singleton outliers at every k from 4 to 9
 
-All excluded wells remain in the extended network for per-well analyses.
+FE1–4, LIS1, CEH3 and CEH22 remain in the extended network for per-well
+analyses. Llyn Rhos is excluded from both networks via the
+EXTENDED_NETWORK_BLACKLIST — its lake-stage signal is not interpretable
+as groundwater behaviour.
 
 **Note:** Depth convention in `01_wells_clean.csv` is **negative = below pipe top**
 (inverted from field recording convention). mAOD conversion formula:

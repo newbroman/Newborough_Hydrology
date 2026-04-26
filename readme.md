@@ -94,11 +94,13 @@ Newborough_Hydro_Models/
 
 Eleven sequential phases, 26 steps total. Validation checkpoints run after Phases 1, 3, and 10.
 
-**Reference network:** 66 wells (from a raw pool of ~80). Eight wells
-are excluded from the reference partition: FE1–4 and LIS1 (clearfell
-non-stationarity), Llyn Rhos (lake surface), CEH3 and CEH22 (tidal-
-signal singleton outliers). Excluded wells remain in the extended
-network. The reference network is partitioned into k=5 clusters using
+**Reference network:** 66 wells (from a raw pool of ~80). 
+Eight wells are excluded from the reference partition: FE1–4 and LIS1
+(clearfell non-stationarity), Llyn Rhos (lake surface), CEH3 and CEH22
+(tidal-signal singleton outliers). All except Llyn Rhos remain in the
+extended network; Llyn Rhos is excluded from both networks via the
+EXTENDED_NETWORK_BLACKLIST (lake stage, not a water-table response).
+The reference network is partitioned into k=5 clusters using
 Ward's linkage on correlation distance: C1 Lake, C2 Dune, C3 Western
 Residual, C4 Main Forest, C5 Coastal Forest. Cluster definitions,
 colours and labels are centralised in `src/utils/config.py`.

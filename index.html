@@ -416,7 +416,7 @@
     <h2>Explore the data</h2>
     <p>
       These tools are designed for use by researchers, Natural Resources Wales
-      practitioners, and journal reviewers. Both are self-contained web applications
+      practitioners, and journal reviewers. All are self-contained web applications
       — no installation required.
     </p>
 
@@ -434,6 +434,22 @@
            href="https://newbroman.github.io/Newborough_Hydrology/scenario_viewer.html"
            target="_blank" rel="noopener">
           Open scenario viewer →
+        </a>
+      </div>
+
+      <div class="tool-card">
+        <span class="tool-card-tag">Flood forecaster</span>
+        <h3>Groundwater Flood Forecasting Tool</h3>
+        <p>
+          Per-well flood probability forecaster driven by the SSM P<sub>flood</sub>
+          threshold equations. Enter seasonal rainfall to estimate flooding risk
+          across the dipwell network, with cluster-specific horizons and
+          interactive threshold visualisation.
+        </p>
+        <a class="btn btn-primary"
+           href="https://newbroman.github.io/Newborough_Hydrology/outputs/11b_spatial_thresholds/forecaster.html"
+           target="_blank" rel="noopener">
+          Open flood forecaster →
         </a>
       </div>
 
@@ -574,7 +590,7 @@
     <h2>Reproducing the analysis</h2>
 
     <p>
-      The full analytical pipeline runs 23 steps across ten phases, coordinated by
+      The full analytical pipeline runs 26 steps across eleven phases, coordinated by
       <code>run_analysis.py</code>. All file paths are managed centrally through
       <code>src/utils/paths.py</code>; no hardcoded paths appear in individual scripts.
       Python 3.10 or later is required (3.12 tested).
@@ -594,7 +610,7 @@
       <span class="cmd">python run_analysis.py</span><br>
       <br>
       <span class="comment"># Or run non-interactively</span><br>
-      <span class="cmd">python run_analysis.py --full &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># run all 23 steps</span></span><br>
+      <span class="cmd">python run_analysis.py --full &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># run all 26 steps</span></span><br>
       <span class="cmd">python run_analysis.py --from 14 &nbsp;<span class="comment"># resume from step 14</span></span><br>
       <span class="cmd">python run_analysis.py --viewer &nbsp;&nbsp;<span class="comment"># build scenario viewer only</span></span>
     </div>

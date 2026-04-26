@@ -473,7 +473,7 @@ and lag-1 rainfall, matching Script 03. Maps spatial pattern of improvement.
 
 | File | Type | Paper destination |
 |---|---|---|
-| `08_lcsc_01_ceh19_with_model_b.png` | Figure | Figure 12 (CEH19 TLM vs SSM showdown) |
+| `08_lcsc_01_ceh6_showdown.png` | Figure | Figure 12 (CEH6 TLM vs SSM showdown) |
 | `08_lcsc_02_r2_improvement_map.png` | Figure | Figure 13a (ΔR² map) |
 | `08_lcsc_03_nse_improvement_map.png` | Figure | Figure 13b (ΔNSE map) |
 
@@ -1288,7 +1288,7 @@ rule, Sy values, and list of stale dicts requiring regeneration.
 | Figure 9: WTF Sy surface | 18 | `18_wtf_02_spatial_sy_map.png` |
 | Figure 10: Pearson affinity | 05 | `05_pear_01_spatial_confidence_map.png` |
 | Figure 11: Cluster map | 06 | `06_pear_02_integration_map.png` |
-| Figure 12: CEH19 TLM vs SSM | 08 | `08_lcsc_01_ceh19_with_model_b.png` |
+| Figure 12: CEH6 TLM vs SSM | 08 | `08_lcsc_01_ceh6_showdown.png` |
 | Figure 13: SSM gain over TLM | 08 | `08_lcsc_02_r2_improvement_map.png` |
 | Figure 14: CEH14 model fit | 07 | `07_intercept_01_ceh14_showdown.png` |
 | Figure 15: Boundary intercepts | 07 | `07_intercept_02_plumbing_map.png` |

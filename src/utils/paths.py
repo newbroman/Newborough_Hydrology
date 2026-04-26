@@ -105,6 +105,11 @@ INT_CLUSTER_STATS   = OUT_DIR / "02_cluster_stats.csv"
 INT_MASTER_DATA      = OUT_DIR / "03_master_data.csv"
 INT_REGIONAL_AVG     = OUT_DIR / "03_regional_averages.csv"
 INT_CLUSTER_AVG_MAOD = OUT_DIR / "03_regional_averages_maod.csv"  # cluster-mean maOD heads; produced by script 03, read by script 21
+# Long-term mean peak month per cluster (calendar month 1-12 of highest mean
+# water table). Derived from the cluster-centroid hydrograph in 03; consumed
+# by script 11's forecasting horizon. Stale-data hazard noted: rerun script 03
+# whenever the partition or the input window changes.
+INT_CLUSTER_PEAK_MONTHS = OUT_DIR / "03_cluster_peak_months.csv"
 
 # Script 05
 INT_PEAR_AUDIT      = OUT_DIR / "05_pear_membership_audit.csv"
@@ -133,6 +138,23 @@ OUT_00_SUMMER_WARMING_TABLE = DIR_00 / "00_03_summer_warming_stats.csv"
 # Script 02 — Clustering
 OUT_02_DENDROGRAM       = DIR_02 / "02_01_dendrogram.png"
 OUT_02_VALIDATION       = DIR_02 / "02_02_validation_plots.png"
+# Stability diagnostics (Phase 1 rebuild validation — bootstrap co-assignment,
+# k-sweep, per-well stability). See 02_clustering.py run_stability_diagnostics().
+OUT_02_VALIDATION_EXTENDED = DIR_02 / "02_02b_validation_k_sweep.png"
+OUT_02_STABILITY_SUMMARY   = DIR_02 / "02_04_bootstrap_stability_summary.csv"
+OUT_02_STABILITY_PER_WELL  = DIR_02 / "02_05_bootstrap_stability_per_well.csv"
+# The following two are templates — .format(k=...) is applied at the call site
+# because one file is written per bootstrap k value.
+OUT_02_COASSIGN_HEATMAP    = DIR_02 / "02_06_coassignment_heatmap_k{k}.png"
+OUT_02_MEMBERSHIP_SWEEP    = DIR_02 / "02_07_cluster_membership_k{k}.csv"
+# Cluster amplitude descriptors (pattern/amplitude orthogonality — Section 4.2).
+# Raw and climate-normalised seasonal amplitude (p90 - p10), per well and per
+# cluster median, plus distribution boxplot. Climate normalisation excludes
+# Jun-Sep of DROUGHT_SUMMERS = (2005, 2018, 2022), empirically identified in
+# the Lake-cluster follow-up from RAF Valley rainfall.
+OUT_02_AMP_PER_WELL     = DIR_02 / "02_08_cluster_amplitude_per_well.csv"
+OUT_02_AMP_SUMMARY      = DIR_02 / "02_09_cluster_amplitude_summary.csv"
+OUT_02_AMP_BOXPLOT      = DIR_02 / "02_10_cluster_amplitude_boxplot.png"
 
 # Script 03 — State-space model
 OUT_03_SIGNATURES          = DIR_03 / "03_01_mechanistic_signatures.png"
@@ -172,6 +194,7 @@ OUT_09_TABLE4_SUMMARY       = DIR_09 / "09_scrape_04b_table4_beta3_era_summary.c
 OUT_09_TIER1_DRIFT          = DIR_09 / "09_scrape_05_tier1_background_drift.png"
 OUT_09_TIER2_SIGNAL         = DIR_09 / "09_scrape_06_tier2_scraping_signal.png"
 OUT_09_BETA3_CI             = DIR_09 / "09_scrape_07_beta3_confidence.png"
+OUT_09_ROBUSTNESS           = DIR_09 / "09_scrape_08_ceh36_robustness.png"
 
 # Script 10 — Clearfell BACI
 OUT_10_DUAL_BACI            = DIR_10 / "10_cfell_01_dual_control_baci.png"
@@ -195,10 +218,14 @@ OUT_11_TABLE7_SUMMER        = DIR_11 / "11_forecast_summer_transfer_functions.cs
 OUT_11_TABLE8_THRESHOLDS    = DIR_11 / "11_forecast_pflood_threshold_equations.csv"
 
 # Script 11b — Spatial threshold maps
-OUT_11B_SUMMER_MAP  = DIR_11B / "11b_01_summer_minima_depth.png"
-OUT_11B_WINTER_MAP  = DIR_11B / "11b_02_winter_maxima_depth.png"
-OUT_11B_PFLOOD_MAP  = DIR_11B / "11b_03_pflood.png"
-OUT_11B_FLOOD_FREQ  = DIR_11B / "11b_04_flood_frequency.png"
+OUT_11B_SUMMER_MAP      = DIR_11B / "11b_01_summer_minima_depth.png"
+OUT_11B_WINTER_MAP      = DIR_11B / "11b_02_winter_maxima_depth.png"
+OUT_11B_PFLOOD_MAP      = DIR_11B / "11b_03_pflood.png"
+OUT_11B_PFLOOD_PER_WELL = DIR_11B / "11b_03_pflood_per_well.csv"
+OUT_11B_FLOOD_FREQ      = DIR_11B / "11b_04_flood_frequency.png"
+OUT_11B_TABLE10         = DIR_11B / "11b_05_table10_pflood_spreadsheet.csv"
+OUT_11B_FORECASTER_HTML = DIR_11B / "forecaster.html"
+SRC_FORECASTER_TEMPLATE = SRC_DIR / "forecaster_template.html"
 
 # Script 14 — Climate projections
 OUT_14_CLIMATE_SUMMER     = DIR_14 / "14_climate_trajectory_summer.png"

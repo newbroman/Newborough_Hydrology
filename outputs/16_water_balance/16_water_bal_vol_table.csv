@@ -1,5 +1,6 @@
-Cluster,Sy,Recharge (mm/yr),Atm. Draw (mm/yr),Drainage (mm/yr),Total Loss (mm/yr),Subsidy (mm/yr),Subsidy (% rainfall),Subsidy SE (mm/yr)
-C1_Eastern_Lake-buffer,0.08,142,268,156,424,282,32,13
-C2_Eastern_Mature_Dune,0.12,195,367,188,555,360,40,37
-C3_Western_Mature_Dune,0.12,134,289,190,479,346,39,45
-C4_Forest,0.12,91,285,203,487,371,42,56
+Cluster,Label,P_mm_yr,PET_mm_yr,I_mm_yr,P_net_mm_yr,P_minus_PET_mm_yr,SSM_drain_frac,SSM_ET_frac,Rec_drain_frac,Rec_ET_frac,Mid_drain_frac,ET_mid_mm_yr,ET_lo_mm_yr,ET_hi_mm_yr,Drain_mid_mm_yr,Drain_lo_mm_yr,Drain_hi_mm_yr
+1,C1 (Lake Edge),894.1,661.4,0.0,894.1,232.7,0.7,0.3,0.4,0.6,0.6,369.3,224.0,514.5,524.8,379.5,670.1
+2,C2 (Dune),894.1,661.4,0.0,894.1,232.7,0.6,0.4,0.3,0.7,0.4,499.4,384.4,614.5,394.7,279.6,509.7
+3,C3 (Western Residual),894.1,661.4,0.0,894.1,232.7,0.6,0.4,0.5,0.5,0.5,433.6,380.4,486.8,460.5,407.3,513.6
+4,C4 (Main Forest),894.1,661.4,214.6,679.5,232.7,0.2,0.8,0.5,0.5,0.4,415.6,315.8,515.3,263.9,164.2,363.7
+5,C5 (Coastal Forest),894.1,661.4,214.6,679.5,232.7,0.5,0.5,0.4,0.6,0.5,366.2,321.8,410.7,313.3,268.8,357.7

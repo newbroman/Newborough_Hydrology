@@ -1,4 +1,4 @@
 Cluster,Label,n_years,Slope_m_per_yr,R2,p_value
-C1,C1 Eastern Block Lake,20,-0.01,0.247,0.0257
-C2,C2 Eastern Block Mature Dune,21,-0.0115,0.172,0.0613
-C3,C3 Western Block Mature Dune,21,-0.0149,0.166,0.0667
+C1,C1 (Lake Edge),20,-0.01,0.197,0.0501
+C2,C2 (Dune),21,-0.0104,0.152,0.0802
+C3,C3 (Western Residual),21,-0.0096,0.085,0.2009

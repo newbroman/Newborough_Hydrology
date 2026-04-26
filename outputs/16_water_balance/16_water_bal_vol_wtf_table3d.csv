@@ -1,0 +1,5 @@
+Cluster,Sy_WTF,Recharge (mm/yr),Atm. Draw (mm/yr),Drainage (mm/yr),Total Loss (mm/yr),Residual (mm/yr),Residual (% rainfall),Residual SE (mm/yr)
+C1_Lake_Edge,0.223,863,218,94,312,-551,-62,-25
+C2_Dune,0.234,738,318,83,402,-336,-38,-35
+C3_Western_Residual,0.259,759,320,138,458,-301,-34,-39
+C4_Main_Forest,0.227,446,330,70,399,-47,-5,-7

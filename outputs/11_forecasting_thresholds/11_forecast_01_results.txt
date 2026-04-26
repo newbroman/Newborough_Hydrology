@@ -1,92 +1,151 @@
 
 Loading input data...
-  [OK] 201 monthly rows loaded | Columns: C1, C2, C3, C4, C5, C6, Western_Block, Eastern_Block, Forest, Coastal, P_mm, PET_mm
+  [OK] 250 monthly rows loaded | Columns: C1, C2, C3, C4, C5, Lake_Edge, Eastern_Block, Western_Block, Forest, Coastal_Forest, P_mm, PET_mm
 
 ======================================================================
-SECTION 1: MECHANISTIC STATE-SPACE EQUATIONS  (Δh = β₁P − β₂PET − β₃h_prev)
+SECTION 1: MECHANISTIC STATE-SPACE EQUATIONS  (dh = b1*P - b2*PET - b3*h_prev)
 ======================================================================
-  OLS without intercept — enforces physical mass balance (zero forcing → zero change)
+  Cluster-centroid lag-1 coefficients from Script 03
+  Source: 03_03_cluster_mechanistic_coefficients.csv
 
-  C1: Eastern Block Lake:  Δh = (0.0016·P) − (0.0050·PET) − (0.3660·h_prev)   |  R² = 0.660   n = 187
-        p-values:  P = 0.0000   PET = 0.0000   h_prev = 0.0000
-  C2: Eastern Block Mature Dune:  Δh = (0.0017·P) − (0.0044·PET) − (0.2000·h_prev)   |  R² = 0.603   n = 199
-        p-values:  P = 0.0000   PET = 0.0000   h_prev = 0.0000
-  C3: Western Block Mature Dune:  Δh = (0.0012·P) − (0.0036·PET) − (0.1179·h_prev)   |  R² = 0.505   n = 199
-        p-values:  P = 0.0000   PET = 0.0000   h_prev = 0.0000
-  C4: Forest:  Δh = (0.0010·P) − (0.0034·PET) − (0.0776·h_prev)   |  R² = 0.461   n = 187
-        p-values:  P = 0.0007   PET = 0.0000   h_prev = 0.0000
-
-  Excluded from mechanistic model: C5, C6  (boundary-condition clusters — see script header)
+  C1 (Lake Edge):  dh = (0.004327*P) - (0.001477*PET) - (0.0749*h_prev)   |  R2 = 0.758   n = 235
+        p-values:  P = 1.2131e-63   PET = 6.1051e-10   h_prev = 1.0202e-23
+  C2 (Dune):  dh = (0.003535*P) - (0.002071*PET) - (0.0486*h_prev)   |  R2 = 0.773   n = 247
+        p-values:  P = 1.1346e-63   PET = 7.2111e-21   h_prev = 2.0424e-14
+  C3 (Western Residual):  dh = (0.003287*P) - (0.001880*PET) - (0.0496*h_prev)   |  R2 = 0.810   n = 247
+        p-values:  P = 2.4161e-73   PET = 1.3987e-23   h_prev = 2.9226e-17
+  C4 (Main Forest):  dh = (0.002197*P) - (0.002195*PET) - (0.0173*h_prev)   |  R2 = 0.599   n = 235
+        p-values:  P = 2.4071e-32   PET = 4.8420e-18   h_prev = 4.9951e-02
+  C5 (Coastal Forest):  dh = (0.002233*P) - (0.001455*PET) - (0.0363*h_prev)   |  R2 = 0.703   n = 237
+        p-values:  P = 1.5308e-49   PET = 1.5235e-17   h_prev = 1.0263e-09
 
 ======================================================================
 SECTION 2: PEAK FLOOD TRANSFER FUNCTIONS  (h_peak = β₁·P_winter + β₂·h_min + c)
 ======================================================================
-  OLS with intercept | Hydrological year: Oct 1 – Sep 30
-  Macro-blocks: Eastern Block (C1 & C2), Western Block (C3), Forest (C4).
+  OLS with intercept | Hydrological year: Oct 1 - Sep 30
+  Blocks (one per cluster, k=5 partition): Lake_Edge (C1), Eastern_Block (C2), Western_Block (C3), Forest (C4), Coastal_Forest (C5).
 
-  Note: C6 is a boundary outlier (lake/tidal) and is excluded from standard unconfined assumptions.
-
-  Western_Block:
-    h_peak = (0.00010·P_winter) + (1.169·h_min) + 0.830
-    R² = 0.684   |   n = 20 hydrological years
-    p-values:  P_winter = 0.8183   h_min = 0.0001   intercept = 0.0630
+  Lake_Edge:
+    h_peak = (0.00126·P_winter) + (-0.206·h_min) - 0.848
+    R² = 0.518   |   n = 19 hydrological years
+    p-values:  P_winter = 0.0010   h_min = 0.3713   intercept = 0.0151
 
   Eastern_Block:
-    h_peak = (0.00057·P_winter) + (0.305·h_min) - 0.089
-    R² = 0.240   |   n = 20 hydrological years
-    p-values:  P_winter = 0.1948   h_min = 0.4687   intercept = 0.8633
+    h_peak = (0.00160·P_winter) + (0.247·h_min) - 0.786
+    R² = 0.497   |   n = 20 hydrological years
+    p-values:  P_winter = 0.0202   h_min = 0.5418   intercept = 0.2573
+
+  Western_Block:
+    h_peak = (0.00108·P_winter) + (0.897·h_min) + 0.038
+    R² = 0.676   |   n = 20 hydrological years
+    p-values:  P_winter = 0.1033   h_min = 0.0060   intercept = 0.9514
 
   Forest:
-    h_peak = (-0.00020·P_winter) + (1.314·h_min) + 1.251
-    R² = 0.894   |   n = 19 hydrological years
-    p-values:  P_winter = 0.5572   h_min = 0.0000   intercept = 0.0008
+    h_peak = (-0.00080·P_winter) + (1.404·h_min) + 1.746
+    R² = 0.908   |   n = 19 hydrological years
+    p-values:  P_winter = 0.1266   h_min = 0.0000   intercept = 0.0016
+
+  Coastal_Forest:
+    h_peak = (0.00020·P_winter) + (1.583·h_min) + 1.393
+    R² = 0.864   |   n = 19 hydrological years
+    p-values:  P_winter = 0.6879   h_min = 0.0000   intercept = 0.0059
 
 
 ======================================================================
 SECTION 4: SUMMER DROUGHT TRANSFER FUNCTIONS  (h_min = β₁·P_summer + β₂·h_max_winter + c)
 ======================================================================
-  OLS with intercept | Hydrological year: Oct 1 – Sep 30
+  OLS with intercept | Hydrological year: Oct 1 - Sep 30
   Predicting summer minimum from antecedent winter peak and summer rain.
 
-  Western_Block:
-    h_min_summer = (0.00096·P_summer) + (0.577·h_max_winter) - 1.214
-    R² = 0.774   |   n = 20 hydrological years
-    p-values:  P_summer = 0.0176   h_max_winter = 0.0000   intercept = 0.0000
+  Lake_Edge:
+    h_min_summer = (0.00152·P_summer) + (0.495·h_max_winter) - 1.454
+    R² = 0.442   |   n = 19 hydrological years
+    p-values:  P_summer = 0.0036   h_max_winter = 0.0192   intercept = 0.0000
 
   Eastern_Block:
-    h_min_summer = (0.00093·P_summer) + (0.333·h_max_winter) - 1.183
-    R² = 0.411   |   n = 20 hydrological years
-    p-values:  P_summer = 0.0152   h_max_winter = 0.0139   intercept = 0.0000
+    h_min_summer = (0.00145·P_summer) + (0.482·h_max_winter) - 1.470
+    R² = 0.619   |   n = 20 hydrological years
+    p-values:  P_summer = 0.0016   h_max_winter = 0.0001   intercept = 0.0000
+
+  Western_Block:
+    h_min_summer = (0.00112·P_summer) + (0.577·h_max_winter) - 1.357
+    R² = 0.726   |   n = 20 hydrological years
+    p-values:  P_summer = 0.0203   h_max_winter = 0.0000   intercept = 0.0000
 
   Forest:
-    h_min_summer = (0.00079·P_summer) + (0.717·h_max_winter) - 1.180
-    R² = 0.921   |   n = 19 hydrological years
-    p-values:  P_summer = 0.0262   h_max_winter = 0.0000   intercept = 0.0000
+    h_min_summer = (0.00066·P_summer) + (0.747·h_max_winter) - 1.161
+    R² = 0.908   |   n = 19 hydrological years
+    p-values:  P_summer = 0.1345   h_max_winter = 0.0000   intercept = 0.0000
+
+  Coastal_Forest:
+    h_min_summer = (0.00056·P_summer) + (0.537·h_max_winter) - 1.247
+    R² = 0.880   |   n = 19 hydrological years
+    p-values:  P_summer = 0.1381   h_max_winter = 0.0000   intercept = 0.0000
 
 
 ======================================================================
-SECTION 3: CRITICAL RAINFALL THRESHOLD EQUATIONS  (P_flood)
+SECTION 3: CRITICAL RAINFALL THRESHOLD EQUATIONS  (P_flood - iterated)
 ======================================================================
-  Algebraically inverted from Section 1 state-space mechanics.
-  Assumes winter PET = 0 (defensible for peak-saturation events).
+  Iterated closed form from cluster-level SSM coefficients.
+  Monthly rainfall scales by λ; PET from RAF Valley climatology.
 
-  C1: Eastern Block Lake Management Tool:
-    LibreOffice: =(h_gap + (0.3660 * h_prev)) / 0.0016
-    LaTeX:       P_{flood} = \frac{h_{gap} + (0.3660 \cdot h_{prev})}{0.0016}
+  C1 (Lake Edge)
+    h_0 = -0.814 m  (long-term mean of month-of-minimum)
+    horizon: [10, 11, 12, 1, 2]  (n = 5 months, peak = month 2)
+    α = 0.9251   αⁿ = 0.6775
+    S_P =   391.1 mm    S_E =   112.3 mm
+    climatological totals: P = 463 mm   PET = 135 mm
+    λ = 0.424
+    P_flood (iterated)    =   196 mm    [0.42x climatology]
+    P_flood (old 1-step)  =   174 mm    [reference only]
+    Collapsed form:  P_flood = 185.45 * d +  45.39   (d in m below ground)
 
-  C2: Eastern Block Mature Dune Management Tool:
-    LibreOffice: =(h_gap + (0.2000 * h_prev)) / 0.0017
-    LaTeX:       P_{flood} = \frac{h_{gap} + (0.2000 \cdot h_{prev})}{0.0017}
+  C2 (Dune)
+    h_0 = -0.962 m  (long-term mean of month-of-minimum)
+    horizon: [10, 11, 12, 1, 2]  (n = 5 months, peak = month 2)
+    α = 0.9514   αⁿ = 0.7794
+    S_P =   415.1 mm    S_E =   119.9 mm
+    climatological totals: P = 463 mm   PET = 135 mm
+    λ = 0.680
+    P_flood (iterated)    =   315 mm    [0.68x climatology]
+    P_flood (old 1-step)  =   259 mm    [reference only]
+    Collapsed form:  P_flood = 246.09 * d +  78.38   (d in m below ground)
 
-  C3: Western Block Mature Dune Management Tool:
-    LibreOffice: =(h_gap + (0.1179 * h_prev)) / 0.0012
-    LaTeX:       P_{flood} = \frac{h_{gap} + (0.1179 \cdot h_{prev})}{0.0012}
+  C3 (Western Residual)
+    h_0 = -1.226 m  (long-term mean of month-of-minimum)
+    horizon: [10, 11, 12, 1, 2, 3]  (n = 6 months, peak = month 3)
+    α = 0.9504   αⁿ = 0.7371
+    S_P =   454.2 mm    S_E =   144.3 mm
+    climatological totals: P = 524 mm   PET = 166 mm
+    λ = 0.787
+    P_flood (iterated)    =   412 mm    [0.79x climatology]
+    P_flood (old 1-step)  =   355 mm    [reference only]
+    Collapsed form:  P_flood = 258.60 * d +  95.16   (d in m below ground)
 
-  C4: Forest Management Tool:
-    LibreOffice: =(h_gap + (0.0776 * h_prev)) / 0.0010
-    LaTeX:       P_{flood} = \frac{h_{gap} + (0.0776 \cdot h_{prev})}{0.0010}
+  C4 (Main Forest)
+    h_0 = -1.784 m  (long-term mean of month-of-minimum)
+    horizon: [10, 11, 12, 1, 2, 3]  (n = 6 months, peak = month 3)
+    α = 0.9827   αⁿ = 0.9004
+    S_P =   498.3 mm    S_E =   158.0 mm
+    climatological totals: P = 524 mm   PET = 166 mm
+    λ = 1.784
+    P_flood (iterated)    =   934 mm    [1.78x climatology]
+    P_flood (old 1-step)  =   798 mm    [reference only]
+    Collapsed form:  P_flood = 430.74 * d + 165.92   (d in m below ground)
 
-Note: Threshold equations are reported for all fitted non-boundary clusters (C1-C4).
+  C5 (Coastal Forest)
+    h_0 = -1.492 m  (long-term mean of month-of-minimum)
+    horizon: [10, 11, 12, 1, 2, 3]  (n = 6 months, peak = month 3)
+    α = 0.9637   αⁿ = 0.8013
+    S_P =   471.9 mm    S_E =   149.8 mm
+    climatological totals: P = 524 mm   PET = 166 mm
+    λ = 1.341
+    P_flood (iterated)    =   703 mm    [1.34x climatology]
+    P_flood (old 1-step)  =   644 mm    [reference only]
+    Collapsed form:  P_flood = 398.20 * d + 108.32   (d in m below ground)
+
+Note: P_flood_new supersedes the single-step formulation in prior drafts.
+      See Section 3.6.3 of Hollingham (2026) for derivation.
 
 
 ======================================================================

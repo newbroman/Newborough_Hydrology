@@ -195,6 +195,7 @@ OUT_09_TIER1_DRIFT          = DIR_09 / "09_scrape_05_tier1_background_drift.png"
 OUT_09_TIER2_SIGNAL         = DIR_09 / "09_scrape_06_tier2_scraping_signal.png"
 OUT_09_BETA3_CI             = DIR_09 / "09_scrape_07_beta3_confidence.png"
 OUT_09_ROBUSTNESS           = DIR_09 / "09_scrape_08_ceh36_robustness.png"
+OUT_09_REPORT_NUMBERS       = DIR_09 / "09_scrape_report_numbers.csv"
 
 # Script 10 — Clearfell BACI
 OUT_10_DUAL_BACI            = DIR_10 / "10_cfell_01_dual_control_baci.png"
@@ -210,6 +211,7 @@ OUT_10_TABLE5_SUMMARY       = DIR_10 / "10_cfell_09_table5_beta3_before_after.cs
 OUT_10_TRANSECT             = DIR_10 / "10_cfell_10_clearfell_transect.png"
 OUT_10_TRANSECT_CSV         = DIR_10 / "10_cfell_10_clearfell_transect_steps.csv"
 OUT_10_NW10_TREND           = DIR_10 / "10_cfell_11_nw10_broadleaf_trend.csv"
+OUT_10_REPORT_NUMBERS       = DIR_10 / "10_cfell_report_numbers.csv"
 
 # Script 11 — Forecasting thresholds
 OUT_11_RESULTS              = DIR_11 / "11_forecast_01_results.txt"

@@ -132,9 +132,10 @@ def main():
         plot_df.columns = [c.replace("Cluster_","C") for c in plot_df.columns]
         fig, ax = plt.subplots(figsize=(16,7), dpi=300)
         x = np.arange(len(available)); width=0.12
+        n_bars = len(plot_df.columns)
         for i,col in enumerate(plot_df.columns):
             cid = int(col.replace("C","")) if col.replace("C","").isdigit() else None
-            ax.bar(x+(i-2.5)*width, plot_df[col].values, width=width,
+            ax.bar(x+(i-(n_bars-1)/2)*width, plot_df[col].values, width=width,
                    label=CLUSTER_LABELS.get(cid,col), color=CLUSTER_COLOURS.get(cid,"#808080"),
                    edgecolor="black", linewidth=0.6)
         ax.set_xticks(x); ax.set_xticklabels([w.upper() for w in available])

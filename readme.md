@@ -21,22 +21,24 @@ python run_analysis.py           # opens interactive menu
 
 ## Running the Pipeline
 
-`run_analysis.py` provides an interactive menu with five options:
+`run_analysis.py` provides an interactive menu with six options:
 
 | Option | Description |
 |--------|-------------|
-| **1 — Run full pipeline** | Runs all 23 steps in order from the beginning |
+| **1 — Run full pipeline** | Runs all 26 steps in order from the beginning |
 | **2 — Resume from step** | Skips completed steps; useful after a partial run |
 | **3 — Run a single step** | Runs one script in isolation for debugging or re-running |
 | **4 — Prepare scenario viewer** | Runs script 19 to build the self-contained HTML viewer |
-| **5 — Show step list** | Lists all 23 steps with script names and availability status |
+| **5 — Run supplementary diagnostics** | Runs scripts 22–24 (residual lag, ridge recharge, seasonality) |
+| **6 — Show step list** | Lists all 26 steps with script names and availability status |
 
 For non-interactive use (e.g. in a batch job):
 
 ```bash
-python run_analysis.py --full          # run all 23 steps
+python run_analysis.py --full          # run all 26 steps
 python run_analysis.py --from 14       # resume from step 14
 python run_analysis.py --viewer        # build scenario viewer only
+python run_analysis.py --supplementary # run supplementary diagnostics (22–24) only
 ```
 
 ---
@@ -69,7 +71,7 @@ Newborough_Hydro_Models/
 │   ├── 19_spatial_groundwater/
 │   │   └── scenario_viewer.html        ← self-contained interactive viewer (standalone)
 │   └── [other output directories]
-├── src/                         Analysis scripts (23 steps; script 19 also builds the viewer)
+├── src/                         Analysis scripts (26 steps; script 19 also builds the viewer)
 │   ├── utils/
 │   │   ├── config.py            Cluster colours, labels — single source of truth for all scripts
 │   │   ├── data_utils.py        Cleaning and normalisation helpers
@@ -90,7 +92,7 @@ Newborough_Hydro_Models/
 
 ## Pipeline Phases
 
-Ten sequential phases, 23 steps total. Validation checkpoints run after Phases 1, 3, and 10.
+Eleven sequential phases, 26 steps total. Validation checkpoints run after Phases 1, 3, and 10.
 
 **Reference network:** 66 wells (from a raw pool of ~80). Eight wells
 are excluded from the reference partition: FE1–4 and LIS1 (clearfell
@@ -121,6 +123,7 @@ colours and labels are centralised in `src/utils/config.py`.
 | 8 | 18 | 20 | WTF spatial analysis and per-well Sy mapping |
 | 9 | 19, 20 | 21–22 | Spatial groundwater analysis and publication figures |
 | 10 | 21 | 23 | Forestry scenarios and management intervention figures |
+| 11 | 22–24 | 24–26 | Supplementary diagnostics: residual lag structure, ridge recharge hypothesis test, residual seasonality |
 
 ---
 
@@ -136,13 +139,13 @@ Scenario Δh values are computed dynamically in JavaScript via the SSM equilibri
 
 **Scenario definitions (JavaScript parameters in scenario_viewer.html):**
 
-| Scenario | sP | sPET | sI | sB2 |
-|----------|-----|------|-----|------|
-| UKCP18 2050s | sP_w=1.10, sP_s=0.85 | sPET_w=1.05, sPET_s=1.20 | 0.24 | 1.00 |
-| UKCP18 2080s | sP_w=1.20, sP_s=0.70 | sPET_w=1.10, sPET_s=1.35 | 0.24 | 1.00 |
-| Full clearfell | 1.00 | 1.00 | 0 | 1.20 |
-| Forest thinning | 1.00 | 1.00 | I×0.5 | 1.10 |
-| Broadleaf conversion | 1.00 | 1.00 | 0.15 | 1.00 |
+| Scenario | sP | sPET | sI | sB2 | C4 Δh (depth convention) |
+|----------|-----|------|-----|------|---------------------------|
+| Full clearfell | 1.00 | 1.00 | 0 | 1.35 | +0.145 m (deeper) |
+| Forest thinning | 1.00 | 1.00 | I×0.5 | 1.15 | +0.073 m |
+| Broadleaf conversion | 1.00 | 1.00 | 0.25 | 1.45 | +0.003 m |
+| Climate dry | 0.90 (−10% P) | 1.10 (+10% PET) | — | — | all clusters |
+| Climate wet | 1.10 (+10% P) | 1.00 (unchanged) | — | — | all clusters |
 
 Δh sign convention: **positive = water table deepens (drier)**; negative = shallower (wetter).
 

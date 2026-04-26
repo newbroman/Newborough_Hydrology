@@ -7,9 +7,6 @@ the paper as figures, tables or into downstream scripts.
 
 Run order: 01 → 02 → 03 → 04 → 05 → 06 → 07 → 08 → 09 → 10 → 11 → 11b → 12 → 13 → 14 → 15 → 17 → 16 → 18 → 19 → 20 → 21
 
-Supplementary scripts (not in automated pipeline; run manually):
-22 → 23 → 24 (residual diagnostics — require outputs from 01, 02)
-
 Script 19 is step 21 of the numbered pipeline. As a byproduct of running its
 main spatial analysis it also builds the self-contained HTML scenario viewer.
 Menu option 4 (`python run_analysis.py --viewer`) rebuilds the viewer alone
@@ -219,26 +216,52 @@ report methods.
 ---
 
 ## Script 03 — State-Space Model
-**Purpose:** Fits the SSM (Δh = β₁P − β₂PET − β₃h_prev) to each well and
-to cluster average hydrographs. Exports LCSC values and mechanistic coefficients.
+**Purpose:** Fits the SSM (displacement formulation) to each well and
+to cluster-centroid hydrographs. Exports LCSC values, mechanistic coefficients,
+and a full suite of validation diagnostics (lag sweep, bootstrap CIs,
+leave-one-out, C1 split-window, datum sensitivity).
+
+**Model (lag-1 headline, displacement formulation):**
+
+    Δh(t) = β₁·P(t−1) + β₂·(−PET(t)) + β₃·(−h_disp_prev(t))
+
+where `h_disp = DRAINAGE_DATUM + h_depth` (displacement above a reference
+drainage base; `DRAINAGE_DATUM = 3.7 m` below ground surface, from
+`config.py`). The displacement formulation was adopted after a sensitivity
+analysis found that the depth-below-surface formulation produces negative β₃
+for three of five clusters. No-intercept OLS throughout.
+
+**Physical sign conventions:**
+- `β₁ > 0` — rainfall raises the water table (hard assertion; pipeline halts)
+- `β₂ > 0` — PET draws the water table down (hard assertion; pipeline halts)
+- `β₃ > 0` — drainage increases with head above datum (soft assertion; warned but not halted)
+
+**Key configuration constants:**
+- `HEADLINE_LAG = 1` — rainfall at P(t−1); confirmed by lag diagnostic
+- `LCSC_DATA_LIMIT = 100` — most-recent 100 months for per-well fits
+- `MIN_OBS_PER_WELL = 30` — minimum observations for a per-well SSM fit
+- `N_BOOTSTRAP = 1000`, `BOOTSTRAP_SEED = 20260424`
+- `UPSTAND_AUDIT_THRESHOLD = 0.30 m`
+- `C1_SPLIT_DATE = 2018-01-01`
+- `DRAINAGE_DATUM = 3.7 m` (from `config.DRAINAGE_DATUM`)
 
 **Reads:**
 - `outputs/01_locations.csv`
 - `outputs/01_climate.csv`
 - `outputs/01_wells_clean.csv`
+- `outputs/01_wells_clean_maod.csv` ← for maOD cluster-centroid export
 - `outputs/01_well_elevations.csv` ← upstand correction for cluster averaging
 - `outputs/02_cluster_stats.csv`
+- `outputs/02_08_cluster_amplitude_per_well.csv` ← optional; amplitude heterogeneity flags (falls back to hard-coded values if absent)
 
-**Produces (intermediate):**
+**Produces (intermediate — outputs/ root):**
 
 | File | Description | Used by |
 |---|---|---|
-| `03_master_data.csv` | Per-well LCSC, β coefficients, cluster | 07, 08, 16, 17, 18, 19 |
-| `03_regional_averages.csv` | Monthly cluster average hydrographs (depth from ground) | 11, 14, 16 |
-| `03_cluster_averages_maod.csv` | Monthly cluster mean heads in maOD | 21 |
+| `03_master_data.csv` | Per-well LCSC, β coefficients, cluster | 07, 08, 10, 16, 17, 18, 19 |
+| `03_regional_averages.csv` | Monthly cluster average hydrographs (depth from ground) + climate | 11, 14, 16 |
+| `03_cluster_averages_maod.csv` | Monthly cluster mean heads in maOD + climate | 21 |
 | `03_cluster_peak_months.csv` | Long-term mean peak month per cluster (calendar month 1–12 of highest mean water table) | 11, 11b |
-| `03_cluster_summary_table.csv` | Table 1: cluster membership summary | Paper Table 1 |
-| `03_cluster_mechanistic_coefficients.csv` | Table 2: β₁, β₂, −β₃, LCSC per cluster | Paper Table 2, 11b |
 
 **β column-name convention (two separate files):**
 
@@ -251,16 +274,60 @@ Downstream consumers must use the correct column names for each file.
 Scripts 11b and 16 apply a `/1000` conversion (m/m → m/mm) when they work
 with millimetre-denominated climatology.
 
-**Produces (figures — outputs/03_state_space_model/):**
+**Produces (figures and diagnostics — outputs/03_state_space_model/):**
 
 | File | Type | Paper destination |
 |---|---|---|
-| `03_01_mechanistic_signatures.png` | Figure | Figure 7 (mechanistic maps) |
+| `03_01_mechanistic_signatures.png` | Figure | Figure 7 (3-panel β bar chart with bootstrap CI error bars) |
+| `03_02_cluster_summary_table.csv` | Table | **Paper Table 1** — cluster membership summary with bootstrap CIs and amplitude heterogeneity flag |
+| `03_03_cluster_mechanistic_coefficients.csv` | Table | **Paper Table 2** — centroid β₁, β₂, β₃, LCSC, R², p-values, drainage datum |
+| `03_04_lag_diagnostic.csv` | Data | Centroid SSM fits at lags 0, 1, 2, 3 months per cluster |
+| `03_05_bootstrap_ci.csv` | Data | B=1000 bootstrap CIs per cluster (well-level resampling) |
+| `03_06_leave_one_out.csv` | Data | Per-cluster leave-one-well-out centroid fits |
+| `03_07_c1_split_window.csv` | Data | C1 Lake pre/post-2018 split-window diagnostic with bootstrap CIs |
+| `03_08_datum_sensitivity.csv` | Data | β₃ and R² at reference depths 0.5–8.0 m (0.1 m steps), all five clusters |
+| `03_08_datum_sensitivity.png` | Figure | 3-panel: β₃ vs datum, R² vs datum, aggregate fit quality + AIC |
 
-**Important:** Cluster centroid construction applies upstand correction
-(`corrected[col] = wells_clean[col] - upstand`) before averaging, so all
-wells share a common ground-surface datum. Individual well SSM fits do NOT
-apply this correction (pipe-top offset cancels in Δh).
+**Validation diagnostics:**
+- **Lag diagnostic (03_04):** Confirms every cluster prefers lag-1 over lag-0
+  (R² ~0.6–0.7 vs ~0.3–0.5; β₁ large/significant/positive at lag-1). Physical
+  basis: monthly dipwell readings taken in the first week of month t reflect
+  recharge from the previous month's rainfall.
+- **Bootstrap CIs (03_05):** Well-level resampling within each cluster
+  (B=1000, fixed seed). Reports median and 2.5%/97.5% percentile CIs for
+  β₁, β₂, β₃, R², LCSC. Also reports fraction of bootstrap replicates
+  with β₁ > 0.
+- **Leave-one-out (03_06):** Per-cluster centroid refit with each member
+  excluded in turn (clusters with ≥4 members). Detects single-well domination.
+- **C1 split-window (03_07):** Fits C1 Lake centroid SSM separately on
+  pre-2018 and post-2018 windows, with well-resampling bootstrap on each
+  side. Tests whether the Lake cluster has undergone a regime shift.
+- **Datum sensitivity (03_08):** Sweeps reference drainage datum from 0.5 to
+  8.0 m in 0.1 m steps. Selection criterion: minimum depth at which β₃ is
+  positive AND significant (p < 0.05) for all five clusters simultaneously.
+  If the empirical minimum differs from `DRAINAGE_DATUM` by >0.15 m, a
+  warning is printed.
+
+**Upstand correction:** Cluster centroid construction applies upstand
+correction (`corrected[col] = wells_clean[col] - upstand`) before averaging,
+so all wells share a common ground-surface datum. Individual per-well SSM
+fits also apply upstand correction (pipe-top depth → ground-surface depth)
+so that the `DRAINAGE_DATUM` displacement is relative to the ground surface
+for every well. An upstand audit prints any reference-network wells
+exceeding `UPSTAND_AUDIT_THRESHOLD` (0.30 m); CEH2 (~71 cm) is deliberately
+tall-for-visibility in the forest understorey.
+
+**Amplitude heterogeneity:** Per-cluster amplitude range is loaded from
+Script 02's `02_08_cluster_amplitude_per_well.csv` (joined on normalised
+well name via the authoritative Option-A cluster assignments, not the
+amplitude file's own cluster column). Falls back to hard-coded values
+from `SCRIPT_03_BRIEF.md` if the file is absent. A cluster is flagged as
+heterogeneous if the ratio of max to min post-2018 amplitude exceeds 1.5.
+
+**Block map:** Under the current Option-A partition, each cluster maps to
+its own block (C1 → Lake Edge, C2 → Eastern Block, C3 → Western Block,
+C4 → Forest, C5 → Coastal Forest). These are reported separately per
+Martin's call, not merged.
 
 **Peak-month derivation:** `export_cluster_peak_months()` computes the
 calendar month with the highest long-term mean cluster-centroid head for
@@ -272,6 +339,11 @@ P_flood iterated-SSM closed form.
 **LCSC print ordering:** the final manuscript LCSC block prints clusters
 sorted by integer cluster ID (`C1, C2, ..., C5`) with a `C{n}` prefix,
 not alphabetical by block label.
+
+**Hard halt behaviour:** If any centroid fit violates β₁ > 0 or β₂ > 0,
+the pipeline prints warnings immediately but defers the hard halt until
+after all diagnostic tables (03_04–03_08) and the signatures figure are
+saved, so the investigator has the diagnostic outputs to work with.
 
 ---
 
@@ -403,65 +475,161 @@ forecasting modes. Maps spatial pattern of improvement.
 ## Script 09 — Dune Scraping Intervention Analysis
 **Purpose:** Hierarchical Nested Control BACI analysis of dune scraping events
 at CEH36 (Apr 2015), CEH18 and CEH21 (Oct 2023). Tier 1 validates controls
-against regional mean; Tier 2 isolates pure scraping signal.
+against regional mean; Tier 2 isolates pure scraping signal. Includes a
+three-method robustness analysis for CEH36 (raw BACI, synthetic control,
+SSM forward residual).
 
-**Reads (raw — bypasses intermediate files):**
-- `data/RAF_Valley_Climate.csv`
-- `data/Newborough_Cleaned_For_Model.csv`
+**Reads:**
+- `outputs/01_climate.csv` ← pipeline PET and rainfall (primary climate source)
+- `data/Newborough_Cleaned_For_Model.csv` ← raw well records (bypasses pipeline intermediate)
+
+**Era definitions:**
+
+| Well | Role | Era 1 | Era 2 | Era 3 |
+|---|---|---|---|---|
+| CEH36 | Central Impact | Baseline (< Apr 2015) | Pure Scraping (Apr 2015 – Dec 2018) | Felling Pulse (≥ Dec 2018) |
+| CEH4 | Central Control | Baseline (< Apr 2015) | Pure Scraping (Apr 2015 – Dec 2018) | Felling Pulse (≥ Dec 2018) |
+| CEH18 | Boundary Impact | Baseline (< Dec 2018) | Felling Pulse (Dec 2018 – Oct 2023) | After Scraping (≥ Oct 2023) |
+| CEH21 | Coastal Impact | Baseline (< Dec 2018) | Coastal Drawdown (Dec 2018 – Oct 2023) | After Scraping (≥ Oct 2023) |
+| CEH22 | Coastal Control | Baseline (< Dec 2018) | Coastal Drawdown (Dec 2018 – Oct 2023) | After Scraping (≥ Oct 2023) |
+
+**Hierarchical pairings:** CEH36 → CEH4, CEH18 → CEH4, CEH21 → CEH22,
+CEH4 → Regional Mean, CEH22 → Regional Mean. Regional Mean is the average
+of 6 control wells (CEH9, NW8, NW8B, NW5, NW6, NW7).
+
+**SSM specification:** Uses lag-1 rainfall (`P_m_lag1`), consistent with
+`HEADLINE_LAG = 1` in Script 03. No-intercept OLS with the same three-term
+design matrix (β₁·P, β₂·(−PET), β₃·(−h_prev)).
 
 **Produces (outputs/09_scraping_intervention/):**
 
 | File | Type | Paper destination |
 |---|---|---|
-| `09_scrape_01_full_parameters.csv` | Data | Diagnostic only (not used in paper) |
-| `09_scrape_02_beta3_significance.csv` | Data | Paper Table 4 source |
-| `09_scrape_03_baci_shifts.csv` | Data | Paper Section 4.5 |
-| `09_scrape_04_net_benefits.csv` | Data | Paper Section 4.5 |
-| `09_scrape_04b_table4_beta3_era_summary.csv` | Table | **Paper Table 4** |
-| `09_tier1_final_cusum.csv` | Data | Paper Section 4.5 |
-| `09_scrape_05_tier1_background_drift.png` | Figure | Figure 14 (Tier 1 CUSUM) |
-| `09_scrape_06_tier2_scraping_signal.png` | Figure | Figure 15 (Tier 2 CUSUM) |
-| `09_scrape_07_beta3_confidence.png` | Figure | Figure 16 (−β₃ CI plot) |
+| `09_scrape_01_full_parameters.csv` | Data | Diagnostic only (per-era full SSM fits) |
+| `09_scrape_02_beta3_significance.csv` | Data | Paper Table 4 source (two-step isolation β₃) |
+| `09_scrape_03_baci_shifts.csv` | Data | Paper Section 4.5 (era-to-era BACI mean shifts) |
+| `09_scrape_04_net_benefits.csv` | Data | Paper Section 4.5 (net benefit vs CEH21 benchmark) |
+| `09_scrape_04b_table4_beta3_era_summary.csv` | Table | **Paper Table 4** (manuscript-ready β₃ era summary) |
+| `09_tier1_final_cusum.csv` | Data | Final CUSUM values for Tier 1 control wells |
+| `09_scrape_05_tier1_background_drift.png` | Figure | Figure 14 (Tier 1 CUSUM: CEH4 & CEH22 vs regional mean) |
+| `09_scrape_06_tier2_scraping_signal.png` | Figure | Figure 15 (Tier 2 CUSUM: CEH36, CEH18, CEH21 vs paired controls) |
+| `09_scrape_07_beta3_confidence.png` | Figure | Figure 16 (−β₃ CI plot: impact wells by era) |
+| `09_scrape_08_ceh36_robustness.png` | Figure | CEH36 robustness — 3-panel: raw BACI vs synthetic control gap series, SSM forward residual, step-change bar chart |
+
+**CEH36 robustness analysis (3 independent methods):**
+1. **Raw BACI:** CEH36 minus CEH4 (existing paired approach)
+2. **Synthetic control:** CEH36 minus a weighted OLS composite of 11 donor
+   wells (CEH1, CEH2, CEH5, CEH6, CEH9, CEH16, CEH17, CEH19, CEH22, CEH23,
+   CEH28), fitted on the pre-2015 baseline period without intercept
+3. **SSM forward residual:** SSM calibrated on pre-2015 baseline at CEH36,
+   run forward through scraping/felling/post-2023 eras; observed − predicted
+   residual measures deviation from the climate-driven trajectory
+
+Method convergence supports the inference that the Pure Scraping era benefit
+is not an artefact of CEH4's own progressive deepening. Method divergence
+is interpretable: raw BACI and synthetic control measure relative topographic
+benefit; the SSM residual measures whether the benefit is structural
+(permanent ground surface lowering) or hydrodynamic (sustained departure
+from climate forecast).
 
 **Note:** Two different β₃ calculations exist in this script:
 - `09_scrape_01_full_parameters.csv` — full SSM fit per era (unstable for short eras)
 - `09_scrape_04b_table4_beta3_era_summary.csv` — **two-step isolation method** (use this for the paper):
   β₁ and β₂ fitted to full record; β₃ fitted to drainage residual per era separately.
 
+**Note:** `RAF_VALLEY_LAT_DEG` is set to 53.25° in this script for the
+Thornthwaite PET day-length correction. The confirmed latitude for RAF
+Valley climate station is 53.15°N (per Martin); the in-script value is
+superseded — the primary PET computation uses `outputs/01_climate.csv`
+from Script 01, which uses the correct latitude.
+
 ---
 
 ## Script 10 — Clearfell BACI Experiment
 **Purpose:** Three-zone hierarchical BACI experiment (core impact, edge zone,
 regional control) assessing the December 2017 plantation clearfell. Includes
-ANCOVA-BACI climate correction, CUSUM analysis, SSM coefficient shifts,
+ANCOVA-BACI climate correction with cumulative water balance covariate,
+raw and climate-corrected CUSUM analysis, SSM coefficient shifts (β₁, β₂, β₃),
 spatial transect analysis, and NW10 broadleaf trend analysis.
 
 **Reads:**
-- `data/RAF_Valley_Climate.csv`
-- `outputs/01_wells_clean.csv` (main network including CEH9, NW7, NW6)
-- `outputs/01_wells_extended.csv` (FE series and edge wells — merged at load time)
-- `outputs/03_master_data.csv`
+- `data/RAF_Valley_Climate.csv` ← raw climate (Thornthwaite PET computed in-script)
+- `outputs/01_wells_clean.csv` ← main network (including CEH9, NW7, NW6)
+- `outputs/01_wells_extended.csv` ← FE series and edge wells (FE1–4, LIS1, NW8B; merged at load time)
+- `outputs/03_master_data.csv` ← per-well SSM coefficients (canonical LCSC03 output)
 
-**Control pool (8 wells):** CEH32, CEH34, CEH33, NW10, CEH19, CEH9, NW7, NW6
+**Well loading:** Script 10 merges `01_wells_clean.csv` (main network) with
+`01_wells_extended.csv` (extended wells). Main takes priority for any
+overlapping column names. Falls back to raw `Newborough_Cleaned_For_Model.csv`
+if pipeline outputs are absent.
+
+**Experiment configuration:**
+- **Intervention date:** December 2017 (`2017-12-01`)
+- **Scraping 1:** April 2015 (`2015-04-01`)
+- **Scraping 2:** October 2023 (`2023-10-01`) — tested and found non-significant
+  (p = 0.258, ΔAIC = +0.66); not retained in final ANCOVA model
+- **Impact wells (3):** FE2, FE4, WMC3
+- **Edge wells (8):** FE1, FE3, CEH31, LIS1, CEH20, CEH30, CEH16, NW8B
+- **Control wells (8):** CEH32, CEH34, CEH33, NW10, CEH19, CEH9, NW7, NW6
+
+**Three-era BACI:** Pre-scraping (< Apr 2015), post-scraping pre-felling
+(Apr 2015 – Dec 2017), post-felling (≥ Dec 2017). The post-felling era is
+further split at Oct 2023 into pure clearfell (Dec 2017 – Sep 2023) and
+post-Oct-2023-scraping sub-eras.
+
+**ANCOVA-BACI (Model 2):** Climate correction via cumulative water balance
+covariate. The water balance baseline (`WB_BASELINE_MM`) is computed
+dynamically from the well-record period (first well date to end of climate
+record) as the mean monthly (P − PET) in mm/month, ensuring the baseline
+is tied to the study period rather than hardcoded. The model includes:
+`impact = intercept + b_cwb·cum_wb + b_scraping·Scraped + b_post·Post + b_interaction·(cwb×Post)`.
+Climate-corrected BACI removes the cwb and interaction effects; the
+corrected CUSUM is computed relative to the post-scraping baseline.
+
+**SSM specification:** Uses lag-1 rainfall (`P_m_lag1`), consistent with
+`HEADLINE_LAG = 1` in Script 03. No-intercept OLS.
 
 **Produces (outputs/10_clearfell_baci/):**
 
 | File | Type | Paper destination |
 |---|---|---|
-| `10_cfell_04_diagnostic_drainage_data.csv` | Data | Diagnostic/reproducibility |
-| `10_cfell_05_baci_statistical_verification.csv` | Data | Paper Sections 4.6.2, 4.6.3 |
-| `10_cfell_06_full_parameters.csv` | Data | Paper Section 4.6.5, Figure caption |
-| `10_cfell_08_baci_timeseries_plotdata.csv` | Data | Paper Section 4.6.2 |
-| `10_cfell_09_table5_beta3_before_after.csv` | Table | **Paper Table 5** |
-| `10_cfell_09b_climate_corrected_cusum.csv` | Data | Paper Section 4.6.3 verification |
+| `10_cfell_04_diagnostic_drainage_data.csv` | Data | Diagnostic/reproducibility — per-well drainage component |
+| `10_cfell_05_baci_statistical_verification.csv` | Data | Paper Sections 4.6.2, 4.6.3 — per-well β₃ CIs + BACI summary rows |
+| `10_cfell_06_full_parameters.csv` | Data | Paper Section 4.6.5 — β₁, β₂, β₃ + CIs per well, Before/After/After_Scrape2 |
+| `10_cfell_07_coefficient_slopes.csv` | Data | Coefficient slope summary |
+| `10_cfell_08_baci_timeseries_plotdata.csv` | Data | Paper Section 4.6.2 — raw BACI time series for plotting |
+| `10_cfell_09_table5_beta3_before_after.csv` | Table | **Paper Table 5** — before/after β₃ with delta and significance by zone |
+| `10_cfell_09b_climate_corrected_cusum.csv` | Data | Paper Section 4.6.3 — climate-corrected CUSUM verification |
 | `10_cfell_11_nw10_broadleaf_trend.csv` | Data | **Paper Section 4.6.8** — NW10 broadleaf anomaly and OLS trend |
-| `10_cfell_01_dual_control_baci.png` | Figure | **Figure 22** (ANCOVA-BACI) |
-| `10_cfell_01b_raw_baci.png` | Figure | **Figure 21** (raw BACI) |
-| `10_cfell_02_drainage_diagnostic_part1.png` | Figure | Supplementary / public repo |
-| `10_cfell_02_drainage_diagnostic_part2.png` | Figure | Supplementary / public repo |
-| `10_cfell_03_beta3_ols_slopes.png` | Figure | **Figure 24** (SSM coefficient shifts) |
-| `10_cfell_10_clearfell_transect.png` | Figure | **Figure 23** (spatial transect) |
-| `10_cfell_10_clearfell_transect_steps.csv` | Data | Paper Section 4.6.4 verification |
+| `10_cfell_01_dual_control_baci.png` | Figure | **Figure 22** (4-panel ANCOVA-BACI: cum WB, corrected BACI, CUSUM, scatter) |
+| `10_cfell_01b_raw_baci.png` | Figure | **Figure 21** (3-panel raw BACI: hydrographs, displacement, CUSUM) |
+| `10_cfell_02_drainage_diagnostic_part{n}.png` | Figure | Supplementary — drainage component scatter (Before vs After) per well, 8 wells per page |
+| `10_cfell_03_beta3_ols_slopes.png` | Figure | **Figure 24** (SSM coefficient shifts: 3-row × 2-col, zone-grouped whisker + Δ inset) |
+| `10_cfell_10_clearfell_transect.png` | Figure | **Figure 23** (3-panel spatial transect: hydrographs, anomaly, step bar chart) |
+| `10_cfell_10_clearfell_transect_steps.csv` | Data | Paper Section 4.6.4 — per-well step changes and distances |
+
+**Table 5 construction:** `export_table5_summary()` combines `After` and
+`After_Scrape2` periods into a single post-felling estimate by pooling
+observations. Zone assignments (Core Impact, Edge Zone, Regional Ctrl) are
+hard-coded in the function. Well order follows the spatial progression from
+core through edge to regional control.
+
+**Transect analysis:** Six wells from plantation interior to dune edge
+(CEH2 414m, CEH34 285m, CEH16 191m, CEH20 186m, NW8B 184m, WMC3 92m —
+distances from clearfell centroid E=241177, N=363645). Post-felling step
+change vs scrape-era baseline is spatially uniform across all wells with no
+distance gradient, consistent with a climate baseline effect rather than a
+clearfell-specific gradient.
+
+**NW10 broadleaf trend analysis (Section 4.6.8):** Compares NW10 normalised
+summer minimum anomaly (Jun–Sep max depth) against a pine interior composite
+(CEH2, CEH32, CEH33, CEH34). OLS trend fitted over 2019–2025. The bramble-
+dominated phase (2010–2021) is used for the full-record mean anomaly.
+
+**SSM coefficient shifts figure:** Three-row figure (β₁, β₂, β₃) with
+zone-grouped whisker plots (Impact/Edge/Control). Each panel shows
+per-well Before (open circle) vs After (filled square) with 95% CIs, plus
+a summary inset with bootstrapped zone-mean delta ± 95% CI.
 
 **Key verified numbers from this script (8-well control pool):**
 - Raw BACI pre-scraping: −0.107 m; post-scraping: −0.325 m; post-felling: −0.370 m
@@ -473,6 +641,13 @@ spatial transect analysis, and NW10 broadleaf trend analysis.
 - Transect step changes (post-fell vs scrape era): WMC3 +0.142 m, NW8B +0.127 m, CEH20 +0.108 m, CEH16 +0.026 m, CEH34 +0.094 m, CEH2 +0.130 m — no distance gradient
 - NW10 broadleaf anomaly vs pine composite (CEH2, CEH32, CEH33, CEH34), mean 2010–2021: +0.267 m
 - NW10 trend 2019–2025: −11.2 mm/yr, p = 0.094, n = 7 (non-significant)
+- Oct 2023 scraping term: coef = −0.031 m, p = 0.258, ΔAIC = +0.66 — not retained in final model
+
+**Note:** `RAF_VALLEY_LAT_DEG` is set to 53.25° in this script for the
+Thornthwaite PET day-length correction. The confirmed latitude for RAF
+Valley climate station is 53.15°N (per Martin); this value is used only
+as a fallback when the script reads raw climate data directly rather than
+pipeline `01_climate.csv`.
 
 ---
 
@@ -657,7 +832,7 @@ and colour dicts.
 ## Script 19 — Hydrological Scenario Viewer
 
 Script 19 is a **standalone self-contained HTML scenario viewer**. It is not
-part of the numbered 23-step pipeline. It reads pipeline outputs directly and
+part of the numbered 26-step pipeline. It reads pipeline outputs directly and
 generates an interactive browser-based tool for exploring management and climate
 scenarios. Run separately via option 4 in the interactive menu, or
 `python run_analysis.py --viewer`.
@@ -678,11 +853,11 @@ scenario Δh dynamically in JavaScript, and outputs a single HTML file.
 
 **Scenario parameters (JavaScript, computed per-well dynamically):**
 - baseline: sP=1.00, sPET=1.00, sI=FOREST_INTERCEPTION(0.24), sB2=1.00
-- ukcp18_2050s: sP_w=1.10, sP_s=0.85, sPET_w=1.05, sPET_s=1.20, sI=0.24, sB2=1.00
-- ukcp18_2080s: sP_w=1.20, sP_s=0.70, sPET_w=1.10, sPET_s=1.35, sI=0.24, sB2=1.00
-- clearfell: sI=0 (interception removed), sB2=1.20 (β₂ ×1.20)
-- thinning: sI=FOREST_INTERCEPTION×0.5, sB2=1.10
-- broadleaf: sI=BROADLEAF_INTERCEPTION(0.15), sB2=1.00
+- climate_dry: sP=0.90 (−10% P), sPET=1.10 (+10% PET)
+- climate_wet: sP=1.10 (+10% P), sPET=1.00 (PET unchanged — conservative)
+- clearfell: sI=0 (interception removed), sB2=1.35 (β₂ ×1.35)
+- thinning: sI=FOREST_INTERCEPTION×0.5, sB2=1.15
+- broadleaf: sI=BROADLEAF_INTERCEPTION(0.25), sB2=1.45
 
 **Δh sign convention:** positive = water table deepens (drier); negative = shallower (wetter)
 
@@ -726,100 +901,6 @@ intervention analysis sections of the report.
 - Edge zone: FE1, FE3, CEH20, CEH30, CEH16, NW8B
 - Forest interior: CEH2, CEH13, CEH32, CEH33, CEH34
 - Regional control: CEH19, NW10, CEH31, LIS1
-
----
-
-## Script 22 — Residual Lag Analysis (supplementary)
-**Purpose:** Fits Model B (with free intercept) to all reference wells and
-examines AR(1) structure in the SSM residuals. Tests whether spatial
-patterns in residual autocorrelation correlate with hydrogeological
-position. Not included in the automated pipeline (`run_analysis.py`);
-run manually as needed.
-
-**Reads:**
-- `outputs/01_wells_clean.csv`
-- `outputs/01_climate.csv`
-- `outputs/01_locations.csv`
-- `outputs/02_cluster_stats.csv`
-
-**Produces (intermediate):**
-
-| File | Description |
-|---|---|
-| `22_residuals_wide.csv` | Per-well Model B residual time series (wide format) |
-| `22_model_b_fits.csv` | Per-well Model B fit statistics |
-
-**Produces (figures — outputs/22_residual_lag_analysis/):**
-
-| File | Type | Description |
-|---|---|---|
-| `22_01_ar1_histogram.png` | Figure | AR(1) φ distribution across wells |
-| `22_02_ar1_spatial_map.png` | Figure | Spatial map of AR(1) coefficients |
-| `22_03_alpha_phi_scatter.png` | Figure | Intercept α vs AR(1) φ scatter |
-| `22_04_example_residuals_by_cluster.png` | Figure | Example residual series per cluster |
-
----
-
-## Script 23 — Ridge-Recharge Lag Test (supplementary)
-**Purpose:** Tests whether recharge from the ridge (higher-elevation
-bedrock boundary) arrives with a one-month lag at lowland wells. Fits an
-extended SSM with P(t) and P(t−1) as separate predictors. Examines
-whether the lagged-rainfall coefficient β₁₁ increases with distance
-from the ridge. Not included in the automated pipeline; run manually.
-
-**Reads:**
-- `outputs/01_wells_clean.csv`
-- `outputs/01_climate.csv`
-- `outputs/01_locations.csv`
-- `outputs/02_cluster_stats.csv`
-
-**Produces (intermediate):**
-
-| File | Description |
-|---|---|
-| `23_residuals_extended_wide.csv` | Per-well extended-model residuals (wide format) |
-| `23_ridge_lag_fits.csv` | Per-well β₁₀, β₁₁ fit statistics |
-
-**Produces (figures — outputs/23_ridge_recharge_lag_test/):**
-
-| File | Type | Description |
-|---|---|---|
-| `23_01_ccf_headline_ridge_wells.png` | Figure | CCF for headline ridge-proximate wells |
-| `23_02_peak_lag_vs_ridge_distance.png` | Figure | Peak lag vs distance from ridge |
-| `23_03_peak_lag_spatial_map.png` | Figure | Spatial map of peak CCF lag |
-| `23_04_b10_b11_by_cluster.png` | Figure | β₁₀ vs β₁₁ by cluster |
-| `23_05_hypothesis_test_summary.txt` | Text | Hypothesis test results |
-
----
-
-## Script 24 — Residual Seasonality Diagnostic (supplementary)
-**Purpose:** Examines seasonal structure in SSM residuals to identify
-systematic model bias (e.g. underestimating summer ET or overestimating
-winter recharge). Tests correlation between residual amplitude and RAF
-Valley sunshine hours. Not included in the automated pipeline; run manually.
-
-**Reads:**
-- `outputs/01_wells_clean.csv`
-- `outputs/01_climate.csv`
-- `outputs/01_locations.csv`
-- `outputs/02_cluster_stats.csv`
-- `data/RAF_Valley_Climate.csv` ← sunshine hours column (not in 01_climate.csv)
-
-**Produces (intermediate):**
-
-| File | Description |
-|---|---|
-| `24_residual_climatology.csv` | Per-well monthly-mean residual climatology |
-
-**Produces (figures — outputs/24_residual_seasonality/):**
-
-| File | Type | Description |
-|---|---|---|
-| `24_01_climatology_panels_by_cluster.png` | Figure | Monthly residual climatology per cluster |
-| `24_02_seasonal_amplitude_map.png` | Figure | Spatial map of residual seasonal amplitude |
-| `24_03_sun_residual_correlation.png` | Figure | Sunshine hours vs residual correlation |
-| `24_04_phase_by_cluster.png` | Figure | Residual phase (peak month) by cluster |
-| `24_05_diagnostic_summary.txt` | Text | Diagnostic summary statistics |
 
 ---
 
@@ -1097,7 +1178,7 @@ rule, Sy values, and list of stale dicts requiring regeneration.
 - Scripts 19a and 19b retired; script 19 now a standalone scenario viewer
   six scenarios across ten water balance and head fields. Maps are auto-scaled
   from well-level p5–p95 Δ values; maps below a per-field threshold are omitted.
-- Climate scenario parameters: ukcp18_2050s sP_w=1.10/sP_s=0.85/sPET_w=1.05/sPET_s=1.20; ukcp18_2080s sP_w=1.20/sP_s=0.70/sPET_w=1.10/sPET_s=1.35
+- Climate scenario parameters: climate_dry sP=0.90/sPET=1.10; climate_wet sP=1.10/sPET=1.00
   Baseline Maps, Seasonal Profiles. Produces both a standalone base64-embedded
   viewer and a lightweight linked viewer for GitHub Pages.
 - Colour convention: red = drier/more than baseline; blue = wetter/less.
@@ -1220,55 +1301,3 @@ rule, Sy values, and list of stale dicts requiring regeneration.
 | Figure 30: Head surface + streams | 20 | `20_head_surface_streams.png` |
 | Figure 31: SSM residual | 20 | `20_residual_ssm.png` |
 | Figure 32: Synthetic hydrograph | 21 | `21_forestry_01_hydrograph.png` |
-
----
-
-## Data Consistency Audit (2026-04-26)
-
-### Known issues requiring attention before data extension
-
-**HIGH priority (would cause incorrect results or runtime errors):**
-
-1. ~~**RAF Valley latitude:**~~ Confirmed correct at 53.25°N. Scripts 09, 10 have
-   duplicate `thornthwaite_pet_m()` functions that should be removed (Script 10
-   should read `01_climate.csv` instead of re-deriving PET from raw data).
-
-2. **β₃ column name mismatch:** Script 03 exports `beta_3_drainage` in
-   `03_master_data.csv` but Scripts 17, 20, 21 read `beta_3_internal_brake`.
-   This will KeyError on a fresh pipeline run.
-
-3. **Script 10 re-derives PET from raw climate** rather than reading
-   `01_climate.csv`. The duplicate PET will diverge from the pipeline
-   when the latitude is corrected or raw data is extended.
-
-**MEDIUM priority (reviewer flags / maintenance hazards):**
-
-4. **`FOREST_INTERCEPTION = 0.24`** hardcoded in six scripts (16–21).
-   Should be centralised in `config.py`.
-
-5. **`REFERENCE_CUTOFF_DATE`** defined in config but not imported by
-   Scripts 00, 01, 02 (which hardcode their own copies).
-
-6. **Script 09 reads `DATA_WELLS_RAW` directly,** bypassing Script 01's QC.
-
-7. **Scripts 22, 23, 24** are not in `run_analysis.py` and were previously
-   undocumented in this README (now documented above).
-
-### Constants that should be centralised in `config.py`
-
-| Constant | Current value | Currently in |
-|---|---|---|
-| `REFERENCE_CUTOFF_DATE` | "2026-02-01" | config (unused by 00, 01, 02) |
-
-### `|h|` vs displacement formulation
-
-Script 20 uses `abs(maOD)` for the β₃ drainage term in its water balance
-residual map, but β₃ was fitted against displacement (`h_disp = DRAINAGE_DATUM + h`)
-in Script 03. This makes the residual map systematically wrong. **Fix required.**
-
-Script 19 also uses `abs(h)` in its scenario computation, but the drainage term
-appears identically in both baseline and scenario, so it cancels in the difference.
-No fix needed.
-
-Script 17 does not multiply β₃ by a head value in its Sy calculation (Healy & Cook
-method works with Δh and P, not absolute head). No fix needed.

@@ -779,7 +779,10 @@ try:
     _ax1.set_ylabel('CEH36 − reference (m)')
     _ax1.set_title('(a) Raw BACI and synthetic control gap series',
                    loc='left', fontweight='bold', fontsize=10)
-    _ax1.legend(loc='lower left', fontsize=8, framealpha=0.9)
+    _ax1.legend(loc='lower left', fontsize=8, framealpha=0.9, ncol=2)
+    # Extend negative y to give legend clearance
+    _a_lo, _a_hi = _ax1.get_ylim()
+    _ax1.set_ylim(_a_lo - 0.08, _a_hi)
     _ax1.grid(axis='y', alpha=0.25)
     _ax1.spines['top'].set_visible(False)
     _ax1.spines['right'].set_visible(False)
@@ -810,6 +813,9 @@ try:
     _ax2.set_title('(b) SSM forward residual at CEH36 — calibrated on pre-2015 baseline',
                    loc='left', fontweight='bold', fontsize=10)
     _ax2.legend(loc='lower left', fontsize=7, framealpha=0.9, ncol=3)
+    # Extend negative y to give legend clearance
+    _b_lo, _b_hi = _ax2.get_ylim()
+    _ax2.set_ylim(_b_lo - 0.08, _b_hi)
     _ax2.grid(axis='y', alpha=0.25)
     _ax2.spines['top'].set_visible(False)
     _ax2.spines['right'].set_visible(False)
@@ -834,9 +840,12 @@ try:
                   fontsize=9, fontweight='bold')
 
     _ax3.axhline(0, color='black', lw=0.8)
-    _ax3.set_ylabel('Pure Scraping era step change (m)')
+    _ax3.set_ylabel('Pure Scraping era\nstep change (m)')
     _ax3.set_title('(c) Pure Scraping era step change — three independent methods',
                    loc='left', fontweight='bold', fontsize=10)
+    # Extend y-axis so bar annotations don't collide with panel title
+    _ymax = max(_values) if max(_values) > 0 else 0.15
+    _ax3.set_ylim(min(min(_values), 0) - 0.01, _ymax * 1.35)
     _ax3.spines['top'].set_visible(False)
     _ax3.spines['right'].set_visible(False)
     _ax3.grid(axis='y', alpha=0.2)
@@ -845,6 +854,8 @@ try:
         'CEH36 Scraping Robustness Analysis — Three Independent Methods\n'
         'Newborough Warren 2005–2026',
         fontsize=11, fontweight='bold', y=0.975)
+    # Ensure y-axis labels aren't clipped
+    _fig.subplots_adjust(left=0.12)
 
     plt.savefig(OUT_09_ROBUSTNESS, bbox_inches='tight', dpi=300)
     plt.close()

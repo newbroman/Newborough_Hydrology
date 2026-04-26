@@ -37,7 +37,7 @@ from utils.paths import (
     INT_MASTER_DATA,
     INT_CLUSTER_STATS,
     INT_LCSC_MODEL_STATS,
-    OUT_08_CEH19_WITH_MODEL_B,
+    OUT_08_SHOWDOWN,
     OUT_08_R2_MAP,
     OUT_08_NSE_MAP,
     OUT_08_TABLE3_SUMMARY,
@@ -263,8 +263,8 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate):
     return base_row, payload
 
 
-def plot_ceh19_showdown(output_path, payload):
-    """Dual-panel TLM vs SSM showdown for CEH19 (or any target well)."""
+def plot_showdown(output_path, payload):
+    """Dual-panel TLM vs SSM showdown for a target well."""
     fig, (ax_top, ax_bottom) = plt.subplots(2, 1, figsize=(14, 10), dpi=300, sharex=True)
     well_label = payload.get('well_label', 'TARGET')
 
@@ -542,7 +542,7 @@ def export_table3_summary(ok_df: pd.DataFrame, output_path: Path) -> None:
         rows = ok_df[ok_df['Well_Normalized'].astype(str).str.lower() == well_norm]
         return rows.iloc[0] if len(rows) else None
 
-    ceh19 = _well_row('ceh19')
+    ceh6 = _well_row('ceh6')
 
     rows = [
         {
@@ -576,10 +576,10 @@ def export_table3_summary(ok_df: pd.DataFrame, output_path: Path) -> None:
             'Delta_B_minus_A': round(float(best_row['Iterative_NSE_Improvement']), 2),
         },
         {
-            'Metric': 'CEH19 iterative NSE',
-            'Traditional_Model_A': round(float(ceh19['Iterative_NSE_Traditional']), 2) if ceh19 is not None else np.nan,
-            'StateSpace_Model_B': round(float(ceh19['Iterative_NSE_StateSpace']), 2) if ceh19 is not None else np.nan,
-            'Delta_B_minus_A': round(float(ceh19['Iterative_NSE_Improvement']), 2) if ceh19 is not None else np.nan,
+            'Metric': 'CEH6 iterative NSE',
+            'Traditional_Model_A': round(float(ceh6['Iterative_NSE_Traditional']), 2) if ceh6 is not None else np.nan,
+            'StateSpace_Model_B': round(float(ceh6['Iterative_NSE_StateSpace']), 2) if ceh6 is not None else np.nan,
+            'Delta_B_minus_A': round(float(ceh6['Iterative_NSE_Improvement']), 2) if ceh6 is not None else np.nan,
         },
     ]
 
@@ -641,14 +641,16 @@ if __name__ == '__main__':
 
     # Generate detailed dual-panel plots for selected manuscript wells
 
-    # CEH19 dual-panel showdown: TLM vs SSM
-    _, ceh19_payload = compute_showdown_metrics('ceh19', wells_clean, climate)
-    if ceh19_payload is not None:
-        showdown_path = OUT_08_CEH19_WITH_MODEL_B
-        plot_ceh19_showdown(showdown_path, ceh19_payload)
-        print(f" -> Saved CEH19 showdown: {showdown_path.name}")
+    # CEH6 dual-panel showdown: TLM vs SSM
+    # CEH6 chosen as showcase: TLM drifts to NSE = -1.15 while SSM holds at +0.63,
+    # the largest iterative NSE improvement on site (Δ = +1.78).
+    _, ceh6_payload = compute_showdown_metrics('ceh6', wells_clean, climate)
+    if ceh6_payload is not None:
+        showdown_path = OUT_08_SHOWDOWN
+        plot_showdown(showdown_path, ceh6_payload)
+        print(f" -> Saved CEH6 showdown: {showdown_path.name}")
     else:
-        print("  [WARNING] Could not build CEH19 showdown (missing CEH19 payload).")
+        print("  [WARNING] Could not build CEH6 showdown (missing CEH6 payload).")
 
     # Join metrics with coordinates for map visualizations
     if MASTER_PATH.exists():

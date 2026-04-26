@@ -33,7 +33,7 @@ PHASE_2 = [
     ("06_pearson_extended.py",  " 6/26  Pearson extended network integration"),
 ]
 PHASE_3 = [
-    ("07_boundary_intercept.py",      " 7/26  Site-wide intercept audit"),
+    ("07_spatial_coefficients.py",     " 7/26  Spatial coefficient mapping"),
     ("08_model_benchmarking.py",      " 8/26  Model benchmarking (LCSC vs Traditional)"),
     ("09_scraping_intervention.py",   " 9/26  Scraping intervention BACI"),
     ("10_clearfell_baci.py",          "10/26  Clear-fell BACI analysis"),
@@ -241,7 +241,7 @@ def build_viewer() -> None:
 INTRO = """\
   97-well dipwell network · Newborough Warren NNR (Isle of Anglesey SAC)
   Monitoring period 2005–2026 · State Space Model with β₁/β₂/β₃ coefficients
-  Six hydrogeological clusters (C1–C6) · Ward's linkage hierarchical clustering
+  Five hydrogeological clusters (C1–C5) · Ward's linkage hierarchical clustering
   Hollingham (2026) · Journal of Hydrology: Regional Studies
 """
 

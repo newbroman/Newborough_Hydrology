@@ -34,7 +34,7 @@ outputs/                       ← all generated outputs
   04_cluster_visualisations/
   05_pearson_affinity/
   06_pearson_extended/
-  07_boundary_intercept/
+  07_spatial_coefficients/
   08_model_benchmarking/
   09_scraping_intervention/
   10_clearfell_baci/
@@ -54,7 +54,7 @@ utils/                         ← shared utility modules
   config.py                    ← cluster colours, labels
   data_utils.py                ← cleaning, normalisation functions
   map_utils.py                 ← DEM, KML, basemap helpers
-  model_utils.py               ← SSM fitting helpers, intercept audit (displacement formulation)
+  model_utils.py               ← SSM fitting helpers (displacement formulation)
   paths.py                     ← all path constants
 ```
 
@@ -67,7 +67,7 @@ utils/                         ← shared utility modules
 | `Newborough_Cleaned_For_Model.csv` | Raw dipwell records | 01, 09, 10 |
 | `Well_locations_height.csv` | Well coordinates and pipe-top elevations | 01 |
 | `RAF_Valley_Climate.csv` | Monthly rainfall and temperature | 01, 09, 10 |
-| DEM `.tif` files | LiDAR Digital Terrain Model (NRW, 2023) | 04, 05, 06, 07, 08, 12, 13 |
+| DEM `.tif` files | LiDAR Digital Terrain Model (NRW, 2023) | 04, 05, 06, 07, 08, 11b, 12, 13, 19, 20 |
 | KML boundary files | Site features (clearfell, hydro boundaries) | 04, 12, 13 |
 | `broadleaf_restock.kml` | 1993/1996 broadleaf restocking block boundary; geometry also embedded in `Features.kml` | 12, 13 |
 | `streams.kml` | SAGA-derived stream network (2×2 m cells, 9,847 cells) | 19, 20 |
@@ -126,12 +126,12 @@ splits into reference and extended networks, exports upstand lookup.
 
 | File | Description | Used by |
 |---|---|---|
-| `01_climate.csv` | Monthly P and PET (Thornthwaite) | 00, 02, 03, 07, 08, 11 |
-| `01_wells_clean.csv` | QC'd depth-to-water, all wells (negative convention) | 00, 02, 03, 05, 07, 08 |
+| `01_climate.csv` | Monthly P and PET (Thornthwaite) | 00, 02, 03, 08, 11 |
+| `01_wells_clean.csv` | QC'd depth-to-water, all wells (negative convention) | 00, 02, 03, 05, 08 |
 | `01_wells_reference.csv` | Reference network (66 wells; ≥100 months, to Feb 2026) | 02, 08 |
 | `01_wells_extended.csv` | Extended network (shorter/earlier records) | 06 |
 | `01_locations.csv` | Well coordinates and elevations | 03, 04, 05, 06, 07, 08, 12, 13 |
-| `01_well_elevations.csv` | Upstand heights and pipe-top elevations | 03 |
+| `01_well_elevations.csv` | Upstand heights and pipe-top elevations | 03, 07 |
 | `01_wells_clean_maod.csv` | QC'd heads in mAOD, all wells with elevation data | 03, 21 |
 
 **Reference-network exclusions:** The 66-well reference network is defined
@@ -417,34 +417,42 @@ cluster centroids. Produces integrated site-wide affinity map.
 
 ---
 
-## Script 07 — Boundary Intercept Audit
-**Purpose:** Compares Model A (intercept = 0) vs Model B (free intercept) for
-all 66 reference wells. Both models use the displacement formulation
-(`h_disp = DRAINAGE_DATUM + h_depth`) and lag-1 rainfall, matching Script 03.
-Maps spatial pattern of water balance residuals and NSE improvement. Identifies
-tidal, lacustrine and ridge-front boundary wells.
+## Script 07 — Spatial Coefficient Mapping
+**Purpose:** Maps the per-well SSM coefficients (β₁ recharge sensitivity,
+β₂ atmospheric draw, β₃ drainage rate) from `03_master_data.csv` across the
+site as IDW-interpolated surfaces over a DEM hillshade. Shows how the three
+mechanistic processes vary spatially.
+
+This script replaces the former `07_boundary_intercept.py`. The old intercept
+audit (Model A vs Model B with/without a fitted constant) was superseded by
+the displacement formulation: with the SSM fitting well across all clusters
+(Script 08 median iterative NSE = 0.77), direct coefficient mapping reveals
+the spatial structure more clearly than the intercept residual did.
+
+**Units:**
+- β₁: mm / mm rainfall (dimensionless — water-table rise per unit rainfall)
+- β₂: mm / mm PET (dimensionless — water-table decline per unit PET)
+- β₃: month⁻¹ (fractional drainage per timestep)
 
 **Reads:**
-- `outputs/01_wells_clean.csv`
-- `outputs/01_climate.csv`
-- `outputs/03_master_data.csv`
-- `outputs/02_cluster_stats.csv`
+- `outputs/03_master_data.csv` ← per-well SSM coefficients, cluster, coordinates
+- `outputs/01_well_elevations.csv` ← DEM ground elevations (for ridge masking)
 
 **Produces (intermediate):**
 
 | File | Description | Used by |
 |---|---|---|
-| `07_intercept_metrics.csv` | Per-well Model A vs B comparison | Paper Section 4.4.2 |
-| `07_intercept_maps_merged_data.csv` | Spatial data for maps | Paper figures |
-| `07_intercept_ceh14_showdown_data.csv` | CEH14 model comparison time series | Paper Figure |
+| `07_coefficient_summary.csv` | Cluster-level β statistics (mean, std, range) | Paper Section 4.4 |
+| `07_coeff_maps_data.csv` | Per-well spatial data for maps | Paper figures |
 
-**Produces (figures — outputs/07_boundary_intercept/):**
+**Produces (figures — outputs/07_spatial_coefficients/):**
 
 | File | Type | Paper destination |
 |---|---|---|
-| `07_intercept_01_ceh14_showdown.png` | Figure | Figure 10 (CEH14 comparison) |
-| `07_intercept_02_plumbing_map.png` | Figure | Figure 11a (intercept map) |
-| `07_intercept_03_nse_penalty_map.png` | Figure | Figure 11b (NSE effect map) |
+| `07_coeff_01_beta1_recharge.png` | Figure | β₁ recharge sensitivity surface |
+| `07_coeff_02_beta2_atm_draw.png` | Figure | β₂ atmospheric draw surface |
+| `07_coeff_03_beta3_drainage.png` | Figure | β₃ drainage rate surface (log scale) |
+| `07_coeff_04_r2_quality.png` | Figure | Per-well R² model quality surface |
 
 ---
 
@@ -882,7 +890,7 @@ intervention analysis sections of the report.
 **Reads:**
 - `outputs/03_master_data.csv` ← SSM coefficients and cluster assignments
 - `outputs/03_cluster_averages_maod.csv` ← cluster mean heads in maOD (from script 03)
-- `outputs/INT_INTERCEPT_METRICS` ← boundary intercept metrics (from script 07)
+- `outputs/07_coefficient_summary.csv` ← cluster-level β summary (from script 07)
 - `outputs/01_climate.csv` ← climate record (from script 01)
 - `data/Newborough_Cleaned_For_Model.csv` ← raw dipwell records (direct)
 - `data/Well_locations_height.csv` ← well coordinates and pipe-top elevations (direct)
@@ -920,18 +928,18 @@ RAW DATA
 └── RAF_Valley_Climate.csv ─────────────→ 01 ──→ 09, 10 (direct)
 
 SCRIPT 01 outputs
-├── 01_climate.csv ─────────────────────→ 00, 02, 03, 07, 08, 11
-├── 01_wells_clean.csv ─────────────────→ 00, 02, 03, 05, 07, 08
+├── 01_climate.csv ─────────────────────→ 00, 02, 03, 08, 11
+├── 01_wells_clean.csv ─────────────────→ 00, 02, 03, 05, 08
 ├── 01_wells_reference.csv ─────────────→ 02, 08
 ├── 01_wells_extended.csv ──────────────→ 06
-├── 01_locations.csv ───────────────────→ 03, 04, 05, 06, 07, 08, 12, 13
-└── 01_well_elevations.csv ─────────────→ 03
+├── 01_locations.csv ───────────────────→ 03, 04, 05, 06, 08, 12, 13
+└── 01_well_elevations.csv ─────────────→ 03, 07
 
 SCRIPT 02 outputs
-└── 02_cluster_stats.csv ───────────────→ 03, 04, 05, 06, 07, 08, 13
+└── 02_cluster_stats.csv ───────────────→ 03, 04, 05, 06, 08, 13
 
 SCRIPT 03 outputs
-├── 03_master_data.csv ─────────────────→ 07, 08, 10, 16, 17, 18, 19, 21
+├── 03_master_data.csv ─────────────────→ 07, 08, 10, 16, 17, 18, 19, 21, 21
 ├── 03_regional_averages.csv ───────────→ 11, 14, 16
 ├── 03_cluster_averages_maod.csv ───────→ 21
 ├── 03_cluster_peak_months.csv ─────────→ 11, 11b
@@ -1290,8 +1298,9 @@ rule, Sy values, and list of stale dicts requiring regeneration.
 | Figure 11: Cluster map | 06 | `06_pear_02_integration_map.png` |
 | Figure 12: CEH6 TLM vs SSM | 08 | `08_lcsc_01_ceh6_showdown.png` |
 | Figure 13: SSM gain over TLM | 08 | `08_lcsc_02_r2_improvement_map.png` |
-| Figure 14: CEH14 model fit | 07 | `07_intercept_01_ceh14_showdown.png` |
-| Figure 15: Boundary intercepts | 07 | `07_intercept_02_plumbing_map.png` |
+| Figure 14: β₁ recharge map | 07 | `07_coeff_01_beta1_recharge.png` |
+| Figure 15: β₂ atmospheric draw map | 07 | `07_coeff_02_beta2_atm_draw.png` |
+| Figure 15b: β₃ drainage map | 07 | `07_coeff_03_beta3_drainage.png` |
 | Figure 16: Tier 1 CUSUM | 09 | `09_scrape_05_tier1_background_drift.png` |
 | Figure 17: Tier 2 scraping signal | 09 | `09_scrape_06_tier2_scraping_signal.png` |
 | Figure 18: β₃ era coefficients | 09 | `09_scrape_07_beta3_confidence.png` |

@@ -117,7 +117,7 @@ colours and labels are centralised in `src/utils/config.py`.
 |-------|---------|-------|---------|
 | 1 | 01–04 | 1–4 | Core LCSC chain |
 | 2 | 05–06 | 5–6 | Pearson membership audit and extended network integration |
-| 3 | 07–11, 11b | 7–12 | Model diagnostics, intercept audit, scraping and clearfell BACI, forecasting, spatial threshold maps |
+| 3 | 07–11, 11b | 7–12 | Spatial coefficient mapping, model benchmarking, scraping and clearfell BACI, forecasting, spatial threshold maps |
 | 4 | 00, 14, 12–13 | 13–16 | Climate summary, trajectory projections, GIS figures |
 | 5 | 15 | 17 | Depth-dependent PET analysis |
 | 6 | 17 | 18 | WTF cluster Sy estimation |

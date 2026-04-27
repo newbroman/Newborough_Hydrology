@@ -573,7 +573,7 @@ def load_well_data() -> pd.DataFrame:
             "depth_bg": adj_dem - mean_sm,
             "scraped":  wn in SCRAPED,
             "network":  "Reference",
-            # Per-well SSM coefficients from Script 03 (lag-1, m/m units).
+            # Per-well SSM coefficients from Script 03 (HEADLINE_LAG, m/m units).
             # Converted to m/mm (÷ 1000) at point of use by P_flood routines.
             "well_b1_mm":  float(mrow["beta_1_recharge"]),          # m/m
             "well_b2_mm":  float(mrow["beta_2_atmospheric_draw"]),  # m/m
@@ -974,7 +974,7 @@ def plot_pflood_map(df: pd.DataFrame, dpi: int = 300) -> None:
     P_flood = cumulative winter rainfall (mm) required to raise the water
     table from each well's mean summer minimum to the slack-floor target
     (h_target = 0 m), using each well's OWN per-well SSM coefficients
-    (lag-1, from Script 03's 03_master_data.csv) and the cluster-specific
+    (HEADLINE_LAG, from Script 03's 03_master_data.csv) and the cluster-specific
     horizon from October to historical peak month.
 
     Wells are excluded from the map if:

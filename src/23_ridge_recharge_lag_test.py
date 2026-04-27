@@ -42,10 +42,11 @@ Purpose:
 
         DESIGN NOTE: The extended model deliberately includes both P(t) and P(t-1)
         to absorb the generic vadose-zone lag that Script 22 demonstrated. Now
-        that the headline model is lag-1, an alternative would be P(t-1) + P(t-2).
-        The current formulation (P(t) + P(t-1)) is retained pending a scientific
-        review of whether the two-month spanning window serves the same
-        absorb-the-generic-lag purpose regardless of the headline lag choice.
+        that the headline model uses HEADLINE_LAG from config, an alternative
+        would be to shift both terms accordingly. The current formulation
+        (P(t) + P(t-1)) is retained pending a scientific review of whether
+        the two-month spanning window serves the same absorb-the-generic-lag
+        purpose regardless of the headline lag choice.
         See MODEL_SPECIFICATION_AUDIT.md, Scientific Question B.
 
 Outputs:

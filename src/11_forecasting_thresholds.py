@@ -8,11 +8,10 @@ Purpose:
   (2026):
 
     SECTION 1 — Mechanistic State-Space Equations
-        Loads cluster-centroid lag-1 SSM coefficients from Script 03's
+        Loads cluster-centroid SSM coefficients from Script 03's
         mechanistic coefficients table (03_03_cluster_mechanistic_coefficients.csv)
         and converts from m/m to m/mm for downstream use. Reports coefficients
-        and p-values for the transcript. Previously fitted its own lag-0 OLS
-        on cluster-average hydrographs; superseded by Script 03's lag-1 fits.
+        and p-values for the transcript.
 
     SECTION 2 — Peak Flood Transfer Functions
         Constructs empirical transfer functions for the Eastern, Western, and
@@ -267,25 +266,23 @@ def run_state_space(df: pd.DataFrame) -> dict:
     Load cluster-level SSM coefficients from Script 03's mechanistic
     coefficients table (03_03_cluster_mechanistic_coefficients.csv).
 
-    Script 03 fits the lag-1 SSM to each cluster centroid hydrograph:
-        dh_t = b1*P_{t-1} - b2*PET_{t-1} - b3*h_{t-1}
+    Script 03 fits the SSM to each cluster centroid hydrograph:
+        dh_t = b1*P_t - b2*PET_t - b3*h_{t-1}
 
     with rainfall and PET in metres (P_m, PET_m) and head in metres,
     so b1 and b2 are in m/m (dimensionless).  This function converts
     them to m/mm (/ 1000) for consistency with the downstream P_flood
     closed form (Section 3), which uses climatological P and PET in mm.
 
-    Previously this function fitted its own lag-0 OLS on the cluster-
-    average hydrographs from 03_regional_averages.csv. That independent
-    fit produced weaker b1 values (lag-0 misses the 1-month recharge
-    delay) and is superseded by the Script 03 lag-1 centroid fits.
+    Coefficients are read from Script 03's output CSV; HEADLINE_LAG
+    (centralised in config.py) controls the lag used in the SSM fit.
 
     Returns:
         results_dict: {cluster_name: {beta1, beta2, beta3, r2, n}}
             b1, b2 in m/mm;  b3 dimensionless (positive).
     """
     print(sep("SECTION 1: MECHANISTIC STATE-SPACE EQUATIONS  (dh = b1*P - b2*PET - b3*h_prev)"))
-    print("  Cluster-centroid lag-1 coefficients from Script 03")
+    print("  Cluster-centroid SSM coefficients from Script 03")
     print(f"  Source: {OUT_03_MECHANISTIC_TABLE.name}\n")
 
     if not OUT_03_MECHANISTIC_TABLE.exists():

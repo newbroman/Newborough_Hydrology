@@ -123,7 +123,7 @@ def load_data():
     Converted to metres in-script for consistency with β units (m/m).
 
     Betas come from 03_cluster_mechanistic_coefficients.csv (centroid
-    headline fit at lag-1 with displacement datum). Column names:
+    headline fit with HEADLINE_LAG and displacement datum). Column names:
     beta_1, beta_2, beta_3, drainage_datum_m.
     """
     df = pd.read_csv(INT_REGIONAL_AVG, parse_dates=["Date"])

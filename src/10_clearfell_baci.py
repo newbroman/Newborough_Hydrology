@@ -21,7 +21,7 @@ The complete, peer-review-ready pipeline for the clear-felling experiment.
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
 from utils.paths import (
-    make_all_dirs, DATA_CLIMATE_RAW, DATA_WELLS_RAW, INT_WELLS_CLEAN, INT_WELLS_EXTENDED, DIR_10,
+    make_all_dirs, INT_WELLS_CLEAN, INT_WELLS_EXTENDED, DIR_10,
     INT_MASTER_DATA, INT_CLIMATE,
     OUT_10_DUAL_BACI,
     OUT_10_BETA3_SLOPES,
@@ -37,6 +37,7 @@ from utils.paths import (
     OUT_10_REPORT_NUMBERS,
 )
 from utils.data_utils import parse_met_date, clean_well_series, calculate_cusum
+from utils.config import DRAINAGE_DATUM
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -155,8 +156,8 @@ def export_table5_summary(stats_df: pd.DataFrame) -> None:
         b = before.loc[well] if well in before.index else None
         a = after.loc[well]  if well in after.index  else None
 
-        b3_before = float(b["beta_3_internal_brake"]) if b is not None else np.nan
-        b3_after  = float(a["beta_3_internal_brake"]) if a is not None else np.nan
+        b3_before = float(b["beta_3_drainage"]) if b is not None else np.nan
+        b3_after  = float(a["beta_3_drainage"]) if a is not None else np.nan
         delta     = (b3_after - b3_before
                      if not (np.isnan(b3_before) or np.isnan(b3_after))
                      else np.nan)
@@ -255,14 +256,12 @@ try:
         for col in wells.columns:
             wells[col] = clean_well_series(wells[col])
     else:
-        print('  [WARNING] Pipeline well files not found — falling back to raw file')
-        wells_raw = pd.read_csv(DATA_WELLS_RAW, header=1)
-        wells = wells_raw.set_index(wells_raw.columns[0]).transpose()
-        wells.index = pd.to_datetime(wells.index, dayfirst=True, errors='coerce').to_period('M').to_timestamp()
-        wells = wells.apply(pd.to_numeric, errors='coerce').groupby(level=0).mean()
-        wells.columns = wells.columns.str.lower().str.replace(' ', '')
-        for col in wells.columns:
-            wells[col] = clean_well_series(wells[col])
+        raise FileNotFoundError(
+            f"Script 01 outputs required but not found: "
+            f"{INT_WELLS_CLEAN.name} exists={INT_WELLS_CLEAN.exists()}, "
+            f"{INT_WELLS_EXTENDED.name} exists={INT_WELLS_EXTENDED.exists()}. "
+            "Run Script 01 (data_prep) before Script 10."
+        )
 
     # Load canonical LCSC03 master output (with backward-compatible fallback)
     master_candidates = [
@@ -392,9 +391,10 @@ for well in valid_targets:
     df['P_m_lag1'] = df['P_m'].shift(1)  # lag-1: water level reflects previous month's rainfall
     df['h_prev'] = df['h'].shift(1)
     df['Delta_h'] = df['h'] - df['h_prev']
+    df['h_disp_prev'] = DRAINAGE_DATUM + df['h_prev']  # displacement above drainage datum
     df = df.dropna()
 
-    X_base = pd.DataFrame({'beta_1_recharge': df['P_m_lag1'], 'beta_2_atmospheric_draw': -df['PET'], 'beta_3_internal_brake': -df['h_prev']})
+    X_base = pd.DataFrame({'beta_1_recharge': df['P_m_lag1'], 'beta_2_atmospheric_draw': -df['PET'], 'beta_3_drainage': -df['h_disp_prev']})
     res_base = sm.OLS(df['Delta_h'], X_base).fit()
     b1, b2 = res_base.params['beta_1_recharge'], res_base.params['beta_2_atmospheric_draw']
 
@@ -404,7 +404,7 @@ for well in valid_targets:
         df.index < intervention_date, 'Before',
         np.where(df.index < scraping_date_2, 'After', 'After_Scrape2')
     )
-    df['neg_h_prev'] = -df['h_prev']
+    df['neg_h_disp_prev'] = -df['h_disp_prev']
     
     all_data.append(df)
 
@@ -421,17 +421,17 @@ for well in [w.upper() for w in valid_targets]:
     for period in ['Before', 'After', 'After_Scrape2']:
         sub = diagnostic_df[(diagnostic_df['Well_Name'] == well) & (diagnostic_df['Period'] == period)].dropna()
         if len(sub) > 5:
-            X = sm.add_constant(sub['neg_h_prev'])
+            X = sm.add_constant(sub['neg_h_disp_prev'])
             model = sm.OLS(sub['Drainage_Component'], X).fit()
             
-            beta3 = model.params.get('neg_h_prev', np.nan)
-            conf_int = model.conf_int().loc['neg_h_prev']
+            beta3 = model.params.get('neg_h_disp_prev', np.nan)
+            conf_int = model.conf_int().loc['neg_h_disp_prev']
             
             stats_results.append({
                 'Well': well,
                 'Period': period,
-                'beta_3_internal_brake': beta3,
-                'P_Value': model.pvalues.get('neg_h_prev', np.nan),
+                'beta_3_drainage': beta3,
+                'P_Value': model.pvalues.get('neg_h_disp_prev', np.nan),
                 'Conf_Low': conf_int[0],
                 'Conf_High': conf_int[1],
                 'N': len(sub)
@@ -473,6 +473,7 @@ for well in valid_targets:
     df['P_m_lag1'] = df['P_m'].shift(1)  # lag-1: consistent with HEADLINE_LAG = 1
     df['h_prev'] = df['h'].shift(1)
     df['Delta_h'] = df['h'] - df['h_prev']
+    df['h_disp_prev'] = DRAINAGE_DATUM + df['h_prev']  # displacement above drainage datum
     df = df.dropna()
 
     for label in ['Before', 'After', 'After_Scrape2']:
@@ -483,7 +484,7 @@ for well in valid_targets:
         else:
             sub = df[df.index >= scraping_date_2]
         if len(sub) > 12:
-            X = pd.DataFrame({'beta_1_recharge': sub['P_m_lag1'], 'beta_2_atmospheric_draw': -sub['PET'], 'beta_3_internal_brake': -sub['h_prev']})
+            X = pd.DataFrame({'beta_1_recharge': sub['P_m_lag1'], 'beta_2_atmospheric_draw': -sub['PET'], 'beta_3_drainage': -sub['h_disp_prev']})
             model = sm.OLS(sub['Delta_h'], X).fit()
             
             ci = model.conf_int()
@@ -496,9 +497,9 @@ for well in valid_targets:
                 'beta_2_atmospheric_draw': round(model.params['beta_2_atmospheric_draw'], 3),
                 'beta_2_conf_low':         ci.loc['beta_2_atmospheric_draw', 0],
                 'beta_2_conf_high':        ci.loc['beta_2_atmospheric_draw', 1],
-                'beta_3_internal_brake':   round(model.params['beta_3_internal_brake'], 3),
-                'beta_3_conf_low':         ci.loc['beta_3_internal_brake', 0],
-                'beta_3_conf_high':        ci.loc['beta_3_internal_brake', 1],
+                'beta_3_drainage':   round(model.params['beta_3_drainage'], 3),
+                'beta_3_conf_low':         ci.loc['beta_3_drainage', 0],
+                'beta_3_conf_high':        ci.loc['beta_3_drainage', 1],
             })
 
 full_param_df = pd.DataFrame(full_param_results)
@@ -884,10 +885,10 @@ for part_idx, well_group in enumerate(well_groups, start=1):
             if len(sub) > 5:
                 ax.scatter(sub['h_prev'], sub['Drainage_Component'], edgecolor=col, facecolor=fill, marker=mark, s=50, alpha=0.7, label=label)
 
-                X_sub = sm.add_constant(-sub['h_prev'])
+                X_sub = sm.add_constant(-sub['h_disp_prev'])
                 line_model = sm.OLS(sub['Drainage_Component'], X_sub).fit()
                 x_range = np.linspace(sub['h_prev'].min(), sub['h_prev'].max(), 10)
-                y_range = line_model.predict(sm.add_constant(-x_range))
+                y_range = line_model.predict(sm.add_constant(-(DRAINAGE_DATUM + x_range)))
 
                 ax.plot(x_range, y_range, color=col, linewidth=2, linestyle=ls)
                 ax.text(0.05, 0.95 if label == 'Before' else 0.88, f"{label} β3: {line_model.params.iloc[1]:.3f}", transform=ax.transAxes, color=col, fontweight='bold')
@@ -951,7 +952,7 @@ if not full_param_df.empty:
          r'Recharge sensitivity ($\beta_1$)',  r'$\Delta\beta_1$'),
         ('beta_2_atmospheric_draw', 'beta_2_conf_low',  'beta_2_conf_high',
          r'Atmospheric draw ($\beta_2$)',      r'$\Delta\beta_2$'),
-        ('beta_3_internal_brake',   'beta_3_conf_low',  'beta_3_conf_high',
+        ('beta_3_drainage',   'beta_3_conf_low',  'beta_3_conf_high',
          r'Drainage coefficient ($-\beta_3$)', r'$\Delta(-\beta_3)$'),
     ]
 
@@ -1401,7 +1402,7 @@ if not baci_df.empty:
     print()
 
 print("--- Full Parameter Shift (beta_1, beta_2, beta_3) ---")
-for param in ['beta_1_recharge', 'beta_2_atmospheric_draw', 'beta_3_internal_brake']:
+for param in ['beta_1_recharge', 'beta_2_atmospheric_draw', 'beta_3_drainage']:
     print(f"\n{param}:")
     print(full_param_df.pivot(index='Well', columns='Period', values=param))
 
@@ -1516,7 +1517,7 @@ if not baci_df.empty:
 for _sr in stats_results:
     if _sr.get('Well', '') == 'BACI_SUMMARY':
         continue  # skip summary rows
-    _rn("Table6_beta3", _sr.get('beta_3_internal_brake', np.nan),
+    _rn("Table6_beta3", _sr.get('beta_3_drainage', np.nan),
         well=_sr['Well'], era=_sr['Period'],
         note=f"CI=[{_sr.get('Conf_Low',np.nan):.4f},{_sr.get('Conf_High',np.nan):.4f}] "
              f"p={_sr.get('P_Value',np.nan):.5f}" if pd.notna(_sr.get('P_Value')) else "")
@@ -1566,7 +1567,7 @@ if not baci_df.empty:
 
 # 13. Coefficient slopes (β₁, β₂, β₃ pre vs post) from full_param_df
 if not full_param_df.empty:
-    for _coeff in ['beta_1_recharge', 'beta_2_atmospheric_draw', 'beta_3_internal_brake']:
+    for _coeff in ['beta_1_recharge', 'beta_2_atmospheric_draw', 'beta_3_drainage']:
         for _zone_label, _zone_wells in [("Impact", valid_impact),
                                            ("Edge", valid_edge),
                                            ("Control", valid_control)]:

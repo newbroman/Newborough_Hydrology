@@ -195,12 +195,13 @@ def _load_cluster_peak_months() -> dict[str, int]:
             f"as part of its regional-averages exports."
         )
     df = pd.read_csv(INT_CLUSTER_PEAK_MONTHS)
-    if not {"cluster_label", "peak_month"}.issubset(df.columns):
+    if not {"cluster_id", "peak_month"}.issubset(df.columns):
         raise RuntimeError(
             f"{INT_CLUSTER_PEAK_MONTHS.name} is missing expected columns "
-            f"'cluster_label' and 'peak_month'. Re-run script 03 to regenerate."
+            f"'cluster_id' and 'peak_month'. Re-run script 03 to regenerate."
         )
-    return {row["cluster_label"]: int(row["peak_month"]) for _, row in df.iterrows()}
+    return {f"C{int(row['cluster_id'])}": int(row["peak_month"])
+            for _, row in df.iterrows()}
 
 
 # Cluster-specific horizon: months from October (start of hydrological winter)

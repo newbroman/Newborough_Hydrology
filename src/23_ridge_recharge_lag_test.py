@@ -21,7 +21,7 @@ Purpose:
 
     Methodological note:
         Script 22 demonstrated that a single-period SSM (Delta_h = a + b1*P(t) -
-        b2*PET(t) - b3*h(t-1)) leaves a generic lag-1 rainfall signal in the
+        b2*PET(t) - b3*h_disp(t-1)) leaves a generic lag-1 rainfall signal in the
         residuals at EVERY well, regardless of location. This is the expected
         monthly-timestep vadose-zone response — recharge takes roughly a month
         to propagate through the vadose zone to the water table, and the
@@ -34,6 +34,19 @@ Purpose:
 
     The report's fitted b1, b2, b3 and alpha values are UNCHANGED by this script
     and remain authoritative. This is a diagnostic analysis, not a revision.
+
+    SSM specification note:
+        The β₃ term uses the displacement formulation (h_disp = DRAINAGE_DATUM +
+        h_depth), matching Script 03. This ensures the β₃ coefficient is on the
+        same scale as the pipeline's headline fits.
+
+        DESIGN NOTE: The extended model deliberately includes both P(t) and P(t-1)
+        to absorb the generic vadose-zone lag that Script 22 demonstrated. Now
+        that the headline model is lag-1, an alternative would be P(t-1) + P(t-2).
+        The current formulation (P(t) + P(t-1)) is retained pending a scientific
+        review of whether the two-month spanning window serves the same
+        absorb-the-generic-lag purpose regardless of the headline lag choice.
+        See MODEL_SPECIFICATION_AUDIT.md, Scientific Question B.
 
 Outputs:
     INT_23_RESIDUALS_WIDE      — cleaner residuals from the P(t)+P(t-1) model
@@ -66,7 +79,7 @@ from utils.paths import (
 )
 from utils.data_utils import normalize_well_name
 from utils.map_utils import add_kml_features
-from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS
+from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, DRAINAGE_DATUM
 
 
 # ==========================================
@@ -109,12 +122,18 @@ def ridge_distance(easting, northing):
     return float(np.sqrt((easting - RIDGE_E) ** 2 + (northing - RIDGE_N) ** 2))
 
 
-def fit_extended_model(well_series, climate):
+def fit_extended_model(well_series, climate,
+                       drainage_datum=DRAINAGE_DATUM):
     """
-    Fit the extended Model B: Delta_h(t) = alpha + b10*P(t) + b11*P(t-1) - b2*PET(t) - b3*h(t-1)
+    Fit the extended Model B:
+        Delta_h(t) = alpha + b10*P(t) + b11*P(t-1)
+                     - b2*PET(t) - b3*h_disp_prev(t)
 
-    Including P(t-1) absorbs the generic vadose-zone lag that Script 22 demonstrated
-    contaminates the single-period SSM residuals everywhere.
+    where h_disp_prev = DRAINAGE_DATUM + h_prev  (displacement formulation,
+    matching Script 03).
+
+    Including P(t-1) absorbs the generic vadose-zone lag that Script 22
+    demonstrated contaminates the single-period SSM residuals everywhere.
 
     Returns dict with params and residual series, or None if the fit fails.
     """
@@ -133,16 +152,20 @@ def fit_extended_model(well_series, climate):
 
     df['h_prev']  = df['h'].shift(1)
     df['Delta_h'] = df['h'] - df['h_prev']
+
+    # Displacement above drainage datum for β₃ predictor
+    df['h_disp_prev'] = drainage_datum + df['h_prev']
+
     df = df.dropna()
 
     if len(df) < MIN_MONTHS - 1:
         return None
 
     X = pd.DataFrame({
-        'P':      df['P'].values,
-        'P_lag1': df['P_lag1'].values,
-        'PET_n': -df['PET'].values,
-        'h_prev': df['h_prev'].values,
+        'P':          df['P'].values,
+        'P_lag1':     df['P_lag1'].values,
+        'PET_n':     -df['PET'].values,
+        'h_disp_neg': -df['h_disp_prev'].values,
     }, index=df.index)
     X = sm.add_constant(X, has_constant='add')
 
@@ -153,10 +176,10 @@ def fit_extended_model(well_series, climate):
 
     return {
         'alpha':   float(model.params['const']),
-        'beta_10': float(model.params['P']),        # contemporaneous rainfall
-        'beta_11': float(model.params['P_lag1']),   # one-month-lagged rainfall
+        'beta_10': float(model.params['P']),           # contemporaneous rainfall
+        'beta_11': float(model.params['P_lag1']),      # one-month-lagged rainfall
         'beta_2':  float(model.params['PET_n']),
-        'beta_3': -float(model.params['h_prev']),
+        'beta_3':  float(model.params['h_disp_neg']),  # positive = drainage increases with head
         'R2':      float(model.rsquared),
         'n':       int(len(df)),
         'resid':   pd.Series(model.resid, index=df.index, name='resid'),
@@ -420,7 +443,9 @@ def write_test_summary(ccf_df, fits_df, trend_stats, output_path):
     lines.append("=" * 78)
     lines.append("")
     lines.append(f"  Ridge reference point: E = {RIDGE_E:.0f}, N = {RIDGE_N:.0f} (OSGB36)")
-    lines.append(f"  Analysis model: Delta_h = alpha + b10*P(t) + b11*P(t-1) - b2*PET(t) - b3*h(t-1)")
+    lines.append(f"  Analysis model: Delta_h = alpha + b10*P(t) + b11*P(t-1)"
+                 f" - b2*PET(t) - b3*h_disp_prev(t)")
+    lines.append(f"  Displacement formulation: h_disp = {DRAINAGE_DATUM} + h_depth")
     lines.append(f"  Wells analysed: {len(fits_df)} with n >= {MIN_MONTHS} months")
     lines.append(f"  Excluded: {sorted(EXCLUDED_WELLS_NORM)}")
     lines.append("")

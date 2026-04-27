@@ -461,7 +461,7 @@ def build_well_table(loc, cl, md, elev, maod, clim, sy_df):
     wt = wt.reset_index(drop=True)
     print(f"  Well table: {len(wt)} wells")
     print(f"  beta available: {wt['b1'].notna().sum()} wells")
-    print(f"  C4 wells (forest): {(wt['Cluster'] == 4).sum()}")
+    print(f"  Forest wells (C4+C5): {((wt['Cluster'] == 4) | (wt['Cluster'] == 5)).sum()}")
     print(f"  P_bar  = {P_bar*1000:.2f} mm/mo   PET_bar = {PET_bar*1000:.2f} mm/mo")
     return wt, climate_stats
 
@@ -875,7 +875,7 @@ footer a:hover{{text-decoration:underline;}}
     Winter&nbsp;=&nbsp;Nov&#8211;Mar. Summer&nbsp;=&nbsp;May&#8211;Sep. Slider range 0.5&#8211;1.5&#215; brackets UKCP18 end-century probabilistic ranges for Wales under RCP8.5, while staying within the linear steady-state domain of the fitted state-space model.</div>
   <div class="hr"></div>
 
-  <div class="ch">Forest C4</div>
+  <div class="ch">Forest C4/C5</div>
   <div class="srow"><label>Interception</label>
     <input type="range" min="0" max="0.4" step="0.01" value="0.24" id="sI" oninput="onSl()">
     <span class="sv" id="vI">24%</span></div>
@@ -1026,12 +1026,12 @@ function go(){{
   var sl=gs();CUR_SL=sl;
   // Seasonal baselines -- always needed so annual can weight winter+summer
   var cldW=CLIMATE.winter,cldS=CLIMATE.summer;
-  function dhOne(b1,b2,b3,P_base,PET_base,sP,sPET,h,isC4){{
-    var Peff_0=isC4?P_base*(1-FOREST_INTERCEPTION):P_base;
+  function dhOne(b1,b2,b3,P_base,PET_base,sP,sPET,h,isForest){{
+    var Peff_0=isForest?P_base*(1-FOREST_INTERCEPTION):P_base;
     var net0=b1*Peff_0-b2*PET_base-b3*Math.abs(h);
     var Psc=P_base*sP,PETsc=PET_base*sPET;
-    var Peff_sc=isC4?Psc*(1-sl.sI):Psc;
-    var b2sc=isC4?b2*sl.sB2:b2;
+    var Peff_sc=isForest?Psc*(1-sl.sI):Psc;
+    var b2sc=isForest?b2*sl.sB2:b2;
     return (b1*Peff_sc-b2sc*PETsc-b3*Math.abs(h))-net0;
   }}
   var well_dh={{}};
@@ -1041,14 +1041,14 @@ function go(){{
     if(b1==null)continue;
     var h=sea==='annual'?w.mh:sea==='winter'?w.wh:w.sh;
     if(h==null)continue;
-    var isC4=(w.cl===4);
+    var isForest=(w.cl===4||w.cl===5);
     if(sea==='winter'){{
-      well_dh[w.n]=dhOne(b1,b2,b3,cldW.P,cldW.PET,sl.sP_w,sl.sPET_w,h,isC4);
+      well_dh[w.n]=dhOne(b1,b2,b3,cldW.P,cldW.PET,sl.sP_w,sl.sPET_w,h,isForest);
     }}else if(sea==='summer'){{
-      well_dh[w.n]=dhOne(b1,b2,b3,cldS.P,cldS.PET,sl.sP_s,sl.sPET_s,h,isC4);
+      well_dh[w.n]=dhOne(b1,b2,b3,cldS.P,cldS.PET,sl.sP_s,sl.sPET_s,h,isForest);
     }}else{{  // annual = month-weighted mean of winter and summer responses
-      var dhW=dhOne(b1,b2,b3,cldW.P,cldW.PET,sl.sP_w,sl.sPET_w,h,isC4);
-      var dhS=dhOne(b1,b2,b3,cldS.P,cldS.PET,sl.sP_s,sl.sPET_s,h,isC4);
+      var dhW=dhOne(b1,b2,b3,cldW.P,cldW.PET,sl.sP_w,sl.sPET_w,h,isForest);
+      var dhS=dhOne(b1,b2,b3,cldS.P,cldS.PET,sl.sP_s,sl.sPET_s,h,isForest);
       well_dh[w.n]=0.5*(dhW+dhS);
     }}
   }}
@@ -1310,8 +1310,8 @@ function renderTable(){{
     {{l:'\u0394 head (m)',v:cls.map(function(c){{return(DH[c]>=0?'+':'')+(DH[c]||0).toFixed(3);}}),d:true}},
     {{l:'Mean Sy (%)',v:cls.map(function(c){{var cw=WELLS.filter(function(w){{return w.cl===c;}});if(!cw.length)return'\u2014';var s=cw.reduce(function(acc,w){{return acc+syEff(w,sl.sSyMode);}},0)/cw.length;return(s*100).toFixed(1)+'%';}}),d:false}},
     {{l:'Storage shift (mm)',v:cls.map(function(c){{var cw=WELLS.filter(function(w){{return w.cl===c;}});if(!cw.length||DH[c]==null)return'\u2014';var s=cw.reduce(function(acc,w){{return acc+syEff(w,sl.sSyMode);}},0)/cw.length;var shift=s*DH[c]*1000;return(shift>=0?'+':'')+shift.toFixed(1);}}),d:true}},
-    {{l:'P\u2091\u2091 mm/mo',v:cls.map(function(c){{return((c===4?P*sP*(1-sl.sI):P*sP)*1000).toFixed(1);}}),d:false}},
-    {{l:'PET draw mm/mo',v:cls.map(function(c){{var cb=CLIMATE.cluster_betas[c]||{{}},b2=cb.b2||0,b2s=(c===4)?b2*sl.sB2:b2;return(b2s*PET*sPET*1000).toFixed(1);}}),d:false}},
+    {{l:'P\u2091\u2091 mm/mo',v:cls.map(function(c){{return(((c===4||c===5)?P*sP*(1-sl.sI):P*sP)*1000).toFixed(1);}}),d:false}},
+    {{l:'PET draw mm/mo',v:cls.map(function(c){{var cb=CLIMATE.cluster_betas[c]||{{}},b2=cb.b2||0,b2s=(c===4||c===5)?b2*sl.sB2:b2;return(b2s*PET*sPET*1000).toFixed(1);}}),d:false}},
   ];
   function bg(v,d){{if(!d)return'#f5f5f5';var n=parseFloat(v);return n>0.005?'#c8e6c9':n<-0.005?'#ffcdd2':'#f5f5f5';}}
   function tx(v,d){{if(!d)return'#333';var n=parseFloat(v);return n>0.005?'#1b5e20':n<-0.005?'#b71c1c':'#555';}}
@@ -1343,16 +1343,17 @@ function renderMonthlyTable(){{
 
 function renderMetrics(){{
   var cls=[1,2,3,4,5],sl=CUR_SL||{{sSyMode:0}};
-  var mDH=cls.reduce(function(s,c){{return s+(DH[c]||0);}},0)/5,c4DH=DH[4]||0;
+  var mDH=cls.reduce(function(s,c){{return s+(DH[c]||0);}},0)/5;
+  var fDH=((DH[4]||0)+(DH[5]||0))/2;
   function dc(v){{return v>0.002?'#0d47a1':v<-0.002?'#b71c1c':'#333';}}
   function mc(l,v,u,col){{return'<div class="mc"><div class="ml">'+l+'</div><div class="mv" style="color:'+col+'">'+v+' <span class="mu">'+u+'</span></div></div>';}}
   var allW=WELLS.filter(function(w){{return cls.indexOf(w.cl)>=0;}});
   var mSy=allW.length?allW.reduce(function(s,w){{return s+syEff(w,sl.sSyMode);}},0)/allW.length:0.12;
-  var c4w=WELLS.filter(function(w){{return w.cl===4;}});
-  var c4Sy=c4w.length?c4w.reduce(function(s,w){{return s+syEff(w,sl.sSyMode);}},0)/c4w.length:0.12;
-  var mShift=mSy*mDH*1000, c4Shift=c4Sy*c4DH*1000;
+  var fW=WELLS.filter(function(w){{return w.cl===4||w.cl===5;}});
+  var fSy=fW.length?fW.reduce(function(s,w){{return s+syEff(w,sl.sSyMode);}},0)/fW.length:0.12;
+  var mShift=mSy*mDH*1000, fShift=fSy*fDH*1000;
   function fmtShift(v){{return(v>=0?'+':'')+v.toFixed(1);}}
-  document.getElementById('mrow').innerHTML=mc('Mean \u0394h',(mDH>=0?'+':'')+mDH.toFixed(3),'m',dc(mDH))+mc('C4 \u0394h',(c4DH>=0?'+':'')+c4DH.toFixed(3),'m',dc(c4DH))+mc('Mean Sy',(mSy*100).toFixed(1),'%','#333')+mc('C4 Sy',(c4Sy*100).toFixed(1),'%','#333')+mc('Mean storage shift',fmtShift(mShift),'mm',dc(mDH))+mc('C4 storage shift',fmtShift(c4Shift),'mm',dc(c4DH));
+  document.getElementById('mrow').innerHTML=mc('Mean \u0394h',(mDH>=0?'+':'')+mDH.toFixed(3),'m',dc(mDH))+mc('Forest \u0394h',(fDH>=0?'+':'')+fDH.toFixed(3),'m',dc(fDH))+mc('Mean Sy',(mSy*100).toFixed(1),'%','#333')+mc('Forest Sy',(fSy*100).toFixed(1),'%','#333')+mc('Mean storage shift',fmtShift(mShift),'mm',dc(mDH))+mc('Forest storage shift',fmtShift(fShift),'mm',dc(fDH));
 }}
 
 function applyLayout(){{document.getElementById('mainGrid').style.gridTemplateColumns=window.innerWidth<640?'1fr':'210px minmax(0,1fr)';}}
@@ -1391,15 +1392,15 @@ def _well_dh(row, sl, P0, PET0, h_col, cluster_betas, season):
     if pd.isna(h):
         return None
 
-    is_c4 = (cl == 4)
+    is_forest = (cl == 4 or cl == 5)
 
     def _dh_one(P_base, PET_base, sP, sPET):
-        Peff_0 = P_base * (1 - FOREST_INTERCEPTION) if is_c4 else P_base
+        Peff_0 = P_base * (1 - FOREST_INTERCEPTION) if is_forest else P_base
         net0 = b1 * Peff_0 - b2 * PET_base - b3 * abs(h)
         Psc = P_base * sP
         PETsc = PET_base * sPET
-        Peff_sc = Psc * (1 - sl["sI"]) if is_c4 else Psc
-        b2_sc = b2 * sl["sB2"] if is_c4 else b2
+        Peff_sc = Psc * (1 - sl["sI"]) if is_forest else Psc
+        b2_sc = b2 * sl["sB2"] if is_forest else b2
         net_sc = b1 * Peff_sc - b2_sc * PETsc - b3 * abs(h)
         return net_sc - net0
 

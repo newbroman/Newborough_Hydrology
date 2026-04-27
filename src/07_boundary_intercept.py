@@ -3,9 +3,12 @@
 07_boundary_intercept.py — Site-Wide Intercept Audit
 ====================================================================================
 Purpose:
-    Compares Model A (Strict Mass-Balance SSM, Intercept = 0) against 
+    Compares Model A (Strict Mass-Balance SSM, Intercept = 0) against
     Model B (Unconstrained SSM, Intercept = fitted constant).
-    
+
+    Both models use the displacement formulation (h_disp = DRAINAGE_DATUM + h_depth)
+    and lag-1 rainfall, matching Script 03.
+
     Outputs:
         - 07_intercept_metrics.csv
         - outputs/07_boundary_intercept/07_intercept_01_ceh14_showdown.png
@@ -33,7 +36,7 @@ from utils.paths import (
 from utils.data_utils import normalize_well_name
 from utils.model_utils import get_metrics, get_r2
 from utils.map_utils import add_kml_features
-from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, CLUSTER_MARKERS
+from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, CLUSTER_MARKERS, DRAINAGE_DATUM
 from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
@@ -51,6 +54,9 @@ MASTER_PATH = INT_MASTER_DATA
 LCSC_DATA_LIMIT = 100
 EXCLUDED_WELLS_NORM = {'ceh7', 'ceh8', 'ceh37'}
 
+# Lag-1 rainfall: matches Script 03's HEADLINE_LAG = 1.
+HEADLINE_LAG = 1
+
 # ==========================================
 # AESTHETICS & PUBLICATION SETTINGS
 # ==========================================
@@ -64,7 +70,13 @@ plt.rcParams.update({
 })
 
 def compute_intercept_audit(target_well_name, df_clean, df_climate):
-    """Compute Model A (No Intercept) vs Model B (Intercept). Returns metrics and plotting payload."""
+    """Compute Model A (No Intercept) vs Model B (Intercept).
+
+    Uses the displacement formulation (h_disp = DRAINAGE_DATUM + h_depth)
+    and lag-1 rainfall, matching Script 03.
+
+    Returns metrics and plotting payload.
+    """
     target_norm = normalize_well_name(target_well_name)
     target_col = next((c for c in df_clean.columns if normalize_well_name(c) == target_norm), None)
 
@@ -91,8 +103,17 @@ def compute_intercept_audit(target_well_name, df_clean, df_climate):
     climate.index = pd.to_datetime(climate.index).to_period('M')
 
     df = pd.DataFrame({'h': well_series, 'P': pd.to_numeric(climate['P_m'], errors='coerce'), 'PET': pd.to_numeric(climate['PET'], errors='coerce')}).dropna()
+
+    # Lag-1 rainfall (matching Script 03 HEADLINE_LAG = 1)
+    if HEADLINE_LAG > 0:
+        df['P'] = df['P'].shift(HEADLINE_LAG)
+
     df['h_prev'] = df['h'].shift(1)
     df['Delta_h'] = df['h'] - df['h_prev']
+
+    # Displacement formulation: h_disp = DRAINAGE_DATUM + h_depth
+    df['h_disp_prev'] = DRAINAGE_DATUM + df['h_prev']
+
     df = df.dropna()
 
     if len(df) < LCSC_DATA_LIMIT:
@@ -101,8 +122,10 @@ def compute_intercept_audit(target_well_name, df_clean, df_climate):
 
     df = df.iloc[-LCSC_DATA_LIMIT:].copy()
 
-    # Model Formulations
-    x_a = pd.DataFrame({'P': df['P'], 'PET_neg': -df['PET'], 'h_prev_neg': -df['h_prev']})
+    # Model Formulations — both use displacement for the drainage predictor
+    # Model A: no intercept (strict mass-balance)
+    # Model B: with intercept (unconstrained)
+    x_a = pd.DataFrame({'P': df['P'], 'PET_neg': -df['PET'], 'h_disp_prev_neg': -df['h_disp_prev']})
     x_b = sm.add_constant(x_a, has_constant='add')
     y_fit = df['Delta_h']
 
@@ -116,8 +139,10 @@ def compute_intercept_audit(target_well_name, df_clean, df_climate):
     h_iter_a[0], h_iter_b[0] = h_obs[0], h_obs[0]
 
     for t in range(1, len(h_obs)):
-        dh_a = model_a.params['P']*p_arr[t] - model_a.params['PET_neg']*pet_arr[t] - model_a.params['h_prev_neg']*h_iter_a[t-1]
-        dh_b = model_b.params['const'] + model_b.params['P']*p_arr[t] - model_b.params['PET_neg']*pet_arr[t] - model_b.params['h_prev_neg']*h_iter_b[t-1]
+        h_disp_sim_a = DRAINAGE_DATUM + h_iter_a[t-1]
+        h_disp_sim_b = DRAINAGE_DATUM + h_iter_b[t-1]
+        dh_a = model_a.params['P']*p_arr[t] - model_a.params['PET_neg']*pet_arr[t] - model_a.params['h_disp_prev_neg']*h_disp_sim_a
+        dh_b = model_b.params['const'] + model_b.params['P']*p_arr[t] - model_b.params['PET_neg']*pet_arr[t] - model_b.params['h_disp_prev_neg']*h_disp_sim_b
         h_iter_a[t] = h_iter_a[t-1] + dh_a
         h_iter_b[t] = h_iter_b[t-1] + dh_b
 
@@ -125,9 +150,10 @@ def compute_intercept_audit(target_well_name, df_clean, df_climate):
     h_one_a, h_one_b = np.full(len(h_obs), np.nan), np.full(len(h_obs), np.nan)
     h_one_a[0], h_one_b[0] = h_obs[0], h_obs[0]
     for t in range(1, len(h_obs)):
-        h_one_a[t] = h_obs[t-1] + (model_a.params['P']*p_arr[t] - model_a.params['PET_neg']*pet_arr[t] - model_a.params['h_prev_neg']*h_obs[t-1])
-        h_one_b[t] = h_obs[t-1] + (model_b.params['const'] + model_b.params['P']*p_arr[t] - model_b.params['PET_neg']*pet_arr[t] - model_b.params['h_prev_neg']*h_obs[t-1])
-        
+        h_disp_prev_obs = DRAINAGE_DATUM + h_obs[t-1]
+        h_one_a[t] = h_obs[t-1] + (model_a.params['P']*p_arr[t] - model_a.params['PET_neg']*pet_arr[t] - model_a.params['h_disp_prev_neg']*h_disp_prev_obs)
+        h_one_b[t] = h_obs[t-1] + (model_b.params['const'] + model_b.params['P']*p_arr[t] - model_b.params['PET_neg']*pet_arr[t] - model_b.params['h_disp_prev_neg']*h_disp_prev_obs)
+
     nse_a, rmse_a, _ = get_metrics(h_obs, h_iter_a)
     nse_b, rmse_b, _ = get_metrics(h_obs, h_iter_b)
     r2_one_a, r2_one_b = get_r2(h_obs, h_one_a), get_r2(h_obs, h_one_b)
@@ -140,7 +166,7 @@ def compute_intercept_audit(target_well_name, df_clean, df_climate):
         'Iterative_NSE_Model_B': nse_b,
         'NSE_Intercept_Effect': nse_b - nse_a
     })
-    
+
     payload = {
         'index': df.index.to_timestamp(), 'h_obs': h_obs, 'h_one_a': h_one_a, 'h_one_b': h_one_b,
         'h_iter_a': h_iter_a, 'h_iter_b': h_iter_b, 'r2_one_a': r2_one_a, 'r2_one_b': r2_one_b,
@@ -164,9 +190,9 @@ def plot_dual_showdown(output_path, payload):
 
     # Bottom Panel: Forecasting (Iterative)
     ax_bottom.plot(payload['index'], payload['h_obs'], color='black', lw=2.8, label='Observed')
-    ax_bottom.plot(payload['index'], payload['h_iter_a'], color='#0072B2', lw=2.2, ls='--', 
+    ax_bottom.plot(payload['index'], payload['h_iter_a'], color='#0072B2', lw=2.2, ls='--',
                    label=f"Model A: Strict Mass-Balance (NSE={payload['nse_a']:.3f}, RMSE={payload['rmse_a']:.3f})")
-    ax_bottom.plot(payload['index'], payload['h_iter_b'], color='#D55E00', lw=2.2, ls=':', 
+    ax_bottom.plot(payload['index'], payload['h_iter_b'], color='#D55E00', lw=2.2, ls=':',
                    label=f"Model B: w/ Intercept Residual (NSE={payload['nse_b']:.3f}, RMSE={payload['rmse_b']:.3f})")
     ax_bottom.set_title(f"Target: {payload['well_label']} | Bottom: Forecasting Stability (Iterative 100-month)", fontweight='bold')
     ax_bottom.set_xlabel('Date')
@@ -243,7 +269,7 @@ def plot_metric_map(map_df, value_col, title, output_path, cmap, vmin=None, vmax
                 custom_topo = mcolors.LinearSegmentedColormap.from_list("custom_topo", terrain_colors)
                 custom_topo.set_under("dodgerblue")
                 div_norm = mcolors.TwoSlopeNorm(vmin=0, vcenter=12.0, vmax=dem_data.max())
-                dem_layer = ax.imshow(dem_data, cmap=custom_topo, alpha=0.45, 
+                dem_layer = ax.imshow(dem_data, cmap=custom_topo, alpha=0.45,
                                       norm=div_norm, extent=extent, origin="upper", zorder=1)
                 ax.set_xlim(extent[0], extent[1])
                 ax.set_ylim(362000, 365000)
@@ -262,14 +288,9 @@ def plot_metric_map(map_df, value_col, title, output_path, cmap, vmin=None, vmax
     #     data range (worst value = -0.026), giving negative wells proper colour
     #     separation rather than compressing them all into 9% of a ±0.3 scale.
     #     Raw values are preserved in the CSV output.
-    # Clip bounds chosen to match the actual data range (excluding CEH3 outlier):
-    # negatives reach -0.026; positives reach +0.266 at CEH17 (excl. CEH3).
-    # Clipping tightly ensures the bulk of the distribution spreads across the
-    # full colour scale rather than being compressed into a narrow central band.
-    NSE_CLIP_POS = 0.30   # CEH17 (+0.266) near max; CEH14/CEH21 at ~25-30% — but colormap
-    #                        anchors are lightened so even the max is pale, not dark navy
-    NSE_CLIP_NEG = -0.03  # CEH32 (-0.026) near max red; mid-range negatives visible
-    NSE_CLIP = NSE_CLIP_POS   # retained for colorbar label
+    NSE_CLIP_POS = 0.30
+    NSE_CLIP_NEG = -0.03
+    NSE_CLIP = NSE_CLIP_POS
     if value_col == 'NSE_Intercept_Effect':
         valid = valid.copy()
         valid[value_col] = valid[value_col].clip(NSE_CLIP_NEG, NSE_CLIP_POS)
@@ -367,6 +388,9 @@ def plot_metric_map(map_df, value_col, title, output_path, cmap, vmin=None, vmax
 if __name__ == '__main__':
     make_all_dirs()
     print('Starting SSM07 Site-Wide Intercept Audit...')
+    print(f'  Displacement formulation: DRAINAGE_DATUM = {DRAINAGE_DATUM} m')
+    print(f'  Rainfall lag: {HEADLINE_LAG} month(s)')
+
     wells_clean = pd.read_csv(WELLS_PATH, index_col=0, parse_dates=True)
     climate = pd.read_csv(CLIMATE_PATH, index_col=0, parse_dates=True)
 
@@ -392,7 +416,7 @@ if __name__ == '__main__':
     for well_col in candidate_wells:
         row, payload = compute_intercept_audit(well_col, wells_clean, climate)
         all_rows.append(row)
-        
+
         # Plot the specific dual-pane figure for CEH14!
         if payload is not None and row['Well_Normalized'] == 'ceh14':
             plot_dual_showdown(OUT_07_CEH14_SHOWDOWN, payload)
@@ -400,7 +424,7 @@ if __name__ == '__main__':
             print(f" -> Generated CEH14 Showdown Plot (Intercept = {payload['intercept']:.3f} m/month)")
 
     perf_df = pd.DataFrame(all_rows).dropna(subset=['Model_B_Intercept'])
-    
+
     # Save CSV
     stats_csv = INT_INTERCEPT_METRICS
     perf_df.to_csv(stats_csv, index=False)
@@ -410,7 +434,7 @@ if __name__ == '__main__':
     if MASTER_PATH.exists():
         master_df = pd.read_csv(MASTER_PATH)
         master_df['Well_Normalized'] = master_df['Name_Original'].apply(normalize_well_name)
-        
+
         # Merge clusters
         cluster_stats_path = INT_CLUSTER_STATS
         if cluster_stats_path.exists():
@@ -435,17 +459,17 @@ if __name__ == '__main__':
 
         # Map 1: The Hidden Plumbing (Intercept)
         plot_metric_map(
-            map_df, 'Model_B_Intercept', 
-            'Unmeasured Water Balance Residuals (Intercept \u03B1, m/month)', 
-            OUT_07_PLUMBING_MAP, 
+            map_df, 'Model_B_Intercept',
+            'Unmeasured Water Balance Residuals (Intercept \u03B1, m/month)',
+            OUT_07_PLUMBING_MAP,
             cmap='RdBu', vmin=-bound, vmax=bound
         )
-        
+
         # Map 2: The Forecasting Collapse (NSE Penalty)
         plot_metric_map(
-            map_df, 'NSE_Intercept_Effect', 
-            'Intercept Effect on NSE: Change in iterative simulation skill when a boundary term is introduced', 
-            OUT_07_NSE_PENALTY_MAP, 
+            map_df, 'NSE_Intercept_Effect',
+            'Intercept Effect on NSE: Change in iterative simulation skill when a boundary term is introduced',
+            OUT_07_NSE_PENALTY_MAP,
             cmap='RdBu'
         )
 

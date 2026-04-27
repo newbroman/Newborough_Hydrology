@@ -34,6 +34,13 @@
   header .subtitle{
     font-size:.85rem;opacity:.75;margin-top:.15rem;font-style:italic;
   }
+  header .back-link{
+    display:inline-flex;align-items:center;gap:.35rem;
+    font-size:.82rem;font-weight:600;color:var(--dune);
+    text-decoration:none;margin-bottom:.5rem;
+    letter-spacing:.04em;opacity:.85;transition:opacity .2s;
+  }
+  header .back-link:hover{opacity:1;text-decoration:none;}
 
   /* ── LIVE λ BANNER ─────────────────────────── */
   .live-banner{
@@ -275,6 +282,7 @@
 <body>
 
 <header>
+  <a class="back-link" href="https://newbroman.github.io/Newborough_Hydrology/">&#8592; Newborough Warren Research</a>
   <h1>Newborough Warren — Groundwater Flooding Forecaster</h1>
   <div class="subtitle">Per-well P<sub>flood</sub> forecasting · Hollingham (2026), §3.6.3 · Iterated closed-form SSM</div>
 </header>

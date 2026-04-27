@@ -5,8 +5,8 @@
 Purpose:
     Stage 1 of the ridge-subsidy lag analysis (see Section 11 further work).
 
-    Refits Model B (SSM with intercept) for every reference well with >= 140 months
-    of data on the FULL record, then:
+    Refits Model B (SSM with intercept, lag-1 rainfall, displacement formulation)
+    for every reference well with >= 140 months of data on the FULL record, then:
         1. Saves the per-well Model B residual series e_B(t).
            The intercept absorbs the constant (mean) part of the residual so e_B(t)
            represents only the time-varying component — the only part that can
@@ -64,7 +64,7 @@ from utils.paths import (
 )
 from utils.data_utils import normalize_well_name
 from utils.map_utils import add_kml_features
-from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS
+from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, DRAINAGE_DATUM
 
 
 # ==========================================
@@ -73,6 +73,13 @@ from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS
 MIN_MONTHS = 140
 AR1_WHITE_THRESHOLD = 0.3  # |phi| below this is treated as effectively white
 AR1_DIAG_PVAL = 0.05
+
+# Headline rainfall lag — matches Script 03's HEADLINE_LAG = 1.
+# Originally Script 22 fitted at lag-0 to diagnose residual temporal structure.
+# Now refitted at lag-1 with displacement, because the residuals of the CURRENT
+# model are what matter for diagnostics. The old lag-0 diagnostic is already
+# captured in Script 03's 03_04_lag_diagnostic.csv.
+HEADLINE_LAG = 1
 
 # Wells excluded from the lag analysis. See docstring for rationale per well.
 EXCLUDED_WELLS_NORM = {'ceh7', 'ceh8', 'ceh37', 'ceh3', 'ceh4'}
@@ -91,11 +98,16 @@ plt.rcParams.update({
 # CORE COMPUTATION
 # ==========================================
 
-def fit_model_b(well_series, climate):
+def fit_model_b(well_series, climate,
+                drainage_datum=DRAINAGE_DATUM):
     """
     Fit Model B (SSM with intercept) on a well's full available record.
+
+    Uses the displacement formulation (h_disp = DRAINAGE_DATUM + h_depth) and
+    lag-1 rainfall, matching Script 03's headline SSM specification.
+
     Sign convention matches Script 03: beta_1 > 0 for recharge, beta_2 > 0 for
-    atmospheric draw, beta_3 > 0 for internal drainage brake.
+    atmospheric draw, beta_3 > 0 for drainage increasing with head above datum.
     """
     df = pd.DataFrame({
         'h':   pd.to_numeric(well_series, errors='coerce'),
@@ -108,18 +120,26 @@ def fit_model_b(well_series, climate):
 
     df['h_prev'] = df['h'].shift(1)
     df['Delta_h'] = df['h'] - df['h_prev']
+
+    # Displacement above drainage datum for β₃ predictor
+    df['h_disp_prev'] = drainage_datum + df['h_prev']
+
+    # Lag-1 rainfall (matches Script 03 HEADLINE_LAG = 1)
+    if HEADLINE_LAG > 0:
+        df['P'] = df['P'].shift(HEADLINE_LAG)
+
     df = df.dropna()
 
     if len(df) < MIN_MONTHS - 1:
         return None
 
-    # Delta_h = alpha + b1*P - b2*PET - b3*h_prev
-    # Pass -PET so fitted coef is +b2; h_prev passes as-is so fitted coef is -b3;
-    # we flip the h_prev coef at the end to match Script 03's sign convention.
+    # Delta_h = alpha + b1*P(t-1) - b2*PET(t) - b3*h_disp_prev(t)
+    # Sign convention: -PET and -h_disp_prev baked into design matrix so
+    # fitted coefficients are positive for physically correct behaviour.
     X = pd.DataFrame({
-        'P':     df['P'].values,
-        'PET_n': -df['PET'].values,
-        'h_prev': df['h_prev'].values,
+        'P':          df['P'].values,
+        'PET_n':     -df['PET'].values,
+        'h_disp_neg': -df['h_disp_prev'].values,
     }, index=df.index)
     X = sm.add_constant(X, has_constant='add')
     y = df['Delta_h'].values
@@ -134,7 +154,7 @@ def fit_model_b(well_series, climate):
         'pvalue_alpha': float(model.pvalues['const']),
         'beta_1':       float(model.params['P']),
         'beta_2':       float(model.params['PET_n']),
-        'beta_3':      -float(model.params['h_prev']),  # flip to Script 03 convention
+        'beta_3':       float(model.params['h_disp_neg']),
         'R2':           float(model.rsquared),
         'n':            int(len(df)),
         'resid':        pd.Series(model.resid, index=df.index, name='resid'),

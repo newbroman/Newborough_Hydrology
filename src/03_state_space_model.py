@@ -81,7 +81,7 @@ from utils.paths import (
     INT_LOCATIONS, INT_CLIMATE, INT_WELLS_CLEAN, INT_WELL_ELEVATIONS,
     INT_CLUSTER_STATS,
     INT_MASTER_DATA, INT_REGIONAL_AVG, INT_CLUSTER_AVG_MAOD,
-    INT_WELLS_CLEAN_MAOD, INT_CLUSTER_PEAK_MONTHS,
+    INT_WELLS_CLEAN_MAOD,
     OUT_03_SIGNATURES, OUT_03_CLUSTER_SUMMARY, OUT_03_MECHANISTIC_TABLE,
     DIR_03,
     OUT_02_AMP_PER_WELL,
@@ -1081,6 +1081,277 @@ def make_datum_sensitivity_figure(sens_df: pd.DataFrame,
 
 
 # ==========================================================================
+# PER-WELL DATUM SENSITIVITY ANALYSIS
+# ==========================================================================
+
+def well_datum_sensitivity(wells_clean: pd.DataFrame,
+                            climate: pd.DataFrame,
+                            cluster_df: pd.DataFrame,
+                            upstand_lookup: dict[str, float],
+                            well_col_lookup: dict[str, str]
+                            ) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Sweep reference datum depths from 0.5 to 8.0 m per individual well.
+
+    For each well, finds:
+      - primary optimal datum: minimum depth where β₃ > 0 AND p < 0.05
+      - secondary optimal datum: minimum depth where β₃ > 0 (any p)
+      - R²-max datum: depth that maximises R² (regardless of β₃ sign)
+
+    Returns (full_df, optimal_df):
+      full_df    — all (well × depth) results
+      optimal_df — one row per well with all three datum measures
+    """
+    datums = np.arange(0.5, 8.05, 0.1)
+    cluster_lookup = dict(zip(
+        cluster_df["Match_ID"].apply(normalize_well_name),
+        pd.to_numeric(cluster_df["Cluster"], errors="coerce").astype(int)
+    ))
+
+    full_rows = []
+    optimal_rows = []
+
+    for _, row in cluster_df.iterrows():
+        well_name = str(row["Match_ID"])
+        well_norm = normalize_well_name(well_name)
+        target_col = well_col_lookup.get(well_norm)
+        if target_col is None:
+            continue
+
+        cid = int(row["Cluster"])
+        label = CLUSTER_LABELS.get(cid, f"C{cid}")
+
+        # Upstand-correct for ground-surface datum
+        col_norm = well_norm.lower().replace(" ", "").replace("_", "")
+        u = upstand_lookup.get(col_norm, 0.0)
+        h_corrected = wells_clean[target_col] - u
+
+        best_primary = None    # min datum with β₃ > 0 AND p < 0.05
+        best_secondary = None  # min datum with β₃ > 0 (any p)
+        best_r2 = -999.0       # R²-maximising datum (any β₃ sign)
+        best_r2_datum = np.nan
+        best_r2_fit = None
+
+        for d in datums:
+            fit = fit_ssm(h_corrected, climate,
+                          lag=HEADLINE_LAG, window=LCSC_DATA_LIMIT,
+                          drainage_datum=d)
+            if fit is None:
+                full_rows.append({
+                    "well": well_name, "Cluster": cid,
+                    "Cluster_Label": label, "ref_depth": round(d, 1),
+                    "beta_1": np.nan, "beta_2": np.nan, "beta_3": np.nan,
+                    "pvalue_beta_3": np.nan, "R2": np.nan,
+                    "beta_3_positive": False, "beta_3_sig": False,
+                })
+                continue
+
+            b3_pos = fit["beta_3"] > 0
+            b3_sig = fit["pvalue_beta_3"] < 0.05
+            full_rows.append({
+                "well": well_name, "Cluster": cid,
+                "Cluster_Label": label, "ref_depth": round(d, 1),
+                "beta_1": fit["beta_1"], "beta_2": fit["beta_2"],
+                "beta_3": fit["beta_3"], "pvalue_beta_3": fit["pvalue_beta_3"],
+                "R2": fit["R2"],
+                "beta_3_positive": b3_pos, "beta_3_sig": b3_sig,
+            })
+
+            if b3_pos and best_secondary is None:
+                best_secondary = (round(d, 1), fit)
+            if b3_pos and b3_sig and best_primary is None:
+                best_primary = (round(d, 1), fit)
+            if fit["R2"] > best_r2:
+                best_r2 = fit["R2"]
+                best_r2_datum = round(d, 1)
+                best_r2_fit = fit
+
+        # Record optimal for this well
+        opt = {}
+        opt["well"] = well_name
+        opt["Cluster"] = cid
+        opt["Cluster_Label"] = label
+        opt["upstand_m"] = u
+
+        if best_primary is not None:
+            d_p, f_p = best_primary
+            opt["optimal_datum_primary"] = d_p
+            opt["beta_1_at_primary"] = f_p["beta_1"]
+            opt["beta_2_at_primary"] = f_p["beta_2"]
+            opt["beta_3_at_primary"] = f_p["beta_3"]
+            opt["pvalue_beta_3_primary"] = f_p["pvalue_beta_3"]
+            opt["R2_at_primary"] = f_p["R2"]
+        else:
+            opt["optimal_datum_primary"] = np.nan
+            opt["beta_1_at_primary"] = np.nan
+            opt["beta_2_at_primary"] = np.nan
+            opt["beta_3_at_primary"] = np.nan
+            opt["pvalue_beta_3_primary"] = np.nan
+            opt["R2_at_primary"] = np.nan
+
+        if best_secondary is not None:
+            d_s, f_s = best_secondary
+            opt["optimal_datum_secondary"] = d_s
+            opt["beta_3_at_secondary"] = f_s["beta_3"]
+            opt["pvalue_beta_3_secondary"] = f_s["pvalue_beta_3"]
+            opt["R2_at_secondary"] = f_s["R2"]
+        else:
+            opt["optimal_datum_secondary"] = np.nan
+            opt["beta_3_at_secondary"] = np.nan
+            opt["pvalue_beta_3_secondary"] = np.nan
+            opt["R2_at_secondary"] = np.nan
+
+        # R²-maximising datum (regardless of β₃ sign)
+        if best_r2_fit is not None:
+            opt["max_R2_datum"] = best_r2_datum
+            opt["R2_at_max"] = best_r2_fit["R2"]
+            opt["beta_1_at_max"] = best_r2_fit["beta_1"]
+            opt["beta_2_at_max"] = best_r2_fit["beta_2"]
+            opt["beta_3_at_max"] = best_r2_fit["beta_3"]
+            opt["pvalue_beta_3_at_max"] = best_r2_fit["pvalue_beta_3"]
+            opt["beta_3_positive_at_max"] = best_r2_fit["beta_3"] > 0
+        else:
+            opt["max_R2_datum"] = np.nan
+            opt["R2_at_max"] = np.nan
+            opt["beta_1_at_max"] = np.nan
+            opt["beta_2_at_max"] = np.nan
+            opt["beta_3_at_max"] = np.nan
+            opt["pvalue_beta_3_at_max"] = np.nan
+            opt["beta_3_positive_at_max"] = np.nan
+
+        # Also record fit at uniform datum for direct comparison
+        fit_uniform = fit_ssm(h_corrected, climate,
+                               lag=HEADLINE_LAG, window=LCSC_DATA_LIMIT,
+                               drainage_datum=DRAINAGE_DATUM)
+        if fit_uniform is not None:
+            opt["R2_at_uniform"] = fit_uniform["R2"]
+            opt["beta_3_at_uniform"] = fit_uniform["beta_3"]
+            opt["R2_gain_max_vs_uniform"] = (
+                opt["R2_at_max"] - fit_uniform["R2"]
+                if np.isfinite(opt.get("R2_at_max", np.nan)) else np.nan
+            )
+        else:
+            opt["R2_at_uniform"] = np.nan
+            opt["beta_3_at_uniform"] = np.nan
+            opt["R2_gain_max_vs_uniform"] = np.nan
+
+        optimal_rows.append(opt)
+
+    return pd.DataFrame(full_rows), pd.DataFrame(optimal_rows)
+
+
+def make_well_datum_figure(optimal_df: pd.DataFrame,
+                            selected_datum: float,
+                            out_path) -> None:
+    """
+    Four-panel figure:
+      Top-left:     histogram of per-well optimal datums (primary: β₃>0 & sig)
+      Top-right:    histogram of per-well R²-maximising datums
+      Bottom-left:  boxplot of primary optimal datums by cluster
+      Bottom-right: boxplot of R²-max datums by cluster
+    """
+    fig, axes = plt.subplots(2, 2, figsize=(16, 12), dpi=300)
+    fig.suptitle("Per-Well Drainage Datum Analysis",
+                 fontsize=16, fontweight="bold", y=0.98)
+
+    cids = sorted(optimal_df["Cluster"].unique())
+    bins = np.arange(0.25, 8.25, 0.25)
+
+    # ---------- Top-left: primary optimal histogram ----------
+    ax = axes[0, 0]
+    valid_p = optimal_df.dropna(subset=["optimal_datum_primary"])
+    for cid in cids:
+        sub = valid_p[valid_p.Cluster == cid]["optimal_datum_primary"]
+        label = CLUSTER_LABELS.get(cid, f"C{cid}")
+        colour = CLUSTER_COLOURS.get(cid, "#888888")
+        ax.hist(sub, bins=bins, alpha=0.55, color=colour, label=label,
+                edgecolor="white", linewidth=0.5)
+    ax.axvline(selected_datum, color="black", linewidth=1.5, linestyle=":",
+               label=f"Uniform datum ({selected_datum} m)")
+    if len(valid_p) > 0:
+        med = float(valid_p["optimal_datum_primary"].median())
+        ax.axvline(med, color="grey", linewidth=1.5, linestyle="--",
+                   label=f"Median ({med:.1f} m)")
+    ax.set_xlabel("Datum depth (m)", fontsize=11)
+    ax.set_ylabel("Number of wells", fontsize=11)
+    ax.set_title("Min datum for β₃ > 0 & p < 0.05", fontsize=13)
+    ax.legend(fontsize=8)
+    ax.grid(alpha=0.3)
+
+    # ---------- Top-right: R²-max histogram ----------
+    ax = axes[0, 1]
+    valid_r = optimal_df.dropna(subset=["max_R2_datum"])
+    for cid in cids:
+        sub = valid_r[valid_r.Cluster == cid]["max_R2_datum"]
+        label = CLUSTER_LABELS.get(cid, f"C{cid}")
+        colour = CLUSTER_COLOURS.get(cid, "#888888")
+        ax.hist(sub, bins=bins, alpha=0.55, color=colour, label=label,
+                edgecolor="white", linewidth=0.5)
+    ax.axvline(selected_datum, color="black", linewidth=1.5, linestyle=":",
+               label=f"Uniform datum ({selected_datum} m)")
+    if len(valid_r) > 0:
+        med = float(valid_r["max_R2_datum"].median())
+        ax.axvline(med, color="grey", linewidth=1.5, linestyle="--",
+                   label=f"Median ({med:.1f} m)")
+    ax.set_xlabel("Datum depth (m)", fontsize=11)
+    ax.set_ylabel("Number of wells", fontsize=11)
+    ax.set_title("R²-maximising datum", fontsize=13)
+    ax.legend(fontsize=8)
+    ax.grid(alpha=0.3)
+
+    # ---------- Bottom-left: primary boxplot ----------
+    ax = axes[1, 0]
+    box_data, box_labels, box_colours = [], [], []
+    for cid in cids:
+        sub = valid_p[valid_p.Cluster == cid]["optimal_datum_primary"].dropna()
+        if len(sub) > 0:
+            box_data.append(sub.values)
+            box_labels.append(CLUSTER_LABELS.get(cid, f"C{cid}"))
+            box_colours.append(CLUSTER_COLOURS.get(cid, "#888888"))
+    if box_data:
+        bp = ax.boxplot(box_data, tick_labels=box_labels, patch_artist=True,
+                        widths=0.6, showmeans=True,
+                        meanprops=dict(marker="D", markerfacecolor="black",
+                                       markersize=5))
+        for patch, colour in zip(bp["boxes"], box_colours):
+            patch.set_facecolor(colour)
+            patch.set_alpha(0.5)
+    ax.axhline(selected_datum, color="black", linewidth=1.5, linestyle=":")
+    ax.set_ylabel("Datum depth (m)", fontsize=11)
+    ax.set_title("Min β₃-significant datum by cluster", fontsize=13)
+    ax.grid(alpha=0.3, axis="y")
+    ax.tick_params(axis="x", rotation=15)
+
+    # ---------- Bottom-right: R²-max boxplot ----------
+    ax = axes[1, 1]
+    box_data, box_labels, box_colours = [], [], []
+    for cid in cids:
+        sub = valid_r[valid_r.Cluster == cid]["max_R2_datum"].dropna()
+        if len(sub) > 0:
+            box_data.append(sub.values)
+            box_labels.append(CLUSTER_LABELS.get(cid, f"C{cid}"))
+            box_colours.append(CLUSTER_COLOURS.get(cid, "#888888"))
+    if box_data:
+        bp = ax.boxplot(box_data, tick_labels=box_labels, patch_artist=True,
+                        widths=0.6, showmeans=True,
+                        meanprops=dict(marker="D", markerfacecolor="black",
+                                       markersize=5))
+        for patch, colour in zip(bp["boxes"], box_colours):
+            patch.set_facecolor(colour)
+            patch.set_alpha(0.5)
+    ax.axhline(selected_datum, color="black", linewidth=1.5, linestyle=":")
+    ax.set_ylabel("Datum depth (m)", fontsize=11)
+    ax.set_title("R²-maximising datum by cluster", fontsize=13)
+    ax.grid(alpha=0.3, axis="y")
+    ax.tick_params(axis="x", rotation=15)
+
+    plt.tight_layout()
+    plt.savefig(out_path, bbox_inches="tight")
+    plt.close()
+    print(f" -> Saved: {out_path.name}")
+
+
+# ==========================================================================
 # SUMMARY TABLE + FIGURE
 # ==========================================================================
 
@@ -1293,46 +1564,6 @@ def export_regional_averages_maod(cluster_df: pd.DataFrame,
     print(f" -> Saved: {INT_CLUSTER_AVG_MAOD.name}")
 
 
-def export_cluster_peak_months(centroids: dict) -> None:
-    """
-    Derive each cluster's peak water-table month from the long-term monthly
-    mean of the cluster centroid hydrograph and write to
-    INT_CLUSTER_PEAK_MONTHS.
-
-    Peak month = the calendar month with the shallowest (least negative)
-    mean depth-below-ground, i.e. the month when the water table is closest
-    to the surface.
-
-    Output columns:
-        cluster_id     int   — numeric cluster ID (e.g. 1, 2, …)
-        cluster_label  str   — human-readable label from config.CLUSTER_LABELS
-        peak_month     int   — calendar month 1–12
-    """
-    rows = []
-    for cid in sorted(centroids):
-        ts = centroids[cid].dropna()
-        if len(ts) < 24:
-            print(f"    [WARNING] C{cid}: too few data points for peak month "
-                  f"({len(ts)}); skipping.")
-            continue
-        monthly_mean = ts.groupby(ts.index.month).mean()
-        # Shallowest = least negative (max) for depth convention
-        peak = int(monthly_mean.idxmax())
-        label = CLUSTER_LABELS.get(cid, f"C{cid}")
-        rows.append({
-            "cluster_id":    cid,
-            "cluster_label": label,
-            "peak_month":    peak,
-        })
-    df = pd.DataFrame(rows)
-    df.to_csv(INT_CLUSTER_PEAK_MONTHS, index=False)
-    print(f" -> Saved: {INT_CLUSTER_PEAK_MONTHS.name}  "
-          f"({len(df)} clusters)")
-    for _, r in df.iterrows():
-        print(f"    C{r['cluster_id']} ({r['cluster_label']}): "
-              f"peak month = {r['peak_month']}")
-
-
 # ==========================================================================
 # MAIN
 # ==========================================================================
@@ -1460,6 +1691,75 @@ def main() -> None:
     sens_fig_path = DIR_03 / "03_08_datum_sensitivity.png"
     make_datum_sensitivity_figure(sens_df, DRAINAGE_DATUM, sens_fig_path)
 
+    # ---- Per-well datum sensitivity ----
+    print("\n -> Per-well datum sensitivity (0.5–8.0 m, 0.1 m steps)...")
+    well_sens_df, well_opt_df = well_datum_sensitivity(
+        wells_clean, climate, cluster_df, upstand_lookup, well_col_lookup
+    )
+    well_sens_path = DIR_03 / "03_09_well_datum_sensitivity.csv"
+    well_sens_df.to_csv(well_sens_path, index=False)
+    print(f" -> Saved: {well_sens_path.name}")
+
+    well_opt_path = DIR_03 / "03_09_well_optimal_datums.csv"
+    well_opt_df.to_csv(well_opt_path, index=False)
+    print(f" -> Saved: {well_opt_path.name}")
+
+    # Report summary statistics
+    valid_primary = well_opt_df.dropna(subset=["optimal_datum_primary"])
+    n_valid = len(valid_primary)
+    n_total = len(well_opt_df)
+    if n_valid > 0:
+        med = float(valid_primary["optimal_datum_primary"].median())
+        q25 = float(valid_primary["optimal_datum_primary"].quantile(0.25))
+        q75 = float(valid_primary["optimal_datum_primary"].quantile(0.75))
+        print(f"    {n_valid}/{n_total} wells have β₃ > 0 & p < 0.05 at "
+              f"some datum")
+        print(f"    Median optimal datum: {med:.1f} m  "
+              f"(IQR: {q25:.1f}–{q75:.1f} m)")
+        # Per-cluster breakdown
+        for cid in sorted(valid_primary["Cluster"].unique()):
+            sub = valid_primary[valid_primary.Cluster == cid][
+                "optimal_datum_primary"
+            ]
+            cl = CLUSTER_LABELS.get(cid, f"C{cid}")
+            print(f"      {cl:25s}: median {sub.median():.1f} m  "
+                  f"(range {sub.min():.1f}–{sub.max():.1f}, n={len(sub)})")
+    else:
+        print(f"    [WARNING] No wells achieved β₃ > 0 & p < 0.05 at any datum")
+
+    n_no_primary = n_total - n_valid
+    if n_no_primary > 0:
+        no_primary = well_opt_df[well_opt_df["optimal_datum_primary"].isna()]
+        has_secondary = no_primary.dropna(subset=["optimal_datum_secondary"])
+        print(f"    {n_no_primary} wells never achieved p < 0.05 on β₃ "
+              f"({len(has_secondary)} of these achieve β₃ > 0 without "
+              f"significance)")
+
+    # R²-maximising datum summary
+    valid_r2max = well_opt_df.dropna(subset=["max_R2_datum"])
+    if len(valid_r2max) > 0:
+        print(f"\n    R²-maximising datum analysis:")
+        med_r2d = float(valid_r2max["max_R2_datum"].median())
+        mean_gain = float(valid_r2max["R2_gain_max_vs_uniform"].mean())
+        n_b3_neg = int((~valid_r2max["beta_3_positive_at_max"]).sum())
+        print(f"      Median R²-max datum: {med_r2d:.1f} m")
+        print(f"      Mean R² gain vs uniform {DRAINAGE_DATUM} m: "
+              f"{mean_gain:+.4f}")
+        print(f"      β₃ negative at R²-max datum: {n_b3_neg}/{len(valid_r2max)} "
+              f"wells")
+        for cid in sorted(valid_r2max["Cluster"].unique()):
+            sub = valid_r2max[valid_r2max.Cluster == cid]
+            cl = CLUSTER_LABELS.get(cid, f"C{cid}")
+            gain = sub["R2_gain_max_vs_uniform"].mean()
+            med_d = sub["max_R2_datum"].median()
+            n_neg = int((~sub["beta_3_positive_at_max"]).sum())
+            print(f"        {cl:25s}: median datum {med_d:.1f} m, "
+                  f"R² gain {gain:+.4f}, "
+                  f"β₃<0 at max: {n_neg}/{len(sub)}")
+
+    well_fig_path = DIR_03 / "03_09_well_optimal_datums.png"
+    make_well_datum_figure(well_opt_df, DRAINAGE_DATUM, well_fig_path)
+
     # ---- Bootstrap CIs on centroid fits ----
     print(f"\n -> Bootstrapping centroid fits (B = {N_BOOTSTRAP}, "
           f"seed = {BOOTSTRAP_SEED})...")
@@ -1497,10 +1797,6 @@ def main() -> None:
     # ---- Regional averages exports ----
     export_regional_averages(centroids, climate, master_df)
     export_regional_averages_maod(cluster_df, climate)
-
-    # ---- Cluster peak months (consumed by scripts 11, 11b) ----
-    print("\n -> Exporting cluster peak months...")
-    export_cluster_peak_months(centroids)
 
     # ---- Hard halt if centroid sign assertions failed ----
     # Deferred until here so the diagnostic tables (03_04/05/06/07) and the

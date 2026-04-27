@@ -258,16 +258,21 @@ def monthly_equilibrium_shift(b1, b2_base, b2_scen_arr, b3,
     """
     Compute month-by-month equilibrium head shift.
 
-    For each month m:
-        h_eq = (β₁·P_eff - β₂·PET) / (1 + β₃)
+    Under the displacement formulation (h_disp = DRAINAGE_DATUM + h),
+    setting Δh = 0 gives:
+        0 = β₁·P_eff - β₂·PET - β₃·(D + h_eq)
+        h_eq = (β₁·P_eff - β₂·PET) / β₃  -  D
+
+    For shifts (h_scen - h_base), D cancels:
+        Δh_eq = (β₁·ΔP_eff - Δβ₂·PET) / β₃
 
     Returns array of 12 head shifts — positive = shallower (better ecology).
     Depth shift = -head_shift.
     """
     shifts = []
     for m in range(12):
-        h_base = (b1 * P_eff_base[m] - b2_base       * monthly_PET[m]) / (1 + b3)
-        h_scen = (b1 * P_eff_scen[m] - b2_scen_arr[m] * monthly_PET[m]) / (1 + b3)
+        h_base = (b1 * P_eff_base[m] - b2_base       * monthly_PET[m]) / b3
+        h_scen = (b1 * P_eff_scen[m] - b2_scen_arr[m] * monthly_PET[m]) / b3
         shifts.append(h_scen - h_base)
     return np.array(shifts)
 

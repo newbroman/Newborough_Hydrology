@@ -112,7 +112,7 @@ from utils.paths import (
     SRC_FORECASTER_TEMPLATE,
 )
 from utils.map_utils import load_dem_hillshade, add_idw_surface, add_kml_features, _safe_read_kml
-from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS
+from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, DRAINAGE_DATUM
 
 # ─────────────────────────────────────────────────────────────────────────────
 # LOCAL ALIASES
@@ -482,12 +482,17 @@ def _p_flood_iterated(
     P_clim_total   = sum(P_clim[m]   for m in months)
     PET_clim_total = sum(PET_clim[m] for m in months)
 
+    # Datum drain correction: under the displacement formulation the constant
+    # term −β₃·D accumulates over n steps as −D·(1−αⁿ), entering as a
+    # positive addend in the numerator.
+    datum_correction = DRAINAGE_DATUM * (1.0 - alpha_n)
+
     denom = b1 * S_P
     if denom == 0 or not np.isfinite(denom):
         lam = float("nan")
         pflood = float("nan")
     else:
-        lam = (h_target - h_0 * alpha_n + b2 * S_E) / denom
+        lam = (h_target - h_0 * alpha_n + b2 * S_E + datum_correction) / denom
         pflood = lam * P_clim_total
 
     return {

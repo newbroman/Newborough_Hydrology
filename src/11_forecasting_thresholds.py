@@ -83,7 +83,7 @@ from utils.paths import (
     OUT_11_TABLE7_SUMMER,
     OUT_11_TABLE8_THRESHOLDS,
 )
-from utils.config import CLUSTER_LABELS
+from utils.config import CLUSTER_LABELS, DRAINAGE_DATUM
 import os
 import sys
 from io import IOBase
@@ -522,26 +522,35 @@ def run_critical_flood_thresholds(results_dict: dict, df: pd.DataFrame) -> None:
         P_clim_total   = sum(P_clim[m] for m in months)
         PET_clim_total = sum(PET_clim[m] for m in months)
 
-        lam        = (H_TARGET - h_0 * alpha_n + b2 * S_E) / (b1 * S_P)
+        # Datum drain correction: under the displacement formulation
+        # h(t) = α·h(t-1) + β₁P - β₂PET - β₃·DATUM, the constant
+        # −β₃·DATUM term accumulates over n steps as −D·(1−αⁿ).
+        # This enters the λ formula as an additional positive term.
+        D = DRAINAGE_DATUM
+        datum_correction = D * (1.0 - alpha_n)
+
+        lam        = (H_TARGET - h_0 * alpha_n + b2 * S_E + datum_correction) / (b1 * S_P)
         P_flood_new = lam * P_clim_total
 
         # ── Collapsed linear form:  P_flood = A*d + B  (d = positive depth below ground) ──
         # Derivation: with h_target = 0 and h_0 = -d (depth expressed as positive metres
-        # below ground), the iterated closed form becomes
-        #     P_flood = (d * alpha^n / (b1 * S_P) + b2 * S_E / (b1 * S_P)) * P_clim_total
+        # below ground), the iterated closed form becomes:
+        #     λ = (0 - (-d)αⁿ + β₂S_E + D(1-αⁿ)) / (β₁S_P)
+        #       = (d·αⁿ + β₂S_E + D(1-αⁿ)) / (β₁S_P)
+        #     P_flood = λ · P_clim_total
         # i.e.
-        #     A = (alpha^n * P_clim_total) / (b1 * S_P)
-        #     B = (b2 * S_E * P_clim_total) / (b1 * S_P)
+        #     A = (αⁿ · P_clim_total) / (β₁ · S_P)
+        #     B = ((β₂·S_E + D·(1-αⁿ)) · P_clim_total) / (β₁ · S_P)
         # The collapsed form is algebraically exact, not an approximation.
         denom_b1_sp = b1 * S_P
         slope_A     = (alpha_n * P_clim_total) / denom_b1_sp
-        intercept_B = (b2 * S_E * P_clim_total) / denom_b1_sp
+        intercept_B = ((b2 * S_E + datum_correction) * P_clim_total) / denom_b1_sp
         # Spreadsheet formula assumes d is entered in cell A2 as positive metres.
         spreadsheet_formula = f"=({slope_A:.2f}*A2+{intercept_B:.2f})"
 
-        # Retained single-step value for continuity
+        # Retained single-step value for continuity (also corrected for displacement)
         h_gap      = H_TARGET - h_0
-        P_flood_old = (h_gap + b3 * h_0) / b1
+        P_flood_old = (h_gap + b3 * (D + h_0)) / b1
 
         print(f"  {cluster_labels[cluster]}")
         print(f"    h_0 = {h_0:+.3f} m  (long-term mean of month-of-minimum)")
@@ -558,13 +567,13 @@ def run_critical_flood_thresholds(results_dict: dict, df: pd.DataFrame) -> None:
 
         latex_general = (
             r"P_{\mathrm{flood}} = \lambda \sum_{i=1}^{n} \bar P_i, \quad "
-            r"\lambda = \frac{h_{\mathrm{target}} - h_0 \alpha^n + \beta_2 S_E}"
+            r"\lambda = \frac{h_{\mathrm{target}} - h_0 \alpha^n + \beta_2 S_E + D(1-\alpha^n)}"
             r"{\beta_1 S_P}"
         )
         latex_numerical = (
             rf"P_{{\mathrm{{flood}}}}^{{{cluster}}} = "
             rf"\frac{{{H_TARGET:.2f} - ({h_0:+.3f})({alpha_n:.4f}) + "
-            rf"({b2:.5f})({S_E:.2f})}}"
+            rf"({b2:.5f})({S_E:.2f}) + {D}(1-{alpha_n:.4f})}}"
             rf"{{({b1:.5f})({S_P:.2f})}} \cdot {P_clim_total:.0f}"
         )
         latex_collapsed = (

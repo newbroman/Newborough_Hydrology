@@ -12,12 +12,11 @@ import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 
-from utils.config import DRAINAGE_DATUM
+from utils.config import DRAINAGE_DATUM, HEADLINE_LAG
 
 LCSC_DATA_LIMIT = 100
 
-# Lag-1 rainfall: matches Script 03's HEADLINE_LAG = 1.
-HEADLINE_LAG = 1
+# HEADLINE_LAG imported from config.py (= 0 after bucketing fix).
 
 
 def get_metrics(obs, sim):
@@ -97,7 +96,7 @@ def compute_intercept_audit(target_well_name, df_clean, df_climate):
         }
     ).dropna()
 
-    # Lag-1 rainfall (matching Script 03 HEADLINE_LAG = 1)
+    # Rainfall lag (HEADLINE_LAG from config)
     if HEADLINE_LAG > 0:
         df["P"] = df["P"].shift(HEADLINE_LAG)
 

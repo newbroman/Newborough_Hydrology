@@ -38,6 +38,21 @@ CLUSTER_LABELS = {
 # AND significant (p < 0.05) β₃. See HANDOVER_SCRIPT03_DATUM.md.
 DRAINAGE_DATUM = 3.7  # metres below ground surface
 
+# Headline rainfall lag applied in the SSM and all per-well OLS regressions.
+# All scripts import this value rather than defining their own copy.
+#
+# History: originally set to 1 to compensate for a bucketing convention that
+# assigned end-of-month / start-of-next-month field readings to the FOLLOWING
+# calendar month (e.g. a reading on 01/09 representing August's water level
+# was bucketed to September). With lag-1 rainfall, September's model row used
+# August's rainfall — giving the correct physical pairing despite the
+# mislabelled month.
+#
+# After fixing the bucketing in Script 01 (day ≤ 15 → previous month), the
+# well data is correctly labelled and lag-0 gives the same physical pairing.
+# All regression coefficients are numerically identical.
+HEADLINE_LAG = 0
+
 CLUSTER_MARKERS = {
     1: "o",
     2: "s",

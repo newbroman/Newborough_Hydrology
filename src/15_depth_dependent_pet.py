@@ -61,7 +61,7 @@ from utils.paths import (
     OUT_15_LAMBDA_PROFILE, OUT_15_FIT_COMPARISON,
     OUT_15_BENCHMARK_TABLE, OUT_15_BEST_PARAMS,
 )
-from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, DRAINAGE_DATUM
+from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, DRAINAGE_DATUM, HEADLINE_LAG
 make_all_dirs()
 
 INT_WELL_ELEV       = INT_WELL_ELEVATIONS   # local alias used throughout script
@@ -78,8 +78,7 @@ LAMBDA_MAX   = 6.0
 LAMBDA_STEP  = 0.05
 DATA_LIMIT   = 100   # months — same cap as script 03
 
-# Headline rainfall lag — matches Script 03's HEADLINE_LAG = 1.
-HEADLINE_LAG = 1
+# HEADLINE_LAG imported from config.py (= 0 after bucketing fix).
 
 # CLUSTER_LABELS and CLUSTER_COLOURS imported from utils.config (k=5 partition).
 
@@ -289,7 +288,7 @@ def build_regression_df(centroid: pd.Series, climate: pd.DataFrame,
     # Displacement above drainage datum for β₃ predictor
     df["h_disp_prev"] = drainage_datum + df["h_prev"]
 
-    # Lag-1 rainfall (matches Script 03 HEADLINE_LAG = 1)
+    # Rainfall lag (HEADLINE_LAG from config)
     df["P_lag1"] = df["P_m"].shift(HEADLINE_LAG)
 
     df = df.dropna(subset=["Delta_h", "P_lag1", "PET", "h_prev", "h_disp_prev"])

@@ -34,7 +34,7 @@ from utils.paths import (
     DIR_09
 )
 from utils.data_utils import parse_met_date, clean_well_series, calculate_cusum
-from utils.config import DRAINAGE_DATUM
+from utils.config import DRAINAGE_DATUM, HEADLINE_LAG
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -258,7 +258,7 @@ for well, config in well_eras.items():
     era_baci_means = {}
     
     df = wells[well].to_frame(name='h').join(climate[['P_m', 'PET']], how='inner')
-    df['P_m_lag1'] = df['P_m'].shift(1)  # lag-1: water level reflects previous month's rainfall
+    df['P_m_lag1'] = df['P_m'].shift(HEADLINE_LAG)  # HEADLINE_LAG from config
     df['h_prev'] = df['h'].shift(1)
     df['Delta_h'] = df['h'] - df['h_prev']
     df = df.dropna()
@@ -685,9 +685,8 @@ try:
         'PET': climate['PET'] * 1000.0,
     }).dropna()
 
-    # Lag-1 rainfall: water level at month t reflects previous month's
-    # rainfall, consistent with HEADLINE_LAG = 1 in Script 03.
-    _ts['P_lag1'] = _ts['P'].shift(1)
+    # Rainfall lag consistent with HEADLINE_LAG from config.
+    _ts['P_lag1'] = _ts['P'].shift(HEADLINE_LAG)
 
     _ts_base = _ts[_ts.index < date_2015].copy()
     _ts_base['h_prev'] = _ts_base['h'].shift(1)

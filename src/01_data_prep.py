@@ -249,21 +249,21 @@ if __name__ == "__main__":
     # Wells
     wells = wells_raw.set_index(wells_raw.columns[0]).transpose()
 
-    # ── Month bucketing: assign each reading to its NEAREST month-start ──────
-    # The earlier pipeline version used `to_period("M").to_timestamp()` which
-    # truncates every reading to the start of its own calendar month. That
-    # creates phantom "missing" months when fieldwork straddled month-ends:
-    # e.g. readings on 2011-01-30 and 2011-03-01 would bucket as Jan and Mar,
-    # leaving February apparently empty even though the field interval was
-    # 30 days. Nearest-month assignment rounds readings on day 16 or later
-    # forward to the following month-start, eliminating the artefact while
-    # preserving all genuine extended gaps (Jul 2005, Jan 2023).
+    # ── Month bucketing: assign each reading to the month it represents ────
+    # Fieldwork convention: a visit on day 1–15 of month M is the END-of-
+    # previous-month reading (represents month M−1). A visit on day 16–31
+    # is a within-month reading (represents month M).
+    #
+    # Example: 01/09/2011 → represents August 2011 → bucket to 2011-08.
+    #          31/08/2011 → represents August 2011 → bucket to 2011-08.
+    #
+    # This ensures the monthly well index aligns with calendar months in
+    # the climate record without requiring a compensating lag-1 shift in
+    # downstream regressions. HEADLINE_LAG in config.py is set to 0.
     d = pd.to_datetime(wells.index, dayfirst=True, errors="coerce")
-    month_start = d.to_period("M").to_timestamp()
-    next_start = month_start + pd.DateOffset(months=1)
-    dist_prev = np.abs((d - month_start).total_seconds())
-    dist_next = np.abs((d - next_start).total_seconds())
-    wells.index = np.where(dist_next < dist_prev, next_start, month_start)
+    prev_month = (d.to_period("M") - 1).to_timestamp()
+    this_month = d.to_period("M").to_timestamp()
+    wells.index = np.where(d.day <= 15, prev_month, this_month)
     wells = wells.apply(pd.to_numeric, errors="coerce").groupby(level=0).mean()
     if "NW8" in wells.columns and "NW8b" in wells.columns:
         wells["NW8"] = wells["NW8b"].combine_first(wells["NW8"])

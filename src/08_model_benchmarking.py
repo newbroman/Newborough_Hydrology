@@ -17,7 +17,7 @@ Purpose:
             Δh(t) = β₁·P(t−1) − β₂·PET(t) − β₃·h_disp_prev(t)
             where h_disp = DRAINAGE_DATUM + h_depth
 
-    Both models use lag-1 rainfall (HEADLINE_LAG = 1), matching Script 03.
+    Both models use HEADLINE_LAG from config.
 
     Outputs:
         - One-row-per-well metrics table for all wells in cleaned data.
@@ -45,7 +45,7 @@ from utils.paths import (
 from utils.data_utils import normalize_well_name
 from utils.model_utils import get_metrics, get_r2
 from utils.map_utils import add_kml_features
-from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, CLUSTER_MARKERS, DRAINAGE_DATUM
+from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, CLUSTER_MARKERS, DRAINAGE_DATUM, HEADLINE_LAG
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -65,9 +65,7 @@ MASTER_PATH = INT_MASTER_DATA
 LCSC_DATA_LIMIT = 100
 EXCLUDED_WELLS_NORM = {'ceh7', 'ceh8', 'ceh37'}
 
-# Lag-1 rainfall: matches Script 03's HEADLINE_LAG = 1.
-# The lag diagnostic (03_04) found every cluster prefers lag-1 over lag-0.
-HEADLINE_LAG = 1
+# HEADLINE_LAG imported from config.py (= 0 after bucketing fix).
 
 # ==========================================
 # AESTHETICS & PUBLICATION SETTINGS
@@ -140,7 +138,7 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate):
         'PET': pd.to_numeric(climate['PET'], errors='coerce'),
     }).dropna()
 
-    # Lag-1 rainfall (matching Script 03 HEADLINE_LAG = 1)
+    # Rainfall lag (HEADLINE_LAG from config)
     if HEADLINE_LAG > 0:
         df['P'] = df['P'].shift(HEADLINE_LAG)
 

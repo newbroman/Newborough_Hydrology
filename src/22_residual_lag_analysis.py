@@ -64,7 +64,7 @@ from utils.paths import (
 )
 from utils.data_utils import normalize_well_name
 from utils.map_utils import add_kml_features
-from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, DRAINAGE_DATUM
+from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, DRAINAGE_DATUM, HEADLINE_LAG
 
 
 # ==========================================
@@ -74,12 +74,10 @@ MIN_MONTHS = 140
 AR1_WHITE_THRESHOLD = 0.3  # |phi| below this is treated as effectively white
 AR1_DIAG_PVAL = 0.05
 
-# Headline rainfall lag — matches Script 03's HEADLINE_LAG = 1.
+# HEADLINE_LAG imported from config.py (= 0 after bucketing fix).
 # Originally Script 22 fitted at lag-0 to diagnose residual temporal structure.
-# Now refitted at lag-1 with displacement, because the residuals of the CURRENT
-# model are what matter for diagnostics. The old lag-0 diagnostic is already
-# captured in Script 03's 03_04_lag_diagnostic.csv.
-HEADLINE_LAG = 1
+# Now refitted at headline lag with displacement, because the residuals of the
+# CURRENT model are what matter for diagnostics.
 
 # Wells excluded from the lag analysis. See docstring for rationale per well.
 EXCLUDED_WELLS_NORM = {'ceh7', 'ceh8', 'ceh37', 'ceh3', 'ceh4'}
@@ -124,7 +122,7 @@ def fit_model_b(well_series, climate,
     # Displacement above drainage datum for β₃ predictor
     df['h_disp_prev'] = drainage_datum + df['h_prev']
 
-    # Lag-1 rainfall (matches Script 03 HEADLINE_LAG = 1)
+    # Rainfall lag (HEADLINE_LAG from config)
     if HEADLINE_LAG > 0:
         df['P'] = df['P'].shift(HEADLINE_LAG)
 

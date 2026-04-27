@@ -36,7 +36,7 @@ from utils.paths import (
 from utils.data_utils import normalize_well_name
 from utils.model_utils import get_metrics, get_r2
 from utils.map_utils import add_kml_features
-from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, CLUSTER_MARKERS, DRAINAGE_DATUM
+from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, CLUSTER_MARKERS, DRAINAGE_DATUM, HEADLINE_LAG
 from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
@@ -54,8 +54,7 @@ MASTER_PATH = INT_MASTER_DATA
 LCSC_DATA_LIMIT = 100
 EXCLUDED_WELLS_NORM = {'ceh7', 'ceh8', 'ceh37'}
 
-# Lag-1 rainfall: matches Script 03's HEADLINE_LAG = 1.
-HEADLINE_LAG = 1
+# HEADLINE_LAG imported from config.py (= 0 after bucketing fix).
 
 # ==========================================
 # AESTHETICS & PUBLICATION SETTINGS
@@ -104,7 +103,7 @@ def compute_intercept_audit(target_well_name, df_clean, df_climate):
 
     df = pd.DataFrame({'h': well_series, 'P': pd.to_numeric(climate['P_m'], errors='coerce'), 'PET': pd.to_numeric(climate['PET'], errors='coerce')}).dropna()
 
-    # Lag-1 rainfall (matching Script 03 HEADLINE_LAG = 1)
+    # Rainfall lag (HEADLINE_LAG from config)
     if HEADLINE_LAG > 0:
         df['P'] = df['P'].shift(HEADLINE_LAG)
 

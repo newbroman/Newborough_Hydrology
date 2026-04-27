@@ -37,7 +37,7 @@ from utils.paths import (
     OUT_10_REPORT_NUMBERS,
 )
 from utils.data_utils import parse_met_date, clean_well_series, calculate_cusum
-from utils.config import DRAINAGE_DATUM
+from utils.config import DRAINAGE_DATUM, HEADLINE_LAG
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -388,7 +388,7 @@ all_data = []
 
 for well in valid_targets:
     df = wells[well].to_frame(name='h').join(climate[['P_m', 'PET']], how='inner')
-    df['P_m_lag1'] = df['P_m'].shift(1)  # lag-1: water level reflects previous month's rainfall
+    df['P_m_lag1'] = df['P_m'].shift(HEADLINE_LAG)  # HEADLINE_LAG from config
     df['h_prev'] = df['h'].shift(1)
     df['Delta_h'] = df['h'] - df['h_prev']
     df['h_disp_prev'] = DRAINAGE_DATUM + df['h_prev']  # displacement above drainage datum
@@ -470,7 +470,7 @@ full_param_results = []
 
 for well in valid_targets:
     df = wells[well].to_frame(name='h').join(climate[['P_m', 'PET']], how='inner')
-    df['P_m_lag1'] = df['P_m'].shift(1)  # lag-1: consistent with HEADLINE_LAG = 1
+    df['P_m_lag1'] = df['P_m'].shift(HEADLINE_LAG)  # HEADLINE_LAG from config
     df['h_prev'] = df['h'].shift(1)
     df['Delta_h'] = df['h'] - df['h_prev']
     df['h_disp_prev'] = DRAINAGE_DATUM + df['h_prev']  # displacement above drainage datum

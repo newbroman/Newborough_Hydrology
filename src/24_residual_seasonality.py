@@ -74,7 +74,7 @@ from utils.paths import (
 )
 from utils.data_utils import normalize_well_name
 from utils.map_utils import add_kml_features
-from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, DRAINAGE_DATUM
+from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, DRAINAGE_DATUM, HEADLINE_LAG
 
 
 # ==========================================
@@ -92,8 +92,7 @@ C3_SPLIT_DISTANCE_M = 1000.0  # legacy: under the new partition the forest-adjac
 
 # CLUSTER_LABELS and CLUSTER_COLOURS imported from utils.config (k=5 partition).
 
-# Headline rainfall lag — matches Script 03's HEADLINE_LAG = 1.
-HEADLINE_LAG = 1
+# HEADLINE_LAG imported from config.py (= 0 after bucketing fix).
 MONTH_LABELS = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D']
 
 plt.rcParams.update({
@@ -129,7 +128,7 @@ def fit_model_b(well_series, climate,
     # Displacement above drainage datum for β₃ predictor
     df['h_disp_prev'] = drainage_datum + df['h_prev']
 
-    # Lag-1 rainfall (matches Script 03 HEADLINE_LAG = 1)
+    # Rainfall lag (HEADLINE_LAG from config)
     if HEADLINE_LAG > 0:
         df['P'] = df['P'].shift(HEADLINE_LAG)
 

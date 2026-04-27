@@ -86,7 +86,7 @@ from utils.paths import (
     DIR_03,
     OUT_02_AMP_PER_WELL,
 )
-from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, DRAINAGE_DATUM
+from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, DRAINAGE_DATUM, HEADLINE_LAG
 
 
 # ==========================================================================
@@ -107,7 +107,7 @@ MIN_OBS_PER_WELL = 30
 # month t, so the water level recorded reflects recharge from the previous
 # month's rainfall. This is consistent across all five clusters and confirmed
 # on post-bucketing-fix data (ruling out a Script 01 artefact).
-HEADLINE_LAG = 1
+# HEADLINE_LAG imported from config.py (= 0 after bucketing fix).
 
 # Bootstrap configuration — well-level resampling within each cluster.
 N_BOOTSTRAP = 1000

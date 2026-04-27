@@ -74,7 +74,7 @@ from utils.paths import (
 )
 from utils.data_utils import normalize_well_name
 from utils.map_utils import add_kml_features
-from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS
+from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, DRAINAGE_DATUM
 
 
 # ==========================================
@@ -91,6 +91,9 @@ C3_SPLIT_DISTANCE_M = 1000.0  # legacy: under the new partition the forest-adjac
                               # cluster diagnostic on the new C3 (Western Residual).
 
 # CLUSTER_LABELS and CLUSTER_COLOURS imported from utils.config (k=5 partition).
+
+# Headline rainfall lag — matches Script 03's HEADLINE_LAG = 1.
+HEADLINE_LAG = 1
 MONTH_LABELS = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D']
 
 plt.rcParams.update({
@@ -105,8 +108,13 @@ plt.rcParams.update({
 # CORE COMPUTATION
 # ==========================================
 
-def fit_model_b(well_series, climate):
-    """Fit the single-period Model B — same as Script 22."""
+def fit_model_b(well_series, climate,
+                drainage_datum=DRAINAGE_DATUM):
+    """Fit the single-period Model B — same specification as Script 22.
+
+    Uses the displacement formulation (h_disp = DRAINAGE_DATUM + h_depth)
+    and lag-1 rainfall, matching Script 03's headline SSM.
+    """
     df = pd.DataFrame({
         'h':   pd.to_numeric(well_series, errors='coerce'),
         'P':   pd.to_numeric(climate['P_m'], errors='coerce'),
@@ -117,14 +125,22 @@ def fit_model_b(well_series, climate):
 
     df['h_prev']  = df['h'].shift(1)
     df['Delta_h'] = df['h'] - df['h_prev']
+
+    # Displacement above drainage datum for β₃ predictor
+    df['h_disp_prev'] = drainage_datum + df['h_prev']
+
+    # Lag-1 rainfall (matches Script 03 HEADLINE_LAG = 1)
+    if HEADLINE_LAG > 0:
+        df['P'] = df['P'].shift(HEADLINE_LAG)
+
     df = df.dropna()
     if len(df) < MIN_MONTHS - 1:
         return None
 
     X = pd.DataFrame({
-        'P':      df['P'].values,
-        'PET_n': -df['PET'].values,
-        'h_prev': df['h_prev'].values,
+        'P':          df['P'].values,
+        'PET_n':     -df['PET'].values,
+        'h_disp_neg': -df['h_disp_prev'].values,
     }, index=df.index)
     X = sm.add_constant(X, has_constant='add')
     try:

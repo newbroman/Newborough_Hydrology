@@ -34,6 +34,7 @@ from utils.paths import (
     DIR_09
 )
 from utils.data_utils import parse_met_date, clean_well_series, calculate_cusum
+from utils.config import DRAINAGE_DATUM
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -105,7 +106,7 @@ def export_table4_beta3_summary(significance_results: list[dict]) -> None:
     df["CI_95"] = df.apply(lambda r: f"[{r['Conf_Low']:.3f}, {r['Conf_High']:.3f}]", axis=1)
     df["p_value"] = df["P_Value"].apply(format_p_value)
     df["Sig"] = df["P_Value"].apply(significance_stars)
-    df["beta_3"] = df["beta_3_internal_brake"].round(3)
+    df["beta_3"] = df["beta_3_drainage"].round(3)
     df["well_rank"] = pd.Categorical(df["Well"], categories=well_order, ordered=True)
     df["era_rank"] = df["Era"].map(era_order).fillna(99)
     df = df.sort_values(["well_rank", "era_rank", "Era_Label"])
@@ -262,11 +263,12 @@ for well, config in well_eras.items():
     df['Delta_h'] = df['h'] - df['h_prev']
     df = df.dropna()
 
-    X_base = pd.DataFrame({'beta_1_recharge': df['P_m_lag1'], 'beta_2_atmospheric_draw': -df['PET'], 'beta_3_internal_brake': -df['h_prev']})
+    df['h_disp_prev'] = DRAINAGE_DATUM + df['h_prev']  # displacement above drainage datum
+    X_base = pd.DataFrame({'beta_1_recharge': df['P_m_lag1'], 'beta_2_atmospheric_draw': -df['PET'], 'beta_3_drainage': -df['h_disp_prev']})
     res_base = sm.OLS(df['Delta_h'], X_base).fit()
     b1, b2 = res_base.params['beta_1_recharge'], res_base.params['beta_2_atmospheric_draw']
     df['Drainage_Component'] = df['Delta_h'] - (b1 * df['P_m_lag1']) - (b2 * -df['PET'])
-    df['neg_h_prev'] = -df['h_prev']
+    df['neg_h_disp_prev'] = -df['h_disp_prev']
     
     era1_key = list(config['Eras'].keys())[0]
     era1_baci = config['Eras'][era1_key](baci_series)
@@ -283,23 +285,23 @@ for well, config in well_eras.items():
         
         sub = filter_func(df)
         if len(sub) > 6:
-            X_full = pd.DataFrame({'beta_1_recharge': sub['P_m_lag1'], 'beta_2_atmospheric_draw': -sub['PET'], 'beta_3_internal_brake': -sub['h_prev']})
+            X_full = pd.DataFrame({'beta_1_recharge': sub['P_m_lag1'], 'beta_2_atmospheric_draw': -sub['PET'], 'beta_3_drainage': -sub['h_disp_prev']})
             model_full = sm.OLS(sub['Delta_h'], X_full).fit()
             
             full_params_results.append({
                 'Well': well.upper(), 'Era': era_name,
                 'beta_1_recharge': round(model_full.params['beta_1_recharge'], 3),
                 'beta_2_atmospheric_draw': round(model_full.params['beta_2_atmospheric_draw'], 3),
-                'beta_3_internal_brake': round(model_full.params['beta_3_internal_brake'], 3)
+                'beta_3_drainage': round(model_full.params['beta_3_drainage'], 3)
             })
             
-            X_iso = sm.add_constant(sub['neg_h_prev'])
+            X_iso = sm.add_constant(sub['neg_h_disp_prev'])
             model_iso = sm.OLS(sub['Drainage_Component'], X_iso).fit()
-            ci = model_iso.conf_int().loc['neg_h_prev']
+            ci = model_iso.conf_int().loc['neg_h_disp_prev']
             significance_results.append({
                 'Well': well.upper(), 'Era': era_name,
-                'beta_3_internal_brake': model_iso.params['neg_h_prev'],
-                'P_Value': model_iso.pvalues['neg_h_prev'],
+                'beta_3_drainage': model_iso.params['neg_h_disp_prev'],
+                'P_Value': model_iso.pvalues['neg_h_disp_prev'],
                 'Conf_Low': ci[0], 'Conf_High': ci[1]
             })
 
@@ -565,10 +567,10 @@ if not df_sig.empty:
         for j, (_, row) in enumerate(well_data.iterrows()):
             era = row['Era']
             x_pos = i + offsets[j]
-            err_low = row['beta_3_internal_brake'] - row['Conf_Low']
-            err_high = row['Conf_High'] - row['beta_3_internal_brake']
+            err_low = row['beta_3_drainage'] - row['Conf_Low']
+            err_high = row['Conf_High'] - row['beta_3_drainage']
             clean_label = era.split('_', 1)[1].replace('_', ' ')
-            ax3.errorbar(x_pos, row['beta_3_internal_brake'], yerr=[[err_low], [err_high]],
+            ax3.errorbar(x_pos, row['beta_3_drainage'], yerr=[[err_low], [err_high]],
                         fmt=markers[era], color=colors[era], markerfacecolor=fill_styles[era], 
                         markeredgecolor=colors[era], markersize=8, capsize=5, 
                         label=clean_label)
@@ -696,7 +698,7 @@ try:
         _X_fit = pd.DataFrame({
             'P':       _ts_base['P_lag1'],
             'PET_neg': -_ts_base['PET'],
-            'h_neg':   -_ts_base['h_prev'],
+            'h_neg':   -(DRAINAGE_DATUM + _ts_base['h_prev']),
         })
         _model = sm.OLS(_ts_base['dh'].values, _X_fit.values).fit()
         _b1, _b2, _b3 = _model.params
@@ -718,7 +720,7 @@ try:
                 _PET_t = _ts_fwd.loc[_dt, 'PET']
                 if np.isnan(_P_t) or np.isnan(_PET_t):
                     continue
-                _dh_pred = _b1 * _P_t - _b2 * _PET_t - _b3 * _h_pred
+                _dh_pred = _b1 * _P_t - _b2 * _PET_t - _b3 * (DRAINAGE_DATUM + _h_pred)
                 _h_pred  = _h_pred + _dh_pred
                 _ts_fwd.loc[_dt, 'h_pred'] = _h_pred
 
@@ -921,7 +923,7 @@ except NameError:
 
 # 5. Table 5 β₃ era estimates (from significance_results already computed)
 for _sr in significance_results:
-    _rr("Table5_beta3_era", _sr['beta_3_internal_brake'],
+    _rr("Table5_beta3_era", _sr['beta_3_drainage'],
         well=_sr['Well'], era=_sr['Era'],
         note=f"CI=[{_sr['Conf_Low']:.4f},{_sr['Conf_High']:.4f}] "
              f"p={format_p_value(_sr['P_Value'])}")

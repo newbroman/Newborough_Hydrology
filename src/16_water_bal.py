@@ -17,7 +17,7 @@ Produces the outputs supporting Section 4.2.3 of the report:
 
   Panel (a): Head-space SSM decomposition
     Recharge (β₁·P̄) vs ET draw (β₂·PET̄) + Drainage (β₃·h̄_disp)
-    The balance closes to < 3.5% residual in all clusters.
+    The balance closes to < 2.5% residual in all clusters.
 
   Panel (b): Volumetric water balance partition
     P vs Losses (ET + Drainage + Interception)
@@ -384,17 +384,17 @@ def make_figure(summary, recession, ms=True):
         # ET label inside bar
         if s["et_draw"] > 0.04:
             ax1.text(i + width/2, s["et_draw"]/2, f'{s["et_draw"]:.3f}',
-                     ha='center', va='center', fontsize=6.5, color='white',
+                     ha='center', va='center', fontsize=7, color='white',
                      fontweight='bold')
         # Drainage label inside or above bar
         if s["drainage"] > 0.04:
             ax1.text(i + width/2, s["et_draw"] + s["drainage"]/2,
                      f'{s["drainage"]:.3f}', ha='center', va='center',
-                     fontsize=6.5, color='white', fontweight='bold')
+                     fontsize=7, color='white', fontweight='bold')
         else:
             ax1.text(i + width/2, s["et_draw"] + s["drainage"] + 0.004,
                      f'{s["drainage"]:.3f}', ha='center', va='bottom',
-                     fontsize=6.5, color='#555')
+                     fontsize=7, color='#555')
         # Partition percentages below x-axis
         ax1.text(i, -0.028,
                  f'D:{s["drain_pct"]:.0f}%  ET:{s["et_pct"]:.0f}%',
@@ -416,11 +416,15 @@ def make_figure(summary, recession, ms=True):
     P_mm_mo = summary[cids[0]]["P_m"] * 1000
     PET_mm_mo = summary[cids[0]]["PET_m"] * 1000
     datum = DRAINAGE_DATUM
+    max_resid_pct = max(
+        100 * abs(summary[c]["residual"]) / summary[c]["total_loss"]
+        for c in cids if summary[c]["total_loss"] > 0
+    )
     ax1.text(0.5, -0.17,
              f"All clusters receive identical forcing: P̄ = {P_mm_mo:.1f} mm/month, "
              f"PET̄ = {PET_mm_mo:.1f} mm/month. "
-             f"Residuals < 3.5% of losses. Datum = {datum:.1f} m b.g.s.",
-             transform=ax1.transAxes, ha='center', va='top', fontsize=7.5,
+             f"Residuals < {max_resid_pct:.1f}% of losses. Datum = {datum:.1f} m b.g.s.",
+             transform=ax1.transAxes, ha='center', va='top', fontsize=8,
              color='#666', style='italic')
 
     # ── Panel (b): Volumetric ─────────────────────────────────────────────
@@ -493,14 +497,14 @@ def make_figure(summary, recession, ms=True):
                      zorder=5)
         elif drain_mid > 50:
             ax2.text(x_l, et_mid + drain_mid/2, f'{drain_mid:.0f}', ha='center',
-                     va='center', fontsize=6.5, color='white', zorder=5)
+                     va='center', fontsize=7, color='white', zorder=5)
 
         # Interception labels
         if is_forest:
             ax2.text(x_p, P_net + I_val/2, f'I={I_val:.0f}', ha='center',
-                     va='center', fontsize=6.5, color='white', fontweight='bold')
+                     va='center', fontsize=7, color='white', fontweight='bold')
             ax2.text(x_l, P_net + I_val/2, f'I={I_val:.0f}', ha='center',
-                     va='center', fontsize=6.5, color='white', fontweight='bold')
+                     va='center', fontsize=7, color='white', fontweight='bold')
 
         # Column headers
         ax2.text(x_p, P_annual + 20, 'P', ha='center', va='bottom', fontsize=8,
@@ -529,7 +533,7 @@ def make_figure(summary, recession, ms=True):
               label='Partition uncertainty\n(SSM–recession range)',
               hatch='\\\\\\', alpha=0.45, linewidth=0.8),
     ]
-    ax2.legend(handles=legend_elements, loc='lower right', fontsize=8,
+    ax2.legend(handles=legend_elements, loc='center right', fontsize=7.5,
                framealpha=0.9)
 
     ax2.set_xticks(x)
@@ -538,7 +542,7 @@ def make_figure(summary, recession, ms=True):
     ax2.set_title("(b) Volumetric water balance: ET/drainage partition bracketed "
                   "by SSM and recession analysis",
                   fontsize=10.5, fontweight='bold')
-    ax2.set_xlim(-0.8, len(cids) + 0.2)
+    ax2.set_xlim(-0.8, len(cids) + 1.8)
     ax2.set_ylim(0, P_annual * 1.08)
     ax2.spines['top'].set_visible(False)
     ax2.spines['right'].set_visible(False)

@@ -1,0 +1,41 @@
+Parameter,Well,Era,Value,Unit,Note
+Tier1_CUSUM_terminal,CEH4,,-11.5137,m,Final cumulative CUSUM vs Regional Mean
+Tier1_CUSUM_terminal,CEH22,,-17.4631,m,Final cumulative CUSUM vs Regional Mean
+Tier2_BACI_shift,CEH36,Pure_Scraping,0.1391,m,vs CEH4
+Tier2_BACI_shift,CEH36,Felling_Pulse,0.0152,m,vs CEH4
+Tier2_BACI_shift,CEH4,Pure_Scraping,-0.0253,m,vs Regional Mean
+Tier2_BACI_shift,CEH4,Felling_Pulse,-0.0957,m,vs Regional Mean
+Tier2_BACI_shift,CEH18,Felling_Pulse,0.0238,m,vs CEH4
+Tier2_BACI_shift,CEH18,After_Scraping,0.0207,m,vs CEH4
+Tier2_BACI_shift,CEH21,Coastal_Drawdown,0.0426,m,vs CEH22
+Tier2_BACI_shift,CEH21,After_Scraping,0.0493,m,vs CEH22
+Tier2_BACI_shift,CEH22,Coastal_Drawdown,-0.1741,m,vs Regional Mean
+Tier2_BACI_shift,CEH22,After_Scraping,-0.0859,m,vs Regional Mean
+Net_benefit,CEH36,Pure_Scraping,0.1471,m,vs CEH21 coastal benchmark
+Net_benefit,CEH36,Felling_Pulse,-0.0456,m,vs CEH21 coastal benchmark
+Net_benefit,CEH18,Felling_Pulse,-0.0194,m,vs CEH21 coastal benchmark
+Net_benefit,CEH18,After_Scraping,-0.0286,m,vs CEH21 coastal benchmark
+CEH36_raw_BACI_step,CEH36,Pure_Scraping,0.1391,m,CEH36 minus CEH4
+CEH36_synthetic_control_step,CEH36,Pure_Scraping,0.1264,m,Synthetic control (11 donors)
+CEH36_SSM_forward_residual_step,CEH36,Pure_Scraping,0.1191,m,SSM calibrated on pre-2015 baseline
+Table5_beta3_era,CEH36,1_Baseline,0.0964,m,"CI=[0.0235,0.1693] p=0.01066"
+Table5_beta3_era,CEH36,2_Pure_Scraping,0.1389,m,"CI=[0.0643,0.2136] p=<0.001"
+Table5_beta3_era,CEH36,3_Felling_Pulse,0.125,m,"CI=[0.0620,0.1879] p=<0.001"
+Table5_beta3_era,CEH4,1_Baseline,0.0713,m,"CI=[0.0276,0.1151] p=0.00165"
+Table5_beta3_era,CEH4,2_Pure_Scraping,0.1534,m,"CI=[0.0844,0.2223] p=<0.001"
+Table5_beta3_era,CEH4,3_Felling_Pulse,0.1246,m,"CI=[0.0699,0.1793] p=<0.001"
+Table5_beta3_era,CEH18,1_Baseline,0.0823,m,"CI=[0.0433,0.1214] p=<0.001"
+Table5_beta3_era,CEH18,2_Felling_Pulse,0.1023,m,"CI=[0.0131,0.1915] p=0.02538"
+Table5_beta3_era,CEH18,3_After_Scraping,0.1623,m,"CI=[0.0204,0.3041] p=0.02653"
+Table5_beta3_era,CEH21,1_Baseline,0.1013,m,"CI=[0.0543,0.1483] p=<0.001"
+Table5_beta3_era,CEH21,2_Coastal_Drawdown,0.0628,m,"CI=[-0.0055,0.1312] p=0.07075"
+Table5_beta3_era,CEH21,3_After_Scraping,0.1042,m,"CI=[-0.0116,0.2199] p=0.07572"
+Table5_beta3_era,CEH22,1_Baseline,0.1384,m,"CI=[0.0886,0.1881] p=<0.001"
+Table5_beta3_era,CEH22,2_Coastal_Drawdown,0.1499,m,"CI=[0.0645,0.2353] p=<0.001"
+Table5_beta3_era,CEH22,3_After_Scraping,0.2495,m,"CI=[0.0867,0.4123] p=0.00407"
+Summer_minimum_depth,CEH4,1_Baseline,-1.16,m,Mean of annual Jun-Sep minima
+Summer_minimum_depth,CEH4,2_Pure_Scraping,-1.2,m,Mean of annual Jun-Sep minima
+Summer_minimum_depth,CEH4,3_Felling_Pulse,-1.4,m,Mean of annual Jun-Sep minima
+Summer_minimum_depth,CEH36,1_Baseline,-1.23,m,Mean of annual Jun-Sep minima
+Summer_minimum_depth,CEH36,2_Pure_Scraping,-1.11,m,Mean of annual Jun-Sep minima
+Summer_minimum_depth,CEH36,3_Felling_Pulse,-1.1,m,Mean of annual Jun-Sep minima

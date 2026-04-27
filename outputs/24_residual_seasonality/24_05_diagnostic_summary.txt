@@ -2,26 +2,27 @@
   SEASONAL RESIDUAL DIAGNOSTIC — SUMMARY
 ==============================================================================
 
-  Wells analysed: 57
+  Wells analysed: 63
   Ridge reference: E=241750, N=364500
   C3 split distance: 1000 m
 
 ------------------------------------------------------------------------------
   PER-CLUSTER SEASONAL STATISTICS
 ------------------------------------------------------------------------------
-          n  s_minus_w  amplitude   phase  corr_sun
-Cluster                                            
-1         7     0.0008     0.0161  1.0515   -0.0688
-2        23    -0.0142     0.0214  1.5560   -0.0631
-3        18    -0.0284     0.0198  2.4093   -0.0795
-4         9    -0.0326     0.0444  2.8815   -0.0223
+          n  s_minus_w  amplitude    phase  corr_sun
+Cluster                                             
+1.0       7    -0.0072     0.0088   6.9473   -0.0597
+2.0      24    -0.0041     0.0112   8.0646   -0.0323
+3.0      17    -0.0075     0.0104   6.3037   -0.0254
+4.0       9    -0.0056     0.0144   2.3516   -0.0016
+5.0       5     0.0027     0.0104  10.7886   -0.0098
 
 ------------------------------------------------------------------------------
   C3 SPLIT BY DISTANCE (< vs >= 1000 m from ridge)
 ------------------------------------------------------------------------------
-  Forest-adjacent (n=5): amplitude = 0.0211  s-w = -0.0346
-  Warren-interior (n=13): amplitude = 0.0192  s-w = -0.0260
-  Mann-Whitney (adj < far amp): U=44.0, p=0.8770
+  Forest-adjacent (n=7): amplitude = 0.0103  s-w = -0.0108
+  Warren-interior (n=10): amplitude = 0.0105  s-w = -0.0052
+  Mann-Whitney (adj < far amp): U=34.0, p=0.4811
 
 ------------------------------------------------------------------------------
   SUNSHINE-HOURS CORRELATION (INDEPENDENT ET DIAGNOSTIC)
@@ -31,10 +32,10 @@ Cluster
   correlation would indicate extra ET losses in high-insolation months
   that Thornthwaite has not captured and b2 has therefore not fitted.
 
-  Wells with r < -0.150 (extra ET not in Thornthwaite): 0 / 57
-  Wells with r >  +0.150:                                0 / 57
-  Wells within Bartlett null band:                          57 / 57
-  Network mean: -0.0626
+  Wells with r < -0.150 (extra ET not in Thornthwaite): 0 / 63
+  Wells with r >  +0.150:                                0 / 63
+  Wells within Bartlett null band:                          63 / 63
+  Network mean: -0.0278
 
 ------------------------------------------------------------------------------
   INTERPRETATION
@@ -45,8 +46,8 @@ Cluster
   summer ET — whatever systematic bias Thornthwaite has, b2 has
   already absorbed it.
 
-  Wells with winter/early-spring phase peak (Nov-Mar): 54 / 57
-  Wells with summer phase peak (May-Aug):              0 / 57
+  Wells with winter/early-spring phase peak (Nov-Mar): 47 / 63
+  Wells with summer phase peak (May-Aug):              0 / 63
 
   Dominant phase is winter/early spring. This is not the signature
   of unmodelled summer ET. It is consistent with threshold/nonlinear

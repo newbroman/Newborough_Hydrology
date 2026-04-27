@@ -3,8 +3,9 @@
 ==============================================================================
 
   Ridge reference point: E = 241750, N = 364500 (OSGB36)
-  Analysis model: Delta_h = alpha + b10*P(t) + b11*P(t-1) - b2*PET(t) - b3*h(t-1)
-  Wells analysed: 57 with n >= 140 months
+  Analysis model: Delta_h = alpha + b10*P(t) + b11*P(t-1) - b2*PET(t) - b3*h_disp_prev(t)
+  Displacement formulation: h_disp = 3.7 + h_depth
+  Wells analysed: 63 with n >= 140 months
   Excluded: ['ceh3', 'ceh37', 'ceh4', 'ceh7', 'ceh8']
 
 ------------------------------------------------------------------------------
@@ -22,19 +23,20 @@
   RESULT
 ------------------------------------------------------------------------------
   Spearman rank correlation of peak lag vs ridge distance:
-     rho = -0.1543
-     p   = 0.3292
-     n   = 42 wells with significant peak
+     rho = +0.0096
+     p   = 0.9470
+     n   = 50 wells with significant peak
 
-  Mean peak lag (all sig wells):      3.38 months
+  Mean peak lag (all sig wells):      2.82 months
   Median peak lag (all sig wells):    2.0 months
-  Peak lag standard deviation:        2.94 months
+  Peak lag standard deviation:        2.54 months
 
   By cluster (significant wells only):
-     C1 East-Buf     n= 4  mean lag = 5.00  mean |r| = 0.193
-     C2 East-Till    n=14  mean lag = 4.43  mean |r| = 0.196
-     C3 West-Sand    n=15  mean lag = 2.33  mean |r| = 0.244
-     C4 West-For     n= 9  mean lag = 2.78  mean |r| = 0.284
+     C1 (Lake Edge)  n= 7  mean lag = 2.00  mean |r| = 0.275
+     C2 (Dune)       n=23  mean lag = 2.00  mean |r| = 0.219
+     C3 (Western Residual) n=10  mean lag = 3.00  mean |r| = 0.179
+     C4 (Main Forest) n= 9  mean lag = 4.44  mean |r| = 0.178
+     C5 (Coastal Forest) n= 1  mean lag = 11.00  mean |r| = 0.138
 
 ------------------------------------------------------------------------------
   INTERPRETATION

@@ -183,11 +183,14 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate):
         h_trad_iter[t] = h_trad_iter[t - 1] + dh_trad
 
     # SSM iterative: use shared simulate_ssm (displacement recurrence)
+    # Design matrix columns are already negated (-PET, -h_disp_prev), so the
+    # fitted OLS params ARE the β values directly (positive = physically correct).
+    # simulate_ssm expects: dh = b1*P - b2*PET - b3*(D+h), with b1,b2,b3 positive.
     h_lcsc_iter_raw = simulate_ssm(
         h0=h_obs[0], P=p_arr[1:], PET=pet_arr[1:],
         b1=float(model_lcsc.params['P']),
-        b2=float(-model_lcsc.params['PET']),       # design matrix has -PET
-        b3=float(-model_lcsc.params['h_disp_prev']),  # design matrix has -h_disp
+        b2=float(model_lcsc.params['PET']),           # already β₂ (coeff on -PET)
+        b3=float(model_lcsc.params['h_disp_prev']),    # already β₃ (coeff on -h_disp)
     )
     h_lcsc_iter = np.concatenate([[h_obs[0]], h_lcsc_iter_raw])
 

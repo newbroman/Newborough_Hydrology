@@ -3,13 +3,14 @@
 =======================
 State-space model (SSM) fits for the Newborough Warren pipeline.
 
-Model (lag-1 headline, displacement formulation, per-cluster centroid and per-well):
+Model (displacement formulation, per-cluster centroid and per-well):
 
-    Δh(t) = β₁·P(t−1) + β₂·(−PET(t)) + β₃·(−h_disp_prev(t))
+    Δh(t) = β₁·P(t−k) + β₂·(−PET(t)) + β₃·(−h_disp_prev(t))
 
     where h_disp = DRAINAGE_DATUM + h_depth
           (displacement above a reference drainage base, in metres;
            DRAINAGE_DATUM = 3.7 m below ground surface)
+          k = HEADLINE_LAG (from config.py; currently 0 after bucketing fix)
 
 The displacement formulation was adopted after a sensitivity analysis found
 that the depth-below-surface formulation produces negative β₃ for three of
@@ -18,12 +19,11 @@ Reformulating as displacement above a 3.7 m drainage base resolves this:
 all five clusters produce positive, significant β₃ with comparable or
 improved R². See HANDOVER_SCRIPT03_DATUM.md for full rationale.
 
-The lag-1 specification was adopted after the lag diagnostic (03_04) found that
-every cluster prefers lag-1 over lag-0, with R² jumping from ~0.3–0.5 to
-~0.6–0.7, and β₁ consistently large, significant, and positive. Physical
-basis: monthly dipwell readings taken in the first week of month t reflect
-recharge from the previous month's rainfall. Confirmed on post-bucketing-fix
-data, ruling out a Script 01 artefact.
+Rainfall lag: HEADLINE_LAG is imported from config.py. Originally set to 1
+to compensate for a bucketing convention that assigned readings to the wrong
+month; after fixing the bucketing in Script 01, HEADLINE_LAG = 0 gives
+identical physical pairing. The lag diagnostic (03_04) tests lags 0–3
+regardless of the headline setting.
 
 Physical sign conventions (authoritative, per NEWBOROUGH_HANDOVER.md):
     beta_1 > 0  — rainfall raises the water table              [hard assertion]
@@ -49,6 +49,13 @@ Outputs (final — outputs/03_state_space_model/):
     03_05_bootstrap_ci.csv                 — B=1000 bootstrap CIs per cluster
     03_06_leave_one_out.csv                — per-cluster leave-one-well-out fits
     03_07_c1_split_window.csv              — C1 pre/post-2018 split-window fits
+    03_08_datum_sensitivity.csv            — cluster-level datum sweep (0.5–8.0 m)
+    03_08_datum_sensitivity.png            — 3-panel datum sensitivity figure
+    03_09_well_datum_sensitivity.csv       — per-well datum sweep (66 wells × 76 depths)
+    03_09_well_optimal_datums.csv          — per-well optimal datums (primary, secondary, R²-max)
+    03_09_well_optimal_datums.png          — 4-panel per-well datum figure
+    03_10_well_datum_r2max_map.png         — spatial map: R²-max datum per well (report Fig.)
+    03_10_well_r2_gain_map.png             — spatial map: R² gain vs uniform datum (report Fig.)
 
 Phase 1 validation (rebuild priorities):
     * beta_1 > 0 and beta_2 > 0 asserted on every centroid fit (hard-fail).
@@ -85,6 +92,7 @@ from utils.paths import (
     OUT_03_SIGNATURES, OUT_03_CLUSTER_SUMMARY, OUT_03_MECHANISTIC_TABLE,
     DIR_03,
     OUT_02_AMP_PER_WELL,
+    DATA_DIR,
 )
 from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, DRAINAGE_DATUM, HEADLINE_LAG
 from utils.model_utils import fit_ssm, assert_physical_signs
@@ -101,14 +109,12 @@ LCSC_DATA_LIMIT = 100
 # Minimum observations required for a per-well SSM fit (first-differences).
 MIN_OBS_PER_WELL = 30
 
-# Headline rainfall lag (months). The lag diagnostic (03_04) found that every
-# cluster's centroid fit prefers lag-1 (R^2 ~ 0.6-0.7 vs 0.3-0.5 at lag-0,
-# beta_1 large/significant/positive vs small/borderline/negative at lag-0).
-# Physical basis: monthly dipwell readings are taken in the first week of
-# month t, so the water level recorded reflects recharge from the previous
-# month's rainfall. This is consistent across all five clusters and confirmed
-# on post-bucketing-fix data (ruling out a Script 01 artefact).
-# HEADLINE_LAG imported from config.py (= 0 after bucketing fix).
+# HEADLINE_LAG imported from config.py (currently 0 after bucketing fix).
+# History: originally set to 1 to compensate for a bucketing convention that
+# assigned readings to the wrong month. After fixing the bucketing in
+# Script 01 (day ≤ 15 → previous month), lag-0 gives the correct physical
+# pairing and numerically identical coefficients. The lag diagnostic (03_04)
+# tests lags 0–3 regardless of the headline value.
 
 # Bootstrap configuration — well-level resampling within each cluster.
 N_BOOTSTRAP = 1000
@@ -1231,6 +1237,69 @@ def make_well_datum_figure(optimal_df: pd.DataFrame,
 
 
 # ==========================================================================
+# SPATIAL DATUM MAPS (using map_utils.plot_metric_map)
+# ==========================================================================
+
+def make_well_datum_maps(optimal_df: pd.DataFrame,
+                          locs_clean: pd.DataFrame,
+                          selected_datum: float) -> None:
+    """
+    Two publication-quality spatial maps of per-well optimal datums:
+      1. R²-maximising datum per well
+      2. R² gain from per-well optimisation vs uniform datum
+
+    Uses plot_metric_map from map_utils for DEM background, KML overlays,
+    and cluster-shape markers. Degrades gracefully if DEM/KML files are absent.
+
+    Report destination: Section 3.4 (SSM methods, displacement datum justification).
+    """
+    try:
+        from utils.map_utils import plot_metric_map
+    except ImportError:
+        print("    [WARNING] map_utils not available — skipping spatial datum maps.")
+        return
+
+    if not DATA_DIR.exists():
+        print(f"    [WARNING] Data directory {DATA_DIR} not found — "
+              "skipping spatial datum maps.")
+        return
+
+    # Merge well locations with optimal datums
+    opt = optimal_df.copy()
+    opt["_n"] = opt["well"].apply(normalize_well_name)
+    loc = locs_clean.copy()
+    loc["_n"] = loc["Match_ID"].apply(normalize_well_name)
+    merged = opt.merge(loc[["_n", "E", "N"]], on="_n", how="left")
+    merged = merged.dropna(subset=["E", "N"])
+    map_df = merged.rename(columns={"E": "Easting", "N": "Northing",
+                                     "Cluster": "Cluster_ID"})
+
+    if map_df.empty:
+        print("    [WARNING] No wells with locations — skipping spatial datum maps.")
+        return
+
+    # Map 1: R²-maximising datum
+    out1 = DIR_03 / "03_10_well_datum_r2max_map.png"
+    plot_metric_map(
+        map_df, "max_R2_datum",
+        title="Per-Well R²-Maximising Drainage Datum (m below ground)",
+        output_path=out1, cmap="RdYlBu",
+        data_dir=DATA_DIR, vmin=0.5, vmax=5.0,
+    )
+    print(f" -> Saved: {out1.name}")
+
+    # Map 2: R² gain vs uniform datum
+    out2 = DIR_03 / "03_10_well_r2_gain_map.png"
+    plot_metric_map(
+        map_df, "R2_gain_max_vs_uniform",
+        title=f"R² Gain: Per-Well Optimal vs Uniform {selected_datum} m Datum",
+        output_path=out2, cmap="RdYlGn",
+        data_dir=DATA_DIR, vmin=-0.02, vmax=0.10,
+    )
+    print(f" -> Saved: {out2.name}")
+
+
+# ==========================================================================
 # SUMMARY TABLE + FIGURE
 # ==========================================================================
 
@@ -1638,6 +1707,10 @@ def main() -> None:
 
     well_fig_path = DIR_03 / "03_09_well_optimal_datums.png"
     make_well_datum_figure(well_opt_df, DRAINAGE_DATUM, well_fig_path)
+
+    # ---- Spatial datum maps (DEM + KML overlay) ----
+    print("\n -> Generating spatial datum maps...")
+    make_well_datum_maps(well_opt_df, locs_clean, DRAINAGE_DATUM)
 
     # ---- Bootstrap CIs on centroid fits ----
     print(f"\n -> Bootstrapping centroid fits (B = {N_BOOTSTRAP}, "

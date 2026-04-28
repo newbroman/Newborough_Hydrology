@@ -15,14 +15,20 @@ Hydrograph figure:
   The steady-state SSM cannot be run forward from an arbitrary initial
   condition without accumulating drift (the intercept term α that closes
   the water balance is not included in the forward simulation). Instead,
-  scenario impacts are expressed as monthly equilibrium head shifts:
+  scenario impacts are expressed as monthly single-step perturbations:
 
-      Δh_eq(m) = [β₁·P_eff_scen(m) - β₂_scen(m)·PET(m)] / (1+β₃)
-               - [β₁·P_eff_base(m) - β₂_base·PET(m)]    / (1+β₃)
+      Δh(m) = β₁·(P_eff_scen(m) − P_eff_base(m))
+            − (β₂_scen(m) − β₂_base)·PET(m)
+
+  This is the immediate monthly forcing response — the first-year
+  adjustment, not a steady-state prediction. The β₃ drainage term does
+  not appear because in the first month after a management change, h has
+  not yet moved, so the drainage response to the change is zero.
 
   These shifts are applied to the observed C4 mean seasonal cycle to produce
   scenario-specific synthetic hydrographs. This approach is grounded in the
-  observed record and avoids SSM drift.
+  observed record, avoids SSM drift, and produces physically reasonable
+  magnitudes (order 0.05–0.10 m/month) comparable to BACI observations.
 
   Broadleaf conversion uses seasonally-varying β₂ to capture deciduous
   phenology: lower ET in winter (leaves off, Oct-Mar) and higher in summer
@@ -31,8 +37,9 @@ Hydrograph figure:
 
   The BACI-observed clearfell displacement (-0.218 m summer, -0.145 m annual)
   is shown as a benchmark band. The gap between modelled and BACI clearfell
-  reflects the unparameterised water balance residual pathway not captured in the
-  β-coefficient equilibrium shift.
+  reflects both the cumulative drainage feedback over multiple years (which
+  the single-step perturbation does not capture) and unparameterised water
+  balance residual pathways.
 
 Distribution figure:
   Violin/strip plot of observed annual summer minimum depths by cluster
@@ -255,23 +262,6 @@ def cluster_summer_mins(cl, master, df, dates, well_names, elev,
 # SCENARIO COMPUTATION
 # ============================================================================
 
-def monthly_equilibrium_shift(b1, b2_base, b2_scen_arr, b3,
-                               P_eff_base, P_eff_scen, monthly_PET):
-    """Backward-compatible wrapper — delegates to monthly_perturbation().
-
-    The perturbation approach computes the immediate monthly forcing
-    response rather than the equilibrium shift (which divides by β₃ and
-    produces unrealistically large values). See MODULARISATION_HANDOVER.md
-    Section 4 for the scientific rationale.
-
-    The b3 parameter is accepted for call-site compatibility but not used.
-    """
-    return monthly_perturbation(
-        b1=b1, b2_base=b2_base, b2_scen_arr=b2_scen_arr,
-        P_eff_base=P_eff_base, P_eff_scen=P_eff_scen,
-        monthly_PET=monthly_PET,
-    )
-
 
 def build_scenarios(master, climate):
     """Build scenario equilibrium shifts and apply to observed C4 seasonal cycle."""
@@ -313,12 +303,12 @@ def build_scenarios(master, climate):
 
     scenario_shifts = {
         "Baseline (Corsican pine)": np.zeros(12),
-        "Full clearfell":  monthly_equilibrium_shift(
-            b1, b2, b2_cf,   b3, P_base, P_cf,   monthly_PET),
-        "50% thinning":    monthly_equilibrium_shift(
-            b1, b2, b2_thin, b3, P_base, P_thin, monthly_PET),
-        "Broadleaf conversion": monthly_equilibrium_shift(
-            b1, b2, b2_bl,   b3, P_base, P_bl,   monthly_PET),
+        "Full clearfell":  monthly_perturbation(
+            b1, b2, b2_cf,   P_base, P_cf,   monthly_PET),
+        "50% thinning":    monthly_perturbation(
+            b1, b2, b2_thin, P_base, P_thin, monthly_PET),
+        "Broadleaf conversion": monthly_perturbation(
+            b1, b2, b2_bl,   P_base, P_bl,   monthly_PET),
     }
 
     return scenario_shifts, monthly_P, monthly_PET, b1, b2, b3

@@ -13,6 +13,15 @@ ANCOVA_cwb_coeff,,,-0.0006,m/mm,"Cumulative water balance, p=<0.001"
 ANCOVA_scraping_step,,,-0.1509,m,"Apr 2015 scraping, p=<0.001"
 ANCOVA_clearfell_step,,,-0.0795,m,"Dec 2017 clearfell, p=<0.001, CI=[-0.1133,-0.0456]"
 ANCOVA_interaction,,,0.0004,m/mm,"cwb×post interaction, p=<0.001"
+ANCOVA_R2,,,0.7226,,Model 2 R² (impact zone)
+ANCOVA_oct2023_coef,,,-0.0086,m,"Oct 2023 scraping term (impact), p=0.634, ΔAIC=+1.77"
+ANCOVA_edge_intercept,,,-0.1905,m,Model 2 edge intercept
+ANCOVA_edge_cwb_coeff,,,-0.0002,m/mm,"Edge cwb, p=0.0025"
+ANCOVA_edge_scraping_step,,,-0.0092,m,"Edge Apr 2015 scraping, p=0.5163"
+ANCOVA_edge_clearfell_step,,,-0.0167,m,"Edge Dec 2017 clearfell, p=0.1893, CI=[-0.0416,0.0082]"
+ANCOVA_edge_interaction,,,0.0001,m/mm,"Edge cwb×post interaction, p=0.3946"
+ANCOVA_edge_R2,,,0.1203,,Model 2 R² (edge zone)
+ANCOVA_edge_oct2023_coef,,,-0.0085,m,"Oct 2023 scraping term (edge), p=0.524, ΔAIC=+1.58"
 Per_well_BACI_displacement,FE2,Pre_felling,-0.5745,m,Zone=Core_Impact
 Per_well_BACI_displacement,FE2,Post_felling,-0.5421,m,Zone=Core_Impact
 Per_well_BACI_displacement,FE4,Pre_felling,-0.2373,m,Zone=Core_Impact

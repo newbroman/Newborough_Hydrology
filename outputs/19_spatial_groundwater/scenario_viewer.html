@@ -209,7 +209,8 @@ footer a:hover{text-decoration:underline;}
     Winter&nbsp;=&nbsp;Nov&#8211;Mar. Summer&nbsp;=&nbsp;May&#8211;Sep. Slider range 0.5&#8211;1.5&#215; brackets UKCP18 end-century probabilistic ranges for Wales under RCP8.5, while staying within the linear steady-state domain of the fitted state-space model.</div>
   <div class="hr"></div>
 
-  <div class="ch">Forest C4/C5</div>
+  <div class="ch">C4 Main Forest</div>
+  <div class="ch">C5 Coastal Forest</div>
   <div class="srow"><label>Interception</label>
     <input type="range" min="0" max="0.4" step="0.01" value="0.24" id="sI" oninput="onSl()">
     <span class="sv" id="vI">24%</span></div>
@@ -678,16 +679,18 @@ function renderMonthlyTable(){
 function renderMetrics(){
   var cls=[1,2,3,4,5],sl=CUR_SL||{sSyMode:0};
   var mDH=cls.reduce(function(s,c){return s+(DH[c]||0);},0)/5;
-  var fDH=((DH[4]||0)+(DH[5]||0))/2;
+  var c4DH=DH[4]||0, c5DH=DH[5]||0;
   function dc(v){return v>0.002?'#0d47a1':v<-0.002?'#b71c1c':'#333';}
   function mc(l,v,u,col){return'<div class="mc"><div class="ml">'+l+'</div><div class="mv" style="color:'+col+'">'+v+' <span class="mu">'+u+'</span></div></div>';}
   var allW=WELLS.filter(function(w){return cls.indexOf(w.cl)>=0;});
   var mSy=allW.length?allW.reduce(function(s,w){return s+syEff(w,sl.sSyMode);},0)/allW.length:0.12;
-  var fW=WELLS.filter(function(w){return w.cl===4||w.cl===5;});
-  var fSy=fW.length?fW.reduce(function(s,w){return s+syEff(w,sl.sSyMode);},0)/fW.length:0.12;
-  var mShift=mSy*mDH*1000, fShift=fSy*fDH*1000;
+  var c4w=WELLS.filter(function(w){return w.cl===4;});
+  var c5w=WELLS.filter(function(w){return w.cl===5;});
+  var c4Sy=c4w.length?c4w.reduce(function(s,w){return s+syEff(w,sl.sSyMode);},0)/c4w.length:0.12;
+  var c5Sy=c5w.length?c5w.reduce(function(s,w){return s+syEff(w,sl.sSyMode);},0)/c5w.length:0.12;
+  var mShift=mSy*mDH*1000, c4Shift=c4Sy*c4DH*1000, c5Shift=c5Sy*c5DH*1000;
   function fmtShift(v){return(v>=0?'+':'')+v.toFixed(1);}
-  document.getElementById('mrow').innerHTML=mc('Mean \u0394h',(mDH>=0?'+':'')+mDH.toFixed(3),'m',dc(mDH))+mc('Forest \u0394h',(fDH>=0?'+':'')+fDH.toFixed(3),'m',dc(fDH))+mc('Mean Sy',(mSy*100).toFixed(1),'%','#333')+mc('Forest Sy',(fSy*100).toFixed(1),'%','#333')+mc('Mean storage shift',fmtShift(mShift),'mm',dc(mDH))+mc('Forest storage shift',fmtShift(fShift),'mm',dc(fDH));
+  document.getElementById('mrow').innerHTML=mc('Mean \u0394h',(mDH>=0?'+':'')+mDH.toFixed(3),'m',dc(mDH))+mc('C4 \u0394h',(c4DH>=0?'+':'')+c4DH.toFixed(3),'m',dc(c4DH))+mc('C5 \u0394h',(c5DH>=0?'+':'')+c5DH.toFixed(3),'m',dc(c5DH))+mc('Mean Sy',(mSy*100).toFixed(1),'%','#333')+mc('C4 Sy',(c4Sy*100).toFixed(1),'%','#333')+mc('C5 Sy',(c5Sy*100).toFixed(1),'%','#333')+mc('Mean storage',fmtShift(mShift),'mm',dc(mDH))+mc('C4 storage',fmtShift(c4Shift),'mm',dc(c4DH))+mc('C5 storage',fmtShift(c5Shift),'mm',dc(c5DH));
 }
 
 function applyLayout(){document.getElementById('mainGrid').style.gridTemplateColumns=window.innerWidth<640?'1fr':'210px minmax(0,1fr)';}

@@ -124,6 +124,26 @@ REQUIRED_PHASE10_OUTPUTS = [
     "21_forestry_scenarios/21_forestry_04_baci_zone_violin.png",
 ]
 
+# ── Upstream dependency map ──────────────────────────────────────────────────
+# Each entry: (step_threshold, required_files, phase_label)
+# If the user selects a step >= step_threshold and any required_files are
+# missing, a warning is printed before proceeding. This catches the most
+# common case: running a mid-pipeline script before the upstream phases
+# have produced the intermediate CSVs it needs.
+
+_UPSTREAM_DEPS = [
+    (5,  REQUIRED_PHASE1_OUTPUTS,  "Phase 1 (steps 1–4)"),
+    (13, REQUIRED_PHASE3_OUTPUTS,  "Phase 3 (steps 7–12)"),
+]
+
+# Core intermediate: 01_climate.csv is needed by almost every script from
+# step 2 onwards. It's the single most common import-time failure when
+# running a script before the pipeline has run at all.
+_CORE_INTERMEDIATES = [
+    "01_climate.csv",
+    "01_wells_clean.csv",
+]
+
 # Viewer is now generated directly by script 19 — no separate runner needed.
 # Kept as a separate menu option to allow rebuilding the viewer without
 # re-running the full pipeline (useful after parameter changes in script 19).
@@ -166,6 +186,65 @@ def validate_outputs(required: list, phase_name: str) -> None:
     if missing:
         raise FileNotFoundError(f"{phase_name} outputs missing: " + ", ".join(missing))
     print(f"\n  [OK] {phase_name} validation passed.")
+
+
+def warn_missing_upstream(step: int, interactive: bool = True) -> bool:
+    """Check for upstream intermediate files and warn if missing.
+
+    Parameters
+    ----------
+    step : int
+        The pipeline step number to check dependencies for.
+    interactive : bool
+        If True (menu mode), prompt the user to confirm. If False (CLI
+        mode), print the warning and return True (proceed with warning).
+
+    Returns True if the user confirms they want to proceed despite warnings,
+    or if no warnings are needed. Returns False if the user aborts.
+    """
+    warnings = []
+
+    # Core intermediates — needed by almost every script from step 2 onwards
+    if step >= 2:
+        missing_core = [f for f in _CORE_INTERMEDIATES if not (OUT_DIR / f).exists()]
+        if missing_core:
+            warnings.append(
+                f"  Core pipeline intermediates not found:\n"
+                f"    {', '.join(missing_core)}\n"
+                f"  These are produced by step 1 (01_data_prep.py) and are\n"
+                f"  required by nearly every downstream script."
+            )
+
+    # Phase-level dependencies
+    for threshold, required, phase_label in _UPSTREAM_DEPS:
+        if step >= threshold:
+            missing = [f for f in required if not (OUT_DIR / f).exists()]
+            if missing:
+                warnings.append(
+                    f"  {phase_label} outputs not found:\n"
+                    f"    {', '.join(missing)}"
+                )
+
+    if not warnings:
+        return True
+
+    _hr("!")
+    print("  WARNING: Upstream pipeline outputs are missing.\n")
+    for w in warnings:
+        print(w)
+    print()
+    print("  This step may fail if it depends on these files.")
+    print("  If this is your first run, use option 1 (full pipeline) or")
+    print("  option 2 (resume from step 1) to generate all intermediates.")
+    _hr("!")
+
+    if not interactive:
+        # CLI mode: warn but proceed
+        print("  (Proceeding — use --full for a clean run if this fails.)\n")
+        return True
+
+    ans = input("\n  Proceed anyway? [y/N] ").strip().lower()
+    return ans == "y"
 
 def run_phase(phase: list, phase_name: str, from_step: int = 1) -> None:
     print(f"\n{'─'*70}\n  {phase_name}\n{'─'*70}")
@@ -294,6 +373,9 @@ def menu_run_from() -> None:
         return
     script, label, _ = _STEP_MAP[n]
     print(f"\n  Resume from step {n}: {script}")
+    if not warn_missing_upstream(n):
+        print("  Aborted.")
+        return
     ans = input("  Confirm? [y/N] ").strip().lower()
     if ans == "y":
         run_full_pipeline(from_step=n)
@@ -304,6 +386,9 @@ def menu_run_single() -> None:
         return
     script, label, extra = _STEP_MAP[n]
     print(f"\n  Run step {n}: {script}")
+    if not warn_missing_upstream(n):
+        print("  Aborted.")
+        return
     ans = input("  Confirm? [y/N] ").strip().lower()
     if ans == "y":
         ensure_paths()
@@ -313,6 +398,9 @@ def menu_run_single() -> None:
 def run_supplementary() -> None:
     """Run supplementary diagnostic scripts 22–24."""
     ensure_paths()
+    if not warn_missing_upstream(24):
+        print("  Aborted.")
+        return
     run_phase(PHASE_11, "PHASE 11 — Supplementary Diagnostics (Scripts 22–24)")
     print("\n  [OK] Supplementary diagnostics complete.")
 
@@ -385,6 +473,7 @@ def main() -> None:
             run_full_pipeline(from_step=1)
         elif args.from_step is not None:
             _banner("NEWBOROUGH WARREN GROUNDWATER ANALYSIS PIPELINE")
+            warn_missing_upstream(args.from_step, interactive=False)
             run_full_pipeline(from_step=args.from_step)
         else:
             interactive_menu()

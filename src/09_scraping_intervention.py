@@ -626,9 +626,16 @@ try:
     # outside the scraping management footprint, excluding CEH36 (target),
     # CEH4 (already used as raw BACI control), and the felling-zone wells
     # (which underwent their own intervention).
+    #
+    # CEH23 (C1) and CEH28 (C2) were replaced by CEH11 (C1) and CEH24 (C2)
+    # because CEH23 has a 17-month field gap (Oct 2016–Feb 2018) spanning
+    # the Pure Scraping/felling boundary, and CEH28 has a 20-month gap
+    # (Oct 2018–May 2020) covering the first two post-felling years.
+    # CEH11 and CEH24 have complete records through all analysis eras and
+    # belong to the same clusters as the wells they replace.
     _donor_candidates = [
-        'ceh1', 'ceh2', 'ceh5', 'ceh6', 'ceh9', 'ceh16', 'ceh17',
-        'ceh19', 'ceh22', 'ceh23', 'ceh28',
+        'ceh1', 'ceh2', 'ceh5', 'ceh6', 'ceh9', 'ceh11', 'ceh16',
+        'ceh17', 'ceh19', 'ceh22', 'ceh24',
     ]
     _donors = [w for w in _donor_candidates if w in wells.columns]
 
@@ -703,7 +710,7 @@ try:
         _b1, _b2, _b3 = _model.params
 
         # Forward simulation from end-of-baseline through end-of-record.
-        # Uses P_lag1 (previous month's rainfall) at each step.
+        # Uses P_lag1 (lagged rainfall per HEADLINE_LAG) at each step.
         _ts_fwd = _ts.copy()
         _ts_fwd['h_pred'] = np.nan
         _idx_list = list(_ts_fwd.index)

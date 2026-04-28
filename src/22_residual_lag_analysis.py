@@ -32,7 +32,7 @@ Window choice:
     rolling-window analysis planned for stage 3. The trade-off is that betas
     here are fitted across the whole record rather than on the recent window used
     in the report's Table 2 and Figure 15a. The two should be similar but will
-    not be identical (CEH14 alpha: +0.207 here vs +0.222 in the report's 100-mo
+    not be identical (e.g. CEH14 alpha may differ between full-record and 100-mo
     window). Table 2 / Figure 15a remain authoritative for the main report; this
     script is an analytical companion.
 

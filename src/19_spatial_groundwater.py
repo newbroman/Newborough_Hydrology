@@ -971,7 +971,7 @@ footer a:hover{{text-decoration:underline;}}
   Interception: Corsican pine 24% (Freeman 2008); broadleaf 15% annual mean (Komatsu et al. 2011).
   K&nbsp;=&nbsp;6&nbsp;m/day (Betson et al. 2002). Sy: WTF medians (scripts 17/18);
   floors C1&nbsp;=&nbsp;6%, C2&#8211;C5&nbsp;=&nbsp;12%.
-  CEH14 water balance residual &#945;&nbsp;=&nbsp;+0.222&nbsp;m/month (script 07).
+  CEH14 water balance residual &#945;&nbsp;=&nbsp;{ceh14_alpha}&nbsp;m/month (script 07).
   <a href="https://newbroman.github.io/Newborough_Hydrology/">Newborough Hydrology project site</a>
   &middot; Hollingham (2026) &#8212; <em>Journal of Hydrology: Regional Studies</em>.
 </footer>
@@ -1518,6 +1518,20 @@ def main(out_path=None):
     sy_floor_js  = {str(k): v for k, v in SY_FLOOR.items()}
     sy_lower_js  = {str(k): v for k, v in SY_DEFAULTS.items()}
 
+    # Compute CEH14 water balance residual for the footer annotation.
+    # residual = β₂·PET_bar + β₃·h_disp_bar − β₁·P_eff_bar
+    # where h_disp = DRAINAGE_DATUM + h_depth (depth is negative below ground).
+    from utils.config import DRAINAGE_DATUM
+    _P_ann, _PET_ann = climate_stats["annual"]  # in metres
+    _ceh14 = wt[wt["id"] == "ceh14"]
+    if len(_ceh14) > 0 and pd.notna(_ceh14.iloc[0]["b1"]):
+        _c14 = _ceh14.iloc[0]
+        _h_disp_14 = DRAINAGE_DATUM + _c14["mh"]  # mh is depth below ground (negative)
+        _resid_14 = _c14["b2"] * _PET_ann + _c14["b3"] * _h_disp_14 - _c14["b1"] * _P_ann
+        _ceh14_alpha_str = f"{_resid_14:+.3f}"
+    else:
+        _ceh14_alpha_str = "N/A"
+
     print("  Building DEM hillshade basemap...")
     hillshade_b64 = build_hillshade_base64(polys.get("site"))
 
@@ -1541,6 +1555,7 @@ def main(out_path=None):
         viewer_nmin=VIEWER_NMIN,
         viewer_nmax=VIEWER_NMAX,
         viewer_version=__version__,
+        ceh14_alpha=_ceh14_alpha_str,
     )
 
     out_path.write_text(html, encoding="utf-8")

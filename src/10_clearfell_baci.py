@@ -5,12 +5,13 @@ THE OMNIBUS CLEAR-FELL EXPERIMENT: BACI, SCATTERS, STATS & FULL PARAMETERS
 Purpose:
 The complete, peer-review-ready pipeline for the clear-felling experiment.
 1. ANCOVA-BACI: climate- and scraping-corrected 3-tier Zone-of-Influence BACI
-   using Core Impact, Edge Transition, and Regional Controls. The cumulative
-   water balance (P − PET − WB_BASELINE_MM mm/month, calculated from the well-record
-   partition climate forcing from the intervention signal. The 2015 scraping
-   event is modelled as a separate step change. The 2023 scraping event was
-   tested and found non-significant (p = 0.258, ΔAIC = +0.66) and is not
-   retained in the final model.
+   using Core Impact, Edge Transition, and Regional Controls for both zones.
+   The cumulative water balance (P − PET − WB_BASELINE_MM mm/month, calculated
+   from the well-record partition) separates climate forcing from the
+   intervention signal. The 2015 scraping event is modelled as a separate step
+   change. The 2023 scraping event is tested as an additional step (Model 3)
+   for both impact and edge zones; results are reported in the console output
+   and report numbers CSV.
 2. Isolate & Plot Drainage Components (Beta 3).
 3. 95% Confidence Intervals for Beta 3 Shifts.
 4. Full Parameter Shift: Beta 1 (recharge), Beta 2 (atmospheric draw),
@@ -548,6 +549,13 @@ if not baci_df.empty:
         _p  = 2 * _stats.t.sf(np.abs(_t), df=_n-_k)
         return _b, _se, _p
 
+    def _r_squared(y, X, b):
+        """Compute R² for OLS fit."""
+        _resid = y - X @ b
+        _ss_res = (_resid ** 2).sum()
+        _ss_tot = ((y - y.mean()) ** 2).sum()
+        return 1.0 - _ss_res / _ss_tot if _ss_tot > 0 else np.nan
+
     _X = np.column_stack([np.ones(len(_ab)), _ab['cwb_c'].values,
                           _ab['Scraped'].values, _ab['Post'].values,
                           _ab['cwb_c'].values * _ab['Post'].values])
@@ -555,16 +563,22 @@ if not baci_df.empty:
     # b = [intercept, b_cwb, b_scraping, b_post, b_cwb_x_post]
     # Preserve ANCOVA arrays — _b, _se, _p are later clobbered by NW10 trend.
     _ancova_b, _ancova_se, _ancova_p = _b.copy(), _se.copy(), _p.copy()
+    _ancova_r2 = _r_squared(_ab['impact'].values, _X, _b)
 
     _ab['impact_corr'] = (_ab['impact']
                           - _b[1]*_ab['cwb_c']
                           - _b[4]*_ab['cwb_c']*_ab['Post'])
 
-    # Fit same model to edge for corrected CUSUM
-    # _be initialised to None; only assigned if sufficient edge data available
+    # Fit same model to edge — capture full SE and p-values for Table 6
     _be = None
+    _ancova_edge_b = _ancova_edge_se = _ancova_edge_p = None
+    _ancova_edge_r2 = np.nan
     if 'edge' in _ab.columns and _ab['edge'].notna().sum() > 20:
-        _be, _, _ = _ols(_ab['edge'].values, _X)
+        _be, _se_e, _p_e = _ols(_ab['edge'].values, _X)
+        _ancova_edge_b  = _be.copy()
+        _ancova_edge_se = _se_e.copy()
+        _ancova_edge_p  = _p_e.copy()
+        _ancova_edge_r2 = _r_squared(_ab['edge'].values, _X, _be)
         _ab['edge_corr'] = (_ab['edge']
                             - _be[1]*_ab['cwb_c']
                             - _be[4]*_ab['cwb_c']*_ab['Post'])
@@ -574,6 +588,37 @@ if not baci_df.empty:
     _mean_pre_scr  = _b[0]
     _mean_post_scr = _b[0] + _b[2]
     _mean_post_fell= _b[0] + _b[2] + _b[3]
+
+    # ── Oct 2023 scraping test (Model 3): add a 6th term for the second
+    #    scraping event. If non-significant, it is not retained in the final
+    #    model but the test statistics are reported for transparency.
+    _ab['Scraped2'] = (_ab.index >= scraping_date_2).astype(float)
+    _X3 = np.column_stack([_X, _ab['Scraped2'].values])
+
+    def _aic(y, X, b):
+        """AIC for OLS model (Gaussian log-likelihood)."""
+        _n, _k = X.shape
+        _resid = y - X @ b
+        _ss = (_resid ** 2).sum()
+        return _n * np.log(_ss / _n) + 2 * _k
+
+    # Impact zone Oct 2023 test
+    _b3_imp, _se3_imp, _p3_imp = _ols(_ab['impact'].values, _X3)
+    _aic_m2_imp = _aic(_ab['impact'].values, _X, _b)
+    _aic_m3_imp = _aic(_ab['impact'].values, _X3, _b3_imp)
+    _daic_imp   = _aic_m3_imp - _aic_m2_imp
+    _oct23_imp_coef = _b3_imp[5]
+    _oct23_imp_p    = _p3_imp[5]
+
+    # Edge zone Oct 2023 test
+    _oct23_edge_coef = _oct23_edge_p = _daic_edge = np.nan
+    if _ancova_edge_b is not None:
+        _b3_edge, _se3_edge, _p3_edge = _ols(_ab['edge'].values, _X3)
+        _aic_m2_edge = _aic(_ab['edge'].values, _X, _be)
+        _aic_m3_edge = _aic(_ab['edge'].values, _X3, _b3_edge)
+        _daic_edge   = _aic_m3_edge - _aic_m2_edge
+        _oct23_edge_coef = _b3_edge[5]
+        _oct23_edge_p    = _p3_edge[5]
 
     # Climate-corrected CUSUM relative to post-scraping baseline
     _ab['cusum_corr'] = (_ab['impact_corr'] - _mean_post_scr).cumsum()
@@ -695,10 +740,12 @@ if not baci_df.empty:
     _xr = np.linspace(_ab['cwb_c'].min(), _ab['cwb_c'].max(), 200)
     _ax_scat.plot(_xr, (_b[0]+_b[2])        + _b[1]*_xr,
                   color=cb_green, lw=2.4,
-                  label=f'Pre-felling slope: {_b[1]*100:.4f} m/100mm  p<0.001')
+                  label=f'Pre-felling slope: {_b[1]*100:.4f} m/100mm  '
+                        f'p={_p_fmt(_ancova_p[1])}')
     _ax_scat.plot(_xr, (_b[0]+_b[2]+_b[3])  + (_b[1]+_b[4])*_xr,
                   color=cb_red,   lw=2.4,
-                  label=f'Post-felling slope: {(_b[1]+_b[4])*100:.4f} m/100mm  p<0.001')
+                  label=f'Post-felling slope: {(_b[1]+_b[4])*100:.4f} m/100mm  '
+                        f'p={_p_fmt(_ancova_p[1])}')
     _ax_scat.axhline(0, color='gray', lw=0.8, ls=':', alpha=0.5)
     _ax_scat.axvline(0, color='gray', lw=0.8, ls=':', alpha=0.5)
     _ax_scat.set_xlabel('Centred cumulative P − PET anomaly (mm)', fontsize=9)
@@ -710,15 +757,18 @@ if not baci_df.empty:
     for _sp in ['top','right']: _ax_scat.spines[_sp].set_visible(False)
     _ax_scat.grid(True, lw=0.4, ls='--', alpha=0.4)
 
+    _p_fmt = lambda p: '<0.001' if p < 0.001 else f'{p:.3f}'
     fig1.text(0.13, 0.005,
-              '† Oct 2023 scraping term: coef = −0.031 m, p = 0.258, ΔAIC = +0.66 — not retained in final model.',
+              f'† Oct 2023 scraping term (impact): coef = {_oct23_imp_coef:+.3f} m, '
+              f'p = {_oct23_imp_p:.3f}, ΔAIC = {_daic_imp:+.2f} — not retained in final model.',
               fontsize=8, color='#444444', style='italic')
 
     fig1.suptitle(
         'ANCOVA-BACI (Model 2): Climate- and scraping-corrected clearfell hydrological impact\n'
-        f'2015 scraping step = {_b[2]:+.3f} m  p<0.001   |   '
-        f'Clearfell step = {_b[3]:+.3f} m [{_b[3]-1.96*_se[3]:.3f}, {_b[3]+1.96*_se[3]:.3f}]  p<0.001   |   '
-        f'Combined cost = {_b[2]+_b[3]:+.3f} m   R² = 0.600',
+        f'2015 scraping step = {_b[2]:+.3f} m  p={_p_fmt(_ancova_p[2])}   |   '
+        f'Clearfell step = {_b[3]:+.3f} m [{_b[3]-1.96*_se[3]:.3f}, {_b[3]+1.96*_se[3]:.3f}]  '
+        f'p={_p_fmt(_ancova_p[3])}   |   '
+        f'Combined cost = {_b[2]+_b[3]:+.3f} m   R² = {_ancova_r2:.3f}',
         fontsize=10, fontweight='bold'
     )
 
@@ -755,6 +805,24 @@ if not baci_df.empty:
           f'scraping={_b[2]:+.4f}, clearfell={_b[3]:+.4f}, interaction={_b[4]:+.6f}')
     print(f'   Model 2 fitted means: pre-scraping={_mean_pre_scr:+.4f}, '
           f'post-scraping={_mean_post_scr:+.4f}, post-felling={_mean_post_fell:+.4f}')
+    print(f'   Model 2 R² (impact): {_ancova_r2:.3f}')
+    print(f'   Oct 2023 test (impact): coef={_oct23_imp_coef:+.4f}, '
+          f'p={_oct23_imp_p:.3f}, ΔAIC={_daic_imp:+.2f}')
+
+    if _ancova_edge_b is not None:
+        _pfmt = lambda p: '<0.001' if p < 0.001 else f'{p:.3f}'
+        print(f'   Model 2 edge coefficients: intercept={_ancova_edge_b[0]:+.4f}, '
+              f'cwb={_ancova_edge_b[1]:+.6f}, scraping={_ancova_edge_b[2]:+.4f}, '
+              f'clearfell={_ancova_edge_b[3]:+.4f}, interaction={_ancova_edge_b[4]:+.6f}')
+        print(f'   Model 2 edge p-values: cwb={_pfmt(_ancova_edge_p[1])}, '
+              f'scraping={_pfmt(_ancova_edge_p[2])}, clearfell={_pfmt(_ancova_edge_p[3])}, '
+              f'interaction={_pfmt(_ancova_edge_p[4])}')
+        print(f'   Model 2 edge clearfell 95% CI: '
+              f'[{_ancova_edge_b[3]-1.96*_ancova_edge_se[3]:.4f}, '
+              f'{_ancova_edge_b[3]+1.96*_ancova_edge_se[3]:.4f}]')
+        print(f'   Model 2 R² (edge): {_ancova_edge_r2:.3f}')
+        print(f'   Oct 2023 test (edge): coef={_oct23_edge_coef:+.4f}, '
+              f'p={_oct23_edge_p:.3f}, ΔAIC={_daic_edge:+.2f}')
 
 
     # ── Raw BACI figure (observational record, no climate correction) ─────────
@@ -1482,6 +1550,31 @@ try:
              f"CI=[{_ancova_b[3]-1.96*_ancova_se[3]:.4f},{_ancova_b[3]+1.96*_ancova_se[3]:.4f}]")
     _rn("ANCOVA_interaction", float(_ancova_b[4]), unit="m/mm",
         note=f"cwb×post interaction, p={'<0.001' if _ancova_p[4]<0.001 else f'{_ancova_p[4]:.4f}'}")
+    _rn("ANCOVA_R2", float(_ancova_r2), unit="",
+        note="Model 2 R² (impact zone)")
+    _rn("ANCOVA_oct2023_coef", float(_oct23_imp_coef),
+        note=f"Oct 2023 scraping term (impact), p={_oct23_imp_p:.3f}, ΔAIC={_daic_imp:+.2f}")
+
+    # 7b. Edge zone ANCOVA coefficients
+    if _ancova_edge_b is not None:
+        _pfmt_rn = lambda p: '<0.001' if p < 0.001 else f'{p:.4f}'
+        _rn("ANCOVA_edge_intercept", float(_ancova_edge_b[0]),
+            note="Model 2 edge intercept")
+        _rn("ANCOVA_edge_cwb_coeff", float(_ancova_edge_b[1]), unit="m/mm",
+            note=f"Edge cwb, p={_pfmt_rn(_ancova_edge_p[1])}")
+        _rn("ANCOVA_edge_scraping_step", float(_ancova_edge_b[2]),
+            note=f"Edge Apr 2015 scraping, p={_pfmt_rn(_ancova_edge_p[2])}")
+        _rn("ANCOVA_edge_clearfell_step", float(_ancova_edge_b[3]),
+            note=f"Edge Dec 2017 clearfell, p={_pfmt_rn(_ancova_edge_p[3])}, "
+                 f"CI=[{_ancova_edge_b[3]-1.96*_ancova_edge_se[3]:.4f},"
+                 f"{_ancova_edge_b[3]+1.96*_ancova_edge_se[3]:.4f}]")
+        _rn("ANCOVA_edge_interaction", float(_ancova_edge_b[4]), unit="m/mm",
+            note=f"Edge cwb×post interaction, p={_pfmt_rn(_ancova_edge_p[4])}")
+        _rn("ANCOVA_edge_R2", float(_ancova_edge_r2), unit="",
+            note="Model 2 R² (edge zone)")
+        _rn("ANCOVA_edge_oct2023_coef", float(_oct23_edge_coef),
+            note=f"Oct 2023 scraping term (edge), p={_oct23_edge_p:.3f}, ΔAIC={_daic_edge:+.2f}")
+
 except (NameError, IndexError):
     pass  # ANCOVA section did not run
 

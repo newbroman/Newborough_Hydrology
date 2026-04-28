@@ -31,7 +31,7 @@ Two figures are produced:
     Right: Ridge hillslope gradient (50 m smoothed DEM) — independent
            topographic evidence consistent with ridge-originating recharge
   Spatial correspondence in the NW forest/ridge zone is consistent with
-  ridge-derived water balance residual (CEH14 α = +0.222 m/month).
+  ridge-derived water balance residual (CEH14 α computed at runtime).
   Note: there are no natural watercourses on the dune warren; D8 flow
   accumulation was discarded as it does not represent real recharge paths.
 
@@ -700,9 +700,11 @@ def plot_residual_ssm(wt, features, dpi=300):
                label="Flow direction (head gradient)"),
     ]
     ax.legend(handles=leg_h, fontsize=7, loc="lower left", framealpha=0.9)
+    _ceh14_alpha = wt.loc[wt["Name_Original"].str.lower() == "ceh14", "residual_wb"]
+    _ceh14_str = f"{float(_ceh14_alpha.iloc[0]):+.3f}" if len(_ceh14_alpha) > 0 else "N/A"
     ax.annotate("Residual: SSM β coefficients only — independent of flow arrows.\n"
                 "Flow arrows: mean head gradient — independent of β coefficients.\n"
-                "CEH14 water balance residual α = +0.222 m/month.",
+                f"CEH14 water balance residual α = {_ceh14_str} m/month.",
                 xy=(0.02, 0.97), xycoords="axes fraction",
                 fontsize=7, va="top", color="dimgrey",
                 bbox=dict(boxstyle="round,pad=0.3", fc="white", alpha=0.85))

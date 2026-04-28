@@ -53,6 +53,18 @@ DRAINAGE_DATUM = 3.7  # metres below ground surface
 # All regression coefficients are numerically identical.
 HEADLINE_LAG = 0
 
+# Canopy interception fraction for Corsican pine (Freeman, 2008).
+# Measured at C5 (Coastal Forest) throughfall gauge, applied to all
+# forested clusters (C4 and C5). The interception is a partition of the
+# PET energy budget: ET_at_WT = PET − I, so I is NOT additive to PET.
+# See INTERCEPTION_TREATMENT.md for the full derivation.
+FOREST_INTERCEPTION = 0.24
+
+# Cluster IDs carrying forest canopy (Corsican pine). These receive the
+# interception correction in water-balance, WTF, and scenario scripts.
+# Under k=5: C4 (Main Forest) and C5 (Coastal Forest).
+FOREST_CIDS = (4, 5)
+
 CLUSTER_MARKERS = {
     1: "o",
     2: "s",

@@ -82,12 +82,12 @@ from utils.config import (
     CLUSTER_LABELS as _CFG_LABELS,
     CLUSTER_COLOURS as _CFG_COLOURS,
     DRAINAGE_DATUM,
-    FOREST_INTERCEPTION,
-    FOREST_CIDS,
 )
 make_all_dirs()
 
 # ── Constants ──────────────────────────────────────────────────────────────────
+FOREST_INTERCEPTION = 0.24   # Freeman (2008); fraction of P intercepted
+FOREST_CIDS         = (4, 5) # forested clusters
 
 # Recession analysis seasons (calendar months)
 WINTER_MONTHS = [11, 12, 1, 2]
@@ -395,10 +395,10 @@ def make_figure(summary, recession, ms=True):
             ax1.text(i + width/2, s["et_draw"] + s["drainage"] + 0.004,
                      f'{s["drainage"]:.3f}', ha='center', va='bottom',
                      fontsize=8, color='#555')
-        # Partition percentages below x-axis
-        ax1.text(i, -0.028,
+        # Partition percentages in space below zero line
+        ax1.text(i, -0.025,
                  f'D:{s["drain_pct"]:.0f}%  ET:{s["et_pct"]:.0f}%',
-                 ha='center', va='top', fontsize=8, color='#555')
+                 ha='center', va='center', fontsize=8, color='#555')
 
     ax1.set_xticks(x)
     ax1.set_xticklabels([CLUSTER_LABELS_FIG[c] for c in cids], fontsize=9.5)
@@ -407,7 +407,7 @@ def make_figure(summary, recession, ms=True):
                   fontsize=12, fontweight='bold')
     ax1.legend(loc='upper right', fontsize=9, framealpha=0.9)
     ax1.set_xlim(-0.6, len(cids) - 0.4)
-    ax1.set_ylim(-0.035, max(rech_vals) * 1.15)
+    ax1.set_ylim(-0.055, max(rech_vals) * 1.15)
     ax1.spines['top'].set_visible(False)
     ax1.spines['right'].set_visible(False)
     ax1.axhline(0, color='#999', linewidth=0.5, zorder=1)

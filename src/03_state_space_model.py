@@ -87,6 +87,7 @@ from utils.paths import (
     OUT_02_AMP_PER_WELL,
 )
 from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, DRAINAGE_DATUM, HEADLINE_LAG
+from utils.model_utils import fit_ssm, assert_physical_signs
 
 
 # ==========================================================================
@@ -226,133 +227,11 @@ def load_amplitude_heterogeneity(cluster_ids: list[int],
 
 
 # ==========================================================================
-# CORE FIT — THE SIGN CONVENTION LIVES HERE
+# CORE FIT — imported from utils.model_utils
 # ==========================================================================
-
-def fit_ssm(h_series: pd.Series, climate: pd.DataFrame,
-            lag: int = 0, window: int | None = LCSC_DATA_LIMIT,
-            drainage_datum: float = DRAINAGE_DATUM,
-            ) -> dict | None:
-    """
-    Fit the state-space model to a single water-level series.
-
-    Model (displacement formulation):
-        Δh(t) = β₁·P(t−lag) + β₂·(−PET(t)) + β₃·(−h_disp_prev(t))
-        (no-intercept OLS)
-
-    where h_disp = drainage_datum + h_depth (displacement above a reference
-    drainage base). Δh is computed from h_depth directly (the datum constant
-    cancels in first differences). Only the β₃ predictor column uses h_disp.
-
-    Sign convention:
-        β₁ > 0  — rainfall raises water table              [hard assertion]
-        β₂ > 0  — PET draws water table down                [hard assertion]
-        β₃ > 0  — drainage increases with head above datum  [soft assertion]
-
-    Parameters
-    ----------
-    h_series : pd.Series of water level in ground-surface depth convention
-               (negative = below ground). For per-well fits, the caller must
-               apply upstand correction before passing the series so that the
-               displacement datum is relative to ground, not pipe top.
-    climate  : DataFrame with columns 'P_m' (rainfall, m/month) and 'PET'
-               (PET, m/month), indexed by datetime.
-    lag      : integer month lag applied to rainfall. lag=1 is the headline.
-    window   : keep only the most recent `window` observations after alignment.
-               None disables windowing and fits on the full record.
-    drainage_datum : reference depth (m below ground surface) for the
-               displacement. Default from config.DRAINAGE_DATUM (3.7 m).
-
-    Returns
-    -------
-    dict with keys: beta_1, beta_2, beta_3, pvalue_beta_1, pvalue_beta_2,
-    pvalue_beta_3, R2, n, resid (residual series) — or None if insufficient data.
-    """
-    df = pd.DataFrame({
-        "h":   pd.to_numeric(h_series, errors="coerce"),
-        "P":   pd.to_numeric(climate["P_m"], errors="coerce"),
-        "PET": pd.to_numeric(climate["PET"], errors="coerce"),
-    }).dropna()
-
-    # Displacement above drainage datum. h is negative (below ground),
-    # so h_disp = datum + h = datum - |depth|. Positive when water table
-    # is above the datum; zero at the datum; negative below it.
-    df["h_disp"] = drainage_datum + df["h"]
-    df["h_disp_prev"] = df["h_disp"].shift(1)
-
-    # Δh is computed from the raw h (the datum cancels in differences).
-    df["h_prev"] = df["h"].shift(1)
-    df["Delta_h"] = df["h"] - df["h_prev"]
-
-    if lag > 0:
-        df["P"] = df["P"].shift(lag)
-
-    df = df.dropna(subset=["Delta_h", "P", "PET", "h_disp_prev"])
-    if window is not None and len(df) > window:
-        df = df.iloc[-window:]
-
-    if len(df) < MIN_OBS_PER_WELL:
-        return None
-
-    # Design matrix — displacement formulation for β₃.
-    X = pd.DataFrame({
-        "beta_1": df["P"].values,
-        "beta_2": -df["PET"].values,
-        "beta_3": -df["h_disp_prev"].values,
-    }, index=df.index)
-    y = df["Delta_h"].values
-
-    try:
-        model = sm.OLS(y, X).fit()
-    except Exception:
-        return None
-
-    return {
-        "beta_1":        float(model.params["beta_1"]),
-        "beta_2":        float(model.params["beta_2"]),
-        "beta_3":        float(model.params["beta_3"]),
-        "pvalue_beta_1": float(model.pvalues["beta_1"]),
-        "pvalue_beta_2": float(model.pvalues["beta_2"]),
-        "pvalue_beta_3": float(model.pvalues["beta_3"]),
-        "R2":            float(model.rsquared),
-        "n":             int(len(df)),
-        "resid":         pd.Series(model.resid, index=df.index, name="resid"),
-    }
-
-
-def assert_physical_signs(fit: dict, context: str) -> tuple[list[str], list[str]]:
-    """
-    Check physical-sign assertions on a fit result.
-
-    Hard assertions (β₁ > 0, β₂ > 0): violations halt the pipeline.
-    Soft assertion (β₃ > 0): violation is warned but does not halt.
-    Under the displacement formulation, β₃ > 0 is physically expected
-    (Darcy-consistent drainage). A negative β₃ is anomalous and worth
-    investigating but not pipeline-fatal.
-
-    Returns (hard_violations, soft_warnings) — both lists of strings.
-    """
-    hard = []
-    soft = []
-    if fit is None:
-        return hard, soft
-    if not (fit["beta_1"] > 0):
-        hard.append(
-            f"  [SIGN VIOLATION] {context}: beta_1 = {fit['beta_1']:+.4f} "
-            f"(must be > 0; p = {fit['pvalue_beta_1']:.3f})"
-        )
-    if not (fit["beta_2"] > 0):
-        hard.append(
-            f"  [SIGN VIOLATION] {context}: beta_2 = {fit['beta_2']:+.4f} "
-            f"(must be > 0; p = {fit['pvalue_beta_2']:.3f})"
-        )
-    if not (fit["beta_3"] > 0):
-        soft.append(
-            f"  [SIGN WARNING]   {context}: beta_3 = {fit['beta_3']:+.4f} "
-            f"(expected > 0 under displacement formulation; "
-            f"p = {fit['pvalue_beta_3']:.3f})"
-        )
-    return hard, soft
+# fit_ssm() and assert_physical_signs() are imported from model_utils.
+# model_utils is the single source of truth for the SSM specification.
+# The functions were originally defined here and moved during modularisation.
 
 
 # ==========================================================================

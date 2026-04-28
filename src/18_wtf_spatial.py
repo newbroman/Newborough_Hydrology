@@ -45,7 +45,7 @@ from utils.paths import (
     OUT_18_WELL_SY_TABLE, OUT_18_SY_MAP, OUT_18_SY_CONTOUR,
     OUT_18_SY_CONTOUR_EXT, INT_WTF_WELL_SY,
 )
-from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, CLUSTER_MARKERS
+from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, CLUSTER_MARKERS, FOREST_INTERCEPTION, FOREST_CIDS
 make_all_dirs()
 
 # ── Site boundary constants (shared with script 19) ───────────────────────────
@@ -135,8 +135,7 @@ def make_site_mask(grid_x, grid_y):
 #         Sy relative to upland forest sand. Interception correction also
 #         unreliable for a partially-open slack canopy setting.
 RIDGE_EXCLUDE = ['ceh12', 'ceh15']
-FOREST_INTERCEPTION = 0.24       # Freeman (2008); measured at C5, applied across all forested clusters
-FOREST_CIDS         = (4, 5)     # forested clusters that get the interception correction
+# FOREST_INTERCEPTION and FOREST_CIDS imported from config.py.
 EXCLUDE_CLUSTERS    = []         # under k=5 all clusters are analytically usable
 MIN_RISE_M          = 0.005      # m
 MIN_NET_RECH        = 0.010      # m

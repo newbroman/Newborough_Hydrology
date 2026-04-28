@@ -90,7 +90,7 @@ from utils.paths import (
     INT_PEAR_AUDIT_SITEWIDE, INT_CLUSTER_STATS,
 )
 from utils.map_utils import load_dem_hillshade
-from utils.config import CLUSTER_COLOURS, DRAINAGE_DATUM
+from utils.config import CLUSTER_COLOURS, DRAINAGE_DATUM, FOREST_INTERCEPTION
 from utils.data_utils import normalize_well_name
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -103,7 +103,7 @@ GRID_YI    = np.arange(362200, 365000, 50)
 KML_NS     = "http://www.opengis.net/kml/2.2"
 T_WGS_BNG  = Transformer.from_crs("EPSG:4326", "EPSG:27700", always_xy=True)
 
-FOREST_INTERCEPTION = 0.24   # Freeman (2008)
+# FOREST_INTERCEPTION imported from config.py (Freeman 2008, 0.24).
 
 # Sea boundary anchor constants (matching script 19)
 SEA_SOUTH_N      = 362350

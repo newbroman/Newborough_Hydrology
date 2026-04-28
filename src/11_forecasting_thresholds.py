@@ -83,6 +83,7 @@ from utils.paths import (
     OUT_11_TABLE8_THRESHOLDS,
 )
 from utils.config import CLUSTER_LABELS, DRAINAGE_DATUM
+from utils.model_utils import pflood_lambda
 import os
 import sys
 from io import IOBase
@@ -510,42 +511,30 @@ def run_critical_flood_thresholds(results_dict: dict, df: pd.DataFrame) -> None:
             continue
 
         months = _horizon_months(peak_month)
-        n = len(months)
-        alpha = 1.0 - b3
-        alpha_n = alpha ** n
 
-        S_P = sum(alpha ** (n - 1 - i) * P_clim[m]   for i, m in enumerate(months))
-        S_E = sum(alpha ** (n - 1 - i) * PET_clim[m] for i, m in enumerate(months))
-        P_clim_total   = sum(P_clim[m] for m in months)
-        PET_clim_total = sum(PET_clim[m] for m in months)
+        # ── Core P_flood computation via shared model_utils ──
+        pf = pflood_lambda(
+            h_target=H_TARGET, h_0=h_0,
+            b1=b1, b2=b2, b3=b3,
+            months=months, P_clim=P_clim, PET_clim=PET_clim,
+        )
+        n          = pf['n']
+        alpha      = pf['alpha']
+        alpha_n    = pf['alpha_n']
+        S_P        = pf['S_P']
+        S_E        = pf['S_E']
+        P_clim_total   = pf['P_clim_total']
+        PET_clim_total = pf['PET_clim_total']
+        lam            = pf['lam']
+        P_flood_new    = pf['P_flood_mm']
+        slope_A        = pf['slope_A']
+        intercept_B    = pf['intercept_B']
 
-        # Datum drain correction: under the displacement formulation
-        # h(t) = α·h(t-1) + β₁P - β₂PET - β₃·DATUM, the constant
-        # −β₃·DATUM term accumulates over n steps as −D·(1−αⁿ).
-        # This enters the λ formula as an additional positive term.
-        D = DRAINAGE_DATUM
-        datum_correction = D * (1.0 - alpha_n)
-
-        lam        = (H_TARGET - h_0 * alpha_n + b2 * S_E + datum_correction) / (b1 * S_P)
-        P_flood_new = lam * P_clim_total
-
-        # ── Collapsed linear form:  P_flood = A*d + B  (d = positive depth below ground) ──
-        # Derivation: with h_target = 0 and h_0 = -d (depth expressed as positive metres
-        # below ground), the iterated closed form becomes:
-        #     λ = (0 - (-d)αⁿ + β₂S_E + D(1-αⁿ)) / (β₁S_P)
-        #       = (d·αⁿ + β₂S_E + D(1-αⁿ)) / (β₁S_P)
-        #     P_flood = λ · P_clim_total
-        # i.e.
-        #     A = (αⁿ · P_clim_total) / (β₁ · S_P)
-        #     B = ((β₂·S_E + D·(1-αⁿ)) · P_clim_total) / (β₁ · S_P)
-        # The collapsed form is algebraically exact, not an approximation.
-        denom_b1_sp = b1 * S_P
-        slope_A     = (alpha_n * P_clim_total) / denom_b1_sp
-        intercept_B = ((b2 * S_E + datum_correction) * P_clim_total) / denom_b1_sp
         # Spreadsheet formula assumes d is entered in cell A2 as positive metres.
         spreadsheet_formula = f"=({slope_A:.2f}*A2+{intercept_B:.2f})"
 
         # Retained single-step value for continuity (also corrected for displacement)
+        D = DRAINAGE_DATUM
         h_gap      = H_TARGET - h_0
         P_flood_old = (h_gap + b3 * (D + h_0)) / b1
 

@@ -61,9 +61,9 @@ from utils.paths import (
     OUT_18_WELL_SY_TABLE,
 )
 from utils.data_utils import normalize_well_name
+from utils.config import FOREST_INTERCEPTION
 
 # Physical constants
-FOREST_INTERCEPTION    = 0.24   # Corsican pine -- Freeman (2008)
 BROADLEAF_INTERCEPTION = 0.15   # Deciduous annual mean -- Komatsu et al. (2011)
                                 # Approximates summer (~25%, leafed) and winter
                                 # (~0%, leafless) averaged over the year. The

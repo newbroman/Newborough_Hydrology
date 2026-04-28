@@ -81,6 +81,8 @@ from utils.paths import (
     OUT_21_HYDROGRAPH, OUT_21_DISTRIBUTIONS, OUT_21_DISTRIBUTIONS_CSV,
     OUT_21_SCRAPING, OUT_21_SCRAPING_CSV, OUT_21_BACI_VIOLIN, OUT_21_BACI_CSV,
 )
+from utils.config import FOREST_INTERCEPTION
+from utils.model_utils import monthly_perturbation
 
 
 # ============================================================================
@@ -91,7 +93,7 @@ from pathlib import Path
 # ============================================================================
 # CONSTANTS
 # ============================================================================
-FOREST_INTERCEPTION    = 0.24   # Corsican pine (Freeman 2008)
+# FOREST_INTERCEPTION imported from config.py (Freeman 2008, 0.24).
 BROADLEAF_INTERCEPTION = 0.15   # Deciduous broadleaf (Freeman 2008)
 
 # Ecological thresholds — Curreli et al. (2013)
@@ -255,26 +257,20 @@ def cluster_summer_mins(cl, master, df, dates, well_names, elev,
 
 def monthly_equilibrium_shift(b1, b2_base, b2_scen_arr, b3,
                                P_eff_base, P_eff_scen, monthly_PET):
+    """Backward-compatible wrapper — delegates to monthly_perturbation().
+
+    The perturbation approach computes the immediate monthly forcing
+    response rather than the equilibrium shift (which divides by β₃ and
+    produces unrealistically large values). See MODULARISATION_HANDOVER.md
+    Section 4 for the scientific rationale.
+
+    The b3 parameter is accepted for call-site compatibility but not used.
     """
-    Compute month-by-month equilibrium head shift.
-
-    Under the displacement formulation (h_disp = DRAINAGE_DATUM + h),
-    setting Δh = 0 gives:
-        0 = β₁·P_eff - β₂·PET - β₃·(D + h_eq)
-        h_eq = (β₁·P_eff - β₂·PET) / β₃  -  D
-
-    For shifts (h_scen - h_base), D cancels:
-        Δh_eq = (β₁·ΔP_eff - Δβ₂·PET) / β₃
-
-    Returns array of 12 head shifts — positive = shallower (better ecology).
-    Depth shift = -head_shift.
-    """
-    shifts = []
-    for m in range(12):
-        h_base = (b1 * P_eff_base[m] - b2_base       * monthly_PET[m]) / b3
-        h_scen = (b1 * P_eff_scen[m] - b2_scen_arr[m] * monthly_PET[m]) / b3
-        shifts.append(h_scen - h_base)
-    return np.array(shifts)
+    return monthly_perturbation(
+        b1=b1, b2_base=b2_base, b2_scen_arr=b2_scen_arr,
+        P_eff_base=P_eff_base, P_eff_scen=P_eff_scen,
+        monthly_PET=monthly_PET,
+    )
 
 
 def build_scenarios(master, climate):

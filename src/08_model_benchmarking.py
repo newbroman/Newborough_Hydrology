@@ -43,7 +43,7 @@ from utils.paths import (
     OUT_08_TABLE3_SUMMARY,
 )
 from utils.data_utils import normalize_well_name
-from utils.model_utils import get_metrics, get_r2
+from utils.model_utils import get_metrics, get_r2, build_ssm_frame, simulate_ssm
 from utils.map_utils import add_kml_features
 from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, CLUSTER_MARKERS, DRAINAGE_DATUM, HEADLINE_LAG
 from pathlib import Path
@@ -132,37 +132,17 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate):
     climate = df_climate.copy()
     climate.index = pd.to_datetime(climate.index).to_period('M')
 
-    df = pd.DataFrame({
-        'h': well_series,
-        'P': pd.to_numeric(climate['P_m'], errors='coerce'),
-        'PET': pd.to_numeric(climate['PET'], errors='coerce'),
-    }).dropna()
-
-    # Rainfall lag (HEADLINE_LAG from config)
-    if HEADLINE_LAG > 0:
-        df['P'] = df['P'].shift(HEADLINE_LAG)
-
-    df['h_prev'] = df['h'].shift(1)
-    df['Delta_h'] = df['h'] - df['h_prev']
-
-    # Displacement formulation: h_disp = DRAINAGE_DATUM + h_depth
-    # h_depth is depth below surface (positive downward in the raw data convention).
-    # h_disp is displacement above the drainage base — always positive for water
-    # tables shallower than DRAINAGE_DATUM.
-    df['h_disp_prev'] = DRAINAGE_DATUM + df['h_prev']
-
-    df = df.dropna(subset=['Delta_h', 'P', 'PET', 'h_prev', 'h_disp_prev'])
+    # Use shared build_ssm_frame for alignment, lag, displacement
+    df = build_ssm_frame(well_series, climate, window=LCSC_DATA_LIMIT)
 
     if len(df) < LCSC_DATA_LIMIT:
         base_row['Status'] = 'insufficient_data'
         base_row['Months_Used'] = len(df)
         return base_row, None
 
-    df = df.iloc[-LCSC_DATA_LIMIT:].copy()
-
-    # Traditional model: Δh = α + β₁·P(t-1) - β₂·PET(t)
+    # Traditional model: Δh = α + β₁·P(t-lag) - β₂·PET(t)
     x_trad = sm.add_constant(pd.DataFrame({'P': df['P'], 'PET': -df['PET']}), has_constant='add')
-    # State-space model (displacement): Δh = β₁·P(t-1) - β₂·PET(t) - β₃·h_disp_prev
+    # State-space model (displacement): Δh = β₁·P(t-lag) - β₂·PET(t) - β₃·h_disp_prev
     x_lcsc = pd.DataFrame({'P': df['P'], 'PET': -df['PET'], 'h_disp_prev': -df['h_disp_prev']})
     y_fit = df['Delta_h']
 
@@ -193,23 +173,23 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate):
         h_lcsc_one[t] = h_prev_obs + dh_lcsc
 
     # ---- Iterative (autonomous) simulation ----
+    # TLM iterative: no h_prev feedback, just accumulates Δh from climate
     h_trad_iter = np.full(len(h_obs), np.nan)
-    h_lcsc_iter = np.full(len(h_obs), np.nan)
     h_trad_iter[0] = h_obs[0]
-    h_lcsc_iter[0] = h_obs[0]
-
     for t in range(1, len(h_obs)):
-        # TLM iterative: no h_prev feedback, just accumulates Δh from climate
         dh_trad = (model_trad.params['const']
                    + model_trad.params['P'] * p_arr[t]
                    - model_trad.params['PET'] * pet_arr[t])
-        # SSM iterative: uses simulated h from previous step in displacement
-        h_disp_sim = DRAINAGE_DATUM + h_lcsc_iter[t - 1]
-        dh_lcsc = (model_lcsc.params['P'] * p_arr[t]
-                   - model_lcsc.params['PET'] * pet_arr[t]
-                   - model_lcsc.params['h_disp_prev'] * h_disp_sim)
         h_trad_iter[t] = h_trad_iter[t - 1] + dh_trad
-        h_lcsc_iter[t] = h_lcsc_iter[t - 1] + dh_lcsc
+
+    # SSM iterative: use shared simulate_ssm (displacement recurrence)
+    h_lcsc_iter_raw = simulate_ssm(
+        h0=h_obs[0], P=p_arr[1:], PET=pet_arr[1:],
+        b1=float(model_lcsc.params['P']),
+        b2=float(-model_lcsc.params['PET']),       # design matrix has -PET
+        b3=float(-model_lcsc.params['h_disp_prev']),  # design matrix has -h_disp
+    )
+    h_lcsc_iter = np.concatenate([[h_obs[0]], h_lcsc_iter_raw])
 
     r2_trad_one = get_r2(h_obs, h_trad_one)
     r2_lcsc_one = get_r2(h_obs, h_lcsc_one)

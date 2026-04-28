@@ -74,7 +74,8 @@ from utils.paths import (
 )
 from utils.data_utils import normalize_well_name
 from utils.map_utils import add_kml_features
-from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, DRAINAGE_DATUM, HEADLINE_LAG
+from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS
+from utils.model_utils import fit_ssm_intercept
 
 
 # ==========================================
@@ -92,7 +93,7 @@ C3_SPLIT_DISTANCE_M = 1000.0  # legacy: under the new partition the forest-adjac
 
 # CLUSTER_LABELS and CLUSTER_COLOURS imported from utils.config (k=5 partition).
 
-# HEADLINE_LAG imported from config.py (= 0 after bucketing fix).
+# Lag and displacement handled by fit_ssm_intercept() from model_utils.
 MONTH_LABELS = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D']
 
 plt.rcParams.update({
@@ -107,46 +108,12 @@ plt.rcParams.update({
 # CORE COMPUTATION
 # ==========================================
 
-def fit_model_b(well_series, climate,
-                drainage_datum=DRAINAGE_DATUM):
-    """Fit the single-period Model B — same specification as Script 22.
-
-    Uses the displacement formulation (h_disp = DRAINAGE_DATUM + h_depth)
-    and lag-1 rainfall, matching Script 03's headline SSM.
-    """
-    df = pd.DataFrame({
-        'h':   pd.to_numeric(well_series, errors='coerce'),
-        'P':   pd.to_numeric(climate['P_m'], errors='coerce'),
-        'PET': pd.to_numeric(climate['PET'], errors='coerce'),
-    }).dropna()
-    if len(df) < MIN_MONTHS:
+def fit_model_b(well_series, climate):
+    """Fit Model B via shared model_utils, return residual Series or None."""
+    result = fit_ssm_intercept(well_series, climate, min_obs=MIN_MONTHS)
+    if result is None:
         return None
-
-    df['h_prev']  = df['h'].shift(1)
-    df['Delta_h'] = df['h'] - df['h_prev']
-
-    # Displacement above drainage datum for β₃ predictor
-    df['h_disp_prev'] = drainage_datum + df['h_prev']
-
-    # Rainfall lag (HEADLINE_LAG from config)
-    if HEADLINE_LAG > 0:
-        df['P'] = df['P'].shift(HEADLINE_LAG)
-
-    df = df.dropna()
-    if len(df) < MIN_MONTHS - 1:
-        return None
-
-    X = pd.DataFrame({
-        'P':          df['P'].values,
-        'PET_n':     -df['PET'].values,
-        'h_disp_neg': -df['h_disp_prev'].values,
-    }, index=df.index)
-    X = sm.add_constant(X, has_constant='add')
-    try:
-        m = sm.OLS(df['Delta_h'].values, X).fit()
-    except Exception:
-        return None
-    return pd.Series(m.resid, index=df.index, name='resid')
+    return result['resid']
 
 
 def sinusoidal_fit(monthly_means):

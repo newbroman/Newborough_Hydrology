@@ -64,7 +64,8 @@ from utils.paths import (
 )
 from utils.data_utils import normalize_well_name
 from utils.map_utils import add_kml_features
-from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, DRAINAGE_DATUM, HEADLINE_LAG
+from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS
+from utils.model_utils import fit_ssm_intercept
 
 
 # ==========================================
@@ -74,10 +75,7 @@ MIN_MONTHS = 140
 AR1_WHITE_THRESHOLD = 0.3  # |phi| below this is treated as effectively white
 AR1_DIAG_PVAL = 0.05
 
-# HEADLINE_LAG imported from config.py (= 0 after bucketing fix).
-# Originally Script 22 fitted at lag-0 to diagnose residual temporal structure.
-# Now refitted at headline lag with displacement, because the residuals of the
-# CURRENT model are what matter for diagnostics.
+# Lag and displacement handled by fit_ssm_intercept() from model_utils.
 
 # Wells excluded from the lag analysis. See docstring for rationale per well.
 EXCLUDED_WELLS_NORM = {'ceh7', 'ceh8', 'ceh37', 'ceh3', 'ceh4'}
@@ -96,67 +94,13 @@ plt.rcParams.update({
 # CORE COMPUTATION
 # ==========================================
 
-def fit_model_b(well_series, climate,
-                drainage_datum=DRAINAGE_DATUM):
+def fit_model_b(well_series, climate):
+    """Fit Model B (SSM with intercept) via shared model_utils function.
+
+    Uses full record (no windowing), MIN_MONTHS threshold.
+    Returns dict with alpha, betas, R2, n, resid — or None.
     """
-    Fit Model B (SSM with intercept) on a well's full available record.
-
-    Uses the displacement formulation (h_disp = DRAINAGE_DATUM + h_depth) and
-    lag-1 rainfall, matching Script 03's headline SSM specification.
-
-    Sign convention matches Script 03: beta_1 > 0 for recharge, beta_2 > 0 for
-    atmospheric draw, beta_3 > 0 for drainage increasing with head above datum.
-    """
-    df = pd.DataFrame({
-        'h':   pd.to_numeric(well_series, errors='coerce'),
-        'P':   pd.to_numeric(climate['P_m'], errors='coerce'),
-        'PET': pd.to_numeric(climate['PET'], errors='coerce'),
-    }).dropna()
-
-    if len(df) < MIN_MONTHS:
-        return None
-
-    df['h_prev'] = df['h'].shift(1)
-    df['Delta_h'] = df['h'] - df['h_prev']
-
-    # Displacement above drainage datum for β₃ predictor
-    df['h_disp_prev'] = drainage_datum + df['h_prev']
-
-    # Rainfall lag (HEADLINE_LAG from config)
-    if HEADLINE_LAG > 0:
-        df['P'] = df['P'].shift(HEADLINE_LAG)
-
-    df = df.dropna()
-
-    if len(df) < MIN_MONTHS - 1:
-        return None
-
-    # Delta_h = alpha + b1*P(t-1) - b2*PET(t) - b3*h_disp_prev(t)
-    # Sign convention: -PET and -h_disp_prev baked into design matrix so
-    # fitted coefficients are positive for physically correct behaviour.
-    X = pd.DataFrame({
-        'P':          df['P'].values,
-        'PET_n':     -df['PET'].values,
-        'h_disp_neg': -df['h_disp_prev'].values,
-    }, index=df.index)
-    X = sm.add_constant(X, has_constant='add')
-    y = df['Delta_h'].values
-
-    try:
-        model = sm.OLS(y, X).fit()
-    except Exception:
-        return None
-
-    return {
-        'alpha':        float(model.params['const']),
-        'pvalue_alpha': float(model.pvalues['const']),
-        'beta_1':       float(model.params['P']),
-        'beta_2':       float(model.params['PET_n']),
-        'beta_3':       float(model.params['h_disp_neg']),
-        'R2':           float(model.rsquared),
-        'n':            int(len(df)),
-        'resid':        pd.Series(model.resid, index=df.index, name='resid'),
-    }
+    return fit_ssm_intercept(well_series, climate, min_obs=MIN_MONTHS)
 
 
 def ar1_diagnostic(residuals):

@@ -113,6 +113,7 @@ from utils.paths import (
 )
 from utils.map_utils import load_dem_hillshade, add_idw_surface, add_kml_features, _safe_read_kml
 from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, DRAINAGE_DATUM
+from utils.model_utils import pflood_lambda
 
 # ─────────────────────────────────────────────────────────────────────────────
 # LOCAL ALIASES
@@ -446,67 +447,11 @@ def _p_flood_iterated(
     P_clim:   dict,
     PET_clim: dict,
 ) -> dict:
-    """
-    Iterated closed-form P_flood (Section 3.6.3 of Hollingham 2026).
-
-    Given the monthly recurrence h_t = (1-\u03b2\u2083)\u00b7h_{t-1} + \u03b2\u2081\u00b7P_t \u2212 \u03b2\u2082\u00b7E_t
-    with P_t = \u03bb\u00b7P_clim(t) and E_t = PET_clim(t), solves for the rainfall
-    multiplier \u03bb that brings h_n to h_target over the specified horizon.
-
-    Parameters
-    ----------
-    h_target : float
-        Target head in metres (0 = surface; -0.10 = SD15b; -0.25 = SD16).
-    h_0 : float
-        Antecedent head in metres (negative = below ground).
-    b1, b2, b3 : float
-        Cluster SSM coefficients in SSM-native units (m per mm for b1, b2;
-        dimensionless for b3, taken positive).
-    months : list[int]
-        Sequence of calendar months forming the horizon (e.g. [10,11,12,1]).
-    P_clim, PET_clim : dict
-        Monthly climatology keyed by calendar month 1..12 (mm).
-
-    Returns
-    -------
-    dict with keys: lam, P_flood_mm, S_P, S_E, alpha, alpha_n, n, horizon,
-    P_clim_total, PET_clim_total. lam < 0 or non-finite indicates an
-    unreachable well (target cannot be reached from h_0 under positive
-    rainfall given the drainage balance).
-    """
-    n = len(months)
-    alpha = 1.0 - b3
-    alpha_n = alpha ** n
-    S_P = sum(alpha ** (n - 1 - i) * P_clim[m]   for i, m in enumerate(months))
-    S_E = sum(alpha ** (n - 1 - i) * PET_clim[m] for i, m in enumerate(months))
-    P_clim_total   = sum(P_clim[m]   for m in months)
-    PET_clim_total = sum(PET_clim[m] for m in months)
-
-    # Datum drain correction: under the displacement formulation the constant
-    # term −β₃·D accumulates over n steps as −D·(1−αⁿ), entering as a
-    # positive addend in the numerator.
-    datum_correction = DRAINAGE_DATUM * (1.0 - alpha_n)
-
-    denom = b1 * S_P
-    if denom == 0 or not np.isfinite(denom):
-        lam = float("nan")
-        pflood = float("nan")
-    else:
-        lam = (h_target - h_0 * alpha_n + b2 * S_E + datum_correction) / denom
-        pflood = lam * P_clim_total
-
-    return {
-        "lam": lam,
-        "P_flood_mm": pflood,
-        "S_P": S_P,
-        "S_E": S_E,
-        "alpha": alpha,
-        "alpha_n": alpha_n,
-        "n": n,
-        "horizon": months,
-        "P_clim_total": P_clim_total,
-        "PET_clim_total": PET_clim_total,
-    }
+    """Thin wrapper around model_utils.pflood_lambda for backward compatibility."""
+    return pflood_lambda(
+        h_target=h_target, h_0=h_0, b1=b1, b2=b2, b3=b3,
+        months=months, P_clim=P_clim, PET_clim=PET_clim,
+    )
 
 
 # ─────────────────────────────────────────────────────────────────────────────

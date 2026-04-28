@@ -700,7 +700,7 @@ def plot_residual_ssm(wt, features, dpi=300):
                label="Flow direction (head gradient)"),
     ]
     ax.legend(handles=leg_h, fontsize=7, loc="lower left", framealpha=0.9)
-    _ceh14_alpha = wt.loc[wt["Name_Original"].str.lower() == "ceh14", "residual_wb"]
+    _ceh14_alpha = wt.loc[wt["well"].str.lower() == "ceh14", "residual_wb"]
     _ceh14_str = f"{float(_ceh14_alpha.iloc[0]):+.3f}" if len(_ceh14_alpha) > 0 else "N/A"
     ax.annotate("Residual: SSM β coefficients only — independent of flow arrows.\n"
                 "Flow arrows: mean head gradient — independent of β coefficients.\n"

@@ -380,32 +380,32 @@ def make_figure(summary, recession, ms=True):
         s = summary[cid]
         # Recharge label above bar
         ax1.text(i - width/2, s["recharge"] + 0.004, f'{s["recharge"]:.3f}',
-                 ha='center', va='bottom', fontsize=7, color='#333')
+                 ha='center', va='bottom', fontsize=8, color='#333')
         # ET label inside bar
         if s["et_draw"] > 0.04:
             ax1.text(i + width/2, s["et_draw"]/2, f'{s["et_draw"]:.3f}',
-                     ha='center', va='center', fontsize=7, color='white',
+                     ha='center', va='center', fontsize=8, color='white',
                      fontweight='bold')
         # Drainage label inside or above bar
         if s["drainage"] > 0.04:
             ax1.text(i + width/2, s["et_draw"] + s["drainage"]/2,
                      f'{s["drainage"]:.3f}', ha='center', va='center',
-                     fontsize=7, color='white', fontweight='bold')
+                     fontsize=8, color='white', fontweight='bold')
         else:
             ax1.text(i + width/2, s["et_draw"] + s["drainage"] + 0.004,
                      f'{s["drainage"]:.3f}', ha='center', va='bottom',
-                     fontsize=7, color='#555')
+                     fontsize=8, color='#555')
         # Partition percentages below x-axis
         ax1.text(i, -0.028,
                  f'D:{s["drain_pct"]:.0f}%  ET:{s["et_pct"]:.0f}%',
-                 ha='center', va='top', fontsize=7, color='#555')
+                 ha='center', va='top', fontsize=8, color='#555')
 
     ax1.set_xticks(x)
-    ax1.set_xticklabels([CLUSTER_LABELS_FIG[c] for c in cids], fontsize=8.5)
-    ax1.set_ylabel("Head-space flux (m/month)", fontsize=10)
+    ax1.set_xticklabels([CLUSTER_LABELS_FIG[c] for c in cids], fontsize=9.5)
+    ax1.set_ylabel("Head-space flux (m/month)", fontsize=11)
     ax1.set_title("(a) Mean monthly head-space water balance decomposition",
-                  fontsize=10.5, fontweight='bold')
-    ax1.legend(loc='upper right', fontsize=8, framealpha=0.9)
+                  fontsize=12, fontweight='bold')
+    ax1.legend(loc='upper right', fontsize=9, framealpha=0.9)
     ax1.set_xlim(-0.6, len(cids) - 0.4)
     ax1.set_ylim(-0.035, max(rech_vals) * 1.15)
     ax1.spines['top'].set_visible(False)
@@ -424,7 +424,7 @@ def make_figure(summary, recession, ms=True):
              f"All clusters receive identical forcing: P̄ = {P_mm_mo:.1f} mm/month, "
              f"PET̄ = {PET_mm_mo:.1f} mm/month. "
              f"Residuals < {max_resid_pct:.1f}% of losses. Datum = {datum:.1f} m b.g.s.",
-             transform=ax1.transAxes, ha='center', va='top', fontsize=8,
+             transform=ax1.transAxes, ha='center', va='top', fontsize=9,
              color='#666', style='italic')
 
     # ── Panel (b): Volumetric ─────────────────────────────────────────────
@@ -488,39 +488,39 @@ def make_figure(summary, recession, ms=True):
         et_label_y = et_lo / 2 if et_lo > 100 else et_mid / 2
         if et_mid > 120:
             ax2.text(x_l, et_label_y, f'{et_mid:.0f}', ha='center', va='center',
-                     fontsize=7.5, color='white', fontweight='bold', zorder=5)
+                     fontsize=8.5, color='white', fontweight='bold', zorder=5)
         drain_label_y = (et_hi + (P_net - et_hi) / 2 if (P_net - et_hi) > 100
                          else et_mid + drain_mid / 2)
         if drain_mid > 120:
             ax2.text(x_l, drain_label_y, f'{drain_mid:.0f}', ha='center',
-                     va='center', fontsize=7.5, color='white', fontweight='bold',
+                     va='center', fontsize=8.5, color='white', fontweight='bold',
                      zorder=5)
         elif drain_mid > 50:
             ax2.text(x_l, et_mid + drain_mid/2, f'{drain_mid:.0f}', ha='center',
-                     va='center', fontsize=7, color='white', zorder=5)
+                     va='center', fontsize=8, color='white', zorder=5)
 
         # Interception labels
         if is_forest:
             ax2.text(x_p, P_net + I_val/2, f'I={I_val:.0f}', ha='center',
-                     va='center', fontsize=7, color='white', fontweight='bold')
+                     va='center', fontsize=8, color='white', fontweight='bold')
             ax2.text(x_l, P_net + I_val/2, f'I={I_val:.0f}', ha='center',
-                     va='center', fontsize=7, color='white', fontweight='bold')
+                     va='center', fontsize=8, color='white', fontweight='bold')
 
         # Column headers
-        ax2.text(x_p, P_annual + 20, 'P', ha='center', va='bottom', fontsize=8,
+        ax2.text(x_p, P_annual + 30, 'P', ha='center', va='bottom', fontsize=9,
                  color=C_P, fontweight='bold')
-        ax2.text(x_l, P_annual + 20, 'Losses', ha='center', va='bottom',
-                 fontsize=7.5, color='#444')
+        ax2.text(x_l, P_annual + 30, 'Losses', ha='center', va='bottom',
+                 fontsize=8.5, color='#444')
 
     # Reference lines
     ax2.axhline(P_annual, color=C_P, linewidth=0.6, linestyle='--', alpha=0.25,
                 zorder=1)
     ax2.axhline(PET_annual, color='#999', linewidth=0.6, linestyle=':', alpha=0.25,
                 zorder=1)
-    ax2.text(-0.65, P_annual, f'P = {P_annual:.0f}', va='center', fontsize=7.5,
+    ax2.text(-0.72, P_annual, f'P = {P_annual:.0f}', va='center', fontsize=8.5,
              color=C_P, fontweight='bold')
-    ax2.text(-0.65, PET_annual, f'PET = {PET_annual:.0f}', va='center',
-             fontsize=7.5, color='#888')
+    ax2.text(-0.72, PET_annual, f'PET = {PET_annual:.0f}', va='center',
+             fontsize=8.5, color='#888')
 
     # Legend
     legend_elements = [
@@ -533,17 +533,17 @@ def make_figure(summary, recession, ms=True):
               label='Partition uncertainty\n(SSM–recession range)',
               hatch='\\\\\\', alpha=0.45, linewidth=0.8),
     ]
-    ax2.legend(handles=legend_elements, loc='center right', fontsize=7.5,
+    ax2.legend(handles=legend_elements, loc='center right', fontsize=8.5,
                framealpha=0.9)
 
     ax2.set_xticks(x)
-    ax2.set_xticklabels([CLUSTER_LABELS_FIG[c] for c in cids], fontsize=8.5)
-    ax2.set_ylabel("Annual flux (mm/yr)", fontsize=10)
+    ax2.set_xticklabels([CLUSTER_LABELS_FIG[c] for c in cids], fontsize=9.5)
+    ax2.set_ylabel("Annual flux (mm/yr)", fontsize=11)
     ax2.set_title("(b) Volumetric water balance: ET/drainage partition bracketed "
                   "by SSM and recession analysis",
-                  fontsize=10.5, fontweight='bold')
-    ax2.set_xlim(-0.8, len(cids) + 1.8)
-    ax2.set_ylim(0, P_annual * 1.08)
+                  fontsize=12, fontweight='bold')
+    ax2.set_xlim(-0.8, len(cids) + 1.2)
+    ax2.set_ylim(0, P_annual * 1.12)
     ax2.spines['top'].set_visible(False)
     ax2.spines['right'].set_visible(False)
     ax2.grid(axis='y', alpha=0.3, zorder=0)
@@ -555,7 +555,7 @@ def make_figure(summary, recession, ms=True):
              f"range between SSM headspace ratios and seasonal recession analysis. "
              f"Forest interception ({I_pct}% of P;\nFreeman 2008) "
              f"appears identically on both bars and cancels in the net surplus.",
-             transform=ax2.transAxes, ha='center', va='top', fontsize=7.5,
+             transform=ax2.transAxes, ha='center', va='top', fontsize=8.5,
              color='#666', style='italic')
 
     plt.tight_layout(h_pad=4.5)

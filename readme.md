@@ -48,9 +48,11 @@ python run_analysis.py --supplementary # run supplementary diagnostics (22–24)
 ```text
 Newborough_Hydro_Models/
 ├── data/                        Input CSV, KML, and DEM assets (not versioned)
+│   ├── newborough_dem.tif       LiDAR DEM (NRW) — used by scripts 03, 04, 07, 08, 11b, 12, 13, 19, 20
 │   ├── streams.kml              SAGA-derived stream network (used by scripts 19, 20)
 │   ├── site_boundary.kml        Dissolved stream-cell boundary — study area mask for script 19
 │   ├── Features.kml             Site features (dipwell transects, forest boundary, lake)
+│   ├── broadleaf_restock.kml    Broadleaf restocking block boundary
 │   └── clearfell.kml            Clearfell experiment boundary
 ├── outputs/                     Generated tables and figures (not versioned)
 │   ├── 01_locations.csv                ┐
@@ -73,10 +75,10 @@ Newborough_Hydro_Models/
 │   └── [other output directories]
 ├── src/                         Analysis scripts (26 steps; script 19 also builds the viewer)
 │   ├── utils/
-│   │   ├── config.py            Cluster colours, labels — single source of truth for all scripts
+│   │   ├── config.py            Cluster colours, labels, DRAINAGE_DATUM, HEADLINE_LAG, FOREST_INTERCEPTION
 │   │   ├── data_utils.py        Cleaning and normalisation helpers
 │   │   ├── map_utils.py         DEM, KML, and basemap helpers
-│   │   ├── model_utils.py       SSM fitting helpers
+│   │   ├── model_utils.py       SSM fitting, simulation, and P_flood helpers (displacement formulation)
 │   │   └── paths.py             All path constants — single source of truth
 │   ├── forecaster_template.html Static HTML/JS shell for the interactive forecaster (injected by 11b)
 │   ├── 19_spatial_groundwater.py
@@ -101,7 +103,7 @@ Eight wells are excluded from the reference partition: FE1–4 and LIS1
 extended network; Llyn Rhos is excluded from both networks via the
 EXTENDED_NETWORK_BLACKLIST (lake stage, not a water-table response).
 The reference network is partitioned into k=5 clusters using
-Ward's linkage on correlation distance: C1 Lake, C2 Dune, C3 Western
+Ward's linkage on correlation distance: C1 Lake Edge, C2 Dune, C3 Western
 Residual, C4 Main Forest, C5 Coastal Forest. Cluster definitions,
 colours and labels are centralised in `src/utils/config.py`.
 

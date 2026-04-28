@@ -51,7 +51,7 @@ outputs/                       ← all generated outputs
   20_spatial_figures/
   21_forestry_scenarios/
 utils/                         ← shared utility modules
-  config.py                    ← cluster colours, labels
+  config.py                    ← cluster colours, labels, DRAINAGE_DATUM, HEADLINE_LAG, FOREST_INTERCEPTION
   data_utils.py                ← cleaning, normalisation functions
   map_utils.py                 ← DEM, KML, basemap helpers
   model_utils.py               ← SSM fitting helpers (displacement formulation)
@@ -67,7 +67,7 @@ utils/                         ← shared utility modules
 | `Newborough_Cleaned_For_Model.csv` | Raw dipwell records | 01, 09, 10 |
 | `Well_locations_height.csv` | Well coordinates and pipe-top elevations | 01 |
 | `RAF_Valley_Climate.csv` | Monthly rainfall and temperature | 01, 09, 10 |
-| DEM `.tif` files | LiDAR Digital Terrain Model (NRW, 2023) | 04, 05, 06, 07, 08, 11b, 12, 13, 19, 20 |
+| DEM `.tif` files | LiDAR Digital Terrain Model (NRW, 2023) | 03, 04, 05, 06, 07, 08, 11b, 12, 13, 19, 20 |
 | KML boundary files | Site features (clearfell, hydro boundaries) | 04, 12, 13 |
 | `broadleaf_restock.kml` | 1993/1996 broadleaf restocking block boundary; geometry also embedded in `Features.kml` | 12, 13 |
 | `streams.kml` | SAGA-derived stream network (2×2 m cells, 9,847 cells) | 19, 20 |
@@ -190,7 +190,7 @@ seasonal amplitude descriptors.
 
 | ID | Name | n | Anchors | Colour |
 |---|---|---|---|---|
-| C1 | Lake | 7 | ceh5, ceh11 | `#1a6faf` blue |
+| C1 | Lake Edge | 7 | ceh5, ceh11 | `#1a6faf` blue |
 | C2 | Dune | 26 | d10 | `#2ca02c` green |
 | C3 | Western Residual | 19 | nw1 | `#d62728` red |
 | C4 | Main Forest | 9 | ceh2 | `#7f77dd` purple |
@@ -224,13 +224,16 @@ to cluster-centroid hydrographs. Exports LCSC values, mechanistic coefficients,
 and a full suite of validation diagnostics (lag sweep, bootstrap CIs,
 leave-one-out, C1 split-window, datum sensitivity).
 
-**Model (lag-1 headline, displacement formulation):**
+**Model (displacement formulation):**
 
-    Δh(t) = β₁·P(t−1) + β₂·(−PET(t)) + β₃·(−h_disp_prev(t))
+    Δh(t) = β₁·P(t−k) + β₂·(−PET(t)) + β₃·(−h_disp_prev(t))
 
 where `h_disp = DRAINAGE_DATUM + h_depth` (displacement above a reference
 drainage base; `DRAINAGE_DATUM = 3.7 m` below ground surface, from
-`config.py`). The displacement formulation was adopted after a sensitivity
+`config.py`); `k = HEADLINE_LAG` (from `config.py`; currently 0 after the
+Script 01 bucketing fix — originally 1 to compensate for a month-assignment
+convention; after fixing the bucketing, lag-0 gives identical coefficients).
+The displacement formulation was adopted after a sensitivity
 analysis found that the depth-below-surface formulation produces negative β₃
 for three of five clusters. No-intercept OLS throughout.
 
@@ -240,7 +243,7 @@ for three of five clusters. No-intercept OLS throughout.
 - `β₃ > 0` — drainage increases with head above datum (soft assertion; warned but not halted)
 
 **Key configuration constants:**
-- `HEADLINE_LAG = 1` — rainfall at P(t−1); confirmed by lag diagnostic
+- `HEADLINE_LAG` — rainfall lag from `config.py` (currently 0 after bucketing fix)
 - `LCSC_DATA_LIMIT = 100` — most-recent 100 months for per-well fits
 - `MIN_OBS_PER_WELL = 30` — minimum observations for a per-well SSM fit
 - `N_BOOTSTRAP = 1000`, `BOOTSTRAP_SEED = 20260424`
@@ -255,7 +258,8 @@ for three of five clusters. No-intercept OLS throughout.
 - `outputs/01_wells_clean_maod.csv` ← for maOD cluster-centroid export
 - `outputs/01_well_elevations.csv` ← upstand correction for cluster averaging
 - `outputs/02_cluster_stats.csv`
-- `outputs/02_08_cluster_amplitude_per_well.csv` ← optional; amplitude heterogeneity flags (falls back to hard-coded values if absent)
+- `outputs/02_clustering/02_08_cluster_amplitude_per_well.csv` ← optional; amplitude heterogeneity flags (falls back to hard-coded values if absent)
+- `data/newborough_dem.tif`, `data/Features.kml`, etc. ← spatial datum maps (optional; degrades gracefully if absent)
 
 **Produces (intermediate — outputs/ root):**
 
@@ -287,9 +291,14 @@ with millimetre-denominated climatology.
 | `03_04_lag_diagnostic.csv` | Data | Centroid SSM fits at lags 0, 1, 2, 3 months per cluster |
 | `03_05_bootstrap_ci.csv` | Data | B=1000 bootstrap CIs per cluster (well-level resampling) |
 | `03_06_leave_one_out.csv` | Data | Per-cluster leave-one-well-out centroid fits |
-| `03_07_c1_split_window.csv` | Data | C1 Lake pre/post-2018 split-window diagnostic with bootstrap CIs |
+| `03_07_c1_split_window.csv` | Data | C1 Lake Edge pre/post-2018 split-window diagnostic with bootstrap CIs |
 | `03_08_datum_sensitivity.csv` | Data | β₃ and R² at reference depths 0.5–8.0 m (0.1 m steps), all five clusters |
 | `03_08_datum_sensitivity.png` | Figure | 3-panel: β₃ vs datum, R² vs datum, aggregate fit quality + AIC |
+| `03_09_well_datum_sensitivity.csv` | Data | Full per-well datum sweep (66 wells × 76 depths) |
+| `03_09_well_optimal_datums.csv` | Data | Per-well optimal datums: primary (β₃>0 & sig), secondary (β₃>0), R²-max; plus fit at uniform datum and R² gain |
+| `03_09_well_optimal_datums.png` | Figure | 4-panel: histograms and boxplots of primary and R²-max datums by cluster |
+| `03_10_well_datum_r2max_map.png` | Figure | **Section 3.4** — spatial map of R²-maximising drainage datum per well (DEM + KML overlay) |
+| `03_10_well_r2_gain_map.png` | Figure | **Section 3.4** — spatial map of R² gain from per-well optimal vs uniform 3.7 m datum |
 
 **Validation diagnostics:**
 - **Lag diagnostic (03_04):** Confirms every cluster prefers lag-1 over lag-0
@@ -302,7 +311,7 @@ with millimetre-denominated climatology.
   with β₁ > 0.
 - **Leave-one-out (03_06):** Per-cluster centroid refit with each member
   excluded in turn (clusters with ≥4 members). Detects single-well domination.
-- **C1 split-window (03_07):** Fits C1 Lake centroid SSM separately on
+- **C1 split-window (03_07):** Fits C1 Lake Edge centroid SSM separately on
   pre-2018 and post-2018 windows, with well-resampling bootstrap on each
   side. Tests whether the Lake cluster has undergone a regime shift.
 - **Datum sensitivity (03_08):** Sweeps reference drainage datum from 0.5 to
@@ -310,6 +319,20 @@ with millimetre-denominated climatology.
   positive AND significant (p < 0.05) for all five clusters simultaneously.
   If the empirical minimum differs from `DRAINAGE_DATUM` by >0.15 m, a
   warning is printed.
+- **Per-well datum sensitivity (03_09):** Same sweep applied to each of the
+  66 reference wells individually (upstand-corrected). Records three datum
+  measures per well: primary (minimum depth where β₃ > 0 & p < 0.05),
+  secondary (minimum depth where β₃ > 0), and R²-maximising (depth that
+  produces the best-fitting model regardless of β₃ sign). Also records
+  the fit at the uniform datum and R² gain from per-well optimisation.
+  Shows a spatial gradient in effective drainage base depth (0.5 m near
+  the lake → 3+ m under the forest).
+- **Spatial datum maps (03_10):** Two publication-quality maps using
+  `plot_metric_map` from `map_utils` with DEM background and KML overlays.
+  The R²-max datum map shows the east-to-west gradient in effective drainage
+  base. The R² gain map shows the cost of the uniform datum is negligible
+  except for C1 Lake Edge (+0.048). Skipped gracefully if DEM/KML files
+  or mapping dependencies are unavailable. Report destination: Section 3.4.
 
 **Upstand correction:** Cluster centroid construction applies upstand
 correction (`corrected[col] = wells_clean[col] - upstand`) before averaging,
@@ -345,7 +368,7 @@ not alphabetical by block label.
 
 **Hard halt behaviour:** If any centroid fit violates β₁ > 0 or β₂ > 0,
 the pipeline prints warnings immediately but defers the hard halt until
-after all diagnostic tables (03_04–03_08) and the signatures figure are
+after all diagnostic tables (03_04–03_10) and the signatures figure are
 saved, so the investigator has the diagnostic outputs to work with.
 
 ---
@@ -1292,6 +1315,9 @@ rule, Sy values, and list of stale dicts requiring regeneration.
 | Figure 5: Cluster validation | 02 | `02_02_validation_plots.png` |
 | Figure 6: Dendrogram | 02 | `02_01_dendrogram.png` |
 | Figure 7: Cluster hydrographs | 02 | `02_03_cluster_hydrographs_wb.png` |
+| Figure 7: Mechanistic signatures | 03 | `03_01_mechanistic_signatures.png` |
+| Figure 7b: Drainage datum spatial | 03 | `03_10_well_datum_r2max_map.png` |
+| Figure 7c: Datum R² gain spatial | 03 | `03_10_well_r2_gain_map.png` |
 | Figure 8: Water balance | 16 | `16_wb_02_bar_ms.png` |
 | Figure 9: WTF Sy surface | 18 | `18_wtf_02_spatial_sy_map.png` |
 | Figure 10: Pearson affinity | 05 | `05_pear_01_spatial_confidence_map.png` |

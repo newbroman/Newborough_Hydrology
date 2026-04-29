@@ -610,7 +610,7 @@ def make_figure3_summer_warming(out_png: str, out_csv: str) -> None:
             fontsize=8, color="#555555", style="italic")
 
     ax.set_xlabel("Year")
-    ax.set_ylabel("Summer (JJA) max-temperature anomaly (°C, relative to pre-2013 mean)")
+    ax.set_ylabel("Summer (JJA) max-temperature anomaly\n(°C, relative to pre-2013 mean)")
     ax.set_title("RAF Valley summer maximum temperature, 1931–2025\n"
                  "Anomaly relative to pre-2013 mean; bars coloured by sign",
                  fontsize=11, fontweight="bold")

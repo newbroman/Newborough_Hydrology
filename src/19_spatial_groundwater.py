@@ -741,11 +741,13 @@ header p{{font-size:0.78rem;color:rgba(255,255,255,0.58);font-weight:300;}}
        font-size:11px;color:var(--text);line-height:1.45;}}
 
 /* Metric cards */
-.metrics{{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;}}
-@media(max-width:420px){{.metrics{{grid-template-columns:repeat(2,1fr);}}}}
-.mc{{background:#fff;border:1px solid var(--border);border-radius:3px;padding:8px 10px;}}
-.mc .ml{{font-size:10px;color:var(--text-light);margin-bottom:2px;}}
-.mc .mv{{font-size:15px;font-weight:700;}}
+.metrics{{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;}}
+@media(max-width:420px){{.metrics{{grid-template-columns:1fr;}}}}
+.mg{{background:#fff;border:1px solid var(--border);border-radius:3px;padding:8px 10px;}}
+.mg .mg-title{{font-size:10px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;border-bottom:1px solid var(--border);padding-bottom:3px;}}
+.mc{{padding:2px 0;}}
+.mc .ml{{font-size:10px;color:var(--text-light);margin-bottom:1px;}}
+.mc .mv{{font-size:14px;font-weight:700;}}
 .mc .mu{{font-size:10px;color:var(--text-light);}}
 
 /* Panels */
@@ -870,8 +872,7 @@ footer a:hover{{text-decoration:underline;}}
     Winter&nbsp;=&nbsp;Nov&#8211;Mar. Summer&nbsp;=&nbsp;May&#8211;Sep. Slider range 0.5&#8211;1.5&#215; brackets UKCP18 end-century probabilistic ranges for Wales under RCP8.5, while staying within the linear steady-state domain of the fitted state-space model.</div>
   <div class="hr"></div>
 
-  <div class="ch">C4 Main Forest</div>
-  <div class="ch">C5 Coastal Forest</div>
+  <div class="ch">Forest management (C4 &amp; C5)</div>
   <div class="srow"><label>Interception</label>
     <input type="range" min="0" max="0.4" step="0.01" value="{forest_interception}" id="sI" oninput="onSl()">
     <span class="sv" id="vI">24%</span></div>
@@ -1351,7 +1352,8 @@ function renderMetrics(){{
   var c5Sy=c5w.length?c5w.reduce(function(s,w){{return s+syEff(w,sl.sSyMode);}},0)/c5w.length:0.12;
   var mShift=mSy*mDH*1000, c4Shift=c4Sy*c4DH*1000, c5Shift=c5Sy*c5DH*1000;
   function fmtShift(v){{return(v>=0?'+':'')+v.toFixed(1);}}
-  document.getElementById('mrow').innerHTML=mc('Mean \u0394h',(mDH>=0?'+':'')+mDH.toFixed(3),'m',dc(mDH))+mc('C4 \u0394h',(c4DH>=0?'+':'')+c4DH.toFixed(3),'m',dc(c4DH))+mc('C5 \u0394h',(c5DH>=0?'+':'')+c5DH.toFixed(3),'m',dc(c5DH))+mc('Mean Sy',(mSy*100).toFixed(1),'%','#333')+mc('C4 Sy',(c4Sy*100).toFixed(1),'%','#333')+mc('C5 Sy',(c5Sy*100).toFixed(1),'%','#333')+mc('Mean storage',fmtShift(mShift),'mm',dc(mDH))+mc('C4 storage',fmtShift(c4Shift),'mm',dc(c4DH))+mc('C5 storage',fmtShift(c5Shift),'mm',dc(c5DH));
+  function grp(title,dh,dhCol,sy,shift,shiftCol){{return'<div class="mg"><div class="mg-title">'+title+'</div>'+mc('\\u0394h',(dh>=0?'+':'')+dh.toFixed(3),'m',dhCol)+mc('Sy',(sy*100).toFixed(1),'%','#333')+mc('Storage',fmtShift(shift),'mm',shiftCol)+'</div>';}}
+  document.getElementById('mrow').innerHTML=grp('All clusters (mean)',mDH,dc(mDH),mSy,mShift,dc(mDH))+grp('C4 Main Forest',c4DH,dc(c4DH),c4Sy,c4Shift,dc(c4DH))+grp('C5 Coastal Forest',c5DH,dc(c5DH),c5Sy,c5Shift,dc(c5DH));
 }}
 
 function applyLayout(){{document.getElementById('mainGrid').style.gridTemplateColumns=window.innerWidth<640?'1fr':'210px minmax(0,1fr)';}}

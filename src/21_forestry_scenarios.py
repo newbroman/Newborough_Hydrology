@@ -503,15 +503,6 @@ def plot_hydrograph(scenario_shifts, obs_monthly, monthly_P, monthly_PET,
 # ============================================================================
 
 # C3 well lists — split by proximity to C4 centroid
-C3_INTERIOR = [
-    "ceh17", "ceh19", "ceh36", "nw6", "ceh9", "ceh39", "ceh4",
-    "ceh18", "ceh21", "nw5",   "d25", "wmc2", "ceh42",
-]
-C3_ADJACENT = [
-    "ceh1", "ceh16", "wmc3", "nw7", "ceh31",
-    "nw9",  "nw2",   "nw11", "nw1",
-]
-
 SCRAPE_DATE  = "2015-04-01"   # April 2015 scraping
 FELL_DATE_21 = "2018-01-01"   # December 2017 clearfell
 
@@ -572,9 +563,11 @@ def _cluster_summer_mins_21(cl, df, dates, well_names, elev,
 def plot_distributions(master, df, dates, well_names, elev, dpi=FIG_DPI):
     """
     Five-group three-phase violin/strip plot of observed annual summer
-    minimum depths. Groups in spatial order: C1, C2, C3-interior,
-    C3-adjacent, C4. Three phases: pre-scrape (2005–14), scraping era
-    (2015–17), post-felling (2018+). Pure observational — no modelling.
+    minimum depths. Groups in spatial order: C1, C2, C3, C5, C4.
+    C4 and C5 are both forested (Corsican pine); C4 is plotted last
+    as it is typically the deepest. Three phases: pre-scrape (2005–14),
+    scraping era (2015–17), post-felling (2018+). Pure observational —
+    no modelling.
     """
     phases = [
         ("Pre-scrape\n2005–14",   None,        SCRAPE_DATE,  "o", 0.50),
@@ -592,19 +585,20 @@ def plot_distributions(master, df, dates, well_names, elev, dpi=FIG_DPI):
          lambda s, e: _cluster_summer_mins_21(2, df, dates, well_names,
                                                elev, master, s, e)),
         ("C3\nWarren\ninterior",
-         "#E8A0C8",
-         lambda s, e: _wells_summer_mins(C3_INTERIOR, df, dates, well_names,
-                                          elev, master, s, e)),
-        ("C3\nForest-\nadjacent",
          "#CC79A7",
-         lambda s, e: _wells_summer_mins(C3_ADJACENT, df, dates, well_names,
-                                          elev, master, s, e)),
-        ("C4\nForest",
+         lambda s, e: _cluster_summer_mins_21(3, df, dates, well_names,
+                                               elev, master, s, e)),
+        ("C5\nCoastal\nforest",
+         "#56B4E9",
+         lambda s, e: _cluster_summer_mins_21(5, df, dates, well_names,
+                                               elev, master, s, e)),
+        ("C4\nMain\nforest",
          "#2166AC",
          lambda s, e: _cluster_summer_mins_21(4, df, dates, well_names,
                                                elev, master, s, e)),
     ]
     c4_phase_cols = ["#9ECAE1", "#2166AC", "#D55E00"]
+    c5_phase_cols = ["#B3D9F2", "#56B4E9", "#E8A020"]
 
     group_centres = np.array([1.0, 2.6, 4.2, 5.8, 7.4])
     offsets       = np.array([-0.48, 0.0, 0.48])
@@ -648,18 +642,21 @@ def plot_distributions(master, df, dates, well_names, elev, dpi=FIG_DPI):
                 arrowprops=dict(arrowstyle="->", color="dimgrey",
                                 lw=1.3, mutation_scale=12))
     ax.text(4.0, -0.36,
-            "Increasing proximity to forest / clearfell zone \u2192",
+            "Open dune \u2192 Warren interior \u2192 Forest clusters",
             ha="center", fontsize=8, color="dimgrey", style="italic")
 
     # Draw violins and strips
     for gi, (grp_lbl, base_col, mins_fn) in enumerate(groups):
         gc     = group_centres[gi]
         is_c4  = "C4" in grp_lbl
+        is_c5  = "C5" in grp_lbl
 
         for pi, (phase_lbl, start, end, mk, alpha) in enumerate(phases):
             pos = gc + offsets[pi]
             arr = mins_fn(start, end)
-            col = c4_phase_cols[pi] if is_c4 else base_col
+            col = (c4_phase_cols[pi] if is_c4
+                   else c5_phase_cols[pi] if is_c5
+                   else base_col)
 
             if len(arr) == 0:
                 continue
@@ -702,12 +699,12 @@ def plot_distributions(master, df, dates, well_names, elev, dpi=FIG_DPI):
                 fontweight="bold", color=base_col,
                 multialignment="center")
 
-    # C3 bracket — just below cluster labels
-    ax.annotate("", xy=(6.28, 3.18), xytext=(3.76, 3.18),
-                arrowprops=dict(arrowstyle="|-|", color="#CC79A7",
+    # Forest cluster bracket — C5 + C4 together
+    ax.annotate("", xy=(7.84, 3.18), xytext=(5.36, 3.18),
+                arrowprops=dict(arrowstyle="|-|", color="#2166AC",
                                 lw=1.5, mutation_scale=4))
-    ax.text(5.02, 3.23, "C3 (split by proximity to forest)",
-            ha="center", fontsize=7.5, color="#CC79A7", style="italic")
+    ax.text(6.60, 3.23, "Forest clusters (Corsican pine canopy)",
+            ha="center", fontsize=7.5, color="#2166AC", style="italic")
 
     # Phase labels — below C3 bracket, under each group
     for gi in range(len(groups)):
@@ -758,6 +755,26 @@ def plot_distributions(master, df, dates, well_names, elev, dpi=FIG_DPI):
     ax.legend(handles=legend_elements, fontsize=7.5, loc="upper right",
               framealpha=0.92, ncol=2, bbox_to_anchor=(0.995, 0.995))
 
+    # Compute C4 pre/post shift for the text box
+    _c4_fn = None
+    for grp_lbl, _, mins_fn in groups:
+        if "C4" in grp_lbl:
+            _c4_fn = mins_fn
+            break
+    if _c4_fn is not None:
+        _c4_pre  = _c4_fn(None, FELL_DATE_21)
+        _c4_post = _c4_fn(FELL_DATE_21, None)
+        if len(_c4_pre) > 0 and len(_c4_post) > 0:
+            _shift_summer = _c4_post.mean() - _c4_pre.mean()
+            _shift_text = (
+                f"C4 post-felling (orange) narrows\n"
+                f"and shifts deeper by {abs(_shift_summer):.3f} m (summer mean)."
+            )
+        else:
+            _shift_text = ""
+    else:
+        _shift_text = ""
+
     # Explanation box — at ~2.0 m level, clear of y axis
     ax.text(0.65, 2.02,
             "How to read this figure: Each violin shows the distribution of\n"
@@ -767,8 +784,7 @@ def plot_distributions(master, df, dates, well_names, elev, dpi=FIG_DPI):
             "Shapes distinguish phases (\u25cf=pre-scrape, \u25a0=scraping era,\n"
             "\u25b2=post-felling). Scraping era n=3 \u2014 interpret mean only.\n\n"
             "General deepening trend across all groups = background\n"
-            "climate drying signal. C4 post-felling (orange) narrows\n"
-            "and shifts deeper by 0.145 m/yr (0.218 m in summer).",
+            f"climate drying signal. {_shift_text}",
             fontsize=7.2, color="dimgrey", va="top",
             bbox=dict(boxstyle="round,pad=0.4", fc="white", alpha=0.92,
                       edgecolor="lightgrey"),

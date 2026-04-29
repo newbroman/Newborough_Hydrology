@@ -1,4 +1,4 @@
-Cluster,Label,beta_1,beta_2,beta_3,LCSC_pct,P_mean_m_month,PET_mean_m_month,h_disp_mean_m,Recharge_m_month,ET_draw_m_month,Drainage_m_month,Total_loss_m_month,Residual_m_month,Drainage_pct,ET_pct
+Cluster,Label,beta_1_recharge,beta_2_atmospheric_draw,beta_3_drainage,LCSC_pct,P_mean_m_month,PET_mean_m_month,h_disp_mean_m,Recharge_m_month,ET_draw_m_month,Drainage_m_month,Total_loss_m_month,Residual_m_month,Drainage_pct,ET_pct
 1,C1 (Lake Edge),4.581000,0.962544,0.089646,21.829296,0.074378,0.055080,3.253194,0.340726,0.053017,0.291637,0.344654,-0.003928,84.617388,15.382612
 2,C2 (Dune),3.870610,1.744822,0.063198,25.835722,0.074289,0.054715,3.094735,0.287543,0.095468,0.195581,0.291049,-0.003507,67.198681,32.801319
 3,C3 (Western Residual),3.575798,1.805953,0.059571,27.965789,0.074289,0.054715,2.804044,0.265642,0.098813,0.167041,0.265854,-0.000212,62.831919,37.168081

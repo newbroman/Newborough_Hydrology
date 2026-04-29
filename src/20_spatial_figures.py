@@ -231,10 +231,10 @@ def build_well_table(data):
     wt["mean_depth"] = wt["mean_head"] - wt["pipe_top"]
     wt["h_disp"] = DRAINAGE_DATUM + wt["mean_depth"]
 
-    # Effective P (canopy interception for C4)
+    # Effective P (canopy interception for C4 and C5 — both forested)
     wt["P_eff"] = wt.apply(
         lambda r: P_bar * (1 - FOREST_INTERCEPTION)
-        if pd.notna(r.get("cluster")) and int(r["cluster"]) == 4
+        if pd.notna(r.get("cluster")) and int(r["cluster"]) in (4, 5)
         else P_bar, axis=1)
 
     # SSM water balance residual.
@@ -290,40 +290,60 @@ def build_well_table(data):
 # ─────────────────────────────────────────────────────────────────────────────
 # STREAM NETWORK
 # ─────────────────────────────────────────────────────────────────────────────
-def load_stream_cells():
+def load_stream_polygons():
     """
-    Load SAGA stream cell centroids directly from streams.kml.
-    Returns (es, ns) arrays in EPSG:27700, or ([], []) if unavailable.
-    Matches the approach used in map_utils.add_kml_features and script 19
-    — does NOT skeletonise or rebuild polylines.
+    Load SAGA stream cell polygons from streams.kml.
+    Returns list of [(e, n), ...] coordinate rings in EPSG:27700,
+    or [] if unavailable.  Each element is one polygon's vertex list.
+    Rendering these as outlines (matching map_utils.add_kml_features)
+    produces a visible stream network; the old centroid-scatter approach
+    was too faint to see against the head surface overlay.
     """
     if not DATA_KML_STREAMS.exists():
-        return [], []
+        return []
     try:
         ns_kml = "http://www.opengis.net/kml/2.2"
         t = Transformer.from_crs("EPSG:4326", "EPSG:27700", always_xy=True)
         tree = ET.parse(str(DATA_KML_STREAMS))
-        es, ns = [], []
+        polys = []
         for pm in tree.getroot().iter(f"{{{ns_kml}}}Placemark"):
             cel = pm.find(f".//{{{ns_kml}}}coordinates")
             if cel is None or not cel.text:
                 continue
-            toks = cel.text.strip().split()
-            if not toks:
-                continue
-            p = toks[0].split(",")
-            if len(p) < 2:
-                continue
-            try:
-                e, n = t.transform(float(p[0]), float(p[1]))
-                es.append(e); ns.append(n)
-            except Exception:
-                continue
-        print(f"  Stream cells loaded: {len(es)}")
-        return es, ns
+            ring = []
+            for tok in cel.text.strip().split():
+                p = tok.split(",")
+                if len(p) < 2:
+                    continue
+                try:
+                    e, n = t.transform(float(p[0]), float(p[1]))
+                    ring.append((e, n))
+                except Exception:
+                    continue
+            if len(ring) >= 3:
+                polys.append(ring)
+        print(f"  Stream polygons loaded: {len(polys)}")
+        return polys
     except Exception as _e:
         warnings.warn(f"streams.kml load failed: {_e}")
-        return [], []
+        return []
+
+
+def draw_stream_network(ax, polys, zorder=6):
+    """
+    Draw stream cell polygon outlines on ax.  Matches map_utils style:
+    dodgerblue edges, no fill, lw=1.8.  Returns a legend handle.
+    """
+    from matplotlib.collections import PolyCollection
+    if not polys:
+        return []
+    pc = PolyCollection(
+        polys, facecolors="none", edgecolors="dodgerblue",
+        linewidths=0.8, alpha=0.75, zorder=zorder,
+    )
+    ax.add_collection(pc)
+    return [Line2D([0], [0], color="dodgerblue", lw=1.8,
+                   label="DEM-derived flow network")]
 
 # ─────────────────────────────────────────────────────────────────────────────
 # KML FEATURES
@@ -488,11 +508,11 @@ def idw_surface(pts, vals, gx, gy, sea_pts=None, sea_vals=None, mask=None):
 # ─────────────────────────────────────────────────────────────────────────────
 # FIGURE 1 — HEAD SURFACE WITH STREAM NETWORK
 # ─────────────────────────────────────────────────────────────────────────────
-def plot_head_streams(wt, stream_cells, features, dpi=300):
+def plot_head_streams(wt, stream_polys, features, dpi=300):
     """
     Figure 1: Mean annual water table (m AOD) with stream cell overlay
     and groundwater flow direction vectors.
-    stream_cells: (es, ns) tuple from load_stream_cells().
+    stream_polys: list of polygon vertex lists from load_stream_polygons().
     """
     gx, gy = np.meshgrid(GRID_XI, GRID_YI)
     mask   = _site_mask(gx, gy)
@@ -543,11 +563,8 @@ def plot_head_streams(wt, stream_cells, features, dpi=300):
         except Exception:
             pass
 
-    # Layer 3 — stream cells (direct from streams.kml, matching all other maps)
-    es_s, ns_s = stream_cells
-    if es_s:
-        ax.scatter(es_s, ns_s, c="#5B8DB8", s=0.5,
-                   alpha=0.45, linewidths=0, marker="s", zorder=6)
+    # Layer 3 — stream network (polygon outlines, matching map_utils style)
+    stream_handles = draw_stream_network(ax, stream_polys, zorder=6)
 
     # Layer 4 — flow vectors
     skip = 6
@@ -571,13 +588,11 @@ def plot_head_streams(wt, stream_cells, features, dpi=300):
                                                   label=f"C{cl}")
 
     # Legends
-    stream_h = Line2D([0],[0], color="#5B8DB8", lw=1.5,
-                      label="DEM-derived flow network")
     flow_h   = Line2D([0],[0], color="white", lw=0,
                       marker=r"$\rightarrow$", markersize=8,
                       markerfacecolor="white", label="Flow direction")
 
-    l1 = ax.legend(handles=kml_handles + [stream_h, flow_h],
+    l1 = ax.legend(handles=kml_handles + stream_handles + [flow_h],
                    fontsize=7, loc="lower left", framealpha=0.92,
                    title="Site features", title_fontsize=8)
     ax.add_artist(l1)
@@ -674,11 +689,9 @@ def plot_residual_ssm(wt, features, dpi=300):
         ax.scatter(ext["E"], ext["N"], c="grey", s=30, marker="D",
                    edgecolors="black", lw=0.4, alpha=0.7, zorder=8)
 
-    # Stream cells
-    _es_s, _ns_s = load_stream_cells()
-    if _es_s:
-        ax.scatter(_es_s, _ns_s, c="#5B8DB8", s=0.5,
-                   alpha=0.45, linewidths=0, marker="s", zorder=4)
+    # Stream network
+    stream_polys = load_stream_polygons()
+    stream_handles = draw_stream_network(ax, stream_polys, zorder=4)
 
     kml_h = draw_kml_features(ax, features, zorder=6)
     ax.set_xlabel("Easting (m, OSGB36)", fontsize=9)
@@ -686,11 +699,11 @@ def plot_residual_ssm(wt, features, dpi=300):
     ax.tick_params(labelsize=8)
     ax.set_title(
         "SSM Water Balance Residual (m/month) — Newborough Warren 2005–2026\n"
-        "(β₂·PET̄ + β₃·|h̄| − β₁·P̄_eff)  |  β coefficients only  |  "
+        "(β₂·PET̄ + β₃·h̄_disp − β₁·P̄_eff)  |  β coefficients only  |  "
         "Flow direction arrows from head gradient",
         fontsize=10, fontweight="bold")
 
-    leg_h = kml_h + [
+    leg_h = kml_h + stream_handles + [
         Line2D([0],[0], marker="o", color="w", markerfacecolor="grey",
                markeredgecolor="black", markersize=7, label="Reference well"),
         Line2D([0],[0], marker="D", color="w", markerfacecolor="grey",
@@ -807,15 +820,15 @@ def main(preview=False):
     print(f"  P̄ = {P_bar*1000:.1f} mm/month  "
           f"PET̄ = {PET_bar*1000:.1f} mm/month")
 
-    print("[3/4] Loading stream cells...")
-    stream_cells = load_stream_cells()
+    print("[3/4] Loading stream polygons...")
+    stream_polys = load_stream_polygons()
 
     print("[4/4] Loading KML features...")
     features = load_kml_features()
     print(f"  KML features: {len(features)}")
 
     print("\nGenerating Figure 1 — Head surface + stream network...")
-    plot_head_streams(wt, stream_cells, features, dpi=dpi)
+    plot_head_streams(wt, stream_polys, features, dpi=dpi)
 
     print("Generating Figure 2a — SSM water balance residual...")
     plot_residual_ssm(wt, features, dpi=dpi)

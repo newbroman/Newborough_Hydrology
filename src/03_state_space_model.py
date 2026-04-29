@@ -415,7 +415,7 @@ def per_well_fits(cluster_df: pd.DataFrame,
                 lcsc_empirical = float(valid["LCSC_raw"].mean() * 100)
 
         if fit is not None:
-            lcsc_reg = (100.0 / fit["beta_1"]) if fit["beta_1"] > 0 else np.nan
+            lcsc_reg = (100.0 / fit["beta_1_recharge"]) if fit["beta_1_recharge"] > 0 else np.nan
             results.append({
                 "Name_Original":           target_col,
                 "Cluster":                 row["Cluster"],
@@ -423,9 +423,9 @@ def per_well_fits(cluster_df: pd.DataFrame,
                 "Northing":                row["N"],
                 "LCSC_Empirical_Percent":  lcsc_empirical,
                 "LCSC_Regression_Percent": lcsc_reg,
-                "beta_1_recharge":         fit["beta_1"],
-                "beta_2_atmospheric_draw": fit["beta_2"],
-                "beta_3_drainage":         fit["beta_3"],
+                "beta_1_recharge":         fit["beta_1_recharge"],
+                "beta_2_atmospheric_draw": fit["beta_2_atmospheric_draw"],
+                "beta_3_drainage":         fit["beta_3_drainage"],
                 "pvalue_beta_1":           fit["pvalue_beta_1"],
                 "pvalue_beta_2":           fit["pvalue_beta_2"],
                 "pvalue_beta_3":           fit["pvalue_beta_3"],
@@ -479,24 +479,24 @@ def centroid_headline_fits(centroids: dict[int, pd.Series],
         if fit is None:
             rows.append({
                 "Cluster": cid, "Cluster_Label": label,
-                "beta_1": np.nan, "pvalue_beta_1": np.nan,
-                "beta_2": np.nan, "pvalue_beta_2": np.nan,
-                "beta_3": np.nan, "pvalue_beta_3": np.nan,
+                "beta_1_recharge": np.nan, "pvalue_beta_1": np.nan,
+                "beta_2_atmospheric_draw": np.nan, "pvalue_beta_2": np.nan,
+                "beta_3_drainage": np.nan, "pvalue_beta_3": np.nan,
                 "R2": np.nan, "n": 0,
                 "LCSC_percent": np.nan,
                 "drainage_datum_m": DRAINAGE_DATUM,
             })
             continue
 
-        lcsc = (100.0 / fit["beta_1"]) if fit["beta_1"] > 0 else np.nan
+        lcsc = (100.0 / fit["beta_1_recharge"]) if fit["beta_1_recharge"] > 0 else np.nan
         rows.append({
             "Cluster":       cid,
             "Cluster_Label": label,
-            "beta_1":        fit["beta_1"],
+            "beta_1_recharge":        fit["beta_1_recharge"],
             "pvalue_beta_1": fit["pvalue_beta_1"],
-            "beta_2":        fit["beta_2"],
+            "beta_2_atmospheric_draw":        fit["beta_2_atmospheric_draw"],
             "pvalue_beta_2": fit["pvalue_beta_2"],
-            "beta_3":        fit["beta_3"],
+            "beta_3_drainage":        fit["beta_3_drainage"],
             "pvalue_beta_3": fit["pvalue_beta_3"],
             "R2":            fit["R2"],
             "n":             fit["n"],
@@ -532,9 +532,9 @@ def lag_diagnostic(centroids: dict[int, pd.Series],
             if fit is None:
                 rows.append({
                     "Cluster": cid, "Cluster_Label": label, "Lag_months": lag,
-                    "beta_1": np.nan, "pvalue_beta_1": np.nan,
-                    "beta_2": np.nan, "pvalue_beta_2": np.nan,
-                    "beta_3": np.nan, "pvalue_beta_3": np.nan,
+                    "beta_1_recharge": np.nan, "pvalue_beta_1": np.nan,
+                    "beta_2_atmospheric_draw": np.nan, "pvalue_beta_2": np.nan,
+                    "beta_3_drainage": np.nan, "pvalue_beta_3": np.nan,
                     "R2": np.nan, "n": 0,
                     "beta_1_physically_coherent": np.nan,
                     "beta_2_physically_coherent": np.nan,
@@ -544,16 +544,16 @@ def lag_diagnostic(centroids: dict[int, pd.Series],
                 "Cluster":       cid,
                 "Cluster_Label": label,
                 "Lag_months":    lag,
-                "beta_1":        fit["beta_1"],
+                "beta_1_recharge":        fit["beta_1_recharge"],
                 "pvalue_beta_1": fit["pvalue_beta_1"],
-                "beta_2":        fit["beta_2"],
+                "beta_2_atmospheric_draw":        fit["beta_2_atmospheric_draw"],
                 "pvalue_beta_2": fit["pvalue_beta_2"],
-                "beta_3":        fit["beta_3"],
+                "beta_3_drainage":        fit["beta_3_drainage"],
                 "pvalue_beta_3": fit["pvalue_beta_3"],
                 "R2":            fit["R2"],
                 "n":             fit["n"],
-                "beta_1_physically_coherent": fit["beta_1"] > 0,
-                "beta_2_physically_coherent": fit["beta_2"] > 0,
+                "beta_1_physically_coherent": fit["beta_1_recharge"] > 0,
+                "beta_2_physically_coherent": fit["beta_2_atmospheric_draw"] > 0,
             })
 
     return pd.DataFrame(rows)
@@ -614,11 +614,11 @@ def bootstrap_centroid_fits(cluster_df: pd.DataFrame,
             fit = fit_ssm(centroid, climate, lag=HEADLINE_LAG, window=None)
             if fit is None:
                 continue
-            beta_1s.append(fit["beta_1"])
-            beta_2s.append(fit["beta_2"])
-            beta_3s.append(fit["beta_3"])
+            beta_1s.append(fit["beta_1_recharge"])
+            beta_2s.append(fit["beta_2_atmospheric_draw"])
+            beta_3s.append(fit["beta_3_drainage"])
             r2s.append(fit["R2"])
-            lcsc = (100.0 / fit["beta_1"]) if fit["beta_1"] > 0 else np.nan
+            lcsc = (100.0 / fit["beta_1_recharge"]) if fit["beta_1_recharge"] > 0 else np.nan
             lcscs.append(lcsc)
             n_success += 1
 
@@ -696,7 +696,7 @@ def leave_one_out_fits(cluster_df: pd.DataFrame,
                 rows.append({
                     "Cluster": cid, "Cluster_Label": label,
                     "Excluded_Well": exclude_name,
-                    "beta_1": np.nan, "beta_2": np.nan, "beta_3": np.nan,
+                    "beta_1_recharge": np.nan, "beta_2_atmospheric_draw": np.nan, "beta_3_drainage": np.nan,
                     "R2": np.nan, "n": 0,
                 })
                 continue
@@ -704,9 +704,9 @@ def leave_one_out_fits(cluster_df: pd.DataFrame,
                 "Cluster":       cid,
                 "Cluster_Label": label,
                 "Excluded_Well": exclude_name,
-                "beta_1":        fit["beta_1"],
-                "beta_2":        fit["beta_2"],
-                "beta_3":        fit["beta_3"],
+                "beta_1_recharge":        fit["beta_1_recharge"],
+                "beta_2_atmospheric_draw":        fit["beta_2_atmospheric_draw"],
+                "beta_3_drainage":        fit["beta_3_drainage"],
                 "R2":            fit["R2"],
                 "n":             fit["n"],
             })
@@ -747,7 +747,7 @@ def c1_split_window_diagnostic(centroids: dict[int, pd.Series],
         headline = fit_ssm(series_window, climate, lag=HEADLINE_LAG, window=None)
         if headline is None:
             return {"window": window_label,
-                    "beta_1": np.nan, "beta_2": np.nan, "beta_3": np.nan,
+                    "beta_1_recharge": np.nan, "beta_2_atmospheric_draw": np.nan, "beta_3_drainage": np.nan,
                     "R2": np.nan, "n": 0,
                     "beta_1_lo": np.nan, "beta_1_hi": np.nan,
                     "beta_2_lo": np.nan, "beta_2_hi": np.nan,
@@ -784,9 +784,9 @@ def c1_split_window_diagnostic(centroids: dict[int, pd.Series],
             fit = fit_ssm(centroid, climate, lag=HEADLINE_LAG, window=None)
             if fit is None:
                 continue
-            b1s.append(fit["beta_1"])
-            b2s.append(fit["beta_2"])
-            b3s.append(fit["beta_3"])
+            b1s.append(fit["beta_1_recharge"])
+            b2s.append(fit["beta_2_atmospheric_draw"])
+            b3s.append(fit["beta_3_drainage"])
 
         def pct(arr, q):
             a = np.asarray([x for x in arr if np.isfinite(x)])
@@ -794,9 +794,9 @@ def c1_split_window_diagnostic(centroids: dict[int, pd.Series],
 
         return {
             "window":   window_label,
-            "beta_1":   headline["beta_1"],
-            "beta_2":   headline["beta_2"],
-            "beta_3":   headline["beta_3"],
+            "beta_1_recharge":   headline["beta_1_recharge"],
+            "beta_2_atmospheric_draw":   headline["beta_2_atmospheric_draw"],
+            "beta_3_drainage":   headline["beta_3_drainage"],
             "R2":       headline["R2"],
             "n":        headline["n"],
             "beta_1_lo": pct(b1s, 2.5),  "beta_1_hi": pct(b1s, 97.5),
@@ -839,7 +839,7 @@ def datum_sensitivity_analysis(centroids: dict[int, pd.Series],
                 rows.append({
                     "ref_depth": round(d, 1), "Cluster": cid,
                     "Cluster_Label": label,
-                    "beta_1": np.nan, "beta_2": np.nan, "beta_3": np.nan,
+                    "beta_1_recharge": np.nan, "beta_2_atmospheric_draw": np.nan, "beta_3_drainage": np.nan,
                     "pvalue_beta_1": np.nan, "pvalue_beta_2": np.nan,
                     "pvalue_beta_3": np.nan,
                     "R2": np.nan, "AIC": np.nan,
@@ -856,15 +856,15 @@ def datum_sensitivity_analysis(centroids: dict[int, pd.Series],
                 "ref_depth":       round(d, 1),
                 "Cluster":         cid,
                 "Cluster_Label":   label,
-                "beta_1":          fit["beta_1"],
-                "beta_2":          fit["beta_2"],
-                "beta_3":          fit["beta_3"],
+                "beta_1_recharge":          fit["beta_1_recharge"],
+                "beta_2_atmospheric_draw":          fit["beta_2_atmospheric_draw"],
+                "beta_3_drainage":          fit["beta_3_drainage"],
                 "pvalue_beta_1":   fit["pvalue_beta_1"],
                 "pvalue_beta_2":   fit["pvalue_beta_2"],
                 "pvalue_beta_3":   fit["pvalue_beta_3"],
                 "R2":              fit["R2"],
                 "AIC":             aic,
-                "beta_3_positive": fit["beta_3"] > 0,
+                "beta_3_positive": fit["beta_3_drainage"] > 0,
                 "beta_3_sig":      fit["pvalue_beta_3"] < 0.05,
             })
 
@@ -894,11 +894,11 @@ def make_datum_sensitivity_figure(sens_df: pd.DataFrame,
         sub = sens_df[sens_df.Cluster == cid].sort_values("ref_depth")
         label = CLUSTER_LABELS.get(cid, f"C{cid}")
         colour = CLUSTER_COLOURS.get(cid, "#888888")
-        ax.plot(sub["ref_depth"], sub["beta_3"], color=colour, label=label,
+        ax.plot(sub["ref_depth"], sub["beta_3_drainage"], color=colour, label=label,
                 linewidth=1.5)
         # Mark where p < 0.05
         sig = sub[sub["beta_3_sig"]]
-        ax.scatter(sig["ref_depth"], sig["beta_3"], color=colour, s=8,
+        ax.scatter(sig["ref_depth"], sig["beta_3_drainage"], color=colour, s=8,
                    zorder=5, alpha=0.4)
     ax.axhline(0, color="black", linewidth=0.8, linestyle="--", alpha=0.6)
     ax.axvline(selected_datum, color="black", linewidth=1.2, linestyle=":",
@@ -1025,19 +1025,19 @@ def well_datum_sensitivity(wells_clean: pd.DataFrame,
                 full_rows.append({
                     "well": well_name, "Cluster": cid,
                     "Cluster_Label": label, "ref_depth": round(d, 1),
-                    "beta_1": np.nan, "beta_2": np.nan, "beta_3": np.nan,
+                    "beta_1_recharge": np.nan, "beta_2_atmospheric_draw": np.nan, "beta_3_drainage": np.nan,
                     "pvalue_beta_3": np.nan, "R2": np.nan,
                     "beta_3_positive": False, "beta_3_sig": False,
                 })
                 continue
 
-            b3_pos = fit["beta_3"] > 0
+            b3_pos = fit["beta_3_drainage"] > 0
             b3_sig = fit["pvalue_beta_3"] < 0.05
             full_rows.append({
                 "well": well_name, "Cluster": cid,
                 "Cluster_Label": label, "ref_depth": round(d, 1),
-                "beta_1": fit["beta_1"], "beta_2": fit["beta_2"],
-                "beta_3": fit["beta_3"], "pvalue_beta_3": fit["pvalue_beta_3"],
+                "beta_1_recharge": fit["beta_1_recharge"], "beta_2_atmospheric_draw": fit["beta_2_atmospheric_draw"],
+                "beta_3_drainage": fit["beta_3_drainage"], "pvalue_beta_3": fit["pvalue_beta_3"],
                 "R2": fit["R2"],
                 "beta_3_positive": b3_pos, "beta_3_sig": b3_sig,
             })
@@ -1061,9 +1061,9 @@ def well_datum_sensitivity(wells_clean: pd.DataFrame,
         if best_primary is not None:
             d_p, f_p = best_primary
             opt["optimal_datum_primary"] = d_p
-            opt["beta_1_at_primary"] = f_p["beta_1"]
-            opt["beta_2_at_primary"] = f_p["beta_2"]
-            opt["beta_3_at_primary"] = f_p["beta_3"]
+            opt["beta_1_at_primary"] = f_p["beta_1_recharge"]
+            opt["beta_2_at_primary"] = f_p["beta_2_atmospheric_draw"]
+            opt["beta_3_at_primary"] = f_p["beta_3_drainage"]
             opt["pvalue_beta_3_primary"] = f_p["pvalue_beta_3"]
             opt["R2_at_primary"] = f_p["R2"]
         else:
@@ -1077,7 +1077,7 @@ def well_datum_sensitivity(wells_clean: pd.DataFrame,
         if best_secondary is not None:
             d_s, f_s = best_secondary
             opt["optimal_datum_secondary"] = d_s
-            opt["beta_3_at_secondary"] = f_s["beta_3"]
+            opt["beta_3_at_secondary"] = f_s["beta_3_drainage"]
             opt["pvalue_beta_3_secondary"] = f_s["pvalue_beta_3"]
             opt["R2_at_secondary"] = f_s["R2"]
         else:
@@ -1090,11 +1090,11 @@ def well_datum_sensitivity(wells_clean: pd.DataFrame,
         if best_r2_fit is not None:
             opt["max_R2_datum"] = best_r2_datum
             opt["R2_at_max"] = best_r2_fit["R2"]
-            opt["beta_1_at_max"] = best_r2_fit["beta_1"]
-            opt["beta_2_at_max"] = best_r2_fit["beta_2"]
-            opt["beta_3_at_max"] = best_r2_fit["beta_3"]
+            opt["beta_1_at_max"] = best_r2_fit["beta_1_recharge"]
+            opt["beta_2_at_max"] = best_r2_fit["beta_2_atmospheric_draw"]
+            opt["beta_3_at_max"] = best_r2_fit["beta_3_drainage"]
             opt["pvalue_beta_3_at_max"] = best_r2_fit["pvalue_beta_3"]
-            opt["beta_3_positive_at_max"] = best_r2_fit["beta_3"] > 0
+            opt["beta_3_positive_at_max"] = best_r2_fit["beta_3_drainage"] > 0
         else:
             opt["max_R2_datum"] = np.nan
             opt["R2_at_max"] = np.nan
@@ -1110,7 +1110,7 @@ def well_datum_sensitivity(wells_clean: pd.DataFrame,
                                drainage_datum=DRAINAGE_DATUM)
         if fit_uniform is not None:
             opt["R2_at_uniform"] = fit_uniform["R2"]
-            opt["beta_3_at_uniform"] = fit_uniform["beta_3"]
+            opt["beta_3_at_uniform"] = fit_uniform["beta_3_drainage"]
             opt["R2_gain_max_vs_uniform"] = (
                 opt["R2_at_max"] - fit_uniform["R2"]
                 if np.isfinite(opt.get("R2_at_max", np.nan)) else np.nan
@@ -1381,11 +1381,11 @@ def make_signatures_figure(mech_df: pd.DataFrame,
                  fontsize=18, fontweight="bold", y=1.02)
 
     panels = [
-        ("beta_1", "beta_1_lo", "beta_1_hi",
+        ("beta_1_recharge", "beta_1_lo", "beta_1_hi",
          r"Recharge Sensitivity ($\beta_1$)", "Water table rise per mm rain"),
-        ("beta_2", "beta_2_lo", "beta_2_hi",
+        ("beta_2_atmospheric_draw", "beta_2_lo", "beta_2_hi",
          r"Atmospheric Draw ($\beta_2$)",     "Water table drop per mm PET"),
-        ("beta_3", "beta_3_lo", "beta_3_hi",
+        ("beta_3_drainage", "beta_3_lo", "beta_3_hi",
          r"Internal Drainage ($\beta_3$)",    "Proportional decay rate"),
     ]
 

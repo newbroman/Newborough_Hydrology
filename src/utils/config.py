@@ -77,7 +77,33 @@ CLUSTER_MARKERS = {
 # Shared recency cutoff used for reference-network selection across scripts.
 REFERENCE_CUTOFF_DATE = "2026-02-01"
 
-# DEM colour scale — TwoSlopeNorm anchors used across all map products
+# ── Site geography ────────────────────────────────────────────────────────────
+# RAF Valley climate station, Anglesey — latitude for Thornthwaite day-length
+# correction. Confirmed 53°14′32″N → 53.242° ≈ 53.25.
+RAF_VALLEY_LAT_DEG = 53.25
+
+# ── Ecological thresholds — Curreli et al. (2013) ────────────────────────────
+# Dune slack community viability limits, expressed as depth below ground
+# surface (m, positive downward). Applied in threshold forecasting (11, 11b),
+# climate projections (14), spatial viewer (19), and forestry scenarios (21).
+SD15b     = 0.61   # m — wet slack viability
+SD15b_REC = 0.75   # m — wet slack recovery / excavation limit
+SD16      = 0.98   # m — dry slack threshold
+SD16_REC  = 1.20   # m — dry slack recovery / excavation limit
+
+# Winter thresholds used in climate projections (negative = below ground
+# in the sign convention of Script 14's depth axis).
+SD15b_WINTER = 0.10  # m — winter flooding limit for wet slack
+SD16_WINTER  = 0.25  # m — winter flooding limit for dry slack
+
+# ── Broadleaf interception ────────────────────────────────────────────────────
+# Deciduous annual-mean interception fraction — Komatsu et al. (2011).
+# Approximates summer (~25 %, leafed) and winter (~0 %, leafless) averaged
+# over the year. Used in replanting scenarios (scripts 19, 21).
+BROADLEAF_INTERCEPTION = 0.15
+
+# ── DEM colour scale ─────────────────────────────────────────────────────────
+# TwoSlopeNorm anchors used across all map products
 DEM_VMIN = 0.0
 DEM_VCENTER = 12.0
 DEM_VMAX = 35.0

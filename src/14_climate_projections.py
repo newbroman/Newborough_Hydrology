@@ -400,6 +400,16 @@ def render_winter_figure(
             color=colour, va="center", zorder=5,
         )
 
+        # C5 has a significant winter declining trend (p=0.035) — show it
+        if c == "C5":
+            from scipy import stats as _st
+            w_slope, w_int, w_r, w_p, _ = _st.linregress(yobs, vobs)
+            if w_p < 0.05:
+                yr_line = np.array([min(yobs), max(yobs)])
+                ax.plot(yr_line, w_slope * yr_line + w_int,
+                        color=colour, linewidth=2.0, linestyle="-",
+                        alpha=0.85, zorder=6)
+
     add_winter_exceedance_box(ax, exceedance)
 
     ax.set_xlim(YEAR_MIN, YEAR_MAX)
@@ -526,6 +536,16 @@ def render_stacked_figure(
             xy=(x_end, median_val), fontsize=6.5,
             color=colour, va="center", zorder=5,
         )
+
+        # C5 has a significant winter declining trend (p=0.035) — show it
+        if c == "C5":
+            from scipy import stats as _st
+            w_slope, w_int, w_r, w_p, _ = _st.linregress(yobs, vobs)
+            if w_p < 0.05:
+                yr_line = np.array([min(yobs), max(yobs)])
+                ax_bot.plot(yr_line, w_slope * yr_line + w_int,
+                            color=colour, linewidth=2.0, linestyle="-",
+                            alpha=0.85, zorder=6)
 
     add_winter_exceedance_box(ax_bot, exceedance)
 

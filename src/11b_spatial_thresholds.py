@@ -915,18 +915,24 @@ def plot_pflood_map(df: pd.DataFrame, dpi: int = 300) -> None:
 
     P_flood = cumulative winter rainfall (mm) required to raise the water
     table from each well's mean summer minimum to the slack-floor target
-    (h_target = 0 m), using each well's OWN per-well SSM coefficients
-    (HEADLINE_LAG, from Script 03's 03_master_data.csv) and the cluster-specific
-    horizon from October to historical peak month.
+    (h_target = 0 m), using the cluster-specific horizon from October to
+    historical peak month.
+
+    Coefficient source priority:
+      1. Per-well SSM coefficients (HEADLINE_LAG, from Script 03's
+         03_master_data.csv) — used for all reference-network wells.
+      2. Cluster-centroid SSM coefficients (from
+         03_03_cluster_mechanistic_coefficients.csv) — fallback for
+         extended-network wells that lack per-well fits.
 
     Wells are excluded from the map if:
       - their cluster lacks an entry in CLUSTER_PEAK_MONTH,
-      - their per-well beta_1 is non-positive, NaN, or missing
-        (extended-network wells have no per-well SSM fit).
+      - neither per-well nor cluster-level coefficients are available.
     """
     DIR_11B.mkdir(parents=True, exist_ok=True)
 
     P_clim, PET_clim = _load_climatology()
+    cluster_coeffs = _load_cluster_coefficients()
 
     # ── Compute per-well P_flood ─────────────────────────────────────────
     pf_rows = []
@@ -948,18 +954,27 @@ def plot_pflood_map(df: pd.DataFrame, dpi: int = 300) -> None:
         wb1_mm = row.get("well_b1_mm", np.nan)
         wb2_mm = row.get("well_b2_mm", np.nan)
         wb3    = row.get("well_b3", np.nan)
-        if (not np.isfinite(wb1_mm) or wb1_mm <= 0
-                or not np.isfinite(wb2_mm)
-                or not np.isfinite(wb3)):
+        has_per_well = (np.isfinite(wb1_mm) and wb1_mm > 0
+                        and np.isfinite(wb2_mm)
+                        and np.isfinite(wb3))
+
+        if has_per_well:
+            b1 = wb1_mm / 1000.0    # m/m -> m/mm
+            b2 = wb2_mm / 1000.0    # m/m -> m/mm
+            if wb3 < 0:
+                print(f"  [WARNING] {row.get('well', '?')}: β₃ = {wb3:.4f} is negative "
+                      f"(expected positive under displacement formulation)")
+            b3 = abs(wb3)            # dimensionless, ensure positive
+            coeff_source = "per-well"
+        elif cluster in cluster_coeffs:
+            cc = cluster_coeffs[cluster]
+            b1 = cc["b1"]            # already m/mm from _load_cluster_coefficients
+            b2 = cc["b2"]
+            b3 = cc["b3"]
+            coeff_source = "cluster"
+        else:
             skipped_beta += 1
             continue
-
-        b1 = wb1_mm / 1000.0    # m/m -> m/mm
-        b2 = wb2_mm / 1000.0    # m/m -> m/mm
-        if wb3 < 0:
-            print(f"  [WARNING] {row.get('well', '?')}: β₃ = {wb3:.4f} is negative "
-                  f"(expected positive under displacement formulation)")
-        b3 = abs(wb3)            # dimensionless, ensure positive
 
         # SSM sign convention: h in metres, negative below surface
         h_0 = -abs(depth_bg)
@@ -990,6 +1005,7 @@ def plot_pflood_map(df: pd.DataFrame, dpi: int = 300) -> None:
             "dem":          row["dem"],
             "depth_bg":     depth_bg,
             "h_0_m":        h_0,
+            "coeff_source": coeff_source,
             "horizon_n":    res["n"],
             "alpha":        res["alpha"],
             "S_P_mm":       res["S_P"],
@@ -1006,10 +1022,13 @@ def plot_pflood_map(df: pd.DataFrame, dpi: int = 300) -> None:
 
     pf = pd.DataFrame(pf_rows)
     n_reachable = (~pf["unreachable"]).sum()
+    n_per_well = sum(1 for r in pf_rows if r["coeff_source"] == "per-well")
+    n_cluster  = sum(1 for r in pf_rows if r["coeff_source"] == "cluster")
     print(f"  P_flood computed for {len(pf)} wells "
-          f"({n_reachable} reachable, {unreachable_n} unreachable; "
+          f"({n_per_well} per-well, {n_cluster} cluster-level; "
+          f"{n_reachable} reachable, {unreachable_n} unreachable; "
           f"{skipped_cluster} skipped — no peak month; "
-          f"{skipped_beta} skipped — invalid per-well beta)")
+          f"{skipped_beta} skipped — invalid beta)")
 
     # Export per-well CSV for citation in report
     pf.to_csv(OUT_11B_PFLOOD_PER_WELL, index=False)

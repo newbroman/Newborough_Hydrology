@@ -749,8 +749,8 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
     ] + kml_handles
 
     cluster_patches = [
-        mpatches.Patch(color=v, label=f"C{k}")
-        for k, v in CLUSTER_COLS.items()
+        mpatches.Patch(color=CLUSTER_COLS[k], label=f"C{k}")
+        for k in sorted(CLUSTER_LABELS)
     ]
 
     l1 = ax.legend(
@@ -775,7 +775,8 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
     ax.set_title(
         "Mean Annual Summer Minimum — Depth Below Ground (m)\n"
         "Newborough Warren 2005–2026  |  "
-        "Full network (68 reference + 19 extended)  |  "
+        f"Full network ({(df['network']=='Reference').sum()} reference + "
+        f"{(df['network']=='Extended').sum()} extended)  |  "
         "Dune ridges masked\n"
         "CEH18: DEM −0.50 m  |  CEH21: DEM −0.70 m  "
         "(both post-2023 data only)  |  "
@@ -888,7 +889,7 @@ def plot_winter_maxima_map(df: pd.DataFrame, dpi: int = 300) -> None:
                markeredgecolor="grey", ms=6, label="Extended well"),
     ] + [Line2D([0],[0], marker="o", color="w",
                 markerfacecolor=CLUSTER_COLS[c], ms=7, label=f"C{c}")
-         for c in sorted(CLUSTER_COLS)]
+         for c in sorted(CLUSTER_LABELS)]
     ax.legend(handles=legend_patches + kml_handles, fontsize=7,
               loc="upper left", framealpha=0.95, ncol=2)
 
@@ -1012,7 +1013,7 @@ def plot_pflood_map(df: pd.DataFrame, dpi: int = 300) -> None:
             "S_E_mm":       res["S_E"],
             "lambda":       lam_val,
             "pflood_mm":    pflood_val,
-            "exceeds_mean": (pflood_val > MEAN_WINTER_RAINFALL_MM) if not unreachable else True,
+            "exceeds_mean": (pflood_val > res["P_clim_total"]) if not unreachable else True,
             "unreachable":  unreachable,
         })
 
@@ -1038,8 +1039,21 @@ def plot_pflood_map(df: pd.DataFrame, dpi: int = 300) -> None:
     _, ok, dem_e_arr, dem_n_arr, dem_data = load_dem_hillshade(
         ax, DATA_DIR, alpha=1.0, vert_exag=3.0, zorder=1)
 
+    # Colour anchored on operational thresholds:
+    #   green  = reachable in average winter (P_flood < ~500 mm)
+    #   yellow = marginal — needs a wet winter (500–800 mm)
+    #   orange = difficult — needs exceptional winter (800–1200 mm)
+    #   red    = structurally unreachable (>1200 mm)
     cmap = LinearSegmentedColormap.from_list(
-        "pflood", ["#fff5eb", "#fdae6b", "#e6550d", "#a63603", "#67000d"])
+        "pflood", [
+            (0.00, "#1a9850"),   # 0 mm — easy (green)
+            (0.25, "#91cf60"),   # ~375 mm
+            (0.40, "#d9ef8b"),   # ~600 mm — still reachable
+            (0.50, "#fee08b"),   # ~750 mm — marginal
+            (0.65, "#fc8d59"),   # ~975 mm — difficult
+            (0.80, "#d73027"),   # ~1200 mm — very difficult
+            (1.00, "#67001f"),   # 1500+ mm — unreachable
+        ])
 
     pf_reachable = pf[~pf["unreachable"]].copy()
     if len(pf_reachable) < 3:
@@ -1050,8 +1064,7 @@ def plot_pflood_map(df: pd.DataFrame, dpi: int = 300) -> None:
     else:
         # Colourbar range: cap at 3x mean annual winter rainfall to retain
         # contrast across the reachable domain.
-        vmax = min(pf_reachable["pflood_mm"].quantile(0.95),
-                   MEAN_WINTER_RAINFALL_MM * 3)
+        vmax = min(pf_reachable["pflood_mm"].quantile(0.95), 1500)
         sc, gx, gy, surf = add_idw_surface(
             ax, pf_reachable, value_col="pflood_mm",
             easting_col="E", northing_col="N",
@@ -1066,14 +1079,9 @@ def plot_pflood_map(df: pd.DataFrame, dpi: int = 300) -> None:
         surf = _fill_and_mask(surf, gx, gy, pf_reachable,
                               pf_reachable["pflood_mm"].values)
 
-    # Wells: reachable filled dot in cluster colour; unreachable / over-climatology
-    # wells also get a red outline marker underneath.
+    # Wells: filled dot in cluster colour.
     for _, row in pf.iterrows():
         mk = "o" if row["network"] == "Reference" else "D"
-        if row["unreachable"] or row["exceeds_mean"]:
-            ax.scatter(row["E"], row["N"],
-                       facecolors="none", edgecolors="red",
-                       s=66, marker=mk, linewidths=1.4, zorder=8)
         ax.scatter(row["E"], row["N"],
                    c=CLUSTER_COLS.get(row["cluster"], "#999"),
                    s=28, marker=mk, zorder=9, linewidths=0.4, edgecolors="white")
@@ -1089,20 +1097,17 @@ def plot_pflood_map(df: pd.DataFrame, dpi: int = 300) -> None:
             fontsize=8)
 
     legend_patches = [
-        mpatches.Patch(facecolor="#fdae6b",
+        mpatches.Patch(facecolor="#91cf60",
                        label="Reachable under climatological winter"),
-        mpatches.Patch(facecolor="#a63603",
+        mpatches.Patch(facecolor="#fc8d59",
                        label="Requires wet winter (> climatology)"),
-        Line2D([0], [0], marker="o", color="w", markerfacecolor="none",
-               markeredgecolor="red", ms=9, mew=1.4,
-               label="Structurally unreachable / above mean winter"),
         Line2D([0], [0], marker="o", color="w", markerfacecolor="#999",
                markeredgecolor="grey", ms=6, label="Reference well"),
         Line2D([0], [0], marker="D", color="w", markerfacecolor="#999",
                markeredgecolor="grey", ms=6, label="Extended well"),
     ] + [Line2D([0], [0], marker="o", color="w",
                 markerfacecolor=CLUSTER_COLS[c], ms=7, label=f"C{c}")
-         for c in sorted(CLUSTER_COLS)]
+         for c in sorted(CLUSTER_LABELS)]
     ax.legend(handles=legend_patches + kml_handles, fontsize=7,
               loc="upper left", framealpha=0.95, ncol=2)
 
@@ -1111,7 +1116,7 @@ def plot_pflood_map(df: pd.DataFrame, dpi: int = 300) -> None:
     ax.set_title(
         "P_flood — Cumulative Winter Rainfall Required to Reach Slack Floor (mm)\n"
         "Newborough Warren  |  Iterated closed-form SSM  |  "
-        "Cluster-\u03b2 \u00b7 per-well summer minimum  |  Dune ridges masked",
+        "Per-well & cluster-level \u03b2 \u00b7 per-well summer minimum  |  Dune ridges masked",
         fontsize=10, fontweight="bold",
     )
     ax.set_xlim(240100, 243900)
@@ -1173,8 +1178,15 @@ def plot_flood_frequency_map(df: pd.DataFrame, dpi: int = 300) -> None:
         ax, DATA_DIR, alpha=1.0, vert_exag=3.0, zorder=1)
 
     cmap = LinearSegmentedColormap.from_list(
-        "floodfreq", ["#67001f", "#d73027", "#f4a582", "#f7f7f7",
-                      "#92c5de", "#2166ac", "#053061"])
+        "floodfreq", [
+            (0.0,  "#8c510a"),   # 0% — dry brown (never floods)
+            (0.15, "#d8b365"),   # ~15% — tan
+            (0.35, "#f6e8c3"),   # ~35% — pale sand
+            (0.50, "#c7eae5"),   # 50% — light teal (occasionally)
+            (0.65, "#5ab4ac"),   # ~65% — mid teal
+            (0.80, "#01665e"),   # ~80% — dark teal
+            (1.0,  "#003c30"),   # 100% — deep blue-green (always floods)
+        ])
     sc, gx, gy, surf = add_idw_surface(ax, ff, value_col="freq",
                          easting_col="E", northing_col="N",
                          dem_col="dem",
@@ -1209,9 +1221,9 @@ def plot_flood_frequency_map(df: pd.DataFrame, dpi: int = 300) -> None:
                    fontsize=8)
 
     legend_patches = [
-        mpatches.Patch(facecolor="#67001f", label="Never floods (0%)"),
-        mpatches.Patch(facecolor="#f7f7f7", edgecolor="#aaa", label="Occasionally floods (~50%)"),
-        mpatches.Patch(facecolor="#053061", label="Frequently floods (>75%)"),
+        mpatches.Patch(facecolor="#8c510a", label="Never floods (0%)"),
+        mpatches.Patch(facecolor="#c7eae5", edgecolor="#aaa", label="Occasionally floods (~50%)"),
+        mpatches.Patch(facecolor="#003c30", label="Frequently floods (>75%)"),
         Line2D([0],[0], color="#f0e442", lw=1.5, ls="--", label="25% frequency contour"),
         Line2D([0],[0], color="#009e73", lw=1.5, ls="--", label="50% frequency contour"),
         Line2D([0],[0], marker="o", color="w", markerfacecolor="#999",
@@ -1220,7 +1232,7 @@ def plot_flood_frequency_map(df: pd.DataFrame, dpi: int = 300) -> None:
                markeredgecolor="grey", ms=6, label="Extended well"),
     ] + [Line2D([0],[0], marker="o", color="w",
                 markerfacecolor=CLUSTER_COLS[c], ms=7, label=f"C{c}")
-         for c in sorted(CLUSTER_COLS)]
+         for c in sorted(CLUSTER_LABELS)]
     ax.legend(handles=legend_patches + kml_handles, fontsize=7,
               loc="upper left", framealpha=0.95, ncol=2)
 

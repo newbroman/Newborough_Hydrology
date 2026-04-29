@@ -29,7 +29,10 @@ handling, including why reducing only P (not PET) is not double-counting.
 import sys
 import os
 
-from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS as _CFG_CLUSTER_COLOURS
+from utils.config import (
+    CLUSTER_LABELS, CLUSTER_COLOURS as _CFG_CLUSTER_COLOURS,
+    FOREST_INTERCEPTION, FOREST_CIDS as _FOREST_CIDS_INT,
+)
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'utils'))
 
 from pathlib import Path
@@ -54,9 +57,9 @@ WINTER_MONTHS       = [11, 12, 1, 2, 3]   # Nov–Mar: PET negligible
 PET_MAX_WINTER      = 0.025                # m/month — exclude months above this
 MIN_RISE_M          = 0.005                # minimum detectable water table rise (m)
 MIN_NET_RECH        = 0.010                # minimum net recharge for event method (m)
-FOREST_INTERCEPTION = 0.24                 # Freeman (2008) — canopy interception fraction
-                                           # measured at C5; applied to all forested clusters
-FOREST_CIDS = ("C4", "C5")                 # forested clusters that get the interception correction
+# FOREST_INTERCEPTION imported from config.py (Freeman 2008, 0.24).
+# FOREST_CIDS as string keys for column-name compatibility with regional_averages CSV.
+FOREST_CIDS = tuple(f"C{cid}" for cid in _FOREST_CIDS_INT)
 SY_MIN_PLAUSIBLE    = 0.01                 # physical-plausibility lower bound
 SY_MAX_PLAUSIBLE    = 0.50                 # physical-plausibility upper bound
 

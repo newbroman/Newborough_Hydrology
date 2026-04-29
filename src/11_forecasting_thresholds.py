@@ -81,6 +81,7 @@ from utils.paths import (
     OUT_11_TABLE6_WINTER,
     OUT_11_TABLE7_SUMMER,
     OUT_11_TABLE8_THRESHOLDS,
+    OUT_11_PFLOOD_SUMMARY,
 )
 from utils.config import CLUSTER_LABELS, DRAINAGE_DATUM
 from utils.model_utils import pflood_lambda
@@ -598,6 +599,42 @@ def run_critical_flood_thresholds(results_dict: dict, df: pd.DataFrame) -> None:
     print("      See Section 3.6.3 of Hollingham (2026) for derivation.\n")
 
     pd.DataFrame(table8_rows).to_csv(OUT_11_TABLE8_THRESHOLDS, index=False)
+
+    # ── Reviewer-friendly summary ──────────────────────────────────────────
+    summary_cols = [
+        'Cluster', 'Label',
+        'beta_1_recharge', 'beta_2_atmospheric_draw', 'beta_3_drainage',
+        'alpha', 'horizon_months', 'peak_month',
+        'h_0_m', 'P_flood_new_mm', 'lambda',
+        'slope_A', 'intercept_B',
+        'P_clim_total_mm',
+    ]
+    summary_rename = {
+        'beta_1_recharge': 'beta_1',
+        'beta_2_atmospheric_draw': 'beta_2',
+        'beta_3_drainage': 'beta_3',
+        'horizon_months': 'horizon_n_months',
+        'P_flood_new_mm': 'P_flood_mm',
+        'lambda': 'lambda_multiplier',
+        'P_clim_total_mm': 'P_clim_mm',
+    }
+    df_full = pd.DataFrame(table8_rows)
+    df_summary = df_full[summary_cols].rename(columns=summary_rename)
+
+    # Add horizon label for readability
+    _end_month_names = {2: 'Feb', 3: 'Mar', 4: 'Apr'}
+    def _horizon_label(row):
+        n = row['horizon_n_months']
+        end = _end_month_names.get(row['peak_month'], f"M{row['peak_month']}")
+        return f"Oct\u2013{end} ({n} mo)"
+
+    df_summary.insert(
+        df_summary.columns.get_loc('horizon_n_months'),
+        'horizon',
+        df_summary.apply(_horizon_label, axis=1),
+    )
+    df_summary.to_csv(OUT_11_PFLOOD_SUMMARY, index=False)
+    print(f"  Reviewer summary \u2192 {OUT_11_PFLOOD_SUMMARY.name}")
 
 
 # ====================================================================================

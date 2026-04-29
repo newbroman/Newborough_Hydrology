@@ -1090,11 +1090,16 @@ def plot_pflood_map(df: pd.DataFrame, dpi: int = 300) -> None:
 
     if sc is not None:
         cbar = fig.colorbar(sc, ax=ax, fraction=0.03, pad=0.02, shrink=0.85)
-        cbar.ax.axhline(MEAN_WINTER_RAINFALL_MM, color="red", lw=1.5, ls="--")
+        # Two reference lines: one per recharge horizon
+        P_CLIM_5MO = 464   # C1/C2: Oct–Feb
+        P_CLIM_6MO = 524   # C3/C4/C5: Oct–Mar
+        cbar.ax.axhline(P_CLIM_5MO, color="#1a6faf", lw=1.5, ls="--")
+        cbar.ax.axhline(P_CLIM_6MO, color="#d62728", lw=1.5, ls="--")
         cbar.set_label(
             f"P_flood — cumulative winter rainfall (mm)\n"
-            f"Red line: mean annual winter total ({MEAN_WINTER_RAINFALL_MM} mm)",
-            fontsize=8)
+            f"Blue dashed: C1/C2 mean ({P_CLIM_5MO} mm, Oct–Feb)\n"
+            f"Red dashed: C3–C5 mean ({P_CLIM_6MO} mm, Oct–Mar)",
+            fontsize=7.5)
 
     legend_patches = [
         mpatches.Patch(facecolor="#91cf60",
@@ -1198,13 +1203,13 @@ def plot_flood_frequency_map(df: pd.DataFrame, dpi: int = 300) -> None:
                          alpha=0.72, zorder=2)
     surf = _fill_and_mask(surf, gx, gy, ff, ff["freq"].values)
 
-    for level, col, ls, lbl in [
-        (25,  "#f0e442", "--", "25% frequency contour"),
-        (50,  "#009e73", "--", "50% frequency contour"),
+    for level, col, ls, lw, lbl in [
+        (25,  "white",  "--", 2.0, "25% frequency contour"),
+        (50,  "black",  "-",  2.0, "50% frequency contour"),
     ]:
         try:
             cs = ax.contour(gx, gy, surf, levels=[level], colors=[col],
-                            linestyles=[ls], linewidths=[1.5], zorder=5)
+                            linestyles=[ls], linewidths=[lw], zorder=5)
             ax.clabel(cs, fmt=f"{level}%", fontsize=7, inline=True)
         except Exception:
             pass
@@ -1224,8 +1229,8 @@ def plot_flood_frequency_map(df: pd.DataFrame, dpi: int = 300) -> None:
         mpatches.Patch(facecolor="#8c510a", label="Never floods (0%)"),
         mpatches.Patch(facecolor="#c7eae5", edgecolor="#aaa", label="Occasionally floods (~50%)"),
         mpatches.Patch(facecolor="#003c30", label="Frequently floods (>75%)"),
-        Line2D([0],[0], color="#f0e442", lw=1.5, ls="--", label="25% frequency contour"),
-        Line2D([0],[0], color="#009e73", lw=1.5, ls="--", label="50% frequency contour"),
+        Line2D([0],[0], color="white", lw=2.0, ls="--", label="25% frequency contour"),
+        Line2D([0],[0], color="black", lw=2.0, ls="-", label="50% frequency contour"),
         Line2D([0],[0], marker="o", color="w", markerfacecolor="#999",
                markeredgecolor="grey", ms=6, label="Reference well"),
         Line2D([0],[0], marker="D", color="w", markerfacecolor="#999",

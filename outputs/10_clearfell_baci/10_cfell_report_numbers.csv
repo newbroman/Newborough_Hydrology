@@ -147,3 +147,60 @@ Coefficient_zone_mean_beta_3_drainage,,Before,0.0473,m,"Zone=Edge, n_wells=6"
 Coefficient_zone_mean_beta_3_drainage,,After,0.0354,m,"Zone=Edge, n_wells=8"
 Coefficient_zone_mean_beta_3_drainage,,Before,0.0422,m,"Zone=Control, n_wells=8"
 Coefficient_zone_mean_beta_3_drainage,,After,0.0321,m,"Zone=Control, n_wells=8"
+Robustness_SSM_residual,WMC3,Scrape_era,0.0774,m,Zone=Impact
+Robustness_SSM_residual,WMC3,Post_felling,0.1638,m,Zone=Impact
+Robustness_SSM_residual,WMC3,Step_change,0.0864,m,Zone=Impact
+Robustness_SSM_residual,WMC3,Step_p_value,0.0,,"Welch t-test, Zone=Impact"
+Robustness_SSM_residual,CEH31,Scrape_era,0.0118,m,Zone=Edge
+Robustness_SSM_residual,CEH31,Post_felling,-0.0443,m,Zone=Edge
+Robustness_SSM_residual,CEH31,Step_change,-0.0561,m,Zone=Edge
+Robustness_SSM_residual,CEH31,Step_p_value,0.0003,,"Welch t-test, Zone=Edge"
+Robustness_SSM_residual,CEH20,Scrape_era,0.0652,m,Zone=Edge
+Robustness_SSM_residual,CEH20,Post_felling,0.1497,m,Zone=Edge
+Robustness_SSM_residual,CEH20,Step_change,0.0845,m,Zone=Edge
+Robustness_SSM_residual,CEH20,Step_p_value,0.0,,"Welch t-test, Zone=Edge"
+Robustness_SSM_residual,CEH30,Scrape_era,0.0537,m,Zone=Edge
+Robustness_SSM_residual,CEH30,Post_felling,0.066,m,Zone=Edge
+Robustness_SSM_residual,CEH30,Step_change,0.0122,m,Zone=Edge
+Robustness_SSM_residual,CEH30,Step_p_value,0.1913,,"Welch t-test, Zone=Edge"
+Robustness_SSM_residual,CEH16,Scrape_era,-0.0059,m,Zone=Edge
+Robustness_SSM_residual,CEH16,Post_felling,-0.1288,m,Zone=Edge
+Robustness_SSM_residual,CEH16,Step_change,-0.1229,m,Zone=Edge
+Robustness_SSM_residual,CEH16,Step_p_value,0.0,,"Welch t-test, Zone=Edge"
+Robustness_SSM_residual,CEH32,Scrape_era,0.0444,m,Zone=Control
+Robustness_SSM_residual,CEH32,Post_felling,0.1084,m,Zone=Control
+Robustness_SSM_residual,CEH32,Step_change,0.064,m,Zone=Control
+Robustness_SSM_residual,CEH32,Step_p_value,0.003,,"Welch t-test, Zone=Control"
+Robustness_SSM_residual,CEH34,Scrape_era,0.0525,m,Zone=Control
+Robustness_SSM_residual,CEH34,Post_felling,0.1629,m,Zone=Control
+Robustness_SSM_residual,CEH34,Step_change,0.1104,m,Zone=Control
+Robustness_SSM_residual,CEH34,Step_p_value,0.0,,"Welch t-test, Zone=Control"
+Robustness_SSM_residual,CEH33,Scrape_era,0.0492,m,Zone=Control
+Robustness_SSM_residual,CEH33,Post_felling,0.0559,m,Zone=Control
+Robustness_SSM_residual,CEH33,Step_change,0.0067,m,Zone=Control
+Robustness_SSM_residual,CEH33,Step_p_value,0.5981,,"Welch t-test, Zone=Control"
+Robustness_SSM_residual,NW10,Scrape_era,-0.0147,m,Zone=Control
+Robustness_SSM_residual,NW10,Post_felling,0.0605,m,Zone=Control
+Robustness_SSM_residual,NW10,Step_change,0.0752,m,Zone=Control
+Robustness_SSM_residual,NW10,Step_p_value,0.0,,"Welch t-test, Zone=Control"
+Robustness_SSM_residual,CEH19,Scrape_era,0.0027,m,Zone=Control
+Robustness_SSM_residual,CEH19,Post_felling,-0.135,m,Zone=Control
+Robustness_SSM_residual,CEH19,Step_change,-0.1377,m,Zone=Control
+Robustness_SSM_residual,CEH19,Step_p_value,0.0,,"Welch t-test, Zone=Control"
+Robustness_SSM_residual,CEH9,Scrape_era,-0.041,m,Zone=Control
+Robustness_SSM_residual,CEH9,Post_felling,-0.0186,m,Zone=Control
+Robustness_SSM_residual,CEH9,Step_change,0.0224,m,Zone=Control
+Robustness_SSM_residual,CEH9,Step_p_value,0.0938,,"Welch t-test, Zone=Control"
+Robustness_SSM_residual,NW7,Scrape_era,-0.0831,m,Zone=Control
+Robustness_SSM_residual,NW7,Post_felling,-0.1566,m,Zone=Control
+Robustness_SSM_residual,NW7,Step_change,-0.0735,m,Zone=Control
+Robustness_SSM_residual,NW7,Step_p_value,0.0,,"Welch t-test, Zone=Control"
+Robustness_SSM_residual,NW6,Scrape_era,-0.0099,m,Zone=Control
+Robustness_SSM_residual,NW6,Post_felling,-0.0774,m,Zone=Control
+Robustness_SSM_residual,NW6,Step_change,-0.0676,m,Zone=Control
+Robustness_SSM_residual,NW6,Step_p_value,0.0229,,"Welch t-test, Zone=Control"
+Robustness_synthetic_gap,Core,Post_felling,-0.2313,m,Observed minus synthetic
+Robustness_synthetic_gap,Core,p_value,0.1875,,Welch t-test scrape vs post-felling gap
+Robustness_synthetic_gap,Edge,Post_felling,0.0736,m,Observed minus synthetic
+Robustness_synthetic_gap,Edge,p_value,0.0001,,Welch t-test scrape vs post-felling gap
+Robustness_cluster_transition,Impact,toward C3,0.0,,Qualitative: toward C3 = converging to open-dune behaviour

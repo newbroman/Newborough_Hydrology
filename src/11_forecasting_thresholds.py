@@ -305,9 +305,9 @@ def run_state_space(df: pd.DataFrame) -> dict:
 
         # Script 03 stores beta in m/m (regression on P_m in metres).
         # Section 3 uses P_clim and PET_clim in mm, so convert to m/mm.
-        b1 = float(row["beta_1"]) / 1000.0   # m/m -> m/mm
-        b2 = float(row["beta_2"]) / 1000.0   # m/m -> m/mm
-        b3_raw = float(row["beta_3"])
+        b1 = float(row["beta_1_recharge"]) / 1000.0   # m/m -> m/mm
+        b2 = float(row["beta_2_atmospheric_draw"]) / 1000.0   # m/m -> m/mm
+        b3_raw = float(row["beta_3_drainage"])
         if b3_raw < 0:
             print(f"  [WARNING] {col}: β₃ = {b3_raw:.4f} is negative "
                   f"(expected positive under displacement formulation). "
@@ -570,9 +570,9 @@ def run_critical_flood_thresholds(results_dict: dict, df: pd.DataFrame) -> None:
         table8_rows.append({
             'Cluster':           cluster,
             'Label':             cluster_labels[cluster],
-            'beta_1':            float(b1),
-            'beta_2':            float(b2),
-            'beta_3':            float(b3),
+            'beta_1_recharge':   float(b1),
+            'beta_2_atmospheric_draw': float(b2),
+            'beta_3_drainage':   float(b3),
             'alpha':             float(alpha),
             'horizon_months':    n,
             'peak_month':        peak_month,

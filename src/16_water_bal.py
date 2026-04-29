@@ -133,7 +133,7 @@ def load_data():
     df["PET"]  = df["PET_mm"] / 1000.0
 
     mech = pd.read_csv(OUT_03_MECHANISTIC_TABLE)
-    betas = mech.set_index("Cluster")[["beta_1", "beta_2", "beta_3",
+    betas = mech.set_index("Cluster")[["beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage",
                                         "LCSC_percent", "drainage_datum_m"]]
 
     # Verify datum consistency
@@ -171,9 +171,9 @@ def compute_headspace(df, betas):
 
     for cid, col in col_map.items():
         sub = df[[col, "P_m", "PET"]].dropna()
-        b1 = betas.loc[cid, "beta_1"]
-        b2 = betas.loc[cid, "beta_2"]
-        b3 = betas.loc[cid, "beta_3"]
+        b1 = betas.loc[cid, "beta_1_recharge"]
+        b2 = betas.loc[cid, "beta_2_atmospheric_draw"]
+        b3 = betas.loc[cid, "beta_3_drainage"]
         lcsc = betas.loc[cid, "LCSC_percent"]
 
         P_m   = sub["P_m"].mean()
@@ -257,9 +257,9 @@ def save_headspace_table(summary, path):
         rows.append({
             "Cluster": cid,
             "Label": _CFG_LABELS[cid],
-            "beta_1": s["b1"],
-            "beta_2": s["b2"],
-            "beta_3": s["b3"],
+            "beta_1_recharge": s["b1"],
+            "beta_2_atmospheric_draw": s["b2"],
+            "beta_3_drainage": s["b3"],
             "LCSC_pct": s["lcsc"],
             "P_mean_m_month": s["P_m"],
             "PET_mean_m_month": s["PET_m"],

@@ -393,13 +393,13 @@ def _load_cluster_coefficients() -> dict:
         cluster_int = _coerce_cluster_int(r["Cluster"])
         if cluster_int is None:
             continue
-        b3_val = float(r["beta_3"])
+        b3_val = float(r["beta_3_drainage"])
         if b3_val < 0:
             print(f"  [WARNING] Cluster {cluster_int}: β₃ = {b3_val:.4f} is negative "
                   f"(expected positive under displacement formulation)")
         coeffs[cluster_int] = {
-            "b1": float(r["beta_1"]) / 1000.0,
-            "b2": float(r["beta_2"]) / 1000.0,
+            "b1": float(r["beta_1_recharge"]) / 1000.0,
+            "b2": float(r["beta_2_atmospheric_draw"]) / 1000.0,
             "b3": abs(b3_val),
         }
     return coeffs
@@ -1409,14 +1409,14 @@ def _build_forecaster_data_bundle() -> dict:
         if pfr is None:
             print(f"  [WARNING] No P_flood entry for {c}; skipping.")
             continue
-        b3_fc = float(r["beta_3"])
+        b3_fc = float(r["beta_3_drainage"])
         if b3_fc < 0:
             print(f"  [WARNING] {c}: β₃ = {b3_fc:.4f} is negative "
                   f"(expected positive under displacement formulation)")
         cluster_coeffs[c] = {
             "label":             cluster_labels[c],
-            "b1":                float(r["beta_1"]) / 1000.0,
-            "b2":                float(r["beta_2"]) / 1000.0,
+            "b1":                float(r["beta_1_recharge"]) / 1000.0,
+            "b2":                float(r["beta_2_atmospheric_draw"]) / 1000.0,
             "b3":                abs(b3_fc),
             "peak_month":        int(pfr["peak_month"]),
             "slope_A":           float(pfr["slope_A"]),

@@ -112,7 +112,7 @@ from utils.paths import (
     SRC_FORECASTER_TEMPLATE,
 )
 from utils.map_utils import load_dem_hillshade, add_idw_surface, add_kml_features, _safe_read_kml
-from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, DRAINAGE_DATUM
+from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, DRAINAGE_DATUM, SD15b, SD15b_REC, SD16, SD16_REC
 from utils.model_utils import pflood_lambda
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -135,11 +135,8 @@ SEA_WEST_E  = 239200   # m OSGB36 — western estuary
 
 # ─────────────────────────────────────────────────────────────────────────────
 # ECOLOGICAL THRESHOLDS (Curreli et al., 2013)
+# Imported from utils.config: SD15b, SD15b_REC, SD16, SD16_REC
 # ─────────────────────────────────────────────────────────────────────────────
-SD15b     = 0.61   # m below ground — SD15b wet slack viability threshold
-SD15b_REC = 0.75   # m below ground — SD15b excavation limit (~0.14 m depth achieves SD15b)
-SD16      = 0.98   # m below ground — SD16 dry slack threshold
-SD16_REC  = 1.20   # m below ground — SD16 excavation limit (~0.22 m depth achieves SD16)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # SCRAPING CORRECTIONS

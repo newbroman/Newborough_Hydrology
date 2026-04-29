@@ -53,6 +53,7 @@ from utils.config import (
     CLUSTER_LABELS as _CFG_LABELS,
     CLUSTER_COLOURS as _CFG_COLOURS,
     CLUSTER_MARKERS as _CFG_MARKERS,
+    SD15b, SD16, SD15b_WINTER, SD16_WINTER,
 )
 
 OBS_START = 2004
@@ -64,11 +65,13 @@ SUMMER_MONTHS = [4, 5, 6, 7, 8, 9]
 WINTER_MONTHS = [10, 11, 12, 1, 2, 3]
 MIN_MONTHS = 3
 
-# Curreli et al. (2013) eco-hydrological thresholds
-WET_SLACK_SUMMER = -0.61  # m  SD15b summer viability limit
-DRY_SLACK_SUMMER = -0.98  # m  SD16 summer viability limit
-WET_SLACK_WINTER = -0.10  # m  SD15b winter flooding threshold
-DRY_SLACK_WINTER = -0.25  # m  SD16 winter flooding threshold
+# Curreli et al. (2013) eco-hydrological thresholds (negative = below ground)
+# Canonical positive-down values imported from config; negated here for
+# script 14's depth-axis sign convention.
+WET_SLACK_SUMMER = -SD15b          # m  SD15b summer viability limit
+DRY_SLACK_SUMMER = -SD16           # m  SD16 summer viability limit
+WET_SLACK_WINTER = -SD15b_WINTER   # m  SD15b winter flooding threshold
+DRY_SLACK_WINTER = -SD16_WINTER    # m  SD16 winter flooding threshold
 
 # ── Cluster styling — single source of truth in utils.config ─────────────────
 # String-keyed adapters because this script consumes the 'C{n}' column

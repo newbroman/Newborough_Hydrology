@@ -82,12 +82,14 @@ from utils.config import (
     CLUSTER_LABELS as _CFG_LABELS,
     CLUSTER_COLOURS as _CFG_COLOURS,
     DRAINAGE_DATUM,
+    FOREST_INTERCEPTION,
+    FOREST_CIDS,
 )
 make_all_dirs()
 
 # ── Constants ──────────────────────────────────────────────────────────────────
-FOREST_INTERCEPTION = 0.24   # Freeman (2008); fraction of P intercepted
-FOREST_CIDS         = (4, 5) # forested clusters
+# FOREST_INTERCEPTION imported from config.py (Freeman 2008, 0.24).
+# FOREST_CIDS imported from config.py — forested clusters (4, 5).
 
 # Recession analysis seasons (calendar months)
 WINTER_MONTHS = [11, 12, 1, 2]

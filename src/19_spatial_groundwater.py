@@ -61,17 +61,12 @@ from utils.paths import (
     OUT_18_WELL_SY_TABLE,
 )
 from utils.data_utils import normalize_well_name
-from utils.config import FOREST_INTERCEPTION
+from utils.config import FOREST_INTERCEPTION, BROADLEAF_INTERCEPTION, SD15b, SD16
 
 # Physical constants
-BROADLEAF_INTERCEPTION = 0.15   # Deciduous annual mean -- Komatsu et al. (2011)
-                                # Approximates summer (~25%, leafed) and winter
-                                # (~0%, leafless) averaged over the year. The
-                                # steady-state equilibrium framework applies this
-                                # as an annual mean; the seasonal phenology
-                                # mechanism that drives lower broadleaf summer
-                                # minima is dynamical and not resolved here
-                                # (see Section 5.4.4 for mechanism).
+# BROADLEAF_INTERCEPTION imported from config.py (Komatsu et al. 2011, 0.15).
+# Approximates summer (~25%, leafed) and winter (~0%, leafless) averaged
+# over the year. See Section 5.4.4 for mechanism discussion.
 MONITOR_START = "2005-04-01"
 MONITOR_END   = "2026-02-28"
 WINTER_MONTHS = [11, 12, 1, 2, 3]
@@ -878,7 +873,7 @@ footer a:hover{{text-decoration:underline;}}
   <div class="ch">C4 Main Forest</div>
   <div class="ch">C5 Coastal Forest</div>
   <div class="srow"><label>Interception</label>
-    <input type="range" min="0" max="0.4" step="0.01" value="0.24" id="sI" oninput="onSl()">
+    <input type="range" min="0" max="0.4" step="0.01" value="{forest_interception}" id="sI" oninput="onSl()">
     <span class="sv" id="vI">24%</span></div>
   <div class="srow"><label>&#946;&#8322; scaling</label>
     <input type="range" min="0.5" max="2" step="0.05" value="1" id="sB2" oninput="onSl()">
@@ -1077,7 +1072,7 @@ function abCol(t){{t=Math.max(0,Math.min(1,t));for(var i=0;i<GS.length-1;i++){{i
 // 0.00 m (waterlogged) -> deep blue;  0.10 m (SD15b winter wet flooding limit) -> light blue;
 // 0.61 m (SD15b summer wet slack viability limit) -> yellow-green transition;
 // 0.98 m (SD16 dry slack viability limit) -> orange;  1.50 m+ -> deep red.
-var DEP_MAX=1.5,DEP_T_WET=0.61,DEP_T_DRY=0.98,DEP_FLOOD=0.10;
+var DEP_MAX=1.5,DEP_T_WET={sd15b},DEP_T_DRY={sd16},DEP_FLOOD=0.10;
 var DEP_STOPS=[[0.00,'#08306b'],[0.066,'#4a90d0'],[0.407,'#9ecf74'],[0.653,'#f6b94a'],[1.00,'#8b1a1a']];
 function depCol(d){{
   if(d==null||!isFinite(d))return null;
@@ -1547,6 +1542,8 @@ def main(out_path=None):
         sy_lower_json=json.dumps(sy_lower_js, separators=(",", ":")),
         forest_interception=FOREST_INTERCEPTION,
         broadleaf_interception=BROADLEAF_INTERCEPTION,
+        sd15b=SD15b,
+        sd16=SD16,
         hillshade_b64=hillshade_b64,
         dem_grid_json=json.dumps(dem_grid, separators=(",", ":")),
         ridge_threshold=RIDGE_MASK_THRESHOLD,

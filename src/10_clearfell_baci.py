@@ -38,7 +38,7 @@ from utils.paths import (
     OUT_10_REPORT_NUMBERS,
 )
 from utils.data_utils import parse_met_date, clean_well_series, calculate_cusum
-from utils.config import DRAINAGE_DATUM, HEADLINE_LAG
+from utils.config import DRAINAGE_DATUM, HEADLINE_LAG, RAF_VALLEY_LAT_DEG
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -178,7 +178,7 @@ def export_table5_summary(stats_df: pd.DataFrame) -> None:
     pd.DataFrame(rows).to_csv(OUT_10_TABLE5_SUMMARY, index=False)
 
 
-RAF_VALLEY_LAT_DEG = 53.25
+# RAF_VALLEY_LAT_DEG imported from config.py (53.25).
 
 
 # NOTE: thornthwaite_pet_m() is no longer called — PET is now read from

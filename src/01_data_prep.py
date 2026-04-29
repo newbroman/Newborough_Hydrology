@@ -33,12 +33,13 @@ from utils.paths import (
     INT_WELL_ELEVATIONS,
 )
 from utils.data_utils import normalize_well_name, parse_met_date, clean_well_series
+from utils.config import REFERENCE_CUTOFF_DATE, RAF_VALLEY_LAT_DEG
 
 # Consolidated well elevation / upstand reference file (data directory).
 _WELL_ELEV_FILE = DATA_DIR / "Well_locations_height.csv"
 
 MIN_MONTHS_THRESH   = 100
-RECENCY_DATE        = pd.Timestamp("2026-02-01")
+RECENCY_DATE        = pd.Timestamp(REFERENCE_CUTOFF_DATE)
 MIN_EXTENDED_MONTHS = 24
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -128,8 +129,8 @@ EXTENDED_NETWORK_BLACKLIST = frozenset({
     "llynrhos",   # lake surface, not a water-table response
 })
 
-# RAF Valley, Anglesey — site latitude for Thornthwaite day-length correction
-RAF_VALLEY_LAT_DEG  = 53.25
+# RAF Valley, Anglesey — site latitude for Thornthwaite day-length correction.
+# Imported from utils.config (RAF_VALLEY_LAT_DEG = 53.25).
 
 
 def thornthwaite_pet_m(t_mean: pd.Series, lat_deg: float = RAF_VALLEY_LAT_DEG) -> pd.Series:

@@ -88,7 +88,10 @@ from utils.paths import (
     OUT_21_HYDROGRAPH, OUT_21_DISTRIBUTIONS, OUT_21_DISTRIBUTIONS_CSV,
     OUT_21_SCRAPING, OUT_21_SCRAPING_CSV, OUT_21_BACI_VIOLIN, OUT_21_BACI_CSV,
 )
-from utils.config import FOREST_INTERCEPTION
+from utils.config import (
+    FOREST_INTERCEPTION, BROADLEAF_INTERCEPTION, REFERENCE_CUTOFF_DATE,
+    SD15b, SD15b_REC, SD16, SD16_REC,
+)
 from utils.model_utils import monthly_perturbation
 
 
@@ -100,14 +103,8 @@ from pathlib import Path
 # ============================================================================
 # CONSTANTS
 # ============================================================================
-# FOREST_INTERCEPTION imported from config.py (Freeman 2008, 0.24).
-BROADLEAF_INTERCEPTION = 0.15   # Deciduous broadleaf (Freeman 2008)
-
-# Ecological thresholds — Curreli et al. (2013)
-SD15b       = 0.61   # m below ground — wet slack viability
-SD15b_REC   = 0.75   # m — SD15b recovery limit
-SD16        = 0.98   # m — dry slack threshold
-SD16_REC    = 1.20   # m — SD16 recovery limit
+# FOREST_INTERCEPTION, BROADLEAF_INTERCEPTION, SD15b, SD15b_REC, SD16,
+# SD16_REC all imported from config.py.
 
 # BACI-observed post-felling displacement (Hollingham 2026, Section 4.6)
 BACI_ANNUAL = 0.145  # m — mean annual deepening (positive = deeper)
@@ -269,7 +266,7 @@ def build_scenarios(master, climate):
     b2 = master[master["Cluster"] == 4]["beta_2_atmospheric_draw"].mean()
     b3 = master[master["Cluster"] == 4]["beta_3_drainage"].mean()
 
-    clim = climate.loc["2005-04-01":"2026-02-01"].copy()
+    clim = climate.loc["2005-04-01":REFERENCE_CUTOFF_DATE].copy()
     monthly_P   = clim.groupby(clim.index.month)["P_m"].mean().values
     monthly_PET = clim.groupby(clim.index.month)["PET"].mean().values
 

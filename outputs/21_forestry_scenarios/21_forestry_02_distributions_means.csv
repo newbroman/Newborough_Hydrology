@@ -5,12 +5,12 @@ C1 Eastern lake-buffer,Post-felling 2018+,2018-01-01,record_end,8,0.872,0.85,0.1
 C2 Eastern mature dune,Pre-scrape 2005–14,record_start,2015-04-01,10,0.8524,0.8315,0.1535,0.5625,1.1377,20.0
 C2 Eastern mature dune,Scraping era 2015–17,2015-04-01,2018-01-01,3,0.9254,0.9951,0.1653,0.6973,1.0839,66.7
 C2 Eastern mature dune,Post-felling 2018+,2018-01-01,record_end,8,0.9442,0.9479,0.1392,0.7423,1.1404,50.0
-C3 Warren interior,Pre-scrape 2005–14,record_start,2015-04-01,10,0.969,1.009,0.2287,0.5775,1.336,60.0
-C3 Warren interior,Scraping era 2015–17,2015-04-01,2018-01-01,3,1.0722,1.1568,0.1414,0.8731,1.1869,66.7
-C3 Warren interior,Post-felling 2018+,2018-01-01,record_end,8,1.114,1.1484,0.1484,0.8717,1.2745,75.0
-C3 Forest- adjacent,Pre-scrape 2005–14,record_start,2015-04-01,10,1.1177,1.1154,0.2693,0.7297,1.5724,70.0
-C3 Forest- adjacent,Scraping era 2015–17,2015-04-01,2018-01-01,3,1.3008,1.4138,0.1617,1.0721,1.4165,100.0
-C3 Forest- adjacent,Post-felling 2018+,2018-01-01,record_end,8,1.3262,1.3839,0.1723,1.041,1.5327,100.0
-C4 Forest,Pre-scrape 2005–14,record_start,2015-04-01,9,1.386,1.3156,0.4744,0.84,2.362,77.8
-C4 Forest,Scraping era 2015–17,2015-04-01,2018-01-01,3,1.5996,1.77,0.256,1.2378,1.7911,100.0
-C4 Forest,Post-felling 2018+,2018-01-01,record_end,8,1.5867,1.68,0.2703,1.1265,1.9054,100.0
+C3 Warren interior,Pre-scrape 2005–14,record_start,2015-04-01,10,0.9981,1.0068,0.2158,0.697,1.36,60.0
+C3 Warren interior,Scraping era 2015–17,2015-04-01,2018-01-01,3,1.0979,1.1849,0.1615,0.8716,1.2373,66.7
+C3 Warren interior,Post-felling 2018+,2018-01-01,record_end,8,1.1236,1.1664,0.1692,0.8639,1.2986,75.0
+C5 Coastal forest,Pre-scrape 2005–14,record_start,2015-04-01,9,1.1648,1.2996,0.3763,0.428,1.6958,66.7
+C5 Coastal forest,Scraping era 2015–17,2015-04-01,2018-01-01,3,1.4451,1.4938,0.1296,1.2678,1.5738,100.0
+C5 Coastal forest,Post-felling 2018+,2018-01-01,record_end,8,1.5052,1.5433,0.1323,1.2458,1.6558,100.0
+C4 Main forest,Pre-scrape 2005–14,record_start,2015-04-01,9,1.386,1.3156,0.4744,0.84,2.362,77.8
+C4 Main forest,Scraping era 2015–17,2015-04-01,2018-01-01,3,1.5996,1.77,0.256,1.2378,1.7911,100.0
+C4 Main forest,Post-felling 2018+,2018-01-01,record_end,8,1.5867,1.68,0.2703,1.1265,1.9054,100.0

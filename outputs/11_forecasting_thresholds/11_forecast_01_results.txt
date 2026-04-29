@@ -147,6 +147,7 @@ SECTION 3: CRITICAL RAINFALL THRESHOLD EQUATIONS  (P_flood - iterated)
 Note: P_flood_new supersedes the single-step formulation in prior drafts.
       See Section 3.6.3 of Hollingham (2026) for derivation.
 
+  Reviewer summary → 11_forecast_pflood_summary.csv
 
 ======================================================================
   Analysis complete.

@@ -1,4 +1,4 @@
-well,Cluster,Cluster_Label,ref_depth,beta_1,beta_2,beta_3,pvalue_beta_3,R2,beta_3_positive,beta_3_sig
+well,Cluster,Cluster_Label,ref_depth,beta_1_recharge,beta_2_atmospheric_draw,beta_3_drainage,pvalue_beta_3,R2,beta_3_positive,beta_3_sig
 nw1,3,C3 (Western Residual),0.5,2.856272954036518,3.837651072132479,0.02435667688015357,0.5526979174877279,0.5827072507074395,True,False
 nw1,3,C3 (Western Residual),0.6,2.736964839877664,4.006240181024172,0.041261745709152434,0.331164449344424,0.5852586196070767,True,False
 nw1,3,C3 (Western Residual),0.7,2.6246818225560875,4.168541518529403,0.060119397132432244,0.16939493097119213,0.5892956850960474,True,False

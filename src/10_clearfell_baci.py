@@ -36,8 +36,10 @@ from utils.paths import (
     OUT_10_TRANSECT_CSV,
     OUT_10_NW10_TREND,
     OUT_10_REPORT_NUMBERS,
+    INT_REGIONAL_AVG,
 )
 from utils.data_utils import parse_met_date, clean_well_series, calculate_cusum
+from utils.model_utils import build_ssm_frame
 from utils.config import DRAINAGE_DATUM, HEADLINE_LAG, RAF_VALLEY_LAT_DEG
 import pandas as pd
 import numpy as np
@@ -737,6 +739,7 @@ if not baci_df.empty:
     _ax_scat.scatter(_ab.loc[_post, 'cwb_c'], _ab.loc[_post, 'impact'],
                      color=cb_red,   s=28, alpha=0.65, zorder=3,
                      label=f'Post-felling (n={_post.sum()})')
+    _p_fmt = lambda p: '<0.001' if p < 0.001 else f'{p:.3f}'
     _xr = np.linspace(_ab['cwb_c'].min(), _ab['cwb_c'].max(), 200)
     _ax_scat.plot(_xr, (_b[0]+_b[2])        + _b[1]*_xr,
                   color=cb_green, lw=2.4,
@@ -757,7 +760,6 @@ if not baci_df.empty:
     for _sp in ['top','right']: _ax_scat.spines[_sp].set_visible(False)
     _ax_scat.grid(True, lw=0.4, ls='--', alpha=0.4)
 
-    _p_fmt = lambda p: '<0.001' if p < 0.001 else f'{p:.3f}'
     fig1.text(0.13, 0.005,
               f'† Oct 2023 scraping term (impact): coef = {_oct23_imp_coef:+.3f} m, '
               f'p = {_oct23_imp_p:.3f}, ΔAIC = {_daic_imp:+.2f} — not retained in final model.',
@@ -1474,6 +1476,287 @@ for param in ['beta_1_recharge', 'beta_2_atmospheric_draw', 'beta_3_drainage']:
     print(f"\n{param}:")
     print(full_param_df.pivot(index='Well', columns='Period', values=param))
 
+
+# ====================================================================================
+# ROBUSTNESS ANALYSIS 1 — SSM Residual (per-well forward prediction)
+# ====================================================================================
+print("\n--- Robustness 1: SSM Residual Analysis ---")
+
+_ssm_resid_results = []
+
+_all_network = valid_impact + valid_edge + valid_control
+for _w in _all_network:
+    if _w not in wells.columns:
+        continue
+    _h = wells[_w].dropna()
+
+    # Build SSM frame for pre-scraping calibration period
+    _df_full = build_ssm_frame(_h, climate, lag=HEADLINE_LAG,
+                               drainage_datum=DRAINAGE_DATUM)
+    _df_cal = _df_full[_df_full.index < scraping_date]
+
+    if len(_df_cal) < 36:
+        continue
+
+    # Fit OLS on calibration period (no intercept, displacement formulation)
+    _X_cal = pd.DataFrame({
+        'b1': _df_cal['P'].values,
+        'b2': -_df_cal['PET'].values,
+        'b3': -_df_cal['h_disp_prev'].values,
+    })
+    try:
+        _ols_cal = sm.OLS(_df_cal['Delta_h'].values, _X_cal).fit()
+    except Exception:
+        continue
+    _betas = _ols_cal.params.values  # [b1, b2, b3]
+
+    # Forward-iterate the fitted model from the last calibration observation
+    _post = _df_full[_df_full.index >= scraping_date].copy()
+    if len(_post) < 6:
+        continue
+
+    # Iterative forward prediction: h_pred(t) = h_pred(t-1) + dh_pred(t)
+    _h_pred = [float(_df_cal['h'].iloc[-1])]  # start from last calibration value
+    for _i, (_idx, _row) in enumerate(_post.iterrows()):
+        _h_prev_pred = _h_pred[-1]
+        _h_disp_pred = DRAINAGE_DATUM + _h_prev_pred
+        _dh_pred = _betas[0] * _row['P'] - _betas[1] * _row['PET'] - _betas[2] * _h_disp_pred
+        _h_pred.append(_h_prev_pred + _dh_pred)
+
+    # Residual = observed - predicted (drop the seed value)
+    _pred_series = pd.Series(_h_pred[1:], index=_post.index)
+    _obs_series = _post['h']
+    _resid = _obs_series - _pred_series
+
+    # Era means
+    _scrape_mask = (_resid.index >= scraping_date) & (_resid.index < intervention_date)
+    _fell_mask = _resid.index >= intervention_date
+    _scrape_mean = float(_resid[_scrape_mask].mean()) if _scrape_mask.any() else np.nan
+    _fell_mean = float(_resid[_fell_mask].mean()) if _fell_mask.any() else np.nan
+
+    _zone = ('Impact' if _w in valid_impact else
+             'Edge' if _w in valid_edge else 'Control')
+    _ssm_resid_results.append({
+        'well': _w, 'zone': _zone,
+        'scrape_mean': _scrape_mean, 'fell_mean': _fell_mean,
+        'resid_series': _resid,
+    })
+
+# Normalise by subtracting control mean residual
+_ctrl_resids = [r for r in _ssm_resid_results if r['zone'] == 'Control']
+if _ctrl_resids:
+    _ctrl_scrape = np.nanmean([r['scrape_mean'] for r in _ctrl_resids])
+    _ctrl_fell = np.nanmean([r['fell_mean'] for r in _ctrl_resids])
+else:
+    _ctrl_scrape = _ctrl_fell = 0.0
+
+_ssm_norm_results = []
+for _r in _ssm_resid_results:
+    _norm_scrape = _r['scrape_mean'] - _ctrl_scrape
+    _norm_fell = _r['fell_mean'] - _ctrl_fell
+    _step = _norm_fell - _norm_scrape
+
+    # Welch's t-test on individual monthly residuals
+    _rs = _r['resid_series']
+    _ctrl_mean_series = pd.Series(0.0, index=_rs.index)
+    if _ctrl_resids:
+        _all_ctrl = pd.DataFrame({cr['well']: cr['resid_series'] for cr in _ctrl_resids})
+        _ctrl_mean_series = _all_ctrl.reindex(_rs.index).mean(axis=1).fillna(0)
+    _norm_resid = _rs - _ctrl_mean_series
+    _scrape_vals = _norm_resid[(_norm_resid.index >= scraping_date) & (_norm_resid.index < intervention_date)].dropna()
+    _fell_vals = _norm_resid[_norm_resid.index >= intervention_date].dropna()
+    if len(_scrape_vals) >= 3 and len(_fell_vals) >= 3:
+        _t_stat, _p_val = _stats.ttest_ind(_fell_vals, _scrape_vals, equal_var=False)
+    else:
+        _p_val = np.nan
+
+    _ssm_norm_results.append({
+        'well': _r['well'].upper(), 'zone': _r['zone'],
+        'norm_scrape': _norm_scrape, 'norm_fell': _norm_fell,
+        'step': _step, 'p_value': _p_val,
+    })
+    print(f"  {_r['well'].upper():<8} [{_r['zone']:<7}] scrape={_norm_scrape:+.3f}  "
+          f"fell={_norm_fell:+.3f}  step={_step:+.3f}  "
+          f"p={'<0.001' if _p_val < 0.001 else f'{_p_val:.3f}' if pd.notna(_p_val) else 'N/A'}")
+
+# Zone means
+for _zone in ['Impact', 'Edge', 'Control']:
+    _zr = [r for r in _ssm_norm_results if r['zone'] == _zone]
+    if _zr:
+        _z_step = np.nanmean([r['step'] for r in _zr])
+        print(f"  {'MEAN':8} [{_zone:<7}] step={_z_step:+.3f} m  (n={len(_zr)})")
+
+
+# ====================================================================================
+# ROBUSTNESS ANALYSIS 2 — Synthetic Control (zone-level)
+# ====================================================================================
+print("\n--- Robustness 2: Synthetic Control Analysis ---")
+
+# Donor pool for synthetic control: wells outside the clearfell network entirely.
+# Excludes all 16 clearfell-network wells to avoid circularity.
+_network_wells = set(valid_impact + valid_edge + valid_control)
+_synth_donor_candidates = [
+    'ceh1', 'ceh2', 'ceh5', 'ceh6', 'ceh10', 'ceh11', 'ceh17',
+    'ceh22', 'ceh24',
+]
+_synth_donors = [w for w in _synth_donor_candidates
+                 if w in wells.columns and w not in _network_wells]
+
+_synth_results = {}
+for _zone_label, _zone_wells in [("Core", valid_impact), ("Edge", valid_edge)]:
+    _zone_mean = wells[_zone_wells].mean(axis=1).dropna()
+    _donor_data = wells[_synth_donors].dropna()
+    _common_idx = _zone_mean.index.intersection(_donor_data.index)
+
+    _baseline_mask = _common_idx < scraping_date
+    _baseline_idx = _common_idx[_baseline_mask]
+
+    if len(_baseline_idx) < 24:
+        print(f"  {_zone_label}: insufficient baseline for synthetic control")
+        _synth_results[_zone_label] = {'gap_fell': np.nan, 'p_value': np.nan}
+        continue
+
+    _X_syn = _donor_data.loc[_baseline_idx].values
+    _y_syn = _zone_mean.loc[_baseline_idx].values
+    try:
+        _ols_syn = sm.OLS(_y_syn, _X_syn).fit()
+        _w_syn = _ols_syn.params
+    except Exception:
+        print(f"  {_zone_label}: OLS failed for synthetic control")
+        _synth_results[_zone_label] = {'gap_fell': np.nan, 'p_value': np.nan}
+        continue
+
+    _synthetic = _donor_data.loc[_common_idx].values @ _w_syn
+    _gap = _zone_mean.loc[_common_idx].values - _synthetic
+
+    _gap_series = pd.Series(_gap, index=_common_idx)
+    _gap_scrape = _gap_series[(_gap_series.index >= scraping_date) &
+                               (_gap_series.index < intervention_date)]
+    _gap_fell = _gap_series[_gap_series.index >= intervention_date]
+
+    _mean_gap_scrape = float(_gap_scrape.mean()) if len(_gap_scrape) > 0 else np.nan
+    _mean_gap_fell = float(_gap_fell.mean()) if len(_gap_fell) > 0 else np.nan
+
+    if len(_gap_scrape) >= 3 and len(_gap_fell) >= 3:
+        _, _p_syn = _stats.ttest_ind(_gap_fell, _gap_scrape, equal_var=False)
+    else:
+        _p_syn = np.nan
+
+    _synth_results[_zone_label] = {
+        'gap_scrape': _mean_gap_scrape,
+        'gap_fell': _mean_gap_fell,
+        'step': _mean_gap_fell - _mean_gap_scrape if pd.notna(_mean_gap_scrape) else np.nan,
+        'p_value': float(_p_syn),
+    }
+    print(f"  {_zone_label}: scrape gap={_mean_gap_scrape:+.3f}  "
+          f"fell gap={_mean_gap_fell:+.3f}  "
+          f"step={_mean_gap_fell - _mean_gap_scrape:+.3f}  "
+          f"p={'<0.001' if _p_syn < 0.001 else f'{_p_syn:.3f}'}")
+
+
+# ====================================================================================
+# ROBUSTNESS ANALYSIS 3 — Cluster Transition (rolling SSM coefficients)
+# ====================================================================================
+print("\n--- Robustness 3: Cluster Transition Analysis ---")
+
+_ROLL_WINDOW = 48  # months
+
+# Load cluster centroids from Script 03 output
+try:
+    _reg_avg = pd.read_csv(INT_REGIONAL_AVG, index_col=0, parse_dates=True)
+    _c3_centroid = _reg_avg['C3'] if 'C3' in _reg_avg.columns else None
+    _c4_centroid = _reg_avg['C4'] if 'C4' in _reg_avg.columns else None
+except Exception:
+    _c3_centroid = _c4_centroid = None
+
+def _rolling_ssm_coeffs(h_series, climate_df, window=48):
+    """Compute rolling-window SSM β₁ and β₃ over time."""
+    results = []
+    df = build_ssm_frame(h_series, climate_df, lag=HEADLINE_LAG,
+                         drainage_datum=DRAINAGE_DATUM)
+    if len(df) < window:
+        return pd.DataFrame()
+
+    for end_idx in range(window, len(df) + 1):
+        chunk = df.iloc[end_idx - window:end_idx]
+        X = pd.DataFrame({
+            'b1': chunk['P'].values,
+            'b2': -chunk['PET'].values,
+            'b3': -chunk['h_disp_prev'].values,
+        })
+        try:
+            _fit = sm.OLS(chunk['Delta_h'].values, X).fit()
+            results.append({
+                'date': chunk.index[-1],
+                'beta_1': float(_fit.params['b1']),
+                'beta_3': float(_fit.params['b3']),
+                'R2': float(_fit.rsquared),
+            })
+        except Exception:
+            continue
+    return pd.DataFrame(results).set_index('date') if results else pd.DataFrame()
+
+# Compute rolling coefficients for felled wells (impact zone mean)
+_impact_mean = wells[valid_impact].mean(axis=1).dropna()
+_roll_impact = _rolling_ssm_coeffs(_impact_mean, climate, _ROLL_WINDOW)
+
+# Reference trajectories
+_roll_c3 = _rolling_ssm_coeffs(_c3_centroid, climate, _ROLL_WINDOW) if _c3_centroid is not None else pd.DataFrame()
+_roll_c4 = _rolling_ssm_coeffs(_c4_centroid, climate, _ROLL_WINDOW) if _c4_centroid is not None else pd.DataFrame()
+
+_transition_assessment = "insufficient_data"
+
+if not _roll_impact.empty and not _roll_c3.empty:
+    # Post-felling β₁ and β₃ trends for impact zone
+    _post_roll = _roll_impact[_roll_impact.index >= intervention_date]
+    _pre_roll = _roll_impact[(_roll_impact.index >= scraping_date) &
+                              (_roll_impact.index < intervention_date)]
+    _c3_post = _roll_c3[_roll_c3.index >= intervention_date]
+
+    if len(_post_roll) >= 6 and len(_c3_post) >= 6:
+        _b1_impact_post = _post_roll['beta_1'].mean()
+        _b3_impact_post = _post_roll['beta_3'].mean()
+        _b1_c3_post = _c3_post['beta_1'].mean()
+        _b3_c3_post = _c3_post['beta_3'].mean()
+        _b1_c4_post = _roll_c4[_roll_c4.index >= intervention_date]['beta_1'].mean() if not _roll_c4.empty else np.nan
+
+        # Convergence test: is the impact zone moving toward C3?
+        if len(_pre_roll) >= 3:
+            _b1_impact_pre = _pre_roll['beta_1'].mean()
+            _b1_shift = _b1_impact_post - _b1_impact_pre
+            _b1_direction = "toward C3" if abs(_b1_impact_post - _b1_c3_post) < abs(_b1_impact_pre - _b1_c3_post) else "away from C3"
+            _transition_assessment = _b1_direction
+            print(f"  Impact β₁ pre-felling:  {_b1_impact_pre:.3f}")
+            print(f"  Impact β₁ post-felling: {_b1_impact_post:.3f}  (shift: {_b1_shift:+.3f})")
+            print(f"  C3 β₁ post-felling:     {_b1_c3_post:.3f}")
+            print(f"  C4 β₁ post-felling:     {_b1_c4_post:.3f}")
+            print(f"  β₁ direction: {_b1_direction}")
+            print(f"  Impact β₃ pre:  {_pre_roll['beta_3'].mean():.4f}  post: {_b3_impact_post:.4f}")
+            print(f"  C3 β₃ post:     {_b3_c3_post:.4f}")
+        else:
+            print("  Insufficient pre-felling rolling windows for transition assessment")
+    else:
+        print("  Insufficient post-felling rolling windows for transition assessment")
+else:
+    print("  Cluster centroids not available for transition analysis")
+
+# Export rolling coefficients CSV
+_roll_export = pd.DataFrame()
+if not _roll_impact.empty:
+    _roll_export['Impact_beta1'] = _roll_impact['beta_1']
+    _roll_export['Impact_beta3'] = _roll_impact['beta_3']
+if not _roll_c3.empty:
+    _roll_export['C3_beta1'] = _roll_c3['beta_1']
+    _roll_export['C3_beta3'] = _roll_c3['beta_3']
+if not _roll_c4.empty:
+    _roll_export['C4_beta1'] = _roll_c4['beta_1']
+    _roll_export['C4_beta3'] = _roll_c4['beta_3']
+if not _roll_export.empty:
+    _roll_path = DIR_10 / '10_cfell_12_rolling_transition.csv'
+    _roll_export.to_csv(_roll_path)
+    print(f"  Saved: {_roll_path.name}")
+
+
 print("\n--- Files successfully created ---")
 print(OUT_10_DUAL_BACI)
 print(OUT_10_RAW_BACI  if 'OUT_10_RAW_BACI' in dir() else '(raw BACI: baci_df was empty)')
@@ -1671,6 +1954,32 @@ if not full_param_df.empty:
                     _mean_val = float(_fp_per[_coeff].mean())
                     _rn(f"Coefficient_zone_mean_{_coeff}", _mean_val,
                         era=_per, note=f"Zone={_zone_label}, n_wells={len(_fp_per)}")
+
+# 14. Robustness 1 — SSM residual results
+for _snr in _ssm_norm_results:
+    _rn("Robustness_SSM_residual", _snr['norm_scrape'],
+        well=_snr['well'], era="Scrape_era", note=f"Zone={_snr['zone']}")
+    _rn("Robustness_SSM_residual", _snr['norm_fell'],
+        well=_snr['well'], era="Post_felling", note=f"Zone={_snr['zone']}")
+    _rn("Robustness_SSM_residual", _snr['step'],
+        well=_snr['well'], era="Step_change", note=f"Zone={_snr['zone']}")
+    _rn("Robustness_SSM_residual", _snr['p_value'],
+        well=_snr['well'], era="Step_p_value", unit="",
+        note=f"Welch t-test, Zone={_snr['zone']}")
+
+# 15. Robustness 2 — Synthetic control results
+for _zone_lab, _sr in _synth_results.items():
+    _rn("Robustness_synthetic_gap", _sr.get('gap_fell', np.nan),
+        well=_zone_lab, era="Post_felling",
+        note="Observed minus synthetic")
+    _rn("Robustness_synthetic_gap", _sr.get('p_value', np.nan),
+        well=_zone_lab, era="p_value", unit="",
+        note="Welch t-test scrape vs post-felling gap")
+
+# 16. Robustness 3 — Cluster transition assessment
+_rn("Robustness_cluster_transition", 0.0,
+    well="Impact", era=_transition_assessment, unit="",
+    note="Qualitative: toward C3 = converging to open-dune behaviour")
 
 # Build and export
 _rpt_df = pd.DataFrame(_rpt_rows)

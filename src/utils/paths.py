@@ -37,6 +37,7 @@ DIR_07 = OUT_DIR / "07_spatial_coefficients"
 DIR_08 = OUT_DIR / "08_model_benchmarking"
 DIR_09 = OUT_DIR / "09_scraping_intervention"
 DIR_10 = OUT_DIR / "10_clearfell_baci"
+DIR_10C = OUT_DIR / "10c_forest_zone_analysis"
 DIR_11 = OUT_DIR / "11_forecasting_thresholds"
 DIR_11B = OUT_DIR / "11b_spatial_thresholds"
 DIR_12 = OUT_DIR / "12_figure_site_overview"
@@ -57,7 +58,7 @@ ALL_DIRS = [
     OUT_DIR,
     DIR_00, DIR_01,
     DIR_02, DIR_03, DIR_04, DIR_05, DIR_06, DIR_07,
-    DIR_08, DIR_09, DIR_10, DIR_11, DIR_11B, DIR_12, DIR_13, DIR_14,
+    DIR_08, DIR_09, DIR_10, DIR_10C, DIR_11, DIR_11B, DIR_12, DIR_13, DIR_14,
     DIR_15, DIR_16, DIR_17, DIR_18, DIR_19, DIR_20, DIR_21, DIR_22, DIR_23, DIR_24,
 ]
 
@@ -213,11 +214,27 @@ OUT_10_TRANSECT_CSV         = DIR_10 / "10_cfell_10_clearfell_transect_steps.csv
 OUT_10_NW10_TREND           = DIR_10 / "10_cfell_11_nw10_broadleaf_trend.csv"
 OUT_10_REPORT_NUMBERS       = DIR_10 / "10_cfell_report_numbers.csv"
 
+# Script 10b — Spatial step-change maps (scraping + clearfell)
+OUT_10B_SCRAPE_RAW          = DIR_10 / "10b_spatial_scrape_raw.png"
+OUT_10B_FELL_RAW            = DIR_10 / "10b_spatial_fell_raw.png"
+OUT_10B_SCRAPE_CORRECTED    = DIR_10 / "10b_spatial_scrape_corrected.png"
+OUT_10B_FELL_CORRECTED      = DIR_10 / "10b_spatial_fell_corrected.png"
+OUT_10B_STEP_DATA           = DIR_10 / "10b_spatial_step_data.csv"
+
+# Script 10c — Forest zone spatial analysis
+INT_10C_CORRELATION_TABLE   = OUT_DIR / "10c_forest_zone_correlations.csv"
+INT_10C_CLUSTER_SUMMARY     = OUT_DIR / "10c_forest_zone_cluster_summary.csv"
+OUT_10C_B1_B2_SCATTER       = DIR_10C / "10c_01_b1_b2_scatter.png"
+OUT_10C_B2_ELEV_REGRESSION  = DIR_10C / "10c_02_b2_elevation_regression.png"
+OUT_10C_BOUNDARY_MAP        = DIR_10C / "10c_03_c4_c5_boundary_map.png"
+OUT_10C_SUMMARY             = DIR_10C / "10c_04_forest_zone_summary.txt"
+
 # Script 11 — Forecasting thresholds
 OUT_11_RESULTS              = DIR_11 / "11_forecast_01_results.txt"
 OUT_11_TABLE6_WINTER        = DIR_11 / "11_forecast_winter_transfer_functions.csv"
 OUT_11_TABLE7_SUMMER        = DIR_11 / "11_forecast_summer_transfer_functions.csv"
 OUT_11_TABLE8_THRESHOLDS    = DIR_11 / "11_forecast_pflood_threshold_equations.csv"
+OUT_11_PFLOOD_SUMMARY       = DIR_11 / "11_forecast_pflood_summary.csv"
 
 # Script 11b — Spatial threshold maps
 OUT_11B_SUMMER_MAP      = DIR_11B / "11b_01_summer_minima_depth.png"

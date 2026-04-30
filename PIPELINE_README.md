@@ -539,7 +539,7 @@ of 6 control wells (CEH9, NW8, NW8B, NW5, NW6, NW7).
 `HEADLINE_LAG = 1` in Script 03. No-intercept OLS with the same three-term
 design matrix (β₁·P, β₂·(−PET), β₃·(−h_prev)).
 
-**Produces (outputs/09_scraping_intervention/):**
+**Produces (https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/09_scraping_intervention/):**
 
 | File | Type | Paper destination |
 |---|---|---|
@@ -627,7 +627,7 @@ corrected CUSUM is computed relative to the post-scraping baseline.
 **SSM specification:** Uses lag-1 rainfall (`P_m_lag1`), consistent with
 `HEADLINE_LAG = 1` in Script 03. No-intercept OLS.
 
-**Produces (outputs/10_clearfell_baci/):**
+**Produces (https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/10_clearfell_baci/):**
 
 | File | Type | Paper destination |
 |---|---|---|
@@ -718,7 +718,7 @@ The residual isolates the intervention-specific spatial signal.
 **Climate reference:** C1 + C2 median step change (n=33 wells).
 Scraping baseline: −0.053 m; clearfell baseline: +0.107 m.
 
-**Produces (outputs/10_clearfell_baci/):**
+**Produces (https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/10_clearfell_baci/):**
 
 | File | Type | Paper destination |
 |---|---|---|
@@ -759,7 +759,7 @@ Four questions addressed:
 - `data/newborough_dem.tif` ← DEM raster (hillshade for boundary map)
 - `data/Features.kml`, `data/streams.kml` ← site feature overlays
 
-**Produces (outputs/10c_forest_zone_analysis/):**
+**Produces (https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/10c_forest_zone_analysis/):**
 
 | File | Type | Description |
 |---|---|---|
@@ -792,7 +792,7 @@ groups were cleaned out at the partition level.
 - `outputs/03_regional_averages.csv`
 - `outputs/03_cluster_peak_months.csv` ← cluster-specific peak month (from script 03)
 
-**Produces (outputs/11_forecasting_thresholds/):**
+**Produces (https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/11_forecasting_thresholds/):**
 
 | File | Type | Paper destination |
 |---|---|---|
@@ -846,7 +846,7 @@ injecting pipeline data into the forecaster HTML template.
 - `outputs/03_cluster_peak_months.csv` ← peak months per cluster
 - `src/forecaster_template.html` ← static HTML/JS shell for the forecaster
 
-**Produces (outputs/11b_spatial_thresholds/):**
+**Produces (https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/11b_spatial_thresholds/):**
 
 | File | Type | Paper destination |
 |---|---|---|
@@ -886,7 +886,7 @@ and site features.
 - `outputs/01_locations.csv`
 - DEM and KML files from data/
 
-**Produces (outputs/12_figure_site_overview/):**
+**Produces (https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/12_figure_site_overview/):**
 
 | File | Type | Paper destination |
 |---|---|---|
@@ -903,7 +903,7 @@ well zones, and scraping/clearfell intervention footprints.
 - `outputs/02_cluster_stats.csv`
 - DEM and KML files from data/
 
-**Produces (outputs/13_figure_experimental_design/):**
+**Produces (https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/13_figure_experimental_design/):**
 
 | File | Type | Paper destination |
 |---|---|---|
@@ -934,7 +934,7 @@ and colour dicts.
 - `outputs/02_cluster_stats.csv` ← cluster assignments for scatter plot
 - `outputs/00_well_network_table.csv` ← well-level seasonal extremes
 
-**Produces (outputs/14_climate_projections/):**
+**Produces (https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/14_climate_projections/):**
 
 | File | Type | Paper destination |
 |---|---|---|
@@ -1007,7 +1007,7 @@ intervention analysis sections of the report.
 - `data/Newborough_Cleaned_For_Model.csv` ← raw dipwell records (direct)
 - `data/Well_locations_height.csv` ← well coordinates and pipe-top elevations (direct)
 
-**Produces (outputs/21_forestry_scenarios/):**
+**Produces (https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/21_forestry_scenarios/):**
 
 | File | Type | Report destination |
 |---|---|---|
@@ -1223,7 +1223,7 @@ Two wells were scraped after the LiDAR survey was flown. Scripts 11b, 19, and
     nearest-cluster-only badging with explanatory notice, default selection
     is first well in bundle (no hardcoded cluster ID).
 
-**Produces (outputs/11b_spatial_thresholds/):**
+**Produces (https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/11b_spatial_thresholds/):**
 
 | File | Type | Paper destination |
 |---|---|---|
@@ -1401,44 +1401,44 @@ Output files link directly to the repository. Not all pipeline outputs appear in
 
 | Figure | Description | Script | File |
 |---|---|---|---|
-| Figure 1 | Site overview | 12 | [`12_01_dem_site_overview.png`](outputs/12_figure_site_overview/12_01_dem_site_overview.png) |
-| Figure 2 | Experimental design | 13 | [`13_01_experimental_setup_map.png`](outputs/13_figure_experimental_design/13_01_experimental_setup_map.png) |
-| Figure 3 | Climate timeseries | 00 | [`00_01_climate_timeseries.png`](outputs/00_climate_summary/00_01_climate_timeseries.png) |
-| Figure 4 | Summer temperature trend | 00 | [`00_03_summer_warming_trend.png`](outputs/00_climate_summary/00_03_summer_warming_trend.png) |
-| Figure 5 | Well network | 00 | [`00_02_well_network_summary.png`](outputs/00_climate_summary/00_02_well_network_summary.png) |
-| Figure 6 | Cluster validation | 02 | [`02_02_validation_plots.png`](outputs/02_clustering/02_02_validation_plots.png) |
-| Figure 7 | Dendrogram | 02 | [`02_01_dendrogram.png`](outputs/02_clustering/02_01_dendrogram.png) |
-| Figure 8 | Cluster hydrographs | 02 | [`02_03_cluster_hydrographs_wb.png`](outputs/02_clustering/02_03_cluster_hydrographs_wb.png) |
-| Figure 9 | Water balance decomposition | 16 | [`16_wb_02_bar_ms.png`](outputs/16_water_bal/16_wb_02_bar_ms.png) |
-| Figure 10 | WTF Sy surface | 18 | [`18_wtf_04_sy_contour_extended.png`](outputs/18_wtf_spatial/18_wtf_04_sy_contour_extended.png) |
-| Figure 11 | Pearson affinity chart | 06 | [`06_pear_01_affinity_chart_extended.png`](outputs/06_pearson_extended/06_pear_01_affinity_chart_extended.png) |
-| Figure 12a | Pearson confidence map | 05 | [`05_pear_01_spatial_confidence_map.png`](outputs/05_pearson_affinity/05_pear_01_spatial_confidence_map.png) |
-| Figure 12b | Cluster integration map | 06 | [`06_pear_02_integration_map.png`](outputs/06_pearson_extended/06_pear_02_integration_map.png) |
-| Figure 13 | SSM vs TLM at CEH6 | 08 | [`08_lcsc_01_ceh6_showdown.png`](outputs/08_model_benchmarking/08_lcsc_01_ceh6_showdown.png) |
-| Figure 14a | SSM R² gain map | 08 | [`08_lcsc_02_r2_improvement_map.png`](outputs/08_model_benchmarking/08_lcsc_02_r2_improvement_map.png) |
-| Figure 14b | SSM NSE gain map | 08 | [`08_lcsc_03_nse_improvement_map.png`](outputs/08_model_benchmarking/08_lcsc_03_nse_improvement_map.png) |
-| Figure 15 | Tier 1 CUSUM | 09 | [`09_scrape_05_tier1_background_drift.png`](outputs/09_scraping_intervention/09_scrape_05_tier1_background_drift.png) |
-| Figure 16 | Tier 2 CUSUM treatment | 09 | [`09_scrape_06_tier2_scraping_signal.png`](outputs/09_scraping_intervention/09_scrape_06_tier2_scraping_signal.png) |
-| Figure 17 | Three-method robustness | 09 | [`09_scrape_08_ceh36_robustness.png`](outputs/09_scraping_intervention/09_scrape_08_ceh36_robustness.png) |
-| Figure 18 | Era-specific β₃ scraping | 09 | [`09_scrape_07_beta3_confidence.png`](outputs/09_scraping_intervention/09_scrape_07_beta3_confidence.png) |
-| Figure 19 | Scraping treatment wells | 21 | [`21_forestry_03_scraping_eras.png`](outputs/21_forestry_scenarios/21_forestry_03_scraping_eras.png) |
-| Figure 20 | Raw BACI clearfell | 10 | [`10_cfell_01b_raw_baci.png`](outputs/10_clearfell_baci/10_cfell_01b_raw_baci.png) |
-| Figure 21 | ANCOVA-BACI | 10 | [`10_cfell_01_dual_control_baci.png`](outputs/10_clearfell_baci/10_cfell_01_dual_control_baci.png) |
-| Figure 22 | Clearfell transect | 10 | [`10_cfell_10_clearfell_transect.png`](outputs/10_clearfell_baci/10_cfell_10_clearfell_transect.png) |
-| Figure 23 | Spatial step-change maps | 10b | [`10b_spatial_scrape_corrected.png`](outputs/10_clearfell_baci/10b_spatial_scrape_corrected.png), [`10b_spatial_fell_corrected.png`](outputs/10_clearfell_baci/10b_spatial_fell_corrected.png) |
-| Figure 24 | SSM coefficient shifts | 10 | [`10_cfell_03_beta3_ols_slopes.png`](outputs/10_clearfell_baci/10_cfell_03_beta3_ols_slopes.png) |
-| Figure 25 | BACI zone violin | 21 | [`21_forestry_04_baci_zone_violin.png`](outputs/21_forestry_scenarios/21_forestry_04_baci_zone_violin.png) |
-| Figure 26 | Summer min depth map | 11b | [`11b_01_summer_minima_depth.png`](outputs/11b_spatial_thresholds/11b_01_summer_minima_depth.png) |
-| Figure 27 | P_flood map | 11b | [`11b_03_pflood.png`](outputs/11b_spatial_thresholds/11b_03_pflood.png) |
-| Figure 28 | Winter max depth map | 11b | [`11b_02_winter_maxima_depth.png`](outputs/11b_spatial_thresholds/11b_02_winter_maxima_depth.png) |
-| Figure 29 | Winter flooding frequency | 11b | [`11b_04_flood_frequency.png`](outputs/11b_spatial_thresholds/11b_04_flood_frequency.png) |
-| Figure 30 | Climate trajectory | 14 | [`14_climate_trajectory_stacked.png`](outputs/14_climate_projections/14_climate_trajectory_stacked.png) |
-| Figure 31 | Datum sensitivity | 03 | [`03_08_datum_sensitivity.png`](outputs/03_state_space_model/03_08_datum_sensitivity.png) |
-| Figure 32 | Spatial coefficient atlas | 07 | [`07_coeff_01_beta1_recharge.png`](outputs/07_spatial_coefficients/07_coeff_01_beta1_recharge.png) – `07_coeff_04_r2.png` |
-| Figure 33 | Head surface + Darcy vectors | 20 | [`20_head_surface_streams.png`](outputs/20_spatial_figures/20_head_surface_streams.png) |
-| Figure 34 | Water balance residual field | 20 | [`20_residual_ssm.png`](outputs/20_spatial_figures/20_residual_ssm.png) |
-| Figure 35 | Synthetic hydrograph (scenarios) | 21 | [`21_forestry_01_hydrograph.png`](outputs/21_forestry_scenarios/21_forestry_01_hydrograph.png) |
-| Supplementary | β₁–β₂ scatter | 10c | [`25_01_b1_b2_scatter.png`](outputs/25_forest_zone_analysis/25_01_b1_b2_scatter.png) |
-| Supplementary | β₂–elevation regression | 10c | [`25_02_b2_elevation_regression.png`](outputs/25_forest_zone_analysis/25_02_b2_elevation_regression.png) |
-| Supplementary | C4/C5 boundary map | 10c | [`25_03_c4_c5_boundary_map.png`](outputs/25_forest_zone_analysis/25_03_c4_c5_boundary_map.png) |
+| Figure 1 | Site overview | 12 | [`12_01_dem_site_overview.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/12_figure_site_overview/12_01_dem_site_overview.png) |
+| Figure 2 | Experimental design | 13 | [`13_01_experimental_setup_map.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/13_figure_experimental_design/13_01_experimental_setup_map.png) |
+| Figure 3 | Climate timeseries | 00 | [`00_01_climate_timeseries.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/00_climate_summary/00_01_climate_timeseries.png) |
+| Figure 4 | Summer temperature trend | 00 | [`00_03_summer_warming_trend.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/00_climate_summary/00_03_summer_warming_trend.png) |
+| Figure 5 | Well network | 00 | [`00_02_well_network_summary.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/00_climate_summary/00_02_well_network_summary.png) |
+| Figure 6 | Cluster validation | 02 | [`02_02_validation_plots.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/02_clustering/02_02_validation_plots.png) |
+| Figure 7 | Dendrogram | 02 | [`02_01_dendrogram.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/02_clustering/02_01_dendrogram.png) |
+| Figure 8 | Cluster hydrographs | 02 | [`02_03_cluster_hydrographs_wb.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/02_clustering/02_03_cluster_hydrographs_wb.png) |
+| Figure 9 | Water balance decomposition | 16 | [`16_wb_02_bar_ms.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/16_water_bal/16_wb_02_bar_ms.png) |
+| Figure 10 | WTF Sy surface | 18 | [`18_wtf_04_sy_contour_extended.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/18_wtf_spatial/18_wtf_04_sy_contour_extended.png) |
+| Figure 11 | Pearson affinity chart | 06 | [`06_pear_01_affinity_chart_extended.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/06_pearson_extended/06_pear_01_affinity_chart_extended.png) |
+| Figure 12a | Pearson confidence map | 05 | [`05_pear_01_spatial_confidence_map.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/05_pearson_affinity/05_pear_01_spatial_confidence_map.png) |
+| Figure 12b | Cluster integration map | 06 | [`06_pear_02_integration_map.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/06_pearson_extended/06_pear_02_integration_map.png) |
+| Figure 13 | SSM vs TLM at CEH6 | 08 | [`08_lcsc_01_ceh6_showdown.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/08_model_benchmarking/08_lcsc_01_ceh6_showdown.png) |
+| Figure 14a | SSM R² gain map | 08 | [`08_lcsc_02_r2_improvement_map.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/08_model_benchmarking/08_lcsc_02_r2_improvement_map.png) |
+| Figure 14b | SSM NSE gain map | 08 | [`08_lcsc_03_nse_improvement_map.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/08_model_benchmarking/08_lcsc_03_nse_improvement_map.png) |
+| Figure 15 | Tier 1 CUSUM | 09 | [`09_scrape_05_tier1_background_drift.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/09_scraping_intervention/09_scrape_05_tier1_background_drift.png) |
+| Figure 16 | Tier 2 CUSUM treatment | 09 | [`09_scrape_06_tier2_scraping_signal.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/09_scraping_intervention/09_scrape_06_tier2_scraping_signal.png) |
+| Figure 17 | Three-method robustness | 09 | [`09_scrape_08_ceh36_robustness.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/09_scraping_intervention/09_scrape_08_ceh36_robustness.png) |
+| Figure 18 | Era-specific β₃ scraping | 09 | [`09_scrape_07_beta3_confidence.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/09_scraping_intervention/09_scrape_07_beta3_confidence.png) |
+| Figure 19 | Scraping treatment wells | 21 | [`21_forestry_03_scraping_eras.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/21_forestry_scenarios/21_forestry_03_scraping_eras.png) |
+| Figure 20 | Raw BACI clearfell | 10 | [`10_cfell_01b_raw_baci.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/10_clearfell_baci/10_cfell_01b_raw_baci.png) |
+| Figure 21 | ANCOVA-BACI | 10 | [`10_cfell_01_dual_control_baci.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/10_clearfell_baci/10_cfell_01_dual_control_baci.png) |
+| Figure 22 | Clearfell transect | 10 | [`10_cfell_10_clearfell_transect.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/10_clearfell_baci/10_cfell_10_clearfell_transect.png) |
+| Figure 23 | Spatial step-change maps | 10b | [`10b_spatial_scrape_corrected.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/10_clearfell_baci/10b_spatial_scrape_corrected.png), [`10b_spatial_fell_corrected.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/10_clearfell_baci/10b_spatial_fell_corrected.png) |
+| Figure 24 | SSM coefficient shifts | 10 | [`10_cfell_03_beta3_ols_slopes.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/10_clearfell_baci/10_cfell_03_beta3_ols_slopes.png) |
+| Figure 25 | BACI zone violin | 21 | [`21_forestry_04_baci_zone_violin.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/21_forestry_scenarios/21_forestry_04_baci_zone_violin.png) |
+| Figure 26 | Summer min depth map | 11b | [`11b_01_summer_minima_depth.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/11b_spatial_thresholds/11b_01_summer_minima_depth.png) |
+| Figure 27 | P_flood map | 11b | [`11b_03_pflood.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/11b_spatial_thresholds/11b_03_pflood.png) |
+| Figure 28 | Winter max depth map | 11b | [`11b_02_winter_maxima_depth.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/11b_spatial_thresholds/11b_02_winter_maxima_depth.png) |
+| Figure 29 | Winter flooding frequency | 11b | [`11b_04_flood_frequency.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/11b_spatial_thresholds/11b_04_flood_frequency.png) |
+| Figure 30 | Climate trajectory | 14 | [`14_climate_trajectory_stacked.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/14_climate_projections/14_climate_trajectory_stacked.png) |
+| Figure 31 | Datum sensitivity | 03 | [`03_08_datum_sensitivity.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/03_state_space_model/03_08_datum_sensitivity.png) |
+| Figure 32 | Spatial coefficient atlas | 07 | [`07_coeff_01_beta1_recharge.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/07_spatial_coefficients/07_coeff_01_beta1_recharge.png) – `07_coeff_04_r2.png` |
+| Figure 33 | Head surface + Darcy vectors | 20 | [`20_head_surface_streams.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/20_spatial_figures/20_head_surface_streams.png) |
+| Figure 34 | Water balance residual field | 20 | [`20_residual_ssm.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/20_spatial_figures/20_residual_ssm.png) |
+| Figure 35 | Synthetic hydrograph (scenarios) | 21 | [`21_forestry_01_hydrograph.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/21_forestry_scenarios/21_forestry_01_hydrograph.png) |
+| Supplementary | β₁–β₂ scatter | 10c | [`25_01_b1_b2_scatter.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/25_forest_zone_analysis/25_01_b1_b2_scatter.png) |
+| Supplementary | β₂–elevation regression | 10c | [`25_02_b2_elevation_regression.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/25_forest_zone_analysis/25_02_b2_elevation_regression.png) |
+| Supplementary | C4/C5 boundary map | 10c | [`25_03_c4_c5_boundary_map.png`](https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/25_forest_zone_analysis/25_03_c4_c5_boundary_map.png) |
 

@@ -1,0 +1,37 @@
+========================================================================
+SCRIPT 10c — Forest Zone Spatial Analysis Summary
+========================================================================
+
+1. SPATIAL PREDICTORS
+----------------------------------------
+   β₂ vs elevation: r = 0.975, R² = 0.951
+   Elevation is the dominant predictor of β₂ (95.1% variance explained).
+   Distance from ridge adds negligible information for β₂.
+   β₃: elevation R² = 0.594, + dist_ridge R² = 0.721
+   β₁: no strong spatial predictor (best: Easting r = 0.59)
+
+2. CONTINUUM OR TWO GROUPS?
+----------------------------------------
+   C4 β₂ = 2.634 ± 0.489
+   C5 β₂ = 1.191 ± 0.222
+   t-test p = 0.0000 — two distinct groups.
+   β₁ t-test p = 0.4681 — ranges overlap (not distinguishing).
+   WMC3 (clearfell): β₁ = 2.426, β₂ = 1.643 — sits between C4 and C5.
+
+3. OUTLIER ASSESSMENT
+----------------------------------------
+   NW10 (broadleaf): β₁ = 3.526 (C4 mean = 2.472), dist_ridge = 360 m
+   Both position (closest to ridge) and canopy type may contribute.
+   CEH14: β₂ = 3.759 at elev = 14.4 m — consistent with elevation trend,
+   not a genuine outlier (upper end of tight linear relationship).
+
+4. C4/C5 BOUNDARY
+----------------------------------------
+   C4 elevation: 8.7–14.4 m (n = 9)
+   C5 elevation: 4.8–6.5 m (n = 5)
+   Elevation gap: 2.2 m (zero overlap).
+   C4 Northing: 363760–364488
+   C5 Northing: 363533–363615
+   Conclusion: boundary reflects a real topographic/substrate
+   transition (dune ridge → coastal plain), not an arbitrary cut.
+   Pearson affinity: 14/14 wells have best-match = assigned cluster.

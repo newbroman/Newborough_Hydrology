@@ -61,12 +61,17 @@ from utils.paths import (
     OUT_18_WELL_SY_TABLE,
 )
 from utils.data_utils import normalize_well_name
-from utils.config import FOREST_INTERCEPTION, BROADLEAF_INTERCEPTION, SD15b, SD16
+from utils.config import FOREST_INTERCEPTION
 
 # Physical constants
-# BROADLEAF_INTERCEPTION imported from config.py (Komatsu et al. 2011, 0.15).
-# Approximates summer (~25%, leafed) and winter (~0%, leafless) averaged
-# over the year. See Section 5.4.4 for mechanism discussion.
+BROADLEAF_INTERCEPTION = 0.15   # Deciduous annual mean -- Komatsu et al. (2011)
+                                # Approximates summer (~25%, leafed) and winter
+                                # (~0%, leafless) averaged over the year. The
+                                # steady-state equilibrium framework applies this
+                                # as an annual mean; the seasonal phenology
+                                # mechanism that drives lower broadleaf summer
+                                # minima is dynamical and not resolved here
+                                # (see Section 5.4.4 for mechanism).
 MONITOR_START = "2005-04-01"
 MONITOR_END   = "2026-02-28"
 WINTER_MONTHS = [11, 12, 1, 2, 3]
@@ -104,18 +109,23 @@ VIEWER_NMIN, VIEWER_NMAX = 362400, 364800
 # proportion to their month memberships in the paper's seasonal definitions.
 SCENARIO_PARAMS = {
     "baseline":       {"sP_w": 1.00, "sP_s": 1.00, "sPET_w": 1.00, "sPET_s": 1.00,
-                       "sI": FOREST_INTERCEPTION, "sB2": 1.00},
+                       "sI_c4": FOREST_INTERCEPTION, "sI_c5": FOREST_INTERCEPTION,
+                       "sB2_c4": 1.00, "sB2_c5": 1.00},
     "ukcp18_2050s":   {"sP_w": 1.10, "sP_s": 0.85, "sPET_w": 1.05, "sPET_s": 1.20,
-                       "sI": FOREST_INTERCEPTION, "sB2": 1.00},
+                       "sI_c4": FOREST_INTERCEPTION, "sI_c5": FOREST_INTERCEPTION,
+                       "sB2_c4": 1.00, "sB2_c5": 1.00},
     "ukcp18_2080s":   {"sP_w": 1.20, "sP_s": 0.70, "sPET_w": 1.10, "sPET_s": 1.35,
-                       "sI": FOREST_INTERCEPTION, "sB2": 1.00},
+                       "sI_c4": FOREST_INTERCEPTION, "sI_c5": FOREST_INTERCEPTION,
+                       "sB2_c4": 1.00, "sB2_c5": 1.00},
     "clearfell":   {"sP_w": 1.00, "sP_s": 1.00, "sPET_w": 1.00, "sPET_s": 1.00,
-                    "sI": 0.00,
-                    "sB2": 1.20},
+                    "sI_c4": 0.00, "sI_c5": 0.00,
+                    "sB2_c4": 1.20, "sB2_c5": 1.20},
     "broadleaf":   {"sP_w": 1.00, "sP_s": 1.00, "sPET_w": 1.00, "sPET_s": 1.00,
-                    "sI": BROADLEAF_INTERCEPTION, "sB2": 1.00},
+                    "sI_c4": BROADLEAF_INTERCEPTION, "sI_c5": BROADLEAF_INTERCEPTION,
+                    "sB2_c4": 1.00, "sB2_c5": 1.00},
     "thinning":    {"sP_w": 1.00, "sP_s": 1.00, "sPET_w": 1.00, "sPET_s": 1.00,
-                    "sI": FOREST_INTERCEPTION * 0.5, "sB2": 1.10},
+                    "sI_c4": FOREST_INTERCEPTION * 0.5, "sI_c5": FOREST_INTERCEPTION * 0.5,
+                    "sB2_c4": 1.10, "sB2_c5": 1.10},
 }
 SEASONS = ["annual", "winter", "summer"]
 
@@ -739,6 +749,10 @@ header p{{font-size:0.78rem;color:rgba(255,255,255,0.58);font-weight:300;}}
 .warn{{background:#fdf5e3;border:1px solid var(--dune);border-left:3px solid var(--dune);
        border-radius:0 3px 3px 0;padding:6px 10px;
        font-size:11px;color:var(--text);line-height:1.45;}}
+.warn-extreme{{background:#ffebee;border-color:#ef9a9a;border-left-color:#b71c1c;color:#b71c1c;}}
+.disclaimer{{background:var(--sand);border:1px solid var(--border);border-radius:3px;
+  padding:8px 10px;font-size:10.5px;color:var(--text-light);line-height:1.45;margin-top:6px;}}
+.baseline-label{{font-size:11px;color:var(--text-light);margin-bottom:4px;font-style:italic;}}
 
 /* Metric cards */
 .metrics{{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;}}
@@ -872,13 +886,22 @@ footer a:hover{{text-decoration:underline;}}
     Winter&nbsp;=&nbsp;Nov&#8211;Mar. Summer&nbsp;=&nbsp;May&#8211;Sep. Slider range 0.5&#8211;1.5&#215; brackets UKCP18 end-century probabilistic ranges for Wales under RCP8.5, while staying within the linear steady-state domain of the fitted state-space model.</div>
   <div class="hr"></div>
 
-  <div class="ch">Forest management (C4 &amp; C5)</div>
+  <div class="ch">C4 Main Forest</div>
   <div class="srow"><label>Interception</label>
-    <input type="range" min="0" max="0.4" step="0.01" value="{forest_interception}" id="sI" oninput="onSl()">
-    <span class="sv" id="vI">24%</span></div>
+    <input type="range" min="0" max="0.4" step="0.01" value="0.24" id="sI_c4" oninput="onSl()">
+    <span class="sv" id="vI_c4">24%</span></div>
   <div class="srow"><label>&#946;&#8322; scaling</label>
-    <input type="range" min="0.5" max="2" step="0.05" value="1" id="sB2" oninput="onSl()">
-    <span class="sv" id="vB2">1.00&#215;</span></div>
+    <input type="range" min="0.5" max="2" step="0.05" value="1" id="sB2_c4" oninput="onSl()">
+    <span class="sv" id="vB2_c4">1.00&#215;</span></div>
+  <div class="hr"></div>
+
+  <div class="ch">C5 Coastal Forest</div>
+  <div class="srow"><label>Interception</label>
+    <input type="range" min="0" max="0.4" step="0.01" value="0.24" id="sI_c5" oninput="onSl()">
+    <span class="sv" id="vI_c5">24%</span></div>
+  <div class="srow"><label>&#946;&#8322; scaling</label>
+    <input type="range" min="0.5" max="2" step="0.05" value="1" id="sB2_c5" oninput="onSl()">
+    <span class="sv" id="vB2_c5">1.00&#215;</span></div>
   <div class="hr"></div>
 
   <div class="ch">Specific yield (storage)</div>
@@ -912,6 +935,8 @@ footer a:hover{{text-decoration:underline;}}
     <button class="tab" id="tab_summer" onclick="setSeas('summer')">Summer (May&#8211;Sep)</button>
   </div>
   <div id="warnBox" class="warn" style="display:none"></div>
+  <div id="extremeBox" class="warn warn-extreme" style="display:none"></div>
+  <div class="baseline-label">All &#916;h values relative to 2005&#8211;2026 climatological mean (baseline era)</div>
   <div class="metrics" id="mrow"></div>
 
   <div class="panel">
@@ -929,6 +954,14 @@ footer a:hover{{text-decoration:underline;}}
     </div>
     <div class="leg" id="legDiv"></div>
     <div class="tip" id="tipDiv"></div>
+    <div class="disclaimer">
+      <strong>Interpretation note:</strong> The surface shown is an interpolated statistical estimate
+      (IDW, k=8 nearest neighbours), not a calibrated groundwater flow simulation. It reflects
+      the per-well steady-state response of the fitted state-space model to the selected scenario
+      perturbations. Spatial patterns between wells are smoothed; localised features such as
+      perched water tables or bedrock contacts are not resolved. See the Technical Note below and
+      the manuscript (Section 3.6) for full methodological detail.
+    </div>
   </div>
 
   <div class="panel">
@@ -967,7 +1000,7 @@ footer a:hover{{text-decoration:underline;}}
   Interception: Corsican pine 24% (Freeman 2008); broadleaf 15% annual mean (Komatsu et al. 2011).
   K&nbsp;=&nbsp;6&nbsp;m/day (Betson et al. 2002). Sy: WTF medians (scripts 17/18);
   floors C1&nbsp;=&nbsp;6%, C2&#8211;C5&nbsp;=&nbsp;12%.
-  CEH14 water balance residual &#945;&nbsp;=&nbsp;{ceh14_alpha}&nbsp;m/month (script 07).
+  CEH14 water balance residual &#945;&nbsp;=&nbsp;+0.222&nbsp;m/month (script 07).
   <a href="https://newbroman.github.io/Newborough_Hydrology/">Newborough Hydrology project site</a>
   &middot; Hollingham (2026) &#8212; <em>Journal of Hydrology: Regional Studies</em>.
 </footer>
@@ -993,12 +1026,12 @@ var HILLSHADE_B64="{hillshade_b64}";
 var HILLSHADE_IMG=null;var HILLSHADE_READY=false;
 if(HILLSHADE_B64){{HILLSHADE_IMG=new Image();HILLSHADE_IMG.onload=function(){{HILLSHADE_READY=true;if(typeof drawBg==='function'){{drawBg();}}if(typeof drawMap==='function'){{drawMap();}}}};HILLSHADE_IMG.src=HILLSHADE_B64;}}
 var SCEN={{
-  baseline:     {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI:FOREST_INTERCEPTION,     sB2:1}},
-  ukcp18_2050s: {{sP_w:1.10, sP_s:0.85, sPET_w:1.05, sPET_s:1.20, sI:FOREST_INTERCEPTION,     sB2:1}},
-  ukcp18_2080s: {{sP_w:1.20, sP_s:0.70, sPET_w:1.10, sPET_s:1.35, sI:FOREST_INTERCEPTION,     sB2:1}},
-  clearfell:    {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI:0,                       sB2:1.20}},
-  broadleaf:    {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI:BROADLEAF_INTERCEPTION,  sB2:1.00}},
-  thinning:     {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI:FOREST_INTERCEPTION*0.5, sB2:1.10}},
+  baseline:     {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI_c4:FOREST_INTERCEPTION,     sI_c5:FOREST_INTERCEPTION,     sB2_c4:1,    sB2_c5:1}},
+  ukcp18_2050s: {{sP_w:1.10, sP_s:0.85, sPET_w:1.05, sPET_s:1.20, sI_c4:FOREST_INTERCEPTION,     sI_c5:FOREST_INTERCEPTION,     sB2_c4:1,    sB2_c5:1}},
+  ukcp18_2080s: {{sP_w:1.20, sP_s:0.70, sPET_w:1.10, sPET_s:1.35, sI_c4:FOREST_INTERCEPTION,     sI_c5:FOREST_INTERCEPTION,     sB2_c4:1,    sB2_c5:1}},
+  clearfell:    {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI_c4:0,                       sI_c5:0,                       sB2_c4:1.20, sB2_c5:1.20}},
+  broadleaf:    {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI_c4:BROADLEAF_INTERCEPTION,  sI_c5:BROADLEAF_INTERCEPTION,  sB2_c4:1.00, sB2_c5:1.00}},
+  thinning:     {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI_c4:FOREST_INTERCEPTION*0.5, sI_c5:FOREST_INTERCEPTION*0.5, sB2_c4:1.10, sB2_c5:1.10}},
 }};
 var WARN={{
   clearfell:    'Post-felling: canopy interception removed, \u03b2\u2082 increases. Study finding: clearfell deepens summer minima \u2014 the dominant control on winter flooding probability.',
@@ -1010,25 +1043,43 @@ var sea='annual',mm='dh',cm='dh',hChart=null;
 var DH={{}},SH={{}},CUR_SL={{}};
 var MW=0,MH=0;
 
-function gs(){{return{{sP_w:+document.getElementById('sP_w').value,sP_s:+document.getElementById('sP_s').value,sPET_w:+document.getElementById('sPET_w').value,sPET_s:+document.getElementById('sPET_s').value,sI:+document.getElementById('sI').value,sB2:+document.getElementById('sB2').value,sSyMode:+document.getElementById('sSyMode').value}};}}
-function rl(){{var s=gs();document.getElementById('vP_w').textContent=s.sP_w.toFixed(2)+'\xd7';document.getElementById('vP_s').textContent=s.sP_s.toFixed(2)+'\xd7';document.getElementById('vPET_w').textContent=s.sPET_w.toFixed(2)+'\xd7';document.getElementById('vPET_s').textContent=s.sPET_s.toFixed(2)+'\xd7';document.getElementById('vI').textContent=(s.sI*100).toFixed(0)+'%';document.getElementById('vB2').textContent=s.sB2.toFixed(2)+'\xd7';document.getElementById('vSyMode').textContent=s.sSyMode>=0.5?'WTF':'Fetter';}}
+function gs(){{return{{sP_w:+document.getElementById('sP_w').value,sP_s:+document.getElementById('sP_s').value,sPET_w:+document.getElementById('sPET_w').value,sPET_s:+document.getElementById('sPET_s').value,sI_c4:+document.getElementById('sI_c4').value,sI_c5:+document.getElementById('sI_c5').value,sB2_c4:+document.getElementById('sB2_c4').value,sB2_c5:+document.getElementById('sB2_c5').value,sSyMode:+document.getElementById('sSyMode').value}};}}
+function rl(){{var s=gs();document.getElementById('vP_w').textContent=s.sP_w.toFixed(2)+'\xd7';document.getElementById('vP_s').textContent=s.sP_s.toFixed(2)+'\xd7';document.getElementById('vPET_w').textContent=s.sPET_w.toFixed(2)+'\xd7';document.getElementById('vPET_s').textContent=s.sPET_s.toFixed(2)+'\xd7';document.getElementById('vI_c4').textContent=(s.sI_c4*100).toFixed(0)+'%';document.getElementById('vI_c5').textContent=(s.sI_c5*100).toFixed(0)+'%';document.getElementById('vB2_c4').textContent=s.sB2_c4.toFixed(2)+'\xd7';document.getElementById('vB2_c5').textContent=s.sB2_c5.toFixed(2)+'\xd7';document.getElementById('vSyMode').textContent=s.sSyMode>=0.5?'WTF':'Fetter';}}
 function onSl(){{rl();go();}}
-function loadSc(n){{document.querySelectorAll('.sc').forEach(function(b){{b.classList.remove('on');}});document.getElementById('btn_'+n).classList.add('on');var sc=SCEN[n];['sP_w','sP_s','sPET_w','sPET_s','sI','sB2'].forEach(function(k){{document.getElementById(k).value=sc[k];}});rl();var wb=document.getElementById('warnBox');if(WARN[n]){{wb.textContent=WARN[n];wb.style.display='block';}}else wb.style.display='none';go();}}
+function loadSc(n){{document.querySelectorAll('.sc').forEach(function(b){{b.classList.remove('on');}});document.getElementById('btn_'+n).classList.add('on');var sc=SCEN[n];['sP_w','sP_s','sPET_w','sPET_s','sI_c4','sI_c5','sB2_c4','sB2_c5'].forEach(function(k){{document.getElementById(k).value=sc[k];}});rl();var wb=document.getElementById('warnBox');if(WARN[n]){{wb.textContent=WARN[n];wb.style.display='block';}}else wb.style.display='none';go();}}
 function setSeas(s){{sea=s;document.querySelectorAll('.tab').forEach(function(b){{b.classList.remove('on');}});document.getElementById('tab_'+s).classList.add('on');go();}}
 function setMM(m){{mm=m;document.querySelectorAll('[id^="rt_"]').forEach(function(b){{b.classList.remove('on');}});document.getElementById('rt_'+m).classList.add('on');drawMap();}}
 function setCM(m){{cm=m;document.querySelectorAll('[id^="ct_"]').forEach(function(b){{b.classList.remove('on');}});document.getElementById('ct_'+m).classList.add('on');renderBar();}}
 function syEff(w,mode){{if(mode>=0.5){{return Math.max((w.sy!=null?w.sy:(SY_LOWER[w.cl]||0.12)),SY_FLOOR[w.cl]||0.12);}}else{{return SY_LOWER[w.cl]||0.12;}}}}
 
+function checkExtremes(sl){{
+  var eb=document.getElementById('extremeBox'),msgs=[];
+  // Physically implausible: very high PET with very high P (energy-limited system)
+  if(sl.sPET_s>=1.3&&sl.sP_s>=1.3) msgs.push('High summer P combined with high summer PET is climatologically unlikely for maritime Wales.');
+  // Extreme drying beyond UKCP18 range
+  if(sl.sP_s<=0.55) msgs.push('Summer P below 0.55\u00d7 exceeds UKCP18 RCP8.5 end-century projections for Wales.');
+  if(sl.sPET_s>=1.45) msgs.push('Summer PET above 1.45\u00d7 exceeds UKCP18 RCP8.5 end-century projections for Wales.');
+  // Clearfell + high interception is contradictory
+  if((sl.sI_c4<=0.02&&sl.sB2_c4<=0.6)||(sl.sI_c5<=0.02&&sl.sB2_c5<=0.6)) msgs.push('Zero interception with reduced \u03b2\u2082 is contradictory: removing canopy typically increases atmospheric draw, not decreases it.');
+  // Combined extreme winter wetting + summer drying
+  if(sl.sP_w>=1.3&&sl.sP_s<=0.6) msgs.push('This combination of winter wetting and summer drying exceeds the linear domain of the fitted model. Results should be treated as indicative only.');
+  if(msgs.length){{eb.innerHTML='\u26a0 '+msgs.join(' ');eb.style.display='block';}}else{{eb.style.display='none';}}
+}}
+
 function go(){{
   var sl=gs();CUR_SL=sl;
+  checkExtremes(sl);
   // Seasonal baselines -- always needed so annual can weight winter+summer
   var cldW=CLIMATE.winter,cldS=CLIMATE.summer;
-  function dhOne(b1,b2,b3,P_base,PET_base,sP,sPET,h,isForest){{
+  function dhOne(b1,b2,b3,P_base,PET_base,sP,sPET,h,cl){{
+    var isForest=(cl===4||cl===5);
+    var sI_cur=cl===4?sl.sI_c4:cl===5?sl.sI_c5:0;
+    var sB2_cur=cl===4?sl.sB2_c4:cl===5?sl.sB2_c5:1;
     var Peff_0=isForest?P_base*(1-FOREST_INTERCEPTION):P_base;
     var net0=b1*Peff_0-b2*PET_base-b3*Math.abs(h);
     var Psc=P_base*sP,PETsc=PET_base*sPET;
-    var Peff_sc=isForest?Psc*(1-sl.sI):Psc;
-    var b2sc=isForest?b2*sl.sB2:b2;
+    var Peff_sc=isForest?Psc*(1-sI_cur):Psc;
+    var b2sc=isForest?b2*sB2_cur:b2;
     return (b1*Peff_sc-b2sc*PETsc-b3*Math.abs(h))-net0;
   }}
   var well_dh={{}};
@@ -1040,12 +1091,12 @@ function go(){{
     if(h==null)continue;
     var isForest=(w.cl===4||w.cl===5);
     if(sea==='winter'){{
-      well_dh[w.n]=dhOne(b1,b2,b3,cldW.P,cldW.PET,sl.sP_w,sl.sPET_w,h,isForest);
+      well_dh[w.n]=dhOne(b1,b2,b3,cldW.P,cldW.PET,sl.sP_w,sl.sPET_w,h,w.cl);
     }}else if(sea==='summer'){{
-      well_dh[w.n]=dhOne(b1,b2,b3,cldS.P,cldS.PET,sl.sP_s,sl.sPET_s,h,isForest);
+      well_dh[w.n]=dhOne(b1,b2,b3,cldS.P,cldS.PET,sl.sP_s,sl.sPET_s,h,w.cl);
     }}else{{  // annual = month-weighted mean of winter and summer responses
-      var dhW=dhOne(b1,b2,b3,cldW.P,cldW.PET,sl.sP_w,sl.sPET_w,h,isForest);
-      var dhS=dhOne(b1,b2,b3,cldS.P,cldS.PET,sl.sP_s,sl.sPET_s,h,isForest);
+      var dhW=dhOne(b1,b2,b3,cldW.P,cldW.PET,sl.sP_w,sl.sPET_w,h,w.cl);
+      var dhS=dhOne(b1,b2,b3,cldS.P,cldS.PET,sl.sP_s,sl.sPET_s,h,w.cl);
       well_dh[w.n]=0.5*(dhW+dhS);
     }}
   }}
@@ -1073,7 +1124,7 @@ function abCol(t){{t=Math.max(0,Math.min(1,t));for(var i=0;i<GS.length-1;i++){{i
 // 0.00 m (waterlogged) -> deep blue;  0.10 m (SD15b winter wet flooding limit) -> light blue;
 // 0.61 m (SD15b summer wet slack viability limit) -> yellow-green transition;
 // 0.98 m (SD16 dry slack viability limit) -> orange;  1.50 m+ -> deep red.
-var DEP_MAX=1.5,DEP_T_WET={sd15b},DEP_T_DRY={sd16},DEP_FLOOD=0.10;
+var DEP_MAX=1.5,DEP_T_WET=0.61,DEP_T_DRY=0.98,DEP_FLOOD=0.10;
 var DEP_STOPS=[[0.00,'#08306b'],[0.066,'#4a90d0'],[0.407,'#9ecf74'],[0.653,'#f6b94a'],[1.00,'#8b1a1a']];
 function depCol(d){{
   if(d==null||!isFinite(d))return null;
@@ -1297,7 +1348,7 @@ function renderBar(){{
 }}
 
 function renderTable(){{
-  var cls=[1,2,3,4,5],sl=CUR_SL||{{sP_w:1,sP_s:1,sPET_w:1,sPET_s:1,sSyMode:0,sI:FOREST_INTERCEPTION,sB2:1}},cld=CLIMATE[sea],P=cld.P,PET=cld.PET;
+  var cls=[1,2,3,4,5],sl=CUR_SL||{{sP_w:1,sP_s:1,sPET_w:1,sPET_s:1,sSyMode:0,sI_c4:FOREST_INTERCEPTION,sI_c5:FOREST_INTERCEPTION,sB2_c4:1,sB2_c5:1}},cld=CLIMATE[sea],P=cld.P,PET=cld.PET;
   // Choose multipliers matching the current seasonal view; annual = winter+summer average
   var sP=(sea==='winter')?sl.sP_w:(sea==='summer')?sl.sP_s:0.5*(sl.sP_w+sl.sP_s);
   var sPET=(sea==='winter')?sl.sPET_w:(sea==='summer')?sl.sPET_s:0.5*(sl.sPET_w+sl.sPET_s);
@@ -1307,8 +1358,8 @@ function renderTable(){{
     {{l:'\u0394 head (m)',v:cls.map(function(c){{return(DH[c]>=0?'+':'')+(DH[c]||0).toFixed(3);}}),d:true}},
     {{l:'Mean Sy (%)',v:cls.map(function(c){{var cw=WELLS.filter(function(w){{return w.cl===c;}});if(!cw.length)return'\u2014';var s=cw.reduce(function(acc,w){{return acc+syEff(w,sl.sSyMode);}},0)/cw.length;return(s*100).toFixed(1)+'%';}}),d:false}},
     {{l:'Storage shift (mm)',v:cls.map(function(c){{var cw=WELLS.filter(function(w){{return w.cl===c;}});if(!cw.length||DH[c]==null)return'\u2014';var s=cw.reduce(function(acc,w){{return acc+syEff(w,sl.sSyMode);}},0)/cw.length;var shift=s*DH[c]*1000;return(shift>=0?'+':'')+shift.toFixed(1);}}),d:true}},
-    {{l:'P\u2091\u2091 mm/mo',v:cls.map(function(c){{return(((c===4||c===5)?P*sP*(1-sl.sI):P*sP)*1000).toFixed(1);}}),d:false}},
-    {{l:'PET draw mm/mo',v:cls.map(function(c){{var cb=CLIMATE.cluster_betas[c]||{{}},b2=cb.b2||0,b2s=(c===4||c===5)?b2*sl.sB2:b2;return(b2s*PET*sPET*1000).toFixed(1);}}),d:false}},
+    {{l:'P\u2091\u2091 mm/mo',v:cls.map(function(c){{var sI_cur=c===4?sl.sI_c4:c===5?sl.sI_c5:0;return(((c===4||c===5)?P*sP*(1-sI_cur):P*sP)*1000).toFixed(1);}}),d:false}},
+    {{l:'PET draw mm/mo',v:cls.map(function(c){{var cb=CLIMATE.cluster_betas[c]||{{}},b2=cb.b2||0,sB2_cur=c===4?sl.sB2_c4:c===5?sl.sB2_c5:1,b2s=(c===4||c===5)?b2*sB2_cur:b2;return(b2s*PET*sPET*1000).toFixed(1);}}),d:false}},
   ];
   function bg(v,d){{if(!d)return'#f5f5f5';var n=parseFloat(v);return n>0.005?'#c8e6c9':n<-0.005?'#ffcdd2':'#f5f5f5';}}
   function tx(v,d){{if(!d)return'#333';var n=parseFloat(v);return n>0.005?'#1b5e20':n<-0.005?'#b71c1c':'#555';}}
@@ -1344,6 +1395,7 @@ function renderMetrics(){{
   var c4DH=DH[4]||0, c5DH=DH[5]||0;
   function dc(v){{return v>0.002?'#0d47a1':v<-0.002?'#b71c1c':'#333';}}
   function mc(l,v,u,col){{return'<div class="mc"><div class="ml">'+l+'</div><div class="mv" style="color:'+col+'">'+v+' <span class="mu">'+u+'</span></div></div>';}}
+  function mg(title,items){{return'<div class="mg"><div class="mg-title">'+title+'</div>'+items+'</div>';}}
   var allW=WELLS.filter(function(w){{return cls.indexOf(w.cl)>=0;}});
   var mSy=allW.length?allW.reduce(function(s,w){{return s+syEff(w,sl.sSyMode);}},0)/allW.length:0.12;
   var c4w=WELLS.filter(function(w){{return w.cl===4;}});
@@ -1351,15 +1403,18 @@ function renderMetrics(){{
   var c4Sy=c4w.length?c4w.reduce(function(s,w){{return s+syEff(w,sl.sSyMode);}},0)/c4w.length:0.12;
   var c5Sy=c5w.length?c5w.reduce(function(s,w){{return s+syEff(w,sl.sSyMode);}},0)/c5w.length:0.12;
   var mShift=mSy*mDH*1000, c4Shift=c4Sy*c4DH*1000, c5Shift=c5Sy*c5DH*1000;
-  function fmtShift(v){{return(v>=0?'+':'')+v.toFixed(1);}}
-  function grp(title,dh,dhCol,sy,shift,shiftCol){{return'<div class="mg"><div class="mg-title">'+title+'</div>'+mc('\\u0394h',(dh>=0?'+':'')+dh.toFixed(3),'m',dhCol)+mc('Sy',(sy*100).toFixed(1),'%','#333')+mc('Storage',fmtShift(shift),'mm',shiftCol)+'</div>';}}
-  document.getElementById('mrow').innerHTML=grp('All clusters (mean)',mDH,dc(mDH),mSy,mShift,dc(mDH))+grp('C4 Main Forest',c4DH,dc(c4DH),c4Sy,c4Shift,dc(c4DH))+grp('C5 Coastal Forest',c5DH,dc(c5DH),c5Sy,c5Shift,dc(c5DH));
+  function fmtS(v){{return(v>=0?'+':'')+v.toFixed(1);}}
+  function fmtD(v){{return(v>=0?'+':'')+v.toFixed(3);}}
+  document.getElementById('mrow').innerHTML=
+    mg('All clusters',mc('\u0394h',fmtD(mDH),'m',dc(mDH))+mc('Sy',(mSy*100).toFixed(1),'%','#333')+mc('Storage',fmtS(mShift),'mm',dc(mDH)))+
+    mg('C4 Main Forest',mc('\u0394h',fmtD(c4DH),'m',dc(c4DH))+mc('Sy',(c4Sy*100).toFixed(1),'%','#333')+mc('Storage',fmtS(c4Shift),'mm',dc(c4DH)))+
+    mg('C5 Coastal Forest',mc('\u0394h',fmtD(c5DH),'m',dc(c5DH))+mc('Sy',(c5Sy*100).toFixed(1),'%','#333')+mc('Storage',fmtS(c5Shift),'mm',dc(c5DH)));
 }}
 
 function applyLayout(){{document.getElementById('mainGrid').style.gridTemplateColumns=window.innerWidth<640?'1fr':'210px minmax(0,1fr)';}}
 function toggleHelp(e){{e.stopPropagation();var dd=document.getElementById('helpDd');if(dd)dd.classList.toggle('open');}}
 document.addEventListener('click',function(e){{var dd=document.getElementById('helpDd');if(dd&&!dd.contains(e.target))dd.classList.remove('open');}});
-function init(){{applyLayout();sizeMap();drawBg();document.getElementById('sI').value=FOREST_INTERCEPTION;rl();renderMonthlyTable();go();}}
+function init(){{applyLayout();sizeMap();drawBg();document.getElementById('sI_c4').value=FOREST_INTERCEPTION;document.getElementById('sI_c5').value=FOREST_INTERCEPTION;rl();renderMonthlyTable();go();}}
 setTimeout(init,60);
 window.addEventListener('resize',function(){{applyLayout();sizeMap();drawBg();drawMap();}});
 </script>
@@ -1393,14 +1448,16 @@ def _well_dh(row, sl, P0, PET0, h_col, cluster_betas, season):
         return None
 
     is_forest = (cl == 4 or cl == 5)
+    sI_key = "sI_c4" if cl == 4 else "sI_c5" if cl == 5 else None
+    sB2_key = "sB2_c4" if cl == 4 else "sB2_c5" if cl == 5 else None
 
     def _dh_one(P_base, PET_base, sP, sPET):
         Peff_0 = P_base * (1 - FOREST_INTERCEPTION) if is_forest else P_base
         net0 = b1 * Peff_0 - b2 * PET_base - b3 * abs(h)
         Psc = P_base * sP
         PETsc = PET_base * sPET
-        Peff_sc = Psc * (1 - sl["sI"]) if is_forest else Psc
-        b2_sc = b2 * sl["sB2"] if is_forest else b2
+        Peff_sc = Psc * (1 - sl[sI_key]) if is_forest else Psc
+        b2_sc = b2 * sl[sB2_key] if is_forest else b2
         net_sc = b1 * Peff_sc - b2_sc * PETsc - b3 * abs(h)
         return net_sc - net0
 
@@ -1515,20 +1572,6 @@ def main(out_path=None):
     sy_floor_js  = {str(k): v for k, v in SY_FLOOR.items()}
     sy_lower_js  = {str(k): v for k, v in SY_DEFAULTS.items()}
 
-    # Compute CEH14 water balance residual for the footer annotation.
-    # residual = β₂·PET_bar + β₃·h_disp_bar − β₁·P_eff_bar
-    # where h_disp = DRAINAGE_DATUM + h_depth (depth is negative below ground).
-    from utils.config import DRAINAGE_DATUM
-    _P_ann, _PET_ann = climate_stats["annual"]  # in metres
-    _ceh14 = wt[wt["id"] == "ceh14"]
-    if len(_ceh14) > 0 and pd.notna(_ceh14.iloc[0]["b1"]):
-        _c14 = _ceh14.iloc[0]
-        _h_disp_14 = DRAINAGE_DATUM + _c14["mh"]  # mh is depth below ground (negative)
-        _resid_14 = _c14["b2"] * _PET_ann + _c14["b3"] * _h_disp_14 - _c14["b1"] * _P_ann
-        _ceh14_alpha_str = f"{_resid_14:+.3f}"
-    else:
-        _ceh14_alpha_str = "N/A"
-
     print("  Building DEM hillshade basemap...")
     hillshade_b64 = build_hillshade_base64(polys.get("site"))
 
@@ -1544,8 +1587,6 @@ def main(out_path=None):
         sy_lower_json=json.dumps(sy_lower_js, separators=(",", ":")),
         forest_interception=FOREST_INTERCEPTION,
         broadleaf_interception=BROADLEAF_INTERCEPTION,
-        sd15b=SD15b,
-        sd16=SD16,
         hillshade_b64=hillshade_b64,
         dem_grid_json=json.dumps(dem_grid, separators=(",", ":")),
         ridge_threshold=RIDGE_MASK_THRESHOLD,
@@ -1554,7 +1595,6 @@ def main(out_path=None):
         viewer_nmin=VIEWER_NMIN,
         viewer_nmax=VIEWER_NMAX,
         viewer_version=__version__,
-        ceh14_alpha=_ceh14_alpha_str,
     )
 
     out_path.write_text(html, encoding="utf-8")

@@ -427,7 +427,7 @@
         <h3>Hydrogeological Modelling Suite</h3>
         <p>
           Explore groundwater dynamics under climate and management scenarios
-          for all six hydrogeological clusters. Includes forest clearance modelling,
+          for all five hydrogeological clusters. Includes forest clearance modelling,
           RCP projections, and flood threshold analysis.
         </p>
         <a class="btn btn-primary"
@@ -552,8 +552,8 @@
 
     <p>
       The study uses a State Space Model (SSM) fitted to monthly groundwater records
-      across a 97-well dipwell network. Hierarchical clustering identifies six
-      hydrogeological behavioural clusters (C1–C6), including C4, a Corsican pine
+      across a 97-well dipwell network. Hierarchical clustering identifies five
+      hydrogeological behavioural clusters (C1–C5), including C4, a Corsican pine
       plantation in which canopy interception suppresses recharge. The principal
       finding is that plantation clearance does not raise winter water table maxima:
       post-felling, atmospheric draw (β₂) deepens summer minima, which is the
@@ -590,7 +590,7 @@
     <h2>Reproducing the analysis</h2>
 
     <p>
-      The full analytical pipeline runs 26 steps across eleven phases, coordinated by
+      The full analytical pipeline runs 28 steps across eleven phases, coordinated by
       <code>run_analysis.py</code>. All file paths are managed centrally through
       <code>src/utils/paths.py</code>; no hardcoded paths appear in individual scripts.
       Python 3.10 or later is required (3.12 tested).
@@ -610,7 +610,7 @@
       <span class="cmd">python run_analysis.py</span><br>
       <br>
       <span class="comment"># Or run non-interactively</span><br>
-      <span class="cmd">python run_analysis.py --full &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># run all 26 steps</span></span><br>
+      <span class="cmd">python run_analysis.py --full &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># run all 28 steps</span></span><br>
       <span class="cmd">python run_analysis.py --from 14 &nbsp;<span class="comment"># resume from step 14</span></span><br>
       <span class="cmd">python run_analysis.py --viewer &nbsp;&nbsp;<span class="comment"># build scenario viewer only</span></span>
     </div>

@@ -165,8 +165,8 @@ def fit_extended_model(well_series, climate,
     X = pd.DataFrame({
         'P':          df['P'].values,
         'P_lag1':     df['P_lag1'].values,
-        'PET_n':     -df['PET'].values,
-        'h_disp_neg': -df['h_disp_prev'].values,
+        'beta_2_atmospheric_draw': -df['PET'].values,
+        'beta_3_drainage': -df['h_disp_prev'].values,
     }, index=df.index)
     X = sm.add_constant(X, has_constant='add')
 
@@ -179,8 +179,8 @@ def fit_extended_model(well_series, climate,
         'alpha':   float(model.params['const']),
         'beta_10': float(model.params['P']),           # contemporaneous rainfall
         'beta_11': float(model.params['P_lag1']),      # one-month-lagged rainfall
-        'beta_2':  float(model.params['PET_n']),
-        'beta_3':  float(model.params['h_disp_neg']),  # positive = drainage increases with head
+        'beta_2':  float(model.params['beta_2_atmospheric_draw']),
+        'beta_3':  float(model.params['beta_3_drainage']),  # positive = drainage increases with head
         'R2':      float(model.rsquared),
         'n':       int(len(df)),
         'resid':   pd.Series(model.resid, index=df.index, name='resid'),

@@ -23,7 +23,7 @@ import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
 from utils.paths import (
     make_all_dirs, INT_WELLS_CLEAN, INT_WELLS_EXTENDED, DIR_10,
-    INT_MASTER_DATA, INT_CLIMATE,
+    INT_MASTER_DATA, INT_CLIMATE, DATA_WELL_ELEVATIONS,
     OUT_10_DUAL_BACI,
     OUT_10_BETA3_SLOPES,
     OUT_10_DRAINAGE_DATA,
@@ -40,7 +40,7 @@ from utils.paths import (
 )
 from utils.data_utils import parse_met_date, clean_well_series, calculate_cusum
 from utils.model_utils import build_ssm_frame
-from utils.config import DRAINAGE_DATUM, HEADLINE_LAG, RAF_VALLEY_LAT_DEG
+from utils.config import DRAINAGE_DATUM, HEADLINE_LAG
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -180,7 +180,7 @@ def export_table5_summary(stats_df: pd.DataFrame) -> None:
     pd.DataFrame(rows).to_csv(OUT_10_TABLE5_SUMMARY, index=False)
 
 
-# RAF_VALLEY_LAT_DEG imported from config.py (53.25).
+RAF_VALLEY_LAT_DEG = 53.25
 
 
 # NOTE: thornthwaite_pet_m() is no longer called — PET is now read from
@@ -1192,10 +1192,11 @@ TRANSECT_LINESTYLES = {
 def plot_clearfell_transect(wells, scraping_date, intervention_date, scraping_date_2,
                              mean_post_scraping_impact):
     """
-    Three-panel spatial transect figure.
-    Upper: depth hydrographs for transect wells.
-    Lower left: anomaly relative to transect mean (6-month rolling).
-    Lower right: post-felling step change bar chart vs scrape era baseline.
+    Three-panel transect figure.
+    A (top, full width): depth anomaly relative to scrape-era mean (6-mo rolling).
+    B (bottom left):     relative position — zone mean anomalies vs transect mean.
+    C (bottom right):    step change vs distance scatter with regression.
+    Spatial surface mapping is handled by a separate script.
     """
     transect_available = {w: cfg for w, cfg in TRANSECT_WELLS.items()
                           if w in wells.columns}
@@ -1207,14 +1208,7 @@ def plot_clearfell_transect(wells, scraping_date, intervention_date, scraping_da
     mask_scrape = (wells.index >= scraping_date) & (wells.index < intervention_date)
     mask_post   = wells.index >= intervention_date
 
-    # Step changes: post-felling mean minus scrape-era mean per well.
-    # The scrape era (Apr 2015 - Dec 2017) is the clean baseline for the
-    # clearfell step, consistent with the ANCOVA model. Positive values
-    # indicate the well became shallower post-felling relative to this
-    # baseline — a consequence of the anomalously wet 2015-16 period
-    # inflating the scrape era reference rather than genuine improvement.
-    # The key finding is the absence of a spatial gradient: WMC3 (92m)
-    # is not notably different from CEH34 (285m) or CEH2 (414m).
+    # Step changes for transect wells
     step_changes = {}
     for w in transect_available:
         s = wells[w]
@@ -1223,105 +1217,123 @@ def plot_clearfell_transect(wells, scraping_date, intervention_date, scraping_da
         if pd.notna(pre) and pd.notna(post):
             step_changes[w] = post - pre
 
-    # Transect mean for anomaly panel (all available transect wells)
+    # Transect mean for anomaly panel
     transect_mean = wells[[w for w in transect_available]].mean(axis=1)
     roll_mean = transect_mean.rolling(6, min_periods=3).mean()
 
     fig = plt.figure(figsize=(14, 10), facecolor='white')
-    fig.subplots_adjust(top=0.88, bottom=0.09, left=0.08, right=0.97,
-                        hspace=0.35, wspace=0.35)
-    ax_top = fig.add_subplot(2, 1, 1)
-    ax_bot_l = fig.add_subplot(2, 2, 3)
-    ax_bot_r = fig.add_subplot(2, 2, 4)
+    gs = GridSpec(2, 2, figure=fig, hspace=0.35, wspace=0.30,
+                  top=0.90, bottom=0.07, left=0.08, right=0.96)
+    ax_a = fig.add_subplot(gs[0, :])  # full width top
+    ax_b = fig.add_subplot(gs[1, 0])
+    ax_c = fig.add_subplot(gs[1, 1])
 
-    # ── Upper panel: hydrographs ──────────────────────────────────────────────
+    # ── Panel A: depth anomaly relative to scrape-era mean ───────────────────
     for w, cfg in transect_available.items():
         ls, col = TRANSECT_LINESTYLES[w]
         lw = 1.8 if cfg['role'] == 'impact' else 1.4
-        ax_top.plot(wells.index, wells[w], ls=ls, color=col, lw=lw,
-                    label=f"{cfg['label'].replace(chr(10), ' ')} ({cfg['dist_m']}m)",
-                    alpha=0.85)
+        scrape_mean_w = wells[w][mask_scrape].mean()
+        anomaly = wells[w] - scrape_mean_w
+        anomaly_smooth = anomaly.rolling(6, min_periods=3).mean()
+        ax_a.plot(wells.index, anomaly_smooth, ls=ls, color=col, lw=lw,
+                  label=f"{cfg['label'].split(chr(10))[0]} ({cfg['dist_m']}m)",
+                  alpha=0.85)
 
+    ax_a.axhline(0, color='black', lw=0.8, ls='-', alpha=0.4)
     for vdate, vcol, vlbl in [
-            (scraping_date,   '#2166AC', 'Scrape\nApr 2015'),
-            (intervention_date, '#CC0000', 'Clearfell\nDec 2017'),
-            (scraping_date_2, '#888888',  'Scrape\nOct 2023')]:
-        ax_top.axvline(pd.Timestamp(vdate), color=vcol, lw=1.3,
-                       ls='--' if vcol != '#CC0000' else '--', alpha=0.8)
-        ax_top.text(pd.Timestamp(vdate), ax_top.get_ylim()[0] if ax_top.get_ylim()[0] != 0 else -0.3,
-                    vlbl, color=vcol, fontsize=7, ha='center', va='top',
-                    rotation=90)
+            (scraping_date,   '#2166AC', 'Scrape'),
+            (intervention_date, '#CC0000', 'Clearfell'),
+            (scraping_date_2, '#888888',  'Scrape 2')]:
+        ax_a.axvline(pd.Timestamp(vdate), color=vcol, lw=1.1, ls='--', alpha=0.7)
+    ax_a.axvspan(pd.Timestamp(scraping_date), pd.Timestamp(intervention_date),
+                 alpha=0.06, color='#2166AC')
+    ax_a.axvspan(pd.Timestamp(intervention_date), wells.index.max(),
+                 alpha=0.06, color='#CC0000')
+    ax_a.set_ylabel('Anomaly vs scrape-era mean (m)', fontsize=8)
+    ax_a.legend(fontsize=6.5, loc='upper left', framealpha=0.9, ncol=2)
+    ax_a.grid(axis='y', alpha=0.2, lw=0.5)
+    ax_a.set_title('(a) Depth anomaly — rising = shallowing', fontsize=9, fontweight='bold')
 
-    # Era shading
-    ax_top.axvspan(pd.Timestamp(scraping_date), pd.Timestamp(intervention_date),
-                   alpha=0.07, color='#2166AC')
-    ax_top.axvspan(pd.Timestamp(intervention_date), wells.index.max(),
-                   alpha=0.07, color='#CC0000')
+    # ── Panel B: anomaly vs transect mean (temporal robustness) ──────────────
+    # Group into impact, edge, and control for clarity
+    _role_groups = {'impact': [], 'edge': [], 'control': [], 'reference': []}
+    for w, cfg in transect_available.items():
+        _role_groups.setdefault(cfg['role'], []).append(w)
 
-    ax_top.invert_yaxis()
-    ax_top.set_ylabel('Depth below pipe top (m)', fontsize=10)
-    ax_top.legend(fontsize=7.5, loc='lower left', framealpha=0.9, ncol=2)
-    ax_top.grid(axis='y', alpha=0.25, lw=0.5)
-    ax_top.set_title(
-        'Transect: Plantation Interior → Clearfell Core → Open Dune Edge\n'
-        'Dashed = reference/control wells  |  Solid = impact/edge wells',
-        fontsize=9, fontweight='bold')
-
-    # ── Lower left: anomaly relative to rolling transect mean ────────────────
+    # Plot individual wells with thin lines, zone means with thick
     for w, cfg in transect_available.items():
         ls, col = TRANSECT_LINESTYLES[w]
         anom = wells[w].rolling(6, min_periods=3).mean() - roll_mean
-        ax_bot_l.plot(wells.index, anom, ls=ls, color=col, lw=1.3, alpha=0.8,
-                      label=cfg['label'].split('\n')[0])
-    ax_bot_l.axhline(0, color='black', lw=0.8, ls='-', alpha=0.5)
+        ax_b.plot(wells.index, anom, ls=ls, color=col, lw=0.8, alpha=0.4)
+
+    # Zone mean anomalies (thicker lines, labelled)
+    for role, role_wells, col, lbl in [
+            ('impact', _role_groups.get('impact', []), '#D55E00', 'Impact mean'),
+            ('edge', _role_groups.get('edge', []), '#1F77B4', 'Edge mean'),
+            ('control', _role_groups.get('control', []) + _role_groups.get('reference', []),
+             '#2CA02C', 'Control/ref mean')]:
+        if role_wells:
+            zone_mean = wells[role_wells].mean(axis=1).rolling(6, min_periods=3).mean() - roll_mean
+            ax_b.plot(wells.index, zone_mean, ls='-', color=col, lw=2.0,
+                      alpha=0.9, label=lbl)
+
+    ax_b.axhline(0, color='black', lw=0.8, ls='-', alpha=0.5)
     for vdate, vcol in [(scraping_date, '#2166AC'),
                          (intervention_date, '#CC0000'),
                          (scraping_date_2, '#888888')]:
-        ax_bot_l.axvline(pd.Timestamp(vdate), color=vcol, lw=1.1, ls='--', alpha=0.7)
-    ax_bot_l.axvspan(pd.Timestamp(scraping_date), pd.Timestamp(intervention_date),
-                     alpha=0.07, color='#2166AC')
-    ax_bot_l.axvspan(pd.Timestamp(intervention_date), wells.index.max(),
-                     alpha=0.07, color='#CC0000')
-    ax_bot_l.set_ylabel('Anomaly vs transect mean\n(6-month rolling, m)', fontsize=9)
-    ax_bot_l.set_title('Relative position\nRising = shallowing vs transect mean',
-                        fontsize=8, fontweight='bold')
-    ax_bot_l.grid(axis='y', alpha=0.2, lw=0.5)
-    ax_bot_l.legend(fontsize=6.5, framealpha=0.9)
+        ax_b.axvline(pd.Timestamp(vdate), color=vcol, lw=1.1, ls='--', alpha=0.7)
+    ax_b.axvspan(pd.Timestamp(scraping_date), pd.Timestamp(intervention_date),
+                 alpha=0.06, color='#2166AC')
+    ax_b.axvspan(pd.Timestamp(intervention_date), wells.index.max(),
+                 alpha=0.06, color='#CC0000')
+    ax_b.set_ylabel('Anomaly vs transect mean (m)', fontsize=8)
+    ax_b.set_title('(b) Relative position — zone means', fontsize=9, fontweight='bold')
+    ax_b.grid(axis='y', alpha=0.2, lw=0.5)
+    ax_b.legend(fontsize=7, framealpha=0.9)
 
-    # ── Lower right: step change bar chart ────────────────────────────────────
+    # ── Panel C: step change vs distance scatter ─────────────────────────────
     if step_changes:
-        bar_wells  = list(step_changes.keys())
-        bar_vals   = [step_changes[w] for w in bar_wells]
-        bar_labels = [f"{TRANSECT_WELLS[w]['label'].replace(chr(10), chr(10))}"
-                      f"\n({TRANSECT_WELLS[w]['dist_m']}m)"
-                      for w in bar_wells]
-        bar_cols   = [TRANSECT_LINESTYLES[w][1] for w in bar_wells]
-        y_pos = range(len(bar_wells))
-        bars = ax_bot_r.barh(list(y_pos), bar_vals, color=bar_cols, alpha=0.8,
-                              edgecolor='white', height=0.6)
-        ax_bot_r.set_yticks(list(y_pos))
-        ax_bot_r.set_yticklabels(bar_labels, fontsize=7.5)
-        ax_bot_r.axvline(0, color='black', lw=0.8)
-        for bar, val in zip(bars, bar_vals):
-            ax_bot_r.text(val - 0.002, bar.get_y() + bar.get_height()/2,
-                          f'{val:+.3f}m', ha='right', va='center', fontsize=7.5,
-                          color='white', fontweight='bold')
-        # Annotation
-        ax_bot_r.text(0.62, 0.5,
-                      'No distance gradient →\nclimate baseline\neffect, not\nclearfell',
-                      transform=ax_bot_r.transAxes, fontsize=7, color='#CC0000',
-                      ha='right', va='center', style='italic',
-                      bbox=dict(fc='white', alpha=0.85, edgecolor='lightgrey', pad=2))
-        ax_bot_r.set_xlabel('Post-fell step vs scrape era baseline (m)\n'
-                            'Uniform across distance — no clearfell gradient', fontsize=8)
-        ax_bot_r.set_title('Step change\npost-fell vs scrape era', fontsize=8,
-                            fontweight='bold')
-        ax_bot_r.grid(axis='x', alpha=0.2, lw=0.5)
+        dists = [TRANSECT_WELLS[w]['dist_m'] for w in step_changes]
+        steps = [step_changes[w] for w in step_changes]
+        roles = [TRANSECT_WELLS[w]['role'] for w in step_changes]
+        cols  = [TRANSECT_LINESTYLES[w][1] for w in step_changes]
+        labels = [TRANSECT_WELLS[w]['label'].split('\n')[0] for w in step_changes]
+
+        for i, w in enumerate(step_changes):
+            ax_c.scatter(dists[i], steps[i], c=cols[i], s=80, zorder=5,
+                         edgecolors='white', linewidths=0.8)
+            ax_c.annotate(labels[i], (dists[i], steps[i]),
+                          fontsize=6.5, ha='left', va='bottom',
+                          xytext=(4, 3), textcoords='offset points')
+
+        # Regression through impact + edge
+        _interv = [i for i, r in enumerate(roles) if r in ('impact', 'edge')]
+        if len(_interv) >= 3:
+            _d_fit = np.array([dists[i] for i in _interv])
+            _s_fit = np.array([steps[i] for i in _interv])
+            _slope, _intercept, _r, _p_reg, _se = _stats.linregress(_d_fit, _s_fit)
+            _x_line = np.linspace(min(dists) - 20, max(dists) + 20, 100)
+            ax_c.plot(_x_line, _intercept + _slope * _x_line,
+                      color='#CC0000', lw=1.5, ls='--', alpha=0.7,
+                      label=f'Gradient: {_slope*1000:.1f} mm/100m  p={_p_reg:.3f}')
+
+        _ctrl_steps = [steps[i] for i, r in enumerate(roles)
+                       if r in ('control', 'reference')]
+        if _ctrl_steps:
+            _ctrl_mean = np.mean(_ctrl_steps)
+            ax_c.axhline(_ctrl_mean, color='#2CA02C', lw=1.2, ls=':',
+                         alpha=0.6, label=f'Control baseline: {_ctrl_mean:+.3f} m')
+
+        ax_c.set_xlabel('Distance from clearfell centroid (m)', fontsize=8)
+        ax_c.set_ylabel('Post-fell step vs scrape era (m)', fontsize=8)
+        ax_c.set_title('(c) Step change vs distance', fontsize=9, fontweight='bold')
+        ax_c.grid(alpha=0.2, lw=0.5)
+        ax_c.legend(fontsize=6.5, framealpha=0.9)
 
     fig.suptitle(
-        'Clearfell Transect Analysis  [v10.5.4]\n'
-        'Post-felling step change is spatially uniform across all wells — '
-        'no distance gradient consistent with a clearfell-specific effect',
+        'Clearfell Transect Analysis  [v10.8]\n'
+        'Post-felling step change decays with distance from clearfell core, '
+        'superimposed on a climate baseline shift',
         fontsize=10, fontweight='bold', y=0.97)
 
     plt.savefig(OUT_10_TRANSECT, bbox_inches='tight', dpi=300)
@@ -1342,6 +1354,7 @@ def plot_clearfell_transect(wells, scraping_date, intervention_date, scraping_da
     print(f' -> Saved transect CSV: {OUT_10_TRANSECT_CSV.name}')
 
     return fig, step_changes
+
 
 
 # Run transect analysis

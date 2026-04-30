@@ -143,7 +143,7 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate):
     # Traditional model: Δh = α + β₁·P(t-lag) - β₂·PET(t)
     x_trad = sm.add_constant(pd.DataFrame({'P': df['P'], 'PET': -df['PET']}), has_constant='add')
     # State-space model (displacement): Δh = β₁·P(t-lag) - β₂·PET(t) - β₃·h_disp_prev
-    x_lcsc = pd.DataFrame({'P': df['P'], 'PET': -df['PET'], 'h_disp_prev': -df['h_disp_prev']})
+    x_lcsc = pd.DataFrame({'beta_1_recharge': df['P'], 'beta_2_atmospheric_draw': -df['PET'], 'beta_3_drainage': -df['h_disp_prev']})
     y_fit = df['Delta_h']
 
     model_trad = sm.OLS(y_fit, x_trad).fit()
@@ -166,9 +166,9 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate):
         dh_trad = (model_trad.params['const']
                    + model_trad.params['P'] * p_arr[t]
                    - model_trad.params['PET'] * pet_arr[t])
-        dh_lcsc = (model_lcsc.params['P'] * p_arr[t]
-                   - model_lcsc.params['PET'] * pet_arr[t]
-                   - model_lcsc.params['h_disp_prev'] * h_disp_prev_obs)
+        dh_lcsc = (model_lcsc.params['beta_1_recharge'] * p_arr[t]
+                   - model_lcsc.params['beta_2_atmospheric_draw'] * pet_arr[t]
+                   - model_lcsc.params['beta_3_drainage'] * h_disp_prev_obs)
         h_trad_one[t] = h_prev_obs + dh_trad
         h_lcsc_one[t] = h_prev_obs + dh_lcsc
 
@@ -188,9 +188,9 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate):
     # simulate_ssm expects: dh = b1*P - b2*PET - b3*(D+h), with b1,b2,b3 positive.
     h_lcsc_iter_raw = simulate_ssm(
         h0=h_obs[0], P=p_arr[1:], PET=pet_arr[1:],
-        b1=float(model_lcsc.params['P']),
-        b2=float(model_lcsc.params['PET']),           # already β₂ (coeff on -PET)
-        b3=float(model_lcsc.params['h_disp_prev']),    # already β₃ (coeff on -h_disp)
+        b1=float(model_lcsc.params['beta_1_recharge']),
+        b2=float(model_lcsc.params['beta_2_atmospheric_draw']),           # already β₂ (coeff on -PET)
+        b3=float(model_lcsc.params['beta_3_drainage']),    # already β₃ (coeff on -h_disp)
     )
     h_lcsc_iter = np.concatenate([[h_obs[0]], h_lcsc_iter_raw])
 
@@ -219,9 +219,9 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate):
         'Beta_P_Traditional': model_trad.params['P'],
         'Beta_PET_Traditional': model_trad.params['PET'],
         'Intercept_Traditional': model_trad.params['const'],
-        'Beta_P_StateSpace': model_lcsc.params['P'],
-        'Beta_PET_StateSpace': model_lcsc.params['PET'],
-        'Beta_hdisp_StateSpace': model_lcsc.params['h_disp_prev'],
+        'Beta_P_StateSpace': model_lcsc.params['beta_1_recharge'],
+        'Beta_PET_StateSpace': model_lcsc.params['beta_2_atmospheric_draw'],
+        'Beta_hdisp_StateSpace': model_lcsc.params['beta_3_drainage'],
     })
 
     payload = {

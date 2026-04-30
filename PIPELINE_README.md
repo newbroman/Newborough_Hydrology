@@ -5,7 +5,7 @@ This document describes the data flow between all pipeline scripts, identifying
 which files each script reads, which it produces, and which outputs feed into
 the paper as figures, tables or into downstream scripts.
 
-Run order: 01 → 02 → 03 → 04 → 05 → 06 → 07 → 08 → 09 → 10 → 11 → 11b → 12 → 13 → 14 → 15 → 17 → 16 → 18 → 19 → 20 → 21
+Run order: 01 → 02 → 03 → 04 → 05 → 06 → 07 → 08 → 09 → 10 → 10b → 11 → 11b → 12 → 13 → 14 → 15 → 17 → 16 → 18 → 19 → 20 → 21
 
 Script 19 is step 21 of the numbered pipeline. As a byproduct of running its
 main spatial analysis it also builds the self-contained HTML scenario viewer.
@@ -689,6 +689,55 @@ pipeline `01_climate.csv`.
 
 ---
 
+## Script 10b — Spatial Step-Change Maps
+**Purpose:** Four publication-quality spatial maps showing the step change in
+mean water-table depth across the scraping (Apr 2015) and clearfell (Dec 2017)
+interventions. Uses the full monitoring network (~75 wells with sufficient
+data), IDW-interpolated surface with DEM hillshade and ridge masking, and KML
+overlays. Produces both raw and climate-corrected versions.
+
+Climate correction subtracts the C1 (Lake Edge) + C2 (Dune) median step
+change from every well. These clusters are outside any intervention zone
+of influence; their median represents the climate-driven shift between eras.
+The residual isolates the intervention-specific spatial signal.
+
+**Reads:**
+- `outputs/01_wells_clean.csv` ← main network
+- `outputs/01_wells_extended.csv` ← extended wells (FE series, edge wells)
+- `outputs/03_master_data.csv` ← cluster assignments
+- `data/Well_locations_height.csv` ← well coordinates and DEM elevations
+- `data/newborough_dem.tif` ← DEM raster (hillshade + ridge masking)
+- `data/Features.kml`, `data/clearfell.kml` ← site feature overlays
+
+**Era definitions:**
+- **Pre-scraping:** before April 2015
+- **Scrape era:** April 2015 – December 2017
+- **Post-felling:** December 2017 onward
+- Minimum 6 months of data per era required for inclusion.
+
+**Climate reference:** C1 + C2 median step change (n=33 wells).
+Scraping baseline: −0.053 m; clearfell baseline: +0.107 m.
+
+**Produces (outputs/10_clearfell_baci/):**
+
+| File | Type | Paper destination |
+|---|---|---|
+| `10b_spatial_scrape_raw.png` | Figure | Raw step change: scraping |
+| `10b_spatial_fell_raw.png` | Figure | Raw step change: clearfell |
+| `10b_spatial_scrape_corrected.png` | Figure | Climate-corrected: scraping |
+| `10b_spatial_fell_corrected.png` | Figure | Climate-corrected: clearfell |
+| `10b_spatial_step_data.csv` | Data | Per-well step changes (raw + corrected), coordinates, cluster |
+
+**Key findings (console summary):**
+- Clearfell zone (15 wells, <350 m from centroid): raw +0.080 m, corrected −0.027 m
+- C1+C2 reference (33 wells): raw +0.108 m (site-wide drying trend)
+- Clearfell vs C1+C2: −0.028 m (clearfell zone 28 mm wetter than reference)
+- NE quadrant (27 wells, open dune): raw +0.109 m — clearfell 29 mm wetter
+- Interpretation: the felled area resisted the site-wide drying trend,
+  consistent with reduced canopy transpiration after tree removal
+
+---
+
 ## Script 11 — Forecasting Thresholds
 **Purpose:** Fits cluster-level mechanistic SSM equations (Section 1), derives
 P_flood threshold equations via the iterated closed-form SSM (§3.6.3,
@@ -870,7 +919,7 @@ and colour dicts.
 ## Script 19 — Hydrological Scenario Viewer
 
 Script 19 is a **standalone self-contained HTML scenario viewer**. It is not
-part of the numbered 26-step pipeline. It reads pipeline outputs directly and
+part of the numbered 28-step pipeline. It reads pipeline outputs directly and
 generates an interactive browser-based tool for exploring management and climate
 scenarios. Run separately via option 4 in the interactive menu, or
 `python run_analysis.py --viewer`.
@@ -1304,6 +1353,48 @@ rule, Sy values, and list of stale dicts requiring regeneration.
 | Table 7: Summer transfer functions | 11 | `11_forecast_summer_transfer_functions.csv` |
 | Table 8: Pflood equations | 11 | `11_forecast_pflood_threshold_equations.csv` |
 
+---
+
+## Script 25 — Forest Zone Spatial Analysis
+**Purpose:** Investigates the spatial structure of SSM coefficients (β₁, β₂, β₃)
+within the forest zone (C4 Main Forest + C5 Coastal Forest). Tests whether the
+C4/C5 partition reflects a genuine substrate/topographic transition or is
+arbitrary within a continuous gradient.
+
+Four questions addressed:
+1. Which spatial variable (elevation, distance from ridge, Easting) best
+   predicts within-forest coefficient variation?
+2. Do C4 and C5 form two distinct groups or a continuum in β₁–β₂ space?
+3. Are NW10 (broadleaf, high β₁) and CEH14 (ridge flank, high β₂)
+   positional outliers or canopy-type outliers?
+4. Does the C4/C5 boundary correspond to a physical substrate transition?
+
+**Reads:**
+- `outputs/07_spatial_coefficients/07_coeff_maps_data.csv` ← per-well SSM coefficients
+- `outputs/06_pear_membership_audit_sitewide.csv` ← Pearson affinity correlations
+- `data/newborough_dem.tif` ← DEM raster (hillshade for boundary map)
+- `data/Features.kml`, `data/streams.kml` ← site feature overlays
+
+**Produces (outputs/25_forest_zone_analysis/):**
+
+| File | Type | Description |
+|---|---|---|
+| `25_forest_zone_correlations.csv` | Data | Pearson correlations and regression R² |
+| `25_forest_zone_cluster_summary.csv` | Data | C4 vs C5 summary statistics and t-tests |
+| `25_01_b1_b2_scatter.png` | Figure | β₁ vs β₂ scatter coloured by cluster |
+| `25_02_b2_elevation_regression.png` | Figure | β₂ vs elevation linear regression |
+| `25_03_c4_c5_boundary_map.png` | Figure | Spatial map of C4/C5 wells with elevation context |
+| `25_04_forest_zone_summary.txt` | Text | Interpretive summary of all four questions |
+
+**Key findings:**
+- Elevation explains 95.1% of β₂ variance across 14 forest wells (r = 0.975)
+- C4 and C5 are two distinct groups in β₂ (p < 0.001), not a continuum
+- CEH14's extreme β₂ is consistent with its elevation — not a genuine outlier
+- C4/C5 boundary corresponds to an elevation gap of 2.2 m (zero overlap),
+  reflecting the dune ridge → coastal plain topographic transition
+
+---
+
 ## Paper Figures Quick Reference
 
 | Figure | Script | File |
@@ -1343,3 +1434,10 @@ rule, Sy values, and list of stale dicts requiring regeneration.
 | Figure 30: Head surface + streams | 20 | `20_head_surface_streams.png` |
 | Figure 31: SSM residual | 20 | `20_residual_ssm.png` |
 | Figure 32: Synthetic hydrograph | 21 | `21_forestry_01_hydrograph.png` |
+| Figure 23b: Spatial scrape step | 10b | `10b_spatial_scrape_raw.png` |
+| Figure 23c: Spatial fell step | 10b | `10b_spatial_fell_raw.png` |
+| Figure 23d: Spatial scrape corrected | 10b | `10b_spatial_scrape_corrected.png` |
+| Figure 23e: Spatial fell corrected | 10b | `10b_spatial_fell_corrected.png` |
+| Supplementary: β₁–β₂ scatter | 25 | `25_01_b1_b2_scatter.png` |
+| Supplementary: β₂–elevation regression | 25 | `25_02_b2_elevation_regression.png` |
+| Supplementary: C4/C5 boundary map | 25 | `25_03_c4_c5_boundary_map.png` |

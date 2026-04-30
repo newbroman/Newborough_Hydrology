@@ -25,20 +25,20 @@ python run_analysis.py           # opens interactive menu
 
 | Option | Description |
 |--------|-------------|
-| **1 — Run full pipeline** | Runs all 26 steps in order from the beginning |
+| **1 — Run full pipeline** | Runs all 28 steps in order from the beginning |
 | **2 — Resume from step** | Skips completed steps; useful after a partial run |
 | **3 — Run a single step** | Runs one script in isolation for debugging or re-running |
 | **4 — Prepare scenario viewer** | Runs script 19 to build the self-contained HTML viewer |
-| **5 — Run supplementary diagnostics** | Runs scripts 22–24 (residual lag, ridge recharge, seasonality) |
-| **6 — Show step list** | Lists all 26 steps with script names and availability status |
+| **5 — Run supplementary diagnostics** | Runs scripts 22–25 (residual lag, ridge recharge, seasonality, forest zone) |
+| **6 — Show step list** | Lists all 28 steps with script names and availability status |
 
 For non-interactive use (e.g. in a batch job):
 
 ```bash
-python run_analysis.py --full          # run all 26 steps
+python run_analysis.py --full          # run all 28 steps
 python run_analysis.py --from 14       # resume from step 14
 python run_analysis.py --viewer        # build scenario viewer only
-python run_analysis.py --supplementary # run supplementary diagnostics (22–24) only
+python run_analysis.py --supplementary # run supplementary diagnostics (22–25) only
 ```
 
 ---
@@ -73,7 +73,7 @@ Newborough_Hydro_Models/
 │   ├── 19_spatial_groundwater/
 │   │   └── scenario_viewer.html        ← self-contained interactive viewer (standalone)
 │   └── [other output directories]
-├── src/                         Analysis scripts (26 steps; script 19 also builds the viewer)
+├── src/                         Analysis scripts (28 steps; script 19 also builds the viewer)
 │   ├── utils/
 │   │   ├── config.py            Cluster colours, labels, DRAINAGE_DATUM, HEADLINE_LAG, FOREST_INTERCEPTION
 │   │   ├── data_utils.py        Cleaning and normalisation helpers
@@ -94,7 +94,7 @@ Newborough_Hydro_Models/
 
 ## Pipeline Phases
 
-Eleven sequential phases, 26 steps total. Validation checkpoints run after Phases 1, 3, and 10.
+Eleven sequential phases, 28 steps total. Validation checkpoints run after Phases 1, 3, and 10.
 
 **Reference network:** 66 wells (from a raw pool of ~80). 
 Eight wells are excluded from the reference partition: FE1–4 and LIS1
@@ -119,15 +119,15 @@ colours and labels are centralised in `src/utils/config.py`.
 |-------|---------|-------|---------|
 | 1 | 01–04 | 1–4 | Core LCSC chain |
 | 2 | 05–06 | 5–6 | Pearson membership audit and extended network integration |
-| 3 | 07–11, 11b | 7–12 | Spatial coefficient mapping, model benchmarking, scraping and clearfell BACI, forecasting, spatial threshold maps |
-| 4 | 00, 14, 12–13 | 13–16 | Climate summary, trajectory projections, GIS figures |
-| 5 | 15 | 17 | Depth-dependent PET analysis |
-| 6 | 17 | 18 | WTF cluster Sy estimation |
-| 7 | 16 | 19 | Water balance decomposition |
-| 8 | 18 | 20 | WTF spatial analysis and per-well Sy mapping |
-| 9 | 19, 20 | 21–22 | Spatial groundwater analysis and publication figures |
-| 10 | 21 | 23 | Forestry scenarios and management intervention figures |
-| 11 | 22–24 | 24–26 | Supplementary diagnostics: residual lag structure, ridge recharge hypothesis test, residual seasonality |
+| 3 | 07–11, 10b, 11b | 7–13 | Spatial coefficient mapping, model benchmarking, scraping and clearfell BACI, spatial step-change maps, forecasting, spatial threshold maps |
+| 4 | 00, 14, 12–13 | 14–17 | Climate summary, trajectory projections, GIS figures |
+| 5 | 15 | 18 | Depth-dependent PET analysis |
+| 6 | 17 | 19 | WTF cluster Sy estimation |
+| 7 | 16 | 20 | Water balance decomposition |
+| 8 | 18 | 21 | WTF spatial analysis and per-well Sy mapping |
+| 9 | 19, 20 | 22–23 | Spatial groundwater analysis and publication figures |
+| 10 | 21 | 24 | Forestry scenarios and management intervention figures |
+| 11 | 22–25 | 25–28 | Supplementary diagnostics: residual lag structure, ridge recharge hypothesis test, residual seasonality, forest zone spatial analysis |
 
 ---
 

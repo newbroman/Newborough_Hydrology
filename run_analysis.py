@@ -5,7 +5,7 @@ Interactive orchestrator for the Hollingham (2026) analytical pipeline.
 Usage
 -----
   python run_analysis.py              # interactive menu
-  python run_analysis.py --full       # non-interactive: run all 26 steps
+  python run_analysis.py --full       # non-interactive: run all 28 steps
   python run_analysis.py --from N     # non-interactive: resume from step N
   python run_analysis.py --viewer     # non-interactive: build scenario viewer only
 """
@@ -23,52 +23,54 @@ OUT_DIR  = ROOT_DIR / "outputs"
 # ── Phase / step definitions ──────────────────────────────────────────────────
 
 PHASE_1 = [
-    ("01_data_prep.py",              " 1/26  Data preparation"),
-    ("02_clustering.py",             " 2/26  Behavioural clustering"),
-    ("03_state_space_model.py",      " 3/26  State-space regression + LCSC"),
-    ("04_cluster_visualisations.py", " 4/26  Core cluster visualisation"),
+    ("01_data_prep.py",              " 1/28  Data preparation"),
+    ("02_clustering.py",             " 2/28  Behavioural clustering"),
+    ("03_state_space_model.py",      " 3/28  State-space regression + LCSC"),
+    ("04_cluster_visualisations.py", " 4/28  Core cluster visualisation"),
 ]
 PHASE_2 = [
-    ("05_pearson_affinity.py",  " 5/26  Pearson membership audit"),
-    ("06_pearson_extended.py",  " 6/26  Pearson extended network integration"),
+    ("05_pearson_affinity.py",  " 5/28  Pearson membership audit"),
+    ("06_pearson_extended.py",  " 6/28  Pearson extended network integration"),
 ]
 PHASE_3 = [
-    ("07_spatial_coefficients.py",     " 7/26  Spatial coefficient mapping"),
-    ("08_model_benchmarking.py",      " 8/26  Model benchmarking (LCSC vs Traditional)"),
-    ("09_scraping_intervention.py",   " 9/26  Scraping intervention BACI"),
-    ("10_clearfell_baci.py",          "10/26  Clear-fell BACI analysis"),
-    ("11_forecasting_thresholds.py",  "11/26  Forecasting and critical thresholds"),
-    ("11b_spatial_thresholds.py",     "12/26  Spatial eco-hydrological threshold maps"),
+    ("07_spatial_coefficients.py",     " 7/28  Spatial coefficient mapping"),
+    ("08_model_benchmarking.py",      " 8/28  Model benchmarking (LCSC vs Traditional)"),
+    ("09_scraping_intervention.py",   " 9/28  Scraping intervention BACI"),
+    ("10_clearfell_baci.py",          "10/28  Clear-fell BACI analysis"),
+    ("10b_spatial_step_maps.py",       "11/28  Spatial step-change maps (scraping + clearfell)"),
+    ("11_forecasting_thresholds.py",  "12/28  Forecasting and critical thresholds"),
+    ("11b_spatial_thresholds.py",     "13/28  Spatial eco-hydrological threshold maps"),
 ]
 PHASE_4 = [
-    ("00_climate_summary.py",            "13/26  Climate summary outputs", ["--profile", "full"]),
-    ("14_climate_projections.py",        "14/26  Figure: Climate trajectory projections"),
-    ("12_figure_site_overview.py",       "15/26  Figure: DEM site overview"),
-    ("13_figure_experimental_design.py", "16/26  Figure: Experimental design GIS map"),
+    ("00_climate_summary.py",            "14/28  Climate summary outputs", ["--profile", "full"]),
+    ("14_climate_projections.py",        "15/28  Figure: Climate trajectory projections"),
+    ("12_figure_site_overview.py",       "16/28  Figure: DEM site overview"),
+    ("13_figure_experimental_design.py", "17/28  Figure: Experimental design GIS map"),
 ]
 PHASE_5 = [
-    ("15_depth_dependent_pet.py", "17/26  Depth-dependent PET analysis"),
+    ("15_depth_dependent_pet.py", "18/28  Depth-dependent PET analysis"),
 ]
 PHASE_6 = [
-    ("17_wtf_specific_yield.py", "18/26  WTF cluster Sy estimation"),
+    ("17_wtf_specific_yield.py", "19/28  WTF cluster Sy estimation"),
 ]
 PHASE_7 = [
-    ("16_water_bal.py", "19/26  Water balance decomposition"),
+    ("16_water_bal.py", "20/28  Water balance decomposition"),
 ]
 PHASE_8 = [
-    ("18_wtf_spatial.py", "20/26  WTF spatial analysis and Sy mapping"),
+    ("18_wtf_spatial.py", "21/28  WTF spatial analysis and Sy mapping"),
 ]
 PHASE_9 = [
-    ("19_spatial_groundwater.py", "21/26  Spatial groundwater analysis"),
-    ("20_spatial_figures.py",     "22/26  Spatial paper figures"),
+    ("19_spatial_groundwater.py", "22/28  Spatial groundwater analysis"),
+    ("20_spatial_figures.py",     "23/28  Spatial paper figures"),
 ]
 PHASE_10 = [
-    ("21_forestry_scenarios.py", "23/26  Forestry scenarios and management figures"),
+    ("21_forestry_scenarios.py", "24/28  Forestry scenarios and management figures"),
 ]
 PHASE_11 = [
-    ("22_residual_lag_analysis.py",    "24/26  Residual lag structure analysis"),
-    ("23_ridge_recharge_lag_test.py",  "25/26  Ridge recharge lag hypothesis test"),
-    ("24_residual_seasonality.py",     "26/26  Residual seasonality diagnostics"),
+    ("22_residual_lag_analysis.py",    "25/28  Residual lag structure analysis"),
+    ("23_ridge_recharge_lag_test.py",  "26/28  Ridge recharge lag hypothesis test"),
+    ("24_residual_seasonality.py",     "27/28  Residual seasonality diagnostics"),
+    ("25_forest_zone_analysis.py",     "28/28  Forest zone spatial analysis"),
 ]
 
 ALL_PHASES = [
@@ -82,7 +84,7 @@ ALL_PHASES = [
     ("PHASE 8  — WTF Spatial Analysis and Sy Mapping",          PHASE_8),
     ("PHASE 9  — Spatial Groundwater Analysis",                 PHASE_9),
     ("PHASE 10 — Forestry Scenario Analysis",                   PHASE_10),
-    ("PHASE 11 — Supplementary Diagnostics (Scripts 22–24)",   PHASE_11),
+    ("PHASE 11 — Supplementary Diagnostics (Scripts 22–25)",   PHASE_11),
 ]
 
 # Build step -> (script, label, extra_args) lookup at import time
@@ -281,8 +283,8 @@ def run_full_pipeline(from_step: int = 1) -> None:
         validate_outputs(REQUIRED_PHASE9_OUTPUTS, "Phase 9")
     run_phase(PHASE_10, "PHASE 10 — Forestry Scenario Analysis",                  from_step)
     validate_outputs(REQUIRED_PHASE10_OUTPUTS, "Phase 10")
-    run_phase(PHASE_11, "PHASE 11 — Supplementary Diagnostics (Scripts 22–24)",  from_step)
-    _banner("PIPELINE COMPLETE — all 26 steps written to outputs/")
+    run_phase(PHASE_11, "PHASE 11 — Supplementary Diagnostics (Scripts 22–25)",  from_step)
+    _banner("PIPELINE COMPLETE — all 28 steps written to outputs/")
 
 def build_viewer() -> None:
     """Run script 19 to generate the self-contained scenario viewer HTML."""
@@ -328,11 +330,11 @@ MENU = """
   ┌──────────────────────────────────────────────────┐
   │  Main Menu                                       │
   ├──────────────────────────────────────────────────┤
-  │  1  Run full pipeline  (all 26 steps)            │
+  │  1  Run full pipeline  (all 28 steps)            │
   │  2  Resume from a specific step                  │
   │  3  Run a single step                            │
   │  4  Prepare the scenario viewer                  │
-  │  5  Run supplementary diagnostics (22–24)        │
+  │  5  Run supplementary diagnostics (22–25)        │
   │  6  Show pipeline step list                      │
   │  q  Quit                                         │
   └──────────────────────────────────────────────────┘"""
@@ -396,12 +398,12 @@ def menu_run_single() -> None:
         print(f"\n  [OK] Step {n} complete.")
 
 def run_supplementary() -> None:
-    """Run supplementary diagnostic scripts 22–24."""
+    """Run supplementary diagnostic scripts 22–25."""
     ensure_paths()
     if not warn_missing_upstream(24):
         print("  Aborted.")
         return
-    run_phase(PHASE_11, "PHASE 11 — Supplementary Diagnostics (Scripts 22–24)")
+    run_phase(PHASE_11, "PHASE 11 — Supplementary Diagnostics (Scripts 22–25)")
     print("\n  [OK] Supplementary diagnostics complete.")
 
 def interactive_menu() -> None:
@@ -414,7 +416,7 @@ def interactive_menu() -> None:
         choice = input("\n  Enter choice: ").strip().lower()
 
         if choice == "1":
-            ans = input("\n  Run all 26 steps from the beginning? [y/N] ").strip().lower()
+            ans = input("\n  Run all 28 steps from the beginning? [y/N] ").strip().lower()
             if ans == "y":
                 run_full_pipeline(from_step=1)
 
@@ -453,13 +455,13 @@ def main() -> None:
         """)
     )
     parser.add_argument("--full",   action="store_true",
-                        help="Run all 26 steps non-interactively")
+                        help="Run all 28 steps non-interactively")
     parser.add_argument("--from",   dest="from_step", type=int, metavar="N",
                         help="Resume from step N non-interactively")
     parser.add_argument("--viewer", action="store_true",
                         help="Build the scenario viewer only")
     parser.add_argument("--supplementary", action="store_true",
-                        help="Run supplementary diagnostics (scripts 22–24) only")
+                        help="Run supplementary diagnostics (scripts 22–25) only")
     args = parser.parse_args()
 
     try:

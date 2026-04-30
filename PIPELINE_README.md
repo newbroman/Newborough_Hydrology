@@ -1397,43 +1397,48 @@ rule, Sy values, and list of stale dicts requiring regeneration.
 
 ## Paper Figures Quick Reference
 
+Output files link directly to the repository. Not all pipeline outputs appear in the paper — each script directory contains additional diagnostic and supplementary figures.
+
 | Figure | Description | Script | File |
 |---|---|---|---|
-| Figure 1 | Site overview | 12 | `12_01_dem_site_overview.png` |
-| Figure 2 | Experimental design | 13 | `13_01_experimental_setup_map.png` |
-| Figure 3 | Climate timeseries | 00 | `00_01_climate_timeseries.png` |
-| Figure 4 | Summer temperature trend | 00 | `00_03_summer_warming_trend.png` |
-| Figure 5 | Well network | 00 | `00_02_well_network_summary.png` |
-| Figure 6 | Cluster validation | 02 | `02_02_validation_plots.png` |
-| Figure 7 | Dendrogram | 02 | `02_01_dendrogram.png` |
-| Figure 8 | Cluster hydrographs + mechanistic signatures | 02, 03 | `02_03_cluster_hydrographs_wb.png`, `03_01_mechanistic_signatures.png` |
-| Figure 9 | Water balance decomposition | 16 | `16_wb_02_bar_ms.png` |
-| Figure 10 | WTF Sy surface | 18 | `18_wtf_02_spatial_sy_map.png` |
-| Figure 11 | Pearson affinity chart | 05 | `05_pear_01_spatial_confidence_map.png` |
-| Figure 12 | Pearson spatial maps | 06 | `06_pear_02_integration_map.png` |
-| Figure 13 | SSM vs TLM at CEH6 | 08 | `08_lcsc_01_ceh6_showdown.png` |
-| Figure 14 | SSM gain over TLM | 08 | `08_lcsc_02_r2_improvement_map.png`, `08_lcsc_03_nse_improvement_map.png` |
-| Figure 15 | Tier 1 CUSUM controls | 09 | `09_scrape_05_tier1_background_drift.png` |
-| Figure 16 | Tier 2 CUSUM treatment | 09 | `09_scrape_06_tier2_scraping_signal.png` |
-| Figure 17 | Three-method robustness | 09 | `09_scrape_07_three_method_robustness.png` |
-| Figure 18 | Era-specific β₃ scraping | 09 | `09_scrape_07_beta3_confidence.png` |
-| Figure 19 | Summer min scraping treatment wells | 21 | `21_forestry_03_scraping_eras.png` |
-| Figure 20 | Raw BACI clearfell | 10 | `10_cfell_01b_raw_baci.png` |
-| Figure 21 | ANCOVA-BACI | 10 | `10_cfell_01_dual_control_baci.png` |
-| Figure 22 | Clearfell transect | 10 | `10_cfell_10_clearfell_transect.png` |
-| Figure 23 | Spatial step-change maps | 10b | `10b_spatial_scrape_corrected.png`, `10b_spatial_fell_corrected.png` |
-| Figure 24 | β changes pre/post clearfell | 10 | `10_cfell_03_beta3_ols_slopes.png` |
-| Figure 25 | BACI zone violin | 21 | `21_forestry_04_baci_zone_violin.png` |
-| Figure 26 | Summer min depth map | 11b | `11b_01_summer_minima_depth.png` |
-| Figure 27 | P_flood map | 11b | `11b_03_pflood.png` |
-| Figure 28 | Winter max depth map | 11b | `11b_02_winter_maxima_depth.png` |
-| Figure 29 | Winter flooding frequency | 11b | `11b_04_flood_frequency.png` |
-| Figure 30 | Climate trajectory | 14 | `14_climate_trajectory_stacked.png` |
-| Figure 31 | Datum sensitivity | 03 | `03_08_datum_sensitivity.png` |
-| Figure 32 | Spatial coefficient atlas | 07 | `07_coeff_01_beta1_recharge.png` – `07_coeff_04_r2.png` |
-| Figure 33 | Head surface + Darcy vectors | 20 | `20_head_surface_streams.png` |
-| Figure 34 | Water balance residual field | 20 | `20_residual_ssm.png` |
-| Figure 35 | Synthetic hydrograph (scenarios) | 21 | `21_forestry_01_hydrograph.png` |
-| Supplementary: β₁–β₂ scatter | — | 10c | `25_01_b1_b2_scatter.png` |
-| Supplementary: β₂–elevation regression | — | 10c | `25_02_b2_elevation_regression.png` |
-| Supplementary: C4/C5 boundary map | — | 10c | `25_03_c4_c5_boundary_map.png` |
+| Figure 1 | Site overview | 12 | [`12_01_dem_site_overview.png`](outputs/12_figure_site_overview/12_01_dem_site_overview.png) |
+| Figure 2 | Experimental design | 13 | [`13_01_experimental_setup_map.png`](outputs/13_figure_experimental_design/13_01_experimental_setup_map.png) |
+| Figure 3 | Climate timeseries | 00 | [`00_01_climate_timeseries.png`](outputs/00_climate_summary/00_01_climate_timeseries.png) |
+| Figure 4 | Summer temperature trend | 00 | [`00_03_summer_warming_trend.png`](outputs/00_climate_summary/00_03_summer_warming_trend.png) |
+| Figure 5 | Well network | 00 | [`00_02_well_network_summary.png`](outputs/00_climate_summary/00_02_well_network_summary.png) |
+| Figure 6 | Cluster validation | 02 | [`02_02_validation_plots.png`](outputs/02_clustering/02_02_validation_plots.png) |
+| Figure 7 | Dendrogram | 02 | [`02_01_dendrogram.png`](outputs/02_clustering/02_01_dendrogram.png) |
+| Figure 8 | Cluster hydrographs | 02 | [`02_03_cluster_hydrographs_wb.png`](outputs/02_clustering/02_03_cluster_hydrographs_wb.png) |
+| Figure 9 | Water balance decomposition | 16 | [`16_wb_02_bar_ms.png`](outputs/16_water_bal/16_wb_02_bar_ms.png) |
+| Figure 10 | WTF Sy surface | 18 | [`18_wtf_04_sy_contour_extended.png`](outputs/18_wtf_spatial/18_wtf_04_sy_contour_extended.png) |
+| Figure 11 | Pearson affinity chart | 06 | [`06_pear_01_affinity_chart_extended.png`](outputs/06_pearson_extended/06_pear_01_affinity_chart_extended.png) |
+| Figure 12a | Pearson confidence map | 05 | [`05_pear_01_spatial_confidence_map.png`](outputs/05_pearson_affinity/05_pear_01_spatial_confidence_map.png) |
+| Figure 12b | Cluster integration map | 06 | [`06_pear_02_integration_map.png`](outputs/06_pearson_extended/06_pear_02_integration_map.png) |
+| Figure 13 | SSM vs TLM at CEH6 | 08 | [`08_lcsc_01_ceh6_showdown.png`](outputs/08_model_benchmarking/08_lcsc_01_ceh6_showdown.png) |
+| Figure 14a | SSM R² gain map | 08 | [`08_lcsc_02_r2_improvement_map.png`](outputs/08_model_benchmarking/08_lcsc_02_r2_improvement_map.png) |
+| Figure 14b | SSM NSE gain map | 08 | [`08_lcsc_03_nse_improvement_map.png`](outputs/08_model_benchmarking/08_lcsc_03_nse_improvement_map.png) |
+| Figure 15 | Tier 1 CUSUM | 09 | [`09_scrape_05_tier1_background_drift.png`](outputs/09_scraping_intervention/09_scrape_05_tier1_background_drift.png) |
+| Figure 16 | Tier 2 CUSUM treatment | 09 | [`09_scrape_06_tier2_scraping_signal.png`](outputs/09_scraping_intervention/09_scrape_06_tier2_scraping_signal.png) |
+| Figure 17 | Three-method robustness | 09 | [`09_scrape_08_ceh36_robustness.png`](outputs/09_scraping_intervention/09_scrape_08_ceh36_robustness.png) |
+| Figure 18 | Era-specific β₃ scraping | 09 | [`09_scrape_07_beta3_confidence.png`](outputs/09_scraping_intervention/09_scrape_07_beta3_confidence.png) |
+| Figure 19 | Scraping treatment wells | 21 | [`21_forestry_03_scraping_eras.png`](outputs/21_forestry_scenarios/21_forestry_03_scraping_eras.png) |
+| Figure 20 | Raw BACI clearfell | 10 | [`10_cfell_01b_raw_baci.png`](outputs/10_clearfell_baci/10_cfell_01b_raw_baci.png) |
+| Figure 21 | ANCOVA-BACI | 10 | [`10_cfell_01_dual_control_baci.png`](outputs/10_clearfell_baci/10_cfell_01_dual_control_baci.png) |
+| Figure 22 | Clearfell transect | 10 | [`10_cfell_10_clearfell_transect.png`](outputs/10_clearfell_baci/10_cfell_10_clearfell_transect.png) |
+| Figure 23 | Spatial step-change maps | 10b | [`10b_spatial_scrape_corrected.png`](outputs/10_clearfell_baci/10b_spatial_scrape_corrected.png), [`10b_spatial_fell_corrected.png`](outputs/10_clearfell_baci/10b_spatial_fell_corrected.png) |
+| Figure 24 | SSM coefficient shifts | 10 | [`10_cfell_03_beta3_ols_slopes.png`](outputs/10_clearfell_baci/10_cfell_03_beta3_ols_slopes.png) |
+| Figure 25 | BACI zone violin | 21 | [`21_forestry_04_baci_zone_violin.png`](outputs/21_forestry_scenarios/21_forestry_04_baci_zone_violin.png) |
+| Figure 26 | Summer min depth map | 11b | [`11b_01_summer_minima_depth.png`](outputs/11b_spatial_thresholds/11b_01_summer_minima_depth.png) |
+| Figure 27 | P_flood map | 11b | [`11b_03_pflood.png`](outputs/11b_spatial_thresholds/11b_03_pflood.png) |
+| Figure 28 | Winter max depth map | 11b | [`11b_02_winter_maxima_depth.png`](outputs/11b_spatial_thresholds/11b_02_winter_maxima_depth.png) |
+| Figure 29 | Winter flooding frequency | 11b | [`11b_04_flood_frequency.png`](outputs/11b_spatial_thresholds/11b_04_flood_frequency.png) |
+| Figure 30 | Climate trajectory | 14 | [`14_climate_trajectory_stacked.png`](outputs/14_climate_projections/14_climate_trajectory_stacked.png) |
+| Figure 31 | Datum sensitivity | 03 | [`03_08_datum_sensitivity.png`](outputs/03_state_space_model/03_08_datum_sensitivity.png) |
+| Figure 32 | Spatial coefficient atlas | 07 | [`07_coeff_01_beta1_recharge.png`](outputs/07_spatial_coefficients/07_coeff_01_beta1_recharge.png) – `07_coeff_04_r2.png` |
+| Figure 33 | Head surface + Darcy vectors | 20 | [`20_head_surface_streams.png`](outputs/20_spatial_figures/20_head_surface_streams.png) |
+| Figure 34 | Water balance residual field | 20 | [`20_residual_ssm.png`](outputs/20_spatial_figures/20_residual_ssm.png) |
+| Figure 35 | Synthetic hydrograph (scenarios) | 21 | [`21_forestry_01_hydrograph.png`](outputs/21_forestry_scenarios/21_forestry_01_hydrograph.png) |
+| Supplementary | β₁–β₂ scatter | 10c | [`25_01_b1_b2_scatter.png`](outputs/25_forest_zone_analysis/25_01_b1_b2_scatter.png) |
+| Supplementary | β₂–elevation regression | 10c | [`25_02_b2_elevation_regression.png`](outputs/25_forest_zone_analysis/25_02_b2_elevation_regression.png) |
+| Supplementary | C4/C5 boundary map | 10c | [`25_03_c4_c5_boundary_map.png`](outputs/25_forest_zone_analysis/25_03_c4_c5_boundary_map.png) |
+

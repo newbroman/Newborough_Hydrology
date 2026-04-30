@@ -38,39 +38,39 @@ PHASE_3 = [
     ("09_scraping_intervention.py",   " 9/28  Scraping intervention BACI"),
     ("10_clearfell_baci.py",          "10/28  Clear-fell BACI analysis"),
     ("10b_spatial_step_maps.py",       "11/28  Spatial step-change maps (scraping + clearfell)"),
-    ("11_forecasting_thresholds.py",  "12/28  Forecasting and critical thresholds"),
-    ("11b_spatial_thresholds.py",     "13/28  Spatial eco-hydrological threshold maps"),
+    ("10c_forest_zone_analysis.py",    "12/28  Forest zone spatial analysis"),
+    ("11_forecasting_thresholds.py",  "13/28  Forecasting and critical thresholds"),
+    ("11b_spatial_thresholds.py",     "14/28  Spatial eco-hydrological threshold maps"),
 ]
 PHASE_4 = [
-    ("00_climate_summary.py",            "14/28  Climate summary outputs", ["--profile", "full"]),
-    ("14_climate_projections.py",        "15/28  Figure: Climate trajectory projections"),
-    ("12_figure_site_overview.py",       "16/28  Figure: DEM site overview"),
-    ("13_figure_experimental_design.py", "17/28  Figure: Experimental design GIS map"),
+    ("00_climate_summary.py",            "15/28  Climate summary outputs", ["--profile", "full"]),
+    ("14_climate_projections.py",        "16/28  Figure: Climate trajectory projections"),
+    ("12_figure_site_overview.py",       "17/28  Figure: DEM site overview"),
+    ("13_figure_experimental_design.py", "18/28  Figure: Experimental design GIS map"),
 ]
 PHASE_5 = [
-    ("15_depth_dependent_pet.py", "18/28  Depth-dependent PET analysis"),
+    ("15_depth_dependent_pet.py", "19/28  Depth-dependent PET analysis"),
 ]
 PHASE_6 = [
-    ("17_wtf_specific_yield.py", "19/28  WTF cluster Sy estimation"),
+    ("17_wtf_specific_yield.py", "20/28  WTF cluster Sy estimation"),
 ]
 PHASE_7 = [
-    ("16_water_bal.py", "20/28  Water balance decomposition"),
+    ("16_water_bal.py", "21/28  Water balance decomposition"),
 ]
 PHASE_8 = [
-    ("18_wtf_spatial.py", "21/28  WTF spatial analysis and Sy mapping"),
+    ("18_wtf_spatial.py", "22/28  WTF spatial analysis and Sy mapping"),
 ]
 PHASE_9 = [
-    ("19_spatial_groundwater.py", "22/28  Spatial groundwater analysis"),
-    ("20_spatial_figures.py",     "23/28  Spatial paper figures"),
+    ("19_spatial_groundwater.py", "23/28  Spatial groundwater analysis"),
+    ("20_spatial_figures.py",     "24/28  Spatial paper figures"),
 ]
 PHASE_10 = [
-    ("21_forestry_scenarios.py", "24/28  Forestry scenarios and management figures"),
+    ("21_forestry_scenarios.py", "25/28  Forestry scenarios and management figures"),
 ]
 PHASE_11 = [
-    ("22_residual_lag_analysis.py",    "25/28  Residual lag structure analysis"),
-    ("23_ridge_recharge_lag_test.py",  "26/28  Ridge recharge lag hypothesis test"),
-    ("24_residual_seasonality.py",     "27/28  Residual seasonality diagnostics"),
-    ("25_forest_zone_analysis.py",     "28/28  Forest zone spatial analysis"),
+    ("22_residual_lag_analysis.py",    "26/28  Residual lag structure analysis"),
+    ("23_ridge_recharge_lag_test.py",  "27/28  Ridge recharge lag hypothesis test"),
+    ("24_residual_seasonality.py",     "28/28  Residual seasonality diagnostics"),
 ]
 
 ALL_PHASES = [
@@ -84,7 +84,7 @@ ALL_PHASES = [
     ("PHASE 8  — WTF Spatial Analysis and Sy Mapping",          PHASE_8),
     ("PHASE 9  — Spatial Groundwater Analysis",                 PHASE_9),
     ("PHASE 10 — Forestry Scenario Analysis",                   PHASE_10),
-    ("PHASE 11 — Supplementary Diagnostics (Scripts 22–25)",   PHASE_11),
+    ("PHASE 11 — Supplementary Diagnostics (Scripts 22–24)",   PHASE_11),
 ]
 
 # Build step -> (script, label, extra_args) lookup at import time
@@ -283,7 +283,7 @@ def run_full_pipeline(from_step: int = 1) -> None:
         validate_outputs(REQUIRED_PHASE9_OUTPUTS, "Phase 9")
     run_phase(PHASE_10, "PHASE 10 — Forestry Scenario Analysis",                  from_step)
     validate_outputs(REQUIRED_PHASE10_OUTPUTS, "Phase 10")
-    run_phase(PHASE_11, "PHASE 11 — Supplementary Diagnostics (Scripts 22–25)",  from_step)
+    run_phase(PHASE_11, "PHASE 11 — Supplementary Diagnostics (Scripts 22–24)",  from_step)
     _banner("PIPELINE COMPLETE — all 28 steps written to outputs/")
 
 def build_viewer() -> None:
@@ -334,7 +334,7 @@ MENU = """
   │  2  Resume from a specific step                  │
   │  3  Run a single step                            │
   │  4  Prepare the scenario viewer                  │
-  │  5  Run supplementary diagnostics (22–25)        │
+  │  5  Run supplementary diagnostics (22–24)        │
   │  6  Show pipeline step list                      │
   │  q  Quit                                         │
   └──────────────────────────────────────────────────┘"""
@@ -398,12 +398,12 @@ def menu_run_single() -> None:
         print(f"\n  [OK] Step {n} complete.")
 
 def run_supplementary() -> None:
-    """Run supplementary diagnostic scripts 22–25."""
+    """Run supplementary diagnostic scripts 22–24."""
     ensure_paths()
     if not warn_missing_upstream(24):
         print("  Aborted.")
         return
-    run_phase(PHASE_11, "PHASE 11 — Supplementary Diagnostics (Scripts 22–25)")
+    run_phase(PHASE_11, "PHASE 11 — Supplementary Diagnostics (Scripts 22–24)")
     print("\n  [OK] Supplementary diagnostics complete.")
 
 def interactive_menu() -> None:
@@ -461,7 +461,7 @@ def main() -> None:
     parser.add_argument("--viewer", action="store_true",
                         help="Build the scenario viewer only")
     parser.add_argument("--supplementary", action="store_true",
-                        help="Run supplementary diagnostics (scripts 22–25) only")
+                        help="Run supplementary diagnostics (scripts 22–24) only")
     args = parser.parse_args()
 
     try:

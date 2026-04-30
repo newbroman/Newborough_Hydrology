@@ -5,9 +5,9 @@ This document describes the data flow between all pipeline scripts, identifying
 which files each script reads, which it produces, and which outputs feed into
 the paper as figures, tables or into downstream scripts.
 
-Run order: 01 → 02 → 03 → 04 → 05 → 06 → 07 → 08 → 09 → 10 → 10b → 11 → 11b → 12 → 13 → 14 → 15 → 17 → 16 → 18 → 19 → 20 → 21
+Run order: 01 → 02 → 03 → 04 → 05 → 06 → 07 → 08 → 09 → 10 → 10b → 10c → 11 → 11b → 00 → 14 → 12 → 13 → 15 → 17 → 16 → 18 → 19 → 20 → 21 → 22 → 23 → 24
 
-Script 19 is step 21 of the numbered pipeline. As a byproduct of running its
+Script 19 is step 23 of the 28-step pipeline. As a byproduct of running its
 main spatial analysis it also builds the self-contained HTML scenario viewer.
 Menu option 4 (`python run_analysis.py --viewer`) rebuilds the viewer alone
 by re-running script 19 without stepping through the earlier scripts.
@@ -96,7 +96,7 @@ and is produced under `--profile full` only.
 | File | Type | Paper destination |
 |---|---|---|
 | `00_01_climate_timeseries.png` | Figure | Figure 3 (full record) |
-| `00_02_well_network_summary.png` | Figure | Figure 4 |
+| `00_02_well_network_summary.png` | Figure | Figure 5 |
 | `00_03_summer_warming_trend.png` | Figure | RAF Valley JJA max-temp anomaly, 1931–2025 |
 | `00_01_annual_climate_summary.csv` | Table | Table 1 source data |
 | `00_02_well_network_summary.csv` | Data | Section 4.1 statistics |
@@ -107,7 +107,7 @@ and is produced under `--profile full` only.
 | File | Type | Paper destination |
 |---|---|---|
 | `00_01_climate_timeseries_short.png` | Figure | Figure 3 (well-record period) |
-| `00_02_well_network_summary_short.png` | Figure | Figure 4 alternative |
+| `00_02_well_network_summary_short.png` | Figure | Figure 5 alternative |
 | `00_01_annual_climate_summary_short.csv` | Data | Monitoring-period climate summary |
 | `00_02_well_network_summary_short.csv` | Data | Monitoring-period network stats |
 
@@ -174,10 +174,10 @@ seasonal amplitude descriptors.
 
 | File | Type | Description |
 |---|---|---|
-| `02_01_dendrogram.png` | Figure | Ward's dendrogram (Paper Figure 6) |
+| `02_01_dendrogram.png` | Figure | Ward's dendrogram (Paper Figure 7) |
 | `02_02_validation_plots.png` | Figure | Elbow + silhouette validation |
 | `02_02b_validation_k_sweep.png` | Figure | Extended k-sweep: silhouette, Calinski–Harabasz, merge distance |
-| `02_03_cluster_hydrographs_wb.png` | Figure | Cluster hydrographs + water balance (Paper Figure 7) |
+| `02_03_cluster_hydrographs_wb.png` | Figure | Cluster hydrographs + water balance (Paper Figure 8) |
 | `02_04_bootstrap_stability_summary.csv` | Data | Per-cluster stability medians across k=4..7 |
 | `02_05_bootstrap_stability_per_well.csv` | Data | Per-well stability scores (long form, all candidate k) |
 | `02_06_coassignment_heatmap_k{k}.png` | Figure | Bootstrap co-assignment heatmap per candidate k |
@@ -285,7 +285,7 @@ with millimetre-denominated climatology.
 
 | File | Type | Paper destination |
 |---|---|---|
-| `03_01_mechanistic_signatures.png` | Figure | Figure 7 (3-panel β bar chart with bootstrap CI error bars) |
+| `03_01_mechanistic_signatures.png` | Figure | Diagnostic (β values presented in paper Table 2) |
 | `03_02_cluster_summary_table.csv` | Table | **Paper Table 1** — cluster membership summary with bootstrap CIs and amplitude heterogeneity flag |
 | `03_03_cluster_mechanistic_coefficients.csv` | Table | **Paper Table 2** — centroid β₁, β₂, β₃, LCSC, R², p-values, drainage datum |
 | `03_04_lag_diagnostic.csv` | Data | Centroid SSM fits at lags 0, 1, 2, 3 months per cluster |
@@ -385,7 +385,7 @@ saved, so the investigator has the diagnostic outputs to work with.
 
 | File | Type | Paper destination |
 |---|---|---|
-| `04_01_core_architecture_map.png` | Figure | Figure 8 (cluster map) |
+| `04_01_core_architecture_map.png` | Figure | Diagnostic (not in paper) |
 
 ---
 
@@ -410,7 +410,7 @@ Affinity (MCA) wells.
 
 | File | Type | Paper destination |
 |---|---|---|
-| `05_01_confidence_map.png` | Figure | Figure 9a (affinity confidence map) |
+| `05_01_confidence_map.png` | Figure | Figure 12a (affinity confidence map) |
 
 ---
 
@@ -435,8 +435,8 @@ cluster centroids. Produces integrated site-wide affinity map.
 
 | File | Type | Paper destination |
 |---|---|---|
-| `06_01_affinity_chart.png` | Figure | Figure 9b (affinity bar chart) |
-| `06_02_integration_map.png` | Figure | Figure 9 (integrated spatial map) |
+| `06_01_affinity_chart.png` | Figure | Figure 11 (affinity bar chart) |
+| `06_02_integration_map.png` | Figure | Figure 12b (integrated spatial map) |
 
 ---
 
@@ -504,9 +504,9 @@ and lag-1 rainfall, matching Script 03. Maps spatial pattern of improvement.
 
 | File | Type | Paper destination |
 |---|---|---|
-| `08_lcsc_01_ceh6_showdown.png` | Figure | Figure 12 (CEH6 TLM vs SSM showdown) |
-| `08_lcsc_02_r2_improvement_map.png` | Figure | Figure 13a (ΔR² map) |
-| `08_lcsc_03_nse_improvement_map.png` | Figure | Figure 13b (ΔNSE map) |
+| `08_lcsc_01_ceh6_showdown.png` | Figure | Figure 13 (CEH6 TLM vs SSM showdown) |
+| `08_lcsc_02_r2_improvement_map.png` | Figure | Figure 14a (ΔR² map) |
+| `08_lcsc_03_nse_improvement_map.png` | Figure | Figure 14b (ΔNSE map) |
 
 ---
 
@@ -549,9 +549,9 @@ design matrix (β₁·P, β₂·(−PET), β₃·(−h_prev)).
 | `09_scrape_04_net_benefits.csv` | Data | Paper Section 4.5 (net benefit vs CEH21 benchmark) |
 | `09_scrape_04b_table4_beta3_era_summary.csv` | Table | **Paper Table 4** (manuscript-ready β₃ era summary) |
 | `09_tier1_final_cusum.csv` | Data | Final CUSUM values for Tier 1 control wells |
-| `09_scrape_05_tier1_background_drift.png` | Figure | Figure 14 (Tier 1 CUSUM: CEH4 & CEH22 vs regional mean) |
-| `09_scrape_06_tier2_scraping_signal.png` | Figure | Figure 15 (Tier 2 CUSUM: CEH36, CEH18, CEH21 vs paired controls) |
-| `09_scrape_07_beta3_confidence.png` | Figure | Figure 16 (−β₃ CI plot: impact wells by era) |
+| `09_scrape_05_tier1_background_drift.png` | Figure | Figure 15 (Tier 1 CUSUM: CEH4 & CEH22 vs regional mean) |
+| `09_scrape_06_tier2_scraping_signal.png` | Figure | Figure 16 (Tier 2 CUSUM: CEH36, CEH18, CEH21 vs paired controls) |
+| `09_scrape_07_beta3_confidence.png` | Figure | Figure 18 (−β₃ CI plot: impact wells by era) |
 | `09_scrape_08_ceh36_robustness.png` | Figure | CEH36 robustness — 3-panel: raw BACI vs synthetic control gap series, SSM forward residual, step-change bar chart |
 
 **CEH36 robustness analysis (3 independent methods):**
@@ -639,11 +639,11 @@ corrected CUSUM is computed relative to the post-scraping baseline.
 | `10_cfell_09_table5_beta3_before_after.csv` | Table | **Paper Table 5** — before/after β₃ with delta and significance by zone |
 | `10_cfell_09b_climate_corrected_cusum.csv` | Data | Paper Section 4.6.3 — climate-corrected CUSUM verification |
 | `10_cfell_11_nw10_broadleaf_trend.csv` | Data | **Paper Section 4.6.8** — NW10 broadleaf anomaly and OLS trend |
-| `10_cfell_01_dual_control_baci.png` | Figure | **Figure 22** (4-panel ANCOVA-BACI: cum WB, corrected BACI, CUSUM, scatter) |
-| `10_cfell_01b_raw_baci.png` | Figure | **Figure 21** (3-panel raw BACI: hydrographs, displacement, CUSUM) |
+| `10_cfell_01_dual_control_baci.png` | Figure | **Figure 21** (4-panel ANCOVA-BACI: cum WB, corrected BACI, CUSUM, scatter) |
+| `10_cfell_01b_raw_baci.png` | Figure | **Figure 20** (3-panel raw BACI: hydrographs, displacement, CUSUM) |
 | `10_cfell_02_drainage_diagnostic_part{n}.png` | Figure | Supplementary — drainage component scatter (Before vs After) per well, 8 wells per page |
 | `10_cfell_03_beta3_ols_slopes.png` | Figure | **Figure 24** (SSM coefficient shifts: 3-row × 2-col, zone-grouped whisker + Δ inset) |
-| `10_cfell_10_clearfell_transect.png` | Figure | **Figure 23** (3-panel spatial transect: hydrographs, anomaly, step bar chart) |
+| `10_cfell_10_clearfell_transect.png` | Figure | **Figure 22** (3-panel spatial transect: hydrographs, anomaly, step bar chart) |
 | `10_cfell_10_clearfell_transect_steps.csv` | Data | Paper Section 4.6.4 — per-well step changes and distances |
 
 **Table 5 construction:** `export_table5_summary()` combines `After` and
@@ -737,6 +737,46 @@ Scraping baseline: −0.053 m; clearfell baseline: +0.107 m.
   consistent with reduced canopy transpiration after tree removal
 
 ---
+---
+
+## Script 10c — Forest Zone Spatial Analysis
+**Purpose:** Investigates the spatial structure of SSM coefficients (β₁, β₂, β₃)
+within the forest zone (C4 Main Forest + C5 Coastal Forest). Tests whether the
+C4/C5 partition reflects a genuine substrate/topographic transition or is
+arbitrary within a continuous gradient.
+
+Four questions addressed:
+1. Which spatial variable (elevation, distance from ridge, Easting) best
+   predicts within-forest coefficient variation?
+2. Do C4 and C5 form two distinct groups or a continuum in β₁–β₂ space?
+3. Are NW10 (broadleaf, high β₁) and CEH14 (ridge flank, high β₂)
+   positional outliers or canopy-type outliers?
+4. Does the C4/C5 boundary correspond to a physical substrate transition?
+
+**Reads:**
+- `outputs/07_spatial_coefficients/07_coeff_maps_data.csv` ← per-well SSM coefficients
+- `outputs/06_pear_membership_audit_sitewide.csv` ← Pearson affinity correlations
+- `data/newborough_dem.tif` ← DEM raster (hillshade for boundary map)
+- `data/Features.kml`, `data/streams.kml` ← site feature overlays
+
+**Produces (outputs/10c_forest_zone_analysis/):**
+
+| File | Type | Description |
+|---|---|---|
+| `10c_forest_zone_correlations.csv` | Data | Pearson correlations and regression R² |
+| `10c_forest_zone_cluster_summary.csv` | Data | C4 vs C5 summary statistics and t-tests |
+| `10c_01_b1_b2_scatter.png` | Figure | β₁ vs β₂ scatter coloured by cluster |
+| `10c_02_b2_elevation_regression.png` | Figure | β₂ vs elevation linear regression |
+| `10c_03_c4_c5_boundary_map.png` | Figure | Spatial map of C4/C5 wells with elevation context |
+| `10c_04_forest_zone_summary.txt` | Text | Interpretive summary of all four questions |
+
+**Key findings:**
+- Elevation explains 95.1% of β₂ variance across 14 forest wells (r = 0.975)
+- C4 and C5 are two distinct groups in β₂ (p < 0.001), not a continuum
+- CEH14's extreme β₂ is consistent with its elevation — not a genuine outlier
+- C4/C5 boundary corresponds to an elevation gap of 2.2 m (zero overlap),
+  reflecting the dune ridge → coastal plain topographic transition
+
 
 ## Script 11 — Forecasting Thresholds
 **Purpose:** Fits cluster-level mechanistic SSM equations (Section 1), derives
@@ -811,8 +851,8 @@ injecting pipeline data into the forecaster HTML template.
 | File | Type | Paper destination |
 |---|---|---|
 | `11b_01_summer_minima_depth.png` | Figure | **Figure 26** — mean summer minimum depth |
-| `11b_02_winter_maxima_depth.png` | Figure | **Figure 27** — mean winter maximum depth |
-| `11b_03_pflood.png` | Figure | **Figure 28** — P_flood spatial distribution |
+| `11b_02_winter_maxima_depth.png` | Figure | **Figure 28** — mean winter maximum depth |
+| `11b_03_pflood.png` | Figure | **Figure 27** — P_flood spatial distribution |
 | `11b_04_flood_frequency.png` | Figure | **Figure 29** — winter flooding frequency |
 | `11b_05_pflood_per_well.csv` | Data | Per-well P_flood and λ values (Table 10) |
 | `forecaster.html` | Interactive | Groundwater flooding forecaster web app |
@@ -898,9 +938,9 @@ and colour dicts.
 
 | File | Type | Paper destination |
 |---|---|---|
-| `14_climate_trajectory_summer.png` | Figure | Figure 20a |
-| `14_climate_trajectory_winter_flooding.png` | Figure | Figure 20b |
-| `14_climate_trajectory_stacked.png` | Figure | **Figure 20 (combined)** |
+| `14_climate_trajectory_summer.png` | Figure | Figure 30a |
+| `14_climate_trajectory_winter_flooding.png` | Figure | Figure 30b |
+| `14_climate_trajectory_stacked.png` | Figure | **Figure 30 (combined)** |
 | `14_summer_trend_stats.csv` | Data | Paper Section 4.8.1 verification |
 | `14_annual_extremes.csv` | Data | Paper Section 4.8 source data |
 | `14_winter_exceedance.csv` | Data | Paper Section 4.8.2 source data |
@@ -971,10 +1011,10 @@ intervention analysis sections of the report.
 
 | File | Type | Report destination |
 |---|---|---|
-| `21_forestry_01_hydrograph.png` | Figure | Figure 31 (synthetic hydrograph) |
+| `21_forestry_01_hydrograph.png` | Figure | Figure 35 (synthetic hydrograph) |
 | `21_forestry_02_distributions.png` | Figure | Supplementary (cluster summer minima violin) |
 | `21_forestry_03_scraping_eras.png` | Figure | Figure 19 (scraping treatment wells) |
-| `21_forestry_04_baci_zone_violin.png` | Figure | Figure 23 (BACI zone summer minima) |
+| `21_forestry_04_baci_zone_violin.png` | Figure | Figure 25 (BACI zone summer minima) |
 
 **Run with `--preview` for 150 dpi quick check; default is publication DPI.**
 
@@ -1037,14 +1077,14 @@ SCRIPT 11 outputs
 
 SCRIPT 11b outputs
 ├── 11b_01_summer_minima_depth.png ─────→ Figure 26 (Section 4.7.4)
-├── 11b_02_winter_maxima_depth.png ─────→ Figure 27 (Section 4.7.4)
-├── 11b_03_pflood.png ─────────────────→ Figure 28 (Section 4.7.4)
+├── 11b_02_winter_maxima_depth.png ─────→ Figure 28 (Section 4.7.4)
+├── 11b_03_pflood.png ─────────────────→ Figure 27 (Section 4.7.4)
 ├── 11b_04_flood_frequency.png ─────────→ Figure 29 (Section 4.7.4)
 ├── 11b_05_pflood_per_well.csv ─────────→ Table 10 (per-well P_flood)
 └── forecaster.html ────────────────────→ Interactive forecaster web app
 
 SCRIPT 14 outputs
-└── 14_climate_trajectory_stacked.png ──→ Paper Figure 20
+└── 14_climate_trajectory_stacked.png ──→ Paper Figure 30
 
 SCRIPT 15 outputs (depth-dependent PET)
 └── [diagnostic figures — not cited in main paper]
@@ -1055,8 +1095,8 @@ SCRIPT 17 → SCRIPT 16 → SCRIPT 18 → SCRIPT 19 → SCRIPT 20
 ├── 18_wtf_02_spatial_sy_map.png ───────→ Paper Figure (Sy distribution)
 ├── 19_head_mean_map.png ───────────────→ Paper Figure (Section 4.9)
 ├── 19_residual_comparison.png ─────────→ Paper Figure (validation)
-├── 20_head_surface_streams.png ────────→ Paper Figure 1 (Section 4.9)
-└── 20_residual_d8_comparison.png ──────→ Paper Figure 2 (Section 4.9)
+├── 20_head_surface_streams.png ────────→ Paper Figure 33 (Section 4.9)
+└── 20_residual_d8_comparison.png ──────→ Paper Figure 34 (Section 4.9)
 ```
 
 ---
@@ -1188,8 +1228,8 @@ Two wells were scraped after the LiDAR survey was flown. Scripts 11b, 19, and
 | File | Type | Paper destination |
 |---|---|---|
 | `11b_01_summer_minima_depth.png` | Figure | **Figure 26** — mean summer minimum depth |
-| `11b_02_winter_maxima_depth.png` | Figure | **Figure 27** — mean winter maximum depth |
-| `11b_03_pflood.png` | Figure | **Figure 28** — P_flood spatial distribution |
+| `11b_02_winter_maxima_depth.png` | Figure | **Figure 28** — mean winter maximum depth |
+| `11b_03_pflood.png` | Figure | **Figure 27** — P_flood spatial distribution |
 | `11b_04_flood_frequency.png` | Figure | **Figure 29** — winter flooding frequency |
 
 **Key constants:**
@@ -1320,7 +1360,7 @@ rule, Sy values, and list of stale dicts requiring regeneration.
   "SSM Lateral Inflow Residual" → "SSM Water Balance Residual"
 
 ### Script 00 (2026-04-20)
-- New Figure 3 (`00_03_summer_warming_trend.png`) — RAF Valley summer
+- New Figure 4 (`00_03_summer_warming_trend.png`) — RAF Valley summer
   (JJA) maximum-temperature anomaly plot with linear trend line over the
   full 95-year record. Produced from raw `data/RAF_Valley_Climate.csv`;
   accompanied by `00_03_summer_warming_stats.csv` containing per-year
@@ -1355,89 +1395,45 @@ rule, Sy values, and list of stale dicts requiring regeneration.
 
 ---
 
-## Script 25 — Forest Zone Spatial Analysis
-**Purpose:** Investigates the spatial structure of SSM coefficients (β₁, β₂, β₃)
-within the forest zone (C4 Main Forest + C5 Coastal Forest). Tests whether the
-C4/C5 partition reflects a genuine substrate/topographic transition or is
-arbitrary within a continuous gradient.
-
-Four questions addressed:
-1. Which spatial variable (elevation, distance from ridge, Easting) best
-   predicts within-forest coefficient variation?
-2. Do C4 and C5 form two distinct groups or a continuum in β₁–β₂ space?
-3. Are NW10 (broadleaf, high β₁) and CEH14 (ridge flank, high β₂)
-   positional outliers or canopy-type outliers?
-4. Does the C4/C5 boundary correspond to a physical substrate transition?
-
-**Reads:**
-- `outputs/07_spatial_coefficients/07_coeff_maps_data.csv` ← per-well SSM coefficients
-- `outputs/06_pear_membership_audit_sitewide.csv` ← Pearson affinity correlations
-- `data/newborough_dem.tif` ← DEM raster (hillshade for boundary map)
-- `data/Features.kml`, `data/streams.kml` ← site feature overlays
-
-**Produces (outputs/25_forest_zone_analysis/):**
-
-| File | Type | Description |
-|---|---|---|
-| `25_forest_zone_correlations.csv` | Data | Pearson correlations and regression R² |
-| `25_forest_zone_cluster_summary.csv` | Data | C4 vs C5 summary statistics and t-tests |
-| `25_01_b1_b2_scatter.png` | Figure | β₁ vs β₂ scatter coloured by cluster |
-| `25_02_b2_elevation_regression.png` | Figure | β₂ vs elevation linear regression |
-| `25_03_c4_c5_boundary_map.png` | Figure | Spatial map of C4/C5 wells with elevation context |
-| `25_04_forest_zone_summary.txt` | Text | Interpretive summary of all four questions |
-
-**Key findings:**
-- Elevation explains 95.1% of β₂ variance across 14 forest wells (r = 0.975)
-- C4 and C5 are two distinct groups in β₂ (p < 0.001), not a continuum
-- CEH14's extreme β₂ is consistent with its elevation — not a genuine outlier
-- C4/C5 boundary corresponds to an elevation gap of 2.2 m (zero overlap),
-  reflecting the dune ridge → coastal plain topographic transition
-
----
-
 ## Paper Figures Quick Reference
 
-| Figure | Script | File |
-|---|---|---|
-| Figure 1: Site overview | 12 | `12_01_dem_site_overview.png` |
-| Figure 2: Experimental design | 13 | `13_01_experimental_setup_map.png` |
-| Figure 3: Climate timeseries | 00 | `00_01_climate_timeseries.png` |
-| Figure 4: Well network | 00 | `00_02_well_network_summary.png` |
-| Figure 5: Cluster validation | 02 | `02_02_validation_plots.png` |
-| Figure 6: Dendrogram | 02 | `02_01_dendrogram.png` |
-| Figure 7: Cluster hydrographs | 02 | `02_03_cluster_hydrographs_wb.png` |
-| Figure 7: Mechanistic signatures | 03 | `03_01_mechanistic_signatures.png` |
-| Figure 7b: Drainage datum spatial | 03 | `03_10_well_datum_r2max_map.png` |
-| Figure 7c: Datum R² gain spatial | 03 | `03_10_well_r2_gain_map.png` |
-| Figure 8: Water balance | 16 | `16_wb_02_bar_ms.png` |
-| Figure 9: WTF Sy surface | 18 | `18_wtf_02_spatial_sy_map.png` |
-| Figure 10: Pearson affinity | 05 | `05_pear_01_spatial_confidence_map.png` |
-| Figure 11: Cluster map | 06 | `06_pear_02_integration_map.png` |
-| Figure 12: CEH6 TLM vs SSM | 08 | `08_lcsc_01_ceh6_showdown.png` |
-| Figure 13: SSM gain over TLM | 08 | `08_lcsc_02_r2_improvement_map.png` |
-| Figure 14: β₁ recharge map | 07 | `07_coeff_01_beta1_recharge.png` |
-| Figure 15: β₂ atmospheric draw map | 07 | `07_coeff_02_beta2_atm_draw.png` |
-| Figure 15b: β₃ drainage map | 07 | `07_coeff_03_beta3_drainage.png` |
-| Figure 16: Tier 1 CUSUM | 09 | `09_scrape_05_tier1_background_drift.png` |
-| Figure 17: Tier 2 scraping signal | 09 | `09_scrape_06_tier2_scraping_signal.png` |
-| Figure 18: β₃ era coefficients | 09 | `09_scrape_07_beta3_confidence.png` |
-| Figure 19: Scraping eras | 21 | `21_forestry_03_scraping_eras.png` |
-| Figure 20: Dual-control BACI | 10 | `10_cfell_01_dual_control_baci.png` |
-| Figure 21: ANCOVA-BACI | 10 | `10_cfell_02_drainage_diagnostic_part2.png` |
-| Figure 22: OLS coefficients | 10 | `10_cfell_03_beta3_ols_slopes.png` |
-| Figure 23: BACI zone violin | 21 | `21_forestry_04_baci_zone_violin.png` |
-| Figure 26: Summer min depth map | 11b | `11b_01_summer_minima_depth.png` |
-| Figure 27: Winter max depth map | 11b | `11b_02_winter_maxima_depth.png` |
-| Figure 28: P_flood map | 11b | `11b_03_pflood.png` |
-| Figure 29: Flood frequency map | 11b | `11b_04_flood_frequency.png` |
-| Figure 20: Climate trajectory | 14 | `14_climate_trajectory_stacked.png` |
-| Figure 30: Head surface + streams | 20 | `20_head_surface_streams.png` |
-| Figure 31: SSM residual | 20 | `20_residual_ssm.png` |
-| Figure 32: Synthetic hydrograph | 21 | `21_forestry_01_hydrograph.png` |
-| Figure 23b: Spatial scrape step | 10b | `10b_spatial_scrape_raw.png` |
-| Figure 23c: Spatial fell step | 10b | `10b_spatial_fell_raw.png` |
-| Figure 23d: Spatial scrape corrected | 10b | `10b_spatial_scrape_corrected.png` |
-| Figure 23e: Spatial fell corrected | 10b | `10b_spatial_fell_corrected.png` |
-| Supplementary: β₁–β₂ scatter | 25 | `25_01_b1_b2_scatter.png` |
-| Supplementary: β₂–elevation regression | 25 | `25_02_b2_elevation_regression.png` |
-| Supplementary: C4/C5 boundary map | 25 | `25_03_c4_c5_boundary_map.png` |
+| Figure | Description | Script | File |
+|---|---|---|---|
+| Figure 1 | Site overview | 12 | `12_01_dem_site_overview.png` |
+| Figure 2 | Experimental design | 13 | `13_01_experimental_setup_map.png` |
+| Figure 3 | Climate timeseries | 00 | `00_01_climate_timeseries.png` |
+| Figure 4 | Summer temperature trend | 00 | `00_03_summer_warming_trend.png` |
+| Figure 5 | Well network | 00 | `00_02_well_network_summary.png` |
+| Figure 6 | Cluster validation | 02 | `02_02_validation_plots.png` |
+| Figure 7 | Dendrogram | 02 | `02_01_dendrogram.png` |
+| Figure 8 | Cluster hydrographs + mechanistic signatures | 02, 03 | `02_03_cluster_hydrographs_wb.png`, `03_01_mechanistic_signatures.png` |
+| Figure 9 | Water balance decomposition | 16 | `16_wb_02_bar_ms.png` |
+| Figure 10 | WTF Sy surface | 18 | `18_wtf_02_spatial_sy_map.png` |
+| Figure 11 | Pearson affinity chart | 05 | `05_pear_01_spatial_confidence_map.png` |
+| Figure 12 | Pearson spatial maps | 06 | `06_pear_02_integration_map.png` |
+| Figure 13 | SSM vs TLM at CEH6 | 08 | `08_lcsc_01_ceh6_showdown.png` |
+| Figure 14 | SSM gain over TLM | 08 | `08_lcsc_02_r2_improvement_map.png`, `08_lcsc_03_nse_improvement_map.png` |
+| Figure 15 | Tier 1 CUSUM controls | 09 | `09_scrape_05_tier1_background_drift.png` |
+| Figure 16 | Tier 2 CUSUM treatment | 09 | `09_scrape_06_tier2_scraping_signal.png` |
+| Figure 17 | Three-method robustness | 09 | `09_scrape_07_three_method_robustness.png` |
+| Figure 18 | Era-specific β₃ scraping | 09 | `09_scrape_07_beta3_confidence.png` |
+| Figure 19 | Summer min scraping treatment wells | 21 | `21_forestry_03_scraping_eras.png` |
+| Figure 20 | Raw BACI clearfell | 10 | `10_cfell_01b_raw_baci.png` |
+| Figure 21 | ANCOVA-BACI | 10 | `10_cfell_01_dual_control_baci.png` |
+| Figure 22 | Clearfell transect | 10 | `10_cfell_10_clearfell_transect.png` |
+| Figure 23 | Spatial step-change maps | 10b | `10b_spatial_scrape_corrected.png`, `10b_spatial_fell_corrected.png` |
+| Figure 24 | β changes pre/post clearfell | 10 | `10_cfell_03_beta3_ols_slopes.png` |
+| Figure 25 | BACI zone violin | 21 | `21_forestry_04_baci_zone_violin.png` |
+| Figure 26 | Summer min depth map | 11b | `11b_01_summer_minima_depth.png` |
+| Figure 27 | P_flood map | 11b | `11b_03_pflood.png` |
+| Figure 28 | Winter max depth map | 11b | `11b_02_winter_maxima_depth.png` |
+| Figure 29 | Winter flooding frequency | 11b | `11b_04_flood_frequency.png` |
+| Figure 30 | Climate trajectory | 14 | `14_climate_trajectory_stacked.png` |
+| Figure 31 | Datum sensitivity | 03 | `03_08_datum_sensitivity.png` |
+| Figure 32 | Spatial coefficient atlas | 07 | `07_coeff_01_beta1_recharge.png` – `07_coeff_04_r2.png` |
+| Figure 33 | Head surface + Darcy vectors | 20 | `20_head_surface_streams.png` |
+| Figure 34 | Water balance residual field | 20 | `20_residual_ssm.png` |
+| Figure 35 | Synthetic hydrograph (scenarios) | 21 | `21_forestry_01_hydrograph.png` |
+| Supplementary: β₁–β₂ scatter | — | 10c | `25_01_b1_b2_scatter.png` |
+| Supplementary: β₂–elevation regression | — | 10c | `25_02_b2_elevation_regression.png` |
+| Supplementary: C4/C5 boundary map | — | 10c | `25_03_c4_c5_boundary_map.png` |

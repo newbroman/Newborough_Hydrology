@@ -29,7 +29,7 @@ python run_analysis.py           # opens interactive menu
 | **2 — Resume from step** | Skips completed steps; useful after a partial run |
 | **3 — Run a single step** | Runs one script in isolation for debugging or re-running |
 | **4 — Prepare scenario viewer** | Runs script 19 to build the self-contained HTML viewer |
-| **5 — Run supplementary diagnostics** | Runs scripts 22–25 (residual lag, ridge recharge, seasonality, forest zone) |
+| **5 — Run supplementary diagnostics** | Runs scripts 22–24 (residual lag, ridge recharge, seasonality, forest zone) |
 | **6 — Show step list** | Lists all 28 steps with script names and availability status |
 
 For non-interactive use (e.g. in a batch job):
@@ -119,15 +119,15 @@ colours and labels are centralised in `src/utils/config.py`.
 |-------|---------|-------|---------|
 | 1 | 01–04 | 1–4 | Core LCSC chain |
 | 2 | 05–06 | 5–6 | Pearson membership audit and extended network integration |
-| 3 | 07–11, 10b, 11b | 7–13 | Spatial coefficient mapping, model benchmarking, scraping and clearfell BACI, spatial step-change maps, forecasting, spatial threshold maps |
-| 4 | 00, 14, 12–13 | 14–17 | Climate summary, trajectory projections, GIS figures |
-| 5 | 15 | 18 | Depth-dependent PET analysis |
-| 6 | 17 | 19 | WTF cluster Sy estimation |
-| 7 | 16 | 20 | Water balance decomposition |
-| 8 | 18 | 21 | WTF spatial analysis and per-well Sy mapping |
-| 9 | 19, 20 | 22–23 | Spatial groundwater analysis and publication figures |
-| 10 | 21 | 24 | Forestry scenarios and management intervention figures |
-| 11 | 22–25 | 25–28 | Supplementary diagnostics: residual lag structure, ridge recharge hypothesis test, residual seasonality, forest zone spatial analysis |
+| 3 | 07–11, 10b, 10c, 11b | 7–14 | Spatial coefficient mapping, model benchmarking, scraping and clearfell BACI, spatial step-change maps, forest zone spatial analysis, forecasting, spatial threshold maps |
+| 4 | 00, 14, 12–13 | 15–18 | Climate summary, trajectory projections, GIS figures |
+| 5 | 15 | 19 | Depth-dependent PET analysis |
+| 6 | 17 | 20 | WTF cluster Sy estimation |
+| 7 | 16 | 21 | Water balance decomposition |
+| 8 | 18 | 22 | WTF spatial analysis and per-well Sy mapping |
+| 9 | 19, 20 | 23–24 | Spatial groundwater analysis and publication figures |
+| 10 | 21 | 25 | Forestry scenarios and management intervention figures |
+| 11 | 22–24 | 26–28 | Supplementary diagnostics: residual lag structure, ridge recharge hypothesis test, residual seasonality |
 
 ---
 

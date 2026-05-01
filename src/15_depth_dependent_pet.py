@@ -47,6 +47,7 @@ import pandas as pd
 import numpy as np
 import statsmodels.api as sm
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 import matplotlib.gridspec as gridspec
 from pathlib import Path
 
@@ -469,6 +470,7 @@ def plot_fit_comparison(regression_dfs: dict, centroids: dict, climate: pd.DataF
         ax.set_ylabel("Depth to WT (m)", fontsize=9)
         ax.legend(fontsize=7.5)
         ax.grid(True, alpha=0.3)
+        ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
 
     fig.suptitle("Iterative Simulation: Standard SSM vs Depth-Dependent PET Model",
                  fontsize=13, fontweight="bold")

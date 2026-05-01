@@ -49,6 +49,7 @@ from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, CLUSTER_MARKERS, DRAIN
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
@@ -287,6 +288,7 @@ def plot_showdown(output_path, payload):
     ax_bottom.set_ylabel('Water Depth (m below surface)')
     ax_bottom.grid(True, ls='--', alpha=0.5)
     ax_bottom.legend(loc='upper left', frameon=True, edgecolor='black')
+    ax_bottom.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
 
     plt.tight_layout()
     plt.savefig(output_path, bbox_inches='tight', dpi=300)

@@ -49,6 +49,7 @@ import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
 
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
@@ -274,6 +275,7 @@ def plot_example_residuals(residuals_wide, fits_df, output_path):
                      f"alpha = {pick['alpha']:+.3f} m/mo",
                      fontsize=11, loc='left')
         ax.grid(ls='--', alpha=0.4)
+        ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
 
     axes[-1].set_xlabel('Date')
     fig.suptitle('Example SSM Model B residuals by cluster\n'

@@ -401,7 +401,8 @@
 
 <nav aria-label="Page sections">
   <ul>
-    <li><a href="#tools">Interactive outputs</a></li>
+    <li><a href="#intro">Overview</a></li>
+    <li><a href="#tools">Tools &amp; data</a></li>
     <li><a href="#publications">Publications</a></li>
     <li><a href="#about">About the study</a></li>
     <li><a href="#pipeline">Running the pipeline</a></li>
@@ -410,15 +411,51 @@
 
 <main>
 
+  <!-- ── SECTION 0: Introduction ─────────────────────────── -->
+  <section id="intro" style="padding-bottom:1.4rem;">
+
+    <div class="stat-row" aria-label="Key study statistics">
+      <div class="stat-chip">
+        <strong>87</strong>
+        <span>dipwells analysed</span>
+      </div>
+      <div class="stat-chip">
+        <strong>21 years</strong>
+        <span>2005–2026</span>
+      </div>
+      <div class="stat-chip">
+        <strong>5</strong>
+        <span>hydrogeological clusters</span>
+      </div>
+      <div class="stat-chip">
+        <strong>28</strong>
+        <span>pipeline steps</span>
+      </div>
+    </div>
+
+    <p>
+      This site accompanies a hydrogeological study of the Newborough Warren coastal
+      sand dune aquifer on the Isle of Anglesey, Wales. A 28-step reproducible analytical
+      pipeline — requiring only monthly dipwell readings and publicly available climate
+      data — characterises groundwater dynamics across five behavioural clusters, quantifies
+      the hydrological effects of Corsican pine plantation, dune scraping and clearfell
+      interventions, and provides operational forecasting tools for conservation management.
+    </p>
+
+    <p>
+      The interactive tools below are designed for researchers, Natural Resources Wales
+      practitioners and journal reviewers. The full source code, pipeline outputs and
+      documentation are available in the
+      <a href="https://github.com/newbroman/Newborough_Hydrology"
+         target="_blank" rel="noopener">GitHub repository</a>.
+    </p>
+
+  </section>
+
   <!-- ── SECTION 1: Interactive outputs ──────────────────── -->
   <section id="tools">
-    <p class="section-label">Interactive outputs</p>
-    <h2>Explore the data</h2>
-    <p>
-      These tools are designed for use by researchers, Natural Resources Wales
-      practitioners, and journal reviewers. All are self-contained web applications
-      — no installation required.
-    </p>
+    <p class="section-label">Interactive tools &amp; data</p>
+    <h2>Explore the outputs</h2>
 
     <div class="tool-cards">
 
@@ -570,35 +607,19 @@
          target="_blank" rel="noopener">View site map &rarr;</a>
     </p>
 
-    <div class="stat-row" aria-label="Key study statistics">
-      <div class="stat-chip">
-        <strong>97</strong>
-        <span>dipwells monitored</span>
-      </div>
-      <div class="stat-chip">
-        <strong>21 years</strong>
-        <span>2005–2026</span>
-      </div>
-      <div class="stat-chip">
-        <strong>890 mm</strong>
-        <span>mean annual rainfall</span>
-      </div>
-      <div class="stat-chip">
-        <strong>5</strong>
-        <span>hydrogeological clusters</span>
-      </div>
-    </div>
-
     <p>
       The study uses a State Space Model (SSM) fitted to monthly groundwater records
-      across a 97-well dipwell network. Hierarchical clustering identifies five
-      hydrogeological behavioural clusters (C1–C5), including C4, a Corsican pine
-      plantation in which canopy interception suppresses recharge. The principal
-      finding is that plantation clearance does not raise winter water table maxima:
-      post-felling, atmospheric draw (β₂) deepens summer minima, which is the
-      dominant control on winter flooding probability. This counterintuitive result
-      is supported by a Before-After-Control-Impact (BACI) analysis of two clearance
-      events and by independent spatial validation of a ridge-derived water balance residual.
+      across an 87-well dipwell network. Hierarchical clustering identifies five
+      hydrogeological behavioural clusters (C1–C5), including two Corsican pine
+      plantation clusters in which canopy interception suppresses recharge. The
+      principal finding is that the plantation simultaneously acts as a hydrological
+      sink &mdash; consuming water through interception and transpiration &mdash; and a
+      microclimatic buffer &mdash; shielding the water table from atmospheric evaporative
+      demand. Removing the canopy eliminates both functions; the net effect is
+      baseline displacement downward rather than the water table recovery that
+      conventional forestry hydrology would predict. This finding is supported by a
+      Before-After-Control-Impact (BACI) analysis of two clearance events and by
+      independent spatial analysis across the full well network.
     </p>
 
     <p>

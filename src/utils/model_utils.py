@@ -175,9 +175,9 @@ def fit_ssm(h_series, climate, lag=None, window=None,
         return None
 
     X = pd.DataFrame({
-        "beta_1": df["P"].values,
-        "beta_2": -df["PET"].values,
-        "beta_3": -df["h_disp_prev"].values,
+        "beta_1_recharge": df["P"].values,
+        "beta_2_atmospheric_draw": -df["PET"].values,
+        "beta_3_drainage": -df["h_disp_prev"].values,
     }, index=df.index)
     y = df["Delta_h"].values
 
@@ -187,12 +187,12 @@ def fit_ssm(h_series, climate, lag=None, window=None,
         return None
 
     return {
-        "beta_1":        float(model.params["beta_1"]),
-        "beta_2":        float(model.params["beta_2"]),
-        "beta_3":        float(model.params["beta_3"]),
-        "pvalue_beta_1": float(model.pvalues["beta_1"]),
-        "pvalue_beta_2": float(model.pvalues["beta_2"]),
-        "pvalue_beta_3": float(model.pvalues["beta_3"]),
+        "beta_1_recharge":        float(model.params["beta_1_recharge"]),
+        "beta_2_atmospheric_draw": float(model.params["beta_2_atmospheric_draw"]),
+        "beta_3_drainage":        float(model.params["beta_3_drainage"]),
+        "pvalue_beta_1": float(model.pvalues["beta_1_recharge"]),
+        "pvalue_beta_2": float(model.pvalues["beta_2_atmospheric_draw"]),
+        "pvalue_beta_3": float(model.pvalues["beta_3_drainage"]),
         "R2":            float(model.rsquared),
         "n":             int(len(df)),
         "resid":         pd.Series(model.resid, index=df.index, name="resid"),
@@ -234,9 +234,9 @@ def fit_ssm_intercept(h_series, climate, lag=None, window=None,
         return None
 
     X = pd.DataFrame({
-        "P":             df["P"].values,
-        "PET_neg":       -df["PET"].values,
-        "h_disp_neg":    -df["h_disp_prev"].values,
+        "beta_1_recharge":         df["P"].values,
+        "beta_2_atmospheric_draw": -df["PET"].values,
+        "beta_3_drainage":         -df["h_disp_prev"].values,
     }, index=df.index)
     X = sm.add_constant(X, has_constant="add")
     y = df["Delta_h"].values
@@ -249,12 +249,12 @@ def fit_ssm_intercept(h_series, climate, lag=None, window=None,
     return {
         "alpha":         float(model.params["const"]),
         "pvalue_alpha":  float(model.pvalues["const"]),
-        "beta_1":        float(model.params["P"]),
-        "beta_2":        float(model.params["PET_neg"]),
-        "beta_3":        float(model.params["h_disp_neg"]),
-        "pvalue_beta_1": float(model.pvalues["P"]),
-        "pvalue_beta_2": float(model.pvalues["PET_neg"]),
-        "pvalue_beta_3": float(model.pvalues["h_disp_neg"]),
+        "beta_1_recharge":        float(model.params["beta_1_recharge"]),
+        "beta_2_atmospheric_draw": float(model.params["beta_2_atmospheric_draw"]),
+        "beta_3_drainage":        float(model.params["beta_3_drainage"]),
+        "pvalue_beta_1": float(model.pvalues["beta_1_recharge"]),
+        "pvalue_beta_2": float(model.pvalues["beta_2_atmospheric_draw"]),
+        "pvalue_beta_3": float(model.pvalues["beta_3_drainage"]),
         "R2":            float(model.rsquared),
         "n":             int(len(df)),
         "resid":         pd.Series(model.resid, index=df.index, name="resid"),
@@ -507,19 +507,19 @@ def assert_physical_signs(fit, context=""):
     soft = []
     if fit is None:
         return hard, soft
-    if not (fit["beta_1"] > 0):
+    if not (fit["beta_1_recharge"] > 0):
         hard.append(
-            f"[HARD VIOLATION] {context}: β₁ = {fit['beta_1']:.6f} ≤ 0 "
+            f"[HARD VIOLATION] {context}: β₁ = {fit['beta_1_recharge']:.6f} ≤ 0 "
             f"(rainfall must raise water table)"
         )
-    if not (fit["beta_2"] > 0):
+    if not (fit["beta_2_atmospheric_draw"] > 0):
         hard.append(
-            f"[HARD VIOLATION] {context}: β₂ = {fit['beta_2']:.6f} ≤ 0 "
+            f"[HARD VIOLATION] {context}: β₂ = {fit['beta_2_atmospheric_draw']:.6f} ≤ 0 "
             f"(PET must draw water table down)"
         )
-    if not (fit["beta_3"] > 0):
+    if not (fit["beta_3_drainage"] > 0):
         soft.append(
-            f"[SOFT WARNING] {context}: β₃ = {fit['beta_3']:.6f} ≤ 0 "
+            f"[SOFT WARNING] {context}: β₃ = {fit['beta_3_drainage']:.6f} ≤ 0 "
             f"(displacement drainage expected positive)"
         )
     return hard, soft
@@ -642,7 +642,7 @@ def compute_intercept_audit(target_well_name, df_clean, df_climate):
     # Model A: no intercept; Model B: with intercept
     # Both use displacement for the drainage predictor
     x_a = pd.DataFrame(
-        {"P": df["P"], "PET_neg": -df["PET"], "h_disp_prev_neg": -df["h_disp_prev"]}
+        {"beta_1_recharge": df["P"], "beta_2_atmospheric_draw": -df["PET"], "beta_3_drainage": -df["h_disp_prev"]}
     )
     x_b = sm.add_constant(x_a, has_constant="add")
     y_fit = df["Delta_h"]
@@ -664,15 +664,15 @@ def compute_intercept_audit(target_well_name, df_clean, df_climate):
         h_disp_sim_a = DRAINAGE_DATUM + h_iter_a[t - 1]
         h_disp_sim_b = DRAINAGE_DATUM + h_iter_b[t - 1]
         dh_a = (
-            model_a.params["P"] * p_arr[t]
-            - model_a.params["PET_neg"] * pet_arr[t]
-            - model_a.params["h_disp_prev_neg"] * h_disp_sim_a
+            model_a.params["beta_1_recharge"] * p_arr[t]
+            - model_a.params["beta_2_atmospheric_draw"] * pet_arr[t]
+            - model_a.params["beta_3_drainage"] * h_disp_sim_a
         )
         dh_b = (
             model_b.params["const"]
-            + model_b.params["P"] * p_arr[t]
-            - model_b.params["PET_neg"] * pet_arr[t]
-            - model_b.params["h_disp_prev_neg"] * h_disp_sim_b
+            + model_b.params["beta_1_recharge"] * p_arr[t]
+            - model_b.params["beta_2_atmospheric_draw"] * pet_arr[t]
+            - model_b.params["beta_3_drainage"] * h_disp_sim_b
         )
         h_iter_a[t] = h_iter_a[t - 1] + dh_a
         h_iter_b[t] = h_iter_b[t - 1] + dh_b
@@ -685,15 +685,15 @@ def compute_intercept_audit(target_well_name, df_clean, df_climate):
     for t in range(1, len(h_obs)):
         h_disp_prev_obs = DRAINAGE_DATUM + h_obs[t - 1]
         h_one_a[t] = h_obs[t - 1] + (
-            model_a.params["P"] * p_arr[t]
-            - model_a.params["PET_neg"] * pet_arr[t]
-            - model_a.params["h_disp_prev_neg"] * h_disp_prev_obs
+            model_a.params["beta_1_recharge"] * p_arr[t]
+            - model_a.params["beta_2_atmospheric_draw"] * pet_arr[t]
+            - model_a.params["beta_3_drainage"] * h_disp_prev_obs
         )
         h_one_b[t] = h_obs[t - 1] + (
             model_b.params["const"]
-            + model_b.params["P"] * p_arr[t]
-            - model_b.params["PET_neg"] * pet_arr[t]
-            - model_b.params["h_disp_prev_neg"] * h_disp_prev_obs
+            + model_b.params["beta_1_recharge"] * p_arr[t]
+            - model_b.params["beta_2_atmospheric_draw"] * pet_arr[t]
+            - model_b.params["beta_3_drainage"] * h_disp_prev_obs
         )
 
     nse_a, rmse_a, _ = get_metrics(h_obs, h_iter_a)

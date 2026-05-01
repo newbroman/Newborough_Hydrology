@@ -373,7 +373,7 @@ var WARN={
   broadleaf:    'Broadleaf conversion (15% annual-mean interception). Steady-state equilibrium response only; the phenological winter-recharge mechanism that drives deeper summer minima under broadleaf is dynamical and not resolved in this framework (see Section 5.4.4).',
   ukcp18_2050s: 'UKCP18 2050s central estimate, RCP8.5, Wales. Winter +10% P / +5% PET, summer \u221215% P / +20% PET. Steady-state equilibrium response to seasonally-perturbed forcing only; within-year dynamical propagation is not resolved.',
   ukcp18_2080s: 'UKCP18 2080s central estimate, RCP8.5, Wales. Winter +20% P / +10% PET, summer \u221230% P / +35% PET. Steady-state equilibrium response only. See Section 5.6 for interpretive caveats.',
-  scraping:     'Scraping intervention (0.2\u00a0m ground lowering). Applies BACI-corrected SSM coefficient shifts (\u0394\u03b2\u2081, \u0394\u03b2\u2082, \u0394\u03b2\u2083) from Script\u00a009b to C3, C4, and C5 wells. C1 and C2 unaffected (too distant). Shows the net equilibrium effect on nearby unscraped areas \u2014 not the scraped site itself. Increased drainage (\u2191\u03b2\u2083) is partially offset by increased recharge sensitivity (\u2191\u03b2\u2081) and reduced ET draw (\u2193|\u03b2\u2082|).',
+  scraping:     'Scraping intervention: simulates a 0.2\u00a0m ground-lowering scrape in the slack NW of CEH36 (E\u00a0240900, N\u00a0363400). BACI-corrected SSM coefficient shifts (\u0394\u03b2\u2081, \u0394\u03b2\u2082, \u0394\u03b2\u2083) from the 2015 CEH36 scraping analysis (Script\u00a009b) are applied to C3/C4/C5 wells within 800\u00a0m of the scrape site. C4 shifts used for C4 wells; C3+CEH31 shifts for C3 and C5. Wells beyond 800\u00a0m are unaffected. Increased drainage (\u2191\u03b2\u2083) is partially offset by increased recharge sensitivity (\u2191\u03b2\u2081) and reduced ET draw (\u2193|\u03b2\u2082|).',
 };
 var sea='annual',mm='dh',cm='dh',hChart=null;
 var DH={},SH={},CUR_SL={},CUR_SC='baseline';
@@ -407,7 +407,9 @@ function go(){
   checkExtremes(sl);
   // Seasonal baselines -- always needed so annual can weight winter+summer
   var cldW=CLIMATE.winter,cldS=CLIMATE.summer;
-  function dhOne(b1,b2,b3,P_base,PET_base,sP,sPET,h,cl){
+  // Scraping scenario: site coordinates and propagation range
+  var SCRAPE_E=240900,SCRAPE_N=363400,SCRAPE_RANGE=800;
+  function dhOne(b1,b2,b3,P_base,PET_base,sP,sPET,h,cl,scrapeOn){
     var isForest=(cl===4||cl===5);
     var sI_cur=cl===4?sl.sI_c4:cl===5?sl.sI_c5:0;
     var sB2_cur=cl===4?sl.sB2_c4:cl===5?sl.sB2_c5:1;
@@ -416,14 +418,15 @@ function go(){
     var Psc=P_base*sP,PETsc=PET_base*sPET;
     var Peff_sc=isForest?Psc*(1-sI_cur):Psc;
     var b2sc=isForest?b2*sB2_cur:b2;
-    // Scraping scenario: apply BACI-corrected coefficient shifts to C3/C4/C5
     var b1sc=b1,b3sc=b3,hsc=Math.abs(h);
-    if(sl.scrape_ground_lowering&&(cl===3||cl===4||cl===5)){
-      var sfx=cl===3?'_c3':cl===4?'_c4':'_c5';
-      b1sc=b1+(sl['scrape_dB1'+sfx]||0);
-      b2sc=b2sc+(sl['scrape_dB2'+sfx]||0);
-      b3sc=b3*(sl['scrape_dB3_mult'+sfx]||1);
-      hsc=Math.abs(h)-sl.scrape_ground_lowering;
+    if(scrapeOn){
+      var sfx=cl===3?'_c3':cl===4?'_c4':cl===5?'_c5':null;
+      if(sfx){
+        b1sc=b1+(sl['scrape_dB1'+sfx]||0);
+        b2sc=b2sc+(sl['scrape_dB2'+sfx]||0);
+        b3sc=b3*(sl['scrape_dB3_mult'+sfx]||1);
+        hsc=Math.abs(h)-sl.scrape_ground_lowering;
+      }
     }
     return (b1sc*Peff_sc-b2sc*PETsc-b3sc*hsc)-net0;
   }
@@ -435,13 +438,19 @@ function go(){
     var h=sea==='annual'?w.mh:sea==='winter'?w.wh:w.sh;
     if(h==null)continue;
     var isForest=(w.cl===4||w.cl===5);
+    // Distance check for scraping scenario
+    var scrapeOn=false;
+    if(sl.scrape_ground_lowering&&w.E&&w.N){
+      var dx=w.E-SCRAPE_E,dy=w.N-SCRAPE_N;
+      if(Math.sqrt(dx*dx+dy*dy)<=SCRAPE_RANGE)scrapeOn=true;
+    }
     if(sea==='winter'){
-      well_dh[w.n]=dhOne(b1,b2,b3,cldW.P,cldW.PET,sl.sP_w,sl.sPET_w,h,w.cl);
+      well_dh[w.n]=dhOne(b1,b2,b3,cldW.P,cldW.PET,sl.sP_w,sl.sPET_w,h,w.cl,scrapeOn);
     }else if(sea==='summer'){
-      well_dh[w.n]=dhOne(b1,b2,b3,cldS.P,cldS.PET,sl.sP_s,sl.sPET_s,h,w.cl);
+      well_dh[w.n]=dhOne(b1,b2,b3,cldS.P,cldS.PET,sl.sP_s,sl.sPET_s,h,w.cl,scrapeOn);
     }else{  // annual = month-weighted mean of winter and summer responses
-      var dhW=dhOne(b1,b2,b3,cldW.P,cldW.PET,sl.sP_w,sl.sPET_w,h,w.cl);
-      var dhS=dhOne(b1,b2,b3,cldS.P,cldS.PET,sl.sP_s,sl.sPET_s,h,w.cl);
+      var dhW=dhOne(b1,b2,b3,cldW.P,cldW.PET,sl.sP_w,sl.sPET_w,h,w.cl,scrapeOn);
+      var dhS=dhOne(b1,b2,b3,cldS.P,cldS.PET,sl.sP_s,sl.sPET_s,h,w.cl,scrapeOn);
       well_dh[w.n]=0.5*(dhW+dhS);
     }
   }

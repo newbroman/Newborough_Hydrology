@@ -20,11 +20,14 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.2.1"   # Hollingham (2026) -- 2026-04-19
-                         # v2.2.1: Help dropdown z-index + overflow fix
-                         #         (nav-links was clipping dropdown via
-                         #         overflow-x:auto; dropdown z-index raised
-                         #         to 600 and nav stacking context to 500).
+__version__ = "2.3.0"   # Hollingham (2026) -- 2026-05-01
+                         # v2.3.0: Scraping intervention scenario added.
+                         #         BACI-corrected coefficient shifts (Δβ₁,
+                         #         Δβ₂, Δβ₃) from Script 09b applied to
+                         #         C3/C4/C5 wells with 0.2 m ground lowering.
+                         #         New JS scenario tracking (CUR_SC) ensures
+                         #         scraping fields reset when sliders are
+                         #         manually adjusted.
                          # v2.2.0: Expanded viewer extent to full study area
                          #         (E 240200-243700, N 362400-364800); fixed
                          #         map size at 640x440 px; Help dropdown in
@@ -126,6 +129,18 @@ SCENARIO_PARAMS = {
     "thinning":    {"sP_w": 1.00, "sP_s": 1.00, "sPET_w": 1.00, "sPET_s": 1.00,
                     "sI_c4": FOREST_INTERCEPTION * 0.5, "sI_c5": FOREST_INTERCEPTION * 0.5,
                     "sB2_c4": 1.10, "sB2_c5": 1.10},
+    "scraping":    {"sP_w": 1.00, "sP_s": 1.00, "sPET_w": 1.00, "sPET_s": 1.00,
+                    "sI_c4": FOREST_INTERCEPTION, "sI_c5": FOREST_INTERCEPTION,
+                    "sB2_c4": 1.00, "sB2_c5": 1.00,
+                    # Scraping-specific: BACI-corrected coefficient shifts
+                    # propagating from a 0.2m scraping event (Script 09b).
+                    # Applied only to C3/C4/C5 wells within 800m of the
+                    # scrape site (E 240900, N 363400 — slack NW of CEH36).
+                    # dB1/dB2 are additive; dB3_pct is multiplicative (1.20 = +20%).
+                    "scrape_dB1_c3": 0.207, "scrape_dB2_c3": -0.075, "scrape_dB3_mult_c3": 1.20,
+                    "scrape_dB1_c4": 0.455, "scrape_dB2_c4":  0.105, "scrape_dB3_mult_c4": 1.22,
+                    "scrape_dB1_c5": 0.207, "scrape_dB2_c5": -0.075, "scrape_dB3_mult_c5": 1.20,
+                    "scrape_ground_lowering": 0.2},  # metres
 }
 SEASONS = ["annual", "winter", "summer"]
 
@@ -866,6 +881,7 @@ footer a:hover{{text-decoration:underline;}}
   <button class="sc"    id="btn_clearfell"   onclick="loadSc('clearfell')">Clearfell (interception&#8594;0, &#946;&#8322;&#8593;)</button>
   <button class="sc"    id="btn_broadleaf"   onclick="loadSc('broadleaf')">Broadleaf conversion</button>
   <button class="sc"    id="btn_thinning"    onclick="loadSc('thinning')">Forest thinning (50%)</button>
+  <button class="sc"    id="btn_scraping"    onclick="loadSc('scraping')">Scraping intervention</button>
   <div class="sc-note">UKCP18 presets are central estimates (50th percentile) under RCP8.5 for Wales, with seasonally-structured perturbations applied to the paper's Winter (Nov&#8211;Mar) and Summer (May&#8211;Sep) climatologies. The equilibrium framework resolves seasonal Delta-h equilibria but not within-year dynamical trajectories.</div>
   <div class="hr"></div>
 
@@ -1032,21 +1048,27 @@ var SCEN={{
   clearfell:    {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI_c4:0,                       sI_c5:0,                       sB2_c4:1.20, sB2_c5:1.20}},
   broadleaf:    {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI_c4:BROADLEAF_INTERCEPTION,  sI_c5:BROADLEAF_INTERCEPTION,  sB2_c4:1.00, sB2_c5:1.00}},
   thinning:     {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI_c4:FOREST_INTERCEPTION*0.5, sI_c5:FOREST_INTERCEPTION*0.5, sB2_c4:1.10, sB2_c5:1.10}},
+  scraping:     {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI_c4:FOREST_INTERCEPTION,     sI_c5:FOREST_INTERCEPTION,     sB2_c4:1,    sB2_c5:1,
+                  scrape_dB1_c3:0.207, scrape_dB2_c3:-0.075, scrape_dB3_mult_c3:1.20,
+                  scrape_dB1_c4:0.455, scrape_dB2_c4: 0.105, scrape_dB3_mult_c4:1.22,
+                  scrape_dB1_c5:0.207, scrape_dB2_c5:-0.075, scrape_dB3_mult_c5:1.20,
+                  scrape_ground_lowering:0.2}},
 }};
 var WARN={{
   clearfell:    'Post-felling: canopy interception removed, \u03b2\u2082 increases. Study finding: clearfell deepens summer minima \u2014 the dominant control on winter flooding probability.',
   broadleaf:    'Broadleaf conversion (15% annual-mean interception). Steady-state equilibrium response only; the phenological winter-recharge mechanism that drives deeper summer minima under broadleaf is dynamical and not resolved in this framework (see Section 5.4.4).',
   ukcp18_2050s: 'UKCP18 2050s central estimate, RCP8.5, Wales. Winter +10% P / +5% PET, summer \u221215% P / +20% PET. Steady-state equilibrium response to seasonally-perturbed forcing only; within-year dynamical propagation is not resolved.',
   ukcp18_2080s: 'UKCP18 2080s central estimate, RCP8.5, Wales. Winter +20% P / +10% PET, summer \u221230% P / +35% PET. Steady-state equilibrium response only. See Section 5.6 for interpretive caveats.',
+  scraping:     'Scraping intervention: simulates a 0.2\u00a0m ground-lowering scrape in the slack NW of CEH36 (E\u00a0240900, N\u00a0363400). BACI-corrected SSM coefficient shifts (\u0394\u03b2\u2081, \u0394\u03b2\u2082, \u0394\u03b2\u2083) from the 2015 CEH36 scraping analysis (Script\u00a009b) are applied to C3/C4/C5 wells within 800\u00a0m of the scrape site. C4 shifts used for C4 wells; C3+CEH31 shifts for C3 and C5. Wells beyond 800\u00a0m are unaffected. Increased drainage (\u2191\u03b2\u2083) is partially offset by increased recharge sensitivity (\u2191\u03b2\u2081) and reduced ET draw (\u2193|\u03b2\u2082|).',
 }};
 var sea='annual',mm='dh',cm='dh',hChart=null;
-var DH={{}},SH={{}},CUR_SL={{}};
+var DH={{}},SH={{}},CUR_SL={{}},CUR_SC='baseline';
 var MW=0,MH=0;
 
-function gs(){{return{{sP_w:+document.getElementById('sP_w').value,sP_s:+document.getElementById('sP_s').value,sPET_w:+document.getElementById('sPET_w').value,sPET_s:+document.getElementById('sPET_s').value,sI_c4:+document.getElementById('sI_c4').value,sI_c5:+document.getElementById('sI_c5').value,sB2_c4:+document.getElementById('sB2_c4').value,sB2_c5:+document.getElementById('sB2_c5').value,sSyMode:+document.getElementById('sSyMode').value}};}}
+function gs(){{var s={{sP_w:+document.getElementById('sP_w').value,sP_s:+document.getElementById('sP_s').value,sPET_w:+document.getElementById('sPET_w').value,sPET_s:+document.getElementById('sPET_s').value,sI_c4:+document.getElementById('sI_c4').value,sI_c5:+document.getElementById('sI_c5').value,sB2_c4:+document.getElementById('sB2_c4').value,sB2_c5:+document.getElementById('sB2_c5').value,sSyMode:+document.getElementById('sSyMode').value}};var sc=SCEN[CUR_SC];if(sc&&sc.scrape_ground_lowering){{for(var k in sc){{if(k.indexOf('scrape')===0)s[k]=sc[k];}}}}return s;}}
 function rl(){{var s=gs();document.getElementById('vP_w').textContent=s.sP_w.toFixed(2)+'\xd7';document.getElementById('vP_s').textContent=s.sP_s.toFixed(2)+'\xd7';document.getElementById('vPET_w').textContent=s.sPET_w.toFixed(2)+'\xd7';document.getElementById('vPET_s').textContent=s.sPET_s.toFixed(2)+'\xd7';document.getElementById('vI_c4').textContent=(s.sI_c4*100).toFixed(0)+'%';document.getElementById('vI_c5').textContent=(s.sI_c5*100).toFixed(0)+'%';document.getElementById('vB2_c4').textContent=s.sB2_c4.toFixed(2)+'\xd7';document.getElementById('vB2_c5').textContent=s.sB2_c5.toFixed(2)+'\xd7';document.getElementById('vSyMode').textContent=s.sSyMode>=0.5?'WTF':'Fetter';}}
-function onSl(){{rl();go();}}
-function loadSc(n){{document.querySelectorAll('.sc').forEach(function(b){{b.classList.remove('on');}});document.getElementById('btn_'+n).classList.add('on');var sc=SCEN[n];['sP_w','sP_s','sPET_w','sPET_s','sI_c4','sI_c5','sB2_c4','sB2_c5'].forEach(function(k){{document.getElementById(k).value=sc[k];}});rl();var wb=document.getElementById('warnBox');if(WARN[n]){{wb.textContent=WARN[n];wb.style.display='block';}}else wb.style.display='none';go();}}
+function onSl(){{CUR_SC='baseline';rl();go();}}
+function loadSc(n){{CUR_SC=n;document.querySelectorAll('.sc').forEach(function(b){{b.classList.remove('on');}});document.getElementById('btn_'+n).classList.add('on');var sc=SCEN[n];['sP_w','sP_s','sPET_w','sPET_s','sI_c4','sI_c5','sB2_c4','sB2_c5'].forEach(function(k){{document.getElementById(k).value=sc[k];}});rl();var wb=document.getElementById('warnBox');if(WARN[n]){{wb.textContent=WARN[n];wb.style.display='block';}}else wb.style.display='none';go();}}
 function setSeas(s){{sea=s;document.querySelectorAll('.tab').forEach(function(b){{b.classList.remove('on');}});document.getElementById('tab_'+s).classList.add('on');go();}}
 function setMM(m){{mm=m;document.querySelectorAll('[id^="rt_"]').forEach(function(b){{b.classList.remove('on');}});document.getElementById('rt_'+m).classList.add('on');drawMap();}}
 function setCM(m){{cm=m;document.querySelectorAll('[id^="ct_"]').forEach(function(b){{b.classList.remove('on');}});document.getElementById('ct_'+m).classList.add('on');renderBar();}}
@@ -1071,7 +1093,9 @@ function go(){{
   checkExtremes(sl);
   // Seasonal baselines -- always needed so annual can weight winter+summer
   var cldW=CLIMATE.winter,cldS=CLIMATE.summer;
-  function dhOne(b1,b2,b3,P_base,PET_base,sP,sPET,h,cl){{
+  // Scraping scenario: site coordinates and propagation range
+  var SCRAPE_E=240900,SCRAPE_N=363400,SCRAPE_RANGE=800;
+  function dhOne(b1,b2,b3,P_base,PET_base,sP,sPET,h,cl,scrapeOn){{
     var isForest=(cl===4||cl===5);
     var sI_cur=cl===4?sl.sI_c4:cl===5?sl.sI_c5:0;
     var sB2_cur=cl===4?sl.sB2_c4:cl===5?sl.sB2_c5:1;
@@ -1080,7 +1104,17 @@ function go(){{
     var Psc=P_base*sP,PETsc=PET_base*sPET;
     var Peff_sc=isForest?Psc*(1-sI_cur):Psc;
     var b2sc=isForest?b2*sB2_cur:b2;
-    return (b1*Peff_sc-b2sc*PETsc-b3*Math.abs(h))-net0;
+    var b1sc=b1,b3sc=b3,hsc=Math.abs(h);
+    if(scrapeOn){{
+      var sfx=cl===3?'_c3':cl===4?'_c4':cl===5?'_c5':null;
+      if(sfx){{
+        b1sc=b1+(sl['scrape_dB1'+sfx]||0);
+        b2sc=b2sc+(sl['scrape_dB2'+sfx]||0);
+        b3sc=b3*(sl['scrape_dB3_mult'+sfx]||1);
+        hsc=Math.abs(h)-sl.scrape_ground_lowering;
+      }}
+    }}
+    return (b1sc*Peff_sc-b2sc*PETsc-b3sc*hsc)-net0;
   }}
   var well_dh={{}};
   for(var i=0;i<WELLS.length;i++){{
@@ -1090,13 +1124,19 @@ function go(){{
     var h=sea==='annual'?w.mh:sea==='winter'?w.wh:w.sh;
     if(h==null)continue;
     var isForest=(w.cl===4||w.cl===5);
+    // Distance check for scraping scenario
+    var scrapeOn=false;
+    if(sl.scrape_ground_lowering&&w.E&&w.N){{
+      var dx=w.E-SCRAPE_E,dy=w.N-SCRAPE_N;
+      if(Math.sqrt(dx*dx+dy*dy)<=SCRAPE_RANGE)scrapeOn=true;
+    }}
     if(sea==='winter'){{
-      well_dh[w.n]=dhOne(b1,b2,b3,cldW.P,cldW.PET,sl.sP_w,sl.sPET_w,h,w.cl);
+      well_dh[w.n]=dhOne(b1,b2,b3,cldW.P,cldW.PET,sl.sP_w,sl.sPET_w,h,w.cl,scrapeOn);
     }}else if(sea==='summer'){{
-      well_dh[w.n]=dhOne(b1,b2,b3,cldS.P,cldS.PET,sl.sP_s,sl.sPET_s,h,w.cl);
+      well_dh[w.n]=dhOne(b1,b2,b3,cldS.P,cldS.PET,sl.sP_s,sl.sPET_s,h,w.cl,scrapeOn);
     }}else{{  // annual = month-weighted mean of winter and summer responses
-      var dhW=dhOne(b1,b2,b3,cldW.P,cldW.PET,sl.sP_w,sl.sPET_w,h,w.cl);
-      var dhS=dhOne(b1,b2,b3,cldS.P,cldS.PET,sl.sP_s,sl.sPET_s,h,w.cl);
+      var dhW=dhOne(b1,b2,b3,cldW.P,cldW.PET,sl.sP_w,sl.sPET_w,h,w.cl,scrapeOn);
+      var dhS=dhOne(b1,b2,b3,cldS.P,cldS.PET,sl.sP_s,sl.sPET_s,h,w.cl,scrapeOn);
       well_dh[w.n]=0.5*(dhW+dhS);
     }}
   }}
@@ -1451,6 +1491,16 @@ def _well_dh(row, sl, P0, PET0, h_col, cluster_betas, season):
     sI_key = "sI_c4" if cl == 4 else "sI_c5" if cl == 5 else None
     sB2_key = "sB2_c4" if cl == 4 else "sB2_c5" if cl == 5 else None
 
+    # Scraping scenario: distance check from scrape site
+    _SCRAPE_E, _SCRAPE_N, _SCRAPE_RANGE = 240900, 363400, 800
+    scrape_on = False
+    if sl.get("scrape_ground_lowering") and cl in (3, 4, 5):
+        wE = row.get("E")
+        wN = row.get("N")
+        if pd.notna(wE) and pd.notna(wN):
+            dist = ((wE - _SCRAPE_E) ** 2 + (wN - _SCRAPE_N) ** 2) ** 0.5
+            scrape_on = (dist <= _SCRAPE_RANGE)
+
     def _dh_one(P_base, PET_base, sP, sPET):
         Peff_0 = P_base * (1 - FOREST_INTERCEPTION) if is_forest else P_base
         net0 = b1 * Peff_0 - b2 * PET_base - b3 * abs(h)
@@ -1458,7 +1508,16 @@ def _well_dh(row, sl, P0, PET0, h_col, cluster_betas, season):
         PETsc = PET_base * sPET
         Peff_sc = Psc * (1 - sl[sI_key]) if is_forest else Psc
         b2_sc = b2 * sl[sB2_key] if is_forest else b2
-        net_sc = b1 * Peff_sc - b2_sc * PETsc - b3 * abs(h)
+        b1_sc = b1
+        b3_sc = b3
+        h_sc = abs(h)
+        if scrape_on:
+            sfx = f"_c{cl}"
+            b1_sc = b1 + sl.get(f"scrape_dB1{sfx}", 0)
+            b2_sc = b2_sc + sl.get(f"scrape_dB2{sfx}", 0)
+            b3_sc = b3 * sl.get(f"scrape_dB3_mult{sfx}", 1)
+            h_sc = abs(h) - sl["scrape_ground_lowering"]
+        net_sc = b1_sc * Peff_sc - b2_sc * PETsc - b3_sc * h_sc
         return net_sc - net0
 
     if season == "winter":

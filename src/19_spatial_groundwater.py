@@ -20,14 +20,15 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.3.0"   # Hollingham (2026) -- 2026-05-01
-                         # v2.3.0: Scraping intervention scenario added.
-                         #         BACI-corrected coefficient shifts (Δβ₁,
-                         #         Δβ₂, Δβ₃) from Script 09b applied to
-                         #         C3/C4/C5 wells with 0.2 m ground lowering.
-                         #         New JS scenario tracking (CUR_SC) ensures
-                         #         scraping fields reset when sliders are
-                         #         manually adjusted.
+__version__ = "2.3.1"   # Hollingham (2026) -- 2026-05-01
+                         # v2.3.1: Scraping intervention scenario removed.
+                         #         The propagation analysis (09b) was not
+                         #         robust to methodology; scraping operates
+                         #         as a one-off level shift incompatible with
+                         #         the equilibrium-flux framework used here.
+                         #         Retained: expanded metrics panel (All +
+                         #         C1–C5 + Forest), draggable sidebar splitter,
+                         #         floating well tooltip, map resize observer.
                          # v2.2.0: Expanded viewer extent to full study area
                          #         (E 240200-243700, N 362400-364800); fixed
                          #         map size at 640x440 px; Help dropdown in
@@ -129,18 +130,6 @@ SCENARIO_PARAMS = {
     "thinning":    {"sP_w": 1.00, "sP_s": 1.00, "sPET_w": 1.00, "sPET_s": 1.00,
                     "sI_c4": FOREST_INTERCEPTION * 0.5, "sI_c5": FOREST_INTERCEPTION * 0.5,
                     "sB2_c4": 1.10, "sB2_c5": 1.10},
-    "scraping":    {"sP_w": 1.00, "sP_s": 1.00, "sPET_w": 1.00, "sPET_s": 1.00,
-                    "sI_c4": FOREST_INTERCEPTION, "sI_c5": FOREST_INTERCEPTION,
-                    "sB2_c4": 1.00, "sB2_c5": 1.00,
-                    # Scraping-specific: BACI-corrected coefficient shifts
-                    # propagating from a 0.2m scraping event (Script 09b).
-                    # Applied only to C3/C4/C5 wells within 800m of the
-                    # scrape site (E 240900, N 363400 — slack NW of CEH36).
-                    # dB1/dB2 are additive; dB3_pct is multiplicative (1.20 = +20%).
-                    "scrape_dB1_c3": 0.207, "scrape_dB2_c3": -0.075, "scrape_dB3_mult_c3": 1.20,
-                    "scrape_dB1_c4": 0.455, "scrape_dB2_c4":  0.105, "scrape_dB3_mult_c4": 1.22,
-                    "scrape_dB1_c5": 0.207, "scrape_dB2_c5": -0.075, "scrape_dB3_mult_c5": 1.20,
-                    "scrape_ground_lowering": 0.2},  # metres
 }
 SEASONS = ["annual", "winter", "summer"]
 
@@ -722,13 +711,17 @@ header h1{{font-family:'Libre Baskerville',Georgia,serif;font-weight:700;
 header p{{font-size:0.78rem;color:rgba(255,255,255,0.58);font-weight:300;}}
 
 /* Layout grid */
-.main{{display:grid;grid-template-columns:215px minmax(0,1fr);gap:12px;
-       padding:12px;align-items:start;}}
-@media(max-width:640px){{.main{{grid-template-columns:1fr;}}}}
+.main{{display:flex;gap:0;padding:12px;align-items:stretch;}}
+@media(max-width:640px){{.main{{flex-direction:column;}}.ctrl{{width:100%!important;}}}}
 
 /* Controls sidebar */
-.ctrl{{background:#fff;border:1px solid var(--border);border-radius:4px;padding:12px;}}
+.ctrl{{background:#fff;border:1px solid var(--border);border-radius:4px;padding:12px;
+      width:215px;flex-shrink:0;}}
 @media(min-width:641px){{.ctrl{{position:sticky;top:0;max-height:98vh;overflow-y:auto;}}}}
+.splitter{{width:8px;cursor:col-resize;background:var(--border);border-radius:3px;
+           flex-shrink:0;align-self:stretch;transition:background 0.15s;
+           margin:0 2px;}}
+.splitter:hover,.splitter.active{{background:var(--water);}}
 .ch{{font-size:0.65rem;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;
      color:var(--water);border-bottom:1px solid var(--border);
      padding-bottom:4px;margin-bottom:7px;}}
@@ -751,7 +744,7 @@ header p{{font-size:0.78rem;color:rgba(255,255,255,0.58);font-weight:300;}}
 .hr{{height:1px;background:var(--border);margin:8px 0;}}
 
 /* Right column */
-.rp{{min-width:0;display:flex;flex-direction:column;gap:10px;}}
+.rp{{min-width:0;flex:1;display:flex;flex-direction:column;gap:10px;margin-left:12px;}}
 
 /* Season tabs */
 .tabs{{display:flex;gap:5px;flex-wrap:wrap;}}
@@ -770,8 +763,8 @@ header p{{font-size:0.78rem;color:rgba(255,255,255,0.58);font-weight:300;}}
 .baseline-label{{font-size:11px;color:var(--text-light);margin-bottom:4px;font-style:italic;}}
 
 /* Metric cards */
-.metrics{{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;}}
-@media(max-width:420px){{.metrics{{grid-template-columns:1fr;}}}}
+.metrics{{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:6px;}}
+@media(max-width:420px){{.metrics{{grid-template-columns:repeat(2,1fr);}}}}
 .mg{{background:#fff;border:1px solid var(--border);border-radius:3px;padding:8px 10px;}}
 .mg .mg-title{{font-size:10px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;border-bottom:1px solid var(--border);padding-bottom:3px;}}
 .mc{{padding:2px 0;}}
@@ -798,7 +791,8 @@ header p{{font-size:0.78rem;color:rgba(255,255,255,0.58);font-weight:300;}}
    On narrow viewports (below 640 px) the wrap shrinks via max-width:100%
    and the canvas follows via width:100%. The aspect ratio (640x440)
    matches the viewer extent E-span / N-span = 3500/2400. */
-.mapwrap{{position:relative;width:640px;max-width:100%;height:440px;overflow:hidden;border-radius:3px;}}
+.mapwrap{{position:relative;width:640px;max-width:100%;height:440px;border-radius:3px;
+         resize:both;min-width:320px;min-height:220px;overflow:hidden;}}
 .mapwrap canvas{{display:block;width:100%;height:100%;}}
 #mapBg{{position:relative;}}
 #mapC{{position:absolute;top:0;left:0;cursor:crosshair;}}
@@ -806,7 +800,11 @@ header p{{font-size:0.78rem;color:rgba(255,255,255,0.58);font-weight:300;}}
       margin-top:5px;font-size:10px;color:var(--text-light);}}
 .ls{{width:10px;height:10px;border-radius:2px;display:inline-block;
      vertical-align:middle;margin-right:2px;}}
-.tip{{font-size:11px;color:var(--text-light);margin-top:3px;min-height:14px;}}
+.tip{{position:fixed;pointer-events:none;background:rgba(255,255,255,0.95);
+     border:1px solid var(--border);border-radius:4px;padding:6px 10px;
+     font-size:12px;color:var(--text);line-height:1.5;
+     box-shadow:0 2px 8px rgba(0,0,0,0.15);display:none;z-index:1000;
+     max-width:320px;white-space:normal;}}
 
 /* Chart + table */
 .chwrap{{position:relative;width:100%;height:155px;}}
@@ -873,7 +871,7 @@ footer a:hover{{text-decoration:underline;}}
 
 <div class="main" id="mainGrid">
 
-<div class="ctrl">
+<div class="ctrl" id="ctrlPanel">
   <div class="ch">Scenarios</div>
   <button class="sc on" id="btn_baseline"    onclick="loadSc('baseline')">Baseline (2005&#8211;2026)</button>
   <button class="sc"    id="btn_ukcp18_2050s" onclick="loadSc('ukcp18_2050s')">UKCP18 2050s (RCP8.5)</button>
@@ -881,7 +879,6 @@ footer a:hover{{text-decoration:underline;}}
   <button class="sc"    id="btn_clearfell"   onclick="loadSc('clearfell')">Clearfell (interception&#8594;0, &#946;&#8322;&#8593;)</button>
   <button class="sc"    id="btn_broadleaf"   onclick="loadSc('broadleaf')">Broadleaf conversion</button>
   <button class="sc"    id="btn_thinning"    onclick="loadSc('thinning')">Forest thinning (50%)</button>
-  <button class="sc"    id="btn_scraping"    onclick="loadSc('scraping')">Scraping intervention</button>
   <div class="sc-note">UKCP18 presets are central estimates (50th percentile) under RCP8.5 for Wales, with seasonally-structured perturbations applied to the paper's Winter (Nov&#8211;Mar) and Summer (May&#8211;Sep) climatologies. The equilibrium framework resolves seasonal Delta-h equilibria but not within-year dynamical trajectories.</div>
   <div class="hr"></div>
 
@@ -944,6 +941,8 @@ footer a:hover{{text-decoration:underline;}}
     Mask dune ridges <span style="color:var(--text-light);font-size:10px;">(depth view)</span></label>
 </div>
 
+<div class="splitter" id="splitter"></div>
+
 <div class="rp">
   <div class="tabs">
     <button class="tab on" id="tab_annual" onclick="setSeas('annual')">Annual</button>
@@ -968,8 +967,8 @@ footer a:hover{{text-decoration:underline;}}
       <canvas id="mapBg"></canvas>
       <canvas id="mapC" role="img" aria-label="IDW groundwater head surface, Newborough Warren"></canvas>
     </div>
-    <div class="leg" id="legDiv"></div>
     <div class="tip" id="tipDiv"></div>
+    <div class="leg" id="legDiv"></div>
     <div class="disclaimer">
       <strong>Interpretation note:</strong> The surface shown is an interpolated statistical estimate
       (IDW, k=8 nearest neighbours), not a calibrated groundwater flow simulation. It reflects
@@ -1048,24 +1047,18 @@ var SCEN={{
   clearfell:    {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI_c4:0,                       sI_c5:0,                       sB2_c4:1.20, sB2_c5:1.20}},
   broadleaf:    {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI_c4:BROADLEAF_INTERCEPTION,  sI_c5:BROADLEAF_INTERCEPTION,  sB2_c4:1.00, sB2_c5:1.00}},
   thinning:     {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI_c4:FOREST_INTERCEPTION*0.5, sI_c5:FOREST_INTERCEPTION*0.5, sB2_c4:1.10, sB2_c5:1.10}},
-  scraping:     {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI_c4:FOREST_INTERCEPTION,     sI_c5:FOREST_INTERCEPTION,     sB2_c4:1,    sB2_c5:1,
-                  scrape_dB1_c3:0.207, scrape_dB2_c3:-0.075, scrape_dB3_mult_c3:1.20,
-                  scrape_dB1_c4:0.455, scrape_dB2_c4: 0.105, scrape_dB3_mult_c4:1.22,
-                  scrape_dB1_c5:0.207, scrape_dB2_c5:-0.075, scrape_dB3_mult_c5:1.20,
-                  scrape_ground_lowering:0.2}},
 }};
 var WARN={{
   clearfell:    'Post-felling: canopy interception removed, \u03b2\u2082 increases. Study finding: clearfell deepens summer minima \u2014 the dominant control on winter flooding probability.',
   broadleaf:    'Broadleaf conversion (15% annual-mean interception). Steady-state equilibrium response only; the phenological winter-recharge mechanism that drives deeper summer minima under broadleaf is dynamical and not resolved in this framework (see Section 5.4.4).',
   ukcp18_2050s: 'UKCP18 2050s central estimate, RCP8.5, Wales. Winter +10% P / +5% PET, summer \u221215% P / +20% PET. Steady-state equilibrium response to seasonally-perturbed forcing only; within-year dynamical propagation is not resolved.',
   ukcp18_2080s: 'UKCP18 2080s central estimate, RCP8.5, Wales. Winter +20% P / +10% PET, summer \u221230% P / +35% PET. Steady-state equilibrium response only. See Section 5.6 for interpretive caveats.',
-  scraping:     'Scraping intervention: simulates a 0.2\u00a0m ground-lowering scrape in the slack NW of CEH36 (E\u00a0240900, N\u00a0363400). BACI-corrected SSM coefficient shifts (\u0394\u03b2\u2081, \u0394\u03b2\u2082, \u0394\u03b2\u2083) from the 2015 CEH36 scraping analysis (Script\u00a009b) are applied to C3/C4/C5 wells within 800\u00a0m of the scrape site. C4 shifts used for C4 wells; C3+CEH31 shifts for C3 and C5. Wells beyond 800\u00a0m are unaffected. Increased drainage (\u2191\u03b2\u2083) is partially offset by increased recharge sensitivity (\u2191\u03b2\u2081) and reduced ET draw (\u2193|\u03b2\u2082|).',
 }};
 var sea='annual',mm='dh',cm='dh',hChart=null;
 var DH={{}},SH={{}},CUR_SL={{}},CUR_SC='baseline';
 var MW=0,MH=0;
 
-function gs(){{var s={{sP_w:+document.getElementById('sP_w').value,sP_s:+document.getElementById('sP_s').value,sPET_w:+document.getElementById('sPET_w').value,sPET_s:+document.getElementById('sPET_s').value,sI_c4:+document.getElementById('sI_c4').value,sI_c5:+document.getElementById('sI_c5').value,sB2_c4:+document.getElementById('sB2_c4').value,sB2_c5:+document.getElementById('sB2_c5').value,sSyMode:+document.getElementById('sSyMode').value}};var sc=SCEN[CUR_SC];if(sc&&sc.scrape_ground_lowering){{for(var k in sc){{if(k.indexOf('scrape')===0)s[k]=sc[k];}}}}return s;}}
+function gs(){{return{{sP_w:+document.getElementById('sP_w').value,sP_s:+document.getElementById('sP_s').value,sPET_w:+document.getElementById('sPET_w').value,sPET_s:+document.getElementById('sPET_s').value,sI_c4:+document.getElementById('sI_c4').value,sI_c5:+document.getElementById('sI_c5').value,sB2_c4:+document.getElementById('sB2_c4').value,sB2_c5:+document.getElementById('sB2_c5').value,sSyMode:+document.getElementById('sSyMode').value}};}}
 function rl(){{var s=gs();document.getElementById('vP_w').textContent=s.sP_w.toFixed(2)+'\xd7';document.getElementById('vP_s').textContent=s.sP_s.toFixed(2)+'\xd7';document.getElementById('vPET_w').textContent=s.sPET_w.toFixed(2)+'\xd7';document.getElementById('vPET_s').textContent=s.sPET_s.toFixed(2)+'\xd7';document.getElementById('vI_c4').textContent=(s.sI_c4*100).toFixed(0)+'%';document.getElementById('vI_c5').textContent=(s.sI_c5*100).toFixed(0)+'%';document.getElementById('vB2_c4').textContent=s.sB2_c4.toFixed(2)+'\xd7';document.getElementById('vB2_c5').textContent=s.sB2_c5.toFixed(2)+'\xd7';document.getElementById('vSyMode').textContent=s.sSyMode>=0.5?'WTF':'Fetter';}}
 function onSl(){{CUR_SC='baseline';rl();go();}}
 function loadSc(n){{CUR_SC=n;document.querySelectorAll('.sc').forEach(function(b){{b.classList.remove('on');}});document.getElementById('btn_'+n).classList.add('on');var sc=SCEN[n];['sP_w','sP_s','sPET_w','sPET_s','sI_c4','sI_c5','sB2_c4','sB2_c5'].forEach(function(k){{document.getElementById(k).value=sc[k];}});rl();var wb=document.getElementById('warnBox');if(WARN[n]){{wb.textContent=WARN[n];wb.style.display='block';}}else wb.style.display='none';go();}}
@@ -1093,9 +1086,7 @@ function go(){{
   checkExtremes(sl);
   // Seasonal baselines -- always needed so annual can weight winter+summer
   var cldW=CLIMATE.winter,cldS=CLIMATE.summer;
-  // Scraping scenario: site coordinates and propagation range
-  var SCRAPE_E=240900,SCRAPE_N=363400,SCRAPE_RANGE=800;
-  function dhOne(b1,b2,b3,P_base,PET_base,sP,sPET,h,cl,scrapeOn){{
+  function dhOne(b1,b2,b3,P_base,PET_base,sP,sPET,h,cl){{
     var isForest=(cl===4||cl===5);
     var sI_cur=cl===4?sl.sI_c4:cl===5?sl.sI_c5:0;
     var sB2_cur=cl===4?sl.sB2_c4:cl===5?sl.sB2_c5:1;
@@ -1104,17 +1095,7 @@ function go(){{
     var Psc=P_base*sP,PETsc=PET_base*sPET;
     var Peff_sc=isForest?Psc*(1-sI_cur):Psc;
     var b2sc=isForest?b2*sB2_cur:b2;
-    var b1sc=b1,b3sc=b3,hsc=Math.abs(h);
-    if(scrapeOn){{
-      var sfx=cl===3?'_c3':cl===4?'_c4':cl===5?'_c5':null;
-      if(sfx){{
-        b1sc=b1+(sl['scrape_dB1'+sfx]||0);
-        b2sc=b2sc+(sl['scrape_dB2'+sfx]||0);
-        b3sc=b3*(sl['scrape_dB3_mult'+sfx]||1);
-        hsc=Math.abs(h)-sl.scrape_ground_lowering;
-      }}
-    }}
-    return (b1sc*Peff_sc-b2sc*PETsc-b3sc*hsc)-net0;
+    return (b1*Peff_sc-b2sc*PETsc-b3*Math.abs(h))-net0;
   }}
   var well_dh={{}};
   for(var i=0;i<WELLS.length;i++){{
@@ -1124,19 +1105,13 @@ function go(){{
     var h=sea==='annual'?w.mh:sea==='winter'?w.wh:w.sh;
     if(h==null)continue;
     var isForest=(w.cl===4||w.cl===5);
-    // Distance check for scraping scenario
-    var scrapeOn=false;
-    if(sl.scrape_ground_lowering&&w.E&&w.N){{
-      var dx=w.E-SCRAPE_E,dy=w.N-SCRAPE_N;
-      if(Math.sqrt(dx*dx+dy*dy)<=SCRAPE_RANGE)scrapeOn=true;
-    }}
     if(sea==='winter'){{
-      well_dh[w.n]=dhOne(b1,b2,b3,cldW.P,cldW.PET,sl.sP_w,sl.sPET_w,h,w.cl,scrapeOn);
+      well_dh[w.n]=dhOne(b1,b2,b3,cldW.P,cldW.PET,sl.sP_w,sl.sPET_w,h,w.cl);
     }}else if(sea==='summer'){{
-      well_dh[w.n]=dhOne(b1,b2,b3,cldS.P,cldS.PET,sl.sP_s,sl.sPET_s,h,w.cl,scrapeOn);
+      well_dh[w.n]=dhOne(b1,b2,b3,cldS.P,cldS.PET,sl.sP_s,sl.sPET_s,h,w.cl);
     }}else{{  // annual = month-weighted mean of winter and summer responses
-      var dhW=dhOne(b1,b2,b3,cldW.P,cldW.PET,sl.sP_w,sl.sPET_w,h,w.cl,scrapeOn);
-      var dhS=dhOne(b1,b2,b3,cldS.P,cldS.PET,sl.sP_s,sl.sPET_s,h,w.cl,scrapeOn);
+      var dhW=dhOne(b1,b2,b3,cldW.P,cldW.PET,sl.sP_w,sl.sPET_w,h,w.cl);
+      var dhS=dhOne(b1,b2,b3,cldS.P,cldS.PET,sl.sP_s,sl.sPET_s,h,w.cl);
       well_dh[w.n]=0.5*(dhW+dhS);
     }}
   }}
@@ -1362,21 +1337,35 @@ function drawMap(){{
 document.addEventListener('DOMContentLoaded',function(){{
   document.getElementById('mapC').addEventListener('mousemove',function(e){{
     if(!MW)return;
-    var r=this.getBoundingClientRect(),sx=MW/r.width,mx=(e.clientX-r.left)*sx,my=(e.clientY-r.top)*sx;
+    var r=this.getBoundingClientRect(),sx=MW/r.width,sy2=MH/r.height;
+    var mx=(e.clientX-r.left)*sx,my=(e.clientY-r.top)*sy2;
     var best=null,bd=Infinity;
     for(var i=0;i<WELLS.length;i++){{var w=WELLS[i];if(!w.E||!w.N)continue;var p=tc(w.E,w.N),d=Math.hypot(mx-p.x,my-p.y);if(d<bd){{bd=d;best=w;}}}}
     var tip=document.getElementById('tipDiv');
     if(best&&bd<18){{
       var hb=sea==='annual'?best.mh:sea==='winter'?best.wh:best.sh,dh=best._dh||0;
-      // Depth below surface at the well, using the well's own DEM elevation
-      // (no IDW here -- this is the well's actual depth reading).
       var depTxt='';
       if(best.dg!=null&&hb!=null){{
         var depBase=best.dg-hb,depSce=best.dg-(hb+dh);
-        depTxt=' \u00b7 depth '+depBase.toFixed(2)+'\u2192'+depSce.toFixed(2)+'\u00a0m';
+        depTxt='<br>Depth: '+depBase.toFixed(2)+' \u2192 '+depSce.toFixed(2)+'\u00a0m';
       }}
-      tip.textContent=best.n+' \u00b7 C'+best.cl+' \u00b7 baseline '+hb.toFixed(2)+'\u00a0m\u00a0AOD \u00b7 scenario '+(hb+dh).toFixed(2)+'\u00a0m\u00a0AOD \u00b7 \u0394h '+(dh>=0?'+':'')+dh.toFixed(3)+'\u00a0m'+depTxt+(best.sy?' \u00b7 Sy\u00a0'+(best.sy*100).toFixed(1)+'%':'');
-    }}else tip.textContent='';
+      tip.innerHTML='<strong>'+best.n+'</strong> \u00b7 C'+best.cl
+        +'<br>Baseline: '+hb.toFixed(2)+'\u00a0m\u00a0AOD'
+        +'<br>Scenario: '+(hb+dh).toFixed(2)+'\u00a0m\u00a0AOD'
+        +'<br>\u0394h: '+(dh>=0?'+':'')+dh.toFixed(3)+'\u00a0m'
+        +depTxt
+        +(best.sy?'<br>Sy: '+(best.sy*100).toFixed(1)+'%':'');
+      tip.style.display='block';
+      // Position fixed: offset from cursor
+      var tx2=e.clientX+14,ty2=e.clientY-10;
+      if(tx2+tip.offsetWidth>window.innerWidth-10)tx2=e.clientX-tip.offsetWidth-14;
+      if(ty2<5)ty2=5;
+      if(ty2+tip.offsetHeight>window.innerHeight-5)ty2=window.innerHeight-tip.offsetHeight-5;
+      tip.style.left=tx2+'px';tip.style.top=ty2+'px';
+    }}else{{tip.style.display='none';}}
+  }});
+  document.getElementById('mapC').addEventListener('mouseleave',function(){{
+    document.getElementById('tipDiv').style.display='none';
   }});
 }});
 
@@ -1431,30 +1420,73 @@ function renderMonthlyTable(){{
 
 function renderMetrics(){{
   var cls=[1,2,3,4,5],sl=CUR_SL||{{sSyMode:0}};
-  var mDH=cls.reduce(function(s,c){{return s+(DH[c]||0);}},0)/5;
-  var c4DH=DH[4]||0, c5DH=DH[5]||0;
   function dc(v){{return v>0.002?'#0d47a1':v<-0.002?'#b71c1c':'#333';}}
   function mc(l,v,u,col){{return'<div class="mc"><div class="ml">'+l+'</div><div class="mv" style="color:'+col+'">'+v+' <span class="mu">'+u+'</span></div></div>';}}
   function mg(title,items){{return'<div class="mg"><div class="mg-title">'+title+'</div>'+items+'</div>';}}
-  var allW=WELLS.filter(function(w){{return cls.indexOf(w.cl)>=0;}});
-  var mSy=allW.length?allW.reduce(function(s,w){{return s+syEff(w,sl.sSyMode);}},0)/allW.length:0.12;
-  var c4w=WELLS.filter(function(w){{return w.cl===4;}});
-  var c5w=WELLS.filter(function(w){{return w.cl===5;}});
-  var c4Sy=c4w.length?c4w.reduce(function(s,w){{return s+syEff(w,sl.sSyMode);}},0)/c4w.length:0.12;
-  var c5Sy=c5w.length?c5w.reduce(function(s,w){{return s+syEff(w,sl.sSyMode);}},0)/c5w.length:0.12;
-  var mShift=mSy*mDH*1000, c4Shift=c4Sy*c4DH*1000, c5Shift=c5Sy*c5DH*1000;
   function fmtS(v){{return(v>=0?'+':'')+v.toFixed(1);}}
   function fmtD(v){{return(v>=0?'+':'')+v.toFixed(3);}}
-  document.getElementById('mrow').innerHTML=
-    mg('All clusters',mc('\u0394h',fmtD(mDH),'m',dc(mDH))+mc('Sy',(mSy*100).toFixed(1),'%','#333')+mc('Storage',fmtS(mShift),'mm',dc(mDH)))+
-    mg('C4 Main Forest',mc('\u0394h',fmtD(c4DH),'m',dc(c4DH))+mc('Sy',(c4Sy*100).toFixed(1),'%','#333')+mc('Storage',fmtS(c4Shift),'mm',dc(c4DH)))+
-    mg('C5 Coastal Forest',mc('\u0394h',fmtD(c5DH),'m',dc(c5DH))+mc('Sy',(c5Sy*100).toFixed(1),'%','#333')+mc('Storage',fmtS(c5Shift),'mm',dc(c5DH)));
+  function clSy(cid){{var cw=WELLS.filter(function(w){{return w.cl===cid;}});return cw.length?cw.reduce(function(s,w){{return s+syEff(w,sl.sSyMode);}},0)/cw.length:0.12;}}
+  // All clusters
+  var mDH=cls.reduce(function(s,c){{return s+(DH[c]||0);}},0)/5;
+  var allW=WELLS.filter(function(w){{return cls.indexOf(w.cl)>=0;}});
+  var mSy=allW.length?allW.reduce(function(s,w){{return s+syEff(w,sl.sSyMode);}},0)/allW.length:0.12;
+  var mShift=mSy*mDH*1000;
+  // Forest (C4+C5)
+  var fW=WELLS.filter(function(w){{return w.cl===4||w.cl===5;}});
+  var fDH=fW.length>0?(fW.reduce(function(s,w){{var d=w._dh;return d!=null?s+d:s;}},0)/fW.filter(function(w){{return w._dh!=null;}}).length||0):0;
+  var fSy=fW.length?fW.reduce(function(s,w){{return s+syEff(w,sl.sSyMode);}},0)/fW.length:0.12;
+  var fShift=fSy*fDH*1000;
+  var html=mg('All clusters',mc('\u0394h',fmtD(mDH),'m',dc(mDH))+mc('Sy',(mSy*100).toFixed(1),'%','#333')+mc('Storage',fmtS(mShift),'mm',dc(mDH)));
+  for(var ci=0;ci<cls.length;ci++){{
+    var c=cls[ci],dh=DH[c]||0,sy=clSy(c),sh=sy*dh*1000;
+    html+=mg(CL_LABS[c],mc('\u0394h',fmtD(dh),'m',dc(dh))+mc('Sy',(sy*100).toFixed(1),'%','#333')+mc('Storage',fmtS(sh),'mm',dc(dh)));
+  }}
+  html+=mg('Forest (C4+C5)',mc('\u0394h',fmtD(fDH),'m',dc(fDH))+mc('Sy',(fSy*100).toFixed(1),'%','#333')+mc('Storage',fmtS(fShift),'mm',dc(fDH)));
+  document.getElementById('mrow').innerHTML=html;
 }}
 
-function applyLayout(){{document.getElementById('mainGrid').style.gridTemplateColumns=window.innerWidth<640?'1fr':'210px minmax(0,1fr)';}}
+function applyLayout(){{
+  var ctrl=document.getElementById('ctrlPanel');
+  var sp=document.getElementById('splitter');
+  if(window.innerWidth<640){{ctrl.style.width='100%';sp.style.display='none';}}
+  else{{sp.style.display='';}}
+}}
+function initSplitter(){{
+  var sp=document.getElementById('splitter'),ctrl=document.getElementById('ctrlPanel');
+  if(!sp||!ctrl)return;
+  var dragging=false,startX=0,startW=0;
+  sp.addEventListener('mousedown',function(e){{
+    dragging=true;startX=e.clientX;startW=ctrl.offsetWidth;
+    sp.classList.add('active');document.body.style.cursor='col-resize';
+    document.body.style.userSelect='none';e.preventDefault();
+  }});
+  document.addEventListener('mousemove',function(e){{
+    if(!dragging)return;
+    var newW=Math.max(160,Math.min(600,startW+(e.clientX-startX)));
+    ctrl.style.width=newW+'px';
+  }});
+  document.addEventListener('mouseup',function(){{
+    if(dragging){{dragging=false;sp.classList.remove('active');
+      document.body.style.cursor='';document.body.style.userSelect='';}}
+  }});
+  sp.addEventListener('touchstart',function(e){{
+    dragging=true;startX=e.touches[0].clientX;startW=ctrl.offsetWidth;
+    sp.classList.add('active');
+  }},{{passive:true}});
+  document.addEventListener('touchmove',function(e){{
+    if(!dragging)return;
+    var newW=Math.max(160,Math.min(600,startW+(e.touches[0].clientX-startX)));
+    ctrl.style.width=newW+'px';
+  }});
+  document.addEventListener('touchend',function(){{
+    if(dragging){{dragging=false;sp.classList.remove('active');}}
+  }});
+}}
 function toggleHelp(e){{e.stopPropagation();var dd=document.getElementById('helpDd');if(dd)dd.classList.toggle('open');}}
 document.addEventListener('click',function(e){{var dd=document.getElementById('helpDd');if(dd&&!dd.contains(e.target))dd.classList.remove('open');}});
-function init(){{applyLayout();sizeMap();drawBg();document.getElementById('sI_c4').value=FOREST_INTERCEPTION;document.getElementById('sI_c5').value=FOREST_INTERCEPTION;rl();renderMonthlyTable();go();}}
+function init(){{applyLayout();initSplitter();sizeMap();drawBg();document.getElementById('sI_c4').value=FOREST_INTERCEPTION;document.getElementById('sI_c5').value=FOREST_INTERCEPTION;rl();renderMonthlyTable();go();
+  if(typeof ResizeObserver!=='undefined'){{var mw=document.getElementById('mwrap');if(mw){{new ResizeObserver(function(){{sizeMap();drawBg();drawMap();}}).observe(mw);}}}}
+}}
 setTimeout(init,60);
 window.addEventListener('resize',function(){{applyLayout();sizeMap();drawBg();drawMap();}});
 </script>
@@ -1491,16 +1523,6 @@ def _well_dh(row, sl, P0, PET0, h_col, cluster_betas, season):
     sI_key = "sI_c4" if cl == 4 else "sI_c5" if cl == 5 else None
     sB2_key = "sB2_c4" if cl == 4 else "sB2_c5" if cl == 5 else None
 
-    # Scraping scenario: distance check from scrape site
-    _SCRAPE_E, _SCRAPE_N, _SCRAPE_RANGE = 240900, 363400, 800
-    scrape_on = False
-    if sl.get("scrape_ground_lowering") and cl in (3, 4, 5):
-        wE = row.get("E")
-        wN = row.get("N")
-        if pd.notna(wE) and pd.notna(wN):
-            dist = ((wE - _SCRAPE_E) ** 2 + (wN - _SCRAPE_N) ** 2) ** 0.5
-            scrape_on = (dist <= _SCRAPE_RANGE)
-
     def _dh_one(P_base, PET_base, sP, sPET):
         Peff_0 = P_base * (1 - FOREST_INTERCEPTION) if is_forest else P_base
         net0 = b1 * Peff_0 - b2 * PET_base - b3 * abs(h)
@@ -1508,16 +1530,7 @@ def _well_dh(row, sl, P0, PET0, h_col, cluster_betas, season):
         PETsc = PET_base * sPET
         Peff_sc = Psc * (1 - sl[sI_key]) if is_forest else Psc
         b2_sc = b2 * sl[sB2_key] if is_forest else b2
-        b1_sc = b1
-        b3_sc = b3
-        h_sc = abs(h)
-        if scrape_on:
-            sfx = f"_c{cl}"
-            b1_sc = b1 + sl.get(f"scrape_dB1{sfx}", 0)
-            b2_sc = b2_sc + sl.get(f"scrape_dB2{sfx}", 0)
-            b3_sc = b3 * sl.get(f"scrape_dB3_mult{sfx}", 1)
-            h_sc = abs(h) - sl["scrape_ground_lowering"]
-        net_sc = b1_sc * Peff_sc - b2_sc * PETsc - b3_sc * h_sc
+        net_sc = b1 * Peff_sc - b2_sc * PETsc - b3 * abs(h)
         return net_sc - net0
 
     if season == "winter":

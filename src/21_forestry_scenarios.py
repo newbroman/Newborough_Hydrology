@@ -125,7 +125,7 @@ MONTHS = ["Jan","Feb","Mar","Apr","May","Jun",
 
 # Figure settings
 FIG_DPI    = 300
-FIG_FONT   = "Arial"
+FIG_FONT   = None  # use matplotlib default (DejaVu Sans); avoids Arial-not-found warnings
 
 SCENARIO_COLOURS = {
     "Baseline (Corsican pine)":     "#2166AC",
@@ -244,7 +244,7 @@ def cluster_summer_mins(cl, master, df, dates, well_names, elev,
         well_depths.append(depth)
     if not well_depths:
         return np.array([])
-    combined = pd.concat(well_depths, axis=1).mean(axis=1)
+    combined = pd.concat(well_depths, axis=1, sort=False).mean(axis=1)
     mins = []
     for yr in sorted(combined.index.year.unique()):
         mask = ((combined.index.year == yr) &
@@ -427,14 +427,14 @@ def plot_hydrograph(scenario_shifts, obs_monthly, monthly_P, monthly_PET,
     ax1.set_xlim(0.5, 13.8)
     ax1.set_ylim(YMAX, YMIN)   # inverted
     ax1.set_xticks(x)
-    ax1.set_xticklabels(MONTHS, fontsize=9, fontname=FIG_FONT)
+    ax1.set_xticklabels(MONTHS, fontsize=9)
     ax1.set_ylabel("Depth below ground surface (m)", fontsize=10,
-                   fontname=FIG_FONT)
+                   )
     ax1.set_title(
         "C4 Forest Cluster — Synthetic Mean-Year Hydrograph\n"
         "Forest Management Scenarios  |  Newborough Warren 2005–2026  |  "
         "Ecological thresholds: Curreli et al. (2013)",
-        fontsize=10, fontweight="bold", fontname=FIG_FONT)
+        fontsize=10, fontweight="bold")
     ax1.legend(loc="upper left", fontsize=7.5, framealpha=0.92, ncol=3)
     ax1.grid(axis="y", alpha=0.25, lw=0.5)
 
@@ -459,10 +459,10 @@ def plot_hydrograph(scenario_shifts, obs_monthly, monthly_P, monthly_PET,
     ax2.axvspan(5.5, 9.5, alpha=0.07, color="orange")
     ax2.set_xlim(0.5, 13.8)
     ax2.set_xticks(x)
-    ax2.set_xticklabels(MONTHS, fontsize=9, fontname=FIG_FONT)
-    ax2.set_ylabel("mm / month", fontsize=9, fontname=FIG_FONT)
+    ax2.set_xticklabels(MONTHS, fontsize=9)
+    ax2.set_ylabel("mm / month", fontsize=9)
     ax2.set_title("Mean Monthly Climate Forcing — RAF Valley 2005–2026",
-                  fontsize=9, fontname=FIG_FONT)
+                  fontsize=9)
     ax2.legend(fontsize=8, loc="upper right")
     ax2.grid(axis="y", alpha=0.25, lw=0.5)
 
@@ -539,7 +539,7 @@ def _wells_summer_mins(well_list, df, dates, well_names, elev,
     import warnings
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        combined = pd.concat(well_depths, axis=1).mean(axis=1)
+        combined = pd.concat(well_depths, axis=1, sort=False).mean(axis=1)
     mins = []
     for yr in sorted(combined.index.year.unique()):
         mask = ((combined.index.year == yr) &
@@ -721,12 +721,12 @@ def plot_distributions(master, df, dates, well_names, elev, dpi=FIG_DPI):
     ax.set_ylim(3.85, -0.45)
     ax.set_xticks([])
     ax.set_ylabel("Mean annual summer minimum depth below ground (m)",
-                  fontsize=10, fontname=FIG_FONT)
+                  fontsize=10)
     ax.set_title(
         "Summer Minimum Depth by Management Phase \u2014 All Clusters\n"
         "Newborough Warren 2005\u20132026  |  "
         "Ecological thresholds: Curreli et al. (2013)",
-        fontsize=11, fontweight="bold", fontname=FIG_FONT)
+        fontsize=11, fontweight="bold")
     ax.grid(axis="y", alpha=0.2, lw=0.5)
 
     # Legend — upper right
@@ -996,12 +996,12 @@ def plot_scraping_eras(df, dates, well_names, elev, dpi=FIG_DPI):
     ax.set_ylim(2.05, -0.55)
     ax.set_xticks([])
     ax.set_ylabel("Summer minimum depth below ground (m)", fontsize=10,
-                  fontname=FIG_FONT)
+                  )
     ax.set_title(
         "Summer Minimum Depth \u2014 Scraping Treatment and Control Wells\n"
         "Newborough Warren  |  CEH36 scraped Apr 2015 & Oct 2023  |  "
         "CEH18 & CEH21 scraped Oct 2023  |  Clearfell Dec 2017",
-        fontsize=9.5, fontweight="bold", fontname=FIG_FONT)
+        fontsize=9.5, fontweight="bold")
     ax.grid(axis="y", alpha=0.2, lw=0.5)
 
     # Legend — upper left, starting inline with CEH36
@@ -1114,7 +1114,7 @@ def _zone_summer_mins(wells, df, dates, well_names, elev, start=None, end=None):
         well_depths.append(depth)
     if not well_depths:
         return np.array([])
-    combined = pd.concat(well_depths, axis=1).mean(axis=1)
+    combined = pd.concat(well_depths, axis=1, sort=False).mean(axis=1)
     mins = []
     for yr in sorted(combined.index.year.unique()):
         mask = ((combined.index.year == yr) &
@@ -1220,7 +1220,7 @@ def plot_baci_zone_violin(df, dates, well_names, elev, dpi=FIG_DPI):
         ax.text(gc, 2.12, zone_lbl,
                 ha="center", va="top", fontsize=8,
                 fontweight="bold", color=col,
-                multialignment="center", fontname=FIG_FONT)
+                multialignment="center")
 
     # Phase labels
     for pi, (phase_lbl, _, _, _, _) in enumerate(BACI_PHASES):
@@ -1238,12 +1238,12 @@ def plot_baci_zone_violin(df, dates, well_names, elev, dpi=FIG_DPI):
     ax.set_ylim(2.30, -0.50)
     ax.set_xticks([])
     ax.set_ylabel("Mean annual summer minimum depth below ground (m)",
-                  fontsize=10, fontname=FIG_FONT)
+                  fontsize=10)
     ax.set_title(
         "Summer Minimum Depth by BACI Experimental Zone\n"
         "Newborough Warren  |  Pre-2015, 2015\u201317, Post-felling 2018+  |  "
         "Curreli et al. (2013) ecological thresholds",
-        fontsize=10, fontweight="bold", fontname=FIG_FONT)
+        fontsize=10, fontweight="bold")
     ax.grid(axis="y", alpha=0.2, lw=0.5)
 
     # Legend — upper right, top at y=0.97

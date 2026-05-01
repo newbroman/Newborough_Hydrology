@@ -7,7 +7,7 @@ the paper as figures, tables or into downstream scripts.
 
 Run order: 01 → 02 → 03 → 04 → 05 → 06 → 07 → 08 → 09 → 10 → 10b → 10c → 11 → 11b → 00 → 14 → 12 → 13 → 15 → 17 → 16 → 18 → 19 → 20 → 21 → 22 → 23 → 24
 
-Script 19 is step 24 of the 29-step pipeline. As a byproduct of running its
+Script 19 is step 23 of the 29-step pipeline. As a byproduct of running its
 main spatial analysis it also builds the self-contained HTML scenario viewer.
 Menu option 4 (`python run_analysis.py --viewer`) rebuilds the viewer alone
 by re-running script 19 without stepping through the earlier scripts.
@@ -583,46 +583,6 @@ from Script 01, which uses the correct latitude.
 
 ---
 
-## Script 09b — Scraping Propagation Analysis
-**Purpose:** Evaluates whether the CEH36 scraping event (0.2 m ground
-lowering, April 2015) propagated uphill into the forest as a detectable
-shift in SSM coefficients. Uses split-window SSM fitting with BACI
-correction against distant control wells.
-
-Companion to Script 09: Script 09 asks "did scraping work at the scraped
-site?" Script 09b asks "what did scraping do to the neighbours?"
-
-**Reads:**
-- `outputs/01_wells_clean.csv`
-- `outputs/01_wells_extended.csv`
-- `outputs/01_climate.csv`
-- `outputs/01_locations.csv`
-- `outputs/03_master_data.csv`
-
-**Produces (to outputs/09_scraping_intervention/):**
-
-| File | Type | Description |
-|---|---|---|
-| `09b_01_individual_well_baci.csv` | CSV | Per-well BACI-corrected Δβ₁, Δβ₂, Δβ₃ |
-| `09b_02_centroid_summaries.csv` | CSV | Group centroid BACI shifts |
-| `09b_03_ceh36_equilibration.jpg` | Figure | CEH36 trajectory vs CEH4 |
-
-**Method:** SSM fitted separately to pre-scraping (start of record to
-Apr 2015) and post-scraping/pre-felling (Apr 2015 to Dec 2017) windows
-using `model_utils.fit_ssm()`. BACI correction subtracts the control
-centroid shift (7 distant C3 wells at 850–1100 m from CEH36).
-
-**Well selection:** 11 wells north/northwest (uphill) of CEH36. Outer C5
-coastal wells excluded (western coastal boundary confound). FE wells
-excluded (no pre-scraping data). See `SCRAPING_PROPAGATION_SUMMARY.md`.
-
-**Consumed by:** Script 21 (scenario comparison chart reads
-`09b_02_centroid_summaries.csv` for scraping scenario bars) and
-Script 19 (scraping intervention scenario in the viewer uses the
-same BACI-corrected coefficient shifts).
-
----
-
 ## Script 10 — Clearfell BACI Experiment
 **Purpose:** Three-zone hierarchical BACI experiment (core impact, edge zone,
 regional control) assessing the December 2017 plantation clearfell. Includes
@@ -1068,6 +1028,48 @@ intervention analysis sections of the report.
 - Edge zone: FE1, FE3, CEH20, CEH30, CEH16, NW8B
 - Forest interior: CEH2, CEH13, CEH32, CEH33, CEH34
 - Regional control: CEH19, NW10, CEH31, LIS1
+
+---
+
+## Script 09b — Scraping Propagation Diagnostic (Supplementary)
+**Purpose:** Evaluates whether the CEH36 scraping event (0.2 m ground
+lowering, April 2015) propagated uphill into the forest as a detectable
+shift in SSM coefficients. Uses split-window SSM fitting with BACI
+correction against distant control wells.
+
+Companion to Script 09: Script 09 asks "did scraping work at the scraped
+site?" Script 09b asks "what did scraping do to the neighbours?"
+
+**Status:** Supplementary diagnostic (Phase 11, step 29). The split-window
+coefficient shifts were not robust to methodological variation — the
+two-step isolation method collapses the signal entirely. Scraping is
+modelled in the report as a direct level perturbation, not a coefficient
+change. This script is retained for diagnostic context only; its outputs
+are not consumed by any downstream script.
+
+**Reads:**
+- `outputs/01_wells_clean.csv`
+- `outputs/01_wells_extended.csv`
+- `outputs/01_climate.csv`
+- `outputs/01_locations.csv`
+- `outputs/03_master_data.csv`
+
+**Produces (to outputs/09_scraping_intervention/):**
+
+| File | Type | Description |
+|---|---|---|
+| `09b_01_individual_well_baci.csv` | CSV | Per-well BACI-corrected Δβ₁, Δβ₂, Δβ₃ |
+| `09b_02_centroid_summaries.csv` | CSV | Group centroid BACI shifts |
+| `09b_03_ceh36_equilibration.jpg` | Figure | CEH36 trajectory vs CEH4 |
+
+**Method:** SSM fitted separately to pre-scraping (start of record to
+Apr 2015) and post-scraping/pre-felling (Apr 2015 to Dec 2017) windows
+using `model_utils.fit_ssm()`. BACI correction subtracts the control
+centroid shift (7 distant C3 wells at 850–1100 m from CEH36).
+
+**Well selection:** 11 wells north/northwest (uphill) of CEH36. Outer C5
+coastal wells excluded (western coastal boundary confound). FE wells
+excluded (no pre-scraping data). See `SCRAPING_PROPAGATION_SUMMARY.md`.
 
 ---
 

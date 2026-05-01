@@ -4,7 +4,6 @@ Reproducible Python workflow supporting the manuscript:
 
 > *Hydrogeological Dynamics, Behavioural Clustering and Management Intervention
 > Analysis at Newborough Warren Coastal Sand Dune Aquifer, Wales* (Hollingham, 2026)
-> *Journal of Hydrology: Regional Studies*
 
 ---
 

@@ -321,10 +321,10 @@ def build_viewer() -> None:
 # ── Interactive menu ──────────────────────────────────────────────────────────
 
 INTRO = """\
-  97-well dipwell network · Newborough Warren NNR (Isle of Anglesey SAC)
+  89-well dipwell network · Newborough Warren NNR (Isle of Anglesey SAC)
   Monitoring period 2005–2026 · State Space Model with β₁/β₂/β₃ coefficients
   Five hydrogeological clusters (C1–C5) · Ward's linkage hierarchical clustering
-  Hollingham (2026) · Journal of Hydrology: Regional Studies
+  Hollingham (2026)
 """
 
 MENU = """

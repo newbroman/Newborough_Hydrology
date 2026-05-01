@@ -211,6 +211,20 @@ ZONE_COLOURS = [
 ]
 ZONE_BOUNDS = [0.0, SD15b, SD15b_REC, SD16, SD16_REC, 3.5]
 
+# Curreli WINTER thresholds (depth below ground at winter peak)
+W_FLOOD   = 0.00   # m — water table at surface (flooding)
+W_SD15b   = 0.10   # m — SD15b winter requirement
+W_SD16    = 0.25   # m — SD16 winter requirement
+
+# Winter Curreli zone colourmap (depth below ground at winter maximum)
+WINTER_ZONE_COLOURS = [
+    "#1A237E",  # Dark blue  — flooding (WT at or above surface, < 0 m)
+    "#1565C0",  # Blue       — SD15b winter met (< 0.10 m)
+    "#a8d8a8",  # Pale green — between SD15b and SD16 (0.10–0.25 m)
+    "#fd8d3c",  # Orange     — below SD16 winter (> 0.25 m)
+]
+WINTER_ZONE_BOUNDS = [-.10, W_FLOOD, W_SD15b, W_SD16, 1.5]
+
 # ─────────────────────────────────────────────────────────────────────────────
 # CLUSTER COLOURS — imported from utils/config.py (single source of truth)
 # ─────────────────────────────────────────────────────────────────────────────
@@ -795,7 +809,16 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
 # FIGURE 2 — WINTER MAXIMA DEPTH MAP
 # ─────────────────────────────────────────────────────────────────────────────
 def plot_winter_maxima_map(df: pd.DataFrame, dpi: int = 300) -> None:
-    """Mean annual winter maximum depth below ground surface."""
+    """
+    Mean annual winter maximum depth below ground surface, with Curreli
+    et al. (2013) winter eco-hydrological threshold zones.
+
+    Zones (depth below ground at winter peak):
+      - Flooding:     < 0.00 m (WT at or above surface)
+      - SD15b winter: < 0.10 m
+      - SD16 winter:  < 0.25 m
+      - Below SD16:   > 0.25 m
+    """
     DIR_11B.mkdir(parents=True, exist_ok=True)
 
     maod_ref = pd.read_csv(INT_WELLS_CLEAN_MAOD, index_col=0, parse_dates=True)
@@ -824,11 +847,13 @@ def plot_winter_maxima_map(df: pd.DataFrame, dpi: int = 300) -> None:
         if len(maxima) < 3:
             continue
         mean_wmax = np.nanmean(list(maxima.values()))
+        depth_bg = dem - mean_wmax
         winter_rows.append({
+            "well": row["well"],
             "E": row["E"], "N": row["N"],
             "cluster": row["cluster"], "network": row["network"],
             "dem": dem,
-            "depth_bg": dem - mean_wmax,
+            "depth_bg": depth_bg,
         })
 
     if not winter_rows:
@@ -837,32 +862,42 @@ def plot_winter_maxima_map(df: pd.DataFrame, dpi: int = 300) -> None:
 
     wdf = pd.DataFrame(winter_rows)
 
+    # Zone summary counts
+    n_flood = (wdf["depth_bg"] <= W_FLOOD).sum()
+    n_sd15b = ((wdf["depth_bg"] > W_FLOOD) & (wdf["depth_bg"] <= W_SD15b)).sum()
+    n_sd16  = ((wdf["depth_bg"] > W_SD15b) & (wdf["depth_bg"] <= W_SD16)).sum()
+    n_below = (wdf["depth_bg"] > W_SD16).sum()
+
     fig, ax = plt.subplots(figsize=(12, 10), facecolor="white")
     _, ok, dem_e_arr, dem_n_arr, dem_data = load_dem_hillshade(
         ax, DATA_DIR, alpha=1.0, vert_exag=3.0, zorder=1)
 
-    cmap = plt.cm.RdBu_r
-    vmin, vmax = -0.25, 1.5
-    sc, gx, gy, surf = add_idw_surface(ax, wdf, value_col="depth_bg",
-                         easting_col="E", northing_col="N",
-                         dem_col="dem",
-                         ridge_mask_threshold=1.0,
-                         dem_e_arr=dem_e_arr if ok else None,
-                         dem_n_arr=dem_n_arr if ok else None,
-                         dem_data=dem_data if ok else None,
-                         cmap=cmap, vmin=vmin, vmax=vmax,
-                         alpha=0.72, zorder=2)
+    # Curreli zonal colourmap for winter thresholds
+    cmap_w = LinearSegmentedColormap.from_list("winter_slack", WINTER_ZONE_COLOURS, N=256)
+    norm_w = BoundaryNorm(WINTER_ZONE_BOUNDS, ncolors=256)
+
+    mesh, gx, gy, surf = add_idw_surface(
+        ax, wdf, value_col="depth_bg",
+        easting_col="E", northing_col="N",
+        dem_col="dem",
+        ridge_mask_threshold=1.0,
+        dem_e_arr=dem_e_arr if ok else None,
+        dem_n_arr=dem_n_arr if ok else None,
+        dem_data=dem_data if ok else None,
+        cmap=cmap_w, norm=norm_w,
+        alpha=0.72, zorder=2)
     surf = _fill_and_mask(surf, gx, gy, wdf, wdf["depth_bg"].values)
 
-    WINTER_THRESHOLDS = [
-        (0.00, "#1A237E", "-",  2.0, "Flooding (WT at surface, 0 m)"),
-        (0.10, "#1565C0", "--", 1.5, "SD15b winter requirement (0.10 m)"),
-        (0.25, "#CC0000", "--", 1.5, "SD16 winter requirement (0.25 m)"),
-    ]
-    for level, col, ls, lw, lbl in WINTER_THRESHOLDS:
+    # Threshold contour lines
+    for level, col, lw, ls in [
+        (W_FLOOD, "#1A237E", 2.0, "-"),
+        (W_SD15b, "#1565C0", 1.8, "--"),
+        (W_SD16,  "#CC0000", 1.8, "--"),
+    ]:
         try:
-            cs = ax.contour(gx, gy, surf, levels=[level], colors=[col],
-                            linestyles=[ls], linewidths=[lw], zorder=5)
+            cs = ax.contour(gx, gy, surf, levels=[level],
+                            colors=[col], linewidths=lw,
+                            linestyles=ls, alpha=0.80, zorder=5)
             ax.clabel(cs, fmt=f"{level:.2f} m", fontsize=7, inline=True)
         except Exception:
             pass
@@ -874,15 +909,30 @@ def plot_winter_maxima_map(df: pd.DataFrame, dpi: int = 300) -> None:
 
     kml_handles = add_kml_features(ax, DATA_DIR, include_streams=False)
 
-    cbar = fig.colorbar(sc, ax=ax, fraction=0.03, pad=0.02, shrink=0.85)
-    cbar.set_label(
-        "Mean winter maximum depth below ground (m)\n+ve = below surface, \u2212ve = flooding",
-        fontsize=8)
+    # Colourbar with Curreli zone labels — inverted so flooding (0 m) is at top
+    cb = fig.colorbar(
+        mesh, ax=ax, fraction=0.03, pad=0.02, shrink=0.85,
+        boundaries=WINTER_ZONE_BOUNDS,
+        ticks=[W_FLOOD, W_SD15b, W_SD16],
+    )
+    cb.ax.invert_yaxis()
+    cb.set_label("Mean winter maximum depth below ground (m)", fontsize=9)
+    cb.ax.set_yticklabels([
+        f"{W_FLOOD:.2f} m\nFlooding",
+        f"{W_SD15b:.2f} m\nSD15b\nwinter",
+        f"{W_SD16:.2f} m\nSD16\nwinter",
+    ], fontsize=7.5)
 
+    # Legend
     legend_patches = [
-        mpatches.Patch(color=col, label=lbl)
-        for _, col, _, _, lbl in WINTER_THRESHOLDS
-    ] + [
+        mpatches.Patch(color=WINTER_ZONE_COLOURS[0],
+                       label=f"Flooding (WT at surface, n={n_flood})"),
+        mpatches.Patch(color=WINTER_ZONE_COLOURS[1],
+                       label=f"SD15b winter met (<{W_SD15b} m, n={n_sd15b})"),
+        mpatches.Patch(color=WINTER_ZONE_COLOURS[2],
+                       label=f"SD16 winter met (<{W_SD16} m, n={n_sd16})"),
+        mpatches.Patch(color=WINTER_ZONE_COLOURS[3],
+                       label=f"Below SD16 winter (>{W_SD16} m, n={n_below})"),
         Line2D([0],[0], marker="o", color="w", markerfacecolor="#999",
                markeredgecolor="grey", ms=6, label="Reference well"),
         Line2D([0],[0], marker="D", color="w", markerfacecolor="#999",

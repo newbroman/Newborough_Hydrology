@@ -9,6 +9,11 @@ Produces two figures:
   OUT_21_DISTRIBUTIONS — Observed annual summer minimum depth distributions
                           by cluster and C4 phase (pre/post felling)
 
+Additional outputs:
+  OUT_21_SCENARIO_COMPARE — Scenario comparison bar chart: forest management
+                             and climate across all k=5 clusters
+  OUT_21_SCENARIO_CSV     — CSV of scenario comparison values
+
 Method
 ------
 Hydrograph figure:
@@ -87,6 +92,7 @@ from utils.paths import (
     DIR_21,
     OUT_21_HYDROGRAPH, OUT_21_DISTRIBUTIONS, OUT_21_DISTRIBUTIONS_CSV,
     OUT_21_SCRAPING, OUT_21_SCRAPING_CSV, OUT_21_BACI_VIOLIN, OUT_21_BACI_CSV,
+    OUT_21_SCENARIO_COMPARE, OUT_21_SCENARIO_CSV,
 )
 from utils.config import (
     FOREST_INTERCEPTION, BROADLEAF_INTERCEPTION, REFERENCE_CUTOFF_DATE,
@@ -1323,6 +1329,94 @@ def plot_baci_zone_violin(df, dates, well_names, elev, dpi=FIG_DPI):
 
 
 # ============================================================================
+# FIGURE 5 — SCENARIO COMPARISON BAR CHART
+# ============================================================================
+
+# Summer climate means (m/month) — monitoring period 2005-2026
+SUMMER_P_MEAN   = 0.0641552
+SUMMER_PET_MEAN = 0.0882963
+
+# Cluster parameters for scenario comparison (from Script 03 / scenario viewer)
+CLUSTER_PARAMS = {
+    "C1": {"b1": 5.019, "b2": 0.613, "b3": 0.104, "Sy": 0.211, "h_aod": 8.2824, "forest": False},
+    "C2": {"b1": 4.148, "b2": 1.661, "b3": 0.070, "Sy": 0.267, "h_aod": 7.3043, "forest": False},
+    "C3": {"b1": 3.526, "b2": 1.677, "b3": 0.061, "Sy": 0.328, "h_aod": 6.9624, "forest": False},
+    "C4": {"b1": 2.472, "b2": 2.634, "b3": 0.016, "Sy": 0.254, "h_aod": 9.3806, "forest": True},
+    "C5": {"b1": 2.305, "b2": 1.191, "b3": 0.046, "Sy": 0.308, "h_aod": 4.4499, "forest": True},
+}
+
+# Scenario values (mm water equiv / month)
+SCENARIO_VALUES = {
+    "Clearfell":     {"C1": 0.0, "C2": 0.0, "C3": 0.0, "C4": -2.2, "C5": +4.5},
+    "Thinning 50%":  {"C1": 0.0, "C2": 0.0, "C3": 0.0, "C4": -1.1, "C5": +2.2},
+    "Broadleaf":     {"C1": 0.0, "C2": 0.0, "C3": 0.0, "C4": +3.6, "C5": +4.1},
+    "Climate dry":   {"C1": -7.9, "C2": -11.0, "C3": -12.3, "C4": -9.0, "C5": -6.7},
+    "Climate wet":   {"C1": +7.4, "C2": +9.1, "C3": +9.8, "C4": +6.0, "C5": +5.1},
+}
+
+
+def plot_scenario_comparison(dpi=FIG_DPI):
+    """
+    Scenario comparison bar chart: forest management and climate scenarios
+    across all k=5 clusters. Volumetric Δh using WTF-derived,
+    interception-corrected Sy.
+    """
+    clusters = ["C1", "C2", "C3", "C4", "C5"]
+    cluster_labels = ["C1\nLake Edge", "C2\nDune", "C3\nWestern",
+                      "C4\nMain\nForest", "C5\nCoastal\nForest"]
+
+    scenarios = {
+        "Clearfell":     (SCENARIO_VALUES["Clearfell"], "#8B4513"),
+        "Thinning 50%":  (SCENARIO_VALUES["Thinning 50%"], "#D2691E"),
+        "Broadleaf":     (SCENARIO_VALUES["Broadleaf"], "#228B22"),
+        "Climate dry":   (SCENARIO_VALUES["Climate dry"], "#FF6347"),
+        "Climate wet":   (SCENARIO_VALUES["Climate wet"], "#4169E1"),
+    }
+
+    n_scenarios = len(scenarios)
+    x = np.arange(len(clusters))
+    width = 0.14
+    offsets = np.linspace(-(n_scenarios - 1) / 2 * width,
+                          (n_scenarios - 1) / 2 * width, n_scenarios)
+
+    fig, ax = plt.subplots(1, 1, figsize=(14, 7.5))
+
+    for i, (scenario, (vals_dict, colour)) in enumerate(scenarios.items()):
+        vals = [vals_dict[c] for c in clusters]
+        ax.bar(x + offsets[i], vals, width, label=scenario,
+               color=colour, edgecolor="white", linewidth=0.5, alpha=0.85)
+
+    ax.axhline(0, color="black", linewidth=0.8)
+    ax.set_xticks(x)
+    ax.set_xticklabels(cluster_labels, fontsize=14)
+    ax.set_ylabel("\u0394 volumetric water table\n"
+                  "(mm water equiv. / month)", fontsize=15)
+    ax.tick_params(axis="y", labelsize=13)
+    ax.set_title("Scenario comparison: forest management and climate (k = 5)\n"
+                 "Volumetric using WTF-derived, interception-corrected Sy",
+                 fontsize=16, fontweight="bold")
+
+    ax.legend(fontsize=12, loc="lower right", ncol=2)
+    ax.grid(axis="y", alpha=0.3)
+    plt.tight_layout()
+
+    fig.savefig(OUT_21_SCENARIO_COMPARE, dpi=dpi, format="jpeg",
+                pil_kwargs={"quality": 85}, bbox_inches="tight")
+    plt.close(fig)
+
+    # --- Export CSV ---
+    rows = []
+    for scenario, (vals_dict, _) in scenarios.items():
+        for c in clusters:
+            rows.append({"Scenario": scenario, "Cluster": c,
+                         "Delta_vol_mm_per_month": vals_dict[c]})
+    pd.DataFrame(rows).to_csv(OUT_21_SCENARIO_CSV, index=False,
+                              float_format="%.1f")
+    print(f"  Saved: {OUT_21_SCENARIO_COMPARE.name}")
+    print(f"  Saved: {OUT_21_SCENARIO_CSV.name}")
+
+
+# ============================================================================
 # MAIN
 # ============================================================================
 
@@ -1333,12 +1427,12 @@ def main(preview=False):
     print("\n=== 21_forestry_scenarios.py ===")
     print(f"  DPI: {dpi}  ({'preview' if preview else 'publication'})")
 
-    print("\n[1/5] Loading data...")
+    print("\n[1/6] Loading data...")
     master, elev, reg, climate = load_data()
     print(f"  Master: {len(master)} wells  |  "
           f"Climate: {climate.index[0].date()} to {climate.index[-1].date()}")
 
-    print("\n[2/5] Building scenarios...")
+    print("\n[2/6] Building scenarios...")
     scenario_shifts, monthly_P, monthly_PET, b1, b2, b3 = build_scenarios(
         master, climate)
     obs_monthly, c4_dem = get_observed_seasonal_cycle(reg, elev, master)
@@ -1348,21 +1442,24 @@ def main(preview=False):
     print(f"  β₁={b1:.4f}  β₂={b2:.4f}  β₃={b3:.4f}")
     print(f"  Scenarios: {list(scenario_shifts.keys())}")
 
-    print("\n[3/5] Plotting hydrograph figure...")
+    print("\n[3/6] Plotting hydrograph figure...")
     plot_hydrograph(scenario_shifts, obs_monthly, monthly_P, monthly_PET,
                     obs_c1, obs_c2, dpi=dpi)
 
-    print("\n[4/5] Loading raw well data...")
+    print("\n[4/6] Loading raw well data...")
     df, dates, well_names = load_raw_well_data()
 
-    print("\n[4/5] Plotting distributions figure...")
+    print("\n[4/6] Plotting distributions figure...")
     plot_distributions(master, df, dates, well_names, elev, dpi=dpi)
 
-    print("\n[5/5] Plotting scraping eras figure...")
+    print("\n[5/6] Plotting scraping eras figure...")
     plot_scraping_eras(df, dates, well_names, elev, dpi=dpi)
 
-    print("\n[5/5] Plotting BACI zone violin figure...")
+    print("\n[5/6] Plotting BACI zone violin figure...")
     plot_baci_zone_violin(df, dates, well_names, elev, dpi=dpi)
+
+    print("\n[6/6] Plotting scenario comparison figure...")
+    plot_scenario_comparison(dpi=dpi)
 
     print("\n=== Script 21 complete ===")
 

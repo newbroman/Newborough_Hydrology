@@ -198,6 +198,11 @@ OUT_09_BETA3_CI             = DIR_09 / "09_scrape_07_beta3_confidence.png"
 OUT_09_ROBUSTNESS           = DIR_09 / "09_scrape_08_ceh36_robustness.png"
 OUT_09_REPORT_NUMBERS       = DIR_09 / "09_scrape_report_numbers.csv"
 
+# Script 09b — Scraping propagation into forest
+OUT_09B_INDIVIDUAL          = DIR_09 / "09b_01_individual_well_baci.csv"
+OUT_09B_CENTROIDS           = DIR_09 / "09b_02_centroid_summaries.csv"
+OUT_09B_TRAJECTORY          = DIR_09 / "09b_03_ceh36_equilibration.jpg"
+
 # Script 10 — Clearfell BACI
 OUT_10_DUAL_BACI            = DIR_10 / "10_cfell_01_dual_control_baci.png"
 OUT_10_DRAINAGE_PART1       = DIR_10 / "10_cfell_02_drainage_diagnostic_part1.png"
@@ -336,6 +341,8 @@ OUT_21_SCRAPING          = DIR_21 / "21_forestry_03_scraping_eras.png"
 OUT_21_SCRAPING_CSV      = DIR_21 / "21_forestry_03_scraping_era_means.csv"
 OUT_21_BACI_VIOLIN       = DIR_21 / "21_forestry_04_baci_zone_violin.png"
 OUT_21_BACI_CSV          = DIR_21 / "21_forestry_04_baci_zone_means.csv"
+OUT_21_SCENARIO_COMPARE  = DIR_21 / "21_forestry_05_scenario_comparison.jpg"
+OUT_21_SCENARIO_CSV      = DIR_21 / "21_forestry_05_scenario_comparison.csv"
 
 # Script 22 — SSM residuals and lag analysis (ridge-subsidy mechanistic test)
 INT_22_RESIDUALS_WIDE    = OUT_DIR / "22_residuals_wide.csv"

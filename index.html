@@ -416,7 +416,7 @@
 
     <div class="stat-row" aria-label="Key study statistics">
       <div class="stat-chip">
-        <strong>87</strong>
+        <strong>89</strong>
         <span>dipwells analysed</span>
       </div>
       <div class="stat-chip">
@@ -428,14 +428,14 @@
         <span>hydrogeological clusters</span>
       </div>
       <div class="stat-chip">
-        <strong>28</strong>
+        <strong>29</strong>
         <span>pipeline steps</span>
       </div>
     </div>
 
     <p>
       This site accompanies a hydrogeological study of the Newborough Warren coastal
-      sand dune aquifer on the Isle of Anglesey, Wales. A 28-step reproducible analytical
+      sand dune aquifer on the Isle of Anglesey, Wales. A 29-step reproducible analytical
       pipeline — requiring only monthly dipwell readings and publicly available climate
       data — characterises groundwater dynamics across five behavioural clusters, quantifies
       the hydrological effects of Corsican pine plantation, dune scraping and clearfell
@@ -509,7 +509,7 @@
         <span class="tool-card-tag">Repository</span>
         <h3>Source Code, Figures &amp; Data</h3>
         <p>
-          The full GitHub repository containing all 28 analysis scripts, generated
+          The full GitHub repository containing all 29 analysis scripts, generated
           figures, tables and intermediate data files. The repository readme
           provides an overview of the pipeline structure, and the outputs
           directory includes all 35 paper figures plus additional diagnostic
@@ -560,8 +560,7 @@
           Analysis at Newborough Warren Coastal Sand Dune Aquifer, Wales
         </span>
         <span class="pub-detail">
-          Hollingham, M. (2026) — submitted to
-          <em>Journal of Hydrology: Regional Studies</em>
+          Hollingham, M. (2026)
         </span>
         <div class="pub-links">
           <a class="btn btn-secondary" href="docs/report/report.pdf">Download report (PDF)</a>
@@ -609,7 +608,7 @@
 
     <p>
       The study uses a State Space Model (SSM) fitted to monthly groundwater records
-      across an 87-well dipwell network. Hierarchical clustering identifies five
+      across an 89-well dipwell network. Hierarchical clustering identifies five
       hydrogeological behavioural clusters (C1–C5), including two Corsican pine
       plantation clusters in which canopy interception suppresses recharge. The
       principal finding is that the plantation simultaneously acts as a hydrological
@@ -640,7 +639,6 @@
       <strong>Citation:</strong> Hollingham, M. (2026) Hydrogeological Dynamics,
       Behavioural Clustering and Management Intervention Analysis at Newborough
       Warren Coastal Sand Dune Aquifer, Wales.
-      <em>Journal of Hydrology: Regional Studies</em> (submitted).
     </p>
   </section>
 
@@ -650,7 +648,7 @@
     <h2>Reproducing the analysis</h2>
 
     <p>
-      The full analytical pipeline runs 28 steps across eleven phases, coordinated by
+      The full analytical pipeline runs 29 steps across eleven phases, coordinated by
       <code>run_analysis.py</code>. All file paths are managed centrally through
       <code>src/utils/paths.py</code>; no hardcoded paths appear in individual scripts.
       Python 3.10 or later is required (3.12 tested).
@@ -670,13 +668,13 @@
       <span class="cmd">python run_analysis.py</span><br>
       <br>
       <span class="comment"># Or run non-interactively</span><br>
-      <span class="cmd">python run_analysis.py --full &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># run all 28 steps</span></span><br>
+      <span class="cmd">python run_analysis.py --full &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># run all 29 steps</span></span><br>
       <span class="cmd">python run_analysis.py --from 14 &nbsp;<span class="comment"># resume from step 14</span></span><br>
       <span class="cmd">python run_analysis.py --viewer &nbsp;&nbsp;<span class="comment"># build scenario viewer only</span></span>
     </div>
 
     <div class="requirements-note">
-      <strong>Note:</strong> KML support requires Fiona with the LIBKML driver enabled.
+      <strong>Note:</strong> KML support uses pure XML + pyproj + shapely (no Fiona KML driver required).
       Stream network skeletonisation (script 20) requires scikit-image.
       The <code>outputs/</code> directory should be excluded from version control.
       See <code>readme.md</code> in the repository for a full description of each

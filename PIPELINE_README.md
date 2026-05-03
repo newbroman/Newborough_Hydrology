@@ -525,18 +525,18 @@ SSM forward residual).
 
 | Well | Role | Era 1 | Era 2 | Era 3 |
 |---|---|---|---|---|
-| CEH36 | Central Impact | Baseline (< Apr 2015) | Pure Scraping (Apr 2015 – Dec 2018) | Felling Pulse (≥ Dec 2018) |
-| CEH4 | Central Control | Baseline (< Apr 2015) | Pure Scraping (Apr 2015 – Dec 2018) | Felling Pulse (≥ Dec 2018) |
-| CEH18 | Boundary Impact | Baseline (< Dec 2018) | Felling Pulse (Dec 2018 – Oct 2023) | After Scraping (≥ Oct 2023) |
-| CEH21 | Coastal Impact | Baseline (< Dec 2018) | Coastal Drawdown (Dec 2018 – Oct 2023) | After Scraping (≥ Oct 2023) |
-| CEH22 | Coastal Control | Baseline (< Dec 2018) | Coastal Drawdown (Dec 2018 – Oct 2023) | After Scraping (≥ Oct 2023) |
+| CEH36 | Central Impact | Baseline (< Apr 2015) | Pure Scraping (Apr 2015 – Dec 2017) | Felling Pulse (≥ Dec 2017) |
+| CEH4 | Central Control | Baseline (< Apr 2015) | Pure Scraping (Apr 2015 – Dec 2017) | Felling Pulse (≥ Dec 2017) |
+| CEH18 | Boundary Impact | Baseline (< Dec 2017) | Felling Pulse (Dec 2017 – Oct 2023) | After Scraping (≥ Oct 2023) |
+| CEH21 | Coastal Impact | Baseline (< Dec 2017) | Coastal Drawdown (Dec 2017 – Oct 2023) | After Scraping (≥ Oct 2023) |
+| CEH22 | Coastal Control | Baseline (< Dec 2017) | Coastal Drawdown (Dec 2017 – Oct 2023) | After Scraping (≥ Oct 2023) |
 
 **Hierarchical pairings:** CEH36 → CEH4, CEH18 → CEH4, CEH21 → CEH22,
 CEH4 → Regional Mean, CEH22 → Regional Mean. Regional Mean is the average
 of 6 control wells (CEH9, NW8, NW8B, NW5, NW6, NW7).
 
-**SSM specification:** Uses lag-1 rainfall (`P_m_lag1`), consistent with
-`HEADLINE_LAG = 1` in Script 03. No-intercept OLS with the same three-term
+**SSM specification:** Uses `HEADLINE_LAG = 0` from config (no rainfall lag).
+No-intercept OLS with the same three-term
 design matrix (β₁·P, β₂·(−PET), β₃·(−h_prev)).
 
 **Produces (https://github.com/newbroman/Newborough_Hydrology/blob/main/outputs/09_scraping_intervention/):**

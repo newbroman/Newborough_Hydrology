@@ -1,0 +1,31 @@
+Scenario,Cluster,Delta_summer_min_mm
+Clearfell,C1,0
+Clearfell,C2,0
+Clearfell,C3,0
+Clearfell,C4,-3
+Clearfell,C5,-28
+Thinning 50%,C1,0
+Thinning 50%,C2,0
+Thinning 50%,C3,0
+Thinning 50%,C4,-2
+Thinning 50%,C5,-14
+Broadleaf,C1,0
+Broadleaf,C2,0
+Broadleaf,C3,0
+Broadleaf,C4,0
+Broadleaf,C5,0
+Scraping (nearby),C1,0
+Scraping (nearby),C2,0
+Scraping (nearby),C3,46
+Scraping (nearby),C4,111
+Scraping (nearby),C5,143
+Climate dry,C1,-33
+Climate dry,C2,-41
+Climate dry,C3,-51
+Climate dry,C4,-40
+Climate dry,C5,-30
+Climate wet,C1,31
+Climate wet,C2,34
+Climate wet,C3,40
+Climate wet,C4,27
+Climate wet,C5,23

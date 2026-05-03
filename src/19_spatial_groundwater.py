@@ -20,15 +20,13 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.3.1"   # Hollingham (2026) -- 2026-05-01
-                         # v2.3.1: Scraping intervention scenario removed.
-                         #         The propagation analysis (09b) was not
-                         #         robust to methodology; scraping operates
-                         #         as a one-off level shift incompatible with
-                         #         the equilibrium-flux framework used here.
-                         #         Retained: expanded metrics panel (All +
-                         #         C1–C5 + Forest), draggable sidebar splitter,
-                         #         floating well tooltip, map resize observer.
+__version__ = "2.4.0"   # Hollingham (2026) -- 2026-05-03
+                         # v2.4.0: Scraping (nearby effect) toggle added as
+                         #         independent checkbox. Applies Δβ₁=+0.41,
+                         #         Δβ₂=+0.009, β₃×1.20, h_disp−0.2m to all
+                         #         C3/C4/C5 wells. Stacks with any scenario.
+                         #         Expanded metrics panel, draggable sidebar
+                         #         splitter, floating well tooltip retained.
                          # v2.2.0: Expanded viewer extent to full study area
                          #         (E 240200-243700, N 362400-364800); fixed
                          #         map size at 640x440 px; Help dropdown in
@@ -879,6 +877,11 @@ footer a:hover{{text-decoration:underline;}}
   <button class="sc"    id="btn_clearfell"   onclick="loadSc('clearfell')">Clearfell (interception&#8594;0, &#946;&#8322;&#8593;)</button>
   <button class="sc"    id="btn_broadleaf"   onclick="loadSc('broadleaf')">Broadleaf conversion</button>
   <button class="sc"    id="btn_thinning"    onclick="loadSc('thinning')">Forest thinning (50%)</button>
+  <div class="hr"></div>
+  <div class="ch">Scraping</div>
+  <label class="ckrow"><input type="checkbox" id="chkScrape" onchange="go()">
+    Scraping (nearby effect)</label>
+  <div class="sc-note" style="font-size:10px;color:var(--text-light);margin-top:2px;">Applies observed CEH36 scraping propagation effect (&beta;&#8323; &times;1.20, &Delta;&beta;&#8321; +0.41, &Delta;&beta;&#8322; +0.009, ground &minus;0.2&thinsp;m) to C3, C4, C5 wells. Independent of forest/climate scenarios.</div>
   <div class="sc-note">UKCP18 presets are central estimates (50th percentile) under RCP8.5 for Wales, with seasonally-structured perturbations applied to the paper's Winter (Nov&#8211;Mar) and Summer (May&#8211;Sep) climatologies. The equilibrium framework resolves seasonal Delta-h equilibria but not within-year dynamical trajectories.</div>
   <div class="hr"></div>
 
@@ -1086,6 +1089,8 @@ function go(){{
   checkExtremes(sl);
   // Seasonal baselines -- always needed so annual can weight winter+summer
   var cldW=CLIMATE.winter,cldS=CLIMATE.summer;
+  var scrapeOn=document.getElementById('chkScrape').checked;
+  var SCRAPE_DB1=0.41,SCRAPE_DB2=0.009,SCRAPE_B3_MULT=1.20,SCRAPE_DH=0.2;
   function dhOne(b1,b2,b3,P_base,PET_base,sP,sPET,h,cl){{
     var isForest=(cl===4||cl===5);
     var sI_cur=cl===4?sl.sI_c4:cl===5?sl.sI_c5:0;
@@ -1095,7 +1100,14 @@ function go(){{
     var Psc=P_base*sP,PETsc=PET_base*sPET;
     var Peff_sc=isForest?Psc*(1-sI_cur):Psc;
     var b2sc=isForest?b2*sB2_cur:b2;
-    return (b1*Peff_sc-b2sc*PETsc-b3*Math.abs(h))-net0;
+    var b1sc=b1,b3sc=b3,hsc=Math.abs(h);
+    if(scrapeOn&&(cl===3||cl===4||cl===5)){{
+      b1sc=b1+SCRAPE_DB1;
+      b2sc=b2sc+SCRAPE_DB2;
+      b3sc=b3*SCRAPE_B3_MULT;
+      hsc=Math.abs(h)-SCRAPE_DH;
+    }}
+    return (b1sc*Peff_sc-b2sc*PETsc-b3sc*hsc)-net0;
   }}
   var well_dh={{}};
   for(var i=0;i<WELLS.length;i++){{

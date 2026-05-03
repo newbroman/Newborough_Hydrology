@@ -16,9 +16,10 @@ Outputs (to outputs/09_scraping_intervention/):
     CSVs:
         09b_01_individual_well_baci.csv   \u2014 per-well BACI-corrected shifts
         09b_02_centroid_summaries.csv      \u2014 group centroid BACI shifts
+        09b_04_scenario_comparison.csv     \u2014 scenario chart values
     Figures:
         09b_03_ceh36_equilibration.jpg     \u2014 CEH36 post-scraping trajectory
-        09b_04_scenario_comparison.jpg     \u2014 scenario bar chart with scraping
+        09b_04_scenario_comparison.jpg     \u2014 scenario comparison bar chart
 
 Reads:
     outputs/01_wells_clean.csv
@@ -29,7 +30,7 @@ Reads:
 ==========================================================================
 """
 
-__version__ = "1.0.0"  # Hollingham (2026)
+__version__ = "1.1.0"  # Hollingham (2026) — added scenario comparison chart
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.join(_os.path.dirname(
@@ -39,13 +40,9 @@ from utils.paths import (
     INT_WELLS_CLEAN, INT_WELLS_EXTENDED, INT_CLIMATE,
     INT_LOCATIONS, INT_MASTER_DATA, DIR_09,
     OUT_09B_INDIVIDUAL, OUT_09B_CENTROIDS, OUT_09B_TRAJECTORY,
+    OUT_09B_SCENARIO, OUT_09B_SCENARIO_CSV,
 )
-
-# Output paths for scenario comparison (not yet in paths.py;
-# defined here until paths.py is updated)
-OUT_09B_SCENARIO     = DIR_09 / "09b_04_scenario_comparison.jpg"
-OUT_09B_SCENARIO_CSV = DIR_09 / "09b_04_scenario_comparison.csv"
-from utils.config import DRAINAGE_DATUM, HEADLINE_LAG
+from utils.config import DRAINAGE_DATUM, HEADLINE_LAG, FOREST_INTERCEPTION
 from utils.model_utils import fit_ssm
 from utils.data_utils import normalize_well_name
 
@@ -56,26 +53,6 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from pathlib import Path
-
-
-# ============================================================================
-# KEY NAME COMPATIBILITY
-# ============================================================================
-# model_utils.fit_ssm() may return short keys (beta_1, beta_2, beta_3)
-# or long keys (beta_1_recharge, beta_2_atmospheric_draw, beta_3_drainage)
-# depending on the version. This helper normalises to short names.
-
-def _get_b(result, param):
-    """Get SSM coefficient from fit_ssm result, handling both key formats."""
-    _KEY_MAP = {
-        "b1": ["beta_1_recharge", "beta_1"],
-        "b2": ["beta_2_atmospheric_draw", "beta_2"],
-        "b3": ["beta_3_drainage", "beta_3"],
-    }
-    for key in _KEY_MAP[param]:
-        if key in result:
-            return result[key]
-    raise KeyError(f"Cannot find {param} in fit_ssm result: {list(result.keys())}")
 
 
 # ============================================================================
@@ -96,14 +73,16 @@ MIN_OBS_SPLIT = 12
 
 # Wells north/northwest (uphill) of CEH36, directionally correct for
 # groundwater propagation into the forest interior.
-# Outer C5 coastal wells (NW9, CEH16, CEH19, CEH17) excluded \u2014
+# Outer C5 coastal wells (NW9, CEH16, CEH19, CEH17) excluded —
 # western coastal boundary confound (see SCRAPING_PROPAGATION_SUMMARY.md).
-# FE wells and LIS1 excluded \u2014 no pre-scraping data.
+# FE wells and LIS1 excluded — no pre-scraping data.
+# CEH39 excluded — insufficient pre-scraping baseline (24 months vs
+# 55–111 for remaining wells); dilutes centroid signal.
 UPHILL_WELLS = [
     "ceh31",                          # C5 inner (875 m from W coast)
     "wmc3", "nw6", "nw7",            # C3
     "ceh30", "ceh20", "ceh33",        # C4
-    "ceh9", "ceh39", "ceh34",         # C3 / C4
+    "ceh9", "ceh34",                  # C3 / C4
     "ceh 1",                          # C3
 ]
 
@@ -229,19 +208,19 @@ def main():
             "role": role,
             "cluster": cluster,
             "dist_m": dist,
-            "pre_b1":  _get_b(pre, "b1"),
-            "pre_b2":  _get_b(pre, "b2"),
-            "pre_b3":  _get_b(pre, "b3"),
+            "pre_b1":  pre["beta_1_recharge"],
+            "pre_b2":  pre["beta_2_atmospheric_draw"],
+            "pre_b3":  pre["beta_3_drainage"],
             "pre_r2":  pre["R2"],
             "pre_n":   pre["n"],
-            "post_b1": _get_b(post, "b1"),
-            "post_b2": _get_b(post, "b2"),
-            "post_b3": _get_b(post, "b3"),
+            "post_b1": post["beta_1_recharge"],
+            "post_b2": post["beta_2_atmospheric_draw"],
+            "post_b3": post["beta_3_drainage"],
             "post_r2": post["R2"],
             "post_n":  post["n"],
-            "raw_db1": _get_b(post, "b1") - _get_b(pre, "b1"),
-            "raw_db2": _get_b(post, "b2") - _get_b(pre, "b2"),
-            "raw_db3": _get_b(post, "b3") - _get_b(pre, "b3"),
+            "raw_db1": post["beta_1_recharge"] - pre["beta_1_recharge"],
+            "raw_db2": post["beta_2_atmospheric_draw"] - pre["beta_2_atmospheric_draw"],
+            "raw_db3": post["beta_3_drainage"] - pre["beta_3_drainage"],
         })
 
     df = pd.DataFrame(results)
@@ -308,21 +287,21 @@ def main():
                         SCRAPE_DATE, FELL_DATE)
 
         if pre and post:
-            db1 = (_get_b(post, "b1") - _get_b(pre, "b1")) - ctrl_db1
-            db2 = (_get_b(post, "b2") - _get_b(pre, "b2")) - ctrl_db2
-            db3 = (_get_b(post, "b3") - _get_b(pre, "b3")) - ctrl_db3
-            pct_b3 = (db3 / abs(_get_b(pre, "b3")) * 100
-                      if abs(_get_b(pre, "b3")) > 1e-6 else np.nan)
+            db1 = (post["beta_1_recharge"] - pre["beta_1_recharge"]) - ctrl_db1
+            db2 = (post["beta_2_atmospheric_draw"] - pre["beta_2_atmospheric_draw"]) - ctrl_db2
+            db3 = (post["beta_3_drainage"] - pre["beta_3_drainage"]) - ctrl_db3
+            pct_b3 = (db3 / abs(pre["beta_3_drainage"]) * 100
+                      if abs(pre["beta_3_drainage"]) > 1e-6 else np.nan)
 
             centroid_rows.append({
                 "group":        group_name,
                 "n_wells":      len(group_df),
-                "pre_b1":       _get_b(pre, "b1"),
-                "pre_b2":       _get_b(pre, "b2"),
-                "pre_b3":       _get_b(pre, "b3"),
-                "post_b1":      _get_b(post, "b1"),
-                "post_b2":      _get_b(post, "b2"),
-                "post_b3":      _get_b(post, "b3"),
+                "pre_b1":       pre["beta_1_recharge"],
+                "pre_b2":       pre["beta_2_atmospheric_draw"],
+                "pre_b3":       pre["beta_3_drainage"],
+                "post_b1":      post["beta_1_recharge"],
+                "post_b2":      post["beta_2_atmospheric_draw"],
+                "post_b3":      post["beta_3_drainage"],
                 "pre_r2":       pre["R2"],
                 "post_r2":      post["R2"],
                 "baci_db1":     db1,
@@ -356,10 +335,10 @@ def main():
 
     print(f"   \u2192 {OUT_09B_TRAJECTORY.name}")
 
-    # \u2500\u2500 7. Figure: Scenario comparison bar chart \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-    print("\n7. Generating scenario comparison chart...")
+    # \u2500\u2500 7. Figure: Scenario comparison bar chart \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+    print("\n7. Generating scenario comparison figure...")
 
-    _plot_scenario_comparison()
+    _plot_scenario_comparison(centroids_df)
 
     print("\nDone.")
 
@@ -520,20 +499,16 @@ def _plot_equilibration(wells_clean):
 
 
 # ============================================================================
-# FIGURE: SCENARIO COMPARISON BAR CHART
+# FIGURE 4 — SCENARIO COMPARISON BAR CHART
 # ============================================================================
 
-# Existing scenario values (mm water equiv / month) from make_scenario_chart.py
-_EXISTING_SCENARIOS = {
-    "Clearfell":     {"C1":  0.0, "C2":  0.0, "C3":  0.0, "C4": -2.2, "C5": +4.5},
-    "Thinning 50%":  {"C1":  0.0, "C2":  0.0, "C3":  0.0, "C4": -1.1, "C5": +2.2},
-    "Broadleaf":     {"C1":  0.0, "C2":  0.0, "C3":  0.0, "C4": +3.6, "C5": +4.1},
-    "Climate dry":   {"C1": -7.9, "C2":-11.0, "C3":-12.3, "C4": -9.0, "C5": -6.7},
-    "Climate wet":   {"C1": +7.4, "C2": +9.1, "C3": +9.8, "C4": +6.0, "C5": +5.1},
-}
+# Summer climate means (m/month) — monitoring period 2005-2026
+SUMMER_P_MEAN   = 0.0641552
+SUMMER_PET_MEAN = 0.0882963
+GROUND_LOWERING = 0.2   # scraping depth (m)
 
-# Cluster baseline parameters (from Script 03 / scenario_viewer.html)
-_CLUSTER_PARAMS = {
+# Cluster parameters for scenario comparison (from Script 03 / scenario viewer)
+CLUSTER_PARAMS = {
     "C1": {"b1": 5.019, "b2": 0.613, "b3": 0.104, "Sy": 0.211,
             "h_aod": 8.2824, "forest": False},
     "C2": {"b1": 4.148, "b2": 1.661, "b3": 0.070, "Sy": 0.267,
@@ -546,17 +521,7 @@ _CLUSTER_PARAMS = {
             "h_aod": 4.4499, "forest": True},
 }
 
-# Summer climate means (m/month)
-_SUMMER_P   = 0.0641552
-_SUMMER_PET = 0.0882963
-
-# Forest interception fraction (Corsican pine)
-_FOREST_INT = 0.24
-
-# Ground lowering from scraping (m)
-_GROUND_LOWERING = 0.2
-
-# Fraction of each cluster within 800 m uphill of CEH36
+# Fraction of each cluster's monitoring wells within 800 m uphill of CEH36.
 # C3: 6/19 = 32%, C4: 7/9 = 78%, C5: 5/5 = 100%.
 #
 # NOTE — C5 coastal retreat confound:
@@ -582,126 +547,120 @@ _GROUND_LOWERING = 0.2
 # (875 m from coast, 6.5 m elev). The FRAC_AFFECTED value of 1.00 is
 # geometrically correct (all five C5 wells are within 800 m of CEH36)
 # but should be interpreted cautiously: the coefficient shifts applied
-# to C5 come from the individual well median, not from the outer four
-# wells directly. The C5 scraping bar reflects the mechanistic SSM
-# perturbation at C5's mean coefficients, weighted by the geometric
-# fraction, not an empirical observation at all five wells.
+# to C5 come from the C3+CEH31 centroid, not from the outer four wells.
+# The C5 scraping bar reflects the mechanistic SSM perturbation at C5's
+# mean coefficients, weighted by the geometric fraction, not an empirical
+# observation at all five wells.
 #
-# The SSM-derived scenario values are computed from coefficient
-# perturbations and are independent of the coastal confound. They
-# represent the expected intervention effect at C5 in the absence of
-# boundary retreat.
-_FRAC_AFFECTED = {"C1": 0.0, "C2": 0.0, "C3": 0.32, "C4": 0.78, "C5": 1.00}
+# The SSM-derived scenario values (clearfell +4.5, scraping −2.8 mm w.e./mo)
+# are computed from coefficient perturbations and are independent of the
+# coastal confound. They represent the expected intervention effect at C5
+# in the absence of boundary retreat.
+FRAC_AFFECTED = {"C1": 0.0, "C2": 0.0, "C3": 0.32, "C4": 0.78, "C5": 1.00}
+
+# Existing (non-scraping) scenario values (mm water equiv / month)
+SCENARIO_VALUES = {
+    "Clearfell":     {"C1": 0.0, "C2": 0.0, "C3": 0.0, "C4": -2.2, "C5": +4.5},
+    "Thinning 50%":  {"C1": 0.0, "C2": 0.0, "C3": 0.0, "C4": -1.1, "C5": +2.2},
+    "Broadleaf":     {"C1": 0.0, "C2": 0.0, "C3": 0.0, "C4": +3.6, "C5": +4.1},
+    "Climate dry":   {"C1": -7.9, "C2": -11.0, "C3": -12.3, "C4": -9.0, "C5": -6.7},
+    "Climate wet":   {"C1": +7.4, "C2": +9.1, "C3": +9.8, "C4": +6.0, "C5": +5.1},
+}
 
 
-def _plot_scenario_comparison():
+def _compute_scraping_bars(centroids_df):
     """
-    Scenario comparison bar chart: forest management, scraping, and climate
-    across all k=5 clusters.
+    Compute scraping scenario bars from BACI-corrected centroid summaries.
 
-    Scraping bars use the BACI-corrected median proportional beta_3 shift
-    from individual well analysis (beta_3 only, no beta_1/beta_2
-    compensation). The beta_1 and beta_2 shifts from the split-window
-    analysis are not applied because the short 31-month post-scraping
-    window causes the SSM to redistribute real drainage signal across
-    coefficients, producing compensation that contradicts the clearfell
-    BACI evidence.
+    Applies all three coefficient shifts (Δβ₁, Δβ₂, Δβ₃) to each cluster's
+    baseline SSM, computes the net monthly flux change, converts to
+    volumetric using Sy, and weights by fraction of cluster affected.
 
-    Values are weighted by the fraction of each cluster's monitoring
-    network within 800 m uphill of CEH36.
+    C5 uses C3+CEH31 centroid shifts (same western coastal zone);
+    C4 uses C4 centroid shifts. C1 and C2 are zero (too distant).
+    """
+    P   = SUMMER_P_MEAN
+    PET = SUMMER_PET_MEAN
+
+    # Extract centroid shifts from CSV
+    # C3+CEH31 row is used for C3 and C5
+    c3_row = centroids_df[centroids_df["group"].str.contains("C3")]
+    c4_row = centroids_df[centroids_df["group"].str.contains("C4")]
+
+    if len(c3_row) == 0 or len(c4_row) == 0:
+        print("   WARNING: centroid summaries incomplete — "
+              "scraping bars set to zero")
+        return {c: 0.0 for c in CLUSTER_PARAMS}
+
+    c3_row = c3_row.iloc[0]
+    c4_row = c4_row.iloc[0]
+
+    # Map: which centroid shift row applies to each cluster
+    shift_map = {"C3": c3_row, "C4": c4_row, "C5": c3_row}
+
+    scrape_unweighted = {}
+    for cname, c in CLUSTER_PARAMS.items():
+        if cname not in shift_map:
+            scrape_unweighted[cname] = 0.0
+            continue
+
+        row = shift_map[cname]
+        db1 = row["baci_db1"]
+        db2 = row["baci_db2"]
+        db3_pct = row["baci_db3_pct"] / 100.0  # convert from % to fraction
+
+        # Effective P (with interception for forest clusters)
+        p_eff = P * (1 - FOREST_INTERCEPTION) if c["forest"] else P
+
+        # Baseline flux
+        flux_base = c["b1"] * p_eff - c["b2"] * PET - c["b3"] * c["h_aod"]
+
+        # Scraping-shifted flux
+        b1_new = c["b1"] + db1
+        b2_new = c["b2"] + db2
+        b3_new = c["b3"] * (1 + db3_pct)
+        h_new  = c["h_aod"] - GROUND_LOWERING
+
+        flux_scen = b1_new * p_eff - b2_new * PET - b3_new * h_new
+
+        # Volumetric: (flux_scen - flux_base) * Sy * 1000 → mm/month
+        scrape_unweighted[cname] = (flux_scen - flux_base) * c["Sy"] * 1000
+
+    # Weight by fraction of cluster within 800 m
+    scrape_weighted = {c: scrape_unweighted[c] * FRAC_AFFECTED[c]
+                       for c in scrape_unweighted}
+    return scrape_weighted
+
+
+def _plot_scenario_comparison(centroids_df, dpi=200):
+    """
+    Grouped bar chart: forest management, scraping, and climate scenarios
+    across all k=5 clusters. Scraping bars use hatched fill and show
+    weighted volumetric impact from BACI-corrected coefficient shifts.
     """
     clusters = ["C1", "C2", "C3", "C4", "C5"]
     cluster_labels = ["C1\nLake Edge", "C2\nDune", "C3\nWestern",
                       "C4\nMain\nForest", "C5\nCoastal\nForest"]
 
-    # --- Compute scraping bars from individual well median beta_3 shift ---
-    # We apply ONLY the beta_3 shift, not beta_1 or beta_2. The beta_1 and
-    # beta_2 shifts from the split-window analysis absorb real drainage
-    # signal as apparent coefficient changes in the short 31-month post-
-    # scraping window. Including them produces positive bars that contradict
-    # the clearfell BACI evidence showing drainage propagation costs the
-    # neighbours. The beta_3 drainage increase is the primary physical
-    # mechanism; beta_1 and beta_2 adjustment is an equilibrium response
-    # that occurs over time at the SCRAPED site, not at the neighbours.
-    scrape_unweighted = {c: 0.0 for c in clusters}
+    # Compute scraping bars
+    scrape_w = _compute_scraping_bars(centroids_df)
 
-    # Read individual well BACI shifts
-    indiv_df = pd.read_csv(OUT_09B_INDIVIDUAL)
-    uphill_df = indiv_df[
-        (indiv_df["role"] == "uphill") &
-        (indiv_df["well"] != "ceh39")   # exclude: n_pre=24, unreliable
-    ]
-
-    if len(uphill_df) >= 5:
-        # Median proportional beta_3 shift across individual wells
-        uphill_df = uphill_df.copy()
-        uphill_df["db3_pct"] = (
-            uphill_df["baci_db3"] / uphill_df["pre_b3"].abs()
-        )
-        med_db3_pct = uphill_df["db3_pct"].median()
-
-        for cname in ["C3", "C4", "C5"]:
-            c = _CLUSTER_PARAMS[cname]
-            p_eff = (_SUMMER_P * (1 - _FOREST_INT)
-                     if c["forest"] else _SUMMER_P)
-
-            flux_base = (c["b1"] * p_eff
-                         - c["b2"] * _SUMMER_PET
-                         - c["b3"] * c["h_aod"])
-
-            # Only beta_3 changes; beta_1 and beta_2 unchanged
-            b3_new = c["b3"] * (1 + med_db3_pct)
-            h_new  = c["h_aod"] - _GROUND_LOWERING
-
-            flux_scen = (c["b1"] * p_eff
-                         - c["b2"] * _SUMMER_PET
-                         - b3_new * h_new)
-
-            scrape_unweighted[cname] = (
-                (flux_scen - flux_base) * c["Sy"] * 1000)
-
-        print(f"   Median proportional \u0394\u03b2\u2083 = "
-              f"{med_db3_pct*100:+.1f}% (n={len(uphill_df)} wells)")
-        print(f"   Scraping (unweighted): "
-              f"C3={scrape_unweighted['C3']:+.1f}  "
-              f"C4={scrape_unweighted['C4']:+.1f}  "
-              f"C5={scrape_unweighted['C5']:+.1f}")
-    else:
-        print("   WARNING: insufficient individual well data "
-              "\u2014 scraping bars set to zero")
-
-    # Weight by fraction of cluster affected
-    scrape_w = {c: scrape_unweighted[c] * _FRAC_AFFECTED[c]
-                for c in clusters}
-
-    print(f"   Scraping (weighted):   "
-          f"C3={scrape_w['C3']:+.1f}  "
-          f"C4={scrape_w['C4']:+.1f}  "
-          f"C5={scrape_w['C5']:+.1f}")
-
-    # --- Build scenario dict ---
     scenarios = {
-        "Clearfell":         (_EXISTING_SCENARIOS["Clearfell"],
-                              "#8B4513", None),
-        "Thinning 50%":      (_EXISTING_SCENARIOS["Thinning 50%"],
-                              "#D2691E", None),
-        "Broadleaf":         (_EXISTING_SCENARIOS["Broadleaf"],
-                              "#228B22", None),
+        "Clearfell":         (SCENARIO_VALUES["Clearfell"], "#8B4513", None),
+        "Thinning 50%":      (SCENARIO_VALUES["Thinning 50%"], "#D2691E", None),
+        "Broadleaf":         (SCENARIO_VALUES["Broadleaf"], "#228B22", None),
         "Scraping (nearby)": (scrape_w, "#DAA520", "///"),
-        "Climate dry":       (_EXISTING_SCENARIOS["Climate dry"],
-                              "#FF6347", None),
-        "Climate wet":       (_EXISTING_SCENARIOS["Climate wet"],
-                              "#4169E1", None),
+        "Climate dry":       (SCENARIO_VALUES["Climate dry"], "#FF6347", None),
+        "Climate wet":       (SCENARIO_VALUES["Climate wet"], "#4169E1", None),
     }
 
-    # --- Plot ---
     n_scen = len(scenarios)
     x = np.arange(len(clusters))
     width = 0.12
     offsets = np.linspace(-(n_scen - 1) / 2 * width,
-                          (n_scen - 1) / 2 * width, n_scen)
+                           (n_scen - 1) / 2 * width, n_scen)
 
-    fig, ax = plt.subplots(1, 1, figsize=(14, 7))
+    fig, ax = plt.subplots(1, 1, figsize=(14, 7.5))
 
     for i, (scenario, (vals_dict, colour, hatch)) in enumerate(
             scenarios.items()):
@@ -710,49 +669,61 @@ def _plot_scenario_comparison():
         ax.bar(x + offsets[i], vals, width, label=scenario,
                color=colour,
                edgecolor="black" if is_scrape else "white",
-               linewidth=1.2 if is_scrape else 0.5,
+               linewidth=1.5 if is_scrape else 0.5,
                alpha=0.85, hatch=hatch)
+        # Label scraping bars with values
         if is_scrape:
             for j, v in enumerate(vals):
                 if abs(v) > 0.3:
-                    offset_y = -0.4 if v < 0 else 0.2
-                    ax.text(x[j] + offsets[i], v + offset_y,
-                            f"{v:.1f}", ha="center",
-                            va="top" if v < 0 else "bottom",
-                            fontsize=10, fontweight="bold",
+                    ax.text(x[j] + offsets[i], v - 1.5, f"{v:.1f}",
+                            ha="center", fontsize=12, fontweight="bold",
                             color="#8B6914")
 
     ax.axhline(0, color="black", linewidth=0.8)
     ax.set_xticks(x)
-    ax.set_xticklabels(cluster_labels, fontsize=13)
+    ax.set_xticklabels(cluster_labels, fontsize=14)
     ax.set_ylabel("\u0394 volumetric water table\n"
-                  "(mm water equiv. / month)", fontsize=14)
-    ax.tick_params(axis="y", labelsize=12)
+                  "(mm water equiv. / month)", fontsize=15)
+    ax.tick_params(axis="y", labelsize=13)
     ax.set_title(
         "Scenario comparison: forest management, scraping, "
         "and climate (k = 5)\n"
-        "Volumetric using WTF-derived, "
-        "interception-corrected Sy",
-        fontsize=14, fontweight="bold")
+        "Volumetric using WTF-derived, interception-corrected Sy",
+        fontsize=15, fontweight="bold")
 
-    ax.legend(fontsize=11, loc="lower right", ncol=3,
-              framealpha=0.9)
+    # Annotation box for scraping bars
+    scrape_offset = offsets[list(scenarios.keys()).index("Scraping (nearby)")]
+    ax.annotate(
+        "Scraping bars: cluster-average\n"
+        "monthly impact on unscraped areas,\n"
+        "weighted by fraction of cluster\n"
+        "within 800 m uphill of CEH36\n"
+        "(C3: 32%, C4: 78%, C5: 100%)",
+        xy=(x[2] + scrape_offset, scrape_w["C3"]),
+        xytext=(x[0] - 0.55, -8),
+        fontsize=13,
+        bbox=dict(boxstyle="round,pad=0.5", facecolor="lightyellow",
+                  alpha=0.9, edgecolor="#DAA520"),
+        arrowprops=dict(arrowstyle="->", color="#8B6914", lw=2.0))
+
+    # C5 coastal confound caveat
+    ax.text(
+        x[4] + 0.02, -12.5,
+        "C5 note: BACI felling step (\u221276 mm)\n"
+        "overstates decline due to western\n"
+        "positional confound vs C1+C2 control.\n"
+        "SSM scenario values are unaffected.",
+        fontsize=9, fontstyle="italic",
+        color="#555555",
+        bbox=dict(boxstyle="round,pad=0.4", facecolor="#F5F5F5",
+                  alpha=0.85, edgecolor="#AAAAAA"),
+        ha="center", va="top")
+
+    ax.legend(fontsize=12, loc="lower right", ncol=2)
     ax.grid(axis="y", alpha=0.3)
+    plt.tight_layout()
 
-    # Footnote strip below the axes
-    fig.text(0.02, 0.01,
-             "Scraping bars: median \u0394\u03b2\u2083 from individual "
-             "well BACI, weighted by fraction of cluster within "
-             "800 m uphill of CEH36 (C3: 32%, C4: 78%, C5: 100%).  "
-             "C5 BACI felling step (\u221276 mm) overstates decline "
-             "due to western positional confound; SSM scenario values "
-             "are unaffected.",
-             fontsize=9, fontstyle="italic", color="#555555",
-             wrap=True)
-
-    fig.subplots_adjust(bottom=0.15)
-
-    fig.savefig(OUT_09B_SCENARIO, dpi=200, format="jpeg",
+    fig.savefig(OUT_09B_SCENARIO, dpi=dpi, format="jpeg",
                 pil_kwargs={"quality": 85}, bbox_inches="tight")
     plt.close(fig)
 

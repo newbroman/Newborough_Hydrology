@@ -73,14 +73,16 @@ MIN_OBS_SPLIT = 12
 
 # Wells north/northwest (uphill) of CEH36, directionally correct for
 # groundwater propagation into the forest interior.
-# Outer C5 coastal wells (NW9, CEH16, CEH19, CEH17) excluded \u2014
+# Outer C5 coastal wells (NW9, CEH16, CEH19, CEH17) excluded —
 # western coastal boundary confound (see SCRAPING_PROPAGATION_SUMMARY.md).
-# FE wells and LIS1 excluded \u2014 no pre-scraping data.
+# FE wells and LIS1 excluded — no pre-scraping data.
+# CEH39 excluded — insufficient pre-scraping baseline (24 months vs
+# 55–111 for remaining wells); dilutes centroid signal.
 UPHILL_WELLS = [
     "ceh31",                          # C5 inner (875 m from W coast)
     "wmc3", "nw6", "nw7",            # C3
     "ceh30", "ceh20", "ceh33",        # C4
-    "ceh9", "ceh39", "ceh34",         # C3 / C4
+    "ceh9", "ceh34",                  # C3 / C4
     "ceh 1",                          # C3
 ]
 

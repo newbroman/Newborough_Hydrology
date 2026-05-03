@@ -606,6 +606,8 @@ site?" Script 09b asks "what did scraping do to the neighbours?"
 | `09b_01_individual_well_baci.csv` | CSV | Per-well BACI-corrected Δβ₁, Δβ₂, Δβ₃ |
 | `09b_02_centroid_summaries.csv` | CSV | Group centroid BACI shifts |
 | `09b_03_ceh36_equilibration.jpg` | Figure | CEH36 trajectory vs CEH4 |
+| `09b_04_scenario_comparison.jpg` | Figure | Scenario comparison bar chart (forest, scraping, climate) |
+| `09b_04_scenario_comparison.csv` | CSV | Scenario chart values per cluster |
 
 **Method:** SSM fitted separately to pre-scraping (start of record to
 Apr 2015) and post-scraping/pre-felling (Apr 2015 to Dec 2017) windows

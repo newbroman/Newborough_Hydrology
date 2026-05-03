@@ -87,9 +87,11 @@ from utils.paths import (
     DIR_21,
     OUT_21_HYDROGRAPH, OUT_21_DISTRIBUTIONS, OUT_21_DISTRIBUTIONS_CSV,
     OUT_21_SCRAPING, OUT_21_SCRAPING_CSV, OUT_21_BACI_VIOLIN, OUT_21_BACI_CSV,
+    OUT_10_BACI_TIMESERIES, OUT_10_COEFF_SLOPES,
 )
 from utils.config import (
     FOREST_INTERCEPTION, BROADLEAF_INTERCEPTION, REFERENCE_CUTOFF_DATE,
+    CLUSTER_COLOURS as CONFIG_CLUSTER_COLOURS,
     SD15b, SD15b_REC, SD16, SD16_REC,
 )
 from utils.model_utils import monthly_perturbation
@@ -106,15 +108,79 @@ from pathlib import Path
 # FOREST_INTERCEPTION, BROADLEAF_INTERCEPTION, SD15b, SD15b_REC, SD16,
 # SD16_REC all imported from config.py.
 
-# BACI-observed post-felling displacement (Hollingham 2026, Section 4.6)
-BACI_ANNUAL = 0.145  # m — mean annual deepening (positive = deeper)
-BACI_SUMMER = 0.218  # m — mean summer deepening
+# ── Dynamic BACI parameters from Script 10 outputs ──────────────────────────
+# These were previously hardcoded. Now read from Script 10's output CSVs so
+# that re-running Script 10 automatically propagates into Script 21.
 
-# Clearfell β₂ increase from BACI (Section 4.6.6)
-# Derived from zone-mean pre/post β₂ ratios: impact 3.755/3.124 = 1.20,
-# edge 3.751/3.123 = 1.20, control 3.696/3.030 = 1.22 (10_cfell_07_coefficient_slopes.csv)
-CLEARFELL_B2_MULT = 1.20    # 20% increase in ET draw post-felling
-THINNING_B2_MULT  = 1.10    # 50% of clearfell effect (1 + 0.20/2)
+def _load_baci_params():
+    """Load BACI displacement and β₂ multiplier from Script 10 outputs.
+
+    Returns (BACI_ANNUAL, BACI_SUMMER, CLEARFELL_B2_MULT).
+    Falls back to documented defaults with a warning if files are missing.
+    """
+    _FALLBACK_ANNUAL = 0.145
+    _FALLBACK_SUMMER = 0.218
+    _FALLBACK_B2     = 1.20
+
+    baci_annual = _FALLBACK_ANNUAL
+    baci_summer = _FALLBACK_SUMMER
+    b2_mult     = _FALLBACK_B2
+
+    # 1. BACI displacement from timeseries plotdata
+    if OUT_10_BACI_TIMESERIES.exists():
+        try:
+            ts = pd.read_csv(OUT_10_BACI_TIMESERIES, parse_dates=["Date"])
+            ts = ts.set_index("Date")
+            intervention = pd.Timestamp("2017-12-01")
+            col = "impact_vs_forest"
+            if col in ts.columns:
+                pre  = ts.loc[ts.index < intervention, col].dropna()
+                post = ts.loc[ts.index >= intervention, col].dropna()
+                if len(pre) > 0 and len(post) > 0:
+                    baci_annual = abs(post.mean() - pre.mean())
+                    pre_s  = pre[pre.index.month.isin([6, 7, 8, 9])]
+                    post_s = post[post.index.month.isin([6, 7, 8, 9])]
+                    if len(pre_s) > 0 and len(post_s) > 0:
+                        baci_summer = abs(post_s.mean() - pre_s.mean())
+                    print(f"  BACI from Script 10: annual={baci_annual:.3f} m, "
+                          f"summer={baci_summer:.3f} m")
+        except Exception as e:
+            print(f"  WARNING: Could not read {OUT_10_BACI_TIMESERIES.name}: {e}")
+            print(f"           Using fallback BACI: annual={baci_annual}, summer={baci_summer}")
+    else:
+        print(f"  WARNING: {OUT_10_BACI_TIMESERIES.name} not found — using fallback BACI values")
+
+    # 2. β₂ multiplier from coefficient slopes
+    if OUT_10_COEFF_SLOPES.exists():
+        try:
+            cs = pd.read_csv(OUT_10_COEFF_SLOPES)
+            impact = cs[cs["Zone"] == "Impact"]
+            b2_before = impact.loc[impact["Period"] == "Before", "beta_2_slope"].dropna()
+            b2_after  = impact.loc[impact["Period"] == "After",  "beta_2_slope"].dropna()
+            if len(b2_before) > 0 and len(b2_after) > 0:
+                b2_mult = b2_after.mean() / b2_before.mean()
+                print(f"  β₂ multiplier from Script 10: {b2_mult:.4f}")
+        except Exception as e:
+            print(f"  WARNING: Could not read {OUT_10_COEFF_SLOPES.name}: {e}")
+            print(f"           Using fallback β₂ multiplier: {b2_mult}")
+    else:
+        print(f"  WARNING: {OUT_10_COEFF_SLOPES.name} not found — using fallback β₂ multiplier")
+
+    return baci_annual, baci_summer, b2_mult
+
+
+# Deferred initialisation — called once in main() so that import doesn't
+# require the CSVs to exist (allows --help, testing, etc.)
+BACI_ANNUAL       = None   # set by _init_baci_params()
+BACI_SUMMER       = None
+CLEARFELL_B2_MULT = None
+THINNING_B2_MULT  = None
+
+def _init_baci_params():
+    """Call once at runtime to populate the module-level BACI constants."""
+    global BACI_ANNUAL, BACI_SUMMER, CLEARFELL_B2_MULT, THINNING_B2_MULT
+    BACI_ANNUAL, BACI_SUMMER, CLEARFELL_B2_MULT = _load_baci_params()
+    THINNING_B2_MULT = 1.0 + (CLEARFELL_B2_MULT - 1.0) / 2  # 50% of clearfell effect
 
 # Summer months (Jun-Sep inclusive, 1-based)
 SUMMER_MONTHS = [6, 7, 8, 9]
@@ -128,7 +194,7 @@ FIG_DPI    = 300
 FIG_FONT   = None  # use matplotlib default (DejaVu Sans); avoids Arial-not-found warnings
 
 SCENARIO_COLOURS = {
-    "Baseline (Corsican pine)":     "#2166AC",
+    "Baseline (Corsican pine)":     CONFIG_CLUSTER_COLOURS[4],  # match C4 config
     "Full clearfell":               "#D73027",
     "50% thinning":                 "#F46D43",
     "Broadleaf conversion":         "#4DAC26",
@@ -147,10 +213,10 @@ SCENARIO_LW = {
 }
 
 CLUSTER_COLOURS = {
-    "C1\nEastern\nlake-buffer":          "#E69F00",
-    "C2\nEastern\nmature dune":          "#009E73",
-    "C3\nWestern\nmature dune":          "#CC79A7",
-    "C4 Forest\npre-felling\n2005–17":   "#56B4E9",
+    "C1\nEastern\nlake-buffer":          CONFIG_CLUSTER_COLOURS[1],
+    "C2\nEastern\nmature dune":          CONFIG_CLUSTER_COLOURS[2],
+    "C3\nWestern\nmature dune":          CONFIG_CLUSTER_COLOURS[3],
+    "C4 Forest\npre-felling\n2005–17":   CONFIG_CLUSTER_COLOURS[4],
     "C4 Forest\npost-felling\n2018–25":  "#D55E00",
 }
 
@@ -364,7 +430,15 @@ def plot_hydrograph(scenario_shifts, obs_monthly, monthly_P, monthly_PET,
         baci_summer[m] += BACI_SUMMER
 
     x    = np.arange(1, 13)
-    YMIN, YMAX = 0.35, 1.45
+    YMIN = 0.35
+    # Compute YMAX dynamically so the BACI benchmark line isn't clipped
+    all_depths = list(depths.values()) + [baci_summer, baci_annual]
+    if obs_c1 is not None:
+        all_depths.append(obs_c1)
+    if obs_c2 is not None:
+        all_depths.append(obs_c2)
+    data_max = max(np.nanmax(d) for d in all_depths)
+    YMAX = max(1.45, round(data_max + 0.15, 1))  # at least 1.45, with 0.15 m padding
 
     fig, (ax1, ax2) = plt.subplots(
         2, 1, figsize=(11, 10), facecolor="white",
@@ -375,14 +449,15 @@ def plot_hydrograph(scenario_shifts, obs_monthly, monthly_P, monthly_PET,
         ( 0.00, SD15b,     "#a8d8a8"),
         ( SD15b, SD16,     "#ffffb2"),
         ( SD16,  SD16_REC, "#fd8d3c"),
-        ( SD16_REC, 1.45,  "#f4c2a1"),
+        ( SD16_REC, YMAX,  "#f4c2a1"),
     ]:
         ax1.axhspan(max(ylo, YMIN), min(yhi, YMAX),
                     alpha=0.18, color=col, zorder=0)
 
     # Zone labels
+    below_rec_y = SD16_REC + (YMAX - SD16_REC) * 0.55   # mid-point of bottom zone
     for y, lbl in [(0.48, "SD15b wet slack"), (0.80, "SD16 dry slack"),
-                   (1.09, "SD16 recovery"),   (1.35, "Below recovery")]:
+                   (1.09, "SD16 recovery"),   (below_rec_y, "Below recovery")]:
         if YMIN < y < YMAX:
             ax1.text(0.62, y, lbl, fontsize=6.5, color="dimgrey",
                      va="center", style="italic")
@@ -574,28 +649,31 @@ def plot_distributions(master, df, dates, well_names, elev, dpi=FIG_DPI):
 
     groups = [
         ("C1\nEastern\nlake-buffer",
-         "#E69F00",
+         CONFIG_CLUSTER_COLOURS[1],
          lambda s, e: _cluster_summer_mins_21(1, df, dates, well_names,
                                                elev, master, s, e)),
         ("C2\nEastern\nmature dune",
-         "#009E73",
+         CONFIG_CLUSTER_COLOURS[2],
          lambda s, e: _cluster_summer_mins_21(2, df, dates, well_names,
                                                elev, master, s, e)),
         ("C3\nWarren\ninterior",
-         "#CC79A7",
+         CONFIG_CLUSTER_COLOURS[3],
          lambda s, e: _cluster_summer_mins_21(3, df, dates, well_names,
                                                elev, master, s, e)),
         ("C5\nCoastal\nforest",
-         "#56B4E9",
+         CONFIG_CLUSTER_COLOURS[5],
          lambda s, e: _cluster_summer_mins_21(5, df, dates, well_names,
                                                elev, master, s, e)),
         ("C4\nMain\nforest",
-         "#2166AC",
+         CONFIG_CLUSTER_COLOURS[4],
          lambda s, e: _cluster_summer_mins_21(4, df, dates, well_names,
                                                elev, master, s, e)),
     ]
-    c4_phase_cols = ["#9ECAE1", "#2166AC", "#D55E00"]
-    c5_phase_cols = ["#B3D9F2", "#56B4E9", "#E8A020"]
+    # Phase-variant colours: lighter pre-scrape, base scraping, warm post-felling
+    # C4 purple family (#7f77dd base)
+    c4_phase_cols = ["#b8b3ee", "#7f77dd", "#D55E00"]
+    # C5 brown family (#8B4513 base)
+    c5_phase_cols = ["#c4915e", "#8B4513", "#E8A020"]
 
     group_centres = np.array([1.0, 2.6, 4.2, 5.8, 7.4])
     offsets       = np.array([-0.48, 0.0, 0.48])
@@ -698,10 +776,10 @@ def plot_distributions(master, df, dates, well_names, elev, dpi=FIG_DPI):
 
     # Forest cluster bracket — C5 + C4 together
     ax.annotate("", xy=(7.84, 3.18), xytext=(5.36, 3.18),
-                arrowprops=dict(arrowstyle="|-|", color="#2166AC",
+                arrowprops=dict(arrowstyle="|-|", color="#555555",
                                 lw=1.5, mutation_scale=4))
     ax.text(6.60, 3.23, "Forest clusters (Corsican pine canopy)",
-            ha="center", fontsize=7.5, color="#2166AC", style="italic")
+            ha="center", fontsize=7.5, color="#555555", style="italic")
 
     # Phase labels — below C3 bracket, under each group
     for gi in range(len(groups)):
@@ -764,7 +842,7 @@ def plot_distributions(master, df, dates, well_names, elev, dpi=FIG_DPI):
         if len(_c4_pre) > 0 and len(_c4_post) > 0:
             _shift_summer = _c4_post.mean() - _c4_pre.mean()
             _shift_text = (
-                f"C4 post-felling (orange) narrows\n"
+                f"C4 post-felling (\u25b2) narrows\n"
                 f"and shifts deeper by {abs(_shift_summer):.3f} m (summer mean)."
             )
         else:
@@ -1332,6 +1410,12 @@ def main(preview=False):
 
     print("\n=== 21_forestry_scenarios.py ===")
     print(f"  DPI: {dpi}  ({'preview' if preview else 'publication'})")
+
+    print("\n[0/5] Loading BACI parameters from Script 10 outputs...")
+    _init_baci_params()
+    print(f"  BACI_ANNUAL={BACI_ANNUAL:.3f}  BACI_SUMMER={BACI_SUMMER:.3f}")
+    print(f"  CLEARFELL_B2_MULT={CLEARFELL_B2_MULT:.4f}  "
+          f"THINNING_B2_MULT={THINNING_B2_MULT:.4f}")
 
     print("\n[1/5] Loading data...")
     master, elev, reg, climate = load_data()

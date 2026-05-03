@@ -52,6 +52,8 @@ from utils.paths import (
     OUT_10_TRANSECT,
     OUT_10_TRANSECT_CSV,
     OUT_10_NW10_TREND,
+    OUT_10_SUMMER_MIN,
+    OUT_10_SUMMER_MIN_CSV,
     OUT_10_REPORT_NUMBERS,
     INT_REGIONAL_AVG,
 )
@@ -715,6 +717,22 @@ for well in valid_targets:
 full_param_df = pd.DataFrame(full_param_results)
 full_param_df.to_csv(OUT_10_FULL_PARAMS, index=False)
 print(f' -> Saved: {OUT_10_FULL_PARAMS.name}')
+
+# Legacy export: OUT_10_COEFF_SLOPES (required by run_analysis.py validation)
+_coeff_slopes = full_param_df.rename(columns={
+    'beta_1_conf_low': 'beta_1_ci_low', 'beta_1_conf_high': 'beta_1_ci_high',
+    'beta_2_conf_low': 'beta_2_ci_low', 'beta_2_conf_high': 'beta_2_ci_high',
+    'beta_3_conf_low': 'beta_3_ci_low', 'beta_3_conf_high': 'beta_3_ci_high',
+}).rename(columns={
+    'beta_1_recharge': 'beta_1_slope',
+    'beta_2_atmospheric_draw': 'beta_2_slope',
+    'beta_3_drainage': 'beta_3_slope',
+})
+# Rename Tier→Zone for backward compatibility
+if 'Tier' in _coeff_slopes.columns:
+    _coeff_slopes = _coeff_slopes.rename(columns={'Tier': 'Zone'})
+_coeff_slopes.to_csv(OUT_10_COEFF_SLOPES, index=False)
+print(f' -> Saved: {OUT_10_COEFF_SLOPES.name} (legacy format)')
 
 
 # ===========================================================================
@@ -1655,6 +1673,266 @@ if not _roll_export.empty:
 
 
 # ===========================================================================
+# 13. SUMMER MINIMUM ANALYSIS — clearfell effect on peak drawdown
+# ===========================================================================
+# Compare the annual summer minimum (deepest Jun–Sep reading) at impact,
+# edge, and control wells before and after the December 2017 clearfell.
+# The summer minimum is the ecologically critical metric — it captures
+# when dune slack habitat is most stressed.
+#
+# The forest controls (NW10, CEH2, CEH13, CEH32) share the canopy
+# microclimate and provide the counterfactual. The climate controls
+# (NW5, NW6, NW7, CEH1) should show no shift — they are the negative
+# control for the summer minimum analysis.
+
+print("\n13. Summer Minimum Analysis — Clearfell Effect...")
+
+_SUMMER_MONTHS = [6, 7, 8, 9]
+_SM_YEARS = range(2007, 2026)
+
+# Compute per-well annual summer minima
+_sm_all = {}
+_sm_wells = (valid_impact + valid_edge + valid_forest + valid_climate)
+for _w in _sm_wells:
+    if _w not in wells.columns:
+        continue
+    _wm = {}
+    for _yr in _SM_YEARS:
+        _mask = (wells.index.year == _yr) & (wells.index.month.isin(_SUMMER_MONTHS))
+        _s = wells.loc[_mask, _w].dropna()
+        if len(_s) >= 2:
+            _wm[_yr] = float(_s.min())
+    if _wm:
+        _sm_all[_w] = _wm
+
+# Forest control centroid summer minimum
+_forest_sm = {}
+for _yr in _SM_YEARS:
+    _vals = [_sm_all[w][_yr] for w in valid_forest if w in _sm_all and _yr in _sm_all[w]]
+    if len(_vals) >= 2:
+        _forest_sm[_yr] = np.mean(_vals)
+
+# Climate control centroid summer minimum
+_climate_sm = {}
+for _yr in _SM_YEARS:
+    _vals = [_sm_all[w][_yr] for w in valid_climate if w in _sm_all and _yr in _sm_all[w]]
+    if len(_vals) >= 2:
+        _climate_sm[_yr] = np.mean(_vals)
+
+# ── Per-well and per-tier analysis ───────────────────────────────────────
+_sm_shift_results = []
+
+# Wells to analyse against forest control centroid
+_analyse_wells = {}
+for _w in valid_impact + valid_edge:
+    _analyse_wells[_w] = {'tier': _well_tier(_w), 'control': 'Forest_Ctrl'}
+for _w in valid_climate:
+    _analyse_wells[_w] = {'tier': 'climate', 'control': 'Forest_Ctrl'}
+
+print(f'\n  {"Well":<10} {"Tier":<14} {"Pre mean":>10} {"Post mean":>10} '
+      f'{"Shift":>10} {"p":>8} {"n_pre":>6} {"n_post":>6}')
+print(f'  {"-"*10} {"-"*14} {"-"*10} {"-"*10} {"-"*10} {"-"*8} {"-"*6} {"-"*6}')
+
+for _w, _cfg in _analyse_wells.items():
+    if _w not in _sm_all:
+        continue
+    _common = sorted(set(_sm_all[_w]) & set(_forest_sm))
+    if len(_common) < 5:
+        continue
+
+    _gap = pd.Series({yr: _sm_all[_w][yr] - _forest_sm[yr] for yr in _common})
+
+    _pre  = _gap[_gap.index < 2018]
+    _post = _gap[_gap.index >= 2018]
+
+    if len(_pre) < 3 or len(_post) < 3:
+        continue
+
+    _pre_mean  = float(_pre.mean())
+    _post_mean = float(_post.mean())
+    _shift     = _post_mean - _pre_mean
+
+    _, _p_val = _stats.ttest_ind(_post.values, _pre.values, equal_var=False)
+
+    _sm_shift_results.append({
+        'Well': _w.upper(), 'Tier': _cfg['tier'],
+        'Pre_mean': _pre_mean, 'Post_mean': _post_mean,
+        'Shift': _shift, 'p_value': float(_p_val),
+        'n_pre': len(_pre), 'n_post': len(_post),
+        'gap_series': _gap,
+    })
+
+    _p_fmt = f'{_p_val:.3f}' if _p_val >= 0.001 else '<0.001'
+    _sig = '***' if _p_val < 0.001 else ('**' if _p_val < 0.01 else ('*' if _p_val < 0.05 else ''))
+    print(f'  {_w.upper():<10} {_cfg["tier"]:<14} {_pre_mean:+10.4f} {_post_mean:+10.4f} '
+          f'{_shift:+10.4f} {_p_fmt:>7}{_sig} {len(_pre):>6} {len(_post):>6}')
+
+# ── Tier-level means ─────────────────────────────────────────────────────
+print(f'\n  ── Tier means (summer minimum gap vs forest control) ──')
+TIER_ORDER_SM = ['impact', 'edge', 'climate']
+
+_sm_tier_summary = {}
+for _tier in TIER_ORDER_SM:
+    _tier_results = [r for r in _sm_shift_results if r['Tier'] == _tier]
+    if not _tier_results:
+        continue
+    _shifts = [r['Shift'] for r in _tier_results]
+    _mean_shift = np.mean(_shifts)
+    _n = len(_shifts)
+
+    # Bootstrap CI for tier mean
+    if _n >= 2:
+        _boot = np.array([np.random.choice(_shifts, _n, replace=True).mean()
+                          for _ in range(2000)])
+        _ci_lo = np.percentile(_boot, 2.5)
+        _ci_hi = np.percentile(_boot, 97.5)
+    else:
+        _ci_lo = _ci_hi = _mean_shift
+
+    # Pooled t-test: all pre values vs all post values across tier
+    _all_pre = np.concatenate([r['gap_series'][r['gap_series'].index < 2018].values
+                                for r in _tier_results])
+    _all_post = np.concatenate([r['gap_series'][r['gap_series'].index >= 2018].values
+                                 for r in _tier_results])
+    if len(_all_pre) >= 3 and len(_all_post) >= 3:
+        _, _p_pool = _stats.ttest_ind(_all_post, _all_pre, equal_var=False)
+    else:
+        _p_pool = np.nan
+
+    _sm_tier_summary[_tier] = {
+        'mean_shift': _mean_shift, 'ci_lo': _ci_lo, 'ci_hi': _ci_hi,
+        'n_wells': _n, 'p_pooled': float(_p_pool) if pd.notna(_p_pool) else np.nan,
+    }
+
+    _p_fmt = f'{_p_pool:.3f}' if (pd.notna(_p_pool) and _p_pool >= 0.001) else '<0.001'
+    print(f'  {_tier:<14} shift={_mean_shift*1000:+7.1f} mm  '
+          f'CI=[{_ci_lo*1000:+.0f}, {_ci_hi*1000:+.0f}]  '
+          f'p(pooled)={_p_fmt}  n={_n} wells')
+
+# ── Figure: summer minimum gap by tier ───────────────────────────────────
+if _sm_shift_results:
+    _n_tiers = len([t for t in TIER_ORDER_SM if any(r['Tier'] == t for r in _sm_shift_results)])
+    _fig_sm = plt.figure(figsize=(14, 5 + 4 * _n_tiers), dpi=300)
+    _gs_sm = _fig_sm.add_gridspec(_n_tiers + 1, 1,
+                                    height_ratios=[1.2] + [1.0] * _n_tiers,
+                                    hspace=0.35)
+
+    _tier_colours_sm = {
+        'impact': cb_red, 'edge': cb_edge,
+        'climate': cb_green, 'forest': cb_purple,
+    }
+    _tier_labels_sm = {
+        'impact': 'Impact', 'edge': 'Edge',
+        'climate': 'Climate Ctrl', 'forest': 'Forest Ctrl',
+    }
+
+    # Panel (a): raw summer minimum hydrograph — tier centroids
+    _ax_top = _fig_sm.add_subplot(_gs_sm[0])
+
+    for _tier in ['impact', 'edge', 'forest', 'climate']:
+        _tier_wells = [r['Well'].lower() for r in _sm_shift_results if r['Tier'] == _tier]
+        if not _tier_wells:
+            continue
+        _tier_mins = {}
+        for _yr in _SM_YEARS:
+            _vals = [_sm_all[w][_yr] for w in _tier_wells if w in _sm_all and _yr in _sm_all[w]]
+            if _vals:
+                _tier_mins[_yr] = np.mean(_vals)
+        if _tier_mins:
+            _yrs = sorted(_tier_mins.keys())
+            _vals = [_tier_mins[yr] for yr in _yrs]
+            _ax_top.plot(_yrs, _vals, 'o-',
+                          color=_tier_colours_sm.get(_tier, '#333'),
+                          lw=2.0 if _tier in ['impact', 'forest'] else 1.5,
+                          ms=6, label=_tier_labels_sm.get(_tier, _tier),
+                          alpha=0.85)
+
+    _ax_top.axvline(2017.5, color='black', lw=1.4, ls='--', alpha=0.7, label='Dec 2017 clearfell')
+    _ax_top.axvline(2015.25, color='purple', lw=1.0, ls=':', alpha=0.5, label='Apr 2015 scraping')
+    _ax_top.set_ylabel('Summer minimum depth (m)', fontsize=10)
+    _ax_top.set_title('(a)  Annual summer minimum (Jun–Sep) by tier',
+                       fontsize=10, fontweight='bold', loc='left')
+    _ax_top.legend(fontsize=8, loc='lower left', framealpha=0.9, ncol=3)
+    _ax_top.grid(axis='y', alpha=0.3, ls='--')
+    _ax_top.invert_yaxis()
+    for sp in ['top', 'right']: _ax_top.spines[sp].set_visible(False)
+
+    # Panels (b–d): gap vs forest control by tier
+    _panel_idx = 1
+    for _tier in TIER_ORDER_SM:
+        _tier_results = [r for r in _sm_shift_results if r['Tier'] == _tier]
+        if not _tier_results:
+            continue
+
+        _ax = _fig_sm.add_subplot(_gs_sm[_panel_idx])
+
+        for _r in _tier_results:
+            _gap = _r['gap_series']
+            _yrs = np.array(sorted(_gap.index))
+            _vals = np.array([float(_gap[yr]) for yr in _yrs])
+            _ax.plot(_yrs, _vals * 1000, 'o-', ms=5, lw=1.4, alpha=0.7,
+                      label=f'{_r["Well"]} ({_r["Shift"]*1000:+.0f} mm, '
+                            f'p={_r["p_value"]:.3f})')
+
+        # Tier mean lines
+        if _tier in _sm_tier_summary:
+            _ts = _sm_tier_summary[_tier]
+            # Compute tier centroid gap series
+            _all_gaps = pd.DataFrame({r['Well']: r['gap_series'] for r in _tier_results})
+            _centroid_gap = _all_gaps.mean(axis=1)
+            _pre_centroid = _centroid_gap[_centroid_gap.index < 2018]
+            _post_centroid = _centroid_gap[_centroid_gap.index >= 2018]
+            if len(_pre_centroid) > 0:
+                _ax.axhline(_pre_centroid.mean() * 1000, color='black', lw=1.8,
+                             ls='--', alpha=0.6)
+            if len(_post_centroid) > 0:
+                _ax.axhline(_post_centroid.mean() * 1000, color='black', lw=1.8,
+                             ls='-', alpha=0.6)
+
+        _ax.axhline(0, color='gray', lw=0.8, alpha=0.4)
+        _ax.axvline(2017.5, color='black', lw=1.4, ls='--', alpha=0.7)
+
+        _panel_letter = chr(ord('b') + _panel_idx - 1)
+        _tier_label = _tier_labels_sm.get(_tier, _tier)
+        _ts_info = _sm_tier_summary.get(_tier, {})
+        _ts_shift = _ts_info.get('mean_shift', 0) * 1000
+        _ts_p = _ts_info.get('p_pooled', np.nan)
+        _p_fmt = f'p={_ts_p:.3f}' if (pd.notna(_ts_p) and _ts_p >= 0.001) else 'p<0.001'
+        _ax.set_title(f'({_panel_letter})  {_tier_label} vs forest control: '
+                       f'tier mean shift = {_ts_shift:+.0f} mm, {_p_fmt}',
+                       fontsize=10, fontweight='bold', loc='left')
+        _ax.set_ylabel('Gap vs forest ctrl (mm)', fontsize=9)
+        _ax.legend(fontsize=7, loc='upper left', framealpha=0.9, ncol=2)
+        _ax.grid(axis='y', alpha=0.3, ls='--')
+        for sp in ['top', 'right']: _ax.spines[sp].set_visible(False)
+
+        _panel_idx += 1
+
+    _fig_sm.suptitle('Clearfell effect on summer minimum depth\n'
+                      'Annual Jun–Sep minimum vs forest control centroid (NW10, CEH2, CEH13, CEH32)',
+                      fontsize=11, fontweight='bold')
+    plt.tight_layout()
+    plt.savefig(OUT_10_SUMMER_MIN, bbox_inches='tight', dpi=300)
+    plt.close(_fig_sm)
+    print(f' -> Saved: {OUT_10_SUMMER_MIN.name}')
+
+    # Export CSV
+    _sm_csv_rows = []
+    for _r in _sm_shift_results:
+        for yr in sorted(_r['gap_series'].index):
+            _sm_csv_rows.append({
+                'Year': yr, 'Well': _r['Well'], 'Tier': _r['Tier'],
+                'Well_summer_min_m': _sm_all.get(_r['Well'].lower(), {}).get(yr, np.nan),
+                'Forest_ctrl_min_m': _forest_sm.get(yr, np.nan),
+                'Gap_m': float(_r['gap_series'][yr]),
+                'Era': 'Pre-felling' if yr < 2018 else 'Post-felling',
+            })
+    _sm_csv_path = OUT_10_SUMMER_MIN_CSV
+    pd.DataFrame(_sm_csv_rows).to_csv(_sm_csv_path, index=False)
+    print(f' -> Saved: {_sm_csv_path.name}')
+
+
+# ===========================================================================
 # SUMMARY
 # ===========================================================================
 print("\n" + "=" * 72)
@@ -1695,6 +1973,16 @@ if not full_param_df.empty:
         _pivot = full_param_df.pivot_table(index='Well', columns='Period',
                                             values=param, aggfunc='first')
         print(_pivot.to_string())
+
+if _sm_tier_summary:
+    print("\n--- Summer Minimum Shifts (vs forest control) ---")
+    for _tier in TIER_ORDER_SM:
+        if _tier in _sm_tier_summary:
+            _ts = _sm_tier_summary[_tier]
+            _p_fmt = f'{_ts["p_pooled"]:.3f}' if pd.notna(_ts['p_pooled']) else 'N/A'
+            print(f"  {_tier:<14} {_ts['mean_shift']*1000:+7.1f} mm  "
+                  f"CI=[{_ts['ci_lo']*1000:+.0f}, {_ts['ci_hi']*1000:+.0f}]  "
+                  f"p={_p_fmt}  n={_ts['n_wells']}")
 
 
 # ===========================================================================
@@ -1843,6 +2131,19 @@ if not full_param_df.empty:
                 if not _fp_per.empty:
                     _rn(f"Coefficient_tier_mean_{_coeff}", float(_fp_per[_coeff].mean()),
                         era=_per, note=f"Tier={_tier_label}, n={len(_fp_per)}")
+
+# Summer minimum shifts
+for _smr in _sm_shift_results:
+    _rn("Summer_min_shift_vs_forest", _smr['Shift'],
+        well=_smr['Well'], era="Post_felling",
+        note=f"Tier={_smr['Tier']}, p={_smr['p_value']:.4f}, "
+             f"n_pre={_smr['n_pre']}, n_post={_smr['n_post']}")
+
+for _tier, _ts in _sm_tier_summary.items():
+    _rn("Summer_min_tier_mean_shift", _ts['mean_shift'],
+        era="Post_felling",
+        note=f"Tier={_tier}, CI=[{_ts['ci_lo']*1000:.0f},{_ts['ci_hi']*1000:.0f}]mm, "
+             f"p(pooled)={_ts['p_pooled']:.4f}, n={_ts['n_wells']} wells")
 
 _rpt_df = pd.DataFrame(_rpt_rows)
 _rpt_df.to_csv(OUT_10_REPORT_NUMBERS, index=False)

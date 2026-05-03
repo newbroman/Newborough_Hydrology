@@ -202,6 +202,8 @@ OUT_09_REPORT_NUMBERS       = DIR_09 / "09_scrape_report_numbers.csv"
 OUT_09B_INDIVIDUAL          = DIR_09 / "09b_01_individual_well_baci.csv"
 OUT_09B_CENTROIDS           = DIR_09 / "09b_02_centroid_summaries.csv"
 OUT_09B_TRAJECTORY          = DIR_09 / "09b_03_ceh36_equilibration.jpg"
+OUT_09B_SCENARIO            = DIR_09 / "09b_04_scenario_comparison.jpg"
+OUT_09B_SCENARIO_CSV        = DIR_09 / "09b_04_scenario_comparison.csv"
 
 # Script 10 — Clearfell BACI
 OUT_10_DUAL_BACI            = DIR_10 / "10_cfell_01_dual_control_baci.png"

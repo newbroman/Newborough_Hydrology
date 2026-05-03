@@ -523,6 +523,39 @@ CLUSTER_PARAMS = {
 
 # Fraction of each cluster's monitoring wells within 800 m uphill of CEH36.
 # C3: 6/19 = 32%, C4: 7/9 = 78%, C5: 5/5 = 100%.
+#
+# NOTE — C5 coastal retreat confound:
+# The four outer C5 wells (NW9, CEH16, CEH17, CEH19) sit on the western
+# coastal margin (605–788 m from the W coast, elev 4.8–6.2 m). Their
+# pre-intervention water-table records are dominated by a 2006–2008
+# recharge spike (ridge-proximal pathway) whose hangover produces steep
+# apparent declines that are not coastal erosion. CEH4 (C3, 4.5 m elev,
+# same western zone) shows a genuine residual decline of −28 mm/yr even
+# after trimming to 2010+, consistent with progressive coastal boundary
+# retreat, but the C5 wells' trimmed (2010+) differential slopes are
+# near zero (NW9: −3, CEH16: +7, CEH17: −10, CEH19: −18, CEH31: +1 mm/yr,
+# none significant).
+#
+# The C1+C2 BACI control (eastern clusters) does not share the western
+# positional signal, so the Script 10 BACI felling step for C5 (−76 mm)
+# overstates the intervention-attributable decline. A sensitivity test
+# using NW5–7 (western C3, unforested, un-scraped) as control halves the
+# C5 felling step to −33 mm; using CEH4 flips it to +23 mm.
+#
+# The scraping propagation analysis (this script) already excluded the
+# outer four C5 wells from the uphill well set, retaining only CEH31
+# (875 m from coast, 6.5 m elev). The FRAC_AFFECTED value of 1.00 is
+# geometrically correct (all five C5 wells are within 800 m of CEH36)
+# but should be interpreted cautiously: the coefficient shifts applied
+# to C5 come from the C3+CEH31 centroid, not from the outer four wells.
+# The C5 scraping bar reflects the mechanistic SSM perturbation at C5's
+# mean coefficients, weighted by the geometric fraction, not an empirical
+# observation at all five wells.
+#
+# The SSM-derived scenario values (clearfell +4.5, scraping −2.8 mm w.e./mo)
+# are computed from coefficient perturbations and are independent of the
+# coastal confound. They represent the expected intervention effect at C5
+# in the absence of boundary retreat.
 FRAC_AFFECTED = {"C1": 0.0, "C2": 0.0, "C3": 0.32, "C4": 0.78, "C5": 1.00}
 
 # Existing (non-scraping) scenario values (mm water equiv / month)
@@ -672,6 +705,19 @@ def _plot_scenario_comparison(centroids_df, dpi=200):
         bbox=dict(boxstyle="round,pad=0.5", facecolor="lightyellow",
                   alpha=0.9, edgecolor="#DAA520"),
         arrowprops=dict(arrowstyle="->", color="#8B6914", lw=2.0))
+
+    # C5 coastal confound caveat
+    ax.text(
+        x[4] + 0.02, -12.5,
+        "C5 note: BACI felling step (\u221276 mm)\n"
+        "overstates decline due to western\n"
+        "positional confound vs C1+C2 control.\n"
+        "SSM scenario values are unaffected.",
+        fontsize=9, fontstyle="italic",
+        color="#555555",
+        bbox=dict(boxstyle="round,pad=0.4", facecolor="#F5F5F5",
+                  alpha=0.85, edgecolor="#AAAAAA"),
+        ha="center", va="top")
 
     ax.legend(fontsize=12, loc="lower right", ncol=2)
     ax.grid(axis="y", alpha=0.3)

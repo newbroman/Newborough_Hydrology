@@ -204,6 +204,10 @@ OUT_09B_CENTROIDS           = DIR_09 / "09b_02_centroid_summaries.csv"
 OUT_09B_TRAJECTORY          = DIR_09 / "09b_03_ceh36_equilibration.jpg"
 OUT_09B_SCENARIO            = DIR_09 / "09b_04_scenario_comparison.jpg"
 OUT_09B_SCENARIO_CSV        = DIR_09 / "09b_04_scenario_comparison.csv"
+OUT_09B_SUMMER_SCENARIO     = DIR_09 / "09b_05_summer_scenario_comparison.png"
+OUT_09B_SUMMER_SCENARIO_CSV = DIR_09 / "09b_05_summer_scenario_comparison.csv"
+OUT_09_SCRAPE_SUMMER_MIN    = DIR_09 / "09_scrape_10_scraping_summer_minima.png"
+OUT_09_SCRAPE_SUMMER_CSV    = DIR_09 / "09_scrape_10_scraping_summer_minima.csv"
 
 # Script 10 — Clearfell BACI
 OUT_10_DUAL_BACI            = DIR_10 / "10_cfell_01_dual_control_baci.png"
@@ -219,6 +223,8 @@ OUT_10_TABLE5_SUMMARY       = DIR_10 / "10_cfell_09_table5_beta3_before_after.cs
 OUT_10_TRANSECT             = DIR_10 / "10_cfell_10_clearfell_transect.png"
 OUT_10_TRANSECT_CSV         = DIR_10 / "10_cfell_10_clearfell_transect_steps.csv"
 OUT_10_NW10_TREND           = DIR_10 / "10_cfell_11_nw10_broadleaf_trend.csv"
+OUT_10_SUMMER_MIN           = DIR_10 / "10_cfell_13_summer_minima.png"
+OUT_10_SUMMER_MIN_CSV       = DIR_10 / "10_cfell_13_summer_minima.csv"
 OUT_10_REPORT_NUMBERS       = DIR_10 / "10_cfell_report_numbers.csv"
 
 # Script 10b — Spatial step-change maps (scraping + clearfell)

@@ -1,7 +1,0 @@
-Coefficient,r_vs_Elevation,p_vs_Elevation,r_vs_Dist_from_ridge,p_vs_Dist_from_ridge,r_vs_Easting,p_vs_Easting,R2_elevation_only,R2_elevation_plus_dist,Marginal_gain
-β₁_recharge,0.223,0.4438,-0.528,0.0524,0.59,0.0262,,,
-β₂_atm_draw,0.975,0.0,-0.889,0.0,0.74,0.0025,,,
-β₃_drainage,-0.771,0.0013,0.577,0.0306,-0.406,0.1502,,,
-,,,,,,,,,
-β₂_atm_draw,,,,,,,0.951,0.952,0.001
-β₃_drainage,,,,,,,0.594,0.721,0.127

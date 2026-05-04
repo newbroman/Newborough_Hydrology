@@ -48,9 +48,11 @@ IMPACT_WELLS = ['wmc3']
 EDGE_WELLS = ['ceh31', 'ceh20', 'ceh30', 'ceh16']
 
 FOREST_CONTROL_WELLS = [
-    'ceh32', 'ceh34', 'ceh33', 'nw10', 'ceh19',  # C4 interior
-    'ceh2',                                          # C4
-    'ceh17',                                         # C5 (Coastal Forest, same canopy)
+    'ceh32', 'ceh34', 'ceh33', 'nw10', 'ceh2',  # C4 interior (Main Forest)
+]
+
+COASTAL_CONTROL_WELLS = [
+    'ceh19', 'ceh17',  # C5 (Coastal Forest — lower β₂, distinct from C4)
 ]
 
 CLIMATE_CONTROL_WELLS = [
@@ -60,15 +62,17 @@ CLIMATE_CONTROL_WELLS = [
 
 ALL_NETWORK_WELLS = (
     IMPACT_WELLS + EDGE_WELLS +
-    FOREST_CONTROL_WELLS + CLIMATE_CONTROL_WELLS
+    FOREST_CONTROL_WELLS + COASTAL_CONTROL_WELLS +
+    CLIMATE_CONTROL_WELLS
 )
 
 # Convenience grouping for iteration
 TIERS = {
-    'Impact':       IMPACT_WELLS,
-    'Edge':         EDGE_WELLS,
-    'Forest Ctrl':  FOREST_CONTROL_WELLS,
-    'Climate Ctrl': CLIMATE_CONTROL_WELLS,
+    'Impact':        IMPACT_WELLS,
+    'Edge':          EDGE_WELLS,
+    'Forest Ctrl':   FOREST_CONTROL_WELLS,
+    'Coastal Ctrl':  COASTAL_CONTROL_WELLS,
+    'Climate Ctrl':  CLIMATE_CONTROL_WELLS,
 }
 
 # ============================================================================
@@ -446,10 +450,11 @@ class ReportNumbers:
 # ============================================================================
 
 TIER_COLOURS = {
-    'Impact':       '#D73027',
-    'Edge':         '#F46D43',
-    'Forest Ctrl':  '#4DAC26',
-    'Climate Ctrl': '#4575B4',
+    'Impact':        '#D73027',
+    'Edge':          '#F46D43',
+    'Forest Ctrl':   '#4DAC26',
+    'Coastal Ctrl':  '#8B6914',  # brown — C5 Coastal Forest
+    'Climate Ctrl':  '#4575B4',
 }
 
 WELL_MARKERS = ['o', 's', '^', 'D', 'v', 'P', 'X', 'h', '<', '>']
@@ -460,9 +465,9 @@ WELL_MARKERS = ['o', 's', '^', 'D', 'v', 'P', 'X', 'h', '<', '>']
 # ============================================================================
 
 def print_network_summary(valid_tiers):
-    """Print the 4-tier network summary to console."""
+    """Print the 5-tier network summary to console."""
     total = sum(len(v) for v in valid_tiers.values())
-    print(f"\n  Network: {total} wells (4-tier design)")
+    print(f"\n  Network: {total} wells (5-tier design)")
     for tier, wells_list in valid_tiers.items():
         print(f"    {tier:<14}: {', '.join(w.upper() for w in wells_list)}")
     print()

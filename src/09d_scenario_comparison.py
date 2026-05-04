@@ -334,20 +334,16 @@ def _plot_scenario_comparison(scenario_values, scrape_weighted,
     frac_note = ", ".join(
         f"{c}: {frac_affected.get(c, 0):.0%}"
         for c in ["C3", "C4", "C5"] if frac_affected.get(c, 0) > 0)
-    ax.annotate(
-        f"Scraping bars: cluster-average\n"
-        f"monthly impact on unscraped areas,\n"
-        f"weighted by fraction of cluster\n"
-        f"within {AFFECTED_RADIUS} m uphill of CEH36\n"
-        f"({frac_note})",
-        xy=(x[2] + scrape_offset, scrape_weighted.get("C3", 0)),
-        xytext=(x[0] - 0.55, -8),
-        fontsize=13,
-        bbox=dict(boxstyle="round,pad=0.5", facecolor="lightyellow",
-                  alpha=0.9, edgecolor="#DAA520"),
-        arrowprops=dict(arrowstyle="->", color="#8B6914", lw=2.0))
+    ax.text(0.02, 0.02,
+            f"Scraping bars: cluster-average monthly impact\n"
+            f"on unscraped areas, weighted by fraction of cluster\n"
+            f"within {AFFECTED_RADIUS} m uphill of CEH36 ({frac_note})",
+            transform=ax.transAxes, fontsize=10,
+            va="bottom", ha="left",
+            bbox=dict(boxstyle="round,pad=0.5", facecolor="lightyellow",
+                      alpha=0.9, edgecolor="#DAA520"))
 
-    ax.legend(fontsize=12, loc="lower right", ncol=2)
+    ax.legend(fontsize=12, loc="upper right", ncol=2)
     ax.grid(axis="y", alpha=0.3)
     plt.tight_layout()
 

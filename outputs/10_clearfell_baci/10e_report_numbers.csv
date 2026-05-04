@@ -89,16 +89,6 @@ CoeffShift_NW10_b3_before,NW10,Before,0.038,m,SE=0.0227
 CoeffShift_NW10_b3_after,NW10,After,0.0358,m,SE=0.0266
 CoeffShift_NW10_db3,NW10,Delta,-0.0022,m,
 CoeffShift_NW10_dh_predicted,NW10,,0.0235,m,Predicted clearfell effect from Δβ
-CoeffShift_CEH19_b1_before,CEH19,Before,2.3087,m,SE=0.1689
-CoeffShift_CEH19_b1_after,CEH19,After,1.9652,m,SE=0.1725
-CoeffShift_CEH19_db1,CEH19,Delta,-0.3435,m,
-CoeffShift_CEH19_b2_before,CEH19,Before,1.1401,m,SE=0.2242
-CoeffShift_CEH19_b2_after,CEH19,After,1.1764,m,SE=0.2309
-CoeffShift_CEH19_db2,CEH19,Delta,0.0364,m,
-CoeffShift_CEH19_b3_before,CEH19,Before,0.1106,m,SE=0.0279
-CoeffShift_CEH19_b3_after,CEH19,After,0.1209,m,SE=0.0323
-CoeffShift_CEH19_db3,CEH19,Delta,0.0102,m,
-CoeffShift_CEH19_dh_predicted,CEH19,,-0.0546,m,Predicted clearfell effect from Δβ
 CoeffShift_CEH2_b1_before,CEH2,Before,2.8873,m,SE=0.2077
 CoeffShift_CEH2_b1_after,CEH2,After,2.5475,m,SE=0.3218
 CoeffShift_CEH2_db1,CEH2,Delta,-0.3397,m,
@@ -109,6 +99,16 @@ CoeffShift_CEH2_b3_before,CEH2,Before,0.0254,m,SE=0.0211
 CoeffShift_CEH2_b3_after,CEH2,After,0.0412,m,SE=0.0276
 CoeffShift_CEH2_db3,CEH2,Delta,0.0158,m,
 CoeffShift_CEH2_dh_predicted,CEH2,,-0.09,m,Predicted clearfell effect from Δβ
+CoeffShift_CEH19_b1_before,CEH19,Before,2.3087,m,SE=0.1689
+CoeffShift_CEH19_b1_after,CEH19,After,1.9652,m,SE=0.1725
+CoeffShift_CEH19_db1,CEH19,Delta,-0.3435,m,
+CoeffShift_CEH19_b2_before,CEH19,Before,1.1401,m,SE=0.2242
+CoeffShift_CEH19_b2_after,CEH19,After,1.1764,m,SE=0.2309
+CoeffShift_CEH19_db2,CEH19,Delta,0.0364,m,
+CoeffShift_CEH19_b3_before,CEH19,Before,0.1106,m,SE=0.0279
+CoeffShift_CEH19_b3_after,CEH19,After,0.1209,m,SE=0.0323
+CoeffShift_CEH19_db3,CEH19,Delta,0.0102,m,
+CoeffShift_CEH19_dh_predicted,CEH19,,-0.0546,m,Predicted clearfell effect from Δβ
 CoeffShift_CEH17_b1_before,CEH17,Before,2.326,m,SE=0.1664
 CoeffShift_CEH17_b1_after,CEH17,After,1.751,m,SE=0.2140
 CoeffShift_CEH17_db1,CEH17,Delta,-0.575,m,
@@ -177,10 +177,10 @@ CoeffShift_Edge_mean_dh_predicted,Edge,,-0.0576,m,n_wells=4
 CoeffShift_Edge_mean_db1,Edge,,-0.4426,m,
 CoeffShift_Edge_mean_db2,Edge,,0.1792,m,
 CoeffShift_Edge_mean_db3,Edge,,0.0076,m,
-CoeffShift_Forest Ctrl_mean_dh_predicted,Forest Ctrl,,-0.0427,m,n_wells=7
-CoeffShift_Forest Ctrl_mean_db1,Forest Ctrl,,-0.2855,m,
-CoeffShift_Forest Ctrl_mean_db2,Forest Ctrl,,0.1974,m,
-CoeffShift_Forest Ctrl_mean_db3,Forest Ctrl,,0.0072,m,
+CoeffShift_Forest Ctrl_mean_dh_predicted,Forest Ctrl,,-0.0235,m,n_wells=5
+CoeffShift_Forest Ctrl_mean_db1,Forest Ctrl,,-0.216,m,
+CoeffShift_Forest Ctrl_mean_db2,Forest Ctrl,,0.2594,m,
+CoeffShift_Forest Ctrl_mean_db3,Forest Ctrl,,-0.0022,m,
 CoeffShift_Climate Ctrl_mean_dh_predicted,Climate Ctrl,,-0.0633,m,n_wells=5
 CoeffShift_Climate Ctrl_mean_db1,Climate Ctrl,,-0.2723,m,
 CoeffShift_Climate Ctrl_mean_db2,Climate Ctrl,,-0.0148,m,

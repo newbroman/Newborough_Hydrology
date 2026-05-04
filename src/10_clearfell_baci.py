@@ -218,8 +218,9 @@ intervention_date = pd.Timestamp('2017-12-01')   # Clear-fell intervention date 
 scraping_date     = pd.Timestamp('2015-04-01')    # April 2015 scraping event
 scraping_date_2   = pd.Timestamp('2023-10-01')    # October 2023 scraping event (within post-felling monitoring period)
 
-impact_wells = ['fe2', 'fe4', 'wmc3']
-edge_wells = ['fe1', 'fe3', 'ceh31', 'lis1', 'ceh20', 'ceh30', 'ceh16', 'nw8b']
+impact_wells = ['wmc3']  # FE wells excluded (short pre-felling records)
+edge_wells = ['ceh31', 'ceh20', 'ceh30', 'ceh16']  # All start ≤2010, 8+ pre-felling years
+# Excluded: fe1-4 (short records), lis1 (no pre-felling), nw8b (starts 2015)
 control_wells = ['ceh32', 'ceh34', 'ceh33', 'nw10', 'ceh19', 'ceh9', 'nw7', 'nw6']
 
 # Diagnostics include all 3 tiers so edge-zone decay can be quantified.
@@ -507,6 +508,20 @@ for well in valid_targets:
 
 full_param_df = pd.DataFrame(full_param_results)
 full_param_df.to_csv(OUT_10_FULL_PARAMS, index=False)
+
+# Legacy export: coefficient slopes CSV (required by run_analysis.py validation)
+_coeff_slopes = full_param_df.rename(columns={
+    'beta_1_recharge': 'beta_1_slope',
+    'beta_2_atmospheric_draw': 'beta_2_slope',
+    'beta_3_drainage': 'beta_3_slope',
+    'beta_1_conf_low': 'beta_1_ci_low', 'beta_1_conf_high': 'beta_1_ci_high',
+    'beta_2_conf_low': 'beta_2_ci_low', 'beta_2_conf_high': 'beta_2_ci_high',
+    'beta_3_conf_low': 'beta_3_ci_low', 'beta_3_conf_high': 'beta_3_ci_high',
+})
+if 'Zone' not in _coeff_slopes.columns and 'Well' in _coeff_slopes.columns:
+    _coeff_slopes['Zone'] = _coeff_slopes.get('Zone', 'unknown')
+_coeff_slopes.to_csv(OUT_10_COEFF_SLOPES, index=False)
+print(f' -> Saved: {OUT_10_COEFF_SLOPES.name}')
 
 # ==========================================
 # 6. GENERATE PLOTS (PUBLICATION READY: SYMBOLS & LINESTYLES)

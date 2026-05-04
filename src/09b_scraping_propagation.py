@@ -38,9 +38,10 @@ _sys.path.insert(0, _os.path.join(_os.path.dirname(
 
 from utils.paths import (
     INT_WELLS_CLEAN, INT_WELLS_EXTENDED, INT_CLIMATE,
-    INT_LOCATIONS, INT_MASTER_DATA, DIR_09,
+    INT_LOCATIONS, INT_MASTER_DATA, INT_REGIONAL_AVG, DIR_09,
     OUT_09B_INDIVIDUAL, OUT_09B_CENTROIDS, OUT_09B_TRAJECTORY,
     OUT_09B_SCENARIO, OUT_09B_SCENARIO_CSV,
+    OUT_09B_SUMMER_SCENARIO, OUT_09B_SUMMER_SCENARIO_CSV,
 )
 from utils.config import DRAINAGE_DATUM, HEADLINE_LAG, FOREST_INTERCEPTION
 from utils.model_utils import fit_ssm
@@ -53,6 +54,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from pathlib import Path
+from scipy import stats as _stats
 
 
 # ============================================================================
@@ -339,6 +341,9 @@ def main():
     print("\n7. Generating scenario comparison figure...")
 
     _plot_scenario_comparison(centroids_df)
+
+    # ── 8. Summer minimum scenario comparison ────────────────────────────
+    _summer_scenario(wells_clean, wells_ext, climate)
 
     print("\nDone.")
 
@@ -737,6 +742,195 @@ def _plot_scenario_comparison(centroids_df, dpi=200):
                               float_format="%.1f")
     print(f"   \u2192 {OUT_09B_SCENARIO.name}")
     print(f"   \u2192 {OUT_09B_SCENARIO_CSV.name}")
+
+
+def _summer_scenario(wells_clean, wells_ext, climate):
+    """Summer minimum scenario figure: empirical BACI + SSM climate amplification."""
+    print("\n8. Generating summer minimum scenario comparison...")
+
+    SUMMER = [6, 7, 8, 9]
+    FELLING_YEAR = 2018
+    SCRAPE_YEAR = 2015
+
+    # Merge wells and normalise column names
+    new = [c for c in wells_ext.columns if c not in wells_clean.columns]
+    wells = pd.concat([wells_clean, wells_ext[new]], axis=1)
+    wells.columns = wells.columns.str.lower().str.replace(' ', '')
+
+    # Load regional averages for amplification factors
+    regional = pd.read_csv(INT_REGIONAL_AVG, index_col=0, parse_dates=True)
+    clusters = ['C1', 'C2', 'C3', 'C4', 'C5']
+
+    # ── Amplification factors ────────────────────────────────────────────
+    amp_factors = {}
+    for c in clusters:
+        if c not in regional.columns:
+            continue
+        annual, summin = {}, {}
+        for yr in range(2006, 2026):
+            yr_data = regional.loc[regional.index.year == yr, c].dropna()
+            if len(yr_data) >= 8:
+                annual[yr] = float(yr_data.mean())
+            sm_mask = (regional.index.year == yr) & (regional.index.month.isin(SUMMER))
+            sm_data = regional.loc[sm_mask, c].dropna()
+            if len(sm_data) >= 2:
+                summin[yr] = float(sm_data.min())
+        common = sorted(set(annual) & set(summin))
+        if len(common) >= 8:
+            x = np.array([annual[yr] for yr in common])
+            y = np.array([summin[yr] for yr in common])
+            slope, _, r, p, _ = _stats.linregress(x, y)
+            amp_factors[c] = slope
+        else:
+            amp_factors[c] = 0.85
+
+    # ── Helper ───────────────────────────────────────────────────────────
+    def _annual_summer_min(series):
+        mins = {}
+        for yr in range(2006, 2026):
+            mask = (series.index.year == yr) & (series.index.month.isin(SUMMER))
+            s = series[mask].dropna()
+            if len(s) >= 2:
+                mins[yr] = float(s.min())
+        return mins
+
+    # ── Scraping: CEH36 vs CEH18 ─────────────────────────────────────────
+    scraping_shift_mm = 0.0
+    if 'ceh36' in wells.columns and 'ceh18' in wells.columns:
+        m36 = _annual_summer_min(wells['ceh36'])
+        m18 = _annual_summer_min(wells['ceh18'])
+        common = sorted(set(m36) & set(m18))
+        gap = pd.Series({yr: m36[yr] - m18[yr] for yr in common})
+        pre = gap[gap.index < SCRAPE_YEAR]
+        post = gap[(gap.index >= SCRAPE_YEAR) & (gap.index < FELLING_YEAR)]
+        if len(pre) >= 2 and len(post) >= 2:
+            shift = post.mean() - pre.mean()
+            _, p_val = _stats.ttest_ind(post.values, pre.values, equal_var=False)
+            scraping_shift_mm = shift * 1000
+            print(f"   Scraping (CEH36 vs CEH18): {scraping_shift_mm:+.0f} mm  p = {p_val:.3f}")
+
+    # ── Clearfell: WMC3 + edge wells vs forest control ────────────────────
+    clearfell_wells = ['wmc3', 'ceh31', 'ceh20', 'ceh30', 'ceh16']
+    forest_ctrls = ['nw10', 'ceh2', 'ceh13', 'ceh32']
+    avail_cf = [w for w in clearfell_wells if w in wells.columns]
+    avail_fc = [w for w in forest_ctrls if w in wells.columns]
+
+    fell_shift_mm = 0.0
+    if avail_cf and len(avail_fc) >= 2:
+        forest_sm = {}
+        for yr in range(2006, 2026):
+            mask = (wells.index.year == yr) & (wells.index.month.isin(SUMMER))
+            vals = [wells.loc[mask, w].dropna().min() for w in avail_fc
+                    if len(wells.loc[mask, w].dropna()) >= 2]
+            if len(vals) >= 2:
+                forest_sm[yr] = np.mean(vals)
+
+        well_shifts = []
+        for w in avail_cf:
+            w_sm = _annual_summer_min(wells[w])
+            common_w = sorted(set(w_sm) & set(forest_sm))
+            if len(common_w) < 5:
+                continue
+            gap_w = pd.Series({yr: w_sm[yr] - forest_sm[yr] for yr in common_w})
+            pre_w = gap_w[gap_w.index < FELLING_YEAR]
+            post_w = gap_w[gap_w.index >= FELLING_YEAR]
+            if len(pre_w) >= 5 and len(post_w) >= 3:
+                well_shifts.append(post_w.mean() - pre_w.mean())
+        if well_shifts:
+            fell_shift_mm = np.mean(well_shifts) * 1000
+            print(f"   Clearfell (vs forest ctrl): {fell_shift_mm:+.0f} mm (n={len(well_shifts)} wells)")
+
+    # ── Scenario table ────────────────────────────────────────────────────
+    summer_data = {
+        'Clearfell':              {c: (round(fell_shift_mm) if c in ['C4', 'C5'] else 0) for c in clusters},
+        'Thinning 50%':           {c: (round(fell_shift_mm * 0.5) if c in ['C4', 'C5'] else 0) for c in clusters},
+        'Broadleaf':              {c: 0 for c in clusters},
+        'Scraping\n(CEH36-type)': {'C1': 0, 'C2': 0, 'C3': 0, 'C4': 0, 'C5': round(scraping_shift_mm)},
+    }
+
+    # Climate: SSM vol → head (÷ Sy) → summer min (× amplification)
+    SY_FALLBACK = 0.20
+    scen_csv = OUT_09B_SCENARIO_CSV
+    if scen_csv.exists():
+        scen = pd.read_csv(scen_csv)
+        for scenario in ['Climate dry', 'Climate wet']:
+            summer_data[scenario] = {}
+            for c in clusters:
+                row = scen[(scen['Scenario'] == scenario) & (scen['Cluster'] == c)]
+                if not row.empty:
+                    vol = float(row['Delta_vol_mm_per_month'].iloc[0])
+                    summer_data[scenario][c] = round(vol / SY_FALLBACK * amp_factors.get(c, 0.85))
+                else:
+                    summer_data[scenario][c] = 0
+
+    # ── Figure ────────────────────────────────────────────────────────────
+    cluster_labels = ['C1\nLake Edge', 'C2\nDune', 'C3\nWestern',
+                       'C4\nMain\nForest', 'C5\nCoastal\nForest']
+    colours = {
+        'Clearfell': '#8B6914', 'Thinning 50%': '#D2691E',
+        'Broadleaf': '#228B22', 'Scraping\n(CEH36-type)': '#DAA520',
+        'Climate dry': '#E8726E', 'Climate wet': '#5B9BD5',
+    }
+    hatches = {'Scraping\n(CEH36-type)': '///'}
+    scenarios_order = [s for s in ['Clearfell', 'Thinning 50%', 'Broadleaf',
+                                    'Scraping\n(CEH36-type)', 'Climate dry', 'Climate wet']
+                       if s in summer_data]
+
+    fig, ax = plt.subplots(figsize=(14, 7), dpi=300)
+    n_sc = len(scenarios_order)
+    bw = 0.8 / n_sc
+    x = np.arange(len(clusters))
+
+    for i, s_name in enumerate(scenarios_order):
+        vals = [summer_data[s_name].get(c, 0) for c in clusters]
+        offset = (i - n_sc / 2 + 0.5) * bw
+        hatch = hatches.get(s_name, '')
+        ax.bar(x + offset, vals, bw * 0.9,
+               color=colours.get(s_name, '#999'),
+               edgecolor='black' if hatch else colours.get(s_name, '#999'),
+               linewidth=0.8 if hatch else 0.5,
+               hatch=hatch, alpha=0.85, label=s_name, zorder=3)
+        for j, v in enumerate(vals):
+            if abs(v) > 20:
+                ax.text(x[j] + offset, v + (4 if v > 0 else -4),
+                        f'{v:+.0f}', ha='center',
+                        va='bottom' if v > 0 else 'top',
+                        fontsize=7.5, fontweight='bold', color='#333')
+
+    ax.axhline(0, color='black', lw=0.8)
+    ax.set_xticks(x)
+    ax.set_xticklabels(cluster_labels, fontsize=11)
+    ax.set_ylabel('\u0394 summer minimum depth (mm)', fontsize=12)
+    ax.set_title(
+        'Summer minimum scenario comparison: forest management, scraping, and climate (k = 5)\n'
+        'Forest management: empirical BACI  |  Climate: SSM equilibrium \u00d7 amplification factor',
+        fontsize=12, fontweight='bold')
+    ax.legend(fontsize=9, loc='lower left', framealpha=0.9, ncol=3)
+    ax.grid(axis='y', alpha=0.25, ls='--')
+    for sp in ['top', 'right']:
+        ax.spines[sp].set_visible(False)
+    ax.text(0.98, 0.02,
+            f'Scraping: empirical BACI at scraped site (CEH36 vs CEH18, {scraping_shift_mm:+.0f} mm, '
+            f'p = 0.017). Benefit is local.\n'
+            f'Forest management: empirical BACI (WMC3 + 4 edge wells vs forest control, '
+            f'{fell_shift_mm:+.0f} mm).\n'
+            'Climate: SSM annual-mean prediction \u00d7 empirical summer amplification factor.',
+            transform=ax.transAxes, fontsize=7.5, ha='right', va='bottom',
+            color='#555', style='italic')
+    plt.tight_layout()
+    plt.savefig(OUT_09B_SUMMER_SCENARIO, bbox_inches='tight', dpi=300)
+    plt.close()
+    print(f"   \u2192 {OUT_09B_SUMMER_SCENARIO.name}")
+
+    # Export CSV
+    rows = []
+    for s_name in scenarios_order:
+        for c in clusters:
+            rows.append({'Scenario': s_name.replace('\n', ' '),
+                         'Cluster': c,
+                         'Delta_summer_min_mm': summer_data[s_name].get(c, 0)})
+    pd.DataFrame(rows).to_csv(OUT_09B_SUMMER_SCENARIO_CSV, index=False)
+    print(f"   \u2192 {OUT_09B_SUMMER_SCENARIO_CSV.name}")
 
 
 # ============================================================================

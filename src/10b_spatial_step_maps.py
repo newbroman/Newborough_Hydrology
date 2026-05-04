@@ -5,14 +5,14 @@ r"""
 Four publication-quality figures:
   1. Raw step change — Scraping   (scrape-era mean minus pre-scrape mean)
   2. Raw step change — Clearfell  (post-felling mean minus scrape-era mean)
-  3. Climate-corrected — Scraping (C1+C2 median subtracted)
-  4. Climate-corrected — Clearfell (C1+C2 median subtracted)
+  3. Climate-corrected — Scraping (C3W controls median subtracted)
+  4. Climate-corrected — Clearfell (C3W controls median subtracted)
 
 Climate correction:
-  C1 (Lake Edge) and C2 (Dune) are outside any intervention zone of influence.
-  Their median step change represents the climate-driven shift between eras.
-  Subtracting this from every well isolates the intervention-specific spatial
-  signal.
+  Uses the Script 10 western C3 climate controls (NW5, NW6, NW7, CEH1).
+  These share the western climate signal and coastal position with the
+  intervention zones, so subtracting their median step change removes both
+  site-wide climate and most of the coastal erosion signal in one step.
 
 Uses the full well network (~75 wells), IDW interpolation with DEM hillshade,
 ridge masking, and KML overlays. Right-side vertical colourbar matches the
@@ -66,7 +66,13 @@ INTERVENTION_DATE = pd.Timestamp("2017-12-01")
 MIN_MONTHS        = 6   # minimum observations per era for inclusion
 
 # Climate reference clusters (non-forest, non-intervention)
-CLIMATE_REF_CLUSTERS = [1, 2]  # C1 Lake Edge, C2 Dune
+# Climate reference wells — Script 10 western C3 controls
+# These share the western climate signal AND coastal position with the
+# intervention zones, absorbing most of the coastal erosion signal.
+CLIMATE_REF_WELLS = ['nw5', 'nw6', 'nw7', 'ceh1']
+
+# Wells excluded from plotting (retained in exported CSV)
+PLOT_EXCLUDE = {'ceh37', 'ceh8', 'fe1', 'fe2', 'fe3', 'fe4'}  # data quality / short records
 
 # Map extent
 XLIM = (240200, 243800)
@@ -164,13 +170,14 @@ def main():
 
     df = pd.DataFrame(rows)
 
-    # ── Climate correction ─────────────────────────────────────────────────────
-    ref_mask = df["cluster"].isin(CLIMATE_REF_CLUSTERS)
+    # ── Climate correction (C3W controls) ────────────────────────────────────
+    ref_mask = df["well"].isin(CLIMATE_REF_WELLS)
     climate_scrape = df.loc[ref_mask, "scrape_step"].median()
     climate_fell   = df.loc[ref_mask, "fell_step"].median()
     n_ref = int(ref_mask.sum())
 
-    print(f"   Climate reference (C1+C2 median, n={n_ref}):")
+    print(f"   Climate reference (C3W controls, n={n_ref}: "
+          f"{', '.join(w.upper() for w in CLIMATE_REF_WELLS)}):")
     print(f"     Scraping baseline: {climate_scrape:+.4f} m")
     print(f"     Clearfell baseline: {climate_fell:+.4f} m")
 
@@ -178,7 +185,9 @@ def main():
     df["fell_step_cc"]   = df["fell_step"]   - climate_fell
 
     df_scrape = df.dropna(subset=["scrape_step"]).copy()
+    df_scrape = df_scrape[~df_scrape["well"].isin(PLOT_EXCLUDE)]
     df_fell   = df.dropna(subset=["fell_step"]).copy()
+    df_fell   = df_fell[~df_fell["well"].isin(PLOT_EXCLUDE)]
     print(f"   Scrape step: {len(df_scrape)} wells")
     print(f"   Clearfell step: {len(df_fell)} wells")
 
@@ -204,7 +213,7 @@ def main():
     # ══════════════════════════════════════════════════════════════════════════════
     # Labels for clearfell-area wells (always annotated)
     HIGHLIGHT_WELLS = {
-        "fe2", "fe4", "wmc3", "fe1", "fe3", "ceh31",
+        "wmc3", "ceh31", "ceh16",
         "ceh32", "ceh34", "ceh33", "ceh20", "ceh30",
     }
 
@@ -347,7 +356,7 @@ def main():
     plot_spatial_step(
         df_scrape, "scrape_step_cc", norm_cc,
         "Climate-Corrected Step Change: Scraping\n"
-        f"(C1+C2 median baseline {climate_scrape:+.3f} m subtracted)",
+        f"(C3W controls median {climate_scrape:+.3f} m subtracted)",
         "Climate-corrected step (m)",
         OUT_10B_SCRAPE_CORRECTED,
     )
@@ -356,7 +365,7 @@ def main():
     plot_spatial_step(
         df_fell, "fell_step_cc", norm_cc,
         "Climate-Corrected Step Change: Clearfell\n"
-        f"(C1+C2 median baseline {climate_fell:+.3f} m subtracted)",
+        f"(C3W controls median {climate_fell:+.3f} m subtracted)",
         "Climate-corrected step (m)",
         OUT_10B_FELL_CORRECTED,
     )
@@ -399,12 +408,12 @@ def main():
     print(f"  Corrected:      mean={cf['fell_step_cc'].mean():+.4f} m, "
           f"median={cf['fell_step_cc'].median():+.4f} m")
 
-    print(f"\nC1+C2 reference: n={ref_mask.sum()}")
+    print(f"\nC3W reference: n={ref_mask.sum()}")
     c12 = df[ref_mask].dropna(subset=["fell_step"])
     print(f"  Raw fell step:  mean={c12['fell_step'].mean():+.4f} m, "
           f"median={c12['fell_step'].median():+.4f} m")
 
-    print(f"\nClearfell vs C1+C2: {cf['fell_step'].mean() - c12['fell_step'].mean():+.4f} m "
+    print(f"\nClearfell vs C3W: {cf['fell_step'].mean() - c12['fell_step'].mean():+.4f} m "
           f"(negative = clearfell wetter)")
 
     print("\nQuadrant comparison (raw fell step):")

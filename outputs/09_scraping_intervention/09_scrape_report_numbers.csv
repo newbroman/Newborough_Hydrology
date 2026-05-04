@@ -1,16 +1,16 @@
 Parameter,Well,Era,Value,Unit,Note
-Tier1_CUSUM_terminal,CEH4,,-11.5137,m,Final cumulative CUSUM vs Regional Mean
-Tier1_CUSUM_terminal,CEH22,,-18.581,m,Final cumulative CUSUM vs Regional Mean
+Tier1_CUSUM_terminal,CEH4,,-16.3057,m,Final cumulative CUSUM vs Regional Mean
+Tier1_CUSUM_terminal,CEH22,,-17.9991,m,Final cumulative CUSUM vs Regional Mean
 Tier2_BACI_shift,CEH36,Pure_Scraping,0.1314,m,vs CEH4
 Tier2_BACI_shift,CEH36,Felling_Pulse,0.0236,m,vs CEH4
-Tier2_BACI_shift,CEH4,Pure_Scraping,-0.0141,m,vs Regional Mean
-Tier2_BACI_shift,CEH4,Felling_Pulse,-0.0988,m,vs Regional Mean
+Tier2_BACI_shift,CEH4,Pure_Scraping,-0.0686,m,vs Regional Mean
+Tier2_BACI_shift,CEH4,Felling_Pulse,-0.0753,m,vs Regional Mean
 Tier2_BACI_shift,CEH18,Felling_Pulse,0.0297,m,vs CEH4
 Tier2_BACI_shift,CEH18,After_Scraping,0.0183,m,vs CEH4
 Tier2_BACI_shift,CEH21,Coastal_Drawdown,0.0376,m,vs CEH22
 Tier2_BACI_shift,CEH21,After_Scraping,0.0553,m,vs CEH22
-Tier2_BACI_shift,CEH22,Coastal_Drawdown,-0.1576,m,vs Regional Mean
-Tier2_BACI_shift,CEH22,After_Scraping,-0.1083,m,vs Regional Mean
+Tier2_BACI_shift,CEH22,Coastal_Drawdown,-0.1533,m,vs Regional Mean
+Tier2_BACI_shift,CEH22,After_Scraping,-0.1027,m,vs Regional Mean
 Net_benefit,CEH36,Pure_Scraping,0.1429,m,vs CEH21 coastal benchmark
 Net_benefit,CEH36,Felling_Pulse,-0.0344,m,vs CEH21 coastal benchmark
 Net_benefit,CEH18,Felling_Pulse,-0.0072,m,vs CEH21 coastal benchmark

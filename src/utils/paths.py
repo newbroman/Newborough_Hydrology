@@ -207,21 +207,18 @@ OUT_09B_SCENARIO_CSV        = DIR_09 / "09b_04_scenario_comparison.csv"
 OUT_09B_SUMMER_SCENARIO     = DIR_09 / "09b_05_summer_scenario_comparison.png"
 OUT_09B_SUMMER_SCENARIO_CSV = DIR_09 / "09b_05_summer_scenario_comparison.csv"
 
-# Script 10 — Clearfell BACI
-OUT_10_DUAL_BACI            = DIR_10 / "10_cfell_01_dual_control_baci.png"
-OUT_10_DRAINAGE_PART1       = DIR_10 / "10_cfell_02_drainage_diagnostic_part1.png"
-OUT_10_DRAINAGE_PART2       = DIR_10 / "10_cfell_02_drainage_diagnostic_part2.png"
-OUT_10_BETA3_SLOPES         = DIR_10 / "10_cfell_03_beta3_ols_slopes.png"
-OUT_10_DRAINAGE_DATA        = DIR_10 / "10_cfell_04_diagnostic_drainage_data.csv"
-OUT_10_STAT_VERIFICATION    = DIR_10 / "10_cfell_05_baci_statistical_verification.csv"
-OUT_10_FULL_PARAMS          = DIR_10 / "10_cfell_06_full_parameters.csv"
-OUT_10_COEFF_SLOPES         = DIR_10 / "10_cfell_07_coefficient_slopes.csv"
-OUT_10_BACI_TIMESERIES      = DIR_10 / "10_cfell_08_baci_timeseries_plotdata.csv"
-OUT_10_TABLE5_SUMMARY       = DIR_10 / "10_cfell_09_table5_beta3_before_after.csv"
-OUT_10_TRANSECT             = DIR_10 / "10_cfell_10_clearfell_transect.png"
-OUT_10_TRANSECT_CSV         = DIR_10 / "10_cfell_10_clearfell_transect_steps.csv"
-OUT_10_NW10_TREND           = DIR_10 / "10_cfell_11_nw10_broadleaf_trend.csv"
+# Script 10 — Clearfell BACI Analysis Suite (10a–10g)
 OUT_10_REPORT_NUMBERS       = DIR_10 / "10_cfell_report_numbers.csv"
+OUT_10_CONSOLIDATED_REPORT  = DIR_10 / "10_consolidated_report_numbers.csv"
+
+# Script 10a — Three-counterfactual ANCOVA-BACI (primary result)
+OUT_10A_COMPARISON          = DIR_10 / "10a_01_ancova_comparison_table.csv"
+OUT_10A_FULL_COEFFS         = DIR_10 / "10a_02_ancova_full_coefficients.csv"
+OUT_10A_TIMESERIES          = DIR_10 / "10a_03_baci_timeseries.csv"
+OUT_10A_FIG_IMPACT          = DIR_10 / "10a_04_baci_timeseries_impact.png"
+OUT_10A_FIG_EDGE            = DIR_10 / "10a_05_baci_timeseries_edge.png"
+OUT_10A_FIG_SCATTER         = DIR_10 / "10a_06_climate_sensitivity.png"
+OUT_10A_REPORT              = DIR_10 / "10a_report_numbers.csv"
 
 # Script 10b — Spatial step-change maps (scraping + clearfell)
 OUT_10B_SCRAPE_RAW          = DIR_10 / "10b_spatial_scrape_raw.png"
@@ -237,6 +234,32 @@ OUT_10C_B1_B2_SCATTER       = DIR_10C / "10c_01_b1_b2_scatter.png"
 OUT_10C_B2_ELEV_REGRESSION  = DIR_10C / "10c_02_b2_elevation_regression.png"
 OUT_10C_BOUNDARY_MAP        = DIR_10C / "10c_03_c4_c5_boundary_map.png"
 OUT_10C_SUMMARY             = DIR_10C / "10c_04_forest_zone_summary.txt"
+
+# Script 10d — Summer minima (dual control)
+OUT_10D_DATA                = DIR_10 / "10d_01_summer_minima.csv"
+OUT_10D_SHIFTS              = DIR_10 / "10d_02_summer_minima_shifts.csv"
+OUT_10D_MIXED               = DIR_10 / "10d_03_mixed_model_results.csv"
+OUT_10D_FIG_FOREST          = DIR_10 / "10d_04_summer_minima_forest_ctrl.png"
+OUT_10D_FIG_CLIMATE         = DIR_10 / "10d_05_summer_minima_climate_ctrl.png"
+OUT_10D_REPORT              = DIR_10 / "10d_report_numbers.csv"
+
+# Script 10e — SSM coefficient decomposition
+OUT_10E_COEFF_SHIFTS        = DIR_10 / "10e_01_coefficient_shifts.csv"
+OUT_10E_PRED_VS_OBS         = DIR_10 / "10e_02_predicted_vs_observed.csv"
+OUT_10E_FIG_COEFFS          = DIR_10 / "10e_03_coefficient_shifts.png"
+OUT_10E_REPORT              = DIR_10 / "10e_report_numbers.csv"
+
+# Script 10f — Robustness analyses (SSM residual, synthetic control)
+OUT_10F_SSM_RESIDUAL        = DIR_10 / "10f_01_ssm_residual_results.csv"
+OUT_10F_SYNTH_CTRL          = DIR_10 / "10f_02_synthetic_control_results.csv"
+OUT_10F_REPORT              = DIR_10 / "10f_report_numbers.csv"
+
+# Script 10g — Diagnostics (NW10 trend, transect, rolling coefficients)
+OUT_10G_NW10_TREND          = DIR_10 / "10g_01_nw10_broadleaf_trend.csv"
+OUT_10G_TRANSECT_FIG        = DIR_10 / "10g_02_clearfell_transect.png"
+OUT_10G_TRANSECT_CSV        = DIR_10 / "10g_03_clearfell_transect_steps.csv"
+OUT_10G_ROLLING_CSV         = DIR_10 / "10g_04_rolling_coefficients.csv"
+OUT_10G_REPORT              = DIR_10 / "10g_report_numbers.csv"
 
 # Script 11 — Forecasting thresholds
 OUT_11_RESULTS              = DIR_11 / "11_forecast_01_results.txt"

@@ -17,8 +17,8 @@ Execution order
   10c  Forest zone spatial analysis
   10d  Summer minima analysis (dual control)
   10e  SSM coefficient decomposition
-  10f  Robustness analyses             [not yet built]
-  10g  Diagnostics                     [not yet built]
+  10f  Robustness analyses (SSM residual, synthetic control)
+  10g  Diagnostics (NW10 trend, transect, rolling coefficients)
 
 Dependencies
 ------------
@@ -49,8 +49,8 @@ SUBSCRIPTS = [
     ("10c_forest_zone_analysis.py",      "10c", "Forest zone spatial analysis"),
     ("10d_summer_minima.py",             "10d", "Summer minima (dual control)"),
     ("10e_coefficient_decomposition.py", "10e", "SSM coefficient decomposition"),
-    # ("10f_robustness.py",              "10f", "Robustness analyses"),
-    # ("10g_diagnostics.py",             "10g", "Diagnostics"),
+    ("10f_robustness.py",               "10f", "Robustness analyses"),
+    ("10g_diagnostics.py",              "10g", "Diagnostics"),
 ]
 
 
@@ -82,7 +82,7 @@ def consolidate_report_numbers():
     """Merge per-sub-script report numbers into a single CSV."""
     import pandas as pd
 
-    pattern_prefixes = ["10a_", "10d_", "10e_", "10f_"]
+    pattern_prefixes = ["10a_", "10d_", "10e_", "10f_", "10g_"]
     frames = []
 
     for prefix in pattern_prefixes:

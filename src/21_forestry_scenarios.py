@@ -87,7 +87,7 @@ from utils.paths import (
     DIR_21,
     OUT_21_HYDROGRAPH, OUT_21_DISTRIBUTIONS, OUT_21_DISTRIBUTIONS_CSV,
     OUT_21_SCRAPING, OUT_21_SCRAPING_CSV, OUT_21_BACI_VIOLIN, OUT_21_BACI_CSV,
-    OUT_10_BACI_TIMESERIES, OUT_10_COEFF_SLOPES,
+    OUT_10A_REPORT, OUT_10E_COEFF_SHIFTS,
 )
 from utils.config import (
     FOREST_INTERCEPTION, BROADLEAF_INTERCEPTION, REFERENCE_CUTOFF_DATE,
@@ -108,12 +108,17 @@ from pathlib import Path
 # FOREST_INTERCEPTION, BROADLEAF_INTERCEPTION, SD15b, SD15b_REC, SD16,
 # SD16_REC all imported from config.py.
 
-# ── Dynamic BACI parameters from Script 10 outputs ──────────────────────────
-# These were previously hardcoded. Now read from Script 10's output CSVs so
-# that re-running Script 10 automatically propagates into Script 21.
+# ── Dynamic BACI parameters from Script 10a/10e outputs ─────────────────────
+# These were previously hardcoded. Now read from Script 10a (ANCOVA report
+# numbers) and 10e (coefficient shifts) so that re-running the clearfell
+# suite automatically propagates into Script 21.
 
 def _load_baci_params():
-    """Load BACI displacement and β₂ multiplier from Script 10 outputs.
+    """Load BACI displacement and β₂ multiplier from Script 10a/10e outputs.
+
+    Reads:
+      - 10a_report_numbers.csv: ANCOVA clearfell step (Forest control, Impact)
+      - 10e_01_coefficient_shifts.csv: before/after β₂ for WMC3
 
     Returns (BACI_ANNUAL, BACI_SUMMER, CLEARFELL_B2_MULT).
     Falls back to documented defaults with a warning if files are missing.
@@ -126,45 +131,50 @@ def _load_baci_params():
     baci_summer = _FALLBACK_SUMMER
     b2_mult     = _FALLBACK_B2
 
-    # 1. BACI displacement from timeseries plotdata
-    if OUT_10_BACI_TIMESERIES.exists():
+    # 1. BACI clearfell step from 10a report numbers
+    if OUT_10A_REPORT.exists():
         try:
-            ts = pd.read_csv(OUT_10_BACI_TIMESERIES, parse_dates=["Date"])
-            ts = ts.set_index("Date")
-            intervention = pd.Timestamp("2017-12-01")
-            col = "impact_vs_forest"
-            if col in ts.columns:
-                pre  = ts.loc[ts.index < intervention, col].dropna()
-                post = ts.loc[ts.index >= intervention, col].dropna()
-                if len(pre) > 0 and len(post) > 0:
-                    baci_annual = abs(post.mean() - pre.mean())
-                    pre_s  = pre[pre.index.month.isin([6, 7, 8, 9])]
-                    post_s = post[post.index.month.isin([6, 7, 8, 9])]
-                    if len(pre_s) > 0 and len(post_s) > 0:
-                        baci_summer = abs(post_s.mean() - pre_s.mean())
-                    print(f"  BACI from Script 10: annual={baci_annual:.3f} m, "
-                          f"summer={baci_summer:.3f} m")
+            rpt = pd.read_csv(OUT_10A_REPORT)
+            # Forest-control Impact clearfell step = headline ANCOVA result
+            row = rpt[rpt["Parameter"] == "ANCOVA_Forest_Impact_clearfell_step"]
+            if not row.empty:
+                baci_annual = abs(float(row.iloc[0]["Value"]))
+                print(f"  BACI annual step from 10a: {baci_annual:.4f} m")
+            else:
+                print("  WARNING: ANCOVA_Forest_Impact_clearfell_step not found in 10a report")
+
+            # Summer BACI: not directly in 10a report numbers.
+            # Use a scaling factor: summer step ≈ 1.5× annual (typical for
+            # this site where summer drawdown amplifies the signal).
+            # This ratio was 0.218/0.145 = 1.50 in the original hardcoded values.
+            baci_summer = baci_annual * (_FALLBACK_SUMMER / _FALLBACK_ANNUAL)
+            print(f"  BACI summer step (scaled): {baci_summer:.4f} m")
         except Exception as e:
-            print(f"  WARNING: Could not read {OUT_10_BACI_TIMESERIES.name}: {e}")
+            print(f"  WARNING: Could not read {OUT_10A_REPORT.name}: {e}")
             print(f"           Using fallback BACI: annual={baci_annual}, summer={baci_summer}")
     else:
-        print(f"  WARNING: {OUT_10_BACI_TIMESERIES.name} not found — using fallback BACI values")
+        print(f"  WARNING: {OUT_10A_REPORT.name} not found — using fallback BACI values")
 
-    # 2. β₂ multiplier from coefficient slopes
-    if OUT_10_COEFF_SLOPES.exists():
+    # 2. β₂ multiplier from 10e coefficient shifts (Impact well WMC3)
+    if OUT_10E_COEFF_SHIFTS.exists():
         try:
-            cs = pd.read_csv(OUT_10_COEFF_SLOPES)
-            impact = cs[cs["Zone"] == "Impact"]
-            b2_before = impact.loc[impact["Period"] == "Before", "beta_2_slope"].dropna()
-            b2_after  = impact.loc[impact["Period"] == "After",  "beta_2_slope"].dropna()
-            if len(b2_before) > 0 and len(b2_after) > 0:
-                b2_mult = b2_after.mean() / b2_before.mean()
-                print(f"  β₂ multiplier from Script 10: {b2_mult:.4f}")
+            cs = pd.read_csv(OUT_10E_COEFF_SHIFTS)
+            impact = cs[cs["Tier"] == "Impact"]
+            if not impact.empty:
+                b2_before = impact["b2_before"].dropna()
+                b2_after  = impact["b2_after"].dropna()
+                if len(b2_before) > 0 and len(b2_after) > 0 and b2_before.mean() > 0:
+                    b2_mult = b2_after.mean() / b2_before.mean()
+                    print(f"  β₂ multiplier from 10e: {b2_mult:.4f}")
+                else:
+                    print(f"  WARNING: Invalid β₂ values in 10e — using fallback: {b2_mult}")
+            else:
+                print(f"  WARNING: No Impact tier in 10e — using fallback β₂ multiplier")
         except Exception as e:
-            print(f"  WARNING: Could not read {OUT_10_COEFF_SLOPES.name}: {e}")
+            print(f"  WARNING: Could not read {OUT_10E_COEFF_SHIFTS.name}: {e}")
             print(f"           Using fallback β₂ multiplier: {b2_mult}")
     else:
-        print(f"  WARNING: {OUT_10_COEFF_SLOPES.name} not found — using fallback β₂ multiplier")
+        print(f"  WARNING: {OUT_10E_COEFF_SHIFTS.name} not found — using fallback β₂ multiplier")
 
     return baci_annual, baci_summer, b2_mult
 

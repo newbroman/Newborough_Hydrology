@@ -679,11 +679,8 @@ def plot_distributions(master, df, dates, well_names, elev, dpi=FIG_DPI):
          lambda s, e: _cluster_summer_mins_21(4, df, dates, well_names,
                                                elev, master, s, e)),
     ]
-    # Phase-variant colours: lighter pre-scrape, base scraping, warm post-felling
-    # C4 purple family (#7f77dd base)
-    c4_phase_cols = ["#b8b3ee", "#7f77dd", "#D55E00"]
-    # C5 brown family (#8B4513 base)
-    c5_phase_cols = ["#c4915e", "#8B4513", "#E8A020"]
+    # All clusters use their config base colour; phases distinguished by
+    # marker shape and alpha only (consistent visual language across groups)
 
     group_centres = np.array([1.0, 2.6, 4.2, 5.8, 7.4])
     offsets       = np.array([-0.48, 0.0, 0.48])
@@ -733,15 +730,11 @@ def plot_distributions(master, df, dates, well_names, elev, dpi=FIG_DPI):
     # Draw violins and strips
     for gi, (grp_lbl, base_col, mins_fn) in enumerate(groups):
         gc     = group_centres[gi]
-        is_c4  = "C4" in grp_lbl
-        is_c5  = "C5" in grp_lbl
 
         for pi, (phase_lbl, start, end, mk, alpha) in enumerate(phases):
             pos = gc + offsets[pi]
             arr = mins_fn(start, end)
-            col = (c4_phase_cols[pi] if is_c4
-                   else c5_phase_cols[pi] if is_c5
-                   else base_col)
+            col = base_col
 
             if len(arr) == 0:
                 continue
@@ -1164,22 +1157,21 @@ def plot_scraping_eras(df, dates, well_names, elev, dpi=FIG_DPI):
 # ============================================================================
 
 # BACI experimental zone definitions
-BACI_ZONE_WELLS = {
-    "Core impact\n(FE2, FE4, WMC3)":
-        ["fe2", "fe4", "wmc3"],
-    "Edge zone\n(FE1, FE3, CEH31, LIS1,\nCEH20, CEH30, CEH16, NW8B)":
-        ["fe1", "fe3", "ceh31", "lis1", "ceh20", "ceh30", "ceh16", "nw8b"],
-    "Plantation controls\n(CEH32, CEH34, CEH33, NW10, CEH19)":
-        ["ceh32", "ceh34", "ceh33", "nw10", "ceh19"],
-    "Open warren controls\n(CEH9, NW7, NW6)":
-        ["ceh9", "nw7", "nw6"],
-}
-BACI_ZONE_COLOURS = {
-    "Core impact\n(FE2, FE4, WMC3)":                                   "#D73027",
-    "Edge zone\n(FE1, FE3, CEH31, LIS1,\nCEH20, CEH30, CEH16, NW8B)":"#F46D43",
-    "Plantation controls\n(CEH32, CEH34, CEH33, NW10, CEH19)":         "#4DAC26",
-    "Open warren controls\n(CEH9, NW7, NW6)":                          "#888888",
-}
+# 5-tier BACI network — read from clearfell_common (single source of truth)
+from utils.clearfell_common import (
+    TIERS, TIER_COLOURS,
+    INTERVENTION_DATE as _CC_FELL_DATE,
+    SCRAPING_DATE as _CC_SCRAPE_DATE,
+)
+
+# Build display labels from the tier definitions
+BACI_ZONE_WELLS = {}
+BACI_ZONE_COLOURS = {}
+for _tier_name, _tier_wells in TIERS.items():
+    _well_labels = ", ".join(w.upper() for w in _tier_wells)
+    _lbl = f"{_tier_name}\n({_well_labels})"
+    BACI_ZONE_WELLS[_lbl] = list(_tier_wells)
+    BACI_ZONE_COLOURS[_lbl] = TIER_COLOURS[_tier_name]
 
 
 def _zone_summer_mins(wells, df, dates, well_names, elev, start=None, end=None):
@@ -1216,10 +1208,11 @@ def _zone_summer_mins(wells, df, dates, well_names, elev, start=None, end=None):
 def plot_baci_zone_violin(df, dates, well_names, elev, dpi=FIG_DPI):
     """
     Three-phase violin plot of annual summer minimum depths by BACI
-    experimental zone: pre-2015 baseline, 2015-17 era, post-felling 2018+.
+    experimental zone (5-tier network): pre-2015 baseline, 2015-17
+    scraping era, post-felling 2018+.
 
-    Core impact pre-2015 violin is hatched — WMC3 only (FE wells installed
-    August 2015, insufficient pre-felling record for other core wells).
+    Impact tier pre-2015 has only WMC3 (FE wells excluded from the
+    5-tier network entirely after the FE removal decision).
     """
     BACI_PHASES = [
         ("Pre-2015",          None,         SCRAPE_DATE_21, "o", 0.35),
@@ -1227,11 +1220,11 @@ def plot_baci_zone_violin(df, dates, well_names, elev, dpi=FIG_DPI):
         ("Post-fell\n2018+",  FELL_DATE_21, None,           "^", 0.55),
     ]
     offsets        = [-0.42, 0.0, +0.42]
-    group_centres  = np.array([1.0, 2.6, 4.2, 5.8])
+    group_centres  = np.array([1.0, 2.6, 4.2, 5.8, 7.4])
     rng            = np.random.RandomState(42)
 
-    fig, ax = plt.subplots(figsize=(13, 8.0), facecolor="white")
-    fig.subplots_adjust(bottom=0.22, top=0.91, left=0.09, right=0.88)
+    fig, ax = plt.subplots(figsize=(14.5, 8.5), facecolor="white")
+    fig.subplots_adjust(bottom=0.22, top=0.91, left=0.08, right=0.88)
 
     # Ecological zone backgrounds
     for ylo, yhi, col in [
@@ -1268,7 +1261,7 @@ def plot_baci_zone_violin(df, dates, well_names, elev, dpi=FIG_DPI):
     # Draw data for each zone
     for gc, (zone_lbl, wells) in zip(group_centres, BACI_ZONE_WELLS.items()):
         col     = BACI_ZONE_COLOURS[zone_lbl]
-        is_core = "Core" in zone_lbl
+        is_impact = "Impact" in zone_lbl
 
         for pi, (phase_lbl, start, end, mk, alpha) in enumerate(BACI_PHASES):
             arr = _zone_summer_mins(wells, df, dates, well_names, elev,
@@ -1283,7 +1276,7 @@ def plot_baci_zone_violin(df, dates, well_names, elev, dpi=FIG_DPI):
                 for body in vp["bodies"]:
                     body.set_facecolor(col)
                     body.set_edgecolor("white")
-                    if is_core and pi == 0:
+                    if is_impact and pi == 0:
                         body.set_hatch("///")
                         body.set_alpha(0.4)
                     else:
@@ -1304,11 +1297,16 @@ def plot_baci_zone_violin(df, dates, well_names, elev, dpi=FIG_DPI):
             ax.text(pos, min(arr) - 0.05, f"n={len(arr)}",
                     ha="center", va="top", fontsize=6, color=col)
 
-        # Zone label below axes
-        ax.text(gc, 2.12, zone_lbl,
-                ha="center", va="top", fontsize=8,
+        # Zone label below axes — tier name bold, wells smaller
+        _tier_name = zone_lbl.split("\n")[0]
+        _well_str  = zone_lbl.split("\n")[1] if "\n" in zone_lbl else ""
+        ax.text(gc, 2.12, _tier_name,
+                ha="center", va="top", fontsize=8.5,
                 fontweight="bold", color=col,
                 multialignment="center")
+        ax.text(gc, 2.24, _well_str,
+                ha="center", va="top", fontsize=6.0,
+                color=col, multialignment="center")
 
     # Phase labels
     for pi, (phase_lbl, _, _, _, _) in enumerate(BACI_PHASES):
@@ -1319,23 +1317,22 @@ def plot_baci_zone_violin(df, dates, well_names, elev, dpi=FIG_DPI):
                 multialignment="center")
 
     # Zone dividers
-    for x_div in [1.82, 3.42, 5.02]:
+    for x_div in [1.82, 3.42, 5.02, 6.62]:
         ax.axvline(x_div, color="grey", lw=0.7, ls=":", alpha=0.35)
 
-    ax.set_xlim(0.3, 6.7)
+    ax.set_xlim(0.3, 8.3)
     ax.set_ylim(2.30, -0.50)
     ax.set_xticks([])
     ax.set_ylabel("Mean annual summer minimum depth below ground (m)",
                   fontsize=10)
     ax.set_title(
-        "Summer Minimum Depth by BACI Experimental Zone\n"
+        "Summer Minimum Depth by BACI 5-Tier Network\n"
         "Newborough Warren  |  Pre-2015, 2015\u201317, Post-felling 2018+  |  "
         "Curreli et al. (2013) ecological thresholds",
         fontsize=10, fontweight="bold")
     ax.grid(axis="y", alpha=0.2, lw=0.5)
 
     # Legend — upper right, top at y=0.97
-    import matplotlib.patches as mpatches_local
     legend_elements = [
         Line2D([0],[0], marker="o", color="w", markerfacecolor="dimgrey",
                markeredgecolor="dimgrey", ms=7, label="Pre-2015"),
@@ -1346,30 +1343,31 @@ def plot_baci_zone_violin(df, dates, well_names, elev, dpi=FIG_DPI):
         Line2D([0],[0], color="grey", lw=2.2, label="Median"),
         Line2D([0],[0], marker="D", color="w", markerfacecolor="white",
                markeredgecolor="grey", ms=6, label="Mean"),
-        mpatches_local.Patch(facecolor="#a8d8a8", alpha=0.5,
-                             label="SD15b (0\u20130.61 m)"),
-        mpatches_local.Patch(facecolor="#ffffb2", alpha=0.5,
-                             label="SD16 (0.61\u20130.98 m)"),
-        mpatches_local.Patch(facecolor="#fd8d3c", alpha=0.5,
-                             label="SD16 recovery"),
-        mpatches_local.Patch(facecolor="#f4c2a1", alpha=0.5,
-                             label="Below recovery"),
+        mpatches.Patch(facecolor="#a8d8a8", alpha=0.5,
+                       label="SD15b (0\u20130.61 m)"),
+        mpatches.Patch(facecolor="#ffffb2", alpha=0.5,
+                       label="SD16 (0.61\u20130.98 m)"),
+        mpatches.Patch(facecolor="#fd8d3c", alpha=0.5,
+                       label="SD16 recovery"),
+        mpatches.Patch(facecolor="#f4c2a1", alpha=0.5,
+                       label="Below recovery"),
     ]
     ax.legend(handles=legend_elements, fontsize=7.5, loc="upper right",
               framealpha=0.92, ncol=2, bbox_to_anchor=(0.995, 0.97))
 
-    # Annotation box — upper left, top at same y as legend
+    # Annotation box — upper left
+    _tier_desc = []
+    for _lbl, _wells in BACI_ZONE_WELLS.items():
+        _name = _lbl.split("\n")[0]
+        _wstr = ", ".join(w.upper() for w in _wells)
+        _tier_desc.append(f"{_name}: {_wstr}")
     ax.text(0.01, 0.97,
             "Each point = one summer (Jun\u2013Sep). "
             "Median bar; diamond = mean; bar = \u00b11 SD.\n"
-            "Core impact pre-2015 violin (hatched) = WMC3 only "
-            "(FE wells not installed until Aug 2015).\n"
-            "Core impact: FE2, FE4, WMC3.\n"
-            "Edge zone: FE1, FE3, CEH31, LIS1, CEH20, CEH30, CEH16, NW8B.\n"
-            "Plantation controls: CEH32, CEH34, CEH33, NW10, CEH19.\n"
-            "Open warren controls: CEH9, NW7, NW6.\n"
-            "All eight control wells = BACI regional control pool (Section 3.5.5).",
-            fontsize=7.2, color="dimgrey", va="top", ha="left",
+            "Impact tier pre-2015 violin (hatched) = WMC3 only.\n"
+            + "\n".join(_tier_desc)
+            + "\nFE1\u20134, LIS1, NW8, NW8B excluded from 5-tier network.",
+            fontsize=7.0, color="dimgrey", va="top", ha="left",
             transform=ax.transAxes,
             bbox=dict(boxstyle="round,pad=0.4", fc="white", alpha=0.92,
                       edgecolor="lightgrey"),

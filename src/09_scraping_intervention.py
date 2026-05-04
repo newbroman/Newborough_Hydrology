@@ -142,7 +142,7 @@ plt.rcParams.update({
 # ==========================================
 # 1. SETUP EXPERIMENTS & ERAS
 # ==========================================
-controls = ['ceh9', 'nw8', 'nw8b', 'nw5', 'nw6', 'nw7']
+controls = ['ceh9', 'nw7', 'nw6', 'nw5', 'wmc2']  # C3 climate controls — NW8/NW8B excluded (damaged)
 
 date_2015 = pd.to_datetime('2015-04-01')
 date_felling = pd.to_datetime('2017-12-01')  # corrected from 2018-12-01

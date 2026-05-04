@@ -1,49 +1,37 @@
 Parameter,Well,Era,Value,Unit,Note
 Pre_felling_structural_offset,,,-0.1107,m,Core impact mean displacement vs control before scraping
-Post_scraping_pre_felling_mean,,Post_scraping,-0.331,m,Core impact displacement
-Post_felling_mean_impact,,Post_felling,-0.3686,m,Core impact zone
-Step_change_impact,,Post_felling,-0.0376,m,From post-scraping baseline
-Step_change_edge,,Post_felling,-0.0059,m,From post-scraping baseline
-Combined_hydrological_cost_impact,,,-0.2579,m,Pre-scraping to post-felling
-Combined_hydrological_cost_edge,,,-0.0344,m,Pre-scraping to post-felling
-Step_PF_pre_scrape2_impact,,Dec2017_Sep2023,-0.0342,m,Pure clearfell sub-era
-Step_PF_post_scrape2_impact,,Oct2023_onwards,-0.0458,m,Post-Oct-2023 scraping sub-era
-ANCOVA_intercept,,,-0.1366,m,Model 2 intercept
-ANCOVA_cwb_coeff,,,-0.0006,m/mm,"Cumulative water balance, p=<0.001"
-ANCOVA_scraping_step,,,-0.1509,m,"Apr 2015 scraping, p=<0.001"
-ANCOVA_clearfell_step,,,-0.0795,m,"Dec 2017 clearfell, p=<0.001, CI=[-0.1133,-0.0456]"
-ANCOVA_interaction,,,0.0004,m/mm,"cwb×post interaction, p=<0.001"
-ANCOVA_R2,,,0.7226,,Model 2 R² (impact zone)
-ANCOVA_oct2023_coef,,,-0.0086,m,"Oct 2023 scraping term (impact), p=0.634, ΔAIC=+1.77"
-ANCOVA_edge_intercept,,,-0.1905,m,Model 2 edge intercept
-ANCOVA_edge_cwb_coeff,,,-0.0002,m/mm,"Edge cwb, p=0.0025"
-ANCOVA_edge_scraping_step,,,-0.0092,m,"Edge Apr 2015 scraping, p=0.5163"
-ANCOVA_edge_clearfell_step,,,-0.0167,m,"Edge Dec 2017 clearfell, p=0.1893, CI=[-0.0416,0.0082]"
-ANCOVA_edge_interaction,,,0.0001,m/mm,"Edge cwb×post interaction, p=0.3946"
-ANCOVA_edge_R2,,,0.1203,,Model 2 R² (edge zone)
-ANCOVA_edge_oct2023_coef,,,-0.0085,m,"Oct 2023 scraping term (edge), p=0.524, ΔAIC=+1.58"
-Per_well_BACI_displacement,FE2,Pre_felling,-0.5745,m,Zone=Core_Impact
-Per_well_BACI_displacement,FE2,Post_felling,-0.5421,m,Zone=Core_Impact
-Per_well_BACI_displacement,FE4,Pre_felling,-0.2373,m,Zone=Core_Impact
-Per_well_BACI_displacement,FE4,Post_felling,-0.4766,m,Zone=Core_Impact
+Post_scraping_pre_felling_mean,,Post_scraping,-0.1346,m,Core impact displacement
+Post_felling_mean_impact,,Post_felling,-0.087,m,Core impact zone
+Step_change_impact,,Post_felling,0.0476,m,From post-scraping baseline
+Step_change_edge,,Post_felling,-0.0147,m,From post-scraping baseline
+Combined_hydrological_cost_impact,,,0.0237,m,Pre-scraping to post-felling
+Combined_hydrological_cost_edge,,,-0.0704,m,Pre-scraping to post-felling
+Step_PF_pre_scrape2_impact,,Dec2017_Sep2023,0.0557,m,Pure clearfell sub-era
+Step_PF_post_scrape2_impact,,Oct2023_onwards,0.0283,m,Post-Oct-2023 scraping sub-era
+ANCOVA_intercept,,,-0.1351,m,Model 2 intercept
+ANCOVA_cwb_coeff,,,-0.0005,m/mm,"Cumulative water balance, p=<0.001"
+ANCOVA_scraping_step,,,0.0413,m,"Apr 2015 scraping, p=0.0637"
+ANCOVA_clearfell_step,,,0.0088,m,"Dec 2017 clearfell, p=0.6607, CI=[-0.0303,0.0478]"
+ANCOVA_interaction,,,0.0003,m/mm,"cwb×post interaction, p=0.0082"
+ANCOVA_R2,,,0.2288,,Model 2 R² (impact zone)
+ANCOVA_oct2023_coef,,,-0.0247,m,"Oct 2023 scraping term (impact), p=0.237, ΔAIC=+0.56"
+ANCOVA_edge_intercept,,,-0.1933,m,Model 2 edge intercept
+ANCOVA_edge_cwb_coeff,,,-0.0002,m/mm,"Edge cwb, p=<0.001"
+ANCOVA_edge_scraping_step,,,-0.029,m,"Edge Apr 2015 scraping, p=0.0389"
+ANCOVA_edge_clearfell_step,,,-0.0283,m,"Edge Dec 2017 clearfell, p=0.0253, CI=[-0.0529,-0.0037]"
+ANCOVA_edge_interaction,,,-0.0001,m/mm,"Edge cwb×post interaction, p=0.3386"
+ANCOVA_edge_R2,,,0.3574,,Model 2 R² (edge zone)
+ANCOVA_edge_oct2023_coef,,,-0.0061,m,"Oct 2023 scraping term (edge), p=0.641, ΔAIC=+1.77"
 Per_well_BACI_displacement,WMC3,Pre_felling,-0.1182,m,Zone=Core_Impact
 Per_well_BACI_displacement,WMC3,Post_felling,-0.087,m,Zone=Core_Impact
-Per_well_BACI_displacement,FE1,Pre_felling,0.1964,m,Zone=Edge
-Per_well_BACI_displacement,FE1,Post_felling,0.2201,m,Zone=Edge
-Per_well_BACI_displacement,FE3,Pre_felling,-0.7717,m,Zone=Edge
-Per_well_BACI_displacement,FE3,Post_felling,-0.888,m,Zone=Edge
 Per_well_BACI_displacement,CEH31,Pre_felling,-0.3838,m,Zone=Edge
 Per_well_BACI_displacement,CEH31,Post_felling,-0.4461,m,Zone=Edge
-Per_well_BACI_displacement,LIS1,Pre_felling,0.5277,m,Zone=Edge
-Per_well_BACI_displacement,LIS1,Post_felling,0.2878,m,Zone=Edge
 Per_well_BACI_displacement,CEH20,Pre_felling,-0.182,m,Zone=Edge
 Per_well_BACI_displacement,CEH20,Post_felling,-0.1466,m,Zone=Edge
 Per_well_BACI_displacement,CEH30,Pre_felling,-0.5986,m,Zone=Edge
 Per_well_BACI_displacement,CEH30,Post_felling,-0.6053,m,Zone=Edge
 Per_well_BACI_displacement,CEH16,Pre_felling,0.2473,m,Zone=Edge
 Per_well_BACI_displacement,CEH16,Post_felling,0.183,m,Zone=Edge
-Per_well_BACI_displacement,NW8B,Pre_felling,-0.3722,m,Zone=Edge
-Per_well_BACI_displacement,NW8B,Post_felling,-0.3463,m,Zone=Edge
 Per_well_BACI_displacement,CEH32,Pre_felling,-0.6647,m,Zone=Control
 Per_well_BACI_displacement,CEH32,Post_felling,-0.6227,m,Zone=Control
 Per_well_BACI_displacement,CEH34,Pre_felling,0.2193,m,Zone=Control
@@ -60,25 +48,12 @@ Per_well_BACI_displacement,NW7,Pre_felling,-0.2718,m,Zone=Control
 Per_well_BACI_displacement,NW7,Post_felling,-0.1896,m,Zone=Control
 Per_well_BACI_displacement,NW6,Pre_felling,0.5117,m,Zone=Control
 Per_well_BACI_displacement,NW6,Post_felling,0.6391,m,Zone=Control
-Table6_beta3,FE2,Before,0.038,m,"CI=[-0.0451,0.1210] p=0.35577"
-Table6_beta3,FE2,After,0.0469,m,"CI=[-0.0136,0.1073] p=0.12667"
-Table6_beta3,FE2,After_Scrape2,0.0914,m,"CI=[-0.0261,0.2089] p=0.12193"
-Table6_beta3,FE4,After,0.0358,m,"CI=[-0.0364,0.1079] p=0.32597"
-Table6_beta3,FE4,After_Scrape2,0.0639,m,"CI=[-0.0225,0.1503] p=0.14036"
 Table6_beta3,WMC3,Before,0.07,m,"CI=[0.0153,0.1247] p=0.01270"
 Table6_beta3,WMC3,After,0.0725,m,"CI=[-0.0053,0.1502] p=0.06719"
 Table6_beta3,WMC3,After_Scrape2,0.1343,m,"CI=[0.0129,0.2556] p=0.03147"
-Table6_beta3,FE1,Before,0.0197,m,"CI=[-0.0644,0.1039] p=0.63373"
-Table6_beta3,FE1,After,0.0154,m,"CI=[-0.0399,0.0706] p=0.58055"
-Table6_beta3,FE1,After_Scrape2,0.0536,m,"CI=[-0.0518,0.1590] p=0.30543"
-Table6_beta3,FE3,Before,0.3871,m,"CI=[-0.3889,1.1630] p=0.26802"
-Table6_beta3,FE3,After,0.062,m,"CI=[-0.0077,0.1317] p=0.08025"
-Table6_beta3,FE3,After_Scrape2,0.1222,m,"CI=[0.0304,0.2139] p=0.01103"
 Table6_beta3,CEH31,Before,0.0952,m,"CI=[0.0417,0.1487] p=0.00065"
 Table6_beta3,CEH31,After,0.0676,m,"CI=[-0.0164,0.1516] p=0.11285"
 Table6_beta3,CEH31,After_Scrape2,0.1611,m,"CI=[-0.0017,0.3239] p=0.05229"
-Table6_beta3,LIS1,After,0.0324,m,"CI=[-0.0390,0.1039] p=0.36795"
-Table6_beta3,LIS1,After_Scrape2,0.0673,m,"CI=[-0.0408,0.1755] p=0.21186"
 Table6_beta3,CEH20,Before,0.0372,m,"CI=[-0.0004,0.0748] p=0.05257"
 Table6_beta3,CEH20,After,0.0115,m,"CI=[-0.0464,0.0693] p=0.69377"
 Table6_beta3,CEH20,After_Scrape2,0.0386,m,"CI=[-0.0611,0.1384] p=0.43300"
@@ -88,9 +63,6 @@ Table6_beta3,CEH30,After_Scrape2,0.0439,m,"CI=[-0.0508,0.1387] p=0.34914"
 Table6_beta3,CEH16,Before,0.059,m,"CI=[0.0206,0.0974] p=0.00290"
 Table6_beta3,CEH16,After,0.0247,m,"CI=[-0.0339,0.0834] p=0.40323"
 Table6_beta3,CEH16,After_Scrape2,0.1049,m,"CI=[-0.0136,0.2235] p=0.08031"
-Table6_beta3,NW8B,Before,0.1006,m,"CI=[0.0134,0.1877] p=0.02538"
-Table6_beta3,NW8B,After,0.0648,m,"CI=[-0.0071,0.1367] p=0.07636"
-Table6_beta3,NW8B,After_Scrape2,0.0987,m,"CI=[-0.0050,0.2025] p=0.06120"
 Table6_beta3,CEH32,Before,0.0214,m,"CI=[-0.0176,0.0604] p=0.27747"
 Table6_beta3,CEH32,After,-0.0009,m,"CI=[-0.0524,0.0507] p=0.97283"
 Table6_beta3,CEH32,After_Scrape2,0.0538,m,"CI=[-0.0823,0.1899] p=0.42408"
@@ -123,28 +95,28 @@ Transect_step_change,CEH20,Post_felling,0.0929,m,"Distance=186m, Role=edge"
 Transect_step_change,CEH16,Post_felling,0.0099,m,"Distance=191m, Role=edge"
 NW10_broadleaf_trend_slope,NW10,2019-2025,-19.053,mm/yr,"p=0.1421, n=7"
 NW10_mean_anomaly_2010_2021,NW10,,0.2823,m,vs pine interior composite
-Summer_minimum_median,,Pre_felling,-1.74,m,"Zone=Impact, n_years=12"
-Summer_minimum_median,,Post_felling,-1.89,m,"Zone=Impact, n_years=24"
-Summer_minimum_median,,Pre_felling,-1.73,m,"Zone=Edge, n_years=43"
-Summer_minimum_median,,Post_felling,-1.72,m,"Zone=Edge, n_years=64"
+Summer_minimum_median,,Pre_felling,-1.52,m,"Zone=Impact, n_years=9"
+Summer_minimum_median,,Post_felling,-1.625,m,"Zone=Impact, n_years=8"
+Summer_minimum_median,,Pre_felling,-1.74,m,"Zone=Edge, n_years=36"
+Summer_minimum_median,,Post_felling,-1.74,m,"Zone=Edge, n_years=32"
 Summer_minimum_median,,Pre_felling,-1.31,m,"Zone=Control, n_years=81"
 Summer_minimum_median,,Post_felling,-1.425,m,"Zone=Control, n_years=64"
-Coefficient_zone_mean_beta_1_recharge,,Before,2.5915,m,"Zone=Impact, n_wells=2"
-Coefficient_zone_mean_beta_1_recharge,,After,2.586,m,"Zone=Impact, n_wells=3"
-Coefficient_zone_mean_beta_1_recharge,,Before,2.8453,m,"Zone=Edge, n_wells=6"
-Coefficient_zone_mean_beta_1_recharge,,After,2.53,m,"Zone=Edge, n_wells=8"
+Coefficient_zone_mean_beta_1_recharge,,Before,2.399,m,"Zone=Impact, n_wells=1"
+Coefficient_zone_mean_beta_1_recharge,,After,2.406,m,"Zone=Impact, n_wells=1"
+Coefficient_zone_mean_beta_1_recharge,,Before,2.6502,m,"Zone=Edge, n_wells=4"
+Coefficient_zone_mean_beta_1_recharge,,After,2.3235,m,"Zone=Edge, n_wells=4"
 Coefficient_zone_mean_beta_1_recharge,,Before,2.8462,m,"Zone=Control, n_wells=8"
 Coefficient_zone_mean_beta_1_recharge,,After,2.6665,m,"Zone=Control, n_wells=8"
-Coefficient_zone_mean_beta_2_atmospheric_draw,,Before,2.034,m,"Zone=Impact, n_wells=2"
-Coefficient_zone_mean_beta_2_atmospheric_draw,,After,1.7293,m,"Zone=Impact, n_wells=3"
-Coefficient_zone_mean_beta_2_atmospheric_draw,,Before,2.0152,m,"Zone=Edge, n_wells=6"
-Coefficient_zone_mean_beta_2_atmospheric_draw,,After,1.9406,m,"Zone=Edge, n_wells=8"
+Coefficient_zone_mean_beta_2_atmospheric_draw,,Before,1.811,m,"Zone=Impact, n_wells=1"
+Coefficient_zone_mean_beta_2_atmospheric_draw,,After,1.602,m,"Zone=Impact, n_wells=1"
+Coefficient_zone_mean_beta_2_atmospheric_draw,,Before,1.721,m,"Zone=Edge, n_wells=4"
+Coefficient_zone_mean_beta_2_atmospheric_draw,,After,1.7557,m,"Zone=Edge, n_wells=4"
 Coefficient_zone_mean_beta_2_atmospheric_draw,,Before,1.9604,m,"Zone=Control, n_wells=8"
 Coefficient_zone_mean_beta_2_atmospheric_draw,,After,1.9529,m,"Zone=Control, n_wells=8"
-Coefficient_zone_mean_beta_3_drainage,,Before,0.042,m,"Zone=Impact, n_wells=2"
-Coefficient_zone_mean_beta_3_drainage,,After,0.0433,m,"Zone=Impact, n_wells=3"
-Coefficient_zone_mean_beta_3_drainage,,Before,0.0473,m,"Zone=Edge, n_wells=6"
-Coefficient_zone_mean_beta_3_drainage,,After,0.0354,m,"Zone=Edge, n_wells=8"
+Coefficient_zone_mean_beta_3_drainage,,Before,0.036,m,"Zone=Impact, n_wells=1"
+Coefficient_zone_mean_beta_3_drainage,,After,0.035,m,"Zone=Impact, n_wells=1"
+Coefficient_zone_mean_beta_3_drainage,,Before,0.0475,m,"Zone=Edge, n_wells=4"
+Coefficient_zone_mean_beta_3_drainage,,After,0.0312,m,"Zone=Edge, n_wells=4"
 Coefficient_zone_mean_beta_3_drainage,,Before,0.0422,m,"Zone=Control, n_wells=8"
 Coefficient_zone_mean_beta_3_drainage,,After,0.0321,m,"Zone=Control, n_wells=8"
 Robustness_SSM_residual,WMC3,Scrape_era,0.0774,m,Zone=Impact
@@ -199,8 +171,8 @@ Robustness_SSM_residual,NW6,Scrape_era,-0.0099,m,Zone=Control
 Robustness_SSM_residual,NW6,Post_felling,-0.0774,m,Zone=Control
 Robustness_SSM_residual,NW6,Step_change,-0.0676,m,Zone=Control
 Robustness_SSM_residual,NW6,Step_p_value,0.0229,,"Welch t-test, Zone=Control"
-Robustness_synthetic_gap,Core,Post_felling,-0.2313,m,Observed minus synthetic
-Robustness_synthetic_gap,Core,p_value,0.1875,,Welch t-test scrape vs post-felling gap
-Robustness_synthetic_gap,Edge,Post_felling,0.0736,m,Observed minus synthetic
-Robustness_synthetic_gap,Edge,p_value,0.0001,,Welch t-test scrape vs post-felling gap
+Robustness_synthetic_gap,Core,Post_felling,0.0502,m,Observed minus synthetic
+Robustness_synthetic_gap,Core,p_value,0.0,,Welch t-test scrape vs post-felling gap
+Robustness_synthetic_gap,Edge,Post_felling,0.0375,m,Observed minus synthetic
+Robustness_synthetic_gap,Edge,p_value,0.0,,Welch t-test scrape vs post-felling gap
 Robustness_cluster_transition,Impact,toward C3,0.0,,Qualitative: toward C3 = converging to open-dune behaviour

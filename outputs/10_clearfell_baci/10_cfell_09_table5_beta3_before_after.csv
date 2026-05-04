@@ -1,14 +1,14 @@
 Well,Zone,beta_3_Before,beta_3_After,Delta_beta_3,Before_sig,After_sig
-FE2,Core Impact,0.038,0.047,+0.009,ns,ns
-FE4,Core Impact,,0.036,,,ns
+FE2,Core Impact,,,,,
+FE4,Core Impact,,,,,
 WMC3,Core Impact,0.07,0.072,+0.003,*,ns
-FE1,Edge Zone,0.02,0.015,-0.004,ns,ns
-FE3,Edge Zone,0.387,0.062,-0.325,ns,ns
-LIS1,Edge Zone,,0.032,,,ns
+FE1,Edge Zone,,,,,
+FE3,Edge Zone,,,,,
+LIS1,Edge Zone,,,,,
 CEH20,Edge Zone,0.037,0.011,-0.026,ns,ns
 CEH30,Edge Zone,0.051,0.023,-0.028,*,ns
 CEH16,Edge Zone,0.059,0.025,-0.034,**,ns
-NW8B,Edge Zone,0.101,0.065,-0.036,*,ns
+NW8B,Edge Zone,,,,,
 CEH31,Edge Zone,0.095,0.068,-0.028,***,ns
 CEH32,Regional Ctrl,0.021,-0.001,-0.022,ns,ns
 CEH34,Regional Ctrl,0.036,-0.001,-0.037,ns,ns

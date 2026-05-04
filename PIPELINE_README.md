@@ -5,12 +5,16 @@ This document describes the data flow between all pipeline scripts, identifying
 which files each script reads, which it produces, and which outputs feed into
 the paper as figures, tables or into downstream scripts.
 
-Run order: 01 → 02 → 03 → 04 → 05 → 06 → 07 → 08 → 09 → 10(a–g) → 11 → 11b → 12 → 13 → 14 → 15 → 17 → 16 → 18 → 19 → 20 → 21 → 22 → 23 → 24
+Run order: 01 → 02 → 03 → 04 → 05 → 06 → 07 → 08 → 09 (suite) → 10 (suite) → 11 → 11b → 00 → 14 → 12 → 13 → 15 → 17 → 16 → 18 → 19 → 20 → 21 → 22 → 23 → 24
 
-27 pipeline steps across 11 phases.  Script 10 is a modular suite
-(10a–10g) invoked as a single step via `run_10_clearfell.py`.
+26 pipeline steps across 11 phases.
 
-Script 19 is step 22 of the numbered pipeline. As a byproduct of running its
+Script 09 is a modular suite: `run_09_scraping.py` orchestrates
+09a → 09b → 09bp (propagation) → 09c → 09d.  The propagation module
+(old `09b_scraping_propagation.py`) is called internally by the runner
+and must execute before 09d (which reads its centroid summaries CSV).
+
+Script 19 is step 21 of the 26-step pipeline. As a byproduct of running its
 main spatial analysis it also builds the self-contained HTML scenario viewer.
 Menu option 4 (`python run_analysis.py --viewer`) rebuilds the viewer alone
 by re-running script 19 without stepping through the earlier scripts.
@@ -20,7 +24,6 @@ Critical ordering constraints:
 - Script 18 (WTF spatial) must run before script 19 (spatial groundwater)
 - Script 11b requires outputs from scripts 11 and 06
 - Script 21 requires `03_cluster_averages_maod.csv` from script 03
-  and `10a_report_numbers.csv` from script 10a
 - Rebuilding the scenario viewer via option 4 requires that all earlier
   pipeline outputs already exist; in particular script 14 should have run
   for the seasonal extremes tab to be populated
@@ -54,16 +57,14 @@ outputs/                       ← all generated outputs
   19_spatial_groundwater/
   20_spatial_figures/
   21_forestry_scenarios/
-  22_residual_lag_analysis/
-  23_ridge_recharge_lag_test/
-  24_residual_seasonality/
 utils/                         ← shared utility modules
-  clearfell_common.py           ← clearfell well lists, dates, covariates
   config.py                    ← cluster colours, labels
   data_utils.py                ← cleaning, normalisation functions
   map_utils.py                 ← DEM, KML, basemap helpers
   model_utils.py               ← SSM fitting helpers
   paths.py                     ← all path constants
+  clearfell_common.py          ← shared constants for Script 10 suite
+  scraping_common.py           ← shared constants for Script 09 suite
 ```
 
 ---
@@ -72,9 +73,9 @@ utils/                         ← shared utility modules
 
 | File | Description | Used by |
 |---|---|---|
-| `Newborough_Cleaned_For_Model.csv` | Raw dipwell records | 01, 09 |
+| `Newborough_Cleaned_For_Model.csv` | Raw dipwell records | 01, 10 |
 | `Well_locations_height.csv` | Well coordinates and pipe-top elevations | 01 |
-| `RAF_Valley_Climate.csv` | Monthly rainfall and temperature | 01, 09 |
+| `RAF_Valley_Climate.csv` | Monthly rainfall and temperature | 01, 10 |
 | DEM `.tif` files | LiDAR Digital Terrain Model (NRW, 2023) | 04, 05, 06, 07, 08, 12, 13 |
 | KML boundary files | Site features (clearfell, hydro boundaries) | 04, 12, 13 |
 | `broadleaf_restock.kml` | 1993/1996 broadleaf restocking block boundary; geometry also embedded in `Features.kml` | 12, 13 |
@@ -134,11 +135,11 @@ splits into reference and extended networks, exports upstand lookup.
 
 | File | Description | Used by |
 |---|---|---|
-| `01_climate.csv` | Monthly P and PET (Thornthwaite) | 00, 02, 03, 07, 08, 11 |
-| `01_wells_clean.csv` | QC'd depth-to-water, all wells (negative convention) | 00, 02, 03, 05, 07, 08 |
+| `01_climate.csv` | Monthly P and PET (Thornthwaite) | 00, 02, 03, 07, 08, 09, 11 |
+| `01_wells_clean.csv` | QC'd depth-to-water, all wells (negative convention) | 00, 02, 03, 05, 07, 08, 09 |
 | `01_wells_reference.csv` | Reference network (66 wells; ≥100 months, to Feb 2026) | 02, 08 |
-| `01_wells_extended.csv` | Extended network (shorter/earlier records) | 06 |
-| `01_locations.csv` | Well coordinates and elevations | 03, 04, 05, 06, 07, 08, 12, 13 |
+| `01_wells_extended.csv` | Extended network (shorter/earlier records) | 06, 09 |
+| `01_locations.csv` | Well coordinates and elevations | 03, 04, 05, 06, 07, 08, 09b, 12, 13 |
 | `01_well_elevations.csv` | Upstand heights and pipe-top elevations | 03 |
 | `01_wells_clean_maod.csv` | QC'd heads in mAOD, all wells with elevation data | 03, 21 |
 
@@ -405,162 +406,175 @@ forecasting modes. Maps spatial pattern of improvement.
 
 ---
 
-## Script 09 — Dune Scraping Intervention Analysis
+## Script 09 — Dune Scraping Intervention Analysis (Modular Suite)
 **Purpose:** Hierarchical Nested Control BACI analysis of dune scraping events
-at CEH36 (Apr 2015), CEH18 and CEH21 (Oct 2023). Tier 1 validates controls
-against regional mean; Tier 2 isolates pure scraping signal.
+at CEH36 (Apr 2015), CEH18 and CEH21 (Oct 2023). Modular suite mirroring
+the Script 10 architecture.
 
-**Reads (raw — bypasses intermediate files):**
-- `data/RAF_Valley_Climate.csv`
-- `data/Newborough_Cleaned_For_Model.csv`
+**Runner:** `run_09_scraping.py` orchestrates 09a–09d.
+`python run_09_scraping.py --only 09a 09c` for selective execution.
+
+**Shared module:** `utils/scraping_common.py` — intervention dates, well
+groups, era definitions, style constants, and helpers (`era_filter()`,
+`load_scraping_data()`, etc.).
+
+### Script 09a — Hierarchical Paired BACI (core analysis)
+
+**Reads:**
+- `outputs/01_wells_clean.csv`
+- `outputs/01_wells_extended.csv`
+- `outputs/01_climate.csv`
 
 **Produces (outputs/09_scraping_intervention/):**
 
 | File | Type | Paper destination |
 |---|---|---|
-| `09_scrape_01_full_parameters.csv` | Data | Diagnostic only (not used in paper) |
+| `09_scrape_01_full_parameters.csv` | Data | Diagnostic only |
 | `09_scrape_02_beta3_significance.csv` | Data | Paper Table 4 source |
 | `09_scrape_03_baci_shifts.csv` | Data | Paper Section 4.5 |
 | `09_scrape_04_net_benefits.csv` | Data | Paper Section 4.5 |
 | `09_scrape_04b_table4_beta3_era_summary.csv` | Table | **Paper Table 4** |
 | `09_tier1_final_cusum.csv` | Data | Paper Section 4.5 |
-| `09_scrape_05_tier1_background_drift.png` | Figure | Figure 14 (Tier 1 CUSUM) |
-| `09_scrape_06_tier2_scraping_signal.png` | Figure | Figure 15 (Tier 2 CUSUM) |
-| `09_scrape_07_beta3_confidence.png` | Figure | Figure 16 (−β₃ CI plot) |
+| `09_scrape_05_tier1_background_drift.png` | Figure | Figure 16 (Tier 1 CUSUM) |
+| `09_scrape_06_tier2_scraping_signal.png` | Figure | Figure 17 (Tier 2 CUSUM) |
+| `09_scrape_07_beta3_confidence.png` | Figure | Figure 18 (β₃ CI plot) |
+| `09_scrape_report_numbers.csv` | Data | All citable values for §4.5 |
 
-**Note:** Two different β₃ calculations exist in this script:
+**Note:** Two different β₃ calculations exist:
 - `09_scrape_01_full_parameters.csv` — full SSM fit per era (unstable for short eras)
-- `09_scrape_04b_table4_beta3_era_summary.csv` — **two-step isolation method** (use this for the paper):
-  β₁ and β₂ fitted to full record; β₃ fitted to drainage residual per era separately.
+- `09_scrape_04b_table4_beta3_era_summary.csv` — **two-step isolation method** (use this for the paper)
+
+### Script 09b — CEH36 Robustness Analysis
+
+Three independent estimates of the CEH36 Pure Scraping era step change:
+1. Raw BACI: CEH36 minus CEH4
+2. Synthetic control: weighted composite of 11 donor wells
+3. SSM forward residual: observed minus model prediction
+
+**Reads:**
+- `outputs/01_wells_clean.csv`
+- `outputs/01_wells_extended.csv`
+- `outputs/01_climate.csv`
+
+**Produces (outputs/09_scraping_intervention/):**
+
+| File | Type | Paper destination |
+|---|---|---|
+| `09_scrape_08_ceh36_robustness.png` | Figure | CEH36 robustness triplet |
+| `09b_report_numbers.csv` | Data | Three-method step estimates |
+
+### Script 09b (propagation) — Scraping Propagation Analysis
+
+**Note:** This is the original `09b_scraping_propagation.py`, retained as a
+standalone module. It runs independently of the 09a–09d suite but its
+centroid summaries CSV is consumed by 09d.
+
+**Reads:**
+- `outputs/01_wells_clean.csv`
+- `outputs/01_wells_extended.csv`
+- `outputs/01_climate.csv`
+- `outputs/01_locations.csv`
+- `outputs/03_master_data.csv`
+
+**Produces (outputs/09_scraping_intervention/):**
+
+| File | Type | Paper destination |
+|---|---|---|
+| `09b_01_individual_well_baci.csv` | Data | Per-well BACI-corrected shifts |
+| `09b_02_centroid_summaries.csv` | Data | Group centroid BACI shifts → consumed by 09d |
+| `09b_03_ceh36_equilibration.jpg` | Figure | CEH36 post-scraping trajectory |
+
+### Script 09c — Summer Minima Analysis (NEW)
+
+Dual-control summer minimum BACI analysis, mirroring Script 10d's approach
+for the scraping intervention. Evaluates whether scraping improves the
+ecologically critical Jun–Sep minimum depth (dune slack habitat viability).
+
+**Reads:**
+- `outputs/01_wells_clean.csv`
+- `outputs/01_wells_extended.csv`
+- `outputs/01_climate.csv`
+
+**Produces (outputs/09_scraping_intervention/):**
+
+| File | Type | Paper destination |
+|---|---|---|
+| `09c_01_summer_minima.csv` | Data | Per-well, per-year summer minima |
+| `09c_02_summer_minima_shifts.csv` | Data | Pre/post shift with Welch t-test |
+| `09c_03_summer_minima_climate_ctrl.png` | Figure | 3-panel: raw, impact gap, control gap |
+| `09c_04_summer_minima_paired.png` | Figure | CEH36 vs CEH4 paired BACI |
+| `09c_report_numbers.csv` | Data | All citable summer minimum values |
+
+### Script 09d — Scenario Comparison
+
+Grouped bar charts comparing forest management, scraping, and climate
+scenarios. All parameters read dynamically from upstream pipeline outputs
+(no hardcoded cluster coefficients).
+
+**Reads:**
+- `outputs/09_scraping_intervention/09b_02_centroid_summaries.csv` ← from 09b (propagation)
+- `outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv` ← β coefficients
+- `outputs/03_master_data.csv` ← well coordinates for FRAC_AFFECTED
+- `outputs/17_wtf_well_sy.csv` ← per-well Sy → cluster means
+- `outputs/01_wells_clean.csv` ← mean depth → h_disp
+- `outputs/01_climate.csv` ← summer P/PET means
+- `outputs/21_forestry_scenarios/21_forestry_05_scenario_comparison.csv` ← non-scraping scenarios
+- `outputs/03_regional_averages.csv` ← amplification factors
+
+**Produces (outputs/09_scraping_intervention/):**
+
+| File | Type | Paper destination |
+|---|---|---|
+| `09d_01_scenario_comparison.jpg` | Figure | Monthly equilibrium scenario bars |
+| `09d_01_scenario_comparison.csv` | Data | Monthly scenario values |
+| `09d_02_summer_scenario_comparison.png` | Figure | Summer minimum scenario bars |
+| `09d_02_summer_scenario_comparison.csv` | Data | Summer scenario values |
 
 ---
 
-## Script 10 — Clearfell BACI Analysis Suite (modular)
-**Purpose:** Evaluates the December 2017 plantation clearfell via a modular
-analysis suite (10a–10g), invoked as a single pipeline step by
-`run_10_clearfell.py`.  Separates three confounding processes — scraping,
-coastal erosion, and climate — from the clearfell signal using multiple
-counterfactuals and spatial covariates.
-
-**Shared module:** `utils/clearfell_common.py` defines the 5-tier well
-network (17 wells), intervention dates, spatial constants, data loading,
-BACI displacement, CWB, distance-weighted scraping covariates, and summer
-minimum extraction.
-
-**5-tier well network (17 wells):**
-
-| Tier | Wells | n | Rationale |
-|------|-------|---|-----------|
-| Impact | WMC3 | 1 | Inside felling compartment, ≥8 yr pre-felling |
-| Edge | CEH31, CEH20, CEH30, CEH16 | 4 | Adjacent to felling compartment |
-| C4 Forest control | CEH32, CEH34, CEH33, NW10, CEH2 | 5 | C4 Main Forest interior, same canopy |
-| C5 Coastal control | CEH19, CEH17 | 2 | C5 Coastal Forest — distinct lower β₂ |
-| Climate control | CEH9, NW7, NW6, NW5, WMC2 | 5 | C3 wells, no forest canopy |
-
-Excluded: FE1-4 (<8 yr pre-felling), LIS1 (no pre-felling), NW8/NW8B
-(NW8 damaged, NW8B only 2.5 yr pre-felling), CEH42 (3.4 yr pre-felling).
+## Script 10 — Clearfell BACI Experiment
+**Purpose:** Three-zone hierarchical BACI experiment (core impact, edge zone,
+regional control) assessing the December 2017 plantation clearfell. Includes
+ANCOVA-BACI climate correction, CUSUM analysis, SSM coefficient shifts,
+spatial transect analysis, and NW10 broadleaf trend analysis.
 
 **Reads:**
-- `outputs/01_wells_clean.csv`, `outputs/01_wells_extended.csv`
-- `outputs/01_climate.csv`
+- `data/RAF_Valley_Climate.csv`
+- `outputs/01_wells_clean.csv` (main network including CEH9, NW7, NW6)
+- `outputs/01_wells_extended.csv` (FE series and edge wells — merged at load time)
 - `outputs/03_master_data.csv`
-- `data/Well_locations_height.csv` (well locations fallback)
 
-### Script 10a — Three-Counterfactual ANCOVA-BACI (primary result)
-Runs the same ANCOVA model three times with different controls: Forest
-(C4-only, 5 wells), Climate (C3, 5 wells), Combined (all 12: C4+C5+C3).
-Applied to both Impact and Edge tiers (6 results). Distance-weighted
-scraping (λ=300 m, sensitivity at 200 and 500 m). Easting × time
-interaction for Climate and Combined controls.
+**Control pool (8 wells):** CEH32, CEH34, CEH33, NW10, CEH19, CEH9, NW7, NW6
+
+**Produces (outputs/10_clearfell_baci/):**
 
 | File | Type | Paper destination |
 |---|---|---|
-| `10a_01_ancova_comparison_table.csv` | Table | **Paper Table 5** — 6-row ANCOVA summary |
-| `10a_02_ancova_full_coefficients.csv` | Data | Supplementary — full model coefficients |
-| `10a_03_baci_timeseries.csv` | Data | Raw and climate-corrected BACI displacement |
-| `10a_report_numbers.csv` | Data | All citable values from 10a |
-| `10a_04_baci_timeseries_impact.png` | Figure | **Figure 20** — Impact zone BACI, 3 controls |
-| `10a_05_baci_timeseries_edge.png` | Figure | **Figure 21** — Edge zone BACI, 3 controls |
-| `10a_06_climate_sensitivity.png` | Figure | Supplementary — CWB scatter pre/post |
+| `10_cfell_04_diagnostic_drainage_data.csv` | Data | Diagnostic/reproducibility |
+| `10_cfell_05_baci_statistical_verification.csv` | Data | Paper Sections 4.6.2, 4.6.3 |
+| `10_cfell_06_full_parameters.csv` | Data | Paper Section 4.6.5, Figure caption |
+| `10_cfell_08_baci_timeseries_plotdata.csv` | Data | Paper Section 4.6.2 |
+| `10_cfell_09_table5_beta3_before_after.csv` | Table | **Paper Table 5** |
+| `10_cfell_09b_climate_corrected_cusum.csv` | Data | Paper Section 4.6.3 verification |
+| `10_cfell_11_nw10_broadleaf_trend.csv` | Data | **Paper Section 4.6.8** — NW10 broadleaf anomaly and OLS trend |
+| `10_cfell_01_dual_control_baci.png` | Figure | **Figure 22** (ANCOVA-BACI) |
+| `10_cfell_01b_raw_baci.png` | Figure | **Figure 21** (raw BACI) |
+| `10_cfell_02_drainage_diagnostic_part1.png` | Figure | Supplementary / public repo |
+| `10_cfell_02_drainage_diagnostic_part2.png` | Figure | Supplementary / public repo |
+| `10_cfell_03_beta3_ols_slopes.png` | Figure | **Figure 24** (SSM coefficient shifts) |
+| `10_cfell_10_clearfell_transect.png` | Figure | **Figure 23** (spatial transect) |
+| `10_cfell_10_clearfell_transect_steps.csv` | Data | Paper Section 4.6.4 verification |
 
-### Script 10b — Spatial Step-Change Maps
-Four publication-quality spatial maps of scraping and clearfell step changes
-across the full well network, with C3W climate correction.
-
-| File | Type | Paper destination |
-|---|---|---|
-| `10b_spatial_scrape_raw.png` | Figure | Supplementary |
-| `10b_spatial_fell_raw.png` | Figure | Supplementary |
-| `10b_spatial_scrape_corrected.png` | Figure | **Figure 22** (climate-corrected) |
-| `10b_spatial_fell_corrected.png` | Figure | **Figure 23** (climate-corrected) |
-| `10b_spatial_step_data.csv` | Data | Per-well step change data |
-
-### Script 10c — Forest Zone Spatial Analysis
-C4/C5 boundary analysis, β₁-β₂ scatter, elevation regression.
-
-| File | Type | Paper destination |
-|---|---|---|
-| `10c_01_b1_b2_scatter.png` | Figure | Supplementary |
-| `10c_02_b2_elevation_regression.png` | Figure | Supplementary |
-| `10c_03_c4_c5_boundary_map.png` | Figure | Supplementary |
-| `10c_04_forest_zone_summary.txt` | Text | Verification |
-
-### Script 10d — Summer Minima Analysis (dual control)
-Annual Jun–Sep minimum depth for all network wells. Gap against both
-forest and climate control centroids. Welch t-tests and mixed-effects
-robustness (random intercept per well).
-
-| File | Type | Paper destination |
-|---|---|---|
-| `10d_01_summer_minima.csv` | Data | Per-well, per-year summer minima |
-| `10d_02_summer_minima_shifts.csv` | Table | Per-well pre/post shift summary |
-| `10d_03_mixed_model_results.csv` | Data | Mixed-effects model output |
-| `10d_report_numbers.csv` | Data | All citable values from 10d |
-| `10d_04_summer_minima_forest_ctrl.png` | Figure | **Figure 24** — summer minima |
-| `10d_05_summer_minima_climate_ctrl.png` | Figure | Supplementary |
-
-### Script 10e — SSM Coefficient Decomposition
-Per-well Before/After SSM fitting with scraping dummy in the Before era.
-Δβ₁, Δβ₂, Δβ₃ per well, predicted clearfell effect from coefficient shifts.
-
-| File | Type | Paper destination |
-|---|---|---|
-| `10e_01_coefficient_shifts.csv` | Table | Per-well coefficient shifts |
-| `10e_02_predicted_vs_observed.csv` | Data | Predicted vs observed ANCOVA step |
-| `10e_report_numbers.csv` | Data | All citable values from 10e |
-| `10e_03_coefficient_shifts.png` | Figure | **Figure 25** — coefficient shifts |
-
-### Script 10f — Robustness Analyses
-Two independent robustness checks on the ANCOVA-BACI result (10a):
-1. SSM Residual — per-well forward prediction calibrated on pre-scraping
-   data, control-normalised, Welch t-test on scraping→felling step.
-2. Synthetic Control — zone-level counterfactual from 6 donor wells
-   outside the 17-well network, OLS weights on pre-scraping baseline.
-NW8/NW8B excluded (compromised).
-
-| File | Type | Paper destination |
-|---|---|---|
-| `10f_01_ssm_residual_results.csv` | Table | Supplementary — per-well residual results |
-| `10f_02_synthetic_control_results.csv` | Table | Supplementary — synthetic control gaps |
-| `10f_report_numbers.csv` | Data | All citable values from 10f |
-
-### Script 10g — Diagnostics
-Three diagnostics: NW10 broadleaf succession trend (OLS 2019–2025 vs pine
-interior composite), clearfell transect (3-panel figure, 7 wells — NW8B
-excluded, replaced by CEH31 + CEH30), and 48-month rolling SSM
-coefficients testing post-felling convergence toward C3 (open dune).
-
-| File | Type | Paper destination |
-|---|---|---|
-| `10g_01_nw10_broadleaf_trend.csv` | Data | Section 4.6.8 — NW10 trend data |
-| `10g_02_clearfell_transect.png` | Figure | **Figure 26** — transect analysis |
-| `10g_03_clearfell_transect_steps.csv` | Data | Per-well transect step changes |
-| `10g_04_rolling_coefficients.csv` | Data | Rolling β₁/β₃ for impact, C3, C4 |
-| `10g_report_numbers.csv` | Data | All citable values from 10g |
-
-### Consolidated report numbers
-`run_10_clearfell.py` merges all `10x_report_numbers.csv` into
-`10_consolidated_report_numbers.csv` after all sub-scripts complete.
+**Key verified numbers from this script (8-well control pool):**
+- Raw BACI pre-scraping: −0.107 m; post-scraping: −0.325 m; post-felling: −0.370 m
+- Raw step change (felling): −0.045 m; combined hydrological cost: −0.263 m
+- ANCOVA Model 2: R²=0.729, scraping −0.137 m ***, clearfell −0.093 m [−0.131, −0.055] ***, combined −0.230 m
+- Climate sensitivity reduction post-felling: 79.3% (pre: −0.0618 m/100mm; post: −0.0127 m/100mm)
+- Climate-corrected CUSUM at clearfell date: +7.29 m; final value Feb 2026: +0.64 m
+- −β₃ zone mean gains: core impact +0.021, edge +0.022, regional control +0.013
+- Transect step changes (post-fell vs scrape era): WMC3 +0.142 m, NW8B +0.127 m, CEH20 +0.108 m, CEH16 +0.026 m, CEH34 +0.094 m, CEH2 +0.130 m — no distance gradient
+- NW10 broadleaf anomaly vs pine composite (CEH2, CEH32, CEH33, CEH34), mean 2010–2021: +0.267 m
+- NW10 trend 2019–2025: −11.2 mm/yr, p = 0.094, n = 7 (non-significant)
 
 ---
 
@@ -745,7 +759,7 @@ and colour dicts.
 ## Script 19 — Hydrological Scenario Viewer
 
 Script 19 is a **standalone self-contained HTML scenario viewer**. It is not
-part of the numbered 27-step pipeline. It reads pipeline outputs directly and
+part of the numbered 23-step pipeline. It reads pipeline outputs directly and
 generates an interactive browser-based tool for exploring management and climate
 scenarios. Run separately via option 4 in the interactive menu, or
 `python run_analysis.py --viewer`.
@@ -821,12 +835,12 @@ intervention analysis sections of the report.
 
 ```
 RAW DATA
-├── Newborough_Cleaned_For_Model.csv ──→ 01 ──→ 09, 10 (direct)
+├── Newborough_Cleaned_For_Model.csv ──→ 01 ──→ 10 (direct)
 ├── Well__locations_height.csv ─────────→ 01
-└── RAF_Valley_Climate.csv ─────────────→ 01 ──→ 09, 10 (direct)
+└── RAF_Valley_Climate.csv ─────────────→ 01 ──→ 10 (direct)
 
 SCRIPT 01 outputs
-├── 01_climate.csv ─────────────────────→ 00, 02, 03, 07, 08, 11
+├── 01_climate.csv ─────────────────────→ 00, 02, 03, 07, 08, 09, 11
 ├── 01_wells_clean.csv ─────────────────→ 00, 02, 03, 05, 07, 08
 ├── 01_wells_reference.csv ─────────────→ 02, 08
 ├── 01_wells_extended.csv ──────────────→ 06
@@ -938,6 +952,27 @@ Two wells were scraped after the LiDAR survey was flown. Scripts 11b, 19, and
 - Exclusion rationale documented in `REFERENCE_NETWORK_WHITELIST` docstring.
 - `01_wells_clean_maod.csv` output added to paths.py.
 
+### Script 09 (2026-05-04)
+- **Modularised:** Monolithic `09_scraping_intervention.py` (961 lines) split
+  into `09a_paired_baci.py`, `09b_robustness.py`, `09c_summer_minima.py`,
+  `09d_scenario_comparison.py`, plus shared `utils/scraping_common.py` and
+  runner `run_09_scraping.py`.  The runner also calls `09b_scraping_propagation.py`
+  (as step 09bp) to produce centroid summaries required by 09d.
+- **Pipeline steps reduced from 27 to 26:** the old separate 09 + 09b entries
+  collapsed into a single `run_09_scraping.py` step.
+- **09c (NEW):** Summer minimum dual-control BACI, mirroring 10d's approach.
+- **09d:** All cluster parameters now read from pipeline outputs (Scripts 03,
+  17, 21) instead of hardcoded dicts. Bug fixed: h_aod (water table AOD) replaced
+  with h_disp (displacement above drainage datum) in SSM flux computation.
+  FRAC_AFFECTED computed dynamically from well coordinates.
+- **Controls list:** NW8/NW8B removed (damaged); WMC2 added. Now matches
+  `CLIMATE_CONTROL_WELLS` in `clearfell_common.py`.
+- **09d fixes from old 09b:** `FELLING_YEAR` corrected to 2017 (was 2018);
+  `forest_ctrls` updated to agreed 7-well list (CEH13 removed).
+- Script 09 now reads pipeline intermediates (Script 01 outputs) instead of
+  raw data files.
+- Old `09b_scraping_propagation.py` retained as standalone module.
+
 ### Script 02
 - Cluster hydrograph figure now reads `01_wells_clean.csv` directly
 - Removed dependency on `03_regional_averages.csv` (was showing mAOD values)
@@ -981,20 +1016,8 @@ Two wells were scraped after the LiDAR survey was flown. Scripts 11b, 19, and
   alphabetical by block label, which put Coastal Forest before Eastern Block).
 
 ### Script 10
-- **May 2026:** Complete modular rebuild. Monolithic `10_clearfell_baci.py`
-  retired and replaced by modular suite (10a–10g) with shared module
-  `utils/clearfell_common.py`. Invoked via `run_10_clearfell.py`.
-- 4-tier well network (17 wells): Impact (WMC3), Edge (CEH31/CEH20/CEH30/CEH16),
-  Forest control (7 C4/C5 interior wells), Climate control (5 C3 wells).
-  FE1-4 excluded (short baselines), NW8/NW8B excluded (damage/short record).
-- Three-counterfactual ANCOVA with distance-weighted scraping (λ=300 m).
-- Easting × time coastal erosion covariate for Climate/Combined controls.
-- Dual-control summer minima with mixed-effects robustness.
-- SSM coefficient decomposition with scraping dummy in Before era.
-- Pipeline reduced from 29 to 27 steps (3 entries → 1 runner).
-- Previous changelog entries for the old monolithic Script 10:
-  - Added `10_cfell_09b_climate_corrected_cusum.csv` export
-  - Prints verification stats to console
+- Added `10_cfell_09b_climate_corrected_cusum.csv` export
+- Prints verification stats to console
 
 ### Script 11b
 - CEH18 and CEH21 DEM corrections applied (see table above)
@@ -1186,7 +1209,7 @@ rule, Sy values, and list of stale dicts requiring regeneration.
 | Table 2: Mechanistic coefficients | 03 | `03_cluster_mechanistic_coefficients.csv` |
 | Table 3: Model benchmarking | 08 | `08_lcsc_04_table3_benchmark_summary.csv` |
 | Table 4: Scraping −β₃ era summary | 09 | `09_scrape_04b_table4_beta3_era_summary.csv` |
-| Table 5: ANCOVA-BACI comparison | 10a | `10a_01_ancova_comparison_table.csv` |
+| Table 5: Clearfell −β₃ before/after | 10 | `10_cfell_09_table5_beta3_before_after.csv` |
 | Table 6: Winter transfer functions | 11 | `11_forecast_winter_transfer_functions.csv` |
 | Table 7: Summer transfer functions | 11 | `11_forecast_summer_transfer_functions.csv` |
 | Table 8: Pflood equations | 11 | `11_forecast_pflood_threshold_equations.csv` |
@@ -1214,12 +1237,9 @@ rule, Sy values, and list of stale dicts requiring regeneration.
 | Figure 17: Tier 2 scraping signal | 09 | `09_scrape_06_tier2_scraping_signal.png` |
 | Figure 18: β₃ era coefficients | 09 | `09_scrape_07_beta3_confidence.png` |
 | Figure 19: Scraping eras | 21 | `21_forestry_03_scraping_eras.png` |
-| Figure 20: BACI impact timeseries | 10a | `10a_04_baci_timeseries_impact.png` |
-| Figure 21: BACI edge timeseries | 10a | `10a_05_baci_timeseries_edge.png` |
-| Figure 22: Spatial step (scraping) | 10b | `10b_spatial_scrape_corrected.png` |
-| Figure 23: Spatial step (clearfell) | 10b | `10b_spatial_fell_corrected.png` |
-| Figure 24: Summer minima | 10d | `10d_04_summer_minima_forest_ctrl.png` |
-| Figure 25: Coefficient shifts | 10e | `10e_03_coefficient_shifts.png` |
+| Figure 20: Dual-control BACI | 10 | `10_cfell_01_dual_control_baci.png` |
+| Figure 21: ANCOVA-BACI | 10 | `10_cfell_02_drainage_diagnostic_part2.png` |
+| Figure 22: OLS coefficients | 10 | `10_cfell_03_beta3_ols_slopes.png` |
 | Figure 23: BACI zone violin | 21 | `21_forestry_04_baci_zone_violin.png` |
 | Figure 26: Summer min depth map | 11b | `11b_01_summer_minima_depth.png` |
 | Figure 27: Winter max depth map | 11b | `11b_02_winter_maxima_depth.png` |

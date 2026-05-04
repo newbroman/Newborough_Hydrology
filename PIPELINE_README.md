@@ -442,18 +442,19 @@ analysis suite (10a–10g), invoked as a single pipeline step by
 coastal erosion, and climate — from the clearfell signal using multiple
 counterfactuals and spatial covariates.
 
-**Shared module:** `utils/clearfell_common.py` defines the 4-tier well
+**Shared module:** `utils/clearfell_common.py` defines the 5-tier well
 network (17 wells), intervention dates, spatial constants, data loading,
 BACI displacement, CWB, distance-weighted scraping covariates, and summer
 minimum extraction.
 
-**4-tier well network (17 wells):**
+**5-tier well network (17 wells):**
 
 | Tier | Wells | n | Rationale |
 |------|-------|---|-----------|
 | Impact | WMC3 | 1 | Inside felling compartment, ≥8 yr pre-felling |
 | Edge | CEH31, CEH20, CEH30, CEH16 | 4 | Adjacent to felling compartment |
-| Forest control | CEH32, CEH34, CEH33, NW10, CEH19, CEH2, CEH17 | 7 | C4/C5 interior, same canopy |
+| C4 Forest control | CEH32, CEH34, CEH33, NW10, CEH2 | 5 | C4 Main Forest interior, same canopy |
+| C5 Coastal control | CEH19, CEH17 | 2 | C5 Coastal Forest — distinct lower β₂ |
 | Climate control | CEH9, NW7, NW6, NW5, WMC2 | 5 | C3 wells, no forest canopy |
 
 Excluded: FE1-4 (<8 yr pre-felling), LIS1 (no pre-felling), NW8/NW8B
@@ -466,10 +467,11 @@ Excluded: FE1-4 (<8 yr pre-felling), LIS1 (no pre-felling), NW8/NW8B
 - `data/Well_locations_height.csv` (well locations fallback)
 
 ### Script 10a — Three-Counterfactual ANCOVA-BACI (primary result)
-Runs the same ANCOVA model three times with different controls (Forest,
-Climate, Combined), applied to both Impact and Edge tiers (6 results).
-Distance-weighted scraping (λ=300 m, sensitivity at 200 and 500 m).
-Easting × time interaction for Climate and Combined controls.
+Runs the same ANCOVA model three times with different controls: Forest
+(C4-only, 5 wells), Climate (C3, 5 wells), Combined (all 12: C4+C5+C3).
+Applied to both Impact and Edge tiers (6 results). Distance-weighted
+scraping (λ=300 m, sensitivity at 200 and 500 m). Easting × time
+interaction for Climate and Combined controls.
 
 | File | Type | Paper destination |
 |---|---|---|
@@ -528,11 +530,33 @@ Per-well Before/After SSM fitting with scraping dummy in the Before era.
 | `10e_report_numbers.csv` | Data | All citable values from 10e |
 | `10e_03_coefficient_shifts.png` | Figure | **Figure 25** — coefficient shifts |
 
-### Script 10f — Robustness Analyses (not yet built)
-SSM residual analysis, synthetic control, mixed-effects consolidation.
+### Script 10f — Robustness Analyses
+Two independent robustness checks on the ANCOVA-BACI result (10a):
+1. SSM Residual — per-well forward prediction calibrated on pre-scraping
+   data, control-normalised, Welch t-test on scraping→felling step.
+2. Synthetic Control — zone-level counterfactual from 6 donor wells
+   outside the 17-well network, OLS weights on pre-scraping baseline.
+NW8/NW8B excluded (compromised).
 
-### Script 10g — Diagnostics (not yet built)
-NW10 broadleaf trend, clearfell transect, rolling-window SSM coefficients.
+| File | Type | Paper destination |
+|---|---|---|
+| `10f_01_ssm_residual_results.csv` | Table | Supplementary — per-well residual results |
+| `10f_02_synthetic_control_results.csv` | Table | Supplementary — synthetic control gaps |
+| `10f_report_numbers.csv` | Data | All citable values from 10f |
+
+### Script 10g — Diagnostics
+Three diagnostics: NW10 broadleaf succession trend (OLS 2019–2025 vs pine
+interior composite), clearfell transect (3-panel figure, 7 wells — NW8B
+excluded, replaced by CEH31 + CEH30), and 48-month rolling SSM
+coefficients testing post-felling convergence toward C3 (open dune).
+
+| File | Type | Paper destination |
+|---|---|---|
+| `10g_01_nw10_broadleaf_trend.csv` | Data | Section 4.6.8 — NW10 trend data |
+| `10g_02_clearfell_transect.png` | Figure | **Figure 26** — transect analysis |
+| `10g_03_clearfell_transect_steps.csv` | Data | Per-well transect step changes |
+| `10g_04_rolling_coefficients.csv` | Data | Rolling β₁/β₃ for impact, C3, C4 |
+| `10g_report_numbers.csv` | Data | All citable values from 10g |
 
 ### Consolidated report numbers
 `run_10_clearfell.py` merges all `10x_report_numbers.csv` into

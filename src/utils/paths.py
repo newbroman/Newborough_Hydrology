@@ -197,6 +197,7 @@ OUT_09_TIER2_SIGNAL         = DIR_09 / "09_scrape_06_tier2_scraping_signal.png"
 OUT_09_BETA3_CI             = DIR_09 / "09_scrape_07_beta3_confidence.png"
 OUT_09_ROBUSTNESS           = DIR_09 / "09_scrape_08_ceh36_robustness.png"
 OUT_09_REPORT_NUMBERS       = DIR_09 / "09_scrape_report_numbers.csv"
+OUT_09_TIER1_CUSUM          = DIR_09 / "09_tier1_final_cusum.csv"
 
 # Script 09b — Scraping propagation into forest
 OUT_09B_INDIVIDUAL          = DIR_09 / "09b_01_individual_well_baci.csv"
@@ -206,6 +207,20 @@ OUT_09B_SCENARIO            = DIR_09 / "09b_04_scenario_comparison.jpg"
 OUT_09B_SCENARIO_CSV        = DIR_09 / "09b_04_scenario_comparison.csv"
 OUT_09B_SUMMER_SCENARIO     = DIR_09 / "09b_05_summer_scenario_comparison.png"
 OUT_09B_SUMMER_SCENARIO_CSV = DIR_09 / "09b_05_summer_scenario_comparison.csv"
+OUT_09B_REPORT_NUMBERS      = DIR_09 / "09b_report_numbers.csv"
+
+# Script 09c — Summer minima (scraping)
+OUT_09C_SUMMER_MINIMA       = DIR_09 / "09c_01_summer_minima.csv"
+OUT_09C_SUMMER_SHIFTS       = DIR_09 / "09c_02_summer_minima_shifts.csv"
+OUT_09C_REPORT_NUMBERS      = DIR_09 / "09c_report_numbers.csv"
+OUT_09C_FIG_CLIMATE         = DIR_09 / "09c_03_summer_minima_climate_ctrl.png"
+OUT_09C_FIG_PAIRED          = DIR_09 / "09c_04_summer_minima_paired.png"
+
+# Script 09d — Scraping scenario comparison
+OUT_09D_SCENARIO            = DIR_09 / "09d_01_scenario_comparison.jpg"
+OUT_09D_SCENARIO_CSV        = DIR_09 / "09d_01_scenario_comparison.csv"
+OUT_09D_SUMMER_SCENARIO     = DIR_09 / "09d_02_summer_scenario_comparison.png"
+OUT_09D_SUMMER_SCENARIO_CSV = DIR_09 / "09d_02_summer_scenario_comparison.csv"
 
 # Script 10 — Clearfell BACI Analysis Suite (10a–10g)
 OUT_10_REPORT_NUMBERS       = DIR_10 / "10_cfell_report_numbers.csv"

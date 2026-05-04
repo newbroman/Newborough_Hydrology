@@ -207,8 +207,8 @@ footer a:hover{text-decoration:underline;}
   <div class="hr"></div>
   <div class="ch">Scraping</div>
   <label class="ckrow"><input type="checkbox" id="chkScrape" onchange="go()">
-    Scraping (nearby effect)</label>
-  <div class="sc-note" style="font-size:10px;color:var(--text-light);margin-top:2px;">Applies observed CEH36 scraping propagation effect (&beta;&#8323; &times;1.20, &Delta;&beta;&#8321; +0.41, &Delta;&beta;&#8322; +0.009, ground &minus;0.2&thinsp;m) to C3, C4, C5 wells. Independent of forest/climate scenarios.</div>
+    Simulate scraping event</label>
+  <div class="sc-note" style="font-size:10px;color:var(--text-light);margin-top:2px;">Simulates a 0.2&thinsp;m scraping event 200&thinsp;m NW of CEH36 (E&thinsp;241091, N&thinsp;363494). Uses the observed CEH36 BACI step (+131&thinsp;mm) as the source signal, attenuated by exponential distance decay (&lambda;&thinsp;=&thinsp;300&thinsp;m). Independent of forest/climate scenarios. Added to &Delta;h at each well.</div>
   <div class="sc-note">UKCP18 presets are central estimates (50th percentile) under RCP8.5 for Wales, with seasonally-structured perturbations applied to the paper's Winter (Nov&#8211;Mar) and Summer (May&#8211;Sep) climatologies. The equilibrium framework resolves seasonal Delta-h equilibria but not within-year dynamical trajectories.</div>
   <div class="hr"></div>
 
@@ -417,7 +417,9 @@ function go(){
   // Seasonal baselines -- always needed so annual can weight winter+summer
   var cldW=CLIMATE.winter,cldS=CLIMATE.summer;
   var scrapeOn=document.getElementById('chkScrape').checked;
-  var SCRAPE_DB1=0.41,SCRAPE_DB2=0.009,SCRAPE_B3_MULT=1.20,SCRAPE_DH=0.2;
+  // Distance-decay scraping model: source signal 131 mm at E241091 N363494,
+  // attenuated by exp(-d/lambda) with lambda=300 m.
+  var SCRAPE_E=241091,SCRAPE_N=363494,SCRAPE_SIGNAL=0.131,SCRAPE_LAMBDA=300;
   function dhOne(b1,b2,b3,P_base,PET_base,sP,sPET,h,cl){
     var isForest=(cl===4||cl===5);
     var sI_cur=cl===4?sl.sI_c4:cl===5?sl.sI_c5:0;
@@ -427,14 +429,7 @@ function go(){
     var Psc=P_base*sP,PETsc=PET_base*sPET;
     var Peff_sc=isForest?Psc*(1-sI_cur):Psc;
     var b2sc=isForest?b2*sB2_cur:b2;
-    var b1sc=b1,b3sc=b3,hsc=Math.abs(h);
-    if(scrapeOn&&(cl===3||cl===4||cl===5)){
-      b1sc=b1+SCRAPE_DB1;
-      b2sc=b2sc+SCRAPE_DB2;
-      b3sc=b3*SCRAPE_B3_MULT;
-      hsc=Math.abs(h)-SCRAPE_DH;
-    }
-    return (b1sc*Peff_sc-b2sc*PETsc-b3sc*hsc)-net0;
+    return (b1*Peff_sc-b2sc*PETsc-b3*Math.abs(h))-net0;
   }
   var well_dh={};
   for(var i=0;i<WELLS.length;i++){
@@ -452,6 +447,12 @@ function go(){
       var dhW=dhOne(b1,b2,b3,cldW.P,cldW.PET,sl.sP_w,sl.sPET_w,h,w.cl);
       var dhS=dhOne(b1,b2,b3,cldS.P,cldS.PET,sl.sP_s,sl.sPET_s,h,w.cl);
       well_dh[w.n]=0.5*(dhW+dhS);
+    }
+    // Add distance-decay scraping effect if enabled
+    if(scrapeOn&&well_dh[w.n]!=null){
+      var dx=w.E-SCRAPE_E,dy=w.N-SCRAPE_N;
+      var dist=Math.sqrt(dx*dx+dy*dy);
+      well_dh[w.n]+=SCRAPE_SIGNAL*Math.exp(-dist/SCRAPE_LAMBDA);
     }
   }
   var dh={},sh={},cld=CLIMATE[sea];

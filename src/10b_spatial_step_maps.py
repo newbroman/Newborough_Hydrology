@@ -9,16 +9,22 @@ Four publication-quality figures:
   4. Climate-corrected — Clearfell (C3W controls median subtracted)
 
 Climate correction:
-  Uses the Script 10 western C3 climate controls (NW5, NW6, NW7, CEH1).
-  These share the western climate signal and coastal position with the
-  intervention zones, so subtracting their median step change removes both
-  site-wide climate and most of the coastal erosion signal in one step.
+  Uses a western C3 subset (NW5, NW6, NW7, CEH1) — intentionally different
+  from the ANCOVA climate controls in clearfell_common.  These 4 wells share
+  the western climate signal AND coastal position with the intervention zones,
+  absorbing most of the coastal erosion signal in one step.
 
 Uses the full well network (~75 wells), IDW interpolation with DEM hillshade,
 ridge masking, and KML overlays. Right-side vertical colourbar matches the
 report's other spatial figures (plot_metric_map convention).
 
+Well labels annotated for all 5-tier BACI network wells (Impact, Edge,
+C4 Forest Ctrl, C5 Coastal Ctrl) from clearfell_common.
+
 Depth convention: negative = shallower (water table rose); positive = deeper.
+
+Dependencies:
+  utils/clearfell_common.py — intervention dates, well tier lists
 
 Outputs:
   outputs/10_clearfell_baci/10b_spatial_scrape_raw.png
@@ -53,22 +59,26 @@ from utils.map_utils import (
 from utils.config import (
     CLUSTER_COLOURS, CLUSTER_LABELS, CLUSTER_MARKERS,
 )
+from utils.clearfell_common import (
+    INTERVENTION_DATE, SCRAPING_DATE,
+    IMPACT_WELLS, EDGE_WELLS,
+    FOREST_CONTROL_WELLS, COASTAL_CONTROL_WELLS, CLIMATE_CONTROL_WELLS,
+)
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 # ── Output paths (imported from utils.paths) ────────────────────────────────
 # OUT_10B_SCRAPE_RAW, OUT_10B_FELL_RAW, OUT_10B_SCRAPE_CORRECTED,
 # OUT_10B_FELL_CORRECTED, OUT_10B_STEP_DATA
 
 # ── Era boundaries ──────────────────────────────────────────────────────────
-SCRAPING_DATE     = pd.Timestamp("2015-04-01")
-INTERVENTION_DATE = pd.Timestamp("2017-12-01")
+# SCRAPING_DATE and INTERVENTION_DATE imported from clearfell_common
 MIN_MONTHS        = 6   # minimum observations per era for inclusion
 
-# Climate reference clusters (non-forest, non-intervention)
-# Climate reference wells — Script 10 western C3 controls
-# These share the western climate signal AND coastal position with the
-# intervention zones, absorbing most of the coastal erosion signal.
+# Climate reference wells — C3 western subset for spatial correction.
+# Intentionally different from the ANCOVA climate controls (clearfell_common):
+# these 4 wells share the western climate signal AND coastal position with
+# the intervention zones, absorbing most of the coastal erosion signal.
 CLIMATE_REF_WELLS = ['nw5', 'nw6', 'nw7', 'ceh1']
 
 # Wells excluded from plotting (retained in exported CSV)
@@ -212,10 +222,11 @@ def main():
     # 4. PLOTTING FUNCTION
     # ══════════════════════════════════════════════════════════════════════════════
     # Labels for clearfell-area wells (always annotated)
-    HIGHLIGHT_WELLS = {
-        "wmc3", "ceh31", "ceh16",
-        "ceh32", "ceh34", "ceh33", "ceh20", "ceh30",
-    }
+    # Uses the full 5-tier BACI network from clearfell_common
+    HIGHLIGHT_WELLS = set(
+        IMPACT_WELLS + EDGE_WELLS +
+        FOREST_CONTROL_WELLS + COASTAL_CONTROL_WELLS
+    )
 
 
     def plot_spatial_step(panel_df, value_col, norm, title, cbar_label, out_path):

@@ -5,7 +5,7 @@ Interactive orchestrator for the Hollingham (2026) analytical pipeline.
 Usage
 -----
   python run_analysis.py              # interactive menu
-  python run_analysis.py --full       # non-interactive: run all 27 steps
+  python run_analysis.py --full       # non-interactive: run all 26 steps
   python run_analysis.py --from N     # non-interactive: resume from step N
   python run_analysis.py --viewer     # non-interactive: build scenario viewer only
 """
@@ -23,53 +23,52 @@ OUT_DIR  = ROOT_DIR / "outputs"
 # ── Phase / step definitions ──────────────────────────────────────────────────
 
 PHASE_1 = [
-    ("01_data_prep.py",              " 1/27  Data preparation"),
-    ("02_clustering.py",             " 2/27  Behavioural clustering"),
-    ("03_state_space_model.py",      " 3/27  State-space regression + LCSC"),
-    ("04_cluster_visualisations.py", " 4/27  Core cluster visualisation"),
+    ("01_data_prep.py",              " 1/26  Data preparation"),
+    ("02_clustering.py",             " 2/26  Behavioural clustering"),
+    ("03_state_space_model.py",      " 3/26  State-space regression + LCSC"),
+    ("04_cluster_visualisations.py", " 4/26  Core cluster visualisation"),
 ]
 PHASE_2 = [
-    ("05_pearson_affinity.py",  " 5/27  Pearson membership audit"),
-    ("06_pearson_extended.py",  " 6/27  Pearson extended network integration"),
+    ("05_pearson_affinity.py",  " 5/26  Pearson membership audit"),
+    ("06_pearson_extended.py",  " 6/26  Pearson extended network integration"),
 ]
 PHASE_3 = [
-    ("07_spatial_coefficients.py",     " 7/27  Spatial coefficient mapping"),
-    ("08_model_benchmarking.py",      " 8/27  Model benchmarking (LCSC vs Traditional)"),
-    ("09_scraping_intervention.py",   " 9/27  Scraping intervention BACI"),
-    ("09b_scraping_propagation.py",   "10/27  Scraping propagation diagnostic"),
-    ("run_10_clearfell.py",           "11/27  Clear-fell BACI analysis suite (10a–10g)"),
-    ("11_forecasting_thresholds.py",  "12/27  Forecasting and critical thresholds"),
-    ("11b_spatial_thresholds.py",     "13/27  Spatial eco-hydrological threshold maps"),
+    ("07_spatial_coefficients.py",     " 7/26  Spatial coefficient mapping"),
+    ("08_model_benchmarking.py",      " 8/26  Model benchmarking (LCSC vs Traditional)"),
+    ("run_09_scraping.py",            " 9/26  Scraping analysis suite (09a, 09b, 09bp, 09c, 09d)"),
+    ("run_10_clearfell.py",           "10/26  Clear-fell BACI analysis suite (10a–10g)"),
+    ("11_forecasting_thresholds.py",  "11/26  Forecasting and critical thresholds"),
+    ("11b_spatial_thresholds.py",     "12/26  Spatial eco-hydrological threshold maps"),
 ]
 PHASE_4 = [
-    ("00_climate_summary.py",            "14/27  Climate summary outputs", ["--profile", "full"]),
-    ("14_climate_projections.py",        "15/27  Figure: Climate trajectory projections"),
-    ("12_figure_site_overview.py",       "16/27  Figure: DEM site overview"),
-    ("13_figure_experimental_design.py", "17/27  Figure: Experimental design GIS map"),
+    ("00_climate_summary.py",            "13/26  Climate summary outputs", ["--profile", "full"]),
+    ("14_climate_projections.py",        "14/26  Figure: Climate trajectory projections"),
+    ("12_figure_site_overview.py",       "15/26  Figure: DEM site overview"),
+    ("13_figure_experimental_design.py", "16/26  Figure: Experimental design GIS map"),
 ]
 PHASE_5 = [
-    ("15_depth_dependent_pet.py", "18/27  Depth-dependent PET analysis"),
+    ("15_depth_dependent_pet.py", "17/26  Depth-dependent PET analysis"),
 ]
 PHASE_6 = [
-    ("17_wtf_specific_yield.py", "19/27  WTF cluster Sy estimation"),
+    ("17_wtf_specific_yield.py", "18/26  WTF cluster Sy estimation"),
 ]
 PHASE_7 = [
-    ("16_water_bal.py", "20/27  Water balance decomposition"),
+    ("16_water_bal.py", "19/26  Water balance decomposition"),
 ]
 PHASE_8 = [
-    ("18_wtf_spatial.py", "21/27  WTF spatial analysis and Sy mapping"),
+    ("18_wtf_spatial.py", "20/26  WTF spatial analysis and Sy mapping"),
 ]
 PHASE_9 = [
-    ("19_spatial_groundwater.py", "22/27  Spatial groundwater analysis"),
-    ("20_spatial_figures.py",     "23/27  Spatial paper figures"),
+    ("19_spatial_groundwater.py", "21/26  Spatial groundwater analysis"),
+    ("20_spatial_figures.py",     "22/26  Spatial paper figures"),
 ]
 PHASE_10 = [
-    ("21_forestry_scenarios.py", "24/27  Forestry scenarios and management figures"),
+    ("21_forestry_scenarios.py", "23/26  Forestry scenarios and management figures"),
 ]
 PHASE_11 = [
-    ("22_residual_lag_analysis.py",    "25/27  Residual lag structure analysis"),
-    ("23_ridge_recharge_lag_test.py",  "26/27  Ridge recharge lag hypothesis test"),
-    ("24_residual_seasonality.py",     "27/27  Residual seasonality diagnostics"),
+    ("22_residual_lag_analysis.py",    "24/26  Residual lag structure analysis"),
+    ("23_ridge_recharge_lag_test.py",  "25/26  Ridge recharge lag hypothesis test"),
+    ("24_residual_seasonality.py",     "26/26  Residual seasonality diagnostics"),
 ]
 
 ALL_PHASES = [
@@ -134,7 +133,7 @@ REQUIRED_PHASE10_OUTPUTS = [
 
 _UPSTREAM_DEPS = [
     (5,  REQUIRED_PHASE1_OUTPUTS,  "Phase 1 (steps 1–4)"),
-    (12, REQUIRED_PHASE3_OUTPUTS,  "Phase 3 (steps 7–11)"),
+    (11, REQUIRED_PHASE3_OUTPUTS,  "Phase 3 (steps 7–12)"),
 ]
 
 # Core intermediate: 01_climate.csv is needed by almost every script from
@@ -270,7 +269,7 @@ def run_full_pipeline(from_step: int = 1) -> None:
         validate_outputs(REQUIRED_PHASE1_OUTPUTS, "Phase 1")
     run_phase(PHASE_2,  "PHASE 2  — Pearson Membership Audit",                    from_step)
     run_phase(PHASE_3,  "PHASE 3  — Model Diagnostics and Intervention Analysis", from_step)
-    if from_step <= 11:
+    if from_step <= 10:
         validate_outputs(REQUIRED_PHASE3_OUTPUTS, "Phase 3")
     run_phase(PHASE_4,  "PHASE 4  — Climate Projections and Figure Generation",   from_step)
     run_phase(PHASE_5,  "PHASE 5  — Depth-Dependent PET Analysis",                from_step)
@@ -278,12 +277,12 @@ def run_full_pipeline(from_step: int = 1) -> None:
     run_phase(PHASE_7,  "PHASE 7  — Water Balance Decomposition",                 from_step)
     run_phase(PHASE_8,  "PHASE 8  — WTF Spatial Analysis and Sy Mapping",         from_step)
     run_phase(PHASE_9,  "PHASE 9  — Spatial Groundwater Analysis",                from_step)
-    if from_step <= 22:
+    if from_step <= 21:
         validate_outputs(REQUIRED_PHASE9_OUTPUTS, "Phase 9")
     run_phase(PHASE_10, "PHASE 10 — Forestry Scenario Analysis",                  from_step)
     validate_outputs(REQUIRED_PHASE10_OUTPUTS, "Phase 10")
     run_phase(PHASE_11, "PHASE 11 — Supplementary Diagnostics (Scripts 22–24)",  from_step)
-    _banner("PIPELINE COMPLETE — all 27 steps written to outputs/")
+    _banner("PIPELINE COMPLETE — all 26 steps written to outputs/")
 
 def build_viewer() -> None:
     """Run script 19 to generate the self-contained scenario viewer HTML."""
@@ -329,7 +328,7 @@ MENU = """
   ┌──────────────────────────────────────────────────┐
   │  Main Menu                                       │
   ├──────────────────────────────────────────────────┤
-  │  1  Run full pipeline  (all 27 steps)            │
+  │  1  Run full pipeline  (all 26 steps)            │
   │  2  Resume from a specific step                  │
   │  3  Run a single step                            │
   │  4  Prepare the scenario viewer                  │
@@ -415,7 +414,7 @@ def interactive_menu() -> None:
         choice = input("\n  Enter choice: ").strip().lower()
 
         if choice == "1":
-            ans = input("\n  Run all 27 steps from the beginning? [y/N] ").strip().lower()
+            ans = input("\n  Run all 26 steps from the beginning? [y/N] ").strip().lower()
             if ans == "y":
                 run_full_pipeline(from_step=1)
 
@@ -454,7 +453,7 @@ def main() -> None:
         """)
     )
     parser.add_argument("--full",   action="store_true",
-                        help="Run all 27 steps non-interactively")
+                        help="Run all 26 steps non-interactively")
     parser.add_argument("--from",   dest="from_step", type=int, metavar="N",
                         help="Resume from step N non-interactively")
     parser.add_argument("--viewer", action="store_true",

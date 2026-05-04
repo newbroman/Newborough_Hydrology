@@ -1,0 +1,187 @@
+Parameter,Well,Era,Value,Unit,Note
+CoeffShift_WMC3_b1_before,WMC3,Before,2.2493,m,SE=0.2272
+CoeffShift_WMC3_b1_after,WMC3,After,2.0424,m,SE=0.2788
+CoeffShift_WMC3_db1,WMC3,Delta,-0.207,m,
+CoeffShift_WMC3_b2_before,WMC3,Before,1.9756,m,SE=0.2919
+CoeffShift_WMC3_b2_after,WMC3,After,2.0558,m,SE=0.3560
+CoeffShift_WMC3_db2,WMC3,Delta,0.0802,m,
+CoeffShift_WMC3_b3_before,WMC3,Before,0.0779,m,SE=0.0289
+CoeffShift_WMC3_b3_after,WMC3,After,0.1114,m,SE=0.0352
+CoeffShift_WMC3_db3,WMC3,Delta,0.0335,m,
+CoeffShift_WMC3_dh_predicted,WMC3,,-0.1005,m,Predicted clearfell effect from Δβ
+CoeffShift_CEH31_b1_before,CEH31,Before,2.6144,m,SE=0.2110
+CoeffShift_CEH31_b1_after,CEH31,After,1.6629,m,SE=0.2708
+CoeffShift_CEH31_db1,CEH31,Delta,-0.9515,m,
+CoeffShift_CEH31_b2_before,CEH31,Before,1.5995,m,SE=0.2703
+CoeffShift_CEH31_b2_after,CEH31,After,1.8057,m,SE=0.3508
+CoeffShift_CEH31_db2,CEH31,Delta,0.2062,m,
+CoeffShift_CEH31_b3_before,CEH31,Before,0.0964,m,SE=0.0282
+CoeffShift_CEH31_b3_after,CEH31,After,0.1366,m,SE=0.0404
+CoeffShift_CEH31_db3,CEH31,Delta,0.0401,m,
+CoeffShift_CEH31_dh_predicted,CEH31,,-0.1631,m,Predicted clearfell effect from Δβ
+CoeffShift_CEH20_b1_before,CEH20,Before,2.545,m,SE=0.2107
+CoeffShift_CEH20_b1_after,CEH20,After,2.5591,m,SE=0.2543
+CoeffShift_CEH20_db1,CEH20,Delta,0.0141,m,
+CoeffShift_CEH20_b2_before,CEH20,Before,2.0459,m,SE=0.2642
+CoeffShift_CEH20_b2_after,CEH20,After,2.1182,m,SE=0.3072
+CoeffShift_CEH20_db2,CEH20,Delta,0.0723,m,
+CoeffShift_CEH20_b3_before,CEH20,Before,0.0368,m,SE=0.0202
+CoeffShift_CEH20_b3_after,CEH20,After,0.0203,m,SE=0.0263
+CoeffShift_CEH20_db3,CEH20,Delta,-0.0165,m,
+CoeffShift_CEH20_dh_predicted,CEH20,,0.0368,m,Predicted clearfell effect from Δβ
+CoeffShift_CEH30_b1_before,CEH30,Before,2.5625,m,SE=0.2500
+CoeffShift_CEH30_b1_after,CEH30,After,2.1219,m,SE=0.2502
+CoeffShift_CEH30_db1,CEH30,Delta,-0.4406,m,
+CoeffShift_CEH30_b2_before,CEH30,Before,2.0275,m,SE=0.3120
+CoeffShift_CEH30_b2_after,CEH30,After,2.2777,m,SE=0.3041
+CoeffShift_CEH30_db2,CEH30,Delta,0.2502,m,
+CoeffShift_CEH30_b3_before,CEH30,Before,0.0471,m,SE=0.0259
+CoeffShift_CEH30_b3_after,CEH30,After,0.0444,m,SE=0.0281
+CoeffShift_CEH30_db3,CEH30,Delta,-0.0027,m,
+CoeffShift_CEH30_dh_predicted,CEH30,,-0.0395,m,Predicted clearfell effect from Δβ
+CoeffShift_CEH16_b1_before,CEH16,Before,2.7116,m,SE=0.1773
+CoeffShift_CEH16_b1_after,CEH16,After,2.3193,m,SE=0.2097
+CoeffShift_CEH16_db1,CEH16,Delta,-0.3923,m,
+CoeffShift_CEH16_b2_before,CEH16,Before,1.4211,m,SE=0.2289
+CoeffShift_CEH16_b2_after,CEH16,After,1.6094,m,SE=0.2648
+CoeffShift_CEH16_db2,CEH16,Delta,0.1882,m,
+CoeffShift_CEH16_b3_before,CEH16,Before,0.0607,m,SE=0.0210
+CoeffShift_CEH16_b3_after,CEH16,After,0.0702,m,SE=0.0289
+CoeffShift_CEH16_db3,CEH16,Delta,0.0095,m,
+CoeffShift_CEH16_dh_predicted,CEH16,,-0.0647,m,Predicted clearfell effect from Δβ
+CoeffShift_CEH32_b1_before,CEH32,Before,2.5503,m,SE=0.2504
+CoeffShift_CEH32_b1_after,CEH32,After,2.2953,m,SE=0.2940
+CoeffShift_CEH32_db1,CEH32,Delta,-0.255,m,
+CoeffShift_CEH32_b2_before,CEH32,Before,2.2389,m,SE=0.3140
+CoeffShift_CEH32_b2_after,CEH32,After,2.6191,m,SE=0.3518
+CoeffShift_CEH32_db2,CEH32,Delta,0.3802,m,
+CoeffShift_CEH32_b3_before,CEH32,Before,0.0171,m,SE=0.0205
+CoeffShift_CEH32_b3_after,CEH32,After,0.0155,m,SE=0.0269
+CoeffShift_CEH32_db3,CEH32,Delta,-0.0015,m,
+CoeffShift_CEH32_dh_predicted,CEH32,,-0.0356,m,Predicted clearfell effect from Δβ
+CoeffShift_CEH34_b1_before,CEH34,Before,2.517,m,SE=0.2735
+CoeffShift_CEH34_b1_after,CEH34,After,2.2863,m,SE=0.2349
+CoeffShift_CEH34_db1,CEH34,Delta,-0.2307,m,
+CoeffShift_CEH34_b2_before,CEH34,Before,2.3896,m,SE=0.3451
+CoeffShift_CEH34_b2_after,CEH34,After,2.694,m,SE=0.2824
+CoeffShift_CEH34_db2,CEH34,Delta,0.3044,m,
+CoeffShift_CEH34_b3_before,CEH34,Before,0.0338,m,SE=0.0240
+CoeffShift_CEH34_b3_after,CEH34,After,0.0161,m,SE=0.0222
+CoeffShift_CEH34_db3,CEH34,Delta,-0.0177,m,
+CoeffShift_CEH34_dh_predicted,CEH34,,0.0159,m,Predicted clearfell effect from Δβ
+CoeffShift_CEH33_b1_before,CEH33,Before,2.4789,m,SE=0.2464
+CoeffShift_CEH33_b1_after,CEH33,After,2.1268,m,SE=0.2594
+CoeffShift_CEH33_db1,CEH33,Delta,-0.3521,m,
+CoeffShift_CEH33_b2_before,CEH33,Before,1.9626,m,SE=0.3104
+CoeffShift_CEH33_b2_after,CEH33,After,2.2645,m,SE=0.3132
+CoeffShift_CEH33_db2,CEH33,Delta,0.302,m,
+CoeffShift_CEH33_b3_before,CEH33,Before,0.0346,m,SE=0.0235
+CoeffShift_CEH33_b3_after,CEH33,After,0.0294,m,SE=0.0277
+CoeffShift_CEH33_db3,CEH33,Delta,-0.0052,m,
+CoeffShift_CEH33_dh_predicted,CEH33,,-0.0314,m,Predicted clearfell effect from Δβ
+CoeffShift_NW10_b1_before,NW10,Before,3.3317,m,SE=0.2292
+CoeffShift_NW10_b1_after,NW10,After,3.4293,m,SE=0.3068
+CoeffShift_NW10_db1,NW10,Delta,0.0976,m,
+CoeffShift_NW10_b2_before,NW10,Before,2.5301,m,SE=0.2804
+CoeffShift_NW10_b2_after,NW10,After,2.326,m,SE=0.3776
+CoeffShift_NW10_db2,NW10,Delta,-0.2041,m,
+CoeffShift_NW10_b3_before,NW10,Before,0.038,m,SE=0.0227
+CoeffShift_NW10_b3_after,NW10,After,0.0358,m,SE=0.0266
+CoeffShift_NW10_db3,NW10,Delta,-0.0022,m,
+CoeffShift_NW10_dh_predicted,NW10,,0.0235,m,Predicted clearfell effect from Δβ
+CoeffShift_CEH19_b1_before,CEH19,Before,2.3087,m,SE=0.1689
+CoeffShift_CEH19_b1_after,CEH19,After,1.9652,m,SE=0.1725
+CoeffShift_CEH19_db1,CEH19,Delta,-0.3435,m,
+CoeffShift_CEH19_b2_before,CEH19,Before,1.1401,m,SE=0.2242
+CoeffShift_CEH19_b2_after,CEH19,After,1.1764,m,SE=0.2309
+CoeffShift_CEH19_db2,CEH19,Delta,0.0364,m,
+CoeffShift_CEH19_b3_before,CEH19,Before,0.1106,m,SE=0.0279
+CoeffShift_CEH19_b3_after,CEH19,After,0.1209,m,SE=0.0323
+CoeffShift_CEH19_db3,CEH19,Delta,0.0102,m,
+CoeffShift_CEH19_dh_predicted,CEH19,,-0.0546,m,Predicted clearfell effect from Δβ
+CoeffShift_CEH2_b1_before,CEH2,Before,2.8873,m,SE=0.2077
+CoeffShift_CEH2_b1_after,CEH2,After,2.5475,m,SE=0.3218
+CoeffShift_CEH2_db1,CEH2,Delta,-0.3397,m,
+CoeffShift_CEH2_b2_before,CEH2,Before,2.5198,m,SE=0.2533
+CoeffShift_CEH2_b2_after,CEH2,After,3.0342,m,SE=0.3901
+CoeffShift_CEH2_db2,CEH2,Delta,0.5144,m,
+CoeffShift_CEH2_b3_before,CEH2,Before,0.0254,m,SE=0.0211
+CoeffShift_CEH2_b3_after,CEH2,After,0.0412,m,SE=0.0276
+CoeffShift_CEH2_db3,CEH2,Delta,0.0158,m,
+CoeffShift_CEH2_dh_predicted,CEH2,,-0.09,m,Predicted clearfell effect from Δβ
+CoeffShift_CEH17_b1_before,CEH17,Before,2.326,m,SE=0.1664
+CoeffShift_CEH17_b1_after,CEH17,After,1.751,m,SE=0.2140
+CoeffShift_CEH17_db1,CEH17,Delta,-0.575,m,
+CoeffShift_CEH17_b2_before,CEH17,Before,1.407,m,SE=0.2154
+CoeffShift_CEH17_b2_after,CEH17,After,1.4558,m,SE=0.2782
+CoeffShift_CEH17_db2,CEH17,Delta,0.0488,m,
+CoeffShift_CEH17_b3_before,CEH17,Before,0.0705,m,SE=0.0210
+CoeffShift_CEH17_b3_after,CEH17,After,0.1217,m,SE=0.0365
+CoeffShift_CEH17_db3,CEH17,Delta,0.0512,m,
+CoeffShift_CEH17_dh_predicted,CEH17,,-0.1266,m,Predicted clearfell effect from Δβ
+CoeffShift_CEH9_b1_before,CEH9,Before,2.8247,m,SE=0.2186
+CoeffShift_CEH9_b1_after,CEH9,After,2.7801,m,SE=0.2560
+CoeffShift_CEH9_db1,CEH9,Delta,-0.0447,m,
+CoeffShift_CEH9_b2_before,CEH9,Before,2.1651,m,SE=0.2717
+CoeffShift_CEH9_b2_after,CEH9,After,2.5127,m,SE=0.3194
+CoeffShift_CEH9_db2,CEH9,Delta,0.3476,m,
+CoeffShift_CEH9_b3_before,CEH9,Before,0.0654,m,SE=0.0235
+CoeffShift_CEH9_b3_after,CEH9,After,0.0758,m,SE=0.0279
+CoeffShift_CEH9_db3,CEH9,Delta,0.0103,m,
+CoeffShift_CEH9_dh_predicted,CEH9,,-0.0524,m,Predicted clearfell effect from Δβ
+CoeffShift_NW7_b1_before,NW7,Before,2.9562,m,SE=0.2240
+CoeffShift_NW7_b1_after,NW7,After,2.5466,m,SE=0.2925
+CoeffShift_NW7_db1,NW7,Delta,-0.4096,m,
+CoeffShift_NW7_b2_before,NW7,Before,2.0859,m,SE=0.2862
+CoeffShift_NW7_b2_after,NW7,After,1.9756,m,SE=0.3701
+CoeffShift_NW7_db2,NW7,Delta,-0.1103,m,
+CoeffShift_NW7_b3_before,NW7,Before,0.0789,m,SE=0.0254
+CoeffShift_NW7_b3_after,NW7,After,0.0826,m,SE=0.0333
+CoeffShift_NW7_db3,NW7,Delta,0.0037,m,
+CoeffShift_NW7_dh_predicted,NW7,,-0.0326,m,Predicted clearfell effect from Δβ
+CoeffShift_NW6_b1_before,NW6,Before,3.2683,m,SE=0.2482
+CoeffShift_NW6_b1_after,NW6,After,2.6652,m,SE=0.3065
+CoeffShift_NW6_db1,NW6,Delta,-0.6031,m,
+CoeffShift_NW6_b2_before,NW6,Before,1.7692,m,SE=0.3234
+CoeffShift_NW6_b2_after,NW6,After,1.773,m,SE=0.4184
+CoeffShift_NW6_db2,NW6,Delta,0.0038,m,
+CoeffShift_NW6_b3_before,NW6,Before,0.119,m,SE=0.0301
+CoeffShift_NW6_b3_after,NW6,After,0.1763,m,SE=0.0413
+CoeffShift_NW6_db3,NW6,Delta,0.0573,m,
+CoeffShift_NW6_dh_predicted,NW6,,-0.2288,m,Predicted clearfell effect from Δβ
+CoeffShift_NW5_b1_before,NW5,Before,3.3939,m,SE=0.2287
+CoeffShift_NW5_b1_after,NW5,After,3.2689,m,SE=0.3233
+CoeffShift_NW5_db1,NW5,Delta,-0.1249,m,
+CoeffShift_NW5_b2_before,NW5,Before,2.3714,m,SE=0.2918
+CoeffShift_NW5_b2_after,NW5,After,2.1636,m,SE=0.4130
+CoeffShift_NW5_db2,NW5,Delta,-0.2078,m,
+CoeffShift_NW5_b3_before,NW5,Before,0.0853,m,SE=0.0236
+CoeffShift_NW5_b3_after,NW5,After,0.0932,m,SE=0.0341
+CoeffShift_NW5_db3,NW5,Delta,0.0079,m,
+CoeffShift_NW5_dh_predicted,NW5,,-0.0221,m,Predicted clearfell effect from Δβ
+CoeffShift_WMC2_b1_before,WMC2,Before,3.1959,m,SE=0.1939
+CoeffShift_WMC2_b1_after,WMC2,After,3.0167,m,SE=0.2636
+CoeffShift_WMC2_db1,WMC2,Delta,-0.1791,m,
+CoeffShift_WMC2_b2_before,WMC2,Before,2.3288,m,SE=0.2559
+CoeffShift_WMC2_b2_after,WMC2,After,2.2214,m,SE=0.3442
+CoeffShift_WMC2_db2,WMC2,Delta,-0.1074,m,
+CoeffShift_WMC2_b3_before,WMC2,Before,0.111,m,SE=0.0220
+CoeffShift_WMC2_b3_after,WMC2,After,0.1023,m,SE=0.0292
+CoeffShift_WMC2_db3,WMC2,Delta,-0.0087,m,
+CoeffShift_WMC2_dh_predicted,WMC2,,0.0196,m,Predicted clearfell effect from Δβ
+CoeffShift_Impact_mean_dh_predicted,Impact,,-0.1005,m,n_wells=1
+CoeffShift_Impact_mean_db1,Impact,,-0.207,m,
+CoeffShift_Impact_mean_db2,Impact,,0.0802,m,
+CoeffShift_Impact_mean_db3,Impact,,0.0335,m,
+CoeffShift_Edge_mean_dh_predicted,Edge,,-0.0576,m,n_wells=4
+CoeffShift_Edge_mean_db1,Edge,,-0.4426,m,
+CoeffShift_Edge_mean_db2,Edge,,0.1792,m,
+CoeffShift_Edge_mean_db3,Edge,,0.0076,m,
+CoeffShift_Forest Ctrl_mean_dh_predicted,Forest Ctrl,,-0.0427,m,n_wells=7
+CoeffShift_Forest Ctrl_mean_db1,Forest Ctrl,,-0.2855,m,
+CoeffShift_Forest Ctrl_mean_db2,Forest Ctrl,,0.1974,m,
+CoeffShift_Forest Ctrl_mean_db3,Forest Ctrl,,0.0072,m,
+CoeffShift_Climate Ctrl_mean_dh_predicted,Climate Ctrl,,-0.0633,m,n_wells=5
+CoeffShift_Climate Ctrl_mean_db1,Climate Ctrl,,-0.2723,m,
+CoeffShift_Climate Ctrl_mean_db2,Climate Ctrl,,-0.0148,m,
+CoeffShift_Climate Ctrl_mean_db3,Climate Ctrl,,0.0141,m,

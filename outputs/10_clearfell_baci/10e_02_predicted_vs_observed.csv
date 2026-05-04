@@ -1,0 +1,5 @@
+Tier,N_wells,Mean_dh_predicted_m,Mean_dh_predicted_mm,Observed_ANCOVA_forest_m,Observed_ANCOVA_climate_m,Mean_db1,Mean_db2,Mean_db3
+Impact,1,-0.1005,-100.5,0.0475,0.0503,-0.207,0.0802,0.0335
+Edge,4,-0.0576,-57.6,-0.0152,0.2382,-0.4426,0.1792,0.0076
+Forest Ctrl,7,-0.0427,-42.7,,,-0.2855,0.1974,0.0072
+Climate Ctrl,5,-0.0633,-63.3,,,-0.2723,-0.0148,0.0141

@@ -1,0 +1,507 @@
+Parameter,Well,Era,Value,Unit,Note,Source
+ANCOVA_Forest_Impact_clearfell_step,Impact,Post_felling,0.0475,m,"p=0.0196, CI=[0.0079,0.0871]",10a
+ANCOVA_Forest_Impact_scraping_step,Impact,Post_scraping,0.1128,m,p=0.2046,10a
+ANCOVA_Forest_Impact_R2,Impact,,0.2019,,Model R²,10a
+ANCOVA_Forest_Impact_N,Impact,,199.0,months,Sample size,10a
+ANCOVA_Forest_Impact_coeff_intercept,Impact,,0.1447,m,"SE=0.014379, p=<0.001",10a
+ANCOVA_Forest_Impact_coeff_cwb,Impact,,-0.0004,m,"SE=0.000077, p=<0.001",10a
+ANCOVA_Forest_Impact_coeff_scraping,Impact,,0.1128,m,"SE=0.088654, p=0.2046",10a
+ANCOVA_Forest_Impact_coeff_clearfell,Impact,,0.0475,m,"SE=0.020193, p=0.0196",10a
+ANCOVA_Forest_Impact_coeff_cwb_x_fell,Impact,,0.0001,m,"SE=0.000113, p=0.3923",10a
+ANCOVA_Forest_Impact_Oct2023_step,Impact,Oct2023,-0.1199,m,"p=0.1287, dAIC=-0.39",10a
+ANCOVA_Forest_Edge_clearfell_step,Edge,Post_felling,-0.0152,m,"p=0.6576, CI=[-0.0821,0.0518]",10a
+ANCOVA_Forest_Edge_scraping_step,Edge,Post_scraping,-0.7631,m,p=0.0058,10a
+ANCOVA_Forest_Edge_R2,Edge,,0.3163,,Model R²,10a
+ANCOVA_Forest_Edge_N,Edge,,222.0,months,Sample size,10a
+ANCOVA_Forest_Edge_coeff_intercept,Edge,,0.1835,m,"SE=0.020440, p=<0.001",10a
+ANCOVA_Forest_Edge_coeff_cwb,Edge,,-0.0004,m,"SE=0.000119, p=<0.001",10a
+ANCOVA_Forest_Edge_coeff_scraping,Edge,,-0.7631,m,"SE=0.274033, p=0.0058",10a
+ANCOVA_Forest_Edge_coeff_clearfell,Edge,,-0.0152,m,"SE=0.034157, p=0.6576",10a
+ANCOVA_Forest_Edge_coeff_cwb_x_fell,Edge,,0.0001,m,"SE=0.000181, p=0.6071",10a
+ANCOVA_Forest_Edge_Oct2023_step,Edge,Oct2023,-0.0911,m,"p=0.7213, dAIC=1.87",10a
+ANCOVA_Climate_Impact_clearfell_step,Impact,Post_felling,0.0503,m,"p=0.0601, CI=[-0.0018,0.1023]",10a
+ANCOVA_Climate_Impact_scraping_step,Impact,Post_scraping,-0.0487,m,p=0.6869,10a
+ANCOVA_Climate_Impact_R2,Impact,,0.0973,,Model R²,10a
+ANCOVA_Climate_Impact_N,Impact,,199.0,months,Sample size,10a
+ANCOVA_Climate_Impact_coeff_intercept,Impact,,-0.4922,m,"SE=0.017599, p=<0.001",10a
+ANCOVA_Climate_Impact_coeff_cwb,Impact,,-0.0001,m,"SE=0.000075, p=0.2155",10a
+ANCOVA_Climate_Impact_coeff_scraping,Impact,,-0.0487,m,"SE=0.120579, p=0.6869",10a
+ANCOVA_Climate_Impact_coeff_clearfell,Impact,,0.0503,m,"SE=0.026574, p=0.0601",10a
+ANCOVA_Climate_Impact_coeff_cwb_x_fell,Impact,,-0.0002,m,"SE=0.000109, p=0.0984",10a
+ANCOVA_Climate_Impact_coeff_easting_x_time,Impact,,-0.0,m,"SE=0.000001, p=0.6389",10a
+ANCOVA_Climate_Impact_Oct2023_step,Impact,Oct2023,0.3134,m,"p=0.0162, dAIC=-4.01",10a
+ANCOVA_Climate_Edge_clearfell_step,Edge,Post_felling,0.2382,m,"p=<0.001, CI=[0.1261,0.3504]",10a
+ANCOVA_Climate_Edge_scraping_step,Edge,Post_scraping,0.2176,m,p=0.7537,10a
+ANCOVA_Climate_Edge_R2,Edge,,0.3331,,Model R²,10a
+ANCOVA_Climate_Edge_N,Edge,,222.0,months,Sample size,10a
+ANCOVA_Climate_Edge_coeff_intercept,Edge,,-0.2336,m,"SE=0.038233, p=<0.001",10a
+ANCOVA_Climate_Edge_coeff_cwb,Edge,,0.0001,m,"SE=0.000158, p=0.7526",10a
+ANCOVA_Climate_Edge_coeff_scraping,Edge,,0.2176,m,"SE=0.692828, p=0.7537",10a
+ANCOVA_Climate_Edge_coeff_clearfell,Edge,,0.2382,m,"SE=0.057220, p=<0.001",10a
+ANCOVA_Climate_Edge_coeff_cwb_x_fell,Edge,,-0.0003,m,"SE=0.000239, p=0.2786",10a
+ANCOVA_Climate_Edge_coeff_easting_x_time,Edge,,0.0,m,"SE=0.000001, p=<0.001",10a
+ANCOVA_Climate_Edge_Oct2023_step,Edge,Oct2023,4.5585,m,"p=<0.001, dAIC=-47.71",10a
+ANCOVA_Combined_Impact_clearfell_step,Impact,Post_felling,0.0632,m,"p=0.0020, CI=[0.0237,0.1027]",10a
+ANCOVA_Combined_Impact_scraping_step,Impact,Post_scraping,0.1726,m,p=0.0312,10a
+ANCOVA_Combined_Impact_R2,Impact,,0.2668,,Model R²,10a
+ANCOVA_Combined_Impact_N,Impact,,199.0,months,Sample size,10a
+ANCOVA_Combined_Impact_coeff_intercept,Impact,,-0.1264,m,"SE=0.013357, p=<0.001",10a
+ANCOVA_Combined_Impact_coeff_cwb,Impact,,-0.0003,m,"SE=0.000057, p=<0.001",10a
+ANCOVA_Combined_Impact_coeff_scraping,Impact,,0.1726,m,"SE=0.079490, p=0.0312",10a
+ANCOVA_Combined_Impact_coeff_clearfell,Impact,,0.0632,m,"SE=0.020170, p=0.0020",10a
+ANCOVA_Combined_Impact_coeff_cwb_x_fell,Impact,,0.0,m,"SE=0.000083, p=0.8614",10a
+ANCOVA_Combined_Impact_coeff_easting_x_time,Impact,,0.0,m,"SE=0.000002, p=0.3293",10a
+ANCOVA_Combined_Impact_Oct2023_step,Impact,Oct2023,0.0698,m,"p=0.4194, dAIC=1.32",10a
+ANCOVA_Combined_Edge_clearfell_step,Edge,Post_felling,0.1935,m,"p=<0.001, CI=[0.1209,0.2661]",10a
+ANCOVA_Combined_Edge_scraping_step,Edge,Post_scraping,0.4891,m,p=0.1299,10a
+ANCOVA_Combined_Edge_R2,Edge,,0.4712,,Model R²,10a
+ANCOVA_Combined_Edge_N,Edge,,222.0,months,Sample size,10a
+ANCOVA_Combined_Edge_coeff_intercept,Edge,,0.0638,m,"SE=0.024745, p=0.0106",10a
+ANCOVA_Combined_Edge_coeff_cwb,Edge,,-0.0002,m,"SE=0.000103, p=0.1147",10a
+ANCOVA_Combined_Edge_coeff_scraping,Edge,,0.4891,m,"SE=0.321748, p=0.1299",10a
+ANCOVA_Combined_Edge_coeff_clearfell,Edge,,0.1935,m,"SE=0.037034, p=<0.001",10a
+ANCOVA_Combined_Edge_coeff_cwb_x_fell,Edge,,-0.0001,m,"SE=0.000154, p=0.6141",10a
+ANCOVA_Combined_Edge_coeff_easting_x_time,Edge,,0.0,m,"SE=0.000001, p=<0.001",10a
+ANCOVA_Combined_Edge_Oct2023_step,Edge,Oct2023,2.3273,m,"p=<0.001, dAIC=-59.66",10a
+Sensitivity_lambda200_Forest_Impact_clearfell,Impact,,0.0475,m,"p=0.0196, R²=0.202",10a
+Sensitivity_lambda200_Forest_Edge_clearfell,Edge,,-0.0152,m,"p=0.6576, R²=0.316",10a
+Sensitivity_lambda200_Climate_Impact_clearfell,Impact,,0.0503,m,"p=0.0601, R²=0.097",10a
+Sensitivity_lambda200_Climate_Edge_clearfell,Edge,,0.2382,m,"p=<0.001, R²=0.333",10a
+Sensitivity_lambda200_Combined_Impact_clearfell,Impact,,0.0632,m,"p=0.0020, R²=0.267",10a
+Sensitivity_lambda200_Combined_Edge_clearfell,Edge,,0.1935,m,"p=<0.001, R²=0.471",10a
+Sensitivity_lambda500_Forest_Impact_clearfell,Impact,,0.0475,m,"p=0.0196, R²=0.202",10a
+Sensitivity_lambda500_Forest_Edge_clearfell,Edge,,-0.0152,m,"p=0.6576, R²=0.316",10a
+Sensitivity_lambda500_Climate_Impact_clearfell,Impact,,0.0503,m,"p=0.0601, R²=0.097",10a
+Sensitivity_lambda500_Climate_Edge_clearfell,Edge,,0.2382,m,"p=<0.001, R²=0.333",10a
+Sensitivity_lambda500_Combined_Impact_clearfell,Impact,,0.0632,m,"p=0.0020, R²=0.267",10a
+Sensitivity_lambda500_Combined_Edge_clearfell,Edge,,0.1935,m,"p=<0.001, R²=0.471",10a
+Scraping_distance_weight,WMC3,,0.4169,,"d=262m, λ=300m",10a
+Scraping_distance_weight,CEH31,,0.4383,,"d=247m, λ=300m",10a
+Scraping_distance_weight,CEH20,,0.1749,,"d=523m, λ=300m",10a
+Scraping_distance_weight,CEH30,,0.2139,,"d=463m, λ=300m",10a
+Scraping_distance_weight,CEH16,,0.3073,,"d=354m, λ=300m",10a
+Scraping_distance_weight,CEH32,,0.0979,,"d=697m, λ=300m",10a
+Scraping_distance_weight,CEH34,,0.1326,,"d=606m, λ=300m",10a
+Scraping_distance_weight,CEH33,,0.1598,,"d=550m, λ=300m",10a
+Scraping_distance_weight,NW10,,0.0297,,"d=1055m, λ=300m",10a
+Scraping_distance_weight,CEH19,,0.274,,"d=388m, λ=300m",10a
+Scraping_distance_weight,CEH2,,0.0903,,"d=721m, λ=300m",10a
+Scraping_distance_weight,CEH17,,0.2252,,"d=447m, λ=300m",10a
+Scraping_distance_weight,CEH9,,0.149,,"d=571m, λ=300m",10a
+Scraping_distance_weight,NW7,,0.2789,,"d=383m, λ=300m",10a
+Scraping_distance_weight,NW6,,0.3887,,"d=284m, λ=300m",10a
+Scraping_distance_weight,NW5,,0.1271,,"d=619m, λ=300m",10a
+Scraping_distance_weight,WMC2,,0.0583,,"d=853m, λ=300m",10a
+SummerMin_Forest_WMC3_shift,WMC3,Post_felling,0.0067,m,"p=0.9216, n_pre=9, n_post=8",10d
+SummerMin_Climate_WMC3_shift,WMC3,Post_felling,0.0065,m,"p=0.8948, n_pre=9, n_post=8",10d
+SummerMin_Forest_CEH31_shift,CEH31,Post_felling,-0.0404,m,"p=0.5098, n_pre=8, n_post=8",10d
+SummerMin_Climate_CEH31_shift,CEH31,Post_felling,-0.0186,m,"p=0.7718, n_pre=8, n_post=8",10d
+SummerMin_Forest_CEH20_shift,CEH20,Post_felling,0.0257,m,"p=0.3995, n_pre=9, n_post=8",10d
+SummerMin_Climate_CEH20_shift,CEH20,Post_felling,0.0256,m,"p=0.7839, n_pre=9, n_post=8",10d
+SummerMin_Forest_CEH30_shift,CEH30,Post_felling,0.0179,m,"p=0.4686, n_pre=8, n_post=8",10d
+SummerMin_Climate_CEH30_shift,CEH30,Post_felling,0.0396,m,"p=0.6198, n_pre=8, n_post=8",10d
+SummerMin_Forest_CEH16_shift,CEH16,Post_felling,-0.09,m,"p=0.0362, n_pre=11, n_post=8",10d
+SummerMin_Climate_CEH16_shift,CEH16,Post_felling,-0.1109,m,"p=0.0477, n_pre=11, n_post=8",10d
+SummerMin_Forest_CEH32_shift,CEH32,Post_felling,0.0426,m,"p=0.5060, n_pre=8, n_post=8",10d
+SummerMin_Climate_CEH32_shift,CEH32,Post_felling,0.0644,m,"p=0.6367, n_pre=8, n_post=8",10d
+SummerMin_Forest_CEH34_shift,CEH34,Post_felling,0.0168,m,"p=0.6073, n_pre=8, n_post=8",10d
+SummerMin_Climate_CEH34_shift,CEH34,Post_felling,0.0385,m,"p=0.6975, n_pre=8, n_post=8",10d
+SummerMin_Forest_CEH33_shift,CEH33,Post_felling,-0.0152,m,"p=0.6758, n_pre=8, n_post=8",10d
+SummerMin_Climate_CEH33_shift,CEH33,Post_felling,0.0065,m,"p=0.9505, n_pre=8, n_post=8",10d
+SummerMin_Forest_NW10_shift,NW10,Post_felling,0.0848,m,"p=0.0518, n_pre=10, n_post=8",10d
+SummerMin_Climate_NW10_shift,NW10,Post_felling,0.0171,m,"p=0.7709, n_pre=10, n_post=8",10d
+SummerMin_Forest_CEH19_shift,CEH19,Post_felling,-0.0646,m,"p=0.3474, n_pre=10, n_post=8",10d
+SummerMin_Climate_CEH19_shift,CEH19,Post_felling,-0.0804,m,"p=0.1066, n_pre=10, n_post=8",10d
+SummerMin_Forest_CEH2_shift,CEH2,Post_felling,0.0268,m,"p=0.2306, n_pre=10, n_post=8",10d
+SummerMin_Climate_CEH2_shift,CEH2,Post_felling,-0.045,m,"p=0.3512, n_pre=11, n_post=8",10d
+SummerMin_Forest_CEH17_shift,CEH17,Post_felling,-0.0959,m,"p=0.1393, n_pre=11, n_post=8",10d
+SummerMin_Climate_CEH17_shift,CEH17,Post_felling,-0.1168,m,"p=0.0487, n_pre=11, n_post=8",10d
+SummerMin_Forest_CEH9_shift,CEH9,Post_felling,0.0036,m,"p=0.9309, n_pre=11, n_post=8",10d
+SummerMin_Climate_CEH9_shift,CEH9,Post_felling,-0.0186,m,"p=0.6622, n_pre=12, n_post=8",10d
+SummerMin_Forest_NW7_shift,NW7,Post_felling,0.0746,m,"p=0.1835, n_pre=10, n_post=8",10d
+SummerMin_Climate_NW7_shift,NW7,Post_felling,-0.0008,m,"p=0.9836, n_pre=11, n_post=8",10d
+SummerMin_Forest_NW6_shift,NW6,Post_felling,0.0584,m,"p=0.5075, n_pre=11, n_post=8",10d
+SummerMin_Climate_NW6_shift,NW6,Post_felling,0.0341,m,"p=0.4296, n_pre=12, n_post=8",10d
+SummerMin_Forest_NW5_shift,NW5,Post_felling,0.0049,m,"p=0.9444, n_pre=11, n_post=8",10d
+SummerMin_Climate_NW5_shift,NW5,Post_felling,-0.0155,m,"p=0.6589, n_pre=12, n_post=8",10d
+SummerMin_Forest_WMC2_shift,WMC2,Post_felling,0.0166,m,"p=0.8333, n_pre=9, n_post=8",10d
+SummerMin_Climate_WMC2_shift,WMC2,Post_felling,0.0164,m,"p=0.4882, n_pre=9, n_post=8",10d
+SummerMin_Forest_Impact_mean_shift,Impact,,0.0067,m,"n_wells=1, n_sig=0",10d
+SummerMin_Forest_Edge_mean_shift,Edge,,-0.0217,m,"n_wells=4, n_sig=1",10d
+SummerMin_Forest_Forest Ctrl_mean_shift,Forest Ctrl,,-0.0007,m,"n_wells=7, n_sig=0",10d
+SummerMin_Forest_Climate Ctrl_mean_shift,Climate Ctrl,,0.0316,m,"n_wells=5, n_sig=0",10d
+SummerMin_Climate_Impact_mean_shift,Impact,,0.0065,m,"n_wells=1, n_sig=0",10d
+SummerMin_Climate_Edge_mean_shift,Edge,,-0.0161,m,"n_wells=4, n_sig=1",10d
+SummerMin_Climate_Forest Ctrl_mean_shift,Forest Ctrl,,-0.0165,m,"n_wells=7, n_sig=1",10d
+SummerMin_Climate_Climate Ctrl_mean_shift,Climate Ctrl,,0.0031,m,"n_wells=5, n_sig=0",10d
+MixedModel_Forest_Impact_clearfell,Impact,,-0.0139,m,"p=0.8559, model=OLS (single well), N=17",10d
+MixedModel_Forest_Edge_clearfell,Edge,,-0.0271,m,"p=0.2492, model=Mixed-effects (random intercept), N=68",10d
+MixedModel_Forest_Forest Ctrl_clearfell,Forest Ctrl,,-0.0029,m,"p=0.8916, model=Mixed-effects (random intercept), N=121",10d
+MixedModel_Forest_Climate Ctrl_clearfell,Climate Ctrl,,0.0437,m,"p=0.1746, model=Mixed-effects (random intercept), N=92",10d
+MixedModel_Climate_Impact_clearfell,Impact,,-0.0134,m,"p=0.8026, model=OLS (single well), N=17",10d
+MixedModel_Climate_Edge_clearfell,Edge,,-0.02,m,"p=0.6273, model=Mixed-effects (random intercept), N=68",10d
+MixedModel_Climate_Forest Ctrl_clearfell,Forest Ctrl,,-0.0284,m,"p=0.3861, model=Mixed-effects (random intercept), N=122",10d
+MixedModel_Climate_Climate Ctrl_clearfell,Climate Ctrl,,0.0038,m,"p=0.8239, model=Mixed-effects (random intercept), N=96",10d
+CoeffShift_WMC3_b1_before,WMC3,Before,2.2493,m,SE=0.2272,10e
+CoeffShift_WMC3_b1_after,WMC3,After,2.0424,m,SE=0.2788,10e
+CoeffShift_WMC3_db1,WMC3,Delta,-0.207,m,,10e
+CoeffShift_WMC3_b2_before,WMC3,Before,1.9756,m,SE=0.2919,10e
+CoeffShift_WMC3_b2_after,WMC3,After,2.0558,m,SE=0.3560,10e
+CoeffShift_WMC3_db2,WMC3,Delta,0.0802,m,,10e
+CoeffShift_WMC3_b3_before,WMC3,Before,0.0779,m,SE=0.0289,10e
+CoeffShift_WMC3_b3_after,WMC3,After,0.1114,m,SE=0.0352,10e
+CoeffShift_WMC3_db3,WMC3,Delta,0.0335,m,,10e
+CoeffShift_WMC3_dh_predicted,WMC3,,-0.1005,m,Predicted clearfell effect from Δβ,10e
+CoeffShift_CEH31_b1_before,CEH31,Before,2.6144,m,SE=0.2110,10e
+CoeffShift_CEH31_b1_after,CEH31,After,1.6629,m,SE=0.2708,10e
+CoeffShift_CEH31_db1,CEH31,Delta,-0.9515,m,,10e
+CoeffShift_CEH31_b2_before,CEH31,Before,1.5995,m,SE=0.2703,10e
+CoeffShift_CEH31_b2_after,CEH31,After,1.8057,m,SE=0.3508,10e
+CoeffShift_CEH31_db2,CEH31,Delta,0.2062,m,,10e
+CoeffShift_CEH31_b3_before,CEH31,Before,0.0964,m,SE=0.0282,10e
+CoeffShift_CEH31_b3_after,CEH31,After,0.1366,m,SE=0.0404,10e
+CoeffShift_CEH31_db3,CEH31,Delta,0.0401,m,,10e
+CoeffShift_CEH31_dh_predicted,CEH31,,-0.1631,m,Predicted clearfell effect from Δβ,10e
+CoeffShift_CEH20_b1_before,CEH20,Before,2.545,m,SE=0.2107,10e
+CoeffShift_CEH20_b1_after,CEH20,After,2.5591,m,SE=0.2543,10e
+CoeffShift_CEH20_db1,CEH20,Delta,0.0141,m,,10e
+CoeffShift_CEH20_b2_before,CEH20,Before,2.0459,m,SE=0.2642,10e
+CoeffShift_CEH20_b2_after,CEH20,After,2.1182,m,SE=0.3072,10e
+CoeffShift_CEH20_db2,CEH20,Delta,0.0723,m,,10e
+CoeffShift_CEH20_b3_before,CEH20,Before,0.0368,m,SE=0.0202,10e
+CoeffShift_CEH20_b3_after,CEH20,After,0.0203,m,SE=0.0263,10e
+CoeffShift_CEH20_db3,CEH20,Delta,-0.0165,m,,10e
+CoeffShift_CEH20_dh_predicted,CEH20,,0.0368,m,Predicted clearfell effect from Δβ,10e
+CoeffShift_CEH30_b1_before,CEH30,Before,2.5625,m,SE=0.2500,10e
+CoeffShift_CEH30_b1_after,CEH30,After,2.1219,m,SE=0.2502,10e
+CoeffShift_CEH30_db1,CEH30,Delta,-0.4406,m,,10e
+CoeffShift_CEH30_b2_before,CEH30,Before,2.0275,m,SE=0.3120,10e
+CoeffShift_CEH30_b2_after,CEH30,After,2.2777,m,SE=0.3041,10e
+CoeffShift_CEH30_db2,CEH30,Delta,0.2502,m,,10e
+CoeffShift_CEH30_b3_before,CEH30,Before,0.0471,m,SE=0.0259,10e
+CoeffShift_CEH30_b3_after,CEH30,After,0.0444,m,SE=0.0281,10e
+CoeffShift_CEH30_db3,CEH30,Delta,-0.0027,m,,10e
+CoeffShift_CEH30_dh_predicted,CEH30,,-0.0395,m,Predicted clearfell effect from Δβ,10e
+CoeffShift_CEH16_b1_before,CEH16,Before,2.7116,m,SE=0.1773,10e
+CoeffShift_CEH16_b1_after,CEH16,After,2.3193,m,SE=0.2097,10e
+CoeffShift_CEH16_db1,CEH16,Delta,-0.3923,m,,10e
+CoeffShift_CEH16_b2_before,CEH16,Before,1.4211,m,SE=0.2289,10e
+CoeffShift_CEH16_b2_after,CEH16,After,1.6094,m,SE=0.2648,10e
+CoeffShift_CEH16_db2,CEH16,Delta,0.1882,m,,10e
+CoeffShift_CEH16_b3_before,CEH16,Before,0.0607,m,SE=0.0210,10e
+CoeffShift_CEH16_b3_after,CEH16,After,0.0702,m,SE=0.0289,10e
+CoeffShift_CEH16_db3,CEH16,Delta,0.0095,m,,10e
+CoeffShift_CEH16_dh_predicted,CEH16,,-0.0647,m,Predicted clearfell effect from Δβ,10e
+CoeffShift_CEH32_b1_before,CEH32,Before,2.5503,m,SE=0.2504,10e
+CoeffShift_CEH32_b1_after,CEH32,After,2.2953,m,SE=0.2940,10e
+CoeffShift_CEH32_db1,CEH32,Delta,-0.255,m,,10e
+CoeffShift_CEH32_b2_before,CEH32,Before,2.2389,m,SE=0.3140,10e
+CoeffShift_CEH32_b2_after,CEH32,After,2.6191,m,SE=0.3518,10e
+CoeffShift_CEH32_db2,CEH32,Delta,0.3802,m,,10e
+CoeffShift_CEH32_b3_before,CEH32,Before,0.0171,m,SE=0.0205,10e
+CoeffShift_CEH32_b3_after,CEH32,After,0.0155,m,SE=0.0269,10e
+CoeffShift_CEH32_db3,CEH32,Delta,-0.0015,m,,10e
+CoeffShift_CEH32_dh_predicted,CEH32,,-0.0356,m,Predicted clearfell effect from Δβ,10e
+CoeffShift_CEH34_b1_before,CEH34,Before,2.517,m,SE=0.2735,10e
+CoeffShift_CEH34_b1_after,CEH34,After,2.2863,m,SE=0.2349,10e
+CoeffShift_CEH34_db1,CEH34,Delta,-0.2307,m,,10e
+CoeffShift_CEH34_b2_before,CEH34,Before,2.3896,m,SE=0.3451,10e
+CoeffShift_CEH34_b2_after,CEH34,After,2.694,m,SE=0.2824,10e
+CoeffShift_CEH34_db2,CEH34,Delta,0.3044,m,,10e
+CoeffShift_CEH34_b3_before,CEH34,Before,0.0338,m,SE=0.0240,10e
+CoeffShift_CEH34_b3_after,CEH34,After,0.0161,m,SE=0.0222,10e
+CoeffShift_CEH34_db3,CEH34,Delta,-0.0177,m,,10e
+CoeffShift_CEH34_dh_predicted,CEH34,,0.0159,m,Predicted clearfell effect from Δβ,10e
+CoeffShift_CEH33_b1_before,CEH33,Before,2.4789,m,SE=0.2464,10e
+CoeffShift_CEH33_b1_after,CEH33,After,2.1268,m,SE=0.2594,10e
+CoeffShift_CEH33_db1,CEH33,Delta,-0.3521,m,,10e
+CoeffShift_CEH33_b2_before,CEH33,Before,1.9626,m,SE=0.3104,10e
+CoeffShift_CEH33_b2_after,CEH33,After,2.2645,m,SE=0.3132,10e
+CoeffShift_CEH33_db2,CEH33,Delta,0.302,m,,10e
+CoeffShift_CEH33_b3_before,CEH33,Before,0.0346,m,SE=0.0235,10e
+CoeffShift_CEH33_b3_after,CEH33,After,0.0294,m,SE=0.0277,10e
+CoeffShift_CEH33_db3,CEH33,Delta,-0.0052,m,,10e
+CoeffShift_CEH33_dh_predicted,CEH33,,-0.0314,m,Predicted clearfell effect from Δβ,10e
+CoeffShift_NW10_b1_before,NW10,Before,3.3317,m,SE=0.2292,10e
+CoeffShift_NW10_b1_after,NW10,After,3.4293,m,SE=0.3068,10e
+CoeffShift_NW10_db1,NW10,Delta,0.0976,m,,10e
+CoeffShift_NW10_b2_before,NW10,Before,2.5301,m,SE=0.2804,10e
+CoeffShift_NW10_b2_after,NW10,After,2.326,m,SE=0.3776,10e
+CoeffShift_NW10_db2,NW10,Delta,-0.2041,m,,10e
+CoeffShift_NW10_b3_before,NW10,Before,0.038,m,SE=0.0227,10e
+CoeffShift_NW10_b3_after,NW10,After,0.0358,m,SE=0.0266,10e
+CoeffShift_NW10_db3,NW10,Delta,-0.0022,m,,10e
+CoeffShift_NW10_dh_predicted,NW10,,0.0235,m,Predicted clearfell effect from Δβ,10e
+CoeffShift_CEH19_b1_before,CEH19,Before,2.3087,m,SE=0.1689,10e
+CoeffShift_CEH19_b1_after,CEH19,After,1.9652,m,SE=0.1725,10e
+CoeffShift_CEH19_db1,CEH19,Delta,-0.3435,m,,10e
+CoeffShift_CEH19_b2_before,CEH19,Before,1.1401,m,SE=0.2242,10e
+CoeffShift_CEH19_b2_after,CEH19,After,1.1764,m,SE=0.2309,10e
+CoeffShift_CEH19_db2,CEH19,Delta,0.0364,m,,10e
+CoeffShift_CEH19_b3_before,CEH19,Before,0.1106,m,SE=0.0279,10e
+CoeffShift_CEH19_b3_after,CEH19,After,0.1209,m,SE=0.0323,10e
+CoeffShift_CEH19_db3,CEH19,Delta,0.0102,m,,10e
+CoeffShift_CEH19_dh_predicted,CEH19,,-0.0546,m,Predicted clearfell effect from Δβ,10e
+CoeffShift_CEH2_b1_before,CEH2,Before,2.8873,m,SE=0.2077,10e
+CoeffShift_CEH2_b1_after,CEH2,After,2.5475,m,SE=0.3218,10e
+CoeffShift_CEH2_db1,CEH2,Delta,-0.3397,m,,10e
+CoeffShift_CEH2_b2_before,CEH2,Before,2.5198,m,SE=0.2533,10e
+CoeffShift_CEH2_b2_after,CEH2,After,3.0342,m,SE=0.3901,10e
+CoeffShift_CEH2_db2,CEH2,Delta,0.5144,m,,10e
+CoeffShift_CEH2_b3_before,CEH2,Before,0.0254,m,SE=0.0211,10e
+CoeffShift_CEH2_b3_after,CEH2,After,0.0412,m,SE=0.0276,10e
+CoeffShift_CEH2_db3,CEH2,Delta,0.0158,m,,10e
+CoeffShift_CEH2_dh_predicted,CEH2,,-0.09,m,Predicted clearfell effect from Δβ,10e
+CoeffShift_CEH17_b1_before,CEH17,Before,2.326,m,SE=0.1664,10e
+CoeffShift_CEH17_b1_after,CEH17,After,1.751,m,SE=0.2140,10e
+CoeffShift_CEH17_db1,CEH17,Delta,-0.575,m,,10e
+CoeffShift_CEH17_b2_before,CEH17,Before,1.407,m,SE=0.2154,10e
+CoeffShift_CEH17_b2_after,CEH17,After,1.4558,m,SE=0.2782,10e
+CoeffShift_CEH17_db2,CEH17,Delta,0.0488,m,,10e
+CoeffShift_CEH17_b3_before,CEH17,Before,0.0705,m,SE=0.0210,10e
+CoeffShift_CEH17_b3_after,CEH17,After,0.1217,m,SE=0.0365,10e
+CoeffShift_CEH17_db3,CEH17,Delta,0.0512,m,,10e
+CoeffShift_CEH17_dh_predicted,CEH17,,-0.1266,m,Predicted clearfell effect from Δβ,10e
+CoeffShift_CEH9_b1_before,CEH9,Before,2.8247,m,SE=0.2186,10e
+CoeffShift_CEH9_b1_after,CEH9,After,2.7801,m,SE=0.2560,10e
+CoeffShift_CEH9_db1,CEH9,Delta,-0.0447,m,,10e
+CoeffShift_CEH9_b2_before,CEH9,Before,2.1651,m,SE=0.2717,10e
+CoeffShift_CEH9_b2_after,CEH9,After,2.5127,m,SE=0.3194,10e
+CoeffShift_CEH9_db2,CEH9,Delta,0.3476,m,,10e
+CoeffShift_CEH9_b3_before,CEH9,Before,0.0654,m,SE=0.0235,10e
+CoeffShift_CEH9_b3_after,CEH9,After,0.0758,m,SE=0.0279,10e
+CoeffShift_CEH9_db3,CEH9,Delta,0.0103,m,,10e
+CoeffShift_CEH9_dh_predicted,CEH9,,-0.0524,m,Predicted clearfell effect from Δβ,10e
+CoeffShift_NW7_b1_before,NW7,Before,2.9562,m,SE=0.2240,10e
+CoeffShift_NW7_b1_after,NW7,After,2.5466,m,SE=0.2925,10e
+CoeffShift_NW7_db1,NW7,Delta,-0.4096,m,,10e
+CoeffShift_NW7_b2_before,NW7,Before,2.0859,m,SE=0.2862,10e
+CoeffShift_NW7_b2_after,NW7,After,1.9756,m,SE=0.3701,10e
+CoeffShift_NW7_db2,NW7,Delta,-0.1103,m,,10e
+CoeffShift_NW7_b3_before,NW7,Before,0.0789,m,SE=0.0254,10e
+CoeffShift_NW7_b3_after,NW7,After,0.0826,m,SE=0.0333,10e
+CoeffShift_NW7_db3,NW7,Delta,0.0037,m,,10e
+CoeffShift_NW7_dh_predicted,NW7,,-0.0326,m,Predicted clearfell effect from Δβ,10e
+CoeffShift_NW6_b1_before,NW6,Before,3.2683,m,SE=0.2482,10e
+CoeffShift_NW6_b1_after,NW6,After,2.6652,m,SE=0.3065,10e
+CoeffShift_NW6_db1,NW6,Delta,-0.6031,m,,10e
+CoeffShift_NW6_b2_before,NW6,Before,1.7692,m,SE=0.3234,10e
+CoeffShift_NW6_b2_after,NW6,After,1.773,m,SE=0.4184,10e
+CoeffShift_NW6_db2,NW6,Delta,0.0038,m,,10e
+CoeffShift_NW6_b3_before,NW6,Before,0.119,m,SE=0.0301,10e
+CoeffShift_NW6_b3_after,NW6,After,0.1763,m,SE=0.0413,10e
+CoeffShift_NW6_db3,NW6,Delta,0.0573,m,,10e
+CoeffShift_NW6_dh_predicted,NW6,,-0.2288,m,Predicted clearfell effect from Δβ,10e
+CoeffShift_NW5_b1_before,NW5,Before,3.3939,m,SE=0.2287,10e
+CoeffShift_NW5_b1_after,NW5,After,3.2689,m,SE=0.3233,10e
+CoeffShift_NW5_db1,NW5,Delta,-0.1249,m,,10e
+CoeffShift_NW5_b2_before,NW5,Before,2.3714,m,SE=0.2918,10e
+CoeffShift_NW5_b2_after,NW5,After,2.1636,m,SE=0.4130,10e
+CoeffShift_NW5_db2,NW5,Delta,-0.2078,m,,10e
+CoeffShift_NW5_b3_before,NW5,Before,0.0853,m,SE=0.0236,10e
+CoeffShift_NW5_b3_after,NW5,After,0.0932,m,SE=0.0341,10e
+CoeffShift_NW5_db3,NW5,Delta,0.0079,m,,10e
+CoeffShift_NW5_dh_predicted,NW5,,-0.0221,m,Predicted clearfell effect from Δβ,10e
+CoeffShift_WMC2_b1_before,WMC2,Before,3.1959,m,SE=0.1939,10e
+CoeffShift_WMC2_b1_after,WMC2,After,3.0167,m,SE=0.2636,10e
+CoeffShift_WMC2_db1,WMC2,Delta,-0.1791,m,,10e
+CoeffShift_WMC2_b2_before,WMC2,Before,2.3288,m,SE=0.2559,10e
+CoeffShift_WMC2_b2_after,WMC2,After,2.2214,m,SE=0.3442,10e
+CoeffShift_WMC2_db2,WMC2,Delta,-0.1074,m,,10e
+CoeffShift_WMC2_b3_before,WMC2,Before,0.111,m,SE=0.0220,10e
+CoeffShift_WMC2_b3_after,WMC2,After,0.1023,m,SE=0.0292,10e
+CoeffShift_WMC2_db3,WMC2,Delta,-0.0087,m,,10e
+CoeffShift_WMC2_dh_predicted,WMC2,,0.0196,m,Predicted clearfell effect from Δβ,10e
+CoeffShift_Impact_mean_dh_predicted,Impact,,-0.1005,m,n_wells=1,10e
+CoeffShift_Impact_mean_db1,Impact,,-0.207,m,,10e
+CoeffShift_Impact_mean_db2,Impact,,0.0802,m,,10e
+CoeffShift_Impact_mean_db3,Impact,,0.0335,m,,10e
+CoeffShift_Edge_mean_dh_predicted,Edge,,-0.0576,m,n_wells=4,10e
+CoeffShift_Edge_mean_db1,Edge,,-0.4426,m,,10e
+CoeffShift_Edge_mean_db2,Edge,,0.1792,m,,10e
+CoeffShift_Edge_mean_db3,Edge,,0.0076,m,,10e
+CoeffShift_Forest Ctrl_mean_dh_predicted,Forest Ctrl,,-0.0427,m,n_wells=7,10e
+CoeffShift_Forest Ctrl_mean_db1,Forest Ctrl,,-0.2855,m,,10e
+CoeffShift_Forest Ctrl_mean_db2,Forest Ctrl,,0.1974,m,,10e
+CoeffShift_Forest Ctrl_mean_db3,Forest Ctrl,,0.0072,m,,10e
+CoeffShift_Climate Ctrl_mean_dh_predicted,Climate Ctrl,,-0.0633,m,n_wells=5,10e
+CoeffShift_Climate Ctrl_mean_db1,Climate Ctrl,,-0.2723,m,,10e
+CoeffShift_Climate Ctrl_mean_db2,Climate Ctrl,,-0.0148,m,,10e
+CoeffShift_Climate Ctrl_mean_db3,Climate Ctrl,,0.0141,m,,10e
+Pre_felling_structural_offset,,,-0.1107,m,Core impact mean displacement vs control before scraping,10_legacy
+Post_scraping_pre_felling_mean,,Post_scraping,-0.1346,m,Core impact displacement,10_legacy
+Post_felling_mean_impact,,Post_felling,-0.087,m,Core impact zone,10_legacy
+Step_change_impact,,Post_felling,0.0476,m,From post-scraping baseline,10_legacy
+Step_change_edge,,Post_felling,-0.0147,m,From post-scraping baseline,10_legacy
+Combined_hydrological_cost_impact,,,0.0237,m,Pre-scraping to post-felling,10_legacy
+Combined_hydrological_cost_edge,,,-0.0704,m,Pre-scraping to post-felling,10_legacy
+Step_PF_pre_scrape2_impact,,Dec2017_Sep2023,0.0557,m,Pure clearfell sub-era,10_legacy
+Step_PF_post_scrape2_impact,,Oct2023_onwards,0.0283,m,Post-Oct-2023 scraping sub-era,10_legacy
+ANCOVA_intercept,,,-0.1351,m,Model 2 intercept,10_legacy
+ANCOVA_cwb_coeff,,,-0.0005,m/mm,"Cumulative water balance, p=<0.001",10_legacy
+ANCOVA_scraping_step,,,0.0413,m,"Apr 2015 scraping, p=0.0637",10_legacy
+ANCOVA_clearfell_step,,,0.0088,m,"Dec 2017 clearfell, p=0.6607, CI=[-0.0303,0.0478]",10_legacy
+ANCOVA_interaction,,,0.0003,m/mm,"cwb×post interaction, p=0.0082",10_legacy
+ANCOVA_R2,,,0.2288,,Model 2 R² (impact zone),10_legacy
+ANCOVA_oct2023_coef,,,-0.0247,m,"Oct 2023 scraping term (impact), p=0.237, ΔAIC=+0.56",10_legacy
+ANCOVA_edge_intercept,,,-0.1933,m,Model 2 edge intercept,10_legacy
+ANCOVA_edge_cwb_coeff,,,-0.0002,m/mm,"Edge cwb, p=<0.001",10_legacy
+ANCOVA_edge_scraping_step,,,-0.029,m,"Edge Apr 2015 scraping, p=0.0389",10_legacy
+ANCOVA_edge_clearfell_step,,,-0.0283,m,"Edge Dec 2017 clearfell, p=0.0253, CI=[-0.0529,-0.0037]",10_legacy
+ANCOVA_edge_interaction,,,-0.0001,m/mm,"Edge cwb×post interaction, p=0.3386",10_legacy
+ANCOVA_edge_R2,,,0.3574,,Model 2 R² (edge zone),10_legacy
+ANCOVA_edge_oct2023_coef,,,-0.0061,m,"Oct 2023 scraping term (edge), p=0.641, ΔAIC=+1.77",10_legacy
+Per_well_BACI_displacement,WMC3,Pre_felling,-0.1182,m,Zone=Core_Impact,10_legacy
+Per_well_BACI_displacement,WMC3,Post_felling,-0.087,m,Zone=Core_Impact,10_legacy
+Per_well_BACI_displacement,CEH31,Pre_felling,-0.3838,m,Zone=Edge,10_legacy
+Per_well_BACI_displacement,CEH31,Post_felling,-0.4461,m,Zone=Edge,10_legacy
+Per_well_BACI_displacement,CEH20,Pre_felling,-0.182,m,Zone=Edge,10_legacy
+Per_well_BACI_displacement,CEH20,Post_felling,-0.1466,m,Zone=Edge,10_legacy
+Per_well_BACI_displacement,CEH30,Pre_felling,-0.5986,m,Zone=Edge,10_legacy
+Per_well_BACI_displacement,CEH30,Post_felling,-0.6053,m,Zone=Edge,10_legacy
+Per_well_BACI_displacement,CEH16,Pre_felling,0.2473,m,Zone=Edge,10_legacy
+Per_well_BACI_displacement,CEH16,Post_felling,0.183,m,Zone=Edge,10_legacy
+Per_well_BACI_displacement,CEH32,Pre_felling,-0.6647,m,Zone=Control,10_legacy
+Per_well_BACI_displacement,CEH32,Post_felling,-0.6227,m,Zone=Control,10_legacy
+Per_well_BACI_displacement,CEH34,Pre_felling,0.2193,m,Zone=Control,10_legacy
+Per_well_BACI_displacement,CEH34,Post_felling,0.2324,m,Zone=Control,10_legacy
+Per_well_BACI_displacement,CEH33,Pre_felling,-0.625,m,Zone=Control,10_legacy
+Per_well_BACI_displacement,CEH33,Post_felling,-0.6293,m,Zone=Control,10_legacy
+Per_well_BACI_displacement,NW10,Pre_felling,-0.0863,m,Zone=Control,10_legacy
+Per_well_BACI_displacement,NW10,Post_felling,0.0374,m,Zone=Control,10_legacy
+Per_well_BACI_displacement,CEH19,Pre_felling,0.2146,m,Zone=Control,10_legacy
+Per_well_BACI_displacement,CEH19,Post_felling,0.1397,m,Zone=Control,10_legacy
+Per_well_BACI_displacement,CEH9,Pre_felling,0.3209,m,Zone=Control,10_legacy
+Per_well_BACI_displacement,CEH9,Post_felling,0.3929,m,Zone=Control,10_legacy
+Per_well_BACI_displacement,NW7,Pre_felling,-0.2718,m,Zone=Control,10_legacy
+Per_well_BACI_displacement,NW7,Post_felling,-0.1896,m,Zone=Control,10_legacy
+Per_well_BACI_displacement,NW6,Pre_felling,0.5117,m,Zone=Control,10_legacy
+Per_well_BACI_displacement,NW6,Post_felling,0.6391,m,Zone=Control,10_legacy
+Table6_beta3,WMC3,Before,0.07,m,"CI=[0.0153,0.1247] p=0.01270",10_legacy
+Table6_beta3,WMC3,After,0.0725,m,"CI=[-0.0053,0.1502] p=0.06719",10_legacy
+Table6_beta3,WMC3,After_Scrape2,0.1343,m,"CI=[0.0129,0.2556] p=0.03147",10_legacy
+Table6_beta3,CEH31,Before,0.0952,m,"CI=[0.0417,0.1487] p=0.00065",10_legacy
+Table6_beta3,CEH31,After,0.0676,m,"CI=[-0.0164,0.1516] p=0.11285",10_legacy
+Table6_beta3,CEH31,After_Scrape2,0.1611,m,"CI=[-0.0017,0.3239] p=0.05229",10_legacy
+Table6_beta3,CEH20,Before,0.0372,m,"CI=[-0.0004,0.0748] p=0.05257",10_legacy
+Table6_beta3,CEH20,After,0.0115,m,"CI=[-0.0464,0.0693] p=0.69377",10_legacy
+Table6_beta3,CEH20,After_Scrape2,0.0386,m,"CI=[-0.0611,0.1384] p=0.43300",10_legacy
+Table6_beta3,CEH30,Before,0.0512,m,"CI=[0.0021,0.1004] p=0.04114",10_legacy
+Table6_beta3,CEH30,After,0.0229,m,"CI=[-0.0411,0.0868] p=0.47776",10_legacy
+Table6_beta3,CEH30,After_Scrape2,0.0439,m,"CI=[-0.0508,0.1387] p=0.34914",10_legacy
+Table6_beta3,CEH16,Before,0.059,m,"CI=[0.0206,0.0974] p=0.00290",10_legacy
+Table6_beta3,CEH16,After,0.0247,m,"CI=[-0.0339,0.0834] p=0.40323",10_legacy
+Table6_beta3,CEH16,After_Scrape2,0.1049,m,"CI=[-0.0136,0.2235] p=0.08031",10_legacy
+Table6_beta3,CEH32,Before,0.0214,m,"CI=[-0.0176,0.0604] p=0.27747",10_legacy
+Table6_beta3,CEH32,After,-0.0009,m,"CI=[-0.0524,0.0507] p=0.97283",10_legacy
+Table6_beta3,CEH32,After_Scrape2,0.0538,m,"CI=[-0.0823,0.1899] p=0.42408",10_legacy
+Table6_beta3,CEH34,Before,0.0361,m,"CI=[-0.0094,0.0816] p=0.11801",10_legacy
+Table6_beta3,CEH34,After,-0.0007,m,"CI=[-0.0480,0.0466] p=0.97808",10_legacy
+Table6_beta3,CEH34,After_Scrape2,0.0326,m,"CI=[-0.0574,0.1227] p=0.46344",10_legacy
+Table6_beta3,CEH33,Before,0.0391,m,"CI=[-0.0056,0.0837] p=0.08535",10_legacy
+Table6_beta3,CEH33,After,0.0093,m,"CI=[-0.0497,0.0683] p=0.75363",10_legacy
+Table6_beta3,CEH33,After_Scrape2,0.0544,m,"CI=[-0.0594,0.1683] p=0.33481",10_legacy
+Table6_beta3,NW10,Before,0.0398,m,"CI=[-0.0025,0.0820] p=0.06471",10_legacy
+Table6_beta3,NW10,After,0.0287,m,"CI=[-0.0326,0.0900] p=0.35271",10_legacy
+Table6_beta3,NW10,After_Scrape2,0.0599,m,"CI=[-0.0217,0.1416] p=0.14322",10_legacy
+Table6_beta3,CEH19,Before,0.0938,m,"CI=[0.0441,0.1435] p=0.00029",10_legacy
+Table6_beta3,CEH19,After,0.0581,m,"CI=[-0.0035,0.1198] p=0.06423",10_legacy
+Table6_beta3,CEH19,After_Scrape2,0.1512,m,"CI=[0.0086,0.2939] p=0.03853",10_legacy
+Table6_beta3,CEH9,Before,0.0605,m,"CI=[0.0189,0.1020] p=0.00467",10_legacy
+Table6_beta3,CEH9,After,0.0449,m,"CI=[-0.0135,0.1033] p=0.12983",10_legacy
+Table6_beta3,CEH9,After_Scrape2,0.0901,m,"CI=[-0.0117,0.1920] p=0.08051",10_legacy
+Table6_beta3,NW7,Before,0.0679,m,"CI=[0.0229,0.1128] p=0.00334",10_legacy
+Table6_beta3,NW7,After,0.0573,m,"CI=[-0.0159,0.1304] p=0.12295",10_legacy
+Table6_beta3,NW7,After_Scrape2,0.0884,m,"CI=[-0.0305,0.2074] p=0.13860",10_legacy
+Table6_beta3,NW6,Before,0.0968,m,"CI=[0.0427,0.1508] p=0.00055",10_legacy
+Table6_beta3,NW6,After,0.1212,m,"CI=[0.0377,0.2048] p=0.00510",10_legacy
+Table6_beta3,NW6,After_Scrape2,0.1786,m,"CI=[0.0239,0.3332] p=0.02528",10_legacy
+Transect_step_change,CEH2,Post_felling,0.1073,m,"Distance=414m, Role=reference",10_legacy
+Transect_step_change,CEH34,Post_felling,0.0746,m,"Distance=285m, Role=control",10_legacy
+Transect_step_change,WMC3,Post_felling,0.1258,m,"Distance=92m, Role=impact",10_legacy
+Transect_step_change,NW8B,Post_felling,0.1039,m,"Distance=184m, Role=edge",10_legacy
+Transect_step_change,CEH20,Post_felling,0.0929,m,"Distance=186m, Role=edge",10_legacy
+Transect_step_change,CEH16,Post_felling,0.0099,m,"Distance=191m, Role=edge",10_legacy
+NW10_broadleaf_trend_slope,NW10,2019-2025,-19.053,mm/yr,"p=0.1421, n=7",10_legacy
+NW10_mean_anomaly_2010_2021,NW10,,0.2823,m,vs pine interior composite,10_legacy
+Summer_minimum_median,,Pre_felling,-1.52,m,"Zone=Impact, n_years=9",10_legacy
+Summer_minimum_median,,Post_felling,-1.625,m,"Zone=Impact, n_years=8",10_legacy
+Summer_minimum_median,,Pre_felling,-1.74,m,"Zone=Edge, n_years=36",10_legacy
+Summer_minimum_median,,Post_felling,-1.74,m,"Zone=Edge, n_years=32",10_legacy
+Summer_minimum_median,,Pre_felling,-1.31,m,"Zone=Control, n_years=81",10_legacy
+Summer_minimum_median,,Post_felling,-1.425,m,"Zone=Control, n_years=64",10_legacy
+Coefficient_zone_mean_beta_1_recharge,,Before,2.399,m,"Zone=Impact, n_wells=1",10_legacy
+Coefficient_zone_mean_beta_1_recharge,,After,2.406,m,"Zone=Impact, n_wells=1",10_legacy
+Coefficient_zone_mean_beta_1_recharge,,Before,2.6502,m,"Zone=Edge, n_wells=4",10_legacy
+Coefficient_zone_mean_beta_1_recharge,,After,2.3235,m,"Zone=Edge, n_wells=4",10_legacy
+Coefficient_zone_mean_beta_1_recharge,,Before,2.8462,m,"Zone=Control, n_wells=8",10_legacy
+Coefficient_zone_mean_beta_1_recharge,,After,2.6665,m,"Zone=Control, n_wells=8",10_legacy
+Coefficient_zone_mean_beta_2_atmospheric_draw,,Before,1.811,m,"Zone=Impact, n_wells=1",10_legacy
+Coefficient_zone_mean_beta_2_atmospheric_draw,,After,1.602,m,"Zone=Impact, n_wells=1",10_legacy
+Coefficient_zone_mean_beta_2_atmospheric_draw,,Before,1.721,m,"Zone=Edge, n_wells=4",10_legacy
+Coefficient_zone_mean_beta_2_atmospheric_draw,,After,1.7557,m,"Zone=Edge, n_wells=4",10_legacy
+Coefficient_zone_mean_beta_2_atmospheric_draw,,Before,1.9604,m,"Zone=Control, n_wells=8",10_legacy
+Coefficient_zone_mean_beta_2_atmospheric_draw,,After,1.9529,m,"Zone=Control, n_wells=8",10_legacy
+Coefficient_zone_mean_beta_3_drainage,,Before,0.036,m,"Zone=Impact, n_wells=1",10_legacy
+Coefficient_zone_mean_beta_3_drainage,,After,0.035,m,"Zone=Impact, n_wells=1",10_legacy
+Coefficient_zone_mean_beta_3_drainage,,Before,0.0475,m,"Zone=Edge, n_wells=4",10_legacy
+Coefficient_zone_mean_beta_3_drainage,,After,0.0312,m,"Zone=Edge, n_wells=4",10_legacy
+Coefficient_zone_mean_beta_3_drainage,,Before,0.0422,m,"Zone=Control, n_wells=8",10_legacy
+Coefficient_zone_mean_beta_3_drainage,,After,0.0321,m,"Zone=Control, n_wells=8",10_legacy
+Robustness_SSM_residual,WMC3,Scrape_era,0.0774,m,Zone=Impact,10_legacy
+Robustness_SSM_residual,WMC3,Post_felling,0.1638,m,Zone=Impact,10_legacy
+Robustness_SSM_residual,WMC3,Step_change,0.0864,m,Zone=Impact,10_legacy
+Robustness_SSM_residual,WMC3,Step_p_value,0.0,,"Welch t-test, Zone=Impact",10_legacy
+Robustness_SSM_residual,CEH31,Scrape_era,0.0118,m,Zone=Edge,10_legacy
+Robustness_SSM_residual,CEH31,Post_felling,-0.0443,m,Zone=Edge,10_legacy
+Robustness_SSM_residual,CEH31,Step_change,-0.0561,m,Zone=Edge,10_legacy
+Robustness_SSM_residual,CEH31,Step_p_value,0.0003,,"Welch t-test, Zone=Edge",10_legacy
+Robustness_SSM_residual,CEH20,Scrape_era,0.0652,m,Zone=Edge,10_legacy
+Robustness_SSM_residual,CEH20,Post_felling,0.1497,m,Zone=Edge,10_legacy
+Robustness_SSM_residual,CEH20,Step_change,0.0845,m,Zone=Edge,10_legacy
+Robustness_SSM_residual,CEH20,Step_p_value,0.0,,"Welch t-test, Zone=Edge",10_legacy
+Robustness_SSM_residual,CEH30,Scrape_era,0.0537,m,Zone=Edge,10_legacy
+Robustness_SSM_residual,CEH30,Post_felling,0.066,m,Zone=Edge,10_legacy
+Robustness_SSM_residual,CEH30,Step_change,0.0122,m,Zone=Edge,10_legacy
+Robustness_SSM_residual,CEH30,Step_p_value,0.1913,,"Welch t-test, Zone=Edge",10_legacy
+Robustness_SSM_residual,CEH16,Scrape_era,-0.0059,m,Zone=Edge,10_legacy
+Robustness_SSM_residual,CEH16,Post_felling,-0.1288,m,Zone=Edge,10_legacy
+Robustness_SSM_residual,CEH16,Step_change,-0.1229,m,Zone=Edge,10_legacy
+Robustness_SSM_residual,CEH16,Step_p_value,0.0,,"Welch t-test, Zone=Edge",10_legacy
+Robustness_SSM_residual,CEH32,Scrape_era,0.0444,m,Zone=Control,10_legacy
+Robustness_SSM_residual,CEH32,Post_felling,0.1084,m,Zone=Control,10_legacy
+Robustness_SSM_residual,CEH32,Step_change,0.064,m,Zone=Control,10_legacy
+Robustness_SSM_residual,CEH32,Step_p_value,0.003,,"Welch t-test, Zone=Control",10_legacy
+Robustness_SSM_residual,CEH34,Scrape_era,0.0525,m,Zone=Control,10_legacy
+Robustness_SSM_residual,CEH34,Post_felling,0.1629,m,Zone=Control,10_legacy
+Robustness_SSM_residual,CEH34,Step_change,0.1104,m,Zone=Control,10_legacy
+Robustness_SSM_residual,CEH34,Step_p_value,0.0,,"Welch t-test, Zone=Control",10_legacy
+Robustness_SSM_residual,CEH33,Scrape_era,0.0492,m,Zone=Control,10_legacy
+Robustness_SSM_residual,CEH33,Post_felling,0.0559,m,Zone=Control,10_legacy
+Robustness_SSM_residual,CEH33,Step_change,0.0067,m,Zone=Control,10_legacy
+Robustness_SSM_residual,CEH33,Step_p_value,0.5981,,"Welch t-test, Zone=Control",10_legacy
+Robustness_SSM_residual,NW10,Scrape_era,-0.0147,m,Zone=Control,10_legacy
+Robustness_SSM_residual,NW10,Post_felling,0.0605,m,Zone=Control,10_legacy
+Robustness_SSM_residual,NW10,Step_change,0.0752,m,Zone=Control,10_legacy
+Robustness_SSM_residual,NW10,Step_p_value,0.0,,"Welch t-test, Zone=Control",10_legacy
+Robustness_SSM_residual,CEH19,Scrape_era,0.0027,m,Zone=Control,10_legacy
+Robustness_SSM_residual,CEH19,Post_felling,-0.135,m,Zone=Control,10_legacy
+Robustness_SSM_residual,CEH19,Step_change,-0.1377,m,Zone=Control,10_legacy
+Robustness_SSM_residual,CEH19,Step_p_value,0.0,,"Welch t-test, Zone=Control",10_legacy
+Robustness_SSM_residual,CEH9,Scrape_era,-0.041,m,Zone=Control,10_legacy
+Robustness_SSM_residual,CEH9,Post_felling,-0.0186,m,Zone=Control,10_legacy
+Robustness_SSM_residual,CEH9,Step_change,0.0224,m,Zone=Control,10_legacy
+Robustness_SSM_residual,CEH9,Step_p_value,0.0938,,"Welch t-test, Zone=Control",10_legacy
+Robustness_SSM_residual,NW7,Scrape_era,-0.0831,m,Zone=Control,10_legacy
+Robustness_SSM_residual,NW7,Post_felling,-0.1566,m,Zone=Control,10_legacy
+Robustness_SSM_residual,NW7,Step_change,-0.0735,m,Zone=Control,10_legacy
+Robustness_SSM_residual,NW7,Step_p_value,0.0,,"Welch t-test, Zone=Control",10_legacy
+Robustness_SSM_residual,NW6,Scrape_era,-0.0099,m,Zone=Control,10_legacy
+Robustness_SSM_residual,NW6,Post_felling,-0.0774,m,Zone=Control,10_legacy
+Robustness_SSM_residual,NW6,Step_change,-0.0676,m,Zone=Control,10_legacy
+Robustness_SSM_residual,NW6,Step_p_value,0.0229,,"Welch t-test, Zone=Control",10_legacy
+Robustness_synthetic_gap,Core,Post_felling,0.0502,m,Observed minus synthetic,10_legacy
+Robustness_synthetic_gap,Core,p_value,0.0,,Welch t-test scrape vs post-felling gap,10_legacy
+Robustness_synthetic_gap,Edge,Post_felling,0.0375,m,Observed minus synthetic,10_legacy
+Robustness_synthetic_gap,Edge,p_value,0.0,,Welch t-test scrape vs post-felling gap,10_legacy
+Robustness_cluster_transition,Impact,toward C3,0.0,,Qualitative: toward C3 = converging to open-dune behaviour,10_legacy

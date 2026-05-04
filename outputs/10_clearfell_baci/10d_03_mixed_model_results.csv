@@ -1,0 +1,9 @@
+Control,Tier,Model,Clearfell_coef_m,Clearfell_SE_m,Clearfell_p,Scraping_coef_m,Scraping_p,N,N_wells
+Forest,Impact,OLS (single well),-0.0139,0.0752,0.8559042590423694,-0.0617,0.5409171890457772,17,1
+Forest,Edge,Mixed-effects (random intercept),-0.0271,0.0235,0.24919788279478383,-0.0102,0.7407951095894478,68,4
+Forest,Forest Ctrl,Mixed-effects (random intercept),-0.0029,0.0212,0.8916123516156813,-0.0029,0.9174444734813645,121,7
+Forest,Climate Ctrl,Mixed-effects (random intercept),0.0437,0.0322,0.17460950790284413,0.0423,0.3269761512328442,92,5
+Climate,Impact,OLS (single well),-0.0134,0.0527,0.802608998980436,-0.0599,0.4007121162143642,17,1
+Climate,Edge,Mixed-effects (random intercept),-0.02,0.0412,0.6273397458652796,-0.0017,0.9751570393231487,68,4
+Climate,Forest Ctrl,Mixed-effects (random intercept),-0.0284,0.0328,0.38611148996632416,-0.027,0.5314807906475787,122,7
+Climate,Climate Ctrl,Mixed-effects (random intercept),0.0038,0.0173,0.8239103127598915,0.0038,0.8696884553407347,96,5

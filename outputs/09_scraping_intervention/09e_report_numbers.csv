@@ -1,0 +1,4 @@
+Parameter,Value,Unit,Note
+CEH36_raw_BACI_step,0.1314,m,CEH36 minus CEH4
+CEH36_synthetic_control_step,0.1351,m,Synthetic control (11 donors)
+CEH36_SSM_forward_residual_step,0.0827,m,SSM calibrated on pre-2015 baseline

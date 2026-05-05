@@ -229,3 +229,95 @@ def significance_stars(p):
     if p < 0.05:
         return "*"
     return "ns"
+
+
+# ============================================================================
+# SCENARIO COMPARISON — shared computation
+# ============================================================================
+
+def compute_scenario_bars(cluster_params, summer_P, summer_PET):
+    """Compute per-cluster volumetric scenario bars (mm w.e./month).
+
+    Uses the Option 3 seasonal perturbation formulation:
+        Δh(m) = β₁·ΔP − Δβ₂·PET
+    with forestry interception and UKCP18 climate scaling.
+
+    Parameters
+    ----------
+    cluster_params : dict
+        {cname: {b1, b2, b3, Sy, h_disp, forest}} from pipeline outputs.
+    summer_P : float
+        Mean summer rainfall (m/month) from climate data.
+    summer_PET : float
+        Mean summer PET (m/month) from climate data.
+
+    Returns
+    -------
+    dict : {scenario_name: {cluster: value_mm_per_month}}
+        All non-scraping scenarios. Scraping bars are computed separately
+        by 09d using centroid summaries.
+    """
+    import numpy as np
+    from utils.config import (
+        FOREST_INTERCEPTION, BROADLEAF_INTERCEPTION,
+        CLEARFELL_B2_MULT_DEFAULT, THINNING_B2_MULT_DEFAULT,
+        UKCP18_DRY_P_SUMMER, UKCP18_DRY_PET_SUMMER,
+        UKCP18_WET_P_SUMMER, UKCP18_WET_PET_SUMMER,
+    )
+
+    clusters = ["C1", "C2", "C3", "C4", "C5"]
+    scenarios = {}
+
+    def _flux(b1, b2, P_eff, PET, b3, h_disp):
+        return b1 * P_eff - b2 * PET - b3 * h_disp
+
+    for scenario_name, config in [
+        ("Clearfell",    {"sI": 0.0,                       "sB2": CLEARFELL_B2_MULT_DEFAULT,
+                          "sP": 1.0, "sPET": 1.0,         "forest_only": True}),
+        ("Thinning 50%", {"sI": FOREST_INTERCEPTION * 0.5, "sB2": THINNING_B2_MULT_DEFAULT,
+                          "sP": 1.0, "sPET": 1.0,         "forest_only": True}),
+        ("Broadleaf",    {"sI": BROADLEAF_INTERCEPTION,    "sB2": 1.0,
+                          "sP": 1.0, "sPET": 1.0,         "forest_only": True}),
+        ("Climate dry",  {"sI": None,                      "sB2": 1.0,
+                          "sP": UKCP18_DRY_P_SUMMER,       "sPET": UKCP18_DRY_PET_SUMMER,
+                          "forest_only": False}),
+        ("Climate wet",  {"sI": None,                      "sB2": 1.0,
+                          "sP": UKCP18_WET_P_SUMMER,       "sPET": UKCP18_WET_PET_SUMMER,
+                          "forest_only": False}),
+    ]:
+        vals = {}
+        for c in clusters:
+            if c not in cluster_params:
+                vals[c] = 0.0
+                continue
+            cp = cluster_params[c]
+            is_forest = cp["forest"]
+
+            if config["forest_only"] and not is_forest:
+                vals[c] = 0.0
+                continue
+
+            # Baseline flux
+            P_base = summer_P * (1 - FOREST_INTERCEPTION) if is_forest else summer_P
+            flux_base = _flux(cp["b1"], cp["b2"], P_base, summer_PET,
+                              cp["b3"], cp["h_disp"])
+
+            # Scenario flux
+            if config["sI"] is not None:
+                P_scen = summer_P * config["sP"] * (1 - config["sI"])
+            else:
+                # Climate scenario: keep existing interception
+                raw_P = summer_P * config["sP"]
+                P_scen = raw_P * (1 - FOREST_INTERCEPTION) if is_forest else raw_P
+
+            b2_scen = cp["b2"] * config["sB2"]
+            PET_scen = summer_PET * config["sPET"]
+            flux_scen = _flux(cp["b1"], b2_scen, P_scen, PET_scen,
+                              cp["b3"], cp["h_disp"])
+
+            # Convert head change to volumetric (mm w.e./month)
+            vals[c] = round((flux_scen - flux_base) * cp["Sy"] * 1000, 1)
+
+        scenarios[scenario_name] = vals
+
+    return scenarios

@@ -107,3 +107,24 @@ BROADLEAF_INTERCEPTION = 0.15
 DEM_VMIN = 0.0
 DEM_VCENTER = 12.0
 DEM_VMAX = 35.0
+
+# ── Clearfell β₂ multiplier defaults ─────────────────────────────────────────
+# Fallback values for the clearfell atmospheric-draw multiplier. Script 21
+# overrides from Script 10e outputs when available; these are used by
+# scraping_common.compute_scenario_bars() and as Script 21's fallback.
+CLEARFELL_B2_MULT_DEFAULT = 1.20
+THINNING_B2_MULT_DEFAULT  = 1.0 + (CLEARFELL_B2_MULT_DEFAULT - 1.0) / 2
+
+# ── UKCP18 RCP8.5 Wales central estimates ────────────────────────────────────
+# Seasonal precipitation and PET scaling factors for climate scenarios.
+# Source: UKCP18 probabilistic projections, 50th percentile, 2050s (2040-2069),
+# RCP8.5, Wales region. Applied as multipliers to the monitoring-period
+# climatology in Scripts 09d, 19, and 21.
+UKCP18_DRY_P_WINTER  = 1.05   # +5% winter P
+UKCP18_DRY_P_SUMMER  = 0.83   # −17% summer P
+UKCP18_DRY_PET_WINTER = 1.05  # +5% winter PET
+UKCP18_DRY_PET_SUMMER = 1.12  # +12% summer PET
+UKCP18_WET_P_WINTER  = 1.15   # +15% winter P
+UKCP18_WET_P_SUMMER  = 1.10   # +10% summer P
+UKCP18_WET_PET_WINTER = 0.98  # −2% winter PET
+UKCP18_WET_PET_SUMMER = 0.95  # −5% summer PET

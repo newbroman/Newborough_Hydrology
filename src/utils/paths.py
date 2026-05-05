@@ -216,11 +216,14 @@ OUT_09C_REPORT_NUMBERS      = DIR_09 / "09c_report_numbers.csv"
 OUT_09C_FIG_CLIMATE         = DIR_09 / "09c_03_summer_minima_climate_ctrl.png"
 OUT_09C_FIG_PAIRED          = DIR_09 / "09c_04_summer_minima_paired.png"
 
-# Script 09d — Scraping scenario comparison
+# Script 09d — CEH36 scenario comparison
 OUT_09D_SCENARIO            = DIR_09 / "09d_01_scenario_comparison.jpg"
 OUT_09D_SCENARIO_CSV        = DIR_09 / "09d_01_scenario_comparison.csv"
 OUT_09D_SUMMER_SCENARIO     = DIR_09 / "09d_02_summer_scenario_comparison.png"
 OUT_09D_SUMMER_SCENARIO_CSV = DIR_09 / "09d_02_summer_scenario_comparison.csv"
+
+# Script 09e — CEH36 robustness analysis
+OUT_09E_REPORT_NUMBERS      = DIR_09 / "09e_report_numbers.csv"
 
 # Script 10 — Clearfell BACI Analysis Suite (10a–10g)
 OUT_10_REPORT_NUMBERS       = DIR_10 / "10_cfell_report_numbers.csv"

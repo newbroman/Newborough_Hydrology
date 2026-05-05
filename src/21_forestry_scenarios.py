@@ -83,18 +83,22 @@ from utils.paths import (
     INT_MASTER_DATA, INT_CLIMATE,
     INT_CLUSTER_AVG_MAOD, INT_WELL_ELEVATIONS,
     INT_WELLS_CLEAN, INT_WELLS_EXTENDED,
+    INT_WTF_WELL_SY,
     OUT_DIR, make_all_dirs,
     DIR_21,
     OUT_21_HYDROGRAPH, OUT_21_DISTRIBUTIONS, OUT_21_DISTRIBUTIONS_CSV,
     OUT_21_SCRAPING, OUT_21_SCRAPING_CSV, OUT_21_BACI_VIOLIN, OUT_21_BACI_CSV,
+    OUT_21_SCENARIO_COMPARE, OUT_21_SCENARIO_CSV,
     OUT_10A_REPORT, OUT_10E_COEFF_SHIFTS,
 )
 from utils.config import (
     FOREST_INTERCEPTION, BROADLEAF_INTERCEPTION, REFERENCE_CUTOFF_DATE,
+    DRAINAGE_DATUM,
     CLUSTER_COLOURS as CONFIG_CLUSTER_COLOURS,
     SD15b, SD15b_REC, SD16, SD16_REC,
 )
 from utils.model_utils import monthly_perturbation
+from utils.scraping_common import compute_scenario_bars
 
 
 # ============================================================================
@@ -1412,6 +1416,111 @@ def plot_baci_zone_violin(df, dates, well_names, elev, dpi=FIG_DPI):
 # MAIN
 # ============================================================================
 
+# ============================================================================
+# FIGURE 5 — SCENARIO COMPARISON (BAR CHART)
+# ============================================================================
+
+def _load_cluster_params_for_scenarios(master, climate):
+    """Build cluster_params dict for compute_scenario_bars().
+
+    Reads β coefficients from master data, Sy from Script 17, and
+    computes mean h_disp from well data.
+    """
+    wells = pd.read_csv(INT_WELLS_CLEAN, index_col=0, parse_dates=True)
+    wells.columns = wells.columns.str.lower().str.replace(" ", "")
+
+    sy_df = pd.read_csv(INT_WTF_WELL_SY)
+    sy_by_cluster = sy_df.groupby("Cluster")["Sy_median"].mean()
+
+    params = {}
+    for cl in sorted(master["Cluster"].unique()):
+        cname = f"C{cl}"
+        cl_rows = master[master["Cluster"] == cl]
+        cl_wells = cl_rows["well"].tolist() if "well" in cl_rows.columns else (
+            cl_rows["Name_Original"].str.lower().str.replace(" ", "").tolist())
+        available = [w for w in cl_wells if w in wells.columns]
+        mean_depth = wells[available].mean().mean() if available else -0.5
+        params[cname] = {
+            "b1": float(cl_rows["beta_1_recharge"].mean()),
+            "b2": float(cl_rows["beta_2_atmospheric_draw"].mean()),
+            "b3": float(cl_rows["beta_3_drainage"].mean()),
+            "Sy": float(sy_by_cluster.get(cl, 0.25)),
+            "h_disp": DRAINAGE_DATUM + mean_depth,
+            "forest": cl in (4, 5),
+        }
+    return params
+
+
+def plot_scenario_comparison(master, climate, dpi=300):
+    """Produce the scenario comparison grouped bar chart and CSV.
+
+    Uses compute_scenario_bars() from scraping_common as the single source
+    of truth for the non-scraping scenario values.
+    """
+    cluster_params = _load_cluster_params_for_scenarios(master, climate)
+
+    summer = climate[climate.index.month.isin([6, 7, 8, 9])]
+    summer_P = float(summer["P_m"].mean())
+    summer_PET = float(summer["PET"].mean())
+
+    scenario_values = compute_scenario_bars(cluster_params, summer_P, summer_PET)
+
+    clusters = ["C1", "C2", "C3", "C4", "C5"]
+    cluster_labels = ["C1\nLake Edge", "C2\nDune", "C3\nWestern",
+                      "C4\nMain\nForest", "C5\nCoastal\nForest"]
+
+    colour_map = {
+        "Clearfell": "#8B4513", "Thinning 50%": "#D2691E",
+        "Broadleaf": "#228B22",
+        "Climate dry": "#FF6347", "Climate wet": "#4169E1",
+    }
+    scenarios_order = [s for s in ["Clearfell", "Thinning 50%", "Broadleaf",
+                                    "Climate dry", "Climate wet"]
+                       if s in scenario_values]
+
+    n_scen = len(scenarios_order)
+    x = np.arange(len(clusters))
+    width = 0.14
+    offsets = np.linspace(-(n_scen - 1) / 2 * width,
+                           (n_scen - 1) / 2 * width, n_scen)
+
+    fig, ax = plt.subplots(1, 1, figsize=(14, 7.5))
+
+    for i, s_name in enumerate(scenarios_order):
+        vals = [scenario_values[s_name].get(c, 0) for c in clusters]
+        ax.bar(x + offsets[i], vals, width, label=s_name,
+               color=colour_map.get(s_name, "#999"), alpha=0.85)
+
+    ax.axhline(0, color="black", lw=0.8)
+    ax.set_xticks(x)
+    ax.set_xticklabels(cluster_labels, fontsize=14)
+    ax.set_ylabel("\u0394 volumetric water table\n"
+                  "(mm water equiv. / month)", fontsize=15)
+    ax.tick_params(axis="y", labelsize=13)
+    ax.set_title(
+        "Scenario comparison: forest management and climate (k = 5)\n"
+        "Volumetric using WTF-derived, interception-corrected Sy",
+        fontsize=15, fontweight="bold")
+    ax.legend(fontsize=12, loc="upper right", ncol=2)
+    ax.grid(axis="y", alpha=0.3)
+    plt.tight_layout()
+
+    fig.savefig(OUT_21_SCENARIO_COMPARE, dpi=dpi, format="jpeg",
+                pil_kwargs={"quality": 85}, bbox_inches="tight")
+    plt.close(fig)
+    print(f"  Saved: {OUT_21_SCENARIO_COMPARE.name}")
+
+    # Export CSV
+    rows = []
+    for s_name in scenarios_order:
+        for c in clusters:
+            rows.append({"Scenario": s_name, "Cluster": c,
+                         "Delta_vol_mm_per_month": scenario_values[s_name].get(c, 0)})
+    pd.DataFrame(rows).to_csv(OUT_21_SCENARIO_CSV, index=False,
+                              float_format="%.1f")
+    print(f"  Saved: {OUT_21_SCENARIO_CSV.name}")
+
+
 def main(preview=False):
     dpi = 150 if preview else FIG_DPI
     make_all_dirs()
@@ -1419,18 +1528,18 @@ def main(preview=False):
     print("\n=== 21_forestry_scenarios.py ===")
     print(f"  DPI: {dpi}  ({'preview' if preview else 'publication'})")
 
-    print("\n[0/5] Loading BACI parameters from Script 10 outputs...")
+    print("\n[0/6] Loading BACI parameters from Script 10 outputs...")
     _init_baci_params()
     print(f"  BACI_ANNUAL={BACI_ANNUAL:.3f}  BACI_SUMMER={BACI_SUMMER:.3f}")
     print(f"  CLEARFELL_B2_MULT={CLEARFELL_B2_MULT:.4f}  "
           f"THINNING_B2_MULT={THINNING_B2_MULT:.4f}")
 
-    print("\n[1/5] Loading data...")
+    print("\n[1/6] Loading data...")
     master, elev, reg, climate = load_data()
     print(f"  Master: {len(master)} wells  |  "
           f"Climate: {climate.index[0].date()} to {climate.index[-1].date()}")
 
-    print("\n[2/5] Building scenarios...")
+    print("\n[2/6] Building scenarios...")
     scenario_shifts, monthly_P, monthly_PET, b1, b2, b3 = build_scenarios(
         master, climate)
     obs_monthly, c4_dem = get_observed_seasonal_cycle(reg, elev, master)
@@ -1440,21 +1549,24 @@ def main(preview=False):
     print(f"  β₁={b1:.4f}  β₂={b2:.4f}  β₃={b3:.4f}")
     print(f"  Scenarios: {list(scenario_shifts.keys())}")
 
-    print("\n[3/5] Plotting hydrograph figure...")
+    print("\n[3/6] Plotting hydrograph figure...")
     plot_hydrograph(scenario_shifts, obs_monthly, monthly_P, monthly_PET,
                     obs_c1, obs_c2, dpi=dpi)
 
-    print("\n[4/5] Loading raw well data...")
+    print("\n[4/6] Loading raw well data...")
     df, dates, well_names = load_raw_well_data()
 
-    print("\n[4/5] Plotting distributions figure...")
+    print("\n[4/6] Plotting distributions figure...")
     plot_distributions(master, df, dates, well_names, elev, dpi=dpi)
 
-    print("\n[5/5] Plotting scraping eras figure...")
+    print("\n[5/6] Plotting scraping eras figure...")
     plot_scraping_eras(df, dates, well_names, elev, dpi=dpi)
 
-    print("\n[5/5] Plotting BACI zone violin figure...")
+    print("\n[5/6] Plotting BACI zone violin figure...")
     plot_baci_zone_violin(df, dates, well_names, elev, dpi=dpi)
+
+    print("\n[6/6] Plotting scenario comparison figure...")
+    plot_scenario_comparison(master, climate, dpi=dpi)
 
     print("\n=== Script 21 complete ===")
 

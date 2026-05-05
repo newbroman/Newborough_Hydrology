@@ -44,12 +44,12 @@ from utils.paths import (
     OUT_09D_SUMMER_SCENARIO, OUT_09D_SUMMER_SCENARIO_CSV,
     OUT_03_MECHANISTIC_TABLE, INT_MASTER_DATA,
     INT_WTF_WELL_SY, INT_WELLS_CLEAN, INT_CLIMATE,
-    OUT_21_SCENARIO_CSV,
 )
 from utils.scraping_common import (
     SCRAPING_DATE, INTERVENTION_DATE,
     SUMMER_MONTHS, MPL_DEFAULTS,
     load_scraping_data,
+    compute_scenario_bars,
 )
 from utils.config import DRAINAGE_DATUM, FOREST_INTERCEPTION
 
@@ -129,28 +129,6 @@ def _load_cluster_params():
     return params
 
 
-def _load_scenario_values():
-    """Load non-scraping scenario values from Script 21 output."""
-    if not OUT_21_SCENARIO_CSV.exists():
-        print("   [WARNING] Script 21 scenario CSV not found — "
-              "using empty scenario values")
-        return {}
-
-    df = pd.read_csv(OUT_21_SCENARIO_CSV)
-    scenarios = {}
-    for scenario in df["Scenario"].unique():
-        if "Scraping" in scenario:
-            continue  # we compute our own scraping bars
-        sub = df[df["Scenario"] == scenario]
-        scenarios[scenario] = {
-            row["Cluster"]: row["Delta_vol_mm_per_month"]
-            for _, row in sub.iterrows()
-        }
-
-    print(f"   Loaded {len(scenarios)} non-scraping scenarios from Script 21")
-    return scenarios
-
-
 def _compute_frac_affected():
     """Compute fraction of each cluster within AFFECTED_RADIUS of CEH36."""
     master = pd.read_csv(INT_MASTER_DATA)
@@ -192,10 +170,13 @@ def main():
     print("\n1. Loading parameters from pipeline outputs...")
 
     cluster_params = _load_cluster_params()
-    scenario_values = _load_scenario_values()
     frac_affected = _compute_frac_affected()
     summer_P, summer_PET = _compute_summer_climate()
     print(f"   Summer climate: P={summer_P:.6f}  PET={summer_PET:.6f} m/month")
+
+    # Compute non-scraping scenario bars from pipeline coefficients
+    scenario_values = compute_scenario_bars(cluster_params, summer_P, summer_PET)
+    print(f"   Computed {len(scenario_values)} non-scraping scenarios")
 
     # ── 2. Load centroid summaries ────────────────────────────────────────
     print("\n2. Loading centroid summaries...")
@@ -216,7 +197,8 @@ def main():
 
     # ── 4. Summer minimum scenario comparison ─────────────────────────────
     print("\n4. Computing summer minimum scenario comparison...")
-    _summer_scenario(cluster_params, summer_P, summer_PET)
+    _summer_scenario(cluster_params, summer_P, summer_PET,
+                     scenario_values)
 
     print("\nDone.")
 
@@ -368,7 +350,8 @@ def _plot_scenario_comparison(scenario_values, scrape_weighted,
 # SUMMER MINIMUM SCENARIO
 # ============================================================================
 
-def _summer_scenario(cluster_params, summer_P, summer_PET):
+def _summer_scenario(cluster_params, summer_P, summer_PET,
+                     scenario_values):
     """Summer minimum scenario figure: empirical BACI + SSM amplification."""
     wells, climate = load_scraping_data()
 
@@ -476,21 +459,18 @@ def _summer_scenario(cluster_params, summer_P, summer_PET):
                                     "C5": round(scraping_shift_mm)},
     }
 
-    # Climate: SSM vol → head (÷ Sy) → summer min (× amplification)
-    if OUT_09D_SCENARIO_CSV.exists():
-        scen = pd.read_csv(OUT_09D_SCENARIO_CSV)
-        for scenario in ["Climate dry", "Climate wet"]:
+    # Climate scenarios: convert monthly volumetric → summer minimum
+    # vol (mm w.e./month) ÷ Sy → head change (mm/month) × amplification
+    for scenario in ["Climate dry", "Climate wet"]:
+        if scenario in scenario_values:
             summer_data[scenario] = {}
             for c in clusters:
-                row = scen[(scen["Scenario"] == scenario)
-                           & (scen["Cluster"] == c)]
-                if not row.empty:
-                    vol = float(row["Delta_vol_mm_per_month"].iloc[0])
-                    sy = cluster_params.get(c, {}).get("Sy", 0.20)
-                    summer_data[scenario][c] = round(
-                        vol / sy * amp_factors.get(c, 0.85))
-                else:
-                    summer_data[scenario][c] = 0
+                vol = scenario_values[scenario].get(c, 0)
+                sy = cluster_params.get(c, {}).get("Sy", 0.20)
+                amp = amp_factors.get(c, 0.85)
+                summer_data[scenario][c] = round(vol / sy * amp)
+        else:
+            summer_data[scenario] = {c: 0 for c in clusters}
 
     # ── Figure ────────────────────────────────────────────────────────────
     cluster_labels = ["C1\nLake Edge", "C2\nDune", "C3\nWestern",

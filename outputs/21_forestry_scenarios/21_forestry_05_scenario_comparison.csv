@@ -3,7 +3,7 @@ Clearfell,C1,0.0
 Clearfell,C2,0.0
 Clearfell,C3,0.0
 Clearfell,C4,-2.2
-Clearfell,C5,4.5
+Clearfell,C5,4.4
 Thinning 50%,C1,0.0
 Thinning 50%,C2,0.0
 Thinning 50%,C3,0.0
@@ -12,20 +12,15 @@ Thinning 50%,C5,2.2
 Broadleaf,C1,0.0
 Broadleaf,C2,0.0
 Broadleaf,C3,0.0
-Broadleaf,C4,3.6
-Broadleaf,C5,4.1
-Scraping (nearby),C1,0.0
-Scraping (nearby),C2,0.0
-Scraping (nearby),C3,-3.4
-Scraping (nearby),C4,-1.4
-Scraping (nearby),C5,-0.5
-Climate dry,C1,-7.9
-Climate dry,C2,-11.0
-Climate dry,C3,-12.3
-Climate dry,C4,-9.0
-Climate dry,C5,-6.7
-Climate wet,C1,7.4
-Climate wet,C2,9.1
-Climate wet,C3,9.8
-Climate wet,C4,6.0
-Climate wet,C5,5.1
+Broadleaf,C4,3.5
+Broadleaf,C5,4.2
+Climate dry,C1,-12.8
+Climate dry,C2,-16.5
+Climate dry,C3,-18.0
+Climate dry,C4,-12.1
+Climate dry,C5,-9.9
+Climate wet,C1,7.3
+Climate wet,C2,8.9
+Climate wet,C3,9.6
+Climate wet,C4,5.9
+Climate wet,C5,5.2

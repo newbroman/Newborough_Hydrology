@@ -20,13 +20,12 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.4.0"   # Hollingham (2026) -- 2026-05-03
-                         # v2.4.0: Scraping (nearby effect) toggle added as
-                         #         independent checkbox. Applies Δβ₁=+0.41,
-                         #         Δβ₂=+0.009, β₃×1.20, h_disp−0.2m to all
-                         #         C3/C4/C5 wells. Stacks with any scenario.
-                         #         Expanded metrics panel, draggable sidebar
-                         #         splitter, floating well tooltip retained.
+__version__ = "2.4.2"   # Hollingham (2026) -- 2026-05-06
+                         # v2.4.2: Scraping scenario removed from viewer.
+                         #         Scraping operates as a one-off level shift
+                         #         incompatible with the equilibrium framework.
+                         #         Retained: expanded metrics, sidebar splitter,
+                         #         floating tooltip, map resize.
                          # v2.2.0: Expanded viewer extent to full study area
                          #         (E 240200-243700, N 362400-364800); fixed
                          #         map size at 640x440 px; Help dropdown in
@@ -877,11 +876,6 @@ footer a:hover{{text-decoration:underline;}}
   <button class="sc"    id="btn_clearfell"   onclick="loadSc('clearfell')">Clearfell (interception&#8594;0, &#946;&#8322;&#8593;)</button>
   <button class="sc"    id="btn_broadleaf"   onclick="loadSc('broadleaf')">Broadleaf conversion</button>
   <button class="sc"    id="btn_thinning"    onclick="loadSc('thinning')">Forest thinning (50%)</button>
-  <div class="hr"></div>
-  <div class="ch">Scraping</div>
-  <label class="ckrow"><input type="checkbox" id="chkScrape" onchange="go()">
-    Simulate scraping event</label>
-  <div class="sc-note" style="font-size:10px;color:var(--text-light);margin-top:2px;">Simulates a 0.2&thinsp;m scraping event 200&thinsp;m NW of CEH36 (E&thinsp;241091, N&thinsp;363494). Uses the observed CEH36 BACI step (+131&thinsp;mm) as the source signal, attenuated by exponential distance decay (&lambda;&thinsp;=&thinsp;300&thinsp;m). Independent of forest/climate scenarios. Added to &Delta;h at each well.</div>
   <div class="sc-note">UKCP18 presets are central estimates (50th percentile) under RCP8.5 for Wales, with seasonally-structured perturbations applied to the paper's Winter (Nov&#8211;Mar) and Summer (May&#8211;Sep) climatologies. The equilibrium framework resolves seasonal Delta-h equilibria but not within-year dynamical trajectories.</div>
   <div class="hr"></div>
 
@@ -1089,10 +1083,6 @@ function go(){{
   checkExtremes(sl);
   // Seasonal baselines -- always needed so annual can weight winter+summer
   var cldW=CLIMATE.winter,cldS=CLIMATE.summer;
-  var scrapeOn=document.getElementById('chkScrape').checked;
-  // Distance-decay scraping model: source signal 131 mm at E241091 N363494,
-  // attenuated by exp(-d/lambda) with lambda=300 m.
-  var SCRAPE_E=241091,SCRAPE_N=363494,SCRAPE_SIGNAL=0.131,SCRAPE_LAMBDA=300;
   function dhOne(b1,b2,b3,P_base,PET_base,sP,sPET,h,cl){{
     var isForest=(cl===4||cl===5);
     var sI_cur=cl===4?sl.sI_c4:cl===5?sl.sI_c5:0;
@@ -1111,21 +1101,14 @@ function go(){{
     if(b1==null)continue;
     var h=sea==='annual'?w.mh:sea==='winter'?w.wh:w.sh;
     if(h==null)continue;
-    var isForest=(w.cl===4||w.cl===5);
     if(sea==='winter'){{
       well_dh[w.n]=dhOne(b1,b2,b3,cldW.P,cldW.PET,sl.sP_w,sl.sPET_w,h,w.cl);
     }}else if(sea==='summer'){{
       well_dh[w.n]=dhOne(b1,b2,b3,cldS.P,cldS.PET,sl.sP_s,sl.sPET_s,h,w.cl);
-    }}else{{  // annual = month-weighted mean of winter and summer responses
+    }}else{{
       var dhW=dhOne(b1,b2,b3,cldW.P,cldW.PET,sl.sP_w,sl.sPET_w,h,w.cl);
       var dhS=dhOne(b1,b2,b3,cldS.P,cldS.PET,sl.sP_s,sl.sPET_s,h,w.cl);
       well_dh[w.n]=0.5*(dhW+dhS);
-    }}
-    // Add distance-decay scraping effect if enabled
-    if(scrapeOn&&well_dh[w.n]!=null){{
-      var dx=w.E-SCRAPE_E,dy=w.N-SCRAPE_N;
-      var dist=Math.sqrt(dx*dx+dy*dy);
-      well_dh[w.n]+=SCRAPE_SIGNAL*Math.exp(-dist/SCRAPE_LAMBDA);
     }}
   }}
   var dh={{}},sh={{}},cld=CLIMATE[sea];

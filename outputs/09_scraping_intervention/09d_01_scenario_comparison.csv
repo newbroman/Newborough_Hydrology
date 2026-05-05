@@ -1,31 +1,7 @@
-Scenario,Cluster,Delta_vol_mm_per_month
-Clearfell,C1,0.0
-Clearfell,C2,0.0
-Clearfell,C3,0.0
-Clearfell,C4,-1.5
-Clearfell,C5,4.0
-Thinning 50%,C1,0.0
-Thinning 50%,C2,0.0
-Thinning 50%,C3,0.0
-Thinning 50%,C4,-0.7
-Thinning 50%,C5,2.0
-Broadleaf,C1,0.0
-Broadleaf,C2,0.0
-Broadleaf,C3,0.0
-Broadleaf,C4,3.6
-Broadleaf,C5,4.4
-Scraping (nearby),C1,0.0
-Scraping (nearby),C2,0.0
-Scraping (nearby),C3,2.6
-Scraping (nearby),C4,3.6
-Scraping (nearby),C5,5.4
-Climate dry,C1,-12.6
-Climate dry,C2,-16.0
-Climate dry,C3,-18.6
-Climate dry,C4,-11.9
-Climate dry,C5,-10.9
-Climate wet,C1,7.1
-Climate wet,C2,8.5
-Climate wet,C3,9.9
-Climate wet,C4,5.8
-Climate wet,C5,5.6
+Scenario,Delta_vol_mm_per_month
+Scraping (observed),46.9
+Clearfell (hypothetical),7.9
+Thinning 50% (hypothetical),4.0
+Broadleaf (hypothetical),5.6
+Climate dry,-14.7
+Climate wet,7.9

@@ -1,16 +1,20 @@
 """
 ====================================================================================
-EXPERIMENTAL SETUP MAPPING: HIERARCHICAL BACI DESIGN
+EXPERIMENTAL SETUP MAPPING: FIVE-TIER BACI DESIGN
 ====================================================================================
 Purpose:
     Produces a publication-quality GIS map (EPSG:27700 / British National Grid)
     showing the spatial arrangement of monitoring wells relative to the two major
-    anthropogenic interventions. 
-    
-    NEW IN THIS VERSION:
-    Visualizes the Hierarchical Nested Control logic used in the scraping analysis 
-    by physically drawing paired-control linkages between impact wells and their 
-    designated geomorphological benchmarks.
+    anthropogenic interventions (clearfell and topographical scraping).
+
+    Visualises the five-tier 17-well BACI network for the clearfell analysis
+    (Impact, Edge, Forest Control, Coastal Control, Climate Control) as defined
+    in clearfell_common.py, plus the hierarchical nested control logic for the
+    scraping analysis with paired-control linkages.
+
+    Excluded wells (FE1–4, LIS1, NW8B, CEH42) are plotted with a distinct
+    greyed-out marker so the reader can see their positions relative to the
+    felling boundary.
 
 Outputs:
     outputs/13_figure_experimental_design/13_01_experimental_setup_map.png
@@ -26,6 +30,13 @@ from utils.paths import (
     OUT_13_EXPERIMENTAL_MAP,
 )
 from utils.map_utils import add_kml_features
+from utils.clearfell_common import (
+    IMPACT_WELLS, EDGE_WELLS, FOREST_CONTROL_WELLS,
+    COASTAL_CONTROL_WELLS, CLIMATE_CONTROL_WELLS,
+    ALL_NETWORK_WELLS, TIER_COLOURS,
+    FELL_CENTROID_EASTING, FELL_CENTROID_NORTHING,
+    CEH36_EASTING, CEH36_NORTHING,
+)
 import os
 from pathlib import Path
 import pandas as pd
@@ -44,8 +55,6 @@ fiona.drvsupport.supported_drivers['LIBKML'] = 'rw'
 # ====================================================================================
 # PATH CONFIGURATION
 # ====================================================================================
-
-
 
 make_all_dirs()
 
@@ -95,26 +104,49 @@ if kml_clearfell_exists:
 # ==========================================
 # 2. CATEGORISE WELLS BY EXPERIMENTAL ROLE
 # ==========================================
-cf_impact = ['fe2', 'fe4', 'wmc3']
-cf_edge = ['fe1', 'fe3', 'ceh31', 'lis1', 'ceh20', 'ceh30', 'ceh16', 'nw8b']
-cf_control = ['ceh32', 'ceh34', 'ceh33', 'nw10', 'ceh19', 'ceh9', 'nw7', 'nw6']
+print("2. Categorising wells by experimental role...")
 
-scrape_impact  = ['ceh36', 'ceh18', 'ceh21']
-scrape_local_control = ['ceh4', 'ceh22'] # The Local/Paired Controls
-scrape_regional_control = ['ceh9', 'nw5', 'nw6', 'nw7', 'nw8', 'nw8b'] # The Regional Baseline
+# --- Five-tier clearfell network (from clearfell_common.py) ---
+# Wells excluded from the rebuilt BACI network
+EXCLUDED_WELLS = ['fe1', 'fe2', 'fe3', 'fe4', 'lis1', 'nw8b', 'ceh42']
+
+# --- Scraping analysis wells ---
+scrape_impact = ['ceh36', 'ceh18', 'ceh21']
+scrape_local_control = ['ceh4', 'ceh22']
+scrape_regional_control = ['ceh9', 'nw5', 'nw6', 'nw7', 'nw8', 'nw8b']
+
 
 def assign_category(match_id: str) -> str:
-    if match_id in cf_impact:      return 'Clear-Fell Impact'
-    elif match_id in cf_edge: return 'Transition / Edge Zone'
-    elif match_id in cf_control: return 'Regional Forest/Dune Controls'
-    elif match_id in scrape_impact:  return 'Scraped Impact Site'
-    elif match_id in scrape_local_control: return 'Local Paired Control'
-    elif match_id in scrape_regional_control: return 'Regional Control Network'
-    else:                          return 'Background Network'
+    """Assign a well to its experimental design category.
+
+    Priority order: clearfell tiers first, then scraping roles, then
+    excluded wells, then background.
+    """
+    if match_id in IMPACT_WELLS:
+        return 'CF Impact'
+    elif match_id in EDGE_WELLS:
+        return 'CF Edge'
+    elif match_id in FOREST_CONTROL_WELLS:
+        return 'CF Forest Control'
+    elif match_id in COASTAL_CONTROL_WELLS:
+        return 'CF Coastal Control'
+    elif match_id in CLIMATE_CONTROL_WELLS:
+        return 'CF Climate Control'
+    elif match_id in EXCLUDED_WELLS:
+        return 'Excluded (BACI)'
+    elif match_id in scrape_impact:
+        return 'Scraped Impact Site'
+    elif match_id in scrape_local_control:
+        return 'Local Paired Control'
+    elif match_id in scrape_regional_control:
+        return 'Regional Control Network'
+    else:
+        return 'Background Network'
+
 
 gdf_wells['Category'] = gdf_wells['Match_ID'].apply(assign_category)
 
-# The Hierarchical Linkages (Impact -> Local Control)
+# The Hierarchical Linkages (Impact -> Local Control) for scraping
 pairings = {
     'ceh36': 'ceh4',
     'ceh18': 'ceh4',
@@ -124,50 +156,65 @@ pairings = {
 # ==========================================
 # 3. COLOUR-BLIND SAFE PALETTE
 # ==========================================
-CATEGORIES = [
-    'Background Network',
-    'Transition / Edge Zone',
-    'Regional Forest/Dune Controls',
-    'Clear-Fell Impact',
-    'Regional Control Network',
-    'Local Paired Control',
-    'Scraped Impact Site',
-]
 
+# Five-tier clearfell colours from clearfell_common.TIER_COLOURS
 COLORS = {
-    'Clear-Fell Impact': '#D55E00',  # Vermillion
-    'Transition / Edge Zone': '#FFB000',  # Lighter orange transition zone
-    'Regional Forest/Dune Controls': '#009E73',  # Green
-    'Scraped Impact Site': '#0072B2',  # Dark Blue
-    'Local Paired Control': '#56B4E9',  # Sky blue
-    'Regional Control Network': '#6F2DBD',  # Distinct purple vs forest/dune controls
-    'Background Network':  '#A0A0A0',  # Grey
+    'CF Impact':          TIER_COLOURS['Impact'],        # #D73027
+    'CF Edge':            TIER_COLOURS['Edge'],           # #F46D43
+    'CF Forest Control':  TIER_COLOURS['Forest Ctrl'],    # #4DAC26
+    'CF Coastal Control': TIER_COLOURS['Coastal Ctrl'],   # #8B6914
+    'CF Climate Control': TIER_COLOURS['Climate Ctrl'],   # #4575B4
+    'Excluded (BACI)':    '#B0B0B0',                      # Light grey
+    'Scraped Impact Site': '#0072B2',                     # Dark Blue
+    'Local Paired Control': '#56B4E9',                    # Sky blue
+    'Regional Control Network': '#6F2DBD',               # Purple
+    'Background Network': '#A0A0A0',                      # Grey
 }
 
 MARKERS = {
-    'Clear-Fell Impact':   '^',   
-    'Transition / Edge Zone': 'o',
-    'Regional Forest/Dune Controls': 'o',
+    'CF Impact':          '^',    # Triangle — impact
+    'CF Edge':            'D',    # Diamond — edge/transition
+    'CF Forest Control':  's',    # Square — forest ctrl
+    'CF Coastal Control': 'P',    # Plus — coastal ctrl
+    'CF Climate Control': 'o',    # Circle — climate ctrl
+    'Excluded (BACI)':    'x',    # Cross — excluded
     'Scraped Impact Site': 's',   # Square
-    'Local Paired Control':'D',   # Diamond
-    'Regional Control Network': 'o', # Circle
-    'Background Network':  'o',   
+    'Local Paired Control': 'D',  # Diamond
+    'Regional Control Network': 'o',  # Circle
+    'Background Network': 'o',
 }
 
 SIZES = {
-    'Clear-Fell Impact':   150,
-    'Transition / Edge Zone': 105,
-    'Regional Forest/Dune Controls': 110,
-    'Scraped Impact Site': 180,
-    'Local Paired Control':150,
+    'CF Impact':          170,
+    'CF Edge':            130,
+    'CF Forest Control':  130,
+    'CF Coastal Control': 130,
+    'CF Climate Control': 110,
+    'Excluded (BACI)':    90,
+    'Scraped Impact Site': 160,
+    'Local Paired Control': 140,
     'Regional Control Network': 100,
-    'Background Network':   60,
+    'Background Network': 55,
 }
+
+# Drawing order — foreground categories first in the legend, background last
+CATEGORIES = [
+    'CF Impact',
+    'CF Edge',
+    'CF Forest Control',
+    'CF Coastal Control',
+    'CF Climate Control',
+    'Excluded (BACI)',
+    'Scraped Impact Site',
+    'Local Paired Control',
+    'Regional Control Network',
+    'Background Network',
+]
 
 # ==========================================
 # 4. GENERATE FIGURE
 # ==========================================
-print("2. Generating figure...")
+print("3. Generating figure...")
 fig, ax = plt.subplots(figsize=(16, 12), dpi=300)
 texts = []
 MAP_XMIN, MAP_XMAX = 240500, 243500
@@ -177,18 +224,17 @@ MAP_YMIN, MAP_YMAX = 362700, 364800
 if kml_clearfell_exists:
     gdf_clearfell.plot(ax=ax, facecolor='#D55E00', edgecolor='darkred', alpha=0.15, linewidth=2, zorder=1)
 
-# Layer 2: Draw the Paired-Control Linkages
+# Layer 2: Draw the Paired-Control Linkages (scraping)
 print("   -> Drawing hierarchical pairings...")
-pairing_lines = [] # <--- ADD THIS LIST
+pairing_lines = []
 for impact_id, control_id in pairings.items():
     impact_row = gdf_wells[gdf_wells['Match_ID'] == impact_id]
     control_row = gdf_wells[gdf_wells['Match_ID'] == control_id]
-    
+
     if not impact_row.empty and not control_row.empty:
         x_vals = [impact_row.iloc[0]['E'], control_row.iloc[0]['E']]
         y_vals = [impact_row.iloc[0]['N'], control_row.iloc[0]['N']]
-        
-        # Save the line object as it draws
+
         line, = ax.plot(x_vals, y_vals, color='red', linestyle='--', linewidth=2.5, alpha=0.8, zorder=2)
         pairing_lines.append(line)
 
@@ -197,22 +243,27 @@ ax.plot([], [], color='red', linestyle='--', linewidth=2.5, alpha=0.8, label='BA
 # Layer 3: Well markers
 for cat in CATEGORIES:
     subset = gdf_wells[gdf_wells['Category'] == cat]
-    if subset.empty: continue
-    
-    # Don't add 'Background Network' to the legend to keep it clean, just plot it
+    if subset.empty:
+        continue
+
+    # Don't add 'Background Network' to the legend to keep it clean
     label_val = cat if cat != 'Background Network' else "_nolegend_"
-    
-    subset.plot(ax=ax, color=COLORS[cat], marker=MARKERS[cat], markersize=SIZES[cat], 
+
+    subset.plot(ax=ax, color=COLORS[cat], marker=MARKERS[cat], markersize=SIZES[cat],
                 edgecolor='black', label=label_val, alpha=0.9, zorder=3)
-    
+
     for _, row in subset.iterrows():
         is_bg = (cat == 'Background Network')
-        # Only label wells inside the displayed map window; clip labels to axes.
+        is_excl = (cat == 'Excluded (BACI)')
+        # Only label wells inside the displayed map window
         if (MAP_XMIN <= row['E'] <= MAP_XMAX) and (MAP_YMIN <= row['N'] <= MAP_YMAX):
-            texts.append(ax.text(row['E'], row['N'], row['Name'], 
-                                 fontsize=8 if is_bg else 10, fontweight='normal' if is_bg else 'bold',
-                                 color='#555555' if is_bg else 'black', zorder=4, clip_on=True))
-
+            texts.append(ax.text(
+                row['E'], row['N'], row['Name'],
+                fontsize=7 if (is_bg or is_excl) else 10,
+                fontweight='normal' if (is_bg or is_excl) else 'bold',
+                color='#888888' if is_excl else ('#555555' if is_bg else 'black'),
+                zorder=4, clip_on=True,
+            ))
 
 # --- DEM Basemap Layer ---
 import matplotlib.colors as mcolors
@@ -231,7 +282,7 @@ try:
         custom_topo = mcolors.LinearSegmentedColormap.from_list("custom_topo", terrain_colors)
         custom_topo.set_under("dodgerblue")
         div_norm = mcolors.TwoSlopeNorm(vmin=0, vcenter=12.0, vmax=dem_data.max())
-        dem_layer = ax.imshow(dem_data, cmap=custom_topo, alpha=0.45, 
+        dem_layer = ax.imshow(dem_data, cmap=custom_topo, alpha=0.45,
                               norm=div_norm, extent=extent, origin="upper", zorder=0)
         cbar_dem = fig.colorbar(dem_layer, ax=ax, shrink=0.55, pad=0.02, extend="both")
         cbar_dem.set_label("Elevation (m AOD)", rotation=270, labelpad=18)
@@ -245,13 +296,20 @@ except Exception as e:
 add_kml_features(ax, DATA_DIR)
 
 # --- Clearfell centroid marker ---
-CENTROID_E, CENTROID_N = 241177, 363645
-ax.plot(CENTROID_E, CENTROID_N, marker='+', color='darkred',
+ax.plot(FELL_CENTROID_EASTING, FELL_CENTROID_NORTHING, marker='+', color='darkred',
         markersize=14, markeredgewidth=2.5, zorder=6)
-ax.annotate('Clearfell\ncentroid', xy=(CENTROID_E, CENTROID_N),
-            xytext=(CENTROID_E - 180, CENTROID_N - 120),
+ax.annotate('Clearfell\ncentroid', xy=(FELL_CENTROID_EASTING, FELL_CENTROID_NORTHING),
+            xytext=(FELL_CENTROID_EASTING - 180, FELL_CENTROID_NORTHING - 120),
             fontsize=8, color='darkred',
             arrowprops=dict(arrowstyle='-', color='darkred', lw=0.8))
+
+# --- CEH36 scraping site marker ---
+ax.plot(CEH36_EASTING, CEH36_NORTHING, marker='*', color='#0072B2',
+        markersize=16, markeredgewidth=1.5, markeredgecolor='black', zorder=6)
+ax.annotate('CEH36\n(scraping site)', xy=(CEH36_EASTING, CEH36_NORTHING),
+            xytext=(CEH36_EASTING + 120, CEH36_NORTHING - 130),
+            fontsize=8, color='#0072B2',
+            arrowprops=dict(arrowstyle='-', color='#0072B2', lw=0.8))
 
 # --- Clearfell transect: CEH2 → CEH34 → WMC3 ---
 transect_wells = ['ceh2', 'ceh34', 'wmc3']
@@ -269,7 +327,7 @@ if len(transect_coords) == 3:
     # Annotate distances from centroid
     import math
     for ex, ny, wid in transect_coords:
-        dist = math.sqrt((ex - CENTROID_E)**2 + (ny - CENTROID_N)**2)
+        dist = math.sqrt((ex - FELL_CENTROID_EASTING)**2 + (ny - FELL_CENTROID_NORTHING)**2)
         ax.annotate(f'{dist:.0f} m', xy=(ex, ny),
                     xytext=(ex + 60, ny + 60),
                     fontsize=7, color='#AACC00',
@@ -281,35 +339,71 @@ if len(transect_coords) == 3:
 ax.set_xlim(MAP_XMIN, MAP_XMAX)
 ax.set_ylim(MAP_YMIN, MAP_YMAX)
 
-plt.title('Hierarchical Experimental Design: Clear-Fell and Topographical Interventions', fontsize=14, fontweight='bold', pad=12)
+plt.title('Experimental Design: Five-Tier BACI Network and Scraping Interventions',
+          fontsize=14, fontweight='bold', pad=12)
 plt.xlabel('Easting (m, OSGB36)')
 plt.ylabel('Northing (m, OSGB36)')
 
+# --- Legend: grouped by experiment ---
 legend_handles = [
-    Line2D([], [], linestyle='none', label='Clear-Fell Experiment (BACI)'),
-    Line2D([], [], marker='^', linestyle='None', markerfacecolor=COLORS['Clear-Fell Impact'], markeredgecolor='black', markersize=9, label='Impact (Felled Zone)'),
-    Line2D([], [], marker='o', linestyle='None', markerfacecolor=COLORS['Transition / Edge Zone'], markeredgecolor='black', markersize=9, label='Transition / Edge Zone'),
-    Line2D([], [], marker='o', linestyle='None', markerfacecolor=COLORS['Regional Forest/Dune Controls'], markeredgecolor='black', markersize=9, label='Regional Controls (8 wells)'),
-    Line2D([], [], color='darkorange', linestyle='-.', linewidth=2.2, label='Clear-Fell Boundary'),
-    Line2D([], [], marker='+', linestyle='None', color='darkred', markersize=10, markeredgewidth=2.5, label='Clearfell centroid'),
-    Line2D([], [], color='#AACC00', linestyle='--', linewidth=2.0, label='Clearfell transect (CEH2→CEH34→WMC3)'),
+    # Clearfell BACI section header
+    Line2D([], [], linestyle='none', label='Clear-Fell BACI (5-tier, 17 wells)'),
+    Line2D([], [], marker='^', linestyle='None',
+           markerfacecolor=COLORS['CF Impact'], markeredgecolor='black',
+           markersize=10, label=f'Impact ({len(IMPACT_WELLS)} well: {", ".join(w.upper() for w in IMPACT_WELLS)})'),
+    Line2D([], [], marker='D', linestyle='None',
+           markerfacecolor=COLORS['CF Edge'], markeredgecolor='black',
+           markersize=9, label=f'Edge ({len(EDGE_WELLS)} wells)'),
+    Line2D([], [], marker='s', linestyle='None',
+           markerfacecolor=COLORS['CF Forest Control'], markeredgecolor='black',
+           markersize=9, label=f'Forest Control ({len(FOREST_CONTROL_WELLS)} wells)'),
+    Line2D([], [], marker='P', linestyle='None',
+           markerfacecolor=COLORS['CF Coastal Control'], markeredgecolor='black',
+           markersize=9, label=f'Coastal Control ({len(COASTAL_CONTROL_WELLS)} wells)'),
+    Line2D([], [], marker='o', linestyle='None',
+           markerfacecolor=COLORS['CF Climate Control'], markeredgecolor='black',
+           markersize=9, label=f'Climate Control ({len(CLIMATE_CONTROL_WELLS)} wells)'),
+    Line2D([], [], marker='x', linestyle='None',
+           markerfacecolor=COLORS['Excluded (BACI)'], markeredgecolor='#B0B0B0',
+           markersize=8, label=f'Excluded ({len(EXCLUDED_WELLS)} wells)'),
+    # Site features
+    Line2D([], [], color='darkorange', linestyle='-.', linewidth=2.2, label='Felling Boundary'),
+    Line2D([], [], marker='+', linestyle='None', color='darkred',
+           markersize=10, markeredgewidth=2.5, label='Clearfell centroid'),
+    Line2D([], [], color='#AACC00', linestyle='--', linewidth=2.0,
+           label='Clearfell transect (CEH2\u2192CEH34\u2192WMC3)'),
+    # Scraping section header
+    Line2D([], [], linestyle='none', label=''),  # spacer
     Line2D([], [], linestyle='none', label='Topographical Scraping'),
-    Line2D([], [], marker='s', linestyle='None', markerfacecolor=COLORS['Scraped Impact Site'], markeredgecolor='black', markersize=9, label='Scraped Impact Site'),
-    Line2D([], [], marker='D', linestyle='None', markerfacecolor=COLORS['Local Paired Control'], markeredgecolor='black', markersize=9, label='Local Paired Control'),
-    Line2D([], [], marker='o', linestyle='None', markerfacecolor=COLORS['Regional Control Network'], markeredgecolor='black', markersize=9, label='Regional Control Network'),
+    Line2D([], [], marker='s', linestyle='None',
+           markerfacecolor=COLORS['Scraped Impact Site'], markeredgecolor='black',
+           markersize=9, label='Scraped Impact Site'),
+    Line2D([], [], marker='D', linestyle='None',
+           markerfacecolor=COLORS['Local Paired Control'], markeredgecolor='black',
+           markersize=9, label='Local Paired Control'),
+    Line2D([], [], marker='o', linestyle='None',
+           markerfacecolor=COLORS['Regional Control Network'], markeredgecolor='black',
+           markersize=9, label='Regional Control Network'),
+    Line2D([], [], marker='*', linestyle='None',
+           markerfacecolor='#0072B2', markeredgecolor='black',
+           markersize=10, label='CEH36 scraping site'),
+    # Linkages
+    Line2D([], [], linestyle='none', label=''),  # spacer
     Line2D([], [], linestyle='none', label='Analytical Linkages'),
-    Line2D([], [], color='red', linestyle='--', linewidth=2.5, alpha=0.8, label='BACI Paired Linkage'),
+    Line2D([], [], color='red', linestyle='--', linewidth=2.5, alpha=0.8,
+           label='BACI Paired Linkage'),
 ]
+
 ax.legend(
     handles=legend_handles,
     title='Monitoring Role & Logic',
-    fontsize=10,
-    title_fontsize=11,
+    fontsize=9,
+    title_fontsize=10,
     loc='upper right',
-    bbox_to_anchor=(0.98, 0.98),
+    bbox_to_anchor=(0.99, 0.99),
     frameon=True,
     facecolor='white',
-    edgecolor='black'
+    edgecolor='black',
 )
 
 plt.grid(True, linestyle='--', alpha=0.4)

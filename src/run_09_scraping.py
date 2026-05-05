@@ -5,12 +5,10 @@ run_09_scraping.py — SCRAPING ANALYSIS SUITE RUNNER
 Orchestrates the full scraping analysis:
 
   09a   Hierarchical paired BACI (core analysis, β₃ testing, tier figures)
-  09b   CEH36 robustness (raw BACI, synthetic control, SSM residual)
-  09bp  Scraping propagation (split-window SSM, centroid summaries)
+  09b   Scraping propagation (split-window SSM, centroid summaries)
   09c   Summer minima (dual-control BACI, ecological threshold analysis)
-  09d   Scenario comparison (monthly equilibrium + summer minimum bars)
-
-09bp must run before 09d because 09d reads 09b_02_centroid_summaries.csv.
+  09d   CEH36 scenario comparison (observed scraping vs alternatives)
+  09e   CEH36 robustness (raw BACI, synthetic control, SSM residual)
 
 Usage
 -----
@@ -23,13 +21,13 @@ import sys
 import importlib
 import argparse
 
-# Ordered dict — execution order matters (09bp before 09d)
+# Ordered dict — execution order matters (09b before 09d)
 MODULES = {
     "09a":  "09a_paired_baci",
-    "09b":  "09b_robustness",
-    "09bp": "09b_scraping_propagation",
+    "09b":  "09b_scraping_propagation",
     "09c":  "09c_summer_minima",
     "09d":  "09d_scenario_comparison",
+    "09e":  "09e_robustness",
 }
 
 
@@ -41,12 +39,6 @@ def main():
     args = parser.parse_args()
 
     to_run = args.only if args.only else list(MODULES.keys())
-
-    # Enforce dependency: if 09d is requested, 09bp must run first
-    if "09d" in to_run and "09bp" not in to_run:
-        idx = to_run.index("09d")
-        to_run.insert(idx, "09bp")
-        print("  [NOTE] Added 09bp (propagation) — required by 09d")
 
     print("=" * 72)
     print("SCRAPING ANALYSIS SUITE")

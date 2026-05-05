@@ -10,9 +10,9 @@ Run order: 01 → 02 → 03 → 04 → 05 → 06 → 07 → 08 → 09 (suite) �
 26 pipeline steps across 11 phases.
 
 Script 09 is a modular suite: `run_09_scraping.py` orchestrates
-09a → 09b → 09bp (propagation) → 09c → 09d.  The propagation module
-(old `09b_scraping_propagation.py`) is called internally by the runner
-and must execute before 09d (which reads its centroid summaries CSV).
+09a → 09b (propagation) → 09c → 09d → 09e.  All modules are
+independent except that 09b's centroid summaries are available for
+diagnostic reference.
 
 Script 19 is step 21 of the 26-step pipeline. As a byproduct of running its
 main spatial analysis it also builds the self-contained HTML scenario viewer.
@@ -444,7 +444,7 @@ groups, era definitions, style constants, and helpers (`era_filter()`,
 - `09_scrape_01_full_parameters.csv` — full SSM fit per era (unstable for short eras)
 - `09_scrape_04b_table4_beta3_era_summary.csv` — **two-step isolation method** (use this for the paper)
 
-### Script 09b — CEH36 Robustness Analysis
+### Script 09e — CEH36 Robustness Analysis
 
 Three independent estimates of the CEH36 Pure Scraping era step change:
 1. Raw BACI: CEH36 minus CEH4
@@ -461,7 +461,7 @@ Three independent estimates of the CEH36 Pure Scraping era step change:
 | File | Type | Paper destination |
 |---|---|---|
 | `09_scrape_08_ceh36_robustness.png` | Figure | CEH36 robustness triplet |
-| `09b_report_numbers.csv` | Data | Three-method step estimates |
+| `09e_report_numbers.csv` | Data | Three-method step estimates |
 
 ### Script 09b (propagation) — Scraping Propagation Analysis
 
@@ -954,10 +954,10 @@ Two wells were scraped after the LiDAR survey was flown. Scripts 11b, 19, and
 
 ### Script 09 (2026-05-04)
 - **Modularised:** Monolithic `09_scraping_intervention.py` (961 lines) split
-  into `09a_paired_baci.py`, `09b_robustness.py`, `09c_summer_minima.py`,
+  into `09a_paired_baci.py`, `09e_robustness.py`, `09c_summer_minima.py`,
   `09d_scenario_comparison.py`, plus shared `utils/scraping_common.py` and
   runner `run_09_scraping.py`.  The runner also calls `09b_scraping_propagation.py`
-  (as step 09bp) to produce centroid summaries required by 09d.
+  for centroid summaries and diagnostic outputs.
 - **Pipeline steps reduced from 27 to 26:** the old separate 09 + 09b entries
   collapsed into a single `run_09_scraping.py` step.
 - **09c (NEW):** Summer minimum dual-control BACI, mirroring 10d's approach.

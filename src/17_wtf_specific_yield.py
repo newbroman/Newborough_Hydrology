@@ -47,6 +47,7 @@ from scipy import stats
 from utils.paths import (
     make_all_dirs, OUT_DIR, DIR_17,
     INT_WELLS_CLEAN, INT_CLIMATE, INT_CLUSTER_STATS, INT_MASTER_DATA,
+    INT_REGIONAL_AVG,
     OUT_17_SY_TABLE, OUT_17_REGRESSION, OUT_17_BOXPLOT, OUT_17_SUMMARY,
     INT_WTF_WELL_SY,
 )
@@ -91,15 +92,22 @@ plt.rcParams.update({
 })
 
 
-def load_data(out_root):
-    """Load climate and cluster-mean water table data."""
-    # Try project directory as fallback for testing
-    from pathlib import Path
-    if not (out_root / "01_climate.csv").exists():
-        out_root = Path("/mnt/project")
+def load_data():
+    """Load climate and cluster-mean water table data.
 
-    climate  = pd.read_csv(out_root / "01_climate.csv",           parse_dates=["Date"])
-    regional = pd.read_csv(out_root / "03_regional_averages.csv", parse_dates=["Date"])
+    Reads canonical pipeline intermediates by name (no developer-specific
+    fallback paths). If either file is missing, raises FileNotFoundError
+    with a clear message — Script 01 and Script 03 must run first.
+    """
+    if not INT_CLIMATE.exists():
+        raise FileNotFoundError(
+            f"{INT_CLIMATE} not found. Run Script 01 first.")
+    if not INT_REGIONAL_AVG.exists():
+        raise FileNotFoundError(
+            f"{INT_REGIONAL_AVG} not found. Run Script 03 first.")
+
+    climate  = pd.read_csv(INT_CLIMATE,      parse_dates=["Date"])
+    regional = pd.read_csv(INT_REGIONAL_AVG, parse_dates=["Date"])
     df = regional.merge(climate[["Date", "P_m", "PET"]], on="Date", how="inner")
     df = df.sort_values("Date").reset_index(drop=True)
 
@@ -535,7 +543,7 @@ def main():
 
     # ── Run ────────────────────────────────────────────────────────────────────
     print("Loading data...")
-    df = load_data(out_root)
+    df = load_data()
     print(f"  {len(df)} monthly records, "
           f"{df['Date'].min().date()} to {df['Date'].max().date()}")
 

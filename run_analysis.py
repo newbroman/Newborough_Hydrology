@@ -8,6 +8,29 @@ Usage
   python run_analysis.py --full       # non-interactive: run all 26 steps
   python run_analysis.py --from N     # non-interactive: resume from step N
   python run_analysis.py --viewer     # non-interactive: build scenario viewer only
+
+Two-pass execution (RECOMMENDED for new datasets)
+-------------------------------------------------
+Two scripts in Phase 3 use Specific-Yield (Sy) values that are produced
+later in the pipeline (Phase 6 / Phase 8):
+
+    09b_scraping_propagation     reads OUT_17_SY_TABLE  (produced step 18)
+    09d_scenario_comparison      reads INT_WTF_WELL_SY  (produced step 20)
+
+On a fresh first-pass full-pipeline run those files do not yet exist,
+and Phase 3 falls back to documented Newborough-2026 Sy defaults
+(0.20 cluster, 0.30 CEH36) with console warnings. The scientific
+analyses themselves are unaffected — these scripts use Sy only for a
+volumetric scenario-comparison conversion in their figures.
+
+For the most accurate scenario figures on a NEW dataset:
+
+    1. python run_analysis.py --full          # first pass
+    2. python run_analysis.py --from 9        # second pass — re-run 09b/09d
+                                              # with canonical Sy from 17/18
+
+Or accept the documented fallbacks for the first pass (recommended for
+the Newborough dataset where the fallbacks are tuned).
 """
 
 import subprocess
@@ -414,6 +437,16 @@ def interactive_menu() -> None:
         choice = input("\n  Enter choice: ").strip().lower()
 
         if choice == "1":
+            print(
+                "\n  NOTE: Two scripts in Phase 3 (09b, 09d) read Sy values\n"
+                "  produced later in the pipeline (steps 18 and 20). On a fresh\n"
+                "  first-pass run they will use documented fallbacks with\n"
+                "  console warnings — this does not break the pipeline.\n\n"
+                "  For canonical scenario figures on a new dataset, run twice:\n"
+                "    pass 1: this option (full pipeline)\n"
+                "    pass 2: option 2, resume from step 9\n"
+                "  See module docstring for details."
+            )
             ans = input("\n  Run all 26 steps from the beginning? [y/N] ").strip().lower()
             if ans == "y":
                 run_full_pipeline(from_step=1)

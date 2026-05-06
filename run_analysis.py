@@ -256,9 +256,11 @@ def warn_missing_upstream(step: int, interactive: bool = True) -> bool:
     for w in warnings:
         print(w)
     print()
-    print("  This step may fail if it depends on these files.")
-    print("  If this is your first run, use option 1 (full pipeline) or")
-    print("  option 2 (resume from step 1) to generate all intermediates.")
+    print("  This step depends on these files and will likely fail.")
+    print("  If this is your first run on this dataset, run the FULL")
+    print("  pipeline first using option 1 of the main menu (or")
+    print("  --full from the CLI). Partial runs only work once all")
+    print("  upstream phases have completed at least once.")
     _hr("!")
 
     if not interactive:
@@ -324,6 +326,11 @@ def build_viewer() -> None:
         print(f"  [ERROR] Script not found: {script_path}")
         return
 
+    # Script 19 is step 21 — needs all upstream Phase 1-8 outputs to exist.
+    if not warn_missing_upstream(21):
+        print("  Aborted.")
+        return
+
     print(f"  Running {VIEWER_SCRIPT} ...")
     subprocess.run(
         [sys.executable, str(script_path)],
@@ -348,17 +355,21 @@ INTRO = """\
 """
 
 MENU = """
-  ┌──────────────────────────────────────────────────┐
-  │  Main Menu                                       │
-  ├──────────────────────────────────────────────────┤
-  │  1  Run full pipeline  (all 26 steps)            │
-  │  2  Resume from a specific step                  │
-  │  3  Run a single step                            │
-  │  4  Prepare the scenario viewer                  │
-  │  5  Run supplementary diagnostics (22–24)        │
-  │  6  Show pipeline step list                      │
-  │  q  Quit                                         │
-  └──────────────────────────────────────────────────┘"""
+  First-time / new dataset?  →  start with option 1 (full pipeline).
+  For canonical scenario figures, run the full pipeline TWICE.
+  Options 2-5 require the full pipeline to have completed at least once.
+
+  ┌──────────────────────────────────────────────────────────────┐
+  │  Main Menu                                                   │
+  ├──────────────────────────────────────────────────────────────┤
+  │  1  Run full pipeline  (all 26 steps; run twice for new data)│
+  │  2  Resume from a specific step  (full pipeline first)       │
+  │  3  Run a single step            (full pipeline first)       │
+  │  4  Prepare the scenario viewer  (full pipeline first)       │
+  │  5  Run supplementary diagnostics 22–24  (run pipeline first)│
+  │  6  Show pipeline step list                                  │
+  │  q  Quit                                                     │
+  └──────────────────────────────────────────────────────────────┘"""
 
 def show_step_list() -> None:
     print()

@@ -557,32 +557,36 @@ def plot_baci_timeseries(zone_label, out_path):
         ax.plot(df.index, corrected * 1000, color=colour, lw=1.5,
                 label='Climate-corrected')
 
-        # Era means (from ANCOVA coefficients)
-        fell_step = fit['clearfell_step'] * 1000
-        scr_step = fit['scraping_step'] * 1000
-        intercept = fit['b'][0] * 1000
+        # Era means — computed from the corrected series itself.
+        # NOTE: We cannot use intercept + b_scrape for the post-scraping
+        # era because D_scrape is distance-weighted (fractional, not 0/1).
+        # The raw coefficient b_scrape corresponds to D_scrape=1, but the
+        # actual D_scrape value depends on well geometry.  Computing means
+        # directly from the corrected series avoids this mismatch.
+        corrected_mm = corrected * 1000
 
-        # Pre-scraping baseline
         pre_scr = df[df.index < SCRAPING_DATE]
         if len(pre_scr) > 0:
-            ax.hlines(intercept, pre_scr.index[0], SCRAPING_DATE,
+            era_mean = corrected_mm.loc[pre_scr.index].mean()
+            ax.hlines(era_mean, pre_scr.index[0], SCRAPING_DATE,
                       colors='grey', ls=':', lw=1)
 
-        # Post-scraping pre-felling
         scr_fell = df[(df.index >= SCRAPING_DATE) & (df.index < INTERVENTION_DATE)]
         if len(scr_fell) > 0:
-            ax.hlines(intercept + scr_step, SCRAPING_DATE, INTERVENTION_DATE,
+            era_mean = corrected_mm.loc[scr_fell.index].mean()
+            ax.hlines(era_mean, SCRAPING_DATE, INTERVENTION_DATE,
                       colors='grey', ls=':', lw=1)
 
-        # Post-felling
         post_fell = df[df.index >= INTERVENTION_DATE]
         if len(post_fell) > 0:
-            ax.hlines(intercept + scr_step + fell_step,
+            era_mean = corrected_mm.loc[post_fell.index].mean()
+            ax.hlines(era_mean,
                       INTERVENTION_DATE, post_fell.index[-1],
                       colors='grey', ls=':', lw=1)
 
         _vlines(ax)
         ax.set_ylabel('BACI displacement (mm)')
+        fell_step = fit['clearfell_step'] * 1000
         ci_mm = (fit['clearfell_ci'][0] * 1000, fit['clearfell_ci'][1] * 1000)
         ax.set_title(
             f'{ctrl_label} control — {zone_label} zone   |   '

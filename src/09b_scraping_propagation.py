@@ -816,35 +816,30 @@ def _plot_scenario_comparison(centroids_df, dpi=200):
         "Volumetric using WTF-derived, interception-corrected Sy",
         fontsize=15, fontweight="bold")
 
-    # Annotation box for scraping bars
-    scrape_offset = offsets[list(scenarios.keys()).index("Scraping (nearby)")]
-    ax.annotate(
-        "Scraping bars: cluster-average\n"
-        "monthly impact on unscraped areas,\n"
-        "weighted by fraction of cluster\n"
-        "within 800 m uphill of CEH36\n"
-        "(C3: 32%, C4: 78%, C5: 100%)",
-        xy=(x[2] + scrape_offset, scrape_w["C3"]),
-        xytext=(x[0] - 0.55, -8),
-        fontsize=13,
-        bbox=dict(boxstyle="round,pad=0.5", facecolor="lightyellow",
-                  alpha=0.9, edgecolor="#DAA520"),
-        arrowprops=dict(arrowstyle="->", color="#8B6914", lw=2.0))
+    # Scraping callout — bottom-right
+    ax.text(0.98, 0.02,
+            "Scraping bars: cluster-average monthly impact\n"
+            "on unscraped areas, weighted by fraction of cluster\n"
+            "within 800 m uphill of CEH36 (C3: 32%, C4: 78%, C5: 100%)",
+            transform=ax.transAxes, fontsize=10,
+            va="bottom", ha="right",
+            bbox=dict(boxstyle="round,pad=0.5", facecolor="lightyellow",
+                      alpha=0.9, edgecolor="#DAA520"))
 
-    # C5 coastal confound caveat
-    ax.text(
-        x[4] + 0.02, -12.5,
-        "C5 note: BACI felling step (\u221276 mm)\n"
-        "overstates decline due to western\n"
-        "positional confound vs C1+C2 control.\n"
-        "SSM scenario values are unaffected.",
-        fontsize=9, fontstyle="italic",
-        color="#555555",
-        bbox=dict(boxstyle="round,pad=0.4", facecolor="#F5F5F5",
-                  alpha=0.85, edgecolor="#AAAAAA"),
-        ha="center", va="top")
+    # C5 coastal confound caveat — top-right, clear of legend
+    ax.text(0.98, 0.98,
+            "C5 note: BACI felling step (\u221276 mm)\n"
+            "overstates decline due to western\n"
+            "positional confound vs C1+C2 control.\n"
+            "SSM scenario values are unaffected.",
+            transform=ax.transAxes,
+            fontsize=9, fontstyle="italic",
+            color="#555555",
+            bbox=dict(boxstyle="round,pad=0.4", facecolor="#F5F5F5",
+                      alpha=0.85, edgecolor="#AAAAAA"),
+            ha="right", va="top")
 
-    ax.legend(fontsize=12, loc="lower right", ncol=2)
+    ax.legend(fontsize=10, loc="lower left", ncol=2, framealpha=0.9)
     ax.grid(axis="y", alpha=0.3)
     plt.tight_layout()
 

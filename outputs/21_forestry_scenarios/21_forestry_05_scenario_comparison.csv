@@ -2,13 +2,13 @@ Scenario,Cluster,Delta_vol_mm_per_month
 Clearfell,C1,0.0
 Clearfell,C2,0.0
 Clearfell,C3,0.0
-Clearfell,C4,-2.2
-Clearfell,C5,4.4
+Clearfell,C4,3.1
+Clearfell,C5,7.5
 Thinning 50%,C1,0.0
 Thinning 50%,C2,0.0
 Thinning 50%,C3,0.0
-Thinning 50%,C4,-1.1
-Thinning 50%,C5,2.2
+Thinning 50%,C4,1.6
+Thinning 50%,C5,3.7
 Broadleaf,C1,0.0
 Broadleaf,C2,0.0
 Broadleaf,C3,0.0

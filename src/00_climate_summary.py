@@ -283,6 +283,10 @@ def make_figure1_climate_timeseries(climate: pd.DataFrame, wells: pd.DataFrame, 
             gridspec_kw={"height_ratios": [1.2, 1.1, 1.25, 1.2]}
         )
 
+        for _ax, _lbl in zip([ax1, ax2, ax3, ax4], ["(a)", "(b)", "(c)", "(d)"]):
+            _ax.text(0.01, 0.95, _lbl, transform=_ax.transAxes,
+                     fontsize=13, fontweight="bold", va="top")
+
         ax1.step(df.index, df["P_mm"], where="mid", color=CB_BLUE, linewidth=1.4, alpha=0.95, label="Monthly precipitation")
         ax1.axhline(df["P_mm"].mean(skipna=True), color="black", linestyle="--", linewidth=1.4, alpha=0.8)
         ax1.plot(df.index, p_roll_12_plot, color=CB_BLUE, linewidth=2.0, label="P 12-month rolling mean")

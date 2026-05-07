@@ -57,7 +57,6 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import numpy as np
 import re
-import argparse
 import os
 from scipy.stats import linregress
 
@@ -284,8 +283,11 @@ def make_figure1_climate_timeseries(climate: pd.DataFrame, wells: pd.DataFrame, 
         )
 
         for _ax, _lbl in zip([ax1, ax2, ax3, ax4], ["(a)", "(b)", "(c)", "(d)"]):
-            _ax.text(0.01, 0.95, _lbl, transform=_ax.transAxes,
-                     fontsize=13, fontweight="bold", va="top")
+            _ax.text(0.015, 0.97, _lbl, transform=_ax.transAxes,
+                     fontsize=13, fontweight="bold", va="top", ha="left",
+                     zorder=10,
+                     bbox={"facecolor": "white", "edgecolor": "none",
+                           "alpha": 0.8, "pad": 1.5})
 
         ax1.step(df.index, df["P_mm"], where="mid", color=CB_BLUE, linewidth=1.4, alpha=0.95, label="Monthly precipitation")
         ax1.axhline(df["P_mm"].mean(skipna=True), color="black", linestyle="--", linewidth=1.4, alpha=0.8)
@@ -293,20 +295,20 @@ def make_figure1_climate_timeseries(climate: pd.DataFrame, wells: pd.DataFrame, 
         ax1.set_ylabel("Precipitation (mm)")
         ax1.set_title("Climate Record Summary: Monthly Forcing and Annual Balances", fontweight="bold")
         ax1.grid(axis="y", linestyle=":", alpha=0.35)
-        ax1.legend(loc="upper left", frameon=False)
+        ax1.legend(loc="upper left", bbox_to_anchor=(0.04, 1.0), frameon=False)
 
         ax2.fill_between(df.index, 0, df["PET_mm"], color=CB_ORANGE, alpha=0.35)
         ax2.plot(df.index, pet_roll_12_plot, color=CB_RED, linewidth=2.0, label="PET 12-month rolling mean")
         ax2.set_ylabel("PET (mm)")
         ax2.grid(axis="y", linestyle=":", alpha=0.35)
-        ax2.legend(loc="upper left", frameon=False)
+        ax2.legend(loc="upper left", bbox_to_anchor=(0.04, 1.0), frameon=False)
 
         ax3.plot(df.index, cum_balance_corrected, color=CB_BLUE, linewidth=2.2, label="Leveled cumulative (P-PET)")
         ax3.plot(df.index, net_roll_12_plot, color=CB_RED, linewidth=1.5, linestyle="--", label="12-month rolling mean (corrected net)")
         ax3.axhline(0, color="black", linestyle=":", linewidth=1.0, alpha=0.7)
         ax3.set_ylabel("Water balance (mm)")
         ax3.grid(axis="y", linestyle=":", alpha=0.35)
-        ax3.legend(loc="upper left", frameon=False, ncol=1)
+        ax3.legend(loc="upper left", bbox_to_anchor=(0.04, 1.0), frameon=False, ncol=1)
         ax3.xaxis.set_major_locator(mdates.YearLocator(5))
         ax3.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
         ax3.tick_params(axis="x", rotation=45)
@@ -340,7 +342,7 @@ def make_figure1_climate_timeseries(climate: pd.DataFrame, wells: pd.DataFrame, 
         ax4.fill_between(mean_ts.index, mean_ts - std_ts, mean_ts + std_ts, color=CB_GREEN, alpha=0.22, label="Inter-well SD")
         ax4.set_ylabel("Well level (m)")
         ax4.grid(axis="y", linestyle=":", alpha=0.35)
-        ax4.legend(loc="upper left", frameon=False)
+        ax4.legend(loc="upper left", bbox_to_anchor=(0.04, 1.0), frameon=False)
         if pd.notna(r2_lag0):
             ax4.text(
                 0.99,
@@ -628,75 +630,51 @@ def make_figure3_summer_warming(out_png: str, out_csv: str) -> None:
     plt.close(fig)
 
 
-def _run_profile(profile: str) -> None:
-    paths = _build_output_paths(profile)
+def _run_all() -> None:
+    """Generate all Script 00 outputs — full-record and monitoring-period — in one pass."""
 
-    print(f"\nStarting climate summary generation (Script 00, profile={profile})...")
-    climate, wells_all = _load_inputs()
-    wells = _filter_wells_min_record(wells_all)
+    climate_full, wells_all = _load_inputs()
+    wells_full = _filter_wells_min_record(wells_all)
 
-    analysis_start = None
-    analysis_end = None
-    if profile == "short":
-        climate, wells, analysis_start, analysis_end = _restrict_to_well_record_period(climate, wells)
+    # --- Full-record outputs -----------------------------------------------
+    print("\n--- Full-record outputs ---")
+    paths_full = _build_output_paths("full")
+    table1_full = make_table1_annual_climate(climate_full, paths_full["table1"])
+    table2_full = make_table2_well_network(wells_full, paths_full["table2"])
+    make_figure1_climate_timeseries(climate_full, wells_full, paths_full["fig1"], "full")
+    make_figure2_well_network(wells_full, table2_full, paths_full["fig2"])
+    print("Generating Figure 3 — RAF Valley summer warming trend (95-year record)...")
+    make_figure3_summer_warming(paths_full["fig3"], paths_full["table3"])
 
-    table1 = make_table1_annual_climate(climate, paths["table1"])
-    table2 = make_table2_well_network(wells, paths["table2"])
+    # --- Monitoring-period (short) outputs ---------------------------------
+    print("\n--- Monitoring-period outputs ---")
+    paths_short = _build_output_paths("short")
+    climate_short, wells_short, analysis_start, analysis_end = _restrict_to_well_record_period(
+        climate_full.copy(), wells_full.copy()
+    )
+    table1_short = make_table1_annual_climate(climate_short, paths_short["table1"])
+    table2_short = make_table2_well_network(wells_short, paths_short["table2"])
+    make_figure1_climate_timeseries(climate_short, wells_short, paths_short["fig1"], "short")
+    make_figure2_well_network(wells_short, table2_short, paths_short["fig2"])
 
-    # Figures 1 and 2 run on both profiles — they describe the climate and
-    # well network context regardless of window. Figure 3 is full-only (it
-    # needs the 95-year record to be informative).
-    make_figure1_climate_timeseries(climate, wells, paths["fig1"], profile)
-    make_figure2_well_network(wells, table2, paths["fig2"])
-
-    # Figure 3 — summer warming trend. Full-record only (95-year context).
-    if profile == "full":
-        print("Generating Figure 3 — RAF Valley summer warming trend (95-year record)...")
-        make_figure3_summer_warming(paths["fig3"], paths["table3"])
-
-    n_wells = int(wells.shape[1])
-    n_months = int(len(climate.index))
-    total_record_years = n_months / 12.0 if n_months else 0.0
-
-    annual_numeric = table1[pd.to_numeric(table1["Year"], errors="coerce").notna()].copy()
-    mean_annual_p = float(pd.to_numeric(annual_numeric["Annual_P_mm"], errors="coerce").mean())
-    mean_annual_pet = float(pd.to_numeric(annual_numeric["Annual_PET_mm"], errors="coerce").mean())
-    median_record_length = float(pd.to_numeric(table2["N_months"], errors="coerce").median())
+    # --- Summary -----------------------------------------------------------
+    n_wells = int(wells_short.shape[1])
+    n_months_short = int(len(climate_short.index))
+    n_months_full = int(len(climate_full.index))
 
     print("\nFiles created:")
-    print(f" - {paths['fig1']}")
-    print(f" - {paths['fig2']}")
-    if profile == "full":
-        print(f" - {paths['fig3']}")
-    print(f" - {paths['table1']}")
-    print(f" - {paths['table2']}")
-    if profile == "full":
-        print(f" - {paths['table3']}")
+    for p in [paths_full, paths_short]:
+        for k, v in p.items():
+            if os.path.exists(v):
+                print(f" - {v}")
 
     print("\nHeadline statistics:")
-    print(f" - Total climate record length: {total_record_years:.1f} years ({n_months} months)")
-    print(f" - Mean annual rainfall: {mean_annual_p:.1f} mm")
-    print(f" - Mean annual PET: {mean_annual_pet:.1f} mm")
-    print(f" - Number of wells: {n_wells}")
-    print(f" - Median well record length: {median_record_length:.1f} months")
-    print(f" - Well filter: >= {MIN_RECORD_MONTHS} valid months by {CUTOFF_DATE.date().isoformat()}")
-    if analysis_start is not None and analysis_end is not None:
-        print(f" - Analysis window (well-record overlap): {analysis_start.date().isoformat()} to {analysis_end.date().isoformat()}")
+    print(f" - Full climate record: {n_months_full / 12.0:.1f} years ({n_months_full} months)")
+    print(f" - Analysis window: {analysis_start.date().isoformat()} to {analysis_end.date().isoformat()}"
+          f" ({n_months_short} months)")
+    print(f" - Reference wells: {n_wells}")
 
     print("\n00 climate summary complete.")
-
-
-def _parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Generate climate and well-network summary outputs for full and/or short analysis windows.",
-    )
-    parser.add_argument(
-        "--profile",
-        choices=["full", "short", "both"],
-        default="full",
-        help="Run full record outputs, short window outputs, or both.",
-    )
-    return parser.parse_args()
 
 
 def main() -> None:
@@ -716,12 +694,7 @@ def main() -> None:
         }
     )
 
-    args = _parse_args()
-    if args.profile == "both":
-        _run_profile("full")
-        _run_profile("short")
-    else:
-        _run_profile(args.profile)
+    _run_all()
 
 
 if __name__ == "__main__":

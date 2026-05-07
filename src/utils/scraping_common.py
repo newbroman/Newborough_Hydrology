@@ -235,7 +235,8 @@ def significance_stars(p):
 # SCENARIO COMPARISON — shared computation
 # ============================================================================
 
-def compute_scenario_bars(cluster_params, summer_P, summer_PET):
+def compute_scenario_bars(cluster_params, summer_P, summer_PET,
+                          clearfell_b2_mult=None, thinning_b2_mult=None):
     """Compute per-cluster volumetric scenario bars (mm w.e./month).
 
     Uses the Option 3 seasonal perturbation formulation:
@@ -250,6 +251,11 @@ def compute_scenario_bars(cluster_params, summer_P, summer_PET):
         Mean summer rainfall (m/month) from climate data.
     summer_PET : float
         Mean summer PET (m/month) from climate data.
+    clearfell_b2_mult : float, optional
+        Clearfell β₂ multiplier.  If None, computed dynamically from
+        Script 10e BACI output via load_clearfell_b2_multiplier().
+    thinning_b2_mult : float, optional
+        Thinning β₂ multiplier.  If None, computed alongside clearfell.
 
     Returns
     -------
@@ -260,10 +266,17 @@ def compute_scenario_bars(cluster_params, summer_P, summer_PET):
     import numpy as np
     from utils.config import (
         FOREST_INTERCEPTION, BROADLEAF_INTERCEPTION,
-        CLEARFELL_B2_MULT_DEFAULT, THINNING_B2_MULT_DEFAULT,
         UKCP18_DRY_P_SUMMER, UKCP18_DRY_PET_SUMMER,
         UKCP18_WET_P_SUMMER, UKCP18_WET_PET_SUMMER,
     )
+
+    if clearfell_b2_mult is None or thinning_b2_mult is None:
+        from utils.clearfell_common import load_clearfell_b2_multiplier
+        _cf, _th, _ = load_clearfell_b2_multiplier(verbose=False)
+        if clearfell_b2_mult is None:
+            clearfell_b2_mult = _cf
+        if thinning_b2_mult is None:
+            thinning_b2_mult = _th
 
     clusters = ["C1", "C2", "C3", "C4", "C5"]
     scenarios = {}
@@ -272,9 +285,9 @@ def compute_scenario_bars(cluster_params, summer_P, summer_PET):
         return b1 * P_eff - b2 * PET - b3 * h_disp
 
     for scenario_name, config in [
-        ("Clearfell",    {"sI": 0.0,                       "sB2": CLEARFELL_B2_MULT_DEFAULT,
+        ("Clearfell",    {"sI": 0.0,                       "sB2": clearfell_b2_mult,
                           "sP": 1.0, "sPET": 1.0,         "forest_only": True}),
-        ("Thinning 50%", {"sI": FOREST_INTERCEPTION * 0.5, "sB2": THINNING_B2_MULT_DEFAULT,
+        ("Thinning 50%", {"sI": FOREST_INTERCEPTION * 0.5, "sB2": thinning_b2_mult,
                           "sP": 1.0, "sPET": 1.0,         "forest_only": True}),
         ("Broadleaf",    {"sI": BROADLEAF_INTERCEPTION,    "sB2": 1.0,
                           "sP": 1.0, "sPET": 1.0,         "forest_only": True}),

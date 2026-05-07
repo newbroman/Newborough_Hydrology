@@ -1445,7 +1445,11 @@ def plot_scenario_comparison(master, climate, dpi=300):
     summer_P = float(summer["P_m"].mean())
     summer_PET = float(summer["PET"].mean())
 
-    scenario_values = compute_scenario_bars(cluster_params, summer_P, summer_PET)
+    scenario_values = compute_scenario_bars(
+        cluster_params, summer_P, summer_PET,
+        clearfell_b2_mult=CLEARFELL_B2_MULT,
+        thinning_b2_mult=THINNING_B2_MULT,
+    )
 
     clusters = ["C1", "C2", "C3", "C4", "C5"]
     cluster_labels = ["C1\nLake Edge", "C2\nDune", "C3\nWestern",

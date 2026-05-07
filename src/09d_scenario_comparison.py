@@ -57,10 +57,10 @@ from utils.scraping_common import (
 from utils.config import (
     DRAINAGE_DATUM,
     FOREST_INTERCEPTION, BROADLEAF_INTERCEPTION,
-    CLEARFELL_B2_MULT_DEFAULT, THINNING_B2_MULT_DEFAULT,
     UKCP18_DRY_P_SUMMER, UKCP18_DRY_PET_SUMMER,
     UKCP18_WET_P_SUMMER, UKCP18_WET_PET_SUMMER,
 )
+from utils.clearfell_common import load_clearfell_b2_multiplier
 
 import pandas as pd
 import numpy as np
@@ -236,6 +236,10 @@ def _compute_ceh36_scenarios(params, summer_P, summer_PET, scrape_baci_step):
     h_disp = params["h_disp"]
     Sy = params["Sy"]
 
+    # Load BACI-corrected β₂ multipliers from Script 10e output
+    clearfell_b2_mult, thinning_b2_mult, _ = load_clearfell_b2_multiplier(
+        verbose=False)
+
     # Baseline: CEH36 is unforested, so P_base = raw P
     P_base = summer_P
     flux_base = b1 * P_base - b2 * summer_PET - b3 * h_disp
@@ -253,13 +257,13 @@ def _compute_ceh36_scenarios(params, summer_P, summer_PET, scrape_baci_step):
     P_pine_base = summer_P * (1 - FOREST_INTERCEPTION)
     flux_pine_base = b1 * P_pine_base - b2 * summer_PET - b3 * h_disp
     # Clearfell: full P restored, β₂ increases
-    flux_cf = b1 * summer_P - b2 * CLEARFELL_B2_MULT_DEFAULT * summer_PET - b3 * h_disp
+    flux_cf = b1 * summer_P - b2 * clearfell_b2_mult * summer_PET - b3 * h_disp
     scenarios["Clearfell\n(hypothetical)"] = round(
         (flux_cf - flux_pine_base) * Sy * 1000, 1)
 
     # Thinning 50%
     P_thin = summer_P * (1 - FOREST_INTERCEPTION * 0.5)
-    flux_thin = b1 * P_thin - b2 * THINNING_B2_MULT_DEFAULT * summer_PET - b3 * h_disp
+    flux_thin = b1 * P_thin - b2 * thinning_b2_mult * summer_PET - b3 * h_disp
     scenarios["Thinning 50%\n(hypothetical)"] = round(
         (flux_thin - flux_pine_base) * Sy * 1000, 1)
 

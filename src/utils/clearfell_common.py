@@ -34,6 +34,7 @@ from pathlib import Path
 from utils.paths import (
     INT_WELLS_CLEAN, INT_WELLS_EXTENDED, INT_CLIMATE,
     INT_MASTER_DATA, DATA_WELL_ELEVATIONS,
+    OUT_10E_COEFF_SHIFTS,
     make_all_dirs,
 )
 from utils.data_utils import clean_well_series
@@ -471,3 +472,101 @@ def print_network_summary(valid_tiers):
     for tier, wells_list in valid_tiers.items():
         print(f"    {tier:<14}: {', '.join(w.upper() for w in wells_list)}")
     print()
+
+
+# ============================================================================
+# BACI-CORRECTED β₂ MULTIPLIER
+# ============================================================================
+
+# Fallback values used only when 10e_01_coefficient_shifts.csv cannot be read.
+# These match the expected dynamic values (~1.10 / ~1.05) to within rounding
+# so that outputs degrade gracefully rather than using the old 1.20.
+_FALLBACK_CLEARFELL_B2 = 1.10
+_FALLBACK_THINNING_B2  = 1.05
+
+
+def load_clearfell_b2_multiplier(verbose=True):
+    """Compute BACI-corrected clearfell β₂ multiplier from Script 10e output.
+
+    Methodology
+    -----------
+    For each BACI tier, compute the mean ratio (b2_after / b2_before) across
+    all wells in that tier.  The clearfell multiplier is the BACI-corrected
+    Edge-tier ratio:
+
+        multiplier = Edge_ratio − Climate_Ctrl_ratio + 1.0
+
+    This subtracts the background climate drift (measured at Climate Ctrl
+    wells that share the same post-2017 period but were unaffected by
+    felling) from the Edge-tier signal, which showed the strongest
+    clearfell-attributable β₂ response.  Using the Edge tier rather than
+    the Impact tier is a conservative upper bound: the Impact well (WMC3)
+    shows only ×1.04, partly because felling removes the canopy that
+    amplified β₂ in the first place, while Edge wells retain canopy but
+    receive lateral moisture from the cleared compartment.
+
+    The thinning multiplier is defined as half the clearfell perturbation:
+
+        thinning = 1.0 + (clearfell − 1.0) / 2.0
+
+    Returns
+    -------
+    clearfell_mult : float
+        Multiplier for full clearfell (expected ~1.10 with current data).
+    thinning_mult : float
+        Multiplier for 50% thinning (expected ~1.05 with current data).
+    tier_ratios : dict
+        Per-tier mean b2_after/b2_before ratios, for provenance logging.
+    """
+    if not OUT_10E_COEFF_SHIFTS.exists():
+        if verbose:
+            print(f"  WARNING: {OUT_10E_COEFF_SHIFTS.name} not found "
+                  f"— using fallback β₂ multipliers "
+                  f"(clearfell={_FALLBACK_CLEARFELL_B2}, "
+                  f"thinning={_FALLBACK_THINNING_B2})")
+        return _FALLBACK_CLEARFELL_B2, _FALLBACK_THINNING_B2, {}
+
+    try:
+        cs = pd.read_csv(OUT_10E_COEFF_SHIFTS)
+    except Exception as e:
+        if verbose:
+            print(f"  WARNING: Could not read {OUT_10E_COEFF_SHIFTS.name}: {e}")
+            print(f"           Using fallback β₂ multipliers")
+        return _FALLBACK_CLEARFELL_B2, _FALLBACK_THINNING_B2, {}
+
+    # Compute per-tier mean ratios
+    tier_ratios = {}
+    for tier_name in ['Impact', 'Edge', 'Forest Ctrl', 'Coastal Ctrl',
+                      'Climate Ctrl']:
+        sub = cs[cs['Tier'] == tier_name]
+        if sub.empty or sub['b2_before'].mean() <= 0:
+            if verbose:
+                print(f"  WARNING: No valid {tier_name} data in 10e — "
+                      f"skipping tier")
+            continue
+        tier_ratios[tier_name] = sub['b2_after'].mean() / sub['b2_before'].mean()
+
+    # Need both Edge and Climate Ctrl to compute BACI-corrected ratio
+    if 'Edge' not in tier_ratios or 'Climate Ctrl' not in tier_ratios:
+        if verbose:
+            print(f"  WARNING: Missing Edge or Climate Ctrl tier ratios "
+                  f"— using fallback β₂ multipliers")
+        return _FALLBACK_CLEARFELL_B2, _FALLBACK_THINNING_B2, tier_ratios
+
+    # BACI-corrected Edge ratio: subtract climate drift, re-centre on 1.0
+    edge_ratio   = tier_ratios['Edge']
+    climate_drift = tier_ratios['Climate Ctrl']
+    clearfell_mult = edge_ratio - climate_drift + 1.0
+    thinning_mult  = 1.0 + (clearfell_mult - 1.0) / 2.0
+
+    if verbose:
+        print(f"  β₂ multiplier (BACI-corrected Edge ratio):")
+        for tn, tr in tier_ratios.items():
+            print(f"    {tn:15s}: {tr:.4f}")
+        print(f"    Edge − Climate Ctrl + 1 = "
+              f"{edge_ratio:.4f} − {climate_drift:.4f} + 1.0 = "
+              f"{clearfell_mult:.4f}")
+        print(f"    Clearfell: {clearfell_mult:.4f}  "
+              f"Thinning: {thinning_mult:.4f}")
+
+    return clearfell_mult, thinning_mult, tier_ratios

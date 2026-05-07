@@ -121,6 +121,10 @@ def _filter_wells_min_record(
     min_months: int = MIN_RECORD_MONTHS,
 ) -> pd.DataFrame:
     """Keep wells with at least `min_months` non-null records up to `cutoff`."""
+    # Llyn Rhos-ddu is a lake-stage measurement, not a water-table observation;
+    # exclude from network summaries (see Script 01 EXTENDED_NETWORK_BLACKLIST).
+    drop = [c for c in wells.columns if c.lower().replace(" ", "") == "llynrhos"]
+    wells = wells.drop(columns=drop, errors="ignore")
     subset = wells.loc[wells.index <= cutoff].copy()
     valid_counts = subset.notna().sum(axis=0)
     keep = valid_counts[valid_counts >= min_months].index.tolist()

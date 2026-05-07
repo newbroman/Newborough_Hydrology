@@ -99,6 +99,7 @@ from utils.config import (
 )
 from utils.model_utils import monthly_perturbation
 from utils.scraping_common import compute_scenario_bars
+from utils.clearfell_common import load_clearfell_b2_multiplier
 
 
 # ============================================================================
@@ -122,18 +123,17 @@ def _load_baci_params():
 
     Reads:
       - 10a_report_numbers.csv: ANCOVA clearfell step (Forest control, Impact)
-      - 10e_01_coefficient_shifts.csv: before/after β₂ for WMC3
+      - 10e_01_coefficient_shifts.csv: BACI-corrected Edge-tier β₂ ratio
+        via shared load_clearfell_b2_multiplier() in clearfell_common.py
 
     Returns (BACI_ANNUAL, BACI_SUMMER, CLEARFELL_B2_MULT).
     Falls back to documented defaults with a warning if files are missing.
     """
     _FALLBACK_ANNUAL = 0.145
     _FALLBACK_SUMMER = 0.218
-    _FALLBACK_B2     = 1.20
 
     baci_annual = _FALLBACK_ANNUAL
     baci_summer = _FALLBACK_SUMMER
-    b2_mult     = _FALLBACK_B2
 
     # 1. BACI clearfell step from 10a report numbers
     if OUT_10A_REPORT.exists():
@@ -159,26 +159,8 @@ def _load_baci_params():
     else:
         print(f"  WARNING: {OUT_10A_REPORT.name} not found — using fallback BACI values")
 
-    # 2. β₂ multiplier from 10e coefficient shifts (Impact well WMC3)
-    if OUT_10E_COEFF_SHIFTS.exists():
-        try:
-            cs = pd.read_csv(OUT_10E_COEFF_SHIFTS)
-            impact = cs[cs["Tier"] == "Impact"]
-            if not impact.empty:
-                b2_before = impact["b2_before"].dropna()
-                b2_after  = impact["b2_after"].dropna()
-                if len(b2_before) > 0 and len(b2_after) > 0 and b2_before.mean() > 0:
-                    b2_mult = b2_after.mean() / b2_before.mean()
-                    print(f"  β₂ multiplier from 10e: {b2_mult:.4f}")
-                else:
-                    print(f"  WARNING: Invalid β₂ values in 10e — using fallback: {b2_mult}")
-            else:
-                print(f"  WARNING: No Impact tier in 10e — using fallback β₂ multiplier")
-        except Exception as e:
-            print(f"  WARNING: Could not read {OUT_10E_COEFF_SHIFTS.name}: {e}")
-            print(f"           Using fallback β₂ multiplier: {b2_mult}")
-    else:
-        print(f"  WARNING: {OUT_10E_COEFF_SHIFTS.name} not found — using fallback β₂ multiplier")
+    # 2. β₂ multiplier from shared BACI-corrected loader (clearfell_common.py)
+    b2_mult, _, _ = load_clearfell_b2_multiplier()
 
     return baci_annual, baci_summer, b2_mult
 

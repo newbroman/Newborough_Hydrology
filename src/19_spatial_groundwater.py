@@ -20,7 +20,14 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.4.2"   # Hollingham (2026) -- 2026-05-06
+__version__ = "2.5.0"   # Hollingham (2026) -- 2026-05-07
+                         # v2.5.0: sB2 clearfell/thinning multipliers now
+                         #         computed dynamically from Script 10e BACI
+                         #         output via shared load_clearfell_b2_multiplier()
+                         #         in clearfell_common.py.  Old hardcoded 1.20
+                         #         replaced with BACI-corrected Edge-tier ratio
+                         #         (~1.10).  JS presets injected at generation
+                         #         time from the same loader.
                          # v2.4.2: Scraping scenario removed from viewer.
                          #         Scraping operates as a one-off level shift
                          #         incompatible with the equilibrium framework.
@@ -63,6 +70,7 @@ from utils.paths import (
 )
 from utils.data_utils import normalize_well_name
 from utils.config import FOREST_INTERCEPTION
+from utils.clearfell_common import load_clearfell_b2_multiplier
 
 # Physical constants
 BROADLEAF_INTERCEPTION = 0.15   # Deciduous annual mean -- Komatsu et al. (2011)
@@ -108,26 +116,47 @@ VIEWER_NMIN, VIEWER_NMAX = 362400, 364800
 # and CHESS-SCAPE bias-corrected projections (Robinson et al., 2023). Spring
 # and autumn contributions are aggregated into the winter and summer bins in
 # proportion to their month memberships in the paper's seasonal definitions.
-SCENARIO_PARAMS = {
-    "baseline":       {"sP_w": 1.00, "sP_s": 1.00, "sPET_w": 1.00, "sPET_s": 1.00,
-                       "sI_c4": FOREST_INTERCEPTION, "sI_c5": FOREST_INTERCEPTION,
-                       "sB2_c4": 1.00, "sB2_c5": 1.00},
-    "ukcp18_2050s":   {"sP_w": 1.10, "sP_s": 0.85, "sPET_w": 1.05, "sPET_s": 1.20,
-                       "sI_c4": FOREST_INTERCEPTION, "sI_c5": FOREST_INTERCEPTION,
-                       "sB2_c4": 1.00, "sB2_c5": 1.00},
-    "ukcp18_2080s":   {"sP_w": 1.20, "sP_s": 0.70, "sPET_w": 1.10, "sPET_s": 1.35,
-                       "sI_c4": FOREST_INTERCEPTION, "sI_c5": FOREST_INTERCEPTION,
-                       "sB2_c4": 1.00, "sB2_c5": 1.00},
-    "clearfell":   {"sP_w": 1.00, "sP_s": 1.00, "sPET_w": 1.00, "sPET_s": 1.00,
-                    "sI_c4": 0.00, "sI_c5": 0.00,
-                    "sB2_c4": 1.20, "sB2_c5": 1.20},
-    "broadleaf":   {"sP_w": 1.00, "sP_s": 1.00, "sPET_w": 1.00, "sPET_s": 1.00,
-                    "sI_c4": BROADLEAF_INTERCEPTION, "sI_c5": BROADLEAF_INTERCEPTION,
-                    "sB2_c4": 1.00, "sB2_c5": 1.00},
-    "thinning":    {"sP_w": 1.00, "sP_s": 1.00, "sPET_w": 1.00, "sPET_s": 1.00,
-                    "sI_c4": FOREST_INTERCEPTION * 0.5, "sI_c5": FOREST_INTERCEPTION * 0.5,
-                    "sB2_c4": 1.10, "sB2_c5": 1.10},
-}
+#
+# The clearfell and thinning sB2 multipliers are computed dynamically from
+# Script 10e BACI output (BACI-corrected Edge-tier ratio) via
+# load_clearfell_b2_multiplier() in clearfell_common.py.
+# C5 receives the same multiplier as C4 by extrapolation — no felled C5
+# wells are available in the BACI design.
+
+# Deferred initialisation — populated by _init_scenario_params() in main()
+SCENARIO_PARAMS = None
+CLEARFELL_B2_MULT = None
+THINNING_B2_MULT  = None
+
+
+def _init_scenario_params():
+    """Build SCENARIO_PARAMS with dynamically loaded β₂ multipliers."""
+    global SCENARIO_PARAMS, CLEARFELL_B2_MULT, THINNING_B2_MULT
+
+    CLEARFELL_B2_MULT, THINNING_B2_MULT, _ = load_clearfell_b2_multiplier()
+
+    SCENARIO_PARAMS = {
+        "baseline":       {"sP_w": 1.00, "sP_s": 1.00, "sPET_w": 1.00, "sPET_s": 1.00,
+                           "sI_c4": FOREST_INTERCEPTION, "sI_c5": FOREST_INTERCEPTION,
+                           "sB2_c4": 1.00, "sB2_c5": 1.00},
+        "ukcp18_2050s":   {"sP_w": 1.10, "sP_s": 0.85, "sPET_w": 1.05, "sPET_s": 1.20,
+                           "sI_c4": FOREST_INTERCEPTION, "sI_c5": FOREST_INTERCEPTION,
+                           "sB2_c4": 1.00, "sB2_c5": 1.00},
+        "ukcp18_2080s":   {"sP_w": 1.20, "sP_s": 0.70, "sPET_w": 1.10, "sPET_s": 1.35,
+                           "sI_c4": FOREST_INTERCEPTION, "sI_c5": FOREST_INTERCEPTION,
+                           "sB2_c4": 1.00, "sB2_c5": 1.00},
+        "clearfell":   {"sP_w": 1.00, "sP_s": 1.00, "sPET_w": 1.00, "sPET_s": 1.00,
+                        "sI_c4": 0.00, "sI_c5": 0.00,
+                        # sB2: BACI-corrected Edge-tier ratio (C5 = extrapolation)
+                        "sB2_c4": CLEARFELL_B2_MULT, "sB2_c5": CLEARFELL_B2_MULT},
+        "broadleaf":   {"sP_w": 1.00, "sP_s": 1.00, "sPET_w": 1.00, "sPET_s": 1.00,
+                        "sI_c4": BROADLEAF_INTERCEPTION, "sI_c5": BROADLEAF_INTERCEPTION,
+                        "sB2_c4": 1.00, "sB2_c5": 1.00},
+        "thinning":    {"sP_w": 1.00, "sP_s": 1.00, "sPET_w": 1.00, "sPET_s": 1.00,
+                        "sI_c4": FOREST_INTERCEPTION * 0.5, "sI_c5": FOREST_INTERCEPTION * 0.5,
+                        # sB2: half the clearfell perturbation (C5 = extrapolation)
+                        "sB2_c4": THINNING_B2_MULT, "sB2_c5": THINNING_B2_MULT},
+    }
 SEASONS = ["annual", "winter", "summer"]
 
 
@@ -1041,9 +1070,9 @@ var SCEN={{
   baseline:     {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI_c4:FOREST_INTERCEPTION,     sI_c5:FOREST_INTERCEPTION,     sB2_c4:1,    sB2_c5:1}},
   ukcp18_2050s: {{sP_w:1.10, sP_s:0.85, sPET_w:1.05, sPET_s:1.20, sI_c4:FOREST_INTERCEPTION,     sI_c5:FOREST_INTERCEPTION,     sB2_c4:1,    sB2_c5:1}},
   ukcp18_2080s: {{sP_w:1.20, sP_s:0.70, sPET_w:1.10, sPET_s:1.35, sI_c4:FOREST_INTERCEPTION,     sI_c5:FOREST_INTERCEPTION,     sB2_c4:1,    sB2_c5:1}},
-  clearfell:    {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI_c4:0,                       sI_c5:0,                       sB2_c4:1.20, sB2_c5:1.20}},
+  clearfell:    {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI_c4:0,                       sI_c5:0,                       sB2_c4:{clearfell_b2_mult}, sB2_c5:{clearfell_b2_mult}}},
   broadleaf:    {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI_c4:BROADLEAF_INTERCEPTION,  sI_c5:BROADLEAF_INTERCEPTION,  sB2_c4:1.00, sB2_c5:1.00}},
-  thinning:     {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI_c4:FOREST_INTERCEPTION*0.5, sI_c5:FOREST_INTERCEPTION*0.5, sB2_c4:1.10, sB2_c5:1.10}},
+  thinning:     {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI_c4:FOREST_INTERCEPTION*0.5, sI_c5:FOREST_INTERCEPTION*0.5, sB2_c4:{thinning_b2_mult}, sB2_c5:{thinning_b2_mult}}},
 }};
 var WARN={{
   clearfell:    'Post-felling: canopy interception removed, \u03b2\u2082 increases. Study finding: clearfell deepens summer minima \u2014 the dominant control on winter flooding probability.',
@@ -1624,6 +1653,9 @@ def main(out_path=None):
     print(f"Output: {out_path}")
     print("=" * 60)
 
+    # Load BACI-corrected β₂ multipliers before building scenarios
+    _init_scenario_params()
+
     print("\n[1/4] Loading data...")
     loc, cl, md, elev, maod, clim, sy_df = load_data()
 
@@ -1655,6 +1687,8 @@ def main(out_path=None):
         sy_lower_json=json.dumps(sy_lower_js, separators=(",", ":")),
         forest_interception=FOREST_INTERCEPTION,
         broadleaf_interception=BROADLEAF_INTERCEPTION,
+        clearfell_b2_mult=round(CLEARFELL_B2_MULT, 4),
+        thinning_b2_mult=round(THINNING_B2_MULT, 4),
         hillshade_b64=hillshade_b64,
         dem_grid_json=json.dumps(dem_grid, separators=(",", ":")),
         ridge_threshold=RIDGE_MASK_THRESHOLD,

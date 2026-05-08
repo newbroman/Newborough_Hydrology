@@ -98,8 +98,9 @@ from utils.config import (
     SD15b, SD15b_REC, SD16, SD16_REC,
 )
 from utils.model_utils import monthly_perturbation
-from utils.scraping_common import compute_scenario_bars
-from utils.clearfell_common import load_clearfell_b2_multiplier
+from utils.scraping_common import (
+    compute_scenario_bars, load_cluster_params, load_summer_climate,
+)
 
 
 # ============================================================================
@@ -123,17 +124,18 @@ def _load_baci_params():
 
     Reads:
       - 10a_report_numbers.csv: ANCOVA clearfell step (Forest control, Impact)
-      - 10e_01_coefficient_shifts.csv: BACI-corrected Edge-tier β₂ ratio
-        via shared load_clearfell_b2_multiplier() in clearfell_common.py
+      - 10e_01_coefficient_shifts.csv: before/after β₂ for WMC3
 
     Returns (BACI_ANNUAL, BACI_SUMMER, CLEARFELL_B2_MULT).
     Falls back to documented defaults with a warning if files are missing.
     """
     _FALLBACK_ANNUAL = 0.145
     _FALLBACK_SUMMER = 0.218
+    _FALLBACK_B2     = 1.20
 
     baci_annual = _FALLBACK_ANNUAL
     baci_summer = _FALLBACK_SUMMER
+    b2_mult     = _FALLBACK_B2
 
     # 1. BACI clearfell step from 10a report numbers
     if OUT_10A_REPORT.exists():
@@ -159,8 +161,26 @@ def _load_baci_params():
     else:
         print(f"  WARNING: {OUT_10A_REPORT.name} not found — using fallback BACI values")
 
-    # 2. β₂ multiplier from shared BACI-corrected loader (clearfell_common.py)
-    b2_mult, _, _ = load_clearfell_b2_multiplier()
+    # 2. β₂ multiplier from 10e coefficient shifts (Impact well WMC3)
+    if OUT_10E_COEFF_SHIFTS.exists():
+        try:
+            cs = pd.read_csv(OUT_10E_COEFF_SHIFTS)
+            impact = cs[cs["Tier"] == "Impact"]
+            if not impact.empty:
+                b2_before = impact["b2_before"].dropna()
+                b2_after  = impact["b2_after"].dropna()
+                if len(b2_before) > 0 and len(b2_after) > 0 and b2_before.mean() > 0:
+                    b2_mult = b2_after.mean() / b2_before.mean()
+                    print(f"  β₂ multiplier from 10e: {b2_mult:.4f}")
+                else:
+                    print(f"  WARNING: Invalid β₂ values in 10e — using fallback: {b2_mult}")
+            else:
+                print(f"  WARNING: No Impact tier in 10e — using fallback β₂ multiplier")
+        except Exception as e:
+            print(f"  WARNING: Could not read {OUT_10E_COEFF_SHIFTS.name}: {e}")
+            print(f"           Using fallback β₂ multiplier: {b2_mult}")
+    else:
+        print(f"  WARNING: {OUT_10E_COEFF_SHIFTS.name} not found — using fallback β₂ multiplier")
 
     return baci_annual, baci_summer, b2_mult
 
@@ -1402,54 +1422,16 @@ def plot_baci_zone_violin(df, dates, well_names, elev, dpi=FIG_DPI):
 # FIGURE 5 — SCENARIO COMPARISON (BAR CHART)
 # ============================================================================
 
-def _load_cluster_params_for_scenarios(master, climate):
-    """Build cluster_params dict for compute_scenario_bars().
-
-    Reads β coefficients from master data, Sy from Script 17, and
-    computes mean h_disp from well data.
-    """
-    wells = pd.read_csv(INT_WELLS_CLEAN, index_col=0, parse_dates=True)
-    wells.columns = wells.columns.str.lower().str.replace(" ", "")
-
-    sy_df = pd.read_csv(INT_WTF_WELL_SY)
-    sy_by_cluster = sy_df.groupby("Cluster")["Sy_median"].mean()
-
-    params = {}
-    for cl in sorted(master["Cluster"].unique()):
-        cname = f"C{cl}"
-        cl_rows = master[master["Cluster"] == cl]
-        cl_wells = cl_rows["well"].tolist() if "well" in cl_rows.columns else (
-            cl_rows["Name_Original"].str.lower().str.replace(" ", "").tolist())
-        available = [w for w in cl_wells if w in wells.columns]
-        mean_depth = wells[available].mean().mean() if available else -0.5
-        params[cname] = {
-            "b1": float(cl_rows["beta_1_recharge"].mean()),
-            "b2": float(cl_rows["beta_2_atmospheric_draw"].mean()),
-            "b3": float(cl_rows["beta_3_drainage"].mean()),
-            "Sy": float(sy_by_cluster.get(cl, 0.25)),
-            "h_disp": DRAINAGE_DATUM + mean_depth,
-            "forest": cl in (4, 5),
-        }
-    return params
-
-
 def plot_scenario_comparison(master, climate, dpi=300):
     """Produce the scenario comparison grouped bar chart and CSV.
 
-    Uses compute_scenario_bars() from scraping_common as the single source
-    of truth for the non-scraping scenario values.
+    Uses load_cluster_params() and compute_scenario_bars() from
+    scraping_common as the single source of truth.
     """
-    cluster_params = _load_cluster_params_for_scenarios(master, climate)
+    cluster_params = load_cluster_params()
+    summer_P, summer_PET = load_summer_climate()
 
-    summer = climate[climate.index.month.isin([6, 7, 8, 9])]
-    summer_P = float(summer["P_m"].mean())
-    summer_PET = float(summer["PET"].mean())
-
-    scenario_values = compute_scenario_bars(
-        cluster_params, summer_P, summer_PET,
-        clearfell_b2_mult=CLEARFELL_B2_MULT,
-        thinning_b2_mult=THINNING_B2_MULT,
-    )
+    scenario_values = compute_scenario_bars(cluster_params, summer_P, summer_PET)
 
     clusters = ["C1", "C2", "C3", "C4", "C5"]
     cluster_labels = ["C1\nLake Edge", "C2\nDune", "C3\nWestern",

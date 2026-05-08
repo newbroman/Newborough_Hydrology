@@ -515,118 +515,26 @@ def _plot_equilibration(wells_clean):
 GROUND_LOWERING = 0.2
 
 # Climate means and per-cluster mechanistic parameters are loaded dynamically
-# from upstream pipeline outputs by `_load_cluster_params()` and
-# `_load_summer_climate_means()`. On a fresh dataset these will reflect the
-# new fits rather than the Newborough-2026 hardcoded values.
+# from scraping_common shared functions, which read from upstream pipeline
+# outputs (Scripts 01, 03, 17).
 
 def _load_summer_climate_means():
-    """Mean summer (Jun-Sep) P and PET (m/month) from INT_CLIMATE.
-
-    Falls back to documented Newborough-2005-2026 means with a warning if
-    INT_CLIMATE is unavailable.
-    """
-    _FALLBACK_P, _FALLBACK_PET = 0.0641552, 0.0882963
-    try:
-        clim = pd.read_csv(INT_CLIMATE, parse_dates=["Date"])
-        summer_mask = clim["Date"].dt.month.isin([6, 7, 8, 9])
-        sP   = float(clim.loc[summer_mask, "P_m"].mean())
-        sPET = float(clim.loc[summer_mask, "PET"].mean())
-        if not (np.isfinite(sP) and np.isfinite(sPET)):
-            raise ValueError("non-finite summer means")
-        return sP, sPET
-    except Exception as e:
-        print(f"   [warn] Could not compute summer climate means from "
-              f"{INT_CLIMATE.name} ({e}); using fallback "
-              f"P={_FALLBACK_P}, PET={_FALLBACK_PET}")
-        return _FALLBACK_P, _FALLBACK_PET
+    """Mean summer (Jun-Sep) P and PET from shared loader."""
+    from utils.scraping_common import load_summer_climate
+    return load_summer_climate()
 
 
 def _load_cluster_params():
-    """Load per-cluster mechanistic parameters for scenario comparison.
+    """Load per-cluster params from shared loader.
 
-    Reads at runtime from upstream pipeline outputs:
-      - INT_MASTER_DATA  → per-well b1, b2, b3 (median per cluster)
-      - INT_CLUSTER_AVG_MAOD → cluster-mean head in mAOD (long-term mean)
-      - OUT_17_SY_TABLE  → per-cluster Sy (interception-corrected for forest)
+    Uses scraping_common.load_cluster_params() — the single source
+    of truth for cluster β, Sy, and h_disp across the pipeline.
 
-    Returns a dict {C1..C5: {b1,b2,b3,Sy,h_aod,forest}}. Falls back to the
-    Newborough-2026 hardcoded values with a warning if any source file is
-    missing. Forest membership is determined by config.FOREST_CIDS.
+    Note: returns h_disp (DRAINAGE_DATUM + mean_depth), not h_aod.
     """
-    _FALLBACK = {
-        "C1": {"b1": 5.019, "b2": 0.613, "b3": 0.104, "Sy": 0.211,
-               "h_aod": 8.2824, "forest": False},
-        "C2": {"b1": 4.148, "b2": 1.661, "b3": 0.070, "Sy": 0.267,
-               "h_aod": 7.3043, "forest": False},
-        "C3": {"b1": 3.526, "b2": 1.677, "b3": 0.061, "Sy": 0.328,
-               "h_aod": 6.9624, "forest": False},
-        "C4": {"b1": 2.472, "b2": 2.634, "b3": 0.016, "Sy": 0.254,
-               "h_aod": 9.3806, "forest": True},
-        "C5": {"b1": 2.305, "b2": 1.191, "b3": 0.046, "Sy": 0.308,
-               "h_aod": 4.4499, "forest": True},
-    }
-
-    # 1. β coefficients per cluster (median across wells in the cluster)
-    if not INT_MASTER_DATA.exists():
-        print(f"   [warn] {INT_MASTER_DATA.name} not found — using fallback "
-              f"CLUSTER_PARAMS")
-        return _FALLBACK
-    md = pd.read_csv(INT_MASTER_DATA)
-    md["Cluster"] = pd.to_numeric(md["Cluster"], errors="coerce")
-    md = md.dropna(subset=["Cluster"]).copy()
-    md["Cluster"] = md["Cluster"].astype(int)
-    coeff_by_cluster = (md.groupby("Cluster")[
-        ["beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage"]]
-        .median())
-
-    # 2. Cluster-mean head in mAOD (long-term mean of cluster centroid)
-    h_aod_by_cluster = {}
-    if INT_CLUSTER_AVG_MAOD.exists():
-        ra = pd.read_csv(INT_CLUSTER_AVG_MAOD, parse_dates=["Date"])
-        for cid in coeff_by_cluster.index:
-            col = f"C{cid}"
-            if col in ra.columns:
-                h_aod_by_cluster[cid] = float(ra[col].mean())
-
-    # 3. Per-cluster Sy (prefer interception-corrected for forest clusters)
-    sy_by_cluster = {}
-    if OUT_17_SY_TABLE.exists():
-        sy_df = pd.read_csv(OUT_17_SY_TABLE)
-        for cid in coeff_by_cluster.index:
-            cstr = f"C{cid}"
-            label_col = sy_df["Cluster"].astype(str)
-            corr_mask = label_col.str.startswith(cstr) & label_col.str.contains(
-                "corrected", case=False, na=False)
-            base_mask = label_col.str.startswith(cstr) & ~label_col.str.contains(
-                "corrected", case=False, na=False)
-            row = sy_df[corr_mask] if cid in FOREST_CIDS and corr_mask.any() else sy_df[base_mask]
-            if not row.empty and pd.notna(row["Sy_event_median"].iloc[0]):
-                sy_by_cluster[cid] = float(row["Sy_event_median"].iloc[0])
-
-    # Assemble
-    params = {}
-    missing = []
-    for cid, row in coeff_by_cluster.iterrows():
-        cstr = f"C{cid}"
-        if cid not in h_aod_by_cluster or cid not in sy_by_cluster:
-            missing.append(cstr)
-            params[cstr] = _FALLBACK.get(cstr, {})
-            continue
-        params[cstr] = {
-            "b1":     float(row["beta_1_recharge"]),
-            "b2":     float(row["beta_2_atmospheric_draw"]),
-            "b3":     float(row["beta_3_drainage"]),
-            "Sy":     sy_by_cluster[cid],
-            "h_aod":  h_aod_by_cluster[cid],
-            "forest": cid in FOREST_CIDS,
-        }
-    if missing:
-        print(f"   [warn] Missing upstream Sy or h_aod for {missing}; "
-              f"using fallback for those clusters")
-    else:
-        print("   Loaded per-cluster mechanistic params from "
-              "03_master_data + 03_regional_averages_maod + "
-              "17_wtf_01_sy_estimates")
+    from utils.scraping_common import load_cluster_params as _lcp
+    params = _lcp()
+    print("   Loaded per-cluster params from shared load_cluster_params()")
     return params
 
 
@@ -738,13 +646,13 @@ def _compute_scraping_bars(centroids_df):
         p_eff = P * (1 - FOREST_INTERCEPTION) if c["forest"] else P
 
         # Baseline flux
-        flux_base = c["b1"] * p_eff - c["b2"] * PET - c["b3"] * c["h_aod"]
+        flux_base = c["b1"] * p_eff - c["b2"] * PET - c["b3"] * c["h_disp"]
 
         # Scraping-shifted flux
         b1_new = c["b1"] + db1
         b2_new = c["b2"] + db2
         b3_new = c["b3"] * (1 + db3_pct)
-        h_new  = c["h_aod"] - GROUND_LOWERING
+        h_new  = c["h_disp"] - GROUND_LOWERING
 
         flux_scen = b1_new * p_eff - b2_new * PET - b3_new * h_new
 
@@ -1056,13 +964,13 @@ def _summer_scenario(wells_clean, wells_ext, climate):
     ax.grid(axis='y', alpha=0.25, ls='--')
     for sp in ['top', 'right']:
         ax.spines[sp].set_visible(False)
-    ax.text(0.98, 0.02,
+    ax.text(0.02, 0.82,
             f'Scraping: empirical BACI at scraped site (CEH36 vs CEH18, {scraping_shift_mm:+.0f} mm, '
             f'p = 0.017). Benefit is local.\n'
             f'Forest management: empirical BACI (WMC3 + 4 edge wells vs forest control, '
             f'{fell_shift_mm:+.0f} mm).\n'
             'Climate: SSM annual-mean prediction \u00d7 empirical summer amplification factor.',
-            transform=ax.transAxes, fontsize=7.5, ha='right', va='bottom',
+            transform=ax.transAxes, fontsize=7.5, ha='left', va='top',
             color='#555', style='italic')
     plt.tight_layout()
     plt.savefig(OUT_09B_SUMMER_SCENARIO, bbox_inches='tight', dpi=300)

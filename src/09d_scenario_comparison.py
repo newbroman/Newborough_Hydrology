@@ -45,22 +45,22 @@ from utils.paths import (
     make_all_dirs,
     OUT_09D_SCENARIO, OUT_09D_SCENARIO_CSV,
     OUT_09D_SUMMER_SCENARIO, OUT_09D_SUMMER_SCENARIO_CSV,
-    INT_MASTER_DATA, INT_WTF_WELL_SY, INT_WELLS_CLEAN, INT_CLIMATE,
+    INT_MASTER_DATA, INT_WTF_WELL_SY, INT_WELLS_CLEAN,
     INT_REGIONAL_AVG,
-    OUT_09_BACI_SHIFTS,
 )
 from utils.scraping_common import (
     SCRAPING_DATE, INTERVENTION_DATE,
     SUMMER_MONTHS, MPL_DEFAULTS,
     load_scraping_data,
+    load_cluster_params, load_summer_climate,
 )
 from utils.config import (
     DRAINAGE_DATUM,
     FOREST_INTERCEPTION, BROADLEAF_INTERCEPTION,
+    CLEARFELL_B2_MULT_DEFAULT, THINNING_B2_MULT_DEFAULT,
     UKCP18_DRY_P_SUMMER, UKCP18_DRY_PET_SUMMER,
     UKCP18_WET_P_SUMMER, UKCP18_WET_PET_SUMMER,
 )
-from utils.clearfell_common import load_clearfell_b2_multiplier
 
 import pandas as pd
 import numpy as np
@@ -73,58 +73,8 @@ from scipy import stats as _stats
 # ============================================================================
 # CONSTANTS
 # ============================================================================
+SCRAPE_BACI_STEP = 0.131   # m — observed CEH36 paired BACI step (Pure Scraping era)
 WELL = "ceh36"
-
-# Documented fallback for the observed CEH36 paired BACI step (m, "Pure
-# Scraping" era), used only if 09a output is missing. Loaded dynamically
-# at runtime from OUT_09_BACI_SHIFTS by `_load_scrape_baci_step()`.
-_SCRAPE_BACI_STEP_FALLBACK = 0.131
-
-
-def _load_scrape_baci_step():
-    """Load the CEH36 'Pure Scraping' BACI step from Script 09a output.
-
-    Reads OUT_09_BACI_SHIFTS (`09_scrape_03_baci_shifts.csv`). Falls back
-    to the documented Newborough value (0.131 m) with a warning if the
-    file is missing — Script 09a is upstream in the same Phase 3 suite,
-    so the file should normally exist by the time 09d runs.
-    """
-    if not OUT_09_BACI_SHIFTS.exists():
-        print(f"   [warn] {OUT_09_BACI_SHIFTS.name} not found — using "
-              f"documented fallback {_SCRAPE_BACI_STEP_FALLBACK} m. "
-              f"Run Script 09a first for the data-driven value.")
-        return _SCRAPE_BACI_STEP_FALLBACK
-    try:
-        df = pd.read_csv(OUT_09_BACI_SHIFTS)
-        # Expected columns: Well, Era_Label, Shift_m (or similar)
-        # CEH36 + 'Pure Scraping' era is the canonical row
-        well_col = next((c for c in df.columns
-                         if c.lower() in {"well", "well_id", "well_name"}), None)
-        era_col  = next((c for c in df.columns
-                         if "era" in c.lower()), None)
-        shift_col = next((c for c in df.columns
-                          if "shift" in c.lower() and "_m" in c.lower()), None)
-        if shift_col is None:
-            shift_col = next((c for c in df.columns
-                              if c.lower() in {"shift", "baci_shift", "step"}), None)
-        if not all([well_col, shift_col]):
-            raise KeyError(f"Could not identify well/shift columns in "
-                           f"{OUT_09_BACI_SHIFTS.name}: {list(df.columns)}")
-        m = df[well_col].astype(str).str.lower().str.replace(" ", "") == WELL
-        if era_col is not None:
-            m &= df[era_col].astype(str).str.lower().str.contains("scrap")
-        rows = df[m]
-        if rows.empty:
-            raise ValueError(f"No CEH36 scraping row in {OUT_09_BACI_SHIFTS.name}")
-        # Use absolute value (sign convention: water table dropped → negative;
-        # we want the magnitude of the displacement step).
-        val = float(abs(rows[shift_col].iloc[0]))
-        print(f"   SCRAPE_BACI_STEP from 09a: {val:.3f} m")
-        return val
-    except Exception as e:
-        print(f"   [warn] Could not parse {OUT_09_BACI_SHIFTS.name} ({e}) — "
-              f"using documented fallback {_SCRAPE_BACI_STEP_FALLBACK} m.")
-        return _SCRAPE_BACI_STEP_FALLBACK
 
 
 # ============================================================================
@@ -132,32 +82,24 @@ def _load_scrape_baci_step():
 # ============================================================================
 
 def _load_ceh36_params():
-    """Load CEH36's SSM coefficients, Sy, and mean head from pipeline.
+    """Load CEH36's parameters from the shared cluster params loader."""
+    all_params = load_cluster_params()
 
-    Sy is sourced from INT_WTF_WELL_SY (Script 18 output). On a fresh
-    first-pass full-pipeline run, Script 18 has not yet executed when
-    Script 09d runs (Phase 3 vs Phase 8), so we fall back to a documented
-    Sy of 0.30 with a warning. Re-running 09d after Script 18 will pick
-    up the data-driven value.
-    """
+    # Get CEH36's cluster assignment
     master = pd.read_csv(INT_MASTER_DATA)
     master["match"] = master["Name_Original"].str.lower().str.replace(" ", "")
     row = master[master["match"] == WELL]
     if row.empty:
         raise ValueError(f"{WELL} not found in master data")
     row = row.iloc[0]
+    cluster = int(row["Cluster"])
 
-    _SY_FALLBACK = 0.30
-    if INT_WTF_WELL_SY.exists():
-        sy_df = pd.read_csv(INT_WTF_WELL_SY)
-        sy_row = sy_df[sy_df["Well"].str.lower() == WELL]
-        sy = float(sy_row["Sy_median"].iloc[0]) if not sy_row.empty else _SY_FALLBACK
-    else:
-        print(f"   [warn] {INT_WTF_WELL_SY.name} not found — using "
-              f"Sy={_SY_FALLBACK} fallback. Re-run 09d after Script 18 for "
-              f"the data-driven value.")
-        sy = _SY_FALLBACK
+    # Get CEH36's own well-level Sy (more precise than cluster median)
+    sy_df = pd.read_csv(INT_WTF_WELL_SY)
+    sy_row = sy_df[sy_df["Well"].str.lower() == WELL]
+    well_sy = float(sy_row["Sy_median"].iloc[0]) if not sy_row.empty else 0.30
 
+    # Get CEH36's own mean depth for h_disp
     wells = pd.read_csv(INT_WELLS_CLEAN, index_col=0, parse_dates=True)
     wells.columns = wells.columns.str.lower().str.replace(" ", "")
     mean_depth = float(wells[WELL].mean()) if WELL in wells.columns else -0.7
@@ -166,9 +108,9 @@ def _load_ceh36_params():
         "b1": float(row["beta_1_recharge"]),
         "b2": float(row["beta_2_atmospheric_draw"]),
         "b3": float(row["beta_3_drainage"]),
-        "Sy": sy,
+        "Sy": well_sy,
         "h_disp": DRAINAGE_DATUM + mean_depth,
-        "cluster": int(row["Cluster"]),
+        "cluster": cluster,
     }
     print(f"   CEH36: b1={params['b1']:.3f}  b2={params['b2']:.3f}  "
           f"b3={params['b3']:.4f}  Sy={params['Sy']:.3f}  "
@@ -191,18 +133,12 @@ def main():
     # ── 1. Load CEH36 parameters ──────────────────────────────────────────
     print("\n1. Loading CEH36 parameters from pipeline...")
     params = _load_ceh36_params()
-
-    climate = pd.read_csv(INT_CLIMATE, index_col=0, parse_dates=True)
-    summer = climate[climate.index.month.isin(SUMMER_MONTHS)]
-    summer_P = float(summer["P_m"].mean())
-    summer_PET = float(summer["PET"].mean())
+    summer_P, summer_PET = load_summer_climate()
     print(f"   Summer climate: P={summer_P:.6f}  PET={summer_PET:.6f} m/month")
 
     # ── 2. Compute scenarios at CEH36 ─────────────────────────────────────
     print("\n2. Computing scenario responses at CEH36...")
-    scrape_baci_step = _load_scrape_baci_step()
-    scenarios = _compute_ceh36_scenarios(params, summer_P, summer_PET,
-                                         scrape_baci_step)
+    scenarios = _compute_ceh36_scenarios(params, summer_P, summer_PET)
 
     # ── 3. Monthly figure ─────────────────────────────────────────────────
     print("\n3. Plotting monthly scenario comparison...")
@@ -219,7 +155,7 @@ def main():
 # SCENARIO COMPUTATION — all at CEH36
 # ============================================================================
 
-def _compute_ceh36_scenarios(params, summer_P, summer_PET, scrape_baci_step):
+def _compute_ceh36_scenarios(params, summer_P, summer_PET):
     """Compute monthly equilibrium Δh at CEH36 for each scenario.
 
     CEH36 is in C3 (not forested), so forestry scenarios show what would
@@ -227,18 +163,11 @@ def _compute_ceh36_scenarios(params, summer_P, summer_PET, scrape_baci_step):
     This is hypothetical but gives a like-for-like comparison of
     intervention magnitudes at the same hydrogeological setting.
 
-    `scrape_baci_step` is the observed CEH36 paired BACI step (m,
-    "Pure Scraping" era), loaded from Script 09a output.
-
     Returns dict {scenario_name: Δh_mm_per_month}.
     """
     b1, b2, b3 = params["b1"], params["b2"], params["b3"]
     h_disp = params["h_disp"]
     Sy = params["Sy"]
-
-    # Load BACI-corrected β₂ multipliers from Script 10e output
-    clearfell_b2_mult, thinning_b2_mult, _ = load_clearfell_b2_multiplier(
-        verbose=False)
 
     # Baseline: CEH36 is unforested, so P_base = raw P
     P_base = summer_P
@@ -251,19 +180,19 @@ def _compute_ceh36_scenarios(params, summer_P, summer_PET, scrape_baci_step):
     scenarios = {}
 
     # Scraping: observed BACI step, converted to volumetric
-    scenarios["Scraping\n(observed)"] = round(scrape_baci_step * Sy * 1000, 1)
+    scenarios["Scraping\n(observed)"] = round(SCRAPE_BACI_STEP * Sy * 1000, 1)
 
     # Hypothetical: if CEH36 had pine and was clearfelled
     P_pine_base = summer_P * (1 - FOREST_INTERCEPTION)
     flux_pine_base = b1 * P_pine_base - b2 * summer_PET - b3 * h_disp
     # Clearfell: full P restored, β₂ increases
-    flux_cf = b1 * summer_P - b2 * clearfell_b2_mult * summer_PET - b3 * h_disp
+    flux_cf = b1 * summer_P - b2 * CLEARFELL_B2_MULT_DEFAULT * summer_PET - b3 * h_disp
     scenarios["Clearfell\n(hypothetical)"] = round(
         (flux_cf - flux_pine_base) * Sy * 1000, 1)
 
     # Thinning 50%
     P_thin = summer_P * (1 - FOREST_INTERCEPTION * 0.5)
-    flux_thin = b1 * P_thin - b2 * thinning_b2_mult * summer_PET - b3 * h_disp
+    flux_thin = b1 * P_thin - b2 * THINNING_B2_MULT_DEFAULT * summer_PET - b3 * h_disp
     scenarios["Thinning 50%\n(hypothetical)"] = round(
         (flux_thin - flux_pine_base) * Sy * 1000, 1)
 

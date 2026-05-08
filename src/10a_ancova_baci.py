@@ -360,9 +360,8 @@ for ctrl_label, ctrl_wells in CONTROLS.items():
 
         ancova_frames[key] = df
 
-        # Easting interaction: include for Climate and Combined controls only
-        use_easting = (ctrl_label in ('Climate', 'Combined')
-                       and df['has_easting'].iloc[0])
+        # Easting interaction: auto-detect from data (easting range > 200 m)
+        use_easting = df['has_easting'].iloc[0]
 
         fit = run_ancova(df, include_easting=use_easting,
                          include_scrape2=True)
@@ -388,8 +387,7 @@ for lam in [200, 500]:
                 well_locations, lambda_m=lam)
             if df is None:
                 continue
-            use_easting = (ctrl_label in ('Climate', 'Combined')
-                           and df['has_easting'].iloc[0])
+            use_easting = df['has_easting'].iloc[0]
             fit = run_ancova(df, include_easting=use_easting)
             sensitivity_rows.append({
                 'Lambda_m': lam,
@@ -441,6 +439,23 @@ for (ctrl_label, zone_label), fit in results.items():
     })
 
 comp_df = pd.DataFrame(comp_rows)
+
+# Net clearfell effect: step minus Climate background step (per zone)
+# The Climate control step represents background climate shift at the
+# felling date. Subtracting it isolates the clearfell-attributable component.
+for zone in comp_df['Zone'].unique():
+    mask_zone = comp_df['Zone'] == zone
+    climate_step = comp_df.loc[mask_zone & (comp_df['Control'] == 'Climate'),
+                               'Clearfell_step_m']
+    if len(climate_step) == 1:
+        bg = climate_step.iloc[0]
+        comp_df.loc[mask_zone, 'Climate_background_m'] = round(bg, 4)
+        comp_df.loc[mask_zone, 'Net_clearfell_m'] = (
+            comp_df.loc[mask_zone, 'Clearfell_step_m'] - bg).round(4)
+    else:
+        comp_df.loc[mask_zone, 'Climate_background_m'] = np.nan
+        comp_df.loc[mask_zone, 'Net_clearfell_m'] = np.nan
+
 comp_df.to_csv(OUT_COMPARISON, index=False)
 print(f" -> Saved: {OUT_COMPARISON.name} ({len(comp_df)} rows)")
 

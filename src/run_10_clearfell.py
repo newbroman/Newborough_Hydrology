@@ -19,6 +19,7 @@ Execution order
   10e  SSM coefficient decomposition
   10f  Robustness analyses (SSM residual, synthetic control)
   10g  Diagnostics (NW10 trend, transect, rolling coefficients)
+  10h  Synthetic FE well extension BACI (donor regression)
 
 Dependencies
 ------------
@@ -51,6 +52,7 @@ SUBSCRIPTS = [
     ("10e_coefficient_decomposition.py", "10e", "SSM coefficient decomposition"),
     ("10f_robustness.py",               "10f", "Robustness analyses"),
     ("10g_diagnostics.py",              "10g", "Diagnostics"),
+    ("10h_synthetic_impact_baci.py",    "10h", "Synthetic FE well extension BACI"),
 ]
 
 
@@ -82,7 +84,7 @@ def consolidate_report_numbers():
     """Merge per-sub-script report numbers into a single CSV."""
     import pandas as pd
 
-    pattern_prefixes = ["10a_", "10d_", "10e_", "10f_", "10g_"]
+    pattern_prefixes = ["10a_", "10d_", "10e_", "10f_", "10g_", "10h_"]
     frames = []
 
     for prefix in pattern_prefixes:

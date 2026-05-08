@@ -102,6 +102,14 @@ SD16_WINTER  = 0.25  # m — winter flooding limit for dry slack
 # over the year. Used in replanting scenarios (scripts 19, 21).
 BROADLEAF_INTERCEPTION = 0.15
 
+# Broadleaf summer β₂ multiplier — deciduous phenology effect on ET.
+# Derived from Script 21's monthly β₂ profile (Hollingham, 2026):
+#   Jun=1.08, Jul=1.12, Aug=1.15, Sep=1.10 → summer mean = 1.1125
+# In full leaf, broadleaf transpiration exceeds pine transpiration
+# despite lower interception. This only applies to summer scenario bars;
+# the annual-mean effect is approximately ×1.0 (seasonal pattern cancels).
+BROADLEAF_B2_SUMMER = 1.1125
+
 # ── DEM colour scale ─────────────────────────────────────────────────────────
 # TwoSlopeNorm anchors used across all map products
 DEM_VMIN = 0.0

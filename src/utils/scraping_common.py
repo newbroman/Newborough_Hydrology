@@ -30,7 +30,7 @@ WELL_ERAS           {well: {era_name: (start, end)}} for all analysis wells.
                     Start is inclusive, end is exclusive.
 """
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-05-04
+__version__ = "1.1.0"  # 2026-05-08 — B2 multiplier routed through clearfell_common
 
 import pandas as pd
 
@@ -60,15 +60,9 @@ TIER1_WELLS = ["ceh4", "ceh22"]      # controls — evaluated vs regional mean
 TIER2_WELLS = ["ceh36", "ceh18", "ceh21"]  # impacts — evaluated vs paired ctrl
 
 # --- Regional climate controls ---
-# C3 wells with long records, no intervention confound.
-# NW8/NW8B excluded (NW8 damaged Jun 2015; NW8B only 2.5 yr baseline).
 CLIMATE_CONTROLS = ["ceh9", "nw7", "nw6", "nw5", "wmc2"]
 
 # --- Donor pool for synthetic control ---
-# Long-record wells outside the scraping footprint, excluding CEH36
-# (target), CEH4 (raw BACI control), and felling-zone wells.
-# CEH23 replaced by CEH11 (C1, complete record — CEH23 has 17-mo gap).
-# CEH28 replaced by CEH24 (C2, complete record — CEH28 has 20-mo gap).
 DONOR_CANDIDATES = [
     "ceh1", "ceh2", "ceh5", "ceh6", "ceh9", "ceh11", "ceh16",
     "ceh17", "ceh19", "ceh22", "ceh24",
@@ -80,9 +74,6 @@ SUMMER_MONTHS = [6, 7, 8, 9]
 # ============================================================================
 # ERA DEFINITIONS
 # ============================================================================
-# Each well has a dict of {era_name: (start_timestamp, end_timestamp)}.
-# start is inclusive, end is exclusive.  None means unbounded.
-
 WELL_ERAS = {
     "ceh36": {
         "1_Baseline":       (None, SCRAPING_DATE),
@@ -141,7 +132,6 @@ ERA_LINESTYLES = {
     "3_After_Scraping":  "-.",
 }
 
-# Matplotlib publication defaults
 MPL_DEFAULTS = {
     "font.family": "sans-serif",
     "font.sans-serif": ["Arial", "Helvetica", "DejaVu Sans"],
@@ -160,18 +150,7 @@ MPL_DEFAULTS = {
 # ============================================================================
 
 def era_filter(series, start, end):
-    """Filter a pandas Series to a date range [start, end).
-
-    Parameters
-    ----------
-    series : pd.Series with DatetimeIndex
-    start : pd.Timestamp or None (unbounded left)
-    end : pd.Timestamp or None (unbounded right)
-
-    Returns
-    -------
-    pd.Series — filtered view
-    """
+    """Filter a pandas Series to a date range [start, end)."""
     mask = pd.Series(True, index=series.index)
     if start is not None:
         mask &= series.index >= start
@@ -181,15 +160,7 @@ def era_filter(series, start, end):
 
 
 def load_scraping_data():
-    """Load well and climate data for the scraping analysis.
-
-    Returns
-    -------
-    wells : pd.DataFrame — merged clean + extended well time series
-    climate : pd.DataFrame — monthly climate (P_m, PET, etc.)
-
-    Reads from Script 01 pipeline intermediates.
-    """
+    """Load well and climate data for the scraping analysis."""
     from utils.paths import INT_WELLS_CLEAN, INT_WELLS_EXTENDED, INT_CLIMATE
 
     climate = pd.read_csv(INT_CLIMATE, index_col=0, parse_dates=True)
@@ -222,7 +193,7 @@ def load_cluster_params():
     """Load consolidated cluster parameters from pipeline outputs.
 
     Combines:
-      - β₁, β₂, β₃ from Script 03 cluster mechanistic table
+      - beta from Script 03 cluster mechanistic table
       - Sy from Script 17 WTF per-well estimates (cluster median)
       - h_disp from Script 01 wells + DRAINAGE_DATUM
       - forest flag (clusters 4 and 5)
@@ -230,12 +201,6 @@ def load_cluster_params():
     Returns
     -------
     dict : {cname: {b1, b2, b3, Sy, h_disp, forest}}
-        e.g. {"C1": {"b1": 5.02, "b2": 0.61, ...}, ...}
-
-    This is the SINGLE SOURCE for cluster parameters. All scripts
-    that need per-cluster SSM coefficients, Sy, or head displacement
-    should call this function rather than maintaining their own
-    loading logic or hardcoded fallbacks.
     """
     from utils.paths import (
         OUT_03_MECHANISTIC_TABLE, INT_MASTER_DATA,
@@ -243,14 +208,10 @@ def load_cluster_params():
     )
     from utils.config import DRAINAGE_DATUM
 
-    # β coefficients from Script 03
     coeff = pd.read_csv(OUT_03_MECHANISTIC_TABLE)
-
-    # Sy from Script 17 — cluster median of per-well median Sy
     sy_df = pd.read_csv(INT_WTF_WELL_SY)
     sy_by_cluster = sy_df.groupby("Cluster")["Sy_median"].median()
 
-    # Mean head displacement from wells
     wells = pd.read_csv(INT_WELLS_CLEAN, index_col=0, parse_dates=True)
     wells.columns = wells.columns.str.lower().str.replace(" ", "")
     master = pd.read_csv(INT_MASTER_DATA)
@@ -279,13 +240,7 @@ def load_cluster_params():
 
 
 def load_summer_climate():
-    """Load summer mean P and PET from pipeline climate data.
-
-    Returns
-    -------
-    (summer_P, summer_PET) : tuple of float
-        Mean Jun–Sep rainfall and PET in m/month.
-    """
+    """Load summer mean P and PET from pipeline climate data."""
     from utils.paths import INT_CLIMATE
     climate = pd.read_csv(INT_CLIMATE, index_col=0, parse_dates=True)
     summer = climate[climate.index.month.isin(SUMMER_MONTHS)]
@@ -309,7 +264,8 @@ def significance_stars(p):
 # SCENARIO COMPARISON — shared computation
 # ============================================================================
 
-def compute_scenario_bars(cluster_params, summer_P, summer_PET):
+def compute_scenario_bars(cluster_params, summer_P, summer_PET,
+                          clearfell_b2_mult=None, thinning_b2_mult=None):
     """Compute per-cluster volumetric scenario bars (mm w.e./month).
 
     Uses the Option 3 seasonal perturbation formulation:
@@ -324,20 +280,31 @@ def compute_scenario_bars(cluster_params, summer_P, summer_PET):
         Mean summer rainfall (m/month) from climate data.
     summer_PET : float
         Mean summer PET (m/month) from climate data.
+    clearfell_b2_mult : float or None
+        If None, loaded dynamically from clearfell_common.
+    thinning_b2_mult : float or None
+        If None, loaded dynamically from clearfell_common.
 
     Returns
     -------
     dict : {scenario_name: {cluster: value_mm_per_month}}
-        All non-scraping scenarios. Scraping bars are computed separately
-        by 09d using centroid summaries.
     """
     import numpy as np
     from utils.config import (
         FOREST_INTERCEPTION, BROADLEAF_INTERCEPTION,
-        CLEARFELL_B2_MULT_DEFAULT, THINNING_B2_MULT_DEFAULT,
+        BROADLEAF_B2_SUMMER,
         UKCP18_DRY_P_SUMMER, UKCP18_DRY_PET_SUMMER,
         UKCP18_WET_P_SUMMER, UKCP18_WET_PET_SUMMER,
     )
+
+    # β₂ multipliers: use passed values, or load from clearfell_common
+    if clearfell_b2_mult is None or thinning_b2_mult is None:
+        from utils.clearfell_common import load_clearfell_b2_multiplier
+        _cf, _thin, _ = load_clearfell_b2_multiplier()
+        if clearfell_b2_mult is None:
+            clearfell_b2_mult = _cf
+        if thinning_b2_mult is None:
+            thinning_b2_mult = _thin
 
     clusters = ["C1", "C2", "C3", "C4", "C5"]
     scenarios = {}
@@ -346,11 +313,11 @@ def compute_scenario_bars(cluster_params, summer_P, summer_PET):
         return b1 * P_eff - b2 * PET - b3 * h_disp
 
     for scenario_name, config in [
-        ("Clearfell",    {"sI": 0.0,                       "sB2": CLEARFELL_B2_MULT_DEFAULT,
+        ("Clearfell",    {"sI": 0.0,                       "sB2": clearfell_b2_mult,
                           "sP": 1.0, "sPET": 1.0,         "forest_only": True}),
-        ("Thinning 50%", {"sI": FOREST_INTERCEPTION * 0.5, "sB2": THINNING_B2_MULT_DEFAULT,
+        ("Thinning 50%", {"sI": FOREST_INTERCEPTION * 0.5, "sB2": thinning_b2_mult,
                           "sP": 1.0, "sPET": 1.0,         "forest_only": True}),
-        ("Broadleaf",    {"sI": BROADLEAF_INTERCEPTION,    "sB2": 1.0,
+        ("Broadleaf",    {"sI": BROADLEAF_INTERCEPTION,    "sB2": BROADLEAF_B2_SUMMER,
                           "sP": 1.0, "sPET": 1.0,         "forest_only": True}),
         ("Climate dry",  {"sI": None,                      "sB2": 1.0,
                           "sP": UKCP18_DRY_P_SUMMER,       "sPET": UKCP18_DRY_PET_SUMMER,
@@ -380,7 +347,6 @@ def compute_scenario_bars(cluster_params, summer_P, summer_PET):
             if config["sI"] is not None:
                 P_scen = summer_P * config["sP"] * (1 - config["sI"])
             else:
-                # Climate scenario: keep existing interception
                 raw_P = summer_P * config["sP"]
                 P_scen = raw_P * (1 - FOREST_INTERCEPTION) if is_forest else raw_P
 
@@ -389,7 +355,6 @@ def compute_scenario_bars(cluster_params, summer_P, summer_PET):
             flux_scen = _flux(cp["b1"], b2_scen, P_scen, PET_scen,
                               cp["b3"], cp["h_disp"])
 
-            # Convert head change to volumetric (mm w.e./month)
             vals[c] = round((flux_scen - flux_base) * cp["Sy"] * 1000, 1)
 
         scenarios[scenario_name] = vals

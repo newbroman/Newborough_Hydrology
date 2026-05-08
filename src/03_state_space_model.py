@@ -1512,6 +1512,49 @@ def export_regional_averages_maod(cluster_df: pd.DataFrame,
     print(f" -> Saved: {INT_CLUSTER_AVG_MAOD.name}")
 
 
+def export_cluster_peak_months(centroids: dict[int, pd.Series]) -> None:
+    """Derive each cluster's peak water-table month and write to CSV.
+
+    The peak month is the calendar month (1–12) with the highest long-term
+    mean depth (shallowest water table) in the cluster-centroid hydrograph.
+    This determines the forecasting horizon endpoint in Script 11.
+
+    Writes: INT_CLUSTER_PEAK_MONTHS (03_cluster_peak_months.csv)
+    Columns: Cluster, cluster_label, peak_month
+    """
+    from utils.paths import INT_CLUSTER_PEAK_MONTHS
+    from utils.config import CLUSTER_LABELS
+
+    rows = []
+    for cid in sorted(centroids):
+        ts = centroids[cid].dropna()
+        if len(ts) < 12:
+            continue
+        # Monthly mean — depth is negative, so the maximum (least negative)
+        # is the shallowest / peak water table
+        monthly_mean = ts.groupby(ts.index.month).mean()
+        peak_month = int(monthly_mean.idxmax())
+        label = CLUSTER_LABELS.get(cid, f"C{cid}")
+        rows.append({
+            "cluster_id": cid,
+            "cluster_label": f"C{cid}",
+            "peak_month": peak_month,
+        })
+        print(f"  C{cid} ({label}): peak month = {peak_month}")
+
+    df = pd.DataFrame(rows)
+    df.to_csv(INT_CLUSTER_PEAK_MONTHS, index=False)
+    print(f" -> Saved: {INT_CLUSTER_PEAK_MONTHS.name}")
+
+    # Update consolidated pipeline params with peak months
+    try:
+        from utils.pipeline_params import update_peak_months
+        pm_dict = {int(r["cluster_id"]): int(r["peak_month"]) for r in rows}
+        update_peak_months(pm_dict)
+    except Exception as e:
+        print(f"  [note] Pipeline params peak_month update skipped: {e}")
+
+
 # ==========================================================================
 # MAIN
 # ==========================================================================
@@ -1582,6 +1625,13 @@ def main() -> None:
     mech_df, violations, b3_warnings = centroid_headline_fits(centroids, climate)
     mech_df.to_csv(OUT_03_MECHANISTIC_TABLE, index=False)
     print(f" -> Saved: {OUT_03_MECHANISTIC_TABLE.name}")
+
+    # Update consolidated pipeline params with β coefficients
+    try:
+        from utils.pipeline_params import update_beta_coefficients
+        update_beta_coefficients(mech_df)
+    except Exception as e:
+        print(f"  [note] Pipeline params β update skipped: {e}")
 
     # Sign violations are reported loudly here but don't halt yet — the
     # diagnostics below (lag sweep, bootstrap, LOO, split-window) are the
@@ -1749,6 +1799,7 @@ def main() -> None:
     # ---- Regional averages exports ----
     export_regional_averages(centroids, climate, master_df)
     export_regional_averages_maod(cluster_df, climate)
+    export_cluster_peak_months(centroids)
 
     # ---- Hard halt if centroid sign assertions failed ----
     # Deferred until here so the diagnostic tables (03_04/05/06/07) and the

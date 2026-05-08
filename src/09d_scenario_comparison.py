@@ -170,7 +170,7 @@ def _compute_ceh36_scenarios(params, summer_P, summer_PET):
     Sy = params["Sy"]
 
     # Load BACI-corrected β₂ multipliers from clearfell_common
-    clearfell_b2_mult, thinning_b2_mult = load_clearfell_b2_multiplier()
+    clearfell_b2_mult, thinning_b2_mult, _ = load_clearfell_b2_multiplier()
     print(f"   β₂ multipliers: clearfell={clearfell_b2_mult:.4f}  "
           f"thinning={thinning_b2_mult:.4f}")
 

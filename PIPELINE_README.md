@@ -45,12 +45,62 @@ python run_analysis.py --from 9
 - Script 21 requires `03_regional_averages_maod.csv` from Script 03, plus Scripts 10a (BACI step) and 10e (β₂ multiplier).
 - Script 14 requires `00_well_network_summary.csv` from Script 00 and `02_cluster_stats.csv` from Script 02.
 
-## Shared parameter functions (`scraping_common.py`)
+## Consolidated pipeline parameters (`pipeline_params.py`)
 
-Three functions in `scraping_common.py` provide the single source of truth
-for derived values that multiple scripts need. If upstream data changes
-(new well readings, re-fitted SSM, updated Sy), all downstream scenario
-figures update automatically on the next run.
+All derived values needed by downstream scenario scripts are consolidated
+into a single CSV: `outputs/01_data_prep/pipeline_scenario_params.csv`.
+
+Script 01 writes this file at the end of data preparation, opportunistically
+reading from existing upstream outputs. Later scripts update it in place:
+
+```
+pipeline_params.write_initial_params()     [Script 01]
+  Writes: pipeline_scenario_params.csv
+  Reads (if available): Scripts 03, 10e, 17 outputs
+  Falls back to defaults with source_*="defaults" flag
+
+pipeline_params.update_beta_coefficients() [Script 03]
+  Updates: beta_1, beta_2, beta_3 per cluster
+
+pipeline_params.update_peak_months()       [Script 03]
+  Updates: peak_month per cluster
+
+pipeline_params.update_b2_multipliers()    [Script 10e]
+  Updates: clearfell_b2_mult, thinning_b2_mult
+
+pipeline_params.update_specific_yield()    [Script 17]
+  Updates: Sy per cluster
+
+pipeline_params.load_params()              [09b, 09d, 19, 21]
+  Returns: {clusters, peak_months, clearfell_b2_mult,
+            thinning_b2_mult, broadleaf_b2_summer,
+            summer_P, summer_PET, all_pipeline}
+```
+
+The CSV schema:
+
+| Column | Source | Updated by |
+|--------|--------|------------|
+| Cluster | C1–C5 | Script 01 |
+| beta_1, beta_2, beta_3 | SSM coefficients | Script 03 |
+| Sy | Specific yield (cluster median) | Script 17 |
+| h_disp | DRAINAGE_DATUM + mean_depth | Script 01 |
+| forest | True for C4, C5 | config.py |
+| peak_month | Calendar month of peak water table | Script 03 |
+| clearfell_b2_mult | BACI-corrected Edge ratio | Script 10e |
+| thinning_b2_mult | 50% of clearfell effect | Script 10e |
+| broadleaf_b2_summer | Summer deciduous phenology (1.1125) | config.py |
+| summer_P | Mean Jun–Sep P (m/month) | Script 01 |
+| summer_PET | Mean Jun–Sep PET (m/month) | Script 01 |
+| source_* | "defaults" or "pipeline" per field | — |
+
+On a fully-run pipeline, all `source_*` columns read "pipeline" and
+`load_params()` returns `all_pipeline=True`.
+
+## Legacy parameter functions (`scraping_common.py`)
+
+Three functions in `scraping_common.py` remain functional as fallbacks.
+New code should prefer `pipeline_params.load_params()`.
 
 ```
 load_cluster_params()
@@ -58,22 +108,23 @@ load_cluster_params()
          17_wtf_well_sy.csv (Sy, cluster median)
          01_wells_clean.csv + DRAINAGE_DATUM (h_disp)
   Returns: {C1: {b1, b2, b3, Sy, h_disp, forest}, ...}
-  Used by: 09b, 09d, 21
 
 load_summer_climate()
   Reads: 01_climate.csv (Jun–Sep mean P and PET)
   Returns: (summer_P, summer_PET)
-  Used by: 09b, 09d, 21
 
 compute_scenario_bars(cluster_params, summer_P, summer_PET)
-  Reads: config.py (UKCP18 scalers, interception, B2 defaults)
+  Reads: config.py (UKCP18 scalers, interception), clearfell_common (B2 mult)
   Returns: {scenario: {cluster: mm_we_per_month}}
-  Used by: 09d (via CEH36 extraction), 21 (cross-cluster figure)
+
+compute_scenario_bars_from_params()
+  Wrapper: loads everything from pipeline_params, falls back to above
+  Returns: (scenario_values, cluster_params, summer_P, summer_PET)
 ```
 
 **True constants** (do not change with data) live in `config.py`:
 `DRAINAGE_DATUM`, `FOREST_INTERCEPTION`, `BROADLEAF_INTERCEPTION`,
-`UKCP18_*` scalers, `CLEARFELL_B2_MULT_DEFAULT`.
+`BROADLEAF_B2_SUMMER`, `UKCP18_*` scalers.
 
 ## Data directory structure
 
@@ -109,16 +160,24 @@ outputs/                       ← all generated outputs
   24_residual_seasonality/
 src/
   utils/
-    config.py               ← cluster colours/labels, DRAINAGE_DATUM, HEADLINE_LAG, FOREST_INTERCEPTION, FOREST_CIDS, ecological thresholds, UKCP18 scenario factors
+    config.py               ← cluster colours/labels, DRAINAGE_DATUM, HEADLINE_LAG, FOREST_INTERCEPTION, FOREST_CIDS, ecological thresholds, UKCP18 scenario factors, BROADLEAF_B2_SUMMER
     data_utils.py           ← cleaning, normalisation, CUSUM helpers
     map_utils.py            ← DEM hillshade, KML, IDW surface
     model_utils.py          ← SSM fitting (build_ssm_frame, fit_ssm, fit_ssm_intercept, simulate_ssm, pflood_lambda, monthly_perturbation)
     paths.py                ← all path constants — single source of truth
+    pipeline_params.py      ← consolidated scenario parameter file (write/update/read)
+                               + write_initial_params()        — called by Script 01
+                               + update_beta_coefficients()    — called by Script 03
+                               + update_peak_months()          — called by Script 03
+                               + update_b2_multipliers()       — called by Script 10e
+                               + update_specific_yield()       — called by Script 17
+                               + load_params()                 — called by 09b, 09d, 19, 21
     clearfell_common.py     ← shared 5-tier well lists & BACI helpers for Script 10 suite
     scraping_common.py      ← shared constants, well lists, era definitions for Script 09 suite
-                               + load_cluster_params()      — consolidated β, Sy, h_disp from Scripts 01/03/17
-                               + load_summer_climate()      — summer mean P/PET from Script 01
-                               + compute_scenario_bars()    — per-cluster scenario values (used by 09d, 21)
+                               + load_cluster_params()         — legacy: consolidated β, Sy, h_disp
+                               + load_summer_climate()         — legacy: summer mean P/PET
+                               + compute_scenario_bars()       — per-cluster scenario values
+                               + compute_scenario_bars_from_params() — wrapper using pipeline_params
 ```
 
 ## Raw data inputs (`data/`)
@@ -159,6 +218,7 @@ src/
 - `01_wells_extended.csv`
 - `01_wells_reference.csv`
 - `01_well_elevations.csv`
+- `01_data_prep/pipeline_scenario_params.csv` — consolidated scenario parameters (updated by Scripts 03, 10e, 17)
 
 
 #### Step 2 — 02_clustering

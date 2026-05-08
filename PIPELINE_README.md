@@ -831,7 +831,7 @@ Summer climate via `scraping_common.load_summer_climate()`. Scenario constants
 
 #### Step 33 — 20_spatial_figures
 
-**Purpose.** Paper figures: head + streams overlay, SSM water-balance residual map, slope/gradient.
+**Purpose.** Paper figures: head + streams overlay, SSM water-balance residual map, slope/gradient, forest drawdown propagation.
 
 **Reads.**
 
@@ -852,6 +852,7 @@ Summer climate via `scraping_common.load_summer_climate()`. Scenario constants
 - `20_head_surface_streams.png`
 - `20_residual_ssm.png`
 - `20_slope_gradient.png`
+- `20_drawdown_propagation.png`
 
 **Other.**
 

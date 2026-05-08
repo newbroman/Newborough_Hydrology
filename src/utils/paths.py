@@ -279,6 +279,19 @@ OUT_10G_TRANSECT_CSV        = DIR_10 / "10g_03_clearfell_transect_steps.csv"
 OUT_10G_ROLLING_CSV         = DIR_10 / "10g_04_rolling_coefficients.csv"
 OUT_10G_REPORT              = DIR_10 / "10g_report_numbers.csv"
 
+# Script 10h — Synthetic-extension BACI (FE well donor regression)
+OUT_10H_CALIBRATION         = DIR_10 / "10h_01_synthetic_calibration.csv"
+OUT_10H_COMPARISON          = DIR_10 / "10h_02_ancova_comparison_table.csv"
+OUT_10H_FULL_COEFFS         = DIR_10 / "10h_03_ancova_full_coefficients.csv"
+OUT_10H_TIMESERIES          = DIR_10 / "10h_04_baci_timeseries.csv"
+OUT_10H_FIG_DONORS          = DIR_10 / "10h_05_donor_regression_validation.png"
+OUT_10H_FIG_VAR_A           = DIR_10 / "10h_06_baci_timeseries_varA.png"
+OUT_10H_FIG_VAR_B           = DIR_10 / "10h_07_baci_timeseries_varB.png"
+OUT_10H_FIG_VAR_C           = DIR_10 / "10h_08_baci_timeseries_varC.png"
+OUT_10H_FIG_CUSUM           = DIR_10 / "10h_09_cusum_varB.png"
+OUT_10H_FIG_SENSITIVITY     = DIR_10 / "10h_10_climate_sensitivity_varB.png"
+OUT_10H_REPORT              = DIR_10 / "10h_report_numbers.csv"
+
 # Script 11 — Forecasting thresholds
 OUT_11_RESULTS              = DIR_11 / "11_forecast_01_results.txt"
 OUT_11_TABLE6_WINTER        = DIR_11 / "11_forecast_winter_transfer_functions.csv"

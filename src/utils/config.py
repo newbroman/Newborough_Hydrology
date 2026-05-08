@@ -108,6 +108,13 @@ DEM_VMIN = 0.0
 DEM_VCENTER = 12.0
 DEM_VMAX = 35.0
 
+# ── Clearfell β₂ multiplier defaults ─────────────────────────────────────────
+# Fallback values for the clearfell atmospheric-draw multiplier. Script 21
+# overrides from Script 10e outputs when available; these are used by
+# scraping_common.compute_scenario_bars() and as Script 21's fallback.
+CLEARFELL_B2_MULT_DEFAULT = 1.20
+THINNING_B2_MULT_DEFAULT  = 1.0 + (CLEARFELL_B2_MULT_DEFAULT - 1.0) / 2
+
 # ── UKCP18 RCP8.5 Wales central estimates ────────────────────────────────────
 # Seasonal precipitation and PET scaling factors for climate scenarios.
 # Source: UKCP18 probabilistic projections, 50th percentile, 2050s (2040-2069),

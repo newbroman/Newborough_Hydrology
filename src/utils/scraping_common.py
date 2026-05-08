@@ -218,6 +218,80 @@ def format_p_value(p):
     return f"{p:.4f}"
 
 
+def load_cluster_params():
+    """Load consolidated cluster parameters from pipeline outputs.
+
+    Combines:
+      - β₁, β₂, β₃ from Script 03 cluster mechanistic table
+      - Sy from Script 17 WTF per-well estimates (cluster median)
+      - h_disp from Script 01 wells + DRAINAGE_DATUM
+      - forest flag (clusters 4 and 5)
+
+    Returns
+    -------
+    dict : {cname: {b1, b2, b3, Sy, h_disp, forest}}
+        e.g. {"C1": {"b1": 5.02, "b2": 0.61, ...}, ...}
+
+    This is the SINGLE SOURCE for cluster parameters. All scripts
+    that need per-cluster SSM coefficients, Sy, or head displacement
+    should call this function rather than maintaining their own
+    loading logic or hardcoded fallbacks.
+    """
+    from utils.paths import (
+        OUT_03_MECHANISTIC_TABLE, INT_MASTER_DATA,
+        INT_WTF_WELL_SY, INT_WELLS_CLEAN,
+    )
+    from utils.config import DRAINAGE_DATUM
+
+    # β coefficients from Script 03
+    coeff = pd.read_csv(OUT_03_MECHANISTIC_TABLE)
+
+    # Sy from Script 17 — cluster median of per-well median Sy
+    sy_df = pd.read_csv(INT_WTF_WELL_SY)
+    sy_by_cluster = sy_df.groupby("Cluster")["Sy_median"].median()
+
+    # Mean head displacement from wells
+    wells = pd.read_csv(INT_WELLS_CLEAN, index_col=0, parse_dates=True)
+    wells.columns = wells.columns.str.lower().str.replace(" ", "")
+    master = pd.read_csv(INT_MASTER_DATA)
+    master["match"] = master["Name_Original"].str.lower().str.replace(" ", "")
+
+    params = {}
+    for _, row in coeff.iterrows():
+        cl = int(row["Cluster"])
+        cname = f"C{cl}"
+
+        cl_wells = master[master["Cluster"] == cl]["match"].tolist()
+        available = [w for w in cl_wells if w in wells.columns]
+        mean_depth = wells[available].mean().mean() if available else -0.5
+        h_disp = DRAINAGE_DATUM + mean_depth
+
+        params[cname] = {
+            "b1": float(row["beta_1_recharge"]),
+            "b2": float(row["beta_2_atmospheric_draw"]),
+            "b3": float(row["beta_3_drainage"]),
+            "Sy": float(sy_by_cluster.get(cl, 0.25)),
+            "h_disp": h_disp,
+            "forest": cl in (4, 5),
+        }
+
+    return params
+
+
+def load_summer_climate():
+    """Load summer mean P and PET from pipeline climate data.
+
+    Returns
+    -------
+    (summer_P, summer_PET) : tuple of float
+        Mean Jun–Sep rainfall and PET in m/month.
+    """
+    from utils.paths import INT_CLIMATE
+    climate = pd.read_csv(INT_CLIMATE, index_col=0, parse_dates=True)
+    summer = climate[climate.index.month.isin(SUMMER_MONTHS)]
+    return float(summer["P_m"].mean()), float(summer["PET"].mean())
+
+
 def significance_stars(p):
     """Return significance stars for a p-value."""
     if pd.isna(p):
@@ -235,8 +309,7 @@ def significance_stars(p):
 # SCENARIO COMPARISON — shared computation
 # ============================================================================
 
-def compute_scenario_bars(cluster_params, summer_P, summer_PET,
-                          clearfell_b2_mult=None, thinning_b2_mult=None):
+def compute_scenario_bars(cluster_params, summer_P, summer_PET):
     """Compute per-cluster volumetric scenario bars (mm w.e./month).
 
     Uses the Option 3 seasonal perturbation formulation:
@@ -251,11 +324,6 @@ def compute_scenario_bars(cluster_params, summer_P, summer_PET,
         Mean summer rainfall (m/month) from climate data.
     summer_PET : float
         Mean summer PET (m/month) from climate data.
-    clearfell_b2_mult : float, optional
-        Clearfell β₂ multiplier.  If None, computed dynamically from
-        Script 10e BACI output via load_clearfell_b2_multiplier().
-    thinning_b2_mult : float, optional
-        Thinning β₂ multiplier.  If None, computed alongside clearfell.
 
     Returns
     -------
@@ -266,17 +334,10 @@ def compute_scenario_bars(cluster_params, summer_P, summer_PET,
     import numpy as np
     from utils.config import (
         FOREST_INTERCEPTION, BROADLEAF_INTERCEPTION,
+        CLEARFELL_B2_MULT_DEFAULT, THINNING_B2_MULT_DEFAULT,
         UKCP18_DRY_P_SUMMER, UKCP18_DRY_PET_SUMMER,
         UKCP18_WET_P_SUMMER, UKCP18_WET_PET_SUMMER,
     )
-
-    if clearfell_b2_mult is None or thinning_b2_mult is None:
-        from utils.clearfell_common import load_clearfell_b2_multiplier
-        _cf, _th, _ = load_clearfell_b2_multiplier(verbose=False)
-        if clearfell_b2_mult is None:
-            clearfell_b2_mult = _cf
-        if thinning_b2_mult is None:
-            thinning_b2_mult = _th
 
     clusters = ["C1", "C2", "C3", "C4", "C5"]
     scenarios = {}
@@ -285,9 +346,9 @@ def compute_scenario_bars(cluster_params, summer_P, summer_PET,
         return b1 * P_eff - b2 * PET - b3 * h_disp
 
     for scenario_name, config in [
-        ("Clearfell",    {"sI": 0.0,                       "sB2": clearfell_b2_mult,
+        ("Clearfell",    {"sI": 0.0,                       "sB2": CLEARFELL_B2_MULT_DEFAULT,
                           "sP": 1.0, "sPET": 1.0,         "forest_only": True}),
-        ("Thinning 50%", {"sI": FOREST_INTERCEPTION * 0.5, "sB2": thinning_b2_mult,
+        ("Thinning 50%", {"sI": FOREST_INTERCEPTION * 0.5, "sB2": THINNING_B2_MULT_DEFAULT,
                           "sP": 1.0, "sPET": 1.0,         "forest_only": True}),
         ("Broadleaf",    {"sI": BROADLEAF_INTERCEPTION,    "sB2": 1.0,
                           "sP": 1.0, "sPET": 1.0,         "forest_only": True}),

@@ -1,0 +1,16 @@
+Zone,Phase,Phase_start,Phase_end,N_summers,Mean_depth_m,Median_depth_m,SD_depth_m,Min_depth_m,Max_depth_m
+Impact (WMC3),Pre-2015,record_start,2015-04-01,6,1.4756,1.42,0.1628,1.26,1.7134
+Impact (WMC3),2015–17,2015-04-01,2018-01-01,3,1.54,1.65,0.1699,1.3,1.67
+Impact (WMC3),Post-fell 2018+,2018-01-01,record_end,8,1.5112,1.545,0.1591,1.26,1.7
+"Edge (CEH31, CEH20, CE",Pre-2015,record_start,2015-04-01,8,1.3027,1.4387,0.5014,0.51,2.0075
+"Edge (CEH31, CEH20, CE",2015–17,2015-04-01,2018-01-01,3,1.5892,1.65,0.162,1.3675,1.75
+"Edge (CEH31, CEH20, CE",Post-fell 2018+,2018-01-01,record_end,8,1.6232,1.6775,0.2018,1.2747,1.925
+"Forest Ctrl (CEH32, CE",Pre-2015,record_start,2015-04-01,9,1.2923,1.286,0.5517,0.57,2.41
+"Forest Ctrl (CEH32, CE",2015–17,2015-04-01,2018-01-01,3,1.5533,1.716,0.2414,1.212,1.732
+"Forest Ctrl (CEH32, CE",Post-fell 2018+,2018-01-01,record_end,8,1.5601,1.645,0.2583,1.122,1.8519
+"Coastal Ctrl (CEH19, C",Pre-2015,record_start,2015-04-01,8,1.5462,1.535,0.1832,1.23,1.85
+"Coastal Ctrl (CEH19, C",2015–17,2015-04-01,2018-01-01,3,1.68,1.755,0.1242,1.505,1.78
+"Coastal Ctrl (CEH19, C",Post-fell 2018+,2018-01-01,record_end,8,1.7203,1.7575,0.1047,1.5,1.8177
+"Climate Ctrl (CEH9, NW",Pre-2015,record_start,2015-04-01,10,1.0006,1.0107,0.1913,0.7375,1.3647
+"Climate Ctrl (CEH9, NW",2015–17,2015-04-01,2018-01-01,3,1.1088,1.1998,0.1407,0.91,1.2166
+"Climate Ctrl (CEH9, NW",Post-fell 2018+,2018-01-01,record_end,8,1.1204,1.1747,0.1623,0.85,1.2967

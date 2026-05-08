@@ -36,7 +36,7 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "3.0.0"  # Hollingham (2026) — CEH36-focused rebuild
+__version__ = "3.1.0"  # 2026-05-08 — B2 multiplier via clearfell_common loader
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
@@ -57,10 +57,10 @@ from utils.scraping_common import (
 from utils.config import (
     DRAINAGE_DATUM,
     FOREST_INTERCEPTION, BROADLEAF_INTERCEPTION,
-    CLEARFELL_B2_MULT_DEFAULT, THINNING_B2_MULT_DEFAULT,
     UKCP18_DRY_P_SUMMER, UKCP18_DRY_PET_SUMMER,
     UKCP18_WET_P_SUMMER, UKCP18_WET_PET_SUMMER,
 )
+from utils.clearfell_common import load_clearfell_b2_multiplier
 
 import pandas as pd
 import numpy as np
@@ -169,6 +169,11 @@ def _compute_ceh36_scenarios(params, summer_P, summer_PET):
     h_disp = params["h_disp"]
     Sy = params["Sy"]
 
+    # Load BACI-corrected β₂ multipliers from clearfell_common
+    clearfell_b2_mult, thinning_b2_mult = load_clearfell_b2_multiplier()
+    print(f"   β₂ multipliers: clearfell={clearfell_b2_mult:.4f}  "
+          f"thinning={thinning_b2_mult:.4f}")
+
     # Baseline: CEH36 is unforested, so P_base = raw P
     P_base = summer_P
     flux_base = b1 * P_base - b2 * summer_PET - b3 * h_disp
@@ -186,13 +191,13 @@ def _compute_ceh36_scenarios(params, summer_P, summer_PET):
     P_pine_base = summer_P * (1 - FOREST_INTERCEPTION)
     flux_pine_base = b1 * P_pine_base - b2 * summer_PET - b3 * h_disp
     # Clearfell: full P restored, β₂ increases
-    flux_cf = b1 * summer_P - b2 * CLEARFELL_B2_MULT_DEFAULT * summer_PET - b3 * h_disp
+    flux_cf = b1 * summer_P - b2 * clearfell_b2_mult * summer_PET - b3 * h_disp
     scenarios["Clearfell\n(hypothetical)"] = round(
         (flux_cf - flux_pine_base) * Sy * 1000, 1)
 
     # Thinning 50%
     P_thin = summer_P * (1 - FOREST_INTERCEPTION * 0.5)
-    flux_thin = b1 * P_thin - b2 * THINNING_B2_MULT_DEFAULT * summer_PET - b3 * h_disp
+    flux_thin = b1 * P_thin - b2 * thinning_b2_mult * summer_PET - b3 * h_disp
     scenarios["Thinning 50%\n(hypothetical)"] = round(
         (flux_thin - flux_pine_base) * Sy * 1000, 1)
 
@@ -304,7 +309,6 @@ def _plot_summer(scenarios, params, summer_P, summer_PET):
     FELLING_YEAR = INTERVENTION_DATE.year
 
     # ── Amplification factor for CEH36 ────────────────────────────────────
-    # Ratio of summer-min interannual variation to annual-mean variation
     regional = pd.read_csv(INT_REGIONAL_AVG, index_col=0, parse_dates=True)
     cluster_col = f"C{params['cluster']}"
     amp = 0.85  # fallback
@@ -328,7 +332,6 @@ def _plot_summer(scenarios, params, summer_P, summer_PET):
     print(f"   Summer amplification factor (C{params['cluster']}): {amp:.3f}")
 
     # ── Observed scraping summer minimum BACI ─────────────────────────────
-    # CEH36 vs CEH4 summer minimum shift (from 09c)
     scrape_summer_mm = 0.0
     if WELL in wells.columns and "ceh4" in wells.columns:
         def _ann_sum_min(s):
@@ -407,7 +410,6 @@ def _plot_summer(scenarios, params, summer_P, summer_PET):
         "Alternatives: SSM equilibrium \u00d7 amplification",
         fontsize=13, fontweight="bold")
 
-    # Y limits with room for text
     ymin = min(min(vals), 0) - 15
     ymax = max(max(vals), 0) + 15
     ax.set_ylim(ymin, ymax)

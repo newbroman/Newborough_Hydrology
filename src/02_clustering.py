@@ -1102,7 +1102,7 @@ if __name__ == "__main__":
         handles=[plt.Line2D([0], [0], color=CLUSTER_COLOURS[c], lw=3,
                             label=CLUSTER_LABELS.get(c, f"C{c}"))
                  for c in sorted(CLUSTER_LABELS.keys()) if c in CLUSTER_COLOURS],
-        title="Cluster Assignments", loc="upper left", frameon=True,
+        title="Cluster Assignments", loc="upper right", frameon=True,
     )
     plt.ylabel("Ward Linkage Distance", fontsize=12)
     plt.tight_layout()

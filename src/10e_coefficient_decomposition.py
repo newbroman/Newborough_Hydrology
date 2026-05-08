@@ -239,6 +239,15 @@ shift_df = pd.DataFrame(rows)
 shift_df.to_csv(OUT_SHIFTS, index=False)
 print(f"\n -> Saved: {OUT_SHIFTS.name} ({len(shift_df)} rows)")
 
+# Update consolidated pipeline params with β₂ multipliers
+try:
+    from utils.clearfell_common import load_clearfell_b2_multiplier
+    from utils.pipeline_params import update_b2_multipliers
+    cf_mult, thin_mult, _ = load_clearfell_b2_multiplier(verbose=False)
+    update_b2_multipliers(cf_mult, thin_mult)
+except Exception as e:
+    print(f"  [note] Pipeline params B2 update skipped: {e}")
+
 # ============================================================================
 # PREDICTED VS OBSERVED TABLE
 # ============================================================================

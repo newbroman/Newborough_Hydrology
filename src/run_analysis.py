@@ -8,6 +8,29 @@ Usage
   python run_analysis.py --full       # non-interactive: run all 26 steps
   python run_analysis.py --from N     # non-interactive: resume from step N
   python run_analysis.py --viewer     # non-interactive: build scenario viewer only
+
+Two-pass execution (RECOMMENDED for new datasets)
+-------------------------------------------------
+Two scripts in Phase 3 use Specific-Yield (Sy) values that are produced
+later in the pipeline (Phase 6 / Phase 8):
+
+    09b_scraping_propagation     reads OUT_17_SY_TABLE  (produced step 18)
+    09d_scenario_comparison      reads INT_WTF_WELL_SY  (produced step 20)
+
+On a fresh first-pass full-pipeline run those files do not yet exist,
+and Phase 3 falls back to documented Newborough-2026 Sy defaults
+(0.20 cluster, 0.30 CEH36) with console warnings. The scientific
+analyses themselves are unaffected — these scripts use Sy only for a
+volumetric scenario-comparison conversion in their figures.
+
+For the most accurate scenario figures on a NEW dataset:
+
+    1. python run_analysis.py --full          # first pass
+    2. python run_analysis.py --from 9        # second pass — re-run 09b/09d
+                                              # with canonical Sy from 17/18
+
+Or accept the documented fallbacks for the first pass (recommended for
+the Newborough dataset where the fallbacks are tuned).
 """
 
 import subprocess
@@ -41,7 +64,7 @@ PHASE_3 = [
     ("11b_spatial_thresholds.py",     "12/26  Spatial eco-hydrological threshold maps"),
 ]
 PHASE_4 = [
-    ("00_climate_summary.py",            "13/26  Climate summary outputs", ["--profile", "full"]),
+    ("00_climate_summary.py",            "13/26  Climate summary outputs", ["--profile", "both"]),
     ("14_climate_projections.py",        "14/26  Figure: Climate trajectory projections"),
     ("12_figure_site_overview.py",       "15/26  Figure: DEM site overview"),
     ("13_figure_experimental_design.py", "16/26  Figure: Experimental design GIS map"),
@@ -233,9 +256,11 @@ def warn_missing_upstream(step: int, interactive: bool = True) -> bool:
     for w in warnings:
         print(w)
     print()
-    print("  This step may fail if it depends on these files.")
-    print("  If this is your first run, use option 1 (full pipeline) or")
-    print("  option 2 (resume from step 1) to generate all intermediates.")
+    print("  This step depends on these files and will likely fail.")
+    print("  If this is your first run on this dataset, run the FULL")
+    print("  pipeline first using option 1 of the main menu (or")
+    print("  --full from the CLI). Partial runs only work once all")
+    print("  upstream phases have completed at least once.")
     _hr("!")
 
     if not interactive:
@@ -301,6 +326,11 @@ def build_viewer() -> None:
         print(f"  [ERROR] Script not found: {script_path}")
         return
 
+    # Script 19 is step 21 — needs all upstream Phase 1-8 outputs to exist.
+    if not warn_missing_upstream(21):
+        print("  Aborted.")
+        return
+
     print(f"  Running {VIEWER_SCRIPT} ...")
     subprocess.run(
         [sys.executable, str(script_path)],
@@ -325,17 +355,21 @@ INTRO = """\
 """
 
 MENU = """
-  ┌──────────────────────────────────────────────────┐
-  │  Main Menu                                       │
-  ├──────────────────────────────────────────────────┤
-  │  1  Run full pipeline  (all 26 steps)            │
-  │  2  Resume from a specific step                  │
-  │  3  Run a single step                            │
-  │  4  Prepare the scenario viewer                  │
-  │  5  Run supplementary diagnostics (22–24)        │
-  │  6  Show pipeline step list                      │
-  │  q  Quit                                         │
-  └──────────────────────────────────────────────────┘"""
+  First-time / new dataset?  →  start with option 1 (full pipeline).
+  For canonical scenario figures, run the full pipeline TWICE.
+  Options 2-5 require the full pipeline to have completed at least once.
+
+  ┌──────────────────────────────────────────────────────────────┐
+  │  Main Menu                                                   │
+  ├──────────────────────────────────────────────────────────────┤
+  │  1  Run full pipeline  (all 26 steps; run twice for new data)│
+  │  2  Resume from a specific step  (full pipeline first)       │
+  │  3  Run a single step            (full pipeline first)       │
+  │  4  Prepare the scenario viewer  (full pipeline first)       │
+  │  5  Run supplementary diagnostics 22–24  (run pipeline first)│
+  │  6  Show pipeline step list                                  │
+  │  q  Quit                                                     │
+  └──────────────────────────────────────────────────────────────┘"""
 
 def show_step_list() -> None:
     print()
@@ -414,6 +448,16 @@ def interactive_menu() -> None:
         choice = input("\n  Enter choice: ").strip().lower()
 
         if choice == "1":
+            print(
+                "\n  NOTE: Two scripts in Phase 3 (09b, 09d) read Sy values\n"
+                "  produced later in the pipeline (steps 18 and 20). On a fresh\n"
+                "  first-pass run they will use documented fallbacks with\n"
+                "  console warnings — this does not break the pipeline.\n\n"
+                "  For canonical scenario figures on a new dataset, run twice:\n"
+                "    pass 1: this option (full pipeline)\n"
+                "    pass 2: option 2, resume from step 9\n"
+                "  See module docstring for details."
+            )
             ans = input("\n  Run all 26 steps from the beginning? [y/N] ").strip().lower()
             if ans == "y":
                 run_full_pipeline(from_step=1)

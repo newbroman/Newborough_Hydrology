@@ -161,26 +161,35 @@ def _load_baci_params():
     else:
         print(f"  WARNING: {OUT_10A_REPORT.name} not found — using fallback BACI values")
 
-    # 2. β₂ multiplier from 10e coefficient shifts (Impact well WMC3)
-    if OUT_10E_COEFF_SHIFTS.exists():
-        try:
-            cs = pd.read_csv(OUT_10E_COEFF_SHIFTS)
-            impact = cs[cs["Tier"] == "Impact"]
-            if not impact.empty:
-                b2_before = impact["b2_before"].dropna()
-                b2_after  = impact["b2_after"].dropna()
-                if len(b2_before) > 0 and len(b2_after) > 0 and b2_before.mean() > 0:
-                    b2_mult = b2_after.mean() / b2_before.mean()
-                    print(f"  β₂ multiplier from 10e: {b2_mult:.4f}")
+    # 2. β₂ multiplier — prefer pipeline params, fall back to 10e CSV
+    try:
+        from utils.pipeline_params import load_params
+        _p = load_params(warn_defaults=False)
+        if _p["all_pipeline"] or _p["clearfell_b2_mult"] != 1.10:
+            b2_mult = _p["clearfell_b2_mult"]
+            print(f"  β₂ multiplier from pipeline params: {b2_mult:.4f}")
+        else:
+            raise ValueError("pipeline params has default B2")
+    except Exception:
+        if OUT_10E_COEFF_SHIFTS.exists():
+            try:
+                cs = pd.read_csv(OUT_10E_COEFF_SHIFTS)
+                impact = cs[cs["Tier"] == "Impact"]
+                if not impact.empty:
+                    b2_before = impact["b2_before"].dropna()
+                    b2_after  = impact["b2_after"].dropna()
+                    if len(b2_before) > 0 and len(b2_after) > 0 and b2_before.mean() > 0:
+                        b2_mult = b2_after.mean() / b2_before.mean()
+                        print(f"  β₂ multiplier from 10e: {b2_mult:.4f}")
+                    else:
+                        print(f"  WARNING: Invalid β₂ values in 10e — using fallback: {b2_mult}")
                 else:
-                    print(f"  WARNING: Invalid β₂ values in 10e — using fallback: {b2_mult}")
-            else:
-                print(f"  WARNING: No Impact tier in 10e — using fallback β₂ multiplier")
-        except Exception as e:
-            print(f"  WARNING: Could not read {OUT_10E_COEFF_SHIFTS.name}: {e}")
-            print(f"           Using fallback β₂ multiplier: {b2_mult}")
-    else:
-        print(f"  WARNING: {OUT_10E_COEFF_SHIFTS.name} not found — using fallback β₂ multiplier")
+                    print(f"  WARNING: No Impact tier in 10e — using fallback β₂ multiplier")
+            except Exception as e:
+                print(f"  WARNING: Could not read {OUT_10E_COEFF_SHIFTS.name}: {e}")
+                print(f"           Using fallback β₂ multiplier: {b2_mult}")
+        else:
+            print(f"  WARNING: {OUT_10E_COEFF_SHIFTS.name} not found — using fallback β₂ multiplier")
 
     return baci_annual, baci_summer, b2_mult
 
@@ -1425,13 +1434,11 @@ def plot_baci_zone_violin(df, dates, well_names, elev, dpi=FIG_DPI):
 def plot_scenario_comparison(master, climate, dpi=300):
     """Produce the scenario comparison grouped bar chart and CSV.
 
-    Uses load_cluster_params() and compute_scenario_bars() from
-    scraping_common as the single source of truth.
+    Uses compute_scenario_bars_from_params() from scraping_common,
+    which reads from the consolidated pipeline_scenario_params.csv.
     """
-    cluster_params = load_cluster_params()
-    summer_P, summer_PET = load_summer_climate()
-
-    scenario_values = compute_scenario_bars(cluster_params, summer_P, summer_PET)
+    from utils.scraping_common import compute_scenario_bars_from_params
+    scenario_values, _, _, _ = compute_scenario_bars_from_params()
 
     clusters = ["C1", "C2", "C3", "C4", "C5"]
     cluster_labels = ["C1\nLake Edge", "C2\nDune", "C3\nWestern",

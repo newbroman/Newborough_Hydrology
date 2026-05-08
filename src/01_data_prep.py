@@ -396,3 +396,16 @@ if __name__ == "__main__":
     else:
         print(f"    [WARNING] Elevation file not found: {_WELL_ELEV_FILE}")
         print(f"    Upstand correction in script 03 will be skipped.")
+
+    # ------------------------------------------------------------------ #
+    #  PIPELINE SCENARIO PARAMETERS                                       #
+    #  Writes the consolidated parameter file used by all downstream      #
+    #  scenario scripts (09b, 09d, 19, 21). On re-runs, picks up real    #
+    #  values from existing upstream outputs (03, 10e, 17); on first      #
+    #  run, uses defaults with a flag.                                    #
+    # ------------------------------------------------------------------ #
+    print("\n -> Writing pipeline scenario parameters...")
+    from utils.pipeline_params import write_initial_params
+    write_initial_params(wells_clean, climate)
+
+    print("\n=== Script 01 complete ===")

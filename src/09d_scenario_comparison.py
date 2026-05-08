@@ -169,8 +169,14 @@ def _compute_ceh36_scenarios(params, summer_P, summer_PET):
     h_disp = params["h_disp"]
     Sy = params["Sy"]
 
-    # Load BACI-corrected β₂ multipliers from clearfell_common
-    clearfell_b2_mult, thinning_b2_mult, _ = load_clearfell_b2_multiplier()
+    # Load BACI-corrected β₂ multipliers — prefer pipeline params file
+    try:
+        from utils.pipeline_params import load_params
+        _p = load_params(warn_defaults=False)
+        clearfell_b2_mult = _p["clearfell_b2_mult"]
+        thinning_b2_mult = _p["thinning_b2_mult"]
+    except (FileNotFoundError, KeyError):
+        clearfell_b2_mult, thinning_b2_mult, _ = load_clearfell_b2_multiplier()
     print(f"   β₂ multipliers: clearfell={clearfell_b2_mult:.4f}  "
           f"thinning={thinning_b2_mult:.4f}")
 

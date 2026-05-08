@@ -479,18 +479,14 @@ def _plot_scenario_comparison(centroids_df, dpi=200):
     Non-scraping values from compute_scenario_bars() (single source of truth).
     Scraping bars from BACI centroid shifts.
     """
-    from utils.scraping_common import (
-        compute_scenario_bars, load_cluster_params, load_summer_climate,
-    )
+    from utils.scraping_common import compute_scenario_bars_from_params
 
     clusters = ["C1", "C2", "C3", "C4", "C5"]
     cluster_labels = ["C1\nLake Edge", "C2\nDune", "C3\nWestern",
                       "C4\nMain\nForest", "C5\nCoastal\nForest"]
 
-    # Non-scraping scenarios from the shared function
-    cluster_params = load_cluster_params()
-    summer_P, summer_PET = load_summer_climate()
-    base_scenarios = compute_scenario_bars(cluster_params, summer_P, summer_PET)
+    # Non-scraping scenarios from the consolidated pipeline params
+    base_scenarios, _, _, _ = compute_scenario_bars_from_params()
 
     # Scraping bars from centroid BACI shifts
     scrape_w = _compute_scraping_bars(centroids_df)

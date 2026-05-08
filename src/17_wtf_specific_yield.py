@@ -561,6 +561,26 @@ def main():
     export_csv(a_results, b_results, path_table)
     write_summary(a_results, b_results, path_summary)
 
+    # Update consolidated pipeline params with Sy values
+    try:
+        from utils.pipeline_params import update_specific_yield
+        sy_df = pd.read_csv(path_table)
+        sy_dict = {}
+        for cid in range(1, 6):
+            label = CLUSTER_LABELS.get(cid, f"C{cid}")
+            # Prefer interception-corrected for forest clusters
+            corr_row = sy_df[sy_df["Cluster"].str.contains("corrected", case=False)
+                             & sy_df["Cluster"].str.startswith(label)]
+            base_row = sy_df[~sy_df["Cluster"].str.contains("corrected", case=False, na=False)
+                             & sy_df["Cluster"].str.startswith(label)]
+            row = corr_row if cid in FOREST_CIDS and not corr_row.empty else base_row
+            if not row.empty and pd.notna(row["Sy_event_median"].iloc[0]):
+                sy_dict[cid] = float(row["Sy_event_median"].iloc[0])
+        if sy_dict:
+            update_specific_yield(sy_dict)
+    except Exception as e:
+        print(f"  [note] Pipeline params Sy update skipped: {e}")
+
     print("\nAll outputs written to", out_dir)
 
 

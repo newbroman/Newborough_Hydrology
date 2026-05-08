@@ -1,24 +1,26 @@
 Parameter,Well,Era,Value,Unit,Note,Source
-ANCOVA_Forest_Impact_clearfell_step,Impact,Post_felling,0.0227,m,"p=0.4390, CI=[-0.0347,0.0802]",10a
-ANCOVA_Forest_Impact_scraping_step,Impact,Post_scraping,0.2779,m,p=0.0135,10a
-ANCOVA_Forest_Impact_R2,Impact,,0.3538,,Model R²,10a
+ANCOVA_Forest_Impact_clearfell_step,Impact,Post_felling,0.093,m,"p=0.0193, CI=[0.0157,0.1703]",10a
+ANCOVA_Forest_Impact_scraping_step,Impact,Post_scraping,0.4231,m,p=<0.001,10a
+ANCOVA_Forest_Impact_R2,Impact,,0.376,,Model R²,10a
 ANCOVA_Forest_Impact_N,Impact,,199.0,months,Sample size,10a
-ANCOVA_Forest_Impact_coeff_intercept,Impact,,0.0782,m,"SE=0.020873, p=<0.001",10a
+ANCOVA_Forest_Impact_coeff_intercept,Impact,,0.1203,m,"SE=0.026113, p=<0.001",10a
 ANCOVA_Forest_Impact_coeff_cwb,Impact,,-0.0009,m,"SE=0.000111, p=<0.001",10a
-ANCOVA_Forest_Impact_coeff_scraping,Impact,,0.2779,m,"SE=0.111464, p=0.0135",10a
-ANCOVA_Forest_Impact_coeff_clearfell,Impact,,0.0227,m,"SE=0.029313, p=0.4390",10a
-ANCOVA_Forest_Impact_coeff_cwb_x_fell,Impact,,0.0002,m,"SE=0.000164, p=0.2057",10a
-ANCOVA_Forest_Impact_Oct2023_step,Impact,Oct2023,-0.0701,m,"p=0.4807, dAIC=1.49",10a
-ANCOVA_Forest_Edge_clearfell_step,Edge,Post_felling,-0.0382,m,"p=0.2040, CI=[-0.0970,0.0206]",10a
-ANCOVA_Forest_Edge_scraping_step,Edge,Post_scraping,-0.1299,m,p=0.4830,10a
-ANCOVA_Forest_Edge_R2,Edge,,0.5136,,Model R²,10a
+ANCOVA_Forest_Impact_coeff_scraping,Impact,,0.4231,m,"SE=0.123043, p=<0.001",10a
+ANCOVA_Forest_Impact_coeff_clearfell,Impact,,0.093,m,"SE=0.039431, p=0.0193",10a
+ANCOVA_Forest_Impact_coeff_cwb_x_fell,Impact,,0.0002,m,"SE=0.000162, p=0.2570",10a
+ANCOVA_Forest_Impact_coeff_easting_x_time,Impact,,0.0,m,"SE=0.000010, p=0.0096",10a
+ANCOVA_Forest_Impact_Oct2023_step,Impact,Oct2023,0.1945,m,"p=0.1454, dAIC=-0.20",10a
+ANCOVA_Forest_Edge_clearfell_step,Edge,Post_felling,0.1532,m,"p=<0.001, CI=[0.0904,0.2160]",10a
+ANCOVA_Forest_Edge_scraping_step,Edge,Post_scraping,0.7128,m,p=<0.001,10a
+ANCOVA_Forest_Edge_R2,Edge,,0.66,,Model R²,10a
 ANCOVA_Forest_Edge_N,Edge,,222.0,months,Sample size,10a
-ANCOVA_Forest_Edge_coeff_intercept,Edge,,0.0942,m,"SE=0.017956, p=<0.001",10a
-ANCOVA_Forest_Edge_coeff_cwb,Edge,,-0.0009,m,"SE=0.000104, p=<0.001",10a
-ANCOVA_Forest_Edge_coeff_scraping,Edge,,-0.1299,m,"SE=0.184829, p=0.4830",10a
-ANCOVA_Forest_Edge_coeff_clearfell,Edge,,-0.0382,m,"SE=0.030005, p=0.2040",10a
-ANCOVA_Forest_Edge_coeff_cwb_x_fell,Edge,,0.0002,m,"SE=0.000159, p=0.3093",10a
-ANCOVA_Forest_Edge_Oct2023_step,Edge,Oct2023,-0.0115,m,"p=0.9467, dAIC=2.00",10a
+ANCOVA_Forest_Edge_coeff_intercept,Edge,,0.2411,m,"SE=0.021407, p=<0.001",10a
+ANCOVA_Forest_Edge_coeff_cwb,Edge,,-0.0007,m,"SE=0.000089, p=<0.001",10a
+ANCOVA_Forest_Edge_coeff_scraping,Edge,,0.7128,m,"SE=0.177835, p=<0.001",10a
+ANCOVA_Forest_Edge_coeff_clearfell,Edge,,0.1532,m,"SE=0.032038, p=<0.001",10a
+ANCOVA_Forest_Edge_coeff_cwb_x_fell,Edge,,0.0001,m,"SE=0.000134, p=0.5443",10a
+ANCOVA_Forest_Edge_coeff_easting_x_time,Edge,,0.0,m,"SE=0.000002, p=<0.001",10a
+ANCOVA_Forest_Edge_Oct2023_step,Edge,Oct2023,1.2243,m,"p=<0.001, dAIC=-53.07",10a
 ANCOVA_Climate_Impact_clearfell_step,Impact,Post_felling,0.0503,m,"p=0.0601, CI=[-0.0018,0.1023]",10a
 ANCOVA_Climate_Impact_scraping_step,Impact,Post_scraping,-0.0487,m,p=0.6869,10a
 ANCOVA_Climate_Impact_R2,Impact,,0.0973,,Model R²,10a
@@ -63,14 +65,14 @@ ANCOVA_Combined_Edge_coeff_clearfell,Edge,,0.1935,m,"SE=0.037034, p=<0.001",10a
 ANCOVA_Combined_Edge_coeff_cwb_x_fell,Edge,,-0.0001,m,"SE=0.000154, p=0.6141",10a
 ANCOVA_Combined_Edge_coeff_easting_x_time,Edge,,0.0,m,"SE=0.000001, p=<0.001",10a
 ANCOVA_Combined_Edge_Oct2023_step,Edge,Oct2023,2.3273,m,"p=<0.001, dAIC=-59.66",10a
-Sensitivity_lambda200_Forest_Impact_clearfell,Impact,,0.0227,m,"p=0.4390, R²=0.354",10a
-Sensitivity_lambda200_Forest_Edge_clearfell,Edge,,-0.0382,m,"p=0.2040, R²=0.514",10a
+Sensitivity_lambda200_Forest_Impact_clearfell,Impact,,0.093,m,"p=0.0193, R²=0.376",10a
+Sensitivity_lambda200_Forest_Edge_clearfell,Edge,,0.1532,m,"p=<0.001, R²=0.660",10a
 Sensitivity_lambda200_Climate_Impact_clearfell,Impact,,0.0503,m,"p=0.0601, R²=0.097",10a
 Sensitivity_lambda200_Climate_Edge_clearfell,Edge,,0.2382,m,"p=<0.001, R²=0.333",10a
 Sensitivity_lambda200_Combined_Impact_clearfell,Impact,,0.0632,m,"p=0.0020, R²=0.267",10a
 Sensitivity_lambda200_Combined_Edge_clearfell,Edge,,0.1935,m,"p=<0.001, R²=0.471",10a
-Sensitivity_lambda500_Forest_Impact_clearfell,Impact,,0.0227,m,"p=0.4390, R²=0.354",10a
-Sensitivity_lambda500_Forest_Edge_clearfell,Edge,,-0.0382,m,"p=0.2040, R²=0.514",10a
+Sensitivity_lambda500_Forest_Impact_clearfell,Impact,,0.093,m,"p=0.0193, R²=0.376",10a
+Sensitivity_lambda500_Forest_Edge_clearfell,Edge,,0.1532,m,"p=<0.001, R²=0.660",10a
 Sensitivity_lambda500_Climate_Impact_clearfell,Impact,,0.0503,m,"p=0.0601, R²=0.097",10a
 Sensitivity_lambda500_Climate_Edge_clearfell,Edge,,0.2382,m,"p=<0.001, R²=0.333",10a
 Sensitivity_lambda500_Combined_Impact_clearfell,Impact,,0.0632,m,"p=0.0020, R²=0.267",10a
@@ -344,3 +346,60 @@ Rolling_b1_impact_pre,,,2.467,,,10g
 Rolling_b1_impact_post,,,2.539,,,10g
 Rolling_b1_shift,,,0.072,,toward C3,10g
 Rolling_b1_c3_post,,,3.518,,,10g
+synth_FE1_R2_cal,,,0.9978,m,,10h
+synth_FE1_RMSE_mm,,,18.2,mm,,10h
+synth_FE1_hindcast_months,,,52.0,m,,10h
+synth_FE1_pre_scraping_months,,,49.0,m,,10h
+synth_FE1_postfell_divergence_mm,,,9.3,mm,,10h
+synth_FE1_postfell_divergence_p,,,0.145,m,,10h
+synth_FE2_R2_cal,,,0.9944,m,,10h
+synth_FE2_RMSE_mm,,,24.6,mm,,10h
+synth_FE2_hindcast_months,,,52.0,m,,10h
+synth_FE2_pre_scraping_months,,,49.0,m,,10h
+synth_FE2_postfell_divergence_mm,,,28.3,mm,,10h
+synth_FE2_postfell_divergence_p,,,0.0008,m,,10h
+ANCOVA_A_WMC3+FE1+FE2_Forest_clearfell_step,,,0.0447,m,,10h
+ANCOVA_A_WMC3+FE1+FE2_Forest_clearfell_p,,,0.1569,m,,10h
+ANCOVA_A_WMC3+FE1+FE2_Forest_R2,,,0.3787,m,,10h
+ANCOVA_A_WMC3+FE1+FE2_Forest_N,,,199.0,m,,10h
+ANCOVA_A_WMC3+FE1+FE2_Forest_net_clearfell,,,0.0427,m,Forest/Combined step minus Climate background,10h
+ANCOVA_A_WMC3+FE1+FE2_Climate_clearfell_step,,,0.002,m,,10h
+ANCOVA_A_WMC3+FE1+FE2_Climate_clearfell_p,,,0.9475,m,,10h
+ANCOVA_A_WMC3+FE1+FE2_Climate_R2,,,0.0328,m,,10h
+ANCOVA_A_WMC3+FE1+FE2_Climate_N,,,199.0,m,,10h
+ANCOVA_A_WMC3+FE1+FE2_Climate_net_clearfell,,,0.0,m,Forest/Combined step minus Climate background,10h
+ANCOVA_A_WMC3+FE1+FE2_Combined_clearfell_step,,,0.0149,m,,10h
+ANCOVA_A_WMC3+FE1+FE2_Combined_clearfell_p,,,0.3393,m,,10h
+ANCOVA_A_WMC3+FE1+FE2_Combined_R2,,,0.1466,m,,10h
+ANCOVA_A_WMC3+FE1+FE2_Combined_N,,,199.0,m,,10h
+ANCOVA_A_WMC3+FE1+FE2_Combined_net_clearfell,,,0.0129,m,Forest/Combined step minus Climate background,10h
+ANCOVA_B_WMC3+FE2_Forest_clearfell_step,,,0.103,m,,10h
+ANCOVA_B_WMC3+FE2_Forest_clearfell_p,,,0.0108,m,,10h
+ANCOVA_B_WMC3+FE2_Forest_R2,,,0.4445,m,,10h
+ANCOVA_B_WMC3+FE2_Forest_N,,,199.0,m,,10h
+ANCOVA_B_WMC3+FE2_Forest_net_clearfell,,,0.0427,m,Forest/Combined step minus Climate background,10h
+ANCOVA_B_WMC3+FE2_Climate_clearfell_step,,,0.0603,m,,10h
+ANCOVA_B_WMC3+FE2_Climate_clearfell_p,,,0.0706,m,,10h
+ANCOVA_B_WMC3+FE2_Climate_R2,,,0.0963,m,,10h
+ANCOVA_B_WMC3+FE2_Climate_N,,,199.0,m,,10h
+ANCOVA_B_WMC3+FE2_Climate_net_clearfell,,,0.0,m,Forest/Combined step minus Climate background,10h
+ANCOVA_B_WMC3+FE2_Combined_clearfell_step,,,0.0732,m,,10h
+ANCOVA_B_WMC3+FE2_Combined_clearfell_p,,,0.0013,m,,10h
+ANCOVA_B_WMC3+FE2_Combined_R2,,,0.3119,m,,10h
+ANCOVA_B_WMC3+FE2_Combined_N,,,199.0,m,,10h
+ANCOVA_B_WMC3+FE2_Combined_net_clearfell,,,0.0129,m,Forest/Combined step minus Climate background,10h
+ANCOVA_C_WMC3_only_Forest_clearfell_step,,,0.093,m,,10h
+ANCOVA_C_WMC3_only_Forest_clearfell_p,,,0.0193,m,,10h
+ANCOVA_C_WMC3_only_Forest_R2,,,0.376,m,,10h
+ANCOVA_C_WMC3_only_Forest_N,,,199.0,m,,10h
+ANCOVA_C_WMC3_only_Forest_net_clearfell,,,0.0427,m,Forest/Combined step minus Climate background,10h
+ANCOVA_C_WMC3_only_Climate_clearfell_step,,,0.0503,m,,10h
+ANCOVA_C_WMC3_only_Climate_clearfell_p,,,0.0601,m,,10h
+ANCOVA_C_WMC3_only_Climate_R2,,,0.0973,m,,10h
+ANCOVA_C_WMC3_only_Climate_N,,,199.0,m,,10h
+ANCOVA_C_WMC3_only_Climate_net_clearfell,,,0.0,m,Forest/Combined step minus Climate background,10h
+ANCOVA_C_WMC3_only_Combined_clearfell_step,,,0.0632,m,,10h
+ANCOVA_C_WMC3_only_Combined_clearfell_p,,,0.002,m,,10h
+ANCOVA_C_WMC3_only_Combined_R2,,,0.2668,m,,10h
+ANCOVA_C_WMC3_only_Combined_N,,,199.0,m,,10h
+ANCOVA_C_WMC3_only_Combined_net_clearfell,,,0.0129,m,Forest/Combined step minus Climate background,10h

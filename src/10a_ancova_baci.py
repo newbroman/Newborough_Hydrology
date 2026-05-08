@@ -71,9 +71,16 @@ OUT_COMPARISON    = DIR_10 / "10a_01_ancova_comparison_table.csv"
 OUT_FULL_COEFFS   = DIR_10 / "10a_02_ancova_full_coefficients.csv"
 OUT_TIMESERIES    = DIR_10 / "10a_03_baci_timeseries.csv"
 OUT_REPORT        = DIR_10 / "10a_report_numbers.csv"
+# Primary figures (Forest control only — for report)
 OUT_FIG_IMPACT    = DIR_10 / "10a_04_baci_timeseries_impact.png"
 OUT_FIG_EDGE      = DIR_10 / "10a_05_baci_timeseries_edge.png"
 OUT_FIG_SCATTER   = DIR_10 / "10a_06_climate_sensitivity.png"
+OUT_FIG_CUSUM_IMP = DIR_10 / "10a_07_cusum_impact.png"
+OUT_FIG_CUSUM_EDGE= DIR_10 / "10a_08_cusum_edge.png"
+# Supplementary figures (three-panel, all controls)
+OUT_FIG_IMPACT_3P = DIR_10 / "10a_S1_baci_timeseries_impact_3panel.png"
+OUT_FIG_EDGE_3P   = DIR_10 / "10a_S2_baci_timeseries_edge_3panel.png"
+OUT_FIG_SCATTER_3P= DIR_10 / "10a_S3_climate_sensitivity_3panel.png"
 
 # ============================================================================
 # MATPLOTLIB DEFAULTS
@@ -516,9 +523,11 @@ ts_df.to_csv(OUT_TIMESERIES, index=False)
 print(f" -> Saved: {OUT_TIMESERIES.name} ({len(ts_df)} rows)")
 
 # ============================================================================
-# FIGURE: BACI TIMESERIES (IMPACT)
+# FIGURES
 # ============================================================================
-print("7. Generating BACI time-series figures...")
+print("7. Generating figures...")
+
+CB_FOREST = '#4DAC26'
 
 
 def _vlines(ax):
@@ -528,17 +537,208 @@ def _vlines(ax):
     ax.axvline(SCRAPING_DATE_2, color='#999999', ls=':', lw=0.8, zorder=1)
 
 
-def _shade(ax, ymin=None, ymax=None):
-    """Shade the pre-scraping and post-felling eras."""
-    if ymin is None:
-        ymin, ymax = ax.get_ylim()
-    ax.axvspan(ax.get_xlim()[0], mdates.date2num(SCRAPING_DATE),
-               alpha=0.04, color='blue', zorder=0)
-    ax.axvspan(mdates.date2num(INTERVENTION_DATE), ax.get_xlim()[1],
-               alpha=0.04, color='red', zorder=0)
+def _compute_corrected(df, fit):
+    """Compute climate-corrected BACI displacement."""
+    cwb_idx = fit['col_names'].index('cwb')
+    cwb_fell_idx = fit['col_names'].index('cwb_x_fell')
+    corrected = (df['baci_disp']
+                 - fit['b'][cwb_idx] * df['cwb_c']
+                 - fit['b'][cwb_fell_idx] * df['cwb_c'] * df['D_fell'])
+    if 'easting_x_time' in fit['col_names']:
+        east_idx = fit['col_names'].index('easting_x_time')
+        corrected = corrected - fit['b'][east_idx] * df['easting_x_time']
+    return corrected
 
 
-def plot_baci_timeseries(zone_label, out_path):
+def _plot_era_means(ax, df, corrected_mm):
+    """Draw era mean horizontal lines from the corrected series."""
+    for mask, x0, x1 in [
+        (df.index < SCRAPING_DATE,
+         df.index[0], SCRAPING_DATE),
+        ((df.index >= SCRAPING_DATE) & (df.index < INTERVENTION_DATE),
+         SCRAPING_DATE, INTERVENTION_DATE),
+        (df.index >= INTERVENTION_DATE,
+         INTERVENTION_DATE, df.index[-1]),
+    ]:
+        era_data = corrected_mm[mask]
+        if len(era_data) > 0:
+            ax.hlines(era_data.mean(), x0, x1, colors='grey', ls=':', lw=1)
+
+
+# ── Primary figures: Forest control only (for report) ────────────────────────
+
+def plot_forest_timeseries(zone_label, out_path):
+    """Single-panel Forest control BACI timeseries."""
+    key = ('Forest', zone_label)
+    if key not in ancova_frames or key not in results:
+        print(f"   [SKIP] Forest × {zone_label} not available")
+        return
+
+    df = ancova_frames[key]
+    fit = results[key]
+
+    fig, ax = plt.subplots(figsize=(14, 5), dpi=300)
+
+    ax.plot(df.index, df['baci_disp'] * 1000, color=CB_FOREST, alpha=0.4,
+            lw=0.8, label='Raw')
+
+    corrected = _compute_corrected(df, fit)
+    ax.plot(df.index, corrected * 1000, color=CB_FOREST, lw=1.5,
+            label='Climate-corrected')
+
+    _plot_era_means(ax, df, corrected * 1000)
+    _vlines(ax)
+
+    ax.set_ylabel('BACI displacement (mm)')
+    fell_step = fit['clearfell_step'] * 1000
+    ci_mm = (fit['clearfell_ci'][0] * 1000, fit['clearfell_ci'][1] * 1000)
+    ax.set_title(
+        f'Forest control — {zone_label} zone   |   '
+        f'Clearfell = {fell_step:+.0f} mm  '
+        f'[{ci_mm[0]:+.0f}, {ci_mm[1]:+.0f}]  '
+        f'p = {format_p(fit["clearfell_p"])}  '
+        f'R² = {fit["r2"]:.3f}',
+        fontsize=12)
+    ax.legend(loc='upper left', frameon=False, fontsize=9)
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
+
+    fig.tight_layout()
+    fig.savefig(out_path, bbox_inches='tight', facecolor='white')
+    plt.close(fig)
+    print(f" -> Saved: {out_path.name}")
+
+
+plot_forest_timeseries('Impact', OUT_FIG_IMPACT)
+plot_forest_timeseries('Edge', OUT_FIG_EDGE)
+
+
+# ── Climate sensitivity scatter: Forest control, Impact + Edge ───────────────
+
+print("   Climate sensitivity (Forest control)...")
+
+fig, axes = plt.subplots(1, 2, figsize=(14, 5), dpi=300)
+fig.subplots_adjust(wspace=0.30)
+
+for j, zone_label in enumerate(ZONES.keys()):
+    ax = axes[j]
+    key = ('Forest', zone_label)
+    if key not in ancova_frames:
+        continue
+
+    df = ancova_frames[key]
+    fit = results[key]
+    pre = df[df.index < INTERVENTION_DATE]
+    post = df[df.index >= INTERVENTION_DATE]
+
+    ax.scatter(pre['cwb'], pre['baci_disp'] * 1000,
+               color=CB_FOREST, alpha=0.4, s=20, label='Pre-felling')
+    ax.scatter(post['cwb'], post['baci_disp'] * 1000,
+               color=CB_FOREST, marker='x', s=30, label='Post-felling')
+
+    for subset, ls in [(pre, '--'), (post, '-')]:
+        if len(subset) > 5:
+            slope, intercept = np.polyfit(subset['cwb'],
+                                         subset['baci_disp'] * 1000, 1)
+            x_line = np.linspace(subset['cwb'].min(), subset['cwb'].max(), 50)
+            ax.plot(x_line, slope * x_line + intercept, color='grey',
+                    ls=ls, lw=1)
+
+    ax.set_xlabel('Cumulative water balance (mm)')
+    ax.set_ylabel(f'{zone_label} BACI disp. (mm)')
+    fell_step = fit['clearfell_step'] * 1000
+    ax.set_title(f'{zone_label} zone   |   step = {fell_step:+.0f} mm  '
+                 f'p = {format_p(fit["clearfell_p"])}', fontsize=11)
+    if j == 0:
+        ax.legend(loc='best', frameon=False, fontsize=8)
+
+fig.suptitle('Climate sensitivity: CWB vs BACI displacement — Forest control',
+             fontsize=13, y=1.02)
+fig.savefig(OUT_FIG_SCATTER, bbox_inches='tight', facecolor='white')
+plt.close(fig)
+print(f" -> Saved: {OUT_FIG_SCATTER.name}")
+
+
+# ── CUSUM: Forest control, Impact + Edge ─────────────────────────────────────
+
+print("   CUSUM (Forest control)...")
+
+for zone_label, out_path in [('Impact', OUT_FIG_CUSUM_IMP),
+                              ('Edge', OUT_FIG_CUSUM_EDGE)]:
+    key = ('Forest', zone_label)
+    if key not in ancova_frames or key not in results:
+        print(f"   [SKIP] Forest × {zone_label} not available for CUSUM")
+        continue
+
+    df = ancova_frames[key]
+    fit = results[key]
+    corrected = _compute_corrected(df, fit)
+
+    # CUSUM: demeaned on pre-felling baseline
+    pre_fell_mean = corrected[corrected.index < INTERVENTION_DATE].mean()
+    detrended = corrected - pre_fell_mean
+    cusum = detrended.cumsum() * 1000  # mm
+
+    fig, axes = plt.subplots(2, 1, figsize=(14, 8), dpi=300,
+                             gridspec_kw={'height_ratios': [2, 1]})
+    fig.subplots_adjust(hspace=0.25)
+
+    # Top: climate-corrected timeseries
+    ax = axes[0]
+    ax.plot(df.index, df['baci_disp'] * 1000, color=CB_FOREST, alpha=0.4,
+            lw=0.8, label='Raw')
+    ax.plot(corrected.index, corrected * 1000, color=CB_FOREST, lw=1.5,
+            label='Climate-corrected')
+    _plot_era_means(ax, df, corrected * 1000)
+    _vlines(ax)
+    ax.set_ylabel('BACI displacement (mm)')
+    fell_step = fit['clearfell_step'] * 1000
+    ci_mm = (fit['clearfell_ci'][0] * 1000, fit['clearfell_ci'][1] * 1000)
+    ax.set_title(
+        f'Forest control — {zone_label} zone   |   '
+        f'Clearfell = {fell_step:+.0f} mm  '
+        f'[{ci_mm[0]:+.0f}, {ci_mm[1]:+.0f}]  '
+        f'p = {format_p(fit["clearfell_p"])}',
+        fontsize=11)
+    ax.legend(loc='upper left', frameon=False, fontsize=9)
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
+
+    # Bottom: CUSUM
+    ax = axes[1]
+    ax.fill_between(cusum.index, 0, cusum.values, color=CB_FOREST, alpha=0.3)
+    ax.plot(cusum.index, cusum.values, color=CB_FOREST, lw=1.5)
+    ax.axhline(0, color='grey', lw=0.5)
+    _vlines(ax)
+
+    cusum_at_fell = cusum.loc[cusum.index >= INTERVENTION_DATE]
+    if len(cusum_at_fell) > 0:
+        ax.annotate(f'At clearfell: {cusum_at_fell.iloc[0]:.0f} mm',
+                    xy=(INTERVENTION_DATE, cusum_at_fell.iloc[0]),
+                    fontsize=9, ha='left', va='bottom',
+                    xytext=(10, 5), textcoords='offset points')
+    cusum_final = cusum.iloc[-1]
+    ax.annotate(f'Final: {cusum_final:.0f} mm',
+                xy=(cusum.index[-1], cusum_final),
+                fontsize=9, ha='right', va='bottom',
+                xytext=(-10, 5), textcoords='offset points')
+
+    ax.set_ylabel('CUSUM (mm)')
+    ax.set_title('Climate-corrected CUSUM (demeaned on pre-felling baseline)',
+                 fontsize=11)
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
+
+    fig.suptitle(f'CUSUM — {zone_label} zone vs Forest Control',
+                 fontsize=13, y=0.98)
+    fig.savefig(out_path, bbox_inches='tight', facecolor='white')
+    plt.close(fig)
+    print(f" -> Saved: {out_path.name}")
+
+
+# ── Supplementary figures: three-panel (all controls) ────────────────────────
+
+print("   Supplementary three-panel figures...")
+
+
+def plot_baci_timeseries_3panel(zone_label, out_path):
     """Plot 3-panel BACI timeseries for one zone, all three controls."""
     fig, axes = plt.subplots(3, 1, figsize=(14, 12), dpi=300)
     fig.subplots_adjust(hspace=0.30)
@@ -555,50 +755,14 @@ def plot_baci_timeseries(zone_label, out_path):
         df = ancova_frames[key]
         fit = results[key]
 
-        # Raw BACI displacement
         ax.plot(df.index, df['baci_disp'] * 1000, color=colour, alpha=0.4,
                 lw=0.8, label='Raw')
 
-        # Climate-corrected
-        cwb_idx = fit['col_names'].index('cwb')
-        cwb_fell_idx = fit['col_names'].index('cwb_x_fell')
-        corrected = (df['baci_disp']
-                     - fit['b'][cwb_idx] * df['cwb_c']
-                     - fit['b'][cwb_fell_idx] * df['cwb_c'] * df['D_fell'])
-        if 'easting_x_time' in fit['col_names']:
-            east_idx = fit['col_names'].index('easting_x_time')
-            corrected = corrected - fit['b'][east_idx] * df['easting_x_time']
-
+        corrected = _compute_corrected(df, fit)
         ax.plot(df.index, corrected * 1000, color=colour, lw=1.5,
                 label='Climate-corrected')
 
-        # Era means — computed from the corrected series itself.
-        # NOTE: We cannot use intercept + b_scrape for the post-scraping
-        # era because D_scrape is distance-weighted (fractional, not 0/1).
-        # The raw coefficient b_scrape corresponds to D_scrape=1, but the
-        # actual D_scrape value depends on well geometry.  Computing means
-        # directly from the corrected series avoids this mismatch.
-        corrected_mm = corrected * 1000
-
-        pre_scr = df[df.index < SCRAPING_DATE]
-        if len(pre_scr) > 0:
-            era_mean = corrected_mm.loc[pre_scr.index].mean()
-            ax.hlines(era_mean, pre_scr.index[0], SCRAPING_DATE,
-                      colors='grey', ls=':', lw=1)
-
-        scr_fell = df[(df.index >= SCRAPING_DATE) & (df.index < INTERVENTION_DATE)]
-        if len(scr_fell) > 0:
-            era_mean = corrected_mm.loc[scr_fell.index].mean()
-            ax.hlines(era_mean, SCRAPING_DATE, INTERVENTION_DATE,
-                      colors='grey', ls=':', lw=1)
-
-        post_fell = df[df.index >= INTERVENTION_DATE]
-        if len(post_fell) > 0:
-            era_mean = corrected_mm.loc[post_fell.index].mean()
-            ax.hlines(era_mean,
-                      INTERVENTION_DATE, post_fell.index[-1],
-                      colors='grey', ls=':', lw=1)
-
+        _plot_era_means(ax, df, corrected * 1000)
         _vlines(ax)
         ax.set_ylabel('BACI displacement (mm)')
         fell_step = fit['clearfell_step'] * 1000
@@ -622,56 +786,46 @@ def plot_baci_timeseries(zone_label, out_path):
     print(f" -> Saved: {out_path.name}")
 
 
-plot_baci_timeseries('Impact', OUT_FIG_IMPACT)
-plot_baci_timeseries('Edge', OUT_FIG_EDGE)
+plot_baci_timeseries_3panel('Impact', OUT_FIG_IMPACT_3P)
+plot_baci_timeseries_3panel('Edge', OUT_FIG_EDGE_3P)
 
-# ============================================================================
-# FIGURE: CLIMATE SENSITIVITY SCATTER
-# ============================================================================
-print("8. Generating climate sensitivity scatter...")
-
+# Supplementary scatter (all controls)
 fig, axes = plt.subplots(2, 3, figsize=(16, 10), dpi=300)
 fig.subplots_adjust(hspace=0.35, wspace=0.30)
-
 for j, zone_label in enumerate(ZONES.keys()):
     for i, (ctrl_label, colour) in enumerate(CONTROL_COLOURS.items()):
         ax = axes[j, i]
         key = (ctrl_label, zone_label)
-
-        if key not in ancova_frames or key not in results:
+        if key not in ancova_frames:
             ax.text(0.5, 0.5, 'No data', ha='center', va='center',
                     transform=ax.transAxes)
             continue
-
         df = ancova_frames[key]
         fit = results[key]
-
         pre = df[df.index < INTERVENTION_DATE]
         post = df[df.index >= INTERVENTION_DATE]
-
         ax.scatter(pre['cwb'], pre['baci_disp'] * 1000,
                    color=colour, alpha=0.4, s=20, label='Pre-felling')
         ax.scatter(post['cwb'], post['baci_disp'] * 1000,
                    color=colour, marker='x', s=30, label='Post-felling')
-
-        # Regression lines
         for subset, ls in [(pre, '--'), (post, '-')]:
             if len(subset) > 5:
-                slope, intercept = np.polyfit(subset['cwb'], subset['baci_disp'] * 1000, 1)
-                x_line = np.linspace(subset['cwb'].min(), subset['cwb'].max(), 50)
+                slope, intercept = np.polyfit(subset['cwb'],
+                                             subset['baci_disp'] * 1000, 1)
+                x_line = np.linspace(subset['cwb'].min(),
+                                     subset['cwb'].max(), 50)
                 ax.plot(x_line, slope * x_line + intercept, color='grey',
                         ls=ls, lw=1)
-
         ax.set_xlabel('Cumulative water balance (mm)')
         ax.set_ylabel(f'{zone_label} BACI disp. (mm)')
         ax.set_title(f'{ctrl_label} control', fontsize=11)
         if j == 0 and i == 0:
             ax.legend(loc='best', frameon=False, fontsize=8)
-
-fig.suptitle('Climate sensitivity: CWB vs BACI displacement', fontsize=13, y=0.98)
-fig.savefig(OUT_FIG_SCATTER, bbox_inches='tight', facecolor='white')
+fig.suptitle('Climate sensitivity: CWB vs BACI displacement',
+             fontsize=13, y=0.98)
+fig.savefig(OUT_FIG_SCATTER_3P, bbox_inches='tight', facecolor='white')
 plt.close(fig)
-print(f" -> Saved: {OUT_FIG_SCATTER.name}")
+print(f" -> Saved: {OUT_FIG_SCATTER_3P.name}")
 
 # ============================================================================
 # EXPORT: REPORT NUMBERS

@@ -79,7 +79,7 @@ def write_initial_params(wells_clean, climate):
     climate : pd.DataFrame
         Monthly climate with P_m and PET columns.
     """
-    from utils.config import DRAINAGE_DATUM, FOREST_CIDS, BROADLEAF_B2_SUMMER
+    from utils.config import DRAINAGE_DATUM, FOREST_CIDS, BROADLEAF_B2_SUMMER, BROADLEAF_B2_WINTER
     from utils.paths import (
         INT_MASTER_DATA, OUT_03_MECHANISTIC_TABLE,
         OUT_10E_COEFF_SHIFTS, INT_WTF_WELL_SY,
@@ -190,6 +190,7 @@ def write_initial_params(wells_clean, climate):
             "clearfell_b2_mult": round(clearfell_b2, 4),
             "thinning_b2_mult": round(thinning_b2, 4),
             "broadleaf_b2_summer": BROADLEAF_B2_SUMMER,
+            "broadleaf_b2_winter": BROADLEAF_B2_WINTER,
             "summer_P": round(summer_P, 6),
             "summer_PET": round(summer_PET, 6),
             "source_beta": "pipeline" if beta else "defaults",
@@ -367,6 +368,7 @@ def load_params(warn_defaults=True):
         "clearfell_b2_mult" : float
         "thinning_b2_mult" : float
         "broadleaf_b2_summer" : float
+        "broadleaf_b2_winter" : float
         "summer_P" : float
         "summer_PET" : float
         "all_pipeline" : bool — True if no defaults remain
@@ -414,6 +416,8 @@ def load_params(warn_defaults=True):
         "clearfell_b2_mult": float(df["clearfell_b2_mult"].iloc[0]),
         "thinning_b2_mult": float(df["thinning_b2_mult"].iloc[0]),
         "broadleaf_b2_summer": float(df["broadleaf_b2_summer"].iloc[0]),
+        "broadleaf_b2_winter": float(df.get("broadleaf_b2_winter",
+                                             pd.Series([0.87])).iloc[0]),
         "summer_P": float(df["summer_P"].iloc[0]),
         "summer_PET": float(df["summer_PET"].iloc[0]),
         "all_pipeline": not has_defaults,

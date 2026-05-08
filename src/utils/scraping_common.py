@@ -360,3 +360,38 @@ def compute_scenario_bars(cluster_params, summer_P, summer_PET,
         scenarios[scenario_name] = vals
 
     return scenarios
+
+
+def compute_scenario_bars_from_params():
+    """Convenience wrapper: load all params from pipeline file, compute bars.
+
+    Uses pipeline_params.load_params() as the single source, falling
+    back to the individual loaders if the params file doesn't exist.
+
+    Returns
+    -------
+    (scenario_values, cluster_params, summer_P, summer_PET) tuple
+    """
+    try:
+        from utils.pipeline_params import load_params
+        p = load_params()
+        return (
+            compute_scenario_bars(
+                p["clusters"], p["summer_P"], p["summer_PET"],
+                clearfell_b2_mult=p["clearfell_b2_mult"],
+                thinning_b2_mult=p["thinning_b2_mult"],
+            ),
+            p["clusters"],
+            p["summer_P"],
+            p["summer_PET"],
+        )
+    except FileNotFoundError:
+        # Fallback to individual loaders (first-ever run, no params file)
+        cluster_params = load_cluster_params()
+        summer_P, summer_PET = load_summer_climate()
+        return (
+            compute_scenario_bars(cluster_params, summer_P, summer_PET),
+            cluster_params,
+            summer_P,
+            summer_PET,
+        )

@@ -7,20 +7,25 @@ This document describes the data flow between all pipeline scripts: which files 
 
 **Run order:** 01 → 02 → 03 → 04 → 05 → 06 → 07 → 08 → 09 (suite a–e) → 10 (suite a–g) → 11 → 11b → 00 → 14 → 12 → 13 → 15 → 17 → 16 → 18 → 19 → 20 → 21 → 22 → 23 → 24
 
-**26 pipeline steps across 11 phases.**
+**27 pipeline steps across 11 phases.**
 
-Script 09 is a modular suite orchestrated by `run_09_scraping.py` (09a → 09b → 09c → 09d → 09e). Script 10 is a modular suite orchestrated by `run_10_clearfell.py` (10a → 10b → 10c → 10d → 10e → 10f → 10g). All sub-modules can be run independently provided their upstream Phase 1–2 outputs exist.
+Script 09 is a modular suite orchestrated by `run_09_scraping.py` (09a → 09b → 09c → 09d → 09e). Script 10 is a modular suite orchestrated by `run_10_clearfell.py` (10a → 10b → 10c → 10d → 10e → 10f → 10g → 10h). All sub-modules can be run independently provided their upstream Phase 1–2 outputs exist.
 
 ## Two-pass execution (recommended for new datasets)
 
 Two scripts in Phase 3 read Specific-Yield (Sy) values that are produced later in the pipeline:
 
-| Script | Step | Reads | Producer | Producer step |
+| Script | Step | Reads (via `scraping_common`) | Producer | Producer step |
 |---|---|---|---|---|
-| `09b_scraping_propagation.py` | 9 | `OUT_17_SY_TABLE` | Script 17 | 18 |
-| `09d_scenario_comparison.py`  | 12 | `INT_WTF_WELL_SY` | Script 18 | 20 |
+| `09b_scraping_propagation.py` | 10 | `load_cluster_params()` → Script 17 Sy | Script 17 | 18 |
+| `09d_scenario_comparison.py`  | 12 | `load_cluster_params()` → Script 17 Sy | Script 17 | 18 |
+| `21_forestry_scenarios.py`    | 23 | `load_cluster_params()` → Script 17 Sy | Script 17 | 18 |
 
-On a fresh first-pass full-pipeline run, those files do not yet exist when 09b/09d run. Both scripts now fall back to documented Newborough-2026 defaults (`Sy = 0.20` cluster, `Sy = 0.30` CEH36) **with explicit console warnings** so the situation is visible to the user. The scientific analyses themselves are unaffected — Sy enters only into a volumetric scenario-comparison conversion in the figures.
+All three scripts load cluster parameters (β, Sy, h_disp) via
+`scraping_common.load_cluster_params()`, which consolidates from Scripts 01,
+03, and 17. On a fresh first-pass run, Script 17 hasn't produced its Sy
+estimates yet, so `load_cluster_params()` will fail. Scripts 09b's summer
+scenario has a local `SY_FALLBACK = 0.20` for this case.
 
 **For accurate scenario figures on a new dataset, run the pipeline twice:**
 
@@ -28,7 +33,7 @@ On a fresh first-pass full-pipeline run, those files do not yet exist when 09b/0
 # pass 1 — fits the SSM, computes Sy, but 09b/09d use Sy fallbacks
 python run_analysis.py --full
 
-# pass 2 — re-runs Phase 3 with canonical Sy from 17/18
+# pass 2 — re-runs Phase 3 with canonical Sy from Script 17
 python run_analysis.py --from 9
 ```
 
@@ -39,6 +44,36 @@ python run_analysis.py --from 9
 - Script 11b requires outputs from Scripts 11 (P_flood equations) and 06 (extended Pearson audit).
 - Script 21 requires `03_regional_averages_maod.csv` from Script 03, plus Scripts 10a (BACI step) and 10e (β₂ multiplier).
 - Script 14 requires `00_well_network_summary.csv` from Script 00 and `02_cluster_stats.csv` from Script 02.
+
+## Shared parameter functions (`scraping_common.py`)
+
+Three functions in `scraping_common.py` provide the single source of truth
+for derived values that multiple scripts need. If upstream data changes
+(new well readings, re-fitted SSM, updated Sy), all downstream scenario
+figures update automatically on the next run.
+
+```
+load_cluster_params()
+  Reads: 03_03_cluster_mechanistic_coefficients.csv (β₁, β₂, β₃)
+         17_wtf_well_sy.csv (Sy, cluster median)
+         01_wells_clean.csv + DRAINAGE_DATUM (h_disp)
+  Returns: {C1: {b1, b2, b3, Sy, h_disp, forest}, ...}
+  Used by: 09b, 09d, 21
+
+load_summer_climate()
+  Reads: 01_climate.csv (Jun–Sep mean P and PET)
+  Returns: (summer_P, summer_PET)
+  Used by: 09b, 09d, 21
+
+compute_scenario_bars(cluster_params, summer_P, summer_PET)
+  Reads: config.py (UKCP18 scalers, interception, B2 defaults)
+  Returns: {scenario: {cluster: mm_we_per_month}}
+  Used by: 09d (via CEH36 extraction), 21 (cross-cluster figure)
+```
+
+**True constants** (do not change with data) live in `config.py`:
+`DRAINAGE_DATUM`, `FOREST_INTERCEPTION`, `BROADLEAF_INTERCEPTION`,
+`UKCP18_*` scalers, `CLEARFELL_B2_MULT_DEFAULT`.
 
 ## Data directory structure
 
@@ -80,7 +115,10 @@ src/
     model_utils.py          ← SSM fitting (build_ssm_frame, fit_ssm, fit_ssm_intercept, simulate_ssm, pflood_lambda, monthly_perturbation)
     paths.py                ← all path constants — single source of truth
     clearfell_common.py     ← shared 5-tier well lists & BACI helpers for Script 10 suite
-    scraping_common.py      ← shared constants for Script 09 suite
+    scraping_common.py      ← shared constants, well lists, era definitions for Script 09 suite
+                               + load_cluster_params()      — consolidated β, Sy, h_disp from Scripts 01/03/17
+                               + load_summer_climate()      — summer mean P/PET from Script 01
+                               + compute_scenario_bars()    — per-cluster scenario values (used by 09d, 21)
 ```
 
 ## Raw data inputs (`data/`)
@@ -299,14 +337,22 @@ src/
 
 **Purpose.** Split-window SSM fitting with BACI correction against distant controls; tests whether scraping propagated uphill into the forest interior. Centroid summaries for C3+CEH31 and C4. Scenario comparison bar charts.
 
-**Reads.**
+**Reads.** Cluster parameters via `scraping_common.load_cluster_params()` and
+`load_summer_climate()` (which consolidate from Scripts 01, 03, 17). Also reads
+directly:
 
-- `01_climate.csv` (Script 01 (step 1))
-- `01_locations.csv` (Script 01 (step 1))
-- `03_master_data.csv` (Script 03 (step 3))
-- `03_regional_averages.csv` (Script 03 (step 3))
-- `01_wells_clean.csv` (Script 01 (step 1))
-- `01_wells_extended.csv` (Script 01 (step 1))
+- `01_climate.csv` (Script 01)
+- `01_locations.csv` (Script 01)
+- `03_master_data.csv` (Script 03)
+- `03_regional_averages.csv` (Script 03)
+- `01_wells_clean.csv` (Script 01)
+- `01_wells_extended.csv` (Script 01)
+
+**Note:** The hardcoded fallback parameter dict and `h_aod` formulation have
+been removed. All cluster parameters (β, Sy, h_disp) now come from
+`scraping_common.load_cluster_params()`, which reads from Scripts 03 and 17
+at runtime. If you rerun Script 03 or 17 with new data, the scenario figures
+update automatically on the next 09b run.
 
 **Writes.**
 
@@ -334,15 +380,11 @@ src/
 
 #### Step 12 — 09d_scenario_comparison
 
-**Purpose.** CEH36-anchored equilibrium scenario comparison (observed scraping vs hypothetical clearfell/thinning/broadleaf/UKCP18 climate).
+**Purpose.** CEH36-anchored equilibrium scenario comparison (observed scraping vs hypothetical clearfell/thinning/broadleaf/UKCP18 climate). All scenarios evaluated at CEH36 using that well's own SSM coefficients and Sy.
 
-**Reads.**
-
-- `01_climate.csv` (Script 01 (step 1))
-- `03_master_data.csv` (Script 03 (step 3))
-- `03_regional_averages.csv` (Script 03 (step 3))
-- `01_wells_clean.csv` (Script 01 (step 1))
-- `17_wtf_well_sy.csv` (Script 18 (step 30))
+**Reads.** CEH36 well-level parameters loaded directly from Scripts 01, 03, 17.
+Summer climate via `scraping_common.load_summer_climate()`. Scenario constants
+(UKCP18 scalers, interception, B2 multiplier defaults) from `config.py`.
 
 **Writes.**
 
@@ -468,7 +510,33 @@ src/
   - `OUT_10G_REPORT` passed to `save`
 
 
-#### Step 21 — 11_forecasting_thresholds
+#### Step 21 — 10h_synthetic_impact_baci
+
+**Purpose.** Robustness check extending FE1/FE2 records backwards using donor regression on Forest Control wells (CEH34, CEH2, CEH33). Tests three impact centroid variants (WMC3+FE1+FE2, WMC3+FE2, WMC3 alone) against all three control definitions. Includes CUSUM and climate sensitivity diagnostics for Variant B.
+
+**Reads.**
+
+- `01_wells_clean.csv` (Script 01 (step 1))
+- `01_wells_extended.csv` (Script 01 (step 1))
+- `01_climate.csv` (Script 01 (step 1))
+- `03_master_data.csv` (Script 03 (step 3))
+
+**Writes.**
+
+- `10h_01_synthetic_calibration.csv`
+- `10h_02_ancova_comparison_table.csv`
+- `10h_03_ancova_full_coefficients.csv`
+- `10h_04_baci_timeseries.csv`
+- `10h_05_donor_regression_validation.png`
+- `10h_06_baci_timeseries_varA.png`
+- `10h_07_baci_timeseries_varB.png`
+- `10h_08_baci_timeseries_varC.png`
+- `10h_09_cusum_varB.png`
+- `10h_10_climate_sensitivity_varB.png`
+- `10h_report_numbers.csv`
+
+
+#### Step 22 — 11_forecasting_thresholds
 
 **Purpose.** Closed-form P_flood derivation and winter/summer transfer functions; Tables 6, 7, 8.
 
@@ -485,7 +553,7 @@ src/
 - `11_forecast_pflood_threshold_equations.csv`
 
 
-#### Step 22 — 11b_spatial_thresholds
+#### Step 23 — 11b_spatial_thresholds
 
 **Purpose.** Spatial threshold maps (summer minima depth, winter maxima depth, P_flood, flood frequency); builds the public forecaster HTML.
 
@@ -520,7 +588,7 @@ src/
 
 ### Phase 4 — Climate Projections & Figure Generation
 
-#### Step 23 — 00_climate_summary
+#### Step 24 — 00_climate_summary
 
 **Purpose.** Climate timeseries (full + monitoring period) and well-network summary statistics. Three figures (climate ts, network, summer warming) and three CSVs.
 
@@ -546,7 +614,7 @@ src/
   - `OUT_00_ANNUAL_CLIMATE_TABLE` passed to `dirname`
 
 
-#### Step 24 — 14_climate_projections
+#### Step 25 — 14_climate_projections
 
 **Purpose.** Climate trajectory projections (summer minima trend, winter exceedance) for all five clusters under UKCP18 RCP8.5.
 
@@ -575,7 +643,7 @@ src/
   - `OUT_14_CLIMATE_WINTER` passed to `render_winter_figure`
 
 
-#### Step 25 — 12_figure_site_overview
+#### Step 26 — 12_figure_site_overview
 
 **Purpose.** Figure 1 — DEM site overview map.
 
@@ -588,7 +656,7 @@ src/
   - `DATA_DIR` passed to `add_kml_features`
 
 
-#### Step 26 — 13_figure_experimental_design
+#### Step 27 — 13_figure_experimental_design
 
 **Purpose.** Figure 2 — five-tier BACI network plus scraping interventions.
 
@@ -604,7 +672,7 @@ src/
 
 ### Phase 5 — Depth-Dependent PET
 
-#### Step 27 — 15_depth_dependent_pet
+#### Step 28 — 15_depth_dependent_pet
 
 **Purpose.** Depth-dependent PET analysis (exp(−λd) modification, λ profile, fit comparison).
 
@@ -618,14 +686,14 @@ src/
 
 ### Phase 6 — WTF Cluster Sy Estimation
 
-#### Step 28 — 17_wtf_specific_yield
+#### Step 29 — 17_wtf_specific_yield
 
 **Purpose.** WTF cluster-mean Sy estimation (OLS winter and event-median methods, with optional interception correction for forested clusters).
 
 
 ### Phase 7 — Water Balance
 
-#### Step 29 — 16_water_bal
+#### Step 30 — 16_water_bal
 
 **Purpose.** Water-balance decomposition by cluster; bar/volumetric plots; WTF-corrected variants.
 
@@ -649,7 +717,7 @@ src/
 
 ### Phase 8 — WTF Spatial Analysis
 
-#### Step 30 — 18_wtf_spatial
+#### Step 31 — 18_wtf_spatial
 
 **Purpose.** Per-well Sy via WTF, IDW spatial interpolation of Sy, contour maps.
 
@@ -674,7 +742,7 @@ src/
 
 ### Phase 9 — Spatial Groundwater
 
-#### Step 31 — 19_spatial_groundwater
+#### Step 32 — 19_spatial_groundwater
 
 **Purpose.** Spatial groundwater analysis (head, β fields, water balance, drainage, depth-to-water-table). Self-contained scenario viewer HTML.
 
@@ -699,7 +767,7 @@ src/
   - `DATA_KML_FEATURES` passed to `kml_to_bng`
 
 
-#### Step 32 — 20_spatial_figures
+#### Step 33 — 20_spatial_figures
 
 **Purpose.** Paper figures: head + streams overlay, SSM water-balance residual map, slope/gradient.
 
@@ -730,21 +798,21 @@ src/
 
 ### Phase 10 — Forestry Scenarios
 
-#### Step 33 — 21_forestry_scenarios
+#### Step 34 — 21_forestry_scenarios
 
-**Purpose.** Forest-management scenario hydrographs and distributions, BACI zone violins; loads BACI displacement and β₂ multiplier dynamically from 10a/10e.
+**Purpose.** Forest-management scenario hydrographs and distributions, BACI zone violins; loads BACI displacement and β₂ multiplier dynamically from 10a/10e. Scenario comparison figure now uses `scraping_common.compute_scenario_bars()` as the single source of truth for per-cluster scenario values.
 
-**Reads.**
+**Reads.** Cluster parameters via `scraping_common.load_cluster_params()` and
+`load_summer_climate()` for the scenario comparison figure. Also reads directly:
 
-- `01_climate.csv` (Script 01 (step 1))
-- `03_regional_averages_maod.csv` (Script 03 (step 3))
-- `03_master_data.csv` (Script 03 (step 3))
-- `01_wells_clean.csv` (Script 01 (step 1))
-- `01_wells_extended.csv` (Script 01 (step 1))
-- `01_well_elevations.csv` (Script 01 (step 1))
-- `17_wtf_well_sy.csv` (Script 18 (step 30))
-- `10a_report_numbers.csv` (Script 10A (step 14))
-- `10e_01_coefficient_shifts.csv` (Script 10E (step 18))
+- `01_climate.csv` (Script 01)
+- `03_regional_averages_maod.csv` (Script 03)
+- `03_master_data.csv` (Script 03)
+- `01_wells_clean.csv` (Script 01)
+- `01_wells_extended.csv` (Script 01)
+- `01_well_elevations.csv` (Script 01)
+- `10a_report_numbers.csv` (Script 10A)
+- `10e_01_coefficient_shifts.csv` (Script 10E)
 
 **Writes.**
 
@@ -761,7 +829,7 @@ src/
 
 ### Phase 11 — Supplementary Diagnostics
 
-#### Step 34 — 22_residual_lag_analysis
+#### Step 35 — 22_residual_lag_analysis
 
 **Purpose.** AR(1) diagnostics on SSM residuals; α/φ scatter; example residual series by cluster.
 
@@ -789,7 +857,7 @@ src/
   - `OUT_22_EXAMPLE_SERIES` passed to `plot_example_residuals`
 
 
-#### Step 35 — 23_ridge_recharge_lag_test
+#### Step 36 — 23_ridge_recharge_lag_test
 
 **Purpose.** Ridge-proximal recharge lag hypothesis test (cross-correlation, lag vs distance, B10/B11 by cluster).
 
@@ -819,7 +887,7 @@ src/
   - `OUT_23_TEST_SUMMARY` passed to `write_test_summary`
 
 
-#### Step 36 — 24_residual_seasonality
+#### Step 37 — 24_residual_seasonality
 
 **Purpose.** Residual-seasonality diagnostic (climatology panels, amplitude map, sun-hour correlation, phase by cluster).
 
@@ -830,11 +898,11 @@ src/
 - `02_cluster_stats.csv` (Script 02 (step 2))
 - `01_locations.csv` (Script 01 (step 1))
 - `01_wells_clean.csv` (Script 01 (step 1))
-- `24_02_seasonal_amplitude_map.png` (Script 24 (step 36))
-- `24_01_climatology_panels_by_cluster.png` (Script 24 (step 36))
-- `24_04_phase_by_cluster.png` (Script 24 (step 36))
-- `24_05_diagnostic_summary.txt` (Script 24 (step 36))
-- `24_03_sun_residual_correlation.png` (Script 24 (step 36))
+- `24_02_seasonal_amplitude_map.png` (Script 24 (step 37))
+- `24_01_climatology_panels_by_cluster.png` (Script 24 (step 37))
+- `24_04_phase_by_cluster.png` (Script 24 (step 37))
+- `24_05_diagnostic_summary.txt` (Script 24 (step 37))
+- `24_03_sun_residual_correlation.png` (Script 24 (step 37))
 
 **Writes.**
 

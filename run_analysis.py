@@ -5,7 +5,7 @@ Interactive orchestrator for the Hollingham (2026) analytical pipeline.
 Usage
 -----
   python run_analysis.py              # interactive menu
-  python run_analysis.py --full       # non-interactive: run all 26 steps
+  python run_analysis.py --full       # non-interactive: run all 27 steps
   python run_analysis.py --from N     # non-interactive: resume from step N
   python run_analysis.py --viewer     # non-interactive: build scenario viewer only
 
@@ -59,7 +59,7 @@ PHASE_3 = [
     ("07_spatial_coefficients.py",     " 7/26  Spatial coefficient mapping"),
     ("08_model_benchmarking.py",      " 8/26  Model benchmarking (LCSC vs Traditional)"),
     ("run_09_scraping.py",            " 9/26  Scraping analysis suite (09a, 09b, 09bp, 09c, 09d)"),
-    ("run_10_clearfell.py",           "10/26  Clear-fell BACI analysis suite (10a–10g)"),
+    ("run_10_clearfell.py",           "10/27  Clear-fell BACI analysis suite (10a–10h)"),
     ("11_forecasting_thresholds.py",  "11/26  Forecasting and critical thresholds"),
     ("11b_spatial_thresholds.py",     "12/26  Spatial eco-hydrological threshold maps"),
 ]
@@ -307,7 +307,7 @@ def run_full_pipeline(from_step: int = 1) -> None:
     run_phase(PHASE_10, "PHASE 10 — Forestry Scenario Analysis",                  from_step)
     validate_outputs(REQUIRED_PHASE10_OUTPUTS, "Phase 10")
     run_phase(PHASE_11, "PHASE 11 — Supplementary Diagnostics (Scripts 22–24)",  from_step)
-    _banner("PIPELINE COMPLETE — all 26 steps written to outputs/")
+    _banner("PIPELINE COMPLETE — all 27 steps written to outputs/")
 
 def build_viewer() -> None:
     """Run script 19 to generate the self-contained scenario viewer HTML."""
@@ -362,7 +362,7 @@ MENU = """
   ┌──────────────────────────────────────────────────────────────┐
   │  Main Menu                                                   │
   ├──────────────────────────────────────────────────────────────┤
-  │  1  Run full pipeline  (all 26 steps; run twice for new data)│
+  │  1  Run full pipeline  (all 27 steps; run twice for new data)│
   │  2  Resume from a specific step  (full pipeline first)       │
   │  3  Run a single step            (full pipeline first)       │
   │  4  Prepare the scenario viewer  (full pipeline first)       │
@@ -458,7 +458,7 @@ def interactive_menu() -> None:
                 "    pass 2: option 2, resume from step 9\n"
                 "  See module docstring for details."
             )
-            ans = input("\n  Run all 26 steps from the beginning? [y/N] ").strip().lower()
+            ans = input("\n  Run all 27 steps from the beginning? [y/N] ").strip().lower()
             if ans == "y":
                 run_full_pipeline(from_step=1)
 
@@ -497,7 +497,7 @@ def main() -> None:
         """)
     )
     parser.add_argument("--full",   action="store_true",
-                        help="Run all 26 steps non-interactively")
+                        help="Run all 27 steps non-interactively")
     parser.add_argument("--from",   dest="from_step", type=int, metavar="N",
                         help="Resume from step N non-interactively")
     parser.add_argument("--viewer", action="store_true",

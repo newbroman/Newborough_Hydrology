@@ -74,7 +74,8 @@ pipeline_params.update_specific_yield()    [Script 17]
 pipeline_params.load_params()              [09b, 09d, 19, 21]
   Returns: {clusters, peak_months, clearfell_b2_mult,
             thinning_b2_mult, broadleaf_b2_summer,
-            summer_P, summer_PET, all_pipeline}
+            broadleaf_b2_winter, summer_P, summer_PET,
+            all_pipeline}
 ```
 
 The CSV schema:
@@ -89,7 +90,8 @@ The CSV schema:
 | peak_month | Calendar month of peak water table | Script 03 |
 | clearfell_b2_mult | BACI-corrected Edge ratio | Script 10e |
 | thinning_b2_mult | 50% of clearfell effect | Script 10e |
-| broadleaf_b2_summer | Summer deciduous phenology (1.1125) | config.py |
+| broadleaf_b2_summer | Summer deciduous phenology (1.09) | config.py |
+| broadleaf_b2_winter | Winter deciduous phenology (0.87) | config.py |
 | summer_P | Mean Jun–Sep P (m/month) | Script 01 |
 | summer_PET | Mean Jun–Sep PET (m/month) | Script 01 |
 | source_* | "defaults" or "pipeline" per field | — |

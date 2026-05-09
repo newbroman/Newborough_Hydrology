@@ -3,7 +3,7 @@
 24_residual_seasonality.py — Seasonal Climatology Diagnostic for SSM Residuals
 ====================================================================================
 Purpose:
-    Independent diagnostic test of whether the SSM Model B residuals carry a
+    Independent diagnostic test of whether the SSM residuals carry a
     systematic seasonal signature that would indicate the Thornthwaite PET
     estimate is misrepresenting summer atmospheric demand, or alternatively
     that the ridge-subsidy component is delivered as a flat year-round baseflow.
@@ -14,10 +14,10 @@ Purpose:
 
     Test logic:
         If the residual is pure steady ridge baseflow, the monthly climatology
-        of e_B(t) should be approximately flat — similar magnitude in every
+        of ε(t) should be approximately flat — similar magnitude in every
         month.
 
-        If the residual is pure unmodelled summer ET, e_B(t) should be
+        If the residual is pure unmodelled summer ET, ε(t) should be
         systematically negative in summer (JJA) and approximately zero in
         winter (DJF).
 
@@ -108,8 +108,8 @@ plt.rcParams.update({
 # CORE COMPUTATION
 # ==========================================
 
-def fit_model_b(well_series, climate):
-    """Fit Model B via shared model_utils, return residual Series or None."""
+def fit_ssm_residual(well_series, climate):
+    """Fit SSM via shared model_utils, return residual Series or None."""
     result = fit_ssm_intercept(well_series, climate, min_obs=MIN_MONTHS)
     if result is None:
         return None
@@ -141,6 +141,26 @@ def sinusoidal_fit(monthly_means):
 
 def ridge_distance(e, n):
     return float(np.sqrt((e - RIDGE_E) ** 2 + (n - RIDGE_N) ** 2))
+
+
+def circular_mean_month(phases):
+    """
+    Circular mean of phase-month values (1–12).
+
+    Treats months as angles on a circle (each month = 30°) so that
+    averaging Dec (12) and Feb (2) gives Jan (1), not Jul (7).
+    """
+    phases = np.asarray(phases, dtype=float)
+    phases = phases[np.isfinite(phases)]
+    if len(phases) == 0:
+        return np.nan
+    angles = (phases - 1) * 2 * np.pi / 12   # month 1 → 0 rad, month 12 → 11π/6
+    mean_angle = np.arctan2(np.sin(angles).mean(), np.cos(angles).mean())
+    mean_month = (mean_angle / (2 * np.pi) * 12) % 12 + 1
+    # Wrap 13 → 1 (floating-point edge case when mean lands exactly on Jan)
+    if mean_month > 12.5:
+        mean_month -= 12
+    return float(mean_month)
 
 
 def load_sunshine_hours(raf_path):
@@ -235,7 +255,7 @@ def plot_climatology_panels(resids_dict, meta_df, output_path):
     for i in range(len(clusters_present), len(axes)):
         axes[i].set_visible(False)
 
-    fig.suptitle("Seasonal climatology of SSM Model B residuals by cluster\n"
+    fig.suptitle("Seasonal climatology of SSM residuals by cluster\n"
                  "(red band = JJA, blue bands = DJF)",
                  fontsize=14, fontweight='bold', y=1.00)
     plt.tight_layout()
@@ -279,7 +299,7 @@ def plot_amplitude_map(clim_df, output_path):
 
     ax.set_xlabel('Easting (m, OSGB36)')
     ax.set_ylabel('Northing (m, OSGB36)')
-    ax.set_title('Seasonal amplitude of Model B residuals\n'
+    ax.set_title('Seasonal amplitude of SSM residuals\n'
                  '(large amplitude indicates a strong annual cycle in the residual)',
                  fontweight='bold')
     ax.set_aspect('equal')
@@ -320,7 +340,7 @@ def plot_sun_corr_scatter(clim_df, output_path):
 
     ax.set_xticks(range(len(clusters)))
     ax.set_xticklabels([CLUSTER_LABELS.get(int(c), f'C{int(c)}') for c in clusters])
-    ax.set_ylabel('Pearson r (Model B residual vs sunshine hours)')
+    ax.set_ylabel('Pearson r (SSM residual vs sunshine hours)')
     ax.set_title("Correlation between residual and sunshine hours, per well\n"
                  "Negative values would indicate Thornthwaite underestimates summer ET",
                  fontweight='bold')
@@ -333,9 +353,20 @@ def plot_sun_corr_scatter(clim_df, output_path):
 
 
 def plot_phase_barplot(clim_df, output_path):
-    """Per-well phase month, grouped by cluster. Shows whether residual peaks
-    in summer (ET signature) or winter (recharge nonlinearity signature)."""
+    """Per-well phase month, grouped by cluster, on a hydrological-year axis
+    (Sep–Aug). Uses circular mean for cluster averages so that wrapping around
+    Dec/Jan is handled correctly."""
     fig, ax = plt.subplots(figsize=(10, 6), dpi=300)
+
+    # Hydrological year: Sep=1, Oct=2, ... Aug=12
+    # Mapping from calendar month (1-12) to hydro position:
+    #   cal  9 10 11 12  1  2  3  4  5  6  7  8
+    #   hyd  1  2  3  4  5  6  7  8  9 10 11 12
+    HYDRO_LABELS = ['S', 'O', 'N', 'D', 'J', 'F', 'M', 'A', 'M', 'J', 'J', 'A']
+
+    def cal_to_hydro(cal_month):
+        """Convert calendar month (1-12) to hydro position (1-12)."""
+        return ((cal_month - 9) % 12) + 1
 
     clusters = sorted(clim_df['Cluster'].dropna().unique())
     x_pos = 0
@@ -347,32 +378,36 @@ def plot_phase_barplot(clim_df, output_path):
         sub = clim_df[clim_df['Cluster'] == cid].dropna(subset=['phase_month'])
         col = CLUSTER_COLOURS.get(int(cid), '#777777')
         if len(sub) > 0:
+            hydro_phases = sub['phase_month'].apply(cal_to_hydro).values
             xs = np.full(len(sub), x_pos) + rng.uniform(-0.25, 0.25, len(sub))
-            ax.scatter(xs, sub['phase_month'],
+            ax.scatter(xs, hydro_phases,
                        s=70, color=col, edgecolor='black', linewidth=0.5,
                        alpha=0.85, zorder=3)
-            # Mean as large marker
-            mean_phase = float(sub['phase_month'].mean())
-            ax.scatter([x_pos], [mean_phase],
-                       s=260, color=col, marker='D',
+            # Circular mean (in calendar months), then convert to hydro
+            cmean_cal = circular_mean_month(sub['phase_month'].values)
+            cmean_hydro = cal_to_hydro(cmean_cal)
+            ax.scatter([x_pos], [cmean_hydro],
+                       s=260, color=col, marker='*',
                        edgecolor='black', linewidth=1.5, zorder=5)
             tick_positions.append(x_pos)
             tick_labels.append(f"{CLUSTER_LABELS.get(int(cid), f'C{int(cid)}')}\n(n={len(sub)})")
             x_pos += 1
 
-    # Summer and winter bands
-    ax.axhspan(5.5, 8.5, color='red',  alpha=0.08, zorder=0, label='Summer (JJA)')
-    ax.axhspan(11.5, 12.5, color='blue', alpha=0.08, zorder=0, label='Winter (DJF)')
-    ax.axhspan(0.5, 2.5,   color='blue', alpha=0.08, zorder=0)
+    # Summer and winter bands (in hydro coordinates)
+    # Summer JJA = hydro 10, 11, 12
+    ax.axhspan(9.5, 12.5, color='red',  alpha=0.08, zorder=0, label='Summer (JJA)')
+    # Winter DJF = hydro 4, 5, 6
+    ax.axhspan(3.5, 6.5, color='blue', alpha=0.08, zorder=0, label='Winter (DJF)')
 
     ax.set_xticks(tick_positions)
     ax.set_xticklabels(tick_labels)
     ax.set_yticks(range(1, 13))
-    ax.set_yticklabels(MONTH_LABELS)
-    ax.set_ylabel('Month of residual peak (phase)')
+    ax.set_yticklabels(HYDRO_LABELS)
+    ax.set_ylabel('Month of residual peak (phase) — hydrological year')
     ax.set_ylim(0.5, 12.5)
     ax.set_title("Phase of seasonal residual cycle, per well\n"
-                 "Summer phase = ET signature; Winter phase = recharge nonlinearity signature",
+                 "Summer phase = ET signature; Winter phase = recharge nonlinearity\n"
+                 "★ = circular mean  |  Axis starts at September (hydrological year)",
                  fontweight='bold')
     ax.grid(axis='y', ls='--', alpha=0.4)
     ax.legend(loc='upper right', frameon=True, edgecolor='black', fontsize=9)
@@ -405,7 +440,7 @@ def write_summary(clim_df, output_path):
         n=('Well_Normalized', 'count'),
         s_minus_w=('summer_minus_winter', 'mean'),
         amplitude=('amplitude', 'mean'),
-        phase=('phase_month', 'mean'),
+        phase=('phase_month', lambda x: circular_mean_month(x.values)),
         corr_sun=('corr_sun_resid', 'mean'),
     ).round(4)
     lines.append(grp.to_string())
@@ -459,7 +494,7 @@ def write_summary(clim_df, output_path):
     lines.append("  INTERPRETATION")
     lines.append("-" * 78)
     mean_sw = clim_df['summer_minus_winter'].mean()
-    mean_phase = clim_df['phase_month'].mean()
+    mean_phase = circular_mean_month(clim_df['phase_month'].values)
     mean_sun_corr = clim_df['corr_sun_resid'].mean()
 
     if abs(mean_sun_corr) < thresh and abs(mean_sw) < 0.04:
@@ -546,7 +581,7 @@ def main():
         if d_ridge > MAX_RIDGE_DISTANCE_M:
             continue
 
-        resid = fit_model_b(wells[well_col], climate)
+        resid = fit_ssm_residual(wells[well_col], climate)
         if resid is None:
             continue
 

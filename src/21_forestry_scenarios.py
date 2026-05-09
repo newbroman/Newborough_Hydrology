@@ -90,6 +90,7 @@ from utils.paths import (
     OUT_21_SCRAPING, OUT_21_SCRAPING_CSV, OUT_21_BACI_VIOLIN, OUT_21_BACI_CSV,
     OUT_21_SCENARIO_COMPARE, OUT_21_SCENARIO_CSV,
     OUT_10A_REPORT, OUT_10E_COEFF_SHIFTS,
+    OUT_09C_SUMMER_MINIMA,
 )
 from utils.config import (
     FOREST_INTERCEPTION, BROADLEAF_INTERCEPTION, REFERENCE_CUTOFF_DATE,
@@ -352,11 +353,29 @@ def cluster_summer_mins(cl, master, df, dates, well_names, elev,
 
 
 def build_scenarios(master, climate):
-    """Build scenario equilibrium shifts and apply to observed C4 seasonal cycle."""
-    b1 = master[master["Cluster"] == 4]["beta_1_recharge"].mean()
-    b2 = master[master["Cluster"] == 4]["beta_2_atmospheric_draw"].mean()
-    b3 = master[master["Cluster"] == 4]["beta_3_drainage"].mean()
+    """Build scenario equilibrium shifts and apply to observed C4 seasonal cycle.
 
+    Reads β coefficients from pipeline_scenario_params.csv (single source
+    of truth) with fallback to 03_master_data.csv for backward compatibility.
+    Monthly climate is always computed from the climate CSV (pipeline params
+    only stores summer means).
+    """
+    # ── β coefficients: prefer pipeline params ────────────────────────────
+    try:
+        from utils.pipeline_params import load_params
+        _p = load_params(warn_defaults=False)
+        c4 = _p["clusters"]["C4"]
+        b1, b2, b3 = c4["b1"], c4["b2"], c4["b3"]
+        print(f"  Scenario β from pipeline params: "
+              f"β₁={b1:.4f}  β₂={b2:.4f}  β₃={b3:.4f}")
+    except Exception:
+        b1 = master[master["Cluster"] == 4]["beta_1_recharge"].mean()
+        b2 = master[master["Cluster"] == 4]["beta_2_atmospheric_draw"].mean()
+        b3 = master[master["Cluster"] == 4]["beta_3_drainage"].mean()
+        print(f"  Scenario β from master CSV (fallback): "
+              f"β₁={b1:.4f}  β₂={b2:.4f}  β₃={b3:.4f}")
+
+    # ── Monthly climate (full 12-month profile needed for perturbation) ───
     clim = climate.loc["2005-04-01":REFERENCE_CUTOFF_DATE].copy()
     monthly_P   = clim.groupby(clim.index.month)["P_m"].mean().values
     monthly_PET = clim.groupby(clim.index.month)["PET"].mean().values
@@ -944,8 +963,56 @@ SCRAPING_COLOURS = {
 
 def _well_summer_mins_era(w, df, dates, well_names, elev,
                            start=None, end=None):
-    """Annual summer minimum depths for a single well over an era."""
+    """
+    Annual summer minimum depths for a single well over an era.
+
+    Reads per-year summer minima from Script 09c output
+    (09c_01_summer_minima.csv) to ensure consistency with the BACI
+    analysis. Values are returned as POSITIVE depth below ground (m).
+
+    Falls back to local computation if the 09c CSV is missing or does
+    not contain the requested well.
+    """
     SUMMER = [6, 7, 8, 9]
+
+    # ── Try reading from Script 09c output (single source of truth) ───────
+    well_upper = w.upper()
+    if OUT_09C_SUMMER_MINIMA.exists():
+        sm = pd.read_csv(OUT_09C_SUMMER_MINIMA)
+        sm_well = sm[sm["Well"] == well_upper]
+        if not sm_well.empty:
+            # 09c stores negative values (below ground = negative);
+            # Script 21 convention is positive depth below ground
+            years = sm_well["Year"].values
+            depths_neg = sm_well["Summer_min_m"].values  # negative
+
+            # Filter by era boundaries (year-based)
+            if start is not None:
+                start_year = pd.Timestamp(start).year
+                # If start is before June, that summer counts;
+                # if after September, it doesn't
+                start_month = pd.Timestamp(start).month
+                if start_month > 9:
+                    start_year += 1
+                mask_start = years >= start_year
+            else:
+                mask_start = np.ones(len(years), dtype=bool)
+
+            if end is not None:
+                end_year = pd.Timestamp(end).year
+                end_month = pd.Timestamp(end).month
+                # If end is before June, that summer doesn't count
+                if end_month < 6:
+                    end_year -= 1
+                mask_end = years <= end_year
+            else:
+                mask_end = np.ones(len(years), dtype=bool)
+
+            valid = mask_start & mask_end
+            if valid.sum() > 0:
+                return -depths_neg[valid]  # positive depth below ground
+
+    # ── Fallback: local computation (mirrors original logic) ──────────────
     raw = get_well_monthly(w, df, dates, well_names)
     if raw is None:
         return np.array([])

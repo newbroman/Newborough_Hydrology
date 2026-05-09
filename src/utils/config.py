@@ -110,6 +110,13 @@ BROADLEAF_INTERCEPTION = 0.15
 # the annual-mean effect is approximately ×1.0 (seasonal pattern cancels).
 BROADLEAF_B2_SUMMER = 1.1125
 
+# Broadleaf winter β₂ multiplier — leafless dormancy reduces ET draw.
+# Derived from Script 21's monthly β₂ profile (Hollingham, 2026):
+#   Oct=1.02, Nov=0.92, Dec=0.87, Jan=0.85, Feb=0.85, Mar=0.88 → winter mean ≈ 0.8983
+# Leafless broadleaf canopy has negligible transpiration; value < 1.0
+# reflects the reduced atmospheric draw relative to evergreen pine.
+BROADLEAF_B2_WINTER = 0.8983
+
 # ── DEM colour scale ─────────────────────────────────────────────────────────
 # TwoSlopeNorm anchors used across all map products
 DEM_VMIN = 0.0

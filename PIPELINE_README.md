@@ -781,7 +781,7 @@ Summer climate via `scraping_common.load_summer_climate()`. Scenario constants
 
 #### Step 31 — 18_wtf_spatial
 
-**Purpose.** Per-well Sy via WTF, IDW spatial interpolation of Sy, contour maps.
+**Purpose.** Per-well Sy via WTF, IDW spatial interpolation of Sy, contour maps, drainage timescale map (τ = Sy / β₃), and aquifer diagnostic synthesis scatter (τ vs ΔNSE vs Sy).
 
 **Reads.**
 
@@ -792,21 +792,31 @@ Summer climate via `scraping_common.load_summer_climate()`. Scenario constants
 - `06_pear_membership_audit_sitewide.csv` (Script 06 (step 6))
 - `01_wells_clean.csv` (Script 01 (step 1))
 - `01_wells_extended.csv` (Script 01 (step 1))
+- `03_master_data.csv` (Script 03 (step 3)) — β₃ for τ computation
+- `08_lcsc_model_stats.csv` (Script 08 (step 8)) — ΔNSE for synthesis scatter
 
 **Writes.**
 
 - `17_wtf_well_sy.csv`
+- `18_wtf_01_well_sy_estimates.csv`
+- `18_wtf_02_spatial_sy_map.png`
+- `18_wtf_03_sy_contour.png` (supplementary)
+- `18_wtf_04_sy_contour_extended.png` (supplementary)
+- `18_wtf_05_drainage_timescale_map.png` (supplementary)
+- `18_wtf_05_drainage_timescale.csv` (supplementary)
+- `18_wtf_06_aquifer_diagnostic_synthesis.png` (supplementary)
 
 **Other.**
 
   - `DATA_DIR` passed to `add_kml_features, load_dem_hillshade`
+  - Exclusions for τ map: CEH12 (bedrock), CEH15 (slack floor), CEH14 (negative β₃), CEH13 (near-zero β₃, τ outlier)
 
 
 ### Phase 9 — Spatial Groundwater
 
 #### Step 32 — 19_spatial_groundwater
 
-**Purpose.** Spatial groundwater analysis (head, β fields, water balance, drainage, depth-to-water-table). Self-contained scenario viewer HTML.
+**Purpose.** Spatial groundwater analysis (head, β fields, water balance, drainage, depth-to-water-table). Self-contained scenario viewer HTML with optional forest drawdown propagation (flow-weighted cost-distance, λ = √(D/β₃)).
 
 **Reads.**
 
@@ -840,6 +850,7 @@ Summer climate via `scraping_common.load_summer_climate()`. Scenario constants
 - `Features.kml` (raw data)
 - `streams.kml` (raw data)
 - `01_climate.csv` (Script 01 (step 1))
+- `02_cluster_stats.csv` (Script 02 (step 2))
 - `01_locations.csv` (Script 01 (step 1))
 - `03_master_data.csv` (Script 03 (step 3))
 - `06_pear_membership_audit_sitewide.csv` (Script 06 (step 6))

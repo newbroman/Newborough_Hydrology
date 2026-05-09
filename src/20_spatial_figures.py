@@ -1008,23 +1008,39 @@ def plot_drawdown_propagation(wt, features, dpi=300):
     ax.set_ylim(*YLIM)
     ax.set_aspect("equal")
 
-    # Layer 2 — head surface
-    im = ax.pcolormesh(gx, gy, surf, cmap="RdYlBu_r",
+    # Layer 2 — head surface, masked at sea boundaries
+    surf_masked = np.ma.masked_where(~mask, surf)
+    im = ax.pcolormesh(gx, gy, surf_masked, cmap="RdYlBu_r",
                        vmin=2.0, vmax=14.0,
                        shading="auto", alpha=0.45, zorder=2)
 
     # Layer 3 — drawdown contourf
+    # Mask the drawdown grid at sea boundaries so contours don't bleed
+    # into the margin areas where there is no aquifer.
     E_grid, N_grid = np.meshgrid(e_arr, n_arr)
+    dd_masked = dd_grid.copy()
+    dd_masked[N_grid < SEA_SOUTH_N] = 0
+    dd_masked[E_grid > SEA_EAST_E]  = 0
+    dd_masked[E_grid < SEA_WEST_E]  = 0
+    # Also suppress at the SE coastal fringe (below ~3 m AOD in the DEM)
+    for i in range(dd_masked.shape[0]):
+        for j in range(dd_masked.shape[1]):
+            e_v, n_v = e_arr[j], n_arr[i]
+            if n_v < 362600 and e_v > 241800:
+                dd_masked[i, j] = 0
+            if e_v > 243200 and n_v < 363600:
+                dd_masked[i, j] = 0
+
     dd_levels = [1, 2, 5, 10, 20, 30, 50, 75, 100, 125, 150]
     dd_cmap = plt.cm.Blues
     from matplotlib.colors import BoundaryNorm
     dd_norm = BoundaryNorm(dd_levels, dd_cmap.N, extend="both")
-    cf = ax.contourf(E_grid, N_grid, dd_grid, levels=dd_levels,
+    cf = ax.contourf(E_grid, N_grid, dd_masked, levels=dd_levels,
                      cmap=dd_cmap, norm=dd_norm,
                      alpha=0.38, zorder=3, extend="both")
 
     # Layer 4 — contour lines
-    cs = ax.contour(E_grid, N_grid, dd_grid,
+    cs = ax.contour(E_grid, N_grid, dd_masked,
                     levels=[5, 10, 25, 50, 100],
                     colors="midnightblue", linewidths=1.2, alpha=0.8, zorder=4)
     cl = ax.clabel(cs, levels=[5, 10, 25, 100],

@@ -993,20 +993,20 @@ def plot_aquifer_diagnostic_synthesis(tau_df, out_path):
             markeredgecolor="black", markersize=10,
             label=CLUSTER_LABELS[cid]))
 
-    # Cluster means — larger diamond markers
+    # Cluster means — larger star markers
     for _, row in cmeans.iterrows():
         cid = int(row["Cluster"])
         ax.scatter(row["dNSE_mean"], row["tau_mean"],
                    c=CLUSTER_COLOURS[cid],
-                   s=300, marker="D",
+                   s=300, marker="*",
                    edgecolors="black", linewidths=1.5,
                    alpha=0.95, zorder=6)
 
     legend_handles.append(Line2D(
-        [0], [0], marker="D", color="w",
+        [0], [0], marker="*", color="w",
         markerfacecolor="#AAAAAA",
         markeredgecolor="black", markeredgewidth=1.5,
-        markersize=11, label="Cluster mean"))
+        markersize=14, label="Cluster mean"))
 
     # Sy size legend — three representative sizes
     sy_legend_vals = [0.20, 0.30, 0.40]

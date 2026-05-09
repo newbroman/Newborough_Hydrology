@@ -56,7 +56,7 @@ from utils.scraping_common import (
 )
 from utils.config import (
     DRAINAGE_DATUM,
-    FOREST_INTERCEPTION, BROADLEAF_INTERCEPTION,
+    FOREST_INTERCEPTION, BROADLEAF_INTERCEPTION, BROADLEAF_B2_SUMMER,
     UKCP18_DRY_P_SUMMER, UKCP18_DRY_PET_SUMMER,
     UKCP18_WET_P_SUMMER, UKCP18_WET_PET_SUMMER,
 )
@@ -207,9 +207,12 @@ def _compute_ceh36_scenarios(params, summer_P, summer_PET):
     scenarios["Thinning 50%\n(hypothetical)"] = round(
         (flux_thin - flux_pine_base) * Sy * 1000, 1)
 
-    # Broadleaf conversion
+    # Broadleaf conversion — seasonal β₂ profile: deciduous canopy has
+    # higher transpiration in summer (full leaf) than evergreen pine.
+    # BROADLEAF_B2_SUMMER (1.1125) is the Jun-Sep mean from Script 21's
+    # monthly profile; using flat b2 would miss the summer ET penalty.
     P_bl = summer_P * (1 - BROADLEAF_INTERCEPTION)
-    flux_bl = b1 * P_bl - b2 * summer_PET - b3 * h_disp
+    flux_bl = b1 * P_bl - b2 * BROADLEAF_B2_SUMMER * summer_PET - b3 * h_disp
     scenarios["Broadleaf\n(hypothetical)"] = round(
         (flux_bl - flux_pine_base) * Sy * 1000, 1)
 

@@ -391,6 +391,7 @@ OUT_20_HEAD_STREAMS         = DIR_20 / "20_head_surface_streams.png"
 OUT_20_RESIDUAL_D8          = DIR_20 / "20_residual_d8_comparison.png"
 OUT_20_RESIDUAL_SSM         = DIR_20 / "20_residual_ssm.png"
 OUT_20_SLOPE                = DIR_20 / "20_slope_gradient.png"
+OUT_20_DRAWDOWN             = DIR_20 / "20_drawdown_propagation.png"
 
 # Script 21 — Forestry scenarios
 OUT_21_HYDROGRAPH        = DIR_21 / "21_forestry_01_hydrograph.png"

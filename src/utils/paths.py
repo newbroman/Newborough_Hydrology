@@ -358,6 +358,8 @@ OUT_18_WELL_SY_TABLE        = DIR_18 / "18_wtf_01_well_sy_estimates.csv"
 OUT_18_SY_MAP               = DIR_18 / "18_wtf_02_spatial_sy_map.png"
 OUT_18_SY_CONTOUR           = DIR_18 / "18_wtf_03_sy_contour.png"
 OUT_18_SY_CONTOUR_EXT       = DIR_18 / "18_wtf_04_sy_contour_extended.png"
+OUT_18_DRAINAGE_TIMESCALE   = DIR_18 / "18_wtf_05_drainage_timescale_map.png"
+OUT_18_DRAINAGE_TIMESCALE_CSV = DIR_18 / "18_wtf_05_drainage_timescale.csv"
 
 # Script 19 — Spatial groundwater analysis
 OUT_19_THICKNESS_MAP  = DIR_19 / "19_aquifer_thickness.jpg"

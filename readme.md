@@ -136,19 +136,22 @@ The interactive scenario viewer is built by running **option 4** from the menu (
 
 - `outputs/19_spatial_groundwater/scenario_viewer.html` — standalone self-contained file; opens directly in any browser with no server required
 
-Scenario Δh values are computed dynamically in JavaScript via the SSM equilibrium equation — no precomputed difference maps are produced. The viewer supports interactive exploration of six scenarios with per-well Δh visualisation.
+Scenario Δh values are computed dynamically in JavaScript via the SSM equilibrium equation — no precomputed difference maps are produced. The viewer supports interactive exploration of seven scenarios (baseline, UKCP18 2050s, UKCP18 2080s, clearfell, broadleaf, thinning, scraping) with per-well Δh visualisation.
 
 **Colour convention:** red = drier / deeper than baseline; blue = wetter / shallower than baseline.
 
 **Scenario definitions (JavaScript parameters in scenario_viewer.html):**
 
-| Scenario | sP | sPET | sI | sB2 | C4 Δh (depth convention) |
-|----------|-----|------|-----|------|---------------------------|
-| Full clearfell | 1.00 | 1.00 | 0 | 1.35 | +0.145 m (deeper) |
-| Forest thinning | 1.00 | 1.00 | I×0.5 | 1.15 | +0.073 m |
-| Broadleaf conversion | 1.00 | 1.00 | 0.25 | 1.45 | +0.003 m |
-| Climate dry | 0.90 (−10% P) | 1.10 (+10% PET) | — | — | all clusters |
-| Climate wet | 1.10 (+10% P) | 1.00 (unchanged) | — | — | all clusters |
+Scenario parameters are injected at viewer generation time. The clearfell and thinning β₂ multipliers are loaded dynamically from Script 10e output via `clearfell_common.load_clearfell_b2_multiplier()` — no hardcoded values remain.
+
+| Scenario | sP_w | sP_s | sPET_w | sPET_s | sI | sB2 |
+|----------|------|------|--------|--------|----|-----|
+| Baseline | 1.00 | 1.00 | 1.00 | 1.00 | 0.24 | 1.00 |
+| UKCP18 2050s | 1.10 | 0.85 | 1.05 | 1.20 | 0.24 | 1.00 |
+| UKCP18 2080s | 1.20 | 0.70 | 1.10 | 1.35 | 0.24 | 1.00 |
+| Full clearfell | 1.00 | 1.00 | 1.00 | 1.00 | 0 | ~1.108 (BACI-corrected) |
+| Broadleaf conversion | 1.00 | 1.00 | 1.00 | 1.00 | 0.15 | 1.00 |
+| Forest thinning | 1.00 | 1.00 | 1.00 | 1.00 | 0.12 | ~1.054 (half-perturbation) |
 
 Δh sign convention: **positive = water table deepens (drier)**; negative = shallower (wetter).
 

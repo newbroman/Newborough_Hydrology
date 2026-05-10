@@ -8,6 +8,7 @@ Usage
   python run_analysis.py --full       # non-interactive: run all 27 steps
   python run_analysis.py --from N     # non-interactive: resume from step N
   python run_analysis.py --viewer     # non-interactive: build scenario viewer only
+  python run_analysis.py --greyscale  # non-interactive: convert figures to B&W
 
 Two-pass execution (RECOMMENDED for new datasets)
 -------------------------------------------------
@@ -46,52 +47,55 @@ OUT_DIR  = ROOT_DIR / "outputs"
 # ── Phase / step definitions ──────────────────────────────────────────────────
 
 PHASE_1 = [
-    ("01_data_prep.py",              " 1/26  Data preparation"),
-    ("02_clustering.py",             " 2/26  Behavioural clustering"),
-    ("03_state_space_model.py",      " 3/26  State-space regression + LCSC"),
-    ("04_cluster_visualisations.py", " 4/26  Core cluster visualisation"),
+    ("01_data_prep.py",              " 1/27  Data preparation"),
+    ("02_clustering.py",             " 2/27  Behavioural clustering"),
+    ("03_state_space_model.py",      " 3/27  State-space regression + LCSC"),
+    ("04_cluster_visualisations.py", " 4/27  Core cluster visualisation"),
 ]
 PHASE_2 = [
-    ("05_pearson_affinity.py",  " 5/26  Pearson membership audit"),
-    ("06_pearson_extended.py",  " 6/26  Pearson extended network integration"),
+    ("05_pearson_affinity.py",  " 5/27  Pearson membership audit"),
+    ("06_pearson_extended.py",  " 6/27  Pearson extended network integration"),
 ]
 PHASE_3 = [
-    ("07_spatial_coefficients.py",     " 7/26  Spatial coefficient mapping"),
-    ("08_model_benchmarking.py",      " 8/26  Model benchmarking (LCSC vs Traditional)"),
-    ("run_09_scraping.py",            " 9/26  Scraping analysis suite (09a, 09b, 09bp, 09c, 09d)"),
+    ("07_spatial_coefficients.py",     " 7/27  Spatial coefficient mapping"),
+    ("08_model_benchmarking.py",      " 8/27  Model benchmarking (LCSC vs Traditional)"),
+    ("run_09_scraping.py",            " 9/27  Scraping analysis suite (09a, 09b, 09bp, 09c, 09d)"),
     ("run_10_clearfell.py",           "10/27  Clear-fell BACI analysis suite (10a–10h)"),
-    ("11_forecasting_thresholds.py",  "11/26  Forecasting and critical thresholds"),
-    ("11b_spatial_thresholds.py",     "12/26  Spatial eco-hydrological threshold maps"),
+    ("11_forecasting_thresholds.py",  "11/27  Forecasting and critical thresholds"),
+    ("11b_spatial_thresholds.py",     "12/27  Spatial eco-hydrological threshold maps"),
 ]
 PHASE_4 = [
-    ("00_climate_summary.py",            "13/26  Climate summary outputs"),
-    ("14_climate_projections.py",        "14/26  Figure: Climate trajectory projections"),
-    ("12_figure_site_overview.py",       "15/26  Figure: DEM site overview"),
-    ("13_figure_experimental_design.py", "16/26  Figure: Experimental design GIS map"),
+    ("00_climate_summary.py",            "13/27  Climate summary outputs"),
+    ("14_climate_projections.py",        "14/27  Figure: Climate trajectory projections"),
+    ("12_figure_site_overview.py",       "15/27  Figure: DEM site overview"),
+    ("13_figure_experimental_design.py", "16/27  Figure: Experimental design GIS map"),
 ]
 PHASE_5 = [
-    ("15_depth_dependent_pet.py", "17/26  Depth-dependent PET analysis"),
+    ("15_depth_dependent_pet.py", "17/27  Depth-dependent PET analysis"),
 ]
 PHASE_6 = [
-    ("17_wtf_specific_yield.py", "18/26  WTF cluster Sy estimation"),
+    ("17_wtf_specific_yield.py", "18/27  WTF cluster Sy estimation"),
 ]
 PHASE_7 = [
-    ("16_water_bal.py", "19/26  Water balance decomposition"),
+    ("16_water_bal.py", "19/27  Water balance decomposition"),
 ]
 PHASE_8 = [
-    ("18_wtf_spatial.py", "20/26  WTF spatial analysis and Sy mapping"),
+    ("18_wtf_spatial.py", "20/27  WTF spatial analysis and Sy mapping"),
 ]
 PHASE_9 = [
-    ("19_spatial_groundwater.py", "21/26  Spatial groundwater analysis"),
-    ("20_spatial_figures.py",     "22/26  Spatial paper figures"),
+    ("19_spatial_groundwater.py", "21/27  Spatial groundwater analysis"),
+    ("20_spatial_figures.py",     "22/27  Spatial paper figures"),
 ]
 PHASE_10 = [
-    ("21_forestry_scenarios.py", "23/26  Forestry scenarios and management figures"),
+    ("21_forestry_scenarios.py", "23/27  Forestry scenarios and management figures"),
 ]
 PHASE_11 = [
-    ("22_residual_lag_analysis.py",    "24/26  Residual lag structure analysis"),
-    ("23_ridge_recharge_lag_test.py",  "25/26  Ridge recharge lag hypothesis test"),
-    ("24_residual_seasonality.py",     "26/26  Residual seasonality diagnostics"),
+    ("22_residual_lag_analysis.py",    "24/27  Residual lag structure analysis"),
+    ("23_ridge_recharge_lag_test.py",  "25/27  Ridge recharge lag hypothesis test"),
+    ("24_residual_seasonality.py",     "26/27  Residual seasonality diagnostics"),
+]
+PHASE_12 = [
+    ("25_greyscale_figures.py",        "27/27  Greyscale figure conversion (journal-ready B&W)"),
 ]
 
 ALL_PHASES = [
@@ -106,6 +110,7 @@ ALL_PHASES = [
     ("PHASE 9  — Spatial Groundwater Analysis",                 PHASE_9),
     ("PHASE 10 — Forestry Scenario Analysis",                   PHASE_10),
     ("PHASE 11 \u2014 Supplementary Diagnostics (Scripts 22\u201324)",   PHASE_11),
+    ("PHASE 12 \u2014 Journal Figure Preparation (Script 25)",       PHASE_12),
 ]
 
 # Build step -> (script, label, extra_args) lookup at import time
@@ -307,6 +312,7 @@ def run_full_pipeline(from_step: int = 1) -> None:
     run_phase(PHASE_10, "PHASE 10 — Forestry Scenario Analysis",                  from_step)
     validate_outputs(REQUIRED_PHASE10_OUTPUTS, "Phase 10")
     run_phase(PHASE_11, "PHASE 11 — Supplementary Diagnostics (Scripts 22–24)",  from_step)
+    run_phase(PHASE_12, "PHASE 12 — Journal Figure Preparation (Script 25)",    from_step)
     _banner("PIPELINE COMPLETE — all 27 steps written to outputs/")
 
 def build_viewer() -> None:
@@ -357,7 +363,7 @@ INTRO = """\
 MENU = """
   First-time / new dataset?  →  start with option 1 (full pipeline).
   For canonical scenario figures, run the full pipeline TWICE.
-  Options 2-5 require the full pipeline to have completed at least once.
+  Options 2-6 require the full pipeline to have completed at least once.
 
   ┌──────────────────────────────────────────────────────────────┐
   │  Main Menu                                                   │
@@ -367,7 +373,8 @@ MENU = """
   │  3  Run a single step            (full pipeline first)       │
   │  4  Prepare the scenario viewer  (full pipeline first)       │
   │  5  Run supplementary diagnostics 22–24  (run pipeline first)│
-  │  6  Show pipeline step list                                  │
+  │  6  Convert figures to greyscale (journal-ready B&W)         │
+  │  7  Show pipeline step list                                  │
   │  q  Quit                                                     │
   └──────────────────────────────────────────────────────────────┘"""
 
@@ -438,6 +445,37 @@ def run_supplementary() -> None:
     run_phase(PHASE_11, "PHASE 11 — Supplementary Diagnostics (Scripts 22–24)")
     print("\n  [OK] Supplementary diagnostics complete.")
 
+def run_greyscale() -> None:
+    """Run greyscale figure conversion (Script 25)."""
+    print()
+    _hr()
+    print("  Greyscale Figure Conversion")
+    _hr()
+    print()
+    print("  This converts all colour figures in outputs/ to journal-ready")
+    print("  greyscale versions in outputs_bw/, preserving directory structure.")
+    print()
+    print("  Figures with known greyscale limitations (ecological zone maps,")
+    print("  diverging colourmap difference maps) are flagged for review.")
+    print()
+
+    script_path = SRC_DIR / "25_greyscale_figures.py"
+    if not script_path.exists():
+        print(f"  [ERROR] Script not found: {script_path}")
+        return
+
+    # Check that outputs/ exists and has figures
+    if not OUT_DIR.exists() or not list(OUT_DIR.rglob("*.png")):
+        print("  [ERROR] No figures found in outputs/. Run the full pipeline first.")
+        return
+
+    run_script("25_greyscale_figures.py", "27/27  Greyscale figure conversion")
+    bw_dir = REPO_ROOT / "outputs_bw"
+    if bw_dir.exists():
+        n_figs = len(list(bw_dir.rglob("*.png"))) + len(list(bw_dir.rglob("*.jpg")))
+        print(f"\n  [OK] {n_figs} greyscale figures in: {bw_dir}/")
+    print()
+
 def interactive_menu() -> None:
     _banner("NEWBOROUGH WARREN GROUNDWATER ANALYSIS PIPELINE")
     print()
@@ -475,6 +513,9 @@ def interactive_menu() -> None:
             run_supplementary()
 
         elif choice == "6":
+            run_greyscale()
+
+        elif choice == "7":
             show_step_list()
 
         elif choice in ("q", "quit", "exit"):
@@ -493,7 +534,7 @@ def main() -> None:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=textwrap.dedent("""\
             Run without arguments for the interactive menu.
-            Use --full, --from, --viewer, or --supplementary for non-interactive execution.
+            Use --full, --from, --viewer, --supplementary, or --greyscale for non-interactive execution.
         """)
     )
     parser.add_argument("--full",   action="store_true",
@@ -504,11 +545,16 @@ def main() -> None:
                         help="Build the scenario viewer only")
     parser.add_argument("--supplementary", action="store_true",
                         help="Run supplementary diagnostics (scripts 22–24) only")
+    parser.add_argument("--greyscale", action="store_true",
+                        help="Convert all figures to journal-ready greyscale (step 27)")
     args = parser.parse_args()
 
     try:
         if args.viewer:
             build_viewer()
+        elif args.greyscale:
+            _banner("NEWBOROUGH WARREN GROUNDWATER ANALYSIS PIPELINE")
+            run_greyscale()
         elif args.supplementary:
             _banner("NEWBOROUGH WARREN GROUNDWATER ANALYSIS PIPELINE")
             run_supplementary()

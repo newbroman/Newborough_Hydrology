@@ -996,48 +996,77 @@ Summer climate via `scraping_common.load_summer_climate()`. Scenario constants
 
 ## Paper tables — quick reference
 
-| Table | Script | File |
-|---|---|---|
-| Table 1: Cluster summary | 03 | `03_02_cluster_summary_table.csv` |
-| Table 2: Mechanistic coefficients | 03 | `03_03_cluster_mechanistic_coefficients.csv` |
-| Table 3: Model benchmarking | 08 | `08_lcsc_04_table3_benchmark_summary.csv` |
-| Table 4: Scraping β₃ era | 09a | `09_scrape_04b_table4_beta3_era_summary.csv` |
-| Table 5: Clearfell β₃ before/after | 10 (suite) | `10_consolidated_report_numbers.csv` |
-| Table 6: Winter transfer functions | 11 | `11_forecast_winter_transfer_functions.csv` |
-| Table 7: Summer transfer functions | 11 | `11_forecast_summer_transfer_functions.csv` |
-| Table 8: P_flood equations | 11 | `11_forecast_pflood_threshold_equations.csv` |
-| Table 10: Spatial P_flood spreadsheet | 11b | `11b_05_table10_pflood_spreadsheet.csv` |
+| Table | Description | Script | File |
+|---|---|---|---|
+| Table 1 | Annual climate summary | 00 | `00_01_annual_climate_summary.csv` |
+| Table 2 | Cluster amplitude damping | 02 | `02_09_cluster_amplitude_summary.csv` |
+| Table 3 | Cluster mechanistic coefficients | 03 | `03_03_cluster_mechanistic_coefficients.csv` |
+| Table 4a | Head-space water balance | 16 | `16_water_bal_table.csv` |
+| Table 4b | Volumetric water balance | 16 | `16_water_bal_vol_table.csv` |
+| Table 4c | WTF specific yield | 17 | `17_wtf_01_sy_table.csv` |
+| Table 5 | Model benchmarking (SSM vs TLM) | 08 | `08_lcsc_04_table3_benchmark_summary.csv` |
+| Table 6 | Scraping β₃ era coefficients | 09a | `09_scrape_04b_table4_beta3_era_summary.csv` |
+| Table 7 | Clearfell ANCOVA-BACI results | 10a | `10a_report_numbers.csv` |
+| Table 8 | Per-well summer min shifts | 10d | `10d_04_summer_minima_forest_ctrl.png` (source CSV) |
+| Table 9 | Mixed-effects clearfell step | 10d | (embedded in 10d output) |
+| Table 10 | Before/after clearfell SSM coefficients | 10e | `10e_01_coefficient_shifts.csv` |
+| Table 11 | Predicted vs observed clearfell step | 10e | (derived from 10e) |
+| Table 12 | Winter peak prediction equations | 11 | `11_forecast_winter_transfer_functions.csv` |
+| Table 13 | Summer drought prediction equations | 11 | `11_forecast_summer_transfer_functions.csv` |
+| Table 14 | Per-cluster P_flood summary | 11 | `11_forecast_pflood_threshold_equations.csv` |
+| Table 15 | P_flood linear forms | 11 | `11_forecast_pflood_threshold_equations.csv` |
+| Table 16 | Forest zone spatial predictors | 10c | `10c_forest_zone_correlations.csv` |
 
 ## Paper figures — quick reference
 
-| Figure | Script | File |
-|---|---|---|
-| Site overview (DEM) | 12 | `12_01_dem_site_overview.png` |
-| Experimental design (5-tier BACI) | 13 | `13_01_experimental_setup_map.png` |
-| Climate timeseries | 00 | `00_01_climate_timeseries.png` |
-| Well-network summary | 00 | `00_02_well_network_summary.png` |
-| Summer warming trend | 00 | `00_03_summer_warming_trend.png` |
-| Dendrogram | 02 | `02_01_dendrogram.png` |
-| Cluster validation | 02 | `02_02_validation_plots.png` |
-| Cluster hydrographs | 02 | `02_03_cluster_hydrographs_wb.png` |
-| Mechanistic signatures | 03 | `03_01_mechanistic_signatures.png` |
-| Cluster architecture map | 04 | `04_01_core_architecture_map.png` |
-| Pearson confidence map | 05 | `05_pear_01_spatial_confidence_map.png` |
-| Pearson integration map | 06 | `06_pear_02_integration_map.png` |
-| Spatial β fields | 07 | `07_coeff_*_*.png` |
-| LCSC vs TLM benchmark | 08 | `08_lcsc_*.png` |
-| Scraping Tier 1 CUSUM | 09a | `09_scrape_05_tier1_background_drift.png` |
-| Scraping Tier 2 signal | 09a | `09_scrape_06_tier2_scraping_signal.png` |
-| Scraping β₃ era CIs | 09a | `09_scrape_07_beta3_confidence.png` |
-| Clearfell ANCOVA-BACI | 10a | `10a_03_baci_timeseries_*.png` |
-| Climate trajectory | 14 | `14_climate_trajectory_stacked.png` |
-| Spatial Sy map | 18 | `18_wtf_02_spatial_sy_map.png` |
-| Spatial threshold maps | 11b | `11b_*.png` |
-| Head-surface + streams | 20 | `20_head_surface_streams.png` |
-| SSM water-balance residual | 20 | `20_residual_ssm.png` |
-| Forestry scenario hydrograph | 21 | `21_forestry_01_hydrograph.png` |
-| Forestry distributions | 21 | `21_forestry_02_distributions.png` |
-| Forestry BACI zones | 21 | `21_forestry_04_baci_zone_violin.png` |
+| Figure | Description | Script | File |
+|---|---|---|---|
+| 1 | Site topography and DEM | 12 | `12_01_dem_site_overview.png` |
+| 2 | Experimental design (5-tier BACI) | 13 | `13_01_experimental_setup_map.png` |
+| 3 | Climate timeseries (2005–2026) | 00 | `00_01_climate_timeseries.png` |
+| 4 | Summer warming trend (1931–2025) | 00 | `00_03_summer_warming_trend.png` |
+| 5 | Well network characterisation | 00 | `00_02_well_network_summary.png` |
+| 6 | Cluster validation plots | 02 | `02_02_validation_plots.png` |
+| 7 | Ward's dendrogram | 02 | `02_01_dendrogram.png` |
+| 8 | Cluster hydrographs + water balance | 02 | `02_03_cluster_hydrographs_wb.png` |
+| 9 | Water balance decomposition | 16 | `16_water_bal_bar_ms.png` |
+| 10 | WTF Sy spatial surface | 18 | `18_wtf_02_spatial_sy_map.png` |
+| 11 | Pearson affinity (reference) | 05 | `05_pear_01_spatial_confidence_map.png` |
+| 12 | Pearson integration map (all 89) | 06 | `06_pear_02_integration_map.png` |
+| 13 | CEH6 SSM vs TLM showdown | 08 | `08_lcsc_01_ceh6_showdown.png` |
+| 14 | SSM gain over TLM (R²/NSE maps) | 08 | `08_lcsc_02_r2_improvement_map.png` |
+| 15 | Tier 1 CUSUM (background drift) | 09a | `09_scrape_05_tier1_background_drift.png` |
+| 16 | Tier 2 paired CUSUM (scraping) | 09a | `09_scrape_06_tier2_scraping_signal.png` |
+| 17 | Three-method robustness (CEH36) | 09e | `09_scrape_08_ceh36_robustness.png` |
+| 18 | β₃ era coefficients with CIs | 09a | `09_scrape_07_beta3_confidence.png` |
+| 19 | Scraping treatment summer minima | 21 | `21_forestry_03_scraping_eras.png` |
+| 20 | Scraping summer minima vs climate ctrl | 09c | `09c_03_summer_minima_climate_ctrl.png` |
+| 21 | Paired BACI summer min (CEH36 vs CEH4) | 09c | `09c_04_summer_minima_paired.png` |
+| 22 | Climate-corrected anomaly (CEH36 vs CEH4) | 09b | `09b_03_ceh36_equilibration.jpg` |
+| 23 | Spatial step-change map (scraping era) | 10b | `10b_spatial_scrape_corrected.png` |
+| 24 | Scenario comparison at CEH36 | 09d | `09d_01_scenario_comparison.jpg` |
+| 25 | Summer min scenario comparison (CEH36) | 09d | `09d_02_summer_scenario_comparison.png` |
+| 26 | CWB vs BACI displacement (clearfell) | 10a | `10a_03_baci_timeseries_*.png` |
+| 27 | Forest control BACI — Impact tier | 10a | `10a_03_baci_timeseries_*.png` |
+| 28 | Forest control BACI — Edge tier | 10a | `10a_03_baci_timeseries_*.png` |
+| 29 | Summer minima vs Forest control | 10d | `10d_04_summer_minima_forest_ctrl.png` |
+| 30 | Summer min distributions by BACI tier | 21 | `21_forestry_04_baci_zone_violin.png` |
+| 31 | Spatial step-change map (clearfell era) | 10b | `10b_spatial_fell_corrected.png` |
+| 32 | Before/after SSM coefficients (17 wells) | 10e | `10e_*.png` |
+| 33 | Clearfell transect (step vs distance) | 10g | `10g_02_clearfell_transect.png` |
+| 34 | Summer min depth (spatial threshold) | 11b | `11b_01_summer_minima_depth.png` |
+| 35 | P_flood spatial distribution | 11b | `11b_03_pflood.png` |
+| 36 | Winter max depth (spatial threshold) | 11b | `11b_02_winter_maxima_depth.png` |
+| 37 | Winter flooding frequency | 11b | `11b_04_flood_frequency.png` |
+| 38 | Climate trajectory + threshold exceedance | 14 | `14_climate_trajectory_stacked.png` |
+| 39 | Per-well optimal drainage datum | 07 | `07_coeff_*_*.png` |
+| 40 | Spatial SSM coefficient atlas | 07 | `07_coeff_*_*.png` |
+| 41 | Drainage timescale (τ = Sy/β₃) | 18 | `18_wtf_05_drainage_timescale_map.png` |
+| 42 | Forest drawdown propagation | 20 | `20_drawdown_propagation.png` |
+| 43 | Aquifer diagnostic synthesis | 18 | `18_wtf_06_aquifer_diagnostic_synthesis.png` |
+| 44 | Mean head surface + streams | 20 | `20_head_surface_streams.png` |
+| 45 | SSM water balance residual | 20 | `20_residual_ssm.png` |
+| 46 | Forestry scenario hydrograph | 21 | `21_forestry_01_hydrograph.png` |
 
 ---
 

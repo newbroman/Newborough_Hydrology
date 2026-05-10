@@ -18,6 +18,27 @@ python run_analysis.py           # opens interactive menu
 
 ---
 
+## Documents
+
+All documents are in [`docs/`](docs/) and linked from the
+[GitHub Pages site](https://newbroman.github.io/Newborough_Hydrology/).
+
+| Document | Path | Description |
+|----------|------|-------------|
+| **Full report** | `docs/report/report.pdf` | Main manuscript (35 figures, 11 tables) |
+| **Supplementary material** | `docs/report/Supplementary_Material.pdf` | Additional tables and figures |
+| **Academic summary** | `docs/academic_summaries/academic_summary.pdf` | Concise research summary for researchers |
+| **Public summary (EN)** | `docs/public_summaries/Newborough_Warren_Public_Summary.pdf` | Plain-language overview |
+| **Public summary (CY)** | `docs/public_summaries/Niwbwrch_Crynodeb_Cyhoeddus.pdf` | Crynodeb cyhoeddus Cymraeg |
+| **Public summary (PL)** | `docs/public_summaries/Newborough_Warren_Podsumowanie.pdf` | Podsumowanie po polsku |
+| **Glossary (EN)** | `docs/Glossaries/Dune_Hydrology_Glossary.pdf` | Dune hydrology terminology |
+| **Glossary (CY)** | `docs/Glossaries/Geirfa_Hydroleg_Twyni.pdf` | Geirfa Cymraeg |
+| **Glossary (PL)** | `docs/Glossaries/Slownik_Hydrologii_Wydm.pdf` | Słownik polski |
+| **Web Tools User Manual** | `docs/web_tools/NRG_Web_Tools_User_Manual.pdf` | How to operate the Forecaster, Scenario Viewer and Scatter |
+| **Web Tools Technical Note** | `docs/web_tools/NRG_Web_Tools_Technical_Note.pdf` | Model equations, data bundles and rendering |
+
+---
+
 ## Running the Pipeline
 
 `run_analysis.py` provides an interactive menu with six options:
@@ -82,8 +103,28 @@ Newborough_Hydro_Models/
 │   ├── forecaster_template.html Static HTML/JS shell for the interactive forecaster (injected by 11b)
 │   ├── 19_spatial_groundwater.py
 │   └── [other scripts]
+├── docs/                        Reports, summaries and reference documents
+│   ├── report/
+│   │   ├── report.pdf                  Full manuscript
+│   │   └── Supplementary_Material.pdf  Tables, figures not in main text
+│   ├── academic_summaries/
+│   │   └── academic_summary.pdf        Concise research summary
+│   ├── public_summaries/
+│   │   ├── Newborough_Warren_Public_Summary.pdf    English
+│   │   ├── Niwbwrch_Crynodeb_Cyhoeddus.pdf        Cymraeg
+│   │   └── Newborough_Warren_Podsumowanie.pdf      Polski
+│   ├── Glossaries/
+│   │   ├── Dune_Hydrology_Glossary.pdf             English
+│   │   ├── Geirfa_Hydroleg_Twyni.pdf               Cymraeg
+│   │   └── Slownik_Hydrologii_Wydm.pdf             Polski
+│   └── web_tools/
+│       ├── NRG_Web_Tools_User_Manual.pdf           How to use the web tools
+│       ├── NRG_Web_Tools_Technical_Note.pdf         Model equations & data architecture
+│       ├── NRG_Web_Tools_User_Manual.docx           (editable)
+│       └── NRG_Web_Tools_Technical_Note.docx        (editable)
 ├── scenario_viewer.html         Lightweight linked viewer for GitHub Pages
 ├── seasonal_extremes_scatter.html  Interactive scatter plot (from script 14)
+├── index.html                   GitHub Pages landing page
 ├── readme.md
 ├── requirements.txt
 └── run_analysis.py              Interactive pipeline orchestrator

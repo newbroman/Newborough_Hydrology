@@ -5,13 +5,13 @@ This document describes the data flow between all pipeline scripts: which files 
 
 **Generated from automated I/O audit of `src/` against GitHub `main`.**
 
-**Run order:** 01 → 02 → 03 → 04 → 05 → 06 → 07 → 08 → 09 (suite a–e) → 10 (suite a–h) → 11 → 11b → 00 → 14 → 12 → 13 → 15 → 17 → 16 → 18 → 19 → 20 → 21 → 25 (coastal) → 22 → 23 → 24 → 25 (grey)
+**Run order:** 01 → 02 → 03 → 04 → 05 → 06 → 07 → 08 → 09 (suite a–e) → 10 (suite a–h) → 11 → 11b → 00 → 14 → 12 → 13 → 15 → 17 → 16 → 18 → 19 → 20 → 21 → 25 (coastal) → 22 → 23 → 24 → 26 (grey)
 
 **28 pipeline steps across 13 phases.**
 
-Phases 1–11 produce the main analytical results documented in the report. Phase 12 (Scripts 22–24) runs supplementary diagnostics. Phase 13 runs the greyscale figure-conversion utility (Script 25 grey) as a callable utility step, retained in `run_analysis.py` but not treated as an analytical phase.
+Phases 1–11 produce the main analytical results documented in the report. Phase 12 (Scripts 22–24) runs supplementary diagnostics. Phase 13 runs the greyscale figure-conversion utility (Script 26) as a callable utility step, retained in `run_analysis.py` but not treated as an analytical phase.
 
-Note that two distinct scripts share the `25_` filename prefix: `25_coastal_gradient.py` is the main analytical script for Phase 11 (step 24); `25_greyscale_figures.py` is the greyscale utility for Phase 13 (step 28). References to "Script 25" in this document mean the coastal-gradient analysis unless explicitly qualified as "Script 25 grey".
+The main analytical script for Phase 11 (step 24) is `25_coastal_gradient.py`. The greyscale utility for Phase 13 (step 28) is `26_greyscale_figures.py`. References to "Script 25" in this document mean the coastal-gradient analysis; the greyscale utility is referred to as "Script 26".
 
 Script 09 is a modular suite orchestrated by `run_09_scraping.py` (09a → 09b → 09c → 09d → 09e). Script 10 is a modular suite orchestrated by `run_10_clearfell.py` (10a → 10b → 10c → 10d → 10e → 10f → 10g → 10h); within the suite, 10c (forest zone spatial analysis) is treated as supplementary, while the other seven sub-scripts contribute to the primary report results. All sub-modules can be run independently provided their upstream Phase 1–2 outputs exist.
 

@@ -16,7 +16,7 @@ The pipeline comprises 28 steps across 13 phases:
 
   Phases 1–11 produce the main analytical results documented in the report.
   Phase 12 runs supplementary diagnostics (Scripts 22–24).
-  Phase 13 runs the greyscale figure-conversion utility (Script 25 grey),
+  Phase 13 runs the greyscale figure-conversion utility (Script 26),
   retained as a callable utility step rather than an analytical phase.
 
 Two-pass execution (RECOMMENDED for new datasets)
@@ -107,7 +107,7 @@ PHASE_12 = [
     ("24_residual_seasonality.py",     "27/28  Residual seasonality diagnostics"),
 ]
 PHASE_13 = [
-    ("25_greyscale_figures.py",        "28/28  Greyscale figure conversion (journal-ready B&W)"),
+    ("26_greyscale_figures.py",        "28/28  Greyscale figure conversion (journal-ready B&W)"),
 ]
 
 ALL_PHASES = [
@@ -123,7 +123,7 @@ ALL_PHASES = [
     ("PHASE 10 — Forestry Scenario Analysis",                   PHASE_10),
     ("PHASE 11 \u2014 Coastal-Retreat Gradient Analysis (Script 25)", PHASE_11),
     ("PHASE 12 \u2014 Supplementary Diagnostics (Scripts 22\u201324)",   PHASE_12),
-    ("PHASE 13 \u2014 Greyscale Figure Conversion (Script 25 grey)", PHASE_13),
+    ("PHASE 13 \u2014 Greyscale Figure Conversion (Script 26)", PHASE_13),
 ]
 
 # Build step -> (script, label, extra_args) lookup at import time
@@ -326,7 +326,7 @@ def run_full_pipeline(from_step: int = 1) -> None:
     validate_outputs(REQUIRED_PHASE10_OUTPUTS, "Phase 10")
     run_phase(PHASE_11, "PHASE 11 — Coastal-Retreat Gradient Analysis (Script 25)", from_step)
     run_phase(PHASE_12, "PHASE 12 — Supplementary Diagnostics (Scripts 22–24)",  from_step)
-    run_phase(PHASE_13, "PHASE 13 — Greyscale Figure Conversion (Script 25 grey)", from_step)
+    run_phase(PHASE_13, "PHASE 13 — Greyscale Figure Conversion (Script 26)", from_step)
     _banner("PIPELINE COMPLETE — all 28 steps written to outputs/")
 
 def build_viewer() -> None:
@@ -388,8 +388,8 @@ MENU = """
   │  4  Prepare the scenario viewer  (full pipeline first)       │
   │  5  Run supplementary diagnostics 22–24  (run pipeline first)│
   │  6  Convert figures to greyscale (journal-ready B&W)         │
-  │     6a  Quick: pixel conversion only (Script 25 grey)        │
-  │     6b  Full: re-run pipeline in B&W mode + Script 25 grey   │
+  │     6a  Quick: pixel conversion only (Script 26)            │
+  │     6b  Full: re-run pipeline in B&W mode + Script 26       │
   │     6h  Help: colour vs B&W workflow explained               │
   │  7  Show pipeline step list                                  │
   │  q  Quit                                                     │
@@ -463,7 +463,7 @@ def menu_run_single() -> None:
         print(f"\n  [OK] Step {n} complete.")
         if bw:
             print("  [BW] Copying figures to outputs_bw/ ...")
-            run_script("25_greyscale_figures.py", "28/28  Greyscale figure conversion")
+            run_script("26_greyscale_figures.py", "28/28  Greyscale figure conversion")
             bw_dir = ROOT_DIR / "outputs_bw"
             if bw_dir.exists():
                 n_figs = len(list(bw_dir.rglob("*.png"))) + len(list(bw_dir.rglob("*.jpg")))
@@ -495,7 +495,7 @@ def run_greyscale(full_rerun: bool = False) -> None:
     _hr()
     print()
 
-    script_path = SRC_DIR / "25_greyscale_figures.py"
+    script_path = SRC_DIR / "26_greyscale_figures.py"
     if not script_path.exists():
         print(f"  [ERROR] Script not found: {script_path}")
         return
@@ -521,14 +521,14 @@ def run_greyscale(full_rerun: bool = False) -> None:
             run_full_pipeline(from_step=1)
         finally:
             os.environ.pop("NRG_BW_MODE", None)
-        # Script 25 greyscale already ran as step 28 inside run_full_pipeline
+        # Script 26 greyscale already ran as step 28 inside run_full_pipeline
     else:
         print("  Mode: Pixel conversion only (Script 25)")
         print("  This converts existing colour figures to greyscale using")
         print("  perceptual luminance weighting. Quick but some figures")
         print("  may be suboptimal — use 'Full B&W re-run' for best results.")
         print()
-        run_script("25_greyscale_figures.py", "28/28  Greyscale figure conversion")
+        run_script("26_greyscale_figures.py", "28/28  Greyscale figure conversion")
 
     bw_dir = ROOT_DIR / "outputs_bw"
     if bw_dir.exists():

@@ -170,9 +170,9 @@ colours and labels are centralised in `src/utils/config.py`.
 | 10 | 21 | 23 | Forestry scenarios and management intervention figures |
 | 11 | 25 (coastal-gradient) | 24 | Coastal-retreat gradient analysis |
 | 12 | 22–24 | 25–27 | Supplementary diagnostics: residual lag structure, ridge recharge hypothesis test, residual seasonality |
-| 13 | 25 (greyscale) | 28 | Greyscale figure conversion utility (journal-ready B&W) |
+| 13 | 26 (greyscale) | 28 | Greyscale figure conversion utility (journal-ready B&W) |
 
-Phases 1–11 produce the main analytical results documented in the report. Phase 12 runs supplementary diagnostics. Phase 13 runs the greyscale utility, retained in `run_analysis.py` as a callable step but not treated as an analytical phase. Two distinct scripts share the `25_` filename prefix: `25_coastal_gradient.py` (Phase 11) and `25_greyscale_figures.py` (Phase 13). Within the Script 10 clearfell BACI suite, `10c_forest_zone_analysis.py` runs in order but its outputs are treated as supplementary; the other seven sub-scripts (10a, 10b, 10d–10h) contribute to the primary report results.
+Phases 1–11 produce the main analytical results documented in the report. Phase 12 runs supplementary diagnostics. Phase 13 runs the greyscale utility (Script 26), retained in `run_analysis.py` as a callable step but not treated as an analytical phase. The main analytical Script 25 (`25_coastal_gradient.py`, Phase 11) and the greyscale utility Script 26 (`26_greyscale_figures.py`, Phase 13) are distinct files. Within the Script 10 clearfell BACI suite, `10c_forest_zone_analysis.py` runs in order but its outputs are treated as supplementary; the other seven sub-scripts (10a, 10b, 10d–10h) contribute to the primary report results.
 
 ---
 

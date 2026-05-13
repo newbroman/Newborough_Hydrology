@@ -44,8 +44,8 @@ from utils.paths import (
 )
 from utils.data_utils import normalize_well_name
 from utils.model_utils import get_metrics, get_r2, build_ssm_frame, simulate_ssm
-from utils.map_utils import add_kml_features
-from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, CLUSTER_MARKERS, DRAINAGE_DATUM, HEADLINE_LAG
+from utils.map_utils import add_kml_features, load_dem_layer
+from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, CLUSTER_MARKERS, DRAINAGE_DATUM, HEADLINE_LAG, BW_MODE
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -297,6 +297,9 @@ def plot_showdown(output_path, payload):
 
 def plot_metric_map(map_df, value_col, title, output_path, cmap, vmin=None, vmax=None):
     """Create easting/northing scatter map for a metric, using marker shape for cluster."""
+    # BW mode: override colourmap to linear greyscale
+    if BW_MODE:
+        cmap = "Greys"
     map_df = map_df.copy()
     required_cols = ['Easting', 'Northing', value_col]
     missing_required = [c for c in required_cols if c not in map_df.columns]
@@ -334,28 +337,9 @@ def plot_metric_map(map_df, value_col, title, output_path, cmap, vmin=None, vmax
     fig, ax = plt.subplots(figsize=(14, 11), dpi=300)
 
     # --- DEM Layer ---
-    dem_path = DATA_DIR / "newborough_dem.tif"
-    dem_loaded = False
-    if dem_path.exists():
-        try:
-            import rasterio
-            with rasterio.open(str(dem_path)) as src:
-                dem_data = src.read(1)
-                extent = [src.bounds.left, src.bounds.right, src.bounds.bottom, src.bounds.top]
-                if src.nodata is not None:
-                    dem_data = np.ma.masked_where(dem_data == src.nodata, dem_data)
-                terrain_cmap = plt.cm.terrain
-                terrain_colors = terrain_cmap(np.linspace(0.25, 1.0, 256))
-                custom_topo = mcolors.LinearSegmentedColormap.from_list("custom_topo", terrain_colors)
-                custom_topo.set_under("dodgerblue")
-                div_norm = mcolors.TwoSlopeNorm(vmin=0, vcenter=12.0, vmax=dem_data.max())
-                dem_layer = ax.imshow(dem_data, cmap=custom_topo, alpha=0.45,
-                                      norm=div_norm, extent=extent, origin="upper", zorder=1)
-                ax.set_xlim(extent[0], extent[1])
-                ax.set_ylim(362000, 365000)
-                dem_loaded = True
-        except Exception as e:
-            print(f"DEM load failed: {e}. Falling back to OSM.")
+    dem_layer, dem_loaded = load_dem_layer(ax, DATA_DIR)
+    ax.set_xlim(240100, 243900)
+    ax.set_ylim(362200, 365800)
 
     # --- Fallback to OSM ---
     if not dem_loaded:
@@ -387,60 +371,79 @@ def plot_metric_map(map_df, value_col, title, output_path, cmap, vmin=None, vmax
             data_max = float(np.nanmax(vals))
 
             if data_min < 0 < data_max:
-                # Signed metrics crossing zero: keep diverging palette centered at 0.
-                norm = mcolors.TwoSlopeNorm(vmin=data_min, vcenter=0.0, vmax=data_max)
-                scatter_kwargs = {'cmap': 'RdYlBu', 'vmin': None, 'vmax': None, 'norm': norm}
-            else:
-                # Positive-only (or negative-only) metrics: use discrete bins so
-                # 0.2+ is visually distinct from near-zero values.
-                lo = 0.0
-                hi = float(np.nanmax(vals))
-                if not np.isfinite(lo):
-                    lo = data_min
-                if not np.isfinite(hi):
-                    hi = data_max
-                hi = max(hi, 0.2)
-                if hi <= lo:
-                    lo, hi = data_min, data_max
-                if hi <= lo:
-                    hi = lo + 1e-6
-
-                unique_vals = np.unique(np.sort(vals))
-                if unique_vals.size > 1:
-                    # Put only the very highest well(s) in the top class.
-                    top_split = max(0.75, float(unique_vals[-2]) + 1e-6)
+                # Signed metrics crossing zero
+                if BW_MODE:
+                    # BW: 3 clear bands
+                    div_edges = np.linspace(data_min, data_max, 4)
+                    div_colors = ["#d0d0d0", "#808080", "#2a2a2a"]
+                    cmap_obj = mcolors.ListedColormap(div_colors)
+                    norm = mcolors.BoundaryNorm(div_edges, cmap_obj.N, clip=True)
+                    scatter_kwargs = {'cmap': cmap_obj, 'vmin': None, 'vmax': None, 'norm': norm}
                 else:
-                    top_split = max(0.75, hi - 1e-6)
-                if top_split >= hi:
-                    top_split = max(0.75, hi - 1e-6)
+                    norm = mcolors.TwoSlopeNorm(vmin=data_min, vcenter=0.0, vmax=data_max)
+                    scatter_kwargs = {'cmap': 'RdYlBu', 'vmin': None, 'vmax': None, 'norm': norm}
+            else:
+                if BW_MODE:
+                    # BW mode: 3 clear bands
+                    _lo = float(np.nanmin(vals)) if vmin is None else float(vmin)
+                    _hi = float(np.nanmax(vals)) if vmax is None else float(vmax)
+                    _hi = max(_hi, 0.2)
+                    bw_edges = np.linspace(_lo, _hi, 4)
+                    bw_colors = ["#d0d0d0", "#808080", "#2a2a2a"]
+                    cmap_obj = mcolors.ListedColormap(bw_colors)
+                    norm = mcolors.BoundaryNorm(bw_edges, cmap_obj.N, clip=True)
+                    scatter_kwargs = {'cmap': cmap_obj, 'vmin': None, 'vmax': None, 'norm': norm}
+                else:
+                    # Positive-only (or negative-only) metrics: use discrete bins so
+                    # 0.2+ is visually distinct from near-zero values.
+                    lo = 0.0
+                    hi = float(np.nanmax(vals))
+                    if not np.isfinite(lo):
+                        lo = data_min
+                    if not np.isfinite(hi):
+                        hi = data_max
+                    hi = max(hi, 0.2)
+                    if hi <= lo:
+                        lo, hi = data_min, data_max
+                    if hi <= lo:
+                        hi = lo + 1e-6
 
-                # Explicit class breaks: orange starts at 0.75; top class is unique.
-                base_edges = np.array([0.00, 0.05, 0.10, 0.20, 0.35, 0.50, 0.75, top_split, hi], dtype=float)
-                edges = np.unique(np.clip(base_edges, lo, hi))
-                if edges.size < 2 or edges[-1] <= edges[0]:
-                    edges = np.array([lo, hi], dtype=float)
-
-                # Stronger discrete palette with dedicated top-end class color.
-                colors = []
-                for i in range(len(edges) - 1):
-                    start = edges[i]
-                    if start >= top_split - 1e-12:
-                        colors.append("#ffffff")  # top class (single highest well)
-                    elif start >= 0.75 - 1e-12:
-                        colors.append("#f16913")  # orange class starts at 0.75
-                    elif start >= 0.50 - 1e-12:
-                        colors.append("#d94801")
-                    elif start >= 0.35 - 1e-12:
-                        colors.append("#fe9929")
-                    elif start >= 0.20 - 1e-12:
-                        colors.append("#fec44f")
-                    elif start >= 0.10 - 1e-12:
-                        colors.append("#fee391")
+                    unique_vals = np.unique(np.sort(vals))
+                    if unique_vals.size > 1:
+                        # Put only the very highest well(s) in the top class.
+                        top_split = max(0.75, float(unique_vals[-2]) + 1e-6)
                     else:
-                        colors.append("#fff7bc")
+                        top_split = max(0.75, hi - 1e-6)
+                    if top_split >= hi:
+                        top_split = max(0.75, hi - 1e-6)
 
-                cmap_obj = mcolors.ListedColormap(colors)
-                norm = mcolors.BoundaryNorm(edges, cmap_obj.N, clip=True)
+                    # Explicit class breaks: orange starts at 0.75; top class is unique.
+                    base_edges = np.array([0.00, 0.05, 0.10, 0.20, 0.35, 0.50, 0.75, top_split, hi], dtype=float)
+                    edges = np.unique(np.clip(base_edges, lo, hi))
+                    if edges.size < 2 or edges[-1] <= edges[0]:
+                        edges = np.array([lo, hi], dtype=float)
+
+                    # Stronger discrete palette with dedicated top-end class color.
+                    colors = []
+                    for i in range(len(edges) - 1):
+                        start = edges[i]
+                        if start >= top_split - 1e-12:
+                            colors.append("#ffffff")  # top class (single highest well)
+                        elif start >= 0.75 - 1e-12:
+                            colors.append("#f16913")  # orange class starts at 0.75
+                        elif start >= 0.50 - 1e-12:
+                            colors.append("#d94801")
+                        elif start >= 0.35 - 1e-12:
+                            colors.append("#fe9929")
+                        elif start >= 0.20 - 1e-12:
+                            colors.append("#fec44f")
+                        elif start >= 0.10 - 1e-12:
+                            colors.append("#fee391")
+                        else:
+                            colors.append("#fff7bc")
+
+                    cmap_obj = mcolors.ListedColormap(colors)
+                    norm = mcolors.BoundaryNorm(edges, cmap_obj.N, clip=True)
                 scatter_kwargs = {'cmap': cmap_obj, 'vmin': None, 'vmax': None, 'norm': norm}
     else:
         scatter_kwargs = {'cmap': cmap, 'vmin': vmin, 'vmax': vmax, 'norm': None}
@@ -474,7 +477,7 @@ def plot_metric_map(map_df, value_col, title, output_path, cmap, vmin=None, vmax
     cbar.set_label(value_col.replace('_', ' '), rotation=270, labelpad=32, fontsize=14)
 
     # Place DEM scale to the right of the metric scale.
-    if dem_layer is not None:
+    if dem_layer is not None and not BW_MODE:
         cax_dem = divider.append_axes("right", size="2.75%", pad=1.306)
         cbar_dem = fig.colorbar(dem_layer, cax=cax_dem, extend="both")
         cbar_dem.set_label("Elevation (m AOD)", rotation=270, labelpad=32, fontsize=14)

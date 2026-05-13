@@ -23,7 +23,7 @@ from utils.paths import (
     OUT_06_AFFINITY_CHART,
     OUT_06_INTEGRATION_MAP,
 )
-from utils.config import CLUSTER_COLOURS, CLUSTER_LABELS
+from utils.config import CLUSTER_COLOURS, CLUSTER_COLOURS_BW, CLUSTER_LABELS, BW_MODE, BW_HATCHES
 from utils.data_utils import normalize_well_name
 from utils.map_utils import load_dem_layer, add_kml_features, add_osm_basemap
 import pandas as pd
@@ -254,46 +254,49 @@ def main():
     fig, ax = plt.subplots(figsize=(14, 11), dpi=300)
 
     # Base Map (DEM + KMLs)
-    dem_path = DATA_DIR / "newborough_dem.tif"
-    if dem_path.exists():
+    dem_layer, dem_loaded = load_dem_layer(ax, DATA_DIR)
+    if not dem_loaded:
         try:
-            import rasterio
-            with rasterio.open(str(dem_path)) as src:
-                dem_data, extent = src.read(1), [src.bounds.left, src.bounds.right, src.bounds.bottom, src.bounds.top]
-                dem_data = np.ma.masked_where(dem_data == src.nodata, dem_data) if src.nodata is not None else dem_data
-                cmap = mcolors.LinearSegmentedColormap.from_list("custom", plt.cm.terrain(np.linspace(0.25, 1.0, 256)))
-                cmap.set_under("dodgerblue")
-                img = ax.imshow(
-                    dem_data,
-                    cmap=cmap,
-                    alpha=0.45,
-                    norm=mcolors.TwoSlopeNorm(vmin=DEM_VMIN, vcenter=DEM_VCENTER, vmax=DEM_VMAX),
-                    extent=extent,
-                    origin="upper",
-                    zorder=1,
-                )
-                fig.colorbar(img, ax=ax, shrink=0.55, pad=0.02, extend="both").set_label("Elevation (m AOD)", rotation=270, labelpad=18)
-                ax.set_xlim(extent[0], extent[1]); ax.set_ylim(362000, 365000)
+            ctx.add_basemap(ax, crs="EPSG:27700", source=ctx.providers.OpenStreetMap.Mapnik, zorder=1, alpha=0.7)
         except Exception:
             pass
-    else:
-        ctx.add_basemap(ax, crs="EPSG:27700", source=ctx.providers.OpenStreetMap.Mapnik, zorder=1, alpha=0.7)
+    ax.set_xlim(240100, 243900)
+    ax.set_ylim(362200, 365800)
+    if dem_layer is not None and not BW_MODE:
+        fig.colorbar(dem_layer, ax=ax, shrink=0.55, pad=0.02, extend="both").set_label("Elevation (m AOD)", rotation=270, labelpad=18)
 
     site_feature_handles = add_kml_features(ax, DATA_DIR)
 
-    # Plot Wells
-    for status in map_df['Status'].unique():
-        sub = map_df[map_df['Status'] == status]
+    # Plot Wells — cluster identity shown by marker SHAPE, not colour.
+    # Fill: reference=dark grey, extended=light grey, spy=white with bold edge.
+    from utils.config import CLUSTER_MARKERS
+    _clr = CLUSTER_COLOURS_BW if BW_MODE else CLUSTER_COLOURS
+    for _, row in map_df.iterrows():
+        cid = int(row['Best_Match_Cluster'])
+        status = row['Status']
         is_ext = "Ext" in status
-        
-        # Extended wells get a distinct marker (Square) and dashed edge to separate them from the core.
-        if is_ext: marker, size, edge_ls = "s", 160, "--"
-        elif "Spy" in status: marker, size, edge_ls = "*", 220, "-"
-        elif "Fuzzy" in status: marker, size, edge_ls = "D", 120, "-"
-        else: marker, size, edge_ls = "o", 120, "-"
-        
-        colors = [CLUSTER_COLOURS.get(int(c), "grey") for c in sub['Best_Match_Cluster']]
-        ax.scatter(sub['E'], sub['N'], c=colors, marker=marker, s=size, edgecolor='black', linewidth=1.2, linestyle=edge_ls, alpha=0.9, zorder=5)
+        is_spy = "Spy" in status
+
+        marker = CLUSTER_MARKERS.get(cid, "o")
+        if is_spy:
+            facecolor = "white"
+            edgewidth = 2.5
+            size = 200
+            zorder = 7
+        elif is_ext:
+            facecolor = "#cccccc"
+            edgewidth = 1.0
+            size = 120
+            zorder = 4
+        else:
+            facecolor = _clr.get(cid, "grey") if not BW_MODE else "#666666"
+            edgewidth = 1.2
+            size = 130
+            zorder = 5
+
+        ax.scatter(row['E'], row['N'], c=[facecolor], marker=marker, s=size,
+                   edgecolor="black", linewidth=edgewidth,
+                   alpha=0.9, zorder=zorder)
 
     # Start labels with a slight offset, then use strong repulsion to reduce overlaps in dense zones.
     label_x = map_df['E'].to_numpy(dtype=float)
@@ -328,13 +331,22 @@ def main():
     ax.set_xlabel("Easting (m)"); ax.set_ylabel("Northing (m)")
 
     handles_status = [
-        Line2D([0], [0], marker='o', color='w', label='Ref: Core Assignment', markerfacecolor='grey', markeredgecolor='black', markersize=9),
-        Line2D([0], [0], marker='s', color='w', label='Ext: Shorter Record (FE/LIS)', markerfacecolor='lightgrey', markeredgecolor='black', markersize=10, linestyle='--'),
-        Line2D([0], [0], marker='*', color='w', label='Ref: Behavioural Spy', markerfacecolor='grey', markeredgecolor='black', markersize=14)
+        Line2D([0], [0], marker='o', color='w', label='Reference well (dark fill)',
+               markerfacecolor='#666666', markeredgecolor='black', markersize=9),
+        Line2D([0], [0], marker='o', color='w', label='Extended well (light fill)',
+               markerfacecolor='#cccccc', markeredgecolor='black', markersize=9),
+        Line2D([0], [0], marker='o', color='w', label='Behavioural Spy (bold edge)',
+               markerfacecolor='white', markeredgecolor='black', markersize=9, markeredgewidth=2.5),
     ]
     ax.add_artist(ax.legend(handles=handles_status, loc='upper left', title="Network Classification", frameon=True))
     
-    handles_clusters = [Line2D([0], [0], marker='o', color='w', label=CLUSTER_LABELS.get(c, f"C{c}"), markerfacecolor=CLUSTER_COLOURS[c], markeredgecolor='black', markersize=10) for c in EXPECTED_CLUSTERS]
+    from utils.config import CLUSTER_MARKERS
+    handles_clusters = [
+        Line2D([0], [0], marker=CLUSTER_MARKERS.get(c, 'o'), color='w',
+               label=CLUSTER_LABELS.get(c, f"C{c}"),
+               markerfacecolor='grey', markeredgecolor='black', markersize=10)
+        for c in EXPECTED_CLUSTERS
+    ]
     cluster_legend = ax.legend(handles=handles_clusters, loc='lower left', title="Calculated Cluster Affinity", frameon=True)
     ax.add_artist(cluster_legend)
 

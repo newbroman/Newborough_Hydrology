@@ -79,6 +79,7 @@ from utils.paths import (
     OUT_03_MECHANISTIC_TABLE,
 )
 from utils.config import (
+    BW_MODE,
     CLUSTER_LABELS as _CFG_LABELS,
     CLUSTER_COLOURS as _CFG_COLOURS,
     DRAINAGE_DATUM,
@@ -101,6 +102,20 @@ C_ET    = "#E8724A"   # warm orange — ET draw
 C_DRAIN = "#7A6B5D"   # brown-grey — drainage
 C_INTCP = "#5BA55B"   # green — interception
 C_P     = "#4A7FB5"   # steel blue — rainfall
+
+if BW_MODE:
+    C_RECH  = "#888888"
+    C_ET    = "#444444"
+    C_DRAIN = "#aaaaaa"
+    C_INTCP = "#cccccc"
+    C_P     = "#666666"
+
+# BW hatching patterns for water balance components
+H_RECH  = ""      if not BW_MODE else ""
+H_ET    = ""      if not BW_MODE else "///"
+H_DRAIN = ""      if not BW_MODE else "..."
+H_INTCP = ""      if not BW_MODE else "xxx"
+H_P     = ""      if not BW_MODE else ""
 
 # ── Label helpers ──────────────────────────────────────────────────────────────
 def _two_line(label: str) -> str:
@@ -371,12 +386,13 @@ def make_figure(summary, recession, ms=True):
     et_vals   = [summary[c]["et_draw"]  for c in cids]
     drain_vals = [summary[c]["drainage"] for c in cids]
 
-    ax1.bar(x - width/2, rech_vals, width, color=C_RECH, edgecolor="white",
-            linewidth=0.5, label="Recharge (β₁·P̄)", zorder=3)
-    ax1.bar(x + width/2, et_vals, width, color=C_ET, edgecolor="white",
-            linewidth=0.5, label="ET draw (β₂·PET̄)", zorder=3)
+    ax1.bar(x - width/2, rech_vals, width, color=C_RECH, edgecolor="black" if BW_MODE else "white",
+            linewidth=0.5, label="Recharge (β₁·P̄)", zorder=3, hatch=H_RECH)
+    ax1.bar(x + width/2, et_vals, width, color=C_ET, edgecolor="black" if BW_MODE else "white",
+            linewidth=0.5, label="ET draw (β₂·PET̄)", zorder=3, hatch=H_ET)
     ax1.bar(x + width/2, drain_vals, width, bottom=et_vals, color=C_DRAIN,
-            edgecolor="white", linewidth=0.5, label="Drainage (β₃·h̄ᵈⁱˢᵖ)", zorder=3)
+            edgecolor="black" if BW_MODE else "white", linewidth=0.5,
+            label="Drainage (β₃·h̄ᵈⁱˢᵖ)", zorder=3, hatch=H_DRAIN)
 
     for i, cid in enumerate(cids):
         s = summary[cid]
@@ -457,22 +473,27 @@ def make_figure(summary, recession, ms=True):
         x_l = i + width_loss/2 + gap/2
 
         # INPUT bar: P with interception at top
-        ax2.bar(x_p, P_net, width_p, color=C_P, edgecolor="white",
-                linewidth=0.5, zorder=3)
+        ax2.bar(x_p, P_net, width_p, color=C_P,
+                edgecolor="black" if BW_MODE else "white",
+                linewidth=0.5, zorder=3, hatch=H_P)
         if is_forest:
             ax2.bar(x_p, I_val, width_p, bottom=P_net, color=C_INTCP,
-                    edgecolor="white", linewidth=0.5, zorder=3,
-                    hatch='///', alpha=0.85)
+                    edgecolor="black" if BW_MODE else "white",
+                    linewidth=0.5, zorder=3,
+                    hatch=H_INTCP if BW_MODE else '///', alpha=0.85)
 
         # LOSS bar: ET (bottom) + Drainage (top) + Interception (top)
-        ax2.bar(x_l, et_mid, width_loss, color=C_ET, edgecolor="white",
-                linewidth=0.5, zorder=3)
+        ax2.bar(x_l, et_mid, width_loss, color=C_ET,
+                edgecolor="black" if BW_MODE else "white",
+                linewidth=0.5, zorder=3, hatch=H_ET)
         ax2.bar(x_l, drain_mid, width_loss, bottom=et_mid, color=C_DRAIN,
-                edgecolor="white", linewidth=0.5, zorder=3)
+                edgecolor="black" if BW_MODE else "white",
+                linewidth=0.5, zorder=3, hatch=H_DRAIN)
         if is_forest:
             ax2.bar(x_l, I_val, width_loss, bottom=P_net, color=C_INTCP,
-                    edgecolor="white", linewidth=0.5, zorder=3,
-                    hatch='///', alpha=0.85)
+                    edgecolor="black" if BW_MODE else "white",
+                    linewidth=0.5, zorder=3,
+                    hatch=H_INTCP if BW_MODE else '///', alpha=0.85)
 
         # Uncertainty band: hatched rectangle at ET/drainage boundary
         band_bottom = et_lo

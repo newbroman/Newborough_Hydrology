@@ -93,10 +93,13 @@ from utils.paths import (
     OUT_09C_SUMMER_MINIMA,
 )
 from utils.config import (
+    BW_MODE,
     FOREST_INTERCEPTION, BROADLEAF_INTERCEPTION, REFERENCE_CUTOFF_DATE,
     DRAINAGE_DATUM,
     CLUSTER_COLOURS as CONFIG_CLUSTER_COLOURS,
+    CLUSTER_COLOURS_BW,
     SD15b, SD15b_REC, SD16, SD16_REC,
+    get_bar_hatch,
 )
 from utils.model_utils import monthly_perturbation
 from utils.scraping_common import (
@@ -571,10 +574,16 @@ def plot_hydrograph(scenario_shifts, obs_monthly, monthly_P, monthly_PET,
 
     # ── Climate forcing panel ─────────────────────────────────────────────────
     width = 0.35
+    _p_hatch = "" if not BW_MODE else ""
+    _pet_hatch = "" if not BW_MODE else "///"
+    _p_col = "steelblue" if not BW_MODE else "#555555"
+    _pet_col = "tomato" if not BW_MODE else "#aaaaaa"
     ax2.bar(x - width/2, monthly_P  * 1000, width,
-            color="steelblue", alpha=0.75, label="Mean P (mm)")
+            color=_p_col, alpha=0.75, label="Mean P (mm)",
+            hatch=_p_hatch, edgecolor="black", linewidth=0.5)
     ax2.bar(x + width/2, monthly_PET * 1000, width,
-            color="tomato",    alpha=0.75, label="Mean PET (mm)")
+            color=_pet_col,    alpha=0.75, label="Mean PET (mm)",
+            hatch=_pet_hatch, edgecolor="black", linewidth=0.5)
     ax2.axvspan(5.5, 9.5, alpha=0.07, color="orange")
     ax2.set_xlim(0.5, 13.8)
     ax2.set_xticks(x)
@@ -1516,6 +1525,17 @@ def plot_scenario_comparison(master, climate, dpi=300):
         "Broadleaf": "#228B22",
         "Climate dry": "#FF6347", "Climate wet": "#4169E1",
     }
+    # BW mode: distinct grey tones + hatching grouped by intervention type
+    bw_colour_map = {
+        "Clearfell": "#333333", "Thinning 50%": "#666666",
+        "Broadleaf": "#999999",
+        "Climate dry": "#444444", "Climate wet": "#bbbbbb",
+    }
+    bw_hatch_map = {
+        "Clearfell": "xxx", "Thinning 50%": "///",
+        "Broadleaf": "...",
+        "Climate dry": "\\\\\\", "Climate wet": "",
+    }
     scenarios_order = [s for s in ["Clearfell", "Thinning 50%", "Broadleaf",
                                     "Climate dry", "Climate wet"]
                        if s in scenario_values]
@@ -1530,8 +1550,11 @@ def plot_scenario_comparison(master, climate, dpi=300):
 
     for i, s_name in enumerate(scenarios_order):
         vals = [scenario_values[s_name].get(c, 0) for c in clusters]
+        _col = bw_colour_map.get(s_name, "#999") if BW_MODE else colour_map.get(s_name, "#999")
+        _hatch = bw_hatch_map.get(s_name, "") if BW_MODE else ""
         ax.bar(x + offsets[i], vals, width, label=s_name,
-               color=colour_map.get(s_name, "#999"), alpha=0.85)
+               color=_col, alpha=0.85, hatch=_hatch,
+               edgecolor="black", linewidth=0.5)
 
     ax.axhline(0, color="black", lw=0.8)
     ax.set_xticks(x)

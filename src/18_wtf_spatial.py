@@ -50,7 +50,11 @@ from utils.paths import (
     OUT_18_DRAINAGE_TIMESCALE, OUT_18_DRAINAGE_TIMESCALE_CSV,
     OUT_18_AQUIFER_SYNTHESIS,
 )
-from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, CLUSTER_MARKERS, FOREST_INTERCEPTION, FOREST_CIDS
+from utils.config import (
+    CLUSTER_LABELS, CLUSTER_COLOURS, CLUSTER_MARKERS,
+    FOREST_INTERCEPTION, FOREST_CIDS,
+    BW_MODE, get_cmap,
+)
 make_all_dirs()
 
 # ── Site boundary constants (shared with script 19) ───────────────────────────
@@ -277,7 +281,7 @@ def plot_spatial_map(well_results, out_path):
                        "(Freeman, 2008); spatial canopy variability means "
                        "Forest estimates are approximate"),
         output_path = out_path,
-        cmap        = "RdYlGn",
+        cmap        = get_cmap("RdYlGn"),
         data_dir    = data_dir,
         vmin        = 0.10,
         vmax        = 0.40,
@@ -334,11 +338,11 @@ def plot_contour_map(well_results, out_path):
 
     # Layer 2 — semi-transparent Sy surface
     cf = ax.contourf(Xi, Yi, Zi_masked, levels=20,
-                     cmap="RdYlGn", vmin=0.10, vmax=0.40,
+                     cmap=get_cmap("RdYlGn"), vmin=0.10, vmax=0.40,
                      alpha=0.65, zorder=2)
     cl = ax.contour(Xi, Yi, Zi_masked, levels=10,
-                    colors="white", linewidths=0.6, alpha=0.6, zorder=3)
-    ax.clabel(cl, fmt="%.2f", fontsize=7, colors="white")
+                    colors="black" if BW_MODE else "white", linewidths=0.6, alpha=0.6, zorder=3)
+    ax.clabel(cl, fmt="%.2f", fontsize=7, colors="black" if BW_MODE else "white")
 
     # Layer 3 — KML site features
     site_feature_handles = []
@@ -566,7 +570,7 @@ def plot_contour_map_extended(ref_results, ext_results, out_path):
 
     # Layer 2 — semi-transparent Sy surface
     cf = ax.contourf(Xi, Yi, Zi_masked, levels=20,
-                     cmap='RdYlGn', vmin=0.10, vmax=0.40,
+                     cmap=get_cmap('RdYlGn'), vmin=0.10, vmax=0.40,
                      alpha=0.65, zorder=2)
     cl = ax.contour(Xi, Yi, Zi_masked, levels=10,
                     colors='white', linewidths=0.6, alpha=0.6, zorder=3)
@@ -811,7 +815,8 @@ def plot_drainage_timescale_map(tau_df, out_path):
     tau_min = np.floor(tau.min())
     tau_max = np.ceil(tau.max())
     # Use a diverging-ish scheme: fast drainage (low τ) = cool, sluggish = warm
-    cmap = plt.cm.RdYlBu_r  # red = high τ (sluggish), blue = low τ (fast)
+    cmap = get_cmap("RdYlBu_r")  # colour: red = high τ (sluggish), blue = low τ (fast)
+                                  # BW: light grey = low τ (fast), dark = high τ (sluggish)
 
     # ── Figure ────────────────────────────────────────────────────────────────
     fig, ax = plt.subplots(figsize=(12, 10), facecolor="white", dpi=200)
@@ -831,8 +836,8 @@ def plot_drainage_timescale_map(tau_df, out_path):
                      cmap=cmap, vmin=tau_min, vmax=tau_max,
                      alpha=0.65, zorder=2)
     cl = ax.contour(Xi, Yi, Zi_masked, levels=10,
-                    colors="white", linewidths=0.6, alpha=0.6, zorder=3)
-    ax.clabel(cl, fmt="%.1f", fontsize=7, colors="white")
+                    colors="black" if BW_MODE else "white", linewidths=0.6, alpha=0.6, zorder=3)
+    ax.clabel(cl, fmt="%.1f", fontsize=7, colors="black" if BW_MODE else "white")
 
     # Layer 3 — KML site features
     site_feature_handles = []

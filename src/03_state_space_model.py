@@ -94,7 +94,11 @@ from utils.paths import (
     OUT_02_AMP_PER_WELL,
     DATA_DIR,
 )
-from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, DRAINAGE_DATUM, HEADLINE_LAG
+from utils.config import (
+    CLUSTER_LABELS, CLUSTER_COLOURS, CLUSTER_COLOURS_BW,
+    DRAINAGE_DATUM, HEADLINE_LAG,
+    BW_MODE, BW_LINESTYLES, BW_LINE_COLOURS,
+)
 from utils.model_utils import fit_ssm, assert_physical_signs
 
 
@@ -890,12 +894,13 @@ def make_datum_sensitivity_figure(sens_df: pd.DataFrame,
 
     # Top: β₃ per cluster
     ax = axes[0]
-    for cid in cids:
+    for i, cid in enumerate(cids):
         sub = sens_df[sens_df.Cluster == cid].sort_values("ref_depth")
         label = CLUSTER_LABELS.get(cid, f"C{cid}")
-        colour = CLUSTER_COLOURS.get(cid, "#888888")
+        colour = (CLUSTER_COLOURS_BW if BW_MODE else CLUSTER_COLOURS).get(cid, "#888888")
+        _ls_kw = BW_LINESTYLES[i % len(BW_LINESTYLES)] if BW_MODE else {"linestyle": "-", "linewidth": 1.5}
         ax.plot(sub["ref_depth"], sub["beta_3_drainage"], color=colour, label=label,
-                linewidth=1.5)
+                **_ls_kw)
         # Mark where p < 0.05
         sig = sub[sub["beta_3_sig"]]
         ax.scatter(sig["ref_depth"], sig["beta_3_drainage"], color=colour, s=8,
@@ -910,12 +915,13 @@ def make_datum_sensitivity_figure(sens_df: pd.DataFrame,
 
     # Middle: R² per cluster
     ax = axes[1]
-    for cid in cids:
+    for i, cid in enumerate(cids):
         sub = sens_df[sens_df.Cluster == cid].sort_values("ref_depth")
         label = CLUSTER_LABELS.get(cid, f"C{cid}")
-        colour = CLUSTER_COLOURS.get(cid, "#888888")
+        colour = (CLUSTER_COLOURS_BW if BW_MODE else CLUSTER_COLOURS).get(cid, "#888888")
+        _ls_kw = BW_LINESTYLES[i % len(BW_LINESTYLES)] if BW_MODE else {"linestyle": "-", "linewidth": 1.5}
         ax.plot(sub["ref_depth"], sub["R2"], color=colour, label=label,
-                linewidth=1.5)
+                **_ls_kw)
     ax.axvline(selected_datum, color="black", linewidth=1.2, linestyle=":")
     ax.set_ylabel("R²", fontsize=12)
     ax.set_title("R² vs reference depth per cluster", fontsize=13)

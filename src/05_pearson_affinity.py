@@ -10,7 +10,7 @@ import numpy as np, pandas as pd, matplotlib.pyplot as plt
 import geopandas as gpd, fiona
 from adjustText import adjust_text
 from matplotlib.lines import Line2D
-from utils.config import CLUSTER_COLOURS, CLUSTER_LABELS
+from utils.config import CLUSTER_COLOURS, CLUSTER_LABELS, BW_MODE
 from utils.data_utils import normalize_well_name
 from utils.map_utils import load_dem_layer, add_kml_features, add_osm_basemap
 from utils.paths import (make_all_dirs, DATA_DIR,
@@ -156,7 +156,9 @@ def main():
         dem_layer, dem_loaded = load_dem_layer(ax, DATA_DIR)
         if not dem_loaded:
             add_osm_basemap(ax, gpd.GeoDataFrame(map_df, geometry=gpd.points_from_xy(map_df["E"],map_df["N"]),crs="EPSG:27700"))
-        if dem_layer is not None:
+        ax.set_xlim(240100, 243900)
+        ax.set_ylim(362200, 365800)
+        if dem_layer is not None and not BW_MODE:
             fig.colorbar(dem_layer,ax=ax,shrink=0.55,pad=0.02,extend="both").set_label("Elevation (m AOD)",rotation=270,labelpad=18)
         site_feature_handles = add_kml_features(ax, DATA_DIR)
         for cls, marker in class_markers.items():

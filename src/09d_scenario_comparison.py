@@ -55,6 +55,7 @@ from utils.scraping_common import (
     load_cluster_params, load_summer_climate,
 )
 from utils.config import (
+    BW_MODE,
     DRAINAGE_DATUM,
     FOREST_INTERCEPTION, BROADLEAF_INTERCEPTION, BROADLEAF_B2_SUMMER,
     UKCP18_DRY_P_SUMMER, UKCP18_DRY_PET_SUMMER,
@@ -75,6 +76,35 @@ from scipy import stats as _stats
 # ============================================================================
 SCRAPE_BACI_STEP = 0.131   # m — observed CEH36 paired BACI step (Pure Scraping era)
 WELL = "ceh36"
+
+# BW-mode scenario bar styling
+_BW_SCENARIO_COLOURS = {
+    "Scraping\n(observed)": "#bbbbbb",
+    "Clearfell\n(hypothetical)": "#333333",
+    "Thinning 50%\n(hypothetical)": "#666666",
+    "Broadleaf\n(hypothetical)": "#999999",
+    "Climate dry": "#444444",
+    "Climate wet": "#cccccc",
+}
+_BW_SCENARIO_HATCHES = {
+    "Scraping\n(observed)": "///",
+    "Clearfell\n(hypothetical)": "xxx",
+    "Thinning 50%\n(hypothetical)": "///",
+    "Broadleaf\n(hypothetical)": "...",
+    "Climate dry": "\\\\\\",
+    "Climate wet": "",
+}
+
+
+def _bar_style(name, colours, hatches):
+    """Return (colour, hatch, edgecolor) respecting BW_MODE."""
+    if BW_MODE:
+        return (_BW_SCENARIO_COLOURS.get(name, "#999"),
+                _BW_SCENARIO_HATCHES.get(name, ""),
+                "black")
+    return (colours.get(name, "#999"),
+            hatches.get(name, ""),
+            "black" if hatches.get(name) else colours.get(name, "#999"))
 
 
 # ============================================================================
@@ -255,11 +285,12 @@ def _plot_monthly(scenarios, params):
 
     for i, (name, val) in enumerate(zip(names, vals)):
         is_scrape = "Scraping" in name
+        _col, _hatch, _ec = _bar_style(name, colours, hatches)
         ax.bar(x[i], val, 0.65,
-               color=colours.get(name, "#999"),
-               edgecolor=edge_colours.get(name, colours.get(name, "#999")),
+               color=_col,
+               edgecolor=_ec,
                linewidth=1.5 if is_scrape else 0.5,
-               hatch=hatches.get(name, ""),
+               hatch=_hatch,
                alpha=0.85, zorder=3)
         ax.text(x[i], val + (1.5 if val >= 0 else -1.5),
                 f"{val:+.1f}",
@@ -397,11 +428,12 @@ def _plot_summer(scenarios, params, summer_P, summer_PET):
 
     for i, (name, val) in enumerate(zip(names, vals)):
         is_scrape = "Scraping" in name
+        _col, _hatch, _ec = _bar_style(name, colours, hatches)
         ax.bar(x[i], val, 0.65,
-               color=colours.get(name, "#999"),
-               edgecolor=edge_colours.get(name, colours.get(name, "#999")),
+               color=_col,
+               edgecolor=_ec,
                linewidth=1.5 if is_scrape else 0.5,
-               hatch=hatches.get(name, ""),
+               hatch=_hatch,
                alpha=0.85, zorder=3)
         if abs(val) > 5:
             ax.text(x[i], val + (3 if val >= 0 else -3),

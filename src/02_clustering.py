@@ -30,7 +30,10 @@ from scipy.cluster.hierarchy import dendrogram, linkage, fcluster
 from scipy.spatial.distance import pdist, squareform
 from sklearn.metrics import silhouette_score, calinski_harabasz_score
 
-from utils.config import CLUSTER_COLOURS, CLUSTER_LABELS, REFERENCE_CUTOFF_DATE
+from utils.config import (
+    CLUSTER_COLOURS, CLUSTER_COLOURS_BW, CLUSTER_LABELS,
+    REFERENCE_CUTOFF_DATE, BW_MODE, BW_LINESTYLES,
+)
 from utils.data_utils import normalize_well_name
 from utils.paths import (
     make_all_dirs,
@@ -1074,40 +1077,136 @@ if __name__ == "__main__":
 
     # --- Dendrogram --------------------------------------------------------
     print(" -> Generating Dendrogram...")
-    plt.figure(figsize=(15, 8), dpi=300)
-    plt.title("Reference network behavioural clustering (Ward's, k=5)",
-              fontsize=14, fontweight="bold")
+    fig, ax = plt.subplots(figsize=(15, 8), dpi=300)
+    ax.set_title("Reference network behavioural clustering (Ward's, k=5)",
+                 fontsize=14, fontweight="bold")
+
+    _clr = CLUSTER_COLOURS_BW if BW_MODE else CLUSTER_COLOURS
+
     dendro = dendrogram(
         Z, labels=wells_ref.columns, leaf_rotation=90.0, leaf_font_size=8.0,
         color_threshold=Z[-WARDS_K, 2], above_threshold_color="#BBBBBB",
+        ax=ax,
     )
     label_to_cluster = {}
     for _, row in cluster_df.iterrows():
         label_to_cluster[normalize_well_name(row["Name_Original"])] = int(row["Cluster"])
-    for tick in plt.gca().get_xmajorticklabels():
+
+    # Colour tick labels by cluster
+    for tick in ax.get_xmajorticklabels():
         cid = label_to_cluster.get(normalize_well_name(tick.get_text()))
-        if cid in CLUSTER_COLOURS:
-            tick.set_color(CLUSTER_COLOURS[cid])
+        if cid in _clr:
+            tick.set_color(_clr[cid])
+            if BW_MODE:
+                tick.set_fontweight("bold")
+
     leaf_clusters = [label_to_cluster.get(normalize_well_name(lbl), None) for lbl in dendro["ivl"]]
     leaf_idx_to_cluster = {i: cid for i, cid in enumerate(leaf_clusters) if cid is not None}
-    ax = plt.gca()
+
+    # BW line style mapping for branches
+    _bw_ls = {cid: BW_LINESTYLES[i % len(BW_LINESTYLES)] for i, cid in enumerate(sorted(CLUSTER_LABELS.keys()))}
+
     for xs, ys in zip(dendro["icoord"], dendro["dcoord"]):
         leaf_xs = [int(round(x)) for x in xs if x % 10 == 5]
         if not leaf_xs:
             continue
         leaf_idx = (min(leaf_xs) - 5) // 10
         cid = leaf_idx_to_cluster.get(leaf_idx, None)
-        ax.plot(xs, ys, color=CLUSTER_COLOURS.get(cid, "#BBBBBB"), lw=2.2, zorder=2)
-    plt.legend(
-        handles=[plt.Line2D([0], [0], color=CLUSTER_COLOURS[c], lw=3,
+        if BW_MODE and cid in _bw_ls:
+            ax.plot(xs, ys, color=_clr.get(cid, "#BBBBBB"), zorder=2,
+                    **_bw_ls[cid])
+        else:
+            ax.plot(xs, ys, color=_clr.get(cid, "#BBBBBB"), lw=2.2, zorder=2)
+
+    # --- Cluster labels on their branch horizontal lines ---
+    cluster_leaf_xs = {}
+    for i, cid in enumerate(leaf_clusters):
+        if cid is not None:
+            cluster_leaf_xs.setdefault(cid, []).append(i * 10 + 5)
+
+    # For each cluster, find the highest internal merge (the horizontal line
+    # at the top of that cluster's sub-tree) and place the label there.
+    for cid in sorted(CLUSTER_LABELS.keys()):
+        if cid not in cluster_leaf_xs:
+            continue
+        xs = cluster_leaf_xs[cid]
+        x_min_c = min(xs) - 5
+        x_max_c = max(xs) + 5
+        # Find the highest merge whose span is within this cluster's leaves
+        best_y = 0
+        best_x_mid = (min(xs) + max(xs)) / 2
+        for ixs, iys in zip(dendro["icoord"], dendro["dcoord"]):
+            span_min = min(ixs)
+            span_max = max(ixs)
+            top_y = max(iys)
+            if span_min >= x_min_c and span_max <= x_max_c:
+                if top_y > best_y:
+                    best_y = top_y
+                    # The horizontal segment is at top_y; its x-midpoint
+                    best_x_mid = (ixs[1] + ixs[2]) / 2
+
+        short_label = f"C{cid}"
+        ax.annotate(
+            short_label,
+            xy=(best_x_mid, best_y),
+            fontsize=10, fontweight="bold",
+            color="#333333",
+            ha="center", va="bottom",
+            xytext=(0, 4), textcoords="offset points",
+            bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="#666666", alpha=0.85),
+            zorder=10,
+        )
+
+    # --- Eastern/Western block labels on the main branch lines ---
+    _blocks = {
+        "Eastern block": [1, 2],
+        "Western block": [3, 4, 5],
+    }
+
+    for block_name, cids_in_block in _blocks.items():
+        all_xs = []
+        for cid in cids_in_block:
+            if cid in cluster_leaf_xs:
+                all_xs.extend(cluster_leaf_xs[cid])
+        if not all_xs:
+            continue
+        x_min_b = min(all_xs) - 5
+        x_max_b = max(all_xs) + 5
+        # Find the highest merge spanning all leaves in this block
+        best_y = 0
+        best_x_left = min(all_xs)
+        for ixs, iys in zip(dendro["icoord"], dendro["dcoord"]):
+            span_min = min(ixs)
+            span_max = max(ixs)
+            top_y = max(iys)
+            if span_min >= x_min_b and span_max <= x_max_b:
+                if top_y > best_y:
+                    best_y = top_y
+                    # Place label on the left side of the horizontal line
+                    best_x_left = ixs[0]
+
+        ax.annotate(
+            block_name,
+            xy=(best_x_left, best_y),
+            fontsize=9, fontstyle="italic", fontweight="bold",
+            ha="left", va="center",
+            xytext=(8, 0), textcoords="offset points",
+            color="#333333",
+            bbox=dict(boxstyle="round,pad=0.3", fc="#f0f0f0", ec="#999999",
+                      alpha=0.9, lw=0.8),
+            zorder=10,
+        )
+
+    ax.legend(
+        handles=[plt.Line2D([0], [0], color=_clr[c], lw=3,
                             label=CLUSTER_LABELS.get(c, f"C{c}"))
-                 for c in sorted(CLUSTER_LABELS.keys()) if c in CLUSTER_COLOURS],
+                 for c in sorted(CLUSTER_LABELS.keys()) if c in _clr],
         title="Cluster Assignments", loc="upper right", frameon=True,
     )
-    plt.ylabel("Ward Linkage Distance", fontsize=12)
-    plt.tight_layout()
-    plt.savefig(OUT_02_DENDROGRAM)
-    plt.close()
+    ax.set_ylabel("Ward Linkage Distance", fontsize=12)
+    fig.tight_layout()
+    fig.savefig(OUT_02_DENDROGRAM)
+    plt.close(fig)
 
     print(" -> Generating Cluster Hydrograph + Water-Balance Figure...")
     make_cluster_hydrograph_wb_figure()

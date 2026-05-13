@@ -44,7 +44,7 @@ from utils.paths import (
     OUT_09B_SUMMER_SCENARIO, OUT_09B_SUMMER_SCENARIO_CSV,
     INT_CLUSTER_AVG_MAOD, OUT_17_SY_TABLE,
 )
-from utils.config import DRAINAGE_DATUM, HEADLINE_LAG, FOREST_INTERCEPTION, FOREST_CIDS
+from utils.config import DRAINAGE_DATUM, HEADLINE_LAG, FOREST_INTERCEPTION, FOREST_CIDS, BW_MODE
 from utils.model_utils import fit_ssm
 from utils.data_utils import normalize_well_name
 from utils.clearfell_common import (
@@ -496,6 +496,16 @@ def _plot_scenario_comparison(centroids_df, dpi=200):
         "Broadleaf": "#228B22", "Scraping (nearby)": "#DAA520",
         "Climate dry": "#FF6347", "Climate wet": "#4169E1",
     }
+    bw_colour_map = {
+        "Clearfell": "#333333", "Thinning 50%": "#666666",
+        "Broadleaf": "#999999", "Scraping (nearby)": "#bbbbbb",
+        "Climate dry": "#444444", "Climate wet": "#cccccc",
+    }
+    bw_hatch_map = {
+        "Clearfell": "xxx", "Thinning 50%": "///",
+        "Broadleaf": "...", "Scraping (nearby)": "///",
+        "Climate dry": "\\\\\\", "Climate wet": "",
+    }
     hatch_map = {"Scraping (nearby)": "///"}
 
     # Build ordered scenario dict: {name: (vals_dict, colour, hatch)}
@@ -522,11 +532,13 @@ def _plot_scenario_comparison(centroids_df, dpi=200):
             scenarios.items()):
         vals = [vals_dict.get(c, 0) for c in clusters]
         is_scrape = "Scraping" in scenario
+        _col = bw_colour_map.get(scenario, colour) if BW_MODE else colour
+        _hatch = bw_hatch_map.get(scenario, hatch or "") if BW_MODE else hatch
         ax.bar(x + offsets[i], vals, width, label=scenario,
-               color=colour,
-               edgecolor="black" if is_scrape else "white",
+               color=_col,
+               edgecolor="black",
                linewidth=1.5 if is_scrape else 0.5,
-               alpha=0.85, hatch=hatch)
+               alpha=0.85, hatch=_hatch)
         if is_scrape:
             for j, v in enumerate(vals):
                 if abs(v) > 0.3:
@@ -716,6 +728,16 @@ def _summer_scenario(wells_clean, wells_ext, climate):
         'Broadleaf': '#228B22', 'Scraping\n(CEH36-type)': '#DAA520',
         'Climate dry': '#E8726E', 'Climate wet': '#5B9BD5',
     }
+    bw_colours = {
+        'Clearfell': '#333333', 'Thinning 50%': '#666666',
+        'Broadleaf': '#999999', 'Scraping\n(CEH36-type)': '#bbbbbb',
+        'Climate dry': '#444444', 'Climate wet': '#cccccc',
+    }
+    bw_hatches = {
+        'Clearfell': 'xxx', 'Thinning 50%': '///',
+        'Broadleaf': '...', 'Scraping\n(CEH36-type)': '///',
+        'Climate dry': '\\\\\\', 'Climate wet': '',
+    }
     hatches = {'Scraping\n(CEH36-type)': '///'}
     scenarios_order = [s for s in ['Clearfell', 'Thinning 50%', 'Broadleaf',
                                     'Scraping\n(CEH36-type)', 'Climate dry', 'Climate wet']
@@ -729,12 +751,13 @@ def _summer_scenario(wells_clean, wells_ext, climate):
     for i, s_name in enumerate(scenarios_order):
         vals = [summer_data[s_name].get(c, 0) for c in clusters]
         offset = (i - n_sc / 2 + 0.5) * bw
-        hatch = hatches.get(s_name, '')
+        _col = bw_colours.get(s_name, '#999') if BW_MODE else colours.get(s_name, '#999')
+        _hatch = bw_hatches.get(s_name, '') if BW_MODE else hatches.get(s_name, '')
         ax.bar(x + offset, vals, bw * 0.9,
-               color=colours.get(s_name, '#999'),
-               edgecolor='black' if hatch else colours.get(s_name, '#999'),
-               linewidth=0.8 if hatch else 0.5,
-               hatch=hatch, alpha=0.85, label=s_name, zorder=3)
+               color=_col,
+               edgecolor='black',
+               linewidth=0.8 if _hatch else 0.5,
+               hatch=_hatch, alpha=0.85, label=s_name, zorder=3)
         for j, v in enumerate(vals):
             if abs(v) > 20:
                 ax.text(x[j] + offset, v + (4 if v > 0 else -4),

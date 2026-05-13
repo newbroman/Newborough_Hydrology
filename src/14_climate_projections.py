@@ -50,9 +50,12 @@ from utils.paths import (
     make_all_dirs,
 )
 from utils.config import (
+    BW_MODE,
     CLUSTER_LABELS as _CFG_LABELS,
     CLUSTER_COLOURS as _CFG_COLOURS,
+    CLUSTER_COLOURS_BW as _CFG_COLOURS_BW,
     CLUSTER_MARKERS as _CFG_MARKERS,
+    BW_LINESTYLES, BW_LINE_COLOURS,
     SD15b, SD16, SD15b_WINTER, SD16_WINTER,
 )
 
@@ -76,7 +79,8 @@ DRY_SLACK_WINTER = -SD16_WINTER    # m  SD16 winter flooding threshold
 # ── Cluster styling — single source of truth in utils.config ─────────────────
 # String-keyed adapters because this script consumes the 'C{n}' column
 # convention from 03_regional_averages.csv. Update utils.config to change.
-CLUSTER_COLOURS: dict[str, str] = {f"C{cid}": v for cid, v in _CFG_COLOURS.items()}
+_colour_src = _CFG_COLOURS_BW if BW_MODE else _CFG_COLOURS
+CLUSTER_COLOURS: dict[str, str] = {f"C{cid}": v for cid, v in _colour_src.items()}
 CLUSTER_LABELS:  dict[str, str] = {f"C{cid}": v for cid, v in _CFG_LABELS.items()}
 CLUSTER_MARKERS: dict[str, str] = {f"C{cid}": v for cid, v in _CFG_MARKERS.items()}
 
@@ -271,21 +275,31 @@ def render_summer_figure(
     ax.axhspan(DRY_SLACK_SUMMER, WET_SLACK_SUMMER, alpha=0.06, color="#ff9900", zorder=0)
     ax.axhspan(-2.10, DRY_SLACK_SUMMER, alpha=0.04, color="#cc0000", zorder=0)
 
-    for c, (yobs, vobs, yproj, tproj, cu, cl, slope, *_extra) in summer_data.items():
+    for idx, (c, (yobs, vobs, yproj, tproj, cu, cl, slope, *_extra)) in enumerate(summer_data.items()):
         colour = CLUSTER_COLOURS[c]
         label = CLUSTER_LABELS[c]
         marker = CLUSTER_MARKERS.get(c, "o")
+        # BW line style cycling
+        _ls_kw = BW_LINESTYLES[idx % len(BW_LINESTYLES)] if BW_MODE else {"linestyle": "-", "linewidth": 2.0}
         ax.fill_between(yproj, cu, cl, color=colour, alpha=0.10, linewidth=0, zorder=2)
         ax.plot(
             yproj,
             tproj,
             color=colour,
-            linewidth=2.0,
             solid_capstyle="round",
             zorder=4,
             label=f"{label}  (trend {slope:+.4f} m yr\u207b\xb9)",
+            **_ls_kw,
         )
         ax.scatter(yobs, vobs, color=colour, marker=marker, s=30, zorder=5, alpha=0.85)
+        # BW mode: add text label at right end of trend line
+        if BW_MODE and len(tproj) > 0:
+            ax.annotate(
+                c, xy=(yproj[-1], tproj[-1]),
+                xytext=(5, 0), textcoords="offset points",
+                fontsize=7, fontweight="bold", color=colour, va="center",
+                zorder=6,
+            )
 
     # Threshold lines
     ax.axhline(
@@ -457,21 +471,29 @@ def render_stacked_figure(
     ax_top.axhspan(DRY_SLACK_SUMMER, WET_SLACK_SUMMER, alpha=0.06, color="#ff9900", zorder=0)
     ax_top.axhspan(-2.10, DRY_SLACK_SUMMER, alpha=0.04, color="#cc0000", zorder=0)
 
-    for c, (yobs, vobs, yproj, tproj, cu, cl, slope, *_extra) in summer_data.items():
+    for idx, (c, (yobs, vobs, yproj, tproj, cu, cl, slope, *_extra)) in enumerate(summer_data.items()):
         colour = CLUSTER_COLOURS[c]
         label = CLUSTER_LABELS[c]
         marker = CLUSTER_MARKERS.get(c, "o")
+        _ls_kw = BW_LINESTYLES[idx % len(BW_LINESTYLES)] if BW_MODE else {"linestyle": "-", "linewidth": 2.0}
         ax_top.fill_between(yproj, cu, cl, color=colour, alpha=0.10, linewidth=0, zorder=2)
         ax_top.plot(
             yproj,
             tproj,
             color=colour,
-            linewidth=2.0,
             solid_capstyle="round",
             zorder=4,
             label=f"{label}  (trend {slope:+.4f} m yr\u207b\xb9)",
+            **_ls_kw,
         )
         ax_top.scatter(yobs, vobs, color=colour, marker=marker, s=30, zorder=5, alpha=0.85)
+        if BW_MODE and len(tproj) > 0:
+            ax_top.annotate(
+                c, xy=(yproj[-1], tproj[-1]),
+                xytext=(5, 0), textcoords="offset points",
+                fontsize=7, fontweight="bold", color=colour, va="center",
+                zorder=6,
+            )
 
     ax_top.axhline(
         WET_SLACK_SUMMER,

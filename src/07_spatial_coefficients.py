@@ -57,6 +57,8 @@ from utils.config import (
     CLUSTER_LABELS,
     CLUSTER_COLOURS,
     CLUSTER_MARKERS,
+    BW_MODE,
+    get_cmap,
 )
 from pathlib import Path
 import warnings
@@ -193,6 +195,8 @@ def make_coefficient_map(
         norm = mcolors.Normalize(vmin=_vmin, vmax=_vmax)
 
     # Layer 2 — IDW surface with ridge masking
+    # BW mode: disable ridge mask for cleaner contour visibility
+    _ridge_thresh = None if BW_MODE else 1.0
     mesh, gx, gy, surf = add_idw_surface(
         ax, plot_df,
         value_col=value_col,
@@ -202,7 +206,7 @@ def make_coefficient_map(
         xi=GRID_XI,
         yi=GRID_YI,
         method="linear",
-        ridge_mask_threshold=1.0,
+        ridge_mask_threshold=_ridge_thresh,
         dem_e_arr=dem_e_arr,
         dem_n_arr=dem_n_arr,
         dem_data=dem_data,
@@ -211,6 +215,15 @@ def make_coefficient_map(
         alpha=0.65,
         zorder=2,
     )
+    if BW_MODE:
+        ax.annotate(
+            "Note: interpolation extends across dune ridges;\n"
+            "ridge-top values should be interpreted with caution.",
+            xy=(0.02, 0.02), xycoords="axes fraction", fontsize=7,
+            color="#444444", fontstyle="italic",
+            bbox=dict(boxstyle="round,pad=0.3", fc="white", alpha=0.85, ec="#aaaaaa"),
+            zorder=10,
+        )
 
     # Colorbar
     cb = fig.colorbar(mesh, ax=ax, fraction=0.03, pad=0.02, shrink=0.85)
@@ -224,8 +237,8 @@ def make_coefficient_map(
                 cs = ax.contour(
                     gx, gy, surf,
                     levels=contour_levels,
-                    colors="black", linewidths=0.6,
-                    alpha=0.45, zorder=3,
+                    colors="black", linewidths=1.2,
+                    alpha=0.7, zorder=3,
                 )
                 ax.clabel(cs, inline=True, fontsize=9,
                           fmt=contour_fmt, inline_spacing=2)
@@ -359,7 +372,7 @@ if __name__ == "__main__":
             "Per-well SSM coefficient — Newborough Warren"
         ),
         output_path=OUT_BETA1_MAP,
-        cmap="YlGnBu",
+        cmap=get_cmap("YlGnBu"),
         cbar_label="β₁ (mm / mm rainfall)",
         contour_levels=np.arange(2.0, 6.5, 0.5),
         contour_fmt="%.1f",
@@ -375,7 +388,7 @@ if __name__ == "__main__":
             "Per-well SSM coefficient — Newborough Warren"
         ),
         output_path=OUT_BETA2_MAP,
-        cmap="YlOrRd",
+        cmap=get_cmap("YlOrRd"),
         cbar_label="β₂ (mm / mm PET)",
         contour_levels=np.arange(0.5, 3.5, 0.5),
         contour_fmt="%.1f",
@@ -395,9 +408,11 @@ if __name__ == "__main__":
             "Per-well SSM coefficient — Newborough Warren"
         ),
         output_path=OUT_BETA3_MAP,
-        cmap="plasma",
+        cmap=get_cmap("plasma"),
         cbar_label="β₃ (% head drained / month)",
         log_scale=True,
+        contour_levels=[0.5, 1.0, 2.0, 5.0, 10.0],
+        contour_fmt="%.1f",
     )
 
     # ------------------------------------------------------------------
@@ -410,7 +425,7 @@ if __name__ == "__main__":
             "Newborough Warren"
         ),
         output_path=OUT_R2_MAP,
-        cmap="RdYlGn",
+        cmap=get_cmap("RdYlGn"),
         cbar_label="R²",
         vmin=0.40,
         vmax=0.90,

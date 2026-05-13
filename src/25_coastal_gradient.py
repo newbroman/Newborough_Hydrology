@@ -1,5 +1,5 @@
 """
-25_coastal_gradient.py — Phase 12 (step 27/27)
+25_coastal_gradient.py — Phase 12 (step 27/28)
 
 Coastal-retreat gradient analysis
 =================================

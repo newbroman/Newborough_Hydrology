@@ -1,6 +1,6 @@
 """
 run_10_clearfell.py — Clearfell BACI Analysis Suite Runner
-Runs the modular Script 10 sub-scripts (10a–10g) in order and
+Runs the modular Script 10 sub-scripts (10a–10h) in order and
 consolidates report numbers.
 
 Usage
@@ -12,14 +12,21 @@ Usage
 
 Execution order
 ---------------
+Main (primary report results):
   10a  Three-counterfactual ANCOVA-BACI (primary result)
   10b  Spatial step-change maps
-  10c  Forest zone spatial analysis
   10d  Summer minima analysis (dual control)
   10e  SSM coefficient decomposition
   10f  Robustness analyses (SSM residual, synthetic control)
   10g  Diagnostics (NW10 trend, transect, rolling coefficients)
   10h  Synthetic FE well extension BACI (donor regression)
+
+Supplementary (additional spatial diagnostic, not in the main report
+results chain):
+  10c  Forest zone spatial analysis
+
+The supplementary sub-script runs in pipeline order but its outputs are
+treated as supplementary material rather than primary findings.
 
 Dependencies
 ------------
@@ -28,6 +35,7 @@ Dependencies
   for the predicted-vs-observed comparison in 10e.
   10f reads 10a outputs for the ANCOVA comparison.
   10g is standalone diagnostics.
+  10h reads 10a outputs for the FE-well synthetic-extension corroboration.
 """
 
 import subprocess
@@ -45,9 +53,9 @@ DIR_10   = OUT_DIR / "10_clearfell_baci"
 # ── Sub-script definitions ───────────────────────────────────────────────────
 # (script_filename, short_id, description)
 SUBSCRIPTS = [
-    ("10a_ancova_baci.py",               "10a", "Three-counterfactual ANCOVA-BACI"),
+    ("10a_ancova_baci.py",               "10a", "Three-counterfactual ANCOVA-BACI (primary)"),
     ("10b_spatial_step_maps.py",         "10b", "Spatial step-change maps"),
-    ("10c_forest_zone_analysis.py",      "10c", "Forest zone spatial analysis"),
+    ("10c_forest_zone_analysis.py",      "10c", "Forest zone spatial analysis (supplementary)"),
     ("10d_summer_minima.py",             "10d", "Summer minima (dual control)"),
     ("10e_coefficient_decomposition.py", "10e", "SSM coefficient decomposition"),
     ("10f_robustness.py",               "10f", "Robustness analyses"),

@@ -5,11 +5,24 @@ This document describes the data flow between all pipeline scripts: which files 
 
 **Generated from automated I/O audit of `src/` against GitHub `main`.**
 
-**Run order:** 01 → 02 → 03 → 04 → 05 → 06 → 07 → 08 → 09 (suite a–e) → 10 (suite a–g) → 11 → 11b → 00 → 14 → 12 → 13 → 15 → 17 → 16 → 18 → 19 → 20 → 21 → 22 → 23 → 24 → 25 → 26
+**Run order:** 01 → 02 → 03 → 04 → 05 → 06 → 07 → 08 → 09 (suite a–e) → 10 (suite a–h) → 11 → 11b → 00 → 14 → 12 → 13 → 15 → 17 → 16 → 18 → 19 → 20 → 21 → 25 (coastal) → 22 → 23 → 24 → 25 (grey)
 
 **28 pipeline steps across 13 phases.**
 
-Script 09 is a modular suite orchestrated by `run_09_scraping.py` (09a → 09b → 09c → 09d → 09e). Script 10 is a modular suite orchestrated by `run_10_clearfell.py` (10a → 10b → 10c → 10d → 10e → 10f → 10g → 10h). All sub-modules can be run independently provided their upstream Phase 1–2 outputs exist.
+Phases 1–11 produce the main analytical results documented in the report. Phase 12 (Scripts 22–24) runs supplementary diagnostics. Phase 13 runs the greyscale figure-conversion utility (Script 25 grey) as a callable utility step, retained in `run_analysis.py` but not treated as an analytical phase.
+
+Note that two distinct scripts share the `25_` filename prefix: `25_coastal_gradient.py` is the main analytical script for Phase 11 (step 24); `25_greyscale_figures.py` is the greyscale utility for Phase 13 (step 28). References to "Script 25" in this document mean the coastal-gradient analysis unless explicitly qualified as "Script 25 grey".
+
+Script 09 is a modular suite orchestrated by `run_09_scraping.py` (09a → 09b → 09c → 09d → 09e). Script 10 is a modular suite orchestrated by `run_10_clearfell.py` (10a → 10b → 10c → 10d → 10e → 10f → 10g → 10h); within the suite, 10c (forest zone spatial analysis) is treated as supplementary, while the other seven sub-scripts contribute to the primary report results. All sub-modules can be run independently provided their upstream Phase 1–2 outputs exist.
+
+> **A note on step numbering in this document.** The canonical step numbers
+> are those reported by `run_analysis.py` (1–28). The inline `(step N)`
+> annotations against individual outputs further down this document derive
+> from an automated I/O audit that flattens each sub-script into its own
+> numbered step, so those numbers run higher than 28 and do not match the
+> orchestrator. Treat the run-order line above and the phase section
+> headings as canonical; treat the inline `(step N)` tags as audit
+> provenance markers only.
 
 ## Two-pass execution (recommended for new datasets)
 
@@ -17,8 +30,8 @@ Two scripts in Phase 3 read Specific-Yield (Sy) values that are produced later i
 
 | Script | Step | Reads (via `scraping_common`) | Producer | Producer step |
 |---|---|---|---|---|
-| `09b_scraping_propagation.py` | 9 | `load_cluster_params()` → Script 17 Sy | Script 17 | 18 |
-| `09d_scenario_comparison.py`  | 9 | `load_cluster_params()` → Script 17 Sy | Script 17 | 18 |
+| `09b_scraping_propagation.py` | 10 | `load_cluster_params()` → Script 17 Sy | Script 17 | 18 |
+| `09d_scenario_comparison.py`  | 12 | `load_cluster_params()` → Script 17 Sy | Script 17 | 18 |
 | `21_forestry_scenarios.py`    | 23 | `load_cluster_params()` → Script 17 Sy | Script 17 | 18 |
 
 All three scripts load cluster parameters (β, Sy, h_disp) via
@@ -160,8 +173,6 @@ outputs/                       ← all generated outputs
   22_residual_lag_analysis/
   23_ridge_recharge_lag_test/
   24_residual_seasonality/
-  25_coastal_gradient/
-  26_greyscale_figures/
 src/
   utils/
     config.py               ← cluster colours/labels, DRAINAGE_DATUM, HEADLINE_LAG, FOREST_INTERCEPTION, FOREST_CIDS, ecological thresholds, UKCP18 scenario factors, BROADLEAF_B2_SUMMER
@@ -196,7 +207,6 @@ src/
 | `streams.kml` | SAGA-derived stream network | 19, 20 |
 | `clearfell.kml` | Clear-fell block boundary | 12, 13 |
 | `broadleaf_restock.kml` | Broadleaf restocking block | 12, 13 |
-| `well_distance_to_coast.csv` | Perpendicular distance to OS HWM (Caernarfon Bay) | 25 |
 
 ---
 
@@ -380,11 +390,7 @@ src/
   - `DATA_DIR` passed to `add_kml_features`
 
 
-#### Step 9 — Scraping analysis suite (09a–09e)
-
-Orchestrated by `run_09_scraping.py`. All sub-modules can be run independently provided their upstream Phase 1–2 outputs exist.
-
-##### Step 9a — 09a_paired_baci
+#### Step 9 — 09a_paired_baci
 
 **Purpose.** Hierarchical paired BACI for the scraping intervention (CEH36, CEH18, CEH21, CEH22). β₃ era testing, full parameters, Table 4.
 
@@ -402,7 +408,7 @@ Orchestrated by `run_09_scraping.py`. All sub-modules can be run independently p
 - `09_scrape_06_tier2_scraping_signal.png`
 
 
-##### Step 9b — 09b_scraping_propagation
+#### Step 10 — 09b_scraping_propagation
 
 **Purpose.** Split-window SSM fitting with BACI correction against distant controls; tests whether scraping propagated uphill into the forest interior. Centroid summaries for C3+CEH31 and C4. Scenario comparison bar charts.
 
@@ -434,7 +440,7 @@ update automatically on the next 09b run.
 - `09b_03_ceh36_equilibration.jpg`
 
 
-##### Step 9c — 09c_summer_minima
+#### Step 11 — 09c_summer_minima
 
 **Purpose.** Dual-control BACI on summer minima for scraping wells; ecological threshold framing.
 
@@ -447,7 +453,7 @@ update automatically on the next 09b run.
 - `09c_02_summer_minima_shifts.csv`
 
 
-##### Step 9d — 09d_scenario_comparison
+#### Step 12 — 09d_scenario_comparison
 
 **Purpose.** CEH36-anchored equilibrium scenario comparison (observed scraping vs hypothetical clearfell/thinning/broadleaf/UKCP18 climate). All scenarios evaluated at CEH36 using that well's own SSM coefficients and Sy.
 
@@ -463,7 +469,7 @@ Summer climate via `scraping_common.load_summer_climate()`. Scenario constants
 - `09d_02_summer_scenario_comparison.csv`
 
 
-##### Step 9e — 09e_robustness
+#### Step 13 — 09e_robustness
 
 **Purpose.** CEH36 robustness analyses (raw BACI, synthetic control, SSM residual).
 
@@ -473,16 +479,12 @@ Summer climate via `scraping_common.load_summer_climate()`. Scenario constants
 - `09_scrape_08_ceh36_robustness.png`
 
 
-#### Step 10 — Clearfell BACI analysis suite (10a–10h)
-
-Orchestrated by `run_10_clearfell.py`. All sub-modules can be run independently provided their upstream Phase 1–2 outputs exist.
-
-##### Step 10a — 10a_ancova_baci
+#### Step 14 — 10a_ancova_baci
 
 **Purpose.** Three-counterfactual ANCOVA-BACI — primary clearfell BACI result. Forest-control, coastal-control, climate-control comparisons.
 
 
-##### Step 10b — 10b_spatial_step_maps
+#### Step 15 — 10b_spatial_step_maps
 
 **Purpose.** Spatial step-change maps (raw and BACI-corrected) for both scraping and clearfell interventions.
 
@@ -493,10 +495,10 @@ Orchestrated by `run_10_clearfell.py`. All sub-modules can be run independently 
 - `03_master_data.csv` (Script 03 (step 3))
 - `01_wells_clean.csv` (Script 01 (step 1))
 - `01_wells_extended.csv` (Script 01 (step 1))
-- `10b_spatial_fell_corrected.png` (Script 10B (step 10))
-- `10b_spatial_fell_raw.png` (Script 10B (step 10))
-- `10b_spatial_scrape_corrected.png` (Script 10B (step 10))
-- `10b_spatial_scrape_raw.png` (Script 10B (step 10))
+- `10b_spatial_fell_corrected.png` (Script 10B (step 15))
+- `10b_spatial_fell_raw.png` (Script 10B (step 15))
+- `10b_spatial_scrape_corrected.png` (Script 10B (step 15))
+- `10b_spatial_scrape_raw.png` (Script 10B (step 15))
 
 **Writes.**
 
@@ -511,7 +513,7 @@ Orchestrated by `run_10_clearfell.py`. All sub-modules can be run independently 
   - `OUT_10B_SCRAPE_RAW` passed to `plot_spatial_step`
 
 
-##### Step 10c — 10c_forest_zone_analysis
+#### Step 16 — 10c_forest_zone_analysis
 
 **Purpose.** Per-well β₁ vs β₂ scatter, β₂ vs elevation regression, C4/C5 boundary map (forest zone spatial analysis).
 
@@ -534,23 +536,23 @@ Orchestrated by `run_10_clearfell.py`. All sub-modules can be run independently 
   - `DATA_DIR` passed to `add_kml_features, load_dem_hillshade`
 
 
-##### Step 10d — 10d_summer_minima
+#### Step 17 — 10d_summer_minima
 
 **Purpose.** Dual-control BACI on summer minima for clearfell wells.
 
 
-##### Step 10e — 10e_coefficient_decomposition
+#### Step 18 — 10e_coefficient_decomposition
 
 **Purpose.** Before/after SSM coefficient shifts at clearfell tiers (Impact, Edge, Forest Ctrl, Coastal Ctrl, Climate Ctrl). Source for Script 21's β₂ multiplier.
 
 
-##### Step 10f — 10f_robustness
+#### Step 19 — 10f_robustness
 
 **Purpose.** SSM-residual and synthetic-control robustness for the clearfell signal.
 
 **Reads.**
 
-- `10f_report_numbers.csv` (Script 10F (step 10))
+- `10f_report_numbers.csv` (Script 10F (step 19))
 
 **Writes.**
 
@@ -562,14 +564,14 @@ Orchestrated by `run_10_clearfell.py`. All sub-modules can be run independently 
   - `OUT_10F_REPORT` passed to `save`
 
 
-##### Step 10g — 10g_diagnostics
+#### Step 20 — 10g_diagnostics
 
 **Purpose.** NW10 broadleaf trend, clearfell transect, rolling coefficients.
 
 **Reads.**
 
 - `03_regional_averages.csv` (Script 03 (step 3))
-- `10g_report_numbers.csv` (Script 10G (step 10))
+- `10g_report_numbers.csv` (Script 10G (step 20))
 
 **Writes.**
 
@@ -583,7 +585,7 @@ Orchestrated by `run_10_clearfell.py`. All sub-modules can be run independently 
   - `OUT_10G_REPORT` passed to `save`
 
 
-##### Step 10h — 10h_synthetic_impact_baci
+#### Step 21 — 10h_synthetic_impact_baci
 
 **Purpose.** Robustness check extending FE1/FE2 records backwards using donor regression on Forest Control wells (CEH34, CEH2, CEH33). Tests three impact centroid variants (WMC3+FE1+FE2, WMC3+FE2, WMC3 alone) against all three control definitions. Includes CUSUM and climate sensitivity diagnostics for Variant B.
 
@@ -609,7 +611,7 @@ Orchestrated by `run_10_clearfell.py`. All sub-modules can be run independently 
 - `10h_report_numbers.csv`
 
 
-#### Step 11 — 11_forecasting_thresholds
+#### Step 22 — 11_forecasting_thresholds
 
 **Purpose.** Closed-form P_flood derivation and winter/summer transfer functions; Tables 6, 7, 8.
 
@@ -626,7 +628,7 @@ Orchestrated by `run_10_clearfell.py`. All sub-modules can be run independently 
 - `11_forecast_pflood_threshold_equations.csv`
 
 
-#### Step 12 — 11b_spatial_thresholds
+#### Step 23 — 11b_spatial_thresholds
 
 **Purpose.** Spatial threshold maps (summer minima depth, winter maxima depth, P_flood, flood frequency); builds the public forecaster HTML.
 
@@ -640,10 +642,10 @@ Orchestrated by `run_10_clearfell.py`. All sub-modules can be run independently 
 - `01_wells_clean_maod.csv` (Script 01 (step 1))
 - `01_wells_extended.csv` (Script 01 (step 1))
 - `01_well_elevations.csv` (Script 01 (step 1))
-- `11_forecast_winter_transfer_functions.csv` (Script 11 (step 11))
-- `11_forecast_summer_transfer_functions.csv` (Script 11 (step 11))
-- `11_forecast_pflood_threshold_equations.csv` (Script 11 (step 11))
-- `forecaster_template.html` (Script 11B (step 12))
+- `11_forecast_winter_transfer_functions.csv` (Script 11 (step 21))
+- `11_forecast_summer_transfer_functions.csv` (Script 11 (step 21))
+- `11_forecast_pflood_threshold_equations.csv` (Script 11 (step 21))
+- `forecaster_template.html` (Script 11B (step 22))
 
 **Writes.**
 
@@ -661,7 +663,7 @@ Orchestrated by `run_10_clearfell.py`. All sub-modules can be run independently 
 
 ### Phase 4 — Climate Projections & Figure Generation
 
-#### Step 13 — 00_climate_summary
+#### Step 24 — 00_climate_summary
 
 **Purpose.** Climate timeseries (full + monitoring period) and well-network summary statistics. Three figures (climate ts, network, summer warming) and three CSVs.
 
@@ -670,12 +672,12 @@ Orchestrated by `run_10_clearfell.py`. All sub-modules can be run independently 
 - `RAF_Valley_Climate.csv` (raw data)
 - `01_climate.csv` (Script 01 (step 1))
 - `01_wells_clean.csv` (Script 01 (step 1))
-- `00_01_annual_climate_summary.csv` (Script 00 (step 13))
-- `00_01_climate_timeseries.png` (Script 00 (step 13))
-- `00_03_summer_warming_trend.png` (Script 00 (step 13))
-- `00_03_summer_warming_stats.csv` (Script 00 (step 13))
-- `00_02_well_network_summary.png` (Script 00 (step 13))
-- `00_02_well_network_summary.csv` (Script 00 (step 13))
+- `00_01_annual_climate_summary.csv` (Script 00 (step 23))
+- `00_01_climate_timeseries.png` (Script 00 (step 23))
+- `00_03_summer_warming_trend.png` (Script 00 (step 23))
+- `00_03_summer_warming_stats.csv` (Script 00 (step 23))
+- `00_02_well_network_summary.png` (Script 00 (step 23))
+- `00_02_well_network_summary.csv` (Script 00 (step 23))
 
 **Other.**
 
@@ -687,7 +689,7 @@ Orchestrated by `run_10_clearfell.py`. All sub-modules can be run independently 
   - `OUT_00_ANNUAL_CLIMATE_TABLE` passed to `dirname`
 
 
-#### Step 14 — 14_climate_projections
+#### Step 25 — 14_climate_projections
 
 **Purpose.** Climate trajectory projections (summer minima trend, winter exceedance) for all five clusters under UKCP18 RCP8.5.
 
@@ -695,11 +697,11 @@ Orchestrated by `run_10_clearfell.py`. All sub-modules can be run independently 
 
 - `02_cluster_stats.csv` (Script 02 (step 2))
 - `03_regional_averages.csv` (Script 03 (step 3))
-- `00_02_well_network_summary.csv` (Script 00 (step 13))
-- `14_climate_trajectory_stacked.png` (Script 14 (step 14))
-- `14_climate_trajectory_summer.png` (Script 14 (step 14))
-- `14_climate_trajectory_winter_flooding.png` (Script 14 (step 14))
-- `14_seasonal_extremes_scatter.html` (Script 14 (step 14))
+- `00_02_well_network_summary.csv` (Script 00 (step 23))
+- `14_climate_trajectory_stacked.png` (Script 14 (step 24))
+- `14_climate_trajectory_summer.png` (Script 14 (step 24))
+- `14_climate_trajectory_winter_flooding.png` (Script 14 (step 24))
+- `14_seasonal_extremes_scatter.html` (Script 14 (step 24))
 
 **Writes.**
 
@@ -716,7 +718,7 @@ Orchestrated by `run_10_clearfell.py`. All sub-modules can be run independently 
   - `OUT_14_CLIMATE_WINTER` passed to `render_winter_figure`
 
 
-#### Step 15 — 12_figure_site_overview
+#### Step 26 — 12_figure_site_overview
 
 **Purpose.** Figure 1 — DEM site overview map.
 
@@ -729,7 +731,7 @@ Orchestrated by `run_10_clearfell.py`. All sub-modules can be run independently 
   - `DATA_DIR` passed to `add_kml_features`
 
 
-#### Step 16 — 13_figure_experimental_design
+#### Step 27 — 13_figure_experimental_design
 
 **Purpose.** Figure 2 — five-tier BACI network plus scraping interventions.
 
@@ -745,7 +747,7 @@ Orchestrated by `run_10_clearfell.py`. All sub-modules can be run independently 
 
 ### Phase 5 — Depth-Dependent PET
 
-#### Step 17 — 15_depth_dependent_pet
+#### Step 28 — 15_depth_dependent_pet
 
 **Purpose.** Depth-dependent PET analysis (exp(−λd) modification, λ profile, fit comparison).
 
@@ -759,14 +761,14 @@ Orchestrated by `run_10_clearfell.py`. All sub-modules can be run independently 
 
 ### Phase 6 — WTF Cluster Sy Estimation
 
-#### Step 18 — 17_wtf_specific_yield
+#### Step 29 — 17_wtf_specific_yield
 
 **Purpose.** WTF cluster-mean Sy estimation (OLS winter and event-median methods, with optional interception correction for forested clusters).
 
 
 ### Phase 7 — Water Balance
 
-#### Step 19 — 16_water_bal
+#### Step 30 — 16_water_bal
 
 **Purpose.** Water-balance decomposition by cluster; bar/volumetric plots; WTF-corrected variants.
 
@@ -774,8 +776,8 @@ Orchestrated by `run_10_clearfell.py`. All sub-modules can be run independently 
 
 - `03_regional_averages.csv` (Script 03 (step 3))
 - `03_03_cluster_mechanistic_coefficients.csv` (Script 03 (step 3))
-- `16_water_bal_table.csv` (Script 16 (step 19))
-- `16_water_bal_vol_table.csv` (Script 16 (step 19))
+- `16_water_bal_table.csv` (Script 16 (step 29))
+- `16_water_bal_vol_table.csv` (Script 16 (step 29))
 
 **Writes.**
 
@@ -790,7 +792,7 @@ Orchestrated by `run_10_clearfell.py`. All sub-modules can be run independently 
 
 ### Phase 8 — WTF Spatial Analysis
 
-#### Step 20 — 18_wtf_spatial
+#### Step 31 — 18_wtf_spatial
 
 **Purpose.** Per-well Sy via WTF, IDW spatial interpolation of Sy, contour maps, drainage timescale map (τ = Sy / β₃), and aquifer diagnostic synthesis scatter (τ vs ΔNSE vs Sy).
 
@@ -825,7 +827,7 @@ Orchestrated by `run_10_clearfell.py`. All sub-modules can be run independently 
 
 ### Phase 9 — Spatial Groundwater
 
-#### Step 21 — 19_spatial_groundwater
+#### Step 32 — 19_spatial_groundwater
 
 **Purpose.** Spatial groundwater analysis (head, β fields, water balance, drainage, depth-to-water-table). Self-contained scenario viewer HTML with optional forest drawdown propagation (flow-weighted cost-distance, λ = √(D/β₃)).
 
@@ -841,7 +843,7 @@ Orchestrated by `run_10_clearfell.py`. All sub-modules can be run independently 
 - `01_wells_clean_maod.csv` (Script 01 (step 1))
 - `01_well_elevations.csv` (Script 01 (step 1))
 - `broadleaf_restock.kml` (raw data)
-- `18_wtf_01_well_sy_estimates.csv` (Script 18 (step 20))
+- `18_wtf_01_well_sy_estimates.csv` (Script 18 (step 30))
 
 **Other.**
 
@@ -850,7 +852,7 @@ Orchestrated by `run_10_clearfell.py`. All sub-modules can be run independently 
   - `DATA_KML_FEATURES` passed to `kml_to_bng`
 
 
-#### Step 22 — 20_spatial_figures
+#### Step 33 — 20_spatial_figures
 
 **Purpose.** Paper figures: head + streams overlay, SSM water-balance residual map, slope/gradient, forest drawdown propagation.
 
@@ -883,7 +885,7 @@ Orchestrated by `run_10_clearfell.py`. All sub-modules can be run independently 
 
 ### Phase 10 — Forestry Scenarios
 
-#### Step 23 — 21_forestry_scenarios
+#### Step 34 — 21_forestry_scenarios
 
 **Purpose.** Forest-management scenario hydrographs and distributions, BACI zone violins; loads BACI displacement and β₂ multiplier dynamically from 10a/10e. Scenario comparison figure now uses `scraping_common.compute_scenario_bars()` as the single source of truth for per-cluster scenario values.
 
@@ -912,9 +914,42 @@ Orchestrated by `run_10_clearfell.py`. All sub-modules can be run independently 
 - `21_forestry_03_scraping_era_means.csv`
 
 
-### Phase 11 — Supplementary Diagnostics
+### Phase 11 — Coastal-Retreat Gradient Analysis
 
-#### Step 24 — 22_residual_lag_analysis
+#### Script 25 — 25_coastal_gradient (step 24)
+
+**Purpose.** Network-scale, physics-based non-linear regression of per-well water-table trends against perpendicular distance to the eroding Caernarfon Bay shoreline. Fits two functional forms (linear-with-cutoff and exponential decay) at three forest-confound specifications (full network, forest-free, C3-only) and partitions each cluster's summer-min slope into climate + coastal-retreat + residual components. Also corroborates the Script 10 BACI `easting × time` absorption against the gradient-model prediction.
+
+**Reads.**
+
+- `data/well_distance_to_coast.csv` (versioned data input; see `data/COASTLINE_PROVENANCE.md`)
+- `01_wells_clean.csv` (Script 01)
+- `01_wells_extended.csv` (Script 01)
+- `01_locations.csv` (Script 01)
+- `01_climate.csv` (Script 01)
+- `03_master_data.csv` (Script 03)
+- `14_summer_trend_stats.csv` (Script 14)
+- `10a_02_ancova_full_coefficients.csv` (Script 10a)
+
+**Writes.**
+
+- `25_01_panel_fit_parameters.csv` — all 6 fits (3 specs × 2 forms): δ₀, L, c, SEs, 95% CIs, AIC
+- `25_02_per_well_summer_min_slopes.csv` — per-well annual summer-min OLS slope vs distance
+- `25_03_cluster_partition.csv` — per-cluster decomposition (observed / gradient / climate / residual)
+- `25_04_baci_corroboration.csv` — BACI absorption vs gradient prediction per zone × control
+- `25_05_fit_diagnostic.jpg` — two-panel diagnostic figure
+- `25_06_baci_corroboration_chart.jpg` — forest plot
+- `25_report_numbers.csv`
+
+**Other.**
+
+  - All paths via `utils.paths.OUT_25_*` and `paths.DATA_DIST_COAST`.
+  - Distance source covers 97 wells, range 147–5,589 m; coastline restricted to Caernarfon Bay High Water Mark (lines 1756 + 1853 of OS Open Map Local TidalBoundary).
+
+
+### Phase 12 — Supplementary Diagnostics
+
+#### Step 35 — 22_residual_lag_analysis
 
 **Purpose.** AR(1) diagnostics on SSM residuals; α/φ scatter; example residual series by cluster.
 
@@ -924,10 +959,10 @@ Orchestrated by `run_10_clearfell.py`. All sub-modules can be run independently 
 - `02_cluster_stats.csv` (Script 02 (step 2))
 - `01_locations.csv` (Script 01 (step 1))
 - `01_wells_clean.csv` (Script 01 (step 1))
-- `22_03_alpha_phi_scatter.png` (Script 22 (step 24))
-- `22_01_ar1_histogram.png` (Script 22 (step 24))
-- `22_02_ar1_spatial_map.png` (Script 22 (step 24))
-- `22_04_example_residuals_by_cluster.png` (Script 22 (step 24))
+- `22_03_alpha_phi_scatter.png` (Script 22 (step 34))
+- `22_01_ar1_histogram.png` (Script 22 (step 34))
+- `22_02_ar1_spatial_map.png` (Script 22 (step 34))
+- `22_04_example_residuals_by_cluster.png` (Script 22 (step 34))
 
 **Writes.**
 
@@ -942,7 +977,7 @@ Orchestrated by `run_10_clearfell.py`. All sub-modules can be run independently 
   - `OUT_22_EXAMPLE_SERIES` passed to `plot_example_residuals`
 
 
-#### Step 25 — 23_ridge_recharge_lag_test
+#### Step 36 — 23_ridge_recharge_lag_test
 
 **Purpose.** Ridge-proximal recharge lag hypothesis test (cross-correlation, lag vs distance, B10/B11 by cluster).
 
@@ -952,11 +987,11 @@ Orchestrated by `run_10_clearfell.py`. All sub-modules can be run independently 
 - `02_cluster_stats.csv` (Script 02 (step 2))
 - `01_locations.csv` (Script 01 (step 1))
 - `01_wells_clean.csv` (Script 01 (step 1))
-- `23_04_b10_b11_by_cluster.png` (Script 23 (step 25))
-- `23_01_ccf_headline_ridge_wells.png` (Script 23 (step 25))
-- `23_03_peak_lag_spatial_map.png` (Script 23 (step 25))
-- `23_02_peak_lag_vs_ridge_distance.png` (Script 23 (step 25))
-- `23_05_hypothesis_test_summary.txt` (Script 23 (step 25))
+- `23_04_b10_b11_by_cluster.png` (Script 23 (step 35))
+- `23_01_ccf_headline_ridge_wells.png` (Script 23 (step 35))
+- `23_03_peak_lag_spatial_map.png` (Script 23 (step 35))
+- `23_02_peak_lag_vs_ridge_distance.png` (Script 23 (step 35))
+- `23_05_hypothesis_test_summary.txt` (Script 23 (step 35))
 
 **Writes.**
 
@@ -972,7 +1007,7 @@ Orchestrated by `run_10_clearfell.py`. All sub-modules can be run independently 
   - `OUT_23_TEST_SUMMARY` passed to `write_test_summary`
 
 
-#### Step 26 — 24_residual_seasonality
+#### Step 37 — 24_residual_seasonality
 
 **Purpose.** Residual-seasonality diagnostic (climatology panels, amplitude map, sun-hour correlation, phase by cluster).
 
@@ -983,11 +1018,11 @@ Orchestrated by `run_10_clearfell.py`. All sub-modules can be run independently 
 - `02_cluster_stats.csv` (Script 02 (step 2))
 - `01_locations.csv` (Script 01 (step 1))
 - `01_wells_clean.csv` (Script 01 (step 1))
-- `24_02_seasonal_amplitude_map.png` (Script 24 (step 26))
-- `24_01_climatology_panels_by_cluster.png` (Script 24 (step 26))
-- `24_04_phase_by_cluster.png` (Script 24 (step 26))
-- `24_05_diagnostic_summary.txt` (Script 24 (step 26))
-- `24_03_sun_residual_correlation.png` (Script 24 (step 26))
+- `24_02_seasonal_amplitude_map.png` (Script 24 (step 37))
+- `24_01_climatology_panels_by_cluster.png` (Script 24 (step 37))
+- `24_04_phase_by_cluster.png` (Script 24 (step 37))
+- `24_05_diagnostic_summary.txt` (Script 24 (step 37))
+- `24_03_sun_residual_correlation.png` (Script 24 (step 37))
 
 **Writes.**
 
@@ -1001,53 +1036,6 @@ Orchestrated by `run_10_clearfell.py`. All sub-modules can be run independently 
   - `DATA_CLIMATE_RAW` passed to `load_sunshine_hours`
   - `OUT_24_CLIMATOLOGY_PANELS` passed to `plot_climatology_panels`
   - `OUT_24_SUN_CORR_SCATTER` passed to `plot_sun_corr_scatter`
-
-
-### Phase 12 — Coastal-Retreat Gradient Analysis
-
-#### Step 27 — 25_coastal_gradient
-
-**Purpose.** Fits a Dupuit–Forchheimer steady-state strip-aquifer model to the full monthly panel using perpendicular distance to the OS Caernarfon Bay High Water Mark. Three nested specifications — full network, forest-free (drops C4 and C5), and C3-only — verify that the coastal-retreat gradient is not an artefact of forest-cover inclusion. The fit is then applied to each cluster's Script 14 centroid summer-minimum slope to partition the decline into climate + coastal-retreat + residual components, and to the Script 10a BACI ANCOVA easting × time coefficients to corroborate the BACI's spatial-drift correction against the gradient model's prediction.
-
-Stand-alone analytic step: reads pipeline intermediates but does not feed downstream pipeline scripts.
-
-**Reads.**
-
-- `data/well_distance_to_coast.csv` (pre-computed perpendicular distances)
-- `01_wells_clean.csv` (Script 01 (step 1))
-- `01_wells_extended.csv` (Script 01 (step 1))
-- `01_locations.csv` (Script 01 (step 1))
-- `01_climate.csv` (Script 01 (step 1))
-- `03_master_data.csv` (Script 03 (step 3))
-- `14_climate_projections/14_summer_trend_stats.csv` (Script 14 (step 14))
-- `10_clearfell_baci/10a_02_ancova_full_coefficients.csv` (Script 10a (step 10))
-
-**Writes.**
-
-- `25_01_panel_fit_parameters.csv`
-- `25_02_per_well_summer_min_slopes.csv`
-- `25_03_cluster_partition.csv`
-- `25_04_baci_corroboration.csv`
-- `25_05_fit_diagnostic.jpg`
-- `25_06_baci_corroboration_chart.jpg`
-- `25_report_numbers.csv`
-
-
-### Phase 13 — Journal Figure Preparation
-
-#### Step 28 — 26_greyscale_figures
-
-**Purpose.** Post-processing script to convert all pipeline colour figures into journal-ready greyscale (B&W) versions using perceptual luminance weighting. Discovery-based: scans `outputs/` recursively for `.png` and `.jpg` files and writes greyscale copies to a mirrored tree under `outputs_bw/`.
-
-Can also be run as part of a full BW_MODE pipeline re-run (menu option 7b / `--greyscale-full`), where all upstream scripts produce native B&W figures with hatching, distinct line styles, and hillshade DEMs, and this script sweeps any remaining colour-only figures.
-
-**Reads.**
-
-- All `.png` and `.jpg` files under `outputs/` (discovery-based `rglob`)
-
-**Writes.**
-
-- Mirrored greyscale figure tree under `outputs_bw/`
 
 
 ---

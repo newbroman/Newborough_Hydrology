@@ -45,17 +45,17 @@ All documents are in [`docs/`](docs/) and linked from the
 
 | Option | Description |
 |--------|-------------|
-| **1 — Run full pipeline** | Runs all 29 steps in order from the beginning |
+| **1 — Run full pipeline** | Runs all 28 steps in order from the beginning |
 | **2 — Resume from step** | Skips completed steps; useful after a partial run |
 | **3 — Run a single step** | Runs one script in isolation for debugging or re-running |
 | **4 — Prepare scenario viewer** | Runs script 19 to build the self-contained HTML viewer |
 | **5 — Run supplementary diagnostics** | Runs scripts 22–24 (residual lag, ridge recharge, seasonality) |
-| **6 — Show step list** | Lists all 29 steps with script names and availability status |
+| **6 — Show step list** | Lists all 28 steps with script names and availability status |
 
 For non-interactive use (e.g. in a batch job):
 
 ```bash
-python run_analysis.py --full          # run all 29 steps
+python run_analysis.py --full          # run all 28 steps
 python run_analysis.py --from 14       # resume from step 14
 python run_analysis.py --viewer        # build scenario viewer only
 python run_analysis.py --supplementary # run supplementary diagnostics (22–25) only
@@ -93,7 +93,7 @@ Newborough_Hydro_Models/
 │   ├── 19_spatial_groundwater/
 │   │   └── scenario_viewer.html        ← self-contained interactive viewer (standalone)
 │   └── [other output directories]
-├── src/                         Analysis scripts (29 steps; script 19 also builds the viewer)
+├── src/                         Analysis scripts (28 steps; script 19 also builds the viewer)
 │   ├── utils/
 │   │   ├── config.py            Cluster colours, labels, DRAINAGE_DATUM, HEADLINE_LAG, FOREST_INTERCEPTION
 │   │   ├── data_utils.py        Cleaning and normalisation helpers
@@ -134,7 +134,7 @@ Newborough_Hydro_Models/
 
 ## Pipeline Phases
 
-Eleven sequential phases, 29 steps total. Validation checkpoints run after Phases 1, 3, and 10.
+Thirteen sequential phases, 28 steps total. Validation checkpoints run after Phases 1, 3, 9, and 10.
 
 **Reference network:** 66 wells (from a raw pool of ~80). 
 Eight wells are excluded from the reference partition: FE1–4 and LIS1
@@ -153,21 +153,26 @@ colours and labels are centralised in `src/utils/config.py`.
 - Script 18 (WTF spatial) must run before script 19 (spatial groundwater)
 - Script 11b runs after scripts 11 and 06
 - Script 21 requires `03_cluster_averages_maod.csv` from script 03
+- Script 25 (coastal-retreat) requires `14_summer_trend_stats.csv` from script 14 and `10a_02_ancova_full_coefficients.csv` from script 10a
 - Option 4 (scenario viewer) runs script 19 standalone — it reads pipeline outputs directly. Script 14 should have run for seasonal extremes to be available
 
 | Phase | Scripts | Steps | Purpose |
 |-------|---------|-------|---------|
 | 1 | 01–04 | 1–4 | Core LCSC chain |
 | 2 | 05–06 | 5–6 | Pearson membership audit and extended network integration |
-| 3 | 07–11, 09b, 10b, 10c, 11b | 7–15 | Spatial coefficient mapping, model benchmarking, scraping and clearfell BACI, scraping propagation, spatial step-change maps, forest zone spatial analysis, forecasting, spatial threshold maps |
-| 4 | 00, 14, 12–13 | 16–19 | Climate summary, trajectory projections, GIS figures |
-| 5 | 15 | 20 | Depth-dependent PET analysis |
-| 6 | 17 | 21 | WTF cluster Sy estimation |
-| 7 | 16 | 22 | Water balance decomposition |
-| 8 | 18 | 23 | WTF spatial analysis and per-well Sy mapping |
-| 9 | 19, 20 | 24–25 | Spatial groundwater analysis and publication figures |
-| 10 | 21 | 26 | Forestry scenarios and management intervention figures |
-| 11 | 22–24 | 27–29 | Supplementary diagnostics: residual lag structure, ridge recharge hypothesis test, residual seasonality |
+| 3 | 07, 08, 09 suite, 10 suite, 11, 11b | 7–12 | Spatial coefficient mapping, model benchmarking, scraping (09a–e) and clearfell BACI (10a–h), forecasting and spatial threshold maps |
+| 4 | 00, 14, 12, 13 | 13–16 | Climate summary, trajectory projections, GIS figures |
+| 5 | 15 | 17 | Depth-dependent PET analysis |
+| 6 | 17 | 18 | WTF cluster Sy estimation |
+| 7 | 16 | 19 | Water balance decomposition |
+| 8 | 18 | 20 | WTF spatial analysis and per-well Sy mapping |
+| 9 | 19, 20 | 21–22 | Spatial groundwater analysis and publication figures |
+| 10 | 21 | 23 | Forestry scenarios and management intervention figures |
+| 11 | 25 (coastal-gradient) | 24 | Coastal-retreat gradient analysis |
+| 12 | 22–24 | 25–27 | Supplementary diagnostics: residual lag structure, ridge recharge hypothesis test, residual seasonality |
+| 13 | 25 (greyscale) | 28 | Greyscale figure conversion utility (journal-ready B&W) |
+
+Phases 1–11 produce the main analytical results documented in the report. Phase 12 runs supplementary diagnostics. Phase 13 runs the greyscale utility, retained in `run_analysis.py` as a callable step but not treated as an analytical phase. Two distinct scripts share the `25_` filename prefix: `25_coastal_gradient.py` (Phase 11) and `25_greyscale_figures.py` (Phase 13). Within the Script 10 clearfell BACI suite, `10c_forest_zone_analysis.py` runs in order but its outputs are treated as supplementary; the other seven sub-scripts (10a, 10b, 10d–10h) contribute to the primary report results.
 
 ---
 

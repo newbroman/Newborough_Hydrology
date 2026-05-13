@@ -10,6 +10,15 @@ Usage
   python run_analysis.py --viewer     # non-interactive: build scenario viewer only
   python run_analysis.py --greyscale  # non-interactive: convert figures to B&W
 
+Pipeline structure
+------------------
+The pipeline comprises 28 steps across 13 phases:
+
+  Phases 1–11 produce the main analytical results documented in the report.
+  Phase 12 runs supplementary diagnostics (Scripts 22–24).
+  Phase 13 runs the greyscale figure-conversion utility (Script 25 grey),
+  retained as a callable utility step rather than an analytical phase.
+
 Two-pass execution (RECOMMENDED for new datasets)
 -------------------------------------------------
 Two scripts in Phase 3 use Specific-Yield (Sy) values that are produced
@@ -90,15 +99,15 @@ PHASE_10 = [
     ("21_forestry_scenarios.py", "23/28  Forestry scenarios and management figures"),
 ]
 PHASE_11 = [
-    ("22_residual_lag_analysis.py",    "24/28  Residual lag structure analysis"),
-    ("23_ridge_recharge_lag_test.py",  "25/28  Ridge recharge lag hypothesis test"),
-    ("24_residual_seasonality.py",     "26/28  Residual seasonality diagnostics"),
+    ("25_coastal_gradient.py",   "24/28  Coastal-retreat gradient analysis"),
 ]
 PHASE_12 = [
-    ("25_coastal_gradient.py",         "27/28  Coastal-retreat gradient analysis"),
+    ("22_residual_lag_analysis.py",    "25/28  Residual lag structure analysis"),
+    ("23_ridge_recharge_lag_test.py",  "26/28  Ridge recharge lag hypothesis test"),
+    ("24_residual_seasonality.py",     "27/28  Residual seasonality diagnostics"),
 ]
 PHASE_13 = [
-    ("26_greyscale_figures.py",        "28/28  Greyscale figure conversion (journal-ready B&W)"),
+    ("25_greyscale_figures.py",        "28/28  Greyscale figure conversion (journal-ready B&W)"),
 ]
 
 ALL_PHASES = [
@@ -112,9 +121,9 @@ ALL_PHASES = [
     ("PHASE 8  — WTF Spatial Analysis and Sy Mapping",          PHASE_8),
     ("PHASE 9  — Spatial Groundwater Analysis",                 PHASE_9),
     ("PHASE 10 — Forestry Scenario Analysis",                   PHASE_10),
-    ("PHASE 11 \u2014 Supplementary Diagnostics (Scripts 22\u201324)",   PHASE_11),
-    ("PHASE 12 \u2014 Coastal-Retreat Gradient Analysis (Script 25)",   PHASE_12),
-    ("PHASE 13 \u2014 Journal Figure Preparation (Script 26)",         PHASE_13),
+    ("PHASE 11 \u2014 Coastal-Retreat Gradient Analysis (Script 25)", PHASE_11),
+    ("PHASE 12 \u2014 Supplementary Diagnostics (Scripts 22\u201324)",   PHASE_12),
+    ("PHASE 13 \u2014 Greyscale Figure Conversion (Script 25 grey)", PHASE_13),
 ]
 
 # Build step -> (script, label, extra_args) lookup at import time
@@ -315,9 +324,9 @@ def run_full_pipeline(from_step: int = 1) -> None:
         validate_outputs(REQUIRED_PHASE9_OUTPUTS, "Phase 9")
     run_phase(PHASE_10, "PHASE 10 — Forestry Scenario Analysis",                  from_step)
     validate_outputs(REQUIRED_PHASE10_OUTPUTS, "Phase 10")
-    run_phase(PHASE_11, "PHASE 11 — Supplementary Diagnostics (Scripts 22–24)",  from_step)
-    run_phase(PHASE_12, "PHASE 12 — Coastal-Retreat Gradient Analysis (Script 25)", from_step)
-    run_phase(PHASE_13, "PHASE 13 — Journal Figure Preparation (Script 26)",       from_step)
+    run_phase(PHASE_11, "PHASE 11 — Coastal-Retreat Gradient Analysis (Script 25)", from_step)
+    run_phase(PHASE_12, "PHASE 12 — Supplementary Diagnostics (Scripts 22–24)",  from_step)
+    run_phase(PHASE_13, "PHASE 13 — Greyscale Figure Conversion (Script 25 grey)", from_step)
     _banner("PIPELINE COMPLETE — all 28 steps written to outputs/")
 
 def build_viewer() -> None:
@@ -378,12 +387,11 @@ MENU = """
   │  3  Run a single step            (full pipeline first)       │
   │  4  Prepare the scenario viewer  (full pipeline first)       │
   │  5  Run supplementary diagnostics 22–24  (run pipeline first)│
-  │  6  Run coastal-retreat gradient analysis (step 27)          │
-  │  7  Convert figures to greyscale (journal-ready B&W)         │
-  │     7a  Quick: pixel conversion only (Script 26)             │
-  │     7b  Full: re-run pipeline in B&W mode + Script 26        │
-  │     7h  Help: colour vs B&W workflow explained               │
-  │  8  Show pipeline step list                                  │
+  │  6  Convert figures to greyscale (journal-ready B&W)         │
+  │     6a  Quick: pixel conversion only (Script 25 grey)        │
+  │     6b  Full: re-run pipeline in B&W mode + Script 25 grey   │
+  │     6h  Help: colour vs B&W workflow explained               │
+  │  7  Show pipeline step list                                  │
   │  q  Quit                                                     │
   └──────────────────────────────────────────────────────────────┘"""
 
@@ -455,7 +463,7 @@ def menu_run_single() -> None:
         print(f"\n  [OK] Step {n} complete.")
         if bw:
             print("  [BW] Copying figures to outputs_bw/ ...")
-            run_script("26_greyscale_figures.py", "28/28  Greyscale figure conversion")
+            run_script("25_greyscale_figures.py", "28/28  Greyscale figure conversion")
             bw_dir = ROOT_DIR / "outputs_bw"
             if bw_dir.exists():
                 n_figs = len(list(bw_dir.rglob("*.png"))) + len(list(bw_dir.rglob("*.jpg")))
@@ -467,22 +475,8 @@ def run_supplementary() -> None:
     if not warn_missing_upstream(25):
         print("  Aborted.")
         return
-    run_phase(PHASE_11, "PHASE 11 — Supplementary Diagnostics (Scripts 22–24)")
+    run_phase(PHASE_12, "PHASE 12 — Supplementary Diagnostics (Scripts 22–24)")
     print("\n  [OK] Supplementary diagnostics complete.")
-
-def run_coastal_gradient() -> None:
-    """Run the coastal-retreat gradient analysis (Script 25, Phase 12).
-
-    Depends on Phase 1 (data prep), Phase 3 (Script 10a BACI ANCOVA),
-    and Phase 4 (Script 14 summer-min cluster trends). Will fail-fast
-    with a clear error if any of these intermediates are missing.
-    """
-    ensure_paths()
-    if not warn_missing_upstream(27):
-        print("  Aborted.")
-        return
-    run_phase(PHASE_12, "PHASE 12 — Coastal-Retreat Gradient Analysis (Script 25)")
-    print("\n  [OK] Coastal-retreat gradient analysis complete.")
 
 def run_greyscale(full_rerun: bool = False) -> None:
     """Run greyscale figure generation.
@@ -492,8 +486,8 @@ def run_greyscale(full_rerun: bool = False) -> None:
     full_rerun : bool
         If True, re-run the entire pipeline with BW_MODE=True (native B&W
         rendering with hatching, line styles, hillshade DEMs) then run
-        Script 26 to sweep remaining figures.
-        If False, just run Script 26 pixel conversion on existing outputs.
+        Script 25 to sweep remaining figures.
+        If False, just run Script 25 pixel conversion on existing outputs.
     """
     print()
     _hr()
@@ -501,7 +495,7 @@ def run_greyscale(full_rerun: bool = False) -> None:
     _hr()
     print()
 
-    script_path = SRC_DIR / "26_greyscale_figures.py"
+    script_path = SRC_DIR / "25_greyscale_figures.py"
     if not script_path.exists():
         print(f"  [ERROR] Script not found: {script_path}")
         return
@@ -513,9 +507,9 @@ def run_greyscale(full_rerun: bool = False) -> None:
 
     if full_rerun:
         print("  Mode: Full B&W pipeline re-run")
-        print("  This will re-run all 27 analysis steps with BW_MODE=True,")
+        print("  This will re-run all 28 analysis steps with BW_MODE=True,")
         print("  producing native greyscale figures with hatching, distinct")
-        print("  line styles, and hillshade DEMs. Then Script 26 sweeps any")
+        print("  line styles, and hillshade DEMs. Then Script 25 sweeps any")
         print("  remaining colour-only figures.")
         print()
         # Set env var so all subprocess scripts pick up BW_MODE=True
@@ -527,14 +521,14 @@ def run_greyscale(full_rerun: bool = False) -> None:
             run_full_pipeline(from_step=1)
         finally:
             os.environ.pop("NRG_BW_MODE", None)
-        # Script 26 already ran as step 28 inside run_full_pipeline
+        # Script 25 greyscale already ran as step 28 inside run_full_pipeline
     else:
-        print("  Mode: Pixel conversion only (Script 26)")
+        print("  Mode: Pixel conversion only (Script 25)")
         print("  This converts existing colour figures to greyscale using")
         print("  perceptual luminance weighting. Quick but some figures")
         print("  may be suboptimal — use 'Full B&W re-run' for best results.")
         print()
-        run_script("26_greyscale_figures.py", "28/28  Greyscale figure conversion")
+        run_script("25_greyscale_figures.py", "28/28  Greyscale figure conversion")
 
     bw_dir = ROOT_DIR / "outputs_bw"
     if bw_dir.exists():
@@ -578,13 +572,10 @@ def interactive_menu() -> None:
         elif choice == "5":
             run_supplementary()
 
-        elif choice == "6":
-            run_coastal_gradient()
-
-        elif choice in ("7", "7a"):
+        elif choice in ("6", "6a"):
             run_greyscale(full_rerun=False)
 
-        elif choice == "7b":
+        elif choice == "6b":
             print(
                 "\n  ┌─────────────────────────────────────────────────────────┐"
                 "\n  │  WARNING: This will OVERWRITE your colour figures in   │"
@@ -592,8 +583,8 @@ def interactive_menu() -> None:
                 "\n  │  figures afterwards, run option 1 again.               │"
                 "\n  │                                                        │"
                 "\n  │  Recommended workflow:                                 │"
-                "\n  │    1. Run option 7b  → B&W figures in outputs/         │"
-                "\n  │       Script 26 copies them to outputs_bw/             │"
+                "\n  │    1. Run option 6b  → B&W figures in outputs/         │"
+                "\n  │       Script 25 copies them to outputs_bw/             │"
                 "\n  │    2. Run option 1   → colour figures restored in      │"
                 "\n  │       outputs/                                         │"
                 "\n  │                                                        │"
@@ -606,7 +597,7 @@ def interactive_menu() -> None:
             if ans == "y":
                 run_greyscale(full_rerun=True)
 
-        elif choice == "7h":
+        elif choice == "6h":
             print(
                 "\n  ── Greyscale / B&W Figure Help ──────────────────────────"
                 "\n"
@@ -617,23 +608,23 @@ def interactive_menu() -> None:
                 "\n      Stored in: outputs/"
                 "\n"
                 "\n    GREYSCALE (B&W)   — for journal print submission."
-                "\n      Generated by option 7b (full B&W pipeline re-run)."
+                "\n      Generated by option 6b (full B&W pipeline re-run)."
                 "\n      Uses hatched bars, distinct line styles, hillshade"
                 "\n      DEM basemaps, and linear grey colourscales."
                 "\n      Stored in: outputs_bw/"
                 "\n"
-                "\n  Option 7a / 7  — Quick pixel conversion only. Converts"
+                "\n  Option 6a / 6  — Quick pixel conversion only. Converts"
                 "\n    existing colour figures to greyscale without re-rendering."
                 "\n    Fast but some figures may be suboptimal."
                 "\n"
-                "\n  Option 7b — Full B&W re-run. Re-runs the entire pipeline"
+                "\n  Option 6b — Full B&W re-run. Re-runs the entire pipeline"
                 "\n    with BW_MODE=True so scripts produce native B&W figures."
                 "\n    Best quality. OVERWRITES outputs/ — run option 1 after"
                 "\n    to restore colour figures."
                 "\n"
                 "\n  Recommended workflow for journal submission:"
                 "\n    1. Run option 1   (colour pipeline)"
-                "\n    2. Run option 7b  (B&W pipeline → outputs_bw/)"
+                "\n    2. Run option 6b  (B&W pipeline → outputs_bw/)"
                 "\n    3. Run option 1   (restore colour figures)"
                 "\n"
                 "\n  CLI equivalents:"
@@ -643,7 +634,7 @@ def interactive_menu() -> None:
                 "\n"
             )
 
-        elif choice == "8":
+        elif choice == "7":
             show_step_list()
 
         elif choice in ("q", "quit", "exit"):
@@ -673,11 +664,8 @@ def main() -> None:
                         help="Build the scenario viewer only")
     parser.add_argument("--supplementary", action="store_true",
                         help="Run supplementary diagnostics (scripts 22–24) only")
-    parser.add_argument("--coastal-gradient", dest="coastal_gradient",
-                        action="store_true",
-                        help="Run the coastal-retreat gradient analysis (Script 25) only")
     parser.add_argument("--greyscale", action="store_true",
-                        help="Convert existing figures to greyscale (Script 26 only)")
+                        help="Convert existing figures to greyscale (Script 25 only)")
     parser.add_argument("--greyscale-full", action="store_true",
                         help="Re-run full pipeline in B&W mode then convert (best quality)")
     args = parser.parse_args()
@@ -691,9 +679,6 @@ def main() -> None:
         elif args.greyscale:
             _banner("NEWBOROUGH WARREN GROUNDWATER ANALYSIS PIPELINE")
             run_greyscale(full_rerun=False)
-        elif args.coastal_gradient:
-            _banner("NEWBOROUGH WARREN GROUNDWATER ANALYSIS PIPELINE")
-            run_coastal_gradient()
         elif args.supplementary:
             _banner("NEWBOROUGH WARREN GROUNDWATER ANALYSIS PIPELINE")
             run_supplementary()

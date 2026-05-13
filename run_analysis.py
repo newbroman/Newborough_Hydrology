@@ -374,6 +374,9 @@ MENU = """
   │  4  Prepare the scenario viewer  (full pipeline first)       │
   │  5  Run supplementary diagnostics 22–24  (run pipeline first)│
   │  6  Convert figures to greyscale (journal-ready B&W)         │
+  │     6a  Quick: pixel conversion only (Script 25)             │
+  │     6b  Full: re-run pipeline in B&W mode + Script 25        │
+  │     6h  Help: colour vs B&W workflow explained               │
   │  7  Show pipeline step list                                  │
   │  q  Quit                                                     │
   └──────────────────────────────────────────────────────────────┘"""
@@ -430,11 +433,27 @@ def menu_run_single() -> None:
     if not warn_missing_upstream(n):
         print("  Aborted.")
         return
+    bw = input("  Run in B&W mode? [y/N] ").strip().lower() == "y"
     ans = input("  Confirm? [y/N] ").strip().lower()
     if ans == "y":
+        import os
+        if bw:
+            os.environ["NRG_BW_MODE"] = "1"
+            print("  [BW] Running with BW_MODE=True")
         ensure_paths()
-        run_script(script, label, extra)
+        try:
+            run_script(script, label, extra)
+        finally:
+            if bw:
+                os.environ.pop("NRG_BW_MODE", None)
         print(f"\n  [OK] Step {n} complete.")
+        if bw:
+            print("  [BW] Copying figures to outputs_bw/ ...")
+            run_script("25_greyscale_figures.py", "27/27  Greyscale figure conversion")
+            bw_dir = ROOT_DIR / "outputs_bw"
+            if bw_dir.exists():
+                n_figs = len(list(bw_dir.rglob("*.png"))) + len(list(bw_dir.rglob("*.jpg")))
+                print(f"  [OK] {n_figs} figures in outputs_bw/")
 
 def run_supplementary() -> None:
     """Run supplementary diagnostic scripts 22–24."""
@@ -445,18 +464,21 @@ def run_supplementary() -> None:
     run_phase(PHASE_11, "PHASE 11 — Supplementary Diagnostics (Scripts 22–24)")
     print("\n  [OK] Supplementary diagnostics complete.")
 
-def run_greyscale() -> None:
-    """Run greyscale figure conversion (Script 25)."""
+def run_greyscale(full_rerun: bool = False) -> None:
+    """Run greyscale figure generation.
+
+    Parameters
+    ----------
+    full_rerun : bool
+        If True, re-run the entire pipeline with BW_MODE=True (native B&W
+        rendering with hatching, line styles, hillshade DEMs) then run
+        Script 25 to sweep remaining figures.
+        If False, just run Script 25 pixel conversion on existing outputs.
+    """
     print()
     _hr()
-    print("  Greyscale Figure Conversion")
+    print("  Greyscale Figure Generation")
     _hr()
-    print()
-    print("  This converts all colour figures in outputs/ to journal-ready")
-    print("  greyscale versions in outputs_bw/, preserving directory structure.")
-    print()
-    print("  Figures with known greyscale limitations (ecological zone maps,")
-    print("  diverging colourmap difference maps) are flagged for review.")
     print()
 
     script_path = SRC_DIR / "25_greyscale_figures.py"
@@ -469,8 +491,32 @@ def run_greyscale() -> None:
         print("  [ERROR] No figures found in outputs/. Run the full pipeline first.")
         return
 
-    run_script("25_greyscale_figures.py", "27/27  Greyscale figure conversion")
-    bw_dir = REPO_ROOT / "outputs_bw"
+    if full_rerun:
+        print("  Mode: Full B&W pipeline re-run")
+        print("  This will re-run all 26 analysis steps with BW_MODE=True,")
+        print("  producing native greyscale figures with hatching, distinct")
+        print("  line styles, and hillshade DEMs. Then Script 25 sweeps any")
+        print("  remaining colour-only figures.")
+        print()
+        # Set env var so all subprocess scripts pick up BW_MODE=True
+        import os
+        os.environ["NRG_BW_MODE"] = "1"
+        print(f"\n  [BW] NRG_BW_MODE set to: {os.environ.get('NRG_BW_MODE')}")
+        print(f"  [BW] Child processes will inherit BW_MODE=True\n")
+        try:
+            run_full_pipeline(from_step=1)
+        finally:
+            os.environ.pop("NRG_BW_MODE", None)
+        # Script 25 already ran as step 27 inside run_full_pipeline
+    else:
+        print("  Mode: Pixel conversion only (Script 25)")
+        print("  This converts existing colour figures to greyscale using")
+        print("  perceptual luminance weighting. Quick but some figures")
+        print("  may be suboptimal — use 'Full B&W re-run' for best results.")
+        print()
+        run_script("25_greyscale_figures.py", "27/27  Greyscale figure conversion")
+
+    bw_dir = ROOT_DIR / "outputs_bw"
     if bw_dir.exists():
         n_figs = len(list(bw_dir.rglob("*.png"))) + len(list(bw_dir.rglob("*.jpg")))
         print(f"\n  [OK] {n_figs} greyscale figures in: {bw_dir}/")
@@ -512,8 +558,67 @@ def interactive_menu() -> None:
         elif choice == "5":
             run_supplementary()
 
-        elif choice == "6":
-            run_greyscale()
+        elif choice in ("6", "6a"):
+            run_greyscale(full_rerun=False)
+
+        elif choice == "6b":
+            print(
+                "\n  ┌─────────────────────────────────────────────────────────┐"
+                "\n  │  WARNING: This will OVERWRITE your colour figures in   │"
+                "\n  │  outputs/ with greyscale versions. To restore colour   │"
+                "\n  │  figures afterwards, run option 1 again.               │"
+                "\n  │                                                        │"
+                "\n  │  Recommended workflow:                                 │"
+                "\n  │    1. Run option 6b  → B&W figures in outputs/         │"
+                "\n  │       Script 25 copies them to outputs_bw/             │"
+                "\n  │    2. Run option 1   → colour figures restored in      │"
+                "\n  │       outputs/                                         │"
+                "\n  │                                                        │"
+                "\n  │  After both runs you have:                             │"
+                "\n  │    outputs/    → colour figures (screen/web)           │"
+                "\n  │    outputs_bw/ → greyscale figures (journal print)     │"
+                "\n  └─────────────────────────────────────────────────────────┘"
+            )
+            ans = input("\n  Proceed with B&W pipeline run? [y/N] ").strip().lower()
+            if ans == "y":
+                run_greyscale(full_rerun=True)
+
+        elif choice == "6h":
+            print(
+                "\n  ── Greyscale / B&W Figure Help ──────────────────────────"
+                "\n"
+                "\n  The pipeline produces two sets of figures:"
+                "\n"
+                "\n    COLOUR (default)  — for screen, web, presentations."
+                "\n      Generated by option 1 (full pipeline)."
+                "\n      Stored in: outputs/"
+                "\n"
+                "\n    GREYSCALE (B&W)   — for journal print submission."
+                "\n      Generated by option 6b (full B&W pipeline re-run)."
+                "\n      Uses hatched bars, distinct line styles, hillshade"
+                "\n      DEM basemaps, and linear grey colourscales."
+                "\n      Stored in: outputs_bw/"
+                "\n"
+                "\n  Option 6a / 6  — Quick pixel conversion only. Converts"
+                "\n    existing colour figures to greyscale without re-rendering."
+                "\n    Fast but some figures may be suboptimal."
+                "\n"
+                "\n  Option 6b — Full B&W re-run. Re-runs the entire pipeline"
+                "\n    with BW_MODE=True so scripts produce native B&W figures."
+                "\n    Best quality. OVERWRITES outputs/ — run option 1 after"
+                "\n    to restore colour figures."
+                "\n"
+                "\n  Recommended workflow for journal submission:"
+                "\n    1. Run option 1   (colour pipeline)"
+                "\n    2. Run option 6b  (B&W pipeline → outputs_bw/)"
+                "\n    3. Run option 1   (restore colour figures)"
+                "\n"
+                "\n  CLI equivalents:"
+                "\n    python run_analysis.py --full            # colour"
+                "\n    python run_analysis.py --greyscale-full  # B&W"
+                "\n    python run_analysis.py --full            # restore colour"
+                "\n"
+            )
 
         elif choice == "7":
             show_step_list()
@@ -546,15 +651,20 @@ def main() -> None:
     parser.add_argument("--supplementary", action="store_true",
                         help="Run supplementary diagnostics (scripts 22–24) only")
     parser.add_argument("--greyscale", action="store_true",
-                        help="Convert all figures to journal-ready greyscale (step 27)")
+                        help="Convert existing figures to greyscale (Script 25 only)")
+    parser.add_argument("--greyscale-full", action="store_true",
+                        help="Re-run full pipeline in B&W mode then convert (best quality)")
     args = parser.parse_args()
 
     try:
         if args.viewer:
             build_viewer()
+        elif args.greyscale_full:
+            _banner("NEWBOROUGH WARREN GROUNDWATER ANALYSIS PIPELINE")
+            run_greyscale(full_rerun=True)
         elif args.greyscale:
             _banner("NEWBOROUGH WARREN GROUNDWATER ANALYSIS PIPELINE")
-            run_greyscale()
+            run_greyscale(full_rerun=False)
         elif args.supplementary:
             _banner("NEWBOROUGH WARREN GROUNDWATER ANALYSIS PIPELINE")
             run_supplementary()

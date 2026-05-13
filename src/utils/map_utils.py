@@ -51,6 +51,7 @@ from scipy.interpolate import griddata, RegularGridInterpolator
 from pathlib import Path
 
 from utils.config import (
+    BW_MODE,
     CLUSTER_COLOURS,
     CLUSTER_LABELS,
     CLUSTER_MARKERS,
@@ -75,6 +76,11 @@ def load_dem_layer(ax, data_dir: Path):
     """
     Load the site DEM and render it onto ax.
 
+    In BW_MODE, redirects to load_dem_hillshade() with faint alpha to
+    produce a clean, almost-white background for print. The return
+    signature is (layer, loaded) — callers that need dem arrays should
+    use load_dem_hillshade() or load_dem_auto() directly.
+
     Uses a custom terrain colormap with TwoSlopeNorm anchored at sea level (0 m),
     the dune crest inflection (12 m), and the DEM maximum. Sub-zero pixels are
     painted dodgerblue to represent water.
@@ -90,6 +96,11 @@ def load_dem_layer(ax, data_dir: Path):
         The imshow layer, suitable for attaching a colorbar.
     dem_loaded : bool
     """
+    # BW mode: use faint hillshade instead of coloured terrain
+    if BW_MODE:
+        result = load_dem_hillshade(ax, data_dir)
+        return result[0], result[1]
+
     dem_path = data_dir / "newborough_dem.tif"
     if not dem_path.exists():
         return None, False
@@ -141,6 +152,10 @@ def load_dem_hillshade(
 ):
     """
     Load the site DEM as a greyscale hillshade and render onto ax.
+
+    In BW_MODE, alpha is capped at 0.35 to produce a faint, almost-white
+    background that prints cleanly — matching Script 18's proven rendering.
+    Callers that explicitly pass a low alpha (e.g. alpha=0.35) are unaffected.
 
     Uses matplotlib.colors.LightSource to compute an illuminated surface.
     Intended as the base layer for continuous-surface maps (scripts 11b, 19,
@@ -203,17 +218,47 @@ def load_dem_hillshade(
         hs = ls.hillshade(filled, vert_exag=vert_exag, dx=res_x, dy=res_y)
 
         DEM_E, DEM_N = np.meshgrid(dem_e_arr, dem_n_arr)
+        # BW mode: cap alpha at 0.35 for faint, almost-white background
+        _alpha = min(alpha, 0.35) if BW_MODE else alpha
         hs_mesh = ax.pcolormesh(
             DEM_E, DEM_N, hs,
             cmap="gray", shading="auto",
             vmin=0.2, vmax=1.0,
-            alpha=alpha, zorder=zorder,
+            alpha=_alpha, zorder=zorder,
         )
         return hs_mesh, True, dem_e_arr, dem_n_arr, dem_data
 
     except Exception as exc:
         print(f"  [WARNING] Hillshade load failed: {exc}")
         return None, False, None, None, None
+
+
+def load_dem_auto(ax, data_dir: Path, force_hillshade: bool = False):
+    """Route to hillshade or coloured DEM based on BW_MODE.
+
+    In BW_MODE (or when force_hillshade=True), uses the light-grey
+    hillshade basemap which prints cleanly. In colour mode, uses the
+    full terrain colormap.
+
+    Returns
+    -------
+    For hillshade mode: (hs_mesh, dem_loaded, dem_e_arr, dem_n_arr, dem_data)
+        — same as load_dem_hillshade().
+    For colour mode: (dem_layer, dem_loaded)
+        — same as load_dem_layer(), with three extra Nones for API compat.
+
+    Usage
+    -----
+    result = load_dem_auto(ax, data_dir)
+    dem_loaded = result[1]
+    # If you need dem arrays for ridge masking etc:
+    # dem_e, dem_n, dem_data = result[2], result[3], result[4]
+    """
+    if BW_MODE or force_hillshade:
+        return load_dem_hillshade(ax, data_dir)
+    else:
+        layer, loaded = load_dem_layer(ax, data_dir)
+        return layer, loaded, None, None, None
 
 
 def add_idw_surface(
@@ -410,29 +455,36 @@ def add_kml_features(ax, data_dir: Path, include_streams: bool = True):
                 ax=ax, facecolor="none", edgecolor="black",
                 linewidth=1.3, linestyle="--", zorder=2,
             )
+            _fb_colour = "black" if BW_MODE else "purple"
+            _fb_lw = 3.0 if BW_MODE else 2.2
             gdf_features[forest_mask].plot(
-                ax=ax, facecolor="none", edgecolor="purple", linewidth=2.2, zorder=2
+                ax=ax, facecolor="none", edgecolor=_fb_colour, linewidth=_fb_lw, zorder=2
             )
             gdf_features[lake_mask].plot(
                 ax=ax, facecolor="dodgerblue", edgecolor="dodgerblue",
                 linewidth=1.8, alpha=0.25, zorder=2,
             )
             if broadleaf_mask.any():
+                _bl_colour = "black" if BW_MODE else "#228B22"
+                _bl_style = "-" if BW_MODE else "--"
+                _bl_lw = 2.5 if BW_MODE else 2.0
                 gdf_features[broadleaf_mask].plot(
-                    ax=ax, facecolor="none", edgecolor="#228B22",
-                    linewidth=2.0, linestyle="--", zorder=2,
+                    ax=ax, facecolor="none", edgecolor=_bl_colour,
+                    linewidth=_bl_lw, linestyle=_bl_style, zorder=2,
                 )
                 site_feature_handles.append(
-                    Line2D([0], [0], color="#228B22", linestyle="--",
-                           linewidth=2.0, label="Broadleaf restocking block")
+                    Line2D([0], [0], color=_bl_colour, linestyle=_bl_style,
+                           linewidth=_bl_lw, label="Broadleaf restocking block")
                 )
             site_feature_handles.append(
                 Line2D([0], [0], color="black", linestyle="--",
                        linewidth=1.6, label="Other Site Features")
             )
+            _fb_colour = "black" if BW_MODE else "purple"
+            _fb_lw = 3.0 if BW_MODE else 2.2
             site_feature_handles.append(
-                Line2D([0], [0], color="purple", linestyle="-",
-                       linewidth=2.2, label="Forest Boundary")
+                Line2D([0], [0], color=_fb_colour, linestyle="-",
+                       linewidth=_fb_lw, label="Forest Boundary")
             )
 
     streams_path = data_dir / "streams.kml"
@@ -455,13 +507,16 @@ def add_kml_features(ax, data_dir: Path, include_streams: bool = True):
         if gdf_clearfell is not None:
             if gdf_clearfell.crs is None:
                 gdf_clearfell.set_crs(epsg=4326, inplace=True)
+            _fe_colour = "black" if BW_MODE else "darkorange"
+            _fe_style = "-" if BW_MODE else "-."
+            _fe_lw = 2.5 if BW_MODE else 2.2
             gdf_clearfell.to_crs("EPSG:27700").plot(
-                ax=ax, facecolor="none", edgecolor="darkorange",
-                linewidth=2.2, linestyle="-.", zorder=2,
+                ax=ax, facecolor="none", edgecolor=_fe_colour,
+                linewidth=_fe_lw, linestyle=_fe_style, zorder=2,
             )
             site_feature_handles.append(
-                Line2D([0], [0], color="darkorange", linestyle="-.",
-                       linewidth=2.2, label="Felling Area")
+                Line2D([0], [0], color=_fe_colour, linestyle=_fe_style,
+                       linewidth=_fe_lw, label="Felling Area")
             )
 
     # Deduplicate by label
@@ -528,7 +583,8 @@ def plot_metric_map(
 
     fig, ax = plt.subplots(figsize=(14, 11), dpi=300)
 
-    dem_layer, dem_loaded = load_dem_layer(ax, data_dir)
+    dem_result = load_dem_auto(ax, data_dir)
+    dem_layer, dem_loaded = dem_result[0], dem_result[1]
     if not dem_loaded:
         gdf_tmp = gpd.GeoDataFrame(
             valid,
@@ -536,6 +592,9 @@ def plot_metric_map(
             crs="EPSG:27700",
         )
         add_osm_basemap(ax, gdf_tmp)
+    # Consistent map extent
+    ax.set_xlim(240100, 243900)
+    ax.set_ylim(362200, 365800)
 
     site_feature_handles = add_kml_features(ax, data_dir)
 
@@ -543,7 +602,30 @@ def plot_metric_map(
     is_intercept = "intercept" in value_col.lower()
     is_nse = value_col.lower().startswith("nse") or "penalty" in value_col.lower()
 
-    if is_intercept:
+    # BW mode: override colourmap to discrete grey bands for readability.
+    if BW_MODE:
+        import numpy as _np
+        vals_arr = pd.to_numeric(valid[value_col], errors="coerce").dropna().to_numpy(dtype=float)
+        _lo = float(vmin) if vmin is not None else float(_np.nanmin(vals_arr)) if vals_arr.size else 0.0
+        _hi = float(vmax) if vmax is not None else float(_np.nanmax(vals_arr)) if vals_arr.size else 1.0
+        if _hi <= _lo:
+            _hi = _lo + 1e-6
+
+        if is_intercept or (is_nse and _lo < 0 < _hi):
+            # Diverging data: 3 clear bands in BW
+            edges = _np.array([_lo, _lo/3, _hi/3, _hi])
+            colors = ["#333333", "#b0b0b0", "#707070"]
+        else:
+            # Sequential data: 3 clear bands from light to dark
+            edges = _np.linspace(_lo, _hi, 4)
+            colors = ["#d0d0d0", "#808080", "#2a2a2a"]
+
+        cmap_obj = mcolors.ListedColormap(colors)
+        scatter_norm = mcolors.BoundaryNorm(edges, cmap_obj.N, clip=True)
+        scatter_vmin = scatter_vmax = None
+        cmap = cmap_obj
+
+    elif is_intercept:
         if vmin is not None and vmax is not None:
             norm = mcolors.TwoSlopeNorm(vmin=float(vmin), vcenter=0.0, vmax=float(vmax))
         else:
@@ -561,7 +643,8 @@ def plot_metric_map(
         norm = mcolors.TwoSlopeNorm(vmin=_vmin, vcenter=center, vmax=_vmax)
         scatter_norm = norm
         scatter_vmin = scatter_vmax = None
-        cmap = "RdYlBu"
+        if not BW_MODE:
+            cmap = "RdYlBu"
     else:
         scatter_norm = None
         scatter_vmin = vmin
@@ -600,6 +683,25 @@ def plot_metric_map(
     if sc is None:
         plt.close(fig)
         return
+
+    # BW mode: label each marker with its value
+    if BW_MODE:
+        from adjustText import adjust_text
+        texts = []
+        for _, row in valid.iterrows():
+            val = row[value_col]
+            if pd.notna(val):
+                fmt_val = f"{val:.2f}" if abs(val) < 10 else f"{val:.1f}"
+                t = ax.text(
+                    row["Easting"], row["Northing"], fmt_val,
+                    fontsize=6, fontweight="bold", color="#222222",
+                    ha="left", va="bottom", zorder=11,
+                )
+                texts.append(t)
+        try:
+            adjust_text(texts, ax=ax, arrowprops=dict(arrowstyle="-", color="#999", lw=0.4))
+        except Exception:
+            pass  # adjust_text not critical
 
     divider = make_axes_locatable(ax)
     cax_metric = divider.append_axes("right", size="2.75%", pad=0.598)

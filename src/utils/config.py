@@ -10,6 +10,21 @@ which cluster IDs are currently in use — downstream code that needs to iterate
 over "all clusters" should iterate over CLUSTER_LABELS.keys().
 """
 
+# ── Journal B&W mode ─────────────────────────────────────────────────────────
+# Toggle to produce journal-ready greyscale figures.
+# When True, scripts use CLUSTER_COLOURS_BW, apply BW_HATCHES to bar charts,
+# use BW_LINESTYLES for multi-series line plots, and call load_dem_auto()
+# (which routes to hillshade) for map basemaps.
+#
+# Can be activated three ways:
+#   1. Set BW_MODE = True here (permanent)
+#   2. Set environment variable NRG_BW_MODE=1 before running (temporary)
+#   3. Use run_analysis.py menu option 6 or --greyscale (sets env var)
+import os as _os
+BW_MODE = _os.environ.get("NRG_BW_MODE", "").strip().lower() in ("1", "true", "yes")
+if BW_MODE:
+    print("  [config.py] BW_MODE=True (NRG_BW_MODE env var detected)")
+
 CLUSTER_COLOURS = {
     1: "#1a6faf",   # C1 Lake — old C1 blue
     2: "#2ca02c",   # C2 Dune — old C2 green
@@ -18,6 +33,48 @@ CLUSTER_COLOURS = {
     5: "#8B4513",   # C5 Coastal Forest — brown (saddlebrown)
     6: "#0072B2",   # reserved
 }
+
+# Greyscale equivalents — chosen for maximum perceptual separation.
+# These map to luminance values spaced ~40 units apart on a 0–255 scale,
+# ensuring distinguishability even when printed on a low-quality laser.
+CLUSTER_COLOURS_BW = {
+    1: "#2a2a2a",   # C1 — near-black (L ≈ 42)
+    2: "#808080",   # C2 — mid-grey   (L ≈ 128)
+    3: "#b8b8b8",   # C3 — light grey (L ≈ 184)
+    4: "#545454",   # C4 — dark grey  (L ≈ 84)
+    5: "#a0a0a0",   # C5 — grey       (L ≈ 160)
+    6: "#d0d0d0",   # reserved
+}
+
+# Bar chart hatching patterns — used when BW_MODE is True.
+# Index by cluster ID or by series index for non-cluster bar charts.
+BW_HATCHES = {
+    1: "",       # C1 — solid fill (no hatch)
+    2: "///",    # C2 — diagonal lines
+    3: "...",    # C3 — dots
+    4: "xxx",    # C4 — crosses
+    5: "\\\\\\",   # C5 — back-diagonal
+    6: "+++",    # reserved
+}
+
+# General-purpose bar hatches for non-cluster series (e.g. P vs PET,
+# climate vs forest management scenarios).
+BW_BAR_HATCHES = ["", "///", "...", "xxx", "\\\\\\", "+++", "---", "ooo"]
+
+# Line styles for multi-series plots — cycle through these when BW_MODE
+# is True so lines are distinguishable without colour.
+BW_LINESTYLES = [
+    {"linestyle": "-",  "linewidth": 2.0},   # solid thick
+    {"linestyle": "--", "linewidth": 1.8},   # dashed
+    {"linestyle": ":",  "linewidth": 2.0},   # dotted
+    {"linestyle": "-.", "linewidth": 1.8},   # dash-dot
+    {"linestyle": (0, (5, 1)), "linewidth": 2.0},  # dense dash
+    {"linestyle": (0, (3, 1, 1, 1)), "linewidth": 1.8},  # dash-dot-dot
+]
+
+# Greyscale line tones — pair with BW_LINESTYLES for maximum contrast.
+# Darker lines for primary series, lighter for secondary/reference.
+BW_LINE_COLOURS = ["#000000", "#555555", "#888888", "#333333", "#aaaaaa", "#666666"]
 
 CLUSTER_LABELS = {
     1: "C1 (Lake Edge)",
@@ -136,3 +193,80 @@ UKCP18_WET_P_WINTER  = 1.15   # +15% winter P
 UKCP18_WET_P_SUMMER  = 1.10   # +10% summer P
 UKCP18_WET_PET_WINTER = 0.98  # −2% winter PET
 UKCP18_WET_PET_SUMMER = 0.95  # −5% summer PET
+
+
+# ── BW-mode convenience functions ────────────────────────────────────────────
+
+def get_cluster_colours():
+    """Return the active cluster colour dict (colour or BW depending on mode)."""
+    return CLUSTER_COLOURS_BW if BW_MODE else CLUSTER_COLOURS
+
+
+def get_cluster_colour(cid: int):
+    """Return the colour for a single cluster (respects BW_MODE)."""
+    src = CLUSTER_COLOURS_BW if BW_MODE else CLUSTER_COLOURS
+    return src.get(cid, "#888888")
+
+
+def get_bar_hatch(index: int):
+    """Return a bar hatching pattern for series `index` (empty string if colour mode)."""
+    if not BW_MODE:
+        return ""
+    return BW_BAR_HATCHES[index % len(BW_BAR_HATCHES)]
+
+
+def get_line_style(index: int):
+    """Return a dict of linestyle + linewidth for series `index`.
+
+    In colour mode returns a default solid line; in BW mode cycles through
+    distinct dash patterns.
+
+    Usage: ax.plot(x, y, color=..., **get_line_style(i))
+    """
+    if not BW_MODE:
+        return {"linestyle": "-", "linewidth": 1.5}
+    return BW_LINESTYLES[index % len(BW_LINESTYLES)]
+
+
+def get_line_colour(index: int):
+    """Return a greyscale tone for series `index` (in BW mode).
+
+    In colour mode returns None (caller should use their own colour).
+    """
+    if not BW_MODE:
+        return None
+    return BW_LINE_COLOURS[index % len(BW_LINE_COLOURS)]
+
+
+def get_cmap(colour_cmap: str, bw_cmap: str = "Greys") -> str:
+    """Return the appropriate colormap name for the current mode.
+
+    Parameters
+    ----------
+    colour_cmap : str
+        Colormap to use in colour mode (e.g. "viridis", "RdYlGn").
+    bw_cmap : str
+        Colormap to use in BW mode (default "Greys" — linear light→dark).
+        Use "Greys_r" for dark→light if that better matches the semantics.
+
+    In BW mode, returns a truncated Greys colormap (light grey → black)
+    so the minimum value is distinguishable from a white background.
+
+    Usage: cmap = get_cmap("RdYlGn")
+    """
+    if not BW_MODE:
+        return colour_cmap
+    if bw_cmap == "Greys":
+        import matplotlib.pyplot as plt
+        from matplotlib.colors import LinearSegmentedColormap
+        base = plt.cm.Greys
+        # Truncate: start from 5% grey (near-white but distinguishable) to 100% black
+        colours = base(_import_numpy().linspace(0.05, 1.0, 256))
+        return LinearSegmentedColormap.from_list("Greys_trunc", colours)
+    return bw_cmap
+
+
+def _import_numpy():
+    """Lazy numpy import for get_cmap."""
+    import numpy as np
+    return np

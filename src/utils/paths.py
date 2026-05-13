@@ -53,6 +53,8 @@ DIR_21 = OUT_DIR / "21_forestry_scenarios"
 DIR_22 = OUT_DIR / "22_residual_lag_analysis"
 DIR_23 = OUT_DIR / "23_ridge_recharge_lag_test"
 DIR_24 = OUT_DIR / "24_residual_seasonality"
+DIR_25 = OUT_DIR / "25_coastal_gradient"
+DIR_26 = OUT_DIR / "26_greyscale_figures"
 
 ALL_DIRS = [
     OUT_DIR,
@@ -60,6 +62,7 @@ ALL_DIRS = [
     DIR_02, DIR_03, DIR_04, DIR_05, DIR_06, DIR_07,
     DIR_08, DIR_09, DIR_10, DIR_10C, DIR_11, DIR_11B, DIR_12, DIR_13, DIR_14,
     DIR_15, DIR_16, DIR_17, DIR_18, DIR_19, DIR_20, DIR_21, DIR_22, DIR_23, DIR_24,
+    DIR_25, DIR_26,
 ]
 
 
@@ -84,6 +87,12 @@ DATA_KML_CLEARFELL  = DATA_DIR / "clearfell.kml"
 # any script that loads the boundary explicitly.
 KML_BROADLEAF        = DATA_DIR / "broadleaf_restock.kml"
 DATA_WELL_ELEVATIONS = DATA_DIR / "Well_locations_height.csv"  # alias for script 10 transect
+
+# Pre-computed perpendicular distance from each dipwell to the OS Open Map
+# Local TidalBoundary (High Water Mark) along the eroding Caernarfon Bay
+# shoreline. Generated once out-of-pipeline; see data/COASTLINE_PROVENANCE.md
+# for full provenance. Read by Script 25.
+DATA_DIST_COAST     = DATA_DIR / "well_distance_to_coast.csv"
 
 # ==========================================
 # INTERMEDIATE FILES — outputs/ root
@@ -431,3 +440,16 @@ OUT_24_AMPLITUDE_MAP      = DIR_24 / "24_02_seasonal_amplitude_map.png"
 OUT_24_SUN_CORR_SCATTER   = DIR_24 / "24_03_sun_residual_correlation.png"
 OUT_24_PHASE_BARPLOT      = DIR_24 / "24_04_phase_by_cluster.png"
 OUT_24_SUMMARY            = DIR_24 / "24_05_diagnostic_summary.txt"
+
+# Script 25 — Coastal-retreat gradient analysis (Phase 12)
+OUT_25_FIT_PARAMETERS     = DIR_25 / "25_01_panel_fit_parameters.csv"
+OUT_25_PER_WELL_SLOPES    = DIR_25 / "25_02_per_well_summer_min_slopes.csv"
+OUT_25_CLUSTER_PARTITION  = DIR_25 / "25_03_cluster_partition.csv"
+OUT_25_BACI_CORROBORATION = DIR_25 / "25_04_baci_corroboration.csv"
+OUT_25_FIT_DIAGNOSTIC     = DIR_25 / "25_05_fit_diagnostic.jpg"
+OUT_25_BACI_CHART         = DIR_25 / "25_06_baci_corroboration_chart.jpg"
+OUT_25_REPORT_NUMBERS     = DIR_25 / "25_report_numbers.csv"
+
+# Script 26 — Greyscale figure conversion (Phase 13, post-processing)
+# Uses discovery-based rglob over outputs/ — no per-figure path entries needed.
+# Output tree mirrors outputs/ structure under outputs_bw/.

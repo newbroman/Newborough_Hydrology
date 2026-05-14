@@ -28,11 +28,6 @@ handling, including why reducing only P (not PET) is not double-counting.
 
 import sys
 import os
-
-from utils.config import (
-    CLUSTER_LABELS, CLUSTER_COLOURS as _CFG_CLUSTER_COLOURS,
-    FOREST_INTERCEPTION, FOREST_CIDS as _FOREST_CIDS_INT,
-)
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'utils'))
 
 from pathlib import Path
@@ -47,39 +42,34 @@ from scipy import stats
 from utils.paths import (
     make_all_dirs, OUT_DIR, DIR_17,
     INT_WELLS_CLEAN, INT_CLIMATE, INT_CLUSTER_STATS, INT_MASTER_DATA,
-    INT_REGIONAL_AVG,
     OUT_17_SY_TABLE, OUT_17_REGRESSION, OUT_17_BOXPLOT, OUT_17_SUMMARY,
     INT_WTF_WELL_SY,
 )
 make_all_dirs()
 
 # ── Constants ──────────────────────────────────────────────────────────────────
-WINTER_MONTHS       = [11, 12, 1, 2, 3]   # Nov–Mar: PET negligible
-PET_MAX_WINTER      = 0.025                # m/month — exclude months above this
-MIN_RISE_M          = 0.005                # minimum detectable water table rise (m)
-MIN_NET_RECH        = 0.010                # minimum net recharge for event method (m)
-# FOREST_INTERCEPTION imported from config.py (Freeman 2008, 0.24).
-# FOREST_CIDS as string keys for column-name compatibility with regional_averages CSV.
-FOREST_CIDS = tuple(f"C{cid}" for cid in _FOREST_CIDS_INT)
-SY_MIN_PLAUSIBLE    = 0.01                 # physical-plausibility lower bound
-SY_MAX_PLAUSIBLE    = 0.50                 # physical-plausibility upper bound
+WINTER_MONTHS   = [11, 12, 1, 2, 3]   # Nov–Mar: PET negligible
+PET_MAX_WINTER  = 0.025                # m/month — exclude months above this
+MIN_RISE_M      = 0.005                # minimum detectable water table rise (m)
+MIN_NET_RECH    = 0.010                # minimum net recharge for event method (m)
 
-# String-keyed views of utils.config for the 'C1'..'CN' column convention used
-# by the regional_averages CSV. Update config.CLUSTER_LABELS — not these — to
-# change labels.
+# Canopy interception — Freeman (2008), site-specific to Newborough Corsican pine.
+# Applied to C4 Forest only: R_eff = (1 - 0.24)*P - PET.
+# See wtf_interception_methodology.md §2 for why only P is reduced (not PET).
+FOREST_INTERCEPTION = 0.24
+
 CLUSTER_LABELS = {
-    f"C{cid}": label for cid, label in CLUSTER_LABELS.items()
+    "C1": "C1 Eastern Lake-buffer",
+    "C2": "C2 Eastern Mature Dune",
+    "C3": "C3 Western Mature Dune",
+    "C4": "C4 Forest",
 }
 CLUSTER_COLOURS = {
-    f"C{cid}": colour for cid, colour in _CFG_CLUSTER_COLOURS.items()
-    if cid in {1, 2, 3, 4, 5}   # exclude reserved C6 colour from the working partition
+    "C1": "#E69F00", "C2": "#009E73", "C3": "#CC79A7", "C4": "#D55E00"
 }
-ALL_CIDS = sorted(CLUSTER_LABELS.keys(), key=lambda s: int(s[1:]))   # ['C1','C2','C3','C4','C5']
 
-# Assumed Sy for comparison (Fetter mass-balance method).
-# C1 = 0.08 (lake-adjacent silty); C2..C5 = 0.12.
-# See PARTITION_HISTORY.md for derivation.
-SY_ASSUMED = {"C1": 0.08, "C2": 0.12, "C3": 0.12, "C4": 0.12, "C5": 0.12}
+# Assumed Sy for comparison
+SY_ASSUMED = {"C1": 0.08, "C2": 0.12, "C3": 0.12, "C4": 0.12}
 
 plt.rcParams.update({
     'font.family': 'sans-serif',
@@ -92,31 +82,26 @@ plt.rcParams.update({
 })
 
 
-def load_data():
-    """Load climate and cluster-mean water table data.
+def load_data(out_root):
+    """Load climate and cluster-mean water table data."""
+    # Try project directory as fallback for testing
+    from pathlib import Path
+    if not (out_root / "01_climate.csv").exists():
+        out_root = Path("/mnt/project")
 
-    Reads canonical pipeline intermediates by name (no developer-specific
-    fallback paths). If either file is missing, raises FileNotFoundError
-    with a clear message — Script 01 and Script 03 must run first.
-    """
-    if not INT_CLIMATE.exists():
-        raise FileNotFoundError(
-            f"{INT_CLIMATE} not found. Run Script 01 first.")
-    if not INT_REGIONAL_AVG.exists():
-        raise FileNotFoundError(
-            f"{INT_REGIONAL_AVG} not found. Run Script 03 first.")
-
-    climate  = pd.read_csv(INT_CLIMATE,      parse_dates=["Date"])
-    regional = pd.read_csv(INT_REGIONAL_AVG, parse_dates=["Date"])
+    climate  = pd.read_csv(out_root / "01_climate.csv",           parse_dates=["Date"])
+    regional = pd.read_csv(out_root / "03_regional_averages.csv", parse_dates=["Date"])
     df = regional.merge(climate[["Date", "P_m", "PET"]], on="Date", how="inner")
     df = df.sort_values("Date").reset_index(drop=True)
 
     # Compute net recharge (m/month) and month
     df["net_R"]  = df["P_m"] - df["PET"]
+    # C4 Forest interception-corrected recharge — Freeman (2008)
+    df["net_R_C4corr"] = df["P_m"] * (1 - FOREST_INTERCEPTION) - df["PET"]
     df["month"]  = df["Date"].dt.month
 
     # Compute ΔhC1..C4 (change in cluster-mean head, m/month)
-    for cid in ALL_CIDS:
+    for cid in ["C1", "C2", "C3", "C4"]:
         df[f"dh_{cid}"] = df[cid].diff()
 
     return df
@@ -140,16 +125,13 @@ def approach_a_ols(df):
     from pathlib import Path
 
     # Load beta3 values from pipeline outputs
-    # Load beta3 values from pipeline outputs.
-    # Built dynamically over whatever cluster IDs appear in INT_MASTER_DATA
-    # (typically 1..5 under the current k=5 partition); this avoids drift if
-    # the partition changes.
     try:
         from pathlib import Path as _Path
         master_path = INT_MASTER_DATA
         master = pd.read_csv(master_path)
-        b3 = master.groupby("Cluster")["beta_3_drainage"].median()
-        beta3 = {int(cid): abs(val) for cid, val in b3.items()}
+        b3 = master.groupby("Cluster")["beta_3_internal_brake"].median()
+        beta3 = {1: abs(b3[1]), 2: abs(b3[2]), 3: abs(b3[3]), 4: abs(b3[4])}
+        cid_map = {"C1": 1, "C2": 2, "C3": 3, "C4": 4}
     except Exception:
         print("  [WARNING] Could not load beta3 values — using uncorrected Δh")
         beta3 = None
@@ -160,17 +142,23 @@ def approach_a_ols(df):
         (df["PET"] < PET_MAX_WINTER)
     ].copy()
 
-    for cid in ALL_CIDS:
-        sub = winter[["net_R", f"dh_{cid}", cid]].dropna()
-        sub = sub[sub["net_R"] > 0]
+    # Run C1–C4 uncorrected, then C4 again with interception correction
+    runs = [("C1", False), ("C2", False), ("C3", False),
+            ("C4", False), ("C4", True)]
+
+    for cid, corrected in runs:
+        rkey = f"{cid}_corr" if corrected else cid
+        r_col = "net_R_C4corr" if corrected else "net_R"
+        sub = winter[[r_col, f"dh_{cid}", cid]].dropna()
+        sub = sub[sub[r_col] > 0]
 
         if len(sub) < 10:
-            results[cid] = dict(sy=np.nan, r2=np.nan, n=len(sub), se=np.nan)
+            results[rkey] = dict(sy=np.nan, r2=np.nan, n=len(sub), se=np.nan)
             continue
 
         # Correct Δh for drainage: Δh_corrected = Δh + β₃·|h_prev|
         if beta3 is not None:
-            b3_val = beta3[int(cid[1:])]
+            b3_val = beta3[cid_map[cid]]
             dh_corrected = sub[f"dh_{cid}"] + b3_val * sub[cid].abs()
         else:
             dh_corrected = sub[f"dh_{cid}"]
@@ -178,10 +166,10 @@ def approach_a_ols(df):
         # Only use months where corrected Δh is positive (net recharge signal)
         mask = dh_corrected > MIN_RISE_M
         X = dh_corrected[mask].values
-        y = sub["net_R"][mask].values
+        y = sub[r_col][mask].values
 
         if len(X) < 8:
-            results[cid] = dict(sy=np.nan, r2=np.nan, n=len(X), se=np.nan)
+            results[rkey] = dict(sy=np.nan, r2=np.nan, n=len(X), se=np.nan)
             continue
 
         # Sy = R / Δh_corrected — OLS through origin
@@ -198,13 +186,14 @@ def approach_a_ols(df):
         # SE of Sy via delta method: SE(Sy) ≈ SE(slope)/slope² * Sy²
         se_sy = (se_slope / slope**2) if slope > 0 else np.nan
 
-        results[cid] = dict(
+        results[rkey] = dict(
             sy=round(Sy, 4), r2=round(r2, 3), n=n,
             se=round(se_sy, 4), data=sub,
-            dh_corrected=dh_corrected[mask], b3=beta3[int(cid[1:])] if beta3 else None
+            dh_corrected=dh_corrected[mask], b3=beta3[cid_map[cid]] if beta3 else None
         )
         b3_str = f"{b3_val:.3f}" if beta3 is not None else "n/a"
-        print(f"  {CLUSTER_LABELS[cid]}: Sy = {Sy:.3f}  R² = {r2:.3f}  "
+        corr_tag = " (interception-corrected)" if corrected else ""
+        print(f"  {CLUSTER_LABELS[cid]}{corr_tag}: Sy = {Sy:.3f}  R² = {r2:.3f}  "
               f"n = {n}  SE = {se_sy:.4f}  β₃ = {b3_str}")
 
     return results
@@ -213,83 +202,47 @@ def approach_a_ols(df):
 def approach_b_events(df):
     """
     Approach B: Event-based median Sy from rising limb months.
-    Sy_i = net_R / Δh for months where Δh > MIN_RISE and net_R > MIN_NET_RECH,
-    filtered to the physically plausible range SY_MIN_PLAUSIBLE < Sy < SY_MAX_PLAUSIBLE.
-
-    For the forested clusters (FOREST_CIDS, currently C4 and C5), both
-    uncorrected and interception-corrected variants are computed. The
-    corrected variant uses
-        R_effective = (1 − FOREST_INTERCEPTION)·P − PET
-    following Freeman (2008). The interception fraction was measured at C5
-    and is applied across all forested clusters. The PET term is not reduced
-    — Thornthwaite PET is an energy-based atmospheric demand (independent of
-    land cover), so reducing only P is not double-counting (see
-    wtf_interception_methodology.md). The corrected medians are reported as
-    separate "<cid>_corrected" entries alongside the uncorrected entries to
-    populate Table 3c of the manuscript.
+    Sy_i = net_R / Δh for months where Δh > MIN_RISE and net_R > MIN_NET_RECH.
     """
     results = {}
+    # Run C1–C4 uncorrected, then C4 again with interception correction
+    runs = [("C1", False), ("C2", False), ("C3", False),
+            ("C4", False), ("C4", True)]
 
-    # Precompute corrected net recharge (same formula for every forested cluster).
-    df = df.copy()
-    df["net_R_forest_corrected"] = df["P_m"] * (1.0 - FOREST_INTERCEPTION) - df["PET"]
-
-    # ── All clusters: uncorrected ─────────────────────────────────────────────
-    for cid in ALL_CIDS:
-        sub = df[["net_R", f"dh_{cid}"]].dropna().copy()
+    for cid, corrected in runs:
+        rkey = f"{cid}_corr" if corrected else cid
+        r_col = "net_R_C4corr" if corrected else "net_R"
+        sub = df[[r_col, f"dh_{cid}"]].dropna().copy()
         events = sub[
-            (sub["net_R"]      > MIN_NET_RECH) &
+            (sub[r_col]      > MIN_NET_RECH) &
             (sub[f"dh_{cid}"] > MIN_RISE_M)
         ].copy()
-        events["sy_i"] = events["net_R"] / events[f"dh_{cid}"]
-        events = events[(events["sy_i"] > SY_MIN_PLAUSIBLE) &
-                        (events["sy_i"] < SY_MAX_PLAUSIBLE)]
+        events["sy_i"] = events[r_col] / events[f"dh_{cid}"]
+        # Remove physically implausible values
+        events = events[(events["sy_i"] > 0.01) & (events["sy_i"] < 0.50)]
 
         med = events["sy_i"].median()
         q25 = events["sy_i"].quantile(0.25)
         q75 = events["sy_i"].quantile(0.75)
         n   = len(events)
 
-        results[cid] = dict(
+        results[rkey] = dict(
             sy_median=round(med, 4), q25=round(q25, 4), q75=round(q75, 4),
-            n=n, sy_values=events["sy_i"].values, corrected=False
+            n=n, sy_values=events["sy_i"].values
         )
-        print(f"  {CLUSTER_LABELS[cid]}: Sy median = {med:.3f}  "
+        corr_tag = " (interception-corrected)" if corrected else ""
+        print(f"  {CLUSTER_LABELS[cid]}{corr_tag}: Sy median = {med:.3f}  "
               f"IQR [{q25:.3f}, {q75:.3f}]  n = {n}")
-
-    # ── Forested clusters: interception-corrected variants (Freeman, 2008) ─────
-    for cid in FOREST_CIDS:
-        sub_c = df[["net_R_forest_corrected", f"dh_{cid}"]].dropna().copy()
-        events_c = sub_c[
-            (sub_c["net_R_forest_corrected"] > MIN_NET_RECH) &
-            (sub_c[f"dh_{cid}"]               > MIN_RISE_M)
-        ].copy()
-        events_c["sy_i"] = events_c["net_R_forest_corrected"] / events_c[f"dh_{cid}"]
-        events_c = events_c[(events_c["sy_i"] > SY_MIN_PLAUSIBLE) &
-                            (events_c["sy_i"] < SY_MAX_PLAUSIBLE)]
-
-        med_c = events_c["sy_i"].median()
-        q25_c = events_c["sy_i"].quantile(0.25)
-        q75_c = events_c["sy_i"].quantile(0.75)
-        n_c   = len(events_c)
-
-        results[f"{cid}_corrected"] = dict(
-            sy_median=round(med_c, 4), q25=round(q25_c, 4), q75=round(q75_c, 4),
-            n=n_c, sy_values=events_c["sy_i"].values, corrected=True
-        )
-        print(f"  {CLUSTER_LABELS[cid]} (interception-corrected): "
-              f"Sy median = {med_c:.3f}  IQR [{q25_c:.3f}, {q75_c:.3f}]  n = {n_c}")
 
     return results
 
 
 def plot_regression(df, a_results, out_path):
     """Figure: OLS regression plots for Approach A."""
-    fig, axes = plt.subplots(2, 3, figsize=(14, 8), facecolor="white")
+    fig, axes = plt.subplots(2, 2, figsize=(10, 8), facecolor="white")
     fig.patch.set_facecolor("white")
-    flat_axes = axes.flatten()
 
-    for ax, cid in zip(flat_axes, ALL_CIDS):
+    for ax, cid in zip(axes.flatten(), ["C1", "C2", "C3", "C4"]):
         r = a_results[cid]
         col = CLUSTER_COLOURS[cid]
 
@@ -331,10 +284,6 @@ def plot_regression(df, a_results, out_path):
                     transform=ax.transAxes, ha="right", fontsize=9,
                     color="black", style="italic")
 
-    # Hide any unused panels (e.g. the 6th in a 2x3 grid with 5 clusters).
-    for ax in flat_axes[len(ALL_CIDS):]:
-        ax.set_visible(False)
-
     fig.suptitle(
         "Approach A — WTF Specific Yield: Drainage-Corrected OLS Regression\n"
         "Newborough Warren 2005–2026  |  Winter months (Nov–Mar, PET < 25 mm/month)\n"
@@ -352,43 +301,60 @@ def plot_event_boxplot(b_results, out_path):
     fig, ax = plt.subplots(figsize=(9, 5), facecolor="white")
     ax.set_facecolor("#FAFAFA")
 
-    cids = ALL_CIDS
-    positions = list(range(1, len(cids) + 1))
+    positions = [1, 2, 3, 4, 5]
+    rkeys = ["C1", "C2", "C3", "C4", "C4_corr"]
+    labels = [
+        CLUSTER_LABELS["C1"], CLUSTER_LABELS["C2"],
+        CLUSTER_LABELS["C3"], CLUSTER_LABELS["C4"],
+        "C4 Forest (corrected)"
+    ]
+    colours = [
+        CLUSTER_COLOURS["C1"], CLUSTER_COLOURS["C2"],
+        CLUSTER_COLOURS["C3"], CLUSTER_COLOURS["C4"],
+        CLUSTER_COLOURS["C4"],  # same colour, hatched below
+    ]
 
     bp = ax.boxplot(
-        [b_results[c]["sy_values"] for c in cids],
+        [b_results[rk]["sy_values"] for rk in rkeys],
         positions=positions, widths=0.5, patch_artist=True,
         medianprops=dict(color="black", lw=2),
         whiskerprops=dict(lw=1.2), capprops=dict(lw=1.2),
         flierprops=dict(marker="o", markersize=3, alpha=0.4)
     )
-    for patch, cid in zip(bp["boxes"], cids):
-        patch.set_facecolor(CLUSTER_COLOURS[cid])
+    for i, (patch, rk) in enumerate(zip(bp["boxes"], rkeys)):
+        patch.set_facecolor(colours[i])
         patch.set_alpha(0.7)
+        if rk == "C4_corr":
+            patch.set_hatch("//")  # distinguish corrected variant
 
-    # Add assumed Sy markers
-    for i, cid in enumerate(cids):
+    # Add assumed Sy markers — only for the four base clusters
+    for i, cid in enumerate(["C1", "C2", "C3", "C4"]):
         ax.scatter(positions[i] + 0.3, SY_ASSUMED[cid],
                    marker="D", color="black", s=40, zorder=5,
                    label="Assumed Sy" if i == 0 else "")
-        ax.text(positions[i], b_results[cid]["sy_median"] + 0.005,
-                f"{b_results[cid]['sy_median']:.3f}",
+
+    for i, rk in enumerate(rkeys):
+        ax.text(positions[i], b_results[rk]["sy_median"] + 0.005,
+                f"{b_results[rk]['sy_median']:.3f}",
                 ha="center", va="bottom", fontsize=8.5, fontweight="bold")
 
     ax.set_xticks(positions)
-    ax.set_xticklabels([CLUSTER_LABELS[c] for c in cids], fontsize=9)
+    ax.set_xticklabels(labels, fontsize=8, rotation=15, ha="right")
     ax.set_ylabel("Specific yield Sy  (dimensionless)")
     ax.set_ylim(0, 0.45)
     ax.axhline(0.12, color="gray", lw=1.0, ls=":", alpha=0.7,
-               label="Assumed Sy C2–C5 = 0.12")
+               label="Assumed Sy C2–C4 = 0.12")
     ax.axhline(0.08, color="gray", lw=1.0, ls="--", alpha=0.7,
                label="Assumed Sy C1 = 0.08")
     ax.legend(fontsize=8.5, framealpha=0.9)
     ax.grid(axis="y", lw=0.4, alpha=0.5)
     ax.set_title(
         "Approach B — WTF Specific Yield: Event-Based Estimates\n"
-        "Distribution of monthly Sy estimates from rising-limb events (Δh > 5 mm, net R > 10 mm)",
-        fontsize=11, fontweight="bold"
+        "Distribution of monthly Sy estimates from rising-limb events "
+        "(Δh > 5 mm, net R > 10 mm)\n"
+        "C4 corrected: R = (1−0.24)P − PET (Freeman, 2008); "
+        "hatched box = interception-corrected",
+        fontsize=10, fontweight="bold"
     )
     plt.tight_layout()
     fig.savefig(out_path, dpi=200, bbox_inches="tight", facecolor="white")
@@ -397,15 +363,22 @@ def plot_event_boxplot(b_results, out_path):
 
 
 def export_csv(a_results, b_results, out_path):
-    """Export summary CSV. Includes uncorrected and interception-corrected
-    rows for every forested cluster (FOREST_CIDS)."""
+    """Export summary CSV, including corrected C4 variant."""
     rows = []
-    for cid in ALL_CIDS:
-        a = a_results[cid]
-        b = b_results[cid]
+    entries = [
+        ("C1", "C1", False), ("C2", "C2", False),
+        ("C3", "C3", False), ("C4", "C4", False),
+        ("C4_corr", "C4", True),
+    ]
+    for rkey, cid, corrected in entries:
+        a = a_results[rkey]
+        b = b_results[rkey]
+        label = CLUSTER_LABELS[cid]
+        if corrected:
+            label += " (interception-corrected)"
         rows.append({
-            "Cluster":               CLUSTER_LABELS[cid],
-            "Corrected":             False,
+            "Cluster":               label,
+            "Corrected":             corrected,
             "Sy_assumed":            SY_ASSUMED[cid],
             "Sy_OLS_winter":         a["sy"],
             "Sy_OLS_SE":             a["se"],
@@ -415,22 +388,6 @@ def export_csv(a_results, b_results, out_path):
             "Sy_event_Q25":          b["q25"],
             "Sy_event_Q75":          b["q75"],
             "Sy_event_n":            b["n"],
-        })
-    # Interception-corrected rows for forested clusters (Freeman 2008)
-    for cid in FOREST_CIDS:
-        b_c = b_results[f"{cid}_corrected"]
-        rows.append({
-            "Cluster":               f"{CLUSTER_LABELS[cid]} (corrected)",
-            "Corrected":             True,
-            "Sy_assumed":            SY_ASSUMED[cid],
-            "Sy_OLS_winter":         np.nan,   # OLS variant not computed for corrected
-            "Sy_OLS_SE":             np.nan,
-            "Sy_OLS_R2":             np.nan,
-            "Sy_OLS_n":              np.nan,
-            "Sy_event_median":       b_c["sy_median"],
-            "Sy_event_Q25":          b_c["q25"],
-            "Sy_event_Q75":          b_c["q75"],
-            "Sy_event_n":            b_c["n"],
         })
     pd.DataFrame(rows).to_csv(out_path, index=False)
     print(f"CSV saved → {out_path.name}")
@@ -448,14 +405,21 @@ def write_summary(a_results, b_results, out_path):
         "  Sy = R / dh",
         "  R = net recharge (P - PET, winter months Nov-Mar, PET < 25 mm/month)",
         "  dh = corresponding water table rise",
+        "  C4 Forest corrected: R = (1-0.24)*P - PET  (Freeman, 2008)",
         "",
         "APPROACH A — OLS Regression (winter months, origin-forced)",
         "-" * 70,
     ]
-    for cid in ALL_CIDS:
-        a = a_results[cid]
+    entries = [("C1", False), ("C2", False), ("C3", False),
+               ("C4", False), ("C4", True)]
+    for cid, corrected in entries:
+        rkey = f"{cid}_corr" if corrected else cid
+        a = a_results[rkey]
+        label = CLUSTER_LABELS[cid]
+        if corrected:
+            label += " (corrected)"
         lines.append(
-            f"  {CLUSTER_LABELS[cid]:<30}  Sy = {a['sy']:.3f}  "
+            f"  {label:<42}  Sy = {a['sy']:.3f}  "
             f"±{a['se']:.4f} (SE)  R² = {a['r2']:.3f}  n = {a['n']}"
         )
 
@@ -464,38 +428,32 @@ def write_summary(a_results, b_results, out_path):
         "APPROACH B — Event Median (rising limb months)",
         "-" * 70,
     ]
-    for cid in ALL_CIDS:
-        b = b_results[cid]
+    for cid, corrected in entries:
+        rkey = f"{cid}_corr" if corrected else cid
+        b = b_results[rkey]
+        label = CLUSTER_LABELS[cid]
+        if corrected:
+            label += " (corrected)"
         lines.append(
-            f"  {CLUSTER_LABELS[cid]:<30}  Sy = {b['sy_median']:.3f}  "
+            f"  {label:<42}  Sy = {b['sy_median']:.3f}  "
             f"IQR [{b['q25']:.3f}, {b['q75']:.3f}]  n = {b['n']}"
-        )
-    # Interception-corrected variants for forested clusters
-    for cid in FOREST_CIDS:
-        b_c = b_results[f"{cid}_corrected"]
-        lines.append(
-            f"  {CLUSTER_LABELS[cid] + ' (corrected)':<30}  Sy = {b_c['sy_median']:.3f}  "
-            f"IQR [{b_c['q25']:.3f}, {b_c['q75']:.3f}]  n = {b_c['n']}   "
-            f"[Freeman 2008; R_eff = (1 − 0.24)·P − PET]"
         )
 
     lines += [
         "",
         "COMPARISON WITH ASSUMED VALUES",
         "-" * 70,
-        f"  {'Cluster':<30}  {'Assumed':>8}  {'OLS':>8}  {'Event':>8}",
+        f"  {'Cluster':<42}  {'Assumed':>8}  {'OLS':>8}  {'Event':>8}",
     ]
-    for cid in ALL_CIDS:
-        a = a_results[cid]; b = b_results[cid]
+    for cid, corrected in entries:
+        rkey = f"{cid}_corr" if corrected else cid
+        a = a_results[rkey]; b = b_results[rkey]
+        label = CLUSTER_LABELS[cid]
+        if corrected:
+            label += " (corrected)"
         lines.append(
-            f"  {CLUSTER_LABELS[cid]:<30}  {SY_ASSUMED[cid]:>8.3f}  "
+            f"  {label:<42}  {SY_ASSUMED[cid]:>8.3f}  "
             f"{a['sy']:>8.3f}  {b['sy_median']:>8.3f}"
-        )
-    for cid in FOREST_CIDS:
-        b_c = b_results[f"{cid}_corrected"]
-        lines.append(
-            f"  {CLUSTER_LABELS[cid] + ' (corrected)':<30}  {SY_ASSUMED[cid]:>8.3f}  "
-            f"{'n/a':>8}  {b_c['sy_median']:>8.3f}"
         )
 
     lines += [
@@ -506,22 +464,14 @@ def write_summary(a_results, b_results, out_path):
         "- Winter OLS (Approach A) is most defensible: PET negligible so",
         "  net recharge approximates actual recharge well.",
         "- Event method (Approach B) is noisier but provides uncertainty bounds.",
-        "- Forested clusters (C4 Main Forest, C5 Coastal Forest) are reported as",
-        "  both uncorrected and interception-corrected (Freeman 2008) variants.",
-        "  The corrected variant applies R_effective = (1 − 0.24)·P − PET. PET",
-        "  is not reduced because Thornthwaite PET is an energy-based atmospheric",
-        "  demand (independent of land cover), so reducing only P is physically",
-        "  consistent and not double-counting. The interception fraction was",
-        "  measured at C5 and applied across both forested clusters. The",
-        "  corrected medians may exceed uncorrected through interaction with",
-        "  the Sy < 0.50 plausibility filter, which readmits previously-excluded",
-        "  high-Sy months into the event pool (see wtf_interception_methodology.md).",
+        "- C4 Forest corrected variant applies 24% canopy interception to P",
+        "  only (not PET); see wtf_interception_methodology.md for rationale.",
+        "- The corrected C4 event pool is larger because reducing P brings",
+        "  previously-excluded events (Sy > 0.50) into the admissible range.",
         "- Both approaches give indicative Sy only; slug tests or pumping tests",
         "  at representative wells per cluster remain the gold standard.",
         "- Reference: Healy, R.W. and Cook, P.G. (2002) Hydrogeology Journal",
         "  10, 91-109. doi:10.1007/s10040-001-0178-0",
-        "- Reference: Freeman, S. (2008) Hydrological impact of Corsican pine",
-        "  at Newborough Warren.",
         "",
     ]
 
@@ -543,7 +493,7 @@ def main():
 
     # ── Run ────────────────────────────────────────────────────────────────────
     print("Loading data...")
-    df = load_data()
+    df = load_data(out_root)
     print(f"  {len(df)} monthly records, "
           f"{df['Date'].min().date()} to {df['Date'].max().date()}")
 
@@ -560,26 +510,6 @@ def main():
     print("\nExporting outputs...")
     export_csv(a_results, b_results, path_table)
     write_summary(a_results, b_results, path_summary)
-
-    # Update consolidated pipeline params with Sy values
-    try:
-        from utils.pipeline_params import update_specific_yield
-        sy_df = pd.read_csv(path_table)
-        sy_dict = {}
-        for cid in range(1, 6):
-            label = CLUSTER_LABELS.get(cid, f"C{cid}")
-            # Prefer interception-corrected for forest clusters
-            corr_row = sy_df[sy_df["Cluster"].str.contains("corrected", case=False)
-                             & sy_df["Cluster"].str.startswith(label)]
-            base_row = sy_df[~sy_df["Cluster"].str.contains("corrected", case=False, na=False)
-                             & sy_df["Cluster"].str.startswith(label)]
-            row = corr_row if cid in FOREST_CIDS and not corr_row.empty else base_row
-            if not row.empty and pd.notna(row["Sy_event_median"].iloc[0]):
-                sy_dict[cid] = float(row["Sy_event_median"].iloc[0])
-        if sy_dict:
-            update_specific_yield(sy_dict)
-    except Exception as e:
-        print(f"  [note] Pipeline params Sy update skipped: {e}")
 
     print("\nAll outputs written to", out_dir)
 

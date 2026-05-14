@@ -402,7 +402,7 @@ src/
 - `09_scrape_01_full_parameters.csv`
 - `09_scrape_04_net_benefits.csv`
 - `09_scrape_report_numbers.csv`
-- `09_scrape_04b_table4_beta3_era_summary.csv`
+- `09_scrape_04b_beta3_era_summary.csv`
 - `09_tier1_final_cusum.csv`
 - `09_scrape_05_tier1_background_drift.png`
 - `09_scrape_06_tier2_scraping_signal.png`
@@ -1051,7 +1051,7 @@ Summer climate via `scraping_common.load_summer_climate()`. Scenario constants
 | Table 4b | Volumetric water balance | 16 | `16_water_bal_vol_table.csv` |
 | Table 4c | WTF specific yield | 17 | `17_wtf_01_sy_table.csv` |
 | Table 5 | Model benchmarking (SSM vs TLM) | 08 | `08_lcsc_04_table3_benchmark_summary.csv` |
-| Table 6 | Scraping β₃ era coefficients | 09a | `09_scrape_04b_table4_beta3_era_summary.csv` |
+| Table 6 | Scraping β₃ era coefficients | 09a | `09_scrape_04b_beta3_era_summary.csv` |
 | Table 7 | Clearfell ANCOVA-BACI results | 10a | `10a_report_numbers.csv` |
 | Table 8 | Per-well summer min shifts | 10d | `10d_04_summer_minima_forest_ctrl.png` (source CSV) |
 | Table 9 | Mixed-effects clearfell step | 10d | (embedded in 10d output) |

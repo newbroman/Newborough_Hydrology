@@ -14,7 +14,14 @@ Requirements:
     pandas, numpy
 """
 
-__version__ = "1.0.0"  # Hollingham (2026) — last revised 2026-04-10
+__version__ = "1.1.0"  # Hollingham (2026) — last revised 2026-05-14
+# Changelog:
+#   1.1.0 (2026-05-14) — Clarified the well-cleaning call to call out the
+#     depth-floor sign-convention fix in utils/data_utils.py. The cleaning
+#     function now masks readings deeper than -4.0 m (corrected comparison
+#     direction); positive readings, which represent slack flooding above
+#     pipe top, are retained.
+#   1.0.0 (2026-04-10) — Initial pipeline release.
 
 import sys as _sys
 import os as _os
@@ -269,6 +276,14 @@ if __name__ == "__main__":
     if "NW8" in wells.columns and "NW8b" in wells.columns:
         wells["NW8"] = wells["NW8b"].combine_first(wells["NW8"])
         wells.drop(columns=["NW8b"], inplace=True)
+    # clean_well_series masks readings deeper than MIN_PHYSICAL_DEPTH = -4.0 m
+    # (a safety floor; the deepest plausible water table at Newborough is ~3 m
+    # below ground). Positive readings are RETAINED — the slacks regularly
+    # flood above pipe top and those readings are real flood-month
+    # observations that the SSM and flood-threshold work depend on. See
+    # utils/data_utils.py for the history of this threshold (an earlier
+    # implementation had the comparison direction wrong and did not mask
+    # any deep readings).
     for col in wells.columns:
         wells[col] = clean_well_series(wells[col])
 

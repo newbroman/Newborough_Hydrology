@@ -177,6 +177,7 @@ OUT_04_ARCHITECTURE_MAP = DIR_04 / "04_01_core_architecture_map.png"
 
 # Script 05 — Pearson affinity
 OUT_05_CONFIDENCE_MAP   = DIR_05 / "05_pear_01_spatial_confidence_map.png"
+OUT_05_AFFINITY_CHART   = DIR_05 / "05_pear_02_affinity_chart_reference.png"
 
 # Script 06 — Pearson extended
 OUT_06_AFFINITY_CHART   = DIR_06 / "06_pear_01_affinity_chart_extended.png"

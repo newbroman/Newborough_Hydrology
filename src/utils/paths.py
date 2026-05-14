@@ -169,7 +169,6 @@ OUT_02_AMP_BOXPLOT      = DIR_02 / "02_10_cluster_amplitude_boxplot.png"
 
 # Script 03 — State-space model
 OUT_03_SIGNATURES          = DIR_03 / "03_01_mechanistic_signatures.png"
-OUT_03_SIGNATURES_WELLMEAN = DIR_03 / "03_01b_mechanistic_signatures_wellmean.png"
 OUT_03_CLUSTER_SUMMARY     = DIR_03 / "03_02_cluster_summary_table.csv"
 OUT_03_MECHANISTIC_TABLE   = DIR_03 / "03_03_cluster_mechanistic_coefficients.csv"
 

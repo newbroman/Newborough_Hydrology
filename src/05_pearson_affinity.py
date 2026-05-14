@@ -3,7 +3,26 @@
 Inputs:  01_wells_clean.csv, 02_cluster_stats.csv, 01_locations.csv
 Outputs (intermediate): 05_pear_membership_audit.csv
 Outputs (final): outputs/05_pearson_affinity/
+
+Full per-script methodology: see chapter S.4 of the Methods Supplement
+(docs/report/Supplementary_Material_Methods.pdf).
 """
+
+__version__ = "1.1.0"  # Hollingham (2026) — last revised 2026-05-14
+# Changelog:
+#   1.1.0 (2026-05-14) — Affinity bar chart persistence fix.
+#     The "Membership Affinity by Cluster for Key Wells" bar chart was
+#     constructed but never written to disk; the next block opened a new
+#     figure and silently discarded it. Added OUT_05_AFFINITY_CHART to
+#     paths.py and wired savefig + close at the end of the bar-chart block.
+#     Also replaced "ceh8" (extended network, filtered out by the
+#     reference-only matrix earlier in main()) with "ceh5" in the
+#     preferred-wells list, so the chart now has a representative from
+#     C1, C2, C3, and C5. C4 has no representative in the illustrative
+#     subset by design (the C4 forest cluster's members are the BACI
+#     impact and control wells, covered by Script 10 figures).
+#   1.0.0 — Initial pipeline release.
+
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
 import numpy as np, pandas as pd, matplotlib.pyplot as plt

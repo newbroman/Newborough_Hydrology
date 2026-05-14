@@ -15,7 +15,7 @@ from utils.data_utils import normalize_well_name
 from utils.map_utils import load_dem_layer, add_kml_features, add_osm_basemap
 from utils.paths import (make_all_dirs, DATA_DIR,
     INT_WELLS_CLEAN, INT_CLUSTER_STATS, INT_LOCATIONS, INT_PEAR_AUDIT,
-    OUT_05_CONFIDENCE_MAP)
+    OUT_05_AFFINITY_CHART, OUT_05_CONFIDENCE_MAP)
 
 fiona.drvsupport.supported_drivers["KML"] = "rw"
 EXPECTED_CLUSTERS = sorted(CLUSTER_LABELS.keys())
@@ -122,7 +122,9 @@ def main():
     audit_df.to_csv(INT_PEAR_AUDIT, index=False)
 
     # Affinity bar chart
-    preferred = ["ceh1","nw1","ceh8","ceh19","d15","ceh17"]
+    # CEH5 (C1 anchor) replaces CEH8 in the preferred list — CEH8 is in the
+    # extended network and is filtered out by the reference-only matrix above.
+    preferred = ["ceh1","nw1","ceh5","ceh19","d15","ceh17"]
     available = [w for w in preferred if w in corr_df.index]
     if len(available)<3:
         available = list(audit_df.set_index("Well_Normalised")["Delta_Assigned_vs_NextBest"].abs().sort_values(ascending=False).index[:6])
@@ -146,6 +148,7 @@ def main():
         y_min = min(0.0, float(np.nanmin(plot_df.values))-0.02) if not plot_df.empty else 0.0
         ax.set_ylim(y_min, min(1.05,y_max+0.22))
         ax.legend(title="Cluster",loc="lower right",frameon=True)
+        plt.tight_layout(); plt.savefig(OUT_05_AFFINITY_CHART, dpi=300, bbox_inches="tight"); plt.close()
 
     # Spatial confidence map
     map_df = audit_df.merge(loc_df[["Match_ID","E","N"]], left_on="Well_Normalised", right_on="Match_ID", how="left")
@@ -254,6 +257,6 @@ def main():
     mca_wells = audit_df.loc[audit_df["MCA_Flag"]==True,"Well_Normalised"].str.upper().tolist()
     print(f"\nMembership Summary: Core={core_c} Fuzzy={fuzzy_c} Spy={spy_c} MCA={len(mca_wells)}")
     if mca_wells: print("MCA wells:", ", ".join(mca_wells))
-    print(f"Saved: {INT_PEAR_AUDIT.name}, {OUT_05_CONFIDENCE_MAP.name}")
+    print(f"Saved: {INT_PEAR_AUDIT.name}, {OUT_05_AFFINITY_CHART.name}, {OUT_05_CONFIDENCE_MAP.name}")
 
 if __name__ == "__main__": main()

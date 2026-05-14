@@ -18,7 +18,7 @@ CSVs:
   09_scrape_02_beta3_significance.csv — β₃ isolated estimates with CIs
   09_scrape_03_baci_shifts.csv        — paired BACI step changes
   09_scrape_04_net_benefits.csv       — net benefits vs CEH21 benchmark
-  09_scrape_04b_table4_beta3_era_summary.csv — formatted Table 4
+  09_scrape_04b_beta3_era_summary.csv — formatted β₃ era summary
   09_tier1_final_cusum.csv            — terminal CUSUM values for Tier 1
 
 Figures:
@@ -33,7 +33,7 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "2.0.0"  # Hollingham (2026) — modularised from monolithic 09
+__version__ = "2.1.0"  # 2026-05-14 — drop "table4"/"Table5" from filename and label
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
@@ -41,7 +41,7 @@ _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
 from utils.paths import (
     make_all_dirs,
     OUT_09_FULL_PARAMS, OUT_09_BETA3_SIG, OUT_09_BACI_SHIFTS,
-    OUT_09_NET_BENEFITS, OUT_09_TABLE4_SUMMARY,
+    OUT_09_NET_BENEFITS, OUT_09_BETA3_ERA_SUMMARY,
     OUT_09_TIER1_DRIFT, OUT_09_TIER2_SIGNAL, OUT_09_BETA3_CI,
     OUT_09_REPORT_NUMBERS,
     OUT_09_TIER1_CUSUM,
@@ -68,11 +68,11 @@ import statsmodels.api as sm
 
 
 # ============================================================================
-# TABLE 4 EXPORT HELPER
+# β₃ ERA SUMMARY EXPORT HELPER
 # ============================================================================
 
-def _export_table4_beta3_summary(significance_results):
-    """Format and export the β₃ era summary table (Table 4 in report)."""
+def _export_beta3_era_summary(significance_results):
+    """Format and export the β₃ era summary table for the main report."""
     df = pd.DataFrame(significance_results)
     if df.empty:
         return
@@ -105,7 +105,7 @@ def _export_table4_beta3_summary(significance_results):
 
     out = df[["Well", "Role", "Era_Label", "beta_3", "CI_95",
               "p_value", "Sig"]].rename(columns={"Era_Label": "Era"})
-    out.to_csv(OUT_09_TABLE4_SUMMARY, index=False)
+    out.to_csv(OUT_09_BETA3_ERA_SUMMARY, index=False)
 
 
 # ============================================================================
@@ -262,7 +262,7 @@ def main():
     pd.DataFrame(significance_results).to_csv(OUT_09_BETA3_SIG, index=False)
     pd.DataFrame(baci_results).to_csv(OUT_09_BACI_SHIFTS, index=False)
     pd.DataFrame(net_summary).to_csv(OUT_09_NET_BENEFITS, index=False)
-    _export_table4_beta3_summary(significance_results)
+    _export_beta3_era_summary(significance_results)
 
     # ── 4. Figures ────────────────────────────────────────────────────────
     print("4. Generating the Visual Suite...")
@@ -559,9 +559,9 @@ def _export_report_numbers(plot_data, baci_results, net_summary,
            well=nb["Well"], era=nb["Shift"],
            note="vs CEH21 coastal benchmark")
 
-    # 4. Table 5 β₃ era estimates
+    # 4. β₃ era estimates (per well, per era)
     for sr in significance_results:
-        rr("Table5_beta3_era", sr["beta_3_drainage"],
+        rr("beta3_era", sr["beta_3_drainage"],
            well=sr["Well"], era=sr["Era"],
            note=f"CI=[{sr['Conf_Low']:.4f},{sr['Conf_High']:.4f}] "
                 f"p={format_p_value(sr['P_Value'])}")

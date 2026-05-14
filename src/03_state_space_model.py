@@ -17,7 +17,9 @@ that the depth-below-surface formulation produces negative β₃ for three of
 five clusters (C3, C4, C5), making the drainage term Darcy-inconsistent.
 Reformulating as displacement above a 3.7 m drainage base resolves this:
 all five clusters produce positive, significant β₃ with comparable or
-improved R². See HANDOVER_SCRIPT03_DATUM.md for full rationale.
+improved R². See section F.3 of the Methods Supplement
+(docs/report/Supplementary_Material_Methods.pdf) for the drainage datum
+rationale, and chapter S.3 for the datum sensitivity diagnostic outputs.
 
 Rainfall lag: HEADLINE_LAG is imported from config.py. Originally set to 1
 to compensate for a bucketing convention that assigned readings to the wrong
@@ -25,7 +27,8 @@ month; after fixing the bucketing in Script 01, HEADLINE_LAG = 0 gives
 identical physical pairing. The lag diagnostic (03_04) tests lags 0–3
 regardless of the headline setting.
 
-Physical sign conventions (authoritative, per NEWBOROUGH_HANDOVER.md):
+Physical sign conventions (authoritative, per section F.3 of the Methods
+Supplement):
     beta_1 > 0  — rainfall raises the water table              [hard assertion]
     beta_2 > 0  — PET draws the water table down               [hard assertion]
     beta_3 > 0  — drainage increases with head                 [reported, not asserted]
@@ -59,18 +62,38 @@ Outputs (final — outputs/03_state_space_model/):
 
 Phase 1 validation (rebuild priorities):
     * beta_1 > 0 and beta_2 > 0 asserted on every centroid fit (hard-fail).
-    * beta_3 reported with no hard assertion (see handover discussion).
+    * beta_3 reported with no hard assertion (see F.3 of the Methods Supplement).
     * Bootstrap-of-SSM-fits (B=1000) per cluster, fixed seed, for beta CIs.
     * Leave-one-out by well per cluster, to detect single-well domination.
     * R^2 and p-values reported per cluster.
     * Neutral cluster labels from utils.config.CLUSTER_LABELS throughout.
-    * Lag diagnostic (lags 0, 1, 2, 3 months) — Option Y of the rebuild brief.
+    * Lag diagnostic (lags 0, 1, 2, 3 months).
     * C1 Lake pre/post-2018 split-window diagnostic.
     * Upstand audit — flags wells with upstand > UPSTAND_AUDIT_THRESHOLD.
 
-Rebuild brief: SCRIPT_03_BRIEF.md
-Handovers:     NEWBOROUGH_HANDOVER.md, P_FLOOD_HANDOVER_2_.md
+Full per-script methodology: see chapter S.3 of the Methods Supplement
+(docs/report/Supplementary_Material_Methods.pdf).
 """
+
+__version__ = "1.1.0"  # Hollingham (2026) — last revised 2026-05-14
+# Changelog:
+#   1.1.0 (2026-05-14) — Documentation-only cleanup:
+#     - All references to project-store MD files (HANDOVER_SCRIPT03_DATUM,
+#       NEWBOROUGH_HANDOVER, SCRIPT_03_BRIEF, P_FLOOD_HANDOVER_2_) in the
+#       module docstring, the load_amplitude_heterogeneity() docstring, the
+#       C1 split-window comment block, and the c1_split_window_diagnostic()
+#       docstring redirected to the appropriate sections of the Methods
+#       Supplement (F.3 for SSM specification, S.2 for amplitude
+#       descriptors, S.3 for this script's methodology).
+#     - The dead OUT_03_SIGNATURES_WELLMEAN constant in paths.py was
+#       removed in this same commit (no figure consumes it).
+#     - Defensive INFO message that fell back to "hard-coded amplitude flags
+#       from SCRIPT_03_BRIEF.md" now reads "hard-coded amplitude fallback
+#       values (_AMPLITUDE_FALLBACK)", which is what the code actually does.
+#   1.0.x (pre-2026-05-14) — Initial pipeline rebuild release. col_order
+#     short→long β key fix and MIN_OBS_PER_WELL wiring through to fit_ssm()
+#     are already on main from an earlier untagged commit; this version
+#     does not re-apply them.
 
 import sys as _sys
 import os as _os
@@ -137,10 +160,12 @@ LAGS = (0, 1, 2, 3)
 UPSTAND_AUDIT_THRESHOLD = 0.30
 
 # C1 Lake split-window diagnostic — separates the record at 2018-01-01.
-# Rationale (from amplitude analysis, SCRIPT_03_BRIEF.md): the Lake cluster
+# Rationale (from the amplitude analysis in Script 02): the Lake cluster
 # shows a ~15% post-2018 amplitude enlargement in four of its seven wells
 # even after climate normalisation. This diagnostic tests whether fitting a
 # single beta set across the whole record averages over two regimes.
+# Full context: chapter S.2 of the Methods Supplement (amplitude descriptors)
+# and chapter S.3 (C1 split-window diagnostic).
 C1_SPLIT_DATE = pd.Timestamp("2018-01-01")
 
 # Block aggregation — one label per cluster under the current Option-A
@@ -174,7 +199,8 @@ def load_amplitude_heterogeneity(cluster_ids: list[int],
     """
     Load per-cluster amplitude heterogeneity from Script 02's per-well
     amplitude output (OUT_02_AMP_PER_WELL) if available. Falls back to
-    hard-coded values from SCRIPT_03_BRIEF.md if the file does not exist.
+    hard-coded values (defined as _AMPLITUDE_FALLBACK in this module)
+    if the file does not exist.
 
     The amplitude file's 'cluster' column may use a different numbering
     scheme if it came from an older Script 02 run (pre-Option-A). To handle
@@ -192,7 +218,7 @@ def load_amplitude_heterogeneity(cluster_ids: list[int],
     """
     if not OUT_02_AMP_PER_WELL.exists():
         print(f"    [INFO] {OUT_02_AMP_PER_WELL.name} not found \u2014 using "
-              "hard-coded amplitude flags from SCRIPT_03_BRIEF.md.")
+              "hard-coded amplitude fallback values (_AMPLITUDE_FALLBACK).")
         return {cid: _AMPLITUDE_FALLBACK.get(cid, (False, np.nan, np.nan))
                 for cid in cluster_ids}
 
@@ -739,9 +765,10 @@ def c1_split_window_diagnostic(centroids: dict[int, pd.Series],
     Fits the C1 centroid SSM separately on pre-`split_date` and post-
     `split_date` windows, and bootstraps each side by well-resampling.
     If the two beta sets are non-overlapping (CI disjoint), the single-beta
-    Lake fit averages over two regimes — see SCRIPT_03_BRIEF.md amplitude
-    analysis for physical context (four of seven Lake wells enlarge
-    post-2018 even after climate normalisation).
+    Lake fit averages over two regimes — see chapter S.3 of the Methods
+    Supplement (C1 split-window discussion) and S.2 (amplitude descriptors
+    showing four of seven Lake wells enlarge post-2018 even after climate
+    normalisation) for the physical context.
     """
     if 1 not in centroids:
         return pd.DataFrame()

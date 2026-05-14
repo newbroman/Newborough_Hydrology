@@ -14,6 +14,18 @@ Outputs (final — outputs/02_clustering/):
     02_02_validation_plots.png
 """
 
+__version__ = "1.0.1"  # Hollingham (2026) — last revised 2026-05-14
+# Changelog:
+#   1.0.1 (2026-05-14) — Two documentation fixes:
+#     (a) Stale "69 wells" / "69x69 distance matrix" in the N_BOOTSTRAP
+#         comment block corrected to "66 wells" / "66x66" to match the
+#         published reference-network size.
+#     (b) RuntimeError in compute_cluster_amplitude_descriptors redirected
+#         from PARTITION_HISTORY.md (project-store file, not in this repo)
+#         to section F.4 of the Methods Supplement.
+#   1.0.0 (2026-04-26) — Initial pipeline release (k=5 partition, anchor
+#     remap, bootstrap stability, amplitude descriptors).
+
 import sys as _sys
 import os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
@@ -164,7 +176,7 @@ del _anchor_ids, _label_ids
 # of bootstraps in which the well co-assigns with its majority cluster.
 #
 # N_BOOTSTRAP = 1000 is the value called out in the rebuild handover. Runtime
-# with 69 wells, k=4..7, and Ward's on a 69×69 distance matrix is a couple of
+# with 66 wells, k=4..7, and Ward's on a 66×66 distance matrix is a couple of
 # minutes on a typical laptop. Reduce N_BOOTSTRAP for faster iteration; reduce
 # K_RANGE_BOOTSTRAP if only interested in a specific k.
 # ──────────────────────────────────────────────────────────────────────────────
@@ -804,7 +816,9 @@ def compute_cluster_amplitude_descriptors(
             f"{sorted(cluster_ids_seen)} which include values outside the "
             f"canonical set {sorted(canonical_ids)}. The cluster_df must be "
             f"remapped via _remap_cluster_ids_by_anchor before being passed "
-            f"to this function. See PARTITION_HISTORY.md."
+            f"to this function. See section F.4 of the Methods Supplement "
+            f"(docs/report/Supplementary_Material_Methods.pdf) for the "
+            f"partition history and the identity-vs-integer keying principle."
         )
 
     # Window split for drought-summer filtering (drought years above vs below

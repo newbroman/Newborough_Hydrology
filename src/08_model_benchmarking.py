@@ -12,12 +12,12 @@ Purpose:
 
     Model formulations:
         Traditional (TLM):
-            Δh(t) = α + β₁·P(t−1) − β₂·PET(t)
+            Δh(t) = α + β₁·P(t) − β₂·PET(t)
         State-Space (SSM, displacement formulation):
-            Δh(t) = β₁·P(t−1) − β₂·PET(t) − β₃·h_disp_prev(t)
+            Δh(t) = β₁·P(t) − β₂·PET(t) − β₃·h_disp_prev(t)
             where h_disp = DRAINAGE_DATUM + h_depth
 
-    Both models use HEADLINE_LAG from config.
+    Both models use HEADLINE_LAG from config (= 0 after bucketing fix).
 
     Outputs:
         - One-row-per-well metrics table for all wells in cleaned data.
@@ -88,7 +88,8 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate):
     """Compute one-step and iterative showdown metrics for a single well.
 
     Uses the displacement formulation (h_disp = DRAINAGE_DATUM + h_depth)
-    for the SSM drainage predictor and lag-1 rainfall, matching Script 03.
+    for the SSM drainage predictor and HEADLINE_LAG rainfall (= 0 currently),
+    matching Script 03.
     """
     target_norm = normalize_well_name(target_well_name)
 

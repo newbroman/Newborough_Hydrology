@@ -14,8 +14,11 @@ Requirements:
     pandas, numpy
 """
 
-__version__ = "1.1.0"  # Hollingham (2026) — last revised 2026-05-14
+__version__ = "1.1.1"  # Hollingham (2026) — last revised 2026-05-14
 # Changelog:
+#   1.1.1 (2026-05-14) — Docstring fix: REFERENCE_NETWORK_WHITELIST comment
+#     said "69 wells"; corrected to 66 (= published partition, no real wells
+#     lost; stale text from a pre-publication count).
 #   1.1.0 (2026-05-14) — Clarified the well-cleaning call to call out the
 #     depth-floor sign-convention fix in utils/data_utils.py. The cleaning
 #     function now masks readings deeper than -4.0 m (corrected comparison
@@ -62,7 +65,7 @@ MIN_EXTENDED_MONTHS = 24
 # state; it averages over a pre-transition regime, a transition period,
 # and an incomplete post-transition equilibrium.
 #
-# This whitelist pins the reference network to the 69 wells that were
+# This whitelist pins the reference network to the 66 wells that were
 # clustered and modelled in the published analysis (Hollingham 2026,
 # Table 2). It excludes:
 #

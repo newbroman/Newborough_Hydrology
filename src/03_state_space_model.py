@@ -106,11 +106,15 @@ from utils.model_utils import fit_ssm, assert_physical_signs
 # CONFIGURATION
 # ==========================================================================
 
-# Most-recent window for per-well and centroid fits.
-# Chosen to match the published analysis and Script 07's LCSC window.
+# Most-recent window for per-well fits and the per-well datum sweep.
+# Centroid fits use the full record (window=None) so the cluster-level
+# coefficients are estimated over the longest available record; the
+# per-well window is the one used by Script 07's LCSC analysis and was
+# chosen to match the published analysis.
 LCSC_DATA_LIMIT = 100
 
 # Minimum observations required for a per-well SSM fit (first-differences).
+# Passed through to fit_ssm() at each call site so a change here propagates.
 MIN_OBS_PER_WELL = 30
 
 # HEADLINE_LAG imported from config.py (currently 0 after bucketing fix).
@@ -391,7 +395,8 @@ def per_well_fits(cluster_df: pd.DataFrame,
         h_corrected = wells_clean[target_col] - u
 
         fit = fit_ssm(h_corrected, climate, lag=HEADLINE_LAG,
-                      window=LCSC_DATA_LIMIT)
+                      window=LCSC_DATA_LIMIT,
+                      min_obs=MIN_OBS_PER_WELL)
 
         # Empirical LCSC — ratio of rainfall to water-table rise during
         # unambiguous recharge events. Kept for cross-comparison with the
@@ -1026,7 +1031,7 @@ def well_datum_sensitivity(wells_clean: pd.DataFrame,
         for d in datums:
             fit = fit_ssm(h_corrected, climate,
                           lag=HEADLINE_LAG, window=LCSC_DATA_LIMIT,
-                          drainage_datum=d)
+                          drainage_datum=d, min_obs=MIN_OBS_PER_WELL)
             if fit is None:
                 full_rows.append({
                     "well": well_name, "Cluster": cid,
@@ -1113,7 +1118,8 @@ def well_datum_sensitivity(wells_clean: pd.DataFrame,
         # Also record fit at uniform datum for direct comparison
         fit_uniform = fit_ssm(h_corrected, climate,
                                lag=HEADLINE_LAG, window=LCSC_DATA_LIMIT,
-                               drainage_datum=DRAINAGE_DATUM)
+                               drainage_datum=DRAINAGE_DATUM,
+                               min_obs=MIN_OBS_PER_WELL)
         if fit_uniform is not None:
             opt["R2_at_uniform"] = fit_uniform["R2"]
             opt["beta_3_at_uniform"] = fit_uniform["beta_3_drainage"]
@@ -1354,9 +1360,9 @@ def build_summary_table(mech_df: pd.DataFrame,
 
     col_order = [
         "Cluster", "Cluster_Label", "Block", "n_wells",
-        "beta_1", "beta_1_boot_lo", "beta_1_boot_hi", "pvalue_beta_1",
-        "beta_2", "pvalue_beta_2",
-        "beta_3", "pvalue_beta_3",
+        "beta_1_recharge", "beta_1_boot_lo", "beta_1_boot_hi", "pvalue_beta_1",
+        "beta_2_atmospheric_draw", "pvalue_beta_2",
+        "beta_3_drainage", "pvalue_beta_3",
         "R2",
         "LCSC_percent", "LCSC_boot_lo", "LCSC_boot_hi",
         "beta_1_frac_positive",

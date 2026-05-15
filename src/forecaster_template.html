@@ -326,9 +326,14 @@
       <select id="well-select"></select>
     </div>
     <div class="field">
-      <label for="reading-input">Observed depth (m below ground)</label>
-      <input id="reading-input" type="number" step="0.01" min="0" max="5" value="1.20">
-      <div class="hint">Positive number. Prepopulated with cluster long-term summer minimum; edit to match your observation.</div>
+      <label for="current-depth-input">Current observed depth (m below ground)</label>
+      <input id="current-depth-input" type="number" step="0.01" min="0" max="5" value="0.60">
+      <div class="hint">Today's dipwell reading. Used in the P<sub>flood</sub> forecast (winter rainfall needed to lift the water table from this depth to the slack floor). Prepopulated with the cluster's long-term depth for the current month; edit to match your observation.</div>
+    </div>
+    <div class="field">
+      <label for="summer-min-input">Summer minimum depth (m below ground)</label>
+      <input id="summer-min-input" type="number" step="0.01" min="0" max="5" value="0.80">
+      <div class="hint">Used in the next-winter-peak forecast. This year's observed summer minimum if known; last year's if you have it; otherwise the long-term cluster default for a "typical year" projection.</div>
     </div>
 
     <div class="panel-heading" style="margin-top:1.5rem">Well details</div>
@@ -775,7 +780,17 @@ function selectWell(name){
   SELECTED = name;
   const w = DATA.wells.find(x=>x.name===name);
   if(!w) return;
-  document.getElementById('reading-input').value = Math.abs(w.default_h_prev).toFixed(2);
+  const coeff = DATA.cluster_coeffs[w.cluster];
+  const currentMonth = (new Date()).getMonth() + 1;
+  // Current-depth default: cluster's long-term mean for this calendar month
+  // (falls back to summer-min if the cluster has no monthly climatology).
+  const currentDepth = (coeff.monthly_clim && coeff.monthly_clim[currentMonth] !== undefined)
+    ? Math.abs(coeff.monthly_clim[currentMonth])
+    : Math.abs(w.default_h_prev);
+  // Summer-min default: cluster's long-term summer minimum (unchanged).
+  const summerMin = Math.abs(w.default_h_prev);
+  document.getElementById('current-depth-input').value = currentDepth.toFixed(2);
+  document.getElementById('summer-min-input').value = summerMin.toFixed(2);
   renderWellMeta(w);
   renderForecasts(w);
   renderMap();
@@ -856,9 +871,13 @@ function renderForecasts(w){
   const panel = document.getElementById('forecast-panel');
   const coeff = DATA.cluster_coeffs[w.cluster];
   const block = clusterToBlock(w.cluster);
-  const userDepth = parseFloat(document.getElementById('reading-input').value);
-  const hPrev = -Math.abs(userDepth);
-  const depth_m = userDepth;
+  // Two inputs, each driving a different forecast:
+  //   summer-min-input  → h_min for Forecast 1 (next winter peak)
+  //   current-depth-input → d   for Forecast 3 (P_flood from today)
+  const summerMinDepth = parseFloat(document.getElementById('summer-min-input').value);
+  const currentDepth   = parseFloat(document.getElementById('current-depth-input').value);
+  const hPrev   = -Math.abs(summerMinDepth);   // summer-min head (negative)
+  const depth_m = Math.abs(currentDepth);       // current depth (positive)
 
   const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const peakMonth = coeff.peak_month;
@@ -901,7 +920,7 @@ function renderForecasts(w){
   // FORECAST 1: next winter peak — Table 6 transfer function
   //   h_peak = β₁·P_winter + β₂·h_min + intercept
   //
-  // Uses h_min from the reading-input field. When the current month is
+  // Uses h_min from the summer-min-input field. When the current month is
   // before this cluster's trough_month, this year's summer minimum has
   // not yet been observed; the box surfaces this clearly and the user
   // can either wait, enter last summer's observed minimum, or accept
@@ -923,7 +942,7 @@ function renderForecasts(w){
     const troughName = monthNames[troughMonth - 1];
     const timingNote = !minimumObserved
       ? `<div class="threshold-note" style="background:#fff8e6;border-color:#f0c060;">
-          <strong>Timing note.</strong> This year's summer minimum is typically reached in <strong>${troughName}</strong>. You can: (a) wait until then to use this year's observed value; (b) enter last summer's observed minimum in the input above if known; or (c) keep the default (long-term cluster mean) for a "typical year" projection.
+          <strong>Timing note.</strong> This year's summer minimum is typically reached in <strong>${troughName}</strong>. The "Summer minimum depth" input is currently the long-term cluster default — override it with this year's observed value once you have one, or with last year's if you'd rather use a real recent number.
         </div>` : '';
 
     const eqGeneral = `h<sub>peak</sub> = ${b1.toFixed(5)}\u00b7P<sub>winter</sub> + ${b2.toFixed(3)}\u00b7h<sub>min</sub> + (${intercept.toFixed(3)})`;
@@ -1064,12 +1083,17 @@ function init(){
     renderMap();
   });
 
-  document.getElementById('reading-input').addEventListener('input', ()=>{
+  // Both depth inputs trigger a forecast re-render. (Map dot colours
+  // depend on cluster defaults, not user inputs, so map render isn't
+  // needed here.)
+  function onDepthInput(){
     if(SELECTED){
       const w = DATA.wells.find(x=>x.name===SELECTED);
       if(w) renderForecasts(w);
     }
-  });
+  }
+  document.getElementById('current-depth-input').addEventListener('input', onDepthInput);
+  document.getElementById('summer-min-input').addEventListener('input', onDepthInput);
 
   // Manual-fallback wiring
   document.getElementById('lb-retry').addEventListener('click', loadLiveData);

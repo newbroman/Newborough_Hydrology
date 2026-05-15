@@ -20,7 +20,30 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.6.0"   # Hollingham (2026) -- 2026-05-08
+__version__ = "2.7.0"   # Hollingham (2026) -- 2026-05-15
+                         # v2.7.0: Broadleaf β₂ seasonal-window canonical fix.
+                         #         BROADLEAF_INTERCEPTION, BROADLEAF_B2_WINTER,
+                         #         BROADLEAF_B2_SUMMER now imported from
+                         #         utils.config (was: local definitions at
+                         #         0.15, 0.87, 0.09 with Nov–Mar / May–Sep
+                         #         5-month windows; now: 0.15, 0.8817, 1.0750
+                         #         under canonical Nov–Apr / May–Oct 6-month
+                         #         windows). Resolves the two-source-of-truth
+                         #         divergence between Script 19 and config.py
+                         #         that S.13/S.14 of the Methods Supplement
+                         #         flagged as defect 11. Single source of truth
+                         #         now in utils.config; Script 21's 12-month
+                         #         monthly β₂ profile remains the upstream
+                         #         derivation. Seasonal-window choice aligns
+                         #         with canopy state (β₂ ≥ 1 → summer; β₂ < 1
+                         #         → winter), grouping May and October with
+                         #         summer, April and November with winter.
+                         #         Empirical impact: broadleaf scenario row
+                         #         in 19_scenario_summary.csv shifts by ~1%
+                         #         (vs previous v2.6.0 Nov–Mar / May–Sep
+                         #         literals) or ~3% (vs the same row computed
+                         #         through config under the previous
+                         #         Oct–Mar / Jun–Sep windows).
                          # v2.6.0: Broadleaf β₂ seasonal split.  Per-cluster
                          #         sB2_c4/sB2_c5 sliders replaced with merged
                          #         seasonal sB2_w/sB2_s (winter/summer) applied
@@ -81,18 +104,19 @@ from utils.paths import (
     OUT_18_WELL_SY_TABLE,
 )
 from utils.data_utils import normalize_well_name
-from utils.config import FOREST_INTERCEPTION
+from utils.config import (
+    FOREST_INTERCEPTION,
+    BROADLEAF_INTERCEPTION,
+    BROADLEAF_B2_WINTER,
+    BROADLEAF_B2_SUMMER,
+)
 from utils.clearfell_common import load_clearfell_b2_multiplier
 
-# Physical constants
-BROADLEAF_INTERCEPTION = 0.15   # Deciduous annual mean -- Komatsu et al. (2011)
-                                # Approximates summer (~25%, leafed) and winter
-                                # (~0%, leafless) averaged over the year. The
-                                # steady-state equilibrium framework applies this
-                                # as an annual mean; the seasonal phenology
-                                # mechanism that drives lower broadleaf summer
-                                # minima is dynamical and not resolved here
-                                # (see Section 5.4.4 for mechanism).
+# Physical constants — broadleaf and forest interception/β₂ multipliers are
+# now imported from utils.config (above). Local definitions removed in v2.7.0
+# to consolidate to a single source of truth. The narrative block below
+# documents the derivation and seasonal-window choice; the numerical values
+# live in config.py.
 MONITOR_START = "2005-04-01"
 MONITOR_END   = "2026-02-28"
 WINTER_MONTHS = [11, 12, 1, 2, 3]
@@ -138,15 +162,21 @@ VIEWER_NMIN, VIEWER_NMAX = 362400, 364800
 # Broadleaf β₂ is seasonally varying to capture deciduous phenology:
 # leaves off in winter → reduced ET (sB2_w < 1), full canopy in summer →
 # elevated ET (sB2_s > 1). Values are means of Script 21's monthly
-# multiplier profile over the viewer's seasonal month groups:
-#   Winter (Nov–Mar): mean of [0.92, 0.87, 0.85, 0.85, 0.88] = 0.874
-#   Summer (May–Sep): mean of [0.98, 1.08, 1.12, 1.15, 1.10] = 1.086
+# multiplier profile over the canopy-state phenological windows:
+#   Winter (Nov–Apr): mean of [0.92, 0.87, 0.85, 0.85, 0.88, 0.92] ≈ 0.8817
+#   Summer (May–Oct): mean of [0.98, 1.08, 1.12, 1.15, 1.10, 1.02] = 1.0750
+# These windows align with the canopy state: by May the canopy is essentially
+# functional (β₂ ≥ ~1.0); through October the canopy is still operative.
+# April and November have β₂ < 1.0 and are grouped with winter accordingly.
+# The values themselves are imported from utils.config (single source of
+# truth); only the rationale is documented here.
 # Clearfell/thinning multipliers are applied uniformly across seasons
 # (canopy removal is non-seasonal).
 
-# Broadleaf seasonal β₂ multipliers — derived from Script 21 monthly profile
-BROADLEAF_B2_WINTER = 0.87    # Nov–Mar mean (leaves off)
-BROADLEAF_B2_SUMMER = 1.09    # May–Sep mean (full leaf)
+# Broadleaf seasonal β₂ multipliers — imported from utils.config (above).
+# Previous v2.6.0 carried local definitions (0.87, 1.09) under Nov–Mar /
+# May–Sep five-month windows; v2.7.0 consolidated to config.py with the
+# phenologically-aligned Nov–Apr / May–Oct six-month windows (0.8817, 1.0750).
 
 # Deferred initialisation — populated by _init_scenario_params() in main()
 SCENARIO_PARAMS = None

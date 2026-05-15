@@ -225,18 +225,6 @@
     margin-top:.4rem;font-style:italic;
   }
 
-  /* ── FORECAST SOURCE TABS ────────────── */
-  .source-tabs{
-    display:inline-flex;gap:0;margin-bottom:.5rem;border:1px solid var(--border);border-radius:3px;overflow:hidden;font-size:.75rem;
-  }
-  .source-tab{
-    padding:.25rem .6rem;cursor:pointer;background:var(--sand);color:var(--text-light);
-    border-right:1px solid var(--border);user-select:none;
-  }
-  .source-tab:last-child{border-right:none;}
-  .source-tab.active{background:var(--water);color:#fff;font-weight:600;}
-  .source-tab:hover:not(.active){background:var(--sand-dark);}
-
   /* ── MANUAL UPLOAD FALLBACK MODAL ────────────── */
   .modal-backdrop{
     position:fixed;inset:0;background:rgba(42,51,56,.55);
@@ -407,38 +395,6 @@ function clusterToBlock(clusterKey){
     if(b.winter.clusters.includes(clusterKey)) return {name:bname,...b};
   }
   return null;
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   PER-WELL SSM FORWARD ITERATION
-   Iterates the monthly recurrence h_t = α·h_{t-1} + b1·λ·P_clim(t) − b2·PET_clim(t)
-   from h_0 over a sequence of calendar months. Returns the final head.
-   b1, b2 in m/mm; b3 dimensionless (α = 1 − b3).
-   ═══════════════════════════════════════════════════════════════════ */
-function horizonMonths(startMonth, endMonth){
-  // Return [startMonth, ..., endMonth] wrapping through 12→1
-  const months = [];
-  let m = startMonth;
-  for(let i = 0; i < 12; i++){
-    months.push(m);
-    if(m === endMonth) return months;
-    m = (m % 12) + 1;
-  }
-  return months;
-}
-
-function ssmIterate(h0, b1, b2, b3, months, lam){
-  // Forward-iterate the SSM through the given calendar months.
-  // P_clim and PET_clim come from DATA (monthly means in mm).
-  if(!DATA.P_clim || !DATA.PET_clim) return null;
-  const alpha = 1.0 - b3;
-  let h = h0;
-  for(const m of months){
-    const P = (DATA.P_clim[m] || 0) * lam;
-    const E = DATA.PET_clim[m] || 0;
-    h = alpha * h + b1 * P - b2 * E;
-  }
-  return h;
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -715,10 +671,7 @@ function renderMap(){
     const coeff = DATA.cluster_coeffs[w.cluster];
     let lam = null;
     const depth = Math.abs(w.default_h_prev);
-    if(w.slope_A_well !== undefined && w.slope_A_well !== null){
-      const pflood = w.slope_A_well * Math.max(0, depth) + w.intercept_B_well;
-      if(coeff && coeff.P_clim_total_mm) lam = (pflood / coeff.P_clim_total_mm) / GLOBAL_LAMBDA_MULT;
-    } else if(coeff && coeff.slope_A !== undefined){
+    if(coeff && coeff.slope_A !== undefined){
       const pflood = pFloodLinear(depth, coeff);
       lam = lambdaFromPFlood(pflood, coeff) / GLOBAL_LAMBDA_MULT;
     }
@@ -794,21 +747,45 @@ function renderWellMeta(w){
          <strong>* Nearest-type assignment.</strong> This well sits outside
          the SSM operational domain (boundary or upstream-excluded) and is
          not a core member of the cluster shown. Forecasts use the
-         nearest-cluster's coefficients as a best-available estimate;
+         nearest-cluster's equations as a best-available estimate;
          interpret with caution.
        </div>`
     : '';
+
+  // ── Cluster long-term depth table ─────────────────────────────────
+  // Shows the cluster's typical depth for the current calendar month,
+  // its long-term summer minimum, and long-term winter peak. All values
+  // are cluster centroids — the report's forecast equations operate at
+  // cluster level so cluster numbers are what's relevant here.
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const currentMonth = (new Date()).getMonth() + 1;
+  const monthlyClim = coeff.monthly_clim || {};
+  const troughMonth = coeff.trough_month || 9;
+  const peakMonthCentroid = coeff.peak_month || 1;
+  const fmt = v => (v === undefined || v === null) ? '—'
+                  : `${Math.abs(v).toFixed(2)} m`;
+  const thisMonthDepth = monthlyClim[currentMonth];
+  const summerMinDepth = monthlyClim[troughMonth];
+  const winterPeakDepth = monthlyClim[peakMonthCentroid];
+  const climTable = (Object.keys(monthlyClim).length > 0)
+    ? `<div class="well-meta-row" style="margin-top:.5rem;padding-top:.5rem;border-top:1px solid #eee;">
+         <span class="k" style="font-weight:600;color:var(--ink);">Cluster long-term depths (below ground)</span>
+       </div>
+       <div class="well-meta-row"><span class="k">This month (${monthNames[currentMonth-1]})</span><span class="v">${fmt(thisMonthDepth)}</span></div>
+       <div class="well-meta-row"><span class="k">Summer minimum (${monthNames[troughMonth-1]})</span><span class="v">${fmt(summerMinDepth)}</span></div>
+       <div class="well-meta-row"><span class="k">Winter peak (${monthNames[peakMonthCentroid-1]})</span><span class="v">${fmt(winterPeakDepth)}</span></div>`
+    : '';
+
   document.getElementById('well-meta').innerHTML = `
     <div class="well-meta-row"><span class="k">Name</span><span class="v">${w.display_name}</span></div>
     <div class="well-meta-row"><span class="k">Easting</span><span class="v">${w.E.toFixed(0)}</span></div>
     <div class="well-meta-row"><span class="k">Northing</span><span class="v">${w.N.toFixed(0)}</span></div>
     <div class="well-meta-row"><span class="k">Ground elev (m AOD)</span><span class="v">${w.ground_elev.toFixed(2)}</span></div>
     <div class="well-meta-row"><span class="k">Cluster</span><span class="v">${clusterCell}</span></div>
+    ${climTable}
     ${ncotNotice}
   `;
 }
-
-let FORECAST_SOURCE = 'cluster';  // 'cluster' or 'well'
 
 function renderForecasts(w){
   const panel = document.getElementById('forecast-panel');
@@ -818,152 +795,131 @@ function renderForecasts(w){
   const hPrev = -Math.abs(userDepth);
   const depth_m = userDepth;
 
-  const hasWellCoeffs = (w.b1_well !== undefined && w.b1_well !== null);
   const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const peakMonth = coeff.peak_month;
+  const troughMonth = coeff.trough_month || 9;
   const horizonName = (peakMonth && peakMonth >= 1 && peakMonth <= 12)
     ? `Oct\u2013${monthNames[peakMonth - 1]}` : '';
-  const winterMonths = horizonMonths(10, peakMonth || 1);
-  const summerMonths = horizonMonths(4, 9);
+
+  // Current calendar month — used for the "summer minimum not yet observed"
+  // timing note in Forecast 1.
+  const today = new Date();
+  const currentMonth = today.getMonth() + 1;
+  const currentYear  = today.getFullYear();
+  const todayLabel = `${monthNames[currentMonth - 1]} ${currentYear}`;
+
+  // The "summer minimum window" is from the cluster's trough_month onwards
+  // through March (wrap-aware). If currentMonth is in [Apr .. trough_month-1],
+  // this year's minimum hasn't been observed yet.
+  function inWinterSeason(){
+    for(let i = 0, m = troughMonth; i < 12; i++){
+      if(m === currentMonth) return true;
+      if(m === 3) return false;
+      m = (m % 12) + 1;
+    }
+    return false;
+  }
+  const minimumObserved = inWinterSeason();
 
   let html = '';
 
-  // ── Source tabs ────────────────────────────────────────────────────
-  if(hasWellCoeffs){
-    html += `<div class="source-tabs">
-      <span class="source-tab${FORECAST_SOURCE==='cluster'?' active':''}" data-src="cluster">Cluster average</span>
-      <span class="source-tab${FORECAST_SOURCE==='well'?' active':''}" data-src="well">Per-well SSM</span>
-    </div>`;
-  }
-
-  const showWell = (FORECAST_SOURCE === 'well' && hasWellCoeffs);
-
-  // ── Helper: badge from head value ─────────────────────────────────
+  // ── Helpers: ecological badges ────────────────────────────────────
   function peakBadge(h){ return h >= -0.10 ? ['SD15b met','badge-green'] : h >= -0.25 ? ['SD16 only','badge-amber'] : ['below SD16','badge-red']; }
   function minBadge(h){ return h >= -0.61 ? ['SD15b viable','badge-green'] : h >= -0.98 ? ['SD16 only','badge-amber'] : ['below SD16','badge-red']; }
 
+  // ── Panel context line: "as of <Month> <Year>" ────────────────────
+  html += `<div style="font-size:.8rem;color:var(--text-light);font-style:italic;margin-bottom:.6rem;text-align:right;">
+    Forecasts as of ${todayLabel}
+  </div>`;
+
   // ═════════════════════════════════════════════════════════════════════
-  // FORECAST 1: next winter peak
+  // FORECAST 1: next winter peak — Table 6 transfer function
+  //   h_peak = β₁·P_winter + β₂·h_min + intercept
+  //
+  // Uses h_min from the reading-input field. When the current month is
+  // before this cluster's trough_month, this year's summer minimum has
+  // not yet been observed; the box surfaces this clearly and the user
+  // can either wait, enter last summer's observed minimum, or accept
+  // the long-term cluster mean as a "typical year" projection.
   // ═════════════════════════════════════════════════════════════════════
-  if(block || showWell){
+  if(block){
     const Pwinter_clim = climatologicalWinterTotal();
     const Pwinter = Pwinter_clim * GLOBAL_LAMBDA_MULT;
+    const {b1, b2, c: intercept, r2} = block.winter;
 
-    // Cluster-average (block TF)
-    let h_peak_cluster = null, r2_cluster = null, blockName = '';
-    if(block){
-      const f = forecastWinterPeak(hPrev, Pwinter, block);
-      h_peak_cluster = f.h_peak;
-      r2_cluster = f.r2;
-      blockName = block.name;
-    }
+    const term1 = b1 * Pwinter;
+    const term2 = b2 * hPrev;
+    const h_peak = term1 + term2 + intercept;
+    const peakDepth = -h_peak;
+    const [badge, badgeClass] = peakBadge(h_peak);
+    const weakCaveat = (r2 < 0.5)
+      ? `<div class="threshold-note">Block regression has low explanatory power (R\u00b2\u00a0=\u00a0${r2.toFixed(2)}); treat as indicative only.</div>` : '';
 
-    // Per-well SSM iteration
-    let h_peak_well = null;
-    if(hasWellCoeffs){
-      h_peak_well = ssmIterate(hPrev, w.b1_well, w.b2_well, w.b3_well, winterMonths, GLOBAL_LAMBDA_MULT);
-    }
+    const troughName = monthNames[troughMonth - 1];
+    const timingNote = !minimumObserved
+      ? `<div class="threshold-note" style="background:#fff8e6;border-color:#f0c060;">
+          <strong>Timing note.</strong> This year's summer minimum is typically reached in <strong>${troughName}</strong>. You can: (a) wait until then to use this year's observed value; (b) enter last summer's observed minimum in the input above if known; or (c) keep the default (long-term cluster mean) for a "typical year" projection.
+        </div>` : '';
 
-    const h_peak = showWell ? h_peak_well : h_peak_cluster;
-    const source = showWell ? 'per-well SSM' : `${blockName} block TF`;
+    const eqGeneral = `h<sub>peak</sub> = ${b1.toFixed(5)}\u00b7P<sub>winter</sub> + ${b2.toFixed(3)}\u00b7h<sub>min</sub> + (${intercept.toFixed(3)})`;
+    const eqValues  = `h<sub>peak</sub> = ${b1.toFixed(5)}\u00a0\u00d7\u00a0${Pwinter.toFixed(0)} + ${b2.toFixed(3)}\u00a0\u00d7\u00a0${hPrev.toFixed(2)} + (${intercept.toFixed(3)}) = <strong>${h_peak.toFixed(3)} m</strong>`;
 
-    if(h_peak !== null){
-      const peakDepth = -h_peak;
-      const [badge, badgeClass] = peakBadge(h_peak);
-      const r2Note = (!showWell && r2_cluster !== null) ? ` R\u00b2\u00a0=\u00a0${r2_cluster.toFixed(2)}.` : '';
-      const weakCaveat = (!showWell && r2_cluster !== null && r2_cluster < 0.5)
-        ? `<div class="threshold-note">Block regression has low explanatory power (R\u00b2\u00a0=\u00a0${r2_cluster.toFixed(2)}); treat as indicative only.</div>` : '';
-
-      // Comparison row
-      let compRow = '';
-      if(showWell && h_peak_cluster !== null){
-        const [cb, cbc] = peakBadge(h_peak_cluster);
-        compRow = `<div class="forecast-sub" style="margin-top:.4rem;border-top:1px solid #eee;padding-top:.4rem;">
-          <strong>Cluster-average:</strong> ${(-h_peak_cluster).toFixed(2)} m <span class="forecast-badge ${cbc}" style="font-size:.75rem">${cb}</span>
-          <span style="font-size:.8rem;color:#666;"> (${blockName} block TF; R\u00b2\u00a0=\u00a0${(r2_cluster||0).toFixed(2)})</span></div>`;
-      } else if(!showWell && h_peak_well !== null){
-        const [wb, wbc] = peakBadge(h_peak_well);
-        compRow = `<div class="forecast-sub" style="margin-top:.4rem;border-top:1px solid #eee;padding-top:.4rem;">
-          <strong>Per-well SSM:</strong> ${(-h_peak_well).toFixed(2)} m <span class="forecast-badge ${wbc}" style="font-size:.75rem">${wb}</span></div>`;
-      }
-
-      html += `<div class="forecast-block${(!showWell && r2_cluster!==null && r2_cluster<0.5)?' warn':''}">
-        <div class="forecast-title">Next winter peak (from summer minimum)</div>
-        <div class="forecast-value">${peakDepth.toFixed(2)}<span class="unit">m below ground</span> <span class="forecast-badge ${badgeClass}">${badge}</span></div>
-        <div class="forecast-sub">Given your reading and ${GLOBAL_LAMBDA_MULT.toFixed(2)}\u00d7 climatological winter rainfall (${Pwinter.toFixed(0)} mm). Source: ${source}.${r2Note}</div>
-        ${compRow}${weakCaveat}
-      </div>`;
-    }
+    html += `<div class="forecast-block${r2<0.5?' warn':''}">
+      <div class="forecast-title">Next winter peak (from summer minimum)</div>
+      <div class="forecast-value">${peakDepth.toFixed(2)}<span class="unit">m below ground</span> <span class="forecast-badge ${badgeClass}">${badge}</span></div>
+      <div class="forecast-sub">
+        <strong>${block.name} block transfer function</strong> (Table 6, R\u00b2\u00a0=\u00a0${r2.toFixed(2)}):<br>
+        ${eqGeneral}<br>
+        With P<sub>winter</sub> = ${Pwinter.toFixed(0)} mm (${GLOBAL_LAMBDA_MULT.toFixed(2)}\u00d7 climatology) and h<sub>min</sub> = ${hPrev.toFixed(2)} m:<br>
+        ${eqValues}
+      </div>
+      ${timingNote}
+      ${weakCaveat}
+    </div>`;
   }
 
   // ═════════════════════════════════════════════════════════════════════
-  // FORECAST 2: following summer minimum
+  // FORECAST 2: following summer minimum — Table 7 transfer function
+  //   h_min_summer = β₁·P_summer + β₂·h_max_winter + intercept
+  //
+  // Uses cluster-mean winter maximum (default_h_max) and climatological
+  // summer rainfall.
   // ═════════════════════════════════════════════════════════════════════
-  if(block || showWell){
+  if(block){
     const Psummer_clim = [4,5,6,7,8,9].reduce((s,m)=>s+(DATA.P_clim[m]||0),0);
     const hMaxWinter = w.default_h_max;
+    const {b1, b2, c: intercept, r2} = block.summer;
 
-    // Cluster-average (block TF)
-    let h_min_cluster = null, r2_cluster = null, blockName = '';
-    if(block){
-      const f = forecastSummerMin(hMaxWinter, Psummer_clim, block);
-      h_min_cluster = f.h_min;
-      r2_cluster = f.r2;
-      blockName = block.name;
-    }
+    const term1 = b1 * Psummer_clim;
+    const term2 = b2 * hMaxWinter;
+    const h_min = term1 + term2 + intercept;
+    const minDepth = -h_min;
+    const [badge, badgeClass] = minBadge(h_min);
+    const weakCaveat = (r2 < 0.5)
+      ? `<div class="threshold-note">Block regression has low explanatory power (R\u00b2\u00a0=\u00a0${r2.toFixed(2)}); treat as indicative only.</div>` : '';
 
-    // Per-well SSM iteration (from cluster-mean winter max through Apr–Sep)
-    let h_min_well = null;
-    if(hasWellCoeffs){
-      h_min_well = ssmIterate(hMaxWinter, w.b1_well, w.b2_well, w.b3_well, summerMonths, 1.0);
-    }
+    const eqGeneral = `h<sub>min</sub> = ${b1.toFixed(5)}\u00b7P<sub>summer</sub> + ${b2.toFixed(3)}\u00b7h<sub>max\u00a0winter</sub> + (${intercept.toFixed(3)})`;
+    const eqValues  = `h<sub>min</sub> = ${b1.toFixed(5)}\u00a0\u00d7\u00a0${Psummer_clim.toFixed(0)} + ${b2.toFixed(3)}\u00a0\u00d7\u00a0${hMaxWinter.toFixed(2)} + (${intercept.toFixed(3)}) = <strong>${h_min.toFixed(3)} m</strong>`;
 
-    const h_min = showWell ? h_min_well : h_min_cluster;
-    const source = showWell ? 'per-well SSM' : `${blockName} block TF`;
-
-    if(h_min !== null){
-      const minDepth = -h_min;
-      const [badge, badgeClass] = minBadge(h_min);
-      const r2Note = (!showWell && r2_cluster !== null) ? ` R\u00b2\u00a0=\u00a0${r2_cluster.toFixed(2)}.` : '';
-
-      let compRow = '';
-      if(showWell && h_min_cluster !== null){
-        const [cb, cbc] = minBadge(h_min_cluster);
-        compRow = `<div class="forecast-sub" style="margin-top:.4rem;border-top:1px solid #eee;padding-top:.4rem;">
-          <strong>Cluster-average:</strong> ${(-h_min_cluster).toFixed(2)} m <span class="forecast-badge ${cbc}" style="font-size:.75rem">${cb}</span>
-          <span style="font-size:.8rem;color:#666;"> (${blockName} block TF; R\u00b2\u00a0=\u00a0${(r2_cluster||0).toFixed(2)})</span></div>`;
-      } else if(!showWell && h_min_well !== null){
-        const [wb, wbc] = minBadge(h_min_well);
-        compRow = `<div class="forecast-sub" style="margin-top:.4rem;border-top:1px solid #eee;padding-top:.4rem;">
-          <strong>Per-well SSM:</strong> ${(-h_min_well).toFixed(2)} m <span class="forecast-badge ${wbc}" style="font-size:.75rem">${wb}</span></div>`;
-      }
-
-      html += `<div class="forecast-block">
-        <div class="forecast-title">Following summer minimum (from cluster-mean winter max)</div>
-        <div class="forecast-value">${minDepth.toFixed(2)}<span class="unit">m below ground</span> <span class="forecast-badge ${badgeClass}">${badge}</span></div>
-        <div class="forecast-sub">Given cluster-mean winter peak (${(-hMaxWinter).toFixed(2)} m) and climatological summer rainfall (${Psummer_clim.toFixed(0)} mm Apr\u2013Sep). Source: ${source}.${r2Note}</div>
-        ${compRow}
-      </div>`;
-    }
+    html += `<div class="forecast-block">
+      <div class="forecast-title">Following summer minimum (from cluster-mean winter peak)</div>
+      <div class="forecast-value">${minDepth.toFixed(2)}<span class="unit">m below ground</span> <span class="forecast-badge ${badgeClass}">${badge}</span></div>
+      <div class="forecast-sub">
+        <strong>${block.name} block transfer function</strong> (Table 7, R\u00b2\u00a0=\u00a0${r2.toFixed(2)}):<br>
+        ${eqGeneral}<br>
+        With P<sub>summer</sub> = ${Psummer_clim.toFixed(0)} mm (climatological Apr\u2013Sep) and h<sub>max\u00a0winter</sub> = ${hMaxWinter.toFixed(2)} m (cluster mean):<br>
+        ${eqValues}
+      </div>
+      ${weakCaveat}
+    </div>`;
   }
 
   // ═════════════════════════════════════════════════════════════════════
-  // FORECAST 3: P_flood
+  // FORECAST 3: P_flood — Table 10 collapsed cluster equation
+  //   P_flood = A·d + B
   // ═════════════════════════════════════════════════════════════════════
-  // Cluster-level P_flood
-  const P_flood_cluster = pFloodLinear(depth_m, coeff);
-  const lam_cluster = lambdaFromPFlood(P_flood_cluster, coeff);
-
-  // Per-well P_flood
-  let P_flood_well = null, lam_well = null;
-  if(hasWellCoeffs && w.slope_A_well !== undefined && w.slope_A_well !== null){
-    P_flood_well = w.slope_A_well * Math.max(0, depth_m) + w.intercept_B_well;
-    lam_well = P_flood_well / coeff.P_clim_total_mm;
-  }
-
-  const P_flood_show = showWell ? P_flood_well : P_flood_cluster;
-  const lam_show = showWell ? lam_well : lam_cluster;
-  const pf_source = showWell ? 'per-well SSM' : 'cluster-average SSM';
+  const P_flood = pFloodLinear(depth_m, coeff);
+  const lam = lambdaFromPFlood(P_flood, coeff);
 
   function pfBadge(lam){
     if(lam < 1.0) return ['reachable','badge-green'];
@@ -972,48 +928,30 @@ function renderForecasts(w){
     return ['structurally unreachable','badge-grey'];
   }
 
-  if(P_flood_show !== null && lam_show !== null){
-    const [badge, badgeClass] = pfBadge(lam_show);
+  if(P_flood !== null && lam !== null){
+    const [badge, badgeClass] = pfBadge(lam);
+    const eqGeneral = `P<sub>flood</sub> = ${coeff.slope_A.toFixed(2)}\u00b7d + ${coeff.intercept_B.toFixed(2)}`;
+    const eqValues  = `P<sub>flood</sub> = ${coeff.slope_A.toFixed(2)}\u00a0\u00d7\u00a0${depth_m.toFixed(2)} + ${coeff.intercept_B.toFixed(2)} = <strong>${P_flood.toFixed(0)} mm</strong>`;
 
-    let compRow = '';
-    if(showWell && P_flood_cluster !== null){
-      const [cb, cbc] = pfBadge(lam_cluster);
-      compRow = `<div class="forecast-sub" style="margin-top:.4rem;border-top:1px solid #eee;padding-top:.4rem;">
-        <strong>Cluster-average:</strong> ${P_flood_cluster.toFixed(0)} mm (\u03bb\u00a0=\u00a0${lam_cluster.toFixed(2)}\u00d7) <span class="forecast-badge ${cbc}" style="font-size:.75rem">${cb}</span>
-        <span style="font-size:.8rem;color:#666;"> Equation: P<sub>flood</sub>\u00a0=\u00a0${coeff.slope_A.toFixed(2)}\u00a0\u00d7\u00a0d\u00a0+\u00a0${coeff.intercept_B.toFixed(2)}</span></div>`;
-    } else if(!showWell && P_flood_well !== null){
-      const [wb, wbc] = pfBadge(lam_well);
-      compRow = `<div class="forecast-sub" style="margin-top:.4rem;border-top:1px solid #eee;padding-top:.4rem;">
-        <strong>Per-well SSM:</strong> ${P_flood_well.toFixed(0)} mm (\u03bb\u00a0=\u00a0${lam_well.toFixed(2)}\u00d7) <span class="forecast-badge ${wbc}" style="font-size:.75rem">${wb}</span>
-        <span style="font-size:.8rem;color:#666;"> Equation: P<sub>flood</sub>\u00a0=\u00a0${w.slope_A_well.toFixed(2)}\u00a0\u00d7\u00a0d\u00a0+\u00a0${w.intercept_B_well.toFixed(2)}</span></div>`;
-    }
-
-    const eqn = showWell
-      ? `P<sub>flood</sub>\u00a0=\u00a0${w.slope_A_well.toFixed(2)}\u00a0\u00d7\u00a0d\u00a0+\u00a0${w.intercept_B_well.toFixed(2)}`
-      : `P<sub>flood</sub>\u00a0=\u00a0${coeff.slope_A.toFixed(2)}\u00a0\u00d7\u00a0d\u00a0+\u00a0${coeff.intercept_B.toFixed(2)}`;
-
-    html += `<div class="forecast-block${lam_show>=1.3?' warn':''}">
+    html += `<div class="forecast-block${lam>=1.3?' warn':''}">
       <div class="forecast-title">P<sub>flood</sub> to slack floor (0 m)</div>
-      <div class="forecast-value">${P_flood_show.toFixed(0)}<span class="unit">mm</span> <span class="forecast-badge ${badgeClass}">${badge}</span></div>
-      <div class="forecast-sub">Cumulative rainfall over ${horizonName} (${coeff.horizon_months} months) to reach surface from ${depth_m.toFixed(2)} m. <strong>${lam_show.toFixed(2)}\u00d7</strong> climatological rainfall (${coeff.P_clim_total_mm.toFixed(0)} mm). Source: ${pf_source}. ${eqn}.</div>
-      ${compRow}
+      <div class="forecast-value">${P_flood.toFixed(0)}<span class="unit">mm</span> <span class="forecast-badge ${badgeClass}">${badge}</span></div>
+      <div class="forecast-sub">
+        Cumulative rainfall over ${horizonName} (${coeff.horizon_months} months) to lift the water table from ${depth_m.toFixed(2)} m below ground to the slack floor. Equivalent to <strong>${lam.toFixed(2)}\u00d7</strong> climatological rainfall (${coeff.P_clim_total_mm.toFixed(0)} mm).<br>
+        <strong>${coeff.label} P<sub>flood</sub> equation</strong> (Table 10):<br>
+        ${eqGeneral}<br>
+        With d = ${depth_m.toFixed(2)} m:<br>
+        ${eqValues}
+      </div>
     </div>`;
   }
 
   // ── Method note ───────────────────────────────────────────────────
   html += `<div class="threshold-note" style="margin-top:1rem">
-    <strong>Method.</strong> <em>Cluster average</em> uses block seasonal transfer functions (Tables 8 &amp; 9) for Forecasts 1 &amp; 2, and the cluster-centroid iterated P<sub>flood</sub> equation for Forecast 3. <em>Per-well SSM</em> uses each well's own lag-1 SSM coefficients (Script 03) to iterate the monthly recurrence forward. The assumed-rainfall slider scales climatological winter rainfall by \u03bb; live Met Office data provides an observational anchor.${!hasWellCoeffs ? ' <em>No per-well SSM is available for this well; cluster-average shown.</em>' : ''}
+    <strong>Method.</strong> Forecasts use the cluster-block seasonal transfer functions and P<sub>flood</sub> equations from the report (Tables 6, 7 and 10). The assumed-rainfall slider scales climatological winter rainfall by \u03bb; live Met Office data, when available, drives the slider's live presets so the equations can be exercised with the current hydrological year's actual rainfall. All equations are presented inline with values substituted so the manager can audit the calculation.
   </div>`;
 
   panel.innerHTML = html;
-
-  // ── Wire up tab clicks ────────────────────────────────────────────
-  panel.querySelectorAll('.source-tab').forEach(tab=>{
-    tab.addEventListener('click', ()=>{
-      FORECAST_SOURCE = tab.dataset.src;
-      renderForecasts(w);
-    });
-  });
 }
 
 /* ═══════════════════════════════════════════════════════════════════

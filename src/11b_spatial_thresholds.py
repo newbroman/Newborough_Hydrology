@@ -1574,16 +1574,24 @@ def _build_forecaster_data_bundle() -> dict:
     md    = pd.read_csv(INT_MASTER_DATA)         # reference cluster assignments
     site  = pd.read_csv(INT_PEAR_AUDIT_SITEWIDE) # extended cluster assignments
 
-    # Build cluster defaults for the reading input pre-fill
+    # Build cluster defaults for the reading input pre-fill, plus the
+    # full 12-month centroid climatology so the forecaster's well-details
+    # panel can show "this month's typical depth" for each well's cluster.
     cluster_default_h_prev = {}
     cluster_default_h_max  = {}
-    # default_h_prev = cluster mean month-of-minimum head (most negative monthly mean)
-    # default_h_max  = cluster mean month-of-maximum head
+    # default_h_prev    = cluster mean month-of-minimum head (most negative monthly mean)
+    # default_h_max     = cluster mean month-of-maximum head
+    # monthly_clim      = full 12-month centroid hydrograph (mean depth per calendar month)
+    # trough_month      = calendar month of the centroid minimum (used by the
+    #                     forecaster to show a timing note when the current
+    #                     month is before the cluster's summer minimum)
     for c in cluster_coeffs:
         if c in ra.columns:
             monthly = ra.groupby(ra.index.month)[c].mean()
             cluster_default_h_prev[c] = float(monthly.min())
             cluster_default_h_max[c]  = float(monthly.max())
+            cluster_coeffs[c]["monthly_clim"] = {int(m): float(v) for m, v in monthly.items()}
+            cluster_coeffs[c]["trough_month"] = int(monthly.idxmin())
 
     # Reference-network wells — cluster comes from INT_MASTER_DATA
     ref_clusters = {
@@ -1606,25 +1614,6 @@ def _build_forecaster_data_bundle() -> dict:
     elev_by_norm = {_norm(r["Name_norm"]): r for _, r in elev.iterrows()}
 
     wells = []
-    # Per-well SSM coefficients from master_data (reference wells only)
-    well_betas = {}
-    for _, mr in md.iterrows():
-        wn_md = _norm(mr["Name_Original"])
-        b1_raw = mr.get("beta_1_recharge", np.nan)
-        b2_raw = mr.get("beta_2_atmospheric_draw", np.nan)
-        b3_raw = mr.get("beta_3_drainage", np.nan)
-        if (pd.notna(b1_raw) and float(b1_raw) > 0
-                and pd.notna(b2_raw) and pd.notna(b3_raw)):
-            b3_v = float(b3_raw)
-            if b3_v < 0:
-                print(f"  [WARNING] {wn_md}: β₃ = {b3_v:.4f} is negative "
-                      f"(expected positive under displacement formulation)")
-            well_betas[wn_md] = {
-                "b1": float(b1_raw) / 1000.0,   # m/m -> m/mm
-                "b2": float(b2_raw) / 1000.0,
-                "b3": abs(b3_v),
-            }
-
     for wn, cluster in {**ref_clusters, **ext_clusters}.items():
         if cluster not in cluster_coeffs:
             continue   # skip wells whose cluster is outside the canonical k=5 set
@@ -1636,37 +1625,11 @@ def _build_forecaster_data_bundle() -> dict:
             continue
         display = str(lrow.get("Match_ID") or lrow.get("Name") or wn)
         # nearest_cluster_only=True means the cluster label is a pattern-match
-        # nearest-type assignment, not a core-member assignment. The SSM
-        # forecast is still computed (using the matched cluster's coefficients)
+        # nearest-type assignment, not a core-member assignment. The cluster
+        # forecast is still computed (using the matched cluster's equation)
         # but the UI should make clear the user's interpretation should be
         # tempered.
         nearest_only = wn in NEAREST_CLUSTER_ONLY_WELLS
-
-        # Per-well P_flood coefficients (slope_A_well, intercept_B_well)
-        # computed from the well's own beta if available.
-        wb = well_betas.get(wn)
-        well_pflood = {}
-        if wb is not None:
-            cc_cluster = cluster_coeffs[cluster]
-            peak_month = cc_cluster["peak_month"]
-            months = _horizon_months(peak_month)
-            n = len(months)
-            alpha_w = 1.0 - wb["b3"]
-            alpha_n_w = alpha_w ** n
-            S_P_w = sum(alpha_w ** (n - 1 - i) * P_clim[m]
-                        for i, m in enumerate(months))
-            S_E_w = sum(alpha_w ** (n - 1 - i) * PET_clim[m]
-                        for i, m in enumerate(months))
-            P_clim_total = sum(P_clim[m] for m in months)
-            denom = wb["b1"] * S_P_w
-            if abs(denom) > 1e-12:
-                well_pflood = {
-                    "slope_A_well":      (alpha_n_w * P_clim_total) / denom,
-                    "intercept_B_well":  (wb["b2"] * S_E_w * P_clim_total) / denom,
-                    "b1_well":           wb["b1"],
-                    "b2_well":           wb["b2"],
-                    "b3_well":           wb["b3"],
-                }
 
         wells.append({
             "name":            wn,
@@ -1678,7 +1641,6 @@ def _build_forecaster_data_bundle() -> dict:
             "nearest_cluster_only": bool(nearest_only),
             "default_h_prev":  cluster_default_h_prev.get(cluster, -1.0),
             "default_h_max":   cluster_default_h_max.get(cluster, -0.5),
-            **well_pflood,
         })
     wells.sort(key=lambda w: (w["cluster"], w["name"]))
     bundle["wells"] = wells

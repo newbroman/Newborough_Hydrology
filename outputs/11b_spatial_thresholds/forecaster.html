@@ -225,18 +225,6 @@
     margin-top:.4rem;font-style:italic;
   }
 
-  /* ── FORECAST SOURCE TABS ────────────── */
-  .source-tabs{
-    display:inline-flex;gap:0;margin-bottom:.5rem;border:1px solid var(--border);border-radius:3px;overflow:hidden;font-size:.75rem;
-  }
-  .source-tab{
-    padding:.25rem .6rem;cursor:pointer;background:var(--sand);color:var(--text-light);
-    border-right:1px solid var(--border);user-select:none;
-  }
-  .source-tab:last-child{border-right:none;}
-  .source-tab.active{background:var(--water);color:#fff;font-weight:600;}
-  .source-tab:hover:not(.active){background:var(--sand-dark);}
-
   /* ── MANUAL UPLOAD FALLBACK MODAL ────────────── */
   .modal-backdrop{
     position:fixed;inset:0;background:rgba(42,51,56,.55);
@@ -381,55 +369,130 @@ const DATA = {
       "b1": 0.00458099979735894,
       "b2": 0.0009625442343027787,
       "b3": 0.0896463311949521,
-      "peak_month": 2,
-      "slope_A": 167.18045687700626,
-      "intercept_B": 398.6364086969914,
-      "P_clim_total_mm": 464.0009523809523,
-      "horizon_months": 5
+      "peak_month": 1,
+      "slope_A": 173.33675303172183,
+      "intercept_B": 316.0663157524234,
+      "P_clim_total_mm": 400.715238095238,
+      "horizon_months": 4,
+      "monthly_clim": {
+        "1": -0.07511309523809526,
+        "2": -0.10819999999999999,
+        "3": -0.2149496622913215,
+        "4": -0.42005952380952377,
+        "5": -0.5703271532656778,
+        "6": -0.7240880135205409,
+        "7": -0.8139900081717555,
+        "8": -0.812589926454201,
+        "9": -0.723824288090147,
+        "10": -0.48405900621118014,
+        "11": -0.2610119047619047,
+        "12": -0.10027507292822219
+      },
+      "trough_month": 7
     },
     "C2": {
       "label": "C2 (Dune)",
       "b1": 0.0038706098316406623,
       "b2": 0.0017448223732278358,
       "b3": 0.0631980959142108,
-      "peak_month": 2,
-      "slope_A": 215.00344229425093,
-      "intercept_B": 367.2428087980492,
-      "P_clim_total_mm": 464.0009523809523,
-      "horizon_months": 5
+      "peak_month": 1,
+      "slope_A": 220.3421754632681,
+      "intercept_B": 294.3777988874037,
+      "P_clim_total_mm": 400.715238095238,
+      "horizon_months": 4,
+      "monthly_clim": {
+        "1": -0.26033810585549716,
+        "2": -0.2682914892675762,
+        "3": -0.3144533261539473,
+        "4": -0.48466096885160115,
+        "5": -0.6428339691404094,
+        "6": -0.8282381789023215,
+        "7": -0.9366830142846931,
+        "8": -0.9624992699137872,
+        "9": -0.9328627962152259,
+        "10": -0.7524882743898539,
+        "11": -0.5318331993714347,
+        "12": -0.3166196794871795
+      },
+      "trough_month": 8
     },
     "C3": {
       "label": "C3 (Western Residual)",
       "b1": 0.00357579752103308,
       "b2": 0.0018059525905683455,
       "b3": 0.059571488112596,
-      "peak_month": 3,
-      "slope_A": 229.66583067943108,
-      "intercept_B": 462.9974301941817,
-      "P_clim_total_mm": 523.6199999999999,
-      "horizon_months": 6
+      "peak_month": 2,
+      "slope_A": 235.3253785577036,
+      "intercept_B": 380.475389565177,
+      "P_clim_total_mm": 464.0009523809523,
+      "horizon_months": 5,
+      "monthly_clim": {
+        "1": -0.5755449796877815,
+        "2": -0.5675689237848339,
+        "3": -0.6434775405852031,
+        "4": -0.7806476852359484,
+        "5": -0.9085484513148995,
+        "6": -1.0514441681985127,
+        "7": -1.1548471282088983,
+        "8": -1.209728784213671,
+        "9": -1.2261782741727236,
+        "10": -1.0610714945753297,
+        "11": -0.8781678273067192,
+        "12": -0.6631898367745143
+      },
+      "trough_month": 9
     },
     "C4": {
       "label": "C4 (Main Forest)",
       "b1": 0.0025178914421465884,
       "b2": 0.002504392599998737,
       "b3": 0.0214570489204331,
-      "peak_month": 3,
-      "slope_A": 370.90837802025686,
-      "intercept_B": 356.3492043668737,
-      "P_clim_total_mm": 523.6199999999999,
-      "horizon_months": 6
+      "peak_month": 2,
+      "slope_A": 373.9698324322808,
+      "intercept_B": 292.5700640600623,
+      "P_clim_total_mm": 464.0009523809523,
+      "horizon_months": 5,
+      "monthly_clim": {
+        "1": -1.245102777777778,
+        "2": -1.1709907103825137,
+        "3": -1.1821198830409356,
+        "4": -1.2914194444444445,
+        "5": -1.3731944444444444,
+        "6": -1.5102027777777778,
+        "7": -1.631183724694854,
+        "8": -1.7207758109309677,
+        "9": -1.7837963932186258,
+        "10": -1.7438229453413332,
+        "11": -1.5978184031262779,
+        "12": -1.3958840475505705
+      },
+      "trough_month": 9
     },
     "C5": {
       "label": "C5 (Coastal Forest)",
       "b1": 0.0024363064660208843,
       "b2": 0.001373835262961292,
       "b3": 0.0448449931927621,
-      "peak_month": 3,
-      "slope_A": 354.6480451236247,
-      "intercept_B": 509.9008433162779,
-      "P_clim_total_mm": 523.6199999999999,
-      "horizon_months": 6
+      "peak_month": 2,
+      "slope_A": 361.04308090161607,
+      "intercept_B": 420.05536343584777,
+      "P_clim_total_mm": 464.0009523809523,
+      "horizon_months": 5,
+      "monthly_clim": {
+        "1": -1.0349416666666666,
+        "2": -0.9961190476190476,
+        "3": -1.04724,
+        "4": -1.150315,
+        "5": -1.231315,
+        "6": -1.34904,
+        "7": -1.4417190983606558,
+        "8": -1.4750885772357722,
+        "9": -1.4922258429961348,
+        "10": -1.4028787451685993,
+        "11": -1.2525,
+        "12": -1.104217543859649
+      },
+      "trough_month": 9
     }
   },
   "block_tf": {
@@ -573,12 +636,7 @@ const DATA = {
       "cluster": "C1",
       "nearest_cluster_only": false,
       "default_h_prev": -0.8139900081717555,
-      "default_h_max": -0.07511309523809526,
-      "slope_A_well": 170.31055856198543,
-      "intercept_B_well": 22.904384554728548,
-      "b1_well": 0.004463477084897849,
-      "b2_well": 0.0007707385306228505,
-      "b3_well": 0.0919549632431785
+      "default_h_max": -0.07511309523809526
     },
     {
       "name": "ceh23",
@@ -589,12 +647,7 @@ const DATA = {
       "cluster": "C1",
       "nearest_cluster_only": false,
       "default_h_prev": -0.8139900081717555,
-      "default_h_max": -0.07511309523809526,
-      "slope_A_well": 172.3482135549075,
-      "intercept_B_well": 17.325644806492832,
-      "b1_well": 0.004419263083498267,
-      "b2_well": 0.0005771607511053972,
-      "b3_well": 0.0913544088276576
+      "default_h_max": -0.07511309523809526
     },
     {
       "name": "ceh25",
@@ -605,12 +658,7 @@ const DATA = {
       "cluster": "C1",
       "nearest_cluster_only": false,
       "default_h_prev": -0.8139900081717555,
-      "default_h_max": -0.07511309523809526,
-      "slope_A_well": 104.89668703355794,
-      "intercept_B_well": 8.677555090769802,
-      "b1_well": 0.006267902315750871,
-      "b2_well": 0.00041387617553196286,
-      "b3_well": 0.1351526074018555
+      "default_h_max": -0.07511309523809526
     },
     {
       "name": "ceh26",
@@ -621,12 +669,7 @@ const DATA = {
       "cluster": "C1",
       "nearest_cluster_only": false,
       "default_h_prev": -0.8139900081717555,
-      "default_h_max": -0.07511309523809526,
-      "slope_A_well": 178.78590894042344,
-      "intercept_B_well": 17.01215435596983,
-      "b1_well": 0.004310733648770537,
-      "b2_well": 0.0005523507651622868,
-      "b3_well": 0.087681868170956
+      "default_h_max": -0.07511309523809526
     },
     {
       "name": "ceh27",
@@ -637,12 +680,7 @@ const DATA = {
       "cluster": "C1",
       "nearest_cluster_only": false,
       "default_h_prev": -0.8139900081717555,
-      "default_h_max": -0.07511309523809526,
-      "slope_A_well": 146.3493990255674,
-      "intercept_B_well": 21.973044467649913,
-      "b1_well": 0.005072917151018993,
-      "b2_well": 0.0008417008862490788,
-      "b3_well": 0.0992274658229883
+      "default_h_max": -0.07511309523809526
     },
     {
       "name": "ceh5",
@@ -653,12 +691,7 @@ const DATA = {
       "cluster": "C1",
       "nearest_cluster_only": false,
       "default_h_prev": -0.8139900081717555,
-      "default_h_max": -0.07511309523809526,
-      "slope_A_well": 139.97164853942587,
-      "intercept_B_well": 33.30132680726652,
-      "b1_well": 0.005317568969959272,
-      "b2_well": 0.0013369353862416834,
-      "b3_well": 0.0984496225247558
+      "default_h_max": -0.07511309523809526
     },
     {
       "name": "ceh6",
@@ -669,12 +702,7 @@ const DATA = {
       "cluster": "C1",
       "nearest_cluster_only": false,
       "default_h_prev": -0.8139900081717555,
-      "default_h_max": -0.07511309523809526,
-      "slope_A_well": 130.11226716558082,
-      "intercept_B_well": -4.973484376278673,
-      "b1_well": 0.005283073964652784,
-      "b2_well": -0.0001993972056707111,
-      "b3_well": 0.1222723065718425
+      "default_h_max": -0.07511309523809526
     },
     {
       "name": "p2",
@@ -696,12 +724,7 @@ const DATA = {
       "cluster": "C2",
       "nearest_cluster_only": false,
       "default_h_prev": -0.9624992699137872,
-      "default_h_max": -0.26033810585549716,
-      "slope_A_well": 159.67574814808887,
-      "intercept_B_well": 46.25314196366642,
-      "b1_well": 0.004558135154044079,
-      "b2_well": 0.0015940808424810139,
-      "b3_well": 0.1052624481253052
+      "default_h_max": -0.26033810585549716
     },
     {
       "name": "ceh12",
@@ -723,12 +746,7 @@ const DATA = {
       "cluster": "C2",
       "nearest_cluster_only": false,
       "default_h_prev": -0.9624992699137872,
-      "default_h_max": -0.26033810585549716,
-      "slope_A_well": 175.5959266859375,
-      "intercept_B_well": 47.12131834162126,
-      "b1_well": 0.004545113776074678,
-      "b2_well": 0.0016091637599438754,
-      "b3_well": 0.0766700651046743
+      "default_h_max": -0.26033810585549716
     },
     {
       "name": "ceh28",
@@ -739,12 +757,7 @@ const DATA = {
       "cluster": "C2",
       "nearest_cluster_only": false,
       "default_h_prev": -0.9624992699137872,
-      "default_h_max": -0.26033810585549716,
-      "slope_A_well": 202.7218885173296,
-      "intercept_B_well": 41.39191848834294,
-      "b1_well": 0.004043167453980566,
-      "b2_well": 0.0012549921365486063,
-      "b3_well": 0.0681317670358091
+      "default_h_max": -0.26033810585549716
     },
     {
       "name": "ceh35",
@@ -788,12 +801,7 @@ const DATA = {
       "cluster": "C2",
       "nearest_cluster_only": false,
       "default_h_prev": -0.9624992699137872,
-      "default_h_max": -0.26033810585549716,
-      "slope_A_well": 323.15298419050566,
-      "intercept_B_well": 84.8887063643902,
-      "b1_well": 0.002801542374716081,
-      "b2_well": 0.001769977220119078,
-      "b3_well": 0.0350653192108236
+      "default_h_max": -0.26033810585549716
     },
     {
       "name": "ceh41",
@@ -804,12 +812,7 @@ const DATA = {
       "cluster": "C2",
       "nearest_cluster_only": false,
       "default_h_prev": -0.9624992699137872,
-      "default_h_max": -0.26033810585549716,
-      "slope_A_well": 283.9737948279626,
-      "intercept_B_well": 92.99217254800921,
-      "b1_well": 0.003188724935233282,
-      "b2_well": 0.0022068707671092265,
-      "b3_well": 0.0349944215898291
+      "default_h_max": -0.26033810585549716
     },
     {
       "name": "ceh7",
@@ -842,12 +845,7 @@ const DATA = {
       "cluster": "C2",
       "nearest_cluster_only": false,
       "default_h_prev": -0.9624992699137872,
-      "default_h_max": -0.26033810585549716,
-      "slope_A_well": 204.59814842373987,
-      "intercept_B_well": 65.99070854922051,
-      "b1_well": 0.004128166677564515,
-      "b2_well": 0.002038357969884161,
-      "b3_well": 0.0583486860351783
+      "default_h_max": -0.26033810585549716
     },
     {
       "name": "d15",
@@ -858,12 +856,7 @@ const DATA = {
       "cluster": "C2",
       "nearest_cluster_only": false,
       "default_h_prev": -0.9624992699137872,
-      "default_h_max": -0.26033810585549716,
-      "slope_A_well": 190.65150859183916,
-      "intercept_B_well": 64.33615159090716,
-      "b1_well": 0.004360655056234901,
-      "b2_well": 0.0021016367403544995,
-      "b3_well": 0.0635228429470697
+      "default_h_max": -0.26033810585549716
     },
     {
       "name": "d17",
@@ -874,12 +867,7 @@ const DATA = {
       "cluster": "C2",
       "nearest_cluster_only": false,
       "default_h_prev": -0.9624992699137872,
-      "default_h_max": -0.26033810585549716,
-      "slope_A_well": 187.75380565276114,
-      "intercept_B_well": 44.70470624392341,
-      "b1_well": 0.0043160798882337925,
-      "b2_well": 0.0014481231183155617,
-      "b3_well": 0.0717983615165974
+      "default_h_max": -0.26033810585549716
     },
     {
       "name": "d38",
@@ -890,12 +878,7 @@ const DATA = {
       "cluster": "C2",
       "nearest_cluster_only": false,
       "default_h_prev": -0.9624992699137872,
-      "default_h_max": -0.26033810585549716,
-      "slope_A_well": 130.92976677365834,
-      "intercept_B_well": 31.893085450101257,
-      "b1_well": 0.005439275589905258,
-      "b2_well": 0.00131351342046586,
-      "b3_well": 0.1117989416182612
+      "default_h_max": -0.26033810585549716
     },
     {
       "name": "d41",
@@ -906,12 +889,7 @@ const DATA = {
       "cluster": "C2",
       "nearest_cluster_only": false,
       "default_h_prev": -0.9624992699137872,
-      "default_h_max": -0.26033810585549716,
-      "slope_A_well": 205.8845654236741,
-      "intercept_B_well": 49.025605585375004,
-      "b1_well": 0.003996470773127033,
-      "b2_well": 0.0014688609405580704,
-      "b3_well": 0.0668818964722908
+      "default_h_max": -0.26033810585549716
     },
     {
       "name": "d43",
@@ -922,12 +900,7 @@ const DATA = {
       "cluster": "C2",
       "nearest_cluster_only": false,
       "default_h_prev": -0.9624992699137872,
-      "default_h_max": -0.26033810585549716,
-      "slope_A_well": 174.9712125827446,
-      "intercept_B_well": 53.646104636314654,
-      "b1_well": 0.004580030587020302,
-      "b2_well": 0.0018455155803165624,
-      "b3_well": 0.0753671909105831
+      "default_h_max": -0.26033810585549716
     },
     {
       "name": "d44",
@@ -938,12 +911,7 @@ const DATA = {
       "cluster": "C2",
       "nearest_cluster_only": false,
       "default_h_prev": -0.9624992699137872,
-      "default_h_max": -0.26033810585549716,
-      "slope_A_well": 163.91487613888017,
-      "intercept_B_well": 40.10202143840526,
-      "b1_well": 0.004670034419041056,
-      "b2_well": 0.0014112179638831313,
-      "b3_well": 0.0897947660593767
+      "default_h_max": -0.26033810585549716
     },
     {
       "name": "d5",
@@ -954,12 +922,7 @@ const DATA = {
       "cluster": "C2",
       "nearest_cluster_only": false,
       "default_h_prev": -0.9624992699137872,
-      "default_h_max": -0.26033810585549716,
-      "slope_A_well": 190.5087807025221,
-      "intercept_B_well": 56.081491261330534,
-      "b1_well": 0.004279920438800542,
-      "b2_well": 0.0018006295284699813,
-      "b3_well": 0.0698194021115176
+      "default_h_max": -0.26033810585549716
     },
     {
       "name": "d6",
@@ -970,12 +933,7 @@ const DATA = {
       "cluster": "C2",
       "nearest_cluster_only": false,
       "default_h_prev": -0.9624992699137872,
-      "default_h_max": -0.26033810585549716,
-      "slope_A_well": 188.47096901001106,
-      "intercept_B_well": 63.1656529076611,
-      "b1_well": 0.004378178252050146,
-      "b2_well": 0.0020728353392152087,
-      "b3_well": 0.0659584213071962
+      "default_h_max": -0.26033810585549716
     },
     {
       "name": "d7",
@@ -986,12 +944,7 @@ const DATA = {
       "cluster": "C2",
       "nearest_cluster_only": false,
       "default_h_prev": -0.9624992699137872,
-      "default_h_max": -0.26033810585549716,
-      "slope_A_well": 197.42802491078825,
-      "intercept_B_well": 40.275656550202946,
-      "b1_well": 0.004075617892376261,
-      "b2_well": 0.001232595264632033,
-      "b3_well": 0.074067554694385
+      "default_h_max": -0.26033810585549716
     },
     {
       "name": "d8",
@@ -1002,12 +955,7 @@ const DATA = {
       "cluster": "C2",
       "nearest_cluster_only": false,
       "default_h_prev": -0.9624992699137872,
-      "default_h_max": -0.26033810585549716,
-      "slope_A_well": 225.39003323525577,
-      "intercept_B_well": 59.64018638432868,
-      "b1_well": 0.00377347617342092,
-      "b2_well": 0.0016830408557027255,
-      "b3_well": 0.0560601978743024
+      "default_h_max": -0.26033810585549716
     },
     {
       "name": "d9",
@@ -1018,12 +966,7 @@ const DATA = {
       "cluster": "C2",
       "nearest_cluster_only": false,
       "default_h_prev": -0.9624992699137872,
-      "default_h_max": -0.26033810585549716,
-      "slope_A_well": 193.09619371703934,
-      "intercept_B_well": 66.58529134568352,
-      "b1_well": 0.0043203002298971135,
-      "b2_well": 0.0021544304191307632,
-      "b3_well": 0.0623998760669295
+      "default_h_max": -0.26033810585549716
     },
     {
       "name": "l1",
@@ -1045,12 +988,7 @@ const DATA = {
       "cluster": "C2",
       "nearest_cluster_only": false,
       "default_h_prev": -0.9624992699137872,
-      "default_h_max": -0.26033810585549716,
-      "slope_A_well": 176.20945855718622,
-      "intercept_B_well": 78.90931855844819,
-      "b1_well": 0.004399109040431057,
-      "b2_well": 0.0026135050880893864,
-      "b3_well": 0.0858757287055092
+      "default_h_max": -0.26033810585549716
     },
     {
       "name": "nw3",
@@ -1061,12 +999,7 @@ const DATA = {
       "cluster": "C2",
       "nearest_cluster_only": false,
       "default_h_prev": -0.9624992699137872,
-      "default_h_max": -0.26033810585549716,
-      "slope_A_well": 220.15954261759012,
-      "intercept_B_well": 49.29139832238914,
-      "b1_well": 0.003777710291298509,
-      "b2_well": 0.001394882941256708,
-      "b3_well": 0.0633921769675963
+      "default_h_max": -0.26033810585549716
     },
     {
       "name": "nw4",
@@ -1077,12 +1010,7 @@ const DATA = {
       "cluster": "C2",
       "nearest_cluster_only": false,
       "default_h_prev": -0.9624992699137872,
-      "default_h_max": -0.26033810585549716,
-      "slope_A_well": 253.67511917107842,
-      "intercept_B_well": 48.236155867869414,
-      "b1_well": 0.0033621126232391135,
-      "b2_well": 0.0012125720935064026,
-      "b3_well": 0.0551370180664122
+      "default_h_max": -0.26033810585549716
     },
     {
       "name": "nw4b",
@@ -1093,12 +1021,7 @@ const DATA = {
       "cluster": "C2",
       "nearest_cluster_only": false,
       "default_h_prev": -0.9624992699137872,
-      "default_h_max": -0.26033810585549716,
-      "slope_A_well": 234.9290599308738,
-      "intercept_B_well": 45.0698114826481,
-      "b1_well": 0.0035698550562628635,
-      "b2_well": 0.0012044974718430981,
-      "b3_well": 0.0606689049201585
+      "default_h_max": -0.26033810585549716
     },
     {
       "name": "pe",
@@ -1131,12 +1054,7 @@ const DATA = {
       "cluster": "C2",
       "nearest_cluster_only": false,
       "default_h_prev": -0.9624992699137872,
-      "default_h_max": -0.26033810585549716,
-      "slope_A_well": 133.77291925032426,
-      "intercept_B_well": 43.6132951121567,
-      "b1_well": 0.005458277790938735,
-      "b2_well": 0.001799551995650039,
-      "b3_well": 0.1042886886899596
+      "default_h_max": -0.26033810585549716
     },
     {
       "name": "t41b",
@@ -1147,12 +1065,7 @@ const DATA = {
       "cluster": "C2",
       "nearest_cluster_only": false,
       "default_h_prev": -0.9624992699137872,
-      "default_h_max": -0.26033810585549716,
-      "slope_A_well": 208.2655398691115,
-      "intercept_B_well": 43.982961034867515,
-      "b1_well": 0.003974447777608126,
-      "b2_well": 0.0013099417274759126,
-      "b3_well": 0.0649445340148257
+      "default_h_max": -0.26033810585549716
     },
     {
       "name": "t41c",
@@ -1163,12 +1076,7 @@ const DATA = {
       "cluster": "C2",
       "nearest_cluster_only": false,
       "default_h_prev": -0.9624992699137872,
-      "default_h_max": -0.26033810585549716,
-      "slope_A_well": 192.50251088647877,
-      "intercept_B_well": 45.071089130909144,
-      "b1_well": 0.004213097174113939,
-      "b2_well": 0.0014250703158523188,
-      "b3_well": 0.0715324434654534
+      "default_h_max": -0.26033810585549716
     },
     {
       "name": "t41d",
@@ -1179,12 +1087,7 @@ const DATA = {
       "cluster": "C2",
       "nearest_cluster_only": false,
       "default_h_prev": -0.9624992699137872,
-      "default_h_max": -0.26033810585549716,
-      "slope_A_well": 205.81479796749082,
-      "intercept_B_well": 51.27073072155165,
-      "b1_well": 0.003970248705100343,
-      "b2_well": 0.0015268195884405962,
-      "b3_well": 0.0691189980771781
+      "default_h_max": -0.26033810585549716
     },
     {
       "name": "wmc1",
@@ -1195,12 +1098,7 @@ const DATA = {
       "cluster": "C2",
       "nearest_cluster_only": false,
       "default_h_prev": -0.9624992699137872,
-      "default_h_max": -0.26033810585549716,
-      "slope_A_well": 232.19049891293434,
-      "intercept_B_well": 61.54991961871146,
-      "b1_well": 0.003659688521979264,
-      "b2_well": 0.0016846699625508279,
-      "b3_well": 0.0563547936398573
+      "default_h_max": -0.26033810585549716
     },
     {
       "name": "ceh1",
@@ -1211,12 +1109,7 @@ const DATA = {
       "cluster": "C3",
       "nearest_cluster_only": false,
       "default_h_prev": -1.2261782741727236,
-      "default_h_max": -0.5675689237848339,
-      "slope_A_well": 181.64492483026532,
-      "intercept_B_well": 86.29702631988339,
-      "b1_well": 0.004420035380474687,
-      "b2_well": 0.002282280663323992,
-      "b3_well": 0.0659935767629675
+      "default_h_max": -0.5675689237848339
     },
     {
       "name": "ceh18",
@@ -1227,12 +1120,7 @@ const DATA = {
       "cluster": "C3",
       "nearest_cluster_only": false,
       "default_h_prev": -1.2261782741727236,
-      "default_h_max": -0.5675689237848339,
-      "slope_A_well": 258.54595890338703,
-      "intercept_B_well": 78.89570070829072,
-      "b1_well": 0.003217707216422077,
-      "b2_well": 0.001520566883137912,
-      "b3_well": 0.0558629602709778
+      "default_h_max": -0.5675689237848339
     },
     {
       "name": "ceh21",
@@ -1243,12 +1131,7 @@ const DATA = {
       "cluster": "C3",
       "nearest_cluster_only": false,
       "default_h_prev": -1.2261782741727236,
-      "default_h_max": -0.5675689237848339,
-      "slope_A_well": 375.6930989545463,
-      "intercept_B_well": 81.71834088404918,
-      "b1_well": 0.002320837240791674,
-      "b2_well": 0.0011373933671262016,
-      "b3_well": 0.0421642988933321
+      "default_h_max": -0.5675689237848339
     },
     {
       "name": "ceh36",
@@ -1259,12 +1142,7 @@ const DATA = {
       "cluster": "C3",
       "nearest_cluster_only": false,
       "default_h_prev": -1.2261782741727236,
-      "default_h_max": -0.5675689237848339,
-      "slope_A_well": 321.41911580577465,
-      "intercept_B_well": 67.09578499221288,
-      "b1_well": 0.002678958103489313,
-      "b2_well": 0.0010776325199137139,
-      "b3_well": 0.0458542655601882
+      "default_h_max": -0.5675689237848339
     },
     {
       "name": "ceh39",
@@ -1275,12 +1153,7 @@ const DATA = {
       "cluster": "C3",
       "nearest_cluster_only": false,
       "default_h_prev": -1.2261782741727236,
-      "default_h_max": -0.5675689237848339,
-      "slope_A_well": 301.44049439455506,
-      "intercept_B_well": 121.08487085153168,
-      "b1_well": 0.003002192081213403,
-      "b2_well": 0.0021819735402056977,
-      "b3_well": 0.0310450602782384
+      "default_h_max": -0.5675689237848339
     },
     {
       "name": "ceh4",
@@ -1291,12 +1164,7 @@ const DATA = {
       "cluster": "C3",
       "nearest_cluster_only": true,
       "default_h_prev": -1.2261782741727236,
-      "default_h_max": -0.5675689237848339,
-      "slope_A_well": 230.9800728854165,
-      "intercept_B_well": 52.6422817613301,
-      "b1_well": 0.0034502891846960016,
-      "b2_well": 0.001086518053037662,
-      "b3_well": 0.0680811997324725
+      "default_h_max": -0.5675689237848339
     },
     {
       "name": "ceh42",
@@ -1307,12 +1175,7 @@ const DATA = {
       "cluster": "C3",
       "nearest_cluster_only": false,
       "default_h_prev": -1.2261782741727236,
-      "default_h_max": -0.5675689237848339,
-      "slope_A_well": 262.7625003966984,
-      "intercept_B_well": 66.72105185723632,
-      "b1_well": 0.003202611286696386,
-      "b2_well": 0.0012803001718349608,
-      "b3_well": 0.0525490224099715
+      "default_h_max": -0.5675689237848339
     },
     {
       "name": "ceh9",
@@ -1323,12 +1186,7 @@ const DATA = {
       "cluster": "C3",
       "nearest_cluster_only": false,
       "default_h_prev": -1.2261782741727236,
-      "default_h_max": -0.5675689237848339,
-      "slope_A_well": 294.34562711619304,
-      "intercept_B_well": 122.98386350129672,
-      "b1_well": 0.00305501121478884,
-      "b2_well": 0.0022548689914323895,
-      "b3_well": 0.0329674312711341
+      "default_h_max": -0.5675689237848339
     },
     {
       "name": "d25",
@@ -1339,12 +1197,7 @@ const DATA = {
       "cluster": "C3",
       "nearest_cluster_only": false,
       "default_h_prev": -1.2261782741727236,
-      "default_h_max": -0.5675689237848339,
-      "slope_A_well": 238.3521330646984,
-      "intercept_B_well": 64.3155799560822,
-      "b1_well": 0.0034689699484937286,
-      "b2_well": 0.0013361224332003167,
-      "b3_well": 0.0576262611523819
+      "default_h_max": -0.5675689237848339
     },
     {
       "name": "nw1",
@@ -1355,12 +1208,7 @@ const DATA = {
       "cluster": "C3",
       "nearest_cluster_only": false,
       "default_h_prev": -1.2261782741727236,
-      "default_h_max": -0.5675689237848339,
-      "slope_A_well": 155.856243147777,
-      "intercept_B_well": 80.57638925102133,
-      "b1_well": 0.004356477949555277,
-      "b2_well": 0.0020873836601716243,
-      "b3_well": 0.1112035919819169
+      "default_h_max": -0.5675689237848339
     },
     {
       "name": "nw11",
@@ -1371,12 +1219,7 @@ const DATA = {
       "cluster": "C3",
       "nearest_cluster_only": false,
       "default_h_prev": -1.2261782741727236,
-      "default_h_max": -0.5675689237848339,
-      "slope_A_well": 171.3507322907334,
-      "intercept_B_well": 79.19124725996465,
-      "b1_well": 0.004490870192748458,
-      "b2_well": 0.0021249794811354847,
-      "b3_well": 0.0778330811807098
+      "default_h_max": -0.5675689237848339
     },
     {
       "name": "nw13",
@@ -1387,12 +1230,7 @@ const DATA = {
       "cluster": "C3",
       "nearest_cluster_only": false,
       "default_h_prev": -1.2261782741727236,
-      "default_h_max": -0.5675689237848339,
-      "slope_A_well": 153.82504939806256,
-      "intercept_B_well": 61.37308567208276,
-      "b1_well": 0.004799232406628865,
-      "b2_well": 0.0017573400981872125,
-      "b3_well": 0.0891436591800747
+      "default_h_max": -0.5675689237848339
     },
     {
       "name": "nw2",
@@ -1403,12 +1241,7 @@ const DATA = {
       "cluster": "C3",
       "nearest_cluster_only": false,
       "default_h_prev": -1.2261782741727236,
-      "default_h_max": -0.5675689237848339,
-      "slope_A_well": 161.73306796220785,
-      "intercept_B_well": 74.44218284028855,
-      "b1_well": 0.004488269775666865,
-      "b2_well": 0.0019921813796935687,
-      "b3_well": 0.093667486379306
+      "default_h_max": -0.5675689237848339
     },
     {
       "name": "nw5",
@@ -1419,12 +1252,7 @@ const DATA = {
       "cluster": "C3",
       "nearest_cluster_only": false,
       "default_h_prev": -1.2261782741727236,
-      "default_h_max": -0.5675689237848339,
-      "slope_A_well": 238.51866529210318,
-      "intercept_B_well": 88.08770361162117,
-      "b1_well": 0.003543743892516197,
-      "b2_well": 0.0018705727945839744,
-      "b3_well": 0.0512684492663827
+      "default_h_max": -0.5675689237848339
     },
     {
       "name": "nw6",
@@ -1435,12 +1263,7 @@ const DATA = {
       "cluster": "C3",
       "nearest_cluster_only": false,
       "default_h_prev": -1.2261782741727236,
-      "default_h_max": -0.5675689237848339,
-      "slope_A_well": 263.9841851079532,
-      "intercept_B_well": 49.241630955547656,
-      "b1_well": 0.0031324601350173225,
-      "b2_well": 0.0009237379232828772,
-      "b3_well": 0.0575972723382312
+      "default_h_max": -0.5675689237848339
     },
     {
       "name": "nw7",
@@ -1451,12 +1274,7 @@ const DATA = {
       "cluster": "C3",
       "nearest_cluster_only": false,
       "default_h_prev": -1.2261782741727236,
-      "default_h_max": -0.5675689237848339,
-      "slope_A_well": 312.6427524763945,
-      "intercept_B_well": 101.31546225540995,
-      "b1_well": 0.002755491282899086,
-      "b2_well": 0.001673746495296219,
-      "b3_well": 0.0457124623228402
+      "default_h_max": -0.5675689237848339
     },
     {
       "name": "nw8b",
@@ -1478,12 +1296,7 @@ const DATA = {
       "cluster": "C3",
       "nearest_cluster_only": false,
       "default_h_prev": -1.2261782741727236,
-      "default_h_max": -0.5675689237848339,
-      "slope_A_well": 254.41866014486328,
-      "intercept_B_well": 89.89488963198146,
-      "b1_well": 0.003364340424889532,
-      "b2_well": 0.0018129149004880367,
-      "b3_well": 0.0476009284350383
+      "default_h_max": -0.5675689237848339
     },
     {
       "name": "wmc3",
@@ -1494,12 +1307,7 @@ const DATA = {
       "cluster": "C3",
       "nearest_cluster_only": false,
       "default_h_prev": -1.2261782741727236,
-      "default_h_max": -0.5675689237848339,
-      "slope_A_well": 366.76758810097175,
-      "intercept_B_well": 112.86668362628613,
-      "b1_well": 0.0024257515908051833,
-      "b2_well": 0.0016427354547913836,
-      "b3_well": 0.0361674690096105
+      "default_h_max": -0.5675689237848339
     },
     {
       "name": "wmc4",
@@ -1510,12 +1318,7 @@ const DATA = {
       "cluster": "C3",
       "nearest_cluster_only": false,
       "default_h_prev": -1.2261782741727236,
-      "default_h_max": -0.5675689237848339,
-      "slope_A_well": 153.04710000532702,
-      "intercept_B_well": 63.2923588959198,
-      "b1_well": 0.00482598393853691,
-      "b2_well": 0.0018224309493893771,
-      "b3_well": 0.0890119658529919
+      "default_h_max": -0.5675689237848339
     },
     {
       "name": "ceh13",
@@ -1526,12 +1329,7 @@ const DATA = {
       "cluster": "C4",
       "nearest_cluster_only": false,
       "default_h_prev": -1.7837963932186258,
-      "default_h_max": -1.1709907103825137,
-      "slope_A_well": 478.65437647070684,
-      "intercept_B_well": 209.64167212090445,
-      "b1_well": 0.0020770123132736944,
-      "b2_well": 0.002617953452742237,
-      "b3_well": 0.0018685570950904
+      "default_h_max": -1.1709907103825137
     },
     {
       "name": "ceh14",
@@ -1542,12 +1340,7 @@ const DATA = {
       "cluster": "C4",
       "nearest_cluster_only": false,
       "default_h_prev": -1.7837963932186258,
-      "default_h_max": -1.1709907103825137,
-      "slope_A_well": 430.4040653456151,
-      "intercept_B_well": 286.34158643780927,
-      "b1_well": 0.0021855173808153897,
-      "b2_well": 0.003759212749805232,
-      "b3_well": 0.0192380299776857
+      "default_h_max": -1.1709907103825137
     },
     {
       "name": "ceh15",
@@ -1569,12 +1362,7 @@ const DATA = {
       "cluster": "C4",
       "nearest_cluster_only": false,
       "default_h_prev": -1.7837963932186258,
-      "default_h_max": -1.1709907103825137,
-      "slope_A_well": 339.77867924682374,
-      "intercept_B_well": 176.20510849228694,
-      "b1_well": 0.002732140652496702,
-      "b2_well": 0.0028911509119702167,
-      "b3_well": 0.0232981803492976
+      "default_h_max": -1.1709907103825137
     },
     {
       "name": "ceh20",
@@ -1585,12 +1373,7 @@ const DATA = {
       "cluster": "C4",
       "nearest_cluster_only": false,
       "default_h_prev": -1.7837963932186258,
-      "default_h_max": -1.1709907103825137,
-      "slope_A_well": 359.45950564896157,
-      "intercept_B_well": 142.735222683799,
-      "b1_well": 0.0025467836102217854,
-      "b2_well": 0.0021824804845925775,
-      "b3_well": 0.0275553444372763
+      "default_h_max": -1.1709907103825137
     },
     {
       "name": "ceh30",
@@ -1601,12 +1384,7 @@ const DATA = {
       "cluster": "C4",
       "nearest_cluster_only": false,
       "default_h_prev": -1.7837963932186258,
-      "default_h_max": -1.1709907103825137,
-      "slope_A_well": 407.7655107268943,
-      "intercept_B_well": 159.69264088045932,
-      "b1_well": 0.0022741651480201156,
-      "b2_well": 0.0021809562898035153,
-      "b3_well": 0.0236274099585674
+      "default_h_max": -1.1709907103825137
     },
     {
       "name": "ceh32",
@@ -1617,12 +1395,7 @@ const DATA = {
       "cluster": "C4",
       "nearest_cluster_only": false,
       "default_h_prev": -1.7837963932186258,
-      "default_h_max": -1.1709907103825137,
-      "slope_A_well": 411.5114493546632,
-      "intercept_B_well": 187.48238615181643,
-      "b1_well": 0.0023380878546764737,
-      "b2_well": 0.002634215536575084,
-      "b3_well": 0.0122140287441483
+      "default_h_max": -1.1709907103825137
     },
     {
       "name": "ceh33",
@@ -1633,12 +1406,7 @@ const DATA = {
       "cluster": "C4",
       "nearest_cluster_only": false,
       "default_h_prev": -1.7837963932186258,
-      "default_h_max": -1.1709907103825137,
-      "slope_A_well": 424.0763003321857,
-      "intercept_B_well": 168.29437317481472,
-      "b1_well": 0.002216285568459768,
-      "b2_well": 0.002240509817884029,
-      "b3_well": 0.0194946194491993
+      "default_h_max": -1.1709907103825137
     },
     {
       "name": "ceh34",
@@ -1649,12 +1417,7 @@ const DATA = {
       "cluster": "C4",
       "nearest_cluster_only": false,
       "default_h_prev": -1.7837963932186258,
-      "default_h_max": -1.1709907103825137,
-      "slope_A_well": 415.036470661508,
-      "intercept_B_well": 189.60471132250456,
-      "b1_well": 0.002350530102361045,
-      "b2_well": 0.0026788032882846396,
-      "b3_well": 0.0078659782041421
+      "default_h_max": -1.1709907103825137
     },
     {
       "name": "fe1",
@@ -1687,12 +1450,7 @@ const DATA = {
       "cluster": "C4",
       "nearest_cluster_only": false,
       "default_h_prev": -1.7837963932186258,
-      "default_h_max": -1.1709907103825137,
-      "slope_A_well": 244.0102670651795,
-      "intercept_B_well": 119.3642749664665,
-      "b1_well": 0.003526466451921038,
-      "b2_well": 0.0025235749345461694,
-      "b3_well": 0.0460500699149063
+      "default_h_max": -1.1709907103825137
     },
     {
       "name": "nw12",
@@ -1714,12 +1472,7 @@ const DATA = {
       "cluster": "C5",
       "nearest_cluster_only": false,
       "default_h_prev": -1.4922258429961348,
-      "default_h_max": -0.9961190476190476,
-      "slope_A_well": 357.9722973655643,
-      "intercept_B_well": 98.99095496948928,
-      "b1_well": 0.002476802859202844,
-      "b2_well": 0.0014709834361169233,
-      "b3_well": 0.0371968463433191
+      "default_h_max": -0.9961190476190476
     },
     {
       "name": "ceh17",
@@ -1730,12 +1483,7 @@ const DATA = {
       "cluster": "C5",
       "nearest_cluster_only": false,
       "default_h_prev": -1.4922258429961348,
-      "default_h_max": -0.9961190476190476,
-      "slope_A_well": 409.2674957016051,
-      "intercept_B_well": 95.67666028592078,
-      "b1_well": 0.002016706202618428,
-      "b2_well": 0.0011554627394371494,
-      "b3_well": 0.0581344605636999
+      "default_h_max": -0.9961190476190476
     },
     {
       "name": "ceh19",
@@ -1746,12 +1494,7 @@ const DATA = {
       "cluster": "C5",
       "nearest_cluster_only": false,
       "default_h_prev": -1.4922258429961348,
-      "default_h_max": -0.9961190476190476,
-      "slope_A_well": 392.6719362481922,
-      "intercept_B_well": 66.44375862118962,
-      "b1_well": 0.0022043197188363825,
-      "b2_well": 0.0008782052306590637,
-      "b3_well": 0.0443199411056904
+      "default_h_max": -0.9961190476190476
     },
     {
       "name": "ceh22",
@@ -1784,12 +1527,7 @@ const DATA = {
       "cluster": "C5",
       "nearest_cluster_only": false,
       "default_h_prev": -1.4922258429961348,
-      "default_h_max": -0.9961190476190476,
-      "slope_A_well": 416.3742774556739,
-      "intercept_B_well": 104.80059448299792,
-      "b1_well": 0.002096078606564729,
-      "b2_well": 0.0013174312664466802,
-      "b3_well": 0.0418827211863634
+      "default_h_max": -0.9961190476190476
     },
     {
       "name": "fe2",
@@ -1844,12 +1582,7 @@ const DATA = {
       "cluster": "C5",
       "nearest_cluster_only": false,
       "default_h_prev": -1.4922258429961348,
-      "default_h_max": -0.9961190476190476,
-      "slope_A_well": 311.3847726943644,
-      "intercept_B_well": 69.04976099820554,
-      "b1_well": 0.002732028587488551,
-      "b2_well": 0.0011306275926347702,
-      "b3_well": 0.0493937710267678
+      "default_h_max": -0.9961190476190476
     }
   ],
   "base_layer": {
@@ -3908,38 +3641,6 @@ function clusterToBlock(clusterKey){
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   PER-WELL SSM FORWARD ITERATION
-   Iterates the monthly recurrence h_t = α·h_{t-1} + b1·λ·P_clim(t) − b2·PET_clim(t)
-   from h_0 over a sequence of calendar months. Returns the final head.
-   b1, b2 in m/mm; b3 dimensionless (α = 1 − b3).
-   ═══════════════════════════════════════════════════════════════════ */
-function horizonMonths(startMonth, endMonth){
-  // Return [startMonth, ..., endMonth] wrapping through 12→1
-  const months = [];
-  let m = startMonth;
-  for(let i = 0; i < 12; i++){
-    months.push(m);
-    if(m === endMonth) return months;
-    m = (m % 12) + 1;
-  }
-  return months;
-}
-
-function ssmIterate(h0, b1, b2, b3, months, lam){
-  // Forward-iterate the SSM through the given calendar months.
-  // P_clim and PET_clim come from DATA (monthly means in mm).
-  if(!DATA.P_clim || !DATA.PET_clim) return null;
-  const alpha = 1.0 - b3;
-  let h = h0;
-  for(const m of months){
-    const P = (DATA.P_clim[m] || 0) * lam;
-    const E = DATA.PET_clim[m] || 0;
-    h = alpha * h + b1 * P - b2 * E;
-  }
-  return h;
-}
-
-/* ═══════════════════════════════════════════════════════════════════
    LIVE MET OFFICE DATA
    Fetch valleydata.txt, parse monthly rainfall, compute live λ for
    current-in-progress and most-recently-completed winters.
@@ -4213,10 +3914,7 @@ function renderMap(){
     const coeff = DATA.cluster_coeffs[w.cluster];
     let lam = null;
     const depth = Math.abs(w.default_h_prev);
-    if(w.slope_A_well !== undefined && w.slope_A_well !== null){
-      const pflood = w.slope_A_well * Math.max(0, depth) + w.intercept_B_well;
-      if(coeff && coeff.P_clim_total_mm) lam = (pflood / coeff.P_clim_total_mm) / GLOBAL_LAMBDA_MULT;
-    } else if(coeff && coeff.slope_A !== undefined){
+    if(coeff && coeff.slope_A !== undefined){
       const pflood = pFloodLinear(depth, coeff);
       lam = lambdaFromPFlood(pflood, coeff) / GLOBAL_LAMBDA_MULT;
     }
@@ -4292,21 +3990,45 @@ function renderWellMeta(w){
          <strong>* Nearest-type assignment.</strong> This well sits outside
          the SSM operational domain (boundary or upstream-excluded) and is
          not a core member of the cluster shown. Forecasts use the
-         nearest-cluster's coefficients as a best-available estimate;
+         nearest-cluster's equations as a best-available estimate;
          interpret with caution.
        </div>`
     : '';
+
+  // ── Cluster long-term depth table ─────────────────────────────────
+  // Shows the cluster's typical depth for the current calendar month,
+  // its long-term summer minimum, and long-term winter peak. All values
+  // are cluster centroids — the report's forecast equations operate at
+  // cluster level so cluster numbers are what's relevant here.
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const currentMonth = (new Date()).getMonth() + 1;
+  const monthlyClim = coeff.monthly_clim || {};
+  const troughMonth = coeff.trough_month || 9;
+  const peakMonthCentroid = coeff.peak_month || 1;
+  const fmt = v => (v === undefined || v === null) ? '—'
+                  : `${Math.abs(v).toFixed(2)} m`;
+  const thisMonthDepth = monthlyClim[currentMonth];
+  const summerMinDepth = monthlyClim[troughMonth];
+  const winterPeakDepth = monthlyClim[peakMonthCentroid];
+  const climTable = (Object.keys(monthlyClim).length > 0)
+    ? `<div class="well-meta-row" style="margin-top:.5rem;padding-top:.5rem;border-top:1px solid #eee;">
+         <span class="k" style="font-weight:600;color:var(--ink);">Cluster long-term depths (below ground)</span>
+       </div>
+       <div class="well-meta-row"><span class="k">This month (${monthNames[currentMonth-1]})</span><span class="v">${fmt(thisMonthDepth)}</span></div>
+       <div class="well-meta-row"><span class="k">Summer minimum (${monthNames[troughMonth-1]})</span><span class="v">${fmt(summerMinDepth)}</span></div>
+       <div class="well-meta-row"><span class="k">Winter peak (${monthNames[peakMonthCentroid-1]})</span><span class="v">${fmt(winterPeakDepth)}</span></div>`
+    : '';
+
   document.getElementById('well-meta').innerHTML = `
     <div class="well-meta-row"><span class="k">Name</span><span class="v">${w.display_name}</span></div>
     <div class="well-meta-row"><span class="k">Easting</span><span class="v">${w.E.toFixed(0)}</span></div>
     <div class="well-meta-row"><span class="k">Northing</span><span class="v">${w.N.toFixed(0)}</span></div>
     <div class="well-meta-row"><span class="k">Ground elev (m AOD)</span><span class="v">${w.ground_elev.toFixed(2)}</span></div>
     <div class="well-meta-row"><span class="k">Cluster</span><span class="v">${clusterCell}</span></div>
+    ${climTable}
     ${ncotNotice}
   `;
 }
-
-let FORECAST_SOURCE = 'cluster';  // 'cluster' or 'well'
 
 function renderForecasts(w){
   const panel = document.getElementById('forecast-panel');
@@ -4316,152 +4038,131 @@ function renderForecasts(w){
   const hPrev = -Math.abs(userDepth);
   const depth_m = userDepth;
 
-  const hasWellCoeffs = (w.b1_well !== undefined && w.b1_well !== null);
   const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const peakMonth = coeff.peak_month;
+  const troughMonth = coeff.trough_month || 9;
   const horizonName = (peakMonth && peakMonth >= 1 && peakMonth <= 12)
     ? `Oct\u2013${monthNames[peakMonth - 1]}` : '';
-  const winterMonths = horizonMonths(10, peakMonth || 1);
-  const summerMonths = horizonMonths(4, 9);
+
+  // Current calendar month — used for the "summer minimum not yet observed"
+  // timing note in Forecast 1.
+  const today = new Date();
+  const currentMonth = today.getMonth() + 1;
+  const currentYear  = today.getFullYear();
+  const todayLabel = `${monthNames[currentMonth - 1]} ${currentYear}`;
+
+  // The "summer minimum window" is from the cluster's trough_month onwards
+  // through March (wrap-aware). If currentMonth is in [Apr .. trough_month-1],
+  // this year's minimum hasn't been observed yet.
+  function inWinterSeason(){
+    for(let i = 0, m = troughMonth; i < 12; i++){
+      if(m === currentMonth) return true;
+      if(m === 3) return false;
+      m = (m % 12) + 1;
+    }
+    return false;
+  }
+  const minimumObserved = inWinterSeason();
 
   let html = '';
 
-  // ── Source tabs ────────────────────────────────────────────────────
-  if(hasWellCoeffs){
-    html += `<div class="source-tabs">
-      <span class="source-tab${FORECAST_SOURCE==='cluster'?' active':''}" data-src="cluster">Cluster average</span>
-      <span class="source-tab${FORECAST_SOURCE==='well'?' active':''}" data-src="well">Per-well SSM</span>
-    </div>`;
-  }
-
-  const showWell = (FORECAST_SOURCE === 'well' && hasWellCoeffs);
-
-  // ── Helper: badge from head value ─────────────────────────────────
+  // ── Helpers: ecological badges ────────────────────────────────────
   function peakBadge(h){ return h >= -0.10 ? ['SD15b met','badge-green'] : h >= -0.25 ? ['SD16 only','badge-amber'] : ['below SD16','badge-red']; }
   function minBadge(h){ return h >= -0.61 ? ['SD15b viable','badge-green'] : h >= -0.98 ? ['SD16 only','badge-amber'] : ['below SD16','badge-red']; }
 
+  // ── Panel context line: "as of <Month> <Year>" ────────────────────
+  html += `<div style="font-size:.8rem;color:var(--text-light);font-style:italic;margin-bottom:.6rem;text-align:right;">
+    Forecasts as of ${todayLabel}
+  </div>`;
+
   // ═════════════════════════════════════════════════════════════════════
-  // FORECAST 1: next winter peak
+  // FORECAST 1: next winter peak — Table 6 transfer function
+  //   h_peak = β₁·P_winter + β₂·h_min + intercept
+  //
+  // Uses h_min from the reading-input field. When the current month is
+  // before this cluster's trough_month, this year's summer minimum has
+  // not yet been observed; the box surfaces this clearly and the user
+  // can either wait, enter last summer's observed minimum, or accept
+  // the long-term cluster mean as a "typical year" projection.
   // ═════════════════════════════════════════════════════════════════════
-  if(block || showWell){
+  if(block){
     const Pwinter_clim = climatologicalWinterTotal();
     const Pwinter = Pwinter_clim * GLOBAL_LAMBDA_MULT;
+    const {b1, b2, c: intercept, r2} = block.winter;
 
-    // Cluster-average (block TF)
-    let h_peak_cluster = null, r2_cluster = null, blockName = '';
-    if(block){
-      const f = forecastWinterPeak(hPrev, Pwinter, block);
-      h_peak_cluster = f.h_peak;
-      r2_cluster = f.r2;
-      blockName = block.name;
-    }
+    const term1 = b1 * Pwinter;
+    const term2 = b2 * hPrev;
+    const h_peak = term1 + term2 + intercept;
+    const peakDepth = -h_peak;
+    const [badge, badgeClass] = peakBadge(h_peak);
+    const weakCaveat = (r2 < 0.5)
+      ? `<div class="threshold-note">Block regression has low explanatory power (R\u00b2\u00a0=\u00a0${r2.toFixed(2)}); treat as indicative only.</div>` : '';
 
-    // Per-well SSM iteration
-    let h_peak_well = null;
-    if(hasWellCoeffs){
-      h_peak_well = ssmIterate(hPrev, w.b1_well, w.b2_well, w.b3_well, winterMonths, GLOBAL_LAMBDA_MULT);
-    }
+    const troughName = monthNames[troughMonth - 1];
+    const timingNote = !minimumObserved
+      ? `<div class="threshold-note" style="background:#fff8e6;border-color:#f0c060;">
+          <strong>Timing note.</strong> This year's summer minimum is typically reached in <strong>${troughName}</strong>. You can: (a) wait until then to use this year's observed value; (b) enter last summer's observed minimum in the input above if known; or (c) keep the default (long-term cluster mean) for a "typical year" projection.
+        </div>` : '';
 
-    const h_peak = showWell ? h_peak_well : h_peak_cluster;
-    const source = showWell ? 'per-well SSM' : `${blockName} block TF`;
+    const eqGeneral = `h<sub>peak</sub> = ${b1.toFixed(5)}\u00b7P<sub>winter</sub> + ${b2.toFixed(3)}\u00b7h<sub>min</sub> + (${intercept.toFixed(3)})`;
+    const eqValues  = `h<sub>peak</sub> = ${b1.toFixed(5)}\u00a0\u00d7\u00a0${Pwinter.toFixed(0)} + ${b2.toFixed(3)}\u00a0\u00d7\u00a0${hPrev.toFixed(2)} + (${intercept.toFixed(3)}) = <strong>${h_peak.toFixed(3)} m</strong>`;
 
-    if(h_peak !== null){
-      const peakDepth = -h_peak;
-      const [badge, badgeClass] = peakBadge(h_peak);
-      const r2Note = (!showWell && r2_cluster !== null) ? ` R\u00b2\u00a0=\u00a0${r2_cluster.toFixed(2)}.` : '';
-      const weakCaveat = (!showWell && r2_cluster !== null && r2_cluster < 0.5)
-        ? `<div class="threshold-note">Block regression has low explanatory power (R\u00b2\u00a0=\u00a0${r2_cluster.toFixed(2)}); treat as indicative only.</div>` : '';
-
-      // Comparison row
-      let compRow = '';
-      if(showWell && h_peak_cluster !== null){
-        const [cb, cbc] = peakBadge(h_peak_cluster);
-        compRow = `<div class="forecast-sub" style="margin-top:.4rem;border-top:1px solid #eee;padding-top:.4rem;">
-          <strong>Cluster-average:</strong> ${(-h_peak_cluster).toFixed(2)} m <span class="forecast-badge ${cbc}" style="font-size:.75rem">${cb}</span>
-          <span style="font-size:.8rem;color:#666;"> (${blockName} block TF; R\u00b2\u00a0=\u00a0${(r2_cluster||0).toFixed(2)})</span></div>`;
-      } else if(!showWell && h_peak_well !== null){
-        const [wb, wbc] = peakBadge(h_peak_well);
-        compRow = `<div class="forecast-sub" style="margin-top:.4rem;border-top:1px solid #eee;padding-top:.4rem;">
-          <strong>Per-well SSM:</strong> ${(-h_peak_well).toFixed(2)} m <span class="forecast-badge ${wbc}" style="font-size:.75rem">${wb}</span></div>`;
-      }
-
-      html += `<div class="forecast-block${(!showWell && r2_cluster!==null && r2_cluster<0.5)?' warn':''}">
-        <div class="forecast-title">Next winter peak (from summer minimum)</div>
-        <div class="forecast-value">${peakDepth.toFixed(2)}<span class="unit">m below ground</span> <span class="forecast-badge ${badgeClass}">${badge}</span></div>
-        <div class="forecast-sub">Given your reading and ${GLOBAL_LAMBDA_MULT.toFixed(2)}\u00d7 climatological winter rainfall (${Pwinter.toFixed(0)} mm). Source: ${source}.${r2Note}</div>
-        ${compRow}${weakCaveat}
-      </div>`;
-    }
+    html += `<div class="forecast-block${r2<0.5?' warn':''}">
+      <div class="forecast-title">Next winter peak (from summer minimum)</div>
+      <div class="forecast-value">${peakDepth.toFixed(2)}<span class="unit">m below ground</span> <span class="forecast-badge ${badgeClass}">${badge}</span></div>
+      <div class="forecast-sub">
+        <strong>${block.name} block transfer function</strong> (Table 6, R\u00b2\u00a0=\u00a0${r2.toFixed(2)}):<br>
+        ${eqGeneral}<br>
+        With P<sub>winter</sub> = ${Pwinter.toFixed(0)} mm (${GLOBAL_LAMBDA_MULT.toFixed(2)}\u00d7 climatology) and h<sub>min</sub> = ${hPrev.toFixed(2)} m:<br>
+        ${eqValues}
+      </div>
+      ${timingNote}
+      ${weakCaveat}
+    </div>`;
   }
 
   // ═════════════════════════════════════════════════════════════════════
-  // FORECAST 2: following summer minimum
+  // FORECAST 2: following summer minimum — Table 7 transfer function
+  //   h_min_summer = β₁·P_summer + β₂·h_max_winter + intercept
+  //
+  // Uses cluster-mean winter maximum (default_h_max) and climatological
+  // summer rainfall.
   // ═════════════════════════════════════════════════════════════════════
-  if(block || showWell){
+  if(block){
     const Psummer_clim = [4,5,6,7,8,9].reduce((s,m)=>s+(DATA.P_clim[m]||0),0);
     const hMaxWinter = w.default_h_max;
+    const {b1, b2, c: intercept, r2} = block.summer;
 
-    // Cluster-average (block TF)
-    let h_min_cluster = null, r2_cluster = null, blockName = '';
-    if(block){
-      const f = forecastSummerMin(hMaxWinter, Psummer_clim, block);
-      h_min_cluster = f.h_min;
-      r2_cluster = f.r2;
-      blockName = block.name;
-    }
+    const term1 = b1 * Psummer_clim;
+    const term2 = b2 * hMaxWinter;
+    const h_min = term1 + term2 + intercept;
+    const minDepth = -h_min;
+    const [badge, badgeClass] = minBadge(h_min);
+    const weakCaveat = (r2 < 0.5)
+      ? `<div class="threshold-note">Block regression has low explanatory power (R\u00b2\u00a0=\u00a0${r2.toFixed(2)}); treat as indicative only.</div>` : '';
 
-    // Per-well SSM iteration (from cluster-mean winter max through Apr–Sep)
-    let h_min_well = null;
-    if(hasWellCoeffs){
-      h_min_well = ssmIterate(hMaxWinter, w.b1_well, w.b2_well, w.b3_well, summerMonths, 1.0);
-    }
+    const eqGeneral = `h<sub>min</sub> = ${b1.toFixed(5)}\u00b7P<sub>summer</sub> + ${b2.toFixed(3)}\u00b7h<sub>max\u00a0winter</sub> + (${intercept.toFixed(3)})`;
+    const eqValues  = `h<sub>min</sub> = ${b1.toFixed(5)}\u00a0\u00d7\u00a0${Psummer_clim.toFixed(0)} + ${b2.toFixed(3)}\u00a0\u00d7\u00a0${hMaxWinter.toFixed(2)} + (${intercept.toFixed(3)}) = <strong>${h_min.toFixed(3)} m</strong>`;
 
-    const h_min = showWell ? h_min_well : h_min_cluster;
-    const source = showWell ? 'per-well SSM' : `${blockName} block TF`;
-
-    if(h_min !== null){
-      const minDepth = -h_min;
-      const [badge, badgeClass] = minBadge(h_min);
-      const r2Note = (!showWell && r2_cluster !== null) ? ` R\u00b2\u00a0=\u00a0${r2_cluster.toFixed(2)}.` : '';
-
-      let compRow = '';
-      if(showWell && h_min_cluster !== null){
-        const [cb, cbc] = minBadge(h_min_cluster);
-        compRow = `<div class="forecast-sub" style="margin-top:.4rem;border-top:1px solid #eee;padding-top:.4rem;">
-          <strong>Cluster-average:</strong> ${(-h_min_cluster).toFixed(2)} m <span class="forecast-badge ${cbc}" style="font-size:.75rem">${cb}</span>
-          <span style="font-size:.8rem;color:#666;"> (${blockName} block TF; R\u00b2\u00a0=\u00a0${(r2_cluster||0).toFixed(2)})</span></div>`;
-      } else if(!showWell && h_min_well !== null){
-        const [wb, wbc] = minBadge(h_min_well);
-        compRow = `<div class="forecast-sub" style="margin-top:.4rem;border-top:1px solid #eee;padding-top:.4rem;">
-          <strong>Per-well SSM:</strong> ${(-h_min_well).toFixed(2)} m <span class="forecast-badge ${wbc}" style="font-size:.75rem">${wb}</span></div>`;
-      }
-
-      html += `<div class="forecast-block">
-        <div class="forecast-title">Following summer minimum (from cluster-mean winter max)</div>
-        <div class="forecast-value">${minDepth.toFixed(2)}<span class="unit">m below ground</span> <span class="forecast-badge ${badgeClass}">${badge}</span></div>
-        <div class="forecast-sub">Given cluster-mean winter peak (${(-hMaxWinter).toFixed(2)} m) and climatological summer rainfall (${Psummer_clim.toFixed(0)} mm Apr\u2013Sep). Source: ${source}.${r2Note}</div>
-        ${compRow}
-      </div>`;
-    }
+    html += `<div class="forecast-block">
+      <div class="forecast-title">Following summer minimum (from cluster-mean winter peak)</div>
+      <div class="forecast-value">${minDepth.toFixed(2)}<span class="unit">m below ground</span> <span class="forecast-badge ${badgeClass}">${badge}</span></div>
+      <div class="forecast-sub">
+        <strong>${block.name} block transfer function</strong> (Table 7, R\u00b2\u00a0=\u00a0${r2.toFixed(2)}):<br>
+        ${eqGeneral}<br>
+        With P<sub>summer</sub> = ${Psummer_clim.toFixed(0)} mm (climatological Apr\u2013Sep) and h<sub>max\u00a0winter</sub> = ${hMaxWinter.toFixed(2)} m (cluster mean):<br>
+        ${eqValues}
+      </div>
+      ${weakCaveat}
+    </div>`;
   }
 
   // ═════════════════════════════════════════════════════════════════════
-  // FORECAST 3: P_flood
+  // FORECAST 3: P_flood — Table 10 collapsed cluster equation
+  //   P_flood = A·d + B
   // ═════════════════════════════════════════════════════════════════════
-  // Cluster-level P_flood
-  const P_flood_cluster = pFloodLinear(depth_m, coeff);
-  const lam_cluster = lambdaFromPFlood(P_flood_cluster, coeff);
-
-  // Per-well P_flood
-  let P_flood_well = null, lam_well = null;
-  if(hasWellCoeffs && w.slope_A_well !== undefined && w.slope_A_well !== null){
-    P_flood_well = w.slope_A_well * Math.max(0, depth_m) + w.intercept_B_well;
-    lam_well = P_flood_well / coeff.P_clim_total_mm;
-  }
-
-  const P_flood_show = showWell ? P_flood_well : P_flood_cluster;
-  const lam_show = showWell ? lam_well : lam_cluster;
-  const pf_source = showWell ? 'per-well SSM' : 'cluster-average SSM';
+  const P_flood = pFloodLinear(depth_m, coeff);
+  const lam = lambdaFromPFlood(P_flood, coeff);
 
   function pfBadge(lam){
     if(lam < 1.0) return ['reachable','badge-green'];
@@ -4470,48 +4171,30 @@ function renderForecasts(w){
     return ['structurally unreachable','badge-grey'];
   }
 
-  if(P_flood_show !== null && lam_show !== null){
-    const [badge, badgeClass] = pfBadge(lam_show);
+  if(P_flood !== null && lam !== null){
+    const [badge, badgeClass] = pfBadge(lam);
+    const eqGeneral = `P<sub>flood</sub> = ${coeff.slope_A.toFixed(2)}\u00b7d + ${coeff.intercept_B.toFixed(2)}`;
+    const eqValues  = `P<sub>flood</sub> = ${coeff.slope_A.toFixed(2)}\u00a0\u00d7\u00a0${depth_m.toFixed(2)} + ${coeff.intercept_B.toFixed(2)} = <strong>${P_flood.toFixed(0)} mm</strong>`;
 
-    let compRow = '';
-    if(showWell && P_flood_cluster !== null){
-      const [cb, cbc] = pfBadge(lam_cluster);
-      compRow = `<div class="forecast-sub" style="margin-top:.4rem;border-top:1px solid #eee;padding-top:.4rem;">
-        <strong>Cluster-average:</strong> ${P_flood_cluster.toFixed(0)} mm (\u03bb\u00a0=\u00a0${lam_cluster.toFixed(2)}\u00d7) <span class="forecast-badge ${cbc}" style="font-size:.75rem">${cb}</span>
-        <span style="font-size:.8rem;color:#666;"> Equation: P<sub>flood</sub>\u00a0=\u00a0${coeff.slope_A.toFixed(2)}\u00a0\u00d7\u00a0d\u00a0+\u00a0${coeff.intercept_B.toFixed(2)}</span></div>`;
-    } else if(!showWell && P_flood_well !== null){
-      const [wb, wbc] = pfBadge(lam_well);
-      compRow = `<div class="forecast-sub" style="margin-top:.4rem;border-top:1px solid #eee;padding-top:.4rem;">
-        <strong>Per-well SSM:</strong> ${P_flood_well.toFixed(0)} mm (\u03bb\u00a0=\u00a0${lam_well.toFixed(2)}\u00d7) <span class="forecast-badge ${wbc}" style="font-size:.75rem">${wb}</span>
-        <span style="font-size:.8rem;color:#666;"> Equation: P<sub>flood</sub>\u00a0=\u00a0${w.slope_A_well.toFixed(2)}\u00a0\u00d7\u00a0d\u00a0+\u00a0${w.intercept_B_well.toFixed(2)}</span></div>`;
-    }
-
-    const eqn = showWell
-      ? `P<sub>flood</sub>\u00a0=\u00a0${w.slope_A_well.toFixed(2)}\u00a0\u00d7\u00a0d\u00a0+\u00a0${w.intercept_B_well.toFixed(2)}`
-      : `P<sub>flood</sub>\u00a0=\u00a0${coeff.slope_A.toFixed(2)}\u00a0\u00d7\u00a0d\u00a0+\u00a0${coeff.intercept_B.toFixed(2)}`;
-
-    html += `<div class="forecast-block${lam_show>=1.3?' warn':''}">
+    html += `<div class="forecast-block${lam>=1.3?' warn':''}">
       <div class="forecast-title">P<sub>flood</sub> to slack floor (0 m)</div>
-      <div class="forecast-value">${P_flood_show.toFixed(0)}<span class="unit">mm</span> <span class="forecast-badge ${badgeClass}">${badge}</span></div>
-      <div class="forecast-sub">Cumulative rainfall over ${horizonName} (${coeff.horizon_months} months) to reach surface from ${depth_m.toFixed(2)} m. <strong>${lam_show.toFixed(2)}\u00d7</strong> climatological rainfall (${coeff.P_clim_total_mm.toFixed(0)} mm). Source: ${pf_source}. ${eqn}.</div>
-      ${compRow}
+      <div class="forecast-value">${P_flood.toFixed(0)}<span class="unit">mm</span> <span class="forecast-badge ${badgeClass}">${badge}</span></div>
+      <div class="forecast-sub">
+        Cumulative rainfall over ${horizonName} (${coeff.horizon_months} months) to lift the water table from ${depth_m.toFixed(2)} m below ground to the slack floor. Equivalent to <strong>${lam.toFixed(2)}\u00d7</strong> climatological rainfall (${coeff.P_clim_total_mm.toFixed(0)} mm).<br>
+        <strong>${coeff.label} P<sub>flood</sub> equation</strong> (Table 10):<br>
+        ${eqGeneral}<br>
+        With d = ${depth_m.toFixed(2)} m:<br>
+        ${eqValues}
+      </div>
     </div>`;
   }
 
   // ── Method note ───────────────────────────────────────────────────
   html += `<div class="threshold-note" style="margin-top:1rem">
-    <strong>Method.</strong> <em>Cluster average</em> uses block seasonal transfer functions (Tables 8 &amp; 9) for Forecasts 1 &amp; 2, and the cluster-centroid iterated P<sub>flood</sub> equation for Forecast 3. <em>Per-well SSM</em> uses each well's own lag-1 SSM coefficients (Script 03) to iterate the monthly recurrence forward. The assumed-rainfall slider scales climatological winter rainfall by \u03bb; live Met Office data provides an observational anchor.${!hasWellCoeffs ? ' <em>No per-well SSM is available for this well; cluster-average shown.</em>' : ''}
+    <strong>Method.</strong> Forecasts use the cluster-block seasonal transfer functions and P<sub>flood</sub> equations from the report (Tables 6, 7 and 10). The assumed-rainfall slider scales climatological winter rainfall by \u03bb; live Met Office data, when available, drives the slider's live presets so the equations can be exercised with the current hydrological year's actual rainfall. All equations are presented inline with values substituted so the manager can audit the calculation.
   </div>`;
 
   panel.innerHTML = html;
-
-  // ── Wire up tab clicks ────────────────────────────────────────────
-  panel.querySelectorAll('.source-tab').forEach(tab=>{
-    tab.addEventListener('click', ()=>{
-      FORECAST_SOURCE = tab.dataset.src;
-      renderForecasts(w);
-    });
-  });
 }
 
 /* ═══════════════════════════════════════════════════════════════════

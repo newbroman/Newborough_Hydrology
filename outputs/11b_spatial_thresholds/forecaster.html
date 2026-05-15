@@ -163,8 +163,15 @@
     color:var(--slate);font-weight:400;
   }
   .map-svg-wrap{
+    /* Fills the available vertical space in the map column (flex:1).
+       The SVG inside is sized 100% × 100% of this box; the SVG's
+       preserveAspectRatio="xMidYMin meet" keeps it top-aligned within
+       the box, so any spare vertical space falls to the bottom rather
+       than centring the map. overflow:auto means scrollbars appear if
+       the user has zoomed the page or the SVG natural size exceeds
+       the container in either dimension. */
     flex:1;border:1px solid var(--border);background:#f8f3e4;
-    position:relative;border-radius:2px;overflow:hidden;
+    position:relative;border-radius:2px;overflow:auto;
   }
   .map-svg-wrap svg{width:100%;height:100%;display:block;cursor:crosshair}
   .well-dot{
@@ -179,7 +186,7 @@
     paint-order:stroke;stroke:#f8f3e4;stroke-width:4;stroke-linejoin:round;
   }
   .legend{
-    position:absolute;bottom:.75rem;left:.75rem;
+    position:absolute;top:.75rem;left:.75rem;
     background:rgba(255,255,255,.92);border:1px solid var(--border);
     padding:.6rem .75rem;font-size:.75rem;border-radius:2px;
     backdrop-filter:blur(3px);
@@ -191,7 +198,7 @@
   .legend-row{display:flex;align-items:center;gap:.4rem;margin:.15rem 0}
   .legend-dot{width:10px;height:10px;border-radius:50%;border:1px solid #2a3338}
   .rainfall-slider-wrap{
-    position:absolute;bottom:.75rem;right:.75rem;
+    position:absolute;top:.75rem;right:.75rem;
     background:rgba(255,255,255,.92);border:1px solid var(--border);
     padding:.6rem .85rem;width:260px;border-radius:2px;
     backdrop-filter:blur(3px);
@@ -338,7 +345,7 @@
       </div>
     </div>
     <div class="map-svg-wrap">
-      <svg id="map" viewBox="0 0 2200 500" preserveAspectRatio="xMidYMid meet"></svg>
+      <svg id="map" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMin meet"></svg>
       <div class="legend">
         <div class="title">P<sub>flood</sub> to SD15b (−0.10 m)</div>
         <div class="legend-row"><div class="legend-dot" style="background:var(--green)"></div>Reachable (&lt; climatology)</div>
@@ -5118,12 +5125,12 @@ function parseManualPaste(){
    MAP
    ═══════════════════════════════════════════════════════════════════ */
 const MAP_PAD = 30;
-// Newborough Warren extends ~9.3 km E-W but only ~2.1 km N-S — an
-// aspect ratio of ~4.4:1. A near-square viewBox (the old 1000×900)
-// caused `preserveAspectRatio="xMidYMid meet"` to letterbox the
-// content with large empty bands top and bottom of the map. The
-// values below match the data's natural aspect.
-const MAP_W = 2200, MAP_H = 500;
+// The base-layer hillshade is generated for a 3800 m × 3800 m square
+// area around the study site, so the viewBox is also square. The well
+// data naturally occupies a thin east-west strip within that square
+// (~9.3 km of wells in a ~2.1 km band) — that horizontal arrangement
+// is the actual geography, not a distortion.
+const MAP_W = 1000, MAP_H = 1000;
 
 function mapBounds(wells){
   // Use fixed extent from base layer if available — ensures hillshade,

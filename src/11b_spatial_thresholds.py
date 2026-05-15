@@ -1613,6 +1613,30 @@ def _build_forecaster_data_bundle() -> dict:
                 break
     elev_by_norm = {_norm(r["Name_norm"]): r for _, r in elev.iterrows()}
 
+    # ── Per-well monthly climatology ─────────────────────────────────
+    # Read the cleaned monthly groundwater record and build a
+    # normalised-name → {month: long-term mean depth (m)} dict.
+    # Used by the forecaster's well-details panel to show each well's
+    # own typical depths (this month / summer min / winter peak), with
+    # the summer-min and winter-peak rows labelled by the well's own
+    # trough and peak months (which can differ from the cluster's).
+    wells_clean = pd.read_csv(INT_WELLS_CLEAN, index_col=0, parse_dates=True)
+    well_monthly_clim = {}
+    well_trough_month = {}
+    well_peak_month   = {}
+    for col in wells_clean.columns:
+        s = wells_clean[col].dropna()
+        if len(s) < 24:  # need at least 2 years to compute a stable monthly climatology
+            continue
+        monthly = s.groupby(s.index.month).mean()
+        # Months 1..12 — some wells may be missing a month entirely;
+        # skip those gracefully so the JS can fall back to cluster numbers.
+        if len(monthly) < 12:
+            continue
+        well_monthly_clim[_norm(col)] = {int(m): float(v) for m, v in monthly.items()}
+        well_trough_month[_norm(col)] = int(monthly.idxmin())
+        well_peak_month[_norm(col)]   = int(monthly.idxmax())
+
     wells = []
     for wn, cluster in {**ref_clusters, **ext_clusters}.items():
         if cluster not in cluster_coeffs:
@@ -1631,7 +1655,7 @@ def _build_forecaster_data_bundle() -> dict:
         # tempered.
         nearest_only = wn in NEAREST_CLUSTER_ONLY_WELLS
 
-        wells.append({
+        well_dict = {
             "name":            wn,
             "display_name":    display,
             "E":               float(lrow["E"]),
@@ -1641,7 +1665,15 @@ def _build_forecaster_data_bundle() -> dict:
             "nearest_cluster_only": bool(nearest_only),
             "default_h_prev":  cluster_default_h_prev.get(cluster, -1.0),
             "default_h_max":   cluster_default_h_max.get(cluster, -0.5),
-        })
+        }
+        # Attach per-well climatology if available (most wells have it;
+        # extended-network wells with too-short records are skipped above
+        # and the forecaster falls back to cluster numbers).
+        if wn in well_monthly_clim:
+            well_dict["monthly_clim"]  = well_monthly_clim[wn]
+            well_dict["trough_month"]  = well_trough_month[wn]
+            well_dict["peak_month"]    = well_peak_month[wn]
+        wells.append(well_dict)
     wells.sort(key=lambda w: (w["cluster"], w["name"]))
     bundle["wells"] = wells
 

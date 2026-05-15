@@ -64,14 +64,39 @@
   .live-banner.state-error .lb-status{color:var(--red)}
 
   main{
-    flex:1;display:grid;
-    grid-template-columns:280px 1fr 360px;
-    gap:0;min-height:0;
+    flex:1;display:flex;flex-direction:row;
+    min-height:0;
   }
   aside.sidebar{
     background:#fbf8f0;border-right:1px solid var(--border);
     padding:1.5rem 1.25rem;overflow-y:auto;
+    flex:0 0 280px;min-width:200px;max-width:600px;
   }
+  aside.panel{
+    background:#fbf8f0;border-left:1px solid var(--border);
+    padding:1.5rem 1.25rem;overflow-y:auto;
+    flex:0 0 380px;min-width:280px;max-width:900px;
+  }
+  section.map-wrap{
+    flex:1 1 0;min-width:200px;
+  }
+  /* ── Resizable panel gutters ───────────────────────
+     A thin draggable handle between map and either side
+     panel. Visible on hover; cursor changes; JS sets the
+     panel's flex-basis as the user drags. */
+  .resizer{
+    flex:0 0 6px;background:transparent;cursor:col-resize;
+    position:relative;z-index:5;user-select:none;
+    transition:background .12s ease;
+  }
+  .resizer:hover,.resizer.dragging{background:var(--water);opacity:.35;}
+  .resizer::before{
+    content:'';position:absolute;top:50%;left:50%;
+    transform:translate(-50%,-50%);
+    width:2px;height:32px;background:var(--border);border-radius:1px;
+    pointer-events:none;
+  }
+  .resizer:hover::before,.resizer.dragging::before{background:#fff;opacity:.8;}
   .panel-heading{
     font-family:'Libre Baskerville',serif;font-size:.85rem;
     color:var(--slate);letter-spacing:.1em;text-transform:uppercase;
@@ -143,15 +168,15 @@
   }
   .map-svg-wrap svg{width:100%;height:100%;display:block;cursor:crosshair}
   .well-dot{
-    stroke:#2a3338;stroke-width:.6;cursor:pointer;
+    stroke:#2a3338;stroke-width:1.2;cursor:pointer;
     transition:r .15s ease,stroke-width .15s ease;
   }
-  .well-dot:hover{stroke-width:2;stroke:#000}
-  .well-dot.selected{stroke:#000;stroke-width:2.2}
+  .well-dot:hover{stroke-width:3;stroke:#000}
+  .well-dot.selected{stroke:#000;stroke-width:3.5}
   .well-label{
-    font-family:'JetBrains Mono',monospace;font-size:8px;
+    font-family:'JetBrains Mono',monospace;font-size:14px;
     fill:var(--text);pointer-events:none;
-    paint-order:stroke;stroke:#f8f3e4;stroke-width:2.5;stroke-linejoin:round;
+    paint-order:stroke;stroke:#f8f3e4;stroke-width:4;stroke-linejoin:round;
   }
   .legend{
     position:absolute;bottom:.75rem;left:.75rem;
@@ -186,10 +211,6 @@
   .rainfall-slider-wrap .preset-link:hover{color:var(--slate)}
   input[type=range]{width:100%}
 
-  aside.panel{
-    background:#fbf8f0;border-left:1px solid var(--border);
-    padding:1.5rem 1.25rem;overflow-y:auto;
-  }
   .forecast-block{
     background:#fff;border:1px solid var(--border);
     padding:.9rem 1rem;margin-bottom:1rem;border-radius:2px;
@@ -262,8 +283,13 @@
   }
   footer a{color:rgba(255,255,255,.9)}
   @media(max-width:960px){
-    main{grid-template-columns:1fr}
-    aside.sidebar,aside.panel{border:none;border-bottom:1px solid var(--border)}
+    main{flex-direction:column;}
+    aside.sidebar,aside.panel{
+      flex:0 0 auto;width:100%;max-width:none;
+      border:none;border-bottom:1px solid var(--border);
+    }
+    section.map-wrap{flex:0 0 60vh;}
+    .resizer{display:none;}
   }
 </style>
 </head>
@@ -302,6 +328,8 @@
     <div class="well-meta" id="well-meta"></div>
   </aside>
 
+  <div class="resizer" id="resizer-left" data-target="sidebar" title="Drag to resize"></div>
+
   <section class="map-wrap">
     <div class="map-heading">
       <h2>P<sub>flood</sub> vulnerability map</h2>
@@ -310,7 +338,7 @@
       </div>
     </div>
     <div class="map-svg-wrap">
-      <svg id="map" viewBox="0 0 1000 900" preserveAspectRatio="xMidYMid meet"></svg>
+      <svg id="map" viewBox="0 0 2200 500" preserveAspectRatio="xMidYMid meet"></svg>
       <div class="legend">
         <div class="title">P<sub>flood</sub> to SD15b (−0.10 m)</div>
         <div class="legend-row"><div class="legend-dot" style="background:var(--green)"></div>Reachable (&lt; climatology)</div>
@@ -326,6 +354,8 @@
       </div>
     </div>
   </section>
+
+  <div class="resizer" id="resizer-right" data-target="panel" title="Drag to resize"></div>
 
   <aside class="panel">
     <div class="panel-heading">Forecasts — selected well</div>
@@ -581,7 +611,12 @@ function parseManualPaste(){
    MAP
    ═══════════════════════════════════════════════════════════════════ */
 const MAP_PAD = 30;
-const MAP_W = 1000, MAP_H = 900;
+// Newborough Warren extends ~9.3 km E-W but only ~2.1 km N-S — an
+// aspect ratio of ~4.4:1. A near-square viewBox (the old 1000×900)
+// caused `preserveAspectRatio="xMidYMid meet"` to letterbox the
+// content with large empty bands top and bottom of the map. The
+// values below match the data's natural aspect.
+const MAP_W = 2200, MAP_H = 500;
 
 function mapBounds(wells){
   // Use fixed extent from base layer if available — ensures hillshade,
@@ -676,7 +711,9 @@ function renderMap(){
       lam = lambdaFromPFlood(pflood, coeff) / GLOBAL_LAMBDA_MULT;
     }
     const cat = categoryForLambda(lam);
-    const r = (SELECTED===w.name)?8:6;
+    // Radii sized for the 2200×500 viewBox. Scaled up from the old
+    // 1000×900 (r=6/8) so dots remain visually similar in size.
+    const r = (SELECTED===w.name)?14:10;
     const cls = 'well-dot' + (SELECTED===w.name?' selected':'');
     html += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}"
       class="${cls}" fill="${categoryColor(cat)}" stroke="white" stroke-width="0.5"
@@ -752,28 +789,48 @@ function renderWellMeta(w){
        </div>`
     : '';
 
-  // ── Cluster long-term depth table ─────────────────────────────────
-  // Shows the cluster's typical depth for the current calendar month,
-  // its long-term summer minimum, and long-term winter peak. All values
-  // are cluster centroids — the report's forecast equations operate at
-  // cluster level so cluster numbers are what's relevant here.
+  // ── Long-term depth tables ─────────────────────────────────────────
+  // Two tables stacked: this well's own long-term depths first, then
+  // the cluster's. Per-well rows use the well's own trough/peak months
+  // (which can differ from the cluster's). Per-well table is skipped
+  // gracefully when the well lacks a climatology (extended-network
+  // wells with too-short records).
   const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const currentMonth = (new Date()).getMonth() + 1;
-  const monthlyClim = coeff.monthly_clim || {};
-  const troughMonth = coeff.trough_month || 9;
-  const peakMonthCentroid = coeff.peak_month || 1;
   const fmt = v => (v === undefined || v === null) ? '—'
                   : `${Math.abs(v).toFixed(2)} m`;
-  const thisMonthDepth = monthlyClim[currentMonth];
-  const summerMinDepth = monthlyClim[troughMonth];
-  const winterPeakDepth = monthlyClim[peakMonthCentroid];
-  const climTable = (Object.keys(monthlyClim).length > 0)
+
+  // — Well-specific table —
+  let wellTable = '';
+  if(w.monthly_clim && Object.keys(w.monthly_clim).length === 12){
+    const wTrough = w.trough_month || 9;
+    const wPeak   = w.peak_month   || 1;
+    const wThis   = w.monthly_clim[currentMonth];
+    const wSumMin = w.monthly_clim[wTrough];
+    const wWinPk  = w.monthly_clim[wPeak];
+    wellTable = `
+      <div class="well-meta-row" style="margin-top:.5rem;padding-top:.5rem;border-top:1px solid #eee;">
+        <span class="k" style="font-weight:600;color:var(--ink);">Well long-term depths (below ground)</span>
+      </div>
+      <div class="well-meta-row"><span class="k">This month (${monthNames[currentMonth-1]})</span><span class="v">${fmt(wThis)}</span></div>
+      <div class="well-meta-row"><span class="k">Summer minimum (${monthNames[wTrough-1]})</span><span class="v">${fmt(wSumMin)}</span></div>
+      <div class="well-meta-row"><span class="k">Winter peak (${monthNames[wPeak-1]})</span><span class="v">${fmt(wWinPk)}</span></div>`;
+  }
+
+  // — Cluster table —
+  const clusterMonthly = coeff.monthly_clim || {};
+  const cTrough = coeff.trough_month || 9;
+  const cPeak   = coeff.peak_month   || 1;
+  const cThis   = clusterMonthly[currentMonth];
+  const cSumMin = clusterMonthly[cTrough];
+  const cWinPk  = clusterMonthly[cPeak];
+  const clusterTable = (Object.keys(clusterMonthly).length > 0)
     ? `<div class="well-meta-row" style="margin-top:.5rem;padding-top:.5rem;border-top:1px solid #eee;">
          <span class="k" style="font-weight:600;color:var(--ink);">Cluster long-term depths (below ground)</span>
        </div>
-       <div class="well-meta-row"><span class="k">This month (${monthNames[currentMonth-1]})</span><span class="v">${fmt(thisMonthDepth)}</span></div>
-       <div class="well-meta-row"><span class="k">Summer minimum (${monthNames[troughMonth-1]})</span><span class="v">${fmt(summerMinDepth)}</span></div>
-       <div class="well-meta-row"><span class="k">Winter peak (${monthNames[peakMonthCentroid-1]})</span><span class="v">${fmt(winterPeakDepth)}</span></div>`
+       <div class="well-meta-row"><span class="k">This month (${monthNames[currentMonth-1]})</span><span class="v">${fmt(cThis)}</span></div>
+       <div class="well-meta-row"><span class="k">Summer minimum (${monthNames[cTrough-1]})</span><span class="v">${fmt(cSumMin)}</span></div>
+       <div class="well-meta-row"><span class="k">Winter peak (${monthNames[cPeak-1]})</span><span class="v">${fmt(cWinPk)}</span></div>`
     : '';
 
   document.getElementById('well-meta').innerHTML = `
@@ -782,7 +839,8 @@ function renderWellMeta(w){
     <div class="well-meta-row"><span class="k">Northing</span><span class="v">${w.N.toFixed(0)}</span></div>
     <div class="well-meta-row"><span class="k">Ground elev (m AOD)</span><span class="v">${w.ground_elev.toFixed(2)}</span></div>
     <div class="well-meta-row"><span class="k">Cluster</span><span class="v">${clusterCell}</span></div>
-    ${climTable}
+    ${wellTable}
+    ${clusterTable}
     ${ncotNotice}
   `;
 }
@@ -1014,6 +1072,93 @@ function init(){
   document.getElementById('manual-modal').addEventListener('click', (e)=>{
     if(e.target.id === 'manual-modal') closeManualModal();
   });
+
+  // ── Resizable panels ─────────────────────────────────────────────
+  // Each resizer's data-target is "sidebar" or "panel". Dragging the
+  // left resizer adjusts the sidebar's flex-basis (anchored at its
+  // right edge so it grows/shrinks rightward); dragging the right
+  // resizer adjusts the panel's flex-basis (anchored at its left
+  // edge so it grows/shrinks leftward). Saved to localStorage so
+  // the user's preferred widths persist between visits.
+  function setupResizer(resizerId, side){
+    const resizer = document.getElementById(resizerId);
+    if(!resizer) return;
+    const sel = (side === 'sidebar') ? 'aside.sidebar' : 'aside.panel';
+    const target = document.querySelector(sel);
+    if(!target) return;
+
+    // Restore saved width
+    try {
+      const saved = localStorage.getItem('nb-panel-width-' + side);
+      if(saved){
+        const w = parseInt(saved, 10);
+        if(w >= 200 && w <= 900) target.style.flexBasis = w + 'px';
+      }
+    } catch(e) { /* localStorage unavailable; ignore */ }
+
+    let dragging = false;
+    let startX = 0;
+    let startW = 0;
+
+    resizer.addEventListener('mousedown', (e)=>{
+      dragging = true;
+      startX = e.clientX;
+      startW = target.getBoundingClientRect().width;
+      resizer.classList.add('dragging');
+      document.body.style.cursor = 'col-resize';
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e)=>{
+      if(!dragging) return;
+      const dx = e.clientX - startX;
+      // Sidebar grows when dragged right; panel grows when dragged left.
+      const delta = (side === 'sidebar') ? dx : -dx;
+      const newW = Math.max(200, Math.min(900, startW + delta));
+      target.style.flexBasis = newW + 'px';
+    });
+
+    document.addEventListener('mouseup', ()=>{
+      if(!dragging) return;
+      dragging = false;
+      resizer.classList.remove('dragging');
+      document.body.style.cursor = '';
+      // Persist
+      try {
+        const w = parseInt(target.getBoundingClientRect().width, 10);
+        localStorage.setItem('nb-panel-width-' + side, String(w));
+      } catch(e) { /* ignore */ }
+      // The map's SVG resizes automatically (it uses width:100% of its
+      // flex parent), so no explicit rerender is needed.
+    });
+
+    // Touch support (mobile/tablet — only fires above 960px since the
+    // resizers are hidden by the media query below that threshold)
+    resizer.addEventListener('touchstart', (e)=>{
+      dragging = true;
+      startX = e.touches[0].clientX;
+      startW = target.getBoundingClientRect().width;
+      resizer.classList.add('dragging');
+    });
+    document.addEventListener('touchmove', (e)=>{
+      if(!dragging) return;
+      const dx = e.touches[0].clientX - startX;
+      const delta = (side === 'sidebar') ? dx : -dx;
+      const newW = Math.max(200, Math.min(900, startW + delta));
+      target.style.flexBasis = newW + 'px';
+    });
+    document.addEventListener('touchend', ()=>{
+      if(!dragging) return;
+      dragging = false;
+      resizer.classList.remove('dragging');
+      try {
+        const w = parseInt(target.getBoundingClientRect().width, 10);
+        localStorage.setItem('nb-panel-width-' + side, String(w));
+      } catch(e) { /* ignore */ }
+    });
+  }
+  setupResizer('resizer-left',  'sidebar');
+  setupResizer('resizer-right', 'panel');
 
   // Default selection — first well in the bundle, regardless of cluster.
   // Avoids hardcoding a specific cluster ID that may be renumbered when

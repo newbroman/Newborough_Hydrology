@@ -160,19 +160,32 @@ SD16_WINTER  = 0.25  # m — winter flooding limit for dry slack
 BROADLEAF_INTERCEPTION = 0.15
 
 # Broadleaf summer β₂ multiplier — deciduous phenology effect on ET.
-# Derived from Script 21's monthly β₂ profile (Hollingham, 2026):
-#   Jun=1.08, Jul=1.12, Aug=1.15, Sep=1.10 → summer mean = 1.1125
-# In full leaf, broadleaf transpiration exceeds pine transpiration
-# despite lower interception. This only applies to summer scenario bars;
-# the annual-mean effect is approximately ×1.0 (seasonal pattern cancels).
-BROADLEAF_B2_SUMMER = 1.1125
+# Derived from Script 21's monthly β₂ profile (Hollingham, 2026), averaged
+# over the canopy-on phenological window:
+#   May=0.98, Jun=1.08, Jul=1.12, Aug=1.15, Sep=1.10, Oct=1.02 → mean = 1.0750
+# Seasonal window choice — May–Oct (six months, canopy-on / β₂ ≥ ~1.0).
+# Aligns with the broadleaf canopy state: by May the canopy is essentially
+# functional; through October the canopy is still operative even as leaves
+# turn. April and November are assigned to winter because β₂ < 1 there.
+# This is a phenologically-aligned window choice specific to broadleaf β₂;
+# other seasonal-window definitions in the pipeline (Script 17 PET-negligible
+# Nov–Mar, Script 11b summer-minimum Jun–Sep) are unchanged — they reflect
+# different physical questions and retain their own justifications.
+# In full leaf, broadleaf transpiration exceeds pine transpiration despite
+# lower interception. This only applies to summer scenario bars; the
+# annual-mean effect is approximately ×1.0 (seasonal pattern cancels).
+BROADLEAF_B2_SUMMER = 1.0750
 
 # Broadleaf winter β₂ multiplier — leafless dormancy reduces ET draw.
-# Derived from Script 21's monthly β₂ profile (Hollingham, 2026):
-#   Oct=1.02, Nov=0.92, Dec=0.87, Jan=0.85, Feb=0.85, Mar=0.88 → winter mean ≈ 0.8983
-# Leafless broadleaf canopy has negligible transpiration; value < 1.0
-# reflects the reduced atmospheric draw relative to evergreen pine.
-BROADLEAF_B2_WINTER = 0.8983
+# Derived from Script 21's monthly β₂ profile (Hollingham, 2026), averaged
+# over the canopy-off phenological window:
+#   Nov=0.92, Dec=0.87, Jan=0.85, Feb=0.85, Mar=0.88, Apr=0.92 → mean ≈ 0.8817
+# Seasonal window choice — Nov–Apr (six months, canopy-off / β₂ < 1.0).
+# Pairs with the May–Oct summer window above; together they span all 12
+# months at the canopy-functional boundary. Leafless broadleaf canopy has
+# negligible transpiration; value < 1.0 reflects the reduced atmospheric
+# draw relative to evergreen pine.
+BROADLEAF_B2_WINTER = 0.8817
 
 # ── DEM colour scale ─────────────────────────────────────────────────────────
 # TwoSlopeNorm anchors used across all map products

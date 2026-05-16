@@ -33,7 +33,13 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "2.1.0"  # 2026-05-14 — drop "table4"/"Table5" from filename and label
+__version__ = "2.2.0"  # Hollingham (2026) — 2026-05-16
+# 2.2.0 — Apply REGIONAL_MEAN_START (2009-02-01) to the regional-mean
+#         control series.  CEH4 vs regional-mean Baseline era loses 33
+#         pre-2009-02 rows; the Baseline-era mean shifts by ~36 mm in
+#         consequence (and so does the apparent Scrape/Felling-era step
+#         relative to it).  CEH22 vs regional-mean is unchanged.
+# 2.1.0 — Drop "table4"/"Table5" from filename and label.
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
@@ -48,6 +54,7 @@ from utils.paths import (
 )
 from utils.scraping_common import (
     SCRAPING_DATE, INTERVENTION_DATE, SCRAPING_DATE_2,
+    REGIONAL_MEAN_START,
     WELL_ERAS, CLIMATE_CONTROLS,
     PAIRED_CONTROLS_MAP, TIER1_WELLS, TIER2_WELLS,
     ERA_COLORS, ERA_MARKERS, ERA_LINESTYLES,
@@ -126,6 +133,13 @@ def main():
 
     valid_controls = [w for w in CLIMATE_CONTROLS if w in wells.columns]
     control_mean_regional = wells[valid_controls].mean(axis=1)
+    # Restrict to the fixed-composition window — pre-2009-02 the regional
+    # mean was computed over fewer wells (NW5/6/7 only pre-2006-05;
+    # +CEH9 from 2006-05; +WMC2 from 2009-02).  Mixing those compositions
+    # introduces spurious step signal in BACI series that use this mean
+    # as control.  See scraping_common.py REGIONAL_MEAN_START rationale.
+    control_mean_regional = control_mean_regional.where(
+        control_mean_regional.index >= REGIONAL_MEAN_START)
 
     date_2015 = SCRAPING_DATE
     date_felling = INTERVENTION_DATE

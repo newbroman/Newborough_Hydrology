@@ -33,7 +33,13 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-05-04
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-05-16
+# 1.1.0 — Set first_year = 2011 (was 2006).  Matches the record-length-
+#         balance principle applied to 10d v1.2.0: annual summer-minima
+#         BACI requires every contributing well to have full Jun–Sep
+#         coverage in each year.  CEH36 (impact) starts 2011-01-01, so
+#         2011 is the binding constraint for the scraping network.
+# 1.0.0 — Initial.
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
@@ -72,7 +78,18 @@ def main():
     print("\n1. Loading data...")
     wells, climate = load_scraping_data()
     all_wells = list(set(TIER1_WELLS + TIER2_WELLS))
-    first_year = max(2006, wells.index.min().year)
+    # Year range — annual analyses use 2011+ rather than 2006+.
+    # Rationale: 2011 is the first year every scraping-suite well
+    # (impacts + paired controls + 5 regional climate controls) has
+    # complete observed Jun–Sep coverage.  CEH36 starts 2011-01-01 so
+    # its first full summer is 2011; CEH21/CEH22 first full summer is
+    # 2010, but CEH36's binding constraint pulls the network start to
+    # 2011 if every well is to contribute a balanced summer minimum.
+    # This script does NOT use the CEH34 donor-regression hindcast —
+    # different well network and different methodological asymmetry
+    # (annual extremes don't tolerate hindcasts as well as monthly
+    # analyses do; see 10d v1.2.0 changelog).
+    first_year = max(2011, wells.index.min().year)
     last_year = min(2025, wells.index.max().year)
 
     print("2. Computing annual summer minima...")

@@ -9,14 +9,27 @@ coefficient shifts (β₁, β₂, β₃) between pre- and post-felling eras.
 
 Method
 ------
-1. For each well in the 17-well network, fit the SSM (lag-1, displacement
-   formulation) separately for Before and After eras.  "Before" uses the
-   full pre-felling record with a scraping dummy (option c from the spec).
-   "After" covers felling → end of record.
+1. For each well in the 17-well network, fit the SSM (contemporaneous
+   rainfall, displacement formulation) separately for Before and After
+   eras.  "Before" is the record-length-balanced pre-felling window
+   (PRE_FELL_START → INTERVENTION_DATE) with a scraping dummy for the
+   April 2015 event.  "After" covers INTERVENTION_DATE → end of record.
 2. Compute per-well Δβ₁, Δβ₂, Δβ₃ (After − Before).
-3. Predicted clearfell effect from coefficient shifts:
-     Δh_predicted = Δβ₁ · mean_P − Δβ₂ · mean_PET − Δβ₃ · mean_h_disp
+3. Predicted clearfell effect from coefficient shifts, projected onto
+   the post-INTERVENTION_DATE climate (matched to the After era):
+     Δh_predicted = Δβ₁ · mean_P_post − Δβ₂ · mean_PET_post − Δβ₃ · mean_h_disp_post
 4. Compare Δh_predicted to the observed BACI step from 10a.
+
+Note on interpretation
+----------------------
+Both Before and After OLS fits include an intercept (α).  The Δh_predicted
+formula above captures only the β·X component of the era shift; the
+intercept difference Δα absorbs the era-mean residual, which is the
+dominant component at most wells (Δα ~ +120 mm at WMC3 vs Δh_predicted
+~ -110 mm).  The predicted vs observed comparison is therefore informative
+about the mechanistic decomposition (Δβ₁ recharge, Δβ₂ ET-draw, Δβ₃
+drainage) but should not be read as a complete reconstruction of the
+BACI step.  See Editorial Q3 in CHAPTER_FLAGS_TO_REVIEW.md.
 
 Outputs
 -------
@@ -34,17 +47,26 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-05-04
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-05-16
+# 1.2.0 — Adopt CEH34 hindcast via apply_ceh34_hindcast().  Companion to
+#         PRE_FELL_START = 2010-07-01 in clearfell_common v1.2.0.
+# 1.1.0 — Apply PRE_FELL_START record-length-balance cutoff to Before
+#         era; switch dh_predicted normalisation from full-record
+#         (centennial) climate means to post-INTERVENTION means.
+#         Updated docstring with note on intercept vs β decomposition.
+# 1.0.0 — Initial.
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
 
 from utils.clearfell_common import (
     load_clearfell_data,
+    apply_ceh34_hindcast,
     IMPACT_WELLS, EDGE_WELLS,
     FOREST_CONTROL_WELLS, COASTAL_CONTROL_WELLS, CLIMATE_CONTROL_WELLS,
     TIERS, ALL_NETWORK_WELLS,
     INTERVENTION_DATE, SCRAPING_DATE,
+    PRE_FELL_START,
     TIER_COLOURS, ReportNumbers, print_network_summary, get_tier,
 )
 from utils.paths import make_all_dirs, DIR_10, INT_CLIMATE
@@ -101,6 +123,7 @@ print("=" * 72)
 
 print("\n1. Loading data...")
 wells, climate, master, well_locations, valid_tiers = load_clearfell_data()
+wells = apply_ceh34_hindcast(wells)
 print_network_summary(valid_tiers)
 
 # ============================================================================
@@ -108,7 +131,8 @@ print_network_summary(valid_tiers)
 # ============================================================================
 print("2. Fitting per-era SSM coefficients...")
 
-# The "Before" era uses the full pre-felling record with a scraping dummy.
+# The "Before" era is the record-length-balanced pre-felling window
+# (PRE_FELL_START → INTERVENTION_DATE) with a scraping dummy.
 # The "After" era runs from felling to end of record.
 
 COEFF_NAMES = ['beta_1_recharge', 'beta_2_atmospheric_draw', 'beta_3_drainage']
@@ -130,8 +154,11 @@ for w in ALL_NETWORK_WELLS:
     if len(ssm_frame) < 12:
         continue
 
-    # Split into Before (pre-felling) and After (post-felling)
-    before = ssm_frame[ssm_frame.index < INTERVENTION_DATE].copy()
+    # Split into Before (pre-felling) and After (post-felling).
+    # PRE_FELL_START enforces record-length balance — every well's Before
+    # era starts on the same date.  See clearfell_common.py docstring.
+    before = ssm_frame[(ssm_frame.index >= PRE_FELL_START) &
+                       (ssm_frame.index < INTERVENTION_DATE)].copy()
     after = ssm_frame[ssm_frame.index >= INTERVENTION_DATE].copy()
 
     if len(before) < 12 or len(after) < 6:
@@ -199,10 +226,23 @@ for w in ALL_NETWORK_WELLS:
     db3 = b3_after - b3_before
 
     # ── Predicted effect from coefficient shifts ─────────────────────
-    # Use full-record climate means (m/month)
-    mean_P = pd.to_numeric(climate['P_m'], errors='coerce').mean()
-    mean_PET = pd.to_numeric(climate['PET'], errors='coerce').mean()
-    mean_h_disp = (DRAINAGE_DATUM + wells[w].shift(1)).mean()
+    # Project the per-era β shift onto the climate of the post-fell era —
+    # this is the relevant counterfactual for "what would the After-era
+    # response have been under the Before-era β's?"  Using full-record
+    # (centennial) means is a documentation fossil; post-INTERVENTION
+    # means are the methodologically appropriate normalisation.
+    #
+    # NOTE: this estimator captures only the β·X component of the era
+    # shift; the OLS intercept (α) absorbs the era-mean residual which
+    # is the dominant component at most wells.  dh_predicted should not
+    # be read as a complete decomposition of the BACI step; the residual
+    # vs intercept-shift relationship is an open methodological question
+    # (see Editorial Q3 / Q24 in CHAPTER_FLAGS_TO_REVIEW.md).
+    after_climate = climate.loc[climate.index >= INTERVENTION_DATE]
+    mean_P = pd.to_numeric(after_climate['P_m'], errors='coerce').mean()
+    mean_PET = pd.to_numeric(after_climate['PET'], errors='coerce').mean()
+    after_h = wells[w].loc[wells[w].index >= INTERVENTION_DATE]
+    mean_h_disp = (DRAINAGE_DATUM + after_h.shift(1)).mean()
 
     dh_predicted = db1 * mean_P - db2 * mean_PET - db3 * mean_h_disp
 

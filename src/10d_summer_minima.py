@@ -30,7 +30,19 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-05-04
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-05-16
+# 1.2.0 — Set first_year = 2011 (was 2010 via PRE_FELL_START.year).
+#         Annual analyses use 2011+ because that is the first year all
+#         17 network wells have complete observed Jun–Sep coverage.
+#         Unlike 10a/10b/10e/10h, this script does NOT adopt the CEH34
+#         donor-regression hindcast: in an annual minimum-of-summer
+#         estimator a hindcasted value could become the year's minimum
+#         and concentrate its uncertainty directly into the BACI input,
+#         whereas in monthly analyses the same hindcast is one row among
+#         many.  This asymmetry justifies the script-specific cutoff.
+# 1.1.0 — Anchored first_year to PRE_FELL_START.year (2010).  Superseded
+#         by the asymmetric monthly/annual treatment in 1.2.0.
+# 1.0.0 — Initial.
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
@@ -118,8 +130,16 @@ print_network_summary(valid_tiers)
 # ============================================================================
 print("2. Computing annual summer minima...")
 
-# Year range
-first_year = max(2006, wells.index.min().year)
+# Year range — annual analyses use 2011+ rather than tracking PRE_FELL_START.
+# Rationale: 2011 is the first year all 17 network wells have complete
+# observed Jun–Sep coverage.  Monthly analyses (10a, 10b, 10e, 10h) adopt
+# CEH34's donor-regression hindcast to push their window to 2010-07-01,
+# but in an annual minimum-of-summer-months estimator a single hindcasted
+# month could *become* the year's minimum and concentrate its uncertainty
+# directly into the BACI input.  The asymmetry — monthly analyses tolerate
+# hindcasts well; annual extremes tolerate them poorly — justifies the
+# different cutoff here.  See CHAPTER_FLAGS_TO_REVIEW.md.
+first_year = max(2011, wells.index.min().year)
 last_year = min(2025, wells.index.max().year)
 
 # Per-well summer minima

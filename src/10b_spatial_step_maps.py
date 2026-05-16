@@ -60,12 +60,17 @@ from utils.config import (
     CLUSTER_COLOURS, CLUSTER_LABELS, CLUSTER_MARKERS,
 )
 from utils.clearfell_common import (
-    INTERVENTION_DATE, SCRAPING_DATE,
+    INTERVENTION_DATE, SCRAPING_DATE, PRE_FELL_START,
+    apply_ceh34_hindcast,
     IMPACT_WELLS, EDGE_WELLS,
     FOREST_CONTROL_WELLS, COASTAL_CONTROL_WELLS, CLIMATE_CONTROL_WELLS,
 )
 
-__version__ = "1.1.0"
+__version__ = "1.3.0"
+# 1.3.0 — Adopt CEH34 hindcast via apply_ceh34_hindcast().  Companion to
+#         PRE_FELL_START = 2010-07-01 in clearfell_common v1.2.0.
+# 1.2.0 — Apply PRE_FELL_START lower bound on pre-scrape era mask.
+# 1.1.0 — Prior state.
 
 # ── Output paths (imported from utils.paths) ────────────────────────────────
 # OUT_10B_SCRAPE_RAW, OUT_10B_FELL_RAW, OUT_10B_SCRAPE_CORRECTED,
@@ -120,6 +125,7 @@ def main():
     wells = pd.concat([wells_main, wells_ext[new_cols]], axis=1)
     for col in wells.columns:
         wells[col] = clean_well_series(wells[col])
+    wells = apply_ceh34_hindcast(wells)
     print(f"   {len(wells.columns)} well columns loaded")
 
     # Well locations
@@ -136,7 +142,7 @@ def main():
     # ══════════════════════════════════════════════════════════════════════════════
     print("2. Computing step changes...")
 
-    mask_pre    = wells.index < SCRAPING_DATE
+    mask_pre    = (wells.index >= PRE_FELL_START) & (wells.index < SCRAPING_DATE)
     mask_scrape = (wells.index >= SCRAPING_DATE) & (wells.index < INTERVENTION_DATE)
     mask_post   = wells.index >= INTERVENTION_DATE
 

@@ -1,6 +1,6 @@
 """
 run_10_clearfell.py — Clearfell BACI Analysis Suite Runner
-Runs the modular Script 10 sub-scripts (10a–10h) in order and
+Runs the modular Script 10 sub-scripts (10a–10i) in order and
 consolidates report numbers.
 
 Usage
@@ -12,6 +12,10 @@ Usage
 
 Execution order
 ---------------
+Prerequisite (must run first; produces the CEH34 hindcast CSV that
+10a/10b/10e/10h consume via clearfell_common.apply_ceh34_hindcast):
+  10i  CEH34 donor-regression hindcast (CEH9 donor)
+
 Main (primary report results):
   10a  Three-counterfactual ANCOVA-BACI (primary result)
   10b  Spatial step-change maps
@@ -30,6 +34,8 @@ treated as supplementary material rather than primary findings.
 
 Dependencies
 ------------
+  10i is a prerequisite for 10a, 10b, 10e, 10h (CEH34 hindcast).
+       10d and 10f intentionally do not consume the hindcast.
   10b and 10c read from Script 03 outputs (independent of 10a).
   10d and 10e are independent of 10a but benefit from its report numbers
   for the predicted-vs-observed comparison in 10e.
@@ -52,7 +58,9 @@ DIR_10   = OUT_DIR / "10_clearfell_baci"
 
 # ── Sub-script definitions ───────────────────────────────────────────────────
 # (script_filename, short_id, description)
+# 10i runs FIRST as a prerequisite for 10a/10b/10e/10h (CEH34 hindcast).
 SUBSCRIPTS = [
+    ("10i_ceh34_hindcast.py",            "10i", "CEH34 donor-regression hindcast (CEH9 donor) — prerequisite"),
     ("10a_ancova_baci.py",               "10a", "Three-counterfactual ANCOVA-BACI (primary)"),
     ("10b_spatial_step_maps.py",         "10b", "Spatial step-change maps"),
     ("10c_forest_zone_analysis.py",      "10c", "Forest zone spatial analysis (supplementary)"),
@@ -89,10 +97,17 @@ def run_subscript(script_name, label, description):
 
 
 def consolidate_report_numbers():
-    """Merge per-sub-script report numbers into a single CSV."""
+    """Merge per-sub-script report numbers into a single CSV.
+
+    Includes report numbers from sub-scripts that produce a `*_report_numbers.csv`
+    summary table.  10b emits a per-well spatial CSV (not a citable-values table)
+    and 10c is supplementary, so neither is included in the consolidation.
+    10i emits citable values for the CEH34 hindcast (donor identity, fit r²/RMSE,
+    prediction interval) which belong in the consolidated report numbers table.
+    """
     import pandas as pd
 
-    pattern_prefixes = ["10a_", "10d_", "10e_", "10f_", "10g_", "10h_"]
+    pattern_prefixes = ["10a_", "10d_", "10e_", "10f_", "10g_", "10h_", "10i_"]
     frames = []
 
     for prefix in pattern_prefixes:

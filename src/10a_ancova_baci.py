@@ -31,17 +31,30 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-05-04
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-05-16
+# 1.2.0 — Adopt CEH34 hindcast (from Script 10i, CEH9 donor) via
+#         apply_ceh34_hindcast().  Enables PRE_FELL_START = 2010-07-01
+#         (was 2010-08-01) with CEH34's missing 2010-07 month supplied
+#         by the donor regression.
+# 1.1.0 — Apply PRE_FELL_START record-length-balance cutoff in
+#         build_ancova_frame().  All downstream outputs (ancova table,
+#         baci_timeseries CSV, climate-sensitivity scatter, CUSUM
+#         figures) inherit via ancova_frames.  Headline clearfell steps
+#         regenerate: Forest×Impact +93→+138 mm; Forest×Edge +153→+28
+#         mm (n.s.).
+# 1.0.0 — Initial.
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
 
 from utils.clearfell_common import (
     load_clearfell_data,
+    apply_ceh34_hindcast,
     IMPACT_WELLS, EDGE_WELLS,
     FOREST_CONTROL_WELLS, COASTAL_CONTROL_WELLS, CLIMATE_CONTROL_WELLS,
     TIERS, ALL_NETWORK_WELLS,
     INTERVENTION_DATE, SCRAPING_DATE, SCRAPING_DATE_2, FELLING_YEAR,
+    PRE_FELL_START,
     SCRAPING_DECAY_LAMBDA,
     compute_baci_displacement, compute_control_centroid,
     compute_cwb,
@@ -177,6 +190,7 @@ print("=" * 72)
 
 print("\n1. Loading data...")
 wells, climate, master, well_locations, valid_tiers = load_clearfell_data()
+wells = apply_ceh34_hindcast(wells)
 print_network_summary(valid_tiers)
 
 # ============================================================================
@@ -218,6 +232,12 @@ def build_ancova_frame(wells, climate, target_wells, control_wells,
         'baci_disp': baci.loc[common],
         'cwb':       cwb.loc[common],
     }).dropna()
+
+    # ── Record-length-balance cutoff ─────────────────────────────────
+    # Pooled BACI inference requires that target and control centroids
+    # are aggregated over a period in which all wells contribute equally.
+    # See clearfell_common.py docstring for the principle.
+    df = df.loc[df.index >= PRE_FELL_START]
 
     if len(df) < 20:
         return None

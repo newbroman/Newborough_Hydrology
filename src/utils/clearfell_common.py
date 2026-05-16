@@ -1,11 +1,12 @@
 """
 utils/clearfell_common.py
 =========================
-Shared module for the Script 10 clearfell analysis suite (10a–10g).
+Shared module for the Script 10 clearfell analysis suite (10a–10h).
 
 Provides:
   - Well tier definitions (impact, edge, forest control, climate control)
   - Intervention dates
+  - Record-length-balance BACI cutoffs (PRE_FELL_START family)
   - Spatial constants and distance functions
   - Data loading (wells, climate, master coefficients)
   - BACI displacement and covariate computation
@@ -15,16 +16,57 @@ All sub-scripts import from here to ensure consistent well lists,
 dates, and data handling.  No analysis is performed — this module
 only prepares data.
 
+Record-length-balance principle
+-------------------------------
+Pooled cross-well BACI inference must not mix wells with substantially
+different record-start dates: when a comparison aggregates target and
+control centroids over a period when only a subset of wells are reading,
+the resulting BACI displacement is a different statistical quantity from
+the same comparison aggregated over a period when all wells are reading.
+The unbalanced contrast introduces spurious step-change signal at the
+boundary where late-starting wells come online.
+
+Two record-length-balanced cutoffs are codified here:
+
+* ``PRE_FELL_START = 2010-07-01`` — all 17 clearfell-suite wells aligned.
+  This is the date from which every network well has continuous record
+  once CEH34's missing 2010-07 month is supplied by Script 10i's
+  CEH9-donor hindcast.  Pre-fell window is 90 months (2010-07 to
+  2017-11); post-fell window is 99 months.
+* ``PRE_FELL_START_LONG = 2009-06-01`` + ``LONG_RECORD_NETWORK_WELLS``
+  (12-well subset) — for analyses that genuinely require a longer
+  pre-fell baseline.  Excludes the five 2010-starting CEH3x wells
+  (CEH30, CEH31, CEH32, CEH33, CEH34).  Pre-fell window ≈ 103 months.
+
+The two cutoffs encode the same principle in two forms: "all wells,
+shorter baseline" vs "long-record subset, longer baseline".  Pooled
+BACI scripts must pick one or the other — never a third hybrid.
+
+Per-well analyses (forward-residual diagnostics, individual hydrographs,
+visualisation panels) are not subject to these cutoffs — they pose no
+mixing concern because the unit of inference is the individual well, not
+a pooled centroid.
+
 Usage
 -----
     from utils.clearfell_common import (
         load_clearfell_data, INTERVENTION_DATE, SCRAPING_DATE,
+        PRE_FELL_START, PRE_FELL_START_LONG, LONG_RECORD_NETWORK_WELLS,
         IMPACT_WELLS, EDGE_WELLS, FOREST_CONTROL_WELLS,
         CLIMATE_CONTROL_WELLS, ALL_NETWORK_WELLS,
         compute_baci_displacement, compute_cwb,
         distance_weighted_scraping, annual_summer_minimum,
     )
 """
+
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-05-16
+# 1.2.0 — Added load_ceh34_hindcast_series() loader for Script 10i output.
+#         Adopted PRE_FELL_START = 2010-07-01 (was 2010-08-01) — CEH34's
+#         missing 2010-07 data is supplied by 10i's hindcast.
+# 1.1.0 — Added PRE_FELL_START / PRE_FELL_START_LONG /
+#         LONG_RECORD_NETWORK_WELLS to codify the record-length-balance
+#         principle for pooled BACI inference.
+# 1.0.x — Initial clearfell-suite shared module.
 
 import warnings
 import numpy as np
@@ -35,6 +77,7 @@ from utils.paths import (
     INT_WELLS_CLEAN, INT_WELLS_EXTENDED, INT_CLIMATE,
     INT_MASTER_DATA, DATA_WELL_ELEVATIONS,
     OUT_10E_COEFF_SHIFTS,
+    OUT_10I_HINDCAST,
     make_all_dirs,
 )
 from utils.data_utils import clean_well_series
@@ -85,6 +128,50 @@ SCRAPING_DATE     = pd.Timestamp('2015-04-01')   # April 2015 scraping
 SCRAPING_DATE_2   = pd.Timestamp('2023-10-01')   # October 2023 re-scraping
 
 FELLING_YEAR = INTERVENTION_DATE.year  # 2017
+
+# ============================================================================
+# RECORD-LENGTH-BALANCE BACI CUTOFFS
+# ============================================================================
+# See module docstring for rationale.  These constants must be used by any
+# script performing pooled cross-well BACI inference (e.g. ANCOVA pooling
+# Impact and Control centroids).  Per-well analyses are not subject to them.
+
+# Full network, balanced pre-fell window.  This is the date from which
+# every clearfell-suite well has continuous record once CEH34's missing
+# 2010-07 month is supplied by Script 10i's CEH9-donor hindcast.
+# CEH30/CEH31 (2010-06-01 starts) and CEH32/CEH33 (2010-07-01 starts) are
+# observed; CEH34's 2010-07-01 value is the single hindcast point.
+# Pre-fell window: 90 months (Jul 2010 to Nov 2017).  Default for the
+# clearfell-suite BACI ANCOVA.
+#
+# Consumers of CEH34 that include data prior to 2010-08-01 should call
+# load_ceh34_hindcast_series() rather than using wells['ceh34'] directly,
+# so the synthetic 2010-07-01 value is correctly substituted in.
+PRE_FELL_START = pd.Timestamp('2010-07-01')
+
+# Long-record subset, balanced pre-fell window.  For analyses that
+# genuinely require a longer pre-fell baseline than 88 months.  Drops
+# the five 2010-starting CEH3x wells; pre-fell window ≈ 103 months.
+# Use together with LONG_RECORD_NETWORK_WELLS — never mix this cutoff
+# with the full 17-well network.
+PRE_FELL_START_LONG = pd.Timestamp('2009-06-01')
+
+# The 12-well subset to use with PRE_FELL_START_LONG.  Derived as
+# {w for w in ALL_NETWORK_WELLS if w.first_obs <= PRE_FELL_START_LONG}.
+# Hardcoded here so the list is stable across pipeline runs and visible
+# in code review — not regenerated from data.  Tier composition:
+#   Impact:        1  (wmc3)
+#   Edge:          2  (ceh20, ceh16)        — loses ceh30, ceh31
+#   Forest Ctrl:   2  (nw10, ceh2)          — loses ceh32, ceh33, ceh34
+#   Coastal Ctrl:  2  (ceh19, ceh17)        — full
+#   Climate Ctrl:  5  (ceh9, nw7, nw6, nw5, wmc2) — full
+LONG_RECORD_NETWORK_WELLS = [
+    'wmc3',
+    'ceh20', 'ceh16',
+    'nw10', 'ceh2',
+    'ceh19', 'ceh17',
+    'ceh9', 'nw7', 'nw6', 'nw5', 'wmc2',
+]
 
 # ============================================================================
 # SPATIAL CONSTANTS
@@ -195,6 +282,91 @@ def load_clearfell_data():
             warnings.warn(f"{tier_name}: missing wells {missing}")
 
     return wells, climate, master, well_locations, valid_tiers
+
+
+def load_ceh34_hindcast_series():
+    """Load the CEH34 spliced (hindcast + observed) series from Script 10i.
+
+    The hindcast is a donor regression of CEH34 against CEH9 (Climate
+    Control) fitted on the pre-clearfell overlap.  Use this loader from
+    scripts that need to include CEH34 in a pre-fell window starting
+    before CEH34's 2010-08-01 first observation (e.g. for
+    PRE_FELL_START = 2010-07-01).
+
+    Returns
+    -------
+    series : pd.Series with DatetimeIndex
+        Monthly CEH34 depth (m, negative below ground).  Index covers
+        the union of hindcast and observed dates.  Values for dates
+        prior to 2010-08-01 are synthetic; values from 2010-08-01
+        onwards are observed.
+    source : pd.Series with DatetimeIndex (str)
+        ``'hindcast'`` or ``'observed'`` per row, aligned with `series`.
+
+    Raises
+    ------
+    FileNotFoundError
+        If Script 10i has not been run.  Run ``python src/10i_ceh34_hindcast.py``
+        first.
+
+    Notes
+    -----
+    The donor regression has r² ≈ 0.89 and an RMSE of ~150 mm; each
+    hindcast value carries a ±290 mm 95% prediction interval.  This is
+    substantial uncertainty; consumers should treat the spliced series
+    as a single-well sensitivity tool, not as observational data.
+    """
+    if not OUT_10I_HINDCAST.exists():
+        raise FileNotFoundError(
+            f"CEH34 hindcast not found at {OUT_10I_HINDCAST}.  "
+            f"Run Script 10i first: python src/10i_ceh34_hindcast.py")
+    df = pd.read_csv(OUT_10I_HINDCAST, parse_dates=['Date'])
+    df = df.set_index('Date').sort_index()
+    return df['CEH34'], df['source']
+
+
+def apply_ceh34_hindcast(wells, verbose=True):
+    """Return a copy of `wells` with CEH34 replaced by its spliced
+    (hindcast + observed) series from Script 10i.
+
+    This is the opt-in mechanism for the pooled BACI scripts that adopt
+    PRE_FELL_START = 2010-07-01.  Without this substitution, the
+    2010-07-01 row of CEH34 will be NaN and the BACI centroid for that
+    month will drop CEH34 — partly undoing the alignment the hindcast
+    is intended to provide.
+
+    Parameters
+    ----------
+    wells : pd.DataFrame
+        Wells DataFrame as returned by load_clearfell_data().
+    verbose : bool
+        Print one-line confirmation of how many hindcast points were
+        substituted.
+
+    Returns
+    -------
+    wells_subbed : pd.DataFrame
+        Copy of `wells` with the 'ceh34' column overlaid by the spliced
+        series for dates < 2010-08-01.  Observed dates are unchanged.
+    """
+    series, source = load_ceh34_hindcast_series()
+    wells_out = wells.copy()
+    if 'ceh34' not in wells_out.columns:
+        # No CEH34 column to substitute into — return unchanged
+        return wells_out
+
+    hindcast_dates = series.index[source == 'hindcast']
+    # Align to the wells index — add rows for dates not currently present
+    union_idx = wells_out.index.union(hindcast_dates)
+    wells_out = wells_out.reindex(union_idx)
+    # Substitute values
+    wells_out.loc[hindcast_dates, 'ceh34'] = series.loc[hindcast_dates].values
+    wells_out = wells_out.sort_index()
+
+    if verbose:
+        print(f"   [hindcast] CEH34: substituted {len(hindcast_dates)} hindcast "
+              f"value(s) prior to 2010-08-01 (from Script 10i, CEH9 donor)")
+    return wells_out
 
 
 def get_tier(well_name):

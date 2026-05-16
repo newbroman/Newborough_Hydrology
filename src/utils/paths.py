@@ -302,6 +302,12 @@ OUT_10H_FIG_CUSUM           = DIR_10 / "10h_09_cusum_varB.png"
 OUT_10H_FIG_SENSITIVITY     = DIR_10 / "10h_10_climate_sensitivity_varB.png"
 OUT_10H_REPORT              = DIR_10 / "10h_report_numbers.csv"
 
+# Script 10i — CEH34 donor-regression hindcast (CEH9 donor)
+OUT_10I_HINDCAST            = DIR_10 / "10i_01_ceh34_hindcast.csv"
+OUT_10I_REGRESSION          = DIR_10 / "10i_02_donor_regression.csv"
+OUT_10I_DIAGNOSTIC          = DIR_10 / "10i_03_hindcast_diagnostic.png"
+OUT_10I_REPORT              = DIR_10 / "10i_report_numbers.csv"
+
 # Script 11 — Forecasting thresholds
 OUT_11_RESULTS              = DIR_11 / "11_forecast_01_results.txt"
 OUT_11_TABLE6_WINTER        = DIR_11 / "11_forecast_winter_transfer_functions.csv"

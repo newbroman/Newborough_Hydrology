@@ -2,7 +2,7 @@
 utils/scraping_common.py
 ========================
 Shared constants, well lists, and helpers for the Script 09 scraping
-analysis suite (09a–09d).
+analysis suite (09a–09e).
 
 Analogous to clearfell_common.py for the Script 10 suite.  All scraping-
 specific configuration lives here so that individual modules can stay
@@ -10,10 +10,11 @@ focused on analysis.
 
 Constants
 ---------
-SCRAPING_DATE       April 2015 — ground scraping at CEH36
-INTERVENTION_DATE   December 2017 — pine clearfell (shared with clearfell)
-SCRAPING_DATE_2     October 2023 — second (re-)scraping event
-FELLING_YEAR        2017
+SCRAPING_DATE         April 2015 — ground scraping at CEH36
+INTERVENTION_DATE     December 2017 — pine clearfell (shared with clearfell)
+SCRAPING_DATE_2       October 2023 — second (re-)scraping event
+FELLING_YEAR          2017
+REGIONAL_MEAN_START   Feb 2009 — fixed-composition window for regional mean
 
 Well groups
 -----------
@@ -30,7 +31,14 @@ WELL_ERAS           {well: {era_name: (start, end)}} for all analysis wells.
                     Start is inclusive, end is exclusive.
 """
 
-__version__ = "1.1.0"  # 2026-05-08 — B2 multiplier routed through clearfell_common
+__version__ = "1.2.0"  # 2026-05-16 — REGIONAL_MEAN_START codifies the
+                        # fixed-composition window for the regional-mean
+                        # control (consistency with the clearfell-suite
+                        # record-length-balance principle, but smaller
+                        # in scope because the paired-BACI design here
+                        # already self-equalises within each pair).
+# 1.1.0 — 2026-05-08 — B2 multiplier routed through clearfell_common.
+# 1.0.x — Initial scraping-suite shared module.
 
 import pandas as pd
 
@@ -42,6 +50,26 @@ INTERVENTION_DATE = pd.Timestamp("2017-12-01")   # clearfell
 SCRAPING_DATE_2  = pd.Timestamp("2023-10-01")
 
 FELLING_YEAR = INTERVENTION_DATE.year   # 2017
+
+# ============================================================================
+# RECORD-LENGTH-BALANCE CUTOFFS
+# ============================================================================
+# The scraping suite's paired BACI design (impact_well − paired_control_well)
+# self-equalises pre-event record lengths via dropna() — a paired series can
+# only exist where both wells are reading.  However, the *regional-mean*
+# control (mean over CLIMATE_CONTROLS) does NOT self-equalise: it changes
+# composition through time as wells come online.  CLIMATE_CONTROLS:
+#   NW5, NW6, NW7  reading from 2005-03 (3 wells)
+#   + CEH9         from 2006-05 (4 wells)
+#   + WMC2         from 2009-02 (5 wells — fixed composition thereafter)
+#
+# REGIONAL_MEAN_START restricts the regional-mean control to the
+# fixed-composition window (5 wells, 2009-02 onwards).  CEH4 evaluated vs
+# regional mean drops 33 pre-2009-02 rows from its Baseline era; the
+# Baseline-era mean shifts by ~36 mm in consequence.  CEH22 paired against
+# regional mean is unchanged (CEH22 starts 2010-03, already inside the
+# fixed-composition window).
+REGIONAL_MEAN_START = pd.Timestamp("2009-02-01")
 
 # ============================================================================
 # WELL GROUPS

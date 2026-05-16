@@ -69,7 +69,7 @@ PHASE_3 = [
     ("07_spatial_coefficients.py",     " 7/28  Spatial coefficient mapping"),
     ("08_model_benchmarking.py",      " 8/28  Model benchmarking (LCSC vs Traditional)"),
     ("run_09_scraping.py",            " 9/28  Scraping analysis suite (09a, 09b, 09bp, 09c, 09d)"),
-    ("run_10_clearfell.py",           "10/28  Clear-fell BACI analysis suite (10a–10h)"),
+    ("run_10_clearfell.py",           "10/28  Clear-fell BACI analysis suite (10a–10i)"),
     ("11_forecasting_thresholds.py",  "11/28  Forecasting and critical thresholds"),
     ("11b_spatial_thresholds.py",     "12/28  Spatial eco-hydrological threshold maps"),
 ]

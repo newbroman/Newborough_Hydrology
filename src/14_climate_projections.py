@@ -13,6 +13,9 @@ Outputs:
     outputs/14_climate_projections/14_climate_trajectory_summer.png
     outputs/14_climate_projections/14_climate_trajectory_winter_flooding.png
     outputs/14_climate_projections/14_climate_trajectory_stacked.png
+    (PNG @ dpi=300 — preserves cluster-marker and threshold-line
+    detail; project convention is PNG @ dpi=300 for spatial / dense
+    figures and JPEG @ dpi=200 for hydrograph / scenario panels.)
 
 Reviewer-facing method summary:
     - Summer panel: observed annual summer minima with OLS trend and 95% CI
@@ -24,7 +27,11 @@ Reviewer-facing method summary:
 
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) — last revised 2026-04-26
+__version__ = "1.1.1"  # Hollingham (2026) — 2026-05-17
+# 1.1.1 — Doc-sweep S.8: added OBS_END / REFERENCE_CUTOFF_DATE
+#         explanatory comment (Item 15) and PNG@dpi=300 format note
+#         in Outputs docstring (Item 13).  Patch — docstring only.
+# 1.1.0 — Last revised 2026-04-26.
 
 import sys
 from pathlib import Path
@@ -60,6 +67,17 @@ from utils.config import (
 )
 
 OBS_START = 2004
+# OBS_END is the last complete observational *year* for the climate
+# trajectory fit; observed series are filtered with
+# `df.index.year <= OBS_END`.  This is a different conceptual quantity
+# from `config.REFERENCE_CUTOFF_DATE` (currently "2026-02-01"), which
+# defines the last *date* the pipeline accepts as observed for monthly
+# analyses elsewhere.  REFERENCE_CUTOFF_DATE = 2026-02-01 means the
+# year 2026 is only partially observed (Jan + Feb), so for an annual-
+# minimum / annual-trend script like this one, 2025 is the last year
+# of complete observation and is the right ceiling for OBS_END.
+# Bump OBS_END once 2026 has its full Jun–Sep summer and Oct–Mar
+# winter recorded.
 OBS_END = 2025
 PROJ_END = 2040
 YEAR_MIN = 2000

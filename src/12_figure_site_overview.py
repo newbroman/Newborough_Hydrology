@@ -4,13 +4,26 @@ FIGURE 1: SITE TOPOGRAPHY AND GROUNDWATER MONITORING NETWORK (map_dem_overview.p
 ====================================================================================
 Purpose:
     Produces a publication-quality GIS map (EPSG:27700 / British National Grid)
-    overlaying the 71-well monitoring network, site features, and stream networks
-    onto the full extent of the Digital Elevation Model (DEM).
+    overlaying the full monitoring network (≈97 wells in current data), site
+    features, and stream networks onto the full extent of the Digital
+    Elevation Model (DEM).  Reads the network from data/Well_locations_height.csv;
+    the exact count printed at run time is the source of truth.
 
 Outputs:
     outputs/12_figure_site_overview/12_01_dem_site_overview.png
+    (PNG @ dpi=300 — preserves DEM hillshade detail and well-label
+    text; project convention is PNG @ dpi=300 for spatial / dense
+    figures and JPEG @ dpi=200 for hydrograph / scenario panels.)
 ====================================================================================
 """
+
+__version__ = "1.0.1"  # Hollingham (2026) — 2026-05-17
+# 1.0.1 — Doc-sweep S.8: updated docstring well count (was stale "71-well",
+#         now "≈97 wells in current data") (Item 11); removed dead
+#         out_dir / os.makedirs lines that built an unused ../outputs path
+#         (Item 12); added PNG@dpi=300 format note in Outputs docstring
+#         (Item 13).  Patch — no functional change.
+# 1.0.x — Initial.
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
@@ -62,11 +75,9 @@ def generate_dem_map():
     print(" GENERATING FIGURE 1: FULL DEM AND SITE OVERVIEW")
     print("="*60)
 
-    # 1. Setup Outputs Directory
-    out_dir = os.path.join("..", "outputs")
-    os.makedirs(out_dir, exist_ok=True)
-
-    # 2. Load the Well Data
+    # 1. Load the Well Data
+    # (Output paths are sourced from utils.paths; no per-script
+    # ../outputs directory is needed.)
     wells_path = DATA_LOCATIONS_RAW
     if not os.path.exists(wells_path):
         print(f"  [ERROR] Could not find {wells_path}. Please check data folder.")

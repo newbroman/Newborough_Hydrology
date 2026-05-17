@@ -18,8 +18,19 @@ Purpose:
 
 Outputs:
     outputs/13_figure_experimental_design/13_01_experimental_setup_map.png
+    (PNG @ dpi=300 — preserves cluster-marker rendering and well-label
+    text; project convention is PNG @ dpi=300 for spatial / dense
+    figures and JPEG @ dpi=200 for hydrograph / scenario panels.)
 ====================================================================================
 """
+
+__version__ = "1.0.1"  # Hollingham (2026) — 2026-05-17
+# 1.0.1 — Doc-sweep S.8: lowercased "Clear-Fell" → "clearfell" in inline
+#         comment (Item 14, consistent with the rest of the script and
+#         the clearfell_common module name); added PNG@dpi=300 format
+#         note in Outputs docstring (Item 13).  Patch — no functional
+#         change.
+# 1.0.x — Initial.
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
@@ -95,7 +106,7 @@ gdf_wells = gpd.GeoDataFrame(
     crs="EPSG:27700"
 )
 
-# Load Clear-Fell KML Boundary
+# Load clearfell KML boundary
 kml_file = DATA_DIR / 'clearfell.kml'
 kml_clearfell_exists = os.path.exists(kml_file)
 if kml_clearfell_exists:

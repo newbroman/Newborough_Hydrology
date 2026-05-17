@@ -53,6 +53,16 @@ C3 split threshold: 1000 m from ridge (forest-adjacent vs warren-interior)
 ====================================================================================
 """
 
+__version__ = "1.0.1"  # Hollingham (2026) — 2026-05-17
+# 1.0.1 — Doc-sweep S.16: clarified the inline comment on lag/displacement
+#         handling (S16-D); fixed add_kml_features(ax) → add_kml_features(
+#         ax, DATA_DIR) bug — previously the KML overlay silently failed
+#         inside the try/except, producing maps without site features
+#         (S16-F); added __version__ (S16-I).  Patch — no functional
+#         change to numerical outputs; KML overlays will now render on
+#         the amplitude-map figure.
+# 1.0.x — Initial.
+
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
 
@@ -64,6 +74,7 @@ from scipy import stats as scipy_stats
 
 from utils.paths import (
     make_all_dirs,
+    DATA_DIR,
     INT_WELLS_CLEAN, INT_CLIMATE, INT_LOCATIONS, INT_CLUSTER_STATS,
     DATA_CLIMATE_RAW,
     # New Script 24 paths — added to paths.py by accompanying patch:
@@ -93,7 +104,9 @@ C3_SPLIT_DISTANCE_M = 1000.0  # legacy: under the new partition the forest-adjac
 
 # CLUSTER_LABELS and CLUSTER_COLOURS imported from utils.config (k=5 partition).
 
-# Lag and displacement handled by fit_ssm_intercept() from model_utils.
+# Lag and displacement handled by fit_ssm_intercept() from model_utils:
+# - rainfall is contemporaneous (HEADLINE_LAG = 0 in config.py)
+# - drainage uses h_disp_prev (end-of-previous-month displacement above datum)
 MONTH_LABELS = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D']
 
 plt.rcParams.update({
@@ -293,7 +306,7 @@ def plot_amplitude_map(clim_df, output_path):
                         fontsize=8, fontweight='bold', zorder=6)
 
     try:
-        add_kml_features(ax)
+        add_kml_features(ax, DATA_DIR)
     except Exception as e:
         print(f"  [note] KML overlay skipped: {e}")
 

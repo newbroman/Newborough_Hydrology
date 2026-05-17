@@ -5,8 +5,9 @@
 Purpose:
     Stage 1 of the ridge-subsidy lag analysis (see Section 11 further work).
 
-    Refits Model B (SSM with intercept, lag-1 rainfall, displacement formulation)
-    for every reference well with >= 140 months of data on the FULL record, then:
+    Refits Model B (SSM with intercept, contemporaneous rainfall under
+    HEADLINE_LAG = 0, displacement formulation) for every reference well
+    with >= 140 months of data on the FULL record, then:
         1. Saves the per-well Model B residual series e_B(t).
            The intercept absorbs the constant (mean) part of the residual so e_B(t)
            represents only the time-varying component — the only part that can
@@ -45,6 +46,13 @@ Well exclusions (EXCLUDED_WELLS_NORM):
 ====================================================================================
 """
 
+__version__ = "1.0.1"  # Hollingham (2026) — 2026-05-17
+# 1.0.1 — Doc-sweep S.16: corrected stale "lag-1 rainfall" docstring claim
+#         to "contemporaneous rainfall under HEADLINE_LAG = 0" (S16-A);
+#         clarified the inline comment on lag/displacement handling (S16-B);
+#         added __version__ (S16-G).  Patch — no functional change.
+# 1.0.x — Initial.
+
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
 
@@ -76,7 +84,9 @@ MIN_MONTHS = 140
 AR1_WHITE_THRESHOLD = 0.3  # |phi| below this is treated as effectively white
 AR1_DIAG_PVAL = 0.05
 
-# Lag and displacement handled by fit_ssm_intercept() from model_utils.
+# Lag and displacement handled by fit_ssm_intercept() from model_utils:
+# - rainfall is contemporaneous (HEADLINE_LAG = 0 in config.py)
+# - drainage uses h_disp_prev (end-of-previous-month displacement above datum)
 
 # Wells excluded from the lag analysis. See docstring for rationale per well.
 EXCLUDED_WELLS_NORM = {'ceh7', 'ceh8', 'ceh37', 'ceh3', 'ceh4'}

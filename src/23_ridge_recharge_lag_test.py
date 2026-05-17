@@ -2,6 +2,36 @@
 ====================================================================================
 23_ridge_recharge_lag_test.py — Test the ridge-derived recharge hypothesis
 ====================================================================================
+
+LIMITATION NOTE (2026-05-17):
+    This diagnostic is retained for completeness but its result should not
+    be cited as confirmation or refutation of ridge-derived recharge.
+
+    The test design — peak-correlation lag of residuals against rainfall,
+    Spearman-correlated with distance from a ridge reference point — was
+    investigated in detail in May 2026 and found to be statistically
+    degenerate against this dataset for three structural reasons:
+
+      1. Monthly time resolution cannot resolve sub-monthly to ~2-month
+         travel times across a ~2 km transect. 60+ of 64 wells peak at
+         lag 1 or 2 regardless of distance from the ridge, even under a
+         clean Box-Jenkins pre-whitened reformulation.
+
+      2. Peak-lag is a poor summary of the cross-correlation function.
+         It discards amplitude and shape information, and the argmax over
+         a bounded discrete lag grid has no clean sampling distribution
+         under standard statistical inference.
+
+      3. The water-balance residual that the ridge mechanism would explain
+         is ~2.5% of annual flux — at or below the per-well α uncertainty
+         of the headline SSM. A signal of this magnitude is at the noise
+         floor of the data regardless of test design.
+
+    The ridge-recharge hypothesis is therefore neither confirmed nor
+    refuted by the current monitoring design; this is a limitation of the
+    data, not of the test. See §5.3 of the main report and §S.16 of the
+    Methods Supplement for the final framing.
+
 Purpose:
     Tests whether the water-balance residual attributed to ridge-derived recharge
     in the report (Section 4.4.2 / 5.3) behaves like genuine lateral recharge
@@ -20,17 +50,20 @@ Purpose:
         attributed to ridge recharge on mechanistic grounds alone.
 
     Methodological note:
-        Script 22 demonstrated that a single-period SSM (Delta_h = a + b1*P(t) -
-        b2*PET(t) - b3*h_disp(t-1)) leaves a generic lag-1 rainfall signal in the
-        residuals at EVERY well, regardless of location. This is the expected
-        monthly-timestep vadose-zone response — recharge takes roughly a month
-        to propagate through the vadose zone to the water table, and the
-        monthly-averaged response lags monthly-averaged rainfall by one month.
-        This generic lag-1 signal masks any ridge-specific lag structure.
+        Script 22 documents AR(1) persistence in the headline SSM residuals
+        (Delta_h = a + b1*P(t) - b2*PET(t) - b3*h_disp_prev(t)) across the
+        reference network. The positive AR(1) phi values are consistent with
+        vadose-zone moisture memory and other second-order persistence not
+        absorbed by the headline SSM — the headline model captures drainage
+        proportional to start-of-month head via b3*h_disp_prev, but does not
+        model storage-state memory in the unsaturated zone. This residual
+        persistence is an expected hydrological feature, not a model defect,
+        but it could mask any ridge-specific lag structure if present.
 
-        This script refits with BOTH P(t) and P(t-1) as regressors. The residuals
-        from this richer model are free of the vadose-zone confound. Any
-        remaining lag structure in the residuals is the candidate ridge signal.
+        This script refits with BOTH P(t) and P(t-1) as regressors. The
+        residuals from this richer model are explicitly free of any generic
+        first-order rainfall lag confound. Any remaining lag structure in
+        the residuals is the candidate ridge signal.
 
     The report's fitted b1, b2, b3 and alpha values are UNCHANGED by this script
     and remain authoritative. This is a diagnostic analysis, not a revision.
@@ -62,6 +95,28 @@ Ridge reference point: E = 241750, N = 364500 (OSGB36)
 ====================================================================================
 """
 
+__version__ = "1.0.1"  # Hollingham (2026) — 2026-05-17
+# 1.0.1 — Doc-sweep S.16: added prominent LIMITATION NOTE at top of
+#         docstring documenting that the test design is statistically
+#         degenerate against this dataset (monthly resolution cannot
+#         resolve sub-monthly travel times; peak-lag is a poor CCF
+#         summary; the 2.5% water-balance residual is at the noise floor
+#         of per-well α uncertainty). Script retained for completeness;
+#         results should not be cited. See §5.3 of main report and
+#         §S.16 of Methods Supplement for final framing (S16-J).
+#         Softened the "Script 22 demonstrated lag-1 rainfall signal at
+#         every well" overstatement to "Script 22 documents AR(1)
+#         persistence consistent with vadose-zone moisture memory" —
+#         Script 22 tests residual-vs-own-past, not residual-vs-past-
+#         rainfall, so the previous wording overstated what Script 22
+#         actually shows (S16-C).  Fixed add_kml_features(ax) → 
+#         add_kml_features(ax, DATA_DIR) bug — previously the KML
+#         overlay silently failed inside the try/except, producing
+#         maps without site features (S16-E).  Added __version__
+#         (S16-H).  Patch — no functional change to numerical
+#         outputs, KML overlays will now render on the lag-map figure.
+# 1.0.x — Initial.
+
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
 
@@ -72,6 +127,7 @@ import statsmodels.api as sm
 
 from utils.paths import (
     make_all_dirs,
+    DATA_DIR,
     INT_WELLS_CLEAN, INT_CLIMATE, INT_LOCATIONS, INT_CLUSTER_STATS,
     # New Script 23 paths — added to paths.py by accompanying patch:
     INT_23_RESIDUALS_WIDE, INT_23_FITS_TABLE,
@@ -354,7 +410,7 @@ def plot_lag_map(ccf_df, output_path):
                label='Ridge reference')
 
     try:
-        add_kml_features(ax)
+        add_kml_features(ax, DATA_DIR)
     except Exception as e:
         print(f"  [note] KML overlay skipped: {e}")
 

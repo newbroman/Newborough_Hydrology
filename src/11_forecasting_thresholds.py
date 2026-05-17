@@ -70,6 +70,15 @@ Cluster scope (k=5 partition):
 ====================================================================================
 """
 
+__version__ = "1.0.1"  # Hollingham (2026) — 2026-05-17
+# 1.0.1 — Doc-sweep S.9: corrected misleading HEADLINE_LAG sentence in
+#         run_state_space docstring (D1) — this function reads pre-fitted
+#         coefficients, does not fit anything; added inline rationale for
+#         the β₃ defensive abs() (D2) clarifying it guards against per-well
+#         negatives that the cluster-centroid CSV should never produce;
+#         added __version__ constant (S9-A).  Patch — no functional change.
+# 1.0.x — Initial.
+
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
 from utils.paths import (
@@ -276,8 +285,13 @@ def run_state_space(df: pd.DataFrame) -> dict:
     them to m/mm (/ 1000) for consistency with the downstream P_flood
     closed form (Section 3), which uses climatological P and PET in mm.
 
-    Coefficients are read from Script 03's output CSV; HEADLINE_LAG
-    (centralised in config.py) controls the lag used in the SSM fit.
+    Coefficients are read from Script 03's output CSV — this function
+    does not fit anything.  Whatever lag convention Script 03 was fitted
+    under at the time the CSV was produced (currently HEADLINE_LAG = 0
+    from config.py, i.e. contemporaneous P / PET) is inherited.  If
+    HEADLINE_LAG is changed and Script 03 re-run, the new CSV values
+    flow through here transparently; no edit to this function is
+    needed.
 
     Returns:
         results_dict: {cluster_name: {beta1, beta2, beta3, r2, n}}
@@ -309,6 +323,16 @@ def run_state_space(df: pd.DataFrame) -> dict:
         b1 = float(row["beta_1_recharge"]) / 1000.0   # m/m -> m/mm
         b2 = float(row["beta_2_atmospheric_draw"]) / 1000.0   # m/m -> m/mm
         b3_raw = float(row["beta_3_drainage"])
+        # β₃ is a drainage coefficient; under the displacement
+        # formulation (h_disp = D + h_depth, with DRAINAGE_DATUM > 0)
+        # the OLS fit should always produce β₃ > 0 at the cluster level.
+        # An occasional per-well fit in 03_master_data.csv can produce
+        # marginally-negative β₃ at wells where drainage is very weak
+        # (typically C4 forest interior wells like CEH14 — see Script 11b's
+        # warning trace in production runs).  Cluster-centroid fits in
+        # 03_03_cluster_mechanistic_coefficients.csv (this function's
+        # source) should never be negative; the abs() is defensive against
+        # an upstream change that re-routes per-well coefficients here.
         if b3_raw < 0:
             print(f"  [WARNING] {col}: β₃ = {b3_raw:.4f} is negative "
                   f"(expected positive under displacement formulation). "

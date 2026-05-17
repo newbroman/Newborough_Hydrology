@@ -18,7 +18,10 @@ DEM corrections are applied to two wells that have been scraped since the
 LiDAR survey was flown:
     CEH18 (scraped October 2023, ~0.50 m removed): DEM corrected -0.50 m
     CEH21 (scraped October 2023, ~0.70 m removed): DEM corrected -0.70 m
-    Both wells use post-2023 data only.
+    Full observed record is used for both wells: maOD readings are
+    invariant to ground-surface change, so pre-2023 maOD water-table
+    observations remain physically valid alongside post-2023 ones.
+    Only the DEM (subtracted to compute depth-below-ground) is corrected.
 
 P_FLOOD MAP (plot_pflood_map) — Section 3.6.3 of Hollingham (2026)
 ------------------------------------------------------------------
@@ -71,7 +74,26 @@ Dependencies
     Skeletonisation: not required (map_utils handles DEM/IDW)
 """
 
-__version__ = "1.1.0"  # Hollingham (2026) — last revised 2026-04-23
+__version__ = "1.1.1"  # Hollingham (2026) — 2026-05-17
+#                        1.1.1: Doc-sweep S.9 — removed `start_yr` parameter
+#                               from `_summer_mins` (D7 retraction) after
+#                               confirming maOD readings are invariant to
+#                               ground-surface scraping; pre-2023 minima
+#                               for CEH18 and CEH21 are now included,
+#                               restoring statistical power (n=19 / n=16
+#                               vs n=3 each pre-fix).  Depth-bg changes
+#                               trivial: CEH18 -4 mm, CEH21 -25 mm — below
+#                               Curreli zone-boundary precision.  Also
+#                               rewrote `_summer_mins` and `_winter_maxima`
+#                               docstrings explaining the maOD invariance
+#                               principle (D6); removed `start_yr` from
+#                               the SCRAPED dict (now `dem_correction`
+#                               only); updated script-header docstring,
+#                               two plot annotations, and one legend label
+#                               to reflect "DEM-corrected only; full
+#                               record used".  Patch — small numerical
+#                               change at two wells, no shift in
+#                               classification zone.
 #                        1.1.0: iterated P_flood (Section 3.6.3 revision)
 #                        1.0.0: single-step P_flood (superseded)
 
@@ -141,12 +163,15 @@ SEA_WEST_E  = 239200   # m OSGB36 — western estuary
 # ─────────────────────────────────────────────────────────────────────────────
 # SCRAPING CORRECTIONS
 # Wells scraped since the LiDAR DEM was flown — DEM elevation reduced by the
-# depth of material removed, and only post-scraping data used for the summer
-# minimum calculation.
+# depth of material removed.  Pre-scrape water-table observations remain
+# physically valid (maOD readings are invariant to ground-surface change;
+# scraping does not move the water table relative to OD), so the full
+# observed record is used for both summer minima and winter maxima.
+# Only the DEM is corrected.  See _summer_mins / _winter_maxima docstrings.
 # ─────────────────────────────────────────────────────────────────────────────
 SCRAPED = {
-    "ceh18": {"dem_correction": 0.50, "start_yr": 2023},  # Oct 2023, ~0.50 m
-    "ceh21": {"dem_correction": 0.70, "start_yr": 2023},  # Oct 2023, ~0.70 m
+    "ceh18": {"dem_correction": 0.50},  # Oct 2023, ~0.50 m removed
+    "ceh21": {"dem_correction": 0.70},  # Oct 2023, ~0.70 m removed
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -331,7 +356,21 @@ def _norm(s: str) -> str:
 
 
 def _winter_maxima(series: pd.Series) -> dict:
-    """Return {hydro_year: Oct-Mar maximum maOD} for a maOD time series."""
+    """Return {hydro_year: Oct-Mar maximum maOD} for a maOD time series.
+
+    Aggregates each hydrological year (1 October to 31 March) into a
+    single maximum maOD value, with a minimum-data threshold of 3
+    months observed in the Oct-Mar window for the year to be retained.
+
+    Operates on maOD (above-Ordnance-Datum) elevations, which are
+    invariant to ground-surface change (scraping does not move the
+    water table relative to OD).  No `start_yr` filter is needed for
+    the two scraped wells (CEH18, CEH21): their pre-2024 maOD readings
+    remain physically valid water-table elevations and are averaged
+    alongside post-scrape maOD readings without bias.  The DEM
+    correction applied downstream (depth_bg = adj_dem − mean_maxima)
+    handles the ground-surface change.
+    """
     out = {}
     for yr in series.index.year.unique():
         sub = series[
@@ -352,12 +391,27 @@ def _flood_frequency(series: pd.Series, dem: float) -> float:
     return flooded / len(maxima) * 100
 
 
-def _summer_mins(series: pd.Series, start_yr: int = None) -> dict:
-    """Return {year: Aug-Sep minimum} for a maOD time series."""
+def _summer_mins(series: pd.Series) -> dict:
+    """Return {year: Aug-Sep minimum maOD} for a maOD time series.
+
+    Aggregates each calendar year's August and September observations
+    into a single minimum maOD value (one observation suffices, by
+    design — Aug or Sep alone often captures the annual minimum).
+
+    Operates on maOD (above-Ordnance-Datum) elevations, which are
+    invariant to ground-surface change.  Earlier versions of this
+    function accepted a `start_yr` parameter to drop pre-2024 years
+    for scraped wells (CEH18, CEH21); that filter was removed in v1.1.1
+    after re-examination confirmed maOD readings are not biased by the
+    scrape — the water table sits at the same absolute elevation before
+    and after surface removal.  All historical maOD summer minima are
+    therefore included; statistical power is preserved (n=19 for CEH18,
+    n=16 for CEH21 vs n=3 each pre-fix).  The DEM correction applied
+    downstream (depth_bg = adj_dem − mean_mins) handles the ground-
+    surface change.
+    """
     out = {}
     for yr in series.index.year.unique():
-        if start_yr and yr < start_yr:
-            continue
         sub = series[
             (series.index.year == yr) & series.index.month.isin([8, 9])
         ].dropna()
@@ -508,7 +562,14 @@ def load_well_data() -> pd.DataFrame:
 
         if wn in SCRAPED:
             corr    = SCRAPED[wn]
-            mins    = _summer_mins(maod_ref[col], start_yr=corr["start_yr"])
+            # maOD is invariant to scraping, so all historical Aug-Sep
+            # minima are physically valid water-table elevations and
+            # the full record is averaged.  Only the DEM is corrected
+            # to reflect the post-2023 ground surface; depth_bg below
+            # (adj_dem - mean_min) thus reports depth-below-ground
+            # relative to the current ground surface.  See _summer_mins
+            # docstring for the rationale.
+            mins    = _summer_mins(maod_ref[col])
             adj_dem = dem_e - corr["dem_correction"]
         else:
             mins    = _summer_mins(maod_ref[col])
@@ -717,7 +778,7 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
         f"Ref: {(df['network']=='Reference').sum()}  "
         f"Extended: {(df['network']=='Extended').sum()}  "
         f"Total: {n_tot}\n"
-        f"CEH21: DEM −0.70 m  |  CEH18: DEM −0.50 m  (both post-2023 only)"
+        f"CEH21: DEM −0.70 m  |  CEH18: DEM −0.50 m  (DEM-corrected only; full record used)"
     )
     ax.text(
         0.98, 0.97, stats_txt,
@@ -759,7 +820,7 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
         Line2D([0], [0], marker="s", color="w",
                markerfacecolor="grey", markeredgecolor="red",
                markersize=8,
-               label="Scraped well — DEM corrected, post-2023 data"),
+               label="Scraped well — DEM corrected (full record)"),
     ] + kml_handles
 
     cluster_patches = [
@@ -793,7 +854,7 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
         f"{(df['network']=='Extended').sum()} extended)  |  "
         "Dune ridges masked\n"
         "CEH18: DEM −0.50 m  |  CEH21: DEM −0.70 m  "
-        "(both post-2023 data only)  |  "
+        "(DEM-corrected only; full record used)  |  "
         "Curreli et al. (2013) thresholds  |  "
         "Recovery limits: Hollingham (2026)",
         fontsize=9, fontweight="bold",

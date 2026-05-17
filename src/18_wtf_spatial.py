@@ -28,6 +28,15 @@ References:
     Freeman, S. (2008) Hydrological impact of Corsican pine at Newborough Warren.
 """
 
+__version__ = "1.0.1"  # Hollingham (2026) — 2026-05-17
+# 1.0.1 — Doc-sweep S.12: updated stale "C4 Forest values corrected" plot
+#         title to "Forest cluster values (C4, C5) corrected" (S12-A,
+#         matches live code and Script 18 docstring line 17 — interception
+#         correction applies to both forest clusters under the k=5
+#         partition); added __version__ constant (S12-B).  Patch — no
+#         functional change.
+# 1.0.x — Initial.
+
 import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'utils'))
@@ -277,7 +286,7 @@ def plot_spatial_map(well_results, out_path):
         map_df      = map_df,
         value_col   = "WTF_Sy_median",
         title       = ("WTF Specific Yield (event median) — Newborough Warren 2005–2026\n"
-                       "C4 Forest values corrected for 24% canopy interception "
+                       "Forest cluster values (C4, C5) corrected for 24% canopy interception "
                        "(Freeman, 2008); spatial canopy variability means "
                        "Forest estimates are approximate"),
         output_path = out_path,

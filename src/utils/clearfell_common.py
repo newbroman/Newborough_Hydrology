@@ -59,7 +59,11 @@ Usage
     )
 """
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-05-16
+__version__ = "1.2.1"  # Hollingham (2026) — 2026-05-17
+# 1.2.1 — Added worked example to load_clearfell_b2_multiplier docstring
+#         with the current tier ratios and computed clearfell/thinning
+#         multipliers (Item 8 in flags log).  Patch version — docstring
+#         only, no functional change.
 # 1.2.0 — Added load_ceh34_hindcast_series() loader for Script 10i output.
 #         Adopted PRE_FELL_START = 2010-07-01 (was 2010-08-01) — CEH34's
 #         missing 2010-07 data is supplied by 10i's hindcast.
@@ -681,12 +685,37 @@ def load_clearfell_b2_multiplier(verbose=True):
 
         thinning = 1.0 + (clearfell − 1.0) / 2.0
 
+    Worked example (live data, 2026-05)
+    -----------------------------------
+    From `10e_01_coefficient_shifts.csv` the per-tier mean ratios are::
+
+        Impact       ratio = 1.0301   (WMC3, attenuated — canopy removed)
+        Edge         ratio = 1.0927   (canopy retained, lateral moisture)
+        Forest Ctrl  ratio = 1.1152
+        Coastal Ctrl ratio = 1.0657
+        Climate Ctrl ratio = 1.0140   (background drift)
+
+    The BACI-corrected clearfell multiplier is then::
+
+        clearfell = Edge − Climate + 1.0
+                  = 1.0927 − 1.0140 + 1.0
+                  = 1.0787    (≈ +7.9% β₂)
+
+    And the thinning multiplier::
+
+        thinning = 1.0 + (1.0787 − 1.0) / 2.0
+                 = 1.0394    (≈ +3.9% β₂)
+
+    These are the values used by Scripts 19 and 21 in their forestry
+    scenarios.  Recomputing on each call (rather than caching a constant)
+    means the multipliers are always consistent with the latest 10e run.
+
     Returns
     -------
     clearfell_mult : float
-        Multiplier for full clearfell (expected ~1.10 with current data).
+        Multiplier for full clearfell (expected ~1.08 with current data).
     thinning_mult : float
-        Multiplier for 50% thinning (expected ~1.05 with current data).
+        Multiplier for 50% thinning (expected ~1.04 with current data).
     tier_ratios : dict
         Per-tier mean b2_after/b2_before ratios, for provenance logging.
     """

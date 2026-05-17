@@ -1,5 +1,5 @@
 """
-25_coastal_gradient.py — Phase 12 (step 27/28)
+25_coastal_gradient.py — Phase 11 (step 24)
 
 Coastal-retreat gradient analysis
 =================================
@@ -76,6 +76,17 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
+__version__ = "1.0.1"  # Hollingham (2026) — 2026-05-17
+# 1.0.1 — Doc-sweep S.15.  Corrected stale phase/step references in
+#         header (Phase 12 step 27/28 → Phase 11 step 24, matching
+#         PIPELINE_README.md canonical structure, S15-A) and in the
+#         console print line 753 (S15-B); replaced hardcoded [4, 5]
+#         cluster IDs with FOREST_CIDS imported from utils.config
+#         (S15-C, same pattern as S13-F in Script 20); added
+#         __version__ (S15-D).  Patch — no functional change, outputs
+#         byte-identical.
+# 1.0.x — Initial.
+
 import sys
 import warnings
 from pathlib import Path
@@ -91,7 +102,7 @@ from scipy.stats import t as t_dist
 _HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(_HERE))
 from utils import paths  # noqa: E402
-from utils.config import CLUSTER_COLOURS, CLUSTER_LABELS  # noqa: E402
+from utils.config import CLUSTER_COLOURS, CLUSTER_LABELS, FOREST_CIDS  # noqa: E402
 from utils.clearfell_common import (  # noqa: E402
     IMPACT_WELLS, EDGE_WELLS, FOREST_CONTROL_WELLS,
     COASTAL_CONTROL_WELLS, CLIMATE_CONTROL_WELLS,
@@ -197,7 +208,7 @@ def load_panel(distances: pd.DataFrame, exclude_forested: bool = False,
     else:
         long = long[~long["well"].isin(CLEARFELL_ZONE)]
         if exclude_forested:
-            long = long[~long["cluster"].isin([4, 5])]
+            long = long[~long["cluster"].isin(FOREST_CIDS)]
     long = long[long["easting"].notna() & long["dist_coast_m"].notna()].copy()
     return long
 
@@ -750,7 +761,7 @@ def main() -> None:
     paths.DIR_25.mkdir(parents=True, exist_ok=True)
 
     print("\n" + "=" * 72)
-    print(" Script 25 — Coastal-retreat gradient analysis (Phase 12)")
+    print(" Script 25 — Coastal-retreat gradient analysis (Phase 11)")
     print("=" * 72)
 
     # ── Load distance CSV ──

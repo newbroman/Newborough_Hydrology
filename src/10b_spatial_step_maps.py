@@ -66,7 +66,10 @@ from utils.clearfell_common import (
     FOREST_CONTROL_WELLS, COASTAL_CONTROL_WELLS, CLIMATE_CONTROL_WELLS,
 )
 
-__version__ = "1.3.0"
+__version__ = "1.3.1"
+# 1.3.1 — Inline comment at the IDW xi/yi construction documenting the
+#         40 m grid choice (vs the 50 m project standard) — Item 5 in
+#         flags log.
 # 1.3.0 — Adopt CEH34 hindcast via apply_ceh34_hindcast().  Companion to
 #         PRE_FELL_START = 2010-07-01 in clearfell_common v1.2.0.
 # 1.2.0 — Apply PRE_FELL_START lower bound on pre-scrape era mask.
@@ -249,6 +252,13 @@ def main():
         )
 
         # ── IDW surface ─────────────────────────────────────────────────────────
+        # 40 m grid (vs the 50 m project-standard used by Scripts 07,
+        # 11b, 19, 20, 25).  The finer resolution is appropriate here
+        # because 10b's panels visualise per-well step changes at the
+        # scale of the clearfell compartment (~600 m across); the 50 m
+        # standard exists for whole-site surfaces where the coarser
+        # grid reads cleaner against the DEM hillshade.  Methods
+        # supplement S.7 documents this deviation.
         xi = np.arange(XLIM[0], XLIM[1], 40)
         yi = np.arange(YLIM[0], YLIM[1], 40)
         mesh, gx, gy, surf = add_idw_surface(

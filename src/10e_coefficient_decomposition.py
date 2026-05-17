@@ -47,7 +47,10 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-05-16
+__version__ = "1.2.1"  # Hollingham (2026) — 2026-05-17
+# 1.2.1 — Added inline provenance comment at the first OLS call site
+#         explaining why 10e fits directly with sm.add_constant() rather
+#         than going through model_utils.fit_ssm() (Item 1 in flags log).
 # 1.2.0 — Adopt CEH34 hindcast via apply_ceh34_hindcast().  Companion to
 #         PRE_FELL_START = 2010-07-01 in clearfell_common v1.2.0.
 # 1.1.0 — Apply PRE_FELL_START record-length-balance cutoff to Before
@@ -183,6 +186,17 @@ for w in ALL_NETWORK_WELLS:
         continue
 
     try:
+        # NOTE: 10e fits OLS directly (with sm.add_constant for an
+        # intercept α) rather than going through model_utils.fit_ssm(),
+        # because (a) the Before fit needs an extra `scraping_dummy`
+        # regressor that fit_ssm()'s canonical interface doesn't accept,
+        # and (b) the intercept is intentional — the Δα between Before
+        # and After is part of the era decomposition the script measures
+        # (see "Note on interpretation" in the module docstring; this is
+        # a deliberate departure from the no-intercept canonical SSM in
+        # model_utils.fit_ssm()).  Column names use the canonical long
+        # form so downstream consumers reading 10e_01_coefficient_shifts.csv
+        # see the same nomenclature as 03_master_data.csv.
         model_b = sm.OLS(y_b, sm.add_constant(X_b)).fit()
         b1_before = model_b.params['beta_1_recharge']
         b2_before = model_b.params['beta_2_atmospheric_draw']

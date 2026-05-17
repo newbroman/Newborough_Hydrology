@@ -182,9 +182,8 @@ def main():
 
     # Print plan
     print(f"  Running {len(targets)} sub-script(s):")
-    for _, sid, desc in targets:
-        script_path = SRC_DIR / f"{sid}_{desc.split()[0].lower()}"
-        status = "ready" if (SRC_DIR / [s for s, i, _ in SUBSCRIPTS if i == sid][0]).exists() else "NOT FOUND"
+    for script_name, sid, desc in targets:
+        status = "ready" if (SRC_DIR / script_name).exists() else "NOT FOUND"
         print(f"    {sid}  {desc}  [{status}]")
     print()
 

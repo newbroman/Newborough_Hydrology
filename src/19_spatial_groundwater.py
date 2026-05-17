@@ -20,7 +20,23 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.7.0"   # Hollingham (2026) -- 2026-05-15
+__version__ = "2.7.1"   # Hollingham (2026) -- 2026-05-17
+                         # v2.7.1: Doc-sweep S.13.  SY_DEFAULTS[5] changed
+                         #         from 0.10 to 0.12 (matches v2.7.0 framing
+                         #         of C5 as Coastal Forest, a true forest
+                         #         cluster); removed dead key 6 entries
+                         #         from both SY_DEFAULTS and SY_FLOOR
+                         #         (under k=5 there is no C6); legend text
+                         #         "C2-C4 12%, C5/C6 10%" → "C2-C5 12%".
+                         #         Quantitative impact: C5 wells in Fetter
+                         #         lower-bound mode now use Sy = 0.12
+                         #         (was 0.10), a 20% increase in storage-
+                         #         shift values for C5 wells in that mode.
+                         #         Added clarifying comment that
+                         #         WINTER_MONTHS / SUMMER_MONTHS here are
+                         #         the climate aggregation windows, distinct
+                         #         from the broadleaf β₂ phenological
+                         #         windows in config.py.
                          # v2.7.0: Broadleaf β₂ seasonal-window canonical fix.
                          #         BROADLEAF_INTERCEPTION, BROADLEAF_B2_WINTER,
                          #         BROADLEAF_B2_SUMMER now imported from
@@ -119,10 +135,26 @@ from utils.clearfell_common import load_clearfell_b2_multiplier
 # live in config.py.
 MONITOR_START = "2005-04-01"
 MONITOR_END   = "2026-02-28"
+# Climate and head aggregation windows for the scenario viewer.  These are
+# DISTINCT from the broadleaf β₂ phenological windows in config.py
+# (BROADLEAF_B2_WINTER / BROADLEAF_B2_SUMMER, which use Nov–Apr / May–Oct
+# 6-month windows aligned to leaf-on / leaf-off canopy state).  The
+# windows here are the climate/level seasonal aggregations: 5-month
+# Nov–Mar for wet-season climate (highest recharge), 5-month May–Sep for
+# dry-season climate (highest ET).  Used by serialise_climate and the
+# winter/summer mean-head aggregations on lines 545–546.
 WINTER_MONTHS = [11, 12, 1, 2, 3]
 SUMMER_MONTHS = [5, 6, 7, 8, 9]
-SY_DEFAULTS   = {1: 0.08, 2: 0.12, 3: 0.12, 4: 0.12, 5: 0.10, 6: 0.10}
-SY_FLOOR      = {1: 0.06, 2: 0.12, 3: 0.12, 4: 0.12, 5: 0.12, 6: 0.12}
+# Sy floor and Sy defaults per cluster.  Under the k=5 partition all five
+# clusters are forest- or dune-like and share the same Fetter (2001) lower-
+# bound value of 12% — except C1 (lake-edge), which is the lower-storage
+# lake-buffered cluster.  SY_FLOOR is the project-specific minimum used as
+# a hard floor in WTF mode; SY_DEFAULTS is the Fetter literature value used
+# in Fetter mode.  Previous values had C5 = 0.10 (a k=6-era artefact
+# treating C5 as a coastal/tidal cluster); under v2.7.0 C5 is "Coastal
+# Forest", a true forest cluster, so the 12% lower bound applies.
+SY_DEFAULTS   = {1: 0.08, 2: 0.12, 3: 0.12, 4: 0.12, 5: 0.12}
+SY_FLOOR      = {1: 0.06, 2: 0.12, 3: 0.12, 4: 0.12, 5: 0.12}
 EXCLUDE_WELLS = {"ceh12", "ceh15"}
 
 # Viewer map extent (OSGB36 / EPSG:27700). Single source of truth -- used by:
@@ -1019,7 +1051,7 @@ footer a:hover{{text-decoration:underline;}}
     <input type="range" min="0" max="1" step="1" value="0" id="sSyMode" oninput="onSl()">
     <span class="sv" id="vSyMode">Fetter</span></div>
   <div style="font-size:10px;color:var(--text-light);line-height:1.4;margin-top:3px;">
-    <strong>Fetter</strong> (lower bound): C1&nbsp;8%, C2&#8211;C4&nbsp;12%, C5/C6&nbsp;10% &#8212;
+    <strong>Fetter</strong> (lower bound): C1&nbsp;8%, C2&#8211;C5&nbsp;12% &#8212;
     conservative literature values from Fetter (2001).<br>
     <strong>WTF</strong> (upper bound): per-well WTF medians (scripts 17/18),
     clamped to the cluster floor. Monthly WTF overestimates Sy through

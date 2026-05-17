@@ -59,9 +59,25 @@ Dependencies
 References
 ----------
   Betson et al. (2002) — K = 6.0 m/day
-  Freeman (2008) — 24% canopy interception for C4 Forest
+  Freeman (2008) — 24% canopy interception for C4 and C5 forest clusters
   Curreli et al. (2013) — eco-hydrological thresholds
 """
+
+__version__ = "1.0.1"  # Hollingham (2026) — 2026-05-17
+# 1.0.1 — Doc-sweep S.13.  Made Sy and BETA3_M dynamic in
+#         plot_drawdown_propagation(): both now read from upstream pipeline
+#         CSVs (C3 cluster median from 17_wtf_well_sy.csv; C3 centroid β₃
+#         from 03_03_cluster_mechanistic_coefficients.csv).  C3 is the
+#         drawdown propagation MEDIUM (open dune beyond the forest edge),
+#         which is the correct cluster for the hydraulic diffusivity
+#         calculation D = K·b/Sy.  Previously hardcoded snapshot values
+#         (Sy=0.25, β₃=0.060) gave λ=245 m; live C3 values (Sy≈0.33,
+#         β₃≈0.060) give λ≈217 m.  Affects Figure 3 (20_drawdown_propagation.png).
+#         Also: corrected stale C4-only forest interception reference in
+#         the References section of the header docstring (S13-E);
+#         replaced hardcoded (4, 5) cluster tuple with FOREST_CIDS imported
+#         from utils.config (S13-F); added __version__ (S13-G).
+# 1.0.x — Initial.
 
 import argparse
 import warnings
@@ -89,9 +105,10 @@ from utils.paths import (
     INT_WELLS_CLEAN_MAOD, INT_LOCATIONS, INT_WELL_ELEVATIONS,
     INT_MASTER_DATA, INT_CLIMATE, INT_WELLS_EXTENDED,
     INT_PEAR_AUDIT_SITEWIDE, INT_CLUSTER_STATS,
+    INT_WTF_WELL_SY, OUT_03_MECHANISTIC_TABLE,
 )
 from utils.map_utils import load_dem_hillshade
-from utils.config import CLUSTER_COLOURS, DRAINAGE_DATUM, FOREST_INTERCEPTION
+from utils.config import CLUSTER_COLOURS, DRAINAGE_DATUM, FOREST_INTERCEPTION, FOREST_CIDS
 from utils.data_utils import normalize_well_name
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -232,10 +249,10 @@ def build_well_table(data):
     wt["mean_depth"] = wt["mean_head"] - wt["pipe_top"]
     wt["h_disp"] = DRAINAGE_DATUM + wt["mean_depth"]
 
-    # Effective P (canopy interception for C4 and C5 — both forested)
+    # Effective P (canopy interception for forest clusters — from config)
     wt["P_eff"] = wt.apply(
         lambda r: P_bar * (1 - FOREST_INTERCEPTION)
-        if pd.notna(r.get("cluster")) and int(r["cluster"]) in (4, 5)
+        if pd.notna(r.get("cluster")) and int(r["cluster"]) in FOREST_CIDS
         else P_bar, axis=1)
 
     # SSM water balance residual.
@@ -833,16 +850,33 @@ def plot_drawdown_propagation(wt, features, dpi=300):
     fiona.drvsupport.supported_drivers["KML"] = "rw"
 
     # ── Parameters ────────────────────────────────────────────────────────
+    # Hydraulic diffusivity D = K·b/Sy and decay length λ = √(D/β₃) are
+    # properties of the aquifer the drawdown propagates THROUGH (not the
+    # forest interior where the drawdown originates).  The dominant
+    # propagation medium beyond the forest edge is C3 (Western Residual,
+    # open dune), so Sy and β₃ are sourced from C3 cluster outputs:
+    #   - Sy: cluster median of WTF Sy from outputs/17_wtf_well_sy.csv
+    #   - β₃: cluster centroid drainage coefficient from
+    #         outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv
+    # Pre-v2026-05-17 used hardcoded snapshot values (Sy=0.25, β₃=0.060),
+    # which gave λ=245 m.  Live C3 values (Sy≈0.33, β₃≈0.060) give λ≈217 m.
+    # K and b remain fixed literature/estimate values (Betson 2002; aquifer
+    # thickness estimate).
     K       = 6.0       # m/day (Betson 2002)
-    Sy      = 0.25      # (mid-range)
     b       = 5.0       # m saturated thickness
     H0      = 150       # mm forest interception deficit
-    BETA3_M = 0.060     # per month (C3 SSM centroid)
-    BETA3_D = BETA3_M / 30.0
-    lam     = np.sqrt((K * b) / (Sy * BETA3_D))
-    OUT_PATH = OUT_20_DRAWDOWN
 
-    print(f"  λ = {lam:.0f} m  (K={K}, Sy={Sy}, b={b}, β₃={BETA3_M}/month)")
+    # Load C3 (propagation medium) Sy and β₃ from upstream pipeline outputs
+    _sy_df    = pd.read_csv(INT_WTF_WELL_SY)
+    Sy        = float(_sy_df[_sy_df['Cluster'] == 3]['Sy_median'].median())
+    _mech_df  = pd.read_csv(OUT_03_MECHANISTIC_TABLE)
+    BETA3_M   = float(_mech_df[_mech_df['Cluster'] == 3]['beta_3_drainage'].iloc[0])
+    BETA3_D   = BETA3_M / 30.0
+    lam       = np.sqrt((K * b) / (Sy * BETA3_D))
+    OUT_PATH  = OUT_20_DRAWDOWN
+
+    print(f"  λ = {lam:.0f} m  (K={K}, Sy={Sy:.4f} [C3 WTF], "
+          f"b={b}, β₃={BETA3_M:.4f}/month [C3 SSM])")
 
     # ── Load DEM and build flow-weighted distance grid ────────────────────
     with rasterio.open(str(DATA_DEM)) as src:

@@ -65,6 +65,18 @@ ANCOVA_Combined_Edge_coeff_clearfell,Edge,,-0.0158,m,"SE=0.014109, p=0.2642"
 ANCOVA_Combined_Edge_coeff_cwb_x_fell,Edge,,-0.0001,m,"SE=0.000057, p=0.0136"
 ANCOVA_Combined_Edge_coeff_easting_x_time,Edge,,-0.0,m,"SE=0.000001, p=0.1811"
 ANCOVA_Combined_Edge_Oct2023_step,Edge,Oct2023,0.1563,m,"p=0.2474, dAIC=0.61"
+ANCOVA_Forest_Impact_clearfell_step_summer,Impact,Post_felling_Jun-Sep,0.1238,m,"p=0.1015, CI=[-0.0220,0.2697], Jun-Sep subset, full ANCOVA spec"
+ANCOVA_Forest_Impact_summer_R2,Impact,Jun-Sep,0.4588,,Summer model R² (full spec)
+ANCOVA_Forest_Impact_summer_N,Impact,Jun-Sep,63.0,months,Summer sample size (Jun-Sep months only)
+ANCOVA_Forest_Impact_coeff_intercept_summer,Impact,Jun-Sep,0.0675,m,"SE=0.071078, p=0.3465"
+ANCOVA_Forest_Impact_coeff_cwb_summer,Impact,Jun-Sep,-0.0011,m,"SE=0.000261, p=<0.001"
+ANCOVA_Forest_Impact_coeff_scraping_summer,Impact,Jun-Sep,0.5344,m,"SE=0.250160, p=0.0370"
+ANCOVA_Forest_Impact_coeff_clearfell_summer,Impact,Jun-Sep,0.1238,m,"SE=0.074399, p=0.1015"
+ANCOVA_Forest_Impact_coeff_cwb_x_fell_summer,Impact,Jun-Sep,0.0001,m,"SE=0.000386, p=0.7277"
+ANCOVA_Forest_Impact_coeff_easting_x_time_summer,Impact,Jun-Sep,0.0,m,"SE=0.000020, p=0.0320"
+ANCOVA_Forest_Impact_clearfell_step_summer_noCWB,Impact,Post_felling_Jun-Sep,0.2384,m,"p=0.0056, CI=[0.0758,0.4009], Jun-Sep subset, CWB dropped (sensitivity variant)"
+ANCOVA_Forest_Impact_summer_noCWB_R2,Impact,Jun-Sep,0.2186,,Summer model R² (CWB dropped)
+ANCOVA_Forest_Impact_summer_noCWB_N,Impact,Jun-Sep,63.0,months,"Summer sample size (CWB dropped fit, Jun-Sep only)"
 Sensitivity_lambda200_Forest_Impact_clearfell,Impact,,0.1362,m,"p=<0.001, R²=0.431"
 Sensitivity_lambda200_Forest_Edge_clearfell,Edge,,0.0284,m,"p=0.2822, R²=0.594"
 Sensitivity_lambda200_Climate_Impact_clearfell,Impact,,0.0324,m,"p=0.2238, R²=0.125"

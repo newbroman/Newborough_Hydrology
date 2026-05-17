@@ -356,11 +356,9 @@ OUT_16_TABLE                = DIR_16 / "16_water_bal_table.csv"
 OUT_16_VOL_TABLE            = DIR_16 / "16_water_bal_vol_table.csv"
 OUT_16_BAR_LAY              = DIR_16 / "16_water_bal_bar_lay.png"
 OUT_16_BAR_MS               = DIR_16 / "16_water_bal_bar_ms.png"
-OUT_16_VOL_MS               = DIR_16 / "16_water_bal_volumetric_ms.png"
-OUT_16_VOL_LAY              = DIR_16 / "16_water_bal_volumetric_lay.png"
-OUT_16_VOL_WTF_TABLE        = DIR_16 / "16_water_bal_vol_wtf_table3d.csv"
-OUT_16_VOL_WTF_MS           = DIR_16 / "16_water_bal_volumetric_wtf_ms.png"
-OUT_16_VOL_WTF_LAY          = DIR_16 / "16_water_bal_volumetric_wtf_lay.png"
+# (removed 2026-05-17: OUT_16_VOL_MS, OUT_16_VOL_LAY, OUT_16_VOL_WTF_TABLE,
+#  OUT_16_VOL_WTF_MS, OUT_16_VOL_WTF_LAY — orphan constants from an earlier
+#  Script 16 revision; never imported or consumed.  Doc-sweep S.11 Item D.)
 
 # Script 17 — WTF specific yield
 OUT_17_SY_TABLE             = DIR_17 / "17_wtf_01_sy_estimates.csv"

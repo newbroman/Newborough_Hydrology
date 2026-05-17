@@ -31,7 +31,21 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-05-16
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-05-17
+# 1.3.0 — Defect 14 fix: emit a directly-fitted Jun-Sep ANCOVA-BACI
+#         result for the Forest-control × Impact specification.  Adds
+#         rows ANCOVA_Forest_Impact_clearfell_step_summer (and the
+#         supporting _R2, _N, full-coefficient table, and the same
+#         result with CWB dropped as ANCOVA_Forest_Impact_clearfell_
+#         step_summer_noCWB) to 10a_report_numbers.csv.  Replaces the
+#         arithmetic SUMMER_SCALING_RATIO construct in Script 21's
+#         _load_baci_params() with a direct CSV lookup (fallback to
+#         the legacy ratio preserved).  Headline-eligible value: full
+#         spec (CWB retained, mirrors annual model).  Summer-only N=63
+#         halves the SE pool relative to the annual fit, so the
+#         clearfell step is reported with widened CI and may not reach
+#         conventional significance at this sample size; the no-CWB
+#         variant is emitted alongside for sensitivity reporting only.
 # 1.2.0 — Adopt CEH34 hindcast (from Script 10i, CEH9 donor) via
 #         apply_ceh34_hindcast().  Enables PRE_FELL_START = 2010-07-01
 #         (was 2010-08-01) with CEH34's missing 2010-07 month supplied
@@ -400,6 +414,84 @@ for ctrl_label, ctrl_wells in CONTROLS.items():
               f"CI = [{ci_mm[0]:+.0f}, {ci_mm[1]:+.0f}]  "
               f"p = {format_p(fit['clearfell_p'])}  "
               f"R² = {fit['r2']:.3f}")
+
+# ============================================================================
+# DIRECT SUMMER FIT (Jun-Sep) — Forest × Impact only
+# ============================================================================
+# Replaces the arithmetic SUMMER_SCALING_RATIO construct in Script 21
+# (Defect 14).  Re-fits the same ANCOVA specification on the Jun-Sep
+# subset of the existing Forest × Impact ANCOVA frame; emits the
+# directly-fitted summer clearfell step plus a no-CWB sensitivity
+# variant.  Only the Forest × Impact case is fit because:
+#   (a) the summer band in Script 21 is constructed only for the
+#       headline forecaster preset (Forest control, Impact zone);
+#   (b) other control × zone combinations are reported as annual-only
+#       in the comparison table and not used in any seasonal scenario.
+# ============================================================================
+print("\n3a. Direct summer (Jun-Sep) ANCOVA — Forest × Impact...")
+
+summer_results = {}
+SUMMER_MONTHS = [6, 7, 8, 9]
+SUMMER_KEY = ('Forest', 'Impact')
+
+if SUMMER_KEY in ancova_frames:
+    df_summer = ancova_frames[SUMMER_KEY].loc[
+        ancova_frames[SUMMER_KEY].index.month.isin(SUMMER_MONTHS)
+    ].copy()
+    n_pre  = int((df_summer['D_fell'] == 0).sum())
+    n_post = int((df_summer['D_fell'] == 1).sum())
+    print(f"   Summer panel: N = {len(df_summer)}  (pre-fell {n_pre}, post-fell {n_post})")
+
+    # --- Fit A: full spec (mirrors annual model) ---
+    use_easting = bool(df_summer['has_easting'].iloc[0])
+    summer_fit_full = run_ancova(df_summer, include_easting=use_easting,
+                                 include_scrape2=False)
+    summer_results['full'] = summer_fit_full
+
+    step_mm = summer_fit_full['clearfell_step'] * 1000
+    ci_mm = (summer_fit_full['clearfell_ci'][0] * 1000,
+             summer_fit_full['clearfell_ci'][1] * 1000)
+    print(f"   Full spec  : step = {step_mm:+.0f} mm  "
+          f"CI = [{ci_mm[0]:+.0f}, {ci_mm[1]:+.0f}]  "
+          f"p = {format_p(summer_fit_full['clearfell_p'])}  "
+          f"R² = {summer_fit_full['r2']:.3f}  "
+          f"AIC = {summer_fit_full['aic']:.2f}")
+
+    # --- Fit B: CWB dropped (sensitivity variant) ---
+    # Reuses the design-matrix construction from run_ancova but with
+    # cwb_c and cwb_x_fell columns omitted.
+    cols_noCWB = ['D_scrape', 'D_fell']
+    names_noCWB = ['intercept', 'scraping', 'clearfell']
+    if use_easting and 'easting_x_time' in df_summer.columns:
+        cols_noCWB.append('easting_x_time')
+        names_noCWB.append('easting_x_time')
+    X_noCWB = np.column_stack([np.ones(len(df_summer))]
+                              + [df_summer[c].values for c in cols_noCWB])
+    y_summer = df_summer['baci_disp'].values
+    fit_noCWB = ols_fit(y_summer, X_noCWB)
+    fit_noCWB['col_names'] = names_noCWB
+    fell_idx = names_noCWB.index('clearfell')
+    ci_lo = fit_noCWB['b'][fell_idx] - 1.96 * fit_noCWB['se'][fell_idx]
+    ci_hi = fit_noCWB['b'][fell_idx] + 1.96 * fit_noCWB['se'][fell_idx]
+    fit_noCWB['clearfell_step'] = fit_noCWB['b'][fell_idx]
+    fit_noCWB['clearfell_p'] = fit_noCWB['p'][fell_idx]
+    fit_noCWB['clearfell_ci'] = (ci_lo, ci_hi)
+    summer_results['noCWB'] = fit_noCWB
+
+    step_mm = fit_noCWB['clearfell_step'] * 1000
+    ci_mm = (ci_lo * 1000, ci_hi * 1000)
+    print(f"   No-CWB     : step = {step_mm:+.0f} mm  "
+          f"CI = [{ci_mm[0]:+.0f}, {ci_mm[1]:+.0f}]  "
+          f"p = {format_p(fit_noCWB['clearfell_p'])}  "
+          f"R² = {fit_noCWB['r2']:.3f}  "
+          f"AIC = {fit_noCWB['aic']:.2f}")
+
+    # ΔAIC: full vs no-CWB
+    daic = summer_fit_full['aic'] - fit_noCWB['aic']
+    print(f"   ΔAIC (full − no-CWB) = {daic:+.2f}  "
+          f"({'CWB retained' if daic < 0 else 'CWB dropped'} preferred)")
+else:
+    print("   SKIPPED — Forest × Impact ANCOVA frame unavailable")
 
 # ============================================================================
 # SENSITIVITY: scraping decay length
@@ -882,6 +974,43 @@ for (ctrl_label, zone_label), fit in results.items():
         rpt.add(f"{prefix}_Oct2023_step", fit['m3_scrape2_coef'],
                 well=zone_label, era="Oct2023",
                 note=f"p={format_p(fit['m3_scrape2_p'])}, dAIC={fit['daic']:.2f}")
+
+# Summer (Jun-Sep) ANCOVA — Forest × Impact (Defect 14 fix)
+# These rows are consumed by Script 21's _load_baci_params() to construct
+# the seasonal BACI band on the forestry scenario hydrograph.
+if 'full' in summer_results:
+    sf = summer_results['full']
+    prefix = "ANCOVA_Forest_Impact"
+    rpt.add(f"{prefix}_clearfell_step_summer", sf['clearfell_step'],
+            well="Impact", era="Post_felling_Jun-Sep",
+            note=f"p={format_p(sf['clearfell_p'])}, "
+                 f"CI=[{sf['clearfell_ci'][0]:.4f},{sf['clearfell_ci'][1]:.4f}], "
+                 f"Jun-Sep subset, full ANCOVA spec")
+    rpt.add(f"{prefix}_summer_R2", sf['r2'], unit="",
+            well="Impact", era="Jun-Sep",
+            note="Summer model R² (full spec)")
+    rpt.add(f"{prefix}_summer_N", sf['n'], unit="months",
+            well="Impact", era="Jun-Sep",
+            note="Summer sample size (Jun-Sep months only)")
+    for i, cname in enumerate(sf['col_names']):
+        rpt.add(f"{prefix}_coeff_{cname}_summer", sf['b'][i],
+                well="Impact", era="Jun-Sep",
+                note=f"SE={sf['se'][i]:.6f}, p={format_p(sf['p'][i])}")
+
+if 'noCWB' in summer_results:
+    sn = summer_results['noCWB']
+    prefix = "ANCOVA_Forest_Impact"
+    rpt.add(f"{prefix}_clearfell_step_summer_noCWB", sn['clearfell_step'],
+            well="Impact", era="Post_felling_Jun-Sep",
+            note=f"p={format_p(sn['clearfell_p'])}, "
+                 f"CI=[{sn['clearfell_ci'][0]:.4f},{sn['clearfell_ci'][1]:.4f}], "
+                 f"Jun-Sep subset, CWB dropped (sensitivity variant)")
+    rpt.add(f"{prefix}_summer_noCWB_R2", sn['r2'], unit="",
+            well="Impact", era="Jun-Sep",
+            note="Summer model R² (CWB dropped)")
+    rpt.add(f"{prefix}_summer_noCWB_N", sn['n'], unit="months",
+            well="Impact", era="Jun-Sep",
+            note="Summer sample size (CWB dropped fit, Jun-Sep only)")
 
 # Sensitivity results
 for _, row in sensitivity_df.iterrows():

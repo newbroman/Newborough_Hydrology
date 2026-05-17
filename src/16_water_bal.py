@@ -12,8 +12,8 @@ Produces the outputs supporting Section 4.2.3 of the report:
     16_water_bal_vol_table.csv
 
   Figure 8 (two-panel combined):
-    16_water_bal_fig8_ms.png        — manuscript (white, 300 dpi)
-    16_water_bal_fig8_lay.png       — lay version (coloured background)
+    16_water_bal_bar_ms.png         — manuscript (white, 300 dpi)
+    16_water_bal_bar_lay.png        — lay version (coloured background)
 
   Panel (a): Head-space SSM decomposition
     Recharge (β₁·P̄) vs ET draw (β₂·PET̄) + Drainage (β₃·h̄_disp)
@@ -64,7 +64,14 @@ References:
       for water table depths. WRR 36(1), 181–188.
 """
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-05-16
+__version__ = "1.1.1"  # Hollingham (2026) — 2026-05-17
+# 1.1.1 — Doc-sweep S.11: corrected stale output filenames in header
+#         docstring (fig8_* → bar_*, matching live paths.py — S11-A);
+#         clarified ambiguous HEADLINE_LAG sentence in compute_headspace
+#         docstring (S11-B); fixed lag-1 SSM equation P(t-1) → P(t),
+#         h_disp(t-1) → h_disp_prev(t) (S11-C, same fix as Script 15).
+#         Companion change in src/utils/paths.py: removed 5 orphan
+#         OUT_16_VOL_* constants (S11-D).  Patch — no functional change.
 # 1.1.0 — Publish live (P − PET) annual to site_observations registry
 #         (key 'site_p_minus_pet_annual'); docstring P − PET line
 #         updated to point at the registry rather than a stale hardcoded
@@ -151,7 +158,8 @@ def load_data():
     Converted to metres in-script for consistency with β units (m/m).
 
     Betas come from 03_cluster_mechanistic_coefficients.csv (centroid
-    headline fit with HEADLINE_LAG and displacement datum). Column names:
+    headline fit with HEADLINE_LAG = 0, i.e. contemporaneous rainfall,
+    and displacement datum). Column names:
     beta_1, beta_2, beta_3, drainage_datum_m.
     """
     df = pd.read_csv(INT_REGIONAL_AVG, parse_dates=["Date"])
@@ -180,10 +188,12 @@ def load_data():
 def compute_headspace(df, betas):
     """Compute mean monthly head-space water balance components.
 
-    SSM equation (displacement formulation):
-        Δh = β₁·P(t-1) − β₂·PET(t) − β₃·h_disp(t-1)
+    SSM equation (displacement formulation, HEADLINE_LAG = 0):
+        Δh = β₁·P(t) − β₂·PET(t) − β₃·h_disp_prev(t)
 
-    where h_disp = DRAINAGE_DATUM + h_depth (displacement above datum).
+    where h_disp = DRAINAGE_DATUM + h_depth (displacement above datum)
+    and h_disp_prev is end-of-previous-month displacement (the drainage
+    term uses end-of-previous-month head, not contemporaneous).
 
     Components:
         Recharge  = β₁ · P̄        (mean monthly, m/month)

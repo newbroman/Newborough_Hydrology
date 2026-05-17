@@ -1,6 +1,6 @@
-Cluster,beta_1,beta_2,beta_3,Sy,h_disp,forest,peak_month,clearfell_b2_mult,thinning_b2_mult,broadleaf_b2_summer,summer_P,summer_PET,source_beta,source_Sy,source_peak_month,source_b2_mult,source_h_disp,source_climate
-C1,4.581,0.9625,0.0896,0.2102,3.3121,False,1,1.108,1.054,1.1125,0.064693,0.090137,pipeline,pipeline,pipeline,pipeline,pipeline,pipeline
-C2,3.8706,1.7448,0.0632,0.2917,3.1491,False,1,1.108,1.054,1.1125,0.064693,0.090137,pipeline,pipeline,pipeline,pipeline,pipeline,pipeline
-C3,3.5758,1.806,0.0596,0.3406,2.9058,False,2,1.108,1.054,1.1125,0.064693,0.090137,pipeline,pipeline,pipeline,pipeline,pipeline,pipeline
-C4,2.5179,2.5044,0.0215,0.3165,2.3361,True,2,1.108,1.054,1.1125,0.064693,0.090137,pipeline,pipeline,pipeline,pipeline,pipeline,pipeline
-C5,2.4363,1.3738,0.0448,0.3598,2.4491,True,2,1.108,1.054,1.1125,0.064693,0.090137,pipeline,pipeline,pipeline,pipeline,pipeline,pipeline
+Cluster,beta_1,beta_2,beta_3,Sy,h_disp,forest,peak_month,clearfell_b2_mult,thinning_b2_mult,broadleaf_b2_summer,broadleaf_b2_winter,summer_P,summer_PET,source_beta,source_Sy,source_peak_month,source_b2_mult,source_h_disp,source_climate
+C1,4.581,0.9625,0.0896,0.2113,3.3121,False,1,1.0787,1.0394,1.075,0.8817,0.064693,0.090137,pipeline,pipeline,pipeline,pipeline,pipeline,pipeline
+C2,3.8706,1.7448,0.0632,0.2667,3.1491,False,1,1.0787,1.0394,1.075,0.8817,0.064693,0.090137,pipeline,pipeline,pipeline,pipeline,pipeline,pipeline
+C3,3.5758,1.806,0.0596,0.3283,2.9058,False,2,1.0787,1.0394,1.075,0.8817,0.064693,0.090137,pipeline,pipeline,pipeline,pipeline,pipeline,pipeline
+C4,2.5179,2.5044,0.0215,0.2541,2.3361,True,2,1.0787,1.0394,1.075,0.8817,0.064693,0.090137,pipeline,pipeline,pipeline,pipeline,pipeline,pipeline
+C5,2.4363,1.3738,0.0448,0.3084,2.4491,True,2,1.0787,1.0394,1.075,0.8817,0.064693,0.090137,pipeline,pipeline,pipeline,pipeline,pipeline,pipeline

@@ -2,13 +2,14 @@
 15_depth_dependent_pet.py
 Purpose: Explore a depth-dependent PET coefficient using exponential decay.
 
-The standard SSM (lag-1 headline, displacement formulation) is:
-    Δh_t = β₁·P(t−1)  −  β₂·PET(t)  −  β₃·h_disp_prev(t)
+The standard SSM (contemporaneous rainfall, displacement formulation,
+HEADLINE_LAG = 0) is:
+    Δh_t = β₁·P(t)  −  β₂·PET(t)  −  β₃·h_disp_prev(t)
 
     where h_disp = DRAINAGE_DATUM + h_depth     (displacement above 3.7 m datum)
 
 The modified model replaces the fixed β₂ with a depth-dependent term:
-    Δh_t = β₁·P(t−1)  −  β₂·exp(−λ·d_{t-1})·PET(t)  −  β₃·h_disp_prev(t)
+    Δh_t = β₁·P(t)  −  β₂·exp(−λ·d_{t-1})·PET(t)  −  β₃·h_disp_prev(t)
 
 where d_{t-1} = depth below ground surface at the previous timestep:
     d_{t-1} = −h_{t-1} + mean_cluster_upstand     (m, always ≥ 0)
@@ -38,6 +39,17 @@ Outputs (in outputs/15_depth_dependent_pet/):
     15_03_benchmark_table.csv       — Cluster-level comparison table
     15_04_best_params.csv           — Optimal λ and β coefficients per cluster
 """
+
+__version__ = "1.0.1"  # Hollingham (2026) — 2026-05-17
+# 1.0.1 — Doc-sweep S.10: corrected four "lag-1 rainfall" docstring claims
+#         (lines 5, 116, 126, 159) to "contemporaneous (HEADLINE_LAG = 0)"
+#         (Items S10-A, S10-B); renamed the misleading `P_lag1` design-matrix
+#         column to `P` to match model_utils.build_ssm_frame convention
+#         (Item S10-C, 9 references); polished the HEADLINE_LAG comment to
+#         note the shift is a no-op under current config (Item S10-D);
+#         added __version__ (Item S10-E).  Patch — no functional change,
+#         outputs byte-identical (verified by smoke-test).
+# 1.0.x — Initial.
 
 import sys as _sys
 import os as _os
@@ -113,8 +125,8 @@ def iterative_simulate(h0: float, P: np.ndarray, PET: np.ndarray,
     """
     Simulate water table iteratively from initial condition h0.
 
-    Uses the displacement formulation for β₃ and lag-1 rainfall, matching
-    Script 03's headline SSM specification.
+    Uses the displacement formulation for β₃ and contemporaneous rainfall
+    (HEADLINE_LAG = 0), matching Script 03's headline SSM specification.
 
     For the standard SSM (lam=0), depth_prev is ignored because exp(0)=1.
     For the depth-dependent model, depth_prev is recalculated at each step
@@ -123,7 +135,7 @@ def iterative_simulate(h0: float, P: np.ndarray, PET: np.ndarray,
     Parameters
     ----------
     h0       : initial water table (negative convention, m from ground surface)
-    P        : precipitation array (m) — already lag-1 aligned by caller
+    P        : precipitation array (m) — contemporaneous (HEADLINE_LAG = 0)
     PET      : PET array (m) — contemporaneous
     upstand  : cluster mean upstand (m above ground)
     b1,b2,b3 : OLS coefficients (β₃ fitted against displacement)
@@ -156,7 +168,8 @@ def fit_at_lambda(df: pd.DataFrame, lam: float, upstand: float,
     Given a cluster centroid DataFrame with columns [h, P_m, PET, h_prev,
     h_disp_prev], fit the depth-dependent SSM by OLS at a fixed lambda.
 
-    Uses lag-1 rainfall and displacement for β₃, matching Script 03.
+    Uses contemporaneous rainfall (HEADLINE_LAG = 0) and displacement for β₃,
+    matching Script 03.
 
     Returns dict with b1, b2, b3, r2_onestep.
     """
@@ -165,7 +178,7 @@ def fit_at_lambda(df: pd.DataFrame, lam: float, upstand: float,
     decay  = np.exp(-lam * d_prev)
 
     X = pd.DataFrame({
-        "beta_1_recharge":         df["P_lag1"].values,
+        "beta_1_recharge":         df["P"].values,
         "beta_2_atmospheric_draw": -decay * df["PET"].values,
         "beta_3_drainage":         -df["h_disp_prev"].values,
     }, index=df.index)
@@ -187,7 +200,7 @@ def evaluate_iterative_nse(df: pd.DataFrame, lam: float, upstand: float,
     """
     h_sim = iterative_simulate(
         h0      = df["h"].iloc[0],
-        P       = df["P_lag1"].values,
+        P       = df["P"].values,
         PET     = df["PET"].values,
         upstand = upstand,
         b1=b1, b2=b2, b3=b3, lam=lam,
@@ -281,7 +294,17 @@ def build_cluster_centroids(wells_clean, cluster_stats, well_col_lookup, upstand
 def build_regression_df(centroid: pd.Series, climate: pd.DataFrame,
                         data_limit: int = DATA_LIMIT,
                         drainage_datum: float = DRAINAGE_DATUM) -> pd.DataFrame:
-    """Merge centroid with climate and build Δh, h_prev, h_disp_prev, P_lag1."""
+    """Merge centroid with climate and build Δh, h_prev, h_disp_prev, P.
+
+    Builds the design-matrix columns used downstream by fit_standard_ssm
+    and fit_at_lambda.  Column naming matches model_utils.build_ssm_frame:
+    rainfall is stored under "P" rather than "P_lag1" — the canonical
+    SSM is contemporaneous (HEADLINE_LAG = 0) so the historical "lag1"
+    label was misleading.  The `.shift(HEADLINE_LAG)` is retained for
+    forward-compatibility: under HEADLINE_LAG = 0 it is a no-op, and
+    if HEADLINE_LAG is ever re-enabled the shift would automatically
+    track without code changes.
+    """
     df = centroid.to_frame(name="h").join(climate[["P_m", "PET"]], how="inner")
     df["h_prev"]  = df["h"].shift(1)
     df["Delta_h"] = df["h"] - df["h_prev"]
@@ -289,10 +312,13 @@ def build_regression_df(centroid: pd.Series, climate: pd.DataFrame,
     # Displacement above drainage datum for β₃ predictor
     df["h_disp_prev"] = drainage_datum + df["h_prev"]
 
-    # Rainfall lag (HEADLINE_LAG from config)
-    df["P_lag1"] = df["P_m"].shift(HEADLINE_LAG)
+    # Rainfall predictor: P_m shifted by HEADLINE_LAG.  HEADLINE_LAG = 0
+    # under the canonical (post-bucketing-fix) SSM, so this is a no-op
+    # and "P" equals "P_m".  The shift is preserved so any future change
+    # to HEADLINE_LAG flows through without code edits.
+    df["P"] = df["P_m"].shift(HEADLINE_LAG)
 
-    df = df.dropna(subset=["Delta_h", "P_lag1", "PET", "h_prev", "h_disp_prev"])
+    df = df.dropna(subset=["Delta_h", "P", "PET", "h_prev", "h_disp_prev"])
     if len(df) > data_limit:
         df = df.iloc[-data_limit:]
     return df
@@ -304,7 +330,7 @@ def build_regression_df(centroid: pd.Series, climate: pd.DataFrame,
 
 def fit_standard_ssm(df: pd.DataFrame) -> dict:
     X = pd.DataFrame({
-        "beta_1_recharge":         df["P_lag1"].values,
+        "beta_1_recharge":         df["P"].values,
         "beta_2_atmospheric_draw": -df["PET"].values,
         "beta_3_drainage":         -df["h_disp_prev"].values,
     }, index=df.index)
@@ -319,7 +345,7 @@ def fit_standard_ssm(df: pd.DataFrame) -> dict:
     # Iterative NSE — for the standard SSM (λ=0), upstand doesn't affect
     # the PET decay (exp(0)=1), but we still need displacement for β₃.
     h_sim = iterative_simulate(
-        h0=df["h"].iloc[0], P=df["P_lag1"].values, PET=df["PET"].values,
+        h0=df["h"].iloc[0], P=df["P"].values, PET=df["PET"].values,
         upstand=0.0,   # upstand=0 → no PET depth correction, standard model
         b1=b1, b2=b2, b3=b3, lam=0.0,
     )
@@ -448,13 +474,13 @@ def plot_fit_comparison(regression_dfs: dict, centroids: dict, climate: pd.DataF
 
         # Standard SSM simulation (λ=0, upstand irrelevant for PET decay)
         h_ssm = iterative_simulate(
-            h0=df["h"].iloc[0], P=df["P_lag1"].values, PET=df["PET"].values,
+            h0=df["h"].iloc[0], P=df["P"].values, PET=df["PET"].values,
             upstand=0.0, b1=ssm["b1"], b2=ssm["b2"], b3=ssm["b3"], lam=0.0,
         )
 
         # Depth-dependent simulation
         h_ddp = iterative_simulate(
-            h0=df["h"].iloc[0], P=df["P_lag1"].values, PET=df["PET"].values,
+            h0=df["h"].iloc[0], P=df["P"].values, PET=df["PET"].values,
             upstand=upstand, b1=bp["b1"], b2=bp["b2"], b3=bp["b3"],
             lam=bp["best_lambda"],
         )

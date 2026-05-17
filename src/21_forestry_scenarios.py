@@ -44,13 +44,12 @@ Hydrograph figure:
   outputs/10_clearfell_baci/10a_report_numbers.csv (Forest-control
   Impact-tier ANCOVA from Script 10a). The summer band is read from the
   ANCOVA_Forest_Impact_clearfell_step_summer row (directly-fitted on the
-  Jun-Sep subset under the same ANCOVA specification); if that row is
-  absent (e.g. fresh checkout pre-dating Script 10a v1.3), the loader
-  falls back to the legacy BACI_ANNUAL × SUMMER_SCALING_RATIO construct
-  for backward compatibility. The gap between modelled and BACI clearfell
-  reflects both the cumulative drainage feedback over multiple years
-  (which the single-step perturbation does not capture) and
-  unparameterised water balance residual pathways.
+  Jun-Sep subset under the same ANCOVA specification). Both rows are
+  mandatory; the legacy arithmetic summer construct has been removed
+  (Defect 14 resolution, Script 21 v1.0.3). The gap between modelled and
+  BACI clearfell reflects both the cumulative drainage feedback over
+  multiple years (which the single-step perturbation does not capture)
+  and unparameterised water balance residual pathways.
 
 Distribution figure:
   Violin/strip plot of observed annual summer minimum depths by cluster
@@ -82,23 +81,33 @@ References
                           Impact tier) at runtime; see _load_baci_params().
 """
 
-__version__ = "1.0.2"  # Hollingham (2026) — 2026-05-17
-# 1.0.2 — Defect 14 fix.  _load_baci_params() now reads the directly-
+__version__ = "1.0.3"  # Hollingham (2026) — 2026-05-17
+# 1.0.3 — Defect 14 resolution (final).  Removed the arithmetic summer-band
+#         fallback path from _load_baci_params(): SUMMER_SCALING_RATIO and
+#         the _FALLBACK_ANNUAL / _FALLBACK_SUMMER constants are gone.
+#         Both BACI bands are now mandatory directly-fitted ANCOVA results
+#         from Script 10a v1.3.0+ — missing 10a_report_numbers.csv,
+#         missing ANCOVA_Forest_Impact_clearfell_step row, or missing
+#         ANCOVA_Forest_Impact_clearfell_step_summer row each raise an
+#         explicit error with a remediation message.  Rationale: the
+#         legacy arithmetic BACI_ANNUAL × 1.5034 construct produced a
+#         summer band ~80 mm larger than the directly-fitted value and
+#         was the root cause of Defect 14; retaining it as a silent
+#         fallback would risk a recurrence on stale CSVs.  The β₂
+#         multiplier fallback path (pipeline_params → 10e CSV →
+#         _FALLBACK_B2 = 1.20) is unchanged — it is independent of
+#         Defect 14 and has its own multi-step resolution.
+# 1.0.2 — Defect 14 fix (interim).  _load_baci_params() reads the directly-
 #         fitted summer ANCOVA step from
 #         ANCOVA_Forest_Impact_clearfell_step_summer (added by Script
 #         10a v1.3.0) instead of constructing the summer band
 #         arithmetically as BACI_ANNUAL × SUMMER_SCALING_RATIO.  The
-#         arithmetic fallback path is preserved for backward
-#         compatibility with older 10a_report_numbers.csv files that
-#         pre-date the summer-row emission; SUMMER_SCALING_RATIO is
-#         retained as the fallback constant.  Console output
-#         distinguishes the two paths.  At the current live values, the
-#         summer band shifts from +205 mm (arithmetic construct) to
-#         +124 mm (directly fitted, full ANCOVA spec, p=0.10 ns at
-#         summer-only N=63), an 81 mm reduction.  The wider CI on the
-#         summer band is a faithful representation of the summer-only
-#         sample size and should be reflected in the report's
-#         narrative.  Figure 21-01 summer band visibly shifts.
+#         arithmetic fallback path was preserved as a transitional
+#         compatibility measure; removed in 1.0.3.  At the current live
+#         values, the summer band shifts from +205 mm (arithmetic
+#         construct) to +124 mm (directly fitted, full ANCOVA spec,
+#         p=0.10 ns at summer-only N=63), an 81 mm reduction.  Figure
+#         21-01 summer band visibly shifts.
 # 1.0.1 — Doc-sweep S.14.  Corrected stale broadleaf phenology windows in
 #         header docstring (Oct-Mar/Jun-Sep → Nov-Apr/May-Oct, S14-A) —
 #         the 12-month β₂ profile in build_scenarios already averages to
@@ -185,73 +194,85 @@ def _load_baci_params():
 
     Returns (BACI_ANNUAL, BACI_SUMMER, CLEARFELL_B2_MULT).
 
-    The summer band is the directly-fitted Jun-Sep ANCOVA step (Defect 14
-    fix, 2026-05-17).  If the summer row is absent (older 10a CSV from
-    before Script 10a v1.3), falls back to the legacy arithmetic
-    construct BACI_ANNUAL × SUMMER_SCALING_RATIO and prints a warning.
+    Both BACI steps are directly fitted ANCOVA results from Script 10a.
+    The legacy arithmetic summer construct (BACI_ANNUAL × 1.5034) has
+    been removed (Defect 14 resolution, 2026-05-17): the old construct
+    differed from the directly-fitted summer step by ~80 mm and is no
+    longer a defensible reconstruction of the data.
+
+    Behaviour on missing input: any missing or unreadable required row
+    in 10a_report_numbers.csv raises FileNotFoundError / KeyError with
+    a remediation message instructing the user to rerun Script 10a
+    (v1.3.0+). Silent fallbacks have been deliberately removed to
+    prevent a recurrence of Defect 14.
 
     All paths report which source was used so the figure provenance is
     traceable from the console log.
     """
-    # Fallback values are used only if 10a_report_numbers.csv is missing
-    # entirely (e.g. fresh checkout before Script 10a has been run).
-    # Aligned to current live values from the canonical 10a output
-    # (Script 10a v1.3.0, 2026-05-17): annual = 0.1362 m, summer = 0.1238 m.
-    # Keeping the fallback in sync with the live headline whenever the
-    # pipeline is rerun is a doc hygiene task; the loader prefers the
-    # live CSV value.
-    _FALLBACK_ANNUAL = 0.136
-    _FALLBACK_SUMMER = 0.124
-    _FALLBACK_B2     = 1.20
+    # β₂ fallback retained because the β₂ load path is independent of
+    # Defect 14 and has its own multi-step resolution (pipeline_params
+    # → 10e CSV → fallback).  Only the BACI band fallbacks have been
+    # removed.
+    _FALLBACK_B2 = 1.20
 
-    # Legacy arithmetic summer-band ratio.  Preserved as a fallback only:
-    # if the 10a CSV exists but does NOT contain the directly-fitted
-    # summer row (older 10a versions, pre-Defect-14), the loader falls
-    # back to BACI_ANNUAL × SUMMER_SCALING_RATIO so old pipeline outputs
-    # remain reproducible.  The ratio 1.5034 derives from the original
-    # pre-correction fallback values (0.218 / 0.145).  Live runs against
-    # current main never take this path; remove once the fallback is no
-    # longer needed (Martin's call).
-    SUMMER_SCALING_RATIO = 0.218 / 0.145   # = 1.5034 (legacy fallback only)
+    b2_mult = _FALLBACK_B2
 
-    baci_annual = _FALLBACK_ANNUAL
-    baci_summer = _FALLBACK_SUMMER
-    b2_mult     = _FALLBACK_B2
+    # 1. BACI clearfell steps from 10a report numbers — both annual and
+    # summer are required.  Hard-fail with a remediation message if
+    # either is missing; silent arithmetic fallbacks have been removed
+    # (Defect 14 resolution, 2026-05-17).
+    if not OUT_10A_REPORT.exists():
+        raise FileNotFoundError(
+            f"\n  Required input not found: {OUT_10A_REPORT}\n"
+            f"  Script 21 depends on directly-fitted ANCOVA BACI steps "
+            f"from Script 10a (v1.3.0+).\n"
+            f"  Remediation: run `python src/10a_ancova_baci.py` to "
+            f"generate the report numbers CSV."
+        )
 
-    # 1. BACI clearfell steps from 10a report numbers
-    if OUT_10A_REPORT.exists():
-        try:
-            rpt = pd.read_csv(OUT_10A_REPORT)
-            # Forest-control Impact clearfell step = headline ANCOVA result
-            row = rpt[rpt["Parameter"] == "ANCOVA_Forest_Impact_clearfell_step"]
-            if not row.empty:
-                baci_annual = abs(float(row.iloc[0]["Value"]))
-                print(f"  BACI annual step from 10a: {baci_annual:.4f} m")
-            else:
-                print("  WARNING: ANCOVA_Forest_Impact_clearfell_step not found in 10a report")
+    try:
+        rpt = pd.read_csv(OUT_10A_REPORT)
+    except Exception as e:
+        raise RuntimeError(
+            f"\n  Could not read {OUT_10A_REPORT.name}: {type(e).__name__}: {e}\n"
+            f"  Remediation: verify file integrity or re-run Script 10a."
+        ) from e
 
-            # Summer BACI: prefer the directly-fitted Jun-Sep ANCOVA step
-            # (Defect 14 fix).  Falls back to the legacy arithmetic
-            # construct if the row is absent (older 10a CSVs).
-            summer_row = rpt[rpt["Parameter"] ==
-                             "ANCOVA_Forest_Impact_clearfell_step_summer"]
-            if not summer_row.empty:
-                baci_summer = abs(float(summer_row.iloc[0]["Value"]))
-                print(f"  BACI summer step from 10a: {baci_summer:.4f} m "
-                      "(directly fitted, Jun-Sep, full ANCOVA spec)")
-            else:
-                baci_summer = baci_annual * SUMMER_SCALING_RATIO
-                print(f"  BACI summer step (legacy arithmetic fallback): "
-                      f"{baci_summer:.4f} m  [×{SUMMER_SCALING_RATIO:.4f}]")
-                print("    WARNING: 10a_report_numbers.csv lacks the "
-                      "ANCOVA_Forest_Impact_clearfell_step_summer row;")
-                print("    re-run Script 10a (v1.3.0+) to enable the "
-                      "directly-fitted summer band.")
-        except Exception as e:
-            print(f"  WARNING: Could not read {OUT_10A_REPORT.name}: {e}")
-            print(f"           Using fallback BACI: annual={baci_annual}, summer={baci_summer}")
-    else:
-        print(f"  WARNING: {OUT_10A_REPORT.name} not found — using fallback BACI values")
+    # Forest-control Impact clearfell step = annual ANCOVA headline
+    row = rpt[rpt["Parameter"] == "ANCOVA_Forest_Impact_clearfell_step"]
+    if row.empty:
+        raise RuntimeError(
+            f"\n  Required row missing from {OUT_10A_REPORT.name}: "
+            f"ANCOVA_Forest_Impact_clearfell_step\n"
+            f"  Remediation: re-run `python src/10a_ancova_baci.py` "
+            f"(v1.3.0 or later)."
+        )
+    baci_annual = abs(float(row.iloc[0]["Value"]))
+    print(f"  BACI annual step from 10a: {baci_annual:.4f} m "
+          "(directly fitted, full record, full ANCOVA spec)")
+
+    # Summer BACI: directly-fitted Jun-Sep ANCOVA step.  No arithmetic
+    # fallback (Defect 14 resolution): the legacy BACI_ANNUAL × 1.5034
+    # construct differed from the fitted value by ~80 mm and is not a
+    # defensible reconstruction; missing summer row → hard error.
+    summer_row = rpt[rpt["Parameter"] ==
+                     "ANCOVA_Forest_Impact_clearfell_step_summer"]
+    if summer_row.empty:
+        raise RuntimeError(
+            f"\n  Required row missing from {OUT_10A_REPORT.name}: "
+            f"ANCOVA_Forest_Impact_clearfell_step_summer\n"
+            f"  This row is emitted by Script 10a v1.3.0 and later. "
+            f"Older Script 10a versions used an arithmetic\n"
+            f"  BACI_ANNUAL × 1.5034 construct that has been retired "
+            f"(Defect 14, 2026-05-17): the construct differed from\n"
+            f"  the directly-fitted Jun-Sep step by ~80 mm and is no "
+            f"longer a defensible reconstruction of the data.\n"
+            f"  Remediation: re-run `python src/10a_ancova_baci.py` "
+            f"(v1.3.0 or later) to regenerate the report numbers."
+        )
+    baci_summer = abs(float(summer_row.iloc[0]["Value"]))
+    print(f"  BACI summer step from 10a: {baci_summer:.4f} m "
+          "(directly fitted, Jun-Sep, full ANCOVA spec)")
 
     # 2. β₂ multiplier — prefer pipeline params, fall back to 10e CSV
     try:

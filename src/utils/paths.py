@@ -108,6 +108,7 @@ INT_WELLS_REFERENCE = OUT_DIR / "01_wells_reference.csv"
 INT_WELLS_EXTENDED  = OUT_DIR / "01_wells_extended.csv"
 INT_WELL_ELEVATIONS = OUT_DIR / "01_well_elevations.csv"
 INT_PIPELINE_PARAMS = DIR_01 / "pipeline_scenario_params.csv"
+INT_SITE_OBSERVATIONS = DIR_01 / "pipeline_site_observations.csv"
 
 # Script 02
 INT_CLUSTER_STATS   = OUT_DIR / "02_cluster_stats.csv"

@@ -39,7 +39,11 @@ Volumetric water balance (mm/yr):
     I            =  0.24 × P (forest only; Freeman 2008)
     Net recharge =  P − I
     ET at WT     =  PET − I (interception consumes PET energy)
-    P − PET      =  238 mm/yr net surplus, identical for all clusters
+    P − PET      =  computed at runtime from the live climate record
+                    (≈ 232 mm/yr long-term, RAF Valley 2005–present).
+                    Live value is also exposed via the pipeline_site_
+                    observations.csv registry (key:
+                    'site_p_minus_pet_annual') for downstream consumers.
 
     The ET/Drainage partition is estimated by two independent methods:
       SSM:       ratio of β₂·PET̄ to β₃·h̄_disp from the closed headspace balance
@@ -59,6 +63,13 @@ References:
     Knotters, M. & Bierkens, M.F.P. (2000) Physical basis of time series models
       for water table depths. WRR 36(1), 181–188.
 """
+
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-05-16
+# 1.1.0 — Publish live (P − PET) annual to site_observations registry
+#         (key 'site_p_minus_pet_annual'); docstring P − PET line
+#         updated to point at the registry rather than a stale hardcoded
+#         value (Item E11 in flags log).
+# 1.0.x — Prior state (no __version__ tracked).
 
 import sys
 import os
@@ -302,6 +313,15 @@ def save_volumetric_table(summary, recession, path):
     """
     P_annual = summary[1]["P_m"] * 12 * 1000   # mm/yr (same for all)
     PET_annual = summary[1]["PET_m"] * 12 * 1000
+
+    # Publish the site-wide P − PET to the observations registry for
+    # downstream consumers (and to satisfy the "no hardcoded values"
+    # principle — see Item E11 in flags log).  Cluster-invariant
+    # because P and PET come from the single climate record.
+    from utils.site_observations import update_site_observation
+    update_site_observation("site_p_minus_pet_annual",
+                            (P_annual - PET_annual) / 1000.0,  # to m/yr
+                            producer_script="16")
 
     rows = []
     for cid in sorted(summary.keys()):

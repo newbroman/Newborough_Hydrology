@@ -33,7 +33,11 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "2.2.0"  # Hollingham (2026) — 2026-05-16
+__version__ = "2.3.0"  # Hollingham (2026) — 2026-05-16
+# 2.3.0 — After exporting baci_shifts CSV, update site_observations
+#         registry with CEH36 Pure_Scraping and Felling_Pulse step
+#         values.  Replaces the hardcoded SCRAPE_BACI_STEP constant
+#         in 09d (Item 9 in flags log).
 # 2.2.0 — Apply REGIONAL_MEAN_START (2009-02-01) to the regional-mean
 #         control series.  CEH4 vs regional-mean Baseline era loses 33
 #         pre-2009-02 rows; the Baseline-era mean shifts by ~36 mm in
@@ -277,6 +281,18 @@ def main():
     pd.DataFrame(baci_results).to_csv(OUT_09_BACI_SHIFTS, index=False)
     pd.DataFrame(net_summary).to_csv(OUT_09_NET_BENEFITS, index=False)
     _export_beta3_era_summary(significance_results)
+
+    # Update site-wide observations registry — CEH36 BACI step values
+    # are consumed downstream (09d) for scenario comparison.  See
+    # utils/site_observations.py for the registered observation keys.
+    from utils.site_observations import update_site_observation
+    for row in baci_results:
+        if row["Well"] == "CEH36" and row["Shift"] == "Pure_Scraping":
+            update_site_observation("ceh36_baci_pure_scraping",
+                                    row["Delta_m"], producer_script="09a")
+        elif row["Well"] == "CEH36" and row["Shift"] == "Felling_Pulse":
+            update_site_observation("ceh36_baci_felling_pulse",
+                                    row["Delta_m"], producer_script="09a")
 
     # ── 4. Figures ────────────────────────────────────────────────────────
     print("4. Generating the Visual Suite...")

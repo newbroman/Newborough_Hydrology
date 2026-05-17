@@ -426,4 +426,15 @@ if __name__ == "__main__":
     from utils.pipeline_params import write_initial_params
     write_initial_params(wells_clean, climate)
 
+    # ------------------------------------------------------------------ #
+    #  Seed site-wide observations CSV (long-format registry of single-  #
+    #  value pipeline-produced observations that don't fit the per-      #
+    #  cluster schema of pipeline_scenario_params.csv).  Defaults are    #
+    #  written here; producer scripts (09a, 16, ...) overwrite their     #
+    #  rows downstream.                                                  #
+    # ------------------------------------------------------------------ #
+    print("\n -> Writing pipeline site observations...")
+    from utils.site_observations import write_initial_site_observations
+    write_initial_site_observations()
+
     print("\n=== Script 01 complete ===")

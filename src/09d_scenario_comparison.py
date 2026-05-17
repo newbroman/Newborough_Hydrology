@@ -36,13 +36,20 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "3.1.0"  # 2026-05-08 — B2 multiplier via clearfell_common loader
+__version__ = "3.2.0"  # Hollingham (2026) — 2026-05-16
+# 3.2.0 — Replace hardcoded SCRAPE_BACI_STEP = 0.131 with a
+#         load_site_observation("ceh36_baci_pure_scraping") call.
+#         The value is now produced by 09a and stored in the
+#         pipeline_site_observations.csv registry.  Closes Item 9
+#         in flags log.
+# 3.1.0 — B2 multiplier via clearfell_common loader.
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
 
 from utils.paths import (
     make_all_dirs,
+    OUT_09_BACI_SHIFTS,
     OUT_09D_SCENARIO, OUT_09D_SCENARIO_CSV,
     OUT_09D_SUMMER_SCENARIO, OUT_09D_SUMMER_SCENARIO_CSV,
     INT_MASTER_DATA, INT_WTF_WELL_SY, INT_WELLS_CLEAN,
@@ -74,7 +81,13 @@ from scipy import stats as _stats
 # ============================================================================
 # CONSTANTS
 # ============================================================================
-SCRAPE_BACI_STEP = 0.131   # m — observed CEH36 paired BACI step (Pure Scraping era)
+# The CEH36 Pure_Scraping BACI step is read from the pipeline site-
+# observations registry (utils/site_observations.py).  The producer is
+# Script 09a; the consumer here just loads it.  This replaces an earlier
+# hardcoded value (0.131 m) which drifted from 09a's actual output as
+# the analysis evolved (Item 9 in flags log).  If 09a has not yet been
+# run on this clone, load_site_observation() returns the default and
+# prints a one-line warning recommending a fresh pipeline run.
 WELL = "ceh36"
 
 # BW-mode scenario bar styling
@@ -221,7 +234,9 @@ def _compute_ceh36_scenarios(params, summer_P, summer_PET):
     scenarios = {}
 
     # Scraping: observed BACI step, converted to volumetric
-    scenarios["Scraping\n(observed)"] = round(SCRAPE_BACI_STEP * Sy * 1000, 1)
+    from utils.site_observations import load_site_observation
+    scrape_baci_step = load_site_observation("ceh36_baci_pure_scraping")
+    scenarios["Scraping\n(observed)"] = round(scrape_baci_step * Sy * 1000, 1)
 
     # Hypothetical: if CEH36 had pine and was clearfelled
     P_pine_base = summer_P * (1 - FOREST_INTERCEPTION)

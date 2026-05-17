@@ -59,7 +59,16 @@ Adding a new observation
    pipeline-sourced values rather than defaults.
 """
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-05-16
+__version__ = "1.0.1"  # Hollingham (2026) — 2026-05-17
+# 1.0.1 — update_site_observation() now auto-bootstraps the registry if
+#         the CSV doesn't exist (by calling write_initial_site_observations
+#         internally) rather than raising FileNotFoundError.  Producer
+#         scripts (09a, 16) are now robust to being run before Script 01
+#         in a partial pipeline pass.  Consumers (load_site_observation)
+#         still fail hard on missing registry, which is correct — they
+#         can't proceed without a value.  Fixes the Script 16 crash
+#         seen on a partial pipeline run that skipped Script 01.
+# 1.0.0 — Initial.
 
 import pandas as pd
 from pathlib import Path
@@ -180,9 +189,15 @@ def update_site_observation(observation, value, producer_script,
     ------
     KeyError
         If ``observation`` is not registered in ``_KNOWN_OBSERVATIONS``.
-    FileNotFoundError
-        If the site-observations CSV does not yet exist.  Script 01
-        should have created it.
+
+    Notes
+    -----
+    If the registry CSV does not yet exist, this function auto-creates
+    it (by calling ``write_initial_site_observations()`` internally)
+    before updating the row.  Producer scripts are therefore robust to
+    being run in any order — Script 01 is not a hard prerequisite.
+    Consumers (``load_site_observation()``) still require the registry
+    to exist; they fail with FileNotFoundError if it's missing.
     """
     if observation not in _KNOWN_OBSERVATIONS:
         raise KeyError(
@@ -193,9 +208,14 @@ def update_site_observation(observation, value, producer_script,
 
     path = _path()
     if not path.exists():
-        raise FileNotFoundError(
-            f"Site observations CSV not found at {path}.  "
-            f"Run Script 01 first (it calls write_initial_site_observations).")
+        # Auto-bootstrap: producer script is updating a value before
+        # Script 01 has run (or in a partial pipeline pass that skipped
+        # Script 01).  Create the registry from _KNOWN_OBSERVATIONS
+        # with defaults, then this call's update lands on top of the
+        # default row for `observation`.  Producer scripts should not
+        # crash because of a missing registry — that's a consumer
+        # concern.
+        write_initial_site_observations()
 
     df = pd.read_csv(path)
     mask = df["observation"] == observation

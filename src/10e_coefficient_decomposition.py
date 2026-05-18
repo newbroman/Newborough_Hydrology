@@ -47,7 +47,24 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.2.1"  # Hollingham (2026) — 2026-05-17
+__version__ = "1.2.2"  # Hollingham (2026) — 2026-05-17
+# 1.2.2 — Defect 15 fix.  observed_steps loader (~line 315) was using a
+#         substring predicate (`'Forest' in param and 'clearfell_step'
+#         in param`) which matched both the headline annual row
+#         (`ANCOVA_Forest_Impact_clearfell_step`) and the summer-band
+#         rows added by Defect 14 (`..._clearfell_step_summer` and
+#         `..._clearfell_step_summer_noCWB`).  Last-write-wins put the
+#         noCWB sensitivity (0.2384 m) into observed_steps['Forest_
+#         Impact'] instead of the canonical annual headline (0.1362 m).
+#         Tightened the predicate to require '_clearfell_step' as a
+#         SUFFIX (startswith/endswith), which rejects the summer
+#         variants and any future named variants.  Regenerating
+#         10e_02_predicted_vs_observed.csv produces the correct
+#         comparison values.  Bug was latent in Script 10e v1.x; it
+#         was triggered by Script 10a v1.3.0 (Defect 14) adding the
+#         summer rows.  Affected one cell: Impact tier Observed_ANCOVA_
+#         forest_m (0.2384 m → 0.1362 m).  All other cells were
+#         correct.  Patch.
 # 1.2.1 — Added inline provenance comment at the first OLS call site
 #         explaining why 10e fits directly with sm.add_constant() rather
 #         than going through model_utils.fit_ssm() (Item 1 in flags log).
@@ -307,17 +324,27 @@ except Exception as e:
 # ============================================================================
 print("\n3. Building predicted vs observed table...")
 
-# Load 10a report numbers if available for observed ANCOVA steps
+# Load 10a report numbers if available for observed ANCOVA steps.
+# IMPORTANT: the predicate must require '_clearfell_step' as a SUFFIX,
+# not a substring. Script 10a v1.3.0+ emits summer-band rows named
+# 'ANCOVA_Forest_Impact_clearfell_step_summer' and 'ANCOVA_Forest_Impact_
+# clearfell_step_summer_noCWB' alongside the canonical annual headline
+# 'ANCOVA_Forest_Impact_clearfell_step'. A substring predicate would
+# match all three; with last-write-wins, the noCWB sensitivity (0.2384 m)
+# would overwrite the canonical annual value (0.1362 m). The suffix
+# predicate matches only the headline annual rows.
+# (Defect 15 fix, 2026-05-17 — was latent in Script 10e v1.x and
+# triggered by Defect 14's addition of summer rows in Script 10a v1.3.0.)
 ancova_report_path = DIR_10 / "10a_report_numbers.csv"
 observed_steps = {}
 if ancova_report_path.exists():
     ancova_rpt = pd.read_csv(ancova_report_path)
     for _, row in ancova_rpt.iterrows():
         param = str(row.get('Parameter', ''))
-        if 'Forest' in param and 'clearfell_step' in param:
+        if param.startswith('ANCOVA_Forest_') and param.endswith('_clearfell_step'):
             zone = row.get('Well', '')
             observed_steps[f'Forest_{zone}'] = row.get('Value', np.nan)
-        if 'Climate' in param and 'clearfell_step' in param:
+        if param.startswith('ANCOVA_Climate_') and param.endswith('_clearfell_step'):
             zone = row.get('Well', '')
             observed_steps[f'Climate_{zone}'] = row.get('Value', np.nan)
 

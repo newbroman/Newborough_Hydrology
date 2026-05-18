@@ -47,7 +47,19 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.2.2"  # Hollingham (2026) — 2026-05-17
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-05-18
+# 1.3.0 — Migrate Before-era and After-era OLS fits from inline
+#         sm.OLS(...sm.add_constant(...)) to the canonical
+#         model_utils.fit_ssm() interface, using the v1.1.0 keywords
+#         intercept=True and extra_regressors={'scraping_dummy': ...}
+#         for the Before era's four-column design matrix.  Closes
+#         Item 3 in CHAPTER_FLAGS_TO_REVIEW.md (model_utils
+#         consolidation).  No functional change: byte-identical β,
+#         SE, p-value, and intercept outputs to v1.2.2 (verified
+#         empirically against pre-edit pipeline run).  Minor — the
+#         provenance comment block at the OLS call sites is replaced
+#         by a shorter inline note pointing to the v1.1.0 fit_ssm()
+#         interface.
 # 1.2.2 — Defect 15 fix.  observed_steps loader (~line 315) was using a
 #         substring predicate (`'Forest' in param and 'clearfell_step'
 #         in param`) which matched both the headline annual row
@@ -188,67 +200,51 @@ for w in ALL_NETWORK_WELLS:
     # ── Before era: fit with scraping dummy ──────────────────────────
     before['D_scrape'] = (before.index >= SCRAPING_DATE).astype(float)
 
-    X_before = pd.DataFrame({
-        'beta_1_recharge': before['P'],
-        'beta_2_atmospheric_draw': -before['PET'],
-        'beta_3_drainage': -before['h_disp_prev'],
-        'scraping_dummy': before['D_scrape'],
-    })
-    y_before = before['Delta_h']
-    mask_before = X_before.notna().all(axis=1) & y_before.notna()
-    X_b = X_before[mask_before]
-    y_b = y_before[mask_before]
-
-    if len(y_b) < 8:
-        continue
-
     try:
-        # NOTE: 10e fits OLS directly (with sm.add_constant for an
-        # intercept α) rather than going through model_utils.fit_ssm(),
-        # because (a) the Before fit needs an extra `scraping_dummy`
-        # regressor that fit_ssm()'s canonical interface doesn't accept,
-        # and (b) the intercept is intentional — the Δα between Before
-        # and After is part of the era decomposition the script measures
-        # (see "Note on interpretation" in the module docstring; this is
-        # a deliberate departure from the no-intercept canonical SSM in
-        # model_utils.fit_ssm()).  Column names use the canonical long
-        # form so downstream consumers reading 10e_01_coefficient_shifts.csv
-        # see the same nomenclature as 03_master_data.csv.
-        model_b = sm.OLS(y_b, sm.add_constant(X_b)).fit()
-        b1_before = model_b.params['beta_1_recharge']
-        b2_before = model_b.params['beta_2_atmospheric_draw']
-        b3_before = model_b.params['beta_3_drainage']
-        b1_se_before = model_b.bse['beta_1_recharge']
-        b2_se_before = model_b.bse['beta_2_atmospheric_draw']
-        b3_se_before = model_b.bse['beta_3_drainage']
+        # Closes Item 3 (model_utils consolidation): 10e's Before-era
+        # fit goes through the canonical fit_ssm() interface using
+        # the v1.1.0 keywords intercept=True (Δα between Before/After
+        # is part of the era decomposition the script measures, see
+        # "Note on interpretation" in the module docstring) and
+        # extra_regressors={'scraping_dummy': ...} for the four-column
+        # design matrix.  Column names match 03_master_data.csv.
+        before_fit = fit_ssm(
+            pre_built_frame=before,
+            intercept=True,
+            extra_regressors={'scraping_dummy': before['D_scrape'].values},
+            min_obs=8,
+        )
+        if before_fit is None:
+            print(f"   [WARNING] Before fit returned None for {w}")
+            continue
+        b1_before    = before_fit['beta_1_recharge']
+        b2_before    = before_fit['beta_2_atmospheric_draw']
+        b3_before    = before_fit['beta_3_drainage']
+        b1_se_before = before_fit['se_beta_1']
+        b2_se_before = before_fit['se_beta_2']
+        b3_se_before = before_fit['se_beta_3']
     except Exception as e:
-        print(f"   [WARNING] Before OLS failed for {w}: {e}")
+        print(f"   [WARNING] Before fit_ssm failed for {w}: {e}")
         continue
 
-    # ── After era: standard SSM ──────────────────────────────────────
-    X_after = pd.DataFrame({
-        'beta_1_recharge': after['P'],
-        'beta_2_atmospheric_draw': -after['PET'],
-        'beta_3_drainage': -after['h_disp_prev'],
-    })
-    y_after = after['Delta_h']
-    mask_after = X_after.notna().all(axis=1) & y_after.notna()
-    X_a = X_after[mask_after]
-    y_a = y_after[mask_after]
-
-    if len(y_a) < 6:
-        continue
-
+    # ── After era: standard SSM with intercept ──────────────────────
     try:
-        model_a = sm.OLS(y_a, sm.add_constant(X_a)).fit()
-        b1_after = model_a.params['beta_1_recharge']
-        b2_after = model_a.params['beta_2_atmospheric_draw']
-        b3_after = model_a.params['beta_3_drainage']
-        b1_se_after = model_a.bse['beta_1_recharge']
-        b2_se_after = model_a.bse['beta_2_atmospheric_draw']
-        b3_se_after = model_a.bse['beta_3_drainage']
+        after_fit = fit_ssm(
+            pre_built_frame=after,
+            intercept=True,
+            min_obs=6,
+        )
+        if after_fit is None:
+            print(f"   [WARNING] After fit returned None for {w}")
+            continue
+        b1_after    = after_fit['beta_1_recharge']
+        b2_after    = after_fit['beta_2_atmospheric_draw']
+        b3_after    = after_fit['beta_3_drainage']
+        b1_se_after = after_fit['se_beta_1']
+        b2_se_after = after_fit['se_beta_2']
+        b3_se_after = after_fit['se_beta_3']
     except Exception as e:
-        print(f"   [WARNING] After OLS failed for {w}: {e}")
+        print(f"   [WARNING] After fit_ssm failed for {w}: {e}")
         continue
 
     # ── Compute deltas ───────────────────────────────────────────────
@@ -280,8 +276,8 @@ for w in ALL_NETWORK_WELLS:
     rows.append({
         'Well': w.upper(),
         'Tier': tier,
-        'N_before': len(y_b),
-        'N_after': len(y_a),
+        'N_before': before_fit['n'],
+        'N_after': after_fit['n'],
         'b1_before': round(b1_before, 4),
         'b1_after': round(b1_after, 4),
         'db1': round(db1, 4),

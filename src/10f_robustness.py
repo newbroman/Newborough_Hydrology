@@ -45,7 +45,7 @@ from utils.paths import (
     make_all_dirs, DIR_10,
     OUT_10F_SSM_RESIDUAL, OUT_10F_SYNTH_CTRL, OUT_10F_REPORT,
 )
-from utils.model_utils import build_ssm_frame
+from utils.model_utils import build_ssm_frame, fit_ssm
 from utils.config import DRAINAGE_DATUM, HEADLINE_LAG
 from utils.clearfell_common import (
     load_clearfell_data, print_network_summary,
@@ -56,7 +56,16 @@ from utils.clearfell_common import (
     ReportNumbers,
 )
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-05-18
+# 1.1.0 — Migrate ssm_residual_analysis() calibration fit from inline
+#         sm.OLS() to canonical model_utils.fit_ssm() using the v1.1.0
+#         pre_built_frame= keyword.  Closes Item 4 in
+#         CHAPTER_FLAGS_TO_REVIEW.md (model_utils consolidation).  No
+#         functional change: byte-identical βs to v1.0.0 (verified
+#         empirically against pre-edit pipeline run).  The synthetic-
+#         control donor regression at line 304 is a different model
+#         class (zone_mean ~ Σ wᵢ·donorᵢ) and remains as direct sm.OLS.
+# 1.0.0 — Initial.
 
 # ── Exclusions ──────────────────────────────────────────────────────────────
 EXCLUDED_WELLS = {'nw8', 'nw8b'}
@@ -128,18 +137,20 @@ def ssm_residual_analysis(wells, climate, valid_tiers, rpt):
             print(f"   {w.upper():<8} [{zone:<14}] SKIP — {len(df_cal)} months < {MIN_CAL_MONTHS}")
             continue
 
-        # Fit no-intercept OLS on calibration period
-        X_cal = pd.DataFrame({
-            'b1':  df_cal['P'].values,
-            'b2': -df_cal['PET'].values,
-            'b3': -df_cal['h_disp_prev'].values,
-        })
-        try:
-            ols_cal = sm.OLS(df_cal['Delta_h'].values, X_cal).fit()
-        except Exception:
-            print(f"   {w.upper():<8} [{zone:<14}] SKIP — OLS failed")
+        # Fit no-intercept SSM on calibration period via canonical
+        # fit_ssm() interface (closes Item 4 in CHAPTER_FLAGS_TO_REVIEW.md
+        # — model_utils consolidation).  df_cal is a pre-sliced SSM
+        # frame, so we pass it through pre_built_frame= rather than
+        # rebuilding from (h_series, climate).
+        cal_fit = fit_ssm(pre_built_frame=df_cal, min_obs=MIN_CAL_MONTHS)
+        if cal_fit is None:
+            print(f"   {w.upper():<8} [{zone:<14}] SKIP — SSM fit failed")
             continue
-        betas = ols_cal.params.values  # [b1, b2, b3]
+        betas = np.array([
+            cal_fit['beta_1_recharge'],
+            cal_fit['beta_2_atmospheric_draw'],
+            cal_fit['beta_3_drainage'],
+        ])
 
         # Forward-iterate from last calibration observation
         post = df_full[df_full.index >= SCRAPING_DATE].copy()
@@ -171,7 +182,7 @@ def ssm_residual_analysis(wells, climate, valid_tiers, rpt):
         resid_records.append({
             'well': w.upper(), 'zone': zone,
             'scrape_mean': scrape_mean, 'fell_mean': fell_mean,
-            'cal_months': len(df_cal), 'r2_cal': float(ols_cal.rsquared),
+            'cal_months': len(df_cal), 'r2_cal': cal_fit['R2'],
         })
 
     # ── Normalise by control mean residual ──────────────────────────────────

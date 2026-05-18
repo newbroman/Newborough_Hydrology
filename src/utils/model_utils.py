@@ -43,6 +43,22 @@ import statsmodels.api as sm
 
 from utils.config import DRAINAGE_DATUM, HEADLINE_LAG
 
+
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-05-18
+# 1.1.0 — Extended fit_ssm() with intercept=, extra_regressors=, and
+#         pre_built_frame= keywords (closes flags-log Items 3 and 4 by
+#         providing the canonical interface that 10e and 10f previously
+#         bypassed). fit_ssm_intercept() preserved as a thin wrapper for
+#         backward compatibility with Scripts 07, 08, 22, 24. Return dict
+#         now always includes se_beta_1/2/3 (previously absent); intercept
+#         fits gain se_alpha; extra_regressors fits gain user-keyed
+#         coefficient, pvalue, and SE entries. All existing callers
+#         continue to work — new keys are additive. Migration of 10e and
+#         10f to the new interface ships separately.
+# 1.0.0 — Initial canonical model-utils module (extracted from in-script
+#         duplicates; long-form β key convention; assert_physical_signs).
+
+
 # ── Minimum data thresholds ──────────────────────────────────────────────────
 
 # Minimum observations for a per-well SSM fit (after differencing + dropna).
@@ -129,13 +145,16 @@ def build_ssm_frame(h_series, climate, lag=None, window=None,
 # OLS FITTING — MODEL A (NO INTERCEPT)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def fit_ssm(h_series, climate, lag=None, window=None,
-            drainage_datum=DRAINAGE_DATUM, min_obs=MIN_OBS):
+def fit_ssm(h_series=None, climate=None, lag=None, window=None,
+            drainage_datum=DRAINAGE_DATUM, min_obs=MIN_OBS,
+            intercept=False, extra_regressors=None, pre_built_frame=None):
     """
-    Fit the headline SSM (no intercept) to a single water-level series.
+    Fit the SSM to a single water-level series via OLS.
 
-    Model (displacement formulation):
+    Model (displacement formulation, no intercept by default):
         Δh(t) = β₁·P(t−lag) + β₂·(−PET(t)) + β₃·(−h_disp_prev(t))
+                [+ α               if intercept=True]
+                [+ Σ γ_k·X_k(t)    if extra_regressors provided]
 
     Sign convention:
         β₁ > 0  — rainfall raises water table              [hard assertion]
@@ -144,59 +163,145 @@ def fit_ssm(h_series, climate, lag=None, window=None,
 
     Parameters
     ----------
-    h_series : pd.Series
+    h_series : pd.Series or None
         Water level in ground-surface depth convention (negative = below
-        ground). For per-well fits the caller must apply upstand correction
-        before passing so that displacement is relative to ground, not
-        pipe top.
-    climate : pd.DataFrame
+        ground). Indexed by datetime. Ignored if pre_built_frame is given.
+    climate : pd.DataFrame or None
         With columns 'P_m' (rainfall, m/month) and 'PET' (PET, m/month),
-        indexed by datetime.
+        indexed by datetime. Ignored if pre_built_frame is given.
     lag : int or None
         Rainfall lag in months. None → HEADLINE_LAG from config.py.
+        Ignored if pre_built_frame is given.
     window : int or None
         Keep only the most recent `window` observations after alignment.
-        None disables windowing and fits on the full record.
+        None disables windowing. Ignored if pre_built_frame is given.
     drainage_datum : float
-        Reference depth for displacement (default from config).
+        Reference depth for displacement (default from config). Ignored
+        if pre_built_frame is given.
     min_obs : int
         Minimum number of aligned rows required. Returns None if fewer.
+    intercept : bool
+        If True, include a constant α in the regression (Model B form).
+        Default False (Model A / headline SSM).
+    extra_regressors : dict or None
+        Optional additional predictor columns to include in the design
+        matrix. Keys are column names (e.g. 'scraping_dummy'); values are
+        array-like aligned to the SSM frame's index. Each becomes a
+        separate γ_k coefficient in the fit. Default None.
+    pre_built_frame : pd.DataFrame or None
+        If provided, skip the build_ssm_frame call and use this frame
+        directly. Must contain 'Delta_h', 'P', 'PET', 'h_disp_prev'
+        columns. Useful when the caller pre-slices on a date or applies
+        custom data preparation. Default None.
 
     Returns
     -------
-    dict with keys: beta_1, beta_2, beta_3, pvalue_beta_1, pvalue_beta_2,
-    pvalue_beta_3, R2, n, resid (residual Series) — or None if insufficient
-    data or OLS fails.
+    dict with keys:
+        beta_1_recharge, beta_2_atmospheric_draw, beta_3_drainage   — coefficients
+        pvalue_beta_1, pvalue_beta_2, pvalue_beta_3                — p-values
+        se_beta_1, se_beta_2, se_beta_3                             — standard errors
+        R2                                                          — fit R²
+        n                                                           — number of observations
+        resid                                                       — residual Series
+
+    Conditional additional keys:
+        If intercept=True:
+            alpha, pvalue_alpha, se_alpha
+        If extra_regressors provided:
+            For each user-supplied column 'foo':
+                foo, pvalue_foo, se_foo
+
+    Returns None if insufficient data or OLS fails.
+
+    Notes
+    -----
+    fit_ssm_intercept(...) is preserved as a thin wrapper around
+    fit_ssm(intercept=True, ...) for backward compatibility with Scripts
+    07, 08, 22, 24.
     """
-    df = build_ssm_frame(h_series, climate, lag=lag, window=window,
-                         drainage_datum=drainage_datum)
+    if pre_built_frame is not None:
+        df = pre_built_frame
+        # Validate the pre-built frame has the required columns
+        required = {"Delta_h", "P", "PET", "h_disp_prev"}
+        missing = required - set(df.columns)
+        if missing:
+            raise ValueError(
+                f"pre_built_frame missing required columns: {missing}"
+            )
+    else:
+        if h_series is None or climate is None:
+            raise ValueError(
+                "Either pre_built_frame or both (h_series, climate) must be "
+                "provided."
+            )
+        df = build_ssm_frame(h_series, climate, lag=lag, window=window,
+                             drainage_datum=drainage_datum)
 
     if len(df) < min_obs:
         return None
 
+    # Build base design matrix
     X = pd.DataFrame({
-        "beta_1_recharge": df["P"].values,
+        "beta_1_recharge":         df["P"].values,
         "beta_2_atmospheric_draw": -df["PET"].values,
-        "beta_3_drainage": -df["h_disp_prev"].values,
+        "beta_3_drainage":         -df["h_disp_prev"].values,
     }, index=df.index)
+
+    # Append extra regressors if provided
+    if extra_regressors:
+        for col_name, col_values in extra_regressors.items():
+            X[col_name] = np.asarray(col_values, dtype=float)
+
+    # Add intercept if requested
+    if intercept:
+        X = sm.add_constant(X, has_constant="add")
+
     y = df["Delta_h"].values
+
+    # Drop any rows where extra regressors introduced NaNs (only needed if
+    # extra_regressors or intercept-with-constant path may have introduced
+    # NaNs — the canonical no-intercept, no-extras path uses build_ssm_frame
+    # which has already dropna'd, so we skip the mask construction there to
+    # preserve byte-identical floating-point order with v1.0.0).
+    if extra_regressors or intercept:
+        mask = X.notna().all(axis=1) & pd.notna(y)
+        if mask.sum() < min_obs:
+            return None
+        X = X[mask]
+        y = y[mask]
 
     try:
         model = sm.OLS(y, X).fit()
     except Exception:
         return None
 
-    return {
-        "beta_1_recharge":        float(model.params["beta_1_recharge"]),
+    result = {
+        "beta_1_recharge":         float(model.params["beta_1_recharge"]),
         "beta_2_atmospheric_draw": float(model.params["beta_2_atmospheric_draw"]),
-        "beta_3_drainage":        float(model.params["beta_3_drainage"]),
-        "pvalue_beta_1": float(model.pvalues["beta_1_recharge"]),
-        "pvalue_beta_2": float(model.pvalues["beta_2_atmospheric_draw"]),
-        "pvalue_beta_3": float(model.pvalues["beta_3_drainage"]),
-        "R2":            float(model.rsquared),
-        "n":             int(len(df)),
-        "resid":         pd.Series(model.resid, index=df.index, name="resid"),
+        "beta_3_drainage":         float(model.params["beta_3_drainage"]),
+        "pvalue_beta_1":           float(model.pvalues["beta_1_recharge"]),
+        "pvalue_beta_2":           float(model.pvalues["beta_2_atmospheric_draw"]),
+        "pvalue_beta_3":           float(model.pvalues["beta_3_drainage"]),
+        "se_beta_1":               float(model.bse["beta_1_recharge"]),
+        "se_beta_2":               float(model.bse["beta_2_atmospheric_draw"]),
+        "se_beta_3":               float(model.bse["beta_3_drainage"]),
+        "R2":                      float(model.rsquared),
+        "n":                       int(len(X)),
+        "resid":                   pd.Series(model.resid, index=X.index, name="resid"),
     }
+
+    if intercept:
+        result["alpha"]        = float(model.params["const"])
+        result["pvalue_alpha"] = float(model.pvalues["const"])
+        result["se_alpha"]     = float(model.bse["const"])
+
+    if extra_regressors:
+        for col_name in extra_regressors:
+            result[col_name]              = float(model.params[col_name])
+            result[f"pvalue_{col_name}"]  = float(model.pvalues[col_name])
+            result[f"se_{col_name}"]      = float(model.bse[col_name])
+
+    return result
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -225,40 +330,19 @@ def fit_ssm_intercept(h_series, climate, lag=None, window=None,
     dict with all fit_ssm keys plus:
         alpha        — fitted intercept value (m/month)
         pvalue_alpha — p-value for the intercept
+        se_alpha     — standard error of the intercept
     Or None if insufficient data.
+
+    Notes
+    -----
+    Since model_utils v1.1.0 this is a thin wrapper around
+    fit_ssm(intercept=True, ...). Preserved as a separate public function
+    for backward compatibility with existing callers (Scripts 07, 08, 22,
+    24, and the compute_intercept_audit helper below).
     """
-    df = build_ssm_frame(h_series, climate, lag=lag, window=window,
-                         drainage_datum=drainage_datum)
-
-    if len(df) < min_obs:
-        return None
-
-    X = pd.DataFrame({
-        "beta_1_recharge":         df["P"].values,
-        "beta_2_atmospheric_draw": -df["PET"].values,
-        "beta_3_drainage":         -df["h_disp_prev"].values,
-    }, index=df.index)
-    X = sm.add_constant(X, has_constant="add")
-    y = df["Delta_h"].values
-
-    try:
-        model = sm.OLS(y, X).fit()
-    except Exception:
-        return None
-
-    return {
-        "alpha":         float(model.params["const"]),
-        "pvalue_alpha":  float(model.pvalues["const"]),
-        "beta_1_recharge":        float(model.params["beta_1_recharge"]),
-        "beta_2_atmospheric_draw": float(model.params["beta_2_atmospheric_draw"]),
-        "beta_3_drainage":        float(model.params["beta_3_drainage"]),
-        "pvalue_beta_1": float(model.pvalues["beta_1_recharge"]),
-        "pvalue_beta_2": float(model.pvalues["beta_2_atmospheric_draw"]),
-        "pvalue_beta_3": float(model.pvalues["beta_3_drainage"]),
-        "R2":            float(model.rsquared),
-        "n":             int(len(df)),
-        "resid":         pd.Series(model.resid, index=df.index, name="resid"),
-    }
+    return fit_ssm(h_series, climate, lag=lag, window=window,
+                   drainage_datum=drainage_datum, min_obs=min_obs,
+                   intercept=True)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

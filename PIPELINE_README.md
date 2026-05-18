@@ -887,7 +887,7 @@ Summer climate via `scraping_common.load_summer_climate()`. Scenario constants
 
 #### Step 34 — 21_forestry_scenarios
 
-**Purpose.** Forest-management scenario hydrographs and distributions, BACI zone violins; loads BACI displacement and β₂ multiplier dynamically from 10a/10e. Scenario comparison figure now uses `scraping_common.compute_scenario_bars()` as the single source of truth for per-cluster scenario values.
+**Purpose.** Forest-management scenario hydrographs and distributions, BACI zone violins; loads BACI displacement and β₂ multiplier dynamically from 10a/10e. Requires Script 10a v1.3.0+ (which emits the directly-fitted Jun–Sep summer ANCOVA row); running against a stale `10a_report_numbers.csv` raises a clear `RuntimeError` with a remediation message (Script 21 v1.0.3+). Scenario comparison figure uses `scraping_common.compute_scenario_bars()` as the single source of truth for per-cluster scenario values.
 
 **Reads.** Cluster parameters via `scraping_common.load_cluster_params()` and
 `load_summer_climate()` for the scenario comparison figure. Also reads directly:
@@ -980,6 +980,8 @@ Summer climate via `scraping_common.load_summer_climate()`. Scenario constants
 #### Step 36 — 23_ridge_recharge_lag_test
 
 **Purpose.** Ridge-proximal recharge lag hypothesis test (cross-correlation, lag vs distance, B10/B11 by cluster).
+
+> **Note (2026-05-17):** Script 23 carries a prominent LIMITATION NOTE in its header docstring (v1.0.1+). The test design is statistically degenerate against this dataset (monthly time resolution cannot resolve sub-monthly travel times; the ~2.5% water-balance residual is at the noise floor of per-well α uncertainty). The script is retained for completeness; its result should not be cited. See §5.3 of the main report and §S.16 of the Methods Supplement for the final framing.
 
 **Reads.**
 

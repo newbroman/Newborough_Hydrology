@@ -1,0 +1,61 @@
+======================================================================
+SPECIFIC YIELD ESTIMATION — WATER TABLE FLUCTUATION METHOD
+Newborough Warren 2005-2026
+======================================================================
+
+Method: Healy and Cook (2002)
+  Sy = R / dh
+  R = net recharge (P - PET, winter months Nov-Mar, PET < 25 mm/month)
+  dh = corresponding water table rise
+
+APPROACH A — OLS Regression (winter months, origin-forced)
+----------------------------------------------------------------------
+  C1 (Lake Edge)                    Sy = 0.334  ±0.0433 (SE)  R² = 0.616  n = 38
+  C2 (Dune)                         Sy = 0.333  ±0.0334 (SE)  R² = 0.675  n = 49
+  C3 (Western Residual)             Sy = 0.342  ±0.0197 (SE)  R² = 0.853  n = 53
+  C4 (Main Forest)                  Sy = 0.297  ±0.0168 (SE)  R² = 0.872  n = 47
+  C5 (Coastal Forest)               Sy = 0.410  ±0.0222 (SE)  R² = 0.877  n = 49
+
+APPROACH B — Event Median (rising limb months)
+----------------------------------------------------------------------
+  C1 (Lake Edge)                    Sy = 0.210  IQR [0.130, 0.272]  n = 61
+  C2 (Dune)                         Sy = 0.292  IQR [0.216, 0.380]  n = 63
+  C3 (Western Residual)             Sy = 0.341  IQR [0.289, 0.439]  n = 61
+  C4 (Main Forest)                  Sy = 0.317  IQR [0.260, 0.399]  n = 50
+  C5 (Coastal Forest)               Sy = 0.360  IQR [0.335, 0.433]  n = 34
+  C4 (Main Forest) (corrected)      Sy = 0.243  IQR [0.187, 0.336]  n = 61   [Freeman 2008; R_eff = (1 − 0.24)·P − PET]
+  C5 (Coastal Forest) (corrected)   Sy = 0.320  IQR [0.243, 0.381]  n = 50   [Freeman 2008; R_eff = (1 − 0.24)·P − PET]
+
+COMPARISON WITH ASSUMED VALUES
+----------------------------------------------------------------------
+  Cluster                            Assumed       OLS     Event
+  C1 (Lake Edge)                       0.080     0.334     0.210
+  C2 (Dune)                            0.120     0.333     0.292
+  C3 (Western Residual)                0.120     0.342     0.341
+  C4 (Main Forest)                     0.120     0.297     0.317
+  C5 (Coastal Forest)                  0.120     0.410     0.360
+  C4 (Main Forest) (corrected)         0.120       n/a     0.243
+  C5 (Coastal Forest) (corrected)      0.120       n/a     0.320
+
+NOTES
+----------------------------------------------------------------------
+- Monthly resolution means individual storm events cannot be isolated.
+- Winter OLS (Approach A) is most defensible: PET negligible so
+  net recharge approximates actual recharge well.
+- Event method (Approach B) is noisier but provides uncertainty bounds.
+- Forested clusters (C4 Main Forest, C5 Coastal Forest) are reported as
+  both uncorrected and interception-corrected (Freeman 2008) variants.
+  The corrected variant applies R_effective = (1 − 0.24)·P − PET. PET
+  is not reduced because Thornthwaite PET is an energy-based atmospheric
+  demand (independent of land cover), so reducing only P is physically
+  motivated and not double-counting.
+- Approach A corrected variants are not fitted in this version (the
+  corrected fits were unstable; the report uses Approach B for the
+  corrected forest values populating Table 3c).
+- The corrected forest event pool is typically larger than the
+  uncorrected pool because reducing P brings previously-excluded high
+  events (Sy > 0.50) into the admissible range.
+- Both approaches give indicative Sy only; slug tests or pumping tests
+  at representative wells per cluster remain the gold standard.
+- Reference: Healy, R.W. and Cook, P.G. (2002) Hydrogeology Journal
+  10, 91-109. doi:10.1007/s10040-001-0178-0

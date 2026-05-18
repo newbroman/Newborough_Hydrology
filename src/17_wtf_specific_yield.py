@@ -30,8 +30,31 @@ S.12 §"Forest interception correction"; see also `wtf_interception_methodology.
 in the project store.
 """
 
-__version__ = "1.1.0"  # Hollingham (2026) — last revised 2026-05-15
+__version__ = "1.2.0"  # Hollingham (2026) — last revised 2026-05-17
 # Changelog:
+#   1.2.0 (2026-05-17) — Approach A Sy inversion fix (Defect D).
+#     The OLS-through-origin slope for the regression R = Sy · Δh_corr IS Sy
+#     directly, not 1/Sy. v1.1.0 and earlier stored Sy = 1/slope, returning
+#     Sy = 2.4–3.4 (physically impossible — Sy ≤ 1 by definition). Diagnosis
+#     in DEFECT_D_INVESTIGATION.md; cross-check 1/Sy_A_v1.1.0 ≈ Sy_B confirmed
+#     the inversion. Five matched edits:
+#       (a) `Sy = 1.0/slope` → `Sy = slope` in approach_a_ols.
+#       (b) Delta-method SE collapses to SE(slope) directly.
+#       (c) R² changed from centred form (which produces spurious negative
+#           values for through-origin OLS) to uncentred form
+#           1 − SS_res/Σy², appropriate for no-intercept regression.
+#       (d) plot_regression: WTF line drawn as `xline * Sy` not
+#           `xline / Sy`; the assumed-Sy reference axline now uses
+#           `slope=SY_ASSUMED[cid]` not `1/SY_ASSUMED[cid]`.
+#       (e) Docstring's "recovers Sy as the inverse of the slope" replaced
+#           with "recovers Sy as the slope".
+#     Soft warning added if Approach A's Sy is outside (0, 1) on a future run.
+#     Downstream effects: Approach A columns in 17_wtf_01_sy_estimates.csv
+#     regenerate (C1 0.334, C2 0.333, C3 0.342, C4 0.298, C5 0.410); the
+#     figure regenerates; Approach B and all per-well outputs are
+#     unchanged; no other pipeline scripts consume Approach A so no
+#     downstream reruns required. Methods Supplement §S.12 line 2119
+#     needs the same wording fix in chapter prose.
 #   1.1.0 (2026-05-15) — k=5 partition support and column-name fix.
 #     Brings the committed script into agreement with the live committed
 #     output CSV, which was produced by an uncommitted hot-patched version
@@ -202,8 +225,15 @@ def approach_a_ols(df):
     Rearranging:
         R = Sy · (Δh + β₃·|h_prev|)
     so OLS regression of R against (Δh + β₃·|h_prev|) through the origin
-    recovers Sy as the inverse of the slope. β₃ is the cluster-median
+    recovers Sy as the slope itself (R is the dependent variable,
+    Δh + β₃·|h_prev| is the independent variable). β₃ is the cluster-median
     drainage coefficient from the SSM master table (Script 03).
+
+    R² is reported in the uncentred (no-intercept) form 1 − SS_res / Σy²,
+    appropriate for regression through the origin. The standard centred R²
+    can return spurious negative values for through-origin fits because it
+    compares against the mean of y rather than zero; that artefact (and the
+    inverted Sy storage that compounded it) was the v1.1.0 → v1.2.0 fix.
 
     Approach A is fitted on uncorrected clusters only. Corrected-forest
     variants (Approach B only) are populated separately in approach_b_events.
@@ -259,19 +289,33 @@ def approach_a_ols(df):
             results[rkey] = dict(sy=np.nan, r2=np.nan, n=len(X), se=np.nan)
             continue
 
-        # OLS through origin: Sy = 1 / slope
+        # OLS through origin: R = Sy · Δh_corr, so the regression slope IS Sy
         slope = np.sum(X * y) / np.sum(X**2)
-        Sy    = 1.0 / slope if slope > 0 else np.nan
+        Sy    = slope if slope > 0 else np.nan
 
         y_pred = slope * X
         ss_res = np.sum((y - y_pred) ** 2)
-        ss_tot = np.sum((y - np.mean(y)) ** 2)
-        r2     = 1 - ss_res / ss_tot if ss_tot > 0 else np.nan
+        # Uncentred R² is the appropriate fit metric for OLS through origin
+        # (centred R² compares against mean(y) rather than zero and can be
+        # spuriously negative even for fits that pass through the cloud
+        # well). See Wooldridge, Introductory Econometrics, §6.3.
+        ss_tot_uncentred = np.sum(y ** 2)
+        r2     = 1 - ss_res / ss_tot_uncentred if ss_tot_uncentred > 0 else np.nan
         n      = len(X)
         mse    = ss_res / max(n - 1, 1)
+        # SE(slope) for OLS through origin; since Sy = slope directly,
+        # SE(Sy) = SE(slope) — no delta method needed.
         se_slope = np.sqrt(mse / np.sum(X ** 2))
-        # SE of Sy via delta method: SE(Sy) ≈ SE(slope) / slope² · Sy²
-        se_sy = (se_slope / slope ** 2) if slope > 0 else np.nan
+        se_sy = se_slope if slope > 0 else np.nan
+
+        # Soft physical-range check: Sy must lie in (0, 1) for any porous
+        # medium; coastal sand is typically 0.20–0.40. A value outside
+        # (0, 1) signals a misspecified regression on future data; print
+        # a warning rather than raising so the script can still complete.
+        if not np.isnan(Sy) and not (0.0 < Sy < 1.0):
+            print(f"  [WARNING] {CLUSTER_LABELS[cid]} Approach A Sy = {Sy:.3f} "
+                  "is outside the physical range (0, 1). "
+                  "Regression may be misspecified.")
 
         results[rkey] = dict(
             sy=round(Sy, 4), r2=round(r2, 3), n=n,
@@ -364,16 +408,16 @@ def plot_regression(df, a_results, out_path):
 
         if not np.isnan(r["sy"]):
             xline = np.linspace(0, dh_c.max(), 100)
-            ax.plot(xline, xline / r["sy"], color="black", lw=1.8, zorder=4,
+            ax.plot(xline, xline * r["sy"], color="black", lw=1.8, zorder=4,
                     label=f"WTF: Sy = {r['sy']:.3f} ± {r['se']:.3f}")
             ax.fill_between(
                 xline,
-                xline / (r["sy"] + 2 * r["se"]),
-                xline / (r["sy"] - 2 * r["se"]) if r["sy"] > 2 * r["se"] else xline * 0,
+                xline * max(r["sy"] - 2 * r["se"], 0.0),
+                xline * (r["sy"] + 2 * r["se"]),
                 color=col, alpha=0.15, zorder=2,
             )
 
-        ax.axline((0, 0), slope=1 / SY_ASSUMED[cid], color="gray",
+        ax.axline((0, 0), slope=SY_ASSUMED[cid], color="gray",
                   lw=1.2, ls="--", label=f"Assumed Sy = {SY_ASSUMED[cid]:.2f}")
 
         ax.set_xlabel("Corrected water table rise Δh + β₃|h|  (mm/month)")

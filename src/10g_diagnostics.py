@@ -515,7 +515,7 @@ def main():
 
     # ── Load data ────────────────────────────────────────────────────────────
     print("\n1. Loading data...")
-    wells, climate, master, well_locations, valid_tiers = load_clearfell_data()
+    wells, _wells_prov, climate, master, well_locations, valid_tiers = load_clearfell_data()
     print_network_summary(valid_tiers)
 
     rpt = ReportNumbers()

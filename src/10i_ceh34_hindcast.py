@@ -128,7 +128,7 @@ def main():
     # 1. Load data
     # ------------------------------------------------------------------
     print("\n1. Loading data...")
-    wells, climate, master, well_locations, valid_tiers = load_clearfell_data()
+    wells, _wells_prov, climate, master, well_locations, valid_tiers = load_clearfell_data()
 
     if TARGET_WELL not in wells.columns:
         raise RuntimeError(f"Target well '{TARGET_WELL}' not present in wells DataFrame.")

@@ -66,7 +66,7 @@ def main():
 
     # ── Load data ─────────────────────────────────────────────────────────
     print("\n1. Loading data...")
-    wells, climate = load_scraping_data()
+    wells, _wells_prov, climate = load_scraping_data()
 
     date_2015 = SCRAPING_DATE
     date_felling = INTERVENTION_DATE

@@ -203,7 +203,7 @@ print("SCRIPT 10a — THREE-COUNTERFACTUAL ANCOVA-BACI")
 print("=" * 72)
 
 print("\n1. Loading data...")
-wells, climate, master, well_locations, valid_tiers = load_clearfell_data()
+wells, _wells_prov, climate, master, well_locations, valid_tiers = load_clearfell_data()
 wells = apply_ceh34_hindcast(wells)
 print_network_summary(valid_tiers)
 

@@ -358,7 +358,7 @@ def _plot_monthly(scenarios, params):
 
 def _plot_summer(scenarios, params, summer_P, summer_PET):
     """Summer minimum comparison at CEH36: observed scraping vs alternatives."""
-    wells, climate = load_scraping_data()
+    wells, _wells_prov, climate = load_scraping_data()
 
     SCRAPE_YEAR = SCRAPING_DATE.year
     FELLING_YEAR = INTERVENTION_DATE.year

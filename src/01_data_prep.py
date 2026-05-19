@@ -7,6 +7,7 @@ Outputs (intermediate — outputs/ root):
     01_locations.csv
     01_climate.csv
     01_wells_clean.csv
+    01_wells_provenance.csv
     01_wells_reference.csv
     01_wells_extended.csv
 
@@ -14,8 +15,18 @@ Requirements:
     pandas, numpy
 """
 
-__version__ = "1.1.1"  # Hollingham (2026) — last revised 2026-05-14
+__version__ = "1.2.0"  # Hollingham (2026) — last revised 2026-05-19
 # Changelog:
+#   1.2.0 (2026-05-19) — Defect E fix: emit 01_wells_provenance.csv alongside
+#     01_wells_clean.csv, recording per-cell origin as one of
+#     {"measured", "interpolated", "missing"}. This is paired with the
+#     clean_well_series policy change (limit=3 -> limit=1) in
+#     utils/data_utils.py: single missed monthly visits are bridged, but
+#     multi-month gaps now stay NaN. Downstream consumers (clearfell_common,
+#     Script 10d summer minima, Script 03 SSM sensitivity path) read the
+#     provenance file to filter or report interpolated rows. See
+#     DEFECT_E_INTERPOLATION_AUDIT.md for the diagnostic that motivated
+#     this change.
 #   1.1.1 (2026-05-14) — Docstring fix: REFERENCE_NETWORK_WHITELIST comment
 #     said "69 wells"; corrected to 66 (= published partition, no real wells
 #     lost; stale text from a pre-publication count).
@@ -39,6 +50,7 @@ from utils.paths import (
     DATA_WELLS_RAW, DATA_LOCATIONS_RAW, DATA_CLIMATE_RAW,
     DATA_DIR,
     INT_LOCATIONS, INT_CLIMATE, INT_WELLS_CLEAN, INT_WELLS_CLEAN_MAOD,
+    INT_WELLS_PROVENANCE,
     INT_WELLS_REFERENCE, INT_WELLS_EXTENDED,
     INT_WELL_ELEVATIONS,
 )
@@ -283,15 +295,27 @@ if __name__ == "__main__":
     # (a safety floor; the deepest plausible water table at Newborough is ~3 m
     # below ground). Positive readings are RETAINED — the slacks regularly
     # flood above pipe top and those readings are real flood-month
-    # observations that the SSM and flood-threshold work depend on. See
-    # utils/data_utils.py for the history of this threshold (an earlier
-    # implementation had the comparison direction wrong and did not mask
-    # any deep readings).
+    # observations that the SSM and flood-threshold work depend on.
+    #
+    # Single-month gaps (one missed visit between two measurements) are
+    # bridged by linear interpolation; multi-month gaps stay NaN. See
+    # utils/data_utils.py for the history of both the depth-floor and the
+    # interpolation-limit conventions (the limit was tightened from 3 to 1
+    # in the 2026-05-19 Defect E fix). Per-cell provenance is captured in
+    # the parallel `provenance` DataFrame and written to
+    # INT_WELLS_PROVENANCE.
+    provenance = pd.DataFrame(index=wells.index, columns=wells.columns, dtype=object)
     for col in wells.columns:
-        wells[col] = clean_well_series(wells[col])
+        cleaned_col, prov_col = clean_well_series(wells[col], return_provenance=True)
+        wells[col] = cleaned_col
+        provenance[col] = prov_col
 
     wells_clean = wells.dropna(axis=1, thresh=MIN_MONTHS_THRESH)
     wells_clean.to_csv(INT_WELLS_CLEAN)
+
+    # Write the provenance file restricted to the same column set as the
+    # cleaned wells file so downstream consumers can index it identically.
+    provenance[wells_clean.columns].to_csv(INT_WELLS_PROVENANCE)
 
     reference_wells, extended_wells = [], []
     demoted_wells = []   # wells that meet auto-criteria but are not whitelisted

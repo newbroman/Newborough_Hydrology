@@ -133,7 +133,7 @@ def main():
 
     # ── 1. Load data ──────────────────────────────────────────────────────
     print("\n1. Loading Climate and Well Data...")
-    wells, climate = load_scraping_data()
+    wells, _wells_prov, climate = load_scraping_data()
 
     valid_controls = [w for w in CLIMATE_CONTROLS if w in wells.columns]
     control_mean_regional = wells[valid_controls].mean(axis=1)

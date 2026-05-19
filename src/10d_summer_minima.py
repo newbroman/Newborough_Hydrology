@@ -30,7 +30,21 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-05-16
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-05-19
+# 1.3.0 — Defect E fix integration:
+#         * Consumes new wells_provenance return from load_clearfell_data
+#           (clearfell_common v1.3.0).
+#         * annual_summer_minimum now called with provenance and
+#           min_measured=2 — phantom 2019 summer minima for WMC3, NW6 and
+#           NW7 (which had zero measured Jun-Sep readings under limit=3
+#           interpolation) are correctly dropped from the per-well CSV.
+#         * forest_control_centroid_summer_min likewise receives
+#           wells_provenance, so the control centroid in any given year
+#           is based on measured cells only.
+#         * 10d_01_summer_minima.csv gains an n_interpolated column
+#           recording how many Jun-Sep cells in each (well, year) bucket
+#           were flagged interpolated and therefore excluded from the
+#           minimum.
 # 1.2.0 — Set first_year = 2011 (was 2010 via PRE_FELL_START.year).
 #         Annual analyses use 2011+ because that is the first year all
 #         17 network wells have complete observed Jun–Sep coverage.
@@ -122,7 +136,7 @@ print("SCRIPT 10d — SUMMER MINIMA ANALYSIS (DUAL CONTROL)")
 print("=" * 72)
 
 print("\n1. Loading data...")
-wells, climate, master, well_locations, valid_tiers = load_clearfell_data()
+wells, wells_provenance, climate, master, well_locations, valid_tiers = load_clearfell_data()
 print_network_summary(valid_tiers)
 
 # ============================================================================
@@ -142,17 +156,37 @@ print("2. Computing annual summer minima...")
 first_year = max(2011, wells.index.min().year)
 last_year = min(2025, wells.index.max().year)
 
-# Per-well summer minima
+# Per-well summer minima — pass provenance so phantom summer minima with
+# fewer than 2 measured Jun-Sep months are excluded (Defect E fix).
 well_mins = {}
+n_interpolated_per_well_year = {}
 for w in ALL_NETWORK_WELLS:
     if w in wells.columns:
-        well_mins[w] = annual_summer_minimum(wells[w], first_year, last_year)
+        prov_w = (wells_provenance[w]
+                  if w in wells_provenance.columns else None)
+        well_mins[w] = annual_summer_minimum(
+            wells[w], first_year, last_year,
+            provenance=prov_w, min_measured=2,
+        )
+        # Count how many cells the well DID have flagged as 'interpolated'
+        # in each year's Jun-Sep window — for transparency in the output
+        # CSV. (These cells are excluded from the minimum computation
+        # above; the count is purely a diagnostic so reviewers can see
+        # which years sit close to the threshold.)
+        if prov_w is not None:
+            for yr in range(first_year, last_year + 1):
+                mask = ((wells[w].index.year == yr)
+                        & (wells[w].index.month.isin(SUMMER_MONTHS)))
+                n_interp = int((prov_w[mask] == 'interpolated').sum())
+                n_interpolated_per_well_year[(w, yr)] = n_interp
 
-# Control centroid summer minima
+# Control centroid summer minima — also pass provenance through.
 forest_centroid_mins = forest_control_centroid_summer_min(
-    wells, FOREST_CONTROL_WELLS, first_year, last_year)
+    wells, FOREST_CONTROL_WELLS, first_year, last_year,
+    wells_provenance=wells_provenance, min_measured=2)
 climate_centroid_mins = forest_control_centroid_summer_min(
-    wells, CLIMATE_CONTROL_WELLS, first_year, last_year)
+    wells, CLIMATE_CONTROL_WELLS, first_year, last_year,
+    wells_provenance=wells_provenance, min_measured=2)
 
 # ============================================================================
 # EXPORT: PER-WELL SUMMER MINIMA DATA
@@ -174,6 +208,7 @@ for w in ALL_NETWORK_WELLS:
             'Tier': tier,
             'Year': yr,
             'Summer_min_m': round(val, 4),
+            'n_interpolated': n_interpolated_per_well_year.get((w, yr), 0),
         }
         if yr in forest_centroid_mins:
             row['Forest_ctrl_centroid_m'] = round(forest_centroid_mins[yr], 4)

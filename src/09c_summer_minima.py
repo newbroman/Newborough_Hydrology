@@ -33,7 +33,19 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-05-16
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-05-19
+# 1.2.0 — Defect E fix integration:
+#         * Consumes new wells_provenance return from load_scraping_data
+#           (scraping_common v1.3.0).
+#         * annual_summer_minimum now called with provenance and
+#           min_measured=2 — phantom 2019 summer minima for NW6 and NW7
+#           (both CLIMATE_CONTROLS) drop out cleanly.
+#         * forest_control_centroid_summer_min likewise receives
+#           wells_provenance, so the climate-control centroid in any
+#           given year is based on measured cells only.
+#         * 09c_01_summer_minima.csv gains an n_interpolated column
+#           recording how many Jun-Sep cells in each (well, year) bucket
+#           were flagged interpolated.
 # 1.1.0 — Set first_year = 2011 (was 2006).  Matches the record-length-
 #         balance principle applied to 10d v1.2.0: annual summer-minima
 #         BACI requires every contributing well to have full Jun–Sep
@@ -76,7 +88,7 @@ def main():
     print("=" * 72)
 
     print("\n1. Loading data...")
-    wells, climate = load_scraping_data()
+    wells, wells_provenance, climate = load_scraping_data()
     all_wells = list(set(TIER1_WELLS + TIER2_WELLS))
     # Year range — annual analyses use 2011+ rather than 2006+.
     # Rationale: 2011 is the first year every scraping-suite well
@@ -93,17 +105,46 @@ def main():
     last_year = min(2025, wells.index.max().year)
 
     print("2. Computing annual summer minima...")
+    # Per Defect E fix (scraping_common v1.3.0, 2026-05-19): pass
+    # provenance to annual_summer_minimum so that years with fewer than
+    # 2 measured Jun-Sep months for a given well are excluded. This
+    # drops the phantom 2019 summer minima for NW6 and NW7 (both in
+    # CLIMATE_CONTROLS) that arose from the old limit=3 interpolation
+    # policy.
     well_mins = {}
+    n_interpolated_per_well_year = {}
     for w in all_wells:
         if w in wells.columns:
-            well_mins[w] = annual_summer_minimum(wells[w], first_year, last_year)
+            prov_w = (wells_provenance[w]
+                      if w in wells_provenance.columns else None)
+            well_mins[w] = annual_summer_minimum(
+                wells[w], first_year, last_year,
+                provenance=prov_w, min_measured=2,
+            )
+            # Diagnostic count of interpolated Jun-Sep cells per year
+            # (cells that, under limit=1, are still in the cleaned
+            # series but are flagged interpolated). They count toward
+            # the minimum because limit=1 retains them, but reviewers
+            # can see them via the n_interpolated column below.
+            if prov_w is not None:
+                for yr in range(first_year, last_year + 1):
+                    mask = ((wells[w].index.year == yr)
+                            & (wells[w].index.month.isin(SUMMER_MONTHS)))
+                    n_interp = int((prov_w[mask] == 'interpolated').sum())
+                    n_interpolated_per_well_year[(w, yr)] = n_interp
 
     climate_centroid_mins = forest_control_centroid_summer_min(
-        wells, CLIMATE_CONTROLS, first_year, last_year)
+        wells, CLIMATE_CONTROLS, first_year, last_year,
+        wells_provenance=wells_provenance, min_measured=2)
     paired_mins = {}
     for ctrl in set(PAIRED_CONTROLS_MAP.values()):
         if ctrl in wells.columns:
-            paired_mins[ctrl] = annual_summer_minimum(wells[ctrl], first_year, last_year)
+            prov_ctrl = (wells_provenance[ctrl]
+                         if ctrl in wells_provenance.columns else None)
+            paired_mins[ctrl] = annual_summer_minimum(
+                wells[ctrl], first_year, last_year,
+                provenance=prov_ctrl, min_measured=2,
+            )
 
     print(f"   {len(well_mins)} wells, {len(climate_centroid_mins)} centroid years")
 
@@ -114,7 +155,12 @@ def main():
         if w not in well_mins:
             continue
         for yr, val in well_mins[w].items():
-            row = {"Well": w.upper(), "Year": yr, "Summer_min_m": round(val, 4)}
+            row = {
+                "Well": w.upper(),
+                "Year": yr,
+                "Summer_min_m": round(val, 4),
+                "n_interpolated": n_interpolated_per_well_year.get((w, yr), 0),
+            }
             if yr in climate_centroid_mins:
                 row["Climate_ctrl_centroid_m"] = round(climate_centroid_mins[yr], 4)
                 row["Gap_climate_m"] = round(val - climate_centroid_mins[yr], 4)

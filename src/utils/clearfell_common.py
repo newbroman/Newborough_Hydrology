@@ -57,9 +57,32 @@ Usage
         compute_baci_displacement, compute_cwb,
         distance_weighted_scraping, annual_summer_minimum,
     )
+
+Note
+----
+Since v1.3.0 (Defect E fix), ``load_clearfell_data`` returns a 6-tuple:
+``wells, wells_provenance, climate, master, well_locations, valid_tiers``.
+The new ``wells_provenance`` element is aligned to ``wells`` and holds
+per-cell flags from {"measured", "interpolated", "missing"}. Most
+clearfell-suite scripts only need ``wells`` and can ignore the
+provenance with ``_ = wells_prov``. Script 10d uses it to require
+>=2 measured Jun-Sep months in ``annual_summer_minimum``.
 """
 
-__version__ = "1.2.1"  # Hollingham (2026) — 2026-05-17
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-05-19
+# 1.3.0 — Defect E fix:
+#         * Removed the second `clean_well_series` call in
+#           `load_clearfell_data` (was a no-op in normal pipeline order
+#           but a logical error obscuring data lineage).
+#         * `load_clearfell_data` now returns a 6-tuple, adding
+#           `wells_provenance` (loaded from INT_WELLS_PROVENANCE) as the
+#           third element. All 7 call sites (10a, 10d, 10e, 10f, 10g, 10h,
+#           10i) updated to accept and (mostly) ignore the new return.
+#         * `annual_summer_minimum` now takes an optional `provenance`
+#           series and requires >=2 MEASURED Jun-Sep months (rather than
+#           merely >=2 non-null months). With provenance supplied, the
+#           three phantom 2019 summer minima (WMC3, NW6, NW7) correctly
+#           drop out.
 # 1.2.1 — Added worked example to load_clearfell_b2_multiplier docstring
 #         with the current tier ratios and computed clearfell/thinning
 #         multipliers (Item 8 in flags log).  Patch version — docstring
@@ -78,13 +101,13 @@ import pandas as pd
 from pathlib import Path
 
 from utils.paths import (
-    INT_WELLS_CLEAN, INT_WELLS_EXTENDED, INT_CLIMATE,
+    INT_WELLS_CLEAN, INT_WELLS_PROVENANCE, INT_WELLS_EXTENDED, INT_CLIMATE,
     INT_MASTER_DATA, DATA_WELL_ELEVATIONS,
     OUT_10E_COEFF_SHIFTS,
     OUT_10I_HINDCAST,
     make_all_dirs,
 )
-from utils.data_utils import clean_well_series
+from utils.data_utils import clean_well_series, PROV_MEASURED
 from utils.config import DRAINAGE_DATUM
 
 # ============================================================================
@@ -202,11 +225,24 @@ SUMMER_MONTHS = [6, 7, 8, 9]
 def load_clearfell_data():
     """Load and validate wells, climate, and master data for clearfell analysis.
 
+    Since v1.3.0 (Defect E fix) this function returns a 6-tuple including a
+    per-cell provenance DataFrame, and no longer re-applies
+    ``clean_well_series`` on the reloaded wells (the second cleaning pass
+    was a no-op in normal pipeline order but a logical error obscuring
+    data lineage).
+
     Returns
     -------
     wells : pd.DataFrame
         Monthly well depth timeseries (negative = below ground).
         Columns are lowercase well names. Merged from clean + extended.
+    wells_provenance : pd.DataFrame
+        Per-cell origin flags aligned to ``wells``, with values in
+        ``{"measured", "interpolated", "missing"}``. Wells present in
+        ``wells`` but absent from the provenance file (extended-only wells
+        that were not in INT_WELLS_PROVENANCE) appear here with all rows
+        flagged "measured" for compatibility — extended wells are not used
+        by BACI consumers and a coarser flag is acceptable in their case.
     climate : pd.DataFrame
         Monthly climate with DatetimeIndex.  Columns include P_m, PET.
     master : pd.DataFrame
@@ -244,8 +280,46 @@ def load_clearfell_data():
     else:
         wells = wells_main.copy()
 
-    for col in wells.columns:
-        wells[col] = clean_well_series(wells[col])
+    # NOTE: Per Defect E fix (v1.3.0), the wells loaded here are NOT re-cleaned.
+    # `INT_WELLS_CLEAN` is the canonical cleaned output of Script 01 and any
+    # re-application here would either be a no-op (current order) or, in
+    # ordering edge cases, double-mask values that Script 01 already handled.
+    # The cleaning function is now invoked exactly once per pipeline run, in
+    # Script 01, and the resulting provenance file is the authoritative
+    # record of what was measured vs interpolated.
+
+    # ── Provenance ───────────────────────────────────────────────────
+    # Loaded with the SAME column treatment as the wells frame so indexing
+    # remains aligned. Extended-only wells get an all-"measured" placeholder
+    # because the provenance file only covers the clean-network well set.
+    if INT_WELLS_PROVENANCE.exists():
+        prov = pd.read_csv(INT_WELLS_PROVENANCE, index_col=0, parse_dates=True)
+        prov.index = pd.to_datetime(prov.index)
+        prov.columns = prov.columns.str.lower().str.replace(' ', '')
+        # Align to wells index and column set
+        wells_provenance = pd.DataFrame(
+            PROV_MEASURED, index=wells.index, columns=wells.columns,
+            dtype=object,
+        )
+        common_cols = [c for c in wells.columns if c in prov.columns]
+        wells_provenance.loc[:, common_cols] = prov.reindex(
+            index=wells.index, columns=common_cols
+        )
+        # Fill any NaN provenance (e.g. months outside the per-well record)
+        # with "missing" so the field is always one of the three flag values.
+        wells_provenance = wells_provenance.fillna("missing")
+    else:
+        # Pre-Defect-E provenance file absent: assume all measured. Issues
+        # a warning so the user is aware. Re-run Script 01 to populate.
+        warnings.warn(
+            f"INT_WELLS_PROVENANCE not found at {INT_WELLS_PROVENANCE}; "
+            f"assuming all cells measured. Re-run Script 01 to generate.",
+            stacklevel=2,
+        )
+        wells_provenance = pd.DataFrame(
+            PROV_MEASURED, index=wells.index, columns=wells.columns,
+            dtype=object,
+        )
 
     # ── Master data ──────────────────────────────────────────────────
     if not INT_MASTER_DATA.exists():
@@ -285,7 +359,7 @@ def load_clearfell_data():
         if missing:
             warnings.warn(f"{tier_name}: missing wells {missing}")
 
-    return wells, climate, master, well_locations, valid_tiers
+    return wells, wells_provenance, climate, master, well_locations, valid_tiers
 
 
 def load_ceh34_hindcast_series():
@@ -542,34 +616,71 @@ def build_scraping_covariate_centroid(date_index, scraping_date,
 # SUMMER MINIMA
 # ============================================================================
 
-def annual_summer_minimum(series, start_year=2006, end_year=2026):
+def annual_summer_minimum(series, start_year=2006, end_year=2026,
+                          provenance=None, min_measured=2):
     """Compute annual summer minimum (Jun–Sep) depth for a well.
 
     Parameters
     ----------
     series : pd.Series with DatetimeIndex (depth below ground, negative)
     start_year, end_year : int
+    provenance : pd.Series or None
+        Optional per-cell provenance flags aligned to ``series`` from the
+        Defect E fix. Values in {"measured", "interpolated", "missing"}.
+        When supplied, only MEASURED Jun-Sep months count toward the
+        ``min_measured`` threshold and only measured values can become the
+        annual minimum. With provenance left as None, all non-null Jun-Sep
+        months count (pre-Defect-E behaviour).
+    min_measured : int
+        Minimum number of measured Jun-Sep months required for a year to
+        yield a summer minimum. Default 2 (matches the Defect E fix
+        specification). When ``provenance`` is None this acts on non-null
+        cells instead.
 
     Returns
     -------
-    dict : {year: float} — minimum (most negative) depth in Jun–Sep
+    dict : {year: float} — minimum (most negative) depth in Jun–Sep among
+           measured cells. Years not meeting the threshold are omitted.
     """
     mins = {}
     for yr in range(start_year, end_year + 1):
         mask = (series.index.year == yr) & (series.index.month.isin(SUMMER_MONTHS))
-        vals = series[mask].dropna()
-        if len(vals) >= 2:
+        if provenance is None:
+            vals = series[mask].dropna()
+        else:
+            # Restrict to MEASURED cells only.
+            prov_yr = provenance[mask]
+            meas_mask = prov_yr == PROV_MEASURED
+            vals = series[mask][meas_mask].dropna()
+        if len(vals) >= min_measured:
             mins[yr] = float(vals.min())
     return mins
 
 
 def forest_control_centroid_summer_min(wells, forest_wells,
                                         start_year=2006, end_year=2026,
-                                        min_wells=2):
+                                        min_wells=2, wells_provenance=None,
+                                        min_measured=2):
     """Compute forest control centroid annual summer minimum.
 
     For each year, averages the summer minimum across all forest control
     wells with data, requiring at least min_wells.
+
+    Parameters
+    ----------
+    wells : pd.DataFrame
+    forest_wells : list of str
+        Well names whose summer minima are pooled into the centroid.
+    start_year, end_year : int
+    min_wells : int
+        Minimum number of wells contributing in a given year for a
+        centroid value to be returned.
+    wells_provenance : pd.DataFrame or None
+        Per-well provenance flags (same shape and column names as
+        ``wells``). When supplied, the per-well summer minima are computed
+        with ``provenance=`` passed through and only measured cells count.
+    min_measured : int
+        Forwarded to ``annual_summer_minimum``. Default 2.
 
     Returns
     -------
@@ -578,7 +689,13 @@ def forest_control_centroid_summer_min(wells, forest_wells,
     per_well = {}
     for w in forest_wells:
         if w in wells.columns:
-            per_well[w] = annual_summer_minimum(wells[w], start_year, end_year)
+            prov = (wells_provenance[w]
+                    if wells_provenance is not None and w in wells_provenance.columns
+                    else None)
+            per_well[w] = annual_summer_minimum(
+                wells[w], start_year, end_year,
+                provenance=prov, min_measured=min_measured,
+            )
 
     all_years = set()
     for wm in per_well.values():

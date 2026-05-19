@@ -103,6 +103,12 @@ DATA_DIST_COAST     = DATA_DIR / "well_distance_to_coast.csv"
 INT_LOCATIONS       = OUT_DIR / "01_locations.csv"
 INT_CLIMATE         = OUT_DIR / "01_climate.csv"
 INT_WELLS_CLEAN     = OUT_DIR / "01_wells_clean.csv"
+# Per-cell provenance for INT_WELLS_CLEAN. Same shape and index as the cleaned
+# wells file; each cell holds one of {"measured", "interpolated", "missing"}.
+# Emitted by Script 01 alongside 01_wells_clean.csv since the Defect E fix
+# (2026-05-19) so downstream consumers can filter or weight interpolated rows
+# (e.g. annual_summer_minimum requires >=2 measured Jun-Sep months).
+INT_WELLS_PROVENANCE = OUT_DIR / "01_wells_provenance.csv"
 INT_WELLS_CLEAN_MAOD = OUT_DIR / "01_wells_clean_maod.csv"
 INT_WELLS_REFERENCE = OUT_DIR / "01_wells_reference.csv"
 INT_WELLS_EXTENDED  = OUT_DIR / "01_wells_extended.csv"

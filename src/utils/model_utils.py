@@ -44,7 +44,16 @@ import statsmodels.api as sm
 from utils.config import DRAINAGE_DATUM, HEADLINE_LAG
 
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-05-18
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-05-19
+# 1.2.0 — Defect E fix integration:
+#         * build_ssm_frame() and fit_ssm() gain optional `provenance=` and
+#           `exclude_interpolated=False` kwargs. Default behaviour is
+#           unchanged: interpolated rows REMAIN in the canonical SSM fit,
+#           preserving the published β₁/β₂/β₃ coefficient table and every
+#           downstream cluster characterisation. With exclude_interpolated=True
+#           callers can re-fit on measured-only rows as a documented
+#           sensitivity check (per Defect E open question Q1 — Martin's call:
+#           keep them in by default).
 # 1.1.0 — Extended fit_ssm() with intercept=, extra_regressors=, and
 #         pre_built_frame= keywords (closes flags-log Items 3 and 4 by
 #         providing the canonical interface that 10e and 10f previously
@@ -74,7 +83,8 @@ LCSC_DATA_LIMIT = 100
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def build_ssm_frame(h_series, climate, lag=None, window=None,
-                    drainage_datum=DRAINAGE_DATUM):
+                    drainage_datum=DRAINAGE_DATUM,
+                    provenance=None, exclude_interpolated=False):
     """
     Align well and climate data and compute SSM predictor columns.
 
@@ -99,6 +109,20 @@ def build_ssm_frame(h_series, climate, lag=None, window=None,
         None disables windowing and returns the full aligned record.
     drainage_datum : float
         Reference depth (m below ground surface) for displacement.
+    provenance : pd.Series or None
+        Optional per-cell provenance flags aligned to ``h_series`` from
+        the Defect E fix (values in {"measured", "interpolated",
+        "missing"}). When supplied together with
+        ``exclude_interpolated=True``, rows whose ``h`` cell was
+        flagged ``interpolated`` are dropped before differencing. The
+        h_prev term retains its physical interpretation: a row whose
+        h_prev cell is interpolated is also dropped (a measured Δh
+        cannot be computed without a measured h_prev). Default None.
+    exclude_interpolated : bool
+        If True and a provenance series is supplied, exclude
+        interpolated cells from the fit. Default False (preserves the
+        canonical published β₁/β₂/β₃ coefficient table; see Defect E
+        Q1, Martin's call 2026-05-19).
 
     Returns
     -------
@@ -120,6 +144,18 @@ def build_ssm_frame(h_series, climate, lag=None, window=None,
         "P":   pd.to_numeric(climate["P_m"], errors="coerce"),
         "PET": pd.to_numeric(climate["PET"], errors="coerce"),
     }).dropna()
+
+    # Mask interpolated rows of h BEFORE differencing if requested.
+    # Both the current-month h and the previous-month h_prev must be
+    # measured for Δh to be a genuine measurement difference. Masking
+    # to NaN before the diff step ensures the subsequent dropna step
+    # discards those rows naturally.
+    if exclude_interpolated and provenance is not None:
+        prov_aligned = provenance.reindex(df.index)
+        interp_mask = (prov_aligned == "interpolated")
+        if interp_mask.any():
+            df.loc[interp_mask, "h"] = np.nan
+            df = df.dropna(subset=["h"])
 
     # Displacement above drainage datum
     df["h_disp"] = drainage_datum + df["h"]
@@ -147,7 +183,8 @@ def build_ssm_frame(h_series, climate, lag=None, window=None,
 
 def fit_ssm(h_series=None, climate=None, lag=None, window=None,
             drainage_datum=DRAINAGE_DATUM, min_obs=MIN_OBS,
-            intercept=False, extra_regressors=None, pre_built_frame=None):
+            intercept=False, extra_regressors=None, pre_built_frame=None,
+            provenance=None, exclude_interpolated=False):
     """
     Fit the SSM to a single water-level series via OLS.
 
@@ -193,6 +230,17 @@ def fit_ssm(h_series=None, climate=None, lag=None, window=None,
         directly. Must contain 'Delta_h', 'P', 'PET', 'h_disp_prev'
         columns. Useful when the caller pre-slices on a date or applies
         custom data preparation. Default None.
+    provenance : pd.Series or None
+        Optional per-cell provenance flags aligned to ``h_series`` from
+        the Defect E fix (values in {"measured", "interpolated",
+        "missing"}). Forwarded to ``build_ssm_frame``. Ignored if
+        ``pre_built_frame`` is given. Default None.
+    exclude_interpolated : bool
+        If True and ``provenance`` is supplied, exclude interpolated
+        cells from the fit (measured-only sensitivity path). Default
+        False: the canonical published β₁/β₂/β₃ coefficient table is
+        produced with interpolated rows retained (Defect E Q1 — Martin's
+        call 2026-05-19). Ignored if ``pre_built_frame`` is given.
 
     Returns
     -------
@@ -235,7 +283,9 @@ def fit_ssm(h_series=None, climate=None, lag=None, window=None,
                 "provided."
             )
         df = build_ssm_frame(h_series, climate, lag=lag, window=window,
-                             drainage_datum=drainage_datum)
+                             drainage_datum=drainage_datum,
+                             provenance=provenance,
+                             exclude_interpolated=exclude_interpolated)
 
     if len(df) < min_obs:
         return None

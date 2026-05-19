@@ -31,12 +31,21 @@ WELL_ERAS           {well: {era_name: (start, end)}} for all analysis wells.
                     Start is inclusive, end is exclusive.
 """
 
-__version__ = "1.2.0"  # 2026-05-16 — REGIONAL_MEAN_START codifies the
-                        # fixed-composition window for the regional-mean
-                        # control (consistency with the clearfell-suite
-                        # record-length-balance principle, but smaller
-                        # in scope because the paired-BACI design here
-                        # already self-equalises within each pair).
+__version__ = "1.3.0"  # 2026-05-19 — Defect E fix integration: load_scraping_data
+                        # now returns (wells, wells_provenance, climate) and reads
+                        # the per-cell provenance file emitted by Script 01 v1.2.0
+                        # alongside 01_wells_clean.csv. Call sites in 09a, 09c,
+                        # 09d, 09e updated to accept the new third return; 09c
+                        # forwards provenance to annual_summer_minimum so the
+                        # phantom 2019 summer minima for NW6/NW7 (Climate
+                        # controls) drop out cleanly. The double-clean issue
+                        # (E.2) does not exist in this loader — there is no
+                        # clean_well_series call here, only a CSV read.
+# 1.2.0 — 2026-05-16 — REGIONAL_MEAN_START codifies the fixed-composition
+#         window for the regional-mean control (consistency with the
+#         clearfell-suite record-length-balance principle, but smaller in
+#         scope because the paired-BACI design here already self-equalises
+#         within each pair).
 # 1.1.0 — 2026-05-08 — B2 multiplier routed through clearfell_common.
 # 1.0.x — Initial scraping-suite shared module.
 
@@ -188,8 +197,41 @@ def era_filter(series, start, end):
 
 
 def load_scraping_data():
-    """Load well and climate data for the scraping analysis."""
-    from utils.paths import INT_WELLS_CLEAN, INT_WELLS_EXTENDED, INT_CLIMATE
+    """Load well, provenance, and climate data for the scraping analysis.
+
+    Since v1.3.0 (Defect E fix), this returns a 3-tuple including a
+    per-cell provenance DataFrame from `01_wells_provenance.csv`. The
+    provenance has values in {"measured", "interpolated", "missing"}
+    aligned to ``wells`` and is forwarded by 09c into
+    ``annual_summer_minimum`` so that years with fewer than 2 measured
+    Jun-Sep months for a given well are correctly excluded (this drops
+    the phantom 2019 summer minima for NW6 and NW7 — both in
+    CLIMATE_CONTROLS). Other scraping scripts (09a, 09d, 09e) accept the
+    new return for forwards compatibility but do not yet consume the
+    provenance directly; their pre/post-fix shifts come from the
+    updated `01_wells_clean.csv` content under `limit=1`.
+
+    Returns
+    -------
+    wells : pd.DataFrame
+        Monthly well depth timeseries (negative = below ground). Columns
+        are lowercase, no-space well names. Union of clean + extended.
+    wells_provenance : pd.DataFrame
+        Per-cell origin flags aligned to ``wells`` (values in
+        {"measured", "interpolated", "missing"}). Wells present in
+        ``wells`` but absent from the provenance file (extended-only
+        wells) appear with all rows flagged "measured" — extended-only
+        wells are not used by the scraping panel's BACI or summer-minima
+        analyses and a coarser flag is acceptable for them. If the
+        provenance file does not exist (pre-Defect-E pipeline state), a
+        warning is issued and an all-"measured" placeholder is returned.
+    climate : pd.DataFrame
+        Monthly climate with DatetimeIndex (P_m, PET columns).
+    """
+    from utils.paths import (
+        INT_WELLS_CLEAN, INT_WELLS_EXTENDED, INT_CLIMATE,
+        INT_WELLS_PROVENANCE,
+    )
 
     climate = pd.read_csv(INT_CLIMATE, index_col=0, parse_dates=True)
     climate = climate.sort_index()
@@ -205,7 +247,38 @@ def load_scraping_data():
     else:
         wells = wells_main
 
-    return wells, climate
+    # ── Provenance ────────────────────────────────────────────────────
+    # Loaded with the same lower-case column treatment as wells. Extended-
+    # only wells get an all-"measured" placeholder because the provenance
+    # file only covers the clean-network well set; extended wells are not
+    # used by the BACI or summer-minima analyses, so a coarser flag is
+    # acceptable.
+    if INT_WELLS_PROVENANCE.exists():
+        prov = pd.read_csv(INT_WELLS_PROVENANCE, index_col=0,
+                           parse_dates=True)
+        prov.columns = prov.columns.str.lower().str.replace(" ", "")
+        wells_provenance = pd.DataFrame(
+            "measured", index=wells.index, columns=wells.columns,
+            dtype=object,
+        )
+        common_cols = [c for c in wells.columns if c in prov.columns]
+        wells_provenance.loc[:, common_cols] = prov.reindex(
+            index=wells.index, columns=common_cols,
+        )
+        wells_provenance = wells_provenance.fillna("missing")
+    else:
+        import warnings
+        warnings.warn(
+            f"INT_WELLS_PROVENANCE not found at {INT_WELLS_PROVENANCE}; "
+            f"assuming all cells measured. Re-run Script 01 to generate.",
+            stacklevel=2,
+        )
+        wells_provenance = pd.DataFrame(
+            "measured", index=wells.index, columns=wells.columns,
+            dtype=object,
+        )
+
+    return wells, wells_provenance, climate
 
 
 def format_p_value(p):

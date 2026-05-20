@@ -7,19 +7,21 @@ This document describes the data flow between all pipeline scripts: which files 
 
 **Run order:** 01 → 02 → 03 → 04 → 05 → 06 → 07 → 08 → 09 (suite a–e) → 10 (suite a–h) → 11 → 11b → 00 → 14 → 12 → 13 → 15 → 17 → 16 → 18 → 19 → 20 → 21 → 25 (coastal) → 22 → 23 → 24 → 26 (van Willegen MSL) → 27 (grey)
 
-**29 pipeline steps across 14 phases.**
+**30 pipeline steps across 14 phases.**
 
-Phases 1–11 produce the main analytical results documented in the report. Phase 12 (Scripts 22–24) runs supplementary diagnostics. Phase 13 runs the van Willegen et al. (2025) 5-year MSL aggregation (Script 26), an observational monitoring metric documented in §4.9.8 of the report. Phase 14 runs the greyscale figure-conversion utility (Script 27) as a callable post-processing step, retained in `run_analysis.py` but not treated as an analytical phase.
+Phases 1–11 produce the main analytical results documented in the report. Phase 12 (Scripts 22–24) runs supplementary diagnostics. Phase 13 runs the van Willegen et al. (2025) MSL analyses — observational 5-year MSL aggregation (Script 26, step 28) and the UKCP18 RCP8.5 climate-projection companion (Script 26b, step 29). Phase 14 runs the greyscale figure-conversion utility (Script 27, step 30) as a callable post-processing step, retained in `run_analysis.py` but not treated as an analytical phase.
 
-The main analytical script for Phase 11 (step 24) is `25_coastal_gradient.py`. The van Willegen MSL script for Phase 13 (step 28) is `26_van_willegen_msl.py`. The greyscale utility for Phase 14 (step 29) is `27_greyscale_figures.py`. References to "Script 25" mean coastal-gradient; "Script 26" means van Willegen MSL; "Script 27" means greyscale post-processing.
+The main analytical script for Phase 11 (step 24) is `25_coastal_gradient.py`. Phase 13 contains two scripts: `26_van_willegen_msl.py` (step 28, observational MSL5 aggregation, the report's §4.9.8 monitoring metric) and `26b_van_willegen_msl_projections.py` (step 29, perturbation overlay producing per-cluster ΔMSL5 estimates under UKCP18 RCP8.5 50th-percentile scenarios). The greyscale utility for Phase 14 (step 30) is `27_greyscale_figures.py`. References to "Script 25" mean coastal-gradient; "Script 26" means van Willegen MSL; "Script 26b" means UKCP18 MSL projection; "Script 27" means greyscale post-processing.
+
+Note on Script 11 (forecasting thresholds, Phase 1 / step 22). Section 5 of that script — a per-cluster empirical spring MSL transfer function — was added 2026-05-20 as the predictive companion to Script 26's monitoring metric. The transfer function reads from `03_regional_averages.csv` and produces cluster MSL_y forecasts from antecedent winter peak and Oct–May P/PET. See the per-script entry for Script 11 below and §S.18b of the Methods Supplement.
 
 Script 09 is a modular suite orchestrated by `run_09_scraping.py` (09a → 09b → 09c → 09d → 09e). Script 10 is a modular suite orchestrated by `run_10_clearfell.py` (10a → 10b → 10c → 10d → 10e → 10f → 10g → 10h); within the suite, 10c (forest zone spatial analysis) is treated as supplementary, while the other seven sub-scripts contribute to the primary report results. All sub-modules can be run independently provided their upstream Phase 1–2 outputs exist.
 
 > **A note on step numbering in this document.** The canonical step numbers
-> are those reported by `run_analysis.py` (1–29). The inline `(step N)`
+> are those reported by `run_analysis.py` (1–30). The inline `(step N)`
 > annotations against individual outputs further down this document derive
 > from an automated I/O audit that flattens each sub-script into its own
-> numbered step, so those numbers run higher than 29 and do not match the
+> numbered step, so those numbers run higher than 30 and do not match the
 > orchestrator. Treat the run-order line above and the phase section
 > headings as canonical; treat the inline `(step N)` tags as audit
 > provenance markers only.
@@ -173,6 +175,10 @@ outputs/                       ← all generated outputs
   22_residual_lag_analysis/
   23_ridge_recharge_lag_test/
   24_residual_seasonality/
+  25_coastal_gradient/
+  26_van_willegen_msl/
+  26b_van_willegen_msl_projections/
+  27_greyscale_figures/         ← step 30 post-processing utility writes here when invoked
 src/
   utils/
     config.py               ← cluster colours/labels, DRAINAGE_DATUM, HEADLINE_LAG, FOREST_INTERCEPTION, FOREST_CIDS, ecological thresholds, UKCP18 scenario factors, BROADLEAF_B2_SUMMER
@@ -613,12 +619,21 @@ Summer climate via `scraping_common.load_summer_climate()`. Scenario constants
 
 #### Step 22 — 11_forecasting_thresholds
 
-**Purpose.** Closed-form P_flood derivation and winter/summer transfer functions; Tables 6, 7, 8.
+**Purpose.** Closed-form P_flood derivation, winter/summer transfer functions (Tables 6, 7, 8), and a per-cluster empirical spring MSL transfer function (Section 5, "Tool A").
+
+Section 5 was added 2026-05-20 (Script 11 v1.1.0 → v1.1.1) as the predictive companion to Script 26's observational MSL5 monitoring metric. For each cluster, an OLS-with-intercept fit on `03_regional_averages.csv` produces an equation of the form
+
+    MSL_y = α · h_max_winter + β · P_win_to_spr + γ · PET_win_to_spr + intercept
+
+where the hydrology year *y* runs from 1 June (*y*−1) to 31 May (*y*) (van Willegen 2025 convention), the winter peak is the maximum of Oct *y*−1 to Feb *y*, and the antecedent forcing totals run Oct *y*−1 to May *y*. Each cluster's transfer function lets managers predict the next year's MSL_y from monthly readings collected through end-February, then add to a rolling four-year history of observed MSLs to update the 5-year MSL5 monitoring statistic without waiting until end-May for the actual reading.
+
+R² ranges 0.73–0.96 across the five clusters (C4 Main Forest and C5 Coastal Forest essentially deterministic at R² ≥ 0.95). A second variant on previous-year MSL as the antecedent input was tested at v1.1.0 and dropped at v1.1.1: R² 0.18–0.44 across the network, statistically non-significant `MSL_prev` coefficient at four of five clusters. The winter peak is the immediate antecedent state and carries the predictive signal.
 
 **Reads.**
 
 - `03_cluster_peak_months.csv` (Script 03 (step 3))
 - `03_03_cluster_mechanistic_coefficients.csv` (Script 03 (step 3))
+- `03_regional_averages.csv` (Script 03 (step 3)) — Section 5 OLS input
 
 **Writes.**
 
@@ -626,6 +641,8 @@ Summer climate via `scraping_common.load_summer_climate()`. Scenario constants
 - `11_forecast_winter_transfer_functions.csv`
 - `11_forecast_summer_transfer_functions.csv`
 - `11_forecast_pflood_threshold_equations.csv`
+- `11_forecast_spring_transfer_functions.csv` — Section 5 per-cluster equations (Tool A, Table 9)
+- `11_forecast_02_spring_calibration.png` — Section 5 5-panel calibration scatter
 
 
 #### Step 23 — 11b_spatial_thresholds
@@ -1040,7 +1057,11 @@ Summer climate via `scraping_common.load_summer_climate()`. Scenario constants
   - `OUT_24_SUN_CORR_SCATTER` passed to `plot_sun_corr_scatter`
 
 
-### Phase 13 — Van Willegen 5-year MSL aggregation
+### Phase 13 — Van Willegen MSL analyses
+
+This phase contains two scripts: Script 26 produces the observational MSL5 monitoring metric, and Script 26b produces the UKCP18 RCP8.5 climate-projection companion. Both follow the van Willegen et al. (2025) convention (1 March – 31 May spring window; 5-year unweighted mean; hydrology year B running 1 June *y*−1 to 31 May *y*).
+
+The two scripts are paired but serve different report sections. Script 26 is the headline observational metric, cited in §4.9.8 of the report (cluster trajectories and spatial MSL5 map). Script 26b is a documented robustness/projection capability discussed briefly in the report's climate-discussion paragraph and presented in full in §S.18b of the Methods Supplement. The Script 26b figure is *not* a main-report figure — the projected ΔMSL5 shifts (1–4 cm at 2050s, 2–4 cm at 2080s under central-estimate RCP8.5) sit within observed interannual variability and below the forest-management BACI signal at this site, so the work is reported as a brief mention plus supplement detail rather than headline figure real estate.
 
 #### Step 28 — 26_van_willegen_msl
 
@@ -1049,6 +1070,13 @@ Summer climate via `scraping_common.load_summer_climate()`. Scenario constants
 The script is observational — it consumes Script 01's monthly water-level series and aggregates them. It does not use the SSM β coefficients or any other modelled quantities. Outputs are presented in the depth-below-ground frame (paper convention, negative = below ground) alongside the pipeline's native depth-below-pipe-top frame. The headline output is the per-cluster trajectory of MSL5 over the 2014–2025 window-end range (restricted from the 2009 start of the per-well CSVs because the reference network expanded materially between 2007 and 2010, and the first 5-year window drawn entirely from the post-2010 network is end-year 2014). A secondary 5-year mean of the annual maximum (MAX5) is carried as a column in the CSVs for cross-reference to van Willegen's secondary metric.
 
 The chapter's role in the report is monitoring-oriented, complementary to the predictive summer-minimum framework that drives the Script 11/11b threshold maps and the iterated P_flood derivation. The Curreli SD15b (−0.61 m) and SD16 (−0.98 m) reference lines are drawn on the trajectory plot for context; these are calibrated against summer minima, not MSL5, and the figure caption flags the ~0.54 m offset between the two metrics at the 5-year window scale (network-mean Pearson r = 0.95 with summer minima at the 5-year scale; see §S.18 of the Methods Supplement).
+
+**Method A and Method B (v1.1.2).** Script 26 produces *two* per-cluster MSL5 trajectories that differ in their aggregation:
+
+- **Method A** (per-well aggregation across the extended cluster network) is the **headline monitoring metric**, written to `26_msl_5yr_per_cluster.csv`. ~25 wells per cluster in C5; closest to van Willegen's per-piezometer calibration framework; used in the §4.9.8 trajectory figure and spatial map.
+- **Method B** (cluster centroid from `03_regional_averages.csv`, LCSC reference network only) is the **SSM-consistent companion**, written to `26_msl_5yr_per_cluster_centroid.csv`. ~5 wells per cluster in C5; same baseline as the SSM β coefficients, P_flood, and the Script 11 Section 5 transfer function; used by Script 26b's projection figure.
+
+The two methods can differ by tens of cm (mean |Method B − Method A| ≈ 0.30 m across the network; max 0.78 m at C4 2011) because they describe different network compositions, not different aggregation algebra. Both are valid; they answer different questions. The chapter S.18 of the Methods Supplement explains the distinction in editorial detail.
 
 **Reads.**
 
@@ -1059,15 +1087,17 @@ The chapter's role in the report is monitoring-oriented, complementary to the pr
 - `01_wells_provenance.csv` (Script 01 (step 1)) — interpolated-cell flag (S.1 limit=1 policy)
 - `02_07_cluster_membership_k5.csv` (Script 02 (step 2)) — reference cluster IDs
 - `06_pear_membership_audit_sitewide.csv` (Script 06 (step 6)) — extended cluster IDs
+- `03_regional_averages.csv` (Script 03 (step 3)) — cluster-centroid monthly series for Method B (v1.1.2)
 
 **Writes.**
 
 - `26_msl_annual_per_well.csv` — per (well, hydro_year) annual MSL and MAX with completeness flags
 - `26_msl_5yr_per_well.csv` — per (well, end_year) 5-year MSL5 and MAX5 with cluster IDs
-- `26_msl_5yr_per_cluster.csv` — cluster-mean trajectory: mean, median, std per (cluster, end_year)
+- `26_msl_5yr_per_cluster.csv` — **Method A** cluster-mean trajectory: mean, median, std per (cluster, end_year). Headline monitoring metric.
+- `26_msl_5yr_per_cluster_centroid.csv` — **Method B** cluster-centroid trajectory from `03_regional_averages.csv`. SSM-consistent companion (v1.1.2).
 - `26_msl_5yr_latest_per_well.csv` — most-recent valid MSL5 per well (input for the spatial map)
-- `26_msl_5yr_trajectory.png` — cluster-mean MSL5 trajectory with SD15b/SD16 reference lines and intervention markers (report figure)
-- `26_msl_5yr_map.png` — IDW-interpolated MSL5 surface with DEM hillshade, KML overlays, ridge mask; van Willegen quadrat wells flagged (report figure)
+- `26_msl_5yr_trajectory.png` — cluster-mean MSL5 trajectory with SD15b/SD16 reference lines and intervention markers (report figure; Method A)
+- `26_msl_5yr_map.png` — IDW-interpolated MSL5 surface with DEM hillshade, KML overlays, ridge mask; van Willegen quadrat wells flagged (report figure; Method A per-well basis)
 - `26_msl_5yr_quadrat_wells.png` — per-well trajectories at the 17 van Willegen co-located quadrat wells (supplement figure)
 - `26_msl_results.txt` — run transcript with cluster summary and per-quadrat-well values
 
@@ -1078,9 +1108,60 @@ The chapter's role in the report is monitoring-oriented, complementary to the pr
   - All output paths sourced from `utils.paths` (OUT_26_*)
 
 
+#### Step 29 — 26b_van_willegen_msl_projections
+
+**Purpose.** Project per-cluster MSL5 shifts under UKCP18 RCP8.5 50th-percentile Wales scenarios (2050s and 2080s) using the single-step monthly Δh perturbation pattern documented in Script 21 / `model_utils.monthly_perturbation`. The script is a robustness / climate-sensitivity capability rather than a forward-in-time forecast.
+
+**Method.** For each cluster, the monthly Δh perturbation is
+
+    Δh(m) = β₁ · (P_scen(m) − P_base(m)) − β₂ · (PET_scen(m) − PET_base(m))
+
+where β₁ and β₂ are the cluster's SSM coefficients (Script 03), and P_scen / PET_scen apply the UKCP18 seasonal multipliers to the observed monthly climatology. The spring window (Mar / Apr / May) is averaged to give a single ΔMSL5 constant per cluster per scenario:
+
+    ΔMSL5 = mean(Δh_Mar, Δh_Apr, Δh_May)
+
+Because the perturbation is linear in P and PET and the multipliers are constant year-on-year (climatology shift, not interannual sequence), the projected trajectory is the observed Method B trajectory shifted by this constant. Three findings worth noting:
+
+1. **The spring window has structural cancellation**: winter +P partly offsets summer +PET, so the net ΔMSL5 is modest (1–4 cm at 2050s, 2–4 cm at 2080s). Applying the same multipliers to summer minima would produce much larger shifts.
+2. **C4 Main Forest has the largest shift** (highest β₂ = 2.55, most PET-sensitive); C1 Lake Edge and C5 Coastal Forest have the smallest (low β₂).
+3. **The climate signal is small relative to forest management at this site.** The BACI clearfell step is +13.6 cm at the Forest Impact tier — 3–7× larger than central-estimate UKCP18 spring climate shifts.
+
+UKCP18 multipliers used (matching Script 19 `SCENARIO_PARAMS`):
+
+| Scenario | sP_winter | sP_summer | sPET_winter | sPET_summer |
+|---|---|---|---|---|
+| 2050s | 1.10 | 0.85 | 1.05 | 1.20 |
+| 2080s | 1.20 | 0.70 | 1.10 | 1.35 |
+
+Winter = Nov–Mar; Summer = May–Sep; April and October are shoulder months taking the mean of the winter and summer multipliers. The 2050s constants also exist in `utils.config` (`UKCP18_DRY_*` / `UKCP18_WET_*` pairs) but the 2080s constants are currently hardcoded in this script; a follow-up could add `UKCP18_2080s_*` to `utils.config` and have Script 19 and Script 26b share them.
+
+**What this is and is not.** This is a perturbation overlay — "what would the observed 2014–2025 MSL5 trajectory have looked like if the UKCP18 2050s climate had been in force throughout that period?" It is *not* a forward-in-time simulation; the single-step perturbation pattern avoids the SSM drift problem documented in Script 21, consistent with the limitations of the steady-state SSM. Authors should also note the standard UKCP18 caveat: the multipliers are 50th-percentile central estimates, and the 5th–95th percentile ranges span much wider intervals at end-century (Met Office, 2018).
+
+**Editorial weighting.** Script 26b is a documented capability; its outputs are summarised in one sentence of the report's climate discussion and in §S.18b of the Methods Supplement, but the script does *not* produce a headline report figure. The projected magnitudes (1–4 cm) are smaller than (a) observed interannual variability, (b) the BACI forest-management signal, and (c) the Method A vs Method B aggregation difference itself — so the result is reported as evidence of climate-signal scale at this site rather than as a foregrounded prediction.
+
+**Reads.**
+
+- `03_03_cluster_mechanistic_coefficients.csv` (Script 03 (step 3)) — cluster SSM β coefficients
+- `01_climate.csv` (Script 01 (step 1)) — RAF Valley monthly P, PET (climatology baseline)
+- `26_msl_5yr_per_cluster_centroid.csv` (Script 26 (step 28), v1.1.2 Method B) — observational baseline overlaid in figure
+
+**Writes.**
+
+- `26b_msl5_ukcp18_projection.png` — 2×3 small-multiple: 5 per-cluster trajectory panels (per-panel auto-scaled y-axes) plus 1 ΔMSL5 bar chart (cm units, coloured by cluster, hatched for 2080s). Supplement figure (§S.18b).
+- `26b_msl5_ukcp18_projection_summary.csv` — per (cluster, scenario) summary: β₁, β₂, spring Δh mean, observed window mean, perturbed window mean, mean shift
+- `26b_monthly_delta_h_per_cluster.csv` — full 12-month Δh per cluster per scenario (120 rows: 5 clusters × 2 scenarios × 12 months)
+- `26b_msl5_ukcp18_results.txt` — run transcript
+
+**Other.**
+
+- UKCP18 multipliers hardcoded in `UKCP18_SCENARIOS` at the top of the script; documented in the docstring; cross-referenced to Script 19's `SCENARIO_PARAMS` and `utils.config.UKCP18_*`
+- Δh perturbation uses the pattern from `utils.model_utils.monthly_perturbation()` but with `β₂_scen = β₂_base` (no land-use change) and the PET shift handled directly (see script docstring `_compute_monthly_delta_h`)
+- All output paths via `utils.paths.OUT_26B_*`
+
+
 ### Phase 14 — Greyscale Figure Conversion (post-processing)
 
-Step 29 — `27_greyscale_figures.py` — converts all colour figures in `outputs/` to journal-ready greyscale versions under `outputs_bw/`. Discovery-based: rglobs the colour output tree; no per-figure paths needed. See the script docstring for usage flags (`--enhanced`, `--dpi`, `--skip-maps`, `--exclude-problem`, `--dry-run`). Renamed from `26_greyscale_figures.py` on 2026-05-20 to free script number 26 for the van Willegen MSL step.
+Step 30 — `27_greyscale_figures.py` — converts all colour figures in `outputs/` to journal-ready greyscale versions under `outputs_bw/`. Discovery-based: rglobs the colour output tree; no per-figure paths needed. See the script docstring for usage flags (`--enhanced`, `--dpi`, `--skip-maps`, `--exclude-problem`, `--dry-run`). Renamed from `26_greyscale_figures.py` on 2026-05-20 to free script number 26 for the van Willegen MSL step; renumbered to step 30 on 2026-05-20 when Script 26b was added to Phase 13.
 
 
 ---

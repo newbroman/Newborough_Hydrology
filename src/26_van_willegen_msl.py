@@ -60,6 +60,15 @@ Version: 1.0.2 (2026-05-20) — Intervention markers:
   * Dates imported from `scraping_common.{SCRAPING_DATE, INTERVENTION_DATE,
     SCRAPING_DATE_2}` rather than duplicated locally.
 
+Version: 1.1.1 (2026-05-20) — Map extent harmonisation:
+  * MSL5 spatial map now uses the canonical site bounds
+    (E 240100–243900, N 362200–365800) matching Script 11b's summer-minima
+    figure. Previously the map autoscaled to the IDW surface footprint,
+    which extended further than the other publication-quality spatial maps.
+  * Bounds added to utils.config as SITE_MAP_EAST_MIN/MAX and
+    SITE_MAP_NORTH_MIN/MAX so they are shareable with any future spatial
+    script that wants the same canonical extent.
+
 Version: 1.1.0 (2026-05-20) — Conventions compliance:
   * All paths now sourced from utils.paths (no hardcoded path literals).
   * All methodological constants now sourced from utils.config:
@@ -718,6 +727,11 @@ def plot_msl5_map(latest_per_well: pd.DataFrame,
     ax.set_title(f"5-year mean spring water level (MSL) — window ending {latest_year}\n"
                  "van Willegen et al. (2025); SD15b/SD16 reference values from Curreli et al. (2013)")
     ax.legend(loc="lower right", fontsize=8)
+    # Match the canonical site map extent used by Script 11b's summer-minima
+    # figure and the other publication-quality spatial maps. Bounds live in
+    # utils.config so all spatial figures stay in sync.
+    ax.set_xlim(config.SITE_MAP_EAST_MIN,  config.SITE_MAP_EAST_MAX)
+    ax.set_ylim(config.SITE_MAP_NORTH_MIN, config.SITE_MAP_NORTH_MAX)
     ax.set_aspect("equal")
     fig.tight_layout()
     fig.savefig(out, dpi=160)

@@ -1,0 +1,6 @@
+cluster_id,cluster_label,n_wells,mean_dist_coast_m,observed_centroid_mm_yr,observed_per_well_mean_mm_yr,predicted_gradient_mm_yr,predicted_climate_mm_yr,predicted_total_mm_yr,residual_mm_yr,gradient_pct_of_observed
+1,C1 (Lake Edge),7,1818.7,-9.7,-9.18,0.0,-6.4,-6.4,-3.3,-0.0
+2,C2 (Dune),24,1507.9,-12.3,-1.02,0.0,-6.4,-6.4,-5.9,-0.0
+3,C3 (Western Residual),19,825.9,-6.8,-5.82,-2.19,-6.4,-8.59,1.79,32.0
+4,C4 (Main Forest),2,1141.8,-11.5,-12.58,0.0,-6.4,-6.4,-5.1,-0.0
+5,C5 (Coastal Forest),1,419.4,-37.7,-32.78,-15.3,-6.4,-21.69,-16.01,41.0

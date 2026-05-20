@@ -1,0 +1,7 @@
+Parameter,Well,Era,Value,Unit,Note
+Headline_fit_delta_0,,2005-2026,-28.82,mm/yr,"Forest-free linear-capped, SE=1.92, 95% CI [-32.6, -25.1]"
+Headline_fit_L,,2005-2026,894.0,m,"Forest-free linear-capped, SE=52"
+Headline_fit_c,,2005-2026,-6.4,mm/yr,"Forest-free linear-capped climate background, SE=0.56"
+Headline_DeltaAIC_lincap_vs_exp,,2005-2026,-0.5,,exp − lin-cap; positive favours lin-cap
+C5_gradient_pct_of_observed,,2005-2026,41.0,%,"Script 14 centroid slope -37.7 mm/yr; gradient -15.3, residual -16.0"
+BACI_corroboration_Forest_Impact_z,,BACI window,-1.88,z,"BACI absorbs -20.3 mm/yr, model predicts -11.0 mm/yr; consistent=yes"

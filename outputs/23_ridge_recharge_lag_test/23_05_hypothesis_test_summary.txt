@@ -23,8 +23,8 @@
   RESULT
 ------------------------------------------------------------------------------
   Spearman rank correlation of peak lag vs ridge distance:
-     rho = +0.0096
-     p   = 0.9470
+     rho = -0.0055
+     p   = 0.9698
      n   = 50 wells with significant peak
 
   Mean peak lag (all sig wells):      2.82 months
@@ -33,8 +33,8 @@
 
   By cluster (significant wells only):
      C1 (Lake Edge)  n= 7  mean lag = 2.00  mean |r| = 0.275
-     C2 (Dune)       n=23  mean lag = 2.00  mean |r| = 0.219
-     C3 (Western Residual) n=10  mean lag = 3.00  mean |r| = 0.179
+     C2 (Dune)       n=22  mean lag = 2.00  mean |r| = 0.223
+     C3 (Western Residual) n=10  mean lag = 3.00  mean |r| = 0.182
      C4 (Main Forest) n= 9  mean lag = 4.44  mean |r| = 0.178
      C5 (Coastal Forest) n= 1  mean lag = 11.00  mean |r| = 0.138
 

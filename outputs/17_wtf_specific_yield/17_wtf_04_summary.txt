@@ -11,31 +11,31 @@ Method: Healy and Cook (2002)
 APPROACH A — OLS Regression (winter months, origin-forced)
 ----------------------------------------------------------------------
   C1 (Lake Edge)                    Sy = 0.334  ±0.0433 (SE)  R² = 0.616  n = 38
-  C2 (Dune)                         Sy = 0.333  ±0.0334 (SE)  R² = 0.675  n = 49
-  C3 (Western Residual)             Sy = 0.342  ±0.0197 (SE)  R² = 0.853  n = 53
-  C4 (Main Forest)                  Sy = 0.297  ±0.0168 (SE)  R² = 0.872  n = 47
+  C2 (Dune)                         Sy = 0.328  ±0.0336 (SE)  R² = 0.666  n = 49
+  C3 (Western Residual)             Sy = 0.343  ±0.0206 (SE)  R² = 0.841  n = 53
+  C4 (Main Forest)                  Sy = 0.297  ±0.0172 (SE)  R² = 0.869  n = 46
   C5 (Coastal Forest)               Sy = 0.410  ±0.0222 (SE)  R² = 0.877  n = 49
 
 APPROACH B — Event Median (rising limb months)
 ----------------------------------------------------------------------
-  C1 (Lake Edge)                    Sy = 0.210  IQR [0.130, 0.272]  n = 61
-  C2 (Dune)                         Sy = 0.292  IQR [0.216, 0.380]  n = 63
-  C3 (Western Residual)             Sy = 0.341  IQR [0.289, 0.439]  n = 61
-  C4 (Main Forest)                  Sy = 0.317  IQR [0.260, 0.399]  n = 50
-  C5 (Coastal Forest)               Sy = 0.360  IQR [0.335, 0.433]  n = 34
-  C4 (Main Forest) (corrected)      Sy = 0.243  IQR [0.187, 0.336]  n = 61   [Freeman 2008; R_eff = (1 − 0.24)·P − PET]
-  C5 (Coastal Forest) (corrected)   Sy = 0.320  IQR [0.243, 0.381]  n = 50   [Freeman 2008; R_eff = (1 − 0.24)·P − PET]
+  C1 (Lake Edge)                    Sy = 0.210  IQR [0.130, 0.265]  n = 60
+  C2 (Dune)                         Sy = 0.268  IQR [0.196, 0.372]  n = 64
+  C3 (Western Residual)             Sy = 0.325  IQR [0.285, 0.415]  n = 58
+  C4 (Main Forest)                  Sy = 0.315  IQR [0.256, 0.395]  n = 51
+  C5 (Coastal Forest)               Sy = 0.356  IQR [0.319, 0.431]  n = 34
+  C4 (Main Forest) (corrected)      Sy = 0.248  IQR [0.182, 0.317]  n = 62   [Freeman 2008; R_eff = (1 − 0.24)·P − PET]
+  C5 (Coastal Forest) (corrected)   Sy = 0.321  IQR [0.243, 0.401]  n = 49   [Freeman 2008; R_eff = (1 − 0.24)·P − PET]
 
 COMPARISON WITH ASSUMED VALUES
 ----------------------------------------------------------------------
   Cluster                            Assumed       OLS     Event
   C1 (Lake Edge)                       0.080     0.334     0.210
-  C2 (Dune)                            0.120     0.333     0.292
-  C3 (Western Residual)                0.120     0.342     0.341
-  C4 (Main Forest)                     0.120     0.297     0.317
-  C5 (Coastal Forest)                  0.120     0.410     0.360
-  C4 (Main Forest) (corrected)         0.120       n/a     0.243
-  C5 (Coastal Forest) (corrected)      0.120       n/a     0.320
+  C2 (Dune)                            0.120     0.328     0.268
+  C3 (Western Residual)                0.120     0.343     0.325
+  C4 (Main Forest)                     0.120     0.297     0.315
+  C5 (Coastal Forest)                  0.120     0.410     0.356
+  C4 (Main Forest) (corrected)         0.120       n/a     0.248
+  C5 (Coastal Forest) (corrected)      0.120       n/a     0.321
 
 NOTES
 ----------------------------------------------------------------------

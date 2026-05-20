@@ -2,30 +2,30 @@ Scenario,Cluster,Delta_summer_min_mm
 Clearfell,C1,0
 Clearfell,C2,0
 Clearfell,C3,0
-Clearfell,C4,20
-Clearfell,C5,24
+Clearfell,C4,18
+Clearfell,C5,23
 Thinning 50%,C1,0
 Thinning 50%,C2,0
 Thinning 50%,C3,0
-Thinning 50%,C4,10
-Thinning 50%,C5,12
+Thinning 50%,C4,9
+Thinning 50%,C5,11
 Broadleaf,C1,0
 Broadleaf,C2,0
 Broadleaf,C3,0
-Broadleaf,C4,-2
+Broadleaf,C4,-3
 Broadleaf,C5,4
 Scraping (CEH36-type),C1,0
 Scraping (CEH36-type),C2,0
 Scraping (CEH36-type),C3,0
 Scraping (CEH36-type),C4,0
 Scraping (CEH36-type),C5,143
-Climate dry,C1,-50
-Climate dry,C2,-42
+Climate dry,C1,-51
+Climate dry,C2,-49
 Climate dry,C3,-47
-Climate dry,C4,-45
-Climate dry,C5,-30
+Climate dry,C4,-47
+Climate dry,C5,-29
 Climate wet,C1,28
-Climate wet,C2,23
+Climate wet,C2,26
 Climate wet,C3,25
-Climate wet,C4,22
-Climate wet,C5,16
+Climate wet,C4,23
+Climate wet,C5,15

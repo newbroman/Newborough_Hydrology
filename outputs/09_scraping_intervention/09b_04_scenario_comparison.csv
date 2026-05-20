@@ -2,30 +2,30 @@ Scenario,Cluster,Delta_vol_mm_per_month
 Clearfell,C1,0.0
 Clearfell,C2,0.0
 Clearfell,C3,0.0
-Clearfell,C4,5.4
-Clearfell,C5,8.7
+Clearfell,C4,4.7
+Clearfell,C5,8.3
 Thinning 50%,C1,0.0
 Thinning 50%,C2,0.0
 Thinning 50%,C3,0.0
-Thinning 50%,C4,2.7
-Thinning 50%,C5,4.3
+Thinning 50%,C4,2.4
+Thinning 50%,C5,4.1
 Broadleaf,C1,0.0
 Broadleaf,C2,0.0
 Broadleaf,C3,0.0
-Broadleaf,C4,-0.6
-Broadleaf,C5,1.5
+Broadleaf,C4,-0.7
+Broadleaf,C5,1.6
 Scraping (nearby),C1,0.0
 Scraping (nearby),C2,0.0
-Scraping (nearby),C3,1.5
+Scraping (nearby),C3,0.2
 Scraping (nearby),C4,3.7
-Scraping (nearby),C5,5.4
-Climate dry,C1,-12.8
+Scraping (nearby),C5,0.3
+Climate dry,C1,-12.9
 Climate dry,C2,-16.4
-Climate dry,C3,-19.3
-Climate dry,C4,-12.2
-Climate dry,C5,-10.9
+Climate dry,C3,-18.4
+Climate dry,C4,-12.4
+Climate dry,C5,-10.6
 Climate wet,C1,7.2
 Climate wet,C2,8.8
-Climate wet,C3,10.3
-Climate wet,C4,6.0
-Climate wet,C5,5.6
+Climate wet,C3,9.8
+Climate wet,C4,6.1
+Climate wet,C5,5.5

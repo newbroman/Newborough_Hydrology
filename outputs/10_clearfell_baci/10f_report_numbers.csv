@@ -1,8 +1,8 @@
 Parameter,Well,Era,Value,Unit,Note
-SSM_Resid_Impact_mean_step,,,0.1036,m,n=1
-SSM_Resid_Edge_mean_step,,,-0.0034,m,n=4
-SSM_Resid_Forest_Ctrl_mean_step,,,0.0755,m,n=5
-SSM_Resid_Coastal_Ctrl_mean_step,,,-0.1344,m,n=2
-SSM_Resid_Climate_Ctrl_mean_step,,,-0.0218,m,n=5
-Synth_Impact_step,,,0.1011,m,"p=<0.001, n_donors=6"
-Synth_Edge_step,,,0.0425,m,"p=0.210, n_donors=6"
+SSM_Resid_Impact_mean_step,,,0.0564,m,n=1
+SSM_Resid_Edge_mean_step,,,0.0044,m,n=4
+SSM_Resid_Forest_Ctrl_mean_step,,,0.0822,m,n=5
+SSM_Resid_Coastal_Ctrl_mean_step,,,-0.1318,m,n=2
+SSM_Resid_Climate_Ctrl_mean_step,,,-0.0295,m,n=5
+Synth_Impact_step,,,0.0993,m,"p=0.001, n_donors=6"
+Synth_Edge_step,,,0.041,m,"p=0.224, n_donors=6"

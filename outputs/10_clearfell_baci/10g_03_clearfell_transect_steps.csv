@@ -1,8 +1,8 @@
 Well,Label,Distance_m,Role,Scrape_era_mean_m,Post_fell_mean_m,Step_change_m
-WMC3,WMC3 Core impact,45,impact,-1.3439,-1.2181,0.1258
-CEH31,CEH31 Edge S,152,edge,-1.6441,-1.5772,0.0669
+WMC3,WMC3 Core impact,45,impact,-1.3439,-1.2083,0.1356
+CEH31,CEH31 Edge S,152,edge,-1.6441,-1.5747,0.0694
 CEH30,CEH30 Edge NW,206,edge,-1.8205,-1.7364,0.0841
 CEH16,CEH16 Edge W,222,edge,-0.9580,-0.9481,0.0099
-CEH20,CEH20 Edge N,229,edge,-1.3706,-1.2777,0.0929
+CEH20,CEH20 Edge N,229,edge,-1.3706,-1.2818,0.0888
 CEH34,CEH34 Forest control,306,control,-0.9733,-0.8987,0.0746
 CEH2,CEH2 Pine/BL margin,428,reference,-1.4052,-1.2979,0.1073

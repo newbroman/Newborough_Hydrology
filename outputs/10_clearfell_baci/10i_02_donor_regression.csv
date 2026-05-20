@@ -1,2 +1,2 @@
 target,donor,cal_start,cal_end,n_cal,alpha,alpha_SE,alpha_p,beta,beta_SE,beta_p,r2,rmse_m,pred_interval_95_m,n_hindcast,n_observed,hindcast_start,hindcast_end
-CEH34,CEH9,2010-08-01,2017-11-30,87,-0.10194,0.0393,0.01117,1.09876,0.0424,4.05e-42,0.88767,0.14734,0.2888,51,186,2006-05-01,2010-07-01
+CEH34,CEH9,2010-08-01,2017-11-30,80,-0.14851,0.03457,5e-05,1.05147,0.03711,8.19e-43,0.91146,0.12458,0.24418,51,185,2006-05-01,2010-07-01

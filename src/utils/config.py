@@ -206,6 +206,20 @@ VW_QUADRAT_WELLS = (
 INTERVENTION_COLOUR_SCRAPE   = "#7b3294"  # purple — CEH36 scrape (2015) and CEH18/21 re-scrape (2023)
 INTERVENTION_COLOUR_CLEARFELL = "#e66101"  # orange — December 2017 pine clearfell
 
+# ── Canonical site map extent (OSGB36 / EPSG:27700) ───────────────────────────
+# Used by all publication-quality spatial figures (scripts 04, 07, 08, 11b,
+# 12, 13, 18, 19, 20, 26). Chosen to crop the site to the dune Special Area
+# of Conservation footprint and forest block while excluding empty sea and
+# inland farmland. Matches the summer-minima map in Script 11b — the canonical
+# reference figure used by the report's spatial threshold framework.
+# A few Script 11b figures use a slightly wider y-extent (362100–365900) to
+# fit category-zone legend space; new scripts should default to the narrower
+# bounds defined here unless there is an explicit reason otherwise.
+SITE_MAP_EAST_MIN  = 240100
+SITE_MAP_EAST_MAX  = 243900
+SITE_MAP_NORTH_MIN = 362200
+SITE_MAP_NORTH_MAX = 365800
+
 # ── Broadleaf interception ────────────────────────────────────────────────────
 # Deciduous annual-mean interception fraction — Komatsu et al. (2011).
 # Approximates summer (~25 %, leafed) and winter (~0 %, leafless) averaged

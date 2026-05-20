@@ -1,4 +1,4 @@
 observation,value,unit,source,producer_script,description,updated
-ceh36_baci_pure_scraping,0.1314016292992607,m,pipeline,09a,"CEH36 paired BACI step (Pure_Scraping era, vs CEH4)",2026-05-17
-ceh36_baci_felling_pulse,0.0236065051020407,m,pipeline,09a,"CEH36 paired BACI step (Felling_Pulse era, vs CEH4)",2026-05-17
-site_p_minus_pet_annual,0.23157930057910914,m/yr,pipeline,16,"Long-term annual P − PET (water balance, RAF Valley)",2026-05-17
+ceh36_baci_pure_scraping,0.1294662107982894,m,pipeline,09a,"CEH36 paired BACI step (Pure_Scraping era, vs CEH4)",2026-05-20
+ceh36_baci_felling_pulse,0.0236065051020407,m,pipeline,09a,"CEH36 paired BACI step (Felling_Pulse era, vs CEH4)",2026-05-20
+site_p_minus_pet_annual,0.23157930057910914,m/yr,pipeline,16,"Long-term annual P − PET (water balance, RAF Valley)",2026-05-20

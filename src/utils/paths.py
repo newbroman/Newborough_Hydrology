@@ -55,6 +55,7 @@ DIR_23 = OUT_DIR / "23_ridge_recharge_lag_test"
 DIR_24 = OUT_DIR / "24_residual_seasonality"
 DIR_25 = OUT_DIR / "25_coastal_gradient"
 DIR_26 = OUT_DIR / "26_van_willegen_msl"
+DIR_26B = OUT_DIR / "26b_van_willegen_msl_projections"
 DIR_27 = OUT_DIR / "27_greyscale_figures"
 
 ALL_DIRS = [
@@ -63,7 +64,7 @@ ALL_DIRS = [
     DIR_02, DIR_03, DIR_04, DIR_05, DIR_06, DIR_07,
     DIR_08, DIR_09, DIR_10, DIR_10C, DIR_11, DIR_11B, DIR_12, DIR_13, DIR_14,
     DIR_15, DIR_16, DIR_17, DIR_18, DIR_19, DIR_20, DIR_21, DIR_22, DIR_23, DIR_24,
-    DIR_25, DIR_26, DIR_27,
+    DIR_25, DIR_26, DIR_26B, DIR_27,
 ]
 
 
@@ -322,6 +323,13 @@ OUT_11_TABLE6_WINTER        = DIR_11 / "11_forecast_winter_transfer_functions.cs
 OUT_11_TABLE7_SUMMER        = DIR_11 / "11_forecast_summer_transfer_functions.csv"
 OUT_11_TABLE8_THRESHOLDS    = DIR_11 / "11_forecast_pflood_threshold_equations.csv"
 OUT_11_PFLOOD_SUMMARY       = DIR_11 / "11_forecast_pflood_summary.csv"
+# Spring MSL transfer functions — single-year prediction from antecedent
+# winter peak and Oct-May P/PET (Section 5 of Script 11, paired with
+# Script 26b's UKCP18 projection). Variant on previous-year MSL was tested
+# and dropped 2026-05-20: R² 0.18-0.44 across the network vs 0.73-0.96 for
+# the winter-peak variant retained here.
+OUT_11_TABLE_SPRING         = DIR_11 / "11_forecast_spring_transfer_functions.csv"
+OUT_11_SPRING_CALIBRATION   = DIR_11 / "11_forecast_02_spring_calibration.png"
 
 # Script 11b — Spatial threshold maps
 OUT_11B_SUMMER_MAP      = DIR_11B / "11b_01_summer_minima_depth.png"
@@ -466,11 +474,19 @@ OUT_25_REPORT_NUMBERS     = DIR_25 / "25_report_numbers.csv"
 OUT_26_ANNUAL_PER_WELL    = DIR_26 / "26_msl_annual_per_well.csv"
 OUT_26_5YR_PER_WELL       = DIR_26 / "26_msl_5yr_per_well.csv"
 OUT_26_5YR_PER_CLUSTER    = DIR_26 / "26_msl_5yr_per_cluster.csv"
+OUT_26_5YR_PER_CLUSTER_CENTROID = DIR_26 / "26_msl_5yr_per_cluster_centroid.csv"
 OUT_26_5YR_LATEST_PER_WELL = DIR_26 / "26_msl_5yr_latest_per_well.csv"
 OUT_26_TRAJECTORY         = DIR_26 / "26_msl_5yr_trajectory.png"
 OUT_26_QUADRAT_WELLS      = DIR_26 / "26_msl_5yr_quadrat_wells.png"
 OUT_26_MAP                = DIR_26 / "26_msl_5yr_map.png"
 OUT_26_RESULTS_TXT        = DIR_26 / "26_msl_results.txt"
+
+# Script 26b — Van Willegen MSL UKCP18 climate projections (Phase 13, Tool B)
+# Pairs with Script 11 Section 5 (Tool A) and Script 26 (observational MSL5).
+OUT_26B_PROJECTION_FIG    = DIR_26B / "26b_msl5_ukcp18_projection.png"
+OUT_26B_PROJECTION_TABLE  = DIR_26B / "26b_msl5_ukcp18_projection_summary.csv"
+OUT_26B_DELTA_H_PER_CLUSTER = DIR_26B / "26b_monthly_delta_h_per_cluster.csv"
+OUT_26B_RESULTS_TXT       = DIR_26B / "26b_msl5_ukcp18_results.txt"
 
 # Script 27 — Greyscale figure conversion (Phase 14, post-processing)
 # Uses discovery-based rglob over outputs/ — no per-figure path entries needed.

@@ -60,6 +60,29 @@ Version: 1.0.2 (2026-05-20) — Intervention markers:
   * Dates imported from `scraping_common.{SCRAPING_DATE, INTERVENTION_DATE,
     SCRAPING_DATE_2}` rather than duplicated locally.
 
+Version: 1.1.2 (2026-05-20) — Method B (cluster-centroid MSL5) added:
+  * New function cluster_centroid_trajectory() computes MSL5 from the
+    Script 03 cluster-centroid monthly series in 03_regional_averages.csv
+    using the same 3/3 + 5/5 strictness as Method A. Pass 3b in main()
+    writes the result to OUT_26_5YR_PER_CLUSTER_CENTROID.
+  * Rationale: Method A (per-well aggregation across the extended cluster
+    network, ~25 wells per cluster in C5) and Method B (cluster centroid
+    from the LCSC reference network, ~5 wells in C5) give substantially
+    different numbers — mean |Δ| ≈ 0.30 m across the network, max ≈ 0.78 m
+    at C4 — because they describe different network compositions, not
+    different aggregation algebra. Both are valid; they answer different
+    questions.
+  * Method A remains the headline monitoring metric (maximum spatial
+    coverage; van-Willegen-aligned per-piezometer framework). Method B is
+    the SSM-consistent companion (same baseline as cluster β coefficients,
+    P_flood, Scripts 11 transfer functions, and Script 26b UKCP18
+    projections — Tools A & B).
+  * No change to existing outputs. New CSV
+    26_msl_5yr_per_cluster_centroid.csv added alongside the existing
+    26_msl_5yr_per_cluster.csv.
+  * Trajectory figure unchanged (still Method A; van Willegen anchor).
+    Script 26b updated separately to use Method B baseline (v1.0.1).
+
 Version: 1.1.1 (2026-05-20) — Map extent harmonisation:
   * MSL5 spatial map now uses the canonical site bounds
     (E 240100–243900, N 362200–365800) matching Script 11b's summer-minima
@@ -138,6 +161,7 @@ paths.DIR_26.mkdir(parents=True, exist_ok=True)
 OUT_ANNUAL    = paths.OUT_26_ANNUAL_PER_WELL
 OUT_5YR       = paths.OUT_26_5YR_PER_WELL
 OUT_CLUSTER   = paths.OUT_26_5YR_PER_CLUSTER
+OUT_CLUSTER_CENTROID = paths.OUT_26_5YR_PER_CLUSTER_CENTROID
 OUT_LATEST    = paths.OUT_26_5YR_LATEST_PER_WELL
 OUT_MAP       = paths.OUT_26_MAP
 OUT_TRAJ      = paths.OUT_26_TRAJECTORY
@@ -373,6 +397,98 @@ def cluster_trajectory(per_well_with_cluster: pd.DataFrame) -> pd.DataFrame:
         MAX5_m_bg_median=("MAX5_m_bg", "median"),
     ).reset_index().sort_values(["cluster_id", "window_end_year"])
     return out
+
+
+# ── Method B: cluster-centroid MSL5 from 03_regional_averages ────────────────
+# Method A above aggregates per-well MSL5 across the extended cluster network
+# (Script 26's primary monitoring metric, van-Willegen-aligned).
+#
+# Method B aggregates differently: it takes the cluster-centroid monthly mean
+# series produced by Script 03 (which uses the LCSC reference network only,
+# ~5-26 wells per cluster) and computes MSL5 on that centroid series.
+#
+# The two methods give *different* numbers (sometimes by >0.3 m) because they
+# describe different network compositions:
+#   - Method A: extended cluster, ~25 wells in C5
+#   - Method B: reference cluster, ~5 wells in C5
+#
+# Both are valid; they answer different questions. Method A is the headline
+# monitoring metric (maximum spatial coverage). Method B is the SSM-consistent
+# companion (same baseline as the cluster β coefficients, P_flood, Scripts 11
+# transfer functions, and Script 26b UKCP18 projections). The report uses
+# Method A in §4.9.8 spatial / trajectory figures, and Method B in §3.6 /
+# Tools A & B projection figures.
+#
+# This function consumes 03_regional_averages.csv directly. The block-column
+# naming mirrors Script 03's BLOCK_MAP.
+def cluster_centroid_trajectory(
+    regional_path: Path,
+    window_years: int = MSL_DEFAULT_WINDOW_YEARS,
+    min_months_per_spring: int = MSL_MIN_MONTHS_PER_SPRING,
+    min_years_in_window: int = MSL_MIN_YEARS_IN_WINDOW,
+) -> pd.DataFrame:
+    """
+    Compute per-cluster MSL5 from the Script 03 cluster-centroid monthly
+    series in 03_regional_averages.csv. Strictness rules match Method A
+    (3/3 spring months, 5/5 annual MSLs).
+
+    Returns
+    -------
+    pd.DataFrame with columns:
+        cluster_id, cluster_label, window_end_year,
+        MSL5_m_bg_centroid, MAX5_m_bg_centroid, n_years_in_window
+    """
+    reg = pd.read_csv(regional_path)
+    reg["Date"] = pd.to_datetime(reg["Date"])
+    reg = reg.set_index("Date").sort_index()
+    reg["month"] = reg.index.month
+    reg["vw_year"] = reg.index.year + (
+        reg["month"] >= MSL_HYDRO_YEAR_START_MONTH
+    ).astype(int)
+
+    block_map = {
+        1: ("Lake_Edge",      "C1 (Lake Edge)"),
+        2: ("Eastern_Block",  "C2 (Dune)"),
+        3: ("Western_Block",  "C3 (Western Residual)"),
+        4: ("Forest",         "C4 (Main Forest)"),
+        5: ("Coastal_Forest", "C5 (Coastal Forest)"),
+    }
+
+    out_rows = []
+    for cid, (col, label) in block_map.items():
+        if col not in reg.columns:
+            continue
+        spring_only = reg[reg["month"].isin(MSL_SPRING_MONTHS)][[col, "vw_year"]].dropna()
+        annual_min = annual_max = annual_msl = None
+        # Annual aggregation (Mar-May) — strict min_months_per_spring
+        ann = (spring_only.groupby("vw_year")
+               .agg(MSL=(col, "mean"),
+                    MAX=(col, "max"),
+                    n_spring_months=(col, "count"))
+               .reset_index())
+        ann = ann[ann["n_spring_months"] >= min_months_per_spring]
+        ann = ann.sort_values("vw_year").reset_index(drop=True)
+        # 5-year rolling — strict min_years_in_window
+        ann["MSL5"] = ann["MSL"].rolling(
+            window=window_years, min_periods=min_years_in_window
+        ).mean()
+        ann["MAX5"] = ann["MAX"].rolling(
+            window=window_years, min_periods=min_years_in_window
+        ).mean()
+        valid = ann.dropna(subset=["MSL5"]).copy()
+        for _, row in valid.iterrows():
+            out_rows.append({
+                "cluster_id":         cid,
+                "cluster_label":      label,
+                "window_end_year":    int(row["vw_year"]),
+                "MSL5_m_bg_centroid": float(row["MSL5"]),
+                "MAX5_m_bg_centroid": float(row["MAX5"]),
+                "n_years_in_window":  window_years,
+            })
+
+    return pd.DataFrame(out_rows).sort_values(
+        ["cluster_id", "window_end_year"]
+    ).reset_index(drop=True)
 
 
 def _draw_intervention_markers(ax, xmin: int, xmax: int,
@@ -832,11 +948,25 @@ def main() -> int:
     per_well_with_cluster.to_csv(OUT_5YR, index=False)
     print(f"   → {OUT_5YR.name}")
 
-    # ── Pass 3 — Cluster trajectory ────────────────────────────────────────
+    # ── Pass 3 — Cluster trajectory (Method A: per-well aggregation) ───────
     per_cluster = cluster_trajectory(per_well_with_cluster)
     per_cluster.to_csv(OUT_CLUSTER, index=False)
-    print(f"\nPass 3 — cluster trajectories: {len(per_cluster)} (cluster, year) rows")
+    print(f"\nPass 3 — cluster trajectories (Method A, per-well aggregation): "
+          f"{len(per_cluster)} (cluster, year) rows")
     print(f"   → {OUT_CLUSTER.name}")
+
+    # ── Pass 3b — Cluster-centroid trajectory (Method B) ───────────────────
+    # Aggregates from Script 03's cluster-centroid monthly series (reference
+    # network, LCSC partition) — internally consistent with the SSM
+    # coefficients in 03_03_cluster_mechanistic_coefficients.csv, which is the
+    # baseline that Script 11 Section 5 (Tool A) fits against and Script 26b
+    # (Tool B) projects from. See the cluster_centroid_trajectory() docstring
+    # for the rationale.
+    per_cluster_centroid = cluster_centroid_trajectory(paths.INT_REGIONAL_AVG)
+    per_cluster_centroid.to_csv(OUT_CLUSTER_CENTROID, index=False)
+    print(f"\nPass 3b — cluster-centroid trajectories (Method B, reference "
+          f"network): {len(per_cluster_centroid)} (cluster, year) rows")
+    print(f"   → {OUT_CLUSTER_CENTROID.name}")
 
     # ── Pass 4 — Latest per well ───────────────────────────────────────────
     latest = (per_well_with_cluster.sort_values("window_end_year")

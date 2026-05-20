@@ -5,21 +5,21 @@ This document describes the data flow between all pipeline scripts: which files 
 
 **Generated from automated I/O audit of `src/` against GitHub `main`.**
 
-**Run order:** 01 → 02 → 03 → 04 → 05 → 06 → 07 → 08 → 09 (suite a–e) → 10 (suite a–h) → 11 → 11b → 00 → 14 → 12 → 13 → 15 → 17 → 16 → 18 → 19 → 20 → 21 → 25 (coastal) → 22 → 23 → 24 → 26 (grey)
+**Run order:** 01 → 02 → 03 → 04 → 05 → 06 → 07 → 08 → 09 (suite a–e) → 10 (suite a–h) → 11 → 11b → 00 → 14 → 12 → 13 → 15 → 17 → 16 → 18 → 19 → 20 → 21 → 25 (coastal) → 22 → 23 → 24 → 26 (van Willegen MSL) → 27 (grey)
 
-**28 pipeline steps across 13 phases.**
+**29 pipeline steps across 14 phases.**
 
-Phases 1–11 produce the main analytical results documented in the report. Phase 12 (Scripts 22–24) runs supplementary diagnostics. Phase 13 runs the greyscale figure-conversion utility (Script 26) as a callable utility step, retained in `run_analysis.py` but not treated as an analytical phase.
+Phases 1–11 produce the main analytical results documented in the report. Phase 12 (Scripts 22–24) runs supplementary diagnostics. Phase 13 runs the van Willegen et al. (2025) 5-year MSL aggregation (Script 26), an observational monitoring metric documented in §4.9.8 of the report. Phase 14 runs the greyscale figure-conversion utility (Script 27) as a callable post-processing step, retained in `run_analysis.py` but not treated as an analytical phase.
 
-The main analytical script for Phase 11 (step 24) is `25_coastal_gradient.py`. The greyscale utility for Phase 13 (step 28) is `26_greyscale_figures.py`. References to "Script 25" in this document mean the coastal-gradient analysis; the greyscale utility is referred to as "Script 26".
+The main analytical script for Phase 11 (step 24) is `25_coastal_gradient.py`. The van Willegen MSL script for Phase 13 (step 28) is `26_van_willegen_msl.py`. The greyscale utility for Phase 14 (step 29) is `27_greyscale_figures.py`. References to "Script 25" mean coastal-gradient; "Script 26" means van Willegen MSL; "Script 27" means greyscale post-processing.
 
 Script 09 is a modular suite orchestrated by `run_09_scraping.py` (09a → 09b → 09c → 09d → 09e). Script 10 is a modular suite orchestrated by `run_10_clearfell.py` (10a → 10b → 10c → 10d → 10e → 10f → 10g → 10h); within the suite, 10c (forest zone spatial analysis) is treated as supplementary, while the other seven sub-scripts contribute to the primary report results. All sub-modules can be run independently provided their upstream Phase 1–2 outputs exist.
 
 > **A note on step numbering in this document.** The canonical step numbers
-> are those reported by `run_analysis.py` (1–28). The inline `(step N)`
+> are those reported by `run_analysis.py` (1–29). The inline `(step N)`
 > annotations against individual outputs further down this document derive
 > from an automated I/O audit that flattens each sub-script into its own
-> numbered step, so those numbers run higher than 28 and do not match the
+> numbered step, so those numbers run higher than 29 and do not match the
 > orchestrator. Treat the run-order line above and the phase section
 > headings as canonical; treat the inline `(step N)` tags as audit
 > provenance markers only.
@@ -1040,6 +1040,49 @@ Summer climate via `scraping_common.load_summer_climate()`. Scenario constants
   - `OUT_24_SUN_CORR_SCATTER` passed to `plot_sun_corr_scatter`
 
 
+### Phase 13 — Van Willegen 5-year MSL aggregation
+
+#### Step 28 — 26_van_willegen_msl
+
+**Purpose.** Compute the unweighted 5-year mean spring water level (MSL5), the dune slack vegetation-monitoring metric identified by van Willegen et al. (2025, *Ecological Indicators* 170, 113016) as the best-performing hydrology predictor of community-mean Ellenberg EbF response. Spring is defined as the three months March–May within a Curreli / van Willegen "hydrology year B" (1 Jun *y*−1 to 31 May *y*). The 5-year average is computed across consecutive hydrology years with strict completeness rules (3 of 3 spring months valid per annual MSL; 5 of 5 annual MSLs valid per 5-year mean).
+
+The script is observational — it consumes Script 01's monthly water-level series and aggregates them. It does not use the SSM β coefficients or any other modelled quantities. Outputs are presented in the depth-below-ground frame (paper convention, negative = below ground) alongside the pipeline's native depth-below-pipe-top frame. The headline output is the per-cluster trajectory of MSL5 over the 2014–2025 window-end range (restricted from the 2009 start of the per-well CSVs because the reference network expanded materially between 2007 and 2010, and the first 5-year window drawn entirely from the post-2010 network is end-year 2014). A secondary 5-year mean of the annual maximum (MAX5) is carried as a column in the CSVs for cross-reference to van Willegen's secondary metric.
+
+The chapter's role in the report is monitoring-oriented, complementary to the predictive summer-minimum framework that drives the Script 11/11b threshold maps and the iterated P_flood derivation. The Curreli SD15b (−0.61 m) and SD16 (−0.98 m) reference lines are drawn on the trajectory plot for context; these are calibrated against summer minima, not MSL5, and the figure caption flags the ~0.54 m offset between the two metrics at the 5-year window scale (network-mean Pearson r = 0.95 with summer minima at the 5-year scale; see §S.18 of the Methods Supplement).
+
+**Reads.**
+
+- `01_wells_clean.csv` (Script 01 (step 1)) — reference-network monthly depths
+- `01_wells_extended.csv` (Script 01 (step 1)) — extended-network monthly depths
+- `01_well_elevations.csv` (Script 01 (step 1)) — Upstand_m for pipe→ground conversion
+- `01_locations.csv` (Script 01 (step 1)) — easting/northing for the spatial map
+- `01_wells_provenance.csv` (Script 01 (step 1)) — interpolated-cell flag (S.1 limit=1 policy)
+- `02_07_cluster_membership_k5.csv` (Script 02 (step 2)) — reference cluster IDs
+- `06_pear_membership_audit_sitewide.csv` (Script 06 (step 6)) — extended cluster IDs
+
+**Writes.**
+
+- `26_msl_annual_per_well.csv` — per (well, hydro_year) annual MSL and MAX with completeness flags
+- `26_msl_5yr_per_well.csv` — per (well, end_year) 5-year MSL5 and MAX5 with cluster IDs
+- `26_msl_5yr_per_cluster.csv` — cluster-mean trajectory: mean, median, std per (cluster, end_year)
+- `26_msl_5yr_latest_per_well.csv` — most-recent valid MSL5 per well (input for the spatial map)
+- `26_msl_5yr_trajectory.png` — cluster-mean MSL5 trajectory with SD15b/SD16 reference lines and intervention markers (report figure)
+- `26_msl_5yr_map.png` — IDW-interpolated MSL5 surface with DEM hillshade, KML overlays, ridge mask; van Willegen quadrat wells flagged (report figure)
+- `26_msl_5yr_quadrat_wells.png` — per-well trajectories at the 17 van Willegen co-located quadrat wells (supplement figure)
+- `26_msl_results.txt` — run transcript with cluster summary and per-quadrat-well values
+
+**Other.**
+
+  - `INTERVENTION_MARKERS` built from `utils.scraping_common` canonical dates (SCRAPING_DATE, INTERVENTION_DATE, SCRAPING_DATE_2)
+  - All methodological constants sourced from `utils.config` (MSL_SPRING_MONTHS, MSL_MIN_MONTHS_PER_SPRING, MSL_MIN_YEARS_IN_WINDOW, MSL_TRAJECTORY_START_YEAR, VW_QUADRAT_WELLS)
+  - All output paths sourced from `utils.paths` (OUT_26_*)
+
+
+### Phase 14 — Greyscale Figure Conversion (post-processing)
+
+Step 29 — `27_greyscale_figures.py` — converts all colour figures in `outputs/` to journal-ready greyscale versions under `outputs_bw/`. Discovery-based: rglobs the colour output tree; no per-figure paths needed. See the script docstring for usage flags (`--enhanced`, `--dpi`, `--skip-maps`, `--exclude-problem`, `--dry-run`). Renamed from `26_greyscale_figures.py` on 2026-05-20 to free script number 26 for the van Willegen MSL step.
+
+
 ---
 
 ## Paper tables — quick reference
@@ -1131,6 +1174,11 @@ All scripts import physical and statistical constants from `utils/config.py`. Th
 - `REFERENCE_CUTOFF_DATE = '2026-02-01'` — reference-network selection cutoff
 - `CLUSTER_LABELS / CLUSTER_COLOURS / CLUSTER_MARKERS` — k=5 partition (C1 Lake Edge, C2 Dune, C3 Western Residual, C4 Main Forest, C5 Coastal Forest)
 - `SD15b / SD15b_REC / SD16 / SD16_REC` — Curreli (2013) ecological thresholds
+- `MSL_SPRING_MONTHS = (3, 4, 5)` / `MSL_HYDRO_YEAR_START_MONTH = 6` / `MSL_DEFAULT_WINDOW_YEARS = 5` — van Willegen (2025) 5-year MSL definition
+- `MSL_MIN_MONTHS_PER_SPRING = 3` / `MSL_MIN_YEARS_IN_WINDOW = 5` — strictness rules (3-of-3 spring months, 5-of-5 annual MSLs)
+- `MSL_TRAJECTORY_START_YEAR = 2014` — first window-end drawn entirely from the post-2010 network
+- `VW_QUADRAT_WELLS` — the 17 piezometers van Willegen (2025) co-located with permanent vegetation quadrats (calibrated EbF reference subset)
+- `INTERVENTION_COLOUR_SCRAPE = '#7b3294'` / `INTERVENTION_COLOUR_CLEARFELL = '#e66101'` — print-safe colours for trajectory event markers
 - `UKCP18_*_P_*` / `UKCP18_*_PET_*` — UKCP18 RCP8.5 Wales scenario multipliers
 
 SSM keys used throughout the pipeline are the **long form**: `beta_1_recharge`, `beta_2_atmospheric_draw`, `beta_3_drainage`. These are the column names in `03_master_data.csv` and the keys returned by `model_utils.fit_ssm()`.

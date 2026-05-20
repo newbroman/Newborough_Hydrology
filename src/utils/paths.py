@@ -54,7 +54,8 @@ DIR_22 = OUT_DIR / "22_residual_lag_analysis"
 DIR_23 = OUT_DIR / "23_ridge_recharge_lag_test"
 DIR_24 = OUT_DIR / "24_residual_seasonality"
 DIR_25 = OUT_DIR / "25_coastal_gradient"
-DIR_26 = OUT_DIR / "26_greyscale_figures"
+DIR_26 = OUT_DIR / "26_van_willegen_msl"
+DIR_27 = OUT_DIR / "27_greyscale_figures"
 
 ALL_DIRS = [
     OUT_DIR,
@@ -62,7 +63,7 @@ ALL_DIRS = [
     DIR_02, DIR_03, DIR_04, DIR_05, DIR_06, DIR_07,
     DIR_08, DIR_09, DIR_10, DIR_10C, DIR_11, DIR_11B, DIR_12, DIR_13, DIR_14,
     DIR_15, DIR_16, DIR_17, DIR_18, DIR_19, DIR_20, DIR_21, DIR_22, DIR_23, DIR_24,
-    DIR_25, DIR_26,
+    DIR_25, DIR_26, DIR_27,
 ]
 
 
@@ -461,6 +462,16 @@ OUT_25_FIT_DIAGNOSTIC     = DIR_25 / "25_05_fit_diagnostic.jpg"
 OUT_25_BACI_CHART         = DIR_25 / "25_06_baci_corroboration_chart.jpg"
 OUT_25_REPORT_NUMBERS     = DIR_25 / "25_report_numbers.csv"
 
-# Script 26 — Greyscale figure conversion (Phase 13, post-processing)
+# Script 26 — Van Willegen et al. (2025) 5-year MSL aggregation (Phase 13)
+OUT_26_ANNUAL_PER_WELL    = DIR_26 / "26_msl_annual_per_well.csv"
+OUT_26_5YR_PER_WELL       = DIR_26 / "26_msl_5yr_per_well.csv"
+OUT_26_5YR_PER_CLUSTER    = DIR_26 / "26_msl_5yr_per_cluster.csv"
+OUT_26_5YR_LATEST_PER_WELL = DIR_26 / "26_msl_5yr_latest_per_well.csv"
+OUT_26_TRAJECTORY         = DIR_26 / "26_msl_5yr_trajectory.png"
+OUT_26_QUADRAT_WELLS      = DIR_26 / "26_msl_5yr_quadrat_wells.png"
+OUT_26_MAP                = DIR_26 / "26_msl_5yr_map.png"
+OUT_26_RESULTS_TXT        = DIR_26 / "26_msl_results.txt"
+
+# Script 27 — Greyscale figure conversion (Phase 14, post-processing)
 # Uses discovery-based rglob over outputs/ — no per-figure path entries needed.
 # Output tree mirrors outputs/ structure under outputs_bw/.

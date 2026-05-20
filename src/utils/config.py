@@ -153,6 +153,59 @@ SD16_REC  = 1.20   # m — dry slack recovery / excavation limit
 SD15b_WINTER = 0.10  # m — winter flooding limit for wet slack
 SD16_WINTER  = 0.25  # m — winter flooding limit for dry slack
 
+# ── Ecological metric — van Willegen et al. (2025) ────────────────────────────
+# Five-year mean spring water level (MSL) — best-performing hydrology metric
+# for dune slack vegetation response (Ellenberg EbF), per van Willegen et al.
+# 2025 Ecological Indicators 170, 113016. Used by Script 26.
+#
+# Definitions (van Willegen 2025, paper's "hydrology year B"):
+#   * Spring window  : 1 March – 31 May  (calendar months 3, 4, 5)
+#   * Hydrology year : 1 June (y-1) to 31 May (y)
+#   * Annual MSL_y   : unweighted mean of {Mar, Apr, May} levels in hy y
+#   * 5-year MSL5(y) : unweighted mean of {MSL_{y-4} ... MSL_y}
+#
+# Strictness (orchestrator decision 2026-05-20):
+#   * 3 of 3 spring months required for a valid annual MSL
+#   * 5 of 5 annual MSLs required for a valid 5-year mean
+#
+# These match van Willegen's "3 months per spring as a minimum requirement"
+# recommendation; the 5/5 rule eliminates ambiguous partial windows.
+MSL_SPRING_MONTHS          = (3, 4, 5)
+MSL_HYDRO_YEAR_START_MONTH = 6
+MSL_DEFAULT_WINDOW_YEARS   = 5
+MSL_MIN_MONTHS_PER_SPRING  = 3
+MSL_MIN_YEARS_IN_WINDOW    = 5
+
+# Plot-presentation: trajectory figures restricted to window-ends ≥ this year.
+# The reference + extended network expanded materially between 2007 and 2010
+# as CEH instrumentation came online; pre-2010 windows are dominated by ~10
+# NW wells whereas from 2010 the network exceeds 60 wells. The first 5-year
+# window drawn entirely from the post-2010 network is end-year 2014 (covering
+# 2010–2014). Per-well CSVs retain the full record; only the cluster
+# trajectory and quadrat-wells figures are clipped.
+# Consistent with van Willegen's 2010–2019 analysis period.
+MSL_TRAJECTORY_START_YEAR = 2014
+
+# Van Willegen et al. (2025) used these 17 piezometers with co-located
+# permanent vegetation quadrats (their Table 1). MSL5 at these wells is
+# directly tied to a calibrated EbF response; at all other wells it is a
+# hydrological metric only. Used by Script 26's quadrat-wells figure and
+# by the map figure's yellow-diamond annotation.
+VW_QUADRAT_WELLS = (
+    "ceh8", "ceh24", "wmc2", "ceh23", "ceh26", "nw3",
+    "ceh9", "ceh22", "nw4", "t41",
+    "ceh4", "ceh5", "nw5", "nw6",
+    "ceh1", "nw2", "nw7",
+)
+
+# ── Intervention marker colours ───────────────────────────────────────────────
+# Used by Script 26's trajectory plots; reserved for re-use by any future
+# script that wants to overlay scrape / clearfell event lines.
+# Colours chosen to be print-safe and to read distinctly from the
+# CLUSTER_COLOURS palette above.
+INTERVENTION_COLOUR_SCRAPE   = "#7b3294"  # purple — CEH36 scrape (2015) and CEH18/21 re-scrape (2023)
+INTERVENTION_COLOUR_CLEARFELL = "#e66101"  # orange — December 2017 pine clearfell
+
 # ── Broadleaf interception ────────────────────────────────────────────────────
 # Deciduous annual-mean interception fraction — Komatsu et al. (2011).
 # Approximates summer (~25 %, leafed) and winter (~0 %, leafless) averaged

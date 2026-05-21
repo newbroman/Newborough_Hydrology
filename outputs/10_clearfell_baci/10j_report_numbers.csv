@@ -1,0 +1,10 @@
+Parameter,Well,Era,Value,Unit,Note
+ImpactVsEdge_monthly_clearfell_step,Impact,Post_felling,0.0634,m,"p=0.0002, CI=[0.0302,0.0965]"
+ImpactVsEdge_monthly_clearfell_step_se,Impact,Post_felling,0.0169,m,
+ImpactVsEdge_monthly_scraping_step,Impact,Post_scraping,-0.0196,m,p=0.3103
+ImpactVsEdge_monthly_R2,Impact,,0.8327,,Model R²
+ImpactVsEdge_monthly_N,Impact,,916.0,months,Sample size
+ImpactVsEdge_summer_clearfell_step,Impact,Post_felling_Jun-Sep,-0.0314,m,"p=0.1014, CI=[-0.0689,0.0062]"
+ImpactVsEdge_summer_clearfell_step_se,Impact,Post_felling_Jun-Sep,0.0192,m,
+ImpactVsEdge_summer_R2,Impact,,0.6961,,Model R²
+ImpactVsEdge_summer_N,Impact,,65.0,well-years,Sample size

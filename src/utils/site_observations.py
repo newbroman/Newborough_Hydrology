@@ -59,7 +59,12 @@ Adding a new observation
    pipeline-sourced values rather than defaults.
 """
 
-__version__ = "1.0.1"  # Hollingham (2026) — 2026-05-17
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-05-21
+# 1.1.0 — Registered four new observations produced by Script 10j
+#         (direct Impact-vs-Edge BACI contrasts at monthly and
+#         annual-summer-minimum resolution):
+#         impact_vs_edge_clearfell_monthly_step (+ _se)
+#         impact_vs_edge_clearfell_summer_step  (+ _se)
 # 1.0.1 — update_site_observation() now auto-bootstraps the registry if
 #         the CSV doesn't exist (by calling write_initial_site_observations
 #         internally) rather than raising FileNotFoundError.  Producer
@@ -106,6 +111,30 @@ _KNOWN_OBSERVATIONS = {
         "unit": "m/yr",
         "producer": "16",
         "description": "Long-term annual P − PET (water balance, RAF Valley)",
+    },
+    "impact_vs_edge_clearfell_monthly_step": {
+        "default": 0.063,
+        "unit": "m",
+        "producer": "10j",
+        "description": "Direct Impact-vs-Edge BACI contrast — monthly differential felling step (Impact − Edge, CWB-corrected, well-FE, cluster-robust)",
+    },
+    "impact_vs_edge_clearfell_monthly_step_se": {
+        "default": 0.017,
+        "unit": "m",
+        "producer": "10j",
+        "description": "Standard error of impact_vs_edge_clearfell_monthly_step",
+    },
+    "impact_vs_edge_clearfell_summer_step": {
+        "default": 0.0,
+        "unit": "m",
+        "producer": "10j",
+        "description": "Direct Impact-vs-Edge BACI contrast — annual Jun–Sep minimum differential felling step (Impact − Edge, well-FE, cluster-robust)",
+    },
+    "impact_vs_edge_clearfell_summer_step_se": {
+        "default": 0.05,
+        "unit": "m",
+        "producer": "10j",
+        "description": "Standard error of impact_vs_edge_clearfell_summer_step",
     },
 }
 

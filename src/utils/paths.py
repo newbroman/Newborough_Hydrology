@@ -313,6 +313,13 @@ OUT_10H_REPORT              = DIR_10 / "10h_report_numbers.csv"
 
 # Script 10i — CEH34 donor-regression hindcast (CEH9 donor)
 OUT_10I_HINDCAST            = DIR_10 / "10i_01_ceh34_hindcast.csv"
+
+# 10j — direct Impact-vs-Edge contrast (no external control)
+OUT_10J_MONTHLY_RESULTS     = DIR_10 / "10j_01_monthly_contrast_results.csv"
+OUT_10J_SUMMER_RESULTS      = DIR_10 / "10j_02_summer_contrast_results.csv"
+OUT_10J_TIMESERIES_FIG      = DIR_10 / "10j_03_contrast_timeseries.jpg"
+OUT_10J_SUMMER_FIG          = DIR_10 / "10j_04_summer_minima_contrast.jpg"
+OUT_10J_REPORT              = DIR_10 / "10j_report_numbers.csv"
 OUT_10I_REGRESSION          = DIR_10 / "10i_02_donor_regression.csv"
 OUT_10I_DIAGNOSTIC          = DIR_10 / "10i_03_hindcast_diagnostic.png"
 OUT_10I_REPORT              = DIR_10 / "10i_report_numbers.csv"

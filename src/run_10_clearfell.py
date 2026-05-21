@@ -1,6 +1,6 @@
 """
 run_10_clearfell.py — Clearfell BACI Analysis Suite Runner
-Runs the modular Script 10 sub-scripts (10a–10i) in order and
+Runs the modular Script 10 sub-scripts (10a–10j) in order and
 consolidates report numbers.
 
 Usage
@@ -24,6 +24,7 @@ Main (primary report results):
   10f  Robustness analyses (SSM residual, synthetic control)
   10g  Diagnostics (NW10 trend, transect, rolling coefficients)
   10h  Synthetic FE well extension BACI (donor regression)
+  10j  Direct Impact-vs-Edge contrast (no external control)
 
 Supplementary (additional spatial diagnostic, not in the main report
 results chain):
@@ -36,12 +37,14 @@ Dependencies
 ------------
   10i is a prerequisite for 10a, 10b, 10e, 10h (CEH34 hindcast).
        10d and 10f intentionally do not consume the hindcast.
+       10j does not consume the hindcast.
   10b and 10c read from Script 03 outputs (independent of 10a).
   10d and 10e are independent of 10a but benefit from its report numbers
   for the predicted-vs-observed comparison in 10e.
   10f reads 10a outputs for the ANCOVA comparison.
   10g is standalone diagnostics.
   10h reads 10a outputs for the FE-well synthetic-extension corroboration.
+  10j reads 10d's summer-minima output for the annual-resolution contrast.
 """
 
 import subprocess
@@ -69,6 +72,7 @@ SUBSCRIPTS = [
     ("10f_robustness.py",               "10f", "Robustness analyses"),
     ("10g_diagnostics.py",              "10g", "Diagnostics"),
     ("10h_synthetic_impact_baci.py",    "10h", "Synthetic FE well extension BACI"),
+    ("10j_impact_edge_contrast.py",     "10j", "Direct Impact-vs-Edge contrast (monthly + summer)"),
 ]
 
 

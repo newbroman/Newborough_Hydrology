@@ -5,7 +5,7 @@ This document describes the data flow between all pipeline scripts: which files 
 
 **Generated from automated I/O audit of `src/` against GitHub `main`.**
 
-**Run order:** 01 → 02 → 03 → 04 → 05 → 06 → 07 → 08 → 09 (suite a–e) → 10 (suite a–h) → 11 → 11b → 00 → 14 → 12 → 13 → 15 → 17 → 16 → 18 → 19 → 20 → 21 → 25 (coastal) → 22 → 23 → 24 → 26 (van Willegen MSL) → 27 (grey)
+**Run order:** 01 → 02 → 03 → 04 → 05 → 06 → 07 → 08 → 09 (suite a–e) → 10 (suite i, a, b, c, d, e, f, g, h, j) → 11 → 11b → 00 → 14 → 12 → 13 → 15 → 17 → 16 → 18 → 19 → 20 → 21 → 25 (coastal) → 22 → 23 → 24 → 26 (van Willegen MSL) → 27 (grey)
 
 **30 pipeline steps across 14 phases.**
 
@@ -15,7 +15,7 @@ The main analytical script for Phase 11 (step 24) is `25_coastal_gradient.py`. P
 
 Note on Script 11 (forecasting thresholds, Phase 1 / step 22). Section 5 of that script — a per-cluster empirical spring MSL transfer function — was added 2026-05-20 as the predictive companion to Script 26's monitoring metric. The transfer function reads from `03_regional_averages.csv` and produces cluster MSL_y forecasts from antecedent winter peak and Oct–May P/PET. See the per-script entry for Script 11 below and §S.18b of the Methods Supplement.
 
-Script 09 is a modular suite orchestrated by `run_09_scraping.py` (09a → 09b → 09c → 09d → 09e). Script 10 is a modular suite orchestrated by `run_10_clearfell.py` (10a → 10b → 10c → 10d → 10e → 10f → 10g → 10h); within the suite, 10c (forest zone spatial analysis) is treated as supplementary, while the other seven sub-scripts contribute to the primary report results. All sub-modules can be run independently provided their upstream Phase 1–2 outputs exist.
+Script 09 is a modular suite orchestrated by `run_09_scraping.py` (09a → 09b → 09c → 09d → 09e). Script 10 is a modular suite orchestrated by `run_10_clearfell.py`. The full sub-script set is 10a–10j; 10i (CEH34 donor-regression hindcast) runs first as a prerequisite for 10a/10b/10e/10h, and 10j (direct Impact-vs-Edge contrast) runs last after 10d's summer-minima output is available. Within the suite, 10c (forest zone spatial analysis) is treated as supplementary, while the other nine sub-scripts contribute to the primary report results. All sub-modules can be run independently provided their upstream Phase 1–2 outputs exist.
 
 > **A note on step numbering in this document.** The canonical step numbers
 > are those reported by `run_analysis.py` (1–30). The inline `(step N)`
@@ -59,6 +59,8 @@ python run_analysis.py --from 9
 - Script 11b requires outputs from Scripts 11 (P_flood equations) and 06 (extended Pearson audit).
 - Script 21 requires `03_regional_averages_maod.csv` from Script 03, plus Scripts 10a (BACI step) and 10e (β₂ multiplier).
 - Script 14 requires `00_well_network_summary.csv` from Script 00 and `02_cluster_stats.csv` from Script 02.
+- Sub-script 10i (CEH34 hindcast) is a prerequisite for 10a / 10b / 10e / 10h and must run first within the Script 10 suite; 10d, 10f, and 10j do not consume the hindcast.
+- Sub-script 10j (direct Impact-vs-Edge contrast) reads `10d_01_summer_minima.csv` from Script 10d and must run after 10d within the Script 10 suite.
 
 ## Consolidated pipeline parameters (`pipeline_params.py`)
 
@@ -485,6 +487,19 @@ Summer climate via `scraping_common.load_summer_climate()`. Scenario constants
 - `09_scrape_08_ceh36_robustness.png`
 
 
+#### Step 13a — 10i_ceh34_hindcast (prerequisite)
+
+**Purpose.** CEH34 donor-regression hindcast. Reconstructs a pre-2014 trajectory for the synthetic FE well at the WMC3 spatial position using CEH9 as the donor under a linear regression calibrated on the overlap period. Consumed by 10a, 10b, 10e, 10h via `clearfell_common.apply_ceh34_hindcast()`. 10d, 10f, and 10j do not consume the hindcast.
+
+**Reads.**
+
+- `01_wells_clean.csv` (Script 01 (step 1))
+
+**Writes.**
+
+- `10i_01_ceh34_hindcast.csv`
+
+
 #### Step 14 — 10a_ancova_baci
 
 **Purpose.** Three-counterfactual ANCOVA-BACI — primary clearfell BACI result. Forest-control, coastal-control, climate-control comparisons.
@@ -615,6 +630,29 @@ Summer climate via `scraping_common.load_summer_climate()`. Scenario constants
 - `10h_09_cusum_varB.png`
 - `10h_10_climate_sensitivity_varB.png`
 - `10h_report_numbers.csv`
+
+
+#### Step 21a — 10j_impact_edge_contrast
+
+**Purpose.** Direct Impact-vs-Edge BACI contrast that does not invoke an external counterfactual tier. Uses the four Edge wells (CEH16, CEH20, CEH30, CEH31) as the spatial buffer for the Impact tier (WMC3): both share coastal-retreat gradient, climate forcing, and regional groundwater drift, while only the Impact tier experienced the clear-fell treatment. Fits two pooled BACI models — a monthly-mean OLS with well-FE, CWB covariate, and an Impact:Scraped1 asymmetry term (the Edge wells sit outside the 2015 scraping footprint), and an annual Jun–Sep minima OLS with well-FE, on the measured-only summer-minima frame produced by Script 10d. Reports the differential felling step (Impact − Edge) at both resolutions, written to the site-observations registry for downstream consumption. Offered as a corroborator of the headline 10a result whose identification does not pass through any easting × time coastal-erosion covariate.
+
+**Reads.**
+
+- `01_wells_clean.csv` (Script 01 (step 1))
+- `01_climate.csv` (Script 01 (step 1))
+- `10d_01_summer_minima.csv` (Script 10D (step 17))
+
+**Writes.**
+
+- `10j_01_monthly_contrast_results.csv`
+- `10j_02_summer_contrast_results.csv`
+- `10j_03_contrast_timeseries.jpg`
+- `10j_04_summer_minima_contrast.jpg`
+- `10j_report_numbers.csv`
+
+**Other.**
+
+  - Updates four entries in `pipeline_site_observations.csv` via `site_observations.update_site_observation()`: `impact_vs_edge_clearfell_monthly_step` (+ `_se`), `impact_vs_edge_clearfell_summer_step` (+ `_se`).
 
 
 #### Step 22 — 11_forecasting_thresholds

@@ -1,0 +1,2 @@
+estimator,clearfell_step_m,clearfell_step_se_m,clearfell_ci_lo_m,clearfell_ci_hi_m,clearfell_p,edge_post_b_m,edge_post_p,R2,N,n_impact_years,n_edge_years
+OLS_well_FE_cluster_robust,0.0213,0.0203,-0.0185,0.0611,0.29468259157659094,-0.0246,0.22556117875740656,0.7309,64,13,51

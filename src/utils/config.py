@@ -1,0 +1,477 @@
+"""
+utils/config.py
+Shared constants for cluster colours, labels, and DEM rendering scale.
+All scripts import from here so that palette and scale changes propagate everywhere.
+
+The current partition is k=5 (see 02_clustering.py CLUSTER_PARTITIONING_CONFIG
+docstring for the rationale). CLUSTER_COLOURS and CLUSTER_MARKERS keep a C6
+entry reserved for future extension, but CLUSTER_LABELS is authoritative for
+which cluster IDs are currently in use — downstream code that needs to iterate
+over "all clusters" should iterate over CLUSTER_LABELS.keys().
+"""
+
+# ── Journal B&W mode ─────────────────────────────────────────────────────────
+# Toggle to produce journal-ready greyscale figures.
+# When True, scripts use CLUSTER_COLOURS_BW, apply BW_HATCHES to bar charts,
+# use BW_LINESTYLES for multi-series line plots, and call load_dem_auto()
+# (which routes to hillshade) for map basemaps.
+#
+# Can be activated three ways:
+#   1. Set BW_MODE = True here (permanent)
+#   2. Set environment variable NRG_BW_MODE=1 before running (temporary)
+#   3. Use run_analysis.py menu option 6 or --greyscale (sets env var)
+import os as _os
+BW_MODE = _os.environ.get("NRG_BW_MODE", "").strip().lower() in ("1", "true", "yes")
+if BW_MODE:
+    print("  [config.py] BW_MODE=True (NRG_BW_MODE env var detected)")
+
+CLUSTER_COLOURS = {
+    1: "#1a6faf",   # C1 Lake — old C1 blue
+    2: "#2ca02c",   # C2 Dune — old C2 green
+    3: "#d62728",   # C3 Western Residual — old C3 red
+    4: "#7f77dd",   # C4 Main Forest — old C4 purple
+    5: "#8B4513",   # C5 Coastal Forest — brown (saddlebrown)
+    6: "#0072B2",   # reserved
+}
+
+# Greyscale equivalents — chosen for maximum perceptual separation.
+# These map to luminance values spaced ~40 units apart on a 0–255 scale,
+# ensuring distinguishability even when printed on a low-quality laser.
+CLUSTER_COLOURS_BW = {
+    1: "#2a2a2a",   # C1 — near-black (L ≈ 42)
+    2: "#808080",   # C2 — mid-grey   (L ≈ 128)
+    3: "#b8b8b8",   # C3 — light grey (L ≈ 184)
+    4: "#545454",   # C4 — dark grey  (L ≈ 84)
+    5: "#a0a0a0",   # C5 — grey       (L ≈ 160)
+    6: "#d0d0d0",   # reserved
+}
+
+# Bar chart hatching patterns — used when BW_MODE is True.
+# Index by cluster ID or by series index for non-cluster bar charts.
+BW_HATCHES = {
+    1: "",       # C1 — solid fill (no hatch)
+    2: "///",    # C2 — diagonal lines
+    3: "...",    # C3 — dots
+    4: "xxx",    # C4 — crosses
+    5: "\\\\\\",   # C5 — back-diagonal
+    6: "+++",    # reserved
+}
+
+# General-purpose bar hatches for non-cluster series (e.g. P vs PET,
+# climate vs forest management scenarios).
+BW_BAR_HATCHES = ["", "///", "...", "xxx", "\\\\\\", "+++", "---", "ooo"]
+
+# Line styles for multi-series plots — cycle through these when BW_MODE
+# is True so lines are distinguishable without colour.
+BW_LINESTYLES = [
+    {"linestyle": "-",  "linewidth": 2.0},   # solid thick
+    {"linestyle": "--", "linewidth": 1.8},   # dashed
+    {"linestyle": ":",  "linewidth": 2.0},   # dotted
+    {"linestyle": "-.", "linewidth": 1.8},   # dash-dot
+    {"linestyle": (0, (5, 1)), "linewidth": 2.0},  # dense dash
+    {"linestyle": (0, (3, 1, 1, 1)), "linewidth": 1.8},  # dash-dot-dot
+]
+
+# Greyscale line tones — pair with BW_LINESTYLES for maximum contrast.
+# Darker lines for primary series, lighter for secondary/reference.
+BW_LINE_COLOURS = ["#000000", "#555555", "#888888", "#333333", "#aaaaaa", "#666666"]
+
+CLUSTER_LABELS = {
+    1: "C1 (Lake Edge)",
+    2: "C2 (Dune)",
+    3: "C3 (Western Residual)",
+    4: "C4 (Main Forest)",
+    5: "C5 (Coastal Forest)",
+}
+
+# SSM displacement reference datum. The state-space model fits β₃ on
+# displacement above this depth (h_disp = DRAINAGE_DATUM + h_depth, where
+# h_depth is negative-convention depth below ground surface). β₃ > 0 then
+# means "higher head above the drainage base drives faster drainage" —
+# Darcy-consistent.
+#
+# Value selected by sensitivity analysis (Script 03, output 03_08): 3.7 m
+# is the minimum reference depth at which all five clusters produce positive
+# AND significant (p < 0.05) β₃. See HANDOVER_SCRIPT03_DATUM.md.
+DRAINAGE_DATUM = 3.7  # metres below ground surface
+
+# Headline rainfall lag applied in the SSM and all per-well OLS regressions.
+# All scripts import this value rather than defining their own copy.
+#
+# History: originally set to 1 to compensate for a bucketing convention that
+# assigned end-of-month / start-of-next-month field readings to the FOLLOWING
+# calendar month (e.g. a reading on 01/09 representing August's water level
+# was bucketed to September). With lag-1 rainfall, September's model row used
+# August's rainfall — giving the correct physical pairing despite the
+# mislabelled month.
+#
+# After fixing the bucketing in Script 01 (day ≤ 15 → previous month), the
+# well data is correctly labelled and lag-0 gives the same physical pairing.
+# All regression coefficients are numerically identical.
+HEADLINE_LAG = 0
+
+# Canopy interception fraction for Corsican pine (Freeman, 2008).
+# Measured at C5 (Coastal Forest) throughfall gauge, applied to all
+# forested clusters (C4 and C5). The interception is a partition of the
+# PET energy budget: ET_at_WT = PET − I, so I is NOT additive to PET.
+# See INTERCEPTION_TREATMENT.md for the full derivation.
+FOREST_INTERCEPTION = 0.24
+
+# Cluster IDs carrying forest canopy (Corsican pine). These receive the
+# interception correction in water-balance, WTF, and scenario scripts.
+# Under k=5: C4 (Main Forest) and C5 (Coastal Forest).
+FOREST_CIDS = (4, 5)
+
+CLUSTER_MARKERS = {
+    1: "o",
+    2: "s",
+    3: "^",
+    4: "D",
+    5: "P",
+    6: "*",  # reserved
+}
+
+# Shared recency cutoff used for reference-network selection across scripts.
+REFERENCE_CUTOFF_DATE = "2026-02-01"
+
+# ── Site geography ────────────────────────────────────────────────────────────
+# RAF Valley climate station, Anglesey — latitude for Thornthwaite day-length
+# correction. Confirmed 53°14′32″N → 53.242° ≈ 53.25.
+RAF_VALLEY_LAT_DEG = 53.25
+
+# ── Ecological thresholds — Curreli et al. (2013) ────────────────────────────
+# Dune slack community viability limits, expressed as depth below ground
+# surface (m, positive downward). Applied in threshold forecasting (11, 11b),
+# climate projections (14), spatial viewer (19), and forestry scenarios (21).
+SD15b     = 0.61   # m — wet slack viability
+SD15b_REC = 0.75   # m — wet slack recovery / excavation limit
+SD16      = 0.98   # m — dry slack threshold
+SD16_REC  = 1.20   # m — dry slack recovery / excavation limit
+
+# Winter thresholds used in climate projections (negative = below ground
+# in the sign convention of Script 14's depth axis).
+SD15b_WINTER = 0.10  # m — winter flooding limit for wet slack
+SD16_WINTER  = 0.25  # m — winter flooding limit for dry slack
+
+# ── Ecological metric — van Willegen et al. (2025) ────────────────────────────
+# Five-year mean spring water level (MSL) — best-performing hydrology metric
+# for dune slack vegetation response (Ellenberg EbF), per van Willegen et al.
+# 2025 Ecological Indicators 170, 113016. Used by Script 26.
+#
+# Definitions (van Willegen 2025, paper's "hydrology year B"):
+#   * Spring window  : 1 March – 31 May  (calendar months 3, 4, 5)
+#   * Hydrology year : 1 June (y-1) to 31 May (y)
+#   * Annual MSL_y   : unweighted mean of {Mar, Apr, May} levels in hy y
+#   * 5-year MSL5(y) : unweighted mean of {MSL_{y-4} ... MSL_y}
+#
+# Strictness (orchestrator decision 2026-05-20):
+#   * 3 of 3 spring months required for a valid annual MSL
+#   * 5 of 5 annual MSLs required for a valid 5-year mean
+#
+# These match van Willegen's "3 months per spring as a minimum requirement"
+# recommendation; the 5/5 rule eliminates ambiguous partial windows.
+MSL_SPRING_MONTHS          = (3, 4, 5)
+MSL_HYDRO_YEAR_START_MONTH = 6
+MSL_DEFAULT_WINDOW_YEARS   = 5
+MSL_MIN_MONTHS_PER_SPRING  = 3
+MSL_MIN_YEARS_IN_WINDOW    = 5
+
+# Plot-presentation: trajectory figures restricted to window-ends ≥ this year.
+# The reference + extended network expanded materially between 2007 and 2010
+# as CEH instrumentation came online; pre-2010 windows are dominated by ~10
+# NW wells whereas from 2010 the network exceeds 60 wells. The first 5-year
+# window drawn entirely from the post-2010 network is end-year 2014 (covering
+# 2010–2014). Per-well CSVs retain the full record; only the cluster
+# trajectory and quadrat-wells figures are clipped.
+# Consistent with van Willegen's 2010–2019 analysis period.
+MSL_TRAJECTORY_START_YEAR = 2014
+
+# Van Willegen et al. (2025) used these 17 piezometers with co-located
+# permanent vegetation quadrats (their Table 1). MSL5 at these wells is
+# directly tied to a calibrated EbF response; at all other wells it is a
+# hydrological metric only. Used by Script 26's quadrat-wells figure and
+# by the map figure's yellow-diamond annotation.
+VW_QUADRAT_WELLS = (
+    "ceh8", "ceh24", "wmc2", "ceh23", "ceh26", "nw3",
+    "ceh9", "ceh22", "nw4", "t41",
+    "ceh4", "ceh5", "nw5", "nw6",
+    "ceh1", "nw2", "nw7",
+)
+
+# ── Intervention marker colours ───────────────────────────────────────────────
+# Used by Script 26's trajectory plots; reserved for re-use by any future
+# script that wants to overlay scrape / clearfell event lines.
+# Colours chosen to be print-safe and to read distinctly from the
+# CLUSTER_COLOURS palette above.
+INTERVENTION_COLOUR_SCRAPE   = "#7b3294"  # purple — CEH36 scrape (2015) and CEH18/21 re-scrape (2023)
+INTERVENTION_COLOUR_CLEARFELL = "#e66101"  # orange — December 2017 pine clearfell
+
+# Spatial scrape-footprint overlay colour, used by map_utils.add_kml_features()
+# to draw the GPS-traced scrape outlines as a shared site feature. Distinct from
+# INTERVENTION_COLOUR_SCRAPE (a temporal event-line colour); navy reads clearly
+# against the dodgerblue water features. BW-mode falls back to black dotted in
+# add_kml_features().
+FEATURE_COLOUR_SCRAPE = "navy"
+
+# Canonical list of GPS-traced scrape footprint KMLs (basenames, resolved under
+# data/geo/ via paths.data_geo). Single source of truth for both the shared
+# add_kml_features() outline layer and Script 20's scrape-drawdown registry.
+SCRAPE_KML_FILES = [
+    "ceh36_scrape.kml",
+    "CEH18_scrape.kml",
+    "CEH21_scrape.kml",
+    "CEH40_scrape.kml",
+    "CEH41_scrape.kml",
+    "CEH42_Scape.kml",   # preserved upstream "Scape" spelling
+    "Scrape_A.kml",
+    "Scrape_B.kml",
+]
+
+# ── Canonical site map extent (OSGB36 / EPSG:27700) ───────────────────────────
+# Used by all publication-quality spatial figures (scripts 04, 07, 08, 11b,
+# 12, 13, 18, 19, 20, 26). Chosen to crop the site to the dune Special Area
+# of Conservation footprint and forest block while excluding empty sea and
+# inland farmland. Matches the summer-minima map in Script 11b — the canonical
+# reference figure used by the report's spatial threshold framework.
+# A few Script 11b figures use a slightly wider y-extent (362100–365900) to
+# fit category-zone legend space; new scripts should default to the narrower
+# bounds defined here unless there is an explicit reason otherwise.
+SITE_MAP_EAST_MIN  = 240100
+SITE_MAP_EAST_MAX  = 243900
+SITE_MAP_NORTH_MIN = 362200
+SITE_MAP_NORTH_MAX = 365800
+
+# ── Broadleaf interception ────────────────────────────────────────────────────
+# Deciduous annual-mean interception fraction — Komatsu et al. (2011).
+# Approximates summer (~25 %, leafed) and winter (~0 %, leafless) averaged
+# over the year. Used in replanting scenarios (scripts 19, 21).
+BROADLEAF_INTERCEPTION = 0.15
+
+# Broadleaf summer β₂ multiplier — deciduous phenology effect on ET.
+# Derived from Script 21's monthly β₂ profile (Hollingham, 2026), averaged
+# over the canopy-on phenological window:
+#   May=0.98, Jun=1.08, Jul=1.12, Aug=1.15, Sep=1.10, Oct=1.02 → mean = 1.0750
+# Seasonal window choice — May–Oct (six months, canopy-on / β₂ ≥ ~1.0).
+# Aligns with the broadleaf canopy state: by May the canopy is essentially
+# functional; through October the canopy is still operative even as leaves
+# turn. April and November are assigned to winter because β₂ < 1 there.
+# This is a phenologically-aligned window choice specific to broadleaf β₂;
+# other seasonal-window definitions in the pipeline (Script 17 PET-negligible
+# Nov–Mar, Script 11b summer-minimum Jun–Sep) are unchanged — they reflect
+# different physical questions and retain their own justifications.
+# In full leaf, broadleaf transpiration exceeds pine transpiration despite
+# lower interception. This only applies to summer scenario bars; the
+# annual-mean effect is approximately ×1.0 (seasonal pattern cancels).
+BROADLEAF_B2_SUMMER = 1.0750
+
+# Broadleaf winter β₂ multiplier — leafless dormancy reduces ET draw.
+# Derived from Script 21's monthly β₂ profile (Hollingham, 2026), averaged
+# over the canopy-off phenological window:
+#   Nov=0.92, Dec=0.87, Jan=0.85, Feb=0.85, Mar=0.88, Apr=0.92 → mean ≈ 0.8817
+# Seasonal window choice — Nov–Apr (six months, canopy-off / β₂ < 1.0).
+# Pairs with the May–Oct summer window above; together they span all 12
+# months at the canopy-functional boundary. Leafless broadleaf canopy has
+# negligible transpiration; value < 1.0 reflects the reduced atmospheric
+# draw relative to evergreen pine.
+BROADLEAF_B2_WINTER = 0.8817
+
+# ── DEM colour scale ─────────────────────────────────────────────────────────
+# TwoSlopeNorm anchors used across all map products
+DEM_VMIN = 0.0
+DEM_VCENTER = 12.0
+DEM_VMAX = 35.0
+
+# ── UKCP18 RCP8.5 Wales central estimates ────────────────────────────────────
+# Seasonal precipitation and PET scaling factors for climate scenarios.
+# Source: UKCP18 probabilistic projections, 50th percentile, 2050s (2040-2069),
+# RCP8.5, Wales region. Applied as multipliers to the monitoring-period
+# climatology in Scripts 09d, 19, and 21.
+UKCP18_DRY_P_WINTER  = 1.05   # +5% winter P
+UKCP18_DRY_P_SUMMER  = 0.83   # −17% summer P
+UKCP18_DRY_PET_WINTER = 1.05  # +5% winter PET
+UKCP18_DRY_PET_SUMMER = 1.12  # +12% summer PET
+UKCP18_WET_P_WINTER  = 1.15   # +15% winter P
+UKCP18_WET_P_SUMMER  = 1.10   # +10% summer P
+UKCP18_WET_PET_WINTER = 0.98  # −2% winter PET
+UKCP18_WET_PET_SUMMER = 0.95  # −5% summer PET
+
+
+# ── BW-mode convenience functions ────────────────────────────────────────────
+
+def get_cluster_colours():
+    """Return the active cluster colour dict (colour or BW depending on mode)."""
+    return CLUSTER_COLOURS_BW if BW_MODE else CLUSTER_COLOURS
+
+
+def get_cluster_colour(cid: int):
+    """Return the colour for a single cluster (respects BW_MODE)."""
+    src = CLUSTER_COLOURS_BW if BW_MODE else CLUSTER_COLOURS
+    return src.get(cid, "#888888")
+
+
+def get_bar_hatch(index: int):
+    """Return a bar hatching pattern for series `index` (empty string if colour mode)."""
+    if not BW_MODE:
+        return ""
+    return BW_BAR_HATCHES[index % len(BW_BAR_HATCHES)]
+
+
+def get_line_style(index: int):
+    """Return a dict of linestyle + linewidth for series `index`.
+
+    In colour mode returns a default solid line; in BW mode cycles through
+    distinct dash patterns.
+
+    Usage: ax.plot(x, y, color=..., **get_line_style(i))
+    """
+    if not BW_MODE:
+        return {"linestyle": "-", "linewidth": 1.5}
+    return BW_LINESTYLES[index % len(BW_LINESTYLES)]
+
+
+def get_line_colour(index: int):
+    """Return a greyscale tone for series `index` (in BW mode).
+
+    In colour mode returns None (caller should use their own colour).
+    """
+    if not BW_MODE:
+        return None
+    return BW_LINE_COLOURS[index % len(BW_LINE_COLOURS)]
+
+
+def get_cmap(colour_cmap: str, bw_cmap: str = "Greys") -> str:
+    """Return the appropriate colormap name for the current mode.
+
+    Parameters
+    ----------
+    colour_cmap : str
+        Colormap to use in colour mode (e.g. "viridis", "RdYlGn").
+    bw_cmap : str
+        Colormap to use in BW mode (default "Greys" — linear light→dark).
+        Use "Greys_r" for dark→light if that better matches the semantics.
+
+    In BW mode, returns a truncated Greys colormap (light grey → black)
+    so the minimum value is distinguishable from a white background.
+
+    Usage: cmap = get_cmap("RdYlGn")
+    """
+    if not BW_MODE:
+        return colour_cmap
+    if bw_cmap == "Greys":
+        import matplotlib.pyplot as plt
+        from matplotlib.colors import LinearSegmentedColormap
+        base = plt.cm.Greys
+        # Truncate: start from 5% grey (near-white but distinguishable) to 100% black
+        colours = base(_import_numpy().linspace(0.05, 1.0, 256))
+        return LinearSegmentedColormap.from_list("Greys_trunc", colours)
+    return bw_cmap
+
+
+def _import_numpy():
+    """Lazy numpy import for get_cmap."""
+    import numpy as np
+    return np
+
+
+# ── Observation-state classification (Script 01 / coverage figure) ────────────
+# Field comments in the raw .ods records sheet encode WHY a monthly reading is
+# absent or special. utils.comment_states.classify_comment() maps each comment
+# to one of these states using the keyword lists below, tested in priority order
+# (first match wins). Keep vocabulary here, never in the parser. Added 2026-06-15.
+OBSERVATION_STATE_RULES = [
+    ("flooded",      ["flood", "over wel", "welly height",
+                      "water surface across", "site flooded"]),
+    ("not_found",    ["not found", "not located", "lost", "locate"]),
+    ("inaccessible", ["buried", "blocked", "ant", "dug up",
+                      "access to measuring point"]),
+    ("dry",          ["dry", "damp"]),
+]
+
+# CEH24/CEH34 level-surface flood estimates name the partner well rather than
+# using a flood keyword (e.g. "infered from CEH 24 level 0.12m lower"). A comment
+# referencing this paired level is treated as flooded.
+OBSERVATION_FLOOD_LEVEL_HINTS = ["ceh 24", "ceh24"]
+
+# Months treated as the dry season for INFERRED dry. A within-record blank with
+# no comment in these months -- or any blank inside a missing-run that contains
+# at least one recorded-dry month -- is marked dry_inferred.
+DRY_SEASON_MONTHS = (7, 8, 9, 10)
+
+# "dry at X" depths: values above this are centimetres and divided by 100 to give
+# metres (e.g. "dry at 110" -> 1.10 m); at or below are already metres.
+DRY_DEPTH_CM_THRESHOLD = 10.0
+
+
+# ── Observation-state figure palette (Script 01 coverage figure) ──────────────
+# Kept here (not in the script) alongside CLUSTER_COLOURS, with a BW variant and
+# hatches so the coverage figure is greyscale-safe under BW_MODE. Added 2026-06-15.
+OBS_STATE_COLOURS = {
+    "interpolated":   "#E0529C",
+    "dry_recorded":   "#E8A33D",
+    "dry_inferred":   "#F6D9A0",
+    "flooded":        "#2C7FB8",
+    "not_found":      "#CFCFCF",
+    "inaccessible":   "#8A8A8A",
+    "not_read":       "#FFFFFF",
+    "outside_record": "#FFFFFF",
+}
+OBS_STATE_COLOURS_BW = {
+    "dry_recorded":   "#4a4a4a",
+    "dry_inferred":   "#b0b0b0",
+    "flooded":        "#000000",
+    "not_found":      "#d8d8d8",
+    "inaccessible":   "#8a8a8a",
+    "not_read":       "#FFFFFF",
+    "outside_record": "#FFFFFF",
+}
+# Hatches always applied to the obstruction states (so they read in colour AND
+# greyscale); interpolated cells keep their cluster colour but gain a dot hatch
+# so single-month bridges are visible. In BW_MODE, dry/flooded also gain a hatch
+# for separation from the cluster greys of measured cells.
+OBS_STATE_HATCH    = {"not_found": "////", "inaccessible": "xxxx",
+                      "interpolated": ".."}
+OBS_STATE_HATCH_BW = {"dry_recorded": "..", "flooded": "\\\\",
+                      "not_found": "////", "inaccessible": "xxxx",
+                      "interpolated": ".."}
+
+
+def get_obs_state_colours():
+    """Active observation-state palette (respects BW_MODE)."""
+    return OBS_STATE_COLOURS_BW if BW_MODE else OBS_STATE_COLOURS
+
+
+def get_obs_state_hatches():
+    """Active observation-state hatch dict (respects BW_MODE)."""
+    return OBS_STATE_HATCH_BW if BW_MODE else OBS_STATE_HATCH
+
+
+# Canonical display start for the data-coverage figure. The lone 13/04/2005
+# pre-system reading buckets to March 2005 under the field convention; the
+# report's canonical record start is April 2005, so the figure axis starts here
+# and that single March 2005 cell is dropped from the display. Added 2026-06-15.
+RECORD_START_DISPLAY = "2005-04-01"
+
+
+# Study-area dipwells that are monitored but excluded from the classified
+# network, with the reason each is excluded. Shown as a grey presence-only block
+# at the foot of the coverage figure. Off-system points (the NF series on the
+# far side of the ridge, the Aberffraw wells, and temporary pool/slack markers)
+# are deliberately NOT listed here — they are not part of the Newborough study
+# area and do not appear in the figure. Added 2026-06-15 (author-supplied
+# reasons).
+EXCLUDED_STUDY_AREA_WELLS = {
+    "d29":  "short record",
+    "d29b": "short record",
+    "d31":  "short record",
+    "d33":  "short record",
+    "d34":  "short record",
+    "d39":  "short record",
+    "d45":  "short record",
+    "l4":   "short record",
+    "t29":  "short record",
+    "pdfs": "short record + tidal influence",
+}
+# The Llyn Rhos-Ddu lake gauge: a measuring point but not a dipwell and not
+# classified. It is the "+1" that makes 88 classified dipwells into 89 measuring
+# points. Shown in the grey block beneath the excluded dipwells.
+LAKE_GAUGE_REASON = "lake gauge — non-network measuring point"

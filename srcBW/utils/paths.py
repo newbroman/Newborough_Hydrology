@@ -1,0 +1,433 @@
+"""
+utils/paths.py
+Central definition of all input and output paths for the pipeline.
+
+All scripts import from here rather than hardcoding paths. If a file moves
+or is renamed, change it in one place and it propagates everywhere.
+
+Structure
+---------
+Intermediate files (read by downstream scripts) live in OUT_DIR root.
+Final outputs (figures, tables, reports) live in per-script subfolders.
+"""
+
+from pathlib import Path
+
+# ==========================================
+# ROOT DIRECTORIES
+# ==========================================
+_UTILS_DIR = Path(__file__).parent
+SRC_DIR = _UTILS_DIR.parent
+ROOT_DIR = SRC_DIR.parent
+
+DATA_DIR = ROOT_DIR / "data"
+OUT_DIR = ROOT_DIR / "outputs"
+
+# ==========================================
+# PER-SCRIPT OUTPUT SUBDIRECTORIES
+# ==========================================
+DIR_00 = OUT_DIR / "00_climate_summary"
+DIR_01 = OUT_DIR / "01_data_prep"
+DIR_02 = OUT_DIR / "02_clustering"
+DIR_03 = OUT_DIR / "03_state_space_model"
+DIR_04 = OUT_DIR / "04_cluster_visualisations"
+DIR_05 = OUT_DIR / "05_pearson_affinity"
+DIR_06 = OUT_DIR / "06_pearson_extended"
+DIR_07 = OUT_DIR / "07_spatial_coefficients"
+DIR_08 = OUT_DIR / "08_model_benchmarking"
+DIR_09 = OUT_DIR / "09_scraping_intervention"
+DIR_10 = OUT_DIR / "10_clearfell_baci"
+DIR_10C = OUT_DIR / "10c_forest_zone_analysis"
+DIR_11 = OUT_DIR / "11_forecasting_thresholds"
+DIR_11B = OUT_DIR / "11b_spatial_thresholds"
+DIR_12 = OUT_DIR / "12_figure_site_overview"
+DIR_13 = OUT_DIR / "13_figure_experimental_design"
+DIR_14 = OUT_DIR / "14_climate_projections"
+DIR_15 = OUT_DIR / "15_depth_dependent_pet"
+DIR_16 = OUT_DIR / "16_water_balance"
+DIR_17 = OUT_DIR / "17_wtf_specific_yield"
+DIR_18 = OUT_DIR / "18_wtf_spatial"
+DIR_19 = OUT_DIR / "19_spatial_groundwater"
+DIR_20 = OUT_DIR / "20_spatial_figures"
+DIR_21 = OUT_DIR / "21_forestry_scenarios"
+DIR_22 = OUT_DIR / "22_residual_lag_analysis"
+DIR_23 = OUT_DIR / "23_ridge_recharge_lag_test"
+DIR_24 = OUT_DIR / "24_residual_seasonality"
+
+ALL_DIRS = [
+    OUT_DIR,
+    DIR_00, DIR_01,
+    DIR_02, DIR_03, DIR_04, DIR_05, DIR_06, DIR_07,
+    DIR_08, DIR_09, DIR_10, DIR_10C, DIR_11, DIR_11B, DIR_12, DIR_13, DIR_14,
+    DIR_15, DIR_16, DIR_17, DIR_18, DIR_19, DIR_20, DIR_21, DIR_22, DIR_23, DIR_24,
+]
+
+
+def make_all_dirs():
+    """Create all output directories if they do not already exist."""
+    for d in ALL_DIRS:
+        d.mkdir(parents=True, exist_ok=True)
+
+
+# ==========================================
+# DATA INPUTS
+# ==========================================
+DATA_WELLS_RAW      = DATA_DIR / "Newborough_Cleaned_For_Model.csv"
+DATA_LOCATIONS_RAW  = DATA_DIR / "Well_locations_height.csv"
+DATA_CLIMATE_RAW    = DATA_DIR / "RAF_Valley_Climate.csv"
+DATA_DEM            = DATA_DIR / "newborough_dem.tif"
+DATA_KML_FEATURES   = DATA_DIR / "Features.kml"
+DATA_KML_STREAMS    = DATA_DIR / "streams.kml"
+DATA_KML_CLEARFELL  = DATA_DIR / "clearfell.kml"
+# Broadleaf restock block boundary — geometry also embedded in Features.kml
+# for automatic rendering via add_kml_features(); this entry retained for
+# any script that loads the boundary explicitly.
+KML_BROADLEAF        = DATA_DIR / "broadleaf_restock.kml"
+DATA_WELL_ELEVATIONS = DATA_DIR / "Well_locations_height.csv"  # alias for script 10 transect
+
+# ==========================================
+# INTERMEDIATE FILES — outputs/ root
+# (read by downstream scripts)
+# ==========================================
+
+# Script 01
+INT_LOCATIONS       = OUT_DIR / "01_locations.csv"
+INT_CLIMATE         = OUT_DIR / "01_climate.csv"
+INT_WELLS_CLEAN     = OUT_DIR / "01_wells_clean.csv"
+INT_WELLS_CLEAN_MAOD = OUT_DIR / "01_wells_clean_maod.csv"
+INT_WELLS_REFERENCE = OUT_DIR / "01_wells_reference.csv"
+INT_WELLS_EXTENDED  = OUT_DIR / "01_wells_extended.csv"
+INT_WELL_ELEVATIONS = OUT_DIR / "01_well_elevations.csv"
+INT_PIPELINE_PARAMS = DIR_01 / "pipeline_scenario_params.csv"
+
+# Script 02
+INT_CLUSTER_STATS   = OUT_DIR / "02_cluster_stats.csv"
+
+# Script 03
+INT_MASTER_DATA      = OUT_DIR / "03_master_data.csv"
+INT_REGIONAL_AVG     = OUT_DIR / "03_regional_averages.csv"
+INT_CLUSTER_AVG_MAOD = OUT_DIR / "03_regional_averages_maod.csv"  # cluster-mean maOD heads; produced by script 03, read by script 21
+# Long-term mean peak month per cluster (calendar month 1-12 of highest mean
+# water table). Derived from the cluster-centroid hydrograph in 03; consumed
+# by script 11's forecasting horizon. Stale-data hazard noted: rerun script 03
+# whenever the partition or the input window changes.
+INT_CLUSTER_PEAK_MONTHS = OUT_DIR / "03_cluster_peak_months.csv"
+
+# Script 05
+INT_PEAR_AUDIT      = OUT_DIR / "05_pear_membership_audit.csv"
+
+# Script 06
+INT_PEAR_AUDIT_SITEWIDE = OUT_DIR / "06_pear_membership_audit_sitewide.csv"
+
+# Script 07
+INT_COEFF_SUMMARY     = OUT_DIR / "07_coefficient_summary.csv"
+
+# Script 08
+INT_LCSC_MODEL_STATS  = OUT_DIR / "08_lcsc_model_stats.csv"
+
+# ==========================================
+# FINAL OUTPUTS — per-script subfolders
+# ==========================================
+
+# Script 00 — Climate summary
+OUT_00_CLIMATE_TIMESERIES   = DIR_00 / "00_01_climate_timeseries.png"
+OUT_00_WELL_NETWORK_FIG     = DIR_00 / "00_02_well_network_summary.png"
+OUT_00_SUMMER_WARMING       = DIR_00 / "00_03_summer_warming_trend.png"
+OUT_00_ANNUAL_CLIMATE_TABLE = DIR_00 / "00_01_annual_climate_summary.csv"
+OUT_00_WELL_NETWORK_TABLE   = DIR_00 / "00_02_well_network_summary.csv"
+OUT_00_SUMMER_WARMING_TABLE = DIR_00 / "00_03_summer_warming_stats.csv"
+
+# Script 02 — Clustering
+OUT_02_DENDROGRAM       = DIR_02 / "02_01_dendrogram.png"
+OUT_02_VALIDATION       = DIR_02 / "02_02_validation_plots.png"
+# Stability diagnostics (Phase 1 rebuild validation — bootstrap co-assignment,
+# k-sweep, per-well stability). See 02_clustering.py run_stability_diagnostics().
+OUT_02_VALIDATION_EXTENDED = DIR_02 / "02_02b_validation_k_sweep.png"
+OUT_02_STABILITY_SUMMARY   = DIR_02 / "02_04_bootstrap_stability_summary.csv"
+OUT_02_STABILITY_PER_WELL  = DIR_02 / "02_05_bootstrap_stability_per_well.csv"
+# The following two are templates — .format(k=...) is applied at the call site
+# because one file is written per bootstrap k value.
+OUT_02_COASSIGN_HEATMAP    = DIR_02 / "02_06_coassignment_heatmap_k{k}.png"
+OUT_02_MEMBERSHIP_SWEEP    = DIR_02 / "02_07_cluster_membership_k{k}.csv"
+# Cluster amplitude descriptors (pattern/amplitude orthogonality — Section 4.2).
+# Raw and climate-normalised seasonal amplitude (p90 - p10), per well and per
+# cluster median, plus distribution boxplot. Climate normalisation excludes
+# Jun-Sep of DROUGHT_SUMMERS = (2005, 2018, 2022), empirically identified in
+# the Lake-cluster follow-up from RAF Valley rainfall.
+OUT_02_AMP_PER_WELL     = DIR_02 / "02_08_cluster_amplitude_per_well.csv"
+OUT_02_AMP_SUMMARY      = DIR_02 / "02_09_cluster_amplitude_summary.csv"
+OUT_02_AMP_BOXPLOT      = DIR_02 / "02_10_cluster_amplitude_boxplot.png"
+
+# Script 03 — State-space model
+OUT_03_SIGNATURES          = DIR_03 / "03_01_mechanistic_signatures.png"
+OUT_03_SIGNATURES_WELLMEAN = DIR_03 / "03_01b_mechanistic_signatures_wellmean.png"
+OUT_03_CLUSTER_SUMMARY     = DIR_03 / "03_02_cluster_summary_table.csv"
+OUT_03_MECHANISTIC_TABLE   = DIR_03 / "03_03_cluster_mechanistic_coefficients.csv"
+
+# Script 04 — Cluster visualisations
+OUT_04_ARCHITECTURE_MAP = DIR_04 / "04_01_core_architecture_map.png"
+
+# Script 05 — Pearson affinity
+OUT_05_CONFIDENCE_MAP   = DIR_05 / "05_pear_01_spatial_confidence_map.png"
+
+# Script 06 — Pearson extended
+OUT_06_AFFINITY_CHART   = DIR_06 / "06_pear_01_affinity_chart_extended.png"
+OUT_06_INTEGRATION_MAP  = DIR_06 / "06_pear_02_integration_map.png"
+
+# Script 07 — Spatial coefficient maps
+OUT_07_BETA1_MAP            = DIR_07 / "07_coeff_01_beta1_recharge.png"
+OUT_07_BETA2_MAP            = DIR_07 / "07_coeff_02_beta2_atm_draw.png"
+OUT_07_BETA3_MAP            = DIR_07 / "07_coeff_03_beta3_drainage.png"
+OUT_07_R2_MAP               = DIR_07 / "07_coeff_04_r2_quality.png"
+OUT_07_MAPS_DATA            = DIR_07 / "07_coeff_maps_data.csv"
+
+# Script 08 — Model benchmarking
+OUT_08_SHOWDOWN             = DIR_08 / "08_lcsc_01_ceh6_showdown.png"
+OUT_08_R2_MAP               = DIR_08 / "08_lcsc_02_r2_improvement_map.png"
+OUT_08_NSE_MAP              = DIR_08 / "08_lcsc_03_nse_improvement_map.png"
+OUT_08_TABLE3_SUMMARY       = DIR_08 / "08_lcsc_04_table3_benchmark_summary.csv"
+
+# Script 09 — Scraping intervention
+OUT_09_FULL_PARAMS          = DIR_09 / "09_scrape_01_full_parameters.csv"
+OUT_09_BETA3_SIG            = DIR_09 / "09_scrape_02_beta3_significance.csv"
+OUT_09_BACI_SHIFTS          = DIR_09 / "09_scrape_03_baci_shifts.csv"
+OUT_09_NET_BENEFITS         = DIR_09 / "09_scrape_04_net_benefits.csv"
+OUT_09_TABLE4_SUMMARY       = DIR_09 / "09_scrape_04b_table4_beta3_era_summary.csv"
+OUT_09_TIER1_DRIFT          = DIR_09 / "09_scrape_05_tier1_background_drift.png"
+OUT_09_TIER2_SIGNAL         = DIR_09 / "09_scrape_06_tier2_scraping_signal.png"
+OUT_09_BETA3_CI             = DIR_09 / "09_scrape_07_beta3_confidence.png"
+OUT_09_ROBUSTNESS           = DIR_09 / "09_scrape_08_ceh36_robustness.png"
+OUT_09_REPORT_NUMBERS       = DIR_09 / "09_scrape_report_numbers.csv"
+OUT_09_TIER1_CUSUM          = DIR_09 / "09_tier1_final_cusum.csv"
+
+# Script 09b — Scraping propagation into forest
+OUT_09B_INDIVIDUAL          = DIR_09 / "09b_01_individual_well_baci.csv"
+OUT_09B_CENTROIDS           = DIR_09 / "09b_02_centroid_summaries.csv"
+OUT_09B_TRAJECTORY          = DIR_09 / "09b_03_ceh36_equilibration.jpg"
+OUT_09B_SCENARIO            = DIR_09 / "09b_04_scenario_comparison.jpg"
+OUT_09B_SCENARIO_CSV        = DIR_09 / "09b_04_scenario_comparison.csv"
+OUT_09B_SUMMER_SCENARIO     = DIR_09 / "09b_05_summer_scenario_comparison.png"
+OUT_09B_SUMMER_SCENARIO_CSV = DIR_09 / "09b_05_summer_scenario_comparison.csv"
+OUT_09B_REPORT_NUMBERS      = DIR_09 / "09b_report_numbers.csv"
+
+# Script 09c — Summer minima (scraping)
+OUT_09C_SUMMER_MINIMA       = DIR_09 / "09c_01_summer_minima.csv"
+OUT_09C_SUMMER_SHIFTS       = DIR_09 / "09c_02_summer_minima_shifts.csv"
+OUT_09C_REPORT_NUMBERS      = DIR_09 / "09c_report_numbers.csv"
+OUT_09C_FIG_CLIMATE         = DIR_09 / "09c_03_summer_minima_climate_ctrl.png"
+OUT_09C_FIG_PAIRED          = DIR_09 / "09c_04_summer_minima_paired.png"
+
+# Script 09d — CEH36 scenario comparison
+OUT_09D_SCENARIO            = DIR_09 / "09d_01_scenario_comparison.jpg"
+OUT_09D_SCENARIO_CSV        = DIR_09 / "09d_01_scenario_comparison.csv"
+OUT_09D_SUMMER_SCENARIO     = DIR_09 / "09d_02_summer_scenario_comparison.png"
+OUT_09D_SUMMER_SCENARIO_CSV = DIR_09 / "09d_02_summer_scenario_comparison.csv"
+
+# Script 09e — CEH36 robustness analysis
+OUT_09E_REPORT_NUMBERS      = DIR_09 / "09e_report_numbers.csv"
+
+# Script 10 — Clearfell BACI Analysis Suite (10a–10g)
+OUT_10_REPORT_NUMBERS       = DIR_10 / "10_cfell_report_numbers.csv"
+OUT_10_CONSOLIDATED_REPORT  = DIR_10 / "10_consolidated_report_numbers.csv"
+
+# Script 10a — Three-counterfactual ANCOVA-BACI (primary result)
+OUT_10A_COMPARISON          = DIR_10 / "10a_01_ancova_comparison_table.csv"
+OUT_10A_FULL_COEFFS         = DIR_10 / "10a_02_ancova_full_coefficients.csv"
+OUT_10A_TIMESERIES          = DIR_10 / "10a_03_baci_timeseries.csv"
+OUT_10A_FIG_IMPACT          = DIR_10 / "10a_04_baci_timeseries_impact.png"
+OUT_10A_FIG_EDGE            = DIR_10 / "10a_05_baci_timeseries_edge.png"
+OUT_10A_FIG_SCATTER         = DIR_10 / "10a_06_climate_sensitivity.png"
+OUT_10A_REPORT              = DIR_10 / "10a_report_numbers.csv"
+
+# Script 10b — Spatial step-change maps (scraping + clearfell)
+OUT_10B_SCRAPE_RAW          = DIR_10 / "10b_spatial_scrape_raw.png"
+OUT_10B_FELL_RAW            = DIR_10 / "10b_spatial_fell_raw.png"
+OUT_10B_SCRAPE_CORRECTED    = DIR_10 / "10b_spatial_scrape_corrected.png"
+OUT_10B_FELL_CORRECTED      = DIR_10 / "10b_spatial_fell_corrected.png"
+OUT_10B_STEP_DATA           = DIR_10 / "10b_spatial_step_data.csv"
+
+# Script 10c — Forest zone spatial analysis
+INT_10C_CORRELATION_TABLE   = OUT_DIR / "10c_forest_zone_correlations.csv"
+INT_10C_CLUSTER_SUMMARY     = OUT_DIR / "10c_forest_zone_cluster_summary.csv"
+OUT_10C_B1_B2_SCATTER       = DIR_10C / "10c_01_b1_b2_scatter.png"
+OUT_10C_B2_ELEV_REGRESSION  = DIR_10C / "10c_02_b2_elevation_regression.png"
+OUT_10C_BOUNDARY_MAP        = DIR_10C / "10c_03_c4_c5_boundary_map.png"
+OUT_10C_SUMMARY             = DIR_10C / "10c_04_forest_zone_summary.txt"
+
+# Script 10d — Summer minima (dual control)
+OUT_10D_DATA                = DIR_10 / "10d_01_summer_minima.csv"
+OUT_10D_SHIFTS              = DIR_10 / "10d_02_summer_minima_shifts.csv"
+OUT_10D_MIXED               = DIR_10 / "10d_03_mixed_model_results.csv"
+OUT_10D_FIG_FOREST          = DIR_10 / "10d_04_summer_minima_forest_ctrl.png"
+OUT_10D_FIG_CLIMATE         = DIR_10 / "10d_05_summer_minima_climate_ctrl.png"
+OUT_10D_REPORT              = DIR_10 / "10d_report_numbers.csv"
+
+# Script 10e — SSM coefficient decomposition
+OUT_10E_COEFF_SHIFTS        = DIR_10 / "10e_01_coefficient_shifts.csv"
+OUT_10E_PRED_VS_OBS         = DIR_10 / "10e_02_predicted_vs_observed.csv"
+OUT_10E_FIG_COEFFS          = DIR_10 / "10e_03_coefficient_shifts.png"
+OUT_10E_REPORT              = DIR_10 / "10e_report_numbers.csv"
+
+# Script 10f — Robustness analyses (SSM residual, synthetic control)
+OUT_10F_SSM_RESIDUAL        = DIR_10 / "10f_01_ssm_residual_results.csv"
+OUT_10F_SYNTH_CTRL          = DIR_10 / "10f_02_synthetic_control_results.csv"
+OUT_10F_REPORT              = DIR_10 / "10f_report_numbers.csv"
+
+# Script 10g — Diagnostics (NW10 trend, transect, rolling coefficients)
+OUT_10G_NW10_TREND          = DIR_10 / "10g_01_nw10_broadleaf_trend.csv"
+OUT_10G_TRANSECT_FIG        = DIR_10 / "10g_02_clearfell_transect.png"
+OUT_10G_TRANSECT_CSV        = DIR_10 / "10g_03_clearfell_transect_steps.csv"
+OUT_10G_ROLLING_CSV         = DIR_10 / "10g_04_rolling_coefficients.csv"
+OUT_10G_REPORT              = DIR_10 / "10g_report_numbers.csv"
+
+# Script 10h — Synthetic-extension BACI (FE well donor regression)
+OUT_10H_CALIBRATION         = DIR_10 / "10h_01_synthetic_calibration.csv"
+OUT_10H_COMPARISON          = DIR_10 / "10h_02_ancova_comparison_table.csv"
+OUT_10H_FULL_COEFFS         = DIR_10 / "10h_03_ancova_full_coefficients.csv"
+OUT_10H_TIMESERIES          = DIR_10 / "10h_04_baci_timeseries.csv"
+OUT_10H_FIG_DONORS          = DIR_10 / "10h_05_donor_regression_validation.png"
+OUT_10H_FIG_VAR_A           = DIR_10 / "10h_06_baci_timeseries_varA.png"
+OUT_10H_FIG_VAR_B           = DIR_10 / "10h_07_baci_timeseries_varB.png"
+OUT_10H_FIG_VAR_C           = DIR_10 / "10h_08_baci_timeseries_varC.png"
+OUT_10H_FIG_CUSUM           = DIR_10 / "10h_09_cusum_varB.png"
+OUT_10H_FIG_SENSITIVITY     = DIR_10 / "10h_10_climate_sensitivity_varB.png"
+OUT_10H_REPORT              = DIR_10 / "10h_report_numbers.csv"
+
+# Script 11 — Forecasting thresholds
+OUT_11_RESULTS              = DIR_11 / "11_forecast_01_results.txt"
+OUT_11_TABLE6_WINTER        = DIR_11 / "11_forecast_winter_transfer_functions.csv"
+OUT_11_TABLE7_SUMMER        = DIR_11 / "11_forecast_summer_transfer_functions.csv"
+OUT_11_TABLE8_THRESHOLDS    = DIR_11 / "11_forecast_pflood_threshold_equations.csv"
+OUT_11_PFLOOD_SUMMARY       = DIR_11 / "11_forecast_pflood_summary.csv"
+
+# Script 11b — Spatial threshold maps
+OUT_11B_SUMMER_MAP      = DIR_11B / "11b_01_summer_minima_depth.png"
+OUT_11B_WINTER_MAP      = DIR_11B / "11b_02_winter_maxima_depth.png"
+OUT_11B_PFLOOD_MAP      = DIR_11B / "11b_03_pflood.png"
+OUT_11B_PFLOOD_PER_WELL = DIR_11B / "11b_03_pflood_per_well.csv"
+OUT_11B_FLOOD_FREQ      = DIR_11B / "11b_04_flood_frequency.png"
+OUT_11B_TABLE10         = DIR_11B / "11b_05_table10_pflood_spreadsheet.csv"
+OUT_11B_FORECASTER_HTML = DIR_11B / "forecaster.html"
+SRC_FORECASTER_TEMPLATE = SRC_DIR / "forecaster_template.html"
+
+# Script 14 — Climate projections
+OUT_14_CLIMATE_SUMMER     = DIR_14 / "14_climate_trajectory_summer.png"
+OUT_14_CLIMATE_WINTER     = DIR_14 / "14_climate_trajectory_winter_flooding.png"
+OUT_14_CLIMATE_STACKED    = DIR_14 / "14_climate_trajectory_stacked.png"
+OUT_14_SUMMER_TREND_CSV   = DIR_14 / "14_summer_trend_stats.csv"
+OUT_14_ANNUAL_EXTREMES    = DIR_14 / "14_annual_extremes.csv"
+OUT_14_WINTER_EXCEED      = DIR_14 / "14_winter_exceedance.csv"
+OUT_14_SEASONAL_SCATTER   = DIR_14 / "14_seasonal_extremes_scatter.html"
+
+# Script 15 — Depth-dependent PET
+OUT_15_LAMBDA_PROFILE   = DIR_15 / "15_01_lambda_profile.png"
+OUT_15_FIT_COMPARISON   = DIR_15 / "15_02_fit_comparison.png"
+OUT_15_BENCHMARK_TABLE  = DIR_15 / "15_03_benchmark_table.csv"
+OUT_15_BEST_PARAMS      = DIR_15 / "15_04_best_params.csv"
+
+# Script 12 — Figure: site overview
+OUT_12_DEM_OVERVIEW         = DIR_12 / "12_01_dem_site_overview.png"
+
+# Script 13 — Figure: experimental design
+OUT_13_EXPERIMENTAL_MAP     = DIR_13 / "13_01_experimental_setup_map.png"
+
+# Script 02 — additional outputs
+OUT_02_CLUSTER_HYDRO_WB     = DIR_02 / "02_03_cluster_hydrographs_wb.png"
+
+# Script 16 — Water balance
+DIR_01_CLIMATE              = DIR_00          # climate summary shares DIR_00
+OUT_16_TABLE                = DIR_16 / "16_water_bal_table.csv"
+OUT_16_VOL_TABLE            = DIR_16 / "16_water_bal_vol_table.csv"
+OUT_16_BAR_LAY              = DIR_16 / "16_water_bal_bar_lay.png"
+OUT_16_BAR_MS               = DIR_16 / "16_water_bal_bar_ms.png"
+OUT_16_VOL_MS               = DIR_16 / "16_water_bal_volumetric_ms.png"
+OUT_16_VOL_LAY              = DIR_16 / "16_water_bal_volumetric_lay.png"
+OUT_16_VOL_WTF_TABLE        = DIR_16 / "16_water_bal_vol_wtf_table3d.csv"
+OUT_16_VOL_WTF_MS           = DIR_16 / "16_water_bal_volumetric_wtf_ms.png"
+OUT_16_VOL_WTF_LAY          = DIR_16 / "16_water_bal_volumetric_wtf_lay.png"
+
+# Script 17 — WTF specific yield
+OUT_17_SY_TABLE             = DIR_17 / "17_wtf_01_sy_estimates.csv"
+OUT_17_REGRESSION           = DIR_17 / "17_wtf_02_regression.png"
+OUT_17_BOXPLOT              = DIR_17 / "17_wtf_03_event_boxplot.png"
+OUT_17_SUMMARY              = DIR_17 / "17_wtf_04_summary.txt"
+INT_WTF_WELL_SY             = OUT_DIR / "17_wtf_well_sy.csv"
+
+# Script 18 — WTF spatial
+OUT_18_WELL_SY_TABLE        = DIR_18 / "18_wtf_01_well_sy_estimates.csv"
+OUT_18_SY_MAP               = DIR_18 / "18_wtf_02_spatial_sy_map.png"
+OUT_18_SY_CONTOUR           = DIR_18 / "18_wtf_03_sy_contour.png"
+OUT_18_SY_CONTOUR_EXT       = DIR_18 / "18_wtf_04_sy_contour_extended.png"
+OUT_18_DRAINAGE_TIMESCALE   = DIR_18 / "18_wtf_05_drainage_timescale_map.png"
+OUT_18_DRAINAGE_TIMESCALE_CSV = DIR_18 / "18_wtf_05_drainage_timescale.csv"
+OUT_18_AQUIFER_SYNTHESIS    = DIR_18 / "18_wtf_06_aquifer_diagnostic_synthesis.png"
+
+# Script 19 — Spatial groundwater analysis
+OUT_19_THICKNESS_MAP  = DIR_19 / "19_aquifer_thickness.jpg"
+OUT_19_HEAD_MEAN_MAP  = DIR_19 / "19_head_mean_map.jpg"
+OUT_19_HEAD_WINTER    = DIR_19 / "19_head_surface_winter.jpg"
+OUT_19_HEAD_SUMMER    = DIR_19 / "19_head_surface_summer.jpg"
+OUT_19_BETA1          = DIR_19 / "19_beta1_field.jpg"
+OUT_19_BETA2          = DIR_19 / "19_beta2_field.jpg"
+OUT_19_BETA3          = DIR_19 / "19_beta3_field.jpg"
+OUT_19_WB_RECHARGE    = DIR_19 / "19_wb_recharge.jpg"
+OUT_19_WB_ET          = DIR_19 / "19_wb_et.jpg"
+OUT_19_WB_DRAINAGE    = DIR_19 / "19_wb_drainage.jpg"
+OUT_19_WB_LATERAL     = DIR_19 / "19_wb_lateral.jpg"
+OUT_19_FLUX_MAP       = DIR_19 / "19_lateral_flux.jpg"
+OUT_19_RESIDUAL_COMP  = DIR_19 / "19_residual_comparison.jpg"
+OUT_19_STORAGE_MAP    = DIR_19 / "19_storage_change.jpg"
+OUT_19_DEPTH_SUMMER   = DIR_19 / "19_depth_to_watertable.jpg"
+OUT_19_FLOOD_FREQ     = DIR_19 / "19_flood_frequency.jpg"
+OUT_19_WINTER_FLOOD   = DIR_19 / "19_winter_flooding.jpg"
+OUT_19_THICKNESS_CSV  = DIR_19 / "19_thickness_surface.csv"
+OUT_19_HEAD_MEAN_CSV  = DIR_19 / "19_head_surface_mean.csv"
+OUT_19_WB_SUMMARY_CSV = DIR_19 / "19_water_balance_summary.csv"
+# Legacy aliases for file-store script compatibility
+OUT_19_HEAD_SEASONAL  = OUT_19_HEAD_WINTER
+OUT_19_BETA_FIELDS    = OUT_19_BETA1
+OUT_19_WATER_BALANCE  = OUT_19_WB_RECHARGE
+OUT_19_DEPTH_TO_WT    = OUT_19_DEPTH_SUMMER
+
+# Script 20 — Spatial figures (paper)
+OUT_20_HEAD_STREAMS         = DIR_20 / "20_head_surface_streams.png"
+OUT_20_RESIDUAL_D8          = DIR_20 / "20_residual_d8_comparison.png"
+OUT_20_RESIDUAL_SSM         = DIR_20 / "20_residual_ssm.png"
+OUT_20_SLOPE                = DIR_20 / "20_slope_gradient.png"
+OUT_20_DRAWDOWN             = DIR_20 / "20_drawdown_propagation.png"
+
+# Script 21 — Forestry scenarios
+OUT_21_HYDROGRAPH        = DIR_21 / "21_forestry_01_hydrograph.png"
+OUT_21_DISTRIBUTIONS     = DIR_21 / "21_forestry_02_distributions.png"
+OUT_21_DISTRIBUTIONS_CSV = DIR_21 / "21_forestry_02_distributions_means.csv"
+OUT_21_SCRAPING          = DIR_21 / "21_forestry_03_scraping_eras.png"
+OUT_21_SCRAPING_CSV      = DIR_21 / "21_forestry_03_scraping_era_means.csv"
+OUT_21_BACI_VIOLIN       = DIR_21 / "21_forestry_04_baci_zone_violin.png"
+OUT_21_BACI_CSV          = DIR_21 / "21_forestry_04_baci_zone_means.csv"
+OUT_21_SCENARIO_COMPARE  = DIR_21 / "21_forestry_05_scenario_comparison.jpg"
+OUT_21_SCENARIO_CSV      = DIR_21 / "21_forestry_05_scenario_comparison.csv"
+
+# Script 22 — SSM residuals and lag analysis (ridge-subsidy mechanistic test)
+INT_22_RESIDUALS_WIDE    = OUT_DIR / "22_residuals_wide.csv"
+INT_22_FITS_TABLE        = OUT_DIR / "22_model_b_fits.csv"
+OUT_22_AR1_HIST          = DIR_22 / "22_01_ar1_histogram.png"
+OUT_22_AR1_MAP           = DIR_22 / "22_02_ar1_spatial_map.png"
+OUT_22_ALPHA_PHI_SCATTER = DIR_22 / "22_03_alpha_phi_scatter.png"
+OUT_22_EXAMPLE_SERIES    = DIR_22 / "22_04_example_residuals_by_cluster.png"
+
+# Script 23 — Ridge-recharge lag hypothesis test
+INT_23_RESIDUALS_WIDE    = OUT_DIR / "23_residuals_extended_wide.csv"
+INT_23_FITS_TABLE        = OUT_DIR / "23_ridge_lag_fits.csv"
+OUT_23_CCF_HEADLINE      = DIR_23 / "23_01_ccf_headline_ridge_wells.png"
+OUT_23_LAG_VS_DISTANCE   = DIR_23 / "23_02_peak_lag_vs_ridge_distance.png"
+OUT_23_LAG_MAP           = DIR_23 / "23_03_peak_lag_spatial_map.png"
+OUT_23_BETAS_BY_CLUSTER  = DIR_23 / "23_04_b10_b11_by_cluster.png"
+OUT_23_TEST_SUMMARY      = DIR_23 / "23_05_hypothesis_test_summary.txt"
+
+# Script 24 — Seasonal residual diagnostic
+INT_24_CLIMATOLOGY_TABLE  = OUT_DIR / "24_residual_climatology.csv"
+OUT_24_CLIMATOLOGY_PANELS = DIR_24 / "24_01_climatology_panels_by_cluster.png"
+OUT_24_AMPLITUDE_MAP      = DIR_24 / "24_02_seasonal_amplitude_map.png"
+OUT_24_SUN_CORR_SCATTER   = DIR_24 / "24_03_sun_residual_correlation.png"
+OUT_24_PHASE_BARPLOT      = DIR_24 / "24_04_phase_by_cluster.png"
+OUT_24_SUMMARY            = DIR_24 / "24_05_diagnostic_summary.txt"

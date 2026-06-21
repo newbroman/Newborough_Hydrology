@@ -1,0 +1,23 @@
+Script 26c — MSL5 report-format figures
+============================================================
+
+Sources:
+  /home/john/projects/NRG/outputs/26_van_willegen_msl/26_msl_5yr_per_cluster.csv
+  /home/john/projects/NRG/outputs/26b_van_willegen_msl_projections/26b_msl5_ukcp18_projection_summary.csv
+  /home/john/projects/NRG/outputs/19_spatial_groundwater/19_scenario_summary.csv
+
+Outputs:
+  /home/john/projects/NRG/outputs/26c_msl5_report_figures/fig_msl5_trajectory_report.png
+  /home/john/projects/NRG/outputs/26c_msl5_report_figures/fig_msl5_vs_summer_min_projection.png
+
+Curreli (2013) reference values:
+  SD15b (wet slack)  : -0.61 m below ground
+  SD16  (dry slack)  : -0.98 m below ground
+
+ΔMSL5 vs Δsummer-minimum, UKCP18 RCP8.5 (m, below ground):
+  Cluster                    ΔMSL5_50s  Δsmin_50s    ΔMSL5_80s  Δsmin_80s
+  C1 (Lake Edge)               -0.0115    -0.0592      -0.0215    -0.1157
+  C2 (Dune)                    -0.0169    -0.0705      -0.0310    -0.1336
+  C3 (Western Residual)        -0.0172    -0.0649      -0.0313    -0.1219
+  C4 (Main Forest)             -0.0214    -0.0648      -0.0385    -0.1180
+  C5 (Coastal Forest)          -0.0121    -0.0383      -0.0221    -0.0712

@@ -1,0 +1,52 @@
+==============================================================================
+Script 24b (DIAGNOSTIC) — cluster-stratified residual climatology
+==============================================================================
+
+Winter-minus-summer SSM residual contrast by cluster
+(positive = model under-predicts the monthly rise more in winter):
+
+  Cluster                   Δ(win−sum)                95% CI         p
+  C1 (Lake Edge)                7.2 mm   [  -0.8,   16.8]     0.204
+  C2 (Dune)                     3.7 mm   [  -1.0,    7.9]     0.111
+  C3 (Western Residual)         7.5 mm   [   5.1,   10.0]     0.000
+  C4 (Main Forest)              6.2 mm   [   0.8,   12.1]     0.086
+  C5 (Coastal Forest)          -2.8 mm   [  -5.0,    0.1]     0.138
+
+Reading against the three candidate mechanisms:
+
+  (1) CANOPY-INTERCEPTION OVER-ESTIMATION — not supported as the
+      primary driver. The most significant winter contrast sits in
+      an OPEN-DUNE cluster (C3, away from canopy), while C5 (Coastal
+      Forest — forested but ridge-distant) shows NO winter peak.
+      Interception over-estimation predicts the opposite (both
+      forest clusters peak, open dune does not). Evidence runs
+      against it; no data-driven case to revise F = 0.24.
+
+  (2) WINTER-PHASED NONLINEAR RECHARGE (site-wide) — supported.
+      Open-dune C3 carries a robust, highly significant winter
+      contrast (p < 0.001), with C1 / C2 / C4 positive in sign
+      (individually non-significant).
+
+  (3) RIDGE-DERIVED LATERAL INPUT — partially consistent, not
+      separable from (2) here. Within the forest
+      (n = 14 wells), the contrast correlates with distance-
+      to-ridge at r = -0.63 — i.e. it strengthens toward
+      the ridge, the direction ridge subsidy predicts. The small
+      forest sample makes this suggestive only, and the strongest
+      peak overall is open-dune C3 (several of whose wells also lie
+      near the ridge), so a ridge term and a site-wide recharge term
+      cannot be distinguished on this evidence.
+      (Contrast vs forest-edge distance: r = +0.23.)
+
+Preferred reading:
+  The winter contrast is NOT forest-confined, so canopy-interception
+  over-estimation is not the primary driver — no evidence-based case
+  here to revise F = 0.24. The signal is best explained by a broadly
+  site-wide winter recharge non-linearity, possibly with a ridge-
+  derived component in the forest; the two are not separable on the
+  cluster-stratified climatology alone. A fuller attribution of the
+  residual seasonality to specific model terms is left to future work.
+
+All contrasts: point estimate, well-level bootstrap 95% CI
+(1000 resamples), two-sided one-sample t p-value.
+No multiple-comparison correction (descriptive across five clusters).

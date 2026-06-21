@@ -1,0 +1,18 @@
+Parameter,Well,Era,Value,Unit,Note
+FourZoneSummer_C3Warren_clearfell_step,C3/Warren,Post_felling_Jun-Sep,0.012,m,"vs Forest; p=0.2572, CI=[-0.0088,0.0328]"
+FourZoneSummer_C3Warren_clearfell_step_se,C3/Warren,Post_felling_Jun-Sep,0.0106,m,
+FourZoneSummer_C3Warren_N,C3/Warren,Jun-Sep,52.0,well-years,"n_pre=24, n_post=28, n_wells=4"
+FourZoneSummer_Edge_clearfell_step,Edge,Post_felling_Jun-Sep,-0.0286,m,"vs Forest; p=0.1622, CI=[-0.0687,0.0115]"
+FourZoneSummer_Edge_clearfell_step_se,Edge,Post_felling_Jun-Sep,0.0205,m,
+FourZoneSummer_Edge_N,Edge,Jun-Sep,51.0,well-years,"n_pre=24, n_post=27, n_wells=4"
+FourZoneSummer_Impact_clearfell_step,Impact,Post_felling_Jun-Sep,-0.0073,m,"vs Forest; p=0.3576, CI=[-0.0228,0.0082]"
+FourZoneSummer_Impact_clearfell_step_se,Impact,Post_felling_Jun-Sep,0.0079,m,
+FourZoneSummer_Impact_N,Impact,Jun-Sep,13.0,well-years,"n_pre=6, n_post=7, n_wells=1"
+FourZoneSummer_R2,all_zones,,0.7242,,Joint model R²
+FourZoneSummer_N,all_zones,,181.0,well-years,Pooled-panel sample size
+FourZoneSummer_contrast_C3Warren_vs_Forest,C3/Warren - Forest,Post_felling_Jun-Sep,0.012,m,"primary; p=0.2572, CI=[-0.0088,0.0328]"
+FourZoneSummer_contrast_Edge_vs_Forest,Edge - Forest,Post_felling_Jun-Sep,-0.0286,m,"primary; p=0.1622, CI=[-0.0687,0.0115]"
+FourZoneSummer_contrast_Impact_vs_Forest,Impact - Forest,Post_felling_Jun-Sep,-0.0073,m,"primary; p=0.3576, CI=[-0.0228,0.0082]"
+FourZoneSummer_contrast_Impact_vs_Edge,Impact - Edge,Post_felling_Jun-Sep,0.0213,m,"DERIVED contrast — point estimate exact, but SE/p are covariance-dependent and not comparable to primary contrasts; do not cite as significance (p_derived=0.2587)"
+FourZoneSummer_contrast_Impact_vs_C3Warren,Impact - C3/Warren,Post_felling_Jun-Sep,-0.0193,m,"DERIVED contrast — point estimate exact, but SE/p are covariance-dependent and not comparable to primary contrasts; do not cite as significance (p_derived=0.0061)"
+FourZoneSummer_contrast_Edge_vs_C3Warren,Edge - C3/Warren,Post_felling_Jun-Sep,-0.0406,m,"DERIVED contrast — point estimate exact, but SE/p are covariance-dependent and not comparable to primary contrasts; do not cite as significance (p_derived=0.0438)"

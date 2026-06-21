@@ -10,6 +10,12 @@ Purpose:
 ====================================================================================
 """
 
+# Revision note:
+#   2026-06-21 — Membership map now calls add_kml_features(..., include_scrapes=False).
+#     The shared feature overlay draws the GPS-traced scrape footprints by default;
+#     on this dense membership map they overlap the well markers and hinder reading,
+#     so they are suppressed here. Figure only; classification unchanged.
+
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
 from utils.paths import (
@@ -270,7 +276,7 @@ def main():
     if dem_layer is not None and not BW_MODE:
         fig.colorbar(dem_layer, ax=ax, shrink=0.55, pad=0.02, extend="both").set_label("Elevation (m AOD)", rotation=270, labelpad=18)
 
-    site_feature_handles = add_kml_features(ax, DATA_DIR)
+    site_feature_handles = add_kml_features(ax, DATA_DIR, include_scrapes=False)
 
     # Plot Wells — cluster identity shown by marker SHAPE, not colour.
     # Fill: reference=dark grey, extended=light grey, spy=white with bold edge.

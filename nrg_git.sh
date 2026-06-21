@@ -124,6 +124,20 @@ do_sync(){
   push_if_ahead
 }
 
+do_size(){
+  say "Repository size"
+  local total dotgit
+  total=$(du -sh --exclude=.git "$REPO_DIR" 2>/dev/null | cut -f1)
+  dotgit=$(du -sh "$REPO_DIR/.git" 2>/dev/null | cut -f1)
+  echo "  Your files (working tree):  ${total:-?}"
+  echo "  Git history (.git, = clone size):  ${dotgit:-?}"
+  echo ""
+  echo "  Biggest top-level folders:"
+  du -sh "$REPO_DIR"/*/ 2>/dev/null | sort -rh | head | sed 's/^/      /'
+  echo ""
+  echo "  (GitHub's reported size can lag behind after a force-push - that's cosmetic.)"
+}
+
 # --- menu ------------------------------------------------------------------
 while true; do
   echo ""
@@ -132,15 +146,17 @@ while true; do
   echo "  2) Push my changes      (commit + push anything I've edited OR added)"
   echo "  3) Pull latest          (just fetch what's on GitHub)"
   echo "  4) Status               (show what's changed, untracked, etc.)"
-  echo "  5) Quit"
+  echo "  5) Repo size            (how big the repo and git history are)"
+  echo "  6) Quit"
   echo ""
-  read -rp "Choose [1-5]: " choice
+  read -rp "Choose [1-6]: " choice
   case "$choice" in
     1) do_sync ;;
     2) do_push ;;
     3) integrate ;;
     4) say "Current status"; git status ;;
-    5) echo "Bye."; break ;;
-    *) echo "Please pick 1-5." ;;
+    5) do_size ;;
+    6) echo "Bye."; break ;;
+    *) echo "Please pick 1-6." ;;
   esac
 done

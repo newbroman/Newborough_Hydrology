@@ -34,7 +34,16 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-05-19
+__version__ = "1.2.2"  # Hollingham (2026) — 2026-06-21
+# 1.2.2 — Climate-control summer-minima figure (09c_03): added the Oct-2023
+#         re-scrape marker (magenta dash-dot) on all three panels alongside the
+#         scraping (Apr 2015) and clearfell (Dec 2017) lines; legend updated.
+#         Imports SCRAPING_DATE_2. Figure only.
+# 1.2.1 — Climate-control summer-minima figure (09c_03): added the clearfell
+#         marker (Dec 2017, dark-green dash-dot) alongside the existing scraping
+#         line (Apr 2015) on all three panels; panel (a) legend updated. Imports
+#         INTERVENTION_DATE from scraping_common. Figure only; the summer-minima
+#         BACI computations and CSV exports are unchanged.
 # 1.2.0 — Defect E fix integration:
 #         * Consumes new wells_provenance return from load_scraping_data
 #           (scraping_common v1.3.0).
@@ -68,7 +77,7 @@ from utils.paths import (
     OUT_09C_FIG_CLIMATE, OUT_09C_FIG_PAIRED,
 )
 from utils.scraping_common import (
-    SCRAPING_DATE, CLIMATE_CONTROLS, SUMMER_MONTHS,
+    SCRAPING_DATE, INTERVENTION_DATE, SCRAPING_DATE_2, CLIMATE_CONTROLS, SUMMER_MONTHS,
     TIER1_WELLS, TIER2_WELLS, PAIRED_CONTROLS_MAP,
     MPL_DEFAULTS,
     load_scraping_data, format_p_value, significance_stars,
@@ -268,6 +277,8 @@ def _plot_climate_control(well_mins, climate_centroid_mins, post_year):
         ax.plot(wy, [well_mins[w][yr] for yr in wy], "o-", color=wc.get(w, "#999"),
                 lw=1.5, ms=5, alpha=0.8, label=w.upper())
     ax.axvline(post_year - 0.5, color="#DAA520", ls="--", lw=2, alpha=0.7, label="Scraping (Apr 2015)")
+    ax.axvline(INTERVENTION_DATE.year + 0.5, color="#1b5e20", ls="-.", lw=2, alpha=0.8, label="Clearfell (Dec 2017)")
+    ax.axvline(SCRAPING_DATE_2.year + 0.5, color="#e7298a", ls="-.", lw=2, alpha=0.8, label="Re-scrape (Oct 2023)")
     ax.axhline(-0.61, color="green", ls=":", alpha=0.4, label="Wet slack threshold")
     ax.axhline(-0.98, color="brown", ls=":", alpha=0.4, label="Dry slack threshold")
     ax.set_ylabel("Summer minimum depth (m)")
@@ -290,6 +301,8 @@ def _plot_climate_control(well_mins, climate_centroid_mins, post_year):
         if post:
             ax.axhline(np.mean(post), color=wc.get(w, "#999"), ls="--", lw=1, alpha=0.5)
     ax.axvline(post_year - 0.5, color="#DAA520", ls="--", lw=2, alpha=0.7)
+    ax.axvline(INTERVENTION_DATE.year + 0.5, color="#1b5e20", ls="-.", lw=2, alpha=0.8)
+    ax.axvline(SCRAPING_DATE_2.year + 0.5, color="#e7298a", ls="-.", lw=2, alpha=0.8)
     ax.axhline(0, color="black", lw=0.6, alpha=0.5)
     ax.set_ylabel("Gap: well \u2212 climate ctrl (m)")
     ax.set_title("(b) Impact well gaps vs climate control centroid", loc="left", fontweight="bold")
@@ -304,6 +317,8 @@ def _plot_climate_control(well_mins, climate_centroid_mins, post_year):
         gaps = [well_mins[w][yr] - climate_centroid_mins[yr] for yr in common]
         ax.plot(common, gaps, "o-", color=wc.get(w, "#999"), lw=1.5, ms=5, alpha=0.8, label=w.upper())
     ax.axvline(post_year - 0.5, color="#DAA520", ls="--", lw=2, alpha=0.7)
+    ax.axvline(INTERVENTION_DATE.year + 0.5, color="#1b5e20", ls="-.", lw=2, alpha=0.8)
+    ax.axvline(SCRAPING_DATE_2.year + 0.5, color="#e7298a", ls="-.", lw=2, alpha=0.8)
     ax.axhline(0, color="black", lw=0.6, alpha=0.5)
     ax.set_xlabel("Year")
     ax.set_ylabel("Gap: well \u2212 climate ctrl (m)")

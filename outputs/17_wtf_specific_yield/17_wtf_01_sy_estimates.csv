@@ -1,0 +1,8 @@
+Cluster,Corrected,Sy_assumed,Sy_OLS_winter,Sy_OLS_SE,Sy_OLS_R2,Sy_OLS_n,Sy_event_median,Sy_event_Q25,Sy_event_Q75,Sy_event_n
+C1 (Lake Edge),False,0.08,0.3349,0.0434,0.616,38.0,0.2103,0.1296,0.2646,60
+C2 (Dune),False,0.12,0.3284,0.0335,0.666,49.0,0.2809,0.1967,0.3722,64
+C3 (Western Residual),False,0.12,0.3424,0.0206,0.841,53.0,0.3255,0.285,0.4146,58
+C4 (Main Forest),False,0.12,0.2973,0.0172,0.869,46.0,0.3149,0.2563,0.3948,51
+C5 (Coastal Forest),False,0.12,0.41,0.0222,0.877,49.0,0.356,0.3186,0.4315,34
+C4 (Main Forest) (corrected),True,0.12,,,,,0.2483,0.1816,0.3173,62
+C5 (Coastal Forest) (corrected),True,0.12,,,,,0.3213,0.2429,0.401,49

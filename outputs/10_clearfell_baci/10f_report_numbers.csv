@@ -1,0 +1,8 @@
+Parameter,Well,Era,Value,Unit,Note
+SSM_Resid_Impact_mean_step,,,0.0569,m,n=1
+SSM_Resid_Edge_mean_step,,,0.0049,m,n=4
+SSM_Resid_Forest_Ctrl_mean_step,,,0.0827,m,n=5
+SSM_Resid_Coastal_Ctrl_mean_step,,,-0.1314,m,n=2
+SSM_Resid_Climate_Ctrl_mean_step,,,-0.0302,m,n=5
+Synth_Impact_step,,,0.0993,m,"p=0.001, n_donors=6"
+Synth_Edge_step,,,0.041,m,"p=0.224, n_donors=6"

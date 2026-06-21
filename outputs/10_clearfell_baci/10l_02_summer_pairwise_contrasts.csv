@@ -1,0 +1,8 @@
+contrast,contrast_type,step_m,se_m,ci_lo_m,ci_hi_m,p,se_m_derived,ci_lo_m_derived,ci_hi_m_derived,p_derived,interpretation
+C3/Warren - Forest,primary,0.012,0.0106,-0.0088,0.0328,0.25721367582529,,,,,Primary — direct model coefficient (zone vs Forest). SE and p interpreted normally.
+Edge - Forest,primary,-0.0286,0.0205,-0.0687,0.0115,0.16224644243895747,,,,,Primary — direct model coefficient (zone vs Forest). SE and p interpreted normally.
+Impact - Forest,primary,-0.0073,0.0079,-0.0228,0.0082,0.3575837211897891,,,,,Primary — direct model coefficient (zone vs Forest). SE and p interpreted normally.
+Impact - Edge,derived,0.0213,,,,,0.0189,-0.0157,0.0583,0.2586995279891656,Derived — exact linear combination of two primary coefficients. Point estimate exact; SE/p depend on the coefficient covariance and are NOT comparable to primary rows. Do not cite p_derived as significance.
+Impact - C3/Warren,derived,-0.0193,,,,,0.007,-0.0331,-0.0055,0.0061012700380465865,Derived — exact linear combination of two primary coefficients. Point estimate exact; SE/p depend on the coefficient covariance and are NOT comparable to primary rows. Do not cite p_derived as significance.
+Edge - C3/Warren,derived,-0.0406,,,,,0.0201,-0.08,-0.0011,0.04376081507305819,Derived — exact linear combination of two primary coefficients. Point estimate exact; SE/p depend on the coefficient covariance and are NOT comparable to primary rows. Do not cite p_derived as significance.
+(Impact-Forest) - (Edge-Forest),identity_check,0.0213,,,,,0.0189,-0.0157,0.0583,0.2586995279891656,Identity check — demonstrates (Impact-Forest)-(Edge-Forest) = Impact-Edge. Not a result.

@@ -1,0 +1,58 @@
+==============================================================================
+  SEASONAL RESIDUAL DIAGNOSTIC — SUMMARY
+==============================================================================
+
+  Wells analysed: 64
+  Ridge reference: E=241750, N=364500
+  C3 split distance: 1000 m
+
+------------------------------------------------------------------------------
+  PER-CLUSTER SEASONAL STATISTICS
+------------------------------------------------------------------------------
+          n  s_minus_w  amplitude    phase  corr_sun
+Cluster                                             
+1.0       7    -0.0071     0.0088  12.3104   -0.0576
+2.0      24    -0.0036     0.0112  12.0606   -0.0311
+3.0      17    -0.0075     0.0100  12.0840   -0.0237
+4.0       9    -0.0062     0.0153   2.4079   -0.0006
+5.0       5     0.0028     0.0105  10.7804   -0.0096
+
+------------------------------------------------------------------------------
+  C3 SPLIT BY DISTANCE (< vs >= 1000 m from ridge)
+------------------------------------------------------------------------------
+  Forest-adjacent (n=7): amplitude = 0.0099  s-w = -0.0110
+  Warren-interior (n=10): amplitude = 0.0101  s-w = -0.0050
+  Mann-Whitney (adj < far amp): U=33.0, p=0.4434
+
+------------------------------------------------------------------------------
+  SUNSHINE-HOURS CORRELATION (INDEPENDENT ET DIAGNOSTIC)
+------------------------------------------------------------------------------
+  Sunshine hours is not in the OLS regression, so cor(resid, sun) is
+  a real test rather than zero by construction. A systematic negative
+  correlation would indicate extra ET losses in high-insolation months
+  that Thornthwaite has not captured and b2 has therefore not fitted.
+
+  Wells with r < -0.150 (extra ET not in Thornthwaite): 0 / 64
+  Wells with r >  +0.150:                                0 / 64
+  Wells within Bartlett null band:                          64 / 64
+  Network mean: -0.0262
+
+------------------------------------------------------------------------------
+  INTERPRETATION
+------------------------------------------------------------------------------
+  NULL on ET hypothesis: sunshine-residual correlation is within the
+  Bartlett null band across clusters and summer-minus-winter residual
+  is small in magnitude. The residual is not dominantly unmodelled
+  summer ET — whatever systematic bias Thornthwaite has, b2 has
+  already absorbed it.
+
+  Wells with winter/early-spring phase peak (Nov-Mar): 47 / 64
+  Wells with summer phase peak (May-Aug):              0 / 64
+
+  Dominant phase is winter/early spring. This is not the signature
+  of unmodelled summer ET. It is consistent with threshold/nonlinear
+  recharge behaviour not captured by the linear b1*P term: in
+  mid-winter with saturated soils, rainfall reaches the water table
+  with higher efficiency than the cluster-mean b1 represents.
+
+==============================================================================

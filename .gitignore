@@ -1,0 +1,31 @@
+# ============================================================
+# Save this as  .gitignore  in the repo root  (~/projects/NRG/.gitignore)
+# ============================================================
+
+# --- Python environment (never commit) ---
+venv/
+.venv/
+env/
+__pycache__/
+*.pyc
+
+# --- Private master spreadsheet (full version) — but KEEP the pipeline ODS ---
+*.ods
+!Newborough_well_records_pipeline.ods
+
+# --- Local work notes (not for publishing) ---
+Updates_required/
+
+# --- Water Watch newsletters (Google Drive + Facebook, not git) ---
+Living_output/
+living/output/
+*Water_Watch*.pdf
+
+# --- LibreOffice lock files ---
+.~lock.*#
+
+# --- Large local working document (189 MB) — keep the PDF, not the docx ---
+report.docx
+
+# --- Reference only (frozen-PL chat's call; already-tracked needs git rm --cached) ---
+# outputs/**/*.png

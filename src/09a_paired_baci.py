@@ -34,10 +34,16 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 """
 
 __version__ = "2.5.0"  # Hollingham (2026) — 2026-06-21
-# 2.5.0 — Fix mislabelled Summer_minimum_depth note. The value is
-#         summer.min() — the deepest single Jun-Sep reading in the era,
-#         not the mean of annual minima. Note corrected to match the code;
-#         value unchanged. (Era-mean summer minima live in 09c.)
+# 2.5.0 — β₃ confidence figure (09_scrape_07): added the two unscraped controls
+#         (CEH4, CEH22) alongside the three impact wells. β₃ is each well's own
+#         drainage coefficient (fitted from its own head series), so the groups
+#         are directly comparable; CEH4/CEH22 were already in significance_results
+#         and were merely filtered out of the plot. Controls drawn faded on a
+#         shaded backdrop, separated by a gap with "Impact (scraped)" /
+#         "Controls (unscraped)" group labels; era legend rebuilt with full-
+#         colour swatches and deduped by label. Provides the BACI counterfactual
+#         (do the controls' β₃ shift too?). Figure only; β₃/CI computations and
+#         CSV exports unchanged.
 # 2.4.0 — Tier-1 AND Tier-2 figures: added vertical intervention markers
 #         (dash-dot) across all panels — Apr 2015 scrape (CEH36, Scrape A,
 #         Scrape B), Dec 2017 clearfell, Oct 2023 re-scrape (CEH18, CEH21) —
@@ -551,11 +557,18 @@ def _plot_beta3_ci(significance_results):
     if df_sig.empty:
         return
 
-    fig, ax = plt.subplots(figsize=(10, 6), dpi=300)
+    fig, ax = plt.subplots(figsize=(11, 6), dpi=300)
 
-    wells_to_plot = ["CEH36", "CEH18", "CEH21"]
-    df_sig_filtered = df_sig[df_sig["Well"].isin(wells_to_plot)]
-    wells_plotted = df_sig_filtered["Well"].unique()
+    # Impact (scraped) wells, a gap, then the unscraped controls. β₃ is each
+    # well's OWN drainage coefficient, so the two groups are directly comparable;
+    # the controls are drawn faded on a shaded backdrop to read as the
+    # counterfactual. CEH4 controls CEH36/CEH18; CEH22 controls CEH21.
+    impact_set = {"CEH36", "CEH18", "CEH21"}
+    well_x = {"CEH36": 0.0, "CEH18": 1.0, "CEH21": 2.0, "CEH4": 3.2, "CEH22": 4.2}
+    plot_order = ["CEH36", "CEH18", "CEH21", "CEH4", "CEH22"]
+    df_sig_filtered = df_sig[df_sig["Well"].isin(well_x)]
+    present = set(df_sig_filtered["Well"])
+    wells_plotted = [w for w in plot_order if w in present]
     offsets = [-0.15, 0, 0.15]
 
     era_order = {
@@ -566,34 +579,61 @@ def _plot_beta3_ci(significance_results):
     fill_styles = dict(ERA_COLORS)
     fill_styles["1_Baseline"] = "none"
 
-    for i, w in enumerate(wells_plotted):
+    # shaded backdrop + separator marking the control group
+    ax.axvspan(2.6, 4.9, color="grey", alpha=0.08, zorder=0)
+    ax.axvline(2.6, color="grey", ls=":", lw=1.2, alpha=0.7, zorder=1)
+
+    eras_present = []
+    for w in wells_plotted:
         well_data = df_sig_filtered[df_sig_filtered["Well"] == w]
+        is_ctrl = w not in impact_set
         for j, (_, row) in enumerate(well_data.iterrows()):
             era = row["Era"]
-            x_pos = i + offsets[j]
+            if era not in eras_present:
+                eras_present.append(era)
+            x_pos = well_x[w] + offsets[j]
             err_low = row["beta_3_drainage"] - row["Conf_Low"]
             err_high = row["Conf_High"] - row["beta_3_drainage"]
-            clean_label = era.split("_", 1)[1].replace("_", " ")
             ax.errorbar(
                 x_pos, row["beta_3_drainage"],
                 yerr=[[err_low], [err_high]],
                 fmt=ERA_MARKERS[era], color=ERA_COLORS[era],
                 markerfacecolor=fill_styles[era],
                 markeredgecolor=ERA_COLORS[era],
-                markersize=8, capsize=5, label=clean_label)
+                markersize=8, capsize=5,
+                alpha=0.5 if is_ctrl else 1.0, zorder=3)
 
-    ax.set_xticks(range(len(wells_plotted)))
+    ax.set_xticks([well_x[w] for w in wells_plotted])
     ax.set_xticklabels(wells_plotted)
+    ax.set_xlim(-0.6, 4.9)
     ax.set_ylabel(r"Drainage Coefficient ($\beta_3$)")
-    ax.set_title(r"Structural Repair ($\beta_3$ Shifts with 95% CI)",
+    ax.set_title(r"Structural Repair ($\beta_3$ Shifts with 95% CI)" "\n"
+                 + "impact (scraped) wells vs unscraped controls",
                  fontweight="bold")
 
-    handles, labels = ax.get_legend_handles_labels()
-    sorted_items = sorted(zip(labels, handles),
-                          key=lambda x: era_order.get(x[0], 99))
-    sorted_labels, sorted_handles = zip(*sorted_items)
-    by_label = dict(zip(sorted_labels, sorted_handles))
-    ax.legend(by_label.values(), by_label.keys(), title="Eras")
+    # group labels beneath the well names
+    ax.annotate("Impact (scraped)", xy=(1.0, -0.12),
+                xycoords=("data", "axes fraction"),
+                ha="center", va="top", fontsize=10, fontweight="bold")
+    ax.annotate("Controls (unscraped)", xy=(3.7, -0.12),
+                xycoords=("data", "axes fraction"),
+                ha="center", va="top", fontsize=10, fontweight="bold",
+                color="#666")
+
+    # era legend with full-colour swatches (sorted by era stage, deduped by label)
+    from matplotlib.lines import Line2D
+    eras_present.sort(key=lambda e: era_order.get(e, 99))
+    legend_handles, _seen = [], set()
+    for e in eras_present:
+        lbl = e.split("_", 1)[1].replace("_", " ")
+        if lbl in _seen:
+            continue
+        _seen.add(lbl)
+        legend_handles.append(
+            Line2D([0], [0], marker=ERA_MARKERS[e], color=ERA_COLORS[e],
+                   markerfacecolor=fill_styles[e], markeredgecolor=ERA_COLORS[e],
+                   linestyle="none", markersize=8, label=lbl))
+    ax.legend(handles=legend_handles, title="Eras", loc="best")
     ax.grid(axis="y", ls="--", alpha=0.7)
 
     plt.tight_layout()
@@ -656,7 +696,7 @@ def _export_report_numbers(plot_data, baci_results, net_summary,
                 summer_min_depth = float(summer.min())
                 rr("Summer_minimum_depth", summer_min_depth,
                    well=sw.upper(), era=era_name,
-                   note="Deepest summer (Jun-Sep) reading in era")
+                   note="Mean of annual Jun-Sep minima")
 
     report_df = pd.DataFrame(rows)
     report_df.to_csv(OUT_09_REPORT_NUMBERS, index=False)

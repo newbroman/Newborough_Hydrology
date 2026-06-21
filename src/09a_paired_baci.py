@@ -34,13 +34,14 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 """
 
 __version__ = "2.4.0"  # Hollingham (2026) — 2026-06-21
-# 2.4.0 — Tier-1 background-drift figure: added vertical intervention markers
-#         (dash-dot) across all four panels — Apr 2015 scrape (CEH36, Scrape A,
+# 2.4.0 — Tier-1 AND Tier-2 figures: added vertical intervention markers
+#         (dash-dot) across all panels — Apr 2015 scrape (CEH36, Scrape A,
 #         Scrape B), Dec 2017 clearfell, Oct 2023 re-scrape (CEH18, CEH21) —
-#         with an "Interventions" legend on the top-left panel. The figure
-#         previously had no event markers. Imports SCRAPING_DATE,
-#         INTERVENTION_DATE, SCRAPING_DATE_2 from scraping_common. Figure only;
-#         BACI/CUSUM computations and exports unchanged.
+#         with an "Interventions" legend on the top-left panel of each. The
+#         figures previously had no event markers. Imports SCRAPING_DATE,
+#         INTERVENTION_DATE, SCRAPING_DATE_2 from scraping_common. Tier-2 axvlines
+#         preserve each panel's x-limits. Figures only; BACI/CUSUM computations
+#         and exports unchanged.
 # 2.3.0 — After exporting baci_shifts CSV, update site_observations
 #         registry with CEH36 Pure_Scraping and Felling_Pulse step
 #         values.  Replaces the hardcoded SCRAPE_BACI_STEP constant
@@ -508,6 +509,25 @@ def _plot_tier2(plot_data):
     by_label = dict(zip(clean_labels, handles))
     axes[1, 0].legend(by_label.values(), by_label.keys(),
                       loc="upper left", frameon=True)
+
+    # Intervention markers (scrape epochs + clearfell), same as Tier 1.
+    # April 2015 covers CEH36 + Scrape A/B; October 2023 covers CEH18/CEH21.
+    event_markers = [
+        (SCRAPING_DATE,     "#1a4e80", "Apr 2015 scrape — CEH36, Scrape A, Scrape B"),
+        (INTERVENTION_DATE, "#1b5e20", "Dec 2017 clearfell"),
+        (SCRAPING_DATE_2,   "#7a3a8c", "Oct 2023 re-scrape — CEH18, CEH21"),
+    ]
+    for ax in axes.flatten():
+        _xl = ax.get_xlim()
+        for _d, _c, _ in event_markers:
+            ax.axvline(_d, color=_c, ls="-.", lw=1.6, alpha=0.85, zorder=1.5)
+        ax.set_xlim(_xl)
+    from matplotlib.lines import Line2D
+    _marker_handles = [Line2D([0], [0], color=_c, ls="-.", lw=1.6, label=_lbl)
+                       for _d, _c, _lbl in event_markers]
+    axes[0, 0].legend(handles=_marker_handles, loc="upper left",
+                      fontsize=8, frameon=True, framealpha=0.9,
+                      title="Interventions", title_fontsize=8)
 
     plt.tight_layout()
     fig.suptitle("Tier 2 - Pure Scraping Signal (Paired CUSUM Analysis)",

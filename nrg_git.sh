@@ -126,16 +126,50 @@ do_sync(){
 
 do_size(){
   say "Repository size"
-  local total dotgit
+  local total dotgit nfiles tsize
   total=$(du -sh --exclude=.git "$REPO_DIR" 2>/dev/null | cut -f1)
   dotgit=$(du -sh "$REPO_DIR/.git" 2>/dev/null | cut -f1)
-  echo "  Your files (working tree):  ${total:-?}"
-  echo "  Git history (.git, = clone size):  ${dotgit:-?}"
+  nfiles=$(git ls-files | wc -l | tr -d ' ')
+  tsize=$(git ls-files -z | du -ch --files0-from=- 2>/dev/null | tail -1 | cut -f1)
+
+  echo "  On your disk:"
+  echo "    Working tree (all your files):    ${total:-?}"
+  echo "    Git storage (.git folder):        ${dotgit:-?}"
   echo ""
-  echo "  Biggest top-level folders:"
+  echo "  Tracked by git (what gets pushed / cloned):"
+  echo "    Files tracked:                    ${nfiles:-?}"
+  echo "    Their total size:                 ${tsize:-?}"
+  echo ""
+  echo "  Biggest top-level folders on disk:"
   du -sh "$REPO_DIR"/*/ 2>/dev/null | sort -rh | head | sed 's/^/      /'
   echo ""
-  echo "  (GitHub's reported size can lag behind after a force-push - that's cosmetic.)"
+  echo -e "  ${Y}Note:${N} working-tree size includes gitignored folders (venv/, Living_output/)"
+  echo "  that stay on your machine and are never pushed. The 'tracked' figures above"
+  echo "  are what actually lives in the repo. If .git is far bigger than the tracked"
+  echo "  size, sweep up dead objects with:  git gc --prune=now"
+}
+
+do_cleanup(){
+  say "Clean up git storage"
+  local before after
+  before=$(du -sh "$REPO_DIR/.git" 2>/dev/null | cut -f1)
+  echo "  Current .git size: ${before:-?}"
+  echo "  This sweeps up unreferenced (dead) objects. It does NOT touch your files,"
+  echo "  your commits, or anything on GitHub - purely local housekeeping."
+  echo ""
+  read -rp "$(echo -e "${Y}Run cleanup now? [y/N]: ${N}")" r
+  [[ "$r" =~ ^[Yy] ]] || { echo "  Skipped."; return; }
+  rm -f "$REPO_DIR/.git/gc.log"
+  git gc --prune=now && ok "first pass done" || fail "gc reported a problem"
+  after=$(du -sh "$REPO_DIR/.git" 2>/dev/null | cut -f1)
+  echo -e "  .git size now: ${B}${after:-?}${N}  (was ${before:-?})"
+  echo ""
+  read -rp "$(echo -e "${Y}Run the deeper sweep too (expire reflog + gc)? [y/N]: ${N}")" r2
+  if [[ "$r2" =~ ^[Yy] ]]; then
+    git reflog expire --expire=now --all && git gc --prune=now && ok "deep sweep done" || fail "deep sweep reported a problem"
+    after=$(du -sh "$REPO_DIR/.git" 2>/dev/null | cut -f1)
+    echo -e "  .git size now: ${B}${after:-?}${N}"
+  fi
 }
 
 # --- menu ------------------------------------------------------------------
@@ -147,16 +181,18 @@ while true; do
   echo "  3) Pull latest          (just fetch what's on GitHub)"
   echo "  4) Status               (show what's changed, untracked, etc.)"
   echo "  5) Repo size            (how big the repo and git history are)"
-  echo "  6) Quit"
+  echo "  6) Clean up git storage (sweep up dead objects, shrink .git)"
+  echo "  7) Quit"
   echo ""
-  read -rp "Choose [1-6]: " choice
+  read -rp "Choose [1-7]: " choice
   case "$choice" in
     1) do_sync ;;
     2) do_push ;;
     3) integrate ;;
     4) say "Current status"; git status ;;
     5) do_size ;;
-    6) echo "Bye."; break ;;
-    *) echo "Please pick 1-6." ;;
+    6) do_cleanup ;;
+    7) echo "Bye."; break ;;
+    *) echo "Please pick 1-7." ;;
   esac
 done

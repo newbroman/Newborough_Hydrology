@@ -30,9 +30,9 @@ beta3_era,CEH21,3_After_Scraping,0.1042,m,"CI=[-0.0116,0.2199] p=0.0757"
 beta3_era,CEH22,1_Baseline,0.1379,m,"CI=[0.0850,0.1908] p=<0.001"
 beta3_era,CEH22,2_Coastal_Drawdown,0.155,m,"CI=[0.0768,0.2332] p=<0.001"
 beta3_era,CEH22,3_After_Scraping,0.2711,m,"CI=[0.1133,0.4289] p=0.0017"
-Summer_minimum_depth,CEH4,1_Baseline,-1.16,m,Mean of annual Jun-Sep minima
-Summer_minimum_depth,CEH4,2_Pure_Scraping,-1.18,m,Mean of annual Jun-Sep minima
-Summer_minimum_depth,CEH4,3_Felling_Pulse,-1.4,m,Mean of annual Jun-Sep minima
-Summer_minimum_depth,CEH36,1_Baseline,-1.23,m,Mean of annual Jun-Sep minima
-Summer_minimum_depth,CEH36,2_Pure_Scraping,-1.11,m,Mean of annual Jun-Sep minima
-Summer_minimum_depth,CEH36,3_Felling_Pulse,-1.1,m,Mean of annual Jun-Sep minima
+Summer_minimum_depth,CEH4,1_Baseline,-1.16,m,Deepest summer (Jun-Sep) reading in era
+Summer_minimum_depth,CEH4,2_Pure_Scraping,-1.18,m,Deepest summer (Jun-Sep) reading in era
+Summer_minimum_depth,CEH4,3_Felling_Pulse,-1.4,m,Deepest summer (Jun-Sep) reading in era
+Summer_minimum_depth,CEH36,1_Baseline,-1.23,m,Deepest summer (Jun-Sep) reading in era
+Summer_minimum_depth,CEH36,2_Pure_Scraping,-1.11,m,Deepest summer (Jun-Sep) reading in era
+Summer_minimum_depth,CEH36,3_Felling_Pulse,-1.1,m,Deepest summer (Jun-Sep) reading in era

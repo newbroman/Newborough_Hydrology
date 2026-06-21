@@ -8,8 +8,13 @@ Full per-script methodology: see chapter S.4 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.2.1"  # Hollingham (2026) — last revised 2026-06-11
+__version__ = "1.2.2"  # Hollingham (2026) — last revised 2026-06-21
 # Changelog:
+#   1.2.2 (2026-06-21) — Spatial confidence map: pass include_scrapes=False to
+#     add_kml_features(). The shared feature overlay now draws the GPS-traced
+#     scrape footprints by default; on the affinity/confidence map they overlap
+#     the well markers and clutter an already dense figure, so they are
+#     suppressed here. Figure only; no change to the affinity computation.
 #   1.2.0 (2026-06-07) — Spatial confidence map: colour convention change.
 #     Markers now coloured by Assigned_Cluster (k-means) rather than
 #     Best_Match_Cluster (Pearson result). This matches the reader's natural
@@ -197,7 +202,7 @@ def main():
         ax.set_ylim(362200, 365800)
         if dem_layer is not None and not BW_MODE:
             fig.colorbar(dem_layer,ax=ax,shrink=0.55,pad=0.02,extend="both").set_label("Elevation (m AOD)",rotation=270,labelpad=18)
-        site_feature_handles = add_kml_features(ax, DATA_DIR)
+        site_feature_handles = add_kml_features(ax, DATA_DIR, include_scrapes=False)
         for cls, marker in class_markers.items():
             subset = map_df[map_df["Class"]==cls]
             if subset.empty:

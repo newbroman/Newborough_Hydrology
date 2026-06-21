@@ -30,7 +30,12 @@ Reads:
 ==========================================================================
 """
 
-__version__ = "1.4.0"  # 2026-05-31 — FRAC_AFFECTED["C3"] updated from 0.32
+__version__ = "1.4.1"  # Hollingham (2026) — 2026-06-21
+# 1.4.1 — Equilibration figure (09b_03, CEH36 vs CEH4): added the Oct-2023
+#         re-scrape marker (magenta dash-dot, SCRAPE2_DATE) alongside the
+#         existing scraping (Apr 2015) and clearfell (Dec 2017) lines; legend
+#         updated. Figure only; trajectory/equilibration computation unchanged.
+# 1.4.0  2026-05-31 — FRAC_AFFECTED["C3"] updated from 0.32
 #         to 0.2857 (= 6/21) to match the live 24/21 cluster partition under
 #         01_data_prep.py v1.3.0 (the tidal `pdfs` well blacklist shifted 2
 #         wells from C2 into C3 at re-clustering; 6 of the 21 live C3 wells
@@ -383,6 +388,8 @@ def _plot_equilibration(wells_clean):
                label="Scraping (Apr 2015)")
     ax.axvline(FELL_DATE, color="brown", linewidth=2.0, linestyle="--",
                label="Clearfell (Dec 2017)", alpha=0.7)
+    ax.axvline(SCRAPE2_DATE, color="#e7298a", linewidth=2.0, linestyle="-.",
+               label="Re-scrape (Oct 2023)", alpha=0.8)
 
     ax.annotate("Head surplus\nequilibrates\nvia drainage (\u03b2\u2083)",
                 xy=(pd.Timestamp("2016-06"), 80), fontsize=14, fontweight="bold",

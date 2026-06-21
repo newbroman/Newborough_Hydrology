@@ -34,7 +34,13 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.2.2"  # Hollingham (2026) — 2026-06-21
+__version__ = "1.2.4"  # Hollingham (2026) — 2026-06-21
+# 1.2.4 — Paired figure (09c_04, CEH36 vs CEH4): added clearfell (Dec 2017) and
+#         Oct-2023 re-scrape markers on both panels alongside the existing
+#         scraping line; panel (a) legend lists all three. Figure only.
+# 1.2.3 — Climate-control figure (09c_03), panel (a): moved the legend to start
+#         at the clearfell marker (lower-left anchored at x = clearfell year),
+#         clearing the CEH22 trace it previously obscured in the lower-left.
 # 1.2.2 — Climate-control summer-minima figure (09c_03): added the Oct-2023
 #         re-scrape marker (magenta dash-dot) on all three panels alongside the
 #         scraping (Apr 2015) and clearfell (Dec 2017) lines; legend updated.
@@ -283,7 +289,9 @@ def _plot_climate_control(well_mins, climate_centroid_mins, post_year):
     ax.axhline(-0.98, color="brown", ls=":", alpha=0.4, label="Dry slack threshold")
     ax.set_ylabel("Summer minimum depth (m)")
     ax.set_title("(a) Raw annual summer minimum (Jun\u2013Sep)", loc="left", fontweight="bold")
-    ax.legend(fontsize=8, ncol=3, loc="lower left")
+    ax.legend(fontsize=8, ncol=3, loc="lower left",
+              bbox_to_anchor=(INTERVENTION_DATE.year + 0.5, 0.0),
+              bbox_transform=ax.get_xaxis_transform(), framealpha=0.9)
     ax.grid(axis="y", alpha=0.25)
     ax.invert_yaxis()
 
@@ -353,6 +361,8 @@ def _plot_paired(well_mins, paired_mins, post_year):
     ax.plot(common, [well_mins["ceh36"][yr] for yr in common], "o-", color="#d62728", lw=2, ms=7, label="CEH36 (scraped)")
     ax.plot(common, [ceh4_mins[yr] for yr in common], "s-", color="#ff7f0e", lw=2, ms=7, label="CEH4 (paired control)")
     ax.axvline(post_year - 0.5, color="#DAA520", ls="--", lw=2.5, alpha=0.7, label="Scraping (Apr 2015)")
+    ax.axvline(INTERVENTION_DATE.year + 0.5, color="#1b5e20", ls="-.", lw=2.5, alpha=0.8, label="Clearfell (Dec 2017)")
+    ax.axvline(SCRAPING_DATE_2.year + 0.5, color="#e7298a", ls="-.", lw=2.5, alpha=0.8, label="Re-scrape (Oct 2023)")
     ax.axhline(-0.61, color="green", ls=":", lw=1.5, alpha=0.4, label="Wet slack threshold (\u22120.61 m)")
     ax.axhline(-0.98, color="brown", ls=":", lw=1.5, alpha=0.4, label="Dry slack threshold (\u22120.98 m)")
     ax.set_ylabel("Summer minimum depth (m)")
@@ -371,6 +381,8 @@ def _plot_paired(well_mins, paired_mins, post_year):
         ax.axhline(np.mean(post_gap), color="#CC79A7", ls="--", lw=2,
                     label=f"Post-scraping mean: {np.mean(post_gap)*1000:+.0f} mm")
     ax.axvline(post_year - 0.5, color="#DAA520", ls="--", lw=2.5, alpha=0.7)
+    ax.axvline(INTERVENTION_DATE.year + 0.5, color="#1b5e20", ls="-.", lw=2.5, alpha=0.8)
+    ax.axvline(SCRAPING_DATE_2.year + 0.5, color="#e7298a", ls="-.", lw=2.5, alpha=0.8)
     ax.axhline(0, color="black", lw=0.6, alpha=0.5)
     if len(pre_gap) >= 2 and len(post_gap) >= 2:
         _, p = sp_stats.ttest_ind(post_gap, pre_gap, equal_var=False)

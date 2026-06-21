@@ -122,6 +122,19 @@ FOREST_INTERCEPTION = 0.24
 # Under k=5: C4 (Main Forest) and C5 (Coastal Forest).
 FOREST_CIDS = (4, 5)
 
+# --- Forest drawdown-propagation model (Script 20, plot_drawdown_propagation) -
+# Steady-state drawdown around the forest block is modelled as a cone
+# H0·exp(-d/λ), where the e-folding length λ = sqrt(K·b / (Sy·β₃_daily)) is
+# derived live from the C3 propagation-medium Sy (WTF, Script 17) and β₃
+# (SSM, Script 03); only the fixed model inputs are centralised here.
+#   DRAWDOWN_H0_MM : forest interception deficit at the felling edge (mm).
+#   DRAWDOWN_K_MDAY: aquifer hydraulic conductivity (m/day; Betson 2002).
+#   DRAWDOWN_B_M   : saturated aquifer thickness used for λ (m; estimate).
+# Previously hardcoded as in-function locals in Script 20.
+DRAWDOWN_H0_MM  = 150.0
+DRAWDOWN_K_MDAY = 6.0
+DRAWDOWN_B_M    = 5.0
+
 CLUSTER_MARKERS = {
     1: "o",
     2: "s",

@@ -1,0 +1,13 @@
+Parameter,Well,Era,Value,Unit,Note
+tau_ceh13,CEH13,excluded,,months,near-zero β₃ outlier (excluded)
+tau_ceh14,CEH14,excluded,,months,negative β₃ (excluded)
+C1_tau_min,,,1.3273,months,"min τ, C1, reference network, n=7"
+C1_tau_max,,,2.5523,months,"max τ, C1, reference network, n=7"
+C2_tau_min,,,2.0295,months,"min τ, C2, reference network, n=24"
+C2_tau_max,,,4.8674,months,"max τ, C2, reference network, n=24"
+C3_tau_min,,,2.3291,months,"min τ, C3, reference network, n=21"
+C3_tau_max,,,11.2449,months,"max τ, C3, reference network, n=21"
+C4_tau_min,,,5.9526,months,"min τ, C4, reference network, n=7"
+C4_tau_max,,,33.5877,months,"max τ, C4, reference network, n=7"
+C5_tau_min,,,5.6043,months,"min τ, C5, reference network, n=5"
+C5_tau_max,,,7.6377,months,"max τ, C5, reference network, n=5"

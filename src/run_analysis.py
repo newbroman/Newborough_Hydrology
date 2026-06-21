@@ -608,7 +608,7 @@ def run_full_pipeline(from_step: int = 1) -> None:
     run_phase(PHASE_14, "PHASE 14 — Cluster Framework Diagnostics (Scripts 28, 29)",  from_step)
     _elapsed = (time.time() - _t_start) / 60.0
     print()
-    _banner("PIPELINE COMPLETE  ·  steps 1–34 written to outputs/", _Ansi.BGREEN)
+    _banner("PIPELINE COMPLETE  ·  steps 1–35 written to outputs/", _Ansi.BGREEN)
     say_info("greyscale step 35 runs separately (menu option 6 / --greyscale)")
     say_info(f"total run time: {_elapsed:0.1f} min")
 
@@ -657,14 +657,14 @@ def _intro_block() -> str:
         "Five hydrogeological clusters C1–C5 · Ward's-linkage hierarchical clustering",
         "Hollingham (2026)",
     ]
-    return "\n".join("  " + ln for ln in lines)
+    return "\n".join("  " + paint(ln, _Ansi.DIM) for ln in lines)
 
 
 def render_menu() -> str:
     num  = lambda s: paint(s, _Ansi.BCYAN, _Ansi.BOLD)
     grp  = lambda s: paint(s, _Ansi.BOLD)
-    hint = lambda s: s
-    rule = "─" * 70
+    hint = lambda s: paint(s, _Ansi.GREY)
+    rule = paint("─" * 70, _Ansi.GREY)
     out = [
         "",
         hint("  First run / new dataset → option 1 (full pipeline). For canonical"),
@@ -673,7 +673,7 @@ def render_menu() -> str:
         "",
         "  " + rule,
         "  " + grp("RUN"),
-        f"    {num('1')}   Full pipeline             " + hint("steps 1–34 · run twice for new data"),
+        f"    {num('1')}   Full pipeline             " + hint("steps 1–35 · run twice for new data"),
         f"    {num('2')}   Resume from a step        " + hint("pick up mid-pipeline"),
         f"    {num('3')}   Run a single step",
         "",
@@ -779,9 +779,9 @@ def run_greyscale(full_rerun: bool = False) -> None:
     Parameters
     ----------
     full_rerun : bool
-        If True, re-run the figure-producing pipeline (steps 1-34) with
-        BW_MODE=True (native B&W rendering with hatching, line styles,
-        hillshade DEMs); no separate greyscale sweep is required.
+        If True, re-run the entire pipeline with BW_MODE=True (native B&W
+        rendering with hatching, line styles, hillshade DEMs) then run
+        Script 27 to sweep remaining figures.
         If False, just run Script 27 pixel conversion on existing outputs.
     """
     print()
@@ -802,10 +802,10 @@ def run_greyscale(full_rerun: bool = False) -> None:
 
     if full_rerun:
         print("  Mode: Full B&W pipeline re-run")
-        print("  This will re-run all 34 steps with BW_MODE=True,")
+        print("  This will re-run all 35 steps with BW_MODE=True,")
         print("  producing native greyscale figures with hatching, distinct")
-        print("  line styles, and hillshade DEMs. No separate greyscale")
-        print("  sweep is needed — every figure is rendered greyscale-native.")
+        print("  line styles, and hillshade DEMs. Then Script 27 sweeps any")
+        print("  remaining colour-only figures.")
         print()
         # Set env var so all subprocess scripts pick up BW_MODE=True
         import os
@@ -816,8 +816,7 @@ def run_greyscale(full_rerun: bool = False) -> None:
             run_full_pipeline(from_step=1)
         finally:
             os.environ.pop("NRG_BW_MODE", None)
-        # In BW mode the figure steps (1-34) rendered natively in greyscale,
-        # so the separate step-35 greyscale conversion (Script 27) is not needed.
+        # Script 27 greyscale already ran as step 35 inside run_full_pipeline
     else:
         print("  Mode: Pixel conversion only (Script 27)")
         print("  This converts existing colour figures to greyscale using")
@@ -931,7 +930,7 @@ def interactive_menu() -> None:
                 "    pass 2: option 2, resume from step 9\n"
                 "  See module docstring for details."
             )
-            ans = input("\n  Run the full pipeline (steps 1–34) from the beginning? [y/N] ").strip().lower()
+            ans = input("\n  Run all 35 steps from the beginning? [y/N] ").strip().lower()
             if ans == "y":
                 log_path = _prompt_logging()
                 try:

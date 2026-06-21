@@ -32,6 +32,13 @@ Purpose:
 #     here they clutter the well markers, so they are suppressed. Figures only;
 #     model formulations and metrics unchanged.
 
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-06-21
+# 1.1.0 (2026-06-21): §4.9.1 traceability — export_nse_diagnostics() writes
+#         08_perwell_nse.csv (per-well TLM/SSM NSE + ΔNSE + Cluster/β₂/β₃),
+#         08_cluster_nse_medians.csv (per-cluster median ΔNSE & median TLM NSE),
+#         and 08_report_numbers.csv (ΔNSE↔β₃ and ΔNSE↔β₂ correlations). No
+#         change to the existing benchmark/showdown procedure.
+
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
 from utils.paths import (
@@ -47,8 +54,12 @@ from utils.paths import (
     OUT_08_R2_MAP,
     OUT_08_NSE_MAP,
     OUT_08_TABLE3_SUMMARY,
+    OUT_08_PERWELL_NSE,
+    OUT_08_CLUSTER_NSE_MEDIANS,
+    OUT_08_REPORT_NUMBERS,
 )
 from utils.data_utils import normalize_well_name
+from utils.report_numbers_utils import ReportNumbers
 from utils.model_utils import get_metrics, get_r2, build_ssm_frame, simulate_ssm
 from utils.map_utils import add_kml_features, load_dem_layer
 from utils.config import (
@@ -60,6 +71,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import numpy as np
 import pandas as pd
+from scipy import stats as _spstats
 import statsmodels.api as sm
 
 from utils.console_utils import (
@@ -516,6 +528,77 @@ def plot_metric_map(map_df, value_col, title, output_path, cmap, vmin=None, vmax
     plt.close()
 
 
+def export_nse_diagnostics(ok_df: pd.DataFrame, master_path: Path,
+                           perwell_path: Path, medians_path: Path,
+                           report_path: Path) -> None:
+    """§4.9.1 traceability: per-well ΔNSE/TLM-NSE, per-cluster medians, and the
+    ΔNSE↔coefficient correlations, all written to committed CSVs.
+
+    ΔNSE       = Iterative_NSE_Improvement (SSM minus TLM)
+    TLM NSE    = Iterative_NSE_Traditional
+    Cluster, β₂, β₃ are joined from 03_master_data.csv (uniform 3.7 m datum).
+    """
+    if ok_df.empty:
+        warn("No valid SSM08 rows. Skipping NSE diagnostics export.")
+        return
+    if not master_path.exists():
+        warn(f"Master file {master_path.name} absent — skipping NSE diagnostics.")
+        return
+
+    master = pd.read_csv(master_path)
+    master = master.copy()
+    master["Well_Normalized"] = master["Name_Original"].apply(normalize_well_name)
+    keep = ["Well_Normalized", "Cluster",
+            "beta_2_atmospheric_draw", "beta_3_drainage"]
+    keep = [c for c in keep if c in master.columns]
+
+    pw = ok_df[["Well", "Well_Normalized",
+                "Iterative_NSE_Traditional",
+                "Iterative_NSE_StateSpace",
+                "Iterative_NSE_Improvement"]].merge(
+        master[keep], on="Well_Normalized", how="left")
+    pw = pw.rename(columns={
+        "Iterative_NSE_Traditional": "TLM_NSE",
+        "Iterative_NSE_StateSpace":  "SSM_NSE",
+        "Iterative_NSE_Improvement": "dNSE",
+    })
+    pw.to_csv(perwell_path, index=False)
+    saved(f"{perwell_path.name} ({len(pw)} wells)")
+
+    # Per-cluster median ΔNSE and median TLM NSE
+    med_rows = []
+    for cid, grp in pw.dropna(subset=["Cluster"]).groupby("Cluster"):
+        med_rows.append({
+            "Cluster": f"C{int(cid)}",
+            "n": int(len(grp)),
+            "median_dNSE": float(pd.to_numeric(grp["dNSE"], errors="coerce").median()),
+            "median_TLM_NSE": float(pd.to_numeric(grp["TLM_NSE"], errors="coerce").median()),
+        })
+    med_df = pd.DataFrame(med_rows).sort_values("Cluster")
+    med_df.to_csv(medians_path, index=False)
+    saved(f"{medians_path.name} ({len(med_df)} clusters)")
+
+    # ΔNSE ↔ coefficient correlations (site-wide, reference network)
+    rpt = ReportNumbers()
+    for _, r in med_df.iterrows():
+        rpt.add(f"{r['Cluster']}_median_dNSE", r["median_dNSE"], unit="",
+                note=f"median ΔNSE (SSM−TLM), {r['Cluster']}, n={int(r['n'])}")
+        rpt.add(f"{r['Cluster']}_median_TLM_NSE", r["median_TLM_NSE"], unit="",
+                note=f"median TLM iterative NSE, {r['Cluster']}, n={int(r['n'])}")
+    for coef, key in [("beta_3_drainage", "beta3"),
+                      ("beta_2_atmospheric_draw", "beta2")]:
+        if coef in pw.columns:
+            sub = pw.dropna(subset=["dNSE", coef])
+            if len(sub) >= 3:
+                r, p = _spstats.pearsonr(sub["dNSE"], sub[coef])
+                rpt.add(f"dNSE_vs_{key}_r", r, unit="",
+                        note=f"Pearson r, ΔNSE vs {coef}, n={len(sub)}")
+                rpt.add(f"dNSE_vs_{key}_p", p, unit="",
+                        note=f"p-value, ΔNSE vs {coef}, n={len(sub)}")
+    n_saved = rpt.save(report_path)
+    saved(f"{report_path.name} ({n_saved} report numbers)")
+
+
 def export_table3_summary(ok_df: pd.DataFrame, output_path: Path) -> None:
     """Export manuscript Table 3 benchmark summary from per-well model metrics."""
     if ok_df.empty:
@@ -637,6 +720,9 @@ if __name__ == '__main__':
     model_stats_df.to_csv(stats_csv, index=False)
     print(f"\n -> Exported SSM08 SSMvTLM stats table (includes NSE): {stats_csv.name}")
     export_table3_summary(ok_df, OUT_08_TABLE3_SUMMARY)
+    export_nse_diagnostics(ok_df, INT_MASTER_DATA,
+                           OUT_08_PERWELL_NSE, OUT_08_CLUSTER_NSE_MEDIANS,
+                           OUT_08_REPORT_NUMBERS)
 
     # Generate detailed dual-panel plots for selected manuscript wells
 

@@ -7,7 +7,7 @@ land-side (DEM > 1 m) runs of vertices as a new LineString collection.
 
 Inputs:
   /mnt/user-data/uploads/streams.kml    raw GRASS r.watershed output (4181 lines)
-  data/newborough_dem.tif               2 m LiDAR DEM, EPSG:27700, range -2.06 to 53.46 m
+  data/geo/newborough_dem.tif           2 m LiDAR DEM, EPSG:27700, range -2.06 to 53.46 m
 
 Output:
   /mnt/user-data/outputs/streams.kml    masked replacement for data/streams.kml
@@ -22,10 +22,18 @@ import rasterio
 import numpy as np
 from shapely.geometry import LineString
 from pathlib import Path
+import sys
+
+# Resolve the DEM location from paths.py (single source of truth) rather than
+# a hardcoded absolute path. This module lives in src/utils/ alongside
+# paths.py; add that directory to sys.path so `from paths import DATA_DEM`
+# resolves when the utility is run standalone from any working directory.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from paths import DATA_DEM
 
 # Configuration
 INPUT_KML = Path("/mnt/user-data/uploads/streams.kml")
-DEM_TIF   = Path("/home/claude/Newborough_Hydrology/data/newborough_dem.tif")
+DEM_TIF   = DATA_DEM                       # paths.DATA_DEM -> data/geo/newborough_dem.tif
 OUTPUT_KML = Path("/mnt/user-data/outputs/streams.kml")
 LAND_THRESHOLD_M = 0.0
 MIN_VERTICES_PER_LINE = 2  # need at least 2 vertices to form a line

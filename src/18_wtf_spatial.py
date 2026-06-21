@@ -28,7 +28,10 @@ References:
     Freeman, S. (2008) Hydrological impact of Corsican pine at Newborough Warren.
 """
 
-__version__ = "1.1.1"  # Hollingham (2026) — 2026-06-21
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-06-21
+# 1.2.0 (2026-06-21): §4.9 traceability — emit 18_report_numbers.csv with the
+#         cited τ wells (CEH13/CEH14) and per-cluster reference-network τ
+#         ranges (Fig 44). No change to the τ CSV or maps.
 # 1.1.1 — data/geo/ reorg: site-boundary/streams via DATA_KML_SITE_BOUNDARY,
 #         DATA_KML_STREAMS (data/geo/). No functional change.
 # 1.1.0 — Terminology update: "drainage timescale" → "storage–drainage index"
@@ -71,7 +74,9 @@ from utils.paths import (
     OUT_18_WELL_SY_TABLE, OUT_18_SY_MAP, OUT_18_SY_CONTOUR,
     OUT_18_SY_CONTOUR_EXT, INT_WTF_WELL_SY, OUT_18_DRAINAGE_TIMESCALE,
     OUT_18_DRAINAGE_TIMESCALE_CSV, OUT_18_AQUIFER_SYNTHESIS,
+    OUT_18_REPORT_NUMBERS,
 )
+from utils.report_numbers_utils import ReportNumbers
 from utils.config import (
     CLUSTER_LABELS, CLUSTER_COLOURS, CLUSTER_MARKERS,
     FOREST_INTERCEPTION, FOREST_CIDS,
@@ -1170,6 +1175,31 @@ def main(supplementary=True):
 
         print("\nGenerating aquifer diagnostic synthesis scatter...")
         plot_aquifer_diagnostic_synthesis(tau_df, OUT_18_AQUIFER_SYNTHESIS)
+
+        # ── §4.9.3 traceable report numbers: τ statistics (Fig 44) ───────
+        # Cited wells and per-cluster τ ranges over the non-excluded
+        # reference network (τ = Sy / β₃ on the 3.7 m datum).
+        rpt = ReportNumbers()
+        cited = {"ceh13": "near-zero β₃ outlier (excluded)",
+                 "ceh14": "negative β₃ (excluded)"}
+        for w, why in cited.items():
+            wr = tau_df[tau_df["Well"].str.lower() == w]
+            if len(wr):
+                tau_v = wr["tau_months"].iloc[0]
+                rpt.add(f"tau_{w}", float(tau_v) if pd.notna(tau_v) else np.nan,
+                        unit="months", well=w.upper(),
+                        era="excluded" if bool(wr["Excluded"].iloc[0]) else "",
+                        note=why)
+        ok = tau_df[~tau_df["Excluded"]]
+        for cid, grp in ok.groupby("Cluster"):
+            taus = pd.to_numeric(grp["tau_months"], errors="coerce").dropna()
+            if len(taus):
+                rpt.add(f"C{int(cid)}_tau_min", float(taus.min()), unit="months",
+                        note=f"min τ, C{int(cid)}, reference network, n={len(taus)}")
+                rpt.add(f"C{int(cid)}_tau_max", float(taus.max()), unit="months",
+                        note=f"max τ, C{int(cid)}, reference network, n={len(taus)}")
+        n_saved = rpt.save(OUT_18_REPORT_NUMBERS)
+        print(f"  Saved → {OUT_18_REPORT_NUMBERS.name} ({n_saved} report numbers)")
     else:
         print("\nSupplementary contour maps skipped "
               "(pass --supplementary to generate)")

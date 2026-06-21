@@ -38,6 +38,13 @@ Outputs:
 ====================================================================================
 """
 
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-06-21
+# 1.1.0 (2026-06-21): §4.9 traceability — emit 07_cluster_coeff_means.csv
+#         (per-cluster mean β₁/β₂/β₃ on the 3.7 m datum) and
+#         07_report_numbers.csv (cited cluster means + CEH14 β₃). Reads
+#         03_master_data.csv (uniform datum) as before; maps unchanged.
+# 1.0.x : per-cluster ranges CSV; IDW coefficient atlas.
+
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
 
@@ -47,7 +54,10 @@ from utils.paths import (
     OUT_DIR,
     INT_MASTER_DATA,
     INT_WELL_ELEVATIONS,
+    OUT_07_CLUSTER_COEFF_MEANS,
+    OUT_07_REPORT_NUMBERS,
 )
+from utils.report_numbers_utils import ReportNumbers
 from utils.map_utils import (
     load_dem_hillshade,
     add_idw_surface,
@@ -473,5 +483,47 @@ if __name__ == "__main__":
         OUT_CLUSTER_RANGES, index=False,
     )
     step(f"Exported per-cluster coefficient ranges to {OUT_CLUSTER_RANGES.name}")
+
+    # ------------------------------------------------------------------
+    # §4.9 traceability: per-cluster MEAN coefficients + report numbers
+    # Means of the per-well SSM coefficients (uniform 3.7 m datum, read
+    # from 03_master_data.csv), so the cited §4.9 cluster means have a
+    # findable source. β₃ also reported as % head drained / month.
+    # ------------------------------------------------------------------
+    _mean_rows = []
+    for _cid, _grp in df.groupby("Cluster_ID"):
+        _row = {
+            "Cluster_ID": int(_cid),
+            "Cluster": CLUSTER_LABELS.get(int(_cid), f"C{int(_cid)}"),
+            "n": int(len(_grp)),
+        }
+        for _c in _coef_cols:
+            _row[f"{_c}_mean"] = float(_grp[_c].mean())
+        _row["beta_3_pct_mean"] = float(_grp["beta_3_drainage"].mean()) * 100.0
+        _mean_rows.append(_row)
+    _means_df = pd.DataFrame(_mean_rows).sort_values("Cluster_ID")
+    _means_df.to_csv(OUT_07_CLUSTER_COEFF_MEANS, index=False)
+    step(f"Exported per-cluster coefficient means to {OUT_07_CLUSTER_COEFF_MEANS.name}")
+
+    rpt = ReportNumbers()
+    for _, _r in _means_df.iterrows():
+        _cl = f"C{int(_r['Cluster_ID'])}"
+        rpt.add(f"{_cl}_beta1_mean", _r["beta_1_recharge_mean"], unit="mm/mm",
+                note=f"mean β₁ recharge, {_cl}, 3.7 m datum, n={int(_r['n'])}")
+        rpt.add(f"{_cl}_beta2_mean", _r["beta_2_atmospheric_draw_mean"], unit="mm/mm",
+                note=f"mean β₂ atmospheric draw, {_cl}, 3.7 m datum, n={int(_r['n'])}")
+        rpt.add(f"{_cl}_beta3_mean", _r["beta_3_drainage_mean"], unit="/month",
+                note=f"mean β₃ drainage, {_cl}, 3.7 m datum, n={int(_r['n'])}")
+        rpt.add(f"{_cl}_beta3_pct_mean", _r["beta_3_pct_mean"], unit="%/month",
+                note=f"mean β₃ as % head drained/month, {_cl}")
+    # CEH14: cited negative β₃ (lateral recharge from the rock ridge)
+    _ceh14 = df[df["Name_Original"].astype(str).str.lower().str.replace(" ", "") == "ceh14"]
+    if len(_ceh14):
+        rpt.add("CEH14_beta3", float(_ceh14["beta_3_drainage"].iloc[0]), unit="/month",
+                well="CEH14", note="negative β₃ — lateral recharge from rock ridge (C4)")
+        rpt.add("CEH14_beta3_pct", float(_ceh14["beta_3_drainage"].iloc[0]) * 100.0,
+                unit="%/month", well="CEH14", note="negative β₃ as %")
+    n_saved = rpt.save(OUT_07_REPORT_NUMBERS)
+    step(f"Exported {n_saved} report numbers to {OUT_07_REPORT_NUMBERS.name}")
 
     print("\nSSM07 Spatial Coefficient Mapping complete.")

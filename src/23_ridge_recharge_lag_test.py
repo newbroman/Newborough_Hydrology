@@ -95,7 +95,7 @@ Ridge reference point: E = 241750, N = 364500 (OSGB36)
 ====================================================================================
 """
 
-__version__ = "1.0.1"  # Hollingham (2026) — 2026-05-17
+__version__ = "1.0.2"  # Hollingham (2026) — 2026-06-21 (iterate CLUSTER_LABELS not CLUSTER_COLOURS.items() — drop reserved C6 from cluster loops; no functional change, C6 was already len-guarded)
 # 1.0.1 — Doc-sweep S.16: added prominent LIMITATION NOTE at top of
 #         docstring documenting that the test design is statistically
 #         degenerate against this dataset (monthly resolution cannot
@@ -330,7 +330,8 @@ def plot_lag_vs_distance(ccf_df, output_path, sig_threshold, trend_stats):
     """
     fig, ax = plt.subplots(figsize=(10, 6.5), dpi=300)
 
-    for cid, col in CLUSTER_COLOURS.items():
+    for cid in CLUSTER_LABELS:
+        col = CLUSTER_COLOURS[cid]
         sub = ccf_df[(ccf_df['Cluster'] == cid) & ccf_df['peak_significant']]
         if len(sub):
             ax.scatter(sub['ridge_distance_m'], sub['peak_lag'],

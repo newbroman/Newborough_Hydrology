@@ -230,12 +230,17 @@ OUT_07_BETA2_MAP            = DIR_07 / "07_coeff_02_beta2_atm_draw.png"
 OUT_07_BETA3_MAP            = DIR_07 / "07_coeff_03_beta3_drainage.png"
 OUT_07_R2_MAP               = DIR_07 / "07_coeff_04_r2_quality.png"
 OUT_07_MAPS_DATA            = DIR_07 / "07_coeff_maps_data.csv"
+OUT_07_CLUSTER_COEFF_MEANS  = DIR_07 / "07_cluster_coeff_means.csv"   # §4.9 per-cluster mean β₁/β₂/β₃ (3.7 m datum)
+OUT_07_REPORT_NUMBERS       = DIR_07 / "07_report_numbers.csv"        # §4.9 cited coefficient stats
 
 # Script 08 — Model benchmarking
 OUT_08_SHOWDOWN             = DIR_08 / "08_lcsc_01_ceh6_showdown.png"
 OUT_08_R2_MAP               = DIR_08 / "08_lcsc_02_r2_improvement_map.png"
 OUT_08_NSE_MAP              = DIR_08 / "08_lcsc_03_nse_improvement_map.png"
 OUT_08_TABLE3_SUMMARY       = DIR_08 / "08_lcsc_04_table3_benchmark_summary.csv"
+OUT_08_PERWELL_NSE          = DIR_08 / "08_perwell_nse.csv"           # per-well TLM/SSM NSE + ΔNSE + β₂/β₃ join
+OUT_08_CLUSTER_NSE_MEDIANS  = DIR_08 / "08_cluster_nse_medians.csv"   # per-cluster median ΔNSE and median TLM NSE
+OUT_08_REPORT_NUMBERS       = DIR_08 / "08_report_numbers.csv"        # §4.9.1 cited ΔNSE stats + correlations
 
 # Script 09 — Scraping intervention
 OUT_09_FULL_PARAMS          = DIR_09 / "09_scrape_01_full_parameters.csv"
@@ -459,6 +464,7 @@ OUT_18_SY_CONTOUR_EXT       = DIR_18 / "18_wtf_04_sy_contour_extended.png"
 OUT_18_DRAINAGE_TIMESCALE   = DIR_18 / "18_wtf_05_drainage_timescale_map.png"
 OUT_18_DRAINAGE_TIMESCALE_CSV = DIR_18 / "18_wtf_05_drainage_timescale.csv"
 OUT_18_AQUIFER_SYNTHESIS    = DIR_18 / "18_wtf_06_aquifer_diagnostic_synthesis.png"
+OUT_18_REPORT_NUMBERS       = DIR_18 / "18_report_numbers.csv"        # §4.9.3 cited τ stats (Fig 44)
 
 # Script 19 — Spatial groundwater analysis
 OUT_19_THICKNESS_MAP  = DIR_19 / "19_aquifer_thickness.jpg"
@@ -499,6 +505,8 @@ OUT_20_RESIDUAL_SSM         = DIR_20 / "20_residual_ssm.png"
 OUT_20_SLOPE                = DIR_20 / "20_slope_gradient.png"
 OUT_20_DRAWDOWN             = DIR_20 / "20_drawdown_propagation.png"
 OUT_20_DRAWDOWN_NOHEAD      = DIR_20 / "20_drawdown_propagation_nohead.png"
+OUT_20_DRAWDOWN_PERWELL     = DIR_20 / "20_drawdown_perwell.csv"      # per-well modelled drawdown dd_mm + dist_forest
+OUT_20_REPORT_NUMBERS       = DIR_20 / "20_report_numbers.csv"        # §4.9 cited drawdown stats (λ + key wells)
 OUT_20_COASTAL_EROSION      = DIR_20 / "20_coastal_erosion.png"
 OUT_20_SLR_RESPONSE         = DIR_20 / "20_slr_response.png"
 OUT_20_COASTAL_NET          = DIR_20 / "20_coastal_net_effect.png"
@@ -607,3 +615,4 @@ OUT_29_UNIVARIATE_R2  = DIR_29 / "29_univariate_R2.csv"
 OUT_29_DROP_ONE       = DIR_29 / "29_drop_one.csv"
 OUT_29_MEMO           = DIR_29 / "29_within_c3_variance_results.md"
 OUT_29_PANEL_FIG      = DIR_29 / "29_within_c3_variance_panel.png"
+OUT_29_REPORT_NUMBERS = DIR_29 / "29_report_numbers.csv"   # §4.9.2 C3 gradient stats (β₁/β₃/Sy vs inland)

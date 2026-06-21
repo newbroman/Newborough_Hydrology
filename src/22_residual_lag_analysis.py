@@ -46,7 +46,7 @@ Well exclusions (EXCLUDED_WELLS_NORM):
 ====================================================================================
 """
 
-__version__ = "1.0.2"  # Hollingham (2026) — 2026-06-20 (fix add_kml_features(ax) -> (ax, DATA_DIR); import DATA_DIR)
+__version__ = "1.0.3"  # Hollingham (2026) — 2026-06-21 (iterate CLUSTER_LABELS not CLUSTER_COLOURS.items() — drop reserved C6 from cluster loops; no functional change, C6 was already len-guarded)
 # 1.0.1 — Doc-sweep S.16: corrected stale "lag-1 rainfall" docstring claim
 #         to "contemporaneous rainfall under HEADLINE_LAG = 0" (S16-A);
 #         clarified the inline comment on lag/displacement handling (S16-B);
@@ -142,7 +142,8 @@ def plot_ar1_hist(fits_df, output_path):
     fig, ax = plt.subplots(figsize=(9, 5.5), dpi=300)
     bins = np.linspace(-0.3, 0.7, 25)
 
-    for cid, col in CLUSTER_COLOURS.items():
+    for cid in CLUSTER_LABELS:
+        col = CLUSTER_COLOURS[cid]
         sub = fits_df[fits_df['Cluster'] == cid]['ar1_phi'].dropna()
         if len(sub):
             ax.hist(sub, bins=bins, alpha=0.65, color=col,
@@ -208,7 +209,8 @@ def plot_alpha_phi_scatter(fits_df, output_path):
     fig, ax = plt.subplots(figsize=(9, 7), dpi=300)
     valid = fits_df.dropna(subset=['alpha', 'ar1_phi'])
 
-    for cid, col in CLUSTER_COLOURS.items():
+    for cid in CLUSTER_LABELS:
+        col = CLUSTER_COLOURS[cid]
         sub = valid[valid['Cluster'] == cid]
         if len(sub):
             ax.scatter(sub['alpha'], sub['ar1_phi'],

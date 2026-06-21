@@ -35,7 +35,7 @@ Reviewer-facing method summary:
 
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-05-25
+__version__ = "1.2.1"  # Hollingham (2026) — 2026-06-21 (iterate CLUSTER_LABELS not CLUSTER_COLOURS — drop reserved C6 from cluster loops; no functional change, C6 was already guarded out)
 # 1.2.0 — Winter trends now persisted to 14_winter_trend_stats.csv
 #         (parallel to 14_summer_trend_stats.csv). Winter trend
 #         computation in main() now captures the p-value (previously
@@ -223,7 +223,7 @@ def load_annual_extremes(filepath: Path) -> tuple[dict, dict]:
     Load 03_regional_averages.csv and extract annual summer minima and
     winter maxima per cluster.
 
-    Returns data for ALL clusters present in CLUSTER_COLOURS (so all five
+    Returns data for ALL clusters present in CLUSTER_LABELS (so all five
     under the current k=5 partition); the caller then chooses which subset
     to fit trajectories for via TRAJECTORY_CLUSTERS.
 
@@ -236,11 +236,11 @@ def load_annual_extremes(filepath: Path) -> tuple[dict, dict]:
     df["hydro_year"] = df.index.year + (df.index.month >= 10).astype(int)
     df = df[(df.index.year >= OBS_START) & (df.index.year <= OBS_END)]
 
-    summer_min = {c: {} for c in CLUSTER_COLOURS}
-    winter_max = {c: {} for c in CLUSTER_COLOURS}
+    summer_min = {c: {} for c in CLUSTER_LABELS}
+    winter_max = {c: {} for c in CLUSTER_LABELS}
 
     for year, grp in df.groupby("hydro_year"):
-        for c in CLUSTER_COLOURS:
+        for c in CLUSTER_LABELS:
             if c not in df.columns:
                 continue
             summer = grp[grp.index.month.isin(SUMMER_MONTHS)][c].dropna()

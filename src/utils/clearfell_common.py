@@ -69,7 +69,10 @@ provenance with ``_ = wells_prov``. Script 10d uses it to require
 >=2 measured Jun-Sep months in ``annual_summer_minimum``.
 """
 
-__version__ = "1.7.1"  # Hollingham (2026) — 2026-05-27
+__version__ = "1.7.2"  # Hollingham (2026) — 2026-06-21
+# 1.7.2 (2026-06-21): ReportNumbers class lifted to
+#   utils/report_numbers_utils.py; re-exported here for back-compat. No
+#   behavioural change to clearfell scripts.
 # 1.7.1 — Docstring only, no functional change.  Reworked the
 #         load_clearfell_b2_multiplier docstring to close the
 #         interpretability gap on the per-tier ratios: the era fits use
@@ -1022,29 +1025,11 @@ def forest_control_centroid_summer_min(wells, forest_wells,
 # REPORTING UTILITIES
 # ============================================================================
 
-class ReportNumbers:
-    """Accumulator for report numbers CSV export."""
-
-    def __init__(self):
-        self.rows = []
-
-    def add(self, parameter, value, unit="m", well="", era="", note=""):
-        self.rows.append({
-            "Parameter": parameter,
-            "Well": well,
-            "Era": era,
-            "Value": round(value, 4) if pd.notna(value) and isinstance(value, (int, float)) else value,
-            "Unit": unit,
-            "Note": note,
-        })
-
-    def to_dataframe(self):
-        return pd.DataFrame(self.rows)
-
-    def save(self, path):
-        df = self.to_dataframe()
-        df.to_csv(path, index=False)
-        return len(self.rows)
+# ReportNumbers was lifted to utils/report_numbers_utils.py (2026-06-21) so
+# non-clearfell scripts can import it without the clearfell BACI machinery.
+# Re-exported here for backward compatibility — existing
+# `from utils.clearfell_common import ReportNumbers` imports keep working.
+from utils.report_numbers_utils import ReportNumbers  # noqa: F401
 
 
 # ============================================================================

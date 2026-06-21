@@ -63,7 +63,13 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds
 """
 
-__version__ = "1.18.0"  # Hollingham (2026) — 2026-06-21
+__version__ = "1.19.1"  # Hollingham (2026) — 2026-06-21 (M1 audit fix: slope-gradient legend iterated CLUSTER_COLOURS.keys() including reserved C6, drawing a phantom C6 patch; now iterates CLUSTER_LABELS.keys(). Rebased onto v1.19.0 §4.9 drawdown-traceability work.)
+# 1.19.0 (2026-06-21): §4.9 traceability — plot_drawdown_propagation() now
+#   emits 20_drawdown_perwell.csv (well, E, N, dist_forest_m, dd_mm) and
+#   20_report_numbers.csv (λ + cited wells) on the show_head pass. Drawdown
+#   model constants H0/K/b moved from in-function locals to config.py
+#   (DRAWDOWN_H0_MM / DRAWDOWN_K_MDAY / DRAWDOWN_B_M); λ still derived live.
+#   No change to figure rendering.
 # 1.18.0 — Scrape footprints promoted to a shared add_kml_features() feature.
 #          Private _load_one_scrape_kml() removed (now map_utils.load_scrape_kml,
 #          single implementation). SCRAPE_INVENTORY tuples → SCRAPE_META keyed by
@@ -320,6 +326,7 @@ from utils.paths import (
     DATA_KML_SITE_BOUNDARY,
     DIR_20, OUT_20_HEAD_STREAMS, OUT_20_RESIDUAL_SSM, OUT_20_SLOPE,
     OUT_20_DRAWDOWN, OUT_20_DRAWDOWN_NOHEAD,
+    OUT_20_DRAWDOWN_PERWELL, OUT_20_REPORT_NUMBERS,
     OUT_20_COASTAL_EROSION, OUT_20_SLR_RESPONSE,
     OUT_20_COASTAL_NET, OUT_20_SCRAPE_DRAWDOWN, OUT_20_SCRAPE_DRAWDOWN_NOHEAD,
     OUT_20_CLEARFELL_BASELINE_DRAWDOWN, OUT_20_PUBLIC_PANEL,
@@ -335,9 +342,11 @@ from utils.paths import (
     OUT_26_5YR_PER_WELL,
 )
 from utils.map_utils import load_dem_hillshade, load_scrape_kml
-from utils.config import (CLUSTER_COLOURS, DRAINAGE_DATUM, FOREST_INTERCEPTION,
-                          FOREST_CIDS, SCRAPE_KML_FILES)
+from utils.config import (CLUSTER_COLOURS, CLUSTER_LABELS, DRAINAGE_DATUM, FOREST_INTERCEPTION,
+                          FOREST_CIDS, SCRAPE_KML_FILES,
+                          DRAWDOWN_H0_MM, DRAWDOWN_K_MDAY, DRAWDOWN_B_M)
 from utils.data_utils import normalize_well_name
+from utils.report_numbers_utils import ReportNumbers
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CONSTANTS
@@ -1234,7 +1243,7 @@ def plot_slope_gradient(wt, features, dpi=300):
 
     cl_handles = [
         mpatches.Patch(color=CLUSTER_COLOURS.get(cl, "grey"), label=f"C{cl}")
-        for cl in sorted(CLUSTER_COLOURS.keys())
+        for cl in sorted(CLUSTER_LABELS.keys())
     ] + [
         Line2D([0],[0], marker="o", color="w", markerfacecolor="grey",
                markeredgecolor="white", markersize=7, label="Reference well"),
@@ -1309,9 +1318,9 @@ def plot_drawdown_propagation(wt, features, dpi=300, show_head=True):
     # which gave λ=245 m.  Live C3 values (Sy≈0.33, β₃≈0.060) give λ≈217 m.
     # K and b remain fixed literature/estimate values (Betson 2002; aquifer
     # thickness estimate).
-    K       = 6.0       # m/day (Betson 2002)
-    b       = 5.0       # m saturated thickness
-    H0      = 150       # mm forest interception deficit
+    K       = DRAWDOWN_K_MDAY   # m/day (Betson 2002), from config.py
+    b       = DRAWDOWN_B_M      # m saturated thickness, from config.py
+    H0      = DRAWDOWN_H0_MM    # mm forest interception deficit, from config.py
 
     # Load C3 (propagation medium) Sy and β₃ from upstream pipeline outputs
     _sy_df    = pd.read_csv(INT_WTF_WELL_SY)
@@ -1464,10 +1473,12 @@ def plot_drawdown_propagation(wt, features, dpi=300, show_head=True):
 
     # ── Well drawdown values ──────────────────────────────────────────────
     dd_vals = []
+    dist_forest_vals = []
     for _, row in wt.iterrows():
         pt = Point(row["E"], row["N"])
         d_euc = forest_geom.exterior.distance(pt)
         inside = forest_prep.contains(pt)
+        dist_forest_vals.append(0.0 if inside else float(d_euc))
         cj_ = int((row["E"] - e_arr[0]) / cell)
         ci_ = int((n_arr[0] - row["N"]) / cell)
         if inside:
@@ -1478,6 +1489,32 @@ def plot_drawdown_propagation(wt, features, dpi=300, show_head=True):
             dd_vals.append(H0 * np.exp(-d_euc / lam))
     wt = wt.copy()
     wt["dd_mm"] = dd_vals
+    wt["dist_forest_m"] = dist_forest_vals
+
+    # ── §4.9 traceable per-well drawdown CSV + report numbers ─────────────
+    # dd_mm and λ are independent of show_head (which only toggles the head
+    # render layer), so these committed sources are written on every pass.
+    _perwell = wt[["well", "E", "N", "dist_forest_m", "dd_mm"]].copy()
+    _perwell = _perwell.sort_values("dist_forest_m").reset_index(drop=True)
+    _perwell.to_csv(OUT_20_DRAWDOWN_PERWELL, index=False)
+    print(f"  Saved → {OUT_20_DRAWDOWN_PERWELL.name} "
+          f"({len(_perwell)} wells)")
+
+    rpt = ReportNumbers()
+    rpt.add("drawdown_lambda", float(lam), unit="m",
+            note=f"e-folding length √(Kb/(Sy·β₃/30)); Sy={Sy:.4f}, "
+                 f"β₃={BETA3_M:.4f}/month [C3]")
+    rpt.add("drawdown_H0", float(H0), unit="mm",
+            note="forest interception deficit at felling edge (config)")
+    _ddmap = {w.lower(): v for w, v in zip(wt["well"], wt["dd_mm"])}
+    for _w in ["ceh23", "ceh6", "d15", "ceh24", "ceh10", "ceh11"]:
+        if _w in _ddmap:
+            rpt.add(f"drawdown_{_w}", float(_ddmap[_w]), unit="mm",
+                    well=_w.upper(),
+                    note="modelled steady-state forest drawdown")
+    n_saved = rpt.save(OUT_20_REPORT_NUMBERS)
+    print(f"  Saved → {OUT_20_REPORT_NUMBERS.name} "
+          f"({n_saved} report numbers)")
 
     # ── Render figure ─────────────────────────────────────────────────────
     fig, ax = plt.subplots(figsize=(10, 9), facecolor="white")

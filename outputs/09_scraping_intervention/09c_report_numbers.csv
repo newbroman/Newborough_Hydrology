@@ -1,9 +1,9 @@
 Parameter,Well,Control,Value,Unit,Note
-Summer_min_BACI_shift,CEH4,Climate,-0.0335,m,"n_pre=4, n_post=11, p=0.3321"
 Summer_min_BACI_shift,CEH21,Climate,-0.0596,m,"n_pre=4, n_post=11, p=0.3801"
 Summer_min_BACI_shift,CEH21,Paired,-0.008,m,"n_pre=4, n_post=11, p=0.8865"
-Summer_min_BACI_shift,CEH36,Climate,0.161,m,"n_pre=4, n_post=11, p=0.0062"
-Summer_min_BACI_shift,CEH36,Paired,0.1945,m,"n_pre=4, n_post=11, p=0.0045"
 Summer_min_BACI_shift,CEH22,Climate,-0.0517,m,"n_pre=4, n_post=11, p=0.4486"
 Summer_min_BACI_shift,CEH18,Climate,0.0222,m,"n_pre=4, n_post=11, p=0.5676"
 Summer_min_BACI_shift,CEH18,Paired,0.0557,m,"n_pre=4, n_post=11, p=0.2037"
+Summer_min_BACI_shift,CEH36,Climate,0.161,m,"n_pre=4, n_post=11, p=0.0062"
+Summer_min_BACI_shift,CEH36,Paired,0.1945,m,"n_pre=4, n_post=11, p=0.0045"
+Summer_min_BACI_shift,CEH4,Climate,-0.0335,m,"n_pre=4, n_post=11, p=0.3321"

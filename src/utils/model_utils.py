@@ -44,7 +44,15 @@ import statsmodels.api as sm
 from utils.config import DRAINAGE_DATUM, HEADLINE_LAG
 
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-05-19
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-06-21
+# 1.3.0 — compute_intercept_audit() now builds its aligned frame via
+#         build_ssm_frame(window=LCSC_DATA_LIMIT) instead of duplicating the
+#         lag/displacement/differencing logic inline. The row set and all
+#         values are mathematically identical (same first-dropna-then-shift
+#         ordering, same displacement, same HEADLINE_LAG, same most-recent-N
+#         windowing), so Scripts 07/08 outputs are unchanged — verified
+#         byte-identical against committed 01_* outputs on 2026-06-21. The
+#         drainage predictor and simulations are untouched.
 # 1.2.0 — Defect E fix integration:
 #         * build_ssm_frame() and fit_ssm() gain optional `provenance=` and
 #           `exclude_interpolated=False` kwargs. Default behaviour is
@@ -747,31 +755,21 @@ def compute_intercept_audit(target_well_name, df_clean, df_climate):
     climate = df_climate.copy()
     climate.index = pd.to_datetime(climate.index).to_period("M")
 
-    df = pd.DataFrame(
-        {
-            "h": well_series,
-            "P": pd.to_numeric(climate["P_m"], errors="coerce"),
-            "PET": pd.to_numeric(climate["PET"], errors="coerce"),
-        }
-    ).dropna()
-
-    # Rainfall lag (HEADLINE_LAG from config)
-    if HEADLINE_LAG > 0:
-        df["P"] = df["P"].shift(HEADLINE_LAG)
-
-    df["h_prev"] = df["h"].shift(1)
-    df["Delta_h"] = df["h"] - df["h_prev"]
-
-    # Displacement formulation: h_disp = DRAINAGE_DATUM + h_depth
-    df["h_disp_prev"] = DRAINAGE_DATUM + df["h_prev"]
-
-    df = df.dropna()
+    # Build the SSM frame via the canonical alignment in build_ssm_frame
+    # rather than duplicating the lag / displacement / differencing logic
+    # here. window=LCSC_DATA_LIMIT reproduces the previous "most-recent-N-rows"
+    # behaviour. build_ssm_frame only trims when the full aligned record
+    # exceeds the window, so a returned frame shorter than LCSC_DATA_LIMIT
+    # means the full record was too short — matching the previous
+    # full-record-length insufficiency check exactly. The frame it returns
+    # (h, h_prev, Delta_h, P, PET, h_disp_prev) supersedes the hand-rolled
+    # columns; h_disp_prev = DRAINAGE_DATUM + h.shift(1) is identical to the
+    # former DRAINAGE_DATUM + h_prev computation.
+    df = build_ssm_frame(well_series, climate, window=LCSC_DATA_LIMIT)
 
     if len(df) < LCSC_DATA_LIMIT:
         base_row["Status"] = "insufficient_data"
         return base_row, None
-
-    df = df.iloc[-LCSC_DATA_LIMIT:].copy()
 
     # Model A: no intercept; Model B: with intercept
     # Both use displacement for the drainage predictor

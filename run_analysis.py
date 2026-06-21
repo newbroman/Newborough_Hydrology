@@ -657,14 +657,14 @@ def _intro_block() -> str:
         "Five hydrogeological clusters C1–C5 · Ward's-linkage hierarchical clustering",
         "Hollingham (2026)",
     ]
-    return "\n".join("  " + paint(ln, _Ansi.DIM) for ln in lines)
+    return "\n".join("  " + ln for ln in lines)
 
 
 def render_menu() -> str:
     num  = lambda s: paint(s, _Ansi.BCYAN, _Ansi.BOLD)
     grp  = lambda s: paint(s, _Ansi.BOLD)
-    hint = lambda s: paint(s, _Ansi.GREY)
-    rule = paint("─" * 70, _Ansi.GREY)
+    hint = lambda s: s
+    rule = "─" * 70
     out = [
         "",
         hint("  First run / new dataset → option 1 (full pipeline). For canonical"),
@@ -779,10 +779,10 @@ def run_greyscale(full_rerun: bool = False) -> None:
     Parameters
     ----------
     full_rerun : bool
-        If True, re-run the entire pipeline with BW_MODE=True (native B&W
-        rendering with hatching, line styles, hillshade DEMs) then run
-        Script 25 to sweep remaining figures.
-        If False, just run Script 25 pixel conversion on existing outputs.
+        If True, re-run the figure-producing pipeline (steps 1-34) with
+        BW_MODE=True (native B&W rendering with hatching, line styles,
+        hillshade DEMs); no separate greyscale sweep is required.
+        If False, just run Script 27 pixel conversion on existing outputs.
     """
     print()
     _hr()
@@ -802,10 +802,10 @@ def run_greyscale(full_rerun: bool = False) -> None:
 
     if full_rerun:
         print("  Mode: Full B&W pipeline re-run")
-        print("  This will re-run all 28 analysis steps with BW_MODE=True,")
+        print("  This will re-run all 34 steps with BW_MODE=True,")
         print("  producing native greyscale figures with hatching, distinct")
-        print("  line styles, and hillshade DEMs. Then Script 25 sweeps any")
-        print("  remaining colour-only figures.")
+        print("  line styles, and hillshade DEMs. No separate greyscale")
+        print("  sweep is needed — every figure is rendered greyscale-native.")
         print()
         # Set env var so all subprocess scripts pick up BW_MODE=True
         import os
@@ -816,9 +816,10 @@ def run_greyscale(full_rerun: bool = False) -> None:
             run_full_pipeline(from_step=1)
         finally:
             os.environ.pop("NRG_BW_MODE", None)
-        # Script 26 greyscale already ran as step 28 inside run_full_pipeline
+        # In BW mode the figure steps (1-34) rendered natively in greyscale,
+        # so the separate step-35 greyscale conversion (Script 27) is not needed.
     else:
-        print("  Mode: Pixel conversion only (Script 25)")
+        print("  Mode: Pixel conversion only (Script 27)")
         print("  This converts existing colour figures to greyscale using")
         print("  perceptual luminance weighting. Quick but some figures")
         print("  may be suboptimal — use 'Full B&W re-run' for best results.")
@@ -930,7 +931,7 @@ def interactive_menu() -> None:
                 "    pass 2: option 2, resume from step 9\n"
                 "  See module docstring for details."
             )
-            ans = input("\n  Run all 35 steps from the beginning? [y/N] ").strip().lower()
+            ans = input("\n  Run the full pipeline (steps 1–34) from the beginning? [y/N] ").strip().lower()
             if ans == "y":
                 log_path = _prompt_logging()
                 try:
@@ -963,7 +964,7 @@ def interactive_menu() -> None:
                 "\n  │                                                        │"
                 "\n  │  Recommended workflow:                                 │"
                 "\n  │    1. Run option 6b  → B&W figures in outputs/         │"
-                "\n  │       Script 25 copies them to outputs_bw/             │"
+                "\n  │       Script 27 copies them to outputs_bw/             │"
                 "\n  │    2. Run option 1   → colour figures restored in      │"
                 "\n  │       outputs/                                         │"
                 "\n  │                                                        │"
@@ -1052,7 +1053,7 @@ def main() -> None:
     parser.add_argument("--supplementary", action="store_true",
                         help="Run supplementary diagnostics (scripts 22–24) only")
     parser.add_argument("--greyscale", action="store_true",
-                        help="Convert existing figures to greyscale (Script 25 only)")
+                        help="Convert existing figures to greyscale (Script 27 only)")
     parser.add_argument("--greyscale-full", action="store_true",
                         help="Re-run full pipeline in B&W mode then convert (best quality)")
     parser.add_argument("--no-colour", "--no-color", dest="no_colour",

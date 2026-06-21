@@ -75,7 +75,7 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.1.0"  # Hollingham (2026) — last revised 2026-05-14
+__version__ = "1.1.1"  # Hollingham (2026) — 2026-06-21 (amplitude-fallback path elevated from [INFO] print to console warn() with explicit stale/hard-coded caveat)
 # Changelog:
 #   1.1.0 (2026-05-14) — Documentation-only cleanup:
 #     - All references to project-store MD files (HANDOVER_SCRIPT03_DATUM,
@@ -220,8 +220,12 @@ def load_amplitude_heterogeneity(cluster_ids: list[int],
     Returns {cluster_id: (heterogeneous_bool, amp_lo_m, amp_hi_m)}.
     """
     if not OUT_02_AMP_PER_WELL.exists():
-        print(f"    [INFO] {OUT_02_AMP_PER_WELL.name} not found \u2014 using "
-              "hard-coded amplitude fallback values (_AMPLITUDE_FALLBACK).")
+        warn(f"{OUT_02_AMP_PER_WELL.name} not found \u2014 falling back to "
+             "HARD-CODED amplitude values (_AMPLITUDE_FALLBACK). These are "
+             "static values from the brief and may be stale relative to the "
+             "current partition; the cluster amplitude-heterogeneity flags in "
+             "this run are NOT data-derived. Run Script 02 first to compute "
+             "them from the data.")
         return {cid: _AMPLITUDE_FALLBACK.get(cid, (False, np.nan, np.nan))
                 for cid in cluster_ids}
 

@@ -36,7 +36,13 @@ Read-only on pipeline outputs; writes to outputs/29_within_c3_variance/.
 
 from __future__ import annotations
 
-__version__ = "1.1.1"  # Hollingham (2026) — 2026-06-21
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-06-21
+# 1.2.0 — §4.9 traceability: joined Script 17 WTF event-median Sy
+#         (Sy_wtf_median column) per C3 well; emit 29_report_numbers.csv with
+#         the C3 inland-gradient correlations (β₁/β₃/Sy vs dist_coast) and the
+#         empirical C3 Sy endpoints. Coastal correlations report n=19 (CEH36 +
+#         WMC3 lack Script 25 dist_coast by design). No change to the existing
+#         panel/univariate/drop-one procedure.
 # 1.1.1 — data/geo/ reorg: Features.kml now via paths.DATA_KML_FEATURES
 #         (was REPO/"data"/"Features.kml", which broke after the geo move).
 # 1.1.0 — Re-wired to paths.py and outputs/29_within_c3_variance/ canonical
@@ -51,6 +57,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import geopandas as gpd
+from scipy import stats
 from shapely.geometry import Point
 from pathlib import Path
 
@@ -66,6 +73,7 @@ from utils.console_utils import (
     hr, skipped,
 )
 from utils import paths  # noqa: E402
+from utils.report_numbers_utils import ReportNumbers  # noqa: E402
 
 paths.make_all_dirs()
 
@@ -76,12 +84,14 @@ F_BETAS         = paths.OUT_DIR / "07_spatial_coefficients" / "07_coeff_maps_dat
 F_FIT           = paths.OUT_25_FIT_PARAMETERS
 F_SLOPES        = paths.OUT_25_PER_WELL_SLOPES
 F_FOREST_KML    = paths.DATA_KML_FEATURES
+F_WTF_SY        = paths.INT_WTF_WELL_SY      # Script 17 WTF event-median Sy (Table 4c source)
 
 OUT_CSV          = paths.OUT_29_PANEL_CSV
 OUT_UNIVARIATE   = paths.OUT_29_UNIVARIATE_R2
 OUT_DROP_ONE     = paths.OUT_29_DROP_ONE
 OUT_MEMO         = paths.OUT_29_MEMO
 OUT_FIG          = paths.OUT_29_PANEL_FIG
+OUT_REPORT       = paths.OUT_29_REPORT_NUMBERS
 
 # ── Constants ──────────────────────────────────────────────────────────────
 CEH36_E, CEH36_N = 241161.0, 363306.0   # documented 2015 dune-scrape site
@@ -122,6 +132,10 @@ loc["mid"] = loc["Match_ID"].apply(norm)
 # Per-well SSM betas (Script 07)
 betas = pd.read_csv(F_BETAS)
 betas["mid"] = betas["Name_Original"].apply(norm)
+
+# Per-well WTF event-median Sy (Script 17, Table 4c source)
+wtf_sy = pd.read_csv(F_WTF_SY)
+wtf_sy["mid"] = wtf_sy["Well"].apply(norm)
 
 # Hydrographs (mAOD)
 wells = pd.read_csv(F_WELLS, index_col=0, parse_dates=True)
@@ -177,6 +191,10 @@ for mid in c3_ids:
         for k in ["beta_1_recharge","beta_2_atmospheric_draw","beta_3_drainage","model_R2","tau_drainage_months"]:
             rec[k] = np.nan
 
+    # Per-well WTF event-median specific yield (Script 17, Table 4c)
+    syr = wtf_sy[wtf_sy.mid == mid]
+    rec["Sy_wtf_median"] = float(syr["Sy_median"].iloc[0]) if len(syr) else np.nan
+
     # Hydrograph-derived metrics
     if mid in wells.columns:
         h = wells[mid].dropna()
@@ -208,6 +226,44 @@ df = pd.DataFrame(rows)
 df.to_csv(OUT_CSV, index=False)
 print(f"\nBuilt panel: {len(df)} C3 wells × {df.shape[1]} columns")
 print(f"Saved {OUT_CSV.relative_to(REPO)}")
+
+
+# ── §4.9.2 traceable report numbers: C3 inland gradient correlations ────────
+# "Inland" axis = distance from coast (dist_coast_m); larger = more inland.
+# CEH36 (scraped) and WMC3 (clearfell impact) carry no Script 25 dist_coast
+# by design (intervention-affected wells dropped upstream), so the coastal
+# correlations run on n = 19 of the 21 C3 wells. Sy is the Script 17 WTF
+# event-median (Table 4c); the cited endpoints are the empirical C3 range.
+rpt = ReportNumbers()
+grad = df.dropna(subset=["dist_coast_m"]).copy()
+n_grad = len(grad)
+rpt.add("C3_gradient_n", n_grad, unit="wells",
+        note="C3 wells with Script 25 dist_coast (CEH36/WMC3 excluded upstream)")
+
+for col, key in [("beta_1_recharge", "beta1"),
+                 ("beta_3_drainage", "beta3"),
+                 ("Sy_wtf_median",   "Sy")]:
+    sub = grad.dropna(subset=[col])
+    if len(sub) >= 3:
+        r, p = stats.pearsonr(sub["dist_coast_m"], sub[col])
+        rpt.add(f"C3_{key}_vs_inland_r", r, unit="",
+                note=f"Pearson r, {col} vs dist_coast_m, n={len(sub)}")
+        rpt.add(f"C3_{key}_vs_inland_p", p, unit="",
+                note=f"p-value, {col} vs dist_coast_m, n={len(sub)}")
+
+# Empirical C3 Sy range (the report's SW-margin / NE endpoints)
+sy_c3 = df["Sy_wtf_median"].dropna()
+if len(sy_c3):
+    sy_max = float(sy_c3.max()); sy_min = float(sy_c3.min())
+    w_max = df.loc[df["Sy_wtf_median"].idxmax(), "mid"]
+    w_min = df.loc[df["Sy_wtf_median"].idxmin(), "mid"]
+    rpt.add("C3_Sy_max", sy_max, unit="", well=str(w_max),
+            note="WTF event-median Sy, coastal/SW margin of C3")
+    rpt.add("C3_Sy_min", sy_min, unit="", well=str(w_min),
+            note="WTF event-median Sy, inland/NE margin of C3")
+
+n_saved = rpt.save(OUT_REPORT)
+print(f"Saved {OUT_REPORT.relative_to(REPO)} ({n_saved} report numbers)")
 
 
 # ── Predictor / metric definitions ─────────────────────────────────────────

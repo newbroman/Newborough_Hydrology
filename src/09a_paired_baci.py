@@ -33,7 +33,14 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "2.3.0"  # Hollingham (2026) — 2026-05-16
+__version__ = "2.4.0"  # Hollingham (2026) — 2026-06-21
+# 2.4.0 — Tier-1 background-drift figure: added vertical intervention markers
+#         (dash-dot) across all four panels — Apr 2015 scrape (CEH36, Scrape A,
+#         Scrape B), Dec 2017 clearfell, Oct 2023 re-scrape (CEH18, CEH21) —
+#         with an "Interventions" legend on the top-left panel. The figure
+#         previously had no event markers. Imports SCRAPING_DATE,
+#         INTERVENTION_DATE, SCRAPING_DATE_2 from scraping_common. Figure only;
+#         BACI/CUSUM computations and exports unchanged.
 # 2.3.0 — After exporting baci_shifts CSV, update site_observations
 #         registry with CEH36 Pure_Scraping and Felling_Pulse step
 #         values.  Replaces the hardcoded SCRAPE_BACI_STEP constant
@@ -62,6 +69,7 @@ from utils.scraping_common import (
     PAIRED_CONTROLS_MAP, TIER1_WELLS, TIER2_WELLS,
     ERA_COLORS, ERA_MARKERS, ERA_LINESTYLES,
     MPL_DEFAULTS, SUMMER_MONTHS,
+    SCRAPING_DATE, INTERVENTION_DATE, SCRAPING_DATE_2,
     era_filter, load_scraping_data,
     format_p_value, significance_stars,
 )
@@ -375,13 +383,31 @@ def _plot_tier1(plot_data):
     min_date = pd.to_datetime("2006-01-01")
     max_date = max(plot_data[w]["baci"].index.max()
                    for w in TIER1_WELLS if w in plot_data)
+
+    # Intervention markers: scrape epochs + clearfell. April-2015 covers CEH36
+    # and Scrape A/B (same event); October-2023 covers CEH18/CEH21 (re-scrape).
+    event_markers = [
+        (SCRAPING_DATE,     "#1a4e80", "Apr 2015 scrape — CEH36, Scrape A, Scrape B"),
+        (INTERVENTION_DATE, "#1b5e20", "Dec 2017 clearfell"),
+        (SCRAPING_DATE_2,   "#7a3a8c", "Oct 2023 re-scrape — CEH18, CEH21"),
+    ]
     for ax in axes.flatten():
         ax.set_xlim(min_date, max_date)
+        for _d, _c, _ in event_markers:
+            ax.axvline(_d, color=_c, ls="-.", lw=1.6, alpha=0.85, zorder=1.5)
         ax.xaxis.set_major_locator(mdates.YearLocator(2))
         ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
         plt.setp(ax.get_xticklabels(), rotation=0)
     for ax in axes[0, :]:
         ax.set_xticklabels([])
+
+    # Intervention-marker legend (top-left panel; era legend sits bottom-left)
+    from matplotlib.lines import Line2D
+    marker_handles = [Line2D([0], [0], color=_c, ls="-.", lw=1.6, label=_lbl)
+                      for _d, _c, _lbl in event_markers]
+    axes[0, 0].legend(handles=marker_handles, loc="upper left",
+                      fontsize=8, frameon=True, framealpha=0.9,
+                      title="Interventions", title_fontsize=8)
 
     # Legend
     handles, labels = [], []

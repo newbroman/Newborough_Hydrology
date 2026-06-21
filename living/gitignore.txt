@@ -1,0 +1,13 @@
+# Save this as  living/.gitignore  in the repo.
+# Scoped to /living so it doesn't touch the PL chat's root .gitignore.
+
+# Private master spreadsheet — stays on your machine, never published
+*.ods
+
+# Water Watch newsletters — kept in Google Drive, posted to Facebook
+output/
+*Water_Watch*.pdf
+
+# Python cruft
+__pycache__/
+*.pyc

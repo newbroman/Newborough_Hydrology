@@ -26,6 +26,12 @@ Purpose:
 ====================================================================================
 """
 
+# Revision note:
+#   2026-06-21 — Benchmarking maps now call add_kml_features(..., include_scrapes=False).
+#     The shared feature overlay draws the GPS-traced scrape footprints by default;
+#     here they clutter the well markers, so they are suppressed. Figures only;
+#     model formulations and metrics unchanged.
+
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
 from utils.paths import (
@@ -354,7 +360,7 @@ def plot_metric_map(map_df, value_col, title, output_path, cmap, vmin=None, vmax
         ctx.add_basemap(ax, crs=gdf_tmp.crs.to_string(), source=ctx.providers.OpenStreetMap.Mapnik, zorder=1, alpha=0.7)
 
     # --- KML Features (via map_utils — includes broadleaf restock block) ---
-    site_feature_handles = add_kml_features(ax, DATA_DIR)
+    site_feature_handles = add_kml_features(ax, DATA_DIR, include_scrapes=False)
 
     # --- Plot Wells by Cluster Shape ---
     handles = []

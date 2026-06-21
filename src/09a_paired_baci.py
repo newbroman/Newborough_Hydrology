@@ -33,7 +33,11 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "2.4.0"  # Hollingham (2026) — 2026-06-21
+__version__ = "2.5.0"  # Hollingham (2026) — 2026-06-21
+# 2.5.0 — Fix mislabelled Summer_minimum_depth note. The value is
+#         summer.min() — the deepest single Jun-Sep reading in the era,
+#         not the mean of annual minima. Note corrected to match the code;
+#         value unchanged. (Era-mean summer minima live in 09c.)
 # 2.4.0 — Tier-1 AND Tier-2 figures: added vertical intervention markers
 #         (dash-dot) across all panels — Apr 2015 scrape (CEH36, Scrape A,
 #         Scrape B), Dec 2017 clearfell, Oct 2023 re-scrape (CEH18, CEH21) —
@@ -652,7 +656,7 @@ def _export_report_numbers(plot_data, baci_results, net_summary,
                 summer_min_depth = float(summer.min())
                 rr("Summer_minimum_depth", summer_min_depth,
                    well=sw.upper(), era=era_name,
-                   note="Mean of annual Jun-Sep minima")
+                   note="Deepest summer (Jun-Sep) reading in era")
 
     report_df = pd.DataFrame(rows)
     report_df.to_csv(OUT_09_REPORT_NUMBERS, index=False)

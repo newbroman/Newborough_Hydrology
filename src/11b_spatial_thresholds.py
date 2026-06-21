@@ -74,7 +74,12 @@ Dependencies
     Skeletonisation: not required (map_utils handles DEM/IDW)
 """
 
-__version__ = "1.1.3"  # Hollingham (2026) — 2026-06-21
+__version__ = "1.1.4"  # Hollingham (2026) — 2026-06-21
+# 1.1.4 — Spatial-threshold maps: pass include_scrapes=False to add_kml_features
+#          at all four call sites. The shared overlay draws the GPS-traced scrape
+#          footprints by default; on these threshold/IDW maps they clutter the
+#          surface, so they are suppressed. Figures only; threshold computation
+#          unchanged.
 # 1.1.3 — data/geo/ reorg follow-up: _build_base_layer() forecaster KML
 #          overlays now resolved via data_geo() (were DATA_DIR/file, silently
 #          skipped after the geo move). No functional change vs pre-reorg.
@@ -715,7 +720,7 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
         except Exception:
             pass
 
-    kml_handles = add_kml_features(ax, DATA_DIR, include_streams=False)
+    kml_handles = add_kml_features(ax, DATA_DIR, include_streams=False, include_scrapes=False)
 
     for cl, grp in df.groupby("cluster"):
         col_c = CLUSTER_COLS.get(cl, "grey")
@@ -961,7 +966,7 @@ def plot_winter_maxima_map(df: pd.DataFrame, dpi: int = 300) -> None:
         ax.scatter(row["E"], row["N"], c=CLUSTER_COLS.get(row["cluster"], "#999"),
                    s=28, marker=mk, zorder=7, linewidths=0.4, edgecolors="white")
 
-    kml_handles = add_kml_features(ax, DATA_DIR, include_streams=False)
+    kml_handles = add_kml_features(ax, DATA_DIR, include_streams=False, include_scrapes=False)
 
     # Colourbar with Curreli zone labels — inverted so flooding (0 m) is at top
     cb = fig.colorbar(
@@ -1189,7 +1194,7 @@ def plot_pflood_map(df: pd.DataFrame, dpi: int = 300) -> None:
                    c=CLUSTER_COLS.get(row["cluster"], "#999"),
                    s=28, marker=mk, zorder=9, linewidths=0.4, edgecolors="white")
 
-    kml_handles = add_kml_features(ax, DATA_DIR, include_streams=False)
+    kml_handles = add_kml_features(ax, DATA_DIR, include_streams=False, include_scrapes=False)
 
     if sc is not None:
         cbar = fig.colorbar(sc, ax=ax, fraction=0.03, pad=0.02, shrink=0.85)
@@ -1322,7 +1327,7 @@ def plot_flood_frequency_map(df: pd.DataFrame, dpi: int = 300) -> None:
         ax.scatter(row["E"], row["N"], c=CLUSTER_COLS.get(row["cluster"], "#999"),
                    s=28, marker=mk, zorder=7, linewidths=0.4, edgecolors="white")
 
-    kml_handles = add_kml_features(ax, DATA_DIR, include_streams=False)
+    kml_handles = add_kml_features(ax, DATA_DIR, include_streams=False, include_scrapes=False)
 
     cbar = fig.colorbar(sc, ax=ax, fraction=0.03, pad=0.02, shrink=0.85)
     cbar.set_label("Winter flooding frequency (%)\nYears water table reached ground surface",

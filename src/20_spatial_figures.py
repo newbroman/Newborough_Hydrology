@@ -63,7 +63,18 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds
 """
 
-__version__ = "1.19.1"  # Hollingham (2026) — 2026-06-21 (M1 audit fix: slope-gradient legend iterated CLUSTER_COLOURS.keys() including reserved C6, drawing a phantom C6 patch; now iterates CLUSTER_LABELS.keys(). Rebased onto v1.19.0 §4.9 drawdown-traceability work.)
+__version__ = "1.20.0"  # Hollingham (2026) — 2026-06-22
+# 1.20.0 (2026-06-22): §4.9 traceability batch 2.
+#   * Fig 56 plot_residual_ssm(): emit 20_residual_perwell.csv +
+#     20_residual_report_numbers.csv (CEH14 max, wells > +0.02 m/month).
+#   * Fig 54 plot_msl5_change(): switched to below-ground datum (MSL5_m_bg,
+#     the physical water-table depth, not pipe-top); network means now on the
+#     n=61 intersection; C2/C3 normalisation NOT applied (raw change). Emit
+#     20_msl5_change_perwell.csv + 20_msl5_report_numbers.csv (window means,
+#     deepening, ±25 mm count, cited wells).
+#   * Fig 50/53 H0: scrape legend now reads the live BACI CEH36 response
+#     (round → 129 mm) instead of the hardcoded 130, so figures agree.
+# 1.19.1 — M1 audit fix: slope-gradient legend iterated CLUSTER_COLOURS.keys()
 # 1.19.0 (2026-06-21): §4.9 traceability — plot_drawdown_propagation() now
 #   emits 20_drawdown_perwell.csv (well, E, N, dist_forest_m, dd_mm) and
 #   20_report_numbers.csv (λ + cited wells) on the show_head pass. Drawdown
@@ -327,6 +338,8 @@ from utils.paths import (
     DIR_20, OUT_20_HEAD_STREAMS, OUT_20_RESIDUAL_SSM, OUT_20_SLOPE,
     OUT_20_DRAWDOWN, OUT_20_DRAWDOWN_NOHEAD,
     OUT_20_DRAWDOWN_PERWELL, OUT_20_REPORT_NUMBERS,
+    OUT_20_RESIDUAL_PERWELL, OUT_20_RESIDUAL_REPORT_NUMBERS,
+    OUT_20_MSL5_CHANGE_PERWELL, OUT_20_MSL5_REPORT_NUMBERS,
     OUT_20_COASTAL_EROSION, OUT_20_SLR_RESPONSE,
     OUT_20_COASTAL_NET, OUT_20_SCRAPE_DRAWDOWN, OUT_20_SCRAPE_DRAWDOWN_NOHEAD,
     OUT_20_CLEARFELL_BASELINE_DRAWDOWN, OUT_20_PUBLIC_PANEL,
@@ -1100,6 +1113,31 @@ def plot_residual_ssm(wt, features, dpi=300):
     ref      = wt["residual_wb"].notna()
     rpts     = wt.loc[ref, ["E","N"]].values
     rval     = wt.loc[ref, "residual_wb"].values
+
+    # ── §4.9 traceable per-well residual CSV + report numbers (Fig 56) ────
+    _rcols = [c for c in ["well", "E", "N", "Cluster", "residual_wb"] if c in wt.columns]
+    _resid = wt.loc[ref, _rcols].copy().sort_values("residual_wb", ascending=False)
+    _resid.to_csv(OUT_20_RESIDUAL_PERWELL, index=False)
+    print(f"  Saved → {OUT_20_RESIDUAL_PERWELL.name} ({len(_resid)} wells)")
+    rrpt = ReportNumbers()
+    _wcol = "well" if "well" in _resid.columns else _rcols[0]
+    _top = _resid.iloc[0]
+    rrpt.add("residual_max", float(_top["residual_wb"]), unit="m/month",
+             well=str(_top[_wcol]).upper(),
+             note="largest individual SSM water-balance residual α")
+    _ceh14 = _resid[_resid[_wcol].astype(str).str.lower().str.replace(" ", "") == "ceh14"]
+    if len(_ceh14):
+        rrpt.add("residual_ceh14", float(_ceh14["residual_wb"].iloc[0]), unit="m/month",
+                 well="CEH14", note="ridge-flank residual (cited in §4.9)")
+    _n_band = int((_resid["residual_wb"] > 0.02).sum())
+    rrpt.add("residual_n_gt_0p02", _n_band, unit="wells",
+             note="wells with residual > +0.02 m/month (strong positive band)")
+    _band_wells = ";".join(_resid.loc[_resid["residual_wb"] > 0.02, _wcol].astype(str).str.upper())
+    rrpt.add("residual_band_wells", _band_wells, unit="",
+             note="identity of wells with residual > +0.02 m/month")
+    n_saved = rrpt.save(OUT_20_RESIDUAL_REPORT_NUMBERS)
+    print(f"  Saved → {OUT_20_RESIDUAL_REPORT_NUMBERS.name} ({n_saved} report numbers)")
+
     resid_surf = idw_surface(rpts, rval, gx, gy,
                              sea_pts=sea_pts,
                              sea_vals=np.zeros(len(sea_vals)),
@@ -2929,9 +2967,14 @@ def plot_msl5_change(wt, features, dpi=300):
     windows, so neither is biased by that extreme.  The baseline window
     is the last complete pre-clearfell MSL5 window.
 
-    Source data: 26_msl_5yr_per_well.csv (Script 26), column MSL5_m_pipe.
-    Wells must have a valid MSL5 value at both window ends to be included
-    (n = 61).
+    Source data: 26_msl_5yr_per_well.csv (Script 26), column MSL5_m_bg
+    (below-ground datum — the physical water-table depth; the pipe-top
+    column carries each well's arbitrary stickup and is not used). Wells
+    must have a valid MSL5 value at both window ends to be included
+    (n = 61). The change is the raw 2023-2017 difference; no C2/C3
+    normalisation is applied (the five-year spring mean already averages
+    inter-annual climate noise, and a differential wet-year memory at
+    slow-τ wells is not removable by a common-mode subtraction anyway).
 
     Interpolation: IDW power = 2.0 with a light Gaussian blur (σ = 1 grid
     cell = 50 m) applied within the site polygon.  Well markers use the
@@ -2961,12 +3004,15 @@ def plot_msl5_change(wt, features, dpi=300):
     locs = pd.read_csv(INT_LOCATIONS)
     locs["well"] = locs["Match_ID"].str.lower()
 
-    base   = df[df["window_end_year"] == BASE_YR][["well","MSL5_m_pipe","cluster_id"]].copy()
-    curr   = df[df["window_end_year"] == CURR_YR][["well","MSL5_m_pipe","cluster_id"]].copy()
+    base   = df[df["window_end_year"] == BASE_YR][["well","MSL5_m_bg","cluster_id"]].copy()
+    curr   = df[df["window_end_year"] == CURR_YR][["well","MSL5_m_bg","cluster_id"]].copy()
     merged = base.merge(curr, on="well", suffixes=("_base","_curr"))
-    merged["diff_mm"] = (merged["MSL5_m_pipe_curr"] - merged["MSL5_m_pipe_base"]) * 1000
+    merged["diff_mm"] = (merged["MSL5_m_bg_curr"] - merged["MSL5_m_bg_base"]) * 1000
     dfall  = merged.merge(locs[["well","E","N"]], on="well",
                           how="inner").dropna(subset=["E","N","diff_mm"])
+    # Drop the Llyn Rhos-Ddu lake gauge (blacklisted, NaN cluster) so the
+    # change network is the n=61 clustered set the report cites.
+    dfall  = dfall.dropna(subset=["cluster_id_base"])
 
     if dfall.empty:
         print("  [WARNING] No wells with MSL5 at both window ends — skipping")
@@ -3093,9 +3139,41 @@ def plot_msl5_change(wt, features, dpi=300):
                    fontsize=9)
     cbar.ax.axhline(0, color="black", lw=1.0)
 
-    # Load network mean MSL5 for each window for caption
-    base_net = float(df[df["window_end_year"] == BASE_YR]["MSL5_m_pipe"].mean() * 1000)
-    curr_net = float(df[df["window_end_year"] == CURR_YR]["MSL5_m_pipe"].mean() * 1000)
+    # Network mean MSL5 (below-ground) for caption — on the n=61 intersection
+    # (wells present in BOTH windows), matching the per-well change basis.
+    base_net = float(dfall["MSL5_m_bg_base"].mean() * 1000)
+    curr_net = float(dfall["MSL5_m_bg_curr"].mean() * 1000)
+
+    # ── §4.9.8 traceable per-well MSL5-change CSV + report numbers (Fig 54) ─
+    # Raw below-ground change (no C2/C3 normalisation — the 5-yr spring mean
+    # already averages inter-annual climate noise). Significance at ±25 mm on
+    # the raw change. n = 61 wells common to both windows.
+    _msl = dfall[["well","cluster_id_base","MSL5_m_bg_base","MSL5_m_bg_curr","diff_mm","E","N"]].copy()
+    _msl = _msl.rename(columns={"cluster_id_base": "cluster_id",
+                                "MSL5_m_bg_base": "MSL5_bg_2017_m",
+                                "MSL5_m_bg_curr": "MSL5_bg_2023_m",
+                                "diff_mm": "raw_change_mm"})
+    _msl["significant_25mm"] = _msl["raw_change_mm"].abs() >= SIG_MM
+    _msl = _msl.sort_values("raw_change_mm")
+    _msl.to_csv(OUT_20_MSL5_CHANGE_PERWELL, index=False)
+    print(f"  Saved → {OUT_20_MSL5_CHANGE_PERWELL.name} ({len(_msl)} wells)")
+
+    mrpt = ReportNumbers()
+    mrpt.add("msl5_mean_2017", base_net, unit="mm", era="window-end 2017",
+             note=f"network mean MSL5 below ground, n={len(_msl)} (springs 2013-2017)")
+    mrpt.add("msl5_mean_2023", curr_net, unit="mm", era="window-end 2023",
+             note=f"network mean MSL5 below ground, n={len(_msl)} (springs 2019-2023)")
+    mrpt.add("msl5_deepening", curr_net - base_net, unit="mm",
+             note=f"2023 minus 2017 network-mean change (below ground, n={len(_msl)})")
+    mrpt.add("msl5_n_significant", int(_msl["significant_25mm"].sum()), unit="wells",
+             note=f"wells with |raw change| >= {SIG_MM} mm of {len(_msl)}")
+    for _w in ["wmc3", "ceh36", "ceh22", "ceh21", "ceh18", "ceh25"]:
+        _r = _msl[_msl["well"].str.lower() == _w]
+        if len(_r):
+            mrpt.add(f"msl5_change_{_w}", float(_r["raw_change_mm"].iloc[0]), unit="mm",
+                     well=_w.upper(), note="raw below-ground MSL5 change 2017->2023")
+    n_saved = mrpt.save(OUT_20_MSL5_REPORT_NUMBERS)
+    print(f"  Saved → {OUT_20_MSL5_REPORT_NUMBERS.name} ({n_saved} report numbers)")
 
     legend_items = [
         mpatches.Patch(facecolor="none", edgecolor="#1b5e20",
@@ -3794,11 +3872,13 @@ def plot_scrape_drawdown(wt, features, dpi=300, show_head=True):
         ax.fill(sx, sy, facecolor="#1a4e80", alpha=0.85, zorder=8)
         ax.plot(sx, sy, color="#0d2b4a", lw=1.6, zorder=9)
     n_lobes = len(_geoms(scrape_geom))
+    _h0_ceh36 = round(_measured_ceh36_response() * 1000)   # live BACI (CEH36 Pure_Scraping) → 129 mm
     ax.text(
         0.985, 0.985,
         "Scrape footprints (%d cuts, %.2f ha total, mapped outlines)\n"
         "cut slacks ROSE (slack restored — not drawn down)\n"
-        "H₀: CEH36 +130 · CEH21 +74 · CEH18 +8 mm measured; others assumed = CEH36" % (n_lobes, SCR_AREA_HA),
+        "H₀: CEH36 +%d · CEH21 +74 · CEH18 +8 mm measured; others assumed = CEH36"
+        % (n_lobes, SCR_AREA_HA, _h0_ceh36),
         transform=ax.transAxes, ha="right", va="top",
         fontsize=7.6, fontweight="bold", color="#0d2b4a", zorder=11,
         bbox=dict(boxstyle="round,pad=0.35", fc="white", ec="#1a4e80", alpha=0.93))

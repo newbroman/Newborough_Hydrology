@@ -1,0 +1,11 @@
+Parameter,Well,Era,Value,Unit,Note
+msl5_mean_2017,,window-end 2017,-500.326,mm,"network mean MSL5 below ground, n=61 (springs 2013-2017)"
+msl5_mean_2023,,window-end 2023,-599.233,mm,"network mean MSL5 below ground, n=61 (springs 2019-2023)"
+msl5_deepening,,,-98.907,mm,"2023 minus 2017 network-mean change (below ground, n=61)"
+msl5_n_significant,,,58.0,wells,wells with |raw change| >= 25 mm of 61
+msl5_change_wmc3,WMC3,,-85.3333,mm,raw below-ground MSL5 change 2017->2023
+msl5_change_ceh36,CEH36,,-74.0,mm,raw below-ground MSL5 change 2017->2023
+msl5_change_ceh22,CEH22,,-228.6667,mm,raw below-ground MSL5 change 2017->2023
+msl5_change_ceh21,CEH21,,-194.0,mm,raw below-ground MSL5 change 2017->2023
+msl5_change_ceh18,CEH18,,-158.0,mm,raw below-ground MSL5 change 2017->2023
+msl5_change_ceh25,CEH25,,-12.6667,mm,raw below-ground MSL5 change 2017->2023

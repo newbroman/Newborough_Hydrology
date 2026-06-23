@@ -1,0 +1,12 @@
+Parameter,Well,Era,Value,Unit,Note
+c4_anchor_beta3,,,0.0581,per month,triangulated C4 β₃ anchor = C2 β₃ + coastal-corrected tree Δβ₃
+c4_tree_db3_inland,,,-0.0149,per month,tree effect on β₃ from inland C5 minus C3 (coastal-corrected)
+c2_beta3,,,0.073,per month,C2 Dune mean β₃ (substrate analogue for C4)
+c3_beta3,,,0.0577,per month,C3 Western Residual mean β₃ (open-dune tree-donor baseline)
+c4_beta2_uncon_mean,,,2.6432,dimensionless,C4 unconstrained mean β₂ (degenerate / inflated)
+c4_beta3_uncon_mean,,,0.016,per month,C4 unconstrained mean β₃ (collapsed; negative at CEH14)
+c4_beta2_anchor_mean,,,1.8594,dimensionless,C4 mean β₂ under the triangulated β₃ anchor (constrained refit)
+c2_beta2_mean,,,1.6605,dimensionless,C2 Dune mean β₂ (open-dune reference)
+c3_beta2_mean,,,1.7674,dimensionless,C3 Western Residual mean β₂ (open-dune reference)
+c4_sy_mean,,,0.2459,dimensionless,C4 mean WTF Sy (≈ C2 Dune; thinner aquifer over shallowing bedrock)
+c2_sy_mean,,,0.2545,dimensionless,C2 Dune mean WTF Sy

@@ -1,0 +1,2891 @@
+# Newborough Warren pipeline run log
+# Started: 2026-06-23T22:58:59
+# Command: run_analysis.py
+
+  ℹ Recording console output to: /home/john/projects/NRG/outputs/logs/run_20260623_225859.log
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PHASE 1  — Core LCSC Chain
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ▶ STEP 1/36  Data preparation
+      script: 01_data_prep.py
+  ──────────────────────────────────────────────────────────────────
+  ⚠ WARNING: 1 wells have locations but no time-series data.
+  ⚠ WARNING: 32 comment(s) collided with a genuine measurement (kept the reading) -> 01_observation_state_conflicts.csv
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 01 — Data Preparation  [v1.5.0]
+════════════════════════════════════════════════════════════════════════
+Starting Data Preparation Pipeline...
+
+========================================
+  DATA SANITY CHECK: Metadata vs. Time-Series
+========================================
+========================================
+
+Complete. Retained 78 wells.
+  ▸ Reference: 66 wells
+  ▸ Extended:  22 wells
+ -> Demoted to extended (not on reference-network whitelist): 6 wells  [FE1, FE2, FE3, ceh22, ceh3, nw8b]
+ -> Excluded from both networks (blacklist): 2 wells  [llyn rhos, pdfs]
+  ✓ Saved: observation states -> 01_observation_states.csv (250x89); 01_dry_depths.csv (173 dry-at-depth cells)
+  ✓ Saved: coverage figure -> 01_coverage_states_reference.png
+  ✓ Saved: coverage figure -> 01_coverage_states_extended.png
+
+ -> Converting depth series to maOD...
+    Converted 78 wells to maOD
+  ✓ Saved: 01_wells_clean_maod.csv
+
+ -> Exporting well elevation lookup...
+    Saved elevation lookup: 01_well_elevations.csv
+
+ -> Writing pipeline scenario parameters...
+  Pipeline params: β coefficients loaded from 03_03_cluster_mechanistic_coefficients.csv
+  Pipeline params: h_disp loaded from 03_master_data.csv
+  Pipeline params: β₂ multipliers loaded (clearfell=1.0315, thinning=1.0158)
+  Pipeline params: Sy loaded from 17_wtf_well_sy.csv (5 clusters)
+  Pipeline params: peak months loaded from 03_cluster_peak_months.csv
+  Pipeline params written: pipeline_scenario_params.csv (5 clusters, 6/6 fields from pipeline)
+  All fields populated from pipeline outputs.
+
+ -> Writing pipeline site observations...
+
+=== Script 01 complete ===
+  ✓ done  (10.1s)
+
+  ▶ STEP 2/36  Behavioural clustering
+      script: 02_clustering.py
+  ──────────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 02 — k-Means Clustering & Partition  [v1.1.0]
+════════════════════════════════════════════════════════════════════════
+--- Starting 02: Reference Clustering ---
+  ▸ Clustering 66 reference wells...
+  ▸ Generating Cluster Validation Plots...
+  ✓ Saved: 02_02_validation_plots.png
+
+--- Cluster Stability Diagnostics ---
+  ▸ k-sweep validation (k=2..10)...
+    silhouette  calinski_harabasz  merge_distance  min_cluster_size  max_cluster_size  n_singletons
+k                                                                                                  
+2        0.459             25.552           0.547                31                35             0
+3        0.442             22.381           0.299                 9                31             0
+4        0.409             15.570           0.197                 7                26             0
+5        0.396             15.281           0.158                 5                24             0
+6        0.358             14.497           0.158                 5                21             0
+7        0.388             12.586           0.122                 5                17             0
+8        0.363             10.747           0.099                 5                17             0
+9        0.364              9.930           0.088                 2                17             0
+10       0.363              8.722           0.085                 2                17             0
+    Silhouette favours k = 2
+    Calinski-Harabasz favours k = 2
+  ▸ Saved k-sweep validation: 02_06_k_sweep_validation.csv
+  ▸ Saved report numbers: 02_report_numbers.csv (13 rows)
+  ✓ Saved: 02_02b_validation_k_sweep.png
+  ▸ Bootstrap stability at k=4 (1000 resamples)...
+    Saved membership: /home/john/projects/NRG/outputs/02_clustering/02_07_cluster_membership_k4.csv
+    Saved heatmap:    /home/john/projects/NRG/outputs/02_clustering/02_06_coassignment_heatmap_k4.png
+    Memberships at k=4:
+      C1 (n=7, median stab=0.98): ceh11, ceh23, ceh25, ceh26, ceh27, ceh5, ceh6
+      C2 (n=24, median stab=0.99): D10, D15, D17, D38, D41, D43, D44, D5, D6, D7, D8, D9, L7, T41a, T41b, T41c, T41d, WMC1, ceh10, ceh24, ceh28, nw3, nw4, nw4b
+      C3 (n=9, median stab=1.00): Ceh32, ceh13, ceh14, ceh2, ceh20, ceh30, ceh33, ceh34, nw10
+      C4 (n=26, median stab=0.71): D25, WMC2, ceh1, ceh16, ceh17, ceh18, ceh19, ceh21, ceh31, ceh36, ceh39, ceh4, ceh40, ceh41, ceh42, ceh9, nw1, nw11, nw13, nw2, nw5, nw6, nw7, nw9, wmc3, wmc4
+  ▸ Bootstrap stability at k=5 (1000 resamples)...
+    Saved membership: /home/john/projects/NRG/outputs/02_clustering/02_07_cluster_membership_k5.csv
+    Saved heatmap:    /home/john/projects/NRG/outputs/02_clustering/02_06_coassignment_heatmap_k5.png
+    Memberships at k=5:
+      C1 (n=7, median stab=0.98): ceh11, ceh23, ceh25, ceh26, ceh27, ceh5, ceh6
+      C2 (n=24, median stab=0.98): D10, D15, D17, D38, D41, D43, D44, D5, D6, D7, D8, D9, L7, T41a, T41b, T41c, T41d, WMC1, ceh10, ceh24, ceh28, nw3, nw4, nw4b
+      C3 (n=9, median stab=1.00): Ceh32, ceh13, ceh14, ceh2, ceh20, ceh30, ceh33, ceh34, nw10
+      C4 (n=5, median stab=0.99): ceh16, ceh17, ceh19, ceh31, nw9
+      C5 (n=21, median stab=0.49): D25, WMC2, ceh1, ceh18, ceh21, ceh36, ceh39, ceh4, ceh40, ceh41, ceh42, ceh9, nw1, nw11, nw13, nw2, nw5, nw6, nw7, wmc3, wmc4
+  ▸ Bootstrap stability at k=6 (1000 resamples)...
+    Saved membership: /home/john/projects/NRG/outputs/02_clustering/02_07_cluster_membership_k6.csv
+    Saved heatmap:    /home/john/projects/NRG/outputs/02_clustering/02_06_coassignment_heatmap_k6.png
+    Memberships at k=6:
+      C1 (n=7, median stab=0.96): ceh11, ceh23, ceh25, ceh26, ceh27, ceh5, ceh6
+      C2 (n=17, median stab=0.97): D10, D15, D17, D41, D44, D5, D6, D8, T41b, T41c, T41d, WMC1, ceh24, ceh28, nw3, nw4, nw4b
+      C3 (n=7, median stab=0.80): D38, D43, D7, D9, L7, T41a, ceh10
+      C4 (n=9, median stab=1.00): Ceh32, ceh13, ceh14, ceh2, ceh20, ceh30, ceh33, ceh34, nw10
+      C5 (n=5, median stab=0.99): ceh16, ceh17, ceh19, ceh31, nw9
+      C6 (n=21, median stab=0.36): D25, WMC2, ceh1, ceh18, ceh21, ceh36, ceh39, ceh4, ceh40, ceh41, ceh42, ceh9, nw1, nw11, nw13, nw2, nw5, nw6, nw7, wmc3, wmc4
+  ▸ Bootstrap stability at k=7 (1000 resamples)...
+    Saved membership: /home/john/projects/NRG/outputs/02_clustering/02_07_cluster_membership_k7.csv
+    Saved heatmap:    /home/john/projects/NRG/outputs/02_clustering/02_06_coassignment_heatmap_k7.png
+    Memberships at k=7:
+      C1 (n=7, median stab=0.92): ceh11, ceh23, ceh25, ceh26, ceh27, ceh5, ceh6
+      C2 (n=17, median stab=0.93): D10, D15, D17, D41, D44, D5, D6, D8, T41b, T41c, T41d, WMC1, ceh24, ceh28, nw3, nw4, nw4b
+      C3 (n=7, median stab=0.77): D38, D43, D7, D9, L7, T41a, ceh10
+      C4 (n=9, median stab=1.00): Ceh32, ceh13, ceh14, ceh2, ceh20, ceh30, ceh33, ceh34, nw10
+      C5 (n=5, median stab=0.98): ceh16, ceh17, ceh19, ceh31, nw9
+      C6 (n=9, median stab=0.55): D25, WMC2, ceh18, ceh21, ceh36, ceh4, ceh42, nw5, nw6
+      C7 (n=12, median stab=0.67): ceh1, ceh39, ceh40, ceh41, ceh9, nw1, nw11, nw13, nw2, nw7, wmc3, wmc4
+  ▸ Saved stability summary: 02_04_bootstrap_stability_summary.csv
+  ▸ Saved per-well stability: 02_05_bootstrap_stability_per_well.csv
+
+--- Stability diagnostics: quick look ---
+  k=4: median stab=0.94  robust (>=0.9): 52%  borderline (0.7-0.9): 32%  fragile (<0.7): 17%
+  k=5: median stab=0.94  robust (>=0.9): 53%  borderline (0.7-0.9): 6%  fragile (<0.7): 41%
+  k=6: median stab=0.89  robust (>=0.9): 50%  borderline (0.7-0.9): 14%  fragile (<0.7): 36%
+  k=7: median stab=0.84  robust (>=0.9): 44%  borderline (0.7-0.9): 20%  fragile (<0.7): 36%
+-----------------------------------------
+
+  ▸ Saved cluster stats: 02_cluster_stats.csv
+     Cluster sizes (canonical IDs):
+       C1 (Lake Edge)                 n=7
+       C2 (Dune)                      n=24
+       C3 (Western Residual)          n=21
+       C4 (Main Forest)               n=9
+       C5 (Coastal Forest)            n=5
+  ▸ Generating Dendrogram...
+  ▸ Generating Cluster Hydrograph + Water-Balance Figure...
+Long-term mean P-PET (2004-12-01 to 2025-12-01): 19.46 mm/month
+Study period: 2005-03-01 to 2026-02-01 (252 months)
+Cumulative anomaly range: -379.6 to 166.3 mm
+  ✓ Saved: 02_03_cluster_hydrographs_wb.png
+  ▸ Generating Per-Well Spaghetti Figure...
+  ✓ Saved: 02_03b_cluster_spaghetti.png
+
+--- Cluster Amplitude Descriptors ---
+  ▸ Computing per-well amplitude stats (66 wells)...
+  ✓ Saved: 02_08_cluster_amplitude_per_well.csv
+ -> Aggregating to 5 clusters...
+ -> Drought summers (climate normalisation): 2005, 2018, 2022
+  ✓ Saved: 02_09_cluster_amplitude_summary.csv
+  ✓ Saved: 02_10_cluster_amplitude_boxplot.png
+
+--- Amplitude quick look (post-2018) ---
+  C1 (Lake Edge)       (n=7):  median 1.00m  range 0.85–1.22  Δpre/post(raw) −19.4%  (climnorm −15.1%)
+  C2 (Dune)            (n=24):  median 1.02m  range 0.78–1.37  Δpre/post(raw) −0.1%  (climnorm +8.7%)
+  C3 (Western Residual) (n=21):  median 1.01m  range 0.64–1.28  Δpre/post(raw) +1.4%  (climnorm +8.1%)
+  C4 (Main Forest)     (n=9):  median 1.09m  range 0.91–1.46  Δpre/post(raw) +5.8%  (climnorm +5.8%)
+  C5 (Coastal Forest)  (n=5):  median 0.73m  range 0.58–0.80  Δpre/post(raw) +17.7%  (climnorm +20.7%)
+----------------------------------------
+
+  ▸ Clustering Complete.
+  ✓ done  (18.9s)
+
+  ▶ STEP 3/36  State-space regression + LCSC
+      script: 03_state_space_model.py
+  ──────────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 03 — State-Space Regression & LCSC  [v1.1.0]
+════════════════════════════════════════════════════════════════════════
+Starting 03: State-Space Regression & LCSC...
+ -> Cluster partition verified: [np.int64(1), np.int64(2), np.int64(3), np.int64(4), np.int64(5)] matches config.CLUSTER_LABELS.
+  ▸ Upstand lookup loaded: 99 wells.
+
+ -> Upstand audit (threshold > 0.30 m):
+    C2: t41a        upstand = 0.400 m
+    C3: nw2         upstand = 0.590 m
+    C4: ceh2        upstand = 0.710 m
+
+ -> Fitting per-well SSM and computing LCSC...
+ -> Saved: 03_master_data.csv (66 wells)
+    [INFO] Per-well sign violations: beta_1<0 in 0 wells, beta_2<0 in 1 wells. Not halting — per-well violations are informational. Centroid-fit violations halt the pipeline.
+
+   PER-WELL AVERAGE STATISTICS BY CLUSTER (window = 100 months)
+         beta_1_recharge  ...  Model_R2
+Cluster                   ...          
+1                  5.008  ...     0.737
+2                  4.275  ...     0.727
+3                  3.498  ...     0.735
+4                  2.482  ...     0.684
+5                  2.314  ...     0.687
+
+[5 rows x 5 columns]
+
+ -> Building cluster centroids (upstand-corrected)...
+    C1: 7 upstand-corrected, 0 uncorrected
+    C2: 24 upstand-corrected, 0 uncorrected
+    C3: 21 upstand-corrected, 0 uncorrected
+    C4: 9 upstand-corrected, 0 uncorrected
+    C5: 5 upstand-corrected, 0 uncorrected
+
+ -> Fitting cluster-centroid SSMs (headline, lag 0)...
+  ✓ Saved: 03_03_cluster_mechanistic_coefficients.csv
+  Pipeline params updated: β coefficients from Script 03
+
+ -> Lag diagnostic (lags 0, 1, 2, 3 months)...
+  ✓ Saved: 03_04_lag_diagnostic.csv
+
+ -> Datum sensitivity analysis (0.5–8.0 m, 0.1 m steps, selected = 3.7 m)...
+  ✓ Saved: 03_08_datum_sensitivity.csv
+    Minimum datum for all β₃ > 0 & p < 0.05: 1.7 m
+    [NOTE] Empirical minimum (1.7 m) differs from DRAINAGE_DATUM (3.7 m) — consider updating config.DRAINAGE_DATUM.
+  ✓ Saved: 03_08_datum_sensitivity.png
+
+ -> Per-well datum sensitivity (0.5–8.0 m, 0.1 m steps)...
+  ✓ Saved: 03_09_well_datum_sensitivity.csv
+  ✓ Saved: 03_09_well_optimal_datums.csv
+    60/66 wells have β₃ > 0 & p < 0.05 at some datum
+    Median optimal datum: 0.5 m  (IQR: 0.5–0.5 m)
+      C1 (Lake Edge)           : median 0.5 m  (range 0.5–0.5, n=7)
+      C2 (Dune)                : median 0.5 m  (range 0.5–0.5, n=24)
+      C3 (Western Residual)    : median 0.5 m  (range 0.5–0.9, n=21)
+      C4 (Main Forest)         : median 1.5 m  (range 0.9–1.7, n=3)
+      C5 (Coastal Forest)      : median 0.7 m  (range 0.5–1.8, n=5)
+    6 wells never achieved p < 0.05 on β₃ (6 of these achieve β₃ > 0 without significance)
+
+    R²-maximising datum analysis:
+      Median R²-max datum: 1.4 m
+      Mean R² gain vs uniform 3.7 m: +0.0273
+      β₃ negative at R²-max datum: 1/66 wells
+        C1 (Lake Edge)           : median datum 0.8 m, R² gain +0.0702, β₃<0 at max: 0/7
+        C2 (Dune)                : median datum 0.9 m, R² gain +0.0378, β₃<0 at max: 0/24
+        C3 (Western Residual)    : median datum 1.6 m, R² gain +0.0153, β₃<0 at max: 0/21
+        C4 (Main Forest)         : median datum 2.7 m, R² gain +0.0012, β₃<0 at max: 1/9
+        C5 (Coastal Forest)      : median datum 1.9 m, R² gain +0.0148, β₃<0 at max: 0/5
+  ✓ Saved: 03_09_well_optimal_datums.png
+
+ -> Generating spatial datum maps...
+  ✓ Saved: 03_10_well_datum_r2max_map.png
+  ✓ Saved: 03_10_well_r2_gain_map.png
+
+ -> Bootstrapping centroid fits (B = 1000, seed = 20260424)...
+  ✓ Saved: 03_05_bootstrap_ci.csv
+
+ -> Leave-one-well-out centroid fits...
+  ✓ Saved: 03_06_leave_one_out.csv
+
+ -> C1 Lake pre/post-2018 split-window diagnostic...
+  ✓ Saved: 03_07_c1_split_window.csv
+    Loaded amplitude heterogeneity from 02_08_cluster_amplitude_per_well.csv (66 wells matched).
+  ✓ Saved: 03_02_cluster_summary_table.csv
+  ✓ Saved: 03_01_mechanistic_signatures.png
+
+==================================================
+   FINAL MANUSCRIPT LCSC PERCENTAGES
+==================================================
+ Coastal Forest   : 43.7%
+ Eastern Block    : 23.7%
+ Forest           : 41.2%
+ Lake Edge        : 20.3%
+ Western Block    : 30.0%
+==================================================
+  ✓ Saved: 03_regional_averages.csv
+  ✓ Saved: 03_regional_averages_maod.csv
+  C1 (C1 (Lake Edge)): peak month = 1
+  C2 (C2 (Dune)): peak month = 1
+  C3 (C3 (Western Residual)): peak month = 2
+  C4 (C4 (Main Forest)): peak month = 2
+  C5 (C5 (Coastal Forest)): peak month = 2
+  ✓ Saved: 03_cluster_peak_months.csv
+  Pipeline params updated: peak months from Script 03 (5 clusters)
+
+03 complete.
+  ✓ done  (89.1s)
+
+  ▶ STEP 4/36  Core cluster visualisation
+      script: 04_cluster_visualisations.py
+  ──────────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 04 — Cluster Visualisations
+════════════════════════════════════════════════════════════════════════
+--- Starting 04: Core Visualization ---
+  ✓ Saved: 04_01_core_architecture_map.png
+  ✓ done  (7.7s)
+
+  ✓ Phase 1 validation passed.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PHASE 2  — Pearson Membership Audit
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ▶ STEP 5/36  Pearson membership audit
+      script: 05_pearson_affinity.py
+  ──────────────────────────────────────────────────────────────────
+Starting 05: Pearson Membership Affinity Audit...
+
+Membership Summary: Core=17 Fuzzy=46 Spy=3 MCA=46
+MCA wells: CEH1, CEH16, CEH18, CEH20, CEH21, CEH24, CEH28, CEH30, CEH31, CEH33, CEH34, CEH36, CEH39, CEH40, CEH41, CEH42, CEH9, D10, D15, D17, D25, D38, D41, D43, D44, D5, D6, D7, D8, D9, L7, NW11, NW13, NW3, NW4, NW4B, NW5, NW7, T41A, T41B, T41C, T41D, WMC1, WMC2, WMC3, WMC4
+  ✓ Saved: 05_pear_membership_audit.csv, 05_pear_02_affinity_chart_reference.png, 05_pear_01_spatial_confidence_map.png
+  ✓ done  (7.3s)
+
+  ▶ STEP 6/36  Pearson extended network integration
+      script: 06_pearson_extended.py
+  ──────────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 06 — Pearson Affinity — Extended Network
+════════════════════════════════════════════════════════════════════════
+--- Starting Phase 2: Pearson Affinity Audit ---
+  ▸ Running correlation matrix against Reference Templates...
+  ▸ Audit saved. Found 22 Extended wells.
+  ▸ Generating Pearson Integration Map...
+Success: Integration Map saved to 06_pear_02_integration_map.png
+  ✓ done  (8.4s)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PHASE 3  — Model Diagnostics and Intervention Analysis
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ▶ STEP 7/36  Spatial coefficient mapping
+      script: 07_spatial_coefficients.py
+  ──────────────────────────────────────────────────────────────────
+Starting SSM07 Spatial Coefficient Mapping...
+  Loaded 66 wells from 03_master_data.csv
+
+  Cluster-level SSM coefficient summary
+  ------------------------------------------------------------------------------
+  Cluster                  n   β₁ mean  β₂ mean  β₃ mean R² mean
+  ------------------------------------------------------------------------------
+  C1 (Lake Edge)           7     5.008    0.625   0.1033   0.737
+  C2 (Dune)               24     4.275    1.661   0.0730   0.727
+  C3 (Western Residual)   21     3.498    1.767   0.0577   0.735
+  C4 (Main Forest)         9     2.482    2.643   0.0160   0.684
+  C5 (Coastal Forest)      5     2.314    1.208   0.0460   0.687
+  ------------------------------------------------------------------------------
+  ▸ Exported cluster summary to 07_coefficient_summary.csv
+  ▸ Saved 07_coeff_01_beta1_recharge.png (4198 KB)
+  ▸ Saved 07_coeff_02_beta2_atm_draw.png (4185 KB)
+  ▸ Saved 07_coeff_03_beta3_drainage.png (4169 KB)
+  ▸ Saved 07_coeff_04_r2_quality.png (4170 KB)
+  ▸ Exported map data to 07_coeff_maps_data.csv
+  ▸ Exported per-cluster coefficient ranges to 07_coeff_05_cluster_ranges.csv
+  ▸ Exported per-cluster coefficient means to 07_cluster_coeff_means.csv
+  ▸ Exported 22 report numbers to 07_report_numbers.csv
+
+SSM07 Spatial Coefficient Mapping complete.
+  ✓ done  (41.1s)
+
+  ▶ STEP 8/36  Model benchmarking (LCSC vs Traditional)
+      script: 08_model_benchmarking.py
+  ──────────────────────────────────────────────────────────────────
+Starting SSM08 Model Showdown Pipeline...
+  Displacement formulation: DRAINAGE_DATUM = 3.7 m
+  Rainfall lag: 0 month(s)
+ -> Restricting to 66 reference network wells (excluded 12 non-reference + 3 by rule: CEH7/CEH8/CEH37)
+
+ -> Exported SSM08 SSMvTLM stats table (includes NSE): 08_lcsc_model_stats.csv
+  ▸ Saved manuscript Table 3 summary: 08_lcsc_04_table3_benchmark_summary.csv
+  ✓ Saved: 08_perwell_nse.csv (66 wells)
+  ✓ Saved: 08_cluster_nse_medians.csv (5 clusters)
+  ✓ Saved: 08_report_numbers.csv (14 report numbers)
+  ▸ Saved CEH6 showdown: 08_lcsc_01_ceh6_showdown.png
+  ▸ Saved diagnostic map 1: 08_lcsc_02_r2_improvement_map.png
+  ▸ Saved diagnostic map 2: 08_lcsc_03_nse_improvement_map.png
+
+SSM08 Model Showdown Complete!
+  ✓ done  (15.1s)
+
+  ▶ STEP 9/36  Scraping analysis suite (09a–09e)
+      script: run_09_scraping.py
+  ──────────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 09 — Scraping Pipeline Orchestrator
+════════════════════════════════════════════════════════════════════════
+========================================================================
+SCRAPING ANALYSIS SUITE
+Modules: 09a, 09b, 09c, 09d, 09e
+========================================================================
+
+────────────────────────────────────────────────────────────────────────
+Running 09a: 09a_paired_baci
+────────────────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 09a — HIERARCHICAL PAIRED BACI ANALYSIS
+════════════════════════════════════════════════════════════════════════
+
+──  Phase 1 · Loading Climate and Well Data ────────────────────────────
+
+──  Phase 2 · Running Master Statistical Analysis ──────────────────────
+
+──  Phase 3 · Exporting CSV files ──────────────────────────────────────
+
+──  Phase 4 · Generating the Visual Suite ──────────────────────────────
+  ✓ Saved: 09_scrape_05_tier1_background_drift.png
+  ✓ Saved: 09_scrape_06_tier2_scraping_signal.png
+  ✓ Saved: 09_scrape_07_beta3_confidence.png
+
+--- Absolute Paired-BACI Shifts ---
+ Well            Shift   Delta_m       Control
+CEH36    Pure_Scraping  0.129426          CEH4
+CEH36    Felling_Pulse  0.023607          CEH4
+ CEH4    Pure_Scraping -0.014945 Regional Mean
+ CEH4    Felling_Pulse -0.087856 Regional Mean
+CEH18    Felling_Pulse  0.029706          CEH4
+CEH18   After_Scraping  0.008471          CEH4
+CEH21 Coastal_Drawdown  0.043085         CEH22
+CEH21   After_Scraping  0.073547         CEH22
+CEH22 Coastal_Drawdown -0.165167 Regional Mean
+CEH22   After_Scraping -0.129491 Regional Mean
+
+Exporting report numbers CSV...
+  ✓ Saved: 09_scrape_report_numbers.csv (37 rows)
+
+Done.
+
+────────────────────────────────────────────────────────────────────────
+Running 09b: 09b_scraping_propagation
+────────────────────────────────────────────────────────────────────────
+======================================================================
+09b — Scraping Propagation Analysis
+======================================================================
+
+──  Phase 1 · Loading data ─────────────────────────────────────────────
+   Wells (clean): 78 columns
+   Wells (extended): 22 columns
+   Climate: 1143 months
+
+──  Phase 2 · Fitting split-window SSMs ────────────────────────────────
+   Pre-scrape window:  start of record – Apr 2015
+   Post-scrape window: Apr 2015 – Dec 2017
+   Fitted 18 wells ({'uphill': 10, 'control': 7, 'scraped': 1})
+
+──  Phase 3 · Computing BACI correction ────────────────────────────────
+   Control centroid raw shifts (n=7 wells):
+     Δβ₁ = +0.101
+     Δβ₂ = +0.449
+     Δβ₃ = +0.0006 (+0.6 × 10⁻³)
+
+   Uphill wells (BACI-corrected):
+     ceh31     C5    247m  Δβ₃= +4.3×10⁻³  n_pre=56
+     wmc3      C3    262m  Δβ₃= +9.3×10⁻³  n_pre=64
+     nw6       C3    284m  Δβ₃= +0.3×10⁻³  n_pre=109
+     nw7       C3    383m  Δβ₃= +2.6×10⁻³  n_pre=105
+     ceh30     C4    463m  Δβ₃= +6.1×10⁻³  n_pre=57
+     ceh20     C4    523m  Δβ₃= +5.1×10⁻³  n_pre=76
+     ceh33     C4    550m  Δβ₃= +4.4×10⁻³  n_pre=56
+     ceh9      C3    571m  Δβ₃= +7.8×10⁻³  n_pre=98
+     ceh34     C4    606m  Δβ₃= -6.3×10⁻³  n_pre=54
+     ceh 1     C3    776m  Δβ₃= +1.7×10⁻³  n_pre=107
+
+──  Phase 4 · Computing centroid summaries ─────────────────────────────
+   CEH36 (scraped) (1 wells):
+     BACI Δβ₁=+0.128  Δβ₂=-0.411  Δβ₃=+2.6×10⁻³ (+5%)
+   C3+CEH31 (non-forest uphill) (6 wells):
+     BACI Δβ₁=+0.196  Δβ₂=+0.110  Δβ₃=+3.8×10⁻³ (+8%)
+   C4 (forest uphill) (4 wells):
+     BACI Δβ₁=+0.307  Δβ₂=-0.039  Δβ₃=+3.1×10⁻³ (+9%)
+   All uphill (10 wells):
+     BACI Δβ₁=+0.126  Δβ₂=-0.036  Δβ₃=+4.7×10⁻³ (+11%)
+
+──  Phase 5 · Exporting CSVs ───────────────────────────────────────────
+   → 09b_01_individual_well_baci.csv
+   → 09b_02_centroid_summaries.csv
+
+──  Phase 6 · Generating CEH36 equilibration figure ────────────────────
+   → 09b_03_ceh36_equilibration.jpg
+
+──  Phase 7 · Generating scenario comparison figure ────────────────────
+   → 09b_04_scenario_comparison.jpg
+   → 09b_04_scenario_comparison.csv
+
+──  Phase 8 · Generating summer minimum scenario comparison ────────────
+   Scraping (CEH36 vs CEH18): +143 mm  p = 0.017
+   Sy from Script 17: C1=0.210, C2=0.281, C3=0.326, C4=0.248, C5=0.321
+   Clearfell summer min (SSM-derived): C4=+30 mm  C5=+29 mm
+   Thinning 50% summer min (SSM-derived): C4=+15 mm  C5=+14 mm
+   Broadleaf summer min (SSM-derived): C4=-3 mm  C5=+4 mm
+   → 09b_05_summer_scenario_comparison.png
+   → 09b_05_summer_scenario_comparison.csv
+
+Done.
+
+────────────────────────────────────────────────────────────────────────
+Running 09c: 09c_summer_minima
+────────────────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 09c — SUMMER MINIMA ANALYSIS (DUAL CONTROL)
+════════════════════════════════════════════════════════════════════════
+
+──  Phase 1 · Loading data ─────────────────────────────────────────────
+
+──  Phase 2 · Computing annual summer minima ───────────────────────────
+   5 wells, 15 centroid years
+
+──  Phase 3 · Exporting per-well summer minima ─────────────────────────
+  ✓ Saved: 09c_01_summer_minima.csv (75 rows)
+
+──  Phase 4 · Computing pre/post shifts ────────────────────────────────
+  ✓ Saved: 09c_02_summer_minima_shifts.csv (8 rows)
+
+   Summer minimum shifts (mm):
+
+   Climate control:
+     CEH22     shift =    -52 mm  p = 0.4486
+     CEH18     shift =    +22 mm  p = 0.5676
+     CEH4      shift =    -34 mm  p = 0.3321
+     CEH21     shift =    -60 mm  p = 0.3801
+     CEH36     shift =   +161 mm  p = 0.0062 *
+
+   Paired control:
+     CEH18     shift =    +56 mm  p = 0.2037
+     CEH21     shift =     -8 mm  p = 0.8865
+     CEH36     shift =   +194 mm  p = 0.0045 *
+
+──  Phase 5 · Generating figures ───────────────────────────────────────
+  ✓ Saved: 09c_03_summer_minima_climate_ctrl.png
+  ✓ Saved: 09c_04_summer_minima_paired.png
+
+──  Phase 6 · Exporting report numbers ─────────────────────────────────
+  ✓ Saved: 09c_report_numbers.csv (8 rows)
+
+Done.
+
+────────────────────────────────────────────────────────────────────────
+Running 09d: 09d_scenario_comparison
+────────────────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 09d — CEH36 SCENARIO COMPARISON
+════════════════════════════════════════════════════════════════════════
+
+──  Phase 1 · Loading CEH36 parameters from pipeline ───────────────────
+   CEH36: b1=2.679  b2=1.078  b3=0.0459  Sy=0.349  h_disp=3.017m  cluster=C3
+   Summer climate: P=0.064693  PET=0.090137 m/month
+
+──  Phase 2 · Computing scenario responses at CEH36 ────────────────────
+   β₂ multipliers: clearfell=1.0315  thinning=1.0158
+   Scenario responses at CEH36 (mm w.e./month):
+     Scraping (observed)             +45.2
+     Clearfell (hypothetical)        +13.5
+     Thinning 50% (hypothetical)     +6.7
+     Broadleaf (hypothetical)        +2.9
+     Climate dry                     -14.4
+     Climate wet                     +7.8
+
+──  Phase 3 · Plotting monthly scenario comparison ─────────────────────
+  ▸ 09d_01_scenario_comparison.jpg
+  ▸ 09d_01_scenario_comparison.csv
+
+──  Phase 4 · Plotting summer minimum scenario comparison ──────────────
+   Summer amplification factor (C3): 0.820
+   Observed scraping summer min shift (CEH36 vs CEH4): +165 mm
+  ▸ 09d_02_summer_scenario_comparison.png
+  ▸ 09d_02_summer_scenario_comparison.csv
+
+Done.
+
+────────────────────────────────────────────────────────────────────────
+Running 09e: 09e_robustness
+────────────────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 09e — CEH36 SCRAPING ROBUSTNESS ANALYSIS
+════════════════════════════════════════════════════════════════════════
+
+──  Phase 1 · Loading data ─────────────────────────────────────────────
+
+──  Phase 2 · Computing raw BACI ───────────────────────────────────────
+   Raw BACI step: +0.129 m
+
+──  Phase 3 · Computing synthetic control ──────────────────────────────
+   Synthetic step: +0.137 m (11 donors)
+
+──  Phase 4 · Computing SSM forward residual ───────────────────────────
+   SSM residual step: +0.081 m
+
+──  Phase 5 · Generating robustness figure ─────────────────────────────
+  ✓ Saved: 09_scrape_08_ceh36_robustness.png
+   Raw BACI step:    +0.129 m
+   Synthetic step:   +0.137 m
+   SSM residual:     +0.081 m
+
+──  Phase 6 · Exporting report numbers ─────────────────────────────────
+  ✓ Saved: 09e_report_numbers.csv
+
+Done.
+
+========================================================================
+SCRAPING ANALYSIS SUITE COMPLETE
+========================================================================
+  ✓ done  (11.1s)
+
+  ▶ STEP 10/36  Clear-fell BACI analysis suite (10a–10l)
+      script: run_10_clearfell.py
+  ──────────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 10i — CEH34 DONOR-REGRESSION HINDCAST
+════════════════════════════════════════════════════════════════════════
+
+──  Phase 1 · Loading data ─────────────────────────────────────────────
+   CEH34    record: 2010-08-01 → 2026-02-01  (185 months)
+   CEH9     record: 2006-05-01 → 2026-02-01  (229 months)
+
+2. Fitting donor regression on pre-clearfell overlap (2010-08-01 to 2017-11-30)...
+   Fit: CEH34 = -0.1485 + +1.0515 · CEH9
+   α = -0.1485  (SE 0.0346, p = 0.0000)
+   β = +1.0515   (SE 0.0371, p < 1e-30)
+   r² = 0.9115     RMSE = 124.6 mm     n_cal = 80
+
+──  Phase 3 · Hindcasting CEH34 over pre-record window ─────────────────
+   Hindcast covers 51 months: 2006-05-01 → 2010-07-01
+
+──  Phase 4 · Splicing hindcast with observed record ───────────────────
+   -> Saved: 10i_01_ceh34_hindcast.csv  (51 hindcast + 185 observed = 236 months)
+
+──  Phase 5 · Exporting regression diagnostics ─────────────────────────
+  ✓ Saved: 10i_02_donor_regression.csv
+
+──  Phase 6 · Generating diagnostic figure ─────────────────────────────
+  ✓ Saved: 10i_03_hindcast_diagnostic.png
+
+──  Phase 7 · Exporting report numbers ─────────────────────────────────
+  ✓ Saved: 10i_report_numbers.csv
+
+========================================================================
+HINDCAST SUMMARY
+========================================================================
+  Target well : CEH34
+  Donor well  : CEH9  (Climate Control — independent of Forest Control set)
+  Calibration : 80 months, pre-clearfell overlap
+  Fit quality : r² = 0.911, RMSE = 124.6 mm
+  Hindcast    : 51 months  (2006-05-01 → 2010-07-01)
+  Pred. band  : ±244 mm at 95% confidence per month
+========================================================================
+Script 10i complete.
+
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 10a — THREE-COUNTERFACTUAL ANCOVA-BACI
+════════════════════════════════════════════════════════════════════════
+
+──  Phase 1 · Loading data ─────────────────────────────────────────────
+   [hindcast] CEH34: substituted 51 hindcast value(s) prior to 2010-08-01 (from Script 10i, CEH9 donor)
+
+  Network: 17 wells (5-tier design)
+    Impact        : WMC3
+    Edge          : CEH31, CEH20, CEH30, CEH16
+    Forest Ctrl   : CEH32, CEH34, CEH33, NW10, CEH2
+    Coastal Ctrl  : CEH19, CEH17
+    Climate Ctrl  : CEH9, NW7, NW6, NW5, WMC2
+
+
+──  Phase 2 · Building BACI displacement time-series ───────────────────
+
+──  Phase 3 · Running three-counterfactual ANCOVA ──────────────────────
+   Forest control × Impact... step = +120 mm  CI = [+50, +189]  p = <0.001  R² = 0.274
+   Forest control × Edge... step = +33 mm  CI = [-16, +82]  p = 0.1929  R² = 0.484
+   Climate control × Impact... step = -15 mm  CI = [-65, +34]  p = 0.5372  R² = 0.191
+   Climate control × Edge... step = -112 mm  CI = [-174, -50]  p = <0.001  R² = 0.219
+   Combined control × Impact... step = +72 mm  CI = [+37, +108]  p = <0.001  R² = 0.268
+   Combined control × Edge... step = -22 mm  CI = [-49, +5]  p = 0.1170  R² = 0.451
+
+3a. Direct summer (Jun-Sep) ANCOVA — Forest × Impact...
+   Summer panel: N = 52  (pre-fell 23, post-fell 29)
+   Full spec  : step = +46 mm  CI = [-69, +162]  p = 0.4363  R² = 0.337  AIC = -234.15
+   No-CWB     : step = +123 mm  CI = [-1, +247]  p = 0.0584  R² = 0.098  AIC = -222.12
+   ΔAIC (full − no-CWB) = -12.03  (CWB retained preferred)
+
+3b. Curvature (CWB² × felling) variant — Forest × Impact, Edge...
+   Impact: cwb2_x_fell = -2.751e-06  p = 0.0157  ΔAIC = -4.18  joint F = 3.99 (p = 0.0205)  step +120→+146 mm
+   Edge: cwb2_x_fell = -2.216e-06  p = 0.0082  ΔAIC = -10.68  joint F = 7.30 (p = <0.001)  step +33→+50 mm
+
+──  Phase 4 · Scraping decay sensitivity (λ = 200 m, 500 m) ────────────
+   Clearfell steps by λ:
+     λ=200  Forest     Impact    step = +120 mm  p = <0.001
+     λ=200  Forest     Edge      step = +33 mm  p = 0.1929
+     λ=200  Climate    Impact    step = -15 mm  p = 0.5372
+     λ=200  Climate    Edge      step = -112 mm  p = <0.001
+     λ=200  Combined   Impact    step = +72 mm  p = <0.001
+     λ=200  Combined   Edge      step = -22 mm  p = 0.1170
+     λ=500  Forest     Impact    step = +120 mm  p = <0.001
+     λ=500  Forest     Edge      step = +33 mm  p = 0.1929
+     λ=500  Climate    Impact    step = -15 mm  p = 0.5372
+     λ=500  Climate    Edge      step = -112 mm  p = <0.001
+     λ=500  Combined   Impact    step = +72 mm  p = <0.001
+     λ=500  Combined   Edge      step = -22 mm  p = 0.1170
+
+──  Phase 5 · Exporting comparison table ───────────────────────────────
+  ✓ Saved: 10a_01_ancova_comparison_table.csv (6 rows)
+  ✓ Saved: 10a_02_ancova_full_coefficients.csv (36 rows)
+
+──  Phase 6 · Exporting BACI time-series data ──────────────────────────
+  ✓ Saved: 10a_03_baci_timeseries.csv (894 rows)
+
+──  Phase 7 · Generating figures ───────────────────────────────────────
+  ✓ Saved: 10a_04_baci_timeseries_impact.png
+  ✓ Saved: 10a_05_baci_timeseries_edge.png
+   Climate sensitivity (Forest control)...
+  ✓ Saved: 10a_06_climate_sensitivity.png
+   CUSUM (Forest control)...
+  ✓ Saved: 10a_07_cusum_impact.png
+  ✓ Saved: 10a_08_cusum_edge.png
+   Supplementary three-panel figures...
+  ✓ Saved: 10a_S1_baci_timeseries_impact_3panel.png
+  ✓ Saved: 10a_S2_baci_timeseries_edge_3panel.png
+  ✓ Saved: 10a_S3_climate_sensitivity_3panel.png
+
+──  Phase 9 · Exporting report numbers ─────────────────────────────────
+   Scraping distance weights:
+     WMC3      d =    262 m   weight = 0.417
+     CEH31     d =    247 m   weight = 0.438
+     CEH20     d =    523 m   weight = 0.175
+     CEH30     d =    463 m   weight = 0.214
+     CEH16     d =    354 m   weight = 0.307
+     CEH32     d =    697 m   weight = 0.098
+     CEH34     d =    606 m   weight = 0.133
+     CEH33     d =    550 m   weight = 0.160
+     NW10      d =   1055 m   weight = 0.030
+     CEH2      d =    721 m   weight = 0.090
+     CEH19     d =    388 m   weight = 0.274
+     CEH17     d =    447 m   weight = 0.225
+     CEH9      d =    571 m   weight = 0.149
+     NW7       d =    383 m   weight = 0.279
+     NW6       d =    284 m   weight = 0.389
+     NW5       d =    619 m   weight = 0.127
+     WMC2      d =    853 m   weight = 0.058
+  ✓ Saved: 10a_report_numbers.csv (119 rows)
+
+========================================================================
+ANCOVA-BACI SUMMARY
+========================================================================
+
+  Impact zone:
+  Control       Step (mm)                   CI          p     R²
+  ------------------------------------------------------------
+  Forest             +120 [    +50,    +189]     <0.001  0.274
+  Climate             -15 [    -65,     +34]     0.5372  0.191
+  Combined            +72 [    +37,    +108]     <0.001  0.268
+
+  Edge zone:
+  Control       Step (mm)                   CI          p     R²
+  ------------------------------------------------------------
+  Forest              +33 [    -16,     +82]     0.1929  0.484
+  Climate            -112 [   -174,     -50]     <0.001  0.219
+  Combined            -22 [    -49,      +5]     0.1170  0.451
+
+  Scraping decay λ = 300 m
+========================================================================
+Script 10a complete.
+
+
+──  Phase 1 · Loading well time series ─────────────────────────────────
+   [hindcast] CEH34: substituted 51 hindcast value(s) prior to 2010-08-01 (from Script 10i, CEH9 donor)
+   89 well columns loaded
+
+──  Phase 2 · Computing step changes ───────────────────────────────────
+   Climate reference (C3W controls, n=4: NW5, NW6, NW7, CEH1):
+     Scraping baseline: +0.0025 m
+     Clearfell baseline: +0.0743 m
+   Scrape step: 74 wells
+   Clearfell step: 71 wells
+
+──  Phase 3 · Building four spatial figures ────────────────────────────
+  ✓ Saved: 10b_spatial_scrape_raw.png
+  ✓ Saved: 10b_spatial_fell_raw.png
+  ✓ Saved: 10b_spatial_scrape_corrected.png
+  ✓ Saved: 10b_spatial_fell_corrected.png
+  ▸ Saved step data: 10b_spatial_step_data.csv
+
+========================================================================
+SPATIAL STEP-CHANGE SUMMARY
+========================================================================
+
+Clearfell zone (<350 m from centroid): n=15
+  Raw fell step:  mean=+0.0813 m, median=+0.0841 m
+  Corrected:      mean=+0.0070 m, median=+0.0098 m
+
+C3W reference: n=4
+  Raw fell step:  mean=+0.0782 m, median=+0.0743 m
+
+Clearfell vs C3W: +0.0032 m (negative = clearfell wetter)
+
+Quadrant comparison (raw fell step):
+  NW: n= 2  mean=+0.0961 m  Clearfell − NW = -0.0148 m
+  NE: n=28  mean=+0.1071 m  Clearfell − NE = -0.0257 m
+  SE: n=27  mean=+0.0800 m  Clearfell − SE = +0.0013 m
+  SW: n= 4  mean=+0.0477 m  Clearfell − SW = +0.0337 m
+
+========================================================================
+Outputs:
+  /home/john/projects/NRG/outputs/10_clearfell_baci/10b_spatial_scrape_raw.png
+  /home/john/projects/NRG/outputs/10_clearfell_baci/10b_spatial_fell_raw.png
+  /home/john/projects/NRG/outputs/10_clearfell_baci/10b_spatial_scrape_corrected.png
+  /home/john/projects/NRG/outputs/10_clearfell_baci/10b_spatial_fell_corrected.png
+  /home/john/projects/NRG/outputs/10_clearfell_baci/10b_spatial_step_data.csv
+========================================================================
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 10c — Forest Zone Analysis
+════════════════════════════════════════════════════════════════════════
+
+============================================================
+Script 10c — Forest Zone Spatial Analysis
+============================================================
+
+  Forest wells: 14 (C4 = 9, C5 = 5)
+  Clearfell wells in dataset: 1
+  C3 boundary wells: 7
+  [saved] 10c_forest_zone_correlations.csv
+  [saved] 10c_forest_zone_cluster_summary.csv
+  [saved] 10c_01_b1_b2_scatter.png
+  [saved] 10c_02_b2_elevation_regression.png
+  [saved] 10c_03_c4_c5_boundary_map.png
+  [saved] 10c_04_forest_zone_summary.txt
+========================================================================
+SCRIPT 10c — Forest Zone Spatial Analysis Summary
+========================================================================
+
+1. SPATIAL PREDICTORS
+----------------------------------------
+   β₂ vs elevation: r = 0.981, R² = 0.963
+   Elevation is the dominant predictor of β₂ (95.1% variance explained).
+   Distance from ridge adds negligible information for β₂.
+   β₃: elevation R² = 0.619, + dist_ridge R² = 0.739
+   β₁: no strong spatial predictor (best: Easting r = 0.62)
+
+2. CONTINUUM OR TWO GROUPS?
+----------------------------------------
+   C4 β₂ = 2.643 ± 0.479
+   C5 β₂ = 1.208 ± 0.225
+   t-test p = 0.0000 — two distinct groups.
+   β₁ t-test p = 0.4472 — ranges overlap (not distinguishing).
+   WMC3 (clearfell): β₁ = 2.406, β₂ = 1.842 — sits between C4 and C5.
+
+3. OUTLIER ASSESSMENT
+----------------------------------------
+   NW10 (broadleaf): β₁ = 3.481 (C4 mean = 2.482), dist_ridge = 360 m
+   Both position (closest to ridge) and canopy type may contribute.
+   CEH14: β₂ = 3.723 at elev = 14.4 m — consistent with elevation trend,
+   not a genuine outlier (upper end of tight linear relationship).
+
+4. C4/C5 BOUNDARY
+----------------------------------------
+   C4 elevation: 8.7–14.4 m (n = 9)
+   C5 elevation: 4.8–6.5 m (n = 5)
+   Elevation gap: 2.2 m (zero overlap).
+   C4 Northing: 363760–364488
+   C5 Northing: 363533–363615
+   Conclusion: boundary reflects a real topographic/substrate
+   transition (dune ridge → coastal plain), not an arbitrary cut.
+   Pearson affinity: 14/14 wells have best-match = assigned cluster.
+
+  · Script 10c complete.
+
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 10d — SUMMER MINIMA ANALYSIS (DUAL CONTROL)
+════════════════════════════════════════════════════════════════════════
+
+──  Phase 1 · Loading data ─────────────────────────────────────────────
+
+  Network: 17 wells (5-tier design)
+    Impact        : WMC3
+    Edge          : CEH31, CEH20, CEH30, CEH16
+    Forest Ctrl   : CEH32, CEH34, CEH33, NW10, CEH2
+    Coastal Ctrl  : CEH19, CEH17
+    Climate Ctrl  : CEH9, NW7, NW6, NW5, WMC2
+
+
+──  Phase 2 · Computing annual summer minima ───────────────────────────
+
+──  Phase 3 · Exporting per-well summer minima ─────────────────────────
+  ✓ Saved: 10d_01_summer_minima.csv (242 rows)
+
+──  Phase 4 · Computing pre/post shifts ────────────────────────────────
+  ✓ Saved: 10d_02_summer_minima_shifts.csv (34 rows)
+
+   Tier-mean shifts (mm):
+
+   Forest control:
+     Impact          mean =     -7 mm  (0/1 significant)
+     Edge            mean =    -43 mm  (0/4 significant)
+     Forest Ctrl     mean =     -1 mm  (0/5 significant)
+     Climate Ctrl    mean =    -26 mm  (0/5 significant)
+
+   Climate control:
+     Impact          mean =    -19 mm  (0/1 significant)
+     Edge            mean =     +7 mm  (0/4 significant)
+     Forest Ctrl     mean =    +21 mm  (0/5 significant)
+     Climate Ctrl    mean =    +20 mm  (0/5 significant)
+
+──  Phase 5 · Running mixed-effects models ─────────────────────────────
+  ✓ Saved: 10d_03_mixed_model_results.csv (10 rows)
+
+   Mixed-effects results:
+     Forest     Impact          clearfell =     -1 mm  p = 0.9905  (OLS (single well))
+     Forest     Edge            clearfell =    -64 mm  p = 0.1229  (Mixed-effects (random intercept))
+     Forest     Forest Ctrl     clearfell =     -8 mm  p = 0.6182  (Mixed-effects (random intercept))
+     Forest     Coastal Ctrl    clearfell =   -176 mm  p = 0.0586  (Mixed-effects (random intercept))
+     Forest     Climate Ctrl    clearfell =    -46 mm  p = 0.4251  (Mixed-effects (random intercept))
+     Climate    Impact          clearfell =    -28 mm  p = 0.6410  (OLS (single well))
+     Climate    Edge            clearfell =    +51 mm  p = 0.2501  (Mixed-effects (random intercept))
+     Climate    Forest Ctrl     clearfell =    +56 mm  p = 0.3031  (Mixed-effects (random intercept))
+     Climate    Coastal Ctrl    clearfell =    -39 mm  p = 0.3603  (Mixed-effects (random intercept))
+     Climate    Climate Ctrl    clearfell =    +53 mm  p = 0.0233  (Mixed-effects (random intercept))
+
+──  Phase 6 · Generating summer minima figures ─────────────────────────
+  ✓ Saved: 10d_04_summer_minima_forest_ctrl.png
+  ✓ Saved: 10d_05_summer_minima_climate_ctrl.png
+
+──  Phase 7 · Exporting report numbers ─────────────────────────────────
+  ✓ Saved: 10d_report_numbers.csv (52 rows)
+
+========================================================================
+SUMMER MINIMA SUMMARY
+========================================================================
+
+  Forest control:
+  Tier            Mean shift (mm)    n sig
+  ----------------------------------------
+  Impact                       -7    0/1
+  Edge                        -43    0/4
+  Forest Ctrl                  -1    0/5
+  Climate Ctrl                -26    0/5
+
+  Climate control:
+  Tier            Mean shift (mm)    n sig
+  ----------------------------------------
+  Impact                      -19    0/1
+  Edge                         +7    0/4
+  Forest Ctrl                 +21    0/5
+  Climate Ctrl                +20    0/5
+========================================================================
+Script 10d complete.
+
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 10e — SSM COEFFICIENT DECOMPOSITION
+════════════════════════════════════════════════════════════════════════
+
+──  Phase 1 · Loading data ─────────────────────────────────────────────
+   [hindcast] CEH34: substituted 51 hindcast value(s) prior to 2010-08-01 (from Script 10i, CEH9 donor)
+
+  Network: 17 wells (5-tier design)
+    Impact        : WMC3
+    Edge          : CEH31, CEH20, CEH30, CEH16
+    Forest Ctrl   : CEH32, CEH34, CEH33, NW10, CEH2
+    Coastal Ctrl  : CEH19, CEH17
+    Climate Ctrl  : CEH9, NW7, NW6, NW5, WMC2
+
+
+──  Phase 2 · Fitting per-era SSM coefficients ─────────────────────────
+   WMC3      Δβ₁=-0.100  Δβ₂=-0.277  Δβ₃=-0.001
+   CEH31     Δβ₁=-0.594  Δβ₂=-0.211  Δβ₃=-0.018
+   CEH20     Δβ₁=+0.012  Δβ₂=-0.092  Δβ₃=-0.001
+   CEH30     Δβ₁=-0.276  Δβ₂=+0.059  Δβ₃=-0.017
+   CEH16     Δβ₁=-0.204  Δβ₂=+0.125  Δβ₃=-0.010
+   CEH32     Δβ₁=-0.158  Δβ₂=+0.221  Δβ₃=-0.015
+   CEH34     Δβ₁=-0.245  Δβ₂=+0.302  Δβ₃=-0.016
+   CEH33     Δβ₁=-0.261  Δβ₂=+0.121  Δβ₃=-0.017
+   NW10      Δβ₁=+0.278  Δβ₂=-0.148  Δβ₃=+0.007
+   CEH2      Δβ₁=+0.115  Δβ₂=+0.230  Δβ₃=-0.005
+   CEH19     Δβ₁=-0.200  Δβ₂=-0.129  Δβ₃=-0.004
+   CEH17     Δβ₁=-0.432  Δβ₂=-0.046  Δβ₃=-0.023
+   CEH9      Δβ₁=-0.197  Δβ₂=+0.145  Δβ₃=-0.004
+   NW7       Δβ₁=-0.299  Δβ₂=-0.073  Δβ₃=-0.012
+   NW6       Δβ₁=-0.098  Δβ₂=-0.142  Δβ₃=-0.002
+   NW5       Δβ₁=+0.028  Δβ₂=-0.100  Δβ₃=-0.001
+   WMC2      Δβ₁=-0.073  Δβ₂=-0.298  Δβ₃=-0.000
+
+ -> Saved: 10e_01_coefficient_shifts.csv (17 rows)
+  Pipeline params updated: β₂ multipliers from Script 10e (clearfell=1.0315, thinning=1.0158)
+
+──  Phase 3 · Generating coefficient shift figure ──────────────────────
+  ✓ Saved: 10e_03_coefficient_shifts.png
+
+──  Phase 4 · Exporting report numbers ─────────────────────────────────
+  ✓ Saved: 10e_report_numbers.csv (165 rows)
+
+========================================================================
+COEFFICIENT SHIFT SUMMARY (mechanistic direction diagnostic)
+========================================================================
+
+  Tier                Δβ₁      Δβ₂      Δβ₃
+  ----------------------------------------
+  Impact           -0.100   -0.277   -0.001
+  Edge             -0.265   -0.030   -0.011
+  Forest Ctrl      -0.054   +0.145   -0.009
+  Climate Ctrl     -0.128   -0.093   -0.004
+========================================================================
+Script 10e complete.
+
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 10f — ROBUSTNESS ANALYSES
+════════════════════════════════════════════════════════════════════════
+
+──  Phase 1 · Loading data ─────────────────────────────────────────────
+
+  Network: 17 wells (5-tier design)
+    Impact        : WMC3
+    Edge          : CEH31, CEH20, CEH30, CEH16
+    Forest Ctrl   : CEH32, CEH34, CEH33, NW10, CEH2
+    Coastal Ctrl  : CEH19, CEH17
+    Climate Ctrl  : CEH9, NW7, NW6, NW5, WMC2
+
+
+──  Phase 2 · SSM Residual Analysis — per-well forward prediction ──────
+   (calibrate on pre-scraping, iterate forward, normalise by control mean)
+   WMC3     [Impact        ] scrape=+0.130  fell=+0.187  step=+0.057  p=0.001 **
+   CEH31    [Edge          ] scrape=+0.041  fell=+0.032  step=-0.009  p=0.504 ns
+   CEH20    [Edge          ] scrape=+0.099  fell=+0.191  step=+0.091  p=<0.001 ***
+   CEH30    [Edge          ] scrape=+0.088  fell=+0.124  step=+0.036  p=0.001 **
+   CEH16    [Edge          ] scrape=+0.028  fell=-0.071  step=-0.099  p=<0.001 ***
+   CEH32    [Forest Ctrl   ] scrape=+0.072  fell=+0.148  step=+0.076  p=0.001 **
+   CEH34    [Forest Ctrl   ] scrape=+0.080  fell=+0.202  step=+0.122  p=<0.001 ***
+   CEH33    [Forest Ctrl   ] scrape=+0.083  fell=+0.114  step=+0.031  p=0.032 *
+   NW10     [Forest Ctrl   ] scrape=-0.017  fell=+0.137  step=+0.154  p=<0.001 ***
+   CEH2     [Forest Ctrl   ] scrape=-0.005  fell=+0.025  step=+0.030  p=0.022 *
+   CEH19    [Coastal Ctrl  ] scrape=+0.037  fell=-0.077  step=-0.114  p=<0.001 ***
+   CEH17    [Coastal Ctrl  ] scrape=+0.032  fell=-0.117  step=-0.149  p=<0.001 ***
+   CEH9     [Climate Ctrl  ] scrape=-0.131  fell=-0.209  step=-0.078  p=<0.001 ***
+   NW7      [Climate Ctrl  ] scrape=-0.072  fell=-0.150  step=-0.077  p=<0.001 ***
+   NW6      [Climate Ctrl  ] scrape=-0.080  fell=-0.065  step=+0.015  p=0.556 ns
+   NW5      [Climate Ctrl  ] scrape=-0.047  fell=-0.072  step=-0.025  p=0.037 *
+   WMC2     [Climate Ctrl  ] scrape=+0.049  fell=+0.063  step=+0.014  p=0.358 ns
+
+   MEAN     [Impact        ] step=+0.057 m  (n=1)
+   MEAN     [Edge          ] step=+0.005 m  (n=4)
+   MEAN     [Forest Ctrl   ] step=+0.083 m  (n=5)
+   MEAN     [Coastal Ctrl  ] step=-0.131 m  (n=2)
+   MEAN     [Climate Ctrl  ] step=-0.030 m  (n=5)
+
+   -> Saved: 10f_01_ssm_residual_results.csv
+
+──  Phase 3 · Synthetic Control Analysis — zone-level ──────────────────
+   Donor pool: CEH1, CEH5, CEH6, CEH10, CEH11, CEH24 (n=6)
+   Impact: scrape gap=-0.061  fell gap=+0.038  step=+0.099  p=0.001 **
+   Edge: scrape gap=-0.083  fell gap=-0.042  step=+0.041  p=0.224 ns
+
+   -> Saved: 10f_02_synthetic_control_results.csv
+
+========================================================================
+SCRIPT 10f COMPLETE
+========================================================================
+  SSM Residual:     10f_01_ssm_residual_results.csv (17 wells)
+  Synthetic Control: 10f_02_synthetic_control_results.csv (2 zones)
+  Report numbers:   10f_report_numbers.csv (7 entries)
+========================================================================
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 10g — DIAGNOSTICS
+════════════════════════════════════════════════════════════════════════
+
+──  Phase 1 · Loading data ─────────────────────────────────────────────
+
+  Network: 17 wells (5-tier design)
+    Impact        : WMC3
+    Edge          : CEH31, CEH20, CEH30, CEH16
+    Forest Ctrl   : CEH32, CEH34, CEH33, NW10, CEH2
+    Coastal Ctrl  : CEH19, CEH17
+    Climate Ctrl  : CEH9, NW7, NW6, NW5, WMC2
+
+
+──  Phase 2 · NW10 Broadleaf Trend Analysis ────────────────────────────
+   Pine composite: CEH2, CEH32, CEH33, CEH34
+   Mean NW10 anomaly vs pine (2010–2021): +0.288 m
+   OLS trend 2019–2025: -46.1 mm/yr (p=0.024, n=7)
+  ✓ Saved: 10g_01_nw10_broadleaf_trend.csv
+
+──  Phase 3 · Clearfell Transect Figure ────────────────────────────────
+   Using 7 wells: WMC3, CEH31, CEH30, CEH16, CEH20, CEH34, CEH2
+  ✓ Saved: 10g_02_clearfell_transect.png
+  ✓ Saved: 10g_03_clearfell_transect_steps.csv
+
+──  Phase 4 · Rolling SSM Coefficient Analysis (cluster transition) ────
+   Impact β₁ pre-felling:  2.476
+   Impact β₁ post-felling: 2.572  (shift: +0.096)
+   C3 β₁ post-felling:     3.491
+   C4 β₁ post-felling:     2.332
+   β₁ direction: toward C3
+   Impact β₃ pre:  0.0358  post: 0.0361
+   C3 β₃ post:     0.0555
+  ✓ Saved: 10g_04_rolling_coefficients.csv
+
+========================================================================
+SCRIPT 10g COMPLETE
+========================================================================
+  NW10 trend:          10g_01_nw10_broadleaf_trend.csv
+  Transect figure:     10g_02_clearfell_transect.png
+  Transect data:       10g_03_clearfell_transect_steps.csv
+  Rolling coefficients: 10g_04_rolling_coefficients.csv
+  Report numbers:      10g_report_numbers.csv (7 entries)
+========================================================================
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 10h — SYNTHETIC-EXTENSION BACI (FE WELLS)
+════════════════════════════════════════════════════════════════════════
+
+──  Phase 1 · Loading data ─────────────────────────────────────────────
+   [hindcast] CEH34: substituted 51 hindcast value(s) prior to 2010-08-01 (from Script 10i, CEH9 donor)
+
+  Network: 17 wells (5-tier design)
+    Impact        : WMC3
+    Edge          : CEH31, CEH20, CEH30, CEH16
+    Forest Ctrl   : CEH32, CEH34, CEH33, NW10, CEH2
+    Coastal Ctrl  : CEH19, CEH17
+    Climate Ctrl  : CEH9, NW7, NW6, NW5, WMC2
+
+
+──  Phase 2 · Building synthetic FE well extensions ────────────────────
+
+  FE1:
+    Donors: CEH34, CEH2, CEH33
+    Calibration: 2015-07 to 2017-11 (n=29)
+    R² = 0.9978, RMSE = 18.2 mm
+    Hindcast: 2010-07 to 2015-06 (48 months)
+    Pre-scraping months gained: 45
+    Post-clearfell divergence: +9.3 mm (p=0.1450, n=98)
+    Synthetic record: 2010-07 to 2026-02 (175 months)
+
+  FE2:
+    Donors: CEH34, CEH2, CEH33
+    Calibration: 2015-07 to 2017-11 (n=29)
+    R² = 0.9944, RMSE = 24.6 mm
+    Hindcast: 2010-07 to 2015-06 (48 months)
+    Pre-scraping months gained: 45
+    Post-clearfell divergence: +28.3 mm (p=0.0008, n=98)
+    Synthetic record: 2010-07 to 2026-02 (175 months)
+
+ -> Saved: 10h_01_synthetic_calibration.csv
+
+──  Phase 3 · Building impact centroid variants ────────────────────────
+  A (WMC3+FE1+FE2): 3 wells, earliest=2009-06
+  B (WMC3+FE2): 2 wells, earliest=2009-06
+  C (WMC3 only): 1 wells, earliest=2009-06
+
+──  Phase 4 · Running ANCOVA for all variants × controls ───────────────
+   Forest     × A (WMC3+FE1+FE2): step = +85 mm  CI = [+39, +131]  p = <0.001  R² = 0.317  n = 162
+   Climate    × A (WMC3+FE1+FE2): step = -61 mm  CI = [-122, -0]  p = 0.0509  R² = 0.112  n = 146
+   Combined   × A (WMC3+FE1+FE2): step = +31 mm  CI = [+6, +57]  p = 0.0168  R² = 0.195  n = 144
+   Forest     × B (WMC3+FE2): step = +103 mm  CI = [+45, +162]  p = <0.001  R² = 0.341  n = 162
+   Climate    × B (WMC3+FE2): step = -38 mm  CI = [-92, +16]  p = 0.1721  R² = 0.179  n = 146
+   Combined   × B (WMC3+FE2): step = +51 mm  CI = [+22, +79]  p = <0.001  R² = 0.343  n = 144
+   Forest     × C (WMC3 only): step = +120 mm  CI = [+50, +189]  p = <0.001  R² = 0.274  n = 162
+   Climate    × C (WMC3 only): step = -15 mm  CI = [-65, +34]  p = 0.5372  R² = 0.191  n = 146
+   Combined   × C (WMC3 only): step = +72 mm  CI = [+37, +108]  p = <0.001  R² = 0.268  n = 144
+
+──  Phase 5 · Saving CSV outputs ───────────────────────────────────────
+  ✓ Saved: 10h_02_ancova_comparison_table.csv (9 rows)
+  ✓ Saved: 10h_03_ancova_full_coefficients.csv (54 rows)
+  ✓ Saved: 10h_04_baci_timeseries.csv (1356 rows)
+
+──  Phase 6 · Generating donor regression validation figure ────────────
+  ✓ Saved: 10h_05_donor_regression_validation.png
+
+──  Phase 7 · Generating BACI time-series figures ──────────────────────
+  ✓ Saved: 10h_06_baci_timeseries_varA.png
+  ✓ Saved: 10h_07_baci_timeseries_varB.png
+  ✓ Saved: 10h_08_baci_timeseries_varC.png
+
+──  Phase 8 · Generating CUSUM figure (Variant B, Forest control) ──────
+  ✓ Saved: 10h_09_cusum_varB.png
+
+──  Phase 9 · Generating climate sensitivity scatter (Forest control) ──
+  ✓ Saved: 10h_10_climate_sensitivity_varB.png
+
+──  Phase 10 · Exporting report numbers ────────────────────────────────
+  ✓ Saved: 10h_report_numbers.csv
+
+──  Phase 11 · Generating robustness forest plot ───────────────────────
+  ✓ Saved: 10h_11_robustness_forest.png
+
+========================================================================
+SYNTHETIC-EXTENSION BACI SUMMARY
+========================================================================
+
+  Donor wells: CEH34, CEH2, CEH33 (Forest Control)
+  FE1: R²=0.9978, RMSE=18 mm, hindcast=48 months, divergence=+9 mm (p=0.1450)
+  FE2: R²=0.9944, RMSE=25 mm, hindcast=48 months, divergence=+28 mm (p=0.0008)
+
+  Variant                   Control     Step (mm)                   CI          p     R²   Net (mm)
+  -----------------------------------------------------------------------------------------------
+  A (WMC3+FE1+FE2)          Forest            +85          [+39, +131]     <0.001  0.317       +146
+  A (WMC3+FE1+FE2)          Climate           -61           [-122, -0]     0.0509  0.112         +0
+  A (WMC3+FE1+FE2)          Combined          +31            [+6, +57]     0.0168  0.196        +92
+  B (WMC3+FE2)              Forest           +103          [+45, +162]     <0.001  0.341       +141
+  B (WMC3+FE2)              Climate           -38           [-92, +16]     0.1721  0.179         +0
+  B (WMC3+FE2)              Combined          +51           [+22, +79]     <0.001  0.343        +89
+  C (WMC3 only)             Forest           +120          [+50, +189]     <0.001  0.274       +135
+  C (WMC3 only)             Climate           -15           [-65, +34]     0.5372  0.191         +0
+  C (WMC3 only)             Combined          +72          [+37, +108]     <0.001  0.268        +88
+
+  Net clearfell = Forest (or Combined) step minus Climate background step
+
+  Scraping decay λ = 300 m
+========================================================================
+Script 10h complete.
+
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 10j — Impact–Edge Direct Contrast  [v1.2.0]
+════════════════════════════════════════════════════════════════════════
+========================================================================
+Script 10j — Direct Impact-vs-Edge contrasts
+========================================================================
+
+  Loading data ...
+
+  Network: 5 wells (5-tier design)
+    Impact        : WMC3
+    Edge          : CEH31, CEH20, CEH30, CEH16
+
+  PRE_FELL_START:   2011-01-01
+  SCRAPING_DATE:    2015-04-01
+  INTERVENTION:     2017-12-01
+
+  1. Building monthly panel ...
+     n_rows = 886, n_wells = 5
+  2. Fitting monthly contrast ...
+     Differential felling step (Impact − Edge):   +63.3 mm  95% CI [  +30.1,   +96.4]  p=0.0002
+     Differential scraping step (Impact − Edge):   -21.8 mm  p=0.2684
+     N = 886, R² = 0.833
+
+  3. Loading summer minima from 10d ...
+     summer panel years (WMC3 gatekeeper): [2011, 2013, 2014, 2015, 2016, 2017, 2018, 2020, 2021, 2022, 2023, 2024, 2025]
+  4. Fitting summer-minima contrast ...
+     Differential summer-minimum step (Impact − Edge):   +21.3 mm  95% CI [  -18.5,   +61.1]  p=0.2947
+     N = 64 (13 Impact-years, 51 Edge-years), R² = 0.731
+
+  5. Writing outputs ...
+  ✓ Saved: 10j_01_monthly_contrast_results.csv
+  ✓ Saved: 10j_02_summer_contrast_results.csv
+  ✓ Saved: 10j_report_numbers.csv
+  6. Building figures ...
+  ✓ Saved: 10j_03_contrast_timeseries.jpg
+  ✓ Saved: 10j_04_summer_minima_contrast.jpg
+  7. Updating site-observations registry ...
+  ✓ Saved: 4 entries updated in pipeline_site_observations.csv
+
+Script 10j complete.
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 10k — Four-Zone Pooled-Panel BACI  [v1.2.0]
+════════════════════════════════════════════════════════════════════════
+========================================================================
+Script 10k — Four-zone pooled-panel clearfell BACI
+========================================================================
+
+  Loading data ...
+  Zones (reference = Forest control):
+    Forest     : CEH32, CEH34, CEH33, NW10, CEH2 [reference]
+    C3/Warren  : CEH1, NW1, NW2, NW11
+    Edge       : CEH31, CEH20, CEH30, CEH16
+    Impact     : WMC3
+  PRE_FELL_START_FOURZONE:  2011-01-01
+  SCRAPING_DATE:   2015-04-01
+  INTERVENTION:    2017-12-01
+
+  1. Building four-zone monthly panel ...
+     n_rows = 2475, n_wells = 14, n_months = 180
+     wells per zone: Forest 5, C3/Warren 4, Edge 4, Impact 1
+
+  2. Fitting four-zone joint model (with easting × time) ...
+     C3/Warren   vs Forest:     +5.1 mm  95% CI [  -16.6,   +26.7]  p=0.6472
+     Edge        vs Forest:    -29.5 mm  95% CI [  -67.4,    +8.5]  p=0.1280
+     Impact      vs Forest:    +31.6 mm  95% CI [  +10.2,   +52.9]  p=0.0037
+     N = 2475 well-months, R² = 0.856
+
+     [reminder] C3/Warren is a SECOND CONTROL zone — phi_C3Warren ~ 0 is the
+                expected result; a clearly non-zero step is a flag, not a finding.
+
+  3. Computing pairwise contrasts (shared covariance) ...
+     [primary = direct coefficient; derived = linear combination, SE/p not comparable]
+     C3/Warren - Forest                     +5.1 mm  p=0.6472  [primary]
+     Edge - Forest                         -29.5 mm  p=0.1280  [primary]
+     Impact - Forest                       +31.6 mm  p=0.0037  [primary]
+     Impact - Edge                         +61.0 mm  (derived — p not comparable)
+     Impact - C3/Warren                    +26.5 mm  (derived — p not comparable)
+     Edge - C3/Warren                      -34.5 mm  (derived — p not comparable)
+     (Impact-Forest) - (Edge-Forest)       +61.0 mm   [equals Impact - Edge row above (shared covariance)]
+
+  4. Cross-check against Script 10j ...
+  ↳ Impact - Edge differential felling step:
+      10k four-zone contrast :    +61.0 mm
+      10j two-zone estimator :    +63.3 mm
+      delta (10k - 10j)      :     -2.3 mm  (advisory tol = 5.0 mm)
+  · within advisory tolerance.
+
+  5. Easting sensitivity (re-fit with easting × time dropped) ...
+     C3/Warren   with easting     +5.1 mm  |  without     +4.9 mm
+     Edge        with easting    -29.5 mm  |  without    -30.6 mm
+     Impact      with easting    +31.6 mm  |  without    +32.7 mm
+     [note] robustness diagnostic only — the with/without difference is NOT
+            the coastal effect (see Script 25 for coastal retreat).
+
+  6. Writing outputs ...
+  ✓ Saved: 10k_01_four_zone_results.csv
+  ✓ Saved: 10k_02_pairwise_contrasts.csv
+  ✓ Saved: 10k_03_easting_sensitivity.csv
+  ✓ Saved: 10k_report_numbers.csv
+  7. Building figures ...
+  ✓ Saved: 10k_04_zone_centroids.jpg
+  ✓ Saved: 10k_05_contrast_forest.jpg
+  ✓ Saved: 10k_06_forest_plot.jpg
+  8. Updating site-observations registry ...
+  ✓ Saved: 3 entries updated in pipeline_site_observations.csv
+
+Script 10k complete.
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 10l — Four-Zone Summer Minima  [v1.0.0]
+════════════════════════════════════════════════════════════════════════
+========================================================================
+Script 10l — Four-zone summer-minima clearfell BACI
+========================================================================
+
+  Loading data ...
+  Zones (reference = Forest control):
+    Forest     : CEH32, CEH34, CEH33, NW10, CEH2 [reference]
+    C3/Warren  : CEH1, NW1, NW2, NW11
+    Edge       : CEH31, CEH20, CEH30, CEH16
+    Impact     : WMC3
+  Annual frame: 2011+ (matches Script 10d cutoff)
+  Post-felling summers: 2018+
+
+  1. Building four-zone summer-minima panel ...
+     Forest/Edge/Impact zones ← 10d_01_summer_minima.csv
+     C3/Warren zone           ← computed here (10d does not cover it)
+     n_rows = 181 well-years, n_wells = 14
+       Forest     : 5 wells, 65 well-years (30 pre, 35 post)
+       C3/Warren  : 4 wells, 52 well-years (24 pre, 28 post)
+       Edge       : 4 wells, 51 well-years (24 pre, 27 post)
+       Impact     : 1 wells, 13 well-years (6 pre, 7 post)
+
+  2. Fitting four-zone summer-minima model ...
+     summer_min ~ const + Post + zone:Post + well-FE  (no scraping, no CWB)
+     C3/Warren   vs Forest:    +12.0 mm  95% CI [   -8.8,   +32.8]  p=0.2572
+     Edge        vs Forest:    -28.6 mm  95% CI [  -68.7,   +11.5]  p=0.1622
+     Impact      vs Forest:     -7.3 mm  95% CI [  -22.8,    +8.2]  p=0.3576
+     N = 181 well-years, R² = 0.724
+
+     [reminder] C3/Warren is a SECOND CONTROL zone — phi_C3Warren ~ 0 is the
+                expected result; a clearly non-zero step is a flag, not a finding.
+
+  3. Computing pairwise contrasts (shared covariance) ...
+     [primary = direct coefficient; derived = linear combination, SE/p not comparable]
+     C3/Warren - Forest                    +12.0 mm  p=0.2572  [primary]
+     Edge - Forest                         -28.6 mm  p=0.1622  [primary]
+     Impact - Forest                        -7.3 mm  p=0.3576  [primary]
+     Impact - Edge                         +21.3 mm  (derived — p not comparable)
+     Impact - C3/Warren                    -19.3 mm  (derived — p not comparable)
+     Edge - C3/Warren                      -40.6 mm  (derived — p not comparable)
+     (Impact-Forest) - (Edge-Forest)       +21.3 mm   [equals Impact - Edge row above (shared covariance)]
+
+  4. Cross-check against Script 10j summer contrast ...
+  ↳ Impact - Edge differential summer-minimum step:
+      10l four-zone contrast :    +21.3 mm
+      10j two-zone estimator :    +21.3 mm
+      delta (10l - 10j)      :     +0.0 mm  (advisory tol = 20.0 mm)
+  · within advisory tolerance.
+
+  5. Writing outputs ...
+  ✓ Saved: 10l_01_four_zone_summer_results.csv
+  ✓ Saved: 10l_02_summer_pairwise_contrasts.csv
+     → 10l_03_c3warren_summer_minima.csv (60 rows, canonical C3/Warren summer minima)
+  ✓ Saved: 10l_report_numbers.csv
+  6. Building figures ...
+  ✓ Saved: 10l_04_zone_summer_trajectories.jpg
+  ✓ Saved: 10l_05_summer_forest_plot.jpg
+  7. Updating site-observations registry ...
+  ✓ Saved: 3 entries updated in pipeline_site_observations.csv
+
+Script 10l complete.
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 10 — Clearfell Pipeline Orchestrator
+════════════════════════════════════════════════════════════════════════
+
+════════════════════════════════════════════════════════════════════════
+  SCRIPT 10 — CLEARFELL BACI ANALYSIS SUITE
+════════════════════════════════════════════════════════════════════════
+
+  Running 12 sub-script(s):
+    10i  CEH34 donor-regression hindcast (CEH9 donor) — prerequisite  [ready]
+    10a  Three-counterfactual ANCOVA-BACI (primary)  [ready]
+    10b  Spatial step-change maps  [ready]
+    10c  Forest zone spatial analysis (supplementary)  [ready]
+    10d  Summer minima (dual control)  [ready]
+    10e  SSM coefficient decomposition  [ready]
+    10f  Robustness analyses  [ready]
+    10g  Diagnostics  [ready]
+    10h  Synthetic FE well extension BACI  [ready]
+    10j  Direct Impact-vs-Edge contrast (monthly + summer)  [ready]
+    10k  Four-zone pooled-panel BACI (primary §4.6 result)  [ready]
+    10l  Four-zone summer-minima BACI (Phase 2)  [ready]
+
+────────────────────────────────────────────────────────────────────────
+  10i  CEH34 donor-regression hindcast (CEH9 donor) — prerequisite
+  Script: 10i_ceh34_hindcast.py
+────────────────────────────────────────────────────────────────────────
+────────────────────────────────────────────────────────────────────────
+  10a  Three-counterfactual ANCOVA-BACI (primary)
+  Script: 10a_ancova_baci.py
+────────────────────────────────────────────────────────────────────────
+────────────────────────────────────────────────────────────────────────
+  10b  Spatial step-change maps
+  Script: 10b_spatial_step_maps.py
+────────────────────────────────────────────────────────────────────────
+────────────────────────────────────────────────────────────────────────
+  10c  Forest zone spatial analysis (supplementary)
+  Script: 10c_forest_zone_analysis.py
+────────────────────────────────────────────────────────────────────────
+────────────────────────────────────────────────────────────────────────
+  10d  Summer minima (dual control)
+  Script: 10d_summer_minima.py
+────────────────────────────────────────────────────────────────────────
+────────────────────────────────────────────────────────────────────────
+  10e  SSM coefficient decomposition
+  Script: 10e_coefficient_decomposition.py
+────────────────────────────────────────────────────────────────────────
+────────────────────────────────────────────────────────────────────────
+  10f  Robustness analyses
+  Script: 10f_robustness.py
+────────────────────────────────────────────────────────────────────────
+────────────────────────────────────────────────────────────────────────
+  10g  Diagnostics
+  Script: 10g_diagnostics.py
+────────────────────────────────────────────────────────────────────────
+────────────────────────────────────────────────────────────────────────
+  10h  Synthetic FE well extension BACI
+  Script: 10h_synthetic_impact_baci.py
+────────────────────────────────────────────────────────────────────────
+────────────────────────────────────────────────────────────────────────
+  10j  Direct Impact-vs-Edge contrast (monthly + summer)
+  Script: 10j_impact_edge_contrast.py
+────────────────────────────────────────────────────────────────────────
+────────────────────────────────────────────────────────────────────────
+  10k  Four-zone pooled-panel BACI (primary §4.6 result)
+  Script: 10k_four_zone_baci.py
+────────────────────────────────────────────────────────────────────────
+────────────────────────────────────────────────────────────────────────
+  10l  Four-zone summer-minima BACI (Phase 2)
+  Script: 10l_four_zone_summer_minima.py
+────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────
+  Consolidating report numbers...
+────────────────────────────────────────────────────────────────────────
+  + 10a_report_numbers.csv (119 rows)
+  + 10d_report_numbers.csv (52 rows)
+  + 10e_report_numbers.csv (165 rows)
+  + 10f_report_numbers.csv (7 rows)
+  + 10g_report_numbers.csv (7 rows)
+  + 10h_report_numbers.csv (57 rows)
+  + 10i_report_numbers.csv (8 rows)
+  + 10k_report_numbers.csv (17 rows)
+  + 10l_report_numbers.csv (17 rows)
+
+  -> Consolidated: 10_consolidated_report_numbers.csv (449 rows)
+
+════════════════════════════════════════════════════════════════════════
+  SCRIPT 10 COMPLETE — all 12 sub-scripts succeeded
+════════════════════════════════════════════════════════════════════════
+
+  ✓ done  (60.7s)
+
+  ▶ STEP 11/36  Forecasting and critical thresholds
+      script: 11_forecasting_thresholds.py
+  ──────────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 11 — Forecasting Thresholds  [v1.1.1]
+════════════════════════════════════════════════════════════════════════
+
+Loading input data...
+  [OK] 250 monthly rows loaded | Columns: C1, C2, C3, C4, C5, Lake_Edge, Eastern_Block, Western_Block, Forest, Coastal_Forest, P_mm, PET_mm
+
+======================================================================
+SECTION 1: MECHANISTIC STATE-SPACE EQUATIONS  (dh = b1*P - b2*PET - b3*h_prev)
+======================================================================
+  Cluster-centroid SSM coefficients from Script 03
+  Source: 03_03_cluster_mechanistic_coefficients.csv
+
+  C1 (Lake Edge):  dh = (0.004578*P) - (0.000963*PET) - (0.0896*h_prev)   |  R2 = 0.733   n = 236
+        p-values:  P = 5.3737e-67   PET = 1.8837e-05   h_prev = 3.1555e-35
+  C2 (Dune):  dh = (0.003978*P) - (0.001766*PET) - (0.0656*h_prev)   |  R2 = 0.747   n = 247
+        p-values:  P = 2.5097e-69   PET = 9.0213e-17   h_prev = 7.5788e-26
+  C3 (Western Residual):  dh = (0.003572*P) - (0.001850*PET) - (0.0582*h_prev)   |  R2 = 0.813   n = 248
+        p-values:  P = 1.1696e-83   PET = 6.7181e-27   h_prev = 2.1068e-28
+  C4 (Main Forest):  dh = (0.002518*P) - (0.002548*PET) - (0.0205*h_prev)   |  R2 = 0.685   n = 236
+        p-values:  P = 4.9045e-47   PET = 5.6968e-31   h_prev = 2.7104e-03
+  C5 (Coastal Forest):  dh = (0.002412*P) - (0.001324*PET) - (0.0452*h_prev)   |  R2 = 0.680   n = 238
+        p-values:  P = 6.7777e-54   PET = 3.8152e-16   h_prev = 4.4047e-16
+
+======================================================================
+SECTION 2: PEAK FLOOD TRANSFER FUNCTIONS  (h_peak = β₁·P_winter + β₂·h_min + c)
+======================================================================
+  OLS with intercept | Hydrological year: Oct 1 - Sep 30
+  Blocks (one per cluster, k=5 partition): Lake_Edge (C1), Eastern_Block (C2), Western_Block (C3), Forest (C4), Coastal_Forest (C5).
+
+  Lake_Edge:
+    h_peak = (0.00108·P_winter) + (-0.134·h_min) - 0.687
+    R² = 0.474   |   n = 19 hydrological years
+    p-values:  P_winter = 0.0019   h_min = 0.5453   intercept = 0.0302
+
+  Eastern_Block:
+    h_peak = (0.00160·P_winter) + (0.210·h_min) - 0.786
+    R² = 0.528   |   n = 20 hydrological years
+    p-values:  P_winter = 0.0041   h_min = 0.4753   intercept = 0.1233
+
+  Western_Block:
+    h_peak = (0.00119·P_winter) + (0.827·h_min) - 0.053
+    R² = 0.638   |   n = 20 hydrological years
+    p-values:  P_winter = 0.0778   h_min = 0.0169   intercept = 0.9359
+
+  Forest:
+    h_peak = (-0.00006·P_winter) + (1.270·h_min) + 1.259
+    R² = 0.865   |   n = 19 hydrological years
+    p-values:  P_winter = 0.9185   h_min = 0.0000   intercept = 0.0345
+
+  Coastal_Forest:
+    h_peak = (0.00040·P_winter) + (1.631·h_min) + 1.415
+    R² = 0.882   |   n = 19 hydrological years
+    p-values:  P_winter = 0.3791   h_min = 0.0000   intercept = 0.0028
+
+
+======================================================================
+SECTION 4: SUMMER DROUGHT TRANSFER FUNCTIONS  (h_min = β₁·P_summer + β₂·h_max_winter + c)
+======================================================================
+  OLS with intercept | Hydrological year: Oct 1 - Sep 30
+  Predicting summer minimum from antecedent winter peak and summer rain.
+
+  Lake_Edge:
+    h_min_summer = (0.00139·P_summer) + (0.419·h_max_winter) - 1.430
+    R² = 0.406   |   n = 19 hydrological years
+    p-values:  P_summer = 0.0053   h_max_winter = 0.0473   intercept = 0.0000
+
+  Eastern_Block:
+    h_min_summer = (0.00184·P_summer) + (0.540·h_max_winter) - 1.653
+    R² = 0.654   |   n = 20 hydrological years
+    p-values:  P_summer = 0.0003   h_max_winter = 0.0001   intercept = 0.0000
+
+  Western_Block:
+    h_min_summer = (0.00121·P_summer) + (0.547·h_max_winter) - 1.445
+    R² = 0.707   |   n = 20 hydrological years
+    p-values:  P_summer = 0.0103   h_max_winter = 0.0000   intercept = 0.0000
+
+  Forest:
+    h_min_summer = (0.00122·P_summer) + (0.747·h_max_winter) - 1.470
+    R² = 0.916   |   n = 19 hydrological years
+    p-values:  P_summer = 0.0068   h_max_winter = 0.0000   intercept = 0.0000
+
+  Coastal_Forest:
+    h_min_summer = (0.00067·P_summer) + (0.522·h_max_winter) - 1.331
+    R² = 0.905   |   n = 19 hydrological years
+    p-values:  P_summer = 0.0430   h_max_winter = 0.0000   intercept = 0.0000
+
+
+======================================================================
+SECTION 3: CRITICAL RAINFALL THRESHOLD EQUATIONS  (P_flood - iterated)
+======================================================================
+  Iterated closed form from cluster-level SSM coefficients.
+  Monthly rainfall scales by λ; PET from RAF Valley climatology.
+
+  C1 (Lake Edge)
+    h_0 = -0.814 m  (long-term mean of month-of-minimum)
+    horizon: [10, 11, 12, 1]  (n = 4 months, peak = month 1)
+    α = 0.9104   αⁿ = 0.6871
+    S_P =   346.6 mm    S_E =    97.2 mm
+    climatological totals: P = 401 mm   PET = 116 mm
+    λ = 1.141
+    P_flood (iterated)    =   457 mm    [1.14x climatology]
+    P_flood (old 1-step)  =   234 mm    [reference only]
+    Collapsed form:  P_flood = 173.48 * d + 315.97   (d in m below ground)
+
+  C2 (Dune)
+    h_0 = -0.972 m  (long-term mean of month-of-minimum)
+    horizon: [10, 11, 12, 1]  (n = 4 months, peak = month 1)
+    α = 0.9344   αⁿ = 0.7622
+    S_P =   360.4 mm    S_E =   101.9 mm
+    climatological totals: P = 401 mm   PET = 116 mm
+    λ = 1.256
+    P_flood (iterated)    =   503 mm    [1.26x climatology]
+    P_flood (old 1-step)  =   289 mm    [reference only]
+    Collapsed form:  P_flood = 213.04 * d + 296.15   (d in m below ground)
+
+  C3 (Western Residual)
+    h_0 = -1.214 m  (long-term mean of month-of-minimum)
+    horizon: [10, 11, 12, 1, 2]  (n = 5 months, peak = month 2)
+    α = 0.9418   αⁿ = 0.7409
+    S_P =   406.9 mm    S_E =   117.2 mm
+    climatological totals: P = 464 mm   PET = 135 mm
+    λ = 1.428
+    P_flood (iterated)    =   662 mm    [1.43x climatology]
+    P_flood (old 1-step)  =   380 mm    [reference only]
+    Collapsed form:  P_flood = 236.56 * d + 375.26   (d in m below ground)
+
+  C4 (Main Forest)
+    h_0 = -1.797 m  (long-term mean of month-of-minimum)
+    horizon: [10, 11, 12, 1, 2]  (n = 5 months, peak = month 2)
+    α = 0.9795   αⁿ = 0.9018
+    S_P =   443.1 mm    S_E =   128.8 mm
+    climatological totals: P = 464 mm   PET = 135 mm
+    λ = 2.072
+    P_flood (iterated)    =   961 mm    [2.07x climatology]
+    P_flood (old 1-step)  =   729 mm    [reference only]
+    Collapsed form:  P_flood = 374.97 * d + 287.43   (d in m below ground)
+
+  C5 (Coastal Forest)
+    h_0 = -1.482 m  (long-term mean of month-of-minimum)
+    horizon: [10, 11, 12, 1, 2]  (n = 5 months, peak = month 2)
+    α = 0.9548   αⁿ = 0.7935
+    S_P =   419.0 mm    S_E =   121.1 mm
+    climatological totals: P = 464 mm   PET = 135 mm
+    λ = 2.078
+    P_flood (iterated)    =   964 mm    [2.08x climatology]
+    P_flood (old 1-step)  =   656 mm    [reference only]
+    Collapsed form:  P_flood = 364.29 * d + 424.36   (d in m below ground)
+
+Note: P_flood_new supersedes the single-step formulation in prior drafts.
+      See Section 3.6.3 of Hollingham (2026) for derivation.
+
+  Reviewer summary → 11_forecast_pflood_summary.csv
+
+======================================================================
+SECTION 5: SPRING MSL TRANSFER FUNCTIONS  (MSL_y from winter peak and Oct-May forcing)
+======================================================================
+  OLS with intercept | Hydrology year: 1 Jun y-1 to 31 May y (van Willegen 2025 convention)
+  Predicting next-year MSL from antecedent winter peak.
+
+  Lake_Edge:
+    MSL_y = (+0.119·h_max_winter) + (+0.00113·P_win_to_spr) + (-0.00140·PET_win_to_spr) + -0.687
+    R² = 0.727   |   n = 19 hydro years
+    p-values:  h_max_winter = 0.5371   P = 0.0007   PET = 0.2383   intercept = 0.0674
+
+  Eastern_Block:
+    MSL_y = (+0.384·h_max_winter) + (+0.00128·P_win_to_spr) + (-0.00171·PET_win_to_spr) + -0.708
+    R² = 0.843   |   n = 20 hydro years
+    p-values:  h_max_winter = 0.0086   P = 0.0006   PET = 0.1884   intercept = 0.0961
+
+  Western_Block:
+    MSL_y = (+0.616·h_max_winter) + (+0.00100·P_win_to_spr) + (-0.00099·PET_win_to_spr) + -0.770
+    R² = 0.887   |   n = 20 hydro years
+    p-values:  h_max_winter = 0.0000   P = 0.0048   PET = 0.4506   intercept = 0.0954
+
+  Forest:
+    MSL_y = (+0.830·h_max_winter) + (+0.00089·P_win_to_spr) + (+0.00042·PET_win_to_spr) + -1.000
+    R² = 0.955   |   n = 19 hydro years
+    p-values:  h_max_winter = 0.0000   P = 0.0065   PET = 0.7483   intercept = 0.0285
+
+  Coastal_Forest:
+    MSL_y = (+0.760·h_max_winter) + (+0.00039·P_win_to_spr) + (-0.00028·PET_win_to_spr) + -0.609
+    R² = 0.964   |   n = 19 hydro years
+    p-values:  h_max_winter = 0.0000   P = 0.0568   PET = 0.7765   intercept = 0.0791
+
+  Spring transfer table → 11_forecast_spring_transfer_functions.csv
+  Calibration figure → 11_forecast_02_spring_calibration.png
+
+
+======================================================================
+  Analysis complete.
+======================================================================
+
+
+[OUTPUT] Results transcript saved → /home/john/projects/NRG/outputs/11_forecasting_thresholds/11_forecast_01_results.txt
+  ✓ done  (3.2s)
+
+  ▶ STEP 12/36  Spatial eco-hydrological threshold maps
+      script: 11b_spatial_thresholds.py
+  ──────────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 11b — Spatial Threshold Maps  [v1.1.1]
+════════════════════════════════════════════════════════════════════════
+
+=== 11b_spatial_thresholds.py ===
+Loading well data...
+  Wells loaded: 88 total  (Reference: 66, Extended: 22)
+Generating summer minima depth map...
+  ✓ Saved: /home/john/projects/NRG/outputs/11b_spatial_thresholds/11b_01_summer_minima_depth.png
+Generating winter maxima depth map...
+  ✓ Saved: 11b_02_winter_maxima_depth.png
+Generating P_flood map (iterated, Section 3.6.3)...
+  [WARNING] ceh14: β₃ = -0.0164 is negative (expected positive under displacement formulation)
+  P_flood computed for 88 wells (66 per-well, 22 cluster-level; 88 reachable, 0 unreachable; 0 skipped — no peak month; 0 skipped — invalid beta)
+  ✓ Saved: 11b_03_pflood.png
+  ✓ Saved: 11b_03_pflood_per_well.csv
+Generating flood frequency map...
+  ✓ Saved: 11b_04_flood_frequency.png
+Exporting Table 10 (spreadsheet-ready P_flood equations)...
+  ✓ Saved: 11b_05_table10_pflood_spreadsheet.csv
+
+  Table 10 contents (spreadsheet-ready, report paste-in):
+    C1      Oct–Jan (4 mo)      P_flood = 173.48·d + 315.97             ΣP̄ᵢ = 401 mm
+    C2      Oct–Jan (4 mo)      P_flood = 213.04·d + 296.15             ΣP̄ᵢ = 401 mm
+    C3      Oct–Feb (5 mo)      P_flood = 236.56·d + 375.26             ΣP̄ᵢ = 464 mm
+    C4      Oct–Feb (5 mo)      P_flood = 374.97·d + 287.43             ΣP̄ᵢ = 464 mm
+    C5      Oct–Feb (5 mo)      P_flood = 364.29·d + 424.36             ΣP̄ᵢ = 464 mm
+Building interactive forecaster HTML...
+  Met Office RAF Valley Oct-Mar mean: 516 mm (n=20 complete winters, 2006-2025)
+  Forecaster base layer: hillshade embedded OK
+  Forecaster base layer: 26 KML polylines from 5 layers
+  ✓ Saved: forecaster.html
+    wells: 88  clusters: 5  blocks: 5  template size: 53,549 chars → rendered size: 3,064,317 chars
+
+────────────────────────────────────────────────────────────────────────
+Done
+
+  ✓ done  (26.4s)
+
+  ▶ STEP 13/36  P_flood achievability categorical map (§5.9 / Conclusion 4)
+      script: 11c_pflood_achievability.py
+  ──────────────────────────────────────────────────────────────────
+────────────────────────────────────────────────────────────────────────
+11c — P_flood achievability map (gap C)
+────────────────────────────────────────────────────────────────────────
+Loaded 88 wells from outputs/11b_spatial_thresholds/11b_03_pflood_per_well.csv
+
+─── Category counts by cluster ──────────────────────────────────
+category  Achievable  Marginal  Unreachable
+cluster                                    
+1                  8         0            0
+2                 28         4            0
+3                 21         4            0
+4                  3         9            1
+5                  0         7            3
+
+─── Totals ──────────────────────────────────────────────────────
+category
+Achievable     60
+Marginal       24
+Unreachable     4
+
+Wrote outputs/11b_spatial_thresholds/11c_pflood_achievability_per_well.csv
+Wrote outputs/11b_spatial_thresholds/11c_pflood_achievability.png
+Wrote outputs/11b_spatial_thresholds/11c_pflood_achievability_results.md
+
+────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────
+Done
+
+────────────────────────────────────────────────────────────────────────
+  ✓ done  (4.9s)
+
+  ✓ Phase 3 validation passed.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PHASE 4  — Climate Projections and Figure Generation
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ▶ STEP 14/36  Climate summary outputs
+      script: 00_climate_summary.py
+  ──────────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 00 — Climate Summary  [v1.0.2]
+════════════════════════════════════════════════════════════════════════
+
+--- Full-record outputs ---
+Generating Figure 3 — RAF Valley summer warming trend (95-year record)...
+
+--- Monitoring-period outputs ---
+  Saved climatology → 00_04_climatology.csv (20 complete years 2006-2025)
+  Saved → 00_report_numbers.csv (8 report numbers)
+
+Files created:
+ - /home/john/projects/NRG/outputs/00_climate_summary/00_01_climate_timeseries.png
+ - /home/john/projects/NRG/outputs/00_climate_summary/00_02_well_network_summary.png
+ - /home/john/projects/NRG/outputs/00_climate_summary/00_03_summer_warming_trend.png
+ - /home/john/projects/NRG/outputs/00_climate_summary/00_01_annual_climate_summary.csv
+ - /home/john/projects/NRG/outputs/00_climate_summary/00_02_well_network_summary.csv
+ - /home/john/projects/NRG/outputs/00_climate_summary/00_03_summer_warming_stats.csv
+ - /home/john/projects/NRG/outputs/00_climate_summary/00_01_climate_timeseries_short.png
+ - /home/john/projects/NRG/outputs/00_climate_summary/00_02_well_network_summary_short.png
+ - /home/john/projects/NRG/outputs/00_climate_summary/00_03_summer_warming_trend.png
+ - /home/john/projects/NRG/outputs/00_climate_summary/00_01_annual_climate_summary_short.csv
+ - /home/john/projects/NRG/outputs/00_climate_summary/00_02_well_network_summary_short.csv
+ - /home/john/projects/NRG/outputs/00_climate_summary/00_03_summer_warming_stats.csv
+
+Headline statistics:
+ - Full climate record: 95.2 years (1143 months)
+ - Analysis window: 2005-03-01 to 2026-02-01 (252 months)
+ - Reference wells: 77
+
+00 climate summary complete.
+  ✓ done  (8.0s)
+
+  ▶ STEP 15/36  Figure: Climate trajectory projections
+      script: 14_climate_projections.py
+  ──────────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 14 — Climate Projections  [v1.2.0]
+════════════════════════════════════════════════════════════════════════
+
+[14] Loading observed data and fitting summer trends per cluster...
+  C1 winter exceedance: wet=14/20 (70%), dry=18/20
+  C2 winter exceedance: wet=11/21 (52%), dry=13/21
+  C3 winter exceedance: wet=1/21 (5%), dry=6/21
+  C4 winter exceedance: wet=0/20 (0%), dry=0/20
+  C5 winter exceedance: wet=1/20 (5%), dry=1/20
+  C1 summer trend: -0.0096 m yr⁻¹  (R²=0.196, p=0.0503, n=20)
+  C1 winter observed trend (descriptive only): +0.0087 m yr⁻¹  (R²=0.129, p=0.1196, n=20)
+  C2 summer trend: -0.0122 m yr⁻¹  (R²=0.179, p=0.0557, n=21)
+  C2 winter observed trend (descriptive only): +0.0062 m yr⁻¹  (R²=0.027, p=0.4769, n=21)
+  C3 summer trend: -0.0066 m yr⁻¹  (R²=0.046, p=0.3492, n=21)
+  C3 winter observed trend (descriptive only): +0.0034 m yr⁻¹  (R²=0.005, p=0.7689, n=21)
+  C4 summer trend: -0.0115 m yr⁻¹  (R²=0.040, p=0.3978, n=20)
+  C4 winter observed trend (descriptive only): -0.0034 m yr⁻¹  (R²=0.002, p=0.8495, n=20)
+  C5 summer trend: -0.0377 m yr⁻¹  (R²=0.396, p=0.0029, n=20)
+  C5 winter observed trend (descriptive only): -0.0368 m yr⁻¹  (R²=0.223, p=0.0355, n=20)
+  [14] Saved: 14_climate_trajectory_summer.png
+  [14] Saved: 14_climate_trajectory_winter_flooding.png
+  [14] Saved: 14_climate_trajectory_stacked.png
+  ✓ Saved: 14_summer_trend_stats.csv
+  ✓ Saved: 14_winter_trend_stats.csv
+  ✓ Saved: 14_annual_extremes.csv
+  ✓ Saved: 14_winter_exceedance.csv
+  [14] Saved: 14_seasonal_extremes_scatter.html
+
+[14] Climate projection figures complete.
+
+  ✓ done  (3.9s)
+
+  ▶ STEP 16/36  Bootstrap year-of-crossing for Curreli thresholds (§7 Conclusion 11)
+      script: 14b_year_of_crossing.py
+  ──────────────────────────────────────────────────────────────────
+────────────────────────────────────────────────────────────────────────
+14b — Bootstrap year-of-crossing for per-cluster summer-min trends
+────────────────────────────────────────────────────────────────────────
+Loaded 102 summer-min rows across 5 clusters
+
+Wrote outputs/14_climate_projections/14b_year_of_crossing.csv
+
+─── Year of crossing (median, 95% CI) ───
+Cluster Threshold    slope (mm/yr)          crossing yr (5–50–95)
+------------------------------------------------------------------------
+C1     SD15b                -9.61           2080 –  2080 –  2080
+C1     SD16                 -9.61           2017 –  2022 –  2042
+C2     SD15b               -12.22           2080 –  2080 –  2080
+C2     SD16                -12.22           2007 –  2011 –  2080
+C3     SD15b                -6.60           2080 –  2080 –  2080
+C3     SD16                 -6.60           2080 –  2080 –  2080
+C4     SD15b               -11.45           2080 –  2080 –  2080
+C4     SD16                -11.45           2080 –  2080 –  2080
+C5     SD15b               -37.72           2080 –  2080 –  2080
+C5     SD16                -37.72           2007 –  2080 –  2080
+
+Wrote outputs/14_climate_projections/14b_year_of_crossing.png
+Wrote outputs/14_climate_projections/14b_year_of_crossing_results.md
+
+────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────
+Done
+
+────────────────────────────────────────────────────────────────────────
+  ✓ done  (2.6s)
+
+  ▶ STEP 17/36  Figure: DEM site overview
+      script: 12_figure_site_overview.py
+  ──────────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 12 — Figure — Site Overview  [v1.0.1]
+════════════════════════════════════════════════════════════════════════
+
+============================================================
+ GENERATING FIGURE 1: FULL DEM AND SITE OVERVIEW
+============================================================
+  · High-resolution local DEM found. Applying native Land/Sea mapping...
+  · Adding KML site features...
+  · Plotting Monitoring Wells...
+  · Adding well name labels...
+  [SUCCESS] Map saved locally as /home/john/projects/NRG/outputs/12_figure_site_overview/12_01_dem_site_overview.png
+  ✓ done  (5.0s)
+
+  ▶ STEP 18/36  Figure: Experimental design GIS map
+      script: 13_figure_experimental_design.py
+  ──────────────────────────────────────────────────────────────────
+/home/john/projects/NRG/venv/lib/python3.12/site-packages/geopandas/plotting.py:305: UserWarning: You passed a edgecolor/edgecolors ('black') for an unfilled marker ('x').  Matplotlib is ignoring the edgecolor in favor of the facecolor.  This behavior may change in the future.
+  collection = ax.scatter(x, y, vmin=vmin, vmax=vmax, cmap=cmap, **kwargs)
+
+──  Phase 1 · Loading spatial datasets ─────────────────────────────────
+
+──  Phase 2 · Categorising wells by experimental role ──────────────────
+
+──  Phase 3 · Generating figure ────────────────────────────────────────
+  ▸ Drawing hierarchical pairings...
+
+──  Phase 4 · Repelling text labels ────────────────────────────────────
+
+Success! Reviewer-ready GIS map saved as '/home/john/projects/NRG/outputs/13_figure_experimental_design/13_01_experimental_setup_map.png'.
+  ✓ done  (7.3s)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PHASE 5  — Depth-Dependent PET Analysis
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ▶ STEP 19/36  Depth-dependent PET analysis
+      script: 15_depth_dependent_pet.py
+  ──────────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 15 — Depth-Dependent PET Model  [v1.0.1]
+════════════════════════════════════════════════════════════════════════
+=================================================================
+  15: Depth-Dependent PET Model — Grid Search
+=================================================================
+Loading data...
+  Loaded upstand data for 99 wells
+Building cluster centroids...
+  C1: 7 wells, mean upstand = 0.057 m
+  C2: 24 wells, mean upstand = 0.075 m
+  C3: 21 wells, mean upstand = 0.091 m
+  C4: 9 wells, mean upstand = 0.140 m
+  C5: 5 wells, mean upstand = 0.102 m
+
+Fitting standard SSM baselines (λ=0)...
+  C1  one-step R²=0.780  iterative NSE=0.714
+  C2  one-step R²=0.799  iterative NSE=0.813
+  C3  one-step R²=0.833  iterative NSE=0.858
+  C4  one-step R²=0.754  iterative NSE=0.653
+  C5  one-step R²=0.720  iterative NSE=0.807
+
+Grid searching λ ∈ [0.0, 6.0] step 0.05 (121 values)...
+  C1 ... best λ=1.90  NSE=0.896
+  C2 ... best λ=0.80  NSE=0.882
+  C3 ... best λ=0.40  NSE=0.886
+  C4 ... best λ=0.15  NSE=0.757
+  C5 ... best λ=0.50  NSE=0.845
+
+Extracting best parameters...
+
+=================================================================
+  BENCHMARK SUMMARY — Depth-Dependent vs Standard SSM
+=================================================================
+Cluster    SSM NSE   DDP NSE    Δ NSE    Best λ  Note
+-----------------------------------------------------------------
+  C1          0.714      0.896    +0.183      1.90  ↑ improvement
+  C2          0.813      0.882    +0.069      0.80  ↑ improvement
+  C3          0.858      0.886    +0.028      0.40  ↑ improvement
+  C4          0.653      0.757    +0.104      0.15  ↑ improvement
+  C5          0.807      0.845    +0.039      0.50  ↑ improvement
+=================================================================
+
+Saving outputs...
+  ✓ Saved: 15_03_benchmark_table.csv
+  ✓ Saved: 15_04_best_params.csv
+
+Generating figures...
+  ✓ Saved: 15_01_lambda_profile.png
+  ✓ Saved: 15_02_fit_comparison.png
+
+15 Complete.
+  ✓ done  (3.9s)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PHASE 6  — WTF Cluster Sy Estimation
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ▶ STEP 20/36  WTF cluster Sy estimation
+      script: 17_wtf_specific_yield.py
+  ──────────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 17 — WTF Specific Yield  [v1.2.0]
+════════════════════════════════════════════════════════════════════════
+Loading data...
+  250 monthly records, 2005-03-01 to 2026-02-01
+  Partition: k=5 (C1 (Lake Edge), C2 (Dune), C3 (Western Residual), C4 (Main Forest), C5 (Coastal Forest))
+  Forest clusters (interception-corrected): C4 (Main Forest), C5 (Coastal Forest)
+
+Approach A — OLS regression (winter months, drainage-corrected):
+  C1 (Lake Edge)                    Sy = 0.335  R² = 0.616  n = 38  SE = 0.0434  β₃ = 0.098
+  C2 (Dune)                         Sy = 0.328  R² = 0.666  n = 49  SE = 0.0335  β₃ = 0.069
+  C3 (Western Residual)             Sy = 0.342  R² = 0.841  n = 53  SE = 0.0206  β₃ = 0.053
+  C4 (Main Forest)                  Sy = 0.297  R² = 0.869  n = 46  SE = 0.0172  β₃ = 0.019
+  C5 (Coastal Forest)               Sy = 0.410  R² = 0.877  n = 49  SE = 0.0222  β₃ = 0.044
+
+Approach B — Event-based median:
+  C1 (Lake Edge)                    Sy median = 0.210  IQR [0.130, 0.265]  n = 60
+  C2 (Dune)                         Sy median = 0.281  IQR [0.197, 0.372]  n = 64
+  C3 (Western Residual)             Sy median = 0.325  IQR [0.285, 0.415]  n = 58
+  C4 (Main Forest)                  Sy median = 0.315  IQR [0.256, 0.395]  n = 51
+  C5 (Coastal Forest)               Sy median = 0.356  IQR [0.319, 0.431]  n = 34
+  C4 (Main Forest) (corrected)      Sy median = 0.248  IQR [0.182, 0.317]  n = 62
+  C5 (Coastal Forest) (corrected)   Sy median = 0.321  IQR [0.243, 0.401]  n = 49
+
+Generating figures...
+Regression figure saved → 17_wtf_02_regression.png
+Boxplot figure saved → 17_wtf_03_event_boxplot.png
+
+Exporting outputs...
+CSV saved → 17_wtf_01_sy_estimates.csv
+Summary saved → 17_wtf_04_summary.txt
+
+All outputs written to /home/john/projects/NRG/outputs/17_wtf_specific_yield
+  ✓ done  (1.8s)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PHASE 7  — Water Balance Decomposition
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ▶ STEP 21/36  Water balance decomposition
+      script: 16_water_bal.py
+  ──────────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 16 — Water Balance  [v1.1.1]
+════════════════════════════════════════════════════════════════════════
+Starting 16: Water Balance Decomposition...
+
+  HEAD-SPACE WATER BALANCE (m/month)
+  Cluster                    Rech       ET    Drain   Losses     Resid    D%   ET%
+  C1 (Lake Edge)           0.3405   0.0530   0.2914   0.3444   -0.0039   85%   15%
+  C2 (Dune)                0.2958   0.0965   0.2029   0.2994   -0.0036   68%   32%
+  C3 (Western Residual)    0.2654   0.1012   0.1642   0.2654   -0.0001   62%   38%
+  C4 (Main Forest)         0.1873   0.1403   0.0455   0.1858   +0.0015   24%   76%
+  C5 (Coastal Forest)      0.1793   0.0725   0.1109   0.1834   -0.0042   60%   40%
+  ✓ Saved: 16_water_bal_table.csv
+
+  RECESSION PARTITION (winter/summer ratio)
+  Cluster                   Win Δh    Sum Δh  D_frac   n_w   n_s
+  C1 (Lake Edge)           -0.0980   -0.1627    0.60    27    50
+  C2 (Dune)                -0.0689   -0.1689    0.41    21    55
+  C3 (Western Residual)    -0.0830   -0.1343    0.62    18    63
+  C4 (Main Forest)         -0.0628   -0.1280    0.49    16    71
+  C5 (Coastal Forest)      -0.0691   -0.0948    0.73    22    66
+  ✓ Saved: 16_water_bal_vol_table.csv
+  ✓ Saved: 16_water_bal_bar_ms.png
+  ✓ Saved: 16_water_bal_bar_lay.png
+
+  Done.
+  ✓ done  (1.9s)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PHASE 8  — WTF Spatial Analysis and Sy Mapping
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ▶ STEP 22/36  WTF spatial analysis and Sy mapping
+      script: 18_wtf_spatial.py
+  ──────────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 18 — WTF Spatial Analysis  [v1.1.0]
+════════════════════════════════════════════════════════════════════════
+────────────────────────────────────────────────────────────────────────
+  18: WTF Spatial Analysis — Individual Well Sy and Mapping
+  Supplementary figures: yes
+────────────────────────────────────────────────────────────────────────
+
+Loading well data...
+
+Running reference well WTF analysis...
+  66 wells processed  (66 high confidence)
+
+Exporting reference well Sy table...
+  Saved → 18_wtf_01_well_sy_estimates.csv
+  Intermediate copy → 17_wtf_well_sy.csv
+
+Generating spatial point map (reference wells)...
+  Point map saved → 18_wtf_02_spatial_sy_map.png
+
+Generating Sy contour map (reference wells only)...
+  Site mask: 3674 of 5184 grid cells inside boundary
+  KML features added (6 layers)
+  Contour map saved → 18_wtf_03_sy_contour.png
+
+Running extended well WTF analysis...
+  22 extended wells processed  (17 high confidence)
+
+Generating Sy contour map (reference + extended wells)...
+  Site mask: 3674 of 5184 grid cells inside boundary
+  KML features added (6 layers)
+  Extended contour map saved → 18_wtf_04_sy_contour_extended.png
+
+Computing drainage timescale (τ = Sy / β₃)...
+  τ computed for 64 wells; 2 excluded (CEH13, CEH14)
+    C1 (Lake Edge): τ = 2.1 months (range 1.3–2.6, n=7)
+    C2 (Dune): τ = 3.6 months (range 2.0–4.9, n=24)
+    C3 (Western Residual): τ = 6.4 months (range 2.3–11.2, n=21)
+    C4 (Main Forest): τ = 14.7 months (range 6.0–33.6, n=7)
+    C5 (Coastal Forest): τ = 6.8 months (range 5.6–7.6, n=5)
+  Saved → 18_wtf_05_drainage_timescale.csv
+
+Generating drainage timescale contour map...
+  Site mask: 3674 of 5184 grid cells inside boundary
+  KML features added (6 layers)
+  Drainage timescale map saved → 18_wtf_05_drainage_timescale_map.png
+
+Generating aquifer diagnostic synthesis scatter...
+  64 wells with τ + ΔNSE + Sy for synthesis scatter
+  Aquifer diagnostic synthesis saved → 18_wtf_06_aquifer_diagnostic_synthesis.png
+  Saved → 18_report_numbers.csv (12 report numbers)
+
+All outputs written to /home/john/projects/NRG/outputs/18_wtf_spatial
+  ✓ done  (59.8s)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PHASE 9  — Spatial Groundwater Analysis
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ▶ STEP 23/36  Spatial groundwater analysis
+      script: 19_spatial_groundwater.py
+  ──────────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 19 — Spatial Groundwater Scenarios  [v2.8.0]
+════════════════════════════════════════════════════════════════════════
+============================================================
+Script 19 -- Scenario Viewer Generator
+Output: /home/john/projects/NRG/outputs/19_spatial_groundwater/scenario_viewer.html
+============================================================
+
+[1/4] Loading data...
+
+[2/4] Building well table...
+  Well table: 77 wells
+  beta available: 66 wells
+  Forest wells (C4+C5): 14
+  P_bar  = 74.46 mm/mo   PET_bar = 54.80 mm/mo
+
+[3/4] Loading KML polygons from DATA_DIR...
+  DATA_DIR = /home/john/projects/NRG/data
+  clearfell.kml: 5 pts
+  Features.kml: found ['lake', 'forest_raw']
+  broadleaf_restock.kml: 16 pts
+  site_boundary.kml: 15 pts (simplified)
+  Forest (clipped): 9 pts
+
+[4/4] Generating HTML...
+  Building DEM hillshade basemap...
+  Hillshade: 1100x750 px, 809.7 KB base64
+  Building DEM grid for ridge masking...
+  DEM grid: 160x110 cells, ~114.0 KB JSON
+  Scenario summary CSV: 19_scenario_summary.csv (144 rows = 6 scenarios x 4 seasons (incl. msl5) x 6 spatial units)
+  ΔMSL5 cross-check vs 26b per-well CSV: max abs diff = 0.040 mm (≤ 0.5 mm tolerance) — OK
+
+  Saved   : /home/john/projects/NRG/outputs/19_spatial_groundwater/scenario_viewer.html
+  Version : v2.8.1
+  Size    : 973.2 KB
+  Wells   : 77 total  (beta available: 66)
+  Extent  : E 240200-243700, N 362400-364800
+  KML     : ['clearfell', 'lake', 'broadleaf', 'site', 'forest']
+
+--- Script 19 complete ---
+Open scenario_viewer.html in any browser.
+  ✓ done  (5.3s)
+
+  ▶ STEP 24/36  Spatial paper figures
+      script: 20_spatial_figures.py
+  ──────────────────────────────────────────────────────────────────
+/home/john/projects/NRG/src/20_spatial_figures.py:1588: DeprecationWarning: The 'shapely.vectorized.contains' function is deprecated and will be removed a future version. Use 'shapely.contains_xy' instead (available since shapely 2.0.0).
+  inside_site = _shp_vec.contains(site_poly,
+/home/john/projects/NRG/src/20_spatial_figures.py:3798: DeprecationWarning: The 'shapely.vectorized.contains' function is deprecated and will be removed a future version. Use 'shapely.contains_xy' instead (available since shapely 2.0.0).
+  inside_site = _shp_vec.contains(site_poly,
+/home/john/projects/NRG/src/20_spatial_figures.py:3829: DeprecationWarning: The 'shapely.vectorized.contains' function is deprecated and will be removed a future version. Use 'shapely.contains_xy' instead (available since shapely 2.0.0).
+  in_rise = _sv_rise.contains(rise_zone, E_grid.ravel(),
+
+=== 20_spatial_figures.py ===
+  DPI: 300  (publication)
+
+[1/4] Loading data...
+[2/4] Building well table...
+  Reference wells: 67, Extended wells: 22
+  Wells: 89  (residual available for 66)
+  P̄ = 71.5 mm/month  PET̄ = 53.1 mm/month
+[3/4] Loading stream polygons...
+  Stream polygons loaded: 2391
+[4/4] Loading KML features...
+  KML features: 22
+
+Generating Figure 1 — Head surface + stream network...
+  Saved: 20_head_surface_streams.png
+Generating Figure 2a — SSM water balance residual...
+  Saved → 20_residual_perwell.csv (66 wells)
+  Saved → 20_residual_report_numbers.csv (4 report numbers)
+  Stream polygons loaded: 2391
+  Saved: 20_residual_ssm.png
+Generating Figure 2b — Ridge hillslope gradient...
+  Computing hillslope gradient...
+  Saved: 20_slope_gradient.png
+Generating Figure 3 — Forest drawdown propagation...
+  λ = 225 m  (K=6.0, Sy=0.3057 [C3 WTF], b=5.0, β₃=0.0582/month [C3 SSM])
+  Saved → 20_drawdown_perwell.csv (89 wells)
+  Saved → 20_report_numbers.csv (8 report numbers)
+  site_boundary.kml loaded for clipping (type=Polygon)
+  Saved → /home/john/projects/NRG/outputs/20_spatial_figures/20_drawdown_propagation_nohead.png
+Generating Figure 4 — Coastal-erosion drawdown...
+  Coastal fit (live, Script 25 forest-free linear-capped): δ₀=29.03 mm/yr, L=894 m
+  h₀ = 21.0 mm  (6 m retreat × 29.03/8.3 mm per m), L = 894 m
+  Saved → /home/john/projects/NRG/outputs/20_spatial_figures/20_coastal_erosion.png
+Generating Figure 5 — Sea-level-rise head response...
+  SLR response: +0.020 m over 5 yr; D=98.1 m²/day (Sy=0.306 [C3 WTF]), √(Dt)=423 m
+  Saved → /home/john/projects/NRG/outputs/20_spatial_figures/20_slr_response.png
+Generating Figure 6 — Net coastal head change (SLR − erosion)...
+  Coastal fit (live, Script 25 forest-free linear-capped): δ₀=29.03 mm/yr, L=894 m
+  net head change range: -5.2 to 20.0 mm  (h₀_eros=21, SLR=20 mm)
+Generating Figure 7 — Scrape-drain drawdown...
+  λ = 225 m  (K=6.0, Sy=0.3057 [C3 WTF], b=5.0, β₃=0.0582/month [C3 SSM]);  H0 = 129 mm (measured CEH36 response) → inferred cut 0.42 m
+  Saved → /home/john/projects/NRG/outputs/20_spatial_figures/20_scrape_drawdown_nohead.png
+Generating clearfell-baseline drawdown map (scrape + Storm Brendan)...
+  Coastal fit (live, Script 25 forest-free linear-capped): δ₀=29.03 mm/yr, L=894 m
+  clearfell-baseline drawdown: max 106 mm (scrape H0=129 mm [measured], Storm Brendan h0=21 mm, retreat=6 m)
+  Saved → /home/john/projects/NRG/outputs/20_spatial_figures/20_clearfell_baseline_drawdown.png
+Generating public-summary three-driver panel...
+  Coastal fit (live, Script 25 forest-free linear-capped): δ₀=29.03 mm/yr, L=894 m
+  Saved → /home/john/projects/NRG/outputs/20_spatial_figures/20_public_drivers_panel.png  (forest H0=150, scrape H0=129, erosion h0=21 mm)
+Generating MSL5 change map (window end 2017 vs 2023)...
+  MSL5 change: n=61 wells, range -229 to -13 mm
+  Saved → 20_msl5_change_perwell.csv (61 wells)
+  Saved → 20_msl5_report_numbers.csv (10 report numbers)
+  Saved → /home/john/projects/NRG/outputs/20_spatial_figures/20_msl5_change_2017_2023.png
+Generating observed water-table change map (2012–2015 vs 2024–2026)...
+  Observed spring change: 64 wells, climate offset = -51.7 mm, normalised range -145 to +93 mm
+  Saved → /home/john/projects/NRG/outputs/20_spatial_figures/20_observed_change_2012_2026.png
+Generating net water-table state map (all five drivers)...
+  Coastal fit (live, Script 25 forest-free linear-capped): δ₀=29.03 mm/yr, L=894 m
+  Saved → /home/john/projects/NRG/outputs/20_spatial_figures/20_net_state_map.png  (net range -193 to 124 mm)
+Generating clearfell gain map...
+  Clearfell gain: 71 wells, range -162 to +100 mm (median +27 mm)
+  Saved → /home/john/projects/NRG/outputs/20_spatial_figures/20_clearfell_gain.png  (n=71, range -162 to +100 mm)
+
+=== Script 20 complete ===
+  ✓ done  (67.8s)
+
+  ✓ Phase 9 validation passed.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PHASE 10 — Forestry Scenario Analysis
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ▶ STEP 25/36  Forestry scenarios and management figures
+      script: 21_forestry_scenarios.py
+  ──────────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 21 — Forestry Scenarios  [v1.3.0]
+════════════════════════════════════════════════════════════════════════
+
+=== 21_forestry_scenarios.py ===
+  DPI: 300  (publication)
+
+[0/6] Loading BACI parameters from Script 10 outputs...
+  BACI annual step from 10a: 0.1196 m (directly fitted, full record, full ANCOVA spec)
+  BACI summer step from 10a: 0.0463 m (directly fitted, Jun-Sep, full ANCOVA spec)
+  β₂ multiplier from pipeline params: 1.0315
+  BACI_ANNUAL=0.120  BACI_SUMMER=0.046
+  CLEARFELL_B2_MULT=1.0315  THINNING_B2_MULT=1.0158
+
+[1/6] Loading data...
+  Master: 66 wells  |  Climate: 1930-12-01 to 2026-02-01
+
+[2/6] Building scenarios...
+  Scenario β from pipeline params: β₁=2.5184  β₂=2.5480  β₃=0.0205
+  C4 mean DEM: 10.74 m AOD
+  β₁=2.5184  β₂=2.5480  β₃=0.0205
+  Scenarios: ['Baseline (Corsican pine)', 'Full clearfell', '50% thinning', 'Broadleaf conversion']
+
+[3/6] Plotting hydrograph figure...
+  ✓ Saved: 21_forestry_01_hydrograph.png
+  ✓ Saved: 21_forestry_01_hydrograph.csv
+
+  === Monthly depth below ground — scenario summary (m) ===
+  Month  Baseline (Cors  Full clearfell  50% thinning    Broadleaf conv  Observed
+  Jan             0.738           0.691           0.714           0.712     0.738
+  Feb             0.665           0.628           0.647           0.643     0.665
+  Mar             0.661           0.626           0.643           0.637     0.661
+  Apr             0.660           0.635           0.648           0.640     0.660
+  May             0.772           0.747           0.759           0.756     0.772
+  Jun             0.936           0.912           0.924           0.943     0.936
+  Jul             1.076           1.046           1.061           1.094     1.076
+  Aug             1.181           1.147           1.164           1.201     1.181
+  Sep             1.288           1.242           1.265           1.286     1.288
+  Oct             1.293           1.230           1.262           1.270     1.293
+  Nov             1.078           1.019           1.048           1.049     1.078
+  Dec             0.832           0.769           0.800           0.801     0.832
+
+  === Summer minimum (Aug, m below ground) ===
+  Baseline (Corsican pine)      : 1.181  (shift vs baseline: +0.000 m)
+  Full clearfell                : 1.147  (shift vs baseline: +0.034 m)
+  50% thinning                  : 1.164  (shift vs baseline: +0.017 m)
+  Broadleaf conversion          : 1.201  (shift vs baseline: -0.020 m)
+  BACI summer benchmark         : 1.227
+
+[4/6] Loading raw well data...
+
+[4/6] Plotting distributions figure...
+  ✓ Saved: 21_forestry_02_distributions.png
+
+  === Summer minimum distributions — summary statistics ===
+  Group                        Phase                   n    Mean      SD   %>SD16
+  ----------------------------------------------------------------------------
+  C1 Eastern lake-buffer       Pre-scrape 2005–14      9   0.718   0.123       0%
+  C1 Eastern lake-buffer       Scraping era 2015–17    3   0.768   0.134       0%
+  C1 Eastern lake-buffer       Post-felling 2018+      8   0.871   0.107      38%
+  C2 Eastern mature dune       Pre-scrape 2005–14     10   0.851   0.154      10%
+  C2 Eastern mature dune       Scraping era 2015–17    3   0.930   0.165      67%
+  C2 Eastern mature dune       Post-felling 2018+      8   0.960   0.148      50%
+  C3 Warren interior           Pre-scrape 2005–14     10   0.990   0.206      60%
+  C3 Warren interior           Scraping era 2015–17    3   1.093   0.177      67%
+  C3 Warren interior           Post-felling 2018+      8   1.107   0.169      75%
+  C5 Coastal forest            Pre-scrape 2005–14      9   1.165   0.376      67%
+  C5 Coastal forest            Scraping era 2015–17    3   1.445   0.130     100%
+  C5 Coastal forest            Post-felling 2018+      8   1.502   0.129     100%
+  C4 Main forest               Pre-scrape 2005–14      9   1.394   0.484      78%
+  C4 Main forest               Scraping era 2015–17    3   1.600   0.256     100%
+  C4 Main forest               Post-felling 2018+      8   1.601   0.284     100%
+  ✓ Saved: 21_forestry_02_distributions_means.csv
+
+[5/6] Plotting scraping eras figure...
+  ✓ Saved: 21_forestry_03_scraping_eras.png
+  ✓ Saved: 21_forestry_03_scraping_era_means.csv
+
+[5/6] Plotting BACI zone violin figure...
+  ✓ Saved: 21_forestry_04_baci_zone_violin.png
+
+  Zone                   Phase               n    Mean      SD
+  ------------------------------------------------------------
+  Impact (WMC3)          Pre-2015            3   1.493   0.154
+  Impact (WMC3)          2015–17             3   1.540   0.170
+  Impact (WMC3)          Post-fell 2018+     7   1.520   0.168
+  Edge (CEH31, CEH20, CE Pre-2015            4   1.678   0.248
+  Edge (CEH31, CEH20, CE 2015–17             3   1.593   0.164
+  Edge (CEH31, CEH20, CE Post-fell 2018+     8   1.639   0.185
+  Forest Ctrl (CEH32, CE Pre-2015            4   1.723   0.457
+  Forest Ctrl (CEH32, CE 2015–17             3   1.553   0.241
+  Forest Ctrl (CEH32, CE Post-fell 2018+     8   1.574   0.273
+  Coastal Ctrl (CEH19, C Pre-2015            4   1.679   0.130
+  Coastal Ctrl (CEH19, C 2015–17             3   1.680   0.124
+  Coastal Ctrl (CEH19, C Post-fell 2018+     7   1.708   0.106
+  Climate Ctrl (CEH9, NW Pre-2015            4   1.139   0.087
+  Climate Ctrl (CEH9, NW 2015–17             3   1.162   0.186
+  Climate Ctrl (CEH9, NW Post-fell 2018+     8   1.152   0.168
+  ✓ Saved: 21_forestry_04_baci_zone_means.csv
+
+[6/6] Plotting scenario comparison figure...
+  ✓ Saved: 21_forestry_05_scenario_comparison.jpg
+  ✓ Saved: 21_forestry_05_scenario_comparison.csv
+  ✓ Saved: 21_forestry_06_summer_scenario.csv
+
+=== Script 21 complete ===
+  ✓ done  (6.1s)
+
+  ✓ Phase 10 validation passed.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PHASE 11 — Coastal-Retreat Gradient Analysis (Script 25)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ▶ STEP 26/36  Coastal-retreat gradient analysis
+      script: 25_coastal_gradient.py
+  ──────────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 25 — Coastal Gradient Analysis  [v1.2.0]
+════════════════════════════════════════════════════════════════════════
+
+========================================================================
+ Script 25 — Coastal-retreat gradient analysis (Phase 11)
+========================================================================
+
+  Distance source: well_metadata.csv  (99 wells, d range 147–6872 m)
+
+  Fitting [1/3] Full network ...
+  Fitting [2/3] Forest-free network ...
+  Fitting [3/3] C3 only (c fixed to forest-free network) ...
+
+  Fitted parameters (linear-capped form):
+    Source             δ₀ (mm/yr)      L (m)      c (mm/yr)
+    Full            -29.39 ± 1.88    971 ± 57     -6.77
+    Forest-free     -29.03 ± 1.92    894 ± 51     -6.35
+    C3 only         -26.37 ± 2.55    972 ± 82     -6.35
+
+  ΔAIC (forest-free, exp − lin-cap) = -0.1  (exp preferred)
+
+  Computing per-well summer-min slopes ...
+  · 62 wells with ≥8 years
+
+  Computing per-cluster attribution ...
+        cluster_label  mean_dist_coast_m  observed_centroid_mm_yr  predicted_gradient_mm_yr  predicted_climate_mm_yr  residual_mm_yr  gradient_pct_of_observed
+       C1 (Lake Edge)             1818.7                     -9.6                      0.00                    -6.35           -3.25                      -0.0
+            C2 (Dune)             1507.9                    -12.2                      0.00                    -6.35           -5.85                      -0.0
+C3 (Western Residual)              825.9                     -6.6                     -2.21                    -6.35            1.96                      34.0
+     C4 (Main Forest)             1141.8                    -11.5                      0.00                    -6.35           -5.15                      -0.0
+  C5 (Coastal Forest)              419.4                    -37.7                    -15.41                    -6.35          -15.94                      41.0
+
+  Running BACI corroboration check ...
+control_tier impact_zone  baci_absorbs_mm_yr  model_predicts_mm_yr  z_test_baci_vs_model consistent
+      Forest      Impact               -16.8                 -11.1                 -1.16        yes
+      Forest        Edge               -11.2                 -10.0                 -0.28        yes
+     Climate      Impact                10.0                  -0.9                  2.18         no
+     Climate        Edge                13.5                   0.2                  1.96        yes
+
+  Building diagnostic figures ...
+
+  Outputs written to: /home/john/projects/NRG/outputs/25_coastal_gradient/
+    25_01_panel_fit_parameters.csv
+    25_02_per_well_summer_min_slopes.csv
+    25_03_cluster_partition.csv
+    25_04_baci_corroboration.csv
+    25_05_fit_diagnostic.jpg
+    25_06_baci_corroboration_chart.jpg
+    25_07_cluster_decomposition.png
+    25_report_numbers.csv
+  · Script 25 complete.
+
+  ✓ done  (3.7s)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PHASE 12 — Supplementary Diagnostics (Scripts 22–24)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ▶ STEP 27/36  Residual lag structure analysis
+      script: 22_residual_lag_analysis.py
+  ──────────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 22 — Residual Lag Analysis  [v1.0.1]
+════════════════════════════════════════════════════════════════════════
+Starting 22: SSM Residual and AR(1) Diagnostics...
+ -> Candidate wells: 73 (excluded: ['ceh3', 'ceh37', 'ceh4', 'ceh7', 'ceh8'])
+ -> Fitted Model B for 64 wells (>= 140 months of data).
+ -> Saved: 22_residuals_wide.csv (248 months x 64 wells)
+  ✓ Saved: 22_model_b_fits.csv
+
+==============================================================
+  AR(1) DIAGNOSTICS SUMMARY
+==============================================================
+  Wells with AR(1) fit:          64
+  Mean phi:                      -0.126
+  Median phi:                    -0.129
+  Wells with |phi| <  0.3:       61 / 64
+  Wells with |phi| >= 0.3:       3 / 64
+  Wells with significant AR(1) (p < 0.05): 28 / 64
+
+  Per-cluster mean phi:
+Cluster
+1.0   -0.155
+2.0   -0.123
+3.0   -0.151
+4.0   -0.040
+5.0   -0.214
+==============================================================
+  ✓ Saved: 22_01_ar1_histogram.png
+  ✓ Saved: 22_02_ar1_spatial_map.png
+  ✓ Saved: 22_03_alpha_phi_scatter.png
+  ✓ Saved: 22_04_example_residuals_by_cluster.png
+
+22 complete. Next: cross-correlation stage (22b).
+  ✓ done  (5.7s)
+
+  ▶ STEP 28/36  Ridge recharge lag hypothesis test
+      script: 23_ridge_recharge_lag_test.py
+  ──────────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 23 — Ridge Recharge Lag Test  [v1.0.1]
+════════════════════════════════════════════════════════════════════════
+Starting 23: Ridge-recharge lag hypothesis test...
+  ▸ Rainfall AR(1) phi = +0.210; pre-whitened series built.
+ -> Candidate wells: 73 (excluded: ['ceh3', 'ceh37', 'ceh4', 'ceh7', 'ceh8'])
+  ▸ Extended-model fit + CCF for 64 wells.
+  ✓ Saved: 23_residuals_extended_wide.csv
+  ✓ Saved: 23_ridge_lag_fits.csv
+  ✓ Saved: 23_01_ccf_headline_ridge_wells.png
+  ✓ Saved: 23_02_peak_lag_vs_ridge_distance.png
+  ✓ Saved: 23_03_peak_lag_spatial_map.png
+  ✓ Saved: 23_04_b10_b11_by_cluster.png
+  ✓ Saved: 23_05_hypothesis_test_summary.txt
+
+==============================================================================
+  RIDGE-RECHARGE LAG HYPOTHESIS TEST — SUMMARY
+==============================================================================
+
+  Ridge reference point: E = 241750, N = 364500 (OSGB36)
+  Analysis model: Delta_h = alpha + b10*P(t) + b11*P(t-1) - b2*PET(t) - b3*h_disp_prev(t)
+  Displacement formulation: h_disp = 3.7 + h_depth
+  Wells analysed: 64 with n >= 140 months
+  Excluded: ['ceh3', 'ceh37', 'ceh4', 'ceh7', 'ceh8']
+
+------------------------------------------------------------------------------
+  HYPOTHESIS
+------------------------------------------------------------------------------
+  H1: If the water-balance residual reflects genuine lateral recharge from
+      the northern rock ridge, then the peak-correlation lag N* between
+      extended-model residuals and rainfall should increase with distance
+      from the ridge (longer travel time = longer lag).
+
+  H0: If the residual is model error rather than ridge recharge, no such
+      distance-lag relationship will exist.
+
+------------------------------------------------------------------------------
+  RESULT
+------------------------------------------------------------------------------
+  Spearman rank correlation of peak lag vs ridge distance:
+     rho = +0.0018
+     p   = 0.9901
+     n   = 51 wells with significant peak
+
+  Mean peak lag (all sig wells):      2.80 months
+  Median peak lag (all sig wells):    2.0 months
+  Peak lag standard deviation:        2.51 months
+
+  By cluster (significant wells only):
+     C1 (Lake Edge)  n= 7  mean lag = 2.00  mean |r| = 0.274
+     C2 (Dune)       n=22  mean lag = 2.00  mean |r| = 0.224
+     C3 (Western Residual) n=10  mean lag = 3.00  mean |r| = 0.181
+     C4 (Main Forest) n= 9  mean lag = 4.44  mean |r| = 0.178
+     C5 (Coastal Forest) n= 1  mean lag = 11.00  mean |r| = 0.138
+
+------------------------------------------------------------------------------
+  INTERPRETATION
+------------------------------------------------------------------------------
+  H0 NOT REJECTED: no significant distance-lag relationship detected.
+  The water-balance residual cannot be attributed to ridge-derived recharge
+  on lag-structure evidence. Either (a) the residual is largely model error
+  and should be reported as such, or (b) ridge recharge is delivered via a
+  mechanism that does not produce a month-scale distance-dependent lag
+  (e.g. a near-steady baseflow that is effectively smoothed in time by the
+  time it reaches the dune field).
+
+  Path (b) is not ruled out by a null result here; but it also cannot be
+  claimed from these data alone, because a steady baseflow is
+  observationally indistinguishable from a constant alpha, which is already
+  what Model B absorbs.
+
+==============================================================================
+
+23 complete.
+  ✓ done  (6.3s)
+
+  ▶ STEP 29/36  Residual seasonality diagnostics
+      script: 24_residual_seasonality.py
+  ──────────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 24 — Residual Seasonality Diagnostics  [v1.0.1]
+════════════════════════════════════════════════════════════════════════
+Starting 24: Seasonal Residual Diagnostic...
+ -> Loaded sunshine hours: 1141 months (1930-12 to 2026-01)
+  ▸ Candidate wells: 73
+  ▸ Computed climatologies for 64 wells.
+  ✓ Saved: 24_residual_climatology.csv
+  ✓ Saved: 24_01_climatology_panels_by_cluster.png
+  ✓ Saved: 24_02_seasonal_amplitude_map.png
+  ✓ Saved: 24_03_sun_residual_correlation.png
+  ✓ Saved: 24_04_phase_by_cluster.png
+  ✓ Saved: 24_05_diagnostic_summary.txt
+
+==============================================================================
+  SEASONAL RESIDUAL DIAGNOSTIC — SUMMARY
+==============================================================================
+
+  Wells analysed: 64
+  Ridge reference: E=241750, N=364500
+  C3 split distance: 1000 m
+
+------------------------------------------------------------------------------
+  PER-CLUSTER SEASONAL STATISTICS
+------------------------------------------------------------------------------
+          n  s_minus_w  amplitude    phase  corr_sun
+Cluster                                             
+1.0       7    -0.0071     0.0088  12.3104   -0.0576
+2.0      24    -0.0036     0.0112  12.0606   -0.0311
+3.0      17    -0.0075     0.0100  12.0840   -0.0237
+4.0       9    -0.0062     0.0153   2.4079   -0.0006
+5.0       5     0.0028     0.0105  10.7804   -0.0096
+
+------------------------------------------------------------------------------
+  C3 SPLIT BY DISTANCE (< vs >= 1000 m from ridge)
+------------------------------------------------------------------------------
+  Forest-adjacent (n=7): amplitude = 0.0099  s-w = -0.0110
+  Warren-interior (n=10): amplitude = 0.0101  s-w = -0.0050
+  Mann-Whitney (adj < far amp): U=33.0, p=0.4434
+
+------------------------------------------------------------------------------
+  SUNSHINE-HOURS CORRELATION (INDEPENDENT ET DIAGNOSTIC)
+------------------------------------------------------------------------------
+  Sunshine hours is not in the OLS regression, so cor(resid, sun) is
+  a real test rather than zero by construction. A systematic negative
+  correlation would indicate extra ET losses in high-insolation months
+  that Thornthwaite has not captured and b2 has therefore not fitted.
+
+  Wells with r < -0.150 (extra ET not in Thornthwaite): 0 / 64
+  Wells with r >  +0.150:                                0 / 64
+  Wells within Bartlett null band:                          64 / 64
+  Network mean: -0.0262
+
+------------------------------------------------------------------------------
+  INTERPRETATION
+------------------------------------------------------------------------------
+  NULL on ET hypothesis: sunshine-residual correlation is within the
+  Bartlett null band across clusters and summer-minus-winter residual
+  is small in magnitude. The residual is not dominantly unmodelled
+  summer ET — whatever systematic bias Thornthwaite has, b2 has
+  already absorbed it.
+
+  Wells with winter/early-spring phase peak (Nov-Mar): 47 / 64
+  Wells with summer phase peak (May-Aug):              0 / 64
+
+  Dominant phase is winter/early spring. This is not the signature
+  of unmodelled summer ET. It is consistent with threshold/nonlinear
+  recharge behaviour not captured by the linear b1*P term: in
+  mid-winter with saturated soils, rainfall reaches the water table
+  with higher efficiency than the cluster-mean b1 represents.
+
+==============================================================================
+
+24 complete.
+  ✓ done  (5.5s)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PHASE 13 — Van Willegen MSL Analyses (Scripts 26, 26b, 26c)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ▶ STEP 30/36  Van Willegen (2025) 5-year MSL aggregation
+      script: 26_van_willegen_msl.py
+  ──────────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 26 — van Willegen MSL Projection
+════════════════════════════════════════════════════════════════════════
+========================================================================
+Script 26 — van Willegen et al. (2025) 5-year MSL aggregation
+========================================================================
+  01_wells_clean.csv           : 250 rows × 78 wells
+  01_wells_extended.csv        : 250 rows × 22 wells
+  01_well_elevations.csv       : 99 wells
+  01_locations.csv             : 99 wells
+  02_cluster_stats.csv         : 66 wells
+  06_pear_membership_audit_sitewide.csv : 88 wells
+  01_wells_provenance.csv      : 78 wells, 19500 (well,month) cells
+
+Pass 1 — annual MSL/MAX: 1430 (well, hydro_year) rows; 1302 valid (3/3 spring rule)
+  ✓ Saved: 26_msl_annual_per_well.csv
+
+Pass 2 — 5-year rolling MSL/MAX: 895 (well, end_year) rows across 85 wells
+  ✓ Saved: 26_msl_5yr_per_well.csv
+
+Pass 3 — cluster trajectories (Method A, per-well aggregation): 80 (cluster, year) rows
+  ✓ Saved: 26_msl_5yr_per_cluster.csv
+
+Pass 3b — cluster-centroid trajectories (Method B, reference network): 80 (cluster, year) rows
+  ✓ Saved: 26_msl_5yr_per_cluster_centroid.csv
+
+Pass 4 — latest MSL5 per well: 85 wells
+  ✓ Saved: 26_msl_5yr_latest_per_well.csv
+
+Rendering figures...
+  ✓ Saved: 26_msl_5yr_trajectory.png
+  ✓ Saved: 26_msl_5yr_quadrat_wells.png
+  ✓ Saved: 26_msl_5yr_map.png
+
+   → 26_msl_results.txt
+
+Done.
+  ✓ done  (6.0s)
+
+  ▶ STEP 31/36  UKCP18 MSL5 climate projections (Tool B)
+      script: 26b_van_willegen_msl_projections.py
+  ──────────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 26b — van Willegen MSL Scenarios  [v1.1.0]
+════════════════════════════════════════════════════════════════════════
+========================================================================
+Script 26b — UKCP18 MSL5 climate projections (Tool B)
+========================================================================
+
+  Method: monthly Δh perturbation overlay on observed climatology
+  Convention: van Willegen 2025 5-year MSL (window-ends from Script 26)
+  Scenarios: UKCP18 RCP8.5 Wales 50th %ile — 2050s and 2080s
+
+  03_03_cluster_mechanistic_coefficients.csv       : 5 clusters
+  01_climate.csv                                   : 1143 monthly rows
+  26_msl_5yr_per_cluster_centroid.csv              : 80 (cluster, end_year) rows
+
+  Monthly P climatology mean (2005-2026): 74.4 mm/month
+  Monthly PET climatology mean: 54.6 mm/month
+
+  Cluster 1 (C1 (Lake Edge)):
+    β₁ = 4.5784   β₂ = 0.9630   β₃ = 0.0896
+    2050s: spring Δh mean = -0.0115 m/month;  projected ΔMSL5 = -0.012 m
+    2080s: spring Δh mean = -0.0215 m/month;  projected ΔMSL5 = -0.021 m
+
+  Cluster 2 (C2 (Dune)):
+    β₁ = 3.9777   β₂ = 1.7657   β₃ = 0.0656
+    2050s: spring Δh mean = -0.0169 m/month;  projected ΔMSL5 = -0.017 m
+    2080s: spring Δh mean = -0.0310 m/month;  projected ΔMSL5 = -0.031 m
+
+  Cluster 3 (C3 (Western Residual)):
+    β₁ = 3.5719   β₂ = 1.8495   β₃ = 0.0582
+    2050s: spring Δh mean = -0.0172 m/month;  projected ΔMSL5 = -0.017 m
+    2080s: spring Δh mean = -0.0313 m/month;  projected ΔMSL5 = -0.031 m
+
+  Cluster 4 (C4 (Main Forest)):
+    β₁ = 2.5184   β₂ = 2.5480   β₃ = 0.0205
+    2050s: spring Δh mean = -0.0214 m/month;  projected ΔMSL5 = -0.021 m
+    2080s: spring Δh mean = -0.0385 m/month;  projected ΔMSL5 = -0.039 m
+
+  Cluster 5 (C5 (Coastal Forest)):
+    β₁ = 2.4120   β₂ = 1.3237   β₃ = 0.0452
+    2050s: spring Δh mean = -0.0121 m/month;  projected ΔMSL5 = -0.012 m
+    2080s: spring Δh mean = -0.0221 m/month;  projected ΔMSL5 = -0.022 m
+
+  ✓ Saved: 26b_msl5_ukcp18_projection_summary.csv
+  ✓ Saved: 26b_monthly_delta_h_per_cluster.csv
+
+  Per-well aggregation pathway (v1.1.0):
+  Per-well ΔMSL5 aggregation: 66 wells across 5 clusters
+    2050s  C1: n= 7  β₁̄=5.0084  β₂̄=0.6249  ΔMSL5 = -0.0094 m
+    2050s  C2: n=24  β₁̄=4.2751  β₂̄=1.6605  ΔMSL5 = -0.0164 m
+    2050s  C3: n=21  β₁̄=3.4981  β₂̄=1.7674  ΔMSL5 = -0.0165 m
+    2050s  C4: n= 9  β₁̄=2.4818  β₂̄=2.6432  ΔMSL5 = -0.0220 m
+    2050s  C5: n= 5  β₁̄=2.3139  β₂̄=1.2079  ΔMSL5 = -0.0112 m
+    2080s  C1: n= 7  β₁̄=5.0084  β₂̄=0.6249  ΔMSL5 = -0.0178 m
+    2080s  C2: n=24  β₁̄=4.2751  β₂̄=1.6605  ΔMSL5 = -0.0301 m
+    2080s  C3: n=21  β₁̄=3.4981  β₂̄=1.7674  ΔMSL5 = -0.0301 m
+    2080s  C4: n= 9  β₁̄=2.4818  β₂̄=2.6432  ΔMSL5 = -0.0397 m
+    2080s  C5: n= 5  β₁̄=2.3139  β₂̄=1.2079  ΔMSL5 = -0.0204 m
+  ✓ Saved: 26b_msl5_ukcp18_projection_summary_perwell.csv
+  ✓ Saved: 26b_msl5_ukcp18_projection.png
+  ✓ Saved: 26b_msl5_ukcp18_results.txt
+
+
+────────────────────────────────────────────────────────────────────────
+Done
+
+  ✓ done  (1.4s)
+
+  ▶ STEP 32/36  MSL5 report-format figures (Figures for §4.8.4 / §4.10.1)
+      script: 26c_msl5_report_figures.py
+  ──────────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════════════════
+SCRIPT 26c — MSL-5 Report Figures  [v1.0.0]
+════════════════════════════════════════════════════════════════════════
+Script 26c — MSL5 report-format figures
+============================================================
+  per-cluster trajectory rows : 80
+  projection summary rows     : 10
+  scenario summary rows       : 144
+  wrote fig_msl5_trajectory_report.png
+  wrote fig_msl5_vs_summer_min_projection.png
+  wrote 26c_results.txt
+=== Script 26c complete ===
+  ✓ done  (1.3s)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PHASE 14 — Cluster Framework Diagnostics (Scripts 28–30)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ▶ STEP 33/36  Cluster framework diagnostic: C3 detrend check (H0)
+      script: 28_c3_detrend_check.py
+  ──────────────────────────────────────────────────────────────────
+────────────────────────────────────────────────────────────────────────
+c3_detrend_check — diagnostic for HANDOVER_c3_detrend_check.md
+────────────────────────────────────────────────────────────────────────
+Live fit (forest-free linear-capped): δ₀ = -29.03 mm/yr, L = 894 m
+Live fit (full linear-capped):        δ₀ = -29.39 mm/yr, L = 971 m
+Cluster assignments loaded: n = 66 wells
+Hydrographs loaded: 78 wells × 250 months
+Centroids loaded: ['C1', 'C2', 'C3', 'C4', 'C5'] × 250 months
+
+Wrote outputs/28_c3_detrend/28_c3_detrend.csv: 59 rows
+
+─── HEADLINE C3 result ──────────────────────────────────────────
+C3 wells with hydrograph + dist data: 19 of 21
+After forest-free de-trending:
+  ✓ Saved: C2  :   1 (5%)
+  ✓ Saved: C3  :  18 (95%)
+
+─── Sanity checks (proportion staying in original cluster) ──────
+  C2: stays in C2 = 24/24 (100%)  [excluded: 0]
+  C4: stays in C4 = 2/2 (100%)  [excluded: 7]
+  C5: stays in C5 = 0/1 (0%)  [excluded: 4]
+
+─── Excluded wells (no dist_coast_m) ──
+  nw10        C4 (Main Forest)
+  ceh2        C4 (Main Forest)
+  ceh16       C5 (Coastal Forest)
+  ceh17       C5 (Coastal Forest)
+  ceh19       C5 (Coastal Forest)
+  ceh20       C4 (Main Forest)
+  ceh30       C4 (Main Forest)
+  ceh31       C5 (Coastal Forest)
+  ceh32       C4 (Main Forest)
+  ceh33       C4 (Main Forest)
+  ceh34       C4 (Main Forest)
+  ceh36       C3 (Western Residual)
+  wmc3        C3 (Western Residual)
+
+─── C3 sensitivity ─────────────────────────────────────────────
+  forest-free, monthly-uniform (HEADLINE)       → C2:  1  C3: 18  other: 0
+  forest-free, summer-only Jun–Sep              → C2:  1  C3: 16  other: 2
+  full δ₀ (includes forest)                     → C2:  1  C3: 18  other: 0
+  L = 500 m                                     → C2:  1  C3: 17  other: 1
+  L = 1500 m                                    → C2:  1  C3: 18  other: 0
+
+Wrote outputs/28_c3_detrend/28_c3_detrend_results.md
+Wrote outputs/28_c3_detrend/28_c3_detrend_panel.png
+
+────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────
+Done
+
+────────────────────────────────────────────────────────────────────────
+  ✓ done  (5.2s)
+
+  ▶ STEP 34/36  Cluster framework diagnostic: within-C3 spatial structure
+      script: 29_c3_within_variance_check.py
+  ──────────────────────────────────────────────────────────────────
+────────────────────────────────────────────────────────────────────────
+c3_within_variance_check — what explains within-C3 variation
+────────────────────────────────────────────────────────────────────────
+C3 wells: 21
+Coastal exponential (forest-free): δ₀ = -40.17 mm/yr, L = 413 m
+Forest geometry: area = 7.22 km²
+
+Built panel: 21 C3 wells × 24 columns
+Saved outputs/29_within_c3_variance/29_within_c3_variance.csv
+Saved outputs/29_within_c3_variance/29_report_numbers.csv (9 report numbers)
+
+────────────────────────────────────────────────────────────────────────
+Per-metric regression against all 5 predictors
+────────────────────────────────────────────────────────────────────────
+Metric                         n      R²   adj R²  Strongest unique predictor
+------------------------------------------------------------------------
+slope_m_yr                    19   0.693    0.576  delta_coast_exp_m_yr (Δ=+0.062)
+beta_1_recharge               19   0.815    0.744  dist_ceh36_m (Δ=+0.163)
+beta_2_atmospheric_draw       19   0.662    0.532  dist_ceh36_m (Δ=+0.122)
+beta_3_drainage               19   0.735    0.633  dist_ceh36_m (Δ=+0.158)
+tau_drainage_months           19   0.706    0.593  dist_ceh36_m (Δ=+0.322)
+mean_head_maod                19   1.000    1.000  ground_elev_m (Δ=+0.014)
+summer_min_depth_m            19   0.991    0.987  depth_to_water_m (Δ=+0.722)
+winter_max_depth_m            19   0.970    0.958  depth_to_water_m (Δ=+0.708)
+seasonal_amplitude_m          19   0.719    0.611  dist_ceh36_m (Δ=+0.113)
+
+Univariate R² matrix saved.
+Drop-one (unique contribution) matrix saved.
+
+Wrote outputs/29_within_c3_variance/29_within_c3_variance_results.md
+Wrote outputs/29_within_c3_variance/29_within_c3_variance_panel.png
+
+────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────
+Done
+
+────────────────────────────────────────────────────────────────────────
+  ✓ done  (2.0s)
+
+  ▶ STEP 35/36  Cluster framework diagnostic: C4 constrained-β₃ triangulation sensitivity
+      script: 30_c4_constrained_fit.py
+  ──────────────────────────────────────────────────────────────────
+Script 30 — C4 constrained-β₃ triangulation sensitivity
+  C2 β₃=0.0730  C3 β₃=0.0577  C5 β₃(all)=0.0460 C5 β₃(inland)=0.0428
+  tree Δβ₃ raw=-0.0117  inland(coastal-corrected)=-0.0149
+  → C4 β₃ anchor = 0.0581
+  Saved → 30_c4_constrained_perwell.csv (9 C4 wells)
+  Saved → 30_c4_constrained_report_numbers.csv (11 report numbers)
+  Saved → 30_c4_constrained_fit.png
+
+  C4 unconstrained: β₂=2.64, β₃=0.016 (degenerate)
+  C4 @ anchor β₃=0.058: β₂=1.86  (open dune C2=1.66, C3=1.77)
+Done.
+  ✓ done  (2.6s)
+
+══════════════════════════════════════════════════════════════════════
+  PIPELINE COMPLETE  ·  steps 1–35 written to outputs/
+══════════════════════════════════════════════════════════════════════
+  ℹ greyscale step 36 runs separately (menu option 6 / --greyscale)
+  ℹ total run time: 8.6 min
+
+  ℹ Console output saved to: /home/john/projects/NRG/outputs/logs/run_20260623_225859.log

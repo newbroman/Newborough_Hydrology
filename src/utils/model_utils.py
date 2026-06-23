@@ -192,7 +192,7 @@ def build_ssm_frame(h_series, climate, lag=None, window=None,
 def fit_ssm(h_series=None, climate=None, lag=None, window=None,
             drainage_datum=DRAINAGE_DATUM, min_obs=MIN_OBS,
             intercept=False, extra_regressors=None, pre_built_frame=None,
-            provenance=None, exclude_interpolated=False):
+            provenance=None, exclude_interpolated=False, fixed_beta_3=None):
     """
     Fit the SSM to a single water-level series via OLS.
 
@@ -249,6 +249,17 @@ def fit_ssm(h_series=None, climate=None, lag=None, window=None,
         False: the canonical published β₁/β₂/β₃ coefficient table is
         produced with interpolated rows retained (Defect E Q1 — Martin's
         call 2026-05-19). Ignored if ``pre_built_frame`` is given.
+    fixed_beta_3 : float or None
+        If provided, β₃ is NOT estimated — it is held at this value and
+        only β₁/β₂ are fitted. The drainage term β₃·(−h_disp_prev) is
+        moved to the left-hand side as a known offset, so the regression
+        solves Δh + fixed_beta_3·h_disp_prev = β₁·P + β₂·(−PET). The
+        returned ``beta_3_drainage`` is the supplied value; its p-value
+        and standard error are NaN (it was not estimated). This supports
+        substrate-triangulation-anchored constrained fits (e.g. the C4
+        Forest sensitivity, where the unconstrained β₃ is degenerate).
+        Default None (β₃ estimated as normal). Combinable with
+        ``intercept`` and ``extra_regressors``.
 
     Returns
     -------
@@ -305,6 +316,11 @@ def fit_ssm(h_series=None, climate=None, lag=None, window=None,
         "beta_3_drainage":         -df["h_disp_prev"].values,
     }, index=df.index)
 
+    # Constrained-β₃ mode: hold β₃ fixed, drop its column, move the drainage
+    # term to the LHS as a known offset (only β₁/β₂ are then estimated).
+    if fixed_beta_3 is not None:
+        X = X.drop(columns=["beta_3_drainage"])
+
     # Append extra regressors if provided
     if extra_regressors:
         for col_name, col_values in extra_regressors.items():
@@ -315,13 +331,16 @@ def fit_ssm(h_series=None, climate=None, lag=None, window=None,
         X = sm.add_constant(X, has_constant="add")
 
     y = df["Delta_h"].values
+    if fixed_beta_3 is not None:
+        # Δh − β₃·(−h_disp_prev) = Δh + β₃·h_disp_prev  → known LHS offset
+        y = y + float(fixed_beta_3) * df["h_disp_prev"].values
 
     # Drop any rows where extra regressors introduced NaNs (only needed if
     # extra_regressors or intercept-with-constant path may have introduced
     # NaNs — the canonical no-intercept, no-extras path uses build_ssm_frame
     # which has already dropna'd, so we skip the mask construction there to
     # preserve byte-identical floating-point order with v1.0.0).
-    if extra_regressors or intercept:
+    if extra_regressors or intercept or fixed_beta_3 is not None:
         mask = X.notna().all(axis=1) & pd.notna(y)
         if mask.sum() < min_obs:
             return None
@@ -333,16 +352,24 @@ def fit_ssm(h_series=None, climate=None, lag=None, window=None,
     except Exception:
         return None
 
+    # β₃ is either estimated or held at the supplied fixed value
+    if fixed_beta_3 is not None:
+        _b3, _pb3, _sb3 = float(fixed_beta_3), float("nan"), float("nan")
+    else:
+        _b3  = float(model.params["beta_3_drainage"])
+        _pb3 = float(model.pvalues["beta_3_drainage"])
+        _sb3 = float(model.bse["beta_3_drainage"])
+
     result = {
         "beta_1_recharge":         float(model.params["beta_1_recharge"]),
         "beta_2_atmospheric_draw": float(model.params["beta_2_atmospheric_draw"]),
-        "beta_3_drainage":         float(model.params["beta_3_drainage"]),
+        "beta_3_drainage":         _b3,
         "pvalue_beta_1":           float(model.pvalues["beta_1_recharge"]),
         "pvalue_beta_2":           float(model.pvalues["beta_2_atmospheric_draw"]),
-        "pvalue_beta_3":           float(model.pvalues["beta_3_drainage"]),
+        "pvalue_beta_3":           _pb3,
         "se_beta_1":               float(model.bse["beta_1_recharge"]),
         "se_beta_2":               float(model.bse["beta_2_atmospheric_draw"]),
-        "se_beta_3":               float(model.bse["beta_3_drainage"]),
+        "se_beta_3":               _sb3,
         "R2":                      float(model.rsquared),
         "n":                       int(len(X)),
         "resid":                   pd.Series(model.resid, index=X.index, name="resid"),

@@ -186,6 +186,8 @@ OUT_00_SUMMER_WARMING       = DIR_00 / "00_03_summer_warming_trend.png"
 OUT_00_ANNUAL_CLIMATE_TABLE = DIR_00 / "00_01_annual_climate_summary.csv"
 OUT_00_WELL_NETWORK_TABLE   = DIR_00 / "00_02_well_network_summary.csv"
 OUT_00_SUMMER_WARMING_TABLE = DIR_00 / "00_03_summer_warming_stats.csv"
+OUT_00_CLIMATOLOGY          = DIR_00 / "00_04_climatology.csv"          # §4.1.1 12-month P/PET climatology (full-years well period)
+OUT_00_REPORT_NUMBERS       = DIR_00 / "00_report_numbers.csv"          # §4.1.1 cited climate stats
 
 # Script 02 — Clustering
 OUT_02_DENDROGRAM       = DIR_02 / "02_01_dendrogram.png"
@@ -194,6 +196,8 @@ OUT_02_VALIDATION       = DIR_02 / "02_02_validation_plots.png"
 # k-sweep, per-well stability). See 02_clustering.py run_stability_diagnostics().
 OUT_02_VALIDATION_EXTENDED = DIR_02 / "02_02b_validation_k_sweep.png"
 OUT_02_STABILITY_SUMMARY   = DIR_02 / "02_04_bootstrap_stability_summary.csv"
+OUT_02_K_SWEEP             = DIR_02 / "02_06_k_sweep_validation.csv"   # §4.2 Fig 6 per-k silhouette/CH/merge
+OUT_02_REPORT_NUMBERS      = DIR_02 / "02_report_numbers.csv"          # §4.2 cited cluster-validation stats
 OUT_02_STABILITY_PER_WELL  = DIR_02 / "02_05_bootstrap_stability_per_well.csv"
 # The following two are templates — .format(k=...) is applied at the call site
 # because one file is written per bootstrap k value.

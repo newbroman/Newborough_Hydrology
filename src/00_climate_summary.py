@@ -55,7 +55,10 @@ from utils.paths import (
     OUT_00_ANNUAL_CLIMATE_TABLE,
     OUT_00_WELL_NETWORK_TABLE,
     OUT_00_SUMMER_WARMING_TABLE,
+    OUT_00_CLIMATOLOGY,
+    OUT_00_REPORT_NUMBERS,
 )
+from utils.report_numbers_utils import ReportNumbers
 from utils.config import REFERENCE_CUTOFF_DATE
 
 import pandas as pd
@@ -66,7 +69,14 @@ import re
 import os
 from scipy.stats import linregress
 
-__version__ = "1.0.2"  # Hollingham (2026) — last revised 2026-05-25
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-06-22
+# 1.1.0 (2026-06-22): §4.1.1 traceability — make_figure1_climate_timeseries()
+#   now returns its short-profile centring constant and cumulative-balance vs
+#   network-WL regression (R², slope, n); new compute_climatology() emits the
+#   12-month P/PET climatology (complete-years well-period basis) with the
+#   winter/summer rainfall split and peak/trough months. _run_all() writes
+#   00_04_climatology.csv and 00_report_numbers.csv. No change to figures.
+# 1.0.2 (2026-05-25): long-term-mean partial-year contamination fix.
 # 1.0.2 — Long-term-mean row partial-year contamination fixed.  The
 #         "Long-term mean" row of make_table1_annual_climate() averaged
 #         over every annual row, including partial years (Months_complete
@@ -279,6 +289,8 @@ def make_figure1_climate_timeseries(climate: pd.DataFrame, wells: pd.DataFrame, 
     p_roll_12 = df["P_mm"].rolling(12, min_periods=6).mean()
     pet_roll_12 = df["PET_mm"].rolling(12, min_periods=6).mean()
 
+    fig1_stats: dict = {}   # short-profile centring + cumbal-vs-WL regression (for report_numbers)
+
     if profile == "short":
         net_balance = df["P_mm"] - df["PET_mm"]
 
@@ -364,6 +376,13 @@ def make_figure1_climate_timeseries(climate: pd.DataFrame, wells: pd.DataFrame, 
             r2_lag0 = 1.0 - (ss_res / ss_tot) if ss_tot > 0 else np.nan
         else:
             r2_lag0 = np.nan
+
+        fig1_stats = {
+            "centring_mm":     float(detrend_mean),
+            "cumbal_wl_r2":    float(r2_lag0) if pd.notna(r2_lag0) else np.nan,
+            "cumbal_wl_slope": float(slope) if len(fit_df) >= 2 else np.nan,
+            "cumbal_wl_n":     int(len(fit_df)),
+        }
 
         ax4.plot(mean_ts.index, mean_ts, color=CB_GREEN, linewidth=2.3, label="Network mean well level")
         ax4.fill_between(mean_ts.index, mean_ts - std_ts, mean_ts + std_ts, color=CB_GREEN, alpha=0.22, label="Inter-well SD")
@@ -460,6 +479,43 @@ def make_figure1_climate_timeseries(climate: pd.DataFrame, wells: pd.DataFrame, 
     fig.tight_layout()
     fig.savefig(out_png, dpi=300, bbox_inches="tight")
     plt.close(fig)
+    return fig1_stats
+
+
+def compute_climatology(climate: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+    """12-month rainfall/PET climatology over COMPLETE calendar years only
+    (partial start/end years excluded), plus the winter (Oct-Mar) / summer
+    (Apr-Sep) rainfall split and the peak/trough months. Used to make the
+    Fig 3 §4.1.1 climate statistics traceable.
+
+    On the monitoring-period (short) climate this is the full-years
+    well-period basis (e.g. 2006-2025; partial 2005 and 2026 excluded).
+    """
+    c = climate[["P_m", "PET"]].copy()
+    c["P_mm"] = c["P_m"] * 1000.0
+    c["PET_mm"] = c["PET"] * 1000.0
+    counts = c.groupby(c.index.year).size()
+    complete = counts[counts == 12].index
+    cf = c[c.index.year.isin(complete)]
+    clim = (cf.groupby(cf.index.month)[["P_mm", "PET_mm"]].mean()
+              .reindex(range(1, 13)))
+    clim.index.name = "month"
+    winter = float(clim.loc[[10, 11, 12, 1, 2, 3], "P_mm"].sum())
+    summer = float(clim.loc[[4, 5, 6, 7, 8, 9], "P_mm"].sum())
+    stats = {
+        "n_complete_years":   int(len(complete)),
+        "year_first":         int(min(complete)) if len(complete) else None,
+        "year_last":          int(max(complete)) if len(complete) else None,
+        "winter_rainfall_mm": winter,
+        "summer_rainfall_mm": summer,
+        "rain_peak_month":    int(clim["P_mm"].idxmax()),
+        "rain_peak_mm":       float(clim["P_mm"].max()),
+        "rain_trough_month":  int(clim["P_mm"].idxmin()),
+        "rain_trough_mm":     float(clim["P_mm"].min()),
+        "pet_peak_month":     int(clim["PET_mm"].idxmax()),
+        "pet_peak_mm":        float(clim["PET_mm"].max()),
+    }
+    return clim.reset_index(), stats
 
 
 def make_figure2_well_network(wells: pd.DataFrame, table2: pd.DataFrame, out_png: str) -> None:
@@ -681,8 +737,37 @@ def _run_all() -> None:
     )
     table1_short = make_table1_annual_climate(climate_short, paths_short["table1"])
     table2_short = make_table2_well_network(wells_short, paths_short["table2"])
-    make_figure1_climate_timeseries(climate_short, wells_short, paths_short["fig1"], "short")
+    fig1_stats = make_figure1_climate_timeseries(climate_short, wells_short, paths_short["fig1"], "short")
     make_figure2_well_network(wells_short, table2_short, paths_short["fig2"])
+
+    # --- §4.1.1 traceable climate report numbers (Fig 3) --------------------
+    clim_df, clim_stats = compute_climatology(climate_short)
+    clim_df.to_csv(OUT_00_CLIMATOLOGY, index=False)
+    print(f"  Saved climatology → {os.path.basename(OUT_00_CLIMATOLOGY)} "
+          f"({clim_stats['n_complete_years']} complete years "
+          f"{clim_stats['year_first']}-{clim_stats['year_last']})")
+
+    rr = ReportNumbers()
+    rr.add("winter_rainfall", clim_stats["winter_rainfall_mm"], unit="mm",
+           era="Oct-Mar", note=f"sum of monthly climatology, full-years well period "
+                               f"{clim_stats['year_first']}-{clim_stats['year_last']}")
+    rr.add("summer_rainfall", clim_stats["summer_rainfall_mm"], unit="mm",
+           era="Apr-Sep", note="sum of monthly climatology, full-years well period")
+    rr.add("rain_peak_mm", clim_stats["rain_peak_mm"], unit="mm",
+           era=f"month {clim_stats['rain_peak_month']}", note="rainfall climatology peak")
+    rr.add("rain_trough_mm", clim_stats["rain_trough_mm"], unit="mm",
+           era=f"month {clim_stats['rain_trough_month']}", note="rainfall climatology trough")
+    rr.add("pet_peak_mm", clim_stats["pet_peak_mm"], unit="mm",
+           era=f"month {clim_stats['pet_peak_month']}", note="PET climatology peak")
+    if fig1_stats:
+        rr.add("centring_constant", fig1_stats["centring_mm"], unit="mm/month",
+               note="cumulative-balance centring = mean monthly net (P-PET), Dec2004-Dec2025")
+        rr.add("cumbal_wl_r2", fig1_stats["cumbal_wl_r2"], unit="",
+               note=f"R^2, network-mean WL vs cumulative balance, lag 0, n={fig1_stats['cumbal_wl_n']}")
+        rr.add("cumbal_wl_slope", fig1_stats["cumbal_wl_slope"], unit="m/mm",
+               note="regression slope (well level per mm cumulative balance)")
+    n_saved = rr.save(OUT_00_REPORT_NUMBERS)
+    print(f"  Saved → {os.path.basename(OUT_00_REPORT_NUMBERS)} ({n_saved} report numbers)")
 
     # --- Summary -----------------------------------------------------------
     n_wells = int(wells_short.shape[1])

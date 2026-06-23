@@ -14,7 +14,11 @@ Outputs (final — outputs/02_clustering/):
     02_02_validation_plots.png
 """
 
-__version__ = "1.0.5"  # Hollingham (2026) — banner reads __version__ (was hardcoded, printed stale 1.0.1)
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-06-22
+# 1.1.0 (2026-06-22): §4.2 traceability — run_stability_diagnostics() now
+#   writes 02_06_k_sweep_validation.csv (per-k silhouette / Calinski-Harabasz /
+#   Ward merge distance, k=2..10) and 02_report_numbers.csv (k=5 metrics +
+#   per-k silhouette series, Fig 6). No change to the partition or bootstrap.
 # Changelog:
 #   1.0.1 (2026-05-14) — Two documentation fixes:
 #     (a) Stale "69 wells" / "69x69 distance matrix" in the N_BOOTSTRAP
@@ -62,7 +66,9 @@ from utils.paths import (
     OUT_02_STABILITY_PER_WELL, OUT_02_COASSIGN_HEATMAP,
     OUT_02_MEMBERSHIP_SWEEP,
     OUT_02_AMP_PER_WELL, OUT_02_AMP_SUMMARY, OUT_02_AMP_BOXPLOT,
+    OUT_02_K_SWEEP, OUT_02_REPORT_NUMBERS,
 )
+from utils.report_numbers_utils import ReportNumbers
 
 NUM_CLUSTERS = 5
 # Ward's k equals the final cluster count: no manual overrides. See the
@@ -499,6 +505,27 @@ def run_stability_diagnostics(wells_ref: pd.DataFrame) -> None:
     best_ch_k  = int(sweep["calinski_harabasz"].idxmax())
     print(f"    Silhouette favours k = {best_sil_k}")
     print(f"    Calinski-Harabasz favours k = {best_ch_k}")
+
+    # --- §4.2 traceable Fig 6 validation metrics ---------------------------
+    sweep_out = sweep.reset_index().rename(columns={"index": "k"})
+    if "k" not in sweep_out.columns:
+        sweep_out.insert(0, "k", sweep.index)
+    sweep_out.to_csv(OUT_02_K_SWEEP, index=False)
+    step(f"Saved k-sweep validation: {OUT_02_K_SWEEP.name}")
+    rr = ReportNumbers()
+    rr.add("silhouette_k5", float(sweep.loc[NUM_CLUSTERS, "silhouette"]), unit="",
+           era=f"k={NUM_CLUSTERS}", note="silhouette at chosen k on the 66-well reference network")
+    rr.add("calinski_harabasz_k5", float(sweep.loc[NUM_CLUSTERS, "calinski_harabasz"]), unit="",
+           era=f"k={NUM_CLUSTERS}", note="Calinski-Harabasz at chosen k")
+    rr.add("merge_distance_k5", float(sweep.loc[NUM_CLUSTERS, "merge_distance"]), unit="",
+           era=f"k={NUM_CLUSTERS}", note="Ward merge distance at chosen k")
+    rr.add("silhouette_peak_k", best_sil_k, unit="",
+           note=f"k maximising silhouette (={float(sweep['silhouette'].max()):.3f})")
+    for _k in sweep.index:
+        rr.add(f"silhouette_k{_k}", float(sweep.loc[_k, "silhouette"]), unit="",
+               era=f"k={_k}", note="per-k silhouette (Fig 6 series)")
+    n_saved = rr.save(OUT_02_REPORT_NUMBERS)
+    step(f"Saved report numbers: {OUT_02_REPORT_NUMBERS.name} ({n_saved} rows)")
 
     # Extended validation plot: silhouette, CH, merge distance
     fig, axes = plt.subplots(1, 3, figsize=(16, 4.5), dpi=200)

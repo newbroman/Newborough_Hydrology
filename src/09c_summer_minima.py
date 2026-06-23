@@ -34,7 +34,13 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.2.4"  # Hollingham (2026) — 2026-06-21
+__version__ = "1.2.5"  # Hollingham (2026) — 2026-06-23
+# 1.2.5 — Reproducibility: deterministic well ordering. `all_wells` and the
+#         paired-control loop now use sorted(set(...)) instead of list(set(...)),
+#         so the three output CSVs are byte-stable across runs. Python string-hash
+#         randomisation previously reordered rows run-to-run with NO value change
+#         (rows are identical when sorted). First run after this re-orders rows to
+#         alphabetical well order, byte-stable thereafter. No numerical change.
 # 1.2.4 — Paired figure (09c_04, CEH36 vs CEH4): added clearfell (Dec 2017) and
 #         Oct-2023 re-scrape markers on both panels alongside the existing
 #         scraping line; panel (a) legend lists all three. Figure only.
@@ -108,7 +114,7 @@ def main():
 
     phase(1, "Loading data")
     wells, wells_provenance, climate = load_scraping_data()
-    all_wells = list(set(TIER1_WELLS + TIER2_WELLS))
+    all_wells = sorted(set(TIER1_WELLS + TIER2_WELLS))
     # Year range — annual analyses use 2011+ rather than 2006+.
     # Rationale: 2011 is the first year every scraping-suite well
     # (impacts + paired controls + 5 regional climate controls) has
@@ -156,7 +162,7 @@ def main():
         wells, CLIMATE_CONTROLS, first_year, last_year,
         wells_provenance=wells_provenance, min_measured=2)
     paired_mins = {}
-    for ctrl in set(PAIRED_CONTROLS_MAP.values()):
+    for ctrl in sorted(set(PAIRED_CONTROLS_MAP.values())):
         if ctrl in wells.columns:
             prov_ctrl = (wells_provenance[ctrl]
                          if ctrl in wells_provenance.columns else None)

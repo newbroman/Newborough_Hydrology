@@ -45,18 +45,18 @@ All documents are in [`docs/`](docs/) and linked from the
 
 | Option | Description |
 |--------|-------------|
-| **1 — Run full pipeline** | Runs all 35 steps in order from the beginning |
+| **1 — Run full pipeline** | Runs all 36 steps in order from the beginning |
 | **2 — Resume from step** | Skips completed steps; useful after a partial run |
 | **3 — Run a single step** | Runs one script in isolation for debugging or re-running |
 | **4 — Prepare scenario viewer** | Runs script 19 to build the self-contained HTML viewer |
 | **5 — Run supplementary diagnostics** | Runs scripts 22–24 (residual lag, ridge recharge, seasonality) |
 | **6 — Convert figures to greyscale** | Journal-ready B&W conversion (sub-options 6a quick / 6b full B&W re-run / 6h help) |
-| **7 — Show step list** | Lists all 35 steps with script names and availability status |
+| **7 — Show step list** | Lists all 36 steps with script names and availability status |
 
 For non-interactive use (e.g. in a batch job):
 
 ```bash
-python run_analysis.py --full          # run all 35 steps
+python run_analysis.py --full          # run all 36 steps
 python run_analysis.py --from 14       # resume from step 14
 python run_analysis.py --viewer        # build scenario viewer only
 python run_analysis.py --supplementary # run supplementary diagnostics (22–24) only
@@ -94,9 +94,9 @@ Newborough_Hydrology/
 │   │   └── forecaster.html              ← interactive groundwater forecaster (built by 11b)
 │   ├── 19_spatial_groundwater/
 │   │   └── scenario_viewer.html        ← self-contained interactive viewer (standalone)
-│   ├── outputs_bw/                      ← greyscale figure tree (built by Phase 14, Script 27)
+│   ├── outputs_bw/                      ← greyscale figure tree (built by Phase 15, Script 27)
 │   └── [other output directories]
-├── src/                         Analysis scripts (35 steps; script 19 also builds the viewer)
+├── src/                         Analysis scripts (36 steps; script 19 also builds the viewer)
 │   ├── utils/
 │   │   ├── config.py            Cluster colours, labels, DRAINAGE_DATUM, HEADLINE_LAG, FOREST_INTERCEPTION
 │   │   ├── data_utils.py        Cleaning and normalisation helpers
@@ -137,9 +137,9 @@ Newborough_Hydrology/
 
 ## Pipeline Phases
 
-The pipeline comprises **35 steps across 15 phases: 33 analytical steps across 14
+The pipeline comprises **36 steps across 15 phases: 34 analytical steps across 14
 analytical phases, plus two display/utility steps excluded from the analytical
-count** — Script 26c (step 32, MSL5 report-format figures) and Script 27 (step 35,
+count** — Script 26c (step 32, MSL5 report-format figures) and Script 27 (step 36,
 the greyscale figure-conversion utility, Phase 15). Validation checkpoints run after
 Phases 1, 3, 9, and 10.
 
@@ -181,8 +181,8 @@ colours and labels are centralised in `src/utils/config.py`.
 | 11 | 25 (coastal-gradient) | 26 | Coastal-retreat gradient analysis |
 | 12 | 22–24 | 27–29 | Supplementary diagnostics: residual lag structure, ridge recharge hypothesis test, residual seasonality |
 | 13 | 26, 26b, 26c (van Willegen MSL) | 30–32 | Van Willegen et al. (2025) MSL analyses: 5-year observational aggregation (26), UKCP18 climate projections (26b), and report-format MSL5 figures for §4.8.4 / §4.10.1 (26c) |
-| 14 | 28, 29 (cluster framework diagnostics) | 33–34 | C3 detrend check (28) and within-C3 variance attribution (29) — post-review additions (2026-05-29) supporting §5.1.1 of the main report |
-| 15 | 27 (greyscale) | 35 | Greyscale figure conversion utility (journal-ready B&W) — post-processing |
+| 14 | 28, 29, 30 (cluster framework diagnostics) | 33–35 | C3 detrend check (28), within-C3 variance attribution (29), and C4 constrained-β₃ triangulation (30) — post-review additions supporting §5.1.1 / §4.2.2 of the main report |
+| 15 | 27 (greyscale) | 36 | Greyscale figure conversion utility (journal-ready B&W) — post-processing |
 
 Phases 1–11 produce the main analytical results documented in the report. Phase 12
 (Scripts 22–24) runs supplementary residual diagnostics. Phase 13 runs the van
@@ -194,8 +194,11 @@ Phase 14 runs the cluster framework diagnostics added in the post-review pass
 (2026-05-29): the C3 detrend check (Script 28, step 33) validating the
 aquifer-architecture framing of §5.1 against the project's own data, and the
 within-C3 variance attribution (Script 29, step 34) characterising the
-hydrogeological structure within C3 against five spatial predictors. Phase 15 runs
-the greyscale figure-conversion utility (Script 27, step 35) as a callable
+hydrogeological structure within C3 against five spatial predictors, and the C4
+constrained-β₃ triangulation sensitivity (Script 30, step 35) recovering a
+physically admissible forest drainage coefficient where the unconstrained monthly
+fit is degenerate. Phase 15 runs
+the greyscale figure-conversion utility (Script 27, step 36) as a callable
 post-processing step, retained in `run_analysis.py` but not treated as an analytical
 phase. Two further post-review diagnostics added in the same cascade slot into
 earlier phases as successors to their data source: `11c_pflood_achievability.py`

@@ -11,6 +11,7 @@ Usage
   python run_analysis.py --viewer     # non-interactive: build scenario viewer only
   python run_analysis.py --greyscale  # non-interactive: convert figures to B&W
   python run_analysis.py --explain     # print the in-app help page and exit
+  python run_analysis.py --deps        # print the down-pipeline dependency audit and exit
   python run_analysis.py --no-colour   # disable coloured output
 
 Pipeline structure
@@ -255,6 +256,80 @@ for _phase_label, _phase_entries in ALL_PHASES:
             continue
         _STEP_MAP[_step] = (_script, _label, _extra)
 
+# ── Down-pipeline dependency audit (optional helper) ─────────────────────────
+# A *down-pipeline* (backward) dependency is a script that READS an output
+# produced by a script running at a LATER execution step. On a fresh first
+# pass that output does not yet exist, so the reader either falls back (if
+# guarded) or fails. The static auditor lives in utils/pipeline_deps.py; the
+# hooks below surface it via --deps and via per-step notes in run_script().
+# Everything degrades silently if that helper module is not present, so the
+# orchestrator runs unchanged without it.
+
+_DEPS_FUNCS = None        # (build, print, notes) once imported, or False if absent
+_DEPS_CACHE = None        # cached list of dependency records (built once per run)
+
+
+def _load_deps_funcs():
+    """Lazily import utils.pipeline_deps; return its 3 functions, or None."""
+    global _DEPS_FUNCS
+    if _DEPS_FUNCS is None:
+        try:
+            if str(SRC_DIR) not in sys.path:
+                sys.path.insert(0, str(SRC_DIR))
+            from utils.pipeline_deps import (
+                build_dependencies, print_audit, notes_for_step)
+            _DEPS_FUNCS = (build_dependencies, print_audit, notes_for_step)
+        except Exception:
+            _DEPS_FUNCS = False
+    return _DEPS_FUNCS or None
+
+
+def _dependencies():
+    """Build (once) and cache the down-pipeline dependency list."""
+    global _DEPS_CACHE
+    if _DEPS_CACHE is None:
+        funcs = _load_deps_funcs()
+        if not funcs:
+            _DEPS_CACHE = []
+        else:
+            try:
+                # _STEP_MAP is {step: (script, label, extra)} — the auditor
+                # accepts it directly, so the report uses true execution-step
+                # order rather than script-file numbering.
+                _DEPS_CACHE = funcs[0](SRC_DIR, step_map=_STEP_MAP)
+            except Exception as exc:
+                say_warn(f"dependency audit unavailable: {exc}")
+                _DEPS_CACHE = []
+    return _DEPS_CACHE
+
+
+def show_dependency_audit() -> None:
+    """Print the full down-pipeline dependency report (used by --deps / menu 'd')."""
+    _banner("DOWN-PIPELINE DEPENDENCY AUDIT")
+    funcs = _load_deps_funcs()
+    if not funcs:
+        say_warn("utils/pipeline_deps.py not found — cannot run the audit.")
+        say_info("Place pipeline_deps.py in src/utils/ to enable this report.")
+        print()
+        return
+    print()
+    funcs[1](_dependencies())   # print_audit
+    print()
+
+
+def _emit_step_dep_notes(label: str) -> None:
+    """Emit any down-pipeline dependency warnings relevant to this step."""
+    funcs = _load_deps_funcs()
+    if not funcs:
+        return
+    try:
+        step = int(label.strip().split("/")[0])
+    except (ValueError, IndexError):
+        return
+    for msg in funcs[2](step, _dependencies()):   # notes_for_step
+        say_warn(msg)
+
+
 # ── Validation checkpoints ────────────────────────────────────────────────────
 
 REQUIRED_DATA = [
@@ -486,6 +561,7 @@ def run_script(script_name: str, label: str, extra_args: list = None) -> None:
     print("  " + paint(f"{GLYPH_RUN} STEP {step_txt}", _Ansi.BBLUE, _Ansi.BOLD))
     print("  " + paint(f"    script: {script_path.name}", _Ansi.GREY))
     print("  " + paint("─" * 66, _Ansi.GREY))
+    _emit_step_dep_notes(label)
     cmd = [sys.executable, str(script_path)] + (extra_args or [])
     t0 = time.time()
     try:
@@ -687,6 +763,7 @@ def render_menu() -> str:
         "",
         "  " + grp("INFO"),
         f"    {num('7')}   Show pipeline step list",
+        f"    {num('d')}   Dependency audit          " + hint("backward (down-pipeline) reads"),
         f"    {num('h')}   Help — explain the pipeline & options",
         f"    {num('q')}   Quit",
         "  " + rule,
@@ -902,6 +979,7 @@ def show_help() -> None:
         ("--greyscale", "quick pixel greyscale convert"),
         ("--greyscale-full", "full B&W pipeline re-run (best quality)"),
         ("--no-colour", "disable coloured output"),
+        ("--deps", "audit down-pipeline (backward) dependencies"),
         ("--explain", "print this help page and exit"),
     ]
     for flag, desc in cli:
@@ -1020,6 +1098,9 @@ def interactive_menu() -> None:
         elif choice == "7":
             show_step_list()
 
+        elif choice in ("d", "deps"):
+            show_dependency_audit()
+
         elif choice in ("h", "?", "help"):
             show_help()
 
@@ -1042,6 +1123,7 @@ def main() -> None:
             Use --full, --from, --viewer, --supplementary, or --greyscale for non-interactive execution.
             Add --log to a --full run to record all console output to a log file.
             --explain prints the in-app help page; --no-colour disables coloured output.
+            --deps prints the down-pipeline (backward) dependency audit and exits.
         """)
     )
     parser.add_argument("--full",   action="store_true",
@@ -1063,12 +1145,18 @@ def main() -> None:
                         action="store_true", help="Disable coloured console output")
     parser.add_argument("--explain", action="store_true",
                         help="Print the in-app help page and exit")
+    parser.add_argument("--deps", action="store_true",
+                        help="Print the down-pipeline dependency audit and exit")
     args = parser.parse_args()
 
     _init_colour(disable=args.no_colour)
 
     if args.explain:
         show_help()
+        return
+
+    if args.deps:
+        show_dependency_audit()
         return
 
     if args.log is not None and not args.full:

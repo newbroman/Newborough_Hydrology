@@ -10,3 +10,17 @@ c2_beta2_mean,,,1.6605,dimensionless,C2 Dune mean β₂ (open-dune reference)
 c3_beta2_mean,,,1.7674,dimensionless,C3 Western Residual mean β₂ (open-dune reference)
 c4_sy_mean,,,0.2459,dimensionless,C4 mean WTF Sy (≈ C2 Dune; thinner aquifer over shallowing bedrock)
 c2_sy_mean,,,0.2545,dimensionless,C2 Dune mean WTF Sy
+c4_beta3_centroid_uncon,,,0.0205,per month,C4 unconstrained centroid β₃ (Table 4a / Script 16; lowest in network)
+c4_beta2_centroid_uncon,,,2.548,dimensionless,C4 unconstrained centroid β₂ (Table 4a / Script 16; degeneracy-inflated)
+c4_beta2_centroid_anchor,,,1.8646,dimensionless,C4 centroid β₂ refitted at the triangulation anchor β₃
+c4_beta3_bestclosure,,,0.0255,per month,C4 β₃ minimising the water-balance closure residual
+c4_tr_uncon,,,48.8902,months,C4 head-recession e-folding time t_R = 1/β₃ at the unconstrained centroid
+c4_tr_bestclosure,,,39.2157,months,C4 t_R at the residual-minimising β₃
+c4_tr_anchor,,,17.2234,months,C4 t_R at the triangulation anchor
+c2_tr,,,13.7038,months,C2 Dune t_R = 1/β₃ (open-dune reference)
+c4_drainage_pct_uncon,,,24.4706,percent,"C4 drainage share of loss budget, unconstrained (Table 4a / Figure 9)"
+c4_drainage_pct_bestclosure,,,29.5278,percent,C4 drainage share at the residual-minimising β₃
+c4_drainage_pct_anchor,,,55.688,percent,C4 drainage share at the triangulation anchor (drainage-led)
+c4_wb_resid_uncon,,,0.0015,m per month,"C4 water-balance closure residual, unconstrained"
+c4_wb_resid_bestclosure,,,0.0001,m per month,C4 closure residual at the residual-minimising β₃ (near zero)
+c4_wb_resid_anchor,,,-0.0093,m per month,C4 closure residual at the triangulation anchor (largest in network)

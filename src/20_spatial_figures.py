@@ -63,7 +63,12 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds
 """
 
-__version__ = "1.20.0"  # Hollingham (2026) — 2026-06-22
+__version__ = "1.21.0"  # Hollingham (2026) — 2026-06-25
+# 1.21.0 — plot_msl5_change() (Fig 54) now honours the MSL5 well exclusion
+#   flag (msl5_excluded) written by Script 26 v1.2.0: CEH13/CEH14 dropped
+#   from the observed-change map so it is consistent with the latest-MSL5
+#   map and the cluster trajectory. n 61 -> 59; window means update.
+#   Backward-compatible (no-op if the column is absent).
 # 1.20.0 (2026-06-22): §4.9 traceability batch 2.
 #   * Fig 56 plot_residual_ssm(): emit 20_residual_perwell.csv +
 #     20_residual_report_numbers.csv (CEH14 max, wells > +0.02 m/month).
@@ -3001,6 +3006,15 @@ def plot_msl5_change(wt, features, dpi=300):
         return
 
     df   = pd.read_csv(OUT_26_5YR_PER_WELL)
+    # Honour the MSL5 well exclusion (Script 26 v1.2.0+: CEH13/CEH14 etc. are
+    # retained in the per-well CSV but flagged msl5_excluded). Drop them so the
+    # observed-change map matches the latest-MSL5 map and trajectory.
+    if "msl5_excluded" in df.columns:
+        _n0 = df["well"].nunique()
+        df = df[~df["msl5_excluded"].astype(bool)].copy()
+        _n1 = df["well"].nunique()
+        if _n1 < _n0:
+            print(f"  MSL5 change: excluded {_n0 - _n1} flagged well(s) (msl5_excluded)")
     locs = pd.read_csv(INT_LOCATIONS)
     locs["well"] = locs["Match_ID"].str.lower()
 

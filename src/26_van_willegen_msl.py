@@ -52,6 +52,20 @@ https://doi.org/10.1016/j.ecolind.2024.113016
 
 Curreli, A. et al. (2013) — SD15b/SD16 threshold reference lines.
 
+Version: 1.2.0 (2026-06-25) — MSL5 well exclusion (CEH13, CEH14):
+  * CEH13 (near-zero SSM beta_3, tau outlier) and CEH14 (negative beta_3,
+    SSM failure NSE -3.21) are excluded from the MSL5 analysis: their long
+    drainage memory makes spring readings autocorrelated within the 5-year
+    window, so their MSL5 change values and IDW-map contribution are
+    unreliable. Same ridge-flank wells already excluded from the tau map.
+  * Mechanism (whole-analysis, flagged): rows are RETAINED in
+    26_msl_5yr_per_well.csv with new columns msl5_excluded / msl5_excluded_reason;
+    all derived products (Method A cluster trajectory, latest-per-well, IDW
+    map, quadrat figure) use the included-only subset. Method B cluster-centroid
+    trajectory (Pass 3b, regional-average baseline) is a separate construct and
+    is unaffected, so Script 26b projections and the Script 19 viewer DeltaMSL5
+    row are unchanged. Exclusion set in config.MSL5_EXCLUDED_WELLS.
+
 Version: 1.0.2 (2026-05-20) — Intervention markers:
   * Cluster trajectory and quadrat plots now show three intervention dates
     (2015 scrape, 2017 clearfell, 2023 re-scrape) as paired vertical lines:
@@ -1030,11 +1044,28 @@ def main() -> int:
 
     # ── Cluster attach ─────────────────────────────────────────────────────
     per_well_with_cluster = attach_cluster_ids(per_well, ref_clusters, ext_clusters)
+
+    # ── MSL5 well exclusion (whole-analysis, flagged) ──────────────────────
+    # Ridge-flank forest wells whose drainage memory makes the 5-year MSL
+    # window unreliable (config.MSL5_EXCLUDED_WELLS). Rows are RETAINED in the
+    # per-well CSV with an msl5_excluded flag; every derived MSL5 product uses
+    # the included-only subset (per_well_incl). Method B centroid (Pass 3b) is a
+    # separate regional-average construct and is intentionally not filtered here.
+    _excl = {w.strip().lower() for w in config.MSL5_EXCLUDED_WELLS}
+    _wl = per_well_with_cluster["well"].astype(str).str.strip().str.lower()
+    per_well_with_cluster["msl5_excluded"] = _wl.isin(_excl)
+    per_well_with_cluster["msl5_excluded_reason"] = _wl.map(
+        lambda w: config.MSL5_EXCLUDED_WELLS.get(w, ""))
     per_well_with_cluster.to_csv(OUT_5YR, index=False)
     saved(f"{OUT_5YR.name}")
+    _present = sorted(set(_wl[per_well_with_cluster["msl5_excluded"]]))
+    if _present:
+        print("  MSL5 exclusion (flagged in per-well CSV; removed from cluster "
+              "trajectory / latest / map): " + ", ".join(w.upper() for w in _present))
+    per_well_incl = per_well_with_cluster[~per_well_with_cluster["msl5_excluded"]].copy()
 
     # ── Pass 3 — Cluster trajectory (Method A: per-well aggregation) ───────
-    per_cluster = cluster_trajectory(per_well_with_cluster)
+    per_cluster = cluster_trajectory(per_well_incl)
     per_cluster.to_csv(OUT_CLUSTER, index=False)
     print(f"\nPass 3 — cluster trajectories (Method A, per-well aggregation): "
           f"{len(per_cluster)} (cluster, year) rows")
@@ -1054,7 +1085,7 @@ def main() -> int:
     saved(f"{OUT_CLUSTER_CENTROID.name}")
 
     # ── Pass 4 — Latest per well ───────────────────────────────────────────
-    latest = (per_well_with_cluster.sort_values("window_end_year")
+    latest = (per_well_incl.sort_values("window_end_year")
                                     .groupby("well", as_index=False).tail(1))
     latest.to_csv(OUT_LATEST, index=False)
     print(f"\nPass 4 — latest MSL5 per well: {len(latest)} wells")
@@ -1064,7 +1095,7 @@ def main() -> int:
     print("\nRendering figures...")
     plot_cluster_trajectory(per_cluster, OUT_TRAJ)
     saved(f"{OUT_TRAJ.name}")
-    plot_quadrat_wells(per_well_with_cluster, OUT_QUADRAT)
+    plot_quadrat_wells(per_well_incl, OUT_QUADRAT)
     saved(f"{OUT_QUADRAT.name}")
     plot_msl5_map(latest, locations, elev, OUT_MAP)
     saved(f"{OUT_MAP.name}")

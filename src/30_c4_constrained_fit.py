@@ -45,7 +45,14 @@ This is a sensitivity/diagnostic. 03_master_data.csv is unchanged; nothing
 downstream (Table 2, τ, scenarios) reads this script's outputs.
 """
 from __future__ import annotations
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-06-23. New Phase-11 diagnostic.
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-06-25. Added the C4 water-balance
+#         partition sensitivity: partitions the loss budget at the unconstrained
+#         centroid, the residual-minimising β₃, and the triangulation anchor, reading
+#         the cluster means from Script 16 (OUT_16_TABLE) so the unconstrained case is
+#         identical to Table 4a / Figure 9. Registers t_R, drainage-share and closure-
+#         residual report numbers (the figures cited in report §5.2.3), plus the
+#         centroid unconstrained β₂/β₃ to sit alongside the per-well means.
+# 1.0.0  # Hollingham (2026) — 2026-06-23. New Phase-11 diagnostic.
 
 import sys
 import warnings
@@ -64,7 +71,7 @@ from utils.data_utils import normalize_well_name
 from utils.config import HEADLINE_LAG, CLUSTER_COLOURS
 from utils.paths import (
     INT_WELLS_CLEAN, INT_CLIMATE, INT_LOCATIONS, INT_MASTER_DATA,
-    OUT_26_5YR_PER_WELL, INT_WTF_WELL_SY,
+    OUT_26_5YR_PER_WELL, INT_WTF_WELL_SY, INT_REGIONAL_AVG, OUT_16_TABLE,
     OUT_30_C4_PERWELL, OUT_30_C4_REPORT_NUMBERS, OUT_30_C4_FIG, DIR_30,
 )
 from utils.report_numbers_utils import ReportNumbers
@@ -181,6 +188,70 @@ def main():
     rpt.add("c3_beta2_mean", cmean(3, B2), unit="dimensionless", note="C3 Western Residual mean β₂ (open-dune reference)")
     rpt.add("c4_sy_mean", cmean(4, sycol), unit="dimensionless", note="C4 mean WTF Sy (≈ C2 Dune; thinner aquifer over shallowing bedrock)")
     rpt.add("c2_sy_mean", cmean(2, sycol), unit="dimensionless", note="C2 Dune mean WTF Sy")
+
+    # ── Water-balance partition sensitivity (reads Script 16 means) ──────────
+    # Makes every §5.2.3 water-balance figure reproducible. The C4 loss budget
+    # is partitioned at three β₃ values — the unconstrained centroid, the
+    # residual-minimising β₃, and the triangulation anchor — using the SAME
+    # cluster means as Script 16, so the unconstrained case is identical to
+    # Table 4a / Figure 9 and the constrained cases are computed on its
+    # convention (drainage = β₃·h_disp, ET = β₂·PET, residual = β₁·P − losses).
+    wb    = pd.read_csv(OUT_16_TABLE)
+    c4row = wb[wb["Cluster"].astype(str).str.strip().isin(["4", "C4"])].iloc[0]
+    P_m, PET_m, HD_m = (float(c4row["P_mean_m_month"]),
+                        float(c4row["PET_mean_m_month"]),
+                        float(c4row["h_disp_mean_m"]))
+    b3_uncon    = float(c4row["beta_3_drainage"])
+    b2_uncon    = float(c4row["beta_2_atmospheric_draw"])
+    drain_uncon = float(c4row["Drainage_pct"])
+    resid_uncon = float(c4row["Residual_m_month"])
+    c4_centroid = pd.read_csv(INT_REGIONAL_AVG, index_col=0, parse_dates=True)["C4"]
+
+    def _partition_at(b3):
+        """Refit the C4 centroid at fixed β₃; partition on Script 16's means."""
+        f  = fit_ssm(c4_centroid, climate, lag=HEADLINE_LAG, window=None,
+                     fixed_beta_3=b3)
+        D  = b3 * HD_m
+        ET = f["beta_2_atmospheric_draw"] * PET_m
+        R  = f["beta_1_recharge"] * P_m
+        loss = D + ET
+        return {"b2": f["beta_2_atmospheric_draw"], "drain_pct": 100.0 * D / loss,
+                "resid": R - loss, "t_R": 1.0 / b3}
+
+    anchor_wb = _partition_at(anchor)
+    grid  = np.round(np.arange(0.018, 0.0601, 0.0005), 4)
+    b3_bc = float(min(grid, key=lambda b: abs(_partition_at(b)["resid"])))
+    bc_wb = _partition_at(b3_bc)
+
+    rpt.add("c4_beta3_centroid_uncon", b3_uncon, unit="per month",
+            note="C4 unconstrained centroid β₃ (Table 4a / Script 16; lowest in network)")
+    rpt.add("c4_beta2_centroid_uncon", b2_uncon, unit="dimensionless",
+            note="C4 unconstrained centroid β₂ (Table 4a / Script 16; degeneracy-inflated)")
+    rpt.add("c4_beta2_centroid_anchor", anchor_wb["b2"], unit="dimensionless",
+            note="C4 centroid β₂ refitted at the triangulation anchor β₃")
+    rpt.add("c4_beta3_bestclosure", b3_bc, unit="per month",
+            note="C4 β₃ minimising the water-balance closure residual")
+    rpt.add("c4_tr_uncon", 1.0 / b3_uncon, unit="months",
+            note="C4 head-recession e-folding time t_R = 1/β₃ at the unconstrained centroid")
+    rpt.add("c4_tr_bestclosure", bc_wb["t_R"], unit="months",
+            note="C4 t_R at the residual-minimising β₃")
+    rpt.add("c4_tr_anchor", anchor_wb["t_R"], unit="months",
+            note="C4 t_R at the triangulation anchor")
+    rpt.add("c2_tr", 1.0 / c2_b3, unit="months",
+            note="C2 Dune t_R = 1/β₃ (open-dune reference)")
+    rpt.add("c4_drainage_pct_uncon", drain_uncon, unit="percent",
+            note="C4 drainage share of loss budget, unconstrained (Table 4a / Figure 9)")
+    rpt.add("c4_drainage_pct_bestclosure", bc_wb["drain_pct"], unit="percent",
+            note="C4 drainage share at the residual-minimising β₃")
+    rpt.add("c4_drainage_pct_anchor", anchor_wb["drain_pct"], unit="percent",
+            note="C4 drainage share at the triangulation anchor (drainage-led)")
+    rpt.add("c4_wb_resid_uncon", resid_uncon, unit="m per month",
+            note="C4 water-balance closure residual, unconstrained")
+    rpt.add("c4_wb_resid_bestclosure", bc_wb["resid"], unit="m per month",
+            note="C4 closure residual at the residual-minimising β₃ (near zero)")
+    rpt.add("c4_wb_resid_anchor", anchor_wb["resid"], unit="m per month",
+            note="C4 closure residual at the triangulation anchor (largest in network)")
+
     n_saved = rpt.save(OUT_30_C4_REPORT_NUMBERS)
     print(f"  Saved → {OUT_30_C4_REPORT_NUMBERS.name} ({n_saved} report numbers)")
 

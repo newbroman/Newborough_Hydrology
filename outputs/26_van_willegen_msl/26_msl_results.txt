@@ -19,7 +19,7 @@ Most recent (window-end) MSL5 by cluster, m below ground:
   C1 (Lake Edge)       n=  8  MSL5 mean=-0.235 m  median=-0.231 m  MAX5 mean=+0.182 m
   C2 (Dune)            n= 30  MSL5 mean=-0.270 m  median=-0.187 m  MAX5 mean=+0.048 m
   C3 (Western Residual) n= 24  MSL5 mean=-0.479 m  median=-0.441 m  MAX5 mean=-0.193 m
-  C4 (Main Forest)     n= 12  MSL5 mean=-0.713 m  median=-0.571 m  MAX5 mean=-0.477 m
+  C4 (Main Forest)     n= 10  MSL5 mean=-0.742 m  median=-0.651 m  MAX5 mean=-0.511 m
   C5 (Coastal Forest)  n= 10  MSL5 mean=-1.157 m  median=-1.202 m  MAX5 mean=-0.956 m
 
 Curreli (2013) reference values:

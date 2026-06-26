@@ -73,28 +73,25 @@ from utils.console_utils import banner, phase, step, info, saved, note, result, 
 SCRIPT_ID = "32"
 VERSION = "1.0.0"
 
-# --- method constants (signed-off spec) ------------------------------------------
-SPRING_MONTHS = config.MSL_SPRING_MONTHS          # (3, 4, 5)
-PANEL_MIN_FRACTION = 13.0 / 15.0                  # site-mean reference-panel coverage
-PER_WELL_MIN_YEARS = 8                            # min spring-years for a per-well trend
-PERIODS = {                                       # (label, first_year, last_year)
-    "2011_2025": (2011, 2025),                    # primary
-    "2005_2025": (2005, 2025),                    # robustness
-}
-PRIMARY_PERIOD = "2011_2025"
-IDW_POWER = 2
-IDW_GRID_M = 50.0                                 # project convention (not 10b's 40 m)
-IDW_MASK_M = 450.0                                # mask cells > this from nearest well
-LAKE_GAUGE_KEYS = {"llyn rhos", "llyn rhos-ddu", "llyn rhos ddu"}
-BOOT_N = 2000
-BOOT_BLOCK = 3
-BOOT_SEED = 20260626
+# --- method constants (from utils.config; spec-locked 2026-06-26) -----------------
+SPRING_MONTHS = config.MSL_SPRING_MONTHS
+PANEL_MIN_FRACTION = config.DIFF_PANEL_MIN_FRACTION
+PER_WELL_MIN_YEARS = config.DIFF_PER_WELL_MIN_YEARS
+PERIODS = config.DIFF_PERIODS
+PRIMARY_PERIOD = config.DIFF_PRIMARY_PERIOD
+IDW_POWER = config.DIFF_IDW_POWER
+IDW_GRID_M = config.DIFF_IDW_GRID_M
+IDW_MASK_M = config.DIFF_IDW_MASK_M
+LAKE_GAUGE_KEYS = config.LAKE_GAUGE_KEYS
+BOOT_N = config.DIFF_BOOT_N
+BOOT_BLOCK = config.DIFF_BOOT_BLOCK
+BOOT_SEED = config.DIFF_BOOT_SEED
 
-# --- output paths (local; not in paths.py while standalone) ----------------------
-OUT_DIR = paths.OUT_DIR / "32_differential_movement"
-OUT_CSV = OUT_DIR / "32_differential_movement_per_well.csv"
-OUT_TXT = OUT_DIR / "32_results.txt"
-OUT_FIG = {p: OUT_DIR / f"32_differential_movement_{p}.png" for p in PERIODS}
+# --- output paths (from utils.paths) ----------------------------------------------
+OUT_DIR = paths.DIR_32
+OUT_CSV = paths.OUT_32_PER_WELL
+OUT_TXT = paths.OUT_32_RESULTS
+OUT_FIG = {"2011_2025": paths.OUT_32_FIG_PRIMARY, "2005_2025": paths.OUT_32_FIG_ROBUST}
 
 # input CSVs read at runtime
 IN_WELLS = paths.INT_WELLS_CLEAN

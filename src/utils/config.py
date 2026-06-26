@@ -501,3 +501,28 @@ MSL5_EXCLUDED_WELLS = {
     "ceh13": "near-zero SSM beta_3 (tau outlier) - MSL5 unreliable over the 5yr window",
     "ceh14": "negative SSM beta_3 (SSM failure, NSE -3.21) - MSL5 unreliable over the 5yr window",
 }
+
+
+# === Differential-movement (Script 32) & envelope (Script 33) analyses ===
+# Standalone figures: Fig 59 (secular differential drift) and Fig 60 (climate-swing
+# amplification + drought-floor surface). Spring season uses MSL_SPRING_MONTHS.
+# Spec-locked 2026-06-26; see CHANGELOG deltas for scripts 32 and 33.
+DIFF_PANEL_MIN_FRACTION = 13.0 / 15.0       # site-mean reference-panel coverage threshold
+DIFF_PER_WELL_MIN_YEARS = 8                 # min spring-years for a per-well trend
+DIFF_PERIODS = {"2011_2025": (2011, 2025), "2005_2025": (2005, 2025)}
+DIFF_PRIMARY_PERIOD = "2011_2025"
+DIFF_IDW_POWER = 2
+DIFF_IDW_GRID_M = 50.0                       # project convention (not 10b's 40 m)
+DIFF_IDW_MASK_M = 450.0
+DIFF_BOOT_N = 2000
+DIFF_BOOT_BLOCK = 3
+DIFF_BOOT_SEED = 20260626
+
+ENVELOPE_DRY_YEARS = [2011, 2012, 2019]      # antecedent-dry deep springs
+ENVELOPE_WET_YEARS = [2014, 2021, 2024]      # antecedent-wet shallow springs (2006 excluded)
+ENVELOPE_MIN_YEARS_PER_EXTREME = 2           # of 3 must be present
+ENVELOPE_ECO_THRESHOLDS_MM = [-500.0, -1000.0]  # illustrative; set Curreli SD15b/SD16 values
+
+# Lake-gauge column keys to drop from well analyses (Llyn Rhos-Ddu is a lake gauge,
+# not a dipwell). Lowercase to match the normalised well column.
+LAKE_GAUGE_KEYS = {"llyn rhos", "llyn rhos-ddu", "llyn rhos ddu"}

@@ -1,0 +1,16 @@
+network-mean swing 752 mm; wells 64
+
+         mean  count
+Cluster             
+1.0      0.59      7
+2.0      0.93     24
+3.0      1.13     18
+4.0      1.52      7
+5.0      0.89      5
+
+robustness — cluster amplification across year-set choices:
+  set              C1  C2  C3  C4  C5
+  primary          0.59  0.93  1.13  1.52  0.89
+  wet_2016_swap    0.60  0.93  1.14  1.50  0.86
+  dry_no_2019      0.65  0.97  1.16  1.54  0.86
+  wet_incl_2006    0.59  0.92  1.13  1.52  0.88

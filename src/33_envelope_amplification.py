@@ -76,17 +76,16 @@ from utils.console_utils import banner, phase, step, info, saved, note, result, 
 SCRIPT_ID = "33"
 VERSION = "1.0.0"
 
-# --- method constants (locked spec) ----------------------------------------------
-SPRING_MONTHS = config.MSL_SPRING_MONTHS              # (3, 4, 5)
-DRY_YEARS = [2011, 2012, 2019]
-WET_YEARS = [2014, 2021, 2024]
-MIN_YEARS_PER_EXTREME = 2                             # of 3 must be present
-LAKE_GAUGE_KEYS = {"llyn rhos", "llyn rhos-ddu", "llyn rhos ddu"}
-IDW_POWER = 2
-IDW_GRID_M = 50.0
-IDW_MASK_M = 450.0
-# illustrative ecological thresholds (mm below ground) until Curreli SD15b/SD16 set
-ECO_THRESHOLDS_MM = [-500.0, -1000.0]
+# --- method constants (from utils.config; spec-locked 2026-06-26) -----------------
+SPRING_MONTHS = config.MSL_SPRING_MONTHS
+DRY_YEARS = config.ENVELOPE_DRY_YEARS
+WET_YEARS = config.ENVELOPE_WET_YEARS
+MIN_YEARS_PER_EXTREME = config.ENVELOPE_MIN_YEARS_PER_EXTREME
+LAKE_GAUGE_KEYS = config.LAKE_GAUGE_KEYS
+IDW_POWER = config.DIFF_IDW_POWER
+IDW_GRID_M = config.DIFF_IDW_GRID_M
+IDW_MASK_M = config.DIFF_IDW_MASK_M
+ECO_THRESHOLDS_MM = config.ENVELOPE_ECO_THRESHOLDS_MM
 # robustness: alternative extreme-year sets to demonstrate stability / 2006 distortion
 ROBUSTNESS_SETS = {
     "primary":        (DRY_YEARS,              WET_YEARS),
@@ -95,12 +94,12 @@ ROBUSTNESS_SETS = {
     "wet_incl_2006":  (DRY_YEARS,              [2006, 2021, 2024]),  # shows 2006 distortion
 }
 
-# --- output paths (local; not in paths.py while standalone) ----------------------
-OUT_DIR = paths.OUT_DIR / "33_envelope_amplification"
-OUT_CSV = OUT_DIR / "33_envelope_per_well.csv"
-OUT_TXT = OUT_DIR / "33_results.txt"
-OUT_FIG_AMP = OUT_DIR / "33_amplification_field.png"
-OUT_FIG_FLOOR = OUT_DIR / "33_drought_floor.png"
+# --- output paths (from utils.paths) ----------------------------------------------
+OUT_DIR = paths.DIR_33
+OUT_CSV = paths.OUT_33_PER_WELL
+OUT_TXT = paths.OUT_33_RESULTS
+OUT_FIG_AMP = paths.OUT_33_FIG_AMP
+OUT_FIG_FLOOR = paths.OUT_33_FIG_FLOOR
 
 IN_WELLS = paths.INT_WELLS_CLEAN
 IN_LOCATIONS = paths.INT_LOCATIONS

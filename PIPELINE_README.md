@@ -143,6 +143,8 @@ compute_scenario_bars_from_params()
 
 ```
 data/                          ← raw input data (never modified)
+  *.csv                        ← raw well, climate, metadata tables
+  geo/                         ← geographic inputs (DEM + KML), resolved via paths.data_geo()
 outputs/                       ← all generated outputs
   00_climate_summary/
   01_data_prep/                ← (intermediates live in outputs/ root)
@@ -202,6 +204,8 @@ src/
 ```
 
 ## Raw data inputs (`data/`)
+
+*CSV tables sit in `data/`; the DEM and all KML layers below live in `data/geo/` and are resolved via `paths.data_geo()` (never hardcode geo filenames outside `paths.py`).*
 
 | File | Description | Used by |
 |---|---|---|
@@ -773,8 +777,8 @@ R² ranges 0.73–0.96 across the five clusters (C4 Main Forest and C5 Coastal F
 **Reads.**
 
 - `11b_03_pflood_per_well.csv` (Script 11b (step 12))
-- DEM hillshade (`data/`)
-- KML features (`data/`)
+- DEM hillshade (`data/geo/`)
+- KML features (`data/geo/`)
 
 **Writes.**
 

@@ -68,13 +68,14 @@ python run_analysis.py --supplementary # run supplementary diagnostics (22–24)
 
 ```text
 Newborough_Hydrology/
-├── data/                        Input CSV, KML, and DEM assets (not versioned)
-│   ├── newborough_dem.tif       LiDAR DEM (NRW) — used by scripts 03, 04, 07, 08, 11b, 12, 13, 19, 20
-│   ├── streams.kml              SAGA-derived stream network (used by scripts 19, 20)
-│   ├── site_boundary.kml        Dissolved stream-cell boundary — study area mask for script 19
-│   ├── Features.kml             Site features (dipwell transects, forest boundary, lake)
-│   ├── broadleaf_restock.kml    Broadleaf restocking block boundary
-│   └── clearfell.kml            Clearfell experiment boundary
+├── data/                        Input CSV assets (not versioned)
+│   └── geo/                     Geographic inputs (DEM + KML), resolved via paths.data_geo()
+│       ├── newborough_dem.tif   LiDAR DEM (NRW) — hillshade base (scripts 04, 07, 08, 11b, 12, 13, 19, 20, 32, 33)
+│       ├── streams.kml          SAGA-derived stream network (used by scripts 19, 20, 32, 33)
+│       ├── site_boundary.kml    Dissolved stream-cell boundary — study area mask for script 19
+│       ├── Features.kml         Site features (dipwell transects, forest boundary, lake)
+│       ├── broadleaf_restock.kml  Broadleaf restocking block boundary
+│       └── clearfell.kml        Clearfell experiment boundary
 ├── outputs/                     Generated tables and figures (not versioned)
 │   ├── 01_locations.csv                ┐
 │   ├── 01_climate.csv                  │
@@ -251,7 +252,7 @@ the BACI analysis is re-run. See `clearfell_common.load_clearfell_b2_multiplier(
 
 ## Data Dependencies for Script 19
 
-Script 19 requires the following files in `data/`:
+Script 19 requires the following files in `data/geo/`:
 
 | File | Purpose |
 |------|---------|

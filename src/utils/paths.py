@@ -473,11 +473,11 @@ OUT_32_FIG_PRIMARY          = DIR_32 / "32_differential_movement_2011_2025.png"
 OUT_32_FIG_ROBUST           = DIR_32 / "32_differential_movement_2005_2025.png"
 OUT_32_RESULTS              = DIR_32 / "32_results.txt"
 
-# Script 33 — climate-swing amplification + drought-floor (standalone figures; Fig 60)
+# Script 33 — climate-swing amplification + dry-year spring depth (standalone figures; Fig 60)
 DIR_33 = OUT_DIR / "33_envelope_amplification"
 OUT_33_PER_WELL             = DIR_33 / "33_envelope_per_well.csv"
 OUT_33_FIG_AMP              = DIR_33 / "33_amplification_field.png"
-OUT_33_FIG_FLOOR            = DIR_33 / "33_drought_floor.png"
+OUT_33_FIG_DRY_SPRING       = DIR_33 / "33_dry_spring_depth.png"
 OUT_33_RESULTS              = DIR_33 / "33_results.txt"
 
 # Script 18 — WTF spatial

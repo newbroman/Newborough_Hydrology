@@ -1,5 +1,5 @@
 """
-33_envelope_amplification.py — Climate-swing amplification and the drought-floor surface
+33_envelope_amplification.py — Climate-swing amplification and dry-year spring depth
 ========================================================================================
 
 Maps the *envelope* the spring water table moves between — its dry extreme and its
@@ -50,7 +50,7 @@ Inputs (read at runtime; nothing hardcoded):
 Outputs (outputs/33_envelope_amplification/):
     33_envelope_per_well.csv          dry/wet state, swing, amplification, cluster
     33_amplification_field.png        relative amplification map (headline)
-    33_drought_floor.png              raw drought-floor surface (ecological companion)
+    33_dry_spring_depth.png           dry-year spring water-table depth (ecological companion)
     33_results.txt                    console summary + robustness table
 
 Version: 1.0.0 (2026-06-26)
@@ -71,6 +71,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import TwoSlopeNorm
 
 from utils import config, paths
+from utils.map_utils import load_dem_hillshade, add_kml_features, add_idw_surface
 from utils.console_utils import banner, phase, step, info, saved, note, result, done, hr
 
 SCRIPT_ID = "33"
@@ -99,7 +100,7 @@ OUT_DIR = paths.DIR_33
 OUT_CSV = paths.OUT_33_PER_WELL
 OUT_TXT = paths.OUT_33_RESULTS
 OUT_FIG_AMP = paths.OUT_33_FIG_AMP
-OUT_FIG_FLOOR = paths.OUT_33_FIG_FLOOR
+OUT_FIG_DRY_SPRING = paths.OUT_33_FIG_DRY_SPRING
 
 IN_WELLS = paths.INT_WELLS_CLEAN
 IN_LOCATIONS = paths.INT_LOCATIONS
@@ -168,18 +169,75 @@ def idw(GX, GY, px, py, pv, power=IDW_POWER, mask=IDW_MASK_M):
     return Z
 
 
+def linear_surface(GX, GY, px, py, pv, mask=IDW_MASK_M):
+    """Linear (triangulation) interpolation of a per-well field — clean regional
+    gradients with no IDW bullseyes, so threshold contours separate wells by which
+    side they truly fall on. NaN outside the convex hull and beyond `mask` m of any
+    well. Used for the Figure 60 envelope panels (the per-well values are unchanged;
+    this affects only how the surface is drawn between wells)."""
+    from scipy.interpolate import griddata
+    Z = griddata(np.column_stack([px, py]), pv, (GX, GY), method="linear")
+    nearest = np.full_like(GX, 1e18)
+    for x, y in zip(px, py):
+        nearest = np.minimum(nearest, np.sqrt((GX - x) ** 2 + (GY - y) ** 2))
+    Z[nearest > mask] = np.nan
+    return Z
+
+
+HOUSE_XLIM = (240100, 243900)   # site extent, matching map_utils.plot_metric_map
+HOUSE_YLIM = (362200, 365800)
+
+
+def _finish_map_axes(ax):
+    """Easting/Northing axes to scale — restores the OS-grid scale on the report maps."""
+    ax.set_aspect("equal")
+    ax.tick_params(labelsize=8)
+    ax.ticklabel_format(style="plain", useOffset=False)
+    ax.set_xlabel("Easting (m)", fontsize=9)
+    ax.set_ylabel("Northing (m)", fontsize=9)
+
+
+def _sample_dem(px, py, dem_e_arr, dem_n_arr, dem_data):
+    """Ground elevation at each well, sampled from the DEM raster (for ridge masking)."""
+    from scipy.interpolate import RegularGridInterpolator
+    f = RegularGridInterpolator((dem_n_arr[::-1], dem_e_arr), dem_data[::-1, :],
+                                method="linear", bounds_error=False, fill_value=np.nan)
+    return f(np.column_stack([py, px]))
+
+
+def _envelope_base(ax, df, value_col, cmap, norm=None, ridge=True):
+    """Hillshade base + LINEAR surface (map_utils.add_idw_surface) with the KML features
+    on top. When ridge=True, inter-dune ridges (DEM > interpolated well-ground surface by
+    >1 m) are masked. Returns (mesh, gx, gy, Zmasked) for the colorbar and contours."""
+    _, dem_loaded, dem_e_arr, dem_n_arr, dem_data = load_dem_hillshade(
+        ax, paths.DATA_DIR, alpha=1.0, vert_exag=3.0, zorder=1)
+    ax.set_xlim(*HOUSE_XLIM); ax.set_ylim(*HOUSE_YLIM)
+    ax.set_aspect("equal")   # eastings/northings to true scale; identical extent across panels
+    dfx = df.copy()
+    use_ridge = ridge and dem_loaded
+    if use_ridge:
+        dfx["dem"] = _sample_dem(dfx.E.values, dfx.N.values, dem_e_arr, dem_n_arr, dem_data)
+    mesh, gx, gy, Zm = add_idw_surface(
+        ax, dfx, value_col=value_col, easting_col="E", northing_col="N", dem_col="dem",
+        method="linear", ridge_mask_threshold=1.0 if use_ridge else None,
+        dem_e_arr=dem_e_arr if use_ridge else None,
+        dem_n_arr=dem_n_arr if use_ridge else None,
+        dem_data=dem_data if use_ridge else None,
+        cmap=cmap, norm=norm, alpha=1.0, zorder=1.5)
+    add_kml_features(ax, paths.DATA_DIR)
+    return mesh, gx, gy, Zm
+
+
 def fig_amplification(df, GX, GY, out_path):
-    colours = config.get_cluster_colours()
-    labels = config.CLUSTER_LABELS
-    Z = idw(GX, GY, df.E.values, df.N.values, df.amplification.values)
+    colours = config.get_cluster_colours(); labels = config.CLUSTER_LABELS
     norm = TwoSlopeNorm(vcenter=1.0, vmin=0.55, vmax=1.55)
-    fig, ax = plt.subplots(figsize=(9.5, 9))
-    im = ax.pcolormesh(GX, GY, Z, cmap="RdBu_r", norm=norm, shading="auto", alpha=0.93)
+    fig, ax = plt.subplots(figsize=(11, 9))
+    im, gx, gy, Zm = _envelope_base(ax, df, "amplification", "RdBu_r", norm=norm, ridge=False)
     for cid in sorted(df.Cluster.dropna().unique()):
         s = df[df.Cluster == cid]
         ax.scatter(s.E, s.N, c=[colours.get(int(cid), "#444")], edgecolor="k",
                    linewidth=0.5, s=48, zorder=5, label=labels.get(int(cid), f"C{int(cid)}"))
-    ax.set_aspect("equal"); ax.set_xticks([]); ax.set_yticks([])
+    _finish_map_axes(ax)
     ax.legend(fontsize=8.5, loc="lower left", framealpha=0.9, title="cluster")
     cb = fig.colorbar(im, ax=ax, shrink=0.8, pad=0.01)
     cb.set_label("climate-swing amplification  (well swing / network mean)\n"
@@ -190,27 +248,59 @@ def fig_amplification(df, GX, GY, out_path):
     fig.savefig(out_path, dpi=160, bbox_inches="tight"); plt.close(fig)
 
 
-def fig_drought_floor(df, GX, GY, out_path):
-    Z = idw(GX, GY, df.E.values, df.N.values, (df.dry_m * 1000.0).values)
-    fig, ax = plt.subplots(figsize=(9.5, 9))
-    im = ax.pcolormesh(GX, GY, Z, cmap="YlOrBr_r", shading="auto", alpha=0.93)
-    cs = ax.contour(GX, GY, Z, levels=sorted(ECO_THRESHOLDS_MM), colors="k", linewidths=1.1)
-    ax.clabel(cs, fmt={t: f"{t/1000:.1f} m" for t in ECO_THRESHOLDS_MM}, fontsize=8)
-    ax.scatter(df.E, df.N, c="k", s=10, zorder=5)
-    ax.set_aspect("equal"); ax.set_xticks([]); ax.set_yticks([])
+def fig_dry_spring_depth(df, GX, GY, out_path):
+    """Dry-year SPRING water-table depth (seasonal high). Curreli summer-minimum
+    thresholds overlaid mark where even the spring high has already breached wet/dry
+    slack viability. Inter-dune ridges are masked (add_idw_surface ridge mask)."""
+    dfx = df.copy(); dfx["dry_mm"] = dfx.dry_m * 1000.0
+    fig, ax = plt.subplots(figsize=(11, 9))
+    # exclude slack-edge wells (e.g. CEH10, sited on raised inter-slack ground) from the
+    # surface only; they are kept and shown distinctly as slack-edge markers
+    excl = set(getattr(config, "ENVELOPE_DEPTH_INTERP_EXCLUDE", set()))
+    interp_df = dfx[~dfx.key.isin(excl)]
+    im, gx, gy, Zm = _envelope_base(ax, interp_df, "dry_mm", "YlOrBr_r")
+    # Curreli thresholds: distinct SOLID colours + white halo, on the ridge-masked grid
+    sorted_levels = sorted(ECO_THRESHOLDS_MM)            # [-980 (SD16), -610 (SD15b)]
+    level_colour = {ECO_THRESHOLDS_MM[0]: "#00CED1",     # SD15b wet slack  -> turquoise
+                    ECO_THRESHOLDS_MM[1]: "#D7191C"}     # SD16 dry slack   -> red
+    ax.contour(gx, gy, Zm, levels=sorted_levels, colors="white",
+               linewidths=3.4, linestyles="solid", zorder=3.9)
+    cs = ax.contour(gx, gy, Zm, levels=sorted_levels,
+                    colors=[level_colour[l] for l in sorted_levels],
+                    linewidths=1.8, linestyles="solid", zorder=4)
+    labels = getattr(config, "ENVELOPE_ECO_THRESHOLD_LABELS", {})
+    fmt = {t: labels.get(t, f"{t/1000:.2f} m") for t in ECO_THRESHOLDS_MM}
+    ax.clabel(cs, fmt=fmt, fontsize=8)
+    # markers: regular wells as dots; slack-edge wells (excluded from surface) distinct
+    reg = df[~df.key.isin(excl)]; edge = df[df.key.isin(excl)]
+    ax.scatter(reg.E.values, reg.N.values, c="k", s=12, zorder=5)
+    if len(edge):
+        ax.scatter(edge.E.values, edge.N.values, facecolor="none", edgecolor="k",
+                   marker="D", s=60, linewidths=1.5, zorder=6)
+    from matplotlib.lines import Line2D
+    leg1 = ax.legend(handles=[Line2D([0], [0], color=level_colour[ECO_THRESHOLDS_MM[0]], lw=2.2,
+                                     label=labels.get(ECO_THRESHOLDS_MM[0], "SD15b")),
+                              Line2D([0], [0], color=level_colour[ECO_THRESHOLDS_MM[1]], lw=2.2,
+                                     label=labels.get(ECO_THRESHOLDS_MM[1], "SD16"))],
+                     fontsize=8.5, loc="lower left", framealpha=0.9, title="Curreli thresholds")
+    ax.add_artist(leg1)
+    if len(edge):
+        ax.legend(handles=[Line2D([0], [0], marker="D", markerfacecolor="none",
+                                  markeredgecolor="k", markeredgewidth=1.5, linestyle="none",
+                                  markersize=8, label="raised inter-slack well\n(slack edge; excluded from surface)")],
+                  fontsize=8, loc="lower right", framealpha=0.9)
+    _finish_map_axes(ax)
     cb = fig.colorbar(im, ax=ax, shrink=0.8, pad=0.01)
-    cb.set_label("drought-floor depth to water (mm below ground)", fontsize=9.5)
-    ax.set_title("Newborough Warren: drought-floor surface (raw depth, dry extreme 2011/12/19)\n"
-                 "Contours illustrative — set Curreli SD15b/SD16 thresholds at integration.",
+    cb.set_label("dry-year spring depth to water (mm below ground)", fontsize=9.5)
+    ax.set_title("Newborough Warren: dry-year spring water-table depth (springs 2011/12/19)\n"
+                 "Contours: where even the spring high is already below Curreli SD15b/SD16 "
+                 "(summer-minimum) thresholds. Inter-dune ridges masked. CEH13/14 excluded.",
                  fontsize=10.5, loc="left")
     fig.savefig(out_path, dpi=160, bbox_inches="tight"); plt.close(fig)
 
 
-# =================================================================================
-# Main
-# =================================================================================
 def main() -> int:
-    banner(SCRIPT_ID, "Climate-swing amplification + drought-floor surface", VERSION)
+    banner(SCRIPT_ID, "Climate-swing amplification + dry-year spring depth", VERSION)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
     phase(1, "Load inputs")
@@ -247,7 +337,7 @@ def main() -> int:
     phase(4, "Render figures")
     GX, GY = _grid(loc)
     fig_amplification(df, GX, GY, OUT_FIG_AMP); saved(OUT_FIG_AMP)
-    fig_drought_floor(df, GX, GY, OUT_FIG_FLOOR); saved(OUT_FIG_FLOOR)
+    fig_dry_spring_depth(df, GX, GY, OUT_FIG_DRY_SPRING); saved(OUT_FIG_DRY_SPRING)
 
     phase(5, "Write outputs")
     out = df[["key", "Cluster", "E", "N", "dry_m", "wet_m", "swing_mm",

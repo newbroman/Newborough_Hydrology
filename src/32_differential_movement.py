@@ -68,6 +68,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import TwoSlopeNorm
 
 from utils import config, paths
+from utils.map_utils import load_dem_hillshade, add_kml_features
 from utils.console_utils import banner, phase, step, info, saved, note, result, done, hr
 
 SCRIPT_ID = "32"
@@ -235,44 +236,49 @@ def idw_surface(px, py, pv, gx, gy, power=IDW_POWER, mask=IDW_MASK_M):
     return GX, GY, Z
 
 
+HOUSE_XLIM = (240100, 243900)   # site extent, matching map_utils.plot_metric_map
+HOUSE_YLIM = (362200, 365800)
+
+
 def make_map(df: pd.DataFrame, loc: pd.DataFrame, period_label: str,
              first: int, last: int, out_path):
     colours = config.get_cluster_colours()
     labels = config.CLUSTER_LABELS
-
-    E = loc["E"].values
-    N = loc["N"].values
+    E = loc["E"].values; N = loc["N"].values
     gx = np.arange(np.nanmin(E) - 150, np.nanmax(E) + 150, IDW_GRID_M)
     gy = np.arange(np.nanmin(N) - 150, np.nanmax(N) + 150, IDW_GRID_M)
     GX, GY, Z = idw_surface(df.E.values, df.N.values, df.slope_mm_yr.values, gx, gy)
-
-    vmax = float(np.nanpercentile(np.abs(df.slope_mm_yr), 98))
-    vmax = max(vmax, 1.0)
+    vmax = max(float(np.nanpercentile(np.abs(df.slope_mm_yr), 98)), 1.0)
     norm = TwoSlopeNorm(vcenter=0.0, vmin=-vmax, vmax=vmax)
 
-    fig, ax = plt.subplots(figsize=(9.5, 9))
-    im = ax.pcolormesh(GX, GY, Z, cmap=plt.cm.RdBu, norm=norm, shading="auto", alpha=0.92)
+    fig, ax = plt.subplots(figsize=(11, 9))
+    # layering: hillshade (z1) -> opaque IDW surface (z1.5) -> KML features (z2) -> markers (z5)
+    load_dem_hillshade(ax, paths.DATA_DIR, alpha=1.0, vert_exag=3.0, zorder=1)
+    im = ax.pcolormesh(GX, GY, Z, cmap=plt.cm.RdBu, norm=norm, shading="auto",
+                       alpha=1.0, zorder=1.5)
+    ax.set_xlim(*HOUSE_XLIM); ax.set_ylim(*HOUSE_YLIM)
+    ax.set_aspect("equal")
+    add_kml_features(ax, paths.DATA_DIR)
 
+    # markers carry cluster identity + significance (solid = significant, hollow = not)
     for cid in sorted(df.Cluster.dropna().unique()):
         sub = df[df.Cluster == cid]
-        sig = sub[sub.sig]
-        nsig = sub[~sub.sig]
+        sig = sub[sub.sig]; nsig = sub[~sub.sig]
         col = colours.get(int(cid), "#444444")
-        # significant wells: solid; non-significant: hollow (equal footing, no coast flag)
         ax.scatter(sig.E, sig.N, c=col, edgecolor="k", linewidth=0.6, s=58,
                    zorder=5, label=labels.get(int(cid), f"C{int(cid)}"))
         ax.scatter(nsig.E, nsig.N, facecolor="none", edgecolor=col, linewidth=1.6,
                    s=58, zorder=5)
-
-    ax.set_aspect("equal")
-    ax.set_xticks([]); ax.set_yticks([])
-    leg = ax.legend(fontsize=8.5, loc="lower left", framealpha=0.9, title="cluster")
-    leg._legend_box.align = "left"
-    # significance key
+    # significance proxies (added before the legend so they appear in it)
     ax.scatter([], [], c="#555555", edgecolor="k", s=58, label="trend p < 0.05")
     ax.scatter([], [], facecolor="none", edgecolor="#555555", linewidth=1.6, s=58,
                label="not significant")
 
+    ax.tick_params(labelsize=8)
+    ax.ticklabel_format(style="plain", useOffset=False)
+    ax.set_xlabel("Easting (m)", fontsize=9); ax.set_ylabel("Northing (m)", fontsize=9)
+    leg = ax.legend(fontsize=8.5, loc="lower left", framealpha=0.9, title="cluster")
+    leg._legend_box.align = "left"
     cb = fig.colorbar(im, ax=ax, shrink=0.8, pad=0.01)
     cb.set_label("Differential drift of spring water table (mm/yr)\n"
                  "site-mean (common climate) removed\n"

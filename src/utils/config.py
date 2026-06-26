@@ -521,7 +521,15 @@ DIFF_BOOT_SEED = 20260626
 ENVELOPE_DRY_YEARS = [2011, 2012, 2019]      # antecedent-dry deep springs
 ENVELOPE_WET_YEARS = [2014, 2021, 2024]      # antecedent-wet shallow springs (2006 excluded)
 ENVELOPE_MIN_YEARS_PER_EXTREME = 2           # of 3 must be present
-ENVELOPE_ECO_THRESHOLDS_MM = [-500.0, -1000.0]  # illustrative; set Curreli SD15b/SD16 values
+ENVELOPE_ECO_THRESHOLDS_MM = [-1000.0 * SD15b, -1000.0 * SD16]  # SD15b wet-slack 0.61 m, SD16 dry-slack 0.98 m (Curreli 2013)
+ENVELOPE_ECO_THRESHOLD_LABELS = {-1000.0 * SD15b: "SD15b (wet slack)", -1000.0 * SD16: "SD16 (dry slack)"}
+# Wells excluded from the Figure 60b dry-year spring-depth SURFACE interpolation only
+# (kept as distinctly-marked points). CEH10 was sited (winter 2006) on a raised piece of
+# ground BETWEEN slacks; it floods only when the neighbouring slack overtops, so it
+# measures the raised inter-slack ground / slack edge, not the slack-floor water table.
+# Its genuinely deep dry-year reading therefore must not be interpolated into the
+# surrounding slacks (it would smear a false deep zone). Shown as a slack-edge marker.
+ENVELOPE_DEPTH_INTERP_EXCLUDE = {"ceh10"}
 
 # Lake-gauge column keys to drop from well analyses (Llyn Rhos-Ddu is a lake gauge,
 # not a dipwell). Lowercase to match the normalised well column.

@@ -1,0 +1,10 @@
+
+=== 2011_2025  (2011-2025) ===
+site-mean panel: 66 wells; mapped: 72; significant: 8; bootstrap agreement: 58/72
+holds up (mm/yr): Ceh32 +20.48, ceh34 +17.21, ceh1 +16.62, ceh2 +14.92, ceh20 +14.04
+sinks    (mm/yr): ceh22 -26.50*, ceh3 -18.88, ceh21 -15.13*, ceh11 -13.25*, ceh19 -12.20
+
+=== 2005_2025  (2005-2025) ===
+site-mean panel: 21 wells; mapped: 75; significant: 13; bootstrap agreement: 66/75
+holds up (mm/yr): Ceh32 +20.60, ceh8 +20.45*, ceh7 +17.97*, ceh34 +17.33, ceh33 +13.48
+sinks    (mm/yr): ceh22 -27.53*, nw8 -27.37*, ceh3 -23.74*, nw9 -19.28*, ceh17 -16.12*

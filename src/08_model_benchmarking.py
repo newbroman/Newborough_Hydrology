@@ -61,7 +61,7 @@ from utils.paths import (
 from utils.data_utils import normalize_well_name
 from utils.report_numbers_utils import ReportNumbers
 from utils.model_utils import get_metrics, get_r2, build_ssm_frame, simulate_ssm
-from utils.map_utils import add_kml_features, load_dem_layer
+from utils.map_utils import add_kml_features, load_dem_layer, add_en_axes
 from utils.config import (
     CLUSTER_LABELS, CLUSTER_MARKERS, DRAINAGE_DATUM, HEADLINE_LAG, BW_MODE,
 )
@@ -363,8 +363,6 @@ def plot_metric_map(map_df, value_col, title, output_path, cmap, vmin=None, vmax
 
     # --- DEM Layer ---
     dem_layer, dem_loaded = load_dem_layer(ax, DATA_DIR)
-    ax.set_xlim(240100, 243900)
-    ax.set_ylim(362200, 365800)
 
     # --- Fallback to OSM ---
     if not dem_loaded:
@@ -508,10 +506,8 @@ def plot_metric_map(map_df, value_col, title, output_path, cmap, vmin=None, vmax
         cbar_dem.set_label("Elevation (m AOD)", rotation=270, labelpad=32, fontsize=14)
 
     ax.set_title(title, fontweight='bold')
-    ax.set_xlabel('Easting (m)')
-    ax.set_ylabel('Northing (m)')
+    add_en_axes(ax)
     ax.grid(True, linestyle='--', alpha=0.4)
-    ax.set_aspect('equal', adjustable='box')
 
     # Add cluster shape legend
     cluster_legend = ax.legend(handles=handles, title="Core Cluster Assignments", loc='lower left', frameon=True)

@@ -33,7 +33,7 @@ from utils.config import (
     CLUSTER_COLOURS, CLUSTER_COLOURS_BW, CLUSTER_LABELS, BW_MODE,
 )
 from utils.data_utils import normalize_well_name
-from utils.map_utils import load_dem_layer, add_kml_features
+from utils.map_utils import load_dem_layer, add_kml_features, add_en_axes
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -271,8 +271,7 @@ def main():
             ctx.add_basemap(ax, crs="EPSG:27700", source=ctx.providers.OpenStreetMap.Mapnik, zorder=1, alpha=0.7)
         except Exception:
             pass
-    ax.set_xlim(240100, 243900)
-    ax.set_ylim(362200, 365800)
+    add_en_axes(ax)
     if dem_layer is not None and not BW_MODE:
         fig.colorbar(dem_layer, ax=ax, shrink=0.55, pad=0.02, extend="both").set_label("Elevation (m AOD)", rotation=270, labelpad=18)
 
@@ -339,7 +338,6 @@ def main():
 
     # Legends
     ax.set_title("Pearson Integration Map: Reference vs. Extended Networks", fontsize=15, fontweight='bold')
-    ax.set_xlabel("Easting (m)"); ax.set_ylabel("Northing (m)")
 
     handles_status = [
         Line2D([0], [0], marker='o', color='w', label='Reference well (dark fill)',

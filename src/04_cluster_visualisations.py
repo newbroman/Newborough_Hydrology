@@ -15,7 +15,7 @@ from matplotlib.lines import Line2D
 
 from utils.config import CLUSTER_COLOURS, CLUSTER_LABELS, CLUSTER_MARKERS, BW_MODE
 from utils.data_utils import normalize_well_name
-from utils.map_utils import load_dem_layer, add_kml_features, add_osm_basemap
+from utils.map_utils import load_dem_layer, add_kml_features, add_osm_basemap, add_en_axes
 from utils.paths import make_all_dirs, DATA_DIR, INT_CLUSTER_STATS, INT_LOCATIONS, OUT_04_ARCHITECTURE_MAP
 
 from utils.console_utils import (
@@ -61,10 +61,7 @@ def main():
     texts = [ax.text(row["E"], row["N"], row["Match_ID"].upper(), fontsize=8, fontweight="bold", zorder=10) for _, row in map_df.iterrows()]
     adjust_text(texts, arrowprops=dict(arrowstyle="-", color="black", lw=0.5), ax=ax)
     ax.set_title("Spatial Mapping of Groundwater Clusters at Newborough Warren", fontsize=15, fontweight="bold")
-    ax.set_xlabel("Easting (m)"); ax.set_ylabel("Northing (m)")
-    ax.set_xlim(240100, 243900)
-    ax.set_ylim(362200, 365800)
-    ax.set_aspect("equal")
+    add_en_axes(ax)
     if dem_layer is not None and not BW_MODE:
         fig.colorbar(dem_layer, ax=ax, shrink=0.55, pad=0.02, extend="both").set_label("Elevation (m AOD)", rotation=270, labelpad=18)
     cluster_handles = [Line2D([0],[0], marker=CLUSTER_MARKERS.get(c, "o"), color="w", label=CLUSTER_LABELS.get(c,f"C{c}"),
@@ -73,10 +70,12 @@ def main():
     cl = ax.legend(handles=cluster_handles, loc="lower left", title="Core Cluster Assignments", frameon=True)
     ax.add_artist(cl)
     if site_feature_handles:
-        ax.legend(handles=site_feature_handles, loc="upper right", title="Site Features", frameon=True)
+        # Site Features moved to the left side (upper-left): under the canonical
+        # extent's trimmed northern edge an upper-right key overlaps the topmost
+        # wells, whereas the NW corner is clear.
+        ax.legend(handles=site_feature_handles, loc="upper left", title="Site Features", frameon=True)
     plt.tight_layout()
-    ax.set_xlim(240100, 243900)
-    ax.set_ylim(362200, 365800)
+    add_en_axes(ax)
     plt.savefig(OUT_04_ARCHITECTURE_MAP, bbox_inches="tight"); plt.close()
     saved(f"{OUT_04_ARCHITECTURE_MAP.name}")
 

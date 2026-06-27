@@ -135,7 +135,7 @@ from utils.paths import (
     OUT_23_BETAS_BY_CLUSTER, OUT_23_TEST_SUMMARY,
 )
 from utils.data_utils import normalize_well_name
-from utils.map_utils import add_kml_features
+from utils.map_utils import add_kml_features, add_en_axes
 from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, DRAINAGE_DATUM
 
 from utils.console_utils import (
@@ -420,12 +420,10 @@ def plot_lag_map(ccf_df, output_path):
     except Exception as e:
         note(f"KML overlay skipped: {e}")
 
-    ax.set_xlabel('Easting (m, OSGB36)')
-    ax.set_ylabel('Northing (m, OSGB36)')
     ax.set_title("Peak-correlation lag across the network\n"
                  "(after removing generic vadose-zone rainfall response)",
                  fontweight='bold')
-    ax.set_aspect('equal')
+    add_en_axes(ax)
     ax.grid(ls='--', alpha=0.4)
     ax.legend(loc='lower right', frameon=True, edgecolor='black', fontsize=9)
     plt.tight_layout()

@@ -480,6 +480,31 @@ OUT_33_FIG_AMP              = DIR_33 / "33_amplification_field.png"
 OUT_33_FIG_DRY_SPRING       = DIR_33 / "33_dry_spring_depth.png"
 OUT_33_RESULTS              = DIR_33 / "33_results.txt"
 
+# Script 34 — MSL5 two-window sensitivity (standalone demonstration figure; §5.7.5)
+DIR_34 = OUT_DIR / "34_window_sensitivity"
+OUT_34_MATRIX               = DIR_34 / "34_window_matrix.csv"
+OUT_34_RESULTS              = DIR_34 / "34_results.txt"
+OUT_34_FIG                  = DIR_34 / "34_window_sensitivity.png"
+
+# Script 24b — cluster-stratified residual climatology (supplementary diagnostic)
+DIR_24B = OUT_DIR / "24b_residual_climatology"
+OUT_24B_CLUSTER_CLIMATOLOGY = DIR_24B / "24b_01_cluster_climatology.csv"
+OUT_24B_WINTER_MINUS_SUMMER = DIR_24B / "24b_02_peak_winter_minus_summer.csv"
+OUT_24B_PER_WELL_CONTRAST   = DIR_24B / "24b_03_per_well_winter_minus_summer.csv"
+OUT_24B_CLIMATOLOGY_FIG     = DIR_24B / "24b_04_cluster_climatology.png"
+OUT_24B_SUMMARY             = DIR_24B / "24b_05_interpretation.txt"
+
+# Script 31 / 31b — independent k=5 cluster validation (supplementary diagnostic).
+# 31 and 31b share this directory; 31b writes the 31b_* products into it.
+DIR_31 = OUT_DIR / "31_cluster_validation"
+OUT_31_VALIDATION_SUMMARY   = DIR_31 / "31_validation_summary.csv"
+OUT_31_METHOD_ROBUSTNESS    = DIR_31 / "31_method_robustness_ari.csv"
+OUT_31_FOREST_CONFUSION     = DIR_31 / "31_forest_confusion.csv"
+OUT_31_FOREST_BORDERLINE    = DIR_31 / "31_forest_borderline.csv"
+OUT_31_PANEL_FIG            = DIR_31 / "31_cluster_validation_panel.png"
+OUT_31B_SEPARATION_CSV      = DIR_31 / "31b_separation_vs_recoverability.csv"
+OUT_31B_SEPARATION_FIG      = DIR_31 / "31b_separation_vs_recoverability.png"
+
 # Script 18 — WTF spatial
 OUT_18_WELL_SY_TABLE        = DIR_18 / "18_wtf_01_well_sy_estimates.csv"
 OUT_18_SY_MAP               = DIR_18 / "18_wtf_02_spatial_sy_map.png"

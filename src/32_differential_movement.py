@@ -68,7 +68,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import TwoSlopeNorm
 
 from utils import config, paths
-from utils.map_utils import load_dem_hillshade, add_kml_features
+from utils.map_utils import load_dem_hillshade, add_kml_features, add_en_axes
 from utils.console_utils import banner, phase, step, info, saved, note, result, done, hr
 
 SCRIPT_ID = "32"
@@ -236,10 +236,6 @@ def idw_surface(px, py, pv, gx, gy, power=IDW_POWER, mask=IDW_MASK_M):
     return GX, GY, Z
 
 
-HOUSE_XLIM = (240100, 243900)   # site extent, matching map_utils.plot_metric_map
-HOUSE_YLIM = (362200, 365800)
-
-
 def make_map(df: pd.DataFrame, loc: pd.DataFrame, period_label: str,
              first: int, last: int, out_path):
     colours = config.get_cluster_colours()
@@ -256,8 +252,7 @@ def make_map(df: pd.DataFrame, loc: pd.DataFrame, period_label: str,
     load_dem_hillshade(ax, paths.DATA_DIR, alpha=1.0, vert_exag=3.0, zorder=1)
     im = ax.pcolormesh(GX, GY, Z, cmap=plt.cm.RdBu, norm=norm, shading="auto",
                        alpha=1.0, zorder=1.5)
-    ax.set_xlim(*HOUSE_XLIM); ax.set_ylim(*HOUSE_YLIM)
-    ax.set_aspect("equal")
+    add_en_axes(ax, osgb_label=False)
     add_kml_features(ax, paths.DATA_DIR)
 
     # markers carry cluster identity + significance (solid = significant, hollow = not)
@@ -274,9 +269,6 @@ def make_map(df: pd.DataFrame, loc: pd.DataFrame, period_label: str,
     ax.scatter([], [], facecolor="none", edgecolor="#555555", linewidth=1.6, s=58,
                label="not significant")
 
-    ax.tick_params(labelsize=8)
-    ax.ticklabel_format(style="plain", useOffset=False)
-    ax.set_xlabel("Easting (m)", fontsize=9); ax.set_ylabel("Northing (m)", fontsize=9)
     leg = ax.legend(fontsize=8.5, loc="lower left", framealpha=0.9, title="cluster")
     leg._legend_box.align = "left"
     cb = fig.colorbar(im, ax=ax, shrink=0.8, pad=0.01)

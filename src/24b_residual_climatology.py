@@ -2,13 +2,12 @@
 ====================================================================================
 24b_residual_climatology.py — Cluster-stratified residual climatology (DIAGNOSTIC)
 ====================================================================================
-STATUS: Standalone diagnostic. This script is DELIBERATELY NOT part of the
-        orchestrated pipeline — it is not registered in run_analysis.py, it does
-        not appear in the pipeline step/phase counts, and it does not write to
-        the orchestrated outputs tree via paths.py named constants. It reads
-        committed pipeline outputs (Script 22 residuals, Script 03 master data)
-        and the site forest polygon, and writes a self-contained output folder.
-        Run it by hand when the residual-seasonality question is revisited.
+STATUS: Supplementary pipeline diagnostic. Wired into run_analysis.py (Phase 16,
+        Supplementary Standalone Diagnostics) so it REGENERATES whenever upstream
+        data changes; its output directory and product paths are registered as
+        named constants in paths.py. It reads committed pipeline outputs (Script 22
+        residuals, Script 03 master data) and the site forest polygon, and writes
+        the outputs/24b_residual_climatology/ folder. May also be run directly.
 
 Purpose:
     Discriminate among three candidate mechanisms for the seasonal structure in
@@ -56,7 +55,8 @@ Conventions:
 ====================================================================================
 """
 
-__version__ = "1.1.0"  # Hollingham (2026) — Script 24b, recovered & shelved as diagnostic
+__version__ = "1.2.0"  # Hollingham (2026) — Script 24b. v1.2.0: wired into run_analysis.py
+                       # (Phase 16 supplementary diagnostics); output paths via paths.py.
 # 1.1.0 — Recovered from the 7-June residual-seasonality session and RETAINED AS A
 #         NON-PIPELINE DIAGNOSTIC. Relocated to diagnostics/; outputs made self-
 #         contained (no paths.py named constants, not added to make_all_dirs);
@@ -97,6 +97,12 @@ from utils.paths import (
     DATA_KML_FEATURES,
     INT_22_RESIDUALS_WIDE,
     INT_MASTER_DATA,
+    DIR_24B,
+    OUT_24B_CLUSTER_CLIMATOLOGY,
+    OUT_24B_WINTER_MINUS_SUMMER,
+    OUT_24B_PER_WELL_CONTRAST,
+    OUT_24B_CLIMATOLOGY_FIG,
+    OUT_24B_SUMMARY,
 )
 from utils.data_utils import normalize_well_name
 from utils.config import (
@@ -106,17 +112,16 @@ from utils.config import (
 )
 
 # ==========================================
-# CONFIGURATION (analysis parameters — local to this standalone diagnostic)
+# CONFIGURATION (analysis parameters)
 # ==========================================
-# Self-contained output folder. Lives inside the repo outputs/ dir for
-# convenience but is NOT registered in paths.py / make_all_dirs, so the
-# orchestrated pipeline neither creates nor depends on it.
-DIAG_DIR = OUT_DIR / "24b_residual_climatology"
-OUT_CLUSTER_CLIMATOLOGY = DIAG_DIR / "24b_01_cluster_climatology.csv"
-OUT_WINTER_MINUS_SUMMER = DIAG_DIR / "24b_02_peak_winter_minus_summer.csv"
-OUT_PER_WELL_CONTRAST   = DIAG_DIR / "24b_03_per_well_winter_minus_summer.csv"
-OUT_CLIMATOLOGY_FIG     = DIAG_DIR / "24b_04_cluster_climatology.png"
-OUT_SUMMARY             = DIAG_DIR / "24b_05_interpretation.txt"
+# Output paths are now the named constants in paths.py (single source of truth);
+# the local aliases below keep the rest of this script unchanged.
+DIAG_DIR = DIR_24B
+OUT_CLUSTER_CLIMATOLOGY = OUT_24B_CLUSTER_CLIMATOLOGY
+OUT_WINTER_MINUS_SUMMER = OUT_24B_WINTER_MINUS_SUMMER
+OUT_PER_WELL_CONTRAST   = OUT_24B_PER_WELL_CONTRAST
+OUT_CLIMATOLOGY_FIG     = OUT_24B_CLIMATOLOGY_FIG
+OUT_SUMMARY             = OUT_24B_SUMMARY
 
 # Bedrock-ridge reference point (OSGB36 / EPSG:27700), origin for the
 # straight-line "distance to ridge" covariate. Defined locally so the

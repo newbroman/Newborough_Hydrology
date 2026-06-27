@@ -62,6 +62,7 @@ from utils.map_utils import (
     load_dem_hillshade,
     add_idw_surface,
     add_kml_features,
+    add_en_axes,
 )
 from utils.data_utils import normalize_well_name
 from utils.config import (
@@ -104,8 +105,6 @@ OUT_CLUSTER_RANGES = DIR_07 / "07_coeff_05_cluster_ranges.csv"
 # ==========================================
 GRID_XI = np.arange(240200, 243800, 50)
 GRID_YI = np.arange(362200, 365800, 50)
-XLIM = (240400, 243600)
-YLIM = (362400, 365000)
 
 # ==========================================
 # AESTHETICS
@@ -190,9 +189,7 @@ def make_coefficient_map(
     if not ok:
         warn("DEM hillshade unavailable — map will lack terrain context.")
 
-    ax.set_xlim(*XLIM)
-    ax.set_ylim(*YLIM)
-    ax.set_aspect("equal")
+    add_en_axes(ax, label_fontsize=11, labelsize=10)
 
     # Colour norm
     vals = plot_df[value_col].to_numpy(dtype=float)
@@ -297,9 +294,6 @@ def make_coefficient_map(
         title="Cluster", title_fontsize=10,
     )
 
-    ax.set_xlabel("Easting (m, OSGB36)", fontsize=11)
-    ax.set_ylabel("Northing (m, OSGB36)", fontsize=11)
-    ax.tick_params(labelsize=10)
     ax.set_title(title, fontsize=13, fontweight="bold")
 
     fig.tight_layout()

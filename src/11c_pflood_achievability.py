@@ -202,10 +202,13 @@ ax.set_title(
     fontsize=10, fontweight="bold",
 )
 
-# Canonical site-map extent and equal aspect (from config — matches all
-# other spatial figures: 04, 07, 08, 11b, 12, 13, 18, 19, 20, 26)
+# Site-map extent and equal aspect. NOTE: 11c is intentionally left at its
+# prior extent (northern edge 365800), NOT the canonical 365500 — by request,
+# 11b/11c keep their existing frames. The northern bound is pinned locally so it
+# is unaffected by the config SITE_MAP_NORTH_MAX change (now 365500).
+_NORTH_MAX_11C = 365800   # local pin; do not repoint to config.SITE_MAP_NORTH_MAX
 ax.set_xlim(SITE_MAP_EAST_MIN, SITE_MAP_EAST_MAX)
-ax.set_ylim(SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX)
+ax.set_ylim(SITE_MAP_NORTH_MIN, _NORTH_MAX_11C)
 ax.set_aspect("equal")
 
 fig.tight_layout()

@@ -5,7 +5,7 @@ Interactive orchestrator for the Hollingham (2026) analytical pipeline.
 Usage
 -----
   python run_analysis.py              # interactive menu
-  python run_analysis.py --full       # non-interactive: run all 38 steps
+  python run_analysis.py --full       # non-interactive: run all 42 steps
   python run_analysis.py --full --log # ... and record all console output to a log file
   python run_analysis.py --from N     # non-interactive: resume from step N
   python run_analysis.py --viewer     # non-interactive: build scenario viewer only
@@ -16,10 +16,11 @@ Usage
 
 Pipeline structure
 ------------------
-The pipeline comprises 38 steps across 16 phases:
+The pipeline comprises 42 steps across 17 phases:
 
   Phases 1–11 produce the main analytical results documented in the report.
-  Phase 12 runs supplementary diagnostics (Scripts 22–24).
+  Phase 12 runs supplementary diagnostics (Scripts 22–24); Phase 16 runs further
+  standalone diagnostics (Scripts 24b, 31, 31b, 34) before greyscale conversion.
   Phase 13 runs the van Willegen et al. (2025) MSL analyses — observational
   5-year MSL aggregation (Script 26), UKCP18 RCP8.5 climate projections
   (Script 26b), and report-format figures (Script 26c, for §4.8.4 and
@@ -160,74 +161,80 @@ def say_info(msg: str) -> None:
 # ── Phase / step definitions ──────────────────────────────────────────────────
 
 PHASE_1 = [
-    ("01_data_prep.py",              " 1/38  Data preparation"),
-    ("02_clustering.py",             " 2/38  Behavioural clustering"),
-    ("03_state_space_model.py",      " 3/38  State-space regression + LCSC"),
-    ("04_cluster_visualisations.py", " 4/38  Core cluster visualisation"),
+    ("01_data_prep.py",              " 1/42  Data preparation"),
+    ("02_clustering.py",             " 2/42  Behavioural clustering"),
+    ("03_state_space_model.py",      " 3/42  State-space regression + LCSC"),
+    ("04_cluster_visualisations.py", " 4/42  Core cluster visualisation"),
 ]
 PHASE_2 = [
-    ("05_pearson_affinity.py",  " 5/38  Pearson membership audit"),
-    ("06_pearson_extended.py",  " 6/38  Pearson extended network integration"),
+    ("05_pearson_affinity.py",  " 5/42  Pearson membership audit"),
+    ("06_pearson_extended.py",  " 6/42  Pearson extended network integration"),
 ]
 PHASE_3 = [
-    ("07_spatial_coefficients.py",     " 7/38  Spatial coefficient mapping"),
-    ("08_model_benchmarking.py",      " 8/38  Model benchmarking (LCSC vs Traditional)"),
-    ("run_09_scraping.py",            " 9/38  Scraping analysis suite (09a–09e)"),
-    ("run_10_clearfell.py",           "10/38  Clear-fell BACI analysis suite (10a–10l)"),
-    ("11_forecasting_thresholds.py",  "11/38  Forecasting and critical thresholds"),
-    ("11b_spatial_thresholds.py",     "12/38  Spatial eco-hydrological threshold maps"),
-    ("11c_pflood_achievability.py",   "13/38  P_flood achievability categorical map (§5.9 / Conclusion 4)"),
+    ("07_spatial_coefficients.py",     " 7/42  Spatial coefficient mapping"),
+    ("08_model_benchmarking.py",      " 8/42  Model benchmarking (LCSC vs Traditional)"),
+    ("run_09_scraping.py",            " 9/42  Scraping analysis suite (09a–09e)"),
+    ("run_10_clearfell.py",           "10/42  Clear-fell BACI analysis suite (10a–10l)"),
+    ("11_forecasting_thresholds.py",  "11/42  Forecasting and critical thresholds"),
+    ("11b_spatial_thresholds.py",     "12/42  Spatial eco-hydrological threshold maps"),
+    ("11c_pflood_achievability.py",   "13/42  P_flood achievability categorical map (§5.9 / Conclusion 4)"),
 ]
 PHASE_4 = [
-    ("00_climate_summary.py",            "14/38  Climate summary outputs"),
-    ("14_climate_projections.py",        "15/38  Figure: Climate trajectory projections"),
-    ("14b_year_of_crossing.py",          "16/38  Bootstrap year-of-crossing for Curreli thresholds (§7 Conclusion 11)"),
-    ("12_figure_site_overview.py",       "17/38  Figure: DEM site overview"),
-    ("13_figure_experimental_design.py", "18/38  Figure: Experimental design GIS map"),
+    ("00_climate_summary.py",            "14/42  Climate summary outputs"),
+    ("14_climate_projections.py",        "15/42  Figure: Climate trajectory projections"),
+    ("14b_year_of_crossing.py",          "16/42  Bootstrap year-of-crossing for Curreli thresholds (§7 Conclusion 11)"),
+    ("12_figure_site_overview.py",       "17/42  Figure: DEM site overview"),
+    ("13_figure_experimental_design.py", "18/42  Figure: Experimental design GIS map"),
 ]
 PHASE_5 = [
-    ("15_depth_dependent_pet.py", "19/38  Depth-dependent PET analysis"),
+    ("15_depth_dependent_pet.py", "19/42  Depth-dependent PET analysis"),
 ]
 PHASE_6 = [
-    ("17_wtf_specific_yield.py", "20/38  WTF cluster Sy estimation"),
+    ("17_wtf_specific_yield.py", "20/42  WTF cluster Sy estimation"),
 ]
 PHASE_7 = [
-    ("16_water_bal.py", "21/38  Water balance decomposition"),
+    ("16_water_bal.py", "21/42  Water balance decomposition"),
 ]
 PHASE_8 = [
-    ("18_wtf_spatial.py", "22/38  WTF spatial analysis and Sy mapping"),
+    ("18_wtf_spatial.py", "22/42  WTF spatial analysis and Sy mapping"),
 ]
 PHASE_9 = [
-    ("19_spatial_groundwater.py", "23/38  Spatial groundwater analysis"),
-    ("20_spatial_figures.py",     "24/38  Spatial paper figures"),
+    ("19_spatial_groundwater.py", "23/42  Spatial groundwater analysis"),
+    ("20_spatial_figures.py",     "24/42  Spatial paper figures"),
 ]
 PHASE_10 = [
-    ("21_forestry_scenarios.py", "25/38  Forestry scenarios and management figures"),
+    ("21_forestry_scenarios.py", "25/42  Forestry scenarios and management figures"),
 ]
 PHASE_11 = [
-    ("25_coastal_gradient.py",   "26/38  Coastal-retreat gradient analysis"),
+    ("25_coastal_gradient.py",   "26/42  Coastal-retreat gradient analysis"),
 ]
 PHASE_12 = [
-    ("22_residual_lag_analysis.py",    "27/38  Residual lag structure analysis"),
-    ("23_ridge_recharge_lag_test.py",  "28/38  Ridge recharge lag hypothesis test"),
-    ("24_residual_seasonality.py",     "29/38  Residual seasonality diagnostics"),
+    ("22_residual_lag_analysis.py",    "27/42  Residual lag structure analysis"),
+    ("23_ridge_recharge_lag_test.py",  "28/42  Ridge recharge lag hypothesis test"),
+    ("24_residual_seasonality.py",     "29/42  Residual seasonality diagnostics"),
 ]
 PHASE_13 = [
-    ("26_van_willegen_msl.py",             "30/38  Van Willegen (2025) 5-year MSL aggregation"),
-    ("26b_van_willegen_msl_projections.py", "31/38  UKCP18 MSL5 climate projections (Tool B)"),
-    ("26c_msl5_report_figures.py",          "32/38  MSL5 report-format figures (Figures for §4.8.4 / §4.10.1)"),
+    ("26_van_willegen_msl.py",             "30/42  Van Willegen (2025) 5-year MSL aggregation"),
+    ("26b_van_willegen_msl_projections.py", "31/42  UKCP18 MSL5 climate projections (Tool B)"),
+    ("26c_msl5_report_figures.py",          "32/42  MSL5 report-format figures (Figures for §4.8.4 / §4.10.1)"),
 ]
 PHASE_14 = [
-    ("28_c3_detrend_check.py",          "33/38  Cluster framework diagnostic: C3 detrend check (H0)"),
-    ("29_c3_within_variance_check.py",  "34/38  Cluster framework diagnostic: within-C3 spatial structure"),
-    ("30_c4_constrained_fit.py",         "35/38  Cluster framework diagnostic: C4 constrained-β₃ triangulation sensitivity"),
+    ("28_c3_detrend_check.py",          "33/42  Cluster framework diagnostic: C3 detrend check (H0)"),
+    ("29_c3_within_variance_check.py",  "34/42  Cluster framework diagnostic: within-C3 spatial structure"),
+    ("30_c4_constrained_fit.py",         "35/42  Cluster framework diagnostic: C4 constrained-β₃ triangulation sensitivity"),
 ]
 PHASE_15 = [
-    ("32_differential_movement.py",    "36/38  Figure: secular differential water-table drift (report Fig 59)"),
-    ("33_envelope_amplification.py",   "37/38  Figure: climate-swing amplification + drought-floor (report Fig 60)"),
+    ("32_differential_movement.py",    "36/42  Figure: secular differential water-table drift (report Fig 59)"),
+    ("33_envelope_amplification.py",   "37/42  Figure: climate-swing amplification + drought-floor (report Fig 60)"),
 ]
 PHASE_16 = [
-    ("27_greyscale_figures.py",        "38/38  Greyscale figure conversion (journal-ready B&W)"),
+    ("24b_residual_climatology.py",        "38/42  Cluster-stratified residual climatology (supplementary diagnostic)"),
+    ("31_cluster_validation.py",           "39/42  Independent k=5 partition validation (supplementary diagnostic)"),
+    ("31b_separation_vs_recoverability.py", "40/42  Cluster separation vs recoverability (supplementary diagnostic)"),
+    ("34_window_sensitivity.py",           "41/42  MSL5 two-window sensitivity demonstration figure (\u00a75.7.5)"),
+]
+PHASE_17 = [
+    ("27_greyscale_figures.py",        "42/42  Greyscale figure conversion (journal-ready B&W)"),
 ]
 
 ALL_PHASES = [
@@ -246,7 +253,8 @@ ALL_PHASES = [
     ("PHASE 13 \u2014 Van Willegen MSL Analyses (Scripts 26, 26b, 26c)",    PHASE_13),
     ("PHASE 14 \u2014 Cluster Framework Diagnostics (Scripts 28\u201330)",   PHASE_14),
     ("PHASE 15 \u2014 Observed Differential Change and Envelope (Scripts 32\u201333)", PHASE_15),
-    ("PHASE 16 \u2014 Greyscale Figure Conversion (Script 27)",        PHASE_16),
+    ("PHASE 16 \u2014 Supplementary Standalone Diagnostics (Scripts 24b, 31, 31b, 34)", PHASE_16),
+    ("PHASE 17 \u2014 Greyscale Figure Conversion (Script 27)",        PHASE_17),
 ]
 
 # Build step -> (script, label, extra_args) lookup at import time
@@ -843,7 +851,7 @@ def menu_run_single() -> None:
         print(f"\n  [OK] Step {n} complete.")
         if bw:
             print("  [BW] Copying figures to outputs_bw/ ...")
-            run_script("27_greyscale_figures.py", "38/38  Greyscale figure conversion")
+            run_script("27_greyscale_figures.py", "42/42  Greyscale figure conversion")
             bw_dir = ROOT_DIR / "outputs_bw"
             if bw_dir.exists():
                 n_figs = len(list(bw_dir.rglob("*.png"))) + len(list(bw_dir.rglob("*.jpg")))
@@ -910,7 +918,7 @@ def run_greyscale(full_rerun: bool = False) -> None:
         print("  perceptual luminance weighting. Quick but some figures")
         print("  may be suboptimal — use 'Full B&W re-run' for best results.")
         print()
-        run_script("27_greyscale_figures.py", "38/38  Greyscale figure conversion")
+        run_script("27_greyscale_figures.py", "42/42  Greyscale figure conversion")
 
     bw_dir = ROOT_DIR / "outputs_bw"
     if bw_dir.exists():
@@ -934,7 +942,7 @@ def show_help() -> None:
     print("  intervention analyses, spatial mapping, climate projections and")
     print("  journal figures for the 88-dipwell Newborough Warren network.")
 
-    print("\n" + H("  Pipeline structure") + D("   (38 steps across 16 phases)"))
+    print("\n" + H("  Pipeline structure") + D("   (42 steps across 17 phases)"))
     for phase_label, phase_entries in ALL_PHASES:
         steps = [int(e[1].strip().split("/")[0]) for e in phase_entries
                  if e[1].strip().split("/")[0].isdigit()]
@@ -1133,7 +1141,7 @@ def main() -> None:
         """)
     )
     parser.add_argument("--full",   action="store_true",
-                        help="Run all 38 steps non-interactively")
+                        help="Run all 42 steps non-interactively")
     parser.add_argument("--log", nargs="?", const="AUTO", default=None, metavar="PATH",
                         help="With --full: record all console output to a log file "
                              "(optional PATH; default outputs/logs/run_<timestamp>.log)")

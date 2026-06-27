@@ -63,7 +63,22 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds
 """
 
-__version__ = "1.21.0"  # Hollingham (2026) — 2026-06-25
+__version__ = "1.22.0"  # Hollingham (2026) — 2026-06-27
+# 1.22.0 — Scrape rise zone tightened + E/N axes on portrait maps.
+#   * SCRAPE_RISE_BUFFER_M 90 -> 10 m: the rise is now confined to the scrape
+#     KML footprints plus a thin 10 m collar (was footprint + 90 m). One
+#     constant feeds all three scrape maps — plot_scrape_drawdown,
+#     plot_scrape_coastal_net, plot_net_state_map (via _scrape_field and
+#     _overlay_scrape_rise) — so all three update together. Consequence: the
+#     modelled drawdown cone now reaches its near-field max ~10 m off the
+#     footprint edge rather than 90 m out (deliberate, per Martin).
+#   * E/N axes restored on the four portrait data maps that suppressed ticks:
+#     plot_clearfell_gain, plot_msl5_change, plot_observed_change,
+#     plot_net_state_map. set_xticks([])/set_yticks([]) replaced with the house
+#     Easting/Northing labels + tick_params(labelsize=8); equal aspect and the
+#     canonical XLIM/YLIM were already present. plot_public_panel left clean
+#     (public-facing composite — E/N grids on sub-panels would clutter it).
+# 1.21.0 (2026-06-25) — superseded by 1.22.0 above:
 # 1.21.0 — plot_msl5_change() (Fig 54) now honours the MSL5 well exclusion
 #   flag (msl5_excluded) written by Script 26 v1.2.0: CEH13/CEH14 dropped
 #   from the observed-change map so it is consistent with the latest-MSL5
@@ -498,10 +513,10 @@ SCRAPE_DEPTH_M           = 0.40       # m, excavation depth at CEH36 (40 cm) —
                                       # (unmeasured) scrape depth of 129/Sy ≈ 0.41 m.
 SCRAPE_FAVOUR_UPGRADIENT = True       # drain pulls inland (flip forest weight)
 SCRAPE_TRUNCATE_SEAWARD  = False      # seaward half-plane + foreshore clip.
-SCRAPE_RISE_BUFFER_M     = 90.0       # the scraped footprint RISES (slack
-                                      # restoration); the model-only near-field
-                                      # drawdown within this buffer is unobserved
-                                      # and is shown as the rise zone, not drawdown.
+SCRAPE_RISE_BUFFER_M     = 10.0       # the scraped footprint RISES (slack
+                                      # restoration); the rise is confined to the
+                                      # scrape KML footprints plus a thin 10 m
+                                      # collar, shown as the rise zone not drawdown.
 SCRAPE_TIMESCALE         = "Feb 2013 · Apr 2015 · Oct 2023 cuts"  # three scraping epochs
                                       # True for a SHORE-margin scrape (e.g.
                                       # CEH22) where the sea pins the seaward
@@ -2913,8 +2928,9 @@ def plot_clearfell_gain(wt, features, dpi=300):
     ax.set_xlim(*XLIM)
     ax.set_ylim(*YLIM)
     ax.set_aspect("equal")
-    ax.set_xticks([])
-    ax.set_yticks([])
+    ax.set_xlabel("Easting (m, OSGB36)", fontsize=9)
+    ax.set_ylabel("Northing (m, OSGB36)", fontsize=9)
+    ax.tick_params(labelsize=8)
 
     ax.set_title(
         "Clearfell step-change — measured water-table response\n"
@@ -3137,7 +3153,10 @@ def plot_msl5_change(wt, features, dpi=300):
                     ls="-.", zorder=7)
 
     ax.set_xlim(*XLIM); ax.set_ylim(*YLIM)
-    ax.set_aspect("equal"); ax.set_xticks([]); ax.set_yticks([])
+    ax.set_aspect("equal")
+    ax.set_xlabel("Easting (m, OSGB36)", fontsize=9)
+    ax.set_ylabel("Northing (m, OSGB36)", fontsize=9)
+    ax.tick_params(labelsize=8)
 
     ax.set_title(
         f"MSL5 change — window end {BASE_YR} vs window end {CURR_YR}\n"
@@ -3409,7 +3428,10 @@ def plot_observed_change(wt, features, dpi=300):
                     ls="-.", zorder=7)
 
     ax.set_xlim(*XLIM); ax.set_ylim(*YLIM)
-    ax.set_aspect("equal"); ax.set_xticks([]); ax.set_yticks([])
+    ax.set_aspect("equal")
+    ax.set_xlabel("Easting (m, OSGB36)", fontsize=9)
+    ax.set_ylabel("Northing (m, OSGB36)", fontsize=9)
+    ax.tick_params(labelsize=8)
 
     ax.set_title(
         "Observed spring water-table change — climate-normalised\n"
@@ -3600,8 +3622,9 @@ def plot_net_state_map(wt, features, dpi=300):
     ax.set_xlim(*XLIM)
     ax.set_ylim(*YLIM)
     ax.set_aspect("equal")
-    ax.set_xticks([])
-    ax.set_yticks([])
+    ax.set_xlabel("Easting (m, OSGB36)", fontsize=9)
+    ax.set_ylabel("Northing (m, OSGB36)", fontsize=9)
+    ax.tick_params(labelsize=8)
 
     ax.set_title(
         "Net water-table state — combined drivers\n"

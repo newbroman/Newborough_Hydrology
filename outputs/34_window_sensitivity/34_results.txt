@@ -1,0 +1,12 @@
+MSL5 two-window sensitivity (§5.7.5) — all-pairs demonstration v0.3.0
+source: 26_msl_annual_per_well.csv (valid; ['ceh13', 'ceh14'] excluded); rainfall: 00_01_annual_climate_summary.csv
+common panel per pair; admissible = panel>=40; ALL pairs retained (wet-2024 windows INCLUDED — the point of the demonstration)
+
+anchor 2017->2023: -96.5 mm (n=60)  [committed -96.8 mm, n=59]
+
+ADMISSIBLE envelope: -136 to +221 mm (-0.14 to +0.22 m); 19 neg / 47 pos of 66 pairs (sign-changing)
+  most negative: 2017->2020 -136 mm (n=60)
+  most positive: 2015->2024 +221 mm (n=53)  [current window contains the freak-wet 2024 spring]
+
+The -97 mm headline is one interior point; the two-window MSL5 method cannot resolve absolute site-wide change.
+Thin 7-well 2005-2009 baseline auto-excluded by the panel rule.

@@ -325,7 +325,7 @@ def plot_contour_map(well_results, out_path):
     Forest cluster wells hatched to signal interception uncertainty.
     """
     from matplotlib.lines import Line2D
-    from utils.map_utils import load_dem_hillshade, add_kml_features
+    from utils.map_utils import load_dem_hillshade, add_kml_features, add_en_axes
 
     # ── Study area bounds (consistent with add_idw_surface defaults) ──────────
     XI_MIN, XI_MAX = 240200, 243800
@@ -352,9 +352,7 @@ def plot_contour_map(well_results, out_path):
 
     # ── Figure ────────────────────────────────────────────────────────────────
     fig, ax = plt.subplots(figsize=(12, 10), facecolor="white", dpi=200)
-    ax.set_xlim(XI_MIN, XI_MAX)
-    ax.set_ylim(YI_MIN, YI_MAX)
-    ax.set_aspect("equal")
+    add_en_axes(ax)
 
     # Layer 1 — greyscale hillshade DEM
     _, dem_loaded, dem_e_arr, dem_n_arr, dem_data = load_dem_hillshade(
@@ -419,11 +417,9 @@ def plot_contour_map(well_results, out_path):
     ax.add_artist(cluster_leg)
     if site_feature_handles:
         ax.legend(handles=site_feature_handles, title="Site Features",
-                  loc="upper right", fontsize=8,
+                  loc="upper left", fontsize=8,
                   framealpha=0.95, edgecolor="#CCCCCC")
 
-    ax.set_xlabel("Easting (m, OSGB36)", fontsize=10)
-    ax.set_ylabel("Northing (m, OSGB36)", fontsize=10)
     ax.set_title(
         "Interpolated WTF Specific Yield Surface — Newborough Warren 2005–2026\n"
         "IDW interpolation (power=2) of event-based median Sy per well  |  "
@@ -541,7 +537,7 @@ def plot_contour_map_extended(ref_results, ext_results, out_path):
     Extended wells shown as open symbols to distinguish from reference wells.
     """
     from matplotlib.lines import Line2D
-    from utils.map_utils import load_dem_hillshade, add_kml_features
+    from utils.map_utils import load_dem_hillshade, add_kml_features, add_en_axes
 
     # ── Study area bounds ─────────────────────────────────────────────────────
     XI_MIN, XI_MAX = 240200, 243800
@@ -584,9 +580,7 @@ def plot_contour_map_extended(ref_results, ext_results, out_path):
 
     # ── Figure ────────────────────────────────────────────────────────────────
     fig, ax = plt.subplots(figsize=(12, 10), facecolor='white', dpi=200)
-    ax.set_xlim(XI_MIN, XI_MAX)
-    ax.set_ylim(YI_MIN, YI_MAX)
-    ax.set_aspect('equal')
+    add_en_axes(ax)
 
     # Layer 1 — greyscale hillshade DEM
     _, dem_loaded, dem_e_arr, dem_n_arr, dem_data = load_dem_hillshade(
@@ -696,11 +690,9 @@ def plot_contour_map_extended(ref_results, ext_results, out_path):
 
     if site_feature_handles:
         ax.legend(handles=site_feature_handles, title='Site Features',
-                  loc='upper right', fontsize=8,
+                  loc='upper left', fontsize=8,
                   framealpha=0.95, edgecolor='#CCCCCC')
 
-    ax.set_xlabel('Easting (m, OSGB36)', fontsize=10)
-    ax.set_ylabel('Northing (m, OSGB36)', fontsize=10)
     ax.set_title(
         'Interpolated WTF Specific Yield Surface — Reference + Extended Network\n'
         'Newborough Warren 2005–2026  |  IDW interpolation (power=2)  |  '
@@ -809,7 +801,7 @@ def plot_drainage_timescale_map(tau_df, out_path):
     Excluded wells (CEH12, CEH15, CEH14) shown as red crosses outside interpolation.
     """
     from matplotlib.lines import Line2D
-    from utils.map_utils import load_dem_hillshade, add_kml_features
+    from utils.map_utils import load_dem_hillshade, add_kml_features, add_en_axes
 
     # ── Study area bounds ─────────────────────────────────────────────────────
     XI_MIN, XI_MAX = 240200, 243800
@@ -847,9 +839,7 @@ def plot_drainage_timescale_map(tau_df, out_path):
 
     # ── Figure ────────────────────────────────────────────────────────────────
     fig, ax = plt.subplots(figsize=(12, 10), facecolor="white", dpi=200)
-    ax.set_xlim(XI_MIN, XI_MAX)
-    ax.set_ylim(YI_MIN, YI_MAX)
-    ax.set_aspect("equal")
+    add_en_axes(ax)
 
     # Layer 1 — greyscale hillshade DEM
     _, dem_loaded, dem_e_arr, dem_n_arr, dem_data = load_dem_hillshade(
@@ -931,11 +921,9 @@ def plot_drainage_timescale_map(tau_df, out_path):
 
     if site_feature_handles:
         ax.legend(handles=site_feature_handles, title="Site Features",
-                  loc="upper right", fontsize=8,
+                  loc="upper left", fontsize=8,
                   framealpha=0.95, edgecolor="#CCCCCC")
 
-    ax.set_xlabel("Easting (m, OSGB36)", fontsize=10)
-    ax.set_ylabel("Northing (m, OSGB36)", fontsize=10)
     ax.set_title(
         "Characteristic Storage–Drainage Index  τ = Sy / β₃  — Newborough Warren 2005–2026\n"
         "IDW interpolation (power=2)  |  Sy from WTF method (Section 3.7.3), "

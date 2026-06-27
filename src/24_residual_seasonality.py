@@ -83,8 +83,8 @@ from utils.paths import (
     OUT_24_SUMMARY,
 )
 from utils.data_utils import normalize_well_name
-from utils.map_utils import add_kml_features
-from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS
+from utils.map_utils import add_kml_features, load_dem_layer, add_en_axes
+from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, BW_MODE
 from utils.model_utils import fit_ssm_intercept
 
 from utils.console_utils import (
@@ -283,21 +283,33 @@ def plot_climatology_panels(resids_dict, meta_df, output_path):
 
 def plot_amplitude_map(clim_df, output_path):
     """Spatial map of seasonal amplitude per well."""
-    fig, ax = plt.subplots(figsize=(10, 8), dpi=300)
+    fig, ax = plt.subplots(figsize=(12, 10), dpi=300)
     valid = clim_df.dropna(subset=['Easting', 'Northing', 'amplitude'])
     if valid.empty:
         skipped("No valid coordinates for amplitude map.")
         return
 
+    # DEM baselayer (coloured terrain; greyscale hillshade in BW mode),
+    # matching the other point-symbol maps (scripts 04/05/06/08).
+    dem_layer, dem_loaded = load_dem_layer(ax, DATA_DIR)
+
+    try:
+        add_kml_features(ax, DATA_DIR)
+    except Exception as e:
+        note(f"KML overlay skipped: {e}")
+
     sc = ax.scatter(valid['Easting'], valid['Northing'],
                     c=valid['amplitude'], cmap='viridis',
                     vmin=0, vmax=max(0.05, valid['amplitude'].quantile(0.95)),
-                    s=90, edgecolor='black', linewidth=0.7, zorder=4)
+                    s=90, edgecolor='black', linewidth=0.7, zorder=5)
     cbar = plt.colorbar(sc, ax=ax, shrink=0.7, pad=0.02)
     cbar.set_label('Seasonal amplitude (m)', fontsize=11)
+    if dem_layer is not None and not BW_MODE:
+        fig.colorbar(dem_layer, ax=ax, shrink=0.55, pad=0.02, extend="both").set_label(
+            "Elevation (m AOD)", rotation=270, labelpad=18)
 
     ax.scatter(RIDGE_E, RIDGE_N, marker='*', s=500, color='red',
-               edgecolor='black', linewidth=1.2, zorder=5,
+               edgecolor='black', linewidth=1.2, zorder=6,
                label='Ridge reference')
 
     # Label the notable wells
@@ -307,19 +319,12 @@ def plot_amplitude_map(clim_df, output_path):
             ax.annotate(well.upper(),
                         xy=(row['Easting'].iloc[0], row['Northing'].iloc[0]),
                         xytext=(6, 6), textcoords='offset points',
-                        fontsize=8, fontweight='bold', zorder=6)
+                        fontsize=8, fontweight='bold', zorder=7)
 
-    try:
-        add_kml_features(ax, DATA_DIR)
-    except Exception as e:
-        note(f"KML overlay skipped: {e}")
-
-    ax.set_xlabel('Easting (m, OSGB36)')
-    ax.set_ylabel('Northing (m, OSGB36)')
     ax.set_title('Seasonal amplitude of SSM residuals\n'
                  '(large amplitude indicates a strong annual cycle in the residual)',
                  fontweight='bold')
-    ax.set_aspect('equal')
+    add_en_axes(ax)
     ax.grid(ls='--', alpha=0.4)
     ax.legend(loc='upper left', frameon=True, edgecolor='black', fontsize=9)
     plt.tight_layout()

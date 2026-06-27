@@ -28,7 +28,8 @@ Method (signed-off spec, 2026-06-26):
   * Per-well trend requires >= PER_WELL_MIN_YEARS spring-years in the period.
   * Significance: lag-1 AR-corrected t-test (effective N), cross-checked against a
     moving-block bootstrap CI. Significant wells drawn solid; non-significant hollow.
-  * Exclusions: config.MSL5_EXCLUDED_WELLS (CEH13/CEH14) + the Llyn Rhos-Ddu gauge.
+  * Exclusions: the Llyn Rhos-Ddu lake gauge only. CEH13/CEH14 (MSL5/SSM-excluded for SSM
+  *   reasons) are INCLUDED — the differential anomaly trend is observational, not SSM-derived.
     All other wells retained on equal footing — coastal wells are NOT flagged or
     dropped; cause is the text layer, not a data surgery.
   * Periods: 2011-2025 primary; 2005-2025 robustness check.
@@ -279,7 +280,7 @@ def make_map(df: pd.DataFrame, loc: pd.DataFrame, period_label: str,
     ax.set_title(
         f"Newborough Warren: secular differential movement of the spring water table{tag}\n"
         f"Anomaly trend {first}-{last}; solid = significant (AR-corrected), hollow = not. "
-        f"CEH13/14 excluded.",
+        f"Lake gauge excluded.",
         fontsize=10.5, loc="left")
     fig.savefig(out_path, dpi=160, bbox_inches="tight")
     plt.close(fig)
@@ -295,10 +296,14 @@ def main() -> int:
     phase(1, "Load inputs")
     levels, loc, master = load_inputs()
     yr = spring_year_table(levels)
-    excluded = set(k.lower() for k in config.MSL5_EXCLUDED_WELLS) | LAKE_GAUGE_KEYS
+    # Blanket include (2026-06-27): the differential anomaly trend is OBSERVATIONAL (well minus
+    # site-mean spring level), independent of the SSM, so the SSM-failure exclusion that keeps
+    # CEH13/CEH14 out of the MSL5 analysis does not apply here. They are included; only the lake
+    # gauge is excluded. (They were already in the site-mean panel; this adds their markers.)
+    excluded = set(LAKE_GAUGE_KEYS)
     info(f"spring-year table: {yr.shape[1]} wells x {yr.shape[0]} years "
          f"({int(yr.index.min())}-{int(yr.index.max())})")
-    note(f"excluded from trends: {sorted(config.MSL5_EXCLUDED_WELLS)} + lake gauge")
+    note("excluded from trends: lake gauge only (CEH13/CEH14 blanket-included — observational metric)")
 
     all_results: dict[str, pd.DataFrame] = {}
     lines: list[str] = []

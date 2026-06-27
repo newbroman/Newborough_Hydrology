@@ -35,7 +35,8 @@ Method (locked spec, 2026-06-26):
   * Per-well state = mean over the extreme years (require >= MIN_YEARS_PER_EXTREME of 3).
   * swing = wet_state - dry_state (mm).  amplification = swing / network-mean swing.
   * Drought-floor = dry_state depth to water (mm below ground), threshold contoured.
-  * Exclusions: config.MSL5_EXCLUDED_WELLS (CEH13/CEH14) + Llyn Rhos-Ddu gauge.
+  * Exclusions: Llyn Rhos-Ddu lake gauge only. CEH13/CEH14 (MSL5/SSM-excluded for SSM
+  *   reasons) are INCLUDED here — the coefficient is observational and does not use the SSM.
   * IDW power 2, 50 m grid, 450 m mask.
 
 Standalone diagnostic — NOT wired into run_analysis.py / paths.py / config.py.
@@ -91,6 +92,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import TwoSlopeNorm
 
 from utils import config, paths
+from utils import envelope_metric as em
 from utils.map_utils import load_dem_hillshade, add_kml_features, add_idw_surface, add_en_axes
 from utils.console_utils import banner, phase, step, info, saved, note, result, done, hr
 
@@ -296,7 +298,7 @@ def fig_amplification(df, GX, GY, out_path, title=None):
     fl = df[flg]
     if len(fl):
         ax.scatter(fl.E, fl.N, facecolor="none", edgecolor="k", marker="^", s=90,
-                   linewidths=1.6, zorder=6, label="single dry-year (flagged;\nexcluded from surface)")
+                   linewidths=1.6, zorder=6, label="lower-confidence well\n(Tier B/C; off-surface)")
     _finish_map_axes(ax)
     ax.legend(fontsize=8.5, loc="lower left", framealpha=0.9, title="cluster")
     cb = fig.colorbar(im, ax=ax, shrink=0.8, pad=0.01)
@@ -304,7 +306,7 @@ def fig_amplification(df, GX, GY, out_path, title=None):
                  ">1 amplifies the common swing   <1 damps it", fontsize=9.5)
     if title is None:
         title = ("Newborough Warren: climate-swing amplification field (relative, common-mode removed)\n"
-                 "Forest interior amplifies; lake edge damps. Window-independent. CEH13/14 excluded.")
+                 "Forest interior amplifies; lake edge damps. Window-independent. Lake gauge excluded.")
     ax.set_title(title, fontsize=10.5, loc="left")
     fig.savefig(out_path, dpi=160, bbox_inches="tight"); plt.close(fig)
 
@@ -366,19 +368,35 @@ def fig_dry_spring_depth(df, GX, GY, out_path, title=None):
     if title is None:
         title = ("Newborough Warren: dry-year spring water-table depth (springs 2011/12/19)\n"
                  "Contours: where even the spring high is already below Curreli SD15b/SD16 "
-                 "(summer-minimum) thresholds. Inter-dune ridges masked. CEH13/14 excluded.")
+                 "(summer-minimum) thresholds. Inter-dune ridges masked. Lake gauge excluded.")
     ax.set_title(title, fontsize=10.5, loc="left")
     fig.savefig(out_path, dpi=160, bbox_inches="tight"); plt.close(fig)
 
 
 def build_panel(yr, loc, master, membership, excluded, dry, wet, flagged=None):
     """Assemble the per-well envelope panel for a given dry/wet window: extreme states,
-    Pearson cluster fallback for master-absent wells, locations, and amplification."""
+    Pearson cluster fallback for master-absent wells, locations, and amplification.
+    Used for the DROUGHT-FLOOR panel (dry_m over the canonical dry years) and the recent
+    drought-floor panel."""
     df = extreme_states(yr, dry, wet, excluded, flagged=flagged)
     df = df.merge(master[["key", "Cluster"]], on="key", how="left")
     df = fill_clusters_from_pearson(df, membership)
     df = df.merge(loc[["key", "E", "N"]], on="key", how="left").dropna(subset=["E", "N"])
     df, net = add_amplification(df)
+    return df, net
+
+
+def build_amp_panel(yr, loc, master, membership, excluded, dry_pool, wet_pool):
+    """Assemble the AMPLIFICATION panel (Figure 60a) using the shared CO-TEMPORAL coefficient
+    (utils.envelope_metric) — artefact-free, the published surface (Option A, 2026-06-27).
+    Tier-A wells form the interpolated surface; Tier B/C are held off-surface as markers."""
+    df = em.coefficients(yr, dry_pool, wet_pool, excluded, ref_min_wet=config.ENVELOPE_METRIC_REF_MIN_WET)
+    df = df.merge(master[["key", "Cluster"]], on="key", how="left")
+    df = fill_clusters_from_pearson(df, membership)
+    df = df.merge(loc[["key", "E", "N"]], on="key", how="left").dropna(subset=["E", "N"])
+    df["amplification"] = df["amp_coefficient"]
+    df["flagged"] = df["tier"] != "A"        # Tier B/C off-surface (lower confidence)
+    net = df.loc[~df.flagged, "swing_mm"].mean()
     return df, net
 
 
@@ -397,24 +415,31 @@ def main() -> int:
     phase(1, "Load inputs")
     levels, loc, master, membership = load_inputs()
     yr = spring_year_table(levels)
-    excluded = set(k.lower() for k in config.MSL5_EXCLUDED_WELLS) | LAKE_GAUGE_KEYS
+    # Blanket include (2026-06-27): the envelope is observational, so CEH13/CEH14 (SSM-failures,
+    # MSL5-excluded for SSM reasons) are INCLUDED here — only the lake gauge is dropped. The
+    # MSL5 exclusion is retained in the SSM/MSL5 analyses (Scripts 20/26), not here.
+    excluded = set(config.ENVELOPE_METRIC_EXCLUDE) | LAKE_GAUGE_KEYS
     info(f"canonical: dry {DRY_YEARS}; wet {WET_YEARS}")
     note("2006 excluded from wet extreme (driest-in-record 2004-2005 antecedent); "
          "2016 included (wettest-antecedent recharge season on record)")
     if FLAGGED_SINGLE_DRY:
         note(f"flagged single dry-year wells (marker only, off-surface): {sorted(FLAGGED_SINGLE_DRY)}")
 
-    # ---- Canonical (long-record) panel -------------------------------------------
-    phase(2, "Canonical extreme states + amplification")
-    df, net = build_panel(yr, loc, master, membership, excluded,
-                          DRY_YEARS, WET_YEARS, flagged=FLAGGED_SINGLE_DRY)
-    n_flag = int(df.get("flagged", pd.Series(dtype=bool)).sum())
-    result("wells mapped", f"{len(df)} ({n_flag} flagged, off-surface)")
-    result("network-mean swing", f"{net:.0f} mm")
+    # ---- Canonical (long-record) panels ------------------------------------------
+    phase(2, "Canonical amplification (co-temporal) + drought-floor states")
+    # Amplification surface (Fig 60a): shared co-temporal coefficient over the CANONICAL
+    # driest/wettest extremes (faithful to "driest and wettest springs"; swing ~0.73 m),
+    # artefact-free (Option A). Script 35 uses the wider metric pools for its per-well table.
+    df, net = build_amp_panel(yr, loc, master, membership, excluded, DRY_YEARS, WET_YEARS)
+    n_off = int(df["flagged"].sum())
+    result("amplification wells", f"{len(df)} ({n_off} Tier B/C off-surface)")
     by_cluster = _cluster_report(df)
+    # Drought-floor states (Fig 60b): absolute dry-year spring depth over the canonical dry years.
+    dep_df, _ = build_panel(yr, loc, master, membership, excluded, DRY_YEARS, WET_YEARS,
+                            flagged=FLAGGED_SINGLE_DRY)
 
     phase(3, "Robustness to extreme-year choice")
-    rob_lines = ["robustness — cluster amplification across year-set choices:"]
+    rob_lines = ["robustness — cluster amplification across year-set choices (naive normalisation):"]
     rob_lines.append("  set              " + "  ".join(f"C{c}" for c in [1, 2, 3, 4, 5]))
     for name, (dy, wy) in ROBUSTNESS_SETS.items():
         rdf = extreme_states(yr, dy, wy, excluded).merge(master[["key", "Cluster"]], on="key", how="left")
@@ -427,17 +452,18 @@ def main() -> int:
 
     phase(4, "Render canonical figures")
     GX, GY = _grid(loc)
-    fig_amplification(df, GX, GY, OUT_FIG_AMP); saved(OUT_FIG_AMP)
-    fig_dry_spring_depth(df, GX, GY, OUT_FIG_DRY_SPRING); saved(OUT_FIG_DRY_SPRING)
+    amp_title = ("Newborough Warren: climate-swing amplification field (co-temporal, common-mode removed)\n"
+                 "Forest interior amplifies; lake edge damps. Artefact-free co-temporal coefficient. Lake gauge excluded.")
+    fig_amplification(df[~df.flagged], GX, GY, OUT_FIG_AMP, title=amp_title); saved(OUT_FIG_AMP)
+    fig_dry_spring_depth(dep_df, GX, GY, OUT_FIG_DRY_SPRING); saved(OUT_FIG_DRY_SPRING)
 
-    # ---- Recent (extended-network) panel -----------------------------------------
-    phase(5, "Recent-window panel (extended network)")
+    # ---- Recent (extended-network) panels -----------------------------------------
+    phase(5, "Recent-window panels (extended network)")
     info(f"recent: dry {RECENT_DRY_YEARS}; wet {RECENT_WET_YEARS}")
-    rdf, rnet = build_panel(yr, loc, master, membership, excluded,
-                            RECENT_DRY_YEARS, RECENT_WET_YEARS)
-    result("recent wells mapped", str(len(rdf)))
-    result("recent network-mean swing", f"{rnet:.0f} mm "
-           f"(milder dry extreme than 2011/12 -> NOT magnitude-comparable to canonical)")
+    rdf, rnet = build_amp_panel(yr, loc, master, membership, excluded,
+                                RECENT_DRY_YEARS, RECENT_WET_YEARS)
+    rdep_df, _ = build_panel(yr, loc, master, membership, excluded, RECENT_DRY_YEARS, RECENT_WET_YEARS)
+    result("recent amplification wells", str(len(rdf)))
     _cluster_report(rdf)
     amp_recent_title = (
         f"Newborough Warren (recent, extended network): climate-swing amplification\n"
@@ -448,8 +474,8 @@ def main() -> int:
         f"Newborough Warren (recent, extended network): dry-spring water-table depth\n"
         f"springs {'/'.join(str(y)[2:] for y in RECENT_DRY_YEARS)}. RECENT minimum (milder than "
         f"2011/12) — a conservative lower bound. Curreli SD15b/SD16 contours. Ridges masked.")
-    fig_amplification(rdf, GX, GY, OUT_FIG_AMP_RECENT, title=amp_recent_title); saved(OUT_FIG_AMP_RECENT)
-    fig_dry_spring_depth(rdf, GX, GY, OUT_FIG_DRY_SPRING_RECENT, title=dry_recent_title); saved(OUT_FIG_DRY_SPRING_RECENT)
+    fig_amplification(rdf[~rdf.flagged], GX, GY, OUT_FIG_AMP_RECENT, title=amp_recent_title); saved(OUT_FIG_AMP_RECENT)
+    fig_dry_spring_depth(rdep_df, GX, GY, OUT_FIG_DRY_SPRING_RECENT, title=dry_recent_title); saved(OUT_FIG_DRY_SPRING_RECENT)
 
     # ---- Write outputs -----------------------------------------------------------
     phase(6, "Write outputs")
@@ -458,11 +484,13 @@ def main() -> int:
     df[[c for c in keep if c in df.columns]].to_csv(OUT_CSV, index=False); saved(OUT_CSV)
     rdf[[c for c in keep if c in rdf.columns]].to_csv(OUT_CSV_RECENT, index=False); saved(OUT_CSV_RECENT)
     OUT_TXT.write_text(
-        f"CANONICAL (dry {DRY_YEARS}, wet {WET_YEARS})\n"
-        f"network-mean swing {net:.0f} mm; wells {len(df)} ({n_flag} flagged off-surface)\n\n"
+        f"CANONICAL amplification — CO-TEMPORAL coefficient over driest/wettest extremes "
+        f"(dry {DRY_YEARS}, wet {WET_YEARS})\n"
+        f"Tier-A site-mean swing {net:.0f} mm; wells {len(df)} ({n_off} Tier B/C off-surface)\n"
+        f"drought-floor states over canonical dry years {DRY_YEARS}\n\n"
         + by_cluster.to_string() + "\n\n" + "\n".join(rob_lines) + "\n\n"
-        f"RECENT (dry {RECENT_DRY_YEARS}, wet {RECENT_WET_YEARS})\n"
-        f"network-mean swing {rnet:.0f} mm; wells {len(rdf)}\n"
+        f"RECENT amplification (co-temporal; dry {RECENT_DRY_YEARS}, wet {RECENT_WET_YEARS})\n"
+        f"Tier-A mean swing {rnet:.0f} mm; wells {len(rdf)}\n"
         f"NOTE: recent dry extreme is milder than 2011/12; recent panel is a conservative\n"
         f"recent lower bound and is NOT magnitude-comparable to the canonical panel.\n")
     saved(OUT_TXT)

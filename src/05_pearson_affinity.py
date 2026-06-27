@@ -46,7 +46,7 @@ from adjustText import adjust_text
 from matplotlib.lines import Line2D
 from utils.config import CLUSTER_COLOURS, CLUSTER_LABELS, BW_MODE
 from utils.data_utils import normalize_well_name
-from utils.map_utils import load_dem_layer, add_kml_features, add_osm_basemap
+from utils.map_utils import load_dem_layer, add_kml_features, add_osm_basemap, add_en_axes
 from utils.paths import (make_all_dirs, DATA_DIR,
     INT_WELLS_CLEAN, INT_CLUSTER_STATS, INT_LOCATIONS, INT_PEAR_AUDIT,
     OUT_05_AFFINITY_CHART, OUT_05_CONFIDENCE_MAP)
@@ -198,8 +198,7 @@ def main():
         dem_layer, dem_loaded = load_dem_layer(ax, DATA_DIR)
         if not dem_loaded:
             add_osm_basemap(ax, gpd.GeoDataFrame(map_df, geometry=gpd.points_from_xy(map_df["E"],map_df["N"]),crs="EPSG:27700"))
-        ax.set_xlim(240100, 243900)
-        ax.set_ylim(362200, 365800)
+        add_en_axes(ax)
         if dem_layer is not None and not BW_MODE:
             fig.colorbar(dem_layer,ax=ax,shrink=0.55,pad=0.02,extend="both").set_label("Elevation (m AOD)",rotation=270,labelpad=18)
         site_feature_handles = add_kml_features(ax, DATA_DIR, include_scrapes=False)
@@ -269,8 +268,7 @@ def main():
 
         texts = [ax.text(row["E"],row["N"],row["Well_Normalised"].upper(),fontsize=7,alpha=0.85,zorder=7) for _,row in map_df.iterrows()]
         ax.set_title("Membership Affinity Map: k-means assignment with Pearson-affinity audit",fontweight="bold")
-        ax.set_xlabel("Easting (m)"); ax.set_ylabel("Northing (m)")
-        ax.grid(True,linestyle="--",alpha=0.4); ax.set_aspect("equal",adjustable="box")
+        ax.grid(True,linestyle="--",alpha=0.4)
         status_handles = [
             Line2D([0],[0],marker="o",color="w",markerfacecolor="grey",markeredgecolor="black",markersize=8,linestyle="None",label="Core"),
             Line2D([0],[0],marker="D",color="w",markerfacecolor="grey",markeredgecolor="black",markersize=8,linestyle="None",label="Fuzzy (number = secondary cluster)"),
@@ -278,7 +276,7 @@ def main():
         ]
         cl1 = ax.legend(handles=status_handles,title="Status / Confidence",loc="upper left",frameon=True); ax.add_artist(cl1)
         cluster_handles = [Line2D([0],[0],marker="o",color="w",markerfacecolor=CLUSTER_COLOURS[c],markeredgecolor="black",markersize=8,label=CLUSTER_LABELS.get(c,f"C{c}")) for c in EXPECTED_CLUSTERS]
-        cl2 = ax.legend(handles=cluster_handles,title="Assigned cluster (k-means)",loc="lower left",frameon=True); ax.add_artist(cl2)
+        cl2 = ax.legend(handles=cluster_handles,title="Assigned cluster (k-means)",loc="lower right",frameon=True); ax.add_artist(cl2)
 
         if mca_handles:
             cl3 = ax.legend(handles=mca_handles,title="MCA Cx/Cy/Cz",loc="upper right",frameon=True)
@@ -288,8 +286,8 @@ def main():
             dedup = {}
             for handle in site_feature_handles:
                 dedup[handle.get_label()] = handle
-            ax.legend(handles=list(dedup.values()),title="Site Features",loc="upper left",
-                      bbox_to_anchor=(0.0, 0.85),frameon=True)
+            ax.legend(handles=list(dedup.values()),title="Site Features",loc="lower left",
+                      frameon=True)
         if texts: adjust_text(texts,arrowprops=dict(arrowstyle="-",color="gray",lw=0.5),ax=ax)
         plt.tight_layout(); plt.savefig(OUT_05_CONFIDENCE_MAP,dpi=300,bbox_inches="tight"); plt.close()
 

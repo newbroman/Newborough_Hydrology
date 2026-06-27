@@ -568,6 +568,34 @@ ENVELOPE_ECO_THRESHOLD_LABELS = {-1000.0 * SD15b: "SD15b (wet slack)", -1000.0 *
 # surrounding slacks (it would smear a false deep zone). Shown as a slack-edge marker.
 ENVELOPE_DEPTH_INTERP_EXCLUDE = {"ceh10"}
 
+# === Per-well climate-sensitivity coefficient (Script 35; Paper 1 aquifer characterisation) ===
+# A frame-independent per-well amplification coefficient on the SPRING water table
+# (MSL_SPRING_MONTHS), co-temporally normalised so wells measured on different extreme-year
+# subsets stay comparable, and extended to short/inconsistent-record wells the matched surface
+# and the SSM cannot reach. Spec-locked 2026-06-27 (SPEC_script35_per_well_amplification_metric.md).
+#   * Pools are antecedent-screened supersets of the canonical + recent extreme sets.
+#   * Reference core = wells with FULL dry coverage (all DRY_POOL years) and >=2 wet years; the
+#     co-temporal reference swing is this core's mean swing recomputed over each target well's
+#     own extreme years.
+#   * Tiers by record completeness: A (>=2 dry & >=2 wet), B (>=1 each, not A), C (1 dry & 1 wet).
+ENVELOPE_METRIC_DRY_POOL = [2011, 2012, 2019, 2020, 2025]
+ENVELOPE_METRIC_WET_POOL = [2014, 2016, 2021, 2024]
+ENVELOPE_METRIC_REF_CORE = "full_dry_coverage"   # core = all DRY_POOL years present & >=2 wet
+ENVELOPE_METRIC_REF_MIN_WET = 2
+ENVELOPE_METRIC_CI = "jackknife_90"              # delete-one-year jackknife; 90% (=1.645 SE)
+ENVELOPE_METRIC_CI_Z = 1.645
+# Blanket include (2026-06-27): the amplification coefficient is OBSERVATIONAL and does not use
+# the SSM, so the SSM-failure exclusion (MSL5_EXCLUDED_WELLS = CEH13/CEH14) does NOT apply to it.
+# CEH13/CEH14 have clean, complete spring records and are the two most extreme slow-drainage wells
+# (highest amplification) — the SSM failed for them BECAUSE they barely drain, which is the very
+# signal the coefficient measures directly. They are therefore included in the amplification
+# coefficient + surface; only the lake gauge is excluded. The MSL5 exclusion is retained
+# elsewhere (Scripts 20/26) where it is justified. The amp-vs-β CALIBRATION regression, however,
+# drops the SSM-unreliable wells (their β is the untrustworthy axis) — a property of that
+# validation, not a caveat on the coefficient.
+ENVELOPE_METRIC_EXCLUDE = set()                  # amplification coefficient: lake gauge only (dropped at load)
+ENVELOPE_METRIC_CALIB_EXCLUDE = set(MSL5_EXCLUDED_WELLS)  # SSM-unreliable: drop from the β regression only
+
 # Lake-gauge column keys to drop from well analyses (Llyn Rhos-Ddu is a lake gauge,
 # not a dipwell). Lowercase to match the normalised well column.
 LAKE_GAUGE_KEYS = {"llyn rhos", "llyn rhos-ddu", "llyn rhos ddu"}

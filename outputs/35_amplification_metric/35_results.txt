@@ -1,0 +1,17 @@
+Per-well spring climate-sensitivity coefficient (Script 35 v1.0.0)
+spring months (3, 4, 5); dry pool [2011, 2012, 2019, 2020, 2025]; wet pool [2014, 2016, 2021, 2024]
+reference core = 54 full-dry-coverage wells; single-year σ = 119 mm
+wells with a coefficient: 77  (tiers: A=75, B=2, C=0)
+short-record wells (no fitted β₂, the extrapolation set): ['ceh15', 'ceh22', 'ceh3', 'ceh37', 'ceh7', 'ceh8', 'fe1', 'fe2', 'fe3', 'nw8', 'nw8b']
+
+VALIDATION — co-temporal reproduces matched-window amplification: n=68, r=0.978, mean bias=+0.073, max|dev|=0.343
+CALIBRATION — coefficient vs SSM β₂: r=+0.74 (p=0.000, n=64)
+CALIBRATION — coefficient vs SSM β₃: r=-0.45 (p=0.000, n=64)
+
+NOTE: co-temporal normalisation removes coverage artefacts present in the Script 33
+matched surface (e.g. the CEH9/CEH39 25 m step — CEH39 lacks the extreme 2012 spring).
+It re-anchors the scale relative to 33's naive panel-mean convention (forest ~1.5x ->
+~1.6x): a normalisation-convention difference, not a correction to either product.
+The coefficient is validated where β₂ exists (long record); for short-record wells the
+tiers and CIs carry the extrapolation honestly — read as 'consistent with' the fitted
+drainage/draw response, not as confirmation.

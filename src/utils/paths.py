@@ -484,6 +484,13 @@ OUT_33_PER_WELL_RECENT      = DIR_33 / "33_envelope_per_well_recent.csv"
 OUT_33_FIG_AMP_RECENT       = DIR_33 / "33_amplification_field_recent.png"
 OUT_33_FIG_DRY_SPRING_RECENT = DIR_33 / "33_dry_spring_depth_recent.png"
 
+# --- Script 35: per-well climate-sensitivity coefficient -------------------------
+DIR_35 = OUT_DIR / "35_amplification_metric"
+OUT_35_PER_WELL = DIR_35 / "35_per_well_amplification.csv"
+OUT_35_FIG_CALIB = DIR_35 / "35_ssm_calibration.png"
+OUT_35_FIG_MARKERS = DIR_35 / "35_coefficient_markers.png"
+OUT_35_RESULTS = DIR_35 / "35_results.txt"
+
 # Script 34 — MSL5 two-window sensitivity (standalone demonstration figure; §5.7.5)
 DIR_34 = OUT_DIR / "34_window_sensitivity"
 OUT_34_MATRIX               = DIR_34 / "34_window_matrix.csv"

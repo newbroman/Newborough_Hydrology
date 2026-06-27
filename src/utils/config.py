@@ -542,8 +542,22 @@ ENVELOPE_DRY_YEARS = [2011, 2012, 2019]      # antecedent-dry deep springs
 # variant. See CHANGELOG delta for Script 34 v0.3.0.
 MSL5_WINDOW_MIN_PANEL = 40
 MSL5_WINDOW_ANCHOR    = (2017, 2023)
-ENVELOPE_WET_YEARS = [2014, 2021, 2024]      # antecedent-wet shallow springs (2006 excluded)
-ENVELOPE_MIN_YEARS_PER_EXTREME = 2           # of 3 must be present
+ENVELOPE_WET_YEARS = [2014, 2016, 2021, 2024]  # antecedent-wet shallow springs (2006 excluded;
+#   2016 added 2026-06-27: Oct-Mar antecedent 697 mm = wettest recharge season on record, the
+#   mirror of why 2006 is excluded. Recovers CEH8/CEH15 into the panel with proper multi-year
+#   wet states. Network-mean swing shifts 752 -> 735 mm; forest/lake anchor unchanged (1.25x/0.59x).)
+ENVELOPE_MIN_YEARS_PER_EXTREME = 2           # of N must be present (per extreme side)
+# Recent (extended-network) window: a deliberately separate, more recent envelope that the
+# 2014-2017-installed wells (CEH40/41/42, FE1/2/3, NW8b) actually observed. Its dry extreme is
+# milder than 2011/12, so the recent panel is NOT magnitude-comparable to the canonical panel
+# and is captioned as a conservative recent lower bound. Spec-locked 2026-06-27.
+ENVELOPE_RECENT_DRY_YEARS = [2019, 2020, 2025]   # driest recent springs all late wells observed
+ENVELOPE_RECENT_WET_YEARS = [2021, 2024]         # the two genuinely antecedent-wet recent springs
+# Wells admitted to the per-well CSV + shown as a distinct flagged marker, but EXCLUDED from both
+# the interpolated surface and the network-mean denominator (single dry-extreme year, n_dry=1).
+# Empty: CEH7 was dropped 2026-06-27 (Martin's call) — its single 2011 dry year carried ~160 mm
+# noise and it added little beyond an isolated eastern marker. Mechanism retained for future use.
+ENVELOPE_FLAGGED_SINGLE_DRY = set()
 ENVELOPE_ECO_THRESHOLDS_MM = [-1000.0 * SD15b, -1000.0 * SD16]  # SD15b wet-slack 0.61 m, SD16 dry-slack 0.98 m (Curreli 2013)
 ENVELOPE_ECO_THRESHOLD_LABELS = {-1000.0 * SD15b: "SD15b (wet slack)", -1000.0 * SD16: "SD16 (dry slack)"}
 # Wells excluded from the Figure 60b dry-year spring-depth SURFACE interpolation only

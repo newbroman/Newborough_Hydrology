@@ -241,18 +241,22 @@ SCRAPE_KML_FILES = [
 ]
 
 # ── Canonical site map extent (OSGB36 / EPSG:27700) ───────────────────────────
-# Used by all publication-quality spatial figures (scripts 04, 07, 08, 11b,
-# 12, 13, 18, 19, 20, 26). Chosen to crop the site to the dune Special Area
-# of Conservation footprint and forest block while excluding empty sea and
-# inland farmland. Matches the summer-minima map in Script 11b — the canonical
-# reference figure used by the report's spatial threshold framework.
-# A few Script 11b figures use a slightly wider y-extent (362100–365900) to
-# fit category-zone legend space; new scripts should default to the narrower
-# bounds defined here unless there is an explicit reason otherwise.
+# THE single source of truth for the frame of every publication-quality spatial
+# figure in the pipeline EXCEPT scripts 12 and 13 (which keep their own bespoke
+# overview/experimental-design extents). All other map functions read these
+# constants via map_utils.add_en_axes() — no hardcoded extents anywhere else.
+# Chosen to crop the site to the dune Special Area of Conservation footprint and
+# forest block while excluding empty sea and inland farmland.
+#
+# Extent contains all 99 measuring points (E 240339–243602, N 362615–364821)
+# and the full site boundary (N max 365096) with margin. The northern edge sits
+# ~400 m above the site boundary, leaving headroom for top-anchored legends.
+# Background Features.kml / streams.kml that extend further north are cropped at
+# the frame edge, which is intended.
 SITE_MAP_EAST_MIN  = 240100
 SITE_MAP_EAST_MAX  = 243900
 SITE_MAP_NORTH_MIN = 362200
-SITE_MAP_NORTH_MAX = 365800
+SITE_MAP_NORTH_MAX = 365500
 
 # ── Broadleaf interception ────────────────────────────────────────────────────
 # Deciduous annual-mean interception fraction — Komatsu et al. (2011).

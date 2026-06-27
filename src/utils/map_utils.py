@@ -37,7 +37,19 @@ plot_metric_map(map_df, value_col, title, output_path, cmap, data_dir, vmin, vma
     cluster-shape markers, dual colorbars, and legend.
 """
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-06-21
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-06-27
+# 1.3.0 — Canonical map frame + Easting/Northing axes consolidated here.
+#         New public helper add_en_axes(ax, apply_extent=True) sets the
+#         canonical site extent from config.SITE_MAP_* (E 240100–243900,
+#         N 362200–365500), forces equal aspect (true OS-grid scale, identical
+#         extent across panels), draws plain 6-digit E/N axes (no offset), and
+#         labels them "Easting/Northing (m, OSGB36)". Every map function in the
+#         pipeline (except scripts 12 and 13) now calls this instead of carrying
+#         its own xlim/ylim/aspect/tick logic; the previous hardcoded extent in
+#         plot_metric_map (240100/243900/362200/365800) is removed and replaced
+#         by add_en_axes(). apply_extent=False draws the E/N axes but leaves the
+#         caller's xlim/ylim intact (for the rare figure that legitimately needs
+#         a wider window for an in-data legend).
 # 1.2.0 — Scrape footprints are now a shared site feature. add_kml_features()
 #         gains include_scrapes=True and draws the GPS-traced scrape outlines
 #         (navy solid; black dotted in BW) with a "Scrape footprints" legend
@@ -67,12 +79,69 @@ from pathlib import Path
 from utils.config import (
     BW_MODE, CLUSTER_LABELS, CLUSTER_MARKERS, DEM_VMIN, DEM_VCENTER, DEM_VMAX,
     FEATURE_COLOUR_SCRAPE, SCRAPE_KML_FILES,
+    SITE_MAP_EAST_MIN, SITE_MAP_EAST_MAX, SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX,
 )
 from utils.paths import (
     DATA_DEM, DATA_KML_FEATURES, DATA_KML_STREAMS, DATA_KML_CLEARFELL, data_geo,
 )
 
 fiona.drvsupport.supported_drivers["KML"] = "rw"
+
+
+# ── Canonical site extent, re-exported for callers that need the raw tuple ────
+SITE_XLIM = (SITE_MAP_EAST_MIN, SITE_MAP_EAST_MAX)
+SITE_YLIM = (SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX)
+
+
+def add_en_axes(ax, apply_extent: bool = True, labelsize: int = 8,
+                label_fontsize: int = 9, osgb_label: bool = True):
+    """
+    Apply the canonical Easting/Northing axes treatment to a map axes.
+
+    This is the single place the pipeline's OS-grid maps get their frame and
+    scale, so every map (except scripts 12 and 13) renders the site at one
+    identical, undistorted extent.
+
+    Does, in order:
+      1. (if apply_extent) set xlim/ylim to the canonical site extent from
+         config.SITE_MAP_* — E 240100–243900, N 362200–365500.
+      2. set_aspect("equal") — true OS-grid scale; identical extent across
+         panels regardless of differing colorbars/legends.
+      3. plain 6-digit tick labels with no "+2.4e5" offset.
+      4. labelled "Easting (m, OSGB36)" / "Northing (m, OSGB36)" axes.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+    apply_extent : bool, default True
+        If True, set the canonical xlim/ylim. Pass False to keep the caller's
+        own xlim/ylim (used only where a figure legitimately needs a wider
+        window for an in-data legend) while still drawing E/N axes and equal
+        aspect.
+    labelsize : int, default 8
+        Tick label font size.
+    label_fontsize : int, default 9
+        Axis label font size.
+    osgb_label : bool, default True
+        If True, axis labels read "Easting (m, OSGB36)"; if False, the shorter
+        "Easting (m)" used by the §4.9 differential-movement maps (scripts
+        32/33).
+
+    Returns
+    -------
+    ax : matplotlib.axes.Axes
+        The same axes (for chaining).
+    """
+    if apply_extent:
+        ax.set_xlim(SITE_MAP_EAST_MIN, SITE_MAP_EAST_MAX)
+        ax.set_ylim(SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX)
+    ax.set_aspect("equal")
+    ax.tick_params(labelsize=labelsize)
+    ax.ticklabel_format(style="plain", useOffset=False)
+    suffix = ", OSGB36" if osgb_label else ""
+    ax.set_xlabel(f"Easting (m{suffix})", fontsize=label_fontsize)
+    ax.set_ylabel(f"Northing (m{suffix})", fontsize=label_fontsize)
+    return ax
 
 
 def _safe_read_kml(path_obj):
@@ -665,9 +734,8 @@ def plot_metric_map(
             crs="EPSG:27700",
         )
         add_osm_basemap(ax, gdf_tmp)
-    # Consistent map extent
-    ax.set_xlim(240100, 243900)
-    ax.set_ylim(362200, 365800)
+    # Canonical map extent + E/N axes (single source: config.SITE_MAP_*)
+    add_en_axes(ax)
 
     site_feature_handles = add_kml_features(ax, data_dir)
 
@@ -787,10 +855,7 @@ def plot_metric_map(
         cbar_dem.set_label("Elevation (m AOD)", rotation=270, labelpad=32, fontsize=14)
 
     ax.set_title(title, fontweight="bold")
-    ax.set_xlabel("Easting (m)")
-    ax.set_ylabel("Northing (m)")
     ax.grid(True, linestyle="--", alpha=0.4)
-    ax.set_aspect("equal", adjustable="box")
 
     cluster_legend = ax.legend(
         handles=handles, title="Core Cluster Assignments",
@@ -799,11 +864,17 @@ def plot_metric_map(
     ax.add_artist(cluster_legend)
 
     if site_feature_handles:
+        # Placed OUTSIDE the axes (below the map) as a horizontal legend.
+        # With the canonical extent's trimmed northern edge (365500) an
+        # in-data upper-right legend overlaps the topmost wells, so the site
+        # feature key is moved out of the frame entirely. bbox_inches="tight"
+        # captures it.
         ax.legend(
             handles=site_feature_handles, title="Site Features",
-            loc="upper right", frameon=True,
+            loc="upper center", bbox_to_anchor=(0.5, -0.08),
+            ncol=3, frameon=True,
         )
 
-    plt.subplots_adjust(left=0.08, right=0.99, top=0.93, bottom=0.08)
+    plt.subplots_adjust(left=0.08, right=0.99, top=0.93, bottom=0.12)
     plt.savefig(output_path, bbox_inches="tight", dpi=300)
     plt.close()

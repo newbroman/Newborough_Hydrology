@@ -479,6 +479,10 @@ OUT_33_PER_WELL             = DIR_33 / "33_envelope_per_well.csv"
 OUT_33_FIG_AMP              = DIR_33 / "33_amplification_field.png"
 OUT_33_FIG_DRY_SPRING       = DIR_33 / "33_dry_spring_depth.png"
 OUT_33_RESULTS              = DIR_33 / "33_results.txt"
+# Recent (extended-network) window panels — separate files, canonical handles unchanged.
+OUT_33_PER_WELL_RECENT      = DIR_33 / "33_envelope_per_well_recent.csv"
+OUT_33_FIG_AMP_RECENT       = DIR_33 / "33_amplification_field_recent.png"
+OUT_33_FIG_DRY_SPRING_RECENT = DIR_33 / "33_dry_spring_depth_recent.png"
 
 # Script 34 — MSL5 two-window sensitivity (standalone demonstration figure; §5.7.5)
 DIR_34 = OUT_DIR / "34_window_sensitivity"

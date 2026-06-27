@@ -53,7 +53,27 @@ Outputs (outputs/33_envelope_amplification/):
     33_dry_spring_depth.png           dry-year spring water-table depth (ecological companion)
     33_results.txt                    console summary + robustness table
 
-Version: 1.0.0 (2026-06-26)
+Version: 1.1.0 (2026-06-27)
+
+Changelog
+---------
+1.1.0 (2026-06-27)
+  * Canonical wet extreme now includes 2016 (config.ENVELOPE_WET_YEARS); 2016 is the
+    wettest-antecedent recharge season on record (697 mm Oct-Mar), the mirror of the
+    2006 exclusion. Recovers CEH8/CEH15 into the panel with proper multi-year wet
+    states. Network-mean swing 752 -> 735 mm; forest/lake anchor unchanged.
+  * Added a second, deliberately separate RECENT-window pass (config.ENVELOPE_RECENT_*)
+    so the 2014-2017-installed wells (CEH40/41/42, FE1/2/3, NW8b) can be mapped on an
+    envelope they actually observed. Renders *_recent.png companions. The recent dry
+    extreme is milder than 2011/12, so the recent panels are captioned as a conservative
+    recent lower bound and are NOT magnitude-comparable to the canonical panels.
+  * Extended wells absent from 03_master_data now take a cluster from the committed
+    Script 06 Pearson membership audit (Best_Match_Cluster) — traceable, no hand-labelling.
+  * CEH7 (single dry-extreme year) admitted as a flagged marker only
+    (config.ENVELOPE_FLAGGED_SINGLE_DRY): shown as a point but excluded from the surface
+    AND from the network-mean denominator, so its noisy n_dry=1 swing cannot distort the field.
+1.0.0 (2026-06-26)
+  * Initial release: climate-swing amplification field + dry-year spring-depth surface.
 """
 
 from __future__ import annotations
@@ -75,12 +95,15 @@ from utils.map_utils import load_dem_hillshade, add_kml_features, add_idw_surfac
 from utils.console_utils import banner, phase, step, info, saved, note, result, done, hr
 
 SCRIPT_ID = "33"
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 
-# --- method constants (from utils.config; spec-locked 2026-06-26) -----------------
+# --- method constants (from utils.config; spec-locked 2026-06-26 / 2026-06-27) -----
 SPRING_MONTHS = config.MSL_SPRING_MONTHS
 DRY_YEARS = config.ENVELOPE_DRY_YEARS
 WET_YEARS = config.ENVELOPE_WET_YEARS
+RECENT_DRY_YEARS = config.ENVELOPE_RECENT_DRY_YEARS
+RECENT_WET_YEARS = config.ENVELOPE_RECENT_WET_YEARS
+FLAGGED_SINGLE_DRY = set(w.lower() for w in config.ENVELOPE_FLAGGED_SINGLE_DRY)
 MIN_YEARS_PER_EXTREME = config.ENVELOPE_MIN_YEARS_PER_EXTREME
 LAKE_GAUGE_KEYS = config.LAKE_GAUGE_KEYS
 IDW_POWER = config.DIFF_IDW_POWER
@@ -101,10 +124,14 @@ OUT_CSV = paths.OUT_33_PER_WELL
 OUT_TXT = paths.OUT_33_RESULTS
 OUT_FIG_AMP = paths.OUT_33_FIG_AMP
 OUT_FIG_DRY_SPRING = paths.OUT_33_FIG_DRY_SPRING
+OUT_CSV_RECENT = paths.OUT_33_PER_WELL_RECENT
+OUT_FIG_AMP_RECENT = paths.OUT_33_FIG_AMP_RECENT
+OUT_FIG_DRY_SPRING_RECENT = paths.OUT_33_FIG_DRY_SPRING_RECENT
 
 IN_WELLS = paths.INT_WELLS_CLEAN
 IN_LOCATIONS = paths.INT_LOCATIONS
 IN_MASTER = paths.OUT_DIR / "03_master_data.csv"
+IN_MEMBERSHIP = paths.OUT_DIR / "06_pear_membership_audit_sitewide.csv"
 
 
 # =================================================================================
@@ -119,7 +146,24 @@ def load_inputs():
     loc["key"] = loc["Name"].astype(str).str.lower().str.strip()
     master = pd.read_csv(IN_MASTER)
     master["key"] = master["Name_Original"].astype(str).str.lower().str.strip()
-    return levels, loc, master
+    membership = None
+    if IN_MEMBERSHIP.exists():
+        membership = pd.read_csv(IN_MEMBERSHIP)
+        membership["key"] = membership["Well_Normalised"].astype(str).str.lower().str.strip()
+    return levels, loc, master, membership
+
+
+def fill_clusters_from_pearson(df, membership):
+    """Fill any cluster missing from 03_master_data from the committed Script 06 Pearson
+    membership audit (Best_Match_Cluster). Extended/short-record wells (FE1/2/3, NW8b, ...)
+    are not fitted in the SSM/clustering pipeline, so they carry no master cluster; their
+    Pearson best-match is the traceable, committed source of their cluster label."""
+    if membership is None:
+        return df
+    bm = membership.set_index("key")["Best_Match_Cluster"].to_dict()
+    miss = df["Cluster"].isna()
+    df.loc[miss, "Cluster"] = df.loc[miss, "key"].map(bm)
+    return df
 
 
 def spring_year_table(levels):
@@ -127,21 +171,35 @@ def spring_year_table(levels):
     return spring.groupby(spring.index.year).mean(numeric_only=True)
 
 
-def extreme_states(yr, dry_years, wet_years, excluded):
-    """Per-well mean state at the dry and wet extremes, with coverage filter."""
+def extreme_states(yr, dry_years, wet_years, excluded, flagged=None, min_years=None):
+    """Per-well mean state at the dry and wet extremes, with coverage filter.
+
+    Wells passing the >= min_years gate on BOTH extremes are admitted normally. Wells in
+    `flagged` are additionally admitted on a single-year minimum (n>=1 each) but tagged
+    flagged=True; callers exclude flagged wells from the interpolated surface and from the
+    network-mean denominator (their single-year swing is too noisy to shape the field)."""
+    flagged = set(flagged or [])
+    min_years = MIN_YEARS_PER_EXTREME if min_years is None else min_years
     dsub, wsub = yr.loc[dry_years], yr.loc[wet_years]
     dry, wet = dsub.mean(skipna=True), wsub.mean(skipna=True)
     nd, nw = dsub.notna().sum(), wsub.notna().sum()
     df = pd.DataFrame({"dry_m": dry, "wet_m": wet, "n_dry": nd, "n_wet": nw})
     df["key"] = df.index.str.lower().str.strip()
-    df = df[(df.n_dry >= MIN_YEARS_PER_EXTREME) & (df.n_wet >= MIN_YEARS_PER_EXTREME)]
+    gate = (df.n_dry >= min_years) & (df.n_wet >= min_years)
+    flag = df.key.isin(flagged) & (df.n_dry >= 1) & (df.n_wet >= 1) & ~gate
+    df = df[gate | flag].copy()
     df = df[~df.key.isin(excluded)].copy()
+    df["flagged"] = df.key.isin(flagged) & ~gate.reindex(df.index).fillna(False)
     df["swing_mm"] = (df.wet_m - df.dry_m) * 1000.0
     return df
 
 
 def add_amplification(df):
-    net = df.swing_mm.mean()
+    """Amplification = well swing / network-mean swing. The network mean is computed over
+    the unflagged wells only, so a noisy single-year (flagged) well cannot move the
+    denominator; flagged wells still receive an amplification value for display."""
+    ref = df.loc[~df.get("flagged", False), "swing_mm"] if "flagged" in df else df.swing_mm
+    net = ref.mean()
     df = df.copy()
     df["amplification"] = df.swing_mm / net
     return df, net
@@ -220,36 +278,48 @@ def _envelope_base(ax, df, value_col, cmap, norm=None, ridge=True):
     return mesh, gx, gy, Zm
 
 
-def fig_amplification(df, GX, GY, out_path):
+def fig_amplification(df, GX, GY, out_path, title=None):
     colours = config.get_cluster_colours(); labels = config.CLUSTER_LABELS
     norm = TwoSlopeNorm(vcenter=1.0, vmin=0.55, vmax=1.55)
     fig, ax = plt.subplots(figsize=(11, 9))
-    im, gx, gy, Zm = _envelope_base(ax, df, "amplification", "RdBu_r", norm=norm, ridge=False)
+    flg = df.get("flagged", pd.Series(False, index=df.index)).fillna(False)
+    surf_df = df[~flg]                                   # flagged wells excluded from the field
+    im, gx, gy, Zm = _envelope_base(ax, surf_df, "amplification", "RdBu_r", norm=norm, ridge=False)
     for cid in sorted(df.Cluster.dropna().unique()):
-        s = df[df.Cluster == cid]
+        s = df[(df.Cluster == cid) & ~flg]
         ax.scatter(s.E, s.N, c=[colours.get(int(cid), "#444")], edgecolor="k",
                    linewidth=0.5, s=48, zorder=5, label=labels.get(int(cid), f"C{int(cid)}"))
+    no = df[df.Cluster.isna() & ~flg]
+    if len(no):
+        ax.scatter(no.E, no.N, facecolor="none", edgecolor="k", marker="s", s=46,
+                   linewidths=1.2, zorder=5, label="extended (unclustered)")
+    fl = df[flg]
+    if len(fl):
+        ax.scatter(fl.E, fl.N, facecolor="none", edgecolor="k", marker="^", s=90,
+                   linewidths=1.6, zorder=6, label="single dry-year (flagged;\nexcluded from surface)")
     _finish_map_axes(ax)
     ax.legend(fontsize=8.5, loc="lower left", framealpha=0.9, title="cluster")
     cb = fig.colorbar(im, ax=ax, shrink=0.8, pad=0.01)
     cb.set_label("climate-swing amplification  (well swing / network mean)\n"
                  ">1 amplifies the common swing   <1 damps it", fontsize=9.5)
-    ax.set_title("Newborough Warren: climate-swing amplification field (relative, common-mode removed)\n"
-                 "Forest interior amplifies; lake edge damps. Window-independent. CEH13/14 excluded.",
-                 fontsize=10.5, loc="left")
+    if title is None:
+        title = ("Newborough Warren: climate-swing amplification field (relative, common-mode removed)\n"
+                 "Forest interior amplifies; lake edge damps. Window-independent. CEH13/14 excluded.")
+    ax.set_title(title, fontsize=10.5, loc="left")
     fig.savefig(out_path, dpi=160, bbox_inches="tight"); plt.close(fig)
 
 
-def fig_dry_spring_depth(df, GX, GY, out_path):
+def fig_dry_spring_depth(df, GX, GY, out_path, title=None):
     """Dry-year SPRING water-table depth (seasonal high). Curreli summer-minimum
     thresholds overlaid mark where even the spring high has already breached wet/dry
     slack viability. Inter-dune ridges are masked (add_idw_surface ridge mask)."""
     dfx = df.copy(); dfx["dry_mm"] = dfx.dry_m * 1000.0
     fig, ax = plt.subplots(figsize=(11, 9))
-    # exclude slack-edge wells (e.g. CEH10, sited on raised inter-slack ground) from the
-    # surface only; they are kept and shown distinctly as slack-edge markers
+    # exclude slack-edge wells (CEH10) and any flagged single-dry-year wells from the
+    # SURFACE only; both are kept and shown distinctly as markers
     excl = set(getattr(config, "ENVELOPE_DEPTH_INTERP_EXCLUDE", set()))
-    interp_df = dfx[~dfx.key.isin(excl)]
+    flg = dfx.get("flagged", pd.Series(False, index=dfx.index)).fillna(False)
+    interp_df = dfx[~dfx.key.isin(excl) & ~flg]
     im, gx, gy, Zm = _envelope_base(ax, interp_df, "dry_mm", "YlOrBr_r")
     # Curreli thresholds: distinct SOLID colours + white halo, on the ridge-masked grid
     sorted_levels = sorted(ECO_THRESHOLDS_MM)            # [-980 (SD16), -610 (SD15b)]
@@ -263,12 +333,15 @@ def fig_dry_spring_depth(df, GX, GY, out_path):
     labels = getattr(config, "ENVELOPE_ECO_THRESHOLD_LABELS", {})
     fmt = {t: labels.get(t, f"{t/1000:.2f} m") for t in ECO_THRESHOLDS_MM}
     ax.clabel(cs, fmt=fmt, fontsize=8)
-    # markers: regular wells as dots; slack-edge wells (excluded from surface) distinct
-    reg = df[~df.key.isin(excl)]; edge = df[df.key.isin(excl)]
+    # markers: regular wells as dots; slack-edge (diamond) and flagged single-dry (triangle) distinct
+    reg = df[~df.key.isin(excl) & ~flg]; edge = df[df.key.isin(excl)]; fl = df[flg]
     ax.scatter(reg.E.values, reg.N.values, c="k", s=12, zorder=5)
     if len(edge):
         ax.scatter(edge.E.values, edge.N.values, facecolor="none", edgecolor="k",
                    marker="D", s=60, linewidths=1.5, zorder=6)
+    if len(fl):
+        ax.scatter(fl.E.values, fl.N.values, facecolor="none", edgecolor="k",
+                   marker="^", s=80, linewidths=1.5, zorder=6)
     from matplotlib.lines import Line2D
     leg1 = ax.legend(handles=[Line2D([0], [0], color=level_colour[ECO_THRESHOLDS_MM[0]], lw=2.2,
                                      label=labels.get(ECO_THRESHOLDS_MM[0], "SD15b")),
@@ -276,19 +349,45 @@ def fig_dry_spring_depth(df, GX, GY, out_path):
                                      label=labels.get(ECO_THRESHOLDS_MM[1], "SD16"))],
                      fontsize=8.5, loc="lower left", framealpha=0.9, title="Curreli thresholds")
     ax.add_artist(leg1)
+    extra = []
     if len(edge):
-        ax.legend(handles=[Line2D([0], [0], marker="D", markerfacecolor="none",
-                                  markeredgecolor="k", markeredgewidth=1.5, linestyle="none",
-                                  markersize=8, label="raised inter-slack well\n(slack edge; excluded from surface)")],
-                  fontsize=8, loc="lower right", framealpha=0.9)
+        extra.append(Line2D([0], [0], marker="D", markerfacecolor="none", markeredgecolor="k",
+                            markeredgewidth=1.5, linestyle="none", markersize=8,
+                            label="raised inter-slack well\n(slack edge; excluded from surface)"))
+    if len(fl):
+        extra.append(Line2D([0], [0], marker="^", markerfacecolor="none", markeredgecolor="k",
+                            markeredgewidth=1.5, linestyle="none", markersize=8,
+                            label="single dry-year well\n(flagged; excluded from surface)"))
+    if extra:
+        ax.legend(handles=extra, fontsize=8, loc="lower right", framealpha=0.9)
     _finish_map_axes(ax)
     cb = fig.colorbar(im, ax=ax, shrink=0.8, pad=0.01)
     cb.set_label("dry-year spring depth to water (mm below ground)", fontsize=9.5)
-    ax.set_title("Newborough Warren: dry-year spring water-table depth (springs 2011/12/19)\n"
+    if title is None:
+        title = ("Newborough Warren: dry-year spring water-table depth (springs 2011/12/19)\n"
                  "Contours: where even the spring high is already below Curreli SD15b/SD16 "
-                 "(summer-minimum) thresholds. Inter-dune ridges masked. CEH13/14 excluded.",
-                 fontsize=10.5, loc="left")
+                 "(summer-minimum) thresholds. Inter-dune ridges masked. CEH13/14 excluded.")
+    ax.set_title(title, fontsize=10.5, loc="left")
     fig.savefig(out_path, dpi=160, bbox_inches="tight"); plt.close(fig)
+
+
+def build_panel(yr, loc, master, membership, excluded, dry, wet, flagged=None):
+    """Assemble the per-well envelope panel for a given dry/wet window: extreme states,
+    Pearson cluster fallback for master-absent wells, locations, and amplification."""
+    df = extreme_states(yr, dry, wet, excluded, flagged=flagged)
+    df = df.merge(master[["key", "Cluster"]], on="key", how="left")
+    df = fill_clusters_from_pearson(df, membership)
+    df = df.merge(loc[["key", "E", "N"]], on="key", how="left").dropna(subset=["E", "N"])
+    df, net = add_amplification(df)
+    return df, net
+
+
+def _cluster_report(df):
+    by = df[~df.get("flagged", False)].groupby("Cluster")["amplification"].agg(["mean", "count"]).round(2)
+    for cid, row in by.iterrows():
+        step(f"{config.CLUSTER_LABELS.get(int(cid), f'C{int(cid)}'):20s} "
+             f"amplification {row['mean']:.2f}x  (n={int(row['count'])})")
+    return by
 
 
 def main() -> int:
@@ -296,48 +395,76 @@ def main() -> int:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
     phase(1, "Load inputs")
-    levels, loc, master = load_inputs()
+    levels, loc, master, membership = load_inputs()
     yr = spring_year_table(levels)
     excluded = set(k.lower() for k in config.MSL5_EXCLUDED_WELLS) | LAKE_GAUGE_KEYS
-    info(f"dry extreme years {DRY_YEARS}; wet extreme years {WET_YEARS}")
-    note(f"2006 excluded from wet extreme (driest-in-record 2004-2005 antecedent)")
+    info(f"canonical: dry {DRY_YEARS}; wet {WET_YEARS}")
+    note("2006 excluded from wet extreme (driest-in-record 2004-2005 antecedent); "
+         "2016 included (wettest-antecedent recharge season on record)")
+    if FLAGGED_SINGLE_DRY:
+        note(f"flagged single dry-year wells (marker only, off-surface): {sorted(FLAGGED_SINGLE_DRY)}")
 
-    phase(2, "Extreme states + amplification")
-    df = extreme_states(yr, DRY_YEARS, WET_YEARS, excluded)
-    df = df.merge(master[["key", "Cluster"]], on="key", how="left")
-    df = df.merge(loc[["key", "E", "N"]], on="key", how="left").dropna(subset=["E", "N"])
-    df, net = add_amplification(df)
-    result("wells mapped", str(len(df)))
+    # ---- Canonical (long-record) panel -------------------------------------------
+    phase(2, "Canonical extreme states + amplification")
+    df, net = build_panel(yr, loc, master, membership, excluded,
+                          DRY_YEARS, WET_YEARS, flagged=FLAGGED_SINGLE_DRY)
+    n_flag = int(df.get("flagged", pd.Series(dtype=bool)).sum())
+    result("wells mapped", f"{len(df)} ({n_flag} flagged, off-surface)")
     result("network-mean swing", f"{net:.0f} mm")
-    by_cluster = df.groupby("Cluster")["amplification"].agg(["mean", "count"]).round(2)
-    for cid, row in by_cluster.iterrows():
-        step(f"{config.CLUSTER_LABELS.get(int(cid), f'C{int(cid)}'):20s} "
-             f"amplification {row['mean']:.2f}x  (n={int(row['count'])})")
+    by_cluster = _cluster_report(df)
 
     phase(3, "Robustness to extreme-year choice")
     rob_lines = ["robustness — cluster amplification across year-set choices:"]
-    header = "  set              " + "  ".join(f"C{c}" for c in [1, 2, 3, 4, 5])
-    rob_lines.append(header)
+    rob_lines.append("  set              " + "  ".join(f"C{c}" for c in [1, 2, 3, 4, 5]))
     for name, (dy, wy) in ROBUSTNESS_SETS.items():
         rdf = extreme_states(yr, dy, wy, excluded).merge(master[["key", "Cluster"]], on="key", how="left")
+        rdf = fill_clusters_from_pearson(rdf, membership)
         rdf, _ = add_amplification(rdf)
         means = rdf.groupby("Cluster")["amplification"].mean()
         rob_lines.append(f"  {name:15s}  " + "  ".join(f"{means.get(c, np.nan):.2f}" for c in [1, 2, 3, 4, 5]))
     for ln in rob_lines:
         print(ln)
 
-    phase(4, "Render figures")
+    phase(4, "Render canonical figures")
     GX, GY = _grid(loc)
     fig_amplification(df, GX, GY, OUT_FIG_AMP); saved(OUT_FIG_AMP)
     fig_dry_spring_depth(df, GX, GY, OUT_FIG_DRY_SPRING); saved(OUT_FIG_DRY_SPRING)
 
-    phase(5, "Write outputs")
-    out = df[["key", "Cluster", "E", "N", "dry_m", "wet_m", "swing_mm",
-              "amplification", "n_dry", "n_wet"]].copy()
-    out.to_csv(OUT_CSV, index=False); saved(OUT_CSV)
+    # ---- Recent (extended-network) panel -----------------------------------------
+    phase(5, "Recent-window panel (extended network)")
+    info(f"recent: dry {RECENT_DRY_YEARS}; wet {RECENT_WET_YEARS}")
+    rdf, rnet = build_panel(yr, loc, master, membership, excluded,
+                            RECENT_DRY_YEARS, RECENT_WET_YEARS)
+    result("recent wells mapped", str(len(rdf)))
+    result("recent network-mean swing", f"{rnet:.0f} mm "
+           f"(milder dry extreme than 2011/12 -> NOT magnitude-comparable to canonical)")
+    _cluster_report(rdf)
+    amp_recent_title = (
+        f"Newborough Warren (recent, extended network): climate-swing amplification\n"
+        f"dry {'/'.join(str(y)[2:] for y in RECENT_DRY_YEARS)} vs wet "
+        f"{'/'.join(str(y)[2:] for y in RECENT_WET_YEARS)}. Extended wells clustered via Script 06 "
+        f"Pearson. Milder extremes — NOT magnitude-comparable to the long-record panel.")
+    dry_recent_title = (
+        f"Newborough Warren (recent, extended network): dry-spring water-table depth\n"
+        f"springs {'/'.join(str(y)[2:] for y in RECENT_DRY_YEARS)}. RECENT minimum (milder than "
+        f"2011/12) — a conservative lower bound. Curreli SD15b/SD16 contours. Ridges masked.")
+    fig_amplification(rdf, GX, GY, OUT_FIG_AMP_RECENT, title=amp_recent_title); saved(OUT_FIG_AMP_RECENT)
+    fig_dry_spring_depth(rdf, GX, GY, OUT_FIG_DRY_SPRING_RECENT, title=dry_recent_title); saved(OUT_FIG_DRY_SPRING_RECENT)
+
+    # ---- Write outputs -----------------------------------------------------------
+    phase(6, "Write outputs")
+    keep = ["key", "Cluster", "E", "N", "dry_m", "wet_m", "swing_mm", "amplification",
+            "n_dry", "n_wet", "flagged"]
+    df[[c for c in keep if c in df.columns]].to_csv(OUT_CSV, index=False); saved(OUT_CSV)
+    rdf[[c for c in keep if c in rdf.columns]].to_csv(OUT_CSV_RECENT, index=False); saved(OUT_CSV_RECENT)
     OUT_TXT.write_text(
-        f"network-mean swing {net:.0f} mm; wells {len(df)}\n\n"
-        + by_cluster.to_string() + "\n\n" + "\n".join(rob_lines) + "\n")
+        f"CANONICAL (dry {DRY_YEARS}, wet {WET_YEARS})\n"
+        f"network-mean swing {net:.0f} mm; wells {len(df)} ({n_flag} flagged off-surface)\n\n"
+        + by_cluster.to_string() + "\n\n" + "\n".join(rob_lines) + "\n\n"
+        f"RECENT (dry {RECENT_DRY_YEARS}, wet {RECENT_WET_YEARS})\n"
+        f"network-mean swing {rnet:.0f} mm; wells {len(rdf)}\n"
+        f"NOTE: recent dry extreme is milder than 2011/12; recent panel is a conservative\n"
+        f"recent lower bound and is NOT magnitude-comparable to the canonical panel.\n")
     saved(OUT_TXT)
     hr()
     done(SCRIPT_ID)

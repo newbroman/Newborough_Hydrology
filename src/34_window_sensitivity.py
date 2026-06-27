@@ -2,77 +2,227 @@
 34_window_sensitivity.py — MSL5 two-window comparison sensitivity (§5.7.5)
 ==========================================================================
 
-Quantifies how much the headline MSL5 "deepening" depends on WHICH two five-year
-windows are differenced. The report's §4.9.8 figure compares window-end 2017 (springs
-2013-2017) with window-end 2023 (springs 2019-2023) and reports a site-mean change of
--96.8 mm. This script places that single comparison inside the full envelope of all
-admissible 5-year window pairs, so §5.7.5 can state the window-sensitivity from a
-committed, reproducible output rather than a remembered figure.
+A deliberate cautionary DEMONSTRATION: how strongly an apparent "site-mean
+water-table change" depends on WHICH two five-year spring windows are differenced.
+The §4.9.8 headline differences window-end 2017 (springs 2013-2017) against
+window-end 2023 (springs 2019-2023) and reports -96.8 mm. This script places that
+single comparison inside the envelope of EVERY admissible window pair, so §5.7.5
+can show — from a committed, reproducible figure — that the two-window MSL5 method
+cannot resolve absolute site-wide change: pick different windows and you get the
+opposite sign and roughly twice the magnitude.
 
-Method (documented; the admissibility rule is the one decision still open for sign-off):
-  * Source: the committed per-well annual spring MSL, outputs/26_van_willegen_msl/
+DESIGN DECISION (final, spec-locked 2026-06-27 — all-pairs demonstration):
+  * ALL admissible window pairs are retained, INCLUDING those whose current window
+    contains the freak-wet 2024 spring. Admitting the "wrong" pairs is the entire
+    point of the demonstration; excluding them would hide the failure mode it exists
+    to expose. (This SUPERSEDES the earlier wet-2024-excluded "defensible windows
+    only" variant, whose -0.14/+0.11 m envelope answered a different, narrower
+    question.)
+  * The thin 7-well 2005-2009 baseline is NOT shown: with MIN_PANEL=40 every pair
+    touching window-end 2009 has <=7 common wells and is inadmissible. The spread
+    shown therefore arises purely from window CHOICE among well-sampled windows —
+    not from a flimsy baseline — which keeps the demonstration honest (one failure
+    mode, freak-year window choice, not two).
+
+Method:
+  * Source: committed per-well annual spring MSL, outputs/26_van_willegen_msl/
     26_msl_annual_per_well.csv (column MSL_m_bg, below ground), valid rows only.
   * Exclusions: config.MSL5_EXCLUDED_WELLS (CEH13, CEH14) — matches Script 26.
   * Per-well MSL5(window-end Y) = mean of the well's annual spring MSL over years
-    (Y-4 .. Y); a well qualifies for a window only if all five spring-years are present.
-  * For each ordered window pair (Wi < Wj) the site-mean change is the mean over the
-    COMMON panel (wells qualifying in BOTH windows) of the per-well (Wj - Wi) change —
-    i.e. the panel is held FIXED across the two windows, so composition change cannot
-    inflate the difference. (An earlier ad-hoc estimate that did NOT hold the panel
-    fixed gave a spuriously wide +/-0.24 m; the fixed-panel envelope is narrower.)
-  * Admissible pair = common panel >= MIN_PANEL wells. Windows span the full record.
+    (Y-4 .. Y); a well qualifies for a window only if all five spring-years present.
+  * For each ordered pair (Wi < Wj) the site-mean change is the mean over the COMMON
+    panel (wells qualifying in BOTH windows) of the per-well (Wj - Wi) change — the
+    panel is held FIXED across the pair, so composition change cannot inflate it.
+  * Admissible pair = common panel >= config.MSL5_WINDOW_MIN_PANEL wells.
+  * Window-axis rainfall annotations: each window's mean annual rainfall expressed
+    as % deviation from the analysis-period mean, read from the committed
+    00_climate_summary/00_01_annual_climate_summary.csv (not hand-typed).
 
-Validation: the 2017->2023 pair must reproduce the committed -96.8 mm (n=59) anchor
-to within a couple of mm (it returns -96.5 mm, n=60; the 1-well/0.3 mm gap is a minor
-coverage-rule nuance, not a method difference).
-
-OPEN FOR SIGN-OFF: whether "admissible" should be further restricted to antecedent-
-rainfall-matched window pairs (which would NARROW the envelope further). The headline
-reported here is the full unmatched envelope — the most conservative (widest) honest
-statement of window-sensitivity.
-
-Standalone diagnostic — NOT wired into run_analysis.py / paths.py / config.py.
-Integrate (and lock the admissibility rule) after sign-off.
+Validation: the 2017->2023 pair reproduces the committed -96.8 mm (n=59) headline
+(it returns -96.5 mm, n=60; the 1-well/0.3 mm gap is a coverage-rule nuance).
 
 Outputs (outputs/34_window_sensitivity/):
-  34_window_pairs.csv   every admissible pair: w1, w2, change_mm, n_common
-  34_results.txt        anchor check + envelope range + sign split
+  34_window_matrix.csv         every admissible pair: baseline_end, current_end,
+                               change_mm, n_common, admissible
+  34_results.txt               anchor check + envelope range + sign split
+  34_window_sensitivity.png    two-panel figure (Panel A: all-pairs matrix;
+                               Panel B: site-mean spring trajectory + interannual SD)
 
-Version: 0.1.0 (2026-06-27)  — standalone, pending admissibility sign-off
+Panel B note: the own-panel OLS trend shown is DESCRIPTIVE. The canonical secular
+trend is Script 32's AR-corrected -7.0 mm/yr (p=0.52); cite that in prose. Both n.s.
+
+Version: 0.3.0 (2026-06-27)
+  v0.3.0: all-pairs demonstration (wet-2024 retained); Script now generates the
+          §5.7.5 figure; MIN_PANEL/ANCHOR moved to config; outputs via paths.py;
+          wired into run_analysis.py as a supplementary step. Supersedes the
+          wet-2024-excluded v0.2.0 figure rebuild.
+  v0.2.0: (worker) baseline x current matrix, wet-2024 excluded -> -0.14/+0.11 m.
+  v0.1.0: standalone all-pairs envelope (no figure), pending admissibility sign-off.
 """
 
 from __future__ import annotations
-import sys, pathlib, itertools
+import sys
+import pathlib
+import itertools
+
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 
 import numpy as np
 import pandas as pd
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+from matplotlib.colors import TwoSlopeNorm
+from matplotlib.patches import Rectangle
+
 from utils import config, paths
 from utils.console_utils import banner, phase, info, note, result, saved, done, hr
 
 SCRIPT_ID = "34"
-VERSION = "0.1.0"
+VERSION = "0.3.0"
 
-IN_ANNUAL = paths.OUT_DIR / "26_van_willegen_msl" / "26_msl_annual_per_well.csv"
-OUT_DIR = paths.OUT_DIR / "34_window_sensitivity"
-OUT_CSV = OUT_DIR / "34_window_pairs.csv"
-OUT_TXT = OUT_DIR / "34_results.txt"
+IN_ANNUAL = paths.DIR_26 / "26_msl_annual_per_well.csv"
+IN_CLIMATE = paths.OUT_DIR / "00_climate_summary" / "00_01_annual_climate_summary.csv"
+OUT_MATRIX = paths.OUT_34_MATRIX
+OUT_TXT = paths.OUT_34_RESULTS
+OUT_FIG = paths.OUT_34_FIG
 
-WINDOW_LEN = 5            # MSL5 = five-year mean spring level
-MIN_PANEL = 40           # admissible pair: >= this many wells common to both windows
-ANCHOR = (2017, 2023)    # the §4.9.8 comparison, for validation against committed -96.8 mm
+WINDOW_LEN = config.MSL_DEFAULT_WINDOW_YEARS          # 5
+MIN_PANEL = config.MSL5_WINDOW_MIN_PANEL              # 40
+ANCHOR = tuple(config.MSL5_WINDOW_ANCHOR)            # (2017, 2023)
 
 
+# ── core ----------------------------------------------------------------------
 def per_well_msl5(piv: pd.DataFrame, end: int):
+    """Per-well MSL5 (mm) for the five-year window ending in `end`, or None if the
+    window's five spring-years are not all present in the data columns."""
     cols = [y for y in range(end - WINDOW_LEN + 1, end + 1) if y in piv.columns]
     if len(cols) < WINDOW_LEN:
         return None
-    return piv[cols].dropna().mean(axis=1)          # wells with all five spring-years
+    return piv[cols].dropna().mean(axis=1)            # wells with all five spring-years
 
 
+def build_pairs(piv: pd.DataFrame, ends: list[int]) -> pd.DataFrame:
+    """Every admissible ordered window pair (baseline earlier, current later)."""
+    rows = []
+    for i, j in itertools.combinations(ends, 2):
+        pi, pj = per_well_msl5(piv, i), per_well_msl5(piv, j)
+        cc = pi.index.intersection(pj.index)
+        if len(cc) < MIN_PANEL:
+            continue
+        rows.append((i, j, float(pj[cc].mean() - pi[cc].mean()), len(cc), True))
+    return pd.DataFrame(rows, columns=["baseline_end", "current_end",
+                                       "change_mm", "n_common", "admissible"])
+
+
+def window_rainfall_pct(end: int, annual_p: pd.Series, ref_mean: float) -> float:
+    """Window mean annual rainfall as % deviation from the analysis-period mean."""
+    yrs = [y for y in range(end - WINDOW_LEN + 1, end + 1) if y in annual_p.index]
+    if not yrs:
+        return np.nan
+    return (annual_p.loc[yrs].mean() / ref_mean - 1.0) * 100.0
+
+
+def span_label(end: int) -> str:
+    return f"{end - WINDOW_LEN + 1}\u2013{end}"       # e.g. "2013–2017"
+
+
+def site_mean_trajectory(piv: pd.DataFrame):
+    """Own-panel site-mean spring level (mm bg) per spring year, with simple OLS."""
+    series = piv.mean(axis=0).sort_index()            # mean over available wells per year
+    yrs = series.index.values.astype(float)
+    vals = series.values.astype(float)
+    slope, intercept = np.polyfit(yrs, vals, 1)
+    # two-sided p for the slope (OLS t-test)
+    fit = slope * yrs + intercept
+    resid = vals - fit
+    n = len(yrs)
+    se = np.sqrt((resid @ resid) / (n - 2)) / np.sqrt(((yrs - yrs.mean()) ** 2).sum())
+    t = slope / se
+    from scipy import stats
+    p = 2.0 * (1.0 - stats.t.cdf(abs(t), df=n - 2))
+    return series, slope, intercept, p, float(np.std(vals, ddof=1))
+
+
+# ── figure --------------------------------------------------------------------
+def make_figure(d: pd.DataFrame, piv: pd.DataFrame, annual_p: pd.Series,
+                ref_mean: float, lo: float, hi: float, n_neg: int, n_pos: int):
+    mat = d.pivot(index="baseline_end", columns="current_end", values="change_mm")
+    baselines = sorted(mat.index)
+    currents = sorted(mat.columns)
+    mat = mat.reindex(index=baselines, columns=currents)
+    Z = mat.values
+
+    fig, (axA, axB) = plt.subplots(1, 2, figsize=(15.5, 6.6),
+                                   gridspec_kw={"width_ratios": [1.05, 1.0]})
+    fig.suptitle("Two-window comparison cannot resolve absolute site-wide "
+                 "water-table change", fontsize=14, y=0.98)
+
+    # Panel A — all-pairs matrix
+    vmax = np.nanmax(np.abs(Z))
+    norm = TwoSlopeNorm(vmin=-vmax, vcenter=0.0, vmax=vmax)
+    im = axA.imshow(Z, cmap="RdBu", norm=norm, aspect="auto", origin="upper")
+    axA.set_xticks(range(len(currents)))
+    axA.set_yticks(range(len(baselines)))
+    axA.set_xticklabels([f"{span_label(c)}\n({window_rainfall_pct(c, annual_p, ref_mean):+.0f}%)"
+                         for c in currents], fontsize=8)
+    axA.set_yticklabels([f"{span_label(b)} ({window_rainfall_pct(b, annual_p, ref_mean):+.0f}%)"
+                         for b in baselines], fontsize=8)
+    axA.set_xlabel("current window (springs)")
+    axA.set_ylabel("baseline window (springs)")
+    axA.set_title(f"A  Site-wide MSL change (mm) by window pair\n"
+                  f"admissible: {lo:+.0f} to {hi:+.0f} mm "
+                  f"({lo/1000:+.2f} to {hi/1000:+.2f} m); {n_neg} neg / {n_pos} pos; "
+                  f"outlined = \u00a74.9.8 headline",
+                  fontsize=10, loc="left")
+    for r in range(len(baselines)):
+        for cc in range(len(currents)):
+            v = Z[r, cc]
+            if np.isnan(v):
+                continue
+            shade = "white" if abs(v) > 0.6 * vmax else "black"
+            axA.text(cc, r, f"{v:+.0f}", ha="center", va="center",
+                     fontsize=8, color=shade,
+                     fontweight="bold" if abs(v) == vmax else "normal")
+    # outline the §4.9.8 anchor cell (the report headline comparison)
+    if ANCHOR[0] in baselines and ANCHOR[1] in currents:
+        ri, ci = baselines.index(ANCHOR[0]), currents.index(ANCHOR[1])
+        axA.add_patch(Rectangle((ci - 0.5, ri - 0.5), 1, 1, fill=False,
+                                edgecolor="black", lw=2.4))
+
+    # Panel B — site-mean trajectory + interannual SD
+    series, slope, intercept, p, sd = site_mean_trajectory(piv)
+    yrs = series.index.values.astype(float)
+    mean_lvl = series.values.mean()
+    axB.axhspan(mean_lvl - sd, mean_lvl + sd, color="0.85", zorder=0,
+                label=f"interannual SD (\u00b1{sd:.0f} mm)")
+    axB.axhline(mean_lvl, color="0.5", lw=0.8, ls=":", zorder=1)
+    axB.plot(yrs, series.values, "-o", color="black", ms=4, lw=1.2,
+             label="site-mean spring level", zorder=3)
+    axB.plot(yrs, slope * yrs + intercept, "--", color="crimson", lw=2.2,
+             label=f"full-record trend {slope:+.1f} mm/yr (p={p:.2f}, n.s.)", zorder=2)
+    axB.set_xlabel("spring year")
+    axB.set_ylabel("site-mean spring level (mm below ground)")
+    axB.set_title("B  Why: the multi-year cycle dwarfs the trend", fontsize=10, loc="left")
+    axB.legend(loc="lower left", fontsize=8, framealpha=0.9)
+
+    fig.text(0.012, 0.012,
+             "Thin 7-well 2005\u20132009 baseline excluded (common panel < "
+             f"{MIN_PANEL}); the spread shown is from window CHOICE alone, among "
+             "well-sampled windows.\nThe canonical secular trend is Script 32's "
+             "AR-corrected \u22127.0 mm/yr (p=0.52); the dashed line here is a "
+             "descriptive own-panel OLS.",
+             fontsize=7.5, style="italic", color="0.35")
+
+    fig.subplots_adjust(left=0.10, right=0.985, top=0.88, bottom=0.16, wspace=0.18)
+    fig.savefig(OUT_FIG, dpi=160)
+    plt.close(fig)
+
+
+# ── main ----------------------------------------------------------------------
 def main() -> int:
-    banner(SCRIPT_ID, "MSL5 two-window comparison sensitivity (§5.7.5)", VERSION)
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    banner(SCRIPT_ID, "MSL5 two-window comparison sensitivity (\u00a75.7.5)", VERSION)
+    paths.DIR_34.mkdir(parents=True, exist_ok=True)
 
     phase(1, "Load committed annual MSL")
     a = pd.read_csv(IN_ANNUAL)
@@ -82,53 +232,73 @@ def main() -> int:
     a = a[~a["well"].isin(excl)]
     a["mm"] = a["MSL_m_bg"] * 1000.0
     piv = a.pivot_table(index="well", columns="hydro_year", values="mm")
-    ends = [e for e in range(int(piv.columns.min()) + WINDOW_LEN - 1, int(piv.columns.max()) + 1)
+    ends = [e for e in range(int(piv.columns.min()) + WINDOW_LEN - 1,
+                             int(piv.columns.max()) + 1)
             if per_well_msl5(piv, e) is not None]
     info(f"excluded {sorted(excl)}; {piv.shape[0]} wells; "
          f"{len(ends)} five-year windows ({ends[0]}-{ends[-1]})")
 
-    phase(2, "Validate against committed anchor")
+    phase(2, "Window rainfall context")
+    clim = pd.read_csv(IN_CLIMATE)
+    # The file carries a 'Long-term mean' footer row, so Year is string-typed.
+    ltm_row = clim[clim["Year"].astype(str).str.contains("mean", case=False, na=False)]
+    ref_mean = float(ltm_row["Annual_P_mm"].iloc[0]) if len(ltm_row) else float("nan")
+    clim["Year"] = pd.to_numeric(clim["Year"], errors="coerce")
+    annual_p = clim.dropna(subset=["Year"]).set_index(clim["Year"].dropna().astype(int))["Annual_P_mm"]
+    info(f"committed long-term mean annual rainfall {ref_mean:.0f} mm; "
+         f"window % shown relative to this")
+
+    phase(3, "Validate against committed anchor")
     mi, mj = per_well_msl5(piv, ANCHOR[0]), per_well_msl5(piv, ANCHOR[1])
     c = mi.index.intersection(mj.index)
     anchor_change = mj[c].mean() - mi[c].mean()
-    result(f"anchor {ANCHOR[0]}->{ANCHOR[1]}", f"{anchor_change:+.1f} mm, n={len(c)} (committed -96.8, n=59)")
+    result(f"anchor {ANCHOR[0]}->{ANCHOR[1]}",
+           f"{anchor_change:+.1f} mm, n={len(c)} (committed -96.8, n=59)")
 
-    phase(3, "Full admissible window-pair envelope (fixed common panel)")
-    rows = []
-    for i, j in itertools.combinations(ends, 2):
-        pi, pj = per_well_msl5(piv, i), per_well_msl5(piv, j)
-        cc = pi.index.intersection(pj.index)
-        if len(cc) < MIN_PANEL:
-            continue
-        rows.append((i, j, float(pj[cc].mean() - pi[cc].mean()), len(cc)))
-    d = pd.DataFrame(rows, columns=["w1", "w2", "change_mm", "n_common"])
+    phase(4, "All admissible window pairs (fixed common panel; wet-2024 retained)")
+    d = build_pairs(piv, ends)
     lo, hi = d.change_mm.min(), d.change_mm.max()
     n_neg, n_pos = int((d.change_mm < 0).sum()), int((d.change_mm > 0).sum())
+    mostneg, mostpos = d.loc[d.change_mm.idxmin()], d.loc[d.change_mm.idxmax()]
     result("admissible pairs", f"{len(d)} (common panel >= {MIN_PANEL})")
-    result("site-mean change envelope", f"{lo:+.1f} to {hi:+.1f} mm  ({lo/1000:+.2f} to {hi/1000:+.2f} m)")
+    result("site-mean change envelope",
+           f"{lo:+.1f} to {hi:+.1f} mm  ({lo/1000:+.2f} to {hi/1000:+.2f} m)")
     result("sign split", f"{n_neg} negative / {n_pos} positive")
-    note("the -96.8 mm 2017->2023 headline is one point in this wide, sign-changing envelope")
+    note(f"the {anchor_change:+.0f} mm {ANCHOR[0]}->{ANCHOR[1]} headline is one "
+         f"point in this wide, sign-changing envelope; the +ve extreme "
+         f"{int(mostpos.baseline_end)}->{int(mostpos.current_end)} "
+         f"({mostpos.change_mm:+.0f} mm) is a wet-2024 'wrong pair'")
 
-    phase(4, "Write outputs")
-    d.sort_values("change_mm").to_csv(OUT_CSV, index=False); saved(OUT_CSV)
-    mostneg = d.loc[d.change_mm.idxmin()]; mostpos = d.loc[d.change_mm.idxmax()]
+    phase(5, "Write outputs + figure")
+    d.sort_values("change_mm").to_csv(OUT_MATRIX, index=False)
+    saved(OUT_MATRIX)
     OUT_TXT.write_text(
-        f"MSL5 two-window sensitivity (§5.7.5) — standalone, admissibility rule pending sign-off\n"
-        f"source: 26_msl_annual_per_well.csv (valid rows; {sorted(excl)} excluded)\n"
-        f"windows: {ends[0]}-{ends[-1]} ({len(ends)}); admissible pairs: {len(d)} "
-        f"(common panel >= {MIN_PANEL}); panel held FIXED across each pair\n\n"
+        f"MSL5 two-window sensitivity (\u00a75.7.5) — all-pairs demonstration v{VERSION}\n"
+        f"source: 26_msl_annual_per_well.csv (valid; {sorted(excl)} excluded); "
+        f"rainfall: 00_01_annual_climate_summary.csv\n"
+        f"common panel per pair; admissible = panel>=%d; ALL pairs retained "
+        f"(wet-2024 windows INCLUDED — the point of the demonstration)\n\n"
         f"anchor {ANCHOR[0]}->{ANCHOR[1]}: {anchor_change:+.1f} mm (n={len(c)})  "
         f"[committed -96.8 mm, n=59]\n\n"
-        f"site-mean change envelope: {lo:+.1f} to {hi:+.1f} mm "
-        f"({lo/1000:+.2f} to {hi/1000:+.2f} m)\n"
-        f"  most negative: {int(mostneg.w1)}->{int(mostneg.w2)} {mostneg.change_mm:+.1f} mm (n={int(mostneg.n_common)})\n"
-        f"  most positive: {int(mostpos.w1)}->{int(mostpos.w2)} {mostpos.change_mm:+.1f} mm (n={int(mostpos.n_common)})\n"
-        f"sign split: {n_neg} negative / {n_pos} positive of {len(d)} pairs\n\n"
-        f"NOTE: an earlier ad-hoc estimate that did not hold the panel fixed gave a wider\n"
-        f"+/-0.24 m; that span is superseded by this fixed-panel envelope. Antecedent-\n"
-        f"rainfall-matched pairs (if adopted) would narrow it further.\n")
+        f"ADMISSIBLE envelope: {lo:+.0f} to {hi:+.0f} mm "
+        f"({lo/1000:+.2f} to {hi/1000:+.2f} m); "
+        f"{n_neg} neg / {n_pos} pos of {len(d)} pairs (sign-changing)\n"
+        f"  most negative: {int(mostneg.baseline_end)}->{int(mostneg.current_end)} "
+        f"{mostneg.change_mm:+.0f} mm (n={int(mostneg.n_common)})\n"
+        f"  most positive: {int(mostpos.baseline_end)}->{int(mostpos.current_end)} "
+        f"{mostpos.change_mm:+.0f} mm (n={int(mostpos.n_common)})  "
+        f"[current window contains the freak-wet 2024 spring]\n\n"
+        f"The -97 mm headline is one interior point; the two-window MSL5 method "
+        f"cannot resolve absolute site-wide change.\n"
+        f"Thin 7-well 2005-2009 baseline auto-excluded by the panel rule.\n"
+        % MIN_PANEL)
     saved(OUT_TXT)
-    hr(); done(SCRIPT_ID)
+
+    make_figure(d, piv, annual_p, ref_mean, lo, hi, n_neg, n_pos)
+    saved(OUT_FIG)
+
+    hr()
+    done(SCRIPT_ID)
     return 0
 
 

@@ -60,10 +60,11 @@ from utils.paths import (
 )
 from utils.data_utils import clean_well_series, normalize_well_name
 from utils.map_utils import (
-    load_dem_hillshade, add_idw_surface, add_kml_features,
+    load_dem_hillshade, add_idw_surface, add_kml_features, add_en_axes,
 )
 from utils.config import (
     CLUSTER_LABELS, CLUSTER_MARKERS,
+    SITE_MAP_EAST_MIN, SITE_MAP_EAST_MAX, SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX,
 )
 from utils.clearfell_common import (
     INTERVENTION_DATE, SCRAPING_DATE, PRE_FELL_START, apply_ceh34_hindcast,
@@ -96,9 +97,12 @@ CLIMATE_REF_WELLS = ['nw5', 'nw6', 'nw7', 'ceh1']
 # Wells excluded from plotting (retained in exported CSV)
 PLOT_EXCLUDE = {'ceh37', 'ceh8', 'fe1', 'fe2', 'fe3', 'fe4'}  # data quality / short records
 
-# Map extent
-XLIM = (240200, 243800)
-YLIM = (362200, 365000)
+# Map extent / IDW-grid bounds — canonical site extent (single source: config).
+# Also used to bound the highlight-well filter. Display frame is set by
+# add_en_axes (same constants), so grid and frame coincide.
+XLIM = (SITE_MAP_EAST_MIN, SITE_MAP_EAST_MAX)
+YLIM = (SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX)
+
 
 plt.rcParams.update({
     "font.family": "sans-serif",
@@ -307,11 +311,7 @@ def main():
                 )
 
         # ── Axes ────────────────────────────────────────────────────────────────
-        ax.set_xlim(*XLIM)
-        ax.set_ylim(*YLIM)
-        ax.set_aspect("equal", adjustable="box")
-        ax.set_xlabel("Easting (m)")
-        ax.set_ylabel("Northing (m)")
+        add_en_axes(ax)
         ax.grid(True, linestyle="--", alpha=0.4)
         ax.set_title(title, fontweight="bold")
 

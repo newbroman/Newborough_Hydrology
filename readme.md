@@ -45,18 +45,18 @@ All documents are in [`docs/`](docs/) and linked from the
 
 | Option | Description |
 |--------|-------------|
-| **1 — Run full pipeline** | Runs all 38 steps in order from the beginning |
+| **1 — Run full pipeline** | Runs all 42 steps in order from the beginning |
 | **2 — Resume from step** | Skips completed steps; useful after a partial run |
 | **3 — Run a single step** | Runs one script in isolation for debugging or re-running |
 | **4 — Prepare scenario viewer** | Runs script 19 to build the self-contained HTML viewer |
 | **5 — Run supplementary diagnostics** | Runs scripts 22–24 (residual lag, ridge recharge, seasonality) |
 | **6 — Convert figures to greyscale** | Journal-ready B&W conversion (sub-options 6a quick / 6b full B&W re-run / 6h help) |
-| **7 — Show step list** | Lists all 38 steps with script names and availability status |
+| **7 — Show step list** | Lists all 42 steps with script names and availability status |
 
 For non-interactive use (e.g. in a batch job):
 
 ```bash
-python run_analysis.py --full          # run all 38 steps
+python run_analysis.py --full          # run all 42 steps
 python run_analysis.py --from 14       # resume from step 14
 python run_analysis.py --viewer        # build scenario viewer only
 python run_analysis.py --supplementary # run supplementary diagnostics (22–24) only
@@ -97,7 +97,7 @@ Newborough_Hydrology/
 │   │   └── scenario_viewer.html        ← self-contained interactive viewer (standalone)
 │   ├── outputs_bw/                      ← greyscale figure tree (built by Phase 16, Script 27)
 │   └── [other output directories]
-├── src/                         Analysis scripts (38 steps; script 19 also builds the viewer)
+├── src/                         Analysis scripts (42 steps; script 19 also builds the viewer)
 │   ├── utils/
 │   │   ├── config.py            Cluster colours, labels, DRAINAGE_DATUM, HEADLINE_LAG, FOREST_INTERCEPTION
 │   │   ├── data_utils.py        Cleaning and normalisation helpers
@@ -138,10 +138,10 @@ Newborough_Hydrology/
 
 ## Pipeline Phases
 
-The pipeline comprises **38 steps across 16 phases: 36 analytical steps across 15
+The pipeline comprises **42 steps across 17 phases: 40 analytical steps across 16
 analytical phases, plus two display/utility steps excluded from the analytical
-count** — Script 26c (step 32, MSL5 report-format figures) and Script 27 (step 38,
-the greyscale figure-conversion utility, Phase 16). Validation checkpoints run after
+count** — Script 26c (step 32, MSL5 report-format figures) and Script 27 (step 42,
+the greyscale figure-conversion utility, Phase 17). Validation checkpoints run after
 Phases 1, 3, 9, and 10.
 
 **Reference network:** 66 wells (from a raw pool of ~80).
@@ -183,7 +183,9 @@ colours and labels are centralised in `src/utils/config.py`.
 | 12 | 22–24 | 27–29 | Supplementary diagnostics: residual lag structure, ridge recharge hypothesis test, residual seasonality |
 | 13 | 26, 26b, 26c (van Willegen MSL) | 30–32 | Van Willegen et al. (2025) MSL analyses: 5-year observational aggregation (26), UKCP18 climate projections (26b), and report-format MSL5 figures for §4.8.4 / §4.10.1 (26c) |
 | 14 | 28, 29, 30 (cluster framework diagnostics) | 33–35 | C3 detrend check (28), within-C3 variance attribution (29), and C4 constrained-β₃ triangulation (30) — post-review additions supporting §5.1.1 / §4.2.2 of the main report |
-| 15 | 27 (greyscale) | 36 | Greyscale figure conversion utility (journal-ready B&W) — post-processing |
+| 15 | 32, 33 (observed differential change) | 36–37 | Secular differential water-table drift (32, report Fig 59) and climate-swing amplification + drought-floor surface (33, report Fig 60) |
+| 16 | 24b, 31, 31b, 34 (supplementary standalone diagnostics) | 38–41 | Cluster-stratified residual climatology (24b), independent k=5 partition validation (31) and its separation-vs-recoverability companion (31b), and the MSL5 two-window sensitivity demonstration figure for §5.7.5 (34) |
+| 17 | 27 (greyscale) | 42 | Greyscale figure conversion utility (journal-ready B&W) — post-processing |
 
 Phases 1–11 produce the main analytical results documented in the report. Phase 12
 (Scripts 22–24) runs supplementary residual diagnostics. Phase 13 runs the van

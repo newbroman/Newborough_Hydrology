@@ -523,6 +523,25 @@ DIFF_BOOT_BLOCK = 3
 DIFF_BOOT_SEED = 20260626
 
 ENVELOPE_DRY_YEARS = [2011, 2012, 2019]      # antecedent-dry deep springs
+
+
+# === MSL5 two-window sensitivity (Script 34; §5.7.5 demonstration figure) ===
+# Script 34 differences every admissible pair of five-year spring windows to show
+# how strongly an absolute "site-mean change" depends on WHICH two windows are
+# compared. It is a deliberate cautionary demonstration ("what the wrong pair of
+# windows would say"), so ALL admissible pairs are retained — including those whose
+# current window contains the freak-wet 2024 spring, which is the point. Window
+# length reuses MSL_DEFAULT_WINDOW_YEARS (=5).
+#   * MSL5_WINDOW_MIN_PANEL — a pair is admissible only if at least this many wells
+#     are common to both windows (held FIXED across the pair, so composition change
+#     cannot inflate the difference). 40 also auto-excludes the thin 7-well
+#     2005-2009 baseline (every pair touching window-end 2009 has <=7 common wells).
+#   * MSL5_WINDOW_ANCHOR — the §4.9.8 comparison (window-ends), validated against the
+#     committed -96.8 mm (n=59) headline.
+# Spec-locked 2026-06-27 (all-pairs demonstration); supersedes the wet-2024-excluded
+# variant. See CHANGELOG delta for Script 34 v0.3.0.
+MSL5_WINDOW_MIN_PANEL = 40
+MSL5_WINDOW_ANCHOR    = (2017, 2023)
 ENVELOPE_WET_YEARS = [2014, 2021, 2024]      # antecedent-wet shallow springs (2006 excluded)
 ENVELOPE_MIN_YEARS_PER_EXTREME = 2           # of 3 must be present
 ENVELOPE_ECO_THRESHOLDS_MM = [-1000.0 * SD15b, -1000.0 * SD16]  # SD15b wet-slack 0.61 m, SD16 dry-slack 0.98 m (Curreli 2013)

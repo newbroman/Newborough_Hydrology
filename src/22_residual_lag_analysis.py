@@ -69,7 +69,7 @@ from utils.paths import (
     OUT_22_EXAMPLE_SERIES,
 )
 from utils.data_utils import normalize_well_name
-from utils.map_utils import add_kml_features
+from utils.map_utils import add_kml_features, add_en_axes
 from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS
 from utils.model_utils import fit_ssm_intercept
 
@@ -190,13 +190,11 @@ def plot_ar1_map(fits_df, output_path):
     except Exception as e:
         note(f"KML overlay skipped: {e}")
 
-    ax.set_xlabel('Easting (m, OSGB36)')
-    ax.set_ylabel('Northing (m, OSGB36)')
     ax.set_title('Residual autocorrelation across the network\n'
                  f"(wells with |phi| >= {AR1_WHITE_THRESHOLD} need pre-whitening "
                  'before lag analysis)',
                  fontweight='bold')
-    ax.set_aspect('equal')
+    add_en_axes(ax)
     ax.grid(ls='--', alpha=0.4)
     plt.tight_layout()
     plt.savefig(output_path, bbox_inches='tight', dpi=300)

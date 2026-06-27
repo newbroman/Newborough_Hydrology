@@ -71,7 +71,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import TwoSlopeNorm
 
 from utils import config, paths
-from utils.map_utils import load_dem_hillshade, add_kml_features, add_idw_surface
+from utils.map_utils import load_dem_hillshade, add_kml_features, add_idw_surface, add_en_axes
 from utils.console_utils import banner, phase, step, info, saved, note, result, done, hr
 
 SCRIPT_ID = "33"
@@ -184,17 +184,10 @@ def linear_surface(GX, GY, px, py, pv, mask=IDW_MASK_M):
     return Z
 
 
-HOUSE_XLIM = (240100, 243900)   # site extent, matching map_utils.plot_metric_map
-HOUSE_YLIM = (362200, 365800)
-
-
 def _finish_map_axes(ax):
-    """Easting/Northing axes to scale — restores the OS-grid scale on the report maps."""
-    ax.set_aspect("equal")
-    ax.tick_params(labelsize=8)
-    ax.ticklabel_format(style="plain", useOffset=False)
-    ax.set_xlabel("Easting (m)", fontsize=9)
-    ax.set_ylabel("Northing (m)", fontsize=9)
+    """Easting/Northing axes to scale — restores the OS-grid scale on the report maps.
+    Extent is set in _envelope_base; here we only (re)apply aspect + E/N axes."""
+    add_en_axes(ax, apply_extent=False, osgb_label=False)
 
 
 def _sample_dem(px, py, dem_e_arr, dem_n_arr, dem_data):
@@ -211,8 +204,7 @@ def _envelope_base(ax, df, value_col, cmap, norm=None, ridge=True):
     >1 m) are masked. Returns (mesh, gx, gy, Zmasked) for the colorbar and contours."""
     _, dem_loaded, dem_e_arr, dem_n_arr, dem_data = load_dem_hillshade(
         ax, paths.DATA_DIR, alpha=1.0, vert_exag=3.0, zorder=1)
-    ax.set_xlim(*HOUSE_XLIM); ax.set_ylim(*HOUSE_YLIM)
-    ax.set_aspect("equal")   # eastings/northings to true scale; identical extent across panels
+    add_en_axes(ax, osgb_label=False)
     dfx = df.copy()
     use_ridge = ridge and dem_loaded
     if use_ridge:

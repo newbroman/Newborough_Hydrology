@@ -2,7 +2,9 @@
 """
 31_cluster_validation.py  --  Independent validation of the k=5 partition.
 
-STANDALONE DIAGNOSTIC. Not wired into run_analysis.py. Run directly:
+SUPPLEMENTARY PIPELINE DIAGNOSTIC. Wired into run_analysis.py (Phase 16,
+Supplementary Standalone Diagnostics) so it regenerates with the pipeline; output
+directory registered in paths.py. May also be run directly:
 
     python3 src/31_cluster_validation.py
 
@@ -32,7 +34,8 @@ Outputs (outputs/31_cluster_validation/):
   31_forest_borderline.csv       wells inside the +/- edge band, with signed distance
   31_cluster_validation_panel.png  4-panel figure
 
-Version: 1.0.0  (2026-06-25)
+Version: 1.1.0  (2026-06-27)  — wired into run_analysis.py (Phase 16); paths via paths.py
+         1.0.0  (2026-06-25)  — initial standalone diagnostic
 """
 from __future__ import annotations
 import sys
@@ -51,7 +54,12 @@ from sklearn.metrics import adjusted_rand_score, cohen_kappa_score
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from utils.config import CLUSTER_COLOURS, CLUSTER_LABELS
 from utils.data_utils import normalize_well_name
-from utils.paths import OUT_DIR, DATA_GEO_DIR
+from utils.paths import (
+    OUT_DIR, DATA_GEO_DIR, DIR_31,
+    OUT_31_VALIDATION_SUMMARY, OUT_31_METHOD_ROBUSTNESS,
+    OUT_31_FOREST_CONFUSION, OUT_31_FOREST_BORDERLINE, OUT_31_PANEL_FIG,
+)
+from utils.map_utils import add_en_axes
 
 import xml.etree.ElementTree as ET
 from shapely.geometry import Point, Polygon
@@ -71,7 +79,7 @@ DTW_WINDOW      = 12     # Sakoe-Chiba band (months) for DTW
 K_CANONICAL     = 5
 RNG             = np.random.default_rng(20260625)
 
-OUTDIR = OUT_DIR / "31_cluster_validation"
+OUTDIR = DIR_31
 OUTDIR.mkdir(parents=True, exist_ok=True)
 
 BETA_COLS = ["beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage"]
@@ -370,8 +378,8 @@ def make_panel(master, mag, ari_df, summary_df, fr):
     except Exception:
         pass
     ax.set_title("(a) Spatial coherence of hydrograph clusters")
-    ax.set_xlabel("Easting (m)"); ax.set_ylabel("Northing (m)")
-    ax.set_aspect("equal"); ax.legend(fontsize=7, loc="best")
+    add_en_axes(ax, osgb_label=False)
+    ax.legend(fontsize=7, loc="best")
 
     # (b) external & convergent eta^2
     ax = axes[0, 1]
@@ -415,7 +423,7 @@ def make_panel(master, mag, ari_df, summary_df, fr):
     fig.suptitle("Cluster validation panel -- k=5 partition vs independent evidence",
                  fontsize=14, y=0.99)
     fig.tight_layout(rect=[0, 0, 1, 0.97])
-    path = OUTDIR / "31_cluster_validation_panel.png"
+    path = OUT_31_PANEL_FIG
     fig.savefig(path, dpi=200)
     plt.close(fig)
     return path
@@ -498,10 +506,10 @@ def main():
     ari_df, n_rob = robustness(wells, master)
 
     # ---- write outputs ---------------------------------------------------
-    summary_df.to_csv(OUTDIR / "31_validation_summary.csv", index=False)
-    ari_df.to_csv(OUTDIR / "31_method_robustness_ari.csv", index=False)
-    conf.to_csv(OUTDIR / "31_forest_confusion.csv")
-    borderline.to_csv(OUTDIR / "31_forest_borderline.csv", index=False)
+    summary_df.to_csv(OUT_31_VALIDATION_SUMMARY, index=False)
+    ari_df.to_csv(OUT_31_METHOD_ROBUSTNESS, index=False)
+    conf.to_csv(OUT_31_FOREST_CONFUSION)
+    borderline.to_csv(OUT_31_FOREST_BORDERLINE, index=False)
     panel = make_panel(master, mag, ari_df, summary_df, fr)
 
     # ---- console ---------------------------------------------------------

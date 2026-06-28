@@ -1,22 +1,23 @@
-CANONICAL (dry [2011, 2012, 2019], wet [2014, 2016, 2021, 2024])
-network-mean swing 735 mm; wells 66 (0 flagged off-surface)
+CANONICAL amplification — CO-TEMPORAL coefficient over driest/wettest extremes (dry [2011, 2012, 2019], wet [2014, 2016, 2021, 2024])
+Tier-A site-mean swing 752 mm; wells 77 (9 Tier B/C off-surface)
+drought-floor states over canonical dry years [2011, 2012, 2019]
 
          mean  count
 Cluster             
-1.0      0.59      7
-2.0      0.92     27
-3.0      1.13     18
-4.0      1.49      8
-5.0      0.81      6
+1.0      0.61      7
+2.0      0.94     27
+3.0      1.20     18
+4.0      1.72     10
+5.0      0.84      6
 
-robustness — cluster amplification across year-set choices:
+robustness — cluster amplification across year-set choices (naive normalisation):
   set              C1  C2  C3  C4  C5
-  primary          0.59  0.92  1.13  1.49  0.81
-  wet_2016_swap    0.60  0.92  1.14  1.50  0.78
+  primary          0.57  0.89  1.11  1.51  0.79
+  wet_2016_swap    0.58  0.90  1.12  1.53  0.76
   dry_no_2019      0.65  0.96  1.16  1.50  0.77
-  wet_incl_2006    0.59  0.91  1.13  1.52  0.84
+  wet_incl_2006    0.58  0.89  1.11  1.54  0.83
 
-RECENT (dry [2019, 2020, 2025], wet [2021, 2024])
-network-mean swing 587 mm; wells 71
+RECENT amplification (co-temporal; dry [2019, 2020, 2025], wet [2021, 2024])
+Tier-A mean swing 604 mm; wells 73
 NOTE: recent dry extreme is milder than 2011/12; recent panel is a conservative
 recent lower bound and is NOT magnitude-comparable to the canonical panel.

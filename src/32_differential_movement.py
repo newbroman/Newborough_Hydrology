@@ -35,22 +35,36 @@ Method (signed-off spec, 2026-06-26):
   * Periods: 2011-2025 primary; 2005-2025 robustness check.
   * IDW power 2, 50 m grid, 450 m mask.
 
-Standalone diagnostic — NOT wired into run_analysis.py or paths.py. Pipeline
-integration (paths/config constants, orchestrator slot, optional hillshade base via
-map_utils.add_idw_surface) is deferred to the Step 3 figure-architecture decision.
+Pipeline-integrated: runs as Phase 15, step 36 of run_analysis.py. Reads
+pipeline intermediates through utils.paths constants (so the dependency
+auditor, run_analysis.py --deps, tracks every input) and writes to
+utils.paths.DIR_32. No paths or methodological constants are hardcoded — the
+method constants live in utils.config (DIFF_*) and the cluster partition is
+read from the committed pipeline output, never assumed.
 
-Inputs (read at runtime; no values hardcoded):
-    outputs/01_wells_clean.csv     per-well monthly levels (depth below ground)
-    outputs/01_locations.csv       well E/N
-    outputs/03_master_data.csv     per-well cluster id
+Inputs (read at runtime via utils.paths constants; no values hardcoded):
+    INT_WELLS_CLEAN   (01_wells_clean.csv)   per-well monthly levels (depth below ground)
+    INT_LOCATIONS     (01_locations.csv)     well E/N
+    INT_MASTER_DATA   (03_master_data.csv)   per-well cluster id (realised partition)
 
 Outputs (outputs/32_differential_movement/):
     32_differential_movement_per_well.csv   slope, mm/yr, significance, both periods
+    32_site_mean_trend.csv                  per-period site-mean spring-level trend
+                                            (AR-corrected + OLS), the canonical
+                                            secular figure cited in §5.7.5
     32_differential_movement_2011_2025.png  primary map
     32_differential_movement_2005_2025.png  robustness map
     32_results.txt                          console summary
 
-Version: 1.0.0 (2026-06-26)
+Version: 1.1.0 (2026-06-28)
+  1.1.0 (2026-06-28): emit the site-mean spring-level trend (AR-corrected slope
+    + p, OLS p, moving-block bootstrap CI) per period to 32_site_mean_trend.csv
+    and 32_results.txt — the canonical secular trend (−7.0 mm/yr, AR p=0.52 over
+    2005–2025) that §5.7.5 and Script 34 cite; previously this value existed only
+    as a hard-coded literal in Script 34's caption. Convention pass: reads go
+    directly through utils.paths constants (deps-visible), stale "not wired" note
+    corrected, __version__ added.
+  1.0.0 (2026-06-26): initial differential-movement anomaly-trend map.
 """
 
 from __future__ import annotations
@@ -72,8 +86,9 @@ from utils import config, paths
 from utils.map_utils import load_dem_hillshade, add_kml_features, add_en_axes
 from utils.console_utils import banner, phase, step, info, saved, note, result, done, hr
 
+__version__ = "1.1.0"
 SCRIPT_ID = "32"
-VERSION = "1.0.0"
+VERSION = __version__
 
 # --- method constants (from utils.config; spec-locked 2026-06-26) -----------------
 SPRING_MONTHS = config.MSL_SPRING_MONTHS
@@ -92,13 +107,13 @@ BOOT_SEED = config.DIFF_BOOT_SEED
 # --- output paths (from utils.paths) ----------------------------------------------
 OUT_DIR = paths.DIR_32
 OUT_CSV = paths.OUT_32_PER_WELL
+OUT_SITE_MEAN = paths.OUT_32_SITE_MEAN_TREND
 OUT_TXT = paths.OUT_32_RESULTS
 OUT_FIG = {"2011_2025": paths.OUT_32_FIG_PRIMARY, "2005_2025": paths.OUT_32_FIG_ROBUST}
 
-# input CSVs read at runtime
-IN_WELLS = paths.INT_WELLS_CLEAN
-IN_LOCATIONS = paths.INT_LOCATIONS
-IN_MASTER = paths.OUT_DIR / "03_master_data.csv"
+# Inputs are read directly through utils.paths constants in load_inputs() so the
+# dependency auditor (run_analysis.py --deps) can attribute every read:
+#   INT_WELLS_CLEAN, INT_LOCATIONS, INT_MASTER_DATA.
 
 
 # =================================================================================
@@ -106,16 +121,16 @@ IN_MASTER = paths.OUT_DIR / "03_master_data.csv"
 # =================================================================================
 def load_inputs() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Load cleaned levels, locations and per-well cluster ids."""
-    levels = pd.read_csv(IN_WELLS, index_col=0, parse_dates=True)
+    levels = pd.read_csv(paths.INT_WELLS_CLEAN, index_col=0, parse_dates=True)
     # drop the lake gauge column(s) if present
     drop = [c for c in levels.columns if c.lower().strip() in LAKE_GAUGE_KEYS]
     if drop:
         levels = levels.drop(columns=drop)
 
-    loc = pd.read_csv(IN_LOCATIONS)
+    loc = pd.read_csv(paths.INT_LOCATIONS)
     loc["key"] = loc["Name"].astype(str).str.lower().str.strip()
 
-    master = pd.read_csv(IN_MASTER)
+    master = pd.read_csv(paths.INT_MASTER_DATA)
     master["key"] = master["Name_Original"].astype(str).str.lower().str.strip()
     return levels, loc, master
 
@@ -126,15 +141,47 @@ def spring_year_table(levels: pd.DataFrame) -> pd.DataFrame:
     return spring.groupby(spring.index.year).mean(numeric_only=True)
 
 
-def build_anomalies(yr: pd.DataFrame, first: int, last: int) -> tuple[pd.DataFrame, list]:
-    """Anomaly table (well minus site-mean each year) over [first, last]."""
+def _panel_and_site(yr: pd.DataFrame, first: int, last: int):
+    """Return (period_subframe, site-mean series, panel wells) for [first, last].
+
+    The panel is the set of wells present in at least PANEL_MIN_FRACTION of the
+    period's springs; the site-mean trajectory is their per-year mean. Keeping
+    the panel stable (rather than averaging all wells) stops the reference
+    drifting with coverage.
+    """
     sub = yr.loc[first:last]
     n_years = last - first + 1
     coverage = sub.notna().sum(axis=0)
     panel = coverage[coverage >= PANEL_MIN_FRACTION * n_years].index.tolist()
     site = sub[panel].mean(axis=1, skipna=True)          # stable site-mean trajectory
+    return sub, site, panel
+
+
+def build_anomalies(yr: pd.DataFrame, first: int, last: int) -> tuple[pd.DataFrame, list]:
+    """Anomaly table (well minus site-mean each year) over [first, last]."""
+    sub, site, panel = _panel_and_site(yr, first, last)
     anom = sub.sub(site, axis=0)
     return anom, panel
+
+
+def site_mean_trend(yr: pd.DataFrame, first: int, last: int) -> dict | None:
+    """Trend of the site-mean spring level itself over [first, last].
+
+    This is the secular site-wide trend (the common-climate signal that the
+    per-well anomaly map removes by subtraction). It is the canonical figure
+    cited in §5.7.5 — e.g. −7.0 mm/yr (AR-corrected, p=0.52) over 2005–2025 —
+    and is read by Script 34 for its window-sensitivity caption. Returns the
+    same fields as trend_with_significance() plus the panel size, or None if
+    the panel is too short.
+    """
+    _, site, panel = _panel_and_site(yr, first, last)
+    res = trend_with_significance(site.index.values.astype(float), site.values)
+    if res is None:
+        return None
+    res["panel_n"] = len(panel)
+    res["first_year"] = first
+    res["last_year"] = last
+    return res
 
 
 # =================================================================================
@@ -170,6 +217,9 @@ def trend_with_significance(years: np.ndarray, vals: np.ndarray,
     n_eff = max(n * (1 - rho) / (1 + rho), 3.0)
     t = b / se_adj if se_adj > 0 else 0.0
     p_ar = float(2 * stats.t.sf(abs(t), max(n_eff - 2, 1)))
+    # plain (uncorrected) OLS p — descriptive companion to the AR-corrected p
+    t_ols = b / se_ols if se_ols > 0 else 0.0
+    p_ols = float(2 * stats.t.sf(abs(t_ols), max(n - 2, 1)))
 
     # moving-block bootstrap of the slope (residual resampling) -> 95% CI
     rng = np.random.default_rng(seed)
@@ -191,7 +241,7 @@ def trend_with_significance(years: np.ndarray, vals: np.ndarray,
     return dict(
         n=n, slope_m_yr=float(b), slope_mm_yr=float(b * 1000.0),
         rho=rho, n_eff=float(n_eff), se_adj=float(se_adj),
-        p_ar=p_ar, sig=bool(p_ar < 0.05),
+        p_ar=p_ar, p_ols=p_ols, sig=bool(p_ar < 0.05),
         boot_lo_mm_yr=float(lo * 1000.0), boot_hi_mm_yr=float(hi * 1000.0),
         boot_sig=boot_sig,
     )
@@ -306,6 +356,7 @@ def main() -> int:
     note("excluded from trends: lake gauge only (CEH13/CEH14 blanket-included — observational metric)")
 
     all_results: dict[str, pd.DataFrame] = {}
+    site_trend_rows: list[dict] = []
     lines: list[str] = []
     for plabel, (first, last) in PERIODS.items():
         phase(2, f"Per-well anomaly trends {first}-{last}")
@@ -321,6 +372,26 @@ def main() -> int:
         result(f"{plabel} bootstrap agreement", f"{agree}/{len(df)}")
         result(f"{plabel} median drift", f"{med:+.2f} mm/yr")
 
+        # Site-mean spring-level trend (the common-climate secular signal that the
+        # anomaly map removes). This is the canonical figure §5.7.5 / Script 34 cite.
+        smt = site_mean_trend(yr, first, last)
+        if smt is not None:
+            sig_tag = "" if smt["p_ar"] < 0.05 else " (n.s.)"
+            result(f"{plabel} site-mean spring-level trend",
+                   f"{smt['slope_mm_yr']:+.2f} mm/yr  AR p={smt['p_ar']:.3f}"
+                   f"  (OLS p={smt['p_ols']:.3f}){sig_tag}")
+            site_trend_rows.append({
+                "period": plabel, "first_year": first, "last_year": last,
+                "panel_n": smt["panel_n"], "n_years": smt["n"],
+                "slope_mm_yr": round(smt["slope_mm_yr"], 3),
+                "p_ar": round(smt["p_ar"], 4),
+                "p_ols": round(smt["p_ols"], 4),
+                "rho": round(smt["rho"], 4),
+                "boot_lo_mm_yr": round(smt["boot_lo_mm_yr"], 3),
+                "boot_hi_mm_yr": round(smt["boot_hi_mm_yr"], 3),
+                "ar_significant": bool(smt["p_ar"] < 0.05),
+            })
+
         # top movers either way
         up = df.sort_values("slope_mm_yr", ascending=False).head(5)
         dn = df.sort_values("slope_mm_yr").head(5)
@@ -333,6 +404,13 @@ def main() -> int:
         lines.append("sinks    (mm/yr): " +
                      ", ".join(f"{r.col} {r.slope_mm_yr:+.2f}{'*' if r.sig else ''}"
                                for r in dn.itertuples()))
+        if smt is not None:
+            lines.append(
+                f"site-mean spring-level trend: {smt['slope_mm_yr']:+.2f} mm/yr "
+                f"(AR-corrected p={smt['p_ar']:.3f}; OLS p={smt['p_ols']:.3f}; "
+                f"bootstrap CI [{smt['boot_lo_mm_yr']:+.2f}, {smt['boot_hi_mm_yr']:+.2f}]; "
+                f"panel n={smt['panel_n']}, {smt['n']} years)"
+                + ("" if smt["p_ar"] < 0.05 else "  — not significant"))
 
         phase(3, f"Render map {plabel}")
         make_map(df, loc, plabel, first, last, OUT_FIG[plabel])
@@ -348,6 +426,11 @@ def main() -> int:
         base = base.merge(df[cols].rename(columns=ren), on="key", how="outer")
     base.to_csv(OUT_CSV, index=False)
     saved(OUT_CSV)
+
+    # site-mean spring-level trend, one row per period (canonical secular figure)
+    phase(5, "Write site-mean trend CSV")
+    pd.DataFrame(site_trend_rows).to_csv(OUT_SITE_MEAN, index=False)
+    saved(OUT_SITE_MEAN)
 
     OUT_TXT.write_text("\n".join(lines) + "\n")
     saved(OUT_TXT)

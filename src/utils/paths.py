@@ -469,6 +469,7 @@ OUT_30_C4_FIG               = DIR_30 / "30_c4_constrained_fit.png"
 # Script 32 — differential water-table movement (standalone figure; report Fig 59)
 DIR_32 = OUT_DIR / "32_differential_movement"
 OUT_32_PER_WELL             = DIR_32 / "32_differential_movement_per_well.csv"
+OUT_32_SITE_MEAN_TREND      = DIR_32 / "32_site_mean_trend.csv"
 OUT_32_FIG_PRIMARY          = DIR_32 / "32_differential_movement_2011_2025.png"
 OUT_32_FIG_ROBUST           = DIR_32 / "32_differential_movement_2005_2025.png"
 OUT_32_RESULTS              = DIR_32 / "32_results.txt"

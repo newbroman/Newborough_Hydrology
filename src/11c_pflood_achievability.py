@@ -37,7 +37,7 @@ as a successor step to 11b, following the 14b → Script 14 pattern.
 
 from __future__ import annotations
 
-__version__ = "1.1.1"  # Hollingham (2026) — 2026-05-29
+__version__ = "1.1.2"  # Hollingham (2026) — 2026-06-28
 # 1.1.1 — Output paths now reference the canonical OUT_11C_* constants in
 #         paths.py (added same day). Removes the local DIR_11B re-derivation;
 #         single source of truth. No change to output filenames or contents.
@@ -264,7 +264,9 @@ memo_lines += [
     "This is the operational domain Conclusion 4 identifies for scrape targeting.",
     f"- **Forest zone (C4, C5): {counts.loc[[4,5], 'Achievable'].sum()} of {counts.loc[[4,5]].sum().sum()} wells achievable**, "
     f"with {counts.loc[[4,5], 'Marginal'].sum()} marginal and {counts.loc[[4,5], 'Unreachable'].sum()} unreachable. "
-    "Most forest wells require more than mildly-wet winters; the unreachable category is concentrated in C5 (Coastal Forest).",
+    f"Most forest wells require more than mildly-wet winters; "
+    f"the unreachable wells split {counts.loc[5, 'Unreachable']} in C5 Coastal Forest and "
+    f"{counts.loc[4, 'Unreachable']} in C4 Main Forest.",
     "",
     "The cluster pattern reflects the underlying mechanism. The open dune clusters",
     "(C1 Lake Edge, C2 Dune, C3 Western Residual) sit on the shallow-substrate or",
@@ -281,11 +283,29 @@ memo_lines += [
     "between the existing \"the operational zone for this intervention\" sentence and",
     "the prediction-equations paragraph:",
     "",
+]
+
+# Build a data-driven phrase for the cluster split of unreachable wells, so this
+# text can never go stale relative to the committed CSV. Wells are listed in
+# upper-case (matches Conclusion-4 / report convention) and sorted by lambda.
+_unr = df[df["category"] == "Unreachable"].sort_values("lambda", ascending=False)
+_c5_wells = [w.upper() for w in _unr.loc[_unr["cluster"] == 5, "well"]]
+_c4_wells = [w.upper() for w in _unr.loc[_unr["cluster"] == 4, "well"]]
+def _join(items):
+    return items[0] if len(items) == 1 else (", ".join(items[:-1]) + " and " + items[-1])
+_parts = []
+if _c5_wells:
+    _parts.append(f"{len(_c5_wells)} in C5 Coastal Forest ({_join(_c5_wells)})")
+if _c4_wells:
+    _parts.append(f"{len(_c4_wells)} in C4 Main Forest ({_join(_c4_wells)})")
+_unr_split = " and ".join(_parts) if _parts else "none"
+
+memo_lines += [
     "> *Per-well categorisation against the P_flood multiplier (Figure N; `11c_pflood_achievability_per_well.csv`) operationalises the priority criterion identified in Conclusion 4. Of "
     + f"{counts.loc[[1,2,3], 'Achievable'].sum()} wells across the open-dune clusters C1, C2 and C3, "
     + f"all but {counts.loc[[1,2,3], 'Marginal'].sum()} are in the achievable category (λ < 1.5); none are unreachable. "
     + f"By contrast, of the {counts.loc[[4,5]].sum().sum()} forest-zone wells in C4 and C5, only {counts.loc[[4,5], 'Achievable'].sum()} sit in the achievable band and "
-    + f"{counts.loc[[4,5], 'Unreachable'].sum()} are in the unreachable band (λ ≥ 2.5), all in C5 Coastal Forest. The categorisation provides a direct per-well lookup for scrape-targeting decisions: achievable wells in the C1/C2/C3 transitional zone are the operationally feasible candidates; the small number of marginal wells in the open dune (n = "
+    + f"{counts.loc[[4,5], 'Unreachable'].sum()} are in the unreachable band (λ ≥ 2.5): {_unr_split}. The categorisation provides a direct per-well lookup for scrape-targeting decisions: achievable wells in the C1/C2/C3 transitional zone are the operationally feasible candidates; the small number of marginal wells in the open dune (n = "
     + f"{counts.loc[[1,2,3], 'Marginal'].sum()}) define the upper edge of the operational envelope under current climate.*",
     "",
     "## Suggested figure caption",

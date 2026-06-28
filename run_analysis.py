@@ -6,6 +6,8 @@ Usage
 -----
   python run_analysis.py              # interactive menu
   python run_analysis.py --full       # non-interactive: run all 43 steps
+  python run_analysis.py --full --with-supplementary  # ... plus Phase 16 (24b,31,31b,34)
+  python run_analysis.py --full --clusters 5          # set the clustering target K (default 5)
   python run_analysis.py --full --log # ... and record all console output to a log file
   python run_analysis.py --from N     # non-interactive: resume from step N
   python run_analysis.py --viewer     # non-interactive: build scenario viewer only
@@ -32,8 +34,11 @@ The pipeline comprises 43 steps across 17 phases:
   sensitivity (Script 30, recovering a physically admissible forest drainage
   coefficient where the unconstrained monthly fit is degenerate) — documented
   in §5.1.1 and §4.2.2 of the report and §S.19 of the Methods Supplement.
-  Phase 16 runs the greyscale figure-conversion utility (Script 27),
-  retained as a callable utility step rather than an analytical phase.
+  Phase 16 runs the supplementary standalone diagnostics (Scripts 24b, 31,
+  31b, 34); it is opt-in on a full run (--with-supplementary, or the menu
+  option 1 prompt). Phase 17 runs the greyscale figure-conversion utility
+  (Script 27), retained as a callable utility step rather than an analytical
+  phase, and runs separately (menu option 6 / --greyscale).
 
 Two-pass execution (RECOMMENDED for new datasets)
 -------------------------------------------------
@@ -675,7 +680,7 @@ def run_phase(phase: list, phase_name: str, from_step: int = 1) -> None:
 
 # ── Pipeline runners ──────────────────────────────────────────────────────────
 
-def run_full_pipeline(from_step: int = 1) -> None:
+def run_full_pipeline(from_step: int = 1, include_supplementary: bool = False) -> None:
     ensure_paths()
     _t_start = time.time()
     run_phase(PHASE_1,  "PHASE 1  — Core LCSC Chain",                             from_step)
@@ -700,10 +705,20 @@ def run_full_pipeline(from_step: int = 1) -> None:
     run_phase(PHASE_13, "PHASE 13 — Van Willegen MSL Analyses (Scripts 26, 26b, 26c)", from_step)
     run_phase(PHASE_14, "PHASE 14 — Cluster Framework Diagnostics (Scripts 28–30)",  from_step)
     run_phase(PHASE_15, "PHASE 15 — Observed Differential Change and Envelope (Scripts 32, 33, 35)", from_step)
+    last_step = 38  # Phase 15 ends at step 38 (Script 35)
+    if include_supplementary:
+        run_phase(PHASE_16,
+                  "PHASE 16 — Supplementary Standalone Diagnostics (Scripts 24b, 31, 31b, 34)",
+                  from_step)
+        last_step = 42  # Phase 16 ends at step 42 (Script 34)
     _elapsed = (time.time() - _t_start) / 60.0
     print()
-    _banner("PIPELINE COMPLETE  ·  steps 1–37 written to outputs/", _Ansi.BGREEN)
-    say_info("greyscale step 38 runs separately (menu option 6 / --greyscale)")
+    _banner(f"PIPELINE COMPLETE  ·  steps 1–{last_step} written to outputs/", _Ansi.BGREEN)
+    if not include_supplementary:
+        say_info("supplementary standalone diagnostics (Phase 16: steps 39–42, "
+                 "Scripts 24b/31/31b/34) NOT run — add --with-supplementary "
+                 "(or choose it in menu option 1) to include them")
+    say_info("greyscale (step 43) runs separately (menu option 6 / --greyscale)")
     say_info(f"total run time: {_elapsed:0.1f} min")
 
 def build_viewer() -> None:
@@ -767,7 +782,7 @@ def render_menu() -> str:
         "",
         "  " + rule,
         "  " + grp("RUN"),
-        f"    {num('1')}   Full pipeline             " + hint("steps 1–37 · run twice for new data"),
+        f"    {num('1')}   Full pipeline             " + hint("steps 1–38 (+39–42 opt-in) · run twice for new data"),
         f"    {num('2')}   Resume from a step        " + hint("pick up mid-pipeline"),
         f"    {num('3')}   Run a single step",
         "",
@@ -954,12 +969,13 @@ def show_help() -> None:
         else:
             rng = f"steps {steps[0]}–{steps[-1]}"
         print("    " + paint(phase_label, _Ansi.CYAN) + D(f"   ({rng})"))
-    print(D("\n  A full run executes steps 1–37. Phase 16 (greyscale, step 38) is a"))
-    print(D("  utility and runs separately via option 6 / --greyscale."))
+    print(D("\n  A full run executes steps 1–38. The Phase 16 standalone diagnostics"))
+    print(D("  (steps 39–42) are opt-in via --with-supplementary or the option 1 prompt;"))
+    print(D("  greyscale (Phase 17, step 43) runs separately via option 6 / --greyscale."))
 
     print("\n" + H("  Menu options"))
     opts = [
-        ("1", "Full pipeline", "runs steps 1–37; offers to save a console log"),
+        ("1", "Full pipeline", "runs steps 1–38 (opt-in Phase 16); offers to save a console log"),
         ("2", "Resume from a step", "re-run from step N onward (after one full run)"),
         ("3", "Run a single step", "run one script; optional B&W mode"),
         ("4", "Build scenario viewer", "regenerate the standalone HTML viewer (Script 19)"),
@@ -987,7 +1003,9 @@ def show_help() -> None:
 
     print("\n" + H("  Command line"))
     cli = [
-        ("--full [--log [PATH]]", "run steps 1–37 (optionally log to file)"),
+        ("--full [--log [PATH]]", "run steps 1–38 (optionally log to file)"),
+        ("--with-supplementary", "with --full/--from: also run Phase 16 (steps 39–42)"),
+        ("--clusters N", "clustering target K for the partition (default 5)"),
         ("--from N", "resume from step N"),
         ("--viewer", "build the scenario viewer only"),
         ("--supplementary", "run Scripts 22–24 only"),
@@ -1027,11 +1045,28 @@ def interactive_menu() -> None:
                 "    pass 2: option 2, resume from step 9\n"
                 "  See module docstring for details."
             )
-            ans = input("\n  Run the full pipeline (steps 1–37) from the beginning? [y/N] ").strip().lower()
+            ans = input("\n  Run the full pipeline (steps 1–38) from the beginning? [y/N] ").strip().lower()
             if ans == "y":
+                kc = input(
+                    "  Clustering target k for the partition [5]\n"
+                    "  (fixed at 5 by default; silhouette's trivial k=2 peak is not used): "
+                ).strip()
+                if kc:
+                    try:
+                        kc_n = int(kc)
+                        if kc_n < 2:
+                            raise ValueError
+                        os.environ["NRG_N_CLUSTERS"] = str(kc_n)
+                        say_info(f"Clustering target set to k={kc_n} for this run")
+                    except ValueError:
+                        say_warn("Not a valid integer >= 2 — using default k=5")
+                supp = input(
+                    "  Also run the supplementary standalone diagnostics\n"
+                    "  (Phase 16, steps 39–42: Scripts 24b, 31, 31b, 34)? [y/N] "
+                ).strip().lower() == "y"
                 log_path = _prompt_logging()
                 try:
-                    run_full_pipeline(from_step=1)
+                    run_full_pipeline(from_step=1, include_supplementary=supp)
                 finally:
                     if log_path is not None:
                         stop_logging()
@@ -1143,6 +1178,15 @@ def main() -> None:
     )
     parser.add_argument("--full",   action="store_true",
                         help="Run all 43 steps non-interactively")
+    parser.add_argument("--with-supplementary", dest="with_supplementary",
+                        action="store_true",
+                        help="With --full/--from: also run the Phase 16 standalone "
+                             "diagnostic tier (steps 39–42: Scripts 24b, 31, 31b, 34)")
+    parser.add_argument("--clusters", dest="clusters", type=int, metavar="N",
+                        default=None,
+                        help="Clustering target K for the partition (Script 02). "
+                             "Default 5 (analyst-fixed; silhouette's trivial k=2 "
+                             "peak is not used). Sets NRG_N_CLUSTERS for the run.")
     parser.add_argument("--log", nargs="?", const="AUTO", default=None, metavar="PATH",
                         help="With --full: record all console output to a log file "
                              "(optional PATH; default outputs/logs/run_<timestamp>.log)")
@@ -1165,6 +1209,16 @@ def main() -> None:
     args = parser.parse_args()
 
     _init_colour(disable=args.no_colour)
+
+    # Clustering target K is a run parameter consumed by Script 02 (and the
+    # cluster-validation diagnostics) via NRG_N_CLUSTERS. Setting it here means
+    # every subprocess this run launches inherits it.
+    if args.clusters is not None:
+        if args.clusters < 2:
+            say_err("--clusters must be >= 2"); sys.exit(1)
+        os.environ["NRG_N_CLUSTERS"] = str(args.clusters)
+        say_info(f"Clustering target set to k={args.clusters} for this run "
+                 "(NRG_N_CLUSTERS)")
 
     if args.explain:
         show_help()
@@ -1196,14 +1250,16 @@ def main() -> None:
                 start_logging(None if args.log == "AUTO" else args.log)
                 log_active = True
             try:
-                run_full_pipeline(from_step=1)
+                run_full_pipeline(from_step=1,
+                                  include_supplementary=args.with_supplementary)
             finally:
                 if log_active:
                     stop_logging()
         elif args.from_step is not None:
             _banner("NEWBOROUGH WARREN GROUNDWATER ANALYSIS PIPELINE")
             warn_missing_upstream(args.from_step, interactive=False)
-            run_full_pipeline(from_step=args.from_step)
+            run_full_pipeline(from_step=args.from_step,
+                              include_supplementary=args.with_supplementary)
         else:
             interactive_menu()
     except KeyboardInterrupt:

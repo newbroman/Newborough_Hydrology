@@ -6,8 +6,8 @@ Winter-minus-summer SSM residual contrast by cluster
 (positive = model under-predicts the monthly rise more in winter):
 
   Cluster                   Δ(win−sum)                95% CI         p
-  C1 (Lake Edge)                7.2 mm   [  -0.8,   16.8]     0.204
-  C2 (Dune)                     3.7 mm   [  -1.0,    7.9]     0.111
+  C1 (Lake Edge)                7.1 mm   [  -0.6,   16.4]     0.199
+  C2 (Dune)                     3.6 mm   [  -1.1,    7.9]     0.119
   C3 (Western Residual)         7.5 mm   [   5.1,   10.0]     0.000
   C4 (Main Forest)              6.2 mm   [   0.8,   12.1]     0.086
   C5 (Coastal Forest)          -2.8 mm   [  -5.0,    0.1]     0.138

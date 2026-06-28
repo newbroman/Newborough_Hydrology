@@ -14,7 +14,13 @@ Outputs (final — outputs/02_clustering/):
     02_02_validation_plots.png
 """
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-06-22
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-06-28
+# 1.2.0 (2026-06-28): clustering target K is now a run parameter
+#   (pipeline_params.get_requested_n_clusters(); default 5, overridable per run
+#   via run_analysis.py --clusters N / NRG_N_CLUSTERS) instead of the buried
+#   literals NUM_CLUSTERS=5 / WARDS_K=5. best_sil_k stays report-only (never
+#   selects k). Added a reviewer-visible note at the partition step recording
+#   that k is analyst-fixed and silhouette's trivial k=2 peak is not used.
 # 1.1.0 (2026-06-22): §4.2 traceability — run_stability_diagnostics() now
 #   writes 02_06_k_sweep_validation.csv (per-k silhouette / Calinski-Harabasz /
 #   Ward merge distance, k=2..10) and 02_report_numbers.csv (k=5 metrics +
@@ -69,12 +75,18 @@ from utils.paths import (
     OUT_02_K_SWEEP, OUT_02_REPORT_NUMBERS,
 )
 from utils.report_numbers_utils import ReportNumbers
+from utils.pipeline_params import get_requested_n_clusters
 
-NUM_CLUSTERS = 5
+# The clustering target K is a run parameter (utils.pipeline_params), not a
+# literal: the dendrogram cannot discover it because silhouette peaks at the
+# trivial k=2 split. It is analyst-fixed at 5 (default), overridable per run via
+# run_analysis.py --clusters N (which sets NRG_N_CLUSTERS). Everything DOWNSTREAM
+# reads the realised partition back via pipeline_params.get_cluster_ids().
+NUM_CLUSTERS = get_requested_n_clusters()
 # Ward's k equals the final cluster count: no manual overrides. See the
 # CLUSTER_PARTITIONING_CONFIG comment block below for the audit trail of
 # how this partition was arrived at.
-WARDS_K = 5
+WARDS_K = NUM_CLUSTERS
 REFERENCE_CUTOFF = pd.Timestamp(REFERENCE_CUTOFF_DATE)
 MIN_RECORD_MONTHS = 100
 DETREND_START = pd.Timestamp("2004-12-01")
@@ -1188,6 +1200,8 @@ if __name__ == "__main__":
     # unclaimed canonical ID) only fires if Ward's produces a partition where
     # an anchor well's home cluster picks up additional members beyond what
     # the partition expects — defensive only, not part of normal flow.
+    note(f"Partition target k={WARDS_K} (analyst-fixed run parameter; silhouette "
+         f"peaks at the trivial k=2 and is NOT used to select k)")
     sub_clusters_raw = fcluster(Z, t=WARDS_K, criterion="maxclust")
 
     raw_to_canonical = _remap_cluster_ids_by_anchor(

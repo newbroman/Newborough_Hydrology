@@ -17,13 +17,20 @@ timing carries information no static attribute holds). High eta^2 does not imply
 high ARI.
 
 "Distance to coast" here is the Caernarfon Bay MHW shoreline (Menai Strait
-excluded), per well_metadata.csv (consolidated from well_distance_to_coast.csv).
+excluded), read as the dist_coast_m column of 01_well_elevations.csv.
 
-Output (outputs/31_cluster_validation/):
+K (cluster count), the summer-amplitude months and the min-obs gate are read from
+the realised partition / the CV_* tunables in pipeline_params; nothing is hard-coded.
+
+Output (outputs/31_cluster_validation/, via paths.OUT_31B_*):
   31b_separation_vs_recoverability.csv
   31b_separation_vs_recoverability.png
 
-Version: 1.0.0  (2026-06-25)
+Version: 1.1.0  (2026-06-28)  — convention pass: console_utils + banner/__version__;
+         K from pipeline_params.get_n_clusters() (validated vs get_requested_n_clusters());
+         SUMMER/MIN_YR from CV_* tunables; inputs read through paths constants and outputs
+         written via paths.OUT_31B_* (deps-visible); stale dist-coast provenance corrected.
+         1.0.0  (2026-06-25)  — initial standalone companion figure.
 """
 from __future__ import annotations
 import sys
@@ -40,8 +47,14 @@ from sklearn.cluster import AgglomerativeClustering
 from sklearn.metrics import adjusted_rand_score
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from utils import pipeline_params as pp
 from utils.data_utils import normalize_well_name
-from utils.paths import OUT_DIR, DATA_GEO_DIR
+from utils.paths import (
+    DIR_31, DATA_KML_FEATURES,
+    INT_MASTER_DATA, INT_WELL_ELEVATIONS, INT_WELLS_CLEAN, INT_DRY_DEPTHS,
+    OUT_31B_SEPARATION_CSV, OUT_31B_SEPARATION_FIG,
+)
+from utils.console_utils import banner, phase, info, result, saved, done, hr
 
 import xml.etree.ElementTree as ET
 from shapely.geometry import Point, Polygon
@@ -50,23 +63,28 @@ from pyproj import Transformer
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
 
-OUTDIR = OUT_DIR / "31_cluster_validation"
+__version__ = "1.1.0"
+SCRIPT_ID = "31b"
+VERSION = __version__
+
+OUTDIR = DIR_31
 OUTDIR.mkdir(parents=True, exist_ok=True)
-K = 5
-SUMMER = (6, 7, 8, 9)
-MIN_YR = 6
+
+K = pp.get_n_clusters()                 # realised partition cluster count (never hard-coded)
+SUMMER = tuple(pp.CV_AMPLITUDE_MONTHS)  # summer-amplitude months
+MIN_YR = pp.CV_MIN_YEAR_OBS             # min monthly obs in a year to use it
 C_SEP = "#2c7fb8"   # separation (eta^2)
 C_REC = "#756bb1"   # recoverability (ARI)
 
 
 def load():
-    m = pd.read_csv(OUT_DIR / "03_master_data.csv")
+    m = pd.read_csv(INT_MASTER_DATA)
     m["key"] = m["Name_Original"].map(normalize_well_name)
-    elev = pd.read_csv(OUT_DIR / "01_well_elevations.csv")
+    elev = pd.read_csv(INT_WELL_ELEVATIONS)
     elev["key"] = elev["Name"].map(normalize_well_name)
     m = m.merge(elev[["key", "DEM_Ground_Elev", "dist_coast_m"]], on="key", how="left")
 
-    w = pd.read_csv(OUT_DIR / "01_wells_clean.csv", index_col=0)
+    w = pd.read_csv(INT_WELLS_CLEAN, index_col=0)
     w.index = pd.to_datetime(w.index)
     w.columns = [normalize_well_name(c) for c in w.columns]
     yr, mo = w.index.year, w.index.month
@@ -86,13 +104,13 @@ def load():
     m["amplitude"] = m["key"].map(amp)
     m["summer_min"] = m["key"].map(smin)
 
-    dry = pd.read_csv(OUT_DIR / "01_dry_depths.csv")
+    dry = pd.read_csv(INT_DRY_DEPTHS)
     dry["key"] = dry["well"].map(normalize_well_name)
     m["dry_depth"] = m["key"].map(dry.groupby("key")["dry_depth_m"].median())
 
     # Caernarfon Bay forest polygon -> per-well forest flag
     ns = {"k": "http://www.opengis.net/kml/2.2"}
-    root = ET.fromstring((DATA_GEO_DIR / "Features.kml").read_text())
+    root = ET.fromstring(DATA_KML_FEATURES.read_text())
     tr = Transformer.from_crs("EPSG:4326", "EPSG:27700", always_xy=True)
     poly = None
     for pm in root.iter("{http://www.opengis.net/kml/2.2}Placemark"):
@@ -122,6 +140,15 @@ def ari_on(m, col, canon):
 
 
 def main():
+    banner(SCRIPT_ID, "Separation (eta^2) vs recoverability (ARI) per variable", VERSION)
+    requested = pp.get_requested_n_clusters()
+    if K == requested:
+        info(f"realised partition k={K} matches the requested target (k={requested})")
+    else:
+        info(f"realised partition k={K} differs from requested k={requested} — "
+             f"using the realised partition")
+
+    phase(1, "Load descriptors")
     m = load()
     canon = m["Cluster"].values
 
@@ -137,6 +164,7 @@ def main():
         ("Forest (canopy flag)", "forest",          True),
     ]
 
+    phase(2, "Compute separation (eta^2) and recoverability (ARI)")
     rows = []
     for lbl, col, is_bin in descriptors:
         sep = eta2(m[col], canon)
@@ -145,9 +173,11 @@ def main():
                      "binary": is_bin, "eta2_separation": round(sep, 3),
                      "ari_recoverability": round(rec, 3)})
     res = pd.DataFrame(rows).sort_values("eta2_separation", ascending=True)
-    res.to_csv(OUTDIR / "31b_separation_vs_recoverability.csv", index=False)
+    res.to_csv(OUT_31B_SEPARATION_CSV, index=False)
+    saved(OUT_31B_SEPARATION_CSV)
 
     # ---- figure ----------------------------------------------------------
+    phase(3, "Render figure")
     labels = [d[0] for d in descriptors]
     order = res["column"].tolist()
     lbl_by_col = {d[1]: d[0] for d in descriptors}
@@ -188,12 +218,14 @@ def main():
            "Strait excluded).")
     fig.text(0.06, 0.005, cap, fontsize=8, color="0.30", va="bottom")
     fig.tight_layout(rect=[0, 0.13, 1, 0.96])
-    path = OUTDIR / "31b_separation_vs_recoverability.png"
+    path = OUT_31B_SEPARATION_FIG
     fig.savefig(path, dpi=200)
     plt.close(fig)
+    saved(path)
 
     print(res.to_string(index=False))
-    print(f"\nWritten: {path}")
+    hr()
+    done(SCRIPT_ID)
 
 
 if __name__ == "__main__":

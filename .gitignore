@@ -26,6 +26,10 @@ living/output/
 
 # --- Large local working document (189 MB) — keep the PDF, not the docx ---
 report.docx
+*.odt
+*.docx
+*.xls*
+*.sh
 
 # --- Reference only (frozen-PL chat's call; already-tracked needs git rm --cached) ---
 # outputs/**/*.png

@@ -3,8 +3,10 @@
 site-mean panel: 66 wells; mapped: 74; significant: 8; bootstrap agreement: 60/74
 holds up (mm/yr): Ceh32 +20.48, ceh13 +18.52, ceh34 +17.21, ceh1 +16.62, ceh14 +15.14
 sinks    (mm/yr): ceh22 -26.50*, ceh3 -18.88, ceh21 -15.13*, ceh11 -13.25*, ceh19 -12.20
+site-mean spring-level trend: +19.66 mm/yr (AR-corrected p=0.275; OLS p=0.275; bootstrap CI [-3.13, +42.82]; panel n=66, 15 years)  — not significant
 
 === 2005_2025  (2005-2025) ===
 site-mean panel: 21 wells; mapped: 77; significant: 13; bootstrap agreement: 68/77
 holds up (mm/yr): Ceh32 +20.60, ceh8 +20.45*, ceh7 +17.97*, ceh34 +17.33, ceh33 +13.48
 sinks    (mm/yr): ceh22 -27.53*, nw8 -27.37*, ceh3 -23.74*, nw9 -19.28*, ceh17 -16.12*
+site-mean spring-level trend: -7.03 mm/yr (AR-corrected p=0.516; OLS p=0.503; bootstrap CI [-27.24, +11.86]; panel n=21, 21 years)  — not significant

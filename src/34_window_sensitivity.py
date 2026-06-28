@@ -49,9 +49,18 @@ Outputs (outputs/34_window_sensitivity/):
                                Panel B: site-mean spring trajectory + interannual SD)
 
 Panel B note: the own-panel OLS trend shown is DESCRIPTIVE. The canonical secular
-trend is Script 32's AR-corrected -7.0 mm/yr (p=0.52); cite that in prose. Both n.s.
+trend is Script 32's AR-corrected site-mean trend, read at runtime from the
+committed 32_site_mean_trend.csv (full-record row) — no longer hard-coded here.
+Both are non-significant.
 
-Version: 0.3.0 (2026-06-27)
+Version: 0.4.0 (2026-06-28)
+  v0.4.0: the canonical AR-corrected secular trend is now READ from Script 32's
+          committed 32_site_mean_trend.csv (paths.OUT_32_SITE_MEAN_TREND, full-record
+          row) instead of being a hard-coded "-7.0 mm/yr (p=0.52)" literal in the
+          header and figure caption. Convention pass: __version__; inputs read
+          directly through paths constants (OUT_26_ANNUAL_PER_WELL,
+          OUT_00_ANNUAL_CLIMATE_TABLE, OUT_32_SITE_MEAN_TREND) so the dependency
+          auditor attributes every read.
   v0.3.0: all-pairs demonstration (wet-2024 retained); Script now generates the
           §5.7.5 figure; MIN_PANEL/ANCHOR moved to config; outputs via paths.py;
           wired into run_analysis.py as a supplementary step. Supersedes the
@@ -76,13 +85,16 @@ from matplotlib.colors import TwoSlopeNorm
 from matplotlib.patches import Rectangle
 
 from utils import config, paths
-from utils.console_utils import banner, phase, info, note, result, saved, done, hr
+from utils.console_utils import banner, phase, step, info, note, result, saved, done, hr
 
+__version__ = "0.4.0"
 SCRIPT_ID = "34"
-VERSION = "0.3.0"
+VERSION = __version__
 
-IN_ANNUAL = paths.DIR_26 / "26_msl_annual_per_well.csv"
-IN_CLIMATE = paths.OUT_DIR / "00_climate_summary" / "00_01_annual_climate_summary.csv"
+# Inputs are read directly through these paths constants in main() (deps-visible):
+#   OUT_26_ANNUAL_PER_WELL  (26_msl_annual_per_well.csv)   per-well annual spring MSL
+#   OUT_00_ANNUAL_CLIMATE_TABLE (00_01_annual_climate_summary.csv)  window rainfall context
+#   OUT_32_SITE_MEAN_TREND  (32_site_mean_trend.csv)        canonical AR-corrected secular trend
 OUT_MATRIX = paths.OUT_34_MATRIX
 OUT_TXT = paths.OUT_34_RESULTS
 OUT_FIG = paths.OUT_34_FIG
@@ -90,6 +102,26 @@ OUT_FIG = paths.OUT_34_FIG
 WINDOW_LEN = config.MSL_DEFAULT_WINDOW_YEARS          # 5
 MIN_PANEL = config.MSL5_WINDOW_MIN_PANEL              # 40
 ANCHOR = tuple(config.MSL5_WINDOW_ANCHOR)            # (2017, 2023)
+
+
+def load_script32_secular_trend():
+    """Read Script 32's committed site-mean spring-level trend (the canonical
+    AR-corrected secular figure cited in §5.7.5).
+
+    Returns (slope_mm_yr, p_ar, period_label) for the full-record row (the
+    longest-span period in 32_site_mean_trend.csv), or None if Script 32 has not
+    been run yet (Script 32 is step 36, this is step 42, so on a full run the file
+    exists).
+    """
+    if not paths.OUT_32_SITE_MEAN_TREND.exists():
+        return None
+    df = pd.read_csv(paths.OUT_32_SITE_MEAN_TREND)
+    if df.empty:
+        return None
+    df = df.copy()
+    df["_span"] = df["last_year"] - df["first_year"]
+    row = df.sort_values("_span").iloc[-1]           # full record = longest span
+    return float(row["slope_mm_yr"]), float(row["p_ar"]), str(row["period"])
 
 
 # ── core ----------------------------------------------------------------------
@@ -146,7 +178,8 @@ def site_mean_trajectory(piv: pd.DataFrame):
 
 # ── figure --------------------------------------------------------------------
 def make_figure(d: pd.DataFrame, piv: pd.DataFrame, annual_p: pd.Series,
-                ref_mean: float, lo: float, hi: float, n_neg: int, n_pos: int):
+                ref_mean: float, lo: float, hi: float, n_neg: int, n_pos: int,
+                secular=None):
     mat = d.pivot(index="baseline_end", columns="current_end", values="change_mm")
     baselines = sorted(mat.index)
     currents = sorted(mat.columns)
@@ -206,12 +239,23 @@ def make_figure(d: pd.DataFrame, piv: pd.DataFrame, annual_p: pd.Series,
     axB.set_title("B  Why: the multi-year cycle dwarfs the trend", fontsize=10, loc="left")
     axB.legend(loc="lower left", fontsize=8, framealpha=0.9)
 
+    if secular is not None:
+        s_slope, s_p, _ = secular
+        secular_txt = (f"The canonical secular trend is Script 32's AR-corrected "
+                       f"\u2212{abs(s_slope):.1f} mm/yr (p={s_p:.2f}); the dashed line "
+                       f"here is a descriptive own-panel OLS."
+                       if s_slope < 0 else
+                       f"The canonical secular trend is Script 32's AR-corrected "
+                       f"{s_slope:+.1f} mm/yr (p={s_p:.2f}); the dashed line here is a "
+                       f"descriptive own-panel OLS.")
+    else:
+        secular_txt = ("The canonical secular trend is Script 32's AR-corrected "
+                       "site-mean trend (run Script 32 for the committed value); "
+                       "the dashed line here is a descriptive own-panel OLS.")
     fig.text(0.012, 0.012,
              "Thin 7-well 2005\u20132009 baseline excluded (common panel < "
              f"{MIN_PANEL}); the spread shown is from window CHOICE alone, among "
-             "well-sampled windows.\nThe canonical secular trend is Script 32's "
-             "AR-corrected \u22127.0 mm/yr (p=0.52); the dashed line here is a "
-             "descriptive own-panel OLS.",
+             "well-sampled windows.\n" + secular_txt,
              fontsize=7.5, style="italic", color="0.35")
 
     fig.subplots_adjust(left=0.10, right=0.985, top=0.88, bottom=0.16, wspace=0.18)
@@ -225,7 +269,7 @@ def main() -> int:
     paths.DIR_34.mkdir(parents=True, exist_ok=True)
 
     phase(1, "Load committed annual MSL")
-    a = pd.read_csv(IN_ANNUAL)
+    a = pd.read_csv(paths.OUT_26_ANNUAL_PER_WELL)
     a = a[a["valid"] == True].copy()
     a["well"] = a["well"].astype(str).str.lower().str.strip()
     excl = set(k.lower() for k in config.MSL5_EXCLUDED_WELLS)
@@ -239,7 +283,7 @@ def main() -> int:
          f"{len(ends)} five-year windows ({ends[0]}-{ends[-1]})")
 
     phase(2, "Window rainfall context")
-    clim = pd.read_csv(IN_CLIMATE)
+    clim = pd.read_csv(paths.OUT_00_ANNUAL_CLIMATE_TABLE)
     # The file carries a 'Long-term mean' footer row, so Year is string-typed.
     ltm_row = clim[clim["Year"].astype(str).str.contains("mean", case=False, na=False)]
     ref_mean = float(ltm_row["Annual_P_mm"].iloc[0]) if len(ltm_row) else float("nan")
@@ -270,6 +314,21 @@ def main() -> int:
          f"({mostpos.change_mm:+.0f} mm) is a wet-2024 'wrong pair'")
 
     phase(5, "Write outputs + figure")
+    secular = load_script32_secular_trend()
+    if secular is not None:
+        s_slope, s_p, s_period = secular
+        result("Script 32 secular trend (canonical)",
+               f"{s_slope:+.2f} mm/yr  AR p={s_p:.2f}  [{s_period}, from 32_site_mean_trend.csv]")
+    else:
+        note("32_site_mean_trend.csv not found — run Script 32 first for the "
+             "canonical secular trend (caption will say so)")
+    if secular is not None:
+        secular_line = (f"\nCanonical secular trend (Script 32, {secular[2]}): "
+                        f"{secular[0]:+.2f} mm/yr (AR-corrected p={secular[1]:.2f}) "
+                        f"— read from 32_site_mean_trend.csv, not hard-coded.\n")
+    else:
+        secular_line = ("\nCanonical secular trend: 32_site_mean_trend.csv not found "
+                        "(run Script 32).\n")
     d.sort_values("change_mm").to_csv(OUT_MATRIX, index=False)
     saved(OUT_MATRIX)
     OUT_TXT.write_text(
@@ -291,10 +350,11 @@ def main() -> int:
         f"The -97 mm headline is one interior point; the two-window MSL5 method "
         f"cannot resolve absolute site-wide change.\n"
         f"Thin 7-well 2005-2009 baseline auto-excluded by the panel rule.\n"
-        % MIN_PANEL)
+        % MIN_PANEL
+        + secular_line)
     saved(OUT_TXT)
 
-    make_figure(d, piv, annual_p, ref_mean, lo, hi, n_neg, n_pos)
+    make_figure(d, piv, annual_p, ref_mean, lo, hi, n_neg, n_pos, secular=secular)
     saved(OUT_FIG)
 
     hr()

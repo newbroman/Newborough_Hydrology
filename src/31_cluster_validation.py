@@ -25,7 +25,11 @@ organised by how independent each line of evidence actually is:
                       (average, complete; Spearman, DTW)? Adjusted Rand Index
                       against the canonical Ward+Pearson partition.
 
-All canonical numbers are read from live pipeline CSVs; nothing is hardcoded.
+All canonical numbers are read from live pipeline CSVs; nothing is hardcoded. The
+cluster count K is read from the realised partition (pipeline_params.get_n_clusters())
+and validated against the requested target (get_requested_n_clusters()); tunables come
+from the CV_* block in pipeline_params; the forest-cluster set is derived from
+config.CLUSTER_LABELS (labels containing "forest"), not a literal.
 
 Outputs (outputs/31_cluster_validation/):
   31_validation_summary.csv      one row per test (tier, statistic, p, independence)
@@ -34,7 +38,11 @@ Outputs (outputs/31_cluster_validation/):
   31_forest_borderline.csv       wells inside the +/- edge band, with signed distance
   31_cluster_validation_panel.png  4-panel figure
 
-Version: 1.1.0  (2026-06-27)  — wired into run_analysis.py (Phase 16); paths via paths.py
+Version: 1.2.0  (2026-06-28)  — convention pass: console_utils; K from the realised
+         partition (get_n_clusters, validated vs get_requested_n_clusters); tunables from
+         pipeline_params.CV_*; forest-cluster set derived from CLUSTER_LABELS; inputs read
+         through paths constants (deps-visible).
+         1.1.0  (2026-06-27)  — wired into run_analysis.py (Phase 16); paths via paths.py
          1.0.0  (2026-06-25)  — initial standalone diagnostic
 """
 from __future__ import annotations
@@ -53,13 +61,17 @@ from sklearn.metrics import adjusted_rand_score, cohen_kappa_score
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from utils.config import CLUSTER_COLOURS, CLUSTER_LABELS
+from utils import pipeline_params as pp
 from utils.data_utils import normalize_well_name
 from utils.paths import (
-    OUT_DIR, DATA_GEO_DIR, DIR_31,
+    DIR_31, DATA_KML_FEATURES,
+    INT_MASTER_DATA, INT_WELL_ELEVATIONS, INT_WTF_WELL_SY,
+    INT_WELLS_CLEAN, INT_DRY_DEPTHS,
     OUT_31_VALIDATION_SUMMARY, OUT_31_METHOD_ROBUSTNESS,
     OUT_31_FOREST_CONFUSION, OUT_31_FOREST_BORDERLINE, OUT_31_PANEL_FIG,
 )
 from utils.map_utils import add_en_axes
+from utils.console_utils import banner, phase, info, note, result, saved, done, hr
 
 import xml.etree.ElementTree as ET
 from shapely.geometry import Point, Polygon
@@ -67,50 +79,60 @@ from pyproj import Transformer
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
+__version__ = "1.2.0"
+SCRIPT_ID = "31"
+VERSION = __version__
+
 # ---------------------------------------------------------------------------
-# Tunable parameters
+# Tunable parameters — sourced from utils.pipeline_params.CV_* (the parameters
+# file), never hard-coded here.
 # ---------------------------------------------------------------------------
-KNN_K           = 6      # neighbours for spatial weights (Moran, join-count)
-N_PERM          = 10000  # permutations for spatial tests
-EDGE_BUFFER_M   = 50.0   # +/- band around the forest boundary => "borderline"
-SUMMER_MONTHS   = (6, 7, 8, 9)
-MIN_YEAR_OBS    = 6      # min monthly obs in a year to use it for amplitude
-DTW_WINDOW      = 12     # Sakoe-Chiba band (months) for DTW
-K_CANONICAL     = 5
-RNG             = np.random.default_rng(20260625)
+KNN_K           = pp.CV_KNN_K           # neighbours for spatial weights (Moran, join-count)
+N_PERM          = pp.CV_N_PERM          # permutations for spatial tests
+EDGE_BUFFER_M   = pp.CV_EDGE_BUFFER_M   # +/- band around the forest boundary => "borderline"
+SUMMER_MONTHS   = tuple(pp.CV_AMPLITUDE_MONTHS)
+MIN_YEAR_OBS    = pp.CV_MIN_YEAR_OBS    # min monthly obs in a year to use it for amplitude
+DTW_WINDOW      = pp.CV_DTW_WINDOW      # Sakoe-Chiba band (months) for DTW
+RNG             = np.random.default_rng(pp.CV_RNG_SEED)
+
+# K is the realised partition's cluster count, read from the committed pipeline output.
+K_CANONICAL     = pp.get_n_clusters()
 
 OUTDIR = DIR_31
 OUTDIR.mkdir(parents=True, exist_ok=True)
 
 BETA_COLS = ["beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage"]
-FOREST_CLUSTERS = {4, 5}
+# Forest clusters derived from the canonical labels, so the set tracks the partition
+# instead of being a {4, 5} literal.
+FOREST_CLUSTERS = {cid for cid, lbl in CLUSTER_LABELS.items()
+                   if "forest" in str(lbl).lower()}
 
 
 # ===========================================================================
 # Data loading
 # ===========================================================================
 def load_data():
-    master = pd.read_csv(OUT_DIR / "03_master_data.csv")
+    master = pd.read_csv(INT_MASTER_DATA)
     master["key"] = master["Name_Original"].map(normalize_well_name)
 
-    elev = pd.read_csv(OUT_DIR / "01_well_elevations.csv")
+    elev = pd.read_csv(INT_WELL_ELEVATIONS)
     elev["key"] = elev["Name"].map(normalize_well_name)
     master = master.merge(
         elev[["key", "DEM_Ground_Elev", "dist_coast_m"]], on="key", how="left"
     )
 
-    wtf = pd.read_csv(OUT_DIR / "17_wtf_well_sy.csv")
+    wtf = pd.read_csv(INT_WTF_WELL_SY)
     wtf["key"] = wtf["Well"].map(normalize_well_name)
     master = master.merge(wtf[["key", "Sy_median"]], on="key", how="left")
 
     # per-well monthly hydrographs (restrict to reference wells in master)
-    wells = pd.read_csv(OUT_DIR / "01_wells_clean.csv", index_col=0)
+    wells = pd.read_csv(INT_WELLS_CLEAN, index_col=0)
     wells.index = pd.to_datetime(wells.index)
     wells.columns = [normalize_well_name(c) for c in wells.columns]
     ref_keys = [k for k in master["key"] if k in wells.columns]
     wells = wells[ref_keys]
 
-    dry = pd.read_csv(OUT_DIR / "01_dry_depths.csv")
+    dry = pd.read_csv(INT_DRY_DEPTHS)
     dry["key"] = dry["well"].map(normalize_well_name)
     dry_med = dry.groupby("key")["dry_depth_m"].median().rename("dry_depth_med")
     master = master.merge(dry_med, on="key", how="left")
@@ -121,7 +143,7 @@ def load_data():
 def load_polygon(name: str) -> Polygon:
     """Return the named KML polygon transformed to OSGB (EPSG:27700)."""
     ns = {"k": "http://www.opengis.net/kml/2.2"}
-    root = ET.fromstring((DATA_GEO_DIR / "Features.kml").read_text())
+    root = ET.fromstring(DATA_KML_FEATURES.read_text())
     tr = Transformer.from_crs("EPSG:4326", "EPSG:27700", always_xy=True)
     for pm in root.iter("{http://www.opengis.net/kml/2.2}Placemark"):
         nm = pm.find("k:name", ns)
@@ -433,6 +455,18 @@ def make_panel(master, mag, ari_df, summary_df, fr):
 # Main
 # ===========================================================================
 def main():
+    banner(SCRIPT_ID, f"Independent validation of the k={K_CANONICAL} partition", VERSION)
+
+    # K provenance: realised partition vs requested target
+    requested = pp.get_requested_n_clusters()
+    if K_CANONICAL == requested:
+        info(f"realised partition k={K_CANONICAL} matches the requested target "
+             f"(k={requested}); forest clusters {sorted(FOREST_CLUSTERS)}")
+    else:
+        note(f"realised partition k={K_CANONICAL} DIFFERS from the requested target "
+             f"k={requested} — validation proceeds against the realised partition")
+
+    phase(1, "Tier 1 external — spatial coherence, forest recovery")
     master, wells = load_data()
     labels = master["Cluster"].values
     coords = master[["Easting", "Northing"]].values
@@ -477,6 +511,7 @@ def main():
                      p_value=np.nan, independence="external"))
 
     # ---- Tier 2: magnitude descriptors ----------------------------------
+    phase(2, "Tier 2 metric-independent — magnitude descriptors")
     mag = magnitude_descriptors(wells)
     m2 = master.merge(mag, left_on="key", right_index=True, how="left")
     for var, lbl in [("mean_depth", "mean depth to water"),
@@ -490,6 +525,7 @@ def main():
                          p_value=round(p, 4), independence="metric-independent"))
 
     # ---- Tier 3: convergent (same series) -------------------------------
+    phase(3, "Tier 3 convergent — SSM betas, WTF Sy, LCSC")
     for var, lbl in [("beta_1_recharge", "SSM beta1"),
                      ("beta_2_atmospheric_draw", "SSM beta2"),
                      ("beta_3_drainage", "SSM beta3"),
@@ -503,33 +539,42 @@ def main():
     summary_df = pd.DataFrame(rows)
 
     # ---- Tier 4: robustness ---------------------------------------------
+    phase(4, "Tier 4 robustness — ARI of alternative linkage/distance vs canonical")
     ari_df, n_rob = robustness(wells, master)
 
     # ---- write outputs ---------------------------------------------------
+    phase(5, "Write outputs + panel figure")
     summary_df.to_csv(OUT_31_VALIDATION_SUMMARY, index=False)
+    saved(OUT_31_VALIDATION_SUMMARY)
     ari_df.to_csv(OUT_31_METHOD_ROBUSTNESS, index=False)
+    saved(OUT_31_METHOD_ROBUSTNESS)
     conf.to_csv(OUT_31_FOREST_CONFUSION)
+    saved(OUT_31_FOREST_CONFUSION)
     borderline.to_csv(OUT_31_FOREST_BORDERLINE, index=False)
+    saved(OUT_31_FOREST_BORDERLINE)
     panel = make_panel(master, mag, ari_df, summary_df, fr)
+    saved(panel)
 
     # ---- console ---------------------------------------------------------
+    phase(6, "Summary")
     pd.set_option("display.width", 120)
-    print("\n=== TIER 1-3 VALIDATION SUMMARY ===")
+    info("Tier 1-3 validation summary:")
     print(summary_df.to_string(index=False))
-    print("\n=== TIER 4 METHOD ROBUSTNESS (ARI vs canonical) ===")
+    info("Tier 4 method robustness (ARI vs canonical):")
     print(ari_df.to_string(index=False))
-    print(f"\nForest recovery: kappa(all)={kappa_all:.3f}  "
-          f"kappa(edge excluded)={kappa_core:.3f}")
-    print("Confusion (rows=in_forest_poly, cols=in_forest_cluster):")
+    result("forest recovery", f"kappa(all)={kappa_all:.3f}  "
+           f"kappa(edge excluded)={kappa_core:.3f}")
+    info("confusion (rows=in_forest_poly, cols=in_forest_cluster):")
     print(conf.to_string())
-    print(f"\nBorderline wells (|dist to forest edge| < {EDGE_BUFFER_M:.0f} m):")
+    info(f"borderline wells (|dist to forest edge| < {EDGE_BUFFER_M:.0f} m):")
     print(borderline[["well", "Cluster", "signed_dist_m",
                       "in_forest_cluster"]].to_string(index=False))
     mism = fr[(fr["in_forest_poly"]) & (~fr["in_forest_cluster"])]
     if len(mism):
-        print("\nInside forest polygon but NOT in a forest cluster (kappa misses):")
+        note("inside forest polygon but NOT in a forest cluster (kappa misses):")
         print(mism[["well", "Cluster", "signed_dist_m"]].to_string(index=False))
-    print(f"\nWritten to {OUTDIR}")
+    hr()
+    done(SCRIPT_ID)
 
 
 if __name__ == "__main__":

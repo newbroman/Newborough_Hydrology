@@ -1,4 +1,4 @@
-MSL5 two-window sensitivity (§5.7.5) — all-pairs demonstration v0.3.0
+MSL5 two-window sensitivity (§5.7.5) — all-pairs demonstration v0.4.0
 source: 26_msl_annual_per_well.csv (valid; ['ceh13', 'ceh14'] excluded); rainfall: 00_01_annual_climate_summary.csv
 common panel per pair; admissible = panel>=40; ALL pairs retained (wet-2024 windows INCLUDED — the point of the demonstration)
 
@@ -10,3 +10,5 @@ ADMISSIBLE envelope: -136 to +221 mm (-0.14 to +0.22 m); 19 neg / 47 pos of 66 p
 
 The -97 mm headline is one interior point; the two-window MSL5 method cannot resolve absolute site-wide change.
 Thin 7-well 2005-2009 baseline auto-excluded by the panel rule.
+
+Canonical secular trend (Script 32, 2005_2025): -7.03 mm/yr (AR-corrected p=0.52) — read from 32_site_mean_trend.csv, not hard-coded.

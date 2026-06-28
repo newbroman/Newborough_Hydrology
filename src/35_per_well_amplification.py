@@ -33,13 +33,25 @@ wells are both the use case and the place it cannot be directly verified — the
 the beta_2/beta_3 calibration are how that extrapolation is kept honest. Language throughout is
 "consistent with the fitted drainage/draw response", never "confirms".
 
-Inputs
-  outputs/01_wells_clean.csv      spring levels
-  outputs/01_locations.csv        well E/N
-  outputs/03_master_data.csv      beta_1/2/3 + Cluster (calibration + cluster)
-  outputs/06_pear_membership_audit_sitewide.csv   cluster fallback for unclustered wells
+Inputs (read at runtime via utils.paths constants; nothing hardcoded):
+  INT_WELLS_CLEAN        (01_wells_clean.csv)   spring levels
+  INT_LOCATIONS          (01_locations.csv)     well E/N
+  INT_MASTER_DATA        (03_master_data.csv)   beta_1/2/3 + Cluster (calibration + cluster)
+  INT_PEAR_AUDIT_SITEWIDE(06_pear_membership_audit_sitewide.csv)   cluster fallback for unclustered wells
 
-Version: 1.0.0 (2026-06-27)
+Version: 1.1.0 (2026-06-28)
+
+Changelog
+---------
+1.1.0 (2026-06-28)
+  * Convention pass: __version__; inputs read directly through utils.paths constants
+    (INT_WELLS_CLEAN, INT_LOCATIONS, INT_MASTER_DATA, INT_PEAR_AUDIT_SITEWIDE) instead of
+    local IN_* aliases that built two paths from string literals, so the dependency auditor
+    attributes every read. No change to computed values (the per-well cluster columns already
+    derive from the data, not a hard-coded k).
+1.0.0 (2026-06-27)
+  * Initial release: frame-independent per-well climate-sensitivity coefficient with CI,
+    confidence tiers, SSM (beta_2/beta_3) calibration figure, and discrete marker map.
 """
 
 from __future__ import annotations
@@ -62,8 +74,9 @@ from utils import envelope_metric as em
 from utils.map_utils import load_dem_hillshade, add_kml_features, add_en_axes
 from utils.console_utils import banner, phase, step, info, saved, note, result, done, hr
 
+__version__ = "1.1.0"
 SCRIPT_ID = "35"
-VERSION = "1.0.0"
+VERSION = __version__
 
 # --- method constants (from utils.config) -----------------------------------------
 SPRING_MONTHS = config.MSL_SPRING_MONTHS
@@ -80,27 +93,25 @@ OUT_FIG_CALIB = paths.OUT_35_FIG_CALIB
 OUT_FIG_MARKERS = paths.OUT_35_FIG_MARKERS
 OUT_TXT = paths.OUT_35_RESULTS
 
-IN_WELLS = paths.INT_WELLS_CLEAN
-IN_LOCATIONS = paths.INT_LOCATIONS
-IN_MASTER = paths.OUT_DIR / "03_master_data.csv"
-IN_MEMBERSHIP = paths.OUT_DIR / "06_pear_membership_audit_sitewide.csv"
+# Inputs are read directly through utils.paths constants in load_inputs() (deps-visible):
+#   INT_WELLS_CLEAN, INT_LOCATIONS, INT_MASTER_DATA, INT_PEAR_AUDIT_SITEWIDE.
 
 
 # =================================================================================
 # Data
 # =================================================================================
 def load_inputs():
-    levels = pd.read_csv(IN_WELLS, index_col=0, parse_dates=True)
+    levels = pd.read_csv(paths.INT_WELLS_CLEAN, index_col=0, parse_dates=True)
     drop = [c for c in levels.columns if c.lower().strip() in LAKE_GAUGE_KEYS]
     if drop:
         levels = levels.drop(columns=drop)
-    loc = pd.read_csv(IN_LOCATIONS)
+    loc = pd.read_csv(paths.INT_LOCATIONS)
     loc["key"] = loc["Name"].astype(str).str.lower().str.strip()
-    master = pd.read_csv(IN_MASTER)
+    master = pd.read_csv(paths.INT_MASTER_DATA)
     master["key"] = master["Name_Original"].astype(str).str.lower().str.strip()
     membership = None
-    if IN_MEMBERSHIP.exists():
-        membership = pd.read_csv(IN_MEMBERSHIP)
+    if paths.INT_PEAR_AUDIT_SITEWIDE.exists():
+        membership = pd.read_csv(paths.INT_PEAR_AUDIT_SITEWIDE)
         membership["key"] = membership["Well_Normalised"].astype(str).str.lower().str.strip()
     return levels, loc, master, membership
 

@@ -27,8 +27,10 @@ Anchor claim (report Step 1, envelope figure):
 Method (locked spec, 2026-06-26):
   * Spring value per well-year = mean of available MAM (config.MSL_SPRING_MONTHS).
   * Extreme years chosen by site-mean spring extremity AND antecedent-rainfall
-    consistency, within the full-network period:
-       DRY = {2011, 2012, 2019}   WET = {2014, 2021, 2024}
+    consistency, within the full-network period. The canonical sets live in
+    utils.config (ENVELOPE_DRY_YEARS / ENVELOPE_WET_YEARS); the wet set includes
+    2016 (the wettest-antecedent recharge season on record, 697 mm Oct–Mar — the
+    mirror of the 2006 exclusion below).
     2006 is excluded as a wet extreme: its 2004-2005 antecedent was the driest in the
     record (-19% in 2005), so the slow-tau forest wells had not refilled by spring 2006
     and it is not an antecedent-matched wet state.
@@ -39,14 +41,16 @@ Method (locked spec, 2026-06-26):
   *   reasons) are INCLUDED here — the coefficient is observational and does not use the SSM.
   * IDW power 2, 50 m grid, 450 m mask.
 
-Standalone diagnostic — NOT wired into run_analysis.py / paths.py / config.py.
-Pipeline integration (paths/config constants, orchestrator slot, map_utils hillshade
-base, the actual Curreli SD15b/SD16 threshold values) deferred to the Step 3/5 decision.
+Pipeline-integrated: runs as Phase 15, step 37 of run_analysis.py. Reads pipeline
+intermediates directly through utils.paths constants (deps-visible) and writes to
+utils.paths.DIR_33. Method constants live in utils.config (ENVELOPE_*, DIFF_IDW_*);
+the cluster partition is read from the committed pipeline output, never assumed.
 
-Inputs (read at runtime; nothing hardcoded):
-    outputs/01_wells_clean.csv     per-well monthly levels (depth below ground)
-    outputs/01_locations.csv       well E/N
-    outputs/03_master_data.csv     per-well cluster id
+Inputs (read at runtime via utils.paths constants; nothing hardcoded):
+    INT_WELLS_CLEAN        (01_wells_clean.csv)   per-well monthly levels (depth below ground)
+    INT_LOCATIONS          (01_locations.csv)     well E/N
+    INT_MASTER_DATA        (03_master_data.csv)   per-well cluster id (realised partition)
+    INT_PEAR_AUDIT_SITEWIDE(06_pear_membership_audit_sitewide.csv)  cluster for extended wells
 
 Outputs (outputs/33_envelope_amplification/):
     33_envelope_per_well.csv          dry/wet state, swing, amplification, cluster
@@ -54,10 +58,17 @@ Outputs (outputs/33_envelope_amplification/):
     33_dry_spring_depth.png           dry-year spring water-table depth (ecological companion)
     33_results.txt                    console summary + robustness table
 
-Version: 1.1.0 (2026-06-27)
+Version: 1.2.0 (2026-06-28)
 
 Changelog
 ---------
+1.2.0 (2026-06-28)
+  * Convention pass: __version__; inputs read directly through utils.paths constants
+    (INT_WELLS_CLEAN, INT_LOCATIONS, INT_MASTER_DATA, INT_PEAR_AUDIT_SITEWIDE) so the
+    dependency auditor attributes every read. Robustness-table cluster columns now come
+    from the realised partition (pipeline_params.get_cluster_ids()) instead of the
+    hard-coded [1,2,3,4,5]. Stale "not wired" note and the stale WET={...} extreme-year
+    listing corrected. No change to the computed envelope/amplification values.
 1.1.0 (2026-06-27)
   * Canonical wet extreme now includes 2016 (config.ENVELOPE_WET_YEARS); 2016 is the
     wettest-antecedent recharge season on record (697 mm Oct-Mar), the mirror of the
@@ -95,9 +106,11 @@ from utils import config, paths
 from utils import envelope_metric as em
 from utils.map_utils import load_dem_hillshade, add_kml_features, add_idw_surface, add_en_axes
 from utils.console_utils import banner, phase, step, info, saved, note, result, done, hr
+from utils.pipeline_params import get_cluster_ids
 
+__version__ = "1.2.0"
 SCRIPT_ID = "33"
-VERSION = "1.1.0"
+VERSION = __version__
 
 # --- method constants (from utils.config; spec-locked 2026-06-26 / 2026-06-27) -----
 SPRING_MONTHS = config.MSL_SPRING_MONTHS
@@ -130,27 +143,25 @@ OUT_CSV_RECENT = paths.OUT_33_PER_WELL_RECENT
 OUT_FIG_AMP_RECENT = paths.OUT_33_FIG_AMP_RECENT
 OUT_FIG_DRY_SPRING_RECENT = paths.OUT_33_FIG_DRY_SPRING_RECENT
 
-IN_WELLS = paths.INT_WELLS_CLEAN
-IN_LOCATIONS = paths.INT_LOCATIONS
-IN_MASTER = paths.OUT_DIR / "03_master_data.csv"
-IN_MEMBERSHIP = paths.OUT_DIR / "06_pear_membership_audit_sitewide.csv"
+# Inputs are read directly through utils.paths constants in load_inputs() (deps-visible):
+#   INT_WELLS_CLEAN, INT_LOCATIONS, INT_MASTER_DATA, INT_PEAR_AUDIT_SITEWIDE.
 
 
 # =================================================================================
 # Data
 # =================================================================================
 def load_inputs():
-    levels = pd.read_csv(IN_WELLS, index_col=0, parse_dates=True)
+    levels = pd.read_csv(paths.INT_WELLS_CLEAN, index_col=0, parse_dates=True)
     drop = [c for c in levels.columns if c.lower().strip() in LAKE_GAUGE_KEYS]
     if drop:
         levels = levels.drop(columns=drop)
-    loc = pd.read_csv(IN_LOCATIONS)
+    loc = pd.read_csv(paths.INT_LOCATIONS)
     loc["key"] = loc["Name"].astype(str).str.lower().str.strip()
-    master = pd.read_csv(IN_MASTER)
+    master = pd.read_csv(paths.INT_MASTER_DATA)
     master["key"] = master["Name_Original"].astype(str).str.lower().str.strip()
     membership = None
-    if IN_MEMBERSHIP.exists():
-        membership = pd.read_csv(IN_MEMBERSHIP)
+    if paths.INT_PEAR_AUDIT_SITEWIDE.exists():
+        membership = pd.read_csv(paths.INT_PEAR_AUDIT_SITEWIDE)
         membership["key"] = membership["Well_Normalised"].astype(str).str.lower().str.strip()
     return levels, loc, master, membership
 
@@ -439,14 +450,15 @@ def main() -> int:
                             flagged=FLAGGED_SINGLE_DRY)
 
     phase(3, "Robustness to extreme-year choice")
+    cluster_ids = get_cluster_ids()   # realised partition, never hard-coded
     rob_lines = ["robustness — cluster amplification across year-set choices (naive normalisation):"]
-    rob_lines.append("  set              " + "  ".join(f"C{c}" for c in [1, 2, 3, 4, 5]))
+    rob_lines.append("  set              " + "  ".join(f"C{c}" for c in cluster_ids))
     for name, (dy, wy) in ROBUSTNESS_SETS.items():
         rdf = extreme_states(yr, dy, wy, excluded).merge(master[["key", "Cluster"]], on="key", how="left")
         rdf = fill_clusters_from_pearson(rdf, membership)
         rdf, _ = add_amplification(rdf)
         means = rdf.groupby("Cluster")["amplification"].mean()
-        rob_lines.append(f"  {name:15s}  " + "  ".join(f"{means.get(c, np.nan):.2f}" for c in [1, 2, 3, 4, 5]))
+        rob_lines.append(f"  {name:15s}  " + "  ".join(f"{means.get(c, np.nan):.2f}" for c in cluster_ids))
     for ln in rob_lines:
         print(ln)
 

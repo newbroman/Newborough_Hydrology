@@ -105,6 +105,11 @@ DATA_KML_FEATURES      = data_geo("Features.kml")
 DATA_KML_STREAMS       = data_geo("streams.kml")
 DATA_KML_CLEARFELL     = data_geo("clearfell.kml")
 DATA_KML_SITE_BOUNDARY = data_geo("site_boundary.kml")
+# OSM-derived Caernarfon Bay + Menai Strait High Water Mark coastline,
+# EPSG:27700, used as the fixed-head boundary for scrape drawdown
+# method-of-images correction in Script 20.  Generated 2026-06-30 from
+# OpenStreetMap via Overpass API (ODbL licence); Malltraeth estuary excluded.
+DATA_COASTLINE_HWM     = data_geo("coastline_hwm.geojson")
 # Broadleaf restock block boundary — geometry also embedded in Features.kml
 # for automatic rendering via add_kml_features(); this entry retained for
 # any script that loads the boundary explicitly.

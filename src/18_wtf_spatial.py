@@ -28,7 +28,29 @@ References:
     Freeman, S. (2008) Hydrological impact of Corsican pine at Newborough Warren.
 """
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-06-21
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-06-29
+# 1.4.0 (2026-06-29): Replace τ map with drainage decay half-life map
+#         (t½ = ln(2)/β₃). Fig 46 now shows t½ (single panel). Fig 48
+#         synthesis scatter y-axis changed from τ to t½. τ = Sy/β₃ retained
+#         as intermediate CSV only (discussion reference). New function:
+#         plot_halflife_map(). Synthesis scatter refactored to accept rb3_df
+#         directly; Sy loaded from OUT_18_WELL_SY_TABLE. paths.py: renamed
+#         OUT_18_HALFLIFE_MAP (18_wtf_05_halflife_map.png); removed
+#         OUT_18_DRAINAGE_TIMESCALE map path (CSV path retained).
+#         18_report_numbers.csv gains t½ mean/min/max per cluster.
+# 1.3.0 (2026-06-29): Add Fig 46a — per-well 1/β₃ recession e-folding time map
+#         (18_wtf_05a_recip_beta3_map.png). τ map renamed to Fig 46b
+#         (18_wtf_05b_drainage_timescale_map.png). New functions:
+#         compute_recip_beta3(), plot_recip_beta3_map(). Both called in
+#         sequence in main() under --supplementary. 18_report_numbers.csv
+#         gains per-cluster 1/β₃ min/max rows alongside existing τ rows.
+#         paths.py: OUT_18_RECIP_BETA3_MAP added; OUT_18_DRAINAGE_TIMESCALE
+#         renamed to 18_wtf_05b_*.
+# 1.2.1 (2026-06-29): Fix colourbar label on drainage-timescale map
+#         (18_wtf_05_drainage_timescale_map.png): "Drainage timescale" →
+#         "Storage–drainage index" — missed instance from the v1.1.0
+#         terminology sweep. Map title and scatter y-axis were already
+#         correct; colourbar was the sole outstanding inconsistency.
 # 1.2.0 (2026-06-21): §4.9 traceability — emit 18_report_numbers.csv with the
 #         cited τ wells (CEH13/CEH14) and per-cluster reference-network τ
 #         ranges (Fig 44). No change to the τ CSV or maps.
@@ -72,9 +94,9 @@ from utils.paths import (
     INT_PEAR_AUDIT_SITEWIDE, DATA_DIR, DATA_KML_SITE_BOUNDARY, DATA_KML_STREAMS,
     INT_LCSC_MODEL_STATS,
     OUT_18_WELL_SY_TABLE, OUT_18_SY_MAP, OUT_18_SY_CONTOUR,
-    OUT_18_SY_CONTOUR_EXT, INT_WTF_WELL_SY, OUT_18_DRAINAGE_TIMESCALE,
-    OUT_18_DRAINAGE_TIMESCALE_CSV, OUT_18_AQUIFER_SYNTHESIS,
-    OUT_18_REPORT_NUMBERS,
+    OUT_18_SY_CONTOUR_EXT, INT_WTF_WELL_SY, OUT_18_HALFLIFE_MAP,
+    OUT_18_DRAINAGE_TIMESCALE_CSV,
+    OUT_18_AQUIFER_SYNTHESIS, OUT_18_REPORT_NUMBERS,
 )
 from utils.report_numbers_utils import ReportNumbers
 from utils.config import (
@@ -792,6 +814,365 @@ def compute_drainage_timescale(well_results):
     return tau_df
 
 
+def compute_recip_beta3():
+    """
+    Compute per-well recession e-folding time t_R = 1 / β₃ (months).
+
+    Loads β₃, Easting, Northing, and Cluster directly from 03_master_data.csv.
+    Excludes:
+      - CEH14 (negative β₃ — 1/β₃ undefined)
+      - CEH13 (near-zero β₃ — 1/β₃ ≈ 526 months, extreme outlier)
+      - Any well where β₃ ≤ 0
+
+    Returns
+    -------
+    rb3_df : pd.DataFrame
+        Columns: Well, Cluster, Easting, Northing, beta_3, recip_beta3_months,
+                 Excluded, Exclude_Reason
+    """
+    master = pd.read_csv(INT_MASTER_DATA)
+    master["well_norm"] = master["Name_Original"].str.lower().str.strip()
+
+    rb3_df = master[[
+        "Name_Original", "Cluster", "Easting", "Northing", "beta_3_drainage", "well_norm"
+    ]].copy()
+    rb3_df = rb3_df.rename(columns={"Name_Original": "Well", "beta_3_drainage": "beta_3"})
+
+    rb3_df["Excluded"] = False
+    rb3_df["Exclude_Reason"] = ""
+
+    # Negative / zero β₃
+    neg_mask = rb3_df["beta_3"] <= 0
+    rb3_df.loc[neg_mask, "Excluded"] = True
+    rb3_df.loc[neg_mask, "Exclude_Reason"] = "negative or zero β₃"
+
+    # CEH13 outlier (near-zero β₃ → 1/β₃ ≈ 526 months)
+    ceh13_mask = rb3_df["well_norm"] == "ceh13"
+    rb3_df.loc[ceh13_mask & ~rb3_df["Excluded"], "Excluded"] = True
+    rb3_df.loc[ceh13_mask & ~rb3_df["Excluded"], "Exclude_Reason"] = (
+        "near-zero β₃ (1/β₃ ≈ 526 months outlier)"
+    )
+
+    # Compute t_R and t½ for non-excluded wells
+    rb3_df["recip_beta3_months"] = np.nan
+    rb3_df["half_life_months"]   = np.nan
+    valid = ~rb3_df["Excluded"]
+    rb3_df.loc[valid, "recip_beta3_months"] = 1.0 / rb3_df.loc[valid, "beta_3"]
+    rb3_df.loc[valid, "half_life_months"]   = np.log(2) / rb3_df.loc[valid, "beta_3"]
+
+    rb3_df = rb3_df.rename(columns={"beta_3_drainage": "beta_3"})
+    rb3_df = rb3_df[[
+        "Well", "Cluster", "Easting", "Northing",
+        "beta_3", "recip_beta3_months", "half_life_months",
+        "Excluded", "Exclude_Reason",
+    ]]
+    rb3_df = rb3_df.sort_values(["Cluster", "Well"]).reset_index(drop=True)
+
+    n_valid = valid.sum()
+    n_excl = rb3_df["Excluded"].sum()
+    excl_wells = rb3_df.loc[rb3_df["Excluded"], "Well"].tolist()
+    print(f"  1/β₃ computed for {n_valid} wells; {n_excl} excluded "
+          f"({', '.join(w.upper() for w in excl_wells)})")
+
+    for cid in sorted(rb3_df.loc[~rb3_df["Excluded"], "Cluster"].unique()):
+        sub = rb3_df[(rb3_df["Cluster"] == cid) & (~rb3_df["Excluded"])]
+        label = CLUSTER_LABELS.get(cid, f"C{cid}")
+        hl  = pd.to_numeric(sub["half_life_months"], errors="coerce").dropna()
+        rb3 = pd.to_numeric(sub["recip_beta3_months"], errors="coerce").dropna()
+        print(f"    {label}: t½ = {hl.mean():.1f} months "
+              f"(range {hl.min():.1f}–{hl.max():.1f}), "
+              f"1/β₃ = {rb3.mean():.1f} months")
+
+    return rb3_df
+
+
+def plot_halflife_map(rb3_df, out_path):
+    """
+    IDW-interpolated contour surface of drainage decay half-life
+    t½ = ln(2)/β₃ (months).
+
+    Fig 46. The half-life is the time for excess groundwater storage above the
+    drainage datum to drain to half its initial value through natural discharge
+    alone. Mirrors the IDW/mask/marker pattern of the other spatial maps in
+    this script. Colour scale independent of all other figures. CEH13 and
+    CEH14 excluded from interpolation and shown as red crosses.
+    """
+    from matplotlib.lines import Line2D
+    from utils.map_utils import load_dem_hillshade, add_kml_features, add_en_axes
+
+    # ── Study area bounds ─────────────────────────────────────────────────────
+    XI_MIN, XI_MAX = 240200, 243800
+    YI_MIN, YI_MAX = 362200, 365800
+    GRID_STEP = 50
+
+    valid    = rb3_df[~rb3_df["Excluded"]].copy()
+    excluded = rb3_df[rb3_df["Excluded"]].copy()
+
+    x  = valid["Easting"].values
+    y  = valid["Northing"].values
+    hl = valid["half_life_months"].values
+
+    xi = np.arange(XI_MIN, XI_MAX, GRID_STEP)
+    yi = np.arange(YI_MIN, YI_MAX, GRID_STEP)
+    Xi, Yi = np.meshgrid(xi, yi)
+
+    def idw(xq, yq, xs, ys, vs, power=2):
+        dist = np.sqrt((xq - xs[:, None, None])**2 + (yq - ys[:, None, None])**2)
+        dist = np.where(dist == 0, 1e-10, dist)
+        w = 1.0 / dist**power
+        return np.sum(w * vs[:, None, None], axis=0) / np.sum(w, axis=0)
+
+    Zi = idw(Xi, Yi, x, y, hl)
+    site_mask = make_site_mask(Xi, Yi)
+    Zi_masked = np.ma.masked_where(~site_mask | np.isnan(Zi), Zi)
+
+    # ── Colourmap ─────────────────────────────────────────────────────────────
+    hl_min = np.floor(hl.min())
+    hl_max = np.ceil(hl.max())
+    cmap = get_cmap("RdYlBu_r")  # blue = short half-life (fast), red = long (slow)
+
+    # ── Figure ────────────────────────────────────────────────────────────────
+    fig, ax = plt.subplots(figsize=(12, 10), facecolor="white", dpi=200)
+    add_en_axes(ax)
+
+    # Layer 1 — greyscale hillshade DEM
+    _, dem_loaded, dem_e_arr, dem_n_arr, dem_data = load_dem_hillshade(
+        ax, DATA_DIR, alpha=0.35, vert_exag=3.0, zorder=1)
+    if not dem_loaded:
+        warn("DEM hillshade unavailable — plain background used")
+        ax.set_facecolor("#EEF2F6")
+
+    # Layer 2 — semi-transparent t½ surface
+    cf = ax.contourf(Xi, Yi, Zi_masked, levels=20,
+                     cmap=cmap, vmin=hl_min, vmax=hl_max,
+                     alpha=0.65, zorder=2)
+    cl = ax.contour(Xi, Yi, Zi_masked, levels=10,
+                    colors="black" if BW_MODE else "white",
+                    linewidths=0.6, alpha=0.6, zorder=3)
+    ax.clabel(cl, fmt="%.1f", fontsize=7,
+              colors="black" if BW_MODE else "white")
+
+    # Layer 3 — KML site features
+    site_feature_handles = []
+    try:
+        site_feature_handles = add_kml_features(ax, DATA_DIR)
+        print(f"  KML features added ({len(site_feature_handles)} layers)")
+    except Exception as e:
+        warn(f"KML features failed: {e}")
+
+    # Colourbar
+    cbar = fig.colorbar(cf, ax=ax, fraction=0.025, pad=0.01, shrink=0.75)
+    cbar.set_label("Drainage decay half-life  t½ = ln(2)/β₃  (months)",
+                   fontsize=10, labelpad=10)
+
+    # ── Well markers ──────────────────────────────────────────────────────────
+    cluster_handles = []
+    for cid in sorted(CLUSTER_LABELS.keys()):
+        sub = valid[valid["Cluster"] == cid]
+        if sub.empty:
+            continue
+        hatch = "//" if cid in FOREST_CIDS else None
+        ax.scatter(sub["Easting"], sub["Northing"],
+                   c=CLUSTER_COLOURS[cid],
+                   s=60, marker=CLUSTER_MARKERS[cid],
+                   edgecolors="black", linewidths=0.8,
+                   alpha=0.92, zorder=5, hatch=hatch)
+        cluster_handles.append(Line2D(
+            [0], [0], marker=CLUSTER_MARKERS[cid], color="w",
+            markerfacecolor=CLUSTER_COLOURS[cid],
+            markeredgecolor="black", markersize=10,
+            label=CLUSTER_LABELS[cid]))
+
+    # t½ value labels
+    for _, row in valid.iterrows():
+        ax.annotate(f"{row['half_life_months']:.1f}",
+                    (row["Easting"], row["Northing"]),
+                    xytext=(4, 4), textcoords="offset points",
+                    fontsize=6, color="#111111", zorder=6)
+
+    # Excluded wells — red crosses
+    exclude_handles = []
+    if not excluded.empty:
+        ax.scatter(excluded["Easting"], excluded["Northing"],
+                   marker="x", c="red", s=120,
+                   linewidths=2.0, zorder=7)
+        for _, row in excluded.iterrows():
+            reason = row["Exclude_Reason"] if row["Exclude_Reason"] else "excluded"
+            ax.annotate(f"{row['Well'].upper()}\n({reason})",
+                        (row["Easting"], row["Northing"]),
+                        xytext=(6, 6), textcoords="offset points",
+                        fontsize=6, color="red", style="italic", zorder=8)
+        exclude_handles.append(
+            Line2D([0], [0], marker="x", color="red", markersize=9,
+                   linewidth=2, linestyle="none",
+                   label="Excluded (negative or near-zero β₃)"))
+
+    # ── Legends ───────────────────────────────────────────────────────────────
+    cluster_leg = ax.legend(
+        handles=cluster_handles + exclude_handles, loc="lower left",
+        title="Cluster  (// = forest interception correction)",
+        fontsize=8, framealpha=0.95, edgecolor="#CCCCCC")
+    ax.add_artist(cluster_leg)
+
+    if site_feature_handles:
+        ax.legend(handles=site_feature_handles, title="Site Features",
+                  loc="upper left", fontsize=8,
+                  framealpha=0.95, edgecolor="#CCCCCC")
+
+    ax.set_title(
+        "Drainage Decay Half-life  t½ = ln(2)/β₃  — Newborough Warren 2005–2026\n"
+        "IDW interpolation (power=2)  |  β₃ from SSM per-well fit (Section 3.4.3)\n"
+        "High t½ (red): excess groundwater persists longer after recharge  |  "
+        "CEH13, CEH14 excluded",
+        fontsize=9, fontweight="bold", pad=10)
+
+    ax.tick_params(labelsize=8)
+    plt.tight_layout()
+    fig.savefig(out_path, dpi=200, bbox_inches="tight", facecolor="white")
+    plt.close()
+    print(f"  Half-life map saved → {out_path.name}")
+    """
+    IDW-interpolated contour surface of recession e-folding time t_R = 1/β₃ (months).
+
+    Fig 46a. Mirrors plot_drainage_timescale_map() exactly: same IDW function,
+    same make_site_mask(), same load_dem_hillshade() call, same marker/legend
+    pattern, same figure size. Colour scale is independent of Fig 46b (τ map).
+    CEH13 and CEH14 excluded from interpolation and shown as red crosses.
+    """
+    from matplotlib.lines import Line2D
+    from utils.map_utils import load_dem_hillshade, add_kml_features, add_en_axes
+
+    # ── Study area bounds ─────────────────────────────────────────────────────
+    XI_MIN, XI_MAX = 240200, 243800
+    YI_MIN, YI_MAX = 362200, 365800
+    GRID_STEP = 50
+
+    valid    = rb3_df[~rb3_df["Excluded"]].copy()
+    excluded = rb3_df[rb3_df["Excluded"]].copy()
+
+    x   = valid["Easting"].values
+    y   = valid["Northing"].values
+    rb3 = valid["recip_beta3_months"].values
+
+    xi = np.arange(XI_MIN, XI_MAX, GRID_STEP)
+    yi = np.arange(YI_MIN, YI_MAX, GRID_STEP)
+    Xi, Yi = np.meshgrid(xi, yi)
+
+    def idw(xq, yq, xs, ys, vs, power=2):
+        dist = np.sqrt((xq - xs[:, None, None])**2 + (yq - ys[:, None, None])**2)
+        dist = np.where(dist == 0, 1e-10, dist)
+        w = 1.0 / dist**power
+        return np.sum(w * vs[:, None, None], axis=0) / np.sum(w, axis=0)
+
+    Zi = idw(Xi, Yi, x, y, rb3)
+    site_mask = make_site_mask(Xi, Yi)
+    Zi_masked = np.ma.masked_where(~site_mask | np.isnan(Zi), Zi)
+
+    # ── Colourmap and range ───────────────────────────────────────────────────
+    rb3_min = np.floor(rb3.min())
+    rb3_max = np.ceil(rb3.max())
+    cmap = get_cmap("RdYlBu_r")  # blue = short e-folding (fast), red = long (slow)
+
+    # ── Figure ────────────────────────────────────────────────────────────────
+    fig, ax = plt.subplots(figsize=(12, 10), facecolor="white", dpi=200)
+    add_en_axes(ax)
+
+    # Layer 1 — greyscale hillshade DEM
+    _, dem_loaded, dem_e_arr, dem_n_arr, dem_data = load_dem_hillshade(
+        ax, DATA_DIR, alpha=0.35, vert_exag=3.0, zorder=1)
+    if not dem_loaded:
+        warn("DEM hillshade unavailable — plain background used")
+        ax.set_facecolor("#EEF2F6")
+
+    # Layer 2 — semi-transparent 1/β₃ surface
+    cf = ax.contourf(Xi, Yi, Zi_masked, levels=20,
+                     cmap=cmap, vmin=rb3_min, vmax=rb3_max,
+                     alpha=0.65, zorder=2)
+    cl = ax.contour(Xi, Yi, Zi_masked, levels=10,
+                    colors="black" if BW_MODE else "white", linewidths=0.6, alpha=0.6, zorder=3)
+    ax.clabel(cl, fmt="%.1f", fontsize=7, colors="black" if BW_MODE else "white")
+
+    # Layer 3 — KML site features
+    site_feature_handles = []
+    try:
+        site_feature_handles = add_kml_features(ax, DATA_DIR)
+        print(f"  KML features added ({len(site_feature_handles)} layers)")
+    except Exception as e:
+        warn(f"KML features failed: {e}")
+
+    # Colourbar — independent scale
+    cbar = fig.colorbar(cf, ax=ax, fraction=0.025, pad=0.01, shrink=0.75)
+    cbar.set_label("Recession e-folding time  t_R = 1/β₃  (months)",
+                   fontsize=10, labelpad=10)
+
+    # ── Well markers ──────────────────────────────────────────────────────────
+    cluster_handles = []
+    for cid in sorted(CLUSTER_LABELS.keys()):
+        sub = valid[valid["Cluster"] == cid]
+        if sub.empty:
+            continue
+        hatch = "//" if cid in FOREST_CIDS else None
+        ax.scatter(sub["Easting"], sub["Northing"],
+                   c=CLUSTER_COLOURS[cid],
+                   s=60, marker=CLUSTER_MARKERS[cid],
+                   edgecolors="black", linewidths=0.8,
+                   alpha=0.92, zorder=5, hatch=hatch)
+        cluster_handles.append(Line2D(
+            [0], [0], marker=CLUSTER_MARKERS[cid], color="w",
+            markerfacecolor=CLUSTER_COLOURS[cid],
+            markeredgecolor="black", markersize=10,
+            label=CLUSTER_LABELS[cid]))
+
+    # 1/β₃ value labels on included wells
+    for _, row in valid.iterrows():
+        ax.annotate(f"{row['recip_beta3_months']:.1f}",
+                    (row["Easting"], row["Northing"]),
+                    xytext=(4, 4), textcoords="offset points",
+                    fontsize=6, color="#111111", zorder=6)
+
+    # Excluded wells — red crosses
+    exclude_handles = []
+    if not excluded.empty:
+        ax.scatter(excluded["Easting"], excluded["Northing"],
+                   marker="x", c="red", s=120,
+                   linewidths=2.0, zorder=7)
+        for _, row in excluded.iterrows():
+            reason = row["Exclude_Reason"] if row["Exclude_Reason"] else "excluded"
+            ax.annotate(f"{row['Well'].upper()}\n({reason})",
+                        (row["Easting"], row["Northing"]),
+                        xytext=(6, 6), textcoords="offset points",
+                        fontsize=6, color="red", style="italic", zorder=8)
+        exclude_handles.append(
+            Line2D([0], [0], marker="x", color="red", markersize=9,
+                   linewidth=2, linestyle="none",
+                   label="Excluded (negative or near-zero β₃)"))
+
+    # ── Legends ───────────────────────────────────────────────────────────────
+    cluster_leg = ax.legend(
+        handles=cluster_handles + exclude_handles, loc="lower left",
+        title="Cluster  (// = forest interception correction)",
+        fontsize=8, framealpha=0.95, edgecolor="#CCCCCC")
+    ax.add_artist(cluster_leg)
+
+    if site_feature_handles:
+        ax.legend(handles=site_feature_handles, title="Site Features",
+                  loc="upper left", fontsize=8,
+                  framealpha=0.95, edgecolor="#CCCCCC")
+
+    ax.set_title(
+        "Recession E-folding Time  t_R = 1/β₃  — Newborough Warren 2005–2026\n"
+        "IDW interpolation (power=2)  |  β₃ from SSM per-well fit (Section 3.4.3)\n"
+        "High t_R (red): aquifer sustains elevated head longer after recharge  |  "
+        "CEH13, CEH14 excluded",
+        fontsize=9, fontweight="bold", pad=10)
+
+    ax.tick_params(labelsize=8)
+    plt.tight_layout()
+    fig.savefig(out_path, dpi=200, bbox_inches="tight", facecolor="white")
+    plt.close()
+    print(f"  Recession e-folding time map saved → {out_path.name}")
+
+
 def plot_drainage_timescale_map(tau_df, out_path):
     """
     IDW-interpolated contour surface of drainage timescale τ = Sy / β₃ (months).
@@ -866,7 +1247,7 @@ def plot_drainage_timescale_map(tau_df, out_path):
 
     # Colourbar
     cbar = fig.colorbar(cf, ax=ax, fraction=0.025, pad=0.01, shrink=0.75)
-    cbar.set_label("Drainage timescale  τ = Sy / β₃  (months)",
+    cbar.set_label("Storage–drainage index  τ = Sy / β₃  (months)",
                    fontsize=10, labelpad=10)
 
     # ── Well markers ──────────────────────────────────────────────────────────
@@ -940,26 +1321,29 @@ def plot_drainage_timescale_map(tau_df, out_path):
     print(f"  Drainage timescale map saved → {out_path.name}")
 
 
-def plot_aquifer_diagnostic_synthesis(tau_df, out_path):
+def plot_aquifer_diagnostic_synthesis(rb3_df, out_path):
     """
-    Scatter plot of drainage timescale (τ = Sy / β₃) vs iterative NSE
+    Scatter plot of drainage decay half-life (t½ = ln(2)/β₃) vs iterative NSE
     improvement (ΔNSE = NSE_SSM − NSE_TLM), with points coloured by cluster
     and sized by WTF-derived Sy.
 
     Synthesises three independently derived per-well diagnostics into a
     single aquifer architecture characterisation. Cluster-mean markers
-    (larger, black-outlined diamonds) anchor the pattern.
+    (larger stars) anchor the pattern. t½ replaces τ = Sy/β₃ on the y-axis
+    as the directly interpretable drainage decay timescale (v1.4.0).
 
-    Excludes wells already flagged in tau_df (CEH12, CEH13, CEH14, CEH15).
+    Excludes wells flagged in rb3_df (CEH13, CEH14).
     """
     from matplotlib.lines import Line2D
 
-    # ── Load ΔNSE ─────────────────────────────────────────────────────────────
+    # ── Load ΔNSE and Sy ──────────────────────────────────────────────────────
     nse_df = pd.read_csv(INT_LCSC_MODEL_STATS)
     nse_df["norm"] = nse_df["Well_Normalized"].str.lower().str.strip()
 
-    # Work with non-excluded wells only
-    valid = tau_df[~tau_df["Excluded"]].copy()
+    sy_df = pd.read_csv(OUT_18_WELL_SY_TABLE)
+    sy_df["norm"] = sy_df["Well"].str.lower().str.strip()
+
+    valid = rb3_df[~rb3_df["Excluded"]].copy()
     valid["norm"] = valid["Well"].str.lower().str.strip()
 
     # Merge ΔNSE
@@ -969,17 +1353,20 @@ def plot_aquifer_diagnostic_synthesis(tau_df, out_path):
     )
     merged = merged.rename(columns={"Iterative_NSE_Improvement": "dNSE"})
 
+    # Merge Sy
+    merged = merged.merge(sy_df[["norm", "Sy_median"]], on="norm", how="left")
+
     n_matched = len(merged)
-    n_missed = len(valid) - n_matched
+    n_missed  = len(valid) - n_matched
     if n_missed > 0:
         missed = set(valid["norm"]) - set(merged["norm"])
         print(f"  [WARNING] {n_missed} wells missing ΔNSE data: "
               f"{', '.join(sorted(missed))}")
-    print(f"  {n_matched} wells with τ + ΔNSE + Sy for synthesis scatter")
+    print(f"  {n_matched} wells with t½ + ΔNSE + Sy for synthesis scatter")
 
     # ── Compute cluster means ─────────────────────────────────────────────────
     cmeans = merged.groupby("Cluster").agg(
-        tau_mean=("tau_months", "mean"),
+        hl_mean=("half_life_months", "mean"),
         dNSE_mean=("dNSE", "mean"),
         Sy_mean=("Sy_median", "mean"),
     ).reset_index()
@@ -1002,7 +1389,7 @@ def plot_aquifer_diagnostic_synthesis(tau_df, out_path):
         if sub.empty:
             continue
         sizes = sub["Sy_median"].apply(sy_to_size)
-        ax.scatter(sub["dNSE"], sub["tau_months"],
+        ax.scatter(sub["dNSE"], sub["half_life_months"],
                    c=CLUSTER_COLOURS[cid],
                    s=sizes, marker=CLUSTER_MARKERS[cid],
                    edgecolors="black", linewidths=0.5,
@@ -1016,7 +1403,7 @@ def plot_aquifer_diagnostic_synthesis(tau_df, out_path):
     # Cluster means — larger star markers
     for _, row in cmeans.iterrows():
         cid = int(row["Cluster"])
-        ax.scatter(row["dNSE_mean"], row["tau_mean"],
+        ax.scatter(row["dNSE_mean"], row["hl_mean"],
                    c=CLUSTER_COLOURS[cid],
                    s=300, marker="*",
                    edgecolors="black", linewidths=1.5,
@@ -1042,21 +1429,19 @@ def plot_aquifer_diagnostic_synthesis(tau_df, out_path):
             label=f"Sy = {sv:.2f}"))
 
     # ── Annotation regions ────────────────────────────────────────────────────
-    # Place interpretive text near cluster centroids
     annotations = {
-        1: ("shallow pan\n(lake boundary)", 0.12, -0.08),
-        4: ("deep sponge\n(impeded drainage)", -0.06, 0.06),
-        5: ("coastal forest\n(deeper sand)", 0.08, -0.06),
+        1: ("shallow pan\n(lake boundary)",    0.12, -0.08),
+        4: ("deep sponge\n(impeded drainage)", -0.06,  0.06),
+        5: ("coastal forest\n(deeper sand)",    0.08, -0.06),
     }
     for cid, (text, dx_frac, dy_frac) in annotations.items():
         cm = cmeans[cmeans["Cluster"] == cid]
         if cm.empty:
             continue
         x_pos = cm["dNSE_mean"].iloc[0]
-        y_pos = cm["tau_mean"].iloc[0]
-        # Offset in data coordinates scaled to axis range
+        y_pos = cm["hl_mean"].iloc[0]
         x_range = merged["dNSE"].max() - merged["dNSE"].min()
-        y_range = merged["tau_months"].max() - merged["tau_months"].min()
+        y_range = merged["half_life_months"].max() - merged["half_life_months"].min()
         ax.annotate(text,
                     (x_pos, y_pos),
                     xytext=(x_pos + dx_frac * x_range,
@@ -1069,20 +1454,20 @@ def plot_aquifer_diagnostic_synthesis(tau_df, out_path):
 
     # ── Axes and labels ───────────────────────────────────────────────────────
     ax.set_xlabel("ΔNSE  (iterative NSE improvement: SSM − TLM)", fontsize=11)
-    ax.set_ylabel("τ = Sy / β₃  (storage–drainage index, months)", fontsize=11)
+    ax.set_ylabel("Drainage decay half-life  t½ = ln(2)/β₃  (months)", fontsize=11)
     ax.set_title(
         "Aquifer Diagnostic Synthesis — Newborough Warren 2005–2026\n"
         "Three independently derived parameters triangulate aquifer architecture\n"
-        "τ (storage–drainage index) vs ΔNSE (drainage sensitivity), point size ∝ Sy (storage)",
+        "t½ (drainage decay half-life) vs ΔNSE (drainage sensitivity), "
+        "point size ∝ Sy (storage capacity)",
         fontsize=10, fontweight="bold", pad=12)
 
-    # Pad axes slightly
     x_pad = (merged["dNSE"].max() - merged["dNSE"].min()) * 0.12
-    y_pad = (merged["tau_months"].max() - merged["tau_months"].min()) * 0.10
+    y_pad = (merged["half_life_months"].max() - merged["half_life_months"].min()) * 0.10
     ax.set_xlim(merged["dNSE"].min() - x_pad,
                 merged["dNSE"].max() + x_pad)
-    ax.set_ylim(max(0, merged["tau_months"].min() - y_pad),
-                merged["tau_months"].max() + y_pad * 2)
+    ax.set_ylim(max(0, merged["half_life_months"].min() - y_pad),
+                merged["half_life_months"].max() + y_pad * 2)
 
     ax.grid(True, alpha=0.3, linestyle="--")
 
@@ -1106,7 +1491,7 @@ def plot_aquifer_diagnostic_synthesis(tau_df, out_path):
 
 def main(supplementary=True):
     # ── Paths ──────────────────────────────────────────────────────────────────
-    banner("18", "WTF Spatial Analysis", version="1.1.0")
+    banner("18", "WTF Spatial Analysis", version=__version__)
     out_root         = OUT_DIR
     out_dir          = DIR_18
     path_well_sy     = OUT_18_WELL_SY_TABLE
@@ -1152,32 +1537,61 @@ def main(supplementary=True):
         else:
             print("  Skipping extended contour map — no extended well results")
 
-        # ── Drainage timescale map (τ = Sy / β₃) ─────────────────────────
-        print("\nComputing drainage timescale (τ = Sy / β₃)...")
+        # ── Fig 46 — Drainage decay half-life map (t½ = ln(2)/β₃) ───────
+        print("\nComputing drainage decay half-life (t½ = ln(2)/β₃)...")
+        rb3_df = compute_recip_beta3()
+
+        print("\nGenerating half-life map (Fig 46)...")
+        plot_halflife_map(rb3_df, OUT_18_HALFLIFE_MAP)
+
+        # τ = Sy/β₃ retained as intermediate CSV for discussion-section
+        # reference and Paper 1; no figure emitted (v1.4.0).
+        print("\nComputing storage–drainage index (τ = Sy/β₃) — CSV only...")
         tau_df = compute_drainage_timescale(well_results)
         tau_df.to_csv(OUT_18_DRAINAGE_TIMESCALE_CSV, index=False)
         print(f"  Saved → {OUT_18_DRAINAGE_TIMESCALE_CSV.name}")
 
-        print("\nGenerating drainage timescale contour map...")
-        plot_drainage_timescale_map(tau_df, OUT_18_DRAINAGE_TIMESCALE)
+        # ── Fig 48 — Aquifer diagnostic synthesis scatter ─────────────────
+        print("\nGenerating aquifer diagnostic synthesis scatter (Fig 48)...")
+        plot_aquifer_diagnostic_synthesis(rb3_df, OUT_18_AQUIFER_SYNTHESIS)
 
-        print("\nGenerating aquifer diagnostic synthesis scatter...")
-        plot_aquifer_diagnostic_synthesis(tau_df, OUT_18_AQUIFER_SYNTHESIS)
-
-        # ── §4.9.3 traceable report numbers: τ statistics (Fig 44) ───────
-        # Cited wells and per-cluster τ ranges over the non-excluded
-        # reference network (τ = Sy / β₃ on the 3.7 m datum).
+        # ── §4.9.3 traceable report numbers ───────────────────────────────
+        # Per-cluster t½, 1/β₃, and τ ranges. CEH13/CEH14 excluded from
+        # t½ and 1/β₃ maps; τ CSV retains them as excluded rows.
         rpt = ReportNumbers()
-        cited = {"ceh13": "near-zero β₃ outlier (excluded)",
-                 "ceh14": "negative β₃ (excluded)"}
-        for w, why in cited.items():
-            wr = tau_df[tau_df["Well"].str.lower() == w]
+
+        # Excluded wells
+        excl_notes = {
+            "ceh13": "near-zero β₃ outlier (excluded from half-life map)",
+            "ceh14": "negative β₃ (excluded from half-life map)",
+        }
+        for w, why in excl_notes.items():
+            wr = rb3_df[rb3_df["Well"].str.lower() == w]
             if len(wr):
-                tau_v = wr["tau_months"].iloc[0]
-                rpt.add(f"tau_{w}", float(tau_v) if pd.notna(tau_v) else np.nan,
+                rpt.add(f"recip_b3_{w}",
+                        float(wr["recip_beta3_months"].iloc[0])
+                        if pd.notna(wr["recip_beta3_months"].iloc[0]) else np.nan,
                         unit="months", well=w.upper(),
                         era="excluded" if bool(wr["Excluded"].iloc[0]) else "",
                         note=why)
+
+        # Per-cluster t½ min/max
+        rb3_ok = rb3_df[~rb3_df["Excluded"]]
+        for cid, grp in rb3_ok.groupby("Cluster"):
+            hl  = pd.to_numeric(grp["half_life_months"],   errors="coerce").dropna()
+            rb3 = pd.to_numeric(grp["recip_beta3_months"], errors="coerce").dropna()
+            n   = len(hl)
+            if n:
+                rpt.add(f"C{int(cid)}_halflife_min", float(hl.min()), unit="months",
+                        note=f"min t½, C{int(cid)}, reference network, n={n}")
+                rpt.add(f"C{int(cid)}_halflife_max", float(hl.max()), unit="months",
+                        note=f"max t½, C{int(cid)}, reference network, n={n}")
+                rpt.add(f"C{int(cid)}_halflife_mean", float(hl.mean()), unit="months",
+                        note=f"mean t½, C{int(cid)}, reference network, n={n}")
+                rpt.add(f"C{int(cid)}_recip_b3_mean", float(rb3.mean()), unit="months",
+                        note=f"mean 1/β₃, C{int(cid)}, reference network, n={n}")
+
+        # Per-cluster τ min/max (discussion reference only)
         ok = tau_df[~tau_df["Excluded"]]
         for cid, grp in ok.groupby("Cluster"):
             taus = pd.to_numeric(grp["tau_months"], errors="coerce").dropna()
@@ -1186,8 +1600,11 @@ def main(supplementary=True):
                         note=f"min τ, C{int(cid)}, reference network, n={len(taus)}")
                 rpt.add(f"C{int(cid)}_tau_max", float(taus.max()), unit="months",
                         note=f"max τ, C{int(cid)}, reference network, n={len(taus)}")
+
         n_saved = rpt.save(OUT_18_REPORT_NUMBERS)
         print(f"  Saved → {OUT_18_REPORT_NUMBERS.name} ({n_saved} report numbers)")
+
+
     else:
         print("\nSupplementary contour maps skipped "
               "(pass --supplementary to generate)")

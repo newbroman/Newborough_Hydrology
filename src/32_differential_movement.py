@@ -86,7 +86,7 @@ from utils import config, paths
 from utils.map_utils import load_dem_hillshade, add_kml_features, add_en_axes
 from utils.console_utils import banner, phase, step, info, saved, note, result, done, hr
 
-__version__ = "1.1.0"
+__version__ = "1.1.1"  # 2026-06-29: IDW surface alpha 1.0 → 0.55 (DEM hillshade visible through surface)
 SCRIPT_ID = "32"
 VERSION = __version__
 
@@ -299,10 +299,10 @@ def make_map(df: pd.DataFrame, loc: pd.DataFrame, period_label: str,
     norm = TwoSlopeNorm(vcenter=0.0, vmin=-vmax, vmax=vmax)
 
     fig, ax = plt.subplots(figsize=(11, 9))
-    # layering: hillshade (z1) -> opaque IDW surface (z1.5) -> KML features (z2) -> markers (z5)
+    # layering: hillshade (z1) -> semi-transparent IDW surface (alpha=0.55, z1.5) -> KML features (z2) -> markers (z5)
     load_dem_hillshade(ax, paths.DATA_DIR, alpha=1.0, vert_exag=3.0, zorder=1)
     im = ax.pcolormesh(GX, GY, Z, cmap=plt.cm.RdBu, norm=norm, shading="auto",
-                       alpha=1.0, zorder=1.5)
+                       alpha=0.55, zorder=1.5)
     add_en_axes(ax, osgb_label=False)
     add_kml_features(ax, paths.DATA_DIR)
 

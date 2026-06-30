@@ -63,7 +63,31 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds
 """
 
-__version__ = "1.22.0"  # Hollingham (2026) — 2026-06-27
+__version__ = "1.24.0"  # Hollingham (2026) — 2026-06-30
+# 1.24.0 — Scrape drawdown: method-of-images coastal boundary correction.
+#          The coast is a fixed-head boundary (h = 0 drawdown at HWM).
+#          Each scrape cut now has a mirror-image source reflected across the
+#          HWM coastline; the image term cancels the real cone at the coast:
+#            dd(x,y) = Σ_i H0_i·[exp(-d_real_i/λ) − exp(-d_image_i/λ)]
+#          Coastline geometry from data/geo/coastline_hwm.geojson (OSM HWM,
+#          Caernarfon Bay + Menai Strait, EPSG:27700, ODbL, extracted
+#          2026-06-30). Falls back to unbounded sum if file absent (warning).
+#          New: _load_coastline_hwm(), _reflect_across_coastline() helpers.
+#          Applied in both _scrape_field() (feeds net-state + public panel)
+#          and plot_scrape_drawdown() standalone figure.
+#          New path: DATA_COASTLINE_HWM (paths.py v updated alongside).
+# 1.23.0 — Scrape drawdown: envelope (max) corrected to superposition sum.
+#          All 8 cuts are permanent landscape features that have not been
+#          infilled; they act as co-active drains in long-term equilibrium.
+#          The physically correct steady-state field is Σᵢ H0_i·exp(-dᵢ/λ)
+#          (linear superposition), not max_i H0_i·exp(-dᵢ/λ). The envelope
+#          underestimated drawdown at points between two cuts where both
+#          sources contribute simultaneously.
+#          Changes:
+#          * _scrape_field(): initialiser np.full(nan) → np.zeros; loop body
+#            np.fmax → addition.
+#          * plot_scrape_drawdown(): both _env and _wd loops np.maximum → addition.
+#          * All "envelope" comments updated to "superposition sum".
 # 1.22.0 — Scrape rise zone tightened + E/N axes on portrait maps.
 #   * SCRAPE_RISE_BUFFER_M 90 -> 10 m: the rise is now confined to the scrape
 #     KML footprints plus a thin 10 m collar (was footprint + 90 m). One
@@ -125,14 +149,16 @@ __version__ = "1.22.0"  # Hollingham (2026) — 2026-06-27
 #            in-cut well). New helpers _load_one_scrape_kml(), _scrape_response_mm().
 #          * _load_real_scrape_geom() now unions all eight registry footprints.
 #          * _scrape_field() rewritten: per-cut cone H0_i·exp(-d_i/λ), field =
-#            envelope (np.fmax) of the per-cut cones, every cut's rise zone
-#            masked. Feeds plot_net_state_map, plot_scrape_coastal_net,
+#            envelope (np.fmax) of the per-cut cones [NOTE: corrected to
+#            superposition sum in v1.23.0 — all cuts are permanent co-active
+#            drains], every cut's rise zone masked. Feeds plot_net_state_map, plot_scrape_coastal_net,
 #            plot_public_panel — all three now carry all eight cuts at per-cut H0.
 #            Net-state footnote notes per-cut H0 (measured vs assumed = CEH36).
 #          * plot_scrape_drawdown() standalone: cost-distance Dijkstra (single
 #            H0, flow-weighted) replaced by the same per-cut KDTree envelope on
 #            the DEM grid (scipy.spatial.cKDTree on segmentized footprint
-#            boundaries; np.maximum over cuts). Per-well dd_mm likewise per-cut.
+#            boundaries; np.maximum over cuts) [NOTE: corrected to superposition
+#            sum in v1.23.0]. Per-well dd_mm likewise per-cut.
 #            Removed the now-dead flow-gradient + src_mask + Dijkstra blocks.
 #            Title is multi-epoch; top-right annotation lists the measured H0
 #            (CEH36/21/18) and flags the assumed-CEH36 cones.
@@ -354,7 +380,7 @@ import xml.etree.ElementTree as ET
 
 from utils.paths import (
     make_all_dirs, DATA_DIR, DATA_DEM, DATA_KML_FEATURES, DATA_KML_STREAMS,
-    DATA_KML_SITE_BOUNDARY,
+    DATA_KML_SITE_BOUNDARY, DATA_COASTLINE_HWM,
     DIR_20, OUT_20_HEAD_STREAMS, OUT_20_RESIDUAL_SSM, OUT_20_SLOPE,
     OUT_20_DRAWDOWN, OUT_20_DRAWDOWN_NOHEAD,
     OUT_20_DRAWDOWN_PERWELL, OUT_20_REPORT_NUMBERS,
@@ -2371,17 +2397,115 @@ def _measured_ceh36_response():
         return 0.1295
 
 
+_COASTLINE_HWM_CACHE = None
+
+
+def _load_coastline_hwm():
+    """Load the Caernarfon Bay + Menai Strait High Water Mark coastline as a
+    shapely geometry (EPSG:27700), used as the fixed-head boundary for the
+    method-of-images correction in scrape drawdown calculations.
+
+    Source: data/geo/coastline_hwm.geojson, derived from OpenStreetMap
+    natural=coastline (ODbL) via Overpass API, 2026-06-30.
+
+    Returns a LineString/MultiLineString, or None if the file is absent
+    (callers fall back to unbounded superposition sum with a warning)."""
+    global _COASTLINE_HWM_CACHE
+    if _COASTLINE_HWM_CACHE is not None:
+        return _COASTLINE_HWM_CACHE
+    try:
+        import json
+        from shapely.geometry import shape
+        coast_path = DATA_COASTLINE_HWM
+        if not coast_path.exists():
+            print("  [WARNING] coastline_hwm.geojson not found — "
+                  "scrape drawdown will use unbounded cones (no coast correction)")
+            return None
+        with open(coast_path) as f:
+            gj = json.load(f)
+        geom = shape(gj["features"][0]["geometry"])
+        _COASTLINE_HWM_CACHE = geom
+        print(f"  coastline_hwm.geojson loaded "
+              f"(type={geom.geom_type}, length={geom.length:.0f} m)")
+        return geom
+    except Exception as e:
+        print(f"  [WARNING] could not load coastline_hwm.geojson ({e}) — "
+              "scrape drawdown will use unbounded cones (no coast correction)")
+        return None
+
+
+def _reflect_across_coastline(geom, coastline):
+    """Return the mirror image of a scrape footprint geometry reflected across
+    the nearest point on the HWM coastline.  Used to construct the image
+    source for the method-of-images fixed-head boundary correction.
+
+    The reflection axis is the local tangent to the coastline at the nearest
+    point.  This is exact for a straight boundary and accurate for the gently
+    curved Caernarfon Bay coast (radius of curvature >> scrape–coast distance).
+
+    Returns a translated shapely geometry positioned seaward of the coast."""
+    from shapely.ops import nearest_points
+    from shapely.affinity import translate
+
+    centroid = geom.centroid
+    coast_pt, _ = nearest_points(coastline, centroid)
+    cx, cy = coast_pt.x, coast_pt.y
+
+    # Local tangent: find nearest coastline vertex then use adjacent pair
+    if hasattr(coastline, "coords"):
+        coords = np.array(coastline.coords)
+    else:
+        # MultiLineString — use the component whose nearest point was found
+        coords = np.array(
+            min(coastline.geoms, key=lambda g: g.distance(centroid)).coords
+        )
+    dists = np.hypot(coords[:, 0] - cx, coords[:, 1] - cy)
+    idx = int(np.argmin(dists))
+    i0, i1 = max(0, idx - 1), min(len(coords) - 1, idx + 1)
+    tx = coords[i1, 0] - coords[i0, 0]
+    ty = coords[i1, 1] - coords[i0, 1]
+    tmag = np.hypot(tx, ty)
+    tx, ty = (tx / tmag, ty / tmag) if tmag > 1e-9 else (1.0, 0.0)
+
+    # Normal to coastline (direction away from centroid = seaward)
+    nx, ny = -ty, tx
+    # Ensure normal points away from the scrape centroid
+    if (centroid.x - cx) * nx + (centroid.y - cy) * ny < 0:
+        nx, ny = -nx, -ny
+
+    # Reflect centroid across the coastline tangent at coast_pt
+    dx, dy = centroid.x - cx, centroid.y - cy
+    dot = dx * nx + dy * ny
+    rx = centroid.x - 2 * dot * nx
+    ry = centroid.y - 2 * dot * ny
+
+    return translate(geom, xoff=rx - centroid.x, yoff=ry - centroid.y)
+
+
 def _scrape_field(gx, gy):
     """Scrape-drain drawdown field (mm, positive = head loss) on grid gx,gy.
 
-    Every mapped cut is modelled as a leaky-aquifer drain: a per-cut cone
-    H0_i·exp(-d_i/λ) with d_i the Euclidean distance from cut i's footprint and
-    λ = √(K·b/(Sy·β₃)). H0_i is the measured per-well response where a before/
-    after baseline exists (CEH36/18/21) and the ASSUMED CEH36 value otherwise
-    (Feb-2013 and Scrape_A/B cuts). The field is the envelope (max) of the
-    per-cut cones. Each cut's rise zone (footprint + SCRAPE_RISE_BUFFER_M) is
-    masked (NaN): the slack rises, so the field shown is the surrounding
-    drawdown only. Returns (field, H0_ceh36, lam, geom_union) or (None,...)."""
+    Steady-state leaky-aquifer superposition with method-of-images coastal
+    boundary correction.  All 8 mapped cuts are permanent co-active drains
+    contributing simultaneously to long-term equilibrium.
+
+    For each cut i the contribution at grid point (x,y) is:
+        H0_i · [exp(-d_real_i / λ) − exp(-d_image_i / λ)]
+
+    where d_real_i  = distance from (x,y) to cut i footprint,
+          d_image_i = distance from (x,y) to the mirror image of cut i
+                      reflected across the HWM coastline,
+          λ = √(K·b / (Sy·β₃))  [C3 propagation medium, live pipeline values].
+
+    The image term enforces h → 0 at the coast (fixed-head sea boundary).
+    Coastline: data/geo/coastline_hwm.geojson (OSM HWM, EPSG:27700).
+    Falls back to unbounded sum if file absent (warning printed).
+
+    H0_i is the BACI-measured per-well response (Script 09a) for CEH36/18/21;
+    assumed = CEH36 for the unmonitored Feb-2013 and Scrape_A/B cuts.
+    Each cut's rise zone (footprint + SCRAPE_RISE_BUFFER_M) is masked NaN.
+
+    Returns (field, H0_ceh36, lam, geom_union) or (None, None, None, None)."""
     from shapely.geometry import Point
     try:
         _sy_df = pd.read_csv(INT_WTF_WELL_SY)
@@ -2394,14 +2518,23 @@ def _scrape_field(gx, gy):
     reg = _scrape_registry()
     if not reg:
         return None, None, None, None
+
+    coastline = _load_coastline_hwm()   # None → unbounded fallback
+
     pts = [Point(x, y) for x, y in zip(gx.ravel(), gy.ravel())]
-    field = np.full(gx.size, np.nan)
-    rise = np.zeros(gx.size, dtype=bool)
+    field = np.zeros(gx.size)
+    rise  = np.zeros(gx.size, dtype=bool)
     for s in reg:
-        d = np.array([s["geom"].distance(p) for p in pts])
-        field = np.fmax(field, s["H0"] * np.exp(-d / lam))   # envelope of per-cut cones
-        rise |= (d <= SCRAPE_RISE_BUFFER_M)
-    field[rise] = np.nan                                     # mask all rise zones
+        d_real = np.array([s["geom"].distance(p) for p in pts])
+        if coastline is not None:
+            img_geom = _reflect_across_coastline(s["geom"], coastline)
+            d_image  = np.array([img_geom.distance(p) for p in pts])
+            field += s["H0"] * (np.exp(-d_real / lam) - np.exp(-d_image / lam))
+        else:
+            field += s["H0"] * np.exp(-d_real / lam)   # unbounded fallback
+        rise |= (d_real <= SCRAPE_RISE_BUFFER_M)
+    field = np.maximum(field, 0.0)   # image term can go slightly negative near coast
+    field[rise] = np.nan             # mask rise zones: slack rises, not drawn down
     field = field.reshape(gx.shape)
     H0_ceh36 = next((s["H0"] for s in reg if s["name"] == "CEH36"), reg[0]["H0"])
     return field, H0_ceh36, lam, _load_real_scrape_geom()
@@ -3757,14 +3890,16 @@ def plot_scrape_drawdown(wt, features, dpi=300, show_head=True):
     e_arr = t.c + (col0 + np.arange(nc) * ds) * t.a
     n_arr = t.f + (row0 + np.arange(nr) * ds) * t.e
 
-    # ── Per-cut leaky-aquifer drawdown envelope (Euclidean, KDTree) ────────
-    # Each mapped cut is a drain of edge magnitude H0_i: measured per-well
-    # response (Script 09a) for CEH36/18/21, ASSUMED = CEH36 for the unmonitored
-    # Feb-2013 and Scrape_A/B cuts. The field is the envelope (max) of the per-
-    # cut cones H0_i·exp(-d_i/λ); rise zones are masked downstream in rendering.
+    # ── Per-cut leaky-aquifer drawdown: superposition with method-of-images ─
+    # Each mapped cut is a permanent co-active drain at edge magnitude H0_i
+    # (measured BACI for CEH36/18/21, assumed = CEH36 for Feb-2013/A/B).
+    # The coast is a fixed-head boundary (h = 0); the image term enforces this:
+    #   dd(x,y) = Σ_i H0_i · [exp(-d_real_i/λ) − exp(-d_image_i/λ)]
+    # where d_image_i is distance to the mirror of cut i across the HWM coast.
     from scipy.spatial import cKDTree
 
-    def _cut_trees():
+    def _cut_trees_with_images(coastline):
+        """Return list of (real_tree, image_tree, H0) for each registered cut."""
         out = []
         for s in _scrape_registry():
             g = s["geom"]
@@ -3773,16 +3908,33 @@ def plot_scrape_drawdown(wt, features, dpi=300, show_head=True):
             for gg in (g.geoms if g.geom_type == "MultiPolygon" else [g]):
                 xs, ys = gg.exterior.xy
                 bnd.append(np.column_stack([np.asarray(xs), np.asarray(ys)]))
-            out.append((cKDTree(np.vstack(bnd)), s["H0"]))
+            real_tree = cKDTree(np.vstack(bnd))
+            if coastline is not None:
+                img_g = _reflect_across_coastline(g, coastline)
+                img_g = img_g.segmentize(5.0) if hasattr(img_g, "segmentize") else img_g
+                ibnd = []
+                for gg in (img_g.geoms if img_g.geom_type == "MultiPolygon" else [img_g]):
+                    xs, ys = gg.exterior.xy
+                    ibnd.append(np.column_stack([np.asarray(xs), np.asarray(ys)]))
+                img_tree = cKDTree(np.vstack(ibnd))
+            else:
+                img_tree = None
+            out.append((real_tree, img_tree, s["H0"]))
         return out
 
-    _trees = _cut_trees()
+    coastline = _load_coastline_hwm()
+    _trees = _cut_trees_with_images(coastline)
     _EE, _NN = np.meshgrid(e_arr, n_arr)
     _gpts = np.column_stack([_EE.ravel(), _NN.ravel()])
     _env = np.zeros(_gpts.shape[0])
-    for tree, h0 in _trees:
-        dcut, _ = tree.query(_gpts)
-        _env = np.maximum(_env, h0 * np.exp(-dcut / lam))
+    for real_tree, img_tree, h0 in _trees:
+        d_real, _ = real_tree.query(_gpts)
+        if img_tree is not None:
+            d_image, _ = img_tree.query(_gpts)
+            _env += h0 * (np.exp(-d_real / lam) - np.exp(-d_image / lam))
+        else:
+            _env += h0 * np.exp(-d_real / lam)   # unbounded fallback
+    _env = np.maximum(_env, 0.0)   # image term can go slightly negative near coast
     dd_grid = _env.reshape(_EE.shape)
 
     # ── Head surface and GW flow vectors (as Fig 3) ───────────────────────
@@ -3804,12 +3956,17 @@ def plot_scrape_drawdown(wt, features, dpi=300, show_head=True):
         U = np.where(arrow_ok, -hdx / hmag, np.nan)
         V = np.where(arrow_ok, -hdy / hmag, np.nan)
 
-    # ── Per-well drawdown values (per-cut envelope) ───────────────────────
+    # ── Per-well drawdown values (method-of-images superposition) ────────
     _wpts = wt[["E", "N"]].values
     _wd = np.zeros(len(wt))
-    for tree, h0 in _trees:
-        dw, _ = tree.query(_wpts)
-        _wd = np.maximum(_wd, h0 * np.exp(-dw / lam))
+    for real_tree, img_tree, h0 in _trees:
+        d_real, _ = real_tree.query(_wpts)
+        if img_tree is not None:
+            d_image, _ = img_tree.query(_wpts)
+            _wd += h0 * (np.exp(-d_real / lam) - np.exp(-d_image / lam))
+        else:
+            _wd += h0 * np.exp(-d_real / lam)   # unbounded fallback
+    _wd = np.maximum(_wd, 0.0)
     wt = wt.copy()
     wt["dd_mm"] = _wd
 

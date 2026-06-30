@@ -108,7 +108,7 @@ from utils.map_utils import load_dem_hillshade, add_kml_features, add_idw_surfac
 from utils.console_utils import banner, phase, step, info, saved, note, result, done, hr
 from utils.pipeline_params import get_cluster_ids
 
-__version__ = "1.2.0"
+__version__ = "1.2.1"  # 2026-06-29: IDW surface alpha 1.0 → 0.55 (DEM hillshade visible through surface)
 SCRIPT_ID = "33"
 VERSION = __version__
 
@@ -286,7 +286,7 @@ def _envelope_base(ax, df, value_col, cmap, norm=None, ridge=True):
         dem_e_arr=dem_e_arr if use_ridge else None,
         dem_n_arr=dem_n_arr if use_ridge else None,
         dem_data=dem_data if use_ridge else None,
-        cmap=cmap, norm=norm, alpha=1.0, zorder=1.5)
+        cmap=cmap, norm=norm, alpha=0.55, zorder=1.5)
     add_kml_features(ax, paths.DATA_DIR)
     return mesh, gx, gy, Zm
 

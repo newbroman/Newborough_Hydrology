@@ -36,7 +36,44 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "3.2.0"  # Hollingham (2026) — 2026-05-16
+__version__ = "3.5.0"  # Hollingham (2026) — 2026-07-02
+# 3.5.0 — Off-site scraping bar now also shows the 250 m drawdown as a
+#         dark reference line drawn ACROSS the 100 m bar (milder, more
+#         distant neighbour drawdown), with an inline label. Same drain
+#         model / volumetric conversion; 250 m value stashed under a
+#         non-plotted "_offsite_far_vol" key and also emitted as an explicit
+#         "Scraping (off-site 250 m)" CSV row. Caption updated. Applies to
+#         both figures (scrape bars are forcing-independent). No change to
+#         the forestry/climate bars or the two-forcing structure of v3.4.0.
+# 3.4.0 — Unit-consistent scenario figures + off-site scraping drawdown.
+#         Supersedes the in-session v3.3.0 (head re-basis), which is
+#         withdrawn. Resolution agreed 2026-07-02:
+#         (1) BOTH figures now use ONE volumetric scale (mm water-equiv
+#             per month): 09d_01 under annual-mean forcing, 09d_02 under
+#             summer (Jul-Sep) forcing. Directly comparable; no head bars,
+#             so no head/flux units trap. 09d_02's amplification-to-summer-
+#             minimum conversion stays REMOVED (the equilibrium framework
+#             cannot resolve a true summer minimum); it is simply the
+#             equilibrium volumetric response under summer inputs.
+#         (2) Both figures gain a "Scraping (off-site 100 m)" bar: the
+#             modelled neighbour drawdown the scrape drain imposes on the
+#             surrounding water table, from the same drain cone that feeds
+#             the Script 20 maps — H0 anchored to the measured CEH36
+#             response, decaying as exp(-(d-buffer)/λ), λ read live from
+#             20_report_numbers.csv. Rendered on the volumetric axis (×Sy)
+#             to match the other bars.
+#         (3) Captions (baked footnote + report caption) now: name the
+#             CEH36 SSM coefficients and Sy the volumetric flux is derived
+#             from; note that converting to a head change requires dividing
+#             by an appropriate (uncertain) Sy and is only approximate;
+#             and note that the off-site drawdown decays to the same
+#             MAGNITUDE as the clearfell bar (~13.5 mm w.e./month) at
+#             ~282 m — i.e. equal to the recharge the standing forest
+#             suppresses (a flux comparison, not a head comparison).
+#         CSV columns: 09d_01 Delta_vol_mm_per_month (unchanged);
+#         09d_02 Delta_summer_min_mm -> Delta_vol_summer_mm_per_month.
+#         REPORT IMPACT: Fig 26/27 captions, §4.5.6 and §3.5.3 text revised
+#         separately (walk-through before ODT).
 # 3.2.0 — Replace hardcoded SCRAPE_BACI_STEP = 0.131 with a
 #         load_site_observation("ceh36_baci_pure_scraping") call.
 #         The value is now produced by 09a and stored in the
@@ -50,13 +87,14 @@ _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
 from utils.paths import (
     make_all_dirs, OUT_09D_SCENARIO, OUT_09D_SCENARIO_CSV,
     OUT_09D_SUMMER_SCENARIO, OUT_09D_SUMMER_SCENARIO_CSV, INT_MASTER_DATA,
-    INT_WTF_WELL_SY, INT_WELLS_CLEAN, INT_REGIONAL_AVG,
+    INT_WTF_WELL_SY, INT_WELLS_CLEAN,
+    OUT_20_REPORT_NUMBERS,
 )
+from utils.site_observations import load_site_observation
 from utils.scraping_common import (
-    SCRAPING_DATE, INTERVENTION_DATE,
-    SUMMER_MONTHS, MPL_DEFAULTS,
-    load_scraping_data,
+    MPL_DEFAULTS,
     load_summer_climate,
+    load_annual_climate,
 )
 from utils.config import (
     BW_MODE,
@@ -72,7 +110,6 @@ import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from scipy import stats as _stats
 from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
     hr, skipped,
@@ -92,9 +129,57 @@ from utils.console_utils import (
 # prints a one-line warning recommending a fresh pipeline run.
 WELL = "ceh36"
 
+# ----------------------------------------------------------------------------
+# Off-site scraping drawdown (neighbour effect)
+# ----------------------------------------------------------------------------
+# The scrape acts as a local drain: the slack fills (measured on-site benefit)
+# while the surrounding water table is drawn DOWN toward it. That neighbour
+# drawdown is modelled by the same steady-state drain cone that feeds the
+# Script 20 spatial maps:  dd_head(d) = H0 * exp(-(d - buffer) / λ), with
+#   H0     = scrape-edge head drawdown = measured CEH36 response (mm),
+#   λ      = leaky-aquifer decay length, read LIVE from 20_report_numbers.csv
+#            (drawdown_lambda) so this script never re-derives it,
+#   buffer = SCRAPE_RISE_BUFFER_M, radius of the rise (slack) zone.
+# On the figures the head drawdown is rendered on the volumetric axis (× Sy),
+# matching the on-site scraping bar's own head→volumetric conversion.
+# 100 m is a representative near-field distance inside the band the 88-well
+# network cannot resolve (nearest uphill well 247 m); the bar is therefore a
+# MODELLED quantity, flagged as such in the captions.
+OFFSITE_DIST_M       = 100.0
+OFFSITE_FAR_M        = 250.0    # marker line inside the 100 m bar (near nearest well)
+SCRAPE_RISE_BUFFER_M = 10.0     # matches Script 20 rise-zone radius
+CLEARFELL_MATCH_HINT = 282.0    # ~distance where off-site vol drawdown = clearfell bar
+
+
+def _load_drawdown_lambda():
+    """Read leaky-aquifer decay length λ (m) live from Script 20 output.
+
+    Falls back to 225 m (with a one-line warning) only if Script 20 has not
+    been run on this clone, so a figure is still produced but flagged.
+    """
+    try:
+        df = pd.read_csv(OUT_20_REPORT_NUMBERS)
+        row = df[df["Parameter"] == "drawdown_lambda"]
+        if not row.empty:
+            return float(row["Value"].iloc[0])
+    except (FileNotFoundError, KeyError, ValueError):
+        pass
+    warn("20_report_numbers.csv not found — using fallback λ = 225 m. "
+         "Run Script 20 for the live value.")
+    return 225.0
+
+
+def _offsite_scrape_head_mm(scrape_edge_head_mm, dist_m=OFFSITE_DIST_M):
+    """Modelled neighbour head drawdown (mm, positive magnitude) at dist_m."""
+    lam = _load_drawdown_lambda()
+    d_eff = max(dist_m - SCRAPE_RISE_BUFFER_M, 0.0)
+    return scrape_edge_head_mm * np.exp(-d_eff / lam)
+
+
 # BW-mode scenario bar styling
 _BW_SCENARIO_COLOURS = {
     "Scraping\n(observed)": "#bbbbbb",
+    "Scraping\n(off-site 100 m)": "#dddddd",
     "Clearfell\n(hypothetical)": "#333333",
     "Thinning 50%\n(hypothetical)": "#666666",
     "Broadleaf\n(hypothetical)": "#999999",
@@ -103,6 +188,7 @@ _BW_SCENARIO_COLOURS = {
 }
 _BW_SCENARIO_HATCHES = {
     "Scraping\n(observed)": "///",
+    "Scraping\n(off-site 100 m)": "\\\\\\",
     "Clearfell\n(hypothetical)": "xxx",
     "Thinning 50%\n(hypothetical)": "///",
     "Broadleaf\n(hypothetical)": "...",
@@ -171,23 +257,28 @@ def main():
 
     banner("09d", "CEH36 SCENARIO COMPARISON")
 
-    # ── 1. Load CEH36 parameters ──────────────────────────────────────────
-    phase(1, "Loading CEH36 parameters from pipeline")
+    # ── 1. Load CEH36 parameters + both climate forcings ──────────────────
+    phase(1, "Loading CEH36 parameters and climate forcings")
     params = _load_ceh36_params()
+    annual_P, annual_PET = load_annual_climate()
     summer_P, summer_PET = load_summer_climate()
-    print(f"   Summer climate: P={summer_P:.6f}  PET={summer_PET:.6f} m/month")
+    print(f"   Annual-mean climate: P={annual_P:.6f}  PET={annual_PET:.6f} m/month")
+    print(f"   Summer-mean climate: P={summer_P:.6f}  PET={summer_PET:.6f} m/month")
 
-    # ── 2. Compute scenarios at CEH36 ─────────────────────────────────────
-    phase(2, "Computing scenario responses at CEH36")
-    scenarios = _compute_ceh36_scenarios(params, summer_P, summer_PET)
+    # ── 2. Compute scenarios under each forcing ───────────────────────────
+    phase(2, "Computing scenario responses at CEH36 (annual + summer forcing)")
+    print("   Annual-mean forcing:")
+    scen_annual = _compute_ceh36_scenarios(params, annual_P, annual_PET)
+    print("   Summer forcing:")
+    scen_summer = _compute_ceh36_scenarios(params, summer_P, summer_PET)
 
-    # ── 3. Monthly figure ─────────────────────────────────────────────────
-    phase(3, "Plotting monthly scenario comparison")
-    _plot_monthly(scenarios, params)
+    # ── 3. Annual-forcing figure ──────────────────────────────────────────
+    phase(3, "Plotting annual-mean forcing scenario comparison")
+    _plot_scenarios(scen_annual, params, forcing="annual")
 
-    # ── 4. Summer minimum figure ──────────────────────────────────────────
-    phase(4, "Plotting summer minimum scenario comparison")
-    _plot_summer(scenarios, params, summer_P, summer_PET)
+    # ── 4. Summer-forcing figure ──────────────────────────────────────────
+    phase(4, "Plotting summer forcing scenario comparison")
+    _plot_scenarios(scen_summer, params, forcing="summer")
 
     print("\nDone.")
 
@@ -196,15 +287,17 @@ def main():
 # SCENARIO COMPUTATION — all at CEH36
 # ============================================================================
 
-def _compute_ceh36_scenarios(params, summer_P, summer_PET):
-    """Compute monthly equilibrium Δh at CEH36 for each scenario.
+def _compute_ceh36_scenarios(params, P_force, PET_force):
+    """Equilibrium volumetric Δh at CEH36 for each scenario under a given
+    climate forcing (P_force, PET_force in m/month).
 
-    CEH36 is in C3 (not forested), so forestry scenarios show what would
-    happen *if* CEH36's location had pine canopy and were then managed.
-    This is hypothetical but gives a like-for-like comparison of
-    intervention magnitudes at the same hydrogeological setting.
+    Called twice by main(): once with annual-mean climate (Figure 26) and
+    once with summer-mean climate (Figure 27). CEH36 is in C3 (not forested),
+    so the forestry scenarios show what would happen *if* CEH36's location
+    had pine canopy and were then managed — a like-for-like comparison of
+    intervention magnitudes at one hydrogeological setting.
 
-    Returns dict {scenario_name: Δh_mm_per_month}.
+    Returns dict {scenario_name: Δh_mm_water_equiv_per_month}.
     """
     b1, b2, b3 = params["b1"], params["b2"], params["b3"]
     h_disp = params["h_disp"]
@@ -218,12 +311,12 @@ def _compute_ceh36_scenarios(params, summer_P, summer_PET):
         thinning_b2_mult = _p["thinning_b2_mult"]
     except (FileNotFoundError, KeyError):
         clearfell_b2_mult, thinning_b2_mult, _ = load_clearfell_b2_multiplier()
-    print(f"   β₂ multipliers: clearfell={clearfell_b2_mult:.4f}  "
+    print(f"     β₂ multipliers: clearfell={clearfell_b2_mult:.4f}  "
           f"thinning={thinning_b2_mult:.4f}")
 
     # Baseline: CEH36 is unforested, so P_base = raw P
-    P_base = summer_P
-    flux_base = b1 * P_base - b2 * summer_PET - b3 * h_disp
+    P_base = P_force
+    flux_base = b1 * P_base - b2 * PET_force - b3 * h_disp
 
     def _scenario_dh(P_eff_scen, b2_scen, PET_scen):
         flux_scen = b1 * P_eff_scen - b2_scen * PET_scen - b3 * h_disp
@@ -232,90 +325,139 @@ def _compute_ceh36_scenarios(params, summer_P, summer_PET):
     scenarios = {}
 
     # Scraping: observed BACI step, converted to volumetric
-    from utils.site_observations import load_site_observation
     scrape_baci_step = load_site_observation("ceh36_baci_pure_scraping")
     scenarios["Scraping\n(observed)"] = round(scrape_baci_step * Sy * 1000, 1)
 
+    # Off-site (100 m) neighbour drawdown: the drain draws the surrounding
+    # water table down. Modelled head drawdown (from the Script 20 drain
+    # cone, anchored to the measured on-site response), then rendered on the
+    # same volumetric axis (× Sy) as the on-site bar.
+    onsite_edge_head_mm = scrape_baci_step * 1000
+    offsite_head_mm = _offsite_scrape_head_mm(onsite_edge_head_mm)  # positive mag
+    scenarios["Scraping\n(off-site 100 m)"] = round(
+        -(offsite_head_mm / 1000) * Sy * 1000, 1)   # negative = drawdown
+
+    # Far-distance (250 m) drawdown, stashed under a non-plotted key so the
+    # plot can draw it as a reference line INSIDE the 100 m bar. Same drain
+    # model, same volumetric conversion.
+    far_head_mm = _offsite_scrape_head_mm(onsite_edge_head_mm, dist_m=OFFSITE_FAR_M)
+    scenarios["_offsite_far_vol"] = round(-(far_head_mm / 1000) * Sy * 1000, 1)
+
     # Hypothetical: if CEH36 had pine and was clearfelled
-    P_pine_base = summer_P * (1 - FOREST_INTERCEPTION)
-    flux_pine_base = b1 * P_pine_base - b2 * summer_PET - b3 * h_disp
+    P_pine_base = P_force * (1 - FOREST_INTERCEPTION)
+    flux_pine_base = b1 * P_pine_base - b2 * PET_force - b3 * h_disp
     # Clearfell: full P restored, β₂ increases
-    flux_cf = b1 * summer_P - b2 * clearfell_b2_mult * summer_PET - b3 * h_disp
+    flux_cf = b1 * P_force - b2 * clearfell_b2_mult * PET_force - b3 * h_disp
     scenarios["Clearfell\n(hypothetical)"] = round(
         (flux_cf - flux_pine_base) * Sy * 1000, 1)
 
     # Thinning 50%
-    P_thin = summer_P * (1 - FOREST_INTERCEPTION * 0.5)
-    flux_thin = b1 * P_thin - b2 * thinning_b2_mult * summer_PET - b3 * h_disp
+    P_thin = P_force * (1 - FOREST_INTERCEPTION * 0.5)
+    flux_thin = b1 * P_thin - b2 * thinning_b2_mult * PET_force - b3 * h_disp
     scenarios["Thinning 50%\n(hypothetical)"] = round(
         (flux_thin - flux_pine_base) * Sy * 1000, 1)
 
     # Broadleaf conversion — seasonal β₂ profile: deciduous canopy has
     # higher transpiration in summer (full leaf) than evergreen pine.
-    # BROADLEAF_B2_SUMMER (1.1125) is the Jun-Sep mean from Script 21's
-    # monthly profile; using flat b2 would miss the summer ET penalty.
-    P_bl = summer_P * (1 - BROADLEAF_INTERCEPTION)
-    flux_bl = b1 * P_bl - b2 * BROADLEAF_B2_SUMMER * summer_PET - b3 * h_disp
+    P_bl = P_force * (1 - BROADLEAF_INTERCEPTION)
+    flux_bl = b1 * P_bl - b2 * BROADLEAF_B2_SUMMER * PET_force - b3 * h_disp
     scenarios["Broadleaf\n(hypothetical)"] = round(
         (flux_bl - flux_pine_base) * Sy * 1000, 1)
 
     # Climate scenarios — applied to CEH36's actual (unforested) state
     scenarios["Climate dry"] = _scenario_dh(
-        summer_P * UKCP18_DRY_P_SUMMER, b2, summer_PET * UKCP18_DRY_PET_SUMMER)
+        P_force * UKCP18_DRY_P_SUMMER, b2, PET_force * UKCP18_DRY_PET_SUMMER)
     scenarios["Climate wet"] = _scenario_dh(
-        summer_P * UKCP18_WET_P_SUMMER, b2, summer_PET * UKCP18_WET_PET_SUMMER)
+        P_force * UKCP18_WET_P_SUMMER, b2, PET_force * UKCP18_WET_PET_SUMMER)
 
-    print("   Scenario responses at CEH36 (mm w.e./month):")
+    print("     scenario responses (mm w.e./month):")
     for name, val in scenarios.items():
-        print(f"     {name.replace(chr(10), ' '):30s}  {val:+.1f}")
+        if name.startswith("_"):
+            continue
+        print(f"       {name.replace(chr(10), ' '):30s}  {val:+.1f}")
 
     return scenarios
 
 
+
 # ============================================================================
-# FIGURE 1 — MONTHLY BAR CHART
+# FIGURE — VOLUMETRIC SCENARIO BAR CHART (annual or summer forcing)
 # ============================================================================
 
-def _plot_monthly(scenarios, params):
-    """Bar chart: monthly equilibrium Δh at CEH36 under each scenario."""
-    names = list(scenarios.keys())
-    vals = [scenarios[n] for n in names]
-    display_names = [n.replace("\n", "\n") for n in names]
+_COLOURS = {
+    "Scraping\n(observed)": "#DAA520",
+    "Scraping\n(off-site 100 m)": "#E6B84D",
+    "Clearfell\n(hypothetical)": "#8B4513",
+    "Thinning 50%\n(hypothetical)": "#D2691E",
+    "Broadleaf\n(hypothetical)": "#228B22",
+    "Climate dry": "#FF6347",
+    "Climate wet": "#4169E1",
+}
+_HATCHES = {"Scraping\n(observed)": "///"}
 
-    colours = {
-        "Scraping\n(observed)": "#DAA520",
-        "Clearfell\n(hypothetical)": "#8B4513",
-        "Thinning 50%\n(hypothetical)": "#D2691E",
-        "Broadleaf\n(hypothetical)": "#228B22",
-        "Climate dry": "#FF6347",
-        "Climate wet": "#4169E1",
-    }
-    hatches = {"Scraping\n(observed)": "///"}
 
-    fig, ax = plt.subplots(figsize=(12, 6.5), dpi=300)
+def _plot_scenarios(scenarios, params, forcing):
+    """Volumetric scenario bar chart at CEH36 under a single climate forcing.
+
+    forcing = "annual"  -> Figure 26 (annual-mean P and PET), output 09d_01
+    forcing = "summer"  -> Figure 27 (summer Jul-Sep P and PET), output 09d_02
+
+    Both figures use ONE volumetric scale (mm water-equivalent per month) so
+    they are directly comparable. Converting a bar to a water-table head
+    change requires dividing by an appropriate (uncertain) specific yield and
+    is only approximate — noted on the figure and in the report caption.
+    """
+    is_summer = (forcing == "summer")
+    out_fig = OUT_09D_SUMMER_SCENARIO if is_summer else OUT_09D_SCENARIO
+    out_csv = OUT_09D_SUMMER_SCENARIO_CSV if is_summer else OUT_09D_SCENARIO_CSV
+    col_name = ("Delta_vol_summer_mm_per_month" if is_summer
+                else "Delta_vol_mm_per_month")
+
+    # Pull the 250 m far-distance marker value out of the plotted set.
+    far_vol = scenarios.get("_offsite_far_vol", None)
+    plot_items = [(k, v) for k, v in scenarios.items() if not k.startswith("_")]
+    names = [k for k, _ in plot_items]
+    vals = [v for _, v in plot_items]
+    display_names = [n for n in names]
+    offsite_idx = (names.index("Scraping\n(off-site 100 m)")
+                   if "Scraping\n(off-site 100 m)" in names else None)
+
+    fig, ax = plt.subplots(figsize=(12, 6.8), dpi=300)
     x = np.arange(len(names))
 
     for i, (name, val) in enumerate(zip(names, vals)):
         is_scrape = "Scraping" in name
-        _col, _hatch, _ec = _bar_style(name, colours, hatches)
-        ax.bar(x[i], val, 0.65,
-               color=_col,
-               edgecolor=_ec,
+        _col, _hatch, _ec = _bar_style(name, _COLOURS, _HATCHES)
+        ax.bar(x[i], val, 0.65, color=_col, edgecolor=_ec,
                linewidth=1.5 if is_scrape else 0.5,
-               hatch=_hatch,
-               alpha=0.85, zorder=3)
+               hatch=_hatch, alpha=0.85, zorder=3)
         ax.text(x[i], val + (1.5 if val >= 0 else -1.5),
                 f"{val:+.1f}",
                 ha="center", va="bottom" if val >= 0 else "top",
                 fontsize=11, fontweight="bold", color="#333")
+
+    # 250 m reference line drawn ACROSS the 100 m off-site bar: shows the
+    # milder, more-distant neighbour drawdown as a marker inside the near bar.
+    if offsite_idx is not None and far_vol is not None:
+        bar_half = 0.65 / 2
+        ax.plot([x[offsite_idx] - bar_half, x[offsite_idx] + bar_half],
+                [far_vol, far_vol],
+                color="#7a4f00", lw=2.0, ls="-", zorder=5)
+        ax.text(x[offsite_idx] + bar_half + 0.04, far_vol,
+                f"250 m: {far_vol:+.1f}",
+                ha="left", va="center", fontsize=8.5,
+                fontweight="bold", color="#7a4f00")
 
     ax.axhline(0, color="black", lw=0.8)
     ax.set_xticks(x)
     ax.set_xticklabels(display_names, fontsize=10, ha="center")
     ax.set_ylabel("\u0394 volumetric water table\n(mm water equiv. / month)",
                   fontsize=13)
+
+    forcing_label = ("summer (Jul\u2013Sep) forcing" if is_summer
+                     else "annual-mean forcing")
     ax.set_title(
-        "Scenario comparison at CEH36 (scraped site)\n"
+        f"Scenario comparison at CEH36 (scraped site) \u2014 {forcing_label}\n"
         f"SSM coefficients: \u03b2\u2081={params['b1']:.2f}  "
         f"\u03b2\u2082={params['b2']:.2f}  "
         f"\u03b2\u2083={params['b3']:.3f}  "
@@ -326,170 +468,50 @@ def _plot_monthly(scenarios, params):
     for sp in ["top", "right"]:
         ax.spines[sp].set_visible(False)
 
-    ax.text(0.02, 0.02,
-            "Scraping: observed paired BACI step (+131 mm) "
-            "\u00d7 Sy.\n"
-            "Forestry scenarios are hypothetical: what if CEH36 "
-            "had pine canopy?\n"
-            "Climate: UKCP18 RCP8.5 2050s central estimates.",
-            transform=ax.transAxes, fontsize=8,
-            ha="left", va="bottom", color="#555", style="italic")
+    # Shared caveat + forcing-specific note, placed BELOW the axis so it never
+    # overlaps the bars (in particular the off-site drawdown bar).
+    lam = _load_drawdown_lambda()
+    caveat = (
+        "Bars are volumetric (mm water-equiv. / month) from CEH36's SSM "
+        "coefficients and Sy. A head-change equivalent (mm) needs division "
+        "by an appropriate Sy \u2014 uncertain, so approximate.\n"
+        "Scraping off-site: modelled neighbour drawdown from the drain cone "
+        f"(\u03bb = {lam:.0f} m, live from Script 20); bar = 100 m, dark line "
+        "across it = 250 m (milder, more distant)."
+    )
+    if is_summer:
+        caveat += (
+            "\nSummer forcing = equilibrium response to Jul\u2013Sep P and "
+            "PET, NOT a summer minimum (the equilibrium framework cannot "
+            "resolve the transient minimum)."
+        )
+    else:
+        caveat += (
+            "\nOff-site drawdown decays with distance; at ~282 m it equals "
+            "the clearfell bar in magnitude \u2014 i.e. the recharge the "
+            "standing forest itself suppresses."
+        )
+    ax.text(0.0, -0.16, caveat, transform=ax.transAxes, fontsize=8,
+            ha="left", va="top", color="#555", style="italic")
 
     plt.tight_layout()
-    fig.savefig(OUT_09D_SCENARIO, dpi=200, format="jpeg",
-                pil_kwargs={"quality": 85}, bbox_inches="tight")
+    fig.subplots_adjust(bottom=0.24)
+    if is_summer:
+        fig.savefig(out_fig, dpi=300)
+    else:
+        fig.savefig(out_fig, dpi=200, format="jpeg",
+                    pil_kwargs={"quality": 85})
     plt.close(fig)
-    step(f"{OUT_09D_SCENARIO.name}")
+    step(f"{out_fig.name}")
 
-    # Export CSV
-    rows = [{"Scenario": n.replace("\n", " "), "Delta_vol_mm_per_month": v}
-            for n, v in scenarios.items()]
-    pd.DataFrame(rows).to_csv(OUT_09D_SCENARIO_CSV, index=False,
-                              float_format="%.1f")
-    step(f"{OUT_09D_SCENARIO_CSV.name}")
+    rows = [{"Scenario": n.replace("\n", " "), col_name: v}
+            for n, v in scenarios.items() if not n.startswith("_")]
+    if far_vol is not None:
+        rows.append({"Scenario": "Scraping (off-site 250 m)", col_name: far_vol})
+    pd.DataFrame(rows).to_csv(out_csv, index=False, float_format="%.1f")
+    step(f"{out_csv.name}")
 
 
-# ============================================================================
-# FIGURE 2 — SUMMER MINIMUM
-# ============================================================================
-
-def _plot_summer(scenarios, params, summer_P, summer_PET):
-    """Summer minimum comparison at CEH36: observed scraping vs alternatives."""
-    wells, _wells_prov, climate = load_scraping_data()
-
-    SCRAPE_YEAR = SCRAPING_DATE.year
-    FELLING_YEAR = INTERVENTION_DATE.year
-
-    # ── Amplification factor for CEH36 ────────────────────────────────────
-    regional = pd.read_csv(INT_REGIONAL_AVG, index_col=0, parse_dates=True)
-    cluster_col = f"C{params['cluster']}"
-    amp = 0.85  # fallback
-    if cluster_col in regional.columns:
-        annual, summin = {}, {}
-        for yr in range(2006, 2026):
-            yr_data = regional.loc[regional.index.year == yr, cluster_col].dropna()
-            if len(yr_data) >= 8:
-                annual[yr] = float(yr_data.mean())
-            sm = regional.loc[(regional.index.year == yr) &
-                              (regional.index.month.isin(SUMMER_MONTHS)),
-                              cluster_col].dropna()
-            if len(sm) >= 2:
-                summin[yr] = float(sm.min())
-        common = sorted(set(annual) & set(summin))
-        if len(common) >= 8:
-            slope, _, _, _, _ = _stats.linregress(
-                [annual[yr] for yr in common],
-                [summin[yr] for yr in common])
-            amp = slope
-    print(f"   Summer amplification factor (C{params['cluster']}): {amp:.3f}")
-
-    # ── Observed scraping summer minimum BACI ─────────────────────────────
-    scrape_summer_mm = 0.0
-    if WELL in wells.columns and "ceh4" in wells.columns:
-        def _ann_sum_min(s):
-            mins = {}
-            for yr in range(2006, 2026):
-                mask = (s.index.year == yr) & (s.index.month.isin(SUMMER_MONTHS))
-                sub = s[mask].dropna()
-                if len(sub) >= 2:
-                    mins[yr] = float(sub.min())
-            return mins
-        m36 = _ann_sum_min(wells[WELL])
-        m4 = _ann_sum_min(wells["ceh4"])
-        common = sorted(set(m36) & set(m4))
-        gap = pd.Series({yr: m36[yr] - m4[yr] for yr in common})
-        pre = gap[gap.index < SCRAPE_YEAR]
-        post = gap[(gap.index >= SCRAPE_YEAR) & (gap.index < FELLING_YEAR)]
-        if len(pre) >= 2 and len(post) >= 2:
-            scrape_summer_mm = (post.mean() - pre.mean()) * 1000
-            print(f"   Observed scraping summer min shift "
-                  f"(CEH36 vs CEH4): {scrape_summer_mm:+.0f} mm")
-
-    # ── Convert monthly scenarios to summer minimum equivalents ───────────
-    Sy = params["Sy"]
-    summer_data = {}
-
-    # Scraping: use observed summer BACI directly
-    summer_data["Scraping\n(observed)"] = round(scrape_summer_mm)
-
-    # Forestry and climate: monthly vol ÷ Sy → head, × amplification
-    for name, vol in scenarios.items():
-        if "Scraping" in name:
-            continue
-        head_mm = vol / Sy  # mm head per month
-        summer_data[name] = round(head_mm * amp)
-
-    # ── Figure ────────────────────────────────────────────────────────────
-    names = list(summer_data.keys())
-    vals = [summer_data[n] for n in names]
-    display_names = [n.replace("\n", "\n") for n in names]
-
-    colours = {
-        "Scraping\n(observed)": "#DAA520",
-        "Clearfell\n(hypothetical)": "#8B4513",
-        "Thinning 50%\n(hypothetical)": "#D2691E",
-        "Broadleaf\n(hypothetical)": "#228B22",
-        "Climate dry": "#FF6347",
-        "Climate wet": "#4169E1",
-    }
-    hatches = {"Scraping\n(observed)": "///"}
-
-    fig, ax = plt.subplots(figsize=(12, 6.5), dpi=300)
-    x = np.arange(len(names))
-
-    for i, (name, val) in enumerate(zip(names, vals)):
-        is_scrape = "Scraping" in name
-        _col, _hatch, _ec = _bar_style(name, colours, hatches)
-        ax.bar(x[i], val, 0.65,
-               color=_col,
-               edgecolor=_ec,
-               linewidth=1.5 if is_scrape else 0.5,
-               hatch=_hatch,
-               alpha=0.85, zorder=3)
-        if abs(val) > 5:
-            ax.text(x[i], val + (3 if val >= 0 else -3),
-                    f"{val:+.0f}",
-                    ha="center", va="bottom" if val >= 0 else "top",
-                    fontsize=11, fontweight="bold", color="#333")
-
-    ax.axhline(0, color="black", lw=0.8)
-    ax.set_xticks(x)
-    ax.set_xticklabels(display_names, fontsize=10, ha="center")
-    ax.set_ylabel("\u0394 summer minimum depth (mm)", fontsize=13)
-    ax.set_title(
-        "Summer minimum scenario comparison at CEH36 (scraped site)\n"
-        "Scraping: observed BACI  |  "
-        "Alternatives: SSM equilibrium \u00d7 amplification",
-        fontsize=13, fontweight="bold")
-
-    ymin = min(min(vals), 0) - 15
-    ymax = max(max(vals), 0) + 15
-    ax.set_ylim(ymin, ymax)
-
-    ax.grid(axis="y", alpha=0.25, ls="--")
-    for sp in ["top", "right"]:
-        ax.spines[sp].set_visible(False)
-
-    ax.text(0.02, 0.02,
-            f"Scraping: observed paired BACI summer minimum shift "
-            f"(CEH36 vs CEH4, {scrape_summer_mm:+.0f} mm).\n"
-            "Forestry: hypothetical — what if CEH36 had pine canopy "
-            "and was then managed.\n"
-            f"Climate: UKCP18 RCP8.5 \u00d7 amplification factor "
-            f"({amp:.2f}).",
-            transform=ax.transAxes, fontsize=8,
-            ha="left", va="bottom", color="#555", style="italic")
-
-    plt.tight_layout()
-    plt.savefig(OUT_09D_SUMMER_SCENARIO, bbox_inches="tight", dpi=300)
-    plt.close()
-    step(f"{OUT_09D_SUMMER_SCENARIO.name}")
-
-    # Export CSV
-    rows = [{"Scenario": n.replace("\n", " "), "Delta_summer_min_mm": v}
-            for n, v in summer_data.items()]
-    pd.DataFrame(rows).to_csv(OUT_09D_SUMMER_SCENARIO_CSV, index=False)
-    step(f"{OUT_09D_SUMMER_SCENARIO_CSV.name}")
 
 
 # ============================================================================

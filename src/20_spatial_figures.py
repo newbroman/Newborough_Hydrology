@@ -63,7 +63,32 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds
 """
 
-__version__ = "1.24.0"  # Hollingham (2026) — 2026-06-30
+__version__ = "1.27.0"  # Hollingham (2026) — 2026-06-30
+# 1.27.0 — Remove hardcoded SLR_K/SLR_B; use DRAWDOWN_K_MDAY/DRAWDOWN_B_M
+#          from config.py throughout. SLR_K = 6.0 m/day and SLR_B = 5.0 m
+#          were duplicates of the config constants; having two names for the
+#          same physical values violated the single-source-of-truth rule.
+#          Affected sites: D = K*b/Sy (lines 2134, 2324), lambda calc
+#          (lines 2572, 2653), and the K/b locals in plot_scrape_drawdown.
+# 1.26.0 — Net state map: scrape rise zones now contribute a positive gain.
+#          Previously np.where(np.isnan(scr), 0.0, scr) treated the rise
+#          zone (slack footprint + 10 m collar) as no change in the net
+#          field; only a visual overlay indicated the rise. The physical
+#          reality is a dipole: surrounding area drawn down, footprint
+#          itself raised by approximately H0_i. New helper
+#          _scrape_rise_field(gx, gy, epochs=None) returns +H0_i at each
+#          rise-zone pixel (per-cut, using measured BACI for CEH36/18/21
+#          and assumed CEH36 elsewhere). plot_net_state_map() now adds
+#          scr_rise as a gain term alongside the drawdown subtraction.
+#          No change to _scrape_field() signature or other callers.
+# 1.25.0 — Clearfell-baseline figure: epoch filter on _scrape_field().
+#          plot_scrape_coastal_net() now passes epochs={"Feb 2013", "April 2015"}
+#          to exclude the Oct 2023 cuts (CEH18, CEH21) which postdate the Oct 2017
+#          clearfell by six years and have no place in the pre-fell baseline.
+#          _scrape_field() gains an optional `epochs` parameter (default None =
+#          all cuts); when set, the returned geom_union is the filtered footprint
+#          union so the rise-zone overlay is also epoch-correct.
+#          Title text and docstring updated to reflect the two-epoch scope.
 # 1.24.0 — Scrape drawdown: method-of-images coastal boundary correction.
 #          The coast is a fixed-head boundary (h = 0 drawdown at HWM).
 #          Each scrape cut now has a mirror-image source reflected across the
@@ -487,8 +512,7 @@ SLR_SHORE_LEVEL_M     = 0.0      # m AOD — SLR head is referenced to MEAN sea
                                 #   for the erosion dune-toe front. The water
                                 #   table is pinned to mean sea level at the
                                 #   coast, so this is the correct SLR datum.
-SLR_K                 = 6.0      # m/day (Betson 2002)
-SLR_B                 = 5.0      # m saturated thickness
+# SLR_K / SLR_B removed v1.27.0 — use DRAWDOWN_K_MDAY / DRAWDOWN_B_M from config.py
 
 # ── Scrape-drain drawdown figure parameters ──────────────────────────────────
 # External assumptions for plot_scrape_drawdown(). Illustrative SCENARIO map of
@@ -2112,7 +2136,7 @@ def plot_slr_response(wt, features, dpi=300):
     # ── Diffusivity D = K·b/Sy (Sy live from C3 WTF, as in drawdown map) ──
     _sy_df = pd.read_csv(INT_WTF_WELL_SY)
     Sy = float(_sy_df[_sy_df["Cluster"] == 3]["Sy_median"].median())
-    D = (SLR_K * SLR_B) / Sy                      # m²/day
+    D = (DRAWDOWN_K_MDAY * DRAWDOWN_B_M) / Sy                      # m²/day
     t_days = SLR_WINDOW_YEARS * 365.0
     diff_len = np.sqrt(D * t_days)               # √(D·t), m
     slr_mm = SLR_RISE_M * 1000.0
@@ -2302,7 +2326,7 @@ def _slr_field(gx, gy):
     from shapely import contains_xy
     _sy_df = pd.read_csv(INT_WTF_WELL_SY)
     Sy = float(_sy_df[_sy_df["Cluster"] == 3]["Sy_median"].median())
-    D = (SLR_K * SLR_B) / Sy
+    D = (DRAWDOWN_K_MDAY * DRAWDOWN_B_M) / Sy
     diff_len = np.sqrt(D * SLR_WINDOW_YEARS * 365.0)
     slr_mm = SLR_RISE_M * 1000.0
     _f, waterline = _dem_waterline_to_dune_edge(
@@ -2482,12 +2506,41 @@ def _reflect_across_coastline(geom, coastline):
     return translate(geom, xoff=rx - centroid.x, yoff=ry - centroid.y)
 
 
-def _scrape_field(gx, gy):
+def _scrape_rise_field(gx, gy, epochs=None):
+    """Rise magnitude field for the scrape footprints (mm, positive = head gain).
+
+    For each grid point within SCRAPE_RISE_BUFFER_M of any cut footprint,
+    returns the H₀ of that cut — the measured BACI response at CEH36/18/21
+    or the assumed CEH36 value for unmonitored cuts.  Points within range of
+    more than one cut take the larger H₀ (in practice cuts are well-separated
+    so overlap is negligible).
+
+    Used in plot_net_state_map() to give the slack rises a positive contribution
+    in the net field, correctly representing the dipole nature of each cut:
+    surrounding area drawn down, footprint itself raised by approximately H₀.
+
+    epochs : same semantics as _scrape_field(). None = all cuts."""
+    from shapely.geometry import Point
+    reg = _scrape_registry()
+    if epochs is not None:
+        reg = [s for s in reg if s["epoch"] in epochs]
+    if not reg:
+        return np.zeros(gx.shape)
+    pts = [Point(x, y) for x, y in zip(gx.ravel(), gy.ravel())]
+    rise = np.zeros(gx.size)
+    for s in reg:
+        d = np.array([s["geom"].distance(p) for p in pts])
+        in_rise = d <= SCRAPE_RISE_BUFFER_M
+        rise = np.where(in_rise & (s["H0"] > rise), s["H0"], rise)
+    return rise.reshape(gx.shape)
+
+
+def _scrape_field(gx, gy, epochs=None):
     """Scrape-drain drawdown field (mm, positive = head loss) on grid gx,gy.
 
     Steady-state leaky-aquifer superposition with method-of-images coastal
-    boundary correction.  All 8 mapped cuts are permanent co-active drains
-    contributing simultaneously to long-term equilibrium.
+    boundary correction.  By default all 8 mapped cuts are included as
+    permanent co-active drains contributing to long-term equilibrium.
 
     For each cut i the contribution at grid point (x,y) is:
         H0_i · [exp(-d_real_i / λ) − exp(-d_image_i / λ)]
@@ -2505,7 +2558,14 @@ def _scrape_field(gx, gy):
     assumed = CEH36 for the unmonitored Feb-2013 and Scrape_A/B cuts.
     Each cut's rise zone (footprint + SCRAPE_RISE_BUFFER_M) is masked NaN.
 
-    Returns (field, H0_ceh36, lam, geom_union) or (None, None, None, None)."""
+    epochs : set of epoch strings or None
+        If set, only cuts whose epoch is in the set are included.
+        Example: epochs={"Feb 2013", "April 2015"} excludes Oct 2023 cuts.
+        Use for the clearfell-baseline figure where Oct 2023 cuts postdate
+        the felling event.  Default None = all epochs (equilibrium map).
+
+    Returns (field, H0_ceh36, lam, geom_union) or (None, None, None, None).
+    geom_union is the union of the *filtered* cut footprints."""
     from shapely.geometry import Point
     try:
         _sy_df = pd.read_csv(INT_WTF_WELL_SY)
@@ -2514,8 +2574,10 @@ def _scrape_field(gx, gy):
         beta3_m = float(_mech[_mech["Cluster"] == 3]["beta_3_drainage"].iloc[0])
     except Exception:
         return None, None, None, None
-    lam = np.sqrt((SLR_K * SLR_B) / (Sy * (beta3_m / 30.0)))
+    lam = np.sqrt((DRAWDOWN_K_MDAY * DRAWDOWN_B_M) / (Sy * (beta3_m / 30.0)))
     reg = _scrape_registry()
+    if epochs is not None:
+        reg = [s for s in reg if s["epoch"] in epochs]
     if not reg:
         return None, None, None, None
 
@@ -2537,7 +2599,12 @@ def _scrape_field(gx, gy):
     field[rise] = np.nan             # mask rise zones: slack rises, not drawn down
     field = field.reshape(gx.shape)
     H0_ceh36 = next((s["H0"] for s in reg if s["name"] == "CEH36"), reg[0]["H0"])
-    return field, H0_ceh36, lam, _load_real_scrape_geom()
+    if epochs is not None:
+        from shapely.ops import unary_union as _uu
+        geom_out = _uu([s["geom"] for s in reg])
+    else:
+        geom_out = _load_real_scrape_geom()
+    return field, H0_ceh36, lam, geom_out
 
 
 def _overlay_scrape_rise(ax, geom, zbase=7):
@@ -2588,7 +2655,7 @@ def _forest_field(gx, gy):
         b3 = float(_m[_m["Cluster"] == 3]["beta_3_drainage"].iloc[0])
     except Exception:
         return None, None, None, None
-    lam = np.sqrt((SLR_K * SLR_B) / (Sy * (b3 / 30.0)))
+    lam = np.sqrt((DRAWDOWN_K_MDAY * DRAWDOWN_B_M) / (Sy * (b3 / 30.0)))
     H0 = 150.0                                          # mm interception deficit
     d = np.array([forest_geom.distance(Point(x, y))
                   for x, y in zip(gx.ravel(), gy.ravel())]).reshape(gx.shape)
@@ -2729,26 +2796,29 @@ def plot_coastal_net_effect(wt, features, dpi=300):
 
 def plot_scrape_coastal_net(wt, features, dpi=300):
     """
-    Drawdown imposed on the CLEARFELL PRE-FELL BASELINE by the two non-felling
-    drivers that bear on the compartment: the April 2015 CEH36 scrape (acting as
-    a drain) and Storm Brendan's coastal retreat (one COAST_RETREAT_M event).
-    Both are head LOSSES, so the combined field is a simple drawdown sum
+    Drawdown imposed on the CLEARFELL PRE-FELL BASELINE (Oct 2017) by the two
+    non-felling drivers that bear on the compartment at the time of felling:
+    the Feb 2013 and Apr 2015 scrape cuts (5 cuts, acting as co-active drains)
+    and Storm Brendan's coastal retreat (one COAST_RETREAT_M event).
+    Both are head LOSSES, so the combined field is a simple drawdown sum:
 
-        drawdown(d) = Δh_scrape + Δh_erosion
+        drawdown(x,y) = Δh_scrape(Feb2013+Apr2015) + Δh_erosion
 
-    rendered on the shared sequential drawdown scale (so it is directly
-    comparable with the standalone scrape and erosion maps). Sea-level rise is
-    deliberately excluded: this figure is the spatial footprint of the two
-    confounders the clearfell BACI must separate from the felling signal
-    (§5.4.2/§5.4.3), not a basin-wide net balance. The scrape interior is masked
-    (the slack itself rises). Illustrative — a first-order superposition, not a
-    closed budget.
+    The Oct 2023 cuts (CEH18, CEH21) are deliberately excluded: they postdate
+    the clearfell by six years and play no part in the pre-fell baseline.
+    Sea-level rise is excluded: this figure shows only the two confounders the
+    clearfell BACI must separate from the felling signal (§5.4.2/§5.4.3).
+    The scrape interiors are masked (the slacks themselves rise).
+    Rendered on the shared sequential drawdown scale for direct comparison
+    with the standalone scrape and erosion maps.
     """
     from shapely import contains_xy
 
     gx, gy = np.meshgrid(GRID_XI, GRID_YI)
     eros, front, _wl_e, h0, L = _erosion_field(gx, gy)
-    scr, scr_H0, scr_lam, scr_geom = _scrape_field(gx, gy)
+    scr, scr_H0, scr_lam, scr_geom = _scrape_field(
+        gx, gy, epochs={"Feb 2013", "April 2015"}   # Oct 2023 cuts postdate the clearfell
+    )
     if eros is None or scr is None:
         print("  [WARNING] a component field is unavailable — skipping baseline drawdown map")
         return
@@ -2814,10 +2884,11 @@ def plot_scrape_coastal_net(wt, features, dpi=300):
     ax.set_xlabel("Easting (m, OSGB36)", fontsize=9)
     ax.set_ylabel("Northing (m, OSGB36)", fontsize=9)
     ax.set_title(
-        "Drawdown imposed on the clearfell pre-fell baseline\n"
-        f"2015 CEH36 scrape (H₀ = {scr_H0:.0f} mm, measured) + Storm Brendan "
-        f"{COAST_RETREAT_M:.0f} m retreat · combined head loss",
-        fontsize=10, fontweight="bold", pad=10)
+        "Drawdown imposed on the clearfell pre-fell baseline (Oct 2017)\n"
+        f"Feb 2013 + Apr 2015 scrape cuts (H₀ measured at CEH36, assumed elsewhere) "
+        f"+ Storm Brendan {COAST_RETREAT_M:.0f} m retreat · combined head loss\n"
+        "Oct 2023 cuts (CEH18/CEH21) excluded — postdate the clearfell by 6 years",
+        fontsize=9.5, fontweight="bold", pad=10)
 
     plt.tight_layout()
     fig.savefig(OUT_20_CLEARFELL_BASELINE_DRAWDOWN, dpi=dpi, bbox_inches="tight")
@@ -3678,9 +3749,10 @@ def plot_net_state_map(wt, features, dpi=300):
         # Inside the polygon: distance = 0, so gain = H0 (full restoration)
 
     # ── Combine: positive = net gain, negative = net loss ───────────────
-    scr_safe = np.where(np.isnan(scr), 0.0, scr)   # scrape interior NaN → 0
-    net = (slr_gain + clearfell_gain
-           - forest_remaining - eros - scr_safe)
+    scr_rise = _scrape_rise_field(gx, gy)            # +H₀ at rise-zone pixels, 0 elsewhere
+    scr_draw = np.where(np.isnan(scr), 0.0, scr)    # drawdown only (NaN rise zones → 0)
+    net = (slr_gain + clearfell_gain + scr_rise
+           - forest_remaining - eros - scr_draw)
 
     # ── Clip to site ─────────────────────────────────────────────────────
     site_poly = load_site_polygon()
@@ -3833,8 +3905,8 @@ def plot_scrape_drawdown(wt, features, dpi=300, show_head=True):
     fiona.drvsupport.supported_drivers["KML"] = "rw"
 
     # ── Parameters (λ identical basis to Fig 3; C3 propagation medium) ─────
-    K = SLR_K            # m/day (Betson 2002), shared with drawdown/SLR maps
-    b = SLR_B            # m saturated thickness
+    K = DRAWDOWN_K_MDAY            # m/day (Betson 2002), shared with drawdown/SLR maps
+    b = DRAWDOWN_B_M            # m saturated thickness
 
     _sy_df   = pd.read_csv(INT_WTF_WELL_SY)
     Sy       = float(_sy_df[_sy_df['Cluster'] == 3]['Sy_median'].median())

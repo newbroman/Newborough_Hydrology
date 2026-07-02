@@ -83,7 +83,17 @@ References
                           Impact tier) at runtime; see _load_baci_params().
 """
 
-__version__ = "1.3.0"  # 2026-05-30 — plot_scenario_comparison() now also
+__version__ = "1.4.0"  # 2026-07-02 — 21_forestry_06 re-based to VOLUMETRIC.
+#         The per-cluster summer metric is now the equilibrium volumetric Δh
+#         (mm water-equiv / month) taken directly from scenario_values, not a
+#         summer-MINIMUM depth. The previous ÷Sy × mean->minimum amplification
+#         conversion is removed (the SSM equilibrium framework has no transient
+#         and cannot resolve a summer minimum; the amplification slope is least
+#         reliable at the forest). CSV column Delta_summer_min_mm ->
+#         Delta_vol_summer_mm_per_month. Still byte-identical with 09b_05's
+#         forestry rows by construction. Drops the scraping_common amplification
+#         helper imports. Matches 09b v1.5.0 / 09d v3.4.0 re-basis (2026-07-02).
+# 1.3.0 — 2026-05-30 — plot_scenario_comparison() now also
 #         emits 21_forestry_06_summer_scenario.csv: per-cluster ecological
 #         Delta_summer_min_mm for the forest-management scenarios (Clearfell,
 #         Thinning 50%, Broadleaf) via the shared scraping_common conversion,
@@ -2035,34 +2045,24 @@ def plot_scenario_comparison(master, climate, dpi=300):
                               float_format="%.1f")
     saved(f"{OUT_21_SCENARIO_CSV.name}")
 
-    # --- Summer-minimum scenario metric (21_forestry_06) -------------------
-    # Ecological Delta_summer_min_mm per cluster for the forest-management
-    # scenarios, via the shared scraping_common conversion (monthly flux ->
-    # head [/ Sy] -> summer minimum [x amplification factor]). Byte-identical
-    # by construction with 09b_05's forestry rows, so the main report's
-    # Section 4.7 can cite the forestry module directly. Climate scenarios are
-    # deliberately excluded here: their summer-minimum comparison stays with
-    # 09b_05 / Section 4.8 to avoid a second, divergent source.
-    from utils.scraping_common import (
-        summer_amplification_factors, scenario_cluster_sy,
-        scenario_summer_min_bars,
-    )
-    from utils.paths import (
-        INT_REGIONAL_AVG, OUT_17_SY_TABLE, OUT_21_SUMMER_SCENARIO_CSV,
-    )
+    # --- Volumetric summer-forcing scenario metric (21_forestry_06) --------
+    # Equilibrium volumetric Δh (mm water-equiv / month) per cluster for the
+    # forest-management scenarios, taken DIRECTLY from the monthly scenario
+    # values. Re-based 2026-07-02 (v1.4.0): the previous ÷Sy × mean->minimum
+    # amplification conversion to a summer-MINIMUM depth is removed — the SSM
+    # equilibrium framework has no transient and cannot resolve a summer
+    # minimum, and the amplification slope is least reliable at the forest.
+    # Every bar is now the equilibrium volumetric response, consistent with
+    # 09b_05 and Script 09d. Byte-identical with 09b_05's forestry rows by
+    # construction (same source values). Climate scenarios stay with 09b_05.
+    from utils.paths import OUT_21_SUMMER_SCENARIO_CSV
     FORESTRY_SCENARIOS = ["Clearfell", "Thinning 50%", "Broadleaf"]
-    regional = pd.read_csv(INT_REGIONAL_AVG, index_col=0, parse_dates=True)
-    sy_df = pd.read_csv(OUT_17_SY_TABLE) if OUT_17_SY_TABLE.exists() else None
-    amp_factors = summer_amplification_factors(regional, clusters=tuple(clusters))
-    sy_by_cluster = scenario_cluster_sy(sy_df, clusters=tuple(clusters))
-    summer_bars = scenario_summer_min_bars(
-        scenario_values, sy_by_cluster, amp_factors,
-        scenarios=FORESTRY_SCENARIOS, clusters=tuple(clusters))
     summer_rows = []
     for s_name in FORESTRY_SCENARIOS:
         for c in clusters:
+            vol = scenario_values.get(s_name, {}).get(c, 0.0)
             summer_rows.append({"Scenario": s_name, "Cluster": c,
-                                "Delta_summer_min_mm": summer_bars[s_name][c]})
+                                "Delta_vol_summer_mm_per_month": round(vol, 1)})
     pd.DataFrame(summer_rows).to_csv(OUT_21_SUMMER_SCENARIO_CSV, index=False)
     saved(f"{OUT_21_SUMMER_SCENARIO_CSV.name}")
 

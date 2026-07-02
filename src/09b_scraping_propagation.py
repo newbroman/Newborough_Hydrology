@@ -30,7 +30,20 @@ Reads:
 ==========================================================================
 """
 
-__version__ = "1.4.1"  # Hollingham (2026) — 2026-06-21
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-07-02
+# 1.5.0 — _summer_scenario() re-based to VOLUMETRIC (mm water-equiv / month).
+#         The previous ÷Sy × mean->minimum amplification conversion to a
+#         summer-MINIMUM depth is removed: the SSM equilibrium framework has
+#         no transient and cannot resolve a summer minimum, and the
+#         amplification slope is least reliable at the forest. Every bar is
+#         now the equilibrium volumetric response (matching 09b-04 and Script
+#         09d); the scraping bar is the observed BACI head shift rendered on
+#         the volumetric axis (× C5 Sy). Output 09b_05 CSV column renamed
+#         Delta_summer_min_mm -> Delta_vol_summer_mm_per_month. Caption moved
+#         below axis; head-conversion caveat added; not-a-minimum note added.
+#         Drops the amplification helper calls (summer_amplification_factors,
+#         flux_to_summer_min_mm) and the now-unused INT_REGIONAL_AVG import.
+#         Matches the 09d v3.4.0 / Script-21 v1.4.0 re-basis (2026-07-02).
 # 1.4.1 — Equilibration figure (09b_03, CEH36 vs CEH4): added the Oct-2023
 #         re-scrape marker (magenta dash-dot, SCRAPE2_DATE) alongside the
 #         existing scraping (Apr 2015) and clearfell (Dec 2017) lines; legend
@@ -60,7 +73,7 @@ _sys.path.insert(0, _os.path.join(_os.path.dirname(
 
 from utils.paths import (
     INT_WELLS_CLEAN, INT_WELLS_EXTENDED, INT_CLIMATE, INT_LOCATIONS,
-    INT_MASTER_DATA, INT_REGIONAL_AVG, OUT_09B_INDIVIDUAL, OUT_09B_CENTROIDS,
+    INT_MASTER_DATA, OUT_09B_INDIVIDUAL, OUT_09B_CENTROIDS,
     OUT_09B_TRAJECTORY, OUT_09B_SCENARIO, OUT_09B_SCENARIO_CSV,
     OUT_09B_SUMMER_SCENARIO, OUT_09B_SUMMER_SCENARIO_CSV, OUT_17_SY_TABLE,
 )
@@ -619,8 +632,19 @@ def _plot_scenario_comparison(centroids_df, dpi=200):
 
 
 def _summer_scenario(wells_clean, wells_ext, climate):
-    """Summer minimum scenario figure: empirical BACI + SSM climate amplification."""
-    phase(8, "Generating summer minimum scenario comparison")
+    """Volumetric summer-forcing scenario figure: empirical BACI scraping +
+    SSM equilibrium forestry/climate bars, all on one volumetric scale.
+
+    Re-based 2026-07-02 (v1.5.0): the previous version converted the monthly
+    volumetric flux to a summer-MINIMUM depth via ÷Sy × a mean->minimum
+    amplification slope. The SSM equilibrium framework carries no transient
+    and cannot resolve a true summer minimum, and the amplification slope is
+    least reliable at the forest (the winter-rise/summer-stagnation paradox).
+    The amplification step is removed: every bar is now the equilibrium
+    volumetric response (mm water-equiv / month), matching Script 09d and the
+    monthly figure 09b-04. The scraping bar is the observed BACI shift
+    rendered on the same volumetric axis (× cluster Sy)."""
+    phase(8, "Generating volumetric summer-forcing scenario comparison")
     SUMMER = [6, 7, 8, 9]
     FELLING_YEAR = 2018
     SCRAPE_YEAR = 2015
@@ -629,52 +653,11 @@ def _summer_scenario(wells_clean, wells_ext, climate):
     wells = pd.concat([wells_clean, wells_ext[new]], axis=1, sort=False)
     wells.columns = wells.columns.str.lower().str.replace(' ', '')
 
-    regional = pd.read_csv(INT_REGIONAL_AVG, index_col=0, parse_dates=True)
     clusters = ['C1', 'C2', 'C3', 'C4', 'C5']
 
-    # Amplification + Sy + conversion now come from scraping_common (v1.3.0),
-    # the single source of truth shared with Script 21 (21_forestry_06).
-    from utils.scraping_common import (
-        summer_amplification_factors, scenario_cluster_sy,
-        flux_to_summer_min_mm,
-    )
-
-    # Amplification factors: slope of annual summer-minimum on annual-mean head,
-    # per cluster centroid (unchanged computation, now via shared helper).
-    amp_factors = summer_amplification_factors(
-        regional, clusters=tuple(clusters), summer_months=tuple(SUMMER),
-        years=range(2006, 2026))
-
-    def _annual_summer_min(series):
-        mins = {}
-        for yr in range(2006, 2026):
-            mask = (series.index.year == yr) & (series.index.month.isin(SUMMER))
-            s = series[mask].dropna()
-            if len(s) >= 2:
-                mins[yr] = float(s.min())
-        return mins
-
-    # Scraping: CEH36 vs CEH18
-    scraping_shift_mm = 0.0
-    if 'ceh36' in wells.columns and 'ceh18' in wells.columns:
-        m36 = _annual_summer_min(wells['ceh36'])
-        m18 = _annual_summer_min(wells['ceh18'])
-        common = sorted(set(m36) & set(m18))
-        gap = pd.Series({yr: m36[yr] - m18[yr] for yr in common})
-        pre = gap[gap.index < SCRAPE_YEAR]
-        post = gap[(gap.index >= SCRAPE_YEAR) & (gap.index < FELLING_YEAR)]
-        if len(pre) >= 2 and len(post) >= 2:
-            shift = post.mean() - pre.mean()
-            _, p_val = _stats.ttest_ind(post.values, pre.values, equal_var=False)
-            scraping_shift_mm = shift * 1000
-            print(f"   Scraping (CEH36 vs CEH18): {scraping_shift_mm:+.0f} mm  p = {p_val:.3f}")
-
-    # Forestry + climate scenarios: all SSM-derived
-    # Monthly volumetric (from 09b-04 CSV, which uses compute_scenario_bars)
-    # → head (÷ Sy) → summer minimum (× amplification factor)
-    # This ensures internal consistency with the monthly figure (09b-04).
-    # Scraping remains empirical BACI (observed, not modelled).
-
+    # Cluster Sy (for rendering the empirical scrape head shift on the
+    # volumetric axis, and consistency with the monthly figure).
+    from utils.scraping_common import scenario_cluster_sy
     SY_FALLBACK = 0.20
     sy_by_cluster = {}
     if OUT_17_SY_TABLE.exists():
@@ -687,10 +670,38 @@ def _summer_scenario(wells_clean, wells_ext, climate):
     else:
         warn(f"{OUT_17_SY_TABLE.name} not found \u2014falling back to Sy={SY_FALLBACK}")
 
-    # Build scenario table — all scenarios from the monthly CSV
+    def _annual_summer_min(series):
+        mins = {}
+        for yr in range(2006, 2026):
+            mask = (series.index.year == yr) & (series.index.month.isin(SUMMER))
+            s = series[mask].dropna()
+            if len(s) >= 2:
+                mins[yr] = float(s.min())
+        return mins
+
+    # Scraping: CEH36 vs CEH18 observed BACI head shift, rendered volumetric
+    scraping_shift_mm = 0.0     # head shift (mm)
+    scraping_vol_c5 = 0.0       # volumetric equivalent (mm w.e./month) in C5
+    if 'ceh36' in wells.columns and 'ceh18' in wells.columns:
+        m36 = _annual_summer_min(wells['ceh36'])
+        m18 = _annual_summer_min(wells['ceh18'])
+        common = sorted(set(m36) & set(m18))
+        gap = pd.Series({yr: m36[yr] - m18[yr] for yr in common})
+        pre = gap[gap.index < SCRAPE_YEAR]
+        post = gap[(gap.index >= SCRAPE_YEAR) & (gap.index < FELLING_YEAR)]
+        if len(pre) >= 2 and len(post) >= 2:
+            shift = post.mean() - pre.mean()
+            _, p_val = _stats.ttest_ind(post.values, pre.values, equal_var=False)
+            scraping_shift_mm = shift * 1000
+            scraping_vol_c5 = scraping_shift_mm * sy_by_cluster.get('C5', SY_FALLBACK)
+            print(f"   Scraping (CEH36 vs CEH18): {scraping_shift_mm:+.0f} mm head "
+                  f"({scraping_vol_c5:+.0f} mm w.e./month volumetric)  p = {p_val:.3f}")
+
+    # Forestry + climate scenarios: equilibrium volumetric bars taken DIRECTLY
+    # from the monthly CSV (09b-04). No ÷Sy, no amplification.
     summer_data = {
         'Scraping\n(CEH36-type)': {'C1': 0, 'C2': 0, 'C3': 0, 'C4': 0,
-                                    'C5': round(scraping_shift_mm)},
+                                    'C5': round(scraping_vol_c5, 1)},
     }
 
     scen_csv = OUT_09B_SCENARIO_CSV
@@ -702,19 +713,15 @@ def _summer_scenario(wells_clean, wells_ext, climate):
             for c in clusters:
                 row = scen[(scen['Scenario'] == scenario) & (scen['Cluster'] == c)]
                 if not row.empty:
-                    vol = float(row['Delta_vol_mm_per_month'].iloc[0])
-                    sy_c = sy_by_cluster.get(c, SY_FALLBACK)
-                    summer_data[scenario][c] = flux_to_summer_min_mm(
-                        vol, sy_c, amp_factors.get(c, 0.85))
+                    summer_data[scenario][c] = round(
+                        float(row['Delta_vol_mm_per_month'].iloc[0]), 1)
                 else:
                     summer_data[scenario][c] = 0
-        # Print forestry summer values for verification
         for s in ['Clearfell', 'Thinning 50%', 'Broadleaf']:
             if s in summer_data:
-                c4_val = summer_data[s].get('C4', 0)
-                c5_val = summer_data[s].get('C5', 0)
-                print(f"   {s} summer min (SSM-derived): "
-                      f"C4={c4_val:+.0f} mm  C5={c5_val:+.0f} mm")
+                print(f"   {s} volumetric: "
+                      f"C4={summer_data[s].get('C4', 0):+.1f}  "
+                      f"C5={summer_data[s].get('C5', 0):+.1f} mm w.e./month")
     else:
         warn(f"{scen_csv.name} not found \u2014forestry bars set to zero")
         for s in ['Clearfell', 'Thinning 50%', 'Broadleaf',
@@ -760,8 +767,8 @@ def _summer_scenario(wells_clean, wells_ext, climate):
                linewidth=0.8 if _hatch else 0.5,
                hatch=_hatch, alpha=0.85, label=s_name, zorder=3)
         for j, v in enumerate(vals):
-            if abs(v) > 20:
-                ax.text(x[j] + offset, v + (4 if v > 0 else -4),
+            if abs(v) > 5:
+                ax.text(x[j] + offset, v + (1.5 if v > 0 else -1.5),
                         f'{v:+.0f}', ha='center',
                         va='bottom' if v > 0 else 'top',
                         fontsize=7.5, fontweight='bold', color='#333')
@@ -769,25 +776,30 @@ def _summer_scenario(wells_clean, wells_ext, climate):
     ax.axhline(0, color='black', lw=0.8)
     ax.set_xticks(x)
     ax.set_xticklabels(cluster_labels, fontsize=11)
-    ax.set_ylabel('\u0394 summer minimum depth (mm)', fontsize=12)
+    ax.set_ylabel('\u0394 volumetric water table (mm water equiv. / month)', fontsize=12)
     ax.set_title(
-        'Summer minimum scenario comparison: forest management, scraping, and climate (k = 5)\n'
-        'Scraping: empirical BACI  |  Forest management & climate: SSM equilibrium \u00d7 amplification',
+        'Volumetric scenario comparison: forest management, scraping, and climate (k = 5)\n'
+        'All bars: SSM equilibrium volumetric response  |  scraping = observed BACI \u00d7 Sy',
         fontsize=12, fontweight='bold')
     ax.legend(fontsize=9, loc='lower left', framealpha=0.9, ncol=3)
     ax.grid(axis='y', alpha=0.25, ls='--')
     for sp in ['top', 'right']:
         ax.spines[sp].set_visible(False)
-    ax.text(0.02, 0.82,
-            f'Scraping: empirical BACI at scraped site (CEH36 vs CEH18, {scraping_shift_mm:+.0f} mm, '
-            f'p = 0.017). Benefit is local.\n'
-            'Forest management: SSM equilibrium \u00d7 summer amplification factor '
-            '(consistent with monthly figure 09b-04).\n'
-            'Climate: SSM annual-mean prediction \u00d7 empirical summer amplification factor.',
+    ax.text(0.02, -0.14,
+            f'Scraping: empirical BACI at scraped site (CEH36 vs CEH18, '
+            f'{scraping_shift_mm:+.0f} mm head, rendered volumetric \u00d7 C5 Sy). '
+            f'Benefit is local.  '
+            'Forest management & climate: SSM equilibrium volumetric bars from '
+            'the monthly figure (09b-04).\n'
+            'Bars are volumetric (mm water-equiv. / month); a head-change '
+            'equivalent needs division by an appropriate (uncertain) Sy and is '
+            'approximate. Not a summer minimum \u2014 the equilibrium framework '
+            'cannot resolve the transient minimum.',
             transform=ax.transAxes, fontsize=7.5, ha='left', va='top',
             color='#555', style='italic')
     plt.tight_layout()
-    plt.savefig(OUT_09B_SUMMER_SCENARIO, bbox_inches='tight', dpi=300)
+    fig.subplots_adjust(bottom=0.20)
+    plt.savefig(OUT_09B_SUMMER_SCENARIO, dpi=300)
     plt.close()
     print(f"   \u2192 {OUT_09B_SUMMER_SCENARIO.name}")
 
@@ -797,7 +809,7 @@ def _summer_scenario(wells_clean, wells_ext, climate):
         for c in clusters:
             rows.append({'Scenario': s_name.replace('\n', ' '),
                          'Cluster': c,
-                         'Delta_summer_min_mm': summer_data[s_name].get(c, 0)})
+                         'Delta_vol_summer_mm_per_month': summer_data[s_name].get(c, 0)})
     pd.DataFrame(rows).to_csv(OUT_09B_SUMMER_SCENARIO_CSV, index=False)
     print(f"   \u2192 {OUT_09B_SUMMER_SCENARIO_CSV.name}")
 

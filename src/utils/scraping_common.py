@@ -31,7 +31,12 @@ WELL_ERAS           {well: {era_name: (start, end)}} for all analysis wells.
                     Start is inclusive, end is exclusive.
 """
 
-__version__ = "1.4.0"  # 2026-05-30 — Summer-minimum scenario conversion
+__version__ = "1.5.0"  # 2026-07-02 — added load_annual_climate() companion to
+                        # load_summer_climate(); used by Script 09d v3.4.0 to
+                        # evaluate scenario bars under annual-mean forcing
+                        # (Figure 26) alongside summer forcing (Figure 27).
+                        # No change to existing helpers.
+# 1.4.0  2026-05-30 — Summer-minimum scenario conversion
                         # (monthly flux -> head /Sy -> summer-min x amplification)
                         # extracted from 09b into shared helpers:
                         # summer_amplification_factors(), scenario_cluster_sy(),
@@ -356,6 +361,18 @@ def load_summer_climate():
     climate = pd.read_csv(INT_CLIMATE, index_col=0, parse_dates=True)
     summer = climate[climate.index.month.isin(SUMMER_MONTHS)]
     return float(summer["P_m"].mean()), float(summer["PET"].mean())
+
+
+def load_annual_climate():
+    """Load annual-mean (all-month) P and PET from pipeline climate data.
+
+    Companion to load_summer_climate(); used by Script 09d to evaluate the
+    scenario bars under annual-mean forcing (Figure 26) alongside the
+    summer-forcing figure (Figure 27).
+    """
+    from utils.paths import INT_CLIMATE
+    climate = pd.read_csv(INT_CLIMATE, index_col=0, parse_dates=True)
+    return float(climate["P_m"].mean()), float(climate["PET"].mean())
 
 
 def significance_stars(p):

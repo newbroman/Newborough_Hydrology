@@ -24,20 +24,38 @@ add_osm_basemap(ax, gdf)
     Fallback basemap from OpenStreetMap when the DEM is unavailable.
 
 add_idw_surface(ax, df, value_col, xi, yi, method, ridge_mask_threshold,
-                dem_e_arr, dem_n_arr, dem_data, cmap, norm, alpha, zorder)
+                dem_e_arr, dem_n_arr, dem_data, cmap, norm, alpha, zorder,
+                apply_site_mask)
     IDW-interpolates a per-well metric to a regular grid, applies an optional
     ridge mask (cells where the DEM sits more than ridge_mask_threshold metres
     above the IDW-interpolated well-DEM surface are masked), and renders as a
-    pcolormesh. Returns (pcolormesh_object, grid_x, grid_y, surf_masked) so
-    the caller can attach a colorbar and draw contours. Used by scripts 11b,
-    19, 20.
+    pcolormesh. Optional apply_site_mask=True clips the surface to the NNR
+    site boundary via make_site_mask(). Returns (pcolormesh_object, grid_x,
+    grid_y, surf_masked) so the caller can attach a colorbar and draw contours.
+    Used by scripts 11b, 18, 19, 20.
+
+make_site_mask(grid_x, grid_y)
+    Boolean mask for the IDW interpolation domain clipped to the NNR site
+    boundary. Primary path: XML parse of site_boundary.kml → OSGB36 polygon.
+    Fallback: rectangular clip to three sea-boundary lines. Moved from Script 18
+    (v1.4.0) so all IDW-surface scripts share one implementation.
 
 plot_metric_map(map_df, value_col, title, output_path, cmap, data_dir, vmin, vmax)
     Full publication-quality spatial metric map with DEM background, KML overlays,
     cluster-shape markers, dual colorbars, and legend.
 """
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-06-27
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-07-01
+# 1.4.0 — make_site_mask() moved here from Script 18 so all IDW-surface scripts
+#         share one implementation. add_idw_surface() gains apply_site_mask
+#         parameter (default False): when True calls make_site_mask(gx, gy)
+#         internally and masks the surface before rendering, replacing the
+#         per-function site-mask calls in Script 18. add_idw_surface() default
+#         xi/yi grid corrected from stale literals (240200–243800, 362200–365800)
+#         to SITE_MAP_* canonical values (240100–243900, 362200–365500).
+#         DATA_KML_SITE_BOUNDARY added to paths import (required by
+#         make_site_mask()). Three sea-boundary fallback constants added
+#         (_SEA_SOUTH_N, _SEA_EAST_E, _SEA_WEST_E).
 # 1.3.0 — Canonical map frame + Easting/Northing axes consolidated here.
 #         New public helper add_en_axes(ax, apply_extent=True) sets the
 #         canonical site extent from config.SITE_MAP_* (E 240100–243900,
@@ -82,7 +100,8 @@ from utils.config import (
     SITE_MAP_EAST_MIN, SITE_MAP_EAST_MAX, SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX,
 )
 from utils.paths import (
-    DATA_DEM, DATA_KML_FEATURES, DATA_KML_STREAMS, DATA_KML_CLEARFELL, data_geo,
+    DATA_DEM, DATA_KML_FEATURES, DATA_KML_STREAMS, DATA_KML_CLEARFELL,
+    DATA_KML_SITE_BOUNDARY, data_geo,
 )
 
 fiona.drvsupport.supported_drivers["KML"] = "rw"
@@ -91,6 +110,12 @@ fiona.drvsupport.supported_drivers["KML"] = "rw"
 # ── Canonical site extent, re-exported for callers that need the raw tuple ────
 SITE_XLIM = (SITE_MAP_EAST_MIN, SITE_MAP_EAST_MAX)
 SITE_YLIM = (SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX)
+
+# ── Sea-boundary fallback constants for make_site_mask() ──────────────────────
+# Used only when site_boundary.kml KML parse fails.
+_SEA_SOUTH_N = 362350   # m OSGB36 — southern shoreline Northing
+_SEA_EAST_E  = 243850   # m OSGB36 — eastern (Menai Strait) Easting
+_SEA_WEST_E  = 239200   # m OSGB36 — western estuary Easting
 
 
 def add_en_axes(ax, apply_extent: bool = True, labelsize: int = 8,
@@ -342,6 +367,96 @@ def load_dem_auto(ax, data_dir: Path, force_hillshade: bool = False):
         return layer, loaded, None, None, None
 
 
+def make_site_mask(grid_x: np.ndarray, grid_y: np.ndarray) -> np.ndarray:
+    """
+    Boolean mask for an IDW interpolation grid, clipped to the NNR site boundary.
+
+    Primary path: pure XML + pyproj + shapely parse of site_boundary.kml
+    (falls back to streams.kml if absent). No fiona/KML driver required.
+    Fallback: rectangular clip to three sea-boundary lines (_SEA_*).
+
+    Moved from Script 18 (v1.4.0) so all IDW-surface scripts share one
+    implementation.
+
+    Parameters
+    ----------
+    grid_x, grid_y : np.ndarray
+        2-D meshgrid arrays of Easting and Northing (EPSG:27700).
+
+    Returns
+    -------
+    mask : np.ndarray of bool, same shape as grid_x
+        True where the grid cell lies inside the site boundary.
+    """
+    import warnings
+    flat = np.column_stack([grid_x.ravel(), grid_y.ravel()])
+
+    _bnd_path = DATA_KML_SITE_BOUNDARY
+    if not _bnd_path.exists():
+        _bnd_path = DATA_KML_STREAMS
+
+    if _bnd_path.exists():
+        try:
+            import xml.etree.ElementTree as _ET
+            from pyproj import Transformer as _Tr
+            from shapely.geometry import Polygon as _Poly
+            from shapely.ops import unary_union as _union
+            from matplotlib.path import Path as _MplPath
+
+            _tr = _Tr.from_crs("EPSG:4326", "EPSG:27700", always_xy=True)
+            _root = _ET.parse(str(_bnd_path)).getroot()
+            _polys = []
+
+            def _parse(el):
+                tag = el.tag.split("}")[-1] if "}" in el.tag else el.tag
+                if tag == "coordinates":
+                    pts = []
+                    for tok in (el.text or "").strip().split():
+                        p = tok.split(",")
+                        if len(p) >= 2:
+                            try:
+                                pts.append((float(p[0]), float(p[1])))
+                            except ValueError:
+                                pass
+                    if len(pts) >= 3:
+                        lons = [pt[0] for pt in pts]
+                        lats = [pt[1] for pt in pts]
+                        ex, ny = _tr.transform(lons, lats)
+                        try:
+                            _polys.append(_Poly(zip(ex, ny)))
+                        except Exception:
+                            pass
+                for child in el:
+                    _parse(child)
+
+            _parse(_root)
+
+            if _polys:
+                _dissolved = _union(_polys)
+                _dissolved = _dissolved.buffer(100)
+                if _dissolved.geom_type == "MultiPolygon":
+                    _dissolved = max(_dissolved.geoms, key=lambda g: g.area)
+                _coords = list(_dissolved.exterior.coords)
+                _path = _MplPath([(c[0], c[1]) for c in _coords])
+                _inside = _path.contains_points(flat)
+                print(f"  Site mask: {_inside.sum()} of {len(_inside)} "
+                      f"grid cells inside boundary")
+                return _inside.reshape(grid_x.shape)
+
+        except Exception as e:
+            warnings.warn(
+                f"site_boundary.kml mask failed ({e}) — "
+                "falling back to rectangular sea-boundary mask."
+            )
+
+    # Fallback: rectangular clip to three sea-boundary lines
+    mask = np.ones(grid_x.shape, dtype=bool)
+    mask[grid_y < _SEA_SOUTH_N] = False
+    mask[grid_x > _SEA_EAST_E]  = False
+    mask[grid_x < _SEA_WEST_E]  = False
+    return mask
+
+
 def add_idw_surface(
     ax,
     df: pd.DataFrame,
@@ -362,6 +477,7 @@ def add_idw_surface(
     zorder: int = 2,
     vmin: float = None,
     vmax: float = None,
+    apply_site_mask: bool = False,
 ):
     """
     Interpolate a per-well metric to a regular grid and render as pcolormesh.
@@ -371,6 +487,10 @@ def add_idw_surface(
     ``ridge_mask_threshold`` metres are masked (set to NaN). This correctly
     removes inter-dune ridge areas that lie between wells and are not
     ecologically representative of the interpolated value.
+
+    Optionally applies make_site_mask() to clip the surface to the NNR site
+    boundary (apply_site_mask=True). This is the KML-boundary mask, distinct
+    from the ridge mask above — both can be active simultaneously.
 
     The caller is responsible for attaching a colorbar and drawing contours
     using the returned objects.
@@ -389,8 +509,10 @@ def add_idw_surface(
         Well DEM elevation column used to build the IDW well-surface for ridge
         masking (default 'dem'). Ignored if dem_data is None.
     xi, yi : np.ndarray
-        1-D arrays defining the interpolation grid. Defaults to
-        np.arange(240200, 243800, 50) and np.arange(362200, 365800, 50).
+        1-D arrays defining the interpolation grid. Defaults to the canonical
+        site extent from config.SITE_MAP_* at 50 m resolution:
+        np.arange(SITE_MAP_EAST_MIN, SITE_MAP_EAST_MAX, 50) and
+        np.arange(SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX, 50).
     method : str
         scipy.interpolate.griddata method ('linear', 'nearest', 'cubic').
     ridge_mask_threshold : float
@@ -412,6 +534,9 @@ def add_idw_surface(
         Drawing order (default 2 — above hillshade, below wells/legend).
     vmin, vmax : float or None
         Colour scale limits used when norm is None.
+    apply_site_mask : bool
+        If True, calls make_site_mask(gx, gy) after ridge masking and sets
+        cells outside the NNR boundary to NaN. Default False.
 
     Returns
     -------
@@ -422,12 +547,13 @@ def add_idw_surface(
     gy : np.ndarray
         2-D grid northing coordinates.
     surf_masked : np.ndarray
-        The interpolated surface after ridge masking (NaN where masked).
+        The interpolated surface after ridge and/or site masking (NaN where
+        masked).
     """
     if xi is None:
-        xi = np.arange(240200, 243800, 50)
+        xi = np.arange(SITE_MAP_EAST_MIN, SITE_MAP_EAST_MAX, 50)
     if yi is None:
-        yi = np.arange(362200, 365800, 50)
+        yi = np.arange(SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX, 50)
 
     gx, gy = np.meshgrid(xi, yi)
     pts = df[[easting_col, northing_col]].values
@@ -459,6 +585,11 @@ def add_idw_surface(
 
         ridge_mask = (dem_at_grid - surf_dem) > ridge_mask_threshold
         surf_masked = np.where(ridge_mask, np.nan, surf)
+
+    # ── Site boundary masking ─────────────────────────────────────────────────
+    if apply_site_mask:
+        _site_mask = make_site_mask(gx, gy)
+        surf_masked = np.where(_site_mask, surf_masked, np.nan)
 
     # ── Render ────────────────────────────────────────────────────────────
     kwargs = dict(shading="auto", alpha=alpha, zorder=zorder)

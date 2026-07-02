@@ -28,7 +28,23 @@ References:
     Freeman, S. (2008) Hydrological impact of Corsican pine at Newborough Warren.
 """
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-06-29
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-07-01
+# 1.5.0 (2026-07-01): map_utils refactor.
+#         make_site_mask() removed from this script — moved to map_utils v1.4.0
+#         (single shared implementation). SEA_SOUTH_N/SEA_EAST_E/SEA_WEST_E
+#         module constants removed (now _SEA_* in map_utils). All four IDW
+#         contour-map functions (plot_contour_map, plot_contour_map_extended,
+#         plot_halflife_map, plot_drainage_timescale_map) refactored to route
+#         through add_idw_surface() + make_site_mask from map_utils, replacing
+#         four identical inline power-2 IDW implementations and four local grid
+#         definitions. Interpolation method changes from power-2 IDW to linear
+#         griddata (map_utils standard); surface rendered as pcolormesh with
+#         contour lines overlaid. plot_drainage_timescale_map() removed — dead
+#         code since v1.4.0 (τ CSV still written; only the figure is gone).
+#         Hardcoded "2005–2026" year strings in all map titles replaced with
+#         dynamic end_year from REFERENCE_CUTOFF_DATE. REFERENCE_CUTOFF_DATE
+#         added to config import. add_idw_surface and make_site_mask added to
+#         map_utils import.
 # 1.4.0 (2026-06-29): Replace τ map with drainage decay half-life map
 #         (t½ = ln(2)/β₃). Fig 46 now shows t½ (single panel). Fig 48
 #         synthesis scatter y-axis changed from τ to t½. τ = Sy/β₃ retained
@@ -38,15 +54,6 @@ __version__ = "1.4.0"  # Hollingham (2026) — 2026-06-29
 #         OUT_18_HALFLIFE_MAP (18_wtf_05_halflife_map.png); removed
 #         OUT_18_DRAINAGE_TIMESCALE map path (CSV path retained).
 #         18_report_numbers.csv gains t½ mean/min/max per cluster.
-# 1.3.0 (2026-06-29): Add Fig 46a — per-well 1/β₃ recession e-folding time map
-#         (18_wtf_05a_recip_beta3_map.png). τ map renamed to Fig 46b
-#         (18_wtf_05b_drainage_timescale_map.png). New functions:
-#         compute_recip_beta3(), plot_recip_beta3_map(). Both called in
-#         sequence in main() under --supplementary. 18_report_numbers.csv
-#         gains per-cluster 1/β₃ min/max rows alongside existing τ rows.
-#         paths.py: OUT_18_RECIP_BETA3_MAP added; OUT_18_DRAINAGE_TIMESCALE
-#         renamed to 18_wtf_05b_*.
-# 1.2.1 (2026-06-29): Fix colourbar label on drainage-timescale map
 #         (18_wtf_05_drainage_timescale_map.png): "Drainage timescale" →
 #         "Storage–drainage index" — missed instance from the v1.1.0
 #         terminology sweep. Map title and scatter y-axis were already
@@ -102,83 +109,12 @@ from utils.report_numbers_utils import ReportNumbers
 from utils.config import (
     CLUSTER_LABELS, CLUSTER_COLOURS, CLUSTER_MARKERS,
     FOREST_INTERCEPTION, FOREST_CIDS,
-    BW_MODE, get_cmap,
+    BW_MODE, get_cmap, REFERENCE_CUTOFF_DATE,
 )
 make_all_dirs()
 
-# ── Site boundary constants (shared with script 19) ───────────────────────────
-SEA_SOUTH_N = 362350   # m OSGB36 — southern shoreline Northing
-SEA_EAST_E  = 243850   # m OSGB36 — eastern (Menai Strait) Easting
-SEA_WEST_E  = 239200   # m OSGB36 — western estuary Easting
-
-
-def make_site_mask(grid_x, grid_y):
-    """
-    Boolean mask for the IDW interpolation domain, clipped to the actual
-    site boundary.
-
-    Primary: pure XML + pyproj + shapely parse of site_boundary.kml
-    (falls back to streams.kml). No fiona/KML driver needed.
-    Fallback: rectangular clip to the three sea-boundary lines.
-    """
-    import warnings
-    flat = np.column_stack([grid_x.ravel(), grid_y.ravel()])
-
-    _bnd_path = DATA_KML_SITE_BOUNDARY
-    if not _bnd_path.exists():
-        _bnd_path = DATA_KML_STREAMS
-    if _bnd_path.exists():
-        try:
-            import xml.etree.ElementTree as _ET
-            from pyproj import Transformer as _Tr
-            from shapely.geometry import Polygon as _Poly
-            from shapely.ops import unary_union as _union
-            from matplotlib.path import Path as _MplPath
-
-            _tr = _Tr.from_crs("EPSG:4326", "EPSG:27700", always_xy=True)
-            _root = _ET.parse(str(_bnd_path)).getroot()
-            _polys = []
-
-            def _parse(el):
-                tag = el.tag.split("}")[-1] if "}" in el.tag else el.tag
-                if tag == "coordinates":
-                    pts = []
-                    for tok in (el.text or "").strip().split():
-                        p = tok.split(",")
-                        if len(p) >= 2:
-                            try: pts.append((float(p[0]), float(p[1])))
-                            except ValueError: pass
-                    if len(pts) >= 3:
-                        lons = [p[0] for p in pts]
-                        lats = [p[1] for p in pts]
-                        ex, ny = _tr.transform(lons, lats)
-                        try: _polys.append(_Poly(zip(ex, ny)))
-                        except Exception: pass
-                for child in el:
-                    _parse(child)
-
-            _parse(_root)
-
-            if _polys:
-                _dissolved = _union(_polys)
-                _dissolved = _dissolved.buffer(100)
-                if _dissolved.geom_type == "MultiPolygon":
-                    _dissolved = max(_dissolved.geoms, key=lambda g: g.area)
-                _coords = list(_dissolved.exterior.coords)
-                _path = _MplPath([(c[0], c[1]) for c in _coords])
-                _inside = _path.contains_points(flat)
-                print(f"  Site mask: {_inside.sum()} of {len(_inside)} grid cells inside boundary")
-                return _inside.reshape(grid_x.shape)
-        except Exception as e:
-            warnings.warn(f"site_boundary.kml mask failed ({e}) — "
-                          "falling back to rectangular sea-boundary mask.")
-
-    # Fallback: rectangular clip to sea boundaries
-    mask = np.ones(grid_x.shape, dtype=bool)
-    mask[grid_y < SEA_SOUTH_N] = False
-    mask[grid_x > SEA_EAST_E]  = False
-    mask[grid_x < SEA_WEST_E]  = False
-    return mask
+# ── Dynamic end year for map titles ───────────────────────────────────────────
+_END_YEAR = pd.Timestamp(REFERENCE_CUTOFF_DATE).year
 
 
 # Wells excluded from contour interpolation — physically outside sand aquifer
@@ -325,7 +261,7 @@ def plot_spatial_map(well_results, out_path):
     plot_metric_map(
         map_df      = map_df,
         value_col   = "WTF_Sy_median",
-        title       = ("WTF Specific Yield (event median) — Newborough Warren 2005–2026\n"
+        title       = (f"WTF Specific Yield (event median) — Newborough Warren 2005–{_END_YEAR}\n"
                        "Forest cluster values (C4, C5) corrected for 24% canopy interception "
                        "(Freeman, 2008); spatial canopy variability means "
                        "Forest estimates are approximate"),
@@ -342,35 +278,14 @@ def plot_contour_map(well_results, out_path):
     """
     IDW-interpolated contour surface of WTF Sy across the site.
     Greyscale hillshade DEM background (load_dem_hillshade) with semi-transparent
-    Sy surface overlaid. Interpolation clipped to fixed study area bounds
-    (E 240200–243800, N 362200–365800) matching the rest of the pipeline.
+    Sy pcolormesh surface overlaid. Interpolation (linear griddata via
+    add_idw_surface) clipped to the NNR site boundary via make_site_mask.
     Forest cluster wells hatched to signal interception uncertainty.
     """
     from matplotlib.lines import Line2D
-    from utils.map_utils import load_dem_hillshade, add_kml_features, add_en_axes
-
-    # ── Study area bounds (consistent with add_idw_surface defaults) ──────────
-    XI_MIN, XI_MAX = 240200, 243800
-    YI_MIN, YI_MAX = 362200, 365800
-    GRID_STEP = 50
-
-    x  = well_results["Easting"].values
-    y  = well_results["Northing"].values
-    sy = well_results["Sy_median"].values
-
-    xi = np.arange(XI_MIN, XI_MAX, GRID_STEP)
-    yi = np.arange(YI_MIN, YI_MAX, GRID_STEP)
-    Xi, Yi = np.meshgrid(xi, yi)
-
-    def idw(xq, yq, xs, ys, vs, power=2):
-        dist = np.sqrt((xq - xs[:,None,None])**2 + (yq - ys[:,None,None])**2)
-        dist = np.where(dist == 0, 1e-10, dist)
-        w = 1.0 / dist**power
-        return np.sum(w * vs[:,None,None], axis=0) / np.sum(w, axis=0)
-
-    Zi = idw(Xi, Yi, x, y, sy)
-    site_mask = make_site_mask(Xi, Yi)
-    Zi_masked = np.ma.masked_where(~site_mask | np.isnan(Zi), Zi)
+    from utils.map_utils import (
+        load_dem_hillshade, add_kml_features, add_en_axes, add_idw_surface,
+    )
 
     # ── Figure ────────────────────────────────────────────────────────────────
     fig, ax = plt.subplots(figsize=(12, 10), facecolor="white", dpi=200)
@@ -383,13 +298,18 @@ def plot_contour_map(well_results, out_path):
         warn("DEM hillshade unavailable — plain background used")
         ax.set_facecolor("#EEF2F6")
 
-    # Layer 2 — semi-transparent Sy surface
-    cf = ax.contourf(Xi, Yi, Zi_masked, levels=20,
-                     cmap=get_cmap("RdYlGn"), vmin=0.10, vmax=0.40,
-                     alpha=0.65, zorder=2)
-    cl = ax.contour(Xi, Yi, Zi_masked, levels=10,
-                    colors="black" if BW_MODE else "white", linewidths=0.6, alpha=0.6, zorder=3)
-    ax.clabel(cl, fmt="%.2f", fontsize=7, colors="black" if BW_MODE else "white")
+    # Layer 2 — semi-transparent Sy surface (pcolormesh + contour lines)
+    mesh, gx, gy, surf_masked = add_idw_surface(
+        ax, well_results, "Sy_median",
+        easting_col="Easting", northing_col="Northing",
+        cmap=get_cmap("RdYlGn"), vmin=0.10, vmax=0.40,
+        alpha=0.65, zorder=2, apply_site_mask=True,
+    )
+    cl = ax.contour(gx, gy, surf_masked, levels=10,
+                    colors="black" if BW_MODE else "white",
+                    linewidths=0.6, alpha=0.6, zorder=3)
+    ax.clabel(cl, fmt="%.2f", fontsize=7,
+              colors="black" if BW_MODE else "white")
 
     # Layer 3 — KML site features
     site_feature_handles = []
@@ -400,11 +320,9 @@ def plot_contour_map(well_results, out_path):
         warn(f"KML features failed: {e}")
 
     # Colourbar
-    cbar = fig.colorbar(cf, ax=ax, fraction=0.025, pad=0.01, shrink=0.75)
-    cbar.set_label("Specific yield Sy  (WTF event median, IDW interpolation)",
+    cbar = fig.colorbar(mesh, ax=ax, fraction=0.025, pad=0.01, shrink=0.75)
+    cbar.set_label("Specific yield Sy  (WTF event median, linear interpolation)",
                    fontsize=10, labelpad=10)
-
-    # CLUSTER_COLOURS / CLUSTER_LABELS / CLUSTER_MARKERS imported from utils.config.
 
     cluster_handles = []
     for cid in sorted(CLUSTER_LABELS.keys()):
@@ -443,11 +361,11 @@ def plot_contour_map(well_results, out_path):
                   framealpha=0.95, edgecolor="#CCCCCC")
 
     ax.set_title(
-        "Interpolated WTF Specific Yield Surface — Newborough Warren 2005–2026\n"
-        "IDW interpolation (power=2) of event-based median Sy per well  |  "
+        f"Interpolated WTF Specific Yield Surface — Newborough Warren 2005–{_END_YEAR}\n"
+        "Linear griddata interpolation of event-based median Sy per well  |  "
         "Greyscale hillshade DEM + KML overlays\n"
         "Forest cluster values (C4, C5) interception-corrected (Freeman, 2008) — "
-        "contours in Forest zone are approximate",
+        "interpolation in Forest zone is approximate",
         fontsize=9, fontweight="bold", pad=10)
 
     ax.tick_params(labelsize=8)
@@ -553,20 +471,17 @@ def wtf_extended_wells(climate, locations, out_root):
 
 def plot_contour_map_extended(ref_results, ext_results, out_path):
     """
-    IDW contour surface using reference + extended wells combined.
-    Greyscale hillshade DEM background; interpolation clipped to fixed study
-    area bounds (E 240200–243800, N 362200–365800).
+    Linear griddata surface using reference + extended wells combined.
+    Greyscale hillshade DEM background; interpolation clipped to NNR site
+    boundary via make_site_mask (add_idw_surface apply_site_mask=True).
     Extended wells shown as open symbols to distinguish from reference wells.
     """
     from matplotlib.lines import Line2D
-    from utils.map_utils import load_dem_hillshade, add_kml_features, add_en_axes
+    from utils.map_utils import (
+        load_dem_hillshade, add_kml_features, add_en_axes, add_idw_surface,
+    )
 
-    # ── Study area bounds ─────────────────────────────────────────────────────
-    XI_MIN, XI_MAX = 240200, 243800
-    YI_MIN, YI_MAX = 362200, 365800
-    GRID_STEP = 50
-
-    # Add Network column to ref_results if missing
+    # Add Network/Ridge_Flag columns to ref_results if missing
     ref = ref_results.copy()
     if 'Network' not in ref.columns:
         ref['Network'] = 'Reference'
@@ -582,24 +497,6 @@ def plot_contour_map_extended(ref_results, ext_results, out_path):
 
     combined = pd.concat([ref, ext_interp], ignore_index=True)
 
-    x  = combined['Easting'].values
-    y  = combined['Northing'].values
-    sy = combined['Sy_median'].values
-
-    xi = np.arange(XI_MIN, XI_MAX, GRID_STEP)
-    yi = np.arange(YI_MIN, YI_MAX, GRID_STEP)
-    Xi, Yi = np.meshgrid(xi, yi)
-
-    def idw(xq, yq, xs, ys, vs, power=2):
-        dist = np.sqrt((xq - xs[:,None,None])**2 + (yq - ys[:,None,None])**2)
-        dist = np.where(dist == 0, 1e-10, dist)
-        w = 1.0 / dist**power
-        return np.sum(w * vs[:,None,None], axis=0) / np.sum(w, axis=0)
-
-    Zi = idw(Xi, Yi, x, y, sy)
-    site_mask = make_site_mask(Xi, Yi)
-    Zi_masked = np.ma.masked_where(~site_mask | np.isnan(Zi), Zi)
-
     # ── Figure ────────────────────────────────────────────────────────────────
     fig, ax = plt.subplots(figsize=(12, 10), facecolor='white', dpi=200)
     add_en_axes(ax)
@@ -611,11 +508,14 @@ def plot_contour_map_extended(ref_results, ext_results, out_path):
         warn("DEM hillshade unavailable — plain background used")
         ax.set_facecolor('#EEF2F6')
 
-    # Layer 2 — semi-transparent Sy surface
-    cf = ax.contourf(Xi, Yi, Zi_masked, levels=20,
-                     cmap=get_cmap('RdYlGn'), vmin=0.10, vmax=0.40,
-                     alpha=0.65, zorder=2)
-    cl = ax.contour(Xi, Yi, Zi_masked, levels=10,
+    # Layer 2 — semi-transparent Sy surface (pcolormesh + contour lines)
+    mesh, gx, gy, surf_masked = add_idw_surface(
+        ax, combined, 'Sy_median',
+        easting_col='Easting', northing_col='Northing',
+        cmap=get_cmap('RdYlGn'), vmin=0.10, vmax=0.40,
+        alpha=0.65, zorder=2, apply_site_mask=True,
+    )
+    cl = ax.contour(gx, gy, surf_masked, levels=10,
                     colors='white', linewidths=0.6, alpha=0.6, zorder=3)
     ax.clabel(cl, fmt='%.2f', fontsize=7, colors='white')
 
@@ -627,11 +527,9 @@ def plot_contour_map_extended(ref_results, ext_results, out_path):
     except Exception as e:
         warn(f"KML features failed: {e}")
 
-    cbar = fig.colorbar(cf, ax=ax, fraction=0.025, pad=0.01, shrink=0.75)
-    cbar.set_label('Specific yield Sy  (WTF event median, IDW interpolation)',
+    cbar = fig.colorbar(mesh, ax=ax, fraction=0.025, pad=0.01, shrink=0.75)
+    cbar.set_label('Specific yield Sy  (WTF event median, linear interpolation)',
                    fontsize=10, labelpad=10)
-
-    # CLUSTER_COLOURS / CLUSTER_LABELS / CLUSTER_MARKERS imported from utils.config.
 
     cluster_handles = []
 
@@ -716,8 +614,8 @@ def plot_contour_map_extended(ref_results, ext_results, out_path):
                   framealpha=0.95, edgecolor='#CCCCCC')
 
     ax.set_title(
-        'Interpolated WTF Specific Yield Surface — Reference + Extended Network\n'
-        'Newborough Warren 2005–2026  |  IDW interpolation (power=2)  |  '
+        f'Interpolated WTF Specific Yield Surface — Reference + Extended Network\n'
+        f'Newborough Warren 2005–{_END_YEAR}  |  Linear griddata interpolation  |  '
         'Greyscale hillshade DEM + KML overlays\n'
         'Filled markers = reference wells; open markers = extended wells  |  '
         'Forest clusters (C4, C5) interception-corrected (Freeman, 2008)',
@@ -888,48 +786,26 @@ def compute_recip_beta3():
 
 def plot_halflife_map(rb3_df, out_path):
     """
-    IDW-interpolated contour surface of drainage decay half-life
-    t½ = ln(2)/β₃ (months).
+    Linear griddata surface of drainage decay half-life t½ = ln(2)/β₃ (months).
 
     Fig 46. The half-life is the time for excess groundwater storage above the
     drainage datum to drain to half its initial value through natural discharge
-    alone. Mirrors the IDW/mask/marker pattern of the other spatial maps in
-    this script. Colour scale independent of all other figures. CEH13 and
-    CEH14 excluded from interpolation and shown as red crosses.
+    alone. Surface rendered as pcolormesh via add_idw_surface, clipped to the
+    NNR site boundary via make_site_mask. CEH13 and CEH14 excluded from
+    interpolation and shown as red crosses.
     """
     from matplotlib.lines import Line2D
-    from utils.map_utils import load_dem_hillshade, add_kml_features, add_en_axes
-
-    # ── Study area bounds ─────────────────────────────────────────────────────
-    XI_MIN, XI_MAX = 240200, 243800
-    YI_MIN, YI_MAX = 362200, 365800
-    GRID_STEP = 50
+    from utils.map_utils import (
+        load_dem_hillshade, add_kml_features, add_en_axes, add_idw_surface,
+    )
 
     valid    = rb3_df[~rb3_df["Excluded"]].copy()
     excluded = rb3_df[rb3_df["Excluded"]].copy()
 
-    x  = valid["Easting"].values
-    y  = valid["Northing"].values
-    hl = valid["half_life_months"].values
-
-    xi = np.arange(XI_MIN, XI_MAX, GRID_STEP)
-    yi = np.arange(YI_MIN, YI_MAX, GRID_STEP)
-    Xi, Yi = np.meshgrid(xi, yi)
-
-    def idw(xq, yq, xs, ys, vs, power=2):
-        dist = np.sqrt((xq - xs[:, None, None])**2 + (yq - ys[:, None, None])**2)
-        dist = np.where(dist == 0, 1e-10, dist)
-        w = 1.0 / dist**power
-        return np.sum(w * vs[:, None, None], axis=0) / np.sum(w, axis=0)
-
-    Zi = idw(Xi, Yi, x, y, hl)
-    site_mask = make_site_mask(Xi, Yi)
-    Zi_masked = np.ma.masked_where(~site_mask | np.isnan(Zi), Zi)
-
-    # ── Colourmap ─────────────────────────────────────────────────────────────
+    hl     = valid["half_life_months"].values
     hl_min = np.floor(hl.min())
     hl_max = np.ceil(hl.max())
-    cmap = get_cmap("RdYlBu_r")  # blue = short half-life (fast), red = long (slow)
+    cmap   = get_cmap("RdYlBu_r")  # blue = short half-life (fast), red = long (slow)
 
     # ── Figure ────────────────────────────────────────────────────────────────
     fig, ax = plt.subplots(figsize=(12, 10), facecolor="white", dpi=200)
@@ -942,11 +818,14 @@ def plot_halflife_map(rb3_df, out_path):
         warn("DEM hillshade unavailable — plain background used")
         ax.set_facecolor("#EEF2F6")
 
-    # Layer 2 — semi-transparent t½ surface
-    cf = ax.contourf(Xi, Yi, Zi_masked, levels=20,
-                     cmap=cmap, vmin=hl_min, vmax=hl_max,
-                     alpha=0.65, zorder=2)
-    cl = ax.contour(Xi, Yi, Zi_masked, levels=10,
+    # Layer 2 — semi-transparent t½ surface (pcolormesh + contour lines)
+    mesh, gx, gy, surf_masked = add_idw_surface(
+        ax, valid, "half_life_months",
+        easting_col="Easting", northing_col="Northing",
+        cmap=cmap, vmin=hl_min, vmax=hl_max,
+        alpha=0.65, zorder=2, apply_site_mask=True,
+    )
+    cl = ax.contour(gx, gy, surf_masked, levels=10,
                     colors="black" if BW_MODE else "white",
                     linewidths=0.6, alpha=0.6, zorder=3)
     ax.clabel(cl, fmt="%.1f", fontsize=7,
@@ -961,7 +840,7 @@ def plot_halflife_map(rb3_df, out_path):
         warn(f"KML features failed: {e}")
 
     # Colourbar
-    cbar = fig.colorbar(cf, ax=ax, fraction=0.025, pad=0.01, shrink=0.75)
+    cbar = fig.colorbar(mesh, ax=ax, fraction=0.025, pad=0.01, shrink=0.75)
     cbar.set_label("Drainage decay half-life  t½ = ln(2)/β₃  (months)",
                    fontsize=10, labelpad=10)
 
@@ -1020,8 +899,8 @@ def plot_halflife_map(rb3_df, out_path):
                   framealpha=0.95, edgecolor="#CCCCCC")
 
     ax.set_title(
-        "Drainage Decay Half-life  t½ = ln(2)/β₃  — Newborough Warren 2005–2026\n"
-        "IDW interpolation (power=2)  |  β₃ from SSM per-well fit (Section 3.4.3)\n"
+        f"Drainage Decay Half-life  t½ = ln(2)/β₃  — Newborough Warren 2005–{_END_YEAR}\n"
+        "Linear griddata interpolation  |  β₃ from SSM per-well fit (Section 3.4.3)\n"
         "High t½ (red): excess groundwater persists longer after recharge  |  "
         "CEH13, CEH14 excluded",
         fontsize=9, fontweight="bold", pad=10)
@@ -1031,295 +910,11 @@ def plot_halflife_map(rb3_df, out_path):
     fig.savefig(out_path, dpi=200, bbox_inches="tight", facecolor="white")
     plt.close()
     print(f"  Half-life map saved → {out_path.name}")
-    """
-    IDW-interpolated contour surface of recession e-folding time t_R = 1/β₃ (months).
-
-    Fig 46a. Mirrors plot_drainage_timescale_map() exactly: same IDW function,
-    same make_site_mask(), same load_dem_hillshade() call, same marker/legend
-    pattern, same figure size. Colour scale is independent of Fig 46b (τ map).
-    CEH13 and CEH14 excluded from interpolation and shown as red crosses.
-    """
-    from matplotlib.lines import Line2D
-    from utils.map_utils import load_dem_hillshade, add_kml_features, add_en_axes
-
-    # ── Study area bounds ─────────────────────────────────────────────────────
-    XI_MIN, XI_MAX = 240200, 243800
-    YI_MIN, YI_MAX = 362200, 365800
-    GRID_STEP = 50
-
-    valid    = rb3_df[~rb3_df["Excluded"]].copy()
-    excluded = rb3_df[rb3_df["Excluded"]].copy()
-
-    x   = valid["Easting"].values
-    y   = valid["Northing"].values
-    rb3 = valid["recip_beta3_months"].values
-
-    xi = np.arange(XI_MIN, XI_MAX, GRID_STEP)
-    yi = np.arange(YI_MIN, YI_MAX, GRID_STEP)
-    Xi, Yi = np.meshgrid(xi, yi)
-
-    def idw(xq, yq, xs, ys, vs, power=2):
-        dist = np.sqrt((xq - xs[:, None, None])**2 + (yq - ys[:, None, None])**2)
-        dist = np.where(dist == 0, 1e-10, dist)
-        w = 1.0 / dist**power
-        return np.sum(w * vs[:, None, None], axis=0) / np.sum(w, axis=0)
-
-    Zi = idw(Xi, Yi, x, y, rb3)
-    site_mask = make_site_mask(Xi, Yi)
-    Zi_masked = np.ma.masked_where(~site_mask | np.isnan(Zi), Zi)
-
-    # ── Colourmap and range ───────────────────────────────────────────────────
-    rb3_min = np.floor(rb3.min())
-    rb3_max = np.ceil(rb3.max())
-    cmap = get_cmap("RdYlBu_r")  # blue = short e-folding (fast), red = long (slow)
-
-    # ── Figure ────────────────────────────────────────────────────────────────
-    fig, ax = plt.subplots(figsize=(12, 10), facecolor="white", dpi=200)
-    add_en_axes(ax)
-
-    # Layer 1 — greyscale hillshade DEM
-    _, dem_loaded, dem_e_arr, dem_n_arr, dem_data = load_dem_hillshade(
-        ax, DATA_DIR, alpha=0.35, vert_exag=3.0, zorder=1)
-    if not dem_loaded:
-        warn("DEM hillshade unavailable — plain background used")
-        ax.set_facecolor("#EEF2F6")
-
-    # Layer 2 — semi-transparent 1/β₃ surface
-    cf = ax.contourf(Xi, Yi, Zi_masked, levels=20,
-                     cmap=cmap, vmin=rb3_min, vmax=rb3_max,
-                     alpha=0.65, zorder=2)
-    cl = ax.contour(Xi, Yi, Zi_masked, levels=10,
-                    colors="black" if BW_MODE else "white", linewidths=0.6, alpha=0.6, zorder=3)
-    ax.clabel(cl, fmt="%.1f", fontsize=7, colors="black" if BW_MODE else "white")
-
-    # Layer 3 — KML site features
-    site_feature_handles = []
-    try:
-        site_feature_handles = add_kml_features(ax, DATA_DIR)
-        print(f"  KML features added ({len(site_feature_handles)} layers)")
-    except Exception as e:
-        warn(f"KML features failed: {e}")
-
-    # Colourbar — independent scale
-    cbar = fig.colorbar(cf, ax=ax, fraction=0.025, pad=0.01, shrink=0.75)
-    cbar.set_label("Recession e-folding time  t_R = 1/β₃  (months)",
-                   fontsize=10, labelpad=10)
-
-    # ── Well markers ──────────────────────────────────────────────────────────
-    cluster_handles = []
-    for cid in sorted(CLUSTER_LABELS.keys()):
-        sub = valid[valid["Cluster"] == cid]
-        if sub.empty:
-            continue
-        hatch = "//" if cid in FOREST_CIDS else None
-        ax.scatter(sub["Easting"], sub["Northing"],
-                   c=CLUSTER_COLOURS[cid],
-                   s=60, marker=CLUSTER_MARKERS[cid],
-                   edgecolors="black", linewidths=0.8,
-                   alpha=0.92, zorder=5, hatch=hatch)
-        cluster_handles.append(Line2D(
-            [0], [0], marker=CLUSTER_MARKERS[cid], color="w",
-            markerfacecolor=CLUSTER_COLOURS[cid],
-            markeredgecolor="black", markersize=10,
-            label=CLUSTER_LABELS[cid]))
-
-    # 1/β₃ value labels on included wells
-    for _, row in valid.iterrows():
-        ax.annotate(f"{row['recip_beta3_months']:.1f}",
-                    (row["Easting"], row["Northing"]),
-                    xytext=(4, 4), textcoords="offset points",
-                    fontsize=6, color="#111111", zorder=6)
-
-    # Excluded wells — red crosses
-    exclude_handles = []
-    if not excluded.empty:
-        ax.scatter(excluded["Easting"], excluded["Northing"],
-                   marker="x", c="red", s=120,
-                   linewidths=2.0, zorder=7)
-        for _, row in excluded.iterrows():
-            reason = row["Exclude_Reason"] if row["Exclude_Reason"] else "excluded"
-            ax.annotate(f"{row['Well'].upper()}\n({reason})",
-                        (row["Easting"], row["Northing"]),
-                        xytext=(6, 6), textcoords="offset points",
-                        fontsize=6, color="red", style="italic", zorder=8)
-        exclude_handles.append(
-            Line2D([0], [0], marker="x", color="red", markersize=9,
-                   linewidth=2, linestyle="none",
-                   label="Excluded (negative or near-zero β₃)"))
-
-    # ── Legends ───────────────────────────────────────────────────────────────
-    cluster_leg = ax.legend(
-        handles=cluster_handles + exclude_handles, loc="lower left",
-        title="Cluster  (// = forest interception correction)",
-        fontsize=8, framealpha=0.95, edgecolor="#CCCCCC")
-    ax.add_artist(cluster_leg)
-
-    if site_feature_handles:
-        ax.legend(handles=site_feature_handles, title="Site Features",
-                  loc="upper left", fontsize=8,
-                  framealpha=0.95, edgecolor="#CCCCCC")
-
-    ax.set_title(
-        "Recession E-folding Time  t_R = 1/β₃  — Newborough Warren 2005–2026\n"
-        "IDW interpolation (power=2)  |  β₃ from SSM per-well fit (Section 3.4.3)\n"
-        "High t_R (red): aquifer sustains elevated head longer after recharge  |  "
-        "CEH13, CEH14 excluded",
-        fontsize=9, fontweight="bold", pad=10)
-
-    ax.tick_params(labelsize=8)
-    plt.tight_layout()
-    fig.savefig(out_path, dpi=200, bbox_inches="tight", facecolor="white")
-    plt.close()
-    print(f"  Recession e-folding time map saved → {out_path.name}")
 
 
-def plot_drainage_timescale_map(tau_df, out_path):
-    """
-    IDW-interpolated contour surface of drainage timescale τ = Sy / β₃ (months).
-
-    Layout mirrors plot_contour_map(): greyscale hillshade DEM base, semi-transparent
-    τ surface, KML overlays, cluster-coloured well markers with τ value labels.
-    Excluded wells (CEH12, CEH15, CEH14) shown as red crosses outside interpolation.
-    """
-    from matplotlib.lines import Line2D
-    from utils.map_utils import load_dem_hillshade, add_kml_features, add_en_axes
-
-    # ── Study area bounds ─────────────────────────────────────────────────────
-    XI_MIN, XI_MAX = 240200, 243800
-    YI_MIN, YI_MAX = 362200, 365800
-    GRID_STEP = 50
-
-    # Separate included vs excluded
-    valid = tau_df[~tau_df["Excluded"]].copy()
-    excluded = tau_df[tau_df["Excluded"]].copy()
-
-    x   = valid["Easting"].values
-    y   = valid["Northing"].values
-    tau = valid["tau_months"].values
-
-    xi = np.arange(XI_MIN, XI_MAX, GRID_STEP)
-    yi = np.arange(YI_MIN, YI_MAX, GRID_STEP)
-    Xi, Yi = np.meshgrid(xi, yi)
-
-    def idw(xq, yq, xs, ys, vs, power=2):
-        dist = np.sqrt((xq - xs[:, None, None])**2 + (yq - ys[:, None, None])**2)
-        dist = np.where(dist == 0, 1e-10, dist)
-        w = 1.0 / dist**power
-        return np.sum(w * vs[:, None, None], axis=0) / np.sum(w, axis=0)
-
-    Zi = idw(Xi, Yi, x, y, tau)
-    site_mask = make_site_mask(Xi, Yi)
-    Zi_masked = np.ma.masked_where(~site_mask | np.isnan(Zi), Zi)
-
-    # ── Colourmap and range ───────────────────────────────────────────────────
-    tau_min = np.floor(tau.min())
-    tau_max = np.ceil(tau.max())
-    # Use a diverging-ish scheme: fast drainage (low τ) = cool, sluggish = warm
-    cmap = get_cmap("RdYlBu_r")  # colour: red = high τ (sluggish), blue = low τ (fast)
-                                  # BW: light grey = low τ (fast), dark = high τ (sluggish)
-
-    # ── Figure ────────────────────────────────────────────────────────────────
-    fig, ax = plt.subplots(figsize=(12, 10), facecolor="white", dpi=200)
-    add_en_axes(ax)
-
-    # Layer 1 — greyscale hillshade DEM
-    _, dem_loaded, dem_e_arr, dem_n_arr, dem_data = load_dem_hillshade(
-        ax, DATA_DIR, alpha=0.35, vert_exag=3.0, zorder=1)
-    if not dem_loaded:
-        warn("DEM hillshade unavailable — plain background used")
-        ax.set_facecolor("#EEF2F6")
-
-    # Layer 2 — semi-transparent τ surface
-    cf = ax.contourf(Xi, Yi, Zi_masked, levels=20,
-                     cmap=cmap, vmin=tau_min, vmax=tau_max,
-                     alpha=0.65, zorder=2)
-    cl = ax.contour(Xi, Yi, Zi_masked, levels=10,
-                    colors="black" if BW_MODE else "white", linewidths=0.6, alpha=0.6, zorder=3)
-    ax.clabel(cl, fmt="%.1f", fontsize=7, colors="black" if BW_MODE else "white")
-
-    # Layer 3 — KML site features
-    site_feature_handles = []
-    try:
-        site_feature_handles = add_kml_features(ax, DATA_DIR)
-        print(f"  KML features added ({len(site_feature_handles)} layers)")
-    except Exception as e:
-        warn(f"KML features failed: {e}")
-
-    # Colourbar
-    cbar = fig.colorbar(cf, ax=ax, fraction=0.025, pad=0.01, shrink=0.75)
-    cbar.set_label("Storage–drainage index  τ = Sy / β₃  (months)",
-                   fontsize=10, labelpad=10)
-
-    # ── Well markers ──────────────────────────────────────────────────────────
-    cluster_handles = []
-    for cid in sorted(CLUSTER_LABELS.keys()):
-        sub = valid[valid["Cluster"] == cid]
-        if sub.empty:
-            continue
-        sizes = 60 + (sub["n_events"] - 20) * 1.2
-        hatch = "//" if cid in FOREST_CIDS else None
-        ax.scatter(sub["Easting"], sub["Northing"],
-                   c=CLUSTER_COLOURS[cid],
-                   s=sizes, marker=CLUSTER_MARKERS[cid],
-                   edgecolors="black", linewidths=0.8,
-                   alpha=0.92, zorder=5, hatch=hatch)
-        cluster_handles.append(Line2D(
-            [0], [0], marker=CLUSTER_MARKERS[cid], color="w",
-            markerfacecolor=CLUSTER_COLOURS[cid],
-            markeredgecolor="black", markersize=10,
-            label=CLUSTER_LABELS[cid]))
-
-    # τ value labels on included wells
-    for _, row in valid.iterrows():
-        ax.annotate(f"{row['tau_months']:.1f}",
-                    (row["Easting"], row["Northing"]),
-                    xytext=(4, 4), textcoords="offset points",
-                    fontsize=6, color="#111111", zorder=6)
-
-    # Excluded wells — red crosses
-    exclude_handles = []
-    if not excluded.empty:
-        ax.scatter(excluded["Easting"], excluded["Northing"],
-                   marker="x", c="red", s=120,
-                   linewidths=2.0, zorder=7)
-        for _, row in excluded.iterrows():
-            reason = row["Exclude_Reason"] if row["Exclude_Reason"] else "excluded"
-            ax.annotate(f"{row['Well'].upper()}\n({reason})",
-                        (row["Easting"], row["Northing"]),
-                        xytext=(6, 6), textcoords="offset points",
-                        fontsize=6, color="red", style="italic", zorder=8)
-        exclude_handles.append(
-            Line2D([0], [0], marker="x", color="red", markersize=9,
-                   linewidth=2, linestyle="none",
-                   label="Excluded (negative β₃ or\nridge/slack-floor setting)"))
-
-    # ── Legends ───────────────────────────────────────────────────────────────
-    cluster_leg = ax.legend(
-        handles=cluster_handles + exclude_handles, loc="lower left",
-        title="Cluster  (// = forest interception correction)",
-        fontsize=8, framealpha=0.95, edgecolor="#CCCCCC")
-    ax.add_artist(cluster_leg)
-
-    if site_feature_handles:
-        ax.legend(handles=site_feature_handles, title="Site Features",
-                  loc="upper left", fontsize=8,
-                  framealpha=0.95, edgecolor="#CCCCCC")
-
-    ax.set_title(
-        "Characteristic Storage–Drainage Index  τ = Sy / β₃  — Newborough Warren 2005–2026\n"
-        "IDW interpolation (power=2)  |  Sy from WTF method (Section 3.7.3), "
-        "β₃ from SSM (Section 3.4)\n"
-        "Low τ (blue) = rapid aquifer turnover; "
-        "high τ (red) = sluggish drainage  |  "
-        "τ is not a residence time (t_R = 1/β₃)  |  CEH13 excluded (τ ≈ 124 mo outlier)",
-        fontsize=9, fontweight="bold", pad=10)
-
-    ax.tick_params(labelsize=8)
-    plt.tight_layout()
-    fig.savefig(out_path, dpi=200, bbox_inches="tight", facecolor="white")
-    plt.close()
-    print(f"  Drainage timescale map saved → {out_path.name}")
-
+# plot_drainage_timescale_map() removed in v1.5.0 — dead code since v1.4.0.
+# The τ CSV (OUT_18_DRAINAGE_TIMESCALE_CSV) is still written by
+# compute_drainage_timescale(); only the figure function has been removed.
 
 def plot_aquifer_diagnostic_synthesis(rb3_df, out_path):
     """
@@ -1456,7 +1051,7 @@ def plot_aquifer_diagnostic_synthesis(rb3_df, out_path):
     ax.set_xlabel("ΔNSE  (iterative NSE improvement: SSM − TLM)", fontsize=11)
     ax.set_ylabel("Drainage decay half-life  t½ = ln(2)/β₃  (months)", fontsize=11)
     ax.set_title(
-        "Aquifer Diagnostic Synthesis — Newborough Warren 2005–2026\n"
+        f"Aquifer Diagnostic Synthesis — Newborough Warren 2005–{_END_YEAR}\n"
         "Three independently derived parameters triangulate aquifer architecture\n"
         "t½ (drainage decay half-life) vs ΔNSE (drainage sensitivity), "
         "point size ∝ Sy (storage capacity)",

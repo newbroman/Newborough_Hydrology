@@ -142,8 +142,8 @@ The pipeline comprises **44 steps across 17 phases: 41 analytical steps across 1
 analytical phases, plus three display/utility steps excluded from the analytical
 count** — Script 26c (step 32, MSL5 report-format figures), Script 09f (step 43,
 the management-vs-coastal spatial-reach synthesis figure, Phase 17) and Script 27
-(step 44, the greyscale figure-conversion utility, Phase 17). Validation checkpoints
-run after Phases 1, 3, 9, and 10.
+(step 44, the greyscale figure-conversion utility, Phase 17). Validation checkpoints run after
+Phases 1, 3, 9, and 10.
 
 **Reference network:** 66 wells (from a raw pool of ~80).
 Eight wells are excluded from the reference partition: FE1–4 and LIS1
@@ -182,7 +182,7 @@ colours and labels are centralised in `src/utils/config.py`.
 | 10 | 21 | 25 | Forestry scenarios and management intervention figures |
 | 11 | 25 (coastal-gradient) | 26 | Coastal-retreat gradient analysis |
 | 12 | 22–24 | 27–29 | Supplementary diagnostics: residual lag structure, ridge recharge hypothesis test, residual seasonality |
-| 13 | 26, 26b, 26c (van Willegen MSL) | 30–32 | Van Willegen et al. (2025) MSL analyses: 5-year observational aggregation (26), UKCP18 climate projections (26b), and report-format MSL5 figures for §4.8.4 / §4.10.1 (26c) |
+| 13 | 26, 26b, 26c (van Willegen MSL) | 30–32 | Van Willegen et al. (2025) MSL analyses: 5-year observational aggregation with the equilibrium wetness index and Ellenberg-F cross-validation (26), UKCP18 climate projections (26b), and report-format MSL5 figures for §4.8.4 / §4.10.1 (26c) |
 | 14 | 28, 29, 30 (cluster framework diagnostics) | 33–35 | C3 detrend check (28), within-C3 variance attribution (29), and C4 constrained-β₃ triangulation (30) — post-review additions supporting §5.1.1 / §4.2.2 of the main report |
 | 15 | 32, 33 (observed differential change) | 36–37 | Secular differential water-table drift (32, report Fig 59) and climate-swing amplification + drought-floor surface (33, report Fig 60) |
 | 16 | 24b, 31, 31b, 34 (supplementary standalone diagnostics) | 38–41 | Cluster-stratified residual climatology (24b), independent k=5 partition validation (31) and its separation-vs-recoverability companion (31b), and the MSL5 two-window sensitivity demonstration figure for §5.7.5 (34) |
@@ -190,7 +190,7 @@ colours and labels are centralised in `src/utils/config.py`.
 
 Phases 1–11 produce the main analytical results documented in the report. Phase 12
 (Scripts 22–24) runs supplementary residual diagnostics. Phase 13 runs the van
-Willegen et al. (2025) MSL analyses — an observational 5-year aggregation (Script 26,
+Willegen et al. (2025) MSL analyses — an observational 5-year aggregation with the equilibrium wetness index and vegetation cross-validation (Script 26,
 step 30), the UKCP18 climate-projection companion (Script 26b, step 31), and the
 report-format MSL5 figures cited in §4.8.4 and §4.10.1 (Script 26c, step 32; a
 display-only companion that reads canonical outputs from Scripts 26, 26b and 19).
@@ -210,7 +210,7 @@ earlier phases as successors to their data source: `11c_pflood_achievability.py`
 reading Script 11b's per-well λ table) and `14b_year_of_crossing.py` (Phase 4,
 step 16, the bootstrap year-of-crossing diagnostic for §7 Conclusion 11 reading
 Script 14's annual summer-min series). References to "Script 25" mean coastal-gradient;
-"Script 26" means van Willegen MSL aggregation; "Script 26b" means UKCP18 MSL
+"Script 26" means van Willegen MSL aggregation and the equilibrium wetness index; "Script 26b" means UKCP18 MSL
 projection; "Script 26c" means MSL5 report-format figures; "Script 27" means
 greyscale post-processing; "Script 28" means C3 detrend check; "Script 29" means
 within-C3 variance attribution; "Script 11c" means P_flood achievability map;

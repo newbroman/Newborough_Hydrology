@@ -651,6 +651,11 @@ OUT_26_TRAJECTORY         = DIR_26 / "26_msl_5yr_trajectory.png"
 OUT_26_QUADRAT_WELLS      = DIR_26 / "26_msl_5yr_quadrat_wells.png"
 OUT_26_MAP                = DIR_26 / "26_msl_5yr_map.png"
 OUT_26_RESULTS_TXT        = DIR_26 / "26_msl_results.txt"
+# Equilibrium Wetness Index (Script 26 v1.3.x) — structural steady-state spring
+# level from the SSM coefficients under long-term mean climate, and the per-well
+# observed-vs-predicted MSL5 comparison table.
+OUT_26_EWI_PER_WELL       = DIR_26 / "26_equilibrium_wetness_index_per_well.csv"
+OUT_26_EWI_MSL5_COMPARISON = DIR_26 / "26_ewi_msl5_comparison.csv"
 
 # Script 26b — Van Willegen MSL UKCP18 climate projections (Phase 13, Tool B)
 # Pairs with Script 11 Section 5 (Tool A) and Script 26 (observational MSL5).

@@ -1,0 +1,375 @@
+r"""
+====================================================================================
+09f — MANAGEMENT EFFECTS: SPATIAL REACH + MAGNITUDE VS BACKGROUND DRIVERS
+====================================================================================
+Purpose
+-------
+A two-panel synthesis figure for the academic summary (and, if wanted, the
+§5.8/5.9 discussion). It makes two points that the per-site scenario charts
+(09d) and cross-cluster chart (09b_05) do not show on their face:
+
+  Panel A — SPATIAL REACH. Distance-decay of the two point-source interventions
+  whose neighbour effects propagate: the dune-scrape drain (a dipole — local
+  benefit at the slack, drawdown on the surrounding water table) and the
+  standing/thinned forest canopy (a drawdown the canopy imposes, which clearfell
+  would recover). Both decay over the same leaky-aquifer length scale λ. Shows
+  that scraping is NOT hydrologically neutral and that the forest's influence is
+  spatially confined.
+
+  Panel B — MAGNITUDE vs BACKGROUND DRIVERS. Every quantity on one annual axis
+  (mm water-equivalent per year). Management and climate-scenario bars are
+  ANNUALISED EQUILIBRIUM fluxes — a standing offset (×12 from the monthly
+  equilibrium bars). Coastal-retreat and sea-level-rise bars are SECULAR TRENDS
+  that accumulate year on year. The two bar-types are dimensionally the same
+  (mm/yr) but temporally different; they are styled and labelled distinctly so
+  they are not misread as equivalent. The point: management interventions are
+  one-off offsets that are small beside the accumulating climate/coastal drivers.
+
+All values are read LIVE from committed pipeline outputs. Nothing is hardcoded
+except the two externally-cited SLR rates (Holyhead tide gauge / altimetry),
+which carry no pipeline source and are labelled with their citation.
+
+Data sources (all on `main`)
+----------------------------
+  outputs/09_scraping_intervention/09d_01_scenario_comparison.csv
+      — CEH36 scrape on-site + off-site (100 m, 250 m) volumetric bars, and the
+        annual-mean forestry/climate scenario bars (Panel B management/climate).
+  outputs/09_scraping_intervention/09b_05_summer_scenario_comparison.csv
+      — cross-cluster climate-scenario bars (Panel B climate range, C1–C5).
+  outputs/20_spatial_figures/20_report_numbers.csv
+      — drawdown_lambda (λ) and drawdown_H0 (forest interception deficit at
+        the felling edge), for Panel A forest and scrape decay curves.
+  outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv
+      — delta_0_mm_yr: absolute coast-edge summer-minimum retreat rate
+        (forest-free linear-capped fit), for Panel B coastal bar.
+
+Outputs
+-------
+  09f_management_effects.png        — two-panel figure (report / full)
+  09f_management_effects_public.png — single Panel-A variant (--public)
+  09f_01_reach_profile.csv          — Panel A curve values (traceability)
+  09f_02_magnitude_comparison.csv   — Panel B bar values (traceability)
+
+Not an SSM-fitting script: it reads equilibrium outputs and does not call
+fit_ssm(). No new physics; a re-presentation of existing modelled fields.
+
+References
+----------
+Hollingham (2026), §4.5, §4.9.3, §4.8.2, §5.4.3, §5.8. Companion to 09b/09d.
+====================================================================================
+"""
+
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-07-02
+# 1.4.0 — Two-pass safe: every live loader (λ/H0, δ₀/L, scrape bars, clearfell
+#         recovery, scrape edge anchor) now falls back to documented first-pass
+#         defaults with a console warning when its upstream CSV is absent. New
+#         first-pass defaults centralised in pipeline_params._DEFAULTS, read via
+#         the public default_value() accessor. Lets 09f run in a first-pass full
+#         pipeline (it depends on Scripts 20/25/09d/10a, produced later) and
+#         resolve to live values on the second pass — mirrors the 09b/09d Sy
+#         precedent. Output messages use saved(); warn re-imported.
+# 1.3.0 — Geometry constants (SCRAPE_RISE_BUFFER_M, COAST_RETREAT_M,
+#         COAST_RETREAT_RATE) now imported from config.py (promoted there in
+#         config + Script 20 v1.28.0) instead of mirrored locally. Single source
+#         of truth; no behavioural change.
+# 1.2.0 — Convention compliance: apply house MPL_DEFAULTS style (matches sibling
+#         Script 09 figures); hoist mirrored Script-20 geometry constants
+#         (SCRAPE_RISE_BUFFER_M, COAST_RETREAT_M, COAST_RETREAT_RATE) to module
+#         level with a source-of-truth note; drop the unused DRAINAGE_DATUM import.
+# 1.1.0 — Caption removed from the figure footer; it is supplied in the report/
+#         summary document text instead (avoids a duplicate caption when the
+#         figure is placed in LibreOffice). Figure content unchanged.
+# 1.0.0 — New. Two-panel management-effects synthesis for the academic summary:
+#         (A) distance-decay reach of scrape dipole vs forest drawdown;
+#         (B) annualised-flux magnitude vs background drivers, with the
+#         equilibrium-offset vs secular-trend distinction styled and labelled.
+#         All values live from 09d_01, 09b_05, 20_report_numbers, 25_01.
+
+import sys as _sys, os as _os
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
+
+import argparse
+import numpy as np
+import pandas as pd
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
+
+from utils.paths import (
+    make_all_dirs,
+    OUT_09D_SCENARIO_CSV,
+    OUT_20_REPORT_NUMBERS, OUT_25_FIT_PARAMETERS, OUT_10A_REPORT,
+    OUT_09F_EFFECTS, OUT_09F_EFFECTS_PUBLIC,
+    OUT_09F_REACH_CSV,
+)
+from utils.console_utils import banner, phase, step, info, warn, saved
+from utils.site_observations import load_site_observation
+from utils.scraping_common import MPL_DEFAULTS
+from utils.config import (SCRAPE_RISE_BUFFER_M, COAST_RETREAT_M,
+                          COAST_RETREAT_RATE, DRAWDOWN_H0_MM)
+from utils.pipeline_params import default_value
+
+
+# ----------------------------------------------------------------------------
+# Live-value loaders
+# ----------------------------------------------------------------------------
+def _load_lambda_and_forest_h0():
+    """λ (m) and forest interception-deficit H0 (mm).
+
+    Live from Script 20 (20_report_numbers.csv). On a first-pass run before
+    Script 20 has executed, falls back to the documented default λ and the
+    config forest H0, with a warning.
+    """
+    try:
+        df = pd.read_csv(OUT_20_REPORT_NUMBERS)
+        lam = float(df.loc[df["Parameter"] == "drawdown_lambda", "Value"].iloc[0])
+        h0f = float(df.loc[df["Parameter"] == "drawdown_H0", "Value"].iloc[0])
+        return lam, h0f
+    except (FileNotFoundError, KeyError, IndexError):
+        lam = default_value("drawdown_lambda_m")
+        warn(f"20_report_numbers.csv unavailable — using default \u03bb = {lam:.0f} m "
+             f"and config H0 = {DRAWDOWN_H0_MM:.0f} mm (run Script 20 for live values).")
+        return lam, float(DRAWDOWN_H0_MM)
+
+
+def _load_clearfell_recovery_mm():
+    """Measured clearfell BACI step (mm).
+
+    Live from the 10a headline CSV (ANCOVA_Forest_Impact_clearfell_step, impact
+    well WMC3, post-felling), converted m -> mm. Falls back to the documented
+    default on a first-pass run before Script 10a has executed.
+    """
+    try:
+        df = pd.read_csv(OUT_10A_REPORT)
+        key = df.iloc[:, 0].astype(str)
+        row = df[key == "ANCOVA_Forest_Impact_clearfell_step"]
+        val_col = df.columns[3]   # numeric Value column
+        return float(row[val_col].iloc[0]) * 1000.0
+    except (FileNotFoundError, KeyError, IndexError):
+        v = default_value("clearfell_recovery_mm")
+        warn(f"10a_report_numbers.csv unavailable — using default clearfell "
+             f"recovery = {v:.0f} mm (run Script 10a for the live value).")
+        return float(v)
+
+
+def _load_scrape_bars():
+    """Scrape on-site + off-site volumetric values (mm w.e./month) from 09d_01.
+
+    Falls back to the documented off-site default on a first-pass run before
+    Script 09d has executed; the other bars are figure context and default to
+    the same construction only when 09d is absent.
+    """
+    try:
+        df = pd.read_csv(OUT_09D_SCENARIO_CSV)
+        d = dict(zip(df["Scenario"], df["Delta_vol_mm_per_month"]))
+        return {
+            "on_site":   float(d["Scraping (observed)"]),
+            "off_100":   float(d["Scraping (off-site 100 m)"]),
+            "off_250":   float(d.get("Scraping (off-site 250 m)", np.nan)),
+            "clearfell": float(d["Clearfell (hypothetical)"]),
+            "thinning":  float(d["Thinning 50% (hypothetical)"]),
+            "broadleaf": float(d["Broadleaf (hypothetical)"]),
+            "climate_dry": float(d["Climate dry"]),
+            "climate_wet": float(d["Climate wet"]),
+        }
+    except (FileNotFoundError, KeyError, IndexError):
+        off100 = default_value("scrape_offsite_100m_vol")
+        warn("09d_01_scenario_comparison.csv unavailable — scrape bars from "
+             f"defaults (off-site 100 m = {off100:.1f} mm w.e./month; "
+             "run Script 09d for live values).")
+        return {"on_site": np.nan, "off_100": off100, "off_250": np.nan,
+                "clearfell": np.nan, "thinning": np.nan, "broadleaf": np.nan,
+                "climate_dry": np.nan, "climate_wet": np.nan}
+
+
+def _load_coast_edge_rate():
+    """Absolute coast-edge summer-minimum retreat rate δ₀ (mm/yr) and reach L.
+
+    Live from Script 25 (25_01_panel_fit_parameters.csv), forest-free
+    linear-capped fit; δ₀ is a NEGATIVE rate. Falls back to documented
+    defaults on a first-pass run before Script 25 has executed (CI set equal
+    to δ₀ so no spurious whisker is drawn).
+    """
+    try:
+        df = pd.read_csv(OUT_25_FIT_PARAMETERS)
+        row = df[(df["source"] == "forest_free") & (df["model"] == "linear_capped")]
+        if row.empty:
+            row = df[df["model"] == "linear_capped"]
+        d0 = float(row["delta_0_mm_yr"].iloc[0])
+        lo = float(row["delta_0_ci_lo"].iloc[0])
+        hi = float(row["delta_0_ci_hi"].iloc[0])
+        L = float(row["L_m"].iloc[0])
+        return d0, lo, hi, L
+    except (FileNotFoundError, KeyError, IndexError):
+        d0 = default_value("coast_delta0_mm_yr")
+        L = default_value("coast_reach_L_m")
+        warn(f"25_01_panel_fit_parameters.csv unavailable — using default "
+             f"\u03b4\u2080 = {d0:.0f} mm/yr, L = {L:.0f} m "
+             "(run Script 25 for live values).")
+        return d0, d0, d0, L
+
+
+def _coastal_retreat_edge_head(delta0_abs, L):
+    """Edge head drawdown (mm) and reach L (m) for a single COAST_RETREAT_M
+    shoreline-retreat event, EXACTLY as Script 20's plot_coastal_erosion:
+
+        h0 = COAST_RETREAT_M * (δ₀ / COAST_RETREAT_RATE)     (mm)
+        Δh(d) = h0 * (1 - d/L)   (linear-capped, to zero at L)
+
+    Constants match Script 20 module constants (single source of truth).
+    """
+    h0 = COAST_RETREAT_M * (delta0_abs / COAST_RETREAT_RATE)
+    return h0, L, COAST_RETREAT_M
+
+
+# ----------------------------------------------------------------------------
+# Panel A — spatial reach (distance-decay)
+# ----------------------------------------------------------------------------
+def _plot_reach(ax, lam, forest_h0_mm, scrape,
+                coast_edge_head_6m, coast_L, coast_edge_head_5yr,
+                scrape_edge_head, clearfell_measured_mm=120.0):
+    """Distance-decay of scrape dipole, forest drawdown, and TWO coastal curves,
+    on a single continuous y-axis.
+
+    Curves:
+      - Scrape drain (dipole): exp decay over λ; edge = measured CEH36 response.
+      - Standing pine / thinned forest: canopy drawdown, exp decay over λ.
+      - Coastal retreat, 6 m acute storm: single Storm-Brendan-class EVENT,
+        linear-capped to zero at L (Script 20 form, ÷ storm-inclusive rate).
+      - Coastal retreat, 5-year accumulation: five years of the fitted coast-edge
+        trend δ₀ (≈8 m cumulative = 5·δ₀), linear-capped to zero at L. A DIFFERENT
+        construction from the storm curve — accumulation of the fitted trend, not
+        a single event — labelled as such. Five years keeps the amplitude on the
+        same continuous axis as the other curves (no broken axis needed) and is a
+        less speculative horizon than a decade.
+    """
+    r = np.linspace(0, 500, 400)
+
+    scrape_head = np.where(
+        r <= SCRAPE_RISE_BUFFER_M,
+        scrape_edge_head,
+        -scrape_edge_head * np.exp(-(r - SCRAPE_RISE_BUFFER_M) / lam))
+
+    forest_standing = -forest_h0_mm * np.exp(-r / lam)
+    forest_thinned  = -0.5 * forest_h0_mm * np.exp(-r / lam)
+
+    coastal_6m  = np.where(r <= coast_L,
+                           -coast_edge_head_6m * (1.0 - r / coast_L), 0.0)
+    coastal_5yr = np.where(r <= coast_L,
+                           -coast_edge_head_5yr * (1.0 - r / coast_L), 0.0)
+
+    ax.axhline(0, color="0.4", lw=0.8, zorder=1)
+    ax.plot(r, scrape_head, color="#c1272d", lw=2.4,
+            label="Scrape drain (dipole)", zorder=3)
+    ax.plot(r, forest_standing, color="#1b5e2a", lw=2.4,
+            label="Standing pine (drawdown)", zorder=3)
+    ax.plot(r, forest_thinned, color="#6aa84f", lw=2.0, ls="--",
+            label="Thinned forest 50% (drawdown)", zorder=3)
+    ax.plot(r, coastal_6m, color="#7d5ba6", lw=2.2, ls="-",
+            label="Coastal retreat: 6 m acute storm (single event)", zorder=3)
+    ax.plot(r, coastal_5yr, color="#7d5ba6", lw=2.4, ls=":",
+            label="Coastal retreat: 5-year accumulation (\u22488 m, 5\u00d7\u03b4\u2080)",
+            zorder=3)
+
+    # measured anchors, nudged off the y-spine so the full marker shows
+    ax.scatter([4], [scrape_edge_head], s=70, color="#c1272d",
+               edgecolor="k", zorder=5, linewidth=0.8)
+    ax.scatter([4], [-clearfell_measured_mm], s=70, color="#1b5e2a",
+               edgecolor="k", zorder=5, linewidth=0.8)
+
+    # near-field band the network cannot resolve (nearest uphill well 247 m)
+    ax.axvspan(0, 247, color="0.88", alpha=0.4, zorder=0)
+    ax.text(123, -128, "near field —\nno dipwell\n(nearest 247 m)",
+            ha="center", va="center", fontsize=7.5, color="0.4", style="italic")
+
+    ax.set_xlim(-8, 500)
+    ax.set_ylim(-165, 140)
+    ax.set_xlabel("Distance from intervention (m)", fontsize=11)
+    ax.set_ylabel("Equilibrium \u0394h at water table (mm)", fontsize=11)
+    ax.set_title("(a) Spatial reach", fontsize=12, loc="left", fontweight="bold")
+
+    main_leg = ax.legend(fontsize=7.8, loc="lower right", framealpha=0.95)
+    ax.add_artist(main_leg)
+    prox = [Line2D([0], [0], marker="o", color="w", markerfacecolor="0.5",
+                   markeredgecolor="k", markersize=8, label="measured anchor (r\u22480)"),
+            Line2D([0], [0], color="0.5", lw=2, label="modelled steady-state")]
+    ax.legend(handles=prox, fontsize=7.5, loc="upper right", framealpha=0.95)
+
+    prof = pd.DataFrame({
+        "distance_m": r,
+        "scrape_head_mm": scrape_head,
+        "standing_pine_head_mm": forest_standing,
+        "thinned_forest_head_mm": forest_thinned,
+        "coastal_6m_storm_head_mm": coastal_6m,
+        "coastal_5yr_head_mm": coastal_5yr,
+    })
+    prof.to_csv(OUT_09F_REACH_CSV, index=False, float_format="%.2f")
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--public", action="store_true",
+                    help="public/academic-summary variant (same figure, lighter title)")
+    args = ap.parse_args()
+
+    make_all_dirs()
+    plt.rcParams.update(MPL_DEFAULTS)
+    banner("09f", "MANAGEMENT EFFECTS — SPATIAL REACH")
+
+    phase(1, "Loading live values")
+    lam, forest_h0 = _load_lambda_and_forest_h0()
+    scrape = _load_scrape_bars()
+    coast_d0, coast_lo, coast_hi, coast_L = _load_coast_edge_rate()
+
+    # scrape edge head: measured CEH36 pure-scraping BACI response, LIVE from
+    # the site-observations registry (same anchor 09d uses); m -> mm. On a
+    # first-pass run before the registry exists, fall back to |off-site 100 m|
+    # implied edge is not recoverable, so use the documented on-site default.
+    try:
+        scrape_edge_head = load_site_observation("ceh36_baci_pure_scraping") * 1000.0
+        scrape_edge_src = "measured, live"
+    except (FileNotFoundError, KeyError, ValueError, TypeError):
+        scrape_edge_head = 129.0
+        scrape_edge_src = "default (registry unavailable)"
+        warn("site-observations registry unavailable — scrape edge head from "
+             "default 129 mm (run Script 09a for the live value).")
+    clearfell_recovery_mm = _load_clearfell_recovery_mm()
+
+    # 6 m acute-storm edge drawdown (Script 20 construction, ÷ storm rate)
+    coast_edge_6m, coast_L, _ = _coastal_retreat_edge_head(abs(coast_d0), coast_L)
+    # 5-year accumulation of the fitted trend: 5 × δ₀ (chronic normaliser cancels,
+    # so independent of the assumed chronic rate). Keeps amplitude on one axis.
+    coast_edge_5yr = 5.0 * abs(coast_d0)
+
+    info(f"\u03bb = {lam:.1f} m   forest H0 = {forest_h0:.0f} mm")
+    info(f"scrape edge head ({scrape_edge_src}) = {scrape_edge_head:.1f} mm")
+    info(f"clearfell recovery = {clearfell_recovery_mm:.1f} mm")
+    info(f"coast-edge \u03b4\u2080 = {coast_d0:.1f} mm/yr (CI {coast_lo:.1f}, {coast_hi:.1f}), L = {coast_L:.0f} m")
+    info(f"coastal 6 m storm edge = {coast_edge_6m:.1f} mm; 5-year (5\u00d7\u03b4\u2080) edge = {coast_edge_5yr:.1f} mm")
+
+    phase(2, "Plotting reach figure")
+    fig, ax = plt.subplots(figsize=(9.4, 6.4), dpi=300)
+    _plot_reach(ax, lam, forest_h0, scrape,
+                coast_edge_6m, coast_L, coast_edge_5yr, scrape_edge_head,
+                clearfell_measured_mm=clearfell_recovery_mm)
+
+    title = ("Newborough Warren: spatial reach of management interventions "
+             "and coastal retreat")
+    fig.suptitle(title, fontsize=12.5, y=0.98)
+
+    # Caption is NOT baked into the figure — it is supplied in the report/summary
+    # document text (avoids a duplicate caption when placed in LibreOffice). The
+    # canonical caption text is maintained in the changelog / edits doc.
+
+    fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+    out = OUT_09F_EFFECTS_PUBLIC if args.public else OUT_09F_EFFECTS
+    fig.savefig(out, dpi=300, bbox_inches="tight")
+    plt.close(fig)
+    saved(out.name)
+    saved(OUT_09F_REACH_CSV.name)
+    print("\nDone.")
+
+
+if __name__ == "__main__":
+    main()

@@ -135,6 +135,21 @@ DRAWDOWN_H0_MM  = 150.0
 DRAWDOWN_K_MDAY = 6.0
 DRAWDOWN_B_M    = 5.0
 
+# --- Scrape rise-zone + coastal-retreat geometry (Scripts 20, 09d, 09f) --------
+# Shared geometry constants for the scrape drain-cone and coastal-erosion fields.
+# Previously declared as in-function or module locals in Script 20 and mirrored
+# in Scripts 09d/09f; centralised here so all three read one definition.
+#   SCRAPE_RISE_BUFFER_M : radius of the scrape rise (slack) zone (m); the
+#                          drawdown cone is measured from this buffer outward.
+#   COAST_RETREAT_M      : single-event shoreline retreat visualised (m;
+#                          Storm-Brendan-scale exemplar, Pye & Blott 2024).
+#   COAST_RETREAT_RATE   : long-term storm-inclusive retreat rate (m/yr;
+#                          ≈50 m / 2014–2020, Forgrave 2020) — the normaliser
+#                          converting a retreat event to an edge drawdown.
+SCRAPE_RISE_BUFFER_M = 10.0
+COAST_RETREAT_M      = 6.0
+COAST_RETREAT_RATE   = 8.3
+
 CLUSTER_MARKERS = {
     1: "o",
     2: "s",

@@ -285,6 +285,10 @@ OUT_09C_FIG_PAIRED          = DIR_09 / "09c_04_summer_minima_paired.png"
 # Script 09d — CEH36 scenario comparison
 OUT_09D_SCENARIO            = DIR_09 / "09d_01_scenario_comparison.jpg"
 OUT_09D_SCENARIO_CSV        = DIR_09 / "09d_01_scenario_comparison.csv"
+# Script 09f — management effects: spatial reach figure (discussion §5.8 + academic summary)
+OUT_09F_EFFECTS             = DIR_09 / "09f_management_effects.png"
+OUT_09F_EFFECTS_PUBLIC      = DIR_09 / "09f_management_effects_public.png"
+OUT_09F_REACH_CSV           = DIR_09 / "09f_01_reach_profile.csv"
 OUT_09D_SUMMER_SCENARIO     = DIR_09 / "09d_02_summer_scenario_comparison.png"
 OUT_09D_SUMMER_SCENARIO_CSV = DIR_09 / "09d_02_summer_scenario_comparison.csv"
 

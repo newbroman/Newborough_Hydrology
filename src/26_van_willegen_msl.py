@@ -37,6 +37,15 @@ Outputs (DIR_26 / "26_van_willegen_msl/"):
   * 26_msl_5yr_per_cluster.csv      Cluster-mean trajectory
   * 26_msl_5yr_latest_per_well.csv  Most-recent valid MSL5, used for the map
   * 26_msl_5yr_map.png              IDW-interpolated MSL5 surface
+  * 26_equilibrium_wetness_index_per_well.csv
+                                    Per-well equilibrium wetness index (EWI):
+                                    steady-state spring level from the SSM
+                                    coefficients under long-term mean climate
+                                    (reference + extended network tiers)
+  * 26_ewi_msl5_comparison.csv      Per-well observed vs EWI-predicted MSL5
+                                    (calibrated MSL5 = a + b·EWI) with residuals
+                                    and in_van_willegen flag — the weighable
+                                    prediction table (report §4.8.5)
   * 26_msl_5yr_trajectory.png       Cluster trajectories with Curreli refs
   * 26_msl_5yr_quadrat_wells.png    Per-well trajectories at van-Willegen
                                     co-located quadrat wells (calibrated set)
@@ -51,6 +60,63 @@ hydrology. Ecological Indicators, 170, 113016.
 https://doi.org/10.1016/j.ecolind.2024.113016
 
 Curreli, A. et al. (2013) — SD15b/SD16 threshold reference lines.
+
+Version: 1.3.2 (2026-07-03) — Open-dune scoping via site-wide Pearson clusters:
+  * Extended wells now carry a canonical cluster label, read from the Pearson
+    site-wide integration (06_pear_membership_audit_sitewide.csv:
+    Original_Cluster else Best_Match_Cluster). This corrects the earlier gap
+    where 8 extended wells that are in fact forest (FE1–4, NW8, CEH3, CEH15,
+    LIS1) carried no label and leaked into the open-dune set.
+  * compute_ewi_msl5_comparison() now calibrates and reports MSL5-prediction as
+    an OPEN-DUNE metric (C1–C3), mirroring MSL5's own open-dune framing (§4.8.4).
+    C4/C5 forest wells are still predicted and written, flagged
+    open_dune_scope=False — the coefficients are least constrained there (§4.9.2)
+    so predictions degrade (forest RMSE ≈ 220 mm vs open-dune ≈ 119 mm).
+  * Comparison CSV gains `open_dune_scope`; calib dict reports rmse_mm_open_dune.
+  * Motivation: EbF equivalence (report §4.8.5) — MSL5 and EWI are statistically
+    indistinguishable as Ellenberg-F predictors (Williams' test p ≈ 0.81, n=18);
+    the open-dune MSL5-prediction generalizes (RMSE ≈ 100 mm on wells outside
+    van Willegen's set).
+
+Version: 1.3.1 (2026-07-03) — Extended network + EWI→MSL5 comparison; map dropped:
+  * compute_equilibrium_wetness_index() now also fits the extended network
+    (01_wells_extended.csv) via the shared fit_ssm(), tagged network='extended'
+    (single-pass, no reference QA) alongside the reference tier. EWI CSV gains a
+    `network` column.
+  * New compute_ewi_msl5_comparison(): calibrates observed MSL5 on EWI
+    (MSL5 = a + b·EWI, OLS over all wells with both) and reports per-well
+    observed vs EWI-predicted MSL5 and the residual, plus an in_van_willegen
+    flag. Output 26_ewi_msl5_comparison.csv (Pass 6). The report presents this
+    as a per-well table / match-band summary (§4.8.5); generalization to the
+    ~60 wells outside van Willegen's 17-piezometer set is the headline check.
+  * plot_ewi_map() and OUT_26_EWI_MAP REMOVED — a standalone EWI surface
+    overstated the (modest) coverage advantage; the weighable comparison table
+    replaces it. paths.OUT_26_EWI_MAP retired; paths.OUT_26_EWI_MSL5_COMPARISON
+    added.
+
+Version: 1.3.0 (2026-07-03) — Equilibrium Wetness Index (EWI):
+  * New compute_equilibrium_wetness_index(): the steady-state water-table
+    level implied by each well's fitted SSM coefficients under long-term mean
+    climate. Setting mean monthly Δh = 0 and solving the head-dependent
+    drainage term gives h_disp_eq = (β₁·P̄ − β₂·PET̄)/β₃, so
+    EWI_pipe = h_disp_eq − DRAINAGE_DATUM and EWI_bg = EWI_pipe + Upstand_m.
+    P̄, PET̄ are the full-record monthly-mean rainfall and PET (the same
+    long-term climatology basis as the Script 21 scenario normals), making the
+    index climate-window-independent — it needs only a valid SSM fit, not the
+    multi-year spring record MSL5 requires. Per-well β from 03_master_data.csv.
+  * New plot_ewi_map(): IDW surface of EWI_m_bg on the canonical site extent,
+    sharing the MSL5 map's Curreli-referenced colour norm so the two surfaces
+    are directly comparable.
+  * Outputs 26_equilibrium_wetness_index_per_well.csv and
+    26_equilibrium_wetness_index_map.png added (Pass 5). MSL5_EXCLUDED_WELLS
+    (CEH13, CEH14) are excluded from the EWI as from MSL5 — their near-zero /
+    negative β₃ is the EWI denominator and would send the level to ±∞; a
+    belt-and-braces EWI_MIN_BETA3 floor guards any other degenerate β₃.
+  * No change to any existing MSL5 output. Motivated by the vegetation
+    cross-validation in report §4.8.5 / §5.7.6: EWI predicts mean Ellenberg-F
+    (van Willegen et al. 2025) between wells at r ≈ 0.81, against r ≈ 0.84 for
+    observed MSL5. Output paths are the canonical paths.OUT_26_EWI_PER_WELL and
+    paths.OUT_26_EWI_MAP (added to utils/paths.py alongside the other OUT_26_*).
 
 Version: 1.2.0 (2026-06-25) — MSL5 well exclusion (CEH13, CEH14):
   * CEH13 (near-zero SSM beta_3, tau outlier) and CEH14 (negative beta_3,
@@ -185,6 +251,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
@@ -200,6 +267,7 @@ from utils.console_utils import (
 )
 
 from utils import config, paths
+from utils.model_utils import fit_ssm
 from utils.map_utils import (
     load_dem_hillshade,
     add_idw_surface,
@@ -220,6 +288,9 @@ OUT_MAP       = paths.OUT_26_MAP
 OUT_TRAJ      = paths.OUT_26_TRAJECTORY
 OUT_QUADRAT   = paths.OUT_26_QUADRAT_WELLS
 OUT_TXT       = paths.OUT_26_RESULTS_TXT
+# EWI outputs (v1.3.0) — canonical paths from utils.paths.
+OUT_EWI       = paths.OUT_26_EWI_PER_WELL
+OUT_EWI_COMPARISON = paths.OUT_26_EWI_MSL5_COMPARISON
 
 # ── Methodological constants from utils.config ────────────────────────────────
 # Convention: no methodological numbers are hardcoded in this script. The
@@ -233,6 +304,11 @@ MSL_MIN_MONTHS_PER_SPRING  = config.MSL_MIN_MONTHS_PER_SPRING
 MSL_MIN_YEARS_IN_WINDOW    = config.MSL_MIN_YEARS_IN_WINDOW
 TRAJECTORY_START_YEAR      = config.MSL_TRAJECTORY_START_YEAR
 VW_QUADRAT_WELLS           = list(config.VW_QUADRAT_WELLS)
+# EWI (v1.3.0): β₃ is the denominator of the equilibrium level, so guard against
+# a vanishing drainage coefficient sending it to ±∞. The known offenders
+# (CEH13/CEH14) are already in MSL5_EXCLUDED_WELLS; this is a belt-and-braces
+# floor for any other degenerate fit.
+EWI_MIN_BETA3 = 0.001
 
 # ── Intervention markers on the trajectory plots ──────────────────────────────
 # Dates are imported from utils.scraping_common (the canonical source used by
@@ -946,6 +1022,177 @@ def plot_msl5_map(latest_per_well: pd.DataFrame,
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
+def compute_equilibrium_wetness_index(elev: pd.DataFrame,
+                                      locations: pd.DataFrame) -> pd.DataFrame:
+    """
+    Equilibrium wetness index (EWI): the steady-state water-table level implied
+    by each well's fitted SSM coefficients under long-term mean climate.
+
+    Setting the mean monthly change to zero in the SSM (report §3.4) and solving
+    the head-dependent drainage term for the equilibrium displacement gives
+
+        h_disp_eq = (β₁·P̄ − β₂·PET̄) / β₃
+        EWI_pipe  = h_disp_eq − DRAINAGE_DATUM       (depth-below-pipe frame)
+        EWI_bg    = EWI_pipe + Upstand_m             (depth-below-ground frame)
+
+    P̄, PET̄ are the full-record monthly-mean rainfall and PET (the same long-term
+    climatology basis as the Script 21 scenario normals), so the index is
+    climate-window-independent.
+
+    Two network tiers (v1.3.1):
+      * reference — β read from 03_master_data.csv (Script 03, reference-QA'd:
+        leave-one-out, datum sensitivity, sign checks).
+      * extended  — β fitted here from 01_wells_extended.csv via the shared
+        fit_ssm(). These are single-pass fits WITHOUT the reference QA, flagged
+        network='extended' and treated as lower-confidence downstream.
+    """
+    clim = pd.read_csv(paths.INT_CLIMATE, index_col=0, parse_dates=True)
+    P_bar   = float(clim["P_m"].mean())
+    PET_bar = float(clim["PET"].mean())
+    info(f"long-term monthly climate normals: P̄={P_bar:.4f} m  PET̄={PET_bar:.4f} m")
+
+    # Upstand_m per well (pipe→bg), normalised exactly as plot_msl5_map does.
+    el = elev.copy()
+    el["well"] = el["Name"].astype(str).str.strip().str.lower().str.replace(" ", "")
+    offset = el.set_index("well")["Upstand_m"]
+    excluded = set(config.MSL5_EXCLUDED_WELLS)
+
+    def _row(w, b1, b2, b3, network, cluster_id=np.nan):
+        if not (np.isfinite(b1) and np.isfinite(b2) and np.isfinite(b3)):
+            return None
+        if b3 <= EWI_MIN_BETA3:
+            warn(f"{w.upper()} β₃={b3:.4f} ≤ {EWI_MIN_BETA3} — EWI undefined, skipped")
+            return None
+        ewi_pipe = (b1 * P_bar - b2 * PET_bar) / b3 - config.DRAINAGE_DATUM
+        ups = offset.get(w, np.nan)
+        ewi_bg = ewi_pipe + ups if np.isfinite(ups) else np.nan
+        return dict(well=w, network=network,
+                    beta_1_recharge=b1, beta_2_atmospheric_draw=b2,
+                    beta_3_drainage=b3, EWI_m_pipe=ewi_pipe, EWI_m_bg=ewi_bg,
+                    cluster_id=cluster_id)
+
+    rows = []
+    # ── reference tier: β from master_data ────────────────────────────────
+    master = pd.read_csv(paths.INT_MASTER_DATA)
+    master["well"] = master["Name_Original"].astype(str).str.strip().str.lower()
+    for _, r in master.iterrows():
+        if r["well"] in excluded:
+            continue
+        row = _row(r["well"], r.get("beta_1_recharge", np.nan),
+                   r.get("beta_2_atmospheric_draw", np.nan),
+                   r.get("beta_3_drainage", np.nan),
+                   "reference", r.get("Cluster", np.nan))
+        if row:
+            rows.append(row)
+
+    # ── extended tier: fit β here via the shared fit_ssm() ────────────────
+    try:
+        ext = pd.read_csv(paths.INT_WELLS_EXTENDED, index_col=0, parse_dates=True)
+    except Exception as e:
+        ext = None
+        warn(f"extended-network file unavailable, EWI reference-only: {e}")
+    if ext is not None:
+        n_ext_fit = 0
+        for w in ext.columns:
+            wl = str(w).strip().lower()
+            if wl in excluded:
+                continue
+            try:
+                fit = fit_ssm(h_series=ext[w], climate=clim)
+            except Exception as e:
+                warn(f"extended {wl.upper()} SSM fit failed: {str(e)[:50]}")
+                continue
+            if not fit:                       # fit_ssm returns None for < min_obs
+                continue
+            row = _row(wl, fit.get("beta_1_recharge", np.nan),
+                       fit.get("beta_2_atmospheric_draw", np.nan),
+                       fit.get("beta_3_drainage", np.nan), "extended")
+            if row:
+                rows.append(row); n_ext_fit += 1
+        info(f"extended-network SSM fits contributing to EWI: {n_ext_fit}")
+
+    ewi = pd.DataFrame(rows)
+    if ewi.empty:
+        return ewi
+    # attach canonical cluster for extended wells (Pearson site-wide integration:
+    # reference keeps its Original_Cluster; extended takes Best_Match_Cluster).
+    try:
+        site = pd.read_csv(paths.INT_PEAR_AUDIT_SITEWIDE)
+        site["well"] = site["Well_Normalised"].astype(str).str.strip().str.lower()
+        smap = site.set_index("well").apply(
+            lambda r: r["Original_Cluster"] if pd.notna(r["Original_Cluster"])
+            else r["Best_Match_Cluster"], axis=1)
+        ewi["cluster_id"] = ewi.apply(
+            lambda r: r["cluster_id"] if pd.notna(r["cluster_id"])
+            else smap.get(r["well"], np.nan), axis=1)
+    except Exception as e:
+        warn(f"site-wide cluster attach failed (extended wells uncluster'd): {e}")
+    ewi["cluster_id"]    = ewi["cluster_id"].astype("Int64")
+    ewi["cluster_label"] = ewi["cluster_id"].map(config.CLUSTER_LABELS)
+    locs = locations.copy()
+    locs["well"] = locs["Name"].astype(str).str.strip().str.lower().str.replace(" ", "")
+    ewi = ewi.merge(locs[["well", "E", "N"]], on="well", how="left")
+    return ewi
+
+
+def compute_ewi_msl5_comparison(ewi: pd.DataFrame,
+                                latest: pd.DataFrame) -> tuple:
+    """
+    Per-well comparison of observed MSL5 against EWI-predicted MSL5 (v1.3.1).
+
+    EWI is on its own (deeper-biased) scale, so it is calibrated onto the van
+    Willegen MSL5 scale by an OLS fit of observed MSL5 on EWI across all wells
+    carrying both (reference + extended). The fitted MSL5_pred is then reported
+    per well alongside the observed value and the residual, so the prediction
+    can be weighed directly. Wells with EWI but no observed MSL5 are retained
+    with MSL5_pred only (unweighable, residual NaN).
+
+    Returns (comparison_df, calibration_dict). No map — the report presents this
+    as a per-well table / match-band summary (see report §4.8.5).
+    """
+    vw = {str(w).strip().lower() for w in config.VW_QUADRAT_WELLS}
+    latest = latest.copy()
+    latest["well"] = latest["well"].astype(str).str.strip().str.lower()
+    comp = ewi.merge(latest[["well", "MSL5_m_bg", "window_end_year"]],
+                     on="well", how="left")
+
+    # Open-dune scope: EWI-predicted MSL5 is calibrated and reported as an
+    # open-dune metric (C1–C3), mirroring MSL5's own open-dune framing (§4.8.4).
+    # C4/C5 forest wells are predicted but flagged out-of-scope — the coefficients
+    # are least constrained there (§4.9.2) and predictions degrade badly.
+    comp["open_dune_scope"] = comp["cluster_id"].isin([1, 2, 3])
+
+    cal = comp[(comp["open_dune_scope"])].dropna(subset=["EWI_m_bg", "MSL5_m_bg"])
+    if len(cal) < 3:
+        warn("too few open-dune wells with both EWI and observed MSL5 — comparison skipped")
+        return pd.DataFrame(), {}
+    b, a = np.polyfit(cal["EWI_m_bg"].to_numpy(), cal["MSL5_m_bg"].to_numpy(), 1)
+    comp["MSL5_pred_m_bg"] = a + b * comp["EWI_m_bg"]
+    comp["residual_mm"] = (comp["MSL5_pred_m_bg"] - comp["MSL5_m_bg"]) * 1000.0
+    comp["in_van_willegen"] = comp["well"].isin(vw)
+
+    # headline stats on the open-dune (in-scope) weighable wells
+    scoped = comp[comp["open_dune_scope"]].dropna(subset=["residual_mm"])
+    r = float(np.corrcoef(cal["EWI_m_bg"], cal["MSL5_m_bg"])[0, 1])
+    rmse = float(np.sqrt((scoped["residual_mm"] ** 2).mean()))
+    calib = dict(intercept_a=float(a), slope_b=float(b), r=r, r2=r * r,
+                 rmse_mm_open_dune=rmse, n_calibration=int(len(cal)),
+                 scope="open_dune_C1_C3")
+
+    out = comp[["well", "network", "cluster_label", "open_dune_scope",
+                "in_van_willegen", "EWI_m_bg", "MSL5_m_bg", "MSL5_pred_m_bg",
+                "residual_mm", "window_end_year", "E", "N"]].copy()
+    out = out.rename(columns={"cluster_label": "cluster",
+                              "MSL5_m_bg": "MSL5_obs_m_bg",
+                              "window_end_year": "obs_window_end"})
+    out["well"] = out["well"].str.upper()
+    out = out.sort_values(["network", "MSL5_obs_m_bg"], na_position="last")
+    return out, calib
+
+
+
+
+
 def main() -> int:
     banner("26", "van Willegen MSL Projection")
     print("=" * 72)
@@ -1090,6 +1337,46 @@ def main() -> int:
     latest.to_csv(OUT_LATEST, index=False)
     print(f"\nPass 4 — latest MSL5 per well: {len(latest)} wells")
     saved(f"{OUT_LATEST.name}")
+
+    # ── Pass 5 — Equilibrium Wetness Index (v1.3.1) ────────────────────────
+    print("\nPass 5 — equilibrium wetness index (EWI) from SSM coefficients")
+    ewi = compute_equilibrium_wetness_index(elev, locations)
+    if ewi.empty:
+        warn("EWI produced no rows — check 03_master_data.csv β coefficients")
+    else:
+        ewi.to_csv(OUT_EWI, index=False)
+        saved(f"{OUT_EWI.name}")
+        for net in ["reference", "extended"]:
+            sub = ewi[ewi["network"] == net]
+            if len(sub):
+                info(f"  {net:<10s} n={len(sub):>3d}  "
+                     f"EWI mean={sub['EWI_m_bg'].mean():+.3f} m below ground")
+
+    # ── Pass 6 — EWI-predicted MSL5 comparison (v1.3.1) ────────────────────
+    print("\nPass 6 — EWI-predicted MSL5 vs observed (per-well comparison)")
+    if not ewi.empty:
+        comp, calib = compute_ewi_msl5_comparison(ewi, latest)
+        if not comp.empty:
+            comp.to_csv(OUT_EWI_COMPARISON, index=False)
+            saved(f"{OUT_EWI_COMPARISON.name}")
+            info(f"  open-dune calibration  MSL5 = {calib['intercept_a']:+.3f} + "
+                 f"{calib['slope_b']:.3f}·EWI   "
+                 f"(n={calib['n_calibration']}, r={calib['r']:.3f}, "
+                 f"RMSE={calib['rmse_mm_open_dune']:.0f} mm)")
+            scoped = comp[comp["open_dune_scope"]].dropna(subset=["residual_mm"])
+            am = scoped["residual_mm"].abs()
+            for lab, m in [("≤50 mm", am <= 50), ("50–100 mm", (am > 50) & (am <= 100)),
+                           ("100–200 mm", (am > 100) & (am <= 200)), (">200 mm", am > 200)]:
+                info(f"    |residual| {lab:<10s}: {int(m.sum()):>2d} open-dune wells")
+            vw = scoped[scoped["in_van_willegen"]]; nvw = scoped[~scoped["in_van_willegen"]]
+            info(f"  generalization: RMSE {np.sqrt((nvw['residual_mm']**2).mean()):.0f} mm "
+                 f"on {len(nvw)} non-van-Willegen open-dune wells vs "
+                 f"{np.sqrt((vw['residual_mm']**2).mean()):.0f} mm on {len(vw)} calibration wells")
+            forest = comp[~comp["open_dune_scope"]].dropna(subset=["residual_mm"])
+            if len(forest):
+                info(f"  out-of-scope forest (C4/C5): n={len(forest)}, "
+                     f"RMSE {np.sqrt((forest['residual_mm']**2).mean()):.0f} mm "
+                     f"(predicted but flagged unreliable)")
 
     # ── Figures ────────────────────────────────────────────────────────────
     print("\nRendering figures...")

@@ -181,6 +181,18 @@ _DEFAULTS = {
     "clearfell_b2_mult": 1.10,
     "thinning_b2_mult": 1.05,
     "peak_month": 2,   # February — typical for most clusters
+    # --- Reach-figure fallbacks (Script 09f) ---------------------------------
+    # Documented Newborough-2026 values used on a first-pass run before the
+    # upstream scripts that produce them have executed. Script 09f reads the
+    # live CSVs first (20_report_numbers, 25_01_panel_fit_parameters, 09d_01,
+    # 10a_report_numbers) and falls back to these with a console warning. Any
+    # future script needing these first-pass values should read them via
+    # default_value().
+    "drawdown_lambda_m":        224.9,   # 20_report_numbers.csv (drawdown_lambda)
+    "coast_delta0_mm_yr":       -29.0,   # 25_01 forest_free/linear_capped δ₀
+    "coast_reach_L_m":          894.0,   # 25_01 forest_free/linear_capped L
+    "scrape_offsite_100m_vol":  -30.3,   # 09d_01 Scraping (off-site 100 m) mm w.e./month
+    "clearfell_recovery_mm":    119.6,   # 10a ANCOVA_Forest_Impact_clearfell_step ×1000
 }
 
 
@@ -551,6 +563,20 @@ def update_peak_months(peak_by_cluster):
 # ============================================================================
 # READER — called by downstream scripts (09b, 09d, 19, 21, 31, 31b)
 # ============================================================================
+
+def default_value(key):
+    """Return a documented first-pass default from _DEFAULTS.
+
+    Public accessor so scripts (e.g. Script 09f) can fall back to the
+    centralised first-pass defaults without importing the private dict.
+    Raises KeyError if the key is not a defined default.
+    """
+    if key not in _DEFAULTS:
+        raise KeyError(
+            f"{key!r} is not a defined pipeline default; "
+            f"available: {sorted(_DEFAULTS)}")
+    return _DEFAULTS[key]
+
 
 def load_params(warn_defaults=True):
     """Load the consolidated pipeline scenario parameters.

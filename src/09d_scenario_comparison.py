@@ -36,7 +36,10 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "3.5.0"  # Hollingham (2026) — 2026-07-02
+__version__ = "3.6.0"  # Hollingham (2026) — 2026-07-02
+# 3.6.0 — SCRAPE_RISE_BUFFER_M now imported from config.py (promoted there with
+#         config + Script 20 v1.28.0) instead of a local literal. No behavioural
+#         change.
 # 3.5.0 — Off-site scraping bar now also shows the 250 m drawdown as a
 #         dark reference line drawn ACROSS the 100 m bar (milder, more
 #         distant neighbour drawdown), with an inline label. Same drain
@@ -102,6 +105,7 @@ from utils.config import (
     FOREST_INTERCEPTION, BROADLEAF_INTERCEPTION, BROADLEAF_B2_SUMMER,
     UKCP18_DRY_P_SUMMER, UKCP18_DRY_PET_SUMMER,
     UKCP18_WET_P_SUMMER, UKCP18_WET_PET_SUMMER,
+    SCRAPE_RISE_BUFFER_M,
 )
 from utils.clearfell_common import load_clearfell_b2_multiplier
 
@@ -147,7 +151,7 @@ WELL = "ceh36"
 # MODELLED quantity, flagged as such in the captions.
 OFFSITE_DIST_M       = 100.0
 OFFSITE_FAR_M        = 250.0    # marker line inside the 100 m bar (near nearest well)
-SCRAPE_RISE_BUFFER_M = 10.0     # matches Script 20 rise-zone radius
+# SCRAPE_RISE_BUFFER_M now imported from config.py
 CLEARFELL_MATCH_HINT = 282.0    # ~distance where off-site vol drawdown = clearfell bar
 
 

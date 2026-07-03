@@ -92,7 +92,10 @@ from utils.clearfell_common import (
 )
 from utils.site_observations import update_site_observation
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-05-22
+__version__ = "1.2.1"  # Hollingham (2026) — 2026-07-03
+# 1.2.1 — figure_monthly_contrast(): added pre/post period mean lines
+#          (dotted, colour-matched) to both panels, with annotations
+#          showing the per-zone and gap-series shifts.
 # 1.2.0 — Summer-minima model moved onto the WMC3-gatekeeper year
 #         panel.  fit_summer_contrast() and figure_summer_contrast()
 #         now take panel_years (from clearfell_common.
@@ -351,6 +354,20 @@ def figure_monthly_contrast(panel, monthly, out_path):
     fig, axes = plt.subplots(2, 1, figsize=(11, 7), sharex=True,
                              gridspec_kw={'height_ratios': [1.2, 1.0]})
 
+    # Pre/post split for period means
+    pre_mask  = impact_mean.index <  INTERVENTION_DATE
+    post_mask = impact_mean.index >= INTERVENTION_DATE
+
+    # Period means — top panel
+    imp_pre_mean  = impact_mean[pre_mask].mean()
+    imp_post_mean = impact_mean[post_mask].mean()
+    edg_pre_mean  = edge_mean[pre_mask].mean()
+    edg_post_mean = edge_mean[post_mask].mean()
+
+    # Period means — bottom panel
+    diff_pre_mean  = diff[pre_mask].mean()  * 1000
+    diff_post_mean = diff[post_mask].mean() * 1000
+
     ax0 = axes[0]
     ax0.plot(impact_mean.index, impact_mean.values,
              color=TIER_COLOURS['Impact'], lw=1.5, label='Impact (WMC3)')
@@ -360,6 +377,31 @@ def figure_monthly_contrast(panel, monthly, out_path):
                 label='Apr 2015 scraping')
     ax0.axvline(INTERVENTION_DATE, color='k',    ls='--', alpha=0.8,
                 label='Dec 2017 felling')
+    # Pre-felling period means
+    ax0.axhline(imp_pre_mean,  color=TIER_COLOURS['Impact'], ls=':',
+                lw=1.2, alpha=0.7, xmin=0,
+                xmax=(INTERVENTION_DATE - impact_mean.index[0]).days /
+                     (impact_mean.index[-1] - impact_mean.index[0]).days)
+    ax0.axhline(edg_pre_mean,  color=TIER_COLOURS['Edge'],   ls=':',
+                lw=1.2, alpha=0.7, xmin=0,
+                xmax=(INTERVENTION_DATE - impact_mean.index[0]).days /
+                     (impact_mean.index[-1] - impact_mean.index[0]).days)
+    # Post-felling period means
+    xmin_post = (INTERVENTION_DATE - impact_mean.index[0]).days / \
+                (impact_mean.index[-1] - impact_mean.index[0]).days
+    ax0.axhline(imp_post_mean, color=TIER_COLOURS['Impact'], ls=':',
+                lw=1.2, alpha=0.7, xmin=xmin_post, xmax=1)
+    ax0.axhline(edg_post_mean, color=TIER_COLOURS['Edge'],   ls=':',
+                lw=1.2, alpha=0.7, xmin=xmin_post, xmax=1)
+    # Annotate shifts
+    ax0.annotate(f'Δ Impact = {(imp_post_mean - imp_pre_mean)*1000:+.0f} mm',
+                 xy=(INTERVENTION_DATE, imp_post_mean), xytext=(10, 8),
+                 textcoords='offset points', fontsize=7.5,
+                 color=TIER_COLOURS['Impact'])
+    ax0.annotate(f'Δ Edge = {(edg_post_mean - edg_pre_mean)*1000:+.0f} mm',
+                 xy=(INTERVENTION_DATE, edg_post_mean), xytext=(10, -14),
+                 textcoords='offset points', fontsize=7.5,
+                 color=TIER_COLOURS['Edge'])
     ax0.set_ylabel('Water-table depth (m)')
     ax0.set_title('Impact and Edge centroids')
     ax0.legend(loc='lower right', fontsize=8)
@@ -370,6 +412,19 @@ def figure_monthly_contrast(panel, monthly, out_path):
     ax1.axhline(0, color='grey', ls='-', alpha=0.5)
     ax1.axvline(SCRAPING_DATE,     color='grey', ls='--', alpha=0.7)
     ax1.axvline(INTERVENTION_DATE, color='k',    ls='--', alpha=0.8)
+    # Pre/post mean lines on contrast panel
+    ax1.axhline(diff_pre_mean,  color='steelblue', ls=':', lw=1.4, alpha=0.8,
+                xmin=0, xmax=xmin_post)
+    ax1.axhline(diff_post_mean, color='steelblue', ls=':', lw=1.4, alpha=0.8,
+                xmin=xmin_post, xmax=1)
+    ax1.annotate(f'Pre mean: {diff_pre_mean:+.0f} mm',
+                 xy=(impact_mean.index[0], diff_pre_mean),
+                 xytext=(4, 5), textcoords='offset points', fontsize=7.5,
+                 color='steelblue')
+    ax1.annotate(f'Post mean: {diff_post_mean:+.0f} mm',
+                 xy=(INTERVENTION_DATE, diff_post_mean),
+                 xytext=(10, 5), textcoords='offset points', fontsize=7.5,
+                 color='steelblue')
     ax1.set_ylabel('Impact − Edge (mm)')
     ax1.set_xlabel('Date')
     ax1.set_title('Direct contrast: Impact minus Edge')

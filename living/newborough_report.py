@@ -40,7 +40,14 @@ Full options:
 #   * Markdown difference tables and their Mean/Range summaries now 2 dp
 #     (cm precision) — they are direct differences of cm field readings.
 #     MSL science values left unchanged (separate metric).
-__version__ = "1.1.1"
+# v1.2.0 (2026-07-04)
+#   * Difference-map interpolation switched from cubic to LINEAR griddata.
+#     Cubic overshoots in sparse areas and the global-range clamp pinned
+#     those overshoots to far-field extremes, painting phantom highs/lows
+#     (e.g. a deep-red trough and blue peak in the centre-east where every
+#     nearby well read +0.08..+0.14 m). Linear is bounded by surrounding
+#     wells and matches the pipeline add_idw_surface / MSL map method.
+__version__ = "1.2.0"
 
 import argparse
 import sys
@@ -912,9 +919,14 @@ def create_difference_map(results, title, filepath, extent=MAP_EXTENT,
     grid_e = np.arange(extent['e_min'], extent['e_max'], extent['resolution'])
     grid_n = np.arange(extent['n_min'], extent['n_max'], extent['resolution'])
     grid_e, grid_n = np.meshgrid(grid_e, grid_n)
-    grid_z = griddata((es, ns), zs, (grid_e, grid_n), method='cubic')
+    # Linear (Delaunay) interpolation — mathematically bounded by the surrounding
+    # well values, so it cannot overshoot into phantom highs/lows across sparse
+    # patches. Matches the pipeline's add_idw_surface (griddata method='linear')
+    # and the MSL map below. (Cubic previously overshot; the global-range clamp
+    # could not fix it because it pinned overshoots to the far-field extremes.)
+    grid_z = griddata((es, ns), zs, (grid_e, grid_n), method='linear')
 
-    # Clamp to observed data range to prevent cubic interpolation overshoots
+    # Safety net only (linear is already bounded): guard against any stray NaN edge.
     grid_z = np.clip(grid_z, np.nanmin(zs), np.nanmax(zs))
 
     # ── Figure ──

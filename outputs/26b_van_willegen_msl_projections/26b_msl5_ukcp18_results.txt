@@ -53,14 +53,14 @@ Cluster 3 (C3 (Western Residual))  2080s:
   Mean shift:                   -0.031 m  (over 17 common window-ends)
 
 Cluster 4 (C4 (Main Forest))  2050s:
-  β₁ = 2.5184   β₂ = 2.5480
-  Spring Δh mean (Mar/Apr/May): -0.0214 m/month
+  β₁ = 2.5153   β₂ = 2.5457
+  Spring Δh mean (Mar/Apr/May): -0.0213 m/month
   Observed window MSL5 mean:    -1.345 m
   Perturbed window MSL5 mean:   -1.366 m
   Mean shift:                   -0.021 m  (over 15 common window-ends)
 
 Cluster 4 (C4 (Main Forest))  2080s:
-  β₁ = 2.5184   β₂ = 2.5480
+  β₁ = 2.5153   β₂ = 2.5457
   Spring Δh mean (Mar/Apr/May): -0.0385 m/month
   Observed window MSL5 mean:    -1.345 m
   Perturbed window MSL5 mean:   -1.383 m

@@ -14,8 +14,8 @@ SECTION 1: MECHANISTIC STATE-SPACE EQUATIONS  (dh = b1*P - b2*PET - b3*h_prev)
         p-values:  P = 2.5097e-69   PET = 9.0213e-17   h_prev = 7.5788e-26
   C3 (Western Residual):  dh = (0.003572*P) - (0.001850*PET) - (0.0582*h_prev)   |  R2 = 0.813   n = 248
         p-values:  P = 1.1696e-83   PET = 6.7181e-27   h_prev = 2.1068e-28
-  C4 (Main Forest):  dh = (0.002518*P) - (0.002548*PET) - (0.0205*h_prev)   |  R2 = 0.685   n = 236
-        p-values:  P = 4.9045e-47   PET = 5.6968e-31   h_prev = 2.7104e-03
+  C4 (Main Forest):  dh = (0.002515*P) - (0.002546*PET) - (0.0204*h_prev)   |  R2 = 0.683   n = 236
+        p-values:  P = 7.6982e-47   PET = 7.5042e-31   h_prev = 2.8063e-03
   C5 (Coastal Forest):  dh = (0.002412*P) - (0.001324*PET) - (0.0452*h_prev)   |  R2 = 0.680   n = 238
         p-values:  P = 6.7777e-54   PET = 3.8152e-16   h_prev = 4.4047e-16
 
@@ -125,13 +125,13 @@ SECTION 3: CRITICAL RAINFALL THRESHOLD EQUATIONS  (P_flood - iterated)
   C4 (Main Forest)
     h_0 = -1.797 m  (long-term mean of month-of-minimum)
     horizon: [10, 11, 12, 1, 2]  (n = 5 months, peak = month 2)
-    α = 0.9795   αⁿ = 0.9018
-    S_P =   443.1 mm    S_E =   128.8 mm
+    α = 0.9796   αⁿ = 0.9020
+    S_P =   443.2 mm    S_E =   128.8 mm
     climatological totals: P = 464 mm   PET = 135 mm
-    λ = 2.072
-    P_flood (iterated)    =   961 mm    [2.07x climatology]
-    P_flood (old 1-step)  =   729 mm    [reference only]
-    Collapsed form:  P_flood = 374.97 * d + 287.43   (d in m below ground)
+    λ = 2.074
+    P_flood (iterated)    =   962 mm    [2.07x climatology]
+    P_flood (old 1-step)  =   730 mm    [reference only]
+    Collapsed form:  P_flood = 375.47 * d + 287.40   (d in m below ground)
 
   C5 (Coastal Forest)
     h_0 = -1.482 m  (long-term mean of month-of-minimum)

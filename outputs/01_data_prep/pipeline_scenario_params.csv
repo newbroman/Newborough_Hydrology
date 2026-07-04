@@ -1,6 +1,6 @@
 Cluster,beta_1,beta_2,beta_3,Sy,h_disp,forest,peak_month,clearfell_b2_mult,thinning_b2_mult,broadleaf_b2_summer,broadleaf_b2_winter,summer_P,summer_PET,source_beta,source_Sy,source_peak_month,source_b2_mult,source_h_disp,source_climate
-C1,4.5784,0.963,0.0896,0.2142,3.3132,False,1,1.0315,1.0158,1.075,0.8817,0.064693,0.090137,pipeline,pipeline,pipeline,pipeline,pipeline,pipeline
-C2,3.9777,1.7657,0.0656,0.2609,3.1535,False,1,1.0315,1.0158,1.075,0.8817,0.064693,0.090137,pipeline,pipeline,pipeline,pipeline,pipeline,pipeline
-C3,3.5719,1.8495,0.0582,0.3057,2.9371,False,2,1.0315,1.0158,1.075,0.8817,0.064693,0.090137,pipeline,pipeline,pipeline,pipeline,pipeline,pipeline
-C4,2.5184,2.548,0.0205,0.2541,2.3424,True,2,1.0315,1.0158,1.075,0.8817,0.064693,0.090137,pipeline,pipeline,pipeline,pipeline,pipeline,pipeline
-C5,2.412,1.3237,0.0452,0.3084,2.4506,True,2,1.0315,1.0158,1.075,0.8817,0.064693,0.090137,pipeline,pipeline,pipeline,pipeline,pipeline,pipeline
+C1,4.5784,0.963,0.0896,0.2142,3.3132,False,1,1.0272,1.0136,1.075,0.8817,0.064693,0.090137,pipeline,pipeline,pipeline,pipeline,pipeline,pipeline
+C2,3.9777,1.7657,0.0656,0.2609,3.1535,False,1,1.0272,1.0136,1.075,0.8817,0.064693,0.090137,pipeline,pipeline,pipeline,pipeline,pipeline,pipeline
+C3,3.5719,1.8495,0.0582,0.3057,2.9371,False,2,1.0272,1.0136,1.075,0.8817,0.064693,0.090137,pipeline,pipeline,pipeline,pipeline,pipeline,pipeline
+C4,2.5153,2.5457,0.0204,0.2541,2.3423,True,2,1.0272,1.0136,1.075,0.8817,0.064693,0.090137,pipeline,pipeline,pipeline,pipeline,pipeline,pipeline
+C5,2.412,1.3237,0.0452,0.3084,2.4506,True,2,1.0272,1.0136,1.075,0.8817,0.064693,0.090137,pipeline,pipeline,pipeline,pipeline,pipeline,pipeline

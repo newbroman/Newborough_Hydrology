@@ -32,7 +32,11 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-05-25
+__version__ = "1.4.1"  # Hollingham (2026) — 2026-07-03
+# 1.4.1 — _plot_era_means(): colour parameter added; era mean lines
+#          now colour-matched to the plotted series, dashed (--),
+#          lw=1.8 alpha=0.85 zorder=3. All three callers updated.
+#          Visual only — no analytical change.
 # 1.4.0 — §4.6 canopy-buffering support.  Two changes, neither alters the
 #         headline clearfell step or the linear ANCOVA model:
 #         (1) New step 3b: a CWB²×felling curvature SENSITIVITY VARIANT,
@@ -765,8 +769,16 @@ def _compute_corrected(df, fit):
     return corrected
 
 
-def _plot_era_means(ax, df, corrected_mm):
-    """Draw era mean horizontal lines from the corrected series."""
+def _plot_era_means(ax, df, corrected_mm, color=None):
+    """Draw era mean horizontal lines from the corrected series.
+
+    Parameters
+    ----------
+    color : str or None
+        Line colour matched to the series being plotted.
+        Falls back to '#555555' if None.
+    """
+    line_color = color if color is not None else '#555555'
     for mask, x0, x1 in [
         (df.index < SCRAPING_DATE,
          df.index[0], SCRAPING_DATE),
@@ -777,7 +789,9 @@ def _plot_era_means(ax, df, corrected_mm):
     ]:
         era_data = corrected_mm[mask]
         if len(era_data) > 0:
-            ax.hlines(era_data.mean(), x0, x1, colors='grey', ls=':', lw=1)
+            ax.hlines(era_data.mean(), x0, x1,
+                      colors=line_color, ls='--', lw=1.8, alpha=0.85,
+                      zorder=3)
 
 
 # ── Primary figures: Forest control only (for report) ────────────────────────
@@ -801,7 +815,7 @@ def plot_forest_timeseries(zone_label, out_path):
     ax.plot(df.index, corrected * 1000, color=CB_FOREST, lw=1.5,
             label='Climate-corrected')
 
-    _plot_era_means(ax, df, corrected * 1000)
+    _plot_era_means(ax, df, corrected * 1000, color=CB_FOREST)
     _vlines(ax)
 
     ax.set_ylabel('BACI displacement (mm)')
@@ -936,7 +950,7 @@ for zone_label, out_path in [('Impact', OUT_FIG_CUSUM_IMP),
             lw=0.8, label='Raw')
     ax.plot(corrected.index, corrected * 1000, color=CB_FOREST, lw=1.5,
             label='Climate-corrected')
-    _plot_era_means(ax, df, corrected * 1000)
+    _plot_era_means(ax, df, corrected * 1000, color=CB_FOREST)
     _vlines(ax)
     ax.set_ylabel('BACI displacement (mm)')
     fell_step = fit['clearfell_step'] * 1000
@@ -1010,7 +1024,7 @@ def plot_baci_timeseries_3panel(zone_label, out_path):
         ax.plot(df.index, corrected * 1000, color=colour, lw=1.5,
                 label='Climate-corrected')
 
-        _plot_era_means(ax, df, corrected * 1000)
+        _plot_era_means(ax, df, corrected * 1000, color=colour)
         _vlines(ax)
         ax.set_ylabel('BACI displacement (mm)')
         fell_step = fit['clearfell_step'] * 1000

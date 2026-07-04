@@ -46,6 +46,10 @@ Outputs (DIR_26 / "26_van_willegen_msl/"):
                                     (calibrated MSL5 = a + b·EWI) with residuals
                                     and in_van_willegen flag — the weighable
                                     prediction table (report §4.8.5)
+  * 26_ebf_comparison.csv           Per-piezometer Ellenberg-F with MSL5 and EWI
+                                    predictions (v1.3.3; external input required)
+  * 26_ebf_prediction_scatter.png   Three-panel EbF scatter — report Fig XX
+                                    (v1.3.3; external input required)
   * 26_msl_5yr_trajectory.png       Cluster trajectories with Curreli refs
   * 26_msl_5yr_quadrat_wells.png    Per-well trajectories at van-Willegen
                                     co-located quadrat wells (calibrated set)
@@ -60,6 +64,21 @@ hydrology. Ecological Indicators, 170, 113016.
 https://doi.org/10.1016/j.ecolind.2024.113016
 
 Curreli, A. et al. (2013) — SD15b/SD16 threshold reference lines.
+
+Version: 1.3.3 (2026-07-03) — EbF cross-validation moved into the pipeline:
+  * New compute_ebf_crossvalidation() + plot_ebf_scatter(): the Ellenberg-F
+    validation is now PIPELINE-GENERATED (Pass 7) rather than a one-off. It reads
+    the documented external van Willegen dataset (paths.DATA_ELLENBERG_EXT; van
+    Willegen et al. 2024, Mendeley — gitignored, not redistributed) and runs only
+    if that file is present, skipping cleanly otherwise. Between the 17 van
+    Willegen piezometers it regresses mean Ellenberg-F on observed MSL5 and on the
+    equilibrium index (annual and spring climatology), reporting r (Fisher-z CI),
+    RMSE (bootstrap CI), Williams' test (MSL5 vs annual EWI), and A–D match bands.
+  * Outputs 26_ebf_comparison.csv and 26_ebf_prediction_scatter.png (report
+    Fig XX) added. paths gains DATA_ELLENBERG_EXT, OUT_26_EBF_COMPARISON,
+    OUT_26_EBF_SCATTER. MSL5-vs-EbF correlation settles at the per-piezometer
+    aggregation (r ≈ 0.83), matching the Table YY / Williams basis.
+  * Still a Pass inside Script 26 — no change to the pipeline step count.
 
 Version: 1.3.2 (2026-07-03) — Open-dune scoping via site-wide Pearson clusters:
   * Extended wells now carry a canonical cluster label, read from the Pearson
@@ -1193,6 +1212,127 @@ def compute_ewi_msl5_comparison(ewi: pd.DataFrame,
 
 
 
+def compute_ebf_crossvalidation(elev: pd.DataFrame):
+    """
+    One-off-in-code, pipeline-generated Ellenberg-F cross-validation (v1.3.3).
+
+    Reads the documented external van Willegen ecohydrology dataset
+    (paths.DATA_ELLENBERG_EXT; van Willegen et al. 2024, Mendeley Data). If the
+    file is absent the Pass is skipped cleanly and the rest of Script 26 runs.
+
+    Between the 17 van Willegen piezometers, regresses mean Ellenberg-F on three
+    water-table metrics — observed MSL5, the equilibrium index on the annual
+    climatology, and on the spring climatology — reporting per-metric r (Fisher-z
+    CI), RMSE (bootstrap CI), the Williams test for MSL5 vs the annual index, and
+    A–D match bands. Correlations/RMSE are datum-invariant, so pipe-frame EWI and
+    the dataset's own Mean Spring are used directly.
+
+    Returns (per_well_df, summary_dict) or (None, None) if the input is absent.
+    """
+    from scipy.stats import pearsonr, t as _t
+    xlsx = paths.DATA_ELLENBERG_EXT
+    if not xlsx.exists():
+        warn(f"external Ellenberg dataset not found at {xlsx} — EbF Pass skipped "
+             f"(obtain from Mendeley doi:10.17632/p4xvb6xxp9.1)")
+        return None, None
+
+    # response: mean Ellenberg-F per piezometer
+    ebf = pd.read_excel(xlsx, "meanEbF")
+    for c in ["EbF1a", "EbF1b", "EbF1c", "EbF1d"]:
+        ebf[c] = pd.to_numeric(ebf[c], errors="coerce")
+    ebf["EbF"] = ebf[["EbF1a", "EbF1b", "EbF1c", "EbF1d"]].mean(axis=1)
+    ebf["piezo"] = (ebf["ID"].astype(str).str.rsplit("_", n=1).str[0]
+                    .str.replace(r"-\d+$", "", regex=True).str.lower())
+    ebf = ebf.dropna(subset=["EbF"]).groupby("piezo")["EbF"].mean()
+
+    # observed MSL5 (dataset's own Mean Spring, 5-yr rolling, per-piezo mean)
+    yb = pd.read_excel(xlsx, "Hydrology_metric_YearB")
+    yb["piezo"] = yb["Statistic"].astype(str).str.replace(r"-\d+$", "", regex=True).str.lower()
+    piv = yb.pivot_table(index="Year", columns="piezo", values="Mean Spring")
+    msl5 = piv.rolling(5, min_periods=5).mean().mean().rename("MSL5")
+
+    # EWI per piezometer from committed β on annual and spring climatologies
+    clim = pd.read_csv(paths.INT_CLIMATE, index_col=0, parse_dates=True)
+    P_ann, PET_ann = clim["P_m"].mean(), clim["PET"].mean()
+    sp = clim[clim.index.month.isin(config.MSL_SPRING_MONTHS)]
+    P_sp, PET_sp = sp["P_m"].mean(), sp["PET"].mean()
+    md = pd.read_csv(paths.INT_MASTER_DATA); md["piezo"] = md["Name_Original"].str.lower()
+    md["EWI_annual"] = (md["beta_1_recharge"] * P_ann - md["beta_2_atmospheric_draw"] * PET_ann) \
+        / md["beta_3_drainage"] - config.DRAINAGE_DATUM
+    md["EWI_spring"] = (md["beta_1_recharge"] * P_sp - md["beta_2_atmospheric_draw"] * PET_sp) \
+        / md["beta_3_drainage"] - config.DRAINAGE_DATUM
+    md = md.set_index("piezo")[["EWI_annual", "EWI_spring", "Cluster"]]
+
+    df = pd.DataFrame({"EbF": ebf}).join(msl5).join(md).dropna(subset=["EbF", "MSL5", "EWI_annual"])
+    n = len(df)
+
+    def _fit(col, B=5000):
+        x, y = df[col].to_numpy(), df["EbF"].to_numpy()
+        b, a = np.polyfit(x, y, 1); pred = a + b * x
+        res = np.abs(y - pred); rmse = float(np.sqrt(np.mean((y - pred) ** 2)))
+        r = float(pearsonr(x, y)[0])
+        z, se = np.arctanh(r), 1 / np.sqrt(len(x) - 3)
+        rlo, rhi = np.tanh(z - 1.96 * se), np.tanh(z + 1.96 * se)
+        rng = np.random.default_rng(0); bs = []
+        for _ in range(B):
+            i = rng.integers(0, len(x), len(x))
+            bb, aa = np.polyfit(x[i], y[i], 1)
+            bs.append(np.sqrt(np.mean((y[i] - (aa + bb * x[i])) ** 2)))
+        return dict(r=r, r_lo=float(rlo), r_hi=float(rhi), rmse=rmse,
+                    rmse_lo=float(np.percentile(bs, 2.5)), rmse_hi=float(np.percentile(bs, 97.5)),
+                    resid=res)
+
+    fit = {c: _fit(c) for c in ["MSL5", "EWI_annual", "EWI_spring"]}
+
+    # Williams' test: MSL5 vs annual EWI as EbF predictors (dependent)
+    r_ey = pearsonr(df["MSL5"], df["EbF"])[0]
+    r_ez = pearsonr(df["EWI_annual"], df["EbF"])[0]
+    r_yz = pearsonr(df["MSL5"], df["EWI_annual"])[0]
+    R = (1 - r_ey**2 - r_ez**2 - r_yz**2) + 2 * r_ey * r_ez * r_yz
+    t_w = (r_ey - r_ez) * np.sqrt((n - 1) * (1 + r_yz) /
+          (2 * ((n - 1) / (n - 3)) * R + ((r_ey + r_ez)**2 / 4) * (1 - r_yz)**3))
+    p_w = float(2 * (1 - _t.cdf(abs(t_w), n - 3)))
+
+    # A–D match bands (Ellenberg-F units), MSL5 vs annual EWI
+    edges = [0, 0.15, 0.30, 0.50, np.inf]; labs = ["A", "B", "C", "D"]
+    bands = {}
+    for lab, lo, hi in zip(labs, edges[:-1], edges[1:]):
+        bands[lab] = (int(((fit["MSL5"]["resid"] > lo) & (fit["MSL5"]["resid"] <= hi)).sum()),
+                      int(((fit["EWI_annual"]["resid"] > lo) & (fit["EWI_annual"]["resid"] <= hi)).sum()))
+
+    out = df.copy(); out.index.name = "piezo"; out = out.reset_index()
+    out["piezo"] = out["piezo"].str.upper()
+    out["resid_MSL5"] = fit["MSL5"]["resid"]
+    out["resid_EWI_annual"] = fit["EWI_annual"]["resid"]
+    out = out[["piezo", "Cluster", "EbF", "MSL5", "EWI_annual", "EWI_spring",
+               "resid_MSL5", "resid_EWI_annual"]]
+
+    summary = dict(n=n, fit=fit, williams_t=float(t_w), williams_p=p_w, bands=bands,
+                   r_MSL5=fit["MSL5"]["r"], r_EWI_annual=fit["EWI_annual"]["r"])
+    return out, summary
+
+
+def plot_ebf_scatter(df: pd.DataFrame, summary: dict, out: Path) -> None:
+    """Three-panel between-well EbF scatter: MSL5 | annual EWI | spring EWI (Fig XX)."""
+    panels = [("MSL5", "5-yr mean spring level MSL5 (m)", "(a) Observed MSL5"),
+              ("EWI_annual", "Equilibrium index, annual climate (m)", "(b) EWI — annual"),
+              ("EWI_spring", "Equilibrium index, spring climate (m)", "(c) EWI — spring")]
+    fig, axes = plt.subplots(1, 3, figsize=(15, 5.2), sharey=True)
+    for ax, (col, xlab, title) in zip(axes, panels):
+        for cid in sorted(df["Cluster"].dropna().astype(int).unique()):
+            s = df[df["Cluster"] == cid]
+            ax.scatter(s[col], s["EbF"], s=55, edgecolor="k", linewidth=0.4,
+                       color=config.CLUSTER_COLOURS.get(cid, "grey"),
+                       label=config.CLUSTER_LABELS.get(cid, f"C{cid}"), zorder=3)
+        m, c = np.polyfit(df[col], df["EbF"], 1); xs = np.array([df[col].min(), df[col].max()])
+        ax.plot(xs, m * xs + c, "k--", lw=1, zorder=2)
+        r = summary["fit"][col]["r"]
+        ax.set_xlabel(xlab); ax.set_title(f"{title}\nr = {r:+.2f}  (n = {summary['n']})", fontsize=10)
+    axes[0].set_ylabel("Mean Ellenberg-F (moisture)")
+    axes[2].legend(fontsize=7, loc="lower right", title="Habitat")
+    fig.tight_layout(); fig.savefig(out, dpi=160); plt.close(fig)
+
+
 def main() -> int:
     banner("26", "van Willegen MSL Projection")
     print("=" * 72)
@@ -1377,6 +1517,25 @@ def main() -> int:
                 info(f"  out-of-scope forest (C4/C5): n={len(forest)}, "
                      f"RMSE {np.sqrt((forest['residual_mm']**2).mean()):.0f} mm "
                      f"(predicted but flagged unreliable)")
+
+    # ── Pass 7 — Ellenberg-F cross-validation (v1.3.3, external input) ─────
+    print("\nPass 7 — Ellenberg-F cross-validation (MSL5 vs EWI; external dataset)")
+    ebf_df, ebf_summary = compute_ebf_crossvalidation(elev)
+    if ebf_df is not None:
+        ebf_df.to_csv(paths.OUT_26_EBF_COMPARISON, index=False)
+        saved(f"{paths.OUT_26_EBF_COMPARISON.name}")
+        f = ebf_summary["fit"]
+        info(f"  EbF ~ MSL5:  r={f['MSL5']['r']:+.3f} [{f['MSL5']['r_lo']:+.2f},{f['MSL5']['r_hi']:+.2f}]  "
+             f"RMSE={f['MSL5']['rmse']:.3f} EbF-units")
+        info(f"  EbF ~ EWI :  r={f['EWI_annual']['r']:+.3f} [{f['EWI_annual']['r_lo']:+.2f},{f['EWI_annual']['r_hi']:+.2f}]  "
+             f"RMSE={f['EWI_annual']['rmse']:.3f} EbF-units")
+        info(f"  Williams' test (MSL5 vs EWI): t={ebf_summary['williams_t']:+.3f}, "
+             f"p={ebf_summary['williams_p']:.3f} "
+             f"({'indistinguishable' if ebf_summary['williams_p'] >= 0.05 else 'distinguishable'})")
+        info("  match bands (MSL5 / EWI): " +
+             ", ".join(f"{k} {v[0]}/{v[1]}" for k, v in ebf_summary["bands"].items()))
+        plot_ebf_scatter(ebf_df, ebf_summary, paths.OUT_26_EBF_SCATTER)
+        saved(f"{paths.OUT_26_EBF_SCATTER.name}")
 
     # ── Figures ────────────────────────────────────────────────────────────
     print("\nRendering figures...")

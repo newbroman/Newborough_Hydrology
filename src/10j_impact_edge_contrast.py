@@ -92,7 +92,10 @@ from utils.clearfell_common import (
 )
 from utils.site_observations import update_site_observation
 
-__version__ = "1.2.1"  # Hollingham (2026) — 2026-07-03
+__version__ = "1.2.2"  # Hollingham (2026) — 2026-07-04
+# 1.2.2 — figure_monthly_contrast(): fix IndexError — pre/post masks now
+#          computed per-series on each series' own index (Impact 172 rows,
+#          Edge 180 rows); shared mask caused length mismatch in pandas.
 # 1.2.1 — figure_monthly_contrast(): added pre/post period mean lines
 #          (dotted, colour-matched) to both panels, with annotations
 #          showing the per-zone and gap-series shifts.
@@ -355,18 +358,13 @@ def figure_monthly_contrast(panel, monthly, out_path):
                              gridspec_kw={'height_ratios': [1.2, 1.0]})
 
     # Pre/post split for period means
-    pre_mask  = impact_mean.index <  INTERVENTION_DATE
-    post_mask = impact_mean.index >= INTERVENTION_DATE
-
-    # Period means — top panel
-    imp_pre_mean  = impact_mean[pre_mask].mean()
-    imp_post_mean = impact_mean[post_mask].mean()
-    edg_pre_mean  = edge_mean[pre_mask].mean()
-    edg_post_mean = edge_mean[post_mask].mean()
-
-    # Period means — bottom panel
-    diff_pre_mean  = diff[pre_mask].mean()  * 1000
-    diff_post_mean = diff[post_mask].mean() * 1000
+    # Period means — each series masked on its own index (lengths differ)
+    imp_pre_mean  = impact_mean[impact_mean.index <  INTERVENTION_DATE].mean()
+    imp_post_mean = impact_mean[impact_mean.index >= INTERVENTION_DATE].mean()
+    edg_pre_mean  = edge_mean[edge_mean.index   <  INTERVENTION_DATE].mean()
+    edg_post_mean = edge_mean[edge_mean.index   >= INTERVENTION_DATE].mean()
+    diff_pre_mean  = diff[diff.index <  INTERVENTION_DATE].mean() * 1000
+    diff_post_mean = diff[diff.index >= INTERVENTION_DATE].mean() * 1000
 
     ax0 = axes[0]
     ax0.plot(impact_mean.index, impact_mean.values,

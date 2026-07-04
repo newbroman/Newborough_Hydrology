@@ -20,6 +20,25 @@ Usage:
     intake_monthly.py --master MASTER.ods --logger well-levels-2026-06.csv
     intake_monthly.py --master MASTER.ods --recordsheet recordsheet.ods --month 2026-05
 """
+# ── Changelog ────────────────────────────────────────────────────────────────
+# v1.1.0 (2026-07-04)
+#   * Added --hub: upsert the month's computed levels into the living hub
+#     (readings_living.csv) so the forecaster feeds grow each month. Idempotent
+#     (replaces existing rows for month x wells; never duplicates). dfs is written
+#     as the hub's depth_below_ground (= water_mAOD - ground_elev = upstand - depth,
+#     verified). Runs independently of the LibreOffice/UNO ODS write.
+#   * NOTE ON LINEAGE: historical hub rows came from the pipeline's cleaned mAOD
+#     (via seed_living_hub.py); rows written here derive from raw master geometry +
+#     field depth. That is the correct operational value for the forecaster's
+#     current-state feed, but is a slightly different lineage from the frozen series.
+# v1.2.0 (2026-07-04)
+#   * Added --metadata well_metadata.csv: resolve reading labels via its aliases
+#     and take geometry (Pipe_Top_Elev, Upstand_m) from it instead of the master's
+#     measured sheet. This is the canonical geometry basis (matches seed_living_hub)
+#     and recovers wells the master lacks/names differently (e.g. ceh40-42, FE1-4,
+#     the forest/edge/warren short labels). Depth-below-ground stays upstand-depth.
+__version__ = "1.2.0"
+
 import argparse, os, re, sys, math, subprocess, time, datetime as dt
 import pandas as pd
 
@@ -134,6 +153,36 @@ def read_recordsheet(path, target_month):
         out[w] = dict(depth=cm / 100.0, wte_logger=None, date=coldate, raw=str(d.iat[ri, 0]).strip())
     return out, coldate
 
+def load_metadata(path):
+    """
+    Load geometry + alias resolution from well_metadata.csv (the canonical source,
+    same basis as seed_living_hub.py). Returns (alias_map, geom):
+      alias_map: {normalised name-or-alias -> normalised canonical name}
+      geom:      {normalised canonical name -> {pipe, upstand, ground}}
+    """
+    md = pd.read_csv(path)
+    md.columns = [c.strip() for c in md.columns]
+    need = {"Name", "Pipe_Top_Elev", "Upstand_m"}
+    missing = need - set(md.columns)
+    if missing:
+        raise ValueError(f"{path} missing column(s): {sorted(missing)}")
+    alias, geom = {}, {}
+    for _, r in md.iterrows():
+        nm = NORM(r["Name"])
+        if not nm or nm == "nan":
+            continue
+        alias[nm] = nm
+        pipe, up = _num(r["Pipe_Top_Elev"]), _num(r["Upstand_m"])
+        geom[nm] = dict(pipe=pipe, upstand=up,
+                        ground=(pipe - up) if (pipe is not None and up is not None) else None)
+        a = r.get("aliases")
+        if pd.notna(a) and str(a) != "nan":
+            for x in re.split(r"[;,]", str(a)):
+                if NORM(x):
+                    alias.setdefault(NORM(x), nm)
+    return alias, geom
+
+
 # ───────────────────────── compute + QA ─────────────────────────
 def compute(master, readings, tol, outlier):
     geom, prev = master['geom'], master['prev_wte']
@@ -223,6 +272,40 @@ def uno_write(master_path, out_path, master, vals, coldate, port=2002):
         try: desktop.terminate()
         except Exception: pass
 
+# ───────────────────────── living hub upsert ─────────────────────────
+def append_to_hub(hub_path, month, vals):
+    """
+    Upsert this month's computed levels into the living hub (readings_living.csv).
+
+    Idempotent: any existing hub rows for (this month x these wells) are replaced,
+    so re-running a month overwrites cleanly and never duplicates. Well ids are
+    already normalised in `vals` (matching the seed convention). `dfs` is written
+    as depth_below_ground (algebraically identical to water_mAOD - ground_elev).
+
+    Returns (n_written, n_updated).
+    """
+    new = pd.DataFrame([
+        {"well": w, "date": month,
+         "water_mAOD": v["wte"], "depth_below_ground": v["dfs"]}
+        for w, v in vals.items()
+    ])
+    if new.empty:
+        return 0, 0
+    if os.path.exists(hub_path):
+        hub = pd.read_csv(hub_path)
+        hub["date"] = hub["date"].astype(str).str.slice(0, 7)   # normalise to YYYY-MM
+        wells = set(new["well"])
+        mask = (hub["date"] == month) & (hub["well"].isin(wells))
+        n_upd = int(mask.sum())
+        hub = hub[~mask]
+        out = pd.concat([hub, new], ignore_index=True)
+    else:
+        out, n_upd = new, 0
+    out = out.sort_values(["well", "date"]).reset_index(drop=True)
+    out.to_csv(hub_path, index=False)
+    return len(new), n_upd
+
+
 # ───────────────────────── main ─────────────────────────
 def main():
     ap = argparse.ArgumentParser(description="Newborough monthly intake")
@@ -234,6 +317,8 @@ def main():
     ap.add_argument('--tolerance', type=float, default=0.005, help='logger cross-check tolerance, m')
     ap.add_argument('--outlier', type=float, default=0.5, help='month-over-month outlier flag, m')
     ap.add_argument('--outdir', default='.')
+    ap.add_argument('--hub', help='living hub CSV (readings_living.csv); if given, upsert this month into the hub')
+    ap.add_argument('--metadata', help='well_metadata.csv; if given, resolve well ids via its aliases and take geometry from it (canonical basis, recovers wells the master lacks)')
     args = ap.parse_args()
 
     master = load_master(args.master)
@@ -249,7 +334,23 @@ def main():
         if not readings:
             print(f"No recordsheet column buckets to {args.month}"); sys.exit(2)
 
+    # Canonical geometry + alias resolution from well_metadata.csv (recommended:
+    # matches the seed basis and recovers wells the master's measured sheet lacks).
+    if args.metadata:
+        alias_map, meta_geom = load_metadata(args.metadata)
+        readings = {alias_map.get(k, k): v for k, v in readings.items()}
+        master['geom'] = meta_geom
+        print(f"  metadata: {len(meta_geom)} wells from {args.metadata} "
+              f"({len(alias_map) - len(meta_geom)} aliases)")
+
     vals, qa = compute(master, readings, args.tolerance, args.outlier)
+
+    # Upsert into the living hub first, so it updates even if the ODS write fails.
+    if args.hub and month:
+        n_new, n_upd = append_to_hub(args.hub, month, vals)
+        print(f"  hub: {n_new} wells written for {month} ({n_upd} updated, {n_new - n_upd} new) -> {args.hub}")
+        if qa['outliers'] or qa['crosscheck']:
+            print("  ! flagged wells were still written; review the QA and re-run to overwrite after any fix.")
 
     os.makedirs(args.outdir, exist_ok=True)
     base = os.path.splitext(os.path.basename(args.master))[0]

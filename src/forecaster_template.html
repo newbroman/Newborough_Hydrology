@@ -328,7 +328,8 @@
     <div class="field">
       <label for="current-depth-input">Current observed depth (m below ground)</label>
       <input id="current-depth-input" type="number" step="0.01" min="0" max="5" value="0.60">
-      <div class="hint">Today's dipwell reading. Used in the P<sub>flood</sub> forecast (winter rainfall needed to lift the water table from this depth to the slack floor). Prepopulated with the cluster's long-term depth for the current month; edit to match your observation.</div>
+      <div class="hint">Today's dipwell reading. Used in the P<sub>flood</sub> forecast (winter rainfall needed to lift the water table from this depth to the slack floor). Prepopulated from the latest field round where available; edit to match your observation.</div>
+      <div class="hint" id="depth-source" style="font-style:italic;margin-top:.15rem;"></div>
     </div>
     <div class="field">
       <label for="summer-min-input">Summer minimum depth (m below ground)</label>
@@ -401,6 +402,13 @@
 </div>
 
 <script>
+/* forecaster_template.html — live-feed wiring v1.1.0 (2026-07-04)
+   Prepopulates the current-depth field from the living hub feeds
+   (latest_readings.json, forecaster_msl5.json) with a well -> cluster ->
+   climatology fallback, adds an MSL5 row and an inline source/as-of label.
+   Feeds are optional: if they don't load, the tool falls back to climatology
+   exactly as before. Deployed page fetches ../../living/*.json — assumes
+   Script 11b outputs forecaster.html to outputs/11b_spatial_thresholds/. */
 /* ═══════════════════════════════════════════════════════════════════
    DATA BUNDLE (inserted by Script 11b build_forecaster_html)
    ═══════════════════════════════════════════════════════════════════ */
@@ -448,6 +456,50 @@ function clusterToBlock(clusterKey){
    ═══════════════════════════════════════════════════════════════════ */
 const MET_URL = "https://www.metoffice.gov.uk/pub/data/weather/uk/climate/stationdata/valleydata.txt";
 const WINTER_MONTHS = [10,11,12,1,2,3];
+
+/* ═══════════════════════════════════════════════════════════════════
+   LIVE FIELD LEVELS (living hub feeds)
+   Prepopulate the current-depth field from the latest field round.
+   Fallback: this well's own reading -> its cluster's current mean ->
+   long-term cluster monthly climatology (existing default). All optional —
+   if the feeds don't load, the tool falls back to climatology. Feeds are
+   produced monthly by update_forecaster_feed.py / update_forecaster_msl5.py
+   and committed under /living/; fetched relative to the deployed page.
+   ═══════════════════════════════════════════════════════════════════ */
+const LEVELS_URL = "../../living/latest_readings.json";
+const MSL5_URL   = "../../living/forecaster_msl5.json";
+let LIVE_LEVELS = null;   // {as_of, wells:{id:{water_mAOD,depth_below_ground}}, clusters:{Cn:{mean_depth_below_ground,n}}}
+let LIVE_MSL5   = null;   // {wells:{id:{MSL5_m_bg,window_end_year}}, clusters:{Cn:{mean_MSL5_m_bg,n}}}
+
+function liveWellLevel(w){ return (LIVE_LEVELS && LIVE_LEVELS.wells) ? (LIVE_LEVELS.wells[w.name] || null) : null; }
+function liveClusterLevel(w){ return (LIVE_LEVELS && LIVE_LEVELS.clusters) ? (LIVE_LEVELS.clusters[w.cluster] || null) : null; }
+
+function asOfLabel(){
+  if(!LIVE_LEVELS || !LIVE_LEVELS.as_of) return 'latest';
+  const parts = String(LIVE_LEVELS.as_of).split('-').map(Number);
+  const mn = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return (parts[1] >= 1 && parts[1] <= 12) ? `${mn[parts[1]-1]} ${parts[0]}` : LIVE_LEVELS.as_of;
+}
+function setDepthSourceLabel(src){
+  const el = document.getElementById('depth-source');
+  if(el) el.textContent = src ? `Prepopulated from: ${src}.` : '';
+}
+
+async function loadLevels(){
+  try{
+    const [r1,r2] = await Promise.all([
+      fetch(LEVELS_URL, {cache:'no-store'}),
+      fetch(MSL5_URL,   {cache:'no-store'})
+    ]);
+    if(r1 && r1.ok) LIVE_LEVELS = await r1.json();
+    if(r2 && r2.ok) LIVE_MSL5   = await r2.json();
+  }catch(err){
+    console.warn('Live level feeds unavailable — using climatology defaults:', err);
+  }
+  // Refresh the selected well so its default + meta reflect the feeds.
+  if(SELECTED) selectWell(SELECTED);
+  return true;
+}
 
 function parseValleyData(text){
   // Return {rows: [{year, month, rain_mm}]}
@@ -782,15 +834,28 @@ function selectWell(name){
   if(!w) return;
   const coeff = DATA.cluster_coeffs[w.cluster];
   const currentMonth = (new Date()).getMonth() + 1;
-  // Current-depth default: cluster's long-term mean for this calendar month
-  // (falls back to summer-min if the cluster has no monthly climatology).
-  const currentDepth = (coeff.monthly_clim && coeff.monthly_clim[currentMonth] !== undefined)
-    ? Math.abs(coeff.monthly_clim[currentMonth])
-    : Math.abs(w.default_h_prev);
+  // Current-depth default: this well's latest reading -> its cluster's current
+  // mean -> long-term cluster monthly climatology -> well default. Feeds optional.
+  const lw = liveWellLevel(w), lc = liveClusterLevel(w);
+  let currentDepth, depthSource;
+  if(lw && lw.depth_below_ground !== undefined && lw.depth_below_ground !== null){
+    currentDepth = Math.abs(lw.depth_below_ground);
+    depthSource  = `this well's ${asOfLabel()} reading`;
+  }else if(lc && lc.mean_depth_below_ground !== undefined && lc.mean_depth_below_ground !== null){
+    currentDepth = Math.abs(lc.mean_depth_below_ground);
+    depthSource  = `cluster current mean (${asOfLabel()})`;
+  }else if(coeff.monthly_clim && coeff.monthly_clim[currentMonth] !== undefined){
+    currentDepth = Math.abs(coeff.monthly_clim[currentMonth]);
+    depthSource  = 'long-term climatology';
+  }else{
+    currentDepth = Math.abs(w.default_h_prev);
+    depthSource  = 'long-term default';
+  }
   // Summer-min default: cluster's long-term summer minimum (unchanged).
   const summerMin = Math.abs(w.default_h_prev);
   document.getElementById('current-depth-input').value = currentDepth.toFixed(2);
   document.getElementById('summer-min-input').value = summerMin.toFixed(2);
+  setDepthSourceLabel(depthSource);
   renderWellMeta(w);
   renderForecasts(w);
   renderMap();
@@ -855,12 +920,29 @@ function renderWellMeta(w){
        <div class="well-meta-row"><span class="k">Winter peak (${monthNames[cPeak-1]})</span><span class="v">${fmt(cWinPk)}</span></div>`
     : '';
 
+  // Latest 5-year mean spring level (MSL5) from the living feed, if present.
+  let msl5Row = '';
+  if(LIVE_MSL5){
+    const mw = LIVE_MSL5.wells && LIVE_MSL5.wells[w.name];
+    const mc = LIVE_MSL5.clusters && LIVE_MSL5.clusters[w.cluster];
+    let msl5 = null, msl5note = '';
+    if(mw && mw.MSL5_m_bg !== undefined && mw.MSL5_m_bg !== null){
+      msl5 = mw.MSL5_m_bg; msl5note = mw.window_end_year ? ` (to ${mw.window_end_year})` : '';
+    }else if(mc && mc.mean_MSL5_m_bg !== undefined && mc.mean_MSL5_m_bg !== null){
+      msl5 = mc.mean_MSL5_m_bg; msl5note = ' (cluster mean)';
+    }
+    if(msl5 !== null){
+      msl5Row = `<div class="well-meta-row"><span class="k">5-yr mean spring level (MSL5)${msl5note}</span><span class="v">${fmt(msl5)}</span></div>`;
+    }
+  }
+
   document.getElementById('well-meta').innerHTML = `
     <div class="well-meta-row"><span class="k">Name</span><span class="v">${w.display_name}</span></div>
     <div class="well-meta-row"><span class="k">Easting</span><span class="v">${w.E.toFixed(0)}</span></div>
     <div class="well-meta-row"><span class="k">Northing</span><span class="v">${w.N.toFixed(0)}</span></div>
     <div class="well-meta-row"><span class="k">Ground elev (m AOD)</span><span class="v">${w.ground_elev.toFixed(2)}</span></div>
     <div class="well-meta-row"><span class="k">Cluster</span><span class="v">${clusterCell}</span></div>
+    ${msl5Row}
     ${wellTable}
     ${clusterTable}
     ${ncotNotice}
@@ -1202,6 +1284,7 @@ function init(){
 
   updateSliderLabel();
   loadLiveData();   // kick off Met Office fetch asynchronously
+  loadLevels();     // kick off living-feed fetch (current levels + MSL5)
 }
 
 if(document.readyState!=='loading') init();

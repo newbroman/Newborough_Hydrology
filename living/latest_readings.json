@@ -1,325 +1,337 @@
 {
-  "as_of": "2026-02",
-  "generated": "2026-06-21T14:06:57Z",
-  "n_wells": 73,
+  "as_of": "2026-06",
+  "generated": "2026-07-04T18:16:55Z",
+  "n_wells": 76,
   "wells": {
     "ceh1": {
-      "water_mAOD": 10.892,
-      "depth_below_ground": 0.2
+      "water_mAOD": 9.802,
+      "depth_below_ground": -0.89
     },
     "ceh10": {
-      "water_mAOD": 5.678,
-      "depth_below_ground": -0.14
+      "water_mAOD": 4.198,
+      "depth_below_ground": -1.62
     },
     "ceh11": {
-      "water_mAOD": 3.564,
-      "depth_below_ground": -0.02
-    },
-    "ceh13": {
-      "water_mAOD": 10.585,
-      "depth_below_ground": -0.74
-    },
-    "ceh14": {
-      "water_mAOD": 13.91,
-      "depth_below_ground": -0.51
-    },
-    "ceh16": {
-      "water_mAOD": 5.747,
-      "depth_below_ground": -0.42
-    },
-    "ceh17": {
-      "water_mAOD": 4.441,
-      "depth_below_ground": -1.65
-    },
-    "ceh18": {
-      "water_mAOD": 4.864,
-      "depth_below_ground": -0.34
-    },
-    "ceh19": {
-      "water_mAOD": 4.37,
-      "depth_below_ground": -0.43
-    },
-    "ceh2": {
-      "water_mAOD": 11.94,
-      "depth_below_ground": -0.09
-    },
-    "ceh20": {
-      "water_mAOD": 7.978,
+      "water_mAOD": 2.834,
       "depth_below_ground": -0.75
     },
-    "ceh21": {
-      "water_mAOD": 3.552,
-      "depth_below_ground": -0.67
+    "ceh13": {
+      "water_mAOD": 11.312,
+      "depth_below_ground": 0.077
     },
-    "ceh22": {
-      "water_mAOD": 3.011,
-      "depth_below_ground": -0.27
+    "ceh14": {
+      "water_mAOD": 13.39,
+      "depth_below_ground": -1.03
     },
-    "ceh23": {
-      "water_mAOD": 10.098,
-      "depth_below_ground": 0.08
+    "ceh16": {
+      "water_mAOD": 5.147,
+      "depth_below_ground": -1.02
     },
-    "ceh24": {
-      "water_mAOD": 6.388,
-      "depth_below_ground": 0.43
+    "ceh17": {
+      "water_mAOD": 3.911,
+      "depth_below_ground": -2.18
     },
-    "ceh25": {
-      "water_mAOD": 9.396,
-      "depth_below_ground": 0.32
+    "ceh18": {
+      "water_mAOD": 4.114,
+      "depth_below_ground": -1.09
     },
-    "ceh26": {
-      "water_mAOD": 10.5,
-      "depth_below_ground": 0.05
-    },
-    "ceh27": {
-      "water_mAOD": 11.22,
-      "depth_below_ground": 0.28
-    },
-    "ceh28": {
-      "water_mAOD": 10.376,
-      "depth_below_ground": -0.02
-    },
-    "ceh3": {
-      "water_mAOD": 3.542,
-      "depth_below_ground": -0.83
-    },
-    "ceh30": {
-      "water_mAOD": 7.42,
-      "depth_below_ground": -1.25
-    },
-    "ceh31": {
-      "water_mAOD": 5.49,
+    "ceh19": {
+      "water_mAOD": 3.8,
       "depth_below_ground": -1.0
     },
-    "ceh32": {
-      "water_mAOD": 9.81,
-      "depth_below_ground": -1.26
+    "ceh2": {
+      "water_mAOD": 10.65,
+      "depth_below_ground": -1.38
     },
-    "ceh33": {
-      "water_mAOD": 7.57,
-      "depth_below_ground": -1.26
+    "ceh20": {
+      "water_mAOD": 7.348,
+      "depth_below_ground": -1.38
     },
-    "ceh34": {
-      "water_mAOD": 9.41,
-      "depth_below_ground": -0.39
+    "ceh21": {
+      "water_mAOD": 3.062,
+      "depth_below_ground": -1.16
     },
-    "ceh36": {
-      "water_mAOD": 5.11,
-      "depth_below_ground": -0.2
+    "ceh22": {
+      "water_mAOD": 2.421,
+      "depth_below_ground": -0.86
     },
-    "ceh39": {
-      "water_mAOD": 7.93,
-      "depth_below_ground": 0.08
+    "ceh23": {
+      "water_mAOD": 9.248,
+      "depth_below_ground": -0.77
     },
-    "ceh4": {
-      "water_mAOD": 4.299,
-      "depth_below_ground": -0.25
-    },
-    "ceh40": {
-      "water_mAOD": 7.64,
-      "depth_below_ground": -0.13
-    },
-    "ceh41": {
-      "water_mAOD": 7.26,
-      "depth_below_ground": 0.11
-    },
-    "ceh42": {
-      "water_mAOD": 3.94,
-      "depth_below_ground": 0.32
-    },
-    "ceh5": {
-      "water_mAOD": 9.878,
-      "depth_below_ground": 0.24
-    },
-    "ceh6": {
-      "water_mAOD": 8.731,
-      "depth_below_ground": 0.12
-    },
-    "ceh9": {
-      "water_mAOD": 7.843,
-      "depth_below_ground": -0.14
-    },
-    "d10": {
-      "water_mAOD": 9.873,
-      "depth_below_ground": 0.23
-    },
-    "d15": {
-      "water_mAOD": 11.001,
-      "depth_below_ground": 0.48
-    },
-    "d17": {
-      "water_mAOD": 8.309,
-      "depth_below_ground": 0.33
-    },
-    "d25": {
-      "water_mAOD": 5.671,
-      "depth_below_ground": 0.27
-    },
-    "d38": {
-      "water_mAOD": 5.111,
-      "depth_below_ground": 0.34
-    },
-    "d41": {
-      "water_mAOD": 6.11,
-      "depth_below_ground": 0.19
-    },
-    "d43": {
-      "water_mAOD": 6.997,
-      "depth_below_ground": 0.09
-    },
-    "d44": {
-      "water_mAOD": 5.78,
-      "depth_below_ground": -0.03
-    },
-    "d5": {
-      "water_mAOD": 10.72,
-      "depth_below_ground": 0.12
-    },
-    "d6": {
-      "water_mAOD": 11.055,
-      "depth_below_ground": 0.18
-    },
-    "d7": {
-      "water_mAOD": 10.205,
-      "depth_below_ground": 0.33
-    },
-    "d8": {
-      "water_mAOD": 9.506,
-      "depth_below_ground": 0.18
-    },
-    "d9": {
-      "water_mAOD": 9.446,
-      "depth_below_ground": 0.29
-    },
-    "fe1": {
-      "water_mAOD": 8.5,
-      "depth_below_ground": -0.2
-    },
-    "fe2": {
-      "water_mAOD": 7.41,
-      "depth_below_ground": -1.13
-    },
-    "fe3": {
-      "water_mAOD": 6.1,
-      "depth_below_ground": -1.44
-    },
-    "l7": {
-      "water_mAOD": 10.01,
-      "depth_below_ground": -0.85
-    },
-    "llynrhos": {
-      "water_mAOD": 7.85,
-      "depth_below_ground": 0.51
-    },
-    "nw1": {
-      "water_mAOD": 12.023,
-      "depth_below_ground": -0.61
-    },
-    "nw10": {
-      "water_mAOD": 11.48,
-      "depth_below_ground": -0.32
-    },
-    "nw11": {
-      "water_mAOD": 12.18,
-      "depth_below_ground": 0.08
-    },
-    "nw13": {
-      "water_mAOD": 12.08,
-      "depth_below_ground": -0.01
-    },
-    "nw2": {
-      "water_mAOD": 12.424,
-      "depth_below_ground": 0.36
-    },
-    "nw3": {
-      "water_mAOD": 10.786,
-      "depth_below_ground": 0.08
-    },
-    "nw4": {
-      "water_mAOD": 9.32,
-      "depth_below_ground": 0.09
-    },
-    "nw4b": {
-      "water_mAOD": 9.466,
-      "depth_below_ground": 0.13
-    },
-    "nw5": {
-      "water_mAOD": 5.695,
-      "depth_below_ground": -0.03
-    },
-    "nw6": {
-      "water_mAOD": 6.601,
-      "depth_below_ground": 0.16
-    },
-    "nw7": {
-      "water_mAOD": 7.804,
+    "ceh24": {
+      "water_mAOD": 5.258,
       "depth_below_ground": -0.7
     },
+    "ceh25": {
+      "water_mAOD": 8.211,
+      "depth_below_ground": -0.865
+    },
+    "ceh26": {
+      "water_mAOD": 9.705,
+      "depth_below_ground": -0.745
+    },
+    "ceh27": {
+      "water_mAOD": 10.25,
+      "depth_below_ground": -0.69
+    },
+    "ceh28": {
+      "water_mAOD": 9.606,
+      "depth_below_ground": -0.79
+    },
+    "ceh3": {
+      "water_mAOD": 3.242,
+      "depth_below_ground": -1.13
+    },
+    "ceh30": {
+      "water_mAOD": 6.88,
+      "depth_below_ground": -1.79
+    },
+    "ceh31": {
+      "water_mAOD": 4.84,
+      "depth_below_ground": -1.65
+    },
+    "ceh32": {
+      "water_mAOD": 9.33,
+      "depth_below_ground": -1.74
+    },
+    "ceh33": {
+      "water_mAOD": 7.05,
+      "depth_below_ground": -1.78
+    },
+    "ceh34": {
+      "water_mAOD": 8.86,
+      "depth_below_ground": -0.94
+    },
+    "ceh36": {
+      "water_mAOD": 4.48,
+      "depth_below_ground": -0.83
+    },
+    "ceh39": {
+      "water_mAOD": 7.23,
+      "depth_below_ground": -0.62
+    },
+    "ceh4": {
+      "water_mAOD": 3.559,
+      "depth_below_ground": -0.99
+    },
+    "ceh40": {
+      "water_mAOD": 7.06,
+      "depth_below_ground": -0.71
+    },
+    "ceh41": {
+      "water_mAOD": 6.51,
+      "depth_below_ground": -0.64
+    },
+    "ceh42": {
+      "water_mAOD": 2.95,
+      "depth_below_ground": -0.67
+    },
+    "ceh5": {
+      "water_mAOD": 8.848,
+      "depth_below_ground": -0.79
+    },
+    "ceh6": {
+      "water_mAOD": 7.971,
+      "depth_below_ground": -0.64
+    },
+    "ceh9": {
+      "water_mAOD": 7.153,
+      "depth_below_ground": -0.83
+    },
+    "d10": {
+      "water_mAOD": 9.043,
+      "depth_below_ground": -0.6
+    },
+    "d15": {
+      "water_mAOD": 9.931,
+      "depth_below_ground": -0.59
+    },
+    "d17": {
+      "water_mAOD": 7.409,
+      "depth_below_ground": -0.57
+    },
+    "d38": {
+      "water_mAOD": 3.761,
+      "depth_below_ground": -1.01
+    },
+    "d41": {
+      "water_mAOD": 5.25,
+      "depth_below_ground": -0.67
+    },
+    "d43": {
+      "water_mAOD": 6.037,
+      "depth_below_ground": -0.87
+    },
+    "d44": {
+      "water_mAOD": 4.86,
+      "depth_below_ground": -0.95
+    },
+    "d5": {
+      "water_mAOD": 9.81,
+      "depth_below_ground": -0.79
+    },
+    "d6": {
+      "water_mAOD": 10.055,
+      "depth_below_ground": -0.82
+    },
+    "d7": {
+      "water_mAOD": 9.095,
+      "depth_below_ground": -0.78
+    },
+    "d8": {
+      "water_mAOD": 8.756,
+      "depth_below_ground": -0.57
+    },
+    "d9": {
+      "water_mAOD": 8.466,
+      "depth_below_ground": -0.69
+    },
+    "fe1": {
+      "water_mAOD": 7.82,
+      "depth_below_ground": -0.88
+    },
+    "fe2": {
+      "water_mAOD": 6.84,
+      "depth_below_ground": -1.7
+    },
+    "fe3": {
+      "water_mAOD": 5.48,
+      "depth_below_ground": -2.06
+    },
+    "fe4": {
+      "water_mAOD": 7.55,
+      "depth_below_ground": -1.58
+    },
+    "l7": {
+      "water_mAOD": 9.04,
+      "depth_below_ground": -1.82
+    },
+    "lis1": {
+      "water_mAOD": 7.68,
+      "depth_below_ground": -0.87
+    },
+    "nw1": {
+      "water_mAOD": 10.803,
+      "depth_below_ground": -1.83
+    },
+    "nw10": {
+      "water_mAOD": 10.6,
+      "depth_below_ground": -1.2
+    },
+    "nw11": {
+      "water_mAOD": 11.03,
+      "depth_below_ground": -1.07
+    },
+    "nw13": {
+      "water_mAOD": 11.09,
+      "depth_below_ground": -1.0
+    },
+    "nw2": {
+      "water_mAOD": 11.034,
+      "depth_below_ground": -1.03
+    },
+    "nw3": {
+      "water_mAOD": 9.886,
+      "depth_below_ground": -0.82
+    },
+    "nw4": {
+      "water_mAOD": 8.65,
+      "depth_below_ground": -0.58
+    },
+    "nw4b": {
+      "water_mAOD": 8.726,
+      "depth_below_ground": -0.61
+    },
+    "nw5": {
+      "water_mAOD": 4.935,
+      "depth_below_ground": -0.79
+    },
+    "nw6": {
+      "water_mAOD": 5.741,
+      "depth_below_ground": -0.7
+    },
+    "nw7": {
+      "water_mAOD": 7.054,
+      "depth_below_ground": -1.45
+    },
     "nw8b": {
-      "water_mAOD": 6.37,
-      "depth_below_ground": -0.96
+      "water_mAOD": 5.73,
+      "depth_below_ground": -1.6
     },
     "nw9": {
-      "water_mAOD": 4.782,
-      "depth_below_ground": -0.398
+      "water_mAOD": 4.241,
+      "depth_below_ground": -0.939
+    },
+    "p2": {
+      "water_mAOD": 8.26,
+      "depth_below_ground": -0.74
+    },
+    "pe": {
+      "water_mAOD": 4.29,
+      "depth_below_ground": -0.86
+    },
+    "pw": {
+      "water_mAOD": 5.83,
+      "depth_below_ground": -1.05
     },
     "t41a": {
-      "water_mAOD": 6.76,
-      "depth_below_ground": 0.87
+      "water_mAOD": 5.12,
+      "depth_below_ground": -0.77
     },
     "t41b": {
-      "water_mAOD": 6.04,
-      "depth_below_ground": 0.33
+      "water_mAOD": 5.09,
+      "depth_below_ground": -0.62
     },
     "t41c": {
-      "water_mAOD": 6.31,
-      "depth_below_ground": 0.42
-    },
-    "t41d": {
-      "water_mAOD": 6.3,
-      "depth_below_ground": 0.0
-    },
-    "wmc1": {
-      "water_mAOD": 7.315,
-      "depth_below_ground": -0.02
-    },
-    "wmc2": {
-      "water_mAOD": 4.592,
-      "depth_below_ground": 0.04
-    },
-    "wmc3": {
-      "water_mAOD": 8.04,
+      "water_mAOD": 5.24,
       "depth_below_ground": -0.65
     },
+    "t41d": {
+      "water_mAOD": 5.46,
+      "depth_below_ground": -0.84
+    },
+    "wmc1": {
+      "water_mAOD": 6.595,
+      "depth_below_ground": -0.74
+    },
+    "wmc2": {
+      "water_mAOD": 3.802,
+      "depth_below_ground": -0.75
+    },
+    "wmc3": {
+      "water_mAOD": 7.35,
+      "depth_below_ground": -1.34
+    },
     "wmc4": {
-      "water_mAOD": 12.05,
-      "depth_below_ground": -0.04
+      "water_mAOD": 11.07,
+      "depth_below_ground": -1.02
     }
   },
   "clusters": {
     "C1": {
-      "mean_water_mAOD": 9.055,
-      "mean_depth_below_ground": 0.153,
+      "mean_water_mAOD": 8.152,
+      "mean_depth_below_ground": -0.75,
       "n": 7
     },
     "C2": {
-      "mean_water_mAOD": 8.286,
-      "mean_depth_below_ground": 0.169,
+      "mean_water_mAOD": 7.306,
+      "mean_depth_below_ground": -0.811,
       "n": 24
     },
     "C3": {
-      "mean_water_mAOD": 7.738,
-      "mean_depth_below_ground": -0.102,
-      "n": 21
+      "mean_water_mAOD": 6.991,
+      "mean_depth_below_ground": -0.971,
+      "n": 20
     },
     "C4": {
-      "mean_water_mAOD": 10.011,
-      "mean_depth_below_ground": -0.73,
+      "mean_water_mAOD": 9.491,
+      "mean_depth_below_ground": -1.24,
       "n": 9
     },
     "C5": {
-      "mean_water_mAOD": 4.966,
-      "mean_depth_below_ground": -0.78,
+      "mean_water_mAOD": 4.388,
+      "mean_depth_below_ground": -1.358,
       "n": 5
     }
   }

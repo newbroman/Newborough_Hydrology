@@ -98,6 +98,11 @@ DATA_WELLS_RAW      = DATA_DIR / "Newborough_Cleaned_For_Model.csv"
 DATA_WELL_METADATA  = DATA_DIR / "well_metadata.csv"
 DATA_LOCATIONS_RAW  = DATA_WELL_METADATA
 DATA_CLIMATE_RAW    = DATA_DIR / "RAF_Valley_Climate.csv"
+# Documented external input (Script 26 v1.3.3), gitignored — NOT redistributed.
+# Ellenberg-F dune-slack ecohydrology dataset, van Willegen et al. (2024),
+# Mendeley Data V1, doi:10.17632/p4xvb6xxp9.1. Obtain and place at this path;
+# Script 26's EbF cross-validation Pass runs if present and skips cleanly if not.
+DATA_ELLENBERG_EXT  = DATA_DIR / "Ecohydrology_dataset.xlsx"
 
 # Geographic inputs — all resolved via data_geo() (files live in data/geo/).
 DATA_DEM               = data_geo("newborough_dem.tif")
@@ -656,6 +661,10 @@ OUT_26_RESULTS_TXT        = DIR_26 / "26_msl_results.txt"
 # observed-vs-predicted MSL5 comparison table.
 OUT_26_EWI_PER_WELL       = DIR_26 / "26_equilibrium_wetness_index_per_well.csv"
 OUT_26_EWI_MSL5_COMPARISON = DIR_26 / "26_ewi_msl5_comparison.csv"
+# EbF vegetation cross-validation (v1.3.3) — generated from the documented
+# external Ellenberg dataset (DATA_ELLENBERG_EXT); skipped if that file is absent.
+OUT_26_EBF_COMPARISON     = DIR_26 / "26_ebf_comparison.csv"
+OUT_26_EBF_SCATTER        = DIR_26 / "26_ebf_prediction_scatter.png"
 
 # Script 26b — Van Willegen MSL UKCP18 climate projections (Phase 13, Tool B)
 # Pairs with Script 11 Section 5 (Tool A) and Script 26 (observational MSL5).

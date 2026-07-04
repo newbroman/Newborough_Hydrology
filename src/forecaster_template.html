@@ -402,7 +402,11 @@
 </div>
 
 <script>
-/* forecaster_template.html — live-feed wiring v1.1.0 (2026-07-04)
+/* forecaster_template.html — live-feed wiring v1.2.0 (2026-07-04)
+   v1.2.0: ecohydrology block — EWI + projected/tiered EbF from
+           forecaster_indices.json (measured/projected/extrapolated).
+   v1.1.1: forecast month follows the feed's as_of (latest round), not the
+           system clock — a 1-Jul round is June, so labels read June not Jul.
    Prepopulates the current-depth field from the living hub feeds
    (latest_readings.json, forecaster_msl5.json) with a well -> cluster ->
    climatology fallback, adds an MSL5 row and an inline source/as-of label.
@@ -470,6 +474,8 @@ const LEVELS_URL = "../../living/latest_readings.json";
 const MSL5_URL   = "../../living/forecaster_msl5.json";
 let LIVE_LEVELS = null;   // {as_of, wells:{id:{water_mAOD,depth_below_ground}}, clusters:{Cn:{mean_depth_below_ground,n}}}
 let LIVE_MSL5   = null;   // {wells:{id:{MSL5_m_bg,window_end_year}}, clusters:{Cn:{mean_MSL5_m_bg,n}}}
+const INDICES_URL = "../../living/forecaster_indices.json";
+let LIVE_INDICES = null;  // {wells:{id:{EWI_m_bg,EWI_annual,EbF,EbF_tier}}, clusters:{Cn:{mean_EWI_m_bg,mean_EbF,n}}}
 
 function liveWellLevel(w){ return (LIVE_LEVELS && LIVE_LEVELS.wells) ? (LIVE_LEVELS.wells[w.name] || null) : null; }
 function liveClusterLevel(w){ return (LIVE_LEVELS && LIVE_LEVELS.clusters) ? (LIVE_LEVELS.clusters[w.cluster] || null) : null; }
@@ -485,14 +491,28 @@ function setDepthSourceLabel(src){
   if(el) el.textContent = src ? `Prepopulated from: ${src}.` : '';
 }
 
+function refMonthYear(){
+  // Reference month for the forecast = the latest field round (feed as_of), NOT
+  // the system clock. A round read on 1 Jul is the June level, so the forecaster
+  // reads June. Falls back to the system date only when no feed is loaded.
+  if(LIVE_LEVELS && LIVE_LEVELS.as_of){
+    const p = String(LIVE_LEVELS.as_of).split('-').map(Number);
+    if(p[1] >= 1 && p[1] <= 12) return {month: p[1], year: p[0]};
+  }
+  const d = new Date();
+  return {month: d.getMonth() + 1, year: d.getFullYear()};
+}
+
 async function loadLevels(){
   try{
-    const [r1,r2] = await Promise.all([
-      fetch(LEVELS_URL, {cache:'no-store'}),
-      fetch(MSL5_URL,   {cache:'no-store'})
+    const [r1,r2,r3] = await Promise.all([
+      fetch(LEVELS_URL,  {cache:'no-store'}),
+      fetch(MSL5_URL,    {cache:'no-store'}),
+      fetch(INDICES_URL, {cache:'no-store'})
     ]);
-    if(r1 && r1.ok) LIVE_LEVELS = await r1.json();
-    if(r2 && r2.ok) LIVE_MSL5   = await r2.json();
+    if(r1 && r1.ok) LIVE_LEVELS  = await r1.json();
+    if(r2 && r2.ok) LIVE_MSL5    = await r2.json();
+    if(r3 && r3.ok) LIVE_INDICES = await r3.json();
   }catch(err){
     console.warn('Live level feeds unavailable — using climatology defaults:', err);
   }
@@ -833,7 +853,7 @@ function selectWell(name){
   const w = DATA.wells.find(x=>x.name===name);
   if(!w) return;
   const coeff = DATA.cluster_coeffs[w.cluster];
-  const currentMonth = (new Date()).getMonth() + 1;
+  const currentMonth = refMonthYear().month;
   // Current-depth default: this well's latest reading -> its cluster's current
   // mean -> long-term cluster monthly climatology -> well default. Feeds optional.
   const lw = liveWellLevel(w), lc = liveClusterLevel(w);
@@ -883,7 +903,7 @@ function renderWellMeta(w){
   // gracefully when the well lacks a climatology (extended-network
   // wells with too-short records).
   const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const currentMonth = (new Date()).getMonth() + 1;
+  const currentMonth = refMonthYear().month;
   const fmt = v => (v === undefined || v === null) ? '—'
                   : `${Math.abs(v).toFixed(2)} m`;
 
@@ -936,6 +956,31 @@ function renderWellMeta(w){
     }
   }
 
+  // Structural ecohydrology (EWI, projected/tiered EbF) from forecaster_indices.json
+  let ewiRow = '', ebfRow = '';
+  if(LIVE_INDICES){
+    const iw = LIVE_INDICES.wells && LIVE_INDICES.wells[w.name];
+    const ic = LIVE_INDICES.clusters && LIVE_INDICES.clusters[w.cluster];
+    let ewi = null, ewinote = '';
+    if(iw && iw.EWI_m_bg != null){ ewi = iw.EWI_m_bg; }
+    else if(ic && ic.mean_EWI_m_bg != null){ ewi = ic.mean_EWI_m_bg; ewinote = ' (cluster mean)'; }
+    if(ewi != null){
+      ewiRow = `<div class="well-meta-row"><span class="k">Equilibrium wetness index (EWI)${ewinote}</span><span class="v">${fmt(ewi)}</span></div>`;
+    }
+    let ebf = null, ebfnote = '';
+    if(iw && iw.EbF != null){
+      ebf = iw.EbF;
+      const t = iw.EbF_tier;
+      ebfnote = t === 'measured'     ? ' (measured)'
+              : t === 'projected'    ? ' (projected)'
+              : t === 'extrapolated' ? ' (projected, extrapolated)'
+              : '';
+    } else if(ic && ic.mean_EbF != null){ ebf = ic.mean_EbF; ebfnote = ' (cluster mean)'; }
+    if(ebf != null){
+      ebfRow = `<div class="well-meta-row"><span class="k">Ellenberg-F moisture (EbF)${ebfnote}</span><span class="v">${ebf.toFixed(2)}</span></div>`;
+    }
+  }
+
   document.getElementById('well-meta').innerHTML = `
     <div class="well-meta-row"><span class="k">Name</span><span class="v">${w.display_name}</span></div>
     <div class="well-meta-row"><span class="k">Easting</span><span class="v">${w.E.toFixed(0)}</span></div>
@@ -943,6 +988,8 @@ function renderWellMeta(w){
     <div class="well-meta-row"><span class="k">Ground elev (m AOD)</span><span class="v">${w.ground_elev.toFixed(2)}</span></div>
     <div class="well-meta-row"><span class="k">Cluster</span><span class="v">${clusterCell}</span></div>
     ${msl5Row}
+    ${ewiRow}
+    ${ebfRow}
     ${wellTable}
     ${clusterTable}
     ${ncotNotice}
@@ -969,9 +1016,9 @@ function renderForecasts(w){
 
   // Current calendar month — used for the "summer minimum not yet observed"
   // timing note in Forecast 1.
-  const today = new Date();
-  const currentMonth = today.getMonth() + 1;
-  const currentYear  = today.getFullYear();
+  const _rm = refMonthYear();
+  const currentMonth = _rm.month;
+  const currentYear  = _rm.year;
   const todayLabel = `${monthNames[currentMonth - 1]} ${currentYear}`;
 
   // The "summer minimum window" is from the cluster's trough_month onwards

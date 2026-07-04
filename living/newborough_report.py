@@ -22,6 +22,26 @@ Full options:
         --output_dir ./output
 """
 
+# ── Changelog ────────────────────────────────────────────────────────────────
+# v1.1.0 (2026-07-04)
+#   * Map titles, filenames and captions now label each column by the REPORT
+#     MONTH it represents (field-rule bucketed), not the raw reading date. A
+#     column read on 1 Jul is June's level; it was mislabelled "Jul 2026".
+#     Month-on-month, year-on-year and summer-low maps/CSVs all corrected.
+#   * The physical round date is retained only in the "latest well round on …"
+#     narrative sentence (new round_date argument to generate_pdf_report).
+#   * Well Measurement Summary (and month-on-month / year-on-year change figures)
+#     now shown to 2 dp (cm precision) instead of 3 dp.
+#   * Added a rainfall-pattern paragraph to the PDF Weather Summary, built from
+#     the ILLANF24 daily record (rain/dry days, wettest day, first- vs
+#     second-half split, longest dry spell) — previously computed but only
+#     written to a .txt and never shown in the newsletter.
+# v1.1.1 (2026-07-04)
+#   * Markdown difference tables and their Mean/Range summaries now 2 dp
+#     (cm precision) — they are direct differences of cm field readings.
+#     MSL science values left unchanged (separate metric).
+__version__ = "1.1.1"
+
 import argparse
 import sys
 import os
@@ -526,6 +546,63 @@ def assess_wu_reliability(wu_result, valley_rain_mm=None):
 
     is_reliable = len(warnings_list) == 0
     return is_reliable, warnings_list
+
+
+def rainfall_pattern_prose(wu_result):
+    """
+    One newsletter-ready sentence-paragraph describing HOW the month's rain fell,
+    from the ILLANF24 daily record: rain days vs dry days, the wettest day, the
+    first- vs second-half split, and the longest dry spell. Returns '' if there
+    is no usable daily data. (This is the reader-facing counterpart to the
+    structured generate_rainfall_summary .txt, which is kept for reference.)
+    """
+    if not wu_result:
+        return ""
+    daily = wu_result.get('daily') or []
+    valid = [d for d in daily if d.get('precip_mm') is not None]
+    if not valid:
+        return ""
+
+    n = len(valid)
+    rain_days = [d for d in valid if d['precip_mm'] >= 1.0]
+    dry_days = [d for d in valid if d['precip_mm'] < 1.0]
+
+    # longest run of consecutive dry days (< 1 mm), reset by wet/missing days
+    longest = cur = 0
+    for d in daily:
+        p = d.get('precip_mm')
+        if p is not None and p < 1.0:
+            cur += 1
+            longest = max(longest, cur)
+        else:
+            cur = 0
+
+    # first half vs second half of the month
+    mid = len(daily) // 2
+    first = sum(d['precip_mm'] for d in daily[:mid] if d.get('precip_mm') is not None)
+    second = sum(d['precip_mm'] for d in daily[mid:] if d.get('precip_mm') is not None)
+
+    wettest = max(valid, key=lambda d: d['precip_mm'])
+
+    def _day(ds):
+        try:
+            return pd.to_datetime(ds).strftime('%-d %B')
+        except Exception:
+            return str(ds)
+
+    parts = [
+        f"At the local gauge, rain fell on {len(rain_days)} of {n} days "
+        f"({len(dry_days)} dry days under 1 mm)."
+    ]
+    if wettest['precip_mm'] and wettest['precip_mm'] >= 1.0:
+        parts.append(f" The wettest day was {_day(wettest['date'])} "
+                     f"({wettest['precip_mm']:.1f} mm).")
+    if first or second:
+        parts.append(f" The first half of the month brought {first:.0f} mm and "
+                     f"the second half {second:.0f} mm.")
+    if longest >= 3:
+        parts.append(f" The longest dry spell ran {longest} days.")
+    return "".join(parts)
 
 
 def generate_rainfall_summary(wu_result, valley_rain_mm=None, valley_avg_mm=None):
@@ -1058,15 +1135,15 @@ def generate_difference_table(results, coords, label):
     for e, n, z in sorted(results, key=lambda x: x[2], reverse=True):
         name = name_lookup.get((e, n), '?')
         if not np.isnan(z):
-            lines.append(f"| {name} | {e:.0f} | {n:.0f} | {z:+.3f} |")
+            lines.append(f"| {name} | {e:.0f} | {n:.0f} | {z:+.2f} |")
 
     valid_z = [z for _, _, z in results if not np.isnan(z)]
     if valid_z:
         lines.append("")
         lines.append(
             f"**Summary**: {len(valid_z)} wells measured. "
-            f"Mean change: {np.mean(valid_z):+.3f} m, "
-            f"Range: {min(valid_z):+.3f} to {max(valid_z):+.3f} m."
+            f"Mean change: {np.mean(valid_z):+.2f} m, "
+            f"Range: {min(valid_z):+.2f} to {max(valid_z):+.2f} m."
         )
         rising = sum(1 for z in valid_z if z > 0.01)
         falling = sum(1 for z in valid_z if z < -0.01)
@@ -1083,7 +1160,8 @@ def generate_pdf_report(output_dir, year, month, met_text,
                         yoy_results, yoy_d1, yoy_d2,
                         low_results, low_d1, low_d2,
                         coords, wu_result=None, wu_warnings=None,
-                        valley_df=None, wells=None, dates=None, latest_idx=None):
+                        valley_df=None, wells=None, dates=None, latest_idx=None,
+                        round_date=None):
     """
     Generate a PDF report in the style of the Newborough Warren
     Weather & Water Watch newsletter.
@@ -1246,6 +1324,11 @@ def generate_pdf_report(output_dir, year, month, met_text,
             )
         story.append(Paragraph(rain_narrative, style_body))
 
+    # Rainfall pattern through the month (from the ILLANF24 daily record)
+    pattern_text = rainfall_pattern_prose(wu_result)
+    if pattern_text:
+        story.append(Paragraph(pattern_text, style_body))
+
     # Hydrological year context
     if valley_df is not None and valley_row is not None:
         if month >= 10:
@@ -1306,23 +1389,23 @@ def generate_pdf_report(output_dir, year, month, met_text,
     mean_change = np.mean(valid_z) if valid_z else 0
 
     summary_text = (
-        f"The latest well round on {mom_d2.strftime('%d/%m/%Y') if mom_d2 else 'N/A'} "
+        f"The latest well round on {round_date.strftime('%d/%m/%Y') if round_date is not None else 'N/A'} "
         f"covered {n_wells} monitoring dipwells across the reserve. "
     )
     if rising > falling:
         summary_text += (
             f"Water levels are predominantly rising: {rising} wells showed increases, "
             f"{falling} showed decreases, and {stable} were stable. "
-            f"The mean change was {mean_change:+.3f} m."
+            f"The mean change was {mean_change:+.2f} m."
         )
     elif falling > rising:
         summary_text += (
             f"Water levels are predominantly falling: {falling} wells showed decreases, "
             f"{rising} showed increases, and {stable} were stable. "
-            f"The mean change was {mean_change:+.3f} m."
+            f"The mean change was {mean_change:+.2f} m."
         )
     else:
-        summary_text += f"The mean change was {mean_change:+.3f} m."
+        summary_text += f"The mean change was {mean_change:+.2f} m."
     story.append(Paragraph(summary_text, style_body))
 
     # ── Month-on-month map ──
@@ -1337,8 +1420,8 @@ def generate_pdf_report(output_dir, year, month, met_text,
             img = Image(map_path, width=160*mm, height=130*mm)
             story.append(img)
             story.append(Paragraph(
-                f"Water level change (m) from {mom_d1.strftime('%d %b %Y')} to "
-                f"{mom_d2.strftime('%d %b %Y')}. "
+                f"Water level change (m) from {mom_d1.strftime('%b %Y')} to "
+                f"{mom_d2.strftime('%b %Y')}. "
                 f"Blue = rising, red = falling.",
                 style_caption
             ))
@@ -1363,7 +1446,7 @@ def generate_pdf_report(output_dir, year, month, met_text,
             img = Image(map_path, width=160*mm, height=130*mm)
             story.append(img)
             story.append(Paragraph(
-                f"Cumulative water level change since {low_d1.strftime('%d %b %Y')}.",
+                f"Cumulative water level change since {low_d1.strftime('%b %Y')}.",
                 style_caption
             ))
 
@@ -1379,8 +1462,8 @@ def generate_pdf_report(output_dir, year, month, met_text,
             story.append(Paragraph(
                 f"Compared to this time last year, {yoy_rising} out of {len(yoy_valid)} wells "
                 f"are showing higher water levels, with a mean change of "
-                f"{np.mean(yoy_valid):+.3f} m (range {min(yoy_valid):+.3f} to "
-                f"{max(yoy_valid):+.3f} m).",
+                f"{np.mean(yoy_valid):+.2f} m (range {min(yoy_valid):+.2f} to "
+                f"{max(yoy_valid):+.2f} m).",
                 style_body
             ))
 
@@ -1390,8 +1473,8 @@ def generate_pdf_report(output_dir, year, month, met_text,
             img = Image(yoy_map_path, width=160*mm, height=130*mm)
             story.append(img)
             story.append(Paragraph(
-                f"Year-on-year water level change from {yoy_d1.strftime('%d %b %Y')} to "
-                f"{yoy_d2.strftime('%d %b %Y')}.",
+                f"Year-on-year water level change from {yoy_d1.strftime('%b %Y')} to "
+                f"{yoy_d2.strftime('%b %Y')}.",
                 style_caption
             ))
 
@@ -1413,8 +1496,8 @@ def generate_pdf_report(output_dir, year, month, met_text,
         for i in range(5):
             t_name, t_z = top5[i] if i < len(top5) else ('', '')
             b_name, b_z = bottom5[i] if i < len(bottom5) else ('', '')
-            t_z_str = f"{t_z:+.3f}" if isinstance(t_z, float) else ''
-            b_z_str = f"{b_z:+.3f}" if isinstance(b_z, float) else ''
+            t_z_str = f"{t_z:+.2f}" if isinstance(t_z, float) else ''
+            b_z_str = f"{b_z:+.2f}" if isinstance(b_z, float) else ''
             table_rows.append([t_name, t_z_str, '', b_name, b_z_str])
 
         well_tbl = Table(table_rows, colWidths=[30*mm, 25*mm, 10*mm, 30*mm, 25*mm])
@@ -1437,8 +1520,8 @@ def generate_pdf_report(output_dir, year, month, met_text,
         story.append(Spacer(1, 4*mm))
         story.append(Paragraph(
             f"Full data: {n_wells} wells. "
-            f"Mean: {mean_change:+.3f} m. "
-            f"Range: {min(valid_z):+.3f} to {max(valid_z):+.3f} m.",
+            f"Mean: {mean_change:+.2f} m. "
+            f"Range: {min(valid_z):+.2f} to {max(valid_z):+.2f} m.",
             style_caption
         ))
 
@@ -1806,6 +1889,9 @@ def generate_monthly_report(wells_path, valley_path, diff_creator_path,
         print(f"   following month) and re-run.")
         return ""
     latest_idx, latest_date = target_idx, target_date
+    # Physical measurement date of the target round (for the "latest round on …"
+    # narrative only). All month LABELS below use the bucketed report month.
+    round_date = latest_date
 
     prev_year, prev_month = (year - 1, 12) if month == 1 else (year, month - 1)
     prev_idx, prev_date = find_month_column(dates, prev_year, prev_month)
@@ -1823,7 +1909,7 @@ def generate_monthly_report(wells_path, valley_path, diff_creator_path,
         print(f"\n   a) Month-on-month: {prev_date.strftime('%d %b %Y')} → "
               f"{latest_date.strftime('%d %b %Y')}")
         mom_results = compute_differences_by_index(wells, coords, prev_idx, latest_idx)
-        mom_d1, mom_d2 = prev_date, latest_date
+        mom_d1, mom_d2 = pd.Timestamp(prev_year, prev_month, 1), pd.Timestamp(year, month, 1)
     else:
         print(f"\n   a) Month-on-month: previous month not present — skipped")
         mom_results = []
@@ -1835,7 +1921,7 @@ def generate_monthly_report(wells_path, valley_path, diff_creator_path,
         print(f"   b) Year-on-year:  {yoy_date.strftime('%d %b %Y')} → "
               f"{latest_date.strftime('%d %b %Y')}")
         yoy_results = compute_differences_by_index(wells, coords, yoy_col_idx, latest_idx)
-        yoy_d1, yoy_d2 = yoy_date, latest_date
+        yoy_d1, yoy_d2 = pd.Timestamp(year - 1, month, 1), pd.Timestamp(year, month, 1)
     else:
         yoy_results = []
         yoy_d1 = yoy_d2 = None
@@ -1847,7 +1933,7 @@ def generate_monthly_report(wells_path, valley_path, diff_creator_path,
         print(f"   c) Since summer low: {aug_date.strftime('%d %b %Y')} → "
               f"{latest_date.strftime('%d %b %Y')}")
         low_results = compute_differences_by_index(wells, coords, aug_col_idx, latest_idx)
-        low_d1, low_d2 = aug_date, latest_date
+        low_d1, low_d2 = pd.Timestamp(aug_year, 8, 1), pd.Timestamp(year, month, 1)
     else:
         low_results = []
         low_d1 = low_d2 = None
@@ -2054,7 +2140,8 @@ def generate_monthly_report(wells_path, valley_path, diff_creator_path,
         yoy_results, yoy_d1, yoy_d2,
         low_results, low_d1, low_d2,
         coords, wu_result=wu_result, wu_warnings=wu_warnings,
-        valley_df=valley_df, wells=wells, dates=dates, latest_idx=latest_idx
+        valley_df=valley_df, wells=wells, dates=dates, latest_idx=latest_idx,
+        round_date=latest_date
     )
 
     print(f"\n{'═'*60}")

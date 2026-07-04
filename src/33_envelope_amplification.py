@@ -108,7 +108,9 @@ from utils.map_utils import load_dem_hillshade, add_kml_features, add_idw_surfac
 from utils.console_utils import banner, phase, step, info, saved, note, result, done, hr
 from utils.pipeline_params import get_cluster_ids
 
-__version__ = "1.2.1"  # 2026-06-29: IDW surface alpha 1.0 → 0.55 (DEM hillshade visible through surface)
+__version__ = "1.2.2"  # 2026-07-04: amplification colourmap RdBu_r → PiYG (avoids wet/dry connotation;
+                       #             quantity is dimensionless swing ratio, not water level;
+                       #             yellow-green = high amplification, pink = low/damping)
 SCRIPT_ID = "33"
 VERSION = __version__
 
@@ -297,7 +299,7 @@ def fig_amplification(df, GX, GY, out_path, title=None):
     fig, ax = plt.subplots(figsize=(11, 9))
     flg = df.get("flagged", pd.Series(False, index=df.index)).fillna(False)
     surf_df = df[~flg]                                   # flagged wells excluded from the field
-    im, gx, gy, Zm = _envelope_base(ax, surf_df, "amplification", "RdBu_r", norm=norm, ridge=False)
+    im, gx, gy, Zm = _envelope_base(ax, surf_df, "amplification", "PiYG", norm=norm, ridge=False)
     for cid in sorted(df.Cluster.dropna().unique()):
         s = df[(df.Cluster == cid) & ~flg]
         ax.scatter(s.E, s.N, c=[colours.get(int(cid), "#444")], edgecolor="k",

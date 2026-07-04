@@ -34,3 +34,7 @@ report.docx
 # --- Reference only (frozen-PL chat's call; already-tracked needs git rm --cached) ---
 # outputs/**/*.png
 outputs/logs/*.log
+
+# --- Living working folders (local only) ---
+living/inbox/
+living/output/

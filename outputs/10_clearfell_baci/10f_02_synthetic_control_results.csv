@@ -1,3 +1,3 @@
 Zone,N_donors,Baseline_months,Gap_scrape_m,Gap_fell_m,Step_m,P_value
 Impact,6,56,-0.0608,0.0385,0.0993,0.0011
-Edge,6,60,-0.0826,-0.0416,0.0410,0.2244
+Edge,6,60,-0.0826,-0.0424,0.0402,0.2331

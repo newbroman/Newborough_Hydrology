@@ -1,18 +1,18 @@
 Parameter,Well,Era,Value,Unit,Note
-FourZone_C3Warren_clearfell_step,C3/Warren,Post_felling,0.0051,m,"vs Forest; p=0.6472, CI=[-0.0166,0.0267]"
+FourZone_C3Warren_clearfell_step,C3/Warren,Post_felling,0.0051,m,"vs Forest; p=0.6473, CI=[-0.0166,0.0267]"
 FourZone_C3Warren_clearfell_step_se,C3/Warren,Post_felling,0.0111,m,
-FourZone_C3Warren_scraping_step,C3/Warren,Post_scraping,-0.0278,m,vs Forest; p=0.2701
-FourZone_Edge_clearfell_step,Edge,Post_felling,-0.0295,m,"vs Forest; p=0.1280, CI=[-0.0674,0.0085]"
-FourZone_Edge_clearfell_step_se,Edge,Post_felling,0.0193,m,
-FourZone_Edge_scraping_step,Edge,Post_scraping,0.0859,m,vs Forest; p=0.0028
-FourZone_Impact_clearfell_step,Impact,Post_felling,0.0316,m,"vs Forest; p=0.0037, CI=[0.0102,0.0529]"
+FourZone_C3Warren_scraping_step,C3/Warren,Post_scraping,-0.0278,m,vs Forest; p=0.2702
+FourZone_Edge_clearfell_step,Edge,Post_felling,-0.0302,m,"vs Forest; p=0.1125, CI=[-0.0676,0.0071]"
+FourZone_Edge_clearfell_step_se,Edge,Post_felling,0.0191,m,
+FourZone_Edge_scraping_step,Edge,Post_scraping,0.0859,m,vs Forest; p=0.0027
+FourZone_Impact_clearfell_step,Impact,Post_felling,0.0316,m,"vs Forest; p=0.0037, CI=[0.0102,0.0530]"
 FourZone_Impact_clearfell_step_se,Impact,Post_felling,0.0109,m,
 FourZone_Impact_scraping_step,Impact,Post_scraping,0.0625,m,vs Forest; p=0.0048
-FourZone_R2,all_zones,,0.8561,,Joint model R²
+FourZone_R2,all_zones,,0.856,,Joint model R²
 FourZone_N,all_zones,,2475.0,well-months,Pooled-panel sample size
-FourZone_contrast_C3Warren_vs_Forest,C3/Warren - Forest,Post_felling,0.0051,m,"primary; p=0.6472, CI=[-0.0166,0.0267]"
-FourZone_contrast_Edge_vs_Forest,Edge - Forest,Post_felling,-0.0295,m,"primary; p=0.1280, CI=[-0.0674,0.0085]"
-FourZone_contrast_Impact_vs_Forest,Impact - Forest,Post_felling,0.0316,m,"primary; p=0.0037, CI=[0.0102,0.0529]"
-FourZone_contrast_Impact_vs_Edge,Impact - Edge,Post_felling,0.061,m,"DERIVED contrast — point estimate exact, but SE/p are covariance-dependent and not comparable to primary contrasts; do not cite as significance (p_derived=0.0001)"
+FourZone_contrast_C3Warren_vs_Forest,C3/Warren - Forest,Post_felling,0.0051,m,"primary; p=0.6473, CI=[-0.0166,0.0267]"
+FourZone_contrast_Edge_vs_Forest,Edge - Forest,Post_felling,-0.0302,m,"primary; p=0.1125, CI=[-0.0676,0.0071]"
+FourZone_contrast_Impact_vs_Forest,Impact - Forest,Post_felling,0.0316,m,"primary; p=0.0037, CI=[0.0102,0.0530]"
+FourZone_contrast_Impact_vs_Edge,Impact - Edge,Post_felling,0.0618,m,"DERIVED contrast — point estimate exact, but SE/p are covariance-dependent and not comparable to primary contrasts; do not cite as significance (p_derived=0.0001)"
 FourZone_contrast_Impact_vs_C3Warren,Impact - C3/Warren,Post_felling,0.0265,m,"DERIVED contrast — point estimate exact, but SE/p are covariance-dependent and not comparable to primary contrasts; do not cite as significance (p_derived=0.0000)"
-FourZone_contrast_Edge_vs_C3Warren,Edge - C3/Warren,Post_felling,-0.0345,m,"DERIVED contrast — point estimate exact, but SE/p are covariance-dependent and not comparable to primary contrasts; do not cite as significance (p_derived=0.0313)"
+FourZone_contrast_Edge_vs_C3Warren,Edge - C3/Warren,Post_felling,-0.0353,m,"DERIVED contrast — point estimate exact, but SE/p are covariance-dependent and not comparable to primary contrasts; do not cite as significance (p_derived=0.0243)"

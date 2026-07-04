@@ -18,14 +18,14 @@ CoeffShift_CEH31_b3_before,CEH31,Before,0.0574,m,SE=0.0101
 CoeffShift_CEH31_b3_after,CEH31,After,0.0391,m,SE=0.0124
 CoeffShift_CEH31_db3,CEH31,Delta,-0.0183,m,
 CoeffShift_CEH20_b1_before,CEH20,Before,2.5798,m,SE=0.2120
-CoeffShift_CEH20_b1_after,CEH20,After,2.5914,m,SE=0.2132
-CoeffShift_CEH20_db1,CEH20,Delta,0.0116,m,
+CoeffShift_CEH20_b1_after,CEH20,After,2.5216,m,SE=0.2191
+CoeffShift_CEH20_db1,CEH20,Delta,-0.0581,m,
 CoeffShift_CEH20_b2_before,CEH20,Before,2.1613,m,SE=0.2868
-CoeffShift_CEH20_b2_after,CEH20,After,2.0691,m,SE=0.2914
-CoeffShift_CEH20_db2,CEH20,Delta,-0.0922,m,
+CoeffShift_CEH20_b2_after,CEH20,After,2.0386,m,SE=0.2979
+CoeffShift_CEH20_db2,CEH20,Delta,-0.1227,m,
 CoeffShift_CEH20_b3_before,CEH20,Before,0.0317,m,SE=0.0101
-CoeffShift_CEH20_b3_after,CEH20,After,0.0308,m,SE=0.0103
-CoeffShift_CEH20_db3,CEH20,Delta,-0.0009,m,
+CoeffShift_CEH20_b3_after,CEH20,After,0.0296,m,SE=0.0105
+CoeffShift_CEH20_db3,CEH20,Delta,-0.0022,m,
 CoeffShift_CEH30_b1_before,CEH30,Before,2.5308,m,SE=0.2145
 CoeffShift_CEH30_b1_after,CEH30,After,2.2551,m,SE=0.1905
 CoeffShift_CEH30_db1,CEH30,Delta,-0.2757,m,
@@ -155,9 +155,9 @@ CoeffShift_WMC2_db3,WMC2,Delta,-0.0002,m,
 CoeffShift_Impact_mean_db1,Impact,,-0.1002,m,n_wells=1
 CoeffShift_Impact_mean_db2,Impact,,-0.2766,m,n_wells=1
 CoeffShift_Impact_mean_db3,Impact,,-0.0007,m,n_wells=1
-CoeffShift_Edge_mean_db1,Edge,,-0.2654,m,n_wells=4
-CoeffShift_Edge_mean_db2,Edge,,-0.03,m,n_wells=4
-CoeffShift_Edge_mean_db3,Edge,,-0.0115,m,n_wells=4
+CoeffShift_Edge_mean_db1,Edge,,-0.2829,m,n_wells=4
+CoeffShift_Edge_mean_db2,Edge,,-0.0377,m,n_wells=4
+CoeffShift_Edge_mean_db3,Edge,,-0.0118,m,n_wells=4
 CoeffShift_Forest Ctrl_mean_db1,Forest Ctrl,,-0.0543,m,n_wells=5
 CoeffShift_Forest Ctrl_mean_db2,Forest Ctrl,,0.1452,m,n_wells=5
 CoeffShift_Forest Ctrl_mean_db3,Forest Ctrl,,-0.0094,m,n_wells=5

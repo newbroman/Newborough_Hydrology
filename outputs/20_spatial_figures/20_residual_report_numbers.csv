@@ -2,4 +2,4 @@ Parameter,Well,Era,Value,Unit,Note
 residual_max,NW10,,0.0631,m/month,largest individual SSM water-balance residual α
 residual_ceh14,CEH14,,0.0297,m/month,ridge-flank residual (cited in §4.9)
 residual_n_gt_0p02,,,19,wells,wells with residual > +0.02 m/month (strong positive band)
-residual_band_wells,,,NW10;NW2;CEH2;NW9;CEH19;CEH16;CEH17;CEH20;T41A;CEH31;NW1;CEH30;CEH34;CEH32;CEH33;CEH6;CEH13;CEH14;D38,,identity of wells with residual > +0.02 m/month
+residual_band_wells,,,NW10;NW2;CEH2;NW9;CEH19;CEH16;CEH17;T41A;CEH20;CEH31;NW1;CEH30;CEH34;CEH32;CEH33;CEH6;CEH13;CEH14;D38,,identity of wells with residual > +0.02 m/month

@@ -1,14 +1,14 @@
 Parameter,Well,Era,Value,Unit,Note
 silhouette_k5,,k=5,0.3961,,silhouette at chosen k on the 66-well reference network
-calinski_harabasz_k5,,k=5,15.2815,,Calinski-Harabasz at chosen k
+calinski_harabasz_k5,,k=5,15.2851,,Calinski-Harabasz at chosen k
 merge_distance_k5,,k=5,0.1581,,Ward merge distance at chosen k
 silhouette_peak_k,,,2.0,,k maximising silhouette (=0.459)
-silhouette_k2,,k=2,0.4589,,per-k silhouette (Fig 6 series)
-silhouette_k3,,k=3,0.4424,,per-k silhouette (Fig 6 series)
-silhouette_k4,,k=4,0.4087,,per-k silhouette (Fig 6 series)
+silhouette_k2,,k=2,0.4591,,per-k silhouette (Fig 6 series)
+silhouette_k3,,k=3,0.4422,,per-k silhouette (Fig 6 series)
+silhouette_k4,,k=4,0.4085,,per-k silhouette (Fig 6 series)
 silhouette_k5,,k=5,0.3961,,per-k silhouette (Fig 6 series)
-silhouette_k6,,k=6,0.3579,,per-k silhouette (Fig 6 series)
-silhouette_k7,,k=7,0.3879,,per-k silhouette (Fig 6 series)
-silhouette_k8,,k=8,0.3628,,per-k silhouette (Fig 6 series)
-silhouette_k9,,k=9,0.3639,,per-k silhouette (Fig 6 series)
-silhouette_k10,,k=10,0.3631,,per-k silhouette (Fig 6 series)
+silhouette_k6,,k=6,0.3578,,per-k silhouette (Fig 6 series)
+silhouette_k7,,k=7,0.3878,,per-k silhouette (Fig 6 series)
+silhouette_k8,,k=8,0.3625,,per-k silhouette (Fig 6 series)
+silhouette_k9,,k=9,0.3636,,per-k silhouette (Fig 6 series)
+silhouette_k10,,k=10,0.3628,,per-k silhouette (Fig 6 series)

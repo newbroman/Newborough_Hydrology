@@ -721,6 +721,14 @@ def run_full_pipeline(from_step: int = 1, include_supplementary: bool = False) -
                   "PHASE 16 — Supplementary Standalone Diagnostics (Scripts 24b, 31, 31b, 34)",
                   from_step)
         last_step = 42  # Phase 16 ends at step 42 (Script 34)
+    # Phase 17 synthesis figure (Script 09f, step 43) — a display/utility figure
+    # that IS part of the full run (unlike the greyscale utility, step 44, which
+    # is invoked on demand via run_greyscale()). Runs last so its upstream
+    # inputs (Scripts 20/25/09d/10a) already exist; two-pass-safe otherwise.
+    if from_step <= 43:
+        run_phase([PHASE_17[0]],
+                  "PHASE 17 — Synthesis Figure (Script 09f)", from_step)
+        last_step = 43
     _elapsed = (time.time() - _t_start) / 60.0
     print()
     _banner(f"PIPELINE COMPLETE  ·  steps 1–{last_step} written to outputs/", _Ansi.BGREEN)
@@ -728,7 +736,7 @@ def run_full_pipeline(from_step: int = 1, include_supplementary: bool = False) -
         say_info("supplementary standalone diagnostics (Phase 16: steps 39–42, "
                  "Scripts 24b/31/31b/34) NOT run — add --with-supplementary "
                  "(or choose it in menu option 1) to include them")
-    say_info("greyscale (step 43) runs separately (menu option 6 / --greyscale)")
+    say_info("greyscale (step 44) runs separately (menu option 6 / --greyscale)")
     say_info(f"total run time: {_elapsed:0.1f} min")
 
 def build_viewer() -> None:

@@ -4,9 +4,9 @@
 
 *This document accompanies `report.pdf` and `Supplementary_Material.pdf`. It is the per-script methodological record of the analytical pipeline.*
 
-*Document version: 1.7.7 (June 2026).*
+*Document version: 1.8.0 (June 2026).*
 
-*Pipeline: `run_analysis.py` runs 44 steps across 17 phases — 41 analytical steps across 16 analytical phases (Phases 1–16), plus three display/utility steps excluded from the analytical count: Script 26c (step 32, the MSL5 report-format figure-rendering companion to Scripts 26 and 26b, documented in §S.18c), Script 09f (step 43, the management-interventions-versus-coastal-retreat spatial-reach synthesis figure of §5.8, documented in §S.15c) and Script 27 (step 44, the greyscale figure-conversion utility, documented in Appendix A). Phase 12 covers the residual diagnostics (Scripts 22–24); Phase 13 covers the van Willegen MSL analyses (Script 26 observational aggregation, Script 26b UKCP18 climate projections, and Script 26c report-format figures); Phase 14 covers the cluster framework diagnostics: Script 28 (C3 detrend check) and Script 29 (within-C3 variance attribution) from the 2026-05-29 post-review pass, together with Script 30 (C4 constrained-β₃ triangulation sensitivity, added 2026-06-23), all documented in §S.19. Phase 15 covers the observed differential-change and climate-envelope analyses: Script 32 (secular differential water-table movement, report Figure 59), Script 33 (climate-swing amplification and dry-year spring floor, report Figure 60), and Script 35 (per-well climate-sensitivity coefficient), all documented in §S.20. Phase 16 covers four supplementary standalone diagnostics: Script 24b (cluster-stratified residual climatology), Script 31 (independent k=5 partition validation), Script 31b (cluster separation versus recoverability), and Script 34 (MSL5 two-window sensitivity demonstration), all documented in §S.21. Phase 17 covers the spatial-reach synthesis figure (Script 09f, step 43) and the greyscale conversion utility (Script 27, step 44). Two further post-review scripts were inserted into earlier phases: Script 11c (P_flood achievability map, Phase 3 step 13, documented in §S.9.3) and Script 14b (bootstrap year-of-crossing, Phase 4 step 16, documented in §S.8.5).*
+*Pipeline: `run_analysis.py` runs 44 steps across 17 phases — 41 analytical steps across 16 analytical phases (Phases 1–16), plus three display/utility steps excluded from the analytical count: Script 26c (step 32, the MSL5 report-format figure-rendering companion to Scripts 26 and 26b, documented in §S.18c), Script 09f (step 43, the management-interventions-versus-coastal-retreat spatial-reach synthesis figure of §5.8, documented in §S.15c) and Script 27 (step 44, the greyscale figure-conversion utility, documented in Appendix A). Phase 12 covers the residual diagnostics (Scripts 22–24); Phase 13 covers the van Willegen MSL analyses (Script 26 observational MSL5 aggregation and, from v1.3.2, the coefficient-based equilibrium wetness index; Script 26b UKCP18 climate projections; and Script 26c report-format figures); Phase 14 covers the cluster framework diagnostics: Script 28 (C3 detrend check) and Script 29 (within-C3 variance attribution) from the 2026-05-29 post-review pass, together with Script 30 (C4 constrained-β₃ triangulation sensitivity, added 2026-06-23), all documented in §S.19. Phase 15 covers the observed differential-change and climate-envelope analyses: Script 32 (secular differential water-table movement, report Figure 59), Script 33 (climate-swing amplification and dry-year spring floor, report Figure 60), and Script 35 (per-well climate-sensitivity coefficient), all documented in §S.20. Phase 16 covers four supplementary standalone diagnostics: Script 24b (cluster-stratified residual climatology), Script 31 (independent k=5 partition validation), Script 31b (cluster separation versus recoverability), and Script 34 (MSL5 two-window sensitivity demonstration), all documented in §S.21. Phase 17 covers the spatial-reach synthesis figure (Script 09f, step 43) and the greyscale conversion utility (Script 27, step 44). Two further post-review scripts were inserted into earlier phases: Script 11c (P_flood achievability map, Phase 3 step 13, documented in §S.9.3) and Script 14b (bootstrap year-of-crossing, Phase 4 step 16, documented in §S.8.5).*
 
 ---
 
@@ -255,7 +255,7 @@ The scripts in the post-Phase-2 region of the pipeline carry filename prefixes, 
 - **Script 11c** (`11c_pflood_achievability.py`) — Per-well P_flood achievability categorical priority map. Operationalises Conclusion 4's λ < 1.5 priority criterion. Step 13/44, Phase 3. Routed from the 2026-05-29 post-review cascade. Documented in S.9.3.
 - **Script 14b** (`14b_year_of_crossing.py`) — Bootstrap year-of-crossing for Curreli (2013) ecological thresholds. Step 16/44, Phase 4. Routed from the 2026-05-29 post-review cascade. Documented in S.8.5.
 - **Script 25** (`25_coastal_gradient.py`) — Coastal-retreat gradient analysis. Step 26/44, Phase 11. Documented in S.15.
-- **Script 26** (`26_van_willegen_msl.py`) — Van Willegen 2025 observational 5-year MSL aggregation. Step 30/44, Phase 13. Documented in S.18.
+- **Script 26** (`26_van_willegen_msl.py`) — Van Willegen 2025 observational 5-year MSL aggregation, plus (v1.3.2) the equilibrium wetness index and its Ellenberg-F cross-validation. Step 30/44, Phase 13. Documented in S.18.
 - **Script 26b** (`26b_van_willegen_msl_projections.py`) — UKCP18 RCP8.5 MSL5 climate projections (Tool B). Step 31/44, Phase 13. Documented in S.18b.
 - **Script 26c** (`26c_msl5_report_figures.py`) — MSL5 report-format figures for §4.8.4 and §4.10.1 of the main report. Display-only companion to Scripts 26 and 26b; reads only canonical outputs from Scripts 26, 26b, and 19; no recomputation. Step 32/44, Phase 13. Excluded from the supplement's 41-step analytical count. Documented in S.18c.
 - **Script 28** (`28_c3_detrend_check.py`) — C3 detrend check; quantitative validation of the aquifer-architecture framing. Step 33/44, Phase 14. Routed from the 2026-05-29 post-review cascade. Documented in S.19.1.
@@ -3173,7 +3173,7 @@ Taken together, the three diagnostics narrow the space of admissible interpretat
 
 
 
-## S.18  Script 26 — Van Willegen MSL aggregation
+## S.18  Script 26 — Van Willegen MSL aggregation and Equilibrium Wetness Index
 
 **Step 30 / 35. Phase 13 — Van Willegen MSL Analyses in `run_analysis.py`; paired with S.18b which covers the forecasting tools that operate on this chapter's outputs and with S.18c which covers the report-format figures that render this chapter's trajectory output for §4.8.4.**
 
@@ -3199,6 +3199,9 @@ The chapter sits as a complement to, not a replacement for, the report's existin
 | `outputs/02_07_cluster_membership_k5.csv` | Script 02 — reference cluster identifiers |
 | `outputs/06_pear_membership_audit_sitewide.csv` | Script 06 — extended cluster identifiers |
 | `outputs/03_regional_averages.csv` | Script 03 — cluster-centroid monthly series (used by the Method B output; see the Method A and Method B aggregation section below) |
+| `outputs/03_master_data.csv` | Script 03 — reference-well SSM β coefficients (β₁, β₂, β₃) for the equilibrium wetness index (v1.3.2) |
+| `outputs/01_climate.csv` | Script 01 — RAF Valley monthly P and PET for the EWI long-term climatology (v1.3.2) |
+| `data/Ecohydrology_dataset.xlsx` | Documented external input — van Willegen et al. (2024) Mendeley dataset; gitignored, not redistributed; EbF Pass runs if present (v1.3.3) |
 
 ### Methodology
 
@@ -3306,6 +3309,10 @@ No UKCP18 forward projection of MSL5 is produced by this chapter. The predictive
 | `outputs/26_van_willegen_msl/26_msl_5yr_per_cluster.csv` | **Method A** cluster-mean trajectory: mean, median, std per (cluster, end_year). Headline monitoring metric. |
 | `outputs/26_van_willegen_msl/26_msl_5yr_per_cluster_centroid.csv` | **Method B** cluster-centroid trajectory from `03_regional_averages.csv`. SSM-consistent companion to Tools A and B. |
 | `outputs/26_van_willegen_msl/26_msl_5yr_latest_per_well.csv` | Most-recent valid MSL5 per well — input to the spatial map |
+| `outputs/26_van_willegen_msl/26_equilibrium_wetness_index_per_well.csv` | Per-well EWI (pipe and bg frames, β coefficients, cluster, `network` tier) (v1.3.2) |
+| `outputs/26_van_willegen_msl/26_ewi_msl5_comparison.csv` | Per-well observed vs EWI-predicted MSL5, residual, `open_dune_scope` and `in_van_willegen` flags — the weighable prediction table (v1.3.2) |
+| `outputs/26_van_willegen_msl/26_ebf_comparison.csv` | Per-piezometer Ellenberg-F with MSL5 and EWI predictions and residuals — vegetation cross-validation; produced when `data/Ecohydrology_dataset.xlsx` is present (v1.3.3) |
+| `outputs/26_van_willegen_msl/26_ebf_prediction_scatter.png` | Three-panel between-well Ellenberg-F scatter (MSL5 / annual EWI / spring EWI); produced when dataset present (v1.3.3) |
 | `outputs/26_van_willegen_msl/26_msl_5yr_trajectory.png` | Cluster-mean MSL5 trajectory with SD15b/SD16 reference lines and intervention markers (Method A; main-report figure) |
 | `outputs/26_van_willegen_msl/26_msl_5yr_map.png` | IDW-interpolated MSL5 surface with DEM hillshade, KML overlays, ridge mask; van Willegen quadrat wells flagged (main-report figure) |
 | `outputs/26_van_willegen_msl/26_msl_5yr_quadrat_wells.png` | Per-well MSL5 trajectories at the 17 van Willegen quadrat wells (supplement figure) |
@@ -3316,7 +3323,9 @@ No UKCP18 forward projection of MSL5 is produced by this chapter. The predictive
 | Report section | Content |
 |---|---|
 | §4.8.4 *Five-Year Mean Spring Water Level (MSL5)* | **Table 16** (cluster-mean MSL5 at window-end 2025 with SD15b/SD16 threshold-crossing counts, source `26_msl_5yr_per_cluster.csv`), the cluster trajectory plot (**Figure 39**) and the spatial MSL5 map (**Figure 40**); the results narrative |
-| §5 *Discussion* | Curreli ↔ van Willegen framing paragraph; the climate-context caveat for the post-2024 lift; the management-response horizon framing under the 5-year window; one-sentence cross-reference to the climate-projection results in S.18b |
+| §3.7.6 *Equilibrium wetness index* | EWI definition, calibration, and its derivation from the SSM coefficients (Methods) |
+| §4.8.5 *Equilibrium wetness index and vegetation cross-validation* | EWI-vs-MSL5 comparison table; Ellenberg-F cross-validation; Williams' test (Results) |
+| §5.7.6 *Equilibrium wetness index as a monitoring complement* | EWI as a short-record alternative to MSL5; forest-cluster caveat (Discussion) |
 
 ### Cross-references
 
@@ -3328,6 +3337,31 @@ No UKCP18 forward projection of MSL5 is produced by this chapter. The predictive
 - **S.9** (Scripts 11, 11b) — spatial threshold maps in summer-minimum space; cross-correlation with MSL5 at the 5-year scale (r = 0.945, see Empirical relationship section above)
 - **S.15** (Script 25) — coastal-retreat gradient contributing to the western-margin pattern visible in the MSL5 map
 - **S.18b** (Scripts 11 Section 5, 26b) — forecasting tools that operate on this chapter's Method B output: empirical spring MSL transfer function (Tool A) and UKCP18 RCP8.5 climate projection (Tool B)
+
+---
+
+### Equilibrium wetness index and vegetation cross-validation (v1.3.2)
+
+*Added 2026-07-03. Extends Script 26 with a coefficient-based steady-state wetness metric and a one-off cross-validation against the Ellenberg-F vegetation dataset.*
+
+From v1.3.2 the script computes an **equilibrium wetness index (EWI)**: the steady-state water-table level implied by a well's fitted SSM coefficients under long-term mean climate. Setting the mean monthly change to zero in the SSM and solving the head-dependent drainage term for the steady-state displacement gives h_disp,eq = (β₁P̄ − β₂PET̄)/β₃, whence EWI_pipe = h_disp,eq − DRAINAGE_DATUM and EWI_bg = EWI_pipe + Upstand. Here P̄, PET̄ are the full-record monthly-mean rainfall and Thornthwaite PET — the same long-term climatology basis as the Script 21 scenario normals — making the index climate-window-independent. Reference wells take β from `03_master_data.csv`; extended wells are fitted in-script via the shared `fit_ssm()` (single pass, no reference QA, flagged `network = extended`), with cluster labels from the Script 06 Pearson sitewide integration. CEH13 and CEH14 (degenerate β₃) and any well below `MIN_OBS` (NW12, L1) are excluded. This yields 84 wells (64 reference + 20 extended).
+
+**Consistency with the withdrawn equilibrium form.** §F.5 records that an equilibrium Δh/β₃ formulation was withdrawn from the Script 21 scenario engine for producing physically implausible magnitudes. The EWI is an equilibrium form, and its raw magnitudes are indeed systematically too deep — a mean bias of about −0.37 m against observed MSL5. This is acknowledged rather than contradicted: the raw equilibrium level is never reported. The index is used only after calibration onto the MSL5 scale by ordinary least squares, MSL5 = a + b · EWI, which absorbs the magnitude bias; the equilibrium form is retained only as the *shape* that orders wells by intrinsic wetness. The calibration is scoped to the open-dune network (clusters C1–C3), consistent with MSL5's own open-dune character and with the forest coefficients being least constrained (§S.19); C4/C5 forest wells are predicted but flagged `open_dune_scope = False`. Verified fit: MSL5 = 0.295 + 0.918 · EWI (n = 62, r = 0.92, RMSE = 119 mm), generalizing to 100 mm RMSE on the 46 open-dune wells outside the van Willegen quadrat set versus 160 mm on the calibration wells. The forest set (n = 20) has RMSE 227 mm.
+
+**Vegetation cross-validation.** To test both metrics against the ecological target directly, co-located Ellenberg-F moisture indicator values (wetness scale 1–12; Hill et al., 1999) from the van Willegen open dataset (van Willegen et al., 2024) are aggregated to a mean per piezometer. Observed MSL5 and the EWI are each regressed on mean Ellenberg-F between wells; the difference between the two dependent correlations is tested by Williams' test (Williams, 1959). The two are statistically indistinguishable — MSL5 r = +0.83 [0.59, 0.93], RMSE 0.337 Ellenberg-F units; EWI r = +0.81 [0.55, 0.93], RMSE 0.352; Williams p = 0.81 (n = 18) — with the equivalence holding band by band. From v1.3.3 this cross-validation is generated by the pipeline (Script 26 Pass 7) from the documented external dataset (`paths.DATA_ELLENBERG_EXT`, `data/Ecohydrology_dataset.xlsx`, gitignored and not redistributed); it runs when the dataset is present and is skipped otherwise, writing `26_ebf_comparison.csv` and the three-panel scatter `26_ebf_prediction_scatter.png`. No spatial EWI surface is produced: a standalone map overstated the (modest) local coverage advantage, so the weighable per-well comparison table replaces it.
+
+**Outputs.**
+
+| File | Contents | Path constant |
+|---|---|---|
+| `26_equilibrium_wetness_index_per_well.csv` | Per-well EWI (pipe and bg frames, β coefficients, cluster, network tier) | `paths.OUT_26_EWI_PER_WELL` |
+| `26_ewi_msl5_comparison.csv` | Per-well observed vs EWI-predicted MSL5, residual, `open_dune_scope` and `in_van_willegen` flags | `paths.OUT_26_EWI_MSL5_COMPARISON` |
+
+**References added (Script 26 v1.3.2).**
+
+- Hill, M.O., Mountford, J.O., Roy, D.B. & Bunce, R.G.H. (1999). Ellenberg's indicator values for British plants. ECOFACT Volume 2, Technical Annex. ITE, Huntingdon.
+- van Willegen, L. et al. (2024). Dune slack Ecohydrology Dataset. Mendeley Data, V1. https://doi.org/10.17632/p4xvb6xxp9.1
+- Williams, E.J. (1959). The comparison of regression variables. *J. R. Statist. Soc. B*, 21(2), 396–399.
 
 
 ---

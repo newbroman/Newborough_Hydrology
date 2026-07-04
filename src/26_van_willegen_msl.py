@@ -1235,9 +1235,20 @@ def compute_ebf_crossvalidation(elev: pd.DataFrame):
         warn(f"external Ellenberg dataset not found at {xlsx} — EbF Pass skipped "
              f"(obtain from Mendeley doi:10.17632/p4xvb6xxp9.1)")
         return None, None
-
-    # response: mean Ellenberg-F per piezometer
-    ebf = pd.read_excel(xlsx, "meanEbF")
+    try:
+        _sheets = set(pd.ExcelFile(xlsx).sheet_names)
+        _need = {"meanEbF", "Hydrology_metric_YearB"}
+        if not _need.issubset(_sheets):
+            warn(f"Ellenberg dataset at {xlsx} is missing sheet(s) {_need - _sheets} "
+                 f"(found {sorted(_sheets)}) — EbF Pass skipped")
+            return None, None
+        ebf = pd.read_excel(xlsx, "meanEbF")
+        yb = pd.read_excel(xlsx, "Hydrology_metric_YearB")
+    except Exception as e:
+        warn(f"Ellenberg dataset at {xlsx} present but unreadable ({type(e).__name__}: "
+             f"{str(e)[:80]}) — EbF Pass skipped (needs openpyxl and the meanEbF / "
+             f"Hydrology_metric_YearB sheets)")
+        return None, None
     for c in ["EbF1a", "EbF1b", "EbF1c", "EbF1d"]:
         ebf[c] = pd.to_numeric(ebf[c], errors="coerce")
     ebf["EbF"] = ebf[["EbF1a", "EbF1b", "EbF1c", "EbF1d"]].mean(axis=1)
@@ -1246,7 +1257,6 @@ def compute_ebf_crossvalidation(elev: pd.DataFrame):
     ebf = ebf.dropna(subset=["EbF"]).groupby("piezo")["EbF"].mean()
 
     # observed MSL5 (dataset's own Mean Spring, 5-yr rolling, per-piezo mean)
-    yb = pd.read_excel(xlsx, "Hydrology_metric_YearB")
     yb["piezo"] = yb["Statistic"].astype(str).str.replace(r"-\d+$", "", regex=True).str.lower()
     piv = yb.pivot_table(index="Year", columns="piezo", values="Mean Spring")
     msl5 = piv.rolling(5, min_periods=5).mean().mean().rename("MSL5")
@@ -1534,8 +1544,12 @@ def main() -> int:
              f"({'indistinguishable' if ebf_summary['williams_p'] >= 0.05 else 'distinguishable'})")
         info("  match bands (MSL5 / EWI): " +
              ", ".join(f"{k} {v[0]}/{v[1]}" for k, v in ebf_summary["bands"].items()))
-        plot_ebf_scatter(ebf_df, ebf_summary, paths.OUT_26_EBF_SCATTER)
-        saved(f"{paths.OUT_26_EBF_SCATTER.name}")
+        try:
+            plot_ebf_scatter(ebf_df, ebf_summary, paths.OUT_26_EBF_SCATTER)
+            saved(f"{paths.OUT_26_EBF_SCATTER.name}")
+        except Exception as e:
+            warn(f"EbF scatter (Fig XX) render failed ({type(e).__name__}: "
+                 f"{str(e)[:80]}) — comparison CSV was written; figure not produced")
 
     # ── Figures ────────────────────────────────────────────────────────────
     print("\nRendering figures...")

@@ -1,0 +1,10 @@
+
+=== 2005_2025  (2005–2025) ===
+wells mapped: 30; significant: 0; bootstrap agreement: 28/30
+holding/wetting (mm/yr): L7 +16.58, ceh20 +14.32, WMC2 +11.37, WMC1 +9.50, nw11 +7.28
+drying       (mm/yr): ceh3 -28.47, nw9 -23.34, ceh4 -18.96, nw7 -12.37, ceh17 -11.18
+
+=== 2011_2025  (2011–2025) ===
+wells mapped: 55; significant: 2; bootstrap agreement: 21/55
+holding/wetting (mm/yr): ceh1 +41.48, ceh20 +37.96, nw11 +34.75, ceh13 +34.64, nw2 +33.89
+drying       (mm/yr): ceh22 -4.85, ceh3 +2.08, ceh11 +9.28, ceh19 +9.75, ceh4 +10.64

@@ -608,6 +608,7 @@ OUT_20_CLEARFELL_BASELINE_DRAWDOWN = DIR_20 / "20_clearfell_baseline_drawdown.pn
 OUT_20_PUBLIC_PANEL         = DIR_20 / "20_public_drivers_panel.png"
 OUT_20_NET_STATE_MAP        = DIR_20 / "20_net_state_map.png"
 OUT_20_DRIVER_CHANGE        = DIR_20 / "20_driver_change_2005_2025.png"
+OUT_20_DRIVER_CHANGE_20YR   = DIR_20 / "20_driver_change_2005_2025_20yr.png"
 OUT_20_CLEARFELL_GAIN       = DIR_20 / "20_clearfell_gain.png"
 OUT_20_OBSERVED_CHANGE      = DIR_20 / "20_observed_change_2012_2026.png"
 OUT_20_MSL5_CHANGE          = DIR_20 / "20_msl5_change_2017_2023.png"

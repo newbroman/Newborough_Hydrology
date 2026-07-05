@@ -63,7 +63,23 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds
 """
 
-__version__ = "1.31.0"  # Hollingham (2026) — 2026-07-05
+__version__ = "1.32.0"  # Hollingham (2026) — 2026-07-05
+# 1.32.0 — Driver-change maps: (a) Path B clearfell — both driver-change maps now
+#          plot the OBSERVED +120 mm BACI step (live from 10a
+#          ANCOVA_Forest_Impact_clearfell_step via new _load_clearfell_observed_mm(),
+#          first-pass fallback 120) instead of the 150 mm equilibrium H0, so the map
+#          value IS the observed value (no modelled-vs-observed gap for that field).
+#          (b) NEW plot_driver_change_20yr(): the full-window companion at a 20-year
+#          coastal horizon (≈20×δ₀≈581 mm at the toe) on a symmetric-LOG colour scale
+#          (SymLogNorm, linthresh=2, ±600) so the deep coastal field and the ±120 mm
+#          management effects both read without saturation. A prediction-surface /
+#          diagnostic figure (per-well validation is a separate analysis), presented
+#          alongside the legible 5-yr map. New path OUT_20_DRIVER_CHANGE_20YR; wired
+#          into main(). (c) Refactor: shared _driver_change_net() builds the field
+#          (coast_years + observed clearfell parametrised) and _render_driver_change()
+#          draws either scale — the 5-yr and 20-yr callers are thin wrappers, no
+#          duplicated net computation. Caption now states linear superposition is a
+#          first-order upper bound in overlap zones.
 # 1.31.0 — (a) Driver-change coastal field now uses config.COAST_CHRONIC_YEARS
 #          (shared with Script 09f) instead of the script-local SLR_WINDOW_YEARS,
 #          so the coastal chronic horizon is a single named constant across both
@@ -452,10 +468,11 @@ from utils.paths import (
     OUT_20_COASTAL_NET, OUT_20_SCRAPE_DRAWDOWN, OUT_20_SCRAPE_DRAWDOWN_NOHEAD,
     OUT_20_CLEARFELL_BASELINE_DRAWDOWN, OUT_20_PUBLIC_PANEL,
     OUT_20_NET_STATE_MAP, OUT_20_CLEARFELL_GAIN, OUT_20_OBSERVED_CHANGE,
-    OUT_20_DRIVER_CHANGE,
+    OUT_20_DRIVER_CHANGE, OUT_20_DRIVER_CHANGE_20YR,
     OUT_20_MSL5_CHANGE,
     OUT_09_BACI_SHIFTS,
     OUT_10B_STEP_DATA,
+    OUT_10A_REPORT,
     INT_WELLS_CLEAN_MAOD, INT_WELLS_CLEAN,
     INT_LOCATIONS, INT_WELL_ELEVATIONS,
     INT_MASTER_DATA, INT_CLIMATE, INT_WELLS_EXTENDED, INT_PEAR_AUDIT_SITEWIDE,
@@ -3979,77 +3996,58 @@ def plot_net_state_map(wt, features, dpi=300):
           f"(net range {np.nanmin(net):.0f} to {np.nanmax(net):.0f} mm)")
 
 
-def plot_driver_change_2005_2025(wt, features, dpi=300):
-    """
-    Modelled driver-CHANGE map, 2005 → 2025 (epoch difference of the net-state
-    driver fields). The observed-change partner is the fixed Script 36
-    climate-removed 2005–2025 map; the two are laid side by side at the document
-    stage sharing scale, extent and colour.
+def _load_clearfell_observed_mm():
+    """Observed clearfell BACI step (mm) live from Script 10a
+    (ANCOVA_Forest_Impact_clearfell_step in 10a_report_numbers.csv, ~0.120 m).
+    This is the OBSERVED impact-well response (Path B) — the driver-change map
+    plots the measured value, not the 150 mm equilibrium interception deficit,
+    so there is no modelled-vs-observed gap to reconcile for this field.
+    Falls back to 120.0 mm with a warning if the CSV is unavailable."""
+    try:
+        df = pd.read_csv(OUT_10A_REPORT)
+        row = df[df["Parameter"] == "ANCOVA_Forest_Impact_clearfell_step"]
+        val_m = float(row["Value"].iloc[0])
+        return val_m * 1000.0
+    except Exception as e:
+        print(f"  [WARNING] could not read 10a clearfell step ({e}) — "
+              "using first-pass fallback 120.0 mm")
+        return 120.0
 
-    Where plot_net_state_map() accumulates ALL drivers since the forest was
-    planted (baseline ≈ bare pre-forest dune), this map re-bases to 2005 and
-    shows only what CHANGED over the study window:
 
-        Δh_drivers(x,y) = state_2025(x,y) − state_2005(x,y)
+def _driver_change_net(gx, gy, coast_years, clearfell_mm):
+    """Build the 2005→2025 modelled driver-change net field (mm; +gain/−loss).
 
-    Standing pine canopy is at full equilibrium at BOTH epochs, so it cancels
-    and contributes ~zero to the change — the unchanged forest interior must
-    render near-white (this is the acceptance check that the epoch-difference is
-    working, not re-drawing Fig 58). The drivers that actually change over
-    2005→2025 are:
+    Shared by the 5-yr and 20-yr driver-change maps. Coastal chronic horizon is
+    `coast_years` × δ₀ (rate-independent, capped to zero at reach L). Clearfell
+    gain uses the OBSERVED step `clearfell_mm` (Path B) rather than the 150 mm
+    equilibrium. Standing pine cancels (not loaded). Fields are combined by
+    LINEAR SUPERPOSITION (net = slr + clearfell + scr_rise − bl − eros −
+    scr_draw); this is a first-order construction that may over-state the true
+    combined drawdown where fields overlap.
 
-      • Clearfell gain (Dec 2017)  — interception deficit REMOVED inside the FE
-        felled zone → head GAIN (blue). Same construction as plot_net_state_map's
-        clearfell_gain.
-      • Broadleaf restock INCREMENT — canopy interception ADDED over the window
-        (near-closed by 2005 → full by 2025) → head LOSS (brown). New field
-        _broadleaf_field(); the mirror image of the clearfell gain and the signal
-        missing from every prior map.
-      • Scrapes (2015, 2023)       — both cuts fall within the window, so all
-        contribute (epochs=None): slack rises, surrounding drawdown cones.
-      • Coastal drawdown (5-yr chronic) — SLR_WINDOW_YEARS × δ₀ (≈145 mm at the
-        toe), rate-independent, on the same 5-yr horizon as the SLR field; a
-        chronic linear accumulation, distinct from the SLR erfc transient. Does
-        NOT use a retreat distance or COAST_RETREAT_RATE.
-      • SLR (20 yr)                — sea-level-rise head gain over the window.
-
-    MODELLED map — flagged modelled/indicative in the title and footer. The BL
-    and coastal fields are the least record-constrained; the caption says so.
+    Returns a dict of everything the renderer needs, or None on failure.
     """
     from shapely.geometry import Point
     from shapely import contains_xy
-    import matplotlib.patheffects as _pe
-    import matplotlib.patches as mpatches
-    from matplotlib.colors import BoundaryNorm, ListedColormap as _LC
 
-    gx, gy = np.meshgrid(GRID_XI, GRID_YI)
-
-    # ── Load the CHANGED component fields ────────────────────────────────
-    # Standing pine canopy is NOT loaded: identical at both epochs → cancels.
-    forest_full, fH0, fLam, forest_geom = _forest_field(gx, gy)   # for clearfell H0/λ + boundary overlay
+    forest_full, fH0, fLam, forest_geom = _forest_field(gx, gy)   # λ + boundary overlay
     bl_incr,     blH0, blLam, bl_geom   = _broadleaf_field(gx, gy)
     scr,         sH0, sLam, scr_geom    = _scrape_field(gx, gy, epochs=None)
-    # Coastal field: chronic drawdown = COAST_CHRONIC_YEARS × δ₀, rate-independent
-    # (a chronic linear accumulation of the fitted coastal-decline rate, capped to
-    # zero at reach L; NOT a retreat distance and NOT dependent on COAST_RETREAT_RATE).
-    # Same construction, horizon and reach as Script 09f's 5-yr coastal curve
-    # (config.COAST_CHRONIC_YEARS shared; δ₀/L from the same 25_01 fit row).
-    # δ₀ from _load_coastal_fit() is returned positive (= loss), matching sign.
-    _delta0_coast, _L_coast = _load_coastal_fit()
-    _coast_h0_mm = COAST_CHRONIC_YEARS * _delta0_coast
-    eros, front, waterline, eH0, _L     = _erosion_field(gx, gy, h0_mm=_coast_h0_mm)
+    delta0, L_coast = _load_coastal_fit()
+    coast_h0_mm = coast_years * delta0
+    eros, front, waterline, eH0, _L     = _erosion_field(gx, gy, h0_mm=coast_h0_mm)
     slr_gain, wl_slr, _, slr_mm         = _slr_field(gx, gy)
 
     if any(f is None for f in [forest_full, scr, eros, slr_gain]):
         print("  [WARNING] A component field is unavailable — skipping driver-change map")
-        return
+        return None
     if bl_incr is None:
         print("  [WARNING] Broadleaf field unavailable (KML_BROADLEAF missing?) — "
-              "rendering driver-change map WITHOUT the broadleaf increment")
+              "rendering WITHOUT the broadleaf increment")
         bl_incr = np.zeros_like(forest_full)
         blH0 = 0.0
 
-    # ── Clearfell gain field: H0 × exp(-d/λ) from FE felling polygon edge ──
+    # Clearfell gain: OBSERVED step × exp(-d/λ) from the FE felling polygon edge.
     fell_geom = None
     try:
         import geopandas as gpd
@@ -4068,16 +4066,13 @@ def plot_driver_change_2005_2025(wt, features, dpi=300):
         d_fell = np.array([fell_geom.distance(Point(x, y))
                            for x, y in zip(gx.ravel(), gy.ravel())]
                           ).reshape(gx.shape)
-        clearfell_gain = fH0 * np.exp(-d_fell / fLam)
+        clearfell_gain = clearfell_mm * np.exp(-d_fell / fLam)
 
-    # ── Combine: positive = net gain (blue), negative = net loss (brown) ──
-    # Pine interior cancels (not present in the sum). BL increment is a LOSS.
     scr_rise = _scrape_rise_field(gx, gy, epochs=None)   # +H0 at rise-zone pixels
     scr_draw = np.where(np.isnan(scr), 0.0, scr)         # drawdown only
     net = (slr_gain + clearfell_gain + scr_rise
            - bl_incr - eros - scr_draw)
 
-    # ── Clip to site ──────────────────────────────────────────────────────
     site_poly = load_site_polygon()
     if site_poly is not None:
         try:
@@ -4087,62 +4082,153 @@ def plot_driver_change_2005_2025(wt, features, dpi=300):
         except Exception:
             pass
 
-    # ── Diverging colour scale (same bands as plot_net_state_map) ─────────
-    NET_LEVELS  = [-150, -100, -50, -25, -10, -5, -2, 2, 5, 10, 25, 50, 100, 150]
-    LOSS_COLS   = ["#c2410c", "#ea7317", "#f59e0b", "#fbbf24",
-                   "#fcd34d", "#fde68a", "#fff3b0"]
-    GAIN_COLS   = ["#dbeafe", "#bfdbfe", "#93c5fd", "#60a5fa",
-                   "#3b82f6", "#2563eb", "#1d4ed8"]
-    all_cols  = LOSS_COLS + GAIN_COLS
-    net_cmap  = _LC(all_cols)
-    net_norm  = BoundaryNorm(NET_LEVELS, ncolors=len(all_cols))
-    LINE_LEVELS = [-50, -25, -10, -5, 5, 10, 25, 50]
+    return dict(net=net, forest_geom=forest_geom, fell_geom=fell_geom,
+                bl_geom=bl_geom, scr_geom=scr_geom,
+                clearfell_mm=clearfell_mm, blH0=blH0, eH0=eH0, slr_mm=slr_mm,
+                coast_years=coast_years)
+
+
+def _render_driver_change(wt, d, out_path, dpi, log_scale):
+    """Render a driver-change net field `d` (from _driver_change_net) to
+    `out_path`. log_scale=False → linear BoundaryNorm ±150 (the 5-yr map);
+    log_scale=True → symmetric-log SymLogNorm (the 20-yr map), so the deep
+    coastal field and the ±120 mm management effects both read on one scale."""
+    from matplotlib.colors import (BoundaryNorm, ListedColormap as _LC,
+                                    SymLogNorm, LinearSegmentedColormap as _LSC)
+    import matplotlib.patheffects as _pe
+    import matplotlib.patches as mpatches
+
+    net = d["net"]
+    gx, gy = np.meshgrid(GRID_XI, GRID_YI)
+    LOSS_COLS = ["#c2410c", "#ea7317", "#f59e0b", "#fbbf24",
+                 "#fcd34d", "#fde68a", "#fff3b0"]
+    GAIN_COLS = ["#dbeafe", "#bfdbfe", "#93c5fd", "#60a5fa",
+                 "#3b82f6", "#2563eb", "#1d4ed8"]
 
     fig, ax = plt.subplots(figsize=(9, 10), facecolor="white")
     load_dem_hillshade(ax, DATA_DIR, alpha=1.0, vert_exag=3.0, zorder=1)
 
-    cf = ax.contourf(gx, gy, net, levels=NET_LEVELS,
-                     cmap=net_cmap, norm=net_norm,
-                     alpha=0.68, zorder=3, extend="both")
+    if not log_scale:
+        # Linear diverging scale (5-yr map) — banded ±150.
+        NET_LEVELS  = [-150, -100, -50, -25, -10, -5, -2, 2, 5, 10, 25, 50, 100, 150]
+        net_cmap  = _LC(LOSS_COLS + GAIN_COLS)
+        net_norm  = BoundaryNorm(NET_LEVELS, ncolors=len(LOSS_COLS + GAIN_COLS))
+        cf = ax.contourf(gx, gy, net, levels=NET_LEVELS,
+                         cmap=net_cmap, norm=net_norm,
+                         alpha=0.68, zorder=3, extend="both")
+        cbar_ticks = NET_LEVELS
+        LINE_LEVELS = [-50, -25, -10, -5, 5, 10, 25, 50]
+        LABEL_LEVELS = LINE_LEVELS   # linear map: label every contour
+        LABEL_MANUAL = False
+    else:
+        # Symmetric-log diverging scale (20-yr map). Loss side runs WHITE at 0
+        # → yellow (shallow loss) → RED (deep loss, e.g. the ~581 mm coastal
+        # toe); gain side WHITE → blue. The LinearSegmentedColormap list runs
+        # from position 0.0 (vmin = −600, deepest loss) to 1.0 (+600, gain), so
+        # the deepest-loss colour (red) must come FIRST. This gives the
+        # conventional heat-map reading — the drying coast is red, the near-zero
+        # east is pale — with linear response within ±linthresh then log either
+        # side so the deep coastal field and the ±120 mm management effects both
+        # read without saturation.
+        LOSS_RAMP = ["#7a0403", "#c2410c", "#ea7317", "#f59e0b",
+                     "#fbbf24", "#fde68a", "#fff8e1"]   # deep red → pale (loss)
+        GAIN_RAMP = ["#eaf2fb", "#bfdbfe", "#93c5fd", "#60a5fa",
+                     "#3b82f6", "#2563eb", "#1d4ed8"]   # pale → deep blue (gain)
+        cont_cols = LOSS_RAMP + ["#ffffff"] + GAIN_RAMP
+        net_cmap  = _LSC.from_list("driverdiv", cont_cols)
+        vmax = 600.0
+        net_norm  = SymLogNorm(linthresh=2.0, vmin=-vmax, vmax=vmax, base=10)
+        cf = ax.pcolormesh(gx, gy, net, cmap=net_cmap, norm=net_norm,
+                           shading="auto", alpha=0.72, zorder=3)
+        cbar_ticks = [-500, -250, -100, -50, -25, -10, -5, 0,
+                      5, 10, 25, 50, 100]
+        LINE_LEVELS = [-500, -250, -100, -50, -25, -10, 10, 50, 100]
+        # Log map: label the interior/mid-range contours (−100…−10, +10…+100)
+        # plus one −500 for the coastal depth; drop −250 (collided with the forest
+        # boundary). The loss contours bunch toward the coast and the SW gain
+        # cluster, so auto-placement puts every label there — instead we
+        # hand-place each label at an INTERIOR point on its own contour (computed
+        # from the contour geometry below) so the body of the warren is labelled.
+        LABEL_LEVELS = [-500, -100, -50, -25, -10, 10, 50, 100]
+        LABEL_MANUAL = True
+
     ax.contour(gx, gy, net, levels=[0],
                colors=["#1a1a1a"], linewidths=1.4, zorder=4)
     cs = ax.contour(gx, gy, net, levels=LINE_LEVELS,
                     colors=["#5a3a00" if v < 0 else "#1e3a8a" for v in LINE_LEVELS],
                     linewidths=0.55, alpha=0.75, zorder=4)
-    labs = ax.clabel(cs, inline=True, fontsize=7, fmt="%+d",
-                     colors=["#5a3a00" if v < 0 else "#1e3a8a" for v in LINE_LEVELS])
+
+    manual_pts = None
+    if LABEL_MANUAL:
+        # For each labelled level, pick an anchor point in the warren interior
+        # (loss levels: central E-band 242000–243100; the −500 toe kept low/west;
+        # gain levels: the SW management cluster). Falls back to the contour's
+        # median vertex if no interior vertex exists.
+        manual_pts = []
+        for lev in LABEL_LEVELS:
+            try:
+                idx = list(cs.levels).index(lev)
+                segs = cs.allsegs[idx]
+            except (ValueError, IndexError):
+                segs = []
+            pts = np.vstack(segs) if segs else np.empty((0, 2))
+            if not len(pts):
+                continue
+            if lev == -500:
+                m = pts[:, 1] < 363400
+            elif lev > 0:
+                m = (pts[:, 0] > 241000) & (pts[:, 0] < 242000)
+            else:
+                m = ((pts[:, 0] > 242000) & (pts[:, 0] < 243100)
+                     & (pts[:, 1] > 363000) & (pts[:, 1] < 364400))
+            ip = pts[m] if m.any() else pts
+            manual_pts.append(tuple(ip[len(ip) // 2]))
+
+    _label_colors = ["#5a3a00" if v < 0 else "#1e3a8a" for v in LABEL_LEVELS]
+    if manual_pts:
+        # With manual placement each point labels its nearest contour; the points
+        # were computed on the target contours, so do NOT also pass levels=
+        # (matplotlib mis-indexes when both manual and levels are given).
+        labs = ax.clabel(cs, inline=True, fontsize=7, fmt="%+d",
+                         manual=manual_pts)
+    else:
+        labs = ax.clabel(cs, levels=LABEL_LEVELS, inline=True, fontsize=7,
+                         fmt="%+d", colors=_label_colors)
     for t in labs:
         t.set_path_effects([_pe.withStroke(linewidth=1.8, foreground="white")])
 
     ax.scatter(wt["E"], wt["N"], c="#333", s=6, alpha=0.4, zorder=5)
 
-    # ── Feature overlays: forest boundary, felling zone, BL block, scrape ──
-    if forest_geom is not None:
-        for poly in (forest_geom.geoms
-                     if forest_geom.geom_type.startswith("Multi") else [forest_geom]):
+    if d["forest_geom"] is not None:
+        for poly in (d["forest_geom"].geoms
+                     if d["forest_geom"].geom_type.startswith("Multi") else [d["forest_geom"]]):
             ax.plot(*poly.exterior.xy, color="#1b5e20", lw=1.6, ls="--", zorder=6)
-    if fell_geom is not None:
-        for poly in (fell_geom.geoms
-                     if fell_geom.geom_type.startswith("Multi") else [fell_geom]):
+    if d["fell_geom"] is not None:
+        for poly in (d["fell_geom"].geoms
+                     if d["fell_geom"].geom_type.startswith("Multi") else [d["fell_geom"]]):
             ax.plot(*poly.exterior.xy, color="darkorange", lw=1.8, ls="-.", zorder=6)
-    if bl_geom is not None:
-        for poly in (bl_geom.geoms
-                     if bl_geom.geom_type.startswith("Multi") else [bl_geom]):
+    if d["bl_geom"] is not None:
+        for poly in (d["bl_geom"].geoms
+                     if d["bl_geom"].geom_type.startswith("Multi") else [d["bl_geom"]]):
             ax.plot(*poly.exterior.xy, color="#6b3fa0", lw=1.8, ls="-", zorder=6)
-    if scr_geom is not None:
-        _overlay_scrape_rise(ax, scr_geom, zbase=7)
+    if d["scr_geom"] is not None:
+        _overlay_scrape_rise(ax, d["scr_geom"], zbase=7)
 
     add_en_axes(ax)
+    yrs = d["coast_years"]
+    coast_lbl = f"{yrs:.0f}-yr chronic coastal drawdown"
+    scale_note = "  ·  log colour scale" if log_scale else ""
     ax.set_title(
-        "Newborough Warren — MODELLED driver change, 2005 → 2025\n"
-        "Clearfell gain · Broadleaf restock · Dune scrapes · 5-yr chronic coastal drawdown · SLR",
+        f"Newborough Warren — MODELLED driver change, 2005 → 2025{scale_note}\n"
+        f"Clearfell gain · Broadleaf restock · Dune scrapes · {coast_lbl} · SLR",
         fontsize=12, fontweight="bold", pad=8)
 
     cbar = fig.colorbar(cf, ax=ax, orientation="vertical",
                         fraction=0.035, pad=0.02, shrink=0.75, aspect=30,
-                        ticks=NET_LEVELS, extend="both")
-    cbar.set_label("Modelled water-table change 2005→2025 (mm)  ·  blue = gain, brown = loss",
-                   fontsize=9)
+                        ticks=cbar_ticks, extend="both")
+    scale_word = "log" if log_scale else "linear"
+    cbar.set_label(f"Modelled water-table change 2005→2025 (mm, {scale_word})"
+                   "  ·  blue = gain, brown = loss", fontsize=9)
     cbar.ax.axhline(0, color="black", lw=1.2)
 
     legend_items = [
@@ -4158,28 +4244,61 @@ def plot_driver_change_2005_2025(wt, features, dpi=300):
     ax.legend(handles=legend_items, loc="lower left",
               fontsize=8, framealpha=0.85, edgecolor="#999")
 
-    # Provenance / caveat box — inside the axes at top-left (under the title),
-    # in the empty hillshade band above the IDW field so it does not overlay data.
-    # Broken into short lines so the box sits within the map bounds.
+    # Provenance / caveat box (top-left, over hillshade — not over the IDW field).
+    horizon_note = ("prediction surface — per-well test pending"
+                    if log_scale else "companion to the observed Script 36 map")
     ax.text(
         0.015, 0.985,
-        f"MODELLED epoch difference — standing pine\n"
-        f"cancels (equilibrium both epochs).\n"
-        f"Clearfell gain H₀ = {fH0:.0f} mm · SLR = +{slr_mm:.0f} mm\n"
-        f"Broadleaf increment H₀ ≈ {blH0:.0f} mm (indicative);\n"
-        f"coastal = {COAST_CHRONIC_YEARS:.0f}-yr chronic "
-        f"({COAST_CHRONIC_YEARS:.0f} × δ₀ ≈ {eH0:.0f} mm) — both modelled.",
+        f"MODELLED epoch difference — standing pine cancels.\n"
+        f"Clearfell OBSERVED +{d['clearfell_mm']:.0f} mm (BACI) · SLR = +{d['slr_mm']:.0f} mm\n"
+        f"Broadleaf increment ≈ {d['blH0']:.0f} mm (indicative);\n"
+        f"coastal = {yrs:.0f}-yr chronic ({yrs:.0f} × δ₀ ≈ {d['eH0']:.0f} mm).\n"
+        f"Fields linearly superposed (first-order upper bound in\n"
+        f"overlap zones). {horizon_note}.",
         transform=ax.transAxes, ha="left", va="top",
-        fontsize=7.5, color="#333", style="italic", zorder=8,
+        fontsize=7.2, color="#333", style="italic", zorder=8,
         bbox=dict(boxstyle="round,pad=0.5", facecolor="#f4f4f4",
                   edgecolor="#bbb", alpha=0.92),
     )
 
-    fig.savefig(OUT_20_DRIVER_CHANGE, dpi=dpi, bbox_inches="tight")
+    fig.savefig(out_path, dpi=dpi, bbox_inches="tight")
     plt.close(fig)
-    print(f"  Saved → {OUT_20_DRIVER_CHANGE}  "
-          f"(change range {np.nanmin(net):.0f} to {np.nanmax(net):.0f} mm; "
-          f"BL increment H₀ ≈ {blH0:.0f} mm)")
+    print(f"  Saved → {out_path}  "
+          f"(range {np.nanmin(net):.0f} to {np.nanmax(net):.0f} mm; "
+          f"coastal {yrs:.0f}-yr; clearfell +{d['clearfell_mm']:.0f} mm)")
+
+
+def plot_driver_change_2005_2025(wt, features, dpi=300):
+    """Modelled 2005→2025 driver-change map at the 5-yr chronic coastal horizon
+    (COAST_CHRONIC_YEARS), linear ±150 colour scale. Companion to the observed
+    Script 36 climate-removed map. Clearfell plots the OBSERVED +120 mm BACI
+    step (Path B). See _driver_change_net / _render_driver_change."""
+    gx, gy = np.meshgrid(GRID_XI, GRID_YI)
+    clearfell_mm = _load_clearfell_observed_mm()
+    d = _driver_change_net(gx, gy, coast_years=COAST_CHRONIC_YEARS,
+                           clearfell_mm=clearfell_mm)
+    if d is None:
+        return
+    _render_driver_change(wt, d, OUT_20_DRIVER_CHANGE, dpi, log_scale=False)
+
+
+def plot_driver_change_20yr(wt, features, dpi=300):
+    """Modelled 2005→2025 driver-change map at the FULL 20-year coastal horizon
+    (coastal ≈ 20×δ₀ ≈ 581 mm at the toe), on a symmetric-LOG colour scale so
+    the deep coastal field and the ±120 mm management effects both read.
+
+    This is a PREDICTION-SURFACE / diagnostic figure: at each well it predicts a
+    2005→2025 drawdown that can be tested against the observed record (per-well
+    validation is a separate analysis). Presented ALONGSIDE the 5-yr map — the
+    5-yr map compares drivers legibly; the 20-yr map shows the full accumulated
+    coastal effect over the study window. Clearfell plots the OBSERVED +120 mm
+    (Path B). Linear superposition — a first-order upper bound in overlap zones."""
+    gx, gy = np.meshgrid(GRID_XI, GRID_YI)
+    clearfell_mm = _load_clearfell_observed_mm()
+    d = _driver_change_net(gx, gy, coast_years=20.0, clearfell_mm=clearfell_mm)
+    if d is None:
+        return
+    _render_driver_change(wt, d, OUT_20_DRIVER_CHANGE_20YR, dpi, log_scale=True)
 
 
 def plot_scrape_drawdown(wt, features, dpi=300, show_head=True):
@@ -4578,8 +4697,11 @@ def main(preview=False):
     print("Generating net water-table state map (all five drivers)...")
     plot_net_state_map(wt, features, dpi=dpi)
 
-    print("Generating 2005→2025 modelled driver-change map (incl. broadleaf restock)...")
+    print("Generating 2005→2025 modelled driver-change map (5-yr chronic coastal)...")
     plot_driver_change_2005_2025(wt, features, dpi=dpi)
+
+    print("Generating 2005→2025 driver-change map (20-yr coastal, log scale)...")
+    plot_driver_change_20yr(wt, features, dpi=dpi)
 
     print("Generating clearfell gain map...")
     plot_clearfell_gain(wt, features, dpi=dpi)

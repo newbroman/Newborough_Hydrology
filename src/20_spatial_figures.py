@@ -63,7 +63,13 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds
 """
 
-__version__ = "1.27.0"  # Hollingham (2026) — 2026-06-30
+__version__ = "1.28.0"  # Hollingham (2026) — 2026-07-05
+# 1.28.0 — LOSS_COLS ramp lightened ~2 stops across all four divergent
+#          net-change maps: darkest stop now #c2410c (was #5c1d02),
+#          7 stops retained for symmetry with the 7-stop GAIN_COLS ramp.
+#          Ramp: c2410c→ea7317→f59e0b→fbbf24→fcd34d→fde68a→fff3b0.
+#          DRAWDOWN_BAND_COLOURS and DRAWDOWN_CMAP.set_over unchanged.
+#          Visual only — no change to LEVELS, BoundaryNorm, or data.
 # 1.27.0 — Remove hardcoded SLR_K/SLR_B; use DRAWDOWN_K_MDAY/DRAWDOWN_B_M
 #          from config.py throughout. SLR_K = 6.0 m/day and SLR_B = 5.0 m
 #          were duplicates of the config constants; having two names for the
@@ -3062,8 +3068,8 @@ def plot_clearfell_gain(wt, features, dpi=300):
     # set so the zero point sits at the centre and the scale is comparable
     # with the net state map.
     LEVELS    = [-150, -100, -50, -25, -10, -5, -2, 2, 5, 10, 25, 50, 100, 150]
-    LOSS_COLS = ["#5c1d02", "#7c2d12", "#c2410c", "#ea7317",
-                 "#f59e0b", "#fcd34d", "#fff3b0"]
+    LOSS_COLS = ["#c2410c", "#ea7317", "#f59e0b", "#fbbf24",
+                 "#fcd34d", "#fde68a", "#fff3b0"]
     GAIN_COLS = ["#dbeafe", "#bfdbfe", "#93c5fd", "#60a5fa",
                  "#3b82f6", "#2563eb", "#1d4ed8"]
     div_cmap  = _LC(LOSS_COLS + GAIN_COLS)
@@ -3282,8 +3288,8 @@ def plot_msl5_change(wt, features, dpi=300):
     # ── Colour scale ──────────────────────────────────────────────────────
     LEVELS    = [-150,-100,-50,-25,-10,-5,-2, 2, 5,10,25,50,100,150]
     LINE_LEVELS = [-100,-50,-25, 25, 50, 100]
-    LOSS_COLS = ["#5c1d02","#7c2d12","#c2410c","#ea7317",
-                 "#f59e0b","#fcd34d","#fff3b0"]
+    LOSS_COLS = ["#c2410c","#ea7317","#f59e0b","#fbbf24",
+                 "#fcd34d","#fde68a","#fff3b0"]
     GAIN_COLS = ["#dbeafe","#bfdbfe","#93c5fd","#60a5fa",
                  "#3b82f6","#2563eb","#1d4ed8"]
     div_cmap  = _LC(LOSS_COLS + GAIN_COLS)
@@ -3565,8 +3571,8 @@ def plot_observed_change(wt, features, dpi=300):
 
     # ── Colour scale ──────────────────────────────────────────────────────
     LEVELS    = [-150, -100, -50, -25, -10, -5, -2, 2, 5, 10, 25, 50, 100, 150]
-    LOSS_COLS = ["#5c1d02", "#7c2d12", "#c2410c", "#ea7317",
-                 "#f59e0b", "#fcd34d", "#fff3b0"]
+    LOSS_COLS = ["#c2410c", "#ea7317", "#f59e0b", "#fbbf24",
+                 "#fcd34d", "#fde68a", "#fff3b0"]
     GAIN_COLS = ["#dbeafe", "#bfdbfe", "#93c5fd", "#60a5fa",
                  "#3b82f6", "#2563eb", "#1d4ed8"]
     div_cmap  = _LC(LOSS_COLS + GAIN_COLS)
@@ -3767,8 +3773,8 @@ def plot_net_state_map(wt, features, dpi=300):
     # ── Diverging colour scale ────────────────────────────────────────────
     # Symmetric bands around zero; brown = loss, blue = gain.
     NET_LEVELS  = [-150, -100, -50, -25, -10, -5, -2, 2, 5, 10, 25, 50, 100, 150]
-    LOSS_COLS   = ["#5c1d02", "#7c2d12", "#c2410c", "#ea7317",
-                   "#f59e0b", "#fcd34d", "#fff3b0"]
+    LOSS_COLS   = ["#c2410c", "#ea7317", "#f59e0b", "#fbbf24",
+                   "#fcd34d", "#fde68a", "#fff3b0"]
     GAIN_COLS   = ["#dbeafe", "#bfdbfe", "#93c5fd", "#60a5fa",
                    "#3b82f6", "#2563eb", "#1d4ed8"]
     from matplotlib.colors import BoundaryNorm, ListedColormap as _LC

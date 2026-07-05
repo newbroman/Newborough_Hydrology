@@ -188,7 +188,7 @@ PHASE_3 = [
     ("07_spatial_coefficients.py",     " 7/44  Spatial coefficient mapping"),
     ("08_model_benchmarking.py",      " 8/44  Model benchmarking (LCSC vs Traditional)"),
     ("run_09_scraping.py",            " 9/44  Scraping analysis suite (09a–09e)"),
-    ("run_10_clearfell.py",           "10/44  Clear-fell BACI analysis suite (10a–10l)"),
+    ("run_10_clearfell.py",           "10/44  Clear-fell BACI analysis suite (10a–10m)"),
     ("11_forecasting_thresholds.py",  "11/44  Forecasting and critical thresholds"),
     ("11b_spatial_thresholds.py",     "12/44  Spatial eco-hydrological threshold maps"),
     ("11c_pflood_achievability.py",   "13/44  P_flood achievability categorical map (§5.9 / Conclusion 4)"),

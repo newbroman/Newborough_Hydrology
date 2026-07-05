@@ -1,6 +1,6 @@
 """
 run_10_clearfell.py — Clearfell BACI Analysis Suite Runner
-Runs the modular Script 10 sub-scripts (10a–10l) in order and
+Runs the modular Script 10 sub-scripts (10a–10m) in order and
 consolidates report numbers.
 
 Usage
@@ -27,6 +27,9 @@ Main (primary report results):
   10j  Direct Impact-vs-Edge contrast (no external control)
   10k  Four-zone pooled-panel BACI (primary §4.6 result)
   10l  Four-zone summer-minima BACI (Phase 2 — annual Jun-Sep)
+
+Display figure (runs last; not a primary report result):
+  10m  WMC3-vs-forest-control dual-panel intervention figure
 
 Supplementary (additional spatial diagnostic, not in the main report
 results chain):
@@ -58,6 +61,10 @@ Dependencies
        Impact zones and computes the C3/Warren zone's summer minima
        itself.  It optionally reads 10j's summer-contrast output for a
        cross-check.  10d is therefore a prerequisite for 10l.
+  10m reads 10a's report numbers (10a_report_numbers.csv) for the
+       climate-corrected clearfell headline used in its on-figure
+       reconciliation note; 10a is therefore a prerequisite for 10m.
+       It is a display figure and runs last in the suite.
 """
 
 import subprocess
@@ -93,6 +100,7 @@ SUBSCRIPTS = [
     ("10j_impact_edge_contrast.py",     "10j", "Direct Impact-vs-Edge contrast (monthly + summer)"),
     ("10k_four_zone_baci.py",           "10k", "Four-zone pooled-panel BACI (primary §4.6 result)"),
     ("10l_four_zone_summer_minima.py",  "10l", "Four-zone summer-minima BACI (Phase 2)"),
+    ("10m_wmc3_baci_dual.py",           "10m", "WMC3-vs-forest-control dual-panel intervention figure (display)"),
 ]
 
 
@@ -129,7 +137,7 @@ def consolidate_report_numbers():
     """
     import pandas as pd
 
-    pattern_prefixes = ["10a_", "10d_", "10e_", "10f_", "10g_", "10h_", "10i_", "10k_", "10l_"]
+    pattern_prefixes = ["10a_", "10d_", "10e_", "10f_", "10g_", "10h_", "10i_", "10k_", "10l_", "10m_"]
     frames = []
 
     for prefix in pattern_prefixes:

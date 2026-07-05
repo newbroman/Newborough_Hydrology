@@ -172,7 +172,7 @@ colours and labels are centralised in `src/utils/config.py`.
 |-------|---------|-------|---------|
 | 1 | 01–04 | 1–4 | Core LCSC chain |
 | 2 | 05–06 | 5–6 | Pearson membership audit and extended network integration |
-| 3 | 07, 08, 09 suite, 10 suite, 11, 11b, 11c | 7–13 | Spatial coefficient mapping, model benchmarking, scraping (09a–e) and clearfell BACI (10a–l), forecasting and spatial threshold maps; 11c is the per-well P_flood achievability map for §5.9 / Conclusion 4 |
+| 3 | 07, 08, 09 suite, 10 suite, 11, 11b, 11c | 7–13 | Spatial coefficient mapping, model benchmarking, scraping (09a–e) and clearfell BACI (10a–m), forecasting and spatial threshold maps; 11c is the per-well P_flood achievability map for §5.9 / Conclusion 4 |
 | 4 | 00, 14, 14b, 12, 13 | 14–18 | Climate summary, trajectory projections, bootstrap year-of-crossing (14b, supporting §7 Conclusion 11), GIS figures |
 | 5 | 15 | 19 | Depth-dependent PET analysis |
 | 6 | 17 | 20 | WTF cluster Sy estimation |
@@ -217,8 +217,10 @@ within-C3 variance attribution; "Script 11c" means P_flood achievability map;
 "Script 14b" means bootstrap year-of-crossing.
 Within the Script 10 clearfell BACI suite,
 `10c_forest_zone_analysis.py` runs in order but its outputs are treated as
-supplementary; the other eleven sub-scripts (10a, 10b, 10d–10l) contribute to the
-primary report results.
+supplementary and `10m_wmc3_baci_dual.py` is a display figure (a WMC3-versus-
+forest-control dual-panel intervention plot that reads the 10a clearfell
+headline live); the other eleven sub-scripts (10a, 10b, 10d–10l) contribute to
+the primary report results.
 
 ---
 

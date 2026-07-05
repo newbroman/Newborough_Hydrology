@@ -398,6 +398,11 @@ OUT_10L_TRAJECTORY_FIG      = DIR_10 / "10l_04_zone_summer_trajectories.jpg"
 OUT_10L_FOREST_PLOT         = DIR_10 / "10l_05_summer_forest_plot.jpg"
 OUT_10L_REPORT              = DIR_10 / "10l_report_numbers.csv"
 
+# 10m — WMC3-vs-forest-control dual-panel intervention figure
+OUT_10M_ERA_STEPS           = DIR_10 / "10m_01_wmc3_baci_era_steps.csv"
+OUT_10M_DUAL_FIG            = DIR_10 / "10m_02_wmc3_baci_dual.png"
+OUT_10M_REPORT              = DIR_10 / "10m_report_numbers.csv"
+
 # Script 11 — Forecasting thresholds
 OUT_11_RESULTS              = DIR_11 / "11_forecast_01_results.txt"
 OUT_11_TABLE6_WINTER        = DIR_11 / "11_forecast_winter_transfer_functions.csv"

@@ -448,3 +448,7 @@ FourZoneSummer_contrast_Impact_vs_Forest,Impact - Forest,Post_felling_Jun-Sep,-0
 FourZoneSummer_contrast_Impact_vs_Edge,Impact - Edge,Post_felling_Jun-Sep,0.0213,m,"DERIVED contrast — point estimate exact, but SE/p are covariance-dependent and not comparable to primary contrasts; do not cite as significance (p_derived=0.2587)",10l
 FourZoneSummer_contrast_Impact_vs_C3Warren,Impact - C3/Warren,Post_felling_Jun-Sep,-0.0193,m,"DERIVED contrast — point estimate exact, but SE/p are covariance-dependent and not comparable to primary contrasts; do not cite as significance (p_derived=0.0061)",10l
 FourZoneSummer_contrast_Edge_vs_C3Warren,Edge - C3/Warren,Post_felling_Jun-Sep,-0.0406,m,"DERIVED contrast — point estimate exact, but SE/p are covariance-dependent and not comparable to primary contrasts; do not cite as significance (p_derived=0.0438)",10l
+WMC3_BACI_DiD_step_2015_scraping,WMC3,Post-2015 scrape / pre-fell,-0.0552,m,"raw difference-in-differences, Pre-2015 scrape (baseline) → Post-2015 scrape / pre-fell; consistent with scraping drawdown",10m
+WMC3_BACI_DiD_step_2017_clearfell,WMC3,Post-clearfell / pre-2023,0.0408,m,"raw difference-in-differences, Post-2015 scrape / pre-fell → Post-clearfell / pre-2023; consistent with clearfell recovery",10m
+WMC3_BACI_DiD_step_2023_scraping,WMC3,Post-2023 scrape,-0.0538,m,"raw difference-in-differences, Post-clearfell / pre-2023 → Post-2023 scrape; consistent with scraping drawdown",10m
+WMC3_ANCOVA_clearfell_step_ref,WMC3,Post_felling,0.1196,m,"reference copy of 10a headline (p=<0.001, CI=[0.0497,0.1894])",10m

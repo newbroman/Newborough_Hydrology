@@ -37,7 +37,13 @@ Usage:
 #     measured sheet. This is the canonical geometry basis (matches seed_living_hub)
 #     and recovers wells the master lacks/names differently (e.g. ceh40-42, FE1-4,
 #     the forest/edge/warren short labels). Depth-below-ground stays upstand-depth.
-__version__ = "1.2.0"
+# v1.2.1 (2026-07-04)
+#   * ODS write is now optional (--no-ods) and best-effort: guarded so a missing
+#     LibreOffice/uno module or a headless failure no longer aborts the run with
+#     a traceback. QA and the hub append are written first, so they always land.
+#     The master normally auto-populates from its recordsheet link, so the ODS
+#     copy is incidental for the forecaster/hub workflow.
+__version__ = "1.2.1"
 
 import argparse, os, re, sys, math, subprocess, time, datetime as dt
 import pandas as pd
@@ -319,6 +325,7 @@ def main():
     ap.add_argument('--outdir', default='.')
     ap.add_argument('--hub', help='living hub CSV (readings_living.csv); if given, upsert this month into the hub')
     ap.add_argument('--metadata', help='well_metadata.csv; if given, resolve well ids via its aliases and take geometry from it (canonical basis, recovers wells the master lacks)')
+    ap.add_argument('--no-ods', dest='no_ods', action='store_true', help='skip the LibreOffice/UNO write of the master ODS copy (incidental for the hub/forecaster workflow)')
     args = ap.parse_args()
 
     master = load_master(args.master)
@@ -357,11 +364,22 @@ def main():
     out_ods = os.path.join(args.outdir, f"{base}_{month}_intake.ods")
     out_qa  = os.path.join(args.outdir, f"intake_QA_{month}.md")
 
-    uno_write(args.master, out_ods, master, vals, coldate)
+    # QA is written first so it always lands, independent of the optional ODS write.
     write_qa(qa, out_qa, month, coldate, len(vals))
 
+    # ODS write is optional and best-effort. The master normally auto-populates
+    # from its recordsheet link, and LibreOffice/uno may be unavailable.
+    if args.no_ods:
+        print("  ODS write skipped (--no-ods)")
+    else:
+        try:
+            uno_write(args.master, out_ods, master, vals, coldate)
+            print(f"  -> {out_ods}")
+        except Exception as e:  # noqa: BLE001 — uno missing / LibreOffice not running
+            print(f"  ! ODS write skipped ({type(e).__name__}); hub and QA are written. "
+                  f"Master carries {month} via its recordsheet link.", file=sys.stderr)
+
     print(f"  wrote {len(vals)} wells for {month} (column date {coldate.date() if coldate is not None else 'n/a'})")
-    print(f"  -> {out_ods}")
     print(f"  -> {out_qa}")
     for k in ('unmatched', 'no_geometry', 'crosscheck', 'outliers'):
         if qa[k]:

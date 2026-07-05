@@ -64,8 +64,8 @@ Inputs (via utils.paths):
 
 Outputs (outputs/36_absolute_climate_trend/):
     36_absolute_climate_trend_per_well.csv   per-well slope, CI, CWB β
-    36_absolute_climate_trend_2011_2025.png  primary map
-    36_absolute_climate_trend_2005_2025.png  robustness map
+    36_absolute_climate_trend_2005_2025.png  primary map
+    36_absolute_climate_trend_2011_2025.png  robustness map
     36_results.txt                           console summary
 
 Version: 1.0.0 (2026-07-05)
@@ -91,10 +91,15 @@ from utils import config, paths
 from utils.map_utils import load_dem_hillshade, add_kml_features, add_en_axes, add_idw_surface
 from utils.console_utils import banner, phase, step, info, note, result, saved, done, warn
 
-__version__ = "1.0.4"  # 2026-07-05: fix coverage filter — pre-window check used window-relative
-                       # `first` year, which excluded all wells from 2005–2025 (no well has data
-                       # before 2005). Replaced with fixed PRE_WINDOW_CUTOFF = 2011 (start of the
-                       # shorter window) so short-record wells are excluded from both windows.
+__version__ = "1.0.5"  # 2026-07-05: fix crossed-over output filenames in paths.py — after the R1
+                       # primary-swap, OUT_36_FIG_PRIMARY still pointed at ..._2011_2025.png and
+                       # OUT_36_FIG_ROBUST at ..._2005_2025.png, so the 2005–2025 primary map was
+                       # written to a file named 2011_2025 and vice versa. Names now match content.
+                       # (No logic change; paths.py edit + docstring correction.)
+# 1.0.4 (2026-07-05): fix coverage filter — pre-window check used window-relative
+#   `first` year, which excluded all wells from 2005–2025 (no well has data
+#   before 2005). Replaced with fixed PRE_WINDOW_CUTOFF = 2011 (start of the
+#   shorter window) so short-record wells are excluded from both windows.
 SCRIPT_ID = "36"
 VERSION = __version__
 

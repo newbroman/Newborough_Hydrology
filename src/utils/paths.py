@@ -515,8 +515,8 @@ OUT_35_RESULTS = DIR_35 / "35_results.txt"
 DIR_36 = OUT_DIR / "36_absolute_climate_trend"
 DIR_36.mkdir(parents=True, exist_ok=True)
 OUT_36_PER_WELL             = DIR_36 / "36_absolute_climate_trend_per_well.csv"
-OUT_36_FIG_PRIMARY          = DIR_36 / "36_absolute_climate_trend_2011_2025.png"
-OUT_36_FIG_ROBUST           = DIR_36 / "36_absolute_climate_trend_2005_2025.png"
+OUT_36_FIG_PRIMARY          = DIR_36 / "36_absolute_climate_trend_2005_2025.png"
+OUT_36_FIG_ROBUST           = DIR_36 / "36_absolute_climate_trend_2011_2025.png"
 OUT_36_RESULTS              = DIR_36 / "36_results.txt"
 
 # Script 34 — MSL5 two-window sensitivity (standalone demonstration figure; §5.7.5)

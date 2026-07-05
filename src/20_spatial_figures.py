@@ -63,21 +63,38 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds
 """
 
-__version__ = "1.29.0"  # Hollingham (2026) — 2026-07-05
+__version__ = "1.31.0"  # Hollingham (2026) — 2026-07-05
+# 1.31.0 — (a) Driver-change coastal field now uses config.COAST_CHRONIC_YEARS
+#          (shared with Script 09f) instead of the script-local SLR_WINDOW_YEARS,
+#          so the coastal chronic horizon is a single named constant across both
+#          figures (they were coincidentally both 5 yr; now decoupled from the SLR
+#          transient horizon and coupled to each other). No behavioural change
+#          (COAST_CHRONIC_YEARS = 5.0). (b) Provenance/caveat text moved from a
+#          bottom fig.text footer to a bordered bbox annotation inside the axes,
+#          top-left under the title, in the empty hillshade band so it does not
+#          overlay the IDW field — 5 short lines, sized to sit within the map
+#          bounds and clear of the colourbar.
+# 1.30.0 — Driver-change map coastal field: switched from the retreat-distance
+#          construction (50 m × δ₀/rate → 175 mm, which via the 8.3 storm rate
+#          represented only ~6 yr of δ₀ despite the 20-yr window, and whose footer
+#          mislabelled it "50 m over 20 yr") to an explicit chronic drawdown
+#          = (years × δ₀) (≈145 mm at the toe), rate-independent. _erosion_field()
+#          gains an optional h0_mm arg (source drawdown given directly); existing
+#          callers (Fig 58, coastal-net) pass neither h0_mm nor retreat_m and are
+#          UNCHANGED (fall back to COAST_RETREAT_M = 6 m → 21 mm).
+#          COAST_RETREAT_2005_2025_M no longer used here; removed from the import.
 # 1.29.0 — Added plot_driver_change_2005_2025(): modelled driver-CHANGE map
 #          (epoch difference of the net-state fields, re-based to 2005). Shows
 #          only what changed over the study window — standing pine cancels
 #          (equilibrium both epochs), leaving clearfell gain, broadleaf-restock
-#          drawdown INCREMENT (new _broadleaf_field()), all-epoch scrapes, 20-yr
-#          coastal retreat (COAST_RETREAT_2005_2025_M ≈ 50 m), and SLR. The BL
-#          block appears as a brown drawdown patch — the signal missing from
-#          every prior map. New _broadleaf_field() helper; _erosion_field() gains
-#          an optional retreat_m arg (default COAST_RETREAT_M — existing callers
-#          unchanged). New config constants BL_CANOPY_FRACTION_2005/2025,
-#          COAST_RETREAT_2005_2025_M; new path OUT_20_DRIVER_CHANGE. Wired into
-#          main(). MODELLED map — flagged indicative (BL and coastal fields are
-#          the least record-constrained). Observed partner is the fixed Script 36
-#          climate-removed 2005–2025 map, paired at the document stage.
+#          drawdown INCREMENT (new _broadleaf_field()), all-epoch scrapes, a
+#          coastal drawdown, and SLR. The BL block appears as a brown drawdown
+#          patch — the signal missing from every prior map. New _broadleaf_field()
+#          helper; new config constants BL_CANOPY_FRACTION_2005/2025; new path
+#          OUT_20_DRIVER_CHANGE. Wired into main(). MODELLED map — flagged
+#          indicative (BL and coastal fields are the least record-constrained).
+#          Observed partner is the fixed Script 36 climate-removed 2005–2025 map,
+#          paired at the document stage.
 # 1.28.0 — LOSS_COLS ramp lightened ~2 stops across all four divergent
 #          net-change maps: darkest stop now #c2410c (was #5c1d02),
 #          7 stops retained for symmetry with the 7-stop GAIN_COLS ramp.
@@ -451,7 +468,7 @@ from utils.config import (CLUSTER_COLOURS, CLUSTER_LABELS, DRAINAGE_DATUM, FORES
                           FOREST_CIDS, SCRAPE_KML_FILES,
                           DRAWDOWN_H0_MM, DRAWDOWN_K_MDAY, DRAWDOWN_B_M,
                           BROADLEAF_INTERCEPTION, BL_CANOPY_FRACTION_2005,
-                          BL_CANOPY_FRACTION_2025, COAST_RETREAT_2005_2025_M)
+                          BL_CANOPY_FRACTION_2025, COAST_CHRONIC_YEARS)
 from utils.data_utils import normalize_well_name
 from utils.report_numbers_utils import ReportNumbers
 
@@ -2317,19 +2334,31 @@ def _seaward_ring(line_coords):
     return _Poly(ring).buffer(0)
 
 
-def _erosion_field(gx, gy, retreat_m=None):
+def _erosion_field(gx, gy, retreat_m=None, h0_mm=None):
     """Erosion drawdown field (mm, positive = head loss) on grid gx,gy.
-    Single retreat event of `retreat_m` metres (default COAST_RETREAT_M),
-    dune-toe front, seaward side zeroed. Pass retreat_m explicitly for a
-    multi-year accumulation (e.g. COAST_RETREAT_2005_2025_M for the 2005→2025
-    driver-change map). Returns (field, front, waterline, h0, L) or (None,...).
+
+    Source drawdown h0 (positive = head loss) is set one of two ways:
+      • h0_mm given → used directly as the source drawdown. Used by the
+        driver-change map for a chronic multi-year drawdown expressed as
+        (years × δ₀), rate-independent (e.g. SLR_WINDOW_YEARS × δ₀ for the
+        5-yr chronic coastal field). δ₀ from _load_coastal_fit() is already
+        returned as a positive magnitude, so a positive year-count gives a
+        positive (loss) h0 — matching the retreat_m path's sign convention.
+      • else retreat_m given (or default COAST_RETREAT_M) → h0 computed as the
+        single-event construction retreat_m × (δ₀ / COAST_RETREAT_RATE).
+    The dune-toe front, exponential inland decay over L, and seaward-side
+    zeroing are identical in both cases.
+    Returns (field, front, waterline, h0, L) or (None,...).
     """
     from shapely.geometry import Point
     from shapely import contains_xy
-    if retreat_m is None:
-        retreat_m = COAST_RETREAT_M
     delta0, L = _load_coastal_fit()
-    h0 = retreat_m * (delta0 / COAST_RETREAT_RATE)
+    if h0_mm is not None:
+        h0 = float(h0_mm)
+    else:
+        if retreat_m is None:
+            retreat_m = COAST_RETREAT_M
+        h0 = retreat_m * (delta0 / COAST_RETREAT_RATE)
     front, waterline = _dem_waterline_to_dune_edge()
     if front is None:
         return None, None, None, None, None
@@ -3978,9 +4007,10 @@ def plot_driver_change_2005_2025(wt, features, dpi=300):
         missing from every prior map.
       • Scrapes (2015, 2023)       — both cuts fall within the window, so all
         contribute (epochs=None): slack rises, surrounding drawdown cones.
-      • Coastal retreat (20 yr)    — COAST_RETREAT_2005_2025_M (≈50 m observed)
-        of shoreline retreat → dune-toe drawdown, deeper than Fig 58's single
-        ~6 m event.
+      • Coastal drawdown (5-yr chronic) — SLR_WINDOW_YEARS × δ₀ (≈145 mm at the
+        toe), rate-independent, on the same 5-yr horizon as the SLR field; a
+        chronic linear accumulation, distinct from the SLR erfc transient. Does
+        NOT use a retreat distance or COAST_RETREAT_RATE.
       • SLR (20 yr)                — sea-level-rise head gain over the window.
 
     MODELLED map — flagged modelled/indicative in the title and footer. The BL
@@ -3999,8 +4029,15 @@ def plot_driver_change_2005_2025(wt, features, dpi=300):
     forest_full, fH0, fLam, forest_geom = _forest_field(gx, gy)   # for clearfell H0/λ + boundary overlay
     bl_incr,     blH0, blLam, bl_geom   = _broadleaf_field(gx, gy)
     scr,         sH0, sLam, scr_geom    = _scrape_field(gx, gy, epochs=None)
-    eros, front, waterline, eH0, _L     = _erosion_field(gx, gy,
-                                                         retreat_m=COAST_RETREAT_2005_2025_M)
+    # Coastal field: chronic drawdown = COAST_CHRONIC_YEARS × δ₀, rate-independent
+    # (a chronic linear accumulation of the fitted coastal-decline rate, capped to
+    # zero at reach L; NOT a retreat distance and NOT dependent on COAST_RETREAT_RATE).
+    # Same construction, horizon and reach as Script 09f's 5-yr coastal curve
+    # (config.COAST_CHRONIC_YEARS shared; δ₀/L from the same 25_01 fit row).
+    # δ₀ from _load_coastal_fit() is returned positive (= loss), matching sign.
+    _delta0_coast, _L_coast = _load_coastal_fit()
+    _coast_h0_mm = COAST_CHRONIC_YEARS * _delta0_coast
+    eros, front, waterline, eH0, _L     = _erosion_field(gx, gy, h0_mm=_coast_h0_mm)
     slr_gain, wl_slr, _, slr_mm         = _slr_field(gx, gy)
 
     if any(f is None for f in [forest_full, scr, eros, slr_gain]):
@@ -4098,7 +4135,7 @@ def plot_driver_change_2005_2025(wt, features, dpi=300):
     add_en_axes(ax)
     ax.set_title(
         "Newborough Warren — MODELLED driver change, 2005 → 2025\n"
-        "Clearfell gain · Broadleaf restock · Dune scrapes · 20-yr coastal retreat · SLR",
+        "Clearfell gain · Broadleaf restock · Dune scrapes · 5-yr chronic coastal drawdown · SLR",
         fontsize=12, fontweight="bold", pad=8)
 
     cbar = fig.colorbar(cf, ax=ax, orientation="vertical",
@@ -4121,14 +4158,22 @@ def plot_driver_change_2005_2025(wt, features, dpi=300):
     ax.legend(handles=legend_items, loc="lower left",
               fontsize=8, framealpha=0.85, edgecolor="#999")
 
-    fig.text(0.5, 0.01,
-             f"MODELLED epoch difference. Standing pine cancels (equilibrium both epochs). "
-             f"Clearfell gain H₀ = {fH0:.0f} mm · "
-             f"Broadleaf increment H₀ ≈ {blH0:.0f} mm (indicative — least-constrained field) · "
-             f"Coastal retreat = {COAST_RETREAT_2005_2025_M:.0f} m over 20 yr · "
-             f"SLR = +{slr_mm:.0f} mm\n"
-             "Broadleaf and coastal fields are modelled and not fully resolved by the record.",
-             ha="center", va="bottom", fontsize=8, color="#444", style="italic")
+    # Provenance / caveat box — inside the axes at top-left (under the title),
+    # in the empty hillshade band above the IDW field so it does not overlay data.
+    # Broken into short lines so the box sits within the map bounds.
+    ax.text(
+        0.015, 0.985,
+        f"MODELLED epoch difference — standing pine\n"
+        f"cancels (equilibrium both epochs).\n"
+        f"Clearfell gain H₀ = {fH0:.0f} mm · SLR = +{slr_mm:.0f} mm\n"
+        f"Broadleaf increment H₀ ≈ {blH0:.0f} mm (indicative);\n"
+        f"coastal = {COAST_CHRONIC_YEARS:.0f}-yr chronic "
+        f"({COAST_CHRONIC_YEARS:.0f} × δ₀ ≈ {eH0:.0f} mm) — both modelled.",
+        transform=ax.transAxes, ha="left", va="top",
+        fontsize=7.5, color="#333", style="italic", zorder=8,
+        bbox=dict(boxstyle="round,pad=0.5", facecolor="#f4f4f4",
+                  edgecolor="#bbb", alpha=0.92),
+    )
 
     fig.savefig(OUT_20_DRIVER_CHANGE, dpi=dpi, bbox_inches="tight")
     plt.close(fig)

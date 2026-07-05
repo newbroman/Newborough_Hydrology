@@ -59,7 +59,13 @@ Hollingham (2026), §4.5, §4.9.3, §4.8.2, §5.4.3, §5.8. Companion to 09b/09d
 ====================================================================================
 """
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-07-02
+__version__ = "1.4.1"  # Hollingham (2026) — 2026-07-05
+# 1.4.1 — De-hardcode the coastal 5-yr accumulation horizon: the literal 5.0 in
+#         coast_edge_5yr = 5.0 × |δ₀| replaced by config.COAST_CHRONIC_YEARS
+#         (= 5.0), now shared with Script 20's driver-change coastal field so a
+#         future change to the chronic horizon moves both figures together. No
+#         behavioural change (constant equals the former literal). Edge-head
+#         construction and reach L already match Script 20 (same 25_01 fit row).
 # 1.4.0 — Two-pass safe: every live loader (λ/H0, δ₀/L, scrape bars, clearfell
 #         recovery, scrape edge anchor) now falls back to documented first-pass
 #         defaults with a console warning when its upstream CSV is absent. New
@@ -107,7 +113,7 @@ from utils.console_utils import banner, phase, step, info, warn, saved
 from utils.site_observations import load_site_observation
 from utils.scraping_common import MPL_DEFAULTS
 from utils.config import (SCRAPE_RISE_BUFFER_M, COAST_RETREAT_M,
-                          COAST_RETREAT_RATE, DRAWDOWN_H0_MM)
+                          COAST_RETREAT_RATE, DRAWDOWN_H0_MM, COAST_CHRONIC_YEARS)
 from utils.pipeline_params import default_value
 
 
@@ -338,9 +344,11 @@ def main():
 
     # 6 m acute-storm edge drawdown (Script 20 construction, ÷ storm rate)
     coast_edge_6m, coast_L, _ = _coastal_retreat_edge_head(abs(coast_d0), coast_L)
-    # 5-year accumulation of the fitted trend: 5 × δ₀ (chronic normaliser cancels,
-    # so independent of the assumed chronic rate). Keeps amplitude on one axis.
-    coast_edge_5yr = 5.0 * abs(coast_d0)
+    # Chronic accumulation of the fitted trend over COAST_CHRONIC_YEARS: N × δ₀
+    # (chronic normaliser cancels, so independent of the assumed retreat rate).
+    # Keeps amplitude on one axis. Same construction + horizon as Script 20's
+    # driver-change coastal field (config.COAST_CHRONIC_YEARS, shared).
+    coast_edge_5yr = COAST_CHRONIC_YEARS * abs(coast_d0)
 
     info(f"\u03bb = {lam:.1f} m   forest H0 = {forest_h0:.0f} mm")
     info(f"scrape edge head ({scrape_edge_src}) = {scrape_edge_head:.1f} mm")

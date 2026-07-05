@@ -156,6 +156,16 @@ COAST_RETREAT_RATE   = 8.3
 # the accumulation); the observed 20-year retreat is the smaller ~50 m.
 COAST_RETREAT_2005_2025_M = 50.0
 
+# Chronic coastal-drawdown accumulation window (yr) — the near-term horizon over
+# which the fitted coastal-decline rate δ₀ is accumulated to a source drawdown
+# (h0 = COAST_CHRONIC_YEARS × |δ₀|), linearly capped to zero at the reach L.
+# Shared by Script 20 (driver-change map coastal field) and Script 09f
+# (management-vs-coastal spatial-reach synthesis, 5-yr coastal curve). Coincides
+# numerically with the SLR near-term horizon (Script 20 SLR_WINDOW_YEARS = 5 yr)
+# but is a DISTINCT quantity — a chronic linear accumulation of δ₀, not the SLR
+# erfc transient — so it is named separately and the two can diverge in future.
+COAST_CHRONIC_YEARS = 5.0
+
 CLUSTER_MARKERS = {
     1: "o",
     2: "s",

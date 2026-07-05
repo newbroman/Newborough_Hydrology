@@ -63,27 +63,11 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds
 """
 
-__version__ = "1.29.0"  # Hollingham (2026) — 2026-07-05
-# 1.29.0 — Added plot_driver_change_2005_2025(): modelled driver-CHANGE map
-#          (epoch difference of the net-state fields, re-based to 2005). Shows
-#          only what changed over the study window — standing pine cancels
-#          (equilibrium both epochs), leaving clearfell gain, broadleaf-restock
-#          drawdown INCREMENT (new _broadleaf_field()), all-epoch scrapes, 20-yr
-#          coastal retreat (COAST_RETREAT_2005_2025_M ≈ 50 m), and SLR. The BL
-#          block appears as a brown drawdown patch — the signal missing from
-#          every prior map. New _broadleaf_field() helper; _erosion_field() gains
-#          an optional retreat_m arg (default COAST_RETREAT_M — existing callers
-#          unchanged). New config constants BL_CANOPY_FRACTION_2005/2025,
-#          COAST_RETREAT_2005_2025_M; new path OUT_20_DRIVER_CHANGE. Wired into
-#          main(). MODELLED map — flagged indicative (BL and coastal fields are
-#          the least record-constrained). Observed partner is the fixed Script 36
-#          climate-removed 2005–2025 map, paired at the document stage.
-# 1.28.0 — LOSS_COLS ramp lightened ~2 stops across all four divergent
-#          net-change maps: darkest stop now #c2410c (was #5c1d02),
-#          7 stops retained for symmetry with the 7-stop GAIN_COLS ramp.
-#          Ramp: c2410c→ea7317→f59e0b→fbbf24→fcd34d→fde68a→fff3b0.
-#          DRAWDOWN_BAND_COLOURS and DRAWDOWN_CMAP.set_over unchanged.
-#          Visual only — no change to LEVELS, BoundaryNorm, or data.
+__version__ = "1.28.0"  # Hollingham (2026) — 2026-07-02
+# 1.28.0 — De-hardcode: SCRAPE_RISE_BUFFER_M, COAST_RETREAT_M, COAST_RETREAT_RATE
+#          moved to config.py (single source of truth) and imported here; local
+#          definitions removed. No behavioural change — same values. Lets Scripts
+#          09d/09f read the same definitions instead of mirroring them.
 # 1.27.0 — Remove hardcoded SLR_K/SLR_B; use DRAWDOWN_K_MDAY/DRAWDOWN_B_M
 #          from config.py throughout. SLR_K = 6.0 m/day and SLR_B = 5.0 m
 #          were duplicates of the config constants; having two names for the
@@ -425,7 +409,7 @@ import xml.etree.ElementTree as ET
 
 from utils.paths import (
     make_all_dirs, DATA_DIR, DATA_DEM, DATA_KML_FEATURES, DATA_KML_STREAMS,
-    DATA_KML_SITE_BOUNDARY, DATA_COASTLINE_HWM, KML_BROADLEAF,
+    DATA_KML_SITE_BOUNDARY, DATA_COASTLINE_HWM,
     DIR_20, OUT_20_HEAD_STREAMS, OUT_20_RESIDUAL_SSM, OUT_20_SLOPE,
     OUT_20_DRAWDOWN, OUT_20_DRAWDOWN_NOHEAD,
     OUT_20_DRAWDOWN_PERWELL, OUT_20_REPORT_NUMBERS,
@@ -435,7 +419,6 @@ from utils.paths import (
     OUT_20_COASTAL_NET, OUT_20_SCRAPE_DRAWDOWN, OUT_20_SCRAPE_DRAWDOWN_NOHEAD,
     OUT_20_CLEARFELL_BASELINE_DRAWDOWN, OUT_20_PUBLIC_PANEL,
     OUT_20_NET_STATE_MAP, OUT_20_CLEARFELL_GAIN, OUT_20_OBSERVED_CHANGE,
-    OUT_20_DRIVER_CHANGE,
     OUT_20_MSL5_CHANGE,
     OUT_09_BACI_SHIFTS,
     OUT_10B_STEP_DATA,
@@ -446,12 +429,11 @@ from utils.paths import (
     OUT_25_FIT_PARAMETERS, OUT_25_PER_WELL_SLOPES,
     OUT_26_5YR_PER_WELL,
 )
-from utils.map_utils import load_dem_hillshade, load_scrape_kml, add_en_axes
+from utils.map_utils import load_dem_hillshade, load_scrape_kml
 from utils.config import (CLUSTER_COLOURS, CLUSTER_LABELS, DRAINAGE_DATUM, FOREST_INTERCEPTION,
                           FOREST_CIDS, SCRAPE_KML_FILES,
                           DRAWDOWN_H0_MM, DRAWDOWN_K_MDAY, DRAWDOWN_B_M,
-                          BROADLEAF_INTERCEPTION, BL_CANOPY_FRACTION_2005,
-                          BL_CANOPY_FRACTION_2025, COAST_RETREAT_2005_2025_M)
+                          SCRAPE_RISE_BUFFER_M, COAST_RETREAT_M, COAST_RETREAT_RATE)
 from utils.data_utils import normalize_well_name
 from utils.report_numbers_utils import ReportNumbers
 
@@ -497,8 +479,7 @@ SEA_ANCHOR_SPACING = 200
 #   COAST_EAST_CUT_E       easting east of which the DEM waterline contour is
 #                          discarded, to keep only the SW-facing Caernarfon Bay
 #                          shore (excludes lake / Menai-side low ground).
-COAST_RETREAT_M       = 6.0
-COAST_RETREAT_RATE    = 8.3      # m/yr  (≈50 m / 2014–2020, Forgrave 2020)
+# COAST_RETREAT_M, COAST_RETREAT_RATE now imported from config.py
 COAST_DUNE_OFFSET_M   = 100.0    # m inland to dune toe
 COAST_SHORE_LEVEL_M   = 0.5      # m AOD waterline contour
 COAST_EAST_CUT_E      = 242300   # m, keep SW shore west of this
@@ -586,10 +567,9 @@ SCRAPE_DEPTH_M           = 0.40       # m, excavation depth at CEH36 (40 cm) —
                                       # (unmeasured) scrape depth of 129/Sy ≈ 0.41 m.
 SCRAPE_FAVOUR_UPGRADIENT = True       # drain pulls inland (flip forest weight)
 SCRAPE_TRUNCATE_SEAWARD  = False      # seaward half-plane + foreshore clip.
-SCRAPE_RISE_BUFFER_M     = 10.0       # the scraped footprint RISES (slack
-                                      # restoration); the rise is confined to the
-                                      # scrape KML footprints plus a thin 10 m
-                                      # collar, shown as the rise zone not drawdown.
+# SCRAPE_RISE_BUFFER_M now imported from config.py (the scraped footprint RISES;
+# the rise is confined to the scrape KML footprints plus a thin 10 m collar,
+# shown as the rise zone not drawdown).
 SCRAPE_TIMESCALE         = "Feb 2013 · Apr 2015 · Oct 2023 cuts"  # three scraping epochs
                                       # True for a SHORE-margin scrape (e.g.
                                       # CEH22) where the sea pins the seaward
@@ -2317,19 +2297,14 @@ def _seaward_ring(line_coords):
     return _Poly(ring).buffer(0)
 
 
-def _erosion_field(gx, gy, retreat_m=None):
+def _erosion_field(gx, gy):
     """Erosion drawdown field (mm, positive = head loss) on grid gx,gy.
-    Single retreat event of `retreat_m` metres (default COAST_RETREAT_M),
-    dune-toe front, seaward side zeroed. Pass retreat_m explicitly for a
-    multi-year accumulation (e.g. COAST_RETREAT_2005_2025_M for the 2005→2025
-    driver-change map). Returns (field, front, waterline, h0, L) or (None,...).
-    """
+    Single COAST_RETREAT_M event, dune-toe front, seaward side zeroed.
+    Returns (field, front, waterline, h0, L) or (None,...) on failure."""
     from shapely.geometry import Point
     from shapely import contains_xy
-    if retreat_m is None:
-        retreat_m = COAST_RETREAT_M
     delta0, L = _load_coastal_fit()
-    h0 = retreat_m * (delta0 / COAST_RETREAT_RATE)
+    h0 = COAST_RETREAT_M * (delta0 / COAST_RETREAT_RATE)
     front, waterline = _dem_waterline_to_dune_edge()
     if front is None:
         return None, None, None, None, None
@@ -2688,56 +2663,6 @@ def _forest_field(gx, gy):
     d = np.array([forest_geom.distance(Point(x, y))
                   for x, y in zip(gx.ravel(), gy.ravel())]).reshape(gx.shape)
     return H0 * np.exp(-d / lam), H0, lam, forest_geom
-
-
-def _broadleaf_field(gx, gy):
-    """Broadleaf-restock interception-deficit drawdown INCREMENT field (mm,
-    positive = head loss) on grid gx,gy, for the 2005→2025 driver-change map.
-
-    Same Euclidean-distance construction as _forest_field(), but:
-      • polygon from KML_BROADLEAF (data/geo/broadleaf_restock.kml),
-      • full-canopy H0 scaled by the broadleaf interception ratio:
-            H0_BL_full = DRAWDOWN_H0_MM × (BROADLEAF_INTERCEPTION / FOREST_INTERCEPTION)
-                       = 150 × (0.15 / 0.24) ≈ 94 mm,
-      • only the 2005→2025 canopy INCREMENT contributes (the block was already
-        near closed canopy by 2005), so the source magnitude is
-            H0_BL_incr = (BL_CANOPY_FRACTION_2025 − BL_CANOPY_FRACTION_2005) × H0_BL_full
-                       = (1.0 − 0.4) × 94 ≈ 56 mm,
-      • same λ as the forest field (C3 open-dune leaky-aquifer propagation).
-
-    SIGN: drawdown (positive head loss), the mirror image of the clearfell gain.
-    This is the least-constrained field on the driver-change map — the caller
-    flags the BL patch as modelled/indicative in the caption.
-
-    Returns (field, H0_incr, lam, geom) or (None, None, None, None) on failure.
-    """
-    from shapely.geometry import Point
-    import geopandas as gpd
-    if not KML_BROADLEAF.exists():
-        return None, None, None, None
-    try:
-        gdf = gpd.read_file(str(KML_BROADLEAF), driver="KML").to_crs("EPSG:27700")
-        from shapely.ops import unary_union
-        bl_geom = unary_union(list(gdf.geometry))
-    except Exception:
-        return None, None, None, None
-    if bl_geom is None or bl_geom.is_empty:
-        return None, None, None, None
-    try:
-        _sy = pd.read_csv(INT_WTF_WELL_SY)
-        Sy = float(_sy[_sy["Cluster"] == 3]["Sy_median"].median())
-        _m = pd.read_csv(OUT_03_MECHANISTIC_TABLE)
-        b3 = float(_m[_m["Cluster"] == 3]["beta_3_drainage"].iloc[0])
-    except Exception:
-        return None, None, None, None
-    lam = np.sqrt((DRAWDOWN_K_MDAY * DRAWDOWN_B_M) / (Sy * (b3 / 30.0)))
-
-    H0_full = DRAWDOWN_H0_MM * (BROADLEAF_INTERCEPTION / FOREST_INTERCEPTION)
-    H0_incr = (BL_CANOPY_FRACTION_2025 - BL_CANOPY_FRACTION_2005) * H0_full
-
-    d = np.array([bl_geom.distance(Point(x, y))
-                  for x, y in zip(gx.ravel(), gy.ravel())]).reshape(gx.shape)
-    return H0_incr * np.exp(-d / lam), H0_incr, lam, bl_geom
 
 
 def plot_coastal_net_effect(wt, features, dpi=300):
@@ -3140,8 +3065,8 @@ def plot_clearfell_gain(wt, features, dpi=300):
     # set so the zero point sits at the centre and the scale is comparable
     # with the net state map.
     LEVELS    = [-150, -100, -50, -25, -10, -5, -2, 2, 5, 10, 25, 50, 100, 150]
-    LOSS_COLS = ["#c2410c", "#ea7317", "#f59e0b", "#fbbf24",
-                 "#fcd34d", "#fde68a", "#fff3b0"]
+    LOSS_COLS = ["#5c1d02", "#7c2d12", "#c2410c", "#ea7317",
+                 "#f59e0b", "#fcd34d", "#fff3b0"]
     GAIN_COLS = ["#dbeafe", "#bfdbfe", "#93c5fd", "#60a5fa",
                  "#3b82f6", "#2563eb", "#1d4ed8"]
     div_cmap  = _LC(LOSS_COLS + GAIN_COLS)
@@ -3360,8 +3285,8 @@ def plot_msl5_change(wt, features, dpi=300):
     # ── Colour scale ──────────────────────────────────────────────────────
     LEVELS    = [-150,-100,-50,-25,-10,-5,-2, 2, 5,10,25,50,100,150]
     LINE_LEVELS = [-100,-50,-25, 25, 50, 100]
-    LOSS_COLS = ["#c2410c","#ea7317","#f59e0b","#fbbf24",
-                 "#fcd34d","#fde68a","#fff3b0"]
+    LOSS_COLS = ["#5c1d02","#7c2d12","#c2410c","#ea7317",
+                 "#f59e0b","#fcd34d","#fff3b0"]
     GAIN_COLS = ["#dbeafe","#bfdbfe","#93c5fd","#60a5fa",
                  "#3b82f6","#2563eb","#1d4ed8"]
     div_cmap  = _LC(LOSS_COLS + GAIN_COLS)
@@ -3643,8 +3568,8 @@ def plot_observed_change(wt, features, dpi=300):
 
     # ── Colour scale ──────────────────────────────────────────────────────
     LEVELS    = [-150, -100, -50, -25, -10, -5, -2, 2, 5, 10, 25, 50, 100, 150]
-    LOSS_COLS = ["#c2410c", "#ea7317", "#f59e0b", "#fbbf24",
-                 "#fcd34d", "#fde68a", "#fff3b0"]
+    LOSS_COLS = ["#5c1d02", "#7c2d12", "#c2410c", "#ea7317",
+                 "#f59e0b", "#fcd34d", "#fff3b0"]
     GAIN_COLS = ["#dbeafe", "#bfdbfe", "#93c5fd", "#60a5fa",
                  "#3b82f6", "#2563eb", "#1d4ed8"]
     div_cmap  = _LC(LOSS_COLS + GAIN_COLS)
@@ -3845,8 +3770,8 @@ def plot_net_state_map(wt, features, dpi=300):
     # ── Diverging colour scale ────────────────────────────────────────────
     # Symmetric bands around zero; brown = loss, blue = gain.
     NET_LEVELS  = [-150, -100, -50, -25, -10, -5, -2, 2, 5, 10, 25, 50, 100, 150]
-    LOSS_COLS   = ["#c2410c", "#ea7317", "#f59e0b", "#fbbf24",
-                   "#fcd34d", "#fde68a", "#fff3b0"]
+    LOSS_COLS   = ["#5c1d02", "#7c2d12", "#c2410c", "#ea7317",
+                   "#f59e0b", "#fcd34d", "#fff3b0"]
     GAIN_COLS   = ["#dbeafe", "#bfdbfe", "#93c5fd", "#60a5fa",
                    "#3b82f6", "#2563eb", "#1d4ed8"]
     from matplotlib.colors import BoundaryNorm, ListedColormap as _LC
@@ -3948,193 +3873,6 @@ def plot_net_state_map(wt, features, dpi=300):
     plt.close(fig)
     print(f"  Saved → {OUT_20_NET_STATE_MAP}  "
           f"(net range {np.nanmin(net):.0f} to {np.nanmax(net):.0f} mm)")
-
-
-def plot_driver_change_2005_2025(wt, features, dpi=300):
-    """
-    Modelled driver-CHANGE map, 2005 → 2025 (epoch difference of the net-state
-    driver fields). The observed-change partner is the fixed Script 36
-    climate-removed 2005–2025 map; the two are laid side by side at the document
-    stage sharing scale, extent and colour.
-
-    Where plot_net_state_map() accumulates ALL drivers since the forest was
-    planted (baseline ≈ bare pre-forest dune), this map re-bases to 2005 and
-    shows only what CHANGED over the study window:
-
-        Δh_drivers(x,y) = state_2025(x,y) − state_2005(x,y)
-
-    Standing pine canopy is at full equilibrium at BOTH epochs, so it cancels
-    and contributes ~zero to the change — the unchanged forest interior must
-    render near-white (this is the acceptance check that the epoch-difference is
-    working, not re-drawing Fig 58). The drivers that actually change over
-    2005→2025 are:
-
-      • Clearfell gain (Dec 2017)  — interception deficit REMOVED inside the FE
-        felled zone → head GAIN (blue). Same construction as plot_net_state_map's
-        clearfell_gain.
-      • Broadleaf restock INCREMENT — canopy interception ADDED over the window
-        (near-closed by 2005 → full by 2025) → head LOSS (brown). New field
-        _broadleaf_field(); the mirror image of the clearfell gain and the signal
-        missing from every prior map.
-      • Scrapes (2015, 2023)       — both cuts fall within the window, so all
-        contribute (epochs=None): slack rises, surrounding drawdown cones.
-      • Coastal retreat (20 yr)    — COAST_RETREAT_2005_2025_M (≈50 m observed)
-        of shoreline retreat → dune-toe drawdown, deeper than Fig 58's single
-        ~6 m event.
-      • SLR (20 yr)                — sea-level-rise head gain over the window.
-
-    MODELLED map — flagged modelled/indicative in the title and footer. The BL
-    and coastal fields are the least record-constrained; the caption says so.
-    """
-    from shapely.geometry import Point
-    from shapely import contains_xy
-    import matplotlib.patheffects as _pe
-    import matplotlib.patches as mpatches
-    from matplotlib.colors import BoundaryNorm, ListedColormap as _LC
-
-    gx, gy = np.meshgrid(GRID_XI, GRID_YI)
-
-    # ── Load the CHANGED component fields ────────────────────────────────
-    # Standing pine canopy is NOT loaded: identical at both epochs → cancels.
-    forest_full, fH0, fLam, forest_geom = _forest_field(gx, gy)   # for clearfell H0/λ + boundary overlay
-    bl_incr,     blH0, blLam, bl_geom   = _broadleaf_field(gx, gy)
-    scr,         sH0, sLam, scr_geom    = _scrape_field(gx, gy, epochs=None)
-    eros, front, waterline, eH0, _L     = _erosion_field(gx, gy,
-                                                         retreat_m=COAST_RETREAT_2005_2025_M)
-    slr_gain, wl_slr, _, slr_mm         = _slr_field(gx, gy)
-
-    if any(f is None for f in [forest_full, scr, eros, slr_gain]):
-        print("  [WARNING] A component field is unavailable — skipping driver-change map")
-        return
-    if bl_incr is None:
-        print("  [WARNING] Broadleaf field unavailable (KML_BROADLEAF missing?) — "
-              "rendering driver-change map WITHOUT the broadleaf increment")
-        bl_incr = np.zeros_like(forest_full)
-        blH0 = 0.0
-
-    # ── Clearfell gain field: H0 × exp(-d/λ) from FE felling polygon edge ──
-    fell_geom = None
-    try:
-        import geopandas as gpd
-        gdf = gpd.read_file(str(DATA_KML_FEATURES), driver="KML").to_crs("EPSG:27700")
-        name_col = gdf["Name"].fillna("").astype(str)
-        for idx, row in gdf.iterrows():
-            nm = name_col.iloc[idx].lower()
-            if "felling" in nm or "experiment" in nm:
-                fell_geom = row.geometry
-                break
-    except Exception:
-        fell_geom = None
-
-    clearfell_gain = np.zeros_like(forest_full)
-    if fell_geom is not None and fLam is not None:
-        d_fell = np.array([fell_geom.distance(Point(x, y))
-                           for x, y in zip(gx.ravel(), gy.ravel())]
-                          ).reshape(gx.shape)
-        clearfell_gain = fH0 * np.exp(-d_fell / fLam)
-
-    # ── Combine: positive = net gain (blue), negative = net loss (brown) ──
-    # Pine interior cancels (not present in the sum). BL increment is a LOSS.
-    scr_rise = _scrape_rise_field(gx, gy, epochs=None)   # +H0 at rise-zone pixels
-    scr_draw = np.where(np.isnan(scr), 0.0, scr)         # drawdown only
-    net = (slr_gain + clearfell_gain + scr_rise
-           - bl_incr - eros - scr_draw)
-
-    # ── Clip to site ──────────────────────────────────────────────────────
-    site_poly = load_site_polygon()
-    if site_poly is not None:
-        try:
-            inside = contains_xy(site_poly,
-                                 gx.ravel(), gy.ravel()).reshape(gx.shape)
-            net = np.where(inside, net, np.nan)
-        except Exception:
-            pass
-
-    # ── Diverging colour scale (same bands as plot_net_state_map) ─────────
-    NET_LEVELS  = [-150, -100, -50, -25, -10, -5, -2, 2, 5, 10, 25, 50, 100, 150]
-    LOSS_COLS   = ["#c2410c", "#ea7317", "#f59e0b", "#fbbf24",
-                   "#fcd34d", "#fde68a", "#fff3b0"]
-    GAIN_COLS   = ["#dbeafe", "#bfdbfe", "#93c5fd", "#60a5fa",
-                   "#3b82f6", "#2563eb", "#1d4ed8"]
-    all_cols  = LOSS_COLS + GAIN_COLS
-    net_cmap  = _LC(all_cols)
-    net_norm  = BoundaryNorm(NET_LEVELS, ncolors=len(all_cols))
-    LINE_LEVELS = [-50, -25, -10, -5, 5, 10, 25, 50]
-
-    fig, ax = plt.subplots(figsize=(9, 10), facecolor="white")
-    load_dem_hillshade(ax, DATA_DIR, alpha=1.0, vert_exag=3.0, zorder=1)
-
-    cf = ax.contourf(gx, gy, net, levels=NET_LEVELS,
-                     cmap=net_cmap, norm=net_norm,
-                     alpha=0.68, zorder=3, extend="both")
-    ax.contour(gx, gy, net, levels=[0],
-               colors=["#1a1a1a"], linewidths=1.4, zorder=4)
-    cs = ax.contour(gx, gy, net, levels=LINE_LEVELS,
-                    colors=["#5a3a00" if v < 0 else "#1e3a8a" for v in LINE_LEVELS],
-                    linewidths=0.55, alpha=0.75, zorder=4)
-    labs = ax.clabel(cs, inline=True, fontsize=7, fmt="%+d",
-                     colors=["#5a3a00" if v < 0 else "#1e3a8a" for v in LINE_LEVELS])
-    for t in labs:
-        t.set_path_effects([_pe.withStroke(linewidth=1.8, foreground="white")])
-
-    ax.scatter(wt["E"], wt["N"], c="#333", s=6, alpha=0.4, zorder=5)
-
-    # ── Feature overlays: forest boundary, felling zone, BL block, scrape ──
-    if forest_geom is not None:
-        for poly in (forest_geom.geoms
-                     if forest_geom.geom_type.startswith("Multi") else [forest_geom]):
-            ax.plot(*poly.exterior.xy, color="#1b5e20", lw=1.6, ls="--", zorder=6)
-    if fell_geom is not None:
-        for poly in (fell_geom.geoms
-                     if fell_geom.geom_type.startswith("Multi") else [fell_geom]):
-            ax.plot(*poly.exterior.xy, color="darkorange", lw=1.8, ls="-.", zorder=6)
-    if bl_geom is not None:
-        for poly in (bl_geom.geoms
-                     if bl_geom.geom_type.startswith("Multi") else [bl_geom]):
-            ax.plot(*poly.exterior.xy, color="#6b3fa0", lw=1.8, ls="-", zorder=6)
-    if scr_geom is not None:
-        _overlay_scrape_rise(ax, scr_geom, zbase=7)
-
-    add_en_axes(ax)
-    ax.set_title(
-        "Newborough Warren — MODELLED driver change, 2005 → 2025\n"
-        "Clearfell gain · Broadleaf restock · Dune scrapes · 20-yr coastal retreat · SLR",
-        fontsize=12, fontweight="bold", pad=8)
-
-    cbar = fig.colorbar(cf, ax=ax, orientation="vertical",
-                        fraction=0.035, pad=0.02, shrink=0.75, aspect=30,
-                        ticks=NET_LEVELS, extend="both")
-    cbar.set_label("Modelled water-table change 2005→2025 (mm)  ·  blue = gain, brown = loss",
-                   fontsize=9)
-    cbar.ax.axhline(0, color="black", lw=1.2)
-
-    legend_items = [
-        mpatches.Patch(facecolor="none", edgecolor="#1b5e20",
-                       lw=1.6, ls="--", label="Forest boundary (pine, unchanged → cancels)"),
-        mpatches.Patch(facecolor="none", edgecolor="darkorange",
-                       lw=1.8, ls="-.", label="Clearfell zone (gain, canopy removed)"),
-        mpatches.Patch(facecolor="none", edgecolor="#6b3fa0",
-                       lw=1.8, ls="-", label="Broadleaf restock (loss, canopy added)"),
-        mpatches.Patch(facecolor="#4a90d9", alpha=0.6, edgecolor="#0d2b4a",
-                       lw=1.2, label="Scrape rise zone (level rose)"),
-    ]
-    ax.legend(handles=legend_items, loc="lower left",
-              fontsize=8, framealpha=0.85, edgecolor="#999")
-
-    fig.text(0.5, 0.01,
-             f"MODELLED epoch difference. Standing pine cancels (equilibrium both epochs). "
-             f"Clearfell gain H₀ = {fH0:.0f} mm · "
-             f"Broadleaf increment H₀ ≈ {blH0:.0f} mm (indicative — least-constrained field) · "
-             f"Coastal retreat = {COAST_RETREAT_2005_2025_M:.0f} m over 20 yr · "
-             f"SLR = +{slr_mm:.0f} mm\n"
-             "Broadleaf and coastal fields are modelled and not fully resolved by the record.",
-             ha="center", va="bottom", fontsize=8, color="#444", style="italic")
-
-    fig.savefig(OUT_20_DRIVER_CHANGE, dpi=dpi, bbox_inches="tight")
-    plt.close(fig)
-    print(f"  Saved → {OUT_20_DRIVER_CHANGE}  "
-          f"(change range {np.nanmin(net):.0f} to {np.nanmax(net):.0f} mm; "
-          f"BL increment H₀ ≈ {blH0:.0f} mm)")
 
 
 def plot_scrape_drawdown(wt, features, dpi=300, show_head=True):
@@ -4532,9 +4270,6 @@ def main(preview=False):
 
     print("Generating net water-table state map (all five drivers)...")
     plot_net_state_map(wt, features, dpi=dpi)
-
-    print("Generating 2005→2025 modelled driver-change map (incl. broadleaf restock)...")
-    plot_driver_change_2005_2025(wt, features, dpi=dpi)
 
     print("Generating clearfell gain map...")
     plot_clearfell_gain(wt, features, dpi=dpi)

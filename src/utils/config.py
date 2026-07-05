@@ -149,6 +149,12 @@ DRAWDOWN_B_M    = 5.0
 SCRAPE_RISE_BUFFER_M = 10.0
 COAST_RETREAT_M      = 6.0
 COAST_RETREAT_RATE   = 8.3
+# Cumulative shoreline retreat over the 2005→2025 study window (m). Observed
+# figure (≈50 m since 2006, Forgrave 2020 / Pye & Blott 2024), used by the
+# 2005→2025 driver-change map (Script 20 plot_driver_change_2005_2025). Not
+# derived from COAST_RETREAT_RATE × 20 (which would give ~166 m and overstate
+# the accumulation); the observed 20-year retreat is the smaller ~50 m.
+COAST_RETREAT_2005_2025_M = 50.0
 
 CLUSTER_MARKERS = {
     1: "o",
@@ -278,6 +284,21 @@ SITE_MAP_NORTH_MAX = 365500
 # Approximates summer (~25 %, leafed) and winter (~0 %, leafless) averaged
 # over the year. Used in replanting scenarios (scripts 19, 21).
 BROADLEAF_INTERCEPTION = 0.15
+
+# ── Broadleaf restock canopy-establishment fractions (2005→2025 driver map) ────
+# The broadleaf restock block (data/geo/broadleaf_restock.kml) was felled 1993,
+# restocked 1998, and reaches full canopy by 2025. For the 2005→2025 modelled
+# driver-CHANGE map (Script 20 plot_driver_change_2005_2025) only the INCREMENT
+# of interception developed over the window contributes:
+#     Δh_BL = (BL_CANOPY_FRACTION_2025 − BL_CANOPY_FRACTION_2005) × H0_BL_full
+# where H0_BL_full = DRAWDOWN_H0_MM × (BROADLEAF_INTERCEPTION / FOREST_INTERCEPTION)
+#                  = 150 × (0.15 / 0.24) ≈ 94 mm at full canopy.
+# f_2005 = 0.4 (Martin's judgement, 2026-07-05) → increment 0.6 × 94 ≈ 56 mm at
+# source. This is the least-constrained field on the map; the caption flags the
+# BL patch as modelled/indicative. Stored here (not hardcoded) so the basis is
+# auditable and the sensitivity can be varied.
+BL_CANOPY_FRACTION_2005 = 0.4
+BL_CANOPY_FRACTION_2025 = 1.0
 
 # Broadleaf summer β₂ multiplier — deciduous phenology effect on ET.
 # Derived from Script 21's monthly β₂ profile (Hollingham, 2026), averaged
@@ -536,6 +557,19 @@ DIFF_IDW_MASK_M = 450.0
 DIFF_BOOT_N = 2000
 DIFF_BOOT_BLOCK = 3
 DIFF_BOOT_SEED = 20260626
+
+# === Absolute climate-removed trend (Script 36) ===
+# Method: per-well OLS regression of spring level on spring CWB removes
+# climate-attributable variance; secular trend fitted on residual.
+# Bootstrap / AR-correction shares DIFF_BOOT_* settings (same estimator).
+ACT_PER_WELL_MIN_YEARS  = DIFF_PER_WELL_MIN_YEARS   # min spring-years for a trend
+ACT_PERIODS             = {"2005_2025": (2005, 2025), "2011_2025": (2011, 2025)}  # 2005_2025 first = primary
+ACT_PRIMARY_PERIOD      = "2005_2025"               # 2011_2025 is robustness; see R1 fix 2026-07-05
+ACT_COVERAGE_FRACTION   = 0.80                      # well must span ≥ 80 % of window
+ACT_PRE_WINDOW_CUTOFF   = 2011                      # well must have ≥ 1 spring obs before this year
+                                                    # (start of the shorter 2011–2025 window); fixed
+                                                    # regardless of which window is being fitted so that
+                                                    # short-record wells are excluded from both windows
 
 ENVELOPE_DRY_YEARS = [2011, 2012, 2019]      # antecedent-dry deep springs
 

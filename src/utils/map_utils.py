@@ -45,7 +45,18 @@ plot_metric_map(map_df, value_col, title, output_path, cmap, data_dir, vmin, vma
     cluster-shape markers, dual colorbars, and legend.
 """
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-07-01
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-07-05
+# 1.5.0 — add_idw_surface() gains hull_buffer_m parameter (default 100.0 m).
+#         Linear griddata is NaN outside the convex hull of the wells, so an
+#         observed-data surface stops at the outer well ring, short of the coast
+#         (no dipwells sit seaward). The buffer fills NaN cells within the well
+#         hull dilated by hull_buffer_m using nearest-neighbour values, extending
+#         the surface a fixed distance past the outermost wells. Fill runs before
+#         ridge/site masking, so the extension is still clipped to the shoreline
+#         and dune ridges. Default 100 m applies to ALL callers (Scripts 07, 10b,
+#         11b, 18, 19, 26, 33, 36); set hull_buffer_m=None for the strict
+#         hull-bounded surface. Pure extrapolation over unmeasured ground —
+#         intentionally bounded and small.
 # 1.4.0 — make_site_mask() moved here from Script 18 so all IDW-surface scripts
 #         share one implementation. add_idw_surface() gains apply_site_mask
 #         parameter (default False): when True calls make_site_mask(gx, gy)
@@ -478,6 +489,7 @@ def add_idw_surface(
     vmin: float = None,
     vmax: float = None,
     apply_site_mask: bool = False,
+    hull_buffer_m: float = 100.0,
 ):
     """
     Interpolate a per-well metric to a regular grid and render as pcolormesh.
@@ -537,6 +549,18 @@ def add_idw_surface(
     apply_site_mask : bool
         If True, calls make_site_mask(gx, gy) after ridge masking and sets
         cells outside the NNR boundary to NaN. Default False.
+    hull_buffer_m : float or None
+        Distance (m) to extend the interpolated surface beyond the convex hull
+        of the well points. Linear griddata returns NaN outside the data hull,
+        so an observed-data surface otherwise stops at the outer well ring —
+        short of the coast where no dipwells sit seaward. When set, cells that
+        are NaN from the linear pass but fall within the well hull dilated by
+        hull_buffer_m are filled with a nearest-neighbour value, extending the
+        surface a fixed distance past the outermost wells. The ridge mask and
+        site mask are applied AFTER this fill, so the extension is still clipped
+        to the true shoreline (apply_site_mask=True) and to dune ridges. This is
+        pure extrapolation over unmeasured ground and is intentionally bounded;
+        default 100.0 m. Set to None to keep the strict hull-bounded surface.
 
     Returns
     -------
@@ -559,6 +583,26 @@ def add_idw_surface(
     pts = df[[easting_col, northing_col]].values
 
     surf = griddata(pts, df[value_col].values, (gx, gy), method=method)
+
+    # ── Hull-buffer extension ──────────────────────────────────────────────────
+    # Linear griddata is NaN outside the convex hull of the wells, so the surface
+    # stops at the outer well ring. Extend it up to hull_buffer_m beyond the hull
+    # by filling those NaN cells (within the buffered hull) with nearest-neighbour
+    # values. Runs before ridge/site masking so both still clip the extension.
+    if hull_buffer_m is not None and hull_buffer_m > 0 and len(pts) >= 3:
+        try:
+            from shapely.geometry import MultiPoint, Point as _Pt
+            from shapely import contains_xy as _cxy
+            hull = MultiPoint([tuple(p) for p in pts]).convex_hull
+            buffered = hull.buffer(hull_buffer_m)
+            in_buffer = _cxy(buffered, gx.ravel(), gy.ravel()).reshape(gx.shape)
+            need_fill = np.isnan(surf) & in_buffer
+            if need_fill.any():
+                surf_near = griddata(pts, df[value_col].values, (gx, gy),
+                                     method="nearest")
+                surf = np.where(need_fill, surf_near, surf)
+        except Exception:
+            pass   # on any geometry failure, keep the strict hull-bounded surface
 
     # ── Ridge masking ──────────────────────────────────────────────────────
     surf_masked = surf.copy()

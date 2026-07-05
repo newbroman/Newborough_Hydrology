@@ -511,6 +511,14 @@ OUT_35_FIG_CALIB = DIR_35 / "35_ssm_calibration.png"
 OUT_35_FIG_MARKERS = DIR_35 / "35_coefficient_markers.png"
 OUT_35_RESULTS = DIR_35 / "35_results.txt"
 
+# Script 36 — absolute climate-removed per-well secular trend map (Phase 15)
+DIR_36 = OUT_DIR / "36_absolute_climate_trend"
+DIR_36.mkdir(parents=True, exist_ok=True)
+OUT_36_PER_WELL             = DIR_36 / "36_absolute_climate_trend_per_well.csv"
+OUT_36_FIG_PRIMARY          = DIR_36 / "36_absolute_climate_trend_2011_2025.png"
+OUT_36_FIG_ROBUST           = DIR_36 / "36_absolute_climate_trend_2005_2025.png"
+OUT_36_RESULTS              = DIR_36 / "36_results.txt"
+
 # Script 34 — MSL5 two-window sensitivity (standalone demonstration figure; §5.7.5)
 DIR_34 = OUT_DIR / "34_window_sensitivity"
 OUT_34_MATRIX               = DIR_34 / "34_window_matrix.csv"
@@ -599,6 +607,7 @@ OUT_20_SCRAPE_DRAWDOWN_NOHEAD = DIR_20 / "20_scrape_drawdown_nohead.png"
 OUT_20_CLEARFELL_BASELINE_DRAWDOWN = DIR_20 / "20_clearfell_baseline_drawdown.png"
 OUT_20_PUBLIC_PANEL         = DIR_20 / "20_public_drivers_panel.png"
 OUT_20_NET_STATE_MAP        = DIR_20 / "20_net_state_map.png"
+OUT_20_DRIVER_CHANGE        = DIR_20 / "20_driver_change_2005_2025.png"
 OUT_20_CLEARFELL_GAIN       = DIR_20 / "20_clearfell_gain.png"
 OUT_20_OBSERVED_CHANGE      = DIR_20 / "20_observed_change_2012_2026.png"
 OUT_20_MSL5_CHANGE          = DIR_20 / "20_msl5_change_2017_2023.png"

@@ -1,0 +1,6 @@
+driver,stage,window,parameter,fitted,ci_lo_90,ci_hi_90,notes
+Coastal retreat,Stage 1,2006–2012,R_effective_m,432.5,,,calibrated; SLR fixed at 4 mm/yr
+SLR,Stage 1,2006–2012,SLR_rate_mm_yr,4.0,,,fixed (Holyhead ~4 mm/yr; not calibrated)
+Scrape Apr 2015,Stage 2,2015–2017,amplitude_scale,1.0,,,CEH36/18/21 only; n=1
+Clearfell Dec 2017,Stage 3,2017–2025,amplitude_scale,15.464,,,C4/C5; n=6
+Clearfell λ (DIAGNOSTIC ONLY),Stage 3,2017–2025,lambda_m,739.0,,,NOT written to config.py; equilibrium λ = 225 m

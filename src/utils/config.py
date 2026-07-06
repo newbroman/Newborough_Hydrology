@@ -579,13 +579,38 @@ DIFF_BOOT_SEED = 20260626
 # climate-attributable variance; secular trend fitted on residual.
 # Bootstrap / AR-correction shares DIFF_BOOT_* settings (same estimator).
 ACT_PER_WELL_MIN_YEARS  = DIFF_PER_WELL_MIN_YEARS   # min spring-years for a trend
-ACT_PERIODS             = {"2005_2025": (2005, 2025), "2011_2025": (2011, 2025)}  # 2005_2025 first = primary
+ACT_PERIODS             = {                            # 2005_2025 first = primary
+    "2005_2025": (2005, 2025),
+    "2011_2025": (2011, 2025),
+    # Sequential calibration windows for Script 37 v2.0.0 — each isolates one new
+    # driver.  Coverage filter legitimately thins short windows; 2015–2017 may
+    # survive only CEH36/CEH18/CEH21 + close neighbours (intended Stage-2 set).
+    "2006_2012": (2006, 2012),   # Stage 1: coastal retreat + SLR only
+    "2015_2017": (2015, 2017),   # Stage 2: + CEH36 scrape (Apr 2015)
+    "2017_2025": (2017, 2025),   # Stage 3: + clearfell (Dec 2017)
+}
 ACT_PRIMARY_PERIOD      = "2005_2025"               # 2011_2025 is robustness; see R1 fix 2026-07-05
 ACT_COVERAGE_FRACTION   = 0.80                      # well must span ≥ 80 % of window
 ACT_PRE_WINDOW_CUTOFF   = 2011                      # well must have ≥ 1 spring obs before this year
                                                     # (start of the shorter 2011–2025 window); fixed
                                                     # regardless of which window is being fitted so that
                                                     # short-record wells are excluded from both windows
+
+# Climate-corrected endpoint-difference method (Script 36 → Script 37 v2.1.0).
+# The short calibration windows (2006–2012, 2015–2017) are too brief for a
+# per-window secular-trend fit — a 2–3-point joint fit overfits and returns
+# inter-annual climate noise as spurious huge "trends" (2015–2017 gave a
+# +864 mm/yr median). Instead, each well's climate sensitivity b̂ (CWB loading)
+# is fit ONCE on a long pre-clearfell window, then the driver-attributable
+# change over any calibration window is read as the endpoint difference of the
+# climate-corrected series h_corr(t) = h(t) − b̂·CWB(t).
+ACT_BHAT_WINDOW         = (2005, 2017)              # pre-clearfell window for fitting b̂ (CWB loading);
+                                                    # ends before the Dec-2017 clearfell so b̂ is not
+                                                    # contaminated by the post-clearfell mound. Applied
+                                                    # to ALL calibration windows (single consistent rule).
+ACT_ENDPOINT_FRACTION   = 1.0 / 3.0                 # fraction of window length averaged at each end for
+                                                    # the endpoint difference; groups are non-overlapping
+                                                    # (2 yr → 1 vs 1, 6 yr → 2 vs 2, 9 yr → 3 vs 3).
 
 ENVELOPE_DRY_YEARS = [2011, 2012, 2019]      # antecedent-dry deep springs
 

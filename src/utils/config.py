@@ -155,6 +155,12 @@ COAST_RETREAT_RATE   = 8.3
 # derived from COAST_RETREAT_RATE × 20 (which would give ~166 m and overstate
 # the accumulation); the observed 20-year retreat is the smaller ~50 m.
 COAST_RETREAT_2005_2025_M = 50.0
+# Effective hydraulic coastal retreat calibrated from Script 37 groundwater validation
+# (n=24 clean wells, 2005–2025 window, single-parameter OLS with SLR fixed at 4 mm/yr).
+# Distinct from COAST_RETREAT_2005_2025_M (50 m; physical shoreline measurement, Pye &
+# Blott 2024).  The larger effective value reflects integrated hydraulic response across
+# the full bay frontage vs the reference transect.  Scales linearly with window duration.
+COAST_RETREAT_EFFECTIVE_M = 105.0
 
 # Chronic coastal-drawdown accumulation window (yr) — the near-term horizon over
 # which the fitted coastal-decline rate δ₀ is accumulated to a source drawdown

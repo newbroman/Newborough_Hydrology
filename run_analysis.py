@@ -5,7 +5,7 @@ Interactive orchestrator for the Hollingham (2026) analytical pipeline.
 Usage
 -----
   python run_analysis.py              # interactive menu
-  python run_analysis.py --full       # non-interactive: run all 45 steps
+  python run_analysis.py --full       # non-interactive: run all 46 steps
   python run_analysis.py --full --with-supplementary  # ... plus Phase 16 (24b,31,31b,34)
   python run_analysis.py --full --clusters 5          # set the clustering target K (default 5)
   python run_analysis.py --full --log # ... and record all console output to a log file
@@ -18,7 +18,7 @@ Usage
 
 Pipeline structure
 ------------------
-The pipeline comprises 45 steps across 17 phases:
+The pipeline comprises 46 steps across 17 phases:
 
   Phases 1–11 produce the main analytical results documented in the report.
   Phase 12 runs supplementary diagnostics (Scripts 22–24); Phase 16 runs further
@@ -238,20 +238,21 @@ PHASE_14 = [
     ("30_c4_constrained_fit.py",         "35/44  Cluster framework diagnostic: C4 constrained-β₃ triangulation sensitivity"),
 ]
 PHASE_15 = [
-    ("32_differential_movement.py",    "36/45  Figure: secular differential water-table drift (report Fig 59)"),
-    ("33_envelope_amplification.py",   "37/45  Figure: climate-swing amplification + drought-floor (report Fig 60)"),
-    ("35_per_well_amplification.py",    "38/45  Figure+table: per-well climate-sensitivity coefficient (Paper 1; co-temporal, SSM-calibrated)"),
-    ("36_absolute_climate_trend.py",    "39/45  Figure: absolute climate-removed per-well secular trend map (spring CWB detrended)"),
+    ("32_differential_movement.py",    "36/46  Figure: secular differential water-table drift (report Fig 59)"),
+    ("33_envelope_amplification.py",   "37/46  Figure: climate-swing amplification + drought-floor (report Fig 60)"),
+    ("35_per_well_amplification.py",    "38/46  Figure+table: per-well climate-sensitivity coefficient (Paper 1; co-temporal, SSM-calibrated)"),
+    ("36_absolute_climate_trend.py",    "39/46  Figure: absolute climate-removed per-well secular trend map (spring CWB detrended)"),
+    ("37_driver_validation.py",         "40/46  Validation: predicted-vs-observed driver-change map (scatter + residual map)"),
 ]
 PHASE_16 = [
-    ("24b_residual_climatology.py",        "40/45  Cluster-stratified residual climatology (supplementary diagnostic)"),
-    ("31_cluster_validation.py",           "41/45  Independent k=5 partition validation (supplementary diagnostic)"),
-    ("31b_separation_vs_recoverability.py", "42/45  Cluster separation vs recoverability (supplementary diagnostic)"),
-    ("34_window_sensitivity.py",           "43/45  MSL5 two-window sensitivity demonstration figure (\u00a75.7.5)"),
+    ("24b_residual_climatology.py",        "41/46  Cluster-stratified residual climatology (supplementary diagnostic)"),
+    ("31_cluster_validation.py",           "42/46  Independent k=5 partition validation (supplementary diagnostic)"),
+    ("31b_separation_vs_recoverability.py", "43/46  Cluster separation vs recoverability (supplementary diagnostic)"),
+    ("34_window_sensitivity.py",           "44/46  MSL5 two-window sensitivity demonstration figure (\u00a75.7.5)"),
 ]
 PHASE_17 = [
-    ("09f_management_effects.py",     "44/45  Figure: management-interventions + coastal-retreat spatial reach (\u00a75.8; two-pass, reads Scripts 20/25/09d/10a)"),
-    ("27_greyscale_figures.py",        "45/45  Greyscale figure conversion (journal-ready B&W)"),
+    ("09f_management_effects.py",     "45/46  Figure: management-interventions + coastal-retreat spatial reach (\u00a75.8; two-pass, reads Scripts 20/25/09d/10a)"),
+    ("27_greyscale_figures.py",        "46/46  Greyscale figure conversion (journal-ready B&W)"),
 ]
 
 ALL_PHASES = [
@@ -269,7 +270,7 @@ ALL_PHASES = [
     ("PHASE 12 \u2014 Supplementary Diagnostics (Scripts 22\u201324)",   PHASE_12),
     ("PHASE 13 \u2014 Van Willegen MSL Analyses (Scripts 26, 26b, 26c)",    PHASE_13),
     ("PHASE 14 \u2014 Cluster Framework Diagnostics (Scripts 28\u201330)",   PHASE_14),
-    ("PHASE 15 \u2014 Observed Differential Change and Envelope (Scripts 32\u201333)", PHASE_15),
+    ("PHASE 15 \u2014 Observed Differential Change, Envelope, and Validation (Scripts 32, 33, 35, 36, 37)", PHASE_15),
     ("PHASE 16 \u2014 Supplementary Standalone Diagnostics (Scripts 24b, 31, 31b, 34)", PHASE_16),
     ("PHASE 17 \u2014 Synthesis Figure and Greyscale Conversion (Scripts 09f, 27)",        PHASE_17),
 ]
@@ -715,29 +716,29 @@ def run_full_pipeline(from_step: int = 1, include_supplementary: bool = False) -
     run_phase(PHASE_12, "PHASE 12 — Supplementary Diagnostics (Scripts 22–24)",  from_step)
     run_phase(PHASE_13, "PHASE 13 — Van Willegen MSL Analyses (Scripts 26, 26b, 26c)", from_step)
     run_phase(PHASE_14, "PHASE 14 — Cluster Framework Diagnostics (Scripts 28–30)",  from_step)
-    run_phase(PHASE_15, "PHASE 15 — Observed Differential Change and Envelope (Scripts 32, 33, 35, 36)", from_step)
-    last_step = 39  # Phase 15 ends at step 39 (Script 36)
+    run_phase(PHASE_15, "PHASE 15 — Observed Differential Change, Envelope, and Validation (Scripts 32, 33, 35, 36, 37)", from_step)
+    last_step = 40  # Phase 15 ends at step 40 (Script 37)
     if include_supplementary:
         run_phase(PHASE_16,
                   "PHASE 16 — Supplementary Standalone Diagnostics (Scripts 24b, 31, 31b, 34)",
                   from_step)
-        last_step = 43  # Phase 16 ends at step 43 (Script 34)
+        last_step = 44  # Phase 16 ends at step 44 (Script 34)
     # Phase 17 synthesis figure (Script 09f, step 44) — a display/utility figure
     # that IS part of the full run (unlike the greyscale utility, step 45, which
     # is invoked on demand via run_greyscale()). Runs last so its upstream
     # inputs (Scripts 20/25/09d/10a) already exist; two-pass-safe otherwise.
-    if from_step <= 44:
+    if from_step <= 45:
         run_phase([PHASE_17[0]],
                   "PHASE 17 — Synthesis Figure (Script 09f)", from_step)
-        last_step = 44
+        last_step = 45
     _elapsed = (time.time() - _t_start) / 60.0
     print()
     _banner(f"PIPELINE COMPLETE  ·  steps 1–{last_step} written to outputs/", _Ansi.BGREEN)
     if not include_supplementary:
-        say_info("supplementary standalone diagnostics (Phase 16: steps 40–43, "
+        say_info("supplementary standalone diagnostics (Phase 16: steps 41–44, "
                  "Scripts 24b/31/31b/34) NOT run — add --with-supplementary "
                  "(or choose it in menu option 1) to include them")
-    say_info("greyscale (step 45) runs separately (menu option 6 / --greyscale)")
+    say_info("greyscale (step 46) runs separately (menu option 6 / --greyscale)")
     say_info(f"total run time: {_elapsed:0.1f} min")
 
 def build_viewer() -> None:
@@ -886,7 +887,7 @@ def menu_run_single() -> None:
         print(f"\n  [OK] Step {n} complete.")
         if bw:
             print("  [BW] Copying figures to outputs_bw/ ...")
-            run_script("27_greyscale_figures.py", "45/45  Greyscale figure conversion")
+            run_script("27_greyscale_figures.py", "46/46  Greyscale figure conversion")
             bw_dir = ROOT_DIR / "outputs_bw"
             if bw_dir.exists():
                 n_figs = len(list(bw_dir.rglob("*.png"))) + len(list(bw_dir.rglob("*.jpg")))
@@ -953,7 +954,7 @@ def run_greyscale(full_rerun: bool = False) -> None:
         print("  perceptual luminance weighting. Quick but some figures")
         print("  may be suboptimal — use 'Full B&W re-run' for best results.")
         print()
-        run_script("27_greyscale_figures.py", "45/45  Greyscale figure conversion")
+        run_script("27_greyscale_figures.py", "46/46  Greyscale figure conversion")
 
     bw_dir = ROOT_DIR / "outputs_bw"
     if bw_dir.exists():

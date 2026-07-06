@@ -257,6 +257,7 @@ TIERS = {
 # ============================================================================
 
 INTERVENTION_DATE = pd.Timestamp('2017-12-01')   # December 2017 clearfell
+SCRAPING_DATE_0   = pd.Timestamp('2013-02-01')   # February 2013 scraping (CEH40/41/42 unmonitored cuts)
 SCRAPING_DATE     = pd.Timestamp('2015-04-01')   # April 2015 scraping
 SCRAPING_DATE_2   = pd.Timestamp('2023-10-01')   # October 2023 re-scraping
 

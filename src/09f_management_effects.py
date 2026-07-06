@@ -59,7 +59,24 @@ Hollingham (2026), §4.5, §4.9.3, §4.8.2, §5.4.3, §5.8. Companion to 09b/09d
 ====================================================================================
 """
 
-__version__ = "1.4.1"  # Hollingham (2026) — 2026-07-05
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-07-05
+# 1.5.0 — Second panel added: the figure is now a STACKED two-panel plot,
+#         (a) spatial reach (unchanged) over (b) development timescale. Panel (b)
+#         (_plot_timescale) shows how long each driver takes to develop, on a
+#         dimensionless %-of-eventual-effect y-axis chosen so it COMPOSES with
+#         panel (a) (time-fraction × spatial-magnitude = head at a given time and
+#         distance; an mm axis would double-count the magnitude). Three timescale
+#         logics, three shapes: a forest-ops relaxation BAND (clearfell/thinning,
+#         C5-fast↔C4-slow, 1−e^(−β₃t), both edges labelled with t½ live from the
+#         03 mechanistic table via new _load_forest_beta3_range()); a single
+#         scrape/storm-event relaxation curve on the C3 open-dune medium (new
+#         _load_c3_beta3(); scrape and storm coincide in fraction-of-eventual
+#         terms); and a linear coastal chronic-accumulation ramp. The OBSERVED
+#         clearfell BACI step is plotted as its fraction of the 150 mm forest
+#         equilibrium at its elapsed time (~8 yr) — the validation anchor.
+#         New imports: OUT_03_MECHANISTIC_TABLE, FOREST_CIDS. Far-field inland
+#         reach left as an order-of-magnitude caption note, no committed number.
+# 1.4.1 — (prior) single-panel spatial-reach figure.
 # 1.4.1 — De-hardcode the coastal 5-yr accumulation horizon: the literal 5.0 in
 #         coast_edge_5yr = 5.0 × |δ₀| replaced by config.COAST_CHRONIC_YEARS
 #         (= 5.0), now shared with Script 20's driver-change coastal field so a
@@ -106,6 +123,7 @@ from utils.paths import (
     make_all_dirs,
     OUT_09D_SCENARIO_CSV,
     OUT_20_REPORT_NUMBERS, OUT_25_FIT_PARAMETERS, OUT_10A_REPORT,
+    OUT_03_MECHANISTIC_TABLE,
     OUT_09F_EFFECTS, OUT_09F_EFFECTS_PUBLIC,
     OUT_09F_REACH_CSV,
 )
@@ -113,7 +131,8 @@ from utils.console_utils import banner, phase, step, info, warn, saved
 from utils.site_observations import load_site_observation
 from utils.scraping_common import MPL_DEFAULTS
 from utils.config import (SCRAPE_RISE_BUFFER_M, COAST_RETREAT_M,
-                          COAST_RETREAT_RATE, DRAWDOWN_H0_MM, COAST_CHRONIC_YEARS)
+                          COAST_RETREAT_RATE, DRAWDOWN_H0_MM, COAST_CHRONIC_YEARS,
+                          FOREST_CIDS)
 from utils.pipeline_params import default_value
 
 
@@ -216,6 +235,46 @@ def _load_coast_edge_rate():
         return d0, d0, d0, L
 
 
+def _load_forest_beta3_range():
+    """Forest-cluster drainage coefficient β₃ (per month) and the implied
+    approach-to-equilibrium half-life t½ = ln2/β₃ (months).
+
+    Returns (b3_fast, b3_slow, thalf_fast_mo, thalf_slow_mo) spanning the forest
+    clusters C4/C5 (the clusters the clearfell/broadleaf drivers act on). Live
+    from the committed mechanistic table; falls back to the documented default
+    β₃ on a first-pass run before Script 03 has executed.
+    """
+    try:
+        m = pd.read_csv(OUT_03_MECHANISTIC_TABLE)
+        b3 = m[m["Cluster"].isin(FOREST_CIDS)]["beta_3_drainage"].astype(float)
+        b3_fast, b3_slow = float(b3.max()), float(b3.min())   # fast = larger β₃
+        return (b3_fast, b3_slow,
+                np.log(2) / b3_fast, np.log(2) / b3_slow)
+    except (FileNotFoundError, KeyError, IndexError, ValueError):
+        b3 = float(default_value("beta_3"))
+        warn(f"03 mechanistic table unavailable — forest β₃ half-life from "
+             f"default β₃ = {b3:.3f}/mo (run Script 03 for live values).")
+        th = np.log(2) / b3
+        return b3, b3, th, th
+
+
+def _load_c3_beta3():
+    """C3 (Western Residual, open-dune) drainage coefficient β₃ (per month) and
+    half-life t½ = ln2/β₃ (months). C3 is the propagation medium a scrape or a
+    storm-retreat step relaxes through (same cluster Script 20's λ uses), so it
+    sets the timescale for the scrape/storm relaxation curve. Live from the
+    committed mechanistic table; first-pass fallback to the default β₃."""
+    try:
+        m = pd.read_csv(OUT_03_MECHANISTIC_TABLE)
+        b3 = float(m[m["Cluster"] == 3]["beta_3_drainage"].iloc[0])
+        return b3, np.log(2) / b3
+    except (FileNotFoundError, KeyError, IndexError, ValueError):
+        b3 = float(default_value("beta_3"))
+        warn(f"03 mechanistic table unavailable — C3 β₃ from default "
+             f"{b3:.3f}/mo (run Script 03 for the live value).")
+        return b3, np.log(2) / b3
+
+
 def _coastal_retreat_edge_head(delta0_abs, L):
     """Edge head drawdown (mm) and reach L (m) for a single COAST_RETREAT_M
     shoreline-retreat event, EXACTLY as Script 20's plot_coastal_erosion:
@@ -313,6 +372,97 @@ def _plot_reach(ax, lam, forest_h0_mm, scrape,
     prof.to_csv(OUT_09F_REACH_CSV, index=False, float_format="%.2f")
 
 
+def _plot_timescale(ax, forest_h0_mm, clearfell_measured_mm,
+                    thalf_forest_fast_mo, thalf_forest_slow_mo, thalf_c3_mo):
+    """Panel (b) — how long the driver effects take to develop.
+
+    Y-axis: percentage of the eventual effect reached (dimensionless). This is
+    deliberately dimensionless so it COMPOSES with panel (a): panel (b) gives the
+    time-fraction of the eventual effect, panel (a) gives the eventual spatial
+    magnitude, and the head at a given time-and-distance is their product (e.g.
+    scraping ~75% developed at 2 yr × a ~−65 mm reach value at 200 m ≈ −48 mm).
+    An mm y-axis would bake a magnitude into panel (b) and double-count against
+    panel (a), so % is the dimensionally consistent choice.
+
+    Three timescale logics, three curve shapes:
+      • Forest canopy operations (clearfell / thinning), β₃-governed RELAXATION
+        on the FOREST clusters: 1 − e^(−β₃·t), a saturating exponential drawn as
+        a BAND spanning the forest half-life range (C5 fast ↔ C4 slow); both edges
+        labelled with their t½. The OBSERVED clearfell BACI step is plotted at its
+        elapsed time as the fraction of the 150 mm equilibrium it represents — the
+        validation anchor (the record sits where the timescale predicts, so the
+        mapped equilibrium magnitudes are corroborated once the timescale is
+        applied — consistent with, not alarmist).
+      • Scrape / storm-retreat event, RELAXATION on the C3 open-dune medium
+        (faster than the forest): one curve — a scrape excavation and a single
+        storm-retreat step are both instantaneous changes the surrounding aquifer
+        relaxes toward, on the same C3 timescale, so in fraction-of-eventual terms
+        they coincide.
+      • Coastal chronic ACCUMULATION: the coast-edge decline accumulates LINEARLY
+        at δ₀/yr — it does not relax to an equilibrium, it grows. A straight ramp
+        (the distinct shape is the key contrast with the relaxations).
+
+    Far-field inland propagation (toward the ~900 m reach) is diffusive and slow
+    — order-of-magnitude only, NOT a committed number here (see caption).
+    """
+    t = np.linspace(0, 15, 300)
+    tm = t * 12.0                                  # months
+    b3_forest_slow = np.log(2) / thalf_forest_slow_mo
+    b3_forest_fast = np.log(2) / thalf_forest_fast_mo
+    b3_c3          = np.log(2) / thalf_c3_mo
+
+    f_slow    = (1.0 - np.exp(-b3_forest_slow * tm)) * 100.0
+    f_fast    = (1.0 - np.exp(-b3_forest_fast * tm)) * 100.0
+    c3_relax  = (1.0 - np.exp(-b3_c3 * tm)) * 100.0
+    coast_lin = (t / COAST_CHRONIC_YEARS) * 100.0
+    ytop = 320.0
+
+    # 100% reference line — equilibrium for the relaxations / 5-yr chronic
+    # reference for the coastal ramp.
+    ax.axhline(100, color="0.5", lw=0.8, zorder=1)
+    ax.text(14.8, 103, "100% = equilibrium (relaxations) / 5-yr chronic (coastal)",
+            fontsize=7, color="0.4", style="italic", ha="right")
+
+    # Forest canopy-operations band (clearfell / thinning) — C5 fast ↔ C4 slow.
+    ax.fill_between(t, f_slow, f_fast, color="#1b5e2a", alpha=0.16, zorder=2,
+                    label="Forest ops (clearfell/thinning) relaxation band")
+    ax.plot(t, f_fast, color="#1b5e2a", lw=1.6, zorder=3,
+            label=f"  fast edge: C5 t\u00bd = {thalf_forest_fast_mo:.0f} mo")
+    ax.plot(t, f_slow, color="#1b5e2a", lw=1.6, ls="--", zorder=3,
+            label=f"  slow edge: C4 t\u00bd = {thalf_forest_slow_mo:.0f} mo")
+
+    # Scrape / storm-retreat event — one C3 relaxation curve (coincide in %).
+    ax.plot(t, c3_relax, color="#c1272d", lw=2.0, zorder=4,
+            label=f"Scrape / storm event (C3 t\u00bd = {thalf_c3_mo:.0f} mo)")
+
+    # Coastal chronic accumulation — linear.
+    ax.plot(t, coast_lin, color="#7d5ba6", lw=2.4, ls=":", zorder=4,
+            label=f"Coastal chronic accumulation (linear, {COAST_CHRONIC_YEARS:.0f}-yr ref)")
+
+    # Observed clearfell anchor at its elapsed time (Dec 2017 → 2026-02 cutoff).
+    elapsed_yr = (2026 + 1/12) - (2017 + 12/12)
+    anchor_y = (clearfell_measured_mm / forest_h0_mm) * 100.0
+    ax.scatter([elapsed_yr], [anchor_y], s=90, color="#1b5e2a",
+               edgecolor="k", zorder=6, linewidth=1.0)
+    # Callout anchored bottom-right, arrow to the observed point.
+    ax.annotate(f"observed clearfell = {anchor_y:.0f}% of {forest_h0_mm:.0f} mm"
+                f"\nat {elapsed_yr:.0f} yr",
+                xy=(elapsed_yr, anchor_y),
+                xytext=(14.6, 0.04 * ytop),
+                fontsize=7.8, color="#14401f", va="bottom", ha="right",
+                bbox=dict(boxstyle="round,pad=0.35", fc="white",
+                          ec="#1b5e2a", alpha=0.92),
+                arrowprops=dict(arrowstyle="->", color="#1b5e2a", lw=1.0,
+                                connectionstyle="arc3,rad=0.2"))
+
+    ax.set_xlim(0, 15)
+    ax.set_ylim(0, ytop)
+    ax.set_xlabel("Years since intervention / onset", fontsize=11)
+    ax.set_ylabel("Percentage of the eventual effect reached (%)", fontsize=11)
+    ax.set_title("(b) Development timescale", fontsize=12, loc="left", fontweight="bold")
+    ax.legend(fontsize=7.2, loc="upper left", framealpha=0.95, ncol=1)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--public", action="store_true",
@@ -350,27 +500,32 @@ def main():
     # driver-change coastal field (config.COAST_CHRONIC_YEARS, shared).
     coast_edge_5yr = COAST_CHRONIC_YEARS * abs(coast_d0)
 
+    b3_fast, b3_slow, thalf_fast, thalf_slow = _load_forest_beta3_range()
+    b3_c3, thalf_c3 = _load_c3_beta3()
+
     info(f"\u03bb = {lam:.1f} m   forest H0 = {forest_h0:.0f} mm")
     info(f"scrape edge head ({scrape_edge_src}) = {scrape_edge_head:.1f} mm")
     info(f"clearfell recovery = {clearfell_recovery_mm:.1f} mm")
     info(f"coast-edge \u03b4\u2080 = {coast_d0:.1f} mm/yr (CI {coast_lo:.1f}, {coast_hi:.1f}), L = {coast_L:.0f} m")
     info(f"coastal 6 m storm edge = {coast_edge_6m:.1f} mm; 5-year (5\u00d7\u03b4\u2080) edge = {coast_edge_5yr:.1f} mm")
+    info(f"forest t\u00bd (C4\u2013C5) = {thalf_slow:.0f}\u2013{thalf_fast:.0f} mo; C3 t\u00bd = {thalf_c3:.0f} mo")
 
-    phase(2, "Plotting reach figure")
-    fig, ax = plt.subplots(figsize=(9.4, 6.4), dpi=300)
-    _plot_reach(ax, lam, forest_h0, scrape,
+    phase(2, "Plotting reach + timescale figure (stacked)")
+    fig, (axA, axB) = plt.subplots(2, 1, figsize=(9.4, 12.2), dpi=300)
+    _plot_reach(axA, lam, forest_h0, scrape,
                 coast_edge_6m, coast_L, coast_edge_5yr, scrape_edge_head,
                 clearfell_measured_mm=clearfell_recovery_mm)
+    _plot_timescale(axB, forest_h0, clearfell_recovery_mm,
+                    thalf_fast, thalf_slow, thalf_c3)
 
-    title = ("Newborough Warren: spatial reach of management interventions "
-             "and coastal retreat")
-    fig.suptitle(title, fontsize=12.5, y=0.98)
+    title = ("Newborough Warren: spatial reach and development timescale "
+             "of management interventions and coastal retreat")
+    fig.suptitle(title, fontsize=12.5, y=0.99)
 
-    # Caption is NOT baked into the figure — it is supplied in the report/summary
-    # document text (avoids a duplicate caption when placed in LibreOffice). The
-    # canonical caption text is maintained in the changelog / edits doc.
+    # Caption is NOT baked into the figure — supplied in the report/summary
+    # document text (avoids a duplicate caption when placed in LibreOffice).
 
-    fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+    fig.tight_layout(rect=[0, 0.02, 1, 0.97])
     out = OUT_09F_EFFECTS_PUBLIC if args.public else OUT_09F_EFFECTS
     fig.savefig(out, dpi=300, bbox_inches="tight")
     plt.close(fig)

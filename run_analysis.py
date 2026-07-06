@@ -175,67 +175,67 @@ def say_info(msg: str) -> None:
 # ── Phase / step definitions ──────────────────────────────────────────────────
 
 PHASE_1 = [
-    ("01_data_prep.py",              " 1/44  Data preparation"),
-    ("02_clustering.py",             " 2/44  Behavioural clustering"),
-    ("03_state_space_model.py",      " 3/44  State-space regression + LCSC"),
-    ("04_cluster_visualisations.py", " 4/44  Core cluster visualisation"),
+    ("01_data_prep.py",              " 1/46  Data preparation"),
+    ("02_clustering.py",             " 2/46  Behavioural clustering"),
+    ("03_state_space_model.py",      " 3/46  State-space regression + LCSC"),
+    ("04_cluster_visualisations.py", " 4/46  Core cluster visualisation"),
 ]
 PHASE_2 = [
-    ("05_pearson_affinity.py",  " 5/44  Pearson membership audit"),
-    ("06_pearson_extended.py",  " 6/44  Pearson extended network integration"),
+    ("05_pearson_affinity.py",  " 5/46  Pearson membership audit"),
+    ("06_pearson_extended.py",  " 6/46  Pearson extended network integration"),
 ]
 PHASE_3 = [
-    ("07_spatial_coefficients.py",     " 7/44  Spatial coefficient mapping"),
-    ("08_model_benchmarking.py",      " 8/44  Model benchmarking (LCSC vs Traditional)"),
-    ("run_09_scraping.py",            " 9/44  Scraping analysis suite (09a–09e)"),
-    ("run_10_clearfell.py",           "10/44  Clear-fell BACI analysis suite (10a–10m)"),
-    ("11_forecasting_thresholds.py",  "11/44  Forecasting and critical thresholds"),
-    ("11b_spatial_thresholds.py",     "12/44  Spatial eco-hydrological threshold maps"),
-    ("11c_pflood_achievability.py",   "13/44  P_flood achievability categorical map (§5.9 / Conclusion 4)"),
+    ("07_spatial_coefficients.py",     " 7/46  Spatial coefficient mapping"),
+    ("08_model_benchmarking.py",      " 8/46  Model benchmarking (LCSC vs Traditional)"),
+    ("run_09_scraping.py",            " 9/46  Scraping analysis suite (09a–09e)"),
+    ("run_10_clearfell.py",           "10/46  Clear-fell BACI analysis suite (10a–10m)"),
+    ("11_forecasting_thresholds.py",  "11/46  Forecasting and critical thresholds"),
+    ("11b_spatial_thresholds.py",     "12/46  Spatial eco-hydrological threshold maps"),
+    ("11c_pflood_achievability.py",   "13/46  P_flood achievability categorical map (§5.9 / Conclusion 4)"),
 ]
 PHASE_4 = [
-    ("00_climate_summary.py",            "14/44  Climate summary outputs"),
-    ("14_climate_projections.py",        "15/44  Figure: Climate trajectory projections"),
-    ("14b_year_of_crossing.py",          "16/44  Bootstrap year-of-crossing for Curreli thresholds (§7 Conclusion 11)"),
-    ("12_figure_site_overview.py",       "17/44  Figure: DEM site overview"),
-    ("13_figure_experimental_design.py", "18/44  Figure: Experimental design GIS map"),
+    ("00_climate_summary.py",            "14/46  Climate summary outputs"),
+    ("14_climate_projections.py",        "15/46  Figure: Climate trajectory projections"),
+    ("14b_year_of_crossing.py",          "16/46  Bootstrap year-of-crossing for Curreli thresholds (§7 Conclusion 11)"),
+    ("12_figure_site_overview.py",       "17/46  Figure: DEM site overview"),
+    ("13_figure_experimental_design.py", "18/46  Figure: Experimental design GIS map"),
 ]
 PHASE_5 = [
-    ("15_depth_dependent_pet.py", "19/44  Depth-dependent PET analysis"),
+    ("15_depth_dependent_pet.py", "19/46  Depth-dependent PET analysis"),
 ]
 PHASE_6 = [
-    ("17_wtf_specific_yield.py", "20/44  WTF cluster Sy estimation"),
+    ("17_wtf_specific_yield.py", "20/46  WTF cluster Sy estimation"),
 ]
 PHASE_7 = [
-    ("16_water_bal.py", "21/44  Water balance decomposition"),
+    ("16_water_bal.py", "21/46  Water balance decomposition"),
 ]
 PHASE_8 = [
-    ("18_wtf_spatial.py", "22/44  WTF spatial analysis and Sy mapping"),
+    ("18_wtf_spatial.py", "22/46  WTF spatial analysis and Sy mapping"),
 ]
 PHASE_9 = [
-    ("19_spatial_groundwater.py", "23/44  Spatial groundwater analysis"),
-    ("20_spatial_figures.py",     "24/44  Spatial paper figures"),
+    ("19_spatial_groundwater.py", "23/46  Spatial groundwater analysis"),
+    ("20_spatial_figures.py",     "24/46  Spatial paper figures"),
 ]
 PHASE_10 = [
-    ("21_forestry_scenarios.py", "25/44  Forestry scenarios and management figures"),
+    ("21_forestry_scenarios.py", "25/46  Forestry scenarios and management figures"),
 ]
 PHASE_11 = [
-    ("25_coastal_gradient.py",   "26/44  Coastal-retreat gradient analysis"),
+    ("25_coastal_gradient.py",   "26/46  Coastal-retreat gradient analysis"),
 ]
 PHASE_12 = [
-    ("22_residual_lag_analysis.py",    "27/44  Residual lag structure analysis"),
-    ("23_ridge_recharge_lag_test.py",  "28/44  Ridge recharge lag hypothesis test"),
-    ("24_residual_seasonality.py",     "29/44  Residual seasonality diagnostics"),
+    ("22_residual_lag_analysis.py",    "27/46  Residual lag structure analysis"),
+    ("23_ridge_recharge_lag_test.py",  "28/46  Ridge recharge lag hypothesis test"),
+    ("24_residual_seasonality.py",     "29/46  Residual seasonality diagnostics"),
 ]
 PHASE_13 = [
-    ("26_van_willegen_msl.py",             "30/44  Van Willegen (2025) 5-year MSL aggregation"),
-    ("26b_van_willegen_msl_projections.py", "31/44  UKCP18 MSL5 climate projections (Tool B)"),
-    ("26c_msl5_report_figures.py",          "32/44  MSL5 report-format figures (Figures for §4.8.4 / §4.10.1)"),
+    ("26_van_willegen_msl.py",             "30/46  Van Willegen (2025) 5-year MSL aggregation"),
+    ("26b_van_willegen_msl_projections.py", "31/46  UKCP18 MSL5 climate projections (Tool B)"),
+    ("26c_msl5_report_figures.py",          "32/46  MSL5 report-format figures (Figures for §4.8.4 / §4.10.1)"),
 ]
 PHASE_14 = [
-    ("28_c3_detrend_check.py",          "33/44  Cluster framework diagnostic: C3 detrend check (H0)"),
-    ("29_c3_within_variance_check.py",  "34/44  Cluster framework diagnostic: within-C3 spatial structure"),
-    ("30_c4_constrained_fit.py",         "35/44  Cluster framework diagnostic: C4 constrained-β₃ triangulation sensitivity"),
+    ("28_c3_detrend_check.py",          "33/46  Cluster framework diagnostic: C3 detrend check (H0)"),
+    ("29_c3_within_variance_check.py",  "34/46  Cluster framework diagnostic: within-C3 spatial structure"),
+    ("30_c4_constrained_fit.py",         "35/46  Cluster framework diagnostic: C4 constrained-β₃ triangulation sensitivity"),
 ]
 PHASE_15 = [
     ("32_differential_movement.py",    "36/46  Figure: secular differential water-table drift (report Fig 59)"),

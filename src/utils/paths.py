@@ -530,6 +530,13 @@ OUT_37_RESULTS           = DIR_37 / "37_results.txt"
 OUT_37_SCALE_FACTORS     = DIR_37 / "37_scale_factors_by_window.csv"
 OUT_37_DELTA0_TRAJECTORY = DIR_37 / "37_implied_delta0_trajectory.png"
 
+# Script 37b — Part B comparative driver footing (forest · scrape · coast)
+DIR_37B = OUT_DIR / "37b_driver_footing"
+DIR_37B.mkdir(parents=True, exist_ok=True)
+OUT_37B_COMPARISON = DIR_37B / "37b_driver_footing.csv"
+OUT_37B_FIGURE     = DIR_37B / "37b_driver_footing.png"
+OUT_37B_RESULTS    = DIR_37B / "37b_results.txt"
+
 # Script 34 — MSL5 two-window sensitivity (standalone demonstration figure; §5.7.5)
 DIR_34 = OUT_DIR / "34_window_sensitivity"
 OUT_34_MATRIX               = DIR_34 / "34_window_matrix.csv"

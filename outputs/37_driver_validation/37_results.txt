@@ -1,37 +1,57 @@
-37_driver_validation v2.1.0 — Sequential Driver Calibration
-=================================================================
+37_driver_validation v3.0.0 — Per-Driver Scale-Factor Regression
+======================================================================
 
-CALIBRATION SUMMARY
------------------------------------------------------------------
-  Coastal retreat                      R_effective_m              432  90%CI [—, —]  — calibrated; SLR fixed at 4 mm/yr
-  SLR                                  SLR_rate_mm_yr               4  90%CI [—, —]  — fixed (Holyhead ~4 mm/yr; not calibrated)
-  Scrape Apr 2015                      amplitude_scale              1  90%CI [—, —]  — CEH36/18/21 only; n=1
-  Clearfell Dec 2017                   amplitude_scale           15.5  90%CI [—, —]  — C4/C5; n=6
-  Clearfell λ (DIAGNOSTIC ONLY)        lambda_m                   739  90%CI [—, —]  — NOT written to config.py; equilibrium λ = 225 m
+LIVE PARAMETERS
+----------------------------------------------------------------------
+  δ₀ (Script 25, forest-free linear-capped): 29.03 mm/yr
+  clearfell step (10a ANCOVA, Path B, observed BACI): 119.6 mm
 
-FULL-WINDOW VALIDATION (2005–2025, calibrated constants)
------------------------------------------------------------------
-  r (Pearson)  : 0.211  (n=23)
-  RMSE         : 328.0 mm
-  v1.x baselines: 2005–2025 r=0.595 (35% var); 2011–2025 r=0.285 (8% var)
-  r² improvement: 0.045 vs 0.354 (2005–2025 v1.x)
+SCALE-FACTOR TABLE (HC3 robust SEs, 95% CI)
+----------------------------------------------------------------------
+  window=2006_2012    variant=primary                n=47
+    s_coast =   2.060  95%CI [-0.695, 4.814]
+    c       =  -539.4 mm  95%CI [-589.1, -489.8]
+    R²      = 0.047
 
-PER-CLUSTER MEANS (full-window, mm)
------------------------------------------------------------------
-  C1 (Lake Edge)        pred    +5.3  obs   +42.8  resid   -37.5  n=3
-  C2 (Dune)             pred   +92.3  obs   +92.8  resid    -0.5  n=6
-  C3 (Western Residual)  pred  -151.7  obs   -68.5  resid   -83.2  n=11
-  C4 (Main Forest)      pred  +403.5  obs   +54.7  resid  +348.8  n=5
-  C5 (Coastal Forest)   pred   +75.8  obs  -232.4  resid  +308.2  n=4
+  window=2018_2025    variant=primary                n=47
+    s_coast =   1.146  95%CI [-0.941, 3.233]
+    s_cf    =   3.703  95%CI [-0.650, 8.056]
+    c       =    85.8 mm  95%CI [54.2, 117.5]
+    R²      = 0.231
 
-λ DIAGNOSTIC (Stage 3)
------------------------------------------------------------------
-  Fitted λ     : 739 m  (DIAGNOSTIC ONLY — never written to config.py)
-  Equilibrium λ: 225 m  (from config: DRAWDOWN_K_MDAY × DRAWDOWN_B_M)
-  Ratio fitted/equil: 3.29×  — ratio > 1 indicates transient pressure mound overruns equilibrium reach
+  window=2005_2025    variant=primary                n=23
+    s_coast =   0.519  95%CI [-0.100, 1.138]
+    s_cf    =  -0.374  95%CI [-4.224, 3.476]
+    c       =    86.2 mm  95%CI [32.3, 140.1]
+    R²      = 0.294
 
-STAGE WELL COUNTS
------------------------------------------------------------------
-  Stage 1 (2006–2012, coastal): 12 wells (C3/C5)
-  Stage 2 (2015–2017, scrape) : 1 wells (CEH36/18/21)
-  Stage 3 (2017–2025, clearfell): 6 wells (C4/C5)
+  window=2018_2025    variant=with_broadleaf_covariate n=47
+    s_coast =   0.324  95%CI [-1.502, 2.149]
+    s_cf    =   2.615  95%CI [-0.672, 5.902]
+    s_bl    =  -3.952  95%CI [-6.162, -1.743]  (robustness only — NOT headline)
+    c       =    65.9 mm  95%CI [36.4, 95.4]
+    R²      = 0.434
+
+C1 LAKE — NEGATIVE CONTROL (included in fit, reported separately)
+----------------------------------------------------------------------
+  2006_2012    n=3  mean coast_i=-6.6  mean clearfell_i=n/a (no clearfell regressor this window)  mean dh_corr=-269.2  mean residual=-283.9
+  2018_2025    n=3  mean coast_i=-6.7  mean clearfell_i=+0.1  mean dh_corr=+32.6  mean residual=+46.0
+  2005_2025    n=3  mean coast_i=-18.9  mean clearfell_i=+0.1  mean dh_corr=+67.6  mean residual=+8.8
+  Large C1 dh_corr or residual would put the whole climate correction on notice — C1 wells are lake-buffered and should show near-zero coastal/clearfell predictors.
+
+INDEPENDENT TEST — implied δ₀(t) expanding-window trajectory
+----------------------------------------------------------------------
+  2005–2010  n=21  implied δ₀ = +8.5 mm/yr  95%CI [-93.9, +110.9]
+  2005–2013  n=47  implied δ₀ = +144.1 mm/yr  95%CI [+83.9, +204.3]
+  2005–2016  n=47  implied δ₀ = +44.3 mm/yr  95%CI [+16.1, +72.5]
+  2005–2019  n=47  implied δ₀ = +68.2 mm/yr  95%CI [+43.9, +92.5] †
+  2005–2022  n=47  implied δ₀ = +52.8 mm/yr  95%CI [+32.8, +72.8] †
+  2005–2025  n=23  implied δ₀ = +16.6 mm/yr  95%CI [+4.9, +28.4] †
+  Assumed δ₀ = 29.0 mm/yr. A flat trajectory near this value supports the chronic-linear coastal-drying assumption; a rising or falling trajectory would not.
+  † Per spec this test is COAST-ONLY (no clearfell regressor). Windows whose end year is >= 2019 span the Dec-2017 clearfell without a term to absorb its wetting signal, so their implied δ₀ may be inflated upward by un-modelled clearfell recovery, not genuine coastal-drying acceleration. Only 2005–2010/2013/2016 (fully pre-clearfell) are clean coast-only reads; treat 2005–2019/2022/2025 as upper bounds on the coastal signal alone.
+
+CAVEATS
+----------------------------------------------------------------------
+  Shape (δ₀, L) is fit from THIS SAME well network via Script 25 — the scale-factor test above is therefore partly self-confirming. The δ₀(t) trajectory (above) is the genuinely independent check.
+  Does not resolve scraping (owned by BACI: CEH36 on-site BACI, WMC3 DiD). Does not close the coastal budget (first-order test). Broadleaf is a covariate at most, never a headline scale factor.
+  If the residual map shows a coherent spatial gradient, a distance-decayed GLS is a candidate ROBUSTNESS variant — not built here, and would not replace the OLS headline.

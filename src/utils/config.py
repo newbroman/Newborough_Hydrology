@@ -626,6 +626,18 @@ ACT_ENDPOINT_FRACTION   = 1.0 / 3.0                 # fraction of window length 
                                                     # the endpoint difference; groups are non-overlapping
                                                     # (2 yr → 1 vs 1, 6 yr → 2 vs 2, 9 yr → 3 vs 3).
 
+# Script 37 v3.1.0 (2026-07-06, ADDENDUM 1) — negative control C1 → C2, and
+# excluding sluice-controlled C1 (Lake Edge) from the regression fit. C1 is
+# buffered by Llyn Rhos-Ddu, whose level is management-set by a sluice, so
+# its dh_corr reflects management rather than natural forcing — it cannot
+# validate the climate correction and marginally contaminates the fit. C2
+# (Dune) is driver-free and unbiased on this network (see ADDENDUM 1).
+# Cluster membership is resolved at runtime via CLUSTER_LABELS — never a
+# literal well list.
+ACT_NEG_CONTROL_CLUSTER  = "C2"                          # negative-control cluster (reporting only)
+ACT_FIT_EXCLUDE_CLUSTERS = ("C1",)                       # dropped from the regression fit
+ACT_FIT_EXCLUDE_REASON   = "management-controlled lake level (sluice)"
+
 ENVELOPE_DRY_YEARS = [2011, 2012, 2019]      # antecedent-dry deep springs
 
 

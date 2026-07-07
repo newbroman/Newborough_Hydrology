@@ -543,6 +543,18 @@ OUT_34_MATRIX               = DIR_34 / "34_window_matrix.csv"
 OUT_34_RESULTS              = DIR_34 / "34_results.txt"
 OUT_34_FIG                  = DIR_34 / "34_window_sensitivity.png"
 
+# Script 38 — coast-to-inland MAM transect (observational delta_0 diagnostic).
+# Display/utility tier, standalone -- NOT called from run_analysis.py and NOT
+# counted in the analytical step/phase total. Reads committed pipeline
+# intermediates only (01_wells_clean_maod.csv, 01_locations.csv,
+# 25_01_panel_fit_parameters.csv); writes nothing consumed downstream.
+DIR_38 = OUT_DIR / "38_coastal_transect"
+DIR_38.mkdir(parents=True, exist_ok=True)
+OUT_38_CSV         = DIR_38 / "38_transect.csv"
+OUT_38_FIG_PROFILE = DIR_38 / "38_transect_profile.jpg"
+OUT_38_FIG_DIFF    = DIR_38 / "38_coast_inland_difference.jpg"
+OUT_38_RESULTS     = DIR_38 / "38_results.txt"
+
 # Script 24b — cluster-stratified residual climatology (supplementary diagnostic)
 DIR_24B = OUT_DIR / "24b_residual_climatology"
 OUT_24B_CLUSTER_CLIMATOLOGY = DIR_24B / "24b_01_cluster_climatology.csv"

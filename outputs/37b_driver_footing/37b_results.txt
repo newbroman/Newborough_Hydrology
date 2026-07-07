@@ -1,0 +1,62 @@
+37b_driver_footing v1.0.0 — Part B: Comparative Driver Footing
+==========================================================================
+
+LIVE PARAMETERS
+--------------------------------------------------------------------------
+  δ₀ (Script 25, forest-free linear-capped): 29.03 mm/yr; L = 894 m
+  clearfell step (10a ANCOVA, Path B, observed): 119.6 mm
+  scrape on-site (CEH36 Pure_Scraping, observed): 129.4 mm
+  scrape off-site (WMC3 DiD mean, observed): -54.5 mm
+  drain-cone / forest λ (20_report_numbers): 224.9 m
+  representative Sy: coast/scrape (C3) = 0.306; forest (C4/C5 weighted) = 0.273
+  horizon: 2005→2025 (20 yr)
+  well roster: 66 reference-network wells (canonical C1-C5 partition)
+
+COMPARISON TABLE
+--------------------------------------------------------------------------
+  Coastal erosion (chronic drawdown)     [Coast, progressive, loss, modelled]
+      peak=-580.6 mm  area=-74291.2 mm·ha  volume=-227108.2 m³
+      SD15b (wet-slack, 610 mm): worsen=0  relieve=0   SD16 (dry-slack, 980 mm): worsen=6  relieve=0  (n=66)
+
+  Sea-level rise (head gain)             [Coast, progressive, gain, modelled]
+      peak=+20.0 mm  area=+2819.5 mm·ha  volume=+8619.2 m³
+      SD15b (wet-slack, 610 mm): worsen=0  relieve=0   SD16 (dry-slack, 980 mm): worsen=0  relieve=1  (n=66)
+
+  Clearfell (canopy removed)             [Forest management, step, gain, observed]
+      peak=+119.6 mm  area=+6264.3 mm·ha  volume=+17132.3 m³
+      SD15b (wet-slack, 610 mm): worsen=0  relieve=0   SD16 (dry-slack, 980 mm): worsen=0  relieve=3  (n=66)
+
+  Broadleaf restock (canopy added)       [Forest management, progressive, loss, modelled]
+      peak=-56.2 mm  area=-3780.4 mm·ha  volume=-10339.1 m³
+      SD15b (wet-slack, 610 mm): worsen=0  relieve=0   SD16 (dry-slack, 980 mm): worsen=1  relieve=0  (n=66)
+
+  Scrape on-site (slack rise)            [Dune scraping, step, gain, observed]
+      peak=+129.4 mm  area=+613.1 mm·ha  volume=+1874.2 m³
+      SD15b (wet-slack, 610 mm): worsen=0  relieve=0   SD16 (dry-slack, 980 mm): worsen=0  relieve=1  (n=66)
+
+  Scrape off-site (drain cone)           [Dune scraping, redistributive, loss, observed]
+      peak=-54.5 mm  area=-21469.9 mm·ha  volume=-65633.4 m³
+      SD15b (wet-slack, 610 mm): worsen=0  relieve=0   SD16 (dry-slack, 980 mm): worsen=5  relieve=0  (n=66)
+
+  Scrape NET (on-site + off-site)        [Dune scraping, redistributive, net, observed+modelled]
+      peak=n/a  area=-20856.8 mm·ha  volume=-63759.2 m³
+
+
+THE 'SCRAPING WORSENS SITE-WIDE DECLINE' CLAIM, IN CONTEXT
+--------------------------------------------------------------------------
+  Scrape on-site (rise):  area=+613.1 mm·ha  volume=+1874.2 m³
+  Scrape off-site (drain): area=-21469.9 mm·ha  volume=-65633.4 m³
+  Scrape NET: area=-20856.8 mm·ha  volume=-63759.2 m³
+  The net sign (a net site-wide LOSS) is the quantitative basis for the claim. Set beside the coastal integral, the scrape net volume is 28% of the coastal volume in magnitude — smaller than coast, but not negligible beside it; a moderate secondary contributor, not a match for coastal retreat and not a headline driver on its own. This ratio inherits Script 20's own scrape-field construction (8 cuts superposed with λ≈225 m reach each, summed over the whole site extent — mean field ≈23 mm across the 949 ha site, not a tiny near-field patch), which is why the off-site total doesn't stay small despite each cut's own footprint being modest. Consistent with, not overriding, the coastal-dominance picture from Part A / Script 25.
+
+CAVEATS (even-handed framing, per working rules)
+--------------------------------------------------------------------------
+  Every cell is flagged observed or modelled. Coast (both components), broadleaf, and the scrape off-site cone are MODELLED (Script 20 fields); clearfell and scrape on-site are OBSERVED BACI anchors; scrape off-site's peak is an OBSERVED WMC3 point (the modelled cone is larger near-field, so -54 mm is a conservative, not a maximal, peak).
+  SLR is Script 20's native 5-YEAR near-term projection, NOT rescaled to the 20-yr horizon used by every other component here — its small peak/volume relative to coastal erosion partly reflects this shorter window, not just smaller physical magnitude. Treat the SLR row as indicative/near-term only, not a like-for-like 20-yr comparison.
+  Coast's 20-yr drawdown is a MODELLED PROJECTION anchored on the observed δ₀, UNCONFIRMED spatially by Part A (Script 37's scale factors are null/unresolved for coast — see Script 37 results). It indicates, not confirms, the scale of coastal influence relative to the other drivers.
+  First-order superposition — components are summed independently; this is an UPPER BOUND in any zone where two fields overlap (same caveat as the Script 20 map). Does not close a water budget.
+  Near-field scrape cone is NOT resolved observationally — nearest uphill well is 262 m from the cut (WMC3); the off-site figures rest on the modelled leaky-aquifer field beyond that point.
+  Representative Sy (not per-cell) carries an approximately ±40% spread across individual well estimates within a cluster (Script 17 WTF method) — volume figures should be read as order-of-magnitude, not precise.
+  Ecological threshold crossings evaluate BOTH SD15b and SD16 for every well (no per-well wet-slack/dry-slack typing file exists — mirrors the continuous zone-classification precedent in Script 11b) — a 'crossing' here means the well's baseline-plus-delta moves across that specific threshold, not that the well is necessarily of that ecological type.
+  Baseline for Currency 3 is a TRUE per-well summer minimum (mean of annual Jun-Sep minima, INT_WELLS_CLEAN), computed directly for this script — NOT the cluster-level 14_annual_extremes.csv the original spec draft cited (that file has no per-well data).
+  Does not use Script 37's scale factors (null/unresolved — Part A owns that verdict); does not re-estimate any driver amplitude — it places the established observed/modelled amplitudes on common axes. Language: 'indicates' / 'consistent with', not 'confirms' / 'demonstrates'.

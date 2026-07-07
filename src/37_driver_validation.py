@@ -93,8 +93,9 @@ Does NOT claim
 Does not resolve scraping (BACI owns it). Does not close the coastal budget
 (first-order test). Shape test partly self-confirming; only the delta_0(t)
 trajectory is independent. Broadleaf a covariate at most, never a headline
-scale factor. C1 Lake wells are INCLUDED in the fit (not dropped) and
-reported separately as the negative control.
+scale factor. C1 Lake wells are EXCLUDED from the fit (ADDENDUM 1 — sluice-
+managed lake level; still shown in the CSV/scatter for transparency); C2
+(Dune) is the negative control.
 
 Outputs (outputs/37_driver_validation/):
   37_scale_factors_by_window.csv    [NEW] window, s_coast, s_cf, c, HC3 CIs,
@@ -107,13 +108,33 @@ Outputs (outputs/37_driver_validation/):
                                      canonical - largest, most complete well
                                      set).
   37_implied_delta0_trajectory.png  [NEW] expanding-window delta_0(t) test.
-  37_results.txt                   scale-factor table, C1 control block,
+  37_results.txt                   scale-factor table, negative-control block
+                                     (C2), excluded-sluice block (C1),
                                      self-confirmation caveat.
 
 Step 40/46, Phase 15 - Observed Differential Change, Envelope, and Validation.
 """
 
-__version__ = "3.0.0"  # 2026-07-06: BREAKING REWRITE per
+__version__ = "3.1.0"  # 2026-07-06: ADDENDUM 1 —
+#                       SPEC_script37_ADDENDUM1_control_C2_sluice_exclusion_2026-07-06.md.
+#                       Negative control C1 -> C2 (Dune): C1 is buffered by a
+#                       sluice-managed lake (Llyn Rhos-Ddu), so its dh_corr
+#                       reflects management, not natural forcing, and cannot
+#                       validate the climate correction. C2 is driver-free and
+#                       shows near-zero mean residual in every window (n=6).
+#                       C1 (Lake Edge) now EXCLUDED from the regression fit via
+#                       the existing exclude_named/exclude_reason mechanism,
+#                       resolved at runtime from config.ACT_FIT_EXCLUDE_CLUSTERS
+#                       + CLUSTER_LABELS (never a literal well list); still
+#                       shown in the per-well CSV/scatter and reported as its
+#                       own "EXCLUDED FROM FIT — sluice" block in results.txt
+#                       for transparency. New config constants:
+#                       ACT_NEG_CONTROL_CLUSTER = "C2", ACT_FIT_EXCLUDE_CLUSTERS
+#                       = ("C1",), ACT_FIT_EXCLUDE_REASON. Immaterial to the
+#                       headline scale-factor table (shifts <=0.15 SE per
+#                       ADDENDUM 1) — this is a control-credibility cleanup,
+#                       not a result change. No output-schema break.
+# 3.0.0 — 2026-07-06: BREAKING REWRITE per
 #                       SPEC_script37_scale_factor_regression_2026-07-06.md
 #                       (Part A). Replaces the v2.x sequential stage-calibration
 #                       architecture (Stage 1 coastal / Stage 2 scrape / Stage 3
@@ -243,6 +264,27 @@ MPL_RC = {
 
 BROADLEAF_VARIANT_LABEL = "with_broadleaf_covariate"
 PRIMARY_VARIANT_LABEL   = "primary"
+
+
+def _cluster_id_from_label(label: str) -> int | None:
+    """Resolve a 'C1'/'C2'-style label to its numeric cluster id via
+    config.CLUSTER_LABELS (e.g. {1: "C1 (Lake Edge)", ...}) — never a
+    hardcoded id. Returns None if no match."""
+    for cid, full_label in CLUSTER_LABELS.items():
+        if str(full_label).strip().upper().startswith(label.strip().upper()):
+            return int(cid)
+    return None
+
+
+# ADDENDUM 1 (2026-07-06, v3.1.0): negative control C1 → C2; C1 (sluice-
+# controlled lake level) excluded from the fit. Resolved from config via
+# CLUSTER_LABELS — never a literal well list.
+NEG_CONTROL_CLUSTER_ID  = _cluster_id_from_label(config.ACT_NEG_CONTROL_CLUSTER)
+FIT_EXCLUDE_CLUSTER_IDS = {
+    cid for lbl in config.ACT_FIT_EXCLUDE_CLUSTERS
+    if (cid := _cluster_id_from_label(lbl)) is not None
+}
+FIT_EXCLUDE_REASON = config.ACT_FIT_EXCLUDE_REASON
 
 # ---------------------------------------------------------------------------
 # Script 20 / Script 36 imports (numeric filenames)
@@ -598,10 +640,13 @@ def build_window_frame(df36: pd.DataFrame, window: str,
             bl = float(spatial["broadleaf"][idx])
             broadleaf_i = -1.0 * bl * _ramp_factor(b3e, T_m)
 
+        cluster_val = row["Cluster"] if not pd.isna(row["Cluster"]) else np.nan
         excl_reason = EXCL_NAMED.get(key, "")
+        if (not excl_reason) and (not pd.isna(cluster_val)) and (int(cluster_val) in FIT_EXCLUDE_CLUSTER_IDS):
+            excl_reason = FIT_EXCLUDE_REASON
         rows.append(dict(
             key=key, col=row.get("col", key),
-            Cluster=row["Cluster"] if not pd.isna(row["Cluster"]) else np.nan,
+            Cluster=cluster_val,
             E=float(row["E"]), N=float(row["N"]),
             T_months=round(T_m, 1),
             dt_mid_yr=round(dt_mid, 2) if not np.isnan(dt_mid) else np.nan,
@@ -730,6 +775,9 @@ def run_delta0_trajectory(df36: pd.DataFrame, b3_lut: dict,
             key = row["key"]
             if key in EXCL_NAMED:
                 continue
+            cluster_val = row["Cluster"] if not pd.isna(row["Cluster"]) else np.nan
+            if (not pd.isna(cluster_val)) and (int(cluster_val) in FIT_EXCLUDE_CLUSTER_IDS):
+                continue  # sluice-controlled (ADDENDUM 1) — excluded from all fits
             b3  = b3_lut.get(key, np.nan)
             b3v = (not np.isnan(b3)) and (b3 > 0.0)
             if not b3v:
@@ -809,24 +857,54 @@ def build_scale_factor_table(results: dict, broadleaf_result) -> pd.DataFrame:
 
 
 # ---------------------------------------------------------------------------
-# C1 Lake negative-control block
+# Negative-control block (ADDENDUM 1, 2026-07-06: C1 → C2) and the
+# excluded-from-fit sluice block (former C1), reported separately for
+# transparency.
 # ---------------------------------------------------------------------------
 
-def c1_control_block(results: dict) -> pd.DataFrame:
+def neg_control_block(results: dict) -> pd.DataFrame:
+    """Negative-control cluster (config.ACT_NEG_CONTROL_CLUSTER = C2): driver-
+    free wells, reported per window as a check that the climate correction is
+    unbiased (near-zero mean residual expected) — framed as 'consistent with',
+    never 'confirms'."""
     rows = []
     for window, res in results.items():
         frame = res["frame"]
-        c1 = frame[frame["Cluster"] == 1]
-        if c1.empty:
+        ctrl = frame[frame["Cluster"] == NEG_CONTROL_CLUSTER_ID]
+        if ctrl.empty:
             continue
         rows.append(dict(
-            window=window, n=len(c1),
-            mean_coast_i=round(float(c1["coast_i"].mean()), 1)
-                if c1["coast_i"].notna().any() else np.nan,
-            mean_clearfell_i=round(float(c1["clearfell_i"].mean()), 1)
-                if c1["clearfell_i"].notna().any() else np.nan,
-            mean_dh_corr=round(float(c1["dh_corr"].mean()), 1),
-            mean_residual=round(float(c1["residual"].mean()), 1),
+            window=window, n=len(ctrl),
+            mean_coast_i=round(float(ctrl["coast_i"].mean()), 1)
+                if ctrl["coast_i"].notna().any() else np.nan,
+            mean_clearfell_i=round(float(ctrl["clearfell_i"].mean()), 1)
+                if ctrl["clearfell_i"].notna().any() else np.nan,
+            mean_dh_corr=round(float(ctrl["dh_corr"].mean()), 1),
+            mean_residual=round(float(ctrl["residual"].mean()), 1),
+        ))
+    return pd.DataFrame(rows)
+
+
+def excluded_sluice_block(results: dict) -> pd.DataFrame:
+    """Former control cluster (C1, Lake Edge) — EXCLUDED from the fit
+    (ADDENDUM 1: sluice-managed lake level), reported here for transparency
+    only. `residual` is fitted-from-the-C1-excluded-model minus observed, so
+    it still shows how far the management-held lake sits from the natural
+    background."""
+    rows = []
+    for window, res in results.items():
+        frame = res["frame"]
+        excl = frame[frame["Cluster"].isin(FIT_EXCLUDE_CLUSTER_IDS)]
+        if excl.empty:
+            continue
+        rows.append(dict(
+            window=window, n=len(excl),
+            mean_coast_i=round(float(excl["coast_i"].mean()), 1)
+                if excl["coast_i"].notna().any() else np.nan,
+            mean_clearfell_i=round(float(excl["clearfell_i"].mean()), 1)
+                if excl["clearfell_i"].notna().any() else np.nan,
+            mean_dh_corr=round(float(excl["dh_corr"].mean()), 1),
+            mean_residual=round(float(excl["residual"].mean()), 1),
         ))
     return pd.DataFrame(rows)
 
@@ -1007,7 +1085,8 @@ def write_per_well_csv(results: dict) -> pd.DataFrame:
 # Results text
 # ---------------------------------------------------------------------------
 
-def write_results(scale_table: pd.DataFrame, c1_block: pd.DataFrame,
+def write_results(scale_table: pd.DataFrame, ctrl_block: pd.DataFrame,
+                  excl_block: pd.DataFrame,
                   traj: pd.DataFrame, delta0: float, clearfell_step_mm: float
                   ) -> None:
     lines = [
@@ -1033,11 +1112,13 @@ def write_results(scale_table: pd.DataFrame, c1_block: pd.DataFrame,
         lines.append(f"    R²      = {row['r_squared']:.3f}")
         lines.append("")
 
-    lines += ["C1 LAKE — NEGATIVE CONTROL (included in fit, reported separately)", "-" * 70]
-    if c1_block.empty:
-        lines.append("  no C1 wells with dh_corr coverage in any window")
+    ctrl_label = CLUSTER_LABELS.get(NEG_CONTROL_CLUSTER_ID, config.ACT_NEG_CONTROL_CLUSTER)
+    lines += [f"NEGATIVE CONTROL — {ctrl_label} (included in fit, ADDENDUM 1 2026-07-06)",
+              "-" * 70]
+    if ctrl_block.empty:
+        lines.append(f"  no {ctrl_label} wells with dh_corr coverage in any window")
     else:
-        for _, row in c1_block.iterrows():
+        for _, row in ctrl_block.iterrows():
             cf_txt = f"{row['mean_clearfell_i']:+.1f}" if not pd.isna(row['mean_clearfell_i']) else "n/a (no clearfell regressor this window)"
             lines.append(
                 f"  {row['window']:12s} n={row['n']}  "
@@ -1047,9 +1128,32 @@ def write_results(scale_table: pd.DataFrame, c1_block: pd.DataFrame,
                 f"mean residual={row['mean_residual']:+.1f}"
             )
     lines.append(
-        "  Large C1 dh_corr or residual would put the whole climate correction "
-        "on notice — C1 wells are lake-buffered and should show near-zero "
-        "coastal/clearfell predictors."
+        f"  {ctrl_label} wells feel no coastal or clearfell field (all covered "
+        "wells carry a modelled amplitude below 5 mm) — a near-zero mean "
+        "residual here is CONSISTENT WITH an unbiased climate correction on "
+        "driver-free wells (not 'confirms'; see ADDENDUM 1 for the n=6 caveat)."
+    )
+
+    lines += ["", "EXCLUDED FROM FIT — sluice (C1, Lake Edge; ADDENDUM 1)", "-" * 70]
+    lines.append(f"  reason: {FIT_EXCLUDE_REASON}")
+    if excl_block.empty:
+        lines.append("  no C1 wells with dh_corr coverage in any window")
+    else:
+        for _, row in excl_block.iterrows():
+            cf_txt = f"{row['mean_clearfell_i']:+.1f}" if not pd.isna(row['mean_clearfell_i']) else "n/a (no clearfell regressor this window)"
+            lines.append(
+                f"  {row['window']:12s} n={row['n']}  "
+                f"mean coast_i={row['mean_coast_i']:+.1f}  "
+                f"mean clearfell_i={cf_txt}  "
+                f"mean dh_corr={row['mean_dh_corr']:+.1f}  "
+                f"mean residual={row['mean_residual']:+.1f}"
+            )
+    lines.append(
+        "  C1's level is management-set (sluice on Llyn Rhos-Ddu), not a read "
+        "on natural hydrology — shown here for transparency (e.g. 2006–2012: "
+        "held near a −269 mm mean against a uniform background well below "
+        "it), not because C1 is anomalous. Excluding it from the fit moves "
+        "every coefficient by ≲0.15 of its SE (see ADDENDUM 1)."
     )
 
     lines += ["", "INDEPENDENT TEST — implied δ₀(t) expanding-window trajectory", "-" * 70]
@@ -1169,8 +1273,9 @@ def main() -> int:
     plot_residual_map(results["2005_2025"]["frame"], "2005_2025")
     plot_delta0_trajectory(traj, delta0)
 
-    c1_block = c1_control_block(results)
-    write_results(scale_table, c1_block, traj, delta0, clearfell_step_mm)
+    c1_block = neg_control_block(results)
+    excl_block = excluded_sluice_block(results)
+    write_results(scale_table, c1_block, excl_block, traj, delta0, clearfell_step_mm)
 
     done(SCRIPT_ID)
     return 0

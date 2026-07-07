@@ -88,7 +88,11 @@ Outputs (outputs/37b_driver_footing/):
 Step 41/47, Phase 15 — after Script 37 (Part A).
 """
 
-__version__ = "1.0.0"  # 2026-07-06: initial release per
+__version__ = "1.0.1"  # 2026-07-07: plot_footing() resized from a 1x3 wide
+#                       layout (19 in — ran off an A4 page) to a 3-row
+#                       vertical stack (7.2 x 9.6 in, fits A4 with margins).
+#                       Figure content/values unchanged.
+# 1.0.0 — 2026-07-06: initial release per
 #                       SPEC_script37b_partB_comparative_footing_2026-07-06.md.
 #                       New analytical script (Part B, Housing option A).
 #                       Reuses Script 20 v1.32.0 field builders via importlib
@@ -634,24 +638,29 @@ def build_comparison_table(peaks: dict, integrals: dict, crossings: pd.DataFrame
 # ---------------------------------------------------------------------------
 
 def plot_footing(df: pd.DataFrame, dpi: int = 150) -> None:
+    """3-row vertical stack (one row per currency), sized to fit an A4 page
+    (7.2 x 9.6 in, comfortably inside A4's 8.27 x 11.69 in with margins) —
+    the original 1x3 wide layout (19 in) ran off the page."""
     comp_df = df[df.component != "scrape_net"].copy()
     labels = [COMPONENT_LABELS[c] for c in comp_df.component]
     colours = ["#c0392b" if g == "loss" else "#1a5276" for g in comp_df.gain_or_loss]
 
     with plt.rc_context(MPL_RC):
-        fig, axes = plt.subplots(1, 3, figsize=(19, 6.0))
+        fig, axes = plt.subplots(3, 1, figsize=(7.2, 9.6))
 
         ax = axes[0]
         ax.barh(labels, comp_df.peak_mm, color=colours)
         ax.axvline(0, color="#999", lw=0.8)
-        ax.set_xlabel("Peak local head change (mm)")
-        ax.set_title("Currency 1 — Peak local\n(mostly observed anchors)", fontsize=10)
+        ax.set_xlabel("Peak local head change (mm)", fontsize=8.5)
+        ax.set_title("Currency 1 — Peak local (mostly observed anchors)", fontsize=9.5)
+        ax.tick_params(axis="both", labelsize=8)
 
         ax = axes[1]
         ax.barh(labels, comp_df.volume_m3, color=colours)
         ax.axvline(0, color="#999", lw=0.8)
-        ax.set_xlabel("Area-integrated volume (m³, 20-yr / 2025 amplitude)")
-        ax.set_title("Currency 2 — Area-integrated\n(site mask, 50 m grid)", fontsize=10)
+        ax.set_xlabel("Area-integrated volume (m³, 20-yr / 2025 amplitude)", fontsize=8.5)
+        ax.set_title("Currency 2 — Area-integrated (site mask, 50 m grid)", fontsize=9.5)
+        ax.tick_params(axis="both", labelsize=8)
 
         ax = axes[2]
         net_worsen = comp_df.sd15b_crossings_worsen.fillna(0) + comp_df.sd16_crossings_worsen.fillna(0)
@@ -659,16 +668,17 @@ def plot_footing(df: pd.DataFrame, dpi: int = 150) -> None:
         y = np.arange(len(labels))
         ax.barh(y - 0.2, net_worsen, height=0.35, color="#c0392b", label="worsen (cross toward threshold)")
         ax.barh(y + 0.2, net_relieve, height=0.35, color="#1a5276", label="relieve (cross away)")
-        ax.set_yticks(y); ax.set_yticklabels(labels)
+        ax.set_yticks(y); ax.set_yticklabels(labels, fontsize=8)
         ax.axvline(0, color="#999", lw=0.8)
-        ax.set_xlabel("Wells crossing SD15b or SD16 (count, n=66 evaluated)")
-        ax.set_title("Currency 3 — Ecological threshold\ncrossings (Curreli)", fontsize=10)
-        ax.legend(fontsize=7.5, loc="lower right")
+        ax.set_xlabel("Wells crossing SD15b or SD16 (count, n=66 evaluated)", fontsize=8.5)
+        ax.set_title("Currency 3 — Ecological threshold crossings (Curreli)", fontsize=9.5)
+        ax.tick_params(axis="x", labelsize=8)
+        ax.legend(fontsize=7, loc="lower right")
 
-        fig.suptitle(f"Part B — comparative driver footing v{__version__}: "
+        fig.suptitle(f"Part B — comparative driver footing v{__version__}\n"
                      "forest · scrape · coast on common currencies "
-                     f"({int(_H_START)}\u2192{int(_H_END)})", fontsize=12)
-        fig.tight_layout(rect=[0, 0, 1, 0.94])
+                     f"({int(_H_START)}\u2192{int(_H_END)})", fontsize=10.5)
+        fig.tight_layout(rect=[0, 0, 1, 0.93])
         fig.savefig(OUT_FIGURE, dpi=dpi)
         plt.close(fig)
     saved(OUT_FIGURE)

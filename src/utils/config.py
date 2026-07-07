@@ -582,12 +582,26 @@ ACT_PER_WELL_MIN_YEARS  = DIFF_PER_WELL_MIN_YEARS   # min spring-years for a tre
 ACT_PERIODS             = {                            # 2005_2025 first = primary
     "2005_2025": (2005, 2025),
     "2011_2025": (2011, 2025),
-    # Sequential calibration windows for Script 37 v2.0.0 — each isolates one new
-    # driver.  Coverage filter legitimately thins short windows; 2015–2017 may
-    # survive only CEH36/CEH18/CEH21 + close neighbours (intended Stage-2 set).
-    "2006_2012": (2006, 2012),   # Stage 1: coastal retreat + SLR only
-    "2015_2017": (2015, 2017),   # Stage 2: + CEH36 scrape (Apr 2015)
-    "2017_2025": (2017, 2025),   # Stage 3: + clearfell (Dec 2017)
+    # Driver calibration windows for Script 37. Coverage filter legitimately
+    # thins short windows; 2015–2017 may survive only CEH36/CEH18/CEH21 +
+    # close neighbours.
+    "2006_2012": (2006, 2012),   # pre-everything: clean coastal + background signal
+    "2015_2017": (2015, 2017),   # scrape window (Apr 2015) — NOT regressed by v3.0.0;
+                                 # unidentifiable at 3 points, owned by BACI evidence
+    "2017_2025": (2017, 2025),   # legacy clearfell window (Script 37 v2.x Stage 3);
+                                 # retained for the committed CSV/changelog trail
+    "2018_2025": (2018, 2025),   # NEW 2026-07-06: clearfell-isolated window for
+                                 # Script 37 v3.0.0 — starts the year after the
+                                 # Dec-2017 clearfell so no pre-clearfell spring
+                                 # observation falls inside the endpoint groups
+    # NEW 2026-07-06: expanding windows for Script 37 v3.0.0's independent
+    # (falsifiable) δ₀(t) trajectory test — coast-only regression re-run on
+    # each window; implied δ₀ = s_coast × δ₀_assumed, plotted vs window end.
+    "2005_2010": (2005, 2010),
+    "2005_2013": (2005, 2013),
+    "2005_2016": (2005, 2016),
+    "2005_2019": (2005, 2019),
+    "2005_2022": (2005, 2022),
 }
 ACT_PRIMARY_PERIOD      = "2005_2025"               # 2011_2025 is robustness; see R1 fix 2026-07-05
 ACT_COVERAGE_FRACTION   = 0.80                      # well must span ≥ 80 % of window

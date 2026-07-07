@@ -522,10 +522,13 @@ OUT_36_RESULTS              = DIR_36 / "36_results.txt"
 # Script 37 — driver-change map validation: predicted vs observed (Phase 15)
 DIR_37 = OUT_DIR / "37_driver_validation"
 DIR_37.mkdir(parents=True, exist_ok=True)
-OUT_37_PER_WELL     = DIR_37 / "37_driver_validation_per_well.csv"
-OUT_37_SCATTER      = DIR_37 / "37_predicted_vs_observed.png"
-OUT_37_RESIDUAL_MAP = DIR_37 / "37_residual_map.png"
-OUT_37_RESULTS      = DIR_37 / "37_results.txt"
+OUT_37_PER_WELL          = DIR_37 / "37_driver_validation_per_well.csv"
+OUT_37_SCATTER           = DIR_37 / "37_predicted_vs_observed.png"
+OUT_37_RESIDUAL_MAP      = DIR_37 / "37_residual_map.png"
+OUT_37_RESULTS           = DIR_37 / "37_results.txt"
+# v3.0.0 (2026-07-06) — per-driver scale-factor regression
+OUT_37_SCALE_FACTORS     = DIR_37 / "37_scale_factors_by_window.csv"
+OUT_37_DELTA0_TRAJECTORY = DIR_37 / "37_implied_delta0_trajectory.png"
 
 # Script 34 — MSL5 two-window sensitivity (standalone demonstration figure; §5.7.5)
 DIR_34 = OUT_DIR / "34_window_sensitivity"

@@ -91,7 +91,19 @@ from utils import config, paths
 from utils.map_utils import load_dem_hillshade, add_kml_features, add_en_axes, add_idw_surface
 from utils.console_utils import banner, phase, step, info, note, result, saved, done, warn
 
-__version__ = "1.1.0"  # 2026-07-06: climate-corrected endpoint-difference method.
+__version__ = "1.2.0"  # 2026-07-06: add 2018_2025 sequential window (clearfell,
+#                       isolated to start the year after the Dec-2017 event so no
+#                       pre-clearfell spring reading falls inside the endpoint
+#                       groups); add five expanding coast-only windows
+#                       (2005_2010 … 2005_2022) for Script 37 v3.0.0's
+#                       independent δ₀(t) trajectory test; new emit_dh_corr
+#                       kwarg on per_well_trends() (decoupled from `sequential`)
+#                       lets the strict-coverage PRIMARY 2005_2025 window also
+#                       emit dh_corr_mm_2005_2025 without relaxing its min_obs/
+#                       coverage rule. All consumed by Script 37 v3.0.0's
+#                       per-driver scale-factor regression. 2017_2025 retained
+#                       (legacy — superseded by 2018_2025 for Script 37).
+# 1.1.0 — 2026-07-06: climate-corrected endpoint-difference method.
 #                       Sequential windows now emit dh_corr_<window> (mm) = endpoint
 #                       difference of h_corr = h - b̂·CWB, with b̂ fit once on the
 #                       pre-clearfell window (2005–2017). Replaces slope_mm_yr×T,
@@ -152,7 +164,11 @@ COVERAGE_FRACTION  = config.ACT_COVERAGE_FRACTION  # 0.80 — min fraction of wi
 PRE_WINDOW_CUTOFF  = config.ACT_PRE_WINDOW_CUTOFF  # 2011 — well must have data before this year
 BHAT_WINDOW        = config.ACT_BHAT_WINDOW        # (2005, 2017) pre-clearfell window for b̂ (CWB loading)
 ENDPOINT_FRACTION  = config.ACT_ENDPOINT_FRACTION  # 1/3 — endpoint-mean fraction for dh_corr
-SEQUENTIAL_PERIODS = {"2006_2012", "2015_2017", "2017_2025"}  # calibration windows emitting dh_corr
+SEQUENTIAL_PERIODS = {                                  # calibration/trajectory
+    "2006_2012", "2015_2017", "2017_2025", "2018_2025",  # windows using the
+    "2005_2010", "2005_2013", "2005_2016",               # relaxed min_obs=3 /
+    "2005_2019", "2005_2022",                            # span>=2 coverage rule
+}
 LAKE_GAUGE_KEYS    = config.LAKE_GAUGE_KEYS
 BOOT_N             = config.DIFF_BOOT_N
 BOOT_BLOCK         = config.DIFF_BOOT_BLOCK
@@ -462,6 +478,7 @@ def per_well_trends(
     last: int,
     pre_window_cutoff: int | None = None,
     sequential: bool = False,
+    emit_dh_corr: bool | None = None,
 ) -> pd.DataFrame:
     """Absolute climate-removed secular trend for each well over [first, last].
 
@@ -480,8 +497,22 @@ def per_well_trends(
     The tell is identical slopes across two different windows (18 wells in the
     pre-fix data); those wells had no pre-2011 data and are removed by rule (a).
 
+    `emit_dh_corr` (2026-07-06, Script 37 v3.0.0): whether to also compute the
+    climate-corrected endpoint-difference dh_corr_mm / bhat_m_per_cwb columns.
+    Decoupled from `sequential` — `sequential` controls the *coverage/min-obs
+    relaxation* (needed for short calibration windows), while `emit_dh_corr`
+    controls whether the endpoint-difference driver signal is also computed.
+    Defaults to `sequential` when not given, so existing calls are unaffected.
+    This lets the PRIMARY 2005–2025 window keep its strict min_obs=8 /
+    80%-coverage rule (unchanged primary-map behaviour) while ALSO emitting
+    dh_corr_mm_2005_2025 for Script 37's full-record regression, over the
+    same (smaller, higher-quality) well set as the primary map — not a
+    relaxed one.
+
     Returns one row per well with slope, CI, significance, and CWB loading.
     """
+    if emit_dh_corr is None:
+        emit_dh_corr = sequential
     if pre_window_cutoff is None:
         pre_window_cutoff = PRE_WINDOW_CUTOFF
     sub     = yr.loc[first:last]
@@ -550,12 +581,12 @@ def per_well_trends(
             )},
         )
 
-        # For sequential calibration windows, add the climate-corrected endpoint
-        # difference (dh_corr, mm). This is the Script 37 driver signal — it
+        # Add the climate-corrected endpoint difference (dh_corr, mm) whenever
+        # emit_dh_corr is set. This is the Script 37 driver signal — it
         # replaces slope_mm_yr × T_years, which overfits on short windows.
         # b̂ is fit ONCE on the pre-clearfell window (BHAT_WINDOW = 2005–2017)
         # so the climate loading is not contaminated by the post-2017 mound.
-        if sequential:
+        if emit_dh_corr:
             b_hat = fit_cwb_loading(yr[col], cwb, BHAT_WINDOW)
             if b_hat is None:
                 # Fall back to this window's own CWB loading (mm/m → m per unit CWB)
@@ -689,13 +720,20 @@ def main() -> int:
     # network for Stage-1; for Stage-2/3 windows that post-date 2011, every
     # established well passes automatically.
 
-    _SEQUENTIAL_PERIODS = {"2006_2012", "2015_2017", "2017_2025"}
+    _SEQUENTIAL_PERIODS = SEQUENTIAL_PERIODS
+    # 2005_2025 (PRIMARY_PERIOD) is not a relaxed-coverage sequential window,
+    # but Script 37 v3.0.0's full-record regression needs its dh_corr signal
+    # over the SAME strict-coverage well set as the primary map (not a relaxed
+    # one) — so emit_dh_corr is forced on for it alone, decoupled from the
+    # sequential/coverage relaxation.
+    _EMIT_DH_CORR_EXTRA = {PRIMARY_PERIOD}
 
     for plabel, (first, last) in PERIODS.items():
         phase(2, f"Per-well climate-removed trends {first}–{last}")
         is_seq = plabel in _SEQUENTIAL_PERIODS
+        emit_dh = is_seq or (plabel in _EMIT_DH_CORR_EXTRA)
         df = per_well_trends(yr, cwb, loc, master, first, last,
-                             sequential=is_seq)
+                             sequential=is_seq, emit_dh_corr=emit_dh)
 
         result(f"{plabel} wells mapped", str(len(df)))
         if df.empty:

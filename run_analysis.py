@@ -5,48 +5,81 @@ Interactive orchestrator for the Hollingham (2026) analytical pipeline.
 Usage
 -----
   python run_analysis.py              # interactive menu
-  python run_analysis.py --full       # non-interactive: run all 47 steps
-  python run_analysis.py --full --with-supplementary  # ... plus Phase 16 (24b,31,31b,34)
+  python run_analysis.py --full       # non-interactive: run all default-tier steps
+  python run_analysis.py --full --with-supplementary  # ... plus every opt-in diagnostic step
   python run_analysis.py --full --clusters 5          # set the clustering target K (default 5)
   python run_analysis.py --full --log # ... and record all console output to a log file
   python run_analysis.py --from N     # non-interactive: resume from step N
   python run_analysis.py --viewer     # non-interactive: build scenario viewer only
   python run_analysis.py --greyscale  # non-interactive: convert figures to B&W
+  python run_analysis.py --manifest-only  # write outputs/pipeline_manifest.json and exit
   python run_analysis.py --explain     # print the in-app help page and exit
   python run_analysis.py --deps        # print the down-pipeline dependency audit and exit
   python run_analysis.py --no-colour   # disable coloured output
 
 Pipeline structure
 ------------------
-The pipeline comprises 47 steps across 17 phases:
+Step numbering and totals are DERIVED, never hard-typed — every step is
+registered once as a Step(script, desc, tier, exec, n_substeps) record
+below; "{i}/{total}" is rendered at runtime from enumeration position, and
+the committed outputs/pipeline_manifest.json (emitted on every run, or
+standalone via --manifest-only) is the citable source for the current
+totals. Do not cite a fixed step/phase count in the report, supplement,
+or elsewhere in code — cite the manifest.
 
-  Phases 1–11 produce the main analytical results documented in the report.
-  Phase 12 runs supplementary diagnostics (Scripts 22–24); Phase 16 runs further
-  standalone diagnostics (Scripts 24b, 31, 31b, 34) before greyscale conversion.
-  Phase 13 runs the van Willegen et al. (2025) MSL analyses — observational
-  5-year MSL aggregation (Script 26), UKCP18 RCP8.5 climate projections
-  (Script 26b), and report-format figures (Script 26c, for §4.8.4 and
-  §4.10.1) — paired tools documented in §3.7.5 of the report.
-  Phase 14 runs the post-review cluster framework diagnostics — the C3
-  detrend check (Script 28, validating the aquifer-architecture framing
-  of §5.1) and the within-C3 variance attribution (Script 29, characterising
-  the spatial structure within C3) and the C4 constrained-β₃ triangulation
-  sensitivity (Script 30, recovering a physically admissible forest drainage
-  coefficient where the unconstrained monthly fit is degenerate) — documented
-  in §5.1.1 and §4.2.2 of the report and §S.19 of the Methods Supplement.
-  Phase 16 runs the supplementary standalone diagnostics (Scripts 24b, 31,
-  31b, 34); it is opt-in on a full run (--with-supplementary, or the menu
-  option 1 prompt). Phase 17 runs the greyscale figure-conversion utility
-  (Script 27), retained as a callable utility step rather than an analytical
-  phase, and runs separately (menu option 6 / --greyscale).
+Each step carries a tier for reporting purposes:
+  "A" analytical   — the numbered analytical core (Scripts 01–26 excluding
+                      26c, plus 22–24, 26/26b, and the Phase 15 defaults
+                      32/33/35). The methods section's ANALYTICAL_STEP_COUNT
+                      / ANALYTICAL_PHASES headline (see below) is a DECLARED
+                      constant, not derived from this tier tally — the
+                      sub-runner expansion (run_09 -> 5 constituent scripts,
+                      run_10 -> 13) means the two don't mechanically agree,
+                      and that's intentional: the headline changes only by
+                      deliberate review, not by every diagnostic add/remove.
+  "D" display/utility — Scripts 26c, 09f, 27 only.
+  "X" opt-in diagnostic — every other registered step (Phases 14 and 16,
+                      the Phase 15 opt-in tail 36/37/37b, and Script 38).
+
+Each step also carries an exec flag: "default" (part of a normal --full
+run) or "optin" (runs only with --with-supplementary / the menu option 1
+prompt). Adding a diagnostic changes only the total registered count and
+the manifest — it never touches ANALYTICAL_STEP_COUNT / ANALYTICAL_PHASES,
+which move only on a deliberate, reviewed change (see the analytical-count
+guard in build_manifest()).
+
+Phases 1–11 produce the main analytical results documented in the report.
+Phase 12 runs supplementary diagnostics (Scripts 22–24); Phase 16 runs
+further standalone diagnostics (Scripts 24b, 31, 31b, 34, 38) before
+greyscale conversion. Phase 13 runs the van Willegen et al. (2025) MSL
+analyses — observational 5-year MSL aggregation (Script 26), UKCP18 RCP8.5
+climate projections (Script 26b), and report-format figures (Script 26c,
+for §4.8.4 and §4.10.1) — paired tools documented in §3.7.5 of the report.
+Phase 14 runs the post-review cluster framework diagnostics — the C3
+detrend check (Script 28, validating the aquifer-architecture framing
+of §5.1) and the within-C3 variance attribution (Script 29, characterising
+the spatial structure within C3) and the C4 constrained-β₃ triangulation
+sensitivity (Script 30, recovering a physically admissible forest drainage
+coefficient where the unconstrained monthly fit is degenerate) — documented
+in §5.1.1 and §4.2.2 of the report and §S.19 of the Methods Supplement.
+Phase 15 also carries an opt-in tail (Scripts 36, 37, 37b) alongside its
+always-run defaults (32, 33, 35). Phase 16 runs the supplementary
+standalone diagnostics (Scripts 24b, 31, 31b, 34, 38); like Phase 15's
+opt-in tail, it runs only with --with-supplementary (or the menu option 1
+prompt). Phase 17 runs the synthesis figure (Script 09f, which auto-runs
+as part of a normal full run) and the greyscale figure-conversion utility
+(Script 27, which never auto-runs — it's a callable utility step, run
+separately via menu option 6 / --greyscale).
 
 Two-pass execution (RECOMMENDED for new datasets)
 -------------------------------------------------
 Two scripts in Phase 3 use Specific-Yield (Sy) values that are produced
 later in the pipeline (Phase 6 / Phase 8):
 
-    09b_scraping_propagation     reads OUT_17_SY_TABLE  (produced step 18)
-    09d_scenario_comparison      reads INT_WTF_WELL_SY  (produced step 20)
+    09b_scraping_propagation     reads OUT_17_SY_TABLE  (produced by Script 17,
+                                  see pipeline_manifest.json for its current step index)
+    09d_scenario_comparison      reads INT_WTF_WELL_SY  (produced by Script 18,
+                                  see pipeline_manifest.json for its current step index)
 
 On a fresh first-pass full-pipeline run those files do not yet exist,
 and Phase 3 falls back to documented Newborough-2026 Sy defaults
@@ -55,10 +88,10 @@ analyses themselves are unaffected — these scripts use Sy only for a
 volumetric scenario-comparison conversion in their figures.
 
 Script 09f (Phase 17, a display/utility synthesis figure) similarly reads
-outputs produced earlier in the SAME pass — Scripts 20 (step 24), 25
-(step 26), 09d (step 9) and 10a (step 10). It runs last, so on a normal
-full run all of these already exist; only on a partial or interrupted run
-does it fall back to documented defaults (centralised in
+outputs produced earlier in the SAME pass — Scripts 20, 25, 09d and 10a
+(see pipeline_manifest.json for their current step indices). It runs last,
+so on a normal full run all of these already exist; only on a partial or
+interrupted run does it fall back to documented defaults (centralised in
 pipeline_params._DEFAULTS, read via default_value()) with warnings. The
 figure it produces re-presents existing modelled fields and adds no new
 analysis, so first-pass defaults do not affect any analytical result.
@@ -77,15 +110,51 @@ import subprocess
 import sys
 import textwrap
 import datetime
+import json
 import os
 import re
 import time
+from collections import namedtuple
 from pathlib import Path
+
+__version__ = "2.0.0"
+# CHANGELOG
+#   2.0.0 (2026-07-08): De-hardcoded step numbering. PHASE_* entries are now
+#       Step(script, desc, tier, exec, n_substeps, extra_args) records instead
+#       of ("script.py", "N/47 desc") tuples — no step/phase total is typed
+#       anywhere in source. Numbering ("{i}/{total}") is rendered at runtime
+#       from enumeration position over ALL_PHASES; outputs/pipeline_manifest.json
+#       is emitted on every full/resumed run (and standalone via
+#       --manifest-only) as the citable source for current totals, tier
+#       breakdown, and per-step tags. Added ANALYTICAL_STEP_COUNT=41 /
+#       ANALYTICAL_PHASES=16 as declared (not derived) constants per the
+#       signed-off classification, plus an analytical-top-level-count guard
+#       that warns if a future edit silently changes the tier-A tally out
+#       from under the declared headline. Wired 38_coastal_transect.py as
+#       PHASE_16's final entry (tier X, exec optin) — previously committed
+#       to src/ but not called from this orchestrator. Reclassified Phase
+#       15's 36/37/37b as exec="optin" (tier X) alongside Phase 16 and
+#       Script 38, correcting a code/docs mismatch — the menu and --explain
+#       text already described steps in that range as opt-in, but
+#       run_full_pipeline() ran them unconditionally; --with-supplementary
+#       now actually gates them. Also fixed a stale from_step threshold on
+#       the Phase 9 post-run validation check (was a hardcoded 21, which
+#       predates at least one phase reordering and no longer matched Phase
+#       9's actual step range; now derived from the 20_spatial_figures.py
+#       step index). No change to which scripts run by default on a normal
+#       --full invocation from step 1, other than the Phase 15 opt-in
+#       reclassification described above and the new Script 38 addition.
+#   (pre-2.0.0 history not tracked in this header; see CONSOLIDATED_CHANGELOG.md)
 
 ROOT_DIR = Path(__file__).resolve().parent
 SRC_DIR  = ROOT_DIR / "src"
 DATA_DIR = ROOT_DIR / "data"
 OUT_DIR  = ROOT_DIR / "outputs"
+# Mirrors utils.paths.pipeline_manifest() — this orchestrator does not import
+# utils.paths (it keeps its own copies of the root path constants above), so
+# the literal filename is kept in sync with that accessor by hand; both name
+# the same physical file, outputs/pipeline_manifest.json.
+OUT_MANIFEST = OUT_DIR / "pipeline_manifest.json"
 
 # ── Console styling (ANSI colour, auto-detected) ──────────────────────────────
 # Colour is enabled only when stdout is a real terminal and not disabled via
@@ -173,87 +242,101 @@ def say_info(msg: str) -> None:
     print("  " + paint(f"{GLYPH_INFO} {msg}", _Ansi.GREY))
 
 # ── Phase / step definitions ──────────────────────────────────────────────────
+# Every step is registered exactly once as a Step record. No step or phase
+# TOTAL is ever typed in source — numbering is rendered at runtime from
+# enumeration position over ALL_PHASES (see _build_all_steps() below), and
+# outputs/pipeline_manifest.json is the citable artefact for current totals.
+#
+#   tier: "A" analytical | "D" display/utility | "X" opt-in diagnostic
+#   exec: "default" (part of a normal --full run) | "optin" (--with-supplementary only)
+#   n_substeps: 1, except the two sub-runner suites (run_09, run_10), whose
+#               constituent module counts are read from MODULES / SUBSCRIPTS
+#               in run_09_scraping.py / run_10_clearfell.py at manifest-build
+#               time — see _substep_count() below.
+Step = namedtuple("Step", "script desc tier exec n_substeps extra_args")
+Step.__new__.__defaults__ = ("default", 1, ())
 
 PHASE_1 = [
-    ("01_data_prep.py",              "  1/47  Data preparation"),
-    ("02_clustering.py",             "  2/47  Behavioural clustering"),
-    ("03_state_space_model.py",      "  3/47  State-space regression + LCSC"),
-    ("04_cluster_visualisations.py", "  4/47  Core cluster visualisation"),
+    Step("01_data_prep.py",              "Data preparation",                       "A"),
+    Step("02_clustering.py",             "Behavioural clustering",                 "A"),
+    Step("03_state_space_model.py",      "State-space regression + LCSC",          "A"),
+    Step("04_cluster_visualisations.py", "Core cluster visualisation",             "A"),
 ]
 PHASE_2 = [
-    ("05_pearson_affinity.py",  "  5/47  Pearson membership audit"),
-    ("06_pearson_extended.py",  "  6/47  Pearson extended network integration"),
+    Step("05_pearson_affinity.py",  "Pearson membership audit",                    "A"),
+    Step("06_pearson_extended.py",  "Pearson extended network integration",        "A"),
 ]
 PHASE_3 = [
-    ("07_spatial_coefficients.py",     "  7/47  Spatial coefficient mapping"),
-    ("08_model_benchmarking.py",      "  8/47  Model benchmarking (LCSC vs Traditional)"),
-    ("run_09_scraping.py",            "  9/47  Scraping analysis suite (09a–09e)"),
-    ("run_10_clearfell.py",           "10/47  Clear-fell BACI analysis suite (10a–10m)"),
-    ("11_forecasting_thresholds.py",  "11/47  Forecasting and critical thresholds"),
-    ("11b_spatial_thresholds.py",     "12/47  Spatial eco-hydrological threshold maps"),
-    ("11c_pflood_achievability.py",   "13/47  P_flood achievability categorical map (§5.9 / Conclusion 4)"),
+    Step("07_spatial_coefficients.py",     "Spatial coefficient mapping",                                          "A"),
+    Step("08_model_benchmarking.py",       "Model benchmarking (LCSC vs Traditional)",                             "A"),
+    Step("run_09_scraping.py",             "Scraping analysis suite (09a\u201309e)",                               "A"),
+    Step("run_10_clearfell.py",            "Clear-fell BACI analysis suite (10a\u201310m)",                        "A"),
+    Step("11_forecasting_thresholds.py",   "Forecasting and critical thresholds",                                  "A"),
+    Step("11b_spatial_thresholds.py",      "Spatial eco-hydrological threshold maps",                              "A"),
+    Step("11c_pflood_achievability.py",    "P_flood achievability categorical map (\u00a75.9 / Conclusion 4)",     "A"),
 ]
 PHASE_4 = [
-    ("00_climate_summary.py",            "14/47  Climate summary outputs"),
-    ("14_climate_projections.py",        "15/47  Figure: Climate trajectory projections"),
-    ("14b_year_of_crossing.py",          "16/47  Bootstrap year-of-crossing for Curreli thresholds (§7 Conclusion 11)"),
-    ("12_figure_site_overview.py",       "17/47  Figure: DEM site overview"),
-    ("13_figure_experimental_design.py", "18/47  Figure: Experimental design GIS map"),
+    Step("00_climate_summary.py",            "Climate summary outputs",                                                    "A"),
+    Step("14_climate_projections.py",        "Figure: Climate trajectory projections",                                     "A"),
+    Step("14b_year_of_crossing.py",          "Bootstrap year-of-crossing for Curreli thresholds (\u00a77 Conclusion 11)",  "A"),
+    Step("12_figure_site_overview.py",       "Figure: DEM site overview",                                                  "A"),
+    Step("13_figure_experimental_design.py", "Figure: Experimental design GIS map",                                        "A"),
 ]
 PHASE_5 = [
-    ("15_depth_dependent_pet.py", "19/47  Depth-dependent PET analysis"),
+    Step("15_depth_dependent_pet.py", "Depth-dependent PET analysis", "A"),
 ]
 PHASE_6 = [
-    ("17_wtf_specific_yield.py", "20/47  WTF cluster Sy estimation"),
+    Step("17_wtf_specific_yield.py", "WTF cluster Sy estimation", "A"),
 ]
 PHASE_7 = [
-    ("16_water_bal.py", "21/47  Water balance decomposition"),
+    Step("16_water_bal.py", "Water balance decomposition", "A"),
 ]
 PHASE_8 = [
-    ("18_wtf_spatial.py", "22/47  WTF spatial analysis and Sy mapping"),
+    Step("18_wtf_spatial.py", "WTF spatial analysis and Sy mapping", "A"),
 ]
 PHASE_9 = [
-    ("19_spatial_groundwater.py", "23/47  Spatial groundwater analysis"),
-    ("20_spatial_figures.py",     "24/47  Spatial paper figures"),
+    Step("19_spatial_groundwater.py", "Spatial groundwater analysis", "A"),
+    Step("20_spatial_figures.py",     "Spatial paper figures",        "A"),
 ]
 PHASE_10 = [
-    ("21_forestry_scenarios.py", "25/47  Forestry scenarios and management figures"),
+    Step("21_forestry_scenarios.py", "Forestry scenarios and management figures", "A"),
 ]
 PHASE_11 = [
-    ("25_coastal_gradient.py",   "26/47  Coastal-retreat gradient analysis"),
+    Step("25_coastal_gradient.py",   "Coastal-retreat gradient analysis", "A"),
 ]
 PHASE_12 = [
-    ("22_residual_lag_analysis.py",    "27/47  Residual lag structure analysis"),
-    ("23_ridge_recharge_lag_test.py",  "28/47  Ridge recharge lag hypothesis test"),
-    ("24_residual_seasonality.py",     "29/47  Residual seasonality diagnostics"),
+    Step("22_residual_lag_analysis.py",    "Residual lag structure analysis",     "A"),
+    Step("23_ridge_recharge_lag_test.py",  "Ridge recharge lag hypothesis test",  "A"),
+    Step("24_residual_seasonality.py",     "Residual seasonality diagnostics",    "A"),
 ]
 PHASE_13 = [
-    ("26_van_willegen_msl.py",             "30/47  Van Willegen (2025) 5-year MSL aggregation"),
-    ("26b_van_willegen_msl_projections.py", "31/47  UKCP18 MSL5 climate projections (Tool B)"),
-    ("26c_msl5_report_figures.py",          "32/47  MSL5 report-format figures (Figures for §4.8.4 / §4.10.1)"),
+    Step("26_van_willegen_msl.py",              "Van Willegen (2025) 5-year MSL aggregation",                        "A"),
+    Step("26b_van_willegen_msl_projections.py", "UKCP18 MSL5 climate projections (Tool B)",                          "A"),
+    Step("26c_msl5_report_figures.py",          "MSL5 report-format figures (Figures for \u00a74.8.4 / \u00a74.10.1)", "D"),
 ]
 PHASE_14 = [
-    ("28_c3_detrend_check.py",          "33/47  Cluster framework diagnostic: C3 detrend check (H0)"),
-    ("29_c3_within_variance_check.py",  "34/47  Cluster framework diagnostic: within-C3 spatial structure"),
-    ("30_c4_constrained_fit.py",         "35/47  Cluster framework diagnostic: C4 constrained-β₃ triangulation sensitivity"),
+    Step("28_c3_detrend_check.py",         "Cluster framework diagnostic: C3 detrend check (H0)",                                     "X"),
+    Step("29_c3_within_variance_check.py", "Cluster framework diagnostic: within-C3 spatial structure",                               "X"),
+    Step("30_c4_constrained_fit.py",       "Cluster framework diagnostic: C4 constrained-\u03b23 triangulation sensitivity",           "X"),
 ]
 PHASE_15 = [
-    ("32_differential_movement.py",    "36/47  Figure: secular differential water-table drift (report Fig 59)"),
-    ("33_envelope_amplification.py",   "37/47  Figure: climate-swing amplification + drought-floor (report Fig 60)"),
-    ("35_per_well_amplification.py",    "38/47  Figure+table: per-well climate-sensitivity coefficient (Paper 1; co-temporal, SSM-calibrated)"),
-    ("36_absolute_climate_trend.py",    "39/47  Figure: absolute climate-removed per-well secular trend map (spring CWB detrended)"),
-    ("37_driver_validation.py",         "40/47  Validation: predicted-vs-observed driver-change map (scatter + residual map)"),
-    ("37b_driver_footing.py",           "41/47  Part B: comparative driver footing — forest · scrape · coast on common currencies (peak / area-integrated / ecological-threshold)"),
+    Step("32_differential_movement.py",  "Figure: secular differential water-table drift (report Fig 59)",                                                                        "A"),
+    Step("33_envelope_amplification.py", "Figure: climate-swing amplification + drought-floor (report Fig 60)",                                                                    "A"),
+    Step("35_per_well_amplification.py", "Figure+table: per-well climate-sensitivity coefficient (Paper 1; co-temporal, SSM-calibrated)",                                          "A"),
+    Step("36_absolute_climate_trend.py", "Figure: absolute climate-removed per-well secular trend map (spring CWB detrended)",                                                     "X", "optin"),
+    Step("37_driver_validation.py",      "Validation: predicted-vs-observed driver-change map (scatter + residual map)",                                                          "X", "optin"),
+    Step("37b_driver_footing.py",        "Part B: comparative driver footing \u2014 forest \u00b7 scrape \u00b7 coast on common currencies (peak / area-integrated / ecological-threshold)", "X", "optin"),
 ]
 PHASE_16 = [
-    ("24b_residual_climatology.py",        "42/47  Cluster-stratified residual climatology (supplementary diagnostic)"),
-    ("31_cluster_validation.py",           "43/47  Independent k=5 partition validation (supplementary diagnostic)"),
-    ("31b_separation_vs_recoverability.py", "44/47  Cluster separation vs recoverability (supplementary diagnostic)"),
-    ("34_window_sensitivity.py",           "45/47  MSL5 two-window sensitivity demonstration figure (\u00a75.7.5)"),
+    Step("24b_residual_climatology.py",         "Cluster-stratified residual climatology (supplementary diagnostic)",   "X", "optin"),
+    Step("31_cluster_validation.py",            "Independent k=5 partition validation (supplementary diagnostic)",      "X", "optin"),
+    Step("31b_separation_vs_recoverability.py", "Cluster separation vs recoverability (supplementary diagnostic)",      "X", "optin"),
+    Step("34_window_sensitivity.py",            "MSL5 two-window sensitivity demonstration figure (\u00a75.7.5)",       "X", "optin"),
+    Step("38_coastal_transect.py",              "Coast-to-inland MAM transect \u2014 observational delta_0 diagnostic (\u00a75.7)", "X", "optin"),
 ]
 PHASE_17 = [
-    ("09f_management_effects.py",     "46/47  Figure: management-interventions + coastal-retreat spatial reach (\u00a75.8; two-pass, reads Scripts 20/25/09d/10a)"),
-    ("27_greyscale_figures.py",        "47/47  Greyscale figure conversion (journal-ready B&W)"),
+    Step("09f_management_effects.py", "Figure: management-interventions + coastal-retreat spatial reach (\u00a75.8; two-pass, reads Scripts 20/25/09d/10a)", "D"),
+    Step("27_greyscale_figures.py",   "Greyscale figure conversion (journal-ready B&W)",                                                                     "D"),
 ]
 
 ALL_PHASES = [
@@ -272,21 +355,144 @@ ALL_PHASES = [
     ("PHASE 13 \u2014 Van Willegen MSL Analyses (Scripts 26, 26b, 26c)",    PHASE_13),
     ("PHASE 14 \u2014 Cluster Framework Diagnostics (Scripts 28\u201330)",   PHASE_14),
     ("PHASE 15 \u2014 Observed Differential Change, Envelope, and Validation (Scripts 32, 33, 35, 36, 37, 37b)", PHASE_15),
-    ("PHASE 16 \u2014 Supplementary Standalone Diagnostics (Scripts 24b, 31, 31b, 34)", PHASE_16),
+    ("PHASE 16 \u2014 Supplementary Standalone Diagnostics (Scripts 24b, 31, 31b, 34, 38)", PHASE_16),
     ("PHASE 17 \u2014 Synthesis Figure and Greyscale Conversion (Scripts 09f, 27)",        PHASE_17),
 ]
 
-# Build step -> (script, label, extra_args) lookup at import time
-_STEP_MAP: dict[int, tuple[str, str, list]] = {}
-for _phase_label, _phase_entries in ALL_PHASES:
-    for _entry in _phase_entries:
-        _script, _label = _entry[0], _entry[1]
-        _extra = list(_entry[2]) if len(_entry) > 2 else []
-        try:
-            _step = int(_label.strip().split("/")[0])
-        except (ValueError, IndexError):
+# ── Declared analytical headline (NOT derived — see module docstring) ────────
+# These are the methods section's designation. They are intentionally not
+# computed from the tier tally below (the sub-runner expansion means the two
+# don't mechanically agree) and change only on a deliberate, reviewed edit.
+ANALYTICAL_STEP_COUNT = 41   # methods' analytical-step headline (expanded: run_09/run_10
+                              # counted by their constituent modules, not as one entry each)
+ANALYTICAL_PHASES     = 16   # methods' analytical-phase headline (Phases 1–14 plus the
+                              # analytical-default half of Phase 15; excludes Phase 15's
+                              # opt-in tail and all of Phase 16)
+# Expected top-level (unexpanded) tier=="A" Step count — used only by the
+# guard in build_manifest(); trips if a future edit changes the analytical
+# core without a deliberate review of the two constants above.
+_EXPECTED_ANALYTICAL_TOPLEVEL = 34
+
+RenderedStep = namedtuple(
+    "RenderedStep",
+    "index total script desc tier exec n_substeps phase_label extra_args label"
+)
+
+
+def _substep_count(script: str) -> int:
+    """Constituent-module count for the two sub-runner suites, read from
+    their own MODULES / SUBSCRIPTS registries rather than typed here."""
+    try:
+        if str(SRC_DIR) not in sys.path:
+            sys.path.insert(0, str(SRC_DIR))
+        if script == "run_09_scraping.py":
+            import run_09_scraping
+            return len(run_09_scraping.MODULES)
+        if script == "run_10_clearfell.py":
+            import run_10_clearfell
+            return len(run_10_clearfell.SUBSCRIPTS)
+    except Exception:
+        pass
+    return 1
+
+
+def _build_all_steps() -> list:
+    """Flatten ALL_PHASES into RenderedStep records with runtime-computed
+    index/total/label — the single place step numbering is derived."""
+    flat = []
+    for _phase_label, _phase_entries in ALL_PHASES:
+        for _st in _phase_entries:
+            flat.append((_phase_label, _st))
+    total = len(flat)
+    width = len(str(total))
+    out = []
+    for i, (_phase_label, _st) in enumerate(flat, start=1):
+        n_sub = _st.n_substeps
+        if _st.script in ("run_09_scraping.py", "run_10_clearfell.py") and n_sub == 1:
+            n_sub = _substep_count(_st.script)
+        label = f"{i:>{width}}/{total}  {_st.desc}"
+        out.append(RenderedStep(i, total, _st.script, _st.desc, _st.tier, _st.exec,
+                                 n_sub, _phase_label, list(_st.extra_args), label))
+    return out
+
+
+_ALL_STEPS: list = _build_all_steps()
+
+# Legacy-compatible {index: (script, label, extra_args)} lookup — kept in
+# this exact shape because utils/pipeline_deps.py and the menu_run_from() /
+# menu_run_single() helpers below consume it directly.
+_STEP_MAP: dict[int, tuple[str, str, list]] = {
+    rs.index: (rs.script, rs.label, rs.extra_args) for rs in _ALL_STEPS
+}
+_STEP_BY_SCRIPT: dict[str, "RenderedStep"] = {rs.script: rs for rs in _ALL_STEPS}
+_STEPS_BY_PHASE: dict[str, list] = {}
+for _rs in _ALL_STEPS:
+    _STEPS_BY_PHASE.setdefault(_rs.phase_label, []).append(_rs)
+
+
+def _compress_ranges(indices: list) -> str:
+    """Compress a sorted-or-not list of ints into 'a–b, c, d–e' form."""
+    if not indices:
+        return ""
+    idx = sorted(indices)
+    ranges = []
+    start = prev = idx[0]
+    for n in idx[1:]:
+        if n == prev + 1:
+            prev = n
             continue
-        _STEP_MAP[_step] = (_script, _label, _extra)
+        ranges.append((start, prev))
+        start = prev = n
+    ranges.append((start, prev))
+    return ", ".join(f"{a}" if a == b else f"{a}\u2013{b}" for a, b in ranges)
+
+
+def build_manifest(write: bool = True) -> dict:
+    """Build (and, by default, write) outputs/pipeline_manifest.json — the
+    committed, machine-readable source of truth for step/phase totals and
+    per-step tags. Also runs the analytical-count drift guard."""
+    by_tier = {"analytical_toplevel": 0, "display_utility": 0, "optin_diagnostic": 0}
+    by_exec = {"default": 0, "optin": 0}
+    steps_out = []
+    for rs in _ALL_STEPS:
+        if rs.tier == "A":
+            by_tier["analytical_toplevel"] += 1
+        elif rs.tier == "D":
+            by_tier["display_utility"] += 1
+        elif rs.tier == "X":
+            by_tier["optin_diagnostic"] += 1
+        by_exec[rs.exec] = by_exec.get(rs.exec, 0) + 1
+        steps_out.append({
+            "index": rs.index, "total": rs.total, "script": rs.script,
+            "desc": rs.desc, "tier": rs.tier, "exec": rs.exec,
+        })
+    manifest = {
+        "total_registered": len(_ALL_STEPS),
+        "by_tier": by_tier,
+        "by_exec": by_exec,
+        "analytical_headline": ANALYTICAL_STEP_COUNT,
+        "analytical_phases": ANALYTICAL_PHASES,
+        "scraping_substeps": _STEP_BY_SCRIPT["run_09_scraping.py"].n_substeps,
+        "clearfell_substeps": _STEP_BY_SCRIPT["run_10_clearfell.py"].n_substeps,
+        "generated": datetime.datetime.now().isoformat(timespec="seconds"),
+        "steps": steps_out,
+    }
+    if write:
+        OUT_DIR.mkdir(exist_ok=True)
+        with open(OUT_MANIFEST, "w", encoding="utf-8") as fh:
+            json.dump(manifest, fh, indent=2)
+    _check_analytical_guard(by_tier["analytical_toplevel"])
+    return manifest
+
+
+def _check_analytical_guard(actual: int) -> None:
+    if actual != _EXPECTED_ANALYTICAL_TOPLEVEL:
+        say_warn(
+            f"Analytical top-level step count changed (was "
+            f"{_EXPECTED_ANALYTICAL_TOPLEVEL}, now {actual}) \u2014 the "
+            f"{ANALYTICAL_STEP_COUNT}-analytical headline and ANALYTICAL_STEP_COUNT "
+            "need a deliberate review before release."
+        )
 
 # ── Down-pipeline dependency audit (optional helper) ─────────────────────────
 # A *down-pipeline* (backward) dependency is a script that READS an output
@@ -397,8 +603,10 @@ REQUIRED_PHASE10_OUTPUTS = [
 # have produced the intermediate CSVs it needs.
 
 _UPSTREAM_DEPS = [
-    (5,  REQUIRED_PHASE1_OUTPUTS,  "Phase 1 (steps 1–4)"),
-    (11, REQUIRED_PHASE3_OUTPUTS,  "Phase 3 (steps 7–12)"),
+    (_STEP_BY_SCRIPT["04_cluster_visualisations.py"].index + 1, REQUIRED_PHASE1_OUTPUTS,
+     f"Phase 1 (steps {_compress_ranges([rs.index for rs in _STEPS_BY_PHASE[ALL_PHASES[0][0]]])})"),
+    (_STEP_BY_SCRIPT["run_10_clearfell.py"].index + 1, REQUIRED_PHASE3_OUTPUTS,
+     f"Phase 3 (steps {_compress_ranges([rs.index for rs in _STEPS_BY_PHASE[ALL_PHASES[2][0]]])})"),
 ]
 
 # Core intermediate: 01_climate.csv is needed by almost every script from
@@ -674,72 +882,85 @@ def warn_missing_upstream(step: int, interactive: bool = True) -> bool:
     ans = input("\n  Proceed anyway? [y/N] ").strip().lower()
     return ans == "y"
 
-def run_phase(phase: list, phase_name: str, from_step: int = 1) -> None:
+def run_phase(phase_label: str, from_step: int = 1, include_optin: bool = False,
+              exclude_scripts: tuple = ()) -> None:
+    """Run every registered step in a phase, in enumeration order.
+
+    A step is skipped (with a console note) if: its index is below
+    from_step; its exec=="optin" and include_optin is False; or its script
+    is named in exclude_scripts (used for Script 27, which never auto-runs
+    even though it's tier D like Script 09f — see run_full_pipeline()).
+    """
+    steps = _STEPS_BY_PHASE.get(phase_label, [])
     print()
     print(paint("━" * 70, _Ansi.CYAN))
-    print("  " + paint(phase_name, _Ansi.BCYAN, _Ansi.BOLD))
+    print("  " + paint(phase_label, _Ansi.BCYAN, _Ansi.BOLD))
     print(paint("━" * 70, _Ansi.CYAN))
-    for entry in phase:
-        script_name, label = entry[0], entry[1]
-        extra_args = entry[2] if len(entry) > 2 else None
-        try:
-            step_num = int(label.strip().split("/")[0])
-        except (ValueError, IndexError):
-            step_num = 0
-        if step_num < from_step:
-            print("  " + paint(f"{GLYPH_SKIP} skip step {label.strip()}", _Ansi.GREY))
+    for rs in steps:
+        if rs.script in exclude_scripts:
             continue
-        run_script(script_name, label, extra_args)
+        if rs.exec == "optin" and not include_optin:
+            print("  " + paint(
+                f"{GLYPH_SKIP} skip step {rs.label.strip()}  (opt-in — use --with-supplementary)",
+                _Ansi.GREY))
+            continue
+        if rs.index < from_step:
+            print("  " + paint(f"{GLYPH_SKIP} skip step {rs.label.strip()}", _Ansi.GREY))
+            continue
+        run_script(rs.script, rs.label, rs.extra_args)
 
 # ── Pipeline runners ──────────────────────────────────────────────────────────
 
 def run_full_pipeline(from_step: int = 1, include_supplementary: bool = False) -> None:
     ensure_paths()
+    build_manifest(write=True)
     _t_start = time.time()
-    run_phase(PHASE_1,  "PHASE 1  — Core LCSC Chain",                             from_step)
-    if from_step <= 4:
-        validate_outputs(REQUIRED_PHASE1_OUTPUTS, "Phase 1")
-    run_phase(PHASE_2,  "PHASE 2  — Pearson Membership Audit",                    from_step)
-    run_phase(PHASE_3,  "PHASE 3  — Model Diagnostics and Intervention Analysis", from_step)
-    if from_step <= 10:
-        validate_outputs(REQUIRED_PHASE3_OUTPUTS, "Phase 3")
-    run_phase(PHASE_4,  "PHASE 4  — Climate Projections and Figure Generation",   from_step)
-    run_phase(PHASE_5,  "PHASE 5  — Depth-Dependent PET Analysis",                from_step)
-    run_phase(PHASE_6,  "PHASE 6  — WTF Cluster Sy Estimation",                   from_step)
-    run_phase(PHASE_7,  "PHASE 7  — Water Balance Decomposition",                 from_step)
-    run_phase(PHASE_8,  "PHASE 8  — WTF Spatial Analysis and Sy Mapping",         from_step)
-    run_phase(PHASE_9,  "PHASE 9  — Spatial Groundwater Analysis",                from_step)
-    if from_step <= 21:
-        validate_outputs(REQUIRED_PHASE9_OUTPUTS, "Phase 9")
-    run_phase(PHASE_10, "PHASE 10 — Forestry Scenario Analysis",                  from_step)
-    validate_outputs(REQUIRED_PHASE10_OUTPUTS, "Phase 10")
-    run_phase(PHASE_11, "PHASE 11 — Coastal-Retreat Gradient Analysis (Script 25)", from_step)
-    run_phase(PHASE_12, "PHASE 12 — Supplementary Diagnostics (Scripts 22–24)",  from_step)
-    run_phase(PHASE_13, "PHASE 13 — Van Willegen MSL Analyses (Scripts 26, 26b, 26c)", from_step)
-    run_phase(PHASE_14, "PHASE 14 — Cluster Framework Diagnostics (Scripts 28–30)",  from_step)
-    run_phase(PHASE_15, "PHASE 15 — Observed Differential Change, Envelope, and Validation (Scripts 32, 33, 35, 36, 37, 37b)", from_step)
-    last_step = 41  # Phase 15 ends at step 41 (Script 37b)
-    if include_supplementary:
-        run_phase(PHASE_16,
-                  "PHASE 16 — Supplementary Standalone Diagnostics (Scripts 24b, 31, 31b, 34)",
-                  from_step)
-        last_step = 45  # Phase 16 ends at step 45 (Script 34)
-    # Phase 17 synthesis figure (Script 09f, step 46) — a display/utility figure
-    # that IS part of the full run (unlike the greyscale utility, step 47, which
-    # is invoked on demand via run_greyscale()). Runs last so its upstream
-    # inputs (Scripts 20/25/09d/10a) already exist; two-pass-safe otherwise.
-    if from_step <= 46:
-        run_phase([PHASE_17[0]],
-                  "PHASE 17 — Synthesis Figure (Script 09f)", from_step)
-        last_step = 46
+
+    _PHASE17_LABEL = ALL_PHASES[-1][0]
+    for phase_label, _phase_entries in ALL_PHASES:
+        if phase_label == _PHASE17_LABEL:
+            continue  # handled below — 09f auto-runs, greyscale never does
+        run_phase(phase_label, from_step, include_optin=include_supplementary)
+        # Post-phase validation checkpoints, keyed off a specific step's
+        # script name (not a typed step number) so they track automatically
+        # if a phase's step range shifts.
+        if phase_label == ALL_PHASES[0][0] and from_step <= _STEP_BY_SCRIPT["04_cluster_visualisations.py"].index:
+            validate_outputs(REQUIRED_PHASE1_OUTPUTS, "Phase 1")
+        if phase_label == ALL_PHASES[2][0] and from_step <= _STEP_BY_SCRIPT["run_10_clearfell.py"].index:
+            validate_outputs(REQUIRED_PHASE3_OUTPUTS, "Phase 3")
+        if phase_label == ALL_PHASES[8][0] and from_step <= _STEP_BY_SCRIPT["20_spatial_figures.py"].index:
+            # NOTE: this threshold was previously a hard-typed "21", which
+            # predated at least one phase reordering and no longer matched
+            # Phase 9's actual step range (fixed 2026-07-08 — see CHANGELOG).
+            validate_outputs(REQUIRED_PHASE9_OUTPUTS, "Phase 9")
+        if phase_label == ALL_PHASES[9][0]:
+            validate_outputs(REQUIRED_PHASE10_OUTPUTS, "Phase 10")
+
+    # Phase 17 — the synthesis figure (Script 09f) auto-runs as part of a
+    # normal full run (its upstream inputs already exist by this point in
+    # the pass); greyscale (Script 27) never auto-runs — it's invoked on
+    # demand via run_greyscale() (menu option 6 / --greyscale).
+    run_phase(_PHASE17_LABEL, from_step, include_optin=include_supplementary,
+              exclude_scripts=("27_greyscale_figures.py",))
+
+    executed = [rs.index for rs in _ALL_STEPS
+                if rs.index >= from_step
+                and rs.script != "27_greyscale_figures.py"
+                and (rs.exec == "default" or include_supplementary)]
+    last_step = max(executed) if executed else from_step - 1
+
     _elapsed = (time.time() - _t_start) / 60.0
     print()
-    _banner(f"PIPELINE COMPLETE  ·  steps 1–{last_step} written to outputs/", _Ansi.BGREEN)
-    if not include_supplementary:
-        say_info("supplementary standalone diagnostics (Phase 16: steps 41–44, "
-                 "Scripts 24b/31/31b/34) NOT run — add --with-supplementary "
-                 "(or choose it in menu option 1) to include them")
-    say_info("greyscale (step 47) runs separately (menu option 6 / --greyscale)")
+    _banner(f"PIPELINE COMPLETE  \u00b7  steps 1\u2013{last_step} written to outputs/", _Ansi.BGREEN)
+    optin_steps = [rs for rs in _ALL_STEPS if rs.exec == "optin"]
+    if not include_supplementary and optin_steps:
+        idx_range = _compress_ranges([rs.index for rs in optin_steps])
+        scripts = ", ".join(rs.script for rs in optin_steps)
+        say_info(f"opt-in diagnostics (steps {idx_range}: {scripts}) NOT run "
+                 "\u2014 add --with-supplementary (or choose it in menu option 1) to include them")
+    _grey = _STEP_BY_SCRIPT["27_greyscale_figures.py"]
+    say_info(f"greyscale (step {_grey.index}) runs separately (menu option 6 / --greyscale)")
+    say_info(f"pipeline_manifest.json written to {OUT_MANIFEST}")
     say_info(f"total run time: {_elapsed:0.1f} min")
 
 def build_viewer() -> None:
@@ -759,8 +980,8 @@ def build_viewer() -> None:
         say_err(f"Script not found: {script_path}")
         return
 
-    # Script 19 is step 21 — needs all upstream Phase 1-8 outputs to exist.
-    if not warn_missing_upstream(21):
+    # Script 19 needs all upstream Phase 1-8 outputs to exist.
+    if not warn_missing_upstream(_STEP_BY_SCRIPT[VIEWER_SCRIPT].index):
         print("  Aborted.")
         return
 
@@ -795,6 +1016,10 @@ def render_menu() -> str:
     grp  = lambda s: paint(s, _Ansi.BOLD)
     hint = lambda s: s
     rule = "─" * 70
+    _default_idx = [rs.index for rs in _ALL_STEPS if rs.exec == "default"
+                     and rs.script != "27_greyscale_figures.py"]
+    _optin_idx   = [rs.index for rs in _ALL_STEPS if rs.exec == "optin"]
+    _phase12_idx = [rs.index for rs in _STEPS_BY_PHASE[ALL_PHASES[11][0]]]
     out = [
         "",
         hint("  First run / new dataset → option 1 (full pipeline). For canonical"),
@@ -803,13 +1028,16 @@ def render_menu() -> str:
         "",
         "  " + rule,
         "  " + grp("RUN"),
-        f"    {num('1')}   Full pipeline             " + hint("steps 1–38 (+39–42 opt-in) · run twice for new data"),
+        f"    {num('1')}   Full pipeline             " + hint(
+            f"steps {_compress_ranges(_default_idx)} "
+            f"(+{_compress_ranges(_optin_idx)} opt-in) · run twice for new data"),
         f"    {num('2')}   Resume from a step        " + hint("pick up mid-pipeline"),
         f"    {num('3')}   Run a single step",
         "",
         "  " + grp("TOOLS"),
         f"    {num('4')}   Build scenario viewer     " + hint("standalone HTML"),
-        f"    {num('5')}   Supplementary diagnostics " + hint("steps 27–29 (Scripts 22–24)"),
+        f"    {num('5')}   Supplementary diagnostics " + hint(
+            f"steps {_compress_ranges(_phase12_idx)} (Scripts 22–24)"),
         f"    {num('6')}   Greyscale figures         " + hint("6a quick · 6b full B&W · 6h help"),
         "",
         "  " + grp("INFO"),
@@ -824,17 +1052,14 @@ def render_menu() -> str:
 def show_step_list() -> None:
     print()
     _banner("Pipeline Step List", _Ansi.CYAN)
-    for phase_label, phase_entries in ALL_PHASES:
+    for phase_label, _phase_entries in ALL_PHASES:
         print("\n  " + paint(phase_label, _Ansi.BCYAN, _Ansi.BOLD))
-        for entry in phase_entries:
-            script, label = entry[0], entry[1]
-            try:
-                step = int(label.strip().split("/")[0])
-            except (ValueError, IndexError):
-                step = 0
-            present = (SRC_DIR / script).exists()
+        for rs in _STEPS_BY_PHASE.get(phase_label, []):
+            present = (SRC_DIR / rs.script).exists()
             tag = paint(GLYPH_OK, _Ansi.GREEN) if present else paint(GLYPH_FAIL, _Ansi.BRED)
-            print(f"    {tag}  " + paint(f"step {step:>2}", _Ansi.BOLD) + f"  {script}")
+            optin_tag = paint(" [opt-in]", _Ansi.YELLOW) if rs.exec == "optin" else ""
+            print(f"    {tag}  " + paint(f"step {rs.index:>2}", _Ansi.BOLD)
+                  + f"  {rs.script}{optin_tag}")
     print()
 
 def _prompt_step(prompt: str) -> int | None:
@@ -888,7 +1113,7 @@ def menu_run_single() -> None:
         print(f"\n  [OK] Step {n} complete.")
         if bw:
             print("  [BW] Copying figures to outputs_bw/ ...")
-            run_script("27_greyscale_figures.py", "47/47  Greyscale figure conversion")
+            run_script(_STEP_BY_SCRIPT["27_greyscale_figures.py"].script, _STEP_BY_SCRIPT["27_greyscale_figures.py"].label)
             bw_dir = ROOT_DIR / "outputs_bw"
             if bw_dir.exists():
                 n_figs = len(list(bw_dir.rglob("*.png"))) + len(list(bw_dir.rglob("*.jpg")))
@@ -897,10 +1122,12 @@ def menu_run_single() -> None:
 def run_supplementary() -> None:
     """Run supplementary diagnostic scripts 22–24."""
     ensure_paths()
-    if not warn_missing_upstream(25):
+    _phase12_label = ALL_PHASES[11][0]
+    _first_idx = _STEPS_BY_PHASE[_phase12_label][0].index
+    if not warn_missing_upstream(_first_idx):
         print("  Aborted.")
         return
-    run_phase(PHASE_12, "PHASE 12 — Supplementary Diagnostics (Scripts 22–24)")
+    run_phase(_phase12_label)
     print()
     say_ok("Supplementary diagnostics complete.")
 
@@ -955,7 +1182,7 @@ def run_greyscale(full_rerun: bool = False) -> None:
         print("  perceptual luminance weighting. Quick but some figures")
         print("  may be suboptimal — use 'Full B&W re-run' for best results.")
         print()
-        run_script("27_greyscale_figures.py", "47/47  Greyscale figure conversion")
+        run_script(_STEP_BY_SCRIPT["27_greyscale_figures.py"].script, _STEP_BY_SCRIPT["27_greyscale_figures.py"].label)
 
     bw_dir = ROOT_DIR / "outputs_bw"
     if bw_dir.exists():
@@ -979,24 +1206,25 @@ def show_help() -> None:
     print("  intervention analyses, spatial mapping, climate projections and")
     print("  journal figures for the 88-dipwell Newborough Warren network.")
 
-    print("\n" + H("  Pipeline structure") + D("   (43 steps across 17 phases)"))
-    for phase_label, phase_entries in ALL_PHASES:
-        steps = [int(e[1].strip().split("/")[0]) for e in phase_entries
-                 if e[1].strip().split("/")[0].isdigit()]
-        if not steps:
-            rng = ""
-        elif len(steps) == 1:
-            rng = f"step {steps[0]}"
-        else:
-            rng = f"steps {steps[0]}–{steps[-1]}"
+    print("\n" + H("  Pipeline structure")
+          + D(f"   ({len(_ALL_STEPS)} steps registered across {len(ALL_PHASES)} phases; "
+              f"see outputs/pipeline_manifest.json)"))
+    for phase_label, _phase_entries in ALL_PHASES:
+        idxs = [rs.index for rs in _STEPS_BY_PHASE.get(phase_label, [])]
+        rng = f"step {idxs[0]}" if len(idxs) == 1 else f"steps {idxs[0]}\u2013{idxs[-1]}" if idxs else ""
         print("    " + paint(phase_label, _Ansi.CYAN) + D(f"   ({rng})"))
-    print(D("\n  A full run executes steps 1–38. The Phase 16 standalone diagnostics"))
-    print(D("  (steps 39–42) are opt-in via --with-supplementary or the option 1 prompt;"))
-    print(D("  greyscale (Phase 17, step 47) runs separately via option 6 / --greyscale."))
+    _default_idx = [rs.index for rs in _ALL_STEPS if rs.exec == "default"
+                     and rs.script != "27_greyscale_figures.py"]
+    _optin_idx   = [rs.index for rs in _ALL_STEPS if rs.exec == "optin"]
+    _grey_idx    = _STEP_BY_SCRIPT["27_greyscale_figures.py"].index
+    print(D(f"\n  A full run executes steps {_compress_ranges(_default_idx)}. The opt-in"))
+    print(D(f"  diagnostic tier (steps {_compress_ranges(_optin_idx)}) runs only with"))
+    print(D("  --with-supplementary or the option 1 prompt; greyscale (step "
+            f"{_grey_idx}) runs separately via option 6 / --greyscale."))
 
     print("\n" + H("  Menu options"))
     opts = [
-        ("1", "Full pipeline", "runs steps 1–38 (opt-in Phase 16); offers to save a console log"),
+        ("1", "Full pipeline", f"runs steps {_compress_ranges(_default_idx)} (opt-in diagnostics available); offers to save a console log"),
         ("2", "Resume from a step", "re-run from step N onward (after one full run)"),
         ("3", "Run a single step", "run one script; optional B&W mode"),
         ("4", "Build scenario viewer", "regenerate the standalone HTML viewer (Script 19)"),
@@ -1012,10 +1240,13 @@ def show_help() -> None:
 
     print("\n" + H("  Two-pass run (new datasets)"))
     print("  Scripts 09b/09d in Phase 3 use Specific-Yield values produced later")
-    print("  (steps 18/20). On a first pass they fall back to documented Newborough")
+    print("  by Scripts 17/18 (see pipeline_manifest.json for their current step")
+    print("  indices). On a first pass they fall back to documented Newborough")
     print("  defaults (0.20 cluster, 0.30 CEH36) with warnings — results are")
-    print("  unaffected. For canonical scenario figures, run again from step 9:")
-    print(D("     pass 1: option 1     pass 2: option 2 → step 9"))
+    print("  unaffected. For canonical scenario figures, run again from the scraping")
+    print("  suite's step (Script run_09_scraping.py, which contains 09b/09d):")
+    idx9 = _STEP_BY_SCRIPT["run_09_scraping.py"].index
+    print(D(f"     pass 1: option 1     pass 2: option 2 \u2192 step {idx9}"))
 
     print("\n" + H("  Console logging"))
     print("  Option 1 (and --full --log) can mirror everything printed — the")
@@ -1024,14 +1255,15 @@ def show_help() -> None:
 
     print("\n" + H("  Command line"))
     cli = [
-        ("--full [--log [PATH]]", "run steps 1–38 (optionally log to file)"),
-        ("--with-supplementary", "with --full/--from: also run Phase 16 (steps 39–42)"),
+        (f"--full [--log [PATH]]", f"run steps {_compress_ranges(_default_idx)} (optionally log to file)"),
+        ("--with-supplementary", f"with --full/--from: also run the opt-in diagnostic tier (steps {_compress_ranges(_optin_idx)})"),
         ("--clusters N", "clustering target K for the partition (default 5)"),
         ("--from N", "resume from step N"),
         ("--viewer", "build the scenario viewer only"),
         ("--supplementary", "run Scripts 22–24 only"),
         ("--greyscale", "quick pixel greyscale convert"),
         ("--greyscale-full", "full B&W pipeline re-run (best quality)"),
+        ("--manifest-only", "write outputs/pipeline_manifest.json without running any steps"),
         ("--no-colour", "disable coloured output"),
         ("--deps", "audit down-pipeline (backward) dependencies"),
         ("--explain", "print this help page and exit"),
@@ -1056,17 +1288,23 @@ def interactive_menu() -> None:
         choice = input("\n  " + paint("Enter choice:", _Ansi.BOLD) + " ").strip().lower()
 
         if choice == "1":
+            _idx17 = _STEP_BY_SCRIPT["17_wtf_specific_yield.py"].index
+            _idx18 = _STEP_BY_SCRIPT["18_wtf_spatial.py"].index
+            _idx9  = _STEP_BY_SCRIPT["run_09_scraping.py"].index
             print(
                 "\n  NOTE: Two scripts in Phase 3 (09b, 09d) read Sy values\n"
-                "  produced later in the pipeline (steps 18 and 20). On a fresh\n"
+                f"  produced later in the pipeline (steps {_idx17} and {_idx18}). On a fresh\n"
                 "  first-pass run they will use documented fallbacks with\n"
                 "  console warnings — this does not break the pipeline.\n\n"
                 "  For canonical scenario figures on a new dataset, run twice:\n"
                 "    pass 1: this option (full pipeline)\n"
-                "    pass 2: option 2, resume from step 9\n"
+                f"    pass 2: option 2, resume from step {_idx9}\n"
                 "  See module docstring for details."
             )
-            ans = input("\n  Run the full pipeline (steps 1–38) from the beginning? [y/N] ").strip().lower()
+            _default_idx = [rs.index for rs in _ALL_STEPS if rs.exec == "default"
+                             and rs.script != "27_greyscale_figures.py"]
+            ans = input(f"\n  Run the full pipeline (steps {_compress_ranges(_default_idx)}) "
+                        "from the beginning? [y/N] ").strip().lower()
             if ans == "y":
                 kc = input(
                     "  Clustering target k for the partition [5]\n"
@@ -1081,9 +1319,11 @@ def interactive_menu() -> None:
                         say_info(f"Clustering target set to k={kc_n} for this run")
                     except ValueError:
                         say_warn("Not a valid integer >= 2 — using default k=5")
+                _optin_idx = [rs.index for rs in _ALL_STEPS if rs.exec == "optin"]
+                _optin_scripts = ", ".join(rs.script for rs in _ALL_STEPS if rs.exec == "optin")
                 supp = input(
-                    "  Also run the supplementary standalone diagnostics\n"
-                    "  (Phase 16, steps 39–42: Scripts 24b, 31, 31b, 34)? [y/N] "
+                    "  Also run the opt-in diagnostic tier\n"
+                    f"  (steps {_compress_ranges(_optin_idx)}: {_optin_scripts})? [y/N] "
                 ).strip().lower() == "y"
                 log_path = _prompt_logging()
                 try:
@@ -1186,6 +1426,10 @@ def interactive_menu() -> None:
 
 def main() -> None:
     import argparse
+    _default_idx = [rs.index for rs in _ALL_STEPS if rs.exec == "default"
+                     and rs.script != "27_greyscale_figures.py"]
+    _optin_idx   = [rs.index for rs in _ALL_STEPS if rs.exec == "optin"]
+    _optin_scripts = ", ".join(rs.script for rs in _ALL_STEPS if rs.exec == "optin")
     parser = argparse.ArgumentParser(
         description="Newborough Warren analysis pipeline",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -1193,16 +1437,19 @@ def main() -> None:
             Run without arguments for the interactive menu.
             Use --full, --from, --viewer, --supplementary, or --greyscale for non-interactive execution.
             Add --log to a --full run to record all console output to a log file.
+            --manifest-only writes outputs/pipeline_manifest.json without running any steps.
             --explain prints the in-app help page; --no-colour disables coloured output.
             --deps prints the down-pipeline (backward) dependency audit and exits.
         """)
     )
     parser.add_argument("--full",   action="store_true",
-                        help="Run all 43 steps non-interactively")
+                        help=f"Run all {len(_default_idx)} default-tier steps "
+                             f"(steps {_compress_ranges(_default_idx)}) non-interactively")
     parser.add_argument("--with-supplementary", dest="with_supplementary",
                         action="store_true",
-                        help="With --full/--from: also run the Phase 16 standalone "
-                             "diagnostic tier (steps 39–42: Scripts 24b, 31, 31b, 34)")
+                        help="With --full/--from: also run every opt-in "
+                             f"diagnostic step (steps {_compress_ranges(_optin_idx)}: "
+                             f"{_optin_scripts})")
     parser.add_argument("--clusters", dest="clusters", type=int, metavar="N",
                         default=None,
                         help="Clustering target K for the partition (Script 02). "
@@ -1221,6 +1468,9 @@ def main() -> None:
                         help="Convert existing figures to greyscale (Script 27 only)")
     parser.add_argument("--greyscale-full", action="store_true",
                         help="Re-run full pipeline in B&W mode then convert (best quality)")
+    parser.add_argument("--manifest-only", dest="manifest_only", action="store_true",
+                        help="Write outputs/pipeline_manifest.json and exit "
+                             "(no steps are run)")
     parser.add_argument("--no-colour", "--no-color", dest="no_colour",
                         action="store_true", help="Disable coloured console output")
     parser.add_argument("--explain", action="store_true",
@@ -1230,6 +1480,12 @@ def main() -> None:
     args = parser.parse_args()
 
     _init_colour(disable=args.no_colour)
+
+    if args.manifest_only:
+        _manifest = build_manifest(write=True)
+        say_ok(f"Wrote {OUT_MANIFEST} "
+               f"({_manifest['total_registered']} steps registered)")
+        return
 
     # Clustering target K is a run parameter consumed by Script 02 (and the
     # cluster-validation diagnostics) via NRG_N_CLUSTERS. Setting it here means

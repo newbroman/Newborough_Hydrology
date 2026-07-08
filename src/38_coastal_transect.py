@@ -2,9 +2,10 @@
 38_coastal_transect.py — Coast-to-inland MAM transect (observational delta_0 test)
 ====================================================================================
 
-Display/utility tier, STANDALONE — not called from run_analysis.py, not counted
-in the analytical step/phase total. Promote to a numbered pipeline step later
-only if the result proves report-worthy.
+Opt-in diagnostic tier (Phase 16) — wired into run_analysis.py 2026-07-08;
+runs with --with-supplementary or the menu option 1 prompt. Not part of the
+analytical core (ANALYTICAL_STEP_COUNT is unaffected by this or any other
+opt-in step). See outputs/pipeline_manifest.json for the current step index.
 
 Purpose (one sentence)
     Test whether the coast-to-inland MAM head gradient grows through time
@@ -105,7 +106,17 @@ Outputs (outputs/38_coastal_transect/):
     38_coast_inland_difference.jpg     Delta_coast_inland(t) + AR-corrected trend
     38_results.txt                     slope +/- CI, n, discriminator read, caveats
 
-Version: 1.2.0 (2026-07-07)
+Version: 1.3.0 (2026-07-08)
+  1.3.0 (2026-07-08): wired into run_analysis.py as PHASE_16's final entry
+      (tier X, exec optin) — previously committed to src/ but standalone.
+      No analysis/number change. Also fixed a figure-only cosmetic bug:
+      the profile-plot well-label annotations (below panel b) used a fixed
+      vertical offset for every well, so CEH40 and CEH41 — which sit close
+      together along the transect (~840-970 m) and both carry the two-line
+      "(scraped — profile only)" tag — overlapped illegibly. Labels now
+      alternate vertical offset by transect position, which separates any
+      two adjacent labels regardless of their along-transect spacing. No
+      change to any number, window, fit, or the underlying figure data.
   1.2.0 (2026-07-07): profile figure extended to two stacked panels.
       (a) raw absolute MAM profile (as before); (b) climate-corrected profile,
       anchor-referenced to the inland anchor NW4 (h_well - h_NW4 per year). NW4
@@ -163,7 +174,7 @@ from utils import config, paths
 from utils.data_utils import normalize_well_name
 from utils.console_utils import banner, phase, step, info, note, result, saved, done, warn
 
-__version__ = "1.2.0"
+__version__ = "1.3.0"
 VERSION = __version__
 SCRIPT_ID = "38"
 
@@ -411,7 +422,12 @@ def make_profile_plot(yr: pd.DataFrame, years: list[int], dist: dict[str, float]
     ax_b.grid(alpha=0.3)
 
     # ---- shared well annotations (below panel b) ----------------------------
-    for w in order:
+    # v1.3.0: alternate the vertical offset by transect position so that any
+    # two adjacent wells' labels stay separated regardless of how close they
+    # sit along the transect. Previously all labels used a single fixed
+    # offset, which let CEH40 and CEH41 (~840-970 m apart, both carrying the
+    # two-line "(scraped -- profile only)" tag) overlap illegibly.
+    for i, w in enumerate(order):
         label = w.upper()
         if w == COAST_ANCHOR:
             label += "\n(coastal anchor)"
@@ -419,7 +435,8 @@ def make_profile_plot(yr: pd.DataFrame, years: list[int], dist: dict[str, float]
             label += "\n(inland anchor, =0 ref)"
         elif w in SCRAPED_PROFILE_ONLY:
             label += "\n(scraped \u2014 profile only)"
-        ax_b.annotate(label, (dist[w], ax_b.get_ylim()[0]), xytext=(0, -34),
+        y_offset = -34 if i % 2 == 0 else -52
+        ax_b.annotate(label, (dist[w], ax_b.get_ylim()[0]), xytext=(0, y_offset),
                       textcoords="offset points", ha="center", fontsize=7.5,
                       color="dimgray")
 

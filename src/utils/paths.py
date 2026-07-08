@@ -35,6 +35,21 @@ def data_geo(name: str) -> Path:
     return DATA_GEO_DIR / name
 
 # ==========================================
+# PIPELINE MANIFEST — outputs/ root
+# ==========================================
+# Machine-readable step/phase count and per-step tier/exec tags, emitted by
+# run_analysis.py on every full/resumed run (or standalone via its
+# --manifest-only flag). Documents and tooling cite this committed artefact
+# rather than a typed step/phase total, which drifts every time a script is
+# added or reclassified.
+OUT_PIPELINE_MANIFEST = OUT_DIR / "pipeline_manifest.json"
+
+
+def pipeline_manifest() -> Path:
+    """Path to the committed step-count manifest emitted by run_analysis.py."""
+    return OUT_PIPELINE_MANIFEST
+
+# ==========================================
 # PER-SCRIPT OUTPUT SUBDIRECTORIES
 # ==========================================
 DIR_00 = OUT_DIR / "00_climate_summary"
@@ -544,9 +559,10 @@ OUT_34_RESULTS              = DIR_34 / "34_results.txt"
 OUT_34_FIG                  = DIR_34 / "34_window_sensitivity.png"
 
 # Script 38 — coast-to-inland MAM transect (observational delta_0 diagnostic).
-# Display/utility tier, standalone -- NOT called from run_analysis.py and NOT
-# counted in the analytical step/phase total. Reads committed pipeline
-# intermediates only (01_wells_clean_maod.csv, 01_locations.csv,
+# Opt-in diagnostic tier (Phase 16, wired into run_analysis.py 2026-07-08;
+# runs with --with-supplementary or the menu option 1 prompt — see
+# pipeline_manifest.json for its current step index). Reads committed
+# pipeline intermediates only (01_wells_clean_maod.csv, 01_locations.csv,
 # 25_01_panel_fit_parameters.csv); writes nothing consumed downstream.
 DIR_38 = OUT_DIR / "38_coastal_transect"
 DIR_38.mkdir(parents=True, exist_ok=True)

@@ -65,3 +65,4 @@ report_edits/_frozen/
 report_edits/**/.~lock.*#
 report_edits/**/*.bak
 report_edits/**/*~
+report_edits/_superseded/

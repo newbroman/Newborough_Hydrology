@@ -81,7 +81,27 @@ push_if_ahead(){                                # push only if we have commits G
 }
 
 # --- main actions ----------------------------------------------------------
+
+# --- report_edits: refresh the markdown mirror before staging -----------------
+# The .odt subdocuments are gitignored (two are ~200 MB). Their markdown mirror
+# under report_edits/text/ is the ONLY versioned record of their content, and
+# the only way a reader (or Claude) sees subdocument edits. Regenerate it before
+# every commit so the mirror can never silently drift from the .odt files.
+refresh_mirror(){
+  local script="report_edits/make_text_mirror.sh"
+  [[ -x "$script" ]] || return 0                # nothing to do if absent
+  say "Refreshing report_edits text mirror"
+  if "$script"; then
+    ok "mirror up to date"
+  else
+    fail "mirror failed - .odt changes would NOT be recorded"
+    read -rp "$(echo -e "${Y}Continue anyway? [y/N]: ${N}")" r
+    [[ "$r" =~ ^[Yy]$ ]] || return 1
+  fi
+}
+
 do_push(){
+  refresh_mirror || return
   stage_all
   if have_staged; then
     say "Your local changes (committing these first)"

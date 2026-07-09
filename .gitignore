@@ -38,3 +38,30 @@ outputs/logs/*.log
 # --- Living working folders (local only) ---
 living/inbox/
 living/output/
+
+# --- Report editing sources (report_edits/) ---
+# Policy: version the TEXT MIRROR, not the binaries.
+#
+# The .odt subdocuments and the frozen pre-edit backups are ~200 MB each. They
+# are zip archives, so git cannot delta-compress or diff them: every commit
+# would store a fresh 200 MB blob, and GitHub hard-rejects any file over 100 MB.
+# They are working files, backed up outside the repo (external drive / Drive).
+#
+# What IS versioned: report_edits/text/*.md (the pandoc mirror — small, diffable,
+# equations preserved as LaTeX), CHAPTER_MAP.md, and make_text_mirror.sh.
+# Regenerate the mirror after every .odt edit and commit it alongside.
+report_edits/odt/
+report_edits/_frozen/
+
+# Re-open the blanket *.sh rule for the mirror script only.
+!report_edits/*.sh
+
+# The master .odm carries only links and styles, so it is small and safe to
+# track. Confirm with `du -h report_edits/report.odm` before the first commit;
+# if it is large, ignore it too.
+!report_edits/*.odm
+
+# Keep LibreOffice lock/backup cruft out of the tracked folder regardless.
+report_edits/**/.~lock.*#
+report_edits/**/*.bak
+report_edits/**/*~

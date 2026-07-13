@@ -100,8 +100,36 @@ refresh_mirror(){
   fi
 }
 
+
+# --- report_edits: lint figure references against the exported PDF -----------
+# Captions in report.odm auto-number correctly; the in-text references are typed
+# by hand and drift when a figure is added or removed. figref_lint.py reads the
+# exported PDF and reports gaps/duplicates in the caption sequence and any
+# reference to a figure number that has no caption. It WARNS but never blocks:
+# a stale or missing PDF must not stop an unrelated commit. Semantic mistakes
+# (a reference pointing at the wrong existing figure) are NOT caught here.
+lint_figrefs(){
+  local script="report_edits/figref_lint.py"
+  [[ -f "$script" ]] || return 0
+  # Prefer a PDF exported into report_edits/; fall back to the published one.
+  local pdf=""
+  for cand in report_edits/report.pdf report_edits/report_edits.pdf report_edits/report_draft.pdf docs/report/report.pdf; do
+    [[ -f "$cand" ]] && { pdf="$cand"; break; }
+  done
+  [[ -n "$pdf" ]] || { echo -e "  ${Y}note${N} no report PDF found - skipping figure-reference lint"; return 0; }
+  command -v python3 >/dev/null 2>&1 || return 0
+  say "Linting figure references ($pdf)"
+  if python3 "$script" "$pdf"; then
+    ok "figure references consistent"
+  else
+    fail "figure-reference problems (see above) - the PDF may be stale; re-export report.odm"
+    echo -e "  ${Y}(warning only - not blocking your push)${N}"
+  fi
+}
+
 do_push(){
   refresh_mirror || return
+  lint_figrefs
   stage_all
   if have_staged; then
     say "Your local changes (committing these first)"

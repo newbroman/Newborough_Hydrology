@@ -2085,7 +2085,7 @@ The SSM water balance residual field (Figure 57; Section 3.8.4) quantifies the d
 
 ### Combined Driver Assessment and Observed Network Change
 
-Three further spatial figures are derived from the framework developed in Sections 4.9.3 and 4.9.4: a measured clearfell step-change map (Figure ), a parametric net state map superimposing all five active drivers (Figure ), and an empirical MSL5 change map comparing the pre-clearfell and current MSL5 windows (Figure ) and a modelled 2005-2025 driver-change map (Figure ). Methods for all three are in Section 3.8.5; interpretation of the comparison between Figures and is in Section 5.7.5.
+Four further spatial figures are derived from the framework developed in Sections 4.9.3 and 4.9.4: a measured clearfell step-change map (Figure ), a parametric net state map superimposing all five active drivers (Figure ), and an empirical MSL5 change map comparing the pre-clearfell and current MSL5 windows (Figure ) and a modelled 2005-2025 driver-change map (Figure ). Methods for all three are in Section 3.8.5; interpretation of the comparison between Figures and is in Section 5.7.5.
 
 Measured clearfell spatial response
 

@@ -422,7 +422,7 @@ Fourth, the pre-scraping baseline length differs substantially across the focal 
 
 Fifth, the scraping analysis treats CEH4's progressive ground-surface lowering from coastal erosion as a confound documented in the era-by-era comparisons rather than as a covariate explicitly modelled in the BACI design. CEH4 sits approximately 340 m inland of the southern foreshore, and the characteristic propagation timescale (L²S\_y / K, Section 5.4.3) for coastal-erosion effects to reach inland wells through the aquifer is multi-year to multi-decadal. Most of the coastal-erosion propagation envelope therefore lies outside the analysis window, with the visible deterioration at CEH4 reflecting both the integrated effect of historical coastal retreat and a contribution from the post-2017 felling pulse. The Tier 1 CUSUM analysis at CEH4 captures this combined drift but cannot decompose it into its component drivers; the synthetic control and SSM forward residual analyses below provide the necessary alternative counterfactuals.
 
-#### )  Paired-control BACI design and analytical sub-procedures
+1\) Paired-control BACI design and analytical sub-procedures
 
 Four analytical procedures are applied within the paired-control BACI framework. Each addresses a distinct research question; results are cross-referenced to the relevant sub-sections of Section 4.5.
 
@@ -436,7 +436,7 @@ Four analytical procedures are applied within the paired-control BACI framework.
 
 *These four sub-procedures are implemented in 09a\_paired\_baci.py, 09b\_scraping\_propagation.py, 09c\_summer\_minima.py and 09d\_scenario\_comparison.py respectively.*
 
-#### )  Era-specific β₃ analysis on the drainage residual
+2\) Era-specific β₃ analysis on the drainage residual
 
 Beyond the per-era CUSUM and BACI shift tests, the scraping intervention may have altered the storage decay coefficient β₃ at the treatment wells. To diagnose this, a two-step procedure is applied separately at each treatment well and its paired control. The procedure isolates per-era variation in β₃ from the confounding influence of inter-era differences in climate forcing.
 
@@ -454,7 +454,7 @@ This procedure reduces the influence of differential climate forcing between era
 
 *This procedure is implemented in 09a\_paired\_baci.py as part of the paired-control BACI workflow.*
 
-#### )  Robustness triangulation of the CEH36 step
+3\) Robustness triangulation of the CEH36 step
 
 The CEH36 Pure Scraping era step change is the central scraping result. Because the paired control well CEH4 is subject to two independent confounds — progressive ground-surface lowering from coastal erosion and post-2017 felling-pulse deterioration — the magnitude of the CEH36 step estimated by paired BACI alone may carry a CEH4-specific bias. Three independent estimation methods are applied at CEH36 to test whether the step is robust under alternative counterfactuals.
 
@@ -488,7 +488,7 @@ The separation of controls into three counterfactual pools — Forest, Climate a
 
 The clearfell effect is quantified through three complementary analyses, presented in turn below: (i) the network structure and ANCOVA model, which estimates the felling step from the BACI gap against each counterfactual pool, with covariates for the April 2015 scraping and the east–west coastal-retreat gradient; (ii) a summer-window analysis with a climate-collinearity sensitivity variant, isolating the response in the ecologically critical low-water season; and (iii) a per-era SSM coefficient decomposition of the clearfell effect, attributing the change to the recharge, atmospheric-draw and drainage terms.
 
-#### )  Network structure and ANCOVA model
+1\) Network structure and ANCOVA model
 
 The BACI gap for each target tier (Impact, Edge) was calculated as the target centroid mean water level minus the control centroid mean, producing a monthly time series of (target − control) values for each of the three control definitions. This monthly BACI gap is distinct from the SSM displacement (Section 3.4), which is the head above the drainage datum used internally as a predictor in the SSM β₃ term; the BACI gap is the dependent variable in the clearfell ANCOVA.
 
@@ -575,7 +575,7 @@ The same four-zone structure is also applied to the annual June–September summ
 
 **Within-forest position-matching.** The within-forest spatial coefficient analysis (Section 3.4.4, results in Section 4.9.5) underpins the C4-only composition of the Forest control: it establishes that elevation alone explains 96% of within-forest β₂ variance, so position-matched controls rather than canopy-matched controls are the appropriate counterfactual for testing canopy management effects. *The within-forest spatial coefficient analysis is implemented 10c\_forest\_zone\_analysis.py.*
 
-#### )  Summer-window analysis and climate-collinearity sensitivity
+2\) Summer-window analysis and climate-collinearity sensitivity
 
 The annual BACI step estimated from the ANCOVA above is computed over all monthly observations from the start of record to the analysis cutoff. Because the ecological consequences of any water table change concentrate in the summer months when slack inundation determines habitat viability, a parallel summer-window ANCOVA is fitted directly to June–September observations only, using the same model specification, control definitions, and covariates as the annual analysis. This directly-fitted summer ANCOVA provides a monthly-resolution estimate of the clearfell step over the ecologically critical period, without the seasonal scaling assumption implicit in extrapolating an annual estimate.
 
@@ -589,7 +589,7 @@ The directly-fitted summer ANCOVA, the CWB-dropped sensitivity, and the annual s
 
 *The directly-fitted summer-window ANCOVA and the CWB-dropped sensitivity variant are produced by the same script as the annual analysis (10a\_ancova\_baci.py); the annual summer-minimum mixed-effects model is implemented in 10d\_summer\_minima.py.*
 
-#### )  Per-era SSM coefficient decomposition of the clearfell effect.
+3\) Per-era SSM coefficient decomposition of the clearfell effect.
 
 The clearfell intervention may have altered the recharge, atmospheric draw and drainage responses of the affected aquifer (Komatsu et al., 2011; Sun et al., 2015). To diagnose these changes mechanistically, the SSM coefficients β₁, β₂ and β₃ are estimated separately for the pre-intervention (Before) and post-intervention (After) eras at each well in the clearfell BACI network, and the differences Δβ₁ = β₁,After − β₁,Before, Δβ₂ = β₂,After − β₂,Before and Δβ₃ = β₃,After − β₃,Before are interpreted as the recharge, atmospheric draw and drainage shifts attributable to the intervention.
 

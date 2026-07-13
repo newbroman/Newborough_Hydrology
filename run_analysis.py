@@ -29,17 +29,29 @@ or elsewhere in code — cite the manifest.
 
 Each step carries a tier for reporting purposes:
   "A" analytical   — the numbered analytical core (Scripts 01–26 excluding
-                      26c, plus 22–24, 26/26b, and the Phase 15 defaults
-                      32/33/35). The methods section's ANALYTICAL_STEP_COUNT
-                      / ANALYTICAL_PHASES headline (see below) is a DECLARED
-                      constant, not derived from this tier tally — the
-                      sub-runner expansion (run_09 -> 5 constituent scripts,
-                      run_10 -> 13) means the two don't mechanically agree,
-                      and that's intentional: the headline changes only by
-                      deliberate review, not by every diagnostic add/remove.
+                      26c, plus 22–24, 26/26b, the Phase 15 steps 32/33/35/
+                      36/37/37b, and the Phase 16 steps 34/38). The methods
+                      section's ANALYTICAL_STEP_COUNT / ANALYTICAL_PHASES
+                      headline (see below) is a DECLARED constant, not
+                      derived from this tier tally — the sub-runner expansion
+                      (run_09 -> 5 constituent scripts, run_10 -> 13) means
+                      the two don't mechanically agree, and that's
+                      intentional: the headline changes only by deliberate
+                      review, not by every diagnostic add/remove.
   "D" display/utility — Scripts 26c, 09f, 27 only.
-  "X" opt-in diagnostic — every other registered step (Phases 14 and 16,
-                      the Phase 15 opt-in tail 36/37/37b, and Script 38).
+  "X" opt-in diagnostic — every other registered step (Phase 14, and the
+                      Phase 16 remainder 24b/31/31b).
+
+  2026-07-13 reclassification (Task E): Scripts 34, 36, 37, 37b and 38 were
+  promoted from "X" opt-in to "A" analytical, and their exec flags moved
+  from "optin" to "default", following an operator-signed-off audit
+  confirming each is cited with a reproducible figure or number in the main
+  report (Script 38: §4.8.3 coast-to-inland δ₀; Script 34: §5.7.5 window-
+  sensitivity envelope; Script 36: Figure 63; Scripts 37/37b: driver
+  validation / comparative footing results being written into the main
+  report). Scripts 24b, 31 and 31b remain "X" — each appears only in the
+  Phase 16 methods-overview enumeration, with no figure or number of its
+  own reproduced elsewhere in the report.
 
 Each step also carries an exec flag: "default" (part of a normal --full
 run) or "optin" (runs only with --with-supplementary / the menu option 1
@@ -62,14 +74,15 @@ the spatial structure within C3) and the C4 constrained-β₃ triangulation
 sensitivity (Script 30, recovering a physically admissible forest drainage
 coefficient where the unconstrained monthly fit is degenerate) — documented
 in §5.1.1 and §4.2.2 of the report and §S.19 of the Methods Supplement.
-Phase 15 also carries an opt-in tail (Scripts 36, 37, 37b) alongside its
-always-run defaults (32, 33, 35). Phase 16 runs the supplementary
-standalone diagnostics (Scripts 24b, 31, 31b, 34, 38); like Phase 15's
-opt-in tail, it runs only with --with-supplementary (or the menu option 1
-prompt). Phase 17 runs the synthesis figure (Script 09f, which auto-runs
-as part of a normal full run) and the greyscale figure-conversion utility
-(Script 27, which never auto-runs — it's a callable utility step, run
-separately via menu option 6 / --greyscale).
+Phase 15 is now wholly analytical-default (Scripts 32, 33, 35, 36, 37, 37b
+all run by default; the former opt-in tail 36/37/37b was promoted 2026-07-13
+per the Task E audit). Phase 16 runs Scripts 34 and 38 by default (promoted
+alongside Phase 15's tail) plus a supplementary opt-in remainder — Scripts
+24b, 31, 31b — which still runs only with --with-supplementary (or the menu
+option 1 prompt). Phase 17 runs the synthesis figure (Script 09f, which
+auto-runs as part of a normal full run) and the greyscale figure-conversion
+utility (Script 27, which never auto-runs — it's a callable utility step,
+run separately via menu option 6 / --greyscale).
 
 Two-pass execution (RECOMMENDED for new datasets)
 -------------------------------------------------
@@ -117,8 +130,28 @@ import time
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.0.0"
+__version__ = "2.1.0"
 # CHANGELOG
+#   2.1.0 (2026-07-13): Task E analytical reclassification. Scripts 34, 36,
+#       37, 37b and 38 promoted from tier "X"/exec "optin" to tier "A"/exec
+#       "default", following an operator-signed-off audit of the main report
+#       text (report.pdf via pdftotext) confirming each is cited there with a
+#       reproducible figure or number (38: §4.8.3 coast-to-inland δ₀ =
+#       -28.2 mm/yr; 34: §5.7.5 window-sensitivity envelope; 36: Figure 63;
+#       37/37b: driver-validation and comparative-footing results being
+#       written into the main report). Scripts 24b, 31 and 31b were audited
+#       and confirmed to remain tier "X" — each appears only once, in the
+#       Phase 16 methods-overview enumeration, with no figure or number of
+#       its own reproduced anywhere else in the report. Updated the three
+#       declared constants in lockstep, arithmetic shown at their
+#       definition: _EXPECTED_ANALYTICAL_TOPLEVEL 34->39, ANALYTICAL_STEP_COUNT
+#       41->46, ANALYTICAL_PHASES 16->17 (Phase 16 now counts as a partially
+#       analytical phase under the same convention already applied to Phase
+#       15). Updated the module docstring tier description, the Phase 14-17
+#       narrative paragraph, and the PHASE_15/PHASE_16 ALL_PHASES label
+#       strings to match. No change to step numbering, ordering, or any
+#       other script's tier/exec. See CHANGELOG_delta_2026-07-13_taskE_
+#       reclassify_analytical.md for the full audit table.
 #   2.0.0 (2026-07-08): De-hardcoded step numbering. PHASE_* entries are now
 #       Step(script, desc, tier, exec, n_substeps, extra_args) records instead
 #       of ("script.py", "N/47 desc") tuples — no step/phase total is typed
@@ -323,16 +356,16 @@ PHASE_15 = [
     Step("32_differential_movement.py",  "Figure: secular differential water-table drift (report Fig 59)",                                                                        "A"),
     Step("33_envelope_amplification.py", "Figure: climate-swing amplification + drought-floor (report Fig 60)",                                                                    "A"),
     Step("35_per_well_amplification.py", "Figure+table: per-well climate-sensitivity coefficient (Paper 1; co-temporal, SSM-calibrated)",                                          "A"),
-    Step("36_absolute_climate_trend.py", "Figure: absolute climate-removed per-well secular trend map (spring CWB detrended)",                                                     "X", "optin"),
-    Step("37_driver_validation.py",      "Validation: predicted-vs-observed driver-change map (scatter + residual map)",                                                          "X", "optin"),
-    Step("37b_driver_footing.py",        "Part B: comparative driver footing \u2014 forest \u00b7 scrape \u00b7 coast on common currencies (peak / area-integrated / ecological-threshold)", "X", "optin"),
+    Step("36_absolute_climate_trend.py", "Figure: absolute climate-removed per-well secular trend map (spring CWB detrended)",                                                     "A"),
+    Step("37_driver_validation.py",      "Validation: predicted-vs-observed driver-change map (scatter + residual map)",                                                          "A"),
+    Step("37b_driver_footing.py",        "Part B: comparative driver footing \u2014 forest \u00b7 scrape \u00b7 coast on common currencies (peak / area-integrated / ecological-threshold)", "A"),
 ]
 PHASE_16 = [
     Step("24b_residual_climatology.py",         "Cluster-stratified residual climatology (supplementary diagnostic)",   "X", "optin"),
     Step("31_cluster_validation.py",            "Independent k=5 partition validation (supplementary diagnostic)",      "X", "optin"),
     Step("31b_separation_vs_recoverability.py", "Cluster separation vs recoverability (supplementary diagnostic)",      "X", "optin"),
-    Step("34_window_sensitivity.py",            "MSL5 two-window sensitivity demonstration figure (\u00a75.7.5)",       "X", "optin"),
-    Step("38_coastal_transect.py",              "Coast-to-inland MAM transect \u2014 observational delta_0 diagnostic (\u00a75.7)", "X", "optin"),
+    Step("34_window_sensitivity.py",            "MSL5 two-window sensitivity demonstration figure (\u00a75.7.5)",       "A"),
+    Step("38_coastal_transect.py",              "Coast-to-inland MAM transect \u2014 observational delta_0 diagnostic (\u00a75.7)", "A"),
 ]
 PHASE_17 = [
     Step("09f_management_effects.py", "Figure: management-interventions + coastal-retreat spatial reach (\u00a75.8; two-pass, reads Scripts 20/25/09d/10a)", "D"),
@@ -354,8 +387,8 @@ ALL_PHASES = [
     ("PHASE 12 \u2014 Supplementary Diagnostics (Scripts 22\u201324)",   PHASE_12),
     ("PHASE 13 \u2014 Van Willegen MSL Analyses (Scripts 26, 26b, 26c)",    PHASE_13),
     ("PHASE 14 \u2014 Cluster Framework Diagnostics (Scripts 28\u201330)",   PHASE_14),
-    ("PHASE 15 \u2014 Observed Differential Change, Envelope, and Validation (Scripts 32, 33, 35, 36, 37, 37b)", PHASE_15),
-    ("PHASE 16 \u2014 Supplementary Standalone Diagnostics (Scripts 24b, 31, 31b, 34, 38)", PHASE_16),
+    ("PHASE 15 \u2014 Observed Differential Change, Envelope, and Driver Validation (Scripts 32, 33, 35, 36, 37, 37b)", PHASE_15),
+    ("PHASE 16 \u2014 Window Sensitivity, Coastal Transect, and Supplementary Cluster Diagnostics (Scripts 34, 38 default; 24b, 31, 31b opt-in)", PHASE_16),
     ("PHASE 17 \u2014 Synthesis Figure and Greyscale Conversion (Scripts 09f, 27)",        PHASE_17),
 ]
 
@@ -363,15 +396,30 @@ ALL_PHASES = [
 # These are the methods section's designation. They are intentionally not
 # computed from the tier tally below (the sub-runner expansion means the two
 # don't mechanically agree) and change only on a deliberate, reviewed edit.
-ANALYTICAL_STEP_COUNT = 41   # methods' analytical-step headline (expanded: run_09/run_10
+#
+# 2026-07-13 Task E reclassification: Scripts 34, 36, 37, 37b and 38
+# promoted from "X" to "A" (operator-signed-off audit; see CHANGELOG_delta_
+# 2026-07-13_taskE_reclassify_analytical.md). Arithmetic:
+#   _EXPECTED_ANALYTICAL_TOPLEVEL: 34 + 5 promoted top-level "A" records = 39
+#   ANALYTICAL_STEP_COUNT:         41 + 5 (each promoted script is a single-
+#                                   substep entry, no sub-runner expansion) = 46
+#   ANALYTICAL_PHASES:             16 -> 17. Phase 15 loses its opt-in tail
+#                                   entirely (36/37/37b promoted) and was
+#                                   already counted in the 16. Phase 16 gains
+#                                   analytical-default steps (34, 38) for the
+#                                   first time, so it now counts as a
+#                                   (partially) analytical phase under the
+#                                   same convention that already let Phase 15
+#                                   count while carrying an opt-in remainder
+#                                   (24b/31/31b stay "X" in Phase 16).
+ANALYTICAL_STEP_COUNT = 46   # methods' analytical-step headline (expanded: run_09/run_10
                               # counted by their constituent modules, not as one entry each)
-ANALYTICAL_PHASES     = 16   # methods' analytical-phase headline (Phases 1–14 plus the
-                              # analytical-default half of Phase 15; excludes Phase 15's
-                              # opt-in tail and all of Phase 16)
+ANALYTICAL_PHASES     = 17   # methods' analytical-phase headline (Phases 1–14, all of
+                              # Phase 15, and the analytical-default half of Phase 16)
 # Expected top-level (unexpanded) tier=="A" Step count — used only by the
 # guard in build_manifest(); trips if a future edit changes the analytical
 # core without a deliberate review of the two constants above.
-_EXPECTED_ANALYTICAL_TOPLEVEL = 34
+_EXPECTED_ANALYTICAL_TOPLEVEL = 39
 
 RenderedStep = namedtuple(
     "RenderedStep",

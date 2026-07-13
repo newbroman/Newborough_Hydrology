@@ -138,9 +138,9 @@ Newborough_Hydrology/
 
 ## Pipeline Phases
 
-The pipeline comprises **48 steps across 17 phases: 41 analytical steps across
-16 analytical phases, plus 3 display/utility; the remainder opt-in
-supplementary diagnostics (see pipeline_manifest.json)**. Validation
+The pipeline comprises **48 steps across 17 phases: 46 analytical steps across
+17 analytical phases, plus 3 display/utility; the remainder (Scripts 24b, 31,
+31b) opt-in supplementary diagnostics (see pipeline_manifest.json)**. Validation
 checkpoints run after Phases 1, 3, 9, and 10.
 
 **Reference network:** 66 wells (from a raw pool of ~80).
@@ -182,9 +182,9 @@ colours and labels are centralised in `src/utils/config.py`.
 | 12 | 22–24 | 27–29 | Supplementary diagnostics: residual lag structure, ridge recharge hypothesis test, residual seasonality |
 | 13 | 26, 26b, 26c (van Willegen MSL) | 30–32 | Van Willegen et al. (2025) MSL analyses: 5-year observational aggregation with the equilibrium wetness index and Ellenberg-F cross-validation (26), UKCP18 climate projections (26b), and report-format MSL5 figures for §4.8.4 / §4.10.1 (26c) |
 | 14 | 28, 29, 30 (cluster framework diagnostics) | 33–35 | C3 detrend check (28), within-C3 variance attribution (29), and C4 constrained-β₃ triangulation (30) — post-review additions supporting §5.1.1 / §4.2.2 of the main report |
-| 15 | 32, 33 (observed differential change) | 36–37 | Secular differential water-table drift (32, report Fig 59) and climate-swing amplification + drought-floor surface (33, report Fig 60) |
-| 16 | 24b, 31, 31b, 34 (supplementary standalone diagnostics) | 38–41 | Cluster-stratified residual climatology (24b), independent k=5 partition validation (31) and its separation-vs-recoverability companion (31b), and the MSL5 two-window sensitivity demonstration figure for §5.7.5 (34) |
-| 17 | 27 (greyscale) | 42 | Greyscale figure conversion utility (journal-ready B&W) — post-processing |
+| 15 | 32, 33, 35, 36, 37, 37b (observed differential change, envelope, and driver validation) | 36–41 | Secular differential water-table drift (32, report Fig 59); climate-swing amplification + drought-floor surface (33, report Fig 60); per-well climate-sensitivity coefficient (35); absolute climate-removed per-well secular trend (36, Figure 63); predicted-vs-observed driver validation (37); comparative driver footing across forest/scrape/coast on common currencies (37b) — all analytical-default as of the 2026-07-13 Task E reclassification |
+| 16 | 24b, 31, 31b (opt-in), 34, 38 (analytical-default) | 42–46 | Cluster-stratified residual climatology (24b), independent k=5 partition validation (31) and its separation-vs-recoverability companion (31b) — opt-in supplementary diagnostics; the MSL5 two-window sensitivity demonstration figure for §5.7.5 (34) and the coast-to-inland MAM transect observational δ₀ diagnostic for §4.8.3 (38) — both promoted to analytical-default 2026-07-13 |
+| 17 | 09f, 27 | 47–48 | Management-interventions-vs-coastal-retreat spatial-reach synthesis figure for §5.8 (09f, display/utility, two-pass — reads Scripts 20/25/09d/10a); greyscale figure conversion utility (27, journal-ready B&W) — post-processing |
 
 Phases 1–11 produce the main analytical results documented in the report. Phase 12
 (Scripts 22–24) runs supplementary residual diagnostics. Phase 13 runs the van
@@ -199,8 +199,26 @@ within-C3 variance attribution (Script 29, step 34) characterising the
 hydrogeological structure within C3 against five spatial predictors, and the C4
 constrained-β₃ triangulation sensitivity (Script 30, step 35) recovering a
 physically admissible forest drainage coefficient where the unconstrained monthly
-fit is degenerate. Phase 16 runs
-the greyscale figure-conversion utility (Script 27, step 38) as a callable
+fit is degenerate. Phase 15 runs the observed-change figure suite: secular
+differential water-table drift (Script 32, step 36, report Fig 59), climate-swing
+amplification and drought-floor surface (Script 33, step 37, report Fig 60), the
+per-well climate-sensitivity coefficient (Script 35, step 38), the absolute
+climate-removed secular trend map (Script 36, step 39, Figure 63), the
+predicted-vs-observed driver-change validation (Script 37, step 40), and the
+comparative driver footing across forest/scrape/coast on common currencies
+(Script 37b, step 41). All six were promoted to analytical-default tier on
+2026-07-13 (Task E); see `CHANGELOG_delta_2026-07-13_taskE_reclassify_analytical.md`.
+Phase 16 runs the MSL5 two-window sensitivity demonstration (Script 34, step 45,
+§5.7.5) and the coast-to-inland MAM transect observational δ₀ diagnostic (Script
+38, step 46, §4.8.3) — both also promoted to analytical-default 2026-07-13 —
+alongside its remaining opt-in supplementary diagnostics: cluster-stratified
+residual climatology (Script 24b, step 42), independent k=5 partition validation
+(Script 31, step 43), and its separation-vs-recoverability companion (Script 31b,
+step 44), which run only with `--with-supplementary`. Phase 17 runs the
+management-interventions-vs-coastal-retreat spatial-reach synthesis figure
+(Script 09f, step 47, §5.8; two-pass, reading Scripts 20/25/09d/10a with
+documented first-pass fallbacks) and then
+the greyscale figure-conversion utility (Script 27, step 48) as a callable
 post-processing step, retained in `run_analysis.py` but not treated as an analytical
 phase. Two further post-review diagnostics added in the same cascade slot into
 earlier phases as successors to their data source: `11c_pflood_achievability.py`
@@ -209,9 +227,13 @@ reading Script 11b's per-well λ table) and `14b_year_of_crossing.py` (Phase 4,
 step 16, the bootstrap year-of-crossing diagnostic for §7 Conclusion 11 reading
 Script 14's annual summer-min series). References to "Script 25" mean coastal-gradient;
 "Script 26" means van Willegen MSL aggregation and the equilibrium wetness index; "Script 26b" means UKCP18 MSL
-projection; "Script 26c" means MSL5 report-format figures; "Script 27" means
+projection; "Script 26c" means MSL5 report-format figures; "Script 09f" means
+management-vs-coastal spatial-reach synthesis; "Script 27" means
 greyscale post-processing; "Script 28" means C3 detrend check; "Script 29" means
-within-C3 variance attribution; "Script 11c" means P_flood achievability map;
+within-C3 variance attribution; "Script 30" means C4 constrained-β₃ triangulation;
+"Script 36" means absolute climate-removed secular trend; "Script 37" means driver
+validation; "Script 37b" means comparative driver footing; "Script 38" means
+coast-to-inland MAM transect; "Script 11c" means P_flood achievability map;
 "Script 14b" means bootstrap year-of-crossing.
 Within the Script 10 clearfell BACI suite,
 `10c_forest_zone_analysis.py` runs in order but its outputs are treated as

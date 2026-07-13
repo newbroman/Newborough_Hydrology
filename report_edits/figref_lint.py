@@ -64,8 +64,15 @@ def extract_text(pdf_path):
     return out.stdout
 
 
-# A caption line: starts (after optional leading space) with "Figure N:" or "Figure Na:".
-CAPTION_RE = re.compile(r"^\s*Figure (\d+[a-z]?):\s*(.*)$")
+# A caption line: starts (after optional leading space) with "Figure N. Title"
+# or "Figure N: Title" — LibreOffice caption fields render with a PERIOD after
+# the number ("Figure 3a. Data coverage…"), not a colon. Accept either.
+# The ^\s* anchor plus the required whitespace after the separator keeps this from
+# matching a mid-sentence "…in Figure 3. The next…" unless that reference has
+# wrapped to the very start of a line AND is followed by a capitalised word —
+# a case checked and not observed in this document. Caption titles are always
+# capitalised; a wrapped ref would continue lowercase.
+CAPTION_RE = re.compile(r"^\s*Figure (\d+[a-z]?)[.:]\s+(.*)$")
 
 # An in-text reference. Handles "Figure 58", "Figures 7 and 8", "Figures 36-39",
 # "Figures 22, 23", "Figure 47a". Captures the leading number plus any tail list

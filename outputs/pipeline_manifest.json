@@ -1,0 +1,403 @@
+{
+  "total_registered": 48,
+  "by_tier": {
+    "analytical_toplevel": 39,
+    "display_utility": 3,
+    "optin_diagnostic": 6
+  },
+  "by_exec": {
+    "default": 45,
+    "optin": 3
+  },
+  "analytical_headline": 46,
+  "analytical_phases": 17,
+  "scraping_substeps": 5,
+  "clearfell_substeps": 13,
+  "generated": "2026-07-13T08:57:17",
+  "steps": [
+    {
+      "index": 1,
+      "total": 48,
+      "script": "01_data_prep.py",
+      "desc": "Data preparation",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 2,
+      "total": 48,
+      "script": "02_clustering.py",
+      "desc": "Behavioural clustering",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 3,
+      "total": 48,
+      "script": "03_state_space_model.py",
+      "desc": "State-space regression + LCSC",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 4,
+      "total": 48,
+      "script": "04_cluster_visualisations.py",
+      "desc": "Core cluster visualisation",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 5,
+      "total": 48,
+      "script": "05_pearson_affinity.py",
+      "desc": "Pearson membership audit",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 6,
+      "total": 48,
+      "script": "06_pearson_extended.py",
+      "desc": "Pearson extended network integration",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 7,
+      "total": 48,
+      "script": "07_spatial_coefficients.py",
+      "desc": "Spatial coefficient mapping",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 8,
+      "total": 48,
+      "script": "08_model_benchmarking.py",
+      "desc": "Model benchmarking (LCSC vs Traditional)",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 9,
+      "total": 48,
+      "script": "run_09_scraping.py",
+      "desc": "Scraping analysis suite (09a\u201309e)",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 10,
+      "total": 48,
+      "script": "run_10_clearfell.py",
+      "desc": "Clear-fell BACI analysis suite (10a\u201310m)",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 11,
+      "total": 48,
+      "script": "11_forecasting_thresholds.py",
+      "desc": "Forecasting and critical thresholds",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 12,
+      "total": 48,
+      "script": "11b_spatial_thresholds.py",
+      "desc": "Spatial eco-hydrological threshold maps",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 13,
+      "total": 48,
+      "script": "11c_pflood_achievability.py",
+      "desc": "P_flood achievability categorical map (\u00a75.9 / Conclusion 4)",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 14,
+      "total": 48,
+      "script": "00_climate_summary.py",
+      "desc": "Climate summary outputs",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 15,
+      "total": 48,
+      "script": "14_climate_projections.py",
+      "desc": "Figure: Climate trajectory projections",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 16,
+      "total": 48,
+      "script": "14b_year_of_crossing.py",
+      "desc": "Bootstrap year-of-crossing for Curreli thresholds (\u00a77 Conclusion 11)",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 17,
+      "total": 48,
+      "script": "12_figure_site_overview.py",
+      "desc": "Figure: DEM site overview",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 18,
+      "total": 48,
+      "script": "13_figure_experimental_design.py",
+      "desc": "Figure: Experimental design GIS map",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 19,
+      "total": 48,
+      "script": "15_depth_dependent_pet.py",
+      "desc": "Depth-dependent PET analysis",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 20,
+      "total": 48,
+      "script": "17_wtf_specific_yield.py",
+      "desc": "WTF cluster Sy estimation",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 21,
+      "total": 48,
+      "script": "16_water_bal.py",
+      "desc": "Water balance decomposition",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 22,
+      "total": 48,
+      "script": "18_wtf_spatial.py",
+      "desc": "WTF spatial analysis and Sy mapping",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 23,
+      "total": 48,
+      "script": "19_spatial_groundwater.py",
+      "desc": "Spatial groundwater analysis",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 24,
+      "total": 48,
+      "script": "20_spatial_figures.py",
+      "desc": "Spatial paper figures",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 25,
+      "total": 48,
+      "script": "21_forestry_scenarios.py",
+      "desc": "Forestry scenarios and management figures",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 26,
+      "total": 48,
+      "script": "25_coastal_gradient.py",
+      "desc": "Coastal-retreat gradient analysis",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 27,
+      "total": 48,
+      "script": "22_residual_lag_analysis.py",
+      "desc": "Residual lag structure analysis",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 28,
+      "total": 48,
+      "script": "23_ridge_recharge_lag_test.py",
+      "desc": "Ridge recharge lag hypothesis test",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 29,
+      "total": 48,
+      "script": "24_residual_seasonality.py",
+      "desc": "Residual seasonality diagnostics",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 30,
+      "total": 48,
+      "script": "26_van_willegen_msl.py",
+      "desc": "Van Willegen (2025) 5-year MSL aggregation",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 31,
+      "total": 48,
+      "script": "26b_van_willegen_msl_projections.py",
+      "desc": "UKCP18 MSL5 climate projections (Tool B)",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 32,
+      "total": 48,
+      "script": "26c_msl5_report_figures.py",
+      "desc": "MSL5 report-format figures (Figures for \u00a74.8.4 / \u00a74.10.1)",
+      "tier": "D",
+      "exec": "default"
+    },
+    {
+      "index": 33,
+      "total": 48,
+      "script": "28_c3_detrend_check.py",
+      "desc": "Cluster framework diagnostic: C3 detrend check (H0)",
+      "tier": "X",
+      "exec": "default"
+    },
+    {
+      "index": 34,
+      "total": 48,
+      "script": "29_c3_within_variance_check.py",
+      "desc": "Cluster framework diagnostic: within-C3 spatial structure",
+      "tier": "X",
+      "exec": "default"
+    },
+    {
+      "index": 35,
+      "total": 48,
+      "script": "30_c4_constrained_fit.py",
+      "desc": "Cluster framework diagnostic: C4 constrained-\u03b23 triangulation sensitivity",
+      "tier": "X",
+      "exec": "default"
+    },
+    {
+      "index": 36,
+      "total": 48,
+      "script": "32_differential_movement.py",
+      "desc": "Figure: secular differential water-table drift (report Fig 59)",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 37,
+      "total": 48,
+      "script": "33_envelope_amplification.py",
+      "desc": "Figure: climate-swing amplification + drought-floor (report Fig 60)",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 38,
+      "total": 48,
+      "script": "35_per_well_amplification.py",
+      "desc": "Figure+table: per-well climate-sensitivity coefficient (Paper 1; co-temporal, SSM-calibrated)",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 39,
+      "total": 48,
+      "script": "36_absolute_climate_trend.py",
+      "desc": "Figure: absolute climate-removed per-well secular trend map (spring CWB detrended)",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 40,
+      "total": 48,
+      "script": "37_driver_validation.py",
+      "desc": "Validation: predicted-vs-observed driver-change map (scatter + residual map)",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 41,
+      "total": 48,
+      "script": "37b_driver_footing.py",
+      "desc": "Part B: comparative driver footing \u2014 forest \u00b7 scrape \u00b7 coast on common currencies (peak / area-integrated / ecological-threshold)",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 42,
+      "total": 48,
+      "script": "24b_residual_climatology.py",
+      "desc": "Cluster-stratified residual climatology (supplementary diagnostic)",
+      "tier": "X",
+      "exec": "optin"
+    },
+    {
+      "index": 43,
+      "total": 48,
+      "script": "31_cluster_validation.py",
+      "desc": "Independent k=5 partition validation (supplementary diagnostic)",
+      "tier": "X",
+      "exec": "optin"
+    },
+    {
+      "index": 44,
+      "total": 48,
+      "script": "31b_separation_vs_recoverability.py",
+      "desc": "Cluster separation vs recoverability (supplementary diagnostic)",
+      "tier": "X",
+      "exec": "optin"
+    },
+    {
+      "index": 45,
+      "total": 48,
+      "script": "34_window_sensitivity.py",
+      "desc": "MSL5 two-window sensitivity demonstration figure (\u00a75.7.5)",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 46,
+      "total": 48,
+      "script": "38_coastal_transect.py",
+      "desc": "Coast-to-inland MAM transect \u2014 observational delta_0 diagnostic (\u00a75.7)",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 47,
+      "total": 48,
+      "script": "09f_management_effects.py",
+      "desc": "Figure: management-interventions + coastal-retreat spatial reach (\u00a75.8; two-pass, reads Scripts 20/25/09d/10a)",
+      "tier": "D",
+      "exec": "default"
+    },
+    {
+      "index": 48,
+      "total": 48,
+      "script": "27_greyscale_figures.py",
+      "desc": "Greyscale figure conversion (journal-ready B&W)",
+      "tier": "D",
+      "exec": "default"
+    }
+  ]
+}

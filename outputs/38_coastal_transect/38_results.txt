@@ -1,0 +1,25 @@
+=== Script 38 — coast-to-inland MAM transect (2010–2023) ===
+Wells: coastal anchor CEH22, inland anchor NW4, interior NW5, scraped profile-only CEH40, CEH41
+Window: 2010–2023  (n = 14 MAM points)
+
+TREND (AR(1)-corrected OLS): -28.16 mm/yr
+  AR p-value: 0.0001   OLS p-value: 0.0001
+  rho (lag-1 residual autocorr): 0.000   n_eff: 14.0
+  Bootstrap 95% CI: [-34.23, -21.98] mm/yr (significant)
+
+Comparison — Script 25 delta_0 (forest_free, linear_capped fit): -29.03 mm/yr [-32.79, -25.27], L = 894 m
+
+DISCRIMINATOR READ: erosion-consistent growing gradient — the coast-inland MAM head difference trends progressively more negative, with the 95% CI excluding zero, consistent with a moving coastal boundary rather than a static, climate-wobbling offset.
+
+CLIMATE-CORRECTED PROFILE (figure panel b, anchor-referenced to NW4):
+  Coastal-end ordering vs year (Spearman rho):
+    raw absolute CEH22:            rho = -0.321
+    anchor-referenced CEH22-NW4:   rho = -0.873
+  Referencing to the erosion-free inland anchor removes common-mode climate model-free; a rho closer to -1 means a cleaner monotonic coastal drawdown through time.
+
+CAVEATS:
+  - Window opens 2010, after coastal drawdown was already underway; the slope is the 2010–2023 ongoing rate, not the full since-2005 accumulation. This is fine — delta_0 is a rate.
+  - One line, four/five wells: a growing gradient is erosion-specific, but a flat one means erosion is not detectable HERE, not that it is absent.
+  - Even a growing gradient cannot separate erosion from a time-varying substrate effect; it separates growing (erosion-like) from static (geometry-like). The cored SW-NE transect (Sec. 5.7) remains the mechanism-resolving test.
+  - CEH40 and CEH41 both carry the Feb-2013 eastern-scrape offset; used for profile shape only, never in the coast-inland metric.
+  - Clearfell (Dec 2017) is deliberately not excluded from the window: the felled compartment is in the western forest (C4/C5), and forest perturbations propagate south-westward toward Caernarfon Bay, not into this open-dune line (site-geography convention) — a geographic argument specific to this transect, not a general one.

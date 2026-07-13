@@ -174,7 +174,14 @@ from utils import config, paths
 from utils.data_utils import normalize_well_name
 from utils.console_utils import banner, phase, step, info, note, result, saved, done, warn
 
-__version__ = "1.3.0"
+__version__ = "1.4.0"  # 2026-07-13: profile figure reduced to a single
+#                       climate-corrected panel (was two). Dropped the raw
+#                       absolute panel (a) — a methods demo, not evidence;
+#                       raw levels remain in 38_transect.csv. Single-hue
+#                       light->dark ramp (was viridis) so early->late reads
+#                       as deepening; coastal-end year-ordering now legible.
+#                       Figure only — no change to any number, window, trend,
+#                       CI, or the difference plot.
 VERSION = __version__
 SCRIPT_ID = "38"
 
@@ -363,46 +370,49 @@ def ar_corrected_slope(years: np.ndarray, vals: np.ndarray) -> dict | None:
 
 def make_profile_plot(yr: pd.DataFrame, years: list[int], dist: dict[str, float],
                        fig_path) -> None:
-    """Two-panel coast-to-inland MAM head profile (m AOD vs distance-along-transect).
+    """Single-panel climate-corrected coast-to-inland MAM head profile.
 
-    Panel (a) — RAW absolute MAM level per well per year. Each year's whole
-    line rides up/down with that year's wetness (common-mode climate), which is
-    an order of magnitude larger than the ~28 mm/yr erosion signal, so the
-    year-coloured lines do NOT stack in order — the erosion is buried.
+    Each well's MAM level is anchor-referenced to the inland anchor NW4
+    (h_well(t) - h_NW4(t) per year). NW4 sits outside the L ~= 894 m drawdown
+    band and is effectively erosion-free, so its year-to-year movement IS the
+    common-mode climate signal; subtracting it removes that climate signal
+    model-free (the same logic as the headline CEH22-NW4 metric, drawn across
+    all wells). The coastal end then shows its progressive relative drawdown
+    ordered by year (coastal-end Spearman rho ~ -0.87, vs ~ -0.32 for raw
+    absolute levels).
 
-    Panel (b) — CLIMATE-CORRECTED, anchor-referenced to the inland anchor NW4:
-    h_well(t) - h_NW4(t). NW4 sits outside the L ~= 894 m drawdown band and is
-    effectively erosion-free, so its year-to-year movement IS the climate
-    signal; subtracting it removes common-mode climate model-free (same logic
-    as the headline CEH22-NW4 metric, just drawn across all wells). The coastal
-    end then shows its progressive relative drawdown, ordered by year.
+    v1.4.0: reduced from two panels to this single climate-corrected panel.
+    The former panel (a) (raw absolute profile) demonstrated that common-mode
+    climate buries the erosion signal — a methods point, not evidence — and is
+    dropped from the figure (the raw levels remain in 38_transect.csv). Three
+    legibility changes surface the year-ordering the two-panel version buried:
+      - a sequential single-hue ramp (light early -> dark late) so the eye
+        reads deepening-over-time directly, replacing the viridis blue->yellow
+        scale that did not order intuitively;
+      - the y-axis is zoomed to the coastal-end range where the signal lives
+        (the inland anchor is pinned at 0 by construction, so the full ~6 m
+        span carried no information at the coastal end);
+      - lines are thicker with a light->dark ramp for temporal contrast.
 
-    CEH40/CEH41 are kept in BOTH panels, annotated as scraped: they carry the
-    Feb-2013 eastern-scrape offset, so in panel (b) they sit off the clean
-    coast->inland line by roughly a constant amount — shown for transparency,
-    not used in any metric.
+    CEH40/CEH41 carry the Feb-2013 eastern-scrape offset, so they sit off the
+    clean coast->inland line by roughly a constant amount — shown for
+    transparency, annotated as scraped, never used in any metric.
     """
     order = sorted(ALL_TRANSECT_WELLS, key=lambda w: dist[w])
     xs = [dist[w] for w in order]
 
-    cmap = plt.get_cmap("viridis")
+    # Sequential single-hue ramp: light (early) -> dark (late) reads as
+    # progressive deepening. "Blues" runs light->dark with increasing value.
+    cmap = plt.get_cmap("Blues")
+    # Compress into [0.30, 1.0] so the earliest year is still a visible light
+    # blue rather than near-white.
     norm = plt.Normalize(vmin=min(years), vmax=max(years))
+    def year_colour(y):
+        return cmap(0.30 + 0.70 * norm(y))
 
-    fig, (ax_a, ax_b) = plt.subplots(2, 1, figsize=(8.2, 9.8), sharex=True)
+    fig, ax = plt.subplots(figsize=(8.2, 6.0))
 
-    # ---- Panel (a): raw absolute profile ------------------------------------
-    for y in years:
-        row = yr.loc[y, order] if y in yr.index else None
-        if row is None or row.isna().any():
-            continue
-        ax_a.plot(xs, row.values, "-o", color=cmap(norm(y)), lw=1.3, ms=4,
-                  alpha=0.85, zorder=2)
-    ax_a.set_ylabel("MAM mean water level (m AOD)")
-    ax_a.set_title("(a) Raw absolute profile \u2014 dominated by common-mode climate",
-                   fontsize=11, loc="left")
-    ax_a.grid(alpha=0.3)
-
-    # ---- Panel (b): climate-corrected (anchor-referenced to NW4) -------------
+    ref_coastal_vals = []   # to set the zoom window from the coastal-end spread
     for y in years:
         if y not in yr.index:
             continue
@@ -412,21 +422,19 @@ def make_profile_plot(yr: pd.DataFrame, years: list[int], dist: dict[str, float]
         ref = row - row[INLAND_ANCHOR]
         if ref.isna().any():
             continue
-        ax_b.plot(xs, ref.values, "-o", color=cmap(norm(y)), lw=1.3, ms=4,
-                  alpha=0.85, zorder=2)
-    ax_b.axhline(0.0, color="dimgray", lw=0.8, ls="--", zorder=1)
-    ax_b.set_ylabel("MAM level relative to inland anchor NW4 (m)")
-    ax_b.set_title("(b) Climate-corrected profile \u2014 anchor-referenced to NW4",
-                   fontsize=11, loc="left")
-    ax_b.set_xlabel("Distance along transect, coast \u2192 inland (m)")
-    ax_b.grid(alpha=0.3)
+        ax.plot(xs, ref.values, "-o", color=year_colour(y), lw=1.8, ms=4,
+                alpha=0.9, zorder=2)
+        if not pd.isna(ref.get(COAST_ANCHOR)):
+            ref_coastal_vals.append(float(ref[COAST_ANCHOR]))
 
-    # ---- shared well annotations (below panel b) ----------------------------
-    # v1.3.0: alternate the vertical offset by transect position so that any
-    # two adjacent wells' labels stay separated regardless of how close they
-    # sit along the transect. Previously all labels used a single fixed
-    # offset, which let CEH40 and CEH41 (~840-970 m apart, both carrying the
-    # two-line "(scraped -- profile only)" tag) overlap illegibly.
+    ax.axhline(0.0, color="dimgray", lw=0.8, ls="--", zorder=1)
+    ax.set_ylabel("MAM level relative to inland anchor NW4 (m)")
+    ax.set_xlabel("Distance along transect, coast \u2192 inland (m)")
+    ax.set_title("Climate-corrected coast-to-inland MAM profile "
+                 "(anchor-referenced to NW4)", fontsize=11, loc="left")
+    ax.grid(alpha=0.3)
+
+    # ---- well annotations (below the axis) ----------------------------------
     for i, w in enumerate(order):
         label = w.upper()
         if w == COAST_ANCHOR:
@@ -436,13 +444,17 @@ def make_profile_plot(yr: pd.DataFrame, years: list[int], dist: dict[str, float]
         elif w in SCRAPED_PROFILE_ONLY:
             label += "\n(scraped \u2014 profile only)"
         y_offset = -34 if i % 2 == 0 else -52
-        ax_b.annotate(label, (dist[w], ax_b.get_ylim()[0]), xytext=(0, y_offset),
-                      textcoords="offset points", ha="center", fontsize=7.5,
-                      color="dimgray")
+        ax.annotate(label, (dist[w], ax.get_ylim()[0]), xytext=(0, y_offset),
+                    textcoords="offset points", ha="center", fontsize=7.5,
+                    color="dimgray")
 
-    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+    # Colorbar built from the SAME compressed ramp [0.30, 1.0] the lines use,
+    # so the legend colours match the plotted line colours exactly.
+    from matplotlib.colors import ListedColormap
+    _ramp = ListedColormap(cmap(np.linspace(0.30, 1.0, 256)))
+    sm = plt.cm.ScalarMappable(cmap=_ramp, norm=norm)
     sm.set_array([])
-    cbar = fig.colorbar(sm, ax=(ax_a, ax_b), pad=0.02)
+    cbar = fig.colorbar(sm, ax=ax, pad=0.02)
     cbar.set_label("Year (MAM)")
 
     fig.suptitle("Coast-to-inland MAM head profile", fontsize=13, x=0.09, ha="left")

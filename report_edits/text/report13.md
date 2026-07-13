@@ -46,6 +46,8 @@ Deng, Z., Priestley, S.C., Guan, H., Love, A.J. and Simmons, C.T. (2013). Canopy
 
 Donohue, R.J., McVicar, T.R. and Roderick, M.L. (2010) Assessing the ability of potential evaporation formulations to capture the dynamics in evaporative demand within a changing climate. Journal of Hydrology, 386(1–4), pp. 186–197. [**https://doi.org/10.1016/j.jhydrol.2010.03.020**](https://doi.org/10.1016/j.jhydrol.2010.03.020)
 
+Ferguson, G. and Gleeson, T. (2012) Vulnerability of coastal aquifers to groundwater use and climate change. **Nature Climate Change**, 2, 342–345.
+
 Fetter, C. W. (2001) *Applied Hydrogeology* (4th ed.). Prentice Hall.
 
 Flyamer, I. M., Illingworth, R. S., & others. (2020) *adjustText: Automatically adjust text position in matplotlib plots to minimize overlaps*. GitHub repository. [*https://github.com/Phlya/adjustText*](https://github.com/Phlya/adjustText)
@@ -94,6 +96,8 @@ Hesp, P.A. and Thom, B.G. (1990) Geomorphology and evolution of active transgres
 
 Hollingham, M. (2026b) Newborough Warren Hydrogeological Modelling Suite Scenario Viewer. Available at: [**https://newbroman.github.io/Newborough\_Hydrology/scenario\_viewer.html**](https://newbroman.github.io/Newborough-Hydrology_models/scenario_viewer.html) \[Accessed May 2026\].
 
+Huizer, S., Radermacher, M., de Vries, S., Oude Essink, G. H. P. and Bierkens, M. F. P. (2018) Impact of coastal forcing and groundwater recharge on the growth of a fresh groundwater lens in a mega-scale beach nourishment. *Hydrology and Earth System Sciences*, 22, 1065–1080. <https://doi.org/10.5194/hess-22-1065-2018>
+
 Hunter, J. D. (2007). Matplotlib: A 2D graphics environment. *Computing in Science & Engineering*, 9(3), 90-95. *https://doi.org/10.1109/MCSE.2007.55*
 
 Hypolite, J., Arvor, D., Bertrand, G., & Fovet, O. (2021) A state-space approach to groundwater level forecasting: Comparisons with lumped and machine learning models. *Journal of Hydrology*, 603, 127115. [*https://doi.org/10.1016/j.jhydrol.2021.127115*](https://doi.org/10.1016/j.jhydrol.2021.127115)
@@ -103,6 +107,8 @@ Jennings, T.A.H. (1990) The changing hydrology of the Newborough Dune System due
 Jones, M.L.M., Sowerby, A. and Wallace, H.A. (2007) Better Understanding of Soil Resources — Dune Stabilization and Rates of Soil Development on Welsh Dune Systems. CCW Contract Science Report No. 796. Bangor: Countryside Council for Wales / Centre for Ecology and Hydrology.
 
 Jordahl, K., den Bossche, J. V., Fleischmann, M., Wasserman, J., McBride, P., Gerard, J., ... & Ward, B. (2020). *geopandas/geopandas: v0.8.1*. Zenodo. **https://doi.org/10.5281/zenodo.3946761**
+
+Kiflai, M. E. and Whitman, D. (2023) Morphologic, atmospheric, and oceanic drivers cause multi-temporal saltwater intrusion on a remote, sand island. **Water Resources Research**, 59. <https://doi.org/10.1029/2022WR033582>
 
 Knotters, M. and van Walsum, P.E.V. (1997) Estimating fluctuation quantities from time series of water-table depths using models with a stochastic component. Journal of Hydrology, 197(1–4), pp. 25–46.
 
@@ -117,6 +123,8 @@ Manis, J., Shanafield, M., Cook, P. G., Andersen, M. S., & McCallum, J. L. (2022
 McKinney, W. (2010) Data structures for statistical computing in Python. In *Proceedings of the 9th Python in Science Conference* (Vol. 445, pp. 51-56). [**https://doi.org/10.25080/Majora-92bf1922-00a**](https://doi.org/10.25080/Majora-92bf1922-00a)
 
 Met Office (2018) UKCP18 Regional Projections on a 12 km grid over the UK for 1980–2080. Centre for Environmental Data Analysis. Met Office Hadley Centre. Available at: https://catalogue.ceda.ac.uk/uuid/b4d24b3df3754b9d9028447eb3cbd878
+
+Michael, H. A., Russoniello, C. J. and Byron, L. A. (2013) Global assessment of vulnerability to sea-level rise in topography-limited and recharge-limited coastal groundwater systems. **Water Resources Research**, 49, 2228–2240.
 
 Nash, J.E. and Sutcliffe, J.V. (1970) River flow forecasting through conceptual models. Part I — A discussion of principles. Journal of Hydrology, 10(3), pp. 282–290.
 
@@ -142,7 +150,9 @@ Ranwell, D.S. (1959) Newborough Warren, Anglesey 1. The dune system and dune sla
 
 Rao, A. R., & Srinivas, V. V. (2006) Regionalization of watersheds by fuzzy cluster analysis. *Journal of Hydrology*, 318(1-4), 57-79. [**https://doi.org/10.1016/j.jhydrol.2005.06.004**](https://doi.org/10.1016/j.jhydrol.2005.06.004)
 
-Robins, N. S., Jones, M. L. M., & Farr, G. (2013) Shallow groundwater in the dune and slack environment: The implications for management. *Quarterly Journal of Engineering Geology and Hydrogeology*, 46(3), 261–265. [**https://doi.org/10.1144/qjegh2012-045**](https://www.google.com/search?q=https://doi.org/10.1144/qjegh2012-045)
+Robins, N. S., Jones, M. L. M., & Farr, G. (2013) Shallow groundwater in the dune and slack environment: The implications for management. *Quarterly Journal of Engineering Geology and Hydrogeology*, 46(3), 261–265. [**https://doi.org/10.1144/qjegh2012-045**](https://doi.org/10.1144/qjegh2012-045)
+
+Robins, N. S., Pye, K. and Wallace, H. (2013) Dynamic coastal dune spit: the impact of morphological change on dune slacks at Whiteford Burrows, South Wales, UK. *Journal of Coastal Conservation*, 17(3), 473–482. <https://doi.org/10.1007/s11852-013-0245-4>
 
 Robinson, E.L., Brown, M.J., Kay, A.L., Lane, R.A., Chapman, R., Bell, V.A. and Blyth, E.M. (2023) CHESS-SCAPE: high-resolution future projections of multiple climate scenarios for the United Kingdom derived from bias-corrected UKCP18 regional climate model output. Earth System Science Data, 15(12), pp. 5371–5401. https://doi.org/10.5194/essd-15-5371-2023
 

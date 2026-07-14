@@ -172,6 +172,19 @@ COAST_RETREAT_EFFECTIVE_M = 105.0
 # erfc transient — so it is named separately and the two can diverge in future.
 COAST_CHRONIC_YEARS = 5.0
 
+# --- Post-intervention equilibration (decay) characterisation (Scripts 09c, 10d) -
+# Parameters for the summer-minimum equilibration/decay-slope characterisation:
+# the scraped-slack relaxation transient at CEH36 (09c) and its clearfell
+# no-decay comparator at WMC3 (10d). The decay is characterised as a plain OLS
+# slope on the annual summer-minimum gap series (no AR(1): annual points, n≈9,
+# where AR(1) would be unstable). The residual plateau is the mean of the final
+# EQUIL_RESIDUAL_WINDOW_YEARS summer years; a slope is only reported where at
+# least EQUIL_MIN_FIT_POINTS annual points are available.  These are
+# characterisations of management-relevant trajectories, reported soft: the
+# literature supplies mechanism, direction and timescale, not a matching rate.
+EQUIL_RESIDUAL_WINDOW_YEARS = 5   # residual plateau = mean of final N summer years
+EQUIL_MIN_FIT_POINTS        = 3   # minimum annual points required for an OLS slope
+
 CLUSTER_MARKERS = {
     1: "o",
     2: "s",

@@ -31,7 +31,17 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-05-23
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-07-14
+# 1.5.0 — Clearfell no-decay comparator added (Task G). New report-number:
+#         the post-felling OLS slope of WMC3's summer-minimum forest-control
+#         gap (Gap_forest_m, 2018→last), as the matched-currency comparator to
+#         the CEH36 scrape equilibration decay (09c). This isolates the SHAPE
+#         (decay vs no-decay), not the step: the clearfell step is a
+#         monthly/mean effect (canonical ANCOVA), and is near-zero in the
+#         summer minimum (cf. the committed summer ANCOVA), so this comparator
+#         is reported purely as the flatness/no-decay reference. Plain OLS, no
+#         AR(1) (annual points). New row in 10d_report_numbers; all other
+#         outputs byte-identical. Min-points gate from config.EQUIL_MIN_FIT_POINTS.
 # 1.4.0 — plot_summer_minima() figure-correctness fix (two defects):
 #         (A) Wandering tier mean in panel (a).  The per-year tier mean
 #             was np.mean() over whichever roster wells happened to have
@@ -109,6 +119,7 @@ from utils.clearfell_common import (
     SUMMER_MONTHS,
 )
 from utils.paths import make_all_dirs, DIR_10
+from utils.config import EQUIL_MIN_FIT_POINTS
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -606,6 +617,33 @@ for _, row in mixed_df.iterrows():
             well=row['Tier'],
             note=f"p={format_p(row['Clearfell_p'])}, "
                  f"model={row['Model']}, N={row['N']}")
+
+# Clearfell no-decay comparator (Task G): post-felling OLS slope of WMC3's
+# summer-minimum forest-control gap. Matched-currency reference for the CEH36
+# scrape equilibration decay (09c). Reports the SHAPE (flatness), not the step
+# — the clearfell step is a monthly/mean effect and is near-zero in the summer
+# minimum. Plain OLS, no AR(1).
+if 'wmc3' in well_mins:
+    wmc3_gap = {yr: well_mins['wmc3'][yr] - forest_centroid_mins[yr]
+                for yr in well_mins['wmc3'] if yr in forest_centroid_mins}
+    post_years = sorted(yr for yr in wmc3_gap if yr >= POST_YEAR)
+    if len(post_years) >= EQUIL_MIN_FIT_POINTS:
+        post_vals = [wmc3_gap[yr] for yr in post_years]
+        r = sp_stats.linregress(post_years, post_vals)
+        rpt.add("Clearfell_equilibration_slope_WMC3",
+                float(r.slope),
+                well="WMC3", era="Post_felling",
+                note=f"OLS Gap_forest_m {post_years[0]}-{post_years[-1]}, "
+                     f"p={format_p(r.pvalue)}, R2={r.rvalue**2:.2f}, "
+                     f"n={len(post_years)} (plain OLS, no AR1; no-decay comparator "
+                     f"to 09c scrape equilibration; flatness only, not a step)")
+        print(f"  Clearfell comparator (WMC3 Gap_forest_m {post_years[0]}-"
+              f"{post_years[-1]}): slope {r.slope*1000:+.1f} mm/yr, "
+              f"p={format_p(r.pvalue)} \u2014 no-decay reference")
+    else:
+        warn("WMC3: insufficient post-felling points for no-decay comparator")
+else:
+    warn("WMC3 not in well_mins \u2014 skipping clearfell no-decay comparator")
 
 n_saved = rpt.save(OUT_REPORT)
 saved(f"{OUT_REPORT.name} ({n_saved} rows)")

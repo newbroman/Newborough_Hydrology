@@ -14,6 +14,8 @@ Betson, M. and Scholefield, P. (2004) Implications for the Water Balance of Newb
 
 Beven, K. (2012) Rainfall-Runoff Modelling: The Primer. 2nd edn. Chichester: Wiley-Blackwell.
 
+****Buglife (2019)**** **Coastal sand dunes.** Habitat management guidance. Buglife – The Invertebrate Conservation Trust, Peterborough.
+
 ****Bristow, C.S. (2003)**** The Impact of Forestry on Coastal Geomorphology at Newborough Warren / Ynys Llanddwyn NNR, SSSI, pSAC. Volumes 1–5. Contract FC 73-05-18, Final Report. Countryside Council for Wales. London: Birkbeck University of London.
 
 Bristow, C.S. and Bailey, S.D. (2001) Non-invasive investigation of water table and structures in coastal dunes using ground-penetrating radar (GPR): implications for dune management. In: Houston, J.A., Edmondson, S.E. and Rooney, P.J. (eds) **Coastal Dune Management: Shared Experience of European Conservation Practice.** Liverpool University Press, pp. 408–417
@@ -62,6 +64,8 @@ Gash, J.H.C. (1979) An analytical model of rainfall interception by forests. Qua
 
 Gash, J.H.C., Wright, I.R. and Lloyd, C.R. (1980) Comparative estimates of interception loss from three coniferous forests in Great Britain. Journal of Hydrology, 48, pp. 89–105.
 
+****Gerla, P.J. (2019)**** *M*onitoring and Modeling the Effect of Agricultural Drainage and Recent Channel Incision on Adjacent Groundwater-Dependent Ecosystems. Water** 11(4): 863, [**https://doi.org/10.3390/w11040863**](https://doi.org/10.3390/w11040863)
+
 Giddens, K.M., Parfitt, R.L. and Percival, H.J. (1997) Comparison of some soil properties under *Pinus radiata* and pasture. *New Zealand Journal of Agricultural Research*, 40(4), pp. 443–450
 
 Gillies, S., & others. (2013) *Rasterio: Geospatial raster I/O for Python programmers*. GitHub repository. **https://github.com/rasterio/rasterio**
@@ -96,6 +100,8 @@ Hesp, P.A. and Thom, B.G. (1990) Geomorphology and evolution of active transgres
 
 Hollingham, M. (2026b) Newborough Warren Hydrogeological Modelling Suite Scenario Viewer. Available at: [**https://newbroman.github.io/Newborough\_Hydrology/scenario\_viewer.html**](https://newbroman.github.io/Newborough-Hydrology_models/scenario_viewer.html) \[Accessed May 2026\].
 
+**Hooghoudt, S.B. (1940)** Bijdragen tot de kennis van eenige natuurkundige grootheden van den grond. 7. Algemeene beschouwing van het probleem van de detailontwatering en de infiltratie door middel van parallel loopende drains, greppels, slooten en kanalen \[General consideration of the problem of field drainage by parallel drains, ditches, watercourses and channels\]. **Verslagen van Landbouwkundige Onderzoekingen** 46(14)B, 515–707. Algemeene Landsdrukkerij, 's-Gravenhage.
+
 Huizer, S., Radermacher, M., de Vries, S., Oude Essink, G. H. P. and Bierkens, M. F. P. (2018) Impact of coastal forcing and groundwater recharge on the growth of a fresh groundwater lens in a mega-scale beach nourishment. *Hydrology and Earth System Sciences*, 22, 1065–1080. <https://doi.org/10.5194/hess-22-1065-2018>
 
 Hunter, J. D. (2007). Matplotlib: A 2D graphics environment. *Computing in Science & Engineering*, 9(3), 90-95. *https://doi.org/10.1109/MCSE.2007.55*
@@ -105,6 +111,8 @@ Hypolite, J., Arvor, D., Bertrand, G., & Fovet, O. (2021) A state-space approach
 Jennings, T.A.H. (1990) The changing hydrology of the Newborough Dune System due to afforestation. Unpublished M.Sc. dissertation, University of North Wales, Bangor.
 
 Jones, M.L.M., Sowerby, A. and Wallace, H.A. (2007) Better Understanding of Soil Resources — Dune Stabilization and Rates of Soil Development on Welsh Dune Systems. CCW Contract Science Report No. 796. Bangor: Countryside Council for Wales / Centre for Ecology and Hydrology.
+
+****Jones, ****M.****L.****M****, Rooney, P., Rhymes, J. and Dynamic Dunescapes partners (2021)**** **The Sand Dune Managers Handbook**, Version 1, June 2021. Produced for the Dynamic Dunescapes (DuneLIFE) project, LIFE17 NAT/UK/000570.
 
 Jordahl, K., den Bossche, J. V., Fleischmann, M., Wasserman, J., McBride, P., Gerard, J., ... & Ward, B. (2020). *geopandas/geopandas: v0.8.1*. Zenodo. **https://doi.org/10.5281/zenodo.3946761**
 
@@ -162,6 +170,8 @@ Rutter, A.J., Kershaw, K.A., Robins, P.C. and Morton, A.J. (1971) A predictive m
 
 ****Scanlon, B.R., Healy, R.W. and Cook, P.G. (2002)**** Choosing appropriate techniques for quantifying groundwater recharge. **Hydrogeology Journal**, 10(1), 18–39. [**https://doi.org/10.1007/s10040-001-0176-2**](https://doi.org/10.1007/s10040-001-0176-2)
 
+****van Schilfgaarde, J. (1963)**** Design of tile drainage for falling water tables. **Journal of the Irrigation and Drainage Division, ASCE** 89(2), 1–12.
+
 Seabold, S., & Perktold, J. (2010). statsmodels: Econometric and statistical modeling with python. In *Proceedings of the 9th Python in Science Conference* (Vol. 57, pp. 61-66). [**https://doi.org/10.25080/Majora-92bf1922-011**](https://doi.org/10.25080/Majora-92bf1922-011)
 
 **Šimůnek, J., Šejna, M., Saito, H., Sakai, M., & van Genuchten, M. T. (2008) **The HYDRUS-1D Software Package for Simulating the One-Dimensional Movement of Water, Heat, and Multiple Solutes in Variably Saturated Media, Version 4.0**. HYDRUS Software Series 3, Department of Environmental Sciences, University of California Riverside, Riverside, California, USA.**
@@ -184,15 +194,15 @@ Thornthwaite, C.W. and Mather, J.R. (1957) Instructions and tables for computing
 
 Underwood, A.J. (1992). Beyond BACI: the detection of environmental impacts on populations in the real, but variable, world. *Journal of Experimental Marine Biology and Ecology*, 161(2), 145-178.
 
-> van Willegen, L., Wallace, H., Curreli, A., Dwyer, C., Ratcliffe, J., Jones, D.L., Williams, G., Hollingham, M. & Jones, L. (2024). Dune slack Ecohydrology Dataset. Mendeley Data, V1. https://doi.org/10.17632/p4xvb6xxp9.1
-
-van Willegen, L., Wallace, H., Curreli, A., Dwyer, C., Ratcliffe, J., Jones, D.L., Williams, G., Hollingham, M. and Jones, L. (2025) Five-year carry-over effects in dune slack vegetation response to hydrology. **Ecological Indicators**, 170, 113016. [**https://doi.org/10.1016/j.ecolind.2024.113016**](https://doi.org/10.1016/j.ecolind.2024.113016)
-
 ****Virtanen, P., Gommers, R., Oliphant, T.E., Haberland, M., Reddy, T., Cournapeau, D., ... & van der Walt, S.J. (2020)**** SciPy 1.0: Fundamental algorithms for scientific computing in Python. **Nature Methods**, 17(3), 261–272. [**https://doi.org/10.1038/s41592-020-0772-5**](https://doi.org/10.1038/s41592-020-0772-5)
 
 Ward, J.H. (1963) Hierarchical grouping to optimize an objective function. Journal of the American Statistical Association, 58(301), pp. 236–244.
 
 Waskom, M.L. (2021) seaborn: statistical data visualization. **Journal of Open Source Software** 6(60): 3021. [**https://doi.org/10.21105/joss.0302**W](https://doi.org/10.21105/joss.0302W)
+
+> van Willegen, L., Wallace, H., Curreli, A., Dwyer, C., Ratcliffe, J., Jones, D.L., Williams, G., Hollingham, M. & Jones, L. (2024). Dune slack Ecohydrology Dataset. Mendeley Data, V1. https://doi.org/10.17632/p4xvb6xxp9.1
+
+van Willegen, L., Wallace, H., Curreli, A., Dwyer, C., Ratcliffe, J., Jones, D.L., Williams, G., Hollingham, M. and Jones, L. (2025) Five-year carry-over effects in dune slack vegetation response to hydrology. *Ecological Indicators*, 170, 113016. [*https://doi.org/10.1016/j.ecolind.2024.113016*](https://doi.org/10.1016/j.ecolind.2024.113016)
 
 > Williams, E.J. (1959). The comparison of regression variables. Journal of the Royal Statistical Society, Series B (Methodological), 21(2), 396–399.
 

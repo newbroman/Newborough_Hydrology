@@ -34,7 +34,23 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.2.5"  # Hollingham (2026) — 2026-06-23
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-07-14
+# 1.3.0 — Scrape equilibration (decay) characterisation added (Task G). New
+#         phase computes, for CEH36, the summer-minimum-gap relaxation
+#         transient: peak (post-scrape maximum) and its year; residual plateau
+#         (mean of the final EQUIL_RESIDUAL_WINDOW_YEARS summer years); and the
+#         post-peak and from-scrape OLS decay slopes (plain OLS, no AR(1) at
+#         annual resolution). Emitted for BOTH the climate-corrected gap
+#         (headline) and the CEH36-CEH4 paired gap (robustness). The paired
+#         series does not turn over (its maximum is the final year), so its
+#         post-peak slope is degenerate and is skipped with a note; only the
+#         from-scrape paired slope is reported. New rows in 09c_report_numbers.
+#         The divergence between the two — decay against the climate control,
+#         no decay against the coastal-paired control (CEH4 shares the coastal
+#         drawdown) — is the confound made explicit and is reported as-is.
+#         Figures/other CSVs byte-identical. Constants from config.py; no
+#         hardcoded years (windows derive from SCRAPING_DATE, the observed
+#         peak, and last_year).
 # 1.2.5 — Reproducibility: deterministic well ordering. `all_wells` and the
 #         paired-control loop now use sorted(set(...)) instead of list(set(...)),
 #         so the three output CSVs are byte-stable across runs. Python string-hash
@@ -97,6 +113,7 @@ from utils.scraping_common import (
 from utils.clearfell_common import (
     annual_summer_minimum, forest_control_centroid_summer_min,
 )
+from utils.config import EQUIL_RESIDUAL_WINDOW_YEARS, EQUIL_MIN_FIT_POINTS
 
 import pandas as pd
 import numpy as np
@@ -104,6 +121,61 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from scipy import stats as sp_stats
+
+
+def equilibration_stats(gap_by_year, event_year, resid_window, min_pts):
+    """Characterise a post-intervention summer-minimum relaxation transient.
+
+    Parameters
+    ----------
+    gap_by_year : dict {year: gap_m}
+        Annual summer-minimum gap (well - control centroid), in metres.
+    event_year : int
+        Intervention year; the peak is searched strictly after this year.
+    resid_window : int
+        Residual plateau = mean of the final ``resid_window`` summer years.
+    min_pts : int
+        Minimum annual points required to report an OLS slope.
+
+    Returns
+    -------
+    dict or None
+        peak / peak_year / residual / resid_start / resid_end / last, plus
+        ``from_peak`` and ``from_event`` slope dicts (or None). Each slope dict:
+        slope_m_per_yr, p, r2, n, start, end. ``from_peak`` is None when the
+        peak is the final year (degenerate — no post-peak decay to fit).
+    """
+    yrs = sorted(y for y in gap_by_year
+                 if gap_by_year[y] == gap_by_year[y])  # drop NaN
+    if not yrs:
+        return None
+    g = {y: gap_by_year[y] for y in yrs}
+    last = yrs[-1]
+    post_years = [y for y in yrs if y > event_year]
+    if not post_years:
+        return None
+    peak_year = max(post_years, key=lambda y: g[y])
+    resid_years = [y for y in yrs if y >= last - resid_window + 1]
+    residual = float(np.mean([g[y] for y in resid_years])) if resid_years else float("nan")
+
+    def _slope(start):
+        xs = [y for y in yrs if y >= start]
+        if len(xs) < min_pts:
+            return None
+        ys = [g[y] for y in xs]
+        r = sp_stats.linregress(xs, ys)
+        return {"slope_m_per_yr": float(r.slope), "p": float(r.pvalue),
+                "r2": float(r.rvalue ** 2), "n": len(xs),
+                "start": int(start), "end": int(last)}
+
+    return {
+        "peak": float(g[peak_year]), "peak_year": int(peak_year),
+        "residual": residual,
+        "resid_start": int(last - resid_window + 1), "resid_end": int(last),
+        "last": int(last),
+        "from_peak": _slope(peak_year) if peak_year < last else None,
+        "from_event": _slope(event_year + 1),
+    }
 
 
 def main():
@@ -254,6 +326,79 @@ def main():
             sig = " *" if row["p_value"] < 0.05 else ""
             print(f"     {row['Well']:<8}  shift = {row['Shift_mm']:+6.0f} mm  "
                   f"p = {format_p_value(row['p_value'])}{sig}")
+
+    # ── 4b. Scrape equilibration (decay) characterisation at CEH36 ────────
+    # Characterise the summer-minimum-gap relaxation transient: peak, residual
+    # plateau, and post-peak / from-scrape OLS decay slopes. Emitted for the
+    # climate-corrected gap (headline) and the CEH36-CEH4 paired gap
+    # (robustness). Reported soft; windows derive from SCRAPING_DATE, the
+    # observed peak, and last_year (no hardcoded years).
+    info("Characterising scrape equilibration (decay) at CEH36")
+    if "ceh36" in well_mins:
+        c36 = well_mins["ceh36"]
+        equil_specs = [("Climate", climate_centroid_mins)]
+        ceh36_paired = PAIRED_CONTROLS_MAP.get("ceh36")
+        if ceh36_paired and ceh36_paired in paired_mins:
+            equil_specs.append(("Paired", paired_mins[ceh36_paired]))
+        for ctrl_label, centroid in equil_specs:
+            gap = {yr: c36[yr] - centroid[yr]
+                   for yr in c36 if yr in centroid}
+            eq = equilibration_stats(gap, SCRAPING_DATE.year,
+                                     EQUIL_RESIDUAL_WINDOW_YEARS,
+                                     EQUIL_MIN_FIT_POINTS)
+            if eq is None:
+                warn(f"CEH36 {ctrl_label}: insufficient data for equilibration")
+                continue
+            no_turnover = eq["peak_year"] >= eq["last"]
+            report_rows.append({
+                "Parameter": "Scrape_equilibration_peak", "Well": "CEH36",
+                "Control": ctrl_label, "Value": round(eq["peak"], 4), "Unit": "m",
+                "Note": (f"year={eq['peak_year']}"
+                         + (" (series maximum is the final year \u2014 no turnover)"
+                            if no_turnover else "")),
+            })
+            report_rows.append({
+                "Parameter": "Scrape_equilibration_residual", "Well": "CEH36",
+                "Control": ctrl_label, "Value": round(eq["residual"], 4), "Unit": "m",
+                "Note": (f"mean {eq['resid_start']}-{eq['resid_end']} "
+                         f"(final {EQUIL_RESIDUAL_WINDOW_YEARS} yr)"),
+            })
+            if eq["from_peak"]:
+                fp = eq["from_peak"]
+                report_rows.append({
+                    "Parameter": "Scrape_equilibration_slope_from_peak",
+                    "Well": "CEH36", "Control": ctrl_label,
+                    "Value": round(fp["slope_m_per_yr"], 5), "Unit": "m/yr",
+                    "Note": (f"OLS {fp['start']}-{fp['end']}, "
+                             f"p={format_p_value(fp['p'])}, "
+                             f"R2={fp['r2']:.2f}, n={fp['n']} (plain OLS, no AR1)"),
+                })
+            else:
+                report_rows.append({
+                    "Parameter": "Scrape_equilibration_slope_from_peak",
+                    "Well": "CEH36", "Control": ctrl_label,
+                    "Value": "", "Unit": "m/yr",
+                    "Note": "degenerate \u2014 peak at final year (no post-peak decay)",
+                })
+            if eq["from_event"]:
+                fe = eq["from_event"]
+                report_rows.append({
+                    "Parameter": "Scrape_equilibration_slope_from_scrape",
+                    "Well": "CEH36", "Control": ctrl_label,
+                    "Value": round(fe["slope_m_per_yr"], 5), "Unit": "m/yr",
+                    "Note": (f"OLS {fe['start']}-{fe['end']}, "
+                             f"p={format_p_value(fe['p'])}, "
+                             f"R2={fe['r2']:.2f}, n={fe['n']} (plain OLS, no AR1)"),
+                })
+            fp_txt = (f"{eq['from_peak']['slope_m_per_yr']*1000:+.1f} mm/yr"
+                      if eq["from_peak"] else "n/a (peak at final yr)")
+            fe_txt = (f"{eq['from_event']['slope_m_per_yr']*1000:+.1f} mm/yr"
+                      if eq["from_event"] else "n/a")
+            print(f"     [{ctrl_label}] peak {eq['peak']*1000:+.0f} mm @ "
+                  f"{eq['peak_year']}  residual {eq['residual']*1000:+.0f} mm  "
+                  f"slope(peak\u2192) {fp_txt}  slope(scrape\u2192) {fe_txt}")
+    else:
+        warn("CEH36 not in well_mins \u2014 skipping equilibration characterisation")
 
     # ── 5. Figures ────────────────────────────────────────────────────────
     phase(5, "Generating figures")

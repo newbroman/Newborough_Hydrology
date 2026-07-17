@@ -193,6 +193,9 @@ _DEFAULTS = {
     "coast_reach_L_m":          894.0,   # 25_01 forest_free/linear_capped L
     "scrape_offsite_100m_vol":  -30.3,   # 09d_01 Scraping (off-site 100 m) mm w.e./month
     "clearfell_recovery_mm":    119.6,   # 10a ANCOVA_Forest_Impact_clearfell_step ×1000
+    "climate_c_mm_yr":          -6.35,   # 25_01 forest_free/linear_capped c_mm_yr (uniform climate term)
+    "wmc3_drawdown_mm":         -55.2,   # 10m WMC3_BACI_DiD_step_2015_scraping ×1000 (measured off-cut)
+    "wmc3_distance_m":          262.4,   # 09b_01 wmc3 dist_m (CEH36 -> WMC3 separation)
 }
 
 

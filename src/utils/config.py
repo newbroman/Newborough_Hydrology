@@ -172,6 +172,17 @@ COAST_RETREAT_EFFECTIVE_M = 105.0
 # erfc transient — so it is named separately and the two can diverge in future.
 COAST_CHRONIC_YEARS = 5.0
 
+# Mechanism-figure accumulation horizon (yr) — the horizon over which the
+# spatially-uniform climate term c and the coastal decline rate δ₀ are
+# accumulated to an equivalent depth for the public-summary mechanism figures
+# and the Script 09f reach panel's 20-yr comparison column (climate_20yr =
+# c × MECHANISM_HORIZON_YEARS = -127 mm; coastal shore = δ₀ × horizon). A
+# LONGER, distinct horizon from COAST_CHRONIC_YEARS (5 yr): the 5-yr basis is
+# the near-term chronic curve drawn on the reach panel, the 20-yr basis is the
+# site-footing horizon the mechanism grid uses. Kept here as the single source
+# so the reach column and the mechanism figures cannot drift apart.
+MECHANISM_HORIZON_YEARS = 20.0
+
 # --- Post-intervention equilibration (decay) characterisation (Scripts 09c, 10d) -
 # Parameters for the summer-minimum equilibration/decay-slope characterisation:
 # the scraped-slack relaxation transient at CEH36 (09c) and its clearfell

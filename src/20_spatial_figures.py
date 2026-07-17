@@ -63,7 +63,17 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds
 """
 
-__version__ = "1.32.0"  # Hollingham (2026) — 2026-07-05
+__version__ = "1.33.0"  # Hollingham (2026) — 2026-07-17
+# 1.33.0 — Documentation-only cleanup, no functional or figure change. The
+#         plot_scrape_drawdown() docstring and the SCRAPE_DEPTH_M constant
+#         still described the pre-1.10.0 logic (H0 = Sy × assumed depth),
+#         which 1.10.0 had already replaced with H0 anchored on the measured
+#         CEH36 response (D = H0/Sy as the derived, not-surveyed output).
+#         SCRAPE_DEPTH_M was unused dead code (confirmed: no reference
+#         anywhere in this file's executable code, and not imported
+#         elsewhere) — removed. Docstring rewritten to match the actual
+#         current multi-cut, real-geometry, measured-H0 logic. No values,
+#         figures, or CSVs change; every number reproduced is identical.
 # 1.32.0 — Driver-change maps: (a) Path B clearfell — both driver-change maps now
 #          plot the OBSERVED +120 mm BACI step (live from 10a
 #          ANCOVA_Forest_Impact_clearfell_step via new _load_clearfell_observed_mm(),
@@ -608,16 +618,6 @@ SCRAPE_CENTRE_N          = 363306.0   # m OSGB36 (CEH36)
 SCRAPE_LONG_M            = 60.0       # m, long axis into the warren
 SCRAPE_SHORT_M           = 30.0       # m, short axis
 SCRAPE_BEARING_DEG       = 45.0       # ° from N (NE long axis)
-SCRAPE_DEPTH_M           = 0.40       # m, excavation depth at CEH36 (40 cm) —
-                                      # the headline scenario parameter (title).
-                                      # The edge drawdown H0 is derived in-function
-                                      # as H0 = Sy × depth, with Sy the live C3
-                                      # specific yield (the "fraction" IS the
-                                      # specific yield of the sand). 0.40 m ×
-                                      # Sy(≈0.31) ≈ 124 mm, matching the directly
-                                      # measured CEH36 response (~129 mm). Inverting
-                                      # that response gives a C3-Sy estimate of the
-                                      # (unmeasured) scrape depth of 129/Sy ≈ 0.41 m.
 SCRAPE_FAVOUR_UPGRADIENT = True       # drain pulls inland (flip forest weight)
 SCRAPE_TRUNCATE_SEAWARD  = False      # seaward half-plane + foreshore clip.
 SCRAPE_RISE_BUFFER_M     = 10.0       # the scraped footprint RISES (slack
@@ -4303,25 +4303,31 @@ def plot_driver_change_20yr(wt, features, dpi=300):
 
 def plot_scrape_drawdown(wt, features, dpi=300, show_head=True):
     """
-    Figure 7: Illustrative scenario — steady-state drawdown propagation from a
-    dune-scrape, treated as a topographic DRAIN.
+    Illustrative scenario — steady-state drawdown propagation from all
+    mapped dune-scrapes, each treated as a topographic DRAIN.
 
     Companion/sibling to plot_drawdown_propagation() (Fig 3). Same leaky-aquifer
     decay length λ = √(K·b/(Sy·β₃)) with Sy, β₃ read live from C3, but:
-      * the source is a small rotated rectangle (SCRAPE_* constants), default a
-        30 × 60 m excavation with its long axis aimed NE, centred on CEH36
-        (the documented 2015 scrape, ~450 m inland);
-      * the cost-distance mildly favours up-gradient propagation; the seaward
-        truncation is applied only for a shore-margin scrape
-        (SCRAPE_TRUNCATE_SEAWARD), so for the inland CEH36 site the drain draws
-        all round (full cone);
-      * the field is a drawdown of edge magnitude H0 = Sy × SCRAPE_DEPTH_M,
-        i.e. the C3 specific yield times the scrape depth (≈124 mm for a 0.40 m
-        cut, consistent with the directly-measured ~129 mm CEH36 response).
+      * the source geometry is the real GPS-traced footprint of each registered
+        cut (data/*.kml via _scrape_registry()), falling back to a rotated
+        rectangle (SCRAPE_* constants) only if no traced footprint is found;
+      * per-cut fields are superposed with the method of images across the OS
+        High Water Mark coastline, enforcing zero drawdown at the fixed-head
+        sea boundary;
+      * edge magnitude H0 per cut is the MEASURED BACI response (Script 09a,
+        Pure_Scraping era vs local control) for the three monitored cuts
+        (CEH36, CEH18, CEH21), and assumed equal to the CEH36 value for the
+        remaining unmonitored cuts. H0 is the empirical input; the excavation
+        depth is the derived, NOT-surveyed output (D_inferred = H0 / Sy,
+        printed for reference only) — see _measured_ceh36_response() and the
+        v1.10.0 changelog entry above, which anchored H0 on the response and
+        removed the earlier Sy × assumed-depth heuristic from the provenance.
 
     Layers mirror Fig 3 (hillshade, optional head surface, filled/line drawdown
-    contours, cluster-coloured wells) plus the scrape polygon and centre marker.
-    The grid is clipped to the site outline.
+    contours, cluster-coloured wells) plus the scrape polygon(s) and centre
+    marker(s). Scrape interiors are masked (the slack itself rises — Section
+    5.4.1 — so only the surrounding drawdown, the dipole counterpart, is
+    shown). The grid is clipped to the site outline.
     """
     from heapq import heappush, heappop
     import geopandas as gpd

@@ -5,4 +5,5 @@ clearfell,Clearfell (canopy removed),Forest management,step,gain,observed,119.6,
 broadleaf,Broadleaf restock (canopy added),Forest management,progressive,loss,modelled,-56.2,-3780.4,-10339.1,66.0,0.0,0.0,1.0,0.0
 scrape_onsite,Scrape on-site (slack rise),Dune scraping,step,gain,observed,129.4,613.1,1874.2,66.0,0.0,0.0,0.0,1.0
 scrape_offsite,Scrape off-site (drain cone),Dune scraping,redistributive,loss,observed,-54.5,-21469.9,-65633.4,66.0,0.0,0.0,5.0,0.0
+climate,Climate / common-mode (uniform decline),Climate (common-mode),uniform,loss,modelled,-127.0,-120554.8,-368535.9,66.0,0.0,0.0,18.0,0.0
 scrape_net,Scrape NET (on-site + off-site),Dune scraping,redistributive,net,observed+modelled,,-20856.8,-63759.2,,,,,

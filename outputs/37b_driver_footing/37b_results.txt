@@ -1,4 +1,4 @@
-37b_driver_footing v1.0.1 — Part B: Comparative Driver Footing
+37b_driver_footing v1.1.0 — Part B: Comparative Driver Footing
 ==========================================================================
 
 LIVE PARAMETERS
@@ -37,6 +37,10 @@ COMPARISON TABLE
   Scrape off-site (drain cone)           [Dune scraping, redistributive, loss, observed]
       peak=-54.5 mm  area=-21469.9 mm·ha  volume=-65633.4 m³
       SD15b (wet-slack, 610 mm): worsen=0  relieve=0   SD16 (dry-slack, 980 mm): worsen=5  relieve=0  (n=66)
+
+  Climate / common-mode (uniform decline) [Climate (common-mode), uniform, loss, modelled]
+      peak=-127.0 mm  area=-120554.8 mm·ha  volume=-368535.9 m³
+      SD15b (wet-slack, 610 mm): worsen=0  relieve=0   SD16 (dry-slack, 980 mm): worsen=18  relieve=0  (n=66)
 
   Scrape NET (on-site + off-site)        [Dune scraping, redistributive, net, observed+modelled]
       peak=n/a  area=-20856.8 mm·ha  volume=-63759.2 m³

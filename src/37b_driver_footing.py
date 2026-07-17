@@ -88,7 +88,25 @@ Outputs (outputs/37b_driver_footing/):
 Step 41/47, Phase 15 — after Script 37 (Part A).
 """
 
-__version__ = "1.0.1"  # 2026-07-07: plot_footing() resized from a 1x3 wide
+__version__ = "1.1.0"  # 2026-07-17: add CLIMATE as a distinctly-flagged
+#                       common-mode driver. A spatially-UNIFORM field
+#                       c × HORIZON_YEARS (= -6.35 mm/yr × 20 yr = -127 mm
+#                       everywhere), c live from Script 25 (25_01, forest_free/
+#                       linear_capped c_mm_yr) via load_climate_c(). It enters
+#                       all three currencies: peak = -127 mm (uniform); volume
+#                       uses the C3 representative Sy (same as coast/scrape, per
+#                       sign-off) and — because it acts over the WHOLE site, not
+#                       a fringe — is the largest single volume term; crossings
+#                       apply the uniform -127 mm to every well. Flagged apart
+#                       from the spatially-structured drivers (own driver group
+#                       "Climate (common-mode)", hatched bar + separator) so the
+#                       "common-mode not attributed to a mechanism" reading is
+#                       preserved. Figure panel titles renamed Currency -> Measure
+#                       (function identifiers unchanged); Currency-3/Measure-3
+#                       legend moved inside the panel (mid-right) so it clears
+#                       both the panel title and the coastal-erosion bar.
+#                       Analytical tier unchanged (a component, not a new step).
+# 1.0.1 — 2026-07-07: plot_footing() resized from a 1x3 wide
 #                       layout (19 in — ran off an A4 page) to a 3-row
 #                       vertical stack (7.2 x 9.6 in, fits A4 with margins).
 #                       Figure content/values unchanged.
@@ -172,6 +190,7 @@ COMPONENT_META = {
     "broadleaf":     ("Forest management",  "progressive", "loss",   False),
     "scrape_onsite": ("Dune scraping",      "step",        "gain",   True),
     "scrape_offsite":("Dune scraping",      "redistributive","loss", True),
+    "climate":       ("Climate (common-mode)","uniform",   "loss",   False),
 }
 COMPONENT_LABELS = {
     "coast_erosion":  "Coastal erosion (chronic drawdown)",
@@ -180,6 +199,7 @@ COMPONENT_LABELS = {
     "broadleaf":      "Broadleaf restock (canopy added)",
     "scrape_onsite":  "Scrape on-site (slack rise)",
     "scrape_offsite": "Scrape off-site (drain cone)",
+    "climate":        "Climate / common-mode (uniform decline)",
 }
 
 
@@ -217,6 +237,25 @@ def load_coastal_fit() -> tuple[float, float]:
         L = pipeline_params.default_value("coast_reach_L_m")
         warn(f"cannot read Script 25 fit ({exc}) — using first-pass defaults δ₀={d0}, L={L}")
         return d0, L
+
+
+def load_climate_c() -> float:
+    """Spatially-uniform climate term c (mm/yr, negative) — the modelled fit
+    term summarising the observed warren-wide fall. Script 25 forest-free
+    linear-capped row (same row as δ₀/L). First-pass fallback to the documented
+    default."""
+    try:
+        df = pd.read_csv(OUT_25_FIT_PARAMETERS)
+        row = df[(df["source"] == "forest_free") & (df["model"] == "linear_capped")]
+        if row.empty:
+            row = df[(df["source"] == "full") & (df["model"] == "linear_capped")]
+        c = float(row["c_mm_yr"].iloc[0])
+        info(f"climate c = {c:.2f} mm/yr (live, Script 25 forest-free linear-capped)")
+        return c
+    except Exception as exc:
+        c = float(pipeline_params.default_value("climate_c_mm_yr"))
+        warn(f"cannot read Script 25 fit ({exc}) — using first-pass default climate c = {c}")
+        return c
 
 
 def load_clearfell_step_mm() -> float:
@@ -320,8 +359,9 @@ def representative_sy(cluster_sy: dict, roster: pd.DataFrame) -> dict:
     else:
         sy_forest = float(np.nanmean([sy4, sy5]))
     info(f"representative Sy: coast/scrape (C3) = {sy_coast:.3f}; "
-         f"forest (C4 n={n4} + C5 n={n5}, weighted) = {sy_forest:.3f}")
-    return dict(coast=sy_coast, scrape=sy_coast, forest=sy_forest)
+         f"forest (C4 n={n4} + C5 n={n5}, weighted) = {sy_forest:.3f}; "
+         f"climate (C3, per sign-off) = {sy_coast:.3f}")
+    return dict(coast=sy_coast, scrape=sy_coast, forest=sy_forest, climate=sy_coast)
 
 
 # ---------------------------------------------------------------------------
@@ -404,7 +444,8 @@ def load_felling_geom():
 # horizon all step effects are fully realised")
 # ---------------------------------------------------------------------------
 
-def build_fields(gx, gy, s20, delta0, clearfell_step_mm, lam, fell_geom):
+def build_fields(gx, gy, s20, delta0, clearfell_step_mm, lam, fell_geom,
+                 climate_c_mm_yr):
     """Returns dict of {component_key: field (mm, signed)} on grid gx,gy,
     plus scalar peak-anchor values for Currency 1."""
     from shapely.geometry import Point
@@ -447,6 +488,12 @@ def build_fields(gx, gy, s20, delta0, clearfell_step_mm, lam, fell_geom):
     scrape_field = np.nan_to_num(scrape_field, nan=0.0) if scrape_field is not None else np.zeros_like(gx)
     fields["scrape_offsite"] = -1.0 * scrape_field
 
+    # --- Climate: spatially-UNIFORM common-mode decline (negative / loss) ----
+    #     c × horizon, flat everywhere (no reach decay). The one field with no
+    #     spatial structure — the background warren-wide fall.
+    fields["climate"] = np.full_like(gx, climate_c_mm_yr * HORIZON_YEARS)
+    peaks["climate"] = climate_c_mm_yr * HORIZON_YEARS   # uniform -> peak = value
+
     return fields, peaks
 
 
@@ -486,7 +533,12 @@ def currency2_integrals(fields: dict, mask: np.ndarray,
     for key, field in fields.items():
         vals = field[mask]
         mm_ha = float(np.sum(vals * cell_area_ha))
-        sy_key = "coast" if key in ("coast_erosion", "slr", "scrape_offsite") else "forest"
+        if key in ("coast_erosion", "slr", "scrape_offsite"):
+            sy_key = "coast"
+        elif key == "climate":
+            sy_key = "climate"
+        else:
+            sy_key = "forest"
         m3 = float(np.sum((vals / 1000.0) * cell_area_m2 * sy[sy_key]))
         out[key] = dict(mm_ha=mm_ha, m3=m3)
 
@@ -507,7 +559,8 @@ def currency2_integrals(fields: dict, mask: np.ndarray,
 
 def evaluate_component_at_wells(roster: pd.DataFrame, s20,
                                 delta0, clearfell_step_mm, lam, fell_geom,
-                                scrape_onsite_mm, onsite_cuts) -> pd.DataFrame:
+                                scrape_onsite_mm, onsite_cuts,
+                                climate_c_mm_yr) -> pd.DataFrame:
     """Per-well component deltas (mm, signed), evaluated at each well's
     (E,N) — same field constructions as build_fields(), plus the on-site
     scrape rise (fixed H0 if the well falls within a cut's rise buffer)."""
@@ -548,6 +601,7 @@ def evaluate_component_at_wells(roster: pd.DataFrame, s20,
     out["broadleaf"] = bl_delta
     out["scrape_onsite"] = scrape_on_delta
     out["scrape_offsite"] = scrape_off_delta
+    out["climate"] = climate_c_mm_yr * HORIZON_YEARS   # uniform at every well
     return out
 
 
@@ -640,45 +694,77 @@ def build_comparison_table(peaks: dict, integrals: dict, crossings: pd.DataFrame
 def plot_footing(df: pd.DataFrame, dpi: int = 150) -> None:
     """3-row vertical stack (one row per currency), sized to fit an A4 page
     (7.2 x 9.6 in, comfortably inside A4's 8.27 x 11.69 in with margins) —
-    the original 1x3 wide layout (19 in) ran off the page."""
-    comp_df = df[df.component != "scrape_net"].copy()
+    the original 1x3 wide layout (19 in) ran off the page.
+
+    The climate / common-mode term is flagged apart from the spatially-
+    structured drivers: its bars are hatched, a dotted separator sets it off,
+    and a note records that it is the spatially-uniform background decline,
+    not attributed to a specific mechanism."""
+    comp_df = df[df.component != "scrape_net"].copy().reset_index(drop=True)
     labels = [COMPONENT_LABELS[c] for c in comp_df.component]
     colours = ["#c0392b" if g == "loss" else "#1a5276" for g in comp_df.gain_or_loss]
+    # index of the climate / common-mode bar (flagged distinctly)
+    clim_idx = comp_df.index[comp_df.component == "climate"]
+    clim_i = int(clim_idx[0]) if len(clim_idx) else None
+
+    def _flag_climate(bars):
+        """Hatch the climate bar so it reads as the common-mode term."""
+        if clim_i is not None and clim_i < len(bars):
+            bars[clim_i].set_hatch("////")
+            bars[clim_i].set_edgecolor("white")
+            bars[clim_i].set_linewidth(0.0)
+
+    def _separator(ax):
+        """Dotted line setting the climate bar apart from the rest."""
+        if clim_i is not None:
+            ax.axhline(clim_i - 0.5, color="0.55", lw=0.8, ls=":", zorder=0)
 
     with plt.rc_context(MPL_RC):
         fig, axes = plt.subplots(3, 1, figsize=(7.2, 9.6))
 
         ax = axes[0]
-        ax.barh(labels, comp_df.peak_mm, color=colours)
+        _flag_climate(ax.barh(labels, comp_df.peak_mm, color=colours))
+        _separator(ax)
         ax.axvline(0, color="#999", lw=0.8)
         ax.set_xlabel("Peak local head change (mm)", fontsize=8.5)
-        ax.set_title("Currency 1 — Peak local (mostly observed anchors)", fontsize=9.5)
+        ax.set_title("Measure 1 — Peak local (mostly observed anchors)", fontsize=9.5)
         ax.tick_params(axis="both", labelsize=8)
 
         ax = axes[1]
-        ax.barh(labels, comp_df.volume_m3, color=colours)
+        _flag_climate(ax.barh(labels, comp_df.volume_m3, color=colours))
+        _separator(ax)
         ax.axvline(0, color="#999", lw=0.8)
         ax.set_xlabel("Area-integrated volume (m³, 20-yr / 2025 amplitude)", fontsize=8.5)
-        ax.set_title("Currency 2 — Area-integrated (site mask, 50 m grid)", fontsize=9.5)
+        ax.set_title("Measure 2 — Area-integrated (site mask, 50 m grid)", fontsize=9.5)
         ax.tick_params(axis="both", labelsize=8)
 
         ax = axes[2]
         net_worsen = comp_df.sd15b_crossings_worsen.fillna(0) + comp_df.sd16_crossings_worsen.fillna(0)
         net_relieve = comp_df.sd15b_crossings_relieve.fillna(0) + comp_df.sd16_crossings_relieve.fillna(0)
         y = np.arange(len(labels))
-        ax.barh(y - 0.2, net_worsen, height=0.35, color="#c0392b", label="worsen (cross toward threshold)")
-        ax.barh(y + 0.2, net_relieve, height=0.35, color="#1a5276", label="relieve (cross away)")
+        _flag_climate(ax.barh(y - 0.2, net_worsen, height=0.35, color="#c0392b",
+                              label="worsen (cross toward threshold)"))
+        _flag_climate(ax.barh(y + 0.2, net_relieve, height=0.35, color="#1a5276",
+                              label="relieve (cross away)"))
+        _separator(ax)
         ax.set_yticks(y); ax.set_yticklabels(labels, fontsize=8)
         ax.axvline(0, color="#999", lw=0.8)
         ax.set_xlabel("Wells crossing SD15b or SD16 (count, n=66 evaluated)", fontsize=8.5)
-        ax.set_title("Currency 3 — Ecological threshold crossings (Curreli)", fontsize=9.5)
+        ax.set_title("Measure 3 — Ecological threshold crossings (Curreli)", fontsize=9.5)
         ax.tick_params(axis="x", labelsize=8)
-        ax.legend(fontsize=7, loc="lower right")
+        # Legend inside the panel, mid/lower-right (clear now the climate bar
+        # stretches the x-axis) — was colliding with the title above the panel.
+        ax.legend(fontsize=7, loc="center right", framealpha=0.9)
 
         fig.suptitle(f"Part B — comparative driver footing v{__version__}\n"
-                     "forest · scrape · coast on common currencies "
+                     "forest · scrape · coast · climate on common measures "
                      f"({int(_H_START)}\u2192{int(_H_END)})", fontsize=10.5)
-        fig.tight_layout(rect=[0, 0, 1, 0.93])
+        fig.text(0.5, 0.005,
+                 "Climate / common-mode (hatched, below the separator) is the "
+                 "spatially-uniform background decline — shown apart from the "
+                 "mechanism-specific drivers and not attributed to a single driver.",
+                 ha="center", fontsize=6.8, style="italic", color="0.35")
+        fig.tight_layout(rect=[0, 0.02, 1, 0.93])
         fig.savefig(OUT_FIGURE, dpi=dpi)
         plt.close(fig)
     saved(OUT_FIGURE)
@@ -820,6 +906,7 @@ def main() -> int:
 
     phase(1, "Load live parameters")
     delta0, L_coast = load_coastal_fit()
+    climate_c = load_climate_c()
     clearfell_step_mm = load_clearfell_step_mm()
     scrape_onsite_mm = load_scrape_onsite_mm()
     scrape_offsite_mm = load_scrape_offsite_mm()
@@ -841,7 +928,7 @@ def main() -> int:
     if fell_geom is None:
         warn("felling polygon not found — clearfell field will be zero")
     gx, gy, mask, cell_area_ha, cell_area_m2 = build_grid()
-    fields, peaks_grid = build_fields(gx, gy, s20, delta0, clearfell_step_mm, lam, fell_geom)
+    fields, peaks_grid = build_fields(gx, gy, s20, delta0, clearfell_step_mm, lam, fell_geom, climate_c)
     onsite_cuts = onsite_scrape_registry(s20)
     info(f"scrape registry: {len(onsite_cuts)} cuts loaded")
 
@@ -857,7 +944,8 @@ def main() -> int:
 
     phase(6, "Currency 3 — ecological threshold crossings (Curreli)")
     per_well = evaluate_component_at_wells(roster, s20, delta0, clearfell_step_mm, lam,
-                                           fell_geom, scrape_onsite_mm, onsite_cuts)
+                                           fell_geom, scrape_onsite_mm, onsite_cuts,
+                                           climate_c)
     crossings = currency3_crossings(per_well, baseline_m)
 
     phase(7, "Assemble comparison table and write outputs")

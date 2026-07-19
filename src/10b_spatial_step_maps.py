@@ -72,7 +72,14 @@ from utils.clearfell_common import (
 )
 from utils.render_utils import render_figure
 
-__version__ = "1.4.0"
+__version__ = "1.5.2"
+# 1.5.2 (2026-07-19): review revision — BACI well labels 7.5 -> 8.5 pt.
+# 1.5.1 (2026-07-19): review revisions — well-label white background boxes
+#   removed (labels sit directly on the map); CEH31 label moved below-left of
+#   its marker via a per-well override (was obscuring WMC3).
+# 1.5.0 (2026-07-19): legibility hand pass — BACI well labels 7 -> 7.5 pt
+#   (well labels +0.5); map axis labels gain +1 pt via map_utils v1.6.0
+#   add_en_axes defaults (no change here).
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.3.1 — Inline comment at the IDW xi/yi construction documenting the
 #         40 m grid choice (vs the 50 m project standard) — Item 5 in
@@ -302,13 +309,18 @@ def main():
             )
 
         # ── Well labels for clearfell-area wells ────────────────────────────────
+        # Per-well placement overrides (offset points, alignment). CEH31's
+        # default right-side label obscured WMC3 (142 m east); it goes
+        # below-left instead (NW9, 138 m west, sits above the label line).
+        label_overrides = {"ceh31": {"xytext": (-6, -9), "ha": "right"}}
         for _, r in panel_df.iterrows():
             if r["well"] in HIGHLIGHT_WELLS and YLIM[0] <= r["N"] <= YLIM[1]:
+                ov = label_overrides.get(str(r["well"]).lower(), {})
                 ax.annotate(
                     r["well"].upper(), (r["E"], r["N"]),
-                    textcoords="offset points", xytext=(6, 5),
-                    fontsize=7, color="black", fontweight="bold",
-                    bbox=dict(fc="white", alpha=0.7, pad=1.0, edgecolor="none"),
+                    textcoords="offset points",
+                    xytext=ov.get("xytext", (6, 5)), ha=ov.get("ha", "left"),
+                    fontsize=8.5, color="black", fontweight="bold",
                     zorder=6,
                 )
 

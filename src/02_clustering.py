@@ -14,7 +14,12 @@ Outputs (final — outputs/02_clustering/):
     02_02_validation_plots.png
 """
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-06-28
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-07-19
+# 1.4.0 (2026-07-19): 02_01 dendrogram opted in to render_figure font
+#   autoscaling with min_placed_pt=5.0 — leaf labels (8 pt authored) printed
+#   ~3.4 pt at 160 mm; the uniform ×1.49 enlargement lifts leaves to 5.0 pt
+#   placed and the y-axis tick labels to ~6.2 pt. Legibility hand pass; no
+#   other figure in this script touched.
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.2.0 (2026-06-28): clustering target K is now a run parameter
 #   (pipeline_params.get_requested_n_clusters(); default 5, overridable per run
@@ -1355,7 +1360,7 @@ if __name__ == "__main__":
     )
     ax.set_ylabel("Ward Linkage Distance", fontsize=12)
     fig.tight_layout()
-    render_figure(fig, OUT_02_DENDROGRAM)
+    render_figure(fig, OUT_02_DENDROGRAM, autoscale_fonts=True, min_placed_pt=5.0)
     plt.close(fig)
 
     step("Generating Cluster Hydrograph + Water-Balance Figure...")

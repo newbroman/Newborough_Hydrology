@@ -47,6 +47,130 @@ numeric verification checks (image-view is unreliable in-session — verify by t
 printed checks) and writes the outputs via paths.py.
 
 CHANGELOG
+    1.6.6  2026-07-19  Inland flat-pond revision (Martin's review of the v1.6.5 render):
+                       (a) per-curve flooding — the flat-pond flatten (_r_und_flat)
+                       generalised to _flat_pond(dd, surf, grd), applied to EACH curve
+                       against its OWN drawn-down surface. The reference floods where the
+                       undisturbed table does; coastal floods only where the drawn-down
+                       coastal surface still stands above the floor (so it no longer steps
+                       under the far slack once coastal drawdown has recovered); climate,
+                       drawn below every inland floor, floods nowhere and stays a smooth
+                       declining line. (b) flat pond now spans only the TRULY flooded
+                       width (where the ground floor is below the pond level), matching
+                       segmented(); the regional table rises out on the landward flank,
+                       not inside the slack — fixes "slack 3 not flat across the whole
+                       slack". (c) sqrt bend -> smoothstep (zero slope at both ends) so
+                       the flat->rise join has no kink — fixes the "step where climate and
+                       coastal meet" at the ~698 m crossing. Verified: crossing meet is
+                       smooth, coastal max adjacent step 0.49 px, seam continuity at 330 m
+                       preserved. Management figures and global PX_PER_MM unaffected.
+    1.6.5  2026-07-19  Inland slacks now read like the near-shore slacks. New
+                       _r_und_flat() draws the inland undisturbed table as a FLAT pond
+                       surface across each wet slack with a sqrt Dupuit bend down from
+                       the landward (uphill) rim, instead of the smooth interpolator
+                       sloping straight through. The reach reference line AND both
+                       drawdown curves (coastal, climate; plus the grid's storm/5-yr
+                       lines) are drawn on this base, in build_reach_body (standalone +
+                       grid) and build_reach_panel (lay drivers figure), so all five
+                       slacks read consistently (Martin: full consistency with the
+                       reference). Climate never ponds inland (drawn-down table sits
+                       below every slack floor) so its shape only reshapes slightly;
+                       the coastal line still ponds in the far-landward slack and now
+                       renders as a flat pond there rather than sloping through. Seam
+                       continuity at 330 m preserved (330 m is dry, flat base == raw).
+                       Config slack floors left at the raised values (Martin); global
+                       PX_PER_MM and the management figures unaffected.
+    1.6.4  2026-07-18  Fixed the flat climate curve introduced by the local reach
+                       scale: climate_build_after_table now lowers the ACTUAL undisturbed
+                       table (which already carries the near-shore ponds) rather than a
+                       fresh smooth parabola that, at the smaller local drop, sat above
+                       the slack floors and clamped into one long flat pond. Also fixed a
+                       sign bug — the local px scale now takes abs() like the global
+                       mm_px, so the near-shore climate drops the right way and meets the
+                       inland climate exactly at the seam (179.6 == 179.6). Management
+                       climate figure unaffected.
+    1.6.3  2026-07-18  Reach figure rescaled instead of reshaped (Martin): the dune and
+                       water-table geometry are LEFT ALONE (so they still match the
+                       management diagrams that share ground()/segmented()). The existing
+                       drawn gap between the undisturbed line and the sea-level 20-yr
+                       erosion toe at the nose is DEFINED as coastal_dd(0)=581 mm, giving
+                       a local reach amplitude scale _RPX; the climate offset, inland
+                       drawdown curves and (now recomputed) exaggeration factor are all
+                       drawn to that scale. The 581 mm marker is a DOTTED line at the toe
+                       spanning that gap. Global PX_PER_MM (0.10, shared with 09f)
+                       untouched; management figures unchanged.
+    1.6.2  2026-07-18  Standalone reach near-shore labels tidied: storm / 5-yr / 20-yr
+                       are labelled directly under their own ghost band (aligned where
+                       the tick marks pointed), the "shoreline retreating" caption
+                       moved to its own line below, and the tick marks removed. The
+                       earlier inline "shoreline retreating: storm / 5 yr / 20 yr" had
+                       displaced the state labels away from their bands. Grid reach
+                       panel (multiples=True) unchanged — keeps the storm/5-yr Dupuit
+                       curves.
+    1.6.1  2026-07-18  build_reach_body gains a `multiples` flag so the grid's reach
+                       panel and the standalone paper reach diverge as needed:
+                       - grid (multiples=True): storm / 5-yr / 20-yr Dupuit curves
+                         restored (near-shore + inland), each state labelled directly
+                         UNDER its ghost band with NO tick marks, legend names all
+                         three states;
+                       - standalone (multiples=False): unchanged — single 20-yr
+                         horizon, consolidated inline label, colour ticks (the paper
+                         reviewer's decluttered version).
+                       Fixes the grid: retreat labels no longer offset, ticks removed,
+                       storm/5-yr lines back.
+    1.6.0  2026-07-18  Two cosmetic follow-ups: (a) FONT_STACK pins
+                       'Liberation Sans','DejaVu Sans',sans-serif on every text
+                       element, so Greek/subscript glyphs render instead of falling
+                       back to a box font; "d0" -> delta0 in the reach and technical-
+                       stack coastal labels to match Section 4.11 notation; (b) the
+                       near-shore storm/5-yr/20-yr band labels are consolidated from
+                       three stacked colour labels into one compact inline
+                       "shoreline retreating: storm / 5 yr / 20 yr" (each state in its
+                       colour) with small colour ticks under the ghost bands — de-
+                       clutters the shore while keeping the single 20-yr water-table
+                       horizon.
+    1.5.1  2026-07-18  Reach figure — second review pass:
+                       (a) coastal measure bar re-anchored at the COAST EDGE where the
+                       full -581 mm applies (was drawn near 300 m, where the taper is
+                       ~386 mm, contradicting its "at shore" label); (b) arithmetic
+                       made self-consistent — "d0 29.03 mm/yr x 20 yr" = 581 (unrounded
+                       product; 29.0 x 20 = 580 would mismatch the 581 label);
+                       (c) -127 mm annotation moved into a boxed callout in clear space
+                       (was running across the dotted undisturbed line and the crossover
+                       marker); near-shore already at a single 20-yr horizon (storm/5yr
+                       are ghosted shoreline + band labels only), exaggeration x104
+                       confirmed from actual axis scaling (103.93). NOTE: d0/c kept as
+                       ASCII (not the delta0/c glyphs) because the cairosvg render font
+                       fallback boxes some non-ASCII; revisit if a glyph-complete font
+                       is pinned in the render step.
+    1.5.0  2026-07-18  Technical reach figure sharpened (reviewer concerns):
+                       (a) vertical quantified — a 100 mm scale bar plus direct
+                       amplitude annotations (coastal shore -581 mm = d0 29.0 x 20;
+                       climate -127 mm = c 6.35 x 20), the numbers that make the
+                       crossover legible; (b) framing fixed — "water-table curves and
+                       900 m reach to committed scale; dune surface illustrative;
+                       vertical exaggerated x104", tied to the fitted d0/L/climate
+                       (Section 4.11), no longer "schematic, not to scale";
+                       (c) near-shore multiples resolved — only the 20-yr water-table
+                       curve is drawn (storm/5-yr remain as ghosted shoreline + band
+                       labels), so there is one unambiguous purple line; (d) x-ticks
+                       regularised to 150 m; (e) crossover reworded to "climate
+                       drawdown exceeds coastal"; solid/dashed/dotted confirmed
+                       BW-safe (distinct luminance AND pattern).
+    1.4.1  2026-07-18  Retreat-state legend removed from the technical reach figures;
+                       storm / 5-yr / 20-yr are now labelled directly under their own
+                       ghost shade (each band = one shoreline position), staggered in
+                       depth with a colour tick, in both the overlaid reach and the
+                       stacked technical coastal panel (build_reach_panel gains a
+                       register flag; labels are technical-only, absent from lay). The
+                       generic "shoreline retreating" band underline is dropped; a
+                       "shoreline retreating (storm to 20-yr)" summary line remains.
+    1.4.0  2026-07-18  Added build_reach_stack(reach, register): the stacked 3-panel
+                       coastal-vs-climate figure (undisturbed/coastal/climate) now
+                       lives here and serves BOTH registers — 'technical' (mm
+                       amplitudes, d0/c, precise crossing; new 09g output) and 'lay'
+                       (plain language; gen_grid_lay wraps it). The lay drivers figure
+                       is unchanged bar the crossing tag now reading "~698 m".
     1.3.1  2026-07-18  build_reach_panel() gains near-shore pond fill (_reach_ponds):
                        the undisturbed and climate lay panels now show standing water
                        in the flooded slacks, not just a line. build_reach_body still
@@ -88,7 +212,7 @@ CHANGELOG
 """
 from __future__ import annotations
 
-__version__ = "1.3.1"
+__version__ = "1.6.6"
 
 import numpy as np
 import pandas as pd
@@ -109,6 +233,10 @@ from utils.config import (
 # ================================================================================================
 XC, XE = 110.0, 640.0            # cross-section x-extent (canvas px)
 SEA = 250.0                      # sea level (canvas y)
+# Font stack pins a glyph-complete sans first, so mathematical/Greek glyphs (delta,
+# subscripts) can't fall back to a font that renders them as missing-glyph boxes.
+# 'Liberation Sans' and 'DejaVu Sans' both cover delta, subscript digits, x and ~.
+FONT_STACK = "'Liberation Sans','DejaVu Sans',sans-serif"
 off, BASE = 300, 300             # two-panel after-offset, ground baseline (singles; grid rescales)
 ORIG_SHORE = 110.0
 
@@ -397,7 +525,7 @@ def lbl(x, y, s, b=False, a='start', col=None):
     w = len(s) * 6.2 + 10; x0 = x - 5 if a == 'start' else (x - w + 5 if a == 'end' else x - w / 2)
     c = col if col else ("#26261f" if b else "#5f5e5a")
     return (f'<rect x="{x0:.0f}" y="{y-12:.0f}" width="{w:.0f}" height="17" rx="3" fill="#fff" opacity="0.9"/>'
-            f'<text x="{x:.0f}" y="{y:.0f}" font-family="sans-serif" font-size="12" '
+            f'<text x="{x:.0f}" y="{y:.0f}" font-family="{FONT_STACK}" font-size="12" '
             f'font-weight="{"600" if b else "400"}" fill="{c}" text-anchor="{a}">{s}</text>')
 
 def ld(x1, y1, x2, y2): return (f'<line x1="{x1:.0f}" y1="{y1:.0f}" x2="{x2:.0f}" y2="{y2:.0f}" '
@@ -409,7 +537,7 @@ def tick(x, yb): return (f'<line x1="{x:.0f}" y1="{yb-5:.0f}" x2="{x:.0f}" y2="{
 def txt(x, y, s, size=12, w='400', col='#26261f', anchor='start', style='', escape=True):
     if escape:
         s = str(s).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
-    return (f'<text x="{x:.1f}" y="{y:.1f}" font-family="sans-serif" font-size="{size}" '
+    return (f'<text x="{x:.1f}" y="{y:.1f}" font-family="{FONT_STACK}" font-size="{size}" '
             f'font-weight="{w}" fill="{col}" text-anchor="{anchor}"{style}>{s}</text>')
 
 # ================================================================================================
@@ -507,14 +635,21 @@ def scrape_build_after_table():
 # ================================================================================================
 PIN_A, PIN_B = 160.0, 215.0      # drop ramps 0 (sea pin) -> full over the fore dune
 
-def climate_build_after_table(wt_before):
+def climate_build_after_table(wt_before, px_per_mm=None):
     """Lower the CONTINUOUS grand Dupuit curve by the spatially-uniform 20-yr climate
     amplitude (ramped from the sea pin so the shore stays at sea level). The table only
     STEPS to a flat pond where the lowered curve still meets the surface; at c x 20 yr
-    (-127 mm) both slacks are dry. Returns (wt, drop, ponds=[(xl, xr, level), ...])."""
-    drop_px = mm_px(EDGE_DH_MM['climate_20yr'])
+    (-127 mm) both slacks are dry. Returns (wt, drop, ponds=[(xl, xr, level), ...]).
+    `px_per_mm` overrides the global mm scale (for the reach figure's local scale)."""
+    _pxmm = mm_px if px_per_mm is None else (lambda mm: abs(mm) * px_per_mm)
+    drop_px = _pxmm(EDGE_DH_MM['climate_20yr'])
     drop = drop_px * _ramp(X, PIN_A, PIN_B)
-    wt = grandf(110.0, 78.0)(X) + drop
+    # Lower the ACTUAL undisturbed table (wt_before, which already carries the correct
+    # near-shore slack ponds) by the ramped climate drop — not a fresh smooth parabola,
+    # which at a small drop would sit above the slack floors and clamp into one long flat
+    # pond (the "flat climate curve" bug). Re-pond only where the lowered table still
+    # floods a slack.
+    wt = np.asarray(wt_before, float).copy() + drop
     ponds = []
     for c in SLACK_C:
         floor = g1(c)
@@ -639,8 +774,53 @@ _IN_UD = list(zip(*MECH_FIG_INLAND_UND_PTS))
 def _r_ground_in(d): return np.interp(d, _IN_GD[0], _IN_GD[1])
 def _r_und_in(d):    return np.interp(d, _IN_UD[0], _IN_UD[1])
 
+def _flat_pond(dd, surf, grd):
+    """Draw a water surface `surf` (y over dd, y-down canvas) as flat ponds like the
+    near-shore slacks (segmented()): wherever the surface stands above the ground `grd`
+    (a slack floods), a FLAT pond sits at the seaward-rim level across the truly flooded
+    width — the part where the ground floor is actually below the pond level — and the
+    regional table then rises out of the pond up the landward flank via a smoothstep
+    (zero slope at both ends, so the flat->rise join has no kink). Landward of the pond,
+    and everywhere the surface is below ground, the smooth surface is kept unchanged.
+
+    Called PER CURVE: the undisturbed reference floods where the undisturbed table does,
+    the coastal curve only where the drawn-down coastal surface still floods (so it stays
+    smooth once coastal drawdown has recovered inland), and the climate curve only where
+    it floods (which, drawn below every inland floor, is nowhere — so climate stays a
+    smooth declining line). Returns y for array dd."""
+    dd = np.asarray(dd, float)
+    surf = np.asarray(surf, float)
+    grd = np.asarray(grd, float)
+    wet = surf < grd                                   # surface above the slack floor (a pond)
+    out = surf.copy(); n = len(dd); i = 0
+    while i < n:
+        if wet[i]:
+            j = i
+            while j < n and wet[j]:
+                j += 1
+            L = surf[i - 1] if i > 0 else surf[i]          # pond level = seaward rim (outlet)
+            k = i
+            while k < j and grd[k] > L:                    # flooded width: ground below pond level
+                k += 1
+            out[i:k] = L                                    # flat pond across the flooded width
+            if k < j:                                       # shallow landward tail: rise out of pond
+                landward = surf[j] if j < n else surf[j - 1]
+                d0, d1 = dd[k], dd[j - 1]
+                m = (dd >= d0) & (dd <= d1)
+                f = np.clip((dd[m] - d0) / max(d1 - d0, 1e-6), 0, 1)
+                out[m] = L - (L - landward) * (f * f * (3.0 - 2.0 * f))   # smoothstep, no kink
+            i = j
+        else:
+            i += 1
+    return out
+
+def _r_und_flat(dd):
+    """Undisturbed inland reference on the flat-pond base (thin wrapper over _flat_pond)."""
+    dd = np.asarray(dd, float)
+    return _flat_pond(dd, _r_und_in(dd), _r_ground_in(dd))
+
 def _r_txt(x, y, s, sz=12, w='400', c=INK, a='start', it=False):
-    return (f'<text x="{x:.1f}" y="{y:.1f}" font-family="sans-serif" font-size="{sz}" '
+    return (f'<text x="{x:.1f}" y="{y:.1f}" font-family="{FONT_STACK}" font-size="{sz}" '
             f'font-weight="{w}" fill="{c}" text-anchor="{a}"'
             f'{" font-style=\"italic\"" if it else ""}>{s}</text>')
 
@@ -710,17 +890,25 @@ def _reach_ponds(wt, pth):
     return "".join(out)
 
 
-def build_reach_panel(reach, driver, title=None, show_axis=True, show_crossing_note=False):
+def build_reach_panel(reach, driver, title=None, show_axis=True, show_crossing_note=False,
+                      register="technical"):
     """A single-driver reach panel on the shared profile, full 0..900 m. `driver` is
     one of 'undisturbed', 'coastal', 'climate'. Used by the lay stacked figure so the
     lay panels share the technical figure's exact profile and amplitudes; only one
-    driver line is drawn per panel. Returns the panel body SVG (no wrapper)."""
+    driver line is drawn per panel. `register` toggles technical-only annotation (the
+    storm/5yr/20yr retreat-band labels on the coastal panel). Returns the panel body
+    SVG (no wrapper)."""
     coastal_dd, CLIM, CROSS = reach['coastal_dd'], reach['climate_mm'], reach['crossing_m']
     def pth(xs, ys): return "M " + " L ".join(f"{a:.1f},{b:.1f}" for a, b in zip(xs, ys))
     s = []
     if title:
         s.append(_r_txt(_R_NL, 20, title, 13, '600'))
     _und, di, gxi = _reach_base(s, pth, draw_erosion=(driver == 'coastal'))
+    _und_raw = _r_und_in(di); _grd = _r_ground_in(di)         # per-curve flood base
+    def _pond_g(off_fn):                                       # flat-pond flatten of und + offset(mm)
+        surf = _und_raw + np.array([mm_px(off_fn(d)) for d in di], float)
+        return _flat_pond(di, surf, _grd)
+    _undf = _flat_pond(di, _und_raw, _grd)                     # reference: floods where und does
     xs = [_r_nx(x) for x in X]
 
     # pond fill in the near-shore slacks (undisturbed / climate share the wet 'before';
@@ -734,7 +922,7 @@ def build_reach_panel(reach, driver, title=None, show_axis=True, show_crossing_n
     # undisturbed reference — dashed grey, on every panel
     s.append(f'<path d="{pth(xs, list(_und))}" fill="none" stroke="{REF_GREY}" '
              f'stroke-width="1.3" stroke-dasharray="2 3"/>')
-    s.append(f'<path d="{pth(gxi, [_r_und_in(d) for d in di])}" fill="none" stroke="{REF_GREY}" '
+    s.append(f'<path d="{pth(gxi, list(_undf))}" fill="none" stroke="{REF_GREY}" '
              f'stroke-width="1.3" stroke-dasharray="2 3"/>')
 
     if driver == 'coastal':
@@ -744,14 +932,21 @@ def build_reach_panel(reach, driver, title=None, show_axis=True, show_crossing_n
         wt = grandf(SH['20yr'], hg)(X); m = X >= SH['20yr']
         s.append(f'<path d="{pth([_r_nx(x) for x in X[m]], [v for v in wt[m]])}" '
                  f'fill="none" stroke="{COAST}" stroke-width="2.6"/>')
-        s.append(f'<path d="{pth(gxi, [_r_und_in(d) + mm_px(coastal_dd(d)) for d in di])}" '
+        s.append(f'<path d="{pth(gxi, list(_pond_g(coastal_dd)))}" '
                  f'fill="none" stroke="{COAST}" stroke-width="2.6"/>')
         s.append(_r_txt(_r_nx(120), BASE - 46, 'sea', 10, c='#5f5e5a'))
+        if register == "technical":
+            # label each retreat band under its own ghost shade, in the state's colour
+            _prev = ORIG_SHORE
+            for k, lab in (('storm', 'storm'), ('5yr', '5 yr'), ('20yr', '20 yr')):
+                xmid = (_r_nx(_prev) + _r_nx(SH[k])) / 2
+                s.append(_r_txt(xmid, BASE + 2, lab, 8, '600', c=COL[k], a='middle'))
+                _prev = SH[k]
     elif driver == 'climate':
         _clm = climate_build_after_table(_und)[0]
         s.append(f'<path d="{pth(xs, list(_clm))}" fill="none" stroke="{CLIMC}" '
                  f'stroke-width="2.4" stroke-dasharray="7 3"/>')
-        s.append(f'<path d="{pth(gxi, [_r_und_in(d) + mm_px(CLIM) for d in di])}" fill="none" '
+        s.append(f'<path d="{pth(gxi, list(_pond_g(lambda d: CLIM)))}" fill="none" '
                  f'stroke="{CLIMC}" stroke-width="2.4" stroke-dasharray="7 3"/>')
         s.append(_r_txt(_r_nx(120), BASE - 46, 'sea', 10, c='#5f5e5a'))
     else:  # undisturbed — draw the wet table line so the ponds read as water, not gaps
@@ -766,18 +961,105 @@ def build_reach_panel(reach, driver, title=None, show_axis=True, show_crossing_n
         s.append(_r_txt(xc, 18, f'about {CROSS:.0f} m', 9, '600', c='#444', a='middle'))
 
     if show_axis:
-        for d in (0, 150, 330, 520, 720, 900):
+        for d in (0, 150, 300, 450, 600, 750, 900):
             s.append(_r_txt(_r_ix(d), BASE + 16, f'{d:.0f}' + (' m' if d == 900 else ''), 9,
                             c='#888', a='middle'))
     return "".join(s)
 
 
-def build_reach_body(reach):
+def build_reach_stack(reach, register="technical"):
+    """Stacked coastal-vs-climate reach: three panels (undisturbed / coastal / climate)
+    on the SHARED profile, full 0..900 m, vertically aligned on one distance axis with
+    the crossing marked. `register` is 'technical' (mm amplitudes, precise labels) or
+    'lay' (plain language). Used by Script 09g (technical) and gen_grid_lay (lay), so
+    both registers share one geometry. Returns a complete <svg> string."""
+    CLIM, CROSS = reach['climate_mm'], reach['crossing_m']
+    coastal_dd = reach['coastal_dd']
+    shore_mm = coastal_dd(0.0)
+    lay = (register == "lay")
+
+    PW = REACH_W
+    CROP_TOP, CROP_BOT = 96, int(BASE) + 24
+    BAND = CROP_BOT - CROP_TOP
+    HDR = 52
+    TITLE_H = 18
+    GAP = 10
+    W = PW
+    ROW = TITLE_H + BAND
+    H = HDR + 3 * ROW + 2 * GAP + 30
+
+    if lay:
+        head = "What coast and climate do to the water table"
+        sub = ("one long slice from the shore inland, on the same scale - "
+               "simple diagram, not to scale")
+        titles = {
+            'undisturbed': "Undisturbed dune (the starting point)",
+            'coastal': "With coastal retreat - deepest near the shore, fading inland",
+            'climate': "With climate drying - the same fall across the whole site",
+        }
+        foot = ("Climate is the biggest change overall because it lowers the whole "
+                "site; the sea's retreat bites hardest near the shore and fades by "
+                f"about {CROSS:.0f} m inland.")
+    else:
+        head = "Coastal retreat vs climate along the reach (stacked)"
+        sub = (f"undisturbed / coastal / climate on one continuous 900 m scale \u00b7 "
+               f"shared amplitude scale \u00b7 crossing at ~{CROSS:.0f} m")
+        titles = {
+            'undisturbed': "Undisturbed water table",
+            'coastal': f"Coastal retreat: -{shore_mm:.0f} mm at shore over 20 yr, "
+                       f"tapering to 0 by ~894 m (\u03b4\u2080 -29 mm/yr)",
+            'climate': f"Climate: uniform -{CLIM:.0f} mm over 20 yr (c -6.35 mm/yr)",
+        }
+        foot = (f"Coastal is deeper shoreward of ~{CROSS:.0f} m; climate (uniform "
+                f"-{CLIM:.0f} mm) is deeper inland and carries the larger site-wide mean.")
+
+    s = [f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" '
+         f'xmlns="http://www.w3.org/2000/svg"><rect width="{W}" height="{H}" fill="#fff"/>']
+    s.append(_r_txt(_R_NL, 26, head, 16, '600'))
+    s.append(_r_txt(_R_NL, 43, sub, 11, c='#888780'))
+
+    order = [('undisturbed', False), ('coastal', True), ('climate', True)]
+    for i, (driver, mark) in enumerate(order):
+        row_top = HDR + i * (ROW + GAP)
+        s.append(_r_txt(_R_NL, row_top + 13, titles[driver], 12, '600'))
+        if mark:
+            xc = _r_ix(CROSS)
+            s.append(f'<line x1="{xc:.0f}" y1="{row_top + TITLE_H:.0f}" x2="{xc:.0f}" '
+                     f'y2="{row_top + TITLE_H + BAND:.0f}" stroke="#444" stroke-width="1" '
+                     f'stroke-dasharray="2 3"/>')
+            s.append(_r_txt(xc, row_top + 12, f"~{CROSS:.0f} m", 9, '600', c='#444', a='middle'))
+        axis = (driver == 'climate')
+        body = build_reach_panel(reach, driver, title=None, show_axis=axis,
+                                 show_crossing_note=False, register=register)
+        s.append(f'<svg x="0" y="{row_top + TITLE_H:.1f}" width="{W}" height="{BAND}" '
+                 f'viewBox="0 {CROP_TOP} {PW} {BAND}">{body}</svg>')
+
+    s.append(_r_txt(W / 2, H - 8, foot, 10, '600', c='#3a3a33', a='middle', it=True))
+    s.append('</svg>')
+    return "".join(s)
+
+
+def build_reach_body(reach, multiples=False):
     """all reach-figure drawing at native coords (0..REACH_W, 0..REACH_H), WITHOUT the
-    <svg> wrapper/background. `reach` = load_reach() dict."""
+    <svg> wrapper/background. `reach` = load_reach() dict. `multiples=True` draws the
+    storm / 5-yr / 20-yr Dupuit water-table curves (used in the grid's reach panel);
+    `multiples=False` (standalone reach) draws only the single 20-yr horizon that the
+    paper reviewer asked for, with the retreat sequence carried by the ghost shades."""
     coastal_dd, CLIM, CROSS = reach['coastal_dd'], reach['climate_mm'], reach['crossing_m']
     _und = segmented(110.0, 78.0, nudge_seg2=True)[0]
-    _clm = climate_build_after_table(_und)[0]
+    # LOCAL reach amplitude scale (Martin): rather than lift the dune/water-table geometry
+    # (which would decouple this figure from the management diagrams that share ground()/
+    # segmented()), we take the EXISTING drawn gap between the undisturbed line and the
+    # sea-level 20-yr erosion toe at the nose and DEFINE it as the modelled shore drawdown
+    # (coastal_dd(0) = 581 mm). Everything else on the figure — climate offset, inland
+    # drawdown curves, the 100 mm scale bar — is then drawn to this same scale, so it is
+    # internally consistent without touching the shared geometry. The global PX_PER_MM
+    # (0.10, shared with 09f) is untouched.
+    _gap_px = SEA - float(np.interp(SH['20yr'], X, _und))     # undisturbed -> sea at the nose
+    _RPX = _gap_px / coastal_dd(0.0)                          # reach px per mm
+    def _rpx(mm): return mm * _RPX
+    _EXAG = round(_RPX * 1000.0 / _R_PXM)                     # vertical exaggeration factor
+    _clm = climate_build_after_table(_und, px_per_mm=_RPX)[0]
     # Seam-anchored retreat curves: the parabola's inland end (shared XE = 330 m on the
     # reach scale) is pinned to the SAME committed drawdown the inland continuation plots,
     # so every curve is exactly continuous at the cross-section boundary. (The coastal
@@ -785,14 +1067,18 @@ def build_reach_body(reach):
     # scale to be continuous with.)
     _dd_at = {'storm': reach['storm_dd'], '5yr': reach['c5_dd'], '20yr': coastal_dd}
     _und_seam = float(np.interp(XE, X, _und))
-    _hg = {k: SEA - (_und_seam + mm_px(_dd_at[k](_R_DN))) for k in ('storm', '5yr', '20yr')}
+    _hg = {k: SEA - (_und_seam + _rpx(_dd_at[k](_R_DN))) for k in ('storm', '5yr', '20yr')}
     _ret = {k: grandf(SH[k], _hg[k])(X) for k in ('storm', '5yr', '20yr')}
     SEALV = 250.0
     def pth(xs, ys): return "M " + " L ".join(f"{a:.1f},{b:.1f}" for a, b in zip(xs, ys))
     s = []
     s.append(_r_txt(_R_NL, 26, 'Coastal retreat vs climate along the reach inland', 15, '600'))
-    s.append(_r_txt(_R_NL, 44, 'coastal retreat/erosion near-shore, drawdown inland \u00b7 '
-                               'one continuous 900 m scale \u00b7 schematic', 11, c='#888780'))
+    s.append(_r_txt(_R_NL, 42,
+                    'water-table curves and 900 m reach to committed scale; dune surface '
+                    f'illustrative; vertical exaggerated x{_EXAG}', 10, c='#888780'))
+    s.append(_r_txt(_R_NL, 55,
+                    'conceptual reach built from the fitted d0, L and climate background '
+                    '(Section 4.11)', 9.5, c='#9a968a', it=True))
 
     # ==== near-shore: coastal erosion ghosting + retreat curves + climate (shared solver) ====
     xs = [_r_nx(x) for x in X]
@@ -817,58 +1103,114 @@ def build_reach_body(reach):
              f'stroke-width="1.3" stroke-dasharray="2 3"/>')
     s.append(f'<path d="{pth(xs, list(_clm))}" fill="none" stroke="{CLIMC}" '
              f'stroke-width="2.4" stroke-dasharray="7 3"/>')
-    for k in ('storm', '5yr', '20yr'):
-        m = X >= SH[k]; lw = {'storm': 1.6, '5yr': 2.0, '20yr': 2.6}[k]
+    # near-shore water-table curves. multiples=True (grid): all three storm/5-yr/20-yr
+    # Dupuit lines. multiples=False (standalone/paper): only the 20-yr horizon, with the
+    # retreat sequence carried by the ghost shades + consolidated label.
+    _ks = ('storm', '5yr', '20yr') if multiples else ('20yr',)
+    for k in _ks:
+        m = X >= SH[k]; lw = {'storm': 1.8, '5yr': 2.3, '20yr': 2.6}[k]
         s.append(f'<line x1="{_r_nx(SH[k]):.0f}" y1="245" x2="{_r_nx(SH[k]):.0f}" y2="255" '
                  f'stroke="#3B8BD4" stroke-width="1.3"/>')
         s.append(f'<path d="{pth([_r_nx(x) for x in X[m]], [v for v in _ret[k][m]])}" '
                  f'fill="none" stroke="{COL[k]}" stroke-width="{lw}" stroke-linecap="round"/>')
-    s.append(f'<line x1="{_r_nx(120):.0f}" y1="278" x2="{_r_nx(SH["20yr"])-2:.0f}" y2="278" '
-             f'stroke="#712B13" stroke-width="1.4"/>')
     s.append(_r_txt(_r_nx(120), BASE - 46, 'sea', 10, c='#5f5e5a'))
-    s.append(_r_txt((_r_nx(110) + _r_nx(SH['20yr'])) / 2, 296,
-                    'shoreline retreating', 9, '600', c='#712B13', a='middle'))
     s.append(_r_txt(_r_nx(500), 150, 'inland slack', 9.5, c='#5f5e5a', a='middle', it=True))
-    kx, ky = _r_nx(300), 86
-    s.append(f'<rect x="{kx-6:.0f}" y="{ky-11:.0f}" width="82" height="40" rx="3" '
-             f'fill="#fff" opacity="0.85"/>')
-    for j, (k, lab) in enumerate([('storm', 'storm'), ('5yr', '5 yr'), ('20yr', '20 yr')]):
-        yy = ky + j * 11
-        s.append(f'<line x1="{kx:.0f}" y1="{yy:.0f}" x2="{kx+16:.0f}" y2="{yy:.0f}" '
-                 f'stroke="{COL[k]}" stroke-width="2.2"/>' + _r_txt(kx + 21, yy + 3.5, lab, 8.5, c='#5f5e5a'))
+    # retreat-state labels. multiples=True (grid): each state labelled directly UNDER its
+    # own ghost band, no tick marks (the coloured shade + coloured label is the link).
+    # multiples=False (standalone): one compact inline "shoreline retreating: .../.../..."
+    if multiples:
+        _prev = ORIG_SHORE
+        for k, lab in (('storm', 'storm'), ('5yr', '5 yr'), ('20yr', '20 yr')):
+            xmid = (_r_nx(_prev) + _r_nx(SH[k])) / 2
+            s.append(_r_txt(xmid, 272, lab, 8, '600', c=COL[k], a='middle'))
+            _prev = SH[k]
+    else:
+        # storm / 5-yr / 20-yr labelled directly under their own ghost band (aligned where
+        # the tick marks used to point), each in its state colour; the "shoreline
+        # retreating" caption sits on its own line below. No tick marks.
+        _prev = ORIG_SHORE
+        for k, lab in (('storm', 'storm'), ('5yr', '5 yr'), ('20yr', '20 yr')):
+            xmid = (_r_nx(_prev) + _r_nx(SH[k])) / 2
+            s.append(_r_txt(xmid, 268, lab, 8, '600', c=COL[k], a='middle'))
+            _prev = SH[k]
+        s.append(_r_txt((_r_nx(ORIG_SHORE) + _r_nx(SH['20yr'])) / 2, 284,
+                        'shoreline retreating', 8, '600', c='#712B13', a='middle'))
 
     # ==== inland: 20-yr coastal drawdown recovers, climate flat, crossing ====
     di = np.linspace(_R_DN, 900, 240); gxi = [_r_ix(d) for d in di]
+    _und_raw = _r_und_in(di); _grd = _r_ground_in(di)         # per-curve flood base
+    def _pond(off_arr):                                        # flat-pond flatten of und + offset(mm)
+        return _flat_pond(di, _und_raw + np.asarray(off_arr, float) * _RPX, _grd)
+    _undf = _flat_pond(di, _und_raw, _grd)                     # reference: floods where und does
     s.append(f'<path d="{pth(gxi, [_r_ground_in(d) for d in di])} L{_r_ix(900):.1f},{BASE} '
              f'L{_r_ix(_R_DN):.1f},{BASE} Z" fill="{DUNE}"/>')
     s.append(f'<path d="{pth(gxi, [_r_ground_in(d) for d in di])}" fill="none" '
              f'stroke="#C4A867" stroke-width="1"/>')
-    s.append(f'<path d="{pth(gxi, [_r_und_in(d) for d in di])}" fill="none" stroke="{REF_GREY}" '
+    s.append(f'<path d="{pth(gxi, list(_undf))}" fill="none" stroke="{REF_GREY}" '
              f'stroke-width="1.3" stroke-dasharray="2 3"/>')
-    for k, lw in (('storm', 1.6), ('5yr', 2.0)):             # storm / 5-yr carry on inland
-        s.append(f'<path d="{pth(gxi, [_r_und_in(d) + mm_px(_dd_at[k](d)) for d in di])}" '
-                 f'fill="none" stroke="{COL[k]}" stroke-width="{lw}" stroke-linecap="round"/>')
-    s.append(f'<path d="{pth(gxi, [_r_und_in(d) + mm_px(coastal_dd(d)) for d in di])}" '
+    # inland coastal horizon(s). multiples: storm / 5-yr continue inland too; otherwise
+    # only the 20-yr line (paper reviewer's single unambiguous horizon). Each floods only
+    # where its own drawn-down surface still stands above the slack floor (per-curve).
+    if multiples:
+        _dd_in = {'storm': reach['storm_dd'], '5yr': reach['c5_dd']}
+        for k, lw in (('storm', 1.8), ('5yr', 2.3)):
+            _c = _pond([_dd_in[k](d) for d in di])
+            s.append(f'<path d="{pth(gxi, list(_c))}" '
+                     f'fill="none" stroke="{COL[k]}" stroke-width="{lw}" stroke-linecap="round"/>')
+    _coast = _pond([coastal_dd(d) for d in di])
+    s.append(f'<path d="{pth(gxi, list(_coast))}" '
              f'fill="none" stroke="{COAST}" stroke-width="2.6"/>')
-    s.append(f'<path d="{pth(gxi, [_r_und_in(d) + mm_px(CLIM) for d in di])}" fill="none" '
+    _clim = _pond(np.full(len(di), CLIM))
+    s.append(f'<path d="{pth(gxi, list(_clim))}" fill="none" '
              f'stroke="{CLIMC}" stroke-width="2.4" stroke-dasharray="7 3"/>')
 
-    xc = _r_ix(CROSS); yc = _r_und_in(CROSS) + mm_px(CLIM)
-    s.append(f'<line x1="{xc:.0f}" y1="70" x2="{xc:.0f}" y2="{BASE:.0f}" stroke="#444" '
+    # ==== drawdown marker: dotted line at the TOE of the 20-yr erosion (the eroded nose),
+    # spanning the undisturbed line down to the sea-level toe — the gap that DEFINES the
+    # local scale as 581 mm. Everything else on the figure is drawn to this same scale.
+    x_nose = _r_nx(SH['20yr'])                       # toe of the 20-yr erosion / eroded nose
+    y_und = float(np.interp(SH['20yr'], X, _und))    # undisturbed at the nose
+    y_dd = SEA                                        # 20-yr erosion toe (sea level)
+    s.append(f'<line x1="{x_nose:.0f}" y1="{y_und:.1f}" x2="{x_nose:.0f}" y2="{y_dd:.1f}" '
+             f'stroke="{COAST}" stroke-width="1.2" stroke-dasharray="2 2"/>')
+    for yy in (y_und, y_dd):
+        s.append(f'<line x1="{x_nose-3:.0f}" y1="{yy:.1f}" x2="{x_nose+3:.0f}" y2="{yy:.1f}" '
+                 f'stroke="{COAST}" stroke-width="1.0"/>')
+    s.append(_r_txt(x_nose, y_und - 6, '581 mm', 9, '600', c=COAST, a='middle'))
+    s.append(_r_txt(x_nose + 6, (y_und + y_dd) / 2 + 3, '(δ₀ 29.03 mm/yr x 20 yr)',
+                    7, '400', c=COAST))
+    # climate amplitude — boxed callout in clear space above the flat line
+    _cbx, _cby = _r_ix(430), 150.0
+    s.append(f'<rect x="{_cbx-4:.0f}" y="{_cby-11:.0f}" width="196" height="16" rx="2.5" '
+             f'fill="#fff" opacity="0.82"/>')
+    s.append(_r_txt(_cbx, _cby, '-127 mm everywhere (c 6.35 mm/yr x 20 yr)', 8.5, '600', c=CLIMC))
+    # 100 mm vertical scale bar (100 * PX_PER_MM px), far-right clear space
+    _sbx = _r_ix(880); _sby = 120.0; _sbh = _rpx(100)
+    s.append(f'<line x1="{_sbx:.0f}" y1="{_sby:.0f}" x2="{_sbx:.0f}" y2="{_sby+_sbh:.0f}" '
+             f'stroke="#444" stroke-width="1.4"/>')
+    s.append(f'<line x1="{_sbx-3:.0f}" y1="{_sby:.0f}" x2="{_sbx+3:.0f}" y2="{_sby:.0f}" '
+             f'stroke="#444" stroke-width="1.4"/>')
+    s.append(f'<line x1="{_sbx-3:.0f}" y1="{_sby+_sbh:.0f}" x2="{_sbx+3:.0f}" y2="{_sby+_sbh:.0f}" '
+             f'stroke="#444" stroke-width="1.4"/>')
+    s.append(_r_txt(_sbx - 6, _sby + _sbh / 2 + 3, '100 mm', 8.5, '600', c='#444', a='end'))
+
+    xc = _r_ix(CROSS); yc = _r_und_in(CROSS) + _rpx(CLIM)
+    s.append(f'<line x1="{xc:.0f}" y1="84" x2="{xc:.0f}" y2="{BASE:.0f}" stroke="#444" '
              f'stroke-width="1" stroke-dasharray="2 3"/>')
     s.append(f'<circle cx="{xc:.0f}" cy="{yc:.1f}" r="3.4" fill="#444"/>')
-    s.append(_r_txt(xc, 64, f'~{CROSS:.0f} m: climate overtakes coastal', 10, '600',
+    s.append(_r_txt(xc, 78, f'~{CROSS:.0f} m: climate drawdown exceeds coastal', 10, '600',
                     c='#444', a='middle'))
     s.append(_r_txt(_r_ix(340), BASE + 18, 'coastal deeper', 9.5, '600', c=COAST, a='middle'))
     s.append(_r_txt(_r_ix(810), BASE + 18, 'climate deeper', 9.5, '600', c=CLIMC, a='middle'))
-    for d in (0, 150, 330, 520, 720, 900):
+    for d in (0, 150, 300, 450, 600, 750, 900):
         s.append(_r_txt(_r_ix(d), BASE + 34, f'{d:.0f}' + (' m' if d == 900 else ''), 9,
                         c='#888', a='middle'))
     s.append(_r_txt(_r_ix(450), BASE + 46, 'distance inland from shore', 9, c='#a8a498',
                     a='middle', it=True))
     yL = REACH_H - 26
+    _coastal_leg = ('coastal water table (storm / 5-yr / 20-yr)' if multiples
+                    else 'coastal water table (retreat / 20 yr)')
     s.append(f'<line x1="{_R_NL}" y1="{yL}" x2="{_R_NL+26}" y2="{yL}" stroke="{COAST}" '
-             f'stroke-width="2.6"/>' + _r_txt(_R_NL + 32, yL + 4, 'coastal water table (retreat / 20 yr)', 10.5))
+             f'stroke-width="2.6"/>' + _r_txt(_R_NL + 32, yL + 4, _coastal_leg, 10.5))
     s.append(f'<line x1="{_R_NL+250}" y1="{yL}" x2="{_R_NL+276}" y2="{yL}" stroke="{CLIMC}" '
              f'stroke-width="2.4" stroke-dasharray="7 3"/>' + _r_txt(_R_NL + 282, yL + 4, 'climate water table (20 yr)', 10.5))
     s.append(f'<line x1="{_R_NL+470}" y1="{yL}" x2="{_R_NL+496}" y2="{yL}" stroke="{REF_GREY}" '
@@ -950,7 +1292,7 @@ def build_grid_combined_svg(reach, clearfell):
 
     # row 3 — embedded reach panel (full width; carries the coastal + climate drivers)
     s.append(f'<g transform="translate({_G_ML},{_G_Y_REACH:.1f}) scale({_G_RSC:.4f})">'
-             f'{build_reach_body(reach)}</g>')
+             f'{build_reach_body(reach, multiples=True)}</g>')
     s.append('</svg>')
     return "".join(s)
 

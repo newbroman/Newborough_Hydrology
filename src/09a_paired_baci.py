@@ -33,7 +33,14 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "2.6.0"  # Hollingham (2026) — 2026-06-21
+__version__ = "2.7.2"  # Hollingham (2026) — 2026-07-19
+# 2.7.2 (2026-07-19): review revision — 09_scrape_05 figure-wide bump 1 -> 2 pt
+#   (all text +1 more; axis labels/legend now net +3 with the targeted bump).
+# 2.7.1 (2026-07-19): review revision — 09_scrape_05 axis labels and legend
+#   text +1 pt more on top of the figure-wide +1 (net +2 for those elements).
+# 2.7.0 (2026-07-19): legibility hand pass — 09_scrape_05 tier-1 figure text
+#   +1 pt across (render_utils.bump_fig_fonts). Tier-2 and beta3-CI figures
+#   untouched.
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 2.5.0 — β₃ confidence figure (09_scrape_07): added the two unscraped controls
 #         (CEH4, CEH22) alongside the three impact wells. β₃ is each well's own
@@ -99,7 +106,7 @@ from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
     hr, skipped,
 )
-from utils.render_utils import render_figure
+from utils.render_utils import bump_fig_fonts, bump_label_and_legend_fonts, render_figure
 
 
 
@@ -437,6 +444,8 @@ def _plot_tier1(plot_data):
     plt.tight_layout()
     fig.suptitle("Tier 1 - Background Environmental Drift (CUSUM Analysis)",
                  fontsize=16, fontweight="bold", y=1.05)
+    bump_fig_fonts(plt.gcf(), 2.0)  # legibility reviews: all text +2 pt
+    bump_label_and_legend_fonts(plt.gcf(), 1.0)  # review: labels+legend +1 more
     render_figure(plt.gcf(), OUT_09_TIER1_DRIFT)
     plt.close()
 

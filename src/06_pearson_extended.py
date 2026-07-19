@@ -10,6 +10,12 @@ Purpose:
 ====================================================================================
 """
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap).
+# 2026-07-19 (legibility hand pass): 06_pear_01 affinity chart text +1 pt
+#   (bump_fig_fonts); 06_pear_02 map well labels 8 -> 8.5 pt; map axis
+#   labels gain +1 pt via map_utils v1.6.0 add_en_axes defaults.
+# 2026-07-19 (review revisions): 06_pear_01 axis labels and legend +1 pt
+#   more (bump_label_and_legend_fonts); 06_pear_02 well-label white
+#   background boxes removed.
 
 # Revision note:
 #   2026-06-21 — Membership map now calls add_kml_features(..., include_scrapes=False).
@@ -47,7 +53,7 @@ from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
     hr, skipped,
 )
-from utils.render_utils import render_figure
+from utils.render_utils import bump_fig_fonts, bump_label_and_legend_fonts, render_figure
 
 fiona.drvsupport.supported_drivers["KML"] = "rw"
 
@@ -159,6 +165,8 @@ def create_affinity_bar_plot(audit_df: pd.DataFrame) -> None:
     ax.legend(title="Cluster", loc="lower right", frameon=True)
 
     plt.tight_layout()
+    bump_fig_fonts(plt.gcf(), 1.0)  # legibility hand pass: all text +1 pt
+    bump_label_and_legend_fonts(plt.gcf(), 1.0)  # review: labels+legend +1 more
     render_figure(plt.gcf(), OUT_BAR)
     plt.close(fig)
 
@@ -318,10 +326,9 @@ def main():
             r['E'] + 14,
             r['N'] + 14,
             r['Well_Normalised'].upper(),
-            fontsize=8,
+            fontsize=8.5,
             fontweight='bold',
             zorder=10,
-            bbox=dict(boxstyle='round,pad=0.12', facecolor='white', edgecolor='none', alpha=0.65),
         )
         for _, r in map_df.iterrows()
     ]

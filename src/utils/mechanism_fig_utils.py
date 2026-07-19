@@ -47,6 +47,16 @@ numeric verification checks (image-view is unreliable in-session — verify by t
 printed checks) and writes the outputs via paths.py.
 
 CHANGELOG
+    1.3.1  2026-07-18  build_reach_panel() gains near-shore pond fill (_reach_ponds):
+                       the undisturbed and climate lay panels now show standing water
+                       in the flooded slacks, not just a line. build_reach_body still
+                       byte-identical (ponds are on the panel path only).
+    1.3.0  2026-07-18  Added build_reach_panel() + _reach_base(): a single-driver
+                       reach panel (undisturbed / coastal / climate) on the SHARED
+                       profile, factored out of build_reach_body so the lay stacked
+                       figure (gen_grid_lay) reuses the exact technical geometry
+                       instead of a hand-rolled profile. build_reach_body unchanged
+                       in output.
     1.2.0  2026-07-18  Render + register fixes (Martin's review, second pass):
                        (a) crossing computed at FULL precision from the CSV edge +
                        reach length rather than interpolating the 2-dp-rounded
@@ -78,7 +88,7 @@ CHANGELOG
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"
+__version__ = "1.3.1"
 
 import numpy as np
 import pandas as pd
@@ -633,6 +643,134 @@ def _r_txt(x, y, s, sz=12, w='400', c=INK, a='start', it=False):
     return (f'<text x="{x:.1f}" y="{y:.1f}" font-family="sans-serif" font-size="{sz}" '
             f'font-weight="{w}" fill="{c}" text-anchor="{a}"'
             f'{" font-style=\"italic\"" if it else ""}>{s}</text>')
+
+def _reach_base(s, pth, draw_erosion):
+    """Shared reach profile — sea, dune, near-shore cross-section (0..330 m) joined to
+    the inland ground (330..900 m) — drawn identically for the technical figure and
+    the lay stack. `draw_erosion` toggles the retreat-ghost fore-dune (on for coastal,
+    off for the plain undisturbed / climate panels). Returns the undisturbed water
+    table array `_und` for callers that overlay drivers."""
+    _und = segmented(110.0, 78.0, nudge_seg2=True)[0]
+    SEALV = 250.0
+    xs = [_r_nx(x) for x in X]
+    rz = [(ORIG_SHORE, SH['storm'], 'storm'), (SH['storm'], SH['5yr'], '5yr'),
+          (SH['5yr'], SH['20yr'], '20yr')]
+    # sea block
+    s.append(f'<polygon points="{_r_nx(40):.0f},{SEALV:.0f} {_r_nx(110):.0f},{SEALV:.0f} '
+             f'{_r_nx(110):.0f},{SEALV+40:.0f} {_r_nx(40):.0f},{SEALV+40:.0f}" fill="{SEA_BLUE}"/>')
+    if draw_erosion:
+        for (xa, xb, k) in rz:
+            s.append(f'<rect x="{_r_nx(xa):.1f}" y="{SEALV:.1f}" width="{_r_nx(xb)-_r_nx(xa):.1f}" '
+                     f'height="40" fill="{lighten(SEA_BLUE, SEA_LIGHTEN[k])}"/>')
+        for (xa, xb, k) in rz:
+            xseg = X[(X >= xa) & (X <= xb)]
+            s.append(f'<path d="{pth([_r_nx(x) for x in xseg], [ground(x) for x in xseg])} '
+                     f'L{_r_nx(xb):.1f},{SEALV:.1f} L{_r_nx(xa):.1f},{SEALV:.1f} Z" '
+                     f'fill="{lighten(DUNE, ERODE_LIGHTEN[k])}"/>')
+        xstart = SH['20yr']
+    else:
+        xstart = ORIG_SHORE
+    # intact dune (near-shore cross-section)
+    xsi = X[X >= xstart]
+    s.append(f'<path d="{pth([_r_nx(x) for x in xsi], [ground(x) for x in xsi])} '
+             f'L{_r_nx(640):.1f},{BASE} L{_r_nx(xstart):.1f},{BASE} Z" fill="{DUNE}"/>')
+    s.append(f'<path d="{pth([_r_nx(x) for x in xsi], [ground(x) for x in xsi])}" '
+             f'fill="none" stroke="#C4A867" stroke-width="1"/>')
+    # inland ground (330..900 m)
+    di = np.linspace(_R_DN, 900, 240); gxi = [_r_ix(d) for d in di]
+    s.append(f'<path d="{pth(gxi, [_r_ground_in(d) for d in di])} L{_r_ix(900):.1f},{BASE} '
+             f'L{_r_ix(_R_DN):.1f},{BASE} Z" fill="{DUNE}"/>')
+    s.append(f'<path d="{pth(gxi, [_r_ground_in(d) for d in di])}" fill="none" '
+             f'stroke="#C4A867" stroke-width="1"/>')
+    return _und, di, gxi
+
+
+def _reach_ponds(wt, pth):
+    """Blue pond fill for the near-shore slacks in REACH coordinates: fill where the
+    ground dips below the water-table array `wt` (shared X), mapped through _r_nx.
+    Mirrors water() but in the reach's mapped x-space so the lay/technical reach
+    panels show standing water in the flooded slacks, not just a line."""
+    g = ground(X)
+    fl = g > wt + 0.2
+    out = []
+    i, n = 0, len(X)
+    while i < n:
+        if fl[i]:
+            j = i
+            while j < n and fl[j]:
+                j += 1
+            seg = range(i, j)
+            top = [(_r_nx(X[k]), wt[k]) for k in seg]
+            bot = [(_r_nx(X[k]), g[k]) for k in reversed(seg)]
+            pts = " ".join(f"{a:.1f},{b:.1f}" for a, b in top + bot)
+            out.append(f'<polygon points="{pts}" fill="{SEA_BLUE}"/>')
+            i = j
+        else:
+            i += 1
+    return "".join(out)
+
+
+def build_reach_panel(reach, driver, title=None, show_axis=True, show_crossing_note=False):
+    """A single-driver reach panel on the shared profile, full 0..900 m. `driver` is
+    one of 'undisturbed', 'coastal', 'climate'. Used by the lay stacked figure so the
+    lay panels share the technical figure's exact profile and amplitudes; only one
+    driver line is drawn per panel. Returns the panel body SVG (no wrapper)."""
+    coastal_dd, CLIM, CROSS = reach['coastal_dd'], reach['climate_mm'], reach['crossing_m']
+    def pth(xs, ys): return "M " + " L ".join(f"{a:.1f},{b:.1f}" for a, b in zip(xs, ys))
+    s = []
+    if title:
+        s.append(_r_txt(_R_NL, 20, title, 13, '600'))
+    _und, di, gxi = _reach_base(s, pth, draw_erosion=(driver == 'coastal'))
+    xs = [_r_nx(x) for x in X]
+
+    # pond fill in the near-shore slacks (undisturbed / climate share the wet 'before';
+    # coastal near-shore is eroded, so its ponds are subsumed by the retreat ghosting)
+    if driver == 'undisturbed':
+        s.append(_reach_ponds(_und, pth))
+    elif driver == 'climate':
+        _clm = climate_build_after_table(_und)[0]
+        s.append(_reach_ponds(_clm, pth))
+
+    # undisturbed reference — dashed grey, on every panel
+    s.append(f'<path d="{pth(xs, list(_und))}" fill="none" stroke="{REF_GREY}" '
+             f'stroke-width="1.3" stroke-dasharray="2 3"/>')
+    s.append(f'<path d="{pth(gxi, [_r_und_in(d) for d in di])}" fill="none" stroke="{REF_GREY}" '
+             f'stroke-width="1.3" stroke-dasharray="2 3"/>')
+
+    if driver == 'coastal':
+        # 20-yr coastal drawdown: near-shore parabola seam-anchored, inland continuation
+        _und_seam = float(np.interp(XE, X, _und))
+        hg = SEA - (_und_seam + mm_px(coastal_dd(_R_DN)))
+        wt = grandf(SH['20yr'], hg)(X); m = X >= SH['20yr']
+        s.append(f'<path d="{pth([_r_nx(x) for x in X[m]], [v for v in wt[m]])}" '
+                 f'fill="none" stroke="{COAST}" stroke-width="2.6"/>')
+        s.append(f'<path d="{pth(gxi, [_r_und_in(d) + mm_px(coastal_dd(d)) for d in di])}" '
+                 f'fill="none" stroke="{COAST}" stroke-width="2.6"/>')
+        s.append(_r_txt(_r_nx(120), BASE - 46, 'sea', 10, c='#5f5e5a'))
+    elif driver == 'climate':
+        _clm = climate_build_after_table(_und)[0]
+        s.append(f'<path d="{pth(xs, list(_clm))}" fill="none" stroke="{CLIMC}" '
+                 f'stroke-width="2.4" stroke-dasharray="7 3"/>')
+        s.append(f'<path d="{pth(gxi, [_r_und_in(d) + mm_px(CLIM) for d in di])}" fill="none" '
+                 f'stroke="{CLIMC}" stroke-width="2.4" stroke-dasharray="7 3"/>')
+        s.append(_r_txt(_r_nx(120), BASE - 46, 'sea', 10, c='#5f5e5a'))
+    else:  # undisturbed — draw the wet table line so the ponds read as water, not gaps
+        s.append(f'<path d="{pth(xs, list(_und))}" fill="none" stroke="{WT_BLUE}" '
+                 f'stroke-width="2.0"/>')
+        s.append(_r_txt(_r_nx(120), BASE - 46, 'sea', 10, c='#5f5e5a'))
+
+    if show_crossing_note:
+        xc = _r_ix(CROSS)
+        s.append(f'<line x1="{xc:.0f}" y1="24" x2="{xc:.0f}" y2="{BASE:.0f}" stroke="#444" '
+                 f'stroke-width="1" stroke-dasharray="2 3"/>')
+        s.append(_r_txt(xc, 18, f'about {CROSS:.0f} m', 9, '600', c='#444', a='middle'))
+
+    if show_axis:
+        for d in (0, 150, 330, 520, 720, 900):
+            s.append(_r_txt(_r_ix(d), BASE + 16, f'{d:.0f}' + (' m' if d == 900 else ''), 9,
+                            c='#888', a='middle'))
+    return "".join(s)
+
 
 def build_reach_body(reach):
     """all reach-figure drawing at native coords (0..REACH_W, 0..REACH_H), WITHOUT the

@@ -27,6 +27,35 @@ characters only, enforced by a build-time glyph guard (matters most for the
 translated Welsh/Polish builds).
 
 CHANGELOG
+    1.3.2  2026-07-18  Management figure now carries its own "dotted = undisturbed
+                       water table" key beside the subtitle, so it is self-contained
+                       if it lands on a different page from the drivers figure that
+                       first names the dotted reference (Martin's note).
+    1.3.1  2026-07-18  Drivers stack fixes (Martin's review): (a) panels were
+                       scale()-shrunk so the profile only filled the left ~40% of the
+                       canvas — now each panel is a nested <svg> with a viewBox crop
+                       to the profile band, full width, no horizontal squeeze;
+                       (b) ponding restored via build_reach_panel's new pond fill;
+                       (c) per-panel titles + crossing markers drawn outside the crop
+                       so nothing is clipped.
+    1.3.0  2026-07-18  Drivers figure rebuilt AGAIN as three stacked panels
+                       (undisturbed / coastal / climate) on the SHARED reach
+                       profile via mechanism_fig_utils.build_reach_panel(), full
+                       0..900 m, vertically aligned on one distance axis with the
+                       ~698 m crossing marked. The v1.2.0 single-panel version used
+                       a hand-rolled ground line and so lost the shared profile
+                       (Martin's review); this reuses the technical reach geometry
+                       exactly. Management figure unchanged.
+    1.2.0  2026-07-18  Drivers figure rebuilt as a single FULL 900 m reach panel
+                       (was two short near-shore cross-sections, which hid the
+                       site-wide reach of climate — Martin's review). Now shows
+                       the coastal drawdown biting deep near the shore and
+                       recovering inland against the flat, everywhere climate
+                       line, so the "climate lowers the whole site" message is
+                       visible; amplitudes from load_reach(), lay depth scale
+                       applied equally to both drivers (shape-not-depth
+                       schematic). Management figure unchanged (still local
+                       before/after cross-sections, correctly).
     1.1.0  2026-07-18  Split into two before/after figures (A management,
                        B drivers) so the starting state is explicit; the earlier
                        single 2x2 hid the "before" (Martin's review).
@@ -34,7 +63,7 @@ CHANGELOG
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"
+__version__ = "1.3.2"
 
 import os
 import re
@@ -91,6 +120,12 @@ def _figure(title, subtitle, columns, caption):
          f'<rect width="{LAY_W}" height="{height:.0f}" fill="#fff"/>']
     s.append(M.txt(_L_ML, 26, title, size=16, w='600'))
     s.append(M.txt(_L_ML, 43, subtitle, size=11, col='#888780'))
+    # self-contained key: the dotted reference line is explained here too, since this
+    # figure may appear on a different page from the drivers figure that first names it.
+    kx = _L_ML + 214
+    s.append(f'<line x1="{kx}" y1="39" x2="{kx + 24}" y2="39" stroke="{M.REF_GREY}" '
+             f'stroke-width="1.3" stroke-dasharray="2 3"/>'
+             + M.txt(kx + 30, 43, "dotted = undisturbed water table", size=11, col='#888780'))
 
     for i, (dtitle, before_fn, after_fn, before_tag, after_tag, oneliner) in enumerate(columns):
         colx = _L_COLX[i]
@@ -133,23 +168,64 @@ def build_management_svg():
 
 
 def build_drivers_svg():
-    """Figure B — the two site-wide drivers, both from the undisturbed dune."""
-    return _figure(
-        "What coast and climate do to the water table",
-        "simple diagrams - not to scale",
-        [
-            ("Coastal retreat",
-             M.geo_wet_before, M.geo_coastal_after,
-             "before: undisturbed dune", "after the shore retreats",
-             "The retreating shore pulls the table down near the coast "
-             "(expected, not yet directly measured)."),
-            ("A changing climate",
-             M.geo_wet_before, M.geo_climate_after,
-             "before: undisturbed dune", "after climate drying",
-             "A slow, steady fall across the whole site, drying every slack."),
-        ],
-        "The slow, site-wide climate fall is the biggest overall change; "
-        "the sea's retreat matters most near the shore.")
+    """Figure B — coast vs climate stacked on the SHARED reach profile, full 0..900 m.
+    Three panels (undisturbed | coastal erosion | climate), vertically aligned on one
+    distance axis, so the reader can read across: coastal bites deep near the shore and
+    recovers inland, while climate is the same everywhere. Panels reuse the pipeline's
+    build_reach_panel(), so the lay figure shares the technical reach geometry exactly.
+    The crossing (~698 m) is marked so the near-shore/site-wide contrast is explicit."""
+    reach = M.load_reach()
+    cross = reach['crossing_m']
+
+    PW = M.REACH_W                    # native reach width
+    # crop each panel to just the profile band (dune crests..axis), full width, no x-shrink.
+    # titles + crossing note are drawn OUTSIDE the crop (below), so the band can be tight.
+    CROP_TOP, CROP_BOT = 96, int(M.BASE) + 24
+    BAND = CROP_BOT - CROP_TOP
+    HDR = 52
+    TITLE_H = 18                      # room above each panel for its title
+    GAP = 10
+    W = PW
+    ROW = TITLE_H + BAND
+    H = HDR + 3 * ROW + 2 * GAP + 30
+
+    panels = [
+        ("undisturbed", "Undisturbed dune (the starting point)"),
+        ("coastal",     "With coastal retreat - deepest near the shore, fading inland"),
+        ("climate",     "With climate drying - the same fall across the whole site"),
+    ]
+
+    s = [f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" '
+         f'xmlns="http://www.w3.org/2000/svg"><rect width="{W}" height="{H}" fill="#fff"/>']
+    s.append(M.txt(M._R_NL, 26, "What coast and climate do to the water table", size=16, w='600'))
+    s.append(M.txt(M._R_NL, 43,
+                   "one long slice from the shore inland, on the same scale - "
+                   "simple diagram, not to scale", size=11, col='#888780'))
+
+    for i, (driver, title) in enumerate(panels):
+        row_top = HDR + i * (ROW + GAP)
+        s.append(M.txt(M._R_NL, row_top + 13, title, size=12, w='600'))
+        # crossing marker across the panel (drawn here so it isn't clipped by the crop top)
+        if driver != "undisturbed":
+            xc = M._r_ix(cross)
+            s.append(f'<line x1="{xc:.0f}" y1="{row_top + TITLE_H:.0f}" x2="{xc:.0f}" '
+                     f'y2="{row_top + TITLE_H + BAND:.0f}" stroke="#444" stroke-width="1" '
+                     f'stroke-dasharray="2 3"/>')
+            s.append(M.txt(xc, row_top + 12, f"about {cross:.0f} m", size=9, w='600',
+                           col='#444', anchor='middle'))
+        axis = (driver == "climate")          # distance axis on the bottom panel only
+        body = M.build_reach_panel(reach, driver, title=None, show_axis=axis,
+                                   show_crossing_note=False)
+        s.append(f'<svg x="0" y="{row_top + TITLE_H:.1f}" width="{W}" height="{BAND}" '
+                 f'viewBox="0 {CROP_TOP} {PW} {BAND}">{body}</svg>')
+
+    s.append(M.txt(W / 2, H - 8,
+                   "Climate is the biggest change overall because it lowers the whole "
+                   "site; the sea's retreat bites hardest near the shore and fades by "
+                   f"about {cross:.0f} m inland.",
+                   10, w='600', col='#3a3a33', anchor='middle', style=' font-style="italic"'))
+    s.append('</svg>')
+    return "".join(s)
 
 
 # ------------------------------------------------------------------------------------------------
@@ -204,7 +280,9 @@ def main():
     banner("Lay mechanism diagrams (public summary)", __version__)
     make_all_dirs()
     for n, (which, builder, svg_path, png_path) in enumerate(_FIGURES, 1):
-        phase(n, f"Building lay figure: {which} (before -> after, 2 columns)")
+        desc = ("before -> after, 2 columns" if which == "management"
+                else "full 900 m reach, coastal fringe vs site-wide climate")
+        phase(n, f"Building lay figure: {which} ({desc})")
         svg = builder()
         _assert_glyph_safe(svg, which)
         info("register: plain-language, rounded, no well names / p-values / script refs")

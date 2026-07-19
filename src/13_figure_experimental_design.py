@@ -24,7 +24,10 @@ Outputs:
 ====================================================================================
 """
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-06-21
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-07-19
+# 1.2.0 (2026-07-19): legibility hand pass — legend only, per review: legend
+#   text 9 -> 10 pt, legend title 10 -> 11 pt. All other fonts untouched.
+#   Larger legend box may collide with map content — check on regeneration.
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.0.2 — data/geo/ reorg: DEM path via DATA_DEM (data/geo/). No functional change.
 # 1.0.1 — Doc-sweep S.8: lowercased "Clear-Fell" → "clearfell" in inline
@@ -410,8 +413,8 @@ legend_handles = [
 ax.legend(
     handles=legend_handles,
     title='Monitoring Role & Logic',
-    fontsize=9,
-    title_fontsize=10,
+    fontsize=10,
+    title_fontsize=11,
     loc='upper right',
     bbox_to_anchor=(0.99, 0.99),
     frameon=True,

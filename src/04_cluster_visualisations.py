@@ -4,6 +4,8 @@ Inputs:  02_cluster_stats.csv, 01_locations.csv
 Outputs: outputs/04_cluster_visualisations/04_01_core_architecture_map.png
 """
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap).
+# 2026-07-19 (legibility hand pass): well labels 8 -> 8.5 pt; map axis
+#   labels gain +1 pt via map_utils v1.6.0 add_en_axes defaults.
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
 
@@ -60,7 +62,7 @@ def main():
                    c=CLUSTER_COLOURS.get(cid, "grey"),
                    marker=CLUSTER_MARKERS.get(cid, "o"),
                    s=150, edgecolor="black", linewidth=1.2, alpha=0.95, zorder=5)
-    texts = [ax.text(row["E"], row["N"], row["Match_ID"].upper(), fontsize=8, fontweight="bold", zorder=10) for _, row in map_df.iterrows()]
+    texts = [ax.text(row["E"], row["N"], row["Match_ID"].upper(), fontsize=8.5, fontweight="bold", zorder=10) for _, row in map_df.iterrows()]
     adjust_text(texts, arrowprops=dict(arrowstyle="-", color="black", lw=0.5), ax=ax)
     ax.set_title("Spatial Mapping of Groundwater Clusters at Newborough Warren", fontsize=15, fontweight="bold")
     add_en_axes(ax)

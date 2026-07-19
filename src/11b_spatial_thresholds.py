@@ -74,7 +74,22 @@ Dependencies
     Skeletonisation: not required (map_utils handles DEM/IDW)
 """
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-06-21
+__version__ = "1.5.1"  # Hollingham (2026) — 2026-07-19
+# 1.5.1 (2026-07-19): review revision — 11b_01 stats box nudged into the
+#   lower-left axes corner: transAxes anchor (0.02, 0.03) -> (0.005, 0.008).
+# 1.5.0 (2026-07-19): review revisions — cross-map consistency (authored
+#   sizes; rendered = +1 via the figure-wide bump): E/N axis labels explicit
+#   10 pt on all four maps (were 9 / rc-12 mix); all legends unified at 9 pt,
+#   legend titles 10 pt. 11b_01: zone legend set two-column (ncol=2); stats
+#   text box moved top-right -> bottom-left and 7 -> 8 pt.
+# 1.4.0 (2026-07-19): review revisions — all four 11b maps: every font +1 pt
+#   (bump_fig_fonts; stacks on the 1.3.0 legend bumps, so those legends are
+#   +2 net); right-hand colorbars narrowed fraction 0.03 -> 0.02.
+# 1.3.0 (2026-07-19): legibility hand pass — legends only, per review:
+#   11b_01 zone legend 7 -> 8 pt (title 8 -> 9), cluster legend 8 -> 9 pt
+#   (title 8 -> 9); 11b_02 legend 7 -> 8 pt. 11b_03/04 and all axis/label
+#   fonts untouched. Larger legend boxes may cover more map — check placement
+#   on the regenerated PNGs.
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.1.4 — Spatial-threshold maps: pass include_scrapes=False to add_kml_features
 #          at all four call sites. The shared overlay draws the GPS-traced scrape
@@ -137,7 +152,7 @@ from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
     hr, skipped,
 )
-from utils.render_utils import render_figure
+from utils.render_utils import bump_fig_fonts, render_figure
 
 # ─────────────────────────────────────────────────────────────────────────────
 # LOCAL ALIASES
@@ -695,7 +710,7 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
     )
 
     cb = fig.colorbar(
-        mesh, ax=ax, fraction=0.03, pad=0.02, shrink=0.85,
+        mesh, ax=ax, fraction=0.02, pad=0.02, shrink=0.85,
         boundaries=ZONE_BOUNDS,
         ticks=[0, SD15b, SD15b_REC, SD16, SD16_REC, 3.0],
     )
@@ -781,9 +796,9 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
         f"CEH21: DEM −0.70 m  |  CEH18: DEM −0.50 m  (DEM-corrected only; full record used)"
     )
     ax.text(
-        0.98, 0.97, stats_txt,
-        transform=ax.transAxes, fontsize=7,
-        verticalalignment="top", horizontalalignment="right",
+        0.005, 0.008, stats_txt,
+        transform=ax.transAxes, fontsize=8,
+        verticalalignment="bottom", horizontalalignment="left",
         family="monospace",
         bbox=dict(boxstyle="round,pad=0.4", facecolor="white", alpha=0.92),
         zorder=7,
@@ -829,23 +844,23 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
     ]
 
     l1 = ax.legend(
-        handles=zone_handles, fontsize=7, loc="upper left",
+        handles=zone_handles, fontsize=9, loc="upper left", ncol=2,
         framealpha=0.95,
         title="Ecological zone / threshold / symbol",
-        title_fontsize=8,
+        title_fontsize=10,
     )
     ax.add_artist(l1)
 
     ax.legend(
-        handles=cluster_patches, fontsize=8, loc="lower right",
-        title="Cluster", title_fontsize=8,
+        handles=cluster_patches, fontsize=9, loc="lower right",
+        title="Cluster", title_fontsize=10,
     )
 
     ax.set_xlim(240100, 243900)
     ax.set_ylim(362200, 365800)
     ax.set_aspect("equal")
-    ax.set_xlabel("Easting (m, OSGB36)", fontsize=9)
-    ax.set_ylabel("Northing (m, OSGB36)", fontsize=9)
+    ax.set_xlabel("Easting (m, OSGB36)", fontsize=10)
+    ax.set_ylabel("Northing (m, OSGB36)", fontsize=10)
     ax.tick_params(labelsize=8)
     ax.set_title(
         "Mean Annual Summer Minimum — Depth Below Ground (m)\n"
@@ -861,6 +876,7 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
     )
 
     fig.tight_layout()
+    bump_fig_fonts(fig, 1.0)  # review 2026-07-19: all fonts +1 pt
     render_figure(fig, OUT_11B_SUMMER_MAP)
     plt.close(fig)
     saved(f"{OUT_11B_SUMMER_MAP}")
@@ -972,7 +988,7 @@ def plot_winter_maxima_map(df: pd.DataFrame, dpi: int = 300) -> None:
 
     # Colourbar with Curreli zone labels — inverted so flooding (0 m) is at top
     cb = fig.colorbar(
-        mesh, ax=ax, fraction=0.03, pad=0.02, shrink=0.85,
+        mesh, ax=ax, fraction=0.02, pad=0.02, shrink=0.85,
         boundaries=WINTER_ZONE_BOUNDS,
         ticks=[W_FLOOD, W_SD15b, W_SD16],
     )
@@ -1001,10 +1017,10 @@ def plot_winter_maxima_map(df: pd.DataFrame, dpi: int = 300) -> None:
     ] + [Line2D([0],[0], marker="o", color="w",
                 markerfacecolor=CLUSTER_COLS[c], ms=7, label=f"C{c}")
          for c in sorted(CLUSTER_LABELS)]
-    ax.legend(handles=legend_patches + kml_handles, fontsize=7,
+    ax.legend(handles=legend_patches + kml_handles, fontsize=9,
               loc="upper left", framealpha=0.95, ncol=2)
 
-    ax.set_xlabel("Easting (m, OSGB36)"); ax.set_ylabel("Northing (m, OSGB36)")
+    ax.set_xlabel("Easting (m, OSGB36)", fontsize=10); ax.set_ylabel("Northing (m, OSGB36)", fontsize=10)
     ax.set_title(
         "Mean Annual Winter Maximum — Depth Below Ground (m)\n"
         "Newborough Warren 2005–2026  |  Full network  |  "
@@ -1013,6 +1029,7 @@ def plot_winter_maxima_map(df: pd.DataFrame, dpi: int = 300) -> None:
     ax.set_xlim(240100, 243900)
     ax.set_ylim(362100, 365900)
     plt.tight_layout()
+    bump_fig_fonts(fig, 1.0)  # review 2026-07-19: all fonts +1 pt
     render_figure(fig, OUT_11B_WINTER_MAP)
     plt.close(fig)
     saved(f"{OUT_11B_WINTER_MAP.name}")
@@ -1199,7 +1216,7 @@ def plot_pflood_map(df: pd.DataFrame, dpi: int = 300) -> None:
     kml_handles = add_kml_features(ax, DATA_DIR, include_streams=False, include_scrapes=False)
 
     if sc is not None:
-        cbar = fig.colorbar(sc, ax=ax, fraction=0.03, pad=0.02, shrink=0.85)
+        cbar = fig.colorbar(sc, ax=ax, fraction=0.02, pad=0.02, shrink=0.85)
         # Two reference lines: one per recharge horizon
         P_CLIM_5MO = 464   # C1/C2: Oct–Feb
         P_CLIM_6MO = 524   # C3/C4/C5: Oct–Mar
@@ -1223,11 +1240,11 @@ def plot_pflood_map(df: pd.DataFrame, dpi: int = 300) -> None:
     ] + [Line2D([0], [0], marker="o", color="w",
                 markerfacecolor=CLUSTER_COLS[c], ms=7, label=f"C{c}")
          for c in sorted(CLUSTER_LABELS)]
-    ax.legend(handles=legend_patches + kml_handles, fontsize=7,
+    ax.legend(handles=legend_patches + kml_handles, fontsize=9,
               loc="upper left", framealpha=0.95, ncol=2)
 
-    ax.set_xlabel("Easting (m, OSGB36)")
-    ax.set_ylabel("Northing (m, OSGB36)")
+    ax.set_xlabel("Easting (m, OSGB36)", fontsize=10)
+    ax.set_ylabel("Northing (m, OSGB36)", fontsize=10)
     ax.set_title(
         "P_flood — Cumulative Winter Rainfall Required to Reach Slack Floor (mm)\n"
         "Newborough Warren  |  Iterated closed-form SSM  |  "
@@ -1237,6 +1254,7 @@ def plot_pflood_map(df: pd.DataFrame, dpi: int = 300) -> None:
     ax.set_xlim(240100, 243900)
     ax.set_ylim(362100, 365900)
     plt.tight_layout()
+    bump_fig_fonts(fig, 1.0)  # review 2026-07-19: all fonts +1 pt
     render_figure(fig, OUT_11B_PFLOOD_MAP)
     plt.close(fig)
     saved(f"{OUT_11B_PFLOOD_MAP.name}")
@@ -1331,7 +1349,7 @@ def plot_flood_frequency_map(df: pd.DataFrame, dpi: int = 300) -> None:
 
     kml_handles = add_kml_features(ax, DATA_DIR, include_streams=False, include_scrapes=False)
 
-    cbar = fig.colorbar(sc, ax=ax, fraction=0.03, pad=0.02, shrink=0.85)
+    cbar = fig.colorbar(sc, ax=ax, fraction=0.02, pad=0.02, shrink=0.85)
     cbar.set_label("Winter flooding frequency (%)\nYears water table reached ground surface",
                    fontsize=8)
 
@@ -1348,10 +1366,10 @@ def plot_flood_frequency_map(df: pd.DataFrame, dpi: int = 300) -> None:
     ] + [Line2D([0],[0], marker="o", color="w",
                 markerfacecolor=CLUSTER_COLS[c], ms=7, label=f"C{c}")
          for c in sorted(CLUSTER_LABELS)]
-    ax.legend(handles=legend_patches + kml_handles, fontsize=7,
+    ax.legend(handles=legend_patches + kml_handles, fontsize=9,
               loc="upper left", framealpha=0.95, ncol=2)
 
-    ax.set_xlabel("Easting (m, OSGB36)"); ax.set_ylabel("Northing (m, OSGB36)")
+    ax.set_xlabel("Easting (m, OSGB36)", fontsize=10); ax.set_ylabel("Northing (m, OSGB36)", fontsize=10)
     ax.set_title(
         "Winter Flooding Frequency (%) — Newborough Warren 2005–2026\n"
         "Years water table reached ground surface  |  Full network  |  "
@@ -1360,6 +1378,7 @@ def plot_flood_frequency_map(df: pd.DataFrame, dpi: int = 300) -> None:
     ax.set_xlim(240100, 243900)
     ax.set_ylim(362100, 365900)
     plt.tight_layout()
+    bump_fig_fonts(fig, 1.0)  # review 2026-07-19: all fonts +1 pt
     render_figure(fig, OUT_11B_FLOOD_FREQ)
     plt.close(fig)
     saved(f"{OUT_11B_FLOOD_FREQ.name}")

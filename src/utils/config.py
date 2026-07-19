@@ -217,8 +217,8 @@ MECH_FIG_RETREAT_SHORE = {"storm": 150.0, "5yr": 196.0, "20yr": 270.0}
 MECH_FIG_RETREAT_HIN   = {"storm": 74.0,  "5yr": 66.0,  "20yr": 40.0}
 MECH_FIG_ERODE_LIGHTEN = {"storm": 0.72, "5yr": 0.50, "20yr": 0.28}
 MECH_FIG_SEA_LIGHTEN   = {"storm": 0.18, "5yr": 0.42, "20yr": 0.66}
-MECH_FIG_INLAND_GROUND_PTS = [(330, 160), (380, 176), (480, 176), (540, 140),
-                              (600, 174), (720, 174), (790, 138), (850, 160), (900, 150)]
+MECH_FIG_INLAND_GROUND_PTS = [(330, 160), (380, 172), (480, 172), (540, 140),
+                              (600, 160), (720, 160), (790, 138), (850, 156), (900, 150)]
 MECH_FIG_INLAND_UND_PTS    = [(330, 172), (520, 164), (720, 157), (900, 150)]
 
 # --- Post-intervention equilibration (decay) characterisation (Scripts 09c, 10d) -

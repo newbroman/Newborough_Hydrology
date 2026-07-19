@@ -45,7 +45,11 @@ plot_metric_map(map_df, value_col, title, output_path, cmap, data_dir, vmin, vma
     cluster-shape markers, dual colorbars, and legend.
 """
 
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-07-05
+__version__ = "1.6.0"  # Hollingham (2026) — 2026-07-19
+# 1.6.0 (2026-07-19): legibility hand pass — add_en_axes default tick
+#   labelsize 8 -> 9 and axis label_fontsize 9 -> 10 (axis labels +1 pt on
+#   all maps using the defaults); plot_metric_map BW value labels 6 -> 6.5
+#   (well labels +0.5 pt). No call-site changes.
 # 1.5.0 — add_idw_surface() gains hull_buffer_m parameter (default 100.0 m).
 #         Linear griddata is NaN outside the convex hull of the wells, so an
 #         observed-data surface stops at the outer well ring, short of the coast
@@ -129,8 +133,8 @@ _SEA_EAST_E  = 243850   # m OSGB36 — eastern (Menai Strait) Easting
 _SEA_WEST_E  = 239200   # m OSGB36 — western estuary Easting
 
 
-def add_en_axes(ax, apply_extent: bool = True, labelsize: int = 8,
-                label_fontsize: int = 9, osgb_label: bool = True):
+def add_en_axes(ax, apply_extent: bool = True, labelsize: int = 9,
+                label_fontsize: int = 10, osgb_label: bool = True):
     """
     Apply the canonical Easting/Northing axes treatment to a map axes.
 
@@ -154,9 +158,9 @@ def add_en_axes(ax, apply_extent: bool = True, labelsize: int = 8,
         own xlim/ylim (used only where a figure legitimately needs a wider
         window for an in-data legend) while still drawing E/N axes and equal
         aspect.
-    labelsize : int, default 8
+    labelsize : int, default 9
         Tick label font size.
-    label_fontsize : int, default 9
+    label_fontsize : int, default 10
         Axis label font size.
     osgb_label : bool, default True
         If True, axis labels read "Easting (m, OSGB36)"; if False, the shorter
@@ -1010,7 +1014,7 @@ def plot_metric_map(
                 fmt_val = f"{val:.2f}" if abs(val) < 10 else f"{val:.1f}"
                 t = ax.text(
                     row["Easting"], row["Northing"], fmt_val,
-                    fontsize=6, fontweight="bold", color="#222222",
+                    fontsize=6.5, fontweight="bold", color="#222222",
                     ha="left", va="bottom", zorder=11,
                 )
                 texts.append(t)

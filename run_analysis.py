@@ -38,7 +38,7 @@ Each step carries a tier for reporting purposes:
                       the two don't mechanically agree, and that's
                       intentional: the headline changes only by deliberate
                       review, not by every diagnostic add/remove.
-  "D" display/utility — Scripts 26c, 09f, 27 only.
+  "D" display/utility — Scripts 26c, 09f, 09g, 27 only.
   "X" opt-in diagnostic — every other registered step (Phase 14, and the
                       Phase 16 remainder 24b/31/31b).
 
@@ -79,8 +79,10 @@ all run by default; the former opt-in tail 36/37/37b was promoted 2026-07-13
 per the Task E audit). Phase 16 runs Scripts 34 and 38 by default (promoted
 alongside Phase 15's tail) plus a supplementary opt-in remainder — Scripts
 24b, 31, 31b — which still runs only with --with-supplementary (or the menu
-option 1 prompt). Phase 17 runs the synthesis figure (Script 09f, which
-auto-runs as part of a normal full run) and the greyscale figure-conversion
+option 1 prompt). Phase 17 runs the synthesis figures (Script 09f, and
+Script 09g — the §5.8 four-driver mechanism grid + coastal-vs-climate reach,
+which reads the 09f reach profile emitted moments earlier in the same pass —
+both auto-run as part of a normal full run) and the greyscale figure-conversion
 utility (Script 27, which never auto-runs — it's a callable utility step,
 run separately via menu option 6 / --greyscale).
 
@@ -108,6 +110,9 @@ interrupted run does it fall back to documented defaults (centralised in
 pipeline_params._DEFAULTS, read via default_value()) with warnings. The
 figure it produces re-presents existing modelled fields and adds no new
 analysis, so first-pass defaults do not affect any analytical result.
+Script 09g (also Phase 17, display/utility) reads the 09f_01 reach profile,
+the 10m WMC3 BACI and the 10a clearfell steps, all produced earlier in the
+same pass, with the same pipeline_params fallback pattern for partial runs.
 
 For the most accurate scenario figures on a NEW dataset:
 
@@ -130,8 +135,18 @@ import time
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.1.0"
+__version__ = "2.2.0"
 # CHANGELOG
+#   2.2.0 (2026-07-18): Script 09g registered. New tier-"D" display step
+#       09g_mechanism_diagrams.py added to PHASE_17 between 09f and 27 (it
+#       reads the 09f_01 reach profile emitted moments earlier in the same
+#       pass, plus the 10m WMC3 BACI and 10a clearfell steps, with
+#       pipeline_params first-pass fallbacks). Per the tier-D convention the
+#       analytical headline (ANALYTICAL_STEP_COUNT / ANALYTICAL_PHASES) is
+#       untouched; total registered steps 48 -> 49 (manifest regenerates on
+#       rerun / --manifest-only). Docstring tier-D list, Phase 17 narrative,
+#       two-pass note and the PHASE 17 ALL_PHASES label updated to match.
+#       See CHANGELOG_delta_2026-07-18_09g_mechanism_diagrams.md.
 #   2.1.0 (2026-07-13): Task E analytical reclassification. Scripts 34, 36,
 #       37, 37b and 38 promoted from tier "X"/exec "optin" to tier "A"/exec
 #       "default", following an operator-signed-off audit of the main report
@@ -368,8 +383,9 @@ PHASE_16 = [
     Step("38_coastal_transect.py",              "Coast-to-inland MAM transect \u2014 observational delta_0 diagnostic (\u00a75.7)", "A"),
 ]
 PHASE_17 = [
-    Step("09f_management_effects.py", "Figure: management-interventions + coastal-retreat spatial reach (\u00a75.8; two-pass, reads Scripts 20/25/09d/10a)", "D"),
-    Step("27_greyscale_figures.py",   "Greyscale figure conversion (journal-ready B&W)",                                                                     "D"),
+    Step("09f_management_effects.py",  "Figure: management-interventions + coastal-retreat spatial reach (\u00a75.8; two-pass, reads Scripts 20/25/09d/10a)",   "D"),
+    Step("09g_mechanism_diagrams.py",  "Figure: four-driver mechanism grid + coastal-vs-climate reach (\u00a75.8 conceptual; display only, reads 09f/10m/10a)", "D"),
+    Step("27_greyscale_figures.py",    "Greyscale figure conversion (journal-ready B&W)",                                                                       "D"),
 ]
 
 ALL_PHASES = [
@@ -389,7 +405,7 @@ ALL_PHASES = [
     ("PHASE 14 \u2014 Cluster Framework Diagnostics (Scripts 28\u201330)",   PHASE_14),
     ("PHASE 15 \u2014 Observed Differential Change, Envelope, and Driver Validation (Scripts 32, 33, 35, 36, 37, 37b)", PHASE_15),
     ("PHASE 16 \u2014 Window Sensitivity, Coastal Transect, and Supplementary Cluster Diagnostics (Scripts 34, 38 default; 24b, 31, 31b opt-in)", PHASE_16),
-    ("PHASE 17 \u2014 Synthesis Figure and Greyscale Conversion (Scripts 09f, 27)",        PHASE_17),
+    ("PHASE 17 \u2014 Synthesis Figures and Greyscale Conversion (Scripts 09f, 09g, 27)",  PHASE_17),
 ]
 
 # ── Declared analytical headline (NOT derived — see module docstring) ────────

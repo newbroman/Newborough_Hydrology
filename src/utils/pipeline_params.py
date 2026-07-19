@@ -196,6 +196,19 @@ _DEFAULTS = {
     "climate_c_mm_yr":          -6.35,   # 25_01 forest_free/linear_capped c_mm_yr (uniform climate term)
     "wmc3_drawdown_mm":         -55.2,   # 10m WMC3_BACI_DiD_step_2015_scraping ×1000 (measured off-cut)
     "wmc3_distance_m":          262.4,   # 09b_01 wmc3 dist_m (CEH36 -> WMC3 separation)
+    # --- Mechanism-diagram fallbacks (Script 09g) ----------------------------
+    # Edge amplitudes (mm) for the §5.8 mechanism diagrams. Live source is
+    # 09f_01_reach_profile.csv ROW 0 (distance 0) — one column per driver —
+    # read via mechanism_fig_utils.load_amplitudes(); the measured scrape
+    # off-cut reuses "wmc3_drawdown_mm" above (10m WMC3 BACI). 09g runs after
+    # 09f in Phase 17, so these engage only on a partial/interrupted run.
+    "mech_forest_standing_mm":  -150.0,  # 09f_01 standing_pine_head_mm
+    "mech_coastal_5yr_mm":      -145.15, # 09f_01 coastal_5yr_head_mm
+    "mech_scrape_cut_rise_mm":   129.43, # 09f_01 scrape_head_mm (CEH36 cut rise)
+    "mech_thinned_mm":           -75.0,  # 09f_01 thinned_forest_head_mm
+    "mech_climate_20yr_mm":     -127.0,  # 09f_01 climate_20yr_head_mm (c x 20 yr)
+    "mech_coastal_storm_mm":     -20.99, # 09f_01 coastal_6m_storm_head_mm
+    "clearfell_summer_step_mm":   46.3,  # 10a ANCOVA_Forest_Impact_clearfell_step_summer x1000
 }
 
 

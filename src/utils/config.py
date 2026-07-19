@@ -777,3 +777,12 @@ ENVELOPE_METRIC_CALIB_EXCLUDE = set(MSL5_EXCLUDED_WELLS)  # SSM-unreliable: drop
 # Lake-gauge column keys to drop from well analyses (Llyn Rhos-Ddu is a lake gauge,
 # not a dipwell). Lowercase to match the normalised well column.
 LAKE_GAUGE_KEYS = {"llyn rhos", "llyn rhos-ddu", "llyn rhos ddu"}
+
+# ── Figure sizing for A4 report placement ────────────────────────────────────
+# Target on-paper geometry for report figures. utils/render_utils.render_figure
+# uses these to cap the save dpi so every figure lands at FIG_TARGET_PRINT_DPI
+# at its placed size, regardless of the figsize a script used. Changing the
+# target here + rerunning the pipeline resizes all outputs; no per-script edits.
+FIG_TARGET_WIDTH_MM = 160.0    # A4 text-block width (210 mm − side margins)
+FIG_TARGET_HEIGHT_MM = 247.0   # A4 text-block height for full-page figures
+FIG_TARGET_PRINT_DPI = 300     # DPI ceiling at placed size

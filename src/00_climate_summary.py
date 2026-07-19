@@ -60,6 +60,7 @@ from utils.paths import (
 )
 from utils.report_numbers_utils import ReportNumbers
 from utils.config import REFERENCE_CUTOFF_DATE
+from utils.render_utils import render_figure
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -69,7 +70,8 @@ import re
 import os
 from scipy.stats import linregress
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-06-22
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-06-22
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.1.0 (2026-06-22): §4.1.1 traceability — make_figure1_climate_timeseries()
 #   now returns its short-profile centring constant and cumulative-balance vs
 #   network-WL regression (R², slope, n); new compute_climatology() emits the
@@ -477,7 +479,7 @@ def make_figure1_climate_timeseries(climate: pd.DataFrame, wells: pd.DataFrame, 
         ax3.set_xlabel("Date / Year")
 
     fig.tight_layout()
-    fig.savefig(out_png, dpi=300, bbox_inches="tight")
+    render_figure(fig, out_png)
     plt.close(fig)
     return fig1_stats
 
@@ -578,7 +580,7 @@ def make_figure2_well_network(wells: pd.DataFrame, table2: pd.DataFrame, out_png
         ax.tick_params(axis="both", labelsize=10)
 
     fig.tight_layout()
-    fig.savefig(out_png, dpi=300, bbox_inches="tight")
+    render_figure(fig, out_png)
     plt.close(fig)
 
 
@@ -709,7 +711,7 @@ def make_figure3_summer_warming(out_png: str, out_csv: str) -> None:
     ax.spines[["top", "right"]].set_visible(False)
 
     fig.tight_layout()
-    fig.savefig(out_png, dpi=300, bbox_inches="tight")
+    render_figure(fig, out_png)
     plt.close(fig)
 
 

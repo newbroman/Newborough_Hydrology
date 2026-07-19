@@ -73,8 +73,10 @@ from utils import config, paths
 from utils import envelope_metric as em
 from utils.map_utils import load_dem_hillshade, add_kml_features, add_en_axes
 from utils.console_utils import banner, phase, step, info, saved, note, result, done, hr
+from utils.render_utils import render_figure
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 SCRIPT_ID = "35"
 VERSION = __version__
 
@@ -177,7 +179,7 @@ def fig_calibration(df, out_path, calib_exclude=None):
                  f"independently-fitted SSM response\n({n_only} short-record wells have no fitted β — "
                  "the extrapolation set the coefficient exists to reach)", fontsize=10.5)
     fig.tight_layout()
-    fig.savefig(out_path, dpi=160, bbox_inches="tight")
+    render_figure(fig, out_path)
     plt.close(fig)
 
 
@@ -212,7 +214,7 @@ def fig_markers(df, out_path):
     ax.set_title("Newborough Warren: per-well spring climate-sensitivity coefficient\n"
                  "Co-temporal normalisation (artefact-free); discrete per-well — not interpolated. "
                  "Marker = confidence tier.", fontsize=10.5, loc="left")
-    fig.savefig(out_path, dpi=160, bbox_inches="tight")
+    render_figure(fig, out_path)
     plt.close(fig)
 
 

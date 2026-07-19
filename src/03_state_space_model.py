@@ -75,7 +75,8 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.1.1"  # Hollingham (2026) — 2026-06-21 (amplitude-fallback path elevated from [INFO] print to console warn() with explicit stale/hard-coded caveat)
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-06-21 (amplitude-fallback path elevated from [INFO] print to console warn() with explicit stale/hard-coded caveat)
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # Changelog:
 #   1.1.0 (2026-05-14) — Documentation-only cleanup:
 #     - All references to project-store MD files (HANDOVER_SCRIPT03_DATUM,
@@ -126,6 +127,7 @@ from utils.config import (
     HEADLINE_LAG, BW_MODE, BW_LINESTYLES,
 )
 from utils.model_utils import fit_ssm, assert_physical_signs
+from utils.render_utils import render_figure
 
 
 # ==========================================================================
@@ -1002,7 +1004,7 @@ def make_datum_sensitivity_figure(sens_df: pd.DataFrame,
                       label=f"All β₃ > 0 & sig [{lo:.1f}–{hi:.1f} m]")
 
     plt.tight_layout()
-    plt.savefig(out_path, bbox_inches="tight")
+    render_figure(plt.gcf(), out_path)
     plt.close()
     saved(f"{out_path.name}")
 
@@ -1270,7 +1272,7 @@ def make_well_datum_figure(optimal_df: pd.DataFrame,
     ax.tick_params(axis="x", rotation=15)
 
     plt.tight_layout()
-    plt.savefig(out_path, bbox_inches="tight")
+    render_figure(plt.gcf(), out_path)
     plt.close()
     saved(f"{out_path.name}")
 
@@ -1453,7 +1455,7 @@ def make_signatures_figure(mech_df: pd.DataFrame,
                         fontsize=9, fontweight="bold")
 
     plt.tight_layout()
-    plt.savefig(out_path, bbox_inches="tight")
+    render_figure(plt.gcf(), out_path)
     plt.close()
     saved(f"{out_path.name}")
 

@@ -71,7 +71,8 @@ Companion to 09b/09d. PROJECT_NOTE scraping off-site drawdown measured
 ====================================================================================
 """
 
-__version__ = "1.6.1"  # Hollingham (2026) — 2026-07-18
+__version__ = "1.7.0"  # Hollingham (2026) — 2026-07-18
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.6.1 — Crossing distance now interpolated from the plotted profile arrays and
 #         returned to the caller, so the console line and the on-plot label quote
 #         one value (≈698 m) from a single computation. No change to the printed
@@ -183,6 +184,7 @@ from utils.config import (SCRAPE_RISE_BUFFER_M, COAST_RETREAT_M,
                           COAST_RETREAT_RATE, DRAWDOWN_H0_MM, COAST_CHRONIC_YEARS,
                           MECHANISM_HORIZON_YEARS, FOREST_CIDS)
 from utils.pipeline_params import default_value
+from utils.render_utils import render_figure
 
 
 # ----------------------------------------------------------------------------
@@ -704,7 +706,7 @@ def main():
 
     fig.tight_layout(rect=[0, 0.02, 1, 0.97])
     out = OUT_09F_EFFECTS_PUBLIC if args.public else OUT_09F_EFFECTS
-    fig.savefig(out, dpi=300, bbox_inches="tight")
+    render_figure(fig, out)
     plt.close(fig)
     saved(out.name)
     saved(OUT_09F_REACH_CSV.name)

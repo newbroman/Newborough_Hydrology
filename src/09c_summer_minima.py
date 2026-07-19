@@ -34,7 +34,8 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-07-14
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-07-14
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.3.0 — Scrape equilibration (decay) characterisation added (Task G). New
 #         phase computes, for CEH36, the summer-minimum-gap relaxation
 #         transient: peak (post-scrape maximum) and its year; residual plateau
@@ -114,6 +115,7 @@ from utils.clearfell_common import (
     annual_summer_minimum, forest_control_centroid_summer_min,
 )
 from utils.config import EQUIL_RESIDUAL_WINDOW_YEARS, EQUIL_MIN_FIT_POINTS
+from utils.render_utils import render_figure
 
 import pandas as pd
 import numpy as np
@@ -489,7 +491,7 @@ def _plot_climate_control(well_mins, climate_centroid_mins, post_year):
                  "Annual Jun\u2013Sep minimum depth vs climate control centroid",
                  fontsize=13, fontweight="bold", y=0.995)
     plt.tight_layout()
-    plt.savefig(OUT_09C_FIG_CLIMATE, bbox_inches="tight", dpi=300)
+    render_figure(plt.gcf(), OUT_09C_FIG_CLIMATE)
     plt.close()
     saved(f"{OUT_09C_FIG_CLIMATE.name}")
 
@@ -551,7 +553,7 @@ def _plot_paired(well_mins, paired_mins, post_year):
                  "Newborough Warren, annual Jun\u2013Sep minimum depth",
                  fontsize=13, fontweight="bold", y=0.995)
     plt.tight_layout()
-    plt.savefig(OUT_09C_FIG_PAIRED, bbox_inches="tight", dpi=300)
+    render_figure(plt.gcf(), OUT_09C_FIG_PAIRED)
     plt.close()
     saved(f"{OUT_09C_FIG_PAIRED.name}")
 

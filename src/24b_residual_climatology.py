@@ -55,7 +55,8 @@ Conventions:
 ====================================================================================
 """
 
-__version__ = "1.2.0"  # Hollingham (2026) — Script 24b. v1.2.0: wired into run_analysis.py
+__version__ = "1.3.0"  # Hollingham (2026) — Script 24b. v1.2.0: wired into run_analysis.py
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
                        # (Phase 16 supplementary diagnostics); output paths via paths.py.
 # 1.1.0 — Recovered from the 7-June residual-seasonality session and RETAINED AS A
 #         NON-PIPELINE DIAGNOSTIC. Relocated to diagnostics/; outputs made self-
@@ -110,6 +111,7 @@ from utils.config import (
     FOREST_CIDS,
     get_cluster_colour,
 )
+from utils.render_utils import render_figure
 
 # ==========================================
 # CONFIGURATION (analysis parameters)
@@ -412,7 +414,7 @@ def main():
                  "(positive = model under-predicts the monthly rise)",
                  fontsize=10)
     fig.tight_layout(rect=[0, 0, 1, 0.96])
-    fig.savefig(OUT_CLIMATOLOGY_FIG, dpi=200)
+    render_figure(fig, OUT_CLIMATOLOGY_FIG)
     plt.close(fig)
     step(f"Figure (3×2 PNG) → {OUT_CLIMATOLOGY_FIG.name}")
 

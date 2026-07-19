@@ -30,7 +30,8 @@ Reads:
 ==========================================================================
 """
 
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-07-02
+__version__ = "1.6.0"  # Hollingham (2026) — 2026-07-02
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.5.0 — _summer_scenario() re-based to VOLUMETRIC (mm water-equiv / month).
 #         The previous ÷Sy × mean->minimum amplification conversion to a
 #         summer-MINIMUM depth is removed: the SSM equilibrium framework has
@@ -89,6 +90,7 @@ from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
     hr, skipped,
 )
+from utils.render_utils import render_figure
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
@@ -442,8 +444,8 @@ def _plot_equilibration(wells_clean):
     ax.grid(axis="y", alpha=0.3)
 
     plt.tight_layout()
-    fig.savefig(OUT_09B_TRAJECTORY, dpi=200, format="jpeg",
-                pil_kwargs={"quality": 85}, bbox_inches="tight")
+    render_figure(fig, OUT_09B_TRAJECTORY, format="jpeg",
+                  pil_kwargs={"quality": 85})
     plt.close(fig)
 
 
@@ -615,8 +617,8 @@ def _plot_scenario_comparison(centroids_df, dpi=200):
     ax.grid(axis="y", alpha=0.3)
     plt.tight_layout()
 
-    fig.savefig(OUT_09B_SCENARIO, dpi=dpi, format="jpeg",
-                pil_kwargs={"quality": 85}, bbox_inches="tight")
+    render_figure(fig, OUT_09B_SCENARIO, format="jpeg",
+                  pil_kwargs={"quality": 85})
     plt.close(fig)
 
     # Export CSV
@@ -799,7 +801,7 @@ def _summer_scenario(wells_clean, wells_ext, climate):
             color='#555', style='italic')
     plt.tight_layout()
     fig.subplots_adjust(bottom=0.20)
-    plt.savefig(OUT_09B_SUMMER_SCENARIO, dpi=300)
+    render_figure(plt.gcf(), OUT_09B_SUMMER_SCENARIO)
     plt.close()
     print(f"   \u2192 {OUT_09B_SUMMER_SCENARIO.name}")
 

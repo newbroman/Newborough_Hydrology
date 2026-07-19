@@ -90,8 +90,10 @@ from matplotlib.colors import TwoSlopeNorm
 from utils import config, paths
 from utils.map_utils import load_dem_hillshade, add_kml_features, add_en_axes, add_idw_surface
 from utils.console_utils import banner, phase, step, info, note, result, saved, done, warn
+from utils.render_utils import render_figure
 
-__version__ = "1.2.0"  # 2026-07-06: add 2018_2025 sequential window (clearfell,
+__version__ = "1.3.0"  # 2026-07-06: add 2018_2025 sequential window (clearfell,
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 #                       isolated to start the year after the Dec-2017 event so no
 #                       pre-clearfell spring reading falls inside the endpoint
 #                       groups); add five expanding coast-only windows
@@ -684,7 +686,7 @@ def make_map(
         fontsize=10.5, loc="left",
     )
 
-    fig.savefig(out_path, dpi=160, bbox_inches="tight")
+    render_figure(fig, out_path)
     plt.close(fig)
     saved(out_path)
 

@@ -78,8 +78,10 @@ from utils.clearfell_common import (
     ReportNumbers,
 )
 from utils.config import DRAINAGE_DATUM
+from utils.render_utils import render_figure
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-07-04
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-07-04
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.0.0 — New script.  Dual-panel WMC3-vs-forest-control intervention figure
 #         (raw h_disp + shaded gap; BACI difference with consecutive-era DiD
 #         steps).  ANCOVA clearfell headline loaded live from 10a_report_numbers
@@ -337,7 +339,7 @@ def make_figure(df, era_df, step_df, ancova, impact, ctrl_present, out_path):
     ax2.xaxis.set_major_locator(mdates.YearLocator(2))
     _intervention_lines(ax2, top_labels=False)
 
-    fig.savefig(out_path, bbox_inches='tight', facecolor='white')
+    render_figure(fig, out_path, facecolor='white')
     plt.close(fig)
 
 

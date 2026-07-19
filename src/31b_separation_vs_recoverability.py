@@ -55,6 +55,7 @@ from utils.paths import (
     OUT_31B_SEPARATION_CSV, OUT_31B_SEPARATION_FIG,
 )
 from utils.console_utils import banner, phase, info, result, saved, done, hr
+from utils.render_utils import render_figure
 
 import xml.etree.ElementTree as ET
 from shapely.geometry import Point, Polygon
@@ -63,7 +64,8 @@ from pyproj import Transformer
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 SCRIPT_ID = "31b"
 VERSION = __version__
 
@@ -219,7 +221,7 @@ def main():
     fig.text(0.06, 0.005, cap, fontsize=8, color="0.30", va="bottom")
     fig.tight_layout(rect=[0, 0.13, 1, 0.96])
     path = OUT_31B_SEPARATION_FIG
-    fig.savefig(path, dpi=200)
+    render_figure(fig, path)
     plt.close(fig)
     saved(path)
 

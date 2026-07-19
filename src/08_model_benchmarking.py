@@ -32,7 +32,8 @@ Purpose:
 #     here they clutter the well markers, so they are suppressed. Figures only;
 #     model formulations and metrics unchanged.
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-06-21
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-06-21
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.1.0 (2026-06-21): §4.9.1 traceability — export_nse_diagnostics() writes
 #         08_perwell_nse.csv (per-well TLM/SSM NSE + ΔNSE + Cluster/β₂/β₃),
 #         08_cluster_nse_medians.csv (per-cluster median ΔNSE & median TLM NSE),
@@ -78,6 +79,7 @@ from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
     hr, skipped,
 )
+from utils.render_utils import render_figure
 
 # ==========================================
 # CONFIGURATION & PATHS
@@ -317,7 +319,7 @@ def plot_showdown(output_path, payload):
     ax_bottom.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
 
     plt.tight_layout()
-    plt.savefig(output_path, bbox_inches='tight', dpi=300)
+    render_figure(plt.gcf(), output_path)
     plt.close()
 
 
@@ -520,7 +522,7 @@ def plot_metric_map(map_df, value_col, title, output_path, cmap, vmin=None, vmax
 
     # Keep both legends and two colorbars fully visible.
     plt.subplots_adjust(left=0.08, right=0.99, top=0.93, bottom=0.08)
-    plt.savefig(output_path, bbox_inches='tight', dpi=300)
+    render_figure(plt.gcf(), output_path)
     plt.close()
 
 

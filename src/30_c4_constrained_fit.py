@@ -45,7 +45,8 @@ This is a sensitivity/diagnostic. 03_master_data.csv is unchanged; nothing
 downstream (Table 2, τ, scenarios) reads this script's outputs.
 """
 from __future__ import annotations
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-06-25. Added the C4 water-balance
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-06-25. Added the C4 water-balance
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 #         partition sensitivity: partitions the loss budget at the unconstrained
 #         centroid, the residual-minimising β₃, and the triangulation anchor, reading
 #         the cluster means from Script 16 (OUT_16_TABLE) so the unconstrained case is
@@ -75,6 +76,7 @@ from utils.paths import (
     OUT_30_C4_PERWELL, OUT_30_C4_REPORT_NUMBERS, OUT_30_C4_FIG, DIR_30,
 )
 from utils.report_numbers_utils import ReportNumbers
+from utils.render_utils import render_figure
 
 warnings.filterwarnings("ignore")
 
@@ -288,7 +290,7 @@ def main():
     ax.legend(fontsize=8, loc="upper right", framealpha=0.9)
     ax.grid(alpha=0.25)
     fig.tight_layout()
-    fig.savefig(OUT_30_C4_FIG, dpi=200, bbox_inches="tight")
+    render_figure(fig, OUT_30_C4_FIG)
     plt.close(fig)
     print(f"  Saved → {OUT_30_C4_FIG.name}")
 

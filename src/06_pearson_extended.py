@@ -9,6 +9,7 @@ Purpose:
     all remaining wells.
 ====================================================================================
 """
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap).
 
 # Revision note:
 #   2026-06-21 — Membership map now calls add_kml_features(..., include_scrapes=False).
@@ -46,6 +47,7 @@ from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
     hr, skipped,
 )
+from utils.render_utils import render_figure
 
 fiona.drvsupport.supported_drivers["KML"] = "rw"
 
@@ -157,7 +159,7 @@ def create_affinity_bar_plot(audit_df: pd.DataFrame) -> None:
     ax.legend(title="Cluster", loc="lower right", frameon=True)
 
     plt.tight_layout()
-    plt.savefig(OUT_BAR, dpi=300, bbox_inches="tight")
+    render_figure(plt.gcf(), OUT_BAR)
     plt.close(fig)
 
 # ==========================================
@@ -252,7 +254,7 @@ def main():
         ax.axis('off')
         ax.text(0.5, 0.5, 'No Extended wells available for Pearson integration.', ha='center', va='center', fontsize=14)
         plt.tight_layout()
-        plt.savefig(OUT_MAP, bbox_inches='tight')
+        render_figure(plt.gcf(), OUT_MAP)
         plt.close(fig)
         print(f"Success: Integration Map saved to {OUT_MAP.name}")
         return
@@ -366,7 +368,7 @@ def main():
         ax.legend(handles=list(dedup.values()), loc='upper right', title="Site Features", frameon=True)
 
     plt.tight_layout()
-    plt.savefig(OUT_MAP, bbox_inches='tight')
+    render_figure(plt.gcf(), OUT_MAP)
     print(f"Success: Integration Map saved to {OUT_MAP.name}")
 
 if __name__ == "__main__":

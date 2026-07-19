@@ -43,6 +43,7 @@ Outputs:
     OUT_10C_SUMMARY            — Plain-text interpretive summary
 ====================================================================================
 """
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
@@ -68,6 +69,7 @@ from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
     hr, skipped,
 )
+from utils.render_utils import render_figure
 
 # ── Constants ────────────────────────────────────────────────────────────────
 # Ridge crest reference point (OSGB36) — shared with Scripts 23, 24
@@ -271,7 +273,7 @@ def plot_b1_b2_scatter(forest, clearfell, c3_boundary):
     ax.legend(loc="upper left", fontsize=9, framealpha=0.9)
     ax.grid(True, alpha=0.15)
     fig.tight_layout()
-    fig.savefig(OUT_10C_B1_B2_SCATTER, dpi=200, bbox_inches="tight")
+    render_figure(fig, OUT_10C_B1_B2_SCATTER)
     plt.close(fig)
     print(f"  [saved] {OUT_10C_B1_B2_SCATTER.name}")
 
@@ -317,7 +319,7 @@ def plot_b2_elevation_regression(forest):
     ax.legend(loc="lower right", fontsize=9, framealpha=0.9)
     ax.grid(True, alpha=0.15)
     fig.tight_layout()
-    fig.savefig(OUT_10C_B2_ELEV_REGRESSION, dpi=200, bbox_inches="tight")
+    render_figure(fig, OUT_10C_B2_ELEV_REGRESSION)
     plt.close(fig)
     print(f"  [saved] {OUT_10C_B2_ELEV_REGRESSION.name}")
 
@@ -384,7 +386,7 @@ def plot_boundary_map(forest, coeff):
     ax.set_ylim(all_n.min() - margin, max(all_n.max(), RIDGE_N) + margin)
 
     fig.tight_layout()
-    fig.savefig(OUT_10C_BOUNDARY_MAP, dpi=200, bbox_inches="tight")
+    render_figure(fig, OUT_10C_BOUNDARY_MAP)
     plt.close(fig)
     print(f"  [saved] {OUT_10C_BOUNDARY_MAP.name}")
 

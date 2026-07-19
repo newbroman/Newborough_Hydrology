@@ -8,7 +8,8 @@ Full per-script methodology: see chapter S.4 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.2.2"  # Hollingham (2026) — last revised 2026-06-21
+__version__ = "1.3.0"  # Hollingham (2026) — last revised 2026-06-21
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # Changelog:
 #   1.2.2 (2026-06-21) — Spatial confidence map: pass include_scrapes=False to
 #     add_kml_features(). The shared feature overlay now draws the GPS-traced
@@ -55,6 +56,7 @@ from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
     hr, skipped,
 )
+from utils.render_utils import render_figure
 
 fiona.drvsupport.supported_drivers["KML"] = "rw"
 EXPECTED_CLUSTERS = sorted(CLUSTER_LABELS.keys())
@@ -187,7 +189,7 @@ def main():
         y_min = min(0.0, float(np.nanmin(plot_df.values))-0.02) if not plot_df.empty else 0.0
         ax.set_ylim(y_min, min(1.05,y_max+0.22))
         ax.legend(title="Cluster",loc="lower right",frameon=True)
-        plt.tight_layout(); plt.savefig(OUT_05_AFFINITY_CHART, dpi=300, bbox_inches="tight"); plt.close()
+        plt.tight_layout(); render_figure(plt.gcf(), OUT_05_AFFINITY_CHART); plt.close()
 
     # Spatial confidence map
     map_df = audit_df.merge(loc_df[["Match_ID","E","N"]], left_on="Well_Normalised", right_on="Match_ID", how="left")
@@ -289,7 +291,7 @@ def main():
             ax.legend(handles=list(dedup.values()),title="Site Features",loc="lower left",
                       frameon=True)
         if texts: adjust_text(texts,arrowprops=dict(arrowstyle="-",color="gray",lw=0.5),ax=ax)
-        plt.tight_layout(); plt.savefig(OUT_05_CONFIDENCE_MAP,dpi=300,bbox_inches="tight"); plt.close()
+        plt.tight_layout(); render_figure(plt.gcf(), OUT_05_CONFIDENCE_MAP); plt.close()
 
     core_c = int((audit_df["Class"]=="Core").sum())
     fuzzy_c = int((audit_df["Class"]=="Fuzzy").sum())

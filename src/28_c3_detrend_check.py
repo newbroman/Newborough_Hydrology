@@ -26,7 +26,8 @@ Decision:
 
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-05-29
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-05-29
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.1.0 — Re-wired to paths.py and outputs/28_c3_detrend/ canonical
 #         directory. Entered run_analysis.py at Phase 14 Step 31. No
 #         change to procedure; outputs byte-identical to the standalone
@@ -49,6 +50,7 @@ from utils.console_utils import (
     hr, skipped,
 )
 from utils import paths  # noqa: E402
+from utils.render_utils import render_figure
 
 paths.make_all_dirs()
 
@@ -449,7 +451,7 @@ if n_panels > 0:
     fig.suptitle("C3 wells: original vs de-trended anomaly hydrographs against C2 / C3 centroids",
                  fontsize=11)
     fig.tight_layout(rect=[0, 0.02, 1, 0.97])
-    fig.savefig(OUT_FIG, dpi=180, bbox_inches="tight")
+    render_figure(fig, OUT_FIG)
     print(f"Wrote {OUT_FIG.relative_to(REPO)}")
 
 print()

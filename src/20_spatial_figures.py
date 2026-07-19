@@ -63,7 +63,8 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds
 """
 
-__version__ = "1.33.0"  # Hollingham (2026) — 2026-07-17
+__version__ = "1.34.0"  # Hollingham (2026) — 2026-07-17
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.33.0 — Documentation-only cleanup, no functional or figure change. The
 #         plot_scrape_drawdown() docstring and the SCRAPE_DEPTH_M constant
 #         still described the pre-1.10.0 logic (H0 = Sy × assumed depth),
@@ -498,6 +499,7 @@ from utils.config import (CLUSTER_COLOURS, CLUSTER_LABELS, DRAINAGE_DATUM, FORES
                           BL_CANOPY_FRACTION_2025, COAST_CHRONIC_YEARS)
 from utils.data_utils import normalize_well_name
 from utils.report_numbers_utils import ReportNumbers
+from utils.render_utils import render_figure
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CONSTANTS
@@ -1218,7 +1220,7 @@ def plot_head_streams(wt, stream_polys, features, dpi=300):
         fontsize=10, fontweight="bold")
 
     fig.tight_layout()
-    fig.savefig(OUT_20_HEAD_STREAMS, dpi=dpi, bbox_inches="tight")
+    render_figure(fig, OUT_20_HEAD_STREAMS)
     plt.close(fig)
     print(f"  Saved: {OUT_20_HEAD_STREAMS.name}")
 
@@ -1355,7 +1357,7 @@ def plot_residual_ssm(wt, features, dpi=300):
                 bbox=dict(boxstyle="round,pad=0.3", fc="white", alpha=1.0))
 
     fig.tight_layout()
-    fig.savefig(OUT_20_RESIDUAL_SSM, dpi=dpi, bbox_inches="tight")
+    render_figure(fig, OUT_20_RESIDUAL_SSM)
     plt.close(fig)
     print(f"  Saved: {OUT_20_RESIDUAL_SSM.name}")
 
@@ -1424,7 +1426,7 @@ def plot_slope_gradient(wt, features, dpi=300):
                 bbox=dict(boxstyle="round,pad=0.3", fc="white", alpha=0.85))
 
     fig.tight_layout()
-    fig.savefig(OUT_20_SLOPE, dpi=dpi, bbox_inches="tight")
+    render_figure(fig, OUT_20_SLOPE)
     plt.close(fig)
     print(f"  Saved: {OUT_20_SLOPE.name}")
 
@@ -1828,7 +1830,7 @@ def plot_drawdown_propagation(wt, features, dpi=300, show_head=True):
         fontsize=10, fontweight="bold", pad=10)
 
     plt.tight_layout()
-    fig.savefig(OUT_PATH, dpi=dpi, bbox_inches="tight")
+    render_figure(fig, OUT_PATH)
     plt.close(fig)
     print(f"  Saved → {OUT_PATH}")
 
@@ -2145,7 +2147,7 @@ def plot_coastal_erosion(wt, features, dpi=300):
         fontsize=10, fontweight="bold", pad=10)
 
     plt.tight_layout()
-    fig.savefig(OUT_20_COASTAL_EROSION, dpi=dpi, bbox_inches="tight")
+    render_figure(fig, OUT_20_COASTAL_EROSION)
     plt.close(fig)
     print(f"  Saved → {OUT_20_COASTAL_EROSION}")
 
@@ -2331,7 +2333,7 @@ def plot_slr_response(wt, features, dpi=300):
         fontsize=10, fontweight="bold", pad=10)
 
     plt.tight_layout()
-    fig.savefig(OUT_20_SLR_RESPONSE, dpi=dpi, bbox_inches="tight")
+    render_figure(fig, OUT_20_SLR_RESPONSE)
     plt.close(fig)
     print(f"  Saved → {OUT_20_SLR_RESPONSE}")
 
@@ -2914,7 +2916,7 @@ def plot_coastal_net_effect(wt, features, dpi=300):
         fontsize=10, fontweight="bold", pad=10)
 
     plt.tight_layout()
-    fig.savefig(OUT_20_COASTAL_NET, dpi=dpi, bbox_inches="tight")
+    render_figure(fig, OUT_20_COASTAL_NET)
     plt.close(fig)
 
 
@@ -3015,7 +3017,7 @@ def plot_scrape_coastal_net(wt, features, dpi=300):
         fontsize=9.5, fontweight="bold", pad=10)
 
     plt.tight_layout()
-    fig.savefig(OUT_20_CLEARFELL_BASELINE_DRAWDOWN, dpi=dpi, bbox_inches="tight")
+    render_figure(fig, OUT_20_CLEARFELL_BASELINE_DRAWDOWN)
     plt.close(fig)
     print(f"  Saved → {OUT_20_CLEARFELL_BASELINE_DRAWDOWN}")
 
@@ -3115,7 +3117,7 @@ def plot_public_panel(wt, features, dpi=300):
              "Changing any one has knock-on effects elsewhere — there is no single switch.",
              ha="center", va="top", fontsize=10, style="italic", wrap=True)
 
-    fig.savefig(OUT_20_PUBLIC_PANEL, dpi=dpi, bbox_inches="tight")
+    render_figure(fig, OUT_20_PUBLIC_PANEL, full_page=True)
     plt.close(fig)
     print(f"  Saved → {OUT_20_PUBLIC_PANEL}  "
           f"(forest H0={fH0:.0f}, scrape H0={sH0:.0f}, erosion h0={eH0:.0f} mm)")
@@ -3289,7 +3291,7 @@ def plot_clearfell_gain(wt, features, dpi=300):
              "Complement to 20_drawdown_propagation_nohead.png",
              ha="center", va="bottom", fontsize=8, color="#444", style="italic")
 
-    fig.savefig(OUT_20_CLEARFELL_GAIN, dpi=dpi, bbox_inches="tight")
+    render_figure(fig, OUT_20_CLEARFELL_GAIN)
     plt.close(fig)
     print(f"  Saved → {OUT_20_CLEARFELL_GAIN}  "
           f"(n={len(df)}, range {vals.min():+.0f} to {vals.max():+.0f} mm)")
@@ -3559,7 +3561,7 @@ def plot_msl5_change(wt, features, dpi=300):
         f"Source: {OUT_26_5YR_PER_WELL.name}",
         ha="center", va="bottom", fontsize=7.5, color="#444", style="italic")
 
-    fig.savefig(OUT_20_MSL5_CHANGE, dpi=dpi, bbox_inches="tight")
+    render_figure(fig, OUT_20_MSL5_CHANGE)
     plt.close(fig)
     print(f"  Saved → {OUT_20_MSL5_CHANGE}")
 
@@ -3796,7 +3798,7 @@ def plot_observed_change(wt, features, dpi=300):
         f"IDW p=1.5 + Gaussian σ=2 (100 m) smoothing  ·  Cannot attribute change to individual drivers.",
         ha="center", va="bottom", fontsize=7.5, color="#444", style="italic")
 
-    fig.savefig(OUT_20_OBSERVED_CHANGE, dpi=dpi, bbox_inches="tight")
+    render_figure(fig, OUT_20_OBSERVED_CHANGE)
     plt.close(fig)
     print(f"  Saved → {OUT_20_OBSERVED_CHANGE}")
 
@@ -3990,7 +3992,7 @@ def plot_net_state_map(wt, features, dpi=300):
              ha="center", va="bottom", fontsize=8, color="#444",
              style="italic")
 
-    fig.savefig(OUT_20_NET_STATE_MAP, dpi=dpi, bbox_inches="tight")
+    render_figure(fig, OUT_20_NET_STATE_MAP)
     plt.close(fig)
     print(f"  Saved → {OUT_20_NET_STATE_MAP}  "
           f"(net range {np.nanmin(net):.0f} to {np.nanmax(net):.0f} mm)")
@@ -4261,7 +4263,7 @@ def _render_driver_change(wt, d, out_path, dpi, log_scale):
                   edgecolor="#bbb", alpha=0.92),
     )
 
-    fig.savefig(out_path, dpi=dpi, bbox_inches="tight")
+    render_figure(fig, out_path)
     plt.close(fig)
     print(f"  Saved → {out_path}  "
           f"(range {np.nanmin(net):.0f} to {np.nanmax(net):.0f} mm; "
@@ -4634,7 +4636,7 @@ def plot_scrape_drawdown(wt, features, dpi=300, show_head=True):
         fontsize=9.5, fontweight="bold", pad=10)
 
     plt.tight_layout()
-    fig.savefig(OUT_PATH, dpi=dpi, bbox_inches="tight")
+    render_figure(fig, OUT_PATH)
     plt.close(fig)
     print(f"  Saved → {OUT_PATH}")
 

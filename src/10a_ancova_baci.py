@@ -32,7 +32,8 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.4.1"  # Hollingham (2026) — 2026-07-03
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-07-03
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.4.1 — _plot_era_means(): colour parameter added; era mean lines
 #          now colour-matched to the plotted series, dashed (--),
 #          lw=1.8 alpha=0.85 zorder=3. All three callers updated.
@@ -104,6 +105,7 @@ from utils.clearfell_common import (
     scraping_weight, ReportNumbers, print_network_summary,
 )
 from utils.paths import make_all_dirs, DIR_10
+from utils.render_utils import render_figure
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -832,7 +834,7 @@ def plot_forest_timeseries(zone_label, out_path):
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
 
     fig.tight_layout()
-    fig.savefig(out_path, bbox_inches='tight', facecolor='white')
+    render_figure(fig, out_path, facecolor='white')
     plt.close(fig)
     saved(f"{out_path.name}")
 
@@ -915,7 +917,7 @@ for j, zone_label in enumerate(ZONES.keys()):
 
 fig.suptitle('Climate sensitivity: CWB vs BACI displacement — Forest control',
              fontsize=13, y=1.02)
-fig.savefig(OUT_FIG_SCATTER, bbox_inches='tight', facecolor='white')
+render_figure(fig, OUT_FIG_SCATTER, facecolor='white')
 plt.close(fig)
 saved(f"{OUT_FIG_SCATTER.name}")
 
@@ -990,7 +992,7 @@ for zone_label, out_path in [('Impact', OUT_FIG_CUSUM_IMP),
 
     fig.suptitle(f'CUSUM — {zone_label} zone vs Forest Control',
                  fontsize=13, y=0.98)
-    fig.savefig(out_path, bbox_inches='tight', facecolor='white')
+    render_figure(fig, out_path, facecolor='white')
     plt.close(fig)
     saved(f"{out_path.name}")
 
@@ -1043,7 +1045,7 @@ def plot_baci_timeseries_3panel(zone_label, out_path):
         f'ANCOVA-BACI: {zone_label} zone — three counterfactuals\n'
         f'Distance-weighted scraping (λ = {SCRAPING_DECAY_LAMBDA:.0f} m)',
         fontsize=13, y=0.98)
-    fig.savefig(out_path, bbox_inches='tight', facecolor='white')
+    render_figure(fig, out_path, facecolor='white', full_page=True)
     plt.close(fig)
     saved(f"{out_path.name}")
 
@@ -1085,7 +1087,7 @@ for j, zone_label in enumerate(ZONES.keys()):
             ax.legend(loc='best', frameon=False, fontsize=8)
 fig.suptitle('Climate sensitivity: CWB vs BACI displacement',
              fontsize=13, y=0.98)
-fig.savefig(OUT_FIG_SCATTER_3P, bbox_inches='tight', facecolor='white')
+render_figure(fig, OUT_FIG_SCATTER_3P, facecolor='white')
 plt.close(fig)
 saved(f"{OUT_FIG_SCATTER_3P.name}")
 

@@ -70,8 +70,10 @@ from utils.clearfell_common import (
     INTERVENTION_DATE, SCRAPING_DATE, PRE_FELL_START, apply_ceh34_hindcast,
     IMPACT_WELLS, EDGE_WELLS, FOREST_CONTROL_WELLS, COASTAL_CONTROL_WELLS,
 )
+from utils.render_utils import render_figure
 
-__version__ = "1.3.1"
+__version__ = "1.4.0"
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.3.1 — Inline comment at the IDW xi/yi construction documenting the
 #         40 m grid choice (vs the 50 m project standard) — Item 5 in
 #         flags log.
@@ -354,7 +356,7 @@ def main():
 
         # ── Save ────────────────────────────────────────────────────────────────
         plt.subplots_adjust(left=0.08, right=0.99, top=0.93, bottom=0.08)
-        plt.savefig(out_path, bbox_inches="tight", dpi=300)
+        render_figure(plt.gcf(), out_path)
         plt.close(fig)
         saved(f"{out_path.name}")
 

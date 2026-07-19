@@ -264,6 +264,7 @@ Version: 1.0.1 (2026-05-20) — Plot-side refinements:
     hydrology year 2012 under the strict 3/3 rule and correctly render
     with a true gap rather than a straight-line bridge).
 """
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 
 from __future__ import annotations
 
@@ -292,6 +293,7 @@ from utils.map_utils import (
     add_idw_surface,
     add_kml_features,
 )
+from utils.render_utils import render_figure
 
 # ── Output paths ──────────────────────────────────────────────────────────────
 # All paths come from utils.paths so that filename / location changes propagate
@@ -832,7 +834,7 @@ def plot_cluster_trajectory(per_cluster: pd.DataFrame, out: Path) -> None:
                   title_fontsize=7)
     ax.grid(alpha=0.25)
     fig.tight_layout()
-    fig.savefig(out, dpi=160)
+    render_figure(fig, out)
     plt.close(fig)
 
 
@@ -941,7 +943,7 @@ def plot_quadrat_wells(per_well_with_cluster: pd.DataFrame, out: Path) -> None:
                     f"SD16 (−{config.SD16:.2f} m)"] + int_labels
     ax.legend(misc_handles, misc_labels, loc="lower left", fontsize=7, ncol=1)
     fig.tight_layout()
-    fig.savefig(out, dpi=160)
+    render_figure(fig, out)
     plt.close(fig)
 
 
@@ -1036,7 +1038,7 @@ def plot_msl5_map(latest_per_well: pd.DataFrame,
     ax.set_ylim(config.SITE_MAP_NORTH_MIN, config.SITE_MAP_NORTH_MAX)
     ax.set_aspect("equal")
     fig.tight_layout()
-    fig.savefig(out, dpi=160)
+    render_figure(fig, out)
     plt.close(fig)
 
 
@@ -1340,7 +1342,7 @@ def plot_ebf_scatter(df: pd.DataFrame, summary: dict, out: Path) -> None:
         ax.set_xlabel(xlab); ax.set_title(f"{title}\nr = {r:+.2f}  (n = {summary['n']})", fontsize=10)
     axes[0].set_ylabel("Mean Ellenberg-F (moisture)")
     axes[2].legend(fontsize=7, loc="lower right", title="Habitat")
-    fig.tight_layout(); fig.savefig(out, dpi=160); plt.close(fig)
+    fig.tight_layout(); render_figure(fig, out); plt.close(fig)
 
 
 def main() -> int:

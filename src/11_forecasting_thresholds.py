@@ -98,7 +98,8 @@ Cluster scope (k=5 partition):
 ====================================================================================
 """
 
-__version__ = "1.1.1"  # Hollingham (2026) — 2026-05-20
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-05-20
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.1.1 — Section 5: dropped the previous-MSL variant (Variant 1).
 #         Empirical R² was 0.18-0.44 across the network vs 0.73-0.96 for
 #         the winter-peak variant; the previous-MSL coefficient was not
@@ -158,6 +159,7 @@ from utils.config import (
     MSL_HYDRO_YEAR_START_MONTH,
 )
 from utils.model_utils import pflood_lambda
+from utils.render_utils import render_figure
 import os
 import sys
 from io import IOBase
@@ -918,7 +920,7 @@ def _plot_spring_calibration(
 
     fig.suptitle(title, fontsize=11)
     fig.tight_layout(rect=[0, 0, 1, 0.97])
-    fig.savefig(out_path, dpi=160)
+    render_figure(fig, out_path)
     plt.close(fig)
     print(f"  Calibration figure → {out_path.name}")
 

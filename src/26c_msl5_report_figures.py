@@ -53,7 +53,8 @@ Curreli, A. et al. (2013). SD15b/SD16 dune-slack hydrological
 thresholds.
 """
 
-__version__ = "1.0.0"   # Hollingham (2026) — 2026-05-27
+__version__ = "1.1.0"   # Hollingham (2026) — 2026-05-27
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
                          # v1.0.0: Initial release.
                          #   Two report-format figures for §4.8.4 and
                          #   §4.10.1 of the main report. Reads canonical
@@ -75,6 +76,7 @@ from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
     hr, skipped,
 )
+from utils.render_utils import render_figure
 
 # ---------------------------------------------------------------------
 # constants
@@ -206,7 +208,7 @@ def render_trajectory(per_cluster: pd.DataFrame, out_path: Path) -> None:
     )
 
     plt.tight_layout()
-    plt.savefig(out_path, dpi=200, bbox_inches="tight", facecolor="white")
+    render_figure(plt.gcf(), out_path, facecolor="white")
     plt.close(fig)
 
 
@@ -308,7 +310,7 @@ def render_contrast(proj: pd.DataFrame,
     )
 
     plt.tight_layout(rect=(0, 0, 1, 0.96))
-    plt.savefig(out_path, dpi=200, bbox_inches="tight", facecolor="white")
+    render_figure(plt.gcf(), out_path, facecolor="white")
     plt.close(fig)
 
 

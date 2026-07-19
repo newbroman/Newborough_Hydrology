@@ -30,7 +30,8 @@ S.12 §"Forest interception correction"; see also `wtf_interception_methodology.
 in the project store.
 """
 
-__version__ = "1.2.0"  # Hollingham (2026) — last revised 2026-05-17
+__version__ = "1.3.0"  # Hollingham (2026) — last revised 2026-05-17
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # Changelog:
 #   1.2.0 (2026-05-17) — Approach A Sy inversion fix (Defect D).
 #     The OLS-through-origin slope for the regression R = Sy · Δh_corr IS Sy
@@ -123,6 +124,7 @@ from utils.paths import (
     make_all_dirs, OUT_DIR, DIR_17, INT_MASTER_DATA, OUT_17_SY_TABLE,
     OUT_17_REGRESSION, OUT_17_BOXPLOT, OUT_17_SUMMARY,
 )
+from utils.render_utils import render_figure
 make_all_dirs()
 
 # ── Constants ──────────────────────────────────────────────────────────────────
@@ -444,7 +446,7 @@ def plot_regression(df, a_results, out_path):
         fontsize=10, fontweight="bold", y=1.02,
     )
     plt.tight_layout()
-    fig.savefig(out_path, dpi=200, bbox_inches="tight", facecolor="white")
+    render_figure(fig, out_path, facecolor="white")
     plt.close()
     print(f"Regression figure saved → {out_path.name}")
 
@@ -504,7 +506,7 @@ def plot_event_boxplot(b_results, out_path):
         fontsize=10, fontweight="bold",
     )
     plt.tight_layout()
-    fig.savefig(out_path, dpi=200, bbox_inches="tight", facecolor="white")
+    render_figure(fig, out_path, facecolor="white")
     plt.close()
     print(f"Boxplot figure saved → {out_path.name}")
 

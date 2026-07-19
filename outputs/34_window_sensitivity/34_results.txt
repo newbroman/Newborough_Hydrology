@@ -1,4 +1,4 @@
-MSL5 two-window sensitivity (§5.7.5) — all-pairs demonstration v0.4.0
+MSL5 two-window sensitivity (§5.7.5) — all-pairs demonstration v0.5.0
 source: 26_msl_annual_per_well.csv (valid; ['ceh13', 'ceh14'] excluded); rainfall: 00_01_annual_climate_summary.csv
 common panel per pair; admissible = panel>=40; ALL pairs retained (wet-2024 windows INCLUDED — the point of the demonstration)
 

@@ -91,8 +91,10 @@ from utils.clearfell_common import (
     ReportNumbers, TIER_COLOURS,
 )
 from utils.site_observations import update_site_observation
+from utils.render_utils import render_figure
 
-__version__ = "1.2.2"  # Hollingham (2026) — 2026-07-04
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-07-04
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.2.2 — figure_monthly_contrast(): fix IndexError — pre/post masks now
 #          computed per-series on each series' own index (Impact 172 rows,
 #          Edge 180 rows); shared mask caused length mismatch in pandas.
@@ -443,8 +445,8 @@ def figure_monthly_contrast(panel, monthly, out_path):
         fontsize=11
     )
     plt.tight_layout(rect=(0, 0, 1, 0.94))
-    fig.savefig(out_path, dpi=150, format='jpeg' if str(out_path).endswith('.jpg') else None,
-                bbox_inches='tight')
+    render_figure(fig, out_path,
+                  format='jpeg' if str(out_path).endswith('.jpg') else None)
     plt.close(fig)
 
 
@@ -503,8 +505,8 @@ def figure_summer_contrast(summer_df, summer, panel_years, out_path):
         fontsize=11
     )
     plt.tight_layout()
-    fig.savefig(out_path, dpi=150, format='jpeg' if str(out_path).endswith('.jpg') else None,
-                bbox_inches='tight')
+    render_figure(fig, out_path,
+                  format='jpeg' if str(out_path).endswith('.jpg') else None)
     plt.close(fig)
 
 

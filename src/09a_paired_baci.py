@@ -33,7 +33,8 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "2.5.0"  # Hollingham (2026) — 2026-06-21
+__version__ = "2.6.0"  # Hollingham (2026) — 2026-06-21
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 2.5.0 — β₃ confidence figure (09_scrape_07): added the two unscraped controls
 #         (CEH4, CEH22) alongside the three impact wells. β₃ is each well's own
 #         drainage coefficient (fitted from its own head series), so the groups
@@ -98,6 +99,7 @@ from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
     hr, skipped,
 )
+from utils.render_utils import render_figure
 
 
 
@@ -435,7 +437,7 @@ def _plot_tier1(plot_data):
     plt.tight_layout()
     fig.suptitle("Tier 1 - Background Environmental Drift (CUSUM Analysis)",
                  fontsize=16, fontweight="bold", y=1.05)
-    plt.savefig(OUT_09_TIER1_DRIFT, bbox_inches="tight", dpi=300)
+    render_figure(plt.gcf(), OUT_09_TIER1_DRIFT)
     plt.close()
 
     # Export final CUSUM values
@@ -542,7 +544,7 @@ def _plot_tier2(plot_data):
     plt.tight_layout()
     fig.suptitle("Tier 2 - Pure Scraping Signal (Paired CUSUM Analysis)",
                  fontsize=16, fontweight="bold", y=1.05)
-    plt.savefig(OUT_09_TIER2_SIGNAL, bbox_inches="tight", dpi=300)
+    render_figure(plt.gcf(), OUT_09_TIER2_SIGNAL)
     plt.close()
     saved(f"{OUT_09_TIER2_SIGNAL.name}")
 
@@ -637,7 +639,7 @@ def _plot_beta3_ci(significance_results):
     ax.grid(axis="y", ls="--", alpha=0.7)
 
     plt.tight_layout()
-    plt.savefig(OUT_09_BETA3_CI, bbox_inches="tight", dpi=300)
+    render_figure(plt.gcf(), OUT_09_BETA3_CI)
     plt.close()
     saved(f"{OUT_09_BETA3_CI.name}")
 

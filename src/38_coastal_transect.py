@@ -173,8 +173,10 @@ from matplotlib.ticker import MaxNLocator, FuncFormatter
 from utils import config, paths
 from utils.data_utils import normalize_well_name
 from utils.console_utils import banner, phase, step, info, note, result, saved, done, warn
+from utils.render_utils import render_figure
 
-__version__ = "1.4.0"  # 2026-07-13: profile figure reduced to a single
+__version__ = "1.5.0"  # 2026-07-13: profile figure reduced to a single
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 #                       climate-corrected panel (was two). Dropped the raw
 #                       absolute panel (a) — a methods demo, not evidence;
 #                       raw levels remain in 38_transect.csv. Single-hue
@@ -458,7 +460,7 @@ def make_profile_plot(yr: pd.DataFrame, years: list[int], dist: dict[str, float]
     cbar.set_label("Year (MAM)")
 
     fig.suptitle("Coast-to-inland MAM head profile", fontsize=13, x=0.09, ha="left")
-    fig.savefig(fig_path, dpi=150, bbox_inches="tight", pil_kwargs={"quality": 85})
+    render_figure(fig, fig_path, pil_kwargs={"quality": 85})
     plt.close(fig)
 
 
@@ -502,7 +504,7 @@ def make_difference_plot(years: np.ndarray, diff: np.ndarray, fit: dict | None,
     ax.grid(alpha=0.3)
     ax.legend(loc="best", fontsize=8.5, framealpha=0.9)
     fig.tight_layout()
-    fig.savefig(fig_path, dpi=150, bbox_inches="tight", pil_kwargs={"quality": 85})
+    render_figure(fig, fig_path, pil_kwargs={"quality": 85})
     plt.close(fig)
 
 

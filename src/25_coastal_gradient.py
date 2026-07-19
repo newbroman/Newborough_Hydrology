@@ -91,7 +91,8 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-06-27 (emit §5.7.5 Check 2: raw MSL5-change vs summer-min-slope correlation)
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-06-27 (emit §5.7.5 Check 2: raw MSL5-change vs summer-min-slope correlation)
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.3.0 — §5.7.5 Check 2 recompute on the RAW MSL5 change. build_report_numbers()
 #         now also emits the cross-metric correlation between the raw 2017→2023
 #         MSL5 change (Script 20, 20_msl5_change_perwell.csv) and the per-well
@@ -162,6 +163,7 @@ from utils.clearfell_common import (  # noqa: E402
     IMPACT_WELLS, EDGE_WELLS, FOREST_CONTROL_WELLS,
     COASTAL_CONTROL_WELLS, CLIMATE_CONTROL_WELLS,
 )
+from utils.render_utils import render_figure
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -690,8 +692,7 @@ def plot_fit_diagnostic(per_well: pd.DataFrame,
     ax2.grid(alpha=0.3, axis="y")
 
     fig.tight_layout()
-    fig.savefig(fig_path, dpi=150, bbox_inches="tight",
-                 pil_kwargs={"quality": 85})
+    render_figure(fig, fig_path, pil_kwargs={"quality": 85})
     plt.close(fig)
 
 
@@ -733,8 +734,7 @@ def plot_baci_corroboration(baci_df: pd.DataFrame, fig_path: Path) -> None:
     ax.grid(alpha=0.3, axis="x")
 
     fig.tight_layout()
-    fig.savefig(fig_path, dpi=150, bbox_inches="tight",
-                 pil_kwargs={"quality": 85})
+    render_figure(fig, fig_path, pil_kwargs={"quality": 85})
     plt.close(fig)
 
 
@@ -798,7 +798,7 @@ def plot_cluster_decomposition(partition: pd.DataFrame, fig_path: Path) -> None:
                  va="center", fontsize=8.5, color="#333")
 
     fig.tight_layout()
-    fig.savefig(fig_path, dpi=180, bbox_inches="tight")
+    render_figure(fig, fig_path)
     plt.close(fig)
 
 

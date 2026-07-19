@@ -14,7 +14,8 @@ Outputs (final — outputs/02_clustering/):
     02_02_validation_plots.png
 """
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-06-28
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-06-28
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.2.0 (2026-06-28): clustering target K is now a run parameter
 #   (pipeline_params.get_requested_n_clusters(); default 5, overridable per run
 #   via run_analysis.py --clusters N / NRG_N_CLUSTERS) instead of the buried
@@ -76,6 +77,7 @@ from utils.paths import (
 )
 from utils.report_numbers_utils import ReportNumbers
 from utils.pipeline_params import get_requested_n_clusters
+from utils.render_utils import render_figure
 
 # The clustering target K is a run parameter (utils.pipeline_params), not a
 # literal: the dendrogram cannot discover it because silhouette peaks at the
@@ -490,7 +492,7 @@ def plot_coassignment_heatmap(coassign_df: pd.DataFrame, ref_labels: pd.Series,
     cbar = fig.colorbar(im, ax=ax, shrink=0.8)
     cbar.set_label("co-assignment prob.", fontsize=9)
     plt.tight_layout()
-    plt.savefig(out_path, bbox_inches="tight", facecolor="white")
+    render_figure(plt.gcf(), out_path, facecolor="white")
     plt.close(fig)
 
 
@@ -562,7 +564,7 @@ def run_stability_diagnostics(wells_ref: pd.DataFrame) -> None:
     axes[2].grid(alpha=0.4, ls="--")
 
     plt.tight_layout()
-    plt.savefig(OUT_02_VALIDATION_EXTENDED, bbox_inches="tight", facecolor="white")
+    render_figure(plt.gcf(), OUT_02_VALIDATION_EXTENDED, facecolor="white")
     plt.close(fig)
     saved(f"{OUT_02_VALIDATION_EXTENDED.name}")
 
@@ -785,7 +787,7 @@ def make_cluster_hydrograph_wb_figure() -> None:
     ax_h.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
     plt.setp(ax_h.xaxis.get_majorticklabels(), rotation=0, ha="center", fontsize=8)
 
-    plt.savefig(OUT_02_CLUSTER_HYDRO_WB, dpi=300, bbox_inches="tight", facecolor="white")
+    render_figure(plt.gcf(), OUT_02_CLUSTER_HYDRO_WB, facecolor="white")
     plt.close(fig)
     saved(f"{OUT_02_CLUSTER_HYDRO_WB.name}")
 
@@ -871,7 +873,7 @@ def make_cluster_spaghetti_figure() -> None:
         "(thin = individual wells, bold = cluster mean)",
         fontsize=11.5, y=0.995)
     fig.tight_layout(rect=[0.02, 0, 1, 0.99])
-    plt.savefig(OUT_02_SPAGHETTI, dpi=300, bbox_inches="tight", facecolor="white")
+    render_figure(plt.gcf(), OUT_02_SPAGHETTI, facecolor="white")
     plt.close(fig)
     saved(f"{OUT_02_SPAGHETTI.name}")
 
@@ -1107,7 +1109,7 @@ def compute_cluster_amplitude_descriptors(
     ax.spines["right"].set_visible(False)
     ax.set_ylim(bottom=0)
     plt.tight_layout()
-    plt.savefig(OUT_02_AMP_BOXPLOT, bbox_inches="tight", facecolor="white")
+    render_figure(plt.gcf(), OUT_02_AMP_BOXPLOT, facecolor="white")
     plt.close(fig)
     saved(f"{OUT_02_AMP_BOXPLOT.name}")
 
@@ -1181,7 +1183,7 @@ if __name__ == "__main__":
     ax2.set_xlabel("Number of Clusters (k)"); ax2.set_ylabel("Silhouette Coefficient")
     ax2.grid(True, linestyle="--", alpha=0.6); ax2.legend()
     plt.tight_layout()
-    plt.savefig(OUT_02_VALIDATION)
+    render_figure(plt.gcf(), OUT_02_VALIDATION)
     plt.close()
     saved(f"{OUT_02_VALIDATION.name}")
 
@@ -1353,7 +1355,7 @@ if __name__ == "__main__":
     )
     ax.set_ylabel("Ward Linkage Distance", fontsize=12)
     fig.tight_layout()
-    fig.savefig(OUT_02_DENDROGRAM)
+    render_figure(fig, OUT_02_DENDROGRAM)
     plt.close(fig)
 
     step("Generating Cluster Hydrograph + Water-Balance Figure...")

@@ -86,8 +86,10 @@ from matplotlib.patches import Rectangle
 
 from utils import config, paths
 from utils.console_utils import banner, phase, step, info, note, result, saved, done, hr
+from utils.render_utils import render_figure
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 SCRIPT_ID = "34"
 VERSION = __version__
 
@@ -259,7 +261,7 @@ def make_figure(d: pd.DataFrame, piv: pd.DataFrame, annual_p: pd.Series,
              fontsize=7.5, style="italic", color="0.35")
 
     fig.subplots_adjust(left=0.10, right=0.985, top=0.88, bottom=0.16, wspace=0.18)
-    fig.savefig(OUT_FIG, dpi=160)
+    render_figure(fig, OUT_FIG)
     plt.close(fig)
 
 

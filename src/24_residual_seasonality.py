@@ -53,7 +53,8 @@ C3 split threshold: 1000 m from ridge (forest-adjacent vs warren-interior)
 ====================================================================================
 """
 
-__version__ = "1.0.1"  # Hollingham (2026) — 2026-05-17
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-05-17
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.0.1 — Doc-sweep S.16: clarified the inline comment on lag/displacement
 #         handling (S16-D); fixed add_kml_features(ax) → add_kml_features(
 #         ax, DATA_DIR) bug — previously the KML overlay silently failed
@@ -91,6 +92,7 @@ from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
     hr, skipped,
 )
+from utils.render_utils import render_figure
 
 
 # ==========================================
@@ -276,7 +278,7 @@ def plot_climatology_panels(resids_dict, meta_df, output_path):
                  "(red band = JJA, blue bands = DJF)",
                  fontsize=14, fontweight='bold', y=1.00)
     plt.tight_layout()
-    plt.savefig(output_path, bbox_inches='tight', dpi=300)
+    render_figure(plt.gcf(), output_path)
     plt.close()
     saved(f"{output_path.name}")
 
@@ -328,7 +330,7 @@ def plot_amplitude_map(clim_df, output_path):
     ax.grid(ls='--', alpha=0.4)
     ax.legend(loc='upper left', frameon=True, edgecolor='black', fontsize=9)
     plt.tight_layout()
-    plt.savefig(output_path, bbox_inches='tight', dpi=300)
+    render_figure(plt.gcf(), output_path)
     plt.close()
     saved(f"{output_path.name}")
 
@@ -369,7 +371,7 @@ def plot_sun_corr_scatter(clim_df, output_path):
     ax.grid(axis='y', ls='--', alpha=0.4)
     ax.legend(loc='best', frameon=True, edgecolor='black', fontsize=9)
     plt.tight_layout()
-    plt.savefig(output_path, bbox_inches='tight', dpi=300)
+    render_figure(plt.gcf(), output_path)
     plt.close()
     saved(f"{output_path.name}")
 
@@ -434,7 +436,7 @@ def plot_phase_barplot(clim_df, output_path):
     ax.grid(axis='y', ls='--', alpha=0.4)
     ax.legend(loc='upper right', frameon=True, edgecolor='black', fontsize=9)
     plt.tight_layout()
-    plt.savefig(output_path, bbox_inches='tight', dpi=300)
+    render_figure(plt.gcf(), output_path)
     plt.close()
     saved(f"{output_path.name}")
 

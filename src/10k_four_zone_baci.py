@@ -132,8 +132,10 @@ from utils.clearfell_common import (
     C3_WARREN_WELLS, compute_cwb, ReportNumbers, TIER_COLOURS,
 )
 from utils.site_observations import update_site_observation
+from utils.render_utils import render_figure
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-05-22
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-05-22
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.2.0 — Pairwise contrasts now carry a contrast_type field
 #         (primary / derived / identity_check).  The six contrasts are
 #         not co-equal: 'primary' are direct zone-vs-Forest
@@ -792,11 +794,10 @@ def _save_jpeg(fig, out_path):
     it must be passed this way.
     """
     is_jpeg = str(out_path).lower().endswith('.jpg')
-    fig.savefig(
-        out_path, dpi=150,
+    render_figure(
+        fig, out_path,
         format='jpeg' if is_jpeg else None,
         pil_kwargs={'quality': 85} if is_jpeg else None,
-        bbox_inches='tight',
     )
     plt.close(fig)
 

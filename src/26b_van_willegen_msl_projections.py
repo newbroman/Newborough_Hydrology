@@ -111,7 +111,8 @@ Cross-references
   Script 26 plot_cluster_trajectory()             — observed-trajectory layout this script extends
 """
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-05-27
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-05-27
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.1.0 — Parallel per-well aggregation pathway added.  The centroid-fitted
 #         pathway and all its outputs (figure, OUT_TABLE, OUT_DELTAS,
 #         OUT_TXT) are unchanged byte-for-byte; this version adds a second
@@ -188,6 +189,7 @@ from utils.console_utils import (
 )
 
 from utils import config, paths
+from utils.render_utils import render_figure
 
 
 # ── Output paths ──────────────────────────────────────────────────────────────
@@ -469,7 +471,7 @@ def render_projection_figure(
                  "overlaid with monthly Δh perturbation from each scenario",
                  fontsize=11, y=0.995)
     fig.tight_layout(rect=[0, 0, 1, 0.92])
-    fig.savefig(out_path, dpi=160)
+    render_figure(fig, out_path)
     plt.close(fig)
     saved(f"{out_path.name}")
 

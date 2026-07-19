@@ -31,7 +31,8 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-07-14
+__version__ = "1.6.0"  # Hollingham (2026) — 2026-07-14
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.5.0 — Clearfell no-decay comparator added (Task G). New report-number:
 #         the post-felling OLS slope of WMC3's summer-minimum forest-control
 #         gap (Gap_forest_m, 2018→last), as the matched-currency comparator to
@@ -120,6 +121,7 @@ from utils.clearfell_common import (
 )
 from utils.paths import make_all_dirs, DIR_10
 from utils.config import EQUIL_MIN_FIT_POINTS
+from utils.render_utils import render_figure
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -576,7 +578,7 @@ def plot_summer_minima(ctrl_label, centroid_mins, out_path):
     fig.suptitle(
         f'Summer minima analysis — {ctrl_label} control centroid',
         fontsize=13, y=0.98)
-    fig.savefig(out_path, bbox_inches='tight', facecolor='white')
+    render_figure(fig, out_path, facecolor='white', full_page=True)
     plt.close(fig)
     saved(f"{out_path.name}")
 

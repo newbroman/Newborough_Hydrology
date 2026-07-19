@@ -72,6 +72,7 @@ from utils.paths import (
 )
 from utils.map_utils import add_en_axes
 from utils.console_utils import banner, phase, info, note, result, saved, done, hr
+from utils.render_utils import render_figure
 
 import xml.etree.ElementTree as ET
 from shapely.geometry import Point, Polygon
@@ -79,7 +80,8 @@ from pyproj import Transformer
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
-__version__ = "1.2.0"
+__version__ = "1.3.0"
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 SCRIPT_ID = "31"
 VERSION = __version__
 
@@ -446,7 +448,7 @@ def make_panel(master, mag, ari_df, summary_df, fr):
                  fontsize=14, y=0.99)
     fig.tight_layout(rect=[0, 0, 1, 0.97])
     path = OUT_31_PANEL_FIG
-    fig.savefig(path, dpi=200)
+    render_figure(fig, path)
     plt.close(fig)
     return path
 

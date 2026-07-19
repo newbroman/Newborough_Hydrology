@@ -35,7 +35,8 @@ Reviewer-facing method summary:
 
 from __future__ import annotations
 
-__version__ = "1.2.1"  # Hollingham (2026) — 2026-06-21 (iterate CLUSTER_LABELS not CLUSTER_COLOURS — drop reserved C6 from cluster loops; no functional change, C6 was already guarded out)
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-06-21 (iterate CLUSTER_LABELS not CLUSTER_COLOURS — drop reserved C6 from cluster loops; no functional change, C6 was already guarded out)
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.2.0 — Winter trends now persisted to 14_winter_trend_stats.csv
 #         (parallel to 14_summer_trend_stats.csv). Winter trend
 #         computation in main() now captures the p-value (previously
@@ -79,6 +80,7 @@ from utils.config import (
     CLUSTER_COLOURS_BW as _CFG_COLOURS_BW, CLUSTER_MARKERS as _CFG_MARKERS,
     BW_LINESTYLES, SD15b, SD16, SD15b_WINTER, SD16_WINTER,
 )
+from utils.render_utils import render_figure
 
 OBS_START = 2004
 # OBS_END is the last complete observational *year* for the climate
@@ -388,7 +390,7 @@ def render_summer_figure(
     ax.legend(loc="best", fontsize=8.2, frameon=True, framealpha=0.92, edgecolor="#cccccc", ncol=1)
 
     plt.tight_layout()
-    plt.savefig(out_path, dpi=300, bbox_inches="tight", facecolor="white")
+    render_figure(plt.gcf(), out_path, facecolor="white")
     plt.close(fig)
     print(f"  [14] Saved: {out_path.name}")
 
@@ -480,7 +482,7 @@ def render_winter_figure(
               loc="lower right", fontsize=8.2, frameon=True, framealpha=0.92, edgecolor="#cccccc")
 
     plt.tight_layout()
-    plt.savefig(out_path, dpi=300, bbox_inches="tight", facecolor="white")
+    render_figure(plt.gcf(), out_path, facecolor="white")
     plt.close(fig)
     print(f"  [14] Saved: {out_path.name}")
 
@@ -627,7 +629,7 @@ def render_stacked_figure(
     )
 
     plt.tight_layout(rect=[0, 0.015, 1, 0.97])
-    plt.savefig(out_path, dpi=300, bbox_inches="tight", facecolor="white")
+    render_figure(plt.gcf(), out_path, facecolor="white")
     plt.close(fig)
     print(f"  [14] Saved: {out_path.name}")
 

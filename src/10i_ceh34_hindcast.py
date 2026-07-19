@@ -63,7 +63,8 @@ clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-05-16
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-05-16
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
@@ -83,6 +84,7 @@ from utils.paths import (
     OUT_10I_HINDCAST, OUT_10I_REGRESSION,
     OUT_10I_DIAGNOSTIC, OUT_10I_REPORT,
 )
+from utils.render_utils import render_figure
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -310,7 +312,7 @@ def main():
                  f'(Climate Control cluster)',
                  fontsize=13, y=1.00)
     fig.tight_layout()
-    fig.savefig(OUT_DIAGNOSTIC, bbox_inches='tight', facecolor='white')
+    render_figure(fig, OUT_DIAGNOSTIC, facecolor='white')
     plt.close(fig)
     saved(f"{OUT_DIAGNOSTIC.name}")
 

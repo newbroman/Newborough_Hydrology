@@ -28,7 +28,8 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "2.0.0"  # Hollingham (2026) — modularised from monolithic 09
+__version__ = "2.1.0"  # Hollingham (2026) — modularised from monolithic 09
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
@@ -47,6 +48,7 @@ from utils.scraping_common import (
     load_scraping_data,
 )
 from utils.config import DRAINAGE_DATUM, HEADLINE_LAG
+from utils.render_utils import render_figure
 
 import pandas as pd
 import numpy as np
@@ -321,7 +323,7 @@ def _plot_robustness(gap_raw, gap_syn, ts_fwd,
         fontsize=11, fontweight="bold", y=0.975)
     fig.subplots_adjust(left=0.12)
 
-    plt.savefig(OUT_09_ROBUSTNESS, bbox_inches="tight", dpi=300)
+    render_figure(plt.gcf(), OUT_09_ROBUSTNESS)
     plt.close()
     saved(f"{OUT_09_ROBUSTNESS.name}")
     print(f"   Raw BACI step:    {raw_step:+.3f} m")

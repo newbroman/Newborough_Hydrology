@@ -17,7 +17,8 @@ Outputs:
 ====================================================================================
 """
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-06-28
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-06-28
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.1.0 — Replaced bespoke DEM rendering block with map_utils.load_dem_layer().
 #          Eliminates the duplicated imshow/colourmap/alpha logic that caused
 #          12_01_dem_site_overview.png to be significantly more colour-saturated
@@ -55,6 +56,7 @@ from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
     hr, skipped,
 )
+from utils.render_utils import render_figure
 
 # Enable KML driver in GeoPandas/Fiona
 fiona.drvsupport.supported_drivers['KML'] = 'rw'
@@ -189,7 +191,7 @@ def generate_dem_map():
     # Save in high resolution to outputs folder
     output_filename = OUT_12_DEM_OVERVIEW
     plt.tight_layout()
-    plt.savefig(output_filename, dpi=300, bbox_inches='tight')
+    render_figure(plt.gcf(), output_filename)
     print(f"  [SUCCESS] Map saved locally as {output_filename}")
     plt.close()
 

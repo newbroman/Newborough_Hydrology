@@ -37,7 +37,8 @@ as a successor step to 11b, following the 14b → Script 14 pattern.
 
 from __future__ import annotations
 
-__version__ = "1.1.2"  # Hollingham (2026) — 2026-06-28
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-06-28
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.1.1 — Output paths now reference the canonical OUT_11C_* constants in
 #         paths.py (added same day). Removes the local DIR_11B re-derivation;
 #         single source of truth. No change to output filenames or contents.
@@ -75,6 +76,7 @@ from utils.config import (  # noqa: E402
     SITE_MAP_EAST_MIN, SITE_MAP_EAST_MAX,
     SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX,
 )
+from utils.render_utils import render_figure
 
 paths.make_all_dirs()
 
@@ -212,7 +214,7 @@ ax.set_ylim(SITE_MAP_NORTH_MIN, _NORTH_MAX_11C)
 ax.set_aspect("equal")
 
 fig.tight_layout()
-fig.savefig(OUT_MAP, dpi=180, bbox_inches="tight")
+render_figure(fig, OUT_MAP)
 plt.close(fig)
 print(f"Wrote {OUT_MAP.relative_to(REPO)}")
 

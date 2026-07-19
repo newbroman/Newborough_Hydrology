@@ -28,7 +28,8 @@ References:
     Freeman, S. (2008) Hydrological impact of Corsican pine at Newborough Warren.
 """
 
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-07-01
+__version__ = "1.6.0"  # Hollingham (2026) — 2026-07-01
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.5.0 (2026-07-01): map_utils refactor.
 #         make_site_mask() removed from this script — moved to map_utils v1.4.0
 #         (single shared implementation). SEA_SOUTH_N/SEA_EAST_E/SEA_WEST_E
@@ -111,6 +112,7 @@ from utils.config import (
     FOREST_INTERCEPTION, FOREST_CIDS,
     BW_MODE, get_cmap, REFERENCE_CUTOFF_DATE,
 )
+from utils.render_utils import render_figure
 make_all_dirs()
 
 # ── Dynamic end year for map titles ───────────────────────────────────────────
@@ -370,7 +372,7 @@ def plot_contour_map(well_results, out_path):
 
     ax.tick_params(labelsize=8)
     plt.tight_layout()
-    fig.savefig(out_path, dpi=200, bbox_inches="tight", facecolor="white")
+    render_figure(fig, out_path, facecolor="white")
     plt.close()
     print(f"  Contour map saved → {out_path.name}")
 
@@ -623,7 +625,7 @@ def plot_contour_map_extended(ref_results, ext_results, out_path):
 
     ax.tick_params(labelsize=8)
     plt.tight_layout()
-    fig.savefig(out_path, dpi=200, bbox_inches='tight', facecolor='white')
+    render_figure(fig, out_path, facecolor='white')
     plt.close()
     print(f"  Extended contour map saved → {out_path.name}")
 
@@ -907,7 +909,7 @@ def plot_halflife_map(rb3_df, out_path):
 
     ax.tick_params(labelsize=8)
     plt.tight_layout()
-    fig.savefig(out_path, dpi=200, bbox_inches="tight", facecolor="white")
+    render_figure(fig, out_path, facecolor="white")
     plt.close()
     print(f"  Half-life map saved → {out_path.name}")
 
@@ -1079,7 +1081,7 @@ def plot_aquifer_diagnostic_synthesis(rb3_df, out_path):
                   framealpha=0.95, edgecolor="#CCCCCC")
 
     plt.tight_layout()
-    fig.savefig(out_path, dpi=200, bbox_inches="tight", facecolor="white")
+    render_figure(fig, out_path, facecolor="white")
     plt.close()
     print(f"  Aquifer diagnostic synthesis saved → {out_path.name}")
 

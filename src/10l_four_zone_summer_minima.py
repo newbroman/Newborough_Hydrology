@@ -149,8 +149,10 @@ from utils.clearfell_common import (
     ReportNumbers, TIER_COLOURS,
 )
 from utils.site_observations import update_site_observation
+from utils.render_utils import render_figure
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-05-22
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-05-22
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.0.0 — Initial.  Four-zone summer-minima clearfell BACI — Phase 2 of
 #         the four-zone redesign, the annual-resolution sibling of the
 #         monthly Script 10k.  Fits summer_min ~ Post + zone:Post +
@@ -740,11 +742,10 @@ def _save_jpeg(fig, out_path):
     way (matching Scripts 09b, 09d, 10k, 21, 25).
     """
     is_jpeg = str(out_path).lower().endswith('.jpg')
-    fig.savefig(
-        out_path, dpi=150,
+    render_figure(
+        fig, out_path,
         format='jpeg' if is_jpeg else None,
         pil_kwargs={'quality': 85} if is_jpeg else None,
-        bbox_inches='tight',
     )
     plt.close(fig)
 

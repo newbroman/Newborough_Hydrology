@@ -3,6 +3,7 @@
 Inputs:  02_cluster_stats.csv, 01_locations.csv
 Outputs: outputs/04_cluster_visualisations/04_01_core_architecture_map.png
 """
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap).
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
 
@@ -22,6 +23,7 @@ from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
     hr, skipped,
 )
+from utils.render_utils import render_figure
 
 fiona.drvsupport.supported_drivers["KML"] = "rw"
 
@@ -76,7 +78,7 @@ def main():
         ax.legend(handles=site_feature_handles, loc="upper left", title="Site Features", frameon=True)
     plt.tight_layout()
     add_en_axes(ax)
-    plt.savefig(OUT_04_ARCHITECTURE_MAP, bbox_inches="tight"); plt.close()
+    render_figure(plt.gcf(), OUT_04_ARCHITECTURE_MAP); plt.close()
     saved(f"{OUT_04_ARCHITECTURE_MAP.name}")
 
 if __name__ == "__main__": main()

@@ -71,7 +71,8 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-05-31
+__version__ = "1.6.0"  # Hollingham (2026) — 2026-05-31
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.5.0 — Figure 10e_03 redesigned for legibility. Replaced the single-row
 #         1x4 panel (illegible when embedded at column width) with a vertical
 #         stack of three horizontal before/after dumbbell panels (β₁, β₂, β₃),
@@ -172,6 +173,7 @@ from utils.clearfell_common import (
 )
 from utils.paths import make_all_dirs, DIR_10
 from utils.model_utils import build_ssm_frame, fit_ssm
+from utils.render_utils import render_figure
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -434,7 +436,7 @@ fig.suptitle('SSM coefficient decomposition: before vs after clearfell\n'
              '(whiskers = 95% CI; wells grouped by BACI tier)',
              fontsize=12.5, y=0.965)
 fig.subplots_adjust(top=0.93, left=0.13, right=0.85, bottom=0.045)
-fig.savefig(OUT_FIG, dpi=200, bbox_inches='tight', facecolor='white')
+render_figure(fig, OUT_FIG, facecolor='white', full_page=True)
 plt.close(fig)
 saved(f"{OUT_FIG.name}")
 

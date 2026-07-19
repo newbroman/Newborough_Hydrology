@@ -88,7 +88,8 @@ Outputs (outputs/37b_driver_footing/):
 Step 41/47, Phase 15 — after Script 37 (Part A).
 """
 
-__version__ = "1.1.0"  # 2026-07-17: add CLIMATE as a distinctly-flagged
+__version__ = "1.2.0"  # 2026-07-17: add CLIMATE as a distinctly-flagged
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 #                       common-mode driver. A spatially-UNIFORM field
 #                       c × HORIZON_YEARS (= -6.35 mm/yr × 20 yr = -127 mm
 #                       everywhere), c live from Script 25 (25_01, forest_free/
@@ -147,6 +148,7 @@ from utils.config import CLUSTER_LABELS
 from utils.map_utils import make_site_mask
 from utils.console_utils import banner, phase, step, info, note, warn, result, saved, done
 from utils import pipeline_params
+from utils.render_utils import render_figure
 
 # ---------------------------------------------------------------------------
 # Output paths
@@ -765,7 +767,7 @@ def plot_footing(df: pd.DataFrame, dpi: int = 150) -> None:
                  "mechanism-specific drivers and not attributed to a single driver.",
                  ha="center", fontsize=6.8, style="italic", color="0.35")
         fig.tight_layout(rect=[0, 0.02, 1, 0.93])
-        fig.savefig(OUT_FIGURE, dpi=dpi)
+        render_figure(fig, OUT_FIGURE)
         plt.close(fig)
     saved(OUT_FIGURE)
 

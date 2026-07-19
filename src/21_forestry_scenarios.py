@@ -83,7 +83,8 @@ References
                           Impact tier) at runtime; see _load_baci_params().
 """
 
-__version__ = "1.4.0"  # 2026-07-02 — 21_forestry_06 re-based to VOLUMETRIC.
+__version__ = "1.5.0"  # 2026-07-02 — 21_forestry_06 re-based to VOLUMETRIC.
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 #         The per-cluster summer metric is now the equilibrium volumetric Δh
 #         (mm water-equiv / month) taken directly from scenario_values, not a
 #         summer-MINIMUM depth. The previous ÷Sy × mean->minimum amplification
@@ -776,7 +777,7 @@ def plot_hydrograph(scenario_shifts, obs_monthly, monthly_P, monthly_PET,
     ax2.grid(axis="y", alpha=0.25, lw=0.5)
 
     fig.tight_layout(h_pad=2.5)
-    fig.savefig(OUT_21_HYDROGRAPH, dpi=dpi, bbox_inches="tight")
+    render_figure(fig, OUT_21_HYDROGRAPH)
     plt.close(fig)
     saved(f"{OUT_21_HYDROGRAPH.name}")
 
@@ -1191,7 +1192,7 @@ def plot_distributions(master, df, dates, well_names, elev, dpi=FIG_DPI):
                       edgecolor="lightgrey"),
             zorder=10)
 
-    fig.savefig(OUT_21_DISTRIBUTIONS, dpi=dpi, bbox_inches="tight")
+    render_figure(fig, OUT_21_DISTRIBUTIONS)
     plt.close(fig)
     saved(f"{OUT_21_DISTRIBUTIONS.name}")
 
@@ -1495,7 +1496,7 @@ def plot_scraping_eras(df, dates, well_names, elev, dpi=FIG_DPI):
                       edgecolor="lightgrey"),
             zorder=10)
 
-    fig.savefig(OUT_21_SCRAPING, dpi=dpi, bbox_inches="tight")
+    render_figure(fig, OUT_21_SCRAPING)
     plt.close(fig)
     saved(f"{OUT_21_SCRAPING.name}")
 
@@ -1532,6 +1533,7 @@ def plot_scraping_eras(df, dates, well_names, elev, dpi=FIG_DPI):
 from utils.clearfell_common import (
     TIERS, TIER_COLOURS, annual_summer_minimum as _cc_annual_summer_minimum,
 )
+from utils.render_utils import render_figure
 
 # Build display labels from the tier definitions
 BACI_ZONE_WELLS = {}
@@ -1924,7 +1926,7 @@ def plot_baci_zone_violin(df, dates, well_names, elev, dpi=FIG_DPI):
                       edgecolor="lightgrey"),
             zorder=10)
 
-    fig.savefig(OUT_21_BACI_VIOLIN, dpi=dpi, bbox_inches="tight")
+    render_figure(fig, OUT_21_BACI_VIOLIN)
     plt.close(fig)
     saved(f"{OUT_21_BACI_VIOLIN.name}")
 
@@ -2030,8 +2032,8 @@ def plot_scenario_comparison(master, climate, dpi=300):
     ax.grid(axis="y", alpha=0.3)
     plt.tight_layout()
 
-    fig.savefig(OUT_21_SCENARIO_COMPARE, dpi=dpi, format="jpeg",
-                pil_kwargs={"quality": 85}, bbox_inches="tight")
+    render_figure(fig, OUT_21_SCENARIO_COMPARE, format="jpeg",
+                  pil_kwargs={"quality": 85})
     plt.close(fig)
     saved(f"{OUT_21_SCENARIO_COMPARE.name}")
 

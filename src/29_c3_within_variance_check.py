@@ -36,7 +36,8 @@ Read-only on pipeline outputs; writes to outputs/29_within_c3_variance/.
 
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-06-21
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-06-21
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.2.0 — §4.9 traceability: joined Script 17 WTF event-median Sy
 #         (Sy_wtf_median column) per C3 well; emit 29_report_numbers.csv with
 #         the C3 inland-gradient correlations (β₁/β₃/Sy vs dist_coast) and the
@@ -74,6 +75,7 @@ from utils.console_utils import (
 )
 from utils import paths  # noqa: E402
 from utils.report_numbers_utils import ReportNumbers  # noqa: E402
+from utils.render_utils import render_figure
 
 paths.make_all_dirs()
 
@@ -549,7 +551,7 @@ ax.set_title("Within-C3 variance: univariate R² of behavioural metric (row) vs 
              f"n = {df.shape[0]} C3 wells | OLS | rows = metrics, columns = predictors",
              fontsize=10)
 fig.tight_layout()
-fig.savefig(OUT_FIG, dpi=180, bbox_inches="tight")
+render_figure(fig, OUT_FIG)
 print(f"Wrote {OUT_FIG.relative_to(REPO)}")
 print()
 print("─" * 72)

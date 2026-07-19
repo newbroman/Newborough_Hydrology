@@ -15,7 +15,8 @@ Requirements:
     pandas, numpy
 """
 
-__version__ = "1.6.4"  # Hollingham (2026) — 2026-06-20 (interpolated cells now a solid distinct colour, not a hatch)
+__version__ = "1.7.0"  # Hollingham (2026) — 2026-06-20 (interpolated cells now a solid distinct colour, not a hatch)
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # Changelog:
 #   1.4.1 (2026-06-15) — Coverage-figure fix-up: (1) cluster band labels are now
 #     horizontal at each band midpoint (pulled from CLUSTER_LABELS), fixing the
@@ -102,6 +103,7 @@ from utils.comment_states import parse_comment_states, assemble_observation_stat
 from utils.config import (REFERENCE_CUTOFF_DATE, RAF_VALLEY_LAT_DEG, CLUSTER_LABELS,
     RECORD_START_DISPLAY, EXCLUDED_STUDY_AREA_WELLS, LAKE_GAUGE_REASON,
     get_cluster_colour, get_obs_state_colours, get_obs_state_hatches)
+from utils.render_utils import render_figure
 
 # Consolidated well elevation / upstand reference, read via the paths constant
 # (was hardcoded to Well_locations_height.csv, which bypassed the consolidation
@@ -525,7 +527,7 @@ def _render_coverage_figure(wells_scope, states):
                    ncol=3, fontsize=7, frameon=False)
         ax.set_title(title, fontsize=10)
         ax.margins(x=0)
-        fig.savefig(out_path, dpi=200)
+        render_figure(fig, out_path)
         plt.close(fig)
         saved(f"coverage figure -> {out_path.name}")
 

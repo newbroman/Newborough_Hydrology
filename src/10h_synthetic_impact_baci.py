@@ -61,7 +61,8 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-05-31
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-05-31
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.3.0 — Added consolidated robustness forest plot (10h_11_robustness_forest.png):
 #         the clearfell-step estimate from every independent estimator on one
 #         caterpillar plot — the three ANCOVA variants (with 95% CI), the
@@ -96,6 +97,7 @@ from utils.clearfell_common import (
     ReportNumbers, print_network_summary,
 )
 from utils.paths import make_all_dirs, DIR_10
+from utils.render_utils import render_figure
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -681,7 +683,7 @@ for row, fe_name in enumerate(synthetic_wells):
 fig.suptitle('Donor Regression Validation — FE Well Synthetic Extension',
              fontsize=13, y=1.01)
 fig.tight_layout()
-fig.savefig(OUT_FIG_DONORS, bbox_inches='tight', facecolor='white')
+render_figure(fig, OUT_FIG_DONORS, facecolor='white')
 plt.close(fig)
 saved(f"{OUT_FIG_DONORS.name}")
 
@@ -769,7 +771,7 @@ def plot_variant_timeseries(var_label, out_path):
         f'ANCOVA-BACI: Synthetic impact — {var_label}\n'
         f'Distance-weighted scraping (λ = {SCRAPING_DECAY_LAMBDA:.0f} m)',
         fontsize=13, y=0.98)
-    fig.savefig(out_path, bbox_inches='tight', facecolor='white')
+    render_figure(fig, out_path, facecolor='white', full_page=True)
     plt.close(fig)
     saved(f"{out_path.name}")
 
@@ -866,7 +868,7 @@ if cusum_key in all_frames and cusum_key in all_results:
 
     fig.suptitle('CUSUM Analysis — Synthetic Impact B (WMC3+FE2) vs Forest Control',
                  fontsize=13, y=0.98)
-    fig.savefig(OUT_FIG_CUSUM, bbox_inches='tight', facecolor='white')
+    render_figure(fig, OUT_FIG_CUSUM, facecolor='white')
     plt.close(fig)
     saved(f"{OUT_FIG_CUSUM.name}")
 else:
@@ -924,7 +926,7 @@ for i, (var_label, var_colour) in enumerate([
 
 fig.suptitle('Climate sensitivity: CWB vs BACI displacement — Forest control',
              fontsize=13, y=1.02)
-fig.savefig(OUT_FIG_SENSITIVITY, bbox_inches='tight', facecolor='white')
+render_figure(fig, OUT_FIG_SENSITIVITY, facecolor='white')
 plt.close(fig)
 saved(f"{OUT_FIG_SENSITIVITY.name}")
 
@@ -1039,7 +1041,7 @@ ax.legend(handles=[
     Line2D([], [], marker='o', mfc='white', mec=_NS, ls='', ms=8, label='not significant'),
     Line2D([], [], color=_HEAD, ls='--', label='headline estimate')],
     fontsize=8, loc='lower right', framealpha=0.9)
-fig.savefig(OUT_FIG_FOREST, bbox_inches='tight', facecolor='white')
+render_figure(fig, OUT_FIG_FOREST, facecolor='white')
 plt.close(fig)
 saved(f"{OUT_FIG_FOREST.name}")
 

@@ -107,8 +107,10 @@ from utils import envelope_metric as em
 from utils.map_utils import load_dem_hillshade, add_kml_features, add_idw_surface, add_en_axes
 from utils.console_utils import banner, phase, step, info, saved, note, result, done, hr
 from utils.pipeline_params import get_cluster_ids
+from utils.render_utils import render_figure
 
-__version__ = "1.2.2"  # 2026-07-04: amplification colourmap RdBu_r → PiYG (avoids wet/dry connotation;
+__version__ = "1.3.0"  # 2026-07-04: amplification colourmap RdBu_r → PiYG (avoids wet/dry connotation;
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
                        #             quantity is dimensionless swing ratio, not water level;
                        #             yellow-green = high amplification, pink = low/damping)
 SCRIPT_ID = "33"
@@ -321,7 +323,7 @@ def fig_amplification(df, GX, GY, out_path, title=None):
         title = ("Newborough Warren: climate-swing amplification field (relative, common-mode removed)\n"
                  "Forest interior amplifies; lake edge damps. Window-independent. Lake gauge excluded.")
     ax.set_title(title, fontsize=10.5, loc="left")
-    fig.savefig(out_path, dpi=160, bbox_inches="tight"); plt.close(fig)
+    render_figure(fig, out_path); plt.close(fig)
 
 
 def fig_dry_spring_depth(df, GX, GY, out_path, title=None):
@@ -383,7 +385,7 @@ def fig_dry_spring_depth(df, GX, GY, out_path, title=None):
                  "Contours: where even the spring high is already below Curreli SD15b/SD16 "
                  "(summer-minimum) thresholds. Inter-dune ridges masked. Lake gauge excluded.")
     ax.set_title(title, fontsize=10.5, loc="left")
-    fig.savefig(out_path, dpi=160, bbox_inches="tight"); plt.close(fig)
+    render_figure(fig, out_path); plt.close(fig)
 
 
 def build_panel(yr, loc, master, membership, excluded, dry, wet, flagged=None):

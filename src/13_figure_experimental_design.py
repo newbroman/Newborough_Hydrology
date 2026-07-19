@@ -24,7 +24,8 @@ Outputs:
 ====================================================================================
 """
 
-__version__ = "1.0.2"  # Hollingham (2026) — 2026-06-21
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-06-21
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.0.2 — data/geo/ reorg: DEM path via DATA_DEM (data/geo/). No functional change.
 # 1.0.1 — Doc-sweep S.8: lowercased "Clear-Fell" → "clearfell" in inline
 #         comment (Item 14, consistent with the rest of the script and
@@ -61,6 +62,7 @@ from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
     hr, skipped,
 )
+from utils.render_utils import render_figure
 
 # Enable KML driver in GeoPandas/Fiona
 fiona.drvsupport.supported_drivers['KML'] = 'rw'
@@ -424,7 +426,7 @@ adjust_text(texts, arrowprops=dict(arrowstyle="-", color='gray', lw=0.5), ax=ax)
 
 plt.tight_layout()
 output_file = OUT_13_EXPERIMENTAL_MAP
-plt.savefig(output_file, bbox_inches='tight', dpi=300)
+render_figure(plt.gcf(), output_file)
 plt.close(fig)
 
 print(f"\nSuccess! Reviewer-ready GIS map saved as '{output_file}'.")

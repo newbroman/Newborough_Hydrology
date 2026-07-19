@@ -115,7 +115,8 @@ Outputs (outputs/37_driver_validation/):
 Step 40/46, Phase 15 - Observed Differential Change, Envelope, and Validation.
 """
 
-__version__ = "3.1.0"  # 2026-07-06: ADDENDUM 1 —
+__version__ = "3.2.0"  # 2026-07-06: ADDENDUM 1 —
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 #                       SPEC_script37_ADDENDUM1_control_C2_sluice_exclusion_2026-07-06.md.
 #                       Negative control C1 -> C2 (Dune): C1 is buffered by a
 #                       sluice-managed lake (Llyn Rhos-Ddu), so its dh_corr
@@ -193,6 +194,7 @@ from utils.map_utils import (
     load_dem_hillshade, add_idw_surface, add_en_axes, add_kml_features,
 )
 from utils.console_utils import banner, phase, step, info, note, warn, result, saved, done
+from utils.render_utils import render_figure
 
 # ---------------------------------------------------------------------------
 # Output paths
@@ -978,7 +980,7 @@ def plot_scale_scatters(results: dict, dpi: int = 150) -> None:
         fig.suptitle(f"Per-driver scale-factor regression v{__version__} — "
                      "predicted vs observed, by window", fontsize=11)
         fig.tight_layout(rect=[0, 0, 1, 0.96])
-        fig.savefig(OUT_SCATTER_FULL, dpi=dpi)
+        render_figure(fig, OUT_SCATTER_FULL)
         plt.close(fig)
     saved(OUT_SCATTER_FULL)
 
@@ -1019,7 +1021,7 @@ def plot_residual_map(frame: pd.DataFrame, window: str, dpi: int = 150) -> None:
             fontsize=10, pad=8)
         ax.legend(fontsize=8, loc="lower left", framealpha=0.9, title="cluster")
         fig.tight_layout()
-        fig.savefig(OUT_RESIDUAL_MAP, dpi=dpi)
+        render_figure(fig, OUT_RESIDUAL_MAP)
         plt.close(fig)
     saved(OUT_RESIDUAL_MAP)
 
@@ -1054,7 +1056,7 @@ def plot_delta0_trajectory(traj: pd.DataFrame, delta0: float, dpi: int = 150) ->
                     "shape (δ₀, L) itself is fit from this well network (partly self-confirming)",
                     fontsize=9.5, pad=8)
         fig.tight_layout()
-        fig.savefig(OUT_DELTA0_TRAJ, dpi=dpi)
+        render_figure(fig, OUT_DELTA0_TRAJ)
         plt.close(fig)
     saved(OUT_DELTA0_TRAJ)
 

@@ -63,8 +63,10 @@ from utils.clearfell_common import (
     SCRAPING_DATE, SCRAPING_DATE_2, IMPACT_WELLS, SUMMER_MONTHS,
     ReportNumbers,
 )
+from utils.render_utils import render_figure
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 
 # ── Exclusions ──────────────────────────────────────────────────────────────
 EXCLUDED_WELLS = {'nw8', 'nw8b'}
@@ -353,7 +355,7 @@ def clearfell_transect(wells, rpt):
         'Post-felling step change decays with distance from clearfell core',
         fontsize=10, fontweight='bold', y=0.97)
 
-    plt.savefig(OUT_10G_TRANSECT_FIG, bbox_inches='tight', dpi=300)
+    render_figure(plt.gcf(), OUT_10G_TRANSECT_FIG)
     plt.close(fig)
     saved(f"{OUT_10G_TRANSECT_FIG.name}")
 

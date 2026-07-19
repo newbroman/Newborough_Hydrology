@@ -36,7 +36,8 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "3.6.0"  # Hollingham (2026) — 2026-07-02
+__version__ = "3.7.0"  # Hollingham (2026) — 2026-07-02
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 3.6.0 — SCRAPE_RISE_BUFFER_M now imported from config.py (promoted there with
 #         config + Script 20 v1.28.0) instead of a local literal. No behavioural
 #         change.
@@ -118,6 +119,7 @@ from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
     hr, skipped,
 )
+from utils.render_utils import render_figure
 
 
 
@@ -501,10 +503,10 @@ def _plot_scenarios(scenarios, params, forcing):
     plt.tight_layout()
     fig.subplots_adjust(bottom=0.24)
     if is_summer:
-        fig.savefig(out_fig, dpi=300)
+        render_figure(fig, out_fig)
     else:
-        fig.savefig(out_fig, dpi=200, format="jpeg",
-                    pil_kwargs={"quality": 85})
+        render_figure(fig, out_fig, format="jpeg",
+                      pil_kwargs={"quality": 85})
     plt.close(fig)
     step(f"{out_fig.name}")
 

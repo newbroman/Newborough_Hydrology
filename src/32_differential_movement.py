@@ -85,8 +85,10 @@ from matplotlib.colors import TwoSlopeNorm
 from utils import config, paths
 from utils.map_utils import load_dem_hillshade, add_kml_features, add_en_axes
 from utils.console_utils import banner, phase, step, info, saved, note, result, done, hr
+from utils.render_utils import render_figure
 
-__version__ = "1.1.1"  # 2026-06-29: IDW surface alpha 1.0 → 0.55 (DEM hillshade visible through surface)
+__version__ = "1.2.0"  # 2026-06-29: IDW surface alpha 1.0 → 0.55 (DEM hillshade visible through surface)
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 SCRIPT_ID = "32"
 VERSION = __version__
 
@@ -332,7 +334,7 @@ def make_map(df: pd.DataFrame, loc: pd.DataFrame, period_label: str,
         f"Anomaly trend {first}-{last}; solid = significant (AR-corrected), hollow = not. "
         f"Lake gauge excluded.",
         fontsize=10.5, loc="left")
-    fig.savefig(out_path, dpi=160, bbox_inches="tight")
+    render_figure(fig, out_path)
     plt.close(fig)
 
 

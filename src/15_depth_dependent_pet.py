@@ -40,7 +40,8 @@ Outputs (in outputs/15_depth_dependent_pet/):
     15_04_best_params.csv           — Optimal λ and β coefficients per cluster
 """
 
-__version__ = "1.0.1"  # Hollingham (2026) — 2026-05-17
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-05-17
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.0.1 — Doc-sweep S.10: corrected four "lag-1 rainfall" docstring claims
 #         (lines 5, 116, 126, 159) to "contemporaneous (HEADLINE_LAG = 0)"
 #         (Items S10-A, S10-B); renamed the misleading `P_lag1` design-matrix
@@ -79,6 +80,7 @@ from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
     hr, skipped,
 )
+from utils.render_utils import render_figure
 make_all_dirs()
 
 INT_WELL_ELEV       = INT_WELL_ELEVATIONS   # local alias used throughout script
@@ -447,7 +449,7 @@ def plot_lambda_profiles(profiles: dict, ssm_baselines: dict):
                  "(dashed = Standard SSM baseline)",
                  fontsize=13, fontweight="bold")
     plt.tight_layout()
-    plt.savefig(OUT_LAMBDA_PROFILE, bbox_inches="tight")
+    render_figure(plt.gcf(), OUT_LAMBDA_PROFILE)
     plt.close()
     saved(f"{OUT_LAMBDA_PROFILE.name}")
 
@@ -502,7 +504,7 @@ def plot_fit_comparison(regression_dfs: dict, centroids: dict, climate: pd.DataF
 
     fig.suptitle("Iterative Simulation: Standard SSM vs Depth-Dependent PET Model",
                  fontsize=13, fontweight="bold")
-    plt.savefig(OUT_FIT_COMPARISON, bbox_inches="tight")
+    render_figure(plt.gcf(), OUT_FIT_COMPARISON)
     plt.close()
     saved(f"{OUT_FIT_COMPARISON.name}")
 

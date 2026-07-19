@@ -74,7 +74,8 @@ Dependencies
     Skeletonisation: not required (map_utils handles DEM/IDW)
 """
 
-__version__ = "1.1.4"  # Hollingham (2026) — 2026-06-21
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-06-21
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.1.4 — Spatial-threshold maps: pass include_scrapes=False to add_kml_features
 #          at all four call sites. The shared overlay draws the GPS-traced scrape
 #          footprints by default; on these threshold/IDW maps they clutter the
@@ -136,6 +137,7 @@ from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
     hr, skipped,
 )
+from utils.render_utils import render_figure
 
 # ─────────────────────────────────────────────────────────────────────────────
 # LOCAL ALIASES
@@ -859,7 +861,7 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
     )
 
     fig.tight_layout()
-    fig.savefig(OUT_11B_SUMMER_MAP, dpi=dpi, bbox_inches="tight")
+    render_figure(fig, OUT_11B_SUMMER_MAP)
     plt.close(fig)
     saved(f"{OUT_11B_SUMMER_MAP}")
 
@@ -1011,7 +1013,7 @@ def plot_winter_maxima_map(df: pd.DataFrame, dpi: int = 300) -> None:
     ax.set_xlim(240100, 243900)
     ax.set_ylim(362100, 365900)
     plt.tight_layout()
-    fig.savefig(OUT_11B_WINTER_MAP, dpi=dpi, bbox_inches="tight")
+    render_figure(fig, OUT_11B_WINTER_MAP)
     plt.close(fig)
     saved(f"{OUT_11B_WINTER_MAP.name}")
 
@@ -1235,7 +1237,7 @@ def plot_pflood_map(df: pd.DataFrame, dpi: int = 300) -> None:
     ax.set_xlim(240100, 243900)
     ax.set_ylim(362100, 365900)
     plt.tight_layout()
-    fig.savefig(OUT_11B_PFLOOD_MAP, dpi=dpi, bbox_inches="tight")
+    render_figure(fig, OUT_11B_PFLOOD_MAP)
     plt.close(fig)
     saved(f"{OUT_11B_PFLOOD_MAP.name}")
     saved(f"{OUT_11B_PFLOOD_PER_WELL.name}")
@@ -1358,7 +1360,7 @@ def plot_flood_frequency_map(df: pd.DataFrame, dpi: int = 300) -> None:
     ax.set_xlim(240100, 243900)
     ax.set_ylim(362100, 365900)
     plt.tight_layout()
-    fig.savefig(OUT_11B_FLOOD_FREQ, dpi=dpi, bbox_inches="tight")
+    render_figure(fig, OUT_11B_FLOOD_FREQ)
     plt.close(fig)
     saved(f"{OUT_11B_FLOOD_FREQ.name}")
 

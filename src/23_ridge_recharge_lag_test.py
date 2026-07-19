@@ -95,7 +95,8 @@ Ridge reference point: E = 241750, N = 364500 (OSGB36)
 ====================================================================================
 """
 
-__version__ = "1.0.2"  # Hollingham (2026) — 2026-06-21 (iterate CLUSTER_LABELS not CLUSTER_COLOURS.items() — drop reserved C6 from cluster loops; no functional change, C6 was already len-guarded)
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-06-21 (iterate CLUSTER_LABELS not CLUSTER_COLOURS.items() — drop reserved C6 from cluster loops; no functional change, C6 was already len-guarded)
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.0.1 — Doc-sweep S.16: added prominent LIMITATION NOTE at top of
 #         docstring documenting that the test design is statistically
 #         degenerate against this dataset (monthly resolution cannot
@@ -142,6 +143,7 @@ from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
     hr, skipped,
 )
+from utils.render_utils import render_figure
 
 
 # ==========================================
@@ -316,7 +318,7 @@ def plot_ccf_headline(ccf_df, output_path, sig_threshold):
     ax.grid(ls='--', alpha=0.4)
     ax.legend(loc='upper right', frameon=True, edgecolor='black', fontsize=9)
     plt.tight_layout()
-    plt.savefig(output_path, bbox_inches='tight', dpi=300)
+    render_figure(plt.gcf(), output_path)
     plt.close()
     saved(f"{output_path.name}")
 
@@ -381,7 +383,7 @@ def plot_lag_vs_distance(ccf_df, output_path, sig_threshold, trend_stats):
     ax.grid(ls='--', alpha=0.4)
     ax.legend(loc='center right', frameon=True, edgecolor='black', fontsize=9)
     plt.tight_layout()
-    plt.savefig(output_path, bbox_inches='tight', dpi=300)
+    render_figure(plt.gcf(), output_path)
     plt.close()
     saved(f"{output_path.name}")
 
@@ -427,7 +429,7 @@ def plot_lag_map(ccf_df, output_path):
     ax.grid(ls='--', alpha=0.4)
     ax.legend(loc='lower right', frameon=True, edgecolor='black', fontsize=9)
     plt.tight_layout()
-    plt.savefig(output_path, bbox_inches='tight', dpi=300)
+    render_figure(plt.gcf(), output_path)
     plt.close()
     saved(f"{output_path.name}")
 
@@ -483,7 +485,7 @@ def plot_betas_by_cluster(fits_df, output_path):
         ax2.legend(loc='best', fontsize=9)
 
     plt.tight_layout()
-    plt.savefig(output_path, bbox_inches='tight', dpi=300)
+    render_figure(plt.gcf(), output_path)
     plt.close()
     saved(f"{output_path.name}")
 

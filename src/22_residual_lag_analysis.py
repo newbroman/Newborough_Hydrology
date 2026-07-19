@@ -46,7 +46,8 @@ Well exclusions (EXCLUDED_WELLS_NORM):
 ====================================================================================
 """
 
-__version__ = "1.0.3"  # Hollingham (2026) — 2026-06-21 (iterate CLUSTER_LABELS not CLUSTER_COLOURS.items() — drop reserved C6 from cluster loops; no functional change, C6 was already len-guarded)
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-06-21 (iterate CLUSTER_LABELS not CLUSTER_COLOURS.items() — drop reserved C6 from cluster loops; no functional change, C6 was already len-guarded)
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.0.1 — Doc-sweep S.16: corrected stale "lag-1 rainfall" docstring claim
 #         to "contemporaneous rainfall under HEADLINE_LAG = 0" (S16-A);
 #         clarified the inline comment on lag/displacement handling (S16-B);
@@ -77,6 +78,7 @@ from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
     hr, skipped,
 )
+from utils.render_utils import render_figure
 
 
 # ==========================================
@@ -162,7 +164,7 @@ def plot_ar1_hist(fits_df, output_path):
     ax.legend(loc='upper right', frameon=True, edgecolor='black', fontsize=9)
     ax.grid(axis='y', ls='--', alpha=0.5)
     plt.tight_layout()
-    plt.savefig(output_path, bbox_inches='tight', dpi=300)
+    render_figure(plt.gcf(), output_path)
     plt.close()
     saved(f"{output_path.name}")
 
@@ -197,7 +199,7 @@ def plot_ar1_map(fits_df, output_path):
     add_en_axes(ax)
     ax.grid(ls='--', alpha=0.4)
     plt.tight_layout()
-    plt.savefig(output_path, bbox_inches='tight', dpi=300)
+    render_figure(plt.gcf(), output_path)
     plt.close()
     saved(f"{output_path.name}")
 
@@ -248,7 +250,7 @@ def plot_alpha_phi_scatter(fits_df, output_path):
     ax.legend(loc='lower right', frameon=True, edgecolor='black', fontsize=9)
     ax.grid(ls='--', alpha=0.4)
     plt.tight_layout()
-    plt.savefig(output_path, bbox_inches='tight', dpi=300)
+    render_figure(plt.gcf(), output_path)
     plt.close()
     saved(f"{output_path.name}")
 
@@ -294,7 +296,7 @@ def plot_example_residuals(residuals_wide, fits_df, output_path):
                  '(constant part absorbed by alpha; shown series is time-varying part only)',
                  fontweight='bold', y=1.00)
     plt.tight_layout()
-    plt.savefig(output_path, bbox_inches='tight', dpi=300)
+    render_figure(plt.gcf(), output_path)
     plt.close()
     saved(f"{output_path.name}")
 

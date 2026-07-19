@@ -41,7 +41,8 @@ Limitations:
 
 from __future__ import annotations
 
-__version__ = "1.1.1"  # Hollingham (2026) — 2026-05-29
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-05-29
+# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.1.1 — Output paths now reference canonical OUT_14B_* constants added to
 #         paths.py (OUT_14B_CROSSING_CSV/FIG, OUT_14B_RESULTS_MEMO). Replaces
 #         the local DIR_14 re-derivation; single source of truth. No change to
@@ -79,6 +80,7 @@ from utils.config import (  # noqa: E402
     get_cluster_colour, BW_MODE,
     SD15b, SD16,
 )
+from utils.render_utils import render_figure
 
 paths.make_all_dirs()
 
@@ -304,7 +306,7 @@ fig.suptitle("Bootstrap year-of-crossing for per-cluster summer-minimum trends "
              "against Curreli (2013) ecological thresholds",
              fontsize=13, fontweight="bold")
 fig.tight_layout(rect=[0, 0, 1, 0.96])
-fig.savefig(OUT_FIG, dpi=300, bbox_inches="tight", facecolor="white")
+render_figure(fig, OUT_FIG, facecolor="white")
 print(f"\nWrote {OUT_FIG.relative_to(REPO)}")
 
 

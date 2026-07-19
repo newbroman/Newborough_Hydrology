@@ -31,7 +31,10 @@ WELL_ERAS           {well: {era_name: (start, end)}} for all analysis wells.
                     Start is inclusive, end is exclusive.
 """
 
-__version__ = "1.5.0"  # 2026-07-02 — added load_annual_climate() companion to
+__version__ = "1.6.0"  # 2026-07-19 — MPL_DEFAULTS relocated to render_utils.py;
+                        # re-exported here for backwards compatibility
+                        # (09a/09c/09d/09e/09f unchanged). No other changes.
+# 1.5.0  2026-07-02 — added load_annual_climate() companion to
                         # load_summer_climate(); used by Script 09d v3.4.0 to
                         # evaluate scenario bars under annual-mean forcing
                         # (Figure 26) alongside summer forcing (Figure 27).
@@ -184,17 +187,10 @@ ERA_LINESTYLES = {
     "3_After_Scraping":  "-.",
 }
 
-MPL_DEFAULTS = {
-    "font.family": "sans-serif",
-    "font.sans-serif": ["Arial", "Helvetica", "DejaVu Sans"],
-    "pdf.fonttype": 42,
-    "ps.fonttype": 42,
-    "axes.labelsize": 12,
-    "axes.titlesize": 14,
-    "xtick.labelsize": 10,
-    "ytick.labelsize": 10,
-    "legend.fontsize": 10,
-}
+# MPL_DEFAULTS relocated to utils/render_utils.py (2026-07-19, render_utils
+# v1.0.0) so figure styling has a single home. Re-exported here for backwards
+# compatibility with 09a/09c/09d/09e/09f. Import from render_utils in new code.
+from utils.render_utils import MPL_DEFAULTS  # noqa: F401  (re-export)
 
 
 # ============================================================================

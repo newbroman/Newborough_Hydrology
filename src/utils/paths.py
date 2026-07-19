@@ -309,6 +309,17 @@ OUT_09D_SCENARIO_CSV        = DIR_09 / "09d_01_scenario_comparison.csv"
 OUT_09F_EFFECTS             = DIR_09 / "09f_management_effects.png"
 OUT_09F_EFFECTS_PUBLIC      = DIR_09 / "09f_management_effects_public.png"
 OUT_09F_REACH_CSV           = DIR_09 / "09f_01_reach_profile.csv"
+# Script 09g — mechanism diagrams: four-driver schematic grid + coastal-vs-climate
+# reach (§5.8 conceptual figure; display/utility, tier D). SVG is the editable
+# master; PNG is the report/summary placement copy.
+OUT_09G_GRID_SVG            = DIR_09 / "09g_mechanism_grid.svg"
+OUT_09G_GRID_PNG            = DIR_09 / "09g_mechanism_grid.png"
+OUT_09G_REACH_SVG           = DIR_09 / "09g_coastal_vs_climate_reach.svg"
+OUT_09G_REACH_PNG           = DIR_09 / "09g_coastal_vs_climate_reach.png"
+OUT_09G_LAY_MGMT_SVG        = DIR_09 / "09g_mechanism_lay_management.svg"
+OUT_09G_LAY_MGMT_PNG        = DIR_09 / "09g_mechanism_lay_management.png"
+OUT_09G_LAY_DRIVERS_SVG     = DIR_09 / "09g_mechanism_lay_drivers.svg"
+OUT_09G_LAY_DRIVERS_PNG     = DIR_09 / "09g_mechanism_lay_drivers.png"
 OUT_09D_SUMMER_SCENARIO     = DIR_09 / "09d_02_summer_scenario_comparison.png"
 OUT_09D_SUMMER_SCENARIO_CSV = DIR_09 / "09d_02_summer_scenario_comparison.csv"
 

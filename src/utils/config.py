@@ -183,6 +183,44 @@ COAST_CHRONIC_YEARS = 5.0
 # so the reach column and the mechanism figures cannot drift apart.
 MECHANISM_HORIZON_YEARS = 20.0
 
+# --- Mechanism-diagram schematic constants (Script 09g; utils/mechanism_fig_utils) -
+# FIGURE-DESIGN geometry for the §5.8 public-summary mechanism diagrams — NOT
+# physical amplitudes (those are read live from committed CSVs: 09f_01 reach
+# profile row 0 + the 10m WMC3 BACI, with pipeline_params first-pass fallbacks).
+# These constants define the shared schematic cross-section: a vertically
+# exaggerated, not-to-scale dune profile, so they do not "trace to a CSV" — they
+# are drawing coordinates, centralised here per the 2026-07-17 09g sign-off.
+#   MECH_FIG_PX_PER_MM   : shared vertical amplitude scale (px per mm of head)
+#                          across ALL four mechanisms, so their relative
+#                          magnitudes compare on one figure. Reduced from the
+#                          raw 09f scale so the largest amplitude (forest
+#                          -150 mm) just clips the schematic slack floors;
+#                          09f RATIOS between mechanisms are preserved.
+#   MECH_FIG_PROFILE_GX/GY : shared ground-profile nodes (fore-dune back shelf
+#                          210 contains the seaward pond; inter-slack ridge 182
+#                          keeps ponds separate; slack floors 218 / 197).
+#   MECH_FIG_SLACK_CENTRES : seaward / inland slack centres on the profile.
+#   MECH_FIG_RETREAT_SHORE/HIN : coastal-retreat states — retreated shoreline x
+#                          and inland-head parameter per state (storm / 5 yr /
+#                          20 yr; qualitative, horizontal not to scale).
+#   MECH_FIG_ERODE_LIGHTEN / MECH_FIG_SEA_LIGHTEN : ghosting fractions for the
+#                          eroded-dune and advancing-sea fills per retreat state.
+#   MECH_FIG_INLAND_GROUND_PTS / MECH_FIG_INLAND_UND_PTS : reach-figure inland
+#                          dune body (two ridges + two flat-bottomed slacks) and
+#                          undisturbed-table nodes, (distance_m, y_px) pairs over
+#                          the compressed 330–900 m inland tail.
+MECH_FIG_PX_PER_MM = 0.10
+MECH_FIG_PROFILE_GX = [110, 138, 170, 206, 215, 285, 300, 340, 370, 400, 440, 478, 520, 640]
+MECH_FIG_PROFILE_GY = [250, 200, 210, 210, 218, 218, 218, 196, 182, 196, 197, 197, 178, 160]
+MECH_FIG_SLACK_CENTRES = [257.0, 459.0]
+MECH_FIG_RETREAT_SHORE = {"storm": 150.0, "5yr": 196.0, "20yr": 270.0}
+MECH_FIG_RETREAT_HIN   = {"storm": 74.0,  "5yr": 66.0,  "20yr": 40.0}
+MECH_FIG_ERODE_LIGHTEN = {"storm": 0.72, "5yr": 0.50, "20yr": 0.28}
+MECH_FIG_SEA_LIGHTEN   = {"storm": 0.18, "5yr": 0.42, "20yr": 0.66}
+MECH_FIG_INLAND_GROUND_PTS = [(330, 160), (380, 176), (480, 176), (540, 140),
+                              (600, 174), (720, 174), (790, 138), (850, 160), (900, 150)]
+MECH_FIG_INLAND_UND_PTS    = [(330, 172), (520, 164), (720, 157), (900, 150)]
+
 # --- Post-intervention equilibration (decay) characterisation (Scripts 09c, 10d) -
 # Parameters for the summer-minimum equilibration/decay-slope characterisation:
 # the scraped-slack relaxation transient at CEH36 (09c) and its clearfell

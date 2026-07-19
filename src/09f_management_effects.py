@@ -71,7 +71,11 @@ Companion to 09b/09d. PROJECT_NOTE scraping off-site drawdown measured
 ====================================================================================
 """
 
-__version__ = "1.6.0"  # Hollingham (2026) — 2026-07-17
+__version__ = "1.6.1"  # Hollingham (2026) — 2026-07-18
+# 1.6.1 — Crossing distance now interpolated from the plotted profile arrays and
+#         returned to the caller, so the console line and the on-plot label quote
+#         one value (≈698 m) from a single computation. No change to the printed
+#         value; removes a second, independently-recomputed console estimate.
 # 1.6.0 — Panel (a) gains the CLIMATE driver and the WMC3 measured anchor, and
 #         the reach axis extends 500 -> 900 m so the coastal/climate crossing is
 #         on-plot.
@@ -446,8 +450,15 @@ def _plot_reach(ax, lam, forest_h0_mm, scrape,
     climate_5yr_amp  = climate_c_mm_yr * COAST_CHRONIC_YEARS
     climate_20yr_amp = climate_c_mm_yr * MECHANISM_HORIZON_YEARS
     climate_5yr = np.full_like(r, climate_5yr_amp)
-    # crossing distance (horizon-free): coastal_5yr(x) == climate_5yr
-    cross_x = coast_L * (1.0 - abs(climate_5yr_amp) / coast_edge_head_5yr)
+    # crossing distance (horizon-free): coastal_5yr(x) == climate_5yr. Interpolated
+    # from the emitted profile arrays (NOT the closed form L*(1-|c|/edge), which
+    # ignores the linear-cap kink and reads ~1 m high) so this figure and the 09g
+    # mechanism reach quote the same data-faithful value.
+    _dif = np.abs(coastal_5yr) - abs(climate_5yr_amp)
+    _ix = np.where(np.diff(np.sign(_dif)))[0]
+    cross_x = (float(np.interp(0.0, [_dif[_ix[0]], _dif[_ix[0] + 1]],
+                               [r[_ix[0]], r[_ix[0] + 1]]))
+               if len(_ix) else coast_L * (1.0 - abs(climate_5yr_amp) / coast_edge_head_5yr))
 
     ax.axhline(0, color="0.4", lw=0.8, zorder=1)
     ax.plot(r, scrape_head, color="#c1272d", lw=2.4,
@@ -524,6 +535,7 @@ def _plot_reach(ax, lam, forest_h0_mm, scrape,
         "climate_20yr_head_mm": np.full_like(r, climate_20yr_amp),
     })
     prof.to_csv(OUT_09F_REACH_CSV, index=False, float_format="%.2f")
+    return cross_x
 
 
 def _plot_timescale(ax, forest_h0_mm, clearfell_measured_mm,
@@ -669,16 +681,17 @@ def main():
     info(f"coastal 6 m storm edge = {coast_edge_6m:.1f} mm; 5-year (5\u00d7\u03b4\u2080) edge = {coast_edge_5yr:.1f} mm")
     info(f"climate c = {climate_c:.2f} mm/yr  \u2192  5-yr {climate_c*COAST_CHRONIC_YEARS:.1f} mm, "
          f"20-yr {climate_c*MECHANISM_HORIZON_YEARS:.0f} mm (flat)")
-    info(f"WMC3 measured off-cut drawdown = {wmc3_drawdown:.1f} mm at {wmc3_dist:.0f} m "
-         f"(coastal/climate 5-yr cross \u2248 {coast_L*(1-abs(climate_c)/abs(coast_d0)):.0f} m)")
+    info(f"WMC3 measured off-cut drawdown = {wmc3_drawdown:.1f} mm at {wmc3_dist:.0f} m")
     info(f"forest t\u00bd (C4\u2013C5) = {thalf_slow:.0f}\u2013{thalf_fast:.0f} mo; C3 t\u00bd = {thalf_c3:.0f} mo")
 
     phase(2, "Plotting reach + timescale figure (stacked)")
     fig, (axA, axB) = plt.subplots(2, 1, figsize=(9.4, 12.2), dpi=300)
-    _plot_reach(axA, lam, forest_h0, scrape,
+    cross_x = _plot_reach(axA, lam, forest_h0, scrape,
                 coast_edge_6m, coast_L, coast_edge_5yr, scrape_edge_head,
                 climate_c, wmc3_dist, wmc3_drawdown,
                 clearfell_measured_mm=clearfell_recovery_mm)
+    info(f"coastal/climate 5-yr crossing \u2248 {cross_x:.0f} m "
+         f"(interpolated from the plotted profile)")
     _plot_timescale(axB, forest_h0, clearfell_recovery_mm,
                     thalf_fast, thalf_slow, thalf_c3)
 

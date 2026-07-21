@@ -1,0 +1,36 @@
+apply_report_edits v1.5.0  20260719T220650Z
+document: Paper1.odt
+manifest: paper1_edits_fig11_split_cascade_2026-07-19.json
+output:   Paper1_fig11_edited.odt
+
+APPLIED (20):
+  ref105_atlas_range
+  ref105_r2_si_pointer_OPTIONAL
+  cap19_to_21
+  ref116_tau
+  ref116_synth
+  ref127
+  ref131
+  ref135
+  ref137_16c
+  ref146
+  ref151_coeffs
+  ref151_synthA
+  ref151_tau
+  ref151_synthB
+  ref153
+  ref164_brendan
+  ref164_reach
+  ref173_forest
+  ref173_coastal
+  ref175
+
+FOR REVIEW (8):
+  cap11_atlas_to_beta1: matched 2, expected 1
+  cap18_to_20: matched 2, expected 1
+  cap17_to_19: matched 2, expected 1
+  cap16_to_18: matched 2, expected 1
+  cap15_to_17: matched 2, expected 1
+  cap14_to_16: matched 2, expected 1
+  cap13_to_15: matched 2, expected 1
+  cap12_to_14: matched 2, expected 1

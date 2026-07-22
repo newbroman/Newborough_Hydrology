@@ -1,5 +1,4 @@
 {
-  "pipeline_version": "2.2.0",
   "total_registered": 49,
   "by_tier": {
     "analytical_toplevel": 39,
@@ -14,7 +13,7 @@
   "analytical_phases": 17,
   "scraping_substeps": 5,
   "clearfell_substeps": 13,
-  "generated": "2026-07-21T19:34:57",
+  "generated": "2026-07-22T23:33:31",
   "steps": [
     {
       "index": 1,

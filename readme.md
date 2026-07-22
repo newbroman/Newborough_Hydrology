@@ -163,6 +163,7 @@ colours and labels are centralised in `src/utils/config.py`.
 - Script 14b runs after script 14 (consumes its annual summer-min series)
 - Script 21 requires `03_cluster_averages_maod.csv` from script 03; its summer-minimum companion output (`21_forestry_06_summer_scenario.csv`) additionally reads the cluster-centroid hydrographs (`03_regional_averages.csv`) and the Script 17 WTF Sy table for the flux→summer-minimum conversion shared with script 09b
 - Script 25 (coastal-retreat) requires `14_summer_trend_stats.csv` from script 14 and `10a_02_ancova_full_coefficients.csv` from script 10a
+- Script 25's coastal covariate `dist_coast_m` (per-well perpendicular distance to the eroding shoreline, held in `data/well_metadata.csv`) is regenerated from the committed coastline geometry (`data/geo/coastline_eroding_hwm.geojson`, the west-facing frontage only) and validated against the committed values in Script 01 (audit: `01_dist_coast_validation.csv`); the committed `dist_coast_m` stays canonical
 - Scripts 28 and 29 require Script 25's coastal-gradient outputs (read `25_01_panel_fit_parameters.csv` and `25_02_per_well_summer_min_slopes.csv`)
 - Option 4 (scenario viewer) runs script 19 standalone — it reads pipeline outputs directly. Script 14 should have run for seasonal extremes to be available
 

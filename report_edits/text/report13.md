@@ -38,7 +38,9 @@ Clarke, D. and Sanitwong Na Ayutthaya, S. (2010) Predicted effects of climate ch
 
 Cottingham, P. (1994) The effects of afforestation on the hydrology of Newborough Warren dune system. Unpublished MSc dissertation, University of Wales, Bangor.
 
-Curreli, A., Wallace, H., Freeman, C., Hollingham, M., Stratford, C., Johnson, H. and Jones, L. (2013) Eco-hydrological requirements of dune slack vegetation and the implications of climate change. Science of the Total Environment, 443, pp. 910–919. doi:10.1016/j.scitotenv.2012.11.035.
+Curreli, A., Wallace, H., Freeman, C., Hollingham, M., Stratford, C., Johnson, H. and Jones, L. (2013) Eco-hydrological requirements of dune slack vegetation and the implications of climate change. Science of the Total Environment, 443, pp. 910–919. [doi:10.1016/j.scitotenv.2012.11.035.](https://doi.org/10.1016/j.scitotenv.2012.11.035.)
+
+Crosbie, R.S., Binning, P. and Kalma, J.D. (2005) A time series approach to inferring groundwater recharge using the water table fluctuation method. **Water Resources Research** 41(1), W01008. doi:10.1029/2004WR003077.
 
 Dargie, T.C.D. (1995) Sand dune vegetation survey of Great Britain: a national inventory. Part 3: Wales. Peterborough: Joint Nature Conservation Committee.
 

@@ -515,6 +515,7 @@ OUT_17_SY_TABLE             = DIR_17 / "17_wtf_01_sy_estimates.csv"
 OUT_17_REGRESSION           = DIR_17 / "17_wtf_02_regression.png"
 OUT_17_BOXPLOT              = DIR_17 / "17_wtf_03_event_boxplot.png"
 OUT_17_SUMMARY              = DIR_17 / "17_wtf_04_summary.txt"
+OUT_17_RAPID_EVENTS         = DIR_17 / "17_wtf_05_rapid_events.png"
 INT_WTF_WELL_SY             = OUT_DIR / "17_wtf_well_sy.csv"
 
 # Script 30 — C4 constrained-β₃ triangulation sensitivity (Phase 11 diagnostic)

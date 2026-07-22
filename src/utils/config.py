@@ -129,6 +129,30 @@ FOREST_INTERCEPTION = 0.24
 # Under k=5: C4 (Main Forest) and C5 (Coastal Forest).
 FOREST_CIDS = (4, 5)
 
+# --- WTF Approach C: rapid-recharge-event method (Script 17) -------------------
+# Third, methodologically independent Sy estimator after Crosbie et al. (2005).
+# Where Approach A corrects for drainage mechanistically (via β₃) and Approach B
+# applies no correction (bias-low), Approach C selects episodes in which the
+# drainage contribution to the observed rise is negligible *by construction* —
+# short, sharply-rising events following a multi-month drainage baseline. The
+# naïve Sy = ΣR / Δh is then approximately unbiased without a β₃ term.
+# A candidate episode requires C_DRY_BASELINE prior months of Δh ≤ 0 (drainage-
+# only quasi-steady state), starts on the first month with Δh > 0, runs until
+# Δh ≤ 0 or the C_MAX_DURATION cap (whichever first), and must accumulate a
+# cumulative head rise ≥ C_MIN_RISE_M. Per-episode Sy is filtered to the
+# physical range [WTF_C_SY_MIN, WTF_C_SY_MAX]; the cluster estimate is the
+# median with a WTF_C_BOOTSTRAP_N-resample 95 % CI (seed WTF_RAPID_BOOT_SEED).
+# Approach C is a *reported* triangulation only — it does NOT propagate
+# downstream; the event-based per-well Sy (Approach B, Script 18) remains the
+# pipeline-consumed canonical. See Methods Supplement §S.12.
+WTF_C_DRY_BASELINE   = 2       # consecutive prior months of Δh ≤ 0 required
+WTF_C_MIN_RISE_M     = 0.05    # minimum cumulative episode head rise (m)
+WTF_C_MAX_DURATION   = 2        # maximum episode length (months) — "rapid" cap
+WTF_C_SY_MIN         = 0.01    # per-episode Sy physical-plausibility floor
+WTF_C_SY_MAX         = 0.50    # per-episode Sy physical-plausibility ceiling
+WTF_C_BOOTSTRAP_N    = 1000    # median-CI bootstrap resamples
+WTF_RAPID_BOOT_SEED  = 20260611  # fixed seed — Approach C median-CI bootstrap
+
 # --- Forest drawdown-propagation model (Script 20, plot_drawdown_propagation) -
 # Steady-state drawdown around the forest block is modelled as a cone
 # H0·exp(-d/λ), where the e-folding length λ = sqrt(K·b / (Sy·β₃_daily)) is

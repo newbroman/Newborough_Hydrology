@@ -26,16 +26,28 @@ APPROACH B — Event Median (rising limb months)
   C4 (Main Forest) (corrected)      Sy = 0.248  IQR [0.182, 0.317]  n = 62   [Freeman 2008; R_eff = (1 − 0.24)·P − PET]
   C5 (Coastal Forest) (corrected)   Sy = 0.321  IQR [0.243, 0.401]  n = 49   [Freeman 2008; R_eff = (1 − 0.24)·P − PET]
 
+APPROACH C — Rapid Recharge Events (Crosbie et al., 2005)
+----------------------------------------------------------------------
+  Episode: >= 2 mo of dh <= 0 baseline, then rise
+  >= 50 mm over <= 2 mo; per-episode Sy in [0.01, 0.50].
+  Cluster Sy = median of episode Sy_i, 95% CI from 1000 bootstraps.
+
+  C1 (Lake Edge)                    Sy = 0.195  95% CI [0.098, 0.230]  n = 20
+  C2 (Dune)                         Sy = 0.261  95% CI [0.197, 0.336]  n = 21
+  C3 (Western Residual)             Sy = 0.334  95% CI [0.286, 0.437]  n = 17
+  C4 (Main Forest)                  Sy = 0.274  95% CI [0.227, 0.312]  n = 13   [interception-corrected]
+  C5 (Coastal Forest)               Sy = 0.293  95% CI [0.269, 0.343]  n = 13   [interception-corrected]
+
 COMPARISON WITH ASSUMED VALUES
 ----------------------------------------------------------------------
-  Cluster                            Assumed       OLS     Event
-  C1 (Lake Edge)                       0.080     0.335     0.210
-  C2 (Dune)                            0.120     0.328     0.281
-  C3 (Western Residual)                0.120     0.342     0.326
-  C4 (Main Forest)                     0.120     0.297     0.315
-  C5 (Coastal Forest)                  0.120     0.410     0.356
-  C4 (Main Forest) (corrected)         0.120       n/a     0.248
-  C5 (Coastal Forest) (corrected)      0.120       n/a     0.321
+  Cluster                            Assumed       OLS     Event     Rapid
+  C1 (Lake Edge)                       0.080     0.335     0.210     0.195
+  C2 (Dune)                            0.120     0.328     0.281     0.261
+  C3 (Western Residual)                0.120     0.342     0.326     0.334
+  C4 (Main Forest)                     0.120     0.297     0.315     0.274
+  C5 (Coastal Forest)                  0.120     0.410     0.356     0.293
+  C4 (Main Forest) (corrected)         0.120       n/a     0.248         -
+  C5 (Coastal Forest) (corrected)      0.120       n/a     0.321         -
 
 NOTES
 ----------------------------------------------------------------------
@@ -43,6 +55,15 @@ NOTES
 - Winter OLS (Approach A) is most defensible: PET negligible so
   net recharge approximates actual recharge well.
 - Event method (Approach B) is noisier but provides uncertainty bounds.
+- Rapid-event method (Approach C, Crosbie et al. 2005) is a third,
+  methodologically independent estimator: it selects short, sharply-
+  rising episodes following a drainage baseline, so drainage during the
+  rise is negligible by construction and no beta_3 correction is needed.
+  A<->C convergence validates the Approach A drainage correction;
+  divergence is diagnostic. Approach C is a reported triangulation only
+  and does NOT propagate downstream (Approach B per-well Sy remains the
+  pipeline-consumed canonical). It is data-limited at the forest
+  clusters (small n) and reported there with n and CI shown.
 - Forested clusters (C4 Main Forest, C5 Coastal Forest) are reported as
   both uncorrected and interception-corrected (Freeman 2008) variants.
   The corrected variant applies R_effective = (1 − 0.24)·P − PET. PET
@@ -59,3 +80,5 @@ NOTES
   at representative wells per cluster remain the gold standard.
 - Reference: Healy, R.W. and Cook, P.G. (2002) Hydrogeology Journal
   10, 91-109. doi:10.1007/s10040-001-0178-0
+- Reference: Crosbie, R.S., Binning, P. and Kalma, J.D. (2005)
+  Hydrogeology Journal 13, 813-825. doi:10.1007/s10040-004-0384-7

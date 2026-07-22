@@ -4,7 +4,7 @@
 
 *This document accompanies `report.pdf` and `Supplementary_Material.pdf`. It is the per-script methodological record of the analytical pipeline.*
 
-*Document version: 1.8.12 (July 2026).*
+*Document version: 1.8.13 (July 2026).*
 
 ---
 
@@ -2892,7 +2892,7 @@ Script 25 tests that hypothesis. It fits a network-scale, physics-based non-line
 
 | File | Origin |
 |---|---|
-| `data/well_distance_to_coast.csv` | Versioned data input, computed once out-of-pipeline from OS Open Map Local TidalBoundary |
+| `data/well_metadata.csv` (`dist_coast_m`) | Perpendicular distance to the eroding shoreline; regenerated from the committed coastline geometry (`data/geo/coastline_eroding_hwm.geojson`, OpenStreetMap MHW) and validated in Script 01 |
 | `outputs/01_wells_clean.csv` | Script 01 — reference-network depth time series |
 | `outputs/01_wells_extended.csv` | Script 01 — extended-network depth time series |
 | `outputs/01_locations.csv` | Script 01 — well coordinates |
@@ -2937,7 +2937,7 @@ Both forms are tried at each specification, and AIC is used to compare them.
 
 - **Caernarfon Bay west-facing coast only.** Only the ~15 km Caernarfon Bay west-facing shoreline is included. The Menai Strait north-east coast is a tidal channel, not subject to the SW-prevailing-wind erosion regime, and per project knowledge is not retreating. Llanddwyn Island is a bedrock islet, hydrogeologically separate. The Malltraeth Sands estuary is sheltered estuarine. The included polyline wraps around Abermenai Point at the SE end of the bay, which matters for the geometry of several eastern wells that would otherwise be misallocated.
 
-- **Perpendicular distance via shapely.** `shapely.geometry.Point(easting, northing).distance(coastline)` in EPSG:27700 — the minimum perpendicular distance to any segment, geometrically correct for the irregular coastline. Computing once out-of-pipeline and versioning the result avoids putting `geopandas` and `shapely` into the main pipeline's dependency set for a single analytic question.
+- **Perpendicular distance, in-pipeline.** The minimum perpendicular distance from each well to any segment of the eroding-shoreline polyline, in EPSG:27700 — geometrically correct for the irregular coastline. Computed in Script 01 as a pure-`numpy` point-to-polyline calculation (no `geopandas`/`shapely` dependency) from the committed west-facing coastline geometry (`data/geo/coastline_eroding_hwm.geojson`), and validated against the committed `dist_coast_m` values (audit: `outputs/01_dist_coast_validation.csv`).
 
 - **Clearfell-zone exclusion.** All 17 BACI wells (WMC3 Impact + 4 Edge + 5 Forest controls + 2 Coastal controls + 5 Climate controls) are dropped from the full and forest-free fits. The December 2017 clearfell drives a positive water-table rise at Impact and Edge wells that would appear as a non-monotonic distance perturbation if left in. The list is imported from `clearfell_common.py` so any BACI design update propagates automatically.
 
@@ -4199,8 +4199,8 @@ The convention throughout the supplement is that there is one place to change a 
 | Concept / parameter | Canonical source | Notes |
 |---|---|---|
 | Coastal-retreat gradient parameters | S.15 / `25_coastal_gradient.py` | δ₀ = −28.6 mm/yr, L = 894 m, c = −6.3 mm/yr |
-| Coastline provenance | S.15 | OS Open Map Local TidalBoundary, EPSG:27700 |
-| `well_distance_to_coast.csv` | S.15 / `paths.DATA_DIST_COAST` | Generated once, out-of-pipeline |
+| Coastline provenance | S.15 | OpenStreetMap MHW (`natural=coastline`), EPSG:27700 |
+| `well_metadata.csv` (`dist_coast_m`) | S.15 / `paths.DATA_DIST_COAST` | Regenerated + validated in Script 01 |
 | Site geography (drainage paths, ridge) | F.2 / `site_geography.md` | Bedrock ridge as northern boundary; bipartite drainage |
 | `add_idw_surface()` | F.5 / `map_utils.py` / S.5 | 50 m grid IDW with optional ridge mask |
 | `load_dem_layer()`, `load_dem_hillshade()` | F.5 / `map_utils.py` | DEM rendering helpers |

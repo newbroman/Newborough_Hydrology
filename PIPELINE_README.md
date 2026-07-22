@@ -917,7 +917,7 @@ R² ranges 0.73–0.96 across the five clusters (C4 Main Forest and C5 Coastal F
 
 #### Step 20 — 17_wtf_specific_yield
 
-**Purpose.** WTF cluster-mean Sy estimation (OLS winter and event-median methods, with optional interception correction for forested clusters).
+**Purpose.** WTF cluster-mean Sy estimation by three methodologically independent estimators — OLS winter (drainage-corrected), event-median, and rapid-recharge-event (Crosbie et al., 2005) — with interception correction for forested clusters. The rapid-recharge-event estimator (Approach C) is a reported triangulation only and does not propagate downstream; the event-based per-well Sy (Approach B lineage, Script 18) remains the pipeline-consumed canonical.
 
 
 ### Phase 7 — Water Balance
@@ -1087,7 +1087,7 @@ R² ranges 0.73–0.96 across the five clusters (C4 Main Forest and C5 Coastal F
 
 **Reads.**
 
-- `data/well_distance_to_coast.csv` (versioned data input; see `data/COASTLINE_PROVENANCE.md`)
+- `data/well_metadata.csv` (`dist_coast_m`; regenerated and validated in Script 01 from `data/geo/coastline_eroding_hwm.geojson`; see `data/COASTLINE_PROVENANCE.md`)
 - `01_wells_clean.csv` (Script 01)
 - `01_wells_extended.csv` (Script 01)
 - `01_locations.csv` (Script 01)
@@ -1110,7 +1110,7 @@ R² ranges 0.73–0.96 across the five clusters (C4 Main Forest and C5 Coastal F
 **Other.**
 
   - All paths via `utils.paths.OUT_25_*` and `paths.DATA_DIST_COAST`.
-  - Distance source covers 97 wells, range 147–5,589 m; coastline restricted to Caernarfon Bay High Water Mark (lines 1756 + 1853 of OS Open Map Local TidalBoundary).
+  - `dist_coast_m` covers 98 wells, range 119–2,338 m; perpendicular distance to the west-facing Caernarfon Bay MHW (OpenStreetMap `natural=coastline`, `data/geo/coastline_eroding_hwm.geojson`), Menai Strait excluded. Recomputed and validated against the committed values in Script 01 (audit `01_dist_coast_validation.csv`).
 
 
 ### Phase 12 — Supplementary Diagnostics

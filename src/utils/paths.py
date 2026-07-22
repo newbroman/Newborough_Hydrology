@@ -130,16 +130,24 @@ DATA_KML_SITE_BOUNDARY = data_geo("site_boundary.kml")
 # method-of-images correction in Script 20.  Generated 2026-06-30 from
 # OpenStreetMap via Overpass API (ODbL licence); Malltraeth estuary excluded.
 DATA_COASTLINE_HWM     = data_geo("coastline_hwm.geojson")
+# West-facing Caernarfon Bay MHW only (the eroding shoreline), clipped from
+# coastline_hwm.geojson at the Abermenai southern tip so the non-eroding Menai
+# Strait coast is excluded. This is the coastline used for the well-to-coast
+# perpendicular distance (dist_coast_m); Script 01 recomputes and validates
+# dist_coast_m against this geometry. EPSG:27700.
+DATA_COASTLINE_ERODING = data_geo("coastline_eroding_hwm.geojson")
 # Broadleaf restock block boundary — geometry also embedded in Features.kml
 # for automatic rendering via add_kml_features(); this entry retained for
 # any script that loads the boundary explicitly.
 KML_BROADLEAF        = data_geo("broadleaf_restock.kml")
 DATA_WELL_ELEVATIONS = DATA_WELL_METADATA  # consolidated; was Well_locations_height.csv
 
-# Pre-computed perpendicular distance from each dipwell to the OS Open Map
-# Local TidalBoundary (High Water Mark) along the eroding Caernarfon Bay
-# shoreline. Generated once out-of-pipeline; see data/COASTLINE_PROVENANCE.md
-# for full provenance. Read by Script 25.
+# Perpendicular distance from each dipwell to the eroding Caernarfon Bay
+# shoreline (dist_coast_m), carried in well_metadata.csv. Script 01 recomputes
+# this from the committed DATA_COASTLINE_ERODING geometry and validates the
+# committed values against it (regenerate-and-validate; the committed
+# dist_coast_m remains canonical). See data/COASTLINE_PROVENANCE.md. Read by
+# Scripts 25/28/30/31.
 DATA_DIST_COAST     = DATA_WELL_METADATA  # consolidated; was well_distance_to_coast.csv
 
 # ==========================================
@@ -151,6 +159,9 @@ DATA_DIST_COAST     = DATA_WELL_METADATA  # consolidated; was well_distance_to_c
 INT_LOCATIONS       = OUT_DIR / "01_locations.csv"
 INT_CLIMATE         = OUT_DIR / "01_climate.csv"
 INT_WELLS_CLEAN     = OUT_DIR / "01_wells_clean.csv"
+# Audit of the in-pipeline dist_coast_m regeneration (Script 01): per-well
+# committed vs recomputed perpendicular distance to the eroding shoreline.
+INT_DIST_COAST_VALIDATION = OUT_DIR / "01_dist_coast_validation.csv"
 # Per-cell provenance for INT_WELLS_CLEAN. Same shape and index as the cleaned
 # wells file; each cell holds one of {"measured", "interpolated", "missing"}.
 # Emitted by Script 01 alongside 01_wells_clean.csv since the Defect E fix

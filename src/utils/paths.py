@@ -691,6 +691,7 @@ OUT_22_AR1_MAP           = DIR_22 / "22_02_ar1_spatial_map.png"
 OUT_22_ALPHA_PHI_SCATTER = DIR_22 / "22_03_alpha_phi_scatter.png"
 OUT_22_EXAMPLE_SERIES    = DIR_22 / "22_04_example_residuals_by_cluster.png"
 INT_22_SSM_RESID_INFERENCE = DIR_22 / "22_05_ssm_residual_autocorrelation.csv"
+INT_22_SSM_CLUSTER_INFERENCE = DIR_22 / "22_06_ssm_cluster_mean_inference.csv"
 
 # Script 23 — Ridge-recharge lag hypothesis test
 INT_23_RESIDUALS_WIDE    = OUT_DIR / "23_residuals_extended_wide.csv"

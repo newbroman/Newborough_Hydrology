@@ -1,0 +1,113 @@
+{
+  "description": "Paper 1 half-life update (tau=Sy/beta3 -> t-half=ln2/beta3). Table 7 body + Fig 14/15 images hand-edited; captions here.",
+  "spelling": false,
+  "edits": [
+    {
+      "id": "hl01_heading",
+      "section": "4.7",
+      "type": "find_replace",
+      "find": "Spatial coefficient structure and drainage timescale",
+      "replace_": "Spatial coefficient structure and drainage half-life",
+      "note": "§4.7 heading timescale->half-life"
+    },
+    {
+      "id": "hl02_opening",
+      "section": "4.7",
+      "type": "replace_paragraph",
+      "anchor_contains": "The characteristic drainage timescale τ = Sy/β₃ synthesizes the independently derived specific",
+      "replacement": "The drainage decay half-life t½ = ln(2)/β₃ is the time for excess groundwater storage above the drainage datum to drain to half its initial value, an intuitive measure of aquifer memory that depends on the drainage rate alone (Table 7; Figure 14). The eastern open dune turns over rapidly (C1 median 7.0 months, C2 10.1), the western dune is intermediate (C3 median 13.2 months), and the forest interior shows the longest memory in the network (C4 median 29.8 months, individual wells to 88). C5 Coastal Forest (median 15.6 months) resembles the western dune despite sharing the pine canopy, reinforcing the substrate and elevation control. The half-life is a pure drainage-rate measure, whereas the storage-drainage index τ = Sy/β₃ additionally weights it by specific yield; because Sy and 1/β₃ are spatially independent across the network (r = 0.13), the two produce near-identical spatial patterns (r = 0.98) and the cluster ranking is unchanged. Plotted together with the SSM-over-TLM gain and specific yield as three independently derived descriptors (t½, ΔNSE, Sy), the five clusters occupy distinct, non-overlapping regions of diagnostic space (Figure 15) — a model-based characterization of aquifer architecture consistent with, but derived independently of, the Ward’s clustering.",
+      "note": "reframed premise + new medians + tau/t-half distinction note + 3 independent descriptors"
+    },
+    {
+      "id": "hl03_inline_c1",
+      "section": "4.x",
+      "type": "find_replace",
+      "find": "network (τ ≈ 2.2 months)",
+      "replace_": "network (t½ ≈ 7.0 months)",
+      "note": "C1 inline turnover"
+    },
+    {
+      "id": "hl04_inline_c2",
+      "section": "4.x",
+      "type": "find_replace",
+      "find": "a longer turnover (τ ≈ 3.7 months)",
+      "replace_": "a longer turnover (t½ ≈ 10.1 months)",
+      "note": "C2 inline turnover"
+    },
+    {
+      "id": "hl05_inline_c3",
+      "section": "4.x",
+      "type": "find_replace",
+      "find": "the longest open-dune memory (τ ≈ 6.6 months)",
+      "replace_": "the longest open-dune memory (t½ ≈ 13.2 months)",
+      "note": "C3 inline memory"
+    },
+    {
+      "id": "hl06_grad",
+      "section": "4.x",
+      "type": "find_replace",
+      "find": "the characteristic drainage timescale lengthens from roughly 3.6 months in C2 to about 6",
+      "replace_": "the drainage half-life lengthens from roughly 10 months in C2 to about 13",
+      "note": "C2->C3 gradient sentence, roughly/about register"
+    },
+    {
+      "id": "hl07_synth",
+      "section": "4.x",
+      "type": "find_replace",
+      "find": "the characteristic drainage timescale (τ = Sy/β₃; Figure 14)",
+      "replace_": "the drainage decay half-life (t½ = ln(2)/β₃; Figure 14)",
+      "note": "synthesis convergence sentence"
+    },
+    {
+      "id": "hl08_lowpass",
+      "section": "5.x",
+      "type": "find_replace",
+      "find": "The aquifer’s characteristic drainage timescale τ = Sy/β₃, of order several months across the",
+      "replace_": "The aquifer’s drainage decay half-life t½ = ln(2)/β₃, of order 7–30 months across the",
+      "note": "low-pass filter paragraph; 7-30 mo cluster-median span"
+    },
+    {
+      "id": "hl09_tbl7_caption",
+      "section": "Tab7",
+      "type": "find_replace",
+      "find": "Characteristic drainage timescale τ = Sy/β₃ (months) by cluster",
+      "replace_": "Drainage decay half-life t½ = ln(2)/β₃ (months) by cluster",
+      "note": "Table 7 caption (body para above table)"
+    },
+    {
+      "id": "hl10_fig14_caption",
+      "section": "Fig14",
+      "type": "find_replace",
+      "find": "Characteristic drainage timescale τ = Sy/β₃ across the reference network",
+      "replace_": "Drainage decay half-life t½ = ln(2)/β₃ across the reference network",
+      "note": "Fig 14 caption [anchor_before guards vs prepended ghost alt-text]",
+      "anchor_before": "Figure 14. "
+    },
+    {
+      "id": "hl11_fig15_caption",
+      "section": "Fig15",
+      "type": "find_replace",
+      "find": "drainage timescale τ versus SSM-over-TLM iterative NSE gain",
+      "replace_": "drainage decay half-life t½ versus SSM-over-TLM iterative NSE gain",
+      "expect_count": 1,
+      "note": "Fig 15 caption (live text:p only; svg:desc ghost not iterated) [anchor_before selects live caption, not svg:desc ghost]",
+      "anchor_before": "Figure 15. Aquifer diagnostic synthesis: "
+    },
+    {
+      "id": "hl12_src_tbl7",
+      "section": "SrcData",
+      "type": "find_replace",
+      "find": "Table 7 — drainage timescale τ = Sy/β₃ by cluster",
+      "replace_": "Table 7 — drainage decay half-life t½ = ln(2)/β₃ by cluster",
+      "note": "source-data block Table 7 row"
+    },
+    {
+      "id": "hl13_src_fig14",
+      "section": "SrcData",
+      "type": "find_replace",
+      "find": "Figure 14 — characteristic drainage timescale τ",
+      "replace_": "Figure 14 — drainage decay half-life t½",
+      "note": "source-data block Fig 14 row"
+    }
+  ]
+}

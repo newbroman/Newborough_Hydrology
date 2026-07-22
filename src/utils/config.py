@@ -10,6 +10,13 @@ which cluster IDs are currently in use — downstream code that needs to iterate
 over "all clusters" should iterate over CLUSTER_LABELS.keys().
 """
 
+# ── Pipeline version ─────────────────────────────────────────────────────────
+# Single canonical version string for the analysis pipeline. run_analysis.py
+# sets its __version__ from this value, and build_manifest() stamps it into
+# outputs/pipeline_manifest.json, so the manifest, the Methods Supplement / SI,
+# and the Zenodo release all pin to one string. Bump on any release.
+PIPELINE_VERSION = "2.2.0"
+
 # ── Journal B&W mode ─────────────────────────────────────────────────────────
 # Toggle to produce journal-ready greyscale figures.
 # When True, scripts use CLUSTER_COLOURS_BW, apply BW_HATCHES to bar charts,
@@ -635,6 +642,13 @@ DIFF_IDW_MASK_M = 450.0
 DIFF_BOOT_N = 2000
 DIFF_BOOT_BLOCK = 3
 DIFF_BOOT_SEED = 20260626
+
+# Bootstrap seeds relocated here from per-script module locals so every fixed
+# seed lives in config.py (house rule: shared constants are imported, never
+# mirrored). Values are unchanged from their original per-script definitions —
+# relocation only, so no committed output moves.
+CLUSTER_BOOT_SEED       = 20260424   # Script 02 cluster bootstrap (was module-local)
+RESIDUAL_CLIM_BOOT_SEED = 42         # Script 24b residual-climatology bootstrap (was module-local)
 
 # === Absolute climate-removed trend (Script 36) ===
 # Method: per-well OLS regression of spring level on spring CWB removes

@@ -4,13 +4,13 @@
 
 *This document accompanies `report.pdf` and `Supplementary_Material.pdf`. It is the per-script methodological record of the analytical pipeline.*
 
-*Document version: 1.8.9 (July 2026).*
+*Document version: 1.8.10 (July 2026).*
 
 ---
 
 ## Pipeline at a glance
 
-**`run_analysis.py` — 48 steps across 17 phases** (canonical count: committed `outputs/pipeline_manifest.json`, emitted on every run — cite that, not this line, if the two ever disagree)
+**`run_analysis.py` — 49 steps across 17 phases** (canonical count: committed `outputs/pipeline_manifest.json`, emitted on every run — cite that, not this line, if the two ever disagree)
 46 analytical steps across 17 phases, plus 4 display/utility steps (Scripts 26c, 09f, 09g, 27) excluded from the analytical count. The remainder are opt-in supplementary diagnostics — Scripts 24b, 31 and 31b, the Phase 16 remainder — which run only with `--with-supplementary`.
 
 | Phase | Steps | Content | Supplement chapter |

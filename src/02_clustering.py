@@ -14,7 +14,11 @@ Outputs (final — outputs/02_clustering/):
     02_02_validation_plots.png
 """
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-07-19
+__version__ = "1.4.1"  # Hollingham (2026) — 2026-07-21
+# 1.4.1 (2026-07-21): reproducibility hygiene — the cluster bootstrap seed
+#   (20260424) is now sourced from utils.config.CLUSTER_BOOT_SEED instead of a
+#   module-local literal, so every fixed seed lives in config.py. Value is
+#   unchanged; no partition, bootstrap output, or committed CSV is affected.
 # 1.4.0 (2026-07-19): 02_01 dendrogram opted in to render_figure font
 #   autoscaling with min_placed_pt=5.0 — leaf labels (8 pt authored) printed
 #   ~3.4 pt at 160 mm; the uniform ×1.49 enlargement lifts leaves to 5.0 pt
@@ -66,6 +70,7 @@ from sklearn.metrics import silhouette_score, calinski_harabasz_score
 from utils.config import (
     CLUSTER_COLOURS, CLUSTER_COLOURS_BW, CLUSTER_LABELS,
     REFERENCE_CUTOFF_DATE, BW_MODE, BW_LINESTYLES,
+    CLUSTER_BOOT_SEED,
 )
 from utils.data_utils import normalize_well_name
 from utils.paths import (
@@ -213,7 +218,7 @@ del _anchor_ids, _label_ids
 # ──────────────────────────────────────────────────────────────────────────────
 N_BOOTSTRAP = 1000
 K_RANGE_BOOTSTRAP = (4, 5, 6, 7)
-BOOTSTRAP_SEED = 20260424
+BOOTSTRAP_SEED = CLUSTER_BOOT_SEED   # canonical seed lives in utils.config (value unchanged: 20260424)
 
 # Local styling for cluster hydrograph panel. Colours and labels come from
 # utils/config.py (CLUSTER_COLOURS, CLUSTER_LABELS); line styles and widths

@@ -26,6 +26,10 @@ Outputs:
     OUT_22_AR1_MAP           — spatial map of AR(1) coefficient per well
     OUT_22_ALPHA_PHI_SCATTER — scatter of alpha vs AR(1)-phi, coloured by cluster
     OUT_22_EXAMPLE_SERIES    — one residual time series per cluster
+    INT_22_SSM_RESID_INFERENCE — per-well headline (Model A) residual-inference
+                               diagnostics for the 66-well reference network:
+                               Durbin–Watson, lag-1 φ, Ljung–Box(12), and
+                               OLS-vs-HAC (Newey–West) coefficient p-values.
 
 Window choice:
     Script 07 uses the most recent 100 months. This script uses the FULL record
@@ -46,7 +50,18 @@ Well exclusions (EXCLUDED_WELLS_NORM):
 ====================================================================================
 """
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-06-21 (iterate CLUSTER_LABELS not CLUSTER_COLOURS.items() — drop reserved C6 from cluster loops; no functional change, C6 was already len-guarded)
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-07-21
+# 1.2.0 (2026-07-21): added the headline Model A residual-inference diagnostic
+#   (ssm_residual_inference) for the 66-well reference network — the committed
+#   artefact backing the SI's OLS-inference-validity statement. For each
+#   reference well it fits the upstand-corrected no-intercept SSM (full record),
+#   tests residual serial correlation (Durbin–Watson, lag-1 φ, Ljung–Box) and
+#   re-estimates coefficient p-values with Newey–West/HAC standard errors
+#   (n-adaptive rule-of-thumb lag). Writes 22_05_ssm_residual_autocorrelation.csv
+#   with the per-well diagnostics and OLS-vs-HAC p-values; the headline stat is
+#   the count of coefficient significance verdicts that change under HAC. Does
+#   not touch the existing Model B AR(1) analysis.
+# 1.1.0 (2026-06-21) — iterate CLUSTER_LABELS not CLUSTER_COLOURS.items() — drop reserved C6 from cluster loops; no functional change, C6 was already len-guarded
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.0.1 — Doc-sweep S.16: corrected stale "lag-1 rainfall" docstring claim
 #         to "contemporaneous rainfall under HEADLINE_LAG = 0" (S16-A);
@@ -68,11 +83,14 @@ from utils.paths import (
     INT_CLUSTER_STATS, INT_22_RESIDUALS_WIDE, INT_22_FITS_TABLE,
     OUT_22_AR1_HIST, OUT_22_AR1_MAP, OUT_22_ALPHA_PHI_SCATTER,
     OUT_22_EXAMPLE_SERIES,
+    INT_WELLS_REFERENCE, INT_WELL_ELEVATIONS, INT_22_SSM_RESID_INFERENCE,
 )
 from utils.data_utils import normalize_well_name
 from utils.map_utils import add_kml_features, add_en_axes
-from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS
-from utils.model_utils import fit_ssm_intercept
+from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, HEADLINE_LAG
+from utils.model_utils import fit_ssm_intercept, build_ssm_frame, MIN_OBS
+from statsmodels.stats.stattools import durbin_watson
+from statsmodels.stats.diagnostic import acorr_ljungbox
 
 from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
@@ -305,8 +323,123 @@ def plot_example_residuals(residuals_wide, fits_df, output_path):
 # MAIN
 # ==========================================
 
+# ──────────────────────────────────────────────────────────────────────────────
+# HEADLINE MODEL A RESIDUAL-INFERENCE DIAGNOSTIC (reference network)
+# ──────────────────────────────────────────────────────────────────────────────
+# The published β₁/β₂/β₃ table is produced by ordinary least squares with
+# classical (non-robust) standard errors. For a monthly time-series regression a
+# reviewer will rightly ask whether those standard errors are valid under serial
+# correlation. This block answers with a committed artefact: for every reference
+# well it fits the headline SSM (no-intercept, displacement formulation,
+# upstand-corrected — the same physical specification as Script 03), tests the
+# residuals for autocorrelation (Durbin–Watson, lag-1 φ, Ljung–Box), and
+# re-estimates the coefficient p-values with heteroskedasticity- and
+# autocorrelation-consistent (Newey–West / HAC) standard errors. The HAC lag is
+# the n-adaptive rule-of-thumb L = ⌊4·(n/100)^(2/9)⌋. The headline result is the
+# number of coefficient significance verdicts (α = 0.05) that change between OLS
+# and HAC across the network — near zero confirms the OLS inference is sound.
+
+def _newey_west_lag(n: int) -> int:
+    """Rule-of-thumb HAC truncation lag ⌊4·(n/100)^(2/9)⌋ (minimum 1)."""
+    return max(1, int(np.floor(4.0 * (n / 100.0) ** (2.0 / 9.0))))
+
+
+def _upstand_lookup(elev_path):
+    """Return {col_norm: upstand_m}, keyed to match reference-well column names,
+    mirroring Script 03's build_upstand_lookup + col_norm convention so the
+    residuals reproduce the published per-well displacement fits."""
+    lookup = {}
+    if not elev_path.exists():
+        warn("Elevation file not found — upstand correction skipped.")
+        return lookup
+    elev_df = pd.read_csv(elev_path)
+    elev_df.columns = [c.strip() for c in elev_df.columns]
+    if "Name_norm" in elev_df.columns and "Upstand_m" in elev_df.columns:
+        for _, row in elev_df.iterrows():
+            if pd.notna(row.get("Upstand_m")):
+                key = str(row["Name_norm"]).lower().replace(" ", "").replace("_", "")
+                lookup[key] = float(row["Upstand_m"])
+    return lookup
+
+
+def ssm_residual_inference(climate, cluster_lookup):
+    """Reference-network residual-inference diagnostic for the headline
+    (no-intercept, Model A) SSM. Writes INT_22_SSM_RESID_INFERENCE and returns a
+    summary dict. See the block comment above for method and rationale."""
+    step("Model A residual-inference diagnostic (reference network, HAC robustness)")
+    ref = pd.read_csv(INT_WELLS_REFERENCE, index_col=0, parse_dates=True)
+    upstand = _upstand_lookup(INT_WELL_ELEVATIONS)
+
+    rows = []
+    for well in ref.columns:
+        norm = normalize_well_name(well)
+        col_norm = norm.lower().replace(" ", "").replace("_", "")
+        u = upstand.get(col_norm, 0.0)
+        series = pd.to_numeric(ref[well], errors="coerce").dropna() - u
+        frame = build_ssm_frame(series, climate, lag=HEADLINE_LAG)
+        if frame is None or len(frame) < MIN_OBS:
+            continue
+        y = frame["Delta_h"].values
+        X = pd.DataFrame({
+            "beta_1_recharge":         frame["P"].values,
+            "beta_2_atmospheric_draw": -frame["PET"].values,
+            "beta_3_drainage":         -frame["h_disp_prev"].values,
+        }, index=frame.index)
+        ols = sm.OLS(y, X).fit()
+        lag = _newey_west_lag(len(y))
+        hac = sm.OLS(y, X).fit(cov_type="HAC", cov_kwds={"maxlags": lag})
+        resid = pd.Series(ols.resid, index=frame.index)
+        n_flip = sum((ols.pvalues[c] < 0.05) != (hac.pvalues[c] < 0.05)
+                     for c in X.columns)
+        rows.append({
+            "Well":            well,
+            "Well_Normalized": norm,
+            "Cluster":         cluster_lookup.get(norm, np.nan),
+            "n":               int(len(y)),
+            "R2":              float(ols.rsquared),
+            "durbin_watson":   float(durbin_watson(resid.values)),
+            "ar1_phi":         float(resid.autocorr(lag=1)),
+            "ljungbox12_p":    float(acorr_ljungbox(resid, lags=[12],
+                                     return_df=True)["lb_pvalue"].iloc[0]),
+            "hac_maxlag":      int(lag),
+            "p_beta_1_ols":    float(ols.pvalues["beta_1_recharge"]),
+            "p_beta_1_hac":    float(hac.pvalues["beta_1_recharge"]),
+            "p_beta_2_ols":    float(ols.pvalues["beta_2_atmospheric_draw"]),
+            "p_beta_2_hac":    float(hac.pvalues["beta_2_atmospheric_draw"]),
+            "p_beta_3_ols":    float(ols.pvalues["beta_3_drainage"]),
+            "p_beta_3_hac":    float(hac.pvalues["beta_3_drainage"]),
+            "sig_flips_hac":   int(n_flip),
+        })
+
+    df = pd.DataFrame(rows)
+    df.to_csv(INT_22_SSM_RESID_INFERENCE, index=False)
+    saved(f"{INT_22_SSM_RESID_INFERENCE.name}")
+
+    dw = df["durbin_watson"]; phi = df["ar1_phi"]
+    summary = {
+        "n_wells":         len(df),
+        "dw_median":       float(dw.median()),
+        "dw_iqr":          (float(dw.quantile(.25)), float(dw.quantile(.75))),
+        "phi_median":      float(phi.median()),
+        "ljungbox_reject": int((df["ljungbox12_p"] < 0.05).sum()),
+        "sig_flips":       int(df["sig_flips_hac"].sum()),
+        "n_coeff_tests":   3 * len(df),
+    }
+    print("\n" + "=" * 62)
+    print("  MODEL A RESIDUAL-INFERENCE SUMMARY (reference network)")
+    print("=" * 62)
+    print(f"  Wells fitted:                  {summary['n_wells']}")
+    print(f"  Durbin-Watson median:          {summary['dw_median']:.2f} "
+          f"(IQR {summary['dw_iqr'][0]:.2f}-{summary['dw_iqr'][1]:.2f})")
+    print(f"  AR(1) phi median:              {summary['phi_median']:+.3f}")
+    print(f"  Ljung-Box(12) reject p<0.05:   {summary['ljungbox_reject']} / {summary['n_wells']}")
+    print(f"  Coeff significance flips HAC:  {summary['sig_flips']} / {summary['n_coeff_tests']}")
+    print("=" * 62)
+    return summary
+
+
 def main():
-    banner("22", "Residual Lag Analysis", version="1.0.1")
+    banner("22", "Residual Lag Analysis", version=__version__)
     make_all_dirs()
     print("Starting 22: SSM Residual and AR(1) Diagnostics...")
 
@@ -391,6 +524,10 @@ def main():
     print("\n  Per-cluster mean phi:")
     print(fits_df.groupby('Cluster')['ar1_phi'].mean().round(3).to_string())
     print("=" * 62)
+
+    # Headline Model A residual-inference diagnostic (reference network) —
+    # committed HAC-robustness artefact for the SI reproducibility statement.
+    ssm_residual_inference(climate, cluster_lookup)
 
     # Plots
     plot_ar1_hist(fits_df, OUT_22_AR1_HIST)

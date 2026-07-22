@@ -1,0 +1,15 @@
+{
+  "description": "Paper 1 §4.7 anomaly-relaxation caveat (amplitude/ET trap). Additive on top of the applied half-life edits; anchors match the committed no-caveat Paper1 (PDF in repo).",
+  "spelling": false,
+  "edits": [
+    {
+      "id": "cav01_halflife_scope",
+      "section": "4.7",
+      "type": "find_replace",
+      "find": "(Table 7; Figure 14). The eastern open dune turns over rapidly",
+      "replace_": "(Table 7; Figure 14). This is the relaxation time of a head anomaly above the datum — how long a perturbation to the mean water table, such as coastal-retreat or forest-interception drawdown, persists before drainage returns it toward equilibrium. It is not a bound on the seasonal amplitude: summer water-table decline is governed chiefly by evapotranspiration (the β₂ term) and routinely exceeds half the preceding winter rise even where the half-life is long. The half-life describes how quickly a displacement above the datum relaxes back, not how far the water table moves within a season. The eastern open dune turns over rapidly",
+      "expect_count": 1,
+      "note": "inject anomaly-relaxation caveat after the half-life definition sentence; scopes t-half to perturbation persistence, flags ET-driven seasonal amplitude"
+    }
+  ]
+}

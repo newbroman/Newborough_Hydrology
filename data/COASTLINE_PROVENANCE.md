@@ -1,78 +1,65 @@
-# Coastline-distance CSV — provenance
+# Coastline-distance — provenance
 
-**File:** `data/well_distance_to_coast.csv`
-**Read by:** `src/25_coastal_gradient.py` (via `paths.DATA_DIST_COAST`)
-**Generated:** May 2026, once, out-of-pipeline
-**Re-generation needed only if:** the OS coastline product is updated, the dipwell network is extended with new wells in unmapped positions, or the choice of "eroding shoreline" changes.
+**Distance column:** `dist_coast_m` in `data/well_metadata.csv`
+**Eroding-shoreline geometry:** `data/geo/coastline_eroding_hwm.geojson`
+**Read by:** Scripts 25/28/30/31 (`dist_coast_m`, via `paths.DATA_DIST_COAST`)
+**Regenerated + validated in-pipeline by:** `src/01_data_prep.py` (`_validate_dist_coast`)
+**Re-generate the committed values only if:** the OS coastline product is updated, the dipwell
+network gains wells in unmapped positions, or the choice of "eroding shoreline" changes.
 
----
-
-## What the CSV contains
-
-One row per dipwell, with columns:
-
-| Column | Description |
-|---|---|
-| `well` | Lower-case well name matching the convention used throughout the pipeline (`01_locations.csv`, `03_master_data.csv`) |
-| `easting` | OSGB36 easting (m), EPSG:27700 |
-| `northing` | OSGB36 northing (m), EPSG:27700 |
-| `dist_coast_m` | Perpendicular distance from the well to the chosen coastline polyline (m) |
-
-97 wells, distance range 147–5,589 m.
+> Supersedes the earlier note that described a separate `well_distance_to_coast.csv` "generated
+> once, out-of-pipeline" (that CSV was consolidated into `well_metadata.csv`; the distances have
+> since been recomputed and the range is now 119–2,338 m, not the old 147–5,589 m).
 
 ---
 
-## How the distances were computed
+## What the column contains
 
-### Coastline source
+One row per dipwell in `well_metadata.csv`, with `dist_coast_m` = the minimum perpendicular
+distance (m) from the well (`E`, `N`, EPSG:27700) to the eroding Caernarfon Bay shoreline
+polyline. 98 wells with a value; range ~119–2,338 m.
 
-**OS Open Map Local** — *TidalBoundary* layer (file: `SH_TidalBoundary.shp`), classification `"High Water Mark"` (MHW).
+## Two coastlines — which is which
 
-Downloaded from the Ordnance Survey OpenData portal (Crown copyright OS 2025). Licence: Open Government Licence v3.0.
+There are **two** committed coastline files, and they are not interchangeable:
 
-### Coastline selection
+| File | Contents | Use |
+|---|---|---|
+| `coastline_hwm.geojson` | Caernarfon Bay MHW **plus the Menai Strait coast** (Malltraeth excluded) | Fixed-head boundary geometry (e.g. Script 09f/20 drawdown fields) |
+| `coastline_eroding_hwm.geojson` | **West-facing Caernarfon Bay frontage only** (the eroding shoreline) | `dist_coast_m` — distance to the eroding front |
 
-The OS High Water Mark for the Newborough area contains several physically distinct shorelines:
+The eroding-only polyline is clipped from `coastline_hwm.geojson` at the **Abermenai southern
+tip** (the vertex of minimum northing), keeping the west-facing frontage and dropping the Menai
+Strait limb. This matters because several eastern wells (ceh7, D29, d29b, T29, L1, L4, L7, ceh6)
+sit close to the Menai coast; measured against the full coastline they would be assigned ~1.5 km
+too near, corrupting the far-field of the coastal-gradient regression.
+
+### Coastline selection (why Menai / Llanddwyn / Malltraeth are excluded)
 
 | Segment | Decision | Reason |
 |---|---|---|
-| **Caernarfon Bay west-facing coast** (line 1756 + 1853, ~15.0 km total) | **INCLUDED** | This is the eroding shoreline at Newborough. The dune-system retreat documented by Forgrave (2020) and the CEH22/CEH4 CUSUM trajectories operate on this coast. |
-| Menai Strait (north-east coast) | EXCLUDED | Tidal channel, not subject to the SW-prevailing-wind erosion regime; per project knowledge this coast is not retreating. |
-| Llanddwyn Island | EXCLUDED | Bedrock islet, hydrogeologically separate from the dune aquifer. |
-| Malltraeth Sands estuary (south interior) | EXCLUDED | Estuarine, sheltered from the eroding wave climate. |
+| Caernarfon Bay west-facing coast | **INCLUDED** | The eroding shoreline at Newborough (Forgrave 2020; Pye & Blott 2024). |
+| Menai Strait (north-east coast) | EXCLUDED | Tidal channel, not subject to the SW-prevailing-wind erosion regime. |
+| Llanddwyn Island | EXCLUDED | Bedrock islet, hydrogeologically separate. |
+| Malltraeth Sands estuary | EXCLUDED | Estuarine, sheltered from the eroding wave climate. |
 
-The 15 km included polyline wraps around the SE end of the bay through Abermenai Point — this is geometrically important because several eastern wells (D29, T29, CEH7, etc.) sit close to that wrap-around section and would be misallocated if the coastline were clipped to the western beach only.
+## Distance computation
 
-### Distance computation
+Minimum perpendicular distance from each well to the eroding-shoreline polyline, in EPSG:27700.
+The in-pipeline implementation (`_validate_dist_coast` in Script 01) is a pure-numpy
+point-to-segment calculation over the polyline segments — geometrically equivalent to
+`shapely` `Point.distance(LineString)` but with no GIS dependency (the pipeline stays on
+pandas + numpy).
 
-For each dipwell:
+## Regenerate-and-validate
 
-```python
-from shapely.geometry import Point, LineString
-# coastline: a single LineString or MultiLineString in EPSG:27700
-well_pt = Point(easting, northing)
-dist_m = well_pt.distance(coastline)
-```
-
-`Point.distance(LineString)` returns the **minimum perpendicular distance** to any segment of the polyline — the geometrically correct measure for "how far is this well from the coast".
-
-### Visual sanity check
-
-Each well's nearest-point connector to the coastline was plotted in the sanity-check figure `coastline_geometry_check.png` (kept alongside the working scripts but not in the pipeline). Connectors should run cleanly perpendicular to the coast at each well's nearest point.
-
----
-
-## Why this CSV is a versioned data input rather than computed in-pipeline
-
-Three reasons:
-
-1. **External GIS dependency.** Computing distances from scratch requires the OS shapefile, `geopandas`, and `shapely`. The rest of the pipeline runs on `pandas` + `numpy` + `statsmodels` + `scipy`. Adding GIS dependencies for one analytic question increases the maintenance and re-run burden on downstream users disproportionately.
-
-2. **Stable across pipeline iterations.** The dipwell coordinates and the coastline don't change between pipeline re-runs. Re-computing distances every time the pipeline runs is wasted work.
-
-3. **Reviewer-auditable.** Putting the precomputed values in version control with this provenance sidecar means anyone reading the report or rerunning Script 25 can see exactly what coastline was used and how distances were measured, without needing to re-acquire and re-process the OS data themselves.
-
-If the coastline source or methodology changes, regenerate this CSV and commit both the new CSV and an updated version of this provenance note.
+The committed `dist_coast_m` values remain **canonical**. Script 01 recomputes the distance
+from `coastline_eroding_hwm.geojson` and validates the committed values against it, writing the
+per-well audit `outputs/01_dist_coast_validation.csv` and warning if any well drifts beyond
+25 m. Current agreement: median 1.5 m, max 14.8 m across 98 wells — the residual is the
+coastline's 5 m simplification. The committed values are not overwritten; if byte-exact
+regeneration were required, the unsimplified source coastline would be committed in place of the
+5 m polyline.
 
 ---
 

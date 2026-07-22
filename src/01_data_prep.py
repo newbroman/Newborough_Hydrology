@@ -15,9 +15,23 @@ Requirements:
     pandas, numpy
 """
 
-__version__ = "1.7.0"  # Hollingham (2026) — 2026-06-20 (interpolated cells now a solid distinct colour, not a hatch)
+__version__ = "1.8.0"  # Hollingham (2026) — 2026-07-22 (in-pipeline dist_coast regeneration + validation)
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # Changelog:
+#   1.8.0 (2026-07-22) — Close the coastal-distance reproducibility gap.
+#     dist_coast_m (well-to-eroding-shoreline perpendicular distance) was
+#     computed once out-of-pipeline; §3.11 claims full pipeline reproducibility.
+#     New _validate_dist_coast() recomputes it from the committed west-facing
+#     eroding-shoreline geometry (data/geo/coastline_eroding_hwm.geojson) using
+#     pure numpy point-to-polyline (no GIS dependency) and validates the
+#     committed dist_coast_m in well_metadata.csv against it, warning (not
+#     erroring, not overwriting) on drift > 25 m. Writes the per-well audit
+#     01_dist_coast_validation.csv. The committed values stay canonical
+#     (regenerate-and-validate). NB: the pre-existing coastline_hwm.geojson
+#     bundles the *non-eroding* Menai Strait coast, which the analysis excludes;
+#     the new eroding-only polyline is clipped from it at the Abermenai tip and
+#     reproduces the committed distances to median 1.5 m / max 15 m across all
+#     98 wells (the residual is the 5 m coastline simplification).
 #   1.4.1 (2026-06-15) — Coverage-figure fix-up: (1) cluster band labels are now
 #     horizontal at each band midpoint (pulled from CLUSTER_LABELS), fixing the
 #     overprint that rendered "C9"/"C4)" on the thin C4/C5 bands; all bands read
@@ -82,6 +96,7 @@ from utils.console_utils import (
 )
 del _sys, _os
 
+import json
 import pandas as pd
 import numpy as np
 
@@ -97,6 +112,7 @@ from utils.paths import (
     DATA_WELL_RECORDS_ODS, INT_OBSERVATION_STATES, INT_DRY_DEPTHS, OUT_DIR,
     INT_COVERAGE_FIGURE_REF, INT_COVERAGE_FIGURE_EXT,
     INT_OBS_STATE_CONFLICTS, INT_PEAR_AUDIT_SITEWIDE,
+    DATA_WELL_METADATA, DATA_COASTLINE_ERODING, INT_DIST_COAST_VALIDATION,
 )
 from utils.data_utils import normalize_well_name, parse_met_date, clean_well_series
 from utils.comment_states import parse_comment_states, assemble_observation_states
@@ -279,6 +295,77 @@ def thornthwaite_pet_m(t_mean: pd.Series, lat_deg: float = RAF_VALLEY_LAT_DEG) -
     pet_m[t_mean.isna()] = np.nan
 
     return pet_m
+
+
+def _validate_dist_coast(tol_m: float = 25.0):
+    """Regenerate-and-validate the well-to-coast perpendicular distance.
+
+    Recomputes each dipwell's perpendicular distance to the eroding
+    Caernarfon Bay shoreline from the committed west-facing polyline
+    (DATA_COASTLINE_ERODING) and compares it against the committed
+    ``dist_coast_m`` in well_metadata.csv. The committed values remain
+    canonical; this step makes the geometry reproducible and audited in the
+    pipeline (closing the former out-of-pipeline gap) and warns — it does not
+    error or overwrite — if any well drifts beyond ``tol_m``.
+
+    Pure numpy point-to-polyline (minimum distance to any segment); no GIS
+    dependency, so the pipeline stays on pandas + numpy. The residual against
+    the committed values is the coastline's 5 m simplification (max ~15 m).
+    """
+    if not DATA_COASTLINE_ERODING.exists():
+        warn(f"Eroding-shoreline geometry not found: {DATA_COASTLINE_ERODING.name}; "
+             "skipping dist_coast validation.")
+        return
+    if not DATA_WELL_METADATA.exists():
+        warn("well_metadata.csv not found; skipping dist_coast validation.")
+        return
+
+    gj = json.loads(DATA_COASTLINE_ERODING.read_text())
+    coords = np.asarray(gj["features"][0]["geometry"]["coordinates"], dtype=float)
+    if coords.ndim != 2 or len(coords) < 2:
+        warn("Eroding-shoreline geometry is not a usable polyline; "
+             "skipping dist_coast validation.")
+        return
+    seg_a = coords[:-1]
+    seg_b = coords[1:]
+    seg_ab = seg_b - seg_a
+    seg_ab2 = (seg_ab ** 2).sum(axis=1)
+
+    def _perp(easting: float, northing: float) -> float:
+        pt = np.array([easting, northing], dtype=float)
+        ap = pt - seg_a
+        t = np.clip((ap * seg_ab).sum(axis=1) / np.where(seg_ab2 == 0.0, 1.0, seg_ab2),
+                    0.0, 1.0)
+        proj = seg_a + t[:, None] * seg_ab
+        return float(np.sqrt(((pt - proj) ** 2).sum(axis=1)).min())
+
+    md = pd.read_csv(DATA_WELL_METADATA)
+    md.columns = [c.strip() for c in md.columns]
+    needed = {"Name", "E", "N", "dist_coast_m"}
+    if not needed.issubset(md.columns):
+        warn(f"well_metadata.csv missing one of {sorted(needed)}; "
+             "skipping dist_coast validation.")
+        return
+
+    sub = md.dropna(subset=["dist_coast_m", "E", "N"]).copy()
+    sub["dist_recomputed_m"] = [_perp(e, n) for e, n in zip(sub["E"], sub["N"])]
+    sub["abs_diff_m"] = (sub["dist_recomputed_m"] - sub["dist_coast_m"]).abs()
+
+    audit = sub[["Name", "E", "N", "dist_coast_m", "dist_recomputed_m", "abs_diff_m"]]
+    audit.to_csv(INT_DIST_COAST_VALIDATION, index=False)
+
+    med = float(sub["abs_diff_m"].median())
+    mx = float(sub["abs_diff_m"].max())
+    n_over = int((sub["abs_diff_m"] > tol_m).sum())
+    info(f"dist_coast validation: n={len(sub)}  median|Δ|={med:.2f} m  "
+         f"max|Δ|={mx:.1f} m  (tolerance {tol_m:.0f} m)")
+    if n_over:
+        warn(f"{n_over} well(s) exceed the {tol_m:.0f} m tolerance against committed "
+             "dist_coast_m — check coastline_eroding_hwm.geojson / well_metadata.csv.")
+    else:
+        info("dist_coast_m reproduced from committed eroding-shoreline geometry "
+             "within tolerance.")
+    saved(INT_DIST_COAST_VALIDATION.name)
 
 
 def _build_observation_states(wells_clean, provenance):
@@ -786,6 +873,16 @@ if __name__ == "__main__":
     else:
         warn(f"Elevation file not found: {_WELL_ELEV_FILE}")
         print(f"    Upstand correction in script 03 will be skipped.")
+
+    # ------------------------------------------------------------------ #
+    #  WELL-TO-COAST DISTANCE VALIDATION                                  #
+    #  Regenerate the perpendicular dist_coast_m from the committed       #
+    #  eroding-shoreline geometry and validate the committed values       #
+    #  against it (was computed out-of-pipeline). Committed values in     #
+    #  well_metadata.csv remain canonical; this warns on drift only.      #
+    # ------------------------------------------------------------------ #
+    print("\n -> Validating well-to-coast distances...")
+    _validate_dist_coast()
 
     # ------------------------------------------------------------------ #
     #  PIPELINE SCENARIO PARAMETERS                                       #

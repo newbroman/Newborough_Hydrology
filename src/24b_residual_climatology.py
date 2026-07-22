@@ -55,7 +55,11 @@ Conventions:
 ====================================================================================
 """
 
-__version__ = "1.3.0"  # Hollingham (2026) — Script 24b. v1.2.0: wired into run_analysis.py
+__version__ = "1.3.1"  # Hollingham (2026) — Script 24b. v1.2.0: wired into run_analysis.py
+# 1.3.1 (2026-07-21): reproducibility hygiene — the bootstrap seed (42) is now
+#   sourced from utils.config.RESIDUAL_CLIM_BOOT_SEED instead of a module-local
+#   literal. Value unchanged; the per-cluster offset (BOOTSTRAP_SEED + cid) and
+#   all bootstrap CIs are byte-identical. No committed output moves.
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
                        # (Phase 16 supplementary diagnostics); output paths via paths.py.
 # 1.1.0 — Recovered from the 7-June residual-seasonality session and RETAINED AS A
@@ -110,6 +114,7 @@ from utils.config import (
     CLUSTER_LABELS,
     FOREST_CIDS,
     get_cluster_colour,
+    RESIDUAL_CLIM_BOOT_SEED,
 )
 from utils.render_utils import render_figure
 
@@ -136,7 +141,7 @@ WINTER_MONTHS = (12, 1, 2)    # DJF
 SUMMER_MONTHS = (6, 7, 8)     # JJA
 MIN_OBS_PER_SEASON = 3        # min raw obs in each season for a per-well test
 N_BOOTSTRAP = 1000            # well-level resamples for cluster-contrast CI
-BOOTSTRAP_SEED = 42           # reproducible resampling
+BOOTSTRAP_SEED = RESIDUAL_CLIM_BOOT_SEED   # canonical seed in utils.config (value unchanged: 42)
 CI_LEVEL = 0.95
 OSGB36_EPSG = 27700           # British National Grid, for metric distances
 

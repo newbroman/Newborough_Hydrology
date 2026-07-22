@@ -137,6 +137,12 @@ from pathlib import Path
 
 __version__ = "2.2.0"
 # CHANGELOG
+#   2026-07-21 (infra, no release bump): build_manifest() now stamps
+#       "pipeline_version" into pipeline_manifest.json so the manifest, the SI /
+#       Methods Supplement, and the Zenodo release all pin to one string. The
+#       canonical source is utils.config.PIPELINE_VERSION; __version__ here is
+#       kept equal to it and _check_version_guard() warns on any drift (mirrors
+#       _check_analytical_guard). Version string unchanged (2.2.0).
 #   2.2.0 (2026-07-18): Script 09g registered. New tier-"D" display step
 #       09g_mechanism_diagrams.py added to PHASE_17 between 09f and 27 (it
 #       reads the 09f_01 reach profile emitted moments earlier in the same
@@ -531,6 +537,7 @@ def build_manifest(write: bool = True) -> dict:
             "desc": rs.desc, "tier": rs.tier, "exec": rs.exec,
         })
     manifest = {
+        "pipeline_version": __version__,
         "total_registered": len(_ALL_STEPS),
         "by_tier": by_tier,
         "by_exec": by_exec,
@@ -546,7 +553,27 @@ def build_manifest(write: bool = True) -> dict:
         with open(OUT_MANIFEST, "w", encoding="utf-8") as fh:
             json.dump(manifest, fh, indent=2)
     _check_analytical_guard(by_tier["analytical_toplevel"])
+    _check_version_guard()
     return manifest
+
+
+def _check_version_guard() -> None:
+    """Warn if the orchestrator's __version__ has drifted from the canonical
+    utils.config.PIPELINE_VERSION (the value the analysis scripts import). Lazy
+    import keeps the orchestrator runnable standalone if utils is unavailable —
+    mirrors the declared-constant-plus-drift-guard idiom used for the counts."""
+    try:
+        if str(SRC_DIR) not in sys.path:
+            sys.path.insert(0, str(SRC_DIR))
+        from utils.config import PIPELINE_VERSION as _cfg_ver
+    except Exception:
+        return
+    if _cfg_ver != __version__:
+        say_warn(
+            f"Pipeline version mismatch: run_analysis __version__ = "
+            f"{__version__!r} but utils.config.PIPELINE_VERSION = {_cfg_ver!r}. "
+            "Set both to the same string before release."
+        )
 
 
 def _check_analytical_guard(actual: int) -> None:

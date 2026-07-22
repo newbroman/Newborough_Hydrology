@@ -100,7 +100,7 @@ Hesp, P.A. and Thom, B.G. (1990) Geomorphology and evolution of active transgres
 
 Hollingham, M. (2026b) Newborough Warren Hydrogeological Modelling Suite Scenario Viewer. Available at: [**https://newbroman.github.io/Newborough\_Hydrology/scenario\_viewer.html**](https://newbroman.github.io/Newborough-Hydrology_models/scenario_viewer.html) \[Accessed May 2026\].
 
-**Hooghoudt, S.B. (1940)** Bijdragen tot de kennis van eenige natuurkundige grootheden van den grond. 7. Algemeene beschouwing van het probleem van de detailontwatering en de infiltratie door middel van parallel loopende drains, greppels, slooten en kanalen \[General consideration of the problem of field drainage by parallel drains, ditches, watercourses and channels\]. **Verslagen van Landbouwkundige Onderzoekingen** 46(14)B, 515–707. Algemeene Landsdrukkerij, 's-Gravenhage.
+****Hooghoudt, S.B. (1940)**** Bijdragen tot de kennis van eenige natuurkundige grootheden van den grond. 7. Algemeene beschouwing van het probleem van de detailontwatering en de infiltratie door middel van parallel loopende drains, greppels, slooten en kanalen \[General consideration of the problem of field drainage by parallel drains, ditches, watercourses and channels\]. **Verslagen van Landbouwkundige Onderzoekingen** 46(14)B, 515–707. Algemeene Landsdrukkerij, 's-Gravenhage.
 
 Huizer, S., Radermacher, M., de Vries, S., Oude Essink, G. H. P. and Bierkens, M. F. P. (2018) Impact of coastal forcing and groundwater recharge on the growth of a fresh groundwater lens in a mega-scale beach nourishment. *Hydrology and Earth System Sciences*, 22, 1065–1080. <https://doi.org/10.5194/hess-22-1065-2018>
 

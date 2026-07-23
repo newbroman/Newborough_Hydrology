@@ -81,4 +81,4 @@ NOTES
 - Reference: Healy, R.W. and Cook, P.G. (2002) Hydrogeology Journal
   10, 91-109. doi:10.1007/s10040-001-0178-0
 - Reference: Crosbie, R.S., Binning, P. and Kalma, J.D. (2005)
-  Hydrogeology Journal 13, 813-825. doi:10.1007/s10040-004-0384-7
+  Water Resources Research 41(1), W01008. doi:10.1029/2004WR003077

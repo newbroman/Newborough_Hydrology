@@ -824,3 +824,16 @@ LAKE_GAUGE_KEYS = {"llyn rhos", "llyn rhos-ddu", "llyn rhos ddu"}
 FIG_TARGET_WIDTH_MM = 160.0    # A4 text-block width (210 mm − side margins)
 FIG_TARGET_HEIGHT_MM = 247.0   # A4 text-block height for full-page figures
 FIG_TARGET_PRINT_DPI = 300     # DPI ceiling at placed size
+
+# Font legibility at placed size. render_figure scales every text element of a
+# figure up (post-layout, pre-save) so the smallest tick label prints at
+# >= FIG_MIN_PLACED_PT once the figure is placed at FIG_TARGET_WIDTH_MM. The
+# enlargement is capped at FIG_MAX_FONT_SCALE to limit collision risk in dense
+# figures; figures still below the minimum at the cap are flagged on the
+# console as the residual hand-re-authoring list. (Cap 1.7 auto-fixes placed
+# sizes down to FIG_MIN_PLACED_PT/1.7 = 3.82 pt — everything in the 2026-07-19
+# candidate list except the sub-3.8 pt core of the severe tier.)
+# Autoscaling is opt-in per call (autoscale_fonts=True); see render_utils
+# v1.4.0. Callers may override the target via min_placed_pt=.
+FIG_MIN_PLACED_PT = 6.5        # smallest acceptable printed label size (pt)
+FIG_MAX_FONT_SCALE = 1.7       # ceiling on the automatic text enlargement

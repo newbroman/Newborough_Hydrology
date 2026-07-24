@@ -948,7 +948,7 @@ R² ranges 0.73–0.96 across the five clusters (C4 Main Forest and C5 Coastal F
 
 #### Step 22 — 18_wtf_spatial
 
-**Purpose.** Per-well Sy via WTF, IDW spatial interpolation of Sy, contour maps, drainage timescale map (τ = Sy / β₃), and aquifer diagnostic synthesis scatter (τ vs ΔNSE vs Sy).
+**Purpose.** Per-well Sy via WTF, IDW spatial interpolation of Sy, contour maps, storage–drainage index map (τ = Sy / β₃), and aquifer diagnostic synthesis scatter (τ vs ΔNSE vs Sy). τ is a storage-weighted composite diagnostic, **not** a residence time or drainage timescale in the hydraulic sense; the head-space recession e-folding time is t_R = 1/β₃ (months), which is Sy-independent. Output filenames retain the historical `drainage_timescale` stem.
 
 **Reads.**
 
@@ -1367,7 +1367,7 @@ Phase 14 was added on 2026-05-29 following the post-review pass on the main repo
 
 #### Script 29 — 29_c3_within_variance_check (step 34)
 
-**Purpose.** Characterises the within-cluster heterogeneity for C3 once cluster identity is validated (Script 28). Regresses nine per-well behavioural metrics — slope_m_yr, β₁, β₂, β₃, drainage timescale τ, long-term mean head, summer-min depth, winter-max depth, seasonal amplitude — against five spatial and hydrogeological predictors (Script 25 exponential coastal predictor, distance to CEH36, distance to forest edge, ground elevation, depth-to-water). Reports R² per metric (univariate and full model) and drop-one unique contributions to identify which predictors carry distinct signal. Headline finding (2026-05-29): ~70–80% of within-C3 variance in the SSM coefficients is explained by spatial position, with distance to CEH36 emerging as the strongest unique predictor across β₁/β₂/β₃/τ — a hydrogeological axis within C3 anchored near the SW interior, distinct from coastal proximity.
+**Purpose.** Characterises the within-cluster heterogeneity for C3 once cluster identity is validated (Script 28). Regresses nine per-well behavioural metrics — slope_m_yr, β₁, β₂, β₃, storage–drainage index τ, long-term mean head, summer-min depth, winter-max depth, seasonal amplitude — against five spatial and hydrogeological predictors (Script 25 exponential coastal predictor, distance to CEH36, distance to forest edge, ground elevation, depth-to-water). Reports R² per metric (univariate and full model) and drop-one unique contributions to identify which predictors carry distinct signal. Headline finding (2026-05-29): ~70–80% of within-C3 variance in the SSM coefficients is explained by spatial position, with distance to CEH36 emerging as the strongest unique predictor across β₁/β₂/β₃/τ — a hydrogeological axis within C3 anchored near the SW interior, distinct from coastal proximity.
 
 **Reads.**
 
@@ -1508,7 +1508,7 @@ Step 47 — `09f_management_effects.py` — the spatial-reach synthesis figure (
 | 38 | Climate trajectory + threshold exceedance | 14 | `14_climate_trajectory_stacked.png` |
 | 39 | Per-well optimal drainage datum | 07 | `07_coeff_*_*.png` |
 | 40 | Spatial SSM coefficient atlas | 07 | `07_coeff_*_*.png` |
-| 41 | Drainage timescale (τ = Sy/β₃) | 18 | `18_wtf_05_drainage_timescale_map.png` |
+| 41 | Storage–drainage index (τ = Sy/β₃) | 18 | `18_wtf_05_drainage_timescale_map.png` |
 | 42 | Forest drawdown propagation | 20 | `20_drawdown_propagation.png` |
 | 43 | Aquifer diagnostic synthesis | 18 | `18_wtf_06_aquifer_diagnostic_synthesis.png` |
 | 44 | Mean head surface + streams | 20 | `20_head_surface_streams.png` |

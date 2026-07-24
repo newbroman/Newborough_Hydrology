@@ -28,7 +28,22 @@ References:
     Freeman, S. (2008) Hydrological impact of Corsican pine at Newborough Warren.
 """
 
-__version__ = "1.6.0"  # Hollingham (2026) — 2026-07-01
+__version__ = "1.7.0"  # Hollingham (2026) — 2026-07-24
+# 1.7.0 (2026-07-24): Emit the drainage decay half-life to the committed CSV.
+#         build_tau_table() now writes a `half_life_months` column
+#         (t½ = ln(2)/β₃) alongside the existing `tau_months`. Closes a
+#         traceability gap: Paper 1 Table 7 and Figures 14/15 report t½, but the
+#         cited source file 18_wtf_05_drainage_timescale.csv carried only
+#         `tau_months` (the storage–drainage index τ = Sy/β₃) — a different
+#         quantity that the manuscripts deliberately do not report. t½ was
+#         computed at render time in rb3_df but never committed, so a reader
+#         following the provenance chain could not read it. Same exclusion mask
+#         as τ (ridge/bedrock, negative β₃, near-zero β₃). Existing columns and
+#         their order are unchanged apart from the insertion; no downstream
+#         script consumes this CSV. Console cluster summary now also prints the
+#         per-cluster t½ median and range, directly checkable against Table 7.
+#         The `drainage_timescale` filename stem is historical and retained
+#         deliberately — do not rename.
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.5.0 (2026-07-01): map_utils refactor.
 #         make_site_mask() removed from this script — moved to map_utils v1.4.0
@@ -646,7 +661,8 @@ def compute_drainage_timescale(well_results):
     -------
     tau_df : pd.DataFrame
         Columns: Well, Cluster, Easting, Northing, Sy_median, beta_3, tau_months,
-                 n_events, Corrected, Confidence, Excluded, Exclude_Reason
+                 half_life_months, n_events, Corrected, Confidence, Excluded,
+                 Exclude_Reason
     """
     # Load β₃ from master data
     master = pd.read_csv(INT_MASTER_DATA)
@@ -680,17 +696,27 @@ def compute_drainage_timescale(well_results):
     merged.loc[tau_mask, "Excluded"] = True
     merged.loc[tau_mask, "Exclude_Reason"] = "near-zero β₃ (τ outlier)"
 
-    # Compute τ for non-excluded wells
+    # Compute τ and t½ for non-excluded wells.
+    # τ = Sy/β₃ is the storage–drainage index: a storage-weighted composite
+    # diagnostic, NOT a residence time. t½ = ln(2)/β₃ is the drainage decay
+    # half-life — Sy CANCELS, so it is specific-yield-independent, and it is the
+    # quantity reported in the manuscripts (Paper 1 Table 7, Figures 14 and 15).
+    # Both are emitted so the committed CSV is self-describing; previously t½ was
+    # computed only at render time and could not be read from this file.
     merged["tau_months"] = np.nan
+    merged["half_life_months"] = np.nan
     valid = ~merged["Excluded"]
     merged.loc[valid, "tau_months"] = (
         merged.loc[valid, "Sy_median"] / merged.loc[valid, "beta_3_drainage"]
+    )
+    merged.loc[valid, "half_life_months"] = (
+        np.log(2) / merged.loc[valid, "beta_3_drainage"]
     )
 
     # Tidy up output columns
     tau_df = merged[[
         "Well", "Cluster", "Easting", "Northing",
-        "Sy_median", "beta_3_drainage", "tau_months",
+        "Sy_median", "beta_3_drainage", "tau_months", "half_life_months",
         "n_events", "Corrected", "Confidence",
         "Excluded", "Exclude_Reason",
     ]].copy()
@@ -700,7 +726,7 @@ def compute_drainage_timescale(well_results):
     n_valid = valid.sum()
     n_excluded = merged["Excluded"].sum()
     excluded_wells = merged.loc[merged["Excluded"], "Well"].tolist()
-    print(f"  τ computed for {n_valid} wells; {n_excluded} excluded "
+    print(f"  τ and t½ computed for {n_valid} wells; {n_excluded} excluded "
           f"({', '.join(w.upper() for w in excluded_wells)})")
 
     # Cluster summary
@@ -710,6 +736,9 @@ def compute_drainage_timescale(well_results):
         print(f"    {label}: τ = {sub['tau_months'].mean():.1f} months "
               f"(range {sub['tau_months'].min():.1f}–{sub['tau_months'].max():.1f}, "
               f"n={len(sub)})")
+        print(f"      t½ = {sub['half_life_months'].median():.1f} months "
+              f"(range {sub['half_life_months'].min():.1f}–"
+              f"{sub['half_life_months'].max():.1f})")
 
     return tau_df
 

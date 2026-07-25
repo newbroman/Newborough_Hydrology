@@ -70,10 +70,11 @@ for §4.8.4 and §4.10.1) — paired tools documented in §3.7.5 of the report.
 Phase 14 runs the post-review cluster framework diagnostics — the C3
 detrend check (Script 28, validating the aquifer-architecture framing
 of §5.1) and the within-C3 variance attribution (Script 29, characterising
-the spatial structure within C3) and the C4 constrained-β₃ triangulation
-sensitivity (Script 30, recovering a physically admissible forest drainage
-coefficient where the unconstrained monthly fit is degenerate) — documented
-in §5.1.1 and §4.2.2 of the report and §S.19 of the Methods Supplement.
+the spatial structure within C3) and the C4 drainage identifiability
+diagnostic (Script 30, testing directly whether C4's low β₃ is a β₂/β₃
+degeneracy artefact and finding it is not — the centroid β₃ is cleanly
+identified and the low value is real) — documented in §5.1.1 and §4.2.2 of
+the report and §S.19 of the Methods Supplement.
 Phase 15 is now wholly analytical-default (Scripts 32, 33, 35, 36, 37, 37b
 all run by default; the former opt-in tail 36/37/37b was promoted 2026-07-13
 per the Task E audit). Phase 16 runs Scripts 34 and 38 by default (promoted
@@ -371,7 +372,7 @@ PHASE_13 = [
 PHASE_14 = [
     Step("28_c3_detrend_check.py",         "Cluster framework diagnostic: C3 detrend check (H0)",                                     "X"),
     Step("29_c3_within_variance_check.py", "Cluster framework diagnostic: within-C3 spatial structure",                               "X"),
-    Step("30_c4_constrained_fit.py",       "Cluster framework diagnostic: C4 constrained-\u03b23 triangulation sensitivity",           "X"),
+    Step("30_c4_drainage_identifiability.py", "Cluster framework diagnostic: C4 drainage identifiability (low \u03b23 is real, not degenerate)", "X"),
 ]
 PHASE_15 = [
     Step("32_differential_movement.py",  "Figure: secular differential water-table drift (report Fig 59)",                                                                        "A"),

@@ -83,7 +83,7 @@ DIR_25 = OUT_DIR / "25_coastal_gradient"
 DIR_26 = OUT_DIR / "26_van_willegen_msl"
 DIR_26B = OUT_DIR / "26b_van_willegen_msl_projections"
 DIR_26C = OUT_DIR / "26c_msl5_report_figures"
-DIR_30 = OUT_DIR / "30_c4_constrained_fit"
+DIR_30 = OUT_DIR / "30_c4_drainage_identifiability"
 DIR_27 = OUT_DIR / "27_greyscale_figures"
 DIR_28 = OUT_DIR / "28_c3_detrend"
 DIR_29 = OUT_DIR / "29_within_c3_variance"
@@ -519,9 +519,10 @@ OUT_17_RAPID_EVENTS         = DIR_17 / "17_wtf_05_rapid_events.png"
 INT_WTF_WELL_SY             = OUT_DIR / "17_wtf_well_sy.csv"
 
 # Script 30 — C4 constrained-β₃ triangulation sensitivity (Phase 11 diagnostic)
-OUT_30_C4_PERWELL           = DIR_30 / "30_c4_constrained_perwell.csv"
-OUT_30_C4_REPORT_NUMBERS    = DIR_30 / "30_c4_constrained_report_numbers.csv"
-OUT_30_C4_FIG               = DIR_30 / "30_c4_constrained_fit.png"
+OUT_30_C4_IDENTIFIABILITY   = DIR_30 / "30_c4_identifiability_by_cluster.csv"
+OUT_30_C4_PERWELL           = DIR_30 / "30_c4_perwell_beta3.csv"
+OUT_30_C4_REPORT_NUMBERS    = DIR_30 / "30_c4_report_numbers.csv"
+OUT_30_C4_FIG               = DIR_30 / "30_c4_drainage_identifiability.png"
 
 # Script 32 — differential water-table movement (standalone figure; report Fig 59)
 DIR_32 = OUT_DIR / "32_differential_movement"

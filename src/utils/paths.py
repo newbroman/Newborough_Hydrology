@@ -752,6 +752,14 @@ OUT_26_EWI_MSL5_COMPARISON = DIR_26 / "26_ewi_msl5_comparison.csv"
 # external Ellenberg dataset (DATA_ELLENBERG_EXT); skipped if that file is absent.
 OUT_26_EBF_COMPARISON     = DIR_26 / "26_ebf_comparison.csv"
 OUT_26_EBF_SCATTER        = DIR_26 / "26_ebf_prediction_scatter.png"
+# Metric diagnostics (v1.4.0) — window sensitivity of MSL5 and the precision of
+# the two indices, per well and rolled up per cluster. Supplies the cited
+# statistics for report §4.8.6 / §6.9 (spring autocorrelation, interannual
+# amplitude, index standard errors) so none of them is computed in prose.
+OUT_26_METRIC_DIAGNOSTICS = DIR_26 / "26_metric_diagnostics_per_well.csv"
+OUT_26_INDEX_PRECISION    = DIR_26 / "26_index_precision_by_cluster.csv"
+OUT_26_REPORT_NUMBERS     = DIR_26 / "26_report_numbers.csv"
+OUT_26_METRIC_DIAG_FIG    = DIR_26 / "26_metric_diagnostics.png"
 
 # Script 26b — Van Willegen MSL UKCP18 climate projections (Phase 13, Tool B)
 # Pairs with Script 11 Section 5 (Tool A) and Script 26 (observational MSL5).

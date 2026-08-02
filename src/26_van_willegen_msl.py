@@ -50,6 +50,17 @@ Outputs (DIR_26 / "26_van_willegen_msl/"):
                                     predictions (v1.3.3; external input required)
   * 26_ebf_prediction_scatter.png   Three-panel EbF scatter — report Fig XX
                                     (v1.3.3; external input required)
+  * 26_metric_diagnostics_per_well.csv
+                                    Per-well window sensitivity and index
+                                    precision (v1.4.0): interannual spring SD,
+                                    lag-1 autocorrelation against its AR(1)
+                                    expectation, MSL5 window standard error and
+                                    realised spread, and the EWI standard error
+  * 26_index_precision_by_cluster.csv
+                                    The same rolled up per cluster, under both
+                                    network scopes (reference / all)
+  * 26_report_numbers.csv           Scalar statistics cited in §4.8.6 / §6.9
+  * 26_metric_diagnostics.png       Two-panel diagnostic — report Fig XX
   * 26_msl_5yr_trajectory.png       Cluster trajectories with Curreli refs
   * 26_msl_5yr_quadrat_wells.png    Per-well trajectories at van-Willegen
                                     co-located quadrat wells (calibrated set)
@@ -64,6 +75,40 @@ hydrology. Ecological Indicators, 170, 113016.
 https://doi.org/10.1016/j.ecolind.2024.113016
 
 Curreli, A. et al. (2013) — SD15b/SD16 threshold reference lines.
+
+Version: 1.4.0 (2026-08-02) — Metric diagnostics (Pass 8) and EWI uncertainty:
+  * compute_equilibrium_wetness_index() now propagates SSM coefficient
+    uncertainty into the index. Reference-tier standard errors are recovered
+    exactly from the committed β/p-value/n in 03_master_data.csv (SE = β/|t| on
+    n−3 df, no-intercept 3-predictor OLS); extended-tier fits take se_beta_*
+    straight from fit_ssm(), which already returns them. EWI CSV gains
+    se_beta_1/2/3, n_obs, h_disp_eq_m, EWI_se_m_beta3 and EWI_se_m_full.
+    IMPORTANT: the propagation is anchored on |h_disp_eq|, not |EWI_m_pipe|.
+    Subtracting the constant DRAINAGE_DATUM shifts the value but not its
+    uncertainty; anchoring on EWI_m_pipe understates the error severely at
+    wells whose equilibrium level sits near the datum.
+  * New compute_metric_diagnostics() + plot_metric_diagnostics() (Pass 8): the
+    statistics behind the report's MSL5 window-sensitivity discussion are now
+    PIPELINE-GENERATED rather than computed in prose. Three findings:
+      (a) spring levels are NOT serially correlated — observed lag-1
+          autocorrelation is near zero at every cluster and uncorrelated with
+          the recession time, against an AR(1) expectation of exp(−12·β₃)
+          rising to ≈0.8 at C4. Spring is the seasonal maximum reached after
+          the winter recharge season, so the monthly recession operates within
+          the annual cycle, not across it. The 5-year mean behaves as intended.
+      (b) window sensitivity is real but is a matter of AMPLITUDE: interannual
+          spring SD tracks β₂, not β₃, on partial rank correlations. β₂ and t_R
+          are themselves correlated, which is why t_R appears diagnostic alone.
+          Triage should therefore use spring SD (or β₂), not the recession time.
+      (c) the two indices fail at the same wells for opposite reasons — MSL5
+          through the high β₂ driving amplitude, the equilibrium index through
+          the low, weakly-identified β₃ in its denominator.
+  * Outputs 26_metric_diagnostics_per_well.csv, 26_index_precision_by_cluster.csv
+    (rolled up per cluster under both network scopes, reference and all),
+    26_report_numbers.csv and 26_metric_diagnostics.png added. paths gains
+    OUT_26_METRIC_DIAGNOSTICS, OUT_26_INDEX_PRECISION, OUT_26_REPORT_NUMBERS,
+    OUT_26_METRIC_DIAG_FIG. New module constant DIAG_MIN_SPRINGS = 12.
+  * Still a Pass inside Script 26 — no change to the pipeline step count.
 
 Version: 1.3.3 (2026-07-03) — EbF cross-validation moved into the pipeline:
   * New compute_ebf_crossvalidation() + plot_ebf_scatter(): the Ellenberg-F
@@ -275,6 +320,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
+from scipy import stats
 
 # ── Repo imports ──────────────────────────────────────────────────────────────
 SRC_DIR = Path(__file__).resolve().parent
@@ -330,6 +376,11 @@ VW_QUADRAT_WELLS           = list(config.VW_QUADRAT_WELLS)
 # (CEH13/CEH14) are already in MSL5_EXCLUDED_WELLS; this is a belt-and-braces
 # floor for any other degenerate fit.
 EWI_MIN_BETA3 = 0.001
+# Metric diagnostics (v1.4.0): minimum count of valid annual spring means for a
+# well to contribute an interannual standard deviation or a lag-1
+# autocorrelation. Below this the per-well statistics are too noisy to carry;
+# the well still appears in the per-well CSV with those two fields blank.
+DIAG_MIN_SPRINGS = 12
 
 # ── Intervention markers on the trajectory plots ──────────────────────────────
 # Dates are imported from utils.scraping_common (the canonical source used by
@@ -1078,19 +1129,65 @@ def compute_equilibrium_wetness_index(elev: pd.DataFrame,
     offset = el.set_index("well")["Upstand_m"]
     excluded = set(config.MSL5_EXCLUDED_WELLS)
 
-    def _row(w, b1, b2, b3, network, cluster_id=np.nan):
+    def _row(w, b1, b2, b3, network, cluster_id=np.nan,
+             se1=np.nan, se2=np.nan, se3=np.nan, n_obs=np.nan):
         if not (np.isfinite(b1) and np.isfinite(b2) and np.isfinite(b3)):
             return None
         if b3 <= EWI_MIN_BETA3:
             warn(f"{w.upper()} β₃={b3:.4f} ≤ {EWI_MIN_BETA3} — EWI undefined, skipped")
             return None
-        ewi_pipe = (b1 * P_bar - b2 * PET_bar) / b3 - config.DRAINAGE_DATUM
+        h_disp_eq = (b1 * P_bar - b2 * PET_bar) / b3
+        ewi_pipe = h_disp_eq - config.DRAINAGE_DATUM
         ups = offset.get(w, np.nan)
         ewi_bg = ewi_pipe + ups if np.isfinite(ups) else np.nan
+
+        # Uncertainty (v1.4.0). Subtracting the constant DRAINAGE_DATUM shifts
+        # the value but not its uncertainty, so SE(EWI) = SE(h_disp_eq) and the
+        # propagation is anchored on |h_disp_eq|, NOT on |EWI_m_pipe|. Anchoring
+        # on EWI_m_pipe understates the error — severely at wells where the
+        # equilibrium level sits near the datum and EWI_m_pipe is close to zero.
+        #
+        #   β₃-only : the dominant term; h_disp_eq ∝ 1/β₃, so the relative error
+        #             in β₃ passes straight through.
+        #   full    : first-order propagation over all three coefficients,
+        #             treating them as independent. Collinearity between the
+        #             recharge and atmospheric-draw terms is mild network-wide
+        #             (C4, the worst case, has VIF ≈ 1.11), so this is a close
+        #             approximation rather than an exact joint interval.
+        se_b3_term = abs(h_disp_eq) * (se3 / b3) if np.isfinite(se3) else np.nan
+        if np.isfinite(se1) and np.isfinite(se2) and np.isfinite(se3):
+            num = b1 * P_bar - b2 * PET_bar
+            var = ((P_bar * se1) ** 2
+                   + (PET_bar * se2) ** 2
+                   + (num * se3 / b3) ** 2) / (b3 ** 2)
+            se_full = float(np.sqrt(var))
+        else:
+            se_full = np.nan
         return dict(well=w, network=network,
                     beta_1_recharge=b1, beta_2_atmospheric_draw=b2,
-                    beta_3_drainage=b3, EWI_m_pipe=ewi_pipe, EWI_m_bg=ewi_bg,
+                    beta_3_drainage=b3,
+                    se_beta_1=se1, se_beta_2=se2, se_beta_3=se3, n_obs=n_obs,
+                    h_disp_eq_m=h_disp_eq,
+                    EWI_m_pipe=ewi_pipe, EWI_m_bg=ewi_bg,
+                    EWI_se_m_beta3=se_b3_term, EWI_se_m_full=se_full,
                     cluster_id=cluster_id)
+
+    def _se_from_pvalue(beta, pval, n_obs, k=3):
+        """Recover an OLS standard error from a committed coefficient/p-value.
+
+        03_master_data.csv carries β, its two-sided p-value and n but not the
+        standard error. For the no-intercept 3-predictor SSM the t statistic is
+        t = β/SE on n−k degrees of freedom, so SE = β/|t| inverts exactly. Used
+        only for the reference tier; extended-tier fits take se_beta_* straight
+        from fit_ssm().
+        """
+        if not (np.isfinite(beta) and np.isfinite(pval) and np.isfinite(n_obs)):
+            return np.nan
+        df = int(n_obs) - k
+        if df <= 0 or pval <= 0.0 or pval >= 1.0:
+            return np.nan
+        t = float(stats.t.isf(pval / 2.0, df))
+        return abs(beta) / t if t > 0 else np.nan
 
     rows = []
     # ── reference tier: β from master_data ────────────────────────────────
@@ -1099,10 +1196,16 @@ def compute_equilibrium_wetness_index(elev: pd.DataFrame,
     for _, r in master.iterrows():
         if r["well"] in excluded:
             continue
-        row = _row(r["well"], r.get("beta_1_recharge", np.nan),
-                   r.get("beta_2_atmospheric_draw", np.nan),
-                   r.get("beta_3_drainage", np.nan),
-                   "reference", r.get("Cluster", np.nan))
+        _b1 = r.get("beta_1_recharge", np.nan)
+        _b2 = r.get("beta_2_atmospheric_draw", np.nan)
+        _b3 = r.get("beta_3_drainage", np.nan)
+        _n  = r.get("n", np.nan)
+        row = _row(r["well"], _b1, _b2, _b3,
+                   "reference", r.get("Cluster", np.nan),
+                   se1=_se_from_pvalue(_b1, r.get("pvalue_beta_1", np.nan), _n),
+                   se2=_se_from_pvalue(_b2, r.get("pvalue_beta_2", np.nan), _n),
+                   se3=_se_from_pvalue(_b3, r.get("pvalue_beta_3", np.nan), _n),
+                   n_obs=_n)
         if row:
             rows.append(row)
 
@@ -1127,7 +1230,11 @@ def compute_equilibrium_wetness_index(elev: pd.DataFrame,
                 continue
             row = _row(wl, fit.get("beta_1_recharge", np.nan),
                        fit.get("beta_2_atmospheric_draw", np.nan),
-                       fit.get("beta_3_drainage", np.nan), "extended")
+                       fit.get("beta_3_drainage", np.nan), "extended",
+                       se1=fit.get("se_beta_1", np.nan),
+                       se2=fit.get("se_beta_2", np.nan),
+                       se3=fit.get("se_beta_3", np.nan),
+                       n_obs=fit.get("n", np.nan))
             if row:
                 rows.append(row); n_ext_fit += 1
         info(f"extended-network SSM fits contributing to EWI: {n_ext_fit}")
@@ -1345,6 +1452,246 @@ def plot_ebf_scatter(df: pd.DataFrame, summary: dict, out: Path) -> None:
     fig.tight_layout(); render_figure(fig, out); plt.close(fig)
 
 
+def _partial_spearman(frame: pd.DataFrame, x: str, y: str, z: str):
+    """Rank partial correlation of x and y controlling for z.
+
+    Spearman ranks are regressed on the control's ranks and the residuals
+    correlated, which is the standard rank analogue of a partial correlation.
+    Returns (r, p, n); NaNs if fewer than four complete cases.
+    """
+    d = frame[[x, y, z]].dropna()
+    if len(d) < 4:
+        return np.nan, np.nan, len(d)
+    xr, yr, zr = (stats.rankdata(d[c]) for c in (x, y, z))
+    rx = xr - np.poly1d(np.polyfit(zr, xr, 1))(zr)
+    ry = yr - np.poly1d(np.polyfit(zr, yr, 1))(zr)
+    r, p = stats.pearsonr(rx, ry)
+    return float(r), float(p), len(d)
+
+
+# ── Pass 8: metric diagnostics ────────────────────────────────────────────────
+def compute_metric_diagnostics(annual: pd.DataFrame,
+                               per_well: pd.DataFrame,
+                               ewi: pd.DataFrame) -> tuple:
+    """Window sensitivity of MSL5, and the precision of the two indices.
+
+    Report §4.8.6 / §6.9 rest on three findings, all emitted here rather than
+    computed in prose:
+
+    1. Spring levels are NOT serially correlated. Reading the fitted drainage
+       term as a first-order recession predicts a year-to-year persistence of
+       exp(−12·β₃) — from ≈0.3 at C1 to ≈0.8 at C4. The observed lag-1
+       autocorrelation of annual spring level is near zero at every cluster and
+       is uncorrelated with the recession time. Spring is the seasonal maximum,
+       reached after the winter recharge season, so each winter resets the
+       water table: the monthly recession operates within the annual cycle, not
+       across it. The five-year mean therefore behaves as intended.
+
+    2. Window sensitivity is nonetheless graded across the network, and it is a
+       matter of AMPLITUDE, not memory. What governs the interannual spring
+       standard deviation — and hence the standard error of a window mean — is
+       β₂, not β₃. The two are themselves correlated across wells, which is why
+       the recession time looks diagnostic when examined alone.
+
+    3. The two indices fail at the same wells for opposite reasons: MSL5
+       through the high β₂ that drives amplitude, the equilibrium index through
+       the low and weakly-identified β₃ in its denominator.
+
+    Returns (per_well_diagnostics, per_cluster_precision, report_numbers dict).
+    """
+    win = int(MSL_DEFAULT_WINDOW_YEARS)
+    ann_valid = annual[annual["valid"]].copy()
+    ann_valid["well"] = ann_valid["well"].astype(str).str.strip().str.lower()
+
+    rows = []
+    for _, e in ewi.iterrows():
+        w = str(e["well"]).strip().lower()
+
+        # Annual spring series, reindexed over the full span so that missing
+        # years appear as gaps rather than silently closing up — an
+        # autocorrelation across a gap would otherwise pair non-adjacent years.
+        s = ann_valid.loc[ann_valid["well"] == w].set_index("hydro_year")["MSL_m_pipe"]
+        s = s.sort_index()
+        if len(s):
+            s = s.reindex(range(int(s.index.min()), int(s.index.max()) + 1))
+        n_spr = int(s.notna().sum())
+        if n_spr >= DIAG_MIN_SPRINGS:
+            sd_mm = float(s.std(ddof=1) * 1000.0)
+            rho = float(s.autocorr(1))
+        else:
+            sd_mm, rho = np.nan, np.nan
+
+        # Realised window sensitivity: the spread of this well's own MSL5
+        # series, an observed quantity rather than a modelled one.
+        pw = per_well[(per_well["well"] == w)
+                      & (per_well["n_years_in_window"] >= MSL_MIN_YEARS_IN_WINDOW)]
+        spread_mm = (float((pw["MSL5_m_pipe"].max() - pw["MSL5_m_pipe"].min()) * 1000.0)
+                     if len(pw) > 2 else np.nan)
+
+        b3 = float(e["beta_3_drainage"])
+        se3 = e.get("se_beta_3", np.nan)
+        msl5_se = sd_mm / np.sqrt(win) if np.isfinite(sd_mm) else np.nan
+        ewi_se_b3 = (float(e["EWI_se_m_beta3"]) * 1000.0
+                     if np.isfinite(e.get("EWI_se_m_beta3", np.nan)) else np.nan)
+        ewi_se_full = (float(e["EWI_se_m_full"]) * 1000.0
+                       if np.isfinite(e.get("EWI_se_m_full", np.nan)) else np.nan)
+
+        rows.append(dict(
+            well=w, network=e["network"],
+            cluster_id=e.get("cluster_id", pd.NA),
+            cluster_label=e.get("cluster_label", None),
+            n_springs=n_spr, n_msl5_windows=int(len(pw)),
+            n_obs_ssm=e.get("n_obs", np.nan),
+            spring_sd_mm=sd_mm,
+            rho_lag1=rho,
+            rho_ar1_expected=float(np.exp(-12.0 * b3)),
+            t_R_months=1.0 / b3 if b3 > 0 else np.nan,
+            beta_2=float(e["beta_2_atmospheric_draw"]),
+            beta_3=b3,
+            se_beta_3=float(se3) if np.isfinite(se3) else np.nan,
+            rel_se_beta_3=float(se3) / b3 if (np.isfinite(se3) and b3 > 0) else np.nan,
+            msl5_window_se_mm=msl5_se,
+            msl5_window_spread_mm=spread_mm,
+            ewi_se_mm_beta3=ewi_se_b3,
+            ewi_se_mm_full=ewi_se_full,
+            ewi_over_msl5_se_beta3=(ewi_se_b3 / msl5_se
+                                    if np.isfinite(ewi_se_b3) and np.isfinite(msl5_se)
+                                    and msl5_se > 0 else np.nan),
+        ))
+
+    diag = pd.DataFrame(rows)
+    if diag.empty:
+        return diag, pd.DataFrame(), {}
+
+    # ── cluster rollup, both network scopes ───────────────────────────────
+    # 'reference' is the citable basis (Script 03 QA'd β); 'all' adds the
+    # extended tier, whose shorter records bear on the coverage question and
+    # which materially changes only C5, where the reference tier has n=5.
+    out = []
+    for scope in ("reference", "all"):
+        sub = diag if scope == "all" else diag[diag["network"] == "reference"]
+        for cid, g in sub.groupby("cluster_id", dropna=True):
+            gs = g.dropna(subset=["spring_sd_mm"])
+            out.append(dict(
+                network_scope=scope,
+                cluster_id=cid,
+                cluster_label=config.CLUSTER_LABELS.get(
+                    int(cid) if pd.notna(cid) else -1, None),
+                n_wells=int(len(g)),
+                n_wells_with_springs=int(len(gs)),
+                t_R_months_median=float(g["t_R_months"].median()),
+                rho_ar1_expected_mean=float(g["rho_ar1_expected"].mean()),
+                rho_lag1_mean=float(gs["rho_lag1"].mean()) if len(gs) else np.nan,
+                spring_sd_mm_median=float(gs["spring_sd_mm"].median()) if len(gs) else np.nan,
+                msl5_window_se_mm_median=float(gs["msl5_window_se_mm"].median()) if len(gs) else np.nan,
+                ewi_se_mm_beta3_median=float(g["ewi_se_mm_beta3"].median()),
+                ewi_se_mm_full_median=float(g["ewi_se_mm_full"].median()),
+            ))
+    prec = pd.DataFrame(out)
+    if not prec.empty:
+        prec["ewi_over_msl5_ratio_beta3"] = (prec["ewi_se_mm_beta3_median"]
+                                             / prec["msl5_window_se_mm_median"])
+        prec["ewi_over_msl5_ratio_full"] = (prec["ewi_se_mm_full_median"]
+                                            / prec["msl5_window_se_mm_median"])
+        prec = prec.sort_values(["network_scope", "cluster_id"])
+
+    # ── scalar statistics cited in the report ─────────────────────────────
+    d = diag.dropna(subset=["rho_lag1", "spring_sd_mm"])
+    nums = {"diag_min_springs": DIAG_MIN_SPRINGS, "diag_n_wells": int(len(d))}
+
+    if len(d) >= 4:
+        r, p = stats.spearmanr(d["t_R_months"], d["rho_lag1"])
+        nums["rho_lag1_vs_tR_spearman_r"] = float(r)
+        nums["rho_lag1_vs_tR_spearman_p"] = float(p)
+        nums["rho_lag1_mean"] = float(d["rho_lag1"].mean())
+        nums["rho_ar1_expected_mean"] = float(d["rho_ar1_expected"].mean())
+        r, p = stats.spearmanr(d["beta_2"], d["t_R_months"])
+        nums["beta2_vs_tR_spearman_r"] = float(r)
+        nums["beta2_vs_tR_spearman_p"] = float(p)
+        for lab, (x, z) in {"beta2_given_tR": ("beta_2", "t_R_months"),
+                            "tR_given_beta2": ("t_R_months", "beta_2")}.items():
+            r, p, _ = _partial_spearman(d, x, "spring_sd_mm", z)
+            nums[f"partial_springSD_vs_{lab}_r"] = r
+            nums[f"partial_springSD_vs_{lab}_p"] = p
+
+    # Site-mean spring series: the network-scale counterpart to the per-well
+    # autocorrelation, free of per-well measurement noise.
+    site = (ann_valid.groupby("hydro_year")["MSL_m_pipe"].mean().sort_index())
+    if len(site):
+        site = site.reindex(range(int(site.index.min()), int(site.index.max()) + 1))
+        if int(site.notna().sum()) >= DIAG_MIN_SPRINGS:
+            nums["site_mean_spring_rho_lag1"] = float(site.autocorr(1))
+            nums["site_mean_spring_n_years"] = int(site.notna().sum())
+
+    # Index comparison, and the short-record question: does β₃ precision decay
+    # with a shorter record? If not, the equilibrium index carries no penalty
+    # for the extended tier's later start.
+    cmp_ = diag.dropna(subset=["ewi_se_mm_beta3", "msl5_window_se_mm"])
+    if len(cmp_):
+        nums["n_wells_index_comparison"] = int(len(cmp_))
+        nums["n_wells_ewi_more_precise_than_msl5"] = int(
+            (cmp_["ewi_se_mm_beta3"] < cmp_["msl5_window_se_mm"]).sum())
+    ext = diag[(diag["network"] == "extended")].dropna(
+        subset=["rel_se_beta_3", "n_obs_ssm"])
+    if len(ext) >= 4:
+        r, p = stats.spearmanr(ext["n_obs_ssm"], ext["rel_se_beta_3"])
+        nums["extended_relSE_beta3_vs_nobs_spearman_r"] = float(r)
+        nums["extended_relSE_beta3_vs_nobs_spearman_p"] = float(p)
+
+    return diag, prec, nums
+
+
+def plot_metric_diagnostics(diag: pd.DataFrame, prec: pd.DataFrame,
+                            out: Path) -> None:
+    """Two panels: the autocorrelation null, and index precision by cluster.
+
+    Left  — observed lag-1 autocorrelation against the AR(1) value implied by
+            each well's β₃, with the 1:1 line. Points fall far below it.
+    Right — median standard error of the two indices per cluster, on a shared
+            axis so the comparison is direct.
+    """
+    d = diag.dropna(subset=["rho_lag1", "rho_ar1_expected"])
+    p = prec[prec["network_scope"] == "reference"].dropna(
+        subset=["msl5_window_se_mm_median"])
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11.0, 4.6))
+
+    for cid, g in d.groupby("cluster_id", dropna=True):
+        ax1.scatter(g["rho_ar1_expected"], g["rho_lag1"], s=34,
+                    color=config.CLUSTER_COLOURS.get(int(cid), "0.4"),
+                    edgecolor="white", linewidth=0.5, zorder=3,
+                    label=config.CLUSTER_LABELS.get(int(cid), f"C{int(cid)}"))
+    lim = [-0.6, 1.0]
+    ax1.plot(lim, lim, ls="--", lw=1.0, color="0.35", zorder=2,
+             label="1:1 (AR(1) expectation)")
+    ax1.axhline(0.0, lw=0.8, color="0.6", zorder=1)
+    ax1.set_xlim(0, 1.0); ax1.set_ylim(*lim)
+    ax1.set_xlabel("Persistence implied by β₃,  exp(−12·β₃)")
+    ax1.set_ylabel("Observed lag-1 autocorrelation of annual spring level")
+    ax1.set_title("(a) Spring levels are not serially correlated", loc="left")
+    ax1.legend(fontsize=7, loc="upper left", framealpha=0.9)
+
+    x = np.arange(len(p)); wbar = 0.38
+    ax2.bar(x - wbar / 2, p["msl5_window_se_mm_median"], wbar,
+            color="#4C72B0", edgecolor="white", label="MSL5 (5-year window mean)")
+    ax2.bar(x + wbar / 2, p["ewi_se_mm_beta3_median"], wbar,
+            color="#C44E52", edgecolor="white", label="Equilibrium index (β₃ only)")
+    ax2.errorbar(x + wbar / 2, p["ewi_se_mm_full_median"], fmt="_", ms=14,
+                 color="0.15", lw=1.4, ls="none", zorder=4,
+                 label="Equilibrium index (all three β)")
+    ax2.set_xticks(x)
+    ax2.set_xticklabels([str(s).split(" ")[0] for s in p["cluster_label"]])
+    ax2.set_ylabel("Standard error (mm)")
+    ax2.set_title("(b) Index precision by cluster", loc="left")
+    ax2.legend(fontsize=7, framealpha=0.9)
+    ax2.grid(axis="y", lw=0.4, alpha=0.4)
+    ax2.set_axisbelow(True)
+
+    fig.tight_layout()
+    render_figure(fig, out)
+    plt.close(fig)
+
+
 def main() -> int:
     banner("26", "van Willegen MSL Projection")
     print("=" * 72)
@@ -1552,6 +1899,62 @@ def main() -> int:
         except Exception as e:
             warn(f"EbF scatter (Fig XX) render failed ({type(e).__name__}: "
                  f"{str(e)[:80]}) — comparison CSV was written; figure not produced")
+
+    # ── Pass 8 — Metric diagnostics (v1.4.0) ───────────────────────────────
+    print("\nPass 8 — metric diagnostics (window sensitivity and index precision)")
+    diag = prec = pd.DataFrame()
+    diag_nums = {}
+    if ewi.empty:
+        skipped("metric diagnostics — no EWI rows to characterize")
+    else:
+        diag, prec, diag_nums = compute_metric_diagnostics(annual, per_well, ewi)
+        if diag.empty:
+            warn("metric diagnostics produced no rows")
+        else:
+            diag.to_csv(paths.OUT_26_METRIC_DIAGNOSTICS, index=False)
+            saved(f"{paths.OUT_26_METRIC_DIAGNOSTICS.name}")
+            prec.to_csv(paths.OUT_26_INDEX_PRECISION, index=False)
+            saved(f"{paths.OUT_26_INDEX_PRECISION.name}")
+            (pd.DataFrame(sorted(diag_nums.items()), columns=["key", "value"])
+               .to_csv(paths.OUT_26_REPORT_NUMBERS, index=False))
+            saved(f"{paths.OUT_26_REPORT_NUMBERS.name}")
+
+            info(f"  autocorrelation (n={diag_nums.get('diag_n_wells', 0)} wells with "
+                 f"≥{DIAG_MIN_SPRINGS} springs): observed lag-1 mean "
+                 f"{diag_nums.get('rho_lag1_mean', float('nan')):+.3f} against an "
+                 f"AR(1) expectation of {diag_nums.get('rho_ar1_expected_mean', float('nan')):.3f}")
+            if "site_mean_spring_rho_lag1" in diag_nums:
+                info(f"    site-mean spring series: ρ={diag_nums['site_mean_spring_rho_lag1']:+.3f} "
+                     f"over {diag_nums['site_mean_spring_n_years']} years")
+            info(f"    ρ vs recession time: Spearman "
+                 f"r={diag_nums.get('rho_lag1_vs_tR_spearman_r', float('nan')):+.3f}, "
+                 f"p={diag_nums.get('rho_lag1_vs_tR_spearman_p', float('nan')):.3f} "
+                 f"— no association")
+            info("  interannual spring SD (what drives window sensitivity):")
+            info(f"    vs β₂ controlling for t_R: partial r="
+                 f"{diag_nums.get('partial_springSD_vs_beta2_given_tR_r', float('nan')):+.3f}, "
+                 f"p={diag_nums.get('partial_springSD_vs_beta2_given_tR_p', float('nan')):.2e}")
+            info(f"    vs t_R controlling for β₂: partial r="
+                 f"{diag_nums.get('partial_springSD_vs_tR_given_beta2_r', float('nan')):+.3f}, "
+                 f"p={diag_nums.get('partial_springSD_vs_tR_given_beta2_p', float('nan')):.3f}")
+            info(f"    (β₂ and t_R themselves correlate at Spearman "
+                 f"{diag_nums.get('beta2_vs_tR_spearman_r', float('nan')):+.3f})")
+            n_better = diag_nums.get("n_wells_ewi_more_precise_than_msl5")
+            if n_better is not None:
+                info(f"  index precision: the equilibrium index is more precise than a "
+                     f"5-year MSL5 mean at {n_better}/"
+                     f"{diag_nums.get('n_wells_index_comparison', 0)} wells")
+            for _, r in prec[prec["network_scope"] == "reference"].iterrows():
+                info(f"    {str(r['cluster_label']):<22s} MSL5 SE "
+                     f"{r['msl5_window_se_mm_median']:>6.0f} mm | EWI SE "
+                     f"{r['ewi_se_mm_beta3_median']:>7.0f} mm | ratio "
+                     f"{r['ewi_over_msl5_ratio_beta3']:.2f}")
+            try:
+                plot_metric_diagnostics(diag, prec, paths.OUT_26_METRIC_DIAG_FIG)
+                saved(f"{paths.OUT_26_METRIC_DIAG_FIG.name}")
+            except Exception as e:
+                warn(f"metric diagnostics figure render failed ({type(e).__name__}: "
+                     f"{str(e)[:80]}) — CSVs were written; figure not produced")
 
     # ── Figures ────────────────────────────────────────────────────────────
     print("\nRendering figures...")

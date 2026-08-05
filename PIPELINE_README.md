@@ -948,7 +948,7 @@ R² ranges 0.73–0.96 across the five clusters (C4 Main Forest and C5 Coastal F
 
 #### Step 22 — 18_wtf_spatial
 
-**Purpose.** Per-well Sy via WTF, IDW spatial interpolation of Sy, contour maps, storage–drainage index map (τ = Sy / β₃), and aquifer diagnostic synthesis scatter (τ vs ΔNSE vs Sy). τ is a storage-weighted composite diagnostic, **not** a residence time or drainage timescale in the hydraulic sense; the head-space recession e-folding time is t_R = 1/β₃ (months), which is Sy-independent. Output filenames retain the historical `drainage_timescale` stem.
+**Purpose.** Per-well Sy via WTF, IDW spatial interpolation of Sy, contour maps, drainage decay half-life map (t½ = ln(2)/β₃ — report Figure 49), the recession e-folding time map (t_R = 1/β₃), and the aquifer diagnostic synthesis scatter (t½ vs ΔNSE vs Sy — report Figure 51). The storage–drainage index τ = Sy/β₃ is emitted as a **diagnostic CSV only**: it is a storage-weighted composite, **not** a residence time or drainage timescale, and must never be cited as a duration or used to compute a decay fraction. The Sy-independent decay quantities are t_R = 1/β₃ (e-folding) and t½ = ln(2)/β₃ (half-life), related by t½ = 0.693·t_R. τ and t½ correlate at r = 0.98 across the network — so they produce near-identical spatial patterns — but differ by roughly 2.5× in absolute value, which means a τ-for-t½ substitution survives a plausibility check and must be caught arithmetically. τ is legitimate where it **ranks** wells; it is wrong wherever an absolute duration is asserted. No τ map is produced (removed v1.5.0) and no τ scalars are exported to `18_report_numbers.csv` (dropped v1.8.0).
 
 **Reads.**
 
@@ -959,7 +959,7 @@ R² ranges 0.73–0.96 across the five clusters (C4 Main Forest and C5 Coastal F
 - `06_pear_membership_audit_sitewide.csv` (Script 06 (step 6))
 - `01_wells_clean.csv` (Script 01 (step 1))
 - `01_wells_extended.csv` (Script 01 (step 1))
-- `03_master_data.csv` (Script 03 (step 3)) — β₃ for τ computation
+- `03_master_data.csv` (Script 03 (step 3)) — β₃ for t½, t_R and storage–drainage index computation
 - `08_lcsc_model_stats.csv` (Script 08 (step 8)) — ΔNSE for synthesis scatter
 
 **Writes.**
@@ -969,14 +969,16 @@ R² ranges 0.73–0.96 across the five clusters (C4 Main Forest and C5 Coastal F
 - `18_wtf_02_spatial_sy_map.png`
 - `18_wtf_03_sy_contour.png` (supplementary)
 - `18_wtf_04_sy_contour_extended.png` (supplementary)
-- `18_wtf_05_drainage_timescale_map.png` (supplementary)
-- `18_wtf_05_drainage_timescale.csv` (supplementary)
-- `18_wtf_06_aquifer_diagnostic_synthesis.png` (supplementary)
+- `18_wtf_05_halflife_map.png` (supplementary) — report Figure 49
+- `18_wtf_05a_recip_beta3_map.png` (supplementary)
+- `18_wtf_05_storage_drainage_index.csv` (supplementary) — per-well t½ and τ = Sy/β₃ with Sy, β₃, cluster, exclusion flags
+- `18_wtf_06_aquifer_diagnostic_synthesis.png` (supplementary) — report Figure 51
+- `18_report_numbers.csv` — per-cluster t½ and 1/β₃ min/max/mean (τ scalars deliberately not exported)
 
 **Other.**
 
   - `DATA_DIR` passed to `add_kml_features, load_dem_hillshade`
-  - Exclusions for τ map: CEH12 (bedrock), CEH15 (slack floor), CEH14 (negative β₃), CEH13 (near-zero β₃, τ outlier)
+  - Exclusions for t½ and the storage–drainage index: CEH12 (bedrock), CEH15 (slack floor), CEH14 (negative β₃), CEH13 (near-zero β₃). CEH13/CEH14 are SSM identification failures, not drainage-memory exclusions.
 
 
 ### Phase 9 — Spatial Groundwater
@@ -1367,7 +1369,7 @@ Phase 14 was added on 2026-05-29 following the post-review pass on the main repo
 
 #### Script 29 — 29_c3_within_variance_check (step 34)
 
-**Purpose.** Characterises the within-cluster heterogeneity for C3 once cluster identity is validated (Script 28). Regresses nine per-well behavioural metrics — slope_m_yr, β₁, β₂, β₃, storage–drainage index τ, long-term mean head, summer-min depth, winter-max depth, seasonal amplitude — against five spatial and hydrogeological predictors (Script 25 exponential coastal predictor, distance to CEH36, distance to forest edge, ground elevation, depth-to-water). Reports R² per metric (univariate and full model) and drop-one unique contributions to identify which predictors carry distinct signal. Headline finding (2026-05-29): ~70–80% of within-C3 variance in the SSM coefficients is explained by spatial position, with distance to CEH36 emerging as the strongest unique predictor across β₁/β₂/β₃/τ — a hydrogeological axis within C3 anchored near the SW interior, distinct from coastal proximity.
+**Purpose.** Characterises the within-cluster heterogeneity for C3 once cluster identity is validated (Script 28). Regresses nine per-well behavioural metrics — slope_m_yr, β₁, β₂, β₃, recession e-folding time t_R = 1/β₃ (`recession_time_months`), long-term mean head, summer-min depth, winter-max depth, seasonal amplitude — against five spatial and hydrogeological predictors (Script 25 exponential coastal predictor, distance to CEH36, distance to forest edge, ground elevation, depth-to-water). Reports R² per metric (univariate and full model) and drop-one unique contributions to identify which predictors carry distinct signal. Headline finding (2026-05-29): ~70–80% of within-C3 variance in the SSM coefficients is explained by spatial position, with distance to CEH36 emerging as the strongest unique predictor across β₁/β₂/β₃/t_R — a hydrogeological axis within C3 anchored near the SW interior, distinct from coastal proximity.
 
 **Reads.**
 
@@ -1508,7 +1510,7 @@ Step 47 — `09f_management_effects.py` — the spatial-reach synthesis figure (
 | 38 | Climate trajectory + threshold exceedance | 14 | `14_climate_trajectory_stacked.png` |
 | 39 | Per-well optimal drainage datum | 07 | `07_coeff_*_*.png` |
 | 40 | Spatial SSM coefficient atlas | 07 | `07_coeff_*_*.png` |
-| 41 | Storage–drainage index (τ = Sy/β₃) | 18 | `18_wtf_05_drainage_timescale_map.png` |
+| 41 | Drainage decay half-life (t½ = ln(2)/β₃) | 18 | `18_wtf_05_halflife_map.png` |
 | 42 | Forest drawdown propagation | 20 | `20_drawdown_propagation.png` |
 | 43 | Aquifer diagnostic synthesis | 18 | `18_wtf_06_aquifer_diagnostic_synthesis.png` |
 | 44 | Mean head surface + streams | 20 | `20_head_surface_streams.png` |

@@ -9,11 +9,24 @@ Outputs:
     18_wtf_02_spatial_sy_map.png         — point map (plot_metric_map, as script 04)
     18_wtf_03_sy_contour.png             — IDW contour surface, reference wells only
     18_wtf_04_sy_contour_extended.png    — IDW contour surface, reference + extended wells
-    18_wtf_05_drainage_timescale_map.png — IDW contour of τ = Sy / β₃ (months)
-    18_wtf_05_drainage_timescale.csv     — per-well τ values with Sy, β₃, cluster
-    18_wtf_06_aquifer_diagnostic_synthesis.png — τ vs ΔNSE scatter sized by Sy
+    18_wtf_05_halflife_map.png           — IDW contour of t½ = ln(2)/β₃ (months)
+    18_wtf_05a_recip_beta3_map.png       — IDW contour of t_R = 1/β₃ (months)
+    18_wtf_05_storage_drainage_index.csv — per-well storage–drainage index
+                                           τ = Sy/β₃ with Sy, β₃, t½, cluster
+                                           (diagnostic only — see note below)
+    18_wtf_06_aquifer_diagnostic_synthesis.png — t½ vs ΔNSE scatter sized by Sy
 
 Notes:
+    - τ = Sy/β₃ (`storage_drainage_index_months`) is the STORAGE–DRAINAGE INDEX.
+      It has units of months but is NOT a decay timescale and must never be
+      cited as a duration or used to compute a decay fraction. The decay
+      quantities are t_R = 1/β₃ (e-folding) and t½ = ln(2)/β₃ (half-life), both
+      specific-yield-independent and related by t½ = 0.693·t_R. τ correlates
+      with t½ at r = 0.98 across the network, so the two produce near-identical
+      spatial patterns, but differ in absolute value by roughly 2.5×. τ is
+      legitimate where it RANKS wells; it is wrong wherever an absolute
+      duration is asserted. It is emitted here as a diagnostic only: it is not
+      mapped, and it is not offered in 18_report_numbers.csv.
     - Forest clusters (C4 Main Forest, C5 Coastal Forest) receive interception
       correction: R_eff = (1-0.24)*P - PET. Interception fraction measured at
       C5 and applied across both forested clusters.
@@ -28,7 +41,48 @@ References:
     Freeman, S. (2008) Hydrological impact of Corsican pine at Newborough Warren.
 """
 
-__version__ = "1.7.0"  # Hollingham (2026) — 2026-07-24
+__version__ = "1.8.0"  # Hollingham (2026) — 2026-08-05
+# 1.8.0 (2026-08-05): τ retirement, Option B — close the reintroduction routes.
+#         The storage–drainage index τ = Sy/β₃ was retired as a residence time
+#         in v1.1.0 and its map removed in v1.5.0, but the OUTPUT NAMES still
+#         asserted what the prose denied: a column `tau_months` inside a file
+#         called `drainage_timescale.csv`, written by a function called
+#         compute_drainage_timescale(). Anyone drafting from pipeline outputs
+#         reached for it and described it as a drainage timescale. Report
+#         §4.9.5 duly quoted τ ranges (up to 34 months) against the half-life
+#         map (Figure 49, t½ up to 88 months) — a live substitution error found
+#         2026-08-05. Naming is therefore the fix:
+#           * compute_drainage_timescale()  → compute_storage_drainage_index()
+#           * tau_months                    → storage_drainage_index_months
+#           * 18_wtf_05_drainage_timescale.csv
+#                                → 18_wtf_05_storage_drainage_index.csv
+#           * OUT_18_DRAINAGE_TIMESCALE_CSV
+#                                → OUT_18_STORAGE_DRAINAGE_INDEX_CSV (paths.py)
+#           * locals tau_df/tau_mask/tau_norms → sdi_df/sdi_mask/sdi_norms
+#         NOTE this reverses the v1.7.0 instruction "the `drainage_timescale`
+#         filename stem is historical and retained deliberately — do not
+#         rename". That instruction is superseded: retaining the stem is what
+#         kept reintroducing the error. No consumer outside this script reads
+#         the CSV (verified by grep across src/), so the rename is safe.
+#         * C*_tau_min / C*_tau_max keys DROPPED from 18_report_numbers.csv.
+#           They were emitted with unit="months" beside the genuine t½ and 1/β₃
+#           keys, offering a non-duration for citation as one. t½ and 1/β₃ keys
+#           are unchanged. The index itself remains in the CSV as a diagnostic.
+#         * Column order: half_life_months now precedes the index, so the
+#           headline decay quantity reads first.
+#         * Console cluster summary leads with t½ (with units) and prints the
+#           index without a "months" label, tagged "diagnostic, not a duration".
+#         * Module docstring gains a τ-discipline note: τ ranks wells; it never
+#           states a duration or a decay fraction. t½ = 0.693·t_R; τ and t½
+#           correlate at r = 0.98 but differ ~2.5× in absolute value, so
+#           substitutions survive a plausibility check and must be caught
+#           arithmetically.
+#         * Stale references corrected: docstring output list (τ map deleted in
+#           v1.5.0), "Fig 46" → the half-life map is report Figure 49, and the
+#           synthesis figure described as t½ vs ΔNSE (which is what line ~1018
+#           actually plots) rather than τ vs ΔNSE.
+#         No computational change: τ, t½ and every exclusion rule are computed
+#         exactly as before.
 # 1.7.0 (2026-07-24): Emit the drainage decay half-life to the committed CSV.
 #         build_tau_table() now writes a `half_life_months` column
 #         (t½ = ln(2)/β₃) alongside the existing `tau_months`. Closes a
@@ -118,7 +172,7 @@ from utils.paths import (
     INT_LCSC_MODEL_STATS,
     OUT_18_WELL_SY_TABLE, OUT_18_SY_MAP, OUT_18_SY_CONTOUR,
     OUT_18_SY_CONTOUR_EXT, INT_WTF_WELL_SY, OUT_18_HALFLIFE_MAP,
-    OUT_18_DRAINAGE_TIMESCALE_CSV,
+    OUT_18_STORAGE_DRAINAGE_INDEX_CSV,
     OUT_18_AQUIFER_SYNTHESIS, OUT_18_REPORT_NUMBERS,
 )
 from utils.report_numbers_utils import ReportNumbers
@@ -645,24 +699,30 @@ def plot_contour_map_extended(ref_results, ext_results, out_path):
     print(f"  Extended contour map saved → {out_path.name}")
 
 
-def compute_drainage_timescale(well_results):
+def compute_storage_drainage_index(well_results):
     """
-    Compute per-well characteristic drainage timescale τ = Sy / β₃ (months).
+    Compute the per-well storage–drainage index τ = Sy / β₃ (months).
+
+    NOT a drainage timescale. τ weights the reciprocal drainage coefficient by
+    storage capacity, expressing the ratio of stored water volume to drainage
+    flux. It has units of months but is not a decay time: the decay quantities
+    are t_R = 1/β₃ and t½ = ln(2)/β₃, both Sy-independent. Both τ and t½ are
+    emitted here; only t½ is mapped, and only t½ / t_R may be cited as durations.
 
     Joins WTF-derived Sy (from well_results) with SSM β₃ (from 03_master_data.csv).
     Excludes:
       - CEH12 (bedrock ridge — Sy not representative of sand aquifer)
       - CEH15 (forest slack floor — anomalous Sy)
-      - CEH14 (negative β₃ — τ undefined)
-      - CEH13 (near-zero β₃ — τ ≈ 124 months, >10× outlier distorting colourbar)
+      - CEH14 (negative β₃ — index undefined)
+      - CEH13 (near-zero β₃ — index ≈ 124 months, >10× outlier)
       - Any well where β₃ ≤ 0
 
     Returns
     -------
-    tau_df : pd.DataFrame
-        Columns: Well, Cluster, Easting, Northing, Sy_median, beta_3, tau_months,
-                 half_life_months, n_events, Corrected, Confidence, Excluded,
-                 Exclude_Reason
+    sdi_df : pd.DataFrame
+        Columns: Well, Cluster, Easting, Northing, Sy_median, beta_3,
+                 half_life_months, storage_drainage_index_months,
+                 n_events, Corrected, Confidence, Excluded, Exclude_Reason
     """
     # Load β₃ from master data
     master = pd.read_csv(INT_MASTER_DATA)
@@ -691,10 +751,10 @@ def compute_drainage_timescale(well_results):
     merged.loc[neg_b3 & ~merged["Excluded"], "Excluded"] = True
     merged.loc[neg_b3 & ~ridge_mask, "Exclude_Reason"] = "negative β₃"
 
-    tau_norms = [w.lower().strip() for w in TAU_EXCLUDE]
-    tau_mask = merged["well_norm"].isin(tau_norms) & ~merged["Excluded"]
-    merged.loc[tau_mask, "Excluded"] = True
-    merged.loc[tau_mask, "Exclude_Reason"] = "near-zero β₃ (τ outlier)"
+    sdi_norms = [w.lower().strip() for w in TAU_EXCLUDE]
+    sdi_mask = merged["well_norm"].isin(sdi_norms) & ~merged["Excluded"]
+    merged.loc[sdi_mask, "Excluded"] = True
+    merged.loc[sdi_mask, "Exclude_Reason"] = "near-zero β₃ (τ outlier)"
 
     # Compute τ and t½ for non-excluded wells.
     # τ = Sy/β₃ is the storage–drainage index: a storage-weighted composite
@@ -703,44 +763,51 @@ def compute_drainage_timescale(well_results):
     # quantity reported in the manuscripts (Paper 1 Table 7, Figures 14 and 15).
     # Both are emitted so the committed CSV is self-describing; previously t½ was
     # computed only at render time and could not be read from this file.
-    merged["tau_months"] = np.nan
+    merged["storage_drainage_index_months"] = np.nan
     merged["half_life_months"] = np.nan
     valid = ~merged["Excluded"]
-    merged.loc[valid, "tau_months"] = (
+    merged.loc[valid, "storage_drainage_index_months"] = (
         merged.loc[valid, "Sy_median"] / merged.loc[valid, "beta_3_drainage"]
     )
     merged.loc[valid, "half_life_months"] = (
         np.log(2) / merged.loc[valid, "beta_3_drainage"]
     )
 
-    # Tidy up output columns
-    tau_df = merged[[
+    # Tidy up output columns. t½ precedes the storage–drainage index so the
+    # headline decay quantity reads first and is the natural one to pick up.
+    sdi_df = merged[[
         "Well", "Cluster", "Easting", "Northing",
-        "Sy_median", "beta_3_drainage", "tau_months", "half_life_months",
+        "Sy_median", "beta_3_drainage",
+        "half_life_months", "storage_drainage_index_months",
         "n_events", "Corrected", "Confidence",
         "Excluded", "Exclude_Reason",
     ]].copy()
-    tau_df = tau_df.rename(columns={"beta_3_drainage": "beta_3"})
-    tau_df = tau_df.sort_values(["Cluster", "Well"]).reset_index(drop=True)
+    sdi_df = sdi_df.rename(columns={"beta_3_drainage": "beta_3"})
+    sdi_df = sdi_df.sort_values(["Cluster", "Well"]).reset_index(drop=True)
 
     n_valid = valid.sum()
     n_excluded = merged["Excluded"].sum()
     excluded_wells = merged.loc[merged["Excluded"], "Well"].tolist()
-    print(f"  τ and t½ computed for {n_valid} wells; {n_excluded} excluded "
+    print(f"  t½ and storage–drainage index computed for {n_valid} wells; "
+          f"{n_excluded} excluded "
           f"({', '.join(w.upper() for w in excluded_wells)})")
 
-    # Cluster summary
-    for cid in sorted(tau_df.loc[~tau_df["Excluded"], "Cluster"].unique()):
-        sub = tau_df[(tau_df["Cluster"] == cid) & (~tau_df["Excluded"])]
+    # Cluster summary. t½ is printed first and with units; the storage–drainage
+    # index is printed without a "months" label to discourage reading it as a
+    # duration (it is not one — see the module docstring).
+    for cid in sorted(sdi_df.loc[~sdi_df["Excluded"], "Cluster"].unique()):
+        sub = sdi_df[(sdi_df["Cluster"] == cid) & (~sdi_df["Excluded"])]
         label = CLUSTER_LABELS.get(cid, f"C{cid}")
-        print(f"    {label}: τ = {sub['tau_months'].mean():.1f} months "
-              f"(range {sub['tau_months'].min():.1f}–{sub['tau_months'].max():.1f}, "
-              f"n={len(sub)})")
-        print(f"      t½ = {sub['half_life_months'].median():.1f} months "
+        print(f"    {label}: t½ = {sub['half_life_months'].median():.1f} months "
               f"(range {sub['half_life_months'].min():.1f}–"
-              f"{sub['half_life_months'].max():.1f})")
+              f"{sub['half_life_months'].max():.1f}, n={len(sub)})")
+        print(f"      storage–drainage index = "
+              f"{sub['storage_drainage_index_months'].mean():.1f} "
+              f"(range {sub['storage_drainage_index_months'].min():.1f}–"
+              f"{sub['storage_drainage_index_months'].max():.1f}) "
+              f"— diagnostic, not a duration")
 
-    return tau_df
+    return sdi_df
 
 
 def compute_recip_beta3():
@@ -944,8 +1011,8 @@ def plot_halflife_map(rb3_df, out_path):
 
 
 # plot_drainage_timescale_map() removed in v1.5.0 — dead code since v1.4.0.
-# The τ CSV (OUT_18_DRAINAGE_TIMESCALE_CSV) is still written by
-# compute_drainage_timescale(); only the figure function has been removed.
+# The τ CSV (OUT_18_STORAGE_DRAINAGE_INDEX_CSV) is still written by
+# compute_storage_drainage_index(); only the figure function has been removed.
 
 def plot_aquifer_diagnostic_synthesis(rb3_df, out_path):
     """
@@ -955,7 +1022,7 @@ def plot_aquifer_diagnostic_synthesis(rb3_df, out_path):
 
     Synthesises three independently derived per-well diagnostics into a
     single aquifer architecture characterisation. Cluster-mean markers
-    (larger stars) anchor the pattern. t½ replaces τ = Sy/β₃ on the y-axis
+    (larger stars) anchor the pattern. t½ is plotted on the y-axis, not τ = Sy/β₃,
     as the directly interpretable drainage decay timescale (v1.4.0).
 
     Excludes wells flagged in rb3_df (CEH13, CEH14).
@@ -1163,27 +1230,28 @@ def main(supplementary=True):
         else:
             print("  Skipping extended contour map — no extended well results")
 
-        # ── Fig 46 — Drainage decay half-life map (t½ = ln(2)/β₃) ───────
+        # ── Drainage decay half-life map (t½ = ln(2)/β₃) — report Fig 49 ──
         print("\nComputing drainage decay half-life (t½ = ln(2)/β₃)...")
         rb3_df = compute_recip_beta3()
 
-        print("\nGenerating half-life map (Fig 46)...")
+        print("\nGenerating half-life map...")
         plot_halflife_map(rb3_df, OUT_18_HALFLIFE_MAP)
 
-        # τ = Sy/β₃ retained as intermediate CSV for discussion-section
-        # reference and Paper 1; no figure emitted (v1.4.0).
-        print("\nComputing storage–drainage index (τ = Sy/β₃) — CSV only...")
-        tau_df = compute_drainage_timescale(well_results)
-        tau_df.to_csv(OUT_18_DRAINAGE_TIMESCALE_CSV, index=False)
-        print(f"  Saved → {OUT_18_DRAINAGE_TIMESCALE_CSV.name}")
+        # Storage–drainage index τ = Sy/β₃ retained as a CSV diagnostic only.
+        # No figure is emitted (map removed v1.5.0) and no report-citable
+        # scalars are exported (τ keys dropped v1.8.0): it is not a duration.
+        print("\nComputing storage–drainage index (τ = Sy/β₃) — diagnostic CSV only...")
+        sdi_df = compute_storage_drainage_index(well_results)
+        sdi_df.to_csv(OUT_18_STORAGE_DRAINAGE_INDEX_CSV, index=False)
+        print(f"  Saved → {OUT_18_STORAGE_DRAINAGE_INDEX_CSV.name}")
 
         # ── Fig 48 — Aquifer diagnostic synthesis scatter ─────────────────
         print("\nGenerating aquifer diagnostic synthesis scatter (Fig 48)...")
         plot_aquifer_diagnostic_synthesis(rb3_df, OUT_18_AQUIFER_SYNTHESIS)
 
         # ── §4.9.3 traceable report numbers ───────────────────────────────
-        # Per-cluster t½, 1/β₃, and τ ranges. CEH13/CEH14 excluded from
-        # t½ and 1/β₃ maps; τ CSV retains them as excluded rows.
+        # Per-cluster t½ and 1/β₃ ranges. CEH13/CEH14 excluded from the
+        # t½ and 1/β₃ maps; the index CSV retains them as excluded rows.
         rpt = ReportNumbers()
 
         # Excluded wells
@@ -1217,15 +1285,14 @@ def main(supplementary=True):
                 rpt.add(f"C{int(cid)}_recip_b3_mean", float(rb3.mean()), unit="months",
                         note=f"mean 1/β₃, C{int(cid)}, reference network, n={n}")
 
-        # Per-cluster τ min/max (discussion reference only)
-        ok = tau_df[~tau_df["Excluded"]]
-        for cid, grp in ok.groupby("Cluster"):
-            taus = pd.to_numeric(grp["tau_months"], errors="coerce").dropna()
-            if len(taus):
-                rpt.add(f"C{int(cid)}_tau_min", float(taus.min()), unit="months",
-                        note=f"min τ, C{int(cid)}, reference network, n={len(taus)}")
-                rpt.add(f"C{int(cid)}_tau_max", float(taus.max()), unit="months",
-                        note=f"max τ, C{int(cid)}, reference network, n={len(taus)}")
+        # Per-cluster τ min/max keys REMOVED in v1.8.0. The storage–drainage
+        # index is not a duration and must not be cited as one, but it was
+        # being emitted here in "months" alongside the genuine t½ and 1/β₃
+        # keys, which invited exactly that misuse (report §4.9.5 quoted τ
+        # ranges against the half-life map, Figure 49). The index remains in
+        # 18_wtf_05_storage_drainage_index.csv as a diagnostic; it is simply no
+        # longer offered as a report-citable scalar. Cite C*_halflife_* or
+        # C*_recip_b3_* instead.
 
         n_saved = rpt.save(OUT_18_REPORT_NUMBERS)
         print(f"  Saved → {OUT_18_REPORT_NUMBERS.name} ({n_saved} report numbers)")

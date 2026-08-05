@@ -59,7 +59,14 @@ Outputs (DIR_26 / "26_van_willegen_msl/"):
   * 26_index_precision_by_cluster.csv
                                     The same rolled up per cluster, under both
                                     network scopes (reference / all)
-  * 26_report_numbers.csv           Scalar statistics cited in §4.8.6 / §6.9
+  * 26_report_numbers.csv           Scalar statistics cited in §4.8.6 / §6.9,
+                                    including the ewi_msl5_* calibration
+                                    constants (v1.5.0)
+  * 26_table_s7_1_ewi_per_well.csv  Display-formatted per-well EWI / MSL5
+                                    reconstruction — Supplementary Table S7.1
+                                    (v1.5.0); paste into the ODT via Paste
+                                    Special > Unformatted text
+  * 26_table_s7_1_ewi_per_well.md   The same table rendered for review (v1.5.0)
   * 26_metric_diagnostics.png       Two-panel diagnostic — report Fig XX
   * 26_msl_5yr_trajectory.png       Cluster trajectories with Curreli refs
   * 26_msl_5yr_quadrat_wells.png    Per-well trajectories at van-Willegen
@@ -75,6 +82,37 @@ hydrology. Ecological Indicators, 170, 113016.
 https://doi.org/10.1016/j.ecolind.2024.113016
 
 Curreli, A. et al. (2013) — SD15b/SD16 threshold reference lines.
+
+Version: 1.5.0 (2026-08-05) — Supplementary Table S7.1 emitter (Pass 9):
+  * New emit_supplementary_table_s7_1(): renders the per-well equilibrium
+    wetness index and its MSL5 reconstruction as a display-formatted table for
+    Supplementary Note S7 of the Supplementary Material. Report §4.8.6 promises
+    "the full per-well reconstruction, with the out-of-scope forest wells
+    flagged" and, until now, that forward reference resolved to nothing — the
+    table had never been rendered. This closes it WITHOUT recomputing anything:
+    the emitter is a rendering of the committed Pass 5 and Pass 6 outputs, so
+    the table cannot drift from the CSVs it is drawn from.
+    All 84 wells are listed. A three-valued Status column distinguishes the
+    n=62 in-scope wells that carry an observed MSL5 and therefore entered the
+    calibration, the n=2 in-scope wells that have an index but no valid
+    five-year spring window (reconstructed only), and the n=20 C4/C5 forest
+    wells held out of scope per §4.8.6. Standard errors are the β₃-only
+    variant, the dominant term; the full three-coefficient variant stays in
+    26_equilibrium_wetness_index_per_well.csv.
+    Outputs 26_table_s7_1_ewi_per_well.csv (display strings, for Paste Special >
+    Unformatted text into the ODT) and 26_table_s7_1_ewi_per_well.md (for review
+    before pasting). paths gains OUT_26_TABLE_S7_1_CSV, OUT_26_TABLE_S7_1_MD.
+  * The Pass 6 calibration now reaches a committed CSV. compute_ewi_msl5_
+    comparison() has always returned intercept_a, slope_b, r, r2,
+    rmse_mm_open_dune and n_calibration, but they went only to the run
+    transcript — so the MSL5 = a + b·EWI constants quoted in §4.8.6 had no
+    committed-CSV trace. They are now written into 26_report_numbers.csv under
+    an ewi_msl5_* prefix, and the emitter reads the calibration from there
+    rather than restating it. 26_report_numbers.csv is consequently assembled
+    across Passes 6 and 8 and written once, after Pass 8, so the calibration
+    lands even if the Pass 8 diagnostics are skipped.
+  * Still Passes inside Script 26 — no new pipeline step, and the 41-step
+    analytical headline is unchanged.
 
 Version: 1.4.0 (2026-08-02) — Metric diagnostics (Pass 8) and EWI uncertainty:
   * compute_equilibrium_wetness_index() now propagates SSM coefficient
@@ -183,11 +221,11 @@ Version: 1.3.0 (2026-07-03) — Equilibrium Wetness Index (EWI):
     paths.OUT_26_EWI_MAP (added to utils/paths.py alongside the other OUT_26_*).
 
 Version: 1.2.0 (2026-06-25) — MSL5 well exclusion (CEH13, CEH14):
-  * CEH13 (near-zero SSM beta_3, tau outlier) and CEH14 (negative beta_3,
+  * CEH13 (near-zero SSM beta_3) and CEH14 (negative beta_3,
     SSM failure NSE -3.21) are excluded from the MSL5 analysis: their long
     drainage memory makes spring readings autocorrelated within the 5-year
     window, so their MSL5 change values and IDW-map contribution are
-    unreliable. Same ridge-flank wells already excluded from the tau map.
+    unreliable. Same wells already excluded by Script 18 on beta_3 grounds.
   * Mechanism (whole-analysis, flagged): rows are RETAINED in
     26_msl_5yr_per_well.csv with new columns msl5_excluded / msl5_excluded_reason;
     all derived products (Method A cluster trajectory, latest-per-well, IDW
@@ -358,6 +396,9 @@ OUT_TXT       = paths.OUT_26_RESULTS_TXT
 # EWI outputs (v1.3.0) — canonical paths from utils.paths.
 OUT_EWI       = paths.OUT_26_EWI_PER_WELL
 OUT_EWI_COMPARISON = paths.OUT_26_EWI_MSL5_COMPARISON
+# Supplementary Table S7.1 renderings (v1.5.0).
+OUT_TABLE_S7_1_CSV = paths.OUT_26_TABLE_S7_1_CSV
+OUT_TABLE_S7_1_MD  = paths.OUT_26_TABLE_S7_1_MD
 
 # ── Methodological constants from utils.config ────────────────────────────────
 # Convention: no methodological numbers are hardcoded in this script. The
@@ -1692,6 +1733,194 @@ def plot_metric_diagnostics(diag: pd.DataFrame, prec: pd.DataFrame,
     plt.close(fig)
 
 
+# ── Pass 9: Supplementary Table S7.1 emitter ──────────────────────────────────
+# Column headings for the rendered table. Kept as a module constant so the CSV
+# and Markdown renderings cannot drift apart, and so a heading change is a
+# one-line edit rather than a hunt through two writers.
+TABLE_S7_1_COLUMNS = [
+    "Well",
+    "Network",
+    "Cluster",
+    "β₃ (month⁻¹)",
+    "EWI (m bg)",
+    "± SE (mm)",
+    "MSL5 observed (m bg)",
+    "MSL5 reconstructed (m bg)",
+    "Residual (mm)",
+    "Status",
+]
+
+# Status values. Three-valued rather than two independent flags: nine columns
+# fit a portrait page and eleven do not, and the distinction that matters to a
+# reader is a single ordinal one — did this well set the calibration, was it
+# only reconstructed by it, or is it outside its scope entirely.
+STATUS_CALIBRATION  = "In scope — calibration"
+STATUS_RECONSTRUCTED = "In scope — reconstructed"
+STATUS_OUT_OF_SCOPE = "Out of scope — forest"
+
+
+def _fmt(value, dp: int, blank: str = "") -> str:
+    """Fixed-decimal string, or `blank` where the value is missing."""
+    if value is None or not np.isfinite(value):
+        return blank
+    return f"{value:.{dp}f}"
+
+
+def emit_supplementary_table_s7_1(ewi: pd.DataFrame, comp: pd.DataFrame,
+                                  calib: dict):
+    """
+    Render Supplementary Table S7.1 — per-well equilibrium wetness index and
+    MSL5 reconstruction (v1.5.0).
+
+    Report §4.8.6 closes by promising "the full per-well reconstruction, with
+    the out-of-scope forest wells flagged", pointing at the Supplementary
+    Material. This emitter produces that table.
+
+    It computes NOTHING. Every value is read from the Pass 5 index frame (`ewi`)
+    or the Pass 6 comparison frame (`comp`), and the calibration constants come
+    from the Pass 6 `calib` dict rather than being restated here. That is
+    deliberate: a table transcribed or recomputed by hand drifts silently the
+    next time the pipeline runs, and the whole point of an emitter is that it
+    cannot.
+
+    Scope, following §4.8.6. The MSL5 calibration is scoped to the open-dune
+    network (C1–C3, reference and extended). Of the 64 open-dune wells carrying
+    an index, 62 also carry an observed MSL5 and set the calibration; the other
+    two lack a valid five-year spring window and are reconstructed only. The 20
+    C4/C5 forest wells are reconstructed but held out of scope — their
+    coefficients are the least constrained on the site and the estimate is too
+    coarse to place a well across a Curreli threshold. All 84 appear in the
+    table, because the scoping is only visible if the out-of-scope wells are
+    present and flagged.
+
+    Standard errors are the β₃-only variant (`EWI_se_m_beta3`) — the dominant
+    term, since the equilibrium displacement is inversely proportional to β₃.
+    The full three-coefficient variant remains in the per-well CSV. Note that
+    the propagation behind both is anchored on |h_disp_eq|, not |EWI_m_pipe|;
+    see compute_equilibrium_wetness_index() and report §3.7.6.
+
+    Returns (display_df, caption). Empty frame and empty caption if the inputs
+    cannot support the table.
+    """
+    if ewi.empty or comp.empty:
+        return pd.DataFrame(), ""
+
+    base = ewi.copy()
+    base["_well_key"] = base["well"].astype(str).str.strip().str.lower()
+
+    # comp uppercases `well` in its final projection; rejoin on a normalised key
+    # rather than assuming either frame's case convention.
+    c = comp.copy()
+    c["_well_key"] = c["well"].astype(str).str.strip().str.lower()
+    keep = ["_well_key", "open_dune_scope", "MSL5_obs_m_bg",
+            "MSL5_pred_m_bg", "residual_mm"]
+    missing = [k for k in keep if k not in c.columns]
+    if missing:
+        warn(f"Table S7.1 — comparison frame lacks {missing}; table not written")
+        return pd.DataFrame(), ""
+
+    df = base.merge(c[keep], on="_well_key", how="left")
+
+    unmatched = int(df["open_dune_scope"].isna().sum())
+    if unmatched:
+        warn(f"Table S7.1 — {unmatched} well(s) present in the index but absent "
+             f"from the comparison frame; their status cannot be determined")
+
+    def _status(r) -> str:
+        scope = r["open_dune_scope"]
+        if not isinstance(scope, (bool, np.bool_)):
+            return ""
+        if not bool(scope):
+            return STATUS_OUT_OF_SCOPE
+        obs = r["MSL5_obs_m_bg"]
+        return (STATUS_CALIBRATION if (obs is not None and np.isfinite(obs))
+                else STATUS_RECONSTRUCTED)
+
+    df["_status"] = df.apply(_status, axis=1)
+
+    # Cluster order C1→C5 from the canonical cluster_id, reference before
+    # extended within a cluster, then alphabetical. cluster_label comes from
+    # config.CLUSTER_LABELS upstream — never a raw Ward integer.
+    df["_net_order"] = (df["network"].astype(str).str.lower()
+                        .map({"reference": 0, "extended": 1}).fillna(9))
+    df = df.sort_values(["cluster_id", "_net_order", "_well_key"],
+                        na_position="last")
+
+    out = pd.DataFrame({
+        TABLE_S7_1_COLUMNS[0]: df["_well_key"].str.upper(),
+        TABLE_S7_1_COLUMNS[1]: df["network"].astype(str).str.capitalize(),
+        TABLE_S7_1_COLUMNS[2]: df["cluster_label"].astype(str),
+        TABLE_S7_1_COLUMNS[3]: [_fmt(v, 4) for v in df["beta_3_drainage"]],
+        TABLE_S7_1_COLUMNS[4]: [_fmt(v, 3) for v in df["EWI_m_bg"]],
+        TABLE_S7_1_COLUMNS[5]: [_fmt(v * 1000.0 if v is not None
+                                     and np.isfinite(v) else np.nan, 0)
+                                for v in df["EWI_se_m_beta3"]],
+        TABLE_S7_1_COLUMNS[6]: [_fmt(v, 3) for v in df["MSL5_obs_m_bg"]],
+        TABLE_S7_1_COLUMNS[7]: [_fmt(v, 3) for v in df["MSL5_pred_m_bg"]],
+        TABLE_S7_1_COLUMNS[8]: [_fmt(v, 0) for v in df["residual_mm"]],
+        TABLE_S7_1_COLUMNS[9]: df["_status"],
+    })
+
+    n_total = len(out)
+    n_cal   = int((df["_status"] == STATUS_CALIBRATION).sum())
+    n_rec   = int((df["_status"] == STATUS_RECONSTRUCTED).sum())
+    n_out   = int((df["_status"] == STATUS_OUT_OF_SCOPE).sum())
+
+    # Caption built from the data, so its numbers cannot disagree with the rows
+    # beneath it. Calibration constants come from the Pass 6 fit. No section
+    # number is hard-typed here — generated output that cites §3.7.6 would go
+    # stale the next time the report's section numbering drifts.
+    a = calib.get("intercept_a")
+    b = calib.get("slope_b")
+    r = calib.get("r")
+    rmse = calib.get("rmse_mm_open_dune")
+    fit_txt = ""
+    if all(v is not None and np.isfinite(v) for v in (a, b, r, rmse)):
+        fit_txt = (f" reconstructed from the open-dune calibration "
+                   f"MSL5 = {a:+.3f} + {b:.3f}·EWI "
+                   f"(r = {r:.2f}, RMSE = {rmse:.0f} mm)")
+
+    caption = (
+        f"Table S7.1. Equilibrium wetness index and MSL5 reconstruction, per "
+        f"well (n = {n_total}). Levels are metres below ground surface, "
+        f"negative below the surface. The index is{fit_txt}, fitted on the "
+        f"{n_cal} in-scope wells carrying an observed five-year mean spring "
+        f"level. A further {n_rec} open-dune well(s) carry an index but no "
+        f"valid five-year spring window and are reconstructed only; the "
+        f"{n_out} C4/C5 forest wells are reconstructed but held out of scope, "
+        f"their coefficients being the least constrained on the site. "
+        f"Standard errors on the index propagate the drainage coefficient "
+        f"alone, the dominant term; the full three-coefficient variant is "
+        f"carried in {OUT_EWI.name}. Source: {OUT_EWI.name}, "
+        f"{OUT_EWI_COMPARISON.name}."
+    )
+    return out, caption
+
+
+def write_supplementary_table_s7_1(out: pd.DataFrame, caption: str,
+                                   csv_path: Path, md_path: Path) -> None:
+    """
+    Write the two renderings of Table S7.1.
+
+    CSV — display strings, for Paste Special > Unformatted text into the ODT,
+    which routes through LibreOffice's text-import dialogue and lands as a
+    table. The caption is written as a trailing comment line rather than a
+    header row, so the pasted block is the table alone.
+
+    Markdown — the same table for review before pasting.
+    """
+    out.to_csv(csv_path, index=False)
+    with open(csv_path, "a", encoding="utf-8") as fh:
+        fh.write(f"\n# {caption}\n")
+
+    header = "| " + " | ".join(out.columns) + " |"
+    rule   = "|" + "|".join("---" for _ in out.columns) + "|"
+    rows   = ["| " + " | ".join(str(v) for v in r) + " |"
+              for r in out.itertuples(index=False, name=None)]
+    md = "\n".join([header, rule, *rows])
+    md_path.write_text(f"{md}\n\n*{caption}*\n", encoding="utf-8")
+
+
 def main() -> int:
     banner("26", "van Willegen MSL Projection")
     print("=" * 72)
@@ -1853,11 +2082,22 @@ def main() -> int:
 
     # ── Pass 6 — EWI-predicted MSL5 comparison (v1.3.1) ────────────────────
     print("\nPass 6 — EWI-predicted MSL5 vs observed (per-well comparison)")
+    # Hoisted out of the Pass 6 block (v1.5.0) so Pass 9 can render from them.
+    # report_nums accumulates across Passes 6 and 8 and is written once after
+    # Pass 8, so the calibration constants reach a committed CSV even when the
+    # Pass 8 diagnostics are skipped.
+    comp = pd.DataFrame()
+    calib: dict = {}
+    report_nums: dict = {}
     if not ewi.empty:
         comp, calib = compute_ewi_msl5_comparison(ewi, latest)
         if not comp.empty:
             comp.to_csv(OUT_EWI_COMPARISON, index=False)
             saved(f"{OUT_EWI_COMPARISON.name}")
+            # The MSL5 = a + b·EWI constants are quoted in report §4.8.6 and in
+            # the Table S7.1 caption; until v1.5.0 they reached only the run
+            # transcript and so had no committed-CSV trace.
+            report_nums.update({f"ewi_msl5_{k}": v for k, v in calib.items()})
             info(f"  open-dune calibration  MSL5 = {calib['intercept_a']:+.3f} + "
                  f"{calib['slope_b']:.3f}·EWI   "
                  f"(n={calib['n_calibration']}, r={calib['r']:.3f}, "
@@ -1915,9 +2155,7 @@ def main() -> int:
             saved(f"{paths.OUT_26_METRIC_DIAGNOSTICS.name}")
             prec.to_csv(paths.OUT_26_INDEX_PRECISION, index=False)
             saved(f"{paths.OUT_26_INDEX_PRECISION.name}")
-            (pd.DataFrame(sorted(diag_nums.items()), columns=["key", "value"])
-               .to_csv(paths.OUT_26_REPORT_NUMBERS, index=False))
-            saved(f"{paths.OUT_26_REPORT_NUMBERS.name}")
+            report_nums.update(diag_nums)
 
             info(f"  autocorrelation (n={diag_nums.get('diag_n_wells', 0)} wells with "
                  f"≥{DIAG_MIN_SPRINGS} springs): observed lag-1 mean "
@@ -1955,6 +2193,36 @@ def main() -> int:
             except Exception as e:
                 warn(f"metric diagnostics figure render failed ({type(e).__name__}: "
                      f"{str(e)[:80]}) — CSVs were written; figure not produced")
+
+    # Scalar statistics cited in §4.8.6 / §6.9, written once (v1.5.0) now that
+    # the accumulator is filled by both Pass 6 and Pass 8.
+    if report_nums:
+        (pd.DataFrame(sorted(report_nums.items()), columns=["key", "value"])
+           .to_csv(paths.OUT_26_REPORT_NUMBERS, index=False))
+        saved(f"{paths.OUT_26_REPORT_NUMBERS.name}")
+    else:
+        skipped("report numbers — neither the calibration nor the diagnostics "
+                "produced any statistics")
+
+    # ── Pass 9 — Supplementary Table S7.1 (v1.5.0) ─────────────────────────
+    print("\nPass 9 — Supplementary Table S7.1 (per-well EWI reconstruction)")
+    if ewi.empty or comp.empty:
+        skipped("Table S7.1 — the index or comparison frame is empty")
+    else:
+        s7_1, s7_1_caption = emit_supplementary_table_s7_1(ewi, comp, calib)
+        if s7_1.empty:
+            warn("Table S7.1 produced no rows")
+        else:
+            write_supplementary_table_s7_1(s7_1, s7_1_caption,
+                                           OUT_TABLE_S7_1_CSV,
+                                           OUT_TABLE_S7_1_MD)
+            saved(f"{OUT_TABLE_S7_1_CSV.name}")
+            saved(f"{OUT_TABLE_S7_1_MD.name}")
+            counts = s7_1[TABLE_S7_1_COLUMNS[9]].value_counts()
+            info(f"  {len(s7_1)} wells listed")
+            for label in (STATUS_CALIBRATION, STATUS_RECONSTRUCTED,
+                          STATUS_OUT_OF_SCOPE):
+                info(f"    {label:<26s} {int(counts.get(label, 0)):>3d}")
 
     # ── Figures ────────────────────────────────────────────────────────────
     print("\nRendering figures...")

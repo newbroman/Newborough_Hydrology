@@ -188,9 +188,9 @@ for mid in c3_ids:
         rec["beta_2_atmospheric_draw"] = float(br["beta_2_atmospheric_draw"].iloc[0])
         rec["beta_3_drainage"]         = float(br["beta_3_drainage"].iloc[0])
         rec["model_R2"]                = float(br["Model_R2"].iloc[0])
-        rec["tau_drainage_months"]     = 1.0 / rec["beta_3_drainage"]  # rough drainage timescale
+        rec["recession_time_months"]     = 1.0 / rec["beta_3_drainage"]  # recession e-folding time t_R (Sy-free)
     else:
-        for k in ["beta_1_recharge","beta_2_atmospheric_draw","beta_3_drainage","model_R2","tau_drainage_months"]:
+        for k in ["beta_1_recharge","beta_2_atmospheric_draw","beta_3_drainage","model_R2","recession_time_months"]:
             rec[k] = np.nan
 
     # Per-well WTF event-median specific yield (Script 17, Table 4c)
@@ -283,7 +283,7 @@ METRICS = [
     "beta_1_recharge",
     "beta_2_atmospheric_draw",
     "beta_3_drainage",
-    "tau_drainage_months",
+    "recession_time_months",
     "mean_head_maod",
     "summer_min_depth_m",
     "winter_max_depth_m",
@@ -425,7 +425,8 @@ Nine per-well metrics describing different facets of C3 well behaviour:
 
 - **Trend:** `slope_m_yr` (Script 25 per-well summer-minimum slope).
 - **SSM coefficients (Script 07):** `beta_1_recharge`, `beta_2_atmospheric_draw`,
-  `beta_3_drainage`, `tau_drainage_months` (= 1/β₃, a rough drainage timescale).
+  `beta_3_drainage`, `recession_time_months` (= 1/β₃, the recession e-folding time; Sy-free,
+  and NOT the storage-drainage index tau = Sy/beta_3).
 - **State:** `mean_head_maod`, `summer_min_depth_m`, `winter_max_depth_m`,
   `seasonal_amplitude_m`.
 

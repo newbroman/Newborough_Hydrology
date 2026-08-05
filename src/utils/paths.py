@@ -620,9 +620,9 @@ OUT_18_SY_MAP               = DIR_18 / "18_wtf_02_spatial_sy_map.png"
 OUT_18_SY_CONTOUR           = DIR_18 / "18_wtf_03_sy_contour.png"
 OUT_18_SY_CONTOUR_EXT       = DIR_18 / "18_wtf_04_sy_contour_extended.png"
 OUT_18_HALFLIFE_MAP         = DIR_18 / "18_wtf_05_halflife_map.png"
-OUT_18_DRAINAGE_TIMESCALE_CSV = DIR_18 / "18_wtf_05_drainage_timescale.csv"
+OUT_18_STORAGE_DRAINAGE_INDEX_CSV = DIR_18 / "18_wtf_05_storage_drainage_index.csv"
 OUT_18_AQUIFER_SYNTHESIS    = DIR_18 / "18_wtf_06_aquifer_diagnostic_synthesis.png"
-OUT_18_REPORT_NUMBERS       = DIR_18 / "18_report_numbers.csv"        # §4.9.3 cited τ stats (Fig 44)
+OUT_18_REPORT_NUMBERS       = DIR_18 / "18_report_numbers.csv"        # §4.9.3 half-life / 1/β₃ stats
 
 # Script 19 — Spatial groundwater analysis
 OUT_19_THICKNESS_MAP  = DIR_19 / "19_aquifer_thickness.jpg"
@@ -760,6 +760,11 @@ OUT_26_METRIC_DIAGNOSTICS = DIR_26 / "26_metric_diagnostics_per_well.csv"
 OUT_26_INDEX_PRECISION    = DIR_26 / "26_index_precision_by_cluster.csv"
 OUT_26_REPORT_NUMBERS     = DIR_26 / "26_report_numbers.csv"
 OUT_26_METRIC_DIAG_FIG    = DIR_26 / "26_metric_diagnostics.png"
+# Supplementary Table S7.1 emitter (v1.5.0). Display-formatted renderings of the
+# per-well EWI reconstruction for paste into Supplementary_Material — the CSV via
+# Paste Special > Unformatted text, the Markdown for review before pasting.
+OUT_26_TABLE_S7_1_CSV     = DIR_26 / "26_table_s7_1_ewi_per_well.csv"
+OUT_26_TABLE_S7_1_MD      = DIR_26 / "26_table_s7_1_ewi_per_well.md"
 
 # Script 26b — Van Willegen MSL UKCP18 climate projections (Phase 13, Tool B)
 # Pairs with Script 11 Section 5 (Tool A) and Script 26 (observational MSL5).

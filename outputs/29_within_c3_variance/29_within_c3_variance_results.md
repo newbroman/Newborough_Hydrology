@@ -37,7 +37,8 @@ Nine per-well metrics describing different facets of C3 well behaviour:
 
 - **Trend:** `slope_m_yr` (Script 25 per-well summer-minimum slope).
 - **SSM coefficients (Script 07):** `beta_1_recharge`, `beta_2_atmospheric_draw`,
-  `beta_3_drainage`, `tau_drainage_months` (= 1/β₃, a rough drainage timescale).
+  `beta_3_drainage`, `recession_time_months` (= 1/β₃, the recession e-folding time; Sy-free,
+  and NOT the storage-drainage index tau = Sy/beta_3).
 - **State:** `mean_head_maod`, `summer_min_depth_m`, `winter_max_depth_m`,
   `seasonal_amplitude_m`.
 
@@ -49,7 +50,7 @@ Nine per-well metrics describing different facets of C3 well behaviour:
 | beta_1_recharge | 19 | 0.815 | 0.744 | dist_ceh36_m (Δ=+0.163) |
 | beta_2_atmospheric_draw | 19 | 0.662 | 0.532 | dist_ceh36_m (Δ=+0.122) |
 | beta_3_drainage | 19 | 0.735 | 0.633 | dist_ceh36_m (Δ=+0.158) |
-| tau_drainage_months | 19 | 0.706 | 0.593 | dist_ceh36_m (Δ=+0.322) |
+| recession_time_months | 19 | 0.706 | 0.593 | dist_ceh36_m (Δ=+0.322) |
 | mean_head_maod | 19 | 1.000 | 1.000 | ground_elev_m (Δ=+0.014) |
 | summer_min_depth_m | 19 | 0.991 | 0.987 | depth_to_water_m (Δ=+0.722) |
 | winter_max_depth_m | 19 | 0.970 | 0.958 | depth_to_water_m (Δ=+0.708) |
@@ -66,7 +67,7 @@ slope_m_yr                              0.184         0.429          0.373      
 beta_1_recharge                         0.354         0.375          0.091          0.496             0.041
 beta_2_atmospheric_draw                 0.511         0.207          0.007          0.386             0.008
 beta_3_drainage                         0.125         0.179          0.189          0.400             0.001
-tau_drainage_months                     0.028         0.110          0.123          0.180             0.007
+recession_time_months                   0.028         0.110          0.123          0.180             0.007
 mean_head_maod                          0.657         0.230          0.336          0.991             0.009
 summer_min_depth_m                      0.008         0.011          0.194          0.131             0.953
 winter_max_depth_m                      0.057         0.154          0.092          0.000             0.927
@@ -84,7 +85,7 @@ slope_m_yr                              0.062         0.051          0.008      
 beta_1_recharge                        -0.000         0.163          0.087          0.024             0.027
 beta_2_atmospheric_draw                -0.023         0.122          0.073          0.062             0.004
 beta_3_drainage                         0.004         0.158          0.057          0.006             0.000
-tau_drainage_months                    -0.003         0.322          0.178          0.068             0.002
+recession_time_months                  -0.003         0.322          0.178          0.068             0.002
 mean_head_maod                          0.000         0.000          0.000          0.014             0.006
 summer_min_depth_m                     -0.000         0.001          0.000          0.000             0.722
 winter_max_depth_m                     -0.004         0.017          0.010          0.004             0.708

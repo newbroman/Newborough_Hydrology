@@ -32,7 +32,7 @@ Method (locked spec, 2026-06-26):
     2016 (the wettest-antecedent recharge season on record, 697 mm Oct–Mar — the
     mirror of the 2006 exclusion below).
     2006 is excluded as a wet extreme: its 2004-2005 antecedent was the driest in the
-    record (-19% in 2005), so the slow-tau forest wells had not refilled by spring 2006
+    record (-19% in 2005), so the slow-recession forest wells had not refilled by spring 2006
     and it is not an antecedent-matched wet state.
   * Per-well state = mean over the extreme years (require >= MIN_YEARS_PER_EXTREME of 3).
   * swing = wet_state - dry_state (mm).  amplification = swing / network-mean swing.

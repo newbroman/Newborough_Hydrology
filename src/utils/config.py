@@ -644,10 +644,10 @@ LAKE_GAUGE_REASON = "lake gauge — non-network measuring point"
 # contribution unreliable. Excluded from the MSL5 ANALYSIS ONLY (Script 26:
 # Method A cluster trajectory, latest-per-well, IDW map); they remain valid for
 # every other analysis (clustering, levels, BACI). Rows are retained, flagged,
-# in 26_msl_5yr_per_well.csv. Mirrors the tau-map beta_3 <= 0 exclusion. Keys
+# in 26_msl_5yr_per_well.csv. Mirrors the Script 18 beta_3 <= 0 exclusion. Keys
 # lowercase to match the normalised well column. Added 2026-06-25.
 MSL5_EXCLUDED_WELLS = {
-    "ceh13": "near-zero SSM beta_3 (tau outlier) - MSL5 unreliable over the 5yr window",
+    "ceh13": "near-zero SSM beta_3 - MSL5 unreliable over the 5yr window",
     "ceh14": "negative SSM beta_3 (SSM failure, NSE -3.21) - MSL5 unreliable over the 5yr window",
 }
 

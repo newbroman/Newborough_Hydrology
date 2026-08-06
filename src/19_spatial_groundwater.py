@@ -20,7 +20,28 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.8.1"   # Hollingham (2026) -- 2026-06-21
+__version__ = "2.9.0"   # Hollingham (2026) -- 2026-08-06
+# 2.9.0 — viewer footer corrections. Two changes, both to generated HTML only;
+#          no change to the Delta-h calculation, the scenario definitions, or
+#          19_scenario_summary.csv.
+#          (a) Removed the claim that the Delaunay/linear interpolation is used
+#              "for published figures". This script emits no static figures --
+#              its only artefacts are 19_scenario_summary.csv and
+#              scenario_viewer.html -- and no report figure matches the
+#              described subject. The claim had propagated from this footer
+#              into the main report (Section 3.8) and the Supplementary
+#              Material (S3.2/S3.7/S3.8), each with a different stale figure
+#              pair. The genuine methodological contrast (triangulation-linear
+#              on export, power-1 8-NN IDW in the browser) is retained.
+#          (b) Removed the hardcoded CEH14 line "water balance residual
+#              alpha = +0.222 m/month (script 07)". It was hardcoded in the
+#              template with no CSV trace, mis-attributed (Script 07 computes
+#              no alpha term), and stale: the nearest live equivalent is the
+#              Script 22 Model B alpha, 22_model_b_fits.csv giving ceh14
+#              alpha = 0.1056 m/month at p = 0.081. Not replaced with a live
+#              value -- alpha is not a scenario parameter and nothing in the
+#              viewer consumes it. Revisit if the Script 20 residual pass
+#              concludes otherwise.
 # 2.8.1 — data/geo/ reorg: site-boundary via DATA_KML_SITE_BOUNDARY (data/geo/).
 #          No functional change.
                          # v2.8.0: ΔMSL5 row added to scenario viewer.
@@ -1248,12 +1269,11 @@ footer a:hover{{text-decoration:underline;}}
 <footer>
   <span style="float:right;opacity:0.6;">viewer v{viewer_version}</span>
   &#916;h from SSM increment model using per-well &#946;&#8321;, &#946;&#8322;, &#946;&#8323; (scripts 01&#8211;03).
-  Delaunay triangulation + linear barycentric weighting for published figures; viewer renders the same per-well &#916;h field via power-1 eight-nearest-neighbour IDW (see Technical Note for details).
+  &#916;h field interpolated by Delaunay triangulation with linear barycentric weighting; the viewer re-renders the same per-well values in the browser via power-1 eight-nearest-neighbour IDW (see Technical Note for details).
   Interception: Corsican pine 24% (Freeman 2008); broadleaf 15% annual mean (Komatsu et al. 2011).
   Broadleaf &#946;&#8322;: seasonally varying (winter 0.87&#215;, summer 1.09&#215;) from Script&nbsp;21 deciduous phenology profile.
   K&nbsp;=&nbsp;6&nbsp;m/day (Betson et al. 2002). Sy: WTF medians (scripts 17/18);
   floors C1&nbsp;=&nbsp;6%, C2&#8211;C5&nbsp;=&nbsp;12%.
-  CEH14 water balance residual &#945;&nbsp;=&nbsp;+0.222&nbsp;m/month (script 07).
   <a href="https://newbroman.github.io/Newborough_Hydrology/">Newborough Hydrology project site</a>
   &middot; Hollingham (2026) &#8212; <em>Journal of Hydrology: Regional Studies</em>.
 </footer>

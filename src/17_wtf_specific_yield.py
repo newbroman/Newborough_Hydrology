@@ -9,7 +9,7 @@ in the live partition. Forest clusters (FOREST_CIDS from config — C4 and C5)
 additionally receive an interception-corrected variant following Freeman (2008),
 applied to Approach B only. The corrected forest values populate Table 3c of
 the manuscript and feed the WTF-Sy volumetric water balance (Table 3d,
-Figure 8b).
+Figure 11b).
 
 Individual well-level WTF analysis and spatial mapping are in script 18.
 
@@ -30,9 +30,35 @@ S.12 §"Forest interception correction"; see also `wtf_interception_methodology.
 in the project store.
 """
 
-__version__ = "1.4.0"  # Hollingham (2026) — last revised 2026-07-22
+__version__ = "1.4.1"  # Hollingham (2026) — last revised 2026-08-06
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # Changelog:
+#   1.4.1 (2026-08-06) — documentation only. Two stale cross-references in the
+#     module docstring and the 1.4.0 changelog entry corrected. No change to
+#     any computation, output CSV, figure, or public interface; reruns are
+#     bit-identical.
+#       (a) Docstring: the WTF-Sy volumetric water balance was cited as
+#           "Figure 8b". The report figure is "Figure 11b" (Water balance
+#           decomposition by cluster, panel b — the volumetric partition), and
+#           it pairs with Tables 3c/3d as already stated. The stale 8-for-11
+#           label is the same drift corrected across the Methods Supplement in
+#           the 2026-08-06 figure-reference pass.
+#       (b) 1.4.0 note: the sole absolute-Sy consumer was called "the Figure 17
+#           reach". Report Figure 17 is the Tier 1 background environmental
+#           drift analysis. The reach is Script 20's
+#           20_drawdown_propagation_nohead.png = report Figure 50 and Paper 1
+#           Figure 19. It is now named rather than referred to by number alone,
+#           with both numbers given, because the same figure carries different
+#           numbers in the two documents and a bare number keeps being
+#           reintroduced from memory. Apply the same convention in
+#           INTERCEPTION_TREATMENT.md and the project working notes, which
+#           carry the identical stale label.
+#     Note for anyone quoting Sy from this script: two Approach B aggregations
+#     exist and are not interchangeable. The cluster-level event median in
+#     17_wtf_01_sy_estimates.csv (C3 = 0.3255) is what Paper 1 Table 4 reports;
+#     the median of the per-well event estimates in 17_wtf_well_sy.csv
+#     (C3 = 0.3057) is what Scripts 09d/20/29/30/31/37b consume, and is the
+#     value behind λ ≈ 225 m on the drawdown-reach figure.
 #   1.4.0 (2026-07-22) — Approach C revival (rapid-recharge-event method).
 #     A third, methodologically independent Sy estimator added alongside
 #     Approach A (drainage-corrected OLS) and Approach B (naïve event median),
@@ -59,10 +85,12 @@ __version__ = "1.4.0"  # Hollingham (2026) — last revised 2026-07-22
 #     propagate to any other pipeline script. The event-based per-well Sy
 #     (Approach B lineage, Script 18 → 17_wtf_well_sy.csv, consumed by
 #     09d/20/29/30/31/37b) remains the pipeline-consumed canonical. The only
-#     downstream quantity that consumes an absolute Sy — the Figure 17 reach
-#     λ = √(Kb/(Sy·β₃)) — and the Script 21 scenarios are therefore
-#     undisturbed. (The storage–drainage index Sy/β₃ is a diagnostic, not a
-#     used quantity; the residence time 1/β₃ is Sy-free.)
+#     downstream quantity that consumes an absolute Sy — the forest-
+#     interception drawdown reach λ = √(Kb/(Sy·β₃)), rendered by Script 20 as
+#     20_drawdown_propagation_nohead.png (report Figure 50; Paper 1
+#     Figure 19) — and the Script 21 scenarios are therefore undisturbed.
+#     (The storage–drainage index Sy/β₃ is a diagnostic, not a used quantity;
+#     the residence time 1/β₃ is Sy-free.)
 #     Edits:
 #       (a) New config constants WTF_C_DRY_BASELINE, WTF_C_MIN_RISE_M,
 #           WTF_C_MAX_DURATION, WTF_C_SY_MIN, WTF_C_SY_MAX, WTF_C_BOOTSTRAP_N,

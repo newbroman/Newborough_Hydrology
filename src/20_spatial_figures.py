@@ -63,7 +63,88 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds
 """
 
-__version__ = "1.34.0"  # Hollingham (2026) — 2026-07-17
+__version__ = "1.36.0"  # Hollingham (2026) — 2026-08-06
+# 1.36.0 — plot_residual_ssm() (Figure 58) surface routed through
+#         map_utils.add_idw_surface(), replacing the local idw_surface() call.
+#         Supersedes 1.35.0; commit the two together.
+#
+#         Footprint. The surface previously ran on the rectangular
+#         _site_mask() (three straight sea lines) with zero-valued anchors
+#         from _sea_boundary_points() fed into the Delaunay triangulation, so
+#         it extended up to ~1 km past the outermost dipwell over ground with
+#         no measurements, ramping to a fabricated zero at the shoreline. It
+#         now uses hull_buffer_m=100.0 (the pipeline-wide default set in
+#         map_utils v1.5.0, 2026-07-05) and apply_site_mask=True (the true KML
+#         outline via make_site_mask()). Coverage falls from effectively the
+#         whole rectangle to 1549 of 5159 grid cells; footprint E 240750–243000
+#         / N 362600–364800 against dipwell bounds E 240804–242938 /
+#         N 362688–364724.
+#
+#         Sea anchors dropped for the residual only. A zero-datum shoreline is
+#         physically meaningful for a HEAD surface and the flow-direction
+#         arrows still use it, but there is no basis for a water-balance
+#         residual vanishing at the coast, and within the buffer the anchors
+#         still pulled margin cells toward zero through the triangulation.
+#
+#         ridge_mask_threshold=None — no DEM-height mask, preserving the
+#         deliberate choice recorded in report §4.9.7.
+#
+#         Consequential: the arrow mask already required a non-NaN residual
+#         cell, so the flow arrows now follow the tightened footprint. The
+#         colour limits (95th percentile of |residual| over the surface) are
+#         computed over the smaller, well-supported footprint and tighten
+#         accordingly — on the corrected residuals that gives ±0.0106 m/month,
+#         so the NW2 neighbourhood saturates. The percentile rule is unchanged
+#         from 1.34.0; flagged for review rather than altered.
+#
+#         The local idw_surface() and _site_mask() helpers are retained — three
+#         other figures in this module still use them and are out of scope.
+# 1.35.0 — Two defects corrected in build_well_table()'s water-balance
+#         residual (Figure 58 / §4.9.7). See
+#         DEFECT_NOTE_script20_residual_field_2026-08-06.md for the full
+#         diagnosis, decomposition and traceability.
+#
+#         D1 — canopy interception was subtracted twice at forest wells.
+#         The recharge term used β₁·P̄·(1 − FOREST_INTERCEPTION) at C4/C5.
+#         Per INTERCEPTION_TREATMENT.md, interception is a partition of the
+#         atmospheric energy budget, not a term additive to it: Script 03
+#         fits on gross rainfall and above-canopy Thornthwaite PET, so the
+#         interception loss is already inside the fitted β₂·PET̄. The
+#         reduction inserted a spurious +β₁·0.24·P̄ — cluster medians
+#         +40.1 mm/month (C4) and +37.8 (C5), which is 155% and 101% of the
+#         entire forest-versus-open contrast the figure displayed. The
+#         `P_eff` column is removed and gross P̄ is used. FOREST_CIDS is no
+#         longer referenced in this module and has been dropped from the
+#         config import.
+#
+#         D2 — climate means spanned the full RAF Valley record. `clim` is
+#         loaded from 01_climate.csv in full (1143 rows, Dec 1930 onward)
+#         and was averaged entire, so the SSM was evaluated against a
+#         95-year normal (71.45 / 53.12 mm/month) while the mean heads span
+#         the monitoring record and the figure title states 2005–2026. The
+#         averaging window is now derived from the mean-head record (`maod`)
+#         so climate and head always describe the same period
+#         (74.33 / 54.72 mm/month). The console line now reports the period.
+#
+#         Effect (cluster medians, mm/month of head): C1 +15.8 → +2.6,
+#         C2 +9.9 → +0.2, C3 +9.3 → +0.6, C4 +36.3 → −5.3, C5 +48.2 → +4.8.
+#         Wells above +0.02 m/month 19 → 3; network maximum moves from NW10
+#         (C4, +0.063) to NW2 (C3, +0.053); CEH14 +0.030 → −0.011. The
+#         corrected field agrees with Script 16, which computes the same
+#         balance on gross P̄ and closes to within ±4.2 mm/month.
+#
+#         Figure text: the title formula now reads β₁·P̄ (was β₁·P̄_eff), and
+#         the colourbar label reads "+ve = modelled losses exceed modelled
+#         recharge" (was "+ve = ridge-derived residual") — the attribution
+#         is not supported by the corrected field. The CEH14 annotation
+#         reads the live value and self-updates.
+#
+#         Affects only 20_residual_ssm.png, 20_residual_perwell.csv and
+#         20_residual_report_numbers.csv. P_bar/PET_bar are used nowhere
+#         else in this module, and no other script reads those CSVs, so no
+#         other figure or output changes. Report §3.8/§3.8.4, §4.9.7,
+#         §5.2.1, §5.2, §6.7 and Paper 1 §4.10/§5.4 all cite the superseded
+#         numbers and need a separate document pass.
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.33.0 — Documentation-only cleanup, no functional or figure change. The
 #         plot_scrape_drawdown() docstring and the SCRAPE_DEPTH_M constant
@@ -491,9 +572,10 @@ from utils.paths import (
     OUT_25_FIT_PARAMETERS, OUT_25_PER_WELL_SLOPES,
     OUT_26_5YR_PER_WELL,
 )
-from utils.map_utils import load_dem_hillshade, load_scrape_kml, add_en_axes
+from utils.map_utils import (load_dem_hillshade, load_scrape_kml, add_en_axes,
+                             add_idw_surface)
 from utils.config import (CLUSTER_COLOURS, CLUSTER_LABELS, DRAINAGE_DATUM, FOREST_INTERCEPTION,
-                          FOREST_CIDS, SCRAPE_KML_FILES,
+                          SCRAPE_KML_FILES,
                           DRAWDOWN_H0_MM, DRAWDOWN_K_MDAY, DRAWDOWN_B_M,
                           BROADLEAF_INTERCEPTION, BL_CANOPY_FRACTION_2005,
                           BL_CANOPY_FRACTION_2025, COAST_CHRONIC_YEARS)
@@ -786,8 +868,23 @@ def build_well_table(data):
     ext   = data.get("extended")
     site  = data.get("site_audit")
 
-    P_bar   = clim["P_m"].mean()
-    PET_bar = clim["PET"].mean()
+    # ── Long-term climate means (DEFECT D2 fix, v1.35.0) ──────────────────
+    # 01_climate.csv carries the FULL RAF Valley record (Dec 1930 onward),
+    # not the study period. Averaging all of it evaluated the SSM against a
+    # 95-year climate normal while the mean heads below span the monitoring
+    # record only, and while Figure 58's caption states 2005-2026. The two
+    # periods differ materially (full record 71.45 / 53.12 mm/month against
+    # study period 74.33 / 54.72), and because the bias enters through
+    # beta_1 * P_bar it scaled with beta_1 — largest in the open dune.
+    #
+    # The averaging window is derived from the mean-head record (`maod`)
+    # rather than a literal date, so the climate means and the mean heads
+    # always describe the same period and the figure matches its caption.
+    _rec_start, _rec_end = maod.index.min(), maod.index.max()
+    _in_record  = (clim.index >= _rec_start) & (clim.index <= _rec_end)
+    clim_period = clim.loc[_in_record]
+    P_bar   = clim_period["P_m"].mean()
+    PET_bar = clim_period["PET"].mean()
 
     wt = locs[["Match_ID", "E", "N"]].rename(
         columns={"Match_ID": "well"}).copy()
@@ -822,20 +919,30 @@ def build_well_table(data):
     wt["mean_depth"] = wt["mean_head"] - wt["pipe_top"]
     wt["h_disp"] = DRAINAGE_DATUM + wt["mean_depth"]
 
-    # Effective P (canopy interception for forest clusters — from config)
-    wt["P_eff"] = wt.apply(
-        lambda r: P_bar * (1 - FOREST_INTERCEPTION)
-        if pd.notna(r.get("cluster")) and int(r["cluster"]) in FOREST_CIDS
-        else P_bar, axis=1)
-
     # SSM water balance residual.
-    # At steady state (Δh=0): 0 = β₁·P − β₂·PET − β₃·h_disp
-    # Residual = β₂·PET + β₃·h_disp − β₁·P_eff
+    # At steady state (Δh=0): 0 = β₁·P̄ − β₂·PET̄ − β₃·h̄_disp
+    # Residual = β₂·PET̄ + β₃·h̄_disp − β₁·P̄
     # Positive = SSM drainage+ET exceeds recharge → lateral inflow required.
+    #
+    # DO NOT reduce the recharge term by canopy interception (DEFECT D1 fix,
+    # v1.35.0). It is tempting to write β₁·P̄·(1 − FOREST_INTERCEPTION) at
+    # forest wells, and this function did so up to v1.34.0. That subtracts
+    # interception twice. Per INTERCEPTION_TREATMENT.md, interception is a
+    # PARTITION of the atmospheric energy budget, not a term additive to it:
+    # because Script 03 fits the SSM on gross rainfall and above-canopy
+    # Thornthwaite PET, the interception loss at C4/C5 is ALREADY carried
+    # inside the fitted β₂·PET̄. Applying (1 − 0.24) to P̄ as well inserted a
+    # spurious +β₁·0.24·P̄ ≈ +40 mm/month at C4 and +38 at C5 — more than the
+    # entire forest-versus-open contrast the resulting figure displayed.
+    # Script 16 uses gross P̄ here and closes the cluster balance to within
+    # ±4.2 mm/month; this now agrees with it. Interception belongs in the
+    # volumetric budget (Script 16 panel b) and in the WTF net-recharge flux
+    # (Scripts 17/18), where throughfall is used directly and no β₁ is
+    # applied. See DEFECT_NOTE_script20_residual_field_2026-08-06.md.
     wt["residual_wb"] = np.where(
         wt["beta1"].notna() & wt["h_disp"].notna(),
         wt["beta2"] * PET_bar + wt["beta3"] * wt["h_disp"]
-        - wt["beta1"] * wt["P_eff"],
+        - wt["beta1"] * P_bar,
         np.nan)
 
     wt["network"] = "Reference"
@@ -1240,8 +1347,8 @@ def plot_residual_ssm(wt, features, dpi=300):
 
     # Residual surface — IDW with sea boundary anchors at zero
     ref      = wt["residual_wb"].notna()
-    rpts     = wt.loc[ref, ["E","N"]].values
     rval     = wt.loc[ref, "residual_wb"].values
+    res_df   = wt.loc[ref, ["E", "N", "residual_wb"]].copy()
 
     # ── §4.9 traceable per-well residual CSV + report numbers (Fig 56) ────
     _rcols = [c for c in ["well", "E", "N", "Cluster", "residual_wb"] if c in wt.columns]
@@ -1267,45 +1374,67 @@ def plot_residual_ssm(wt, features, dpi=300):
     n_saved = rrpt.save(OUT_20_RESIDUAL_REPORT_NUMBERS)
     print(f"  Saved → {OUT_20_RESIDUAL_REPORT_NUMBERS.name} ({n_saved} report numbers)")
 
-    resid_surf = idw_surface(rpts, rval, gx, gy,
-                             sea_pts=sea_pts,
-                             sea_vals=np.zeros(len(sea_vals)),
-                             mask=mask)
-    vmax_r = np.nanpercentile(np.abs(resid_surf[mask]), 95)
-    norm_r = TwoSlopeNorm(vmin=-vmax_r, vcenter=0, vmax=vmax_r)
-
-    # Flow vectors from mean head gradient (independent of residual)
+    # Flow vectors from mean head gradient (independent of residual).
+    # The head surface KEEPS the zero-datum sea anchors — a shoreline head of
+    # zero is physically meaningful and the arrows are an independent product.
     head_surf = idw_surface(wt[["E","N"]].values, wt["mean_head"].values,
                             gx, gy, sea_pts=sea_pts, sea_vals=sea_vals, mask=mask)
     dy, dx = np.gradient(np.nan_to_num(head_surf, nan=np.nanmean(wt["mean_head"].values)),
                          GRID_YI[1]-GRID_YI[0], GRID_XI[1]-GRID_XI[0])
-    U = -dx; V = -dy
-    mag = np.sqrt(U**2 + V**2)
+    mag = np.sqrt(dx**2 + dy**2)
     # Suppress arrows where gradient is anomalously large — indicates
     # the IDW surface is interpolating through a ridge with no real saturated
     # zone (produces spurious dome artefacts near Newborough ridge).
     # Threshold = 95th percentile of gradient magnitude within the site mask.
     mag_thresh = np.nanpercentile(mag[mask], 95)
-    arrow_mask = mask & (mag > 0) & (mag < mag_thresh) & ~np.isnan(resid_surf)
-    with np.errstate(invalid="ignore"):
-        U = np.where(arrow_mask, -dx / mag, np.nan)
-        V = np.where(arrow_mask, -dy / mag, np.nan)
 
     fig, ax = plt.subplots(figsize=(10, 9), facecolor="white")
     load_dem_hillshade(ax, DATA_DIR, alpha=1.0, vert_exag=3.0, zorder=1)
     ax.set_xlim(*XLIM); ax.set_ylim(*YLIM)
     ax.set_aspect("equal")
 
-    # Residual surface
-    ax.pcolormesh(gx, gy, resid_surf, cmap="RdBu_r",
-                  norm=norm_r, shading="auto", alpha=0.52, zorder=2)
+    # ── Residual surface — map_utils.add_idw_surface (v1.35.1) ─────────────
+    # Was a local idw_surface() call on a rectangular sea-line mask, with
+    # zero-valued sea anchor points fed into the triangulation. Two problems:
+    # the surface ran up to ~1 km past the outermost dipwell over ground with
+    # no measurements, and the anchors imposed residual = 0 at the shoreline.
+    # A zero-datum shoreline is meaningful for a HEAD surface (the arrows below
+    # still use it) but there is no physical reason a water-balance residual
+    # should vanish at the coast, so the anchors are not used here.
+    #
+    # Now routed through map_utils per the pipeline's map discipline:
+    #   hull_buffer_m=100.0  — the pipeline-wide default set in map_utils
+    #                          v1.5.0 (2026-07-05) for a uniform map footprint;
+    #                          the surface reaches 100 m past the outer wells
+    #                          and no further.
+    #   apply_site_mask=True — the true KML site outline via make_site_mask(),
+    #                          replacing the crude rectangular sea-line clip.
+    #   ridge_mask_threshold=None — no DEM-height mask, preserving the
+    #                          deliberate choice recorded in report §4.9.7.
+    mesh, _, _, resid_surf = add_idw_surface(
+        ax, res_df, "residual_wb",
+        xi=GRID_XI, yi=GRID_YI, method="linear",
+        ridge_mask_threshold=None,
+        cmap="RdBu_r", alpha=0.52, zorder=2,
+        apply_site_mask=True, hull_buffer_m=100.0,
+    )
+    vmax_r = np.nanpercentile(np.abs(resid_surf), 95)
+    if not np.isfinite(vmax_r) or vmax_r <= 0:
+        vmax_r = float(np.nanmax(np.abs(rval))) or 0.01
+    norm_r = TwoSlopeNorm(vmin=-vmax_r, vcenter=0, vmax=vmax_r)
+    mesh.set_norm(norm_r)
     fig.colorbar(
-        plt.cm.ScalarMappable(norm=norm_r, cmap="RdBu_r"),
-        ax=ax, fraction=0.03, pad=0.02, shrink=0.85
-    ).set_label("Water balance residual (m/month)\n+ve = ridge-derived residual",
+        mesh, ax=ax, fraction=0.03, pad=0.02, shrink=0.85
+    ).set_label("Water balance residual (m/month)\n"
+                "+ve = modelled losses exceed modelled recharge",
                 fontsize=9)
 
-    # Flow direction arrows (normalised, white)
+    # Flow direction arrows (normalised, white). Confined to cells where the
+    # residual surface exists, so they follow the tightened footprint.
+    arrow_mask = mask & (mag > 0) & (mag < mag_thresh) & ~np.isnan(resid_surf)
+    with np.errstate(invalid="ignore"):
+        U = np.where(arrow_mask, -dx / mag, np.nan)
+        V = np.where(arrow_mask, -dy / mag, np.nan)
     skip = 6
     ax.quiver(gx[::skip, ::skip], gy[::skip, ::skip],
               U[::skip, ::skip], V[::skip, ::skip],
@@ -1333,7 +1462,7 @@ def plot_residual_ssm(wt, features, dpi=300):
     ax.tick_params(labelsize=8)
     ax.set_title(
         "SSM Water Balance Residual (m/month) — Newborough Warren 2005–2026\n"
-        "(β₂·PET̄ + β₃·h̄_disp − β₁·P̄_eff)  |  β coefficients only  |  "
+        "(β₂·PET̄ + β₃·h̄_disp − β₁·P̄)  |  β coefficients only  |  "
         "Flow direction arrows from head gradient",
         fontsize=10, fontweight="bold")
 
@@ -4657,7 +4786,9 @@ def main(preview=False):
     print(f"  Wells: {len(wt)}  "
           f"(residual available for {wt['residual_wb'].notna().sum()})")
     print(f"  P̄ = {P_bar*1000:.1f} mm/month  "
-          f"PET̄ = {PET_bar*1000:.1f} mm/month")
+          f"PET̄ = {PET_bar*1000:.1f} mm/month  "
+          f"(averaged over the head record, "
+          f"{data['maod'].index.min():%Y-%m} to {data['maod'].index.max():%Y-%m})")
 
     print("[3/4] Loading stream polygons...")
     stream_polys = load_stream_polygons()

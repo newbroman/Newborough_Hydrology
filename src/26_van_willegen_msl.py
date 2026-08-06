@@ -1737,16 +1737,20 @@ def plot_metric_diagnostics(diag: pd.DataFrame, prec: pd.DataFrame,
 # Column headings for the rendered table. Kept as a module constant so the CSV
 # and Markdown renderings cannot drift apart, and so a heading change is a
 # one-line edit rather than a hunt through two writers.
+# Headings are deliberately terse: ten columns have to fit portrait width in the
+# Supplementary Material, and units are carried in the caption rather than
+# repeated in every heading. The CSV and the ODT table must stay identical, so
+# any heading change here is a change to the document too.
 TABLE_S7_1_COLUMNS = [
     "Well",
     "Network",
     "Cluster",
-    "β₃ (month⁻¹)",
+    "β₃ (mth⁻¹)",
     "EWI (m bg)",
-    "± SE (mm)",
-    "MSL5 observed (m bg)",
-    "MSL5 reconstructed (m bg)",
-    "Residual (mm)",
+    "SE (mm)",
+    "MSL5 obs",
+    "MSL5 recon",
+    "Resid. (mm)",
     "Status",
 ]
 
@@ -1754,9 +1758,10 @@ TABLE_S7_1_COLUMNS = [
 # fit a portrait page and eleven do not, and the distinction that matters to a
 # reader is a single ordinal one — did this well set the calibration, was it
 # only reconstructed by it, or is it outside its scope entirely.
-STATUS_CALIBRATION  = "In scope — calibration"
-STATUS_RECONSTRUCTED = "In scope — reconstructed"
-STATUS_OUT_OF_SCOPE = "Out of scope — forest"
+# Terse for the same width reason; the caption defines all three.
+STATUS_CALIBRATION   = "Calibration"
+STATUS_RECONSTRUCTED = "Reconstructed"
+STATUS_OUT_OF_SCOPE  = "Out of scope"
 
 
 def _fmt(value, dp: int, blank: str = "") -> str:
@@ -1888,7 +1893,11 @@ def emit_supplementary_table_s7_1(ewi: pd.DataFrame, comp: pd.DataFrame,
         f"level. A further {n_rec} open-dune well(s) carry an index but no "
         f"valid five-year spring window and are reconstructed only; the "
         f"{n_out} C4/C5 forest wells are reconstructed but held out of scope, "
-        f"their coefficients being the least constrained on the site. "
+        f"their coefficients being the least constrained on the site. Status "
+        f"reads: '{STATUS_CALIBRATION}', an in-scope well that entered the fit; "
+        f"'{STATUS_RECONSTRUCTED}', in scope but with no observed spring level; "
+        f"'{STATUS_OUT_OF_SCOPE}', a forest well outside the calibration's "
+        f"scope. "
         f"Standard errors on the index propagate the drainage coefficient "
         f"alone, the dominant term; the full three-coefficient variant is "
         f"carried in {OUT_EWI.name}. Source: {OUT_EWI.name}, "
@@ -2222,7 +2231,7 @@ def main() -> int:
             info(f"  {len(s7_1)} wells listed")
             for label in (STATUS_CALIBRATION, STATUS_RECONSTRUCTED,
                           STATUS_OUT_OF_SCOPE):
-                info(f"    {label:<26s} {int(counts.get(label, 0)):>3d}")
+                info(f"    {label:<16s} {int(counts.get(label, 0)):>3d}")
 
     # ── Figures ────────────────────────────────────────────────────────────
     print("\nRendering figures...")

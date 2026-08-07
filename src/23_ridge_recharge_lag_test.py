@@ -10,7 +10,7 @@ LIMITATION NOTE (2026-05-17):
     The test design — peak-correlation lag of residuals against rainfall,
     Spearman-correlated with distance from a ridge reference point — was
     investigated in detail in May 2026 and found to be statistically
-    degenerate against this dataset for three structural reasons:
+    degenerate against this dataset for four structural reasons:
 
       1. Monthly time resolution cannot resolve sub-monthly to ~2-month
          travel times across a ~2 km transect. 60+ of 64 wells peak at
@@ -27,14 +27,25 @@ LIMITATION NOTE (2026-05-17):
          of the headline SSM. A signal of this magnitude is at the noise
          floor of the data regardless of test design.
 
+      4. A methodological floor at short lags. OLS residuals are orthogonal
+         to the fitted rainfall regressors at lags 0 and 1 by construction,
+         so the peak-lag statistic is partly determined by the fitting
+         procedure rather than by hydrology. 43 of the 51 significant peaks
+         fall at lag 2. The concentration at lag 2 is therefore not a
+         travel-time observation and must not be reported as one.
+
     The ridge-recharge hypothesis is therefore neither confirmed nor
     refuted by the current monitoring design; this is a limitation of the
-    data, not of the test. See §5.3 of the main report and §S.16 of the
-    Methods Supplement for the final framing.
+    data, not of the test. As of the 2026-08-06 correction to Script 20 the
+    question is moot in any case: the water-balance residual field carries no
+    spatial structure, so there is no ridge-margin anomaly for lateral
+    recharge to explain. See §4.9.7 and §5.2.1 of the main report and §S.16
+    of the Methods Supplement for the final framing.
 
 Purpose:
     Tests whether the water-balance residual attributed to ridge-derived recharge
-    in the report (Section 4.4.2 / 5.3) behaves like genuine lateral recharge
+    in earlier revisions of the report (then §4.4.2 / §5.3; now §4.9.7 /
+    §5.2.1) behaves like genuine lateral recharge
     from the northern rock ridge, or whether it is more likely to be model
     misspecification absorbing under a common label.
 
@@ -50,20 +61,22 @@ Purpose:
         attributed to ridge recharge on mechanistic grounds alone.
 
     Methodological note:
-        Script 22 documents AR(1) persistence in the headline SSM residuals
+        Script 22 characterises the headline SSM residuals
         (Delta_h = a + b1*P(t) - b2*PET(t) - b3*h_disp_prev(t)) across the
-        reference network. The positive AR(1) phi values are consistent with
-        vadose-zone moisture memory and other second-order persistence not
-        absorbed by the headline SSM — the headline model captures drainage
-        proportional to start-of-month head via b3*h_disp_prev, but does not
-        model storage-state memory in the unsaturated zone. This residual
-        persistence is an expected hydrological feature, not a model defect,
-        but it could mask any ridge-specific lag structure if present.
+        reference network. The residuals are close to white with a small
+        NEGATIVE first-order autocorrelation: network mean phi = -0.126,
+        median -0.129, and only three of 64 wells exceed |phi| = 0.3
+        (22_model_b_fits.csv). There is therefore no positive persistence
+        for a vadose-zone moisture-memory reading to rest on, and the
+        premise that a generic first-order rainfall lag needs absorbing
+        is weaker than earlier revisions of this docstring asserted.
 
-        This script refits with BOTH P(t) and P(t-1) as regressors. The
-        residuals from this richer model are explicitly free of any generic
-        first-order rainfall lag confound. Any remaining lag structure in
-        the residuals is the candidate ridge signal.
+        This script nonetheless refits with BOTH P(t) and P(t-1) as
+        regressors, so that the residuals of the richer model cannot carry
+        a generic first-order rainfall confound by construction. See the
+        LIMITATION NOTE above, reason (4): that same construction makes the
+        peak-lag statistic partly an artefact of the fit rather than an
+        observation of travel time.
 
     The report's fitted b1, b2, b3 and alpha values are UNCHANGED by this script
     and remain authoritative. This is a diagnostic analysis, not a revision.
@@ -74,7 +87,7 @@ Purpose:
         same scale as the pipeline's headline fits.
 
         DESIGN NOTE: The extended model deliberately includes both P(t) and P(t-1)
-        to absorb the generic vadose-zone lag that Script 22 demonstrated. Now
+        to absorb a generic vadose-zone lag. Now
         that the headline model uses HEADLINE_LAG from config, an alternative
         would be to shift both terms accordingly. The current formulation
         (P(t) + P(t-1)) is retained pending a scientific review of whether
@@ -95,7 +108,30 @@ Ridge reference point: E = 241750, N = 364500 (OSGB36)
 ====================================================================================
 """
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-06-21 (iterate CLUSTER_LABELS not CLUSTER_COLOURS.items() — drop reserved C6 from cluster loops; no functional change, C6 was already len-guarded)
+__version__ = "1.1.1"  # Hollingham (2026) — 2026-08-07
+# 1.1.1 (2026-08-07) — documentation only; no computation, output or interface
+#         change, reruns are bit-identical.
+#         (a) The Methodological note claimed "positive AR(1) phi values ...
+#             consistent with vadose-zone moisture memory". The committed
+#             22_model_b_fits.csv gives network mean phi = -0.126, median
+#             -0.129, with only 3 of 64 wells above |phi| = 0.3. The
+#             persistence is NEGATIVE and the claim was stated backwards.
+#             Rewritten; the extended P(t)+P(t-1) fit is retained, but on
+#             the narrower ground that it removes a confound by
+#             construction rather than that Script 22 demonstrated one.
+#         (b) LIMITATION NOTE extended from three structural reasons to
+#             four, adding the short-lag methodological floor identified in
+#             the May 2026 investigation: OLS residuals are orthogonal to
+#             the rainfall regressors at lags 0 and 1 by construction, so
+#             the lag-2 concentration (43 of 51 significant peaks) is
+#             partly an artefact of the fit and is not a travel-time
+#             observation. Carried into Methods Supplement §S.16 (v1.8.20)
+#             and Paper 1 SI §S9 in the same batch.
+#         (c) Stale cross-references: §4.4.2 / §5.3 renumbered to §4.9.7 /
+#             §5.2.1, and a note added that the Script 20 correction of
+#             2026-08-06 removed the spatial structure the test was built
+#             to interrogate.
+# 1.1.0 — 2026-06-21 (iterate CLUSTER_LABELS not CLUSTER_COLOURS.items() — drop reserved C6 from cluster loops; no functional change, C6 was already len-guarded)
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.0.1 — Doc-sweep S.16: added prominent LIMITATION NOTE at top of
 #         docstring documenting that the test design is statistically

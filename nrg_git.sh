@@ -154,9 +154,32 @@ stage_web_tools(){
   return 0
 }
 
+# --- index.html: keep the pipeline counts in step with the manifest ----------
+# index.html is hand-maintained and is the only project document that states
+# the step counts without quoting outputs/pipeline_manifest.json. On 2026-08-07
+# it was found claiming "46 analytical steps across 17 phases, plus a single
+# post-processing phase" - an eighteenth phase that does not exist, Phase 17
+# being the post-processing phase and already inside the 17. The numbers now
+# sit inside <!--PL:key--> markers and are stamped from the manifest here.
+# WARNS but never blocks: a stale manifest must not stop an unrelated push.
+sync_index_counts(){
+  local script="tools/sync_index_counts.py"
+  [[ -f "$script" ]] || return 0
+  command -v python3 >/dev/null 2>&1 || return 0
+  say "Syncing index.html pipeline counts"
+  if python3 "$script"; then
+    :
+  else
+    fail "index.html counts not synced (see above)"
+    echo -e "  ${Y}(warning only - not blocking your push)${N}"
+  fi
+  return 0
+}
+
 do_push(){
   refresh_mirror || return
   lint_figrefs
+  sync_index_counts
   stage_web_tools
   stage_all
   if have_staged; then
@@ -184,11 +207,12 @@ do_sync(){
   # 2) get latest from GitHub
   integrate || return
   # 3) rebuild the live outputs
+  sync_index_counts
   stage_web_tools
   say "Rebuilding forecaster feeds from the hub"
   python3 "$LIVING/update_forecaster_feed.py" --hub "$HUB" --cluster-map "$CLUSTER_MAP" --out "$FEED_JSON"  || { fail "feed build failed"; return; }
   python3 "$LIVING/update_forecaster_msl5.py" --hub "$HUB" --cluster-map "$CLUSTER_MAP" --out "$MSL5_JSON" || { fail "MSL5 build failed"; return; }
-  git add "$HUB" "$FEED_JSON" "$MSL5_JSON" "$SCATTER_DST" "$VIEWER_DST"
+  git add "$HUB" "$FEED_JSON" "$MSL5_JSON" "$SCATTER_DST" "$VIEWER_DST" index.html
   if have_staged; then
     git commit -m "monthly forecaster update $(date +%Y-%m)" && ok "feeds committed"
   else

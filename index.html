@@ -623,10 +623,10 @@
         <div class="pillar-icon pipe">&#9881;</div>
         <h3>Analysis Pipeline</h3>
         <p class="pillar-desc">
-          Reproducible Python workflow: 46 analytical steps across
-          17 phases, from raw dipwell data to publication figures.
+          Reproducible Python workflow: <!--PL:analytical-->46<!--/PL:analytical--> analytical steps across
+          <!--PL:phases-->17<!--/PL:phases--> phases, from raw dipwell data to publication figures.
         </p>
-        <p class="pillar-count">49 steps &middot; Python 3.10+</p>
+        <p class="pillar-count"><!--PL:total-->49<!--/PL:total--> steps &middot; Python 3.10+</p>
         <span class="btn btn-pine">View pipeline &darr;</span>
       </a>
 
@@ -823,8 +823,9 @@
     <h2>Pipeline</h2>
 
     <p>
-      46 analytical steps across 17 phases, plus a single
-      post-processing phase, coordinated by
+      <!--PL:total-->49<!--/PL:total--> steps across <!--PL:phases-->17<!--/PL:phases--> phases, of which
+      <!--PL:analytical-->46<!--/PL:analytical--> are analytical and <!--PL:display-->4<!--/PL:display--> are
+      display/utility, coordinated by
       <code>run_analysis.py</code>. All file paths managed centrally through
       <code>src/utils/paths.py</code>. Python 3.10+ required (3.12 tested).
     </p>
@@ -838,7 +839,7 @@
       <br>
       <span class="comment"># Run</span><br>
       <span class="cmd">python run_analysis.py &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># interactive menu</span></span><br>
-      <span class="cmd">python run_analysis.py --full &nbsp;&nbsp;<span class="comment"># complete pipeline (all 49 steps)</span></span><br>
+      <span class="cmd">python run_analysis.py --full &nbsp;&nbsp;<span class="comment"># complete pipeline (all <!--PL:total-->49<!--/PL:total--> steps)</span></span><br>
       <span class="cmd">python run_analysis.py --from 14 <span class="comment"># resume from step 14</span></span><br>
       <span class="cmd">python run_analysis.py --viewer &nbsp;<span class="comment"># build scenario viewer only</span></span>
     </div>

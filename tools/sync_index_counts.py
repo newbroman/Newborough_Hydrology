@@ -65,7 +65,16 @@ import re
 import sys
 from pathlib import Path
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-08-07
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-08-07
+# 1.1.0 — added audit_unmanaged(). v1.0.0 markered four sites and reported
+#         "already current" while a fifth, "<strong>43</strong>
+#         <span>pipeline steps</span>", sat unmarkered and three counts out of
+#         date. The number and its noun were separated by markup, so the
+#         search that found the other sites missed it; "A 46-step ... pipeline"
+#         was missed for the same reason (hyphen, not space). The audit now
+#         warns about any two-digit number near "step" or "phase" that is not
+#         inside a marker pair, so a newly added or overlooked site is
+#         reported rather than silently going stale.
 
 _ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_INDEX = _ROOT / "index.html"
@@ -78,6 +87,17 @@ _KEYS = {
     "phases": lambda m: m["analytical_phases"],
     "display": lambda m: m["by_tier"]["display_utility"],
 }
+
+
+def _report_unmanaged(warnings: list[str]) -> None:
+    """Print the unmarkered-number warnings, if any. Never changes the exit code."""
+    if not warnings:
+        return
+    print(f"  ! {len(warnings)} step-like number(s) outside the markers "
+          f"- these will NOT be kept in step:")
+    for line in warnings:
+        print(f"      {line}")
+    print("      (wrap in <!--PL:key-->N<!--/PL:key--> if they are pipeline counts)")
 
 
 def _fail(msg: str) -> None:
@@ -136,6 +156,40 @@ def stamp(html: str, values: dict[str, int]) -> tuple[str, list[str]]:
     return html, changes
 
 
+def audit_unmanaged(html: str) -> list[str]:
+    """
+    Warn about step-like numbers that sit OUTSIDE the markers.
+
+    Stamping only touches markered sites, so an unmarkered number is invisible
+    to this script and will go stale unnoticed — which is exactly what happened
+    to the "43 pipeline steps" stat chip. Deliberately narrow: two-digit numbers
+    only, within 60 characters of "step" or "phase", outside <style>, and not
+    part of a --from/step N command example.
+    """
+    # blank out managed regions and the stylesheet so neither can false-positive
+    scrubbed = re.sub(r"<!--PL:(\w+)-->.*?<!--/PL:\1-->", "\0", html, flags=re.DOTALL)
+    scrubbed = re.sub(r"<style.*?</style>", lambda m: " " * len(m.group(0)),
+                      scrubbed, flags=re.DOTALL | re.IGNORECASE)
+
+    warnings: list[str] = []
+    for match in re.finditer(r"\b\d{2}\b", scrubbed):
+        before = scrubbed[max(0, match.start() - 60):match.start()]
+        after = scrubbed[match.end():match.end() + 60]
+        if not re.search(r"step|phase", before + after, re.IGNORECASE):
+            continue
+        # command examples: "--from 14", "resume from step 14"
+        if re.search(r"(--from|step)\s*$", before):
+            continue
+        # version numbers: the "10" of "Python 3.10+"
+        if before.endswith(".") or scrubbed[match.end():match.end() + 1] == ".":
+            continue
+        line = scrubbed[:match.start()].count("\n") + 1
+        context = " ".join((before[-45:] + "[" + match.group(0) + "]"
+                            + after[:45]).split())
+        warnings.append(f"line {line}: {context}")
+    return warnings
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(
         description="Stamp index.html's pipeline counts from pipeline_manifest.json.")
@@ -157,24 +211,28 @@ def main() -> int:
               f"has it been replaced by an unmarkered copy?")
 
     updated, changes = stamp(original, values)
+    unmanaged = audit_unmanaged(original)
 
     if not changes:
         print(f"  OK index.html counts already current "
               f"({total_markers} marker sites, "
               f"{values['total']}/{values['analytical']}/{values['phases']}/"
               f"{values['display']})")
+        _report_unmanaged(unmanaged)
         return 0
 
     if args.check:
         print("  x index.html counts are stale:")
         for line in changes:
             print(f"      {line}")
+        _report_unmanaged(unmanaged)
         return 1
 
     args.index.write_text(updated, encoding="utf-8")
     print("  OK index.html counts updated:")
     for line in changes:
         print(f"      {line}")
+    _report_unmanaged(unmanaged)
     return 0
 
 

@@ -127,9 +127,37 @@ lint_figrefs(){
   fi
 }
 
+# --- web tools: keep the served root copies in step with outputs/ ------------
+# scenario_viewer.html and seasonal_extremes_scatter.html are generated into
+# outputs/ by Scripts 19 and 14, but GitHub Pages serves the copies at the repo
+# root. Until 2026-08-07 this copy ran only in do_sync (menu 1, monthly), so a
+# script rerun pushed via do_push (menu 2) updated outputs/ and left the served
+# page stale - which is how the viewer sat at v2.8.1 while outputs/ was v2.9.0
+# for a day. Both paths now call this, so the served copy can never lag a push.
+# Reports "refreshed" only when the file actually changed, so a real update is
+# visible rather than buried in a list of no-ops.
+stage_web_tools(){
+  say "Staging web tools to root"
+  local pair src dst name changed=0
+  for pair in "$SCATTER_SRC|$SCATTER_DST" "$VIEWER_SRC|$VIEWER_DST"; do
+    src="${pair%%|*}"; dst="${pair##*|}"; name="$(basename "$dst")"
+    if [[ ! -f "$src" ]]; then
+      echo "  (no source for ${name} - skipped)"
+    elif [[ -f "$dst" ]] && cmp -s "$src" "$dst"; then
+      echo "  ${name} already current"
+    else
+      cp -f "$src" "$dst" && { echo -e "  ${G}refreshed${N} ${name}"; changed=1; } \
+                          || fail "could not copy ${name}"
+    fi
+  done
+  [[ "$changed" == "1" ]] && echo -e "  ${Y}note${N} a served page changed - remember to push, or Pages stays stale."
+  return 0
+}
+
 do_push(){
   refresh_mirror || return
   lint_figrefs
+  stage_web_tools
   stage_all
   if have_staged; then
     say "Your local changes (committing these first)"
@@ -156,9 +184,7 @@ do_sync(){
   # 2) get latest from GitHub
   integrate || return
   # 3) rebuild the live outputs
-  say "Staging web tools to root"
-  [[ -f "$SCATTER_SRC" ]] && cp -f "$SCATTER_SRC" "$SCATTER_DST" && echo "  staged seasonal_extremes_scatter.html" || echo "  (no scatter source - skipped)"
-  [[ -f "$VIEWER_SRC"  ]] && cp -f "$VIEWER_SRC"  "$VIEWER_DST"  && echo "  staged scenario_viewer.html"        || echo "  (no viewer source - skipped)"
+  stage_web_tools
   say "Rebuilding forecaster feeds from the hub"
   python3 "$LIVING/update_forecaster_feed.py" --hub "$HUB" --cluster-map "$CLUSTER_MAP" --out "$FEED_JSON"  || { fail "feed build failed"; return; }
   python3 "$LIVING/update_forecaster_msl5.py" --hub "$HUB" --cluster-map "$CLUSTER_MAP" --out "$MSL5_JSON" || { fail "MSL5 build failed"; return; }

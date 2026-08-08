@@ -55,7 +55,7 @@ Inputs (all from pipeline outputs/ directory)
 -----------------------------------------------
     01_wells_clean_maod.csv                    \u2014 reference network maOD time series
     01_wells_extended.csv                      \u2014 extended network raw depths
-    01_well_elevations.csv                     \u2014 well DEM elevations (pipe_top_elev_m)
+    01_well_elevations.csv                     \u2014 canonical geometry (ground_elev_m)
     01_locations.csv                           \u2014 well coordinates
     03_master_data.csv                         \u2014 reference well cluster assignments
     03_03_cluster_mechanistic_coefficients.csv \u2014 cluster-level SSM \u03b2 coefficients
@@ -74,7 +74,7 @@ Dependencies
     Skeletonisation: not required (map_utils handles DEM/IDW)
 """
 
-__version__ = "1.6.0"  # Hollingham (2026) — 2026-07-19
+__version__ = "1.6.1"  # Hollingham (2026) — 2026-07-19
 # 1.5.1 (2026-07-19): review revision — 11b_01 stats box nudged into the
 #   lower-left axes corner: transAxes anchor (0.02, 0.03) -> (0.005, 0.008).
 # 1.5.0 (2026-07-19): review revisions — cross-map consistency (authored
@@ -625,11 +625,12 @@ def load_well_data() -> pd.DataFrame:
         if lrow.empty or erow.empty:
             continue
         dem_e    = erow.iloc[0]["ground_elev_m"]
-        pipe_top = erow.iloc[0]["pipe_top_elev_m"]
-        if np.isnan(dem_e) or np.isnan(pipe_top):
+        if np.isnan(dem_e):
             continue
 
-        maod   = pipe_top + ext_raw[col].dropna()
+        # level is ground-referenced (master `depth from surface`): add ground,
+        # not pipe top, or the maOD carries the upstand twice.
+        maod   = dem_e + ext_raw[col].dropna()
         mins   = _summer_mins(maod)
         if len(mins) < 2:
             continue
@@ -917,8 +918,8 @@ def plot_winter_maxima_map(df: pd.DataFrame, dpi: int = 300) -> None:
             erow = elev[elev["Name_norm"].apply(_norm) == wn]
             if erow.empty:
                 continue
-            pipe_top = erow.iloc[0]["pipe_top_elev_m"]
-            series = pipe_top + ext_raw[col_ext].dropna()
+            ground_e = erow.iloc[0]["ground_elev_m"]
+            series = ground_e + ext_raw[col_ext].dropna()
 
         maxima = _winter_maxima(series)
         if len(maxima) < 3:
@@ -1287,8 +1288,8 @@ def plot_flood_frequency_map(df: pd.DataFrame, dpi: int = 300) -> None:
             erow = elev[elev["Name_norm"].apply(_norm) == wn]
             if erow.empty:
                 continue
-            pipe_top = erow.iloc[0]["pipe_top_elev_m"]
-            series = pipe_top + ext_raw[col_ext].dropna()
+            ground_e = erow.iloc[0]["ground_elev_m"]
+            series = ground_e + ext_raw[col_ext].dropna()
 
         freq = _flood_frequency(series, dem)
         if np.isnan(freq):

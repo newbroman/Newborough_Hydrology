@@ -1,5 +1,5 @@
 descriptor,column,binary,eta2_separation,ari_recoverability
-Ground elevation,DEM_Ground_Elev,False,0.21,0.097
+Ground elevation,ground_elev_m,False,0.209,0.018
 Seasonal amplitude,amplitude,False,0.35,0.072
 Dry depth,dry_depth,False,0.356,0.133
 Summer minimum,summer_min,False,0.482,0.159

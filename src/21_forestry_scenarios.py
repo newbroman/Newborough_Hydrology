@@ -83,7 +83,7 @@ References
                           Impact tier) at runtime; see _load_baci_params().
 """
 
-__version__ = "1.5.0"  # 2026-07-02 — 21_forestry_06 re-based to VOLUMETRIC.
+__version__ = "1.6.1"  # 2026-07-02 — 21_forestry_06 re-based to VOLUMETRIC.
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 #         The per-cluster summer metric is now the equilibrium volumetric Δh
 #         (mm water-equiv / month) taken directly from scenario_values, not a
@@ -491,12 +491,12 @@ def get_well_monthly(w, df, dates, well_names):
 
 
 def get_maod(w, df, dates, well_names, elev):
-    """Convert raw depth to maOD: maOD = Pipe_Top_Elev + raw_depth."""
+    """Convert level to maOD: maOD = ground_elev_m + level (ground-referenced)."""
     raw = get_well_monthly(w, df, dates, well_names)
-    pt  = elev[elev["well"] == w]["Pipe_Top_Elev"]
-    if raw is None or pt.empty:
+    g   = elev[elev["well"] == w]["ground_elev_m"]
+    if raw is None or g.empty:
         return None
-    return pt.values[0] + raw
+    return g.values[0] + raw
 
 
 def cluster_summer_mins(cl, master, df, dates, well_names, elev,
@@ -509,7 +509,7 @@ def cluster_summer_mins(cl, master, df, dates, well_names, elev,
     well_depths = []
     for w in wells:
         maod_s = get_maod(w, df, dates, well_names, elev)
-        dem_r  = elev[elev["well"] == w]["DEM_Ground_Elev"]
+        dem_r  = elev[elev["well"] == w]["ground_elev_m"]
         if maod_s is None or dem_r.empty:
             continue
         depth = dem_r.values[0] - maod_s   # positive = below ground
@@ -612,7 +612,7 @@ def get_observed_seasonal_cycle(reg, elev, master):
     """
     c4_wells = master[master["Cluster"] == 4]["well"].tolist()
     c4_dem   = np.mean([
-        elev[elev["well"] == w]["DEM_Ground_Elev"].values[0]
+        elev[elev["well"] == w]["ground_elev_m"].values[0]
         for w in c4_wells
         if not elev[elev["well"] == w].empty
     ])
@@ -625,7 +625,7 @@ def get_cluster_obs_cycle(cl, reg, elev, master):
     """Observed mean monthly depth for C1 or C2 (for context lines)."""
     wells = master[master["Cluster"] == cl]["well"].tolist()
     dem   = np.mean([
-        elev[elev["well"] == w]["DEM_Ground_Elev"].values[0]
+        elev[elev["well"] == w]["ground_elev_m"].values[0]
         for w in wells
         if not elev[elev["well"] == w].empty
     ])
@@ -918,10 +918,10 @@ def _get_maod_monthly_21(w, df, dates, well_names, elev):
     raw = get_well_monthly(w, df, dates, well_names)
     if raw is None:
         return None
-    pt = elev[elev["well"] == w]["Pipe_Top_Elev"]
-    if pt.empty:
+    g = elev[elev["well"] == w]["ground_elev_m"]
+    if g.empty:
         return None
-    return pt.values[0] + raw
+    return g.values[0] + raw
 
 
 def _wells_summer_mins(well_list, df, dates, well_names, elev,
@@ -934,7 +934,7 @@ def _wells_summer_mins(well_list, df, dates, well_names, elev,
     well_depths = []
     for w in well_list:
         maod = _get_maod_monthly_21(w, df, dates, well_names, elev)
-        dem_r = elev[elev["well"] == w]["DEM_Ground_Elev"]
+        dem_r = elev[elev["well"] == w]["ground_elev_m"]
         if maod is None or dem_r.empty:
             continue
         depth = dem_r.values[0] - maod
@@ -1306,11 +1306,10 @@ def _well_summer_mins_era(w, df, dates, well_names, elev,
     raw = get_well_monthly(w, df, dates, well_names)
     if raw is None:
         return np.array([])
-    pt  = elev[elev["well"] == w]["Pipe_Top_Elev"]
-    dem = elev[elev["well"] == w]["DEM_Ground_Elev"]
-    if pt.empty or dem.empty:
+    dem = elev[elev["well"] == w]["ground_elev_m"]
+    if dem.empty:
         return np.array([])
-    maod  = pt.values[0] + raw
+    maod  = dem.values[0] + raw
     depth = dem.values[0] - maod
     if start:
         depth = depth[depth.index >= start]
@@ -1697,7 +1696,7 @@ def _zone_summer_mins(wells, df, dates, well_names, elev, start=None, end=None):
         no longer used (the cleaned wells frame is loaded internally so the
         provenance alignment is exact).
     elev : pd.DataFrame
-        Well elevation table with `well`, `Pipe_Top_Elev`, `DEM_Ground_Elev`.
+        Well elevation table with `well`, `ground_elev_m`.
     start, end : str or None
         BACI phase date window; translated to an inclusive year range by
         `_phase_year_range()`.
@@ -1729,14 +1728,15 @@ def _zone_summer_mins(wells, df, dates, well_names, elev, start=None, end=None):
         e = elev[elev["well"] == w]
         if e.empty:
             continue
-        pt  = e["Pipe_Top_Elev"].values[0]
-        dem = e["DEM_Ground_Elev"].values[0]
-        # Raw pipe-relative depth (negative below pipe top), full monthly
-        # index with NaN for gaps — the form annual_summer_minimum expects.
+        dem = e["ground_elev_m"].values[0]
+        # `raw` is the ground-referenced level from 01_wells_clean.csv (master
+        # `depth from surface` = upstand - dip): negative below ground, full
+        # monthly index with NaN for gaps — the form the helper expects.
         raw = wells_df[w]
-        # depth_bg is positive below ground; negate so the helper's .min()
+        # depth_bg is positive below ground, so depth_bg = dem - maOD
+        # = dem - (dem + raw) = -raw. Negated again here so the helper's .min()
         # selects the DEEPEST summer level.
-        neg_depth_bg = -(dem - (pt + raw))
+        neg_depth_bg = raw
         prov_w = prov_df[w] if w in prov_df.columns else None
         neg_mins = _cc_annual_summer_minimum(
             neg_depth_bg, y0, y1, provenance=prov_w, min_measured=2)

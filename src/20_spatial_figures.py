@@ -63,7 +63,7 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds
 """
 
-__version__ = "1.37.0"  # Hollingham (2026) — 2026-08-06
+__version__ = "1.37.1"  # Hollingham (2026) — 2026-08-06
 # 1.36.0 — plot_residual_ssm() (Figure 58) surface routed through
 #         map_utils.add_idw_surface(), replacing the local idw_surface() call.
 #         Supersedes 1.35.0; commit the two together.
@@ -905,18 +905,16 @@ def build_well_table(data):
     elev_map = dict(zip(elev["Name_norm"], elev["ground_elev_m"]))
     wt["dem_elev"] = wt["well"].map(elev_map)
 
-    # Pipe-top elevation — needed for displacement formulation
-    pipe_map = dict(zip(elev["Name_norm"], elev["pipe_top_elev_m"]))
-    wt["pipe_top"] = wt["well"].map(pipe_map)
 
     # Mean annual head
     wt["mean_head"] = wt["well"].map(maod.mean(axis=0))
 
     # Displacement above drainage datum.
-    # h_depth = maOD − pipe_top (negative convention, same as 01_wells_clean.csv).
+    # h_depth = maOD − ground_elev_m (negative convention, same as 01_wells_clean.csv,
+    #           which is the master `depth from surface` sheet: level = upstand − dip).
     # h_disp  = DRAINAGE_DATUM + h_depth (positive when water table is above
     #           the drainage base; matches Script 03 SSM fitting formulation).
-    wt["mean_depth"] = wt["mean_head"] - wt["pipe_top"]
+    wt["mean_depth"] = wt["mean_head"] - wt["dem_elev"]
     wt["h_disp"] = DRAINAGE_DATUM + wt["mean_depth"]
 
     # SSM water balance residual.
@@ -969,7 +967,7 @@ def build_well_table(data):
             normalize_well_name(r["Well_Normalised"]): int(r["Best_Match_Cluster"])
             for _, r in site[site["Network"] == "Extended"].iterrows()
         }
-        pipe_map = dict(zip(elev["Name_norm"], elev["pipe_top_elev_m"]))
+        ground_map = dict(zip(elev["Name_norm"], elev["ground_elev_m"]))
         for wn, cl in ext_cls.items():
             lrow = locs[locs["Match_ID"] == wn]
             if lrow.empty:
@@ -978,11 +976,11 @@ def build_well_table(data):
                 if name_col:
                     lrow = locs[locs[name_col[0]].apply(normalize_well_name) == wn]
             if lrow.empty: continue
-            pipe_top = pipe_map.get(wn, np.nan)
-            if np.isnan(pipe_top): continue
+            ground_e = ground_map.get(wn, np.nan)
+            if np.isnan(ground_e): continue
             col = next((c for c in ext.columns if c == wn), None)
             if col is None: continue
-            series = pipe_top + ext[col].dropna()
+            series = ground_e + ext[col].dropna()
             if len(series) < 5: continue
             ext_rows.append({
                 "well": wn, "E": lrow.iloc[0]["E"], "N": lrow.iloc[0]["N"],

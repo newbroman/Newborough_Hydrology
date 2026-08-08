@@ -4,123 +4,123 @@
 # Separation sign: positive = shallower than the observed C4 baseline.
 # BLOCK 1 — monthly depths (long format)
 Series,Series_type,Month_num,Month,Depth_m
-Baseline (Corsican pine),scenario,1,Jan,0.7503
-Baseline (Corsican pine),scenario,2,Feb,0.6769
-Baseline (Corsican pine),scenario,3,Mar,0.6725
-Baseline (Corsican pine),scenario,4,Apr,0.6719
-Baseline (Corsican pine),scenario,5,May,0.7841
-Baseline (Corsican pine),scenario,6,Jun,0.9501
-Baseline (Corsican pine),scenario,7,Jul,1.0877
-Baseline (Corsican pine),scenario,8,Aug,1.1921
-Baseline (Corsican pine),scenario,9,Sep,1.2988
-Baseline (Corsican pine),scenario,10,Oct,1.3042
-Baseline (Corsican pine),scenario,11,Nov,1.0901
-Baseline (Corsican pine),scenario,12,Dec,0.8436
-Full clearfell,scenario,1,Jan,0.7023
-Full clearfell,scenario,2,Feb,0.6401
-Full clearfell,scenario,3,Mar,0.6382
-Full clearfell,scenario,4,Apr,0.646
-Full clearfell,scenario,5,May,0.7583
-Full clearfell,scenario,6,Jun,0.9246
-Full clearfell,scenario,7,Jul,1.0571
-Full clearfell,scenario,8,Aug,1.157
-Full clearfell,scenario,9,Sep,1.2528
-Full clearfell,scenario,10,Oct,1.2408
-Full clearfell,scenario,11,Nov,1.0307
-Full clearfell,scenario,12,Dec,0.7808
-50% thinning,scenario,1,Jan,0.7263
-50% thinning,scenario,2,Feb,0.6585
-50% thinning,scenario,3,Mar,0.6554
-50% thinning,scenario,4,Apr,0.659
-50% thinning,scenario,5,May,0.7712
-50% thinning,scenario,6,Jun,0.9373
-50% thinning,scenario,7,Jul,1.0724
-50% thinning,scenario,8,Aug,1.1746
-50% thinning,scenario,9,Sep,1.2758
-50% thinning,scenario,10,Oct,1.2725
-50% thinning,scenario,11,Nov,1.0604
-50% thinning,scenario,12,Dec,0.8122
-Broadleaf conversion,scenario,1,Jan,0.7241
-Broadleaf conversion,scenario,2,Feb,0.655
-Broadleaf conversion,scenario,3,Mar,0.6495
-Broadleaf conversion,scenario,4,Apr,0.6513
-Broadleaf conversion,scenario,5,May,0.7687
-Broadleaf conversion,scenario,6,Jun,0.9575
-Broadleaf conversion,scenario,7,Jul,1.1061
-Broadleaf conversion,scenario,8,Aug,1.2126
-Broadleaf conversion,scenario,9,Sep,1.2977
-Broadleaf conversion,scenario,10,Oct,1.2817
-Broadleaf conversion,scenario,11,Nov,1.0616
-Broadleaf conversion,scenario,12,Dec,0.8132
-Observed C4 baseline,observed,1,Jan,0.7503
-Observed C4 baseline,observed,2,Feb,0.6769
-Observed C4 baseline,observed,3,Mar,0.6725
-Observed C4 baseline,observed,4,Apr,0.6719
-Observed C4 baseline,observed,5,May,0.7841
-Observed C4 baseline,observed,6,Jun,0.9501
-Observed C4 baseline,observed,7,Jul,1.0877
-Observed C4 baseline,observed,8,Aug,1.1921
-Observed C4 baseline,observed,9,Sep,1.2988
-Observed C4 baseline,observed,10,Oct,1.3042
-Observed C4 baseline,observed,11,Nov,1.0901
-Observed C4 baseline,observed,12,Dec,0.8436
-BACI annual benchmark,benchmark,1,Jan,0.8699
-BACI annual benchmark,benchmark,2,Feb,0.7965
-BACI annual benchmark,benchmark,3,Mar,0.7921
-BACI annual benchmark,benchmark,4,Apr,0.7915
-BACI annual benchmark,benchmark,5,May,0.9037
-BACI annual benchmark,benchmark,6,Jun,1.0697
-BACI annual benchmark,benchmark,7,Jul,1.2073
-BACI annual benchmark,benchmark,8,Aug,1.3117
-BACI annual benchmark,benchmark,9,Sep,1.4184
-BACI annual benchmark,benchmark,10,Oct,1.4238
-BACI annual benchmark,benchmark,11,Nov,1.2097
-BACI annual benchmark,benchmark,12,Dec,0.9632
-BACI summer benchmark,benchmark,1,Jan,0.7503
-BACI summer benchmark,benchmark,2,Feb,0.6769
-BACI summer benchmark,benchmark,3,Mar,0.6725
-BACI summer benchmark,benchmark,4,Apr,0.6719
-BACI summer benchmark,benchmark,5,May,0.7841
-BACI summer benchmark,benchmark,6,Jun,0.9964
-BACI summer benchmark,benchmark,7,Jul,1.134
-BACI summer benchmark,benchmark,8,Aug,1.2384
-BACI summer benchmark,benchmark,9,Sep,1.3451
-BACI summer benchmark,benchmark,10,Oct,1.3042
-BACI summer benchmark,benchmark,11,Nov,1.0901
-BACI summer benchmark,benchmark,12,Dec,0.8436
-C1 Eastern lake-buffer (observed),observed,1,Jan,0.2938
-C1 Eastern lake-buffer (observed),observed,2,Feb,0.3177
-C1 Eastern lake-buffer (observed),observed,3,Mar,0.3714
-C1 Eastern lake-buffer (observed),observed,4,Apr,0.5552
-C1 Eastern lake-buffer (observed),observed,5,May,0.7788
-C1 Eastern lake-buffer (observed),observed,6,Jun,0.9326
-C1 Eastern lake-buffer (observed),observed,7,Jul,1.0329
-C1 Eastern lake-buffer (observed),observed,8,Aug,1.0318
-C1 Eastern lake-buffer (observed),observed,9,Sep,0.9416
-C1 Eastern lake-buffer (observed),observed,10,Oct,0.6563
-C1 Eastern lake-buffer (observed),observed,11,Nov,0.4792
-C1 Eastern lake-buffer (observed),observed,12,Dec,0.3366
-C2 Eastern mature dune (observed),observed,1,Jan,-0.0739
-C2 Eastern mature dune (observed),observed,2,Feb,-0.0626
-C2 Eastern mature dune (observed),observed,3,Mar,-0.0633
-C2 Eastern mature dune (observed),observed,4,Apr,0.092
-C2 Eastern mature dune (observed),observed,5,May,0.2956
-C2 Eastern mature dune (observed),observed,6,Jun,0.5634
-C2 Eastern mature dune (observed),observed,7,Jul,0.6077
-C2 Eastern mature dune (observed),observed,8,Aug,0.649
-C2 Eastern mature dune (observed),observed,9,Sep,0.7061
-C2 Eastern mature dune (observed),observed,10,Oct,0.3739
-C2 Eastern mature dune (observed),observed,11,Nov,0.1798
-C2 Eastern mature dune (observed),observed,12,Dec,-0.0256
+Baseline (Corsican pine),scenario,1,Jan,1.0469
+Baseline (Corsican pine),scenario,2,Feb,0.9736
+Baseline (Corsican pine),scenario,3,Mar,0.9706
+Baseline (Corsican pine),scenario,4,Apr,1.026
+Baseline (Corsican pine),scenario,5,May,1.0896
+Baseline (Corsican pine),scenario,6,Jun,1.2532
+Baseline (Corsican pine),scenario,7,Jul,1.3877
+Baseline (Corsican pine),scenario,8,Aug,1.4937
+Baseline (Corsican pine),scenario,9,Sep,1.603
+Baseline (Corsican pine),scenario,10,Oct,1.6116
+Baseline (Corsican pine),scenario,11,Nov,1.3875
+Baseline (Corsican pine),scenario,12,Dec,1.1405
+Full clearfell,scenario,1,Jan,0.9995
+Full clearfell,scenario,2,Feb,0.9372
+Full clearfell,scenario,3,Mar,0.9367
+Full clearfell,scenario,4,Apr,1.0005
+Full clearfell,scenario,5,May,1.0642
+Full clearfell,scenario,6,Jun,1.2282
+Full clearfell,scenario,7,Jul,1.3576
+Full clearfell,scenario,8,Aug,1.4591
+Full clearfell,scenario,9,Sep,1.5576
+Full clearfell,scenario,10,Oct,1.549
+Full clearfell,scenario,11,Nov,1.3289
+Full clearfell,scenario,12,Dec,1.0785
+50% thinning,scenario,1,Jan,1.0232
+50% thinning,scenario,2,Feb,0.9554
+50% thinning,scenario,3,Mar,0.9536
+50% thinning,scenario,4,Apr,1.0133
+50% thinning,scenario,5,May,1.0769
+50% thinning,scenario,6,Jun,1.2407
+50% thinning,scenario,7,Jul,1.3726
+50% thinning,scenario,8,Aug,1.4764
+50% thinning,scenario,9,Sep,1.5803
+50% thinning,scenario,10,Oct,1.5803
+50% thinning,scenario,11,Nov,1.3582
+50% thinning,scenario,12,Dec,1.1095
+Broadleaf conversion,scenario,1,Jan,1.0208
+Broadleaf conversion,scenario,2,Feb,0.9517
+Broadleaf conversion,scenario,3,Mar,0.9476
+Broadleaf conversion,scenario,4,Apr,1.0054
+Broadleaf conversion,scenario,5,May,1.0743
+Broadleaf conversion,scenario,6,Jun,1.261
+Broadleaf conversion,scenario,7,Jul,1.4067
+Broadleaf conversion,scenario,8,Aug,1.5149
+Broadleaf conversion,scenario,9,Sep,1.6023
+Broadleaf conversion,scenario,10,Oct,1.5893
+Broadleaf conversion,scenario,11,Nov,1.3592
+Broadleaf conversion,scenario,12,Dec,1.1103
+Observed C4 baseline,observed,1,Jan,1.0469
+Observed C4 baseline,observed,2,Feb,0.9736
+Observed C4 baseline,observed,3,Mar,0.9706
+Observed C4 baseline,observed,4,Apr,1.026
+Observed C4 baseline,observed,5,May,1.0896
+Observed C4 baseline,observed,6,Jun,1.2532
+Observed C4 baseline,observed,7,Jul,1.3877
+Observed C4 baseline,observed,8,Aug,1.4937
+Observed C4 baseline,observed,9,Sep,1.603
+Observed C4 baseline,observed,10,Oct,1.6116
+Observed C4 baseline,observed,11,Nov,1.3875
+Observed C4 baseline,observed,12,Dec,1.1405
+BACI annual benchmark,benchmark,1,Jan,1.1665
+BACI annual benchmark,benchmark,2,Feb,1.0932
+BACI annual benchmark,benchmark,3,Mar,1.0902
+BACI annual benchmark,benchmark,4,Apr,1.1456
+BACI annual benchmark,benchmark,5,May,1.2092
+BACI annual benchmark,benchmark,6,Jun,1.3728
+BACI annual benchmark,benchmark,7,Jul,1.5073
+BACI annual benchmark,benchmark,8,Aug,1.6133
+BACI annual benchmark,benchmark,9,Sep,1.7226
+BACI annual benchmark,benchmark,10,Oct,1.7312
+BACI annual benchmark,benchmark,11,Nov,1.5071
+BACI annual benchmark,benchmark,12,Dec,1.2601
+BACI summer benchmark,benchmark,1,Jan,1.0469
+BACI summer benchmark,benchmark,2,Feb,0.9736
+BACI summer benchmark,benchmark,3,Mar,0.9706
+BACI summer benchmark,benchmark,4,Apr,1.026
+BACI summer benchmark,benchmark,5,May,1.0896
+BACI summer benchmark,benchmark,6,Jun,1.2995
+BACI summer benchmark,benchmark,7,Jul,1.434
+BACI summer benchmark,benchmark,8,Aug,1.54
+BACI summer benchmark,benchmark,9,Sep,1.6493
+BACI summer benchmark,benchmark,10,Oct,1.6116
+BACI summer benchmark,benchmark,11,Nov,1.3875
+BACI summer benchmark,benchmark,12,Dec,1.1405
+C1 Eastern lake-buffer (observed),observed,1,Jan,0.4184
+C1 Eastern lake-buffer (observed),observed,2,Feb,0.4424
+C1 Eastern lake-buffer (observed),observed,3,Mar,0.4945
+C1 Eastern lake-buffer (observed),observed,4,Apr,0.6866
+C1 Eastern lake-buffer (observed),observed,5,May,0.9036
+C1 Eastern lake-buffer (observed),observed,6,Jun,1.0573
+C1 Eastern lake-buffer (observed),observed,7,Jul,1.1576
+C1 Eastern lake-buffer (observed),observed,8,Aug,1.1565
+C1 Eastern lake-buffer (observed),observed,9,Sep,1.0663
+C1 Eastern lake-buffer (observed),observed,10,Oct,0.7811
+C1 Eastern lake-buffer (observed),observed,11,Nov,0.6038
+C1 Eastern lake-buffer (observed),observed,12,Dec,0.4618
+C2 Eastern mature dune (observed),observed,1,Jan,0.0677
+C2 Eastern mature dune (observed),observed,2,Feb,0.0795
+C2 Eastern mature dune (observed),observed,3,Mar,0.0796
+C2 Eastern mature dune (observed),observed,4,Apr,0.2341
+C2 Eastern mature dune (observed),observed,5,May,0.4363
+C2 Eastern mature dune (observed),observed,6,Jun,0.7051
+C2 Eastern mature dune (observed),observed,7,Jul,0.7503
+C2 Eastern mature dune (observed),observed,8,Aug,0.7917
+C2 Eastern mature dune (observed),observed,9,Sep,0.8497
+C2 Eastern mature dune (observed),observed,10,Oct,0.5119
+C2 Eastern mature dune (observed),observed,11,Nov,0.3217
+C2 Eastern mature dune (observed),observed,12,Dec,0.116
 
 # BLOCK 2 — trough / separation summary. Sep_vs_baseline_at_baseline_trough_m anchors all series at the baseline trough month; Max_summer_separation_m is the largest Jun-Sep departure from baseline.
 Series,Series_type,Trough_month,Trough_month_num,Trough_depth_m,Sep_vs_baseline_at_baseline_trough_m,Max_summer_separation_m,Max_summer_separation_month
-Baseline (Corsican pine),scenario,Oct,10,1.3042,0.0,0.0,Jun
-Full clearfell,scenario,Sep,9,1.2528,0.0634,0.046,Sep
-50% thinning,scenario,Sep,9,1.2758,0.0317,0.023,Sep
-Broadleaf conversion,scenario,Sep,9,1.2977,0.0226,-0.0205,Aug
-Observed C4 baseline,observed,Oct,10,1.3042,0.0,0.0,Jun
-BACI annual benchmark,benchmark,Oct,10,1.4238,-0.1196,-0.1196,Jun
-BACI summer benchmark,benchmark,Sep,9,1.3451,0.0,-0.0463,Jun
-C1 Eastern lake-buffer (observed),observed,Jul,7,1.0329,0.6479,0.3572,Sep
-C2 Eastern mature dune (observed),observed,Sep,9,0.7061,0.9303,0.5928,Sep
+Baseline (Corsican pine),scenario,Oct,10,1.6116,0.0,0.0,Jun
+Full clearfell,scenario,Sep,9,1.5576,0.0626,0.0454,Sep
+50% thinning,scenario,Oct,10,1.5803,0.0313,0.0227,Sep
+Broadleaf conversion,scenario,Sep,9,1.6023,0.0222,-0.0212,Aug
+Observed C4 baseline,observed,Oct,10,1.6116,0.0,0.0,Jun
+BACI annual benchmark,benchmark,Oct,10,1.7312,-0.1196,-0.1196,Jun
+BACI summer benchmark,benchmark,Sep,9,1.6493,0.0,-0.0463,Jun
+C1 Eastern lake-buffer (observed),observed,Jul,7,1.1576,0.8305,0.5366,Sep
+C2 Eastern mature dune (observed),observed,Sep,9,0.8497,1.0997,0.7533,Sep

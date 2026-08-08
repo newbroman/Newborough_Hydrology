@@ -40,7 +40,7 @@ Outputs (in outputs/15_depth_dependent_pet/):
     15_04_best_params.csv           — Optimal λ and β coefficients per cluster
 """
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-05-17
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-05-17
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.0.1 — Doc-sweep S.10: corrected four "lag-1 rainfall" docstring claims
 #         (lines 5, 116, 126, 159) to "contemporaneous (HEADLINE_LAG = 0)"
@@ -155,7 +155,7 @@ def iterative_simulate(h0: float, P: np.ndarray, PET: np.ndarray,
     for t in range(n):
         # PET extinction depth: physical distance below ground surface (≥ 0)
         # This is NOT the displacement term — it is a separate concept.
-        d_t = max(-h_t + upstand, 0.0)
+        d_t = max(-h_t, 0.0)
         decay = np.exp(-lam * d_t)
 
         # Displacement above drainage datum for β₃ term
@@ -180,7 +180,7 @@ def fit_at_lambda(df: pd.DataFrame, lam: float, upstand: float,
     Returns dict with b1, b2, b3, r2_onestep.
     """
     # PET extinction depth: physical distance below ground (always ≥ 0)
-    d_prev = np.maximum(-df["h_prev"].values + upstand, 0.0)
+    d_prev = np.maximum(-df["h_prev"].values, 0.0)
     decay  = np.exp(-lam * d_prev)
 
     X = pd.DataFrame({
@@ -281,12 +281,12 @@ def build_cluster_centroids(wells_clean, cluster_stats, well_col_lookup, upstand
             print(f"  C{cid}: no wells found — skipping")
             continue
 
-        # Upstand-correct each well then average
+        # No upstand correction: the clean file is already ground-referenced
+        # (master `depth from surface` = upstand - dip), so the wells share a
+        # common ground datum and can be averaged directly.
         corrected = pd.DataFrame(index=wells_clean.index)
         for col, us in zip(available_cols, well_upstands):
-            # depth in clean file is negative below pipe; subtract upstand gives
-            # depth relative to ground (still negative when below ground)
-            corrected[col] = wells_clean[col] - us
+            corrected[col] = wells_clean[col]
 
         centroid = corrected.mean(axis=1)
         mean_upstand = float(np.mean(well_upstands))

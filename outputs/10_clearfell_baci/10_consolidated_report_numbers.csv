@@ -349,7 +349,7 @@ Transect_gradient_mm_per_100m,,,-0.4,mm/100m,p=0.171,10g
 Rolling_b1_impact_pre,,,2.476,,,10g
 Rolling_b1_impact_post,,,2.572,,,10g
 Rolling_b1_shift,,,0.096,,toward C3,10g
-Rolling_b1_c3_post,,,3.491,,,10g
+Rolling_b1_c3_post,,,3.488,,,10g
 synth_FE1_R2_cal,,,0.9978,m,,10h
 synth_FE1_RMSE_mm,,,18.2,mm,,10h
 synth_FE1_hindcast_months,,,48.0,m,,10h

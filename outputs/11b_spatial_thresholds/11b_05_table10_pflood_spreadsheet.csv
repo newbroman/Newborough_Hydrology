@@ -1,6 +1,6 @@
 Cluster,Label,Horizon,P_flood_equation,Sum_P_clim_mm,Spreadsheet_formula
-C1,C1 (Lake Edge),Oct–Jan (4 mo),173.48·d + 315.97,401.0,=(173.48*A2+315.97)
-C2,C2 (Dune),Oct–Jan (4 mo),213.04·d + 296.15,401.0,=(213.04*A2+296.15)
-C3,C3 (Western Residual),Oct–Feb (5 mo),236.56·d + 375.26,464.0,=(236.56*A2+375.26)
-C4,C4 (Main Forest),Oct–Feb (5 mo),375.47·d + 287.40,464.0,=(375.47*A2+287.40)
-C5,C5 (Coastal Forest),Oct–Feb (5 mo),364.29·d + 424.36,464.0,=(364.29*A2+424.36)
+C1,C1 (Lake Edge),Oct–Jan (4 mo),174.30·d + 310.97,401.0,=(174.30*A2+310.97)
+C2,C2 (Dune),Oct–Jan (4 mo),214.14·d + 290.52,401.0,=(214.14*A2+290.52)
+C3,C3 (Western Residual),Oct–Feb (5 mo),237.64·d + 365.76,464.0,=(237.64*A2+365.76)
+C4,C4 (Main Forest),Oct–Feb (5 mo),381.96·d + 276.97,464.0,=(381.96*A2+276.97)
+C5,C5 (Coastal Forest),Oct–Feb (5 mo),363.72·d + 413.39,464.0,=(363.72*A2+413.39)

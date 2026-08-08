@@ -53,7 +53,7 @@ Well exclusions (EXCLUDED_WELLS_NORM):
 ====================================================================================
 """
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-07-21
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-07-21
 # 1.2.0 (2026-07-21): added the headline Model A residual-inference diagnostic
 #   (ssm_residual_inference) for the 66-well reference network — the committed
 #   artefact backing the SI's OLS-inference-validity statement. For each
@@ -383,7 +383,7 @@ def ssm_residual_inference(climate, cluster_lookup):
         norm = normalize_well_name(well)
         col_norm = norm.lower().replace(" ", "").replace("_", "")
         u = upstand.get(col_norm, 0.0)
-        series = pd.to_numeric(ref[well], errors="coerce").dropna() - u
+        series = pd.to_numeric(ref[well], errors="coerce").dropna()
         frame = build_ssm_frame(series, climate, lag=HEADLINE_LAG)
         if frame is None or len(frame) < MIN_OBS:
             continue
@@ -476,7 +476,7 @@ def cluster_mean_residual_inference(wells, climate, cluster_df):
         for col in cols:
             key = normalize_well_name(col).lower().replace(" ", "").replace("_", "")
             u = upstand.get(key)
-            corrected[col] = wells[col] - u if u is not None else wells[col]
+            corrected[col] = wells[col]
         centroid = pd.DataFrame(corrected).mean(axis=1)
 
         frame = build_ssm_frame(centroid, climate, lag=HEADLINE_LAG)

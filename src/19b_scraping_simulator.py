@@ -18,7 +18,7 @@ Usage:
     python 19b_scraping_simulator.py
 """
 
-__version__ = "1.1.0"   # Hollingham (2026) — 2026-05-07
+__version__ = "1.2.0"   # Hollingham (2026) — 2026-05-07
                          # v1.1.0: Resizable chart panel (drag bottom edge);
                          #         map shows per-well projected Δdepth at
                          #         selected map-year; Y-axis clamped to
@@ -88,9 +88,9 @@ def build_well_data(loc, cl, md, elev, wells_bg, maod, clim, sy_df):
     wt = wt.merge(md[["id", "beta_1_recharge", "beta_2_atmospheric_draw",
         "beta_3_drainage"]].rename(columns={"beta_1_recharge":"b1",
         "beta_2_atmospheric_draw":"b2","beta_3_drainage":"b3"}), on="id", how="left")
-    if "DEM_Ground_Elev" in elev.columns:
-        wt = wt.merge(elev[["id","DEM_Ground_Elev"]].rename(
-            columns={"DEM_Ground_Elev":"dem_g"}), on="id", how="left")
+    if "ground_elev_m" in elev.columns:
+        wt = wt.merge(elev[["id","ground_elev_m"]].rename(
+            columns={"ground_elev_m":"dem_g"}), on="id", how="left")
     else: wt["dem_g"] = np.nan
     if sy_df is not None:
         wt["sy"] = wt["id"].map(dict(zip(sy_df["id"], sy_df["Sy_median"])))

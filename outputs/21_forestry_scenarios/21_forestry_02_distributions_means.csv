@@ -1,16 +1,16 @@
 Group,Phase,Phase_start,Phase_end,N_summers,Mean_depth_m,Median_depth_m,SD_depth_m,Min_depth_m,Max_depth_m,Pct_below_SD16
-C1 Eastern lake-buffer,Pre-scrape 2005–14,record_start,2015-04-01,9,0.7179,0.6929,0.1227,0.57,0.9714,0.0
-C1 Eastern lake-buffer,Scraping era 2015–17,2015-04-01,2018-01-01,3,0.7675,0.7967,0.1345,0.5902,0.9157,0.0
-C1 Eastern lake-buffer,Post-felling 2018+,2018-01-01,record_end,8,0.8705,0.8486,0.1067,0.7329,1.0071,37.5
-C2 Eastern mature dune,Pre-scrape 2005–14,record_start,2015-04-01,10,0.8506,0.8315,0.1544,0.5625,1.1571,10.0
-C2 Eastern mature dune,Scraping era 2015–17,2015-04-01,2018-01-01,3,0.9303,1.002,0.165,0.7021,1.0867,66.7
-C2 Eastern mature dune,Post-felling 2018+,2018-01-01,record_end,8,0.9602,0.959,0.148,0.75,1.1813,50.0
-C3 Warren interior,Pre-scrape 2005–14,record_start,2015-04-01,10,0.9896,1.0068,0.2057,0.697,1.3314,60.0
-C3 Warren interior,Scraping era 2015–17,2015-04-01,2018-01-01,3,1.0927,1.1818,0.1772,0.8452,1.251,66.7
-C3 Warren interior,Post-felling 2018+,2018-01-01,record_end,8,1.107,1.145,0.1689,0.85,1.2811,75.0
-C5 Coastal forest,Pre-scrape 2005–14,record_start,2015-04-01,9,1.1647,1.2996,0.3762,0.428,1.6956,66.7
-C5 Coastal forest,Scraping era 2015–17,2015-04-01,2018-01-01,3,1.4449,1.4936,0.1296,1.2676,1.5736,100.0
-C5 Coastal forest,Post-felling 2018+,2018-01-01,record_end,8,1.502,1.5428,0.1292,1.2456,1.6327,100.0
-C4 Main forest,Pre-scrape 2005–14,record_start,2015-04-01,9,1.4074,1.3256,0.4747,0.87,2.362,77.8
-C4 Main forest,Scraping era 2015–17,2015-04-01,2018-01-01,3,1.6096,1.78,0.256,1.2478,1.8011,100.0
-C4 Main forest,Post-felling 2018+,2018-01-01,record_end,8,1.6094,1.69,0.2823,1.1488,2.005,100.0
+C1 Eastern lake-buffer,Pre-scrape 2005–14,record_start,2015-04-01,9,0.7867,0.75,0.1166,0.6533,1.0286,11.1
+C1 Eastern lake-buffer,Scraping era 2015–17,2015-04-01,2018-01-01,3,0.8243,0.8533,0.1347,0.6469,0.9729,0.0
+C1 Eastern lake-buffer,Post-felling 2018+,2018-01-01,record_end,8,0.9277,0.9057,0.1067,0.79,1.0643,37.5
+C2 Eastern mature dune,Pre-scrape 2005–14,record_start,2015-04-01,10,0.9154,0.9035,0.1572,0.6225,1.2273,40.0
+C2 Eastern mature dune,Scraping era 2015–17,2015-04-01,2018-01-01,3,1.0054,1.0833,0.1664,0.7742,1.1588,66.7
+C2 Eastern mature dune,Post-felling 2018+,2018-01-01,record_end,8,1.0363,1.0364,0.152,0.8221,1.2632,50.0
+C3 Warren interior,Pre-scrape 2005–14,record_start,2015-04-01,10,1.1067,1.1152,0.1926,0.826,1.4264,70.0
+C3 Warren interior,Scraping era 2015–17,2015-04-01,2018-01-01,3,1.1661,1.2538,0.1782,0.9176,1.3268,66.7
+C3 Warren interior,Post-felling 2018+,2018-01-01,record_end,8,1.1811,1.2197,0.1699,0.9224,1.3553,75.0
+C5 Coastal forest,Pre-scrape 2005–14,record_start,2015-04-01,9,1.251,1.4018,0.3975,0.459,1.7978,77.8
+C5 Coastal forest,Scraping era 2015–17,2015-04-01,2018-01-01,3,1.5471,1.5958,0.1296,1.3698,1.6758,100.0
+C5 Coastal forest,Post-felling 2018+,2018-01-01,record_end,8,1.6021,1.6408,0.1288,1.3478,1.7349,100.0
+C4 Main forest,Pre-scrape 2005–14,record_start,2015-04-01,9,1.5718,1.4556,0.4336,1.1025,2.426,100.0
+C4 Main forest,Scraping era 2015–17,2015-04-01,2018-01-01,3,1.7396,1.91,0.256,1.3778,1.9311,100.0
+C4 Main forest,Post-felling 2018+,2018-01-01,record_end,8,1.7419,1.82,0.2848,1.2813,2.1521,100.0

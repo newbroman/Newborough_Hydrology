@@ -21,9 +21,16 @@ Method (van Willegen et al. 2025, Ecological Indicators 170, 113016):
 
 Sign convention: water level is expressed in the depth-below-ground frame
 to match the paper (negative = below ground surface). The pipeline's raw
-series is in depth-below-pipe-top. Conversion: level_bg = level_pipe +
-Upstand_m. A pipe-top column is retained in every CSV for cross-reference
-to the rest of the pipeline.
+series is ALREADY in that frame: 01_wells_clean.csv carries the master's
+`depth from surface` values (level = upstand - dip), a signed height relative
+to the ground surface. No conversion is applied.
+
+2026-08-08: the previous header claimed the raw series was depth-below-pipe-top
+and applied `level_bg = level_pipe + Upstand_m`. That was wrong — the upstand is
+applied by the master on export, so this added it a second time. The `_m_pipe`
+column names are retained for continuity with existing consumers but carry
+ground-referenced values; they are scheduled for renaming to `_m_bg`.
+Per GEOMETRY_ARCHITECTURE_SPEC.md.
 
 Strictness (per scoping decision 2026-05-20):
   * MSL_MIN_MONTHS_PER_SPRING = 3 — all three of {Mar, Apr, May} must be
@@ -201,7 +208,7 @@ Version: 1.3.0 (2026-07-03) — Equilibrium Wetness Index (EWI):
     level implied by each well's fitted SSM coefficients under long-term mean
     climate. Setting mean monthly Δh = 0 and solving the head-dependent
     drainage term gives h_disp_eq = (β₁·P̄ − β₂·PET̄)/β₃, so
-    EWI_pipe = h_disp_eq − DRAINAGE_DATUM and EWI_bg = EWI_pipe + Upstand_m.
+    EWI_pipe = h_disp_eq − DRAINAGE_DATUM; EWI_bg is identical (no upstand term).
     P̄, PET̄ are the full-record monthly-mean rainfall and PET (the same
     long-term climatology basis as the Script 21 scenario normals), making the
     index climate-window-independent — it needs only a valid SSM fit, not the
@@ -350,6 +357,19 @@ Version: 1.0.1 (2026-05-20) — Plot-side refinements:
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 
 from __future__ import annotations
+
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-08-08 (upstand corrections removed)
+# Changelog:
+#   1.5.0 (2026-08-08) — Upstand corrections removed at both levels: the MSL/MAX
+#     conversion (level_bg = level_pipe + Upstand_m) and the equilibrium index
+#     (EWI_bg = EWI_pipe + Upstand_m). 01_wells_clean.csv carries the master's
+#     `depth from surface` values (level = upstand - dip), already referenced to
+#     the ground surface, so both added the upstand a second time. The _m_pipe
+#     and _m_bg column pairs are now identical and are retained only because the
+#     Methods Supplement documents the pairing; collapse them with that edit.
+#     Geometry columns repointed to ground_elev_m. Per GEOMETRY_ARCHITECTURE_SPEC.md.
+#     First numbered version in-file; 1.4.0 was tracked externally
+#     (CHANGELOG_delta_2026-08-02_script26_v1p4p0_metric_diagnostics.md).
 
 import sys
 from pathlib import Path
@@ -501,7 +521,7 @@ def _to_long(wells_clean: pd.DataFrame) -> pd.DataFrame:
 def _ground_offset(elev: pd.DataFrame) -> pd.Series:
     """
     Return per-well Upstand_m (metres pipe-top is above ground).
-    level_bg = level_pipe + Upstand_m.
+    level_bg is identical to level_pipe: the series is already ground-referenced.
     """
     elev = elev.copy()
     elev["well"] = elev["Name"].astype(str).str.strip().str.lower().str.replace(" ", "")
@@ -549,8 +569,8 @@ def annual_msl_max(long: pd.DataFrame,
 
     # convert to depth-below-ground
     up = annual["well"].map(upstand)
-    annual["MSL_m_bg"] = annual["MSL_m_pipe"] + up
-    annual["MAX_m_bg"] = annual["MAX_m_pipe"] + up
+    annual["MSL_m_bg"] = annual["MSL_m_pipe"]
+    annual["MAX_m_bg"] = annual["MAX_m_pipe"]
 
     # validity: STRICT 3-of-3
     annual["valid"] = (annual["n_spring_months"] >= MSL_MIN_MONTHS_PER_SPRING)
@@ -1048,7 +1068,7 @@ def plot_msl5_map(latest_per_well: pd.DataFrame,
     locs["well"] = locs["Name"].astype(str).str.strip().str.lower().str.replace(" ", "")
     el = elev.copy()
     el["well"] = el["Name"].astype(str).str.strip().str.lower().str.replace(" ", "")
-    el = el[["well", "DEM_Ground_Elev"]].rename(columns={"DEM_Ground_Elev": "dem"})
+    el = el[["well", "ground_elev_m"]].rename(columns={"ground_elev_m": "dem"})
 
     merged = (latest_per_well
               .merge(locs[["well", "E", "N"]], on="well", how="inner")
@@ -1145,8 +1165,8 @@ def compute_equilibrium_wetness_index(elev: pd.DataFrame,
     the head-dependent drainage term for the equilibrium displacement gives
 
         h_disp_eq = (β₁·P̄ − β₂·PET̄) / β₃
-        EWI_pipe  = h_disp_eq − DRAINAGE_DATUM       (depth-below-pipe frame)
-        EWI_bg    = EWI_pipe + Upstand_m             (depth-below-ground frame)
+        EWI_pipe  = h_disp_eq − DRAINAGE_DATUM       (ground frame; name is legacy)
+        EWI_bg    = EWI_pipe                        (identical — no upstand term)
 
     P̄, PET̄ are the full-record monthly-mean rainfall and PET (the same long-term
     climatology basis as the Script 21 scenario normals), so the index is
@@ -1180,7 +1200,9 @@ def compute_equilibrium_wetness_index(elev: pd.DataFrame,
         h_disp_eq = (b1 * P_bar - b2 * PET_bar) / b3
         ewi_pipe = h_disp_eq - config.DRAINAGE_DATUM
         ups = offset.get(w, np.nan)
-        ewi_bg = ewi_pipe + ups if np.isfinite(ups) else np.nan
+        # No upstand term: the clean series is already ground-referenced, so
+        # the equilibrium displacement is in the ground frame already.
+        ewi_bg = ewi_pipe
 
         # Uncertainty (v1.4.0). Subtracting the constant DRAINAGE_DATUM shifts
         # the value but not its uncertainty, so SE(EWI) = SE(h_disp_eq) and the

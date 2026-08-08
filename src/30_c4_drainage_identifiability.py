@@ -54,7 +54,7 @@ This is a supplementary diagnostic (Phase 14, opt-in). It does NOT revise the
 canonical C4 coefficients; nothing downstream reads its outputs.
 """
 from __future__ import annotations
-__version__ = "2.0.0"  # Hollingham (2026) — 2026-07-24. Replaces the constrained-β₃
+__version__ = "2.1.0"  # Hollingham (2026) — 2026-07-24. Replaces the constrained-β₃
 #   triangulation sensitivity (old 30_c4_constrained_fit.py v1.2.0) with a direct
 #   identifiability test. Finding: C4's low β₃ is real — lowest collinearity in the
 #   network (VIF ≈ 1.1), largest displacement variation, centroid β₃ = 0.020,
@@ -216,7 +216,7 @@ def main():
         col = well_col_lookup.get(normalize_well_name(r["Match_ID"]))
         if col is None:
             continue
-        series = wells_clean[col] - upstand_lookup.get(_norm(col), 0.0)
+        series = wells_clean[col]
         try:
             fr = build_ssm_frame(series, climate, lag=HEADLINE_LAG,
                                  window=LCSC_DATA_LIMIT)

@@ -38,7 +38,7 @@ Outputs:
 ====================================================================================
 """
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-06-21
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-06-21
 # 1.1.0 (2026-06-21): §4.9 traceability — emit 07_cluster_coeff_means.csv
 #         (per-cluster mean β₁/β₂/β₃ on the 3.7 m datum) and
 #         07_report_numbers.csv (cited cluster means + CEH14 β₃). Reads
@@ -142,13 +142,13 @@ def load_coefficient_data():
     elev["wn"] = elev["Name"].apply(normalize_well_name)
 
     df = master.merge(
-        elev[["wn", "DEM_Ground_Elev"]],
+        elev[["wn", "ground_elev_m"]],
         on="wn", how="left",
     )
     df = df.rename(columns={
         "Easting": "E",
         "Northing": "N",
-        "DEM_Ground_Elev": "dem",
+        "ground_elev_m": "dem",
         "Cluster": "Cluster_ID",
     })
     return df

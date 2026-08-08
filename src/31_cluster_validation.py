@@ -80,7 +80,7 @@ from pyproj import Transformer
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
-__version__ = "1.3.0"
+__version__ = "1.4.0"
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 SCRIPT_ID = "31"
 VERSION = __version__
@@ -120,7 +120,7 @@ def load_data():
     elev = pd.read_csv(INT_WELL_ELEVATIONS)
     elev["key"] = elev["Name"].map(normalize_well_name)
     master = master.merge(
-        elev[["key", "DEM_Ground_Elev", "dist_coast_m"]], on="key", how="left"
+        elev[["key", "ground_elev_m", "dist_coast_m"]], on="key", how="left"
     )
 
     wtf = pd.read_csv(INT_WTF_WELL_SY)
@@ -494,7 +494,7 @@ def main():
                          statistic_name="morans_I", statistic=round(I, 3),
                          p_value=round(pI, 4), independence="external"))
     for var, lbl in [("dist_coast_m", "distance to coast"),
-                     ("DEM_Ground_Elev", "ground elevation")]:
+                     ("ground_elev_m", "ground elevation")]:
         F, p, e2, n = eta_squared(master[var], labels)
         H, pk = kruskal(master[var], labels)
         rows.append(dict(tier="1 external", test="ANOVA / Kruskal", descriptor=lbl,

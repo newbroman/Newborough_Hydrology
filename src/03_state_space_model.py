@@ -75,9 +75,13 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-06-21 (amplitude-fallback path elevated from [INFO] print to console warn() with explicit stale/hard-coded caveat)
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-06-21 (amplitude-fallback path elevated from [INFO] print to console warn() with explicit stale/hard-coded caveat)
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # Changelog:
+#   1.3.0 (2026-08-08) — Upstand correction removed. The clean series is the
+#     master's `depth from surface` sheet (level = upstand - dip), already
+#     ground-referenced, so wells share a common ground datum and no further
+#     upstand term applies. Per GEOMETRY_ARCHITECTURE_SPEC.md.
 #   1.1.0 (2026-05-14) — Documentation-only cleanup:
 #     - All references to project-store MD files (HANDOVER_SCRIPT03_DATUM,
 #       NEWBOROUGH_HANDOVER, SCRIPT_03_BRIEF, P_FLOOD_HANDOVER_2_) in the
@@ -365,7 +369,7 @@ def build_cluster_centroids(cluster_df: pd.DataFrame,
                            .replace(" ", "").replace("_", "")
                 u = upstand_lookup.get(col_norm)
                 if u is not None:
-                    corrected[col] = wells_clean[col] - u
+                    corrected[col] = wells_clean[col]
                     n_corr += 1
                 else:
                     corrected[col] = wells_clean[col]
@@ -425,7 +429,7 @@ def per_well_fits(cluster_df: pd.DataFrame,
         col_norm = normalize_well_name(target_col).lower()\
                    .replace(" ", "").replace("_", "")
         u = upstand_lookup.get(col_norm, 0.0)
-        h_corrected = wells_clean[target_col] - u
+        h_corrected = wells_clean[target_col]
 
         fit = fit_ssm(h_corrected, climate, lag=HEADLINE_LAG,
                       window=LCSC_DATA_LIMIT,
@@ -649,7 +653,7 @@ def bootstrap_centroid_fits(cluster_df: pd.DataFrame,
                 col_norm = normalize_well_name(col).lower()\
                            .replace(" ", "").replace("_", "")
                 u = upstand_lookup.get(col_norm)
-                series = wells_clean[col] - u if u is not None else wells_clean[col]
+                series = wells_clean[col]
                 cols[f"{col}__{i}"] = series  # dedup with replacement
             centroid = pd.DataFrame(cols).mean(axis=1)
 
@@ -729,7 +733,7 @@ def leave_one_out_fits(cluster_df: pd.DataFrame,
                 col_norm = normalize_well_name(col).lower()\
                            .replace(" ", "").replace("_", "")
                 u = upstand_lookup.get(col_norm)
-                series = wells_clean[col] - u if u is not None else wells_clean[col]
+                series = wells_clean[col]
                 cols[col] = series
             centroid = pd.DataFrame(cols).mean(axis=1)
 
@@ -817,7 +821,7 @@ def c1_split_window_diagnostic(centroids: dict[int, pd.Series],
                 col_norm = normalize_well_name(col).lower()\
                            .replace(" ", "").replace("_", "")
                 u = upstand_lookup.get(col_norm)
-                series = wells_clean[col] - u if u is not None else wells_clean[col]
+                series = wells_clean[col]
                 if window_label == "pre_2018":
                     series = series[series.index < split_date]
                 else:
@@ -1049,7 +1053,7 @@ def well_datum_sensitivity(wells_clean: pd.DataFrame,
         # Upstand-correct for ground-surface datum
         col_norm = well_norm.lower().replace(" ", "").replace("_", "")
         u = upstand_lookup.get(col_norm, 0.0)
-        h_corrected = wells_clean[target_col] - u
+        h_corrected = wells_clean[target_col]
 
         best_primary = None    # min datum with β₃ > 0 AND p < 0.05
         best_secondary = None  # min datum with β₃ > 0 (any p)

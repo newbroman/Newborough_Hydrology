@@ -63,7 +63,7 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds
 """
 
-__version__ = "1.36.0"  # Hollingham (2026) — 2026-08-06
+__version__ = "1.37.0"  # Hollingham (2026) — 2026-08-06
 # 1.36.0 — plot_residual_ssm() (Figure 58) surface routed through
 #         map_utils.add_idw_surface(), replacing the local idw_surface() call.
 #         Supersedes 1.35.0; commit the two together.
@@ -902,11 +902,11 @@ def build_well_table(data):
     wt = wt.merge(beta, on="well", how="left")
 
     # DEM ground elevation
-    elev_map = dict(zip(elev["Name_norm"], elev["DEM_Ground_Elev"]))
+    elev_map = dict(zip(elev["Name_norm"], elev["ground_elev_m"]))
     wt["dem_elev"] = wt["well"].map(elev_map)
 
     # Pipe-top elevation — needed for displacement formulation
-    pipe_map = dict(zip(elev["Name_norm"], elev["Pipe_Top_Elev"]))
+    pipe_map = dict(zip(elev["Name_norm"], elev["pipe_top_elev_m"]))
     wt["pipe_top"] = wt["well"].map(pipe_map)
 
     # Mean annual head
@@ -969,7 +969,7 @@ def build_well_table(data):
             normalize_well_name(r["Well_Normalised"]): int(r["Best_Match_Cluster"])
             for _, r in site[site["Network"] == "Extended"].iterrows()
         }
-        pipe_map = dict(zip(elev["Name_norm"], elev["Pipe_Top_Elev"]))
+        pipe_map = dict(zip(elev["Name_norm"], elev["pipe_top_elev_m"]))
         for wn, cl in ext_cls.items():
             lrow = locs[locs["Match_ID"] == wn]
             if lrow.empty:

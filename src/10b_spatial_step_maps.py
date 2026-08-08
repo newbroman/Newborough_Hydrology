@@ -53,7 +53,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from utils.paths import (
     make_all_dirs, INT_WELLS_CLEAN, INT_WELLS_EXTENDED,
-    INT_MASTER_DATA, DATA_DIR, DATA_LOCATIONS_RAW,
+    INT_MASTER_DATA, DATA_DIR, INT_WELL_ELEVATIONS,
     OUT_10B_SCRAPE_RAW, OUT_10B_FELL_RAW,
     OUT_10B_SCRAPE_CORRECTED, OUT_10B_FELL_CORRECTED,
     OUT_10B_STEP_DATA,
@@ -72,7 +72,7 @@ from utils.clearfell_common import (
 )
 from utils.render_utils import render_figure
 
-__version__ = "1.5.2"
+__version__ = "1.6.0"
 # 1.5.2 (2026-07-19): review revision — BACI well labels 7.5 -> 8.5 pt.
 # 1.5.1 (2026-07-19): review revisions — well-label white background boxes
 #   removed (labels sit directly on the map); CEH31 label moved below-left of
@@ -148,8 +148,10 @@ def main():
     wells = apply_ceh34_hindcast(wells)
     print(f"   {len(wells.columns)} well columns loaded")
 
-    # Well locations
-    locs = pd.read_csv(DATA_LOCATIONS_RAW)
+    # Well locations + canonical geometry, from the Script 01 carrier.
+    # (Previously read well_metadata.csv directly, bypassing the single
+    #  derivation point — see GEOMETRY_ARCHITECTURE_SPEC.md rule 6.)
+    locs = pd.read_csv(INT_WELL_ELEVATIONS)
     locs["match"] = locs["Name"].apply(normalize_well_name)
 
     # Master data for cluster assignments
@@ -191,7 +193,7 @@ def main():
             "well": col,
             "E": lr["E"],
             "N": lr["N"],
-            "dem": lr["DEM_Ground_Elev"],
+            "dem": lr["ground_elev_m"],
             "cluster": cluster,
             "mean_pre": mean_pre,
             "mean_scrape": mean_scrape,

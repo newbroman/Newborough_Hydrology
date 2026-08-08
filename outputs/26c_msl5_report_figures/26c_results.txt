@@ -16,8 +16,8 @@ Curreli (2013) reference values:
 
 ΔMSL5 vs Δsummer-minimum, UKCP18 RCP8.5 (m, below ground):
   Cluster                    ΔMSL5_50s  Δsmin_50s    ΔMSL5_80s  Δsmin_80s
-  C1 (Lake Edge)               -0.0115    -0.0592      -0.0215    -0.1157
-  C2 (Dune)                    -0.0169    -0.0705      -0.0310    -0.1336
-  C3 (Western Residual)        -0.0172    -0.0649      -0.0313    -0.1219
-  C4 (Main Forest)             -0.0213    -0.0647      -0.0385    -0.1178
-  C5 (Coastal Forest)          -0.0121    -0.0383      -0.0221    -0.0712
+  C1 (Lake Edge)               -0.0115    -0.0591      -0.0214    -0.1154
+  C2 (Dune)                    -0.0169    -0.0703      -0.0309    -0.1334
+  C3 (Western Residual)        -0.0170    -0.0647      -0.0311    -0.1217
+  C4 (Main Forest)             -0.0216    -0.0647      -0.0390    -0.1177
+  C5 (Coastal Forest)          -0.0120    -0.0382      -0.0219    -0.0711

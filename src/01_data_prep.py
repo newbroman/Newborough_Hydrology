@@ -15,9 +15,32 @@ Requirements:
     pandas, numpy
 """
 
-__version__ = "1.8.0"  # Hollingham (2026) — 2026-07-22 (in-pipeline dist_coast regeneration + validation)
+__version__ = "1.9.1"  # Hollingham (2026) — 2026-08-08 (canonical geometry also written to 01_locations.csv)
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # Changelog:
+#   1.9.1 (2026-08-08) — Full-pipeline fix. The v1.9.0 derivation wrote
+#     ground_elev_m / pipe_top_elev_m only to 01_well_elevations.csv, but
+#     several scripts take geometry from 01_locations.csv (Script 29 line 164
+#     failed on KeyError: 'ground_elev_m' at pipeline step 34). Both files are
+#     now written through the new shared _derive_canonical_geometry(), so there
+#     is still exactly one definition and either carrier is safe to read.
+#   1.9.0 (2026-08-08) — Canonical geometry, derived once. Per
+#     GEOMETRY_ARCHITECTURE_SPEC.md: ground_elev_m and pipe_top_elev_m are now
+#     derived here and exported via 01_well_elevations.csv; no downstream script
+#     re-derives them or reads DEM_Ground_Elev / DGPS_Ground_Elev /
+#     Pipe_Top_Elev. ground_elev_m resolves from the new well_metadata.csv
+#     `ground_source` flag ('lidar' for the 17 wells without DGPS plus ceh37,
+#     ceh40, ceh41, ceh42; 'dgps' otherwise); pipe_top_elev_m = ground_elev_m +
+#     Upstand_m, replacing the stored Pipe_Top_Elev which disagrees with the
+#     master workbook at L1.
+#     maOD now uses ground_elev_m, not Pipe_Top_Elev. The model CSV is the
+#     master's `depth from surface` sheet (level = upstand - dip), a signed
+#     height relative to GROUND, so the previous formula added the upstand a
+#     second time — and a third, since Pipe_Top_Elev itself carried it twice.
+#     The prior comment block asserting Pipe_Top_Elev was "independently
+#     measured" was incorrect: it is derived, and the 70-of-97 disagreement it
+#     cited was the double upstand it introduced. maOD falls by up to
+#     2 x Upstand_m per well (mean 0.155 m, max 1.42 m), constant in time.
 #   1.8.0 (2026-07-22) — Close the coastal-distance reproducibility gap.
 #     dist_coast_m (well-to-eroding-shoreline perpendicular distance) was
 #     computed once out-of-pipeline; §3.11 claims full pipeline reproducibility.
@@ -225,6 +248,47 @@ EXTENDED_NETWORK_BLACKLIST = frozenset({
 
 # RAF Valley, Anglesey — site latitude for Thornthwaite day-length correction.
 # Imported from utils.config (RAF_VALLEY_LAT_DEG = 53.25).
+
+
+def _derive_canonical_geometry(df: pd.DataFrame) -> pd.DataFrame:
+    """Add ground_elev_m and pipe_top_elev_m to a well-metadata frame.
+
+    The SINGLE definition of well geometry for the whole pipeline. Both
+    01_locations.csv and 01_well_elevations.csv are written through this, so
+    every downstream script sees identical values without re-deriving them and
+    without reading DEM_Ground_Elev / DGPS_Ground_Elev / Pipe_Top_Elev.
+
+        ground_elev_m   = DEM_Ground_Elev   where ground_source == 'lidar'
+                        = DGPS_Ground_Elev  where ground_source == 'dgps'
+        pipe_top_elev_m = ground_elev_m + Upstand_m
+
+    'lidar' covers the wells with no DGPS survey plus those surveyed by LiDAR
+    by design (ceh37, ceh40, ceh41, ceh42). Provenance is carried per well in
+    well_metadata.csv `ground_source`. See GEOMETRY_ARCHITECTURE_SPEC.md.
+
+    Raises rather than falling back: a silently defaulted datum is the defect
+    class this derivation exists to remove.
+    """
+    out = df.copy()
+    out.columns = [c.strip() for c in out.columns]
+
+    if "ground_source" not in out.columns:
+        raise KeyError(
+            "well_metadata.csv is missing the `ground_source` column. It is "
+            "required to resolve ground_elev_m unambiguously "
+            "(see GEOMETRY_ARCHITECTURE_SPEC.md)."
+        )
+
+    src = out["ground_source"].astype(str).str.strip().str.lower()
+    unknown = sorted(set(src.dropna()) - {"lidar", "dgps"})
+    if unknown:
+        raise ValueError(f"Unrecognised ground_source values: {unknown}")
+
+    out["ground_elev_m"] = np.where(
+        src.eq("lidar"), out["DEM_Ground_Elev"], out["DGPS_Ground_Elev"]
+    )
+    out["pipe_top_elev_m"] = out["ground_elev_m"] + out["Upstand_m"]
+    return out
 
 
 def thornthwaite_pet_m(t_mean: pd.Series, lat_deg: float = RAF_VALLEY_LAT_DEG) -> pd.Series:
@@ -659,8 +723,15 @@ if __name__ == "__main__":
     print("=" * 40 + "\n")
 
     # Locations
+    #
+    # ground_elev_m / pipe_top_elev_m are derived here as well as in the
+    # elevation export below, so that the many scripts reading 01_locations.csv
+    # get the canonical geometry without re-deriving it or reaching back to the
+    # raw metadata columns. Both writes use _derive_canonical_geometry(), so
+    # there is still exactly one definition. See GEOMETRY_ARCHITECTURE_SPEC.md.
     locs_raw["Match_ID"] = locs_raw["Name"].apply(normalize_well_name)
-    locs_raw.dropna(subset=["E", "N"]).to_csv(INT_LOCATIONS, index=False)
+    locs_out = _derive_canonical_geometry(locs_raw)
+    locs_out.dropna(subset=["E", "N"]).to_csv(INT_LOCATIONS, index=False)
 
     # Climate
     climate = pd.read_csv(DATA_CLIMATE_RAW)
@@ -796,36 +867,76 @@ if __name__ == "__main__":
 
 
     # ------------------------------------------------------------------ #
-    #  maOD CONVERSION                                                    #
-    #  Convert depth-below-pipe-top (negative convention) to water table  #
-    #  elevation in metres above Ordnance Datum (maOD).                  #
+    #  CANONICAL GEOMETRY DERIVATION                                      #
     #                                                                     #
-    #  Formula:  maOD = Pipe_Top_Elev + raw_depth                        #
+    #  ground_elev_m and pipe_top_elev_m are derived HERE, once, and      #
+    #  exported via 01_well_elevations.csv. No downstream script may      #
+    #  re-derive them, and none may read DEM_Ground_Elev,                 #
+    #  DGPS_Ground_Elev or Pipe_Top_Elev — those are inputs to this       #
+    #  script only.                                                       #
     #                                                                     #
-    #  Raw depth is stored as a negative value (e.g. −1.5 m means the    #
-    #  water table is 1.5 m below pipe top). Adding it to the pipe-top   #
-    #  elevation therefore subtracts the depth, giving the correct        #
-    #  upward-positive maOD value.                                        #
+    #  Ground source (well_metadata.csv `ground_source`, Martin 2026-08-08):
+    #    'lidar' — the 17 wells with no DGPS survey, plus ceh37, ceh40,   #
+    #              ceh41, ceh42 which are LiDAR-surveyed by design.       #
+    #              ground = DEM_Ground_Elev.                              #
+    #    'dgps'  — all others. ground = DGPS_Ground_Elev.                 #
     #                                                                     #
-    #  Pipe_Top_Elev is used directly (not reconstructed from            #
-    #  DGPS_Ground_Elev + Upstand_m) because the two do not agree for    #
-    #  70 of 97 wells — Pipe_Top_Elev is the independently measured       #
-    #  value and is the correct reference datum for field readings.       #
-    #                                                                     #
-    #  Sign check: summer maOD < winter maOD (water table deeper in       #
-    #  summer). Verified against nw1, ceh2, nw5, ceh14, d15.             #
+    #  pipe_top_elev_m = ground_elev_m + Upstand_m. The stored            #
+    #  Pipe_Top_Elev column is NOT used: it disagrees with the master     #
+    #  workbook at L1, and deriving it keeps a single definition.         #
     # ------------------------------------------------------------------ #
-    print("\n -> Converting depth series to maOD...")
+    print("\n -> Deriving canonical well geometry...")
+
     if _WELL_ELEV_FILE.exists():
-        elev_raw = pd.read_csv(_WELL_ELEV_FILE)
-        elev_raw.columns = [c.strip() for c in elev_raw.columns]
-        elev_raw["name_norm"] = (
-            elev_raw["Name"].astype(str).str.strip()
+        elev_df = pd.read_csv(_WELL_ELEV_FILE)
+        elev_df.columns = [c.strip() for c in elev_df.columns]
+        elev_df["Name_norm"] = (
+            elev_df["Name"].astype(str).str.strip()
             .str.lower().str.replace(" ", "").str.replace("_", "")
         )
-        pipe_top_map = (
-            elev_raw.dropna(subset=["Pipe_Top_Elev"])
-            .set_index("name_norm")["Pipe_Top_Elev"]
+        elev_df = _derive_canonical_geometry(elev_df)
+
+        src = elev_df["ground_source"].astype(str).str.strip().str.lower()
+        n_missing = int(elev_df["ground_elev_m"].isna().sum())
+        if n_missing:
+            warn(f"{n_missing} wells have no resolvable ground_elev_m")
+        print(f"    ground_elev_m resolved for "
+              f"{len(elev_df) - n_missing} of {len(elev_df)} wells "
+              f"({int(src.eq('lidar').sum())} lidar, {int(src.eq('dgps').sum())} dgps)")
+
+        elev_df.to_csv(INT_WELL_ELEVATIONS, index=False)
+        saved(f"{INT_WELL_ELEVATIONS.name}")
+    else:
+        elev_df = None
+        warn(f"Elevation file not found: {_WELL_ELEV_FILE}")
+
+    # ------------------------------------------------------------------ #
+    #  maOD CONVERSION                                                    #
+    #                                                                     #
+    #  Formula:  maOD = ground_elev_m + level                             #
+    #                                                                     #
+    #  `level` is the value carried in Newborough_Cleaned_For_Model.csv,  #
+    #  which is the master workbook's `depth from surface` sheet:         #
+    #      level = upstand - dip                                          #
+    #  i.e. a signed height relative to the GROUND surface, negative      #
+    #  below ground and positive when a slack is ponded. The upstand is   #
+    #  already applied on export from the master, so no further upstand   #
+    #  term belongs anywhere in the pipeline.                             #
+    #                                                                     #
+    #  This is the pipe-top conversion, written with the upstand folded   #
+    #  in — field readings are dips from the pipe top:                    #
+    #      maOD = pipe_top - dip                                          #
+    #           = (ground + upstand) - dip                                #
+    #           = ground + (upstand - dip)   <- the stored value          #
+    #                                                                     #
+    #  Sign check: summer maOD < winter maOD (water table deeper in       #
+    #  summer). Verified against nw1, ceh2, nw5, ceh14, d15.              #
+    # ------------------------------------------------------------------ #
+    print("\n -> Converting level series to maOD...")
+    if elev_df is not None:
+        ground_map = (
+            elev_df.dropna(subset=["ground_elev_m"])
+            .set_index("Name_norm")["ground_elev_m"]
             .to_dict()
         )
         maod_cols = {}
@@ -833,10 +944,9 @@ if __name__ == "__main__":
         n_no_elev   = 0
         for col in wells_clean.columns:
             col_norm = normalize_well_name(col)
-            pipe_top = pipe_top_map.get(col_norm)
-            if pipe_top is not None:
-                # raw depth is negative convention: maOD = Pipe_Top + depth
-                maod_cols[col] = wells_clean[col] + pipe_top
+            ground = ground_map.get(col_norm)
+            if ground is not None:
+                maod_cols[col] = wells_clean[col] + ground
                 n_converted += 1
             else:
                 n_no_elev += 1
@@ -850,29 +960,7 @@ if __name__ == "__main__":
         else:
             warn("No wells could be converted to maOD — check elevation file contents")
     else:
-        warn(f"Elevation file not found: {_WELL_ELEV_FILE}")
         print(f"    maOD file not produced — script 19 will fail without it")
-
-    # ------------------------------------------------------------------ #
-    #  ELEVATION LOOKUP EXPORT                                            #
-    #  Exports upstand heights for use by script 03 centroid correction.  #
-    #  Script 03 applies depth - upstand before averaging into centroids  #
-    #  so all wells share a common ground-surface datum.                  #
-    # ------------------------------------------------------------------ #
-    print("\n -> Exporting well elevation lookup...")
-
-    if _WELL_ELEV_FILE.exists():
-        elev_df = pd.read_csv(_WELL_ELEV_FILE)
-        elev_df.columns = [c.strip() for c in elev_df.columns]
-        elev_df["Name_norm"] = (
-            elev_df["Name"].astype(str).str.strip()
-            .str.lower().str.replace(" ", "").str.replace("_", "")
-        )
-        elev_df.to_csv(INT_WELL_ELEVATIONS, index=False)
-        print(f"    Saved elevation lookup: {INT_WELL_ELEVATIONS.name}")
-    else:
-        warn(f"Elevation file not found: {_WELL_ELEV_FILE}")
-        print(f"    Upstand correction in script 03 will be skipped.")
 
     # ------------------------------------------------------------------ #
     #  WELL-TO-COAST DISTANCE VALIDATION                                  #

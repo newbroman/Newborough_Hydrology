@@ -36,7 +36,7 @@ Read-only on pipeline outputs; writes to outputs/29_within_c3_variance/.
 
 from __future__ import annotations
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-06-21
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-06-21
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 # 1.2.0 — §4.9 traceability: joined Script 17 WTF event-median Sy
 #         (Sy_wtf_median column) per C3 well; emit 29_report_numbers.csv with
@@ -161,7 +161,7 @@ for mid in c3_ids:
         continue
     e = float(lr["E"].iloc[0])
     n = float(lr["N"].iloc[0])
-    ground_elev = float(lr["DEM_Ground_Elev"].iloc[0])
+    ground_elev = float(lr["ground_elev_m"].iloc[0])
     rec.update({"easting": e, "northing": n, "ground_elev_m": ground_elev})
 
     # Predictors that depend only on position

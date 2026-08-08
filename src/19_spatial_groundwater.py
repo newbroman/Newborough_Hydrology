@@ -20,7 +20,7 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.9.0"   # Hollingham (2026) -- 2026-08-06
+__version__ = "2.10.0"   # Hollingham (2026) -- 2026-08-06
 # 2.9.0 — viewer footer corrections. Two changes, both to generated HTML only;
 #          no change to the Delta-h calculation, the scenario definitions, or
 #          19_scenario_summary.csv.
@@ -674,9 +674,9 @@ def build_well_table(loc, cl, md, elev, maod, clim, sy_df):
         }), on="id", how="left")
     # Join DEM ground elevation for viewer ridge masking (mirrors the
     # static-figure approach in map_utils.add_idw_surface).
-    if "DEM_Ground_Elev" in elev.columns:
-        wt = wt.merge(elev[["id", "DEM_Ground_Elev"]].rename(
-            columns={"DEM_Ground_Elev": "dem_g"}), on="id", how="left")
+    if "ground_elev_m" in elev.columns:
+        wt = wt.merge(elev[["id", "ground_elev_m"]].rename(
+            columns={"ground_elev_m": "dem_g"}), on="id", how="left")
     else:
         wt["dem_g"] = np.nan
     heads_all = maod.mean()

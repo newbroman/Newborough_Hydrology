@@ -13,8 +13,8 @@ DISCRIMINATOR READ: erosion-consistent growing gradient — the coast-inland MAM
 
 CLIMATE-CORRECTED PROFILE (figure panel b, anchor-referenced to NW4):
   Coastal-end ordering vs year (Spearman rho):
-    raw absolute CEH22:            rho = -0.321
-    anchor-referenced CEH22-NW4:   rho = -0.873
+    raw absolute CEH22:            rho = -0.314
+    anchor-referenced CEH22-NW4:   rho = -0.868
   Referencing to the erosion-free inland anchor removes common-mode climate model-free; a rho closer to -1 means a cleaner monotonic coastal drawdown through time.
 
 CAVEATS:

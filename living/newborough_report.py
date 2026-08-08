@@ -47,7 +47,22 @@ Full options:
 #     (e.g. a deep-red trough and blue peak in the centre-east where every
 #     nearby well read +0.08..+0.14 m). Linear is bounded by surrounding
 #     wells and matches the pipeline add_idw_surface / MSL map method.
-__version__ = "1.2.0"
+# v1.2.1 (2026-08-08)
+#   * Markdown difference-table headings now label each comparison by REPORT
+#     MONTH ("Jun 2026 -> Jul 2026") instead of rendering the bucketed month
+#     timestamp as a day-level date ("01 Jun 2026 -> 01 Jul 2026"). Bucketed
+#     months are stored as YYYY-MM-01 by pandas convention; printing the -01
+#     implied the round was driven on the 1st, and contradicted the map
+#     filenames and captions, which already used %b%y / %b %Y correctly.
+#     Console output and the PDF "latest well round on ..." sentence are
+#     deliberately unchanged - they carry the real physical reading date.
+# v1.2.2 (2026-08-08)
+#   * PDF weather table no longer hardcodes "ILLANF24" as the local gauge name.
+#     The column header now reports the station actually queried (--wu_station),
+#     so a run against IBODOR6 is labelled IBODOR6. Previously a Bodorgan total
+#     was published under the ILLANF24 name - a provenance error in a
+#     public-facing newsletter, not merely cosmetic.
+__version__ = "1.2.2"
 
 import argparse
 import sys
@@ -1173,7 +1188,7 @@ def generate_pdf_report(output_dir, year, month, met_text,
                         low_results, low_d1, low_d2,
                         coords, wu_result=None, wu_warnings=None,
                         valley_df=None, wells=None, dates=None, latest_idx=None,
-                        round_date=None):
+                        round_date=None, wu_station=None):
     """
     Generate a PDF report in the style of the Newborough Warren
     Weather & Water Watch newsletter.
@@ -1264,7 +1279,8 @@ def generate_pdf_report(output_dir, year, month, met_text,
         avg_tmin = avg_data['tmin'].mean()
 
     table_data = [
-        ['Metric', 'Local Gauge\n(ILLANF24)', 'RAF Valley', f'Typical {MONTH_NAMES[month]}*']
+        ['Metric', f'Local Gauge\n({wu_station or "local"})', 'RAF Valley',
+         f'Typical {MONTH_NAMES[month]}*']
     ]
 
     wu_rain = ''
@@ -2103,17 +2119,17 @@ def generate_monthly_report(wells_path, valley_path, diff_creator_path,
     report.append(met_text)
 
     if mom_results:
-        label = f"{mom_d1.strftime('%d %b %Y')} → {mom_d2.strftime('%d %b %Y')}"
+        label = f"{mom_d1.strftime('%b %Y')} → {mom_d2.strftime('%b %Y')}"
         report.append(generate_difference_table(
             mom_results, coords, f"Month-on-month ({label})"))
 
     if yoy_results:
-        label = f"{yoy_d1.strftime('%d %b %Y')} → {yoy_d2.strftime('%d %b %Y')}"
+        label = f"{yoy_d1.strftime('%b %Y')} → {yoy_d2.strftime('%b %Y')}"
         report.append(generate_difference_table(
             yoy_results, coords, f"Year-on-year ({label})"))
 
     if low_results:
-        label = f"{low_d1.strftime('%d %b %Y')} → {low_d2.strftime('%d %b %Y')}"
+        label = f"{low_d1.strftime('%b %Y')} → {low_d2.strftime('%b %Y')}"
         report.append(generate_difference_table(
             low_results, coords, f"Since summer low ({label})"))
 
@@ -2153,7 +2169,7 @@ def generate_monthly_report(wells_path, valley_path, diff_creator_path,
         low_results, low_d1, low_d2,
         coords, wu_result=wu_result, wu_warnings=wu_warnings,
         valley_df=valley_df, wells=wells, dates=dates, latest_idx=latest_idx,
-        round_date=latest_date
+        round_date=latest_date, wu_station=wu_station
     )
 
     print(f"\n{'═'*60}")

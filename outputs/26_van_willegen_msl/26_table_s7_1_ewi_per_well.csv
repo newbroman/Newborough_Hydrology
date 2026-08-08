@@ -1,87 +1,87 @@
 Well,Network,Cluster,β₃ (mth⁻¹),EWI (m bg),SE (mm),MSL5 obs,MSL5 recon,Resid. (mm),Status
-CEH11,Reference,C1 (Lake Edge),0.0920,-0.627,322,-0.350,-0.281,69,Calibration
-CEH23,Reference,C1 (Lake Edge),0.0899,-0.527,360,-0.218,-0.189,29,Calibration
-CEH25,Reference,C1 (Lake Edge),0.1341,-0.521,301,-0.301,-0.183,118,Calibration
-CEH26,Reference,C1 (Lake Edge),0.0871,-0.493,360,-0.243,-0.157,86,Calibration
-CEH27,Reference,C1 (Lake Edge),0.0992,-0.458,315,-0.172,-0.125,47,Calibration
-CEH5,Reference,C1 (Lake Edge),0.0984,-0.512,314,-0.213,-0.175,38,Calibration
-CEH6,Reference,C1 (Lake Edge),0.1223,-0.376,273,-0.088,-0.050,38,Calibration
-P2,Extended,C1 (Lake Edge),0.0990,-0.473,364,-0.296,-0.139,157,Calibration
-CEH10,Reference,C2 (Dune),0.1053,-1.372,341,-1.030,-0.965,65,Calibration
-CEH24,Reference,C2 (Dune),0.0767,-0.429,451,0.033,-0.099,-132,Calibration
-CEH28,Reference,C2 (Dune),0.0684,-0.609,517,-0.396,-0.264,131,Calibration
-D10,Reference,C2 (Dune),0.0583,-0.461,485,-0.134,-0.128,6,Calibration
-D15,Reference,C2 (Dune),0.0635,-0.403,437,0.079,-0.075,-154,Calibration
-D17,Reference,C2 (Dune),0.0718,-0.426,508,-0.113,-0.096,16,Calibration
-D38,Reference,C2 (Dune),0.1118,-0.738,274,-0.323,-0.382,-59,Calibration
-D41,Reference,C2 (Dune),0.0670,-0.478,454,-0.127,-0.144,-17,Calibration
-D43,Reference,C2 (Dune),0.0754,-0.659,343,-0.363,-0.310,53,Calibration
-D44,Reference,C2 (Dune),0.0898,-0.739,404,-0.360,-0.383,-23,Calibration
-D5,Reference,C2 (Dune),0.0698,-0.590,456,-0.179,-0.247,-68,Calibration
-D6,Reference,C2 (Dune),0.0660,-0.577,449,-0.215,-0.234,-19,Calibration
-D7,Reference,C2 (Dune),0.0787,-0.470,432,-0.161,-0.136,25,Calibration
-D8,Reference,C2 (Dune),0.0561,-0.435,526,-0.109,-0.105,5,Calibration
-D9,Reference,C2 (Dune),0.0624,-0.567,459,-0.237,-0.226,11,Calibration
-L7,Reference,C2 (Dune),0.0859,-1.596,242,-1.240,-1.170,70,Calibration
-NW3,Reference,C2 (Dune),0.0625,-0.593,541,-0.248,-0.249,-1,Calibration
-NW4,Reference,C2 (Dune),0.0551,-0.441,573,-0.118,-0.110,8,Calibration
-NW4B,Reference,C2 (Dune),0.0607,-0.470,553,-0.131,-0.137,-6,Calibration
-T41A,Reference,C2 (Dune),0.1043,-0.477,350,0.226,-0.143,-369,Calibration
-T41B,Reference,C2 (Dune),0.0649,-0.399,483,-0.159,-0.071,88,Calibration
-T41C,Reference,C2 (Dune),0.0715,-0.434,399,-0.087,-0.104,-17,Calibration
-T41D,Reference,C2 (Dune),0.0691,-0.659,426,-0.265,-0.310,-45,Calibration
-WMC1,Reference,C2 (Dune),0.0564,-0.598,538,-0.259,-0.254,5,Calibration
-CEH12,Extended,C2 (Dune),0.0849,-1.168,383,,-0.777,,Reconstructed
-CEH22,Extended,C2 (Dune),0.0563,-0.657,237,-0.507,-0.308,198,Calibration
-CEH35,Extended,C2 (Dune),0.0658,-0.760,389,-0.612,-0.402,210,Calibration
-CEH37,Extended,C2 (Dune),0.0780,-0.542,349,-0.119,-0.202,-83,Calibration
-CEH7,Extended,C2 (Dune),0.0478,-0.617,661,-0.196,-0.271,-75,Calibration
-CEH8,Extended,C2 (Dune),0.0322,-0.572,510,-0.163,-0.230,-67,Calibration
-PW,Extended,C2 (Dune),0.0702,-0.852,441,-0.579,-0.487,92,Calibration
-CEH1,Reference,C3 (Western Residual),0.0660,-0.712,411,-0.237,-0.358,-121,Calibration
-CEH18,Reference,C3 (Western Residual),0.0554,-1.006,518,-0.635,-0.628,7,Calibration
-CEH21,Reference,C3 (Western Residual),0.0422,-1.150,419,-0.873,-0.761,112,Calibration
-CEH36,Reference,C3 (Western Residual),0.0459,-0.744,488,-0.455,-0.388,67,Calibration
-CEH39,Reference,C3 (Western Residual),0.0310,-0.484,792,-0.213,-0.149,64,Calibration
-CEH4,Reference,C3 (Western Residual),0.0681,-0.857,301,-0.535,-0.491,44,Calibration
-CEH40,Reference,C3 (Western Residual),0.0351,-0.623,850,-0.332,-0.277,55,Calibration
-CEH41,Reference,C3 (Western Residual),0.0350,-0.479,829,-0.171,-0.145,26,Calibration
-CEH42,Reference,C3 (Western Residual),0.0525,-0.510,511,-0.071,-0.173,-101,Calibration
-CEH9,Reference,C3 (Western Residual),0.0330,-0.712,736,-0.451,-0.359,92,Calibration
-D25,Reference,C3 (Western Residual),0.0645,-0.642,415,-0.210,-0.294,-84,Calibration
-NW1,Reference,C3 (Western Residual),0.1112,-1.628,264,-1.037,-1.199,-163,Calibration
-NW11,Reference,C3 (Western Residual),0.0778,-0.878,341,-0.371,-0.511,-139,Calibration
-NW13,Reference,C3 (Western Residual),0.0879,-0.802,311,-0.431,-0.441,-10,Calibration
-NW2,Reference,C3 (Western Residual),0.0937,-0.816,320,0.104,-0.454,-558,Calibration
-NW5,Reference,C3 (Western Residual),0.0498,-0.735,590,-0.407,-0.380,27,Calibration
-NW6,Reference,C3 (Western Residual),0.0530,-0.625,534,-0.221,-0.279,-57,Calibration
-NW7,Reference,C3 (Western Residual),0.0413,-1.421,594,-1.000,-1.009,-9,Calibration
-WMC2,Reference,C3 (Western Residual),0.0476,-0.623,534,-0.297,-0.277,20,Calibration
-WMC3,Reference,C3 (Western Residual),0.0326,-1.347,746,-0.896,-0.942,-46,Calibration
-WMC4,Reference,C3 (Western Residual),0.0881,-0.835,300,-0.478,-0.471,7,Calibration
-CEH38,Extended,C3 (Western Residual),0.0555,-0.779,433,-0.599,-0.420,180,Calibration
-NW8B,Extended,C3 (Western Residual),0.0594,-1.592,342,-1.205,-1.166,39,Calibration
-P1,Extended,C3 (Western Residual),0.0431,-0.289,868,,0.030,,Reconstructed
-PE,Extended,C3 (Western Residual),0.0506,-0.702,550,-0.465,-0.350,115,Calibration
-CEH2,Reference,C4 (Main Forest),0.0233,-1.203,1089,-0.136,-0.809,-673,Out of scope
-CEH20,Reference,C4 (Main Forest),0.0287,-1.295,843,-0.817,-0.893,-76,Out of scope
-CEH30,Reference,C4 (Main Forest),0.0236,-1.666,950,-1.364,-1.234,130,Out of scope
-CEH32,Reference,C4 (Main Forest),0.0122,-1.439,2304,-1.296,-1.026,270,Out of scope
-CEH33,Reference,C4 (Main Forest),0.0195,-1.622,1223,-1.349,-1.194,156,Out of scope
-CEH34,Reference,C4 (Main Forest),0.0079,-0.389,3273,-0.434,-0.062,372,Out of scope
-NW10,Reference,C4 (Main Forest),0.0430,-1.020,593,-0.541,-0.641,-100,Out of scope
-CEH15,Extended,C4 (Main Forest),0.0361,-1.308,527,-0.761,-0.906,-144,Out of scope
-FE1,Extended,C4 (Main Forest),0.0141,-0.763,1499,-0.333,-0.406,-73,Out of scope
-LIS1,Extended,C4 (Main Forest),0.0257,-0.904,1166,-0.383,-0.534,-151,Out of scope
-CEH16,Reference,C5 (Coastal Forest),0.0372,-0.973,542,-0.645,-0.598,47,Out of scope
-CEH17,Reference,C5 (Coastal Forest),0.0574,-2.201,320,-1.871,-1.725,146,Out of scope
-CEH19,Reference,C5 (Coastal Forest),0.0443,-1.049,398,-0.681,-0.668,13,Out of scope
-CEH31,Reference,C5 (Coastal Forest),0.0418,-1.611,603,-1.211,-1.184,28,Out of scope
-NW9,Reference,C5 (Coastal Forest),0.0494,-0.932,429,-0.645,-0.560,85,Out of scope
-CEH3,Extended,C5 (Coastal Forest),0.0554,-1.160,262,-1.071,-0.770,301,Out of scope
-FE2,Extended,C5 (Coastal Forest),0.0455,-1.648,390,-1.281,-1.218,63,Out of scope
-FE3,Extended,C5 (Coastal Forest),0.0603,-1.972,340,-1.666,-1.515,151,Out of scope
-FE4,Extended,C5 (Coastal Forest),0.0475,-1.561,486,-1.193,-1.138,55,Out of scope
-NW8,Extended,C5 (Coastal Forest),0.0516,-1.394,361,-1.311,-0.985,326,Out of scope
+CEH11,Reference,C1 (Lake Edge),0.0907,-0.628,328,-0.400,-0.346,54,Calibration
+CEH23,Reference,C1 (Lake Edge),0.0884,-0.530,368,-0.278,-0.255,24,Calibration
+CEH25,Reference,C1 (Lake Edge),0.1333,-0.522,304,-0.326,-0.248,79,Calibration
+CEH26,Reference,C1 (Lake Edge),0.0865,-0.493,364,-0.268,-0.221,47,Calibration
+CEH27,Reference,C1 (Lake Edge),0.0982,-0.459,319,-0.212,-0.189,23,Calibration
+CEH5,Reference,C1 (Lake Edge),0.0972,-0.514,320,-0.263,-0.240,24,Calibration
+CEH6,Reference,C1 (Lake Edge),0.1175,-0.381,288,-0.238,-0.117,121,Calibration
+P2,Extended,C1 (Lake Edge),0.0990,-0.503,364,-0.326,-0.230,96,Calibration
+CEH10,Reference,C2 (Dune),0.1039,-1.374,347,-1.070,-1.039,31,Calibration
+CEH24,Reference,C2 (Dune),0.0737,-0.432,476,-0.117,-0.164,-47,Calibration
+CEH28,Reference,C2 (Dune),0.0712,-0.603,491,-0.256,-0.323,-67,Calibration
+D10,Reference,C2 (Dune),0.0577,-0.461,492,-0.174,-0.191,-17,Calibration
+D15,Reference,C2 (Dune),0.0611,-0.405,460,-0.071,-0.139,-68,Calibration
+D17,Reference,C2 (Dune),0.0708,-0.427,517,-0.163,-0.160,3,Calibration
+D38,Reference,C2 (Dune),0.1085,-0.741,285,-0.433,-0.451,-18,Calibration
+D41,Reference,C2 (Dune),0.0656,-0.480,467,-0.207,-0.209,-2,Calibration
+D43,Reference,C2 (Dune),0.0754,-0.659,343,-0.363,-0.375,-12,Calibration
+D44,Reference,C2 (Dune),0.0877,-0.741,417,-0.440,-0.451,-11,Calibration
+D5,Reference,C2 (Dune),0.0679,-0.592,473,-0.279,-0.313,-34,Calibration
+D6,Reference,C2 (Dune),0.0651,-0.578,457,-0.265,-0.299,-34,Calibration
+D7,Reference,C2 (Dune),0.0765,-0.470,449,-0.261,-0.199,62,Calibration
+D8,Reference,C2 (Dune),0.0553,-0.436,536,-0.159,-0.168,-9,Calibration
+D9,Reference,C2 (Dune),0.0621,-0.567,463,-0.257,-0.290,-33,Calibration
+L7,Reference,C2 (Dune),0.0841,-1.598,250,-1.300,-1.247,53,Calibration
+NW3,Reference,C2 (Dune),0.0615,-0.594,551,-0.298,-0.314,-16,Calibration
+NW4,Reference,C2 (Dune),0.0540,-0.443,588,-0.188,-0.174,14,Calibration
+NW4B,Reference,C2 (Dune),0.0593,-0.472,569,-0.211,-0.201,10,Calibration
+T41A,Reference,C2 (Dune),0.0940,-0.487,405,-0.174,-0.215,-41,Calibration
+T41B,Reference,C2 (Dune),0.0649,-0.399,483,-0.159,-0.133,26,Calibration
+T41C,Reference,C2 (Dune),0.0698,-0.436,412,-0.177,-0.167,9,Calibration
+T41D,Reference,C2 (Dune),0.0669,-0.662,444,-0.375,-0.377,-3,Calibration
+WMC1,Reference,C2 (Dune),0.0555,-0.599,548,-0.309,-0.319,-10,Calibration
+CEH12,Extended,C2 (Dune),0.0849,-1.188,383,,-0.866,,Reconstructed
+CEH22,Extended,C2 (Dune),0.0563,-0.707,237,-0.557,-0.420,137,Calibration
+CEH35,Extended,C2 (Dune),0.0658,-0.800,389,-0.652,-0.506,147,Calibration
+CEH37,Extended,C2 (Dune),0.0780,-0.542,349,-0.119,-0.266,-147,Calibration
+CEH7,Extended,C2 (Dune),0.0478,-0.687,661,-0.266,-0.401,-135,Calibration
+CEH8,Extended,C2 (Dune),0.0322,-0.772,510,-0.363,-0.480,-117,Calibration
+PW,Extended,C2 (Dune),0.0702,-0.882,441,-0.609,-0.582,27,Calibration
+CEH1,Reference,C3 (Western Residual),0.0653,-0.713,417,-0.277,-0.425,-148,Calibration
+CEH18,Reference,C3 (Western Residual),0.0543,-1.008,531,-0.695,-0.699,-4,Calibration
+CEH21,Reference,C3 (Western Residual),0.0414,-1.151,428,-0.923,-0.832,91,Calibration
+CEH36,Reference,C3 (Western Residual),0.0454,-0.745,493,-0.485,-0.454,31,Calibration
+CEH39,Reference,C3 (Western Residual),0.0307,-0.483,803,-0.253,-0.212,41,Calibration
+CEH4,Reference,C3 (Western Residual),0.0667,-0.859,309,-0.605,-0.560,45,Calibration
+CEH40,Reference,C3 (Western Residual),0.0345,-0.623,867,-0.382,-0.341,41,Calibration
+CEH41,Reference,C3 (Western Residual),0.0344,-0.478,848,-0.231,-0.207,24,Calibration
+CEH42,Reference,C3 (Western Residual),0.0506,-0.511,536,-0.201,-0.238,-36,Calibration
+CEH9,Reference,C3 (Western Residual),0.0330,-0.712,736,-0.451,-0.424,26,Calibration
+D25,Reference,C3 (Western Residual),0.0636,-0.644,422,-0.260,-0.361,-100,Calibration
+NW1,Reference,C3 (Western Residual),0.1013,-1.637,306,-1.307,-1.283,23,Calibration
+NW11,Reference,C3 (Western Residual),0.0747,-0.882,360,-0.521,-0.582,-60,Calibration
+NW13,Reference,C3 (Western Residual),0.0868,-0.803,317,-0.481,-0.509,-28,Calibration
+NW2,Reference,C3 (Western Residual),0.0789,-0.831,408,-0.486,-0.535,-49,Calibration
+NW5,Reference,C3 (Western Residual),0.0498,-0.735,590,-0.407,-0.446,-38,Calibration
+NW6,Reference,C3 (Western Residual),0.0517,-0.628,550,-0.301,-0.346,-44,Calibration
+NW7,Reference,C3 (Western Residual),0.0409,-1.422,603,-1.030,-1.084,-54,Calibration
+WMC2,Reference,C3 (Western Residual),0.0469,-0.623,544,-0.347,-0.342,5,Calibration
+WMC3,Reference,C3 (Western Residual),0.0316,-1.350,776,-0.976,-1.016,-40,Calibration
+WMC4,Reference,C3 (Western Residual),0.0871,-0.836,304,-0.518,-0.539,-21,Calibration
+CEH38,Extended,C3 (Western Residual),0.0555,-0.779,433,-0.599,-0.486,113,Calibration
+NW8B,Extended,C3 (Western Residual),0.0594,-1.592,342,-1.205,-1.242,-36,Calibration
+P1,Extended,C3 (Western Residual),0.0431,-0.319,868,,-0.059,,Reconstructed
+PE,Extended,C3 (Western Residual),0.0506,-0.732,550,-0.495,-0.443,52,Calibration
+CEH2,Reference,C4 (Main Forest),0.0176,-1.171,1644,-0.846,-0.851,-5,Out of scope
+CEH20,Reference,C4 (Main Forest),0.0278,-1.297,883,-0.927,-0.967,-40,Out of scope
+CEH30,Reference,C4 (Main Forest),0.0230,-1.664,984,-1.424,-1.308,116,Out of scope
+CEH32,Reference,C4 (Main Forest),0.0120,-1.435,2352,-1.336,-1.096,240,Out of scope
+CEH33,Reference,C4 (Main Forest),0.0190,-1.619,1265,-1.409,-1.267,143,Out of scope
+CEH34,Reference,C4 (Main Forest),0.0077,-0.381,3338,-0.484,-0.117,367,Out of scope
+NW10,Reference,C4 (Main Forest),0.0413,-1.020,626,-0.681,-0.710,-29,Out of scope
+CEH15,Extended,C4 (Main Forest),0.0361,-1.357,527,-0.810,-1.023,-213,Out of scope
+FE1,Extended,C4 (Main Forest),0.0141,-0.863,1499,-0.433,-0.565,-132,Out of scope
+LIS1,Extended,C4 (Main Forest),0.0257,-0.934,1166,-0.413,-0.630,-217,Out of scope
+CEH16,Reference,C5 (Coastal Forest),0.0364,-0.974,557,-0.715,-0.667,48,Out of scope
+CEH17,Reference,C5 (Coastal Forest),0.0546,-2.204,343,-1.961,-1.809,152,Out of scope
+CEH19,Reference,C5 (Coastal Forest),0.0420,-1.051,424,-0.831,-0.739,92,Out of scope
+CEH31,Reference,C5 (Coastal Forest),0.0385,-1.610,669,-1.381,-1.258,123,Out of scope
+NW9,Reference,C5 (Coastal Forest),0.0489,-0.933,434,-0.676,-0.629,47,Out of scope
+CEH3,Extended,C5 (Coastal Forest),0.0554,-1.170,262,-1.081,-0.849,231,Out of scope
+FE2,Extended,C5 (Coastal Forest),0.0455,-1.708,390,-1.341,-1.349,-9,Out of scope
+FE3,Extended,C5 (Coastal Forest),0.0603,-2.032,340,-1.726,-1.650,76,Out of scope
+FE4,Extended,C5 (Coastal Forest),0.0475,-1.621,486,-1.253,-1.268,-16,Out of scope
+NW8,Extended,C5 (Coastal Forest),0.0516,-1.484,361,-1.401,-1.141,259,Out of scope
 
-# Table S7.1. Equilibrium wetness index and MSL5 reconstruction, per well (n = 84). Levels are metres below ground surface, negative below the surface. The index is reconstructed from the open-dune calibration MSL5 = +0.295 + 0.918·EWI (r = 0.92, RMSE = 119 mm), fitted on the 62 in-scope wells carrying an observed five-year mean spring level. A further 2 open-dune well(s) carry an index but no valid five-year spring window and are reconstructed only; the 20 C4/C5 forest wells are reconstructed but held out of scope, their coefficients being the least constrained on the site. Status reads: 'Calibration', an in-scope well that entered the fit; 'Reconstructed', in scope but with no observed spring level; 'Out of scope', a forest well outside the calibration's scope. Standard errors on the index propagate the drainage coefficient alone, the dominant term; the full three-coefficient variant is carried in 26_equilibrium_wetness_index_per_well.csv. Source: 26_equilibrium_wetness_index_per_well.csv, 26_ewi_msl5_comparison.csv.
+# Table S7.1. Equilibrium wetness index and MSL5 reconstruction, per well (n = 84). Levels are metres below ground surface, negative below the surface. The index is reconstructed from the open-dune calibration MSL5 = +0.237 + 0.929·EWI (r = 0.98, RMSE = 62 mm), fitted on the 62 in-scope wells carrying an observed five-year mean spring level. A further 2 open-dune well(s) carry an index but no valid five-year spring window and are reconstructed only; the 20 C4/C5 forest wells are reconstructed but held out of scope, their coefficients being the least constrained on the site. Status reads: 'Calibration', an in-scope well that entered the fit; 'Reconstructed', in scope but with no observed spring level; 'Out of scope', a forest well outside the calibration's scope. Standard errors on the index propagate the drainage coefficient alone, the dominant term; the full three-coefficient variant is carried in 26_equilibrium_wetness_index_per_well.csv. Source: 26_equilibrium_wetness_index_per_well.csv, 26_ewi_msl5_comparison.csv.

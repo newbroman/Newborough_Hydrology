@@ -64,7 +64,7 @@ from pyproj import Transformer
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
 
-__version__ = "1.2.0"
+__version__ = "1.3.0"
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 SCRIPT_ID = "31b"
 VERSION = __version__
@@ -84,7 +84,7 @@ def load():
     m["key"] = m["Name_Original"].map(normalize_well_name)
     elev = pd.read_csv(INT_WELL_ELEVATIONS)
     elev["key"] = elev["Name"].map(normalize_well_name)
-    m = m.merge(elev[["key", "DEM_Ground_Elev", "dist_coast_m"]], on="key", how="left")
+    m = m.merge(elev[["key", "ground_elev_m", "dist_coast_m"]], on="key", how="left")
 
     w = pd.read_csv(INT_WELLS_CLEAN, index_col=0)
     w.index = pd.to_datetime(w.index)
@@ -162,7 +162,7 @@ def main():
         ("Summer minimum",       "summer_min",      False),
         ("Dry depth",            "dry_depth",       False),
         ("Seasonal amplitude",   "amplitude",       False),
-        ("Ground elevation",     "DEM_Ground_Elev", False),
+        ("Ground elevation",     "ground_elev_m", False),
         ("Forest (canopy flag)", "forest",          True),
     ]
 

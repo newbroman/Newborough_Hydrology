@@ -2,7 +2,7 @@ Zone,Phase,Phase_start,Phase_end,N_summers,Mean_depth_m,Median_depth_m,SD_depth_
 Impact (WMC3),Pre-2015,record_start,2015-04-01,3,1.5733,1.48,0.1537,1.45,1.79
 Impact (WMC3),2015–17,2015-04-01,2018-01-01,3,1.62,1.73,0.1699,1.38,1.75
 Impact (WMC3),Post-fell 2018+,2018-01-01,record_end,7,1.6,1.66,0.1683,1.34,1.78
-"Edge (CEH31, CEH20, CE",Pre-2015,record_start,2015-04-01,4,1.7806,1.7387,0.2477,1.535,2.11
+"Edge (CEH31, CEH20, CE",Pre-2015,record_start,2015-04-01,4,1.7806,1.7388,0.2477,1.535,2.11
 "Edge (CEH31, CEH20, CE",2015–17,2015-04-01,2018-01-01,3,1.6958,1.765,0.1636,1.47,1.8525
 "Edge (CEH31, CEH20, CE",Post-fell 2018+,2018-01-01,record_end,8,1.7417,1.79,0.1859,1.4475,2.0275
 "Forest Ctrl (CEH32, CE",Pre-2015,record_start,2015-04-01,4,1.8855,1.798,0.402,1.486,2.46

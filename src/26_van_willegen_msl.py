@@ -27,10 +27,9 @@ to the ground surface. No conversion is applied.
 
 2026-08-08: the previous header claimed the raw series was depth-below-pipe-top
 and applied `level_bg = level_pipe + Upstand_m`. That was wrong — the upstand is
-applied by the master on export, so this added it a second time. The `_m_pipe`
-column names are retained for continuity with existing consumers but carry
-ground-referenced values; they are scheduled for renaming to `_m_bg`.
-Per GEOMETRY_ARCHITECTURE_SPEC.md.
+applied by the master on export, so this added it a second time. v1.6.0 removes
+the duplicate `_m_pipe` columns entirely: every level here is ground-referenced
+and carries a single `_m_bg` name. Per GEOMETRY_ARCHITECTURE_SPEC.md.
 
 Strictness (per scoping decision 2026-05-20):
   * MSL_MIN_MONTHS_PER_SPRING = 3 — all three of {Mar, Apr, May} must be
@@ -128,9 +127,9 @@ Version: 1.4.0 (2026-08-02) — Metric diagnostics (Pass 8) and EWI uncertainty:
     n−3 df, no-intercept 3-predictor OLS); extended-tier fits take se_beta_*
     straight from fit_ssm(), which already returns them. EWI CSV gains
     se_beta_1/2/3, n_obs, h_disp_eq_m, EWI_se_m_beta3 and EWI_se_m_full.
-    IMPORTANT: the propagation is anchored on |h_disp_eq|, not |EWI_m_pipe|.
+    IMPORTANT: the propagation is anchored on |h_disp_eq|, not |EWI_m_bg|.
     Subtracting the constant DRAINAGE_DATUM shifts the value but not its
-    uncertainty; anchoring on EWI_m_pipe understates the error severely at
+    uncertainty; anchoring on EWI_m_bg understates the error severely at
     wells whose equilibrium level sits near the datum.
   * New compute_metric_diagnostics() + plot_metric_diagnostics() (Pass 8): the
     statistics behind the report's MSL5 window-sensitivity discussion are now
@@ -208,7 +207,7 @@ Version: 1.3.0 (2026-07-03) — Equilibrium Wetness Index (EWI):
     level implied by each well's fitted SSM coefficients under long-term mean
     climate. Setting mean monthly Δh = 0 and solving the head-dependent
     drainage term gives h_disp_eq = (β₁·P̄ − β₂·PET̄)/β₃, so
-    EWI_pipe = h_disp_eq − DRAINAGE_DATUM; EWI_bg is identical (no upstand term).
+    EWI_bg = h_disp_eq − DRAINAGE_DATUM  (ground frame; no upstand term).
     P̄, PET̄ are the full-record monthly-mean rainfall and PET (the same
     long-term climatology basis as the Script 21 scenario normals), making the
     index climate-window-independent — it needs only a valid SSM fit, not the
@@ -358,8 +357,16 @@ Version: 1.0.1 (2026-05-20) — Plot-side refinements:
 
 from __future__ import annotations
 
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-08-08 (upstand corrections removed)
+__version__ = "1.6.0"  # Hollingham (2026) — 2026-08-08 (duplicate frame columns collapsed)
 # Changelog:
+#   1.6.0 (2026-08-08) — Duplicate frame columns collapsed. With the upstand
+#     corrections removed in 1.5.0, MSL_m_pipe / MAX_m_pipe / MSL5_m_pipe /
+#     MAX5_m_pipe / EWI_m_pipe held values identical to their _m_bg twins. All
+#     five are dropped and the internal `level_pipe` becomes `level_bg`; every
+#     level this script emits is ground-referenced and carries one name.
+#     Verified no external consumer reads a _pipe column: 26b, 26c, 34, 20 and
+#     living/update_forecaster_msl5.py all read _m_bg only. Methods Supplement
+#     documents the retired pairing and must be updated (edit-log item D4).
 #   1.5.0 (2026-08-08) — Upstand corrections removed at both levels: the MSL/MAX
 #     conversion (level_bg = level_pipe + Upstand_m) and the equilibrium index
 #     (EWI_bg = EWI_pipe + Upstand_m). 01_wells_clean.csv carries the master's
@@ -502,7 +509,7 @@ def hydrology_year(date: pd.Timestamp,
 
 def _to_long(wells_clean: pd.DataFrame) -> pd.DataFrame:
     """
-    Pivot wide wells_clean to long form with date / well / level_pipe.
+    Pivot wide wells_clean to long form with date / well / level_bg.
     Date semantics: the row labelled YYYY-MM-01 carries the YYYY-MM water level
     (the '-01' is pandas formatting, not the 1st of the month). See F.2.
     """
@@ -510,9 +517,9 @@ def _to_long(wells_clean: pd.DataFrame) -> pd.DataFrame:
     if df.columns[0] in ("Unnamed: 0", "") or df.columns[0].lower().startswith("date"):
         df.columns = ["date", *df.columns[1:]]
     df["date"] = pd.to_datetime(df["date"])
-    long = df.melt(id_vars="date", var_name="well", value_name="level_pipe")
+    long = df.melt(id_vars="date", var_name="well", value_name="level_bg")
     long["well"] = long["well"].astype(str).str.strip().str.lower().str.replace(" ", "")
-    long = long.dropna(subset=["level_pipe"]).reset_index(drop=True)
+    long = long.dropna(subset=["level_bg"]).reset_index(drop=True)
     long["month"] = long["date"].dt.month
     long["hydro_year"] = long["date"].apply(hydrology_year)
     return long
@@ -521,7 +528,7 @@ def _to_long(wells_clean: pd.DataFrame) -> pd.DataFrame:
 def _ground_offset(elev: pd.DataFrame) -> pd.Series:
     """
     Return per-well Upstand_m (metres pipe-top is above ground).
-    level_bg is identical to level_pipe: the series is already ground-referenced.
+    All levels are ground-referenced (master `depth from surface` = upstand - dip).
     """
     elev = elev.copy()
     elev["well"] = elev["Name"].astype(str).str.strip().str.lower().str.replace(" ", "")
@@ -544,14 +551,14 @@ def annual_msl_max(long: pd.DataFrame,
 
     # MSL — spring only
     msl_g = spring.groupby(["well", "hydro_year"])
-    msl_records = msl_g["level_pipe"].agg(["mean", "count"]).reset_index()
-    msl_records = msl_records.rename(columns={"mean": "MSL_m_pipe",
+    msl_records = msl_g["level_bg"].agg(["mean", "count"]).reset_index()
+    msl_records = msl_records.rename(columns={"mean": "MSL_m_bg",
                                               "count": "n_spring_months"})
 
     # MAX — over full hydrology year
     max_g = long.groupby(["well", "hydro_year"])
-    max_records = max_g["level_pipe"].agg(["max", "count"]).reset_index()
-    max_records = max_records.rename(columns={"max": "MAX_m_pipe",
+    max_records = max_g["level_bg"].agg(["max", "count"]).reset_index()
+    max_records = max_records.rename(columns={"max": "MAX_m_bg",
                                               "count": "n_hydroyear_months"})
 
     annual = pd.merge(msl_records, max_records, on=["well", "hydro_year"], how="outer")
@@ -569,16 +576,14 @@ def annual_msl_max(long: pd.DataFrame,
 
     # convert to depth-below-ground
     up = annual["well"].map(upstand)
-    annual["MSL_m_bg"] = annual["MSL_m_pipe"]
-    annual["MAX_m_bg"] = annual["MAX_m_pipe"]
 
     # validity: STRICT 3-of-3
     annual["valid"] = (annual["n_spring_months"] >= MSL_MIN_MONTHS_PER_SPRING)
 
     return annual[["well", "hydro_year",
-                   "MSL_m_pipe", "MSL_m_bg", "n_spring_months",
+                   "MSL_m_bg", "n_spring_months",
                    "n_interpolated_spring",
-                   "MAX_m_pipe", "MAX_m_bg", "n_hydroyear_months",
+                   "MAX_m_bg", "n_hydroyear_months",
                    "valid"]].sort_values(["well", "hydro_year"]).reset_index(drop=True)
 
 
@@ -607,9 +612,7 @@ def rolling_5yr(annual: pd.DataFrame,
                 "well": well,
                 "window_end_year": end_y,
                 "n_years_in_window": int(n_valid),
-                "MSL5_m_pipe": present["MSL_m_pipe"].mean(),
                 "MSL5_m_bg":   present["MSL_m_bg"].mean(),
-                "MAX5_m_pipe": present["MAX_m_pipe"].mean(),
                 "MAX5_m_bg":   present["MAX_m_bg"].mean(),
                 "n_interp_in_window": int(present["n_interpolated_spring"].fillna(0).sum()),
             })
@@ -1165,8 +1168,7 @@ def compute_equilibrium_wetness_index(elev: pd.DataFrame,
     the head-dependent drainage term for the equilibrium displacement gives
 
         h_disp_eq = (β₁·P̄ − β₂·PET̄) / β₃
-        EWI_pipe  = h_disp_eq − DRAINAGE_DATUM       (ground frame; name is legacy)
-        EWI_bg    = EWI_pipe                        (identical — no upstand term)
+        EWI_bg = h_disp_eq − DRAINAGE_DATUM          (ground frame, no upstand term)
 
     P̄, PET̄ are the full-record monthly-mean rainfall and PET (the same long-term
     climatology basis as the Script 21 scenario normals), so the index is
@@ -1198,17 +1200,14 @@ def compute_equilibrium_wetness_index(elev: pd.DataFrame,
             warn(f"{w.upper()} β₃={b3:.4f} ≤ {EWI_MIN_BETA3} — EWI undefined, skipped")
             return None
         h_disp_eq = (b1 * P_bar - b2 * PET_bar) / b3
-        ewi_pipe = h_disp_eq - config.DRAINAGE_DATUM
+        ewi_bg = h_disp_eq - config.DRAINAGE_DATUM
         ups = offset.get(w, np.nan)
-        # No upstand term: the clean series is already ground-referenced, so
-        # the equilibrium displacement is in the ground frame already.
-        ewi_bg = ewi_pipe
 
         # Uncertainty (v1.4.0). Subtracting the constant DRAINAGE_DATUM shifts
         # the value but not its uncertainty, so SE(EWI) = SE(h_disp_eq) and the
-        # propagation is anchored on |h_disp_eq|, NOT on |EWI_m_pipe|. Anchoring
-        # on EWI_m_pipe understates the error — severely at wells where the
-        # equilibrium level sits near the datum and EWI_m_pipe is close to zero.
+        # propagation is anchored on |h_disp_eq|, NOT on |EWI_m_bg|. Anchoring
+        # on EWI_m_bg understates the error — severely at wells where the
+        # equilibrium level sits near the datum and EWI_m_bg is close to zero.
         #
         #   β₃-only : the dominant term; h_disp_eq ∝ 1/β₃, so the relative error
         #             in β₃ passes straight through.
@@ -1231,7 +1230,7 @@ def compute_equilibrium_wetness_index(elev: pd.DataFrame,
                     beta_3_drainage=b3,
                     se_beta_1=se1, se_beta_2=se2, se_beta_3=se3, n_obs=n_obs,
                     h_disp_eq_m=h_disp_eq,
-                    EWI_m_pipe=ewi_pipe, EWI_m_bg=ewi_bg,
+                    EWI_m_bg=ewi_bg,
                     EWI_se_m_beta3=se_b3_term, EWI_se_m_full=se_full,
                     cluster_id=cluster_id)
 
@@ -1573,7 +1572,7 @@ def compute_metric_diagnostics(annual: pd.DataFrame,
         # Annual spring series, reindexed over the full span so that missing
         # years appear as gaps rather than silently closing up — an
         # autocorrelation across a gap would otherwise pair non-adjacent years.
-        s = ann_valid.loc[ann_valid["well"] == w].set_index("hydro_year")["MSL_m_pipe"]
+        s = ann_valid.loc[ann_valid["well"] == w].set_index("hydro_year")["MSL_m_bg"]
         s = s.sort_index()
         if len(s):
             s = s.reindex(range(int(s.index.min()), int(s.index.max()) + 1))
@@ -1588,7 +1587,7 @@ def compute_metric_diagnostics(annual: pd.DataFrame,
         # series, an observed quantity rather than a modelled one.
         pw = per_well[(per_well["well"] == w)
                       & (per_well["n_years_in_window"] >= MSL_MIN_YEARS_IN_WINDOW)]
-        spread_mm = (float((pw["MSL5_m_pipe"].max() - pw["MSL5_m_pipe"].min()) * 1000.0)
+        spread_mm = (float((pw["MSL5_m_bg"].max() - pw["MSL5_m_bg"].min()) * 1000.0)
                      if len(pw) > 2 else np.nan)
 
         b3 = float(e["beta_3_drainage"])
@@ -1679,7 +1678,7 @@ def compute_metric_diagnostics(annual: pd.DataFrame,
 
     # Site-mean spring series: the network-scale counterpart to the per-well
     # autocorrelation, free of per-well measurement noise.
-    site = (ann_valid.groupby("hydro_year")["MSL_m_pipe"].mean().sort_index())
+    site = (ann_valid.groupby("hydro_year")["MSL_m_bg"].mean().sort_index())
     if len(site):
         site = site.reindex(range(int(site.index.min()), int(site.index.max()) + 1))
         if int(site.notna().sum()) >= DIAG_MIN_SPRINGS:
@@ -1823,7 +1822,7 @@ def emit_supplementary_table_s7_1(ewi: pd.DataFrame, comp: pd.DataFrame,
     Standard errors are the β₃-only variant (`EWI_se_m_beta3`) — the dominant
     term, since the equilibrium displacement is inversely proportional to β₃.
     The full three-coefficient variant remains in the per-well CSV. Note that
-    the propagation behind both is anchored on |h_disp_eq|, not |EWI_m_pipe|;
+    the propagation behind both is anchored on |h_disp_eq|, not |EWI_m_bg|;
     see compute_equilibrium_wetness_index() and report §3.7.6.
 
     Returns (display_df, caption). Empty frame and empty caption if the inputs

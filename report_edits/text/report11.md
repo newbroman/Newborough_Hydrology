@@ -28,7 +28,7 @@ A direct test of the spatial component of this confound is now provided by the n
 
 ## <span id="anchor-7"></span>****Water balance closure as weak validation****
 
-****The cluster-level water balance closes to within 2.5% of total losses at all five clusters (Table 4a), and the residual field is spatially uniform, with 60 of the 66 reference wells within ±0.01 m/month and no gradient across the site (Section 4.9.7). Closure of this quality is a necessary condition for the model to be trusted, but it is a weak one.****
+****The cluster-level water balance closes to within 2.5% of total losses at all five clusters (Table 4a), and the residual field is spatially uniform in magnitude, with 64 of the 66 reference wells within ±0.01 m/month and no gradient in residual magnitude across the site (Section 4.9.7). Closure of this quality is a necessary condition for the model to be trusted, but it is a weak one.****
 
 The residual is a single scalar per well formed from the long-term means of all three fitted terms, so compensating errors cancel within it: a β₁ biased high and a β₂ biased high in the same proportion close the balance as well as two correct coefficients. Good closure at the long-term mean therefore constrains the terms jointly and says little about any one of them individually, and nothing about month-to-month adequacy, which is addressed separately by the fit statistics and the residual diagnostics of Supplementary Notes S5 and S6. The residual also absorbs nonlinear soil-moisture storage dynamics, coefficient sensitivity and any systematic bias in the Thornthwaite PET estimate indistinguishably, so a small residual cannot be read as evidence that none of these is present.
 

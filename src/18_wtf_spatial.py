@@ -28,7 +28,8 @@ Notes:
       duration is asserted. It is emitted here as a diagnostic only: it is not
       mapped, and it is not offered in 18_report_numbers.csv.
     - Forest clusters (C4 Main Forest, C5 Coastal Forest) receive interception
-      correction: R_eff = (1-0.24)*P - PET. Interception fraction measured at
+      correction: R_eff = (1 - FOREST_INTERCEPTION)*P - PET (config.py).
+      Interception fraction measured at
       C5 and applied across both forested clusters.
     - Under the k=5 partition all clusters are analytically usable; the old
       EXCLUDE_CLUSTERS list (tidal / lake) is empty.
@@ -231,7 +232,7 @@ def plot_spatial_map(well_results, out_path):
         map_df      = map_df,
         value_col   = "WTF_Sy_median",
         title       = (f"WTF Specific Yield (event median) — Newborough Warren 2005–{_END_YEAR}\n"
-                       "Forest cluster values (C4, C5) corrected for 24% canopy interception "
+                       f"Forest cluster values (C4, C5) corrected for {FOREST_INTERCEPTION:.0%} canopy interception "
                        "(Freeman, 2008); spatial canopy variability means "
                        "Forest estimates are approximate"),
         output_path = out_path,

@@ -278,8 +278,10 @@ def load_scrape_offsite_mm() -> float:
         info(f"scrape off-site (live, WMC3 DiD mean of {len(vals_mm)} steps): {val_mm:+.1f} mm")
         return val_mm
     except Exception as exc:
-        warn(f"cannot read WMC3 off-site DiD ({exc}) — using snapshot -54.5 mm")
-        return -54.5
+        _fallback = float(pipeline_params.default_value("wmc3_drawdown_mm"))
+        warn(f"cannot read WMC3 off-site DiD ({exc}) — using the documented "
+             f"first-pass default {_fallback:+.1f} mm")
+        return _fallback
 
 
 def load_drawdown_lambda_m() -> float:

@@ -5,7 +5,7 @@
 A deliberate cautionary DEMONSTRATION: how strongly an apparent "site-mean
 water-table change" depends on WHICH two five-year spring windows are differenced.
 The §4.9.8 headline differences window-end 2017 (springs 2013-2017) against
-window-end 2023 (springs 2019-2023) and reports -96.8 mm. This script places that
+window-end 2023 (springs 2019-2023). This script places that
 single comparison inside the envelope of EVERY admissible window pair, so §5.7.5
 can show — from a committed, reproducible figure — that the two-window MSL5 method
 cannot resolve absolute site-wide change: pick different windows and you get the
@@ -38,8 +38,8 @@ Method:
     as % deviation from the analysis-period mean, read from the committed
     00_climate_summary/00_01_annual_climate_summary.csv (not hand-typed).
 
-Validation: the 2017->2023 pair reproduces the committed -96.8 mm (n=59) headline
-(it returns -96.5 mm, n=60; the 1-well/0.3 mm gap is a coverage-rule nuance).
+Validation: the 2017->2023 pair reproduces the committed headline to within a
+one-well coverage-rule nuance (this script's output carries both figures).
 
 Outputs (outputs/34_window_sensitivity/):
   34_window_matrix.csv         every admissible pair: baseline_end, current_end,
@@ -325,8 +325,7 @@ def main() -> int:
         f"rainfall: 00_01_annual_climate_summary.csv\n"
         f"common panel per pair; admissible = panel>=%d; ALL pairs retained "
         f"(wet-2024 windows INCLUDED — the point of the demonstration)\n\n"
-        f"anchor {ANCHOR[0]}->{ANCHOR[1]}: {anchor_change:+.1f} mm (n={len(c)})  "
-        f"[committed -96.8 mm, n=59]\n\n"
+        f"anchor {ANCHOR[0]}->{ANCHOR[1]}: {anchor_change:+.1f} mm (n={len(c)})\n\n"
         f"ADMISSIBLE envelope: {lo:+.0f} to {hi:+.0f} mm "
         f"({lo/1000:+.2f} to {hi/1000:+.2f} m); "
         f"{n_neg} neg / {n_pos} pos of {len(d)} pairs (sign-changing)\n"
@@ -335,7 +334,7 @@ def main() -> int:
         f"  most positive: {int(mostpos.baseline_end)}->{int(mostpos.current_end)} "
         f"{mostpos.change_mm:+.0f} mm (n={int(mostpos.n_common)})  "
         f"[current window contains the freak-wet 2024 spring]\n\n"
-        f"The -97 mm headline is one interior point; the two-window MSL5 method "
+        f"The anchor-pair headline is one interior point; the two-window MSL5 method "
         f"cannot resolve absolute site-wide change.\n"
         f"Thin 7-well 2005-2009 baseline auto-excluded by the panel rule.\n"
         % MIN_PANEL

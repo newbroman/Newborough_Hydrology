@@ -84,6 +84,8 @@ SITE_YLIM = (SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX)
 
 # ── Sea-boundary fallback constants for make_site_mask() ──────────────────────
 # Used only when site_boundary.kml KML parse fails.
+# Shoreline anchors, shared with Script 11b. Script 20 deliberately uses a
+# wider box (362200 / 243900) for its own figures — see the note there.
 _SEA_SOUTH_N = 362350   # m OSGB36 — southern shoreline Northing
 _SEA_EAST_E  = 243850   # m OSGB36 — eastern (Menai Strait) Easting
 _SEA_WEST_E  = 239200   # m OSGB36 — western estuary Easting

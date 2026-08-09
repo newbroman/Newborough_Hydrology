@@ -572,7 +572,7 @@ def _plot_scenario_comparison(centroids_df, dpi=200):
                       alpha=0.9, edgecolor="#DAA520"))
 
     ax.text(0.98, 0.98,
-            "C5 note: BACI felling step (\u221276 mm)\n"
+            "C5 note: the BACI felling step\n"
             "overstates decline due to western\n"
             "positional confound vs C1+C2 control.\n"
             "SSM scenario values are unaffected.",

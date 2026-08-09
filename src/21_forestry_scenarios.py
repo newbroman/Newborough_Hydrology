@@ -32,8 +32,10 @@ Hydrograph figure:
 
   Broadleaf conversion uses seasonally-varying β₂ to capture deciduous
   phenology: lower ET in winter (leaves off, Nov-Apr) and higher in summer
-  (leaves on, May-Oct), combined with reduced annual interception (15% uniform annual average,
-  approximating ~20% growing-season interception with zero winter interception, vs 24% pine).
+  (leaves on, May-Oct), combined with reduced annual interception
+  (config.BROADLEAF_INTERCEPTION, a uniform annual average approximating a higher
+  growing-season interception with zero winter interception, vs config.FOREST_INTERCEPTION
+  for pine).
   The 12-month β₂ multiplier profile (lines 399-412) averages to canonical
   values from utils.config under the canonical Nov-Apr / May-Oct windows:
   BROADLEAF_B2_WINTER = 0.8817, BROADLEAF_B2_SUMMER = 1.0750.
@@ -77,7 +79,9 @@ Usage
 References
 ----------
   Curreli et al. (2013) — ecological thresholds SD15b, SD16
-  Freeman (2008)        — canopy interception 24% (pine); broadleaf assumed 15% annual average (~20% growing season, zero winter)
+  Freeman (2008)        — pine canopy interception (config.FOREST_INTERCEPTION);
+                          broadleaf annual average (config.BROADLEAF_INTERCEPTION,
+                          Komatsu et al. 2011 — zero winter interception assumed)
   Hollingham (2026)     — BACI clearfell result loaded from
                           10a_report_numbers.csv (ANCOVA Forest-control
                           Impact tier) at runtime; see _load_baci_params().
@@ -208,7 +212,7 @@ def _load_baci_params():
 
     # Summer BACI: directly-fitted Jun-Sep ANCOVA step.  No arithmetic
     # fallback (Defect 14 resolution): the legacy BACI_ANNUAL × 1.5034
-    # construct differed from the fitted value by ~80 mm and is not a
+    # construct differed materially from the fitted value and is not a
     # defensible reconstruction; missing summer row → hard error.
     summer_row = rpt[rpt["Parameter"] ==
                      "ANCOVA_Forest_Impact_clearfell_step_summer"]
@@ -631,7 +635,7 @@ def plot_hydrograph(scenario_shifts, obs_monthly, monthly_P, monthly_PET,
         "includes the wet 2015–16 years and 2015 scraping intervention, which inflate\n"
         "the apparent post-felling deepening (Section 4.6.4).\n"
         "Broadleaf: seasonally-varying β₂ (deciduous phenology) +\n"
-        "15% annual-mean interception (Komatsu et al., 2011).\n"
+        f"{BROADLEAF_INTERCEPTION:.0%} annual-mean interception (Komatsu et al., 2011).\n"
         "C1 and C2 unaffected by any forest management scenario.",
         xy=(0.02, 0.03), xycoords="axes fraction", fontsize=7.0,
         color="dimgrey",

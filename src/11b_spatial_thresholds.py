@@ -9,15 +9,15 @@ below ground, and produces a publication-quality map zoned by Curreli et al.
 (2013) eco-hydrological thresholds and scraping recovery limits derived from
 the BACI analysis in Hollingham (2026).
 
-Recovery limits are grounded in the BACI scraping benefit of +0.143 m
-(Hollingham, 2026, script 09):
-    SD15b excavation limit = SD15b + 0.14 = 0.75 m (shallow excavation ~0.14 m achieves SD15b)
-    SD16  excavation limit = SD16  + 0.22 = 1.20 m (deeper excavation ~0.22 m achieves SD16)
+Recovery limits are grounded in the BACI scraping benefit reported by the
+Script 09 suite (load it live; do not cache the value here):
+    SD15b excavation limit = config.SD15b_REC (shallow excavation achieves SD15b)
+    SD16  excavation limit = config.SD16_REC  (deeper excavation achieves SD16)
 
 DEM corrections are applied to two wells that have been scraped since the
 LiDAR survey was flown:
-    CEH18 (scraped October 2023, ~0.50 m removed): DEM corrected -0.50 m
-    CEH21 (scraped October 2023, ~0.70 m removed): DEM corrected -0.70 m
+    CEH18 and CEH21 (both scraped October 2023): DEM lowered by the
+    per-well `dem_correction` in the WELL_OVERRIDES table below.
     Full observed record is used for both wells: maOD readings are
     invariant to ground-surface change, so pre-2023 maOD water-table
     observations remain physically valid alongside post-2023 ones.
@@ -128,6 +128,8 @@ INT_REGIONAL_AVERAGES   = INT_REGIONAL_AVG           # 03_regional_averages.csv
 MEAN_WINTER_RAINFALL_MM = 521
 
 # Sea boundary constants — rectangular fallback mask matching script 19
+# Shoreline anchors, shared with map_utils._SEA_*. Script 20 deliberately uses
+# a wider box (362200 / 243900) for its own figures — see the note there.
 SEA_SOUTH_N = 362350   # m OSGB36 — southern shoreline
 SEA_EAST_E  = 243850   # m OSGB36 — eastern Menai Strait
 SEA_WEST_E  = 239200   # m OSGB36 — western estuary

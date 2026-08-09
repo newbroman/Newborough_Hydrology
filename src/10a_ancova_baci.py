@@ -8,7 +8,8 @@ Purpose
 Primary clearfell result.  Runs the same ANCOVA model three times with
 different control centroids (forest, climate, combined), applied to both
 the impact and edge tiers, yielding six ANCOVA results.  Distance-weighted
-scraping (exponential decay, λ = 300 m) replaces the binary scraping dummy.
+scraping (exponential decay, λ = clearfell_common.SCRAPING_DECAY_LAMBDA)
+replaces the binary scraping dummy.
 An easting × post-felling interaction captures coastal erosion trends for
 the climate and combined controls (dropped for the forest control where
 easting range is insufficient).

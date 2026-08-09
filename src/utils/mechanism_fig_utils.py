@@ -46,169 +46,6 @@ All builders are PURE (return SVG strings); Script 09g orchestrates, prints the
 numeric verification checks (image-view is unreliable in-session — verify by the
 printed checks) and writes the outputs via paths.py.
 
-CHANGELOG
-    1.6.6  2026-07-19  Inland flat-pond revision (Martin's review of the v1.6.5 render):
-                       (a) per-curve flooding — the flat-pond flatten (_r_und_flat)
-                       generalised to _flat_pond(dd, surf, grd), applied to EACH curve
-                       against its OWN drawn-down surface. The reference floods where the
-                       undisturbed table does; coastal floods only where the drawn-down
-                       coastal surface still stands above the floor (so it no longer steps
-                       under the far slack once coastal drawdown has recovered); climate,
-                       drawn below every inland floor, floods nowhere and stays a smooth
-                       declining line. (b) flat pond now spans only the TRULY flooded
-                       width (where the ground floor is below the pond level), matching
-                       segmented(); the regional table rises out on the landward flank,
-                       not inside the slack — fixes "slack 3 not flat across the whole
-                       slack". (c) sqrt bend -> smoothstep (zero slope at both ends) so
-                       the flat->rise join has no kink — fixes the "step where climate and
-                       coastal meet" at the ~698 m crossing. Verified: crossing meet is
-                       smooth, coastal max adjacent step 0.49 px, seam continuity at 330 m
-                       preserved. Management figures and global PX_PER_MM unaffected.
-    1.6.5  2026-07-19  Inland slacks now read like the near-shore slacks. New
-                       _r_und_flat() draws the inland undisturbed table as a FLAT pond
-                       surface across each wet slack with a sqrt Dupuit bend down from
-                       the landward (uphill) rim, instead of the smooth interpolator
-                       sloping straight through. The reach reference line AND both
-                       drawdown curves (coastal, climate; plus the grid's storm/5-yr
-                       lines) are drawn on this base, in build_reach_body (standalone +
-                       grid) and build_reach_panel (lay drivers figure), so all five
-                       slacks read consistently (Martin: full consistency with the
-                       reference). Climate never ponds inland (drawn-down table sits
-                       below every slack floor) so its shape only reshapes slightly;
-                       the coastal line still ponds in the far-landward slack and now
-                       renders as a flat pond there rather than sloping through. Seam
-                       continuity at 330 m preserved (330 m is dry, flat base == raw).
-                       Config slack floors left at the raised values (Martin); global
-                       PX_PER_MM and the management figures unaffected.
-    1.6.4  2026-07-18  Fixed the flat climate curve introduced by the local reach
-                       scale: climate_build_after_table now lowers the ACTUAL undisturbed
-                       table (which already carries the near-shore ponds) rather than a
-                       fresh smooth parabola that, at the smaller local drop, sat above
-                       the slack floors and clamped into one long flat pond. Also fixed a
-                       sign bug — the local px scale now takes abs() like the global
-                       mm_px, so the near-shore climate drops the right way and meets the
-                       inland climate exactly at the seam (179.6 == 179.6). Management
-                       climate figure unaffected.
-    1.6.3  2026-07-18  Reach figure rescaled instead of reshaped (Martin): the dune and
-                       water-table geometry are LEFT ALONE (so they still match the
-                       management diagrams that share ground()/segmented()). The existing
-                       drawn gap between the undisturbed line and the sea-level 20-yr
-                       erosion toe at the nose is DEFINED as coastal_dd(0)=581 mm, giving
-                       a local reach amplitude scale _RPX; the climate offset, inland
-                       drawdown curves and (now recomputed) exaggeration factor are all
-                       drawn to that scale. The 581 mm marker is a DOTTED line at the toe
-                       spanning that gap. Global PX_PER_MM (0.10, shared with 09f)
-                       untouched; management figures unchanged.
-    1.6.2  2026-07-18  Standalone reach near-shore labels tidied: storm / 5-yr / 20-yr
-                       are labelled directly under their own ghost band (aligned where
-                       the tick marks pointed), the "shoreline retreating" caption
-                       moved to its own line below, and the tick marks removed. The
-                       earlier inline "shoreline retreating: storm / 5 yr / 20 yr" had
-                       displaced the state labels away from their bands. Grid reach
-                       panel (multiples=True) unchanged — keeps the storm/5-yr Dupuit
-                       curves.
-    1.6.1  2026-07-18  build_reach_body gains a `multiples` flag so the grid's reach
-                       panel and the standalone paper reach diverge as needed:
-                       - grid (multiples=True): storm / 5-yr / 20-yr Dupuit curves
-                         restored (near-shore + inland), each state labelled directly
-                         UNDER its ghost band with NO tick marks, legend names all
-                         three states;
-                       - standalone (multiples=False): unchanged — single 20-yr
-                         horizon, consolidated inline label, colour ticks (the paper
-                         reviewer's decluttered version).
-                       Fixes the grid: retreat labels no longer offset, ticks removed,
-                       storm/5-yr lines back.
-    1.6.0  2026-07-18  Two cosmetic follow-ups: (a) FONT_STACK pins
-                       'Liberation Sans','DejaVu Sans',sans-serif on every text
-                       element, so Greek/subscript glyphs render instead of falling
-                       back to a box font; "d0" -> delta0 in the reach and technical-
-                       stack coastal labels to match Section 4.11 notation; (b) the
-                       near-shore storm/5-yr/20-yr band labels are consolidated from
-                       three stacked colour labels into one compact inline
-                       "shoreline retreating: storm / 5 yr / 20 yr" (each state in its
-                       colour) with small colour ticks under the ghost bands — de-
-                       clutters the shore while keeping the single 20-yr water-table
-                       horizon.
-    1.5.1  2026-07-18  Reach figure — second review pass:
-                       (a) coastal measure bar re-anchored at the COAST EDGE where the
-                       full -581 mm applies (was drawn near 300 m, where the taper is
-                       ~386 mm, contradicting its "at shore" label); (b) arithmetic
-                       made self-consistent — "d0 29.03 mm/yr x 20 yr" = 581 (unrounded
-                       product; 29.0 x 20 = 580 would mismatch the 581 label);
-                       (c) -127 mm annotation moved into a boxed callout in clear space
-                       (was running across the dotted undisturbed line and the crossover
-                       marker); near-shore already at a single 20-yr horizon (storm/5yr
-                       are ghosted shoreline + band labels only), exaggeration x104
-                       confirmed from actual axis scaling (103.93). NOTE: d0/c kept as
-                       ASCII (not the delta0/c glyphs) because the cairosvg render font
-                       fallback boxes some non-ASCII; revisit if a glyph-complete font
-                       is pinned in the render step.
-    1.5.0  2026-07-18  Technical reach figure sharpened (reviewer concerns):
-                       (a) vertical quantified — a 100 mm scale bar plus direct
-                       amplitude annotations (coastal shore -581 mm = d0 29.0 x 20;
-                       climate -127 mm = c 6.35 x 20), the numbers that make the
-                       crossover legible; (b) framing fixed — "water-table curves and
-                       900 m reach to committed scale; dune surface illustrative;
-                       vertical exaggerated x104", tied to the fitted d0/L/climate
-                       (Section 4.11), no longer "schematic, not to scale";
-                       (c) near-shore multiples resolved — only the 20-yr water-table
-                       curve is drawn (storm/5-yr remain as ghosted shoreline + band
-                       labels), so there is one unambiguous purple line; (d) x-ticks
-                       regularised to 150 m; (e) crossover reworded to "climate
-                       drawdown exceeds coastal"; solid/dashed/dotted confirmed
-                       BW-safe (distinct luminance AND pattern).
-    1.4.1  2026-07-18  Retreat-state legend removed from the technical reach figures;
-                       storm / 5-yr / 20-yr are now labelled directly under their own
-                       ghost shade (each band = one shoreline position), staggered in
-                       depth with a colour tick, in both the overlaid reach and the
-                       stacked technical coastal panel (build_reach_panel gains a
-                       register flag; labels are technical-only, absent from lay). The
-                       generic "shoreline retreating" band underline is dropped; a
-                       "shoreline retreating (storm to 20-yr)" summary line remains.
-    1.4.0  2026-07-18  Added build_reach_stack(reach, register): the stacked 3-panel
-                       coastal-vs-climate figure (undisturbed/coastal/climate) now
-                       lives here and serves BOTH registers — 'technical' (mm
-                       amplitudes, d0/c, precise crossing; new 09g output) and 'lay'
-                       (plain language; gen_grid_lay wraps it). The lay drivers figure
-                       is unchanged bar the crossing tag now reading "~698 m".
-    1.3.1  2026-07-18  build_reach_panel() gains near-shore pond fill (_reach_ponds):
-                       the undisturbed and climate lay panels now show standing water
-                       in the flooded slacks, not just a line. build_reach_body still
-                       byte-identical (ponds are on the panel path only).
-    1.3.0  2026-07-18  Added build_reach_panel() + _reach_base(): a single-driver
-                       reach panel (undisturbed / coastal / climate) on the SHARED
-                       profile, factored out of build_reach_body so the lay stacked
-                       figure (gen_grid_lay) reuses the exact technical geometry
-                       instead of a hand-rolled profile. build_reach_body unchanged
-                       in output.
-    1.2.0  2026-07-18  Render + register fixes (Martin's review, second pass):
-                       (a) crossing computed at FULL precision from the CSV edge +
-                       reach length rather than interpolating the 2-dp-rounded
-                       coastal column, so 09g and 09f both report 698 m (the true
-                       line crossing; 697 was a CSV-rounding artefact);
-                       (b) grid title/subtitle reflowed onto two left-aligned lines
-                       (were overlapping); (c) box-rendering glyphs removed from the
-                       drawn labels — U+2192 arrow after "shoreline retreating" and
-                       U+2248 before the crossing label (cairosvg's sans font lacks
-                       them); (d) reach footer de-registered: internal "09f / 25_01"
-                       pipeline reference and the "-581 mm not drawn here" note
-                       removed (provenance belongs in the caption, not the figure).
-    1.1.0  2026-07-18  Reach-panel seam continuity (Martin's render review): near-shore
-                       retreat parabolas (storm / 5-yr / 20-yr) are now anchored at the
-                       330 m cross-section boundary to the SAME committed 09f_01
-                       drawdowns the inland side plots (previously schematic
-                       MECH_FIG_RETREAT_HIN endpoints -> visible 1.4 px step on the
-                       20-yr line); storm and 5-yr curves now CONTINUE inland to 900 m
-                       from their committed CSV columns (previously stopped dead at
-                       330 m). load_reach() gains c5_dd()/storm_dd() interpolators
-                       (+ default-based fallbacks). The coastal GRID cell keeps its
-                       schematic HIN anchors (no distance scale there). Continuity at
-                       the seam is exact by construction and checked by Script 09g.
-    1.0.0  2026-07-18  First pipeline version: dev generators consolidated, console
-                       shim replaced by console_utils, ALL physical amplitudes
-                       de-hardcoded to committed CSVs with pipeline_params
-                       fallbacks, figure-design constants promoted to config.py
-                       (MECH_FIG_*), reach fully derived from 09f_01 columns.
 """
 from __future__ import annotations
 
@@ -356,8 +193,8 @@ def load_reach():
         climate_mm = abs(float(df['climate_20yr_head_mm'].iloc[0]))
         # Crossing at FULL precision. The committed coastal_5yr column is a linear
         # taper stored at 2 dp; interpolating the rounded column shifts the zero-
-        # crossing ~1 m (reads 697 where the true line crossing is 698). Reconstruct
-        # the taper from its own edge + reach length so 09g and 09f agree at 698.
+        # crossing by ~1 m. Reconstruct the taper from its own edge + reach
+        # length so 09g and 09f report the same crossing.
         edge5 = abs(float(c5[0]))
         Lfit = float(d[np.max(np.where(np.abs(c5) > 0.0))]) if np.any(np.abs(c5) > 0) \
             else float(default_value('coast_reach_L_m'))
@@ -380,6 +217,9 @@ def load_reach():
             return n20 * c5_dd(dd)
         return {'coastal_dd': coastal_dd, 'c5_dd': c5_dd, 'storm_dd': storm_dd,
                 'climate_mm': climate_mm, 'crossing_m': crossing,
+                'reach_L_m': Lfit,
+                'delta0_mm_yr': edge5 / COAST_CHRONIC_YEARS,
+                'climate_c_mm_yr': climate_mm / MECHANISM_HORIZON_YEARS,
                 'source': f"committed 09f ({OUT_09F_REACH_CSV.name})"}
     except (FileNotFoundError, KeyError, IndexError):
         L  = float(default_value('coast_reach_L_m'))
@@ -399,6 +239,7 @@ def load_reach():
              f"crossing={crossing:.0f} m; run Script 09f for live values).")
         return {'coastal_dd': coastal_dd, 'c5_dd': c5_dd, 'storm_dd': storm_dd,
                 'climate_mm': climate_mm, 'crossing_m': crossing,
+                'reach_L_m': L, 'delta0_mm_yr': d0, 'climate_c_mm_yr': c,
                 'source': 'first-pass defaults (09f_01 absent)'}
 
 
@@ -584,9 +425,11 @@ def forest_trees(yoff, felled=False):
 # ================================================================================================
 # Mechanism (corrected, SCRAPING_EFFECTS_KNOWLEDGE.md): the phreatic surface does NOT move on
 # excavation — the cut meets the water table and becomes a pool. The measured, robust effects:
-# a RISE at the cut (+129 mm, CEH36 BACI vs CEH4 — the headward cut reaches ground where the
+# a RISE at the cut (CEH36 BACI vs CEH4 — the headward cut reaches ground where the
 # regional inland-rising head is naturally HIGHER, not an excavation lift) and the MEASURED
-# WMC3 near-field off-cut drawdown (-55 mm 2015 / -54 mm 2023, reproducible BACI DiD). There
+# WMC3 near-field off-cut drawdown (reproducible BACI DiD; both magnitudes are read
+# live from 09f_01_reach_profile.csv / 10m, with first-pass fallbacks in
+# pipeline_params._DEFAULTS). There
 # is NO evidenced network-wide drawdown cone; the off-cut signal is localised near-field only.
 CUT_SEAWARD  = 204.0             # seaward edge of the excavated floor
 CUT_HEADWARD = 335.0             # bite into the LANDWARD EDGE of the seaward slack
@@ -1006,9 +849,13 @@ def build_reach_stack(reach, register="technical"):
                f"shared amplitude scale \u00b7 crossing at ~{CROSS:.0f} m")
         titles = {
             'undisturbed': "Undisturbed water table",
-            'coastal': f"Coastal retreat: -{shore_mm:.0f} mm at shore over 20 yr, "
-                       f"tapering to 0 by ~894 m (\u03b4\u2080 -29 mm/yr)",
-            'climate': f"Climate: uniform -{CLIM:.0f} mm over 20 yr (c -6.35 mm/yr)",
+            'coastal': f"Coastal retreat: -{shore_mm:.0f} mm at shore over "
+                       f"{MECHANISM_HORIZON_YEARS:.0f} yr, tapering to 0 by "
+                       f"~{reach['reach_L_m']:.0f} m "
+                       f"(\u03b4\u2080 -{reach['delta0_mm_yr']:.0f} mm/yr)",
+            'climate': f"Climate: uniform -{CLIM:.0f} mm over "
+                       f"{MECHANISM_HORIZON_YEARS:.0f} yr "
+                       f"(c -{reach['climate_c_mm_yr']:.2f} mm/yr)",
         }
         foot = (f"Coastal is deeper shoreward of ~{CROSS:.0f} m; climate (uniform "
                 f"-{CLIM:.0f} mm) is deeper inland and carries the larger site-wide mean.")
@@ -1175,14 +1022,19 @@ def build_reach_body(reach, multiples=False):
     for yy in (y_und, y_dd):
         s.append(f'<line x1="{x_nose-3:.0f}" y1="{yy:.1f}" x2="{x_nose+3:.0f}" y2="{yy:.1f}" '
                  f'stroke="{COAST}" stroke-width="1.0"/>')
-    s.append(_r_txt(x_nose, y_und - 6, '581 mm', 9, '600', c=COAST, a='middle'))
-    s.append(_r_txt(x_nose + 6, (y_und + y_dd) / 2 + 3, '(δ₀ 29.03 mm/yr x 20 yr)',
-                    7, '400', c=COAST))
+    s.append(_r_txt(x_nose, y_und - 6, f"{coastal_dd(0.0):.0f} mm", 9, '600',
+                    c=COAST, a='middle'))
+    s.append(_r_txt(x_nose + 6, (y_und + y_dd) / 2 + 3,
+                    f"(δ₀ {reach['delta0_mm_yr']:.2f} mm/yr x "
+                    f"{MECHANISM_HORIZON_YEARS:.0f} yr)", 7, '400', c=COAST))
     # climate amplitude — boxed callout in clear space above the flat line
     _cbx, _cby = _r_ix(430), 150.0
     s.append(f'<rect x="{_cbx-4:.0f}" y="{_cby-11:.0f}" width="196" height="16" rx="2.5" '
              f'fill="#fff" opacity="0.82"/>')
-    s.append(_r_txt(_cbx, _cby, '-127 mm everywhere (c 6.35 mm/yr x 20 yr)', 8.5, '600', c=CLIMC))
+    s.append(_r_txt(_cbx, _cby,
+                    f"-{CLIM:.0f} mm everywhere "
+                    f"(c {reach['climate_c_mm_yr']:.2f} mm/yr x "
+                    f"{MECHANISM_HORIZON_YEARS:.0f} yr)", 8.5, '600', c=CLIMC))
     # 100 mm vertical scale bar (100 * PX_PER_MM px), far-right clear space
     _sbx = _r_ix(880); _sby = 120.0; _sbh = _rpx(100)
     s.append(f'<line x1="{_sbx:.0f}" y1="{_sby:.0f}" x2="{_sbx:.0f}" y2="{_sby+_sbh:.0f}" '

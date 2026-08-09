@@ -74,10 +74,10 @@ report-numbers CSV with FourZone_* keys — no key collision with 10a's
 ANCOVA_* keys or 10j's ImpactVsEdge_* keys.
 
 The four-zone joint fit does NOT reproduce 10a's separate-fit
-Forest-control headline (≈ +135 mm).  The joint model estimates climate
+Forest-control headline (load from 10a_report_numbers.csv).  The joint model estimates climate
 sensitivity from the full cross-zone record, so the felling step absorbs
 less climate variance; the joint Impact-vs-Forest step is consequently
-smaller (design-session ad-hoc ≈ +33 mm).  This is a substantive,
+smaller (see this script's own committed output).  This is a substantive,
 defensible change to the headline — see the design spec §6 for how §4.6
 presents it.
 

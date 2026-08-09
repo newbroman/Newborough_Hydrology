@@ -25,7 +25,7 @@ Purpose:
          RIDGE-PROXIMAL: concentrated at C4 Main Forest and forest-margin
          wells nearest the ridge; weak/absent at ridge-distant C5 and open dune.
 
-      3. Canopy-interception over-estimation — the F = 0.24 interception
+      3. Canopy-interception over-estimation — the config.FOREST_INTERCEPTION
          correction at the forested clusters over-states actual interception
          in heavy-rainfall (winter) months. FOREST-CONFINED: both C4 AND C5.
 
@@ -105,6 +105,7 @@ from utils.config import (
     get_cluster_colour,
     RESIDUAL_CLIM_BOOT_SEED,
     RIDGE_REF_E, RIDGE_REF_N,
+    FOREST_INTERCEPTION,
 )
 from utils.render_utils import render_figure
 
@@ -482,7 +483,8 @@ def write_interpretation(contrast_df, per_well, have_forest,
         lines.append("      Forest — forested but ridge-distant) shows NO winter peak.")
         lines.append("      Interception over-estimation predicts the opposite (both")
         lines.append("      forest clusters peak, open dune does not). Evidence runs")
-        lines.append("      against it; no data-driven case to revise F = 0.24.")
+        lines.append(f"      against it; no data-driven case to revise "
+                     f"F = {FOREST_INTERCEPTION:g}.")
     elif forest_peak and not open_dune_peak:
         lines.append("  (1) CANOPY-INTERCEPTION OVER-ESTIMATION — consistent: the contrast")
         lines.append("      is confined to forest clusters and absent in open dune.")
@@ -516,7 +518,8 @@ def write_interpretation(contrast_df, per_well, have_forest,
     lines.append("Preferred reading:")
     lines.append("  The winter contrast is NOT forest-confined, so canopy-interception")
     lines.append("  over-estimation is not the primary driver — no evidence-based case")
-    lines.append("  here to revise F = 0.24. The signal is best explained by a broadly")
+    lines.append(f"  here to revise F = {FOREST_INTERCEPTION:g}. The signal is best "
+                 f"explained by a broadly")
     lines.append("  site-wide winter recharge non-linearity, possibly with a ridge-")
     lines.append("  derived component in the forest; the two are not separable on the")
     lines.append("  cluster-stratified climatology alone. A fuller attribution of the")

@@ -7,13 +7,16 @@ Hollingham (2026)
 Reads pipeline intermediates and writes a single self-contained interactive
 HTML file: scenario_viewer.html
 
-Physical constants:
-    K = 6 m/day (Betson et al. 2002)
-    Forest interception = 24% (Freeman 2008, Corsican pine)
-    Broadleaf interception = 15% (Komatsu et al. 2011, deciduous annual mean)
-    Sy floor: C1 = 6%, C2-C5 = 12%
-    Wells excluded from IDW: ceh12 (bedrock), ceh15 (forest slack edge)
-    Ridge mask threshold: 1.0 m (matches map_utils.add_idw_surface)
+Physical constants (values are not restated here — read them at source):
+    K                     config.DRAWDOWN_K_MDAY (Betson et al. 2002)
+    Forest interception   config.FOREST_INTERCEPTION (Freeman 2008, Corsican pine)
+    Broadleaf interception config.BROADLEAF_INTERCEPTION (Komatsu et al. 2011,
+                          deciduous annual mean)
+    Sy floor / defaults   module constants SY_FLOOR / SY_DEFAULTS below
+    Wells excluded from IDW  module constant EXCLUDE_WELLS below
+                          (ceh12 bedrock; ceh15 forest slack edge)
+    Ridge mask threshold  module constant RIDGE_MASK_THRESHOLD below
+                          (matches the map_utils.add_idw_surface default)
 
 Usage:
     python 19_spatial_groundwater.py

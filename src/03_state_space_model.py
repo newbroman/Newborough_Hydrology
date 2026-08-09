@@ -9,13 +9,13 @@ Model (displacement formulation, per-cluster centroid and per-well):
 
     where h_disp = DRAINAGE_DATUM + h_depth
           (displacement above a reference drainage base, in metres;
-           DRAINAGE_DATUM = 3.7 m below ground surface)
+           DRAINAGE_DATUM below ground surface, from config.py)
           k = HEADLINE_LAG (from config.py; currently 0 after bucketing fix)
 
 The displacement formulation was adopted after a sensitivity analysis found
 that the depth-below-surface formulation produces negative β₃ for three of
 five clusters (C3, C4, C5), making the drainage term Darcy-inconsistent.
-Reformulating as displacement above a 3.7 m drainage base resolves this:
+Reformulating as displacement above the DRAINAGE_DATUM drainage base resolves this:
 all five clusters produce positive, significant β₃ with comparable or
 improved R². See section F.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf) for the drainage datum
@@ -269,14 +269,14 @@ def load_amplitude_heterogeneity(cluster_ids: list[int],
 
 
 # ==========================================================================
-# CENTROID CONSTRUCTION — upstand-corrected cluster averaging
+# CENTROID CONSTRUCTION — cluster averaging
 # ==========================================================================
 
 def build_upstand_lookup(elev_path) -> dict[str, float]:
     """Return {normalised_well_name: upstand_m} from the elevation file."""
     lookup = {}
     if not elev_path.exists():
-        warn("Elevation file not found. Centroid upstand correction skipped.")
+        warn("Elevation file not found. Upstand audit skipped.")
         return lookup
 
     elev_df = pd.read_csv(elev_path)
@@ -314,17 +314,19 @@ def upstand_audit(cluster_df: pd.DataFrame,
 
 def build_cluster_centroids(cluster_df: pd.DataFrame,
                             wells_clean: pd.DataFrame,
-                            upstand_lookup: dict[str, float],
                             well_col_lookup: dict[str, str]
                             ) -> dict[int, pd.Series]:
     """
-    For each cluster, build the upstand-corrected mean hydrograph.
+    For each cluster, build the mean hydrograph.
 
-    Each well's series has its upstand subtracted (pipe-top depth -> ground-
-    surface depth) before averaging, so all cluster members share a common
-    datum. Wells without an upstand entry are averaged uncorrected (the
-    constant offset affects intercept only, which a no-intercept OLS does
-    not fit — so the slope coefficients are still clean).
+    01_wells_clean.csv carries the master's `depth from surface` values
+    (level = upstand - dip) and is already referenced to the ground surface,
+    so cluster members share a common datum with no correction applied
+    (GEOMETRY_ARCHITECTURE_SPEC.md §3).
+
+    Note: the headline SSM is fitted WITHOUT an intercept, so a constant
+    offset in h_disp_prev does not cancel — it redistributes across beta_1,
+    beta_2 and beta_3. Datum and upstand conventions are not inert.
 
     Returns {cluster_id: pd.Series of monthly cluster-mean h}.
     """
@@ -343,24 +345,7 @@ def build_cluster_centroids(cluster_df: pd.DataFrame,
         if not available:
             continue
 
-        if upstand_lookup:
-            corrected = {}
-            n_corr = 0
-            for col in available:
-                col_norm = normalize_well_name(col).lower()\
-                           .replace(" ", "").replace("_", "")
-                u = upstand_lookup.get(col_norm)
-                if u is not None:
-                    corrected[col] = wells_clean[col]
-                    n_corr += 1
-                else:
-                    corrected[col] = wells_clean[col]
-            n_unc = len(available) - n_corr
-            centroids[cid] = pd.DataFrame(corrected).mean(axis=1)
-            print(f"    C{cid}: {n_corr} upstand-corrected, "
-                  f"{n_unc} uncorrected")
-        else:
-            centroids[cid] = wells_clean[available].mean(axis=1)
+        centroids[cid] = wells_clean[available].mean(axis=1)
 
     return centroids
 
@@ -374,15 +359,14 @@ def per_well_fits(cluster_df: pd.DataFrame,
                   locs_clean: pd.DataFrame,
                   wells_clean: pd.DataFrame,
                   climate: pd.DataFrame,
-                  well_col_lookup: dict[str, str],
-                  upstand_lookup: dict[str, float]) -> pd.DataFrame:
+                  well_col_lookup: dict[str, str]) -> pd.DataFrame:
     """
     Fit the SSM to every reference well individually.
 
-    Each well's series is upstand-corrected (pipe-top depth → ground-surface
-    depth) before fitting, so that the DRAINAGE_DATUM displacement is relative
-    to the ground surface for every well. This is required for physical
-    consistency of the β₃ coefficient under the displacement formulation.
+    Each well's series is used as read; it is already ground-referenced, so
+    the DRAINAGE_DATUM displacement is relative to the ground surface for
+    every well. This is required for physical consistency of the β₃
+    coefficient under the displacement formulation.
 
     Produces the per-well master table (INT_MASTER_DATA). Per-well LCSC uses
     the regression beta_1 when beta_1 > 0; otherwise LCSC is NaN.
@@ -406,14 +390,9 @@ def per_well_fits(cluster_df: pd.DataFrame,
         if target_col is None:
             continue
 
-        # Upstand-correct: pipe-top depth → ground-surface depth, so the
-        # DRAINAGE_DATUM displacement is relative to the ground for every well.
-        col_norm = normalize_well_name(target_col).lower()\
-                   .replace(" ", "").replace("_", "")
-        u = upstand_lookup.get(col_norm, 0.0)
-        h_corrected = wells_clean[target_col]
+        h_series = wells_clean[target_col]
 
-        fit = fit_ssm(h_corrected, climate, lag=HEADLINE_LAG,
+        fit = fit_ssm(h_series, climate, lag=HEADLINE_LAG,
                       window=LCSC_DATA_LIMIT,
                       min_obs=MIN_OBS_PER_WELL)
 
@@ -590,7 +569,6 @@ def lag_diagnostic(centroids: dict[int, pd.Series],
 def bootstrap_centroid_fits(cluster_df: pd.DataFrame,
                              wells_clean: pd.DataFrame,
                              climate: pd.DataFrame,
-                             upstand_lookup: dict[str, float],
                              well_col_lookup: dict[str, str],
                              n_boot: int = N_BOOTSTRAP,
                              seed: int = BOOTSTRAP_SEED) -> pd.DataFrame:
@@ -598,8 +576,7 @@ def bootstrap_centroid_fits(cluster_df: pd.DataFrame,
     Bootstrap the centroid SSM fit per cluster by resampling member wells
     with replacement. For each bootstrap replicate:
         - draw n_cluster wells from the cluster with replacement,
-        - build the centroid hydrograph over the resample (upstand-corrected
-          where possible),
+        - build the centroid hydrograph over the resample,
         - refit the SSM at lag 0.
 
     Reports median and (2.5%, 97.5%) percentile CI per cluster for beta_1,
@@ -632,11 +609,7 @@ def bootstrap_centroid_fits(cluster_df: pd.DataFrame,
 
             cols = {}
             for i, col in enumerate(sampled):
-                col_norm = normalize_well_name(col).lower()\
-                           .replace(" ", "").replace("_", "")
-                u = upstand_lookup.get(col_norm)
-                series = wells_clean[col]
-                cols[f"{col}__{i}"] = series  # dedup with replacement
+                cols[f"{col}__{i}"] = wells_clean[col]  # dedup with replacement
             centroid = pd.DataFrame(cols).mean(axis=1)
 
             fit = fit_ssm(centroid, climate, lag=HEADLINE_LAG, window=None)
@@ -682,7 +655,6 @@ def bootstrap_centroid_fits(cluster_df: pd.DataFrame,
 def leave_one_out_fits(cluster_df: pd.DataFrame,
                         wells_clean: pd.DataFrame,
                         climate: pd.DataFrame,
-                        upstand_lookup: dict[str, float],
                         well_col_lookup: dict[str, str]) -> pd.DataFrame:
     """
     Per-cluster leave-one-well-out centroid fits.
@@ -712,11 +684,7 @@ def leave_one_out_fits(cluster_df: pd.DataFrame,
             kept = [c for w, c in resolved if w != exclude_name]
             cols = {}
             for col in kept:
-                col_norm = normalize_well_name(col).lower()\
-                           .replace(" ", "").replace("_", "")
-                u = upstand_lookup.get(col_norm)
-                series = wells_clean[col]
-                cols[col] = series
+                cols[col] = wells_clean[col]
             centroid = pd.DataFrame(cols).mean(axis=1)
 
             fit = fit_ssm(centroid, climate, lag=HEADLINE_LAG, window=None)
@@ -746,7 +714,6 @@ def c1_split_window_diagnostic(centroids: dict[int, pd.Series],
                                 cluster_df: pd.DataFrame,
                                 wells_clean: pd.DataFrame,
                                 climate: pd.DataFrame,
-                                upstand_lookup: dict[str, float],
                                 well_col_lookup: dict[str, str],
                                 split_date: pd.Timestamp = C1_SPLIT_DATE,
                                 n_boot: int = N_BOOTSTRAP,
@@ -800,9 +767,6 @@ def c1_split_window_diagnostic(centroids: dict[int, pd.Series],
             sampled = [resolved[i] for i in idx]
             cols = {}
             for i, col in enumerate(sampled):
-                col_norm = normalize_well_name(col).lower()\
-                           .replace(" ", "").replace("_", "")
-                u = upstand_lookup.get(col_norm)
                 series = wells_clean[col]
                 if window_label == "pre_2018":
                     series = series[series.index < split_date]
@@ -1032,10 +996,12 @@ def well_datum_sensitivity(wells_clean: pd.DataFrame,
         cid = int(row["Cluster"])
         label = CLUSTER_LABELS.get(cid, f"C{cid}")
 
-        # Upstand-correct for ground-surface datum
+        # upstand is REPORTED (the `upstand_m` column of
+        # 03_09_well_optimal_datums.csv), not applied — the series is already
+        # ground-referenced. Reading the carrier is allowed; re-deriving is not.
         col_norm = well_norm.lower().replace(" ", "").replace("_", "")
         u = upstand_lookup.get(col_norm, 0.0)
-        h_corrected = wells_clean[target_col]
+        h_series = wells_clean[target_col]
 
         best_primary = None    # min datum with β₃ > 0 AND p < 0.05
         best_secondary = None  # min datum with β₃ > 0 (any p)
@@ -1044,7 +1010,7 @@ def well_datum_sensitivity(wells_clean: pd.DataFrame,
         best_r2_fit = None
 
         for d in datums:
-            fit = fit_ssm(h_corrected, climate,
+            fit = fit_ssm(h_series, climate,
                           lag=HEADLINE_LAG, window=LCSC_DATA_LIMIT,
                           drainage_datum=d, min_obs=MIN_OBS_PER_WELL)
             if fit is None:
@@ -1131,7 +1097,7 @@ def well_datum_sensitivity(wells_clean: pd.DataFrame,
             opt["beta_3_positive_at_max"] = np.nan
 
         # Also record fit at uniform datum for direct comparison
-        fit_uniform = fit_ssm(h_corrected, climate,
+        fit_uniform = fit_ssm(h_series, climate,
                                lag=HEADLINE_LAG, window=LCSC_DATA_LIMIT,
                                drainage_datum=DRAINAGE_DATUM,
                                min_obs=MIN_OBS_PER_WELL)
@@ -1620,7 +1586,7 @@ def main() -> None:
     # ---- Per-well SSM fits ----
     print("\n -> Fitting per-well SSM and computing LCSC...")
     master_df = per_well_fits(cluster_df, locs_clean, wells_clean,
-                               climate, well_col_lookup, upstand_lookup)
+                               climate, well_col_lookup)
     master_df.to_csv(INT_MASTER_DATA, index=False)
     print(f" -> Saved: {INT_MASTER_DATA.name} "
           f"({len(master_df)} wells)")
@@ -1641,9 +1607,9 @@ def main() -> None:
     ].mean().round(3))
 
     # ---- Build cluster centroids ----
-    print("\n -> Building cluster centroids (upstand-corrected)...")
+    print("\n -> Building cluster centroids...")
     centroids = build_cluster_centroids(cluster_df, wells_clean,
-                                          upstand_lookup, well_col_lookup)
+                                          well_col_lookup)
 
     # ---- Centroid headline fits (the CSV the report cites) ----
     print(f"\n -> Fitting cluster-centroid SSMs (headline, lag {HEADLINE_LAG})...")
@@ -1790,7 +1756,7 @@ def main() -> None:
     print(f"\n -> Bootstrapping centroid fits (B = {N_BOOTSTRAP}, "
           f"seed = {BOOTSTRAP_SEED})...")
     boot_df = bootstrap_centroid_fits(cluster_df, wells_clean, climate,
-                                        upstand_lookup, well_col_lookup)
+                                        well_col_lookup)
     boot_path = DIR_03 / "03_05_bootstrap_ci.csv"
     boot_df.to_csv(boot_path, index=False)
     saved(f"{boot_path.name}")
@@ -1798,7 +1764,7 @@ def main() -> None:
     # ---- Leave-one-out per cluster ----
     print("\n -> Leave-one-well-out centroid fits...")
     loo_df = leave_one_out_fits(cluster_df, wells_clean, climate,
-                                  upstand_lookup, well_col_lookup)
+                                  well_col_lookup)
     loo_path = DIR_03 / "03_06_leave_one_out.csv"
     loo_df.to_csv(loo_path, index=False)
     saved(f"{loo_path.name}")
@@ -1806,8 +1772,7 @@ def main() -> None:
     # ---- C1 Lake pre/post-2018 split ----
     print("\n -> C1 Lake pre/post-2018 split-window diagnostic...")
     split_df = c1_split_window_diagnostic(centroids, cluster_df, wells_clean,
-                                            climate, upstand_lookup,
-                                            well_col_lookup)
+                                            climate, well_col_lookup)
     split_path = DIR_03 / "03_07_c1_split_window.csv"
     split_df.to_csv(split_path, index=False)
     saved(f"{split_path.name}")

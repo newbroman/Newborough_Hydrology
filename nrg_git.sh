@@ -4,8 +4,18 @@
 # Safe order of operations: COMMIT your work first, THEN pull, THEN push.
 # Handles the "local changes would be overwritten by merge" situation.
 # ============================================================================
-# VERSION 1.1.0 - 2026-08-09
+# VERSION 1.2.0 - 2026-08-09
 # CHANGELOG
+#   1.2.0 (2026-08-09): new menu option 3, "Push, skip report". Pushes
+#       everything EXCEPT report_edits/ and docs/report/, and skips the two
+#       report preflight steps - refresh_mirror (regenerates ~700 KB of
+#       markdown from 10 subdocuments) and lint_figrefs (reads the 57 MB
+#       exported PDF). For the common case of pushing a script, output or
+#       web-tool change while the report is mid-edit, where neither preflight
+#       is relevant and a half-finished chapter must not ride along. Still
+#       runs sync_index_counts and stage_web_tools. Reports what it held back
+#       so skipped report changes cannot be forgotten. Menu renumbered to
+#       1-8; Pull/Status/Size/Cleanup/Quit each shift down by one.
 #   1.1.0 (2026-08-09): sync_index_counts() now regenerates
 #       outputs/pipeline_manifest.json (--manifest-only, runs no analysis
 #       steps) BEFORE stamping index.html. The manifest is only rewritten
@@ -43,6 +53,28 @@ cd "${REPO_DIR}" 2>/dev/null || { echo -e "${R}Can't find ${REPO_DIR}${N}"; read
 
 # --- helpers ---------------------------------------------------------------
 stage_all(){ git add -A; }
+
+# Stage everything EXCEPT the report. report_edits/ holds the .odt subdocuments
+# and their markdown mirror; docs/report/ holds the exported PDF (57 MB). Both
+# are excluded so a half-finished chapter never rides along with a script or
+# output change, and so the slow mirror refresh can be skipped. Defined once so
+# the exclusion list cannot drift between the two functions below.
+REPORT_PATHS=( "report_edits" "docs/report" )
+stage_all_but_report(){
+  local excludes=() p
+  for p in "${REPORT_PATHS[@]}"; do excludes+=( ":(exclude)${p}" ); done
+  git add -A -- . "${excludes[@]}"
+}
+
+# True (0) when the report has uncommitted changes being deliberately held back.
+report_has_changes(){
+  local p
+  for p in "${REPORT_PATHS[@]}"; do
+    [[ -e "$p" ]] || continue
+    git status --porcelain -- "$p" | grep -q . && return 0
+  done
+  return 1
+}
 have_staged(){ ! git diff --cached --quiet; }   # true (0) when something is staged
 
 commit_staged(){                                # $1 = message; prompt if empty
@@ -91,7 +123,7 @@ push_if_ahead(){                                # push only if we have commits G
   echo ""
   read -rp "$(echo -e "${Y}Push now? [y/N]: ${N}")" r
   if [[ "$r" =~ ^[Yy] ]]; then
-    git push && echo -e "  ${G}${B}Pushed.${N} Pages refreshes in a minute or two." || fail "push failed - choose 4) Status."
+    git push && echo -e "  ${G}${B}Pushed.${N} Pages refreshes in a minute or two." || fail "push failed - choose 5) Status."
   else
     echo "  Not pushed. Your commit is saved locally - run the option again when ready."
   fi
@@ -229,6 +261,34 @@ do_push(){
   push_if_ahead
 }
 
+# Push everything except the report. Skips refresh_mirror and lint_figrefs -
+# the two report preflight steps - and holds report_edits/ and docs/report/ out
+# of the commit. Note this NEVER pushes the report, so docs/report/report.pdf
+# will go stale on GitHub if only this option is ever used; option 2 remains
+# the one that ships everything.
+do_push_no_report(){
+  sync_index_counts
+  stage_web_tools
+  stage_all_but_report
+  if have_staged; then
+    say "Your local changes, excluding the report"
+    git status --short -- . ":(exclude)report_edits" ":(exclude)docs/report"
+    echo ""
+    commit_staged "" || { fail "commit failed"; return; }
+    ok "committed on your PC"
+  else
+    ok "no new non-report changes to commit"
+  fi
+  if report_has_changes; then
+    echo ""
+    echo -e "  ${Y}held back${N} - the report still has uncommitted changes:"
+    git status --short -- "${REPORT_PATHS[@]}" | sed 's/^/      /'
+    echo -e "      run ${B}2) Push my changes${N} when you want those included."
+  fi
+  integrate || return
+  push_if_ahead
+}
+
 do_sync(){
   # 1) commit any stray local edits FIRST, so the pull can't be blocked
   stage_all
@@ -311,21 +371,23 @@ while true; do
   echo -e "${C}${B}===== Newborough Git Toolkit =====${N}"
   echo "  1) Sync forecaster      (monthly: rebuild feeds + web tools, then push)"
   echo "  2) Push my changes      (commit + push anything I've edited OR added)"
-  echo "  3) Pull latest          (just fetch what's on GitHub)"
-  echo "  4) Status               (show what's changed, untracked, etc.)"
-  echo "  5) Repo size            (how big the repo and git history are)"
-  echo "  6) Clean up git storage (sweep up dead objects, shrink .git)"
-  echo "  7) Quit"
+  echo "  3) Push, skip report    (everything except report_edits/ and docs/report/)"
+  echo "  4) Pull latest          (just fetch what's on GitHub)"
+  echo "  5) Status               (show what's changed, untracked, etc.)"
+  echo "  6) Repo size            (how big the repo and git history are)"
+  echo "  7) Clean up git storage (sweep up dead objects, shrink .git)"
+  echo "  8) Quit"
   echo ""
-  read -rp "Choose [1-7]: " choice
+  read -rp "Choose [1-8]: " choice
   case "$choice" in
     1) do_sync ;;
     2) do_push ;;
-    3) integrate ;;
-    4) say "Current status"; git status ;;
-    5) do_size ;;
-    6) do_cleanup ;;
-    7) echo "Bye."; break ;;
-    *) echo "Please pick 1-7." ;;
+    3) do_push_no_report ;;
+    4) integrate ;;
+    5) say "Current status"; git status ;;
+    6) do_size ;;
+    7) do_cleanup ;;
+    8) echo "Bye."; break ;;
+    *) echo "Please pick 1-8." ;;
   esac
 done

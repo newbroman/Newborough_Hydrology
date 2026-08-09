@@ -1743,7 +1743,7 @@ The post-2018 collapse in C5 seasonal amplitude (−18% raw, −21% climate-norm
 
 The third candidate mechanism for the C5 anomaly — progressive coastal boundary retreat — can be tested quantitatively at network scale. A non-linear panel regression was fitted to the full 21-year monthly record (12,457 observations across 72 wells; FE wells, the scraped well CEH36, and the BACI clearfell-zone wells excluded) to test whether the C5 anomaly is quantitatively consistent with coastal boundary retreat operating site-wide. Each well's perpendicular distance to the eroding Caernarfon Bay High Water Mark was computed within the pipeline from a committed OpenStreetMap mean-high-water coastline (Menai Strait and Llanddwyn Island excluded as non-eroding boundaries). The headline fit is the forest-free panel (C4 and C5 dropped), giving a Dupuit–Forchheimer steady-st ate strip-aquifer form with a coast-edge anomaly δ₀ of −29.0 ± 1.9 mm yr⁻¹ above the climate background, an inland reach L of 894 ± 52 m beyond which the gradient effect vanishes, and a climate background c of −6.4 ± 0.6 mm yr⁻¹ consistent within one standard error with the network-mean per-well summer-minimum slope. The linear-with-cutoff form and an exponential decay are statistically indistinguishable (ΔAIC = 0.5); the linear-with-cutoff form is retained on physical grounds, as the Dupuit–Forchheimer steady-state solution for a strip aquifer with a fixed inland reach. The fit is robust to forest-cover exclusion: it is itself the forest-free panel, and the full-network and C3-only fits shift no parameter beyond sampling uncertainty (Script 25; Figure 41).
 
-Applied to C5's mean coast-proximity, the model predicts a gradient contribution of −15.4 mm yr⁻¹, approximately 41% of C5's observed −37.7 mm yr⁻¹ summer-minimum decline; the −6.35 mm yr⁻¹ climate background accounts for a further 17%. ****This attribution should be read against the sampling base of the forest-free fit. The forest-free panel that anchors δ₀ and L excludes most C4 and C5 wells, and only one C5 well meets the per-well summer-min slope criterion that feeds the cluster-mean perpendicular distance to coast. The cluster centroid slope itself is computed over all five C5 wells, so the direction of the C5 result is robust — C5 is unambiguously the most coastal-affected cluster — but the precise 41% magnitude is fragile to which C5 well enters the forest-free filter.**** C1, C2 and C4 all lie beyond the fitted inland reach L; their observed slopes are accounted for by the climate background plus residual interannual noise. ****The per-cluster decomposition is tabulated in Table 16 (and visualized in Figure 4****1****) and itemises each cluster's observed centroid slope partitioned into the climate-uniform background, the coastal-retreat gradient contribution evaluated at the cluster's mean coast-proximity, and the unattributed residual.**** Progressive coastal boundary retreat therefore moves from a qualitative candidate to a quantified, substantial, but partial contributor to the C5 anomaly. The remaining −16 mm yr⁻¹ residual at C5 is consistent with the other two candidate mechanisms named above — amplified head response under thin saturated thickness, and progressive canopy maturation — operating in parallel. Independent corroboration of the BACI ANCOVA's easting × time covariate against this gradient model is provided in Section 4.6.3 (Table 8).
+Applied to C5's mean coast-proximity, the model predicts a gradient contribution of −15.4 mm yr⁻¹, approximately 43% of C5's observed −35.9 mm yr⁻¹ summer-minimum decline; the −6.35 mm yr⁻¹ climate background accounts for a further 18%. ****This attribution should be read against the sampling base of the forest-free fit. The forest-free panel that anchors δ₀ and L excludes most C4 and C5 wells, and only one C5 well meets the per-well summer-min slope criterion that feeds the cluster-mean perpendicular distance to coast. The cluster centroid slope itself is computed over all five C5 wells, so the direction of the C5 result is robust — C5 is unambiguously the most coastal-affected cluster — but the precise 41% magnitude is fragile to which C5 well enters the forest-free filter.**** C1, C2 and C4 all lie beyond the fitted inland reach L; their observed slopes are accounted for by the climate background plus residual interannual noise. ****The per-cluster decomposition is tabulated in Table 16 (and visualized in Figure 4****1****) and itemises each cluster's observed centroid slope partitioned into the climate-uniform background, the coastal-retreat gradient contribution evaluated at the cluster's mean coast-proximity, and the unattributed residual.**** Progressive coastal boundary retreat therefore moves from a qualitative candidate to a quantified, substantial, but partial contributor to the C5 anomaly. The remaining −14 mm yr⁻¹ residual at C5 is consistent with the other two candidate mechanisms named above — amplified head response under thin saturated thickness, and progressive canopy maturation — operating in parallel. Independent corroboration of the BACI ANCOVA's easting × time covariate against this gradient model is provided in Section 4.6.3 (Table 8).
 
 <table>
 <tbody>
@@ -1751,51 +1751,51 @@ Applied to C5's mean coast-proximity, the model predicts a gradient contribution
 <td>C1 (Lake Edge)</td>
 <td>7 / 7</td>
 <td>1819 m</td>
-<td>−9.6</td>
+<td>−10.9</td>
 <td>−6.35</td>
-<td>0.0</td>
-<td>−3.25</td>
+<td>0.00</td>
+<td>−4.55</td>
 </tr>
 <tr class="even">
 <td>C2 (Dune)</td>
 <td>24 / 24</td>
 <td>1508 m</td>
-<td>−12.2</td>
+<td>−11.2</td>
 <td>−6.35</td>
-<td>0.0</td>
-<td>−5.85</td>
+<td>0.00</td>
+<td>−4.85</td>
 </tr>
 <tr class="odd">
 <td>C3 (Western Residual)</td>
 <td>19 / 21</td>
 <td>826 m</td>
-<td>−6.6</td>
+<td>−9.4</td>
 <td>−6.35</td>
 <td>−2.21</td>
-<td>+1.96</td>
+<td>−0.84</td>
 </tr>
 <tr class="even">
 <td>C4 (Main Forest)</td>
 <td>2 / 9</td>
 <td>1142 m</td>
-<td>−11.5</td>
+<td>−17.8</td>
 <td>−6.35</td>
-<td>0.0</td>
-<td>−5.15</td>
+<td>0.00</td>
+<td>−11.45</td>
 </tr>
 <tr class="odd">
 <td>C5 (Coastal Forest)</td>
 <td>1 / 5</td>
 <td>419 m</td>
-<td>−37.7</td>
+<td>−35.9</td>
 <td>−6.35</td>
 <td>−15.41</td>
-<td>−15.94</td>
+<td>−14.14</td>
 </tr>
 </tbody>
 </table>
 
-**Table : **Per-cluster decomposition of the observed summer-minimum centroid slope under the forest-free linear-capped panel regression. Climate term is the uniform c parameter representing site-wide background trend; coastal term is δ₀ · max(0, 1 − d̄/L) evaluated at the cluster's mean perpendicular distance d̄ to the eroding Caernarfon Bay shoreline; residual is the cluster centroid slope minus the climate + coastal model prediction. All slopes in mm yr⁻¹. Negative = declining water table. (Source: 25\_03\_cluster\_partition.csv).
+**Table : **Per-cluster decomposition of the observed summer-minimum centroid slope under the forest-free linear-capped panel regression. Climate term is the uniform c parameter representing site-wide background trend; coastal term is δ₀ · max(0, 1 − d̄/L) evaluated at the cluster's mean perpendicular distance d̄ to the eroding Caernarfon Bay shoreline; residual is the cluster centroid slope minus the climate + coastal model prediction. All slopes in mm yr⁻¹. Negative = declining water table. The residual is negative at every cluster, between −0.8 and −14.1 mm yr⁻¹: the two-term model under-explains the observed decline throughout the network rather than over-fitting it at any cluster, and the shortfall is smallest at C3 Western Residual, the cluster on which the coastal gradient is fitted.(Source: 25\_03\_cluster\_partition.csv).
 
 <img src="Pictures/10000000000008BA00000373A48A15D5.jpg" title="fig:" style="width:15.803cm;height:6.246cm" alt="Figure : Network-scale coastal-retreat gradient. Per-well summer-minimum slope (mm yr⁻¹, error bars = ±1 SE) plotted against perpendicular distance to the Caernarfon Bay High Water Mark, with three linear-with-cutoff fits overlaid: full-network panel (black), forest-free panel after dropping C4 and C5 (green, headline), and C3-only with climate background held to the forest-free value (red, dashed). The three fits are statistically indistinguishable on δ_0 and L. C5 wells (brown) sit closest to the coast; C1, C2 and C4 lie beyond the fitted reach L = 894 m. (Source: 25_05_fit_diagnostic.jpg" />**
 
@@ -2004,7 +2004,7 @@ The spatial reach of forest management perturbations is shown directly by the dr
 
 <img src="Pictures/1000000100000955000007BCB7862EC2.png" title="fig:" style="width:14.407cm;height:11.666cm" alt="Figure : Drainage decay half-life (t½ = ln(2)/β₃, months) across the 66-well reference network (CEH 13 and 14 excluded), Newborough Warren 2005-2026. The half-life is the time for excess groundwater storage above the drainage datum (3.7 m below ground level; Section 3.4.1) to drain to half its initial value through natural discharge alone, derived from the per-well SSM drainage coefficient β₃ (Section 3.4.3). Low values (blue) indicate rapid aquifer turnover; high values (red) indicate persistent storage following recharge. For formal comparisons, the mathematically equivalent recession e-folding time is t_R = 1/β₃ = t½ / ln(2). The eastern open dune contrasts sharply with the forest interior: C1 Lake Edge (t½ = 5-8 months) drains within a season; C4 Main Forest (t½ = 16-88 months, mean 40 months) retains excess storage for months to years, with a pronounced hotspot on the elevated plateau where β₃ is lowest. The wide within-C4 range reflects the progressive thinning of the sandy aquifer over the underlying bedrock ridge. C5 Coastal Forest (t½ = 12-19 months) resembles C3 Western Residual (t½ = 6-22 months) despite carrying pine canopy, consistent with an elevation and substrate control (Section 4.9.5). Two wells are excluded: CEH14 (negative β₃, t½ undefined) and CEH13 (near-zero β₃, t½ approximately 526 months), both ridge-flank settings where the displacement formulation does not apply; shown as red crosses. IDW interpolation (power = 2) over 1 m LiDAR DEM hillshade, site boundary clipped. Well markers coloured by cluster; hatched markers indicate forest interception correction applied to Sy. LiDAR data: NRW and OS; see Section 10 for full attribution. (Source: 18_wtf_05_halflife_map.png)" />
 
-<img src="Pictures/1000000100000B95000007E6CF6FB58F.png" title="fig:" style="width:15.803cm;height:10.132cm" alt="Figure : Forest drawdown propagation across the Newborough Warren dune aquifer, showing the estimated steady-state head perturbation (mm) attributable to Corsican pine canopy interception. Drawdown at each well is modelled as an exponential decay with flow-weighted cost-distance from the forest boundary, using a characteristic length scale λ ≈ 230 m. The background surface shows mean annual water table elevation (m AOD) with normalized Darcy flow direction vectors (white arrows) derived from the IDW head gradient field. Labelled wells show estimated drawdown in parentheses: the signal exceeds 50 mm only within ~100 m of the forest edge (D15: 34 mm), decays to 25 mm at CEH23 and 8 mm at CEH6, and is negligible (≤2 mm) at all C1 Lake Edge and eastern C2 Dune wells (CEH24, CEH10, CEH11) The 10 mm contour approximately coincides with the 100 m cost-distance ring from the forest boundary. Forest management perturbations are structurally confined to the forest zone and its immediate western margin. .Well markers coloured by cluster. Background: mean annual water table surface (m AOD; Figure 57, Section 4.9.6) with normalized Darcy flow direction vectors from the IDW head gradient field. LiDAR data: © NRW &amp; OS; see Section 10 for full attribution. (Source: 20_drawdown_propagation_nohead.png)." />****
+<img src="Pictures/10000001000008D200000512BA8FA4F7.png" title="fig:" style="width:15.803cm;height:10.132cm" alt="Figure : Forest drawdown propagation across the Newborough Warren dune aquifer, showing the estimated steady-state head perturbation (mm) attributable to Corsican pine canopy interception. Drawdown at each well is modelled as an exponential decay with flow-weighted cost-distance from the forest boundary, using a characteristic length scale λ ≈ 230 m. The background surface shows mean annual water table elevation (m AOD) with normalized Darcy flow direction vectors (white arrows) derived from the IDW head gradient field. Labelled wells show estimated drawdown in parentheses: the signal exceeds 50 mm only within ~100 m of the forest edge (D15: 34 mm), decays to 25 mm at CEH23 and 8 mm at CEH6, and is negligible (≤2 mm) at all C1 Lake Edge and eastern C2 Dune wells (CEH24, CEH10, CEH11) The 10 mm contour approximately coincides with the 100 m cost-distance ring from the forest boundary. Forest management perturbations are structurally confined to the forest zone and its immediate western margin. .Well markers coloured by cluster. Background: mean annual water table surface (m AOD; Figure 57, Section 4.9.6) with normalized Darcy flow direction vectors from the IDW head gradient field. LiDAR data: © NRW &amp; OS; see Section 10 for full attribution. (Source: 20_drawdown_propagation_nohead.png)." />****
 
 <img src="Pictures/10000001000007BB000005C81791056E.png" title="fig:" style="width:15.803cm;height:11.816cm" alt="Figure : Aquifer diagnostic synthesis across the reference well network, Newborough Warren 2005–2026. Drainage decay half-life (t½ = ln(2)/β₃, months) plotted against iterative NSE improvement (ΔNSE = NSE_SSM − NSE_TLM), with points coloured by cluster and sized by WTF-derived specific yield (Sy). Large starred markers show cluster means. The five cluster centroids occupy distinct regions of the diagnostic space, though the separation is moderate and individual wells overlap appreciably within it: C1 Lake Edge (short t½, high ΔNSE) represents a shallow, fast-cycling aquifer where head-dependent drainage is critical for prediction; C4 Main Forest (long t½, low ΔNSE) represents a sluggish system where atmospheric draw dominates and drainage is weak, consistent with drainage impeded by the irregular bedrock base the forest is known to overlie. C5 Coastal Forest separates from C4 on both axes despite sharing pine canopy, consistent with the elevation contrast and the substrate inferred to accompany it (Section 4.9.5). The three parameters — t½ (drainage decay half-life), ΔNSE (drainage sensitivity), and Sy (storage capacity) — are estimated by distinct methods, yet together characterize aquifer architecture without requiring borehole data. CEH14 (negative β₃) and CEH13 (near-zero β₃) excluded. (Source: 18_wtf_06_aquifer_diagnostic_synthesis.png)." />
 

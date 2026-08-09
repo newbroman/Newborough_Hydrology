@@ -297,8 +297,9 @@ def annual_msl_max(long: pd.DataFrame,
     else:
         annual["n_interpolated_spring"] = 0
 
-    # convert to depth-below-ground
-    up = annual["well"].map(upstand)
+    # No conversion: levels are already ground-referenced (v1.6.0). The
+    # `upstand` series is retained as a parameter because it is reported
+    # downstream, not applied here.
 
     # validity: STRICT 3-of-3
     annual["valid"] = (annual["n_spring_months"] >= MSL_MIN_MONTHS_PER_SPRING)

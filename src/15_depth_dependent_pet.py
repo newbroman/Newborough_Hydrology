@@ -12,7 +12,12 @@ The modified model replaces the fixed β₂ with a depth-dependent term:
     Δh_t = β₁·P(t)  −  β₂·exp(−λ·d_{t-1})·PET(t)  −  β₃·h_disp_prev(t)
 
 where d_{t-1} = depth below ground surface at the previous timestep:
-    d_{t-1} = −h_{t-1} + mean_cluster_upstand     (m, always ≥ 0)
+    d_{t-1} = max(−h_{t-1}, 0)                     (m, always ≥ 0)
+
+No upstand is added: 01_wells_clean.csv already carries the master's
+`depth from surface` values, so h is referenced to the ground surface
+(GEOMETRY_ARCHITECTURE_SPEC.md §3). Adding the upstand here would measure
+d from the pipe top and double-count it.
 
 IMPORTANT: The depth-coupling term d_prev is a PHYSICAL DISTANCE from the
 soil surface, used for PET extinction. It is NOT the displacement term.
@@ -119,7 +124,6 @@ def nse(observed: np.ndarray, simulated: np.ndarray) -> float:
 
 
 def iterative_simulate(h0: float, P: np.ndarray, PET: np.ndarray,
-                       upstand: float,
                        b1: float, b2: float, b3: float,
                        lam: float,
                        drainage_datum: float = DRAINAGE_DATUM) -> np.ndarray:
@@ -138,7 +142,6 @@ def iterative_simulate(h0: float, P: np.ndarray, PET: np.ndarray,
     h0       : initial water table (negative convention, m from ground surface)
     P        : precipitation array (m) — contemporaneous (HEADLINE_LAG = 0)
     PET      : PET array (m) — contemporaneous
-    upstand  : cluster mean upstand (m above ground)
     b1,b2,b3 : OLS coefficients (β₃ fitted against displacement)
     lam      : decay parameter λ (m⁻¹)
     drainage_datum : reference depth for displacement (default DRAINAGE_DATUM)
@@ -163,7 +166,7 @@ def iterative_simulate(h0: float, P: np.ndarray, PET: np.ndarray,
     return h
 
 
-def fit_at_lambda(df: pd.DataFrame, lam: float, upstand: float,
+def fit_at_lambda(df: pd.DataFrame, lam: float,
                   drainage_datum: float = DRAINAGE_DATUM) -> dict:
     """
     Given a cluster centroid DataFrame with columns [h, P_m, PET, h_prev,
@@ -194,7 +197,7 @@ def fit_at_lambda(df: pd.DataFrame, lam: float, upstand: float,
     }
 
 
-def evaluate_iterative_nse(df: pd.DataFrame, lam: float, upstand: float,
+def evaluate_iterative_nse(df: pd.DataFrame, lam: float,
                             b1: float, b2: float, b3: float) -> float:
     """
     Run the full iterative simulation and return NSE vs observed centroid.
@@ -203,7 +206,6 @@ def evaluate_iterative_nse(df: pd.DataFrame, lam: float, upstand: float,
         h0      = df["h"].iloc[0],
         P       = df["P"].values,
         PET     = df["PET"].values,
-        upstand = upstand,
         b1=b1, b2=b2, b3=b3, lam=lam,
     )
     return nse(df["h"].values, h_sim)
@@ -248,7 +250,14 @@ def load_data():
 
 def build_cluster_centroids(wells_clean, cluster_stats, well_col_lookup, upstand_map):
     """
-    Build upstand-corrected centroid series per cluster.
+    Build the mean centroid series per cluster.
+
+    No correction is applied: the clean file is already ground-referenced, so
+    cluster members share a common datum and average directly. The cluster mean
+    upstand is still computed and returned because it is REPORTED as
+    `Mean_Upstand_m` in 15_04_best_params.csv — reading the carrier is allowed,
+    re-deriving a correction from it is not.
+
     Returns dict: {cluster_id (int): (centroid_series, mean_upstand)}
     """
     print("Building cluster centroids...")
@@ -276,15 +285,8 @@ def build_cluster_centroids(wells_clean, cluster_stats, well_col_lookup, upstand
             print(f"  C{cid}: no wells found — skipping")
             continue
 
-        # No upstand correction: the clean file is already ground-referenced
-        # (master `depth from surface` = upstand - dip), so the wells share a
-        # common ground datum and can be averaged directly.
-        corrected = pd.DataFrame(index=wells_clean.index)
-        for col, us in zip(available_cols, well_upstands):
-            corrected[col] = wells_clean[col]
-
-        centroid = corrected.mean(axis=1)
-        mean_upstand = float(np.mean(well_upstands))
+        centroid = wells_clean[available_cols].mean(axis=1)
+        mean_upstand = float(np.mean(well_upstands))   # reported, not applied
 
         print(f"  C{cid}: {len(available_cols)} wells, mean upstand = {mean_upstand:.3f} m")
         centroids[cid] = (centroid, mean_upstand)
@@ -343,11 +345,10 @@ def fit_standard_ssm(df: pd.DataFrame) -> dict:
     # One-step R²
     r2 = model.rsquared
 
-    # Iterative NSE — for the standard SSM (λ=0), upstand doesn't affect
-    # the PET decay (exp(0)=1), but we still need displacement for β₃.
+    # Iterative NSE — for the standard SSM (λ=0) the PET decay is exp(0)=1,
+    # but displacement is still needed for β₃.
     h_sim = iterative_simulate(
         h0=df["h"].iloc[0], P=df["P"].values, PET=df["PET"].values,
-        upstand=0.0,   # upstand=0 → no PET depth correction, standard model
         b1=b1, b2=b2, b3=b3, lam=0.0,
     )
     nse_val = nse(df["h"].values, h_sim)
@@ -359,7 +360,7 @@ def fit_standard_ssm(df: pd.DataFrame) -> dict:
 # Grid search
 # ---------------------------------------------------------------------------
 
-def grid_search_lambda(df: pd.DataFrame, upstand: float) -> pd.DataFrame:
+def grid_search_lambda(df: pd.DataFrame) -> pd.DataFrame:
     """
     Search λ over [LAMBDA_MIN, LAMBDA_MAX] and record OLS R² and
     iterative NSE at each step.
@@ -368,12 +369,12 @@ def grid_search_lambda(df: pd.DataFrame, upstand: float) -> pd.DataFrame:
     records = []
 
     for lam in lambdas:
-        fit = fit_at_lambda(df, lam, upstand)
+        fit = fit_at_lambda(df, lam)
         # Only evaluate iterative NSE if all coefficients are physically
         # plausible (positive β₁, positive β₂, positive β₃)
         if fit["b1"] > 0 and fit["b2"] > 0 and fit["b3"] > 0:
             nse_val = evaluate_iterative_nse(
-                df, lam, upstand, fit["b1"], fit["b2"], fit["b3"]
+                df, lam, fit["b1"], fit["b2"], fit["b3"]
             )
         else:
             nse_val = np.nan
@@ -469,18 +470,16 @@ def plot_fit_comparison(regression_dfs: dict, centroids: dict, climate: pd.DataF
         ssm = ssm_baselines[cid]
         col = CLUSTER_COLOURS.get(cid, "steelblue")
         label = CLUSTER_LABELS.get(cid, f"C{cid}")
-        upstand = centroids[cid][1]
-
-        # Standard SSM simulation (λ=0, upstand irrelevant for PET decay)
+        # Standard SSM simulation (λ=0 → exp(0)=1, no PET depth decay)
         h_ssm = iterative_simulate(
             h0=df["h"].iloc[0], P=df["P"].values, PET=df["PET"].values,
-            upstand=0.0, b1=ssm["b1"], b2=ssm["b2"], b3=ssm["b3"], lam=0.0,
+            b1=ssm["b1"], b2=ssm["b2"], b3=ssm["b3"], lam=0.0,
         )
 
         # Depth-dependent simulation
         h_ddp = iterative_simulate(
             h0=df["h"].iloc[0], P=df["P"].values, PET=df["PET"].values,
-            upstand=upstand, b1=bp["b1"], b2=bp["b2"], b3=bp["b3"],
+            b1=bp["b1"], b2=bp["b2"], b3=bp["b3"],
             lam=bp["best_lambda"],
         )
 
@@ -520,7 +519,7 @@ def main():
 
     # Build regression DataFrames
     regression_dfs = {}
-    for cid, (centroid, upstand) in centroids.items():
+    for cid, (centroid, _mean_upstand) in centroids.items():
         df = build_regression_df(centroid, climate)
         if len(df) > 30:
             regression_dfs[cid] = df
@@ -539,9 +538,8 @@ def main():
           f"step {LAMBDA_STEP} ({int((LAMBDA_MAX - LAMBDA_MIN) / LAMBDA_STEP) + 1} values)...")
     profiles = {}
     for cid, df in regression_dfs.items():
-        _, upstand = centroids[cid]
         print(f"  C{cid} ...", end=" ", flush=True)
-        prof = grid_search_lambda(df, upstand)
+        prof = grid_search_lambda(df)
         profiles[cid] = prof
         valid = prof.dropna(subset=["nse_iterative"])
         if not valid.empty:

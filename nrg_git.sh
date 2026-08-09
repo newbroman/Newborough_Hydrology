@@ -4,6 +4,23 @@
 # Safe order of operations: COMMIT your work first, THEN pull, THEN push.
 # Handles the "local changes would be overwritten by merge" situation.
 # ============================================================================
+# VERSION 1.1.0 - 2026-08-09
+# CHANGELOG
+#   1.1.0 (2026-08-09): sync_index_counts() now regenerates
+#       outputs/pipeline_manifest.json (--manifest-only, runs no analysis
+#       steps) BEFORE stamping index.html. The manifest is only rewritten
+#       when the pipeline runs, so a change to the step table could sit
+#       unreflected in the manifest - and therefore in index.html - until the
+#       next full run. Drift warnings from the orchestrator's document-count
+#       guard are surfaced here rather than swallowed; the routine "Wrote..."
+#       confirmation is hidden. A failed refresh warns and stamps from the
+#       committed manifest rather than blocking the push. do_sync() now also
+#       stages outputs/pipeline_manifest.json, which its explicit git-add list
+#       previously missed (do_push picks it up via stage_all). Comment above
+#       sync_index_counts() rewritten: it quoted the retired "46 analytical
+#       steps" headline, deleted in run_analysis.py v2.3.0.
+#   1.0.0 - prior state (unversioned).
+# ============================================================================
 set -uo pipefail
 
 REPO_DIR="${HOME}/projects/NRG"
@@ -156,17 +173,34 @@ stage_web_tools(){
 
 # --- index.html: keep the pipeline counts in step with the manifest ----------
 # index.html is hand-maintained and is the only project document that states
-# the step counts without quoting outputs/pipeline_manifest.json. On 2026-08-07
-# it was found claiming "46 analytical steps across 17 phases, plus a single
-# post-processing phase" - an eighteenth phase that does not exist, Phase 17
-# being the post-processing phase and already inside the 17. The numbers now
-# sit inside <!--PL:key--> markers and are stamped from the manifest here.
-# WARNS but never blocks: a stale manifest must not stop an unrelated push.
+# the pipeline counts without quoting outputs/pipeline_manifest.json. Its
+# numbers sit inside <!--PL:key--> markers and are stamped from the manifest
+# here. Two failures this guards against, both of which have happened:
+#   * a marker going stale because nobody remembered to run the stamper;
+#   * the manifest ITSELF going stale, because it is only rewritten when the
+#     pipeline runs - so a change to the step table can sit unreflected in
+#     both manifest and page until the next full run. --manifest-only closes
+#     that gap: it rebuilds the manifest from the step table and executes no
+#     analysis steps.
+# Drift warnings from the orchestrator's document-count guard are printed here
+# (they name which documents now disagree with the step table). WARNS but never
+# blocks: neither a stale manifest nor a failed refresh should stop a push.
 sync_index_counts(){
   local script="tools/sync_index_counts.py"
   [[ -f "$script" ]] || return 0
   command -v python3 >/dev/null 2>&1 || return 0
   say "Syncing index.html pipeline counts"
+  if [[ -f "run_analysis.py" ]]; then
+    local mout mrc
+    mout=$(python3 run_analysis.py --manifest-only 2>&1); mrc=$?
+    if [[ "$mrc" -ne 0 ]]; then
+      echo -e "  ${Y}note${N} could not refresh the manifest - stamping from the committed copy"
+    else
+      # Hide the routine "Wrote ..." confirmation; surface anything else,
+      # which is the document-count drift guard telling you what to update.
+      echo "$mout" | grep -v "pipeline_manifest.json" | grep -v "^[[:space:]]*$" | sed 's/^/  /'
+    fi
+  fi
   if python3 "$script"; then
     :
   else
@@ -212,7 +246,8 @@ do_sync(){
   say "Rebuilding forecaster feeds from the hub"
   python3 "$LIVING/update_forecaster_feed.py" --hub "$HUB" --cluster-map "$CLUSTER_MAP" --out "$FEED_JSON"  || { fail "feed build failed"; return; }
   python3 "$LIVING/update_forecaster_msl5.py" --hub "$HUB" --cluster-map "$CLUSTER_MAP" --out "$MSL5_JSON" || { fail "MSL5 build failed"; return; }
-  git add "$HUB" "$FEED_JSON" "$MSL5_JSON" "$SCATTER_DST" "$VIEWER_DST" index.html
+  git add "$HUB" "$FEED_JSON" "$MSL5_JSON" "$SCATTER_DST" "$VIEWER_DST" index.html \
+          outputs/pipeline_manifest.json
   if have_staged; then
     git commit -m "monthly forecaster update $(date +%Y-%m)" && ok "feeds committed"
   else

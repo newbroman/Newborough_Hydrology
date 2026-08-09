@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-09T00:35:55Z",
+  "generated": "2026-08-09T09:15:25Z",
   "method": "EWI: equilibrium wetness index (m below ground) from SSM coefficients. EbF: measured for surveyed wells, else projected from EWI_annual (EbF = a + b*EWI_annual). Tiers: measured / projected / extrapolated.",
   "ebf_calibration": {
     "n": 18,

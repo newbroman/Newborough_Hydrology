@@ -74,7 +74,22 @@ Dependencies
     Skeletonisation: not required (map_utils handles DEM/IDW)
 """
 
-__version__ = "1.6.1"  # Hollingham (2026) — 2026-07-19
+__version__ = "1.6.2"  # Hollingham (2026) — 2026-08-09
+# 1.6.2 (2026-08-09): _build_base_layer() no longer carries its own
+#   hardcoded extent dict. The forecaster base layer now uses the
+#   canonical SITE_MAP_* extent from config (E 240100-243900,
+#   N 362200-365500). The previous local values (N 362100-365900)
+#   forced a square 3800 x 3800 m frame around a network spanning only
+#   ~2.2 km north-south, so the forecaster map carried ~790 m of empty
+#   ground above and below the wells and rendered them small. Figure
+#   framing only; no threshold, P_flood or per-well computation is
+#   affected.
+#   NOTE: the four 11b PNG maps still set their own extents inline
+#   (N 362200-365800 for 11b_01, N 362100-365900 for the other three).
+#   Those were deliberately left out of the 2026-06-27 canonical-extent
+#   rollout and are unchanged here, so the forecaster frame is now
+#   canonical while the PNG maps are not. Reconciling them is a separate
+#   decision — it moves committed report figures.
 # 1.5.1 (2026-07-19): review revision — 11b_01 stats box nudged into the
 #   lower-left axes corner: transAxes anchor (0.02, 0.03) -> (0.005, 0.008).
 # 1.5.0 (2026-07-19): review revisions — cross-map consistency (authored
@@ -145,6 +160,8 @@ from utils.paths import (
 from utils.map_utils import load_dem_hillshade, add_idw_surface, add_kml_features, _safe_read_kml
 from utils.config import (
     CLUSTER_LABELS, CLUSTER_COLOURS, SD15b, SD15b_REC, SD16, SD16_REC,
+    SITE_MAP_EAST_MIN, SITE_MAP_EAST_MAX,
+    SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX,
 )
 from utils.model_utils import pflood_lambda
 
@@ -1767,15 +1784,16 @@ def _build_base_layer() -> dict:
     Build the forecaster base layer data: a base64-encoded hillshade PNG
     and KML feature polylines as coordinate arrays in OSGB36.
 
-    Uses the same fixed map extent as the 11b PNG maps:
-    E 240100–243900, N 362100–365900.
+    The extent is the canonical site map extent from config, the same frame
+    the four 11b PNG maps use. The forecaster template derives its viewBox
+    height from this extent's aspect, so the frame need not be square.
     """
     import base64
     from io import BytesIO
 
     EXTENT = {
-        "eMin": 240100, "eMax": 243900,
-        "nMin": 362100, "nMax": 365900,
+        "eMin": SITE_MAP_EAST_MIN,  "eMax": SITE_MAP_EAST_MAX,
+        "nMin": SITE_MAP_NORTH_MIN, "nMax": SITE_MAP_NORTH_MAX,
     }
     result = {"extent": EXTENT, "hillshade_png": None, "features": []}
 

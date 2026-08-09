@@ -173,7 +173,42 @@
     flex:1;border:1px solid var(--border);background:#f8f3e4;
     position:relative;border-radius:2px;overflow:auto;
   }
-  .map-svg-wrap svg{width:100%;height:100%;display:block;cursor:crosshair}
+  .map-svg-wrap svg{
+    width:100%;height:100%;display:block;cursor:crosshair;
+    /* touch-action:none lets two-finger pinch and one-finger drag reach the
+       pointer handlers instead of scrolling the page on tablets. */
+    touch-action:none;
+  }
+  .map-svg-wrap svg.panning{cursor:grabbing}
+  /* Radii and stroke widths are rescaled on every zoom step so they stay a
+     constant size on screen. The .well-dot transition below would turn each
+     wheel tick into a 150 ms tween, so it is suppressed for the duration of
+     the update (see applyView). */
+  .map-svg-wrap svg.no-transition .well-dot{transition:none}
+
+  /* ── ZOOM CONTROLS ─────────────────────────────
+     Bottom-left: the legend holds top-left and the rainfall slider
+     top-right, so this is the only free corner. */
+  .map-zoom{
+    position:absolute;bottom:.75rem;left:.75rem;
+    display:flex;flex-direction:column;gap:1px;
+    background:rgba(255,255,255,.92);border:1px solid var(--border);
+    border-radius:2px;overflow:hidden;backdrop-filter:blur(3px);
+  }
+  .map-zoom button{
+    width:30px;height:30px;border:none;background:transparent;
+    font-family:inherit;font-size:1rem;line-height:1;color:var(--slate);
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+    border-bottom:1px solid var(--border);
+  }
+  .map-zoom button:last-child{border-bottom:none;font-size:.95rem}
+  .map-zoom button:hover:not(:disabled){background:var(--sand-dark)}
+  .map-zoom button:disabled{opacity:.35;cursor:default}
+  .map-zoom .zoom-level{
+    font-family:'JetBrains Mono',monospace;font-size:.62rem;
+    color:var(--text-light);text-align:center;padding:.15rem 0;
+    border-top:1px solid var(--border);
+  }
   .well-dot{
     stroke:#2a3338;stroke-width:1.2;cursor:pointer;
     transition:r .15s ease,stroke-width .15s ease;
@@ -351,6 +386,9 @@
       </div>
     </div>
     <div class="map-svg-wrap">
+      <!-- viewBox is a placeholder: renderMap() derives the true height from
+           the bundle extent aspect, and applyView() rewrites it on every
+           zoom or pan step. -->
       <svg id="map" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMin meet"></svg>
       <div class="legend">
         <div class="title">P<sub>flood</sub> to SD15b (−0.10 m)</div>
@@ -358,6 +396,12 @@
         <div class="legend-row"><div class="legend-dot" style="background:var(--amber)"></div>Wet winter required (1.0–1.3×)</div>
         <div class="legend-row"><div class="legend-dot" style="background:var(--red)"></div>Exceptional winter (1.3–2.0×)</div>
         <div class="legend-row"><div class="legend-dot" style="background:var(--grey)"></div>Structurally unreachable (&gt;2.0×)</div>
+      </div>
+      <div class="map-zoom">
+        <button id="zoom-in"    title="Zoom in (or scroll on the map)" aria-label="Zoom in">+</button>
+        <button id="zoom-out"   title="Zoom out" aria-label="Zoom out">−</button>
+        <button id="zoom-reset" title="Reset to full site extent" aria-label="Reset view">↺</button>
+        <div class="zoom-level" id="zoom-level">1.0×</div>
       </div>
       <div class="rainfall-slider-wrap">
         <div class="title">Assumed winter rainfall multiplier λ</div>
@@ -402,7 +446,13 @@
 </div>
 
 <script>
-/* forecaster_template.html — live-feed wiring v1.2.0 (2026-07-04)
+/* forecaster_template.html — live-feed wiring v1.3.0 (2026-08-09)
+   v1.3.0: map reframe + zoom. MAP_H is derived from the bundle extent
+           aspect rather than hardcoded square, so the non-square canonical
+           extent renders undistorted; adds wheel/pinch zoom, drag pan,
+           double-click zoom and a +/-/reset control cluster. Zoom updates
+           the viewBox and rescales marker geometry in place — renderMap()
+           is not re-run, so the embedded hillshade is not re-decoded.
    v1.2.0: ecohydrology block — EWI + projected/tiered EbF from
            forecaster_indices.json (measured/projected/extrapolated).
    v1.1.1: forecast month follows the feed's as_of (latest round), not the
@@ -695,12 +745,30 @@ function parseManualPaste(){
    MAP
    ═══════════════════════════════════════════════════════════════════ */
 const MAP_PAD = 30;
-// The base-layer hillshade is generated for a 3800 m × 3800 m square
-// area around the study site, so the viewBox is also square. The well
-// data naturally occupies a thin east-west strip within that square
-// (~9.3 km of wells in a ~2.1 km band) — that horizontal arrangement
-// is the actual geography, not a distortion.
-const MAP_W = 1000, MAP_H = 1000;
+// The viewBox width is fixed; its HEIGHT is derived in renderMap() from the
+// aspect of the extent the bundle supplies (Script 11b, _build_base_layer),
+// which follows the canonical site extent in config.py. The hillshade image
+// is drawn with preserveAspectRatio="none", so deriving the height is what
+// keeps the base image, the KML features and the well dots in register when
+// the extent is not square. Wells occupy roughly E 240.3–243.6 km and
+// N 362.6–364.8 km, an east-west strip within the frame — that horizontal
+// arrangement is the geography, not a distortion.
+const MAP_W = 1000;
+let   MAP_H = 1000;          // derived per render; 1000 until first render
+
+// Base marker geometry, in viewBox units at 1× zoom. applyView() multiplies
+// these by the current zoom ratio so markers hold a constant on-screen size.
+const DOT_R = 10, DOT_R_SELECTED = 14, DOT_STROKE = 0.5;
+
+// ── View state (zoom / pan) ──────────────────────────────────────────
+// VIEW is the live viewBox. Its aspect is locked to the base frame, so zoom
+// is a single scalar: VIEW.w / MAP_W. Panning is clamped to the base frame,
+// so the user can never drag off the mapped area.
+const ZOOM_MIN = 1.0, ZOOM_MAX = 10.0, ZOOM_STEP = 1.2;
+const DRAG_THRESHOLD_PX = 4;   // below this a pointer drag counts as a click
+let VIEW = {x: 0, y: 0, w: MAP_W, h: MAP_H};
+let VIEW_BASE_H = MAP_H;       // frame height the current VIEW was built on
+let SUPPRESS_CLICK = false;    // set after a drag, so panning doesn't select
 
 function mapBounds(wells){
   // Use fixed extent from base layer if available — ensures hillshade,
@@ -742,6 +810,17 @@ let LIVE_LAMBDA_SOURCE = '';
 function renderMap(){
   const svg = document.getElementById('map');
   const bounds = mapBounds(DATA.wells);
+
+  // Derive the frame height from the extent aspect. If the extent has
+  // changed since the view was built (a new bundle), drop back to the
+  // full frame rather than carrying a stale zoom window across.
+  const eSpan = bounds.eMax - bounds.eMin;
+  const nSpan = bounds.nMax - bounds.nMin;
+  MAP_H = (eSpan > 0 && nSpan > 0)
+    ? Math.round(MAP_W * (nSpan / eSpan))
+    : MAP_W;
+  if(MAP_H !== VIEW_BASE_H) resetView();
+
   let html = '';
 
   // ── Clip path: restrict all rendering to the plot area ─────────────
@@ -772,11 +851,15 @@ function renderMap(){
           const p = project(c[0], c[1], bounds);
           return `${p.x.toFixed(1)},${p.y.toFixed(1)}`;
         }).join(' ');
+        // data-sw carries the 1x stroke width; applyView rescales from it
+        // so lines stay hairline-thin instead of fattening as you zoom in.
         if(fill !== 'none'){
-          html += `<polygon points="${pts}" fill="${fill}" stroke="${stroke}"
+          html += `<polygon class="kml-line" data-sw="${sw}" points="${pts}"
+            fill="${fill}" stroke="${stroke}"
             stroke-width="${sw}" ${dash?'stroke-dasharray="'+dash+'"':''}/>`;
         } else {
-          html += `<polyline points="${pts}" fill="none" stroke="${stroke}"
+          html += `<polyline class="kml-line" data-sw="${sw}" points="${pts}"
+            fill="none" stroke="${stroke}"
             stroke-width="${sw}" ${dash?'stroke-dasharray="'+dash+'"':''}/>`;
         }
       }
@@ -795,22 +878,228 @@ function renderMap(){
       lam = lambdaFromPFlood(pflood, coeff) / GLOBAL_LAMBDA_MULT;
     }
     const cat = categoryForLambda(lam);
-    // Radii sized for the 2200×500 viewBox. Scaled up from the old
-    // 1000×900 (r=6/8) so dots remain visually similar in size.
-    const r = (SELECTED===w.name)?14:10;
+    // Radii are the 1x values for the derived viewBox; applyView() rescales
+    // them by the zoom ratio so a dot keeps a constant on-screen size, which
+    // is what lets a zoom separate wells that overlap at full extent.
+    const r = (SELECTED===w.name) ? DOT_R_SELECTED : DOT_R;
     const cls = 'well-dot' + (SELECTED===w.name?' selected':'');
     html += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}"
-      class="${cls}" fill="${categoryColor(cat)}" stroke="white" stroke-width="0.5"
-      data-well="${w.name}"></circle>`;
+      class="${cls}" fill="${categoryColor(cat)}" stroke="white"
+      stroke-width="${DOT_STROKE}" data-well="${w.name}"></circle>`;
   }
   svg.innerHTML = html;
   svg.querySelectorAll('.well-dot').forEach(el=>{
     el.addEventListener('click', ()=>{
+      // A pan gesture ends with a click on whatever sat under the pointer.
+      // SUPPRESS_CLICK is raised for the remainder of that event loop turn
+      // so dragging across the map doesn't reselect a well.
+      if(SUPPRESS_CLICK) return;
       const name = el.dataset.well;
       document.getElementById('well-select').value = name;
       selectWell(name);
     });
   });
+  // innerHTML replaces the children but not the element's own viewBox, so
+  // the user's zoom window survives a re-render (the rainfall slider calls
+  // renderMap on every input). Marker geometry is written at 1x above, so
+  // it has to be rescaled to the current view here.
+  applyView();
+}
+
+/* ── VIEW: zoom and pan ────────────────────────────────────────────────
+   All of this operates on the SVG viewBox. renderMap() is deliberately NOT
+   re-run on zoom: the bundle embeds a ~2 MB base64 hillshade, and rebuilding
+   innerHTML would re-decode it on every wheel tick. */
+
+function resetView(){
+  VIEW = {x: 0, y: 0, w: MAP_W, h: MAP_H};
+  VIEW_BASE_H = MAP_H;
+}
+
+function clampView(){
+  // Aspect is locked to the base frame; width is the only free dimension.
+  VIEW.w = Math.min(MAP_W / ZOOM_MIN, Math.max(MAP_W / ZOOM_MAX, VIEW.w));
+  VIEW.h = VIEW.w * (MAP_H / MAP_W);
+  VIEW.x = Math.min(MAP_W - VIEW.w, Math.max(0, VIEW.x));
+  VIEW.y = Math.min(MAP_H - VIEW.h, Math.max(0, VIEW.y));
+}
+
+function applyView(){
+  const svg = document.getElementById('map');
+  if(!svg) return;
+  clampView();
+  svg.setAttribute('viewBox',
+    `${VIEW.x.toFixed(2)} ${VIEW.y.toFixed(2)} ${VIEW.w.toFixed(2)} ${VIEW.h.toFixed(2)}`);
+
+  const k = VIEW.w / MAP_W;          // < 1 when zoomed in
+  // Suppress the CSS radius transition while the geometry is rewritten,
+  // otherwise every wheel tick starts a 150 ms tween and the zoom feels
+  // mushy. Re-enabled after a forced reflow, so no tween is triggered.
+  svg.classList.add('no-transition');
+  svg.querySelectorAll('.well-dot').forEach(el=>{
+    const base = (el.dataset.well === SELECTED) ? DOT_R_SELECTED : DOT_R;
+    el.setAttribute('r', (base * k).toFixed(2));
+    el.setAttribute('stroke-width', (DOT_STROKE * k).toFixed(3));
+  });
+  svg.querySelectorAll('.kml-line').forEach(el=>{
+    const base = parseFloat(el.dataset.sw);
+    if(isFinite(base)) el.setAttribute('stroke-width', (base * k).toFixed(3));
+  });
+  void svg.getBoundingClientRect();   // force reflow
+  svg.classList.remove('no-transition');
+
+  const zoom = MAP_W / VIEW.w;
+  const lvl = document.getElementById('zoom-level');
+  if(lvl) lvl.textContent = zoom.toFixed(1) + '×';
+  const bIn  = document.getElementById('zoom-in');
+  const bOut = document.getElementById('zoom-out');
+  const bRes = document.getElementById('zoom-reset');
+  if(bIn)  bIn.disabled  = zoom >= ZOOM_MAX - 1e-6;
+  if(bOut) bOut.disabled = zoom <= ZOOM_MIN + 1e-6;
+  if(bRes) bRes.disabled = zoom <= ZOOM_MIN + 1e-6;
+}
+
+function svgScale(svg){
+  // preserveAspectRatio="xMidYMin meet" letterboxes the viewBox inside the
+  // element: centred horizontally, top-aligned vertically. Return the
+  // rendered scale and the client-space origin of the viewBox.
+  const r = svg.getBoundingClientRect();
+  const scale = Math.min(r.width / VIEW.w, r.height / VIEW.h);
+  return {scale, offX: r.left + (r.width - VIEW.w * scale) / 2, offY: r.top};
+}
+
+function clientToView(svg, clientX, clientY){
+  const {scale, offX, offY} = svgScale(svg);
+  return {
+    x: VIEW.x + (clientX - offX) / scale,
+    y: VIEW.y + (clientY - offY) / scale,
+  };
+}
+
+function zoomAt(factor, clientX, clientY){
+  const svg = document.getElementById('map');
+  if(!svg) return;
+  const p = clientToView(svg, clientX, clientY);
+  const oldW = VIEW.w;
+  let newW = VIEW.w / factor;
+  newW = Math.min(MAP_W / ZOOM_MIN, Math.max(MAP_W / ZOOM_MAX, newW));
+  const k = newW / oldW;
+  // Hold the point under the cursor fixed while the frame scales about it.
+  VIEW.x = p.x - (p.x - VIEW.x) * k;
+  VIEW.y = p.y - (p.y - VIEW.y) * k;
+  VIEW.w = newW;
+  VIEW.h = newW * (MAP_H / MAP_W);
+  applyView();
+}
+
+function zoomCentre(factor){
+  const svg = document.getElementById('map');
+  if(!svg) return;
+  const r = svg.getBoundingClientRect();
+  zoomAt(factor, r.left + r.width / 2, r.top + r.height / 2);
+}
+
+function setupMapInteraction(){
+  const svg = document.getElementById('map');
+  if(!svg) return;
+
+  // ── Wheel zoom about the cursor ────────────────────────────────────
+  svg.addEventListener('wheel', (e)=>{
+    e.preventDefault();
+    zoomAt(e.deltaY < 0 ? ZOOM_STEP : 1 / ZOOM_STEP, e.clientX, e.clientY);
+  }, {passive: false});
+
+  // ── Double-click: two steps in, about the cursor ───────────────────
+  svg.addEventListener('dblclick', (e)=>{
+    e.preventDefault();
+    zoomAt(ZOOM_STEP * ZOOM_STEP, e.clientX, e.clientY);
+  });
+
+  // ── Pointer drag to pan, two-pointer pinch to zoom ─────────────────
+  const pointers = new Map();
+  let panning = false, moved = false;
+  let startClient = null, startView = null, pinchDist = 0;
+
+  function pinchState(){
+    const pts = [...pointers.values()];
+    const dx = pts[0].x - pts[1].x, dy = pts[0].y - pts[1].y;
+    return {
+      dist: Math.hypot(dx, dy),
+      midX: (pts[0].x + pts[1].x) / 2,
+      midY: (pts[0].y + pts[1].y) / 2,
+    };
+  }
+
+  svg.addEventListener('pointerdown', (e)=>{
+    if(e.pointerType === 'mouse' && e.button !== 0) return;
+    pointers.set(e.pointerId, {x: e.clientX, y: e.clientY});
+    if(pointers.size === 2){
+      panning = false;                 // a second finger cancels the pan
+      pinchDist = pinchState().dist;
+      return;
+    }
+    if(pointers.size > 2) return;
+    panning = true; moved = false;
+    startClient = {x: e.clientX, y: e.clientY};
+    startView   = {x: VIEW.x, y: VIEW.y};
+    try { svg.setPointerCapture(e.pointerId); } catch(err) { /* ignore */ }
+  });
+
+  svg.addEventListener('pointermove', (e)=>{
+    if(!pointers.has(e.pointerId)) return;
+    pointers.set(e.pointerId, {x: e.clientX, y: e.clientY});
+
+    if(pointers.size === 2){
+      const st = pinchState();
+      if(pinchDist > 0 && isFinite(st.dist) && st.dist > 0){
+        zoomAt(st.dist / pinchDist, st.midX, st.midY);
+      }
+      pinchDist = st.dist;
+      return;
+    }
+    if(!panning) return;
+
+    const dx = e.clientX - startClient.x, dy = e.clientY - startClient.y;
+    if(!moved){
+      if(Math.hypot(dx, dy) < DRAG_THRESHOLD_PX) return;
+      moved = true;
+      svg.classList.add('panning');
+    }
+    const {scale} = svgScale(svg);
+    VIEW.x = startView.x - dx / scale;
+    VIEW.y = startView.y - dy / scale;
+    applyView();
+  });
+
+  function endPointer(e){
+    pointers.delete(e.pointerId);
+    if(pointers.size < 2) pinchDist = 0;
+    if(!panning) return;
+    panning = false;
+    svg.classList.remove('panning');
+    try { svg.releasePointerCapture(e.pointerId); } catch(err) { /* ignore */ }
+    if(moved){
+      // The click that follows this pointerup would otherwise select
+      // whichever well happened to be under the pointer at the end of
+      // the drag. Cleared on the next turn of the event loop.
+      SUPPRESS_CLICK = true;
+      setTimeout(()=>{ SUPPRESS_CLICK = false; }, 0);
+    }
+    moved = false;
+  }
+  svg.addEventListener('pointerup', endPointer);
+  svg.addEventListener('pointercancel', endPointer);
+  svg.addEventListener('pointerleave', (e)=>{
+    if(pointers.has(e.pointerId) && !svg.hasPointerCapture?.(e.pointerId)) endPointer(e);
+  });
+
+  // ── Button cluster ─────────────────────────────────────────────────
+  const bIn  = document.getElementById('zoom-in');
+  const bOut = document.getElementById('zoom-out');
+  const bRes = document.getElementById('zoom-reset');
+  if(bIn)  bIn.addEventListener('click',  ()=> zoomCentre(ZOOM_STEP));
+  if(bOut) bOut.addEventListener('click', ()=> zoomCentre(1 / ZOOM_STEP));
+  if(bRes) bRes.addEventListener('click', ()=>{ resetView(); applyView(); });
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -1319,6 +1608,10 @@ function init(){
   }
   setupResizer('resizer-left',  'sidebar');
   setupResizer('resizer-right', 'panel');
+
+  // Map zoom/pan wiring. Bound once here rather than in renderMap, which
+  // re-runs whenever the rainfall slider moves.
+  setupMapInteraction();
 
   // Default selection — first well in the bundle, regardless of cluster.
   // Avoids hardcoding a specific cluster ID that may be renumbered when

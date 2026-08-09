@@ -66,7 +66,7 @@ FELLING_YEAR = INTERVENTION_DATE.year   # 2017
 # REGIONAL_MEAN_START restricts the regional-mean control to the
 # fixed-composition window (5 wells, 2009-02 onwards).  CEH4 evaluated vs
 # regional mean drops 33 pre-2009-02 rows from its Baseline era; the
-# Baseline-era mean shifts by ~36 mm in consequence.  CEH22 paired against
+# The Baseline-era mean shifts in consequence.  CEH22 paired against
 # regional mean is unchanged (CEH22 starts 2010-03, already inside the
 # fixed-composition window).
 REGIONAL_MEAN_START = pd.Timestamp("2009-02-01")

@@ -6,7 +6,7 @@ The standard SSM (contemporaneous rainfall, displacement formulation,
 HEADLINE_LAG = 0) is:
     Δh_t = β₁·P(t)  −  β₂·PET(t)  −  β₃·h_disp_prev(t)
 
-    where h_disp = DRAINAGE_DATUM + h_depth     (displacement above 3.7 m datum)
+    where h_disp = DRAINAGE_DATUM + h_depth     (displacement above the config datum)
 
 The modified model replaces the fixed β₂ with a depth-dependent term:
     Δh_t = β₁·P(t)  −  β₂·exp(−λ·d_{t-1})·PET(t)  −  β₃·h_disp_prev(t)
@@ -141,7 +141,7 @@ def iterative_simulate(h0: float, P: np.ndarray, PET: np.ndarray,
     upstand  : cluster mean upstand (m above ground)
     b1,b2,b3 : OLS coefficients (β₃ fitted against displacement)
     lam      : decay parameter λ (m⁻¹)
-    drainage_datum : reference depth for displacement (default 3.7 m)
+    drainage_datum : reference depth for displacement (default DRAINAGE_DATUM)
     """
     n = len(P)
     h = np.full(n, np.nan)

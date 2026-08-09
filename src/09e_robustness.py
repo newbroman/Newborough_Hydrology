@@ -11,7 +11,7 @@ Three independent estimates of the CEH36 Pure Scraping era step change:
   (3) SSM forward residual: observed minus model prediction calibrated
       on the pre-scraping baseline period
 
-Method convergence supports the inference that the +0.13 m benefit at
+Method convergence supports the inference that the scraping benefit at
 CEH36 is not an artefact of CEH4's own progressive deepening.
 
 Outputs

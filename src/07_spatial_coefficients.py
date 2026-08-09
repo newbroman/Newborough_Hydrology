@@ -66,6 +66,7 @@ from utils.map_utils import (
 )
 from utils.data_utils import normalize_well_name
 from utils.config import (
+    DRAINAGE_DATUM,
     CLUSTER_LABELS,
     CLUSTER_COLOURS,
     CLUSTER_MARKERS,
@@ -480,7 +481,7 @@ if __name__ == "__main__":
 
     # ------------------------------------------------------------------
     # §4.9 traceability: per-cluster MEAN coefficients + report numbers
-    # Means of the per-well SSM coefficients (uniform 3.7 m datum, read
+    # Means of the per-well SSM coefficients (uniform DRAINAGE_DATUM, read
     # from 03_master_data.csv), so the cited §4.9 cluster means have a
     # findable source. β₃ also reported as % head drained / month.
     # ------------------------------------------------------------------
@@ -503,11 +504,11 @@ if __name__ == "__main__":
     for _, _r in _means_df.iterrows():
         _cl = f"C{int(_r['Cluster_ID'])}"
         rpt.add(f"{_cl}_beta1_mean", _r["beta_1_recharge_mean"], unit="mm/mm",
-                note=f"mean β₁ recharge, {_cl}, 3.7 m datum, n={int(_r['n'])}")
+                note=f"mean β₁ recharge, {_cl}, {DRAINAGE_DATUM:g} m datum, n={int(_r['n'])}")
         rpt.add(f"{_cl}_beta2_mean", _r["beta_2_atmospheric_draw_mean"], unit="mm/mm",
-                note=f"mean β₂ atmospheric draw, {_cl}, 3.7 m datum, n={int(_r['n'])}")
+                note=f"mean β₂ atmospheric draw, {_cl}, {DRAINAGE_DATUM:g} m datum, n={int(_r['n'])}")
         rpt.add(f"{_cl}_beta3_mean", _r["beta_3_drainage_mean"], unit="/month",
-                note=f"mean β₃ drainage, {_cl}, 3.7 m datum, n={int(_r['n'])}")
+                note=f"mean β₃ drainage, {_cl}, {DRAINAGE_DATUM:g} m datum, n={int(_r['n'])}")
         rpt.add(f"{_cl}_beta3_pct_mean", _r["beta_3_pct_mean"], unit="%/month",
                 note=f"mean β₃ as % head drained/month, {_cl}")
     # CEH14: cited negative β₃ (lateral recharge from the rock ridge)

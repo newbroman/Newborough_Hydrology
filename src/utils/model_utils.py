@@ -12,7 +12,7 @@ SSM equation (displacement formulation):
 
     Δh(t) = β₁·P(t−lag) − β₂·PET(t) − β₃·(D + h(t−1))
 
-    where D = DRAINAGE_DATUM (3.7 m below ground surface)
+    where D = DRAINAGE_DATUM (config.py; metres below ground surface)
           h is in negative-below-ground convention
 
 Design matrix (no-intercept OLS):

@@ -81,7 +81,7 @@ from utils.data_utils import normalize_well_name
 from utils.config import (HEADLINE_LAG, DRAINAGE_DATUM, CLUSTER_LABELS,
                           CLUSTER_COLOURS)
 from utils.paths import (
-    INT_CLUSTER_STATS, INT_CLIMATE, INT_WELLS_CLEAN, INT_WELL_ELEVATIONS,
+    INT_CLUSTER_STATS, INT_CLIMATE, INT_WELLS_CLEAN,
     OUT_30_C4_IDENTIFIABILITY, OUT_30_C4_PERWELL, OUT_30_C4_REPORT_NUMBERS,
     OUT_30_C4_FIG, DIR_30,
 )
@@ -157,15 +157,14 @@ def main():
     s03 = _load_s03()
 
     # ---- canonical setup (mirrors Script 03 main) ----
-    phase(1, "Setup — canonical centroids (upstand-corrected)")
+    phase(1, "Setup — canonical centroids")
     cluster_df = pd.read_csv(INT_CLUSTER_STATS)
     climate = pd.read_csv(INT_CLIMATE, index_col=0, parse_dates=True)
     wells_clean = pd.read_csv(INT_WELLS_CLEAN, index_col=0, parse_dates=True)
     cluster_df["Match_ID"] = cluster_df["Match_ID"].apply(normalize_well_name)
     well_col_lookup = {normalize_well_name(c): c for c in wells_clean.columns}
-    upstand_lookup = s03.build_upstand_lookup(INT_WELL_ELEVATIONS)
     centroids = s03.build_cluster_centroids(cluster_df, wells_clean,
-                                            upstand_lookup, well_col_lookup)
+                                            well_col_lookup)
     info(f"Built {len(centroids)} cluster centroids.")
 
     # ---- per-cluster centroid diagnostics (A, B, C) ----

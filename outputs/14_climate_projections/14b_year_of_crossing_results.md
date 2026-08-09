@@ -33,7 +33,7 @@ Year-of-crossing values of 2080 are sentinel values where the slope is non-decre
 - Linear extrapolation. The bootstrap captures sampling uncertainty in slope and intercept; it does NOT capture model-form uncertainty (the assumption that the linear trend extrapolates cleanly into a regime where summer-min approaches a drainage-controlled basement or where climate trajectory diverges from observed). Consider this an upper-bound horizon, not a calibrated projection.
 - The cluster-centroid summer-min averages over wells with different ground elevations within each cluster, so the threshold ("depth below ground") is an effective threshold against the centroid, not against any specific well.
 - Year-resampling bootstrap preserves the ordering of the trend signal but does not preserve year-to-year autocorrelation. For trends with strong autocorrelation this can produce a slightly narrower CI than a block bootstrap would. Inspection of `14_annual_extremes.csv` summer-min residuals does not show strong autocorrelation; a block bootstrap is unlikely to materially widen the CIs.
-- C5's exceptional decline (-37.7 mm/yr; §4.8.1) reflects a coastal-retreat gradient mechanism (Script 25) plus other candidates discussed in §5.7.2 — extrapolating it linearly may understate (if the gradient retreats further inland) or overstate (if coastal retreat itself slows) the C5 crossing year.
+- C5's exceptional decline (§4.8.1) reflects a coastal-retreat gradient mechanism (Script 25) plus other candidates discussed in §5.7.2 — extrapolating it linearly may understate (if the gradient retreats further inland) or overstate (if coastal retreat itself slows) the C5 crossing year.
 
 ## Cross-references
 

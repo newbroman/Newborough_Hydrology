@@ -696,7 +696,7 @@ def main() -> int:
 
         # ── C5 acceptance gate (relaxed R3, 2026-07-05) ─────────────────────
         # C5 Coastal must be clearly negative (genuine drying). The original
-        # "C5 ≈ −29 mm/yr" gate was too strict: δ₀ = −29 mm/yr is the
+        # The "C5 ≈ δ₀" gate was too strict: δ₀ (25_01_panel_fit_parameters.csv) is the
         # coastal-EDGE gradient; C5 is a cluster mean set back from the edge.
         # Revised criteria: (a) C5 mean < 0, and (b) C5 ≤ C2 mean (C5 is
         # among the most-negative clusters, not mid-pack). If either fails,

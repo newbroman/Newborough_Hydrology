@@ -69,23 +69,6 @@ bump_label_and_legend_fonts(fig, delta_pt) -> None  (axis labels + legends only)
 apply_house_style()   -> None    (rcParams.update(MPL_DEFAULTS))
 MPL_DEFAULTS          -> dict
 
-Version
--------
-1.4.0  2026-07-19  Added bump_label_and_legend_fonts(fig, delta_pt): targeted
-                   additive enlargement of axis labels and legend text/titles
-                   only (review revisions where those elements need more than
-                   the figure-wide bump).
-1.3.0  2026-07-19  Added bump_fig_fonts(fig, delta_pt): additive per-figure
-                   enlargement (every text element +delta_pt) for the
-                   legibility hand pass on figures styled by rc defaults.
-1.2.0  2026-07-19  Autoscaling made opt-in (default False — v1.0.0 behaviour
-                   restored); per-call min_placed_pt override; LEGIBILITY_MIN_PT
-                   (5.5) restored as the advisory detector threshold.
-1.1.0  2026-07-19  Font autoscaling applied by default to all undersized
-                   figures. REVERTED in 1.2.0: over-fired on figures that were
-                   acceptably legible as authored.
-1.0.0  2026-07-19  Initial: A4-capped render_figure, MPL_DEFAULTS relocation,
-                   apply_house_style, legibility detector.
 """
 
 from __future__ import annotations

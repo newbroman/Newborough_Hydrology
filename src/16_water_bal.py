@@ -24,7 +24,8 @@ Produces the outputs supporting Section 4.2.3 of the report:
     ET/Drainage boundary bracketed by two independent methods:
       - SSM headspace β₂/β₃ ratio
       - Seasonal recession curve analysis (winter vs summer decline rates)
-    Interception (24% of P, forest clusters only; Freeman 2008) appears
+    Interception (config.FOREST_INTERCEPTION of P, forest clusters only;
+    Freeman 2008) appears
     identically on both input and loss bars, cancelling in the net surplus.
 
 Head-space components (m/month):

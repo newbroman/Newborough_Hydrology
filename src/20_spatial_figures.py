@@ -139,7 +139,12 @@ T_WGS_BNG  = Transformer.from_crs("EPSG:4326", "EPSG:27700", always_xy=True)
 
 # FOREST_INTERCEPTION imported from config.py (Freeman 2008, 0.24).
 
-# Sea boundary anchor constants (matching script 19)
+# Sea boundary anchor constants (matching script 19).
+# DELIBERATELY WIDER than the shoreline anchors in Script 11b and
+# map_utils._SEA_* (362350 / 243850). Ruling: Martin, 2026-08-09 — Script 20's
+# box is intentional for these figures and is NOT to be unified with the
+# shoreline values; on the canonical 50 m grid the two rules differ over 228
+# cells (4.5%). Do not "fix" this to match 11b/map_utils.
 SEA_SOUTH_N      = 362200
 SEA_EAST_E       = 243900
 SEA_WEST_E       = 239200

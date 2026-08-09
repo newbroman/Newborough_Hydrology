@@ -26,40 +26,6 @@ in plain words as "expected, not yet directly measured"; base-sans-font
 characters only, enforced by a build-time glyph guard (matters most for the
 translated Welsh/Polish builds).
 
-CHANGELOG
-    1.3.2  2026-07-18  Management figure now carries its own "dotted = undisturbed
-                       water table" key beside the subtitle, so it is self-contained
-                       if it lands on a different page from the drivers figure that
-                       first names the dotted reference (Martin's note).
-    1.3.1  2026-07-18  Drivers stack fixes (Martin's review): (a) panels were
-                       scale()-shrunk so the profile only filled the left ~40% of the
-                       canvas — now each panel is a nested <svg> with a viewBox crop
-                       to the profile band, full width, no horizontal squeeze;
-                       (b) ponding restored via build_reach_panel's new pond fill;
-                       (c) per-panel titles + crossing markers drawn outside the crop
-                       so nothing is clipped.
-    1.3.0  2026-07-18  Drivers figure rebuilt AGAIN as three stacked panels
-                       (undisturbed / coastal / climate) on the SHARED reach
-                       profile via mechanism_fig_utils.build_reach_panel(), full
-                       0..900 m, vertically aligned on one distance axis with the
-                       ~698 m crossing marked. The v1.2.0 single-panel version used
-                       a hand-rolled ground line and so lost the shared profile
-                       (Martin's review); this reuses the technical reach geometry
-                       exactly. Management figure unchanged.
-    1.2.0  2026-07-18  Drivers figure rebuilt as a single FULL 900 m reach panel
-                       (was two short near-shore cross-sections, which hid the
-                       site-wide reach of climate — Martin's review). Now shows
-                       the coastal drawdown biting deep near the shore and
-                       recovering inland against the flat, everywhere climate
-                       line, so the "climate lowers the whole site" message is
-                       visible; amplitudes from load_reach(), lay depth scale
-                       applied equally to both drivers (shape-not-depth
-                       schematic). Management figure unchanged (still local
-                       before/after cross-sections, correctly).
-    1.1.0  2026-07-18  Split into two before/after figures (A management,
-                       B drivers) so the starting state is explicit; the earlier
-                       single 2x2 hid the "before" (Martin's review).
-    1.0.0  2026-07-18  New. 2x2 lay driver grid on the shared solver/profile.
 """
 from __future__ import annotations
 

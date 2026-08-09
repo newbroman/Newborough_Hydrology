@@ -533,7 +533,7 @@ def export_nse_diagnostics(ok_df: pd.DataFrame, master_path: Path,
 
     ΔNSE       = Iterative_NSE_Improvement (SSM minus TLM)
     TLM NSE    = Iterative_NSE_Traditional
-    Cluster, β₂, β₃ are joined from 03_master_data.csv (uniform 3.7 m datum).
+    Cluster, β₂, β₃ are joined from 03_master_data.csv (uniform DRAINAGE_DATUM).
     """
     if ok_df.empty:
         warn("No valid SSM08 rows. Skipping NSE diagnostics export.")

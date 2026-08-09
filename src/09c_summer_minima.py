@@ -63,7 +63,8 @@ from utils.scraping_common import (
 from utils.clearfell_common import (
     annual_summer_minimum, forest_control_centroid_summer_min,
 )
-from utils.config import EQUIL_RESIDUAL_WINDOW_YEARS, EQUIL_MIN_FIT_POINTS
+from utils.config import (EQUIL_RESIDUAL_WINDOW_YEARS, EQUIL_MIN_FIT_POINTS,
+                          SD15b, SD16)
 from utils.render_utils import render_figure
 
 import pandas as pd
@@ -465,8 +466,10 @@ def _plot_paired(well_mins, paired_mins, post_year):
     ax.axvline(post_year - 0.5, color="#DAA520", ls="--", lw=2.5, alpha=0.7, label="Scraping (Apr 2015)")
     ax.axvline(INTERVENTION_DATE.year + 0.5, color="#1b5e20", ls="-.", lw=2.5, alpha=0.8, label="Clearfell (Dec 2017)")
     ax.axvline(SCRAPING_DATE_2.year + 0.5, color="#e7298a", ls="-.", lw=2.5, alpha=0.8, label="Re-scrape (Oct 2023)")
-    ax.axhline(-0.61, color="green", ls=":", lw=1.5, alpha=0.4, label="Wet slack threshold (\u22120.61 m)")
-    ax.axhline(-0.98, color="brown", ls=":", lw=1.5, alpha=0.4, label="Dry slack threshold (\u22120.98 m)")
+    ax.axhline(-SD15b, color="green", ls=":", lw=1.5, alpha=0.4,
+               label=f"Wet slack threshold (\u2212{SD15b:.2f} m)")
+    ax.axhline(-SD16, color="brown", ls=":", lw=1.5, alpha=0.4,
+               label=f"Dry slack threshold (\u2212{SD16:.2f} m)")
     ax.set_ylabel("Summer minimum depth (m)")
     ax.set_title("(a) Annual summer minimum: CEH36 vs CEH4", loc="left", fontweight="bold")
     ax.legend(fontsize=9, ncol=2)

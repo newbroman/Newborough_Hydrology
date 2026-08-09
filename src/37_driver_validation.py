@@ -72,7 +72,8 @@ Shape (delta_0, L) is fit from this same well network, so the shape test
 above is partly self-confirming (flagged in results.txt). The independent
 test is temporal: the coast-only regression re-run on EXPANDING windows
 (2005-2010, ->2013, ->2016, ->2019, ->2022, ->2025). For each, implied
-delta_0 = s_coast * delta_0_assumed. Flat at ~29 mm/yr supports chronic
+delta_0 = s_coast * delta_0_assumed. A flat trajectory at the fitted δ₀
+supports chronic
 linear accumulation; a rising/falling trajectory would not.
 
 Reused unchanged from v2.1.0 / Script 20 v1.32.0
@@ -1010,7 +1011,7 @@ def plot_delta0_trajectory(traj: pd.DataFrame, delta0: float, dpi: int = 150) ->
         ax.set_xlabel("Window end year (2005 → end year)", fontsize=10)
         ax.set_ylabel("Implied δ₀ = s_coast × δ₀_assumed (mm/yr)", fontsize=10)
         ax.set_title("Independent test: implied δ₀(t) on expanding windows\n"
-                    "Flat ≈ 29 mm/yr supports chronic-linear coastal drying; "
+                    "A flat trajectory supports chronic-linear coastal drying; "
                     "shape (δ₀, L) itself is fit from this well network (partly self-confirming)",
                     fontsize=9.5, pad=8)
         fig.tight_layout()

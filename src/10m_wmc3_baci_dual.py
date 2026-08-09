@@ -12,7 +12,8 @@ the record: April 2015 scraping (CEH36 slack, 262 m south of WMC3), December 201
 Corsican-pine clearfell (~8 ha), and October 2023 re-scraping (CEH18/CEH21).
 
 The figure exists because the 10a ANCOVA reports the clearfell as a climate-
-corrected +120 mm step (the headline), whereas the raw, uncorrected before/after
+corrected step (the headline, in this script's committed output), whereas the
+raw, uncorrected before/after
 evidence is easier to read as a difference-in-differences (DiD) on the WMC3 minus
 forest-control gap.  Both are legitimate; this figure shows the raw evidence and
 labels the ANCOVA headline on the plot so the two never come adrift.

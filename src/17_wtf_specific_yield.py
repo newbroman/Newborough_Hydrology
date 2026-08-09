@@ -74,7 +74,8 @@ MIN_NET_RECH    = 0.010                 # minimum net recharge for event method 
 
 # Canopy interception fraction — Freeman (2008), site-specific to Newborough
 # Corsican pine. Imported from config.py (authoritative per F.4 of the Methods
-# Supplement). Applied to all clusters in FOREST_CIDS: R_eff = (1 − 0.24)·P − PET.
+# Supplement). Applied to all clusters in FOREST_CIDS:
+#   R_eff = (1 − FOREST_INTERCEPTION)·P − PET   (config.py)
 # PET is not reduced — Thornthwaite PET is an energy-based atmospheric demand
 # independent of land cover, so reducing only P avoids double-counting.
 # See chapter S.12 §"Forest interception correction" for full derivation.
@@ -630,7 +631,7 @@ def plot_event_boxplot(b_results, out_path):
         "Approach B — WTF Specific Yield: Event-Based Estimates\n"
         "Distribution of monthly Sy estimates from rising-limb events "
         "(Δh > 5 mm, net R > 10 mm)\n"
-        "Forest corrected: R = (1−0.24)P − PET (Freeman, 2008); "
+        f"Forest corrected: R = (1−{FOREST_INTERCEPTION:g})P − PET (Freeman, 2008); "
         "hatched boxes = interception-corrected",
         fontsize=10, fontweight="bold",
     )
@@ -719,7 +720,8 @@ def write_summary(a_results, b_results, c_results, out_path):
         rkey = _result_key(cid, corrected)
         b = b_results[rkey]
         label = _entry_label(cid, corrected)
-        suffix = "   [Freeman 2008; R_eff = (1 − 0.24)·P − PET]" if corrected else ""
+        suffix = (f"   [Freeman 2008; R_eff = (1 − {FOREST_INTERCEPTION:g})·P − PET]"
+                  if corrected else "")
         lines.append(
             f"  {label:<32}  Sy = {b['sy_median']:.3f}  "
             f"IQR [{b['q25']:.3f}, {b['q75']:.3f}]  n = {b['n']}{suffix}"
@@ -793,7 +795,7 @@ def write_summary(a_results, b_results, c_results, out_path):
         "  clusters (small n) and reported there with n and CI shown.",
         "- Forested clusters (C4 Main Forest, C5 Coastal Forest) are reported as",
         "  both uncorrected and interception-corrected (Freeman 2008) variants.",
-        "  The corrected variant applies R_effective = (1 − 0.24)·P − PET. PET",
+        f"  The corrected variant applies R_effective = (1 − {FOREST_INTERCEPTION:g})·P − PET. PET",
         "  is not reduced because Thornthwaite PET is an energy-based atmospheric",
         "  demand (independent of land cover), so reducing only P is physically",
         "  motivated and not double-counting.",

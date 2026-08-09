@@ -104,6 +104,7 @@ from utils.config import (
     FOREST_CIDS,
     get_cluster_colour,
     RESIDUAL_CLIM_BOOT_SEED,
+    RIDGE_REF_E, RIDGE_REF_N,
 )
 from utils.render_utils import render_figure
 
@@ -123,8 +124,8 @@ OUT_SUMMARY             = OUT_24B_SUMMARY
 # straight-line "distance to ridge" covariate. Defined locally so the
 # diagnostic is self-contained; values mirror Script 24 (and the
 # config.RIDGE_REFERENCE_E/N constant where that has been centralised).
-RIDGE_REFERENCE_E = 241750.0
-RIDGE_REFERENCE_N = 364500.0
+RIDGE_REFERENCE_E = RIDGE_REF_E   # config.py — shared ridge reference point
+RIDGE_REFERENCE_N = RIDGE_REF_N
 
 WINTER_MONTHS = (12, 1, 2)    # DJF
 SUMMER_MONTHS = (6, 7, 8)     # JJA

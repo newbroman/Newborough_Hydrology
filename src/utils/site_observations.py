@@ -60,38 +60,11 @@ Adding a new observation
 """
 
 __version__ = "1.3.0"  # Hollingham (2026) — 2026-05-22
-# 1.3.0 — Registered three new observations produced by Script 10l
-#         (four-zone summer-minima clearfell BACI):
-#         four_zone_summer_step_impact
-#         four_zone_summer_step_edge
-#         four_zone_summer_step_c3warren
-#         These are the three zone-vs-Forest differential felling steps
-#         on the annual Jun-Sep minimum (Phase 2 of the four-zone
-#         redesign).  Defaults are 0.0 placeholders; the live pipeline
-#         overwrites them.
-# 1.2.0 — Registered three new observations produced by Script 10k
-#         (four-zone pooled-panel clearfell BACI):
-#         four_zone_clearfell_step_impact
-#         four_zone_clearfell_step_edge
-#         four_zone_clearfell_step_c3warren
-#         These are the three zone-vs-Forest differential felling steps
-#         from the single joint fit.  Defaults are the indicative
-#         ad-hoc values from the design session (Impact +33 mm,
-#         Edge -31 mm, C3/Warren 0); the live pipeline overwrites them.
-# 1.1.0 — Registered four new observations produced by Script 10j
-#         (direct Impact-vs-Edge BACI contrasts at monthly and
-#         annual-summer-minimum resolution):
-#         impact_vs_edge_clearfell_monthly_step (+ _se)
-#         impact_vs_edge_clearfell_summer_step  (+ _se)
-# 1.0.1 — update_site_observation() now auto-bootstraps the registry if
-#         the CSV doesn't exist (by calling write_initial_site_observations
-#         internally) rather than raising FileNotFoundError.  Producer
-#         scripts (09a, 16) are now robust to being run before Script 01
-#         in a partial pipeline pass.  Consumers (load_site_observation)
-#         still fail hard on missing registry, which is correct — they
-#         can't proceed without a value.  Fixes the Script 16 crash
-#         seen on a partial pipeline run that skipped Script 01.
-# 1.0.0 — Initial.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import pandas as pd
 from datetime import date

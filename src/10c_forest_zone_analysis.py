@@ -32,7 +32,7 @@ Data sources:
       not in the coefficient dataset)
 
 Ridge reference point (shared with Scripts 23, 24):
-    E = 241750, N = 364500 (OSGB36)
+    config.RIDGE_REF_E / config.RIDGE_REF_N (OSGB36)
 
 Outputs:
     INT_10C_CORRELATION_TABLE  — Pearson correlations and regression R² values
@@ -62,7 +62,7 @@ from utils.paths import (
 from utils.map_utils import load_dem_hillshade, add_kml_features
 from utils.config import (
     CLUSTER_COLOURS, CLUSTER_LABELS, CLUSTER_MARKERS,
-    FOREST_CIDS,
+    FOREST_CIDS, RIDGE_REF_E, RIDGE_REF_N,
 )
 
 from utils.console_utils import (
@@ -73,8 +73,8 @@ from utils.render_utils import render_figure
 
 # ── Constants ────────────────────────────────────────────────────────────────
 # Ridge crest reference point (OSGB36) — shared with Scripts 23, 24
-RIDGE_E = 241750
-RIDGE_N = 364500
+RIDGE_E = RIDGE_REF_E   # config.py — shared ridge reference point
+RIDGE_N = RIDGE_REF_N
 
 # Wells known to be clearfell treatment sites
 CLEARFELL_NAMES = {"fe1", "fe2", "fe3", "fe4", "wmc3", "lis1"}

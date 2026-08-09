@@ -86,6 +86,7 @@ from utils.paths import (
     OUT_10I_HINDCAST,
 )
 from utils.data_utils import PROV_MEASURED, PROV_MISSING
+from utils.config import CEH36_E as _CEH36_E, CEH36_N as _CEH36_N
 
 # ============================================================================
 # WELL TIER DEFINITIONS
@@ -265,8 +266,8 @@ LONG_RECORD_NETWORK_WELLS = [
 # ============================================================================
 
 # CEH36 scraping site
-CEH36_EASTING  = 241161.0
-CEH36_NORTHING = 363306.0
+CEH36_EASTING  = _CEH36_E   # config.py — documented 2015 dune-scrape site
+CEH36_NORTHING = _CEH36_N
 
 # Felling compartment centroid (mean of FE1-4 + WMC3)
 FELL_CENTROID_EASTING  = 241210.0

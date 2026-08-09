@@ -18,7 +18,7 @@ to be removed at production", after which this document is the only mapping.
 | 4 | `17_wtf_specific_yield/17_wtf_01_sy_estimates.csv` | 17 | Specific yield by cluster, WTF method — **event-median (Approach B)**; per-well data in `17_wtf_well_sy.csv` |
 | 5 | `08_model_benchmarking/08_lcsc_04_table3_benchmark_summary.csv` | 08 | SSM (B) vs traditional linear model (A) benchmarking |
 | 6 | `07_spatial_coefficients/07_coeff_05_cluster_ranges.csv` | 07 | Per-well SSM coefficient ranges by cluster |
-| 7 | `18_wtf_spatial/18_wtf_05_drainage_timescale.csv` | 18 | Drainage decay half-life t½ = ln(2)/β₃ (months) by cluster — **see traceability note below** |
+| 7 | `18_wtf_spatial/18_wtf_05_storage_drainage_index.csv` | 18 | Drainage decay half-life t½ = ln(2)/β₃ (months) by cluster — **see traceability note below** |
 | 8 | `10c_forest_zone_correlations.csv` | 10c | Within-forest spatial predictors of per-well coefficients (n = 14) — Pearson r (p) |
 | 9 | `25_coastal_gradient/25_03_cluster_partition.csv` | 25 | Decomposition of cluster summer-minimum decline into coastal-retreat + climate (mm/yr) |
 
@@ -41,8 +41,9 @@ to be removed at production", after which this document is the only mapping.
   storage-weighted composite that Paper 1 deliberately does *not* report in Table 7
   (see §4.7, which explains why the half-life is used instead). Both columns are
   retained; only `half_life_months` corresponds to the published table.
-  The `drainage_timescale` filename stem is historical and is retained deliberately —
-  do not rename it.
+  The file was renamed from 18_wtf_05_drainage_timescale.csv to 
+  18_wtf_05_storage_drainage_index.csv when τ was retired as a "drainage timescale"; earlier 
+  revisions of this document cite the old stem.
 
 - **Table 8** source `10c_forest_zone_correlations.csv` (Script 10c) is written to the
   `outputs/` root rather than a per-script subdirectory. The `INT_`-prefixed path

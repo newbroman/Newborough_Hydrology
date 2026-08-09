@@ -138,9 +138,13 @@ Newborough_Hydrology/
 
 ## Pipeline Phases
 
-The pipeline comprises **49 steps across 17 phases: 46 analytical steps across
-17 analytical phases, plus 4 display/utility; the remainder (Scripts 24b, 31,
-31b) opt-in supplementary diagnostics (see pipeline_manifest.json)**. Validation
+The pipeline comprises **49 registered steps across 17 phases**. Those 49 steps
+are classified two independent ways: by tier — 39 analytical, 4 display/utility
+(Scripts 26c, 09f, 09g and 27) and 6 diagnostic; and by execution — 46 run in a
+default pass, 3 (Scripts 24b, 31 and 31b) only under `--with-supplementary`.
+The two breakdowns each account for the same 49 steps and are not additive with
+one another. Current values are written to `outputs/pipeline_manifest.json` on
+every run — cite that file if it disagrees with this text. Validation
 checkpoints run after Phases 1, 3, 9, and 10.
 
 **Reference network:** 66 wells (from a raw pool of ~80).

@@ -15,7 +15,7 @@ over "all clusters" should iterate over CLUSTER_LABELS.keys().
 # sets its __version__ from this value, and build_manifest() stamps it into
 # outputs/pipeline_manifest.json, so the manifest, the Methods Supplement / SI,
 # and the Zenodo release all pin to one string. Bump on any release.
-PIPELINE_VERSION = "2.2.0"
+PIPELINE_VERSION = "2.3.0"
 
 # ── Journal B&W mode ─────────────────────────────────────────────────────────
 # Toggle to produce journal-ready greyscale figures.

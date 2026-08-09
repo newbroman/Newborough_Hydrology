@@ -2,7 +2,7 @@
 
 ## <span id="anchor-1"></span>Data Sources and Preparation
 
-All analyses were implemented as a numbered Python pipeline orchestrated by run\_analysis.py. The pipeline comprises 46 analytical steps across 17 phases, together with four display/utility steps (Script 26c, MSL5 report-format figures; Script 09f, the management-effects synthesis figure; Script 09g, the mechanism-diagram figure suite; and Script 27, the greyscale figure-conversion utility) that are excluded from the analytical count, and a small set of opt-in supplementary diagnostics retained behind the --with-supplementary switch.
+All analyses were implemented as a numbered Python pipeline orchestrated by run\_analysis.py. The pipeline comprises 49 registered steps across 17 phases. Those steps are classified two independent ways. By tier: 39 analytical, four display/utility (Script 26c, MSL5 report-format figures; Script 09f, the management-effects synthesis figure; Script 09g, the mechanism-diagram figure suite; and Script 27, the greyscale figure-conversion utility), and six diagnostic. By execution: 46 run in a default pass, and three (Scripts 24b, 31 and 31b) only behind the --with-supplementary switch. The two classifications each account for the same 49 steps and are not additive with one another; current values are written to outputs/pipeline\_manifest.json on every run.
 
 -   **Phases 1–11** produce the analytical chain presented in this report — clustering, state-space modelling, intervention analysis, forecasting, water balance, scenario evaluation and the network-scale coastal-retreat gradient regression.
 -   **Phase 12** contains supplementary residual diagnostics (Scripts 22–24).

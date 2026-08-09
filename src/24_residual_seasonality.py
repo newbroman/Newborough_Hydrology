@@ -48,7 +48,7 @@ Note on the sunshine-hours diagnostic:
     high-insolation months carry extra ET losses that Thornthwaite (temperature-
     only) has not captured and b2 has therefore not fitted.
 
-Ridge reference point (inherited from Script 23): E = 241750, N = 364500 (OSGB36)
+Ridge reference point (shared with Script 23): config.RIDGE_REF_E / RIDGE_REF_N (OSGB36)
 C3 split threshold: 1000 m from ridge (forest-adjacent vs warren-interior)
 ====================================================================================
 """
@@ -81,7 +81,8 @@ from utils.paths import (
 )
 from utils.data_utils import normalize_well_name
 from utils.map_utils import add_kml_features, load_dem_layer, add_en_axes
-from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, BW_MODE
+from utils.config import (CLUSTER_LABELS, CLUSTER_COLOURS, BW_MODE,
+                          RIDGE_REF_E, RIDGE_REF_N, RIDGE_MAX_DISTANCE_M)
 from utils.model_utils import fit_ssm_intercept
 
 from utils.console_utils import (
@@ -96,9 +97,9 @@ from utils.render_utils import render_figure
 # ==========================================
 MIN_MONTHS = 140
 EXCLUDED_WELLS_NORM = {'ceh7', 'ceh8', 'ceh37', 'ceh3', 'ceh4'}
-RIDGE_E = 241750.0
-RIDGE_N = 364500.0
-MAX_RIDGE_DISTANCE_M = 3000.0
+RIDGE_E = RIDGE_REF_E   # config.py — shared ridge reference point
+RIDGE_N = RIDGE_REF_N
+MAX_RIDGE_DISTANCE_M = RIDGE_MAX_DISTANCE_M   # config.py
 C3_SPLIT_DISTANCE_M = 1000.0  # legacy: under the new partition the forest-adjacent
                               # subset of the old C3 has been split out as C5
                               # (Coastal Forest); this constant retains a within-

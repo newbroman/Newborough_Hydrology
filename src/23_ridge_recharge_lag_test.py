@@ -104,7 +104,7 @@ Outputs:
     OUT_23_BETAS_BY_CLUSTER    — b10 vs b11 by cluster (diagnostic check)
     OUT_23_TEST_SUMMARY        — plain-text summary of the hypothesis test result
 
-Ridge reference point: E = 241750, N = 364500 (OSGB36)
+Ridge reference point: config.RIDGE_REF_E / config.RIDGE_REF_N (OSGB36)
 ====================================================================================
 """
 
@@ -134,7 +134,8 @@ from utils.paths import (
 )
 from utils.data_utils import normalize_well_name
 from utils.map_utils import add_kml_features, add_en_axes
-from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, DRAINAGE_DATUM
+from utils.config import (CLUSTER_LABELS, CLUSTER_COLOURS, DRAINAGE_DATUM,
+                          RIDGE_REF_E, RIDGE_REF_N, RIDGE_MAX_DISTANCE_M)
 
 from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
@@ -153,13 +154,13 @@ MAX_LAG    = 12
 EXCLUDED_WELLS_NORM = {'ceh7', 'ceh8', 'ceh37', 'ceh3', 'ceh4'}
 
 # Ridge reference point (OSGB36)
-RIDGE_E = 241750.0
-RIDGE_N = 364500.0
+RIDGE_E = RIDGE_REF_E   # config.py — shared ridge reference point
+RIDGE_N = RIDGE_REF_N
 
 # Site extent filter to drop garbage coordinates (e.g. a 'pdfs' record at
 # 300+ km from the site). Anything outside ~3 km of the ridge reference is
 # not a real Newborough well.
-MAX_RIDGE_DISTANCE_M = 3000.0
+MAX_RIDGE_DISTANCE_M = RIDGE_MAX_DISTANCE_M   # config.py
 
 # CLUSTER_LABELS and CLUSTER_COLOURS imported from utils.config (k=5 partition).
 

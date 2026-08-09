@@ -121,7 +121,8 @@ from utils.config import (CLUSTER_COLOURS, CLUSTER_LABELS, DRAINAGE_DATUM, FORES
                           BL_CANOPY_FRACTION_2025, COAST_CHRONIC_YEARS,
                           COAST_RETREAT_M, COAST_RETREAT_RATE,
                           SCRAPE_RISE_BUFFER_M,
-                          SLR_WINDOW_YEARS, SLR_RISE_M, SLR_SHORE_LEVEL_M)
+                          SLR_WINDOW_YEARS, SLR_RISE_M, SLR_SHORE_LEVEL_M,
+                          CEH36_E, CEH36_N)
 from utils.data_utils import normalize_well_name
 from utils.report_numbers_utils import ReportNumbers
 from utils.render_utils import render_figure
@@ -215,7 +216,7 @@ COAST_EAST_CUT_E      = 242300   # m, keep SW shore west of this
 #   SCRAPE_CENTRE_E/N      centre of the excavation (m, OSGB36). Default = CEH22
 #                          (241375, 362907), the southern coastal margin well
 #                          used as the worked example. Move to relocate (e.g.
-#                          CEH36 241161, 363306 for the documented 2015 site).
+#                          config.CEH36_E / CEH36_N for the documented 2015 site).
 #   SCRAPE_LONG_M          long-axis length (m), pointing into the warren.
 #   SCRAPE_SHORT_M         short-axis length (m).
 #   SCRAPE_BEARING_DEG     bearing of the long axis (° from N, clockwise).
@@ -233,8 +234,8 @@ COAST_EAST_CUT_E      = 242300   # m, keep SW shore west of this
 #                          correct sense for a coastal sink drawing from the
 #                          warren — i.e. the OPPOSITE of the forest figure's
 #                          downhill/seaward weighting. Set False for isotropic.
-SCRAPE_CENTRE_E          = 241161.0   # m OSGB36 (CEH36 — documented 2015 scrape)
-SCRAPE_CENTRE_N          = 363306.0   # m OSGB36 (CEH36)
+SCRAPE_CENTRE_E          = CEH36_E    # config.py (CEH36 — documented 2015 scrape);
+SCRAPE_CENTRE_N          = CEH36_N    #   override here to relocate the scenario
 SCRAPE_LONG_M            = 60.0       # m, long axis into the warren
 SCRAPE_SHORT_M           = 30.0       # m, short axis
 SCRAPE_BEARING_DEG       = 45.0       # ° from N (NE long axis)

@@ -47,7 +47,7 @@ from utils.paths import (
     OUT_09B_TRAJECTORY, OUT_09B_SCENARIO, OUT_09B_SCENARIO_CSV,
     OUT_09B_SUMMER_SCENARIO, OUT_09B_SUMMER_SCENARIO_CSV, OUT_17_SY_TABLE,
 )
-from utils.config import FOREST_INTERCEPTION, BW_MODE
+from utils.config import FOREST_INTERCEPTION, BW_MODE, CEH36_E, CEH36_N
 from utils.model_utils import fit_ssm
 from utils.data_utils import normalize_well_name
 
@@ -73,8 +73,8 @@ SCRAPE_DATE  = pd.Timestamp("2015-04-01")
 FELL_DATE    = pd.Timestamp("2017-12-01")
 SCRAPE2_DATE = pd.Timestamp("2023-10-01")
 
-E_CEH36 = 241161.0
-N_CEH36 = 363306.0
+E_CEH36 = CEH36_E   # config.py — documented 2015 dune-scrape site
+N_CEH36 = CEH36_N
 
 MIN_OBS_SPLIT = 12
 

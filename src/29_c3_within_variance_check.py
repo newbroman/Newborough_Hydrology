@@ -68,6 +68,7 @@ from utils.console_utils import (
 from utils import paths  # noqa: E402
 from utils.report_numbers_utils import ReportNumbers  # noqa: E402
 from utils.render_utils import render_figure
+from utils.config import CEH36_E as _CEH36_E, CEH36_N as _CEH36_N
 
 paths.make_all_dirs()
 
@@ -88,7 +89,7 @@ OUT_FIG          = paths.OUT_29_PANEL_FIG
 OUT_REPORT       = paths.OUT_29_REPORT_NUMBERS
 
 # ── Constants ──────────────────────────────────────────────────────────────
-CEH36_E, CEH36_N = 241161.0, 363306.0   # documented 2015 dune-scrape site
+CEH36_E, CEH36_N = _CEH36_E, _CEH36_N   # config.py — documented 2015 dune-scrape site
 SUMMER_MONTHS = [6, 7, 8, 9]
 WINTER_MONTHS = [12, 1, 2]
 

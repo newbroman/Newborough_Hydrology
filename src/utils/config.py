@@ -212,6 +212,27 @@ COAST_CHRONIC_YEARS = 5.0
 # the near-term chronic curve drawn on the reach panel, the 20-yr basis is the
 # site-footing horizon the mechanism grid uses. Kept here as the single source
 # so the reach column and the mechanism figures cannot drift apart.
+# ── Site reference points (OSGB36 / EPSG:27700) ──────────────────────────────
+# Fixed physical locations on the site, shared by several scripts. Each was
+# previously duplicated as a module-local literal in three to five places; they
+# are consolidated here so a correction cannot land in some consumers and not
+# others. Values are unchanged from those duplicates, which all agreed.
+#
+# Ridge reference point — the northern bedrock-ridge datum against which
+# ridge-distance and recharge-lag analyses are measured (Scripts 10c, 23, 24,
+# 24b).
+RIDGE_REF_E = 241750.0
+RIDGE_REF_N = 364500.0
+
+# Maximum well-to-ridge separation admitted to ridge-distance analyses (m).
+RIDGE_MAX_DISTANCE_M = 3000.0
+
+# CEH36 — the documented April 2015 dune-scrape site, used as a distance origin
+# for scraping-propagation analyses and as the default scrape centre on the
+# Script 20 scenario map (Scripts 09b, 20, 29, clearfell_common).
+CEH36_E = 241161.0
+CEH36_N = 363306.0
+
 MECHANISM_HORIZON_YEARS = 20.0
 
 # ── Sea-level-rise transient (Script 20 SLR head-response figure) ────────────

@@ -117,8 +117,8 @@ Version: 1.5.0 (2026-08-05) — Supplementary Table S7.1 emitter (Pass 9):
     rather than restating it. 26_report_numbers.csv is consequently assembled
     across Passes 6 and 8 and written once, after Pass 8, so the calibration
     lands even if the Pass 8 diagnostics are skipped.
-  * Still Passes inside Script 26 — no new pipeline step, and the 41-step
-    analytical headline is unchanged.
+  * Still Passes inside Script 26 — no new pipeline step, so no manifest
+    count moves.
 
 Version: 1.4.0 (2026-08-02) — Metric diagnostics (Pass 8) and EWI uncertainty:
   * compute_equilibrium_wetness_index() now propagates SSM coefficient

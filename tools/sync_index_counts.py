@@ -27,16 +27,26 @@ How it works:
 
     Recognised keys:
 
-        PL:total        total_registered           registered orchestrator steps
-        PL:analytical   analytical_headline        sub-runner-EXPANDED count
-        PL:phases       analytical_phases
-        PL:display      by_tier.display_utility
+        PL:total        total_registered              registered orchestrator steps
+        PL:phases       total_phases                  phases in the orchestrator
+        PL:analytical   by_tier.analytical_toplevel   tier-A steps
+        PL:display      by_tier.display_utility       tier-D steps
+        PL:diagnostic   by_tier.optin_diagnostic      tier-X steps
+        PL:default      by_exec.default               steps a default pass runs
+        PL:optin        by_exec.optin                 --with-supplementary only
 
-    NOTE on total vs analytical. These are on different bases and are NOT
-    additive: total counts run_09/run_10 as one entry each, while analytical
-    expands them into their constituent modules. "46 analytical + 4
-    display/utility" against a total of 49 is therefore not an arithmetic
-    error. See run_analysis.py lines 427-441.
+    NOTE on the two axes. The tier keys (analytical / display / diagnostic)
+    and the exec keys (default / optin) are two INDEPENDENT partitions of the
+    same total_registered steps. Each axis sums to the total on its own;
+    the two must never be added to one another. Prose of the form "N steps,
+    of which A are analytical and D display/utility" mixes the axes and will
+    not sum — that sentence stood on this page until 2026-08-09.
+
+    v1.1.0 of this script mapped PL:analytical to the manifest's
+    "analytical_headline" and PL:phases to "analytical_phases". The former was
+    a hand-maintained constant reconciling with nothing and was deleted in
+    run_analysis.py v2.3.0; the latter is now derived and equals 15, not the
+    total 17 this page means. Both keys were remapped accordingly.
 
 What it does NOT do:
     Only the numbers are managed. If a phase were renamed or the tier
@@ -65,7 +75,16 @@ import re
 import sys
 from pathlib import Path
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-08-07
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-08-09
+# 1.2.0 — remapped to the run_analysis.py v2.3.0 manifest schema. PL:analytical
+#         read "analytical_headline", a hand-maintained constant now deleted;
+#         reading it after the schema change would have exited 2. It now reads
+#         by_tier.analytical_toplevel. PL:phases moved from "analytical_phases"
+#         (now derived, = 15) to "total_phases" (= 17), which is what index.html
+#         means by "phases". Added PL:diagnostic, PL:default and PL:optin so both
+#         partitions can be stamped. Deleted the docstring paragraph asserting
+#         that "46 analytical + 4 display/utility" against a total of 49 was not
+#         an arithmetic error — it was; the two figures sat on different axes.
 # 1.1.0 — added audit_unmanaged(). v1.0.0 markered four sites and reported
 #         "already current" while a fifth, "<strong>43</strong>
 #         <span>pipeline steps</span>", sat unmarkered and three counts out of
@@ -83,9 +102,12 @@ DEFAULT_MANIFEST = _ROOT / "outputs" / "pipeline_manifest.json"
 # marker key -> how to pull the value out of the manifest
 _KEYS = {
     "total": lambda m: m["total_registered"],
-    "analytical": lambda m: m["analytical_headline"],
-    "phases": lambda m: m["analytical_phases"],
+    "phases": lambda m: m["total_phases"],
+    "analytical": lambda m: m["by_tier"]["analytical_toplevel"],
     "display": lambda m: m["by_tier"]["display_utility"],
+    "diagnostic": lambda m: m["by_tier"]["optin_diagnostic"],
+    "default": lambda m: m["by_exec"]["default"],
+    "optin": lambda m: m["by_exec"]["optin"],
 }
 
 
@@ -190,6 +212,14 @@ def audit_unmanaged(html: str) -> list[str]:
     return warnings
 
 
+def _summarise(values: dict[str, int]) -> str:
+    """One-line rendering of every stamped value, both axes kept apart."""
+    return (f"{values['total']} steps / {values['phases']} phases; "
+            f"tier {values['analytical']}A+{values['display']}D+"
+            f"{values['diagnostic']}X; "
+            f"exec {values['default']}+{values['optin']} opt-in")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(
         description="Stamp index.html's pipeline counts from pipeline_manifest.json.")
@@ -215,9 +245,8 @@ def main() -> int:
 
     if not changes:
         print(f"  OK index.html counts already current "
-              f"({total_markers} marker sites, "
-              f"{values['total']}/{values['analytical']}/{values['phases']}/"
-              f"{values['display']})")
+              f"({total_markers} marker sites; "
+              f"{_summarise(values)})")
         _report_unmanaged(unmanaged)
         return 0
 

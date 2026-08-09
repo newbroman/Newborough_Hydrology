@@ -284,7 +284,7 @@ The amplitude analysis confirms that the cluster-mean coefficients reported in S
 
 The five clusters are characterized mechanistically in Table 3 using a state-space model fitted to the average hydrograph for each cluster (Section 3.4.1). β₁ is the recharge sensitivity — the water table rise (mm) per mm of rainfall; β₂ is the atmospheric draw — the water table decline (mm) per mm of PET; and −β₃ is the proportional drainage decay rate — the fraction of antecedent displacement above the drainage datum (Section 3.4) dissipated by lateral drainage each month. All five cluster-centroid coefficient sets reported in Table 3 are statistically significant (p &lt; 0.01); within-cluster, individual per-well coefficients vary in significance, most notably the near-zero C4 drainage coefficient and the small C1 atmospheric-draw term, as discussed below and in Section 4.9.
 
-The recharge sensitivity coefficient β₁ is highest in the Lake Edge cluster (C1: 4.58), indicating that each millimetre of rainfall drives a proportionally larger water table rise in the shallow-till aquifer than in the Dune cluster (C2: 3.98) or Western Residual (C3: 3.57). The two forested clusters return near-identical and substantially lower recharge sensitivities (C4: 2.52, C5: 2.41), consistent with canopy interception suppressing the rainfall signal reaching the water table. The atmospheric draw coefficient β₂ is highest at C4 (2.55), followed by C3 (1.85) and C2 (1.77), with C5 (1.32) and C1 (0.96) lowest. The C4 value of β₂ is near-identical to its β₁, meaning that the Main Forest cluster loses as much water table per mm of PET as it gains per mm of rainfall — the plantation suppresses recharge (low β₁) while simultaneously amplifying the atmospheric draw signal relative to unforested clusters, producing a symmetrically sensitive water balance. Because β coefficients fold together vegetation effects, specific yield and soil moisture dynamics, they cannot be decomposed into crop coefficients without independent Sy estimates; this decomposition is developed in Section 5.6.1. That C5 (Coastal Forest) has low β₂ despite also carrying Corsican pine canopy suggests that coastal proximity moderates the atmospheric draw signal, possibly through higher ambient humidity or higher specific yield in the sandier coastal substrate. C1's low β₂ (0.96, the lowest in the network) reflects its shallow water table and rapid lateral drainage to the lake — the head-dependent drainage term captures the dominant loss mechanism, with the depth-dependent PET diagnostic (Section 3.7.1) confirming that C1 has the strongest residual depth-coupling (λ = 1.90 m⁻¹). The drainage decay coefficient −β₃ is highest at C1 (0.090) where rapid lateral exchange with Llyn Rhos-Ddu drives fast recession, similar at C2 (0.066) and C3 (0.058), lower at C5 (0.045), and lowest at C4 (0.020). The C4 value is weakly identified, however — the forest-interior drainage coefficient is degeneracy-affected (Section 5.2.4), and a triangulation-constrained estimate places it nearer 0.058 month⁻¹. The LCSC (= 100/β₁) expresses these contrasts as a directly interpretable management metric: 22–25 mm of rainfall is required to raise Lake Edge and Dune water tables by 10 cm, compared with 28 mm in the Western Residual and 40–41 mm beneath the plantation.
+The recharge sensitivity coefficient β₁ is highest in the Lake Edge cluster (C1: 4.58), indicating that each millimetre of rainfall drives a proportionally larger water table rise in the shallow-till aquifer than in the Dune cluster (C2: 3.98) or Western Residual (C3: 3.57). The two forested clusters return near-identical and substantially lower recharge sensitivities (C4: 2.49, C5: 2.42), consistent with canopy interception suppressing the rainfall signal reaching the water table. The atmospheric draw coefficient β₂ is highest at C4 (2.58), followed by C3 (1.83) and C2 (1.76), with C5 (1.31) and C1 (0.96) lowest. The C4 value of β₂ slightly exceeds its β₁ (2.58 against 2.49), meaning that the Main Forest cluster loses as much water table per mm of PET as it gains per mm of rainfall — the plantation suppresses recharge (low β₁) while simultaneously amplifying the atmospheric draw signal relative to unforested clusters, producing a symmetrically sensitive water balance. Because β coefficients fold together vegetation effects, specific yield and soil moisture dynamics, they cannot be decomposed into crop coefficients without independent Sy estimates; this decomposition is developed in Section 5.6.1. That C5 (Coastal Forest) has low β₂ despite also carrying Corsican pine canopy suggests that coastal proximity moderates the atmospheric draw signal, possibly through higher ambient humidity or higher specific yield in the sandier coastal substrate. C1's low β₂ (0.96, the lowest in the network) reflects its shallow water table and rapid lateral drainage to the lake — the head-dependent drainage term captures the dominant loss mechanism, with the depth-dependent PET diagnostic (Section 3.7.1) confirming that C1 has the strongest residual depth-coupling (λ = 1.90 m⁻¹). The drainage decay coefficient −β₃ is highest at C1 (0.090) where rapid lateral exchange with Llyn Rhos-Ddu drives fast recession, similar at C2 (0.066) and C3 (0.058), lower at C5 (0.045), and lowest at C4 (0.020). The C4 value is weakly identified, however — the forest-interior drainage coefficient is degeneracy-affected (Section 5.2.4), and a triangulation-constrained estimate places it nearer 0.058 month⁻¹. The LCSC (= 100/β₁) expresses these contrasts as a directly interpretable management metric: 22–25 mm of rainfall is required to raise Lake Edge and Dune water tables by 10 cm, compared with 28 mm in the Western Residual and 40–41 mm beneath the plantation.
 
 The C1 cluster-mean coefficients in Table 3 include CEH11, which is geographically separated from the other six C1 members (Section 3.2.3). CEH11 sits at 3.6 m AOD on the south-eastern coast, approximately 1.6 km from the nearest lake-edge well, and its damped hydrograph likely reflects proximity to the Menai Strait tidal boundary rather than to Llyn Rhos-Ddu. Its β₂ value of 0.77 is consistent with the C1 cluster mean (0.96) but may reflect a coastal constant-head mechanism rather than the lake-buffering process that governs the remaining members. CEH11's inclusion extends the C1 elevation range from 8.6–10.9 m down to 3.6 m; if excluded, the six remaining wells (five excluding CEH6, whose negative β₂ is discussed below) occupy a tight 9.1–10.9 m elevation band. The cluster-mean coefficients are not materially affected by CEH11's inclusion — its β₁ (4.46) and β₃ (0.092) are close to the C1 mean — but per-well spatial analyses within C1 should be interpreted with awareness that CEH11 responds to a different boundary condition.
 
@@ -306,51 +306,51 @@ An extended form of the state-space model incorporating a depth-dependent evapot
 <td>C1</td>
 <td>Lake Edge</td>
 <td>7</td>
-<td>4.578</td>
-<td>0.962</td>
-<td>0.090</td>
-<td>21.84</td>
+<td>4.576</td>
+<td>0.956</td>
+<td>0.088</td>
+<td>21.85</td>
 <td>0.73</td>
 </tr>
 <tr class="odd">
 <td>C2</td>
 <td>Dune</td>
 <td>24</td>
-<td>3.978</td>
-<td>1.765</td>
-<td>0.066</td>
-<td>25.14</td>
+<td>3.974</td>
+<td>1.762</td>
+<td>0.064</td>
+<td>25.17</td>
 <td>0.75</td>
 </tr>
 <tr class="even">
 <td>C3</td>
 <td>Western Residual</td>
 <td>21</td>
-<td>3.572</td>
-<td>1.849</td>
-<td>0.058</td>
-<td>28.00</td>
+<td>3.573</td>
+<td>1.833</td>
+<td>0.057</td>
+<td>27.98</td>
 <td>0.81</td>
 </tr>
 <tr class="odd">
 <td>C4</td>
 <td>Main Forest</td>
 <td>9</td>
-<td>2.518</td>
-<td>2.548</td>
-<td>0.020</td>
-<td>39.71</td>
-<td>0.68</td>
+<td>2.487</td>
+<td>2.583</td>
+<td>0.018</td>
+<td>40.20</td>
+<td>0.73</td>
 </tr>
 <tr class="even">
 <td>C5</td>
 <td>Coastal Forest</td>
 <td>5</td>
-<td>2.412</td>
-<td>1.324</td>
-<td>0.045</td>
-<td>41.46</td>
-<td>0.68</td>
+<td>2.423</td>
+<td>1.307</td>
+<td>0.044</td>
+<td>41.27</td>
+<td>0.69</td>
 </tr>
 </tbody>
 </table>
@@ -378,51 +378,51 @@ Recharge into the water table (β₁·Pl) declines systematically from the Lake 
 <tr class="even">
 <td>C1</td>
 <td>Lake Edge</td>
-<td>21.8</td>
-<td>0.341</td>
+<td>21.9</td>
+<td>0.340</td>
 <td>0.053</td>
-<td>0.291</td>
-<td>0.344</td>
+<td>0.292</td>
+<td>0.345</td>
 <td>−0.004</td>
 </tr>
 <tr class="odd">
 <td>C2</td>
 <td>Dune</td>
-<td>25.1</td>
+<td>25.2</td>
 <td>0.296</td>
 <td>0.096</td>
 <td>0.203</td>
 <td>0.299</td>
-<td>−0.004</td>
+<td>−0.003</td>
 </tr>
 <tr class="even">
 <td>C3</td>
 <td>Western Residual</td>
 <td>28.0</td>
 <td>0.265</td>
-<td>0.101</td>
-<td>0.164</td>
-<td>0.265</td>
+<td>0.100</td>
+<td>0.166</td>
+<td>0.266</td>
 <td>−0.000</td>
 </tr>
 <tr class="odd">
 <td>C4</td>
 <td>Main Forest</td>
-<td>39.7</td>
-<td>0.187</td>
-<td>0.140</td>
-<td>0.045</td>
+<td>40.2</td>
+<td>0.185</td>
+<td>0.142</td>
+<td>0.044</td>
 <td>0.186</td>
-<td>+0.002</td>
+<td>−0.001</td>
 </tr>
 <tr class="even">
 <td>C5</td>
 <td>Coastal Forest</td>
-<td>41.5</td>
-<td>0.179</td>
-<td>0.073</td>
-<td>0.111</td>
-<td>0.183</td>
+<td>41.3</td>
+<td>0.180</td>
+<td>0.072</td>
+<td>0.113</td>
+<td>0.184</td>
 <td>−0.004</td>
 </tr>
 </tbody>
@@ -2097,7 +2097,7 @@ No well exceeds +0.02 m/month, and only eight of the sixty-six carry a positive 
 
 The residual field is therefore a diagnostic of model adequacy rather than a map of unmeasured lateral flux. Across all five clusters the three-term SSM closes the long-term water balance without requiring an additional input term, and the corrected field agrees with the independent water balance of Script 16, which computes the same closure on gross rainfall over the study period and agrees to within ±5.8 mm/month at every cluster, the largest discrepancy falling at C4 Main Forest. The independently computed Darcy flow vectors derived from the mean head gradient field indicate a radial flux diverging from the north-western high point — southward and south-westward in the western half of the site, south-eastward in the eastern half (Section 4.9.6); they are retained as directional context for the site's flow geometry and are not evidence bearing on the residual field, which shows no ridge-proximal signal.
 
-<img src="Pictures/100000010000074F000004CEAB26B188.png" style="width:15.803cm;height:10.615cm" />**Figure **: SSM water balance residual across the Newborough Warren dune aquifer, 2005–2026. The residual at each reference well is computed from β coefficients only as (β₂·PET̄ + β₃·h̄\_disp) − β₁·P̄, using gross rainfall, and IDW-interpolated to a 50 m grid, clipped to the site boundary and to 100 m beyond the outermost dipwell. Climate means are taken over the same period as the mean heads (March 2005 to February 2026, n = 252 months). Positive values (red) indicate locations where modelled losses exceed modelled recharge; negative values (blue) the converse. The field closes tightly and shows no coherent spatial structure, with a small systematic negative offset: residuals span −0.0115 to +0.0049 m/month about a median of −0.0045 m/month, with 64 of the 66 reference wells within ±0.01 m/month and 58 negative. No well exceeds +0.02 m/month; the largest positive value is CEH4 (+0.0049 m/month) in C3 Western Residual. The largest negative residual is at the open-dune well D7 (−0.0115 m/month), with CEH14 (−0.0106 m/month) close behind. White arrows show normalized Darcy flow direction vectors derived from the mean head gradient field (independent of the β coefficient residual calculation). Well symbols are coloured by residual value; circles indicate reference wells, diamonds indicate extended wells. Background: LiDAR greyscale hillshade. (LiDAR data: © NRW & OS; see Section 10 for full attribution.) Generated by 20\_spatial\_figures.py (Source: 20\_residual\_ssm.png).
+<img src="Pictures/100000010000074E000004D901E520C9.png" style="width:15.803cm;height:10.615cm" />**Figure **: SSM water balance residual across the Newborough Warren dune aquifer, 2005–2026. The residual at each reference well is computed from β coefficients only as (β₂·PET̄ + β₃·h̄\_disp) − β₁·P̄, using gross rainfall, and IDW-interpolated to a 50 m grid, clipped to the site boundary and to 100 m beyond the outermost dipwell. Climate means are taken over the same period as the mean heads (March 2005 to February 2026, n = 252 months). Positive values (red) indicate locations where modelled losses exceed modelled recharge; negative values (blue) the converse. The field closes tightly and shows no coherent spatial structure, with a small systematic negative offset: residuals span −0.0115 to +0.0049 m/month about a median of −0.0045 m/month, with 64 of the 66 reference wells within ±0.01 m/month and 58 negative. No well exceeds +0.02 m/month; the largest positive value is CEH4 (+0.0049 m/month) in C3 Western Residual. The largest negative residual is at the open-dune well D7 (−0.0115 m/month), with CEH14 (−0.0106 m/month) close behind. White arrows show normalized Darcy flow direction vectors derived from the mean head gradient field (independent of the β coefficient residual calculation). Well symbols are coloured by residual value; circles indicate reference wells, diamonds indicate extended wells. Background: LiDAR greyscale hillshade. (LiDAR data: © NRW & OS; see Section 10 for full attribution.) Generated by 20\_spatial\_figures.py (Source: 20\_residual\_ssm.png).
 
 **
 

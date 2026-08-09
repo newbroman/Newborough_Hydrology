@@ -1,6 +1,7 @@
 {
-  "pipeline_version": "2.2.0",
+  "pipeline_version": "2.3.0",
   "total_registered": 49,
+  "total_phases": 17,
   "by_tier": {
     "analytical_toplevel": 39,
     "display_utility": 4,
@@ -10,11 +11,10 @@
     "default": 46,
     "optin": 3
   },
-  "analytical_headline": 46,
-  "analytical_phases": 17,
+  "analytical_phases": 15,
   "scraping_substeps": 5,
   "clearfell_substeps": 13,
-  "generated": "2026-08-09T01:35:35",
+  "generated": "2026-08-09T02:05:01",
   "steps": [
     {
       "index": 1,

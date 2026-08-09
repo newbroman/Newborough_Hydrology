@@ -30,17 +30,20 @@ or elsewhere in code — cite the manifest.
 Each step carries a tier for reporting purposes:
   "A" analytical   — the numbered analytical core (Scripts 01–26 excluding
                       26c, plus 22–24, 26/26b, the Phase 15 steps 32/33/35/
-                      36/37/37b, and the Phase 16 steps 34/38). The methods
-                      section's ANALYTICAL_STEP_COUNT / ANALYTICAL_PHASES
-                      headline (see below) is a DECLARED constant, not
-                      derived from this tier tally — the sub-runner expansion
-                      (run_09 -> 5 constituent scripts, run_10 -> 13) means
-                      the two don't mechanically agree, and that's
-                      intentional: the headline changes only by deliberate
-                      review, not by every diagnostic add/remove.
+                      36/37/37b, and the Phase 16 steps 34/38).
   "D" display/utility — Scripts 26c, 09f, 09g, 27 only.
-  "X" opt-in diagnostic — every other registered step (Phase 14, and the
-                      Phase 16 remainder 24b/31/31b).
+  "X" diagnostic   — every other registered step (Phase 14, which runs by
+                      default, and the Phase 16 remainder 24b/31/31b, which
+                      does not).
+
+There is no separate "analytical headline" count. Every figure the report,
+Methods Supplement, readme and index.html quote is a field of the manifest,
+computed here from the step table: total_registered, total_phases, the tier
+breakdown, and the exec breakdown. The tier and exec breakdowns are two
+independent partitions of the SAME registered steps and must never be added
+to one another — a sentence of the form "N registered, of which A analytical
+plus D display/utility" mixes the axes and will not sum. See the note above
+_DOCUMENTED_COUNTS.
 
   2026-07-13 reclassification (Task E): Scripts 34, 36, 37, 37b and 38 were
   promoted from "X" opt-in to "A" analytical, and their exec flags moved
@@ -55,10 +58,9 @@ Each step carries a tier for reporting purposes:
 
 Each step also carries an exec flag: "default" (part of a normal --full
 run) or "optin" (runs only with --with-supplementary / the menu option 1
-prompt). Adding a diagnostic changes only the total registered count and
-the manifest — it never touches ANALYTICAL_STEP_COUNT / ANALYTICAL_PHASES,
-which move only on a deliberate, reviewed change (see the analytical-count
-guard in build_manifest()).
+prompt). Adding or removing any step moves the manifest counts on the next
+run and trips the document-drift guard in build_manifest(), which names
+every field that no longer matches what the documents currently state.
 
 Phases 1–11 produce the main analytical results documented in the report.
 Phase 12 runs supplementary diagnostics (Scripts 22–24); Phase 16 runs
@@ -136,8 +138,36 @@ import time
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.2.0"
+__version__ = "2.3.0"
 # CHANGELOG
+#   2.3.0 (2026-08-09): Analytical-step headline RETIRED (Option B, Martin's
+#       ruling). Deleted ANALYTICAL_STEP_COUNT (46), ANALYTICAL_PHASES (17),
+#       _EXPECTED_ANALYTICAL_TOPLEVEL (39) and _check_analytical_guard().
+#       Neither retired constant reconciled with the step table: the 46 was a
+#       hand-carried survivor of the pre-tier (2026-07-06) scheme in which
+#       "46 registered = 43 analytical + 3 display/utility" was additive and
+#       correct, incremented per script thereafter (41->42->43->46) with no
+#       derivation; the sub-runner-expanded analytical count its own comment
+#       claimed is 39-2+5+13 = 55. It also collided with by_exec["default"],
+#       which is 46 on an unrelated basis, so document sentences mixing the
+#       tier and exec axes read plausibly and summed to 50 against a total of
+#       49. ANALYTICAL_PHASES = 17 was likewise wrong (Phase 14 is all tier X,
+#       Phase 17 all tier D, so phases carrying analytical work number 15) and
+#       its own stated derivation summed to 16, and it collided with the total
+#       phase count. Manifest schema: "analytical_headline" REMOVED,
+#       "total_phases" ADDED, "analytical_phases" now DERIVED (15, emitted for
+#       completeness and cited in no document). New _DOCUMENTED_COUNTS table +
+#       _check_documented_counts() replace the single-value guard: every count
+#       is recomputed from ALL_PHASES and compared against what the documents
+#       state, warning per drifted field by name. Nothing hand-typed feeds an
+#       output. Also fixed a stale hardcode in run_greyscale() ("re-run all 34
+#       steps" -> derived) and the tier "X" docstring label, which called
+#       Phase 14 opt-in when it runs by default. Downstream: tools/
+#       sync_index_counts.py v1.2.0 must ship in the same batch (the retired
+#       manifest key was one of its four sources). utils.config.
+#       PIPELINE_VERSION bumped to 2.3.0 to match. No change to step
+#       registration, ordering, tiers, exec flags or any analysis. See
+#       CHANGELOG_delta_2026-08-09_step_count_option_B.md.
 #   2026-07-21 (infra, no release bump): build_manifest() now stamps
 #       "pipeline_version" into pipeline_manifest.json so the manifest, the SI /
 #       Methods Supplement, and the Zenodo release all pin to one string. The
@@ -415,34 +445,45 @@ ALL_PHASES = [
     ("PHASE 17 \u2014 Synthesis Figures and Greyscale Conversion (Scripts 09f, 09g, 27)",  PHASE_17),
 ]
 
-# ── Declared analytical headline (NOT derived — see module docstring) ────────
-# These are the methods section's designation. They are intentionally not
-# computed from the tier tally below (the sub-runner expansion means the two
-# don't mechanically agree) and change only on a deliberate, reviewed edit.
+# ── Document-drift guard (2026-08-09) ────────────────────────────────────────
+# NOTHING here feeds an output. Every count in the manifest is computed from
+# ALL_PHASES in build_manifest(). This table records only what the report,
+# Methods Supplement, readme.md, PIPELINE_README.md and index.html currently
+# STATE, so that changing the step table warns which documents now need
+# re-editing, naming the field that moved.
 #
-# 2026-07-13 Task E reclassification: Scripts 34, 36, 37, 37b and 38
-# promoted from "X" to "A" (operator-signed-off audit; see CHANGELOG_delta_
-# 2026-07-13_taskE_reclassify_analytical.md). Arithmetic:
-#   _EXPECTED_ANALYTICAL_TOPLEVEL: 34 + 5 promoted top-level "A" records = 39
-#   ANALYTICAL_STEP_COUNT:         41 + 5 (each promoted script is a single-
-#                                   substep entry, no sub-runner expansion) = 46
-#   ANALYTICAL_PHASES:             16 -> 17. Phase 15 loses its opt-in tail
-#                                   entirely (36/37/37b promoted) and was
-#                                   already counted in the 16. Phase 16 gains
-#                                   analytical-default steps (34, 38) for the
-#                                   first time, so it now counts as a
-#                                   (partially) analytical phase under the
-#                                   same convention that already let Phase 15
-#                                   count while carrying an opt-in remainder
-#                                   (24b/31/31b stay "X" in Phase 16).
-ANALYTICAL_STEP_COUNT = 46   # methods' analytical-step headline (expanded: run_09/run_10
-                              # counted by their constituent modules, not as one entry each)
-ANALYTICAL_PHASES     = 17   # methods' analytical-phase headline (Phases 1–14, all of
-                              # Phase 15, and the analytical-default half of Phase 16)
-# Expected top-level (unexpanded) tier=="A" Step count — used only by the
-# guard in build_manifest(); trips if a future edit changes the analytical
-# core without a deliberate review of the two constants above.
-_EXPECTED_ANALYTICAL_TOPLEVEL = 39
+# History (why the old constant is gone). Until 2026-08-09 this block declared
+# ANALYTICAL_STEP_COUNT = 46 and ANALYTICAL_PHASES = 17 as hand-maintained
+# "headline" values, guarded only indirectly via _EXPECTED_ANALYTICAL_TOPLEVEL.
+# Neither reconciled with the step table:
+#   * The 46 was inherited from the pre-tier scheme (2026-07-06), where
+#     "46 registered = 43 analytical + 3 display/utility" was additive and
+#     correct. The 2026-07-08 tier scheme redefined the categories underneath
+#     it; the number was carried across by hand and incremented per script
+#     thereafter (41 -> 42 -> 43 -> 46). No expansion rule reproduces it: the
+#     sub-runner-expanded analytical count is 39 - 2 + 5 + 13 = 55.
+#   * It also collided with by_exec["default"], which is genuinely 46 on a
+#     completely different basis — so any sentence mixing the two axes looked
+#     plausible and was wrong ("49 registered, of which 46 analytical plus 4
+#     display/utility" sums to 50).
+#   * ANALYTICAL_PHASES = 17 was worse: Phase 14 is entirely tier X and
+#     Phase 17 entirely tier D, so phases carrying analytical work number 15,
+#     not 17 — and the constant's own stated derivation summed to 16. It too
+#     collided with the total phase count.
+# Per Martin's ruling of 2026-08-09 (Option B) the headline is retired
+# outright. Documents cite manifest fields only; the short-form headline is
+# now the total registered count (49 steps across 17 phases).
+_DOCUMENTED_COUNTS = {
+    "total_registered":            49,
+    "total_phases":                17,
+    "by_tier.analytical_toplevel": 39,
+    "by_tier.display_utility":      4,
+    "by_tier.optin_diagnostic":     6,
+    "by_exec.default":             46,
+    "by_exec.optin":                3,
+    "analytical_phases":           15,   # phases carrying >=1 tier-A step; emitted
+                                         # for completeness, NOT cited in any document
+}
 
 RenderedStep = namedtuple(
     "RenderedStep",
@@ -537,13 +578,19 @@ def build_manifest(write: bool = True) -> dict:
             "index": rs.index, "total": rs.total, "script": rs.script,
             "desc": rs.desc, "tier": rs.tier, "exec": rs.exec,
         })
+    # Phase counts, derived. total_phases is the citable figure; analytical_phases
+    # counts phases carrying at least one tier-"A" step (Phase 14 is all tier X and
+    # Phase 17 all tier D, so it is not the same as total_phases).
+    analytical_phases = sum(
+        1 for _label, _steps in ALL_PHASES if any(s.tier == "A" for s in _steps)
+    )
     manifest = {
         "pipeline_version": __version__,
         "total_registered": len(_ALL_STEPS),
+        "total_phases": len(ALL_PHASES),
         "by_tier": by_tier,
         "by_exec": by_exec,
-        "analytical_headline": ANALYTICAL_STEP_COUNT,
-        "analytical_phases": ANALYTICAL_PHASES,
+        "analytical_phases": analytical_phases,
         "scraping_substeps": _STEP_BY_SCRIPT["run_09_scraping.py"].n_substeps,
         "clearfell_substeps": _STEP_BY_SCRIPT["run_10_clearfell.py"].n_substeps,
         "generated": datetime.datetime.now().isoformat(timespec="seconds"),
@@ -553,7 +600,7 @@ def build_manifest(write: bool = True) -> dict:
         OUT_DIR.mkdir(exist_ok=True)
         with open(OUT_MANIFEST, "w", encoding="utf-8") as fh:
             json.dump(manifest, fh, indent=2)
-    _check_analytical_guard(by_tier["analytical_toplevel"])
+    _check_documented_counts(manifest)
     _check_version_guard()
     return manifest
 
@@ -577,14 +624,38 @@ def _check_version_guard() -> None:
         )
 
 
-def _check_analytical_guard(actual: int) -> None:
-    if actual != _EXPECTED_ANALYTICAL_TOPLEVEL:
-        say_warn(
-            f"Analytical top-level step count changed (was "
-            f"{_EXPECTED_ANALYTICAL_TOPLEVEL}, now {actual}) \u2014 the "
-            f"{ANALYTICAL_STEP_COUNT}-analytical headline and ANALYTICAL_STEP_COUNT "
-            "need a deliberate review before release."
-        )
+def _manifest_field(manifest: dict, dotted: str):
+    """Fetch a manifest value by dotted key ('by_tier.display_utility')."""
+    value = manifest
+    for part in dotted.split("."):
+        value = value[part]
+    return value
+
+
+def _check_documented_counts(manifest: dict) -> None:
+    """Warn for every manifest count that has drifted from what the documents
+    currently state (see _DOCUMENTED_COUNTS). Recomputed from the step table on
+    every build — no count is ever taken from the table below."""
+    drifted = []
+    for key, stated in _DOCUMENTED_COUNTS.items():
+        try:
+            actual = _manifest_field(manifest, key)
+        except (KeyError, TypeError):
+            drifted.append(f"{key}: no longer present in the manifest")
+            continue
+        if actual != stated:
+            drifted.append(f"{key}: documents say {stated}, manifest now {actual}")
+    if not drifted:
+        return
+    say_warn(
+        f"Pipeline counts have drifted from the documents ({len(drifted)} field"
+        f"{'s' if len(drifted) != 1 else ''}) \u2014 update the documents and "
+        "_DOCUMENTED_COUNTS together:"
+    )
+    for line in drifted:
+        say_info(f"    {line}")
+    say_info("    cite outputs/pipeline_manifest.json; never add the tier and "
+             "exec breakdowns together.")
 
 # ── Down-pipeline dependency audit (optional helper) ─────────────────────────
 # A *down-pipeline* (backward) dependency is a script that READS an output
@@ -1252,7 +1323,10 @@ def run_greyscale(full_rerun: bool = False) -> None:
 
     if full_rerun:
         print("  Mode: Full B&W pipeline re-run")
-        print("  This will re-run all 34 steps with BW_MODE=True,")
+        _n_bw = len([rs for rs in _ALL_STEPS
+                     if rs.exec == "default"
+                     and rs.script != "27_greyscale_figures.py"])
+        print(f"  This will re-run all {_n_bw} steps with BW_MODE=True,")
         print("  producing native greyscale figures with hatching, distinct")
         print("  line styles, and hillshade DEMs. No separate greyscale")
         print("  sweep is needed — every figure is rendered greyscale-native.")

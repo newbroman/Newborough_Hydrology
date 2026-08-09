@@ -52,7 +52,8 @@ Method (spec signed off 2026-07-05):
      AND C5 ≤ C2 mean. δ₀ = −29 mm/yr is the coastal-edge gradient; C5 is a
      cluster mean set back from the edge, so clearly-negative suffices.
 
-Pipeline-integrated: Phase 15, step 39/45, run_analysis.py. Reads pipeline
+Pipeline-integrated in the driver-validation phase of run_analysis.py, before
+Scripts 37/37b; canonical step index in outputs/pipeline_manifest.json. Reads pipeline
 intermediates through utils.paths constants. Writes to utils.paths.DIR_36.
 No paths or constants are hardcoded.
 
@@ -68,8 +69,6 @@ Outputs (outputs/36_absolute_climate_trend/):
     36_absolute_climate_trend_2011_2025.png  robustness map
     36_results.txt                           console summary
 
-Version: 1.0.0 (2026-07-05)
-  1.0.0 (2026-07-05): initial release.
 """
 
 from __future__ import annotations
@@ -93,67 +92,11 @@ from utils.console_utils import banner, phase, step, info, note, result, saved, 
 from utils.render_utils import render_figure
 
 __version__ = "1.3.0"  # 2026-07-06: add 2018_2025 sequential window (clearfell,
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-#                       isolated to start the year after the Dec-2017 event so no
-#                       pre-clearfell spring reading falls inside the endpoint
-#                       groups); add five expanding coast-only windows
-#                       (2005_2010 … 2005_2022) for Script 37 v3.0.0's
-#                       independent δ₀(t) trajectory test; new emit_dh_corr
-#                       kwarg on per_well_trends() (decoupled from `sequential`)
-#                       lets the strict-coverage PRIMARY 2005_2025 window also
-#                       emit dh_corr_mm_2005_2025 without relaxing its min_obs/
-#                       coverage rule. All consumed by Script 37 v3.0.0's
-#                       per-driver scale-factor regression. 2017_2025 retained
-#                       (legacy — superseded by 2018_2025 for Script 37).
-# 1.1.0 — 2026-07-06: climate-corrected endpoint-difference method.
-#                       Sequential windows now emit dh_corr_<window> (mm) = endpoint
-#                       difference of h_corr = h - b̂·CWB, with b̂ fit once on the
-#                       pre-clearfell window (2005–2017). Replaces slope_mm_yr×T,
-#                       which overfit short windows (2015–2017 gave +864 mm/yr median).
-#                       New fns: fit_cwb_loading(), climate_corrected_endpoint_diff().
-# 1.0.13 — 2026-07-06: _joint_fit_trend had its OWN hardcoded
-#                        PER_WELL_MIN_YEARS=8 check, rejecting every well in short
-#                        calibration windows even after per_well_trends passed them.
-#                        Now accepts min_years= and per_well_trends passes min_obs.
-#                        THIS was the real 0-wells cause, not the filter.
-# 1.0.12 — sequential flag wired into per_well_trends (necessary but not sufficient).  # 2026-07-06: sequential flag wired correctly —
-#                        min_obs=3 and span len>=2 for calibration windows.
-# 1.0.10 — 2026-07-06: int64 cast.  # 2026-07-06: cast groupby year index to int64 in
-#                        spring_year_table() and spring_cwb_series(). Fixes
-#                        silent empty intersections when pandas returns int32
-#                        for .year on one series and int64/float64 on another,
-#                        which caused 2006_2012 and 2015_2017 windows to produce
-#                        0 wells on some platforms despite valid data.
-# 1.0.9  — 2026-07-06: use global PRE_WINDOW_CUTOFF=2011 for all windows.
-                       # ALL windows (including sequential calibration ones).
-                       # Using first= as cutoff for 2006_2012 required year
-                       # 2005 data — absent on some datasets.  Global 2011
-                       # cutoff correctly excludes post-2011 extended wells
-                       # from all windows while keeping the reference network.
-# 1.0.8 — 2026-07-06: relax min-observations gate for short sequential windows
-                       # sequential windows: min_obs = max(3, min(PER_WELL_MIN_YEARS,
-                       # window_duration)).  The global PER_WELL_MIN_YEARS = 8 gated
-                       # out ALL wells from 2006–2012 (7 yr) and 2015–2017 (2 yr).
-# 1.0.7 — 2026-07-06: guard empty-DataFrame from coverage filter
-                       # — when all wells are dropped (e.g. 2006_2012 first pass),
-                       # the stats/gate/map block is skipped and a "0 wells" note
-                       # is written to lines; the period is still stored in
-                       # all_results so the CSV merge sees an empty frame.
-# 1.0.6 — 2026-07-06: add three sequential calibration windows (2006_2012,
-                       # 2015_2017, 2017_2025) from config.ACT_PERIODS; per_well_trends()
-                       # gains pre_window_cutoff kwarg (defaults to global PRE_WINDOW_CUTOFF
-                       # = 2011; pass `first` for sequential windows so each uses its own
-                       # start year).  make_map skipped for periods absent from OUT_FIG
-                       # (calibration windows emit slopes to CSV only, no report figure).
-# 1.0.5 (2026-07-05): fix crossed-over output filenames in paths.py — after the R1
-#   primary-swap, OUT_36_FIG_PRIMARY still pointed at ..._2011_2025.png and
-#   OUT_36_FIG_ROBUST at ..._2005_2025.png, so the 2005–2025 primary map was
-#   written to a file named 2011_2025 and vice versa. Names now match content.
-#   (No logic change; paths.py edit + docstring correction.)
-# 1.0.4 (2026-07-05): fix coverage filter — pre-window check used window-relative
-#   `first` year, which excluded all wells from 2005–2025 (no well has data
-#   before 2005). Replaced with fixed PRE_WINDOW_CUTOFF = 2011 (start of the
-#   shorter window) so short-record wells are excluded from both windows.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 SCRIPT_ID = "36"
 VERSION = __version__
 

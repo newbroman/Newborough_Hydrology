@@ -75,68 +75,11 @@ Dependencies
 """
 
 __version__ = "1.6.2"  # Hollingham (2026) — 2026-08-09
-# 1.6.2 (2026-08-09): _build_base_layer() no longer carries its own
-#   hardcoded extent dict. The forecaster base layer now uses the
-#   canonical SITE_MAP_* extent from config (E 240100-243900,
-#   N 362200-365500). The previous local values (N 362100-365900)
-#   forced a square 3800 x 3800 m frame around a network spanning only
-#   ~2.2 km north-south, so the forecaster map carried ~790 m of empty
-#   ground above and below the wells and rendered them small. Figure
-#   framing only; no threshold, P_flood or per-well computation is
-#   affected.
-#   NOTE: the four 11b PNG maps still set their own extents inline
-#   (N 362200-365800 for 11b_01, N 362100-365900 for the other three).
-#   Those were deliberately left out of the 2026-06-27 canonical-extent
-#   rollout and are unchanged here, so the forecaster frame is now
-#   canonical while the PNG maps are not. Reconciling them is a separate
-#   decision — it moves committed report figures.
-# 1.5.1 (2026-07-19): review revision — 11b_01 stats box nudged into the
-#   lower-left axes corner: transAxes anchor (0.02, 0.03) -> (0.005, 0.008).
-# 1.5.0 (2026-07-19): review revisions — cross-map consistency (authored
-#   sizes; rendered = +1 via the figure-wide bump): E/N axis labels explicit
-#   10 pt on all four maps (were 9 / rc-12 mix); all legends unified at 9 pt,
-#   legend titles 10 pt. 11b_01: zone legend set two-column (ncol=2); stats
-#   text box moved top-right -> bottom-left and 7 -> 8 pt.
-# 1.4.0 (2026-07-19): review revisions — all four 11b maps: every font +1 pt
-#   (bump_fig_fonts; stacks on the 1.3.0 legend bumps, so those legends are
-#   +2 net); right-hand colorbars narrowed fraction 0.03 -> 0.02.
-# 1.3.0 (2026-07-19): legibility hand pass — legends only, per review:
-#   11b_01 zone legend 7 -> 8 pt (title 8 -> 9), cluster legend 8 -> 9 pt
-#   (title 8 -> 9); 11b_02 legend 7 -> 8 pt. 11b_03/04 and all axis/label
-#   fonts untouched. Larger legend boxes may cover more map — check placement
-#   on the regenerated PNGs.
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# 1.1.4 — Spatial-threshold maps: pass include_scrapes=False to add_kml_features
-#          at all four call sites. The shared overlay draws the GPS-traced scrape
-#          footprints by default; on these threshold/IDW maps they clutter the
-#          surface, so they are suppressed. Figures only; threshold computation
-#          unchanged.
-# 1.1.3 — data/geo/ reorg follow-up: _build_base_layer() forecaster KML
-#          overlays now resolved via data_geo() (were DATA_DIR/file, silently
-#          skipped after the geo move). No functional change vs pre-reorg.
-# 1.1.2 — data/geo/ reorg: DEM + site-boundary now via utils.paths constants
-#          (DATA_DEM, DATA_KML_SITE_BOUNDARY) from data/geo/. No functional change.
-#                        1.1.1: Doc-sweep S.9 — removed `start_yr` parameter
-#                               from `_summer_mins` (D7 retraction) after
-#                               confirming maOD readings are invariant to
-#                               ground-surface scraping; pre-2023 minima
-#                               for CEH18 and CEH21 are now included,
-#                               restoring statistical power (n=19 / n=16
-#                               vs n=3 each pre-fix).  Depth-bg changes
-#                               trivial: CEH18 -4 mm, CEH21 -25 mm — below
-#                               Curreli zone-boundary precision.  Also
-#                               rewrote `_summer_mins` and `_winter_maxima`
-#                               docstrings explaining the maOD invariance
-#                               principle (D6); removed `start_yr` from
-#                               the SCRAPED dict (now `dem_correction`
-#                               only); updated script-header docstring,
-#                               two plot annotations, and one legend label
-#                               to reflect "DEM-corrected only; full
-#                               record used".  Patch — small numerical
-#                               change at two wells, no shift in
-#                               classification zone.
-#                        1.1.0: iterated P_flood (Section 3.6.3 revision)
-#                        1.0.0: single-step P_flood (superseded)
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import argparse
 import json

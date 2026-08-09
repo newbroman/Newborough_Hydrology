@@ -72,91 +72,11 @@ Companion to 09b/09d. PROJECT_NOTE scraping off-site drawdown measured
 """
 
 __version__ = "1.7.0"  # Hollingham (2026) — 2026-07-18
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# 1.6.1 — Crossing distance now interpolated from the plotted profile arrays and
-#         returned to the caller, so the console line and the on-plot label quote
-#         one value (≈698 m) from a single computation. No change to the printed
-#         value; removes a second, independently-recomputed console estimate.
-# 1.6.0 — Panel (a) gains the CLIMATE driver and the WMC3 measured anchor, and
-#         the reach axis extends 500 -> 900 m so the coastal/climate crossing is
-#         on-plot.
-#         • Climate reach line: spatially UNIFORM (no λ) flat line at the 5-yr
-#           accumulated amplitude c × COAST_CHRONIC_YEARS (= -31.75 mm), on the
-#           SAME horizon as the existing coastal 5-yr curve so the two
-#           accumulating drivers are directly comparable. c read live from 25_01
-#           (forest_free/linear_capped c_mm_yr) via new _load_climate_c(); the
-#           coastal 5-yr curve crosses the flat climate line at ≈698 m
-#           (horizon-free: depends only on c/δ₀), marked on-plot with an × (NOT a
-#           filled circle, so it is not read as a measured anchor) and annotated,
-#           with L marked. Climate is a MODELLED fit term summarising the OBSERVED
-#           warren-wide fall — framing preserved.
-#         • WMC3 measured off-cut anchor: a single diamond at (262 m, -55 mm) —
-#           the one evidenced off-site drawdown point (BACI DiD, reproducible
-#           -55 mm 2015 / -54 mm 2023). value live from 10m_report_numbers.csv
-#           (WMC3_BACI_DiD_step_2015_scraping) via _load_wmc3_drawdown();
-#           distance live from 09b_01 via _load_wmc3_distance(). It sits BELOW
-#           the modelled symmetric scrape dipole (-42 mm at 262 m) — the honest
-#           measured-vs-modelled gap; the modelled scrape curve is the wider
-#           MODELLED cone, WMC3 the measured near-field confirmation (no implied
-#           coherent network-wide cone; per PROJECT_NOTE scraping-drawdown 2026-07-17).
-#         • CSV 09f_01_reach_profile.csv gains climate_5yr_head_mm (flat -31.75)
-#           and climate_20yr_head_mm (flat -127, c × MECHANISM_HORIZON_YEARS) so
-#           the mechanism figures can source the climate amplitude from 09f on a
-#           committed reach basis.
-#         • Panel (b) unchanged except the observed-clearfell callout connector
-#           is now a straight line (was arc3 curve).
-#         • New config MECHANISM_HORIZON_YEARS (20 yr); new first-pass defaults
-#           climate_c_mm_yr / wmc3_drawdown_mm / wmc3_distance_m in
-#           pipeline_params._DEFAULTS (two-pass safe, as the other 09f loaders).
-#         • Docstring refreshed: the stale magnitude "Panel B" / 09f_02 outputs
-#           (removed at 1.5.0) are dropped; panels are now reach + timescale.
-# 1.5.0 — Second panel added: the figure is now a STACKED two-panel plot,
-#         (a) spatial reach (unchanged) over (b) development timescale. Panel (b)
-#         (_plot_timescale) shows how long each driver takes to develop, on a
-#         dimensionless %-of-eventual-effect y-axis chosen so it COMPOSES with
-#         panel (a) (time-fraction × spatial-magnitude = head at a given time and
-#         distance; an mm axis would double-count the magnitude). Three timescale
-#         logics, three shapes: a forest-ops relaxation BAND (clearfell/thinning,
-#         C5-fast↔C4-slow, 1−e^(−β₃t), both edges labelled with t½ live from the
-#         03 mechanistic table via new _load_forest_beta3_range()); a single
-#         scrape/storm-event relaxation curve on the C3 open-dune medium (new
-#         _load_c3_beta3(); scrape and storm coincide in fraction-of-eventual
-#         terms); and a linear coastal chronic-accumulation ramp. The OBSERVED
-#         clearfell BACI step is plotted as its fraction of the 150 mm forest
-#         equilibrium at its elapsed time (~8 yr) — the validation anchor.
-#         New imports: OUT_03_MECHANISTIC_TABLE, FOREST_CIDS. Far-field inland
-#         reach left as an order-of-magnitude caption note, no committed number.
-# 1.4.1 — (prior) single-panel spatial-reach figure.
-# 1.4.1 — De-hardcode the coastal 5-yr accumulation horizon: the literal 5.0 in
-#         coast_edge_5yr = 5.0 × |δ₀| replaced by config.COAST_CHRONIC_YEARS
-#         (= 5.0), now shared with Script 20's driver-change coastal field so a
-#         future change to the chronic horizon moves both figures together. No
-#         behavioural change (constant equals the former literal). Edge-head
-#         construction and reach L already match Script 20 (same 25_01 fit row).
-# 1.4.0 — Two-pass safe: every live loader (λ/H0, δ₀/L, scrape bars, clearfell
-#         recovery, scrape edge anchor) now falls back to documented first-pass
-#         defaults with a console warning when its upstream CSV is absent. New
-#         first-pass defaults centralised in pipeline_params._DEFAULTS, read via
-#         the public default_value() accessor. Lets 09f run in a first-pass full
-#         pipeline (it depends on Scripts 20/25/09d/10a, produced later) and
-#         resolve to live values on the second pass — mirrors the 09b/09d Sy
-#         precedent. Output messages use saved(); warn re-imported.
-# 1.3.0 — Geometry constants (SCRAPE_RISE_BUFFER_M, COAST_RETREAT_M,
-#         COAST_RETREAT_RATE) now imported from config.py (promoted there in
-#         config + Script 20 v1.28.0) instead of mirrored locally. Single source
-#         of truth; no behavioural change.
-# 1.2.0 — Convention compliance: apply house MPL_DEFAULTS style (matches sibling
-#         Script 09 figures); hoist mirrored Script-20 geometry constants
-#         (SCRAPE_RISE_BUFFER_M, COAST_RETREAT_M, COAST_RETREAT_RATE) to module
-#         level with a source-of-truth note; drop the unused DRAINAGE_DATUM import.
-# 1.1.0 — Caption removed from the figure footer; it is supplied in the report/
-#         summary document text instead (avoids a duplicate caption when the
-#         figure is placed in LibreOffice). Figure content unchanged.
-# 1.0.0 — New. Two-panel management-effects synthesis for the academic summary:
-#         (A) distance-decay reach of scrape dipole vs forest drawdown;
-#         (B) annualised-flux magnitude vs background drivers, with the
-#         equilibrium-offset vs secular-trend distinction styled and labelled.
-#         All values live from 09d_01, 09b_05, 20_report_numbers, 25_01.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os

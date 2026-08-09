@@ -135,35 +135,11 @@ from utils.site_observations import update_site_observation
 from utils.render_utils import render_figure
 
 __version__ = "1.3.0"  # Hollingham (2026) — 2026-05-22
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# 1.2.0 — Pairwise contrasts now carry a contrast_type field
-#         (primary / derived / identity_check).  The six contrasts are
-#         not co-equal: 'primary' are direct zone-vs-Forest
-#         coefficients; 'derived' are zone-vs-zone linear combinations
-#         whose SE/p are covariance-dependent and NOT comparable to the
-#         primary rows.  Structural changes so the outputs stop
-#         inviting that misreading: the forest plot (10k_06) splits
-#         into labelled PRIMARY (dark) and DERIVED (greyed) groups with
-#         a caption; the pairwise CSV (10k_02) puts derived SE/CI/p in
-#         separate *_derived columns (primary p column blank on derived
-#         rows) plus an interpretation column; report-numbers notes tag
-#         derived keys.  No model or numerical change — estimates are
-#         identical; only presentation.
-# 1.1.0 — Panel now starts at PRE_FELL_START_FOURZONE (2011-01-01)
-#         instead of the legacy PRE_FELL_START (2010-07-01).  The
-#         Jan-Sep 2010 months are a monitoring-network installation
-#         ramp (several Forest-control wells not yet in), which
-#         contaminates the pre-felling baseline; 2011-01 is the first
-#         full calendar year clear of the ramp and matches the
-#         four-zone summer panel's 2011 start.  Headline numbers
-#         regenerate.
-# 1.0.0 — Initial.  Four-zone pooled-panel clearfell BACI generalising
-#         the Script 10j two-zone Impact-vs-Edge estimator to four
-#         zones (Forest ref / C3-Warren / Edge / Impact).  Monthly-mean
-#         panel only — the summer-minima four-zone model is a committed
-#         Phase 2 in a separate session.  Reads well lists, dates and
-#         PRE_FELL_START_FOURZONE from clearfell_common; writes three
-#         site-observation entries.  No hardcoded site-specific values.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 
 # ============================================================================

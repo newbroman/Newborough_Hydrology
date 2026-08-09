@@ -56,22 +56,11 @@ Conventions:
 """
 
 __version__ = "1.3.1"  # Hollingham (2026) — Script 24b. v1.2.0: wired into run_analysis.py
-# 1.3.1 (2026-07-21): reproducibility hygiene — the bootstrap seed (42) is now
-#   sourced from utils.config.RESIDUAL_CLIM_BOOT_SEED instead of a module-local
-#   literal. Value unchanged; the per-cluster offset (BOOTSTRAP_SEED + cid) and
-#   all bootstrap CIs are byte-identical. No committed output moves.
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-                       # (Phase 16 supplementary diagnostics); output paths via paths.py.
-# 1.1.0 — Recovered from the 7-June residual-seasonality session and RETAINED AS A
-#         NON-PIPELINE DIAGNOSTIC. Relocated to diagnostics/; outputs made self-
-#         contained (no paths.py named constants, not added to make_all_dirs);
-#         ridge reference point defined locally (mirrors Script 24) so the script
-#         runs standalone against committed main with no shared-file edits;
-#         figure changed to a 3×2 PNG grid. Pipeline registration / step-count /
-#         readme edits from the 7-June build are intentionally NOT carried over.
-# 1.0.0 — Initial build. Cluster-stratified residual climatology discriminating
-#         winter-phased nonlinear recharge vs ridge-derived lateral input vs
-#         canopy-interception over-estimation. Reads Script 22 residuals (no re-fit).
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import os as _os
 import sys as _sys

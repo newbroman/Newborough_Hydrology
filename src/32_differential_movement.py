@@ -35,7 +35,8 @@ Method (signed-off spec, 2026-06-26):
   * Periods: 2011-2025 primary; 2005-2025 robustness check.
   * IDW power 2, 50 m grid, 450 m mask.
 
-Pipeline-integrated: runs as Phase 15, step 36 of run_analysis.py. Reads
+Pipeline-integrated in the driver-validation phase of run_analysis.py; the
+canonical step index is in outputs/pipeline_manifest.json. Reads
 pipeline intermediates through utils.paths constants (so the dependency
 auditor, run_analysis.py --deps, tracks every input) and writes to
 utils.paths.DIR_32. No paths or methodological constants are hardcoded — the
@@ -56,15 +57,6 @@ Outputs (outputs/32_differential_movement/):
     32_differential_movement_2005_2025.png  robustness map
     32_results.txt                          console summary
 
-Version: 1.1.0 (2026-06-28)
-  1.1.0 (2026-06-28): emit the site-mean spring-level trend (AR-corrected slope
-    + p, OLS p, moving-block bootstrap CI) per period to 32_site_mean_trend.csv
-    and 32_results.txt — the canonical secular trend (−7.0 mm/yr, AR p=0.52 over
-    2005–2025) that §5.7.5 and Script 34 cite; previously this value existed only
-    as a hard-coded literal in Script 34's caption. Convention pass: reads go
-    directly through utils.paths constants (deps-visible), stale "not wired" note
-    corrected, __version__ added.
-  1.0.0 (2026-06-26): initial differential-movement anomaly-trend map.
 """
 
 from __future__ import annotations

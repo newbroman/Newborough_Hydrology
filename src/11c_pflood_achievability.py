@@ -21,7 +21,7 @@ Categories:
 - Unreachable (λ ≥ 2.5):  P_flood is effectively unreachable under current climate
 
 Reads:
-- `11b_03_pflood_per_well.csv` (Script 11b, step 12)
+- `11b_03_pflood_per_well.csv` (Script 11b)
 - DEM (data/) for hillshade
 - KML features (data/) for forest boundary and site features
 
@@ -31,27 +31,19 @@ Writes:
 - `11c_pflood_achievability_results.md` — memo with summary tables and report drop-in text
 
 Standalone diagnostic following the 11b naming convention (output sharing
-DIR_11B since the input lives there). To enter the orchestrator at Phase 3
-as a successor step to 11b, following the 14b → Script 14 pattern.
+DIR_11B since the input lives there). Wired into run_analysis.py as a successor
+step to 11b, following the 14b → Script 14 pattern; the canonical phase and step
+index are in outputs/pipeline_manifest.json.
 """
 
 from __future__ import annotations
 
 __version__ = "1.2.0"  # Hollingham (2026) — 2026-06-28
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# 1.1.1 — Output paths now reference the canonical OUT_11C_* constants in
-#         paths.py (added same day). Removes the local DIR_11B re-derivation;
-#         single source of truth. No change to output filenames or contents.
-# 1.1.0 — Map brought into line with the canonical spatial-figure
-#         conventions (matches Script 11b siblings):
-#           * Map extent now clamped to the canonical site footprint
-#             imported from config (SITE_MAP_EAST_MIN/MAX, NORTH_MIN/MAX)
-#             instead of letting matplotlib auto-fit to the forest KML.
-#           * Equal aspect ratio set (no geometric distortion).
-#           * Title styled fontsize=10, fontweight="bold" to match 11b.
-#           * Axis labels/ticks sized to 11b convention.
-#           * Marker sizes/edges aligned to the 11b sibling maps.
-# 1.0.0 — Initial. Categorical achievability map for §5.9 / Conclusion 4.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys
 import numpy as np

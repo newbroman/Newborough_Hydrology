@@ -54,11 +54,11 @@ thresholds.
 """
 
 __version__ = "1.1.0"   # Hollingham (2026) — 2026-05-27
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-                         # v1.0.0: Initial release.
-                         #   Two report-format figures for §4.8.4 and
-                         #   §4.10.1 of the main report. Reads canonical
-                         #   pipeline outputs only; no recomputation.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys
 from pathlib import Path
@@ -77,12 +77,17 @@ from utils.console_utils import (
     hr, skipped,
 )
 from utils.render_utils import render_figure
+from utils.config import SD15b as _SD15b_cfg, SD16 as _SD16_cfg
 
 # ---------------------------------------------------------------------
 # constants
 # ---------------------------------------------------------------------
-SD15b = -0.61   # Curreli (2013) wet-slack threshold (m, below ground)
-SD16  = -0.98   # Curreli (2013) dry-slack threshold (m, below ground)
+# Curreli (2013) eco-hydrological thresholds. config.py holds them as POSITIVE
+# depths below ground (SD15b, SD16); this figure plots depth on a negative-down
+# axis, so they are negated once here. Never restate the numeric values — a
+# sign-flipped local copy will not track a config change.
+SD15b = -_SD15b_cfg
+SD16  = -_SD16_cfg
 
 # Cluster ordering and styling — matches existing report convention
 CLUSTERS = [
@@ -183,10 +188,10 @@ def render_trajectory(per_cluster: pd.DataFrame, out_path: Path) -> None:
 
     # in-figure threshold labels (top-left)
     ax.text(2014.1, SD15b + 0.018,
-            "SD15b (wet slack, −0.61 m)",
+            f"SD15b (wet slack, {SD15b:.2f} m)".replace("-", "−"),
             color="#3B6D11", fontsize=9, va="bottom", ha="left")
     ax.text(2014.1, SD16 + 0.018,
-            "SD16 (dry slack, −0.98 m)",
+            f"SD16 (dry slack, {SD16:.2f} m)".replace("-", "−"),
             color="#A32D2D", fontsize=9, va="bottom", ha="left")
 
     ax.set_xlabel("Hydrology year (window end)")

@@ -54,27 +54,11 @@ Well exclusions (EXCLUDED_WELLS_NORM):
 """
 
 __version__ = "1.3.0"  # Hollingham (2026) — 2026-07-21
-# 1.2.0 (2026-07-21): added the headline Model A residual-inference diagnostic
-#   (ssm_residual_inference) for the 66-well reference network — the committed
-#   artefact backing the SI's OLS-inference-validity statement. For each
-#   reference well it fits the upstand-corrected no-intercept SSM (full record),
-#   tests residual serial correlation (Durbin–Watson, lag-1 φ, Ljung–Box) and
-#   re-estimates coefficient p-values with Newey–West/HAC standard errors
-#   (n-adaptive rule-of-thumb lag). Writes 22_05_ssm_residual_autocorrelation.csv
-#   with the per-well diagnostics and OLS-vs-HAC p-values; the headline stat is
-#   the count of coefficient significance verdicts that change under HAC. A
-#   companion function (cluster_mean_residual_inference) applies the same battery
-#   to the five upstand-corrected cluster centroids that carry the headline β
-#   table (Report Table 3 / Paper 1 Table 1), reproducing 03_03's centroid β and
-#   OLS p-values exactly and writing 22_06_ssm_cluster_mean_inference.csv. Does
-#   not touch the existing Model B AR(1) analysis.
-# 1.1.0 (2026-06-21) — iterate CLUSTER_LABELS not CLUSTER_COLOURS.items() — drop reserved C6 from cluster loops; no functional change, C6 was already len-guarded
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# 1.0.1 — Doc-sweep S.16: corrected stale "lag-1 rainfall" docstring claim
-#         to "contemporaneous rainfall under HEADLINE_LAG = 0" (S16-A);
-#         clarified the inline comment on lag/displacement handling (S16-B);
-#         added __version__ (S16-G).  Patch — no functional change.
-# 1.0.x — Initial.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os

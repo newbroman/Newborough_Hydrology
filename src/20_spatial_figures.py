@@ -58,478 +58,18 @@ Dependencies
 
 References
 ----------
-  Betson et al. (2002) — K = 6.0 m/day
-  Freeman (2008) — 24% canopy interception for C4 and C5 forest clusters
-  Curreli et al. (2013) — eco-hydrological thresholds
+  Betson et al. (2002) — hydraulic conductivity K (config.DRAWDOWN_K_MDAY)
+  Freeman (2008) — canopy interception for the C4/C5 forest clusters
+                   (config.FOREST_INTERCEPTION, applied to config.FOREST_CIDS)
+  Curreli et al. (2013) — eco-hydrological thresholds (config.SD15b / config.SD16)
 """
 
-__version__ = "1.37.1"  # Hollingham (2026) — 2026-08-06
-# 1.36.0 — plot_residual_ssm() (Figure 58) surface routed through
-#         map_utils.add_idw_surface(), replacing the local idw_surface() call.
-#         Supersedes 1.35.0; commit the two together.
+__version__ = "1.38.0"  # Hollingham (2026) — 2026-08-09
 #
-#         Footprint. The surface previously ran on the rectangular
-#         _site_mask() (three straight sea lines) with zero-valued anchors
-#         from _sea_boundary_points() fed into the Delaunay triangulation, so
-#         it extended up to ~1 km past the outermost dipwell over ground with
-#         no measurements, ramping to a fabricated zero at the shoreline. It
-#         now uses hull_buffer_m=100.0 (the pipeline-wide default set in
-#         map_utils v1.5.0, 2026-07-05) and apply_site_mask=True (the true KML
-#         outline via make_site_mask()). Coverage falls from effectively the
-#         whole rectangle to 1549 of 5159 grid cells; footprint E 240750–243000
-#         / N 362600–364800 against dipwell bounds E 240804–242938 /
-#         N 362688–364724.
-#
-#         Sea anchors dropped for the residual only. A zero-datum shoreline is
-#         physically meaningful for a HEAD surface and the flow-direction
-#         arrows still use it, but there is no basis for a water-balance
-#         residual vanishing at the coast, and within the buffer the anchors
-#         still pulled margin cells toward zero through the triangulation.
-#
-#         ridge_mask_threshold=None — no DEM-height mask, preserving the
-#         deliberate choice recorded in report §4.9.7.
-#
-#         Consequential: the arrow mask already required a non-NaN residual
-#         cell, so the flow arrows now follow the tightened footprint. The
-#         colour limits (95th percentile of |residual| over the surface) are
-#         computed over the smaller, well-supported footprint and tighten
-#         accordingly — on the corrected residuals that gives ±0.0106 m/month,
-#         so the NW2 neighbourhood saturates. The percentile rule is unchanged
-#         from 1.34.0; flagged for review rather than altered.
-#
-#         The local idw_surface() and _site_mask() helpers are retained — three
-#         other figures in this module still use them and are out of scope.
-# 1.35.0 — Two defects corrected in build_well_table()'s water-balance
-#         residual (Figure 58 / §4.9.7). See
-#         DEFECT_NOTE_script20_residual_field_2026-08-06.md for the full
-#         diagnosis, decomposition and traceability.
-#
-#         D1 — canopy interception was subtracted twice at forest wells.
-#         The recharge term used β₁·P̄·(1 − FOREST_INTERCEPTION) at C4/C5.
-#         Per INTERCEPTION_TREATMENT.md, interception is a partition of the
-#         atmospheric energy budget, not a term additive to it: Script 03
-#         fits on gross rainfall and above-canopy Thornthwaite PET, so the
-#         interception loss is already inside the fitted β₂·PET̄. The
-#         reduction inserted a spurious +β₁·0.24·P̄ — cluster medians
-#         +40.1 mm/month (C4) and +37.8 (C5), which is 155% and 101% of the
-#         entire forest-versus-open contrast the figure displayed. The
-#         `P_eff` column is removed and gross P̄ is used. FOREST_CIDS is no
-#         longer referenced in this module and has been dropped from the
-#         config import.
-#
-#         D2 — climate means spanned the full RAF Valley record. `clim` is
-#         loaded from 01_climate.csv in full (1143 rows, Dec 1930 onward)
-#         and was averaged entire, so the SSM was evaluated against a
-#         95-year normal (71.45 / 53.12 mm/month) while the mean heads span
-#         the monitoring record and the figure title states 2005–2026. The
-#         averaging window is now derived from the mean-head record (`maod`)
-#         so climate and head always describe the same period
-#         (74.33 / 54.72 mm/month). The console line now reports the period.
-#
-#         Effect (cluster medians, mm/month of head): C1 +15.8 → +2.6,
-#         C2 +9.9 → +0.2, C3 +9.3 → +0.6, C4 +36.3 → −5.3, C5 +48.2 → +4.8.
-#         Wells above +0.02 m/month 19 → 3; network maximum moves from NW10
-#         (C4, +0.063) to NW2 (C3, +0.053); CEH14 +0.030 → −0.011. The
-#         corrected field agrees with Script 16, which computes the same
-#         balance on gross P̄ and closes to within ±4.2 mm/month.
-#
-#         Figure text: the title formula now reads β₁·P̄ (was β₁·P̄_eff), and
-#         the colourbar label reads "+ve = modelled losses exceed modelled
-#         recharge" (was "+ve = ridge-derived residual") — the attribution
-#         is not supported by the corrected field. The CEH14 annotation
-#         reads the live value and self-updates.
-#
-#         Affects only 20_residual_ssm.png, 20_residual_perwell.csv and
-#         20_residual_report_numbers.csv. P_bar/PET_bar are used nowhere
-#         else in this module, and no other script reads those CSVs, so no
-#         other figure or output changes. Report §3.8/§3.8.4, §4.9.7,
-#         §5.2.1, §5.2, §6.7 and Paper 1 §4.10/§5.4 all cite the superseded
-#         numbers and need a separate document pass.
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# 1.33.0 — Documentation-only cleanup, no functional or figure change. The
-#         plot_scrape_drawdown() docstring and the SCRAPE_DEPTH_M constant
-#         still described the pre-1.10.0 logic (H0 = Sy × assumed depth),
-#         which 1.10.0 had already replaced with H0 anchored on the measured
-#         CEH36 response (D = H0/Sy as the derived, not-surveyed output).
-#         SCRAPE_DEPTH_M was unused dead code (confirmed: no reference
-#         anywhere in this file's executable code, and not imported
-#         elsewhere) — removed. Docstring rewritten to match the actual
-#         current multi-cut, real-geometry, measured-H0 logic. No values,
-#         figures, or CSVs change; every number reproduced is identical.
-# 1.32.0 — Driver-change maps: (a) Path B clearfell — both driver-change maps now
-#          plot the OBSERVED +120 mm BACI step (live from 10a
-#          ANCOVA_Forest_Impact_clearfell_step via new _load_clearfell_observed_mm(),
-#          first-pass fallback 120) instead of the 150 mm equilibrium H0, so the map
-#          value IS the observed value (no modelled-vs-observed gap for that field).
-#          (b) NEW plot_driver_change_20yr(): the full-window companion at a 20-year
-#          coastal horizon (≈20×δ₀≈581 mm at the toe) on a symmetric-LOG colour scale
-#          (SymLogNorm, linthresh=2, ±600) so the deep coastal field and the ±120 mm
-#          management effects both read without saturation. A prediction-surface /
-#          diagnostic figure (per-well validation is a separate analysis), presented
-#          alongside the legible 5-yr map. New path OUT_20_DRIVER_CHANGE_20YR; wired
-#          into main(). (c) Refactor: shared _driver_change_net() builds the field
-#          (coast_years + observed clearfell parametrised) and _render_driver_change()
-#          draws either scale — the 5-yr and 20-yr callers are thin wrappers, no
-#          duplicated net computation. Caption now states linear superposition is a
-#          first-order upper bound in overlap zones.
-# 1.31.0 — (a) Driver-change coastal field now uses config.COAST_CHRONIC_YEARS
-#          (shared with Script 09f) instead of the script-local SLR_WINDOW_YEARS,
-#          so the coastal chronic horizon is a single named constant across both
-#          figures (they were coincidentally both 5 yr; now decoupled from the SLR
-#          transient horizon and coupled to each other). No behavioural change
-#          (COAST_CHRONIC_YEARS = 5.0). (b) Provenance/caveat text moved from a
-#          bottom fig.text footer to a bordered bbox annotation inside the axes,
-#          top-left under the title, in the empty hillshade band so it does not
-#          overlay the IDW field — 5 short lines, sized to sit within the map
-#          bounds and clear of the colourbar.
-# 1.30.0 — Driver-change map coastal field: switched from the retreat-distance
-#          construction (50 m × δ₀/rate → 175 mm, which via the 8.3 storm rate
-#          represented only ~6 yr of δ₀ despite the 20-yr window, and whose footer
-#          mislabelled it "50 m over 20 yr") to an explicit chronic drawdown
-#          = (years × δ₀) (≈145 mm at the toe), rate-independent. _erosion_field()
-#          gains an optional h0_mm arg (source drawdown given directly); existing
-#          callers (Fig 58, coastal-net) pass neither h0_mm nor retreat_m and are
-#          UNCHANGED (fall back to COAST_RETREAT_M = 6 m → 21 mm).
-#          COAST_RETREAT_2005_2025_M no longer used here; removed from the import.
-# 1.29.0 — Added plot_driver_change_2005_2025(): modelled driver-CHANGE map
-#          (epoch difference of the net-state fields, re-based to 2005). Shows
-#          only what changed over the study window — standing pine cancels
-#          (equilibrium both epochs), leaving clearfell gain, broadleaf-restock
-#          drawdown INCREMENT (new _broadleaf_field()), all-epoch scrapes, a
-#          coastal drawdown, and SLR. The BL block appears as a brown drawdown
-#          patch — the signal missing from every prior map. New _broadleaf_field()
-#          helper; new config constants BL_CANOPY_FRACTION_2005/2025; new path
-#          OUT_20_DRIVER_CHANGE. Wired into main(). MODELLED map — flagged
-#          indicative (BL and coastal fields are the least record-constrained).
-#          Observed partner is the fixed Script 36 climate-removed 2005–2025 map,
-#          paired at the document stage.
-# 1.28.0 — LOSS_COLS ramp lightened ~2 stops across all four divergent
-#          net-change maps: darkest stop now #c2410c (was #5c1d02),
-#          7 stops retained for symmetry with the 7-stop GAIN_COLS ramp.
-#          Ramp: c2410c→ea7317→f59e0b→fbbf24→fcd34d→fde68a→fff3b0.
-#          DRAWDOWN_BAND_COLOURS and DRAWDOWN_CMAP.set_over unchanged.
-#          Visual only — no change to LEVELS, BoundaryNorm, or data.
-# 1.27.0 — Remove hardcoded SLR_K/SLR_B; use DRAWDOWN_K_MDAY/DRAWDOWN_B_M
-#          from config.py throughout. SLR_K = 6.0 m/day and SLR_B = 5.0 m
-#          were duplicates of the config constants; having two names for the
-#          same physical values violated the single-source-of-truth rule.
-#          Affected sites: D = K*b/Sy (lines 2134, 2324), lambda calc
-#          (lines 2572, 2653), and the K/b locals in plot_scrape_drawdown.
-# 1.26.0 — Net state map: scrape rise zones now contribute a positive gain.
-#          Previously np.where(np.isnan(scr), 0.0, scr) treated the rise
-#          zone (slack footprint + 10 m collar) as no change in the net
-#          field; only a visual overlay indicated the rise. The physical
-#          reality is a dipole: surrounding area drawn down, footprint
-#          itself raised by approximately H0_i. New helper
-#          _scrape_rise_field(gx, gy, epochs=None) returns +H0_i at each
-#          rise-zone pixel (per-cut, using measured BACI for CEH36/18/21
-#          and assumed CEH36 elsewhere). plot_net_state_map() now adds
-#          scr_rise as a gain term alongside the drawdown subtraction.
-#          No change to _scrape_field() signature or other callers.
-# 1.25.0 — Clearfell-baseline figure: epoch filter on _scrape_field().
-#          plot_scrape_coastal_net() now passes epochs={"Feb 2013", "April 2015"}
-#          to exclude the Oct 2023 cuts (CEH18, CEH21) which postdate the Oct 2017
-#          clearfell by six years and have no place in the pre-fell baseline.
-#          _scrape_field() gains an optional `epochs` parameter (default None =
-#          all cuts); when set, the returned geom_union is the filtered footprint
-#          union so the rise-zone overlay is also epoch-correct.
-#          Title text and docstring updated to reflect the two-epoch scope.
-# 1.24.0 — Scrape drawdown: method-of-images coastal boundary correction.
-#          The coast is a fixed-head boundary (h = 0 drawdown at HWM).
-#          Each scrape cut now has a mirror-image source reflected across the
-#          HWM coastline; the image term cancels the real cone at the coast:
-#            dd(x,y) = Σ_i H0_i·[exp(-d_real_i/λ) − exp(-d_image_i/λ)]
-#          Coastline geometry from data/geo/coastline_hwm.geojson (OSM HWM,
-#          Caernarfon Bay + Menai Strait, EPSG:27700, ODbL, extracted
-#          2026-06-30). Falls back to unbounded sum if file absent (warning).
-#          New: _load_coastline_hwm(), _reflect_across_coastline() helpers.
-#          Applied in both _scrape_field() (feeds net-state + public panel)
-#          and plot_scrape_drawdown() standalone figure.
-#          New path: DATA_COASTLINE_HWM (paths.py v updated alongside).
-# 1.23.0 — Scrape drawdown: envelope (max) corrected to superposition sum.
-#          All 8 cuts are permanent landscape features that have not been
-#          infilled; they act as co-active drains in long-term equilibrium.
-#          The physically correct steady-state field is Σᵢ H0_i·exp(-dᵢ/λ)
-#          (linear superposition), not max_i H0_i·exp(-dᵢ/λ). The envelope
-#          underestimated drawdown at points between two cuts where both
-#          sources contribute simultaneously.
-#          Changes:
-#          * _scrape_field(): initialiser np.full(nan) → np.zeros; loop body
-#            np.fmax → addition.
-#          * plot_scrape_drawdown(): both _env and _wd loops np.maximum → addition.
-#          * All "envelope" comments updated to "superposition sum".
-# 1.22.0 — Scrape rise zone tightened + E/N axes on portrait maps.
-#   * SCRAPE_RISE_BUFFER_M 90 -> 10 m: the rise is now confined to the scrape
-#     KML footprints plus a thin 10 m collar (was footprint + 90 m). One
-#     constant feeds all three scrape maps — plot_scrape_drawdown,
-#     plot_scrape_coastal_net, plot_net_state_map (via _scrape_field and
-#     _overlay_scrape_rise) — so all three update together. Consequence: the
-#     modelled drawdown cone now reaches its near-field max ~10 m off the
-#     footprint edge rather than 90 m out (deliberate, per Martin).
-#   * E/N axes restored on the four portrait data maps that suppressed ticks:
-#     plot_clearfell_gain, plot_msl5_change, plot_observed_change,
-#     plot_net_state_map. set_xticks([])/set_yticks([]) replaced with the house
-#     Easting/Northing labels + tick_params(labelsize=8); equal aspect and the
-#     canonical XLIM/YLIM were already present. plot_public_panel left clean
-#     (public-facing composite — E/N grids on sub-panels would clutter it).
-# 1.21.0 (2026-06-25) — superseded by 1.22.0 above:
-# 1.21.0 — plot_msl5_change() (Fig 54) now honours the MSL5 well exclusion
-#   flag (msl5_excluded) written by Script 26 v1.2.0: CEH13/CEH14 dropped
-#   from the observed-change map so it is consistent with the latest-MSL5
-#   map and the cluster trajectory. n 61 -> 59; window means update.
-#   Backward-compatible (no-op if the column is absent).
-# 1.20.0 (2026-06-22): §4.9 traceability batch 2.
-#   * Fig 56 plot_residual_ssm(): emit 20_residual_perwell.csv +
-#     20_residual_report_numbers.csv (CEH14 max, wells > +0.02 m/month).
-#   * Fig 54 plot_msl5_change(): switched to below-ground datum (MSL5_m_bg,
-#     the physical water-table depth, not pipe-top); network means now on the
-#     n=61 intersection; C2/C3 normalisation NOT applied (raw change). Emit
-#     20_msl5_change_perwell.csv + 20_msl5_report_numbers.csv (window means,
-#     deepening, ±25 mm count, cited wells).
-#   * Fig 50/53 H0: scrape legend now reads the live BACI CEH36 response
-#     (round → 129 mm) instead of the hardcoded 130, so figures agree.
-# 1.19.1 — M1 audit fix: slope-gradient legend iterated CLUSTER_COLOURS.keys()
-# 1.19.0 (2026-06-21): §4.9 traceability — plot_drawdown_propagation() now
-#   emits 20_drawdown_perwell.csv (well, E, N, dist_forest_m, dd_mm) and
-#   20_report_numbers.csv (λ + cited wells) on the show_head pass. Drawdown
-#   model constants H0/K/b moved from in-function locals to config.py
-#   (DRAWDOWN_H0_MM / DRAWDOWN_K_MDAY / DRAWDOWN_B_M); λ still derived live.
-#   No change to figure rendering.
-# 1.18.0 — Scrape footprints promoted to a shared add_kml_features() feature.
-#          Private _load_one_scrape_kml() removed (now map_utils.load_scrape_kml,
-#          single implementation). SCRAPE_INVENTORY tuples → SCRAPE_META keyed by
-#          basename; file list/order from config.SCRAPE_KML_FILES (single source).
-#          Registry output (label/geom/H0/assumed) unchanged — pure refactor.
-# 1.17.1 — data/geo/ reorg: site-boundary via DATA_KML_SITE_BOUNDARY; scrape KMLs
-#          loaded via data_geo() from data/geo/. No functional change.
-# 1.17.0 — Multi-cut scrape inventory (8 cuts, 3 epochs) with per-cut H0.
-#          The scrape maps previously modelled only the western April-2015 cuts
-#          (CEH36 + Scrape_A/B) as one drain at a single edge magnitude. The full
-#          mapped record is now eight GPS-traced cuts across three epochs
-#          (~3.08 ha): Feb 2013 — CEH40/41/42 (eastern); Apr 2015 — CEH36 +
-#          Scrape_A/B (western); Oct 2023 — CEH18/CEH21 (western).
-#          * New SCRAPE_INVENTORY constant + _scrape_registry(): resolves each
-#            cut to its footprint KML, epoch and edge magnitude H0. H0 is the
-#            MEASURED per-well response from Script 09a BACI shifts
-#            (OUT_09_BACI_SHIFTS) where a before/after baseline exists — CEH36
-#            Pure_Scraping +129.5 mm, CEH18 After_Scraping +8.5 mm, CEH21
-#            After_Scraping +73.5 mm — and ASSUMED equal to the CEH36 response
-#            (and flagged) for the cuts with no monitored baseline: the Feb-2013
-#            trio (dipwells start Jul 2014, ~17 mo post-cut) and Scrape_A/B (no
-#            in-cut well). New helpers _load_one_scrape_kml(), _scrape_response_mm().
-#          * _load_real_scrape_geom() now unions all eight registry footprints.
-#          * _scrape_field() rewritten: per-cut cone H0_i·exp(-d_i/λ), field =
-#            envelope (np.fmax) of the per-cut cones [NOTE: corrected to
-#            superposition sum in v1.23.0 — all cuts are permanent co-active
-#            drains], every cut's rise zone masked. Feeds plot_net_state_map, plot_scrape_coastal_net,
-#            plot_public_panel — all three now carry all eight cuts at per-cut H0.
-#            Net-state footnote notes per-cut H0 (measured vs assumed = CEH36).
-#          * plot_scrape_drawdown() standalone: cost-distance Dijkstra (single
-#            H0, flow-weighted) replaced by the same per-cut KDTree envelope on
-#            the DEM grid (scipy.spatial.cKDTree on segmentized footprint
-#            boundaries; np.maximum over cuts) [NOTE: corrected to superposition
-#            sum in v1.23.0]. Per-well dd_mm likewise per-cut.
-#            Removed the now-dead flow-gradient + src_mask + Dijkstra blocks.
-#            Title is multi-epoch; top-right annotation lists the measured H0
-#            (CEH36/21/18) and flags the assumed-CEH36 cones.
-#          * SCRAPE_TIMESCALE → "Feb 2013 · Apr 2015 · Oct 2023 cuts".
-#          NOTE: λ = 225 m and the rise-zone framing (cuts RISE, surrounding
-#          drawdown modelled but NOT resolved in the 88-well network — 09b
-#          distance-decay null p=0.54) are unchanged. The Feb-2013 and A/B cones
-#          are illustrative at the assumed CEH36 magnitude, not measured.
-# 1.16.0 — plot_scrape_drawdown(): real scrape geometry (3 areas) + rise-zone
-#          framing.
-#          * Added _load_real_scrape_geom(): loads and unions the GPS-traced
-#            scrape outlines from data/ (ceh36_scrape.kml [two lobes],
-#            Scrape_A.kml, Scrape_B.kml), reprojected to OSGB36. Real footprint
-#            ≈ 1.36 ha across 4 outlines (CEH36 0.94 + A 0.32 + B 0.11);
-#            supersedes the assumed 30×60 m / 0.18 ha box, retained only as a
-#            fallback. Source/src_mask, rise zone and rendering use the real
-#            (multi-lobed) geometry; src_mask window taken from geometry bounds.
-#            Scrape_A/B are the same April-2015 event as CEH36 and are modelled
-#            identically (same H0 edge amplitude / drain).
-#          * The scraped footprints are rendered as the RISE they are (slack
-#            restoration): a blue rise zone (footprints buffered by
-#            SCRAPE_RISE_BUFFER_M = 90 m) masked from the drawdown field, so the
-#            scrapes no longer read as the drawdown maximum. Surrounding drawdown
-#            (modelled, unresolved in the network) rings the footprints.
-#          * Title states total mapped area, SCRAPE_TIMESCALE and the +H0 rise;
-#            the footprint annotation moved to the top-right (clear of x-axis).
-#          * _scrape_field() now also loads the real geometry and masks the rise
-#            zone (footprint + SCRAPE_RISE_BUFFER_M), so the three maps that
-#            consume it — plot_net_state_map, plot_scrape_coastal_net and
-#            plot_public_panel — use the real footprints and carry the rise
-#            framing (scrape drawn as a blue rise zone via _overlay_scrape_rise(),
-#            not as part of the drawdown). Fixes a latent .exterior crash on the
-#            now-MultiPolygon geometry; scrape legends updated to "Scrape rise
-#            zone (level rose)".
-#          NOTE: scrape depth unchanged (D = H0/Sy = 0.42 m, area-independent);
-#          this commit corrects footprint geometry/area only.
-# 1.15.1 — plot_msl5_change(): reverted CURR_YR from 2025 to 2023 to
-#   match the report's canonical window choice (§5.7.5 explicitly
-#   excludes 2025 owing to differential drainage memory at slow-τ
-#   wells contaminating the 2024 wet-spring signal at C4 Forest
-#   Controls). Output file is now 20_msl5_change_2017_2023.png.
-#   The 2025 window can be regenerated as a sensitivity check by
-#   setting CURR_YR = 2025 locally.
-# 1.15.0 — Added plot_msl5_change(): MSL5 change map using Script 26
-#   per-well five-year spring mean water level. Baseline: window end 2017
-#   (springs 2013–2017, pre-clearfell, net −649 mm). Current: window end
-#   2023 (springs 2019–2023, net −631 mm). IDW
-#   p=2.0, Gaussian σ=1 (50 m). Well markers use same discrete banded
-#   colourmap as surface. New path OUT_20_MSL5_CHANGE; OUT_26_5YR_PER_WELL
-#   added to imports. Wired into main().
-# 1.14.3 — plot_observed_change(): added SIG_MM=25 significance threshold —
-#   changes < ±25 mm not coloured (within dipwell measurement precision);
-#   ±25 mm boundary shown as dashed grey contour; LINE_LEVELS updated to
-#   show only ±25/50/100 mm contours. Legend updated.
-# 1.14.2 — IDW + Gaussian smoothing: clearfell step-change map driven by
-#   measured well responses from 10b_spatial_step_data.csv (fell_step_cc,
-#   climate-corrected, n_post>=6, PLOT_EXCLUDE applied), IDW-interpolated
-#   onto the site grid — the measured counterpart to the parametric forest
-#   drawdown map. Diverging scale centred on zero; well symbols coloured by
-#   measured step. New path OUT_20_CLEARFELL_GAIN; OUT_10B_STEP_DATA added
-#   to imports. Wired into main().
-# 1.12.0 — Added plot_net_state_map(): diverging net water-table state map
-#   combining all five simultaneous drivers — remaining forest canopy drawdown,
-#   clearfell gain (felled zone interception-deficit removal), scrape drain,
-#   coastal erosion, and SLR — on a single symmetric ±150 mm scale. Forest
-#   field is zeroed over the KML felling polygon; clearfell gain field uses the
-#   same H0/λ as _forest_field() decaying from the felling polygon boundary.
-#   New path OUT_20_NET_STATE_MAP (paths.py). Wired into main().
-# 1.11.3 — Public panel: coastal erosion promoted to the top (spanning) figure;
-#   forest + scrape below. Colorbar sourced from the forest panel so the full
-#   2–150 mm range still shows (erosion alone only reaches ~21 mm).
-# 1.11.2 — Public panel: added labelled band-boundary contour lines
-#   (DRAWDOWN_LINE_LEVELS, thin dark with white-haloed labels) to each subpanel
-#   so the low bands (2–5 / 5–10 / 10–25 mm) read clearly regardless of fill tint.
-# 1.11.1 — Shared drawdown scale: replaced the continuous YlOrBr (whose 2–5 /
-#   5–10 / 10–25 bands were near-identical pale creams) with a discrete 6-colour
-#   warm ramp (cream→yellow→gold→amber→orange→brown, set_over for >150) for clear
-#   adjacent-band contrast at the low end; alpha 0.55→0.62. Affects every
-#   drawdown map. Public panel relaid out 1×3 → portrait 1-over-2 (forest top,
-#   scrape + erosion below) to fit a portrait page.
-# 1.11.0 — Added plot_public_panel(): public-summary 1×3 small-multiples figure
-#   (forest canopy / dune scrape / coastal erosion) on the shared sequential
-#   drawdown scale with one shared colorbar — a like-for-like magnitude/reach
-#   comparison, no stacked net. New coarse helper _forest_field() and path
-#   OUT_20_PUBLIC_PANEL.
-# 1.10.0 — Tightened for results use + reframed net map.
-#   * Scrape edge drawdown H0 now ANCHORED on the measured CEH36 response
-#     (Script 09a Pure_Scraping vs CEH4, ~0.129 m, live via _measured_ceh36_
-#     response) rather than Sy × assumed depth; the excavation depth becomes the
-#     INFERRED output (D = H0/Sy ≈ 0.42 m). Removes the heuristic from the
-#     provenance.
-#   * Scrape excavation interior masked (NaN): the slack itself rises, so only
-#     the surrounding drawdown is shown (the response is a dipole).
-#   * Net map repurposed and renamed: was SLR − erosion − scrape (diverging);
-#     now "Drawdown imposed on the clearfell pre-fell baseline" = scrape + Storm
-#     Brendan retreat (both head LOSSES) on the shared sequential drawdown scale.
-#     SLR dropped; diverging norm / neutral band / zero line removed. Output
-#     OUT_20_SCRAPE_COASTAL_NET → OUT_20_CLEARFELL_BASELINE_DRAWDOWN
-#     (20_clearfell_baseline_drawdown.png).
-# 1.9.2 — Net map: removed the zero-line contour (drawn from the un-masked field
-#         it wandered through the near-zero far-field, reading as SLR lines
-#         "encroaching" from the N ridge and SE Menai margins). Coastal/scrape
-#         contour lines are unaffected. Dropped the zero-line legend entry and
-#         the now-unused net_full.
-# 1.9.1 — Net map: -50 mm contour label relocated to the SE arc of its contour
-#         (bearing ~135° from the scrape centre) so it no longer sits on a
-#         dipwell marker; rendered horizontal with the white halo.
-# 1.9.0 — Net map (Fig 8): added a neutral dead-band (|net|<5 mm blanked to bare
-#         hillshade) so the negligible far-field SLR erfc tail no longer renders
-#         as spurious blue "rises" along the N rock-ridge (NW) and Menai (SE)
-#         margins — only the SW coastal partition and the scrape footprint are
-#         coloured. Contour labels on the net AND scrape maps now have a
-#         transparent background with a white halo (path_effects) instead of a
-#         white box, so the 50 mm label no longer obscures the fill beneath.
-# 1.8.0 — Added Figure 8, plot_scrape_coastal_net(): triple net map combining
-#         SLR head gain − coastal-erosion drawdown − CEH36 scrape-drain drawdown
-#         (net = slr − eros − scrape), diverging RdBu like Fig 6, via new
-#         _scrape_field() helper. New path OUT_20_CLEARFELL_BASELINE_DRAWDOWN. Also:
-#         removed the on-map scrape area label (now in the title) and folded the
-#         scrape dimensions (30×60 m, 40 cm) into the scrape-map title.
-# 1.7.0 — Scrape edge drawdown now derived as H0 = Sy × scrape depth, with Sy
-#         the live C3 WTF specific yield (the "fraction" is the specific yield
-#         of the sand, not a flat 20%). 0.40 m × Sy(0.31) ≈ 124 mm, matching the
-#         directly-measured CEH36 response (~129 mm); inverting that response
-#         gives a depth estimate of 129/Sy ≈ 0.41 m for the otherwise-unmeasured
-#         scrape. Removed SCRAPE_DRAWDOWN_FRACTION / module-level SCRAPE_H0_MM.
-# 1.6.0 — Scrape map now parametrised by excavation DEPTH (SCRAPE_DEPTH_M=0.40,
-#         40 cm) stated in the title; edge drawdown H0 derived as
-#         SCRAPE_DRAWDOWN_FRACTION (0.20, assumed, not Sy-derived) × depth =
-#         80 mm. Per-well drawdown labels removed; the scraped-area polygon and
-#         filled contours carry the read. (Sign note: the empirical clearfell
-#         BACI scraping step is POSITIVE — a rise — so this drawdown map is
-#         sign-inverted relative to the data; pending decision to flip.)
-# 1.5.0 — Scrape-drawdown source moved from CEH22 (coastal) to CEH36 (the
-#         documented 2015 scrape, ~450 m inland). Added SCRAPE_TRUNCATE_SEAWARD
-#         flag: the seaward half-plane + foreshore clip now applies only to a
-#         shore-margin scrape; for the inland CEH36 site it is OFF, so the drain
-#         draws all round (full cone). Title drops "landward-truncated" when the
-#         flag is False.
-# 1.4.0 — Shared drawdown colour scale across the three filled drawdown-type
-#         maps (DRAWDOWN_FILL_LEVELS [2,5,10,25,50,100,150], YlOrBr, banded so
-#         small-magnitude maps keep low-end resolution): coastal erosion (Fig
-#         4), forest drawdown (Fig 3) and scrape drawdown (Fig 7) are now
-#         directly comparable colour-to-colour. Decouples erosion from the SLR
-#         map (Fig 5), which keeps its own linear [2…50] set (different
-#         quantity/cmap). main() now emits the drawdown/scrape maps in no-head
-#         form only (head variants no longer generated; show_head kwarg kept).
-# 1.3.0 — Drawdown maps (Fig 3 forest, Fig 7 scrape) restyled toward the
-#         coastal-erosion figures: GW flow-direction arrows removed from both;
-#         the no-head variant now draws FILLED drawdown contours (YlOrBr,
-#         α=0.55, extend="max") with a drawdown colorbar, plus labelled line
-#         contours on top — matching plot_coastal_erosion(). The with-head
-#         variant keeps the head colour surface with line contours only (a fill
-#         would clash with the head surface). plot_head_streams() arrows are
-#         untouched.
-# 1.2.0 — Added show_head switch to plot_drawdown_propagation() (Fig 3) and
-#         plot_scrape_drawdown() (Fig 7). show_head=False omits the mean-head
-#         colour surface + colorbar, leaving drawdown contours on the bare DEM
-#         hillshade (GW arrows recoloured dark-blue for contrast). main() now
-#         emits both variants of each: OUT_20_DRAWDOWN(_NOHEAD) and
-#         OUT_20_SCRAPE_DRAWDOWN(_NOHEAD) (new paths in paths.py). Report
-#         default behaviour (with head) unchanged.
-# 1.1.0 — Added Figure 7, plot_scrape_drawdown(): illustrative SCENARIO map of
-#         the steady-state drawdown from a coastal dune-scrape treated as a
-#         topographic drain (§5.4.2 reading). Sibling of Figure 3 — same
-#         leaky-aquifer λ = √(K·b/(Sy·β₃)) with Sy/β₃ read live from C3 — but
-#         (a) source is a rotated rectangle (SCRAPE_* flagged constants;
-#         default 30×60 m, NE long axis, at CEH22 on the south coast),
-#         (b) cost-distance weighting flipped to mildly favour up-gradient
-#         propagation, (c) field is a drawdown of ASSUMED edge magnitude
-#         SCRAPE_H0_MM (a flagged scenario input, NOT derived from Sy), and
-#         (d) the seaward side is truncated (half-plane normal to the inland
-#         bearing + sub-1.5 m foreshore), since a coastal drain draws from the
-#         landward side and the sea pins the seaward head. New flagged constants
-#         block; new path OUT_20_SCRAPE_DRAWDOWN (paths.py). Wired into main().
-#         All SCRAPE_* values are review FLAGS (location, geometry, H0, clip).
-# 1.0.2 — build_well_table() de-duplication.  The Reference bucket was built
-#         from "has a surveyed location + a maOD series" — a looser set than
-#         the 66-well analysed reference network — so 13 Extended-network
-#         wells were caught by it and ALSO appended as Extended rows: counted
-#         twice in the console line (Wells: 101 = 79 + 22, true distinct 88)
-#         and plotted on the cluster/slope maps as default-C3-coloured
-#         markers despite never being clustered.  Reference and Extended
-#         buckets are now mutually exclusive; the console line reports the
-#         true 66 / 22.  Figures only — Script 20 emits no analytical CSV;
-#         residual figures already plotted the correct 66 (residual_wb
-#         notna) and are unaffected.
-# 1.0.1 — Doc-sweep S.13.  Made Sy and BETA3_M dynamic in
-#         plot_drawdown_propagation(): both now read from upstream pipeline
-#         CSVs (C3 cluster median from 17_wtf_well_sy.csv; C3 centroid β₃
-#         from 03_03_cluster_mechanistic_coefficients.csv).  C3 is the
-#         drawdown propagation MEDIUM (open dune beyond the forest edge),
-#         which is the correct cluster for the hydraulic diffusivity
-#         calculation D = K·b/Sy.  Previously hardcoded snapshot values
-#         (Sy=0.25, β₃=0.060) gave λ=245 m; live C3 values (Sy≈0.33,
-#         β₃≈0.060) give λ≈217 m.  Affects Figure 3 (20_drawdown_propagation.png).
-#         Also: corrected stale C4-only forest interception reference in
-#         the References section of the header docstring (S13-E);
-#         replaced hardcoded (4, 5) cluster tuple with FOREST_CIDS imported
-#         from utils.config (S13-F); added __version__ (S13-G).
-# 1.0.x — Initial.
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import argparse
 import warnings
@@ -578,7 +118,10 @@ from utils.config import (CLUSTER_COLOURS, CLUSTER_LABELS, DRAINAGE_DATUM, FORES
                           SCRAPE_KML_FILES,
                           DRAWDOWN_H0_MM, DRAWDOWN_K_MDAY, DRAWDOWN_B_M,
                           BROADLEAF_INTERCEPTION, BL_CANOPY_FRACTION_2005,
-                          BL_CANOPY_FRACTION_2025, COAST_CHRONIC_YEARS)
+                          BL_CANOPY_FRACTION_2025, COAST_CHRONIC_YEARS,
+                          COAST_RETREAT_M, COAST_RETREAT_RATE,
+                          SCRAPE_RISE_BUFFER_M,
+                          SLR_WINDOW_YEARS, SLR_RISE_M, SLR_SHORE_LEVEL_M)
 from utils.data_utils import normalize_well_name
 from utils.report_numbers_utils import ReportNumbers
 from utils.render_utils import render_figure
@@ -625,8 +168,8 @@ SEA_ANCHOR_SPACING = 200
 #   COAST_EAST_CUT_E       easting east of which the DEM waterline contour is
 #                          discarded, to keep only the SW-facing Caernarfon Bay
 #                          shore (excludes lake / Menai-side low ground).
-COAST_RETREAT_M       = 6.0
-COAST_RETREAT_RATE    = 8.3      # m/yr  (≈50 m / 2014–2020, Forgrave 2020)
+# COAST_RETREAT_M and COAST_RETREAT_RATE are imported from config.py (shared
+# with Scripts 09d/09f) — do not redeclare them here.
 COAST_DUNE_OFFSET_M   = 100.0    # m inland to dune toe
 COAST_SHORE_LEVEL_M   = 0.5      # m AOD waterline contour
 COAST_EAST_CUT_E      = 242300   # m, keep SW shore west of this
@@ -646,24 +189,17 @@ COAST_EAST_CUT_E      = 242300   # m, keep SW shore west of this
 # different kinds of forcing (gradual vs episodic) and are not reduced to a
 # common annual rate — see the figure caption / §5. Each constant is a FLAG.
 #
-#   SLR_WINDOW_YEARS   the response window t (yr). 5 yr ≈ near-term horizon.
-#   SLR_RISE_M         mean-sea-level rise accumulated over the window (m).
-#                      +0.05 m over 5 yr ≈ current ~4–5 mm/yr relative SLR on
-#                      the north Wales coast (UKCP18, low end of UK range).
-#   SLR_K, SLR_B       aquifer hydraulic conductivity (m/day) and saturated
-#                      thickness (m) — literature values, as in the drawdown
-#                      map (Betson 2002; thickness estimate). Sy is read live
-#                      from the C3 WTF estimates (same source as the drawdown
-#                      map), not hardcoded.
-SLR_WINDOW_YEARS      = 5.0
-SLR_RISE_M            = 0.02     # +0.02 m over 5 yr ≈ ~4 mm/yr (north Wales,
-                                #   current-rate central estimate, UKCP18)
-SLR_SHORE_LEVEL_M     = 0.0      # m AOD — SLR head is referenced to MEAN sea
-                                #   level (0 m AOD), not the +0.5 m line used
-                                #   for the erosion dune-toe front. The water
-                                #   table is pinned to mean sea level at the
-                                #   coast, so this is the correct SLR datum.
-# SLR_K / SLR_B removed v1.27.0 — use DRAWDOWN_K_MDAY / DRAWDOWN_B_M from config.py
+#   SLR_WINDOW_YEARS   the response window t (yr), config.py
+#   SLR_RISE_M         mean-sea-level rise accumulated over the window (m),
+#                      config.py — a UKCP18-referenced scenario input.
+#   SLR_SHORE_LEVEL_M  the boundary datum (m AOD), config.py — mean sea level,
+#                      NOT the erosion dune-toe front (COAST_SHORE_LEVEL_M).
+#
+# All three are imported from config.py and must not be redeclared here.
+# SLR_WINDOW_YEARS is a DISTINCT quantity from COAST_CHRONIC_YEARS even while
+# the two hold the same value — see the note beside them in config.py.
+# K and b come from DRAWDOWN_K_MDAY / DRAWDOWN_B_M; Sy is read live from the C3
+# WTF estimates (same source as the drawdown map), not hardcoded.
 
 # ── Scrape-drain drawdown figure parameters ──────────────────────────────────
 # External assumptions for plot_scrape_drawdown(). Illustrative SCENARIO map of
@@ -704,10 +240,10 @@ SCRAPE_SHORT_M           = 30.0       # m, short axis
 SCRAPE_BEARING_DEG       = 45.0       # ° from N (NE long axis)
 SCRAPE_FAVOUR_UPGRADIENT = True       # drain pulls inland (flip forest weight)
 SCRAPE_TRUNCATE_SEAWARD  = False      # seaward half-plane + foreshore clip.
-SCRAPE_RISE_BUFFER_M     = 10.0       # the scraped footprint RISES (slack
-                                      # restoration); the rise is confined to the
-                                      # scrape KML footprints plus a thin 10 m
-                                      # collar, shown as the rise zone not drawdown.
+# SCRAPE_RISE_BUFFER_M is imported from config.py (shared with Scripts 09d/09f)
+# — do not redeclare it here. The scraped footprint RISES (slack restoration);
+# the rise is confined to the scrape KML footprints plus that collar, and is
+# shown as the rise zone rather than drawdown.
 SCRAPE_TIMESCALE         = "Feb 2013 · Apr 2015 · Oct 2023 cuts"  # three scraping epochs
                                       # True for a SHORE-margin scrape (e.g.
                                       # CEH22) where the sea pins the seaward
@@ -873,9 +409,10 @@ def build_well_table(data):
     # not the study period. Averaging all of it evaluated the SSM against a
     # 95-year climate normal while the mean heads below span the monitoring
     # record only, and while Figure 58's caption states 2005-2026. The two
-    # periods differ materially (full record 71.45 / 53.12 mm/month against
-    # study period 74.33 / 54.72), and because the bias enters through
-    # beta_1 * P_bar it scaled with beta_1 — largest in the open dune.
+    # periods differ materially, and because the bias enters through
+    # beta_1 * P_bar it scaled with beta_1 — largest in the open dune. The
+    # realised averaging period and its P̄/PET̄ are printed to the console and
+    # written to 20_residual_report_numbers.csv; cite those, not a literal.
     #
     # The averaging window is derived from the mean-head record (`maod`)
     # rather than a literal date, so the climate means and the mean heads
@@ -929,11 +466,12 @@ def build_well_table(data):
     # PARTITION of the atmospheric energy budget, not a term additive to it:
     # because Script 03 fits the SSM on gross rainfall and above-canopy
     # Thornthwaite PET, the interception loss at C4/C5 is ALREADY carried
-    # inside the fitted β₂·PET̄. Applying (1 − 0.24) to P̄ as well inserted a
-    # spurious +β₁·0.24·P̄ ≈ +40 mm/month at C4 and +38 at C5 — more than the
-    # entire forest-versus-open contrast the resulting figure displayed.
-    # Script 16 uses gross P̄ here and closes the cluster balance to within
-    # ±4.2 mm/month; this now agrees with it. Interception belongs in the
+    # inside the fitted β₂·PET̄. Applying (1 − FOREST_INTERCEPTION) to P̄ as
+    # well inserted a spurious +β₁·FOREST_INTERCEPTION·P̄ at the forest
+    # clusters — larger than the entire forest-versus-open contrast the
+    # resulting figure displayed. Script 16 uses gross P̄ here and closes the
+    # cluster balance to the residual it reports in its own per-cluster output
+    # (Residual_m_month); this field now agrees with it. Interception belongs in the
     # volumetric budget (Script 16 panel b) and in the WTF net-recharge flux
     # (Scripts 17/18), where throughfall is used directly and no β₁ is
     # applied. See DEFECT_NOTE_script20_residual_field_2026-08-06.md.
@@ -1608,10 +1146,9 @@ def plot_drawdown_propagation(wt, features, dpi=300, show_head=True):
     #   - Sy: cluster median of WTF Sy from outputs/17_wtf_well_sy.csv
     #   - β₃: cluster centroid drainage coefficient from
     #         outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv
-    # Pre-v2026-05-17 used hardcoded snapshot values (Sy=0.25, β₃=0.060),
-    # which gave λ=245 m.  Live C3 values (Sy≈0.33, β₃≈0.060) give λ≈217 m.
-    # K and b remain fixed literature/estimate values (Betson 2002; aquifer
-    # thickness estimate).
+    # The realised λ is emitted to 20_report_numbers.csv (drawdown_lambda) on
+    # the show_head pass; cite that file, never a literal. K and b remain fixed
+    # literature/estimate values (Betson 2002; aquifer thickness estimate).
     K       = DRAWDOWN_K_MDAY   # m/day (Betson 2002), from config.py
     b       = DRAWDOWN_B_M      # m saturated thickness, from config.py
     H0      = DRAWDOWN_H0_MM    # mm forest interception deficit, from config.py
@@ -4221,7 +3758,7 @@ def _render_driver_change(wt, d, out_path, dpi, log_scale):
     """Render a driver-change net field `d` (from _driver_change_net) to
     `out_path`. log_scale=False → linear BoundaryNorm ±150 (the 5-yr map);
     log_scale=True → symmetric-log SymLogNorm (the 20-yr map), so the deep
-    coastal field and the ±120 mm management effects both read on one scale."""
+    coastal field and the shallower management effects both read on one scale."""
     from matplotlib.colors import (BoundaryNorm, ListedColormap as _LC,
                                     SymLogNorm, LinearSegmentedColormap as _LSC)
     import matplotlib.patheffects as _pe
@@ -4251,14 +3788,14 @@ def _render_driver_change(wt, d, out_path, dpi, log_scale):
         LABEL_MANUAL = False
     else:
         # Symmetric-log diverging scale (20-yr map). Loss side runs WHITE at 0
-        # → yellow (shallow loss) → RED (deep loss, e.g. the ~581 mm coastal
-        # toe); gain side WHITE → blue. The LinearSegmentedColormap list runs
+        # → yellow (shallow loss) → RED (deep loss at the coastal toe); gain
+        # side WHITE → blue. The LinearSegmentedColormap list runs
         # from position 0.0 (vmin = −600, deepest loss) to 1.0 (+600, gain), so
         # the deepest-loss colour (red) must come FIRST. This gives the
         # conventional heat-map reading — the drying coast is red, the near-zero
         # east is pale — with linear response within ±linthresh then log either
-        # side so the deep coastal field and the ±120 mm management effects both
-        # read without saturation.
+        # side so the deep coastal field and the shallower management effects
+        # both read without saturation.
         LOSS_RAMP = ["#7a0403", "#c2410c", "#ea7317", "#f59e0b",
                      "#fbbf24", "#fde68a", "#fff8e1"]   # deep red → pale (loss)
         GAIN_RAMP = ["#eaf2fb", "#bfdbfe", "#93c5fd", "#60a5fa",
@@ -4413,8 +3950,9 @@ def plot_driver_change_2005_2025(wt, features, dpi=300):
 
 def plot_driver_change_20yr(wt, features, dpi=300):
     """Modelled 2005→2025 driver-change map at the FULL 20-year coastal horizon
-    (coastal ≈ 20×δ₀ ≈ 581 mm at the toe), on a symmetric-LOG colour scale so
-    the deep coastal field and the ±120 mm management effects both read.
+    (coastal toe = MECHANISM_HORIZON_YEARS × δ₀, with δ₀ read live from the
+    Script 25 panel fit), on a symmetric-LOG colour scale so the deep coastal
+    field and the shallower management effects both read.
 
     This is a PREDICTION-SURFACE / diagnostic figure: at each well it predicts a
     2005→2025 drawdown that can be tested against the observed record (per-well

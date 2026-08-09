@@ -39,19 +39,6 @@ Inputs (read at runtime via utils.paths constants; nothing hardcoded):
   INT_MASTER_DATA        (03_master_data.csv)   beta_1/2/3 + Cluster (calibration + cluster)
   INT_PEAR_AUDIT_SITEWIDE(06_pear_membership_audit_sitewide.csv)   cluster fallback for unclustered wells
 
-Version: 1.1.0 (2026-06-28)
-
-Changelog
----------
-1.1.0 (2026-06-28)
-  * Convention pass: __version__; inputs read directly through utils.paths constants
-    (INT_WELLS_CLEAN, INT_LOCATIONS, INT_MASTER_DATA, INT_PEAR_AUDIT_SITEWIDE) instead of
-    local IN_* aliases that built two paths from string literals, so the dependency auditor
-    attributes every read. No change to computed values (the per-well cluster columns already
-    derive from the data, not a hard-coded k).
-1.0.0 (2026-06-27)
-  * Initial release: frame-independent per-well climate-sensitivity coefficient with CI,
-    confidence tiers, SSM (beta_2/beta_3) calibration figure, and discrete marker map.
 """
 
 from __future__ import annotations

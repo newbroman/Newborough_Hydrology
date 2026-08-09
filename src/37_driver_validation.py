@@ -112,58 +112,16 @@ Outputs (outputs/37_driver_validation/):
                                      (C2), excluded-sluice block (C1),
                                      self-confirmation caveat.
 
-Step 40/46, Phase 15 - Observed Differential Change, Envelope, and Validation.
+Observed Differential Change, Envelope, and Validation. Runs after Script 36
+in the driver-validation phase; step index in outputs/pipeline_manifest.json.
 """
 
 __version__ = "3.2.0"  # 2026-07-06: ADDENDUM 1 —
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-#                       SPEC_script37_ADDENDUM1_control_C2_sluice_exclusion_2026-07-06.md.
-#                       Negative control C1 -> C2 (Dune): C1 is buffered by a
-#                       sluice-managed lake (Llyn Rhos-Ddu), so its dh_corr
-#                       reflects management, not natural forcing, and cannot
-#                       validate the climate correction. C2 is driver-free and
-#                       shows near-zero mean residual in every window (n=6).
-#                       C1 (Lake Edge) now EXCLUDED from the regression fit via
-#                       the existing exclude_named/exclude_reason mechanism,
-#                       resolved at runtime from config.ACT_FIT_EXCLUDE_CLUSTERS
-#                       + CLUSTER_LABELS (never a literal well list); still
-#                       shown in the per-well CSV/scatter and reported as its
-#                       own "EXCLUDED FROM FIT — sluice" block in results.txt
-#                       for transparency. New config constants:
-#                       ACT_NEG_CONTROL_CLUSTER = "C2", ACT_FIT_EXCLUDE_CLUSTERS
-#                       = ("C1",), ACT_FIT_EXCLUDE_REASON. Immaterial to the
-#                       headline scale-factor table (shifts <=0.15 SE per
-#                       ADDENDUM 1) — this is a control-credibility cleanup,
-#                       not a result change. No output-schema break.
-# 3.0.0 — 2026-07-06: BREAKING REWRITE per
-#                       SPEC_script37_scale_factor_regression_2026-07-06.md
-#                       (Part A). Replaces the v2.x sequential stage-calibration
-#                       architecture (Stage 1 coastal / Stage 2 scrape / Stage 3
-#                       clearfell, summed-field prediction) with a per-window
-#                       OLS regression of dh_corr on {coast, clearfell} as
-#                       separate regressors + a free uniform intercept, HC3
-#                       robust SEs. Scraping dropped as a regressor entirely
-#                       (owned by BACI evidence). Windows: 2006_2012 (coast
-#                       only), 2018_2025 (coast+clearfell; NEW window, see
-#                       config.ACT_PERIODS / Script 36 v1.2.0), 2005_2025
-#                       (coast+clearfell, full-record). New independent
-#                       delta_0(t) expanding-window trajectory test. C1 Lake
-#                       wells included in the fit, reported separately as
-#                       negative control. Broadleaf optional covariate in
-#                       2018_2025 only. New outputs OUT_37_SCALE_FACTORS,
-#                       OUT_37_DELTA0_TRAJECTORY. Companion changes:
-#                       config.ACT_PERIODS gains 2018_2025 + five expanding
-#                       windows (2005_2010...2005_2022); Script 36 v1.1.0 ->
-#                       v1.2.0 gains those windows in SEQUENTIAL_PERIODS plus
-#                       a decoupled emit_dh_corr kwarg so the strict-coverage
-#                       PRIMARY 2005_2025 window emits dh_corr_mm_2005_2025
-#                       without relaxing its own coverage rule.
-# 2.1.0 — 2026-07-06: consume climate-corrected endpoint difference
-#          dh_corr_<window> (mm) from Script 36 v1.1.0+ as the driver signal,
-#          replacing slope_mm_yr x T_years (which overfit short windows).
-# 2.0.x — 2026-07-06: sequential driver calibration (Stage 1/2/3), superseded.
-# 1.0.1 — clearfell felling-polygon geometry (retained unchanged in v3.0.0).
-# 1.0.0 — initial release.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import os
 import sys
@@ -443,7 +401,7 @@ def load_script36_wells() -> pd.DataFrame:
     if missing:
         raise KeyError(
             f"Script 36 CSV is missing required column(s): {missing}.\n"
-            "Rerun Script 36 v1.2.0+ (step 39) with the Part-A windows "
+            "Rerun Script 36 v1.2.0+ with the Part-A windows "
             "(2006_2012, 2018_2025, 2005_2025) in config.ACT_PERIODS, "
             "then rerun Script 37."
         )

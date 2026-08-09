@@ -71,23 +71,11 @@ import os
 from scipy.stats import linregress
 
 __version__ = "1.2.0"  # Hollingham (2026) — 2026-06-22
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# 1.1.0 (2026-06-22): §4.1.1 traceability — make_figure1_climate_timeseries()
-#   now returns its short-profile centring constant and cumulative-balance vs
-#   network-WL regression (R², slope, n); new compute_climatology() emits the
-#   12-month P/PET climatology (complete-years well-period basis) with the
-#   winter/summer rainfall split and peak/trough months. _run_all() writes
-#   00_04_climatology.csv and 00_report_numbers.csv. No change to figures.
-# 1.0.2 (2026-05-25): long-term-mean partial-year contamination fix.
-# 1.0.2 — Long-term-mean row partial-year contamination fixed.  The
-#         "Long-term mean" row of make_table1_annual_climate() averaged
-#         over every annual row, including partial years (Months_complete
-#         < 12) at the record ends, despite those years being flagged "*"
-#         in the Notes column.  Now averages complete years only
-#         (Months_complete == 12).  Affects both the full-record and the
-#         _short well-period tables.
-
-# Colorblind-safe palette used throughout the project
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 CB_BLUE = "#0072B2"
 CB_GREEN = "#009E73"
 CB_ORANGE = "#E69F00"

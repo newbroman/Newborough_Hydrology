@@ -2,10 +2,9 @@
 38_coastal_transect.py — Coast-to-inland MAM transect (observational delta_0 test)
 ====================================================================================
 
-Opt-in diagnostic tier (Phase 16) — wired into run_analysis.py 2026-07-08;
-runs with --with-supplementary or the menu option 1 prompt. Not part of the
-analytical core (ANALYTICAL_STEP_COUNT is unaffected by this or any other
-opt-in step). See outputs/pipeline_manifest.json for the current step index.
+Wired into run_analysis.py 2026-07-08. Tier and execution mode are declared by
+the orchestrator, not here; see outputs/pipeline_manifest.json for this script's
+tier, execution mode, and current step index.
 
 Purpose (one sentence)
     Test whether the coast-to-inland MAM head gradient grows through time
@@ -106,53 +105,6 @@ Outputs (outputs/38_coastal_transect/):
     38_coast_inland_difference.jpg     Delta_coast_inland(t) + AR-corrected trend
     38_results.txt                     slope +/- CI, n, discriminator read, caveats
 
-Version: 1.3.0 (2026-07-08)
-  1.3.0 (2026-07-08): wired into run_analysis.py as PHASE_16's final entry
-      (tier X, exec optin) — previously committed to src/ but standalone.
-      No analysis/number change. Also fixed a figure-only cosmetic bug:
-      the profile-plot well-label annotations (below panel b) used a fixed
-      vertical offset for every well, so CEH40 and CEH41 — which sit close
-      together along the transect (~840-970 m) and both carry the two-line
-      "(scraped — profile only)" tag — overlapped illegibly. Labels now
-      alternate vertical offset by transect position, which separates any
-      two adjacent labels regardless of their along-transect spacing. No
-      change to any number, window, fit, or the underlying figure data.
-  1.2.0 (2026-07-07): profile figure extended to two stacked panels.
-      (a) raw absolute MAM profile (as before); (b) climate-corrected profile,
-      anchor-referenced to the inland anchor NW4 (h_well - h_NW4 per year). NW4
-      is erosion-free (outside the L ~= 894 m drawdown band), so subtracting it
-      removes common-mode climate model-free — the same logic as the headline
-      CEH22-NW4 metric, drawn across all wells. Coastal-end ordering vs year
-      tightens from Spearman rho ~ -0.32 (raw) to ~ -0.87 (referenced),
-      surfacing the progressive coastal drawdown that panel (a) buries under
-      wet/dry year swings. CEH40/CEH41 kept in both panels, annotated as
-      scraped (they carry the Feb-2013 scrape offset, so sit off the clean
-      line in panel b — shown for transparency, never in any metric). Headline
-      difference metric, window, trend and CI unchanged. A CWB-regression
-      cross-check (not built in) confirmed the correction is safe here: spring
-      CWB does not trend over 2010-2023 (VIF ~ 1.0), and the CWB-corrected
-      headline slope (-28.5 mm/yr) matches the raw (-28.2 mm/yr).
-  1.1.1 (2026-07-07): plotting bug fix in make_difference_plot(). The CI band
-      was pivoted on the trend intercept `a` (value at year = 0); with an
-      absolute-year x-axis that intercept is ~+50 m, so the band rendered ~56 m
-      above the data and forced the y-axis autoscale to [-6, +50], squashing
-      the real -28 mm/yr trend into a visually flat strip. Now pivoted on the
-      data centroid (x_bar, y_bar). Figure only — no change to any number,
-      window, or the fitted trend/CI values themselves.
-  1.1.0 (2026-07-07): window-governance fix. Dropped CEH41 from the
-      window-start calculation (was max(CEH22, CEH41) first-valid MAM;
-      now CEH22 first-valid MAM only, since the headline metric never
-      reads CEH40/CEH41 anyway). Recovers 2010-2014 (5 extra years) for the
-      headline CEH22-NW4 trend: n rises 9 -> 14, bootstrap 95% CI narrows
-      from [-40.7, -13.6] to roughly half that width, AR p-value drops by
-      several orders of magnitude. CEH40/CEH41 remain in the profile plot,
-      annotated, for whichever years they have data (2015 on) — display
-      role only, unchanged from v1.0.0.
-  1.0.0 (2026-07-07): initial release. Build brief
-      BUILD_BRIEF_coastal_transect_MAM_2026-07-07.md, sign-off as stated above.
-      CEH41 folded in as a second scraped-slack profile corroborator alongside
-      CEH40 (both from the same eastern-scrape episode), consistent with the
-      brief's own use of CEH41 in the window-start computation.
 """
 
 from __future__ import annotations
@@ -176,14 +128,11 @@ from utils.console_utils import banner, phase, step, info, note, result, saved, 
 from utils.render_utils import render_figure
 
 __version__ = "1.5.0"  # 2026-07-13: profile figure reduced to a single
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-#                       climate-corrected panel (was two). Dropped the raw
-#                       absolute panel (a) — a methods demo, not evidence;
-#                       raw levels remain in 38_transect.csv. Single-hue
-#                       light->dark ramp (was viridis) so early->late reads
-#                       as deepening; coastal-end year-ordering now legible.
-#                       Figure only — no change to any number, window, trend,
-#                       CI, or the difference plot.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 VERSION = __version__
 SCRIPT_ID = "38"
 

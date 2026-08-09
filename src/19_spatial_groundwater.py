@@ -21,48 +21,11 @@ Usage:
 """
 
 __version__ = "2.10.0"   # Hollingham (2026) -- 2026-08-06
-# 2.9.0 — viewer footer corrections. Two changes, both to generated HTML only;
-#          no change to the Delta-h calculation, the scenario definitions, or
-#          19_scenario_summary.csv.
-#          (a) Removed the claim that the Delaunay/linear interpolation is used
-#              "for published figures". This script emits no static figures --
-#              its only artefacts are 19_scenario_summary.csv and
-#              scenario_viewer.html -- and no report figure matches the
-#              described subject. The claim had propagated from this footer
-#              into the main report (Section 3.8) and the Supplementary
-#              Material (S3.2/S3.7/S3.8), each with a different stale figure
-#              pair. The genuine methodological contrast (triangulation-linear
-#              on export, power-1 8-NN IDW in the browser) is retained.
-#          (b) Removed the hardcoded CEH14 line "water balance residual
-#              alpha = +0.222 m/month (script 07)". It was hardcoded in the
-#              template with no CSV trace, mis-attributed (Script 07 computes
-#              no alpha term), and stale: the nearest live equivalent is the
-#              Script 22 Model B alpha, 22_model_b_fits.csv giving ceh14
-#              alpha = 0.1056 m/month at p = 0.081. Not replaced with a live
-#              value -- alpha is not a scenario parameter and nothing in the
-#              viewer consumes it. Revisit if the Script 20 residual pass
-#              concludes otherwise.
-# 2.8.1 — data/geo/ reorg: site-boundary via DATA_KML_SITE_BOUNDARY (data/geo/).
-#          No functional change.
-                         # v2.8.0: ΔMSL5 row added to scenario viewer.
-                         #         New top row in the per-cluster scenario
-                         #         summary table reports the 5-year mean
-                         #         spring water-level shift (mean Δh over
-                         #         March-May) per cluster per scenario --
-                         #         the van Willegen et al. (2025) metric
-                         #         and the published best-performing
-                         #         predictor of dune-slack vegetation
-                         #         response.  Surfaces vegetation-relevant
-                         #         information alongside the existing
-                         #         hydrological Δh rows in the SAC's
-                         #         primary public-facing tool.
-                         #         IMPORTANT formulation choice (recorded
-                         #         here because the canonical 26b output
-                         #         is the validation target):  the ΔMSL5
-                         #         row mirrors Script 26b's pure-climate
-                         #         perturbation exactly --
-                         #           Δh(m) = β₁·P(m)·(sP(m)-1)
-                         #                  − β₂·PET(m)·(sPET(m)-1)
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
                          #         -- using per-month climatology and no
                          #         forest interception, so it matches
                          #         26b_msl5_ukcp18_projection_summary.csv

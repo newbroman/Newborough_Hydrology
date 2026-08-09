@@ -25,17 +25,11 @@ Outputs:
 """
 
 __version__ = "1.2.0"  # Hollingham (2026) — 2026-07-19
-# 1.2.0 (2026-07-19): legibility hand pass — legend only, per review: legend
-#   text 9 -> 10 pt, legend title 10 -> 11 pt. All other fonts untouched.
-#   Larger legend box may collide with map content — check on regeneration.
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# 1.0.2 — data/geo/ reorg: DEM path via DATA_DEM (data/geo/). No functional change.
-# 1.0.1 — Doc-sweep S.8: lowercased "Clear-Fell" → "clearfell" in inline
-#         comment (Item 14, consistent with the rest of the script and
-#         the clearfell_common module name); added PNG@dpi=300 format
-#         note in Outputs docstring (Item 13).  Patch — no functional
-#         change.
-# 1.0.x — Initial.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os

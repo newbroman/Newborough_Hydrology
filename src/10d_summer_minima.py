@@ -32,74 +32,11 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 """
 
 __version__ = "1.6.0"  # Hollingham (2026) — 2026-07-14
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# 1.5.0 — Clearfell no-decay comparator added (Task G). New report-number:
-#         the post-felling OLS slope of WMC3's summer-minimum forest-control
-#         gap (Gap_forest_m, 2018→last), as the matched-currency comparator to
-#         the CEH36 scrape equilibration decay (09c). This isolates the SHAPE
-#         (decay vs no-decay), not the step: the clearfell step is a
-#         monthly/mean effect (canonical ANCOVA), and is near-zero in the
-#         summer minimum (cf. the committed summer ANCOVA), so this comparator
-#         is reported purely as the flatness/no-decay reference. Plain OLS, no
-#         AR(1) (annual points). New row in 10d_report_numbers; all other
-#         outputs byte-identical. Min-points gate from config.EQUIL_MIN_FIT_POINTS.
-# 1.4.0 — plot_summer_minima() figure-correctness fix (two defects):
-#         (A) Wandering tier mean in panel (a).  The per-year tier mean
-#             was np.mean() over whichever roster wells happened to have
-#             a summer minimum that year, with no completeness gate.
-#             When a roster well was missing (e.g. CEH17 absent in 2019)
-#             the plotted "tier mean" silently became a one-well average
-#             sitting ~1 m shallower than the usual two-well Coastal
-#             mean — the spurious +0.5 m peak at 2019.  Panel (a) tier
-#             means are now FIXED-MEMBERSHIP: a tier-year is plotted only
-#             if every well in the tier roster has a summer minimum that
-#             year; otherwise the year is omitted.  This mirrors the
-#             v1.7.0 clearfell_common.compute_control_centroid() rule.
-#         (B) Plotted lines bridged missing calendar years.  matplotlib
-#             'o-' joins consecutive list entries regardless of calendar
-#             gaps, so the Impact line was drawn straight through 2012
-#             and 2019 (years WMC3 has no summer minimum).  All plotted
-#             series — panel (a) tier lines, panels (b)-(d) per-well and
-#             tier-mean lines — are now reindexed onto a complete
-#             consecutive-year axis with np.nan inserted for missing
-#             years, so the line breaks at genuine gaps while markers
-#             still appear for years with data.
-#         Figure-only change.  Panel (a) tier means are a plotting-only
-#         aggregation built inside plot_summer_minima(); they are not
-#         written to any CSV.  10d_01_summer_minima.csv,
-#         10d_03_mixed_model_results.csv and 10d_report_numbers.csv are
-#         all built before plot_summer_minima() is called and are
-#         byte-identical pre/post this change.  The Forest/Climate
-#         centroids in panels (b)-(d) come from
-#         forest_control_centroid_summer_min() (min_wells=2 gate,
-#         unchanged); the 10d mixed models operate on per-well gap
-#         series, not the panel (a) tier means — both unaffected.
-# 1.3.0 — Defect E fix integration:
-#         * Consumes new wells_provenance return from load_clearfell_data
-#           (clearfell_common v1.3.0).
-#         * annual_summer_minimum now called with provenance and
-#           min_measured=2 — phantom 2019 summer minima for WMC3, NW6 and
-#           NW7 (which had zero measured Jun-Sep readings under limit=3
-#           interpolation) are correctly dropped from the per-well CSV.
-#         * forest_control_centroid_summer_min likewise receives
-#           wells_provenance, so the control centroid in any given year
-#           is based on measured cells only.
-#         * 10d_01_summer_minima.csv gains an n_interpolated column
-#           recording how many Jun-Sep cells in each (well, year) bucket
-#           were flagged interpolated and therefore excluded from the
-#           minimum.
-# 1.2.0 — Set first_year = 2011 (was 2010 via PRE_FELL_START.year).
-#         Annual analyses use 2011+ because that is the first year all
-#         17 network wells have complete observed Jun–Sep coverage.
-#         Unlike 10a/10b/10e/10h, this script does NOT adopt the CEH34
-#         donor-regression hindcast: in an annual minimum-of-summer
-#         estimator a hindcasted value could become the year's minimum
-#         and concentrate its uncertainty directly into the BACI input,
-#         whereas in monthly analyses the same hindcast is one row among
-#         many.  This asymmetry justifies the script-specific cutoff.
-# 1.1.0 — Anchored first_year to PRE_FELL_START.year (2010).  Superseded
-#         by the asymmetric monthly/annual treatment in 1.2.0.
-# 1.0.0 — Initial.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os

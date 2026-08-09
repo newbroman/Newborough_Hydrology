@@ -152,30 +152,11 @@ from utils.site_observations import update_site_observation
 from utils.render_utils import render_figure
 
 __version__ = "1.1.0"  # Hollingham (2026) — 2026-05-22
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# 1.0.0 — Initial.  Four-zone summer-minima clearfell BACI — Phase 2 of
-#         the four-zone redesign, the annual-resolution sibling of the
-#         monthly Script 10k.  Fits summer_min ~ Post + zone:Post +
-#         well-FE on the annual Jun-Sep minimum, four zones, Forest
-#         control reference, OLS with cluster-robust SE.  No scraping
-#         term and no climate covariate — matches Script 10j's summer
-#         estimator (see module docstring for the rationale).  Computes
-#         the C3/Warren zone's summer minima itself (10d does not cover
-#         them) and reads the other three zones from 10d_01.
-#         Year selection is by the WMC3 gatekeeper
-#         (clearfell_common.wmc3_usable_summer_years): a year enters the
-#         analysis if WMC3 has a usable Jun-Sep record — 2011 +
-#         2013-2018 + 2020-2025 on current data.  Pairwise contrasts
-#         carry a contrast_type field (primary / derived /
-#         identity_check); the forest plot and CSV present primary and
-#         derived contrasts separately so a derived contrast's
-#         covariance-dependent SE/p is not misread as a primary result.
-#         Writes three site-observation entries.  No hardcoded site
-#         values.
-#         [This script was developed across one session and has not
-#          previously been committed; the gatekeeper and contrast_type
-#          features were added before first commit and are folded into
-#          this 1.0.0 description rather than versioned separately.]
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 
 # ============================================================================

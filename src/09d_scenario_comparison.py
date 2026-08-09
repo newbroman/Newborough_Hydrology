@@ -37,53 +37,11 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 """
 
 __version__ = "3.7.0"  # Hollingham (2026) — 2026-07-02
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# 3.6.0 — SCRAPE_RISE_BUFFER_M now imported from config.py (promoted there with
-#         config + Script 20 v1.28.0) instead of a local literal. No behavioural
-#         change.
-# 3.5.0 — Off-site scraping bar now also shows the 250 m drawdown as a
-#         dark reference line drawn ACROSS the 100 m bar (milder, more
-#         distant neighbour drawdown), with an inline label. Same drain
-#         model / volumetric conversion; 250 m value stashed under a
-#         non-plotted "_offsite_far_vol" key and also emitted as an explicit
-#         "Scraping (off-site 250 m)" CSV row. Caption updated. Applies to
-#         both figures (scrape bars are forcing-independent). No change to
-#         the forestry/climate bars or the two-forcing structure of v3.4.0.
-# 3.4.0 — Unit-consistent scenario figures + off-site scraping drawdown.
-#         Supersedes the in-session v3.3.0 (head re-basis), which is
-#         withdrawn. Resolution agreed 2026-07-02:
-#         (1) BOTH figures now use ONE volumetric scale (mm water-equiv
-#             per month): 09d_01 under annual-mean forcing, 09d_02 under
-#             summer (Jul-Sep) forcing. Directly comparable; no head bars,
-#             so no head/flux units trap. 09d_02's amplification-to-summer-
-#             minimum conversion stays REMOVED (the equilibrium framework
-#             cannot resolve a true summer minimum); it is simply the
-#             equilibrium volumetric response under summer inputs.
-#         (2) Both figures gain a "Scraping (off-site 100 m)" bar: the
-#             modelled neighbour drawdown the scrape drain imposes on the
-#             surrounding water table, from the same drain cone that feeds
-#             the Script 20 maps — H0 anchored to the measured CEH36
-#             response, decaying as exp(-(d-buffer)/λ), λ read live from
-#             20_report_numbers.csv. Rendered on the volumetric axis (×Sy)
-#             to match the other bars.
-#         (3) Captions (baked footnote + report caption) now: name the
-#             CEH36 SSM coefficients and Sy the volumetric flux is derived
-#             from; note that converting to a head change requires dividing
-#             by an appropriate (uncertain) Sy and is only approximate;
-#             and note that the off-site drawdown decays to the same
-#             MAGNITUDE as the clearfell bar (~13.5 mm w.e./month) at
-#             ~282 m — i.e. equal to the recharge the standing forest
-#             suppresses (a flux comparison, not a head comparison).
-#         CSV columns: 09d_01 Delta_vol_mm_per_month (unchanged);
-#         09d_02 Delta_summer_min_mm -> Delta_vol_summer_mm_per_month.
-#         REPORT IMPACT: Fig 26/27 captions, §4.5.6 and §3.5.3 text revised
-#         separately (walk-through before ODT).
-# 3.2.0 — Replace hardcoded SCRAPE_BACI_STEP = 0.131 with a
-#         load_site_observation("ceh36_baci_pure_scraping") call.
-#         The value is now produced by 09a and stored in the
-#         pipeline_site_observations.csv registry.  Closes Item 9
-#         in flags log.
-# 3.1.0 — B2 multiplier via clearfell_common loader.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os

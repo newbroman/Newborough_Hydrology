@@ -38,12 +38,6 @@ Outputs (outputs/31_cluster_validation/):
   31_forest_borderline.csv       wells inside the +/- edge band, with signed distance
   31_cluster_validation_panel.png  4-panel figure
 
-Version: 1.2.0  (2026-06-28)  — convention pass: console_utils; K from the realised
-         partition (get_n_clusters, validated vs get_requested_n_clusters); tunables from
-         pipeline_params.CV_*; forest-cluster set derived from CLUSTER_LABELS; inputs read
-         through paths constants (deps-visible).
-         1.1.0  (2026-06-27)  — wired into run_analysis.py (Phase 16); paths via paths.py
-         1.0.0  (2026-06-25)  — initial standalone diagnostic
 """
 from __future__ import annotations
 import sys

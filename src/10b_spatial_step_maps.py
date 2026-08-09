@@ -73,21 +73,11 @@ from utils.clearfell_common import (
 from utils.render_utils import render_figure
 
 __version__ = "1.6.0"
-# 1.5.2 (2026-07-19): review revision — BACI well labels 7.5 -> 8.5 pt.
-# 1.5.1 (2026-07-19): review revisions — well-label white background boxes
-#   removed (labels sit directly on the map); CEH31 label moved below-left of
-#   its marker via a per-well override (was obscuring WMC3).
-# 1.5.0 (2026-07-19): legibility hand pass — BACI well labels 7 -> 7.5 pt
-#   (well labels +0.5); map axis labels gain +1 pt via map_utils v1.6.0
-#   add_en_axes defaults (no change here).
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# 1.3.1 — Inline comment at the IDW xi/yi construction documenting the
-#         40 m grid choice (vs the 50 m project standard) — Item 5 in
-#         flags log.
-# 1.3.0 — Adopt CEH34 hindcast via apply_ceh34_hindcast().  Companion to
-#         PRE_FELL_START = 2010-07-01 in clearfell_common v1.2.0.
-# 1.2.0 — Apply PRE_FELL_START lower bound on pre-scrape era mask.
-# 1.1.0 — Prior state.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 # ── Output paths (imported from utils.paths) ────────────────────────────────
 # OUT_10B_SCRAPE_RAW, OUT_10B_FELL_RAW, OUT_10B_SCRAPE_CORRECTED,

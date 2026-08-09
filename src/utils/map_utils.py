@@ -46,55 +46,11 @@ plot_metric_map(map_df, value_col, title, output_path, cmap, data_dir, vmin, vma
 """
 
 __version__ = "1.6.0"  # Hollingham (2026) — 2026-07-19
-# 1.6.0 (2026-07-19): legibility hand pass — add_en_axes default tick
-#   labelsize 8 -> 9 and axis label_fontsize 9 -> 10 (axis labels +1 pt on
-#   all maps using the defaults); plot_metric_map BW value labels 6 -> 6.5
-#   (well labels +0.5 pt). No call-site changes.
-# 1.5.0 — add_idw_surface() gains hull_buffer_m parameter (default 100.0 m).
-#         Linear griddata is NaN outside the convex hull of the wells, so an
-#         observed-data surface stops at the outer well ring, short of the coast
-#         (no dipwells sit seaward). The buffer fills NaN cells within the well
-#         hull dilated by hull_buffer_m using nearest-neighbour values, extending
-#         the surface a fixed distance past the outermost wells. Fill runs before
-#         ridge/site masking, so the extension is still clipped to the shoreline
-#         and dune ridges. Default 100 m applies to ALL callers (Scripts 07, 10b,
-#         11b, 18, 19, 26, 33, 36); set hull_buffer_m=None for the strict
-#         hull-bounded surface. Pure extrapolation over unmeasured ground —
-#         intentionally bounded and small.
-# 1.4.0 — make_site_mask() moved here from Script 18 so all IDW-surface scripts
-#         share one implementation. add_idw_surface() gains apply_site_mask
-#         parameter (default False): when True calls make_site_mask(gx, gy)
-#         internally and masks the surface before rendering, replacing the
-#         per-function site-mask calls in Script 18. add_idw_surface() default
-#         xi/yi grid corrected from stale literals (240200–243800, 362200–365800)
-#         to SITE_MAP_* canonical values (240100–243900, 362200–365500).
-#         DATA_KML_SITE_BOUNDARY added to paths import (required by
-#         make_site_mask()). Three sea-boundary fallback constants added
-#         (_SEA_SOUTH_N, _SEA_EAST_E, _SEA_WEST_E).
-# 1.3.0 — Canonical map frame + Easting/Northing axes consolidated here.
-#         New public helper add_en_axes(ax, apply_extent=True) sets the
-#         canonical site extent from config.SITE_MAP_* (E 240100–243900,
-#         N 362200–365500), forces equal aspect (true OS-grid scale, identical
-#         extent across panels), draws plain 6-digit E/N axes (no offset), and
-#         labels them "Easting/Northing (m, OSGB36)". Every map function in the
-#         pipeline (except scripts 12 and 13) now calls this instead of carrying
-#         its own xlim/ylim/aspect/tick logic; the previous hardcoded extent in
-#         plot_metric_map (240100/243900/362200/365800) is removed and replaced
-#         by add_en_axes(). apply_extent=False draws the E/N axes but leaves the
-#         caller's xlim/ylim intact (for the rare figure that legitimately needs
-#         a wider window for an in-data legend).
-# 1.2.0 — Scrape footprints are now a shared site feature. add_kml_features()
-#         gains include_scrapes=True and draws the GPS-traced scrape outlines
-#         (navy solid; black dotted in BW) with a "Scrape footprints" legend
-#         entry, so every map that calls it shows them. New public loader
-#         load_scrape_kml() (promoted from Script 20's private _load_one_scrape_kml,
-#         now the single implementation). Footprint list from config.SCRAPE_KML_FILES.
-# 1.1.0 — data/geo/ reorg: geo inputs now resolved from utils.paths constants
-#         (DATA_DEM, DATA_KML_FEATURES, DATA_KML_STREAMS, DATA_KML_CLEARFELL)
-#         instead of reconstructing data_dir / "X". The data_dir parameter is
-#         retained in every signature (vestigial but harmless) so the 22
-#         call sites need no change. No functional change to rendering.
-# 1.0.x — Initial.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import numpy as np
 import pandas as pd

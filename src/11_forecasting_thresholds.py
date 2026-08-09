@@ -99,37 +99,11 @@ Cluster scope (k=5 partition):
 """
 
 __version__ = "1.2.0"  # Hollingham (2026) — 2026-05-20
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# 1.1.1 — Section 5: dropped the previous-MSL variant (Variant 1).
-#         Empirical R² was 0.18-0.44 across the network vs 0.73-0.96 for
-#         the winter-peak variant; the previous-MSL coefficient was not
-#         statistically significant at four of five clusters. Section 5 now
-#         produces a single transfer function per cluster, single CSV table,
-#         single calibration figure. Outputs renamed:
-#           OUT_11_TABLE_SPRING_WINTER_PEAK → OUT_11_TABLE_SPRING
-#           OUT_11_SPRING_CALIB_WINTER_PEAK → OUT_11_SPRING_CALIBRATION
-#         and the underlying file basenames lose the _winter_peak suffix.
-# 1.1.0 — Added Section 5: Spring MSL transfer functions (manager calculator).
-#         Two empirical OLS variants per cluster predicting next-year MSL
-#         from either previous-year MSL or previous winter peak, plus
-#         intervening P and PET. Pairs with Script 26b's UKCP18 MSL5
-#         projections (Tool B). New outputs:
-#           - OUT_11_TABLE_SPRING_PREV_MSL    (Variant 1 coefficients)
-#           - OUT_11_TABLE_SPRING_WINTER_PEAK (Variant 2 coefficients)
-#           - OUT_11_SPRING_CALIB_PREV_MSL    (Variant 1 calibration figure)
-#           - OUT_11_SPRING_CALIB_WINTER_PEAK (Variant 2 calibration figure)
-#         New imports: matplotlib.pyplot, numpy, CLUSTER_COLOURS,
-#         MSL_SPRING_MONTHS, MSL_HYDRO_YEAR_START_MONTH from utils.config.
-#         New constants: SPRING_MONTHS = [3, 4, 5];
-#         WINTER_TO_SPRING_MONTHS = [10, 11, 12, 1, 2, 3, 4, 5].
-__version__previous__ = "1.0.1"  # Hollingham (2026) — 2026-05-17
-# 1.0.1 — Doc-sweep S.9: corrected misleading HEADLINE_LAG sentence in
-#         run_state_space docstring (D1) — this function reads pre-fitted
-#         coefficients, does not fit anything; added inline rationale for
-#         the β₃ defensive abs() (D2) clarifying it guards against per-well
-#         negatives that the cluster-centroid CSV should never produce;
-#         added __version__ constant (S9-A).  Patch — no functional change.
-# 1.0.x — Initial.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
@@ -169,7 +143,6 @@ import pandas as pd
 import statsmodels.api as sm
 import matplotlib.pyplot as plt
 
-
 # ====================================================================================
 # TEE: mirror stdout to a file
 # ====================================================================================
@@ -207,13 +180,11 @@ class _Tee:
         self._fh.close()
         print(f"\n[OUTPUT] Results transcript saved \u2192 {self._filepath}")
 
-
 # ====================================================================================
 # PATH CONFIGURATION
 # ====================================================================================
 make_all_dirs()
 OUT_FILE  = OUT_11_RESULTS   # plain-text transcript of all results
-
 
 # ====================================================================================
 # CONFIGURATION
@@ -264,7 +235,6 @@ SPRING_MONTHS = list(MSL_SPRING_MONTHS)            # [3, 4, 5] — van Willegen 
 WINTER_TO_SPRING_MONTHS = [10, 11, 12, 1, 2, 3, 4, 5]
 MIN_VALID_MONTHS = 3                    # minimum months per season to include a hydrological year
 
-
 def _load_cluster_peak_months() -> dict[str, int]:
     """
     Load CLUSTER_PEAK_MONTH from INT_CLUSTER_PEAK_MONTHS (written by
@@ -291,13 +261,11 @@ def _load_cluster_peak_months() -> dict[str, int]:
     return {f"C{int(row['cluster_id'])}": int(row["peak_month"])
             for _, row in df.iterrows()}
 
-
 # Cluster-specific horizon: months from October (start of hydrological winter)
 # to each cluster's historical mean peak month, inclusive. Loaded from
 # INT_CLUSTER_PEAK_MONTHS (script 03 output) so the values stay in sync with
 # the partition. See Section 3.6.3 of Hollingham (2026) for the methodology.
 CLUSTER_PEAK_MONTH = _load_cluster_peak_months()
-
 
 # ====================================================================================
 # HELPERS
@@ -319,11 +287,9 @@ def load_data(filepath: 'str | Path') -> pd.DataFrame:
         )
     return df
 
-
 def sep(title: str, width: int = 70) -> str:
     """Return a formatted section header string."""
     return f"\n{'=' * width}\n{title}\n{'=' * width}"
-
 
 def _horizon_months(peak_month: int) -> list:
     """Return [10, 11, ..., peak_month] as a sequence of calendar months."""
@@ -335,7 +301,6 @@ def _horizon_months(peak_month: int) -> list:
         m = (m % 12) + 1
     return months
 
-
 def _climatology_from_regional(df: pd.DataFrame) -> tuple:
     """Compute long-term monthly mean P and PET from the regional averages frame.
     Returns (P_clim, PET_clim) as dicts keyed by calendar month 1..12."""
@@ -344,8 +309,6 @@ def _climatology_from_regional(df: pd.DataFrame) -> tuple:
     P_clim   = df.groupby(df.index.month)['P_mm'].mean().to_dict()
     PET_clim = df.groupby(df.index.month)['PET_mm'].mean().to_dict()
     return P_clim, PET_clim
-
-
 
 # ====================================================================================
 # SECTION 1: MECHANISTIC STATE-SPACE EQUATIONS (read from Script 03)
@@ -446,8 +409,6 @@ def run_state_space(df: pd.DataFrame) -> dict:
 
     return results_dict
 
-
-
 # ====================================================================================
 # SECTION 2: PEAK FLOOD TRANSFER FUNCTIONS
 # ====================================================================================
@@ -527,7 +488,6 @@ def run_peak_forecasting(df: pd.DataFrame) -> None:
         })
 
     pd.DataFrame(table6_rows).to_csv(OUT_11_TABLE6_WINTER, index=False)
-
 
 # ====================================================================================
 # SECTION 3: CRITICAL RAINFALL THRESHOLD EQUATIONS (iterated closed form)
@@ -738,7 +698,6 @@ def run_critical_flood_thresholds(results_dict: dict, df: pd.DataFrame) -> None:
     df_summary.to_csv(OUT_11_PFLOOD_SUMMARY, index=False)
     print(f"  Reviewer summary \u2192 {OUT_11_PFLOOD_SUMMARY.name}")
 
-
 # ====================================================================================
 # SECTION 4: SUMMER DROUGHT TRANSFER FUNCTIONS
 # ====================================================================================
@@ -820,7 +779,6 @@ def run_summer_drought_forecasting(df: pd.DataFrame) -> None:
 
     pd.DataFrame(table7_rows).to_csv(OUT_11_TABLE7_SUMMER, index=False)
 
-
 # ====================================================================================
 # SECTION 5: SPRING MSL TRANSFER FUNCTIONS  (manager calculator)
 # ====================================================================================
@@ -831,7 +789,6 @@ def _vw_hydro_year(date: pd.Timestamp) -> int:
     used by Script 26; spring of hydro year y is March-May of calendar year y.
     """
     return int(date.year + (1 if date.month >= MSL_HYDRO_YEAR_START_MONTH else 0))
-
 
 def _fit_spring_block(
     df: pd.DataFrame,
@@ -859,7 +816,6 @@ def _fit_spring_block(
         "fitted": model.fittedvalues.values,
         "observed": sub[response].values,
     }
-
 
 def _plot_spring_calibration(
     fits: dict[str, dict],
@@ -923,7 +879,6 @@ def _plot_spring_calibration(
     render_figure(fig, out_path)
     plt.close(fig)
     print(f"  Calibration figure → {out_path.name}")
-
 
 def run_spring_msl_forecasting(df: pd.DataFrame) -> None:
     """
@@ -1063,7 +1018,6 @@ def run_spring_msl_forecasting(df: pd.DataFrame) -> None:
     )
     print()
 
-
 # ====================================================================================
 # ENTRY POINT
 # ====================================================================================
@@ -1082,7 +1036,6 @@ def run_models() -> None:
     print("\n" + "=" * 70)
     print("  Analysis complete.")
     print("=" * 70 + "\n")
-
 
 if __name__ == "__main__":
     banner("11", "Forecasting Thresholds", version="1.1.1")

@@ -33,60 +33,11 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 """
 
 __version__ = "1.5.0"  # Hollingham (2026) — 2026-07-03
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# 1.4.1 — _plot_era_means(): colour parameter added; era mean lines
-#          now colour-matched to the plotted series, dashed (--),
-#          lw=1.8 alpha=0.85 zorder=3. All three callers updated.
-#          Visual only — no analytical change.
-# 1.4.0 — §4.6 canopy-buffering support.  Two changes, neither alters the
-#         headline clearfell step or the linear ANCOVA model:
-#         (1) New step 3b: a CWB²×felling curvature SENSITIVITY VARIANT,
-#             fitted on the full-data Forest-control Impact and Edge frames
-#             (headline design + cwb2_c main effect + cwb2_x_fell
-#             interaction).  The linear CWB×felling interaction is the
-#             buffering test as a linear-sensitivity change and is null;
-#             the curvature term tests a tails/extremes effect a linear
-#             slope averages away.  Emits ANCOVA_Forest_{zone}_coeff_
-#             cwb2_x_fell / _cwb2_c, _curv_clearfell_step (step RE-
-#             REFERENCED under the curvature model — NOT the headline
-#             step), _curv_R2, _curv_dAIC, _curv_jointF to
-#             10a_report_numbers.csv.  Reported sensitivity variant only;
-#             headline rows unchanged.  See FINDING_canopy_buffering_
-#             consolidated.md.
-#         (2) 10a_06 figure: the pre/post trend lines were free per-era
-#             np.polyfit fits — unconstrained, diverging, implying a slope
-#             change the non-significant cwb_x_fell term does not support
-#             (figure plotted a different model than its title).  Replaced
-#             with the ANCOVA-FITTED climate-response lines (covariates
-#             held at era-mean), so the pre/post vertical gap IS the fitted
-#             clearfell step.  Added a complete legend keying both the data
-#             markers and the two fitted lines (previously only the
-#             scatter markers were keyed).
-# 1.3.0 — Defect 14 fix: emit a directly-fitted Jun-Sep ANCOVA-BACI
-#         result for the Forest-control × Impact specification.  Adds
-#         rows ANCOVA_Forest_Impact_clearfell_step_summer (and the
-#         supporting _R2, _N, full-coefficient table, and the same
-#         result with CWB dropped as ANCOVA_Forest_Impact_clearfell_
-#         step_summer_noCWB) to 10a_report_numbers.csv.  Replaces the
-#         arithmetic SUMMER_SCALING_RATIO construct in Script 21's
-#         _load_baci_params() with a direct CSV lookup (fallback to
-#         the legacy ratio preserved).  Headline-eligible value: full
-#         spec (CWB retained, mirrors annual model).  Summer-only N=63
-#         halves the SE pool relative to the annual fit, so the
-#         clearfell step is reported with widened CI and may not reach
-#         conventional significance at this sample size; the no-CWB
-#         variant is emitted alongside for sensitivity reporting only.
-# 1.2.0 — Adopt CEH34 hindcast (from Script 10i, CEH9 donor) via
-#         apply_ceh34_hindcast().  Enables PRE_FELL_START = 2010-07-01
-#         (was 2010-08-01) with CEH34's missing 2010-07 month supplied
-#         by the donor regression.
-# 1.1.0 — Apply PRE_FELL_START record-length-balance cutoff in
-#         build_ancova_frame().  All downstream outputs (ancova table,
-#         baci_timeseries CSV, climate-sensitivity scatter, CUSUM
-#         figures) inherit via ancova_frames.  Headline clearfell steps
-#         regenerate: Forest×Impact +93→+138 mm; Forest×Edge +153→+28
-#         mm (n.s.).
-# 1.0.0 — Initial.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os

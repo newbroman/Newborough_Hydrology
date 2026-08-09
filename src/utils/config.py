@@ -214,6 +214,24 @@ COAST_CHRONIC_YEARS = 5.0
 # so the reach column and the mechanism figures cannot drift apart.
 MECHANISM_HORIZON_YEARS = 20.0
 
+# ── Sea-level-rise transient (Script 20 SLR head-response figure) ────────────
+# Scenario inputs for the gradual mean-sea-level-rise head response, modelled as
+# a finite-window erfc transient (NOT steady state) diffusing inland from the
+# Caernarfon Bay boundary over the diffusivity D = K·b/Sy, with K and b taken
+# from DRAWDOWN_K_MDAY / DRAWDOWN_B_M and Sy read live from the C3 WTF estimates.
+#
+# SLR_WINDOW_YEARS is DISTINCT from COAST_CHRONIC_YEARS despite both currently
+# being 5.0 (see the note at COAST_CHRONIC_YEARS): that constant accumulates the
+# fitted coastal decline rate δ₀ linearly, this one sets the horizon t of an erfc
+# transient. They were deliberately decoupled in Script 20 v1.31.0 and must not
+# be merged — either can move without the other.
+SLR_WINDOW_YEARS  = 5.0    # yr — response window t, near-term horizon
+SLR_RISE_M        = 0.02   # m accumulated over the window ≈ 4 mm/yr relative SLR
+                           # (north Wales current-rate central estimate, UKCP18)
+SLR_SHORE_LEVEL_M = 0.0    # m AOD — SLR head is referenced to MEAN sea level, not
+                           # the erosion dune-toe front (COAST_SHORE_LEVEL_M); the
+                           # water table is pinned to MSL at the coast.
+
 # --- Mechanism-diagram schematic constants (Script 09g; utils/mechanism_fig_utils) -
 # FIGURE-DESIGN geometry for the §5.8 public-summary mechanism diagrams — NOT
 # physical amplitudes (those are read live from committed CSVs: 09f_01 reach

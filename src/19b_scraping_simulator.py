@@ -19,10 +19,11 @@ Usage:
 """
 
 __version__ = "1.2.0"   # Hollingham (2026) — 2026-05-07
-                         # v1.1.0: Resizable chart panel (drag bottom edge);
-                         #         map shows per-well projected Δdepth at
-                         #         selected map-year; Y-axis clamped to
-                         #         user-set range; no DEM hillshade.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys, json, warnings
 from pathlib import Path

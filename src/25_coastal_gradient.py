@@ -1,5 +1,5 @@
 """
-25_coastal_gradient.py — Phase 11 (step 24)
+25_coastal_gradient.py — Coastal-Retreat Gradient Analysis
 
 Coastal-retreat gradient analysis
 =================================
@@ -55,7 +55,7 @@ outputs/10_clearfell_baci/10a_02_ancova_full_coefficients.csv
 outputs/20_spatial_figures/20_msl5_change_perwell.csv
                                        Raw 2017→2023 MSL5 change per well
                                        (for the §5.7.5 Check 2 correlation;
-                                       Script 20 is step 24, this is step 26)
+                                       Script 20 runs earlier in the pipeline)
 
 Outputs
 -------
@@ -92,50 +92,11 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 from __future__ import annotations
 
 __version__ = "1.4.0"  # Hollingham (2026) — 2026-06-27 (emit §5.7.5 Check 2: raw MSL5-change vs summer-min-slope correlation)
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# 1.3.0 — §5.7.5 Check 2 recompute on the RAW MSL5 change. build_report_numbers()
-#         now also emits the cross-metric correlation between the raw 2017→2023
-#         MSL5 change (Script 20, 20_msl5_change_perwell.csv) and the per-well
-#         summer-minimum slope computed here — four rows appended to
-#         25_report_numbers.csv (Pearson r/p, Spearman r/p, n in Note). This makes
-#         the §5.7.5 Check 2 statement traceable to a committed CSV after the
-#         section was recast from common-mode-normalised to raw differencing.
-#         Script 25 (step 26) runs after Script 20 (step 24), so the change CSV is
-#         already on disk; if it is absent the rows are skipped with a console note
-#         (no failure). Committed values: Pearson r=0.47 (p=0.0009), Spearman
-#         r=0.43 (p=0.003), n=46. No change to any existing row, column or figure;
-#         all pre-existing per-cluster numbers byte-identical.
-# 1.2.0 — plot_fit_diagnostic() panel (a) now also overlays the forest-
-#         free EXPONENTIAL fit (dashed) alongside the three linear-with-
-#         cutoff curves, with a ΔAIC annotation, so the figure shows the
-#         two functional forms are near-indistinguishable over the
-#         observed distance range (substantiates Paper 1 §4.11 model
-#         selection). Signature gains fit_ff_e. Figure modified in place
-#         (still 25_05_fit_diagnostic.jpg) — no new output, so the
-#         PIPELINE_README and methods supplement output lists are
-#         unchanged. No change to any CSV output; all per-cluster numbers
-#         byte-identical.
-# 1.1.0 — Folded in standalone Script 30 (cluster_slope_decomposition).
-#         cluster_partition() now emits two extra columns:
-#         climate_pct_of_observed and residual_pct_of_observed (parallel to
-#         the existing gradient_pct_of_observed). New function
-#         plot_cluster_decomposition() emits 25_07_cluster_decomposition.png,
-#         the horizontal stacked-bar figure decomposing each cluster's
-#         observed centroid slope into climate + coastal + residual.
-#         Routed from the 2026-05-29 main-report review (gap A: the
-#         symmetric attribution table the report currently states only for
-#         C5). Standalone Script 30 retired. No change to existing
-#         columns or figures; the existing per-cluster numbers are
-#         byte-identical.
-# 1.0.1 — Doc-sweep S.15.  Corrected stale phase/step references in
-#         header (Phase 12 step 27/28 → Phase 11 step 24, matching
-#         PIPELINE_README.md canonical structure, S15-A) and in the
-#         console print line 753 (S15-B); replaced hardcoded [4, 5]
-#         cluster IDs with FOREST_CIDS imported from utils.config
-#         (S15-C, same pattern as S13-F in Script 20); added
-#         __version__ (S15-D).  Patch — no functional change, outputs
-#         byte-identical.
-# 1.0.x — Initial.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys
 import warnings
@@ -843,7 +804,7 @@ def _check2_correlation_rows(per_well: pd.DataFrame) -> list[dict]:
 
     Returns rows in the project-standard report-numbers format (Pearson r/p,
     Spearman r/p), or an empty list if Script 20's change CSV is not yet on disk
-    (Script 20 is step 24, this is step 26, so on a full run it is present).
+    (Script 20 runs earlier in the pipeline, so on a full run it is present).
     """
     chg_path = paths.OUT_20_MSL5_CHANGE_PERWELL
     if not Path(chg_path).exists():
@@ -960,7 +921,7 @@ def main() -> None:
     paths.DIR_25.mkdir(parents=True, exist_ok=True)
 
     print("\n" + "=" * 72)
-    print(" Script 25 — Coastal-retreat gradient analysis (Phase 11)")
+    print(" Script 25 — Coastal-retreat gradient analysis")
     print("=" * 72)
 
     # ── Load distance CSV ──

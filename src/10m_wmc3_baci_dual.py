@@ -81,14 +81,11 @@ from utils.config import DRAINAGE_DATUM
 from utils.render_utils import render_figure
 
 __version__ = "1.1.0"  # Hollingham (2026) — 2026-07-04
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# 1.0.0 — New script.  Dual-panel WMC3-vs-forest-control intervention figure
-#         (raw h_disp + shaded gap; BACI difference with consecutive-era DiD
-#         steps).  ANCOVA clearfell headline loaded live from 10a_report_numbers
-#         and carried as an on-figure boxed note beside the raw DiD step, so the
-#         graph stays self-explanatory if divorced from its caption.  Scraping
-#         steps shown only as raw DiD (framed "consistent with scraping
-#         drawdown"); ANCOVA scraping covariates deliberately not plotted.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 
 # ── House style (matches Script 10a) ─────────────────────────────────────────

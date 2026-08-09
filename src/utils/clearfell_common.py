@@ -70,102 +70,11 @@ provenance with ``_ = wells_prov``. Script 10d uses it to require
 """
 
 __version__ = "1.7.2"  # Hollingham (2026) — 2026-06-21
-# 1.7.2 (2026-06-21): ReportNumbers class lifted to
-#   utils/report_numbers_utils.py; re-exported here for back-compat. No
-#   behavioural change to clearfell scripts.
-# 1.7.1 — Docstring only, no functional change.  Reworked the
-#         load_clearfell_b2_multiplier docstring to close the
-#         interpretability gap on the per-tier ratios: the era fits use
-#         the canonical no-intercept SSM, which compresses the β₂ scale
-#         and pushes most per-tier ratios below 1.0 — an artefact of the
-#         no-intercept rescaling, not a uniform physical decline.  The
-#         individual ratios are therefore NOT interpretable as
-#         stand-alone effect sizes.  The clearfell multiplier is a
-#         difference-in-differences (Edge − Climate Ctrl), in which the
-#         no-intercept rescaling cancels; the differenced value is the
-#         rescaling-invariant, interpretable quantity.  Maths unchanged.
-# 1.7.0 — 10-series data-hygiene alignment (Phase 2 of the centroid
-#         audit; see AUDIT_10series_PRE_FELL_START.md).  Two changes:
-#         (1) compute_control_centroid() now uses a FIXED-MEMBERSHIP
-#             centroid: a month contributes to the control centroid
-#             only if EVERY roster well has a value that month;
-#             partial-membership months are returned as NaN and so
-#             drop out of the BACI series.  Previously the centroid was
-#             a NaN-skipping mean whose contributing well set shifted
-#             silently as wells went offline (the NW10+CEH2 joint
-#             outage, Sep 2011-Sep 2012, was the dominant artefact —
-#             for ~12 months the Forest centroid was the mean of just
-#             CEH32/33/34).  This is the substantive fix; it lowers the
-#             Forest x Impact clearfell step from +0.135 m to ~+0.120 m
-#             (still p~0.001).  Affects Scripts 10a and 10h (the only
-#             callers of compute_baci_displacement).
-#         (2) PRE_FELL_START migrated 2010-07-01 -> 2011-01-01, so the
-#             legacy 10-series (10a/10b/10e/10h) shares the four-zone
-#             scripts' pre-felling start.  This is a CONSISTENCY change:
-#             the audit found it removes no contaminated months on its
-#             own (the install-ramp months were already outside the
-#             ANCOVA window after the CWB inner-join).  PRE_FELL_START
-#             and PRE_FELL_START_FOURZONE are now numerically equal;
-#             collapsing them into one constant is left as a deliberate
-#             follow-up (it requires re-pointing the four-zone scripts).
-#         compute_control_centroid gains an optional `min_wells` kwarg
-#         for callers that need the legacy NaN-skipping behaviour; it
-#         defaults to len(control_list) (full fixed membership).
-# 1.6.0 — Added PRE_FELL_START_FOURZONE = 2011-01-01 — the pre-felling
-#         start for the four-zone monthly BACI (Script 10k).  Distinct
-#         from the legacy shared PRE_FELL_START (2010-07-01): the
-#         monthly network only reaches a stable full well count from
-#         late 2010, so the Jan-Sep 2010 install-ramp months are
-#         excluded.  Kept as a separate constant rather than migrating
-#         PRE_FELL_START itself, because that shared cutoff is also used
-#         by Scripts 10a/10b/10e/10h and migrating it needs its own
-#         re-run/verification session (flagged).
-# 1.5.0 — Added the four-zone summer-panel year selector:
-#         well_year_usable_summer() and wmc3_usable_summer_years(),
-#         plus SUMMER_PANEL_* constants.  A year enters the four-zone
-#         summer analysis (Scripts 10j summer / 10k / 10l) if the
-#         Impact well WMC3 has a usable Jun-Sep record (at most one
-#         missing month) that year.  WMC3 gates the panel because it is
-#         the n=1 Impact zone; the other 13 wells are allowed to be
-#         patchy because the well-FE panel model tolerates missing
-#         well-months.  On the current data this drops 2012 and 2019.
-#         Also imported PROV_MISSING from data_utils.
-# 1.4.0 — Added C3_WARREN_WELLS — the four-well western-dune control
-#         zone for the Script 10k four-zone pooled-panel BACI.  This is
-#         a deliberately carved zone (not the raw k=5 cluster-3
-#         partition, which contains the Impact and Climate-control
-#         wells and the scraping site itself).  See the four-zone BACI
-#         design spec and its decision record for the carving rationale
-#         (record-length balance + scraping-footprint + 500 m shielding
-#         filters).  C3_WARREN_WELLS is NOT added to ALL_NETWORK_WELLS:
-#         that constant defines the five-tier clearfell network the
-#         existing 10a/10d/10e/etc. suite operates on, and the C3/Warren
-#         zone is specific to 10k.  No existing tier list or behaviour
-#         is changed by this version.
-# 1.3.0 — Defect E fix:
-#         * Removed the second `clean_well_series` call in
-#           `load_clearfell_data` (was a no-op in normal pipeline order
-#           but a logical error obscuring data lineage).
-#         * `load_clearfell_data` now returns a 6-tuple, adding
-#           `wells_provenance` (loaded from INT_WELLS_PROVENANCE) as the
-#           third element. All 7 call sites (10a, 10d, 10e, 10f, 10g, 10h,
-#           10i) updated to accept and (mostly) ignore the new return.
-#         * `annual_summer_minimum` now takes an optional `provenance`
-#           series and requires >=2 MEASURED Jun-Sep months (rather than
-#           merely >=2 non-null months). With provenance supplied, the
-#           three phantom 2019 summer minima (WMC3, NW6, NW7) correctly
-#           drop out.
-# 1.2.1 — Added worked example to load_clearfell_b2_multiplier docstring
-#         with the current tier ratios and computed clearfell/thinning
-#         multipliers (Item 8 in flags log).  Patch version — docstring
-#         only, no functional change.
-# 1.2.0 — Added load_ceh34_hindcast_series() loader for Script 10i output.
-#         Adopted PRE_FELL_START = 2010-07-01 (was 2010-08-01) — CEH34's
-#         missing 2010-07 data is supplied by 10i's hindcast.
-# 1.1.0 — Added PRE_FELL_START / PRE_FELL_START_LONG /
-#         LONG_RECORD_NETWORK_WELLS to codify the record-length-balance
-#         principle for pooled BACI inference.
-# 1.0.x — Initial clearfell-suite shared module.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import warnings
 import numpy as np

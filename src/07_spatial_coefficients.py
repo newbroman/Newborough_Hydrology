@@ -39,11 +39,11 @@ Outputs:
 """
 
 __version__ = "1.2.0"  # Hollingham (2026) — 2026-06-21
-# 1.1.0 (2026-06-21): §4.9 traceability — emit 07_cluster_coeff_means.csv
-#         (per-cluster mean β₁/β₂/β₃ on the 3.7 m datum) and
-#         07_report_numbers.csv (cited cluster means + CEH14 β₃). Reads
-#         03_master_data.csv (uniform datum) as before; maps unchanged.
-# 1.0.x : per-cluster ranges CSV; IDW coefficient atlas.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os

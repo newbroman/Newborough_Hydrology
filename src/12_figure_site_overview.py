@@ -18,22 +18,11 @@ Outputs:
 """
 
 __version__ = "1.2.0"  # Hollingham (2026) — 2026-06-28
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# 1.1.0 — Replaced bespoke DEM rendering block with map_utils.load_dem_layer().
-#          Eliminates the duplicated imshow/colourmap/alpha logic that caused
-#          12_01_dem_site_overview.png to be significantly more colour-saturated
-#          than all other pipeline maps (alpha=0.85 vs map_utils alpha=0.45).
-#          Script 12 is excluded from the canonical map extent; the full DEM
-#          frame is restored post-call via dem_layer.get_extent().
-#          Removed now-unused RASTERIO_AVAILABLE guard and inline
-#          mcolors/numpy imports.
-# 1.0.2 — data/geo/ reorg: DEM path via DATA_DEM (data/geo/). No functional change.
-# 1.0.1 — Doc-sweep S.8: updated docstring well count (was stale "71-well",
-#         now "≈97 wells in current data") (Item 11); removed dead
-#         out_dir / os.makedirs lines that built an unused ../outputs path
-#         (Item 12); added PNG@dpi=300 format note in Outputs docstring
-#         (Item 13).  Patch — no functional change.
-# 1.0.x — Initial.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os

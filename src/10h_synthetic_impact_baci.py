@@ -62,24 +62,11 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 """
 
 __version__ = "1.4.0"  # Hollingham (2026) — 2026-05-31
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# 1.3.0 — Added consolidated robustness forest plot (10h_11_robustness_forest.png):
-#         the clearfell-step estimate from every independent estimator on one
-#         caterpillar plot — the three ANCOVA variants (with 95% CI), the
-#         synthetic-control and SSM-residual steps (read from 10f outputs), and
-#         the FE2 (inside-footprint) / FE1 (~20 m outside) per-well divergences.
-#         Visualises the §4.6 robustness convergence: felled / in-footprint
-#         estimators cluster small-positive, the out-of-footprint control
-#         straddles zero. NEW FIGURE ONLY — no change to any CSV or to the
-#         ANCOVA / FE computations. New import: Line2D. Reads 10f_01/10f_02 and
-#         skips the synth/residual rows gracefully if those outputs are absent.
-# 1.2.0 — Adopt CEH34 hindcast via apply_ceh34_hindcast().  Companion to
-#         PRE_FELL_START = 2010-07-01 in clearfell_common v1.2.0.
-# 1.1.0 — Apply PRE_FELL_START record-length-balance cutoff in
-#         build_ancova_frame() — matches 10a v1.1.0.  Synthetic
-#         extension of FE1/FE2 (donor regression) is unchanged; the
-#         cutoff applies to the ANCOVA pooled inference only.
-# 1.0.0 — Initial.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os

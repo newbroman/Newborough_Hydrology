@@ -9,35 +9,11 @@ Full per-script methodology: see chapter S.4 of the Methods Supplement
 """
 
 __version__ = "1.3.0"  # Hollingham (2026) — last revised 2026-06-21
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# Changelog:
-#   1.2.2 (2026-06-21) — Spatial confidence map: pass include_scrapes=False to
-#     add_kml_features(). The shared feature overlay now draws the GPS-traced
-#     scrape footprints by default; on the affinity/confidence map they overlap
-#     the well markers and clutter an already dense figure, so they are
-#     suppressed here. Figure only; no change to the affinity computation.
-#   1.2.0 (2026-06-07) — Spatial confidence map: colour convention change.
-#     Markers now coloured by Assigned_Cluster (k-means) rather than
-#     Best_Match_Cluster (Pearson result). This matches the reader's natural
-#     reading that "colour = canonical cluster" — previously, Spy wells
-#     plotted in the colour of their Pearson best-match cluster, which could
-#     mislead at-a-glance map readers. The Spy marker's small number
-#     annotation now shows the Pearson best-match cluster (the audit
-#     disagreement); the Fuzzy marker's small number continues to show the
-#     secondary Pearson match (the ambiguity indicator). Legend label
-#     updated accordingly.
-#   1.1.0 (2026-05-14) — Affinity bar chart persistence fix.
-#     The "Membership Affinity by Cluster for Key Wells" bar chart was
-#     constructed but never written to disk; the next block opened a new
-#     figure and silently discarded it. Added OUT_05_AFFINITY_CHART to
-#     paths.py and wired savefig + close at the end of the bar-chart block.
-#     Also replaced "ceh8" (extended network, filtered out by the
-#     reference-only matrix earlier in main()) with "ceh5" in the
-#     preferred-wells list, so the chart now has a representative from
-#     C1, C2, C3, and C5. C4 has no representative in the illustrative
-#     subset by design (the C4 forest cluster's members are the BACI
-#     impact and control wells, covered by Script 10 figures).
-#   1.0.0 — Initial pipeline release.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os

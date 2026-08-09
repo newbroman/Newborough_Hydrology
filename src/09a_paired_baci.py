@@ -34,42 +34,11 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 """
 
 __version__ = "2.7.2"  # Hollingham (2026) — 2026-07-19
-# 2.7.2 (2026-07-19): review revision — 09_scrape_05 figure-wide bump 1 -> 2 pt
-#   (all text +1 more; axis labels/legend now net +3 with the targeted bump).
-# 2.7.1 (2026-07-19): review revision — 09_scrape_05 axis labels and legend
-#   text +1 pt more on top of the figure-wide +1 (net +2 for those elements).
-# 2.7.0 (2026-07-19): legibility hand pass — 09_scrape_05 tier-1 figure text
-#   +1 pt across (render_utils.bump_fig_fonts). Tier-2 and beta3-CI figures
-#   untouched.
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# 2.5.0 — β₃ confidence figure (09_scrape_07): added the two unscraped controls
-#         (CEH4, CEH22) alongside the three impact wells. β₃ is each well's own
-#         drainage coefficient (fitted from its own head series), so the groups
-#         are directly comparable; CEH4/CEH22 were already in significance_results
-#         and were merely filtered out of the plot. Controls drawn faded on a
-#         shaded backdrop, separated by a gap with "Impact (scraped)" /
-#         "Controls (unscraped)" group labels; era legend rebuilt with full-
-#         colour swatches and deduped by label. Provides the BACI counterfactual
-#         (do the controls' β₃ shift too?). Figure only; β₃/CI computations and
-#         CSV exports unchanged.
-# 2.4.0 — Tier-1 AND Tier-2 figures: added vertical intervention markers
-#         (dash-dot) across all panels — Apr 2015 scrape (CEH36, Scrape A,
-#         Scrape B), Dec 2017 clearfell, Oct 2023 re-scrape (CEH18, CEH21) —
-#         with an "Interventions" legend on the top-left panel of each. The
-#         figures previously had no event markers. Imports SCRAPING_DATE,
-#         INTERVENTION_DATE, SCRAPING_DATE_2 from scraping_common. Tier-2 axvlines
-#         preserve each panel's x-limits. Figures only; BACI/CUSUM computations
-#         and exports unchanged.
-# 2.3.0 — After exporting baci_shifts CSV, update site_observations
-#         registry with CEH36 Pure_Scraping and Felling_Pulse step
-#         values.  Replaces the hardcoded SCRAPE_BACI_STEP constant
-#         in 09d (Item 9 in flags log).
-# 2.2.0 — Apply REGIONAL_MEAN_START (2009-02-01) to the regional-mean
-#         control series.  CEH4 vs regional-mean Baseline era loses 33
-#         pre-2009-02 rows; the Baseline-era mean shifts by ~36 mm in
-#         consequence (and so does the apparent Scrape/Felling-era step
-#         relative to it).  CEH22 vs regional-mean is unchanged.
-# 2.1.0 — Drop "table4"/"Table5" from filename and label.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os

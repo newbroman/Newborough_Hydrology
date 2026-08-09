@@ -42,113 +42,11 @@ References:
 """
 
 __version__ = "1.8.0"  # Hollingham (2026) — 2026-08-05
-# 1.8.0 (2026-08-05): τ retirement, Option B — close the reintroduction routes.
-#         The storage–drainage index τ = Sy/β₃ was retired as a residence time
-#         in v1.1.0 and its map removed in v1.5.0, but the OUTPUT NAMES still
-#         asserted what the prose denied: a column `tau_months` inside a file
-#         called `drainage_timescale.csv`, written by a function called
-#         compute_drainage_timescale(). Anyone drafting from pipeline outputs
-#         reached for it and described it as a drainage timescale. Report
-#         §4.9.5 duly quoted τ ranges (up to 34 months) against the half-life
-#         map (Figure 49, t½ up to 88 months) — a live substitution error found
-#         2026-08-05. Naming is therefore the fix:
-#           * compute_drainage_timescale()  → compute_storage_drainage_index()
-#           * tau_months                    → storage_drainage_index_months
-#           * 18_wtf_05_drainage_timescale.csv
-#                                → 18_wtf_05_storage_drainage_index.csv
-#           * OUT_18_DRAINAGE_TIMESCALE_CSV
-#                                → OUT_18_STORAGE_DRAINAGE_INDEX_CSV (paths.py)
-#           * locals tau_df/tau_mask/tau_norms → sdi_df/sdi_mask/sdi_norms
-#         NOTE this reverses the v1.7.0 instruction "the `drainage_timescale`
-#         filename stem is historical and retained deliberately — do not
-#         rename". That instruction is superseded: retaining the stem is what
-#         kept reintroducing the error. No consumer outside this script reads
-#         the CSV (verified by grep across src/), so the rename is safe.
-#         * C*_tau_min / C*_tau_max keys DROPPED from 18_report_numbers.csv.
-#           They were emitted with unit="months" beside the genuine t½ and 1/β₃
-#           keys, offering a non-duration for citation as one. t½ and 1/β₃ keys
-#           are unchanged. The index itself remains in the CSV as a diagnostic.
-#         * Column order: half_life_months now precedes the index, so the
-#           headline decay quantity reads first.
-#         * Console cluster summary leads with t½ (with units) and prints the
-#           index without a "months" label, tagged "diagnostic, not a duration".
-#         * Module docstring gains a τ-discipline note: τ ranks wells; it never
-#           states a duration or a decay fraction. t½ = 0.693·t_R; τ and t½
-#           correlate at r = 0.98 but differ ~2.5× in absolute value, so
-#           substitutions survive a plausibility check and must be caught
-#           arithmetically.
-#         * Stale references corrected: docstring output list (τ map deleted in
-#           v1.5.0), "Fig 46" → the half-life map is report Figure 49, and the
-#           synthesis figure described as t½ vs ΔNSE (which is what line ~1018
-#           actually plots) rather than τ vs ΔNSE.
-#         No computational change: τ, t½ and every exclusion rule are computed
-#         exactly as before.
-# 1.7.0 (2026-07-24): Emit the drainage decay half-life to the committed CSV.
-#         build_tau_table() now writes a `half_life_months` column
-#         (t½ = ln(2)/β₃) alongside the existing `tau_months`. Closes a
-#         traceability gap: Paper 1 Table 7 and Figures 14/15 report t½, but the
-#         cited source file 18_wtf_05_drainage_timescale.csv carried only
-#         `tau_months` (the storage–drainage index τ = Sy/β₃) — a different
-#         quantity that the manuscripts deliberately do not report. t½ was
-#         computed at render time in rb3_df but never committed, so a reader
-#         following the provenance chain could not read it. Same exclusion mask
-#         as τ (ridge/bedrock, negative β₃, near-zero β₃). Existing columns and
-#         their order are unchanged apart from the insertion; no downstream
-#         script consumes this CSV. Console cluster summary now also prints the
-#         per-cluster t½ median and range, directly checkable against Table 7.
-#         The `drainage_timescale` filename stem is historical and retained
-#         deliberately — do not rename.
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# 1.5.0 (2026-07-01): map_utils refactor.
-#         make_site_mask() removed from this script — moved to map_utils v1.4.0
-#         (single shared implementation). SEA_SOUTH_N/SEA_EAST_E/SEA_WEST_E
-#         module constants removed (now _SEA_* in map_utils). All four IDW
-#         contour-map functions (plot_contour_map, plot_contour_map_extended,
-#         plot_halflife_map, plot_drainage_timescale_map) refactored to route
-#         through add_idw_surface() + make_site_mask from map_utils, replacing
-#         four identical inline power-2 IDW implementations and four local grid
-#         definitions. Interpolation method changes from power-2 IDW to linear
-#         griddata (map_utils standard); surface rendered as pcolormesh with
-#         contour lines overlaid. plot_drainage_timescale_map() removed — dead
-#         code since v1.4.0 (τ CSV still written; only the figure is gone).
-#         Hardcoded "2005–2026" year strings in all map titles replaced with
-#         dynamic end_year from REFERENCE_CUTOFF_DATE. REFERENCE_CUTOFF_DATE
-#         added to config import. add_idw_surface and make_site_mask added to
-#         map_utils import.
-# 1.4.0 (2026-06-29): Replace τ map with drainage decay half-life map
-#         (t½ = ln(2)/β₃). Fig 46 now shows t½ (single panel). Fig 48
-#         synthesis scatter y-axis changed from τ to t½. τ = Sy/β₃ retained
-#         as intermediate CSV only (discussion reference). New function:
-#         plot_halflife_map(). Synthesis scatter refactored to accept rb3_df
-#         directly; Sy loaded from OUT_18_WELL_SY_TABLE. paths.py: renamed
-#         OUT_18_HALFLIFE_MAP (18_wtf_05_halflife_map.png); removed
-#         OUT_18_DRAINAGE_TIMESCALE map path (CSV path retained).
-#         18_report_numbers.csv gains t½ mean/min/max per cluster.
-#         (18_wtf_05_drainage_timescale_map.png): "Drainage timescale" →
-#         "Storage–drainage index" — missed instance from the v1.1.0
-#         terminology sweep. Map title and scatter y-axis were already
-#         correct; colourbar was the sole outstanding inconsistency.
-# 1.2.0 (2026-06-21): §4.9 traceability — emit 18_report_numbers.csv with the
-#         cited τ wells (CEH13/CEH14) and per-cluster reference-network τ
-#         ranges (Fig 44). No change to the τ CSV or maps.
-# 1.1.1 — data/geo/ reorg: site-boundary/streams via DATA_KML_SITE_BOUNDARY,
-#         DATA_KML_STREAMS (data/geo/). No functional change.
-# 1.1.0 — Terminology update: "drainage timescale" → "storage–drainage index"
-#         in all rendered figure text:
-#         * 18_wtf_05_drainage_timescale_map.png title updated to
-#           "Characteristic Storage–Drainage Index τ = Sy / β₃";
-#           subtitle note added: "τ is not a residence time (t_R = 1/β₃)".
-#         * 18_wtf_06_aquifer_diagnostic_synthesis.png y-axis label and
-#           subtitle updated accordingly.
-#         Function names, CSV column names, and output filenames unchanged
-#         to avoid breaking downstream pipeline dependencies.
-# 1.0.1 — Doc-sweep S.12: updated stale "C4 Forest values corrected" plot
-#         title to "Forest cluster values (C4, C5) corrected" (S12-A,
-#         matches live code and Script 18 docstring line 17 — interception
-#         correction applies to both forest clusters under the k=5
-#         partition); added __version__ constant (S12-B).  Patch — no
-#         functional change.
-# 1.0.x — Initial.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys
 import os

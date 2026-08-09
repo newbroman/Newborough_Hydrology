@@ -33,12 +33,11 @@ Purpose:
 #     model formulations and metrics unchanged.
 
 __version__ = "1.2.0"  # Hollingham (2026) — 2026-06-21
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# 1.1.0 (2026-06-21): §4.9.1 traceability — export_nse_diagnostics() writes
-#         08_perwell_nse.csv (per-well TLM/SSM NSE + ΔNSE + Cluster/β₂/β₃),
-#         08_cluster_nse_medians.csv (per-cluster median ΔNSE & median TLM NSE),
-#         and 08_report_numbers.csv (ΔNSE↔β₃ and ΔNSE↔β₂ correlations). No
-#         change to the existing benchmark/showdown procedure.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os

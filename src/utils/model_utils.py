@@ -45,35 +45,11 @@ from utils.config import DRAINAGE_DATUM, HEADLINE_LAG
 
 
 __version__ = "1.3.0"  # Hollingham (2026) — 2026-06-21
-# 1.3.0 — compute_intercept_audit() now builds its aligned frame via
-#         build_ssm_frame(window=LCSC_DATA_LIMIT) instead of duplicating the
-#         lag/displacement/differencing logic inline. The row set and all
-#         values are mathematically identical (same first-dropna-then-shift
-#         ordering, same displacement, same HEADLINE_LAG, same most-recent-N
-#         windowing), so Scripts 07/08 outputs are unchanged — verified
-#         byte-identical against committed 01_* outputs on 2026-06-21. The
-#         drainage predictor and simulations are untouched.
-# 1.2.0 — Defect E fix integration:
-#         * build_ssm_frame() and fit_ssm() gain optional `provenance=` and
-#           `exclude_interpolated=False` kwargs. Default behaviour is
-#           unchanged: interpolated rows REMAIN in the canonical SSM fit,
-#           preserving the published β₁/β₂/β₃ coefficient table and every
-#           downstream cluster characterisation. With exclude_interpolated=True
-#           callers can re-fit on measured-only rows as a documented
-#           sensitivity check (per Defect E open question Q1 — Martin's call:
-#           keep them in by default).
-# 1.1.0 — Extended fit_ssm() with intercept=, extra_regressors=, and
-#         pre_built_frame= keywords (closes flags-log Items 3 and 4 by
-#         providing the canonical interface that 10e and 10f previously
-#         bypassed). fit_ssm_intercept() preserved as a thin wrapper for
-#         backward compatibility with Scripts 07, 08, 22, 24. Return dict
-#         now always includes se_beta_1/2/3 (previously absent); intercept
-#         fits gain se_alpha; extra_regressors fits gain user-keyed
-#         coefficient, pvalue, and SE entries. All existing callers
-#         continue to work — new keys are additive. Migration of 10e and
-#         10f to the new interface ships separately.
-# 1.0.0 — Initial canonical model-utils module (extracted from in-script
-#         duplicates; long-form β key convention; assert_physical_signs).
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 
 # ── Minimum data thresholds ──────────────────────────────────────────────────

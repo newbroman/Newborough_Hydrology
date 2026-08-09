@@ -112,65 +112,11 @@ Cross-references
 """
 
 __version__ = "1.2.0"  # Hollingham (2026) — 2026-05-27
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# 1.1.0 — Parallel per-well aggregation pathway added.  The centroid-fitted
-#         pathway and all its outputs (figure, OUT_TABLE, OUT_DELTAS,
-#         OUT_TXT) are unchanged byte-for-byte; this version adds a second
-#         routine, compute_perwell_msl5_summary(), which iterates over the
-#         66 per-well β coefficients in 03_master_data.csv (the same file
-#         Script 19 reads), applies the same canonical pure-climate
-#         perturbation formula
-#               Δh(m) = β₁·P(m)·(sP(m)−1) − β₂·PET(m)·(sPET(m)−1)
-#         per well, takes the spring (Mar/Apr/May) mean, then aggregates
-#         to a cluster mean weighted by well count.  Writes a second
-#         summary CSV (OUT_26B_PROJECTION_TABLE_PERWELL) with the same
-#         schema as the centroid table plus per-well count.
 #
-#         This serves two purposes.  First, it gives the Script 19 v2.8.0
-#         viewer ΔMSL5 row a defined validation target that matches the
-#         viewer's own well-mean β aggregation (the centroid-fitted
-#         summary differs from this by 0.5–2 mm per cluster per scenario
-#         because cluster-centroid OLS and per-well OLS averaged are not
-#         algebraically equivalent — both valid summaries, just different
-#         aggregations of the same SSM).  Second, it makes the per-well
-#         lineage a documented project artefact alongside the centroid
-#         lineage, so any future report decision on aggregation choice has
-#         both CSVs to compare against.
-#
-#         The centroid table remains the primary output and the basis for
-#         Script 26c, §3.7.5, §4.8.4 and §4.10.1 numbers in the report.
-#         Per Martin (2026-05-27 chat) the per-well pathway is an
-#         additional artefact, not a replacement.
-#
-#         No upstream consumer of 26b's existing outputs is affected.
-__version__previous__ = "1.0.2"  # Hollingham (2026) — 2026-05-20
-# 1.0.2 — Figure rework. Per-panel auto-scaled y-axis (the 1-4 cm Δh shift
-#         was invisible on the shared ~1.8 m y-range used in v1.0.0/1.0.1).
-#         Replaced the cell-6 legend with a ΔMSL5 bar chart (cm units,
-#         coloured by cluster, hatched for 2080s vs solid 2050s) which is
-#         the canonical magnitude view for a constant per-cluster shift.
-#         Per-panel ΔMSL5 annotation boxes removed (now redundant with the
-#         bar panel). Legend moved to a horizontal strip below the suptitle.
-#         No change to the underlying numbers or output CSVs.
-__version__previous__ = "1.0.1"  # Hollingham (2026) — 2026-05-20
-# 1.0.1 — Switch baseline trajectory from Method A (per-well aggregation) to
-#         Method B (cluster centroid from 03_regional_averages.csv) to be
-#         internally consistent with the SSM β coefficients driving the
-#         perturbation. Both baselines are produced by Script 26 v1.1.2;
-#         this script now reads OUT_26_5YR_PER_CLUSTER_CENTROID rather than
-#         OUT_26_5YR_PER_CLUSTER. Δh shift magnitudes are unchanged (linear
-#         perturbation), only absolute MSL5 levels in the figure differ.
-#         Figure title and legend updated to make the Method-B baseline
-#         transparent.
-__version__previous__ = "1.0.0"  # Hollingham (2026) — 2026-05-20
-# 1.0.0 — Initial implementation. Tool B of the MSL forecasting pair, paired
-#         with Script 11 Section 5 (Tool A, v1.1.1). Single-step monthly Δh
-#         perturbation pattern (Script 21 method) applied to UKCP18 RCP8.5
-#         2050s and 2080s multipliers. Produces a 5-panel small-multiple
-#         figure (one panel per cluster) showing observed MSL5 trajectory
-#         alongside the two scenario-perturbed equivalents, plus a summary
-#         CSV with the projected vs observed MSL5 means per cluster per
-#         scenario.
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys
 from pathlib import Path
@@ -191,7 +137,6 @@ from utils.console_utils import (
 from utils import config, paths
 from utils.render_utils import render_figure
 
-
 # ── Output paths ──────────────────────────────────────────────────────────────
 paths.DIR_26B.mkdir(parents=True, exist_ok=True)
 
@@ -200,7 +145,6 @@ OUT_TABLE  = paths.OUT_26B_PROJECTION_TABLE
 OUT_TABLE_PERWELL = paths.OUT_26B_PROJECTION_TABLE_PERWELL   # v1.1.0
 OUT_DELTAS = paths.OUT_26B_DELTA_H_PER_CLUSTER
 OUT_TXT    = paths.OUT_26B_RESULTS_TXT
-
 
 # ── UKCP18 RCP8.5 Wales seasonal multipliers ──────────────────────────────────
 # Source: Script 19's canonical SCENARIO_PARAMS dict. The 2050s multipliers
@@ -229,7 +173,6 @@ WINTER_MONTHS = [11, 12, 1, 2, 3]
 SUMMER_MONTHS = [5, 6, 7, 8, 9]
 SHOULDER_MONTHS = [4, 10]
 
-
 def _monthly_multipliers(scenario_key: str) -> tuple[np.ndarray, np.ndarray]:
     """
     Convert seasonal UKCP18 multipliers into a 12-element monthly array.
@@ -250,7 +193,6 @@ def _monthly_multipliers(scenario_key: str) -> tuple[np.ndarray, np.ndarray]:
         sP[m - 1]   = 0.5 * (s["sP_w"]   + s["sP_s"])
         sPET[m - 1] = 0.5 * (s["sPET_w"] + s["sPET_s"])
     return sP, sPET
-
 
 def _compute_monthly_delta_h(b1: float, b2: float,
                               monthly_P_m: np.ndarray,
@@ -273,7 +215,6 @@ def _compute_monthly_delta_h(b1: float, b2: float,
     delta_P   = monthly_P_m   * (sP   - 1.0)
     delta_PET = monthly_PET_m * (sPET - 1.0)
     return b1 * delta_P - b2 * delta_PET
-
 
 def _compute_projected_msl5_trajectory(
         observed_traj: pd.DataFrame,
@@ -313,7 +254,6 @@ def _compute_projected_msl5_trajectory(
     out["MSL5_perturbed"] = out["MSL5_observed"] + msl5_shift
     out["msl5_shift"] = msl5_shift
     return out[["window_end_year", "MSL5_perturbed", "msl5_shift"]]
-
 
 def _render_bar_panel(ax, projected_trajectories, cluster_ids_present):
     """
@@ -366,7 +306,6 @@ def _render_bar_panel(ax, projected_trajectories, cluster_ids_present):
     # Floor the y-axis a bit below the deepest bar so the labels don't clip
     y_lo = min(bars_2080) - 1.0
     ax.set_ylim(y_lo, 0.5)
-
 
 def render_projection_figure(
         observed_trajectories: dict[int, pd.DataFrame],
@@ -474,7 +413,6 @@ def render_projection_figure(
     render_figure(fig, out_path)
     plt.close(fig)
     saved(f"{out_path.name}")
-
 
 # ── v1.1.0 per-well aggregation pathway ──────────────────────────────────────
 def compute_perwell_msl5_summary(
@@ -598,7 +536,6 @@ def compute_perwell_msl5_summary(
     out_df.to_csv(out_csv_path, index=False)
     saved(f"{out_csv_path.name}")
     return out_df
-
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 def main() -> int:
@@ -772,7 +709,6 @@ def main() -> int:
     print()
     done()
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

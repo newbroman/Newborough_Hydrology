@@ -16,98 +16,11 @@ Requirements:
 """
 
 __version__ = "1.9.1"  # Hollingham (2026) — 2026-08-08 (canonical geometry also written to 01_locations.csv)
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# Changelog:
-#   1.9.1 (2026-08-08) — Full-pipeline fix. The v1.9.0 derivation wrote
-#     ground_elev_m / pipe_top_elev_m only to 01_well_elevations.csv, but
-#     several scripts take geometry from 01_locations.csv (Script 29 line 164
-#     failed on KeyError: 'ground_elev_m' at pipeline step 34). Both files are
-#     now written through the new shared _derive_canonical_geometry(), so there
-#     is still exactly one definition and either carrier is safe to read.
-#   1.9.0 (2026-08-08) — Canonical geometry, derived once. Per
-#     GEOMETRY_ARCHITECTURE_SPEC.md: ground_elev_m and pipe_top_elev_m are now
-#     derived here and exported via 01_well_elevations.csv; no downstream script
-#     re-derives them or reads DEM_Ground_Elev / DGPS_Ground_Elev /
-#     Pipe_Top_Elev. ground_elev_m resolves from the new well_metadata.csv
-#     `ground_source` flag ('lidar' for the 17 wells without DGPS plus ceh37,
-#     ceh40, ceh41, ceh42; 'dgps' otherwise); pipe_top_elev_m = ground_elev_m +
-#     Upstand_m, replacing the stored Pipe_Top_Elev which disagrees with the
-#     master workbook at L1.
-#     maOD now uses ground_elev_m, not Pipe_Top_Elev. The model CSV is the
-#     master's `depth from surface` sheet (level = upstand - dip), a signed
-#     height relative to GROUND, so the previous formula added the upstand a
-#     second time — and a third, since Pipe_Top_Elev itself carried it twice.
-#     The prior comment block asserting Pipe_Top_Elev was "independently
-#     measured" was incorrect: it is derived, and the 70-of-97 disagreement it
-#     cited was the double upstand it introduced. maOD falls by up to
-#     2 x Upstand_m per well (mean 0.155 m, max 1.42 m), constant in time.
-#   1.8.0 (2026-07-22) — Close the coastal-distance reproducibility gap.
-#     dist_coast_m (well-to-eroding-shoreline perpendicular distance) was
-#     computed once out-of-pipeline; §3.11 claims full pipeline reproducibility.
-#     New _validate_dist_coast() recomputes it from the committed west-facing
-#     eroding-shoreline geometry (data/geo/coastline_eroding_hwm.geojson) using
-#     pure numpy point-to-polyline (no GIS dependency) and validates the
-#     committed dist_coast_m in well_metadata.csv against it, warning (not
-#     erroring, not overwriting) on drift > 25 m. Writes the per-well audit
-#     01_dist_coast_validation.csv. The committed values stay canonical
-#     (regenerate-and-validate). NB: the pre-existing coastline_hwm.geojson
-#     bundles the *non-eroding* Menai Strait coast, which the analysis excludes;
-#     the new eroding-only polyline is clipped from it at the Abermenai tip and
-#     reproduces the committed distances to median 1.5 m / max 15 m across all
-#     98 wells (the residual is the 5 m coastline simplification).
-#   1.4.1 (2026-06-15) — Coverage-figure fix-up: (1) cluster band labels are now
-#     horizontal at each band midpoint (pulled from CLUSTER_LABELS), fixing the
-#     overprint that rendered "C9"/"C4)" on the thin C4/C5 bands; all bands read
-#     C1-C5. (2) Figure axis now starts April 2005 (RECORD_START_DISPLAY): the
-#     lone 13/04/2005 pre-system reading buckets to March 2005 and is dropped
-#     from the display so figure and report agree; title reads "Apr 2005 - Feb
-#     2026".
-#   1.4.0 (2026-06-15) — Merged the data-coverage figure (former
-#     01b_coverage_figure.py) into Script 01. After cleaning the wells, parse the
-#     field comments in the raw records spreadsheet (DATA_WELL_RECORDS_ODS) into
-#     per-cell observation states {dry, flooded, not_found, inaccessible}, add
-#     inferred-dry (dry-season + missing-run block-fill), scope to the pipeline
-#     wells and months, and write two NEW outputs: 01_observation_states.csv and
-#     01_dry_depths.csv. Then render 01_coverage_states.png. Both the parse and
-#     the figure are guarded: the parse is skipped (falling back to any committed
-#     state CSV) if the .ods is absent; the figure is deferred on a cold first
-#     pass because it colours wells by cluster and 03_master_data.csv is produced
-#     downstream — re-run Script 01 after a full pipeline pass to render it.
-#     PURELY ADDITIVE to existing outputs: 01_wells_provenance.csv and its
-#     {measured, interpolated, missing} vocabulary are unchanged. Parsing lives
-#     in utils/comment_states.py; vocabulary/dates in utils/config.py.
-#     Reviewer-proofing in the same release: (a) a dry/not_found/inaccessible
-#     comment overrides only a BLANK or INTERPOLATED cell, never a genuine
-#     measurement — collisions are kept as measured and logged to
-#     01_observation_state_conflicts.csv for adjudication; (b) the figure
-#     respects BW_MODE (colours/hatches from config, greyscale-safe); (c) the
-#     output is 01_coverage_states.png and the palette lives in config.
-#   1.3.0 (2026-05-24) — Added "pdfs" to EXTENDED_NETWORK_BLACKLIST: the well
-#     carries a tidal-influence signature and is unrepresentative of
-#     water-table behaviour (same exclusion principle as CEH3/CEH22 in the
-#     reference whitelist, same family as Llyn Rhos). With p1's elevation row
-#     now completed in well_metadata.csv, the classified network
-#     settles at 88 wells (66 reference + 22 extended). See
-#     FIX_BRIEF_pdfs_p1_network_88.md.
-#   1.2.0 (2026-05-19) — Defect E fix: emit 01_wells_provenance.csv alongside
-#     01_wells_clean.csv, recording per-cell origin as one of
-#     {"measured", "interpolated", "missing"}. This is paired with the
-#     clean_well_series policy change (limit=3 -> limit=1) in
-#     utils/data_utils.py: single missed monthly visits are bridged, but
-#     multi-month gaps now stay NaN. Downstream consumers (clearfell_common,
-#     Script 10d summer minima, Script 03 SSM sensitivity path) read the
-#     provenance file to filter or report interpolated rows. See
-#     DEFECT_E_INTERPOLATION_AUDIT.md for the diagnostic that motivated
-#     this change.
-#   1.1.1 (2026-05-14) — Docstring fix: REFERENCE_NETWORK_WHITELIST comment
-#     said "69 wells"; corrected to 66 (= published partition, no real wells
-#     lost; stale text from a pre-publication count).
-#   1.1.0 (2026-05-14) — Clarified the well-cleaning call to call out the
-#     depth-floor sign-convention fix in utils/data_utils.py. The cleaning
-#     function now masks readings deeper than -4.0 m (corrected comparison
-#     direction); positive readings, which represent slack flooding above
-#     pipe top, are retained.
-#   1.0.0 (2026-04-10) — Initial pipeline release.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys as _sys
 import os as _os

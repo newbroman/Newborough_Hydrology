@@ -35,62 +35,11 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 """
 
 __version__ = "1.4.0"  # Hollingham (2026) — 2026-07-14
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# 1.3.0 — Scrape equilibration (decay) characterisation added (Task G). New
-#         phase computes, for CEH36, the summer-minimum-gap relaxation
-#         transient: peak (post-scrape maximum) and its year; residual plateau
-#         (mean of the final EQUIL_RESIDUAL_WINDOW_YEARS summer years); and the
-#         post-peak and from-scrape OLS decay slopes (plain OLS, no AR(1) at
-#         annual resolution). Emitted for BOTH the climate-corrected gap
-#         (headline) and the CEH36-CEH4 paired gap (robustness). The paired
-#         series does not turn over (its maximum is the final year), so its
-#         post-peak slope is degenerate and is skipped with a note; only the
-#         from-scrape paired slope is reported. New rows in 09c_report_numbers.
-#         The divergence between the two — decay against the climate control,
-#         no decay against the coastal-paired control (CEH4 shares the coastal
-#         drawdown) — is the confound made explicit and is reported as-is.
-#         Figures/other CSVs byte-identical. Constants from config.py; no
-#         hardcoded years (windows derive from SCRAPING_DATE, the observed
-#         peak, and last_year).
-# 1.2.5 — Reproducibility: deterministic well ordering. `all_wells` and the
-#         paired-control loop now use sorted(set(...)) instead of list(set(...)),
-#         so the three output CSVs are byte-stable across runs. Python string-hash
-#         randomisation previously reordered rows run-to-run with NO value change
-#         (rows are identical when sorted). First run after this re-orders rows to
-#         alphabetical well order, byte-stable thereafter. No numerical change.
-# 1.2.4 — Paired figure (09c_04, CEH36 vs CEH4): added clearfell (Dec 2017) and
-#         Oct-2023 re-scrape markers on both panels alongside the existing
-#         scraping line; panel (a) legend lists all three. Figure only.
-# 1.2.3 — Climate-control figure (09c_03), panel (a): moved the legend to start
-#         at the clearfell marker (lower-left anchored at x = clearfell year),
-#         clearing the CEH22 trace it previously obscured in the lower-left.
-# 1.2.2 — Climate-control summer-minima figure (09c_03): added the Oct-2023
-#         re-scrape marker (magenta dash-dot) on all three panels alongside the
-#         scraping (Apr 2015) and clearfell (Dec 2017) lines; legend updated.
-#         Imports SCRAPING_DATE_2. Figure only.
-# 1.2.1 — Climate-control summer-minima figure (09c_03): added the clearfell
-#         marker (Dec 2017, dark-green dash-dot) alongside the existing scraping
-#         line (Apr 2015) on all three panels; panel (a) legend updated. Imports
-#         INTERVENTION_DATE from scraping_common. Figure only; the summer-minima
-#         BACI computations and CSV exports are unchanged.
-# 1.2.0 — Defect E fix integration:
-#         * Consumes new wells_provenance return from load_scraping_data
-#           (scraping_common v1.3.0).
-#         * annual_summer_minimum now called with provenance and
-#           min_measured=2 — phantom 2019 summer minima for NW6 and NW7
-#           (both CLIMATE_CONTROLS) drop out cleanly.
-#         * forest_control_centroid_summer_min likewise receives
-#           wells_provenance, so the climate-control centroid in any
-#           given year is based on measured cells only.
-#         * 09c_01_summer_minima.csv gains an n_interpolated column
-#           recording how many Jun-Sep cells in each (well, year) bucket
-#           were flagged interpolated.
-# 1.1.0 — Set first_year = 2011 (was 2006).  Matches the record-length-
-#         balance principle applied to 10d v1.2.0: annual summer-minima
-#         BACI requires every contributing well to have full Jun–Sep
-#         coverage in each year.  CEH36 (impact) starts 2011-01-01, so
-#         2011 is the binding constraint for the scraping network.
-# 1.0.0 — Initial.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os

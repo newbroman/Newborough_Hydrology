@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """
-26_greyscale_figures.py
+27_greyscale_figures.py
 =======================
-Renamed in 2026-05-20 commit from 26_greyscale_figures.py → 27_greyscale_figures.py
-to free script number 26 for the new van Willegen MSL aggregation step
-(Phase 13). This utility is now Phase 14 / step 29 in the pipeline.
+Renamed in the 2026-05-20 commit from 26_greyscale_figures.py to free script
+number 26 for the van Willegen MSL aggregation step.
 Post-processing script to convert all pipeline colour figures into
 journal-ready greyscale versions.
 
@@ -61,7 +60,8 @@ This script is idempotent. To regenerate after data changes:
 The outputs_bw/ directory can be safely deleted and rebuilt at any time.
 
 Author: Hollingham 2026
-Pipeline step: 29 (Phase 14, post-processing)
+Display/utility step (tier D), run last as a post-processing pass. The canonical
+phase and step index are in outputs/pipeline_manifest.json — not restated here.
 """
 
 import argparse

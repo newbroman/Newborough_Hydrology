@@ -36,17 +36,11 @@ Reviewer-facing method summary:
 from __future__ import annotations
 
 __version__ = "1.3.0"  # Hollingham (2026) — 2026-06-21 (iterate CLUSTER_LABELS not CLUSTER_COLOURS — drop reserved C6 from cluster loops; no functional change, C6 was already guarded out)
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# 1.2.0 — Winter trends now persisted to 14_winter_trend_stats.csv
-#         (parallel to 14_summer_trend_stats.csv). Winter trend
-#         computation in main() now captures the p-value (previously
-#         discarded). Closes the provenance gap whereby the report
-#         quoted winter trend figures with no _report_numbers-style
-#         CSV. New path: OUT_14_WINTER_TREND_CSV.
-# 1.1.1 — Doc-sweep S.8: added OBS_END / REFERENCE_CUTOFF_DATE
-#         explanatory comment (Item 15) and PNG@dpi=300 format note
-#         in Outputs docstring (Item 13).  Patch — docstring only.
-# 1.1.0 — Last revised 2026-04-26.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys
 from pathlib import Path

@@ -109,50 +109,11 @@ Ridge reference point: E = 241750, N = 364500 (OSGB36)
 """
 
 __version__ = "1.1.1"  # Hollingham (2026) — 2026-08-07
-# 1.1.1 (2026-08-07) — documentation only; no computation, output or interface
-#         change, reruns are bit-identical.
-#         (a) The Methodological note claimed "positive AR(1) phi values ...
-#             consistent with vadose-zone moisture memory". The committed
-#             22_model_b_fits.csv gives network mean phi = -0.126, median
-#             -0.129, with only 3 of 64 wells above |phi| = 0.3. The
-#             persistence is NEGATIVE and the claim was stated backwards.
-#             Rewritten; the extended P(t)+P(t-1) fit is retained, but on
-#             the narrower ground that it removes a confound by
-#             construction rather than that Script 22 demonstrated one.
-#         (b) LIMITATION NOTE extended from three structural reasons to
-#             four, adding the short-lag methodological floor identified in
-#             the May 2026 investigation: OLS residuals are orthogonal to
-#             the rainfall regressors at lags 0 and 1 by construction, so
-#             the lag-2 concentration (43 of 51 significant peaks) is
-#             partly an artefact of the fit and is not a travel-time
-#             observation. Carried into Methods Supplement §S.16 (v1.8.20)
-#             and Paper 1 SI §S9 in the same batch.
-#         (c) Stale cross-references: §4.4.2 / §5.3 renumbered to §4.9.7 /
-#             §5.2.1, and a note added that the Script 20 correction of
-#             2026-08-06 removed the spatial structure the test was built
-#             to interrogate.
-# 1.1.0 — 2026-06-21 (iterate CLUSTER_LABELS not CLUSTER_COLOURS.items() — drop reserved C6 from cluster loops; no functional change, C6 was already len-guarded)
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# 1.0.1 — Doc-sweep S.16: added prominent LIMITATION NOTE at top of
-#         docstring documenting that the test design is statistically
-#         degenerate against this dataset (monthly resolution cannot
-#         resolve sub-monthly travel times; peak-lag is a poor CCF
-#         summary; the 2.5% water-balance residual is at the noise floor
-#         of per-well α uncertainty). Script retained for completeness;
-#         results should not be cited. See §5.3 of main report and
-#         §S.16 of Methods Supplement for final framing (S16-J).
-#         Softened the "Script 22 demonstrated lag-1 rainfall signal at
-#         every well" overstatement to "Script 22 documents AR(1)
-#         persistence consistent with vadose-zone moisture memory" —
-#         Script 22 tests residual-vs-own-past, not residual-vs-past-
-#         rainfall, so the previous wording overstated what Script 22
-#         actually shows (S16-C).  Fixed add_kml_features(ax) → 
-#         add_kml_features(ax, DATA_DIR) bug — previously the KML
-#         overlay silently failed inside the try/except, producing
-#         maps without site features (S16-E).  Added __version__
-#         (S16-H).  Patch — no functional change to numerical
-#         outputs, KML overlays will now render on the lag-map figure.
-# 1.0.x — Initial.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os

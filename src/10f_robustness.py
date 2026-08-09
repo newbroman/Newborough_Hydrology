@@ -58,15 +58,11 @@ from utils.clearfell_common import (
 )
 
 __version__ = "1.1.0"  # Hollingham (2026) — 2026-05-18
-# 1.1.0 — Migrate ssm_residual_analysis() calibration fit from inline
-#         sm.OLS() to canonical model_utils.fit_ssm() using the v1.1.0
-#         pre_built_frame= keyword.  Closes Item 4 in
-#         CHAPTER_FLAGS_TO_REVIEW.md (model_utils consolidation).  No
-#         functional change: byte-identical βs to v1.0.0 (verified
-#         empirically against pre-edit pipeline run).  The synthetic-
-#         control donor regression at line 304 is a different model
-#         class (zone_mean ~ Σ wᵢ·donorᵢ) and remains as direct sm.OLS.
-# 1.0.0 — Initial.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 # ── Exclusions ──────────────────────────────────────────────────────────────
 EXCLUDED_WELLS = {'nw8', 'nw8b'}

@@ -3,7 +3,8 @@
 
 Routed from HANDOVER_c3_detrend_check.md (2026-05-29).
 
-Cluster-framework diagnostic. Enters run_analysis.py at Phase 14, Step 31.
+Cluster-framework diagnostic (tier X) in the cluster-framework diagnostics
+phase of run_analysis.py. Canonical step index: outputs/pipeline_manifest.json.
 Read-only on pipeline outputs; writes to outputs/28_c3_detrend/.
 
 Procedure (per handover):
@@ -27,12 +28,11 @@ Decision:
 from __future__ import annotations
 
 __version__ = "1.2.0"  # Hollingham (2026) — 2026-05-29
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# 1.1.0 — Re-wired to paths.py and outputs/28_c3_detrend/ canonical
-#         directory. Entered run_analysis.py at Phase 14 Step 31. No
-#         change to procedure; outputs byte-identical to the standalone
-#         outputs/diagnostics/ version it replaces.
-# 1.0.x — Initial standalone diagnostic.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys
 import pandas as pd

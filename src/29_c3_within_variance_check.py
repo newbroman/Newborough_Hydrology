@@ -30,27 +30,19 @@ This script:
    space (northing/elevation are essentially the same axis; dist_forest
    is partly co-linear with the topographic axis).
 
-Cluster-framework diagnostic. Enters run_analysis.py at Phase 14 Step 32.
+Cluster-framework diagnostic (tier X) in the cluster-framework diagnostics
+phase of run_analysis.py. Canonical step index: outputs/pipeline_manifest.json.
 Read-only on pipeline outputs; writes to outputs/29_within_c3_variance/.
 """
 
 from __future__ import annotations
 
 __version__ = "1.4.0"  # Hollingham (2026) — 2026-06-21
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# 1.2.0 — §4.9 traceability: joined Script 17 WTF event-median Sy
-#         (Sy_wtf_median column) per C3 well; emit 29_report_numbers.csv with
-#         the C3 inland-gradient correlations (β₁/β₃/Sy vs dist_coast) and the
-#         empirical C3 Sy endpoints. Coastal correlations report n=19 (CEH36 +
-#         WMC3 lack Script 25 dist_coast by design). No change to the existing
-#         panel/univariate/drop-one procedure.
-# 1.1.1 — data/geo/ reorg: Features.kml now via paths.DATA_KML_FEATURES
-#         (was REPO/"data"/"Features.kml", which broke after the geo move).
-# 1.1.0 — Re-wired to paths.py and outputs/29_within_c3_variance/ canonical
-#         directory. Entered run_analysis.py at Phase 14 Step 32. No change
-#         to procedure; outputs byte-identical to the standalone
-#         outputs/diagnostics/ version it replaces.
-# 1.0.x — Initial standalone diagnostic.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys
 import warnings

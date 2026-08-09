@@ -54,15 +54,11 @@ C3 split threshold: 1000 m from ridge (forest-adjacent vs warren-interior)
 """
 
 __version__ = "1.1.0"  # Hollingham (2026) — 2026-05-17
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# 1.0.1 — Doc-sweep S.16: clarified the inline comment on lag/displacement
-#         handling (S16-D); fixed add_kml_features(ax) → add_kml_features(
-#         ax, DATA_DIR) bug — previously the KML overlay silently failed
-#         inside the try/except, producing maps without site features
-#         (S16-F); added __version__ (S16-I).  Patch — no functional
-#         change to numerical outputs; KML overlays will now render on
-#         the amplitude-map figure.
-# 1.0.x — Initial.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os

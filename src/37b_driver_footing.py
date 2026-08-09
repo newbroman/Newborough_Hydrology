@@ -85,44 +85,16 @@ Outputs (outputs/37b_driver_footing/):
   37b_driver_footing.png   grouped bars, one panel per currency.
   37b_results.txt          whole-story summary + caveats.
 
-Step 41/47, Phase 15 — after Script 37 (Part A).
+Runs after Script 37 (Part A) in the driver-validation phase; the canonical
+step index is in outputs/pipeline_manifest.json.
 """
 
 __version__ = "1.2.0"  # 2026-07-17: add CLIMATE as a distinctly-flagged
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-#                       common-mode driver. A spatially-UNIFORM field
-#                       c × HORIZON_YEARS (= -6.35 mm/yr × 20 yr = -127 mm
-#                       everywhere), c live from Script 25 (25_01, forest_free/
-#                       linear_capped c_mm_yr) via load_climate_c(). It enters
-#                       all three currencies: peak = -127 mm (uniform); volume
-#                       uses the C3 representative Sy (same as coast/scrape, per
-#                       sign-off) and — because it acts over the WHOLE site, not
-#                       a fringe — is the largest single volume term; crossings
-#                       apply the uniform -127 mm to every well. Flagged apart
-#                       from the spatially-structured drivers (own driver group
-#                       "Climate (common-mode)", hatched bar + separator) so the
-#                       "common-mode not attributed to a mechanism" reading is
-#                       preserved. Figure panel titles renamed Currency -> Measure
-#                       (function identifiers unchanged); Currency-3/Measure-3
-#                       legend moved inside the panel (mid-right) so it clears
-#                       both the panel title and the coastal-erosion bar.
-#                       Analytical tier unchanged (a component, not a new step).
-# 1.0.1 — 2026-07-07: plot_footing() resized from a 1x3 wide
-#                       layout (19 in — ran off an A4 page) to a 3-row
-#                       vertical stack (7.2 x 9.6 in, fits A4 with margins).
-#                       Figure content/values unchanged.
-# 1.0.0 — 2026-07-06: initial release per
-#                       SPEC_script37b_partB_comparative_footing_2026-07-06.md.
-#                       New analytical script (Part B, Housing option A).
-#                       Reuses Script 20 v1.32.0 field builders via importlib
-#                       (as Script 37); reuses Script 37's felling-polygon
-#                       lookup pattern; reuses pipeline_params.load_params()
-#                       for canonical per-cluster Sy (Script 17's output —
-#                       single source of truth, matches INT_WTF_WELL_SY
-#                       grouped by Cluster). Per-well Currency-3 baseline
-#                       computed directly from INT_WELLS_CLEAN (Sign-off #3
-#                       — 14_annual_extremes.csv is cluster-level, not
-#                       per-well; confirmed by reading Script 14).
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import os
 import sys

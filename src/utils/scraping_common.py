@@ -32,38 +32,11 @@ WELL_ERAS           {well: {era_name: (start, end)}} for all analysis wells.
 """
 
 __version__ = "1.6.0"  # 2026-07-19 — MPL_DEFAULTS relocated to render_utils.py;
-                        # re-exported here for backwards compatibility
-                        # (09a/09c/09d/09e/09f unchanged). No other changes.
-# 1.5.0  2026-07-02 — added load_annual_climate() companion to
-                        # load_summer_climate(); used by Script 09d v3.4.0 to
-                        # evaluate scenario bars under annual-mean forcing
-                        # (Figure 26) alongside summer forcing (Figure 27).
-                        # No change to existing helpers.
-# 1.4.0  2026-05-30 — Summer-minimum scenario conversion
-                        # (monthly flux -> head /Sy -> summer-min x amplification)
-                        # extracted from 09b into shared helpers:
-                        # summer_amplification_factors(), scenario_cluster_sy(),
-                        # flux_to_summer_min_mm(), scenario_summer_min_bars().
-                        # Single source of truth for the Delta_summer_min_mm metric;
-                        # 09b_05 and 21_forestry_06 both call these (byte-identical
-                        # forestry rows). No change to any prior behaviour.
-# 1.3.0 — 2026-05-19 — Defect E fix integration: load_scraping_data
-                        # now returns (wells, wells_provenance, climate) and reads
-                        # the per-cell provenance file emitted by Script 01 v1.2.0
-                        # alongside 01_wells_clean.csv. Call sites in 09a, 09c,
-                        # 09d, 09e updated to accept the new third return; 09c
-                        # forwards provenance to annual_summer_minimum so the
-                        # phantom 2019 summer minima for NW6/NW7 (Climate
-                        # controls) drop out cleanly. The double-clean issue
-                        # (E.2) does not exist in this loader — there is no
-                        # clean_well_series call here, only a CSV read.
-# 1.2.0 — 2026-05-16 — REGIONAL_MEAN_START codifies the fixed-composition
-#         window for the regional-mean control (consistency with the
-#         clearfell-suite record-length-balance principle, but smaller in
-#         scope because the paired-BACI design here already self-equalises
-#         within each pair).
-# 1.1.0 — 2026-05-08 — B2 multiplier routed through clearfell_common.
-# 1.0.x — Initial scraping-suite shared module.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import pandas as pd
 import numpy as np

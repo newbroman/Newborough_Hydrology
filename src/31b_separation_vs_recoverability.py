@@ -26,11 +26,6 @@ Output (outputs/31_cluster_validation/, via paths.OUT_31B_*):
   31b_separation_vs_recoverability.csv
   31b_separation_vs_recoverability.png
 
-Version: 1.1.0  (2026-06-28)  — convention pass: console_utils + banner/__version__;
-         K from pipeline_params.get_n_clusters() (validated vs get_requested_n_clusters());
-         SUMMER/MIN_YR from CV_* tunables; inputs read through paths constants and outputs
-         written via paths.OUT_31B_* (deps-visible); stale dist-coast provenance corrected.
-         1.0.0  (2026-06-25)  — initial standalone companion figure.
 """
 from __future__ import annotations
 import sys

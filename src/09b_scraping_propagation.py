@@ -31,42 +31,11 @@ Reads:
 """
 
 __version__ = "1.6.0"  # Hollingham (2026) — 2026-07-02
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# 1.5.0 — _summer_scenario() re-based to VOLUMETRIC (mm water-equiv / month).
-#         The previous ÷Sy × mean->minimum amplification conversion to a
-#         summer-MINIMUM depth is removed: the SSM equilibrium framework has
-#         no transient and cannot resolve a summer minimum, and the
-#         amplification slope is least reliable at the forest. Every bar is
-#         now the equilibrium volumetric response (matching 09b-04 and Script
-#         09d); the scraping bar is the observed BACI head shift rendered on
-#         the volumetric axis (× C5 Sy). Output 09b_05 CSV column renamed
-#         Delta_summer_min_mm -> Delta_vol_summer_mm_per_month. Caption moved
-#         below axis; head-conversion caveat added; not-a-minimum note added.
-#         Drops the amplification helper calls (summer_amplification_factors,
-#         flux_to_summer_min_mm) and the now-unused INT_REGIONAL_AVG import.
-#         Matches the 09d v3.4.0 / Script-21 v1.4.0 re-basis (2026-07-02).
-# 1.4.1 — Equilibration figure (09b_03, CEH36 vs CEH4): added the Oct-2023
-#         re-scrape marker (magenta dash-dot, SCRAPE2_DATE) alongside the
-#         existing scraping (Apr 2015) and clearfell (Dec 2017) lines; legend
-#         updated. Figure only; trajectory/equilibration computation unchanged.
-# 1.4.0  2026-05-31 — FRAC_AFFECTED["C3"] updated from 0.32
-#         to 0.2857 (= 6/21) to match the live 24/21 cluster partition under
-#         01_data_prep.py v1.3.0 (the tidal `pdfs` well blacklist shifted 2
-#         wells from C2 into C3 at re-clustering; 6 of the 21 live C3 wells
-#         remain within 800 m uphill of CEH36, vs 6/19 = 32% previously).
-#         Text annotation on the scenario-comparison figure updated to match.
-#         Visible bar-height impact is negligible (C3 scraping bar shrinks
-#         from ≈0.22 to ≈0.20 mm/month — both round to 0.2 mm/month at
-#         display precision); the label change is the main user-visible
-#         effect. No further downstream impact (Script 21 reads from
-#         pipeline_scenario_params.csv, not from 09b's outputs).
-# 1.3.0 — 2026-05-30 — _summer_scenario() now routes the
-                        # amplification factors, per-cluster Sy, and the
-                        # flux->summer-min conversion through the shared
-                        # scraping_common helpers (v1.4.0). Output 09b_05 is
-                        # byte-identical; the conversion is now shared with
-                        # Script 21 (21_forestry_06).
-# 1.2.0 — 2026-05-08 — hardcoded SCENARIO_VALUES replaced with compute_scenario_bars()
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.join(_os.path.dirname(

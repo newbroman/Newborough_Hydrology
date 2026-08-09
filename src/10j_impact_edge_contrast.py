@@ -94,50 +94,11 @@ from utils.site_observations import update_site_observation
 from utils.render_utils import render_figure
 
 __version__ = "1.3.0"  # Hollingham (2026) — 2026-07-04
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# 1.2.2 — figure_monthly_contrast(): fix IndexError — pre/post masks now
-#          computed per-series on each series' own index (Impact 172 rows,
-#          Edge 180 rows); shared mask caused length mismatch in pandas.
-# 1.2.1 — figure_monthly_contrast(): added pre/post period mean lines
-#          (dotted, colour-matched) to both panels, with annotations
-#          showing the per-zone and gap-series shifts.
-# 1.2.0 — Summer-minima model moved onto the WMC3-gatekeeper year
-#         panel.  fit_summer_contrast() and figure_summer_contrast()
-#         now take panel_years (from clearfell_common.
-#         wmc3_usable_summer_years) and select years by it instead of
-#         the old per-row `n_interpolated == 0` filter.  A year enters
-#         the summer analysis if the Impact well WMC3 has a usable
-#         Jun-Sep record (at most one missing month); on the current
-#         data this is 2011 + 2013-2018 + 2020-2025 (2012 and 2019
-#         dropped).  The n_interpolated filter is removed — every row
-#         in 10d_01 has already passed the Defect-E min_measured=2 rule.
-#         This is the SAME year panel Script 10l uses, so the 10l
-#         four-zone Impact-Edge contrast and this two-zone estimate are
-#         again directly comparable (the 10l cross-check).  The summer
-#         contrast and 10j's two summer site-observations regenerate;
-#         the monthly model is untouched.
-# 1.1.0 — Bug fix in fit_summer_contrast(): the post-felling indicator
-#         was `Year >= INTERVENTION_DATE.year` (2017), which mislabelled
-#         the Jun-Sep 2017 summer minimum as post-felling.  That summer
-#         occurred ~6 months BEFORE the December 2017 felling and cannot
-#         carry a felling signal.  Corrected to `Year >= year + 1`
-#         (2018) — the first FULL post-felling summer — matching
-#         Script 10d (POST_YEAR = FELLING_YEAR + 1) and Script 10l.
-#         The summer contrast and the two summer site-observation
-#         entries regenerate; the monthly model is unaffected (its
-#         Post indicator is date-based, `date >= INTERVENTION_DATE`,
-#         and was already correct).  Surfaced by the Script 10l
-#         four-zone summer cross-check, which disagreed with 10j by
-#         ~30 mm purely on this one-summer definition difference.
-#         Also: figure_summer_contrast() now reindexes each trajectory
-#         onto continuous years so a missing summer minimum (e.g. WMC3
-#         has no 2019 summer minimum) breaks the line rather than being
-#         bridged by a straight segment across the gap.
-# 1.0.0 — Initial.  Direct Impact-vs-Edge BACI contrast at monthly and
-#         annual-summer-minimum resolution.  Reads PRE_FELL_START,
-#         SCRAPING_DATE, INTERVENTION_DATE and well lists from
-#         clearfell_common; writes four site-observation entries.
-#         No hardcoded site-specific values.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 
 # ============================================================================

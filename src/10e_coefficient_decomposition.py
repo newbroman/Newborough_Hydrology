@@ -72,91 +72,11 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 """
 
 __version__ = "1.6.0"  # Hollingham (2026) — 2026-05-31
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# 1.5.0 — Figure 10e_03 redesigned for legibility. Replaced the single-row
-#         1x4 panel (illegible when embedded at column width) with a vertical
-#         stack of three horizontal before/after dumbbell panels (β₁, β₂, β₃),
-#         wells on the y-axis grouped and coloured by tier (all five tiers now
-#         shown, incl. Coastal Ctrl), open circle = before / filled square =
-#         after, 95% CI whiskers. Summary panel changed from absolute mean Δβ
-#         (which let the tiny-absolute β₃ vanish and over-magnified β₂ on a
-#         narrow shared axis) to a per-tier β₁/β₂ shift as % of the before
-#         value; β₃ dropped from the summary (its % swings are noise-dominated
-#         and already shown on its own dumbbell panel). FIGURE-ONLY change:
-#         shift_df, the 10e_01 CSV, and downstream consumers (Scripts 19/21
-#         β₂ multiplier) are untouched. New imports: GridSpec, Line2D.
-# 1.4.0 — Option A resolution of the 10e predicted-vs-observed problem.
-#         REMOVED the predicted-vs-observed comparison entirely:
-#           * dropped the Δh_predicted column and all its inputs
-#             (mean_P_m, mean_PET_m, mean_h_disp_m);
-#           * dropped the 10e_02_predicted_vs_observed.csv output (no
-#             downstream consumer — verified across src/ and run_*.py);
-#           * dropped the import of 10a_report_numbers.csv observed
-#             ANCOVA steps and the summer-suffix predicate logic;
-#           * the summary figure's 4th panel is replaced by a per-tier
-#             mean-Δβ panel.
-#         REVERTED the Before/After era fits from the intercept-bearing
-#         Model B to the canonical no-intercept Model A (fit_ssm() with
-#         the default intercept=False), consistent with Script 03 and
-#         Methods Supplement S.3.
-#         RATIONALE: the per-era per-well SSM β-projection and the 10a
-#         ANCOVA BACI step are estimates of different quantities — the
-#         10a step is a control-differenced centroid coefficient,
-#         whereas Δh_predicted had no control subtraction and a
-#         different projection basis. The comparison was not a valid
-#         reconciliation; earlier versions could only close it by
-#         absorbing the gap into an intercept shift Δα of unidentified
-#         physical content. 10e is hereby a mechanistic-DIRECTION
-#         diagnostic (which pathway shifted, in which direction); the
-#         clearfell magnitude result is, and remains, the 10a BACI step.
-#         Decision: report editorial chat, 2026-05-24 (Option A);
-#         supersedes HANDOVER_10e_intercept_export.md (which proposed
-#         Option C, the Δα export — not adopted). Closes Editorial Q3.
-#         CONSEQUENCE: 10e_01 b1/b2/b3 columns shift slightly vs v1.3.0
-#         (no-intercept vs with-intercept fit) — NOT byte-identical to
-#         v1.3.0, by design. b2_before/b2_after still feed the Script
-#         19/21 β₂ forestry multiplier via clearfell_common; the
-#         multiplier recomputes on every call, so it tracks the new
-#         values automatically.
-# 1.3.0 — Migrate Before-era and After-era OLS fits from inline
-#         sm.OLS(...sm.add_constant(...)) to the canonical
-#         model_utils.fit_ssm() interface, using the v1.1.0 keywords
-#         intercept=True and extra_regressors={'scraping_dummy': ...}
-#         for the Before era's four-column design matrix.  Closes
-#         Item 3 in CHAPTER_FLAGS_TO_REVIEW.md (model_utils
-#         consolidation).  No functional change: byte-identical β,
-#         SE, p-value, and intercept outputs to v1.2.2 (verified
-#         empirically against pre-edit pipeline run).  Minor — the
-#         provenance comment block at the OLS call sites is replaced
-#         by a shorter inline note pointing to the v1.1.0 fit_ssm()
-#         interface.
-# 1.2.2 — Defect 15 fix.  observed_steps loader (~line 315) was using a
-#         substring predicate (`'Forest' in param and 'clearfell_step'
-#         in param`) which matched both the headline annual row
-#         (`ANCOVA_Forest_Impact_clearfell_step`) and the summer-band
-#         rows added by Defect 14 (`..._clearfell_step_summer` and
-#         `..._clearfell_step_summer_noCWB`).  Last-write-wins put the
-#         noCWB sensitivity (0.2384 m) into observed_steps['Forest_
-#         Impact'] instead of the canonical annual headline (0.1362 m).
-#         Tightened the predicate to require '_clearfell_step' as a
-#         SUFFIX (startswith/endswith), which rejects the summer
-#         variants and any future named variants.  Regenerating
-#         10e_02_predicted_vs_observed.csv produces the correct
-#         comparison values.  Bug was latent in Script 10e v1.x; it
-#         was triggered by Script 10a v1.3.0 (Defect 14) adding the
-#         summer rows.  Affected one cell: Impact tier Observed_ANCOVA_
-#         forest_m (0.2384 m → 0.1362 m).  All other cells were
-#         correct.  Patch.
-# 1.2.1 — Added inline provenance comment at the first OLS call site
-#         explaining why 10e fits directly with sm.add_constant() rather
-#         than going through model_utils.fit_ssm() (Item 1 in flags log).
-# 1.2.0 — Adopt CEH34 hindcast via apply_ceh34_hindcast().  Companion to
-#         PRE_FELL_START = 2010-07-01 in clearfell_common v1.2.0.
-# 1.1.0 — Apply PRE_FELL_START record-length-balance cutoff to Before
-#         era; switch dh_predicted normalisation from full-record
-#         (centennial) climate means to post-INTERVENTION means.
-#         Updated docstring with note on intercept vs β decomposition.
-# 1.0.0 — Initial.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os

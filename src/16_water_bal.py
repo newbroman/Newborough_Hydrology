@@ -65,18 +65,11 @@ References:
 """
 
 __version__ = "1.1.1"  # Hollingham (2026) — 2026-05-17
-# 1.1.1 — Doc-sweep S.11: corrected stale output filenames in header
-#         docstring (fig8_* → bar_*, matching live paths.py — S11-A);
-#         clarified ambiguous HEADLINE_LAG sentence in compute_headspace
-#         docstring (S11-B); fixed lag-1 SSM equation P(t-1) → P(t),
-#         h_disp(t-1) → h_disp_prev(t) (S11-C, same fix as Script 15).
-#         Companion change in src/utils/paths.py: removed 5 orphan
-#         OUT_16_VOL_* constants (S11-D).  Patch — no functional change.
-# 1.1.0 — Publish live (P − PET) annual to site_observations registry
-#         (key 'site_p_minus_pet_annual'); docstring P − PET line
-#         updated to point at the registry rather than a stale hardcoded
-#         value (Item E11 in flags log).
-# 1.0.x — Prior state (no __version__ tracked).
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys
 import os

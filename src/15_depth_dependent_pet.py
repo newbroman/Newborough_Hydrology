@@ -41,16 +41,11 @@ Outputs (in outputs/15_depth_dependent_pet/):
 """
 
 __version__ = "1.2.0"  # Hollingham (2026) — 2026-05-17
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# 1.0.1 — Doc-sweep S.10: corrected four "lag-1 rainfall" docstring claims
-#         (lines 5, 116, 126, 159) to "contemporaneous (HEADLINE_LAG = 0)"
-#         (Items S10-A, S10-B); renamed the misleading `P_lag1` design-matrix
-#         column to `P` to match model_utils.build_ssm_frame convention
-#         (Item S10-C, 9 references); polished the HEADLINE_LAG comment to
-#         note the shift is a no-op under current config (Item S10-D);
-#         added __version__ (Item S10-E).  Patch — no functional change,
-#         outputs byte-identical (verified by smoke-test).
-# 1.0.x — Initial.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys as _sys
 import os as _os

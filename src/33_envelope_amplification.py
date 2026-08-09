@@ -41,7 +41,8 @@ Method (locked spec, 2026-06-26):
   *   reasons) are INCLUDED here — the coefficient is observational and does not use the SSM.
   * IDW power 2, 50 m grid, 450 m mask.
 
-Pipeline-integrated: runs as Phase 15, step 37 of run_analysis.py. Reads pipeline
+Pipeline-integrated in the driver-validation phase of run_analysis.py; the
+canonical step index is in outputs/pipeline_manifest.json. Reads pipeline
 intermediates directly through utils.paths constants (deps-visible) and writes to
 utils.paths.DIR_33. Method constants live in utils.config (ENVELOPE_*, DIFF_IDW_*);
 the cluster partition is read from the committed pipeline output, never assumed.
@@ -58,34 +59,6 @@ Outputs (outputs/33_envelope_amplification/):
     33_dry_spring_depth.png           dry-year spring water-table depth (ecological companion)
     33_results.txt                    console summary + robustness table
 
-Version: 1.2.0 (2026-06-28)
-
-Changelog
----------
-1.2.0 (2026-06-28)
-  * Convention pass: __version__; inputs read directly through utils.paths constants
-    (INT_WELLS_CLEAN, INT_LOCATIONS, INT_MASTER_DATA, INT_PEAR_AUDIT_SITEWIDE) so the
-    dependency auditor attributes every read. Robustness-table cluster columns now come
-    from the realised partition (pipeline_params.get_cluster_ids()) instead of the
-    hard-coded [1,2,3,4,5]. Stale "not wired" note and the stale WET={...} extreme-year
-    listing corrected. No change to the computed envelope/amplification values.
-1.1.0 (2026-06-27)
-  * Canonical wet extreme now includes 2016 (config.ENVELOPE_WET_YEARS); 2016 is the
-    wettest-antecedent recharge season on record (697 mm Oct-Mar), the mirror of the
-    2006 exclusion. Recovers CEH8/CEH15 into the panel with proper multi-year wet
-    states. Network-mean swing 752 -> 735 mm; forest/lake anchor unchanged.
-  * Added a second, deliberately separate RECENT-window pass (config.ENVELOPE_RECENT_*)
-    so the 2014-2017-installed wells (CEH40/41/42, FE1/2/3, NW8b) can be mapped on an
-    envelope they actually observed. Renders *_recent.png companions. The recent dry
-    extreme is milder than 2011/12, so the recent panels are captioned as a conservative
-    recent lower bound and are NOT magnitude-comparable to the canonical panels.
-  * Extended wells absent from 03_master_data now take a cluster from the committed
-    Script 06 Pearson membership audit (Best_Match_Cluster) — traceable, no hand-labelling.
-  * CEH7 (single dry-extreme year) admitted as a flagged marker only
-    (config.ENVELOPE_FLAGGED_SINGLE_DRY): shown as a point but excluded from the surface
-    AND from the network-mean denominator, so its noisy n_dry=1 swing cannot distort the field.
-1.0.0 (2026-06-26)
-  * Initial release: climate-swing amplification field + dry-year spring-depth surface.
 """
 
 from __future__ import annotations
@@ -110,9 +83,11 @@ from utils.pipeline_params import get_cluster_ids
 from utils.render_utils import render_figure
 
 __version__ = "1.3.0"  # 2026-07-04: amplification colourmap RdBu_r → PiYG (avoids wet/dry connotation;
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-                       #             quantity is dimensionless swing ratio, not water level;
-                       #             yellow-green = high amplification, pink = low/damping)
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 SCRIPT_ID = "33"
 VERSION = __version__
 

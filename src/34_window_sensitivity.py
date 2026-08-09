@@ -53,20 +53,6 @@ trend is Script 32's AR-corrected site-mean trend, read at runtime from the
 committed 32_site_mean_trend.csv (full-record row) — no longer hard-coded here.
 Both are non-significant.
 
-Version: 0.4.0 (2026-06-28)
-  v0.4.0: the canonical AR-corrected secular trend is now READ from Script 32's
-          committed 32_site_mean_trend.csv (paths.OUT_32_SITE_MEAN_TREND, full-record
-          row) instead of being a hard-coded "-7.0 mm/yr (p=0.52)" literal in the
-          header and figure caption. Convention pass: __version__; inputs read
-          directly through paths constants (OUT_26_ANNUAL_PER_WELL,
-          OUT_00_ANNUAL_CLIMATE_TABLE, OUT_32_SITE_MEAN_TREND) so the dependency
-          auditor attributes every read.
-  v0.3.0: all-pairs demonstration (wet-2024 retained); Script now generates the
-          §5.7.5 figure; MIN_PANEL/ANCHOR moved to config; outputs via paths.py;
-          wired into run_analysis.py as a supplementary step. Supersedes the
-          wet-2024-excluded v0.2.0 figure rebuild.
-  v0.2.0: (worker) baseline x current matrix, wet-2024 excluded -> -0.14/+0.11 m.
-  v0.1.0: standalone all-pairs envelope (no figure), pending admissibility sign-off.
 """
 
 from __future__ import annotations

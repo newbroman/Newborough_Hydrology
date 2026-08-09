@@ -78,10 +78,9 @@ MCA_THRESH = 0.90
 # Aesthetics
 plt.rcParams.update({'font.family': 'sans-serif', 'axes.labelsize': 11, 'legend.fontsize': 9})
 
-# Keep DEM scale identical across PEAR map products.
-DEM_VMIN = 0.0
-DEM_VCENTER = 12.0
-DEM_VMAX = 35.0
+# DEM colour scale is identical across all PEAR map products because
+# map_utils.load_dem_layer() applies config.DEM_VMIN / DEM_VCENTER / DEM_VMAX
+# internally. Do not mirror those values here.
 
 # ==========================================
 # HELPER FUNCTIONS

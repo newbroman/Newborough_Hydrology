@@ -15,36 +15,11 @@ Outputs (final — outputs/02_clustering/):
 """
 
 __version__ = "1.4.1"  # Hollingham (2026) — 2026-07-21
-# 1.4.1 (2026-07-21): reproducibility hygiene — the cluster bootstrap seed
-#   (20260424) is now sourced from utils.config.CLUSTER_BOOT_SEED instead of a
-#   module-local literal, so every fixed seed lives in config.py. Value is
-#   unchanged; no partition, bootstrap output, or committed CSV is affected.
-# 1.4.0 (2026-07-19): 02_01 dendrogram opted in to render_figure font
-#   autoscaling with min_placed_pt=5.0 — leaf labels (8 pt authored) printed
-#   ~3.4 pt at 160 mm; the uniform ×1.49 enlargement lifts leaves to 5.0 pt
-#   placed and the y-axis tick labels to ~6.2 pt. Legibility hand pass; no
-#   other figure in this script touched.
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# 1.2.0 (2026-06-28): clustering target K is now a run parameter
-#   (pipeline_params.get_requested_n_clusters(); default 5, overridable per run
-#   via run_analysis.py --clusters N / NRG_N_CLUSTERS) instead of the buried
-#   literals NUM_CLUSTERS=5 / WARDS_K=5. best_sil_k stays report-only (never
-#   selects k). Added a reviewer-visible note at the partition step recording
-#   that k is analyst-fixed and silhouette's trivial k=2 peak is not used.
-# 1.1.0 (2026-06-22): §4.2 traceability — run_stability_diagnostics() now
-#   writes 02_06_k_sweep_validation.csv (per-k silhouette / Calinski-Harabasz /
-#   Ward merge distance, k=2..10) and 02_report_numbers.csv (k=5 metrics +
-#   per-k silhouette series, Fig 6). No change to the partition or bootstrap.
-# Changelog:
-#   1.0.1 (2026-05-14) — Two documentation fixes:
-#     (a) Stale "69 wells" / "69x69 distance matrix" in the N_BOOTSTRAP
-#         comment block corrected to "66 wells" / "66x66" to match the
-#         published reference-network size.
-#     (b) RuntimeError in compute_cluster_amplitude_descriptors redirected
-#         from PARTITION_HISTORY.md (project-store file, not in this repo)
-#         to section F.4 of the Methods Supplement.
-#   1.0.0 (2026-04-26) — Initial pipeline release (k=5 partition, anchor
-#     remap, bootstrap stability, amplitude descriptors).
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys as _sys
 import os as _os

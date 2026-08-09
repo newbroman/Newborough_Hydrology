@@ -76,29 +76,11 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 """
 
 __version__ = "1.3.0"  # Hollingham (2026) — 2026-06-21 (amplitude-fallback path elevated from [INFO] print to console warn() with explicit stale/hard-coded caveat)
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# Changelog:
-#   1.3.0 (2026-08-08) — Upstand correction removed. The clean series is the
-#     master's `depth from surface` sheet (level = upstand - dip), already
-#     ground-referenced, so wells share a common ground datum and no further
-#     upstand term applies. Per GEOMETRY_ARCHITECTURE_SPEC.md.
-#   1.1.0 (2026-05-14) — Documentation-only cleanup:
-#     - All references to project-store MD files (HANDOVER_SCRIPT03_DATUM,
-#       NEWBOROUGH_HANDOVER, SCRIPT_03_BRIEF, P_FLOOD_HANDOVER_2_) in the
-#       module docstring, the load_amplitude_heterogeneity() docstring, the
-#       C1 split-window comment block, and the c1_split_window_diagnostic()
-#       docstring redirected to the appropriate sections of the Methods
-#       Supplement (F.3 for SSM specification, S.2 for amplitude
-#       descriptors, S.3 for this script's methodology).
-#     - The dead OUT_03_SIGNATURES_WELLMEAN constant in paths.py was
-#       removed in this same commit (no figure consumes it).
-#     - Defensive INFO message that fell back to "hard-coded amplitude flags
-#       from SCRIPT_03_BRIEF.md" now reads "hard-coded amplitude fallback
-#       values (_AMPLITUDE_FALLBACK)", which is what the code actually does.
-#   1.0.x (pre-2026-05-14) — Initial pipeline rebuild release. col_order
-#     short→long β key fix and MIN_OBS_PER_WELL wiring through to fit_ssm()
-#     are already on main from an earlier untagged commit; this version
-#     does not re-apply them.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys as _sys
 import os as _os

@@ -42,22 +42,11 @@ Limitations:
 from __future__ import annotations
 
 __version__ = "1.2.0"  # Hollingham (2026) — 2026-05-29
-# 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
-# 1.1.1 — Output paths now reference canonical OUT_14B_* constants added to
-#         paths.py (OUT_14B_CROSSING_CSV/FIG, OUT_14B_RESULTS_MEMO). Replaces
-#         the local DIR_14 re-derivation; single source of truth. No change to
-#         output filenames or contents.
-# 1.1.0 — Figure enlarged and brought into line with conventions:
-#           * Layout changed from a cramped 1×5 single row to a 3-over-2
-#             stacked grid (C1/C2/C3 top, C4/C5 bottom), with a shared
-#             legend in the empty sixth cell. Panels are much larger.
-#           * dpi 180 → 300 and facecolor="white" (Script 14 convention
-#             for dense threshold/trend figures).
-#           * Colours now via get_cluster_colour() so the figure respects
-#             BW_MODE (was using CLUSTER_COLOURS directly — colour-only).
-#           * Threshold labels moved inside each panel to avoid spilling
-#             into the adjacent panel.
-# 1.0.0 — Initial. Bootstrap year-of-crossing diagnostic for §7 Conclusion 11.
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys
 import numpy as np

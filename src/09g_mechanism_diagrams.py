@@ -67,24 +67,11 @@ HANDOVER_mechanism_figs_to_pipeline_2026-07-17 (signed-off design).
 """
 
 __version__ = "1.2.0"  # Hollingham (2026) — 2026-07-18
-# 1.2.0 — Now also renders the two lay public-summary figures (phase 3, via
-#         gen_grid_lay.render_all): management (before/after) and drivers
-#         (before/after). Keeps the lay and technical figures in one run so they
-#         cannot fall out of sync. Still display-only; no analytical-headline change.
-# 1.1.0 — Reach seam continuity: numeric checks now verify near == inland at the
-#         330 m boundary for all three retreat states (mechanism_fig_utils v1.1.0
-#         anchors the parabolas to the committed drawdowns; storm/5-yr continue
-#         inland to 900 m). Replaces the old ~1 px "break match" print.
-# 1.0.0 — New. Consolidates the locked dev mechanism-figure generators
-#         (dune_fig_common 0.4.0; gen_scrape 0.3.0; gen_forest 0.1.0;
-#         gen_climate 0.2.0; gen_grid 0.8.0; gen_reach_discont 0.5.0;
-#         gen_grid_combined 0.2.0 — 2026-07-17 sign-off) into one tier-D
-#         pipeline step on utils/mechanism_fig_utils. Shipped outputs are the
-#         combined grid + the standalone reach; the four singles / technical
-#         grid / lay variant remain dev-only. All amplitudes de-hardcoded to
-#         committed CSVs (09f_01 row 0 + full reach columns; 10m WMC3; 10a
-#         clearfell steps) with pipeline_params first-pass fallbacks; schematic
-#         drawing constants centralised in config.py (MECH_FIG_*).
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os

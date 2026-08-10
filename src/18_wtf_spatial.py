@@ -15,6 +15,8 @@ Outputs:
                                            τ = Sy/β₃ with Sy, β₃, t½, cluster
                                            (diagnostic only — see note below)
     18_wtf_06_aquifer_diagnostic_synthesis.png — t½ vs ΔNSE scatter sized by Sy
+    18_wtf_07_sy_spatial_trends.csv      — open-dune planar Sy trend and
+                                           within-forest Sy spatial correlations
 
 Notes:
     - τ = Sy/β₃ (`storage_drainage_index_months`) is the STORAGE–DRAINAGE INDEX.
@@ -33,6 +35,15 @@ Notes:
       C5 and applied across both forested clusters.
     - Under the k=5 partition all clusters are analytically usable; the old
       EXCLUDE_CLUSTERS list (tidal / lake) is empty.
+    - 18_wtf_07_sy_spatial_trends.csv carries two independent diagnostics.
+      (a) The OPEN-DUNE PLANE is fitted to C1-C3 only. The forested wells all
+      lie outside the convex hull of the open-dune network, so the plane is
+      neither evaluated nor reported at their positions and must never be
+      extrapolated beneath the plantation. (b) The WITHIN-FOREST CORRELATIONS
+      use forested wells only and involve no open-dune comparison. The two
+      blocks are deliberately not combined: differencing forest Sy against the
+      extrapolated open-dune plane was tested and rejected as unsound (see
+      CHANGELOG_delta_2026-08-10_18_sy_spatial_trends.md).
     - Extended wells use Best_Match_Cluster from 06_pear_membership_audit_sitewide.csv
     - Extended wells shown as open symbols on extended contour map
     - Forest contour values carry additional uncertainty (Freeman, 2008)
@@ -42,7 +53,7 @@ References:
     Freeman, S. (2008) Hydrological impact of Corsican pine at Newborough Warren.
 """
 
-__version__ = "1.8.0"  # Hollingham (2026) — 2026-08-05
+__version__ = "1.9.0"  # Hollingham (2026) — 2026-08-10
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -56,6 +67,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uti
 import pandas as pd
 import numpy as np
 import matplotlib
+import statsmodels.api as sm
+from scipy import stats as scipy_stats
 
 from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
@@ -73,12 +86,14 @@ from utils.paths import (
     OUT_18_SY_CONTOUR_EXT, INT_WTF_WELL_SY, OUT_18_HALFLIFE_MAP,
     OUT_18_STORAGE_DRAINAGE_INDEX_CSV,
     OUT_18_AQUIFER_SYNTHESIS, OUT_18_REPORT_NUMBERS,
+    OUT_18_SY_SPATIAL_TRENDS,
 )
 from utils.report_numbers_utils import ReportNumbers
 from utils.config import (
     CLUSTER_LABELS, CLUSTER_COLOURS, CLUSTER_MARKERS,
     FOREST_INTERCEPTION, FOREST_CIDS,
     BW_MODE, get_cmap, REFERENCE_CUTOFF_DATE,
+    RIDGE_REF_E, RIDGE_REF_N,
 )
 from utils.render_utils import render_figure
 make_all_dirs()
@@ -136,10 +151,17 @@ def load_well_data(out_root):
     return wells_df, climate, cluster_df, locations
 
 
-def wtf_individual_wells(wells_df, climate, cluster_df, locations):
+def wtf_individual_wells(wells_df, climate, cluster_df, locations,
+                         apply_forest_correction=True):
     """
     Event-based WTF Sy for every individual reference well.
     Returns DataFrame sorted by cluster then well name.
+
+    apply_forest_correction — when False, the canopy interception correction is
+        skipped for the forested clusters and gross rainfall is used throughout.
+        This is a DIAGNOSTIC path only, used by compute_sy_spatial_trends() to
+        show that the within-forest Sy gradient is not manufactured by the
+        correction. The default True path produces every published Sy value.
     """
     rows = []
 
@@ -163,7 +185,7 @@ def wtf_individual_wells(wells_df, climate, cluster_df, locations):
         merged["dh"] = merged[well].diff()
 
         # Interception correction for Forest clusters
-        if cluster in FOREST_CIDS:
+        if cluster in FOREST_CIDS and apply_forest_correction:
             merged["net_R"] = merged["P_m"] * (1 - FOREST_INTERCEPTION) - merged["PET"]
             corrected = True
         else:
@@ -204,6 +226,130 @@ def wtf_individual_wells(wells_df, climate, cluster_df, locations):
     print(f"  {len(df)} wells processed  "
           f"({len(df[df['Confidence']=='High'])} high confidence)")
     return df
+
+
+def _fit_open_dune_plane(open_df):
+    """OLS plane Sy ~ Easting + Northing over the open-dune wells (km-centred)."""
+    e0, n0 = float(open_df["Easting"].mean()), float(open_df["Northing"].mean())
+    X = sm.add_constant(pd.DataFrame({
+        "E_km": (open_df["Easting"]  - e0) / 1000.0,
+        "N_km": (open_df["Northing"] - n0) / 1000.0,
+    }, index=open_df.index))
+    fit = sm.OLS(open_df["Sy_median"], X).fit()
+    b_e, b_n = float(fit.params["E_km"]), float(fit.params["N_km"])
+    grad = float(np.hypot(b_e, b_n))
+    # Compass azimuth of the direction of INCREASING Sy (degrees from grid north)
+    azimuth = float(np.degrees(np.arctan2(b_e, b_n)) % 360.0)
+    return fit, e0, n0, b_e, b_n, grad, azimuth
+
+
+def _forest_correlations(forest_df, label, rows):
+    """Append Pearson r/p of Sy against each spatial predictor for one subset."""
+    for col, pred in (("ground_elev_m", "Elevation"),
+                      ("dist_ridge",    "Dist_from_ridge"),
+                      ("Easting",       "Easting")):
+        r, pv = scipy_stats.pearsonr(forest_df[col], forest_df["Sy_median"])
+        rows.append({"block": "forest_corr", "series": label,
+                     "metric": f"r_vs_{pred}",  "value": round(float(r),  4),
+                     "n": len(forest_df), "unit": "Pearson r"})
+        rows.append({"block": "forest_corr", "series": label,
+                     "metric": f"p_vs_{pred}", "value": round(float(pv), 6),
+                     "n": len(forest_df), "unit": "p"})
+
+
+def compute_sy_spatial_trends(well_results, well_results_uncorrected, locations):
+    """
+    Two spatial diagnostics on the per-well WTF specific yields.
+
+    (a) OPEN-DUNE PLANAR TREND — an OLS plane fitted to the per-well Sy of the
+        three open-dune clusters (C1 Lake Edge, C2 Dune, C3 Western Residual).
+        Reported as the gradient magnitude, the compass azimuth of increasing
+        Sy, the residual standard deviation and the per-component coefficients.
+        The forested clusters are excluded by construction: every forested well
+        lies outside the convex hull of the open-dune network, so the plane is
+        not evaluated at their positions and must not be extrapolated beneath
+        the plantation.
+
+    (b) WITHIN-FOREST SPATIAL CORRELATIONS — Pearson r between per-well Sy and
+        elevation, distance from the ridge reference point and easting, over
+        the forested clusters only. This mirrors the within-forest coefficient
+        regression of Script 10c, but is computed here because the per-well Sy
+        table does not exist at Script 10c's position in the run order.
+        Robustness variants drop the two anomalous ridge-flank wells, and the
+        uncorrected series repeats the correlations on Sy computed without the
+        canopy interception correction, establishing that the gradient is not
+        an artefact of that correction.
+
+    The two blocks are independent. Differencing forest Sy against the
+    extrapolated open-dune plane is NOT performed and must not be reinstated.
+    """
+    loc = locations[["norm", "ground_elev_m"]].copy()
+
+    def _prepare(df):
+        d = df.copy()
+        d["norm"] = d["Well"].str.lower().str.strip()
+        d = d.merge(loc, on="norm", how="left")
+        d["dist_ridge"] = np.hypot(d["Easting"]  - RIDGE_REF_E,
+                                   d["Northing"] - RIDGE_REF_N)
+        return d
+
+    corr_df = _prepare(well_results)
+    unc_df  = _prepare(well_results_uncorrected)
+
+    rows = []
+
+    # ── (a) open-dune plane ──────────────────────────────────────────────────
+    open_df = corr_df[~corr_df["Cluster"].isin(FOREST_CIDS)].dropna(
+        subset=["Sy_median", "Easting", "Northing"])
+    if len(open_df) < 6:
+        warn("Too few open-dune wells for a planar Sy fit — block skipped")
+    else:
+        fit, e0, n0, b_e, b_n, grad, azimuth = _fit_open_dune_plane(open_df)
+        for metric, value, unit in (
+            ("n",              float(fit.nobs),                    "wells"),
+            ("r2",             float(fit.rsquared),                "-"),
+            ("const",          float(fit.params["const"]),         "Sy"),
+            ("coef_E_per_km",  b_e,                                "Sy/km"),
+            ("p_E",            float(fit.pvalues["E_km"]),         "p"),
+            ("coef_N_per_km",  b_n,                                "Sy/km"),
+            ("p_N",            float(fit.pvalues["N_km"]),         "p"),
+            ("grad_per_km",    grad,                               "Sy/km"),
+            ("azimuth_deg",    azimuth,                            "degrees"),
+            ("resid_sd",       float(np.sqrt(fit.mse_resid)),      "Sy"),
+            ("centroid_E",     e0,                                 "m"),
+            ("centroid_N",     n0,                                 "m"),
+        ):
+            rows.append({"block": "open_dune_plane", "series": "corrected",
+                         "metric": metric,
+                         "value": round(value, 6) if unit == "p" else round(value, 4),
+                         "n": int(fit.nobs), "unit": unit})
+        result("Open-dune Sy plane",
+               f"n={int(fit.nobs)}, R2={fit.rsquared:.3f}, "
+               f"{grad:.4f} Sy/km at {azimuth:.0f}\u00b0")
+
+    # ── (b) within-forest correlations ───────────────────────────────────────
+    forest = corr_df[corr_df["Cluster"].isin(FOREST_CIDS)].dropna(
+        subset=["Sy_median", "ground_elev_m"])
+    forest_unc = unc_df[unc_df["Cluster"].isin(FOREST_CIDS)].dropna(
+        subset=["Sy_median", "ground_elev_m"])
+
+    if len(forest) < 5:
+        warn("Too few forested wells for within-forest Sy correlations — skipped")
+    else:
+        _forest_correlations(forest, "corrected", rows)
+        _forest_correlations(forest_unc, "uncorrected", rows)
+        for drop in (["ceh14"], ["ceh13"], ["ceh13", "ceh14"]):
+            sub = forest[~forest["norm"].isin(drop)]
+            if len(sub) >= 5:
+                _forest_correlations(sub, "corrected_drop_" + "_".join(drop), rows)
+        r_e = [r for r in rows if r["series"] == "corrected"
+               and r["metric"] == "r_vs_Elevation"][0]["value"]
+        r_d = [r for r in rows if r["series"] == "corrected"
+               and r["metric"] == "r_vs_Dist_from_ridge"][0]["value"]
+        result(f"Within-forest Sy (n={len(forest)})",
+               f"r vs elevation {r_e:+.3f}, r vs ridge distance {r_d:+.3f}")
+
+    return pd.DataFrame(rows)
 
 
 def plot_spatial_map(well_results, out_path):
@@ -1111,6 +1257,20 @@ def main(supplementary=True):
     print(f"  Saved → {path_well_sy.name}")
     well_results.to_csv(INT_WTF_WELL_SY, index=False)
     print(f"  Intermediate copy → {INT_WTF_WELL_SY.name}")
+
+    # ── Spatial Sy trends — always generated (paper-citable) ─────────────
+    # Diagnostic re-run with the canopy interception correction disabled; used
+    # only to show that the within-forest Sy gradient is not an artefact of it.
+    print("\nRe-running WTF without canopy correction (diagnostic only)...")
+    well_results_unc = wtf_individual_wells(wells_df, climate, cluster_df,
+                                            locations,
+                                            apply_forest_correction=False)
+
+    print("\nComputing open-dune Sy plane and within-forest Sy correlations...")
+    trends_df = compute_sy_spatial_trends(well_results, well_results_unc,
+                                          locations)
+    trends_df.to_csv(OUT_18_SY_SPATIAL_TRENDS, index=False)
+    saved(f"{OUT_18_SY_SPATIAL_TRENDS.name} ({len(trends_df)} rows)")
 
     # ── Paper figure — always generated ──────────────────────────────────
     print("\nGenerating spatial point map (reference wells)...")

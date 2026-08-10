@@ -53,7 +53,7 @@ Well exclusions (EXCLUDED_WELLS_NORM):
 ====================================================================================
 """
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-07-21
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-08-10
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -74,12 +74,13 @@ from utils.paths import (
     INT_CLUSTER_STATS, INT_22_RESIDUALS_WIDE, INT_22_FITS_TABLE,
     OUT_22_AR1_HIST, OUT_22_AR1_MAP, OUT_22_ALPHA_PHI_SCATTER,
     OUT_22_EXAMPLE_SERIES,
-    INT_WELLS_REFERENCE, INT_WELL_ELEVATIONS, INT_22_SSM_RESID_INFERENCE,
+    INT_WELLS_REFERENCE, INT_22_SSM_RESID_INFERENCE,
     INT_22_SSM_CLUSTER_INFERENCE,
 )
 from utils.data_utils import normalize_well_name
 from utils.map_utils import add_kml_features, add_en_axes
-from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, HEADLINE_LAG
+from utils.config import (CLUSTER_LABELS, CLUSTER_COLOURS, HEADLINE_LAG,
+                          RESIDUAL_DIAG_MIN_MONTHS, RESIDUAL_DIAG_EXCLUDED_WELLS)
 from utils.model_utils import fit_ssm_intercept, build_ssm_frame, MIN_OBS
 from statsmodels.stats.stattools import durbin_watson
 from statsmodels.stats.diagnostic import acorr_ljungbox
@@ -94,7 +95,13 @@ from utils.render_utils import render_figure
 # ==========================================
 # CONFIGURATION
 # ==========================================
-MIN_MONTHS = 140
+# Record-length floor and the excluded-well set are shared with Scripts 23 and
+# 24 and defined in config.py, so all three residual diagnostics describe the
+# same well population. Script 22's residual-inference block runs the reference
+# network under the same rules, which yields one fewer well than Scripts 23/24
+# (ceh22 is a classified dipwell outside the reference partition).
+MIN_MONTHS          = RESIDUAL_DIAG_MIN_MONTHS
+EXCLUDED_WELLS_NORM = RESIDUAL_DIAG_EXCLUDED_WELLS
 AR1_WHITE_THRESHOLD = 0.3  # |phi| below this is treated as effectively white
 AR1_DIAG_PVAL = 0.05
 
@@ -103,7 +110,6 @@ AR1_DIAG_PVAL = 0.05
 # - drainage uses h_disp_prev (end-of-previous-month displacement above datum)
 
 # Wells excluded from the lag analysis. See docstring for rationale per well.
-EXCLUDED_WELLS_NORM = {'ceh7', 'ceh8', 'ceh37', 'ceh3', 'ceh4'}
 
 # CLUSTER_LABELS and CLUSTER_COLOURS imported from utils.config (k=5 partition).
 
@@ -323,7 +329,7 @@ def plot_example_residuals(residuals_wide, fits_df, output_path):
 # reviewer will rightly ask whether those standard errors are valid under serial
 # correlation. This block answers with a committed artefact: for every reference
 # well it fits the headline SSM (no-intercept, displacement formulation,
-# upstand-corrected — the same physical specification as Script 03), tests the
+# ground-referenced — the same physical specification as Script 03), tests the
 # residuals for autocorrelation (Durbin–Watson, lag-1 φ, Ljung–Box), and
 # re-estimates the coefficient p-values with heteroskedasticity- and
 # autocorrelation-consistent (Newey–West / HAC) standard errors. The HAC lag is
@@ -336,23 +342,6 @@ def _newey_west_lag(n: int) -> int:
     return max(1, int(np.floor(4.0 * (n / 100.0) ** (2.0 / 9.0))))
 
 
-def _upstand_lookup(elev_path):
-    """Return {col_norm: upstand_m}, keyed to match reference-well column names,
-    mirroring Script 03's build_upstand_lookup + col_norm convention so the
-    residuals reproduce the published per-well displacement fits."""
-    lookup = {}
-    if not elev_path.exists():
-        warn("Elevation file not found — upstand correction skipped.")
-        return lookup
-    elev_df = pd.read_csv(elev_path)
-    elev_df.columns = [c.strip() for c in elev_df.columns]
-    if "Name_norm" in elev_df.columns and "Upstand_m" in elev_df.columns:
-        for _, row in elev_df.iterrows():
-            if pd.notna(row.get("Upstand_m")):
-                key = str(row["Name_norm"]).lower().replace(" ", "").replace("_", "")
-                lookup[key] = float(row["Upstand_m"])
-    return lookup
-
 
 def ssm_residual_inference(climate, cluster_lookup):
     """Reference-network residual-inference diagnostic for the headline
@@ -360,16 +349,15 @@ def ssm_residual_inference(climate, cluster_lookup):
     summary dict. See the block comment above for method and rationale."""
     step("Model A residual-inference diagnostic (reference network, HAC robustness)")
     ref = pd.read_csv(INT_WELLS_REFERENCE, index_col=0, parse_dates=True)
-    upstand = _upstand_lookup(INT_WELL_ELEVATIONS)
 
     rows = []
     for well in ref.columns:
         norm = normalize_well_name(well)
-        col_norm = norm.lower().replace(" ", "").replace("_", "")
-        u = upstand.get(col_norm, 0.0)
+        if norm in EXCLUDED_WELLS_NORM:
+            continue
         series = pd.to_numeric(ref[well], errors="coerce").dropna()
         frame = build_ssm_frame(series, climate, lag=HEADLINE_LAG)
-        if frame is None or len(frame) < MIN_OBS:
+        if frame is None or len(frame) < MIN_MONTHS:
             continue
         y = frame["Delta_h"].values
         X = pd.DataFrame({
@@ -433,7 +421,7 @@ def ssm_residual_inference(climate, cluster_lookup):
 def cluster_mean_residual_inference(wells, climate, cluster_df):
     """Cluster-mean (centroid) residual-inference diagnostic — the HAC robustness
     check for the *headline* β table (Report Table 3 / Paper 1 Table 1). Rebuilds
-    each cluster's upstand-corrected centroid exactly as Script 03's
+    each cluster's centroid exactly as Script 03's
     build_cluster_centroids does, fits the headline no-intercept SSM (full record),
     and applies the same Durbin–Watson / lag-1 φ / Ljung–Box / OLS-vs-HAC battery
     as the per-well diagnostic. Writes INT_22_SSM_CLUSTER_INFERENCE and returns a
@@ -441,7 +429,6 @@ def cluster_mean_residual_inference(wells, climate, cluster_df):
     03_03_cluster_mechanistic_coefficients.csv exactly, so the HAC comparison is
     against the published headline coefficients."""
     step("Cluster-mean residual-inference diagnostic (headline β table, HAC robustness)")
-    upstand = _upstand_lookup(INT_WELL_ELEVATIONS)
     well_col = {normalize_well_name(c): c for c in wells.columns}
 
     rows = []
@@ -455,13 +442,9 @@ def cluster_mean_residual_inference(wells, climate, cluster_df):
         cols = [c for c in cols if c is not None]
         if not cols:
             continue
-        # Upstand-corrected centroid — identical to Script 03 build_cluster_centroids
-        corrected = {}
-        for col in cols:
-            key = normalize_well_name(col).lower().replace(" ", "").replace("_", "")
-            u = upstand.get(key)
-            corrected[col] = wells[col]
-        centroid = pd.DataFrame(corrected).mean(axis=1)
+        # Centroid — identical to Script 03 build_cluster_centroids. No upstand
+        # term: the series are already ground-referenced (GEOMETRY_ARCHITECTURE_SPEC §3).
+        centroid = wells[cols].mean(axis=1)
 
         frame = build_ssm_frame(centroid, climate, lag=HEADLINE_LAG)
         if frame is None or len(frame) < MIN_OBS:

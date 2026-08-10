@@ -248,6 +248,12 @@ RESIDUAL_DIAG_EXCLUDED_WELLS = {'ceh3', 'ceh4', 'ceh7', 'ceh8', 'ceh37', 'llynrh
 RESIDUAL_DIAG_SW_BOOT_N    = 10000
 RESIDUAL_DIAG_SW_BOOT_SEED = 20260809
 
+# Minimum observations for a per-well SSM fit, applied after differencing and
+# dropna. This is the permissive floor used by the general model_utils fitters;
+# the residual-field diagnostics impose the stricter RESIDUAL_DIAG_MIN_MONTHS
+# above. Previously a module-local in model_utils.py.
+SSM_MIN_OBS = 30
+
 # CEH36 — the documented April 2015 dune-scrape site, used as a distance origin
 # for scraping-propagation analyses and as the default scrape centre on the
 # Script 20 scenario map (Scripts 09b, 20, 29, clearfell_common).

@@ -505,24 +505,26 @@ An indicative volumetric expression of the water balance is presented in Table 4
 
 ### <span id="anchor-8"></span>**Specific Yield Estimation**
 
-WTF event-based median Sy estimates for all five clusters, derived from 34–64 qualifying monthly rising-limb events per cluster, are presented in Table 4c. Uncorrected median values range from 0.210 (C1 Lake Edge) to 0.356 (C5 Coastal Forest), with broad interquartile ranges reflecting the inherent noise in monthly cluster-mean data. The two forested clusters return uncorrected medians (C4: 0.315, C5: 0.356) that sit at or above the open dune range (0.210–0.325), because gross rainfall overstates the recharge flux reaching the water table beneath the canopy — the WTF method attributes the full rainfall to recharge when in reality 24% is intercepted, inflating the apparent Sy. After applying the interception correction of 24% of P (Freeman, 2008), the forested cluster medians fall to 0.248 (C4) and 0.321 (C5): C4 falls cleanly within the open dune range (0.210–0.325), while C5 sits at its upper edge. The C5 estimate is the least reliable in the network — a majority of its rising-limb events return event-level Sy at or above the 0.50 plausibility ceiling (Section 3.7.3), so its median is constrained by that limit rather than freely estimated, and its modest apparent response to the interception correction is partly an artefact of the clip; it is therefore reported as a weak corroborator. The C4 result is consistent with the attenuated water table response beneath the plantation reflecting the surface boundary condition (canopy interception) rather than a fundamentally different substrate. Within this corrected dataset, a secondary pattern is visible: the two clusters with the lowest corrected Sy — C1 (Lake Edge; 0.210) and C4 (Main Forest; 0.248) — return lower values than C3 (Western Residual; 0.325) and C5 (Coastal Forest; 0.321), with C2 (Dune; 0.281) intermediate. C1's low Sy is consistent with the shallow clay/till base and short drainage path to the lake seen in the borehole logs; C4 overlies the bedrock ridge, which outcrops within the forest, so an irregular, low-storage rock base is the natural reading of its low Sy and its within-cluster heterogeneity in β₃ — though the extent and depth of that base beneath C4, and hence the precise buried-ridge geometry, are unconstrained without coring. The pattern recurs in the per-well β₂ regression (Section 4.9.5) where elevation — reflecting both vadose zone thickness and proximity to buried bedrock — explains 96% of within-forest β₂ variance.
+WTF event-based median Sy estimates for all five clusters, derived from 34–64 qualifying monthly rising-limb events per cluster, are presented in Table 4c. Uncorrected median values range from 0.210 (C1 Lake Edge) to 0.356 (C5 Coastal Forest), with broad interquartile ranges reflecting the inherent noise in monthly cluster-mean data. The two forested clusters return uncorrected medians (C4: 0.315, C5: 0.356) that sit at or above the open dune range (0.210–0.325), because gross rainfall overstates the recharge flux reaching the water table beneath the canopy — the WTF method attributes the full rainfall to recharge when in reality 24% is intercepted, inflating the apparent Sy. After applying the interception correction of 24% of P (Freeman, 2008), the forested cluster medians fall to 0.259 (C4) and 0.321 (C5): C4 falls cleanly within the open dune range (0.210–0.328), while C5 sits at its upper edge. The C5 estimate is the least reliable in the network — a majority of its rising-limb events return event-level Sy at or above the 0.50 plausibility ceiling (Section 3.7.3), so its median is constrained by that limit rather than freely estimated, and its modest apparent response to the interception correction is partly an artefact of the clip; it is therefore reported as a weak corroborator. The C4 result is consistent with the attenuated water table response beneath the plantation reflecting the surface boundary condition (canopy interception) rather than a fundamentally different substrate. Within this corrected dataset, a secondary pattern is visible: the two clusters with the lowest corrected Sy — C1 (Lake Edge; 0.210) and C4 (Main Forest; 0.259) — return lower values than C3 (Western Residual; 0.328) and C5 (Coastal Forest; 0.321), with C2 (Dune; 0.281) intermediate. C1's low Sy is consistent with the shallow clay/till base and short drainage path to the lake seen in the borehole logs; C4 overlies the bedrock ridge, which outcrops within the forest, so an irregular, low-storage rock base is the natural reading of its low Sy and its within-cluster heterogeneity in β₃ — though the extent and depth of that base beneath C4, and hence the precise buried-ridge geometry, are unconstrained without coring. The pattern recurs in the per-well β₂ regression (Section 4.9.5) where elevation — reflecting both vadose zone thickness and proximity to buried bedrock — explains 96% of within-forest β₂ variance.
 
 An independent cross-check on these estimates is available from a second WTF method: an ordinary-least-squares regression of winter water-table rise on net recharge, which returns a per-cluster Sy from the regression slope (Table 4c, OLS-winter column). The OLS estimates run higher than the event-medians at four of the five clusters (mean ratio 1.18), consistent with the documented tendency of WTF methods to bias high on absolute magnitude; the OLS values, like the event-medians, should be read as upper bounds rather than point estimates. The two methods agree on the principal spatial pattern — both place the deep-sand Western Residual (C3) and Coastal Forest (C5) clusters at the high-storage end of the network — which corroborates the substrate-driven interpretation above. They diverge at two clusters, and the divergence is itself informative. At C1 (Lake Edge), the OLS regression returns the weakest fit of the five clusters (R² = 0.62, with C2 next-weakest at 0.67 and C3–C5 at 0.84–0.88), so the OLS estimate is least reliable precisely where it disagrees; the event-median's placement of C1 as the low-storage end-member, consistent with its constrained till-and-clay substrate, is retained. At C4 (Main Forest), the uncorrected OLS estimate ranks the cluster lowest in the network — but C4 is the cluster where canopy interception most distorts the raw WTF signal, which is exactly why the forest interpretation in this section rests on the interception-corrected event-median rather than any uncorrected estimate. Across both methods, the event-based median is retained as the primary specific-yield estimate for each cluster; the OLS regression serves as a corroborating check on the spatial pattern.
 
-A third, independent WTF estimator — the rapid-recharge-event method of Crosbie et al. (2005; Section 3.7.3) — provides a further check that shares the assumptions of neither the event-median nor the winter-OLS estimate. Selecting only short, sharply-rising episodes in which drainage during the rise is negligible, it returns cluster median Sy values of 0.195 (C1, 95% CI \[0.098, 0.230\], n = 20), 0.261 (C2, \[0.197, 0.336\], n = 21), 0.334 (C3, \[0.286, 0.437\], n = 17), 0.274 (C4, interception-corrected, \[0.227, 0.312\], n = 13) and 0.293 (C5, interception-corrected, \[0.269, 0.343\], n = 13). Two features corroborate the interpretation above. At C3 (Western Residual) all three methods converge tightly on approximately 0.33, so the high-storage placement of the deep-sand cluster — the anchor for the drainage-reach interpretation of Section 4.9 — is robust to estimator choice. At C1 (Lake Edge) the rapid-event estimate (0.195) sits with the event-median (0.210) well below the winter-OLS value (0.334), independently reinforcing the reading that the drainage-corrected OLS over-corrects at this lake-buffered cluster, where the water table is decoupled from monthly rainfall; the low-storage placement of C1 is retained on the agreement of the two drainage-insensitive estimators. The coarse specific-yield gradient across the network is therefore consistent across three methodologically distinct estimators, while the fine ordering at the high-storage end (C3 versus C5) remains method-dependent — the winter-OLS placing C5 highest, the two event-based methods placing C3 highest — and all three, as noted, are upper bounds on effective storage rather than point estimates.
+A third, independent WTF estimator — the rapid-recharge-event method of Crosbie et al. (2005; Section 3.7.3) — provides a further check that shares the assumptions of neither the event-median nor the winter-OLS estimate. Selecting only short, sharply-rising episodes in which drainage during the rise is negligible, it returns cluster median Sy values of 0.195 (C1, 95% CI \[0.098, 0.230\], n = 20), 0.261 (C2, \[0.197, 0.336\], n = 21), 0.334 (C3, \[0.288, 0.437\], n = 17), 0.274 (C4, interception-corrected, \[0.229, 0.312\], n = 13) and 0.298 (C5, interception-corrected, \[0.269, 0.355\], n = 14). Two features corroborate the interpretation above. At C3 (Western Residual) all three methods agree within 0.023 (0.328, 0.334 and 0.351), so the high-storage placement of the deep-sand cluster — the anchor for the drainage-reach interpretation of Section 4.9 — is robust to estimator choice. At C1 (Lake Edge) the rapid-event estimate (0.195) sits with the event-median (0.210) well below the winter-OLS value (0.341), independently reinforcing the reading that the drainage-corrected OLS over-corrects at this lake-buffered cluster, where the water table is decoupled from monthly rainfall; the low-storage placement of C1 is retained on the agreement of the two drainage-insensitive estimators. The coarse specific-yield gradient across the network is therefore consistent across three methodologically distinct estimators, while the fine ordering at the high-storage end (C3 versus C5) remains method-dependent — the winter-OLS placing C5 highest, the two event-based methods placing C3 highest — and all three, as noted, are upper bounds on effective storage rather than point estimates.
 
 Individual well Sy values underlying the spatial mapping of Figure 12 are considered separately below. All five WTF medians exceed the assumed Sy values used in the water balance (C1: 0.08; C2–C5: 0.12) by a factor of two to three, consistent with the known tendency of monthly WTF to conflate gravity drainage with capillary fringe release (Healy and Cook, 2002; Scanlon et al., 2002). The WTF estimates should therefore be interpreted as upper bounds on effective storage. Direct field measurement by slug test or pumping test at representative wells per cluster is identified as a priority for future work.
+
+**c**
 
 <table>
 <tbody>
 <tr class="odd">
 <td>C1 Lake Edge</td>
-<td>60</td>
+<td><strong>59</strong></td>
 <td>0.08</td>
 <td>0.210</td>
-<td>0.334</td>
-<td>0.130</td>
-<td>0.265</td>
+<td><strong>0.341</strong></td>
+<td><strong>0.129</strong></td>
+<td><strong>0.259</strong></td>
 <td>No</td>
 </tr>
 <tr class="even">
@@ -530,19 +532,19 @@ Individual well Sy values underlying the spatial mapping of Figure 12 are consid
 <td>64</td>
 <td>0.12</td>
 <td>0.281</td>
-<td>0.328</td>
-<td>0.196</td>
-<td>0.372</td>
+<td><strong>0.335</strong></td>
+<td><strong>0.197</strong></td>
+<td><strong>0.374</strong></td>
 <td>No</td>
 </tr>
 <tr class="odd">
 <td>C3 Western Residual</td>
-<td>58</td>
+<td><strong>57</strong></td>
 <td>0.12</td>
-<td>0.325</td>
-<td>0.342</td>
-<td>0.285</td>
-<td>0.415</td>
+<td><strong>0.328</strong></td>
+<td><strong>0.351</strong></td>
+<td><strong>0.283</strong></td>
+<td><strong>0.410</strong></td>
 <td>No</td>
 </tr>
 <tr class="even">
@@ -550,9 +552,9 @@ Individual well Sy values underlying the spatial mapping of Figure 12 are consid
 <td>51</td>
 <td>0.12</td>
 <td>0.315</td>
-<td>0.297</td>
+<td><strong>0.302</strong></td>
 <td>0.256</td>
-<td>0.395</td>
+<td><strong>0.407</strong></td>
 <td>No</td>
 </tr>
 <tr class="odd">
@@ -560,19 +562,19 @@ Individual well Sy values underlying the spatial mapping of Figure 12 are consid
 <td>34</td>
 <td>0.12</td>
 <td>0.356</td>
-<td>0.410</td>
+<td><strong>0.419</strong></td>
 <td>0.319</td>
-<td>0.432</td>
+<td><strong>0.431</strong></td>
 <td>No</td>
 </tr>
 <tr class="even">
 <td>C4 Main Forest (corrected)</td>
 <td>62</td>
 <td>0.12</td>
-<td>0.248</td>
+<td><strong>0.259</strong></td>
 <td>—</td>
-<td>0.182</td>
-<td>0.317</td>
+<td><strong>0.178</strong></td>
+<td><strong>0.330</strong></td>
 <td>Yes — Freeman (2008)</td>
 </tr>
 <tr class="odd">
@@ -582,7 +584,82 @@ Individual well Sy values underlying the spatial mapping of Figure 12 are consid
 <td>0.321</td>
 <td>—</td>
 <td>0.243</td>
-<td>0.401</td>
+<td><strong>0.383</strong></td>
+<td>Yes — Freeman (2008)</td>
+</tr>
+</tbody>
+</table>
+
+<table>
+<tbody>
+<tr class="odd">
+<td>C1 Lake Edge</td>
+<td><strong><strong>59</strong></strong></td>
+<td>0.08</td>
+<td>0.210</td>
+<td><strong><strong>0.341</strong></strong></td>
+<td><strong><strong>0.129</strong></strong></td>
+<td><strong><strong>0.259</strong></strong></td>
+<td>No</td>
+</tr>
+<tr class="even">
+<td>C2 Dune</td>
+<td>64</td>
+<td>0.12</td>
+<td>0.281</td>
+<td><strong><strong>0.335</strong></strong></td>
+<td><strong><strong>0.197</strong></strong></td>
+<td><strong><strong>0.374</strong></strong></td>
+<td>No</td>
+</tr>
+<tr class="odd">
+<td>C3 Western Residual</td>
+<td><strong><strong>57</strong></strong></td>
+<td>0.12</td>
+<td><strong><strong>0.328</strong></strong></td>
+<td><strong><strong>0.351</strong></strong></td>
+<td><strong><strong>0.283</strong></strong></td>
+<td><strong><strong>0.410</strong></strong></td>
+<td>No</td>
+</tr>
+<tr class="even">
+<td>C4 Main Forest</td>
+<td>51</td>
+<td>0.12</td>
+<td>0.315</td>
+<td><strong><strong>0.302</strong></strong></td>
+<td>0.256</td>
+<td><strong><strong>0.407</strong></strong></td>
+<td>No</td>
+</tr>
+<tr class="odd">
+<td>C5 Coastal Forest</td>
+<td>34</td>
+<td>0.12</td>
+<td>0.356</td>
+<td><strong><strong>0.419</strong></strong></td>
+<td>0.319</td>
+<td><strong><strong>0.431</strong></strong></td>
+<td>No</td>
+</tr>
+<tr class="even">
+<td>C4 Main Forest (corrected)</td>
+<td>62</td>
+<td>0.12</td>
+<td><strong><strong>0.259</strong></strong></td>
+<td>—</td>
+<td><strong><strong>0.178</strong></strong></td>
+<td><strong><strong>0.330</strong></strong></td>
+<td>Yes — Freeman (2008)</td>
+</tr>
+<tr class="odd">
+<td>C5 Coastal Forest (corrected)</td>
+<td>49</td>
+<td>0.12</td>
+<td>0.321</td>
+<td>—</td>
+<td>0.243</td>
+<td><strong><strong>0.383</strong></strong></td>
 <td>Yes — Freeman (2008)</td>
 </tr>
 </tbody>

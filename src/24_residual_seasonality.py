@@ -53,7 +53,7 @@ C3 split threshold: 1000 m from ridge (forest-adjacent vs warren-interior)
 ====================================================================================
 """
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-05-17
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-08-09
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -82,7 +82,9 @@ from utils.paths import (
 from utils.data_utils import normalize_well_name
 from utils.map_utils import add_kml_features, load_dem_layer, add_en_axes
 from utils.config import (CLUSTER_LABELS, CLUSTER_COLOURS, BW_MODE,
-                          RIDGE_REF_E, RIDGE_REF_N, RIDGE_MAX_DISTANCE_M)
+                          RIDGE_REF_E, RIDGE_REF_N, RIDGE_MAX_DISTANCE_M,
+                          RESIDUAL_DIAG_MIN_MONTHS, RESIDUAL_DIAG_EXCLUDED_WELLS,
+                          RESIDUAL_DIAG_SW_BOOT_N, RESIDUAL_DIAG_SW_BOOT_SEED)
 from utils.model_utils import fit_ssm_intercept
 
 from utils.console_utils import (
@@ -95,8 +97,11 @@ from utils.render_utils import render_figure
 # ==========================================
 # CONFIGURATION
 # ==========================================
-MIN_MONTHS = 140
-EXCLUDED_WELLS_NORM = {'ceh7', 'ceh8', 'ceh37', 'ceh3', 'ceh4'}
+# Record-length floor and the excluded-well set are shared with Script 23 and
+# defined in config.py; see RESIDUAL_DIAG_EXCLUDED_WELLS for the rationale per
+# well, including the Llyn Rhos-Ddu lake gauge, which is not a classified dipwell.
+MIN_MONTHS          = RESIDUAL_DIAG_MIN_MONTHS
+EXCLUDED_WELLS_NORM = RESIDUAL_DIAG_EXCLUDED_WELLS
 RIDGE_E = RIDGE_REF_E   # config.py — shared ridge reference point
 RIDGE_N = RIDGE_REF_N
 MAX_RIDGE_DISTANCE_M = RIDGE_MAX_DISTANCE_M   # config.py
@@ -465,6 +470,44 @@ def write_summary(clim_df, output_path):
         corr_sun=('corr_sun_resid', 'mean'),
     ).round(4)
     lines.append(grp.to_string())
+    lines.append("")
+
+    # Per-cluster significance of the summer-minus-winter contrast.
+    # The contrast is quoted in the Paper 1 SI (S9.2) with p-values, so the
+    # tests behind them are emitted here rather than computed ad hoc. Each is a
+    # one-sample test of the per-well contrast against zero: the sign-rank test
+    # is the headline (small n, no normality assumption), the t-test is given
+    # for comparison, and the bootstrap CI shows the spread the p-values encode.
+    lines.append("-" * 78)
+    lines.append("  SUMMER-MINUS-WINTER CONTRAST — PER-CLUSTER TESTS AGAINST ZERO")
+    lines.append("-" * 78)
+    lines.append("  Positive = residuals higher in summer than winter. A systematic")
+    lines.append("  negative contrast would be the signature of unmodelled summer ET.")
+    lines.append("")
+    lines.append(f"  {'Cluster':<22s} {'n':>3s} {'mean_mm':>9s} {'p_signrank':>11s} "
+                 f"{'p_ttest':>9s} {'boot 95% CI (mm)':>22s}")
+    rng_sw = np.random.default_rng(RESIDUAL_DIAG_SW_BOOT_SEED)
+    for cid, sub in clim_df.groupby('Cluster'):
+        v = sub['summer_minus_winter'].dropna().values
+        label = CLUSTER_LABELS.get(cid, f"C{cid}")
+        if len(v) < 2:
+            lines.append(f"  {label:<22s} {len(v):>3d} "
+                         f"{'--':>9s} {'--':>11s} {'--':>9s} "
+                         f"{'insufficient n':>22s}")
+            continue
+        mean_mm = float(np.mean(v)) * 1000.0
+        try:
+            p_sr = float(scipy_stats.wilcoxon(v).pvalue)
+        except ValueError:          # all-zero differences
+            p_sr = float('nan')
+        p_t = float(scipy_stats.ttest_1samp(v, 0.0).pvalue)
+        boot = rng_sw.choice(v, size=(RESIDUAL_DIAG_SW_BOOT_N, len(v)), replace=True)
+        lo, hi = np.percentile(boot.mean(axis=1), [2.5, 97.5]) * 1000.0
+        lines.append(f"  {label:<22s} {len(v):>3d} {mean_mm:>+9.2f} {p_sr:>11.4f} "
+                     f"{p_t:>9.4f} {f'[{lo:+.2f}, {hi:+.2f}]':>22s}")
+    lines.append("")
+    lines.append(f"  Sign-rank is the headline test; {RESIDUAL_DIAG_SW_BOOT_N} bootstrap")
+    lines.append(f"  resamples, seed {RESIDUAL_DIAG_SW_BOOT_SEED}. Values in mm.")
     lines.append("")
 
     # C3 split

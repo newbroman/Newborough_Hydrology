@@ -108,7 +108,7 @@ Ridge reference point: config.RIDGE_REF_E / config.RIDGE_REF_N (OSGB36)
 ====================================================================================
 """
 
-__version__ = "1.1.1"  # Hollingham (2026) — 2026-08-07
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-08-09
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -134,7 +134,9 @@ from utils.paths import (
 )
 from utils.data_utils import normalize_well_name
 from utils.map_utils import add_kml_features, add_en_axes
-from utils.config import (CLUSTER_LABELS, CLUSTER_COLOURS, DRAINAGE_DATUM,
+from utils.config import (RESIDUAL_DIAG_MIN_MONTHS,
+                          RESIDUAL_DIAG_EXCLUDED_WELLS,
+                          CLUSTER_LABELS, CLUSTER_COLOURS, DRAINAGE_DATUM,
                           RIDGE_REF_E, RIDGE_REF_N, RIDGE_MAX_DISTANCE_M)
 
 from utils.console_utils import (
@@ -147,11 +149,13 @@ from utils.render_utils import render_figure
 # ==========================================
 # CONFIGURATION
 # ==========================================
-MIN_MONTHS = 140
-MAX_LAG    = 12
+MAX_LAG = 12
 
-# Wells carried through from Script 22 (tidal, coastal-erosion, and upstream drops)
-EXCLUDED_WELLS_NORM = {'ceh7', 'ceh8', 'ceh37', 'ceh3', 'ceh4'}
+# Record-length floor and the excluded-well set are shared with Script 24 and
+# defined in config.py; see RESIDUAL_DIAG_EXCLUDED_WELLS for the rationale per
+# well, including the Llyn Rhos-Ddu lake gauge, which is not a classified dipwell.
+MIN_MONTHS          = RESIDUAL_DIAG_MIN_MONTHS
+EXCLUDED_WELLS_NORM = RESIDUAL_DIAG_EXCLUDED_WELLS
 
 # Ridge reference point (OSGB36)
 RIDGE_E = RIDGE_REF_E   # config.py — shared ridge reference point

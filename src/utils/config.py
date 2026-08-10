@@ -227,6 +227,27 @@ RIDGE_REF_N = 364500.0
 # Maximum well-to-ridge separation admitted to ridge-distance analyses (m).
 RIDGE_MAX_DISTANCE_M = 3000.0
 
+# Minimum record length admitted to the residual-field diagnostics (Scripts 23,
+# 24). 140 months is approximately half the 21-year record; in practice the
+# binding minimum among eligible wells is 151 months, so the threshold excludes
+# only ceh40, ceh41 and ceh42. Previously duplicated as a bare MIN_MONTHS local
+# in both scripts.
+RESIDUAL_DIAG_MIN_MONTHS = 140
+
+# Wells excluded from the residual-field diagnostics (Scripts 23, 24), as
+# normalised names. ceh3, ceh7, ceh8 and ceh37 carry tidal, coastal-erosion or
+# upstream-drop artefacts; ceh4 is retained in the reference network but its
+# record is too short for these tests. llynrhos is the Llyn Rhos-Ddu lake gauge,
+# which is a surface-water level record and not one of the 88 classified
+# dipwells, so it has no water-balance residual in the SSM sense.
+RESIDUAL_DIAG_EXCLUDED_WELLS = {'ceh3', 'ceh4', 'ceh7', 'ceh8', 'ceh37', 'llynrhos'}
+
+# Bootstrap settings for the per-cluster summer-minus-winter contrast reported by
+# Script 24. The contrast and its p-values are quoted in the Paper 1 SI (S9.2), so
+# the tests are emitted by the pipeline rather than computed ad hoc.
+RESIDUAL_DIAG_SW_BOOT_N    = 10000
+RESIDUAL_DIAG_SW_BOOT_SEED = 20260809
+
 # CEH36 — the documented April 2015 dune-scrape site, used as a distance origin
 # for scraping-propagation analyses and as the default scrape centre on the
 # Script 20 scenario map (Scripts 09b, 20, 29, clearfell_common).

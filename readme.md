@@ -187,8 +187,8 @@ colours and labels are centralised in `src/utils/config.py`.
 | 12 | 22–24 | 27–29 | Supplementary diagnostics: residual lag structure, ridge recharge hypothesis test, residual seasonality |
 | 13 | 26, 26b, 26c (van Willegen MSL) | 30–32 | Van Willegen et al. (2025) MSL analyses: 5-year observational aggregation with the equilibrium wetness index and Ellenberg-F cross-validation (26), UKCP18 climate projections (26b), and report-format MSL5 figures for §4.8.4 / §4.10.1 (26c) |
 | 14 | 28, 29, 30 (cluster framework diagnostics) | 33–35 | C3 detrend check (28), within-C3 variance attribution (29), and C4 constrained-β₃ triangulation (30) — post-review additions supporting §5.1.1 / §4.2.2 of the main report |
-| 15 | 32, 33, 35, 36, 37, 37b (observed differential change, envelope, and driver validation) | 36–41 | Secular differential water-table drift (32, report Fig 59); climate-swing amplification + drought-floor surface (33, report Fig 60); per-well climate-sensitivity coefficient (35); absolute climate-removed per-well secular trend (36, Figure 63); predicted-vs-observed driver validation (37); comparative driver footing across forest/scrape/coast on common currencies (37b) — all analytical-default as of the 2026-07-13 Task E reclassification |
-| 16 | 24b, 31, 31b (opt-in), 34, 38 (analytical-default) | 42–46 | Cluster-stratified residual climatology (24b), independent k=5 partition validation (31) and its separation-vs-recoverability companion (31b) — opt-in supplementary diagnostics; the MSL5 two-window sensitivity demonstration figure for §5.7.5 (34) and the coast-to-inland MAM transect observational δ₀ diagnostic for §4.8.3 (38) — both promoted to analytical-default 2026-07-13 |
+| 15 | 32, 33, 35, 36, 37, 37b (observed differential change, envelope, and driver validation) | 36–41 | Secular differential water-table drift (32, report Fig 59); climate-swing amplification + drought-floor surface (33, report Fig 60); per-well climate-sensitivity coefficient (35); absolute climate-removed per-well secular trend (36, Figure 63); predicted-vs-observed driver validation (37); comparative driver footing across forest/scrape/coast on common currencies (37b) — all analytical-default |
+| 16 | 24b, 31, 31b (opt-in), 34, 38 (analytical-default) | 42–46 | Cluster-stratified residual climatology (24b), independent k=5 partition validation (31) and its separation-vs-recoverability companion (31b) — opt-in supplementary diagnostics; the MSL5 two-window sensitivity demonstration figure for §5.7.5 (34) and the coast-to-inland MAM transect observational δ₀ diagnostic for §4.8.3 (38) — both analytical-default |
 | 17 | 09f, 09g, 27 | 47–49 | Management-interventions-vs-coastal-retreat spatial-reach synthesis figure for §5.8 (09f, display/utility, two-pass — reads Scripts 20/25/09d/10a); four-driver mechanism grid + coastal-vs-climate reach for §5.8 (09g, display/utility — reads 09f/10m/10a); greyscale figure conversion utility (27, journal-ready B&W) — post-processing |
 
 Phases 1–11 produce the main analytical results documented in the report. Phase 12
@@ -197,8 +197,7 @@ Willegen et al. (2025) MSL analyses — an observational 5-year aggregation with
 step 30), the UKCP18 climate-projection companion (Script 26b, step 31), and the
 report-format MSL5 figures cited in §4.8.4 and §4.10.1 (Script 26c, step 32; a
 display-only companion that reads canonical outputs from Scripts 26, 26b and 19).
-Phase 14 runs the cluster framework diagnostics added in the post-review pass
-(2026-05-29): the C3 detrend check (Script 28, step 33) validating the
+Phase 14 runs the cluster framework diagnostics: the C3 detrend check (Script 28, step 33) validating the
 aquifer-architecture framing of §5.1 against the project's own data, and the
 within-C3 variance attribution (Script 29, step 34) characterising the
 hydrogeological structure within C3 against five spatial predictors, and the C4
@@ -211,11 +210,10 @@ per-well climate-sensitivity coefficient (Script 35, step 38), the absolute
 climate-removed secular trend map (Script 36, step 39, Figure 63), the
 predicted-vs-observed driver-change validation (Script 37, step 40), and the
 comparative driver footing across forest/scrape/coast on common currencies
-(Script 37b, step 41). All six were promoted to analytical-default tier on
-2026-07-13 (Task E); see `CHANGELOG_delta_2026-07-13_taskE_reclassify_analytical.md`.
+(Script 37b, step 41). All six run at analytical-default tier.
 Phase 16 runs the MSL5 two-window sensitivity demonstration (Script 34, step 45,
 §5.7.5) and the coast-to-inland MAM transect observational δ₀ diagnostic (Script
-38, step 46, §4.8.3) — both also promoted to analytical-default 2026-07-13 —
+38, step 46, §4.8.3) — both also analytical-default —
 alongside its remaining opt-in supplementary diagnostics: cluster-stratified
 residual climatology (Script 24b, step 42), independent k=5 partition validation
 (Script 31, step 43), and its separation-vs-recoverability companion (Script 31b,

@@ -45,16 +45,10 @@ to one another — a sentence of the form "N registered, of which A analytical
 plus D display/utility" mixes the axes and will not sum. See the note above
 _DOCUMENTED_COUNTS.
 
-  2026-07-13 reclassification (Task E): Scripts 34, 36, 37, 37b and 38 were
-  promoted from "X" opt-in to "A" analytical, and their exec flags moved
-  from "optin" to "default", following an operator-signed-off audit
-  confirming each is cited with a reproducible figure or number in the main
-  report (Script 38: §4.8.3 coast-to-inland δ₀; Script 34: §5.7.5 window-
-  sensitivity envelope; Script 36: Figure 63; Scripts 37/37b: driver
-  validation / comparative footing results being written into the main
-  report). Scripts 24b, 31 and 31b remain "X" — each appears only in the
-  Phase 16 methods-overview enumeration, with no figure or number of its
-  own reproduced elsewhere in the report.
+  Tier "A" analytical steps are those cited with a reproducible figure or
+  number in the main report (for example Script 38: §4.8.3 coast-to-inland
+  δ₀; Script 34: §5.7.5 window-sensitivity envelope). Tier "X" steps are
+  opt-in diagnostics that appear only in the methods enumeration.
 
 Each step also carries an exec flag: "default" (part of a normal --full
 run) or "optin" (runs only with --with-supplementary / the menu option 1
@@ -77,10 +71,9 @@ diagnostic (Script 30, testing directly whether C4's low β₃ is a β₂/β₃
 degeneracy artefact and finding it is not — the centroid β₃ is cleanly
 identified and the low value is real) — documented in §5.1.1 and §4.2.2 of
 the report and §S.19 of the Methods Supplement.
-Phase 15 is now wholly analytical-default (Scripts 32, 33, 35, 36, 37, 37b
-all run by default; the former opt-in tail 36/37/37b was promoted 2026-07-13
-per the Task E audit). Phase 16 runs Scripts 34 and 38 by default (promoted
-alongside Phase 15's tail) plus a supplementary opt-in remainder — Scripts
+Phase 15 is wholly analytical-default (Scripts 32, 33, 35, 36, 37, 37b all
+run by default). Phase 16 runs Scripts 34 and 38 by default plus a
+supplementary opt-in remainder — Scripts
 24b, 31, 31b — which still runs only with --with-supplementary (or the menu
 option 1 prompt). Phase 17 runs the synthesis figures (Script 09f, and
 Script 09g — the §5.8 four-driver mechanism grid + coastal-vs-climate reach,
@@ -139,97 +132,6 @@ from collections import namedtuple
 from pathlib import Path
 
 __version__ = "2.3.0"
-# CHANGELOG
-#   2.3.0 (2026-08-09): Analytical-step headline RETIRED (Option B, Martin's
-#       ruling). Deleted ANALYTICAL_STEP_COUNT (46), ANALYTICAL_PHASES (17),
-#       _EXPECTED_ANALYTICAL_TOPLEVEL (39) and _check_analytical_guard().
-#       Neither retired constant reconciled with the step table: the 46 was a
-#       hand-carried survivor of the pre-tier (2026-07-06) scheme in which
-#       "46 registered = 43 analytical + 3 display/utility" was additive and
-#       correct, incremented per script thereafter (41->42->43->46) with no
-#       derivation; the sub-runner-expanded analytical count its own comment
-#       claimed is 39-2+5+13 = 55. It also collided with by_exec["default"],
-#       which is 46 on an unrelated basis, so document sentences mixing the
-#       tier and exec axes read plausibly and summed to 50 against a total of
-#       49. ANALYTICAL_PHASES = 17 was likewise wrong (Phase 14 is all tier X,
-#       Phase 17 all tier D, so phases carrying analytical work number 15) and
-#       its own stated derivation summed to 16, and it collided with the total
-#       phase count. Manifest schema: "analytical_headline" REMOVED,
-#       "total_phases" ADDED, "analytical_phases" now DERIVED (15, emitted for
-#       completeness and cited in no document). New _DOCUMENTED_COUNTS table +
-#       _check_documented_counts() replace the single-value guard: every count
-#       is recomputed from ALL_PHASES and compared against what the documents
-#       state, warning per drifted field by name. Nothing hand-typed feeds an
-#       output. Also fixed a stale hardcode in run_greyscale() ("re-run all 34
-#       steps" -> derived) and the tier "X" docstring label, which called
-#       Phase 14 opt-in when it runs by default. Downstream: tools/
-#       sync_index_counts.py v1.2.0 must ship in the same batch (the retired
-#       manifest key was one of its four sources). utils.config.
-#       PIPELINE_VERSION bumped to 2.3.0 to match. No change to step
-#       registration, ordering, tiers, exec flags or any analysis. See
-#       CHANGELOG_delta_2026-08-09_step_count_option_B.md.
-#   2026-07-21 (infra, no release bump): build_manifest() now stamps
-#       "pipeline_version" into pipeline_manifest.json so the manifest, the SI /
-#       Methods Supplement, and the Zenodo release all pin to one string. The
-#       canonical source is utils.config.PIPELINE_VERSION; __version__ here is
-#       kept equal to it and _check_version_guard() warns on any drift (mirrors
-#       _check_analytical_guard). Version string unchanged (2.2.0).
-#   2.2.0 (2026-07-18): Script 09g registered. New tier-"D" display step
-#       09g_mechanism_diagrams.py added to PHASE_17 between 09f and 27 (it
-#       reads the 09f_01 reach profile emitted moments earlier in the same
-#       pass, plus the 10m WMC3 BACI and 10a clearfell steps, with
-#       pipeline_params first-pass fallbacks). Per the tier-D convention the
-#       analytical headline (ANALYTICAL_STEP_COUNT / ANALYTICAL_PHASES) is
-#       untouched; total registered steps 48 -> 49 (manifest regenerates on
-#       rerun / --manifest-only). Docstring tier-D list, Phase 17 narrative,
-#       two-pass note and the PHASE 17 ALL_PHASES label updated to match.
-#       See CHANGELOG_delta_2026-07-18_09g_mechanism_diagrams.md.
-#   2.1.0 (2026-07-13): Task E analytical reclassification. Scripts 34, 36,
-#       37, 37b and 38 promoted from tier "X"/exec "optin" to tier "A"/exec
-#       "default", following an operator-signed-off audit of the main report
-#       text (report.pdf via pdftotext) confirming each is cited there with a
-#       reproducible figure or number (38: §4.8.3 coast-to-inland δ₀ =
-#       -28.2 mm/yr; 34: §5.7.5 window-sensitivity envelope; 36: Figure 63;
-#       37/37b: driver-validation and comparative-footing results being
-#       written into the main report). Scripts 24b, 31 and 31b were audited
-#       and confirmed to remain tier "X" — each appears only once, in the
-#       Phase 16 methods-overview enumeration, with no figure or number of
-#       its own reproduced anywhere else in the report. Updated the three
-#       declared constants in lockstep, arithmetic shown at their
-#       definition: _EXPECTED_ANALYTICAL_TOPLEVEL 34->39, ANALYTICAL_STEP_COUNT
-#       41->46, ANALYTICAL_PHASES 16->17 (Phase 16 now counts as a partially
-#       analytical phase under the same convention already applied to Phase
-#       15). Updated the module docstring tier description, the Phase 14-17
-#       narrative paragraph, and the PHASE_15/PHASE_16 ALL_PHASES label
-#       strings to match. No change to step numbering, ordering, or any
-#       other script's tier/exec. See CHANGELOG_delta_2026-07-13_taskE_
-#       reclassify_analytical.md for the full audit table.
-#   2.0.0 (2026-07-08): De-hardcoded step numbering. PHASE_* entries are now
-#       Step(script, desc, tier, exec, n_substeps, extra_args) records instead
-#       of ("script.py", "N/47 desc") tuples — no step/phase total is typed
-#       anywhere in source. Numbering ("{i}/{total}") is rendered at runtime
-#       from enumeration position over ALL_PHASES; outputs/pipeline_manifest.json
-#       is emitted on every full/resumed run (and standalone via
-#       --manifest-only) as the citable source for current totals, tier
-#       breakdown, and per-step tags. Added ANALYTICAL_STEP_COUNT=41 /
-#       ANALYTICAL_PHASES=16 as declared (not derived) constants per the
-#       signed-off classification, plus an analytical-top-level-count guard
-#       that warns if a future edit silently changes the tier-A tally out
-#       from under the declared headline. Wired 38_coastal_transect.py as
-#       PHASE_16's final entry (tier X, exec optin) — previously committed
-#       to src/ but not called from this orchestrator. Reclassified Phase
-#       15's 36/37/37b as exec="optin" (tier X) alongside Phase 16 and
-#       Script 38, correcting a code/docs mismatch — the menu and --explain
-#       text already described steps in that range as opt-in, but
-#       run_full_pipeline() ran them unconditionally; --with-supplementary
-#       now actually gates them. Also fixed a stale from_step threshold on
-#       the Phase 9 post-run validation check (was a hardcoded 21, which
-#       predates at least one phase reordering and no longer matched Phase
-#       9's actual step range; now derived from the 20_spatial_figures.py
-#       step index). No change to which scripts run by default on a normal
-#       --full invocation from step 1, other than the Phase 15 opt-in
-#       reclassification described above and the new Script 38 addition.
-#   (pre-2.0.0 history not tracked in this header; see CONSOLIDATED_CHANGELOG.md)
 
 ROOT_DIR = Path(__file__).resolve().parent
 SRC_DIR  = ROOT_DIR / "src"
@@ -445,34 +347,21 @@ ALL_PHASES = [
     ("PHASE 17 \u2014 Synthesis Figures and Greyscale Conversion (Scripts 09f, 09g, 27)",  PHASE_17),
 ]
 
-# ── Document-drift guard (2026-08-09) ────────────────────────────────────────
+# ── Document-drift guard ─────────────────────────────────────────────────────
 # NOTHING here feeds an output. Every count in the manifest is computed from
 # ALL_PHASES in build_manifest(). This table records only what the report,
 # Methods Supplement, readme.md, PIPELINE_README.md and index.html currently
 # STATE, so that changing the step table warns which documents now need
 # re-editing, naming the field that moved.
 #
-# History (why the old constant is gone). Until 2026-08-09 this block declared
-# ANALYTICAL_STEP_COUNT = 46 and ANALYTICAL_PHASES = 17 as hand-maintained
-# "headline" values, guarded only indirectly via _EXPECTED_ANALYTICAL_TOPLEVEL.
-# Neither reconciled with the step table:
-#   * The 46 was inherited from the pre-tier scheme (2026-07-06), where
-#     "46 registered = 43 analytical + 3 display/utility" was additive and
-#     correct. The 2026-07-08 tier scheme redefined the categories underneath
-#     it; the number was carried across by hand and incremented per script
-#     thereafter (41 -> 42 -> 43 -> 46). No expansion rule reproduces it: the
-#     sub-runner-expanded analytical count is 39 - 2 + 5 + 13 = 55.
-#   * It also collided with by_exec["default"], which is genuinely 46 on a
-#     completely different basis — so any sentence mixing the two axes looked
-#     plausible and was wrong ("49 registered, of which 46 analytical plus 4
-#     display/utility" sums to 50).
-#   * ANALYTICAL_PHASES = 17 was worse: Phase 14 is entirely tier X and
-#     Phase 17 entirely tier D, so phases carrying analytical work number 15,
-#     not 17 — and the constant's own stated derivation summed to 16. It too
-#     collided with the total phase count.
-# Per Martin's ruling of 2026-08-09 (Option B) the headline is retired
-# outright. Documents cite manifest fields only; the short-form headline is
-# now the total registered count (49 steps across 17 phases).
+# Design note: there is deliberately no single hand-maintained "analytical
+# headline" constant. Earlier revisions declared one and it drifted from the
+# step table in two ways at once — it was carried across a redefinition of the
+# tier categories without re-derivation, and it collided numerically with an
+# unrelated count on a different axis, so document sentences mixing the two
+# read plausibly and were wrong. Every count below is checked against a value
+# recomputed from ALL_PHASES. Documents cite manifest fields; the short-form
+# headline is the total registered count.
 _DOCUMENTED_COUNTS = {
     "total_registered":            49,
     "total_phases":                17,
@@ -1092,9 +981,8 @@ def run_full_pipeline(from_step: int = 1, include_supplementary: bool = False) -
         if phase_label == ALL_PHASES[2][0] and from_step <= _STEP_BY_SCRIPT["run_10_clearfell.py"].index:
             validate_outputs(REQUIRED_PHASE3_OUTPUTS, "Phase 3")
         if phase_label == ALL_PHASES[8][0] and from_step <= _STEP_BY_SCRIPT["20_spatial_figures.py"].index:
-            # NOTE: this threshold was previously a hard-typed "21", which
-            # predated at least one phase reordering and no longer matched
-            # Phase 9's actual step range (fixed 2026-07-08 — see CHANGELOG).
+            # Derived from the step table rather than hard-typed, so it
+            # survives phase reordering.
             validate_outputs(REQUIRED_PHASE9_OUTPUTS, "Phase 9")
         if phase_label == ALL_PHASES[9][0]:
             validate_outputs(REQUIRED_PHASE10_OUTPUTS, "Phase 10")

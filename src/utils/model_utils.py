@@ -41,7 +41,7 @@ import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 
-from utils.config import DRAINAGE_DATUM, HEADLINE_LAG
+from utils.config import DRAINAGE_DATUM, HEADLINE_LAG, SSM_MIN_OBS
 
 
 __version__ = "1.3.0"  # Hollingham (2026) — 2026-06-21
@@ -55,7 +55,9 @@ __version__ = "1.3.0"  # Hollingham (2026) — 2026-06-21
 # ── Minimum data thresholds ──────────────────────────────────────────────────
 
 # Minimum observations for a per-well SSM fit (after differencing + dropna).
-MIN_OBS = 30
+# Sourced from config.py; the alias is retained so existing importers of
+# model_utils.MIN_OBS continue to resolve.
+MIN_OBS = SSM_MIN_OBS
 
 # Most-recent-window length for per-well fits in the intercept audit
 # and benchmarking (Scripts 07, 08).

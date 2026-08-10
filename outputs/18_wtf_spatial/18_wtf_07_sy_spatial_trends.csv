@@ -1,0 +1,43 @@
+block,series,metric,value,n,unit
+open_dune_plane,corrected,n,52.0,52,wells
+open_dune_plane,corrected,r2,0.6163,52,-
+open_dune_plane,corrected,const,0.2717,52,Sy
+open_dune_plane,corrected,coef_E_per_km,-0.0591,52,Sy/km
+open_dune_plane,corrected,p_E,0.0,52,p
+open_dune_plane,corrected,coef_N_per_km,-0.0414,52,Sy/km
+open_dune_plane,corrected,p_N,1.4e-05,52,p
+open_dune_plane,corrected,grad_per_km,0.0721,52,Sy/km
+open_dune_plane,corrected,azimuth_deg,234.9954,52,degrees
+open_dune_plane,corrected,resid_sd,0.0312,52,Sy
+open_dune_plane,corrected,centroid_E,242177.7113,52,m
+open_dune_plane,corrected,centroid_N,363674.9528,52,m
+forest_corr,corrected,r_vs_Elevation,-0.9409,14,Pearson r
+forest_corr,corrected,p_vs_Elevation,1e-06,14,p
+forest_corr,corrected,r_vs_Dist_from_ridge,0.8183,14,Pearson r
+forest_corr,corrected,p_vs_Dist_from_ridge,0.000347,14,p
+forest_corr,corrected,r_vs_Easting,-0.6394,14,Pearson r
+forest_corr,corrected,p_vs_Easting,0.013803,14,p
+forest_corr,uncorrected,r_vs_Elevation,-0.7767,14,Pearson r
+forest_corr,uncorrected,p_vs_Elevation,0.001084,14,p
+forest_corr,uncorrected,r_vs_Dist_from_ridge,0.6181,14,Pearson r
+forest_corr,uncorrected,p_vs_Dist_from_ridge,0.01848,14,p
+forest_corr,uncorrected,r_vs_Easting,-0.4329,14,Pearson r
+forest_corr,uncorrected,p_vs_Easting,0.122102,14,p
+forest_corr,corrected_drop_ceh14,r_vs_Elevation,-0.9145,13,Pearson r
+forest_corr,corrected_drop_ceh14,p_vs_Elevation,1.2e-05,13,p
+forest_corr,corrected_drop_ceh14,r_vs_Dist_from_ridge,0.7693,13,Pearson r
+forest_corr,corrected_drop_ceh14,p_vs_Dist_from_ridge,0.002111,13,p
+forest_corr,corrected_drop_ceh14,r_vs_Easting,-0.6141,13,Pearson r
+forest_corr,corrected_drop_ceh14,p_vs_Easting,0.025566,13,p
+forest_corr,corrected_drop_ceh13,r_vs_Elevation,-0.9376,13,Pearson r
+forest_corr,corrected_drop_ceh13,p_vs_Elevation,2e-06,13,p
+forest_corr,corrected_drop_ceh13,r_vs_Dist_from_ridge,0.8437,13,Pearson r
+forest_corr,corrected_drop_ceh13,p_vs_Dist_from_ridge,0.000289,13,p
+forest_corr,corrected_drop_ceh13,r_vs_Easting,-0.7358,13,Pearson r
+forest_corr,corrected_drop_ceh13,p_vs_Easting,0.004147,13,p
+forest_corr,corrected_drop_ceh13_ceh14,r_vs_Elevation,-0.9031,12,Pearson r
+forest_corr,corrected_drop_ceh13_ceh14,p_vs_Elevation,5.7e-05,12,p
+forest_corr,corrected_drop_ceh13_ceh14,r_vs_Dist_from_ridge,0.807,12,Pearson r
+forest_corr,corrected_drop_ceh13_ceh14,p_vs_Dist_from_ridge,0.001511,12,p
+forest_corr,corrected_drop_ceh13_ceh14,r_vs_Easting,-0.7549,12,Pearson r
+forest_corr,corrected_drop_ceh13_ceh14,p_vs_Easting,0.004538,12,p

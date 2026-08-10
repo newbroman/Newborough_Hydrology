@@ -57,6 +57,8 @@ Outputs (final — outputs/03_state_space_model/):
     03_09_well_datum_sensitivity.csv       — per-well datum sweep (66 wells × 76 depths)
     03_09_well_optimal_datums.csv          — per-well optimal datums (primary, secondary, R²-max)
     03_09_well_optimal_datums.png          — 4-panel per-well datum figure
+    03_11_datum_confound_diagnostics.csv   — optimal datum vs mean water-table
+                                             depth confound diagnostics
     03_10_well_datum_r2max_map.png         — spatial map: R²-max datum per well (report Fig.)
     03_10_well_r2_gain_map.png             — spatial map: R² gain vs uniform datum (report Fig.)
 
@@ -75,7 +77,7 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-06-21 (amplitude-fallback path elevated from [INFO] print to console warn() with explicit stale/hard-coded caveat)
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-08-10
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -95,6 +97,8 @@ del _sys, _os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import statsmodels.api as sm
+from scipy import stats as scipy_stats
 
 from utils.data_utils import normalize_well_name
 from utils.paths import (
@@ -104,6 +108,7 @@ from utils.paths import (
     INT_MASTER_DATA, INT_REGIONAL_AVG, INT_CLUSTER_AVG_MAOD,
     INT_WELLS_CLEAN_MAOD,
     OUT_03_SIGNATURES, OUT_03_CLUSTER_SUMMARY, OUT_03_MECHANISTIC_TABLE,
+    OUT_03_DATUM_CONFOUND,
     DIR_03,
     OUT_02_AMP_PER_WELL,
     DATA_DIR,
@@ -1233,6 +1238,106 @@ def make_well_datum_figure(optimal_df: pd.DataFrame,
 # SPATIAL DATUM MAPS (using map_utils.plot_metric_map)
 # ==========================================================================
 
+def datum_confound_diagnostics(optimal_df: pd.DataFrame,
+                                wells_clean: pd.DataFrame,
+                                locs_clean: pd.DataFrame,
+                                well_col_lookup: dict[str, str]
+                                ) -> pd.DataFrame:
+    """
+    Quantify the confounding of the per-well R²-maximising datum with local
+    mean water-table depth.
+
+    The R²-max datum deepens westward across the network, which invites reading
+    it as a proxy for a west-dipping impermeable base. It is not one. The datum
+    is bounded below by the mean water table (the drainage term is undefined
+    above it), the mean water table is itself deeper in the west, and the
+    apparent spatial gradient does not survive control for that depth.
+
+    This function emits the numbers that support that statement so that
+    Section 4.7 of the manuscript cites committed pipeline output rather than
+    an assertion:
+
+      corr_datum_meandepth   Pearson r and p between the R²-max datum and the
+                             per-well mean water-table depth.
+      datum_vs_easting       OLS slope of datum on easting (metres of datum per
+                             kilometre east) with no control.
+      datum_vs_easting_ctrl  The same slope with mean water-table depth entered
+                             as a covariate. Collapse of this term is the
+                             result of interest.
+      below_mean_wt          Count of wells whose optimum lies below their own
+                             mean water table, with the exception named.
+
+    Depths are positive downward from ground level, matching the datum sweep.
+    """
+    opt = optimal_df.copy()
+    opt["_n"] = opt["well"].apply(normalize_well_name)
+
+    # Per-well mean water-table depth (positive downward)
+    depths = {}
+    for _, row in opt.iterrows():
+        col = well_col_lookup.get(row["_n"])
+        if col is None or col not in wells_clean.columns:
+            continue
+        series = wells_clean[col].dropna()
+        if len(series) < MIN_OBS_PER_WELL:
+            continue
+        depths[row["_n"]] = -float(series.mean())
+    opt["mean_wt_depth"] = opt["_n"].map(depths)
+
+    loc = locs_clean.copy()
+    loc["_n"] = loc["Match_ID"].apply(normalize_well_name)
+    opt = opt.merge(loc[["_n", "E"]], on="_n", how="left")
+
+    d = opt.dropna(subset=["max_R2_datum", "mean_wt_depth", "E"]).copy()
+    if len(d) < 10:
+        warn("Too few wells for datum confound diagnostics — block skipped")
+        return pd.DataFrame()
+
+    d["E_km"] = (d["E"] - d["E"].mean()) / 1000.0
+
+    rows = []
+
+    def _add(block, metric, value, n, unit):
+        rows.append({"block": block, "metric": metric,
+                     "value": round(float(value), 6), "n": int(n), "unit": unit})
+
+    r, pv = scipy_stats.pearsonr(d["max_R2_datum"], d["mean_wt_depth"])
+    _add("corr_datum_meandepth", "r", r, len(d), "Pearson r")
+    _add("corr_datum_meandepth", "p", pv, len(d), "p")
+
+    f1 = sm.OLS(d["max_R2_datum"], sm.add_constant(d[["E_km"]])).fit()
+    _add("datum_vs_easting", "slope_m_per_km", f1.params["E_km"], len(d), "m/km")
+    _add("datum_vs_easting", "p", f1.pvalues["E_km"], len(d), "p")
+    _add("datum_vs_easting", "r2", f1.rsquared, len(d), "-")
+
+    f2 = sm.OLS(d["max_R2_datum"],
+                sm.add_constant(d[["E_km", "mean_wt_depth"]])).fit()
+    _add("datum_vs_easting_ctrl", "slope_m_per_km", f2.params["E_km"], len(d), "m/km")
+    _add("datum_vs_easting_ctrl", "p", f2.pvalues["E_km"], len(d), "p")
+    _add("datum_vs_easting_ctrl", "p_mean_wt_depth",
+         f2.pvalues["mean_wt_depth"], len(d), "p")
+    _add("datum_vs_easting_ctrl", "r2", f2.rsquared, len(d), "-")
+
+    below = d["max_R2_datum"] > d["mean_wt_depth"]
+    _add("below_mean_wt", "n_below", int(below.sum()), len(d), "wells")
+    _add("below_mean_wt", "n_total", len(d), len(d), "wells")
+    for _, ex in d[~below].iterrows():
+        rows.append({"block": "below_mean_wt",
+                     "metric": f"exception_{ex['well']}_pvalue_beta_3_at_max",
+                     "value": round(float(ex["pvalue_beta_3_at_max"]), 6)
+                     if pd.notna(ex["pvalue_beta_3_at_max"]) else np.nan,
+                     "n": len(d), "unit": "p"})
+
+    result("Datum vs mean water-table depth",
+           f"r={r:+.3f}; easting slope {f1.params['E_km']:+.3f} m/km "
+           f"(p={f1.pvalues['E_km']:.4f}) -> {f2.params['E_km']:+.3f} m/km "
+           f"(p={f2.pvalues['E_km']:.3f}) with depth controlled")
+    result("Optimum below mean water table",
+           f"{int(below.sum())}/{len(d)} wells")
+
+    return pd.DataFrame(rows)
+
+
 def make_well_datum_maps(optimal_df: pd.DataFrame,
                           locs_clean: pd.DataFrame,
                           selected_datum: float) -> None:
@@ -1747,6 +1852,15 @@ def main() -> None:
 
     well_fig_path = DIR_03 / "03_09_well_optimal_datums.png"
     make_well_datum_figure(well_opt_df, DRAINAGE_DATUM, well_fig_path)
+
+    # ---- Datum / mean water-table depth confound diagnostics ----
+    print("\n -> Datum confound diagnostics (vs mean water-table depth)...")
+    confound_df = datum_confound_diagnostics(
+        well_opt_df, wells_clean, locs_clean, well_col_lookup
+    )
+    if not confound_df.empty:
+        confound_df.to_csv(OUT_03_DATUM_CONFOUND, index=False)
+        saved(f"{OUT_03_DATUM_CONFOUND.name}")
 
     # ---- Spatial datum maps (DEM + KML overlay) ----
     print("\n -> Generating spatial datum maps...")

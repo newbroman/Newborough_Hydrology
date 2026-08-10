@@ -1536,6 +1536,9 @@ All scripts import physical and statistical constants from `utils/config.py`. Th
 - `MSL_MIN_MONTHS_PER_SPRING = 3` / `MSL_MIN_YEARS_IN_WINDOW = 5` — strictness rules (3-of-3 spring months, 5-of-5 annual MSLs)
 - `MSL_TRAJECTORY_START_YEAR = 2014` — first window-end drawn entirely from the post-2010 network
 - `VW_QUADRAT_WELLS` — the 17 piezometers van Willegen (2025) co-located with permanent vegetation quadrats (calibrated EbF reference subset)
+- `RESIDUAL_DIAG_MIN_MONTHS = 140` — record-length floor for the residual-field diagnostics (Scripts 23, 24); ~11.7 years, though the binding minimum among eligible wells is 151 months, so it drops only ceh40, ceh41 and ceh42
+- `RESIDUAL_DIAG_EXCLUDED_WELLS` — the six wells held out of Scripts 23 and 24: ceh3 (tidal boundary), ceh4 (coastal-erosion drift plus post-2017 clearfell pulse), ceh7 / ceh8 / ceh37 (record discontinuities carried over from Script 07), and `llynrhos`, the Llyn Rhos-Ddu lake gauge — a surface-water level record rather than one of the 88 classified dipwells, so it carries no water-balance residual in the SSM sense. Scripts 23 and 24 therefore run 63 wells; Script 22 runs the full 66-well reference network without exclusions
+- `RESIDUAL_DIAG_SW_BOOT_N = 10000` / `RESIDUAL_DIAG_SW_BOOT_SEED = 20260809` — resample count and fixed seed for the per-cluster summer-minus-winter contrast emitted by Script 24 in `24_05_diagnostic_summary.txt`
 - `INTERVENTION_COLOUR_SCRAPE = '#7b3294'` / `INTERVENTION_COLOUR_CLEARFELL = '#e66101'` — print-safe colours for trajectory event markers
 - `UKCP18_*_P_*` / `UKCP18_*_PET_*` — UKCP18 RCP8.5 Wales scenario multipliers
 

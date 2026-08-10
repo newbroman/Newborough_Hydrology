@@ -253,6 +253,7 @@ OUT_02_AMP_BOXPLOT      = DIR_02 / "02_10_cluster_amplitude_boxplot.png"
 OUT_03_SIGNATURES          = DIR_03 / "03_01_mechanistic_signatures.png"
 OUT_03_CLUSTER_SUMMARY     = DIR_03 / "03_02_cluster_summary_table.csv"
 OUT_03_MECHANISTIC_TABLE   = DIR_03 / "03_03_cluster_mechanistic_coefficients.csv"
+OUT_03_DATUM_CONFOUND      = DIR_03 / "03_11_datum_confound_diagnostics.csv"  # optimal-datum vs mean water-table depth
 
 # Script 04 — Cluster visualisations
 OUT_04_ARCHITECTURE_MAP = DIR_04 / "04_01_core_architecture_map.png"

@@ -8,7 +8,17 @@ Full per-script methodology: see chapter S.4 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.3.0"  # Hollingham (2026) — last revised 2026-06-21
+__version__ = "1.3.1"  # Hollingham (2026) — last revised 2026-08-12
+#
+# Changelog
+#   1.3.1 (2026-08-12) — Well labels: adjust_text() now runs against explicit
+#         static point coordinates with tuned separation forces and
+#         min_arrow_len=3, so that every displaced label carries a leader line
+#         back to its marker. At 99 labels the solver must move labels ~68 m
+#         (median) at the canonical extent — there is no setting at which they
+#         stay on their markers — so the leader line, not reduced displacement,
+#         is what preserves the label-to-well association. Settings match
+#         Script 06 v1.0.0 so the two Pearson maps behave identically.
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -266,7 +276,21 @@ def main():
                 dedup[handle.get_label()] = handle
             ax.legend(handles=list(dedup.values()),title="Site Features",loc="lower left",
                       frameon=True)
-        if texts: adjust_text(texts,arrowprops=dict(arrowstyle="-",color="gray",lw=0.5),ax=ax)
+        if texts:
+            # Solve against the true well positions as static obstacles, and
+            # draw a leader wherever a label is displaced by more than 3 pt.
+            adjust_text(
+                texts,
+                x=map_df["E"].to_numpy(dtype=float),
+                y=map_df["N"].to_numpy(dtype=float),
+                ax=ax,
+                expand=(1.15, 1.35),
+                force_text=(0.4, 0.8),
+                force_static=(0.3, 0.6),
+                min_arrow_len=3,
+                time_lim=5.0,
+                arrowprops=dict(arrowstyle="-", color="gray", lw=0.5),
+            )
         plt.tight_layout(); render_figure(plt.gcf(), OUT_05_CONFIDENCE_MAP); plt.close()
 
     core_c = int((audit_df["Class"]=="Core").sum())

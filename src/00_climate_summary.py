@@ -70,12 +70,24 @@ import re
 import os
 from scipy.stats import linregress
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-06-22
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-08-12
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
 # from the committed CSVs (falling back to utils/pipeline_params.default_value()
 # with a console warning on a first pass).
+#
+# Changelog
+#   1.3.0 (2026-08-12) — Water-level axis labels corrected from "below pipe top"
+#         to "below ground". 01_wells_clean.csv carries the master's `depth from
+#         surface` values (level = upstand - dip), already referenced to the
+#         ground surface, so these axes have always plotted below-ground levels
+#         and the old labels misstated the frame (GEOMETRY_ARCHITECTURE_SPEC.md
+#         §3; cf. Script 26 v1.6.0, which fixed the same residue). Plotted
+#         values are unchanged — this is a labelling correction only. String
+#         matches the house form used by Scripts 26/26b/26c. Also fixed the
+#         banner() version literal, which had drifted to 1.0.2.
+#   1.2.0 (2026-06-22) — see CHANGELOG.
 CB_BLUE = "#0072B2"
 CB_GREEN = "#009E73"
 CB_ORANGE = "#E69F00"
@@ -376,7 +388,7 @@ def make_figure1_climate_timeseries(climate: pd.DataFrame, wells: pd.DataFrame, 
 
         ax4.plot(mean_ts.index, mean_ts, color=CB_GREEN, linewidth=2.3, label="Network mean well level")
         ax4.fill_between(mean_ts.index, mean_ts - std_ts, mean_ts + std_ts, color=CB_GREEN, alpha=0.22, label="Inter-well SD")
-        ax4.set_ylabel("Well level (m)")
+        ax4.set_ylabel("Water level (m, below ground)")
         ax4.grid(axis="y", linestyle=":", alpha=0.35)
         ax4.legend(loc="upper left", bbox_to_anchor=(0.04, 1.0), frameon=False)
         if pd.notna(r2_lag0):
@@ -526,7 +538,7 @@ def make_figure2_well_network(wells: pd.DataFrame, table2: pd.DataFrame, out_png
     well_means = pd.to_numeric(table2["Mean_WL_m"], errors="coerce").dropna()
     ax_tr.hist(well_means, bins=14, color=CB_ORANGE, alpha=0.85, edgecolor="white")
     ax_tr.set_title("Mean Water Level by Well")
-    ax_tr.set_xlabel("Depth below pipe top (m)")
+    ax_tr.set_xlabel("Water level (m, below ground)")
     ax_tr.set_ylabel("Well count")
     ax_tr.grid(axis="y", linestyle=":", alpha=0.35)
 
@@ -539,7 +551,7 @@ def make_figure2_well_network(wells: pd.DataFrame, table2: pd.DataFrame, out_png
     ax_bl.fill_between(mean_ts.index, mean_ts - std_ts, mean_ts + std_ts, color=CB_BLUE, alpha=0.2, label="Inter-well SD")
     ax_bl.axvline(pd.Timestamp("2018-01-01"), color="black", linestyle="--", linewidth=1.1, alpha=0.8)
     ax_bl.set_title("Network Mean Monthly Water Level")
-    ax_bl.set_ylabel("Depth below pipe top (m)")
+    ax_bl.set_ylabel("Water level (m, below ground)")
     ax_bl.grid(axis="y", linestyle=":", alpha=0.35)
     ax_bl.legend(frameon=False, loc="best")
 
@@ -560,7 +572,7 @@ def make_figure2_well_network(wells: pd.DataFrame, table2: pd.DataFrame, out_png
 
     ax_br.set_title("Seasonal Cycle Across Network")
     ax_br.set_xlabel("Calendar month")
-    ax_br.set_ylabel("Depth below pipe top (m)")
+    ax_br.set_ylabel("Water level (m, below ground)")
     ax_br.set_xticks(list(range(1, 13)))
     ax_br.grid(axis="y", linestyle=":", alpha=0.35)
 
@@ -780,7 +792,7 @@ def _run_all() -> None:
 
 
 def main() -> None:
-    banner("00", "Climate Summary", version="1.0.2")
+    banner("00", "Climate Summary", version=__version__)
     make_all_dirs()
 
     plt.rcParams.update(

@@ -9,6 +9,22 @@ Purpose:
     all remaining wells.
 ====================================================================================
 """
+__version__ = "1.0.0"  # Hollingham (2026) — 2026-08-12
+#
+# This module previously carried no __version__ constant; 1.0.0 marks its
+# introduction, not the start of the module's history. Prior revisions are the
+# dated notes below and remain the record for anything before this date.
+#
+# 2026-08-12: well labels — adjust_text() was passing 0.8-era keyword names
+#   (expand_text, expand_points, force_points, lim, only_move 'points' key)
+#   which adjustText 1.4.0 absorbs into **kwargs silently, with no exception
+#   and no warning. The tuning block was therefore inert and the solver ran on
+#   defaults. More seriously, no arrowprops was supplied, so displaced labels
+#   carried no leader line back to their markers — WMC4, sitting in the
+#   NW11/NW1/NW2/NW13 knot, read as belonging to the wrong well. Ported to the
+#   1.4.0 parameter names, arrowprops added, min_arrow_len lowered to 3, and
+#   the +14 m data-unit pre-offset dropped (adjust_text owns placement).
+#   Settings match Script 05 v1.3.1 so the two Pearson maps behave identically.
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap).
 # 2026-07-19 (legibility hand pass): 06_pear_01 affinity chart text +1 pt
 #   (bump_fig_fonts); 06_pear_02 map well labels 8 -> 8.5 pt; map axis
@@ -173,7 +189,7 @@ def create_affinity_bar_plot(audit_df: pd.DataFrame) -> None:
 # MAIN EXECUTION
 # ==========================================
 def main():
-    banner("06", "Pearson Affinity — Extended Network")
+    banner("06", "Pearson Affinity — Extended Network", version=__version__)
     make_all_dirs()
     print("--- Starting Phase 2: Pearson Affinity Audit ---")
 
@@ -317,13 +333,14 @@ def main():
                    edgecolor="black", linewidth=edgewidth,
                    alpha=0.9, zorder=zorder)
 
-    # Start labels with a slight offset, then use strong repulsion to reduce overlaps in dense zones.
+    # Labels start on their markers; adjust_text() owns placement from there and
+    # draws a leader line back to the well wherever a label has been displaced.
     label_x = map_df['E'].to_numpy(dtype=float)
     label_y = map_df['N'].to_numpy(dtype=float)
     texts = [
         ax.text(
-            r['E'] + 14,
-            r['N'] + 14,
+            r['E'],
+            r['N'],
             r['Well_Normalised'].upper(),
             fontsize=8.5,
             fontweight='bold',
@@ -336,12 +353,12 @@ def main():
         x=label_x,
         y=label_y,
         ax=ax,
-        expand_text=(1.18, 1.26),
-        expand_points=(1.32, 1.40),
-        force_text=(0.85, 1.05),
-        force_points=(1.00, 1.20),
-        only_move={'text': 'xy', 'points': 'xy'},
-        lim=400,
+        expand=(1.15, 1.35),
+        force_text=(0.4, 0.8),
+        force_static=(0.3, 0.6),
+        min_arrow_len=3,
+        time_lim=5.0,
+        arrowprops=dict(arrowstyle="-", color="gray", lw=0.5),
     )
 
     # Legends

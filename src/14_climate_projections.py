@@ -35,7 +35,8 @@ Reviewer-facing method summary:
 
 from __future__ import annotations
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-06-21 (iterate CLUSTER_LABELS not CLUSTER_COLOURS — drop reserved C6 from cluster loops; no functional change, C6 was already guarded out)
+__version__ = "1.3.1"  # Hollingham (2026) — 2026-08-12 (forecaster scatter axis titles: "below pipe top" -> "below ground"; banner version literal now reads __version__)
+# 1.3.0  # Hollingham (2026) — 2026-06-21 (iterate CLUSTER_LABELS not CLUSTER_COLOURS — drop reserved C6 from cluster loops; no functional change, C6 was already guarded out)
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -629,7 +630,7 @@ def render_stacked_figure(
 
 
 def main() -> None:
-    banner("14", "Climate Projections", version="1.2.0")
+    banner("14", "Climate Projections", version=__version__)
     make_all_dirs()
     print("\n[14] Loading observed data and fitting summer trends per cluster...")
 
@@ -985,8 +986,8 @@ const chart = new Chart(document.getElementById('chart'), {{
       }}
     }},
     scales: {{
-      x: {{ title: {{display:true, text:'Mean annual summer minimum (m below pipe top)', font:{{size:12}}}}, min:-2.6, max:0.65, ticks:{{callback: v => v.toFixed(1)}} }},
-      y: {{ title: {{display:true, text:'Mean annual winter maximum (m below pipe top)', font:{{size:12}}}}, min:-2.2, max:0.65, ticks:{{callback: v => v.toFixed(1)}} }}
+      x: {{ title: {{display:true, text:'Mean annual summer minimum (m below ground)', font:{{size:12}}}}, min:-2.6, max:0.65, ticks:{{callback: v => v.toFixed(1)}} }},
+      y: {{ title: {{display:true, text:'Mean annual winter maximum (m below ground)', font:{{size:12}}}}, min:-2.2, max:0.65, ticks:{{callback: v => v.toFixed(1)}} }}
     }}
   }},
   plugins: [thresholdPlugin]

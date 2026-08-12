@@ -116,8 +116,8 @@ const chart = new Chart(document.getElementById('chart'), {
       }
     },
     scales: {
-      x: { title: {display:true, text:'Mean annual summer minimum (m below pipe top)', font:{size:12}}, min:-2.6, max:0.65, ticks:{callback: v => v.toFixed(1)} },
-      y: { title: {display:true, text:'Mean annual winter maximum (m below pipe top)', font:{size:12}}, min:-2.2, max:0.65, ticks:{callback: v => v.toFixed(1)} }
+      x: { title: {display:true, text:'Mean annual summer minimum (m below ground)', font:{size:12}}, min:-2.6, max:0.65, ticks:{callback: v => v.toFixed(1)} },
+      y: { title: {display:true, text:'Mean annual winter maximum (m below ground)', font:{size:12}}, min:-2.2, max:0.65, ticks:{callback: v => v.toFixed(1)} }
     }
   },
   plugins: [thresholdPlugin]

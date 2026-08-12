@@ -14,7 +14,12 @@ Outputs (final — outputs/02_clustering/):
     02_02_validation_plots.png
 """
 
-__version__ = "1.4.1"  # Hollingham (2026) — 2026-07-21
+__version__ = "1.4.2"  # Hollingham (2026) — 2026-08-12
+# 1.4.2 (2026-08-12) — Cluster hydrograph and per-well spaghetti y-axes
+#        relabelled "Water level (m, below ground)": the series is the
+#        master's ground-referenced `depth from surface`, and the bare
+#        "Relative water level" label left the frame unstated. Values
+#        unchanged; labelling only.
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -760,7 +765,7 @@ def make_cluster_hydrograph_wb_figure() -> None:
         )
 
     ax_h.axhline(0, color="black", lw=0.7, ls=":", alpha=0.35)
-    ax_h.set_ylabel("Relative water level (m)", fontsize=9)
+    ax_h.set_ylabel("Water level (m, below ground)", fontsize=9)
     ax_h.set_xlabel("Date", fontsize=9)
     ax_h.yaxis.set_major_locator(ticker.MultipleLocator(0.25))
     ax_h.legend(fontsize=7.8, loc="lower right", framealpha=0.92, ncol=2)
@@ -851,7 +856,7 @@ def make_cluster_spaghetti_figure() -> None:
     axes[-1].xaxis.set_major_locator(mdates.YearLocator(2))
     axes[-1].xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
     axes[-1].set_xlabel("Date", fontsize=10)
-    fig.supylabel("Relative water level (m)", fontsize=11)
+    fig.supylabel("Water level (m, below ground)", fontsize=11)
     fig.suptitle(
         f"Per-well relative water level by cluster \u2014 {n_wells} reference "
         "wells, Dec 2006 \u2013 Dec 2025\n"

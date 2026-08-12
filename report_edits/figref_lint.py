@@ -36,6 +36,10 @@
 #   2 = usage / environment error
 #
 # VERSION
+#   v1.1.0  2026-08-12  caption detector now ignores in-text references that wrap
+#                       onto a line start (e.g. "…drawn in\nFigure 73. A dune…").
+#                       These were being miscounted as duplicate captions and
+#                       failing the sequence check (Figures 43, 52, 73).
 #   v1.0.0  2026-07-12
 # =============================================================================
 
@@ -69,9 +73,12 @@ def extract_text(pdf_path):
 # the number ("Figure 3a. Data coverage…"), not a colon. Accept either.
 # The ^\s* anchor plus the required whitespace after the separator keeps this from
 # matching a mid-sentence "…in Figure 3. The next…" unless that reference has
-# wrapped to the very start of a line AND is followed by a capitalised word —
-# a case checked and not observed in this document. Caption titles are always
-# capitalised; a wrapped ref would continue lowercase.
+# wrapped to the very start of a line AND is followed by a capitalised word.
+# That case DOES occur in this document: Figures 43, 52 and 73 are cross-referenced
+# from the long captions of neighbouring multi-panel figures (and from body text),
+# and the reference wraps to a line start ("…drawn schematically in\nFigure 73. A
+# dune scrape…"). parse_captions() filters those out by inspecting the preceding
+# line — see _is_wrapped_reference() below.
 CAPTION_RE = re.compile(r"^\s*Figure (\d+[a-z]?)[.:]\s+(.*)$")
 
 # An in-text reference. Handles "Figure 58", "Figures 7 and 8", "Figures 36-39",
@@ -85,13 +92,47 @@ REF_RE = re.compile(
 )
 
 
+# Running page header / footer lines. Treated as transparent (like a blank line)
+# when deciding whether a caption-shaped line begins a fresh block: a real caption
+# can sit immediately after a page break.
+_HEADER_RE = re.compile(r"confidential draft|Newborough Warren Coastal Aquifer")
+
+# Characters that close a sentence or a caption. If the line before a "Figure N."
+# match ends with one of these — or is blank, or is a running header — the match
+# starts a fresh block and is a genuine caption. If it ends mid-sentence, the match
+# is an in-text reference that has wrapped onto a line start and must not be counted.
+_SENTENCE_END = (".", ":", "!", "?")
+
+
+def _is_wrapped_reference(lines, i):
+    """True when the caption-shaped line at index ``i`` is really an in-text
+    reference that wrapped onto a line start (e.g. a sentence "…drawn in" whose
+    next line begins "Figure 73. A dune scrape…").
+
+    The tell is the immediately-preceding line: a genuine caption is preceded by a
+    blank line or a running header (the start of its own block), whereas a wrapped
+    reference is preceded by body text that ends mid-sentence.
+    """
+    if i == 0:
+        return False
+    prev = lines[i - 1]
+    if not prev.strip():                 # blank line before → genuine caption block
+        return False
+    if _HEADER_RE.search(prev):          # page header/footer → genuine caption
+        return False
+    return not prev.rstrip().endswith(_SENTENCE_END)
+
+
 def parse_captions(lines):
     """Return list of (number_str, title) in document order, skipping stray
-    heading-styled lines that masquerade as captions."""
+    heading-styled lines that masquerade as captions and in-text references that
+    have wrapped onto a line start (see _is_wrapped_reference)."""
     caps = []
     for i, ln in enumerate(lines):
         m = CAPTION_RE.match(ln)
         if not m:
+            continue
+        if _is_wrapped_reference(lines, i):
             continue
         num, title = m.group(1), m.group(2).strip()
         # a real caption has descriptive text; if the line is short, pull the next

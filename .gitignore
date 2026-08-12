@@ -67,3 +67,7 @@ report_edits/**/.~lock.*#
 report_edits/**/*.bak
 report_edits/**/*~
 report_edits/_superseded/
+
+# Sentinel-watcher auto-push state (runtime only; never versioned).
+# Sentinel, logs, result and lock for tools/nrg_push_watch.sh + nrg_autopush.sh.
+.nrg_push/

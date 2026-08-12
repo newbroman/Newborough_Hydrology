@@ -17,12 +17,28 @@ Outputs:
 ====================================================================================
 """
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-06-28
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-08-12
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
 # from the committed CSVs (falling back to utils/pipeline_params.default_value()
 # with a console warning on a first pass).
+#
+# Changelog
+#   1.3.0 (2026-08-12) — Well-name labels now placed by adjustText rather than
+#         a fixed (4, 4) pt offset, resolving the label collisions that the 7 pt
+#         size exposed in the western forest block, the nw11/wmc4/nw1/nw2 knot
+#         and the T41 group. Leader lines drawn where a label is displaced.
+#         Brings Script 12 into line with Scripts 04/05/06/13, which have used
+#         adjustText throughout, and with the report Methods, which already
+#         states that label placement and occlusion avoidance use adjustText.
+#         Font size, halo, figsize and marker size unchanged from 1.2.1.
+#   1.2.1 (2026-08-12) — Well-name labels raised from 5 pt to 7 pt for
+#         legibility at print size; matches the 7 pt bold well labels used on
+#         the Script 11b maps of the same frame. Halo stroke, label offset and
+#         figsize deliberately unchanged. Fixed banner() version literal, which
+#         had been reporting 1.1.0 since the 1.2.0 bump — now reads __version__.
+#   1.2.0 (2026-06-28) — see CHANGELOG.
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
@@ -39,6 +55,7 @@ import geopandas as gpd
 import matplotlib.pyplot as plt
 import contextily as ctx
 import fiona
+from adjustText import adjust_text
 import warnings
 
 from utils.console_utils import (
@@ -139,20 +156,25 @@ def generate_dem_map():
     )
 
     # 5b. Label each well with its name
+    #
+    # Labels are collected here and positioned by adjustText after the site
+    # features are drawn (see step 6b), so the solver sees the final artist
+    # set.  The white halo is retained — unlike the Script 13 design map,
+    # these labels sit directly on the DEM colour ramp.
     info("Adding well name labels...")
     import matplotlib.patheffects as pe
-    for _, row in gdf_wells.iterrows():
-        ax.annotate(
-            row['Name'],
-            xy=(row['E'], row['N']),
-            xytext=(4, 4),
-            textcoords='offset points',
-            fontsize=5,
+    well_labels = [
+        ax.text(
+            row['E'], row['N'], row['Name'],
+            fontsize=7,
             color='black',
             fontweight='bold',
             zorder=6,
+            clip_on=True,
             path_effects=[pe.withStroke(linewidth=1.5, foreground='white')],
         )
+        for _, row in gdf_wells.iterrows()
+    ]
 
     # If DEM didn't load, frame around the wells instead
     if not dem_loaded:
@@ -177,6 +199,20 @@ def generate_dem_map():
     ax.legend(handles=[well_handle] + list(site_handles),
               loc='lower left', framealpha=0.9, edgecolor='black')
 
+    # =======================================================
+    # 6b. Label decluttering
+    # =======================================================
+    # Repel overlapping well labels and draw a leader line back to the marker
+    # wherever a label has been displaced.  Placement is solved against the
+    # markers and the axis frame, not hard-coded per well, so the figure stays
+    # correct if the network or the map extent changes.
+    info(f"Repelling {len(well_labels)} well name labels...")
+    adjust_text(
+        well_labels,
+        arrowprops=dict(arrowstyle="-", color='gray', lw=0.5),
+        ax=ax,
+    )
+
     # Save in high resolution to outputs folder
     output_filename = OUT_12_DEM_OVERVIEW
     plt.tight_layout()
@@ -185,6 +221,6 @@ def generate_dem_map():
     plt.close()
 
 if __name__ == "__main__":
-    banner("12", "Figure — Site Overview", version="1.1.0")
+    banner("12", "Figure — Site Overview", version=__version__)
     make_all_dirs()
     generate_dem_map()

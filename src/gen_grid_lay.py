@@ -243,7 +243,7 @@ def render_all(png_width=1400):
 
 
 def main():
-    banner("Lay mechanism diagrams (public summary)", __version__)
+    banner("gen_grid_lay", "Lay mechanism diagrams (public summary)", version=__version__)
     make_all_dirs()
     for n, (which, builder, svg_path, png_path) in enumerate(_FIGURES, 1):
         desc = ("before -> after, 2 columns" if which == "management"

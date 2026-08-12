@@ -1,0 +1,47 @@
+{
+ "odt": "report_edits/odt/report10.odt",
+ "swaps": [
+  {
+   "idx": 0,
+   "href": "Pictures/100000010000117600000A6465BD8DC8.png",
+   "src": "outputs/14_climate_projections/14b_year_of_crossing.png",
+   "emb_dim": [
+    4470,
+    2660
+   ],
+   "src_dim": [
+    1878,
+    1118
+   ],
+   "adjust_height": false
+  },
+  {
+   "idx": 1,
+   "href": "Pictures/1000000100000CC300000B973ED6BF22.png",
+   "src": "outputs/21_forestry_scenarios/21_forestry_01_hydrograph.png",
+   "emb_dim": [
+    3267,
+    2967
+   ],
+   "src_dim": [
+    1872,
+    1700
+   ],
+   "adjust_height": false
+  },
+  {
+   "idx": 4,
+   "href": "Pictures/100000010000074A000006F507E987C0.png",
+   "src": "outputs/11b_spatial_thresholds/11c_pflood_achievability.png",
+   "emb_dim": [
+    1866,
+    1781
+   ],
+   "src_dim": [
+    1636,
+    1562
+   ],
+   "adjust_height": false
+  }
+ ]
+}

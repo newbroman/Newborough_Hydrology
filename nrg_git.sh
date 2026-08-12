@@ -4,8 +4,23 @@
 # Safe order of operations: COMMIT your work first, THEN pull, THEN push.
 # Handles the "local changes would be overwritten by merge" situation.
 # ============================================================================
-# VERSION 1.2.0 - 2026-08-09
+# VERSION 1.3.0 - 2026-08-12
 # CHANGELOG
+#   1.3.0 (2026-08-12): three tools/ wired in.
+#       * build_docs_pdfs() - a new pre-push preflight in do_push, do_push_no_report
+#         and do_sync. Runs tools/build_pdfs.sh, which rebuilds each published PDF
+#         from the latest versioned working ODT to the STABLE index.html filename,
+#         but ONLY when that ODT is newer than its PDF - so it is a no-op when
+#         nothing changed and never adds spurious binary diffs. report.pdf excepted
+#         (that stays the hand-exported .odm). Warn-only; a missing LibreOffice or a
+#         doc open in the GUI never blocks a push.
+#       * audit_doc_numbers() - a warn-only step in do_push and do_push_no_report.
+#         Runs tools/audit_number_drift.py --old origin/main to flag any document
+#         still quoting a superseded pipeline number. Over-reports by design, so it
+#         warns and never blocks. Skipped before the first fetch (no origin/main).
+#       * menu 8) "Normalise script versions" - dry-run report from
+#         tools/normalise_versions.py (edits nothing; --apply is run by hand).
+#         Menu renumbered to 1-9; Quit is now 9.
 #   1.2.0 (2026-08-09): new menu option 3, "Push, skip report". Pushes
 #       everything EXCEPT report_edits/ and docs/report/, and skips the two
 #       report preflight steps - refresh_mirror (regenerates ~700 KB of
@@ -242,11 +257,60 @@ sync_index_counts(){
   return 0
 }
 
+# --- published PDFs: rebuild any whose ODT changed, before staging ------------
+# tools/build_pdfs.sh exports each versioned working ODT to the STABLE published
+# filename index.html serves (report.pdf excepted - that is the hand-exported .odm).
+# It rebuilds ONLY stale PDFs (ODT newer than its PDF), so it is a no-op when
+# nothing changed and never creates spurious binary diffs. Warns but never blocks:
+# a missing LibreOffice or a doc still open in the GUI must not stop a push.
+build_docs_pdfs(){
+  local script="tools/build_pdfs.sh"
+  [[ -f "$script" ]] || return 0
+  command -v soffice >/dev/null 2>&1 || command -v libreoffice >/dev/null 2>&1 || {
+    echo -e "  ${Y}note${N} LibreOffice not found - skipping published-PDF rebuild"; return 0; }
+  say "Rebuilding stale published PDFs"
+  if bash "$script"; then :; else
+    fail "PDF rebuild reported a problem (is a doc open in LibreOffice? close it and retry)"
+    echo -e "  ${Y}(warning only - not blocking your push)${N}"
+  fi
+  return 0
+}
+
+# --- documents: warn if any quote a superseded pipeline number ---------------
+# tools/audit_number_drift.py diffs committed CSV cells between origin/main (the
+# last published state) and the working tree, then searches the document corpus
+# for the OLD value where the new one differs. It OVER-REPORTS by design, so every
+# hit needs eyeballing - hence warn-only, never blocking. Skipped when origin/main
+# is unavailable (fresh clone before first fetch).
+audit_doc_numbers(){
+  local script="tools/audit_number_drift.py"
+  [[ -f "$script" ]] || return 0
+  command -v python3 >/dev/null 2>&1 || return 0
+  git rev-parse --verify -q origin/main >/dev/null 2>&1 || {
+    echo -e "  ${Y}note${N} no origin/main ref yet - skipping number-drift audit"; return 0; }
+  say "Auditing documents for superseded pipeline numbers (origin/main -> working tree)"
+  python3 "$script" --old origin/main || true
+  echo -e "  ${Y}(warning only - triage any hits above; the tool over-reports by design)${N}"
+  return 0
+}
+
+# --- deliberate: report console version-reporting drift (dry run, edits nothing)
+normalise_versions_report(){
+  local script="tools/normalise_versions.py"
+  [[ -f "$script" ]] || { echo "  (tools/normalise_versions.py not found)"; return 0; }
+  command -v python3 >/dev/null 2>&1 || { echo "  (python3 not found)"; return 0; }
+  say "Console version-reporting audit (dry run - edits nothing)"
+  python3 "$script" || true
+  echo -e "  ${Y}note${N} report only. To apply the fixes:  python3 tools/normalise_versions.py --apply"
+}
+
 do_push(){
   refresh_mirror || return
   lint_figrefs
+  audit_doc_numbers
   sync_index_counts
   stage_web_tools
+  build_docs_pdfs
   stage_all
   if have_staged; then
     say "Your local changes (committing these first)"
@@ -267,8 +331,10 @@ do_push(){
 # will go stale on GitHub if only this option is ever used; option 2 remains
 # the one that ships everything.
 do_push_no_report(){
+  audit_doc_numbers
   sync_index_counts
   stage_web_tools
+  build_docs_pdfs
   stage_all_but_report
   if have_staged; then
     say "Your local changes, excluding the report"
@@ -303,6 +369,7 @@ do_sync(){
   # 3) rebuild the live outputs
   sync_index_counts
   stage_web_tools
+  build_docs_pdfs
   say "Rebuilding forecaster feeds from the hub"
   python3 "$LIVING/update_forecaster_feed.py" --hub "$HUB" --cluster-map "$CLUSTER_MAP" --out "$FEED_JSON"  || { fail "feed build failed"; return; }
   python3 "$LIVING/update_forecaster_msl5.py" --hub "$HUB" --cluster-map "$CLUSTER_MAP" --out "$MSL5_JSON" || { fail "MSL5 build failed"; return; }
@@ -376,9 +443,10 @@ while true; do
   echo "  5) Status               (show what's changed, untracked, etc.)"
   echo "  6) Repo size            (how big the repo and git history are)"
   echo "  7) Clean up git storage (sweep up dead objects, shrink .git)"
-  echo "  8) Quit"
+  echo "  8) Normalise versions   (dry-run report: script banner() vs __version__)"
+  echo "  9) Quit"
   echo ""
-  read -rp "Choose [1-8]: " choice
+  read -rp "Choose [1-9]: " choice
   case "$choice" in
     1) do_sync ;;
     2) do_push ;;
@@ -387,7 +455,8 @@ while true; do
     5) say "Current status"; git status ;;
     6) do_size ;;
     7) do_cleanup ;;
-    8) echo "Bye."; break ;;
-    *) echo "Please pick 1-8." ;;
+    8) normalise_versions_report ;;
+    9) echo "Bye."; break ;;
+    *) echo "Please pick 1-9." ;;
   esac
 done

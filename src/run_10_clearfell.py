@@ -67,6 +67,13 @@ Dependencies
        It is a display figure and runs last in the suite.
 """
 
+__version__ = "1.0.0"  # Hollingham (2026) — 2026-08-12
+#
+# This module previously carried no __version__ constant; 1.0.0 marks its
+# introduction, not the start of the module's history. Prior revisions are the
+# dated notes and changelog entries elsewhere in the repository.
+
+
 import subprocess
 import sys
 import argparse
@@ -172,7 +179,7 @@ def consolidate_report_numbers():
 
 
 def main():
-    banner("10", "Clearfell Pipeline Orchestrator")
+    banner("10", "Clearfell Pipeline Orchestrator", version=__version__)
     parser = argparse.ArgumentParser(
         description="Run the Script 10 clearfell analysis suite")
     parser.add_argument("--only", type=str, metavar="ID",

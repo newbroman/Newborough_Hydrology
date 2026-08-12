@@ -1957,7 +1957,7 @@ def plot_scenario_comparison(master, climate, dpi=300):
 
 
 def main(preview=False):
-    banner("21", "Forestry Scenarios", version="1.3.0")
+    banner("21", "Forestry Scenarios", version=__version__)
     dpi = 150 if preview else FIG_DPI
     make_all_dirs()
 

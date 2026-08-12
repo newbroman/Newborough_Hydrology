@@ -134,7 +134,7 @@ def main():
     make_all_dirs()
     plt.rcParams.update(MPL_DEFAULTS)
 
-    banner("09c", "SUMMER MINIMA ANALYSIS (DUAL CONTROL)")
+    banner("09c", "SUMMER MINIMA ANALYSIS (DUAL CONTROL)", version=__version__)
 
     phase(1, "Loading data")
     wells, wells_provenance, climate = load_scraping_data()

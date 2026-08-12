@@ -612,7 +612,7 @@ def make_figure(summary, recession, ms=True):
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def main():
-    banner("16", "Water Balance", version="1.1.1")
+    banner("16", "Water Balance", version=__version__)
     print("Starting 16: Water Balance Decomposition...")
 
     df, betas = load_data()

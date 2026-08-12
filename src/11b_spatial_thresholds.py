@@ -1939,7 +1939,7 @@ def build_forecaster_html() -> None:
 # ENTRY POINT
 # ─────────────────────────────────────────────────────────────────────────────
 def main(preview: bool = False) -> None:
-    banner("11b", "Spatial Threshold Maps", version="1.1.1")
+    banner("11b", "Spatial Threshold Maps", version=__version__)
     dpi = 150 if preview else 300
     print("\n=== 11b_spatial_thresholds.py ===")
     print("Loading well data...")

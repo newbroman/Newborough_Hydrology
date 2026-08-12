@@ -559,7 +559,7 @@ def main():
 
     make_all_dirs()
     plt.rcParams.update(MPL_DEFAULTS)
-    banner("09f", "MANAGEMENT EFFECTS — SPATIAL REACH")
+    banner("09f", "MANAGEMENT EFFECTS — SPATIAL REACH", version=__version__)
 
     phase(1, "Loading live values")
     lam, forest_h0 = _load_lambda_and_forest_h0()

@@ -581,7 +581,7 @@ def write_test_summary(ccf_df, fits_df, trend_stats, output_path):
 # ==========================================
 
 def main():
-    banner("23", "Ridge Recharge Lag Test", version="1.0.1")
+    banner("23", "Ridge Recharge Lag Test", version=__version__)
     from scipy import stats as scipy_stats
     make_all_dirs()
     print("Starting 23: Ridge-recharge lag hypothesis test...")

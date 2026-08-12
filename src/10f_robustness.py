@@ -367,7 +367,7 @@ def synthetic_control_analysis(wells, valid_tiers, rpt):
 def main():
     make_all_dirs()
 
-    banner("10f", "ROBUSTNESS ANALYSES")
+    banner("10f", "ROBUSTNESS ANALYSES", version=__version__)
 
     # ── Load data ────────────────────────────────────────────────────────────
     phase(1, "Loading data")

@@ -128,7 +128,7 @@ def main():
     make_all_dirs()
     plt.rcParams.update(MPL_DEFAULTS)
 
-    banner("09a", "HIERARCHICAL PAIRED BACI ANALYSIS")
+    banner("09a", "HIERARCHICAL PAIRED BACI ANALYSIS", version=__version__)
 
     # ── 1. Load data ──────────────────────────────────────────────────────
     phase(1, "Loading Climate and Well Data")

@@ -323,7 +323,7 @@ def render_contrast(proj: pd.DataFrame,
 # orchestration
 # ---------------------------------------------------------------------
 def main() -> int:
-    banner("26c", "MSL-5 Report Figures", version="1.0.0")
+    banner("26c", "MSL-5 Report Figures", version=__version__)
     print("Script 26c — MSL5 report-format figures")
     print("=" * 60)
 

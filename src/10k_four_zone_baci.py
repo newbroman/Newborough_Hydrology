@@ -939,7 +939,7 @@ def figure_forest_plot(contrasts, out_path):
 # ============================================================================
 
 def main():
-    banner("10k", "Four-Zone Pooled-Panel BACI", version="1.2.0")
+    banner("10k", "Four-Zone Pooled-Panel BACI", version=__version__)
     print("=" * 72)
     print("Script 10k — Four-zone pooled-panel clearfell BACI")
     print("=" * 72)

@@ -66,7 +66,7 @@ def main():
     make_all_dirs()
     plt.rcParams.update(MPL_DEFAULTS)
 
-    banner("09e", "CEH36 SCRAPING ROBUSTNESS ANALYSIS")
+    banner("09e", "CEH36 SCRAPING ROBUSTNESS ANALYSIS", version=__version__)
 
     # ── Load data ─────────────────────────────────────────────────────────
     phase(1, "Loading data")

@@ -234,7 +234,7 @@ def bootstrap_ci(values, n_boot, seed, ci=0.95):
 # MAIN
 # ==========================================
 def main():
-    banner("24b", "Cluster-Stratified Residual Climatology", version="1.1.0")
+    banner("24b", "Cluster-Stratified Residual Climatology", version=__version__)
     DIAG_DIR.mkdir(parents=True, exist_ok=True)
     print("=" * 84)
     print("Script 24b (DIAGNOSTIC) — Cluster-stratified residual climatology")

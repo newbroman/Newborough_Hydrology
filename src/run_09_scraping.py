@@ -17,6 +17,13 @@ Selective: python run_09_scraping.py --only 09a 09c
 ====================================================================================
 """
 
+__version__ = "1.0.0"  # Hollingham (2026) — 2026-08-12
+#
+# This module previously carried no __version__ constant; 1.0.0 marks its
+# introduction, not the start of the module's history. Prior revisions are the
+# dated notes and changelog entries elsewhere in the repository.
+
+
 import importlib
 import argparse
 
@@ -36,7 +43,7 @@ MODULES = {
 
 
 def main():
-    banner("09", "Scraping Pipeline Orchestrator")
+    banner("09", "Scraping Pipeline Orchestrator", version=__version__)
     parser = argparse.ArgumentParser(
         description="Run the Script 09 scraping analysis suite")
     parser.add_argument("--only", nargs="+", choices=list(MODULES.keys()),

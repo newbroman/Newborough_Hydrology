@@ -509,7 +509,7 @@ def rolling_coefficients(wells, climate, rpt):
 def main():
     make_all_dirs()
 
-    banner("10g", "DIAGNOSTICS")
+    banner("10g", "DIAGNOSTICS", version=__version__)
 
     # ── Load data ────────────────────────────────────────────────────────────
     phase(1, "Loading data")

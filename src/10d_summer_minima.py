@@ -118,7 +118,7 @@ def p_to_sig(p):
 # ============================================================================
 # LOAD DATA
 # ============================================================================
-banner("10d", "SUMMER MINIMA ANALYSIS (DUAL CONTROL)")
+banner("10d", "SUMMER MINIMA ANALYSIS (DUAL CONTROL)", version=__version__)
 
 phase(1, "Loading data")
 wells, wells_provenance, climate, master, well_locations, valid_tiers = load_clearfell_data()

@@ -64,6 +64,13 @@ Display/utility step (tier D), run last as a post-processing pass. The canonical
 phase and step index are in outputs/pipeline_manifest.json — not restated here.
 """
 
+__version__ = "1.0.0"  # Hollingham (2026) — 2026-08-12
+#
+# This module previously carried no __version__ constant; 1.0.0 marks its
+# introduction, not the start of the module's history. Prior revisions are the
+# dated notes and changelog entries elsewhere in the repository.
+
+
 import argparse
 import sys
 from pathlib import Path
@@ -268,7 +275,7 @@ def collect_figures(source_dir: Path) -> list[Path]:
 
 
 def main():
-    banner("27", "Greyscale Figure Export")
+    banner("27", "Greyscale Figure Export", version=__version__)
     parser = argparse.ArgumentParser(
         description="Convert pipeline colour figures to journal-ready greyscale."
     )

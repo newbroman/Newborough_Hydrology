@@ -610,7 +610,7 @@ def _render_coverage_figure(wells_scope, states):
 
 
 if __name__ == "__main__":
-    banner("01", "Data Preparation", version="1.5.0")
+    banner("01", "Data Preparation", version=__version__)
     make_all_dirs()
     print("Starting Data Preparation Pipeline...")
 

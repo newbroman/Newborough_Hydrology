@@ -1676,7 +1676,7 @@ def write_supplementary_table_s7_1(out: pd.DataFrame, caption: str,
 
 
 def main() -> int:
-    banner("26", "van Willegen MSL Projection")
+    banner("26", "van Willegen MSL Projection", version=__version__)
     print("=" * 72)
     print("Script 26 — van Willegen et al. (2025) 5-year MSL aggregation")
     print("=" * 72)

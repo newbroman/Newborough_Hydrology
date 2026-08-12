@@ -4,8 +4,17 @@
 # Safe order of operations: COMMIT your work first, THEN pull, THEN push.
 # Handles the "local changes would be overwritten by merge" situation.
 # ============================================================================
-# VERSION 1.3.0 - 2026-08-12
+# VERSION 1.4.0 - 2026-08-12
 # CHANGELOG
+#   1.4.0 (2026-08-12): stale .git/index.lock self-heal. New clear_stale_lock()
+#       helper removes a leftover .git/index.lock when one is present AND no git
+#       process is actually running - the safe definition of "stale". Called once
+#       before the menu (so 5) Status works on launch) and at the top of do_push,
+#       do_push_no_report, do_sync and integrate. Fixes the recurring "Unable to
+#       create '.git/index.lock': File exists" failure: git run through the Cowork
+#       device bridge can create the lock but not delete it, leaving a stale lock
+#       that blocked the next real run. Never removes a live lock (a running git
+#       process is detected and left alone).
 #   1.3.0 (2026-08-12): three tools/ wired in.
 #       * build_docs_pdfs() - a new pre-push preflight in do_push, do_push_no_report
 #         and do_sync. Runs tools/build_pdfs.sh, which rebuilds each published PDF
@@ -69,6 +78,23 @@ cd "${REPO_DIR}" 2>/dev/null || { echo -e "${R}Can't find ${REPO_DIR}${N}"; read
 # --- helpers ---------------------------------------------------------------
 stage_all(){ git add -A; }
 
+# --- stale index.lock guard ------------------------------------------------
+# A git run through the Cowork device bridge (or any crashed git) can leave
+# .git/index.lock behind: on the bridge's mount git can create the lock but not
+# remove it, so the next real git command dies with "Unable to create
+# '.../index.lock': File exists". This toolkit runs on your own machine where rm
+# works, so if the lock is present AND no git process is actually running, it is
+# stale - clear it before any git action. It never removes a live lock.
+clear_stale_lock(){
+  local lock="${REPO_DIR}/.git/index.lock"
+  [[ -e "$lock" ]] || return 0
+  if pgrep -x git >/dev/null 2>&1; then
+    echo -e "  ${Y}note${N} a git process is running - leaving .git/index.lock alone"
+    return 0
+  fi
+  rm -f "$lock" && ok "cleared a stale .git/index.lock (safe: no git process was running)"
+}
+
 # Stage everything EXCEPT the report. report_edits/ holds the .odt subdocuments
 # and their markdown mirror; docs/report/ holds the exported PDF (57 MB). Both
 # are excluded so a half-finished chapter never rides along with a script or
@@ -124,6 +150,7 @@ handle_conflicts(){                             # called when a pull conflicts
 }
 
 integrate(){                                    # pull remote in; assumes clean/committed tree
+  clear_stale_lock
   say "Pulling latest from GitHub"
   if git pull origin main --no-rebase --no-edit; then ok "merged with GitHub"; return 0
   else handle_conflicts; return $?; fi
@@ -305,6 +332,7 @@ normalise_versions_report(){
 }
 
 do_push(){
+  clear_stale_lock
   refresh_mirror || return
   lint_figrefs
   audit_doc_numbers
@@ -331,6 +359,7 @@ do_push(){
 # will go stale on GitHub if only this option is ever used; option 2 remains
 # the one that ships everything.
 do_push_no_report(){
+  clear_stale_lock
   audit_doc_numbers
   sync_index_counts
   stage_web_tools
@@ -356,6 +385,7 @@ do_push_no_report(){
 }
 
 do_sync(){
+  clear_stale_lock
   # 1) commit any stray local edits FIRST, so the pull can't be blocked
   stage_all
   if have_staged; then
@@ -433,6 +463,9 @@ do_cleanup(){
 }
 
 # --- menu ------------------------------------------------------------------
+# Clear a stale lock left by an earlier Cowork/bridge session before the first
+# menu action, so even 5) Status works on launch.
+clear_stale_lock
 while true; do
   echo ""
   echo -e "${C}${B}===== Newborough Git Toolkit =====${N}"

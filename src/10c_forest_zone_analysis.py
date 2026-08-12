@@ -43,6 +43,13 @@ Outputs:
     OUT_10C_SUMMARY            — Plain-text interpretive summary
 ====================================================================================
 """
+
+__version__ = "1.0.0"  # Hollingham (2026) — 2026-08-12
+#
+# This module previously carried no __version__ constant; 1.0.0 marks its
+# introduction, not the start of the module's history. Prior revisions are the
+# dated notes and changelog entries elsewhere in the repository.
+
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 
 import sys as _sys, os as _os
@@ -487,7 +494,7 @@ def write_summary(forest, c4, c5, corr_df, reg_df, summary_df,
 # ═══════════════════════════════════════════════════════════════════════════
 
 def main():
-    banner("10c", "Forest Zone Analysis")
+    banner("10c", "Forest Zone Analysis", version=__version__)
     make_all_dirs()
     print("\n" + "=" * 60)
     print("Script 10c — Forest Zone Spatial Analysis")

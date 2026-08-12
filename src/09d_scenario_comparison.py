@@ -219,7 +219,7 @@ def main():
     make_all_dirs()
     plt.rcParams.update(MPL_DEFAULTS)
 
-    banner("09d", "CEH36 SCENARIO COMPARISON")
+    banner("09d", "CEH36 SCENARIO COMPARISON", version=__version__)
 
     # ── 1. Load CEH36 parameters + both climate forcings ──────────────────
     phase(1, "Loading CEH36 parameters and climate forcings")

@@ -604,7 +604,7 @@ def write_summary(clim_df, output_path):
 # ==========================================
 
 def main():
-    banner("24", "Residual Seasonality Diagnostics", version="1.0.1")
+    banner("24", "Residual Seasonality Diagnostics", version=__version__)
     make_all_dirs()
     print("Starting 24: Seasonal Residual Diagnostic...")
 

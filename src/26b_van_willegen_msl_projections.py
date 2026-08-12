@@ -539,7 +539,7 @@ def compute_perwell_msl5_summary(
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 def main() -> int:
-    banner("26b", "van Willegen MSL Scenarios", version="1.1.0")
+    banner("26b", "van Willegen MSL Scenarios", version=__version__)
     print("=" * 72)
     print("Script 26b — UKCP18 MSL5 climate projections (Tool B)")
     print("=" * 72)

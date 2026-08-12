@@ -3,6 +3,13 @@
 Inputs:  02_cluster_stats.csv, 01_locations.csv
 Outputs: outputs/04_cluster_visualisations/04_01_core_architecture_map.png
 """
+
+__version__ = "1.0.0"  # Hollingham (2026) — 2026-08-12
+#
+# This module previously carried no __version__ constant; 1.0.0 marks its
+# introduction, not the start of the module's history. Prior revisions are the
+# dated notes and changelog entries elsewhere in the repository.
+
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap).
 # 2026-07-19 (legibility hand pass): well labels 8 -> 8.5 pt; map axis
 #   labels gain +1 pt via map_utils v1.6.0 add_en_axes defaults.
@@ -39,7 +46,7 @@ def cluster_id_from_value(value):
     except (TypeError, ValueError): return None
 
 def main():
-    banner("04", "Cluster Visualisations")
+    banner("04", "Cluster Visualisations", version=__version__)
     make_all_dirs()
     print("--- Starting 04: Core Visualization ---")
     cluster_df = pd.read_csv(INT_CLUSTER_STATS)

@@ -872,7 +872,7 @@ def figure_summer_forest_plot(contrasts, out_path):
 # ============================================================================
 
 def main():
-    banner("10l", "Four-Zone Summer Minima", version="1.0.0")
+    banner("10l", "Four-Zone Summer Minima", version=__version__)
     print("=" * 72)
     print("Script 10l — Four-zone summer-minima clearfell BACI")
     print("=" * 72)

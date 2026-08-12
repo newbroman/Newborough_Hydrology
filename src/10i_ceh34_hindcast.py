@@ -128,7 +128,7 @@ plt.rcParams.update({
 
 
 def main():
-    banner("10i", "CEH34 DONOR-REGRESSION HINDCAST")
+    banner("10i", "CEH34 DONOR-REGRESSION HINDCAST", version=__version__)
 
     # ------------------------------------------------------------------
     # 1. Load data

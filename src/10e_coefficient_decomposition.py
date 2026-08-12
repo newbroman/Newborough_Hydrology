@@ -138,7 +138,7 @@ def format_p(p):
 # ============================================================================
 # LOAD DATA
 # ============================================================================
-banner("10e", "SSM COEFFICIENT DECOMPOSITION")
+banner("10e", "SSM COEFFICIENT DECOMPOSITION", version=__version__)
 
 phase(1, "Loading data")
 wells, _wells_prov, climate, master, well_locations, valid_tiers = load_clearfell_data()

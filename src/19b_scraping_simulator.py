@@ -509,7 +509,7 @@ window.addEventListener('resize',function(){{sizeMap();drawBg();run();}});
 
 
 def main():
-    banner("19b", "Scraping Simulator", version="1.1.0")
+    banner("19b", "Scraping Simulator", version=__version__)
     DIR_19B.mkdir(parents=True, exist_ok=True)
     out_path = OUT_19B_SIMULATOR
     print("=" * 60)

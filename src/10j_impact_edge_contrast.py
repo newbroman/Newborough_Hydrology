@@ -557,7 +557,7 @@ def write_report_numbers(monthly, summer, path):
 # ============================================================================
 
 def main():
-    banner("10j", "Impact–Edge Direct Contrast", version="1.2.0")
+    banner("10j", "Impact–Edge Direct Contrast", version=__version__)
     print("=" * 72)
     print("Script 10j — Direct Impact-vs-Edge contrasts")
     print("=" * 72)

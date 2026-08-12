@@ -200,7 +200,7 @@ def p_to_sig(p):
 # ============================================================================
 # LOAD DATA
 # ============================================================================
-banner("10h", "SYNTHETIC-EXTENSION BACI (FE WELLS)")
+banner("10h", "SYNTHETIC-EXTENSION BACI (FE WELLS)", version=__version__)
 
 phase(1, "Loading data")
 wells, _wells_prov, climate, master, well_locations, valid_tiers = load_clearfell_data()

@@ -1655,7 +1655,7 @@ def export_cluster_peak_months(centroids: dict[int, pd.Series]) -> None:
 # ==========================================================================
 
 def main() -> None:
-    banner("03", "State-Space Regression & LCSC", version="1.1.0")
+    banner("03", "State-Space Regression & LCSC", version=__version__)
     make_all_dirs()
     print("Starting 03: State-Space Regression & LCSC...")
 

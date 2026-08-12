@@ -916,7 +916,7 @@ def build_report_numbers(fits: dict,
 # ── Main ─────────────────────────────────────────────────────────────────────
 
 def main() -> None:
-    banner("25", "Coastal Gradient Analysis", version="1.2.0")
+    banner("25", "Coastal Gradient Analysis", version=__version__)
     paths.make_all_dirs()
     paths.DIR_25.mkdir(parents=True, exist_ok=True)
 

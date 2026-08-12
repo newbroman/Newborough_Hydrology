@@ -2040,7 +2040,7 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
 # ============================================================================
 
 def main(out_path=None):
-    banner("19", "Spatial Groundwater Scenarios", version="2.8.0")
+    banner("19", "Spatial Groundwater Scenarios", version=__version__)
     make_all_dirs()
     out_path = Path(out_path) if out_path else DIR_19 / "scenario_viewer.html"
     out_path.parent.mkdir(parents=True, exist_ok=True)

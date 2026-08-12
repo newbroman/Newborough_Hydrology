@@ -152,7 +152,7 @@ def main():
         description="09g — four-driver mechanism grid + coastal-vs-climate reach (display)")
     parser.parse_args()
 
-    banner("09g", "MECHANISM DIAGRAMS \u2014 FOUR-DRIVER GRID + COASTAL-VS-CLIMATE REACH")
+    banner("09g", "MECHANISM DIAGRAMS \u2014 FOUR-DRIVER GRID + COASTAL-VS-CLIMATE REACH", version=__version__)
     make_all_dirs()
 
     phase(1, "Loading committed amplitudes")

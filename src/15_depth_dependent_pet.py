@@ -508,7 +508,7 @@ def plot_fit_comparison(regression_dfs: dict, centroids: dict, climate: pd.DataF
 # ---------------------------------------------------------------------------
 
 def main():
-    banner("15", "Depth-Dependent PET Model", version="1.0.1")
+    banner("15", "Depth-Dependent PET Model", version=__version__)
     print("=" * 65)
     print("  15: Depth-Dependent PET Model — Grid Search")
     print("=" * 65)

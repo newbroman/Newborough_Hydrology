@@ -1038,7 +1038,7 @@ def run_models() -> None:
     print("=" * 70 + "\n")
 
 if __name__ == "__main__":
-    banner("11", "Forecasting Thresholds", version="1.1.1")
+    banner("11", "Forecasting Thresholds", version=__version__)
     make_all_dirs()
     with _Tee(OUT_FILE):
         run_models()

@@ -197,7 +197,7 @@ The RAF Valley record also shows a statistically significant warming trend in me
 
 The 66-well reference network (Section 3.1.1) spans a median record length of 191 months (15.9 years), with individual cleaned series ranging from 139 to 250 months (Figure 6, upper left); all wells satisfy the 100-month minimum-observation threshold for admission to the reference network. The network mean water level across all wells and months was 0.74 m below pipe top, with individual well means ranging from 0.26 m above pipe top to 2.07 m below, reflecting the considerable topographic and hydrogeological diversity of the site (Figure 6, upper right). The median seasonal amplitude — defined as the difference between mean August and mean February water levels — was 0.69 m, with the water table deepest in late summer and shallowest in late winter, consistent with the expected seasonal recharge cycle for a maritime dune system (Figure 6, lower right). The network mean time series (Figure 6, lower left) shows a clear seasonal cycle throughout the record, with the inter-well standard deviation envelope widening visibly after the December 2017 clearfell intervention, reflecting the divergence of the impact zone wells from the broader network that is explored in detail in Section 4.6.
 
-<img src="Pictures/1000000100000753000005390E35DE15.png" title="fig:" style="width:15.681cm;height:11.185cm" alt="Figure : Well network characterization for the 66-well reference network. Upper left: frequency distribution of record lengths (months), with the 100-month minimum threshold indicated by dashed line. Upper right: frequency distribution of mean water level by well (m below pipe top; negative values indicate water standing above pipe top). Lower left: network mean monthly water level (m below pipe top) with inter-well standard deviation as shaded envelope; vertical dashed line marks the December 2017 clearfell intervention. Lower right: network-wide seasonal cycle shown as monthly box plots pooling all well-month observations; boxes show interquartile range, horizontal line shows median, whiskers extend to 1.5 × IQR, outliers suppressed. (Source: 00_02_well_network_summary_short.png)" />
+<img src="Pictures/100000010000075300000539B2E3CE0F.png" title="fig:" style="width:15.681cm;height:11.185cm" alt="Figure : Well network characterization for the 66-well reference network. Upper left: frequency distribution of record lengths (months), with the 100-month minimum threshold indicated by dashed line. Upper right: frequency distribution of mean water level by well (m below pipe top; negative values indicate water standing above pipe top). Lower left: network mean monthly water level (m below pipe top) with inter-well standard deviation as shaded envelope; vertical dashed line marks the December 2017 clearfell intervention. Lower right: network-wide seasonal cycle shown as monthly box plots pooling all well-month observations; boxes show interquartile range, horizontal line shows median, whiskers extend to 1.5 × IQR, outliers suppressed. (Source: 00_02_well_network_summary_short.png)" />
 
 Mapped against the eco-hydrological thresholds of Curreli et al. (2013), the network-wide seasonal extremes reveal a system already under considerable stress. The mean annual summer minimum across the reference network was −1.18 m below pipe top, ranging from −0.71 m to −2.32 m across individual wells. No well maintains a mean summer minimum shallower than the wet slack viability threshold of −0.61 m; 28 wells fall within the dry slack zone (−0.61 to −0.98 m); and 38 wells record mean summer minima deeper than the dry slack threshold of −0.98 m, of which 20 lie below the SD16 recovery limit of −1.20 m — placing them beyond the reach of a single scraping event under average conditions. For winter maxima, 25 wells exceed the SD15b wet slack flooding threshold of −0.10 m in an average year and 38 exceed the SD16 dry slack threshold of −0.25 m, though only 11 record mean winter maxima above pipe top. These network-level baselines provide the reference against which cluster-specific dynamics, intervention effects, and climate trajectory are assessed in subsequent sections.
 
@@ -219,11 +219,11 @@ The cumulative water balance panel (Figure 9a) confirms that the cluster separat
 
 The network mean water table elevation was 7.60 m AOD across the 66-well reference network, ranging from 3.12 m AOD (CEH11, C1 Lake Edge) to 13.30 m AOD at the ridge flank (CEH14, C4 Main Forest). CEH11's assignment to C1 is discussed in Section 3.2.3: its low elevation and coastal position place it near the Menai Strait tidal boundary rather than Llyn Rhos-Ddu, and it represents the low-elevation extreme of the reference network rather than a typical lake-edge well. Excluding CEH11, the C1 cluster-mean elevation rises from 8.57 m AOD to 9.44 m AOD, and the network minimum shifts to CEH42 (C2, 4.47 m AOD). The Main Forest cluster (C4) occupies the highest mean water table elevation in the network at 9.52 m AOD, compared with 8.57 m AOD in the Lake Edge cluster (C1), 7.57 m AOD in the Dune cluster (C2), and 7.18 m AOD in the Western Residual (C3) — a contrast that reflects the topographic position of the plantation on the northern ridge flank rather than any difference in recharge behaviour. The Coastal Forest cluster (C5) sits at 4.41 m AOD, the lowest cluster-mean elevation in the network, consistent with its coastal-margin position.
 
-<img src="Pictures/1000000100000637000003E53ABD0AB5.png" title="fig:" style="width:15.642cm;height:10.125cm" alt="Figure : Cluster-mean relative water level hydrographs for the five hydrogeological clusters, April 2005 to February 2026. (a) Levelled cumulative water balance (P − PET), detrended at the study-period mean of +19.46 mm/month (December 2004 to December 2025); the 12-month rolling mean of the corrected net balance (orange dashed) confirms no long-run directional trend in climate forcing over the monitoring period. (b) Monthly cluster-mean water level relative to pipe-top datum (m), where zero approximates ground surface, computed from all wells assigned to each cluster in the 66-well reference network. Cluster labels and colours follow those used in Figure 8. (Source: 02_03_cluster_hydrographs_wb.png)" />
+<img src="Pictures/1000000100000637000003E5D0C47AC3.png" title="fig:" style="width:15.642cm;height:10.125cm" alt="Figure : Cluster-mean relative water level hydrographs for the five hydrogeological clusters, April 2005 to February 2026. (a) Levelled cumulative water balance (P − PET), detrended at the study-period mean of +19.46 mm/month (December 2004 to December 2025); the 12-month rolling mean of the corrected net balance (orange dashed) confirms no long-run directional trend in climate forcing over the monitoring period. (b) Monthly cluster-mean water level relative to pipe-top datum (m), where zero approximates ground surface, computed from all wells assigned to each cluster in the 66-well reference network. Cluster labels and colours follow those used in Figure 8. (Source: 02_03_cluster_hydrographs_wb.png)" />
 
 Separating the reference wells into one panel per cluster (Figure 10) shows the within-cluster spread that the cluster means in Figure 9 necessarily collapse. On the shared vertical axis the between-cluster stratification is evident: the two forested clusters (C4 Main Forest, C5 Coastal Forest) sit at consistently lower relative water levels than the lake-edge and dune clusters, and all clusters share the same seasonal winter-recharge and summer-recession cycle. C1 (Lake Edge) is the most internally coherent, while C2 (Dune) contains a small number of wells sitting persistently below the cluster mean, consistent with its greater within-cluster heterogeneity; the individual traces nonetheless broadly track their cluster's seasonal cycle throughout the record.
 
-<img src="Pictures/1000000100000749000007622B393137.png" title="fig:" style="width:15.803cm;height:16.043cm" alt="Figure : Per-well relative water level for the 66 reference wells, shown as one stacked panel per hydrogeological cluster, December 2006 to December 2025. Within each panel the thin lines are individual wells and the bold line is the cluster mean. All panels share a common vertical axis: monthly water level relative to pipe-top datum (m), where zero approximates ground surface, as in Figure 9b. Cluster labels and colours follow Figure 9; well counts per cluster (n) are given in each panel title. (Source: 02_03b_cluster_spaghetti.png)" />
+<img src="Pictures/100000010000074900000762DFCBC455.png" title="fig:" style="width:15.803cm;height:16.043cm" alt="Figure : Per-well relative water level for the 66 reference wells, shown as one stacked panel per hydrogeological cluster, December 2006 to December 2025. Within each panel the thin lines are individual wells and the bold line is the cluster mean. All panels share a common vertical axis: monthly water level relative to pipe-top datum (m), where zero approximates ground surface, as in Figure 9b. Cluster labels and colours follow Figure 9; well counts per cluster (n) are given in each panel title. (Source: 02_03b_cluster_spaghetti.png)" />
 
 **Per-Well Seasonal Amplitude. **Per-well inter-decile amplitudes (p90 − p10) computed across three windows (full record, pre-2018, post-2018) confirm and refine the cluster-mean amplitude readings (Section 4.2.1; Figure 9). Cluster medians of per-well amplitudes are summarized in Table 2.
 
@@ -513,83 +513,6 @@ A third, independent WTF estimator — the rapid-recharge-event method of Crosbi
 
 Individual well Sy values underlying the spatial mapping of Figure 12 are considered separately below. All five WTF medians exceed the assumed Sy values used in the water balance (C1: 0.08; C2–C5: 0.12) by a factor of two to three, consistent with the known tendency of monthly WTF to conflate gravity drainage with capillary fringe release (Healy and Cook, 2002; Scanlon et al., 2002). The WTF estimates should therefore be interpreted as upper bounds on effective storage. Direct field measurement by slug test or pumping test at representative wells per cluster is identified as a priority for future work.
 
-**c**
-
-<table>
-<tbody>
-<tr class="odd">
-<td>C1 Lake Edge</td>
-<td><strong>59</strong></td>
-<td>0.08</td>
-<td>0.210</td>
-<td><strong>0.341</strong></td>
-<td><strong>0.129</strong></td>
-<td><strong>0.259</strong></td>
-<td>No</td>
-</tr>
-<tr class="even">
-<td>C2 Dune</td>
-<td>64</td>
-<td>0.12</td>
-<td>0.281</td>
-<td><strong>0.335</strong></td>
-<td><strong>0.197</strong></td>
-<td><strong>0.374</strong></td>
-<td>No</td>
-</tr>
-<tr class="odd">
-<td>C3 Western Residual</td>
-<td><strong>57</strong></td>
-<td>0.12</td>
-<td><strong>0.328</strong></td>
-<td><strong>0.351</strong></td>
-<td><strong>0.283</strong></td>
-<td><strong>0.410</strong></td>
-<td>No</td>
-</tr>
-<tr class="even">
-<td>C4 Main Forest</td>
-<td>51</td>
-<td>0.12</td>
-<td>0.315</td>
-<td><strong>0.302</strong></td>
-<td>0.256</td>
-<td><strong>0.407</strong></td>
-<td>No</td>
-</tr>
-<tr class="odd">
-<td>C5 Coastal Forest</td>
-<td>34</td>
-<td>0.12</td>
-<td>0.356</td>
-<td><strong>0.419</strong></td>
-<td>0.319</td>
-<td><strong>0.431</strong></td>
-<td>No</td>
-</tr>
-<tr class="even">
-<td>C4 Main Forest (corrected)</td>
-<td>62</td>
-<td>0.12</td>
-<td><strong>0.259</strong></td>
-<td>—</td>
-<td><strong>0.178</strong></td>
-<td><strong>0.330</strong></td>
-<td>Yes — Freeman (2008)</td>
-</tr>
-<tr class="odd">
-<td>C5 Coastal Forest (corrected)</td>
-<td>49</td>
-<td>0.12</td>
-<td>0.321</td>
-<td>—</td>
-<td>0.243</td>
-<td><strong>0.383</strong></td>
-<td>Yes — Freeman (2008)</td>
-</tr>
-</tbody>
-</table>
-
 <table>
 <tbody>
 <tr class="odd">
@@ -669,7 +592,7 @@ Individual well Sy values underlying the spatial mapping of Figure 12 are consid
 
 **Individual well WTF Sy estimates were derived from 27–72 qualifying rising-limb events per well (mean 51 across the 66-well reference network). Per-well cluster-mean values — C1: 0.20**9**, C2: 0.254, C3: 0.31**2**, C4: 0.246, C5: 0.309 — are consistent with the cluster-aggregate estimates of Table 4c, confirming that the spatial pattern is robust. These per-well means are by-products of the spatial interpolation: they describe the inputs to Figure 12 and preserve within-cluster variability, but each per-well Sy is noisier than the cluster-aggregate estimate of Table 4c, which fits a single median to the smoothed cluster-mean hydrograph and is therefore more robust as an estimate of cluster storage. The well-level analysis is presented here for its spatial content rather than as a competing storage estimate. The spatial distribution of Sy, shown in Figure 12, is broadly uniform across the site, with no abrupt discontinuities coinciding with the cluster margins, providing further confirmation that the cluster behavioural differences reflect surface hydrology and land cover rather than heterogeneity in aquifer storage architecture.**
 
-<img src="Pictures/100000010000076600000616E444E17A.png" title="fig:" style="width:15.498cm;height:12.462cm" alt="Figure : Interpolated WTF specific yield surface for the combined reference and extended networks, Newborough Warren 2005–2026. Per-well event-median Sy interpolated using IDW (power = 2) over 1 m LiDAR DEM hillshade. Filled markers denote reference-network wells; open markers denote extended-network wells classified by Pearson affinity (Section 4.3, best-match cluster). Forest cluster (C4, C5) wells are interception-corrected following Freeman (2008). Two wells are excluded from interpolation: CEH12 (ridge/bedrock setting) and CEH15 (forest slack floor), both of which produce anomalous Sy values inconsistent with the surrounding aquifer. Per-well cluster-mean Sy values — C1: 0.209, C2: 0.260, C3: 0.312, C4: 0.246, C5: 0.309 — are consistent with the cluster-aggregate estimates of Table 4c. The spatial distribution is broadly uniform across the open dune (Sy 0.22–0.31), with no abrupt discontinuities coinciding with cluster margins, providing further confirmation that the cluster behavioural differences reflect surface hydrology and land cover rather than heterogeneity in aquifer storage architecture. (Source: 18_wtf_04_sy_contour_extended.png) LiDAR data: © NRW &amp; OS" />
+<img src="Pictures/100000010000076400000615ACB5142B.png" title="fig:" style="width:15.498cm;height:12.462cm" alt="Figure : Interpolated WTF specific yield surface for the combined reference and extended networks, Newborough Warren 2005–2026. Per-well event-median Sy interpolated using IDW (power = 2) over 1 m LiDAR DEM hillshade. Filled markers denote reference-network wells; open markers denote extended-network wells classified by Pearson affinity (Section 4.3, best-match cluster). Forest cluster (C4, C5) wells are interception-corrected following Freeman (2008). Two wells are excluded from interpolation: CEH12 (ridge/bedrock setting) and CEH15 (forest slack floor), both of which produce anomalous Sy values inconsistent with the surrounding aquifer. Per-well cluster-mean Sy values — C1: 0.209, C2: 0.260, C3: 0.312, C4: 0.246, C5: 0.309 — are consistent with the cluster-aggregate estimates of Table 4c. The spatial distribution is broadly uniform across the open dune (Sy 0.22–0.31), with no abrupt discontinuities coinciding with cluster margins, providing further confirmation that the cluster behavioural differences reflect surface hydrology and land cover rather than heterogeneity in aquifer storage architecture. (Source: 18_wtf_04_sy_contour_extended.png) LiDAR data: © NRW &amp; OS" />
 
 ## 
 
@@ -685,9 +608,15 @@ Within the extended network, the clearfell treatment wells showed mixed affiniti
 
 <img src="Pictures/10000001000007580000033024E40629.png" title="fig:" style="width:15.685cm;height:6.835cm" alt="Figure : Pearson affinity analysis of selected reference and extended network wells, showing the correlation coefficient (r) between each well&#39;s z-scored time series and each of the five cluster centroids. Wells are selected to illustrate the range of affinity confidence from strong single-cluster dominance (Core members) to near-equal competing affinities (Fuzzy members), along with wells in or close to the clearfell experiment. (Source: 06_pear_01_affinity_chart_extended.png)" />
 
-<img src="Pictures/10000001000006CD00000564F64A0294.png" title="fig:" style="width:15.572cm;height:12cm" alt="Figure a: Spatial distribution of the five primary hydrogeological clusters validated via Pearson affinity analysis, reference network (66 wells, records ≥ 100 months to February 2026). Points coloured by k-means assignment. Symbology denotes Pearson affinity confidence: circles = Core members (Δr &gt; 0.05), diamonds = Fuzzy members (Δr &lt; 0.05; number inside diamond = secondary cluster), stars = Spy classifications (Pearson best-match ≠ k-means-assigned cluster; number inside star = best-match cluster). Large hollow overlays identify Multi-Cluster Affinity (MCA) wells: convergence r &gt; 0.90 with three or more cluster centroids; overlay shape encodes the specific MCA combination. LiDAR: © NRW &amp; OS (Section 10). (Source: 05_pear_01_spatial_confidence_map.png)" />******
+******
 
-<img src="Pictures/10000001000006BC000005606FF310A2.png" style="width:15.399cm;height:11.298cm" />*****Figure ********b.****** Pearson affinity integration map, full 88 well network. Cluster identity encoded by marker shape; fill distinguishes network membership (reference = dark, extended = light grey, Spy = white with bold edge). LiDAR: © NRW & OS (Section 10). (Source: 06\_pear\_02\_integration\_map.png)*
+******
+
+******
+
+<img src="Pictures/10000001000006CD0000055EDF630013.png" title="fig:" style="width:15.416cm;height:11.878cm" alt="Figure a: Spatial distribution of the five primary hydrogeological clusters validated via Pearson affinity analysis, reference network (66 wells, records ≥ 100 months to February 2026). Points coloured by k-means assignment. Symbology denotes Pearson affinity confidence: circles = Core members (Δr &gt; 0.05), diamonds = Fuzzy members (Δr &lt; 0.05; number inside diamond = secondary cluster), stars = Spy classifications (Pearson best-match ≠ k-means-assigned cluster; number inside star = best-match cluster). Large hollow overlays identify Multi-Cluster Affinity (MCA) wells: convergence r &gt; 0.90 with three or more cluster centroids; overlay shape encodes the specific MCA combination. LiDAR: © NRW &amp; OS (Section 10). (Source: 05_pear_01_spatial_confidence_map.png)" />******
+
+<img src="Pictures/10000001000006BC00000560E31A7785.png" style="width:15.399cm;height:11.298cm" />*****Figure ********b.****** Pearson affinity integration map, full 88 well network. Cluster identity encoded by marker shape; fill distinguishes network membership (reference = dark, extended = light grey, Spy = white with bold edge). LiDAR: © NRW & OS (Section 10). (Source: 06\_pear\_02\_integration\_map.png)*
 
 ## <span id="anchor-10"></span>Model Benchmarking: State-Space Model Comparison with Traditional Linear Models
 
@@ -746,7 +675,7 @@ The depth-dependent PET grid search (Section 3.7.1) provides an independent diag
 
 **Table : **Model benchmarking summary comparing the Traditional Linear Model (TLM) and State-Space Model (SSM) across the 66-well reference network. Performance evaluated over the most recent 100 months at each well. One-step R² uses observed h(t−1) at each step; iterative NSE uses simulated h(t−1) over the full 100-month evaluation window without observational correction. For the median rows, Δ is the median of the per-well improvements (not the difference of the column medians). CEH25 is the well recording the largest single NSE improvement; CEH6 is the illustrative dune well shown in Figure 15; CEH14 is the sole well where the SSM underperforms the TLM. (Source: 08\_lcsc\_model\_stats.csv).
 
-<img src="Pictures/100000010000079300000524A2B0D073.png" title="fig:" style="width:15.635cm;height:10.335cm" alt="Figure a: SSM gain over TLM across all 66 reference wells. Panel (a): iterative R² improvement — largest gains in the Lake Edge sector and eastern dune, smallest in the Main Forest cluster where the TLM already performs adequately. (Source: 08_lcsc_02_r2_improvement_map.png) LiDAR data: © NRW &amp; OS; see Section 10 for full attribution." />
+<img src="Pictures/100000010000079B00000528DFF1ABCA.png" title="fig:" style="width:15.635cm;height:10.335cm" alt="Figure a: SSM gain over TLM across all 66 reference wells. Panel (a): iterative R² improvement — largest gains in the Lake Edge sector and eastern dune, smallest in the Main Forest cluster where the TLM already performs adequately. (Source: 08_lcsc_02_r2_improvement_map.png) LiDAR data: © NRW &amp; OS; see Section 10 for full attribution." />
 
 <img src="Pictures/10000001000007930000052430F43334.png" style="width:15.914cm;height:10.049cm" />***Figure ****b:** SSM gain over TLM across all 66 reference wells. NSE improvement — corresponding spatial pattern with the largest gains concentrated in the C1 Lake Edge cluster. The spatial distribution of improvement physically delineates subsurface structural boundaries without invasive coring. (Source: 08\_lcsc\_03\_nse\_improvement\_map.png) LiDAR data: © NRW & OS; see Section 10 for full attribution.*
 
@@ -953,7 +882,7 @@ First, the uphill wells traverse documented pre-existing spatial gradients in th
 
 Second, the aquifer diffusivity timescale places a physical bound on how far a genuine drainage perturbation could propagate within the observation window. With L²Sy/K exceeding seven years at a separation of 570 m (Fetter, 2001), a real drainage front could not traverse the uphill well array within the 31-month post-scraping record. The scraping benefit at CEH36 is therefore best understood as a direct geometric perturbation confined to the scraped well itself (Figure 25): the inferred ground surface lowering of approximately 0.42 m (back-calculated as D = H₀/Sy from the measured BACI step H₀ ≈ 0.13 m and open-dune Sy ≈ 0.31) produces an immediate water-table shallowing that partially re-equilibrates over approximately two years, retaining +129 mm as the BACI-corrected benefit during the pure scraping era (Section 4.5.2). The SSM forward residual analysis (Figure 19b) confirms near-zero deviation during this period, indicating a permanent surface-lowering effect rather than a change in the aquifer's dynamic response properties.
 
-<img src="Pictures/1000000100000724000005802089B394.png" title="fig:" style="width:15.803cm;height:11.135cm" alt="Figure : Climate-corrected spatial step-change map for the scraping era (April 2015 – November 2017). Each well&#39;s step relative to its pre-scraping mean, corrected by subtracting the C3 control centroid step. The localized response at CEH36 and absence of a spatial gradient uphill at well distances of 850–1100 m within the 31-month observation window are consistent with the scraping effect being either spatially confined or propagating on timescales longer than the available record (Section 5.4.3). (Source: 10b_spatial_scrape_corrected.png)" />
+<img src="Pictures/10000001000007240000058053909A47.png" title="fig:" style="width:15.803cm;height:11.135cm" alt="Figure : Climate-corrected spatial step-change map for the scraping era (April 2015 – November 2017). Each well&#39;s step relative to its pre-scraping mean, corrected by subtracting the C3 control centroid step. The localized response at CEH36 and absence of a spatial gradient uphill at well distances of 850–1100 m within the 31-month observation window are consistent with the scraping effect being either spatially confined or propagating on timescales longer than the available record (Section 5.4.3). (Source: 10b_spatial_scrape_corrected.png)" />
 
 ### <span id="anchor-17"></span>**Scenario Contextualization**
 
@@ -1952,7 +1881,7 @@ The headline ecological reading of the MSL5 trajectory is therefore threefold. T
 
 **
 
-<img src="Pictures/1000000100000640000005A0771E361C.png" title="fig:" style="width:15.803cm;height:14.222cm" alt="Figure : Spatial pattern of the latest available 5-year mean spring water level (MSL5) per well, IDW-interpolated across the 85 wells carrying at least one valid MSL5 window (of the 88 well classified network; 75 wells at window-end 2025, eight at earlier latest-valid windows; CEH13 and CEH14 excluded for unreliable SSM drainage coefficients). White circles mark reference and extended-network wells; yellow diamonds mark the seventeen van Willegen quadrat-calibrated wells where vegetation community has been empirically calibrated against MSL5. The orange-red zone in the south-western corner of the site corresponds to the C5 Coastal Forest cluster, which sits below the SD16 dry-slack threshold (−0.98 m); the surrounding blue zone across the open dune lies above SD15b. The Western Residual zone visible at the western margin appears in the orange-yellow transition, consistent with C3&#39;s marginal SD15b position in the cluster-mean trajectory of Figure 43. Source: (Source: 26_msl_5yr_map.png)" />**
+<img src="Pictures/1000000100000640000005A0771E361C.png" title="fig:" style="width:15.803cm;height:14.222cm" alt="Figure : Spatial pattern of the latest available 5-year mean spring water level (MSL5) per well, IDW-interpolated across the 85 wells carrying at least one valid MSL5 window (of the 88 well classified network; 75 wells at window-end 2025, eight at earlier latest-valid windows; CEH13 and CEH14 excluded for unreliable SSM drainage coefficients). White circles mark reference and extended-network wells; yellow diamonds mark the seventeen van Willegen quadrat-calibrated wells where vegetation community has been empirically calibrated against MSL5. The orange-red zone in the south-western corner of the site corresponds to the C5 Coastal Forest cluster, which sits below the SD16 dry-slack threshold (−0.98 m); the surrounding blue zone across the open dune lies above SD15b. The Western Residual zone visible at the western margin appears in the orange-yellow transition, consistent with C3&#39;s marginal SD15b position in the cluster-mean trajectory of Figure 43. (Source: 26_msl_5yr_map.png)" />**
 
 <img src="Pictures/1000000100000DF200000C8F0C9A1056.png" style="width:15.803cm;height:14.757cm" />**Figure :** Climate trajectory and threshold exceedance analysis for Newborough Warren, 2005–2025. Panel (a): observed annual summer minimum water table depth for all five clusters, with OLS linear trend lines and 95% confidence intervals. Dashed horizontal lines indicate the wet slack summer viability limit (SD15b, −0.61 m) and dry slack viability limit (SD16, −0.98 m) from Curreli et al. (2013). Panel (b): observed annual winter maximum water table depth for all five clusters, plotted against the wet slack winter flooding threshold (SD15b, −0.10 m) and dry slack winter flooding threshold (SD16, −0.25 m). The exceedance statistics box reports the proportion of hydrological years in which each cluster exceeded the wet slack flooding threshold over the full monitoring period. (Source: 14\_climate\_trajectory\_stacked.png)
 
@@ -2075,7 +2004,7 @@ The drainage decay half-life t½ = ln(2)/β₃ (Figure 49; Section 3.4.6) maps t
 
 The model benchmarking diagnostic (Section 4.4; Figure 16) complements the half-life map. The iterative NSE improvement from SSM over TLM (ΔNSE) correlates positively with β₃ (r = 0.68, p &lt; 0.001) and negatively with β₂ (r = -0.67, p &lt; 0.001). The TLM fails most severely at C1 Lake Edge (median ΔNSE = +1.29, median TLM NSE = -0.57), where head-dependent drainage to the lake is strongest and a fixed drainage rate cannot capture the large seasonal variation in discharge. Conversely, the TLM performs relatively well at C4 Main Forest (median ΔNSE = +0.23, median TLM NSE = +0.42), where β₃ is so weak that misspecifying the drainage term has little impact on overall model performance. ΔNSE therefore identifies where drainage memory is indispensable - the eastern, lake-proximal aquifer - and where atmospheric draw dominates the water balance regardless of drainage formulation - the forest interior.
 
-**When t½ and ΔNSE are plotted together with point size scaled by Sy (Figure 51), the five cluster centroids occupy distinct regions of the diagnostic space, though the separation is moderate and individual wells overlap appreciably within it. C1 Lake Edge (short t½, high ΔNSE, low Sy) represents a shallow, fast-cycling aquifer over flat clay/till with a short, highly head-dependent drainage path to the lake. C4 Main Forest (long t½, low ΔNSE, **intermediate Sy) represents a sluggish system in which β₃ is too weak for its misspecification to matter - consistent with drainage impeded by the irregular bedrock base the forest is known to overlie. C5 Coastal Forest is displaced from C4 in t½ and storage despite sharing the same pine canopy - occupying intermediate t½ and higher Sy, consistent with deeper, more uniform sand at its lower elevation; its higher ΔNSE marks where the state-space model more clearly outperforms the linear benchmark. C2 and C3 span the middle ground, with C3's longer t½ and higher Sy reflecting the deeper western sand body. The separation of clusters in this independently derived diagnostic space provides a model-based characterization of aquifer architecture that is consistent with, but independent of, the Ward's clustering applied to the raw hydrograph data. This is the per-well quantification of the 'shallow pan' versus 'deep sponge' contrast identified at cluster level in Section 4.2.**
+**When t½ and ΔNSE are plotted together with point size scaled by Sy (Figure 51), the five cluster centroids occupy distinct regions of the diagnostic space, though the separation is moderate and individual wells overlap appreciably within it. C1 Lake Edge (short t½, high ΔNSE, low Sy) represents a shallow, fast-cycling aquifer over flat clay/till with a short, highly head-dependent drainage path to the lake. C4 Main Forest (long t½, low ΔNSE, intermediate Sy) represents a sluggish system in which β₃ is too weak for its misspecification to matter - consistent with drainage impeded by the irregular bedrock base the forest is known to overlie. C5 Coastal Forest is displaced from C4 in t½ and storage despite sharing the same pine canopy - occupying intermediate t½ and higher Sy, consistent with deeper, more uniform sand at its lower elevation; its higher ΔNSE marks where the state-space model more clearly outperforms the linear benchmark. C2 and C3 span the middle ground, **with C3's longer t½ and higher Sy reflecting the deeper western sand body. The separation of clusters in this independently derived diagnostic space provides a model-based characterization of aquifer architecture that is consistent with, but independent of, the Ward's clustering applied to the raw hydrograph data. This is the per-well quantification of the 'shallow pan' versus 'deep sponge' contrast identified at cluster level in Section 4.2.**
 
 The spatial reach of forest management perturbations is shown directly by the drawdown propagation analysis (Figure 50), which models the steady-state head perturbation from forest canopy interception as an exponential decay with flow-weighted cost-distance from the forest boundary (λ ≈ 230 m). Estimated drawdown exceeds 50 mm only within ~100 m of the forest edge, decays to 24 mm at CEH23 and 8 mm at CEH6, and is negligible (≤1 mm) at all C1 and eastern C2 wells. These are steady-state values; the timescale to reach equilibrium is governed by the drainage decay half-life values mapped in Figure 49, ranging from months in the eastern dune (t½ approximately 7-14 months) to years in the forest interior (C4 mean t½ approximately 40 months)* *(Section 5.4.3). Forest management perturbations are therefore structurally confined to the forest zone and its immediate western margin; they do not propagate to the eastern slacks where the ecological need is greatest.
 

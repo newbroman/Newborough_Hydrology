@@ -1,0 +1,19 @@
+{
+ "odt": "docs/academic_summaries/academic_Summary_v1_4.odt",
+ "swaps": [
+  {
+   "idx": 3,
+   "href": "Pictures/10000001000009EE00000967C79BE1C0.png",
+   "src": "outputs/20_spatial_figures/20_msl5_change_2017_2023.png",
+   "emb_dim": [
+    2542,
+    2407
+   ],
+   "src_dim": [
+    1780,
+    1680
+   ],
+   "adjust_height": false
+  }
+ ]
+}

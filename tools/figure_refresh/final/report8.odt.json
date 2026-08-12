@@ -1,0 +1,33 @@
+{
+ "odt": "report_edits/odt/report8.odt",
+ "swaps": [
+  {
+   "idx": 0,
+   "href": "Pictures/10000001000006400000085E3F336DE6.png",
+   "src": "outputs/01_data_prep/01_coverage_states_reference.png",
+   "emb_dim": [
+    1600,
+    2142
+   ],
+   "src_dim": [
+    1721,
+    2432
+   ],
+   "adjust_height": true
+  },
+  {
+   "idx": 1,
+   "href": "Pictures/1000000100000640000004E3C1DF8220.png",
+   "src": "outputs/01_data_prep/01_coverage_states_extended.png",
+   "emb_dim": [
+    1600,
+    1251
+   ],
+   "src_dim": [
+    1905,
+    1396
+   ],
+   "adjust_height": true
+  }
+ ]
+}

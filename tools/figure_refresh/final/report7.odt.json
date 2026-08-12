@@ -1,0 +1,19 @@
+{
+ "odt": "report_edits/odt/report7.odt",
+ "swaps": [
+  {
+   "idx": 1,
+   "href": "Pictures/100000010000110300000B400BF71F79.png",
+   "src": "outputs/13_figure_experimental_design/13_01_experimental_setup_map.png",
+   "emb_dim": [
+    4355,
+    2880
+   ],
+   "src_dim": [
+    1713,
+    1131
+   ],
+   "adjust_height": false
+  }
+ ]
+}

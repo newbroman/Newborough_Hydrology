@@ -434,3 +434,51 @@ Standard errors propagate uncertainty in the fitted coefficients through the equ
 ## **S7.2 Reproducibility**
 
 The equilibrium wetness index, its calibration onto the MSL5 scale, and this table are computed by 26_van_willegen_msl.py. Reference-tier coefficients are read from 03_master_data.csv (Script 03) and extended-tier coefficients are fitted in the same script using the shared state-space routine in utils/model_utils.py. The per-well index and its standard errors are exported to 26_equilibrium_wetness_index_per_well.csv, the observed-versus-reconstructed comparison to 26_ewi_msl5_comparison.csv, and the calibration constants to 26_report_numbers.csv. The table above is emitted directly from those outputs as 26_table_s7_1_ewi_per_well.csv rather than transcribed, so it cannot drift from them.
+
+# **Supplementary Note S8: Spring-Mean (MAM) Seasonal Robustness Analysis**
+
+## **S8.1 Purpose**
+
+The site's ecologically framed BACI and coastal-gradient analyses use the annual summer minimum (Jun–Sep) as the response metric — the drought-stress quantity that determines dune-slack habitat viability. This note tests whether that choice drives the conclusions, by re-running the seasonal analyses on the annual spring mean (Mar–May, the season the Curreli ecological thresholds are defined on) as a second metric through identical code paths. Spring is added, never substituted: the summer minimum remains the headline. The spring mean carries the same N as the summer minimum (one value per well-year) and, being a three-month mean rather than an extreme-order statistic, is the less noisy of the two. The spring window and its strict 3-of-3 completeness rule are the config constants MSL_SPRING_MONTHS = (3, 4, 5) and MSL_MIN_MONTHS_PER_SPRING = 3, shared with the van Willegen MSL analyses (Methods Supplement F.4).
+
+## **S8.2 Scraping Intervention (Script 09c)**
+
+At the scraped well CEH36, the spring mean shifts post-scraping by +117 mm against the paired CEH4 control (p = 0.003) and +46 mm against the climate centroid (p = 0.54, not significant), versus +195 mm and +161 mm respectively for the summer minimum. Scraping raises the spring level too, by less than it raises the summer minimum, and the two controls — which agreed in summer — disagree in spring because every non-impact well also shifts negative against the climate centroid, the signature of the regional spring centroid itself having risen rather than of the impact wells falling. With n_pre = 4 years these p-values are fragile.
+
+## **S8.3 Clearfell BACI (Scripts 10d, 10l)**
+
+The clearfell tier-mean spring shifts against the Forest control (Script 10d) are Impact −15, Edge −101, Forest-control −9 and Climate-control −78 mm, none individually significant. The four-zone spring model (Script 10l; 14-year panel, R² = 0.57) returns the differential felling steps in Table S8.1. The Edge step (−46 mm, p = 0.011) is the only nominally significant spring BACI result and is not robust: it is distributed across all four Edge wells (it survives dropping any one, −36 to −58 mm) but is leveraged by a single pre-felling year — dropping 2011 collapses it to −11 mm (p = 0.36) — and is fitted with cluster-robust standard errors on very few clusters. It is reported for completeness, not as a felling effect. In summer the felling signal sits at the Impact zone; the spring branch does not reproduce a significant Impact step, consistent with the felling effect being a growing-season phenomenon. The spring panel spans 14 years (2011 + 2013–2025) against the summer panel's 13, because WMC3's Mar–May record is near-complete and 2019 — unusable in summer — is fully measured in spring, even under the stricter 3-of-3 rule.
+
+Table S8.1. Four-zone differential felling step relative to the Forest control zone, spring mean versus summer minimum (Scripts 10l_06, 10l_01). Steps in mm; C3/Warren is the second control zone, expected near zero.
+
+| Zone | Spring step ± SE (mm) | Spring p | Summer step ± SE (mm) | Summer p |
+|---|---|---|---|---|
+| Impact | −14.7 ± 11.4 | 0.196 | −7.3 ± 7.9 | 0.358 |
+| Edge | −46.4 ± 18.2 | 0.011 | −28.6 ± 20.5 | 0.162 |
+| C3/Warren | −9.7 ± 11.7 | 0.407 | +12.0 ± 10.6 | 0.257 |
+
+## **S8.4 Cluster Trends and the Coastal Gradient (Scripts 14, 25)**
+
+The spring-mean cluster-centroid trend (Script 14) is flat for every cluster except C5 Coastal Forest (−0.038 m yr⁻¹, p = 0.020); C1–C4 lie between −0.001 and +0.007 m yr⁻¹, none significant. The contrast with the summer minimum is the substantive result (Table S8.2, Figure S8.1): summer minima decline across every cluster (−9 to −36 mm yr⁻¹), but spring means are essentially stable inland — the inland summer-minimum decline is a growing-season phenomenon, not a fall in the baseline water table. C5 is the exception: it declines in both seasons (summer −35.9, spring −37.9 mm yr⁻¹), and applying the all-season coastal-retreat gradient (Script 25, Methods Supplement S.15) to the spring metric attributes about 41 % of C5's spring decline to coastal retreat (predicted gradient −15.4 mm yr⁻¹ on the constant −6.35 mm yr⁻¹ climate background, residual −16.1 mm yr⁻¹). This is direct corroboration that C5's decline is a year-round coastal-boundary effect rather than a drought-season artefact.
+
+The full-panel season × δ(d)·t interaction test (Methods Supplement S.15) confirms this at the gradient level: on the forest-free panel (11,777 observations, one model) the spring modulation of the gradient drift rate is γ = +0.058 ± 0.048 (t = 1.20, p = 0.23) for the linear-capped form and +0.059 ± 0.048 (p = 0.22) for the exponential. The coastal-retreat drift is about 6 % steeper in spring as a point estimate but statistically indistinguishable from season-independent, so the same all-season gradient applies to both seasons. A MAM-only refit of the gradient panel (a sensitivity block in 25_01_panel_fit_parameters.csv) loses power as expected — the coast-edge anomaly δ₀ standard error roughly doubles (1.92 to 3.34 mm yr⁻¹) — but leaves the point estimates essentially unchanged (δ₀ −31.0 mm yr⁻¹, L 894 m).
+
+Table S8.2. Observed cluster-centroid slope, summer minimum versus spring mean, with the spring-mean decomposition under the all-season forest-free linear-capped gradient (Scripts 25_08, 25_03_cluster_partition_spring). Slopes in mm yr⁻¹; the climate background is a constant −6.35 mm yr⁻¹.
+
+| Cluster | Summer obs | Spring obs | Spring coastal gradient | Spring residual |
+|---|---|---|---|---|
+| C1 (Lake Edge) | −10.9 | +6.5 | 0.0 | +12.9 |
+| C2 (Dune) | −11.2 | +0.3 | 0.0 | +6.7 |
+| C3 (Western Residual) | −9.4 | −1.0 | −2.2 | +7.6 |
+| C4 (Main Forest) | −17.8 | −1.2 | 0.0 | +5.2 |
+| C5 (Coastal Forest) | −35.9 | −37.9 | −15.4 | −16.1 |
+
+Figure S8.1 (25_08_spring_vs_summer_comparison.png) shows the observed centroid slope by cluster, summer minimum versus spring mean, with the all-season gradient marked. Figure S8.2 (14_climate_trajectory_spring.png) shows the observed spring-mean trajectories by cluster with per-cluster OLS trends.
+
+## **S8.5 Conclusion**
+
+The spring-mean analysis confirms the summer-minimum conclusions rather than revising them. Scraping raises spring levels as it does summer minima; the qualitative clearfell-BACI picture does not depend on the choice of summer minimum over spring mean; the inland summer-minimum decline is growing-season specific (spring flat); and — via the null interaction test and the year-round C5 signal — the coastal-retreat gradient is season-independent. The one nominally significant spring-only result, the Edge four-zone step, is not robust to a single pre-felling year and is not interpreted as a felling effect.
+
+## **S8.6 Reproducibility**
+
+Scripts 09c (v1.5.0), 10d (v1.7.0), 10l (v1.2.0), 14 (v1.4.x), 25 (v1.5.x). Every spring output is additive and the committed summer outputs reproduce byte-identically. The spring season and completeness rule are config.MSL_SPRING_MONTHS and config.MSL_MIN_MONTHS_PER_SPRING; the interaction test and MAM sensitivity are described in Methods Supplement S.15.

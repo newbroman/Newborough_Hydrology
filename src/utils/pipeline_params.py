@@ -39,6 +39,11 @@ recommending a second pipeline run.
 File location: outputs/01_data_prep/pipeline_scenario_params.csv
 """
 
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-08-13
+# Module versioning introduced 2026-08-13 (pre-1.1.0 history via CHANGELOG_delta
+# files). Bump on ANY edit, as for pipeline scripts.
+# v1.1.0 (2026-08-13): __version__ introduced; no functional change.
+
 from __future__ import annotations
 
 from pathlib import Path

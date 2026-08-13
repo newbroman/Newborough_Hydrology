@@ -61,6 +61,8 @@ Outputs (final — outputs/03_state_space_model/):
                                              depth confound diagnostics
     03_10_well_datum_r2max_map.png         — spatial map: R²-max datum per well (report Fig.)
     03_10_well_r2_gain_map.png             — spatial map: R² gain vs uniform datum (report Fig.)
+    03_12_partition_vs_datum.csv           — drainage flux and loss-partition share vs datum (regime diagnostic)
+    03_12_datum_regime.png                 — 2-panel datum-regime figure (flux plateau + partition share)
 
 Phase 1 validation (rebuild priorities):
     * beta_1 > 0 and beta_2 > 0 asserted on every centroid fit (hard-fail).
@@ -77,7 +79,17 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-08-10
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-08-13
+# v1.5.0 (2026-08-13): datum-regime diagnostic added (03_12). Two-panel figure:
+#   (a) fitted drainage flux β₃·(D+h̄_prev) vs datum — rises through the
+#   shallow mean-reversion regime, then plateaus in the Darcy regime;
+#   (b) drainage share of modelled losses vs datum. Regime boundary computed
+#   live from the sweep's own β₃ positivity/significance flags (no hardcoded
+#   depth). Companion CSV 03_12_partition_vs_datum.csv traces every plotted
+#   value. Supports the §3.7.2/§4.9 datum-regime justification of the 3.7 m
+#   datum: the loss partition is insensitive to the exact datum once outside
+#   the water-table fluctuation range. No change to any pre-existing output.
+# v1.4.0 (2026-08-10): see CHANGELOG_delta_2026-08-10.
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -108,7 +120,7 @@ from utils.paths import (
     INT_MASTER_DATA, INT_REGIONAL_AVG, INT_CLUSTER_AVG_MAOD,
     INT_WELLS_CLEAN_MAOD,
     OUT_03_SIGNATURES, OUT_03_CLUSTER_SUMMARY, OUT_03_MECHANISTIC_TABLE,
-    OUT_03_DATUM_CONFOUND,
+    OUT_03_DATUM_CONFOUND, OUT_03_PARTITION_VS_DATUM, OUT_03_DATUM_REGIME_FIG,
     DIR_03,
     OUT_02_AMP_PER_WELL,
     DATA_DIR,
@@ -117,7 +129,7 @@ from utils.config import (
     CLUSTER_LABELS, CLUSTER_COLOURS, CLUSTER_COLOURS_BW, DRAINAGE_DATUM,
     HEADLINE_LAG, BW_MODE, BW_LINESTYLES,
 )
-from utils.model_utils import fit_ssm, assert_physical_signs
+from utils.model_utils import fit_ssm, assert_physical_signs, build_ssm_frame
 from utils.render_utils import render_figure
 
 
@@ -964,6 +976,130 @@ def make_datum_sensitivity_figure(sens_df: pd.DataFrame,
     saved(f"{out_path.name}")
 
 
+def compute_partition_vs_datum(sens_df: pd.DataFrame,
+                               centroids: dict[int, pd.Series],
+                               climate: pd.DataFrame) -> pd.DataFrame:
+    """
+    Datum-regime diagnostic table (v1.5.0). For every swept datum D and
+    cluster, combine the sweep coefficients with the cluster-mean forcing to
+    give the fitted drainage flux and the drainage share of modelled losses:
+
+        drainage_flux(D) = β₃(D) · (D + h̄_prev)
+        et_flux(D)       = β₂(D) · PET̄
+        share(D)         = 100 · drainage_flux / (drainage_flux + et_flux)
+
+    h̄_prev is the mean end-of-previous-month water level over the aligned SSM
+    frame (the drainage term's own regressor, Section 3.4) and PET̄ the mean
+    monthly PET over the same rows; both are datum-independent, so the datum
+    dependence of the fluxes comes entirely from the fitted coefficients.
+    The per-depth all-clusters β₃-validity flag from the sweep marks the
+    regime boundary: depths where any cluster's β₃ is non-positive or
+    non-significant are the mean-reversion regime; the remainder is the
+    Darcy regime, where the partition stabilises. Values at DRAINAGE_DATUM
+    reproduce the Script 16 partition up to the h̄ window convention.
+    """
+    means = {}
+    for cid in sorted(centroids):
+        frame = build_ssm_frame(centroids[cid], climate, lag=HEADLINE_LAG,
+                                window=None, drainage_datum=DRAINAGE_DATUM)
+        means[cid] = {
+            "hbar_prev": float(frame["h_disp_prev"].mean()) - DRAINAGE_DATUM,
+            "petbar": float(frame["PET"].mean()),
+        }
+
+    valid_by_depth = sens_df.groupby("ref_depth").agg(
+        all_pos=("beta_3_positive", "all"),
+        all_sig=("beta_3_sig", "all"),
+    )
+    valid_by_depth["all_valid"] = valid_by_depth["all_pos"] & valid_by_depth["all_sig"]
+
+    rows = []
+    for _, r in sens_df.iterrows():
+        cid = int(r["Cluster"])
+        d = float(r["ref_depth"])
+        b2, b3 = r["beta_2_atmospheric_draw"], r["beta_3_drainage"]
+        hd = d + means[cid]["hbar_prev"]
+        drain = b3 * hd if np.isfinite(b3) else np.nan
+        et = b2 * means[cid]["petbar"] if np.isfinite(b2) else np.nan
+        tot = (drain + et) if np.isfinite(drain) and np.isfinite(et) else np.nan
+        share = 100.0 * drain / tot if np.isfinite(tot) and tot > 0 else np.nan
+        rows.append({
+            "ref_depth": round(d, 1),
+            "Cluster": cid,
+            "Cluster_Label": r["Cluster_Label"],
+            "beta_2_atmospheric_draw": b2,
+            "beta_3_drainage": b3,
+            "mean_h_prev_m": round(means[cid]["hbar_prev"], 4),
+            "mean_PET_m_month": round(means[cid]["petbar"], 4),
+            "h_disp_prev_mean_m": round(hd, 4),
+            "drainage_flux_m_month": drain,
+            "et_flux_m_month": et,
+            "drainage_share_pct": share,
+            "all_beta3_pos_sig": bool(valid_by_depth.loc[round(d, 1), "all_valid"]),
+        })
+    return pd.DataFrame(rows)
+
+
+def make_datum_regime_figure(part_df: pd.DataFrame,
+                             selected_datum: float,
+                             out_path) -> None:
+    """
+    2-panel datum-regime figure (v1.5.0):
+      Top:    fitted drainage flux β₃·(D+h̄_prev) vs reference depth
+      Bottom: drainage share of modelled losses vs reference depth
+    The shallow region where any cluster β₃ is non-positive or non-significant
+    (computed live from the sweep flags) is shaded as the mean-reversion
+    regime; the unshaded remainder is the Darcy regime. Vertical line at the
+    selected datum. No triangulation overlay: the C4 triangulation is a
+    reported-only bracket (see report §4.2.2) and is deliberately not drawn.
+    """
+    fig, axes = plt.subplots(2, 1, figsize=(12, 10), dpi=300, sharex=True)
+    fig.suptitle("Datum Regime — Drainage Flux and Loss Partition vs Reference Depth",
+                 fontsize=15, fontweight="bold", y=0.98)
+
+    cids = sorted(part_df["Cluster"].unique())
+
+    # Regime boundary from the per-depth validity flag.
+    vd = part_df.drop_duplicates("ref_depth")[["ref_depth", "all_beta3_pos_sig"]]
+    valid = vd[vd["all_beta3_pos_sig"]]
+    boundary = float(valid["ref_depth"].min()) if len(valid) else None
+    xmin = float(vd["ref_depth"].min())
+
+    for panel, (col, ylab, title) in enumerate([
+        ("drainage_flux_m_month", "Drainage flux (m/month)",
+         "Fitted drainage flux β₃·(D+h̄) — plateaus in the Darcy regime"),
+        ("drainage_share_pct", "Drainage share of losses (%)",
+         "Drainage share of modelled losses (drainage / (drainage + ET))"),
+    ]):
+        ax = axes[panel]
+        for i, cid in enumerate(cids):
+            sub = part_df[part_df.Cluster == cid].sort_values("ref_depth")
+            label = CLUSTER_LABELS.get(cid, f"C{cid}")
+            colour = (CLUSTER_COLOURS_BW if BW_MODE else CLUSTER_COLOURS).get(cid, "#888888")
+            _ls_kw = (BW_LINESTYLES[i % len(BW_LINESTYLES)] if BW_MODE
+                      else {"linestyle": "-", "linewidth": 1.5})
+            ax.plot(sub["ref_depth"], sub[col], color=colour, label=label, **_ls_kw)
+        if boundary is not None and boundary > xmin:
+            ax.axvspan(xmin, boundary, alpha=0.10, color="#8a6d1a",
+                       label=("Mean-reversion regime (some β₃ ≤ 0 or n.s.)"
+                              if panel == 0 else None))
+        ax.axvline(selected_datum, color="black", linewidth=1.2, linestyle=":",
+                   label=(f"Selected datum ({selected_datum} m)"
+                          if panel == 0 else None))
+        ax.set_ylabel(ylab, fontsize=12)
+        ax.set_title(title, fontsize=13)
+        ax.grid(alpha=0.3)
+    axes[0].legend(fontsize=9, loc="center right")
+    axes[1].legend(fontsize=9, loc="lower right")
+    axes[1].set_ylim(0, 100)
+    axes[1].set_xlabel("Reference depth (m below ground surface)", fontsize=12)
+
+    plt.tight_layout()
+    render_figure(plt.gcf(), out_path)
+    plt.close()
+    saved(f"{out_path.name}")
+
+
 # ==========================================================================
 # PER-WELL DATUM SENSITIVITY ANALYSIS
 # ==========================================================================
@@ -1783,6 +1919,13 @@ def main() -> None:
 
     sens_fig_path = DIR_03 / "03_08_datum_sensitivity.png"
     make_datum_sensitivity_figure(sens_df, DRAINAGE_DATUM, sens_fig_path)
+
+    # ---- Datum-regime diagnostic (v1.5.0): flux plateau + loss partition ----
+    print("\n -> Datum-regime diagnostic (flux and partition vs datum)...")
+    part_df = compute_partition_vs_datum(sens_df, centroids, climate)
+    part_df.to_csv(OUT_03_PARTITION_VS_DATUM, index=False)
+    saved(f"{OUT_03_PARTITION_VS_DATUM.name}")
+    make_datum_regime_figure(part_df, DRAINAGE_DATUM, OUT_03_DATUM_REGIME_FIG)
 
     # ---- Per-well datum sensitivity ----
     print("\n -> Per-well datum sensitivity (0.5–8.0 m, 0.1 m steps)...")

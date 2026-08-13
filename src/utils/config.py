@@ -17,6 +17,13 @@ over "all clusters" should iterate over CLUSTER_LABELS.keys().
 # and the Zenodo release all pin to one string. Bump on any release.
 PIPELINE_VERSION = "2.3.0"
 
+# ── Module version ───────────────────────────────────────────────────────────
+# Version of this config module itself (distinct from PIPELINE_VERSION, the
+# release-level string above). Introduced 2026-08-13; pre-1.1.0 history via
+# CHANGELOG_delta files. Bump on ANY edit, as for pipeline scripts.
+# v1.1.0 (2026-08-13): __version__ introduced; no functional change.
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-08-13
+
 # ── Journal B&W mode ─────────────────────────────────────────────────────────
 # Toggle to produce journal-ready greyscale figures.
 # When True, scripts use CLUSTER_COLOURS_BW, apply BW_HATCHES to bar charts,

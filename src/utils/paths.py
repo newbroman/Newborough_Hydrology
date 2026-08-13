@@ -11,6 +11,17 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-08-13
+# Module versioning introduced 2026-08-13 (pre-1.1.0 history is tracked via
+# the CHANGELOG_delta files and consuming-script versions). Bump this on ANY
+# edit to this module, as for pipeline scripts.
+# v1.1.0 (2026-08-13): __version__ introduced; Script 03 datum-regime
+#   constants added (OUT_03_PARTITION_VS_DATUM, OUT_03_DATUM_REGIME_FIG);
+#   stale Script 30 section comment corrected (the constants belong to the
+#   identifiability diagnostic; the constrained-fit script it named was
+#   retired in Script 30 v2.1.0 — its archived outputs remain in
+#   outputs/30_c4_constrained_fit/ as the reported-only triangulation source).
+
 from pathlib import Path
 
 # ==========================================
@@ -254,6 +265,10 @@ OUT_03_SIGNATURES          = DIR_03 / "03_01_mechanistic_signatures.png"
 OUT_03_CLUSTER_SUMMARY     = DIR_03 / "03_02_cluster_summary_table.csv"
 OUT_03_MECHANISTIC_TABLE   = DIR_03 / "03_03_cluster_mechanistic_coefficients.csv"
 OUT_03_DATUM_CONFOUND      = DIR_03 / "03_11_datum_confound_diagnostics.csv"  # optimal-datum vs mean water-table depth
+# Datum-regime diagnostic (Script 03 v1.5.0): drainage flux β₃·(D+h̄) and
+# drainage share of losses across the swept datums, + 2-panel regime figure.
+OUT_03_PARTITION_VS_DATUM  = DIR_03 / "03_12_partition_vs_datum.csv"
+OUT_03_DATUM_REGIME_FIG    = DIR_03 / "03_12_datum_regime.png"
 
 # Script 04 — Cluster visualisations
 OUT_04_ARCHITECTURE_MAP = DIR_04 / "04_01_core_architecture_map.png"
@@ -542,7 +557,11 @@ OUT_17_SUMMARY              = DIR_17 / "17_wtf_04_summary.txt"
 OUT_17_RAPID_EVENTS         = DIR_17 / "17_wtf_05_rapid_events.png"
 INT_WTF_WELL_SY             = OUT_DIR / "17_wtf_well_sy.csv"
 
-# Script 30 — C4 constrained-β₃ triangulation sensitivity (Phase 11 diagnostic)
+# Script 30 — C4 drainage identifiability diagnostic (Phase 14, opt-in).
+# Supersedes the retired 30_c4_constrained_fit.py (see Script 30 v2.1.0);
+# that script's archived outputs remain committed in
+# outputs/30_c4_constrained_fit/ as the reported-only triangulation source
+# (report §4.2.2) but are produced by no live script.
 OUT_30_C4_IDENTIFIABILITY   = DIR_30 / "30_c4_identifiability_by_cluster.csv"
 OUT_30_C4_PERWELL           = DIR_30 / "30_c4_perwell_beta3.csv"
 OUT_30_C4_REPORT_NUMBERS    = DIR_30 / "30_c4_report_numbers.csv"

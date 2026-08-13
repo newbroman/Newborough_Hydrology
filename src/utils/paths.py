@@ -313,6 +313,13 @@ OUT_09C_SUMMER_SHIFTS       = DIR_09 / "09c_02_summer_minima_shifts.csv"
 OUT_09C_REPORT_NUMBERS      = DIR_09 / "09c_report_numbers.csv"
 OUT_09C_FIG_CLIMATE         = DIR_09 / "09c_03_summer_minima_climate_ctrl.png"
 OUT_09C_FIG_PAIRED          = DIR_09 / "09c_04_summer_minima_paired.png"
+# Spring-mean (Mar-May) siblings — same analysis, second seasonal metric.
+# The report-numbers registry is shared (09c_report_numbers.csv); spring rows
+# are distinguished by their Parameter keys.
+OUT_09C_SPRING_MEANS        = DIR_09 / "09c_05_spring_means.csv"
+OUT_09C_SPRING_SHIFTS       = DIR_09 / "09c_06_spring_means_shifts.csv"
+OUT_09C_FIG_SPRING_CLIMATE  = DIR_09 / "09c_07_spring_means_climate_ctrl.png"
+OUT_09C_FIG_SPRING_PAIRED   = DIR_09 / "09c_08_spring_means_paired.png"
 
 # Script 09d — CEH36 scenario comparison
 OUT_09D_SCENARIO            = DIR_09 / "09d_01_scenario_comparison.jpg"
@@ -373,6 +380,13 @@ OUT_10D_MIXED               = DIR_10 / "10d_03_mixed_model_results.csv"
 OUT_10D_FIG_FOREST          = DIR_10 / "10d_04_summer_minima_forest_ctrl.png"
 OUT_10D_FIG_CLIMATE         = DIR_10 / "10d_05_summer_minima_climate_ctrl.png"
 OUT_10D_REPORT              = DIR_10 / "10d_report_numbers.csv"
+# Spring-mean (MAM) siblings, v1.7.0 (2026-08-13). Consumed by Script 10l's
+# spring panel; 10d itself defines matching local constants.
+OUT_10D_SPRING_DATA         = DIR_10 / "10d_06_spring_means.csv"
+OUT_10D_SPRING_SHIFTS       = DIR_10 / "10d_07_spring_means_shifts.csv"
+OUT_10D_SPRING_MIXED        = DIR_10 / "10d_08_spring_mixed_model_results.csv"
+OUT_10D_FIG_SPRING_FOREST   = DIR_10 / "10d_09_spring_means_forest_ctrl.png"
+OUT_10D_FIG_SPRING_CLIMATE  = DIR_10 / "10d_10_spring_means_climate_ctrl.png"
 
 # Script 10e — SSM coefficient decomposition
 OUT_10E_COEFF_SHIFTS        = DIR_10 / "10e_01_coefficient_shifts.csv"
@@ -435,6 +449,13 @@ OUT_10L_SUMMER_MINIMA       = DIR_10 / "10l_03_c3warren_summer_minima.csv"
 OUT_10L_TRAJECTORY_FIG      = DIR_10 / "10l_04_zone_summer_trajectories.jpg"
 OUT_10L_FOREST_PLOT         = DIR_10 / "10l_05_summer_forest_plot.jpg"
 OUT_10L_REPORT              = DIR_10 / "10l_report_numbers.csv"
+# Spring-mean (MAM) four-zone siblings, v1.2.0 (2026-08-13). Same four-zone
+# structure on the annual Mar-May mean; report numbers share OUT_10L_REPORT.
+OUT_10L_SPRING_ZONE_RESULTS = DIR_10 / "10l_06_four_zone_spring_results.csv"
+OUT_10L_SPRING_PAIRWISE     = DIR_10 / "10l_07_spring_pairwise_contrasts.csv"
+OUT_10L_SPRING_MEANS        = DIR_10 / "10l_08_c3warren_spring_means.csv"
+OUT_10L_SPRING_TRAJECTORY_FIG = DIR_10 / "10l_09_zone_spring_trajectories.jpg"
+OUT_10L_SPRING_FOREST_PLOT  = DIR_10 / "10l_10_spring_forest_plot.jpg"
 
 # 10m — WMC3-vs-forest-control dual-panel intervention figure
 OUT_10M_ERA_STEPS           = DIR_10 / "10m_01_wmc3_baci_era_steps.csv"
@@ -474,8 +495,10 @@ SRC_FORECASTER_TEMPLATE = SRC_DIR / "forecaster_template.html"
 OUT_14_CLIMATE_SUMMER     = DIR_14 / "14_climate_trajectory_summer.png"
 OUT_14_CLIMATE_WINTER     = DIR_14 / "14_climate_trajectory_winter_flooding.png"
 OUT_14_CLIMATE_STACKED    = DIR_14 / "14_climate_trajectory_stacked.png"
+OUT_14_CLIMATE_SPRING     = DIR_14 / "14_climate_trajectory_spring.png"  # v1.4.1
 OUT_14_SUMMER_TREND_CSV   = DIR_14 / "14_summer_trend_stats.csv"
 OUT_14_WINTER_TREND_CSV   = DIR_14 / "14_winter_trend_stats.csv"
+OUT_14_SPRING_TREND_CSV   = DIR_14 / "14_spring_trend_stats.csv"  # v1.4.0 (MAM centroid trend)
 OUT_14_ANNUAL_EXTREMES    = DIR_14 / "14_annual_extremes.csv"
 OUT_14_WINTER_EXCEED      = DIR_14 / "14_winter_exceedance.csv"
 OUT_14_SEASONAL_SCATTER   = DIR_14 / "14_seasonal_extremes_scatter.html"
@@ -734,6 +757,17 @@ OUT_25_FIT_DIAGNOSTIC     = DIR_25 / "25_05_fit_diagnostic.jpg"
 OUT_25_BACI_CHART         = DIR_25 / "25_06_baci_corroboration_chart.jpg"
 OUT_25_CLUSTER_DECOMP_FIG = DIR_25 / "25_07_cluster_decomposition.png"
 OUT_25_REPORT_NUMBERS     = DIR_25 / "25_report_numbers.csv"
+# Spring-mean (MAM) siblings + summer-vs-spring comparison, v1.5.0 (2026-08-13).
+# The panel fit / gradient is all-season (metric-independent, the headline); the
+# spring branch reuses it and differs only in per-well metric and the Script 14
+# observed-centroid CSV. 25_04 is metric-independent and is NOT re-emitted.
+OUT_25_PER_WELL_SLOPES_SPRING   = DIR_25 / "25_02_per_well_spring_mean_slopes.csv"
+OUT_25_CLUSTER_PARTITION_SPRING = DIR_25 / "25_03_cluster_partition_spring.csv"
+OUT_25_FIT_DIAGNOSTIC_SPRING    = DIR_25 / "25_05_fit_diagnostic_spring.jpg"
+OUT_25_CLUSTER_DECOMP_FIG_SPRING = DIR_25 / "25_07_cluster_decomposition_spring.png"
+OUT_25_SPRING_VS_SUMMER_CSV     = DIR_25 / "25_08_spring_vs_summer_comparison.csv"
+OUT_25_SPRING_VS_SUMMER_FIG     = DIR_25 / "25_08_spring_vs_summer_comparison.png"
+OUT_25_SEASON_INTERACTION       = DIR_25 / "25_09_season_interaction_test.csv"
 
 # Script 26 — Van Willegen et al. (2025) 5-year MSL aggregation (Phase 13)
 OUT_26_ANNUAL_PER_WELL    = DIR_26 / "26_msl_annual_per_well.csv"

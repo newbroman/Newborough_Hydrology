@@ -1,0 +1,4 @@
+zone,vs_reference,clearfell_step_m,clearfell_step_se_m,clearfell_ci_lo_m,clearfell_ci_hi_m,clearfell_p,n_wells,n_well_years,n_pre,n_post,R2,N
+C3/Warren,Forest,-0.0097,0.0117,-0.0327,0.0133,0.40685517556604767,4,56,24,32,0.5724,196
+Edge,Forest,-0.0464,0.0182,-0.0821,-0.0106,0.010983910958401328,4,56,24,32,0.5724,196
+Impact,Forest,-0.0147,0.0114,-0.037,0.0076,0.19641067012774727,1,14,6,8,0.5724,196

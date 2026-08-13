@@ -35,7 +35,25 @@ Reviewer-facing method summary:
 
 from __future__ import annotations
 
-__version__ = "1.3.1"  # Hollingham (2026) — 2026-08-12 (forecaster scatter axis titles: "below pipe top" -> "below ground"; banner version literal now reads __version__)
+__version__ = "1.4.1"  # Hollingham (2026) — 2026-08-13 (spring trajectory figure 14_climate_trajectory_spring.png)
+#
+# 1.4.1 — Added render_spring_figure() → 14_climate_trajectory_spring.png: observed
+#         spring means per cluster with per-cluster OLS trend lines (significant
+#         solid+starred, else dashed), no projection and no threshold bands (the
+#         SD15b/SD16 limits are summer-only).  Matches the summer/winter figures.
+# 1.4.0 — Added a spring-mean (Mar–May) centroid trend alongside the existing
+#         summer/winter trends, emitting 14_spring_trend_stats.csv (same
+#         columns as 14_summer_trend_stats.csv).  Computed from
+#         03_regional_averages.csv on the same descriptive-OLS footing as the
+#         winter trend, but indexed by CALENDAR year (MAM sits wholly inside a
+#         calendar year — see load_spring_means) rather than the Oct-start
+#         hydrological year the summer minimum uses.  Season and 3-of-3
+#         strictness come from config.MSL_SPRING_MONTHS /
+#         MSL_MIN_MONTHS_PER_SPRING — no new local season constant.  CSV only;
+#         no projection or figure fitted for spring in this build.  All
+#         existing summer/winter/annual/scatter outputs are unchanged.
+# 1.3.1 — forecaster scatter axis titles: "below pipe top" -> "below ground";
+#         banner version literal now reads __version__.
 # 1.3.0  # Hollingham (2026) — 2026-06-21 (iterate CLUSTER_LABELS not CLUSTER_COLOURS — drop reserved C6 from cluster loops; no functional change, C6 was already guarded out)
 #
 # Nothing in this module should restate a pipeline result as a literal: model
@@ -67,6 +85,7 @@ from utils.console_utils import (
 from utils.paths import (
     INT_REGIONAL_AVG, OUT_14_CLIMATE_STACKED, OUT_14_CLIMATE_SUMMER,
     OUT_14_CLIMATE_WINTER, OUT_14_SUMMER_TREND_CSV, OUT_14_WINTER_TREND_CSV,
+    OUT_14_SPRING_TREND_CSV, OUT_14_CLIMATE_SPRING,
     OUT_14_ANNUAL_EXTREMES, OUT_14_WINTER_EXCEED, OUT_14_SEASONAL_SCATTER,
     OUT_00_WELL_NETWORK_TABLE, INT_CLUSTER_STATS, make_all_dirs,
 )
@@ -74,6 +93,7 @@ from utils.config import (
     BW_MODE, CLUSTER_LABELS as _CFG_LABELS, CLUSTER_COLOURS as _CFG_COLOURS,
     CLUSTER_COLOURS_BW as _CFG_COLOURS_BW, CLUSTER_MARKERS as _CFG_MARKERS,
     BW_LINESTYLES, SD15b, SD16, SD15b_WINTER, SD16_WINTER,
+    MSL_SPRING_MONTHS, MSL_MIN_MONTHS_PER_SPRING,
 )
 from utils.render_utils import render_figure
 
@@ -96,6 +116,16 @@ YEAR_MAX = 2045
 SUMMER_MONTHS = [4, 5, 6, 7, 8, 9]
 WINTER_MONTHS = [10, 11, 12, 1, 2, 3]
 MIN_MONTHS = 3
+# Spring (MAM) centroid trend, v1.4.0.  Season and strictness come from config
+# so "spring" has one definition across the pipeline (BACI 09c/10d/10l, Script
+# 25, and the MSL5 classification).  Unlike the summer minimum and winter
+# maximum — which are indexed by the Oct-start hydrological year — the spring
+# mean sits wholly inside a calendar year and is indexed by CALENDAR year (as
+# Script 36 does).  The strict 3-of-3 rule means MSL_MIN_MONTHS_PER_SPRING = 3,
+# i.e. all three Mar-May months must be present for a cluster-year to yield a
+# spring mean.
+SPRING_MONTHS = list(MSL_SPRING_MONTHS)
+SPRING_MIN_MONTHS = MSL_MIN_MONTHS_PER_SPRING
 
 # Curreli et al. (2013) eco-hydrological thresholds (negative = below ground)
 # Canonical positive-down values imported from config; negated here for
@@ -251,6 +281,36 @@ def load_annual_extremes(filepath: Path) -> tuple[dict, dict]:
         {c: pd.Series(v).sort_index() for c, v in summer_min.items()},
         {c: pd.Series(v).sort_index() for c, v in winter_max.items()},
     )
+
+
+def load_spring_means(filepath: Path) -> dict:
+    """Load 03_regional_averages.csv and extract the annual SPRING MEAN
+    (Mar–May) per cluster, indexed by CALENDAR year.
+
+    The spring mean sits wholly inside a calendar year, so — unlike the
+    summer minimum and winter maximum, which are indexed by the Oct-start
+    hydrological year — it is grouped by calendar year (as Script 36
+    does).  A cluster-year yields a spring mean only if all three Mar–May
+    months are present (the strict SPRING_MIN_MONTHS = 3-of-3 rule).
+
+    Returns
+    -------
+    spring_mean : dict  {cluster: pd.Series(calendar_year -> mean)}
+    """
+    df = pd.read_csv(filepath, index_col="Date", parse_dates=True).sort_index()
+    df = df[(df.index.year >= OBS_START) & (df.index.year <= OBS_END)]
+
+    spring_mean = {c: {} for c in CLUSTER_LABELS}
+
+    for year, grp in df.groupby(df.index.year):
+        for c in CLUSTER_LABELS:
+            if c not in df.columns:
+                continue
+            spring = grp[grp.index.month.isin(SPRING_MONTHS)][c].dropna()
+            if len(spring) >= SPRING_MIN_MONTHS:
+                spring_mean[c][year] = spring.mean()
+
+    return {c: pd.Series(v).sort_index() for c, v in spring_mean.items()}
 
 
 def fit_trend(years: np.ndarray, values: np.ndarray, proj_end: int = PROJ_END):
@@ -475,6 +535,65 @@ def render_winter_figure(
     handles, labels = ax.get_legend_handles_labels()
     ax.legend(handles=handles + extra_handles,
               loc="lower right", fontsize=8.2, frameon=True, framealpha=0.92, edgecolor="#cccccc")
+
+    plt.tight_layout()
+    render_figure(plt.gcf(), out_path, facecolor="white")
+    plt.close(fig)
+    print(f"  [14] Saved: {out_path.name}")
+
+
+def render_spring_figure(
+    spring_series: dict,
+    out_path: Path,
+) -> None:
+    """
+    Plot observed annual spring means (Mar–May, calendar year) for all trajectory
+    clusters, each with its observed-period OLS trend line.  No projection and no
+    threshold bands: the SD15b/SD16 limits are SUMMER slack viability limits and
+    have no spring equivalent, so drawing them on spring levels would invite a
+    misreading (consistent with the 09c/10d spring figures).  Significant trends
+    (p < 0.05) are drawn solid and starred; non-significant trends dashed.
+    """
+    from scipy import stats as _st
+    fig, ax = plt.subplots(figsize=(12, 7))
+    fig.patch.set_facecolor("white")
+    ax.set_facecolor("white")
+
+    for c in TRAJECTORY_CLUSTERS:
+        s = spring_series.get(c)
+        if s is None or len(s) < 5:
+            continue
+        colour = CLUSTER_COLOURS[c]
+        marker = CLUSTER_MARKERS.get(c, "o")
+        yobs = s.index.to_numpy(dtype=float)
+        vobs = s.values
+        ax.scatter(yobs, vobs, color=colour, marker=marker, s=30, zorder=5,
+                   alpha=0.85, label=CLUSTER_LABELS[c])
+        slope, intercept, r, p, _ = _st.linregress(yobs, vobs)
+        yr = np.array([yobs.min(), yobs.max()])
+        sig = p < 0.05
+        ax.plot(yr, slope * yr + intercept, color=colour,
+                linewidth=2.0 if sig else 1.2,
+                linestyle="-" if sig else "--", alpha=0.85, zorder=4,
+                label=f"{c} trend {slope:+.4f} m yr⁻\xb9"
+                      + (" *" if sig else ""))
+        if BW_MODE:
+            ax.annotate(c, xy=(yr[-1], slope * yr[-1] + intercept),
+                        xytext=(5, 0), textcoords="offset points",
+                        fontsize=7, fontweight="bold", color=colour,
+                        va="center", zorder=6)
+
+    ax.set_xlim(OBS_START - 1, OBS_END + 1)
+    ax.set_xlabel("Year", fontsize=11)
+    ax.set_ylabel("Spring Mean Water Table Depth (m)", fontsize=11)
+    ax.set_title(
+        "Observed Spring Mean (Mar–May) Water Table by Cluster: "
+        "Newborough Warren",
+        fontsize=12, pad=10)
+    ax.yaxis.grid(True, color="#eaeaea", linewidth=0.5, linestyle="-", zorder=0)
+    ax.set_axisbelow(True)
+    ax.legend(loc="center left", bbox_to_anchor=(1.01, 0.5),
+              fontsize=8.2, frameon=True, framealpha=0.92, edgecolor="#cccccc")
 
     plt.tight_layout()
     render_figure(plt.gcf(), out_path, facecolor="white")
@@ -723,6 +842,40 @@ def main() -> None:
             })
     pd.DataFrame(winter_trend_rows).to_csv(OUT_14_WINTER_TREND_CSV, index=False)
     saved("14_winter_trend_stats.csv")
+
+    # ── Spring-mean (MAM) centroid trend — descriptive only ──────────────────
+    # Same footing as the summer/winter trend tables (observed-period OLS slope,
+    # R2, p-value, per cluster), but on the annual Mar–May centroid mean indexed
+    # by CALENDAR year (see load_spring_means).  This keeps the partition's
+    # observed spring number on an identical basis to the committed summer
+    # number and is consumed by Script 25's spring cluster_partition.  CSV only;
+    # no projection or figure is fitted for spring in this build.
+    print("\n[14] Fitting spring-mean (MAM, calendar-year) trends per cluster...")
+    spring_mean = load_spring_means(INT_REGIONAL_AVG)
+    spring_trend_rows = []
+    for c in TRAJECTORY_CLUSTERS:
+        if c in spring_mean and len(spring_mean[c]) >= 5:
+            sp_years = spring_mean[c].index.to_numpy(dtype=float)
+            sp_vals = spring_mean[c].values
+            sp_slope, _, sp_r, sp_pval, _ = stats.linregress(sp_years, sp_vals)
+            print(
+                f"  {c} spring trend: {sp_slope:+.4f} m yr⁻\xb9  "
+                f"(R²={sp_r**2:.3f}, p={sp_pval:.4f}, n={len(sp_years)})"
+            )
+            spring_trend_rows.append({
+                "Cluster": c,
+                "Label": CLUSTER_LABELS[c],
+                "n_years": len(sp_years),
+                "Slope_m_per_yr": round(sp_slope, 4),
+                "R2": round(sp_r ** 2, 3),
+                "p_value": round(sp_pval, 4),
+            })
+    pd.DataFrame(spring_trend_rows).to_csv(OUT_14_SPRING_TREND_CSV, index=False)
+    saved("14_spring_trend_stats.csv")
+
+    # Spring trajectory figure (observed + per-cluster OLS trend; no projection,
+    # no threshold bands — SD15b/SD16 are summer limits with no spring equivalent).
+    render_spring_figure(spring_mean, OUT_14_CLIMATE_SPRING)
 
     # Annual summer minima and winter maxima
     annual_rows = []

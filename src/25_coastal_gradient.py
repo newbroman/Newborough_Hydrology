@@ -91,7 +91,30 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-06-27 (emit §5.7.5 Check 2: raw MSL5-change vs summer-min-slope correlation)
+__version__ = "1.5.1"  # Hollingham (2026) — 2026-08-13 (season × δ(d)·t interaction test → 25_09)
+#
+# 1.5.1 — Added fit_season_interaction(): a full-panel single-model test of
+#         whether the coastal-retreat gradient is itself seasonal —
+#         δ(d)·t·(1 + γ·spring), H0 γ=0 — emitting 25_09_season_interaction_test.csv
+#         (forest-free lin-cap + exp).  fit_panel() is untouched (byte-identical).
+#         Also moved the 25_08 comparison legend outside to the right.
+# 1.5.0 — Added the spring mean (Mar–May) as a second per-well seasonal metric,
+#         run through the identical partition code path as the summer minimum.
+#         The panel fit / coastal-retreat gradient is ALL-SEASON
+#         (metric-independent) and remains the headline; it is applied to BOTH
+#         metrics.  compute_per_well_slopes() gains a metric argument (spring:
+#         Mar–May calendar-year mean, strict 3-of-3 guard) and cluster_partition
+#         is run per metric against the matching Script 14 CSV (summer vs the new
+#         14_spring_trend_stats.csv).  main() runs both metrics in one pass
+#         (optional --metric flag for ad-hoc single-metric runs).  New outputs:
+#         25_02_per_well_spring_mean_slopes, 25_03_cluster_partition_spring,
+#         25_05/25_07 spring figure analogues, and 25_08 spring-vs-summer
+#         comparison (CSV + figure).  25_01 gains six MAM-only panel refits as
+#         sensitivity rows beside the all-season rows.  25_04 (BACI
+#         corroboration) is metric-independent and is NOT re-emitted.  All
+#         committed summer outputs (25_01 prefix, 25_02, 25_03, 25_04, 25_05,
+#         25_06, 25_07, 25_report_numbers) reproduce byte-identically.  Mirrors
+#         the 09c/10d/10l/14 seasonal refactor; spring season/rule from config.
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -119,7 +142,10 @@ from utils.console_utils import (
     hr, skipped,
 )
 from utils import paths  # noqa: E402
-from utils.config import CLUSTER_COLOURS, CLUSTER_LABELS, FOREST_CIDS  # noqa: E402
+from utils.config import (  # noqa: E402
+    CLUSTER_COLOURS, CLUSTER_LABELS, FOREST_CIDS,
+    MSL_SPRING_MONTHS, MSL_MIN_MONTHS_PER_SPRING,
+)
 from utils.clearfell_common import (  # noqa: E402
     IMPACT_WELLS, EDGE_WELLS, FOREST_CONTROL_WELLS,
     COASTAL_CONTROL_WELLS, CLIMATE_CONTROL_WELLS,
@@ -153,7 +179,63 @@ CLEARFELL_ZONE_IN_C3 = list(
     (set(CLEARFELL_ZONE) & {"wmc3", "ceh19", "ceh17"}) | {"wmc3"}
 )
 
-PANEL_OBS_MIN_YEARS = 8  # per-well summer-min slopes require ≥8 years
+PANEL_OBS_MIN_YEARS = 8  # per-well seasonal slopes require ≥8 years
+
+# Spring (MAM) per-well metric, v1.5.0.  Season and 3-of-3 strictness come from
+# config so "spring" has one definition across the pipeline.  The summer minimum
+# is indexed by the Oct-start hydrological year; the spring mean sits wholly
+# inside a calendar year and is indexed by calendar year (as Script 36 does).
+SPRING_MONTHS = list(MSL_SPRING_MONTHS)          # (3, 4, 5)
+SPRING_MIN_MONTHS = MSL_MIN_MONTHS_PER_SPRING    # 3-of-3
+
+# ── Figure label sets (per metric) ─────────────────────────────────────────────
+# The summer strings are the committed ones and must render unchanged; the
+# figure functions default to _SUMMER_FIG so their existing call sites reproduce
+# byte-identically.
+_SUMMER_FIG = {
+    "slope_ylabel": "Summer-minimum slope (mm yr⁻¹)",
+    "diag_a_title": "(a) Per-well summer-minimum slopes vs distance to coast",
+    "decomp_xlabel": "Summer-minimum slope (mm/yr)",
+    "decomp_title": (
+        "Per-cluster decomposition of the observed summer-minimum decline\n"
+        "Forest-free linear-capped: observed = climate + coastal + residual"),
+}
+_SPRING_FIG = {
+    "slope_ylabel": "Spring-mean slope (mm yr⁻¹)",
+    "diag_a_title": "(a) Per-well spring-mean slopes vs distance to coast",
+    "decomp_xlabel": "Spring-mean slope (mm/yr)",
+    "decomp_title": (
+        "Per-cluster decomposition of the observed spring-mean change\n"
+        "Forest-free linear-capped: observed = climate + coastal + residual"),
+}
+
+# ── Per-metric specs ───────────────────────────────────────────────────────────
+# Only the per-well metric and the Script-14 observed-centroid CSV differ; the
+# panel fit / gradient is all-season (metric-independent) and is applied to both
+# metrics as the headline.  25_04 (BACI corroboration) is metric-independent and
+# is emitted once (summer only).
+_METRICS = [
+    {
+        "key": "summer_min",
+        "label": "summer-min",
+        "s14_csv": paths.OUT_14_SUMMER_TREND_CSV,
+        "out_per_well": paths.OUT_25_PER_WELL_SLOPES,
+        "out_partition": paths.OUT_25_CLUSTER_PARTITION,
+        "out_diag": paths.OUT_25_FIT_DIAGNOSTIC,
+        "out_decomp": paths.OUT_25_CLUSTER_DECOMP_FIG,
+        "figlabels": _SUMMER_FIG,
+    },
+    {
+        "key": "spring_mean",
+        "label": "spring-mean",
+        "s14_csv": paths.OUT_14_SPRING_TREND_CSV,
+        "out_per_well": paths.OUT_25_PER_WELL_SLOPES_SPRING,
+        "out_partition": paths.OUT_25_CLUSTER_PARTITION_SPRING,
+        "out_diag": paths.OUT_25_FIT_DIAGNOSTIC_SPRING,
+        "out_decomp": paths.OUT_25_CLUSTER_DECOMP_FIG_SPRING,
+        "figlabels": _SPRING_FIG,
+    },
+]
 
 
 # ── Models ────────────────────────────────────────────────────────────────────
@@ -331,31 +413,126 @@ def fit_panel(df: pd.DataFrame, decay_func, p0, bounds,
     }
 
 
+# ── Season × δ(d)·t interaction test ─────────────────────────────────────────
+
+def fit_season_interaction(df: pd.DataFrame, decay_func, p0, bounds,
+                           c_fixed: float | None = None,
+                           label: str = "") -> dict:
+    """Full-panel single-model test of whether the coastal-retreat gradient is
+    itself SEASONAL — the clean alternative to comparing two subset fits.
+
+    Adds a spring modulation γ to the gradient drift term:
+
+        δ(d)·t·(1 + γ·S) / 1000,     S = 1 if month ∈ Mar–May, else 0
+
+    so γ is the fractional change in the distance-weighted drift RATE in spring
+    relative to the rest of the year.  H0: γ = 0 (the gradient is
+    season-independent — the headline all-season assumption).  Same FWL
+    within-well demeaning and CWB + month-FE absorption as ``fit_panel``; the
+    δ(d) parameters and γ are searched jointly by profile non-linear least
+    squares, and γ's SE (hence t and p) come from the Jacobian covariance.  One
+    model, the full panel — an actual p-value, not two overlapping CIs.
+    """
+    h_dm, cwb_dm, M_dm = _within_demeaned_design(df)
+    d_w = df["dist_coast_m"].values
+    t = df["t_years"].values
+    spring = df["month"].isin(SPRING_MONTHS).astype(float).values
+
+    def residuals(theta):
+        if c_fixed is None:
+            delta_0, L, c, gamma = theta
+        else:
+            delta_0, L, gamma = theta
+            c = c_fixed
+        delta_d = decay_func(d_w, delta_0, L, c)
+        decay_t = delta_d * t * (1.0 + gamma * spring) / 1000.0
+        decay_t_ser = pd.Series(decay_t, index=df.index)
+        decay_t_dm = (decay_t_ser
+                      - decay_t_ser.groupby(df["well"]).transform("mean")).values
+        y = h_dm - decay_t_dm
+        X = np.column_stack([cwb_dm, M_dm])
+        try:
+            beta, *_ = np.linalg.lstsq(X, y, rcond=None)
+        except np.linalg.LinAlgError:
+            return np.full(len(y), 1e6)
+        return y - X @ beta
+
+    result = least_squares(residuals, p0, bounds=bounds,
+                           method="trf", max_nfev=5000)
+    n = len(result.fun); k = len(result.x)
+    rss = float(np.sum(result.fun ** 2))
+    sigma2 = rss / max(n - k, 1)
+    J = result.jac
+    try:
+        cov = sigma2 * np.linalg.inv(J.T @ J)
+        perr = np.sqrt(np.diag(cov))
+    except np.linalg.LinAlgError:
+        perr = np.full(k, np.nan)
+    gamma = float(result.x[-1])
+    gamma_se = float(perr[-1])
+    dfree = max(n - k, 1)
+    tstat = gamma / gamma_se if gamma_se and np.isfinite(gamma_se) else np.nan
+    pval = float(2 * t_dist.sf(abs(tstat), df=dfree)) if np.isfinite(tstat) else np.nan
+    return {
+        "label": label, "popt": result.x, "perr": perr,
+        "gamma": gamma, "gamma_se": gamma_se, "gamma_t": tstat,
+        "gamma_p": pval, "n": n, "k": k, "rss": rss, "c_fixed": c_fixed,
+    }
+
+
 # ── Per-well summer-min slopes ───────────────────────────────────────────────
 
-def compute_per_well_slopes(long: pd.DataFrame) -> pd.DataFrame:
-    """Per-well annual summer-minimum slope vs hydrological year."""
-    SUMMER = [4, 5, 6, 7, 8, 9]
+def compute_per_well_slopes(long: pd.DataFrame,
+                            metric: str = "summer_min") -> pd.DataFrame:
+    """Per-well annual seasonal-metric slope.
+
+    ``metric="summer_min"`` (default, unchanged): annual Jun-Sep-window minimum
+    (SUMMER = Apr-Sep, the Script-14 summer window) vs HYDROLOGICAL year.
+    ``metric="spring_mean"``: annual Mar-May mean vs CALENDAR year, with the
+    strict 3-of-3 completeness guard (a well-year contributes only if all three
+    MAM months are present).  Both use the same OLS, the same PANEL_OBS_MIN_YEARS
+    guard, and the same output columns.
+    """
     df = long.copy()
     df["year"] = df["date"].dt.year
     df["month"] = df["date"].dt.month
-    df["hydro_year"] = df["year"] + (df["month"] >= 10).astype(int)
-    df = df[df["month"].isin(SUMMER)]
-    smin = df.groupby(["well", "hydro_year"]).agg(
-        h_min=("h_depth", "min"),
-        easting=("easting", "first"),
-        northing=("northing", "first"),
-        cluster=("cluster", "first"),
-        dist_coast_m=("dist_coast_m", "first"),
-    ).reset_index()
-    smin = smin[(smin["hydro_year"] >= 2004) & (smin["hydro_year"] <= 2025)]
+
+    if metric == "summer_min":
+        SUMMER = [4, 5, 6, 7, 8, 9]
+        df["hydro_year"] = df["year"] + (df["month"] >= 10).astype(int)
+        df = df[df["month"].isin(SUMMER)]
+        agg = df.groupby(["well", "hydro_year"]).agg(
+            value=("h_depth", "min"),
+            easting=("easting", "first"),
+            northing=("northing", "first"),
+            cluster=("cluster", "first"),
+            dist_coast_m=("dist_coast_m", "first"),
+        ).reset_index()
+        agg = agg[(agg["hydro_year"] >= 2004) & (agg["hydro_year"] <= 2025)]
+        year_col = "hydro_year"
+    elif metric == "spring_mean":
+        df = df[df["month"].isin(SPRING_MONTHS)]
+        agg = df.groupby(["well", "year"]).agg(
+            value=("h_depth", "mean"),
+            n_months=("month", "nunique"),
+            easting=("easting", "first"),
+            northing=("northing", "first"),
+            cluster=("cluster", "first"),
+            dist_coast_m=("dist_coast_m", "first"),
+        ).reset_index()
+        # Strict 3-of-3 rule: keep only well-years with all Mar-May months.
+        agg = agg[agg["n_months"] >= SPRING_MIN_MONTHS]
+        agg = agg[(agg["year"] >= 2004) & (agg["year"] <= 2025)]
+        year_col = "year"
+    else:
+        raise ValueError(f"compute_per_well_slopes: unknown metric {metric!r}")
 
     out = []
-    for well, g in smin.groupby("well"):
-        if g["hydro_year"].nunique() < PANEL_OBS_MIN_YEARS:
+    for well, g in agg.groupby("well"):
+        if g[year_col].nunique() < PANEL_OBS_MIN_YEARS:
             continue
-        x = g["hydro_year"].astype(float).values
-        y = g["h_min"].astype(float).values
+        x = g[year_col].astype(float).values
+        y = g["value"].astype(float).values
         try:
             res = sm.OLS(y, sm.add_constant(x)).fit()
             out.append({
@@ -540,7 +717,8 @@ def plot_fit_diagnostic(per_well: pd.DataFrame,
                           fit_full_l: dict, fit_ff_l: dict, fit_c3_l: dict,
                           cluster_partition_df: pd.DataFrame,
                           fig_path: Path,
-                          fit_ff_e: dict | None = None) -> None:
+                          fit_ff_e: dict | None = None,
+                          figlabels: dict | None = None) -> None:
     """Two-panel diagnostic:
         (a) per-well summer-min slope vs distance, with the three lin-cap
             fits (full network, forest-free, C3 only) overlaid; if the
@@ -550,6 +728,8 @@ def plot_fit_diagnostic(per_well: pd.DataFrame,
         (b) per-cluster stacked decomposition: observed vs gradient +
             climate + residual
     """
+    if figlabels is None:
+        figlabels = _SUMMER_FIG
     fig, axes = plt.subplots(1, 2, figsize=(15, 6.0))
     ax1, ax2 = axes
 
@@ -613,8 +793,8 @@ def plot_fit_diagnostic(per_well: pd.DataFrame,
 
     ax1.axhline(0, color="black", linewidth=0.4, alpha=0.6)
     ax1.set_xlabel("Perpendicular distance to Caernarfon Bay MHW (m)")
-    ax1.set_ylabel("Summer-minimum slope (mm yr⁻¹)")
-    ax1.set_title("(a) Per-well summer-minimum slopes vs distance to coast",
+    ax1.set_ylabel(figlabels["slope_ylabel"])
+    ax1.set_title(figlabels["diag_a_title"],
                    fontsize=11, loc="left")
     ax1.legend(loc="lower right", fontsize=8, framealpha=0.9)
     ax1.grid(alpha=0.3)
@@ -646,7 +826,7 @@ def plot_fit_diagnostic(per_well: pd.DataFrame,
     short_labels = p["cluster_label"].str.extract(r"^(C\d+)")[0]
     ax2.set_xticklabels(short_labels, fontsize=10)
     ax2.set_xlabel("Cluster (coastal → inland)")
-    ax2.set_ylabel("Summer-minimum slope (mm yr⁻¹)")
+    ax2.set_ylabel(figlabels["slope_ylabel"])
     ax2.set_title("(b) Per-cluster decomposition under forest-free lin-cap fit",
                    fontsize=11, loc="left")
     ax2.legend(loc="lower right", fontsize=8.5, framealpha=0.9)
@@ -699,14 +879,17 @@ def plot_baci_corroboration(baci_df: pd.DataFrame, fig_path: Path) -> None:
     plt.close(fig)
 
 
-def plot_cluster_decomposition(partition: pd.DataFrame, fig_path: Path) -> None:
-    """Stacked-bar figure decomposing each cluster's observed summer-minimum
+def plot_cluster_decomposition(partition: pd.DataFrame, fig_path: Path,
+                               figlabels: dict | None = None) -> None:
+    """Stacked-bar figure decomposing each cluster's observed seasonal-metric
     centroid slope into climate-uniform background + coastal-retreat gradient
     + residual. Folded in from the standalone ``30_cluster_slope_decomposition.py``
     (2026-05-29) so the decomposition lives alongside the partition it
-    visualises. Reads the same `25_03_cluster_partition.csv` columns this
-    script writes — no new data, only a new view of it.
+    visualises. Reads the same cluster-partition columns this script writes —
+    no new data, only a new view of it.
     """
+    if figlabels is None:
+        figlabels = _SUMMER_FIG
     df = partition.sort_values("cluster_id").reset_index(drop=True)
     fig, ax = plt.subplots(figsize=(10.5, 5.5))
 
@@ -744,9 +927,8 @@ def plot_cluster_decomposition(partition: pd.DataFrame, fig_path: Path) -> None:
     ax.set_yticks(y)
     ax.set_yticklabels(clusters, fontsize=10)
     ax.invert_yaxis()
-    ax.set_xlabel("Summer-minimum slope (mm/yr)", fontsize=10.5)
-    ax.set_title("Per-cluster decomposition of the observed summer-minimum decline\n"
-                  "Forest-free linear-capped: observed = climate + coastal + residual",
+    ax.set_xlabel(figlabels["decomp_xlabel"], fontsize=10.5)
+    ax.set_title(figlabels["decomp_title"],
                   fontsize=11)
     ax.grid(axis="x", alpha=0.3, linewidth=0.4)
     ax.legend(loc="lower right", fontsize=8.5, framealpha=0.95)
@@ -757,6 +939,71 @@ def plot_cluster_decomposition(partition: pd.DataFrame, fig_path: Path) -> None:
                  f"  ⌀d = {r['mean_dist_coast_m']:.0f} m   (n = {r['n_wells']})",
                  transform=ax.get_yaxis_transform(),
                  va="center", fontsize=8.5, color="#333")
+
+    fig.tight_layout()
+    render_figure(fig, fig_path)
+    plt.close(fig)
+
+
+# ── Spring-vs-summer comparison ────────────────────────────────────────────────
+
+def build_spring_vs_summer_comparison(summer_partition: pd.DataFrame,
+                                      spring_partition: pd.DataFrame) -> pd.DataFrame:
+    """Merge the summer and spring cluster partitions into a side-by-side
+    comparison table.  Both partitions apply the SAME all-season gradient fit;
+    they differ in the observed centroid slope (Script 14 summer vs spring) and
+    in each cluster's per-well set (different wells clear the ≥8-year guard in
+    each season), so the mean distance and predicted gradient can differ
+    slightly between seasons.  The climate background c is the same all-season
+    value in both.
+    """
+    keep = ["cluster_id", "cluster_label", "n_wells", "mean_dist_coast_m",
+            "observed_centroid_mm_yr", "predicted_gradient_mm_yr",
+            "predicted_climate_mm_yr", "residual_mm_yr",
+            "gradient_pct_of_observed"]
+    s = summer_partition[keep].copy()
+    p = spring_partition[keep].copy()
+    merged = s.merge(p, on=["cluster_id", "cluster_label"],
+                     suffixes=("_summer", "_spring"), how="outer")
+    merged = merged.sort_values("cluster_id").reset_index(drop=True)
+    return merged
+
+
+def plot_spring_vs_summer(comparison: pd.DataFrame, fig_path: Path) -> None:
+    """Grouped-bar comparison of the observed centroid slope, summer minimum vs
+    spring mean, by cluster, with each season's predicted coastal-retreat
+    gradient marked."""
+    df = comparison.sort_values("mean_dist_coast_m_summer").reset_index(drop=True)
+    x = np.arange(len(df))
+    width = 0.38
+
+    fig, ax = plt.subplots(figsize=(11, 5.5))
+    ax.bar(x - width / 2, df["observed_centroid_mm_yr_summer"], width,
+           color="#cc5500", alpha=0.9, edgecolor="black", linewidth=0.5,
+           label="Observed summer minimum (Script 14)")
+    ax.bar(x + width / 2, df["observed_centroid_mm_yr_spring"], width,
+           color="#4488cc", alpha=0.9, edgecolor="black", linewidth=0.5,
+           label="Observed spring mean (Script 14)")
+    # Predicted all-season gradient markers (same fit, per-season mean dist).
+    ax.scatter(x - width / 2, df["predicted_gradient_mm_yr_summer"],
+               marker="D", color="black", s=42, zorder=5,
+               label="Predicted coastal gradient (all-season fit)")
+    ax.scatter(x + width / 2, df["predicted_gradient_mm_yr_spring"],
+               marker="D", color="black", s=42, zorder=5)
+
+    ax.axhline(0, color="black", linewidth=0.6)
+    ax.set_xticks(x)
+    short = df["cluster_label"].str.extract(r"^(C\d+)")[0]
+    ax.set_xticklabels(short, fontsize=10)
+    ax.set_xlabel("Cluster (coastal → inland)")
+    ax.set_ylabel("Observed centroid slope (mm yr⁻¹)")
+    ax.set_title("Observed centroid slope by cluster: summer minimum vs spring mean\n"
+                 "same all-season coastal-retreat gradient applied to both metrics",
+                 fontsize=11, loc="left")
+    # Legend inside, lower-right — sits under the rightmost (C1, most inland)
+    # column, where the bars are small.
+    ax.legend(loc="lower right", fontsize=8.5, framealpha=0.9)
+    ax.grid(alpha=0.3, axis="y")
 
     fig.tight_layout()
     render_figure(fig, fig_path)
@@ -995,34 +1242,54 @@ def main() -> None:
     print(f"\n  ΔAIC (forest-free, exp − lin-cap) = {delta_aic:+.1f}  "
           f"({'lin-cap preferred' if delta_aic > 0 else 'exp preferred'})")
 
-    # ── Per-well slopes ──
-    print("\n  Computing per-well summer-min slopes ...")
-    per_well = compute_per_well_slopes(long_full)
-    per_well.to_csv(paths.OUT_25_PER_WELL_SLOPES, index=False)
-    info(f"{len(per_well)} wells with ≥{PANEL_OBS_MIN_YEARS} years")
-    # ── Cluster partition ──
-    print("\n  Computing per-cluster attribution ...")
-    s14 = pd.read_csv(paths.OUT_14_SUMMER_TREND_CSV)
-    # Use FORST-FREE LINCAP as headline
-    partition = cluster_partition(per_well, fit_ff_l, s14)
-    partition.to_csv(paths.OUT_25_CLUSTER_PARTITION, index=False)
-    print(partition[["cluster_label", "mean_dist_coast_m",
-                       "observed_centroid_mm_yr",
-                       "predicted_gradient_mm_yr",
-                       "predicted_climate_mm_yr",
-                       "residual_mm_yr",
-                       "gradient_pct_of_observed"]].to_string(index=False))
+    # ── MAM-only sensitivity fits (panel refit on Mar–May rows only) ──
+    # The HEADLINE gradient is the all-season fit above; these MAM-restricted
+    # refits are a SENSITIVITY, appended to 25_01 beside the all-season rows.
+    # Restricting to Mar–May drops the panel to ≈¼ of its rows and collapses the
+    # month fixed effects from 11 dummies to 2, so δ₀ SE roughly doubles and L
+    # loosens considerably — expected sampling behaviour, not a seasonal finding.
+    # (Whether the gradient is genuinely seasonal is better answered by a
+    # season × δ(d)·t interaction on the full panel — see the build design; not
+    # in this build.)
+    print("\n  Fitting MAM-only sensitivity (Mar–May rows) ...")
+    df_full_mam = df_full[df_full["month"].isin(SPRING_MONTHS)].copy()
+    df_ff_mam = df_ff[df_ff["month"].isin(SPRING_MONTHS)].copy()
+    df_c3_mam = df_c3[df_c3["month"].isin(SPRING_MONTHS)].copy()
+    fit_full_l_mam = fit_panel(df_full_mam, model_linear_capped,
+                               p0=[-30.0, 1000.0, -5.0],
+                               bounds=([-200, 100, -30], [50, 10000, 30]),
+                               label="full_lincap_mam")
+    fit_full_e_mam = fit_panel(df_full_mam, model_exp,
+                               p0=[-40.0, 600.0, -5.0],
+                               bounds=([-200, 50, -30], [50, 5000, 30]),
+                               label="full_exp_mam")
+    fit_ff_l_mam = fit_panel(df_ff_mam, model_linear_capped,
+                             p0=[-30.0, 1000.0, -5.0],
+                             bounds=([-200, 100, -30], [50, 10000, 30]),
+                             label="ff_lincap_mam")
+    fit_ff_e_mam = fit_panel(df_ff_mam, model_exp,
+                             p0=[-40.0, 600.0, -5.0],
+                             bounds=([-200, 50, -30], [50, 5000, 30]),
+                             label="ff_exp_mam")
+    c_fix_l_mam = float(fit_ff_l_mam["popt"][2])
+    c_fix_e_mam = float(fit_ff_e_mam["popt"][2])
+    fit_c3_l_mam = fit_panel(df_c3_mam, model_linear_capped,
+                             p0=[-30.0, 1000.0],
+                             bounds=([-200, 100], [50, 10000]),
+                             c_fixed=c_fix_l_mam, label="c3_lincap_cfix_mam")
+    fit_c3_e_mam = fit_panel(df_c3_mam, model_exp,
+                             p0=[-40.0, 600.0],
+                             bounds=([-200, 50], [50, 5000]),
+                             c_fixed=c_fix_e_mam, label="c3_exp_cfix_mam")
+    print(f"    forest-free lin-cap MAM: δ₀={fit_ff_l_mam['popt'][0]:+.2f} "
+          f"± {fit_ff_l_mam['perr'][0]:.2f} mm/yr, "
+          f"L={fit_ff_l_mam['popt'][1]:.0f} ± {fit_ff_l_mam['perr'][1]:.0f} m "
+          f"(all-season headline: δ₀={fit_ff_l['popt'][0]:+.2f} "
+          f"± {fit_ff_l['perr'][0]:.2f}, L={fit_ff_l['popt'][1]:.0f})")
 
-    # ── BACI corroboration ──
-    print("\n  Running BACI corroboration check ...")
-    baci_corr = baci_corroboration(distances, fit_ff_l,
-                                     paths.OUT_10A_FULL_COEFFS)
-    baci_corr.to_csv(paths.OUT_25_BACI_CORROBORATION, index=False)
-    print(baci_corr[["control_tier", "impact_zone",
-                       "baci_absorbs_mm_yr", "model_predicts_mm_yr",
-                       "z_test_baci_vs_model", "consistent"]].to_string(index=False))
-
-    # ── Parameters table ──
+    # ── Parameters table (all-season headline + MAM-only sensitivity) ──
+    # All-season rows first (byte-identical to the committed table); the six
+    # MAM-only sensitivity rows are appended after them.
     fits = {
         ("full", "linear_capped"):         fit_full_l,
         ("full", "exponential"):           fit_full_e,
@@ -1030,30 +1297,147 @@ def main() -> None:
         ("forest_free", "exponential"):    fit_ff_e,
         ("c3_only", "linear_capped_cfix"): fit_c3_l,
         ("c3_only", "exponential_cfix"):   fit_c3_e,
+        ("full_mam", "linear_capped"):         fit_full_l_mam,
+        ("full_mam", "exponential"):           fit_full_e_mam,
+        ("forest_free_mam", "linear_capped"):  fit_ff_l_mam,
+        ("forest_free_mam", "exponential"):    fit_ff_e_mam,
+        ("c3_only_mam", "linear_capped_cfix"): fit_c3_l_mam,
+        ("c3_only_mam", "exponential_cfix"):   fit_c3_e_mam,
     }
     params = build_fit_parameters_table(fits)
     params.to_csv(paths.OUT_25_FIT_PARAMETERS, index=False)
 
-    # ── Figures ──
-    print("\n  Building diagnostic figures ...")
-    plot_fit_diagnostic(per_well, fit_full_l, fit_ff_l, fit_c3_l,
-                         partition, paths.OUT_25_FIT_DIAGNOSTIC,
-                         fit_ff_e=fit_ff_e)
-    plot_baci_corroboration(baci_corr, paths.OUT_25_BACI_CHART)
-    plot_cluster_decomposition(partition, paths.OUT_25_CLUSTER_DECOMP_FIG)
+    # ── Season × δ(d)·t interaction test (is the gradient itself seasonal?) ──
+    # One model on the full forest-free panel: δ(d)·t·(1 + γ·spring).  γ is the
+    # fractional change in the gradient drift rate in Mar–May; H0: γ = 0
+    # (season-independent, the headline assumption).  This is the clean single-
+    # model test the build design flagged — an actual p-value, not two subset
+    # fits with overlapping CIs.
+    print("\n  Season × gradient interaction test (forest-free panel) ...")
+    si_lincap = fit_season_interaction(
+        df_ff, model_linear_capped,
+        p0=[fit_ff_l["popt"][0], fit_ff_l["popt"][1], fit_ff_l["popt"][2], 0.0],
+        bounds=([-200, 100, -30, -3.0], [50, 10000, 30, 3.0]),
+        label="forest_free_lincap")
+    si_exp = fit_season_interaction(
+        df_ff, model_exp,
+        p0=[fit_ff_e["popt"][0], fit_ff_e["popt"][1], fit_ff_e["popt"][2], 0.0],
+        bounds=([-200, 50, -30, -3.0], [50, 5000, 30, 3.0]),
+        label="forest_free_exp")
+    si_rows = []
+    for si, model in [(si_lincap, "linear_capped"), (si_exp, "exponential")]:
+        seasonal = (np.isfinite(si["gamma_p"]) and si["gamma_p"] < 0.05)
+        si_rows.append({
+            "source": "forest_free",
+            "model": model,
+            "n_obs": si["n"],
+            "delta_0_mm_yr": round(float(si["popt"][0]), 2),
+            "L_m": round(float(si["popt"][1]), 0),
+            "c_mm_yr": round(float(si["popt"][2]), 2),
+            "gamma_spring_modulation": round(si["gamma"], 3),
+            "gamma_se": round(si["gamma_se"], 3),
+            "gamma_t": (round(si["gamma_t"], 2)
+                        if np.isfinite(si["gamma_t"]) else None),
+            "gamma_p": (round(si["gamma_p"], 4)
+                        if np.isfinite(si["gamma_p"]) else None),
+            "gradient_seasonal_at_0.05": ("yes" if seasonal else "no"),
+            "interpretation": (
+                "gamma = fractional change in the coastal-gradient drift rate "
+                "in Mar-May vs the rest of the year; H0: gamma=0 "
+                "(season-independent). gamma>0 = steeper gradient in spring."),
+        })
+    pd.DataFrame(si_rows).to_csv(paths.OUT_25_SEASON_INTERACTION, index=False)
+    for si, model in [(si_lincap, "lin-cap"), (si_exp, "exp")]:
+        print(f"    [{model}] γ = {si['gamma']:+.3f} ± {si['gamma_se']:.3f}  "
+              f"(t = {si['gamma_t']:+.2f}, p = {si['gamma_p']:.4f})  →  "
+              f"gradient {'IS' if (np.isfinite(si['gamma_p']) and si['gamma_p']<0.05) else 'is NOT'} "
+              f"seasonal at 0.05")
 
-    # ── Report numbers ──
-    report = build_report_numbers(fits, partition, baci_corr, per_well)
-    report.to_csv(paths.OUT_25_REPORT_NUMBERS, index=False)
+    # ── BACI corroboration (all-season gradient; metric-independent) ──
+    # 25_04 is not re-emitted per metric — the BACI easting × time coefficient
+    # it reads is the same regardless of the seasonal response variable.
+    print("\n  Running BACI corroboration check ...")
+    baci_corr = baci_corroboration(distances, fit_ff_l,
+                                     paths.OUT_10A_FULL_COEFFS)
+    baci_corr.to_csv(paths.OUT_25_BACI_CORROBORATION, index=False)
+    print(baci_corr[["control_tier", "impact_zone",
+                       "baci_absorbs_mm_yr", "model_predicts_mm_yr",
+                       "z_test_baci_vs_model", "consistent"]].to_string(index=False))
+    plot_baci_corroboration(baci_corr, paths.OUT_25_BACI_CHART)
+
+    # ── Per-metric: per-well slopes, cluster partition, diagnostic figures ──
+    # The all-season gradient (fit_ff_l) is the headline and is applied to BOTH
+    # seasonal metrics; only the per-well response and the Script-14 observed
+    # centroid CSV differ.  --metric {summer_min,spring_mean} runs a single
+    # metric for ad-hoc use; the default (both) is what the pipeline runs.
+    requested = None
+    for _i, _a in enumerate(sys.argv):
+        if _a == "--metric" and _i + 1 < len(sys.argv):
+            requested = sys.argv[_i + 1]
+        elif _a.startswith("--metric="):
+            requested = _a.split("=", 1)[1]
+    valid_keys = {m["key"] for m in _METRICS}
+    if requested is not None and requested not in valid_keys:
+        warn(f"--metric {requested!r} not in {sorted(valid_keys)}; "
+             f"running all metrics")
+        requested = None
+    metrics_to_run = [m for m in _METRICS
+                      if requested is None or m["key"] == requested]
+
+    partitions = {}
+    per_wells = {}
+    for m in metrics_to_run:
+        print(f"\n  [{m['label']}] Computing per-well slopes ...")
+        pw = compute_per_well_slopes(long_full, m["key"])
+        pw.to_csv(m["out_per_well"], index=False)
+        info(f"{len(pw)} wells with ≥{PANEL_OBS_MIN_YEARS} years "
+             f"({m['out_per_well'].name})")
+
+        print(f"  [{m['label']}] Computing per-cluster attribution "
+              f"(all-season gradient × {m['s14_csv'].name}) ...")
+        s14 = pd.read_csv(m["s14_csv"])
+        part = cluster_partition(pw, fit_ff_l, s14)
+        part.to_csv(m["out_partition"], index=False)
+        print(part[["cluster_label", "mean_dist_coast_m",
+                     "observed_centroid_mm_yr",
+                     "predicted_gradient_mm_yr",
+                     "predicted_climate_mm_yr",
+                     "residual_mm_yr",
+                     "gradient_pct_of_observed"]].to_string(index=False))
+
+        plot_fit_diagnostic(pw, fit_full_l, fit_ff_l, fit_c3_l,
+                            part, m["out_diag"], fit_ff_e=fit_ff_e,
+                            figlabels=m["figlabels"])
+        plot_cluster_decomposition(part, m["out_decomp"],
+                                   figlabels=m["figlabels"])
+        partitions[m["key"]] = part
+        per_wells[m["key"]] = pw
+
+    # ── Spring-vs-summer comparison (needs both metrics) ──
+    if "summer_min" in partitions and "spring_mean" in partitions:
+        print("\n  Building spring-vs-summer comparison ...")
+        comp = build_spring_vs_summer_comparison(
+            partitions["summer_min"], partitions["spring_mean"])
+        comp.to_csv(paths.OUT_25_SPRING_VS_SUMMER_CSV, index=False)
+        plot_spring_vs_summer(comp, paths.OUT_25_SPRING_VS_SUMMER_FIG)
+
+    # ── Report numbers (all-season headline fit + summer attribution) ──
+    # Emitted from the summer metric (the report headline); unchanged.
+    if "summer_min" in partitions:
+        report = build_report_numbers(
+            fits, partitions["summer_min"], baci_corr, per_wells["summer_min"])
+        report.to_csv(paths.OUT_25_REPORT_NUMBERS, index=False)
 
     print(f"\n  Outputs written to: {paths.DIR_25}/")
-    print("    25_01_panel_fit_parameters.csv")
-    print("    25_02_per_well_summer_min_slopes.csv")
-    print("    25_03_cluster_partition.csv")
+    print("    25_01_panel_fit_parameters.csv  (all-season + MAM sensitivity)")
+    print("    25_02_per_well_summer_min_slopes.csv / _spring_mean_slopes.csv")
+    print("    25_03_cluster_partition.csv / _spring.csv")
     print("    25_04_baci_corroboration.csv")
-    print("    25_05_fit_diagnostic.jpg")
+    print("    25_05_fit_diagnostic.jpg / _spring.jpg")
     print("    25_06_baci_corroboration_chart.jpg")
-    print("    25_07_cluster_decomposition.png")
+    print("    25_07_cluster_decomposition.png / _spring.png")
+    print("    25_08_spring_vs_summer_comparison.csv + .png")
+    print("    25_09_season_interaction_test.csv")
     print("    25_report_numbers.csv")
     info("Script 25 complete.\n")
 

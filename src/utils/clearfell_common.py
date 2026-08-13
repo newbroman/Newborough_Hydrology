@@ -69,7 +69,25 @@ provenance with ``_ = wells_prov``. Script 10d uses it to require
 >=2 measured Jun-Sep months in ``annual_summer_minimum``.
 """
 
-__version__ = "1.7.2"  # Hollingham (2026) — 2026-06-21
+__version__ = "1.8.0"  # Hollingham (2026) — 2026-08-13 (generalised seasonal metrics; spring-mean MAM wrappers)
+#
+# 1.8.0 — Seasonal metric extraction generalised so the spring mean (MAM) can be
+#         computed on exactly the same footing as the summer minimum, for the
+#         spring BACI analyses in Scripts 09c/10d/10l.
+#         (a) annual_seasonal_metric() is the new general extractor; the
+#             provenance-aware measured-only logic and the min_measured guard are
+#             unchanged. annual_summer_minimum() becomes a thin wrapper over it
+#             (behaviour byte-identical); annual_spring_mean() is the new sibling.
+#         (b) control_centroid_seasonal() generalises the centroid pooling;
+#             forest_control_centroid_summer_min() becomes a thin wrapper and
+#             forest_control_centroid_spring_mean() is the new sibling.
+#         (c) well_year_usable_season() / usable_panel_years() generalise the
+#             four-zone panel gatekeeper; the summer entry points are thin
+#             wrappers and wmc3_usable_spring_years() is the new sibling.
+#         (d) Spring months and the spring completeness rule come from
+#             config.MSL_SPRING_MONTHS / config.MSL_MIN_MONTHS_PER_SPRING — no
+#             new local constants, one definition of "spring" across the pipeline.
+#         No change to any summer code path or committed summer output.
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -86,7 +104,11 @@ from utils.paths import (
     OUT_10I_HINDCAST,
 )
 from utils.data_utils import PROV_MEASURED, PROV_MISSING
-from utils.config import CEH36_E as _CEH36_E, CEH36_N as _CEH36_N
+from utils.config import (
+    CEH36_E as _CEH36_E, CEH36_N as _CEH36_N,
+    MSL_SPRING_MONTHS as _MSL_SPRING_MONTHS,
+    MSL_MIN_MONTHS_PER_SPRING as _MSL_MIN_MONTHS_PER_SPRING,
+)
 
 # ============================================================================
 # WELL TIER DEFINITIONS
@@ -278,6 +300,26 @@ SCRAPING_DECAY_LAMBDA = 300.0
 
 # Summer months (1-indexed)
 SUMMER_MONTHS = [6, 7, 8, 9]
+
+# Spring months (1-indexed) — re-exported from config so the clearfell/scraping
+# suite shares ONE definition of "spring" with the van Willegen MSL machinery
+# (Scripts 26/26b/34) and the coastal-gradient work.  Deliberately NOT a local
+# literal, unlike SUMMER_MONTHS above (which predates the config convention and
+# is duplicated in scraping_common).
+SPRING_MONTHS = list(_MSL_SPRING_MONTHS)
+
+# Minimum MEASURED spring months required for a valid annual spring mean.
+# Sourced from config.MSL_MIN_MONTHS_PER_SPRING (3 of 3) — the same strictness
+# van Willegen's MSL5 classification uses.  The strict rule is affordable here:
+# across the network it retains 289 well-years against 291 at 2-of-3 and 294 at
+# 1-of-3, versus 293 for the committed Jun-Sep >=2-of-4 summer rule (measured
+# above, 2026-08-13).  Requiring all three months means the spring mean is
+# genuinely a three-month mean and needs no caveat about which months
+# contributed.  NOTE this is stricter than Script 36's spring_year_table(),
+# which takes the mean of whatever MAM months are present; that divergence is
+# recorded in claude/NRG_spring_BACI_spec_2026-08-13.md and is immaterial
+# (~2% of well-years).
+SPRING_MIN_MEASURED = _MSL_MIN_MONTHS_PER_SPRING
 
 # ============================================================================
 # DATA LOADING
@@ -712,8 +754,95 @@ def build_scraping_covariate_centroid(date_index, scraping_date,
 
 
 # ============================================================================
-# SUMMER MINIMA
+# SEASONAL METRICS — summer minima and spring means
 # ============================================================================
+#
+# Both metrics reduce a well to ONE value per year, so they are
+# interchangeable as the response variable in a BACI design: same wells,
+# same years, same N.  The summer minimum is an extreme-order statistic
+# (the single lowest Jun-Sep month); the spring mean averages the three
+# MAM months and is correspondingly less noisy.  The summer minimum is
+# the drought-stress metric; the spring mean is the one the Curreli
+# ecological thresholds are defined on.  Neither replaces the other.
+
+def annual_seasonal_metric(series, months, agg, start_year=2006,
+                           end_year=2026, provenance=None, min_measured=2):
+    """Reduce a well's monthly series to one value per year over a season.
+
+    General extractor behind ``annual_summer_minimum`` (agg='min' over
+    Jun-Sep) and ``annual_spring_mean`` (agg='mean' over Mar-May).
+
+    Parameters
+    ----------
+    series : pd.Series with DatetimeIndex (depth below ground, negative)
+    months : sequence of int
+        1-indexed calendar months forming the season.
+    agg : {'min', 'mean'} or callable
+        Reduction applied to the season's values.
+    start_year, end_year : int
+    provenance : pd.Series or None
+        Optional per-cell provenance flags aligned to ``series`` from the
+        Defect E fix. Values in {"measured", "interpolated", "missing"}.
+        When supplied, only MEASURED in-season months count toward the
+        ``min_measured`` threshold and only measured values enter the
+        reduction. With provenance left as None, all non-null in-season
+        months count (pre-Defect-E behaviour).
+    min_measured : int
+        Minimum number of measured in-season months required for a year
+        to yield a value. Years below the threshold are omitted.
+
+    Returns
+    -------
+    dict : {year: float}
+    """
+    if callable(agg):
+        _reduce = agg
+    elif agg == "min":
+        _reduce = np.min
+    elif agg == "mean":
+        _reduce = np.mean
+    else:
+        raise ValueError(
+            f"annual_seasonal_metric: agg must be 'min', 'mean' or a "
+            f"callable, got {agg!r}")
+
+    out = {}
+    for yr in range(start_year, end_year + 1):
+        mask = (series.index.year == yr) & (series.index.month.isin(months))
+        if provenance is None:
+            vals = series[mask].dropna()
+        else:
+            # Restrict to MEASURED cells only.
+            prov_yr = provenance[mask]
+            meas_mask = prov_yr == PROV_MEASURED
+            vals = series[mask][meas_mask].dropna()
+        if len(vals) >= min_measured:
+            out[yr] = float(_reduce(vals))
+    return out
+
+
+def annual_spring_mean(series, start_year=2006, end_year=2026,
+                       provenance=None, min_measured=None):
+    """Compute annual spring mean (Mar–May) depth for a well.
+
+    Thin wrapper over ``annual_seasonal_metric``. Season and strictness
+    come from config (MSL_SPRING_MONTHS, MSL_MIN_MONTHS_PER_SPRING), so
+    "spring mean" has one definition across the pipeline. Pass
+    ``min_measured`` explicitly only to override the 3-of-3 default.
+
+    Returns
+    -------
+    dict : {year: float} — mean Mar–May depth among measured cells.
+           Years not meeting the threshold are omitted.
+    """
+    if min_measured is None:
+        min_measured = SPRING_MIN_MEASURED
+    return annual_seasonal_metric(
+        series, SPRING_MONTHS, "mean",
+        start_year=start_year, end_year=end_year,
+        provenance=provenance, min_measured=min_measured,
+    )
+
 
 def annual_summer_minimum(series, start_year=2006, end_year=2026,
                           provenance=None, min_measured=2):
@@ -741,19 +870,11 @@ def annual_summer_minimum(series, start_year=2006, end_year=2026,
     dict : {year: float} — minimum (most negative) depth in Jun–Sep among
            measured cells. Years not meeting the threshold are omitted.
     """
-    mins = {}
-    for yr in range(start_year, end_year + 1):
-        mask = (series.index.year == yr) & (series.index.month.isin(SUMMER_MONTHS))
-        if provenance is None:
-            vals = series[mask].dropna()
-        else:
-            # Restrict to MEASURED cells only.
-            prov_yr = provenance[mask]
-            meas_mask = prov_yr == PROV_MEASURED
-            vals = series[mask][meas_mask].dropna()
-        if len(vals) >= min_measured:
-            mins[yr] = float(vals.min())
-    return mins
+    return annual_seasonal_metric(
+        series, SUMMER_MONTHS, "min",
+        start_year=start_year, end_year=end_year,
+        provenance=provenance, min_measured=min_measured,
+    )
 
 
 # ----------------------------------------------------------------------------
@@ -787,6 +908,20 @@ SUMMER_PANEL_GATEKEEPER_WELL = 'wmc3'
 SUMMER_PANEL_MAX_MISSING = 1          # at most one missing Jun-Sep month
 SUMMER_PANEL_YEARS_EXCLUDED = [2012, 2019]
 
+# SPRING panel equivalent (Mar-May).  The same WMC3-gatekeeper reasoning
+# applies unchanged — WMC3 is still the entire n=1 Impact zone.
+#
+# The spring rule is STRICTER than the summer one (max_missing = 0, i.e. all
+# three MAM months present) and still admits MORE years, because WMC3's spring
+# record is near-complete: 3-of-3 measured in 14 of the 15 years 2011-2025.
+# Only 2012 is thin (1 measured, 1 interpolated, 1 missing).  2019 — dropped
+# from the SUMMER panel because WMC3's Jun-Sep was one interpolated June plus
+# three missing months — is fully measured in spring and is retained here.
+# Retained spring panel: 2011 + 2013-2025 = 14 years, against the summer
+# panel's 13.  Measured 2026-08-13; see claude/NRG_spring_BACI_spec_2026-08-13.md.
+SPRING_PANEL_MAX_MISSING = 0          # all three Mar-May months required
+SPRING_PANEL_YEARS_EXCLUDED = [2012]
+
 
 def well_year_usable_summer(series, year, provenance=None,
                             max_missing=SUMMER_PANEL_MAX_MISSING):
@@ -812,10 +947,43 @@ def well_year_usable_summer(series, year, provenance=None,
     -------
     bool
     """
-    mask = (series.index.year == year) & (series.index.month.isin(SUMMER_MONTHS))
+    return well_year_usable_season(series, year, SUMMER_MONTHS,
+                                   provenance=provenance,
+                                   max_missing=max_missing)
+
+
+def well_year_usable_season(series, year, months, provenance=None,
+                            max_missing=SUMMER_PANEL_MAX_MISSING):
+    """Is a single well's in-season record for one year usable?
+
+    General form behind ``well_year_usable_summer`` (Jun-Sep) and the
+    spring gatekeeper (Mar-May).  Usable means at most ``max_missing`` of
+    the season's months are MISSING.  An interpolated value counts as
+    present (not missing); only genuinely absent months count against the
+    well.  A year with fewer index rows than the season has months (e.g.
+    an as-yet-incomplete current year) is not usable.
+
+    Parameters
+    ----------
+    series : pd.Series
+        A single well's monthly depth series (DatetimeIndex).
+    year : int
+    months : sequence of int
+        1-indexed calendar months forming the season.
+    provenance : pd.Series or None
+        Per-cell provenance aligned to ``series``.  When None, non-null
+        cells are treated as present (pre-Defect-E fallback).
+    max_missing : int
+
+    Returns
+    -------
+    bool
+    """
+    mask = (series.index.year == year) & (series.index.month.isin(months))
     n_rows = int(mask.sum())
-    if n_rows < len(SUMMER_MONTHS):
-        # Fewer than four Jun-Sep index rows — an incomplete year.
+    if n_rows < len(months):
+        # Fewer in-season index rows than the season has months —
+        # an incomplete year.
         return False
     if provenance is None:
         n_missing = int(series[mask].isna().sum())
@@ -855,27 +1023,70 @@ def wmc3_usable_summer_years(wells, wells_provenance=None,
     list of int
         Sorted years in which WMC3 has a usable summer record.
     """
+    return _gatekeeper_usable_years(
+        wells, SUMMER_MONTHS, SUMMER_PANEL_MAX_MISSING,
+        SUMMER_PANEL_YEARS_EXCLUDED, "wmc3_usable_summer_years",
+        "SUMMER_PANEL_YEARS_EXCLUDED",
+        wells_provenance=wells_provenance,
+        start_year=start_year, end_year=end_year,
+    )
+
+
+def wmc3_usable_spring_years(wells, wells_provenance=None,
+                             start_year=2011, end_year=2026):
+    """Years that enter the four-zone SPRING panel — the WMC3 gatekeeper.
+
+    Spring sibling of ``wmc3_usable_summer_years``.  Same reasoning (WMC3
+    is the entire n=1 Impact zone, so a year without a usable WMC3 record
+    has no Impact observation), applied to Mar-May with
+    ``SPRING_PANEL_MAX_MISSING`` and cross-checked against the reviewed
+    ``SPRING_PANEL_YEARS_EXCLUDED``.
+
+    Returns
+    -------
+    list of int
+        Sorted years in which WMC3 has a usable spring record.
+    """
+    return _gatekeeper_usable_years(
+        wells, SPRING_MONTHS, SPRING_PANEL_MAX_MISSING,
+        SPRING_PANEL_YEARS_EXCLUDED, "wmc3_usable_spring_years",
+        "SPRING_PANEL_YEARS_EXCLUDED",
+        wells_provenance=wells_provenance,
+        start_year=start_year, end_year=end_year,
+    )
+
+
+def _gatekeeper_usable_years(wells, months, max_missing, reviewed_excluded,
+                             fn_label, const_label, wells_provenance=None,
+                             start_year=2011, end_year=2026):
+    """Shared implementation of the WMC3 panel-year gatekeeper.
+
+    Derives the usable-year set from the live data, cross-checks it
+    against the reviewed excluded-years constant, prints a note if they
+    disagree, and returns the data-derived set.
+    """
     w = SUMMER_PANEL_GATEKEEPER_WELL
     if w not in wells.columns:
-        raise KeyError(f"wmc3_usable_summer_years: '{w}' not in data")
+        raise KeyError(f"{fn_label}: '{w}' not in data")
     prov_w = (wells_provenance[w]
               if wells_provenance is not None
               and w in wells_provenance.columns else None)
 
     years = [yr for yr in range(start_year, end_year + 1)
-             if well_year_usable_summer(wells[w], yr, prov_w)]
+             if well_year_usable_season(wells[w], yr, months, prov_w,
+                                        max_missing=max_missing)]
 
     derived_excluded = sorted(set(range(start_year, max(years) + 1))
                               - set(years)) if years else []
-    expected_excluded = sorted(y for y in SUMMER_PANEL_YEARS_EXCLUDED
+    expected_excluded = sorted(y for y in reviewed_excluded
                                if start_year <= y <= end_year)
     if derived_excluded != expected_excluded:
-        print(f"  [wmc3_usable_summer_years] NOTE: data-derived excluded "
+        print(f"  [{fn_label}] NOTE: data-derived excluded "
               f"years {derived_excluded} differ from the reviewed "
               f"constant {expected_excluded}.\n"
               f"    The data-derived set is being used.  If unexpected, "
               f"WMC3's record may have changed — review "
-              f"SUMMER_PANEL_YEARS_EXCLUDED.")
+              f"{const_label}.")
     return years
 
 
@@ -908,15 +1119,56 @@ def forest_control_centroid_summer_min(wells, forest_wells,
     -------
     dict : {year: float}
     """
+    return control_centroid_seasonal(
+        wells, forest_wells, annual_summer_minimum,
+        start_year=start_year, end_year=end_year, min_wells=min_wells,
+        wells_provenance=wells_provenance, min_measured=min_measured,
+    )
+
+
+def control_centroid_seasonal(wells, control_wells, metric_fn,
+                              start_year=2006, end_year=2026,
+                              min_wells=2, wells_provenance=None,
+                              min_measured=None):
+    """Pool a per-well annual seasonal metric into a control centroid.
+
+    General form behind ``forest_control_centroid_summer_min`` and
+    ``forest_control_centroid_spring_mean``. For each year, averages the
+    metric across all listed control wells that yielded a value,
+    requiring at least ``min_wells`` contributors.
+
+    Parameters
+    ----------
+    wells : pd.DataFrame
+    control_wells : list of str
+        Well names whose annual values are pooled into the centroid.
+    metric_fn : callable
+        ``annual_summer_minimum`` or ``annual_spring_mean`` (or any
+        function with the same signature).
+    start_year, end_year : int
+    min_wells : int
+        Minimum number of wells contributing in a given year for a
+        centroid value to be returned.
+    wells_provenance : pd.DataFrame or None
+        Per-well provenance flags (same shape and column names as
+        ``wells``). When supplied, only measured cells count.
+    min_measured : int or None
+        Forwarded to ``metric_fn``; None uses that metric's own default
+        (2 of 4 for the summer minimum, 3 of 3 for the spring mean).
+
+    Returns
+    -------
+    dict : {year: float}
+    """
     per_well = {}
-    for w in forest_wells:
+    for w in control_wells:
         if w in wells.columns:
             prov = (wells_provenance[w]
                     if wells_provenance is not None and w in wells_provenance.columns
                     else None)
-            per_well[w] = annual_summer_minimum(
-                wells[w], start_year, end_year,
-                provenance=prov, min_measured=min_measured,
+            kwargs = {} if min_measured is None else {"min_measured": min_measured}
+            per_well[w] = metric_fn(
+                wells[w], start_year, end_year, provenance=prov, **kwargs,
             )
 
     all_years = set()
@@ -930,6 +1182,21 @@ def forest_control_centroid_summer_min(wells, forest_wells,
             centroid[yr] = np.mean(vals)
 
     return centroid
+
+
+def forest_control_centroid_spring_mean(wells, control_wells,
+                                        start_year=2006, end_year=2026,
+                                        min_wells=2, wells_provenance=None,
+                                        min_measured=None):
+    """Control-centroid annual SPRING MEAN — spring sibling of
+    ``forest_control_centroid_summer_min``. See that function and
+    ``control_centroid_seasonal`` for parameters.
+    """
+    return control_centroid_seasonal(
+        wells, control_wells, annual_spring_mean,
+        start_year=start_year, end_year=end_year, min_wells=min_wells,
+        wells_provenance=wells_provenance, min_measured=min_measured,
+    )
 
 
 # ============================================================================

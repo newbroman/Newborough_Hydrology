@@ -171,6 +171,59 @@ MixedModel_Climate_Forest Ctrl_clearfell,Forest Ctrl,,0.0563,m,"p=0.3031, model=
 MixedModel_Climate_Coastal Ctrl_clearfell,Coastal Ctrl,,-0.0386,m,"p=0.3603, model=Mixed-effects (random intercept), N=29",10d
 MixedModel_Climate_Climate Ctrl_clearfell,Climate Ctrl,,0.0533,m,"p=0.0233, model=Mixed-effects (random intercept), N=69",10d
 Clearfell_equilibration_slope_WMC3,WMC3,Post_felling,0.0011,m,"OLS Gap_forest_m 2018-2025, p=0.9604, R2=0.00, n=7 (plain OLS, no AR1; no-decay comparator to 09c scrape equilibration; flatness only, not a step)",10d
+SpringMean_Forest_WMC3_shift,WMC3,Post_felling,-0.0147,m,"p=0.8259, n_pre=6, n_post=8",10d
+SpringMean_Climate_WMC3_shift,WMC3,Post_felling,0.0188,m,"p=0.4638, n_pre=6, n_post=8",10d
+SpringMean_Forest_CEH31_shift,CEH31,Post_felling,-0.1432,m,"p=0.2540, n_pre=7, n_post=8",10d
+SpringMean_Climate_CEH31_shift,CEH31,Post_felling,-0.0281,m,"p=0.6084, n_pre=7, n_post=8",10d
+SpringMean_Forest_CEH20_shift,CEH20,Post_felling,-0.0419,m,"p=0.3094, n_pre=7, n_post=8",10d
+SpringMean_Climate_CEH20_shift,CEH20,Post_felling,0.0732,m,"p=0.2804, n_pre=7, n_post=8",10d
+SpringMean_Forest_CEH30_shift,CEH30,Post_felling,-0.0733,m,"p=0.2393, n_pre=7, n_post=8",10d
+SpringMean_Climate_CEH30_shift,CEH30,Post_felling,0.0418,m,"p=0.4012, n_pre=7, n_post=8",10d
+SpringMean_Forest_CEH16_shift,CEH16,Post_felling,-0.1444,m,"p=0.1903, n_pre=7, n_post=8",10d
+SpringMean_Climate_CEH16_shift,CEH16,Post_felling,-0.0293,m,"p=0.5640, n_pre=7, n_post=8",10d
+SpringMean_Forest_CEH32_shift,CEH32,Post_felling,-0.0128,m,"p=0.5039, n_pre=7, n_post=8",10d
+SpringMean_Climate_CEH32_shift,CEH32,Post_felling,0.1023,m,"p=0.3607, n_pre=7, n_post=8",10d
+SpringMean_Forest_CEH34_shift,CEH34,Post_felling,-0.0311,m,"p=0.1591, n_pre=7, n_post=8",10d
+SpringMean_Climate_CEH34_shift,CEH34,Post_felling,0.084,m,"p=0.3400, n_pre=7, n_post=8",10d
+SpringMean_Forest_CEH33_shift,CEH33,Post_felling,-0.0537,m,"p=0.2029, n_pre=7, n_post=8",10d
+SpringMean_Climate_CEH33_shift,CEH33,Post_felling,0.0614,m,"p=0.3870, n_pre=7, n_post=8",10d
+SpringMean_Forest_NW10_shift,NW10,Post_felling,0.0181,m,"p=0.5444, n_pre=6, n_post=8",10d
+SpringMean_Climate_NW10_shift,NW10,Post_felling,0.0516,m,"p=0.5100, n_pre=6, n_post=8",10d
+SpringMean_Forest_CEH2_shift,CEH2,Post_felling,0.0363,m,"p=0.1038, n_pre=6, n_post=8",10d
+SpringMean_Climate_CEH2_shift,CEH2,Post_felling,0.0698,m,"p=0.3025, n_pre=6, n_post=8",10d
+SpringMean_Forest_CEH19_shift,CEH19,Post_felling,-0.2075,m,"p=0.1903, n_pre=7, n_post=8",10d
+SpringMean_Climate_CEH19_shift,CEH19,Post_felling,-0.0924,m,"p=0.2596, n_pre=7, n_post=8",10d
+SpringMean_Forest_CEH17_shift,CEH17,Post_felling,-0.1807,m,"p=0.1961, n_pre=7, n_post=8",10d
+SpringMean_Climate_CEH17_shift,CEH17,Post_felling,-0.0656,m,"p=0.3075, n_pre=7, n_post=8",10d
+SpringMean_Forest_CEH9_shift,CEH9,Post_felling,-0.1103,m,"p=0.1950, n_pre=6, n_post=8",10d
+SpringMean_Climate_CEH9_shift,CEH9,Post_felling,0.0305,m,"p=0.4996, n_pre=6, n_post=8",10d
+SpringMean_Forest_NW7_shift,NW7,Post_felling,-0.0105,m,"p=0.8173, n_pre=6, n_post=8",10d
+SpringMean_Climate_NW7_shift,NW7,Post_felling,0.023,m,"p=0.3251, n_pre=6, n_post=8",10d
+SpringMean_Forest_NW6_shift,NW6,Post_felling,-0.0373,m,"p=0.6042, n_pre=6, n_post=8",10d
+SpringMean_Climate_NW6_shift,NW6,Post_felling,-0.0038,m,"p=0.8722, n_pre=6, n_post=8",10d
+SpringMean_Forest_NW5_shift,NW5,Post_felling,-0.1225,m,"p=0.1918, n_pre=7, n_post=8",10d
+SpringMean_Climate_NW5_shift,NW5,Post_felling,-0.0073,m,"p=0.7688, n_pre=7, n_post=8",10d
+SpringMean_Forest_WMC2_shift,WMC2,Post_felling,-0.111,m,"p=0.3054, n_pre=7, n_post=8",10d
+SpringMean_Climate_WMC2_shift,WMC2,Post_felling,0.0041,m,"p=0.8474, n_pre=7, n_post=8",10d
+SpringMean_Forest_Impact_mean_shift,Impact,,-0.0147,m,"n_wells=1, n_sig=0",10d
+SpringMean_Forest_Edge_mean_shift,Edge,,-0.1007,m,"n_wells=4, n_sig=0",10d
+SpringMean_Forest_Forest Ctrl_mean_shift,Forest Ctrl,,-0.0086,m,"n_wells=5, n_sig=0",10d
+SpringMean_Forest_Climate Ctrl_mean_shift,Climate Ctrl,,-0.0783,m,"n_wells=5, n_sig=0",10d
+SpringMean_Climate_Impact_mean_shift,Impact,,0.0188,m,"n_wells=1, n_sig=0",10d
+SpringMean_Climate_Edge_mean_shift,Edge,,0.0144,m,"n_wells=4, n_sig=0",10d
+SpringMean_Climate_Forest Ctrl_mean_shift,Forest Ctrl,,0.0738,m,"n_wells=5, n_sig=0",10d
+SpringMean_Climate_Climate Ctrl_mean_shift,Climate Ctrl,,0.0093,m,"n_wells=5, n_sig=0",10d
+MixedModelSpring_Forest_Impact_clearfell,Impact,,-0.0174,m,"p=0.8510, model=OLS (single well), N=14",10d
+MixedModelSpring_Forest_Edge_clearfell,Edge,,-0.1458,m,"p=0.0027, model=Mixed-effects (random intercept), N=60",10d
+MixedModelSpring_Forest_Forest Ctrl_clearfell,Forest Ctrl,,-0.0181,m,"p=0.2171, model=Mixed-effects (random intercept), N=73",10d
+MixedModelSpring_Forest_Coastal Ctrl_clearfell,Coastal Ctrl,,-0.2805,m,"p=0.0110, model=Mixed-effects (random intercept), N=30",10d
+MixedModelSpring_Forest_Climate Ctrl_clearfell,Climate Ctrl,,-0.1188,m,"p=0.0064, model=Mixed-effects (random intercept), N=72",10d
+MixedModelSpring_Climate_Impact_clearfell,Impact,,0.0139,m,"p=0.6574, model=OLS (single well), N=14",10d
+MixedModelSpring_Climate_Edge_clearfell,Edge,,0.0289,m,"p=0.3592, model=Mixed-effects (random intercept), N=60",10d
+MixedModelSpring_Climate_Forest Ctrl_clearfell,Forest Ctrl,,0.1067,m,"p=0.0139, model=Mixed-effects (random intercept), N=73",10d
+MixedModelSpring_Climate_Coastal Ctrl_clearfell,Coastal Ctrl,,-0.1058,m,"p=0.0652, model=Mixed-effects (random intercept), N=30",10d
+MixedModelSpring_Climate_Climate Ctrl_clearfell,Climate Ctrl,,0.0168,m,"p=0.2424, model=Mixed-effects (random intercept), N=72",10d
+Clearfell_equilibration_slope_WMC3_spring,WMC3,Post_felling,-0.0286,m,"OLS Gap_forest_m 2018-2025, p=0.2222, R2=0.24, n=8 (plain OLS, no AR1; no-decay comparator to 09c scrape equilibration; flatness only, not a step)",10d
 CoeffShift_WMC3_b1_before,WMC3,Before,2.5244,m,SE=0.2214,10e
 CoeffShift_WMC3_b1_after,WMC3,After,2.4242,m,SE=0.2324,10e
 CoeffShift_WMC3_db1,WMC3,Delta,-0.1002,m,,10e
@@ -449,6 +502,23 @@ FourZoneSummer_contrast_Impact_vs_Forest,Impact - Forest,Post_felling_Jun-Sep,-0
 FourZoneSummer_contrast_Impact_vs_Edge,Impact - Edge,Post_felling_Jun-Sep,0.0213,m,"DERIVED contrast — point estimate exact, but SE/p are covariance-dependent and not comparable to primary contrasts; do not cite as significance (p_derived=0.2587)",10l
 FourZoneSummer_contrast_Impact_vs_C3Warren,Impact - C3/Warren,Post_felling_Jun-Sep,-0.0193,m,"DERIVED contrast — point estimate exact, but SE/p are covariance-dependent and not comparable to primary contrasts; do not cite as significance (p_derived=0.0061)",10l
 FourZoneSummer_contrast_Edge_vs_C3Warren,Edge - C3/Warren,Post_felling_Jun-Sep,-0.0406,m,"DERIVED contrast — point estimate exact, but SE/p are covariance-dependent and not comparable to primary contrasts; do not cite as significance (p_derived=0.0438)",10l
+FourZoneSpring_C3Warren_clearfell_step,C3/Warren,Post_felling_Mar-May,-0.0097,m,"vs Forest; p=0.4069, CI=[-0.0327,0.0133]",10l
+FourZoneSpring_C3Warren_clearfell_step_se,C3/Warren,Post_felling_Mar-May,0.0117,m,,10l
+FourZoneSpring_C3Warren_N,C3/Warren,Mar-May,56.0,well-years,"n_pre=24, n_post=32, n_wells=4",10l
+FourZoneSpring_Edge_clearfell_step,Edge,Post_felling_Mar-May,-0.0464,m,"vs Forest; p=0.0110, CI=[-0.0821,-0.0106]",10l
+FourZoneSpring_Edge_clearfell_step_se,Edge,Post_felling_Mar-May,0.0182,m,,10l
+FourZoneSpring_Edge_N,Edge,Mar-May,56.0,well-years,"n_pre=24, n_post=32, n_wells=4",10l
+FourZoneSpring_Impact_clearfell_step,Impact,Post_felling_Mar-May,-0.0147,m,"vs Forest; p=0.1964, CI=[-0.0370,0.0076]",10l
+FourZoneSpring_Impact_clearfell_step_se,Impact,Post_felling_Mar-May,0.0114,m,,10l
+FourZoneSpring_Impact_N,Impact,Mar-May,14.0,well-years,"n_pre=6, n_post=8, n_wells=1",10l
+FourZoneSpring_R2,all_zones,,0.5724,,Joint model R²,10l
+FourZoneSpring_N,all_zones,,196.0,well-years,Pooled-panel sample size,10l
+FourZoneSpring_contrast_C3Warren_vs_Forest,C3/Warren - Forest,Post_felling_Mar-May,-0.0097,m,"primary; p=0.4069, CI=[-0.0327,0.0133]",10l
+FourZoneSpring_contrast_Edge_vs_Forest,Edge - Forest,Post_felling_Mar-May,-0.0464,m,"primary; p=0.0110, CI=[-0.0821,-0.0106]",10l
+FourZoneSpring_contrast_Impact_vs_Forest,Impact - Forest,Post_felling_Mar-May,-0.0147,m,"primary; p=0.1964, CI=[-0.0370,0.0076]",10l
+FourZoneSpring_contrast_Impact_vs_Edge,Impact - Edge,Post_felling_Mar-May,0.0317,m,"DERIVED contrast — point estimate exact, but SE/p are covariance-dependent and not comparable to primary contrasts; do not cite as significance (p_derived=0.0262)",10l
+FourZoneSpring_contrast_Impact_vs_C3Warren,Impact - C3/Warren,Post_felling_Mar-May,-0.005,m,"DERIVED contrast — point estimate exact, but SE/p are covariance-dependent and not comparable to primary contrasts; do not cite as significance (p_derived=0.0850)",10l
+FourZoneSpring_contrast_Edge_vs_C3Warren,Edge - C3/Warren,Post_felling_Mar-May,-0.0367,m,"DERIVED contrast — point estimate exact, but SE/p are covariance-dependent and not comparable to primary contrasts; do not cite as significance (p_derived=0.0117)",10l
 WMC3_BACI_DiD_step_2015_scraping,WMC3,Post-2015 scrape / pre-fell,-0.0552,m,"raw difference-in-differences, Pre-2015 scrape (baseline) → Post-2015 scrape / pre-fell; consistent with scraping drawdown",10m
 WMC3_BACI_DiD_step_2017_clearfell,WMC3,Post-clearfell / pre-2023,0.0408,m,"raw difference-in-differences, Post-2015 scrape / pre-fell → Post-clearfell / pre-2023; consistent with clearfell recovery",10m
 WMC3_BACI_DiD_step_2023_scraping,WMC3,Post-2023 scrape,-0.0538,m,"raw difference-in-differences, Post-clearfell / pre-2023 → Post-2023 scrape; consistent with scraping drawdown",10m

@@ -1,32 +1,50 @@
 r"""
 
 ====================================================================================
-09c — SUMMER MINIMA ANALYSIS (DUAL CONTROL)
+09c — SEASONAL BACI ANALYSIS (DUAL CONTROL): SUMMER MINIMA + SPRING MEANS
 ====================================================================================
 Purpose
 -------
-Evaluates the scraping effect on the ecologically critical annual summer
-minimum depth (Jun–Sep) at CEH36 and secondary impact wells (CEH18, CEH21).
-Runs against both climate and paired control centroids.  Each well's gap
-(well summer min − control centroid summer min) is compared pre- vs post-
-scraping via Welch t-test.
+Evaluates the scraping effect on two annual seasonal metrics at CEH36 and
+secondary impact wells (CEH18, CEH21), against both climate and paired
+control centroids.  Each well's gap (well value − control centroid value)
+is compared pre- vs post-scraping via Welch t-test.
 
-Mirrors the methodology of Script 10d (clearfell summer minima) but
+  * Summer minimum (Jun–Sep) — the ecologically critical drought low.
+  * Spring mean (Mar–May)    — the season the Curreli ecological
+                               thresholds are defined on.
+
+Both metrics run through the IDENTICAL code path (``_run_metric``, driven by
+``_METRICS``): one value per well per year, same wells, same years, same N.
+The spring mean is NOT a replacement for the summer minimum — both are
+reported.  Being a three-month mean rather than an extreme-order statistic,
+the spring metric is the less noisy of the two.
+
+Mirrors the methodology of Script 10d (clearfell seasonal BACI) but
 applied to the scraping intervention timeline.
 
 The ecological question: does scraping improve the critical summer low
-(which determines dune slack habitat viability), not just the annual mean?
+(which determines dune slack habitat viability), and does it shift the
+spring level that the habitat thresholds are set against?
 
 Outputs
 -------
 CSVs:
   09c_01_summer_minima.csv           — per-well, per-year summer minima
   09c_02_summer_minima_shifts.csv    — per-well pre/post shift summary
-  09c_report_numbers.csv             — all citable values
+  09c_05_spring_means.csv            — per-well, per-year spring means
+  09c_06_spring_means_shifts.csv     — per-well pre/post shift summary
+  09c_report_numbers.csv             — all citable values, BOTH metrics
+                                       (distinguished by Parameter key)
 
 Figures:
   09c_03_summer_minima_climate_ctrl.png — 3-panel: raw, impact gap, control gap
   09c_04_summer_minima_paired.png       — paired BACI: CEH36 vs CEH4
+  09c_07_spring_means_climate_ctrl.png  — spring sibling of 09c_03
+  09c_08_spring_means_paired.png        — spring sibling of 09c_04
+
+Note: the spring figures carry no SD15b/SD16 threshold bands — those are the
+SUMMER slack viability limits and have no spring equivalent.
 
 References
 ----------
@@ -34,7 +52,23 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-07-14
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-08-13 (spring-mean MAM analysis alongside the summer minimum)
+#
+# 1.5.0 — Added the annual SPRING MEAN (Mar-May) as a second seasonal metric,
+#         run through the identical BACI code path as the summer minimum.
+#         The per-metric computation (extraction → per-well CSV → pre/post
+#         Welch shifts → equilibration → figures) moved into _run_metric(),
+#         driven by the _METRICS spec list; main() loads once and loops.
+#         The summer path is unchanged and its outputs are byte-identical.
+#         Spring metric and its 3-of-3 completeness rule come from
+#         clearfell_common (which sources them from config.MSL_SPRING_MONTHS /
+#         MSL_MIN_MONTHS_PER_SPRING) — no new local constants.
+#         Spring figures omit the SD15b/SD16 bands: those are the SUMMER slack
+#         viability limits and have no spring equivalent (Martin, 2026-08-13);
+#         drawing them on spring levels would invite a misreading. The spring
+#         threshold question is deferred to the open MSL5 exceedance item.
+#         Report numbers for both metrics share 09c_report_numbers.csv,
+#         distinguished by Parameter key; existing summer rows are unchanged.
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -53,6 +87,8 @@ from utils.paths import (
     make_all_dirs,
     OUT_09C_SUMMER_MINIMA, OUT_09C_SUMMER_SHIFTS, OUT_09C_REPORT_NUMBERS,
     OUT_09C_FIG_CLIMATE, OUT_09C_FIG_PAIRED,
+    OUT_09C_SPRING_MEANS, OUT_09C_SPRING_SHIFTS,
+    OUT_09C_FIG_SPRING_CLIMATE, OUT_09C_FIG_SPRING_PAIRED,
 )
 from utils.scraping_common import (
     SCRAPING_DATE, INTERVENTION_DATE, SCRAPING_DATE_2, CLIMATE_CONTROLS, SUMMER_MONTHS,
@@ -62,6 +98,8 @@ from utils.scraping_common import (
 )
 from utils.clearfell_common import (
     annual_summer_minimum, forest_control_centroid_summer_min,
+    annual_spring_mean, forest_control_centroid_spring_mean,
+    SPRING_MONTHS, SPRING_MIN_MEASURED,
 )
 from utils.config import (EQUIL_RESIDUAL_WINDOW_YEARS, EQUIL_MIN_FIT_POINTS,
                           SD15b, SD16)
@@ -130,11 +168,66 @@ def equilibration_stats(gap_by_year, event_year, resid_window, min_pts):
     }
 
 
+# ============================================================================
+# SEASONAL METRIC SPECS
+# ============================================================================
+# Both metrics reduce a well to one value per year, so they are
+# interchangeable as the BACI response variable: same wells, same years,
+# same N, no power cost.  The summer minimum is an extreme-order statistic
+# (the lowest single Jun-Sep month) and carries the drought-stress
+# interpretation; the spring mean averages three MAM months, is less noisy,
+# and is the season the Curreli ecological thresholds are defined on.
+# Neither replaces the other — both are reported.
+_METRICS = [
+    {
+        "key": "summer_min",
+        "name": "summer minimum",
+        "title": "Summer Minimum",
+        "season": "Jun–Sep",
+        "months": SUMMER_MONTHS,
+        "metric_fn": annual_summer_minimum,
+        "centroid_fn": forest_control_centroid_summer_min,
+        "min_measured": 2,
+        "value_col": "Summer_min_m",
+        "param_shift": "Summer_min_BACI_shift",
+        # Summer equilibration keys are the committed ones — do NOT suffix,
+        # the report cites them as they stand.
+        "param_suffix": "",
+        "out_data": OUT_09C_SUMMER_MINIMA,
+        "out_shifts": OUT_09C_SUMMER_SHIFTS,
+        "fig_climate": OUT_09C_FIG_CLIMATE,
+        "fig_paired": OUT_09C_FIG_PAIRED,
+        # SD15b/SD16 are the SUMMER slack viability limits.
+        "show_thresholds": True,
+    },
+    {
+        "key": "spring_mean",
+        "name": "spring mean",
+        "title": "Spring Mean",
+        "season": "Mar–May",
+        "months": SPRING_MONTHS,
+        "metric_fn": annual_spring_mean,
+        "centroid_fn": forest_control_centroid_spring_mean,
+        "min_measured": SPRING_MIN_MEASURED,
+        "value_col": "Spring_mean_m",
+        "param_shift": "Spring_mean_BACI_shift",
+        "param_suffix": "_spring",
+        "out_data": OUT_09C_SPRING_MEANS,
+        "out_shifts": OUT_09C_SPRING_SHIFTS,
+        "fig_climate": OUT_09C_FIG_SPRING_CLIMATE,
+        "fig_paired": OUT_09C_FIG_SPRING_PAIRED,
+        # No spring equivalent of SD15b/SD16 exists — see the v1.5.0 note.
+        "show_thresholds": False,
+    },
+]
+
+
 def main():
     make_all_dirs()
     plt.rcParams.update(MPL_DEFAULTS)
 
-    banner("09c", "SUMMER MINIMA ANALYSIS (DUAL CONTROL)", version=__version__)
+    banner("09c", "SEASONAL BACI ANALYSIS (DUAL CONTROL) — "
+                  "SUMMER MINIMA + SPRING MEANS", version=__version__)
 
     phase(1, "Loading data")
     wells, wells_provenance, climate = load_scraping_data()
@@ -153,52 +246,81 @@ def main():
     first_year = max(2011, wells.index.min().year)
     last_year = min(2025, wells.index.max().year)
 
-    phase(2, "Computing annual summer minima")
+    report_rows = []
+    for spec in _METRICS:
+        report_rows += _run_metric(spec, wells, wells_provenance,
+                                   all_wells, first_year, last_year)
+
+    # ── Report numbers — one registry for both metrics ────────────────────
+    phase(6, "Exporting report numbers")
+    pd.DataFrame(report_rows).to_csv(OUT_09C_REPORT_NUMBERS, index=False)
+    saved(f"{OUT_09C_REPORT_NUMBERS.name} ({len(report_rows)} rows)")
+    print("\nDone.")
+
+
+def _run_metric(spec, wells, wells_provenance, all_wells,
+                first_year, last_year):
+    """Run the full dual-control BACI analysis for ONE seasonal metric.
+
+    Identical code path for the summer minimum and the spring mean — only
+    the extraction function, completeness rule, column/parameter labels,
+    output paths and threshold-band flag vary, all supplied by ``spec``
+    (see ``_METRICS``).
+
+    Returns
+    -------
+    list of dict : report-number rows for this metric.
+    """
+    hr()
+    info(f"Metric: {spec['name']} ({spec['season']})")
+
+    phase(2, f"Computing annual {spec['name']}s")
     # Per Defect E fix (scraping_common v1.3.0, 2026-05-19): pass
-    # provenance to annual_summer_minimum so that years with fewer than
-    # 2 measured Jun-Sep months for a given well are excluded. This
-    # drops the phantom 2019 summer minima for NW6 and NW7 (both in
-    # CLIMATE_CONTROLS) that arose from the old limit=3 interpolation
-    # policy.
+    # provenance to the extractor so that years with fewer than the
+    # required number of measured in-season months for a given well are
+    # excluded. For the summer minimum this drops the phantom 2019 values
+    # for NW6 and NW7 (both in CLIMATE_CONTROLS) that arose from the old
+    # limit=3 interpolation policy.
     well_mins = {}
     n_interpolated_per_well_year = {}
     for w in all_wells:
         if w in wells.columns:
             prov_w = (wells_provenance[w]
                       if w in wells_provenance.columns else None)
-            well_mins[w] = annual_summer_minimum(
+            well_mins[w] = spec["metric_fn"](
                 wells[w], first_year, last_year,
-                provenance=prov_w, min_measured=2,
+                provenance=prov_w, min_measured=spec["min_measured"],
             )
-            # Diagnostic count of interpolated Jun-Sep cells per year
+            # Diagnostic count of interpolated in-season cells per year
             # (cells that, under limit=1, are still in the cleaned
             # series but are flagged interpolated). They count toward
-            # the minimum because limit=1 retains them, but reviewers
+            # the metric because limit=1 retains them, but reviewers
             # can see them via the n_interpolated column below.
             if prov_w is not None:
                 for yr in range(first_year, last_year + 1):
                     mask = ((wells[w].index.year == yr)
-                            & (wells[w].index.month.isin(SUMMER_MONTHS)))
+                            & (wells[w].index.month.isin(spec["months"])))
                     n_interp = int((prov_w[mask] == 'interpolated').sum())
                     n_interpolated_per_well_year[(w, yr)] = n_interp
 
-    climate_centroid_mins = forest_control_centroid_summer_min(
+    climate_centroid_mins = spec["centroid_fn"](
         wells, CLIMATE_CONTROLS, first_year, last_year,
-        wells_provenance=wells_provenance, min_measured=2)
+        wells_provenance=wells_provenance,
+        min_measured=spec["min_measured"])
     paired_mins = {}
     for ctrl in sorted(set(PAIRED_CONTROLS_MAP.values())):
         if ctrl in wells.columns:
             prov_ctrl = (wells_provenance[ctrl]
                          if ctrl in wells_provenance.columns else None)
-            paired_mins[ctrl] = annual_summer_minimum(
+            paired_mins[ctrl] = spec["metric_fn"](
                 wells[ctrl], first_year, last_year,
-                provenance=prov_ctrl, min_measured=2,
+                provenance=prov_ctrl, min_measured=spec["min_measured"],
             )
 
     print(f"   {len(well_mins)} wells, {len(climate_centroid_mins)} centroid years")
 
-    # ── 3. Export per-well summer minima ───────────────────────────────────
-    phase(3, "Exporting per-well summer minima")
+    # ── 3. Export per-well seasonal values ─────────────────────────────────
+    phase(3, f"Exporting per-well {spec['name']}s")
     data_rows = []
     for w in all_wells:
         if w not in well_mins:
@@ -207,7 +329,7 @@ def main():
             row = {
                 "Well": w.upper(),
                 "Year": yr,
-                "Summer_min_m": round(val, 4),
+                spec["value_col"]: round(val, 4),
                 "n_interpolated": n_interpolated_per_well_year.get((w, yr), 0),
             }
             if yr in climate_centroid_mins:
@@ -219,8 +341,8 @@ def main():
                 row["Gap_paired_m"] = round(val - paired_mins[ctrl][yr], 4)
             data_rows.append(row)
     data_df = pd.DataFrame(data_rows)
-    data_df.to_csv(OUT_09C_SUMMER_MINIMA, index=False)
-    saved(f"{OUT_09C_SUMMER_MINIMA.name} ({len(data_df)} rows)")
+    data_df.to_csv(spec["out_data"], index=False)
+    saved(f"{spec['out_data'].name} ({len(data_df)} rows)")
 
     # ── 4. Compute pre/post shifts ────────────────────────────────────────
     phase(4, "Computing pre/post shifts")
@@ -259,16 +381,16 @@ def main():
                 "Sig": significance_stars(p_val),
             })
             report_rows.append({
-                "Parameter": "Summer_min_BACI_shift", "Well": w.upper(),
+                "Parameter": spec["param_shift"], "Well": w.upper(),
                 "Control": ctrl_label, "Value": round(shift, 4), "Unit": "m",
                 "Note": f"n_pre={len(gaps_pre)}, n_post={len(gaps_post)}, p={format_p_value(p_val)}",
             })
 
     shift_df = pd.DataFrame(shift_rows)
-    shift_df.to_csv(OUT_09C_SUMMER_SHIFTS, index=False)
-    saved(f"{OUT_09C_SUMMER_SHIFTS.name} ({len(shift_df)} rows)")
+    shift_df.to_csv(spec["out_shifts"], index=False)
+    saved(f"{spec['out_shifts'].name} ({len(shift_df)} rows)")
 
-    print("\n   Summer minimum shifts (mm):")
+    print(f"\n   {spec['name'].capitalize()} shifts (mm):")
     for ctrl_label in ["Climate", "Paired"]:
         ctrl_shifts = shift_df[shift_df["Control"] == ctrl_label]
         if ctrl_shifts.empty:
@@ -285,7 +407,8 @@ def main():
     # climate-corrected gap (headline) and the CEH36-CEH4 paired gap
     # (robustness). Reported soft; windows derive from SCRAPING_DATE, the
     # observed peak, and last_year (no hardcoded years).
-    info("Characterising scrape equilibration (decay) at CEH36")
+    info(f"Characterising scrape equilibration (decay) at CEH36 "
+         f"[{spec['name']}]")
     if "ceh36" in well_mins:
         c36 = well_mins["ceh36"]
         equil_specs = [("Climate", climate_centroid_mins)]
@@ -303,14 +426,16 @@ def main():
                 continue
             no_turnover = eq["peak_year"] >= eq["last"]
             report_rows.append({
-                "Parameter": "Scrape_equilibration_peak", "Well": "CEH36",
+                "Parameter": "Scrape_equilibration_peak" + spec["param_suffix"],
+                "Well": "CEH36",
                 "Control": ctrl_label, "Value": round(eq["peak"], 4), "Unit": "m",
                 "Note": (f"year={eq['peak_year']}"
                          + (" (series maximum is the final year \u2014 no turnover)"
                             if no_turnover else "")),
             })
             report_rows.append({
-                "Parameter": "Scrape_equilibration_residual", "Well": "CEH36",
+                "Parameter": "Scrape_equilibration_residual" + spec["param_suffix"],
+                "Well": "CEH36",
                 "Control": ctrl_label, "Value": round(eq["residual"], 4), "Unit": "m",
                 "Note": (f"mean {eq['resid_start']}-{eq['resid_end']} "
                          f"(final {EQUIL_RESIDUAL_WINDOW_YEARS} yr)"),
@@ -318,7 +443,8 @@ def main():
             if eq["from_peak"]:
                 fp = eq["from_peak"]
                 report_rows.append({
-                    "Parameter": "Scrape_equilibration_slope_from_peak",
+                    "Parameter": ("Scrape_equilibration_slope_from_peak"
+                                  + spec["param_suffix"]),
                     "Well": "CEH36", "Control": ctrl_label,
                     "Value": round(fp["slope_m_per_yr"], 5), "Unit": "m/yr",
                     "Note": (f"OLS {fp['start']}-{fp['end']}, "
@@ -327,7 +453,8 @@ def main():
                 })
             else:
                 report_rows.append({
-                    "Parameter": "Scrape_equilibration_slope_from_peak",
+                    "Parameter": ("Scrape_equilibration_slope_from_peak"
+                                  + spec["param_suffix"]),
                     "Well": "CEH36", "Control": ctrl_label,
                     "Value": "", "Unit": "m/yr",
                     "Note": "degenerate \u2014 peak at final year (no post-peak decay)",
@@ -335,7 +462,8 @@ def main():
             if eq["from_event"]:
                 fe = eq["from_event"]
                 report_rows.append({
-                    "Parameter": "Scrape_equilibration_slope_from_scrape",
+                    "Parameter": ("Scrape_equilibration_slope_from_scrape"
+                                  + spec["param_suffix"]),
                     "Well": "CEH36", "Control": ctrl_label,
                     "Value": round(fe["slope_m_per_yr"], 5), "Unit": "m/yr",
                     "Note": (f"OLS {fe['start']}-{fe['end']}, "
@@ -354,21 +482,17 @@ def main():
 
     # ── 5. Figures ────────────────────────────────────────────────────────
     phase(5, "Generating figures")
-    _plot_climate_control(well_mins, climate_centroid_mins, POST_YEAR)
-    _plot_paired(well_mins, paired_mins, POST_YEAR)
+    _plot_climate_control(well_mins, climate_centroid_mins, POST_YEAR, spec)
+    _plot_paired(well_mins, paired_mins, POST_YEAR, spec)
 
-    # ── 6. Report numbers ─────────────────────────────────────────────────
-    phase(6, "Exporting report numbers")
-    pd.DataFrame(report_rows).to_csv(OUT_09C_REPORT_NUMBERS, index=False)
-    saved(f"{OUT_09C_REPORT_NUMBERS.name} ({len(report_rows)} rows)")
-    print("\nDone.")
+    return report_rows
 
 
 # ============================================================================
 # FIGURES
 # ============================================================================
 
-def _plot_climate_control(well_mins, climate_centroid_mins, post_year):
+def _plot_climate_control(well_mins, climate_centroid_mins, post_year, spec):
     years = sorted(climate_centroid_mins.keys())
     ctrl_vals = [climate_centroid_mins[yr] for yr in years]
     show_wells = ["ceh36", "ceh4", "ceh18", "ceh21", "ceh22"]
@@ -390,8 +514,9 @@ def _plot_climate_control(well_mins, climate_centroid_mins, post_year):
     ax.axvline(SCRAPING_DATE_2.year + 0.5, color="#e7298a", ls="-.", lw=2, alpha=0.8, label="Re-scrape (Oct 2023)")
     ax.axhline(-0.61, color="green", ls=":", alpha=0.4, label="Wet slack threshold")
     ax.axhline(-0.98, color="brown", ls=":", alpha=0.4, label="Dry slack threshold")
-    ax.set_ylabel("Summer minimum depth (m)")
-    ax.set_title("(a) Raw annual summer minimum (Jun\u2013Sep)", loc="left", fontweight="bold")
+    ax.set_ylabel(f"{spec['name'].capitalize()} depth (m)")
+    ax.set_title(f"(a) Raw annual {spec['name']} ({spec['season']})",
+                 loc="left", fontweight="bold")
     ax.legend(fontsize=8, ncol=3, loc="lower left",
               bbox_to_anchor=(INTERVENTION_DATE.year + 0.5, 0.0),
               bbox_transform=ax.get_xaxis_transform(), framealpha=0.9)
@@ -437,16 +562,16 @@ def _plot_climate_control(well_mins, climate_centroid_mins, post_year):
     ax.legend(fontsize=9)
     ax.grid(axis="y", alpha=0.25)
 
-    fig.suptitle("Summer Minimum Analysis \u2014 Scraping Intervention\n"
+    fig.suptitle(f"{spec['title']} Analysis \u2014 Scraping Intervention\n"
                  "Annual Jun\u2013Sep minimum depth vs climate control centroid",
                  fontsize=13, fontweight="bold", y=0.995)
     plt.tight_layout()
-    render_figure(plt.gcf(), OUT_09C_FIG_CLIMATE)
+    render_figure(plt.gcf(), spec["fig_climate"])
     plt.close()
-    saved(f"{OUT_09C_FIG_CLIMATE.name}")
+    saved(f"{spec['fig_climate'].name}")
 
 
-def _plot_paired(well_mins, paired_mins, post_year):
+def _plot_paired(well_mins, paired_mins, post_year, spec):
     if "ceh36" not in well_mins or "ceh4" not in paired_mins:
         warn("CEH36 or CEH4 missing — skipping paired figure")
         return
@@ -466,12 +591,17 @@ def _plot_paired(well_mins, paired_mins, post_year):
     ax.axvline(post_year - 0.5, color="#DAA520", ls="--", lw=2.5, alpha=0.7, label="Scraping (Apr 2015)")
     ax.axvline(INTERVENTION_DATE.year + 0.5, color="#1b5e20", ls="-.", lw=2.5, alpha=0.8, label="Clearfell (Dec 2017)")
     ax.axvline(SCRAPING_DATE_2.year + 0.5, color="#e7298a", ls="-.", lw=2.5, alpha=0.8, label="Re-scrape (Oct 2023)")
-    ax.axhline(-SD15b, color="green", ls=":", lw=1.5, alpha=0.4,
-               label=f"Wet slack threshold (\u2212{SD15b:.2f} m)")
-    ax.axhline(-SD16, color="brown", ls=":", lw=1.5, alpha=0.4,
-               label=f"Dry slack threshold (\u2212{SD16:.2f} m)")
-    ax.set_ylabel("Summer minimum depth (m)")
-    ax.set_title("(a) Annual summer minimum: CEH36 vs CEH4", loc="left", fontweight="bold")
+    # SD15b/SD16 are the SUMMER slack viability limits; there is no spring
+    # equivalent constant, so the spring figure carries no threshold bands
+    # rather than reusing summer limits on a spring metric.
+    if spec["show_thresholds"]:
+        ax.axhline(-SD15b, color="green", ls=":", lw=1.5, alpha=0.4,
+                   label=f"Wet slack threshold (\u2212{SD15b:.2f} m)")
+        ax.axhline(-SD16, color="brown", ls=":", lw=1.5, alpha=0.4,
+                   label=f"Dry slack threshold (\u2212{SD16:.2f} m)")
+    ax.set_ylabel(f"{spec['name'].capitalize()} depth (m)")
+    ax.set_title(f"(a) Annual {spec['name']}: CEH36 vs CEH4",
+                 loc="left", fontweight="bold")
     ax.legend(fontsize=9, ncol=2)
     ax.grid(axis="y", alpha=0.25)
     ax.invert_yaxis()
@@ -497,17 +627,18 @@ def _plot_paired(well_mins, paired_mins, post_year):
                 bbox=dict(boxstyle="round,pad=0.4", facecolor="lightyellow", edgecolor="#DAA520", alpha=0.9))
     ax.set_xlabel("Year")
     ax.set_ylabel("Gap: CEH36 \u2212 CEH4 (m)")
-    ax.set_title("(b) Paired BACI gap (summer minimum)", loc="left", fontweight="bold")
+    ax.set_title(f"(b) Paired BACI gap ({spec['name']})",
+                 loc="left", fontweight="bold")
     ax.legend(fontsize=9)
     ax.grid(axis="y", alpha=0.25)
 
-    fig.suptitle("Summer Minimum Paired BACI \u2014 CEH36 (scraped) vs CEH4 (control)\n"
+    fig.suptitle(f"{spec['title']} Paired BACI \u2014 CEH36 (scraped) vs CEH4 (control)\n"
                  "Newborough Warren, annual Jun\u2013Sep minimum depth",
                  fontsize=13, fontweight="bold", y=0.995)
     plt.tight_layout()
-    render_figure(plt.gcf(), OUT_09C_FIG_PAIRED)
+    render_figure(plt.gcf(), spec["fig_paired"])
     plt.close()
-    saved(f"{OUT_09C_FIG_PAIRED.name}")
+    saved(f"{spec['fig_paired'].name}")
 
 
 if __name__ == "__main__":

@@ -71,3 +71,7 @@ report_edits/_superseded/
 # Sentinel-watcher auto-push state (runtime only; never versioned).
 # Sentinel, logs, result and lock for tools/nrg_push_watch.sh + nrg_autopush.sh.
 .nrg_push/
+
+# local trash folder + LibreOffice deleted-but-open relics — never commit
+/_to_delete/
+.fuse_hidden*

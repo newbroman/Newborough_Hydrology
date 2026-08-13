@@ -162,6 +162,24 @@ _KNOWN_OBSERVATIONS = {
         "producer": "10l",
         "description": "Four-zone summer-minima BACI — C3/Warren-vs-Forest differential felling step on the annual Jun–Sep minimum. C3/Warren is a second control zone; this step is expected to be ~0 and a clearly non-zero value is a flag, not a felling finding.",
     },
+    "four_zone_spring_step_impact": {
+        "default": 0.0,
+        "unit": "m",
+        "producer": "10l",
+        "description": "Four-zone spring-mean BACI — Impact-vs-Forest differential felling step on the annual Mar–May mean (well-FE, cluster-robust, 2011 balanced cutoff, no scraping/CWB term).",
+    },
+    "four_zone_spring_step_edge": {
+        "default": 0.0,
+        "unit": "m",
+        "producer": "10l",
+        "description": "Four-zone spring-mean BACI — Edge-vs-Forest differential felling step on the annual Mar–May mean.",
+    },
+    "four_zone_spring_step_c3warren": {
+        "default": 0.0,
+        "unit": "m",
+        "producer": "10l",
+        "description": "Four-zone spring-mean BACI — C3/Warren-vs-Forest differential felling step on the annual Mar–May mean. C3/Warren is a second control zone; this step is expected to be ~0 and a clearly non-zero value is a flag, not a felling finding.",
+    },
 }
 
 

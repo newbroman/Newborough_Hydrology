@@ -15,3 +15,19 @@ Scrape_equilibration_peak,CEH36,Paired,0.3,m,year=2025 (series maximum is the fi
 Scrape_equilibration_residual,CEH36,Paired,0.182,m,mean 2021-2025 (final 5 yr)
 Scrape_equilibration_slope_from_peak,CEH36,Paired,,m/yr,degenerate — peak at final year (no post-peak decay)
 Scrape_equilibration_slope_from_scrape,CEH36,Paired,0.00697,m/yr,"OLS 2016-2025, p=0.3419, R2=0.11, n=10 (plain OLS, no AR1)"
+Spring_mean_BACI_shift,CEH18,Climate,-0.0542,m,"n_pre=4, n_post=11, p=0.2312"
+Spring_mean_BACI_shift,CEH18,Paired,0.0175,m,"n_pre=4, n_post=11, p=0.7057"
+Spring_mean_BACI_shift,CEH21,Climate,-0.1067,m,"n_pre=4, n_post=11, p=0.1913"
+Spring_mean_BACI_shift,CEH21,Paired,0.0568,m,"n_pre=4, n_post=10, p=0.2311"
+Spring_mean_BACI_shift,CEH22,Climate,-0.1654,m,"n_pre=4, n_post=10, p=0.1927"
+Spring_mean_BACI_shift,CEH36,Climate,0.0456,m,"n_pre=4, n_post=11, p=0.5367"
+Spring_mean_BACI_shift,CEH36,Paired,0.1173,m,"n_pre=4, n_post=11, p=0.0028"
+Spring_mean_BACI_shift,CEH4,Climate,-0.0717,m,"n_pre=4, n_post=11, p=0.3893"
+Scrape_equilibration_peak_spring,CEH36,Climate,0.2367,m,year=2017
+Scrape_equilibration_residual_spring,CEH36,Climate,0.0219,m,mean 2021-2025 (final 5 yr)
+Scrape_equilibration_slope_from_peak_spring,CEH36,Climate,-0.01878,m/yr,"OLS 2017-2025, p=0.1562, R2=0.26, n=9 (plain OLS, no AR1)"
+Scrape_equilibration_slope_from_scrape_spring,CEH36,Climate,-0.0082,m/yr,"OLS 2016-2025, p=0.4864, R2=0.06, n=10 (plain OLS, no AR1)"
+Scrape_equilibration_peak_spring,CEH36,Paired,0.1733,m,year=2025 (series maximum is the final year — no turnover)
+Scrape_equilibration_residual_spring,CEH36,Paired,0.12,m,mean 2021-2025 (final 5 yr)
+Scrape_equilibration_slope_from_peak_spring,CEH36,Paired,,m/yr,degenerate — peak at final year (no post-peak decay)
+Scrape_equilibration_slope_from_scrape_spring,CEH36,Paired,0.00392,m/yr,"OLS 2016-2025, p=0.3310, R2=0.12, n=10 (plain OLS, no AR1)"

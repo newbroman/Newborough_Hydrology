@@ -1,0 +1,6 @@
+Cluster,Label,n_years,Slope_m_per_yr,R2,p_value
+C1,C1 (Lake Edge),19,0.0065,0.05,0.3561
+C2,C2 (Dune),21,0.0003,0.0,0.9734
+C3,C3 (Western Residual),21,-0.001,0.0,0.9277
+C4,C4 (Main Forest),19,-0.0012,0.0,0.954
+C5,C5 (Coastal Forest),20,-0.0379,0.267,0.0197

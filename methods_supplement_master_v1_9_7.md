@@ -4,7 +4,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 *This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.*
 
-Document version: 1.9.6 (August 2026).
+Document version: 1.9.7 (August 2026).
 
 ## []{#anchor}Pipeline at a glance
 
@@ -1417,6 +1417,8 @@ Outputs.
 -   **S.12** --- Script 17 WTF Sy, consumed by 09d (CEH36-specific Sy) and by *load_cluster_params()* (cluster-median Sy).
 -   **S.14** --- Script 21 forestry scenarios; uses the same *scraping_common.compute_scenario_bars()* engine for cross-cluster forestry projections.
 
+**Spring-mean companion metric (Script 09c v1.5.0).** Alongside the summer minimum, Script 09c computes an annual spring mean (Mar–May) through the identical dual-control BACI code path (a `_METRICS` spec list driving `_run_metric()`). Both metrics reduce a well to one value per year, so the spring mean carries the same N, wells and controls as the summer minimum at no power cost; being a three-month mean rather than an extreme-order statistic it is the less noisy of the two. The spring season and its strict 3-of-3 completeness rule are the `MSL_SPRING_MONTHS` / `MSL_MIN_MONTHS_PER_SPRING` constants (F.4), sourced via `clearfell_common`. Outputs *09c_05*--*09c_08* (spring means, pre/post shifts, and the two spring figures) mirror the summer set; the spring figures carry no SD15b/SD16 threshold bands, which are summer slack-viability limits with no spring equivalent. Spring rows append to *09c_report_numbers.csv*. Results are collected in Supplementary Note S8.
+
 ## []{#anchor}S.7 Script 10 suite (a--m) --- Clearfell BACI
 
 Step 10 / 30 (sub-scripts 10a--10m). Phase 3 --- Model Diagnostics and Intervention Analysis.
@@ -1817,6 +1819,8 @@ The suite-shared module sits at *src/utils/clearfell_common.py* and provides eve
 -   **S.14** --- Script 21 forestry scenarios, which consume 10e's BACI-corrected β₂ multiplier via *load_clearfell_b2_multiplier()*.
 -   **S.15** --- Script 25 coastal-retreat gradient, which informs the easting × time correction in 10a's ANCOVA. 10j's identification design is the corroborator that bypasses that correction; the two estimators are designed to be cross-checked rather than to agree by construction.
 
+**Spring-mean companion metric (10d v1.7.0, 10l v1.2.0).** The clearfell BACI summer-minimum scripts gain the annual spring mean (Mar–May) as a second seasonal metric through the same code path. In Script 10d the per-metric body (extraction, pre/post Welch shifts, mixed-effects models, figures) runs once per metric with a single shared *ReportNumbers* accumulator created and saved outside the loop. In the four-zone Script 10l the panel assembly, fit, contrasts and figures are parameterised on the metric; the spring panel is selected by the same WMC3 gatekeeper applied to Mar–May (*wmc3_usable_spring_years*). Because WMC3's spring record is near-complete, the spring panel gains a year: 2011 + 2013--2025 = 14 years (only 2012 dropped) against the summer panel's 13 (2012 and 2019 dropped) --- 2019, unusable in summer, is fully measured in spring --- even under the stricter 3-of-3 rule. The spring branch carries no Script-10j cross-check (there is no 10j spring estimator). Outputs *10d_06*--*10d_10* and *10l_06*--*10l_10*; spring rows append to the shared per-metric report-numbers files and three *four_zone_spring_step_\** keys are added to the site-observations registry. Results in Supplementary Note S8.
+
 # []{#anchor}Phase 4 --- Climate and Spatial Context
 
 ## []{#anchor}S.8 Scripts 00, 12, 13, 14 --- Climate baseline and site-overview figures
@@ -1949,6 +1953,8 @@ Cross-references.
 
 -   §7 Conclusion 11 of the main report --- the "around 2030--2032" qualitative date band is replaced by the bootstrap CI from this script (median 2022, 90% CI 2017--2042 for C1 SD16).
 -   §4.10.1 of the main report --- the figure *14b_year_of_crossing.png* lands here as supporting evidence for the seasonal-prediction discussion in §5.2.4.
+
+**Spring-mean centroid trend (Script 14 v1.4.x).** Script 14 gains a spring-mean (Mar–May) cluster-centroid trend alongside its summer-minimum and winter-maximum trends, on the same descriptive-OLS footing from *03_regional_averages.csv*, emitting *14_spring_trend_stats.csv* (same columns as *14_summer_trend_stats.csv*) and a trajectory figure *14_climate_trajectory_spring.png* (observed means with per-cluster OLS trends; no projection and no threshold bands). Unlike the summer minimum and winter maximum --- indexed by the October-start hydrology year --- the spring mean sits wholly inside a calendar year and is indexed by calendar year (as Script 36 does, S.20). The spring trend is flat for every cluster except C5 (Coastal Forest, −0.038 m yr⁻¹, p = 0.020); see Supplementary Note S8.
 
 ## []{#anchor}S.9 Scripts 11, 11b --- Forecasting and spatial thresholds
 
@@ -2992,6 +2998,13 @@ The per-cluster attribution under the headline fit is in *25_03_cluster_partitio
 
 The BACI corroboration in *25_04_baci_corroboration.csv* is the chapter's substantive payoff. For Forest-Impact --- the principal BACI clearfell test --- the easting × time coefficient absorbs an implied differential deepening of −16.8 mm yr⁻¹ (SE 5.0); the gradient model predicts −11.0 mm yr⁻¹. The two agree at z = −1.18, "consistent". Climate-Impact is the one comparison the live data flags as *not* consistent (z = 2.17): the BACI absorbs +10.0 mm yr⁻¹ where the gradient model --- with impact and climate-control wells at almost identical distances to coast --- predicts essentially zero (−0.9 mm yr⁻¹). The Forest-Edge comparison is consistent (z = −0.29) and the Climate-Edge comparison sits just inside the threshold (z = 1.96). The Impact-zone Forest comparison is what matters for the BACI clearfell step's interpretation, and it is consistent; the Climate-Impact discrepancy reflects the easting × time covariate at the Climate-control tier absorbing spatial drift in components the coastal-retreat model does not represent. Headline numbers are repeated in *25_report_numbers.csv* for downstream cross-referencing.
 
+### []{#anchor}Spring-mean branch and the season × gradient interaction test (v1.5.x)
+
+Script 25 adds the spring mean (Mar–May) as a second per-well seasonal metric (*compute_per_well_slopes(metric=…)*; spring uses a Mar–May calendar-year mean under the strict 3-of-3 rule, otherwise identical OLS and the same *PANEL_OBS_MIN_YEARS = 8* guard). Crucially, the panel fit and the coastal-retreat gradient are all-season (metric-independent) and remain the headline; the spring branch reuses that same forest-free linear-capped fit and differs only in the per-well response and the Script-14 observed-centroid table it is decomposed against (*14_spring_trend_stats.csv*). This is the exact parallel of the committed summer decomposition, so any spring--summer difference is attributable to the metric alone rather than to a refitted gradient. The BACI corroboration (*25_04*) is metric-independent and is not re-emitted.
+
+Two diagnostics accompany the spring branch. First, six MAM-only panel refits (the three specifications × two forms, restricted to Mar–May rows) are appended to *25_01_panel_fit_parameters.csv* as a sensitivity: on a quarter of the panel, with the month fixed effects collapsed from 11 dummies to 2, the forest-free δ₀ standard error roughly doubles (1.92 to 3.34 mm yr⁻¹) and the reach SE loosens (51 to 83 m) while the point estimates hold (δ₀ −31.0, L 894 m) --- expected sampling behaviour, not a seasonal finding. Second, a full-panel season × δ(d)·t interaction test fits δ(d)·t·(1 + γ·S), with S = 1 in Mar–May, on the forest-free panel (11,777 observations, one model), estimating γ --- the fractional change in the gradient drift rate in spring --- with a Wald p-value (*25_09_season_interaction_test.csv*). This is the clean single-model test of whether the coastal-retreat gradient is itself seasonal, in place of comparing two subset fits with overlapping CIs. γ = +0.058 ± 0.048 (t = 1.20, p = 0.23) for the linear-capped form and +0.059 ± 0.048 (p = 0.22) for the exponential: the gradient is about 6 % steeper in spring as a point estimate but statistically indistinguishable from season-independent. The all-season gradient is therefore the appropriate framing, and the coastal-retreat signal is read as a year-round boundary effect. The new spring outputs are listed in the Outputs table below; full results, including the summer-vs-spring cluster comparison, are in Supplementary Note S8.
+
+
 ### []{#anchor}Limitations and known caveats
 
 -   **The coastal-retreat rate itself is not fitted.** The model fits a per-well *response* to distance from a *known eroding boundary*; it does not derive the retreat rate from the water-level data. The literature value (\~50 m over 2014--2020, with acute losses in Storm Brendan, January 2020) is the assumed driver.
@@ -3012,6 +3025,12 @@ The BACI corroboration in *25_04_baci_corroboration.csv* is the chapter's substa
   *25_coastal_gradient/25_06_baci_corroboration_chart.jpg*   Forest plot of BACI absorption vs model prediction per pair                                                                                                                      Report figure
   *25_coastal_gradient/25_07_cluster_decomposition.png*      Horizontal stacked-bar figure: each cluster's observed centroid slope decomposed into climate + coastal + residual. New at v1.1.0 (2026-05-29, folded in from retired Script 30) Report §4.8.2 figure
   *25_coastal_gradient/25_report_numbers.csv*                Headline numbers in project-standard *Parameter, Well, Era, Value, Unit, Note* format                                                                                            Report cross-referencing
+  *25_coastal_gradient/25_02_per_well_spring_mean_slopes.csv* Per-well annual spring-mean OLS slopes (spring sibling of 25_02)                                                                                                                 Supp. Note S8
+  *25_coastal_gradient/25_03_cluster_partition_spring.csv*   Spring cluster attribution: all-season gradient applied to 14_spring_trend_stats.csv                                                                                             Supp. Note S8
+  *25_coastal_gradient/25_05_fit_diagnostic_spring.jpg*      Spring diagnostic: per-well spring slopes with the all-season fits, and the spring cluster decomposition                                                                         Supp. Note S8
+  *25_coastal_gradient/25_07_cluster_decomposition_spring.png* Spring per-cluster decomposition (spring sibling of 25_07)                                                                                                                       Supp. Note S8
+  *25_coastal_gradient/25_08_spring_vs_summer_comparison.csv* Observed centroid slope by cluster, summer minimum versus spring mean (+ .png figure)                                                                                            Supp. Note S8
+  *25_coastal_gradient/25_09_season_interaction_test.csv*    Season × δ(d)·t interaction test: γ, SE, t, p on the forest-free panel                                                                                                           Supp. Note S8
   ---------------------------------------------------------- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ---------------------------
 
 All paths resolve through *utils/paths.py* (*OUT_25_FIT_PARAMETERS*, *OUT_25_PER_WELL_SLOPES*, *OUT_25_CLUSTER_PARTITION*, *OUT_25_BACI_CORROBORATION*, *OUT_25_FIT_DIAGNOSTIC*, *OUT_25_BACI_CHART*, *OUT_25_CLUSTER_DECOMP_FIG*, *OUT_25_REPORT_NUMBERS*, *DIR_25*).
@@ -3036,6 +3055,7 @@ All paths resolve through *utils/paths.py* (*OUT_25_FIT_PARAMETERS*, *OUT_25_PER
 -   **S.13** --- Script 19's residual and per-well slope figures show the same coast-to-inland gradient from an independent visualization. Script 20's coastal-process figures (*20_coastal_erosion.png*, *20_slr_response.png*, *20_coastal_net_effect.png*) consume δ₀ and L from this chapter's *25_01_panel_fit_parameters.csv* live at generation time; see *COASTAL_NET_VS_EASTING_MEMO.md* (project store) for the SLR-extended comparison against the BACI easting × time coefficient.
 -   **S.15c** --- Script 09f (spatial-reach synthesis figure) reads δ₀ and L live from *25_01_panel_fit_parameters.csv* produced by this chapter.
 -   **S.15d** --- Script 09g (mechanism diagrams) draws its coastal reach from the columns of *09f_01_reach_profile.csv*, whose coastal decay derives from this chapter's δ₀ and L.
+-   **Supplementary Note S8** --- the spring-mean seasonal robustness analysis (Scripts 09c, 10d, 10l, 14, 25), which reuses this chapter's all-season coastal-retreat gradient and adds the season × gradient interaction test.
 -   **S.16** --- Scripts 22/23/24 residual diagnostics, which benefit from the coastal-gradient framing established here.
 
 ## []{#anchor}S.15c Script 09f --- Management-interventions-versus-coastal-retreat spatial reach

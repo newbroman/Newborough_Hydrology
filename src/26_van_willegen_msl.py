@@ -94,7 +94,17 @@ Curreli, A. et al. (2013) — SD15b/SD16 threshold reference lines.
 
 from __future__ import annotations
 
-__version__ = "1.6.0"  # Hollingham (2026) — 2026-08-08 (duplicate frame columns collapsed)
+__version__ = "1.7.0"  # Hollingham (2026) — 2026-08-13
+# v1.7.0 (2026-08-13): dead upstand plumbing removed — _ground_offset() and the
+#   unused `upstand` parameter of annual_msl_max() (its "reported downstream"
+#   comment was false; the EWI block reads Upstand_m independently and is
+#   unaffected). MSL5 completeness counts now emitted to 26_report_numbers.csv
+#   (msl5_n_annual_valid / _with_interp, msl5_n_windows_admitted / _with_interp)
+#   so the report §3.7.5 gap-fill sentence quotes committed numbers.
+#   annual_msl_max docstring corrected: months present in the QC record (Script
+#   01 single-month gap-fills count as present, tracked via
+#   n_interpolated_spring), not "measurements". No numerical output changes.
+# v1.6.0 (2026-08-08): duplicate frame columns collapsed.
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -248,23 +258,15 @@ def _to_long(wells_clean: pd.DataFrame) -> pd.DataFrame:
     return long
 
 
-def _ground_offset(elev: pd.DataFrame) -> pd.Series:
-    """
-    Return per-well Upstand_m (metres pipe-top is above ground).
-    All levels are ground-referenced (master `depth from surface` = upstand - dip).
-    """
-    elev = elev.copy()
-    elev["well"] = elev["Name"].astype(str).str.strip().str.lower().str.replace(" ", "")
-    return elev.set_index("well")["Upstand_m"]
-
-
 # ── Pass 1: annual MSL and MAX per well per hydrology year ───────────────────
 def annual_msl_max(long: pd.DataFrame,
-                   upstand: pd.Series,
                    provenance_long: pd.DataFrame | None) -> pd.DataFrame:
     """
     For each (well, hydro_year):
-      MSL = mean of level over Mar/Apr/May (only if 3 measurements present)
+      MSL = mean of level over Mar/Apr/May — admitted only if all three spring
+            months are present in the quality-controlled record (Script 01's
+            single-month gap-fills count as present and are tracked via
+            n_interpolated_spring)
       MAX = max of level over full hydro year (1 Jun y-1 to 31 May y)
 
     Both expressed in the depth-below-ground frame (paper convention).
@@ -297,11 +299,9 @@ def annual_msl_max(long: pd.DataFrame,
     else:
         annual["n_interpolated_spring"] = 0
 
-    # No conversion: levels are already ground-referenced (v1.6.0). The
-    # `upstand` series is retained as a parameter because it is reported
-    # downstream, not applied here.
+    # No conversion: levels are already ground-referenced (v1.6.0).
 
-    # validity: STRICT 3-of-3
+    # validity: STRICT 3-of-3 (months present in the QC record)
     annual["valid"] = (annual["n_spring_months"] >= MSL_MIN_MONTHS_PER_SPRING)
 
     return annual[["well", "hydro_year",
@@ -1696,7 +1696,6 @@ def main() -> int:
 
     elev = pd.read_csv(paths.INT_WELL_ELEVATIONS)
     print(f"  {paths.INT_WELL_ELEVATIONS.name:<28s} : {elev.shape[0]} wells")
-    upstand = _ground_offset(elev)
 
     locations = pd.read_csv(paths.INT_LOCATIONS)
     print(f"  {paths.INT_LOCATIONS.name:<28s} : {locations.shape[0]} wells")
@@ -1759,7 +1758,7 @@ def main() -> int:
         long = long_ref
 
     # ── Pass 1 ────────────────────────────────────────────────────────────
-    annual = annual_msl_max(long, upstand, prov_long)
+    annual = annual_msl_max(long, prov_long)
     annual.to_csv(OUT_ANNUAL, index=False)
     print(f"\nPass 1 — annual MSL/MAX: {len(annual)} (well, hydro_year) rows; "
           f"{annual['valid'].sum()} valid (3/3 spring rule)")
@@ -1843,6 +1842,20 @@ def main() -> int:
     comp = pd.DataFrame()
     calib: dict = {}
     report_nums: dict = {}
+    # MSL5 completeness counts (v1.7.0) — committed trace for the report
+    # §3.7.5 gap-fill sentence. Counted over admitted (valid) annual spring
+    # means and admitted 5-year windows; interpolated months are Script 01's
+    # single-month bridges, tracked but not excluded.
+    report_nums.update({
+        "msl5_n_annual_valid":
+            int(annual["valid"].sum()),
+        "msl5_n_annual_valid_with_interp":
+            int((annual["valid"] & (annual["n_interpolated_spring"] > 0)).sum()),
+        "msl5_n_windows_admitted":
+            int(len(per_well)),
+        "msl5_n_windows_with_interp":
+            int((per_well["n_interp_in_window"] > 0).sum()),
+    })
     if not ewi.empty:
         comp, calib = compute_ewi_msl5_comparison(ewi, latest)
         if not comp.empty:

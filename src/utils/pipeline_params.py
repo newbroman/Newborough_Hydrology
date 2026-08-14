@@ -38,13 +38,17 @@ recommending a second pipeline run.
 
 File location: outputs/01_data_prep/pipeline_scenario_params.csv
 """
+from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-08-13
+__version__ = "1.1.1"  # Hollingham (2026) — 2026-08-13
 # Module versioning introduced 2026-08-13 (pre-1.1.0 history via CHANGELOG_delta
 # files). Bump on ANY edit, as for pipeline scripts.
+# v1.1.1 (2026-08-13): moved `from __future__ import annotations` above the
+#   __version__ assignment so the module imports — the v1.1.0 header put the
+#   assignment first, which is a SyntaxError ("future import must occur at the
+#   beginning of the file") and blocked every script importing pipeline_params.
 # v1.1.0 (2026-08-13): __version__ introduced; no functional change.
 
-from __future__ import annotations
 
 from pathlib import Path
 

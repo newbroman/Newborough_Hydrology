@@ -65,6 +65,7 @@ from __future__ import annotations
 
 import sys
 import pathlib
+import textwrap
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 
@@ -82,7 +83,10 @@ from utils.console_utils import banner, phase, step, info, saved, note, result, 
 from utils.pipeline_params import get_cluster_ids
 from utils.render_utils import render_figure
 
-__version__ = "1.3.0"  # 2026-07-04: amplification colourmap RdBu_r → PiYG (avoids wet/dry connotation;
+__version__ = "1.4.0"  # 2026-08-13: wrap over-long map titles (_wrap_title) so the two-line
+#   titles no longer overrun the axes and distort the maps; amplification-field legend
+#   moved lower left → upper left. Figures only; no data/among-figure value change.
+# 1.3.0  # 2026-07-04: amplification colourmap RdBu_r → PiYG (avoids wet/dry connotation;
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -270,6 +274,16 @@ def _envelope_base(ax, df, value_col, cmap, norm=None, ridge=True):
     return mesh, gx, gy, Zm
 
 
+def _wrap_title(title, width=88):
+    """Wrap each line of a (possibly multi-line) map title so long lines don't
+    overrun the axes and distort the figure. Intentional \\n breaks are preserved;
+    each segment is filled independently to `width` characters."""
+    if not title:
+        return title
+    return "\n".join(textwrap.fill(seg, width=width) if seg.strip() else seg
+                     for seg in title.split("\n"))
+
+
 def fig_amplification(df, GX, GY, out_path, title=None):
     colours = config.get_cluster_colours(); labels = config.CLUSTER_LABELS
     norm = TwoSlopeNorm(vcenter=1.0, vmin=0.55, vmax=1.55)
@@ -290,14 +304,14 @@ def fig_amplification(df, GX, GY, out_path, title=None):
         ax.scatter(fl.E, fl.N, facecolor="none", edgecolor="k", marker="^", s=90,
                    linewidths=1.6, zorder=6, label="lower-confidence well\n(Tier B/C; off-surface)")
     _finish_map_axes(ax)
-    ax.legend(fontsize=8.5, loc="lower left", framealpha=0.9, title="cluster")
+    ax.legend(fontsize=8.5, loc="upper left", framealpha=0.9, title="cluster")
     cb = fig.colorbar(im, ax=ax, shrink=0.8, pad=0.01)
     cb.set_label("climate-swing amplification  (well swing / network mean)\n"
                  ">1 amplifies the common swing   <1 damps it", fontsize=9.5)
     if title is None:
         title = ("Newborough Warren: climate-swing amplification field (relative, common-mode removed)\n"
                  "Forest interior amplifies; lake edge damps. Window-independent. Lake gauge excluded.")
-    ax.set_title(title, fontsize=10.5, loc="left")
+    ax.set_title(_wrap_title(title), fontsize=10.5, loc="left")
     render_figure(fig, out_path); plt.close(fig)
 
 
@@ -359,7 +373,7 @@ def fig_dry_spring_depth(df, GX, GY, out_path, title=None):
         title = ("Newborough Warren: dry-year spring water-table depth (springs 2011/12/19)\n"
                  "Contours: where even the spring high is already below Curreli SD15b/SD16 "
                  "(summer-minimum) thresholds. Inter-dune ridges masked. Lake gauge excluded.")
-    ax.set_title(title, fontsize=10.5, loc="left")
+    ax.set_title(_wrap_title(title), fontsize=10.5, loc="left")
     render_figure(fig, out_path); plt.close(fig)
 
 

@@ -34,7 +34,6 @@ pflood_lambda      — P_flood closed-form threshold (iterated)
 monthly_perturbation — single-step monthly forcing response
 get_metrics        — NSE, RMSE, bias between two series
 get_r2             — R² from Pearson correlation
-compute_intercept_audit — Model A vs B comparison for a single well
 """
 
 import numpy as np
@@ -44,7 +43,14 @@ import statsmodels.api as sm
 from utils.config import DRAINAGE_DATUM, HEADLINE_LAG, SSM_MIN_OBS
 
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-06-21
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-08-16. Removes
+#   compute_intercept_audit, which had no caller anywhere in the tree. Its
+#   docstring and Methods Supplement §S.3 both attributed a live per-well
+#   intercept audit to Script 07; Script 07 reads 03_master_data.csv and
+#   visualises it, performing no fit. Removed rather than deprecated so a
+#   stale importer fails loudly.
+#
+# v1.3.0  # Hollingham (2026) — 2026-06-21
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -401,7 +407,7 @@ def fit_ssm_intercept(h_series, climate, lag=None, window=None,
     Since model_utils v1.1.0 this is a thin wrapper around
     fit_ssm(intercept=True, ...). Preserved as a separate public function
     for backward compatibility with existing callers (Scripts 07, 08, 22,
-    24, and the compute_intercept_audit helper below).
+    24).
     """
     return fit_ssm(h_series, climate, lag=lag, window=window,
                    drainage_datum=drainage_datum, min_obs=min_obs,
@@ -710,159 +716,3 @@ def get_r2(obs, sim):
 # INTERCEPT AUDIT (SCRIPTS 07, 08)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def compute_intercept_audit(target_well_name, df_clean, df_climate):
-    """
-    Compute Model A (No Intercept) vs Model B (With Intercept) for a
-    single well, including one-step and iterative simulations.
-
-    Uses the displacement formulation (h_disp = DRAINAGE_DATUM + h_depth)
-    and HEADLINE_LAG rainfall, matching Script 03.
-
-    Parameters
-    ----------
-    target_well_name : str
-        Well name to look up in df_clean columns.
-    df_clean : pd.DataFrame
-        Clean well data (columns = well names, index = datetime).
-    df_climate : pd.DataFrame
-        Climate data with 'P_m' and 'PET' columns.
-
-    Returns
-    -------
-    (metrics_row dict, plotting_payload dict | None)
-    """
-    from utils.data_utils import normalize_well_name
-
-    target_norm = normalize_well_name(target_well_name)
-    target_col = next(
-        (c for c in df_clean.columns if normalize_well_name(c) == target_norm), None
-    )
-
-    base_row = {
-        "Well": target_norm.upper(),
-        "Well_Normalized": target_norm,
-        "Status": "ok",
-        "Model_B_Intercept": np.nan,
-        "OneStep_R2_Model_A": np.nan,
-        "OneStep_R2_Model_B": np.nan,
-        "Iterative_NSE_Model_A": np.nan,
-        "Iterative_NSE_Model_B": np.nan,
-        "NSE_Penalty_For_Intercept": np.nan,
-    }
-
-    if target_col is None:
-        base_row["Status"] = "missing_column"
-        return base_row, None
-
-    well_series = pd.to_numeric(df_clean[target_col], errors="coerce")
-    well_series.index = pd.to_datetime(well_series.index).to_period("M")
-
-    climate = df_climate.copy()
-    climate.index = pd.to_datetime(climate.index).to_period("M")
-
-    # Build the SSM frame via the canonical alignment in build_ssm_frame
-    # rather than duplicating the lag / displacement / differencing logic
-    # here. window=LCSC_DATA_LIMIT reproduces the previous "most-recent-N-rows"
-    # behaviour. build_ssm_frame only trims when the full aligned record
-    # exceeds the window, so a returned frame shorter than LCSC_DATA_LIMIT
-    # means the full record was too short — matching the previous
-    # full-record-length insufficiency check exactly. The frame it returns
-    # (h, h_prev, Delta_h, P, PET, h_disp_prev) supersedes the hand-rolled
-    # columns; h_disp_prev = DRAINAGE_DATUM + h.shift(1) is identical to the
-    # former DRAINAGE_DATUM + h_prev computation.
-    df = build_ssm_frame(well_series, climate, window=LCSC_DATA_LIMIT)
-
-    if len(df) < LCSC_DATA_LIMIT:
-        base_row["Status"] = "insufficient_data"
-        return base_row, None
-
-    # Model A: no intercept; Model B: with intercept
-    # Both use displacement for the drainage predictor
-    x_a = pd.DataFrame(
-        {"beta_1_recharge": df["P"], "beta_2_atmospheric_draw": -df["PET"], "beta_3_drainage": -df["h_disp_prev"]}
-    )
-    x_b = sm.add_constant(x_a, has_constant="add")
-    y_fit = df["Delta_h"]
-
-    model_a = sm.OLS(y_fit, x_a).fit()
-    model_b = sm.OLS(y_fit, x_b).fit()
-
-    p_arr = df["P"].values
-    pet_arr = df["PET"].values
-    h_obs = df["h"].values
-
-    # Iterative simulation
-    h_iter_a = np.full(len(h_obs), np.nan)
-    h_iter_b = np.full(len(h_obs), np.nan)
-    h_iter_a[0] = h_obs[0]
-    h_iter_b[0] = h_obs[0]
-
-    for t in range(1, len(h_obs)):
-        h_disp_sim_a = DRAINAGE_DATUM + h_iter_a[t - 1]
-        h_disp_sim_b = DRAINAGE_DATUM + h_iter_b[t - 1]
-        dh_a = (
-            model_a.params["beta_1_recharge"] * p_arr[t]
-            - model_a.params["beta_2_atmospheric_draw"] * pet_arr[t]
-            - model_a.params["beta_3_drainage"] * h_disp_sim_a
-        )
-        dh_b = (
-            model_b.params["const"]
-            + model_b.params["beta_1_recharge"] * p_arr[t]
-            - model_b.params["beta_2_atmospheric_draw"] * pet_arr[t]
-            - model_b.params["beta_3_drainage"] * h_disp_sim_b
-        )
-        h_iter_a[t] = h_iter_a[t - 1] + dh_a
-        h_iter_b[t] = h_iter_b[t - 1] + dh_b
-
-    # One-step simulation
-    h_one_a = np.full(len(h_obs), np.nan)
-    h_one_b = np.full(len(h_obs), np.nan)
-    h_one_a[0] = h_obs[0]
-    h_one_b[0] = h_obs[0]
-    for t in range(1, len(h_obs)):
-        h_disp_prev_obs = DRAINAGE_DATUM + h_obs[t - 1]
-        h_one_a[t] = h_obs[t - 1] + (
-            model_a.params["beta_1_recharge"] * p_arr[t]
-            - model_a.params["beta_2_atmospheric_draw"] * pet_arr[t]
-            - model_a.params["beta_3_drainage"] * h_disp_prev_obs
-        )
-        h_one_b[t] = h_obs[t - 1] + (
-            model_b.params["const"]
-            + model_b.params["beta_1_recharge"] * p_arr[t]
-            - model_b.params["beta_2_atmospheric_draw"] * pet_arr[t]
-            - model_b.params["beta_3_drainage"] * h_disp_prev_obs
-        )
-
-    nse_a, rmse_a, _ = get_metrics(h_obs, h_iter_a)
-    nse_b, rmse_b, _ = get_metrics(h_obs, h_iter_b)
-    r2_one_a = get_r2(h_obs, h_one_a)
-    r2_one_b = get_r2(h_obs, h_one_b)
-
-    base_row.update(
-        {
-            "Model_B_Intercept": model_b.params["const"],
-            "OneStep_R2_Model_A": r2_one_a,
-            "OneStep_R2_Model_B": r2_one_b,
-            "Iterative_NSE_Model_A": nse_a,
-            "Iterative_NSE_Model_B": nse_b,
-            "NSE_Penalty_For_Intercept": nse_a - nse_b,
-        }
-    )
-
-    payload = {
-        "index": df.index.to_timestamp(),
-        "h_obs": h_obs,
-        "h_one_a": h_one_a,
-        "h_one_b": h_one_b,
-        "h_iter_a": h_iter_a,
-        "h_iter_b": h_iter_b,
-        "r2_one_a": r2_one_a,
-        "r2_one_b": r2_one_b,
-        "nse_a": nse_a,
-        "nse_b": nse_b,
-        "rmse_a": rmse_a,
-        "rmse_b": rmse_b,
-        "well_label": target_norm.upper(),
-        "intercept": model_b.params["const"],
-    }
-    return base_row, payload

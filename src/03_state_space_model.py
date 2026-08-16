@@ -79,7 +79,14 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-08-13
+__version__ = "1.6.0"  # Hollingham (2026) — 2026-08-16. Adds the centroid
+#   composition sensitivity (03_13): each cluster centroid refitted from the
+#   report8 §3.4.1 reference date and from its own stable-membership start,
+#   against the published full-record fit. Diagnostic only — the headline
+#   mechanistic table is unchanged. Supports the corrected §3.4.1 disclosure
+#   (C4 moves ~20%, not "a few per cent").
+#
+# v1.5.0  # Hollingham (2026) — 2026-08-13
 # v1.5.0 (2026-08-13): datum-regime diagnostic added (03_12). Two-panel figure:
 #   (a) fitted drainage flux β₃·(D+h̄_prev) vs datum — rises through the
 #   shallow mean-reversion regime, then plateaus in the Darcy regime;
@@ -127,7 +134,7 @@ from utils.paths import (
 )
 from utils.config import (
     CLUSTER_LABELS, CLUSTER_COLOURS, CLUSTER_COLOURS_BW, DRAINAGE_DATUM,
-    HEADLINE_LAG, BW_MODE, BW_LINESTYLES,
+    HEADLINE_LAG, BW_MODE, BW_LINESTYLES, CENTROID_COMPOSITION_REF_DATE,
 )
 from utils.model_utils import fit_ssm, assert_physical_signs, build_ssm_frame
 from utils.render_utils import render_figure
@@ -365,6 +372,98 @@ def build_cluster_centroids(cluster_df: pd.DataFrame,
         centroids[cid] = wells_clean[available].mean(axis=1)
 
     return centroids
+
+
+def centroid_composition_sensitivity(cluster_df: pd.DataFrame,
+                                      wells_clean: pd.DataFrame,
+                                      well_col_lookup: dict[str, str],
+                                      centroids: dict[int, pd.Series],
+                                      climate: pd.DataFrame) -> pd.DataFrame:
+    """
+    Sensitivity of each centroid fit to growing cluster membership.
+
+    Monitoring points came online between 2005 and 2014, so in the early years a
+    cluster mean is formed from a growing subset of its members rather than the
+    full complement. A member joining shifts the mean by its level offset, which
+    enters the SSM as spurious Δh. This quantifies that effect; it does NOT
+    revise anything. The headline table (OUT_03_MECHANISTIC_TABLE) is the
+    canonical source and is written before this runs.
+
+    Three bases per cluster:
+      published — the full record, reproducing centroid_headline_fits exactly
+      ref_date  — from CENTROID_COMPOSITION_REF_DATE, the date the report's
+                  §3.4.1 stable-membership check cites
+      stable    — from the cluster's own stable-membership start, the latest
+                  first-observation date across its members (the stricter,
+                  derived version of the same check)
+
+    The centroid is a row-wise mean, so restricting rows on the prebuilt
+    centroid series is identical to restricting the member frame and
+    re-averaging — the prebuilt series is used so construction cannot drift
+    from build_cluster_centroids.
+
+    Returns a long DataFrame, one row per cluster × basis.
+    """
+    ref_start = pd.Timestamp(CENTROID_COMPOSITION_REF_DATE)
+    rows = []
+
+    for cid in sorted(centroids):
+        label = CLUSTER_LABELS.get(cid, f"C{cid}")
+        c_wells = cluster_df[
+            pd.to_numeric(cluster_df["Cluster"], errors="coerce") == cid
+        ]["Match_ID"].astype(str).values
+        available = [
+            well_col_lookup.get(normalize_well_name(w))
+            for w in c_wells
+            if well_col_lookup.get(normalize_well_name(w)) is not None
+        ]
+        if not available:
+            continue
+
+        # Stable-membership start: the cluster is composition-complete only
+        # once its last member has come online.
+        stable_start = max(
+            pd.to_datetime(wells_clean[col].dropna().index.min())
+            for col in available
+        )
+
+        series = centroids[cid]
+        bases = [
+            ("published", None),
+            ("ref_date", ref_start),
+            ("stable", stable_start),
+        ]
+
+        published_b3 = np.nan
+        for basis, start in bases:
+            s = series if start is None else series[series.index >= start]
+            fit = fit_ssm(s, climate, lag=HEADLINE_LAG, window=None)
+            if fit is None:
+                continue
+            b3 = fit["beta_3_drainage"]
+            if basis == "published":
+                published_b3 = b3
+            rows.append({
+                "Cluster": cid,
+                "Cluster_Label": label,
+                "basis": basis,
+                "start_date": ("" if start is None
+                               else pd.Timestamp(start).strftime("%Y-%m")),
+                "n_members": len(available),
+                "n": fit["n"],
+                "beta_1_recharge": fit["beta_1_recharge"],
+                "beta_2_atmospheric_draw": fit["beta_2_atmospheric_draw"],
+                "beta_3_drainage": b3,
+                "pvalue_beta_3": fit["pvalue_beta_3"],
+                "R2": fit["R2"],
+                "beta_3_delta_vs_published": (
+                    np.nan if basis == "published" else b3 - published_b3),
+                "beta_3_pct_delta_vs_published": (
+                    np.nan if basis == "published"
+                    else 100.0 * (b3 - published_b3) / published_b3),
+            })
+
+    return pd.DataFrame(rows)
 
 
 # ==========================================================================
@@ -1857,6 +1956,26 @@ def main() -> None:
     mech_df, violations, b3_warnings = centroid_headline_fits(centroids, climate)
     mech_df.to_csv(OUT_03_MECHANISTIC_TABLE, index=False)
     saved(f"{OUT_03_MECHANISTIC_TABLE.name}")
+
+    # ---- Centroid composition sensitivity (diagnostic; headline unchanged) ----
+    step("Centroid composition sensitivity (growing vs stable membership)...")
+    comp_df = centroid_composition_sensitivity(cluster_df, wells_clean,
+                                                well_col_lookup, centroids,
+                                                climate)
+    # Inline DIR_03 path, matching this script's convention for its secondary
+    # diagnostics (03_04, 03_08, 03_09, 03_10); the primary outputs are the ones
+    # carrying paths.py constants.
+    comp_path = DIR_03 / "03_13_centroid_composition_sensitivity.csv"
+    comp_df.to_csv(comp_path, index=False)
+    for cid in sorted(comp_df["Cluster"].unique()):
+        g = comp_df[comp_df["Cluster"] == cid].set_index("basis")
+        info(f"  {CLUSTER_LABELS.get(cid, f'C{cid}'):22s} "
+             f"published {g.loc['published', 'beta_3_drainage']:.4f} -> "
+             f"ref_date {g.loc['ref_date', 'beta_3_drainage']:.4f} "
+             f"({g.loc['ref_date', 'beta_3_pct_delta_vs_published']:+.1f}%), "
+             f"stable {g.loc['stable', 'beta_3_drainage']:.4f} "
+             f"({g.loc['stable', 'beta_3_pct_delta_vs_published']:+.1f}%)")
+    saved(f"{comp_path.name}")
 
     # Update consolidated pipeline params with β coefficients
     try:

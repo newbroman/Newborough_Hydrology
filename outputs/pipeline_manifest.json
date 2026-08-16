@@ -1,5 +1,5 @@
 {
-  "pipeline_version": "2.3.0",
+  "pipeline_version": "2.4.0",
   "total_registered": 49,
   "total_phases": 17,
   "by_tier": {
@@ -14,7 +14,7 @@
   "analytical_phases": 15,
   "scraping_substeps": 5,
   "clearfell_substeps": 13,
-  "generated": "2026-08-14T22:47:09",
+  "generated": "2026-08-16T20:18:36",
   "steps": [
     {
       "index": 1,
@@ -292,7 +292,7 @@
       "index": 35,
       "total": 49,
       "script": "30_c4_drainage_identifiability.py",
-      "desc": "Cluster framework diagnostic: C4 drainage identifiability (low \u03b23 is real, not degenerate)",
+      "desc": "Cluster framework diagnostic: C4 drainage identifiability (tests \u03b22/\u03b23 separability; reports two sensitivities)",
       "tier": "X",
       "exec": "default"
     },

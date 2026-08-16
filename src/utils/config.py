@@ -261,6 +261,15 @@ RESIDUAL_DIAG_SW_BOOT_SEED = 20260809
 # above. Previously a module-local in model_utils.py.
 SSM_MIN_OBS = 30
 
+# Reference date for the centroid composition sensitivity (Script 03, output
+# 03_13). Cluster centroids are the mean of their member wells, and members came
+# online between 2005 and 2014, so early centroid months are the mean of a
+# growing subset. This is the date report8 §3.4.1 cites for its stable-membership
+# check: every cluster's full membership reports from here (the last to
+# stabilise is C3, 2014-07). Script 03 also reports each cluster's own derived
+# stable-membership start alongside it. Added 2026-08-16.
+CENTROID_COMPOSITION_REF_DATE = "2015-01-01"
+
 # CEH36 — the documented April 2015 dune-scrape site, used as a distance origin
 # for scraping-propagation analyses and as the default scrape centre on the
 # Script 20 scenario map (Scripts 09b, 20, 29, clearfell_common).

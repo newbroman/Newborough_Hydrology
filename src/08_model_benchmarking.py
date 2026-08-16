@@ -32,7 +32,11 @@ Purpose:
 #     here they clutter the well markers, so they are suppressed. Figures only;
 #     model formulations and metrics unchanged.
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-06-21
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-08-16. LCSC_DATA_LIMIT is
+#   imported from config.py rather than declared module-locally; value unchanged
+#   at 100, no change to any fit, metric or figure. See D-016.
+#
+# v1.2.0  # Hollingham (2026) — 2026-06-21
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -64,6 +68,7 @@ from utils.model_utils import get_metrics, get_r2, build_ssm_frame, simulate_ssm
 from utils.map_utils import add_kml_features, load_dem_layer, add_en_axes
 from utils.config import (
     CLUSTER_LABELS, CLUSTER_MARKERS, DRAINAGE_DATUM, HEADLINE_LAG, BW_MODE,
+    LCSC_DATA_LIMIT,
 )
 from pathlib import Path
 
@@ -89,7 +94,10 @@ REFERENCE_NETWORK_PATH = INT_WELLS_REFERENCE
 CLIMATE_PATH = INT_CLIMATE
 MASTER_PATH = INT_MASTER_DATA
 
-LCSC_DATA_LIMIT = 100
+# LCSC_DATA_LIMIT is imported from config.py — this script is the equal-window
+# SSM-vs-TLM comparison, so the window is load-bearing here: both models are
+# refitted on the same capped frame and a well is only benchmarked if it fills
+# the window. See the config.py comment for the policy.
 EXCLUDED_WELLS_NORM = {'ceh7', 'ceh8', 'ceh37'}
 
 # HEADLINE_LAG imported from config.py (= 0 after bucketing fix).

@@ -7,8 +7,7 @@ M. Hollingham
 
 Draft --- 2026
 
-Abstract
-========
+# Abstract
 
 The vegetation communities of coastal dune slacks occupy a band of water-table depth only a few tens of centimetres wide, so that small differences separate a functioning wet slack from a dry one. Characterizing the aquifer that governs that water-table depth is difficult in unconsolidated dune sand, where distributed flow models demand hydraulic-conductivity fields and aquifer-thickness surfaces that are expensive to measure and poorly constrained. Many dune systems are nonetheless monitored over decades by manual dipwell networks. We ask whether that routine record alone can resolve dune-aquifer architecture, and present a parameter-sparse framework that does so without coring, hydraulic testing or calibrated continuous-flow modelling. The framework couples hierarchical clustering of hydrograph dynamics with a three-term state-space model --- recharge, atmospheric draw, and head-dependent drainage referenced to a fixed sub-surface displacement datum --- fitted at each well from monthly rainfall and temperature at a single station. Around this core we derive a water-balance decomposition, an independent water-table-fluctuation estimate of specific yield, a benchmarking diagnostic against a traditional linear model, continuous coefficient and head surfaces, a residual field treated as a structural diagnostic of where the lumped balance is insufficient rather than as a quantified flux map, and a network-scale regression of long-term trend against distance from an eroding shoreline. Demonstrated at Newborough Warren (Anglesey, UK; 88 dipwells, 21 years), the framework resolves five hydrogeological clusters that are independently confirmed by the mechanistic coefficients and by a synthesis of drainage half-life, forecasting skill and specific yield. Interception-corrected specific yields converge across clusters, showing that the behavioural contrasts are surface- and land-cover-mediated rather than reflecting different subsurface storage. The displacement-formulation model closes the monthly water balance to within 2.2% of losses and raises median iterative Nash--Sutcliffe efficiency from 0.18 to 0.75 over the linear benchmark, with the spatial pattern of the gain delineating where storage dynamics govern the aquifer. A coastal-retreat gradient, resolved by a network-scale regression and corroborated by the progressive deepening of the coast-to-inland head difference along a shore-normal transect, is distinguished from a site-wide climate background and explains the anomalous decline of the most coast-proximal cluster; the two forcings are equal about 700 m inland, beyond which climate dominates. The framework is transferable to any dune system with a monitoring network and a nearby climate station; the hydrological consequences of management interventions at the site are reported in a companion paper.
 
@@ -22,8 +21,7 @@ Highlights
 -   Interception-corrected specific yields converge: storage uniform, contrasts surface-led
 -   []{#abstract}Coastal retreat resolved as a forcing distinct from climate on long-term decline
 
-1. Introduction
-===============
+# 1. Introduction
 
 Coastal dune slacks are among the most hydrologically sensitive habitats in north-west Europe. The seasonally fluctuating water table that defines them sits within a narrow envelope: the wet- and dry-slack vegetation communities of conservation interest occupy a band of summer-minimum depth only a few tens of centimetres wide (Davy et al., 2006; Curreli et al., 2013). Because that envelope is set by groundwater rather than by surface management, the conservation status of a dune system cannot be understood without a quantitative account of how its aquifer fills, stores and releases water --- how recharge enters the water table, how evaporative demand and lateral drainage remove it, and how these processes vary across the geomorphological range of the site.
 
@@ -39,8 +37,7 @@ The framework is demonstrated at Newborough Warren, a coastal dune system on Ang
 
 []{#introduction}The objectives of this paper are therefore: (i) to set out the state-space characterization framework and its displacement formulation; (ii) to demonstrate that hydrograph-dynamics clustering, mechanistic SSM coefficients, model-benchmarking diagnostics, water-balance decomposition and specific-yield estimation converge on a single, internally consistent picture of aquifer architecture; (iii) to map that architecture continuously across the site and identify where the three-term water balance closes and where it does not; (iv) to quantify the coastal-retreat forcing on long-term water-table trends; and (v) to assess the framework's transferability to other dune systems monitored by routine dipwell networks. The hydrological consequences of the two management interventions undertaken at the site --- dune scraping and a partial plantation clearfell --- are quantified separately within a before-after-control-impact design and are reported in a companion paper (Hollingham, 2026b); they are not treated here, where the plantation enters only as a land-cover boundary condition on the aquifer characterization.
 
-[]{#anchor}2. Study site
-========================
+# []{#anchor}2. Study site
 
 Newborough Warren occupies the south-western tip of the Isle of Anglesey in north-west Wales (Figure 1). The modern dune system is a late-Holocene feature, the present dunes having developed over previously cleared agricultural land following storms in 1330 (Ranwell, 1958; Rhind et al., 2001). The site has no perennial surface drainage; flow lines shown on later figures are DEM-derived flow-accumulation paths included for spatial reference. The dune field is underlain by weakly permeable glacial till, which forms the effective base of the sand aquifer. A bedrock ridge, demarked by the 20 m AOD contour and trending south-south-west to north-north-east, forms the northern boundary of the study area and outcrops within the northern plantation. The hydrological study area, defined by the extent of the DEM-derived flow network, covers approximately 1,170 ha; the dipwell network spans a core zone of roughly 720 ha within it, lying entirely on the south-eastern flank of the ridge. Dune terrain on the north-western flank, draining toward the Malltraeth estuary, is hydrologically separate and is not considered here.
 
@@ -52,42 +49,37 @@ The northern part of the study area is managed plantation dominated by mature Co
 
 **Figure 1.** Site topography, geology and monitoring network at Newborough Warren. (Digital elevation model with rock ridge, forest boundary, watershed boundary, and a flow network derived algorithmically from the DEM for orientation only --- no perennial surface streams are present on site. LiDAR data: © NRW & OS.)
 
-3. Data and methods
-===================
+# 3. Data and methods
 
-3.1 Groundwater and climate records
------------------------------------
+## 3.1 Groundwater and climate records
 
 The primary observational dataset is a network of manually read dipwells, with water-table elevation recorded at approximately monthly intervals. Each reading is taken at the end of the month and represents the water level for the month just ended; readings are bucketed to a monthly timestamp by field convention, with a reading on or before the fifteenth of a month assigned to the preceding month and a later reading assigned to the same month. All monthly series therefore index the month to which the reading belongs rather than the day on which it was taken. Of the full monitoring array, wells with sufficient record length form the reference network used for model fitting; the remainder, with shorter records, form an extended network classified by pattern matching (Section 3.3). Water levels are expressed both in metres above ordnance datum and, for the displacement formulation, as depth below the ground surface at each well.
 
 []{#groundwater-and-climate-records}Climate forcing is taken from the Royal Air Force Valley station. Monthly precipitation totals are used directly. Potential evapotranspiration is computed by the Thornthwaite method from monthly mean temperature and station latitude; this is an empirical index of atmospheric evaporative demand and does not define a specific reference surface in the manner of Penman--Monteith, a property that bears on the interpretation of the atmospheric-draw coefficient (Section 3.4). Rainfall and PET are monthly totals for the same calendar month as the water-table change they are aligned against; no rainfall lag is applied, consistent with the end-of-month measurement convention.
 
-3.2 Hierarchical clustering of hydrograph dynamics
---------------------------------------------------
+## 3.2 Hierarchical clustering of hydrograph dynamics
 
 The reference network is partitioned into hydrogeologically distinct zones by agglomerative hierarchical clustering with Ward's minimum-variance linkage (Ward, 1963). The distance metric is the Pearson correlation distance between standardized well hydrographs, which compares the *shape* of the seasonal and inter-annual water-table dynamics while discarding absolute elevation; two wells that fluctuate in synchrony are treated as similar regardless of their mean water-table depth. This isolates the dynamic hydrogeological signature --- the timing and relative amplitude of filling and draining --- from the topographic offset between wells.
 
 []{#anchor}The number of clusters is selected by a dual-metric approach combining the Ward's merge-distance profile, which identifies the partition at which further agglomeration incurs a disproportionate increase in within-cluster variance, with the mean silhouette coefficient (Rousseeuw, 1987), which favours partitions with well-separated, internally coherent groups. Seasonal amplitude --- the long-term mean difference between winter maximum and summer minimum at each cluster centroid --- is retained as a secondary descriptor characterizing each unit but is not used in the clustering itself.
 
-3.3 Network extension by Pearson affinity analysis
---------------------------------------------------
+## 3.3 Network extension by Pearson affinity analysis
 
 []{#anchor-1}The primary classification, derived from the reference network, is extended to the wells with shorter records by Pearson affinity analysis. Unlike the mechanistic models, this stage operates on the raw observed time series without model fitting: each well's hydrograph is correlated against every cluster centroid, and the well is assigned to the cluster with which it correlates most strongly. The correlation delta between the assigned and next-strongest cluster classifies membership into tiers, distinguishing core members with an unambiguous dominant affinity from wells with closely competing affinities between neighbouring clusters. A multi-cluster affinity flag identifies wells whose hydrographs are nearly equally well matched by several centroids; the spatial concentration of these flags delineates the gradational transition zones where the boundaries between hydrogeological units are diffuse rather than sharp. The extended-network wells are classified for spatial completeness and are not used in the cluster-level mechanistic fits.
 
-3.4 State-space model and the displacement formulation
-------------------------------------------------------
+## 3.4 State-space model and the displacement formulation
 
 The mechanistic core of the framework is a three-term linear state-space model relating the monthly change in water-table position to climate forcing and to the antecedent head. For a given well or cluster centroid, the model is
 
-Δh(t) = β₁·P(t) − β₂·PET(t) − β₃·h\_disp(t−1)
+> Δh(t) = β₁·P(t) − β₂·PET(t) − β₃·h_disp(t−1)
 
-where Δh(t) is the change in water-table position during month t, P(t) and PET(t) are the month-t precipitation and potential evapotranspiration totals, and h\_disp(t−1) is the water-table displacement above the drainage datum at the end of the preceding month. The three coefficients are constrained to enter with physically correct sign and are reported as positive quantities: β₁ (recharge sensitivity) is the water-table rise per unit rainfall; β₂ (atmospheric draw) is the decline per unit PET; and β₃ (proportional drainage decay) is the fraction of antecedent displacement dissipated by lateral drainage each month.
+where Δh(t) is the change in water-table position during month t, P(t) and PET(t) are the month-t precipitation and potential evapotranspiration totals, and h_disp(t−1) is the water-table displacement above the drainage datum at the end of the preceding month. The three coefficients are constrained to enter with physically correct sign and are reported as positive quantities: β₁ (recharge sensitivity) is the water-table rise per unit rainfall; β₂ (atmospheric draw) is the decline per unit PET; and β₃ (proportional drainage decay) is the fraction of antecedent displacement dissipated by lateral drainage each month.
 
 The drainage term is referenced to a *displacement* above a fixed datum rather than to the absolute or ground-surface-referenced head:
 
-h\_disp = D + h\_depth
+> h_disp = D + h_depth
 
-where D is the drainage datum (a uniform depth below the ground surface, set at 3.7 m for the primary analysis) and h\_depth is the water-table position in the negative-below-ground convention. Two features of this specification are central. First, the drainage term uses the displacement at the *end of the previous month* --- the start of the current month --- rather than the current month's level. Using the contemporaneous level would introduce simultaneity bias, since that level is itself the result of the drainage being modelled; physically, the discharge during a month is driven by the head at the start of the month. Second, referencing drainage to a sub-surface datum rather than to the ground surface allows the head-dependent drainage response to be resolved consistently across wells of very different mean water-table depth, including the low-gradient forest interior where a surface-referenced drainage term is weak and borderline. The sensitivity of the fit to the datum choice is examined by independently optimizing D at each well over a sweep of candidate depths and comparing the resulting fit against the uniform datum (Section 4.7).
+where D is the drainage datum (a uniform depth below the ground surface, set at 3.7 m for the primary analysis) and h_depth is the water-table position in the negative-below-ground convention. Two features of this specification are central. First, the drainage term uses the displacement at the *end of the previous month* --- the start of the current month --- rather than the current month's level. Using the contemporaneous level would introduce simultaneity bias, since that level is itself the result of the drainage being modelled; physically, the discharge during a month is driven by the head at the start of the month. Second, referencing drainage to a sub-surface datum rather than to the ground surface allows the head-dependent drainage response to be resolved consistently across wells of very different mean water-table depth, including the low-gradient forest interior where a surface-referenced drainage term is weak and borderline. The sensitivity of the fit to the datum choice is examined by independently optimizing D at each well over a sweep of candidate depths and comparing the resulting fit against the uniform datum (Section 4.7).
 
 The model is fitted by ordinary least squares without an intercept at each reference well and at each cluster centroid hydrograph. The recharge sensitivity of each unit is summarized by the lumped catchment storage coefficient, LCSC = 100/β₁, expressing the depth of rainfall required to raise the water table by a fixed increment; a lower LCSC denotes greater recharge sensitivity. Because the fitted coefficients fold together vegetation effects, specific yield and soil-moisture dynamics, and because no intercept is fitted, the recharge term in an open-boundary system of this kind can absorb unmeasured boundary fluxes into β₁ (Young, 2011; Knotters and van Walsum, 1997); this is addressed explicitly through the residual-field analysis (Section 3.10) and the specific-yield estimation (Section 3.8).
 
@@ -95,56 +87,47 @@ The model is fitted by ordinary least squares without an intercept at each refer
 
 The model is fitted at two scales for two purposes. The mechanistic characterization is fitted to each cluster-mean hydrograph, where averaging the member records suppresses single-well noise and local topographic idiosyncrasy and returns one coefficient set per hydrogeological zone --- appropriate because the zones are defined so that their members share a dynamic signature, and because cross-zone comparison of mechanism is the aim. The continuous coefficient, head and residual surfaces are instead built from the model fitted independently at each reference well, since their purpose is the within-zone spatial structure that a cluster mean would remove by construction. The trade-off is explicit: cluster fitting gains robustness at the cost of within-zone variability, which is substantial --- recharge sensitivity varies about two-fold within the Western Residual alone (Table 6) --- so a cluster coefficient is a centroid, not a property of every member; and it depends on the partition, since a misassigned or genuinely gradational well biases the mean it enters, a dependence the per-well fits avoid. The two scales are used as complementary throughout, cluster coefficients for mechanism and per-well coefficients for spatial distribution, with the per-well ranges (Table 6) reported alongside the cluster means rather than subsumed into them.
 
-3.5 Model benchmarking against a traditional linear model
----------------------------------------------------------
+## 3.5 Model benchmarking against a traditional linear model
 
 []{#anchor-3}The predictive value of the explicit storage-decay term is assessed by benchmarking the SSM against a traditional linear model (TLM) that omits the head-dependent drainage term, fitting the water-table change as a function of climate forcing alone. Both models are fitted at every reference well and compared in two modes. In one-step diagnostic mode, each prediction is corrected by the observed level from the previous month, and the two models are compared by coefficient of determination. In iterative simulation mode, the model is run forward from an initial condition without observational correction, propagating its own predictions, and the two models are compared by Nash--Sutcliffe efficiency. The iterative comparison is the discriminating test, because it exposes the cumulative drift that arises when storage memory is omitted. The spatial pattern of the iterative NSE gain is mapped across the network as a diagnostic of where head-dependent drainage memory is indispensable to prediction and where the aquifer approximates a linear climate response.
 
-3.6 Spatial coefficient mapping and within-forest regression
-------------------------------------------------------------
+## 3.6 Spatial coefficient mapping and within-forest regression
 
 The per-well SSM coefficients are interpolated across the site by inverse-distance weighting over a regular grid built on a LiDAR-derived digital elevation model, with ridge cells and non-aquifer areas masked. This yields continuous surfaces of recharge sensitivity, atmospheric draw and drainage rate, together with a model-fit-quality surface, providing a spatially resolved expression of aquifer behaviour that complements the cluster-level summaries.
 
 []{#anchor-4}Within the forested zone, where the canopy is broadly uniform but the per-well coefficients span much of the site-wide range, the per-well coefficients are regressed against elevation, distance from the ridge and easting to test whether the within-forest variation tracks topographic position and water-table depth or canopy differences. Because the subsurface beneath the plantation is not cored, elevation and position serve as proxies for substrate, and the regression isolates this topographic control on the mechanistic coefficients beneath a constant land cover.
 
-3.7 Mean monthly water-balance decomposition
---------------------------------------------
+## 3.7 Mean monthly water-balance decomposition
 
 The fitted cluster coefficients are used to decompose the mean monthly water balance of each cluster into its component fluxes under identical climate forcing. Recharge is computed as β₁ times mean monthly precipitation, atmospheric draw as β₂ times mean monthly PET, and gravity drainage as β₃ times the mean displacement above the datum. All terms are expressed in metres of water-table change per month --- the natural unit of the state-space model --- and are directly comparable across clusters that receive the same climate input. Canopy interception is not added as a separate loss term: in the forested clusters it is already embedded implicitly in the lower fitted β₁ and β₂, and adding it explicitly would double-count losses. The net monthly balance --- recharge minus total losses --- quantifies the residual that would be required from an unmeasured boundary input to maintain long-run equilibrium.
 
 []{#mean-monthly-water-balance-decomposition}An indicative volumetric conversion is presented alongside the head-space decomposition using assumed specific-yield values appropriate to the substrate of each cluster, with the empirical specific-yield estimates of Section 3.8 used to bracket the volumetric fluxes from above. For the forested clusters, canopy interception is applied as a reduction of the surface input following the site-specific interception fraction (Freeman, 2008) --- a single-plot, single-season measurement, and the only site-specific value available --- reducing the boundary input rather than being additive to losses. The evapotranspiration--drainage partition is bracketed by two independent methods --- the SSM headspace ratio and a seasonal recession-curve analysis --- and reported as a mid-point with an associated uncertainty range.
 
-3.8 Specific-yield estimation by the water-table-fluctuation method
--------------------------------------------------------------------
+## 3.8 Specific-yield estimation by the water-table-fluctuation method
 
 An independent estimate of specific yield is derived from the dipwell record by the water-table-fluctuation method (Healy and Cook, 2002), in which specific yield is the ratio of net recharge to the corresponding water-table rise. The method is applied to the cluster-mean hydrographs, retaining only months in which both the water table rose and net recharge was positive above defined thresholds, and constraining event-level estimates to a physically plausible range. Because monthly data cannot isolate individual storm events and the method at monthly resolution is known to conflate gravity drainage with capillary-fringe release, the resulting estimates are interpreted as upper bounds on effective storage rather than as point estimates (Healy and Cook, 2002; Scanlon et al., 2002).
 
 []{#anchor-5}For the forested clusters a canopy-interception correction is applied to the precipitation term before computing net recharge, reducing only the rainfall input and leaving the Thornthwaite PET term unchanged. PET is an energy-based atmospheric-demand index independent of land cover; reducing it to account for canopy-evaporated interception would conflate atmospheric demand with realized evapotranspiration and remove the same quantity from both sides of the balance. The corrected forest estimates are compared against the open-dune range to test whether the attenuated water-table response beneath the canopy reflects the surface boundary condition or a genuinely different subsurface storage. The per-well event-median specific yields are interpolated across the site to assess whether the spatial distribution of storage is uniform or shows discontinuities coinciding with the cluster margins.
 
-3.9 Network-scale coastal-retreat gradient regression
------------------------------------------------------
+## 3.9 Network-scale coastal-retreat gradient regression
 
 Where a shoreline is actively eroding, the landward migration of the seaward drainage boundary acts as a slowly advancing line sink: it lowers the ground surface relative to the water table, raising the displacement head at adjacent wells and steepening the seaward hydraulic gradient, so that the near-coast water table deepens over time independently of climate along a Dupuit drawdown curve (Fetter, 2001). This mechanism --- an eroding dune margin drawing down its own hinterland --- is documented at the retreating Whiteford Burrows dune system in South Wales (Robins, Pye and Wallace, 2013), and imposes a spatial gradient on long-term summer-minimum trends. To partition each cluster's observed summer-minimum decline into a coastal-retreat component and a climate-driven background, a network-scale, physics-based non-linear regression is fitted to per-well water-table trends against distance from the eroding shoreline. The perpendicular distance from each well to the eroding Caernarfon Bay high-water mark is computed within the pipeline as the minimum distance to a committed coastline polyline (OpenStreetMap mean-high-water, EPSG:27700) restricted to the west-facing Newborough shoreline, with the Menai Strait excluded as a non-eroding boundary.
 
 Two functional forms are fitted: a Dupuit--Forchheimer steady-state strip-aquifer form, in which the coastal anomaly declines linearly to a far-field background and is capped at zero; and an exponential-decay form representing a diffusive transient response. These are the steady-state and transient limits of the same drawdown physics --- a Dupuit drawdown curve from the migrating boundary, its inland reach L set by the aquifer\'s hydraulic diffusivity D = Kb/Sy, the same length-scale physics that governs the interior head-loss reach of the forest block. Both are fitted by profile non-linear least squares with well and month fixed effects and a cumulative-water-balance covariate absorbed by within-well demeaning, with model selection between the two forms by the Akaike information criterion (Akaike, 1974). Three nested specifications are fitted to test robustness to forest-cover inclusion: the full network excluding the clearfell-zone wells; a forest-free network dropping all forested wells (C4 Main Forest and C5 Coastal Forest); and a single-cluster specification using only the western non-forested cluster (C3 Western Residual), with the far-field background held to the network value because that cluster contains no well at the coast and an unconstrained fit on its restricted distance range would be under-identified. The forest-free linear-with-cutoff fit is taken as the headline. The headline fit is then applied to decompose each cluster\'s (C1--C5) summer-minimum slope into gradient and climate components, quantifying the contribution of coastal retreat to long-term water-table trends across the network.
 
-[]{#anchor-6}3.10 Spatial interpolation, flow field and water-balance residual field
-------------------------------------------------------------------------------------
+## []{#anchor-6}3.10 Spatial interpolation, flow field and water-balance residual field
 
 A mean water-table surface is constructed by inverse-distance interpolation of per-well mean elevations to a regular grid on the British National Grid, masked to the sea-boundary extent. No elevation mask is applied, because the water table is a continuous surface independent of the overlying topography. Normalized Darcy flow-direction vectors are computed from the head-gradient field using a single representative hydraulic conductivity (Betson et al., 2002) and an interpolated aquifer-thickness surface; these are reported as directional context for the interpolated head field rather than as the output of a calibrated continuous-flow model (Bear, 1972; Freeze and Cherry, 1979).
 
 The water-balance residual field quantifies, at each reference well, the degree to which the three-term SSM closes the long-term water balance. The residual is computed from the fitted coefficients as the difference between modelled mean losses (atmospheric draw plus drainage) and modelled mean recharge, with the gross rainfall at all wells, including the forested ones: interception is already carried in β₂·PET̄, since the SSM is fitted on gross rainfall and above-canopy Thornthwaite PET, and subtracting it from rainfall as well would double-count it. Positive residuals indicate locations where modelled losses exceed modelled recharge --- an inadequacy in the three-term model at that location, or in principle an unmodelled input; near-zero residuals indicate that the three-term balance closes adequately. The field is interpolated to a grid with sea-boundary anchors and ridge cells masked. It is interpreted as a structural diagnostic of where the model's three terms are sufficient, not as a quantified map of lateral inflow, since the residual also absorbs nonlinear soil-moisture storage dynamics, coefficient sensitivity and any systematic bias in the Thornthwaite PET estimate. The mechanistic attribution of the residual pattern is tested by an independent cross-correlation lag analysis for distance-dependent transport from the ridge and a seasonal climatology analysis for unmodelled summer evaporative demand.
 
-3.11 Computational implementation
----------------------------------
+## 3.11 Computational implementation
 
 []{#data-and-methods}[]{#computational-implementation}All data pre-processing, statistical modelling and spatial mapping were implemented as a sequential, numbered Python pipeline, with time-series management in pandas and NumPy, model fitting in statsmodels, and spatial interpolation and rendering over a LiDAR DEM. The state-space alignment and displacement calculation are implemented once in a shared model-utilities module and called by every script that fits the SSM, ensuring that all downstream analyses are consistent with the cluster-level fits. The pipeline and its outputs are reproducible by running the published scripts in sequence.
 
-[]{#anchor-7}4. Results
-=======================
+# []{#anchor-7}4. Results
 
-[]{#anchor-7}4.1 Climate and well-network characterization
-----------------------------------------------------------
+## []{#anchor-7}4.1 Climate and well-network characterization
 
 The RAF Valley record establishes that Newborough Warren operates under a persistent annual water surplus, with mean annual precipitation of approximately 890 mm against mean annual Thornthwaite PET of approximately 652 mm over the monitoring period, a study-period P/PET ratio of about 1.36 (Figure 2). The surplus is strongly seasonal in its expression: winter rainfall exceeds evaporative demand by a wide margin, while summer PET exceeds rainfall, concentrating atmospheric demand on the aquifer during the period of lowest recharge. Inter-annual variability in the water balance is driven almost entirely by precipitation rather than by evaporative demand, which shows strong seasonality but negligible inter-annual trend. The post-2013 period has run warmer than the earlier summer-temperature baseline (Figure 3), intensifying the summer deficit.
 
@@ -158,8 +141,7 @@ The reference network comprises 66 wells with monthly water-table records over t
 
 **Figure 3.** Summer-temperature record showing the post-2013 warming relative to the earlier baseline.
 
-[]{#anchor-8}4.2 Network clustering and spatial architecture
-------------------------------------------------------------
+## []{#anchor-8}4.2 Network clustering and spatial architecture
 
 Hierarchical clustering of the standardized hydrograph dynamics, using the Pearson correlation distance and Ward's linkage, resolves five spatially coherent units under the dual-metric selection of k (Figure 4). The partition separates the network into a lake-margin unit (C1, Lake Edge), an open-dune unit (C2, Dune), a western unit on deeper sand (C3, Western Residual), and two units beneath the Corsican pine plantation distinguished by topographic position (C4, Main Forest, on the elevated ridge flank; C5, Coastal Forest, on the lower coastal fringe) (Figure 5). The cluster sizes are C1 = 7, C2 = 24, C3 = 21, C4 = 9 and C5 = 5 wells. The five units recover the broad substrate contrast between the responsive, storage-limited east and the buffered, deeper-sand south-west (Stratford et al., 2007), the latter (C3) gradational toward both the open dune and the forest rather than a sharply bounded block, with the two forested units segregating from this south-western dune despite their inferred substrate similarity. The cluster-centroid hydrographs and seasonal amplitudes are shown in Figure 6.
 
@@ -175,13 +157,11 @@ Hierarchical clustering of the standardized hydrograph dynamics, using the Pears
 
 **Figure 6.** Cluster-centroid hydrographs and seasonal amplitudes, 2005--2026.
 
-4.3 Affinity validation of the cluster structure
-------------------------------------------------
+## 4.3 Affinity validation of the cluster structure
 
 []{#anchor-9}The Pearson affinity analysis confirms the primary membership of the great majority of reference wells. Membership separates into tiers by the correlation delta between the assigned and next-strongest cluster: a minority of wells are core members with an unambiguous dominant affinity, while many show closely competing affinities between neighbouring units, consistent with gradational rather than sharp boundaries in a contiguous, highly transmissive sand aquifer (Rao and Srinivas, 2006). The spatial concentration of multi-cluster-affinity flags along the C1/C2/C3 transition and the forest--dune margin identifies the zones where geological and vegetative controls overlap.
 
-4.4 Cluster mechanistic coefficients
-------------------------------------
+## 4.4 Cluster mechanistic coefficients
 
 The five clusters are characterized mechanistically by the displacement-formulation SSM fitted to each cluster-centroid hydrograph (Table 1). All coefficients are statistically significant (p \< 0.003) at every cluster.
 
@@ -202,8 +182,7 @@ Atmospheric draw β₂ is highest at C4 (2.58) --- where it slightly exceeds C4\
 
 []{#cluster-mechanistic-coefficients}The drainage decay −β₃ shows the strongest contrast of the three coefficients: highest at C1 (0.088), where rapid lateral exchange with Llyn Rhos-Ddu drives fast recession, similar at C2 (0.064) and C3 (0.057), lower at C5 (0.044), and lowest at C4 (0.018), where a suppressed recharge pulse and weak lateral discharge produce the most sluggish drainage in the network.
 
-[]{#anchor-10}4.5 Water balance and specific yield
---------------------------------------------------
+## []{#anchor-10}4.5 Water balance and specific yield
 
 The head-space water-balance decomposition (Table 2; Figure 7) closes to within 2.2% of total losses at every cluster, confirming that the three-term displacement SSM captures the principal fluxes without requiring an unmeasured boundary term at the cluster mean. Recharge declines systematically from C1 (0.340 m/month) to the forested clusters (≈0.18 m/month), and total losses track recharge closely at every cluster. The drainage partition varies markedly: drainage accounts for 85% of total losses at C1 but only 23% at C4, where atmospheric draw dominates.
 
@@ -222,14 +201,14 @@ The indicative volumetric conversion (Table 3) places all clusters under ≈893 
 
 **Table 3.** Indicative annual volumetric water balance (mm/yr). I = canopy interception (24% of P; Freeman, 2008), forested clusters only. ET/drainage are mid-points of two independent partitioning methods.
 
-  --------------------- ----- ----- -------- ---------- ----------------
-  Cluster               P     I     P\_net   ET (mid)   Drainage (mid)
-  C1 Lake Edge          892   0     892      246        647
-  C2 Dune               892   0     892      390        503
-  C3 Western Residual   892   0     892      337        556
-  C4 Main Forest        892   214   678      431        247
-  C5 Coastal Forest     892   214   678      221        457
-  --------------------- ----- ----- -------- ---------- ----------------
+  --------------------- ----- ----- ------- ---------- ----------------
+  Cluster               P     I     P_net   ET (mid)   Drainage (mid)
+  C1 Lake Edge          892   0     892     246        647
+  C2 Dune               892   0     892     390        503
+  C3 Western Residual   892   0     892     337        556
+  C4 Main Forest        892   214   678     431        247
+  C5 Coastal Forest     892   214   678     221        457
+  --------------------- ----- ----- ------- ---------- ----------------
 
 ![](Pictures/10000000000005BE00000640EA9072DD.jpg){width="15.983cm" height="17.397cm"}
 
@@ -252,8 +231,7 @@ The water-table-fluctuation specific-yield estimates (Table 4; Figure 8) provide
 
 **Figure 8.** Interpolated water-table-fluctuation specific-yield surface; forest wells interception-corrected. The distribution varies smoothly, with no discontinuity at the cluster margins. The surface is a spatial diagnostic of a lumped-parameter model, not the output of a calibrated continuous-flow simulation. The interpolation extends over the rock-ridge bedrock outcrop on the northern boundary, which carries no monitoring wells; values shown there are extrapolations from the surrounding network and are not interpretable as model output on bedrock.
 
-[]{#anchor-10}4.6 Model benchmarking: SSM versus traditional linear model
--------------------------------------------------------------------------
+## []{#anchor-10}4.6 Model benchmarking: SSM versus traditional linear model
 
 In one-step diagnostic mode the SSM and TLM are nearly indistinguishable (median R² 0.92 and 0.91), because each prediction is corrected by the previous observed level. The distinction emerges under iterative simulation, where the SSM achieves a median NSE of 0.75 against the TLM\'s 0.18 --- a median gain of +0.53 NSE units --- and a positive iterative NSE at 65 of 66 wells against 44 of 66 for the TLM (Table 5; Figure 9). The explicit β₃ term captures storage-decay memory and prevents the cumulative drift that causes the TLM to diverge. The largest gains occur in the lake-proximal eastern aquifer (e.g. CEH25: TLM −1.48 → SSM 0.68; CEH6: −1.12 → 0.66), where head-dependent drainage is strongest; the smallest occur in the forest interior, where weak drainage makes the storage term nearly dispensable. The spatial pattern of the gain therefore serves as a non-invasive diagnostic of where nonlinear storage dynamics govern the aquifer.
 
@@ -269,8 +247,7 @@ In one-step diagnostic mode the SSM and TLM are nearly indistinguishable (median
 
 ![](Pictures/10000000000006400000048B7A7A5B76.jpg){width="16.164cm" height="11.749cm"}**Figure 9.** Spatial pattern of the SSM-over-TLM iterative Nash--Sutcliffe improvement across the reference network.
 
-[]{#anchor-11}4.7 Spatial coefficient structure and drainage half-life
-----------------------------------------------------------------------
+## []{#anchor-11}4.7 Spatial coefficient structure and drainage half-life
 
 Per-well drainage-datum optimization shows the R²-maximizing datum varying systematically across the site, from shallow at the Lake Edge to deep in the western and forest interior, but the R² gain over the uniform 3.7 m value is negligible across most of the network (Figure 10), confirming the uniform-datum assumption. The shallow-to-deep gradient broadly mirrors the eastward-shallowing substrate, but the near-flat R²--datum response, and the confounding of the optimal datum with mean water-table depth (below which it must lie),leave it too weakly constrained to be read as recovering the impermeable base. The confounding is direct: across the network the R²-maximizing datum correlates more strongly with the local mean water-table depth (r = 0.56) than with position, and the apparent westward deepening of 0.81 m per kilometre (p \< 0.001) does not survive control for that depth (0.34 m per kilometre, p = 0.14). At 65 of the 66 reference wells the optimum lies below the mean water table, the single exception being a forest well whose drainage coefficient is not significantly positive at any datum in the sweep. That the datum is better read as a depth below ground than as an absolute elevation is confirmed by the sweep geometry: regressing each well's R²-optimizing datum elevation on its ground elevation gives a slope of +0.868 across the 66 reference wells (mirror datum-depth slope +0.133), close to the +1 of a base at constant depth below ground and far from the 0 of a base at fixed elevation, and no single absolute elevation is definable across the network's 10.9 m spread of ground elevations. A base that follows the dune topography is consistent with the theoretical flow paths and Darcy vectors of Figure 16 and supports reading β₃ as a lumped Darcy-consistent drainage coefficient rather than requiring an independently located sea-level base. Interpolation of the per-well coefficients yields continuous surfaces whose broad structure aligns with the cluster boundaries while preserving substantial within-cluster variation (per-well ranges in Table 6; Figures 11--13). Recharge sensitivity β₁ is highest in the north-east around the Lake Edge wells (per-well up to 6.3) and declines across the open dune to its lowest values beneath the forest. Atmospheric draw β₂ peaks in the C4 forest interior and along the ridge-adjacent northern dune, and is lowest at the Lake Edge. Drainage rate β₃ shows the strongest spatial contrast of any coefficient, from the fast-draining Lake Edge (per-well up to 0.135 per month) to the near-stagnant forest interior, where one ridge-flank well (CEH14) records a negative value where the displacement formulation does not capture the boundary condition.
 
@@ -314,8 +291,7 @@ The drainage decay half-life t½ = ln(2)/β₃ is the time for excess groundwate
 
 **Figure 15.** Aquifer diagnostic synthesis: drainage decay half-life t½ versus SSM-over-TLM iterative NSE gain, points sized by specific yield and coloured by cluster.
 
-4.8 Substrate control within the forested zone
-----------------------------------------------
+## 4.8 Substrate control within the forested zone
 
 Where the canopy is uniform but the per-well coefficients span much of the site-wide range, regression against elevation, distance from the ridge and easting identifies the underlying control (Table 8). Atmospheric draw β₂ is overwhelmingly governed by elevation (r = 0.983, p \< 0.001; R² = 0.966): higher wells on the ridge return systematically higher β₂. Drainage β₃ shows a weaker but significant elevation dependence (r = −0.814, p \< 0.001), with distance from the ridge adding information (combined R² = 0.788). Recharge β₁ shows no significant elevation relationship (p = 0.39); easting is its best single predictor (r = 0.62, p = 0.017).
 
@@ -329,8 +305,7 @@ Where the canopy is uniform but the per-well coefficients span much of the site-
   β₃ drainage    −0.814 (\<0.001)   0.612 (0.020)      −0.447 (0.11)
   -------------- ------------------ ------------------ ---------------
 
-4.9 Mean water-table surface and flow field
--------------------------------------------
+## 4.9 Mean water-table surface and flow field
 
 Interpolation of per-well mean elevations gives a head surface highest in the north-western forest zone adjacent to the bedrock ridge (≈14 m AOD), declining to 7--9 m AOD across the central dune and 2--3 m AOD at the southern and eastern coastal margins, with contours running approximately NE--SW (Figure 16). Normalized Darcy flow vectors computed from the head gradient diverge radially from the north-western high point: predominantly southward and south-westward in the western half of the site and south-eastward in the eastern half, broadly consistent with the DEM-derived flow network. The vectors are reported as directional context for the interpolated head field rather than as the output of a calibrated continuous-flow model.
 
@@ -338,8 +313,7 @@ Interpolation of per-well mean elevations gives a head surface highest in the no
 
 **Figure 16.** Mean annual water-table surface (m AOD) with normalized Darcy flow-direction vectors. The interpolation extends over the rock-ridge bedrock outcrop on the northern boundary, which carries no monitoring wells; values shown there are extrapolations from the surrounding network and are not interpretable as model output on bedrock.
 
-[]{#anchor-12}4.10 Water-balance residual field
------------------------------------------------
+## []{#anchor-12}4.10 Water-balance residual field
 
 The residual field --- modelled losses minus modelled recharge at each well, from the fitted coefficients --- closes tightly and carries no coherent spatial structure, with a small systematic negative offset (Figure 17). Residuals span −0.0115 to +0.0049 m/month about a median of −0.0045 m/month, with 64 of the 66 reference wells inside ±0.01 m/month and 58 negative. All five cluster medians are negative, from −0.0065 m/month at C4 Main Forest to −0.0004 m/month at C5 Coastal Forest, and residual magnitude is uncorrelated with position on either axis (Spearman ρ = +0.099 against Easting, p = 0.43; ρ = +0.111 against Northing, p = 0.37); the signed residual carries a weak west-to-east gradient short of conventional significance (ρ = −0.226, p = 0.07), reported for completeness rather than as an established structure. No well exceeds +0.02 m/month, and only eight are positive at all: the largest are CEH4 (+0.0049), NW7 (+0.0033) and NW6 (+0.0032), in the open dune rather than at the ridge margin. No C4 Main Forest well is positive. The largest negative residual falls at the open-dune well D7 (−0.0115 m/month), with the ridge-flank well CEH14 (−0.0106 m/month) close behind. Two independent diagnostic tests on the monthly SSM residual --- a cross-correlation lag test for distance-dependent transport from the ridge, and a seasonal climatology test for unmodelled summer evaporative demand --- both returned null results. No unmodelled flux is required to close the balance at any cluster.
 
@@ -347,8 +321,7 @@ The residual field --- modelled losses minus modelled recharge at each well, fro
 
 **Figure 17.** SSM water-balance residual field. Positive (red) indicates modelled losses exceeding modelled recharge; negative (blue) indicates over-prediction. The field closes tightly across the network, with a small systematic negative offset: 64 of 66 reference wells lie within ±0.01 m/month and 58 are negative. No well exceeds +0.02 m/month; the largest positive value is CEH4 (+0.0049 m/month). Rainfall is gross, and climate means are taken over the same period as the mean heads. The field is a spatial diagnostic of a lumped-parameter model, not the output of a calibrated continuous-flow simulation. The interpolation extends over the rock-ridge bedrock outcrop on the northern boundary, which carries no monitoring wells; values shown there are extrapolations from the surrounding network and are not interpretable as residuals on bedrock.
 
-[]{#anchor-12}4.11 Coastal-retreat gradient and the partition of long-term decline
-----------------------------------------------------------------------------------
+## []{#anchor-12}4.11 Coastal-retreat gradient and the partition of long-term decline
 
 The network-scale regression of water-table trend against distance from the eroding Caernarfon Bay shoreline selects a linear-with-cutoff (Dupuit--Forchheimer) form in the forest-free headline specification, with a coast-edge deepening rate of −29.0 mm/yr above the climate background (95% CI −32.7 to −25.3), an inland reach of 894 m (793--995), and a far-field climate background of −6.4 mm/yr (Figure 18). The coastal-retreat signal is year-round: C5 Coastal Forest declines in both the summer minimum and the spring mean (−36 and −38 mm/yr), and a full-panel season × distance interaction shows no seasonality in the gradient itself (γ = +0.06, p = 0.23; SI §S13.6). The forest-free and full-network fits agree closely, and the C3-only specification returns a consistent coast-edge rate, confirming the gradient is not an artefact of forest-cover inclusion. The linear-with-cutoff and exponential-decay forms are statistically near-indistinguishable in the forest-free specification (ΔAIC ≈ 0.1); the linear-with-cutoff form is adopted as the headline on physical grounds, as it embodies the Dupuit--Forchheimer expectation of a finite inland reach beyond which the migrating seaward boundary exerts no influence, and the two forms agree to within about 1 mm/yr on the predicted coastal-retreat rate at the near-coast distances where it is largest.
 
@@ -379,11 +352,9 @@ The C5 Coastal Forest row is reported for completeness but should not be read as
 
 **Figure 18.** Coastal-retreat gradient. (a) Per-well summer-minimum slope versus distance to the eroding Caernarfon Bay shoreline, with the full-network, forest-free and C3-only linear-with-cutoff fits and the forest-free exponential fit overlaid; b) per-cluster decomposition of the observed decline into climate, coastal-retreat gradient and residual; (c) observational corroboration --- the spring (MAM) coast-to-inland head difference (coastal anchor CEH22 minus inland anchor NW4) against year, with the AR(1)-corrected trend of −28.2 mm/yr; this transect subset is distinct from the whole-network fit in (a) and (b).
 
-5. Discussion
-=============
+# 5. Discussion
 
-5.1 Geology, land cover and the cluster structure
--------------------------------------------------
+## 5.1 Geology, land cover and the cluster structure
 
 The five hydrogeological clusters resolved by hierarchical clustering of hydrograph dynamics map onto the documented geological structure of the site. The broad contrast between the responsive eastern open dune (C1 Lake Edge, C2 Dune) and the buffered south-western dune (C3) reflects the difference in subsurface stratigraphy described by Stratford et al. (2007): shallow sand over till and estuarine deposits in the east constrains storage and drives flashy water-table responses, while a deeper sand column in the south-west supports a more buffered aquifer. The mechanistic coefficients recover this divide independently of the clustering that defined it, and they resolve a gradient running through the open dune rather than a simple binary. C1 Lake Edge is one extreme --- the highest recharge sensitivity in the network (β₁ = 4.58) with the fastest head-dependent drainage (−β₃ = 0.088) and the fastest turnover in the network (t½ ≈ 7.1 months), a fill-and-drain regime in which a shallow base promotes rapid lateral exchange directly with Llyn Rhos-Ddu. C2 Dune, the largest and most representative unit (24 wells), is the open-dune archetype between the end-members: **a still-high recharge sensitivity (β₁ = 3.97) and a drainage-dominated loss partition (68% of losses), but a slower drainage decay (−β₃ = 0.064) and a longer turnover (t½ ≈ 10.3 months)** than the lake-coupled C1, reflecting open dune without a direct lake connection. C3 Western Residual is the buffered opposite --- the lowest recharge sensitivity of the open clusters (β₁ = 3.57), the slowest open-system drainage (−β₃ = 0.057) and the longest open-dune memory (t½ ≈ 13.7 months) --- as the deep aeolian sand attenuates both the rainfall pulse and its release. The forested interior fills slowly and drains most sluggishly of all. C4 Main Forest is the cluster geographically nearest the rock ridge, with the metamorphic bedrock outcrop forming its northern margin --- a setting reflected in the impeded drainage and the elevated atmospheric-draw coefficient (Section 5.2) and revisited in the residual-field discussion (Section 5.4).
 
@@ -399,8 +370,7 @@ This gradient also bears on how C3 is best understood. Its membership is the mos
 
 []{#anchor-13}That the clustering (Figures 4 and 5), the mechanistic coefficients (Figures 11--13 and Table 1), and a third, fully independent diagnostic synthesis (Figure 15) all converge on the same structure is the strongest evidence that the partition is real rather than an artefact of the linkage method. When the drainage decay half-life (t½ = ln(2)/β₃; Figure 14), the SSM forecasting gain over the linear benchmark (ΔNSE; Figure 9), and the water-table-fluctuation specific yield (Figure 8) --- three parameters derived by separate routes --- are plotted together (Figure 15), the five clusters occupy distinct, non-overlapping regions of diagnostic space. C1 Lake Edge sits at the shallow, fast-cycling, drainage-dominated extreme; C4 Main Forest at the sluggish, atmospheric-draw-dominated opposite; and C5 separates cleanly from C4 despite sharing the same canopy. This is a model-based characterization of aquifer architecture that is consistent with, but independent of, the Ward\'s clustering applied to the raw hydrographs.
 
-[]{#anchor-14}5.2 Substrate versus surface control: interpreting the coefficients
----------------------------------------------------------------------------------
+## []{#anchor-14}5.2 Substrate versus surface control: interpreting the coefficients
 
 The two forested clusters are inferred to share the deep sandy substrate of the western block, and carry the same Corsican pine canopy, yet segregate into distinct units --- and resolving why is central to interpreting what the SSM coefficients measure. Within the forest zone, elevation alone explains 96% of the variance in atmospheric draw (β₂ versus elevation, r = 0.98), with C4 and C5 separating completely on this axis and on mean elevation (10.7 m versus 5.7 m). C4, on the elevated ridge flank, has a deeper water table and unsaturated zone --- which we interpret as permitting stronger atmospheric draw --- together with weaker drainage; C5, on the lower coastal fringe, has a shallower water table and faster drainage. The measured contrast in water-table depth and coefficient behaviour is unambiguous. That interpretation has independent measured support at this site. Freeman (2008) recorded the water table beneath the Newborough plantation approximately 1.07 m below the open Warren (ANOVA p \< 0.001) and mean volumetric soil moisture at roughly half the open-dune value, attributing the moisture contrast to the loss of capillary contact between the upper soil layers and the water table where the water table is deeper. The forest zone therefore carries an unsaturated zone that is both thicker and drier, consistent with the coefficient contrast we recover. The substrate explanation differs in confidence between the two clusters. For C4, the bedrock of the ridge outcrops within the forest, so the nature of the rock underlying the cluster is established; its depth and extent beneath C4 are not known without coring, but the impeded drainage there is consistent with a shallow, irregular bedrock base close beneath the wells --- an inference supported by the proximity of the outcropping ridge. The storage evidence within the plantation supports it directly. Across the fourteen forested wells the specific yield falls with elevation (r = −0.94, p \< 0.001) and rises with distance from the ridge (r = +0.82, p \< 0.001) --- the pattern expected where a shallowing bedrock base thins the drainable sand column toward the outcrop. The relationship is robust to the exclusion of the two anomalous ridge-flank wells (r = +0.81 against ridge distance with both removed) and is present in the uncorrected estimates as well as the corrected ones (r = +0.62, p = 0.018), so it is not an artefact of the canopy correction. For C5, the proposed more-uniform, deeper coastal sand is the weaker inference, resting on the coefficients and topography alone. On that basis the split is best read as a substrate-and-topographic-position discontinuity beneath a constant canopy rather than an arbitrary division of a continuous population. The forest-interception drawdown footprint (Figure 19) occupies the same corner, so the high atmospheric draw, the positive water-balance residual and the modelled drawdown reach together describe one coherent forest signature; because all three are anchored to the same plantation-and-ridge zone, however, their spatial agreement is mutual consistency rather than independent corroboration.
 
@@ -408,22 +378,19 @@ This finding clarifies a potential misreading of the cluster contrasts. The fore
 
 []{#anchor-15}A depth-dependent extension of the model, in which atmospheric draw declines as the capillary fringe retreats from the root zone with increasing water-table depth, confirms that a real depth-coupling effect is present at every cluster, strongest where the water table is shallowest (C1) and weakest where it is deepest (C4). Notably, C4 shows the weakest depth coupling despite carrying the highest atmospheric-draw coefficient, confirming that its high β₂ reflects low specific yield rather than a depth-dependent evapotranspiration pathway. The standard fixed-β₂ model absorbs the coupling as an effective depth-averaged parameter. The depth coupling and the lateral-drainage geometry together contribute to the within-forest β₂ variation alongside substrate, but the dominant control on the cluster-level contrast remains topographic position and substrate rather than canopy. These within- and cross-cluster comparisons rest on the ordering of β₂ rather than on its absolute magnitude: the fitted β₂ values are OLS estimates biased somewhat high in absolute terms, and are reliable as rankings rather than as quantitative atmospheric-draw rates.
 
-5.3 Recharge, loss and the water balance
-----------------------------------------
+## 5.3 Recharge, loss and the water balance
 
 Decomposed under identical climate forcing, the clusters reveal markedly different recharge sensitivities and loss partitions while closing the monthly water balance to within 2.2% of total losses at every cluster. Recharge declines systematically from the Lake Edge through the open dune to the forested clusters, and total losses track recharge closely, but the partition between drainage and atmospheric draw varies sharply: drainage dominates at C1 (85% of losses), reflecting rapid lateral exchange with the lake, while atmospheric draw dominates at C4 (76%), where the suppressed recharge pulse never lifts the water table far enough above equilibrium to generate a strong drainage response and the irregular substrate impedes what drainage there is. The suppression has two components. Interception removes a fraction of rainfall at the crown, and the profile beneath the canopy is measurably drier --- Freeman (2008) recorded roughly half the open-dune volumetric soil moisture beneath the plantation --- so a larger storage deficit must be satisfied before the remainder reaches the water table. Her felled clearing plot, which carried a water table statistically indistinguishable from the open Warren, indicates that the second component is a consequence of the canopy rather than an independent property of the forest zone. The displacement formulation is what makes this contrast resolvable: under a ground-surface reference the C4 drainage term is borderline, but referencing drainage to a fixed sub-surface datum recovers a clearly significant coefficient at all five clusters, correctly specifying the hydraulic level against which drainage operates.
 
 []{#recharge-loss-and-the-water-balance}Two cautions attach to the recharge term. First, because the model is fitted without an intercept, in an open-boundary system the recharge coefficient can absorb unmeasured boundary fluxes (Young, 2011; Knotters and van Walsum, 1997); β₁·P should not be read as a direct measure of local precipitation reaching the water table. Second, the atmospheric-draw coefficient is an effective parameter: Thornthwaite PET is an energy-based demand index that does not define a reference surface in the manner of Penman--Monteith, so β₂ folds together transpiration, interception, specific yield and depth coupling into a single scaling between atmospheric demand and water-table response, and a formal crop-coefficient decomposition does not apply. Both cautions are consistent with the substrate interpretation above: the coefficients are diagnostic of behaviour, and their physical decomposition requires the independent specific-yield and depth-coupling evidence assembled here.
 
-5.4 Boundary conditions and the water-balance residual field
-------------------------------------------------------------
+## 5.4 Boundary conditions and the water-balance residual field
 
 The near-closure of the water balance at the cluster mean also holds in space. The residual field --- modelled losses minus modelled recharge, from the fitted coefficients --- lies within ±0.01 m/month at 60 of the 66 reference wells, carries no gradient across the site, and returns cluster medians spanning −0.005 to +0.005 m/month. A positive residual would mark a location where measured rainfall-driven recharge does not fully account for the observed water level, implying an unmodelled input; three open-dune wells carry such a residual above +0.02 m/month, two of them effectively co-located, and no forest or ridge-proximal well does. The largest negative residual falls at the ridge-flank well CEH14. On this evidence no ridge-derived lateral input is required to close the balance, and the residual field provides no positive support for one.
 
 Two further diagnostics constrain what the record could have detected had such an input been present.[]{#anchor-16} Two independent diagnostic tests --- a cross-correlation lag analysis for distance-dependent transport from the ridge, and a seasonal climatology analysis for unmodelled summer evaporative demand --- both returned null results. The cross-correlation null is itself qualified by sampling frequency: monthly observations are an order of magnitude coarser than the days-to-weeks transit times expected for fracture-flow input from a metamorphic bedrock ridge, so a real ridge-derived lag could be invisible at this resolution, and the null result bears on what the present record can resolve rather than on whether the mechanism is operative. The seasonal phase of the residual narrows the field further: it peaks in winter and early spring at the great majority of wells and at none in summer, which is inconsistent with any vertical-flux parameterization error --- systematically underestimated summer PET, an incomplete canopy-interception correction, or any under-resolved summer evaporative demand, all of which would peak in summer when those fluxes are active --- and consistent with either a winter-phased nonlinear recharge mechanism or ridge-derived lateral input arriving during the months of greatest rainfall. A cluster-stratified version of the same climatology shows mean winter-minus-summer residual contrasts of +7.4 mm in C3 (p\<0.001), +6.2 mm in C4 (p=0.086, marginal) and −2.8 mm in C5 (not significant); the C3 \> C4 \> C5 ordering and the magnitude of the C3 signal together rule out canopy-interception over-estimation as the sole driver of the winter--summer contrast, since the largest signal sits in a cluster with no canopy. The residual pattern is real and reproducible; its mechanistic attribution is unresolved. This is the appropriate stance for a lumped-parameter framework: the residual field is a structural diagnostic of where the three-term balance is insufficient, not a quantified map of lateral flux, because it also absorbs nonlinear soil-moisture dynamics, coefficient sensitivity and any systematic PET bias.
 
-[]{#anchor-17}5.5 Long-term forcing: coastal retreat and the partition of decline
----------------------------------------------------------------------------------
+## []{#anchor-17}5.5 Long-term forcing: coastal retreat and the partition of decline
 
 The network-scale gradient regression isolates a forcing that a climate-only analysis would misattribute. Fitted across the open-dune network, the regression resolves a coast-edge water-table deepening of roughly 29 mm/yr above the climate background, declining over an inland reach of about 900 m to a far-field climate background of −6.4 mm/yr. Removing the \~29 mm/yr coastal artefact therefore isolates a clean far-field climate signal of about −6.4 mm/yr, which any climate-attribution analysis at this site should adopt as its baseline rather than the network-mean rate that conflates the two forcings. The result is robust to functional form at the network scale and to forest-cover inclusion, and it identifies coastal retreat as a spatially structured forcing distinct from climate: only the near-coast western clusters carry a gradient component, with coastal retreat accounting for about a third of the observed summer-minimum decline at C3, while the inland clusters lie beyond the fitted reach and decline at the climate background rate.
 
@@ -437,22 +404,19 @@ One boundary mechanism operates alongside the retreat gradient at the most coast
 
 []{#anchor-18}The far-field background itself --- the decline that persists beyond the coastal reach --- is a candidate for further mechanistic work, with at least two non-exclusive climate drivers. The deterioration is concentrated in the summer months, consistent with rising evaporative demand under the documented post-2013 summer warming (Figure 3) acting through the atmospheric-draw term as elevated potential evapotranspiration. A reduction in effective recharge is also plausible --- for example a shift in the within-month distribution of rainfall... expressed as a declining recharge sensitivity. The two routes sit differently within the framework: the warming signal enters directly through the model\'s potential-evapotranspiration forcing, whereas a sub-monthly rainfall redistribution is invisible to a monthly model and would surface only as an apparent decline in recharge sensitivity. The framework makes the network-wide signal visible but does not, on the present analysis, resolve which dominates; it is noted as a forcing the characterization exposes rather than a result the paper establishes.
 
-5.6 Predictive skill and transferability
-----------------------------------------
+## 5.6 Predictive skill and transferability
 
 The practical contribution of the framework rests on the benchmarking result. In one-step diagnostic mode the state-space and traditional linear models are nearly indistinguishable, because each prediction is corrected by the previous observation; the distinction emerges under iterative simulation, where the SSM achieves a median Nash--Sutcliffe efficiency of 0.75 against the linear model's 0.13, and returns a positive iterative NSE at all but one of the 66 reference wells, against 44 for the linear model. The explicit head-dependent drainage term captures the storage-decay memory that prevents the cumulative drift to which the linear model is prone. The spatial pattern of the gain is itself a diagnostic: the largest improvements concentrate in the lake-proximal eastern aquifer where head-dependent drainage is strongest, and the smallest occur in the forest interior where weak drainage makes the storage term nearly dispensable. The improvement map therefore delineates which parts of the aquifer are governed by nonlinear storage dynamics and which approximate a linear climate response --- a structural characterization obtained without any invasive measurement.
 
 []{#predictive-skill-and-transferability}This is the basis for transferability. The framework requires only three fitted parameters per well, a uniform drainage datum, and monthly rainfall and temperature from a single climate station. It does not require hydraulic-conductivity measurements, aquifer-thickness surfaces, or lateral-flow modelling --- precisely the parameter-sparsity constraints that produced calibration difficulties for an earlier distributed-model effort at this site (Betson et al., 2002). The displacement formulation is the methodological choice that enables this: by referencing drainage to a fixed sub-surface datum rather than to the ground surface, it captures the depth-dependence of the drainage response without site-specific calibration of the drainage geometry, and it resolves a physically meaningful drainage coefficient even in the low-gradient forest interior. Any coastal dune aquifer with a manual dipwell network and a nearby climate station can be parameterized in the same way, and the diagnostic syntheses demonstrated here --- the **t½/ΔNSE/Sy** characterization, the coefficient atlas, the residual field --- follow directly from that parameterization. One supplementary step reaches outside this core: rendering the forest-interception drawdown as a physical reach in metres (Figure 19) requires a hydraulic diffusivity, for which a single literature conductivity (K ≈ 6 m/day; Betson et al., 2002) and a nominal saturated thickness are assumed --- the latter uncertain by a factor of two or more. These enter only that illustrative reach length; the core parameterization, the diagnostic syntheses above, and the empirically fitted coastal reach (Figure 20) all remain free of conductivity and thickness inputs. The forest reach is accordingly an order-of-magnitude diagnostic rather than a calibrated prediction.
 
-5.7 Framework limitations
--------------------------
+## 5.7 Framework limitations
 
 The framework's strengths and its limits are two sides of the same design choice. Because it fits a lumped mass balance independently at each well and interpolates the results geometrically, it does not resolve lateral groundwater flow. The interpolated coefficient and head surfaces are aggregators of point responses, not a physical flow model, and cannot represent cluster-to-cluster hydraulic coupling, the lateral redistribution of localized recharge perturbations, or the diffusive response of the aquifer to a change in boundary flux. The affinity analysis and the Darcy field show that the clusters are connected along a continuous downslope drainage pathway, so whether a signal originating in one part of the aquifer propagates to another at magnitudes below the framework's resolution cannot be answered here; that is a question for a calibrated continuous-flow model. The critical unknowns for such a model are the very quantities the present framework avoids --- hydraulic conductivity, currently constrained by a single tracer test (6.0 m/day; Betson et al., 2002), and aquifer thickness, inferred from a handful of borehole logs across the site. A measured K would also tighten the only K-conditioned output of the present framework --- the forest-drawdown reach length in Figure 19 --- but, as noted in Section 5.6, all other framework outputs (SSM coefficients, WTF specific yields, substrate-gradient interpretation, coastal-retreat regression and residual field) are K-independent and would not change with a measured K. Slug tests at representative wells per cluster and a ground-penetrating-radar survey of aquifer thickness are the priority field measurements to enable a flow model, and would also support an independent vadose-zone test of the canopy-driven recharge-suppression signal. The same campaign would test the structural interpretation of the C3 transition (Section 5.1): a south-west to north-east transect resolving the depth to the estuarine-clay base, carrying the Caernarfon Bay coastal-retreat rate as a covariate, would establish whether the eastward-to-south-westward buffering gradient reflects a single dipping clay base --- one thickening sand column --- rather than two distinct substrate blocks, and would separate that structural control from the confounded coastal and plantation-margin influences.
 
 []{#discussion}[]{#framework-limitations}Several further limitations qualify specific results. The monthly measurement resolution cannot isolate individual storm events, so the water-table-fluctuation specific yields conflate gravity drainage with capillary-fringe release and are upper bounds rather than point estimates (Healy and Cook, 2002; Scanlon et al., 2002). Thornthwaite PET is a temperature-and-daylength index whose absolute magnitude is uncertain; the framework's internal consistency does not depend on it, but absolute flux estimates derived from it do. The coastal-retreat regression is a steady-state spatial model: it resolves the first-order distance gradient but not the multi-year transient over which an erosion signal propagates inland, and direct measurement of present-day retreat rates at the south-western dune front remains a monitoring priority. The water-balance residual field is spatially structured and reproducible but, as discussed, its attribution between a genuine lateral flux and a modelling artefact is unresolved. Finally, the close correspondence between DEM-derived drainage pathways and the cluster boundaries supports the use of surface topography as an operational proxy for subsurface flow divides, but the two are co-determined by the underlying till and bedrock architecture rather than one causing the other; the proxy is reliable for routing in the absence of high-resolution bedrock mapping, not a substitute for it.
 
-6. Conclusions
-==============
+# 6. Conclusions
 
 This study sets out a parameter-sparse state-space framework for characterizing the hydrogeological architecture of a coastal dune aquifer from routine monitoring data, and demonstrates it across 88 dipwells and 21 years of monthly records at Newborough Warren. The principal conclusions are:
 
@@ -465,90 +429,88 @@ This study sets out a parameter-sparse state-space framework for characterizing 
 
 []{#conclusions}The hydrological consequences of the dune-scraping and plantation-clearfell interventions undertaken at the site are quantified within a before-after-control-impact framework in the companion paper (Hollingham, 2026b).
 
-Source data
-===========
+# Source data
 
 For review only --- every figure and table below traces to a committed file in the project repository (paths relative to outputs/, or to config.py / data/ where noted). This block lets reviewers verify each value against its producing artefact and is to be removed at production.
 
-  -------------------------------------------------------------------------- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  -------------------------------------------------------------------------- -----------------------------------------------------------------------------------------------------------------------------------------------------------------
   Item                                                                       Committed source
-  Table 1 --- cluster mechanistic characterization                           03\_state\_space\_model/03\_03\_cluster\_mechanistic\_coefficients.csv
-  Table 2 --- mean monthly head-space water balance                          16\_water\_balance/16\_water\_bal\_table.csv
-  Table 3 --- annual volumetric water balance                                16\_water\_balance/16\_water\_bal\_vol\_table.csv
-  Table 4 --- specific yield by cluster (WTF method)                         17\_wtf\_specific\_yield/17\_wtf\_01\_sy\_estimates.csv
-  Table 5 --- SSM vs traditional-linear-model benchmarking                   08\_model\_benchmarking/08\_lcsc\_04\_table3\_benchmark\_summary.csv
-  Table 6 --- per-well SSM coefficient ranges by cluster                     07\_spatial\_coefficients/07\_coeff\_05\_cluster\_ranges.csv
-  Table 7 --- drainage decay half-life t½ = ln(2)/β₃ by cluster              18\_wtf\_spatial/18\_wtf\_05\_storage\_drainage\_index.csv
-  Table 8 --- within-forest spatial predictors of SSM coefficients           10c\_forest\_zone\_correlations.csv
-  Table 9 --- decomposition of cluster summer-minimum decline                25\_coastal\_gradient/25\_03\_cluster\_partition.csv
-  Figure 1 --- site topography, geology and monitoring network               01\_locations.csv (+ DEM/KML in data/geo/)
-  Figure 2 --- climate forcing over the monitoring period                    01\_climate.csv
-  Figure 3 --- summer-temperature record                                     00\_climate\_summary/00\_03\_summer\_warming\_stats.csv
-  Figure 4 --- Ward\'s dendrogram                                            02\_clustering/02\_07\_cluster\_membership\_k5.csv
-  Figure 5 --- spatial cluster distribution (Pearson affinity)               05\_pear\_membership\_audit.csv (+ 01\_locations.csv)
-  Figure 6 --- cluster-centroid hydrographs and amplitudes                   02\_clustering/02\_09\_cluster\_amplitude\_summary.csv
-  Figure 7 --- water-balance decomposition by cluster                        16\_water\_balance/16\_water\_bal\_table.csv
-  Figure 8 --- WTF specific-yield surface                                    17\_wtf\_specific\_yield/17\_wtf\_01\_sy\_estimates.csv
-  Figure 9 --- SSM-over-TLM Nash--Sutcliffe improvement                      08\_model\_benchmarking/08\_perwell\_nse.csv
-  Figure 10 --- optimal drainage datum and R² gain                           03\_state\_space\_model/03\_09\_well\_optimal\_datums.csv; 03\_08\_datum\_sensitivity.csv
-  Figure 11 --- β₁ recharge-sensitivity surface                              07\_spatial\_coefficients/07\_coeff\_maps\_data.csv
-  Figure 12 --- β₂ atmospheric-draw surface                                  07\_spatial\_coefficients/07\_coeff\_maps\_data.csv
-  Figure 13 --- β₃ drainage-rate surface                                     07\_spatial\_coefficients/07\_coeff\_maps\_data.csv
-  Figure 14 --- drainage decay half-life t½                                  18\_wtf\_spatial/18\_wtf\_05\_storage\_drainage\_index.csv
-  Figure 15 --- aquifer diagnostic synthesis                                 18\_wtf\_spatial/18\_wtf\_05\_storage\_drainage\_index.csv; 08\_model\_benchmarking/08\_perwell\_nse.csv; 17\_wtf\_specific\_yield/17\_wtf\_01\_sy\_estimates.csv
-  Figure 16 --- mean annual water-table surface with Darcy flow-directions   20\_spatial\_figures/20\_head\_surface\_streams.png (head surface IDW-interpolated from per-well mean annual head in 03\_master\_data.csv; vectors are direction-only)
-  Figure 17 --- SSM water-balance residual field                             20\_spatial\_figures/20\_residual\_perwell.csv
-  Figure 18 --- coastal-retreat gradient (a, b, c)                           25\_coastal\_gradient/25\_report\_numbers.csv; 25\_coastal\_gradient/25\_03\_cluster\_partition.csv; 38\_coastal\_transect/38\_results.txt
-  Figure 19 --- illustrative forest reach                                    schematic; parameters from config.py (FOREST\_INTERCEPTION, DRAWDOWN\_H0/K/B) via Script 09f
-  Figure 20 --- episodic coastal reach                                       schematic; parameters from 25\_coastal\_gradient/25\_report\_numbers.csv and config.py (COAST\_RETREAT\_\*)
-  Figure 21 --- conceptual coastal-vs-climate reach                          schematic; δ₀/L/c from 25\_coastal\_gradient/25\_01\_panel\_fit\_parameters.csv, rendered via Scripts 09f/09g
-  -------------------------------------------------------------------------- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  Table 1 --- cluster mechanistic characterization                           03_state_space_model/03_03_cluster_mechanistic_coefficients.csv
+  Table 2 --- mean monthly head-space water balance                          16_water_balance/16_water_bal_table.csv
+  Table 3 --- annual volumetric water balance                                16_water_balance/16_water_bal_vol_table.csv
+  Table 4 --- specific yield by cluster (WTF method)                         17_wtf_specific_yield/17_wtf_01_sy_estimates.csv
+  Table 5 --- SSM vs traditional-linear-model benchmarking                   08_model_benchmarking/08_lcsc_04_table3_benchmark_summary.csv
+  Table 6 --- per-well SSM coefficient ranges by cluster                     07_spatial_coefficients/07_coeff_05_cluster_ranges.csv
+  Table 7 --- drainage decay half-life t½ = ln(2)/β₃ by cluster              18_wtf_spatial/18_wtf_05_storage_drainage_index.csv
+  Table 8 --- within-forest spatial predictors of SSM coefficients           10c_forest_zone_correlations.csv
+  Table 9 --- decomposition of cluster summer-minimum decline                25_coastal_gradient/25_03_cluster_partition.csv
+  Figure 1 --- site topography, geology and monitoring network               01_locations.csv (+ DEM/KML in data/geo/)
+  Figure 2 --- climate forcing over the monitoring period                    01_climate.csv
+  Figure 3 --- summer-temperature record                                     00_climate_summary/00_03_summer_warming_stats.csv
+  Figure 4 --- Ward\'s dendrogram                                            02_clustering/02_07_cluster_membership_k5.csv
+  Figure 5 --- spatial cluster distribution (Pearson affinity)               05_pear_membership_audit.csv (+ 01_locations.csv)
+  Figure 6 --- cluster-centroid hydrographs and amplitudes                   02_clustering/02_09_cluster_amplitude_summary.csv
+  Figure 7 --- water-balance decomposition by cluster                        16_water_balance/16_water_bal_table.csv
+  Figure 8 --- WTF specific-yield surface                                    17_wtf_specific_yield/17_wtf_01_sy_estimates.csv
+  Figure 9 --- SSM-over-TLM Nash--Sutcliffe improvement                      08_model_benchmarking/08_perwell_nse.csv
+  Figure 10 --- optimal drainage datum and R² gain                           03_state_space_model/03_09_well_optimal_datums.csv; 03_08_datum_sensitivity.csv
+  Figure 11 --- β₁ recharge-sensitivity surface                              07_spatial_coefficients/07_coeff_maps_data.csv
+  Figure 12 --- β₂ atmospheric-draw surface                                  07_spatial_coefficients/07_coeff_maps_data.csv
+  Figure 13 --- β₃ drainage-rate surface                                     07_spatial_coefficients/07_coeff_maps_data.csv
+  Figure 14 --- drainage decay half-life t½                                  18_wtf_spatial/18_wtf_05_storage_drainage_index.csv
+  Figure 15 --- aquifer diagnostic synthesis                                 18_wtf_spatial/18_wtf_05_storage_drainage_index.csv; 08_model_benchmarking/08_perwell_nse.csv; 17_wtf_specific_yield/17_wtf_01_sy_estimates.csv
+  Figure 16 --- mean annual water-table surface with Darcy flow-directions   20_spatial_figures/20_head_surface_streams.png (head surface IDW-interpolated from per-well mean annual head in 03_master_data.csv; vectors are direction-only)
+  Figure 17 --- SSM water-balance residual field                             20_spatial_figures/20_residual_perwell.csv
+  Figure 18 --- coastal-retreat gradient (a, b, c)                           25_coastal_gradient/25_report_numbers.csv; 25_coastal_gradient/25_03_cluster_partition.csv; 38_coastal_transect/38_results.txt
+  Figure 19 --- illustrative forest reach                                    schematic; parameters from config.py (FOREST_INTERCEPTION, DRAWDOWN_H0/K/B) via Script 09f
+  Figure 20 --- episodic coastal reach                                       schematic; parameters from 25_coastal_gradient/25_report_numbers.csv and config.py (COAST_RETREAT\_\*)
+  Figure 21 --- conceptual coastal-vs-climate reach                          schematic; δ₀/L/c from 25_coastal_gradient/25_01_panel_fit_parameters.csv, rendered via Scripts 09f/09g
+  -------------------------------------------------------------------------- -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-[]{#anchor-19}References
-========================
+# []{#anchor-19}References
 
-Akaike, H. (1974) A new look at the statistical model identification. *IEEE Transactions on Automatic Control* 19(6), 716--723. doi:10.1109/TAC.1974.1100705
+> Akaike, H. (1974) A new look at the statistical model identification. *IEEE Transactions on Automatic Control* 19(6), 716--723. doi:10.1109/TAC.1974.1100705
 
-Bear, J. (1972) *Dynamics of Fluids in Porous Media.* New York: American Elsevier.
+> Bear, J. (1972) *Dynamics of Fluids in Porous Media.* New York: American Elsevier.
 
-Betson, M., Connell, L. and Bristow, C. (2002) Groundwater Modelling of Newborough Warren. In: Bristow, C. (ed.) *The Impact of Forestry on Coastal Geomorphology at Newborough Warren/Ynys Llanddwyn NNR, SSSI, pSAC. Volume 5: Hydrogeology.* Report to the Countryside Council for Wales, Contract FC 73-05-18. Department of Geological Sciences, UCL, and School of Earth Sciences, Birkbeck, University of London, July 2002.
+> Betson, M., Connell, L. and Bristow, C. (2002) Groundwater Modelling of Newborough Warren. In: Bristow, C. (ed.) *The Impact of Forestry on Coastal Geomorphology at Newborough Warren/Ynys Llanddwyn NNR, SSSI, pSAC. Volume 5: Hydrogeology.* Report to the Countryside Council for Wales, Contract FC 73-05-18. Department of Geological Sciences, UCL, and School of Earth Sciences, Birkbeck, University of London, July 2002.
 
-Curreli, A., Wallace, H., Freeman, C., Hollingham, M., Stratford, C., Johnson, H. and Jones, L. (2013) Eco-hydrological requirements of dune slack vegetation and the implications of climate change. *Science of the Total Environment* 443, 910--919. doi:10.1016/j.scitotenv.2012.11.035
+> Curreli, A., Wallace, H., Freeman, C., Hollingham, M., Stratford, C., Johnson, H. and Jones, L. (2013) Eco-hydrological requirements of dune slack vegetation and the implications of climate change. *Science of the Total Environment* 443, 910--919. doi:10.1016/j.scitotenv.2012.11.035
 
-Davy, A.J., Grootjans, A.P., Hiscock, K. and Petersen, J. (2006) *Development of Eco-Hydrological Guidelines for Dune Habitats --- Phase 1.* English Nature Research Reports No. 696. Peterborough: English Nature.
+> Davy, A.J., Grootjans, A.P., Hiscock, K. and Petersen, J. (2006) *Development of Eco-Hydrological Guidelines for Dune Habitats --- Phase 1.* English Nature Research Reports No. 696. Peterborough: English Nature.
 
-Fetter, C.W. (2001) *Applied Hydrogeology* (4th ed.). Upper Saddle River, NJ: Prentice Hall.
+> Fetter, C.W. (2001) *Applied Hydrogeology* (4th ed.). Upper Saddle River, NJ: Prentice Hall.
 
-Forgrave, A. (2020) Dramatic pictures show the beautiful little corner of North Wales that's fast being lost to the sea. *North Wales Live / Daily Post,* 22 January 2020.
+> Forgrave, A. (2020) Dramatic pictures show the beautiful little corner of North Wales that's fast being lost to the sea. *North Wales Live / Daily Post,* 22 January 2020.
 
-Freeman, S. (2008) *The hydrological impact of Corsican pine plantation on the dune system at Newborough Warren, Anglesey.* Unpublished BSc Honours dissertation, University of Wales, Bangor.
+> Freeman, S. (2008) *The hydrological impact of Corsican pine plantation on the dune system at Newborough Warren, Anglesey.* Unpublished BSc Honours dissertation, University of Wales, Bangor.
 
-Freeze, R.A. and Cherry, J.A. (1979) *Groundwater.* Englewood Cliffs, NJ: Prentice-Hall.
+> Freeze, R.A. and Cherry, J.A. (1979) *Groundwater.* Englewood Cliffs, NJ: Prentice-Hall.
 
-Gerla, P.J. (2019) Monitoring and modeling the effect of agricultural drainage and recent channel incision on adjacent groundwater-dependent ecosystems. *Water* 11(4), 863. doi:10.3390/w11040863
+> Gerla, P.J. (2019) Monitoring and modeling the effect of agricultural drainage and recent channel incision on adjacent groundwater-dependent ecosystems. *Water* 11(4), 863. doi:10.3390/w11040863
 
-Healy, R.W. and Cook, P.G. (2002) Using groundwater levels to estimate recharge. *Hydrogeology Journal* 10(1), 91--109. doi:10.1007/s10040-001-0178-0
+> Healy, R.W. and Cook, P.G. (2002) Using groundwater levels to estimate recharge. *Hydrogeology Journal* 10(1), 91--109. doi:10.1007/s10040-001-0178-0
 
-Hollingham, M. (2026a) Hydrogeological Dynamics, Behavioural Clustering and Management Intervention Analysis at Newborough Warren Coastal Sand Dune Aquifer, Wales. Technical report, June 2026. https://newbroman.github.io/Newborough\_Hydrology/ Hollingham, M. (2026b) Hydrological response of a coastal dune aquifer to plantation clearfell and dune scraping: a BACI analysis of a 21-year manual record. *In preparation.*
+> Hollingham, M. (2026a) Hydrogeological Dynamics, Behavioural Clustering and Management Intervention Analysis at Newborough Warren Coastal Sand Dune Aquifer, Wales. Technical report, June 2026. https://newbroman.github.io/Newborough_Hydrology/ Hollingham, M. (2026b) Hydrological response of a coastal dune aquifer to plantation clearfell and dune scraping: a BACI analysis of a 21-year manual record. *In preparation.*
 
-Knotters, M. and van Walsum, P.E.V. (1997) Estimating fluctuation quantities from time series of water-table depths using models with a stochastic component. *Journal of Hydrology* 197(1--4), 25--46. doi:10.1016/S0022-1694(96)03278-7
+> Knotters, M. and van Walsum, P.E.V. (1997) Estimating fluctuation quantities from time series of water-table depths using models with a stochastic component. *Journal of Hydrology* 197(1--4), 25--46. doi:10.1016/S0022-1694(96)03278-7
 
-Pye, K. and Blott, S.J. (2024) *Dune rejuvenation AfterLIFE options for Twyni Penrhos, Newborough.* NRW Evidence Report No. 787, 73 pp. Bangor: Natural Resources Wales.
+> Pye, K. and Blott, S.J. (2024) *Dune rejuvenation AfterLIFE options for Twyni Penrhos, Newborough.* NRW Evidence Report No. 787, 73 pp. Bangor: Natural Resources Wales.
 
-Ranwell, D.S. (1958) Movement of vegetated sand dunes at Newborough Warren, Anglesey. *Journal of Ecology* 46, 83--100.
+> Ranwell, D.S. (1958) Movement of vegetated sand dunes at Newborough Warren, Anglesey. *Journal of Ecology* 46, 83--100.
 
-Rao, A.R. and Srinivas, V.V. (2006) Regionalization of watersheds by fuzzy cluster analysis. *Journal of Hydrology* 318(1--4), 57--79.
+> Rao, A.R. and Srinivas, V.V. (2006) Regionalization of watersheds by fuzzy cluster analysis. *Journal of Hydrology* 318(1--4), 57--79.
 
-Rhind, P.M., Blackstock, T.H., Hardy, H.S., Jones, R.E. and Sandison, W. (2001) The evolution of Newborough Warren dune system with particular reference to the past four decades. In: Houston, J.A., Edmondson, S.E. and Rooney, P.J. (eds) *Coastal Dune Management.* Liverpool: Liverpool University Press, pp. 345--379.
+> Rhind, P.M., Blackstock, T.H., Hardy, H.S., Jones, R.E. and Sandison, W. (2001) The evolution of Newborough Warren dune system with particular reference to the past four decades. In: Houston, J.A., Edmondson, S.E. and Rooney, P.J. (eds) *Coastal Dune Management.* Liverpool: Liverpool University Press, pp. 345--379.
 
-Robins, N.S., Pye, K. and Wallace, H. (2013) Dynamic coastal dune spit: the impact of morphological change on dune slacks at Whiteford Burrows, South Wales, UK. Journal of Coastal Conservation 17(3), 473--482. doi:10.1007/s11852-013-0245-4
+> Robins, N.S., Pye, K. and Wallace, H. (2013) Dynamic coastal dune spit: the impact of morphological change on dune slacks at Whiteford Burrows, South Wales, UK. Journal of Coastal Conservation 17(3), 473--482. doi:10.1007/s11852-013-0245-4
 
-Rousseeuw, P.J. (1987) Silhouettes: a graphical aid to the interpretation and validation of cluster analysis. *Journal of Computational and Applied Mathematics* 20(1), 53--65. doi:10.1016/0377-0427(87)90125-7
+> Rousseeuw, P.J. (1987) Silhouettes: a graphical aid to the interpretation and validation of cluster analysis. *Journal of Computational and Applied Mathematics* 20(1), 53--65. doi:10.1016/0377-0427(87)90125-7
 
-Scanlon, B.R., Healy, R.W. and Cook, P.G. (2002) Choosing appropriate techniques for quantifying groundwater recharge. *Hydrogeology Journal* 10(1), 18--39. doi:10.1007/s10040-001-0176-2
+> Scanlon, B.R., Healy, R.W. and Cook, P.G. (2002) Choosing appropriate techniques for quantifying groundwater recharge. *Hydrogeology Journal* 10(1), 18--39. doi:10.1007/s10040-001-0176-2
 
-Stratford, C., Ratcliffe, J., Hughes, A.G., Roberts, J. and Robins, N.S. (2007) Complex interaction between shallow groundwater and changing woodland, surface water, grazing and other influences in partly wooded duneland in Anglesey, Wales. In: Ribeiro, L., Chambel, A. and Condesso de Melo, M.T. (eds) *IAH 35th Congress, Groundwater and Ecosystems,* Lisbon.
+> Stratford, C., Ratcliffe, J., Hughes, A.G., Roberts, J. and Robins, N.S. (2007) Complex interaction between shallow groundwater and changing woodland, surface water, grazing and other influences in partly wooded duneland in Anglesey, Wales. In: Ribeiro, L., Chambel, A. and Condesso de Melo, M.T. (eds) *IAH 35th Congress, Groundwater and Ecosystems,* Lisbon.
 
-Ward, J.H. (1963) Hierarchical grouping to optimize an objective function. *Journal of the American Statistical Association* 58(301), 236--244.
+> Ward, J.H. (1963) Hierarchical grouping to optimize an objective function. *Journal of the American Statistical Association* 58(301), 236--244.
 
-Young, P.C. (2011) *Recursive Estimation and Time-Series Analysis: An Introduction for the Student and Practitioner.* Berlin: Springer.
+> Young, P.C. (2011) *Recursive Estimation and Time-Series Analysis: An Introduction for the Student and Practitioner.* Berlin: Springer.

@@ -74,7 +74,19 @@ Dependencies
     Skeletonisation: not required (map_utils handles DEM/IDW)
 """
 
-__version__ = "1.6.2"  # Hollingham (2026) — 2026-08-09
+__version__ = "1.6.3"  # Hollingham (2026) — 2026-08-16
+#
+# 1.6.3 (2026-08-16): map-extent note only, no behaviour change.
+#   This script sets its map extent inline in four places
+#   (ax.set_xlim(240100, 243900); ax.set_ylim(362200, 365800)) rather
+#   than importing config.SITE_MAP_*. The northern edge is 365800, NOT
+#   config.SITE_MAP_NORTH_MAX (365500). Retained deliberately -
+#   Martin's call - so the rendered maps keep their present framing,
+#   matching the explicit local pin in 11c_pflood_achievability.py
+#   (_NORTH_MAX_11C). Do NOT repoint these to config without a
+#   decision: it re-frames every map this script draws. Flagged by
+#   tools/pipeline_lint.py --check literals. See DECISION_LOG D-013.
+# 1.6.2 (2026-08-09): prior state.
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live

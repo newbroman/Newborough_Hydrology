@@ -15,7 +15,13 @@ Requirements:
     pandas, numpy
 """
 
-__version__ = "1.9.1"  # Hollingham (2026) — 2026-08-08 (canonical geometry also written to 01_locations.csv)
+__version__ = "1.10.0"  # Hollingham (2026) — 2026-08-16
+#
+# 1.10.0 (2026-08-16): coverage-figure guard now names BOTH downstream
+# inputs. INT_PEAR_AUDIT_SITEWIDE (Script 06) was an unguarded backward
+# dependency - read at step 1 from a step-6 output, so a cold pass raised and
+# a warm pass silently reused the previous run's file.
+# 1.9.1 (2026-08-08): canonical geometry also written to 01_locations.csv.
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -769,11 +775,23 @@ if __name__ == "__main__":
     fig_scope = list(dict.fromkeys(reference_wells + extended_wells + lake_cols))
     try:
         obs_states = _build_observation_states(wells[fig_scope], provenance[fig_scope])
-        if obs_states is not None and (OUT_DIR / "03_master_data.csv").exists():
+        # The figure needs BOTH downstream inputs: cluster assignments for the
+        # reference tier (03_master_data.csv, Script 03) and the extended tier's
+        # Pearson-affinity assignments (INT_PEAR_AUDIT_SITEWIDE, Script 06).
+        # Guarding on only the first left the second as an unguarded backward
+        # dependency: on a cold first pass the read raised inside the try and
+        # the whole observation-state layer was skipped with a confusing
+        # message, and on a warm re-run it silently used the PREVIOUS run's
+        # audit file. Both inputs are now named in the guard.
+        _deferred = [n for n, ok in (
+            ("03_master_data.csv", (OUT_DIR / "03_master_data.csv").exists()),
+            (INT_PEAR_AUDIT_SITEWIDE.name, INT_PEAR_AUDIT_SITEWIDE.exists()),
+        ) if not ok]
+        if obs_states is not None and not _deferred:
             _render_coverage_figure(wells[fig_scope], obs_states)
         elif obs_states is not None:
-            note("coverage figure deferred: 03_master_data.csv not yet present "
-                 "(clusters assigned downstream); re-run Script 01 after a full "
+            note(f"coverage figure deferred: {', '.join(_deferred)} not yet "
+                 "present (assigned downstream); re-run Script 01 after a full "
                  "pipeline pass to render 01_coverage_states.png")
     except Exception as exc:  # observation-state layer must never break data prep
         warn(f"observation-state layer / coverage figure skipped: {exc}")

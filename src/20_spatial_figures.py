@@ -64,7 +64,12 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds (config.SD15b / config.SD16)
 """
 
-__version__ = "1.38.0"  # Hollingham (2026) — 2026-08-09
+__version__ = "1.38.1"  # Hollingham (2026) — 2026-08-16
+#
+# 1.38.1 (2026-08-16): map-extent note only, no behaviour change (northern
+#   edge 365800 vs config.SITE_MAP_NORTH_MAX 365500; see the note at
+#   SEA_SOUTH_N and DECISION_LOG D-013).
+# 1.38.0 (2026-08-09): prior state.
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -145,6 +150,11 @@ T_WGS_BNG  = Transformer.from_crs("EPSG:4326", "EPSG:27700", always_xy=True)
 # box is intentional for these figures and is NOT to be unified with the
 # shoreline values; on the canonical 50 m grid the two rules differ over 228
 # cells (4.5%). Do not "fix" this to match 11b/map_utils.
+# NOTE (2026-08-16): the northern edge here is 365800, NOT config.SITE_MAP_NORTH_MAX
+# (365500). Retained deliberately - Martin's call - so this figure's framing is
+# unchanged by the config extent revision, matching the explicit local pin in
+# 11c_pflood_achievability.py (_NORTH_MAX_11C). Do NOT repoint to config without
+# a decision: it re-frames the rendered maps. See DECISION_LOG D-013.
 SEA_SOUTH_N      = 362200
 SEA_EAST_E       = 243900
 SEA_WEST_E       = 239200

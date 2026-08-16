@@ -79,7 +79,15 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.6.0"  # Hollingham (2026) — 2026-08-16. Adds the centroid
+__version__ = "1.7.0"  # Hollingham (2026) — 2026-08-16. LCSC_DATA_LIMIT and the
+#   per-well minimum-observations floor are imported from config.py instead of
+#   being declared module-locally; both values are unchanged (100 and 30), and
+#   MIN_OBS_PER_WELL is retained as a local alias so the four call sites are
+#   untouched. The window comment attributed the per-well window to "Script 07's
+#   LCSC analysis"; Script 07 performs no fit — the LCSC stats table is written
+#   by Script 08. See D-016.
+#
+# v1.6.0  # Hollingham (2026) — 2026-08-16. Adds the centroid
 #   composition sensitivity (03_13): each cluster centroid refitted from the
 #   report8 §3.4.1 reference date and from its own stable-membership start,
 #   against the published full-record fit. Diagnostic only — the headline
@@ -135,6 +143,7 @@ from utils.paths import (
 from utils.config import (
     CLUSTER_LABELS, CLUSTER_COLOURS, CLUSTER_COLOURS_BW, DRAINAGE_DATUM,
     HEADLINE_LAG, BW_MODE, BW_LINESTYLES, CENTROID_COMPOSITION_REF_DATE,
+    LCSC_DATA_LIMIT, SSM_MIN_OBS,
 )
 from utils.model_utils import fit_ssm, assert_physical_signs, build_ssm_frame
 from utils.render_utils import render_figure
@@ -144,16 +153,19 @@ from utils.render_utils import render_figure
 # CONFIGURATION
 # ==========================================================================
 
-# Most-recent window for per-well fits and the per-well datum sweep.
-# Centroid fits use the full record (window=None) so the cluster-level
-# coefficients are estimated over the longest available record; the
-# per-well window is the one used by Script 07's LCSC analysis and was
-# chosen to match the published analysis.
-LCSC_DATA_LIMIT = 100
+# LCSC_DATA_LIMIT — the most-recent-months window for per-well fits and the
+# per-well datum sweep — is imported from config.py (see its comment there for
+# the window policy). Centroid fits deliberately pass window=None and use the
+# full record, so the cluster-level coefficients are estimated over the longest
+# available record; the per-well window keeps wells that joined the network at
+# different dates comparable with each other. It is also the window Script 08
+# benchmarks on and writes into 08_lcsc_model_stats.csv.
 
 # Minimum observations required for a per-well SSM fit (first-differences).
-# Passed through to fit_ssm() at each call site so a change here propagates.
-MIN_OBS_PER_WELL = 30
+# Sourced from config.SSM_MIN_OBS; the local alias is retained so the call sites
+# below read unchanged. Passed through to fit_ssm() at each call site so a change
+# in config propagates.
+MIN_OBS_PER_WELL = SSM_MIN_OBS
 
 # HEADLINE_LAG imported from config.py (currently 0 after bucketing fix).
 # History: originally set to 1 to compensate for a bucketing convention that

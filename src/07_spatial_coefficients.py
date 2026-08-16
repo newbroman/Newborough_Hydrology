@@ -38,7 +38,12 @@ Outputs:
 ====================================================================================
 """
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-06-21
+__version__ = "1.2.1"  # Hollingham (2026) — 2026-08-16
+#
+# 1.2.1 (2026-08-16): map-extent note only, no behaviour change (GRID_YI
+#   northern edge 365800 vs config.SITE_MAP_NORTH_MAX 365500; see the note
+#   at GRID_YI and DECISION_LOG D-013).
+# 1.2.0 (2026-06-21): prior state.
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -105,6 +110,11 @@ OUT_CLUSTER_RANGES = DIR_07 / "07_coeff_05_cluster_ranges.csv"
 # GRID — matches scripts 11b / 19 / 20
 # ==========================================
 GRID_XI = np.arange(240200, 243800, 50)
+# NOTE (2026-08-16): the northern edge here is 365800, NOT config.SITE_MAP_NORTH_MAX
+# (365500). Retained deliberately - Martin's call - so this figure's framing is
+# unchanged by the config extent revision, matching the explicit local pin in
+# 11c_pflood_achievability.py (_NORTH_MAX_11C). Do NOT repoint to config without
+# a decision: it re-frames the rendered maps. See DECISION_LOG D-013.
 GRID_YI = np.arange(362200, 365800, 50)
 
 # ==========================================

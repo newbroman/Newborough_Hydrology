@@ -4,8 +4,40 @@
 # Safe order of operations: COMMIT your work first, THEN pull, THEN push.
 # Handles the "local changes would be overwritten by merge" situation.
 # ============================================================================
-# VERSION 1.4.0 - 2026-08-12
+# VERSION 1.6.0 - 2026-08-16
 # CHANGELOG
+#   1.6.0 (2026-08-16): menu 9) "Review citations" wired in.
+#       * review_citations_menu() - walks the proposed rows of
+#         tools/citation_index.csv, showing each cited number in its live
+#         context with the section heading it sits under and a unique find
+#         string to paste into LibreOffice, and records confirm/reject. Offers
+#         the headline cluster-coefficient table (03_03) as the default subset,
+#         since those are the values that actually went stale in report9 and
+#         Paper 1. Curation, not a preflight: it is deliberately NOT run before
+#         a push, because it needs judgement and would otherwise be skipped.
+#       * Menu renumbered to 1-10; Quit is now 10.
+#   1.5.0 (2026-08-16): decision logging plumbed into the push path.
+#       * check_decisions() - new preflight in do_push and do_push_no_report.
+#         Runs tools/decision_lint.py, which fails when a changelog delta dated
+#         on or after the log's start names no D-nnn and does not say "no
+#         decision", when a referenced D-nnn is absent from DECISION_LOG.md,
+#         when the claims register cites an id that does not resolve, or when an
+#         entry lacks Question/Decision/Rationale/Revisit-if. Unlike the other
+#         audits this one PROMPTS rather than merely warning: an unrecorded
+#         decision is the failure the log exists to prevent, and a silent
+#         warning is how it would go unrecorded. Answer y to override.
+#       * commit_staged() now asks for the decision ids the commit relates to
+#         and appends them as a "Decisions:" trailer on the commit message, so
+#         the link survives in git history and is greppable
+#         (git log --grep='Decisions: D-005'). Entered ids are validated against
+#         DECISION_LOG.md; "none"/blank is accepted and recorded as "none", so
+#         the answer is always explicit. Never blocks a commit.
+#       * refresh_mirror() now runs tools/refresh_mirrors.py, which mirrors the
+#         report chapters AND the Methods Supplement, Supplementary Material and
+#         both papers, resolving each versioned document to its highest version.
+#         report_edits/make_text_mirror.sh covered the chapters only and is
+#         SUPERSEDED - retire it rather than leaving two mirror generators that
+#         can disagree. Falls back to the old script if the new one is absent.
 #   1.4.0 (2026-08-12): stale .git/index.lock self-heal. New clear_stale_lock()
 #       helper removes a leftover .git/index.lock when one is present AND no git
 #       process is actually running - the safe definition of "stale". Called once
@@ -118,13 +150,40 @@ report_has_changes(){
 }
 have_staged(){ ! git diff --cached --quiet; }   # true (0) when something is staged
 
+# Ask which decisions a commit relates to and record them as a git trailer, so
+# the link between a change and its rationale survives in history and is
+# greppable:  git log --grep='Decisions: D-005'
+# Ids are validated against DECISION_LOG.md. Blank or "none" is accepted and
+# recorded as "none" - the answer is always explicit, so a commit that encoded
+# no decision is distinguishable from one where nobody was asked. Never blocks.
+decision_trailer(){
+  local log="DECISION_LOG.md" ans ids=() bad=() id
+  [[ -f "$log" ]] || { echo ""; return 0; }
+  read -rp "$(echo -e "${Y}Decision ids this relates to (e.g. D-005 D-011, or Enter for none): ${N}")" ans
+  [[ -z "$ans" || "$ans" =~ ^([Nn]one|[Nn])$ ]] && { echo "none"; return 0; }
+  for id in $ans; do
+    id="${id%,}"
+    if grep -q "^### ${id}\b" "$log"; then ids+=( "$id" ); else bad+=( "$id" ); fi
+  done
+  if (( ${#bad[@]} )); then
+    echo -e "  ${Y}note${N} not in DECISION_LOG.md: ${bad[*]} - recorded anyway, add the entry" >&2
+    ids+=( "${bad[@]}" )
+  fi
+  ( IFS=", "; echo "${ids[*]}" )
+}
+
 commit_staged(){                                # $1 = message; prompt if empty
-  local msg="$1"
+  local msg="$1" dec
   if [[ -z "$msg" ]]; then
     read -rp "$(echo -e "${Y}Short description of these changes: ${N}")" msg
     [[ -z "$msg" ]] && msg="update $(date +%Y-%m-%d)"
   fi
-  git commit -m "$msg"
+  dec="$(decision_trailer)"
+  if [[ -n "$dec" ]]; then
+    git commit -m "$msg" -m "Decisions: ${dec}"
+  else
+    git commit -m "$msg"
+  fi
 }
 
 handle_conflicts(){                             # called when a pull conflicts
@@ -179,13 +238,23 @@ push_if_ahead(){                                # push only if we have commits G
 # the only way a reader (or Claude) sees subdocument edits. Regenerate it before
 # every commit so the mirror can never silently drift from the .odt files.
 refresh_mirror(){
-  local script="report_edits/make_text_mirror.sh"
-  [[ -x "$script" ]] || return 0                # nothing to do if absent
-  say "Refreshing report_edits text mirror"
-  if "$script"; then
-    ok "mirror up to date"
+  say "Refreshing document text mirrors"
+  # tools/refresh_mirrors.py supersedes report_edits/make_text_mirror.sh: same
+  # pandoc conversion, but it also mirrors the Methods Supplement, Supplementary
+  # Material and both papers, and resolves versioned documents to the highest
+  # version so a filename bump is picked up without editing anything.
+  local rc=0
+  if [[ -f "tools/refresh_mirrors.py" ]] && command -v python3 >/dev/null 2>&1; then
+    python3 tools/refresh_mirrors.py || rc=1
   else
-    fail "mirror failed - .odt changes would NOT be recorded"
+    local script="report_edits/make_text_mirror.sh"
+    [[ -x "$script" ]] || return 0              # nothing to do if absent
+    "$script" || rc=1
+  fi
+  if [[ "$rc" == "0" ]]; then
+    ok "mirrors up to date"
+  else
+    fail "mirror refresh failed - .odt changes would NOT be recorded"
     read -rp "$(echo -e "${Y}Continue anyway? [y/N]: ${N}")" r
     [[ "$r" =~ ^[Yy]$ ]] || return 1
   fi
@@ -321,6 +390,69 @@ audit_doc_numbers(){
   return 0
 }
 
+# --- citations: confirm which document numbers cite which pipeline value ------
+# tools/cite_check.py can only check a citation EXACTLY once somebody has
+# confirmed that a given number in a given document really is a given pipeline
+# value. The builder proposes those links; roughly half are coincidences,
+# because in a corpus this dense with per-well tables the same three digits can
+# be a cluster mean in one sentence and a variance inflation factor in the next.
+# This walks the proposals and records the answers. Confirmed rows then gate the
+# push through check_decisions' sibling check; unreviewed rows only advise.
+review_citations_menu(){
+  local script="tools/review_citations.py"
+  [[ -f "$script" ]] || { echo "  (tools/review_citations.py not found)"; return 0; }
+  command -v python3 >/dev/null 2>&1 || { echo "  (python3 not found)"; return 0; }
+  if [[ ! -f "tools/citation_index.csv" ]]; then
+    say "No citation index yet - building one"
+    python3 tools/build_citation_index.py || return 0
+  fi
+  echo ""
+  echo "  Which citations do you want to review?"
+  echo -e "    ${B}1${N}) Headline cluster coefficients (03_03)  - recommended first pass"
+  echo -e "    ${B}2${N}) One document (you type part of its name)"
+  echo -e "    ${B}3${N}) Everything still proposed"
+  echo -e "    ${B}b${N}) Back"
+  echo ""
+  local pick doc
+  read -rp "Choose [1/2/3/b]: " pick
+  case "$pick" in
+    1) python3 "$script" --source 03_03 ;;
+    2) read -rp "$(echo -e "${Y}Document name fragment (e.g. report9): ${N}")" doc
+       [[ -n "$doc" ]] && python3 "$script" --document "$doc" ;;
+    3) python3 "$script" ;;
+    *) return 0 ;;
+  esac
+}
+
+# --- decisions: refuse to push an unrecorded methodological call --------------
+# DECISION_LOG.md records WHY a call was made; tools/decision_lint.py makes the
+# omission mechanical (see its docstring). This is the ONE audit here that
+# prompts instead of merely warning. The others flag things that are wrong and
+# fixable later; an unrecorded decision is different, because the reason is lost
+# at the moment the session ends and cannot be reconstructed afterwards - which
+# is precisely how the C4 triangulation was reintroduced weeks after being
+# retired on evidence, and how the 100-month window changed meaning with nobody
+# deciding it. Answering y records nothing and pushes anyway; that is your call
+# to make knowingly rather than by default.
+check_decisions(){
+  local script="tools/decision_lint.py"
+  [[ -f "$script" ]] || return 0
+  command -v python3 >/dev/null 2>&1 || return 0
+  say "Checking the decision log"
+  if python3 "$script" --quiet; then
+    ok "decision log consistent"
+    return 0
+  fi
+  fail "decision log check failed (see above)"
+  echo -e "  ${Y}A change may encode a decision that nobody has written down.${N}"
+  echo    "  Add an entry to DECISION_LOG.md, or name the decision in the changelog"
+  echo    "  delta (or say 'no decision' in it), then run this again."
+  local r
+  read -rp "$(echo -e "${Y}Push anyway without recording it? [y/N]: ${N}")" r
+  [[ "$r" =~ ^[Yy] ]] && { echo -e "  ${Y}proceeding unrecorded${N}"; return 0; }
+  return 1
+}
+
 # --- deliberate: report console version-reporting drift (dry run, edits nothing)
 normalise_versions_report(){
   local script="tools/normalise_versions.py"
@@ -336,6 +468,7 @@ do_push(){
   refresh_mirror || return
   lint_figrefs
   audit_doc_numbers
+  check_decisions || { fail "push cancelled - record the decision first"; return; }
   sync_index_counts
   stage_web_tools
   build_docs_pdfs
@@ -361,6 +494,7 @@ do_push(){
 do_push_no_report(){
   clear_stale_lock
   audit_doc_numbers
+  check_decisions || { fail "push cancelled - record the decision first"; return; }
   sync_index_counts
   stage_web_tools
   build_docs_pdfs
@@ -477,9 +611,10 @@ while true; do
   echo "  6) Repo size            (how big the repo and git history are)"
   echo "  7) Clean up git storage (sweep up dead objects, shrink .git)"
   echo "  8) Normalise versions   (dry-run report: script banner() vs __version__)"
-  echo "  9) Quit"
+  echo "  9) Review citations     (confirm which document numbers cite which pipeline value)"
+  echo " 10) Quit"
   echo ""
-  read -rp "Choose [1-9]: " choice
+  read -rp "Choose [1-10]: " choice
   case "$choice" in
     1) do_sync ;;
     2) do_push ;;
@@ -489,7 +624,8 @@ while true; do
     6) do_size ;;
     7) do_cleanup ;;
     8) normalise_versions_report ;;
-    9) echo "Bye."; break ;;
-    *) echo "Please pick 1-9." ;;
+    9) review_citations_menu ;;
+    10) echo "Bye."; break ;;
+    *) echo "Please pick 1-10." ;;
   esac
 done

@@ -147,7 +147,7 @@ current canonical 0.0183.
 | N-48 | `COAST_RETREAT_2005_2025_M` / `_EFFECTIVE_M` | **50.0 m / 105.0 m** | 50 m is the physical measurement (Pye & Blott); **not** rate × 20 (=166 m, which overstates) |
 | N-49 | `ENVELOPE_WET_YEARS` | **[2014, 2016, 2021, 2024]** | ⚠ report8 line 388 and MS line 3832 give {2014, 2021, 2024} — **2016 is missing from the docs, not from the code**. Headline swing numbers were computed with 2016 in, so the numbers are right and the set list is wrong |
 | N-50 | `RESIDUAL_DIAG_MIN_MONTHS` / excluded wells | **140** / `{ceh3, ceh4, ceh7, ceh8, ceh37, llynrhos}` | Scripts 23, 24 |
-| N-51 | `LCSC_DATA_LIMIT` | **100** | ⚠ **mirrored as a per-script local in three files** (`03:145`, `08:92`, `30:96`) instead of living in `config.py`. See D-005 |
+| N-51 | `LCSC_DATA_LIMIT` | **100** | ✔ **resolved 2026-08-16** — now declared once in `config.py` and imported by Scripts 03, 08 and 30 (`model_utils` re-exports the name). Was mirrored as a per-script local in three files. See ledger D-005 and root `DECISION_LOG.md` D-016 |
 
 ## J. Known-stale sources — do not read numbers from these
 

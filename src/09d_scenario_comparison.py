@@ -36,7 +36,20 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "3.7.0"  # Hollingham (2026) — 2026-07-02
+__version__ = "3.10.0"  # Hollingham (2026) — 2026-08-16
+#
+# 3.10.0 (2026-08-16): the "else -0.7" mean-depth fallback removed - it stood
+#   in for a value that is always present, and would have silently shifted
+#   h_disp had it fired. Missing CEH36 now raises. See DECISION_LOG D-014.
+# 3.9.0 (2026-08-16): both Sy fallbacks now route through
+#   pipeline_params.default_value("Sy"). The row-missing branch previously used
+#   a hard-coded 0.30 predating that convention; it is now 0.25, the documented
+#   default, so the two fallback paths cannot disagree. See DECISION_LOG D-014.
+# 3.8.0 (2026-08-16): the per-well Sy read (INT_WTF_WELL_SY, produced at
+# step 22 against this script's step 9) is now guarded and falls back to
+# pipeline_params.default_value("Sy") with a warning, instead of hard-failing
+# on a first pass.
+# 3.7.0 (2026-07-02): prior state.
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -187,15 +200,45 @@ def _load_ceh36_params():
     row = row.iloc[0]
     cluster = int(row["Cluster"])
 
-    # Get CEH36's own well-level Sy (more precise than cluster median)
-    sy_df = pd.read_csv(INT_WTF_WELL_SY)
-    sy_row = sy_df[sy_df["Well"].str.lower() == WELL]
-    well_sy = float(sy_row["Sy_median"].iloc[0]) if not sy_row.empty else 0.30
+    # Get CEH36's own well-level Sy (more precise than cluster median).
+    # 17_wtf_well_sy.csv is produced at step 22 and this script runs at step 9,
+    # so on a first pass the file does not exist yet: read it if present, else
+    # fall back to the documented default with a console warning, per the
+    # first-pass convention used by 09b/09f. Previously this read was
+    # unguarded and hard-failed the whole script on a cold run.
+    from utils.pipeline_params import default_value
+    if INT_WTF_WELL_SY.exists():
+        sy_df = pd.read_csv(INT_WTF_WELL_SY)
+        sy_row = sy_df[sy_df["Well"].str.lower() == WELL]
+        if sy_row.empty:
+            well_sy = default_value("Sy")
+            warn(f"{WELL} has no row in {INT_WTF_WELL_SY.name} - using the "
+                 f"documented default Sy = {well_sy}")
+        else:
+            well_sy = float(sy_row["Sy_median"].iloc[0])
+    else:
+        well_sy = default_value("Sy")
+        warn(f"{INT_WTF_WELL_SY.name} not present (produced at a later step) - "
+             f"using the documented default Sy = {well_sy}; re-run after a full "
+             "pipeline pass for the well-level value")
 
-    # Get CEH36's own mean depth for h_disp
+    # Get CEH36's own mean depth for h_disp.
+    # No fallback: 01_wells_clean.csv is a step-1 output and this script runs at
+    # step 9, so it always exists, and CEH36 is a permanently monitored well in
+    # it. The former "else -0.7" was a rounded stand-in for a value that is
+    # always available (-0.683) and could never be reached in a healthy run —
+    # but had it ever fired it would have shifted h_disp by ~17 mm silently and
+    # carried that into every scenario this script computes. A missing CEH36 is
+    # a data-integrity failure, so say so, exactly as the master-data lookup
+    # above already does.
     wells = pd.read_csv(INT_WELLS_CLEAN, index_col=0, parse_dates=True)
     wells.columns = wells.columns.str.lower().str.replace(" ", "")
-    mean_depth = float(wells[WELL].mean()) if WELL in wells.columns else -0.7
+    if WELL not in wells.columns:
+        raise ValueError(
+            f"{WELL} not found in {INT_WELLS_CLEAN.name} - cannot compute its "
+            "mean depth. This is a data-integrity failure, not a first-pass "
+            "ordering problem: check Script 01's output.")
+    mean_depth = float(wells[WELL].mean())
 
     params = {
         "b1": float(row["beta_1_recharge"]),

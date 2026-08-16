@@ -22,7 +22,10 @@ PIPELINE_VERSION = "2.3.0"
 # release-level string above). Introduced 2026-08-13; pre-1.1.0 history via
 # CHANGELOG_delta files. Bump on ANY edit, as for pipeline scripts.
 # v1.1.0 (2026-08-13): __version__ introduced; no functional change.
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-08-13
+# v1.2.0 (2026-08-16): LCSC_DATA_LIMIT centralised here from three independent
+#   module-local declarations (model_utils, Scripts 03 and 08). Value unchanged
+#   at 100; see D-016.
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-08-16
 
 # ── Journal B&W mode ─────────────────────────────────────────────────────────
 # Toggle to produce journal-ready greyscale figures.
@@ -260,6 +263,26 @@ RESIDUAL_DIAG_SW_BOOT_SEED = 20260809
 # the residual-field diagnostics impose the stricter RESIDUAL_DIAG_MIN_MONTHS
 # above. Previously a module-local in model_utils.py.
 SSM_MIN_OBS = 30
+
+# Length of the most-recent-months window used for PER-WELL SSM fits, in months.
+# This is the equal-record comparison window: every well is fitted over the same
+# number of its own most recent months, so per-well coefficients, the SSM-vs-TLM
+# benchmark and the spatial coefficient fields are not confounded by wells that
+# joined the network at different dates. CLUSTER-CENTROID fits deliberately do
+# NOT use it — they pass window=None and take the full record, because there the
+# quantity being identified is a single coefficient rather than a comparison
+# between records of unequal length (D-006).
+#
+# Named for the LCSC (Lumped Catchment Storage Coefficient = 100/beta_1) analysis
+# that first used it; the window itself is generic. Consumed by Script 03
+# (per-well fits and the per-well datum sweep), Script 08 (benchmarking, which
+# writes 08_lcsc_model_stats.csv) and Script 30 (the C4 identifiability
+# diagnostic, which reports it against the full record as a sensitivity).
+#
+# Distinct from MIN_MONTHS_THRESH, which is an admission threshold for the
+# reference network, not a fitting window. Previously declared independently in
+# model_utils.py and in Scripts 03 and 08 (D-016).
+LCSC_DATA_LIMIT = 100
 
 # Reference date for the centroid composition sensitivity (Script 03, output
 # 03_13). Cluster centroids are the mean of their member wells, and members came

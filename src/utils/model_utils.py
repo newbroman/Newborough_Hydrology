@@ -40,10 +40,21 @@ import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 
-from utils.config import DRAINAGE_DATUM, HEADLINE_LAG, SSM_MIN_OBS
+from utils.config import (
+    DRAINAGE_DATUM, HEADLINE_LAG, SSM_MIN_OBS,
+    LCSC_DATA_LIMIT as _LCSC_DATA_LIMIT,
+)
 
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-08-16. Removes
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-08-16. LCSC_DATA_LIMIT is now
+#   imported from config.py rather than declared here; the name survives as a
+#   re-export so existing importers resolve unchanged (D-016). Value unchanged.
+#   Also clears three attributions left stale by v1.4.0: the LCSC_DATA_LIMIT
+#   comment and the fit_ssm_intercept docstring both named the removed intercept
+#   audit and Script 07, which performs no fit, and an empty section banner for
+#   the removed function was still standing at the end of the file.
+#
+# v1.4.0  # Hollingham (2026) — 2026-08-16. Removes
 #   compute_intercept_audit, which had no caller anywhere in the tree. Its
 #   docstring and Methods Supplement §S.3 both attributed a live per-well
 #   intercept audit to Script 07; Script 07 reads 03_master_data.csv and
@@ -65,9 +76,13 @@ __version__ = "1.4.0"  # Hollingham (2026) — 2026-08-16. Removes
 # model_utils.MIN_OBS continue to resolve.
 MIN_OBS = SSM_MIN_OBS
 
-# Most-recent-window length for per-well fits in the intercept audit
-# and benchmarking (Scripts 07, 08).
-LCSC_DATA_LIMIT = 100
+# Most-recent-window length, in months, for per-well SSM fits. Sourced from
+# config.py; the alias is retained so existing importers of
+# model_utils.LCSC_DATA_LIMIT continue to resolve. Consumed by Scripts 03, 08
+# and 30 — NOT by Script 07, which reads 03_master_data.csv and visualises it
+# without fitting. Centroid fits pass window=None (full record). See the
+# config.py comment for the window policy and D-006/D-016.
+LCSC_DATA_LIMIT = _LCSC_DATA_LIMIT
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -385,8 +400,8 @@ def fit_ssm_intercept(h_series, climate, lag=None, window=None,
     Model:
         Δh(t) = α + β₁·P(t−lag) + β₂·(−PET(t)) + β₃·(−h_disp_prev(t))
 
-    Used by Scripts 07, 08 (intercept audit), 22 (residual diagnostics),
-    and 24 (residual seasonality). The intercept α captures any constant
+    Used by Scripts 22 (residual diagnostics) and 24 (residual
+    seasonality). The intercept α captures any constant
     bias (e.g. net lateral inflow/outflow not represented by the three
     mechanistic terms).
 
@@ -406,8 +421,7 @@ def fit_ssm_intercept(h_series, climate, lag=None, window=None,
     -----
     Since model_utils v1.1.0 this is a thin wrapper around
     fit_ssm(intercept=True, ...). Preserved as a separate public function
-    for backward compatibility with existing callers (Scripts 07, 08, 22,
-    24).
+    for backward compatibility with its callers (Scripts 22 and 24).
     """
     return fit_ssm(h_series, climate, lag=lag, window=window,
                    drainage_datum=drainage_datum, min_obs=min_obs,
@@ -710,9 +724,3 @@ def get_r2(obs, sim):
     if mask.sum() < 2:
         return np.nan
     return np.corrcoef(obs_arr[mask], sim_arr[mask])[0, 1] ** 2
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# INTERCEPT AUDIT (SCRIPTS 07, 08)
-# ═══════════════════════════════════════════════════════════════════════════════
-

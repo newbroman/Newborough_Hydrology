@@ -11,10 +11,16 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-08-13
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-08-16
 # Module versioning introduced 2026-08-13 (pre-1.1.0 history is tracked via
 # the CHANGELOG_delta files and consuming-script versions). Bump this on ANY
 # edit to this module, as for pipeline scripts.
+# v1.2.0 (2026-08-16): OUT_30_C4_CENTROID_SENS added for the Script 30 v2.2.0
+#   C4 centroid exclusion sensitivity. Reported-only: the canonical C4
+#   coefficients remain OUT_03_MECHANISTIC_TABLE's nine-member fit. Script 03's
+#   companion output (03_13_centroid_composition_sensitivity.csv) is written to
+#   an inline DIR_03 path, matching that script's convention for its secondary
+#   diagnostics — deliberately not given a constant here.
 # v1.1.0 (2026-08-13): __version__ introduced; Script 03 datum-regime
 #   constants added (OUT_03_PARTITION_VS_DATUM, OUT_03_DATUM_REGIME_FIG);
 #   stale Script 30 section comment corrected (the constants belong to the
@@ -565,6 +571,11 @@ INT_WTF_WELL_SY             = OUT_DIR / "17_wtf_well_sy.csv"
 OUT_30_C4_IDENTIFIABILITY   = DIR_30 / "30_c4_identifiability_by_cluster.csv"
 OUT_30_C4_PERWELL           = DIR_30 / "30_c4_perwell_beta3.csv"
 OUT_30_C4_REPORT_NUMBERS    = DIR_30 / "30_c4_report_numbers.csv"
+# C4 centroid with and without the ridge-flank wells the displacement model does
+# not resolve (Script 30 v2.2.0). REPORTED SENSITIVITY ONLY — the canonical C4
+# coefficients remain those in OUT_03_MECHANISTIC_TABLE, fitted on all nine
+# members. Nothing downstream reads this file.
+OUT_30_C4_CENTROID_SENS     = DIR_30 / "30_c4_centroid_sensitivity.csv"
 OUT_30_C4_FIG               = DIR_30 / "30_c4_drainage_identifiability.png"
 
 # Script 32 — differential water-table movement (standalone figure; report Fig 59)

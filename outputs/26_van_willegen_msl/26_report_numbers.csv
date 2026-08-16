@@ -12,6 +12,10 @@ ewi_msl5_scope,open_dune_C1_C3
 ewi_msl5_slope_b,0.9287272798903682
 extended_relSE_beta3_vs_nobs_spearman_p,0.4828261881409844
 extended_relSE_beta3_vs_nobs_spearman_r,-0.16654149567511703
+msl5_n_annual_valid,1302
+msl5_n_annual_valid_with_interp,13
+msl5_n_windows_admitted,895
+msl5_n_windows_with_interp,28
 n_wells_ewi_more_precise_than_msl5,0
 n_wells_index_comparison,65
 partial_springSD_vs_beta2_given_tR_p,5.7138726227112587e-08

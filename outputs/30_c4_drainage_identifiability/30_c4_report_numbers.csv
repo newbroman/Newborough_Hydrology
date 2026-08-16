@@ -6,3 +6,7 @@ c4_corr_pet_hdisp,,,-0.0396,,"C4 corr(PET, h_disp_prev) — network minimum"
 c4_hd_sd,,,0.4774,m,C4 SD of displacement — network maximum (adequate leverage)
 c4_closure_min_beta3,,,0.016,per month,β₃ minimising the C4 water-balance closure residual (near canonical)
 c4_perwell_n_nonsig,,,6.0,wells,"C4 per-well fits with non-significant β₃ (sampling noise, not collinearity)"
+c4_perwell_sig_window100,,,3.0,wells,"C4 wells with significant positive β₃, 100-month window"
+c4_perwell_sig_fullrecord,,,7.0,wells,"C4 wells with significant positive β₃, full record"
+c4_centroid_beta3_excl,,,0.0287,per month,"C4 centroid β₃ excluding MSL5_EXCLUDED_WELLS — sensitivity, not the headline"
+c4_centroid_halflife_excl,,,24.1732,months,"C4 t½ = ln(2)/β₃ under the same exclusion — sensitivity, not the headline"

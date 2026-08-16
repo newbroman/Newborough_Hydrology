@@ -131,7 +131,7 @@ import time
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.3.0"
+__version__ = "2.4.0"
 
 ROOT_DIR = Path(__file__).resolve().parent
 SRC_DIR  = ROOT_DIR / "src"
@@ -304,7 +304,7 @@ PHASE_13 = [
 PHASE_14 = [
     Step("28_c3_detrend_check.py",         "Cluster framework diagnostic: C3 detrend check (H0)",                                     "X"),
     Step("29_c3_within_variance_check.py", "Cluster framework diagnostic: within-C3 spatial structure",                               "X"),
-    Step("30_c4_drainage_identifiability.py", "Cluster framework diagnostic: C4 drainage identifiability (low \u03b23 is real, not degenerate)", "X"),
+    Step("30_c4_drainage_identifiability.py", "Cluster framework diagnostic: C4 drainage identifiability (tests \u03b22/\u03b23 separability; reports two sensitivities)", "X"),
 ]
 PHASE_15 = [
     Step("32_differential_movement.py",  "Figure: secular differential water-table drift (report Fig 59)",                                                                        "A"),

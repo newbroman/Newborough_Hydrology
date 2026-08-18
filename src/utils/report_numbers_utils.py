@@ -28,7 +28,15 @@ CSV schema (one row per cited number):
 __version__ : 1.0.0
 """
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-06-21
+__version__ = "1.0.1"  # Hollingham (2026) -- 2026-08-18. ReportNumbers.add() rounded EVERY report number to 4 dp
+#   on the way into *_report_numbers.csv - the store the citation index and
+#   every document quote from. Highest-leverage instance of the same defect.
+#   Store-time rounding removed (D-035): values are
+#   written at the precision they were computed and rounded where they are
+#   displayed. Three decimals is a display rule for quantities of order
+#   one; at storage it costs a significant figure on the small ones.
+#
+# v1.0.0  # Hollingham (2026) — 2026-06-21
 
 import pandas as pd
 
@@ -44,7 +52,7 @@ class ReportNumbers:
             "Parameter": parameter,
             "Well": well,
             "Era": era,
-            "Value": round(value, 4) if pd.notna(value) and isinstance(value, (int, float)) else value,
+            "Value": float(value) if pd.notna(value) and isinstance(value, (int, float)) else value,
             "Unit": unit,
             "Note": note,
         })

@@ -30,7 +30,14 @@ S.12 §"Forest interception correction"; see also `wtf_interception_methodology.
 in the project store.
 """
 
-__version__ = "1.4.1"  # Hollingham (2026) — last revised 2026-08-06
+__version__ = "1.4.2"  # Hollingham (2026) -- 2026-08-18. Store-time rounding removed (D-035): these values
+#   are written to CSV at the precision they were computed, and rounding
+#   happens where they are displayed. Three decimals is a display rule for
+#   quantities of order one; applied at storage it costs a significant
+#   figure on the small ones - beta_3 ~ 0.018, Sy ~ 0.31 - and the loss
+#   compounds through every statistic taken afterwards.
+#
+# v1.4.1  # Hollingham (2026) — last revised 2026-08-06
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -259,8 +266,8 @@ def approach_a_ols(df):
                   "Regression may be misspecified.")
 
         results[rkey] = dict(
-            sy=round(Sy, 4), r2=round(r2, 3), n=n,
-            se=round(se_sy, 4), data=sub,
+            sy=float(Sy), r2=float(r2), n=n,
+            se=float(se_sy), data=sub,
             dh_corrected=dh_corrected[mask],
             b3=b3_val,
         )
@@ -312,7 +319,7 @@ def approach_b_events(df):
         n   = len(events)
 
         results[rkey] = dict(
-            sy_median=round(med, 4), q25=round(q25, 4), q75=round(q75, 4),
+            sy_median=float(med), q25=float(q25), q75=float(q75),
             n=n, sy_values=events["sy_i"].values,
         )
         print(f"  {_entry_label(cid, corrected):<32}  Sy median = {med:.3f}  "
@@ -403,9 +410,9 @@ def approach_c_rapid_events(df):
                         "start":     pd.Timestamp(dates[s]).strftime("%Y-%m"),
                         "end":       pd.Timestamp(dates[e]).strftime("%Y-%m"),
                         "duration":  e - s + 1,
-                        "rise_m":    round(rise, 4),
-                        "recharge_m": round(recharge, 4),
-                        "sy_i":      round(sy_i, 4),
+                        "rise_m":    float(rise),
+                        "recharge_m": float(recharge),
+                        "sy_i":      float(sy_i),
                     })
 
             i = e + 1  # non-overlapping episodes
@@ -433,12 +440,12 @@ def approach_c_rapid_events(df):
             ci_lo = ci_hi = np.nan
 
         results[cid] = dict(
-            sy_median=round(med, 4),
-            ci_lo=round(float(ci_lo), 4) if np.isfinite(ci_lo) else np.nan,
-            ci_hi=round(float(ci_hi), 4) if np.isfinite(ci_hi) else np.nan,
+            sy_median=float(med),
+            ci_lo=float(ci_lo) if np.isfinite(ci_lo) else np.nan,
+            ci_hi=float(ci_hi) if np.isfinite(ci_hi) else np.nan,
             n=n,
-            mean_duration=round(float(ep_df["duration"].mean()), 2),
-            mean_rise=round(float(ep_df["rise_m"].mean()), 4),
+            mean_duration=float(ep_df["duration"].mean()),
+            mean_rise=float(ep_df["rise_m"].mean()),
             corrected=corrected,
             episodes=ep_df,
         )

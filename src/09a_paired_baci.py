@@ -33,7 +33,14 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "2.7.2"  # Hollingham (2026) — 2026-07-19
+__version__ = "2.7.3"  # Hollingham (2026) -- 2026-08-18. Store-time rounding removed (D-035): these values
+#   are written to CSV at the precision they were computed, and rounding
+#   happens where they are displayed. Three decimals is a display rule for
+#   quantities of order one; applied at storage it costs a significant
+#   figure on the small ones - beta_3 ~ 0.018, Sy ~ 0.31 - and the loss
+#   compounds through every statistic taken afterwards.
+#
+# v2.7.2  # Hollingham (2026) — 2026-07-19
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -109,7 +116,7 @@ def _export_beta3_era_summary(significance_results):
         lambda r: f"[{r['Conf_Low']:.3f}, {r['Conf_High']:.3f}]", axis=1)
     df["p_value"] = df["P_Value"].apply(format_p_value)
     df["Sig"] = df["P_Value"].apply(significance_stars)
-    df["beta_3"] = df["beta_3_drainage"].round(3)
+    df["beta_3"] = df["beta_3_drainage"].astype(float)
     df["well_rank"] = pd.Categorical(df["Well"], categories=well_order,
                                      ordered=True)
     df["era_rank"] = df["Era"].map(era_order).fillna(99)
@@ -220,12 +227,9 @@ def main():
 
                 full_params_results.append({
                     "Well": well.upper(), "Era": era_name,
-                    "beta_1_recharge": round(
-                        model_full.params["beta_1_recharge"], 3),
-                    "beta_2_atmospheric_draw": round(
-                        model_full.params["beta_2_atmospheric_draw"], 3),
-                    "beta_3_drainage": round(
-                        model_full.params["beta_3_drainage"], 3),
+                    "beta_1_recharge": float(model_full.params["beta_1_recharge"]),
+                    "beta_2_atmospheric_draw": float(model_full.params["beta_2_atmospheric_draw"]),
+                    "beta_3_drainage": float(model_full.params["beta_3_drainage"]),
                 })
 
                 X_iso = sm.add_constant(sub["neg_h_disp_prev"])
@@ -266,7 +270,7 @@ def main():
                     net_summary.append({
                         "Well": w.upper(),
                         "Shift": era_keys[i].split("_", 1)[1],
-                        "Net_Benefit_m": round(after.mean() - before.mean(), 4),
+                        "Net_Benefit_m": float(after.mean() - before.mean()),
                     })
 
     # ── 3. Export CSVs ────────────────────────────────────────────────────
@@ -634,7 +638,7 @@ def _export_report_numbers(plot_data, baci_results, net_summary,
     def rr(parameter, value, unit="m", well="", era="", note=""):
         rows.append({
             "Parameter": parameter, "Well": well, "Era": era,
-            "Value": round(value, 4) if pd.notna(value) else "",
+            "Value": float(value) if pd.notna(value) else "",
             "Unit": unit, "Note": note,
         })
 

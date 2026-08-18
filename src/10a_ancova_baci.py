@@ -33,7 +33,14 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-07-03
+__version__ = "1.5.1"  # Hollingham (2026) -- 2026-08-18. Store-time rounding removed (D-035): these values
+#   are written to CSV at the precision they were computed, and rounding
+#   happens where they are displayed. Three decimals is a display rule for
+#   quantities of order one; applied at storage it costs a significant
+#   figure on the small ones - beta_3 ~ 0.018, Sy ~ 0.31 - and the loss
+#   compounds through every statistic taken afterwards.
+#
+# v1.5.0  # Hollingham (2026) — 2026-07-03
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -604,20 +611,20 @@ for (ctrl_label, zone_label), fit in results.items():
     comp_rows.append({
         'Control': ctrl_label,
         'Zone': zone_label,
-        'Clearfell_step_m': round(fit['clearfell_step'], 4),
-        'Clearfell_CI_lo_m': round(fit['clearfell_ci'][0], 4),
-        'Clearfell_CI_hi_m': round(fit['clearfell_ci'][1], 4),
+        'Clearfell_step_m': float(fit['clearfell_step']),
+        'Clearfell_CI_lo_m': float(fit['clearfell_ci'][0]),
+        'Clearfell_CI_hi_m': float(fit['clearfell_ci'][1]),
         'Clearfell_p': fit['clearfell_p'],
         'Clearfell_sig': p_to_sig(fit['clearfell_p']),
-        'Scraping_step_m': round(fit['scraping_step'], 4),
+        'Scraping_step_m': float(fit['scraping_step']),
         'Scraping_p': fit['scraping_p'],
         'Easting_coef': easting_coef if not np.isnan(easting_coef) else '',
         'Easting_p': easting_p if not np.isnan(easting_p) else '',
-        'R2': round(fit['r2'], 4),
+        'R2': float(fit['r2']),
         'N': fit['n'],
-        'Oct2023_step_m': round(fit['m3_scrape2_coef'], 4) if not np.isnan(fit['m3_scrape2_coef']) else '',
+        'Oct2023_step_m': float(fit['m3_scrape2_coef']) if not np.isnan(fit['m3_scrape2_coef']) else '',
         'Oct2023_p': fit['m3_scrape2_p'] if not np.isnan(fit['m3_scrape2_p']) else '',
-        'dAIC_M3_M2': round(fit['daic'], 2) if not np.isnan(fit['daic']) else '',
+        'dAIC_M3_M2': float(fit['daic']) if not np.isnan(fit['daic']) else '',
     })
 
 comp_df = pd.DataFrame(comp_rows)
@@ -631,9 +638,9 @@ for zone in comp_df['Zone'].unique():
                                'Clearfell_step_m']
     if len(climate_step) == 1:
         bg = climate_step.iloc[0]
-        comp_df.loc[mask_zone, 'Climate_background_m'] = round(bg, 4)
+        comp_df.loc[mask_zone, 'Climate_background_m'] = float(bg)
         comp_df.loc[mask_zone, 'Net_clearfell_m'] = (
-            comp_df.loc[mask_zone, 'Clearfell_step_m'] - bg).round(4)
+            comp_df.loc[mask_zone, 'Clearfell_step_m'] - bg)
     else:
         comp_df.loc[mask_zone, 'Climate_background_m'] = np.nan
         comp_df.loc[mask_zone, 'Net_clearfell_m'] = np.nan
@@ -651,8 +658,8 @@ for (ctrl_label, zone_label), fit in results.items():
             'Control': ctrl_label,
             'Zone': zone_label,
             'Coefficient': cname,
-            'Value': round(fit['b'][i], 6),
-            'SE': round(fit['se'][i], 6),
+            'Value': float(fit['b'][i]),
+            'SE': float(fit['se'][i]),
             'p': fit['p'][i],
             'Sig': p_to_sig(fit['p'][i]),
         })

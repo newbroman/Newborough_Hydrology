@@ -36,7 +36,13 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "3.10.0"  # Hollingham (2026) — 2026-08-16
+__version__ = "3.10.1"  # Hollingham (2026) -- 2026-08-18. Figure captions
+#   built their distances from typed literals - "bar = 100 m", "= 250 m",
+#   "at ~282 m" - beside a lambda already interpolated live. They now read
+#   OFFSITE_DIST_M, OFFSITE_FAR_M and CLEARFELL_MATCH_HINT, so moving a
+#   constant moves the caption with it.
+#
+# v3.10.0  # Hollingham (2026) — 2026-08-16
 #
 # 3.10.0 (2026-08-16): the "else -0.7" mean-depth fallback removed - it stood
 #   in for a value that is always present, and would have silently shifted
@@ -123,7 +129,8 @@ WELL = "ceh36"
 # network cannot resolve (nearest uphill well 247 m); the bar is therefore a
 # MODELLED quantity, flagged as such in the captions.
 OFFSITE_DIST_M       = 100.0
-OFFSITE_FAR_M        = 250.0    # marker line inside the 100 m bar (near nearest well)
+OFFSITE_FAR_M        = 250.0    # marker line inside the OFFSITE_DIST_M bar
+                                # (near the nearest uphill well)
 # SCRAPE_RISE_BUFFER_M now imported from config.py
 CLEARFELL_MATCH_HINT = 282.0    # ~distance where off-site vol drawdown = clearfell bar
 
@@ -488,8 +495,9 @@ def _plot_scenarios(scenarios, params, forcing):
         "coefficients and Sy. A head-change equivalent (mm) needs division "
         "by an appropriate Sy \u2014 uncertain, so approximate.\n"
         "Scraping off-site: modelled neighbour drawdown from the drain cone "
-        f"(\u03bb = {lam:.0f} m, live from Script 20); bar = 100 m, dark line "
-        "across it = 250 m (milder, more distant)."
+        f"(\u03bb = {lam:.0f} m, live from Script 20); bar = "
+        f"{OFFSITE_DIST_M:.0f} m, dark line across it = {OFFSITE_FAR_M:.0f} m "
+        "(milder, more distant)."
     )
     if is_summer:
         caveat += (
@@ -499,9 +507,10 @@ def _plot_scenarios(scenarios, params, forcing):
         )
     else:
         caveat += (
-            "\nOff-site drawdown decays with distance; at ~282 m it equals "
-            "the clearfell bar in magnitude \u2014 i.e. the recharge the "
-            "standing forest itself suppresses."
+            f"\nOff-site drawdown decays with distance; at ~"
+            f"{CLEARFELL_MATCH_HINT:.0f} m it equals the clearfell bar in "
+            "magnitude \u2014 i.e. the recharge the standing forest itself "
+            "suppresses."
         )
     ax.text(0.0, -0.16, caveat, transform=ax.transAxes, fontsize=8,
             ha="left", va="top", color="#555", style="italic")

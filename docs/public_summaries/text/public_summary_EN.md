@@ -3,20 +3,17 @@
 
 Newborough Warren: what is happening to the dune water table
 
-[]{#anchor}Newborough Warren: what is happening to the dune water table
-=======================================================================
+# []{#anchor}Newborough Warren: what is happening to the dune water table
 
 *A plain-language summary of a 21-year study, for anyone who cares about the Warren.*
 
-[]{#anchor}Why the water table matters
---------------------------------------
+## []{#anchor}Why the water table matters
 
 Newborough Warren's wildlife lives in its damp hollows --- the dune slacks. Whether a hollow is a flower-rich **wet slack** or dries out to ordinary grassland comes down to a few centimetres of water table through the summer. Get that wrong and the special plants and animals go with it.
 
 For 21 years this study has followed the Warren's water table using a network of 88 simple, hand-measured wells and freely available weather records. The aim was plain: work out what is changing, why, and what management can --- and cannot --- do about it. Two figures accompany this summary: one on **what coast and climate do to the water table**, and one on **what management does**.
 
-[]{#anchor}The headline: two big pressures, both larger than anything management can do
----------------------------------------------------------------------------------------
+## []{#anchor}The headline: two big pressures, both larger than anything management can do
 
 Two forces are pulling the Warren's water table down, and both are bigger than the tools available to manage the site.
 
@@ -32,8 +29,7 @@ A note on certainty: the *size* of the coastal effect is modelled, and the well 
 
 **Figure 1 --- Coast and climate.** The two dominant drivers, before and after: the retreating shore pulls the water table down near the coast, while a changing climate lowers it slowly across the whole site. The site-wide climate fall is the biggest change overall; the sea's retreat matters most near the shore. Schematic, not to scale.
 
-[]{#anchor}Management helps --- but it is limited, and one tool can backfire
-----------------------------------------------------------------------------
+## []{#anchor}Management helps --- but it is limited, and one tool can backfire
 
 **Clearing the forest.** Felling the conifer plantation raised the *average* water table where the trees came out --- by around **12 centimetres over the year** in our best estimate. But it did **not** lift the **summer low point** --- and the summer low is the moment that actually decides whether a slack stays wet. So felling helps, modestly, but it does not fix the season that matters most.
 
@@ -45,18 +41,15 @@ Both interventions are **local** --- they change the worked slack and its close 
 
 **Figure 2 --- What management does.** Dune scrape (left) and forest clearing (right), before and after. A cut slack fills with water but can draw down a spot just inland; felling lifts the table over the year but not the summer low. Both effects are local. Schematic, not to scale.
 
-[]{#anchor}The problem is getting harder to see
------------------------------------------------
+## []{#anchor}The problem is getting harder to see
 
 As the water table falls, the summer low increasingly drops **below the bottom of the measuring wells** --- so the driest, most important moments are the hardest to capture. To stay honest, the study leans on the **spring record**, which is nearly complete. Spring is the seasonal high, so this is a deliberately **conservative** choice: if anything, it *understates* the drying.
 
-[]{#anchor}The window is closing
---------------------------------
+## []{#anchor}The window is closing
 
 The vulnerable slacks on the eastern side of the Warren have been flickering back and forth across the wet/dry threshold **since around 2022**. Ground that spends more and more of its time on the dry side of that line steadily loses its wet-slack character. The time to act on the ground that can still be saved is **now**, not later.
 
-[]{#anchor}What this leaves for the people managing the dunes
--------------------------------------------------------------
+## []{#anchor}What this leaves for the people managing the dunes
 
 The study hands the people who look after the Warren --- and other dune systems like it --- a set of practical tools:
 
@@ -64,20 +57,18 @@ The study hands the people who look after the Warren --- and other dune systems 
 -   **Simple rainfall rules** --- thresholds linking a season's rainfall to the water levels to expect, usable without specialist modelling.
 -   **A cheap, repeatable method** --- the whole approach runs on hand-measured wells and free public weather data, so it can be kept going here and **transferred to other dune systems** facing the same pressures.
 
-[]{#anchor}The bottom line
---------------------------
+## []{#anchor}The bottom line
 
 Newborough's slacks are under two large, mostly external pressures --- a site-wide **climate** drawdown and a **coastal-erosion** front --- that together outweigh what management can do. Management still matters: placed well, and judged against the **summer low rather than the annual average**, it can buy time and protect the best remaining ground. But the two big drivers set the direction of travel, and for the most vulnerable slacks the window is closing.
 
-[]{#anchor}Further information
-------------------------------
+## []{#anchor}Further information
 
 This summary draws on the full technical report:
 
-Hollingham, M. (2026). *Hydrogeological Dynamics, Behavioural Clustering and Management Intervention Analysis at Newborough Warren Coastal Sand Dune Aquifer, Wales.*
+> Hollingham, M. (2026). *Hydrogeological Dynamics, Behavioural Clustering and Management Intervention Analysis at Newborough Warren Coastal Sand Dune Aquifer, Wales.*
 
 The report itself, together with the interactive tools, all the figures, and the underlying data and code, is available at the project website:
 
-**https://newbroman.github.io/Newborough\_Hydrology/**
+**https://newbroman.github.io/Newborough_Hydrology/**
 
 *About this study: an independent 21-year water-table monitoring programme at Newborough Warren SAC, Anglesey. The method relies on a network of 88 manually read dipwells and public climate data, and is designed to be low-cost, repeatable, and transferable to other dune systems.*

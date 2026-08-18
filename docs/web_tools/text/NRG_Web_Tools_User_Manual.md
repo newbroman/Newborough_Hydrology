@@ -19,8 +19,7 @@ Part A
 
 Groundwater Flooding Forecaster
 
-A1. Introduction
-================
+# A1. Introduction
 
 Document version --- updated 2026-08-12.
 
@@ -30,17 +29,15 @@ The forecaster presents the report's cluster-block transfer functions (Tables 6,
 
 1.  What winter peak water level is expected, given the current summer minimum and a chosen rainfall scenario? (Table 6)
 2.  What summer minimum follows from the cluster-mean winter peak? (Table 7)
-3.  How much cumulative rainfall is needed to bring groundwater to the slack floor --- P\_flood? (Table 10)
+3.  How much cumulative rainfall is needed to bring groundwater to the slack floor --- P_flood? (Table 10)
 
-A2. Opening the Forecaster
-==========================
+# A2. Opening the Forecaster
 
 Open forecaster.html in a web browser. The page loads instantly because all well data, map geometry, and model coefficients are bundled into the file. No server or internet connection is required for the core functionality.
 
 On first load the tool will attempt to fetch live rainfall data from the Met Office (see Section A5). This requires an internet connection but is optional; the tool falls back to climatological defaults if the fetch fails.
 
-A3. Interface Layout
-====================
+# A3. Interface Layout
 
 The interface is arranged in three panels beneath a header bar and a live-data banner:
 
@@ -53,8 +50,7 @@ The interface is arranged in three panels beneath a header bar and a live-data b
 
 All three panels are separated by draggable 6 px gutters. Drag a gutter sideways to widen or narrow the adjacent panel; your preferred widths persist between visits (stored in the browser's localStorage). On narrow screens (\< 960 px) the panels stack vertically and the gutters are hidden.
 
-A4. Selecting a Well and Entering Depths
-========================================
+# A4. Selecting a Well and Entering Depths
 
 Wells can be selected in two ways:
 
@@ -65,24 +61,22 @@ When a well is selected, two depth inputs in the sidebar are pre-populated from 
 
   ------------------------ -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   Input                    Purpose and default
-  Current observed depth   Today's dipwell reading. Drives Forecast 3 (P\_flood: rainfall needed to lift the water table from this depth to the slack floor). Default: cluster's long-term mean depth for the current calendar month.
+  Current observed depth   Today's dipwell reading. Drives Forecast 3 (P_flood: rainfall needed to lift the water table from this depth to the slack floor). Default: cluster's long-term mean depth for the current calendar month.
   Summer minimum depth     The annual summer trough. Drives Forecast 1 (next winter peak). Default: cluster's long-term summer minimum. The hint explains three options: this year's observed value if known, last year's if available, or keep the long-term default for a "typical year" projection.
   ------------------------ -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Editing either input immediately recalculates the relevant forecast. Forecast 2 (following summer minimum) uses the cluster-mean winter peak and takes no user input.
 
-A4.1 Well details panel
------------------------
+## A4.1 Well details panel
 
 Below the depth input, a well-details section shows the selected well's coordinates, ground elevation, and cluster assignment. Beneath this, two stacked depth tables appear:
 
--   Well long-term depths: the selected well's own monthly climatology (from 01\_wells\_clean.csv), showing this month's long-term mean, the summer minimum (labelled by the well's own trough month), and the winter peak (labelled by the well's own peak month). Omitted if the well lacks sufficient record length.
+-   Well long-term depths: the selected well's own monthly climatology (from 01_wells_clean.csv), showing this month's long-term mean, the summer minimum (labelled by the well's own trough month), and the winter peak (labelled by the well's own peak month). Omitted if the well lacks sufficient record length.
 -   Cluster long-term depths: the cluster-average equivalents, using the cluster's trough and peak months.
 
 This lets you compare the individual well's behaviour against its cluster average. Trough and peak months may differ between the well and cluster (e.g. a well may peak in February while its cluster peaks in March).
 
-A5. Live Met Office Data
-========================
+# A5. Live Met Office Data
 
 On load, the forecaster fetches the Met Office Historic Station Data file for RAF Valley (valleydata.txt). If the fetch succeeds, a banner below the header shows:
 
@@ -91,32 +85,28 @@ On load, the forecaster fetches the Met Office Historic Station Data file for RA
 
 Two preset links appear above the slider allowing you to set the rainfall multiplier to the live λ or to the climatological default (λ = 1.00).
 
-A5.1 Manual fallback
---------------------
+## A5.1 Manual fallback
 
 If the live fetch fails (CORS restriction, no internet, server down), a Retry button and an Enter rainfall manually button appear. The manual option opens a modal where you can paste the full contents of valleydata.txt copied from a browser tab. The parser extracts the same monthly totals and populates the banner identically.
 
-A6. The Rainfall Multiplier (λ)
-===============================
+# A6. The Rainfall Multiplier (λ)
 
 The slider at the top-right of the map controls the assumed winter rainfall multiplier λ, ranging from 0.60× (dry winter) to 2.00× (exceptional winter). As you drag it:
 
--   The map dots re-colour in real time to reflect updated P\_flood vulnerability.
+-   The map dots re-colour in real time to reflect updated P_flood vulnerability.
 -   The forecast panel recalculates all three forecasts.
 -   A descriptive label updates: Dry winter, Climatological, Wet winter, Very wet winter, or Exceptional winter.
 -   
 
-A7. Understanding the Forecasts
-===============================
+# A7. Understanding the Forecasts
 
 The right panel displays three forecast cards. Each card shows the general form of the equation (from the report table), then the same equation with values substituted and the result evaluated. A coloured ecological badge and explanatory text accompany each result.
 
-A7.1 Forecast 1 --- Next winter peak (Table 6)
-----------------------------------------------
+## A7.1 Forecast 1 --- Next winter peak (Table 6)
 
 Uses the block transfer function to predict winter peak depth from the entered summer minimum and assumed winter rainfall. The equation is displayed inline:
 
-h\_peak = β₁ · P\_winter + β₂ · h\_min + intercept
+h_peak = β₁ · P_winter + β₂ · h_min + intercept
 
 An amber timing note appears if the current date is before the cluster's trough month (i.e. this year's summer minimum has not yet been observed). The note explains three options: wait for the observation, enter last summer's known value, or keep the long-term cluster mean as a "typical year" projection.
 
@@ -126,12 +116,11 @@ Ecological badge thresholds:
 -   SD16 only (amber): peak reaches 0.10--0.25 m below ground.
 -   Below SD16 (red): peak remains deeper than 0.25 m.
 
-A7.2 Forecast 2 --- Following summer minimum (Table 7)
-------------------------------------------------------
+## A7.2 Forecast 2 --- Following summer minimum (Table 7)
 
 Projects the deepest summer water-table depth from the cluster-mean winter peak and climatological summer rainfall (Apr--Sep). The equation is displayed inline:
 
-h\_min = β₁ · P\_summer + β₂ · h\_max(winter) + intercept
+h_min = β₁ · P_summer + β₂ · h_max(winter) + intercept
 
 Ecological badge thresholds:
 
@@ -139,12 +128,11 @@ Ecological badge thresholds:
 -   SD16 only (amber): 0.61--0.98 m.
 -   Below SD16 (red): deeper than 0.98 m.
 
-A7.3 Forecast 3 --- P\_flood to slack floor (Table 10)
-------------------------------------------------------
+## A7.3 Forecast 3 --- P_flood to slack floor (Table 10)
 
 Calculates the cumulative rainfall (in mm) over the cluster's horizon period needed to bring groundwater from its current depth to the slack floor (0 m). The equation is displayed inline:
 
-P\_flood = A · d + B
+P_flood = A · d + B
 
 The result is also expressed as λ, the multiple of climatological rainfall:
 
@@ -153,8 +141,7 @@ The result is also expressed as λ, the multiple of climatological rainfall:
 -   Exceptional winter (red): λ 1.3--2.0.
 -   Structurally unreachable (grey): λ \> 2.0 --- flooding essentially impossible.
 
-A7.4 Ecohydrology indices (EWI, EbF, MSL5)
-------------------------------------------
+## A7.4 Ecohydrology indices (EWI, EbF, MSL5)
 
 Below the three forecasts, the well panel shows up to three ecohydrology indices. Unlike the forecasts, which answer a specific question about a coming season, these describe the well\'s overall wetness state:
 
@@ -166,10 +153,9 @@ Five-year mean spring level (MSL5) --- the most recent five-year mean spring wat
 
 These values update automatically from the project\'s live feed. If the page is offline or opened as a standalone file they fall back to the long-term climatology and the as-of label is omitted; some extended-network wells with short records will not show these rows.
 
-A8. Reading the Map
-===================
+# A8. Reading the Map
 
-The map uses a square viewBox (1000 × 1000) matching the square base-layer extent (3800 m × 3800 m). Well dots occupy a horizontal strip across the middle of the map reflecting their actual geography. Each dot is coloured by P\_flood vulnerability:
+The map uses a square viewBox (1000 × 1000) matching the square base-layer extent (3800 m × 3800 m). Well dots occupy a horizontal strip across the middle of the map reflecting their actual geography. Each dot is coloured by P_flood vulnerability:
 
   -------- -------------------------- ---------------------
   Colour   Category                   λ range
@@ -181,13 +167,11 @@ The map uses a square viewBox (1000 × 1000) matching the square base-layer exte
 
 The legend and rainfall slider overlay the top-left and top-right corners of the map respectively. The map content is top-aligned within its container; any spare vertical space appears below as sand-coloured background.
 
-A9. Nearest-Type Assignments
-============================
+# A9. Nearest-Type Assignments
 
 Some wells are flagged with an asterisk (\*) and display a nearest-type assignment notice. These wells sit outside the SSM operational domain and were assigned to the nearest cluster as a best-available estimate. Forecasts for these wells should be treated as indicative rather than precise.
 
-A10. Practical Tips
-===================
+# A10. Practical Tips
 
 -   After selecting a well, check both depth inputs: the current-depth default is the cluster's long-term mean for this calendar month, and the summer-minimum default is the cluster's long-term trough. Edit either to match your actual observations.
 -   Use the live λ preset when available --- it incorporates the actual current-season rainfall.
@@ -199,15 +183,13 @@ Part B
 
 Hydrological Scenario Viewer
 
-B1. Introduction
-================
+# B1. Introduction
 
 The Hydrological Scenario Viewer is an interactive HTML tool that allows you to explore how different climate and management scenarios affect groundwater levels across the Newborough Warren dipwell network. It computes per-well changes in equilibrium head (Δh) using the site's fitted state-space model coefficients and displays the results as an IDW-interpolated surface map, a cluster-level bar chart, a numeric data table, and summary metric cards.
 
-The viewer is generated by Script 19 (19\_spatial\_groundwater.py) and contains all data embedded in the file. No server or internet connection is required.
+The viewer is generated by Script 19 (19_spatial_groundwater.py) and contains all data embedded in the file. No server or internet connection is required.
 
-B2. Interface Layout
-====================
+# B2. Interface Layout
 
   -------------- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   Panel          Purpose
@@ -221,8 +203,7 @@ B2. Interface Layout
 
 On narrow screens (\< 640 px) the layout stacks vertically.
 
-B3. Scenario Presets
-====================
+# B3. Scenario Presets
 
 Six preset buttons configure all sliders to physically meaningful combinations:
 
@@ -238,8 +219,7 @@ Six preset buttons configure all sliders to physically meaningful combinations:
 
 You can also adjust any slider individually after selecting a preset; the display updates in real time.
 
-B4. Climate Sliders
-===================
+# B4. Climate Sliders
 
 Four sliders control the climate forcing multipliers independently:
 
@@ -250,8 +230,7 @@ Four sliders control the climate forcing multipliers independently:
 
 A warning banner appears if slider combinations exceed UKCP18 plausible ranges or create physically contradictory configurations.
 
-B5. Forestry Controls
-=====================
+# B5. Forestry Controls
 
 Separate interception sliders are provided for C4 (Main Forest) and C5 (Coastal Forest):
 
@@ -264,8 +243,7 @@ Below the interception sliders, a shared β₂ scaling panel applies identically
 
 The seasonal split captures deciduous phenology under broadleaf conversion: the Broadleaf preset sets winter β₂ to 0.88× (reduced transpiration when leaves are absent) and summer β₂ to 1.08× (elevated transpiration during the growing season). These controls only affect C4 and C5 wells; non-forest clusters are unaffected.
 
-B6. Map Rendering Modes
-=======================
+# B6. Map Rendering Modes
 
 Three tabs above the map switch the colour surface:
 
@@ -275,8 +253,7 @@ Three tabs above the map switch the colour surface:
 
 In depth mode, a ridge-mask toggle suppresses interpolation over dune ridges where the DEM exceeds the local well-derived surface by more than 1.0 m.
 
-B7. Display Toggles and Tooltips
-================================
+# B7. Display Toggles and Tooltips
 
 -   KML overlays: shows/hides the forest plantation, broadleaf restock area, clearfell compartment, and Llyn Rhos-ddu.
 -   Well labels: toggles well identifiers on the map.
@@ -284,8 +261,7 @@ B7. Display Toggles and Tooltips
 
 Hovering over any well dot shows a floating tooltip with the well name, cluster, baseline head, Δh, scenario-adjusted head, specific yield, and storage shift.
 
-B8. Practical Tips
-==================
+# B8. Practical Tips
 
 -   Start with a preset to see a scenario's overall effect, then fine-tune individual sliders.
 -   Use the season tabs to compare winter wetting against summer drying under the same scenario.
@@ -297,20 +273,17 @@ Part C
 
 Seasonal Extremes Scatter
 
-C1. Introduction
-================
+# C1. Introduction
 
 The Seasonal Extremes Scatter is an interactive chart plotting each well's mean annual summer minimum water-table depth against its mean annual winter maximum depth for the monitoring period 2005--2026. Wells are coloured by hydrogeological cluster, and Curreli et al. (2013) eco-hydrological threshold lines are overlaid. The chart provides an at-a-glance summary of which wells and clusters meet the SD15b and SD16 habitat condition targets.
 
-The page is generated by Script 14 (14\_climate\_projections.py) and uses Chart.js for rendering.
+The page is generated by Script 14 (14_climate_projections.py) and uses Chart.js for rendering.
 
-C2. Opening the Page
-====================
+# C2. Opening the Page
 
-Open 14\_seasonal\_extremes\_scatter.html in any modern web browser. Chart.js is loaded from a CDN, so an internet connection is needed on first load (or the library can be cached). The well data is embedded inline.
+Open 14_seasonal_extremes_scatter.html in any modern web browser. Chart.js is loaded from a CDN, so an internet connection is needed on first load (or the library can be cached). The well data is embedded inline.
 
-C3. Reading the Chart
-=====================
+# C3. Reading the Chart
 
 Each dot represents one well. The axes are:
 
@@ -319,8 +292,7 @@ Each dot represents one well. The axes are:
 
 Wells in the upper-right quadrant have shallow water tables in both seasons (favourable for wet slack habitat). Wells in the lower-left have deep water tables year-round.
 
-C4. Threshold Lines
-===================
+# C4. Threshold Lines
 
 Four dashed lines mark the Curreli et al. (2013) eco-hydrological thresholds:
 
@@ -334,20 +306,17 @@ Four dashed lines mark the Curreli et al. (2013) eco-hydrological thresholds:
 
 A well meeting both the summer and winter SD15b thresholds (upper-right of both green lines) has full wet slack habitat viability.
 
-C5. Cluster Legend
-==================
+# C5. Cluster Legend
 
 The legend shows the colour for each cluster: C1 (Lake Edge), C2 (Dune), C3 (Western Residual), C4 (Main Forest), and C5 (Coastal Forest). Wells not assigned to a core cluster appear as "UNKNOWN" in grey.
 
-C6. Search and Highlight
-========================
+# C6. Search and Highlight
 
 A search box above the chart lets you type a well name (e.g. "ceh36" or "nw10"). Matching wells are highlighted in orange with an enlarged dot; all other wells fade. The result text shows the well's exact values and cluster.
 
 Click Clear to reset the view.
 
-C7. Practical Tips
-==================
+# C7. Practical Tips
 
 -   Use the search to locate specific wells of management interest.
 -   Wells plotting far to the left within C4 and C5 indicate forest-influenced water-table suppression.

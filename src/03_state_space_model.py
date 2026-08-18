@@ -79,7 +79,16 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.9.1"  # Hollingham (2026) — 2026-08-18. 03_14 and 03_15 now
+__version__ = "1.9.2"  # Hollingham (2026) — 2026-08-18. 03_14 and 03_15
+#   gain fit_start and fit_end, the first and last month entering each fit,
+#   read off the residual index. The scenario viewer labels its basis toggle
+#   with real dates rather than "recent 8 years", and the record-basis table
+#   can quote spans that trace to a committed CSV. Records are not uniform:
+#   whole-record fits start anywhere between 2005 and 2014, and the
+#   comparison window reaches back past its nominal span wherever a well has
+#   gaps, so a single typed date range would have been wrong for most wells.
+#
+# v1.9.1  # Hollingham (2026) — 2026-08-18. 03_14 and 03_15 now
 #   use paths.py constants, since Script 19 reads them too.
 #
 # v1.9.0  # Hollingham (2026) — 2026-08-18. Adds the per-well
@@ -407,6 +416,21 @@ def build_cluster_centroids(cluster_df: pd.DataFrame,
     return centroids
 
 
+def _fit_span(fit: dict) -> tuple[str, str]:
+    """
+    First and last month actually entering a fit, as YYYY-MM.
+
+    Read off the residual index rather than recomputed from the window
+    argument, so the span cannot disagree with what was fitted: gaps mean the
+    trailing-N-observation window reaches further back at some wells than at
+    others, and only the frame knows how far. Consumed by the scenario viewer,
+    which dates its basis toggle from these columns instead of carrying dates
+    of its own.
+    """
+    idx = fit["resid"].index
+    return idx.min().strftime("%Y-%m"), idx.max().strftime("%Y-%m")
+
+
 def per_well_window_sensitivity(master_df: pd.DataFrame,
                                 wells_clean: pd.DataFrame,
                                 well_col_lookup: dict[str, str],
@@ -445,12 +469,15 @@ def per_well_window_sensitivity(master_df: pd.DataFrame,
                           min_obs=MIN_OBS_PER_WELL)
             if fit is None:
                 continue
+            fit_start, fit_end = _fit_span(fit)
             rows.append({
                 "Name_Original": well_name,
                 "Cluster": r.get("Cluster"),
                 "basis": basis,
                 "window_months": ("" if window is None else window),
                 "n": fit["n"],
+                "fit_start": fit_start,
+                "fit_end": fit_end,
                 "beta_1_recharge": fit["beta_1_recharge"],
                 "pvalue_beta_1": fit["pvalue_beta_1"],
                 "beta_2_atmospheric_draw": fit["beta_2_atmospheric_draw"],
@@ -498,12 +525,15 @@ def centroid_window_sensitivity(centroids: dict[int, pd.Series],
             if fit is None:
                 warn(f"  {label}: no fit on the {basis} basis")
                 continue
+            fit_start, fit_end = _fit_span(fit)
             rows.append({
                 "Cluster": cid,
                 "Cluster_Label": label,
                 "basis": basis,
                 "window_months": ("" if window is None else window),
                 "n": fit["n"],
+                "fit_start": fit_start,
+                "fit_end": fit_end,
                 "beta_1_recharge": fit["beta_1_recharge"],
                 "pvalue_beta_1": fit["pvalue_beta_1"],
                 "beta_2_atmospheric_draw": fit["beta_2_atmospheric_draw"],

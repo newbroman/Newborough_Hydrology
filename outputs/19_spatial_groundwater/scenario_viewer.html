@@ -288,8 +288,8 @@ footer a:hover{text-decoration:underline;}
     <div class="phead">
       <h4>Groundwater surface &#8212; masked to site boundary</h4>
       <div class="rtabs">
-        <button class="rt on" id="bs_full" onclick="setBasis('full')" title="Coefficients fitted to each well's whole record">Whole record</button>
-        <button class="rt"    id="bs_win"  onclick="setBasis('recent')" title="Coefficients fitted to each well's most recent months only">Recent record</button>
+        <button class="rt on" id="bs_full" onclick="setBasis('full')" title="Each well's whole record. Records start between Apr 2005 and Aug 2014; all end Jan 2026.">Whole record (2005&#8211;2026)</button>
+        <button class="rt"    id="bs_win"  onclick="setBasis('recent')" title="The most recent 100 months of valid record at each well. Most open Sep 2017; wells with gaps reach back as far as Jul 2015. All end Jan 2026.">Recent 100 months (2017&#8211;2026)</button>
       </div>
     </div>
     <div id="basisNote" style="display:none;margin:6px 0 10px;padding:8px 10px;border-left:3px solid #E65100;background:#FFF3E0;font-size:13px;line-height:1.45"></div>
@@ -429,7 +429,7 @@ function setBasis(b){
     for(var c in sc){var s=sc[c];
       if(s&&s.recent!=null&&s.full!=null&&s.recent<s.full)
         bits.push(CL_LABS[c]+': '+s.recent+' of '+s.n+' wells, against '+s.full+' on the whole record');}
-    d.innerHTML='<b>Using the recent record only.</b> Shorter records make the drainage '
+    d.innerHTML='<b>Using the most recent 100 months only, Sep 2017 onward at most wells.</b> Shorter records make the drainage '
       +'term harder to measure, and where it cannot be measured reliably the scenario '
       +'response below is less certain than it looks.'
       +(bits.length?' Wells with a drainage rate clearly different from zero &#8212; '

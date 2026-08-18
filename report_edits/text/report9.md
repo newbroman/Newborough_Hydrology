@@ -112,19 +112,19 @@ An extended form of the state-space model incorporating a depth-dependent evapot
 
 The elevated C4 atmospheric-draw coefficient (β₂ = 2.58), the largest in the network, is accompanied by the network\'s lowest drainage coefficient (β₃ = 0.018 month⁻¹), so that at the cluster centroid the C4 loss budget is atmospheric-draw-dominated (ET ≈ 77%, drainage ≈ 23%). In the Main Forest interior a deep unsaturated zone coincides with the network\'s largest displacement variation, and an obvious objection is that β₂ and β₃ are trading against one another in absorbing the same low-frequency signal, so that the low β₃ is an artefact of the fit rather than a property of the cluster. A dedicated identifiability diagnostic does not support that reading. At the C4 centroid the variance inflation factor between the drainage predictor and the climate terms is approximately 1.1, among the lowest in the network; the cluster carries the largest displacement variation available to resolve drainage; a recession-only regression returns a significant head-dependent response; and the steady-state water-balance closure residual is minimised close to the fitted coefficient rather than at a substantially higher one. Two sensitivities bound the result. Excluding the two ridge-flank wells whose drainage the model does not resolve over their full records, CEH13 and CEH14, raises the cluster coefficient from 0.018 to 0.029 month⁻¹ and shortens the recession half-life from about 38 to about 24 months. Anchoring β₃ instead to the open-dune substrate the cluster shares with the Dune and Western Residual clusters (0.058 month⁻¹) would invert the loss partition to drainage-led, but opens the water-balance closure residual to −5.0% of losses against −0.5% for the fitted value; it is retained only as a conservative open-dune bound, not as a competing estimate. C4\'s loss partition is therefore the one cluster-level quantity the record cannot resolve independently of the drainage datum and the substrate assumption, and is flagged as modelled and unconfirmed wherever it enters downstream analysis.
 
-  --------------------------- ---------------------- ------- -------- -------- --------- ----------- -------------- --------
-  **Cluster**                 **Basis**              **n**   **β₁**   **β₂**   −β₃       **p(β₃)**   **LCSC (%)**   **R²**
-  C1 Lake Edge                full record (236 mo)   7       4.576    0.956    0.088     \<0.001     21.85          0.73
-  100-month window (100 mo)   7                      5.000   0.613    0.101    \<0.001   20          0.78           
-  C2 Dune                     full record (247 mo)   24      3.974    1.762    0.064     \<0.001     25.17          0.75
-  100-month window (100 mo)   24                     4.248   1.69     0.069    \<0.001   23.54       0.8            
-  C3 Western Residual         full record (248 mo)   21      3.573    1.833    0.057     \<0.001     27.98          0.81
-  100-month window (100 mo)   21                     3.509   1.77     0.054    \<0.001   28.5        0.83           
-  C4 Main Forest              full record (236 mo)   9       2.487    2.583    0.018     0.002       40.2           0.73
-  100-month window (100 mo)   9                      2.415   2.726    0.01     0.288     41.41       0.75           
-  C5 Coastal Forest           full record (238 mo)   5       2.423    1.307    0.044     \<0.001     41.27          0.69
-  100-month window (100 mo)   5                      2.224   1.127    0.042    \<0.001   44.96       0.72           
-  --------------------------- ---------------------- ------- -------- -------- --------- ----------- -------------- --------
+  --------------------------- ---------------------- ------- ------- ------- --------- --------- ---------- ------
+  Cluster                     Basis                  n       β₁      β₂      −β₃       p(β₃)     LCSC (%)   R²
+  C1 Lake Edge                full record (236 mo)   7       4.576   0.956   0.088     \<0.001   21.85      0.73
+  100-month window (100 mo)   7                      5.000   0.613   0.101   \<0.001   20.00     0.78       
+  C2 Dune                     full record (247 mo)   24      3.974   1.762   0.064     \<0.001   25.17      0.75
+  100-month window (100 mo)   24                     4.248   1.690   0.069   \<0.001   23.54     0.80       
+  C3 Western Residual         full record (248 mo)   21      3.573   1.833   0.057     \<0.001   27.98      0.81
+  100-month window (100 mo)   21                     3.509   1.770   0.054   \<0.001   28.50     0.83       
+  C4 Main Forest              full record (236 mo)   9       2.487   2.583   0.018     0.002     40.20      0.73
+  100-month window (100 mo)   9                      2.415   2.726   0.010   0.288     41.41     0.75       
+  C5 Coastal Forest           full record (238 mo)   5       2.423   1.307   0.044     \<0.001   41.27      0.69
+  100-month window (100 mo)   5                      2.224   1.127   0.042   \<0.001   44.96     0.72       
+  --------------------------- ---------------------- ------- ------- ------- --------- --------- ---------- ------
 
 Table 1.3: Cluster mechanistic characterization derived from the displacement-formulation SSM (Section 3.4). β₁ = recharge sensitivity (mm water table rise per mm rainfall); β₂ = atmospheric draw (mm water table decline per mm PET); −β₃ = proportional drainage decay rate (fraction of displacement above the 3.7 m drainage datum dissipated per month). LCSC = 100/β₁; values express the millimetres of rainfall required to raise the cluster average water table by 10 cm. R² is one-step diagnostic fit. Each cluster is shown on both fitting bases: its full record, which is the basis for every cluster coefficient used elsewhere in this report, and the 100-month comparison window used by the per-well analyses (Methods Supplement §F.6). On the full record all coefficients are significant at p \< 0.01 or better. On the comparison window C4\'s drainage term is not significant (p = 0.288) --- its standard error is unremarkable, but the coefficient is two to five times smaller than any other cluster\'s, so the shorter record cannot resolve it from zero. (Source: 03_03_cluster_mechanistic_coefficients.csv; window basis from 03_14_centroid_window_sensitivity.csv).
 

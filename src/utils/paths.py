@@ -11,7 +11,13 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-08-16. Adds
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-08-18. Adds
+#   OUT_03_CENTROID_WINDOW_SENS and OUT_03_PER_WELL_WINDOW_SENS. Script 03 wrote
+#   both by inline path, which was fine while it was the only party; Script 19
+#   now reads them for the viewer's basis toggle, and a path spelled in two
+#   places is the drift this module exists to prevent (D-034).
+#
+# v1.3.0  # Hollingham (2026) — 2026-08-16. Adds
 #   OUT_02_MONTH_STABILITY and OUT_02_MONTH_STABILITY_FIG for the month-wise
 #   partition-stability diagnostic (D-030).
 #
@@ -285,6 +291,8 @@ OUT_03_DATUM_CONFOUND      = DIR_03 / "03_11_datum_confound_diagnostics.csv"  # 
 # Datum-regime diagnostic (Script 03 v1.5.0): drainage flux β₃·(D+h̄) and
 # drainage share of losses across the swept datums, + 2-panel regime figure.
 OUT_03_PARTITION_VS_DATUM  = DIR_03 / "03_12_partition_vs_datum.csv"
+OUT_03_CENTROID_WINDOW_SENS = DIR_03 / "03_14_centroid_window_sensitivity.csv"
+OUT_03_PER_WELL_WINDOW_SENS = DIR_03 / "03_15_per_well_window_sensitivity.csv"
 OUT_03_DATUM_REGIME_FIG    = DIR_03 / "03_12_datum_regime.png"
 
 # Script 04 — Cluster visualisations

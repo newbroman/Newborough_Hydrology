@@ -53,7 +53,14 @@ References:
     Freeman, S. (2008) Hydrological impact of Corsican pine at Newborough Warren.
 """
 
-__version__ = "1.9.0"  # Hollingham (2026) — 2026-08-10
+__version__ = "1.9.1"  # Hollingham (2026) -- 2026-08-18. Store-time rounding removed (D-035): these values
+#   are written to CSV at the precision they were computed, and rounding
+#   happens where they are displayed. Three decimals is a display rule for
+#   quantities of order one; applied at storage it costs a significant
+#   figure on the small ones - beta_3 ~ 0.018, Sy ~ 0.31 - and the loss
+#   compounds through every statistic taken afterwards.
+#
+# v1.9.0  # Hollingham (2026) — 2026-08-10
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -214,9 +221,9 @@ def wtf_individual_wells(wells_df, climate, cluster_df, locations,
             "Cluster":   cluster,
             "Easting":   float(loc["E"].iloc[0]),
             "Northing":  float(loc["N"].iloc[0]),
-            "Sy_median": round(events["sy_i"].median(), 4),
-            "Sy_Q25":    round(events["sy_i"].quantile(0.25), 4),
-            "Sy_Q75":    round(events["sy_i"].quantile(0.75), 4),
+            "Sy_median": float(events["sy_i"].median()),
+            "Sy_Q25":    float(events["sy_i"].quantile(0.25)),
+            "Sy_Q75":    float(events["sy_i"].quantile(0.75)),
             "n_events":  n,
             "Corrected": corrected,
             "Confidence": "High" if n >= MIN_EVENTS else "Low",
@@ -250,10 +257,10 @@ def _forest_correlations(forest_df, label, rows):
                       ("Easting",       "Easting")):
         r, pv = scipy_stats.pearsonr(forest_df[col], forest_df["Sy_median"])
         rows.append({"block": "forest_corr", "series": label,
-                     "metric": f"r_vs_{pred}",  "value": round(float(r),  4),
+                     "metric": f"r_vs_{pred}",  "value": float(r),
                      "n": len(forest_df), "unit": "Pearson r"})
         rows.append({"block": "forest_corr", "series": label,
-                     "metric": f"p_vs_{pred}", "value": round(float(pv), 6),
+                     "metric": f"p_vs_{pred}", "value": float(pv),
                      "n": len(forest_df), "unit": "p"})
 
 
@@ -321,7 +328,7 @@ def compute_sy_spatial_trends(well_results, well_results_uncorrected, locations)
         ):
             rows.append({"block": "open_dune_plane", "series": "corrected",
                          "metric": metric,
-                         "value": round(value, 6) if unit == "p" else round(value, 4),
+                         "value": float(value),
                          "n": int(fit.nobs), "unit": unit})
         result("Open-dune Sy plane",
                f"n={int(fit.nobs)}, R2={fit.rsquared:.3f}, "
@@ -566,9 +573,9 @@ def wtf_extended_wells(climate, locations, out_root):
             'Network':    'Extended',
             'Easting':    float(loc['E'].iloc[0]),
             'Northing':   float(loc['N'].iloc[0]),
-            'Sy_median':  round(events['sy_i'].median(), 4),
-            'Sy_Q25':     round(events['sy_i'].quantile(0.25), 4),
-            'Sy_Q75':     round(events['sy_i'].quantile(0.75), 4),
+            'Sy_median':  float(events['sy_i'].median()),
+            'Sy_Q25':     float(events['sy_i'].quantile(0.25)),
+            'Sy_Q75':     float(events['sy_i'].quantile(0.75)),
             'n_events':   n,
             'Corrected':  corrected,
             'Confidence': 'High' if n >= MIN_EVENTS else 'Low',

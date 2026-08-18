@@ -61,7 +61,14 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-05-31
+__version__ = "1.4.1"  # Hollingham (2026) -- 2026-08-18. Store-time rounding removed (D-035): these values
+#   are written to CSV at the precision they were computed, and rounding
+#   happens where they are displayed. Three decimals is a display rule for
+#   quantities of order one; applied at storage it costs a significant
+#   figure on the small ones - beta_3 ~ 0.018, Sy ~ 0.31 - and the loss
+#   compounds through every statistic taken afterwards.
+#
+# v1.4.0  # Hollingham (2026) — 2026-05-31
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -296,16 +303,16 @@ for fe_name in FE_SYNTH_WELLS:
         'Cal_start': common_cal[0].strftime('%Y-%m'),
         'Cal_end': common_cal[-1].strftime('%Y-%m'),
         'N_cal': n_cal,
-        'R2_cal': round(r2, 6),
-        'RMSE_mm': round(rmse * 1000, 1),
+        'R2_cal': float(r2),
+        'RMSE_mm': float(rmse * 1000),
         'Hindcast_start': hind_dates[0].strftime('%Y-%m'),
         'Hindcast_months': len(hind_dates),
         'PreScraping_months_gained': len(pre_scr_hind),
-        'PostFell_divergence_mm': round(divergence.mean() * 1000, 1),
-        'PostFell_divergence_p': round(p_div, 6),
+        'PostFell_divergence_mm': float(divergence.mean() * 1000),
+        'PostFell_divergence_p': float(p_div),
         'PostFell_divergence_n': len(divergence),
-        'b_intercept': round(b[0], 6),
-        **{f'b_{d}': round(b[i+1], 6) for i, d in enumerate(DONOR_WELLS)},
+        'b_intercept': float(b[0]),
+        **{f'b_{d}': float(b[i+1]) for i, d in enumerate(DONOR_WELLS)},
     })
 
 # Save calibration diagnostics
@@ -507,19 +514,19 @@ for var_label, var_wells in VARIANTS.items():
         comparison_rows.append({
             'Variant': var_label,
             'Control': ctrl_label,
-            'Clearfell_step_m': round(fit['clearfell_step'], 6),
-            'Clearfell_CI_lo_m': round(fit['clearfell_ci'][0], 6),
-            'Clearfell_CI_hi_m': round(fit['clearfell_ci'][1], 6),
+            'Clearfell_step_m': float(fit['clearfell_step']),
+            'Clearfell_CI_lo_m': float(fit['clearfell_ci'][0]),
+            'Clearfell_CI_hi_m': float(fit['clearfell_ci'][1]),
             'Clearfell_p': fit['clearfell_p'],
             'Clearfell_sig': p_to_sig(fit['clearfell_p']),
-            'Scraping_step_m': round(fit['scraping_step'], 6),
+            'Scraping_step_m': float(fit['scraping_step']),
             'Scraping_p': fit['scraping_p'],
-            'R2': round(fit['r2'], 4),
+            'R2': float(fit['r2']),
             'N': fit['n'],
-            'Oct2023_step_m': round(fit['m3_scrape2_coef'], 6)
+            'Oct2023_step_m': float(fit['m3_scrape2_coef'])
                 if not np.isnan(fit['m3_scrape2_coef']) else np.nan,
             'Oct2023_p': fit['m3_scrape2_p'],
-            'dAIC_M3_M2': round(fit['daic'], 2) if not np.isnan(fit['daic']) else np.nan,
+            'dAIC_M3_M2': float(fit['daic']) if not np.isnan(fit['daic']) else np.nan,
         })
 
         # Full coefficients
@@ -528,8 +535,8 @@ for var_label, var_wells in VARIANTS.items():
                 'Variant': var_label,
                 'Control': ctrl_label,
                 'Coefficient': cname,
-                'Value': round(fit['b'][i], 6),
-                'SE': round(fit['se'][i], 6),
+                'Value': float(fit['b'][i]),
+                'SE': float(fit['se'][i]),
                 'p': fit['p'][i],
                 'Sig': p_to_sig(fit['p'][i]),
             })
@@ -569,9 +576,9 @@ for var_label in comp_df['Variant'].unique():
                                'Clearfell_step_m']
     if len(climate_step) == 1:
         bg = climate_step.iloc[0]
-        comp_df.loc[mask_var, 'Climate_background_m'] = round(bg, 6)
+        comp_df.loc[mask_var, 'Climate_background_m'] = float(bg)
         comp_df.loc[mask_var, 'Net_clearfell_m'] = (
-            comp_df.loc[mask_var, 'Clearfell_step_m'] - bg).round(6)
+            comp_df.loc[mask_var, 'Clearfell_step_m'] - bg)
     else:
         comp_df.loc[mask_var, 'Climate_background_m'] = np.nan
         comp_df.loc[mask_var, 'Net_clearfell_m'] = np.nan

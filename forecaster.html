@@ -446,7 +446,11 @@
 </div>
 
 <script>
-/* forecaster_template.html — live-feed wiring v1.3.0 (2026-08-09)
+/* forecaster_template.html — live-feed wiring v1.3.1 (2026-08-09)
+   v1.3.1: fix — v1.3.0 took pointer capture on pointerdown, which retargets
+           the compatibility click to the SVG and stopped well dots being
+           selectable by mouse. Capture is now deferred until the drag
+           threshold is crossed.
    v1.3.0: map reframe + zoom. MAP_H is derived from the bundle extent
            aspect rather than hardcoded square, so the non-square canonical
            extent renders undistorted; adds wheel/pinch zoom, drag pan,
@@ -5528,7 +5532,11 @@ function setupMapInteraction(){
     panning = true; moved = false;
     startClient = {x: e.clientX, y: e.clientY};
     startView   = {x: VIEW.x, y: VIEW.y};
-    try { svg.setPointerCapture(e.pointerId); } catch(err) { /* ignore */ }
+    // Pointer capture is deliberately NOT taken here. Capturing also
+    // retargets the compatibility mouse events, so the click that follows
+    // would fire at the SVG instead of at the well dot under the cursor and
+    // selection would break. Capture is taken in pointermove, once the drag
+    // threshold is crossed and the gesture is known not to be a click.
   });
 
   svg.addEventListener('pointermove', (e)=>{
@@ -5550,6 +5558,9 @@ function setupMapInteraction(){
       if(Math.hypot(dx, dy) < DRAG_THRESHOLD_PX) return;
       moved = true;
       svg.classList.add('panning');
+      // Now that this is a drag rather than a click, capture the pointer so
+      // the pan keeps tracking if the cursor leaves the map.
+      try { svg.setPointerCapture(e.pointerId); } catch(err) { /* ignore */ }
     }
     const {scale} = svgScale(svg);
     VIEW.x = startView.x - dx / scale;
@@ -5563,7 +5574,10 @@ function setupMapInteraction(){
     if(!panning) return;
     panning = false;
     svg.classList.remove('panning');
-    try { svg.releasePointerCapture(e.pointerId); } catch(err) { /* ignore */ }
+    // Only held if the drag threshold was crossed; harmless if it was not.
+    try {
+      if(svg.hasPointerCapture(e.pointerId)) svg.releasePointerCapture(e.pointerId);
+    } catch(err) { /* ignore */ }
     if(moved){
       // The click that follows this pointerup would otherwise select
       // whichever well happened to be under the pointer at the end of

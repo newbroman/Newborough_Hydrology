@@ -23,7 +23,15 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.11.2"   # Hollingham (2026) -- 2026-08-18. Hotfix: serialise_wells
+__version__ = "2.11.3"   # Hollingham (2026) -- 2026-08-18. The basis toggle
+#   is dated from the fits themselves: "Recent 8 years" named neither the real
+#   window (100 months of valid record, 8.3 years, and further back wherever a
+#   well has gaps) nor any date. Both labels and their tooltips are now built
+#   by basis_labels() from fit_start/fit_end in 03_15, so they cannot drift
+#   from the fits, and an output directory predating those columns still
+#   renders - undated, with a warning.
+#
+# v2.11.2  # Hollingham (2026) -- 2026-08-18. Hotfix: serialise_wells
 #   builds each well's record from an explicit key list, so the full-record
 #   coefficients merged in v2.11.0 never reached the embedded WELLS array and
 #   the per-well layer silently stayed on the recent basis whichever button was
@@ -871,6 +879,80 @@ def _r(v, d=4):
     return round(float(v), d)
 
 
+def _month_label(ym: str) -> str:
+    """'2017-10' -> 'Oct 2017'. Month and year only, per the project's date
+    convention: these are monthly buckets, not days."""
+    return pd.Period(str(ym), freq="M").strftime("%b %Y")
+
+
+def basis_labels():
+    """
+    Label the basis toggle with the dates actually fitted.
+
+    "Recent 8 years" was wrong twice over: the window is 100 months of valid
+    record, which is 8.3 years, and it reaches back further wherever a well has
+    gaps. Both labels are therefore derived from fit_start/fit_end in 03_15
+    rather than typed here, so they cannot drift from the fits they describe.
+
+    The button carries a span and the tooltip carries the spread, because the
+    two bases are ragged in different ways. Whole records start anywhere between
+    the network's first and last commissioning year, so the button quotes the
+    coverage - earliest start to latest end - and the tooltip gives the range of
+    starts. The comparison window is a fixed number of observations, so its
+    button quotes the year at which most wells' windows open, and the tooltip
+    names the earlier reach at the few wells with gaps.
+
+    Falls back to undated labels if 03_15 is absent or predates the date
+    columns, so an old output directory still produces a working viewer.
+    """
+    fallback = {
+        "basis_full_label": "Whole record",
+        "basis_full_title": "Coefficients fitted to each well's whole record",
+        "basis_win_label":  "Recent record",
+        "basis_win_title":  "Coefficients fitted to each well's most recent "
+                            "months only",
+        "basis_win_note":   "Using the recent record only.",
+    }
+    if not OUT_03_PER_WELL_WINDOW_SENS.exists():
+        return fallback
+    d = pd.read_csv(OUT_03_PER_WELL_WINDOW_SENS)
+    if not {"fit_start", "fit_end", "basis"}.issubset(d.columns):
+        warn(f"{OUT_03_PER_WELL_WINDOW_SENS.name} predates fit_start/fit_end - "
+             "the basis toggle will be undated (rerun Script 03)")
+        return fallback
+
+    out = dict(fallback)
+
+    full = d[d["basis"] == "full_record"]
+    if not full.empty:
+        s_min, s_max = full["fit_start"].min(), full["fit_start"].max()
+        e_max = full["fit_end"].max()
+        out["basis_full_label"] = (f"Whole record ({s_min[:4]}&#8211;"
+                                   f"{e_max[:4]})")
+        out["basis_full_title"] = (
+            f"Each well's whole record. Records start between "
+            f"{_month_label(s_min)} and {_month_label(s_max)}; all end "
+            f"{_month_label(e_max)}.")
+
+    win = d[d["basis"] == "comparison_window"]
+    if not win.empty:
+        s_min = win["fit_start"].min()
+        e_max = win["fit_end"].max()
+        typical = win["fit_start"].mode()
+        s_typ = typical.iloc[0] if len(typical) else s_min
+        months = int(win["n"].max())
+        out["basis_win_label"] = (f"Recent {months} months ({s_typ[:4]}&#8211;"
+                                  f"{e_max[:4]})")
+        out["basis_win_title"] = (
+            f"The most recent {months} months of valid record at each well. "
+            f"Most open {_month_label(s_typ)}; wells with gaps reach back as "
+            f"far as {_month_label(s_min)}. All end {_month_label(e_max)}.")
+        out["basis_win_note"] = (f"Using the most recent {months} months only, "
+                                 f"{_month_label(s_typ)} onward at most wells.")
+
+    return out
+
+
 def serialise_wells(wt):
     rows = []
     for _, r in wt.iterrows():
@@ -1232,8 +1314,8 @@ footer a:hover{{text-decoration:underline;}}
     <div class="phead">
       <h4>Groundwater surface &#8212; masked to site boundary</h4>
       <div class="rtabs">
-        <button class="rt on" id="bs_full" onclick="setBasis('full')" title="Coefficients fitted to each well's whole record">Whole record</button>
-        <button class="rt"    id="bs_win"  onclick="setBasis('recent')" title="Coefficients fitted to the most recent 8 years only">Recent 8 years</button>
+        <button class="rt on" id="bs_full" onclick="setBasis('full')" title="{basis_full_title}">{basis_full_label}</button>
+        <button class="rt"    id="bs_win"  onclick="setBasis('recent')" title="{basis_win_title}">{basis_win_label}</button>
       </div>
     </div>
     <div id="basisNote" style="display:none;margin:6px 0 10px;padding:8px 10px;border-left:3px solid #E65100;background:#FFF3E0;font-size:13px;line-height:1.45"></div>
@@ -1373,7 +1455,7 @@ function setBasis(b){{
     for(var c in sc){{var s=sc[c];
       if(s&&s.recent!=null&&s.full!=null&&s.recent<s.full)
         bits.push(CL_LABS[c]+': '+s.recent+' of '+s.n+' wells, against '+s.full+' on the whole record');}}
-    d.innerHTML='<b>Using the recent 8 years only.</b> Shorter records make the drainage '
+    d.innerHTML='<b>{basis_win_note}</b> Shorter records make the drainage '
       +'term harder to measure, and where it cannot be measured reliably the scenario '
       +'response below is less certain than it looks.'
       +(bits.length?' Wells with a drainage rate clearly different from zero &#8212; '
@@ -2192,6 +2274,7 @@ def main(out_path=None):
         viewer_nmin=VIEWER_NMIN,
         viewer_nmax=VIEWER_NMAX,
         viewer_version=__version__,
+        **basis_labels(),
     )
 
     out_path.write_text(html, encoding="utf-8")

@@ -1,9 +1,9 @@
 Scenario,Delta_vol_summer_mm_per_month
-Scraping (observed),45.2
-Scraping (off-site 100 m),-30.5
-Clearfell (hypothetical),14.1
-Thinning 50% (hypothetical),7.0
-Broadleaf (hypothetical),3.3
-Climate dry,-14.3
-Climate wet,7.8
-Scraping (off-site 250 m),-15.8
+Scraping (observed),46.4
+Scraping (off-site 100 m),-31.2
+Clearfell (hypothetical),14.8
+Thinning 50% (hypothetical),7.4
+Broadleaf (hypothetical),3.6
+Climate dry,-14.4
+Climate wet,7.9
+Scraping (off-site 250 m),-16.1

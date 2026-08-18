@@ -1,13 +1,13 @@
 block,metric,value,n,unit
-corr_datum_meandepth,r,0.59272,66,Pearson r
+corr_datum_meandepth,r,0.587871,66,Pearson r
 corr_datum_meandepth,p,0.0,66,p
-datum_vs_easting,slope_m_per_km,-0.993399,66,m/km
-datum_vs_easting,p,9e-06,66,p
-datum_vs_easting,r2,0.266722,66,-
-datum_vs_easting_ctrl,slope_m_per_km,-0.45145,66,m/km
-datum_vs_easting_ctrl,p,0.071409,66,p
-datum_vs_easting_ctrl,p_mean_wt_depth,0.000955,66,p
-datum_vs_easting_ctrl,r2,0.384188,66,-
+datum_vs_easting,slope_m_per_km,-0.898456,66,m/km
+datum_vs_easting,p,1.2e-05,66,p
+datum_vs_easting,r2,0.259724,66,-
+datum_vs_easting_ctrl,slope_m_per_km,-0.402716,66,m/km
+datum_vs_easting_ctrl,p,0.080876,66,p
+datum_vs_easting_ctrl,p_mean_wt_depth,0.00104,66,p
+datum_vs_easting_ctrl,r2,0.376731,66,-
 below_mean_wt,n_below,65.0,66,wells
 below_mean_wt,n_total,66.0,66,wells
-below_mean_wt,exception_ceh13_pvalue_beta_3_at_max,0.736171,66,p
+below_mean_wt,exception_ceh13_pvalue_beta_3_at_max,0.638441,66,p

@@ -1,9 +1,9 @@
 Parameter,Well,Era,Value,Unit,Note
 CEH34_hindcast_donor,,,CEH9,,Donor well identity for CEH34 hindcast
-CEH34_hindcast_alpha,,,-0.1485,m,OLS intercept (SE 0.0346)
-CEH34_hindcast_beta,,,1.0515,,OLS slope (SE 0.0371)
-CEH34_hindcast_r2,,,0.9115,,OLS r² on 80-month pre-clearfell calibration
-CEH34_hindcast_rmse_m,,,0.1246,m,Residual standard error
-CEH34_hindcast_pred_interval_95_m,,,0.2442,m,±1.96·RMSE 95% prediction band
-CEH34_hindcast_n_calibration,,,80,months,Calibration sample size
-CEH34_hindcast_n_synthetic,,,51,months,Synthetic-extension record length
+CEH34_hindcast_alpha,,,-0.14850981989785053,m,OLS intercept (SE 0.0346)
+CEH34_hindcast_beta,,,1.0514688229516276,,OLS slope (SE 0.0371)
+CEH34_hindcast_r2,,,0.9114564905666642,,OLS r² on 80-month pre-clearfell calibration
+CEH34_hindcast_rmse_m,,,0.12458413219170426,m,Residual standard error
+CEH34_hindcast_pred_interval_95_m,,,0.24418489909574034,m,±1.96·RMSE 95% prediction band
+CEH34_hindcast_n_calibration,,,80.0,months,Calibration sample size
+CEH34_hindcast_n_synthetic,,,51.0,months,Synthetic-extension record length

@@ -7,10 +7,10 @@
 
 | Parameter | Value |
 |---|---|
-| δ₀ (coast-edge slope) | **-29.26 mm/yr** |
-| L (decay length)      | **894 m** |
-| Sensitivity δ₀ (full fit) | -29.58 mm/yr |
-| Sensitivity L (full fit)  | 971 m |
+| δ₀ (coast-edge slope) | **-29.22 mm/yr** |
+| L (decay length)      | **901 m** |
+| Sensitivity δ₀ (full fit) | -29.71 mm/yr |
+| Sensitivity L (full fit)  | 972 m |
 
 ## Headline result — C3 hydrographs after forest-free monthly-uniform de-trending
 

@@ -16,42 +16,42 @@ Baseline (Corsican pine),scenario,9,Sep,1.463
 Baseline (Corsican pine),scenario,10,Oct,1.4716
 Baseline (Corsican pine),scenario,11,Nov,1.2475
 Baseline (Corsican pine),scenario,12,Dec,1.0005
-Full clearfell,scenario,1,Jan,0.8602
-Full clearfell,scenario,2,Feb,0.7984
-Full clearfell,scenario,3,Mar,0.7963
-Full clearfell,scenario,4,Apr,0.86
-Full clearfell,scenario,5,May,0.9234
-Full clearfell,scenario,6,Jun,1.0872
-Full clearfell,scenario,7,Jul,1.2164
-Full clearfell,scenario,8,Aug,1.3181
-Full clearfell,scenario,9,Sep,1.4168
-Full clearfell,scenario,10,Oct,1.4084
+Full clearfell,scenario,1,Jan,0.8594
+Full clearfell,scenario,2,Feb,0.7982
+Full clearfell,scenario,3,Mar,0.7961
+Full clearfell,scenario,4,Apr,0.8596
+Full clearfell,scenario,5,May,0.9227
+Full clearfell,scenario,6,Jun,1.0862
+Full clearfell,scenario,7,Jul,1.2154
+Full clearfell,scenario,8,Aug,1.3172
+Full clearfell,scenario,9,Sep,1.4162
+Full clearfell,scenario,10,Oct,1.4082
 Full clearfell,scenario,11,Nov,1.1885
-Full clearfell,scenario,12,Dec,0.9382
-50% thinning,scenario,1,Jan,0.8836
-50% thinning,scenario,2,Feb,0.816
+Full clearfell,scenario,12,Dec,0.9383
+50% thinning,scenario,1,Jan,0.8832
+50% thinning,scenario,2,Feb,0.8159
 50% thinning,scenario,3,Mar,0.8134
-50% thinning,scenario,4,Apr,0.873
-50% thinning,scenario,5,May,0.9365
-50% thinning,scenario,6,Jun,1.1002
-50% thinning,scenario,7,Jul,1.2321
-50% thinning,scenario,8,Aug,1.3359
-50% thinning,scenario,9,Sep,1.4399
-50% thinning,scenario,10,Oct,1.44
+50% thinning,scenario,4,Apr,0.8728
+50% thinning,scenario,5,May,0.9362
+50% thinning,scenario,6,Jun,1.0997
+50% thinning,scenario,7,Jul,1.2315
+50% thinning,scenario,8,Aug,1.3355
+50% thinning,scenario,9,Sep,1.4396
+50% thinning,scenario,10,Oct,1.4399
 50% thinning,scenario,11,Nov,1.218
 50% thinning,scenario,12,Dec,0.9694
-Broadleaf conversion,scenario,1,Jan,0.8816
-Broadleaf conversion,scenario,2,Feb,0.8113
-Broadleaf conversion,scenario,3,Mar,0.8076
+Broadleaf conversion,scenario,1,Jan,0.8822
+Broadleaf conversion,scenario,2,Feb,0.8123
+Broadleaf conversion,scenario,3,Mar,0.8077
 Broadleaf conversion,scenario,4,Apr,0.8655
-Broadleaf conversion,scenario,5,May,0.9343
+Broadleaf conversion,scenario,5,May,0.9344
 Broadleaf conversion,scenario,6,Jun,1.1209
 Broadleaf conversion,scenario,7,Jul,1.2665
-Broadleaf conversion,scenario,8,Aug,1.3747
+Broadleaf conversion,scenario,8,Aug,1.3746
 Broadleaf conversion,scenario,9,Sep,1.4622
-Broadleaf conversion,scenario,10,Oct,1.4493
-Broadleaf conversion,scenario,11,Nov,1.2192
-Broadleaf conversion,scenario,12,Dec,0.9703
+Broadleaf conversion,scenario,10,Oct,1.4494
+Broadleaf conversion,scenario,11,Nov,1.2193
+Broadleaf conversion,scenario,12,Dec,0.9705
 Observed C4 baseline,observed,1,Jan,0.9069
 Observed C4 baseline,observed,2,Feb,0.8336
 Observed C4 baseline,observed,3,Mar,0.8306
@@ -64,27 +64,27 @@ Observed C4 baseline,observed,9,Sep,1.463
 Observed C4 baseline,observed,10,Oct,1.4716
 Observed C4 baseline,observed,11,Nov,1.2475
 Observed C4 baseline,observed,12,Dec,1.0005
-BACI annual benchmark,benchmark,1,Jan,1.0222
-BACI annual benchmark,benchmark,2,Feb,0.9489
-BACI annual benchmark,benchmark,3,Mar,0.9459
-BACI annual benchmark,benchmark,4,Apr,1.0013
-BACI annual benchmark,benchmark,5,May,1.0649
-BACI annual benchmark,benchmark,6,Jun,1.2285
-BACI annual benchmark,benchmark,7,Jul,1.363
-BACI annual benchmark,benchmark,8,Aug,1.469
-BACI annual benchmark,benchmark,9,Sep,1.5783
-BACI annual benchmark,benchmark,10,Oct,1.5869
-BACI annual benchmark,benchmark,11,Nov,1.3628
-BACI annual benchmark,benchmark,12,Dec,1.1158
+BACI annual benchmark,benchmark,1,Jan,1.0197
+BACI annual benchmark,benchmark,2,Feb,0.9463
+BACI annual benchmark,benchmark,3,Mar,0.9434
+BACI annual benchmark,benchmark,4,Apr,0.9988
+BACI annual benchmark,benchmark,5,May,1.0624
+BACI annual benchmark,benchmark,6,Jun,1.226
+BACI annual benchmark,benchmark,7,Jul,1.3605
+BACI annual benchmark,benchmark,8,Aug,1.4665
+BACI annual benchmark,benchmark,9,Sep,1.5757
+BACI annual benchmark,benchmark,10,Oct,1.5844
+BACI annual benchmark,benchmark,11,Nov,1.3603
+BACI annual benchmark,benchmark,12,Dec,1.1133
 BACI summer benchmark,benchmark,1,Jan,0.9069
 BACI summer benchmark,benchmark,2,Feb,0.8336
 BACI summer benchmark,benchmark,3,Mar,0.8306
 BACI summer benchmark,benchmark,4,Apr,0.886
 BACI summer benchmark,benchmark,5,May,0.9496
-BACI summer benchmark,benchmark,6,Jun,1.1592
-BACI summer benchmark,benchmark,7,Jul,1.2937
-BACI summer benchmark,benchmark,8,Aug,1.3997
-BACI summer benchmark,benchmark,9,Sep,1.509
+BACI summer benchmark,benchmark,6,Jun,1.163
+BACI summer benchmark,benchmark,7,Jul,1.2975
+BACI summer benchmark,benchmark,8,Aug,1.4034
+BACI summer benchmark,benchmark,9,Sep,1.5127
 BACI summer benchmark,benchmark,10,Oct,1.4716
 BACI summer benchmark,benchmark,11,Nov,1.2475
 BACI summer benchmark,benchmark,12,Dec,1.0005
@@ -116,11 +116,11 @@ C2 Eastern mature dune (observed),observed,12,Dec,0.0439
 # BLOCK 2 — trough / separation summary. Sep_vs_baseline_at_baseline_trough_m anchors all series at the baseline trough month; Max_summer_separation_m is the largest Jun-Sep departure from baseline.
 Series,Series_type,Trough_month,Trough_month_num,Trough_depth_m,Sep_vs_baseline_at_baseline_trough_m,Max_summer_separation_m,Max_summer_separation_month
 Baseline (Corsican pine),scenario,Oct,10,1.4716,0.0,0.0,Jun
-Full clearfell,scenario,Sep,9,1.4168,0.0632,0.0462,Sep
-50% thinning,scenario,Oct,10,1.44,0.0316,0.0231,Sep
-Broadleaf conversion,scenario,Sep,9,1.4622,0.0223,-0.021,Aug
+Full clearfell,scenario,Sep,9,1.4162,0.0634,0.0467,Sep
+50% thinning,scenario,Oct,10,1.4399,0.0317,0.0234,Sep
+Broadleaf conversion,scenario,Sep,9,1.4622,0.0222,-0.021,Aug
 Observed C4 baseline,observed,Oct,10,1.4716,0.0,0.0,Jun
-BACI annual benchmark,benchmark,Oct,10,1.5869,-0.1153,-0.1153,Jun
-BACI summer benchmark,benchmark,Sep,9,1.509,0.0,-0.046,Jun
+BACI annual benchmark,benchmark,Oct,10,1.5844,-0.1128,-0.1128,Jun
+BACI summer benchmark,benchmark,Sep,9,1.5127,0.0,-0.0498,Jun
 C1 Eastern lake-buffer (observed),observed,Jul,7,1.1004,0.7476,0.4538,Sep
 C2 Eastern mature dune (observed),observed,Sep,9,0.7776,1.0318,0.6854,Sep

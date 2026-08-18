@@ -2,12 +2,12 @@ Scenario,Cluster,Delta_vol_summer_mm_per_month
 Clearfell,C1,0.0
 Clearfell,C2,0.0
 Clearfell,C3,0.0
-Clearfell,C4,8.5
-Clearfell,C5,10.8
+Clearfell,C4,8.6
+Clearfell,C5,10.9
 Thinning 50%,C1,0.0
 Thinning 50%,C2,0.0
 Thinning 50%,C3,0.0
-Thinning 50%,C4,4.2
+Thinning 50%,C4,4.3
 Thinning 50%,C5,5.4
 Broadleaf,C1,0.0
 Broadleaf,C2,0.0

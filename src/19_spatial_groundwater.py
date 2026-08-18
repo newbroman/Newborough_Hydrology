@@ -23,7 +23,18 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.13.0"   # Hollingham (2026) -- 2026-08-18. Two additions.
+__version__ = "2.13.3"   # Hollingham (2026) -- 2026-08-18. CL_COLS now built from
+#   config.CLUSTER_COLOURS as well, so one palette is defined in one place and a
+#   cluster is the same colour in the viewer as in the report. Only the
+#   absolute-head bar chart uses it, so nothing else changes. Earlier:
+#   CL_LABS built from
+#   config.CLUSTER_LABELS - the viewer carried its own cluster names ('C1
+#   Eastern lake-buffer', 'C4 Forest') which had drifted from the canonical set
+#   every document uses. The broadleaf sidebar note also read 0.87x/1.09x, the
+#   pre-v2.7.0 window values, against live constants of 0.88x/1.08x; it now
+#   interpolates them. Earlier: UKCP18 multipliers
+#   now imported from utils.config (Script 26b held the same four numbers).
+#   Earlier in v2.13.0, two additions.
 #   The Basemap slider now runs to 2.0: opacity alone tops out at 1, where the
 #   relief is already fully opaque, so beyond that the slider adds a multiply
 #   pass, darkening shaded faces without flattening lit ones. Roughly twice the
@@ -214,6 +225,9 @@ from utils.paths import (
     OUT_26B_PROJECTION_TABLE_PERWELL,    # v2.8.0 cross-check target
 )
 from utils.config import (
+    CLUSTER_LABELS,
+    CLUSTER_COLOURS,
+    UKCP18_SCENARIOS,
     FOREST_INTERCEPTION,
     BROADLEAF_INTERCEPTION,
     BROADLEAF_B2_WINTER,
@@ -360,10 +374,10 @@ def _init_scenario_params():
         "baseline":       {"sP_w": 1.00, "sP_s": 1.00, "sPET_w": 1.00, "sPET_s": 1.00,
                            "sI_c4": FOREST_INTERCEPTION, "sI_c5": FOREST_INTERCEPTION,
                            "sB2_w": 1.00, "sB2_s": 1.00},
-        "ukcp18_2050s":   {"sP_w": 1.10, "sP_s": 0.85, "sPET_w": 1.05, "sPET_s": 1.20,
+        "ukcp18_2050s":   {**UKCP18_SCENARIOS["2050s"],
                            "sI_c4": FOREST_INTERCEPTION, "sI_c5": FOREST_INTERCEPTION,
                            "sB2_w": 1.00, "sB2_s": 1.00},
-        "ukcp18_2080s":   {"sP_w": 1.20, "sP_s": 0.70, "sPET_w": 1.10, "sPET_s": 1.35,
+        "ukcp18_2080s":   {**UKCP18_SCENARIOS["2080s"],
                            "sI_c4": FOREST_INTERCEPTION, "sI_c5": FOREST_INTERCEPTION,
                            "sB2_w": 1.00, "sB2_s": 1.00},
         "clearfell":   {"sP_w": 1.00, "sP_s": 1.00, "sPET_w": 1.00, "sPET_s": 1.00,
@@ -1310,7 +1324,7 @@ footer a:hover{{text-decoration:underline;}}
     <input type="range" min="0.5" max="2" step="0.01" value="1" id="sB2_s" oninput="onSl()">
     <span class="sv" id="vB2_s">1.00&#215;</span></div>
   <div style="font-size:10px;color:var(--text-light);line-height:1.4;margin-top:3px;">
-    Atmospheric draw scaling for forest clusters. Applied identically to C4 and C5. Seasonal split captures deciduous phenology under broadleaf conversion (winter&nbsp;0.87&#215;, summer&nbsp;1.09&#215;).</div>
+    Atmospheric draw scaling for forest clusters. Applied identically to C4 and C5. Seasonal split captures deciduous phenology under broadleaf conversion (winter&nbsp;{broadleaf_b2_winter:.3f}&#215;, summer&nbsp;{broadleaf_b2_summer:.3f}&#215;).</div>
   <div class="hr"></div>
 
   <div class="ch">Specific yield (storage)</div>
@@ -1459,9 +1473,14 @@ var RIDGE_THRESH={ridge_threshold};
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-var CL_LABS={{1:'C1 Eastern lake-buffer',2:'C2 Eastern mature dune',
-              3:'C3 Western mature dune',4:'C4 Forest',5:'C5 Coastal'}};
-var CL_COLS={{1:'#1565C0',2:'#00897B',3:'#E64A19',4:'#558B2F',5:'#6A1B9A'}};
+// Labels come from config.CLUSTER_LABELS, never restated here: the viewer
+// carried its own set until 2026-08-18 and had drifted from the canonical
+// names every document uses.
+var CL_LABS={cluster_labels_json};
+// Colours from config.CLUSTER_COLOURS, keyed to the same clusters as CL_LABS.
+// The viewer carried its own five-colour palette until 2026-08-18, so a cluster
+// was one colour in the report and another here.
+var CL_COLS={cluster_colours_json};
 var EMIN={viewer_emin},EMAX={viewer_emax},NMIN={viewer_nmin},NMAX={viewer_nmax};
 var BG_ALPHA={hillshade_alpha};
 function setBg(v){{BG_ALPHA=parseFloat(v);
@@ -2363,6 +2382,12 @@ def main(out_path=None):
         viewer_nmax=VIEWER_NMAX,
         viewer_version=__version__,
         hillshade_alpha=VIEWER_HILLSHADE_ALPHA,
+        cluster_labels_json=json.dumps(
+            {str(k): v for k, v in CLUSTER_LABELS.items()},
+            separators=(",", ":")),
+        cluster_colours_json=json.dumps(
+            {str(k): CLUSTER_COLOURS[k] for k in CLUSTER_LABELS},
+            separators=(",", ":")),
         **basis_labels(),
     )
 

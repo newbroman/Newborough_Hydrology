@@ -26,7 +26,12 @@ PIPELINE_VERSION = "2.3.0"
 #   module-local declarations (model_utils, Scripts 03 and 08). Value unchanged
 #   at 100; see D-016.
 # v1.3.0 (2026-08-16): month-wise cluster-stability parameters added (D-030).
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-08-16
+__version__ = "1.4.1"  # Hollingham (2026) — 2026-08-18. SSM_BOOT_SEED added;
+#   earlier UKCP18_SCENARIOS added:
+#   Scripts 19 and 26b each carried their own copy of the same four seasonal
+#   multipliers per epoch.
+#
+# v1.3.0  # Hollingham (2026) — 2026-08-16
 
 # ── Journal B&W mode ─────────────────────────────────────────────────────────
 # Toggle to produce journal-ready greyscale figures.
@@ -133,6 +138,26 @@ HEADLINE_LAG = 0
 # forested clusters (C4 and C5). The interception is a partition of the
 # PET energy budget: ET_at_WT = PET − I, so I is NOT additive to PET.
 # See INTERCEPTION_TREATMENT.md for the full derivation.
+# ── UKCP18 seasonal climate-change multipliers ───────────────────────────────
+# Applied to the OBSERVED P and PET series; neither is recomputed from projected
+# temperature. Scripts 19 (scenario viewer) and 26b (MSL5 projections) each held
+# their own copy of these four numbers per epoch until 2026-08-18, which is the
+# mirrored-local pattern this file exists to prevent.
+#
+# Note on basis: the PET multipliers derive from UKCP18 projections computed on a
+# physically-based (Penman-Monteith family) footing, while the baseline they
+# scale is Thornthwaite. The two do not respond proportionally to warming -
+# Thornthwaite carries its heat index in the denominator and damps its own
+# response, measured at an elasticity of 0.42 over the RAF Valley record
+# (00_05_pet_warming_response.csv). Applying a physically-based fractional change
+# to a Thornthwaite baseline is therefore an assumption, and a conservative one:
+# the scenario is more aggressive than Thornthwaite would generate from the same
+# warming.
+UKCP18_SCENARIOS = {
+    "2050s": {"sP_w": 1.10, "sP_s": 0.85, "sPET_w": 1.05, "sPET_s": 1.20},
+    "2080s": {"sP_w": 1.20, "sP_s": 0.70, "sPET_w": 1.10, "sPET_s": 1.35},
+}
+
 FOREST_INTERCEPTION = 0.24
 
 # Cluster IDs carrying forest canopy (Corsican pine). These receive the
@@ -754,7 +779,7 @@ LAKE_GAUGE_REASON = "lake gauge — non-network measuring point"
 # lowercase to match the normalised well column. Added 2026-06-25.
 MSL5_EXCLUDED_WELLS = {
     "ceh13": "near-zero SSM beta_3 - MSL5 unreliable over the 5yr window",
-    "ceh14": "negative SSM beta_3 (SSM failure, NSE -3.21) - MSL5 unreliable over the 5yr window",
+    "ceh14": "negative SSM beta_3 (SSM failure) - MSL5 unreliable over the 5yr window",
 }
 
 
@@ -778,6 +803,12 @@ DIFF_BOOT_SEED = 20260626
 # mirrored). Values are unchanged from their original per-script definitions —
 # relocation only, so no committed output moves.
 CLUSTER_BOOT_SEED       = 20260424   # Script 02 cluster bootstrap (was module-local)
+SSM_BOOT_SEED           = 20260424   # Script 03 centroid-fit bootstrap. Same VALUE as
+                                     # CLUSTER_BOOT_SEED and deliberately a separate
+                                     # constant: they seed different resamplings, and
+                                     # importing one for the other would couple two
+                                     # analyses that have no reason to move together.
+                                     # Was module-local in Script 03 until 2026-08-18.
 
 # Month-wise partition stability (Script 02, D-030). The long-standing cluster
 # bootstrap resamples WELLS and answers "does the partition depend on which

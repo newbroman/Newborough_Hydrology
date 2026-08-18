@@ -5,7 +5,7 @@ wells with a coefficient: 77  (tiers: A=75, B=2, C=0)
 short-record wells (no fitted β₂, the extrapolation set): ['ceh15', 'ceh22', 'ceh3', 'ceh37', 'ceh7', 'ceh8', 'fe1', 'fe2', 'fe3', 'nw8', 'nw8b']
 
 VALIDATION — co-temporal reproduces matched-window amplification: n=68, r=0.978, mean bias=+0.073, max|dev|=0.343
-CALIBRATION — coefficient vs SSM β₂: r=+0.72 (p=0.000, n=64)
+CALIBRATION — coefficient vs SSM β₂: r=+0.74 (p=0.000, n=64)
 CALIBRATION — coefficient vs SSM β₃: r=-0.49 (p=0.000, n=64)
 
 NOTE: co-temporal normalisation removes coverage artefacts present in the Script 33

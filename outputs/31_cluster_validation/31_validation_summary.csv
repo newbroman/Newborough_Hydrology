@@ -14,8 +14,8 @@ tier,test,descriptor,statistic_name,statistic,p_value,independence
 2 metric-indep,ANOVA,seasonal amplitude,eta2,0.35,0.0,metric-independent
 2 metric-indep,ANOVA,summer minimum,eta2,0.482,0.0,metric-independent
 2 metric-indep,ANOVA,dry depth,eta2,0.356,0.0433,metric-independent
-3 convergent,ANOVA,SSM beta1,eta2,0.658,0.0,convergent
-3 convergent,ANOVA,SSM beta2,eta2,0.639,0.0,convergent
+3 convergent,ANOVA,SSM beta1,eta2,0.657,0.0,convergent
+3 convergent,ANOVA,SSM beta2,eta2,0.638,0.0,convergent
 3 convergent,ANOVA,SSM beta3,eta2,0.67,0.0,convergent
-3 convergent,ANOVA,WTF Sy,eta2,0.577,0.0,convergent
-3 convergent,ANOVA,LCSC,eta2,0.716,0.0,convergent
+3 convergent,ANOVA,WTF Sy,eta2,0.583,0.0,convergent
+3 convergent,ANOVA,LCSC,eta2,0.718,0.0,convergent

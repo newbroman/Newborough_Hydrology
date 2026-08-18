@@ -58,6 +58,7 @@ SKIP_KWARGS = {
     "hspace", "left", "right", "top", "bottom", "width", "height", "x", "y",
     "vmin", "vmax", "ncol", "nrows", "ncols", "seed", "random_state", "n_init",
     "framealpha", "title_fontsize", "aspect", "shrink", "fraction", "extend",
+    "expand", "force_text", "force_points", "pad_inches", "borderpad",
 }
 # Files that are allowed to hold constants by definition.
 SKIP_FILES = {"config.py", "paths.py", "pipeline_params.py"}
@@ -72,6 +73,14 @@ PLOT_CALLS = {
     "set_clim", "margins", "set_xbound", "set_ybound",
 }
 GEOMETRY_PREFIXES = ("SITE_MAP_", "MAP_", "FIG_", "GRID_", "CANON_")
+
+# A literal only FAILs if it is long enough that matching a config constant is
+# unlikely to be chance. Three significant figures collide constantly - a plot
+# padding of 1.05 is not a re-typed UKCP18 multiplier, and before this rule the
+# check failed on a dozen such coincidences and was therefore ignored. Six or
+# eight figures do not collide: 240100 and 20260424 are the constant. Shorter
+# matches still print, as warnings, so a real one is visible if you look.
+FAIL_MIN_SIG = 4
 
 
 def is_year(v: float) -> bool:
@@ -190,7 +199,40 @@ def committed_values() -> dict[float, list[str]]:
     return out
 
 
+ALLOW_PATH = Path(__file__).with_name("pipeline_lint_literals_allow.csv")
+
+
+def load_allowlist() -> dict:
+    """
+    Deliberate re-typings, keyed (script, literal, config constant) so that a
+    line edit cannot silently drop an exemption.
+
+    Two kinds live here. Some are settled decisions: the map extents in Scripts
+    07, 11b and 20 are pinned inline by D-013 and must NOT be repointed at
+    config. Others are collisions - a plot axis limit that happens to equal a
+    UKCP18 multiplier is not a re-typed constant. Before this file the check
+    failed on every run, and a check that always fails is a check nobody reads.
+    """
+    if not ALLOW_PATH.exists():
+        return {}
+    out = {}
+    with open(ALLOW_PATH, encoding="utf-8") as fh:
+        for row in csv.DictReader(fh):
+            script = (row.get("script") or "").strip()
+            if not script or script.startswith("#"):
+                continue
+            lit = (row.get("literal") or "").strip()
+            try:                      # normalise so 20260424 and 2.02604e+07 agree
+                lit = f"{float(lit):g}"
+            except ValueError:
+                pass
+            out[(script, lit, (row.get("constant") or "").strip())] = (
+                (row.get("reason") or "").strip())
+    return out
+
+
 def check_literals(min_sig: int) -> int:
+    allowed = load_allowlist()
     print(f"\n{B}literals{N} — does a script hard-code a config constant or a "
           f"published value?")
     cfg, pub = config_constants(), committed_values()
@@ -232,11 +274,18 @@ def check_literals(min_sig: int) -> int:
                 # Coincidence classes, reported but not failed:
                 #   a non-geometry constant inside a plotting call (axis limits)
                 #   a year matching a year-valued constant (2011 is just 2011)
-                soft = (in_plot and not geometry) or is_year(f)
-                if soft:
+                soft = ((in_plot and not geometry) or is_year(f)
+                        or sig_digits(f) < FAIL_MIN_SIG)
+                key = (path.name, f"{f:g}", cname)
+                if key in allowed:
+                    print(f"  {G}ok{N}    {path.name}:{node.lineno}  {f:g} "
+                          f"vs config.{cname} — allowed: {allowed[key]}")
+                elif soft:
+                    why = ("plot geometry" if in_plot else
+                           "a year" if is_year(f) else
+                           f"only {sig_digits(f)} significant figures")
                     print(f"  {Y}warn{N}  {path.name}:{node.lineno}  {f:g} "
-                          f"equals config.{cname} — likely coincidence "
-                          f"({'plot geometry' if in_plot else 'a year'})")
+                          f"equals config.{cname} — likely coincidence ({why})")
                 else:
                     print(f"  {R}FAIL{N}  {path.name}:{node.lineno}  {f:g} "
                           f"== config.{cname}  — import it, do not retype it")

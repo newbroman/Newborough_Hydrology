@@ -79,7 +79,12 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.9.2"  # Hollingham (2026) — 2026-08-18. 03_14 and 03_15
+__version__ = "1.9.4"  # Hollingham (2026) — 2026-08-18. Per-well beta_3 <= 0 is
+#   now reported by name. assert_physical_signs() carries the soft warning but
+#   runs only on the centroid fits, so CEH14's negative drainage coefficient
+#   passed through silently - and it is the direct cause of the SSM scoring
+#   worse than the linear model at that well. Earlier: BOOTSTRAP_SEED now
+#   imported as config.SSM_BOOT_SEED (same value, own name). Earlier: 03_14 and 03_15
 #   gain fit_start and fit_end, the first and last month entering each fit,
 #   read off the residual index. The scenario viewer labels its basis toggle
 #   with real dates rather than "recent 8 years", and the record-basis table
@@ -171,6 +176,7 @@ from utils.paths import (
     DATA_DIR,
 )
 from utils.config import (
+    SSM_BOOT_SEED,
     CLUSTER_LABELS, CLUSTER_COLOURS, CLUSTER_COLOURS_BW, DRAINAGE_DATUM,
     HEADLINE_LAG, BW_MODE, BW_LINESTYLES, CENTROID_COMPOSITION_REF_DATE,
     LCSC_DATA_LIMIT, SSM_MIN_OBS,
@@ -206,7 +212,10 @@ MIN_OBS_PER_WELL = SSM_MIN_OBS
 
 # Bootstrap configuration — well-level resampling within each cluster.
 N_BOOTSTRAP = 1000
-BOOTSTRAP_SEED = 20260424
+# Imported rather than typed: it equals CLUSTER_BOOT_SEED in value, which made
+# it look like a re-typed constant to pipeline_lint. It is a different
+# resampling, so it gets its own name in config rather than borrowing that one.
+BOOTSTRAP_SEED = SSM_BOOT_SEED
 
 # Lag diagnostic — fit the centroid SSM with rainfall at P(t-k) for k in LAGS.
 LAGS = (0, 1, 2, 3)
@@ -2147,6 +2156,26 @@ def main() -> None:
               f"beta_1<0 in {n_bad_b1} wells, beta_2<0 in {n_bad_b2} wells. "
               "Not halting — per-well violations are informational. "
               "Centroid-fit violations halt the pipeline.")
+
+    # β₃ ≤ 0 is checked here because it was not checked anywhere in the per-well
+    # layer until 2026-08-18. assert_physical_signs() carries the soft warning
+    # but is only called on the centroid fits, so a well with negative drainage
+    # passed through silently — and a negative β₃ is not merely odd. Script 08's
+    # iterative simulation propagates β₃·(−h_disp_prev) forward without
+    # observational correction, so a negative coefficient makes the recursion
+    # divergent rather than decaying: the run-away is arithmetic, not physical.
+    # CEH14 (β₃ = -0.021, p = 0.14) is the sole well where the SSM scores worse
+    # than the linear model in the benchmark, at NSE -6.4 against the TLM's
+    # +0.40, and it is the sole well in the network with a negative β₃.
+    bad_b3 = master_df[master_df["beta_3_drainage"] <= 0]
+    if len(bad_b3):
+        names = ", ".join(f"{r.Name_Original} ({r.beta_3_drainage:+.4f}, "
+                          f"p={r.pvalue_beta_3:.3f})"
+                          for r in bad_b3.itertuples())
+        warn(f"  beta_3 <= 0 at {len(bad_b3)} well(s): {names}")
+        warn("  a non-positive drainage coefficient makes the iterative "
+             "simulation in Script 08 divergent; expect a large negative NSE "
+             "at these wells and do not read it as a physical result")
 
     print("\n   PER-WELL AVERAGE STATISTICS BY CLUSTER (window = "
           f"{LCSC_DATA_LIMIT} months)")

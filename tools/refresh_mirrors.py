@@ -42,7 +42,20 @@ SOURCES = [
     ("docs/report/Supplementary_Material_v*.odt", "docs/report/text", True),
     ("docs/papers/paper_1/Paper1_v*.odt", "docs/papers/paper_1/text", True),
     ("docs/papers/paper_1/PAPER1_SI_methods_v*.odt", "docs/papers/paper_1/text", True),
-    ("docs/papers/paper_2/Paper2_v*.odt", "docs/papers/paper_2/text", True),
+    # Paper 2's files are named Hollingham_2026_Paper2_amended[_v2].odt, so the
+    # old "Paper2_v*.odt" pattern never matched anything and the paper was
+    # silently outside the corpus - present in this list, absent from the net.
+    ("docs/papers/paper_2/Hollingham_2026_Paper2_amended*.odt",
+     "docs/papers/paper_2/text", True),
+    # Reader-facing documents. They quote the same pipeline numbers as the
+    # report, and until 2026-08-18 nothing would have told us when one drifted.
+    ("docs/academic_summaries/academic_Summary_v*.odt",
+     "docs/academic_summaries/text", True),
+    ("docs/academic_summaries/crynodeb_academaidd_v*.odt",
+     "docs/academic_summaries/text", True),
+    ("docs/public_summaries/public_summary_*.odt",
+     "docs/public_summaries/text", False),
+    ("docs/web_tools/NRG_Web_Tools_*.odt", "docs/web_tools/text", False),
 ]
 
 _VER = re.compile(r"_v(\d+(?:[_.]\d+)*)\.odt$")

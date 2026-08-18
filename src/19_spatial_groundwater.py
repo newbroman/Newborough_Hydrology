@@ -23,7 +23,16 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.11.3"   # Hollingham (2026) -- 2026-08-18. The basis toggle
+__version__ = "2.12.0"   # Hollingham (2026) -- 2026-08-18. Basemap opacity is
+#   now a control rather than a constant. The hillshade PNG was emitted with
+#   alpha baked in at 90/255 to match the static figures, which on screen read
+#   as washed out under the colour surface and could not be strengthened from
+#   the page. The PNG is now opaque, the viewer blends it at draw time, and a
+#   Basemap slider in the map header moves it from 0 to 100 per cent, starting
+#   at VIEWER_HILLSHADE_ALPHA. Quantisation raised from 32 to 64 grey levels,
+#   since banding invisible at 35 per cent can show at full strength.
+#
+# v2.11.3  # Hollingham (2026) -- 2026-08-18. The basis toggle
 #   is dated from the fits themselves: "Recent 8 years" named neither the real
 #   window (100 months of valid record, 8.3 years, and further back wherever a
 #   well has gaps) nor any date. Both labels and their tooltips are now built
@@ -262,6 +271,18 @@ EXCLUDE_WELLS = {"ceh12", "ceh15"}
 VIEWER_EMIN, VIEWER_EMAX = 240200, 243700
 VIEWER_NMIN, VIEWER_NMAX = 362400, 364800
 
+# Basemap strength. The hillshade PNG is emitted at full opacity and blended at
+# draw time, so the viewer's slider spans the whole range rather than being
+# capped by an alpha baked into the image. The default is the slider's starting
+# position, not a limit. 0.35 reproduced the static figures but read as washed
+# out on screen against the colour overlay.
+VIEWER_HILLSHADE_ALPHA = 0.60
+# Grey levels the hillshade is quantised to before PNG encoding. Quantising
+# gives run-length compression long runs of identical neighbours; 32 was chosen
+# when the image was blended at 0.35 and could not band visibly. At full slider
+# strength it can, so this is finer.
+VIEWER_HILLSHADE_GREY_LEVELS = 64
+
 # Scenario parameter sets -- mirror the JS SCEN dict in the viewer HTML.
 # Keeping a single source of truth here ensures the interactive viewer and
 # the Python-side scenario summary CSV never drift apart.
@@ -454,19 +475,18 @@ def build_hillshade_base64(site_polygon_xy=None):
 
         # Map hillshade [0..1] onto the same greyscale range that
         # matplotlib's pcolormesh uses (vmin=0.2, vmax=1.0 -- see
-        # load_dem_hillshade). alpha at 0.35 matches the static figures.
-        # Quantising to 32 grey levels gives PNG's run-length compression
-        # much more to work with (neighbouring pixels collapse into runs
-        # of identical values); at 35% alpha blending under the colour
-        # overlay the quantisation is visually imperceptible.
-        GREY_LEVELS = 32
+        # load_dem_hillshade). The image is emitted OPAQUE; the viewer blends
+        # it at VIEWER_HILLSHADE_ALPHA and the user moves that with a slider.
+        # Baking the alpha in, as this did until v2.12.0, made the basemap
+        # permanently faint and gave the page no way to strengthen it.
+        GREY_LEVELS = VIEWER_HILLSHADE_GREY_LEVELS
         grey_f = np.clip((hs - 0.2) / 0.8, 0.0, 1.0)
         grey_q = np.round(grey_f * (GREY_LEVELS - 1)) / (GREY_LEVELS - 1)
         grey = (grey_q * 255.0).astype(np.uint8)
 
         # Alpha channel: transparent outside DEM coverage, outside the viewer
         # extent, and outside the site boundary polygon.
-        alpha = np.full(grey.shape, 90, dtype=np.uint8)   # ~35% opacity
+        alpha = np.full(grey.shape, 255, dtype=np.uint8)  # blended client-side
         alpha[np.isnan(dem_ds)] = 0
 
         # Site-polygon mask. The viewer canvas has N increasing upward
@@ -1325,6 +1345,12 @@ footer a:hover{{text-decoration:underline;}}
         <button class="rt"    id="rt_abs" onclick="setMM('abs')">Absolute head</button>
         <button class="rt"    id="rt_dep" onclick="setMM('dep')">Depth below surface</button>
       </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-left:auto;font-size:12px;color:#555;">
+        <label for="sBg" title="Strength of the shaded-relief basemap under the water-table surface">Basemap</label>
+        <input type="range" min="0" max="1" step="0.05" value="{hillshade_alpha}" id="sBg"
+               oninput="setBg(this.value)" style="width:110px;">
+        <span class="sv" id="vBg" style="min-width:3.2em;text-align:right;"></span>
+      </div>
     </div>
     <div class="mapwrap" id="mwrap">
       <canvas id="mapBg"></canvas>
@@ -1415,6 +1441,10 @@ var CL_LABS={{1:'C1 Eastern lake-buffer',2:'C2 Eastern mature dune',
               3:'C3 Western mature dune',4:'C4 Forest',5:'C5 Coastal'}};
 var CL_COLS={{1:'#1565C0',2:'#00897B',3:'#E64A19',4:'#558B2F',5:'#6A1B9A'}};
 var EMIN={viewer_emin},EMAX={viewer_emax},NMIN={viewer_nmin},NMAX={viewer_nmax};
+var BG_ALPHA={hillshade_alpha};
+function setBg(v){{BG_ALPHA=parseFloat(v);
+  document.getElementById('vBg').textContent=Math.round(BG_ALPHA*100)+'%';
+  drawBg();drawMap();}}
 var HILLSHADE_B64="{hillshade_b64}";
 var HILLSHADE_IMG=null;var HILLSHADE_READY=false;
 if(HILLSHADE_B64){{HILLSHADE_IMG=new Image();HILLSHADE_IMG.onload=function(){{HILLSHADE_READY=true;if(typeof drawBg==='function'){{drawBg();}}if(typeof drawMap==='function'){{drawMap();}}}};HILLSHADE_IMG.src=HILLSHADE_B64;}}
@@ -1642,7 +1672,13 @@ function drawBg(){{
     ctx.closePath();ctx.fillStyle='#daebd2';ctx.fill();
   }}
   // Hillshade overlay (transparent PNG, already site-masked server-side).
-  if(HILLSHADE_READY&&HILLSHADE_IMG){{ctx.drawImage(HILLSHADE_IMG,0,0,MW,MH);}}
+  // Blended here rather than baked into the PNG, so the Basemap slider spans
+  // the full range. globalAlpha is restored immediately: the site outline below
+  // and every later draw on this context must not inherit it.
+  if(HILLSHADE_READY&&HILLSHADE_IMG){{
+    var _a=ctx.globalAlpha;ctx.globalAlpha=BG_ALPHA;
+    ctx.drawImage(HILLSHADE_IMG,0,0,MW,MH);ctx.globalAlpha=_a;
+  }}
   // Site polygon outline drawn last so it stays crisp over the hillshade.
   if(sp&&sp.length){{
     ctx.beginPath();
@@ -1924,7 +1960,9 @@ function initSplitter(){{
 }}
 function toggleHelp(e){{e.stopPropagation();var dd=document.getElementById('helpDd');if(dd)dd.classList.toggle('open');}}
 document.addEventListener('click',function(e){{var dd=document.getElementById('helpDd');if(dd&&!dd.contains(e.target))dd.classList.remove('open');}});
-function init(){{applyLayout();initSplitter();sizeMap();drawBg();document.getElementById('sI_c4').value=FOREST_INTERCEPTION;document.getElementById('sI_c5').value=FOREST_INTERCEPTION;rl();renderMonthlyTable();go();
+function init(){{applyLayout();initSplitter();sizeMap();
+  document.getElementById('vBg').textContent=Math.round(BG_ALPHA*100)+'%';
+  drawBg();document.getElementById('sI_c4').value=FOREST_INTERCEPTION;document.getElementById('sI_c5').value=FOREST_INTERCEPTION;rl();renderMonthlyTable();go();
   if(typeof ResizeObserver!=='undefined'){{var mw=document.getElementById('mwrap');if(mw){{new ResizeObserver(function(){{sizeMap();drawBg();drawMap();}}).observe(mw);}}}}
 }}
 setTimeout(init,60);
@@ -2274,6 +2312,7 @@ def main(out_path=None):
         viewer_nmin=VIEWER_NMIN,
         viewer_nmax=VIEWER_NMAX,
         viewer_version=__version__,
+        hillshade_alpha=VIEWER_HILLSHADE_ALPHA,
         **basis_labels(),
     )
 

@@ -1,6 +1,8 @@
 # published PDF  <-  source ODT  |  built (UTC)
 docs/academic_summaries/academic_summary.pdf  <-  academic_Summary_v1_5.odt  |  2026-08-12T11:27:31Z
 docs/academic_summaries/crynodeb_academaidd.pdf  <-  crynodeb_academaidd_v1_4.odt  |  2026-08-12T05:15:28Z
+docs/papers/paper_1/Paper1.pdf  <-  Paper1_v1_6.odt  |  2026-08-18T14:58:56Z
+docs/papers/paper_1/PAPER1_SI_methods.pdf  <-  PAPER1_SI_methods_v1_2.odt  |  2026-08-18T14:58:57Z
 docs/public_summaries/Newborough_Warren_Podsumowanie.pdf  <-  public_summary_PL.odt  |  2026-08-12T05:15:31Z
 docs/public_summaries/Newborough_Warren_Public_Summary.pdf  <-  public_summary_EN.odt  |  2026-08-12T05:15:29Z
 docs/public_summaries/Niwbwrch_Crynodeb_Cyhoeddus.pdf  <-  public_summary_CY.odt  |  2026-08-12T05:15:30Z

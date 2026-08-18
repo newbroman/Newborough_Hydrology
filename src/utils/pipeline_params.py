@@ -40,7 +40,18 @@ File location: outputs/01_data_prep/pipeline_scenario_params.csv
 """
 from __future__ import annotations
 
-__version__ = "1.1.1"  # Hollingham (2026) — 2026-08-13
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-08-18
+# v1.2.0 (2026-08-18): the scenario-parameter store keeps full precision.
+#   beta_1/2/3, Sy, h_disp, the two B2 multipliers and the summer climate means
+#   were rounded to 4 (or 6) decimals on the way IN, so every consumer computed
+#   from a truncated number and the loss was invisible - it looked like a
+#   display convention sitting in a data store. Rounding belongs at the point of
+#   rendering, where the 3-decimal output convention applies; the store carries
+#   what the pipeline computed. _DEFAULTS are unchanged: those are documented
+#   fallback constants, quoted at the precision they were agreed at.
+#   NOTE this moves consumer numbers in the fifth significant figure - Scripts
+#   09d, 19, 21 and 37b read these values - so their outputs will differ
+#   slightly on the next run. That is the correction, not a side effect.
 # Module versioning introduced 2026-08-13 (pre-1.1.0 history via CHANGELOG_delta
 # files). Bump on ANY edit, as for pipeline scripts.
 # v1.1.1 (2026-08-13): moved `from __future__ import annotations` above the
@@ -357,19 +368,19 @@ def write_initial_params(wells_clean, climate):
 
         rows.append({
             "Cluster": f"C{cl}",
-            "beta_1": round(beta["b1"], 4) if beta else _DEFAULTS["beta_1"],
-            "beta_2": round(beta["b2"], 4) if beta else _DEFAULTS["beta_2"],
-            "beta_3": round(beta["b3"], 4) if beta else _DEFAULTS["beta_3"],
-            "Sy": round(sy, 4) if sy else _DEFAULTS["Sy"],
-            "h_disp": round(h_disp, 4) if h_disp else round(DRAINAGE_DATUM - 0.5, 4),
+            "beta_1": float(beta["b1"]) if beta else _DEFAULTS["beta_1"],
+            "beta_2": float(beta["b2"]) if beta else _DEFAULTS["beta_2"],
+            "beta_3": float(beta["b3"]) if beta else _DEFAULTS["beta_3"],
+            "Sy": float(sy) if sy else _DEFAULTS["Sy"],
+            "h_disp": float(h_disp) if h_disp else float(DRAINAGE_DATUM - 0.5),
             "forest": cl in FOREST_CIDS,
             "peak_month": peak if peak else _DEFAULTS["peak_month"],
-            "clearfell_b2_mult": round(clearfell_b2, 4),
-            "thinning_b2_mult": round(thinning_b2, 4),
+            "clearfell_b2_mult": float(clearfell_b2),
+            "thinning_b2_mult": float(thinning_b2),
             "broadleaf_b2_summer": BROADLEAF_B2_SUMMER,
             "broadleaf_b2_winter": BROADLEAF_B2_WINTER,
-            "summer_P": round(summer_P, 6),
-            "summer_PET": round(summer_PET, 6),
+            "summer_P": float(summer_P),
+            "summer_PET": float(summer_PET),
             "source_beta": "pipeline" if beta else "defaults",
             "source_Sy": "pipeline" if sy else "defaults",
             "source_peak_month": "pipeline" if peak else "defaults",
@@ -429,7 +440,7 @@ def _seed_row(cluster_label: str) -> dict:
         "Cluster": cluster_label,
         "beta_1": _DEFAULTS["beta_1"], "beta_2": _DEFAULTS["beta_2"],
         "beta_3": _DEFAULTS["beta_3"], "Sy": _DEFAULTS["Sy"],
-        "h_disp": round(DRAINAGE_DATUM - 0.5, 4),
+        "h_disp": float(DRAINAGE_DATUM - 0.5),
         "forest": cl_int in FOREST_CIDS,
         "peak_month": _DEFAULTS["peak_month"],
         "clearfell_b2_mult": _DEFAULTS["clearfell_b2_mult"],
@@ -475,9 +486,9 @@ def update_beta_coefficients(coeff_df):
             df = pd.concat([df, pd.DataFrame([_seed_row(cl)])], ignore_index=True)
             mask = df["Cluster"] == cl
             appended += 1
-        df.loc[mask, "beta_1"] = round(float(row["beta_1_recharge"]), 4)
-        df.loc[mask, "beta_2"] = round(float(row["beta_2_atmospheric_draw"]), 4)
-        df.loc[mask, "beta_3"] = round(float(row["beta_3_drainage"]), 4)
+        df.loc[mask, "beta_1"] = float(row["beta_1_recharge"])
+        df.loc[mask, "beta_2"] = float(row["beta_2_atmospheric_draw"])
+        df.loc[mask, "beta_3"] = float(row["beta_3_drainage"])
         df.loc[mask, "source_beta"] = "pipeline"
 
     df = df.sort_values("Cluster").reset_index(drop=True)
@@ -500,8 +511,8 @@ def update_b2_multipliers(clearfell_mult, thinning_mult):
         return
 
     df = pd.read_csv(path)
-    df["clearfell_b2_mult"] = round(clearfell_mult, 4)
-    df["thinning_b2_mult"] = round(thinning_mult, 4)
+    df["clearfell_b2_mult"] = float(clearfell_mult)
+    df["thinning_b2_mult"] = float(thinning_mult)
     df["source_b2_mult"] = "pipeline"
 
     df.to_csv(path, index=False)
@@ -527,7 +538,7 @@ def update_specific_yield(sy_by_cluster):
         cl = f"C{cl_id}" if isinstance(cl_id, int) else cl_id
         mask = df["Cluster"] == cl
         if mask.any():
-            df.loc[mask, "Sy"] = round(float(sy_val), 4)
+            df.loc[mask, "Sy"] = float(sy_val)
             df.loc[mask, "source_Sy"] = "pipeline"
 
     df.to_csv(path, index=False)
@@ -553,7 +564,7 @@ def update_h_disp(h_disp_by_cluster):
         cl = f"C{cl_id}" if isinstance(cl_id, int) else cl_id
         mask = df["Cluster"] == cl
         if mask.any():
-            df.loc[mask, "h_disp"] = round(float(h_val), 4)
+            df.loc[mask, "h_disp"] = float(h_val)
             df.loc[mask, "source_h_disp"] = "pipeline"
 
     df.to_csv(path, index=False)

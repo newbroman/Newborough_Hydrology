@@ -14,7 +14,18 @@ Outputs (final — outputs/02_clustering/):
     02_02_validation_plots.png
 """
 
-__version__ = "1.4.2"  # Hollingham (2026) — 2026-08-12
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-08-16. Adds month-wise
+#        partition stability (D-030): a 12-month moving-block bootstrap over
+#        MONTHS alongside the existing bootstrap over WELLS, plus a disjoint
+#        split-half ARI. The published bootstrap answers "does the partition
+#        depend on which wells are in it?" (median 0.938 — no). Nothing
+#        answered "does it depend on which months?", which is much weaker.
+#        New: 02_11_month_stability.csv, 02_12_month_stability_diagnostic.png
+#        (diagnostic tier, NOT a report figure), a stability_months column on
+#        the k=NUM_CLUSTERS membership CSV, and four report-numbers keys.
+#        The partition itself is unchanged — this measures it, nothing more.
+#
+# 1.4.2 (2026-08-12) — Cluster hydrograph and per-well spaghetti y-axes
 # 1.4.2 (2026-08-12) — Cluster hydrograph and per-well spaghetti y-axes
 #        relabelled "Water level (m, below ground)": the series is the
 #        master's ground-referenced `depth from surface`, and the bare
@@ -45,12 +56,15 @@ import matplotlib.dates as mdates
 from matplotlib.gridspec import GridSpec
 from scipy.cluster.hierarchy import dendrogram, linkage, fcluster
 from scipy.spatial.distance import pdist, squareform
-from sklearn.metrics import silhouette_score, calinski_harabasz_score
+from sklearn.metrics import (silhouette_score, calinski_harabasz_score,
+                             adjusted_rand_score)
 
 from utils.config import (
     CLUSTER_COLOURS, CLUSTER_COLOURS_BW, CLUSTER_LABELS,
     REFERENCE_CUTOFF_DATE, BW_MODE, BW_LINESTYLES,
     CLUSTER_BOOT_SEED,
+    CLUSTER_MONTH_BOOT_N, CLUSTER_MONTH_BLOCK_MONTHS,
+    CLUSTER_MONTH_SPLIT_N, CLUSTER_MONTH_BOOT_SEED,
 )
 from utils.data_utils import normalize_well_name
 from utils.paths import (
@@ -64,6 +78,7 @@ from utils.paths import (
     OUT_02_MEMBERSHIP_SWEEP,
     OUT_02_AMP_PER_WELL, OUT_02_AMP_SUMMARY, OUT_02_AMP_BOXPLOT,
     OUT_02_K_SWEEP, OUT_02_REPORT_NUMBERS,
+    OUT_02_MONTH_STABILITY, OUT_02_MONTH_STABILITY_FIG,
 )
 from utils.report_numbers_utils import ReportNumbers
 from utils.pipeline_params import get_requested_n_clusters
@@ -486,6 +501,149 @@ def plot_coassignment_heatmap(coassign_df: pd.DataFrame, ref_labels: pd.Series,
     plt.close(fig)
 
 
+# ──────────────────────────────────────────────────────────────────────────────
+# MONTH-WISE STABILITY (D-030)
+#
+# bootstrap_cluster_stability() above resamples WELLS: it asks whether the
+# partition survives a different membership. It does — median 0.938.
+#
+# This asks the question nobody had measured: does the partition survive a
+# different PERIOD of record? Measured on the committed panel it is much
+# weaker, which is why it is now emitted rather than left to a session probe.
+#
+# Months are resampled in contiguous blocks. An i.i.d. month resample would
+# break the seasonal cycle that dominates these series, inflating apparent
+# reproducibility; a 12-month block keeps one full cycle intact. The block
+# length is CLUSTER_MONTH_BLOCK_MONTHS in config.py, not a literal here.
+# ──────────────────────────────────────────────────────────────────────────────
+
+def _block_sample(n_rows: int, block: int, rng, n_blocks: int | None = None):
+    """Row indices for one moving-block sample of length ~n_rows."""
+    if n_blocks is None:
+        n_blocks = int(np.ceil(n_rows / block))
+    starts = rng.integers(0, max(1, n_rows - block + 1), size=n_blocks)
+    idx = np.concatenate([np.arange(s, min(s + block, n_rows)) for s in starts])
+    return idx[:n_rows]
+
+
+def month_bootstrap_stability(
+    wells_ref: pd.DataFrame,
+    k: int,
+    n_boot: int = CLUSTER_MONTH_BOOT_N,
+    n_split: int = CLUSTER_MONTH_SPLIT_N,
+    block: int = CLUSTER_MONTH_BLOCK_MONTHS,
+    seed: int = CLUSTER_MONTH_BOOT_SEED,
+) -> tuple[pd.Series, pd.DataFrame, np.ndarray]:
+    """
+    Month-wise counterpart of bootstrap_cluster_stability().
+
+    Returns
+    -------
+    per_well_stability : median co-assignment probability with the well's
+        reference-partition cluster-mates. IDENTICAL statistic and scale to the
+        well-wise column, so the two are directly comparable.
+    coassign_df        : wells x wells co-assignment probability.
+    splithalf_ari      : ARI between partitions fitted to two DISJOINT block
+        samples of the record. This is the reproducibility number — free of the
+        overlap artefact that inflates any comparison against the full-record
+        partition, which shares most of its months with any sub-sample.
+    """
+    rng = np.random.default_rng(seed)
+    wells = wells_ref.columns.tolist()
+    n_wells, n_rows = len(wells), len(wells_ref)
+
+    _, dist_full = _correlation_distance(wells_ref)
+    Z_full = linkage(squareform(dist_full, checks=False), method="ward")
+    ref_labels = pd.Series(fcluster(Z_full, t=k, criterion="maxclust"), index=wells)
+
+    def _partition(rows):
+        sub = wells_ref.iloc[rows]
+        # A block sample can leave a well with too few observations to correlate
+        # against its neighbours; corr() returns NaN there and _correlation_distance
+        # maps that to distance 1.0, which is the honest treatment (unknown =
+        # maximally distant) and the same one the full-record path uses.
+        _, d = _correlation_distance(sub)
+        return fcluster(linkage(squareform(d, checks=False), method="ward"),
+                        t=k, criterion="maxclust")
+
+    coassign = np.zeros((n_wells, n_wells), dtype=np.int64)
+    n_ok = 0
+    for _ in range(n_boot):
+        try:
+            lab = _partition(_block_sample(n_rows, block, rng))
+        except Exception:
+            continue
+        same = (lab[:, None] == lab[None, :])
+        coassign += same.astype(np.int64)
+        n_ok += 1
+    coassign_df = pd.DataFrame(coassign / max(n_ok, 1), index=wells, columns=wells)
+
+    stability = {}
+    for well in wells:
+        mates = ref_labels.index[(ref_labels == ref_labels.loc[well])
+                                 & (ref_labels.index != well)]
+        stability[well] = np.nan if len(mates) == 0 else coassign_df.loc[well, mates].median()
+    per_well = pd.Series(stability, name="stability_months")
+
+    # Split-half: two disjoint block samples, no shared months.
+    n_blocks = int(np.floor(n_rows / block / 2))
+    aris = []
+    for _ in range(n_split):
+        try:
+            starts = rng.permutation(np.arange(0, n_rows - block + 1, block))
+            a = np.concatenate([np.arange(s, s + block) for s in starts[:n_blocks]])
+            b = np.concatenate([np.arange(s, s + block) for s in starts[n_blocks:2 * n_blocks]])
+            aris.append(adjusted_rand_score(_partition(np.sort(a)), _partition(np.sort(b))))
+        except Exception:
+            continue
+    return per_well, coassign_df, np.asarray(aris, dtype=float)
+
+
+def plot_month_stability(well_stab: pd.Series, month_stab: pd.Series,
+                         ref_labels: pd.Series, aris: np.ndarray, out_path) -> None:
+    """
+    Diagnostic figure — NOT a report figure (D-030).
+
+    Left: every well's stability under well-resampling against the same well's
+    stability under month-resampling. Points below the 1:1 line are wells whose
+    membership is firm against who else is measured but soft against when.
+    Right: the distribution of split-half ARI, i.e. how well two disjoint halves
+    of the record agree with each other about the whole partition.
+    """
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 5.5), dpi=200)
+
+    for cid in sorted(ref_labels.unique()):
+        members = ref_labels.index[ref_labels == cid]
+        ax1.scatter(well_stab.reindex(members), month_stab.reindex(members),
+                    s=42, alpha=0.85, edgecolor="black", linewidth=0.4,
+                    color=CLUSTER_COLOURS.get(int(cid), "#777777"),
+                    label=CLUSTER_LABELS.get(int(cid), f"C{int(cid)}"))
+    ax1.plot([0, 1], [0, 1], ls="--", color="black", lw=0.9, alpha=0.6)
+    ax1.set_xlim(0, 1.02); ax1.set_ylim(0, 1.02)
+    ax1.set_xlabel("stability to WHICH WELLS are included\n(bootstrap over wells)")
+    ax1.set_ylabel("stability to WHICH MONTHS are included\n(moving-block bootstrap over months)")
+    ax1.set_title("Two stabilities, same statistic", fontweight="bold", fontsize=11)
+    ax1.grid(alpha=0.35, ls="--")
+    ax1.legend(fontsize=7, loc="lower right")
+
+    if len(aris):
+        ax2.hist(aris, bins=24, color="#0072B2", alpha=0.85, edgecolor="white")
+        ax2.axvline(float(np.mean(aris)), color="red", ls="--", lw=1.4,
+                    label=f"mean {np.mean(aris):.2f}")
+        ax2.legend(fontsize=9)
+    ax2.set_xlabel("adjusted Rand index between two disjoint halves of the record")
+    ax2.set_ylabel("replicates")
+    ax2.set_title("Does the partition reproduce on another period?",
+                  fontweight="bold", fontsize=11)
+    ax2.grid(alpha=0.35, ls="--")
+
+    fig.suptitle("Cluster stability diagnostic — diagnostic tier, not a report figure",
+                 fontsize=9, y=0.005)
+    plt.tight_layout()
+    render_figure(plt.gcf(), out_path, facecolor="white")
+    plt.close(fig)
+
+
 def run_stability_diagnostics(wells_ref: pd.DataFrame) -> None:
     """
     Runs the full stability-diagnostics block:
@@ -528,6 +686,63 @@ def run_stability_diagnostics(wells_ref: pd.DataFrame) -> None:
     for _k in sweep.index:
         rr.add(f"silhouette_k{_k}", float(sweep.loc[_k, "silhouette"]), unit="",
                era=f"k={_k}", note="per-k silhouette (Fig 6 series)")
+    # --- month-wise stability (D-030) ---------------------------------------
+    # Runs at the chosen k only: it is the partition the report uses, and the
+    # k-sweep below already covers the shape of the alternatives.
+    step(f"Month-wise stability at k={NUM_CLUSTERS} "
+         f"({CLUSTER_MONTH_BOOT_N} block resamples, "
+         f"{CLUSTER_MONTH_BLOCK_MONTHS}-month blocks)...")
+    _, dist_ref = _correlation_distance(wells_ref)
+    ref_labels_k = pd.Series(
+        fcluster(linkage(squareform(dist_ref, checks=False), method="ward"),
+                 t=NUM_CLUSTERS, criterion="maxclust"),
+        index=wells_ref.columns)
+    month_stab, _month_coassign, splithalf = month_bootstrap_stability(
+        wells_ref, k=NUM_CLUSTERS)
+    well_stab_k, _ = bootstrap_cluster_stability(wells_ref, k=NUM_CLUSTERS)
+
+    month_df = pd.DataFrame({
+        "well": wells_ref.columns,
+        "cluster": ref_labels_k.reindex(wells_ref.columns).values,
+        "stability_wells": well_stab_k.reindex(wells_ref.columns).values,
+        "stability_months": month_stab.reindex(wells_ref.columns).values,
+    }).sort_values(["cluster", "well"])
+    month_df.to_csv(OUT_02_MONTH_STABILITY, index=False)
+    step(f"Saved month-wise stability: {OUT_02_MONTH_STABILITY.name}")
+
+    plot_month_stability(well_stab_k, month_stab, ref_labels_k, splithalf,
+                         OUT_02_MONTH_STABILITY_FIG)
+    saved(f"{OUT_02_MONTH_STABILITY_FIG.name}")
+
+    info(f"  stability to which WELLS : median "
+         f"{float(np.nanmedian(well_stab_k)):.3f}")
+    info(f"  stability to which MONTHS: median "
+         f"{float(np.nanmedian(month_stab)):.3f}")
+    if len(splithalf):
+        info(f"  split-half ARI: mean {float(np.mean(splithalf)):.3f} "
+             f"(5-95th pct {float(np.percentile(splithalf, 5)):.3f}-"
+             f"{float(np.percentile(splithalf, 95)):.3f}, "
+             f"{len(splithalf)} replicates)")
+    if float(np.nanmedian(month_stab)) < float(np.nanmedian(well_stab_k)):
+        warn("  the partition is less reproducible across PERIODS than across "
+             "MEMBERSHIP - report both (D-030)")
+
+    rr.add("cluster_stability_wells_median", float(np.nanmedian(well_stab_k)),
+           unit="", era=f"k={NUM_CLUSTERS}",
+           note="median per-well co-assignment, bootstrap over wells")
+    rr.add("cluster_stability_months_median", float(np.nanmedian(month_stab)),
+           unit="", era=f"k={NUM_CLUSTERS}",
+           note=f"median per-well co-assignment, {CLUSTER_MONTH_BLOCK_MONTHS}-month "
+                "moving-block bootstrap over months")
+    if len(splithalf):
+        rr.add("cluster_splithalf_ari_mean", float(np.mean(splithalf)), unit="",
+               era=f"k={NUM_CLUSTERS}",
+               note="ARI between partitions from two disjoint block samples of the record")
+        rr.add("cluster_splithalf_ari_p05", float(np.percentile(splithalf, 5)), unit="",
+               era=f"k={NUM_CLUSTERS}", note="5th percentile of the split-half ARI")
+        rr.add("cluster_splithalf_ari_p95", float(np.percentile(splithalf, 95)), unit="",
+               era=f"k={NUM_CLUSTERS}", note="95th percentile of the split-half ARI")
+
     n_saved = rr.save(OUT_02_REPORT_NUMBERS)
     step(f"Saved report numbers: {OUT_02_REPORT_NUMBERS.name} ({n_saved} rows)")
 
@@ -577,7 +792,13 @@ def run_stability_diagnostics(wells_ref: pd.DataFrame) -> None:
             "well": wells_ref.columns,
             f"cluster_k{k}": ref_labels.values,
             "stability": stability.reindex(wells_ref.columns).values,
-        }).sort_values([f"cluster_k{k}", "well"])
+        })
+        # At the chosen k only, carry the month-wise column alongside. `stability`
+        # keeps its name and meaning (bootstrap over WELLS) so existing consumers
+        # - Scripts 20, 26, 30, 33 - are untouched (D-030).
+        if k == NUM_CLUSTERS:
+            membership["stability_months"] = month_stab.reindex(wells_ref.columns).values
+        membership = membership.sort_values([f"cluster_k{k}", "well"])
         mem_path = str(OUT_02_MEMBERSHIP_SWEEP).format(k=k)
         membership.to_csv(mem_path, index=False)
         print(f"    Saved membership: {mem_path}")

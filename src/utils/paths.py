@@ -11,7 +11,11 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-08-16
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-08-16. Adds
+#   OUT_02_MONTH_STABILITY and OUT_02_MONTH_STABILITY_FIG for the month-wise
+#   partition-stability diagnostic (D-030).
+#
+# v1.2.0  # Hollingham (2026) — 2026-08-16
 # Module versioning introduced 2026-08-13 (pre-1.1.0 history is tracked via
 # the CHANGELOG_delta files and consuming-script versions). Bump this on ANY
 # edit to this module, as for pipeline scripts.
@@ -265,6 +269,13 @@ OUT_02_MEMBERSHIP_SWEEP    = DIR_02 / "02_07_cluster_membership_k{k}.csv"
 OUT_02_AMP_PER_WELL     = DIR_02 / "02_08_cluster_amplitude_per_well.csv"
 OUT_02_AMP_SUMMARY      = DIR_02 / "02_09_cluster_amplitude_summary.csv"
 OUT_02_AMP_BOXPLOT      = DIR_02 / "02_10_cluster_amplitude_boxplot.png"
+
+# Month-wise partition stability (D-030). The existing bootstrap resamples
+# WELLS; these two resample MONTHS, in blocks, and answer the different and
+# weaker question of whether the partition reproduces on another period of
+# record. Diagnostic tier — the figure is not a report figure.
+OUT_02_MONTH_STABILITY     = DIR_02 / "02_11_month_stability.csv"
+OUT_02_MONTH_STABILITY_FIG = DIR_02 / "02_12_month_stability_diagnostic.png"
 
 # Script 03 — State-space model
 OUT_03_SIGNATURES          = DIR_03 / "03_01_mechanistic_signatures.png"

@@ -21,7 +21,10 @@ This lint cannot make anyone think. It makes the omission mechanical:
      exist in the log.
   3. Every log entry must carry the load-bearing fields. An entry without a
      Revisit-if is an opinion, not a decision.
-  4. Entries marked RATIONALE UNCONFIRMED are reported, so backfilled
+  4. There is exactly one decision log. Two ran in parallel until 2026-08-16
+     and every id from D-001 to D-017 meant two different things depending on
+     which file you opened, so a citation could not be followed safely (D-029).
+  5. Entries marked RATIONALE UNCONFIRMED are reported, so backfilled
      reconstructions do not quietly harden into settled reasoning.
 
 Usage:
@@ -37,7 +40,7 @@ import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
-LOG = REPO / "DECISION_LOG.md"
+LOG = REPO / "DECISION_LOG.md"   # canonical since 2026-08-16 (D-029)
 CHANGELOG_DIR = REPO / "changelogs"
 CLAIMS = REPO / "tools" / "claims_register.csv"
 
@@ -124,7 +127,26 @@ def main() -> int:
             print(f"FAIL  {did} is missing: {', '.join(missing)}")
             fail += 1
 
-    # --- 4. surface the backfilled ones -------------------------------------
+    # --- 4. there must be exactly one decision log --------------------------
+    # Two ran in parallel until 2026-08-16 and every id from D-001 to D-017
+    # meant two different things depending on which file you opened (D-029).
+    # A second log is not a filing untidiness: it silently redirects every
+    # citation in the corpus. Cheap to detect, so detect it.
+    others = [p for p in REPO.rglob("DECISION_LOG*.md")
+              if p != LOG
+              and "_to_delete" not in p.parts
+              and ".git" not in p.parts
+              and "retired" not in p.read_text(encoding="utf8", errors="ignore")[:400].lower()]
+    if others:
+        for p in others:
+            print(f"FAIL  second decision log at {p.relative_to(REPO)}\n"
+                  f"      {LOG.name} at the repo root is canonical (D-029). "
+                  "Merge it in and leave a stub, or the ids collide.")
+        fail += len(others)
+    elif not args.quiet:
+        print("  one decision log\n")
+
+    # --- 5. surface the backfilled ones -------------------------------------
     if unconfirmed and not args.quiet:
         print("  RATIONALE UNCONFIRMED (backfilled — confirm before citing as "
               "settled reasoning):")

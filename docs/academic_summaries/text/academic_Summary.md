@@ -7,7 +7,7 @@ Evidence Summary --- Hydrogeological Dynamics, Behavioural Clustering and Manage
 
 Hollingham, M. (2026) \| Draft \| Summarised for researchers, evidence reviewers and dune system managers
 
-Full report, methods supplement and data: github.com/newbroman/Newborough\_Hydrology \| Contact: martin.hollingham+nrg\@gmail.com \| ORCID: 0000-0003-0253-9301
+Full report, methods supplement and data: github.com/newbroman/Newborough_Hydrology \| Contact: martin.hollingham+nrg@gmail.com \| ORCID: 0000-0003-0253-9301
 
 Study design and methods
 
@@ -70,7 +70,7 @@ MSL5 comparison (window-end 2017 vs window-end 2023): site-mean deepening −97 
 
 ![](Pictures/10000001000009EE00000967C79BE1C0.png){width="13cm" height="9.377cm"}
 
-Figure 4. MSL5 change 2017→2023. n=59 wells; 56 deepened \>25 mm, 0 shallower \>25 mm. Source: 20\_msl5\_change\_2017\_2023.png; Report Figure 58.
+Figure 4. MSL5 change 2017→2023. n=59 wells; 56 deepened \>25 mm, 0 shallower \>25 mm. Source: 20_msl5_change_2017_2023.png; Report Figure 58.
 
 Differential spring movement analysis (Script 32, 2011--2025) reveals divergent within-network trends. C4 Main Forest is uniformly positive (+8.4 to +20.5 mm yr⁻¹ relative to site mean, cluster mean +14.9 mm yr⁻¹); none individually significant after AR(1) correction. This reflects two reinforcing mechanisms: (1) the forest occupies the hydraulic high of the aquifer, furthest from any constant-head boundary (lake to the east, Menai Strait to the south-east, coast to the south-west), giving the water table maximum freedom to rise in wet years and fall in dry ones; (2) the low-specific-yield substrate (thin sand over bedrock) concentrates recharge into larger head changes. Recent wet springs (2021, 2024) have amplified C4 relative to the network. C1 Lake Edge and C5 Coastal Forest are uniformly negative (−8.0 and −6.8 mm yr⁻¹ respectively), driven by the coastal-retreat boundary signal. C2 Dune is near-neutral on average.
 
@@ -109,16 +109,16 @@ Table 2. Headline quantitative results. All figures from committed pipeline CSVs
 
 Conclusions
 
-• The summer minimum water table is the ecologically binding variable. MSL5 is a better-measured proxy that tracks slower system drift but understates the amplitude of the ecological risk.
+> • The summer minimum water table is the ecologically binding variable. MSL5 is a better-measured proxy that tracks slower system drift but understates the amplitude of the ecological risk.
 
-• Dune scraping at well-chosen inland sites is the most effective available direct intervention but does not address the underlying drivers. Benefits erode against the background climate trend.
+> • Dune scraping at well-chosen inland sites is the most effective available direct intervention but does not address the underlying drivers. Benefits erode against the background climate trend.
 
-• Clearfell raises mean water-table levels in the forest zone relative to unfelled controls but produces no detectable summer minimum improvement, consistent with canopy-removal dual effects cancelling in summer.
+> • Clearfell raises mean water-table levels in the forest zone relative to unfelled controls but produces no detectable summer minimum improvement, consistent with canopy-removal dual effects cancelling in summer.
 
-• A site-wide decline in recharge efficiency, operating independently of surface management, is the dominant driver of summer minimum deterioration.
+> • A site-wide decline in recharge efficiency, operating independently of surface management, is the dominant driver of summer minimum deterioration.
 
-• The coastal-retreat boundary signal is a distinct, lagged, and currently unmanageable threat to the western margin. Interior wells have not yet experienced the full effect of recent accelerated erosion.
+> • The coastal-retreat boundary signal is a distinct, lagged, and currently unmanageable threat to the western margin. Interior wells have not yet experienced the full effect of recent accelerated erosion.
 
-• The hydraulic position of the forest (topographic and aquifer high, no nearby constant-head boundary) makes it a strong amplifier of year-to-year climate variability, not a recovery signal.
+> • The hydraulic position of the forest (topographic and aquifer high, no nearby constant-head boundary) makes it a strong amplifier of year-to-year climate variability, not a recovery signal.
 
-• Climate and coastal forces are operating at a magnitude that swamps the localised management interventions observed to date.
+> • Climate and coastal forces are operating at a magnitude that swamps the localised management interventions observed to date.

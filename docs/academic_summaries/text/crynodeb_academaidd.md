@@ -7,7 +7,7 @@ Crynodeb Tystiolaeth --- Dynameg Hydroddaearegol, Clystyru Ymddygiadol a Dadanso
 
 Hollingham, M. (2026) \| Drafft \| Crynhowyd ar gyfer ymchwilwyr, adolygwyr tystiolaeth a rheolwyr systemau twyni
 
-Full report, methods supplement and data: github.com/newbroman/Newborough\_Hydrology \| Contact: martin.hollingham+nrg\@gmail.com \| ORCID: 0000-0003-0253-9301
+Full report, methods supplement and data: github.com/newbroman/Newborough_Hydrology \| Contact: martin.hollingham+nrg@gmail.com \| ORCID: 0000-0003-0253-9301
 
 Cynllun a dulliau\'r astudiaeth
 
@@ -70,7 +70,7 @@ Cymhariaeth MSL5 (diwedd-ffenestr 2017 yn erbyn diwedd-ffenestr 2023): dyfnhau c
 
 ![](Pictures/10000001000009EE00000967C79BE1C0.png){width="13cm" height="9.377cm"}
 
-Ffigur 4. Newid MSL5 2017→2023. n=59 ffynnon; dyfnhaodd 56 \>25 mm, 0 yn fwy bas \>25 mm. Ffynhonnell: 20\_msl5\_change\_2017\_2023.png; Ffigur 58 yr adroddiad.
+Ffigur 4. Newid MSL5 2017→2023. n=59 ffynnon; dyfnhaodd 56 \>25 mm, 0 yn fwy bas \>25 mm. Ffynhonnell: 20_msl5_change_2017_2023.png; Ffigur 58 yr adroddiad.
 
 Mae dadansoddiad symudiad gwanwyn gwahaniaethol (Sgript 32, 2011--2025) yn datgelu tueddiadau dargyfeiriol o fewn y rhwydwaith. Mae C4 Prif Goedwig yn unffurf bositif (+8.4 i +20.5 mm y flwyddyn⁻¹ o\'i gymharu â chymedr y safle, cymedr y clwstwr +14.9 mm y flwyddyn⁻¹); nid oes yr un yn arwyddocaol yn unigol ar ôl cywiriad AR(1). Mae hyn yn adlewyrchu dau fecanwaith atgyfnerthol: (1) mae\'r goedwig yn meddiannu uchafbwynt hydrolig y dyfrhaen, bellaf o unrhyw ffin pen-cyson (llyn i\'r dwyrain, Afon Menai i\'r de-ddwyrain, arfordir i\'r de-orllewin), gan roi\'r rhyddid mwyaf i\'r lefel ddŵr godi mewn blynyddoedd gwlyb a gostwng mewn rhai sych; (2) mae\'r swbstrad cynnyrch-penodol isel (tywod tenau dros graigwely) yn crynhoi ailwefru\'n newidiadau pen mwy. Mae gwanwynau gwlyb diweddar (2021, 2024) wedi mwyhau C4 o\'i gymharu â\'r rhwydwaith. Mae C1 Ymyl y Llyn ac C5 Coedwig Arfordirol yn unffurf negatif (−8.0 a −6.8 mm y flwyddyn⁻¹ yn y drefn honno), wedi\'u gyrru gan signal ffin cilio\'r arfordir. Mae C2 Twyn tua\'n niwtral ar gyfartaledd.
 
@@ -109,18 +109,18 @@ Tabl 2. Prif ganlyniadau meintiol. Daw\'r holl ffigurau o CSVs y biblinell a ymr
 
 Casgliadau
 
-• Y lefel ddŵr isafswm haf yw\'r newidyn sy\'n rhwymo\'n ecolegol. Mae MSL5 yn ddirprwy a fesurir yn well sy\'n olrhain drifft arafach y system ond sy\'n tanamcangyfrif osgled y risg ecolegol.
+> • Y lefel ddŵr isafswm haf yw\'r newidyn sy\'n rhwymo\'n ecolegol. Mae MSL5 yn ddirprwy a fesurir yn well sy\'n olrhain drifft arafach y system ond sy\'n tanamcangyfrif osgled y risg ecolegol.
 
-• Crafu twyni mewn safleoedd mewndirol a ddewiswyd yn dda yw\'r ymyrraeth uniongyrchol fwyaf effeithiol sydd ar gael, ond nid yw\'n mynd i\'r afael â\'r gyrwyr sylfaenol. Mae\'r buddion yn erydu yn erbyn tuedd hinsawdd y cefndir.
+> • Crafu twyni mewn safleoedd mewndirol a ddewiswyd yn dda yw\'r ymyrraeth uniongyrchol fwyaf effeithiol sydd ar gael, ond nid yw\'n mynd i\'r afael â\'r gyrwyr sylfaenol. Mae\'r buddion yn erydu yn erbyn tuedd hinsawdd y cefndir.
 
-• Mae clirdorri yn codi lefelau cymedrig y dŵr ym mharth y goedwig o\'i gymharu â rheolyddion heb eu cwympo ond nid yw\'n cynhyrchu gwelliant isafswm haf canfyddadwy, sy\'n gyson ag effeithiau deuol tynnu\'r canopi yn canslo ei gilydd yn yr haf.
+> • Mae clirdorri yn codi lefelau cymedrig y dŵr ym mharth y goedwig o\'i gymharu â rheolyddion heb eu cwympo ond nid yw\'n cynhyrchu gwelliant isafswm haf canfyddadwy, sy\'n gyson ag effeithiau deuol tynnu\'r canopi yn canslo ei gilydd yn yr haf.
 
-• Gostyngiad ar draws y safle mewn effeithlonrwydd ailwefru, sy\'n gweithredu\'n annibynnol ar reoli\'r wyneb, yw prif yrrwr dirywiad yr isafswm haf.
+> • Gostyngiad ar draws y safle mewn effeithlonrwydd ailwefru, sy\'n gweithredu\'n annibynnol ar reoli\'r wyneb, yw prif yrrwr dirywiad yr isafswm haf.
 
-• Mae signal ffin cilio\'r arfordir yn fygythiad gwahanol, oediog, ac ar hyn o bryd na ellir ei reoli, i\'r ymyl orllewinol. Nid yw\'r ffynhonnau mewnol wedi profi effaith lawn yr erydiad cyflymedig diweddar eto.
+> • Mae signal ffin cilio\'r arfordir yn fygythiad gwahanol, oediog, ac ar hyn o bryd na ellir ei reoli, i\'r ymyl orllewinol. Nid yw\'r ffynhonnau mewnol wedi profi effaith lawn yr erydiad cyflymedig diweddar eto.
 
-• Mae safle hydrolig y goedwig (uchafbwynt topograffig a dyfrhaen, heb ffin pen-cyson gerllaw) yn ei wneud yn fwyhadur cryf o amrywioldeb hinsawdd o flwyddyn i flwyddyn, nid signal adfer.
+> • Mae safle hydrolig y goedwig (uchafbwynt topograffig a dyfrhaen, heb ffin pen-cyson gerllaw) yn ei wneud yn fwyhadur cryf o amrywioldeb hinsawdd o flwyddyn i flwyddyn, nid signal adfer.
 
-• Mae grymoedd hinsawdd ac arfordirol yn gweithredu ar faint sy\'n gorlifo\'r ymyriadau rheoli lleol a arsylwyd hyd yma.
+> • Mae grymoedd hinsawdd ac arfordirol yn gweithredu ar faint sy\'n gorlifo\'r ymyriadau rheoli lleol a arsylwyd hyd yma.
 
 DRAFFT --- cyfieithiad drafft awtomataidd; rhaid ei wirio gan adolygydd Cymraeg cyn ei ddefnyddio. Cedwir rhifau, symbolau ac enwau sgriptiau yn union fel yn y gwreiddiol Saesneg; mae testun o fewn y ffigurau'n aros yn Saesneg. (Draft --- automated draft translation; must be checked by a Welsh-language reviewer before use. Numbers, symbols and script names are kept exactly as the English original; text inside the figures remains in English.)

@@ -21,8 +21,7 @@ Restoration of groundwater-dependent dune slack habitat increasingly relies on p
 
 **Keywords:** dune slack; groundwater; clearfell; BACI; restoration; coastal dune hydrology
 
-[]{#anchor}1. Introduction
-==========================
+# []{#anchor}1. Introduction
 
 Coastal dune slacks are among the most species-rich and most threatened groundwater-dependent habitats in north-west Europe. Their characteristic plant communities occupy a narrow band of water-table depth: the seasonal summer minimum must remain shallow enough to wet the rooting zone yet deep enough to avoid permanent inundation, a window of roughly 0.4 m that separates the wet-slack and dry-slack communities recognized by Curreli et al. (2013). A complementary indicator based on mean spring rather than summer water level has more recently been proposed (van Willegen et al., 2025); we frame the present analysis on the summer minimum, which is the more direct measure of the drought constraint on slack viability and the metric against which both interventions are evaluated here. Where the summer water table falls progressively, slack vegetation transitions toward dry-grassland and scrub, and the conservation interest is lost. At many British and continental sites this decline has prompted active intervention, most commonly the removal of conifer plantation established on stabilized back dunes during the twentieth century, and the mechanical lowering of the ground surface to bring the water table back into the rooting zone.
 
@@ -32,54 +31,43 @@ Newborough Warren, on the south-west coast of Anglesey, offers an unusually stro
 
 This paper analyses both interventions within a Before--After--Control--Impact (BACI) framework and asks three questions. First, did either intervention raise the water table, and if so, in which season and by how much? Second, what mechanisms explain the response, and what do they imply for the durability of the gain? Third, how far do the effects of forest management reach across the site --- in particular, can clearance in the forest zone benefit the eastern slacks where the ecological stakes are highest? The aquifer architecture, cluster structure and state-space model (SSM) on which the analysis rests are developed in the companion paper (Hollingham, 2026a); here we cite that framework rather than re-derive it, and concentrate on the interventions themselves.
 
-[]{#anchor}2. Study site and interventions
-==========================================
+# []{#anchor}2. Study site and interventions
 
-[]{#anchor}2.1 Site
--------------------
+## []{#anchor}2.1 Site
 
 Newborough Warren is a calcareous coastal dune system of approximately 700 ha designated as a Special Area of Conservation for its dune slack habitats. A bedrock ridge forms the northern boundary of the study area; groundwater flows southward from this high ground across a single, highly transmissive body of clean dune sand. The drainage divides around a central dune topographic high: the forested western block discharges south-westward toward Caernarfon Bay, while the open eastern dune discharges south and south-east toward the Menai Strait. This drainage geometry is central to the reach question addressed in Section 5.4: perturbations originating in the western forest propagate seaward, not into the eastern slacks. The geomorphology, the five-cluster partition of the monitoring network and the substrate contrasts are described in full in the companion paper (Hollingham, 2026a).
 
 The monitoring record comprises end-of-month manual dipwell readings. For the analyses reported here the network is partitioned into five hydrogeological clusters --- C1 Lake Edge (n = 7), C2 Dune (n = 24), C3 Western Residual (n = 21), C4 Main Forest (n = 9) and C5 Coastal Forest (n = 5), totalling 66 reference wells --- with an extended network of additional wells used in robustness checks. The forest occupies clusters C4 and C5; the two carry the same Corsican pine canopy but differ in substrate, C4 sitting on thinner sand over irregular bedrock on the elevated ridge flank and C5 on deeper, more uniform coastal sand.
 
-[]{#anchor}2.2 The scraping intervention
-----------------------------------------
+## []{#anchor}2.2 The scraping intervention
 
 In April 2015 the ground surface of one dune slack, instrumented by dipwell CEH36, was mechanically lowered to raise the summer water table toward the surface. The excavation depth was not directly surveyed; back-calculation from the observed water-table response and the open-dune specific yield (D = H₀ / Sy) implies a lowering of approximately 0.42 m. A second scraping episode in October 2023 lowered two further slacks (CEH18, CEH21). CEH36 lies approximately 340 m seaward and downslope of the later clearfell footprint, a proximity that matters when the interaction between the two interventions is considered. The unscraped slack CEH4, and CEH22 nearer the coast, serve as paired controls.
 
-[]{#anchor}2.3 The clearfell intervention
------------------------------------------
+## []{#anchor}2.3 The clearfell intervention
 
 In December 2017 approximately 8.4 ha of Corsican pine was felled. The felled compartment straddles the gradational boundary between C4 Main Forest and C5 Coastal Forest, and the wells within and adjacent to it show mixed cluster affinities spanning C3, C4 and C5 (Hollingham, 2026a). The compartment cannot, therefore, be treated as a clean single-cluster experiment; its hydrological effects propagate downslope into the coastal catchment along the continuous drainage pathway. The sole in-situ Impact well is WMC3; four edge wells (CEH31, CEH20, CEH30, CEH16) sit closer to the felling boundary, and unfelled forest, coastal and climate controls complete the five-tier design described below.
 
-[]{#anchor}3. Methods
-=====================
+# []{#anchor}3. Methods
 
-[]{#anchor}3.1 BACI design and control tiers
---------------------------------------------
+## []{#anchor}3.1 BACI design and control tiers
 
 Both interventions are evaluated as monthly BACI gaps --- the water level at a target tier minus the level at a control tier --- with the intervention "step" estimated as a level shift at the intervention date after adjustment for climate and spatial covariates. The clearfell analysis uses a five-tier classification: Impact (the felled well WMC3), Edge (felled-margin wells), Forest control (unfelled plantation), Coastal control and Climate control. Three counterfactuals are run for the clearfell --- Forest, Climate and Combined --- but the Forest control is the primary test, because it compares felled wells against unfelled forest sharing the same canopy and substrate and so isolates the canopy-removal response from the coastal-retreat gradient that contaminates comparisons against open-dune controls. The combined control dilutes the felling signal because it incorporates coastal-tier wells that carry the retreat signal, and the climate control spans a wider easting range still; both are reported for completeness but are not interpreted as clearfell effects.
 
-[]{#anchor}3.2 ANCOVA specification
------------------------------------
+## []{#anchor}3.2 ANCOVA specification
 
 The clearfell step is estimated by ANCOVA fitted to the monthly BACI gap, with covariates: a centred cumulative water-balance (CWB) term capturing climate forcing; a distance-weighted scraping dummy (exponential decay length λ = 300 m) that absorbs the 2015 scraping signal at wells near CEH36; a CWB × clearfell interaction testing whether climate sensitivity changed after felling; and an easting × time interaction that absorbs the progressive west-to-east deepening attributable to coastal erosion. Sensitivity of the clearfell coefficient to the scraping decay length was checked at λ = 200, 300 and 500 m. The scraping intervention is analysed with a two-tier CUSUM-BACI framework: a Tier 1 correction removes background drift estimated at the controls, and a Tier 2 paired comparison estimates the residual scraping signal, cross-checked by synthetic control and by an SSM forward-residual method.
 
-[]{#anchor}3.3 Coefficient decomposition and the shared SSM
------------------------------------------------------------
+## []{#anchor}3.3 Coefficient decomposition and the shared SSM
 
 To interpret the BACI steps mechanistically we draw on the state-space model developed in the companion paper, in which the monthly change in water level is partitioned into a rainfall-recharge term (β₁), an atmospheric-draw term (β₂, scaling PET) and a head-dependent drainage term (β₃, scaling displacement above a fixed drainage datum). For the intervention wells the SSM was fitted separately to the pre- and post-felling windows, yielding per-well coefficient shifts (Δβ₁, Δβ₂, Δβ₃) and a predicted clearfell effect computed from those shifts. Canopy interception (24% of incident rainfall; Freeman, 2008) enters the forest clusters implicitly through their lower β₁ and is treated as a partition of the available PET energy budget rather than an additive loss (Hollingham, 2026a).
 
-[]{#anchor-1}3.4 Scenario framework
------------------------------------
+## []{#anchor-1}3.4 Scenario framework
 
 Forward scenarios --- full clearfell, 50% thinning and broadleaf conversion --- were evaluated by perturbing the per-well β coefficients and computing the steady-state head response. Clearfell sets canopy interception to zero and adjusts β₂ at the forest wells using a BACI-corrected upper-bound multiplier; thinning halves the interception with a proportional adjustment; broadleaf conversion replaces the 24% pine interception with a 15% annual-mean deciduous value (Komatsu et al., 2011) and applies a seasonally varying β₂ multiplier that sits below the pine value through the leaf-off winter and above it during the growing season --- Nov--Apr and May--Oct means of approximately 0.88 and 1.075 of the pine coefficient, an annual-mean effect close to unity --- to reflect deciduous phenology. The framework aggregates per-well responses by inverse-distance weighting; it is a scenario aggregator, not a calibrated continuous-flow model, and applies no explicit propagation between clusters. All numerical results below are read from the live analysis pipeline.
 
-4. Results
-==========
+# 4. Results
 
-[]{#anchor-1}4.1 Dune scraping
-------------------------------
+## []{#anchor-1}4.1 Dune scraping
 
 ### []{#anchor-1}4.1.1 Background drift
 
@@ -91,13 +79,13 @@ Three independent methods converge on the scraping benefit at CEH36 during the p
 
 ![](Pictures/10000000000006A4000005EDCD30A0FC.jpg){width="5.8335in" height="5.2055in"}
 
-**Figure 1.** Three-method robustness assessment of the scraping signal at CEH36 (measured). (a) Raw BACI gap (CEH36 minus CEH4) and synthetic-control gap, with intervention dates; the persistent positive offset after April 2015 marks the step change. (b) SSM forward residual, calibrated on the pre-scraping record; the persistently positive residual indicates a water table sitting above the pre-intervention model prediction. (c) Pure-scraping-era steps from the three methods: raw BACI +0.129 m, synthetic control +0.137 m, SSM residual +0.081 m. Source: 09\_scrape\_08\_ceh36\_robustness.
+**Figure 1.** Three-method robustness assessment of the scraping signal at CEH36 (measured). (a) Raw BACI gap (CEH36 minus CEH4) and synthetic-control gap, with intervention dates; the persistent positive offset after April 2015 marks the step change. (b) SSM forward residual, calibrated on the pre-scraping record; the persistently positive residual indicates a water table sitting above the pre-intervention model prediction. (c) Pure-scraping-era steps from the three methods: raw BACI +0.129 m, synthetic control +0.137 m, SSM residual +0.081 m. Source: 09_scrape_08_ceh36_robustness.
 
 The ecologically decisive result is at the summer minimum. The paired BACI summer-minimum analysis returns a significant improvement at CEH36 of +0.195 m against CEH4 (p = 0.004) and +0.161 m against the climate-control centroid (p = 0.006); the CEH4 control's own summer minimum deepened across successive eras over the same period (Section 4.1.1), confirming the deteriorating background against which the paired gain is measured. Neither of the slacks scraped in October 2023 shows a benefit that survives background correction (CEH18 +0.056 m, p = 0.20; CEH21 −0.008 m, p = 0.89), consistent with their short two-summer post-scraping record and, at CEH21, an unreliable control on its own coastal-erosion trajectory.
 
 ![](Pictures/10000000000006A4000004C87E925B49.jpg){width="5.4in" height="3.8882in"}
 
-**Figure 2.** Paired BACI summer-minimum analysis, CEH36 (scraped) versus CEH4 (control) (measured). (a) Annual summer minimum depth with the Curreli et al. (2013) ecological thresholds. (b) BACI gap (CEH36 minus CEH4) by year, pre- and post-scraping means; the paired shift is +0.195 m (p = 0.004). Source: 09c\_04\_summer\_minima\_paired.
+**Figure 2.** Paired BACI summer-minimum analysis, CEH36 (scraped) versus CEH4 (control) (measured). (a) Annual summer minimum depth with the Curreli et al. (2013) ecological thresholds. (b) BACI gap (CEH36 minus CEH4) by year, pre- and post-scraping means; the paired shift is +0.195 m (p = 0.004). Source: 09c_04_summer_minima_paired.
 
 ### []{#anchor-1}4.1.3 Drainage coefficient and propagation
 
@@ -107,8 +95,7 @@ Era-specific drainage coefficients (β₃) increased directionally at both treat
 
 To place the measured benefit in context, alternative interventions were computed at CEH36 using its own SSM coefficients. The observed scraping benefit (+45.2 mm water-equivalent per month) substantially exceeds any modelled alternative at the same well: hypothetical clearfell +13.6, 50% thinning +6.8, broadleaf +2.9, and a wet-climate scenario +7.8 mm/month, against −14.4 mm/month under a dry-climate scenario. These modelled alternatives are equilibrium volumetric responses and cannot resolve a summer minimum, so the ecologically decisive comparison rests on the directly observed record: scraping delivered a measured paired-BACI summer-minimum benefit at CEH36 of +0.195 m against CEH4 (Section 4.1.2), a gain none of the modelled forest-management or climate alternatives approaches. This confirms that scraping operates through a fundamentally different mechanism, creating a topographic drain rather than modifying the surface energy balance.
 
-[]{#anchor-1}4.2 The December 2017 clearfell
---------------------------------------------
+## []{#anchor-1}4.2 The December 2017 clearfell
 
 ### []{#anchor-1}4.2.1 ANCOVA-BACI results
 
@@ -120,7 +107,7 @@ The CWB × clearfell interaction was non-significant in all six models, indicati
 
 ![](Pictures/10000000000006A40000042931C57575.jpg){width="5.8335in" height="3.6543in"}
 
-**Figure 3.** Forest-control BACI time series and CUSUM for the Impact tier (WMC3) (measured). Upper panel: monthly BACI gap with climate-corrected series and era means. Lower panel: cumulative sum of the climate-corrected series demeaned on the pre-felling baseline; sustained positive accumulation after December 2017 confirms the clearfell step. Vertical lines: April 2015 scraping (dashed), December 2017 clearfell (solid), October 2023 re-scraping (dotted). Source: 10a\_07\_cusum\_impact.
+**Figure 3.** Forest-control BACI time series and CUSUM for the Impact tier (WMC3) (measured). Upper panel: monthly BACI gap with climate-corrected series and era means. Lower panel: cumulative sum of the climate-corrected series demeaned on the pre-felling baseline; sustained positive accumulation after December 2017 confirms the clearfell step. Vertical lines: April 2015 scraping (dashed), December 2017 clearfell (solid), October 2023 re-scraping (dotted). Source: 10a_07_cusum_impact.
 
 The validity of the easting × time correction can be checked independently against the network-scale coastal-retreat gradient model (Hollingham, 2026a). For the headline Forest--Impact comparison the agreement is close: the BACI absorbs −12.9 ± 5.2 mm yr⁻¹ against an independent prediction of −11.1 mm yr⁻¹ (z = −0.35, consistent within sampling error), confirming that the +0.120 m Impact step is not a residual of incomplete gradient correction. The coastal-retreat premise underlying this correction is itself independently corroborated by a model-free coast-to-inland transect, in which the coast-minus-inland head difference deepens at −28.2 mm yr⁻¹ (95% CI \[−34.2, −22.0\]), within error of the network-scale gradient anomaly of −29.0 mm yr⁻¹ recovered from an entirely independent construction (Hollingham, 2026a). The Edge comparison absorbs more drift than coastal retreat alone justifies, so any felling-attributable Edge signal is a lower bound rather than an inflated estimate.
 
@@ -130,7 +117,7 @@ No significant clearfell effect on summer minimum depth was detected at any tier
 
 ![](Pictures/10000000000006A40000036E69B54230.jpg){width="5.8335in" height="3.0126in"}
 
-**Figure 4.** Summer-minimum depth distributions by BACI tier across three management phases (measured). Violin width indicates frequency; diamond = mean, bar = median. The Impact and Edge tiers track the Forest-control trajectory with no detectable divergence in summer extremes after felling, despite the significant positive shift in the monthly ANCOVA; the Coastal control deepens progressively, consistent with coastal erosion. Ecological thresholds from Curreli et al. (2013). Source: 21\_forestry\_04\_baci\_zone\_violin.
+**Figure 4.** Summer-minimum depth distributions by BACI tier across three management phases (measured). Violin width indicates frequency; diamond = mean, bar = median. The Impact and Edge tiers track the Forest-control trajectory with no detectable divergence in summer extremes after felling, despite the significant positive shift in the monthly ANCOVA; the Coastal control deepens progressively, consistent with coastal erosion. Ecological thresholds from Curreli et al. (2013). Source: 21_forestry_04_baci_zone_violin.
 
 ### []{#anchor-1}4.2.3 Coefficient decomposition
 
@@ -140,14 +127,13 @@ The two analyses are reconciled rather than contradictory. The ANCOVA measures t
 
 ![](Pictures/10000000000003B4000006A4DE419255.jpg){width="5in" height="8.9661in"}
 
-**Figure 5.** Before- and after-clearfell SSM coefficient estimates for the BACI-network wells, grouped and coloured by tier (measured). Open circles = before felling, filled squares = after, joined by a line; whiskers = 95% CI. β₁ recharge declines at nearly all wells across every tier --- a site-wide signal. β₂ atmospheric draw rises only at the unfelled pine Forest controls while falling at the felled Impact well, the open-dune controls and the broadleaf well NW10 --- an anomaly discussed in §5.3. β₃ drainage changes are small and spatially incoherent. Bottom panel: per-tier mean β₁ and β₂ shift as a percentage of the pre-felling value (β₃ omitted --- its proportional swings are noise-dominated and are shown on its own panel above). Source: 10e\_03\_coefficient\_shifts.
+**Figure 5.** Before- and after-clearfell SSM coefficient estimates for the BACI-network wells, grouped and coloured by tier (measured). Open circles = before felling, filled squares = after, joined by a line; whiskers = 95% CI. β₁ recharge declines at nearly all wells across every tier --- a site-wide signal. β₂ atmospheric draw rises only at the unfelled pine Forest controls while falling at the felled Impact well, the open-dune controls and the broadleaf well NW10 --- an anomaly discussed in §5.3. β₃ drainage changes are small and spatially incoherent. Bottom panel: per-tier mean β₁ and β₂ shift as a percentage of the pre-felling value (β₃ omitted --- its proportional swings are noise-dominated and are shown on its own panel above). Source: 10e_03_coefficient_shifts.
 
 ### []{#anchor-1}4.2.4 Robustness
 
 Four independent methods relax the ANCOVA assumptions. An SSM residual normalization and a six-donor synthetic control both show a gross step of approximately +0.10 m at the Impact well (synthetic-control +0.099 m, p = 0.001) that reduces to of order +0.03 m once the upward drift of the Forest controls is removed --- a small, positive, clearfell-specific component near the limit of detection. Synthetic backward extension of the within-compartment wells (WMC3 + FE1 + FE2) returns a clearfell step of +0.085 m (p \< 0.001). Decomposed, FE2 --- sited inside the felled footprint --- diverges +0.028 m post-felling (p \< 0.001), whereas FE1, some 20 m outside the boundary in standing forest, shows no significant divergence (+0.009 m, p = 0.15): exactly the spatial pattern expected of a localized felling effect. A clearfell transect from plantation interior to felling core shows no significant distance gradient, though the post-felling spread in transect hydrographs widens, suggesting a distance-dependent response that seven wells lack the power to resolve.
 
-4.3 Forest-management scenarios
--------------------------------
+## 4.3 Forest-management scenarios
 
 The scenario framework quantifies the seasonal trade-off at the two forest clusters; it returns no response at C1, C2 or C3 under any forest-management scenario. Full clearfell produces a small positive net annual volumetric response at both forest clusters (C4 +8.3, C5 +10.5 mm/month), driven by the winter recharge gain from interception removal marginally exceeding the summer atmospheric-draw cost. Fifty per cent thinning gives roughly half this response (C4 +4.2, C5 +5.3 mm/month). Broadleaf conversion is near-neutral and differently signed across the two clusters (C4 −0.7, C5 +1.6 mm/month): the leafless-winter recharge advantage is offset by the growing-season transpiration penalty, slightly negative on the thin high-β₂ C4 substrate and marginally positive on the deeper C5 sand (Figure 6).
 
@@ -155,9 +141,9 @@ C5 captures a larger per-area clearfell response than C4 --- about a quarter mor
 
 ![](Pictures/10000000000006A4000003887E0D7A80.jpg){width="5.8335in" height="3.102in"}
 
-**Figure 6.** Forest-management and climate scenario responses by cluster, expressed as volumetric water-equivalent change (mm/month) (modelled). Forest-management scenarios produce a response only at the forested clusters C4 and C5; clearfell and thinning are small and positive, broadleaf conversion near-neutral and differently signed across C4 and C5. Climate scenarios are spatially coherent and an order of magnitude larger. Steady-state predictions from the per-well SSM coefficient structure. Source: 21\_forestry\_05\_scenario\_comparison.
+**Figure 6.** Forest-management and climate scenario responses by cluster, expressed as volumetric water-equivalent change (mm/month) (modelled). Forest-management scenarios produce a response only at the forested clusters C4 and C5; clearfell and thinning are small and positive, broadleaf conversion near-neutral and differently signed across C4 and C5. Climate scenarios are spatially coherent and an order of magnitude larger. Steady-state predictions from the per-well SSM coefficient structure. Source: 21_forestry_05_scenario_comparison.
 
-**Table 1.** Three-counterfactual ANCOVA-BACI clearfell-step estimates (m) against each control tier, with the scraping covariate. The Forest control is the primary test. Climate- and Combined-control rows are contaminated by the coastal-retreat gradient; the Climate-control null is discussed in the text as a convergence result rather than as an independent clearfell estimate. Values read from the live pipeline (10a\_report\_numbers.csv).
+**Table 1.** Three-counterfactual ANCOVA-BACI clearfell-step estimates (m) against each control tier, with the scraping covariate. The Forest control is the primary test. Climate- and Combined-control rows are contaminated by the coastal-retreat gradient; the Climate-control null is discussed in the text as a convergence result rather than as an independent clearfell estimate. Values read from the live pipeline (10a_report_numbers.csv).
 
   ---------- -------- -------- -------------------- --------- -------- --------- ------ -------------------------------------------------
   Forest     Impact   +0.120   \[+0.050, +0.189\]   \<0.001   +0.344   0.002     0.27   162
@@ -168,11 +154,9 @@ C5 captures a larger per-area clearfell response than C4 --- about a quarter mor
   Combined   Edge     −0.020   \[−0.046, +0.007\]   0.14      +0.298   0.01      0.46   141[]{#results}[]{#forest-management-scenarios}
   ---------- -------- -------- -------------------- --------- -------- --------- ------ -------------------------------------------------
 
-5. Discussion
-=============
+# 5. Discussion
 
-[]{#anchor-1}5.1 Dune scraping
-------------------------------
+## []{#anchor-1}5.1 Dune scraping
 
 ### []{#anchor-1}5.1.1 Measured benefit and durability
 
@@ -190,8 +174,7 @@ Placing the interventions on the same site-integrated footing as the background 
 
 The propagation timescale is governed by the aquifer's hydraulic diffusivity and, for the relevant distances, is measured in years to decades --- longer than the 31-month scraping observation window. This explains why no distance-decay in the drainage signal was detectable uphill of CEH36, accounts for the slow equilibration of any clearfell recovery, and means that the coastal-erosion signal now visible at the controls is a lagged response to earlier retreat: the present CUSUM trajectories are a leading indicator of inland conditions rather than a real-time measure of them. Monitoring programmes must be designed around this lag.
 
-[]{#anchor-2}5.2 The clearfell experiment
------------------------------------------
+## []{#anchor-2}5.2 The clearfell experiment
 
 ### []{#anchor-2}5.2.1 A winter-recharge intervention
 
@@ -209,8 +192,7 @@ Earlier attributions of water-table depression to the plantation (e.g. Betson e
 
 The scenario framework predicts that clearfell raises the C5 water table more than C4's, because C5's lower β₂ means the interception gain outweighs the evaporative penalty there. Yet C5 shows the steepest observed decline in the network. We flag this discrepancy rather than explain it away. The reconciliation we find most plausible is mechanistic: the clearfell scenario is a *vertical* flux adjustment --- a winter recharge gain set against a summer evaporative cost --- whereas the observed C5 decline is dominated by a *lateral* geomorphological forcing. C5 sits on deep, freely draining sand directly against the retreating coastal boundary, and its high hydraulic diffusivity allows the lateral drawdown signal from coastal erosion to propagate inland efficiently, overriding the localized vertical interception gain that the scenario predicts. This does not rescue the prediction so much as locate the missing term: the per-cluster SSM represents vertical exchange but not the lateral coastal boundary condition, and the mixed felling zone straddling the C4/C5 transition compounds the attribution. The coastal-retreat signal is the leading candidate. The companion paper's network-scale gradient analysis now places it on a quantitative footing: progressive coastal-boundary retreat accounts for approximately 41% of C5's observed summer-minimum decline and the site-wide climate background a further 17%, leaving a residual of order −16 mm yr⁻¹ attributable to the thin-saturated-thickness and canopy-maturation mechanisms operating in parallel (Hollingham, 2026a). The discrepancy is therefore partly reconciled: the scenario framework over-predicts at C5 because the per-cluster SSM omits the coastal-retreat term that dominates C5's seaward boundary, not because the canopy mechanism fails. The precise 41% is fragile to which C5 well anchors the forest-free gradient fit, but the direction is robust --- C5 is unambiguously the most coastal-affected cluster --- and continued C5 monitoring with targeted coastal-retreat measurement remains a stated research priority.
 
-[]{#anchor-2}5.3 Hydrological role of the plantation
-----------------------------------------------------
+## []{#anchor-2}5.3 Hydrological role of the plantation
 
 The forest functions as both a sink and a shield. As a sink it suppresses recharge through 24% canopy interception (Freeman, 2008) and draws the water table down through transpiration; as a shield it intercepts PET energy at wet canopy surfaces before that energy can act on the water table. The shield is most clearly read not from the post-felling coefficient shifts but from the cross-cluster β₂ contrast, which is dominated by substrate, not canopy. C4 carries the network's highest β₂ not because its canopy draws hardest but because its thin sand over irregular bedrock has the lowest effective specific yield, so a given evaporative flux produces the largest head change; C5, on deeper sand, has a much lower β₂ despite identical canopy (Hollingham, 2026a). The practical consequence is that canopy-attributable changes in β₂ must be measured against a position-matched control --- precisely the role of the Forest-control tier here.
 
@@ -222,19 +204,17 @@ A direct observational test of broadleaf conversion exists within the network, a
 
 We also note a slower process that the water-table analysis cannot resolve but that bears on restoration: progressive *Dothistroma* needle blight is already thinning parts of the canopy, offering a natural experiment in canopy-density effects on β₂ that requires only sustained monitoring. It is flagged as a monitoring question rather than a finding.
 
-[]{#anchor-2}5.4 The reach of forest management
------------------------------------------------
+## []{#anchor-2}5.4 The reach of forest management
 
 A central management question is whether forest management in the C4/C5 zone could improve conditions in the eastern open-dune clusters (C1, C2, C3), where the ecological thresholds are most critical and the remaining wet-slack resource is concentrated. The evidence indicates it cannot. The scenario framework produces no detectable response at C1--C3 under any forest-management scenario; the BACI record shows no felling-specific response at wells outside the forest zone once common-mode climate variability is removed; and the post-felling transect is spatially uniform with no inland gradient. This isolation is not a framework artefact. The drainage geometry sends forest-zone perturbations south-westward toward Caernarfon Bay, not eastward into C1 and C2 (Figure 7), and the steady-state drawdown of the existing 75-year-old plantation is already negligible at the eastern wells despite the plantation having had its full lifetime to reach equilibrium. Any clearfell recovery would propagate outward on the same years-to-decades timescale and with a comparable, spatially limited footprint.
 
 ![](Pictures/10000000000006A400000491FE2941B6.jpg){width="5.8in" height="3.9882in"}
 
-**Figure 7.** Steady-state drawdown field of the existing plantation, illustrating the reach of forest-zone perturbations (illustrative --- computed from an assumed canopy-edge head deficit, not a measured drawdown). The perturbation is directed south-westward toward Caernarfon Bay along the drainage gradient and is negligible at the eastern C1/C2 wells. The per-well inverse-distance framework is a geometric aggregator, not a calibrated flow model. Source: 20\_drawdown\_propagation.
+**Figure 7.** Steady-state drawdown field of the existing plantation, illustrating the reach of forest-zone perturbations (illustrative --- computed from an assumed canopy-edge head deficit, not a measured drawdown). The perturbation is directed south-westward toward Caernarfon Bay along the drainage gradient and is negligible at the eastern C1/C2 wells. The per-well inverse-distance framework is a geometric aggregator, not a calibrated flow model. Source: 20_drawdown_propagation.
 
 The clusters where the stakes are highest --- C1 and C2, whose summer minima sit within 0.2--0.4 m of the community thresholds --- therefore show no detectable response to forest management, and their summer trajectory is set by the site-wide climate signal. Because winter flooding across the western and forest clusters is controlled almost entirely by antecedent summer minimum depth rather than winter rainfall amount (Hollingham, 2026a), the primary restoration lever is summer minimum depth, over which forest management in the C4/C5 zone has no influence at C1 or C2.
 
-[]{#anchor-2}5.5 Implications for restoration and monitoring
-------------------------------------------------------------
+## []{#anchor-2}5.5 Implications for restoration and monitoring
 
 Three conclusions for management follow. First, summer minimum depth, not winter recharge, is the operative restoration target, which makes summer dipwell readings more diagnostically informative than winter peaks and reframes monitoring design accordingly. Second, topographic scraping is the most directly effective intervention in the record, but its benefit is local and its planning must respect the cascade risk by targeting the eastern C1/C2 transitional slacks --- where a single scrape can bring a marginal well within reach of a mildly wet winter --- rather than the coastal margin where it would amplify an existing erosion-driven gradient (Figure 8). Third, plantation clearance raises the mean winter water table but does not lift the summer floor and does not reach the eastern slacks; its hydrological case rests on winter-season and within-forest objectives, not on benefiting the wider slack resource.
 
@@ -242,22 +222,19 @@ Two points follow for monitoring design. First, the aquifer equilibrates to a st
 
 ![](Pictures/10000000000006A4000004877D5E708D.jpg){width="5.8in" height="3.9543in"}
 
-**Figure 8.** Modelled steady-state drawdown field around the 2015 CEH36 scrape --- edge magnitude empirically anchored, reach modelled. The edge drawdown is set to the *measured* CEH36 scraping response (≈0.13 m; Script 09a, Pure-Scraping era vs CEH4), not an assumed value; the surrounding field is a steady-state radial-drain decay along a flow-weighted cost-distance (leaky-aquifer length λ = √(K·b/(Sy·β₃)) ≈ 220 m), with the excavation interior masked because the slack itself rises. The excavation depth (≈0.42 m) is the *inferred* output, D = H₀/Sy, not a survey input. The elevated displacement head at the scrape steepens drainage gradients and draws the surrounding water table down --- the same mechanism as coastal erosion, underlying the chase-inland cascade. Source: 20\_scrape\_drawdown\_nohead.
+**Figure 8.** Modelled steady-state drawdown field around the 2015 CEH36 scrape --- edge magnitude empirically anchored, reach modelled. The edge drawdown is set to the *measured* CEH36 scraping response (≈0.13 m; Script 09a, Pure-Scraping era vs CEH4), not an assumed value; the surrounding field is a steady-state radial-drain decay along a flow-weighted cost-distance (leaky-aquifer length λ = √(K·b/(Sy·β₃)) ≈ 220 m), with the excavation interior masked because the slack itself rises. The excavation depth (≈0.42 m) is the *inferred* output, D = H₀/Sy, not a survey input. The elevated displacement head at the scrape steepens drainage gradients and draws the surrounding water table down --- the same mechanism as coastal erosion, underlying the chase-inland cascade. Source: 20_scrape_drawdown_nohead.
 
 Underlying all three is the binding constraint: the summer drought trajectory, driven by a site-wide decline in recharge efficiency under a climate redistributing rainfall toward wetter winters and drier summers, is approaching the ecological viability thresholds within the next one to two decades. This ordering is borne out when the interventions are placed on a common site-integrated footing with the background climate and coastal drivers (Hollingham, 2026a). The warren-wide climate / common-mode decline --- of order −127 mm equivalent depth over a twenty-year horizon, or about −6.35 mm yr⁻¹ --- is the single largest term; coastal-retreat drawdown is the largest spatially-structured driver at roughly 62% of it; the net scraping loss is about 17% and the clearfell gain about 5%. The two management interventions are, on this measure, second-order against a background they cannot arrest. The management challenge at Newborough is therefore hydrological adaptation --- maintaining flooding capacity in an increasingly seasonal climate --- rather than restoration to a prior state. The prediction equations, threshold maps and scenario framework underpinning these conclusions are available as interactive tools (Hollingham, 2026b).
 
-[]{#anchor-3}6. Limitations
-===========================
+# []{#anchor-3}6. Limitations
 
 Neither intervention was randomly assigned, raising the usual possibility that pre-existing site characteristics confound the signal; the monitoring network was not designed as a purpose-built propagation transect and cannot resolve a residual felling signal within 100 m of the clearfell edge. Both intervention analyses treat the coastal-erosion confound through covariates and control selection rather than through explicit time-lagged modelling: the easting × time term captures the average spatial gradient but not the multi-year propagation of erosion signals from earlier retreat, so the contemporaneous management signal cannot be fully separated from the time-integrated coastal signal. The independent corroboration of the easting × time covariate against a physics-based gradient model, and against a model-free coast-to-inland transect (Hollingham, 2026a), is reassuring at the headline Forest--Impact comparison but only partial at the Edge and Climate tiers. The coastal driver is thus established in direction and corroborated in rate, but its precise amplitude cannot be independently recovered from the monitoring network alone (Hollingham, 2026a), which bounds how sharply the contemporaneous management and time-integrated coastal signals can be separated. The Thornthwaite PET method overestimates evaporative demand in humid maritime climates, so the absolute scenario magnitudes are conservative upper bounds; the relative ranking of scenarios and the finding of structural isolation are independent of the PET method because they depend on coefficient ratios and spatial structure. The NW10 broadleaf comparison rests on a single, positionally confounded well with fewer than four years of post-canopy-closure record and should be read as indicative only. The spatial framework is a per-well scenario aggregator interpolated by inverse-distance weighting, not a calibrated continuous-flow model; resolving cluster-to-cluster coupling would require slug tests and a ground-penetrating-radar survey of aquifer thickness, identified as priority fieldwork. An empirical MSL5 change comparison (window end 2017 vs window end 2023) confirms the absence of a detectable clearfell or scraping signal in five-year spring means; the window choice requires careful validation at sites where the SSM drainage timescale τ = Sy/β₃ exceeds 12 months at some wells, as anomalous wet springs produce artefactual cluster-level gains in any window that includes them (Hollingham, 2026a §6.9).
 
-[]{#anchor-3}7. Conclusions
-===========================
+# []{#anchor-3}7. Conclusions
 
 A 21-year manual record and a five-tier BACI design allow the hydrological effects of two dune-restoration interventions to be separated from a deteriorating climatic and coastal background. The December 2017 clearfell raised the mean monthly water table at the felled well by +0.120 m against an in-situ forest control, but left summer minimum depth --- the metric governing slack viability --- unchanged at every tier; canopy removal is, at this site, a winter-recharge intervention whose effect on the summer floor is small against a site-wide decline in recharge efficiency. The 2015 dune scraping delivered a larger and directly ecological benefit, improving the summer minimum at the scraped slack by +0.195 m, but did so by permanently lowering the ground surface --- mechanically identical to coastal erosion, and carrying a chase-inland cascade risk that, integrated across the site, registers as a small net water-table loss. Forest-management effects propagate seaward and do not reach the eastern slacks where the ecological need is greatest. The operative restoration lever is summer minimum depth, best addressed by carefully sited scraping in the eastern transitional zone, while the binding constraint remains the climate-driven summer drought trajectory --- traceable, in the coefficient decomposition, to a site-wide decline in rainfall-recharge efficiency (β₁) as the climate redistributes rainfall toward wetter winters and drier summers. On a common site-integrated footing this background outweighs the coastal-retreat drawdown and dwarfs both management interventions. The companion paper (Hollingham, 2026a) sets out the aquifer-characterization framework on which these conclusions rest.
 
-[]{#anchor-3}References
-=======================
+# []{#anchor-3}References
 
 Betson, M., Robins, N.S., Hulme, P.J., 2002. Hydrogeology of the Newborough Warren dune system, Anglesey. British Geological Survey / Environment Agency.
 
@@ -267,7 +244,7 @@ Freeman, C., 2008. Rainfall interception by the Newborough Warren Corsican pine 
 
 Hollingham, M., 2026a. Hydrogeological characterization of a coastal dune aquifer from a 21-year manual record: cluster structure, a state-space water-balance model, and specific yield. Companion paper (this issue).
 
-Hollingham, M., 2026b. Newborough Warren Groundwater Research --- interactive modelling suite: scenario viewer, per-well flood-probability forecaster, and seasonal-extremes explorer. https://newbroman.github.io/Newborough\_Hydrology/ (accessed August 2026)
+Hollingham, M., 2026b. Newborough Warren Groundwater Research --- interactive modelling suite: scenario viewer, per-well flood-probability forecaster, and seasonal-extremes explorer. https://newbroman.github.io/Newborough_Hydrology/ (accessed August 2026)
 
 Komatsu, H., Kume, T., Otsuki, K., 2011. Increasing annual runoff --- broadleaf versus coniferous forests: a meta-analytical review. Hydrological Processes.
 

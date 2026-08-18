@@ -79,7 +79,18 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.8.0"  # Hollingham (2026) — 2026-08-16. Adds the centroid
+__version__ = "1.9.1"  # Hollingham (2026) — 2026-08-18. 03_14 and 03_15 now
+#   use paths.py constants, since Script 19 reads them too.
+#
+# v1.9.0  # Hollingham (2026) — 2026-08-18. Adds the per-well
+#   window sensitivity (03_15): every reference well fitted on both the full
+#   record and the comparison window, the per-well counterpart of 03_14. The
+#   window rows are re-fitted rather than copied from 03_master_data.csv and are
+#   checked against it at run time, so the two cannot drift apart unnoticed.
+#   Prerequisite for the scenario viewer's basis toggle, which switches the
+#   per-well layer as well as the cluster layer (D-034).
+#
+# v1.8.0  # Hollingham (2026) — 2026-08-16. Adds the centroid
 #   window sensitivity (03_14): every cluster centroid fitted on BOTH the full
 #   record and the trailing comparison window, with standard errors, so Table 3
 #   can print the two side by side instead of the report resting on one basis
@@ -145,6 +156,7 @@ from utils.paths import (
     INT_WELLS_CLEAN_MAOD,
     OUT_03_SIGNATURES, OUT_03_CLUSTER_SUMMARY, OUT_03_MECHANISTIC_TABLE,
     OUT_03_DATUM_CONFOUND, OUT_03_PARTITION_VS_DATUM, OUT_03_DATUM_REGIME_FIG,
+    OUT_03_CENTROID_WINDOW_SENS, OUT_03_PER_WELL_WINDOW_SENS,
     DIR_03,
     OUT_02_AMP_PER_WELL,
     DATA_DIR,
@@ -393,6 +405,65 @@ def build_cluster_centroids(cluster_df: pd.DataFrame,
         centroids[cid] = wells_clean[available].mean(axis=1)
 
     return centroids
+
+
+def per_well_window_sensitivity(master_df: pd.DataFrame,
+                                wells_clean: pd.DataFrame,
+                                well_col_lookup: dict[str, str],
+                                climate: pd.DataFrame) -> pd.DataFrame:
+    """
+    Every reference well fitted on BOTH bases (D-034), the per-well counterpart
+    of centroid_window_sensitivity().
+
+    03_master_data.csv is the comparison-window store: n = 100 at every well, so
+    wells are comparable with each other, which is what the coefficient atlas and
+    the SSM-vs-TLM benchmark need. Nothing emitted the same wells on their full
+    records, so the per-well side of the window question — 60 of 66 wells with a
+    significant positive beta_3 on the window against 64 of 66 on full records —
+    could only ever be quoted from a session probe. It is a committed output now.
+
+    Two consumers. The scenario viewer switches basis for the per-well layer as
+    well as the cluster layer, and a toggle that moved one and not the other
+    would be a mix rather than a choice. And the coefficient-atlas sensitivity —
+    what the maps look like on the full record — becomes producible without
+    re-cutting the published store.
+
+    The window basis here is re-fitted rather than read from master_df, so this
+    output stands alone and any divergence between the two is visible rather
+    than assumed. They should agree exactly.
+    """
+    rows = []
+    for _, r in master_df.iterrows():
+        well_name = r["Name_Original"]
+        target_col = well_col_lookup.get(normalize_well_name(well_name))
+        if target_col is None:
+            continue
+        h_series = wells_clean[target_col]
+        for basis, window in (("full_record", None),
+                              ("comparison_window", LCSC_DATA_LIMIT)):
+            fit = fit_ssm(h_series, climate, lag=HEADLINE_LAG, window=window,
+                          min_obs=MIN_OBS_PER_WELL)
+            if fit is None:
+                continue
+            rows.append({
+                "Name_Original": well_name,
+                "Cluster": r.get("Cluster"),
+                "basis": basis,
+                "window_months": ("" if window is None else window),
+                "n": fit["n"],
+                "beta_1_recharge": fit["beta_1_recharge"],
+                "pvalue_beta_1": fit["pvalue_beta_1"],
+                "beta_2_atmospheric_draw": fit["beta_2_atmospheric_draw"],
+                "pvalue_beta_2": fit["pvalue_beta_2"],
+                "beta_3_drainage": fit["beta_3_drainage"],
+                "se_beta_3": fit["se_beta_3"],
+                "pvalue_beta_3": fit["pvalue_beta_3"],
+                "R2": fit["R2"],
+                "LCSC_percent": 100.0 / fit["beta_1_recharge"],
+                "beta_3_significant_positive": bool(
+                    fit["beta_3_drainage"] > 0 and fit["pvalue_beta_3"] < 0.05),
+            })
+    return pd.DataFrame(rows)
 
 
 def centroid_window_sensitivity(centroids: dict[int, pd.Series],
@@ -2012,6 +2083,33 @@ def main() -> None:
     print(f" -> Saved: {INT_MASTER_DATA.name} "
           f"({len(master_df)} wells)")
 
+    # ---- Per-well window sensitivity: both bases (D-034) --------------------
+    step("Per-well window sensitivity (full record vs comparison window)...")
+    pw_df = per_well_window_sensitivity(master_df, wells_clean,
+                                        well_col_lookup, climate)
+    pw_path = OUT_03_PER_WELL_WINDOW_SENS
+    pw_df.to_csv(pw_path, index=False)
+    if not pw_df.empty:
+        sig = pw_df.groupby("basis")["beta_3_significant_positive"].sum()
+        tot = pw_df.groupby("basis")["beta_3_significant_positive"].count()
+        for basis in ("comparison_window", "full_record"):
+            if basis in sig.index:
+                info(f"  {basis:18s}: {int(sig[basis])} of {int(tot[basis])} wells "
+                     f"with a significant positive beta_3")
+        # The window store must reproduce master_df exactly - it is the same fit.
+        win = pw_df[pw_df["basis"] == "comparison_window"].set_index("Name_Original")
+        ref = master_df.set_index("Name_Original")
+        common = win.index.intersection(ref.index)
+        if len(common):
+            dmax = float((win.loc[common, "beta_3_drainage"]
+                          - ref.loc[common, "beta_3_drainage"]).abs().max())
+            if dmax > 1e-9:
+                warn(f"  window basis differs from 03_master_data.csv by up to "
+                     f"{dmax:.2e} - these are the same fit and should agree")
+            else:
+                info("  window basis reproduces 03_master_data.csv exactly")
+    saved(f"{pw_path.name}")
+
     n_bad_b1 = int((master_df["beta_1_recharge"] < 0).sum())
     n_bad_b2 = int((master_df["beta_2_atmospheric_draw"] < 0).sum())
     if n_bad_b1 or n_bad_b2:
@@ -2041,7 +2139,7 @@ def main() -> None:
     # ---- Centroid window sensitivity: both bases, side by side (D-034) -------
     step("Centroid window sensitivity (full record vs comparison window)...")
     win_df = centroid_window_sensitivity(centroids, climate)
-    win_path = DIR_03 / "03_14_centroid_window_sensitivity.csv"
+    win_path = OUT_03_CENTROID_WINDOW_SENS
     win_df.to_csv(win_path, index=False)
     for cid in sorted(win_df["Cluster"].unique()):
         g = win_df[win_df["Cluster"] == cid].set_index("basis")

@@ -23,7 +23,28 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.10.0"   # Hollingham (2026) -- 2026-08-06
+__version__ = "2.11.2"   # Hollingham (2026) -- 2026-08-18. Hotfix: serialise_wells
+#   builds each well's record from an explicit key list, so the full-record
+#   coefficients merged in v2.11.0 never reached the embedded WELLS array and
+#   the per-well layer silently stayed on the recent basis whichever button was
+#   pressed. The cluster layer did switch, so the viewer showed exactly the
+#   mixed state the toggle exists to prevent.
+#
+# v2.11.1  # Hollingham (2026) -- 2026-08-18. Hotfix: the 03_15
+#   join called normalize_well_name, which this script does not import - it has
+#   its own _norm() and every other id column already goes through it.
+#
+# v2.11.0  # Hollingham (2026) -- 2026-08-18. Coefficient-basis
+#   toggle (D-034). The viewer has always computed on 03_master_data.csv, i.e.
+#   the most recent 8 years; it now embeds each well's full-record fit as well
+#   (03_15) and lets the user switch. Whole record is the default, matching the
+#   report. Choosing the recent basis raises an on-screen note, because on that
+#   basis several clusters - C4 above all - have a drainage term the data cannot
+#   distinguish from zero, and a scenario response computed from it looks more
+#   certain than it is. Cluster means switch with the wells, so the two layers
+#   are never mixed.
+#
+# v2.10.0  # Hollingham (2026) -- 2026-08-06
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -160,6 +181,7 @@ from utils.paths import (
     INT_CLIMATE,
     INT_CLUSTER_STATS,
     INT_MASTER_DATA,
+    OUT_03_PER_WELL_WINDOW_SENS,
     INT_WELL_ELEVATIONS,
     INT_WELLS_CLEAN_MAOD,
     OUT_18_WELL_SY_TABLE,
@@ -638,6 +660,28 @@ def build_well_table(loc, cl, md, elev, maod, clim, sy_df):
             "beta_2_atmospheric_draw": "b2",
             "beta_3_drainage": "b3",
         }), on="id", how="left")
+    # Second coefficient basis for the viewer's toggle (D-034). 03_master_data
+    # is the comparison-window fit, so the viewer has always run on the recent
+    # record; 03_15 carries the same wells on their full records. Both are
+    # embedded and the user chooses, because a tool that silently picks one
+    # basis is the thing that made this question hard to see in the first place.
+    if OUT_03_PER_WELL_WINDOW_SENS.exists():
+        _pw = pd.read_csv(OUT_03_PER_WELL_WINDOW_SENS)
+        _pw["id"] = _pw["Name_Original"].apply(_norm)
+        _full = _pw[_pw["basis"] == "full_record"]
+        wt = wt.merge(_full[["id", "beta_1_recharge", "beta_2_atmospheric_draw",
+                             "beta_3_drainage", "pvalue_beta_3"]].rename(columns={
+            "beta_1_recharge": "b1f", "beta_2_atmospheric_draw": "b2f",
+            "beta_3_drainage": "b3f", "pvalue_beta_3": "p3f"}), on="id", how="left")
+        _win = _pw[_pw["basis"] == "comparison_window"]
+        wt = wt.merge(_win[["id", "pvalue_beta_3"]].rename(
+            columns={"pvalue_beta_3": "p3w"}), on="id", how="left")
+    else:
+        warn(f"{OUT_03_PER_WELL_WINDOW_SENS.name} not found - the viewer will "
+             "offer only the recent-record basis (run Script 03)")
+        for c in ("b1f", "b2f", "b3f", "p3f", "p3w"):
+            wt[c] = np.nan
+
     # Join DEM ground elevation for viewer ridge masking (mirrors the
     # static-figure approach in map_utils.add_idw_surface).
     if "ground_elev_m" in elev.columns:
@@ -836,6 +880,8 @@ def serialise_wells(wt):
                      "mh": _r(r["mh"],3), "wh": _r(r["wh"],3), "sh": _r(r["sh"],3),
                      "sy": _r(r["sy"],4), "b1": _r(r["b1"],6),
                      "b2": _r(r["b2"],6), "b3": _r(r["b3"],6),
+                     "b1f": _r(r.get("b1f"), 6), "b2f": _r(r.get("b2f"), 6),
+                     "b3f": _r(r.get("b3f"), 6),
                      "dg": _r(r.get("dem_g"), 2) if pd.notna(r.get("dem_g")) else None})
     return rows
 
@@ -873,6 +919,25 @@ def serialise_climate(wt, climate_stats):
                                   "b2": _r(sub["b2"].mean(),6) if len(sub) else None,
                                   "b3": _r(sub["b3"].mean(),6) if len(sub) else None}
     out["cluster_betas"] = cluster_betas
+
+    # The same means on the full-record basis, plus how many wells in each
+    # cluster carry a drainage term the data can actually distinguish from zero
+    # on each basis. The counts are what the on-screen note says in words.
+    cluster_betas_full, sig_counts = {}, {}
+    for cl_int in [1, 2, 3, 4, 5]:
+        sub = wt[(wt["Cluster"] == cl_int) & wt.get("b1f", pd.Series(dtype=float)).notna()] \
+              if "b1f" in wt.columns else wt.iloc[0:0]
+        cluster_betas_full[cl_int] = {
+            "b1": _r(sub["b1f"].mean(), 6) if len(sub) else None,
+            "b2": _r(sub["b2f"].mean(), 6) if len(sub) else None,
+            "b3": _r(sub["b3f"].mean(), 6) if len(sub) else None}
+        inc = wt[wt["Cluster"] == cl_int]
+        sig_counts[cl_int] = {
+            "n": int(len(inc)),
+            "full": int((inc["p3f"] < 0.05).sum()) if "p3f" in inc.columns else None,
+            "recent": int((inc["p3w"] < 0.05).sum()) if "p3w" in inc.columns else None}
+    out["cluster_betas_full"] = cluster_betas_full
+    out["sig_counts"] = sig_counts
     return out
 
 
@@ -1167,6 +1232,13 @@ footer a:hover{{text-decoration:underline;}}
     <div class="phead">
       <h4>Groundwater surface &#8212; masked to site boundary</h4>
       <div class="rtabs">
+        <button class="rt on" id="bs_full" onclick="setBasis('full')" title="Coefficients fitted to each well's whole record">Whole record</button>
+        <button class="rt"    id="bs_win"  onclick="setBasis('recent')" title="Coefficients fitted to the most recent 8 years only">Recent 8 years</button>
+      </div>
+    </div>
+    <div id="basisNote" style="display:none;margin:6px 0 10px;padding:8px 10px;border-left:3px solid #E65100;background:#FFF3E0;font-size:13px;line-height:1.45"></div>
+    <div class="phead">
+      <div class="rtabs">
         <button class="rt on" id="rt_dh"  onclick="setMM('dh')">&#916;h vs baseline</button>
         <button class="rt"    id="rt_abs" onclick="setMM('abs')">Absolute head</button>
         <button class="rt"    id="rt_dep" onclick="setMM('dep')">Depth below surface</button>
@@ -1287,6 +1359,30 @@ function rl(){{var s=gs();document.getElementById('vP_w').textContent=s.sP_w.toF
 function onSl(){{CUR_SC='baseline';rl();go();}}
 function loadSc(n){{CUR_SC=n;document.querySelectorAll('.sc').forEach(function(b){{b.classList.remove('on');}});document.getElementById('btn_'+n).classList.add('on');var sc=SCEN[n];['sP_w','sP_s','sPET_w','sPET_s','sI_c4','sI_c5','sB2_w','sB2_s'].forEach(function(k){{document.getElementById(k).value=sc[k];}});rl();var wb=document.getElementById('warnBox');if(WARN[n]){{wb.textContent=WARN[n];wb.style.display='block';}}else wb.style.display='none';go();}}
 function setSeas(s){{sea=s;document.querySelectorAll('.tab').forEach(function(b){{b.classList.remove('on');}});document.getElementById('tab_'+s).classList.add('on');go();}}
+var BASIS='full';
+function wB(w){{return BASIS==='full'&&w.b1f!=null?{{b1:w.b1f,b2:w.b2f,b3:w.b3f}}:{{b1:w.b1,b2:w.b2,b3:w.b3}};}}
+function clB(cl){{var f=(CLIMATE.cluster_betas_full||{{}})[cl];
+  return (BASIS==='full'&&f&&f.b1!=null)?f:(CLIMATE.cluster_betas[cl]||{{}});}}
+function setBasis(b){{
+  BASIS=b;
+  document.getElementById('bs_full').classList.toggle('on',b==='full');
+  document.getElementById('bs_win').classList.toggle('on',b==='recent');
+  var d=document.getElementById('basisNote');
+  if(b==='recent'){{
+    var sc=CLIMATE.sig_counts||{{}},bits=[];
+    for(var c in sc){{var s=sc[c];
+      if(s&&s.recent!=null&&s.full!=null&&s.recent<s.full)
+        bits.push(CL_LABS[c]+': '+s.recent+' of '+s.n+' wells, against '+s.full+' on the whole record');}}
+    d.innerHTML='<b>Using the recent 8 years only.</b> Shorter records make the drainage '
+      +'term harder to measure, and where it cannot be measured reliably the scenario '
+      +'response below is less certain than it looks.'
+      +(bits.length?' Wells with a drainage rate clearly different from zero &#8212; '
+        +bits.join('; ')+'.':'')
+      +' The report\u2019s figures use the whole record.';
+    d.style.display='block';
+  }} else {{ d.style.display='none'; }}
+  go();
+}}
 function setMM(m){{mm=m;document.querySelectorAll('[id^="rt_"]').forEach(function(b){{b.classList.remove('on');}});document.getElementById('rt_'+m).classList.add('on');drawMap();}}
 function setCM(m){{cm=m;document.querySelectorAll('[id^="ct_"]').forEach(function(b){{b.classList.remove('on');}});document.getElementById('ct_'+m).classList.add('on');renderBar();}}
 function syEff(w,mode){{if(mode>=0.5){{return Math.max((w.sy!=null?w.sy:(SY_LOWER[w.cl]||0.12)),SY_FLOOR[w.cl]||0.12);}}else{{return SY_LOWER[w.cl]||0.12;}}}}
@@ -1322,8 +1418,8 @@ function go(){{
   }}
   var well_dh={{}};
   for(var i=0;i<WELLS.length;i++){{
-    var w=WELLS[i],b1=w.b1,b2=w.b2,b3=w.b3;
-    if(b1==null){{var cb=CLIMATE.cluster_betas[w.cl]||{{}};b1=cb.b1;b2=cb.b2;b3=cb.b3;}}
+    var w=WELLS[i],_wb=wB(w),b1=_wb.b1,b2=_wb.b2,b3=_wb.b3;
+    if(b1==null){{var cb=clB(w.cl);b1=cb.b1;b2=cb.b2;b3=cb.b3;}}
     if(b1==null)continue;
     var h=sea==='annual'?w.mh:sea==='winter'?w.wh:w.sh;
     if(h==null)continue;
@@ -1369,7 +1465,7 @@ function go(){{
   }}
   var msl5={{}};
   for(var cl=1;cl<=5;cl++){{
-    var cb=CLIMATE.cluster_betas[cl]||{{}};
+    var cb=clB(cl);
     msl5[cl]=_msl5One(cb.b1,cb.b2);
   }}
   MSL5=msl5;
@@ -1650,7 +1746,7 @@ function renderTable(){{
     {{l:'Mean Sy (%)',v:cls.map(function(c){{var cw=WELLS.filter(function(w){{return w.cl===c;}});if(!cw.length)return'\u2014';var s=cw.reduce(function(acc,w){{return acc+syEff(w,sl.sSyMode);}},0)/cw.length;return(s*100).toFixed(1)+'%';}}),d:false}},
     {{l:'Storage shift (mm)',v:cls.map(function(c){{var cw=WELLS.filter(function(w){{return w.cl===c;}});if(!cw.length||DH[c]==null)return'\u2014';var s=cw.reduce(function(acc,w){{return acc+syEff(w,sl.sSyMode);}},0)/cw.length;var shift=s*DH[c]*1000;return(shift>=0?'+':'')+shift.toFixed(1);}}),d:true}},
     {{l:'P\u2091\u2091 mm/mo',v:cls.map(function(c){{var sI_cur=c===4?sl.sI_c4:c===5?sl.sI_c5:0;return(((c===4||c===5)?P*sP*(1-sI_cur):P*sP)*1000).toFixed(1);}}),d:false}},
-    {{l:'PET draw mm/mo',v:cls.map(function(c){{var cb=CLIMATE.cluster_betas[c]||{{}},b2=cb.b2||0,b2s=(c===4||c===5)?b2*sB2_view:b2;return(b2s*PET*sPET*1000).toFixed(1);}}),d:false}},
+    {{l:'PET draw mm/mo',v:cls.map(function(c){{var cb=clB(c),b2=cb.b2||0,b2s=(c===4||c===5)?b2*sB2_view:b2;return(b2s*PET*sPET*1000).toFixed(1);}}),d:false}},
   ];
   function bg(v,d){{if(!d)return'#f5f5f5';var n=parseFloat(v);return n>0.005?'#c8e6c9':n<-0.005?'#ffcdd2':'#f5f5f5';}}
   function tx(v,d){{if(!d)return'#333';var n=parseFloat(v);return n>0.005?'#1b5e20':n<-0.005?'#b71c1c':'#555';}}

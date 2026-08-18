@@ -38,11 +38,26 @@ import pandas as pd
 
 REPO = Path(__file__).resolve().parents[1]
 
-# Mirrors only — never the ODTs. Keep in step with refresh_mirrors.py.
+# Mirrors, plus the documents that are already text. Never the ODTs. Keep in
+# step with refresh_mirrors.py.
+#
+# "docs/**/text/*.md" replaces the two narrower docs globs so that adding a
+# mirror directory to refresh_mirrors.py is enough - the corpus follows, and a
+# document cannot be mirrored but unchecked.
+#
+# The repo's own markdown and index.html need no mirror: they are text already,
+# and strip_markup() handles index.html's HTML. index.html is the only published
+# page that states pipeline numbers, and only its step and phase counts were
+# protected before 2026-08-18, via the PL markers.
 DOC_GLOBS = [
     "report_edits/text/report*.md",
-    "docs/report/text/*.md",
-    "docs/papers/**/text/*.md",
+    "docs/**/text/*.md",
+    "index.html",
+    "readme.md",
+    "PIPELINE_README.md",
+    "REPORT_STRUCTURE.md",
+    "DECISION_LOG.md",
+    "ledgers/*.md",
 ]
 
 # Headline tables whose values are cited directly rather than via a

@@ -40,7 +40,11 @@ File location: outputs/01_data_prep/pipeline_scenario_params.csv
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-08-18
+__version__ = "1.2.1"  # Hollingham (2026) — 2026-08-18
+# v1.2.1 (2026-08-18): _DEFAULTS["drawdown_lambda_m"] refreshed 224.9 -> 228.1 to
+#   match the committed 20_report_numbers.csv. A first-pass fallback that has
+#   drifted from the value it stands in for is worse than no fallback, because
+#   the warning says "default" and the reader assumes it is the documented one.
 # v1.2.0 (2026-08-18): the scenario-parameter store keeps full precision.
 #   beta_1/2/3, Sy, h_disp, the two B2 multipliers and the summer climate means
 #   were rounded to 4 (or 6) decimals on the way IN, so every consumer computed
@@ -208,7 +212,9 @@ _DEFAULTS = {
     # 10a_report_numbers) and falls back to these with a console warning. Any
     # future script needing these first-pass values should read them via
     # default_value().
-    "drawdown_lambda_m":        224.9,   # 20_report_numbers.csv (drawdown_lambda)
+    "drawdown_lambda_m":        228.1,   # 20_report_numbers.csv (drawdown_lambda),
+                                         # refreshed 2026-08-18 from the committed
+                                         # value; was 224.9 and 3 m stale
     "coast_delta0_mm_yr":       -29.0,   # 25_01 forest_free/linear_capped δ₀
     "coast_reach_L_m":          894.0,   # 25_01 forest_free/linear_capped L
     "scrape_offsite_100m_vol":  -30.3,   # 09d_01 Scraping (off-site 100 m) mm w.e./month

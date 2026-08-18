@@ -5,5 +5,5 @@ rain_peak_mm,,month 12,108.6,mm,rainfall climatology peak
 rain_trough_mm,,month 4,45.66,mm,rainfall climatology trough
 pet_peak_mm,,month 7,106.9132,mm,PET climatology peak
 centring_constant,,,19.4606,mm/month,"cumulative-balance centring = mean monthly net (P-PET), Dec2004-Dec2025"
-cumbal_wl_r2,,,0.5137,,"R^2, network-mean WL vs cumulative balance, lag 0, n=250"
+cumbal_wl_r2,,,0.5124,,"R^2, network-mean WL vs cumulative balance, lag 0, n=250"
 cumbal_wl_slope,,,0.0021,m/mm,regression slope (well level per mm cumulative balance)

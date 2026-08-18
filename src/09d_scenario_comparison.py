@@ -131,8 +131,11 @@ CLEARFELL_MATCH_HINT = 282.0    # ~distance where off-site vol drawdown = clearf
 def _load_drawdown_lambda():
     """Read leaky-aquifer decay length λ (m) live from Script 20 output.
 
-    Falls back to 225 m (with a one-line warning) only if Script 20 has not
-    been run on this clone, so a figure is still produced but flagged.
+    Falls back to the documented first-pass default (with a one-line warning)
+    only if Script 20 has not been run on this clone, so a figure is still
+    produced but flagged. The fallback is read from pipeline_params rather than
+    typed here: a literal in this function drifted 3 m from the live value and
+    still called itself the default.
     """
     try:
         df = pd.read_csv(OUT_20_REPORT_NUMBERS)
@@ -141,9 +144,11 @@ def _load_drawdown_lambda():
             return float(row["Value"].iloc[0])
     except (FileNotFoundError, KeyError, ValueError):
         pass
-    warn("20_report_numbers.csv not found — using fallback λ = 225 m. "
+    from utils.pipeline_params import default_value
+    lam = float(default_value("drawdown_lambda_m"))
+    warn(f"20_report_numbers.csv not found — using fallback λ = {lam:.1f} m. "
          "Run Script 20 for the live value.")
-    return 225.0
+    return lam
 
 
 def _offsite_scrape_head_mm(scrape_edge_head_mm, dist_m=OFFSITE_DIST_M):

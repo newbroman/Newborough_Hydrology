@@ -64,7 +64,13 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds (config.SD15b / config.SD16)
 """
 
-__version__ = "1.38.1"  # Hollingham (2026) — 2026-08-16
+__version__ = "1.38.2"  # Hollingham (2026) — 2026-08-18. The three fast-path
+#   point-in-polygon tests moved from shapely.vectorized.contains, deprecated
+#   and due for removal, to shapely.contains_xy — the same call Script 19 has
+#   used since it was written. Identical semantics; the per-cell prepared-
+#   geometry fallback is unchanged and still catches a pre-2.0 shapely.
+#
+# v1.38.1  # Hollingham (2026) — 2026-08-16
 #
 # 1.38.1 (2026-08-16): map-extent note only, no behaviour change (northern
 #   edge 365800 vs config.SITE_MAP_NORTH_MAX 365500; see the note at
@@ -1393,10 +1399,10 @@ def plot_drawdown_propagation(wt, features, dpi=300, show_head=True):
     if site_poly is not None:
         try:
             # Fast path: vectorized point-in-polygon over the whole grid.
-            from shapely import vectorized as _shp_vec
-            inside_site = _shp_vec.contains(site_poly,
-                                            E_grid.ravel(),
-                                            N_grid.ravel()).reshape(E_grid.shape)
+            from shapely import contains_xy as _contains_xy
+            inside_site = _contains_xy(site_poly,
+                                       E_grid.ravel(),
+                                       N_grid.ravel()).reshape(E_grid.shape)
         except Exception:
             # Fallback: per-cell prepared-geometry test.
             site_prep = prep(site_poly)
@@ -4178,10 +4184,10 @@ def plot_scrape_drawdown(wt, features, dpi=300, show_head=True):
     site_poly = load_site_polygon()
     if site_poly is not None:
         try:
-            from shapely import vectorized as _shp_vec
-            inside_site = _shp_vec.contains(site_poly,
-                                            E_grid.ravel(),
-                                            N_grid.ravel()).reshape(E_grid.shape)
+            from shapely import contains_xy as _contains_xy
+            inside_site = _contains_xy(site_poly,
+                                       E_grid.ravel(),
+                                       N_grid.ravel()).reshape(E_grid.shape)
         except Exception:
             site_prep = prep(site_poly)
             inside_site = np.zeros(dd_masked.shape, dtype=bool)
@@ -4209,9 +4215,9 @@ def plot_scrape_drawdown(wt, features, dpi=300, show_head=True):
     # rise zone, NOT as drawdown — this stops the scrape reading as a drawdown max.
     rise_zone = scrape_geom.buffer(SCRAPE_RISE_BUFFER_M)
     try:
-        from shapely import vectorized as _sv_rise
-        in_rise = _sv_rise.contains(rise_zone, E_grid.ravel(),
-                                    N_grid.ravel()).reshape(E_grid.shape)
+        from shapely import contains_xy as _contains_xy
+        in_rise = _contains_xy(rise_zone, E_grid.ravel(),
+                               N_grid.ravel()).reshape(E_grid.shape)
     except Exception:
         _rp = prep(rise_zone)
         in_rise = np.zeros(E_grid.shape, dtype=bool)

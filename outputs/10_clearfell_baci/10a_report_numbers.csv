@@ -1,106 +1,106 @@
 Parameter,Well,Era,Value,Unit,Note
-ANCOVA_Forest_Impact_clearfell_step,Impact,Post_felling,0.1196,m,"p=<0.001, CI=[0.0497,0.1894]"
-ANCOVA_Forest_Impact_scraping_step,Impact,Post_scraping,0.3436,m,p=0.0019
-ANCOVA_Forest_Impact_R2,Impact,,0.2737,,Model R²
-ANCOVA_Forest_Impact_N,Impact,,162.0,months,Sample size
-ANCOVA_Forest_Impact_coeff_intercept,Impact,,0.1059,m,"SE=0.026205, p=<0.001"
+ANCOVA_Forest_Impact_clearfell_step,Impact,Post_felling,0.1153,m,"p=0.0014, CI=[0.0458,0.1848]"
+ANCOVA_Forest_Impact_scraping_step,Impact,Post_scraping,0.3359,m,p=0.0023
+ANCOVA_Forest_Impact_R2,Impact,,0.2671,,Model R²
+ANCOVA_Forest_Impact_N,Impact,,163.0,months,Sample size
+ANCOVA_Forest_Impact_coeff_intercept,Impact,,0.1021,m,"SE=0.026311, p=<0.001"
 ANCOVA_Forest_Impact_coeff_cwb,Impact,,-0.0004,m,"SE=0.000123, p=<0.001"
-ANCOVA_Forest_Impact_coeff_scraping,Impact,,0.3436,m,"SE=0.108507, p=0.0019"
-ANCOVA_Forest_Impact_coeff_clearfell,Impact,,0.1196,m,"SE=0.035637, p=<0.001"
-ANCOVA_Forest_Impact_coeff_cwb_x_fell,Impact,,-0.0001,m,"SE=0.000162, p=0.3973"
-ANCOVA_Forest_Impact_coeff_easting_x_time,Impact,,0.0,m,"SE=0.000010, p=<0.001"
-ANCOVA_Forest_Impact_Oct2023_step,Impact,Oct2023,0.4396,m,"p=<0.001, dAIC=-10.67"
-ANCOVA_Forest_Edge_clearfell_step,Edge,Post_felling,0.0345,m,"p=0.1700, CI=[-0.0146,0.0836]"
-ANCOVA_Forest_Edge_scraping_step,Edge,Post_scraping,0.5899,m,p=<0.001
-ANCOVA_Forest_Edge_R2,Edge,,0.4885,,Model R²
-ANCOVA_Forest_Edge_N,Edge,,158.0,months,Sample size
-ANCOVA_Forest_Edge_coeff_intercept,Edge,,-0.0291,m,"SE=0.018646, p=0.1212"
+ANCOVA_Forest_Impact_coeff_scraping,Impact,,0.3359,m,"SE=0.108558, p=0.0023"
+ANCOVA_Forest_Impact_coeff_clearfell,Impact,,0.1153,m,"SE=0.035480, p=0.0014"
+ANCOVA_Forest_Impact_coeff_cwb_x_fell,Impact,,-0.0001,m,"SE=0.000162, p=0.4544"
+ANCOVA_Forest_Impact_coeff_easting_x_time,Impact,,0.0,m,"SE=0.000009, p=<0.001"
+ANCOVA_Forest_Impact_Oct2023_step,Impact,Oct2023,0.4427,m,"p=<0.001, dAIC=-10.82"
+ANCOVA_Forest_Edge_clearfell_step,Edge,Post_felling,0.0325,m,"p=0.1925, CI=[-0.0162,0.0812]"
+ANCOVA_Forest_Edge_scraping_step,Edge,Post_scraping,0.5836,m,p=<0.001
+ANCOVA_Forest_Edge_R2,Edge,,0.4886,,Model R²
+ANCOVA_Forest_Edge_N,Edge,,159.0,months,Sample size
+ANCOVA_Forest_Edge_coeff_intercept,Edge,,-0.0318,m,"SE=0.018656, p=0.0907"
 ANCOVA_Forest_Edge_coeff_cwb,Edge,,-0.0005,m,"SE=0.000087, p=<0.001"
-ANCOVA_Forest_Edge_coeff_scraping,Edge,,0.5899,m,"SE=0.133168, p=<0.001"
-ANCOVA_Forest_Edge_coeff_clearfell,Edge,,0.0345,m,"SE=0.025047, p=0.1700"
-ANCOVA_Forest_Edge_coeff_cwb_x_fell,Edge,,-0.0002,m,"SE=0.000116, p=0.1596"
-ANCOVA_Forest_Edge_coeff_easting_x_time,Edge,,0.0,m,"SE=0.000002, p=0.0017"
-ANCOVA_Forest_Edge_Oct2023_step,Edge,Oct2023,0.585,m,"p=<0.001, dAIC=-12.16"
-ANCOVA_Climate_Impact_clearfell_step,Impact,Post_felling,-0.0155,m,"p=0.5372, CI=[-0.0645,0.0336]"
-ANCOVA_Climate_Impact_scraping_step,Impact,Post_scraping,0.0068,m,p=0.9557
-ANCOVA_Climate_Impact_R2,Impact,,0.1912,,Model R²
-ANCOVA_Climate_Impact_N,Impact,,146.0,months,Sample size
-ANCOVA_Climate_Impact_coeff_intercept,Impact,,-0.5285,m,"SE=0.020254, p=<0.001"
+ANCOVA_Forest_Edge_coeff_scraping,Edge,,0.5836,m,"SE=0.132781, p=<0.001"
+ANCOVA_Forest_Edge_coeff_clearfell,Edge,,0.0325,m,"SE=0.024854, p=0.1925"
+ANCOVA_Forest_Edge_coeff_cwb_x_fell,Edge,,-0.0002,m,"SE=0.000115, p=0.1743"
+ANCOVA_Forest_Edge_coeff_easting_x_time,Edge,,0.0,m,"SE=0.000001, p=0.0024"
+ANCOVA_Forest_Edge_Oct2023_step,Edge,Oct2023,0.5892,m,"p=<0.001, dAIC=-12.42"
+ANCOVA_Climate_Impact_clearfell_step,Impact,Post_felling,-0.0116,m,"p=0.6428, CI=[-0.0605,0.0373]"
+ANCOVA_Climate_Impact_scraping_step,Impact,Post_scraping,0.0159,m,p=0.8964
+ANCOVA_Climate_Impact_R2,Impact,,0.1862,,Model R²
+ANCOVA_Climate_Impact_N,Impact,,147.0,months,Sample size
+ANCOVA_Climate_Impact_coeff_intercept,Impact,,-0.527,m,"SE=0.020434, p=<0.001"
 ANCOVA_Climate_Impact_coeff_cwb,Impact,,-0.0003,m,"SE=0.000099, p=<0.001"
-ANCOVA_Climate_Impact_coeff_scraping,Impact,,0.0068,m,"SE=0.121540, p=0.9557"
-ANCOVA_Climate_Impact_coeff_clearfell,Impact,,-0.0155,m,"SE=0.025021, p=0.5372"
-ANCOVA_Climate_Impact_coeff_cwb_x_fell,Impact,,0.0001,m,"SE=0.000125, p=0.5503"
-ANCOVA_Climate_Impact_coeff_easting_x_time,Impact,,-0.0,m,"SE=0.000001, p=0.0087"
-ANCOVA_Climate_Impact_Oct2023_step,Impact,Oct2023,0.0983,m,"p=0.4426, dAIC=1.38"
-ANCOVA_Climate_Edge_clearfell_step,Edge,Post_felling,-0.1097,m,"p=<0.001, CI=[-0.1712,-0.0483]"
-ANCOVA_Climate_Edge_scraping_step,Edge,Post_scraping,0.2056,m,p=0.6040
-ANCOVA_Climate_Edge_R2,Edge,,0.2191,,Model R²
-ANCOVA_Climate_Edge_N,Edge,,143.0,months,Sample size
-ANCOVA_Climate_Edge_coeff_intercept,Edge,,-0.6753,m,"SE=0.025392, p=<0.001"
-ANCOVA_Climate_Edge_coeff_cwb,Edge,,-0.0005,m,"SE=0.000123, p=<0.001"
-ANCOVA_Climate_Edge_coeff_scraping,Edge,,0.2056,m,"SE=0.395572, p=0.6040"
-ANCOVA_Climate_Edge_coeff_clearfell,Edge,,-0.1097,m,"SE=0.031353, p=<0.001"
-ANCOVA_Climate_Edge_coeff_cwb_x_fell,Edge,,0.0002,m,"SE=0.000156, p=0.2812"
-ANCOVA_Climate_Edge_coeff_easting_x_time,Edge,,-0.0,m,"SE=0.000001, p=<0.001"
-ANCOVA_Climate_Edge_Oct2023_step,Edge,Oct2023,-0.3881,m,"p=0.3654, dAIC=1.14"
-ANCOVA_Combined_Impact_clearfell_step,Impact,Post_felling,0.0722,m,"p=<0.001, CI=[0.0368,0.1075]"
-ANCOVA_Combined_Impact_scraping_step,Impact,Post_scraping,0.0798,m,p=0.2907
-ANCOVA_Combined_Impact_R2,Impact,,0.268,,Model R²
-ANCOVA_Combined_Impact_N,Impact,,144.0,months,Sample size
-ANCOVA_Combined_Impact_coeff_intercept,Impact,,-0.1084,m,"SE=0.014477, p=<0.001"
-ANCOVA_Combined_Impact_coeff_cwb,Impact,,-0.0002,m,"SE=0.000070, p=0.0136"
-ANCOVA_Combined_Impact_coeff_scraping,Impact,,0.0798,m,"SE=0.075207, p=0.2907"
-ANCOVA_Combined_Impact_coeff_clearfell,Impact,,0.0722,m,"SE=0.018038, p=<0.001"
-ANCOVA_Combined_Impact_coeff_cwb_x_fell,Impact,,-0.0001,m,"SE=0.000089, p=0.2819"
-ANCOVA_Combined_Impact_coeff_easting_x_time,Impact,,0.0,m,"SE=0.000002, p=0.0410"
-ANCOVA_Combined_Impact_Oct2023_step,Impact,Oct2023,0.2092,m,"p=0.0076, dAIC=-5.53"
-ANCOVA_Combined_Edge_clearfell_step,Edge,Post_felling,-0.0198,m,"p=0.1439, CI=[-0.0462,0.0066]"
-ANCOVA_Combined_Edge_scraping_step,Edge,Post_scraping,0.2979,m,p=0.0148
-ANCOVA_Combined_Edge_R2,Edge,,0.4619,,Model R²
-ANCOVA_Combined_Edge_N,Edge,,141.0,months,Sample size
-ANCOVA_Combined_Edge_coeff_intercept,Edge,,-0.2565,m,"SE=0.010825, p=<0.001"
-ANCOVA_Combined_Edge_coeff_cwb,Edge,,-0.0003,m,"SE=0.000052, p=<0.001"
-ANCOVA_Combined_Edge_coeff_scraping,Edge,,0.2979,m,"SE=0.120612, p=0.0148"
-ANCOVA_Combined_Edge_coeff_clearfell,Edge,,-0.0198,m,"SE=0.013480, p=0.1439"
-ANCOVA_Combined_Edge_coeff_cwb_x_fell,Edge,,-0.0,m,"SE=0.000066, p=0.7682"
-ANCOVA_Combined_Edge_coeff_easting_x_time,Edge,,-0.0,m,"SE=0.000001, p=0.5661"
-ANCOVA_Combined_Edge_Oct2023_step,Edge,Oct2023,0.1169,m,"p=0.3717, dAIC=1.16"
-ANCOVA_Forest_Impact_clearfell_step_summer,Impact,Post_felling_Jun-Sep,0.0463,m,"p=0.4363, CI=[-0.0693,0.1619], Jun-Sep subset, full ANCOVA spec"
-ANCOVA_Forest_Impact_summer_R2,Impact,Jun-Sep,0.3372,,Summer model R² (full spec)
+ANCOVA_Climate_Impact_coeff_scraping,Impact,,0.0159,m,"SE=0.122071, p=0.8964"
+ANCOVA_Climate_Impact_coeff_clearfell,Impact,,-0.0116,m,"SE=0.024964, p=0.6428"
+ANCOVA_Climate_Impact_coeff_cwb_x_fell,Impact,,0.0001,m,"SE=0.000125, p=0.6339"
+ANCOVA_Climate_Impact_coeff_easting_x_time,Impact,,-0.0,m,"SE=0.000001, p=0.0154"
+ANCOVA_Climate_Impact_Oct2023_step,Impact,Oct2023,0.0962,m,"p=0.4543, dAIC=1.41"
+ANCOVA_Climate_Edge_clearfell_step,Edge,Post_felling,-0.103,m,"p=0.0014, CI=[-0.1646,-0.0413]"
+ANCOVA_Climate_Edge_scraping_step,Edge,Post_scraping,0.2477,m,p=0.5366
+ANCOVA_Climate_Edge_R2,Edge,,0.2128,,Model R²
+ANCOVA_Climate_Edge_N,Edge,,144.0,months,Sample size
+ANCOVA_Climate_Edge_coeff_intercept,Edge,,-0.6724,m,"SE=0.025770, p=<0.001"
+ANCOVA_Climate_Edge_coeff_cwb,Edge,,-0.0005,m,"SE=0.000124, p=<0.001"
+ANCOVA_Climate_Edge_coeff_scraping,Edge,,0.2477,m,"SE=0.399755, p=0.5366"
+ANCOVA_Climate_Edge_coeff_clearfell,Edge,,-0.103,m,"SE=0.031469, p=0.0014"
+ANCOVA_Climate_Edge_coeff_cwb_x_fell,Edge,,0.0001,m,"SE=0.000157, p=0.3647"
+ANCOVA_Climate_Edge_coeff_easting_x_time,Edge,,-0.0,m,"SE=0.000001, p=0.0025"
+ANCOVA_Climate_Edge_Oct2023_step,Edge,Oct2023,-0.4071,m,"p=0.3477, dAIC=1.07"
+ANCOVA_Combined_Impact_clearfell_step,Impact,Post_felling,0.0714,m,"p=<0.001, CI=[0.0364,0.1064]"
+ANCOVA_Combined_Impact_scraping_step,Impact,Post_scraping,0.0784,m,p=0.2972
+ANCOVA_Combined_Impact_R2,Impact,,0.2677,,Model R²
+ANCOVA_Combined_Impact_N,Impact,,145.0,months,Sample size
+ANCOVA_Combined_Impact_coeff_intercept,Impact,,-0.1093,m,"SE=0.014492, p=<0.001"
+ANCOVA_Combined_Impact_coeff_cwb,Impact,,-0.0002,m,"SE=0.000070, p=0.0128"
+ANCOVA_Combined_Impact_coeff_scraping,Impact,,0.0784,m,"SE=0.074953, p=0.2972"
+ANCOVA_Combined_Impact_coeff_clearfell,Impact,,0.0714,m,"SE=0.017856, p=<0.001"
+ANCOVA_Combined_Impact_coeff_cwb_x_fell,Impact,,-0.0001,m,"SE=0.000088, p=0.2922"
+ANCOVA_Combined_Impact_coeff_easting_x_time,Impact,,0.0,m,"SE=0.000001, p=0.0456"
+ANCOVA_Combined_Impact_Oct2023_step,Impact,Oct2023,0.2096,m,"p=0.0073, dAIC=-5.59"
+ANCOVA_Combined_Edge_clearfell_step,Edge,Post_felling,-0.0176,m,"p=0.1922, CI=[-0.0440,0.0087]"
+ANCOVA_Combined_Edge_scraping_step,Edge,Post_scraping,0.3077,m,p=0.0122
+ANCOVA_Combined_Edge_R2,Edge,,0.4667,,Model R²
+ANCOVA_Combined_Edge_N,Edge,,142.0,months,Sample size
+ANCOVA_Combined_Edge_coeff_intercept,Edge,,-0.256,m,"SE=0.010920, p=<0.001"
+ANCOVA_Combined_Edge_coeff_cwb,Edge,,-0.0003,m,"SE=0.000053, p=<0.001"
+ANCOVA_Combined_Edge_coeff_scraping,Edge,,0.3077,m,"SE=0.121148, p=0.0122"
+ANCOVA_Combined_Edge_coeff_clearfell,Edge,,-0.0176,m,"SE=0.013446, p=0.1922"
+ANCOVA_Combined_Edge_coeff_cwb_x_fell,Edge,,-0.0,m,"SE=0.000066, p=0.6688"
+ANCOVA_Combined_Edge_coeff_easting_x_time,Edge,,-0.0,m,"SE=0.000001, p=0.7252"
+ANCOVA_Combined_Edge_Oct2023_step,Edge,Oct2023,0.1132,m,"p=0.3893, dAIC=1.22"
+ANCOVA_Forest_Impact_clearfell_step_summer,Impact,Post_felling_Jun-Sep,0.046,m,"p=0.4404, CI=[-0.0698,0.1617], Jun-Sep subset, full ANCOVA spec"
+ANCOVA_Forest_Impact_summer_R2,Impact,Jun-Sep,0.3371,,Summer model R² (full spec)
 ANCOVA_Forest_Impact_summer_N,Impact,Jun-Sep,52.0,months,Summer sample size (Jun-Sep months only)
-ANCOVA_Forest_Impact_coeff_intercept_summer,Impact,Jun-Sep,0.0379,m,"SE=0.059628, p=0.5287"
-ANCOVA_Forest_Impact_coeff_cwb_summer,Impact,Jun-Sep,-0.0005,m,"SE=0.000222, p=0.0380"
-ANCOVA_Forest_Impact_coeff_scraping_summer,Impact,Jun-Sep,0.387,m,"SE=0.183281, p=0.0402"
-ANCOVA_Forest_Impact_coeff_clearfell_summer,Impact,Jun-Sep,0.0463,m,"SE=0.058978, p=0.4363"
-ANCOVA_Forest_Impact_coeff_cwb_x_fell_summer,Impact,Jun-Sep,-0.0003,m,"SE=0.000306, p=0.3478"
-ANCOVA_Forest_Impact_coeff_easting_x_time_summer,Impact,Jun-Sep,0.0,m,"SE=0.000016, p=0.1124"
+ANCOVA_Forest_Impact_coeff_intercept_summer,Impact,Jun-Sep,0.0363,m,"SE=0.059999, p=0.5486"
+ANCOVA_Forest_Impact_coeff_cwb_summer,Impact,Jun-Sep,-0.0005,m,"SE=0.000221, p=0.0375"
+ANCOVA_Forest_Impact_coeff_scraping_summer,Impact,Jun-Sep,0.3868,m,"SE=0.183469, p=0.0405"
+ANCOVA_Forest_Impact_coeff_clearfell_summer,Impact,Jun-Sep,0.046,m,"SE=0.059057, p=0.4404"
+ANCOVA_Forest_Impact_coeff_cwb_x_fell_summer,Impact,Jun-Sep,-0.0003,m,"SE=0.000305, p=0.3490"
+ANCOVA_Forest_Impact_coeff_easting_x_time_summer,Impact,Jun-Sep,0.0,m,"SE=0.000016, p=0.1174"
 ANCOVA_Forest_Impact_clearfell_step_summer_noCWB,Impact,Post_felling_Jun-Sep,0.1229,m,"p=0.0584, CI=[-0.0013,0.2471], Jun-Sep subset, CWB dropped (sensitivity variant)"
 ANCOVA_Forest_Impact_summer_noCWB_R2,Impact,Jun-Sep,0.0978,,Summer model R² (CWB dropped)
 ANCOVA_Forest_Impact_summer_noCWB_N,Impact,Jun-Sep,52.0,months,"Summer sample size (CWB dropped fit, Jun-Sep only)"
-ANCOVA_Forest_Impact_coeff_cwb2_x_fell,Impact,,-27.5076,mm per (100mm CWB)^2,"native=-2.750755e-06 m/mm^2, SE_native=1.125751e-06, p=0.0157, curvature variant — buffering term"
-ANCOVA_Forest_Impact_coeff_cwb2_c,Impact,,2.2878,mm per (100mm CWB)^2,"native=2.287840e-07 m/mm^2, SE_native=6.698634e-07, p=0.7332, curvature variant — CWB² main effect"
-ANCOVA_Forest_Impact_curv_clearfell_step,Impact,Post_felling,0.146,m,"p=<0.001, CI=[0.0734,0.2187], clearfell step re-referenced under curvature model (NOT the headline step)"
-ANCOVA_Forest_Impact_curv_R2,Impact,,0.3094,,Curvature model R²
-ANCOVA_Forest_Impact_curv_dAIC,Impact,,-4.1813,,AIC(curvature) − AIC(linear); negative = curvature preferred
-ANCOVA_Forest_Impact_curv_jointF,Impact,,3.9885,,"joint F-test, cwb2_c + cwb2_x_fell, p=0.0205"
-ANCOVA_Forest_Edge_coeff_cwb2_x_fell,Edge,,-21.2608,mm per (100mm CWB)^2,"native=-2.126080e-06 m/mm^2, SE_native=8.266223e-07, p=0.0111, curvature variant — buffering term"
-ANCOVA_Forest_Edge_coeff_cwb2_c,Edge,,-3.3472,mm per (100mm CWB)^2,"native=-3.347207e-07 m/mm^2, SE_native=4.644923e-07, p=0.4723, curvature variant — CWB² main effect"
-ANCOVA_Forest_Edge_curv_clearfell_step,Edge,Post_felling,0.0505,m,"p=0.0498, CI=[0.0005,0.1005], clearfell step re-referenced under curvature model (NOT the headline step)"
-ANCOVA_Forest_Edge_curv_R2,Edge,,0.5314,,Curvature model R²
-ANCOVA_Forest_Edge_curv_dAIC,Edge,,-9.8562,,AIC(curvature) − AIC(linear); negative = curvature preferred
-ANCOVA_Forest_Edge_curv_jointF,Edge,,6.8743,,"joint F-test, cwb2_c + cwb2_x_fell, p=0.0014"
-Sensitivity_lambda200_Forest_Impact_clearfell,Impact,,0.1196,m,"p=<0.001, R²=0.274"
-Sensitivity_lambda200_Forest_Edge_clearfell,Edge,,0.0345,m,"p=0.1700, R²=0.488"
-Sensitivity_lambda200_Climate_Impact_clearfell,Impact,,-0.0155,m,"p=0.5372, R²=0.191"
-Sensitivity_lambda200_Climate_Edge_clearfell,Edge,,-0.1097,m,"p=<0.001, R²=0.219"
-Sensitivity_lambda200_Combined_Impact_clearfell,Impact,,0.0722,m,"p=<0.001, R²=0.268"
-Sensitivity_lambda200_Combined_Edge_clearfell,Edge,,-0.0198,m,"p=0.1439, R²=0.462"
-Sensitivity_lambda500_Forest_Impact_clearfell,Impact,,0.1196,m,"p=<0.001, R²=0.274"
-Sensitivity_lambda500_Forest_Edge_clearfell,Edge,,0.0345,m,"p=0.1700, R²=0.488"
-Sensitivity_lambda500_Climate_Impact_clearfell,Impact,,-0.0155,m,"p=0.5372, R²=0.191"
-Sensitivity_lambda500_Climate_Edge_clearfell,Edge,,-0.1097,m,"p=<0.001, R²=0.219"
-Sensitivity_lambda500_Combined_Impact_clearfell,Impact,,0.0722,m,"p=<0.001, R²=0.268"
-Sensitivity_lambda500_Combined_Edge_clearfell,Edge,,-0.0198,m,"p=0.1439, R²=0.462"
+ANCOVA_Forest_Impact_coeff_cwb2_x_fell,Impact,,-27.7946,mm per (100mm CWB)^2,"native=-2.779461e-06 m/mm^2, SE_native=1.126927e-06, p=0.0147, curvature variant — buffering term"
+ANCOVA_Forest_Impact_coeff_cwb2_c,Impact,,2.4618,mm per (100mm CWB)^2,"native=2.461809e-07 m/mm^2, SE_native=6.684736e-07, p=0.7132, curvature variant — CWB² main effect"
+ANCOVA_Forest_Impact_curv_clearfell_step,Impact,Post_felling,0.1419,m,"p=<0.001, CI=[0.0696,0.2142], clearfell step re-referenced under curvature model (NOT the headline step)"
+ANCOVA_Forest_Impact_curv_R2,Impact,,0.3032,,Curvature model R²
+ANCOVA_Forest_Impact_curv_dAIC,Impact,,-4.2277,,AIC(curvature) − AIC(linear); negative = curvature preferred
+ANCOVA_Forest_Impact_curv_jointF,Impact,,4.0124,,"joint F-test, cwb2_c + cwb2_x_fell, p=0.0200"
+ANCOVA_Forest_Edge_coeff_cwb2_x_fell,Edge,,-21.6868,mm per (100mm CWB)^2,"native=-2.168685e-06 m/mm^2, SE_native=8.242487e-07, p=0.0094, curvature variant — buffering term"
+ANCOVA_Forest_Edge_coeff_cwb2_c,Edge,,-3.2273,mm per (100mm CWB)^2,"native=-3.227268e-07 m/mm^2, SE_native=4.616681e-07, p=0.4856, curvature variant — CWB² main effect"
+ANCOVA_Forest_Edge_curv_clearfell_step,Edge,Post_felling,0.0489,m,"p=0.0553, CI=[-0.0007,0.0985], clearfell step re-referenced under curvature model (NOT the headline step)"
+ANCOVA_Forest_Edge_curv_R2,Edge,,0.5323,,Curvature model R²
+ANCOVA_Forest_Edge_curv_dAIC,Edge,,-10.1822,,AIC(curvature) − AIC(linear); negative = curvature preferred
+ANCOVA_Forest_Edge_curv_jointF,Edge,,7.0438,,"joint F-test, cwb2_c + cwb2_x_fell, p=0.0012"
+Sensitivity_lambda200_Forest_Impact_clearfell,Impact,,0.1153,m,"p=0.0014, R²=0.267"
+Sensitivity_lambda200_Forest_Edge_clearfell,Edge,,0.0325,m,"p=0.1925, R²=0.489"
+Sensitivity_lambda200_Climate_Impact_clearfell,Impact,,-0.0116,m,"p=0.6428, R²=0.186"
+Sensitivity_lambda200_Climate_Edge_clearfell,Edge,,-0.103,m,"p=0.0014, R²=0.213"
+Sensitivity_lambda200_Combined_Impact_clearfell,Impact,,0.0714,m,"p=<0.001, R²=0.268"
+Sensitivity_lambda200_Combined_Edge_clearfell,Edge,,-0.0176,m,"p=0.1922, R²=0.467"
+Sensitivity_lambda500_Forest_Impact_clearfell,Impact,,0.1153,m,"p=0.0014, R²=0.267"
+Sensitivity_lambda500_Forest_Edge_clearfell,Edge,,0.0325,m,"p=0.1925, R²=0.489"
+Sensitivity_lambda500_Climate_Impact_clearfell,Impact,,-0.0116,m,"p=0.6428, R²=0.186"
+Sensitivity_lambda500_Climate_Edge_clearfell,Edge,,-0.103,m,"p=0.0014, R²=0.213"
+Sensitivity_lambda500_Combined_Impact_clearfell,Impact,,0.0714,m,"p=<0.001, R²=0.268"
+Sensitivity_lambda500_Combined_Edge_clearfell,Edge,,-0.0176,m,"p=0.1922, R²=0.467"
 Scraping_distance_weight,WMC3,,0.4169,,"d=262m, λ=300m"
 Scraping_distance_weight,CEH31,,0.4383,,"d=247m, λ=300m"
 Scraping_distance_weight,CEH20,,0.1749,,"d=523m, λ=300m"

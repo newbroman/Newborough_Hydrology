@@ -11,71 +11,71 @@ under each UKCP18 scenario's perturbed climatology.
 Per-cluster results:
 ------------------------------------------------------------
 Cluster 1 (C1 (Lake Edge))  2050s:
-  β₁ = 4.5758   β₂ = 0.9562
-  Spring Δh mean (Mar/Apr/May): -0.0115 m/month
+  β₁ = 4.5921   β₂ = 0.9427
+  Spring Δh mean (Mar/Apr/May): -0.0114 m/month
   Observed window MSL5 mean:    -0.351 m
   Perturbed window MSL5 mean:   -0.362 m
   Mean shift:                   -0.011 m  (over 15 common window-ends)
 
 Cluster 1 (C1 (Lake Edge))  2080s:
-  β₁ = 4.5758   β₂ = 0.9562
-  Spring Δh mean (Mar/Apr/May): -0.0214 m/month
+  β₁ = 4.5921   β₂ = 0.9427
+  Spring Δh mean (Mar/Apr/May): -0.0212 m/month
   Observed window MSL5 mean:    -0.351 m
   Perturbed window MSL5 mean:   -0.372 m
   Mean shift:                   -0.021 m  (over 15 common window-ends)
 
 Cluster 2 (C2 (Dune))  2050s:
-  β₁ = 3.9735   β₂ = 1.7619
-  Spring Δh mean (Mar/Apr/May): -0.0169 m/month
+  β₁ = 3.9819   β₂ = 1.7511
+  Spring Δh mean (Mar/Apr/May): -0.0168 m/month
   Observed window MSL5 mean:    -0.438 m
   Perturbed window MSL5 mean:   -0.455 m
   Mean shift:                   -0.017 m  (over 17 common window-ends)
 
 Cluster 2 (C2 (Dune))  2080s:
-  β₁ = 3.9735   β₂ = 1.7619
-  Spring Δh mean (Mar/Apr/May): -0.0309 m/month
+  β₁ = 3.9819   β₂ = 1.7511
+  Spring Δh mean (Mar/Apr/May): -0.0308 m/month
   Observed window MSL5 mean:    -0.438 m
   Perturbed window MSL5 mean:   -0.469 m
   Mean shift:                   -0.031 m  (over 17 common window-ends)
 
 Cluster 3 (C3 (Western Residual))  2050s:
-  β₁ = 3.5735   β₂ = 1.8334
-  Spring Δh mean (Mar/Apr/May): -0.0170 m/month
+  β₁ = 3.5830   β₂ = 1.8196
+  Spring Δh mean (Mar/Apr/May): -0.0169 m/month
   Observed window MSL5 mean:    -0.672 m
   Perturbed window MSL5 mean:   -0.689 m
   Mean shift:                   -0.017 m  (over 17 common window-ends)
 
 Cluster 3 (C3 (Western Residual))  2080s:
-  β₁ = 3.5735   β₂ = 1.8334
-  Spring Δh mean (Mar/Apr/May): -0.0311 m/month
+  β₁ = 3.5830   β₂ = 1.8196
+  Spring Δh mean (Mar/Apr/May): -0.0309 m/month
   Observed window MSL5 mean:    -0.672 m
-  Perturbed window MSL5 mean:   -0.704 m
+  Perturbed window MSL5 mean:   -0.703 m
   Mean shift:                   -0.031 m  (over 17 common window-ends)
 
 Cluster 4 (C4 (Main Forest))  2050s:
-  β₁ = 2.4873   β₂ = 2.5829
-  Spring Δh mean (Mar/Apr/May): -0.0216 m/month
+  β₁ = 2.4911   β₂ = 2.5720
+  Spring Δh mean (Mar/Apr/May): -0.0215 m/month
   Observed window MSL5 mean:    -1.199 m
   Perturbed window MSL5 mean:   -1.221 m
   Mean shift:                   -0.022 m  (over 15 common window-ends)
 
 Cluster 4 (C4 (Main Forest))  2080s:
-  β₁ = 2.4873   β₂ = 2.5829
-  Spring Δh mean (Mar/Apr/May): -0.0390 m/month
+  β₁ = 2.4911   β₂ = 2.5720
+  Spring Δh mean (Mar/Apr/May): -0.0388 m/month
   Observed window MSL5 mean:    -1.199 m
   Perturbed window MSL5 mean:   -1.238 m
   Mean shift:                   -0.039 m  (over 15 common window-ends)
 
 Cluster 5 (C5 (Coastal Forest))  2050s:
-  β₁ = 2.4232   β₂ = 1.3071
-  Spring Δh mean (Mar/Apr/May): -0.0120 m/month
+  β₁ = 2.4373   β₂ = 1.2874
+  Spring Δh mean (Mar/Apr/May): -0.0119 m/month
   Observed window MSL5 mean:    -1.136 m
   Perturbed window MSL5 mean:   -1.148 m
   Mean shift:                   -0.012 m  (over 16 common window-ends)
 
 Cluster 5 (C5 (Coastal Forest))  2080s:
-  β₁ = 2.4232   β₂ = 1.3071
-  Spring Δh mean (Mar/Apr/May): -0.0219 m/month
+  β₁ = 2.4373   β₂ = 1.2874
+  Spring Δh mean (Mar/Apr/May): -0.0217 m/month
   Observed window MSL5 mean:    -1.136 m
   Perturbed window MSL5 mean:   -1.158 m
   Mean shift:                   -0.022 m  (over 16 common window-ends)

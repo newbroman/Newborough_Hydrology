@@ -6,11 +6,11 @@ Winter-minus-summer SSM residual contrast by cluster
 (positive = model under-predicts the monthly rise more in winter):
 
   Cluster                   Δ(win−sum)                95% CI         p
-  C1 (Lake Edge)                7.1 mm   [  -0.6,   16.4]     0.199
-  C2 (Dune)                     3.6 mm   [  -1.1,    7.9]     0.119
-  C3 (Western Residual)         7.5 mm   [   5.1,   10.0]     0.000
-  C4 (Main Forest)              6.4 mm   [   1.2,   12.2]     0.074
-  C5 (Coastal Forest)          -2.8 mm   [  -5.0,    0.1]     0.138
+  C1 (Lake Edge)               12.0 mm   [   3.7,   22.4]     0.066
+  C2 (Dune)                    10.2 mm   [   4.7,   15.3]     0.001
+  C3 (Western Residual)        14.7 mm   [  12.0,   17.2]     0.000
+  C4 (Main Forest)             12.3 mm   [   7.3,   17.8]     0.003
+  C5 (Coastal Forest)           3.4 mm   [   1.2,    6.0]     0.077
 
 Reading against the three candidate mechanisms:
 
@@ -30,13 +30,13 @@ Reading against the three candidate mechanisms:
   (3) RIDGE-DERIVED LATERAL INPUT — partially consistent, not
       separable from (2) here. Within the forest
       (n = 14 wells), the contrast correlates with distance-
-      to-ridge at r = -0.64 — i.e. it strengthens toward
+      to-ridge at r = -0.69 — i.e. it strengthens toward
       the ridge, the direction ridge subsidy predicts. The small
       forest sample makes this suggestive only, and the strongest
       peak overall is open-dune C3 (several of whose wells also lie
       near the ridge), so a ridge term and a site-wide recharge term
       cannot be distinguished on this evidence.
-      (Contrast vs forest-edge distance: r = +0.23.)
+      (Contrast vs forest-edge distance: r = +0.22.)
 
 Preferred reading:
   The winter contrast is NOT forest-confined, so canopy-interception

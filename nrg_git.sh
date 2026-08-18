@@ -95,12 +95,13 @@ HUB="${LIVING}/readings_living.csv"
 CLUSTER_MAP="${REPO_DIR}/outputs/03_master_data.csv"
 FEED_JSON="${LIVING}/latest_readings.json"
 MSL5_JSON="${LIVING}/forecaster_msl5.json"
+INDICES_JSON="${LIVING}/forecaster_indices.json"
+EWI_CSV="${REPO_DIR}/outputs/26_van_willegen_msl/26_equilibrium_wetness_index_per_well.csv"
+EBF_CSV="${REPO_DIR}/outputs/26_van_willegen_msl/26_ebf_comparison.csv"
 SCATTER_SRC="${REPO_DIR}/outputs/14_climate_projections/14_seasonal_extremes_scatter.html"
 SCATTER_DST="${REPO_DIR}/seasonal_extremes_scatter.html"
 VIEWER_SRC="${REPO_DIR}/outputs/19_spatial_groundwater/scenario_viewer.html"
 VIEWER_DST="${REPO_DIR}/scenario_viewer.html"
-FORECASTER_SRC="${REPO_DIR}/outputs/11b_spatial_thresholds/forecaster.html"
-FORECASTER_DST="${REPO_DIR}/forecaster.html"
 
 G='\033[0;32m'; Y='\033[1;33m'; R='\033[0;31m'; C='\033[0;36m'; B='\033[1m'; N='\033[0m'
 say(){  echo -e "\n${C}-- $1 --${N}"; }
@@ -290,23 +291,23 @@ lint_figrefs(){
 }
 
 # --- web tools: keep the served root copies in step with outputs/ ------------
-# scenario_viewer.html, seasonal_extremes_scatter.html and forecaster.html are
-# generated into outputs/ by Scripts 19, 14 and 11b, but GitHub Pages serves the
-# copies at the repo root. Until 2026-08-07 this copy ran only in do_sync (menu 1, monthly), so a
+# scenario_viewer.html and seasonal_extremes_scatter.html are generated into
+# outputs/ by Scripts 19 and 14, but GitHub Pages serves the copies at the repo
+# root. Until 2026-08-07 this copy ran only in do_sync (menu 1, monthly), so a
 # script rerun pushed via do_push (menu 2) updated outputs/ and left the served
 # page stale - which is how the viewer sat at v2.8.1 while outputs/ was v2.9.0
 # for a day. Both paths now call this, so the served copy can never lag a push.
-# forecaster.html was left out of this list when it was written, so it was only
-# ever copied by hand and sat at v1.3.0 against a v1.3.1 output. Added
-# 2026-08-18. A served page that no rule copies goes stale silently, which is
-# the failure this function exists to prevent.
+# forecaster.html is deliberately NOT staged here. index.html links the copy
+# under outputs/11b_spatial_thresholds/, and that is the only one that works:
+# the page pulls its live feeds with relative URLs ("../../living/*.json"),
+# which resolve off-site from the repo root. A root copy therefore renders with
+# no readings. Briefly added and reverted 2026-08-18.
 # Reports "refreshed" only when the file actually changed, so a real update is
 # visible rather than buried in a list of no-ops.
 stage_web_tools(){
   say "Staging web tools to root"
   local pair src dst name changed=0
-  for pair in "$SCATTER_SRC|$SCATTER_DST" "$VIEWER_SRC|$VIEWER_DST" \
-              "$FORECASTER_SRC|$FORECASTER_DST"; do
+  for pair in "$SCATTER_SRC|$SCATTER_DST" "$VIEWER_SRC|$VIEWER_DST"; do
     src="${pair%%|*}"; dst="${pair##*|}"; name="$(basename "$dst")"
     if [[ ! -f "$src" ]]; then
       echo "  (no source for ${name} - skipped)"
@@ -544,7 +545,17 @@ do_sync(){
   say "Rebuilding forecaster feeds from the hub"
   python3 "$LIVING/update_forecaster_feed.py" --hub "$HUB" --cluster-map "$CLUSTER_MAP" --out "$FEED_JSON"  || { fail "feed build failed"; return; }
   python3 "$LIVING/update_forecaster_msl5.py" --hub "$HUB" --cluster-map "$CLUSTER_MAP" --out "$MSL5_JSON" || { fail "MSL5 build failed"; return; }
-  git add "$HUB" "$FEED_JSON" "$MSL5_JSON" "$SCATTER_DST" "$VIEWER_DST" index.html \
+  # The indices feed is built from Script 26 outputs rather than the hub, so it
+  # goes stale on a pipeline rerun rather than on a monthly reading. It was
+  # missing from this block until 2026-08-18 and sat nine days behind the other
+  # two feeds; rebuilding it here is idempotent when Script 26 has not moved.
+  if [[ -f "$EWI_CSV" && -f "$EBF_CSV" ]]; then
+    python3 "$LIVING/update_forecaster_indices.py" --ewi "$EWI_CSV" --ebf "$EBF_CSV" --out "$INDICES_JSON" \
+      || fail "indices build failed (warning only - the other two feeds stand)"
+  else
+    echo "  (Script 26 outputs not present - indices feed left as is)"
+  fi
+  git add "$HUB" "$FEED_JSON" "$MSL5_JSON" "$INDICES_JSON" "$SCATTER_DST" "$VIEWER_DST" index.html \
           outputs/pipeline_manifest.json
   if have_staged; then
     git commit -m "monthly forecaster update $(date +%Y-%m)" && ok "feeds committed"

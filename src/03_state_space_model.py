@@ -79,7 +79,16 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.7.0"  # Hollingham (2026) — 2026-08-16. LCSC_DATA_LIMIT and the
+__version__ = "1.8.0"  # Hollingham (2026) — 2026-08-16. Adds the centroid
+#   window sensitivity (03_14): every cluster centroid fitted on BOTH the full
+#   record and the trailing comparison window, with standard errors, so Table 3
+#   can print the two side by side instead of the report resting on one basis
+#   while the atlas rests on another (D-034). Diagnostic only - the headline
+#   mechanistic table is untouched. C4 is the cluster this exists for: its
+#   drainage term is small enough that the shorter window cannot resolve it,
+#   while its standard error is unremarkable.
+#
+# v1.7.0  # Hollingham (2026) — 2026-08-16. LCSC_DATA_LIMIT and the
 #   per-well minimum-observations floor are imported from config.py instead of
 #   being declared module-locally; both values are unchanged (100 and 30), and
 #   MIN_OBS_PER_WELL is retained as a local alias so the four call sites are
@@ -384,6 +393,66 @@ def build_cluster_centroids(cluster_df: pd.DataFrame,
         centroids[cid] = wells_clean[available].mean(axis=1)
 
     return centroids
+
+
+def centroid_window_sensitivity(centroids: dict[int, pd.Series],
+                                climate: pd.DataFrame) -> pd.DataFrame:
+    """
+    Each cluster centroid fitted on BOTH bases, side by side (D-034).
+
+    The headline table is the full-record fit: the centroid is where a
+    coefficient is identified, and identification wants every month available.
+    The per-well layer, the coefficient atlas and the SSM-vs-TLM benchmark use
+    the trailing LCSC_DATA_LIMIT window, because those compare wells with each
+    other and an equal record is what makes them comparable.
+
+    Two bases is a defensible design, but only if it is visible. This emits both
+    so Table 3 can print them side by side rather than the report asserting one
+    and quietly resting on the other.
+
+    The contrast is not uniform, and C4 is the reason this output exists: its
+    drainage term is small — two to five times smaller than any other cluster —
+    so the shorter window cannot resolve it from zero, while its standard error
+    is unremarkable. That is an effect-size result, not a data-quality one, and
+    the columns below carry the standard errors so a reader can see which it is.
+
+    Nothing here revises anything. OUT_03_MECHANISTIC_TABLE remains the headline.
+    """
+    rows = []
+    for cid in sorted(centroids):
+        label = CLUSTER_LABELS.get(cid, f"C{cid}")
+        for basis, window in (("full_record", None),
+                              ("comparison_window", LCSC_DATA_LIMIT)):
+            fit = fit_ssm(centroids[cid], climate, lag=HEADLINE_LAG, window=window)
+            if fit is None:
+                warn(f"  {label}: no fit on the {basis} basis")
+                continue
+            rows.append({
+                "Cluster": cid,
+                "Cluster_Label": label,
+                "basis": basis,
+                "window_months": ("" if window is None else window),
+                "n": fit["n"],
+                "beta_1_recharge": fit["beta_1_recharge"],
+                "pvalue_beta_1": fit["pvalue_beta_1"],
+                "beta_2_atmospheric_draw": fit["beta_2_atmospheric_draw"],
+                "pvalue_beta_2": fit["pvalue_beta_2"],
+                "beta_3_drainage": fit["beta_3_drainage"],
+                "se_beta_3": fit["se_beta_3"],
+                "pvalue_beta_3": fit["pvalue_beta_3"],
+                "R2": fit["R2"],
+                "LCSC_percent": 100.0 / fit["beta_1_recharge"],
+            })
+    df = pd.DataFrame(rows)
+
+    # Paired contrast per cluster, so the table can be read without arithmetic.
+    if not df.empty:
+        wide = df.pivot(index="Cluster", columns="basis", values="beta_3_drainage")
+        df["beta_3_pct_vs_full_record"] = df.apply(
+            lambda r: np.nan if r["basis"] == "full_record"
+            else 100.0 * (r["beta_3_drainage"] - wide.loc[r["Cluster"], "full_record"])
+            / wide.loc[r["Cluster"], "full_record"], axis=1)
+    return df
 
 
 def centroid_composition_sensitivity(cluster_df: pd.DataFrame,
@@ -1968,6 +2037,21 @@ def main() -> None:
     mech_df, violations, b3_warnings = centroid_headline_fits(centroids, climate)
     mech_df.to_csv(OUT_03_MECHANISTIC_TABLE, index=False)
     saved(f"{OUT_03_MECHANISTIC_TABLE.name}")
+
+    # ---- Centroid window sensitivity: both bases, side by side (D-034) -------
+    step("Centroid window sensitivity (full record vs comparison window)...")
+    win_df = centroid_window_sensitivity(centroids, climate)
+    win_path = DIR_03 / "03_14_centroid_window_sensitivity.csv"
+    win_df.to_csv(win_path, index=False)
+    for cid in sorted(win_df["Cluster"].unique()):
+        g = win_df[win_df["Cluster"] == cid].set_index("basis")
+        f_, w_ = g.loc["full_record"], g.loc["comparison_window"]
+        flag = "" if w_["pvalue_beta_3"] < 0.05 else "   <- not significant on the window"
+        info(f"  {CLUSTER_LABELS.get(cid, f'C{cid}'):22s} "
+             f"full {f_['beta_3_drainage']:.4f} (p={f_['pvalue_beta_3']:.3g}, n={int(f_['n'])})"
+             f"  |  window {w_['beta_3_drainage']:.4f} (p={w_['pvalue_beta_3']:.3g})"
+             f"  {w_['beta_3_pct_vs_full_record']:+.0f}%{flag}")
+    saved(f"{win_path.name}")
 
     # ---- Centroid composition sensitivity (diagnostic; headline unchanged) ----
     step("Centroid composition sensitivity (growing vs stable membership)...")

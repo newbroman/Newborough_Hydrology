@@ -4,7 +4,7 @@ docs/academic_summaries/crynodeb_academaidd.pdf  <-  crynodeb_academaidd_v1_4.od
 docs/public_summaries/Newborough_Warren_Podsumowanie.pdf  <-  public_summary_PL.odt  |  2026-08-12T05:15:31Z
 docs/public_summaries/Newborough_Warren_Public_Summary.pdf  <-  public_summary_EN.odt  |  2026-08-12T05:15:29Z
 docs/public_summaries/Niwbwrch_Crynodeb_Cyhoeddus.pdf  <-  public_summary_CY.odt  |  2026-08-12T05:15:30Z
-docs/report/Newborough_Methods_Supplement.pdf  <-  Newborough_Methods_Supplement_v1_9_12.odt  |  2026-08-16T21:38:57Z
+docs/report/Newborough_Methods_Supplement.pdf  <-  Newborough_Methods_Supplement_v1_9_13.odt  |  2026-08-18T10:41:21Z
 docs/report/Supplementary_Material.pdf  <-  Supplementary_Material_v1_10.odt  |  2026-08-16T19:18:40Z
 docs/web_tools/NRG_Web_Tools_Technical_Note.pdf  <-  NRG_Web_Tools_Technical_Note.odt  |  2026-08-12T15:58:10Z
 docs/web_tools/NRG_Web_Tools_User_Manual.pdf  <-  NRG_Web_Tools_User_Manual.odt  |  2026-08-12T15:58:10Z

@@ -25,7 +25,8 @@ PIPELINE_VERSION = "2.3.0"
 # v1.2.0 (2026-08-16): LCSC_DATA_LIMIT centralised here from three independent
 #   module-local declarations (model_utils, Scripts 03 and 08). Value unchanged
 #   at 100; see D-016.
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-08-16
+# v1.3.0 (2026-08-16): month-wise cluster-stability parameters added (D-030).
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-08-16
 
 # ── Journal B&W mode ─────────────────────────────────────────────────────────
 # Toggle to produce journal-ready greyscale figures.
@@ -777,6 +778,21 @@ DIFF_BOOT_SEED = 20260626
 # mirrored). Values are unchanged from their original per-script definitions —
 # relocation only, so no committed output moves.
 CLUSTER_BOOT_SEED       = 20260424   # Script 02 cluster bootstrap (was module-local)
+
+# Month-wise partition stability (Script 02, D-030). The long-standing cluster
+# bootstrap resamples WELLS and answers "does the partition depend on which
+# wells are in it?" (median 0.938 — it does not). These parameters drive the
+# separate question "does it depend on which MONTHS are in it?", which is much
+# weaker and was previously unmeasured and unreported.
+#
+# Months are resampled in contiguous blocks, not independently: an i.i.d. month
+# resample destroys the seasonal cycle that dominates these series and would
+# return a flatteringly high stability. CLUSTER_MONTH_BLOCK_MONTHS = 12 keeps
+# one full cycle intact per block.
+CLUSTER_MONTH_BOOT_N      = 1000       # moving-block bootstrap replicates
+CLUSTER_MONTH_BLOCK_MONTHS = 12        # block length, months (one seasonal cycle)
+CLUSTER_MONTH_SPLIT_N     = 200        # disjoint split-half replicates for the ARI
+CLUSTER_MONTH_BOOT_SEED   = 20260816   # fixed seed - month-wise stability
 RESIDUAL_CLIM_BOOT_SEED = 42         # Script 24b residual-climatology bootstrap (was module-local)
 
 # === Absolute climate-removed trend (Script 36) ===

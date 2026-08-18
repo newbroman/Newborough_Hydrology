@@ -18,7 +18,7 @@ replaces the other, and the whole point is that you should never have to replay
 | File | Answers | Status |
 |------|---------|--------|
 | `SCRIPT_LEDGER.md` | what does each script consume, emit, and which documents describe it? | populated 2026-08-14 |
-| `DECISION_LOG.md` | why was this methodological choice made, what did it replace, what must not be undone? | populated 2026-08-14 (16 entries) |
+| `DECISION_LOG.md` | **retired 2026-08-16** — merged into the repo-root `DECISION_LOG.md`, which is now the only decision log (D-029). The file here is a stub. |
 | `NUMBER_LEDGER.md` | where does this cited number come from, and has it drifted? | populated 2026-08-14 (55 rows) |
 | `FIGURE_LEDGER.md` | figure no. → source script → PNG → caption location → body-text citations → regen-pending? | **proposed** — seed from `tools/figure_table_manifest.csv` and `NRG_report_figure_xref_2026-08-13.csv` |
 | `TABLE_LEDGER.md` | table no. → source CSV → generating script → document + location | **proposed** |
@@ -34,7 +34,7 @@ away; if they are not, no amount of folder tidying helps.
 >
 > **2. Every scientific decision drops a `DECISION_LOG` entry** — including, and
 > especially, decisions to *retire* something. A retirement carries the removal
-> checklist (code · outputs · ledger row · documents · numbers); see D-016.
+> checklist (code · outputs · ledger row · documents · numbers); see D-027.
 >
 > **3. Every number that enters a document has a `NUMBER_LEDGER` row**, with a
 > `Source` cell naming a committed file. No source cell → it does not go in.
@@ -47,14 +47,14 @@ amnesia**. Three worked examples, all from a single 2026-08-14 session:
 - The **C4 β₃ triangulation** was retired on 2026-07-24 because its premise was
   tested and refuted. It came back weeks later because the reason for retiring it
   was not written anywhere the reintroducer would look. Rediscovering that cost a
-  session. → `DECISION_LOG` **D-003**.
+  session. → `DECISION_LOG` **D-001**.
 - The **100-month window** was designed as a *minimum* record length so the method
   would transfer to other sites. That intent evaporated and it silently became an
   *upper bound*, understating drainage at long-record wells. Nobody decided that.
-  → **D-005**.
+  → **D-002**.
 - **CEH13/CEH14's** inclusion in the C4 centroid was never an explicit, justified
   decision, so the tension — excluded everywhere else, yet setting the headline
-  coefficient — sat unnoticed until it was stumbled on. → **D-004**.
+  coefficient — sat unnoticed until it was stumbled on. → **D-005**.
 
 The `Retires` and `Revisit-if` fields are what stop this. An entry saying
 "RETIRED — premise refuted by Script 30 v2.1.0; do not reintroduce unless the

@@ -32,7 +32,30 @@ Purpose:
 #     here they clutter the well markers, so they are suppressed. Figures only;
 #     model formulations and metrics unchanged.
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-08-16. LCSC_DATA_LIMIT is
+__version__ = "1.4.2"  # Hollingham (2026) — 2026-08-16. Exports the SSM fit
+#   columns that v1.4.0 computed: model_stats_df selects a fixed column list, so
+#   the coefficients and p-values were built onto each row and then dropped
+#   before the file was written. The metrics are unaffected - the acceptance
+#   diff against the previous committed CSV is 0.000e+00 on every shared column,
+#   66 wells - but the stated purpose (a benchmark SSM diffable against
+#   03_master_data.csv) needed the columns to actually be in the file.
+#
+# v1.4.1  # Hollingham (2026) — 2026-08-16. Hotfix: the new
+#   R2_StateSpace_fit column read ssm['r_squared']; the key fit_ssm returns is
+#   'R2'. Raised KeyError at the first well. The v1.4.0 acceptance test compared
+#   the two fitting paths' coefficients and did not execute the row-building
+#   code around them, so it proved the numerical claim and missed the typo.
+#
+# v1.4.0  # Hollingham (2026) — 2026-08-16. The benchmark's SSM
+#   is now fitted by model_utils.fit_ssm() instead of a local sm.OLS on a
+#   hand-assembled design matrix. Arithmetically the same fit on today's
+#   settings - the acceptance test is that every metric reproduces
+#   byte-identically - but the script no longer carries a second copy of the
+#   specification, and the fitted coefficients and their p-values are now
+#   emitted so they can be diffed against 03_master_data.csv. Prerequisite for
+#   any change to the fitting window (D-033 step zero).
+#
+# v1.3.0  # Hollingham (2026) — 2026-08-16. LCSC_DATA_LIMIT is
 #   imported from config.py rather than declared module-locally; value unchanged
 #   at 100, no change to any fit, metric or figure. See D-016.
 #
@@ -64,7 +87,8 @@ from utils.paths import (
 )
 from utils.data_utils import normalize_well_name
 from utils.report_numbers_utils import ReportNumbers
-from utils.model_utils import get_metrics, get_r2, build_ssm_frame, simulate_ssm
+from utils.model_utils import (get_metrics, get_r2, build_ssm_frame, simulate_ssm,
+                              fit_ssm)
 from utils.map_utils import add_kml_features, load_dem_layer, add_en_axes
 from utils.config import (
     CLUSTER_LABELS, CLUSTER_MARKERS, DRAINAGE_DATUM, HEADLINE_LAG, BW_MODE,
@@ -176,14 +200,29 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate):
         base_row['Months_Used'] = len(df)
         return base_row, None
 
-    # Traditional model: Δh = α + β₁·P(t-lag) - β₂·PET(t)
+    # Traditional model: Δh = α + β₁·P(t-lag) - β₂·PET(t). The TLM is this
+    # script's own comparator and has no counterpart in model_utils, so it is
+    # fitted here.
     x_trad = sm.add_constant(pd.DataFrame({'P': df['P'], 'PET': -df['PET']}), has_constant='add')
-    # State-space model (displacement): Δh = β₁·P(t-lag) - β₂·PET(t) - β₃·h_disp_prev
-    x_lcsc = pd.DataFrame({'beta_1_recharge': df['P'], 'beta_2_atmospheric_draw': -df['PET'], 'beta_3_drainage': -df['h_disp_prev']})
     y_fit = df['Delta_h']
-
     model_trad = sm.OLS(y_fit, x_trad).fit()
-    model_lcsc = sm.OLS(y_fit, x_lcsc).fit()
+
+    # State-space model: the CANONICAL fitter, not a local copy. Until v1.4.0
+    # this script assembled its own design matrix and called sm.OLS directly.
+    # It was arithmetically the same fit, but it bypassed fit_ssm()'s min_obs
+    # floor and sign handling, its coefficients were never comparable to
+    # 03_master_data.csv by construction, and any future change to the canonical
+    # specification would silently have left the benchmark behind. The frame is
+    # already built (and windowed) above, so pre_built_frame is passed through
+    # and fit_ssm does no realignment of its own.
+    ssm = fit_ssm(pre_built_frame=df)
+    if ssm is None:
+        base_row['Status'] = 'ssm_fit_failed'
+        base_row['Months_Used'] = len(df)
+        return base_row, None
+    b1_ssm = float(ssm['beta_1_recharge'])
+    b2_ssm = float(ssm['beta_2_atmospheric_draw'])
+    b3_ssm = float(ssm['beta_3_drainage'])
 
     p_arr = df['P'].values
     pet_arr = df['PET'].values
@@ -202,9 +241,9 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate):
         dh_trad = (model_trad.params['const']
                    + model_trad.params['P'] * p_arr[t]
                    - model_trad.params['PET'] * pet_arr[t])
-        dh_lcsc = (model_lcsc.params['beta_1_recharge'] * p_arr[t]
-                   - model_lcsc.params['beta_2_atmospheric_draw'] * pet_arr[t]
-                   - model_lcsc.params['beta_3_drainage'] * h_disp_prev_obs)
+        dh_lcsc = (b1_ssm * p_arr[t]
+                   - b2_ssm * pet_arr[t]
+                   - b3_ssm * h_disp_prev_obs)
         h_trad_one[t] = h_prev_obs + dh_trad
         h_lcsc_one[t] = h_prev_obs + dh_lcsc
 
@@ -224,9 +263,9 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate):
     # simulate_ssm expects: dh = b1*P - b2*PET - b3*(D+h), with b1,b2,b3 positive.
     h_lcsc_iter_raw = simulate_ssm(
         h0=h_obs[0], P=p_arr[1:], PET=pet_arr[1:],
-        b1=float(model_lcsc.params['beta_1_recharge']),
-        b2=float(model_lcsc.params['beta_2_atmospheric_draw']),           # already β₂ (coeff on -PET)
-        b3=float(model_lcsc.params['beta_3_drainage']),    # already β₃ (coeff on -h_disp)
+        b1=b1_ssm,
+        b2=b2_ssm,           # already β₂ (coeff on -PET)
+        b3=b3_ssm,    # already β₃ (coeff on -h_disp)
     )
     h_lcsc_iter = np.concatenate([[h_obs[0]], h_lcsc_iter_raw])
 
@@ -255,9 +294,15 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate):
         'Beta_P_Traditional': model_trad.params['P'],
         'Beta_PET_Traditional': model_trad.params['PET'],
         'Intercept_Traditional': model_trad.params['const'],
-        'Beta_P_StateSpace': model_lcsc.params['beta_1_recharge'],
-        'Beta_PET_StateSpace': model_lcsc.params['beta_2_atmospheric_draw'],
-        'Beta_hdisp_StateSpace': model_lcsc.params['beta_3_drainage'],
+        'Beta_P_StateSpace': b1_ssm,
+        'Beta_PET_StateSpace': b2_ssm,
+        'Beta_hdisp_StateSpace': b3_ssm,
+        # Emitted so the benchmark's SSM is checkable against 03_master_data.csv
+        # rather than merely assumed to agree with it (D-033 step zero).
+        'pvalue_beta_1_StateSpace': float(ssm['pvalue_beta_1']),
+        'pvalue_beta_2_StateSpace': float(ssm['pvalue_beta_2']),
+        'pvalue_beta_3_StateSpace': float(ssm['pvalue_beta_3']),
+        'R2_StateSpace_fit': float(ssm['R2']),
     })
 
     payload = {
@@ -719,6 +764,19 @@ if __name__ == '__main__':
             'Iterative_NSE_Traditional',
             'Iterative_NSE_StateSpace',
             'Iterative_NSE_Improvement',
+            # The benchmark's own SSM fit, exported from v1.4.2 so it can be
+            # diffed against 03_master_data.csv. Computed since v1.4.0 but
+            # dropped here by the fixed column list - the coefficients existed
+            # on the row and never reached the file, so "checkable" was a claim
+            # rather than a fact. Appended, not interleaved, so existing column
+            # order is untouched for anything reading positionally.
+            'Beta_P_StateSpace',
+            'Beta_PET_StateSpace',
+            'Beta_hdisp_StateSpace',
+            'pvalue_beta_1_StateSpace',
+            'pvalue_beta_2_StateSpace',
+            'pvalue_beta_3_StateSpace',
+            'R2_StateSpace_fit',
         ]
     ].copy()
     stats_csv = INT_LCSC_MODEL_STATS

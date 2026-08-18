@@ -8,16 +8,16 @@ SECTION 1: MECHANISTIC STATE-SPACE EQUATIONS  (dh = b1*P - b2*PET - b3*h_prev)
   Cluster-centroid SSM coefficients from Script 03
   Source: 03_03_cluster_mechanistic_coefficients.csv
 
-  C1 (Lake Edge):  dh = (0.004576*P) - (0.000956*PET) - (0.0880*h_prev)   |  R2 = 0.731   n = 236
-        p-values:  P = 9.4604e-67   PET = 2.2926e-05   h_prev = 4.4279e-35
-  C2 (Dune):  dh = (0.003974*P) - (0.001762*PET) - (0.0641*h_prev)   |  R2 = 0.746   n = 247
-        p-values:  P = 5.8932e-69   PET = 1.3425e-16   h_prev = 1.4852e-25
-  C3 (Western Residual):  dh = (0.003573*P) - (0.001833*PET) - (0.0566*h_prev)   |  R2 = 0.813   n = 248
-        p-values:  P = 1.5661e-83   PET = 1.7149e-26   h_prev = 1.4892e-28
-  C4 (Main Forest):  dh = (0.002487*P) - (0.002583*PET) - (0.0183*h_prev)   |  R2 = 0.725   n = 236
-        p-values:  P = 4.3368e-52   PET = 2.9025e-36   h_prev = 1.6577e-03
-  C5 (Coastal Forest):  dh = (0.002423*P) - (0.001307*PET) - (0.0442*h_prev)   |  R2 = 0.685   n = 238
-        p-values:  P = 1.5179e-54   PET = 5.6007e-16   h_prev = 2.3145e-16
+  C1 (Lake Edge):  dh = (0.004592*P) - (0.000943*PET) - (0.0883*h_prev)   |  R2 = 0.734   n = 237
+        p-values:  P = 1.8994e-67   PET = 2.6643e-05   h_prev = 1.3568e-35
+  C2 (Dune):  dh = (0.003982*P) - (0.001751*PET) - (0.0641*h_prev)   |  R2 = 0.746   n = 248
+        p-values:  P = 3.5504e-69   PET = 1.8574e-16   h_prev = 1.2487e-25
+  C3 (Western Residual):  dh = (0.003583*P) - (0.001820*PET) - (0.0566*h_prev)   |  R2 = 0.811   n = 249
+        p-values:  P = 1.7115e-83   PET = 4.5938e-26   h_prev = 1.6999e-28
+  C4 (Main Forest):  dh = (0.002491*P) - (0.002572*PET) - (0.0182*h_prev)   |  R2 = 0.719   n = 237
+        p-values:  P = 2.1269e-51   PET = 1.7194e-35   h_prev = 2.0282e-03
+  C5 (Coastal Forest):  dh = (0.002437*P) - (0.001287*PET) - (0.0446*h_prev)   |  R2 = 0.683   n = 239
+        p-values:  P = 1.3695e-54   PET = 1.7164e-15   h_prev = 1.7621e-16
 
 ======================================================================
 SECTION 2: PEAK FLOOD TRANSFER FUNCTIONS  (h_peak = β₁·P_winter + β₂·h_min + c)
@@ -92,57 +92,57 @@ SECTION 3: CRITICAL RAINFALL THRESHOLD EQUATIONS  (P_flood - iterated)
   C1 (Lake Edge)
     h_0 = -0.752 m  (long-term mean of month-of-minimum)
     horizon: [10, 11, 12, 1]  (n = 4 months, peak = month 1)
-    α = 0.9120   αⁿ = 0.6917
-    S_P =   347.5 mm    S_E =    97.5 mm
-    climatological totals: P = 401 mm   PET = 116 mm
-    λ = 1.103
-    P_flood (iterated)    =   442 mm    [1.10x climatology]
-    P_flood (old 1-step)  =   221 mm    [reference only]
-    Collapsed form:  P_flood = 174.30 * d + 310.97   (d in m below ground)
+    α = 0.9117   αⁿ = 0.6908
+    S_P =   345.7 mm    S_E =    96.4 mm
+    climatological totals: P = 399 mm   PET = 115 mm
+    λ = 1.105
+    P_flood (iterated)    =   441 mm    [1.10x climatology]
+    P_flood (old 1-step)  =   220 mm    [reference only]
+    Collapsed form:  P_flood = 173.66 * d + 310.42   (d in m below ground)
 
   C2 (Dune)
     h_0 = -0.899 m  (long-term mean of month-of-minimum)
     horizon: [10, 11, 12, 1]  (n = 4 months, peak = month 1)
     α = 0.9359   αⁿ = 0.7673
-    S_P =   361.4 mm    S_E =   102.2 mm
-    climatological totals: P = 401 mm   PET = 116 mm
-    λ = 1.205
-    P_flood (iterated)    =   483 mm    [1.21x climatology]
+    S_P =   359.7 mm    S_E =   101.2 mm
+    climatological totals: P = 399 mm   PET = 115 mm
+    λ = 1.206
+    P_flood (iterated)    =   481 mm    [1.21x climatology]
     P_flood (old 1-step)  =   271 mm    [reference only]
-    Collapsed form:  P_flood = 214.14 * d + 290.52   (d in m below ground)
+    Collapsed form:  P_flood = 213.79 * d + 289.23   (d in m below ground)
 
   C3 (Western Residual)
     h_0 = -1.107 m  (long-term mean of month-of-minimum)
     horizon: [10, 11, 12, 1, 2]  (n = 5 months, peak = month 2)
-    α = 0.9434   αⁿ = 0.7474
-    S_P =   408.4 mm    S_E =   117.7 mm
-    climatological totals: P = 464 mm   PET = 135 mm
-    λ = 1.355
-    P_flood (iterated)    =   629 mm    [1.36x climatology]
-    P_flood (old 1-step)  =   351 mm    [reference only]
-    Collapsed form:  P_flood = 237.64 * d + 365.76   (d in m below ground)
+    α = 0.9434   αⁿ = 0.7472
+    S_P =   404.5 mm    S_E =   118.9 mm
+    climatological totals: P = 460 mm   PET = 137 mm
+    λ = 1.365
+    P_flood (iterated)    =   628 mm    [1.37x climatology]
+    P_flood (old 1-step)  =   350 mm    [reference only]
+    Collapsed form:  P_flood = 237.18 * d + 365.64   (d in m below ground)
 
   C4 (Main Forest)
     h_0 = -1.639 m  (long-term mean of month-of-minimum)
     horizon: [10, 11, 12, 1, 2]  (n = 5 months, peak = month 2)
-    α = 0.9817   αⁿ = 0.9117
-    S_P =   445.3 mm    S_E =   129.4 mm
-    climatological totals: P = 464 mm   PET = 135 mm
-    λ = 1.946
-    P_flood (iterated)    =   903 mm    [1.95x climatology]
-    P_flood (old 1-step)  =   674 mm    [reference only]
-    Collapsed form:  P_flood = 381.96 * d + 276.97   (d in m below ground)
+    α = 0.9818   αⁿ = 0.9123
+    S_P =   441.5 mm    S_E =   130.7 mm
+    climatological totals: P = 460 mm   PET = 137 mm
+    λ = 1.960
+    P_flood (iterated)    =   902 mm    [1.96x climatology]
+    P_flood (old 1-step)  =   673 mm    [reference only]
+    Collapsed form:  P_flood = 381.65 * d + 276.29   (d in m below ground)
 
   C5 (Coastal Forest)
     h_0 = -1.388 m  (long-term mean of month-of-minimum)
     horizon: [10, 11, 12, 1, 2]  (n = 5 months, peak = month 2)
-    α = 0.9558   αⁿ = 0.7978
-    S_P =   420.0 mm    S_E =   121.4 mm
-    climatological totals: P = 464 mm   PET = 135 mm
-    λ = 1.979
-    P_flood (iterated)    =   918 mm    [1.98x climatology]
-    P_flood (old 1-step)  =   615 mm    [reference only]
-    Collapsed form:  P_flood = 363.72 * d + 413.39   (d in m below ground)
+    α = 0.9554   αⁿ = 0.7961
+    S_P =   415.8 mm    S_E =   122.5 mm
+    climatological totals: P = 460 mm   PET = 137 mm
+    λ = 1.990
+    P_flood (iterated)    =   916 mm    [1.99x climatology]
+    P_flood (old 1-step)  =   612 mm    [reference only]
+    Collapsed form:  P_flood = 361.44 * d + 414.08   (d in m below ground)
 
 Note: P_flood_new supersedes the single-step formulation in prior drafts.
       See Section 3.6.3 of Hollingham (2026) for derivation.

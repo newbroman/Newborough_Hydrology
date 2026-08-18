@@ -1,9 +1,9 @@
 Parameter,Well,Era,Value,Unit,Note
-drawdown_lambda,,,228.1356,m,"e-folding length √(Kb/(Sy·β₃/30)); Sy=0.3057, β₃=0.0566/month [C3]"
+drawdown_lambda,,,227.2715,m,"e-folding length √(Kb/(Sy·β₃/30)); Sy=0.3077, β₃=0.0566/month [C3]"
 drawdown_H0,,,150.0,mm,forest interception deficit at felling edge (config)
-drawdown_ceh23,CEH23,,25.1945,mm,modelled steady-state forest drawdown
-drawdown_ceh6,CEH6,,8.4526,mm,modelled steady-state forest drawdown
-drawdown_d15,D15,,35.1077,mm,modelled steady-state forest drawdown
-drawdown_ceh24,CEH24,,0.6577,mm,modelled steady-state forest drawdown
-drawdown_ceh10,CEH10,,1.4566,mm,modelled steady-state forest drawdown
-drawdown_ceh11,CEH11,,0.3793,mm,modelled steady-state forest drawdown
+drawdown_ceh23,CEH23,,25.0242,mm,modelled steady-state forest drawdown
+drawdown_ceh6,CEH6,,8.3607,mm,modelled steady-state forest drawdown
+drawdown_d15,D15,,34.9144,mm,modelled steady-state forest drawdown
+drawdown_ceh24,CEH24,,0.6443,mm,modelled steady-state forest drawdown
+drawdown_ceh10,CEH10,,1.4311,mm,modelled steady-state forest drawdown
+drawdown_ceh11,CEH11,,0.3708,mm,modelled steady-state forest drawdown

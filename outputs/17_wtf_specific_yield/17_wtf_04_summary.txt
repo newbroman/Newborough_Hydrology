@@ -12,9 +12,9 @@ APPROACH A — OLS Regression (winter months, origin-forced)
 ----------------------------------------------------------------------
   C1 (Lake Edge)                    Sy = 0.341  ±0.0446 (SE)  R² = 0.605  n = 39
   C2 (Dune)                         Sy = 0.335  ±0.0339 (SE)  R² = 0.666  n = 50
-  C3 (Western Residual)             Sy = 0.351  ±0.0217 (SE)  R² = 0.836  n = 52
+  C3 (Western Residual)             Sy = 0.350  ±0.0217 (SE)  R² = 0.836  n = 52
   C4 (Main Forest)                  Sy = 0.302  ±0.0179 (SE)  R² = 0.864  n = 46
-  C5 (Coastal Forest)               Sy = 0.419  ±0.0235 (SE)  R² = 0.871  n = 48
+  C5 (Coastal Forest)               Sy = 0.417  ±0.0232 (SE)  R² = 0.873  n = 48
 
 APPROACH B — Event Median (rising limb months)
 ----------------------------------------------------------------------
@@ -43,9 +43,9 @@ COMPARISON WITH ASSUMED VALUES
   Cluster                            Assumed       OLS     Event     Rapid
   C1 (Lake Edge)                       0.080     0.341     0.210     0.195
   C2 (Dune)                            0.120     0.335     0.281     0.261
-  C3 (Western Residual)                0.120     0.351     0.328     0.334
+  C3 (Western Residual)                0.120     0.350     0.328     0.334
   C4 (Main Forest)                     0.120     0.302     0.315     0.274
-  C5 (Coastal Forest)                  0.120     0.419     0.356     0.298
+  C5 (Coastal Forest)                  0.120     0.417     0.356     0.298
   C4 (Main Forest) (corrected)         0.120       n/a     0.259         -
   C5 (Coastal Forest) (corrected)      0.120       n/a     0.321         -
 

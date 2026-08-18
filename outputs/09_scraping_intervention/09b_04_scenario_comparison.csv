@@ -3,7 +3,7 @@ Clearfell,C1,0.0
 Clearfell,C2,0.0
 Clearfell,C3,0.0
 Clearfell,C4,8.2
-Clearfell,C5,10.6
+Clearfell,C5,10.7
 Thinning 50%,C1,0.0
 Thinning 50%,C2,0.0
 Thinning 50%,C3,0.0
@@ -12,8 +12,8 @@ Thinning 50%,C5,5.3
 Broadleaf,C1,0.0
 Broadleaf,C2,0.0
 Broadleaf,C3,0.0
-Broadleaf,C4,-0.8
-Broadleaf,C5,1.6
+Broadleaf,C4,-0.7
+Broadleaf,C5,1.7
 Scraping (nearby),C1,0.0
 Scraping (nearby),C2,0.0
 Scraping (nearby),C3,0.2

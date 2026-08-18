@@ -807,7 +807,7 @@ def write_results(df: pd.DataFrame, delta0, L_coast, clearfell_step_mm,
         "magnitude — smaller than coast, but not negligible beside it; a moderate secondary "
         "contributor, not a match for coastal retreat and not a headline driver on its own. "
         "This ratio inherits Script 20's own scrape-field construction (8 cuts superposed with "
-        "λ≈225 m reach each, summed over the whole site extent — mean field ≈23 mm across the "
+        f"λ≈{lam:.0f} m reach each, summed over the whole site extent — mean field ≈23 mm across the "
         "949 ha site, not a tiny near-field patch), which is why the off-site total doesn't stay "
         "small despite each cut's own footprint being modest. Consistent with, not overriding, "
         "the coastal-dominance picture from Part A / Script 25."

@@ -3,11 +3,11 @@
 
 LIVE PARAMETERS
 --------------------------------------------------------------------------
-  δ₀ (Script 25, forest-free linear-capped): 29.03 mm/yr; L = 894 m
-  clearfell step (10a ANCOVA, Path B, observed): 119.6 mm
+  δ₀ (Script 25, forest-free linear-capped): 29.26 mm/yr; L = 894 m
+  clearfell step (10a ANCOVA, Path B, observed): 115.3 mm
   scrape on-site (CEH36 Pure_Scraping, observed): 129.4 mm
   scrape off-site (WMC3 DiD mean, observed): -54.5 mm
-  drain-cone / forest λ (20_report_numbers): 228.1 m
+  drain-cone / forest λ (20_report_numbers): 227.3 m
   representative Sy: coast/scrape (C3) = 0.306; forest (C4/C5 weighted) = 0.273
   horizon: 2005→2025 (20 yr)
   well roster: 66 reference-network wells (canonical C1-C5 partition)
@@ -15,19 +15,19 @@ LIVE PARAMETERS
 COMPARISON TABLE
 --------------------------------------------------------------------------
   Coastal erosion (chronic drawdown)     [Coast, progressive, loss, modelled]
-      peak=-580.6 mm  area=-74291.2 mm·ha  volume=-227108.2 m³
+      peak=-585.2 mm  area=-74879.8 mm·ha  volume=-228907.5 m³
       SD15b (wet-slack, 610 mm): worsen=0  relieve=0   SD16 (dry-slack, 980 mm): worsen=6  relieve=0  (n=66)
 
   Sea-level rise (head gain)             [Coast, progressive, gain, modelled]
-      peak=+20.0 mm  area=+2819.5 mm·ha  volume=+8619.2 m³
+      peak=+20.0 mm  area=+2809.1 mm·ha  volume=+8587.4 m³
       SD15b (wet-slack, 610 mm): worsen=0  relieve=0   SD16 (dry-slack, 980 mm): worsen=0  relieve=1  (n=66)
 
   Clearfell (canopy removed)             [Forest management, step, gain, observed]
-      peak=+119.6 mm  area=+6392.8 mm·ha  volume=+17483.8 m³
+      peak=+115.3 mm  area=+6129.8 mm·ha  volume=+16764.6 m³
       SD15b (wet-slack, 610 mm): worsen=0  relieve=0   SD16 (dry-slack, 980 mm): worsen=0  relieve=3  (n=66)
 
   Broadleaf restock (canopy added)       [Forest management, progressive, loss, modelled]
-      peak=-56.2 mm  area=-3848.1 mm·ha  volume=-10524.4 m³
+      peak=-56.2 mm  area=-3830.0 mm·ha  volume=-10474.9 m³
       SD15b (wet-slack, 610 mm): worsen=0  relieve=0   SD16 (dry-slack, 980 mm): worsen=1  relieve=0  (n=66)
 
   Scrape on-site (slack rise)            [Dune scraping, step, gain, observed]
@@ -35,23 +35,23 @@ COMPARISON TABLE
       SD15b (wet-slack, 610 mm): worsen=0  relieve=0   SD16 (dry-slack, 980 mm): worsen=0  relieve=1  (n=66)
 
   Scrape off-site (drain cone)           [Dune scraping, redistributive, loss, observed]
-      peak=-54.5 mm  area=-21922.7 mm·ha  volume=-67017.7 m³
+      peak=-54.5 mm  area=-21801.7 mm·ha  volume=-66647.9 m³
       SD15b (wet-slack, 610 mm): worsen=0  relieve=0   SD16 (dry-slack, 980 mm): worsen=5  relieve=0  (n=66)
 
   Climate / common-mode (uniform decline) [Climate (common-mode), uniform, loss, modelled]
-      peak=-127.0 mm  area=-120554.8 mm·ha  volume=-368535.9 m³
-      SD15b (wet-slack, 610 mm): worsen=0  relieve=0   SD16 (dry-slack, 980 mm): worsen=18  relieve=0  (n=66)
+      peak=-147.6 mm  area=-140109.3 mm·ha  volume=-428314.1 m³
+      SD15b (wet-slack, 610 mm): worsen=0  relieve=0   SD16 (dry-slack, 980 mm): worsen=22  relieve=0  (n=66)
 
   Scrape NET (on-site + off-site)        [Dune scraping, redistributive, net, observed+modelled]
-      peak=n/a  area=-21309.6 mm·ha  volume=-65143.5 m³
+      peak=n/a  area=-21188.6 mm·ha  volume=-64773.7 m³
 
 
 THE 'SCRAPING WORSENS SITE-WIDE DECLINE' CLAIM, IN CONTEXT
 --------------------------------------------------------------------------
   Scrape on-site (rise):  area=+613.1 mm·ha  volume=+1874.2 m³
-  Scrape off-site (drain): area=-21922.7 mm·ha  volume=-67017.7 m³
-  Scrape NET: area=-21309.6 mm·ha  volume=-65143.5 m³
-  The net sign (a net site-wide LOSS) is the quantitative basis for the claim. Set beside the coastal integral, the scrape net volume is 29% of the coastal volume in magnitude — smaller than coast, but not negligible beside it; a moderate secondary contributor, not a match for coastal retreat and not a headline driver on its own. This ratio inherits Script 20's own scrape-field construction (8 cuts superposed with λ≈225 m reach each, summed over the whole site extent — mean field ≈23 mm across the 949 ha site, not a tiny near-field patch), which is why the off-site total doesn't stay small despite each cut's own footprint being modest. Consistent with, not overriding, the coastal-dominance picture from Part A / Script 25.
+  Scrape off-site (drain): area=-21801.7 mm·ha  volume=-66647.9 m³
+  Scrape NET: area=-21188.6 mm·ha  volume=-64773.7 m³
+  The net sign (a net site-wide LOSS) is the quantitative basis for the claim. Set beside the coastal integral, the scrape net volume is 28% of the coastal volume in magnitude — smaller than coast, but not negligible beside it; a moderate secondary contributor, not a match for coastal retreat and not a headline driver on its own. This ratio inherits Script 20's own scrape-field construction (8 cuts superposed with λ≈227 m reach each, summed over the whole site extent — mean field ≈23 mm across the 949 ha site, not a tiny near-field patch), which is why the off-site total doesn't stay small despite each cut's own footprint being modest. Consistent with, not overriding, the coastal-dominance picture from Part A / Script 25.
 
 CAVEATS (even-handed framing, per working rules)
 --------------------------------------------------------------------------

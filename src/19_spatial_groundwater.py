@@ -23,7 +23,16 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.12.0"   # Hollingham (2026) -- 2026-08-18. Basemap opacity is
+__version__ = "2.13.0"   # Hollingham (2026) -- 2026-08-18. Two additions.
+#   The Basemap slider now runs to 2.0: opacity alone tops out at 1, where the
+#   relief is already fully opaque, so beyond that the slider adds a multiply
+#   pass, darkening shaded faces without flattening lit ones. Roughly twice the
+#   reach, and continuous through the join.
+#   Features.kml's 18 linear features (Path1-4 and the unnamed Line N series)
+#   are carried through kml_to_bng, which already read LineStrings but had
+#   nowhere to put them, and drawn as a "Paths and lines" layer, off by default.
+#
+# v2.12.0  # Hollingham (2026) -- 2026-08-18. Basemap opacity is
 #   now a control rather than a constant. The hillshade PNG was emitted with
 #   alpha baked in at 90/255 to match the static figures, which on screen read
 #   as washed out under the colour surface and could not be strengthened from
@@ -814,7 +823,8 @@ def load_kml_polygons():
                     return []
                 pts = pts_from(geom)
                 if pts:
-                    results.append({"name": nm, "pts": pts})
+                    results.append({"name": nm, "pts": pts,
+                                    "kind": geom.geom_type})
             return results
 
         cf = kml_to_bng(DATA_KML_CLEARFELL)
@@ -823,14 +833,24 @@ def load_kml_polygons():
             print(f"  clearfell.kml: {len(polys['clearfell'])} pts")
 
         ft = kml_to_bng(DATA_KML_FEATURES)
+        tracks = []
         for f in ft:
             nm_lower = f["name"].lower()
-            if "llyn" in nm_lower or "rhos" in nm_lower or "lake" in nm_lower:
+            if "Line" in f.get("kind", ""):
+                # Every linear feature in Features.kml: the four named paths and
+                # the unnamed Line N series. Carried as one layer with names, so
+                # the viewer can label them and the reader can see what each is.
+                tracks.append({"name": f["name"], "pts": f["pts"]})
+            elif "llyn" in nm_lower or "rhos" in nm_lower or "lake" in nm_lower:
                 polys["lake"] = f["pts"]
             elif "forest" in nm_lower or "plantation" in nm_lower:
                 polys["forest_raw"] = f["pts"]
+        if tracks:
+            polys["tracks"] = tracks
         if ft:
-            print(f"  Features.kml: found {[k for k in ('lake','forest_raw') if k in polys]}")
+            print(f"  Features.kml: found "
+                  f"{[k for k in ('lake','forest_raw') if k in polys]}"
+                  f" + {len(tracks)} line feature(s)")
 
         bl = kml_to_bng(KML_BROADLEAF)
         if bl:
@@ -1315,6 +1335,8 @@ footer a:hover{{text-decoration:underline;}}
     Well labels</label>
   <label class="ckrow"><input type="checkbox" id="chkRidge" checked onchange="drawMap()">
     Mask dune ridges <span style="color:var(--text-light);font-size:10px;">(depth view)</span></label>
+  <label class="ckrow"><input type="checkbox" id="chkTrk" onchange="drawMap()">
+    Paths and lines <span style="color:var(--text-light);font-size:10px;">(Features.kml)</span></label>
 </div>
 
 <div class="splitter" id="splitter"></div>
@@ -1347,7 +1369,7 @@ footer a:hover{{text-decoration:underline;}}
       </div>
       <div style="display:flex;align-items:center;gap:8px;margin-left:auto;font-size:12px;color:#555;">
         <label for="sBg" title="Strength of the shaded-relief basemap under the water-table surface">Basemap</label>
-        <input type="range" min="0" max="1" step="0.05" value="{hillshade_alpha}" id="sBg"
+        <input type="range" min="0" max="2" step="0.05" value="{hillshade_alpha}" id="sBg"
                oninput="setBg(this.value)" style="width:110px;">
         <span class="sv" id="vBg" style="min-width:3.2em;text-align:right;"></span>
       </div>
@@ -1673,11 +1695,22 @@ function drawBg(){{
   }}
   // Hillshade overlay (transparent PNG, already site-masked server-side).
   // Blended here rather than baked into the PNG, so the Basemap slider spans
-  // the full range. globalAlpha is restored immediately: the site outline below
-  // and every later draw on this context must not inherit it.
+  // the full range. Opacity alone stops at 1, where the relief is fully opaque
+  // and no darker is available; past that the slider adds a MULTIPLY pass,
+  // which darkens the shaded faces without flattening the lit ones. That gives
+  // the control roughly twice the reach of straight opacity.
+  // globalAlpha and the composite mode are both restored: the site outline
+  // below and every later draw on this context must not inherit either.
   if(HILLSHADE_READY&&HILLSHADE_IMG){{
-    var _a=ctx.globalAlpha;ctx.globalAlpha=BG_ALPHA;
-    ctx.drawImage(HILLSHADE_IMG,0,0,MW,MH);ctx.globalAlpha=_a;
+    var _a=ctx.globalAlpha,_op=ctx.globalCompositeOperation;
+    ctx.globalAlpha=Math.min(BG_ALPHA,1);
+    ctx.drawImage(HILLSHADE_IMG,0,0,MW,MH);
+    if(BG_ALPHA>1){{
+      ctx.globalCompositeOperation='multiply';
+      ctx.globalAlpha=Math.min(BG_ALPHA-1,1);
+      ctx.drawImage(HILLSHADE_IMG,0,0,MW,MH);
+    }}
+    ctx.globalAlpha=_a;ctx.globalCompositeOperation=_op;
   }}
   // Site polygon outline drawn last so it stays crisp over the hillshade.
   if(sp&&sp.length){{
@@ -1761,6 +1794,23 @@ function drawMap(){{
     if(POLYS.broadleaf) dpoly(ctx,POLYS.broadleaf,'rgba(30,120,80,0.35)','#1a7a50',1.8);
     if(POLYS.clearfell) dpoly(ctx,POLYS.clearfell,'rgba(230,100,20,0.45)','#e65014',2.0);
     if(POLYS.lake)      dpoly(ctx,POLYS.lake,     'rgba(20,80,200,0.50)','#1a50b0',1.5);
+  }}
+  // Linear features are a separate toggle from the KML polygons: they are
+  // reference lines on the ground rather than analysis units, and a manager
+  // reading a scenario usually wants them off. Open polylines, so drawn here
+  // rather than through dpoly(), which closes its path.
+  var _tk=document.getElementById('chkTrk');
+  if(_tk&&_tk.checked&&POLYS.tracks&&POLYS.tracks.length){{
+    ctx.save();ctx.setLineDash([6,3]);ctx.lineWidth=1.5;
+    ctx.strokeStyle='#5a4632';ctx.lineJoin='round';ctx.lineCap='round';
+    for(var ti=0;ti<POLYS.tracks.length;ti++){{
+      var tr=POLYS.tracks[ti],tp=tr.pts||tr;
+      if(!tp||tp.length<2)continue;
+      var t0=tc(tp[0][0],tp[0][1]);ctx.beginPath();ctx.moveTo(t0.x,t0.y);
+      for(var tj=1;tj<tp.length;tj++){{var tq=tc(tp[tj][0],tp[tj][1]);ctx.lineTo(tq.x,tq.y);}}
+      ctx.stroke();
+    }}
+    ctx.restore();
   }}
   var syV=WELLS.filter(function(w){{return w.sy!=null;}}).map(function(w){{return w.sy;}}),syMn=Math.min.apply(null,syV),syMx=Math.max.apply(null,syV);
   var showLbl=document.getElementById('chkLbl').checked;

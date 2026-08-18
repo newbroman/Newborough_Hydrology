@@ -1,9 +1,9 @@
 component,label,driver_group,mechanism_type,gain_or_loss,observed_or_modelled,peak_mm,area_mm_ha,volume_m3,n_wells_evaluated,sd15b_crossings_worsen,sd15b_crossings_relieve,sd16_crossings_worsen,sd16_crossings_relieve
-coast_erosion,Coastal erosion (chronic drawdown),Coast,progressive,loss,modelled,-580.6,-74291.2,-227108.2,66.0,0.0,0.0,6.0,0.0
-slr,Sea-level rise (head gain),Coast,progressive,gain,modelled,20.0,2819.5,8619.2,66.0,0.0,0.0,0.0,1.0
-clearfell,Clearfell (canopy removed),Forest management,step,gain,observed,119.6,6392.8,17483.8,66.0,0.0,0.0,0.0,3.0
-broadleaf,Broadleaf restock (canopy added),Forest management,progressive,loss,modelled,-56.2,-3848.1,-10524.4,66.0,0.0,0.0,1.0,0.0
+coast_erosion,Coastal erosion (chronic drawdown),Coast,progressive,loss,modelled,-585.2,-74879.8,-228907.5,66.0,0.0,0.0,6.0,0.0
+slr,Sea-level rise (head gain),Coast,progressive,gain,modelled,20.0,2809.1,8587.4,66.0,0.0,0.0,0.0,1.0
+clearfell,Clearfell (canopy removed),Forest management,step,gain,observed,115.3,6129.8,16764.6,66.0,0.0,0.0,0.0,3.0
+broadleaf,Broadleaf restock (canopy added),Forest management,progressive,loss,modelled,-56.2,-3830.0,-10474.9,66.0,0.0,0.0,1.0,0.0
 scrape_onsite,Scrape on-site (slack rise),Dune scraping,step,gain,observed,129.4,613.1,1874.2,66.0,0.0,0.0,0.0,1.0
-scrape_offsite,Scrape off-site (drain cone),Dune scraping,redistributive,loss,observed,-54.5,-21922.7,-67017.7,66.0,0.0,0.0,5.0,0.0
-climate,Climate / common-mode (uniform decline),Climate (common-mode),uniform,loss,modelled,-127.0,-120554.8,-368535.9,66.0,0.0,0.0,18.0,0.0
-scrape_net,Scrape NET (on-site + off-site),Dune scraping,redistributive,net,observed+modelled,,-21309.6,-65143.5,,,,,
+scrape_offsite,Scrape off-site (drain cone),Dune scraping,redistributive,loss,observed,-54.5,-21801.7,-66647.9,66.0,0.0,0.0,5.0,0.0
+climate,Climate / common-mode (uniform decline),Climate (common-mode),uniform,loss,modelled,-147.6,-140109.3,-428314.1,66.0,0.0,0.0,22.0,0.0
+scrape_net,Scrape NET (on-site + off-site),Dune scraping,redistributive,net,observed+modelled,,-21188.6,-64773.7,,,,,

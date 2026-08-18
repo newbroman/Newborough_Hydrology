@@ -64,7 +64,21 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds (config.SD15b / config.SD16)
 """
 
-__version__ = "1.38.2"  # Hollingham (2026) — 2026-08-18. The three fast-path
+__version__ = "1.38.4"  # Hollingham (2026) — 2026-08-18. Adds two report
+#   numbers to 20_residual_report_numbers.csv: residual_c4_median_beta3 and
+#   residual_ceh14_b3_c4median. The water-balance residual carries beta_3
+#   directly (residual = b2*PET_bar + b3*h_disp - b1*P_bar), so at CEH14 —
+#   the one well with a negative beta_3 — the residual is driven negative by
+#   the very coefficient the field was being used to adjudicate. The new keys
+#   publish CEH14's residual recomputed with the C4 per-well median beta_3,
+#   all other terms held at CEH14's own fitted values, so Methods Supplement
+#   S.16 can quote a committed CSV. No figure, surface, existing key or
+#   published value changes. The C4 cluster id is derived from
+#   config.CLUSTER_LABELS, not typed.
+#
+# v1.38.3  # Hollingham (2026) — 2026-08-18. _measured_ceh36_response()
+#   falls back to pipeline_params.default_value('ceh36_scrape_response_m')
+#   instead of a typed 0.1295. Earlier: the three fast-path
 #   point-in-polygon tests moved from shapely.vectorized.contains, deprecated
 #   and due for removal, to shapely.contains_xy — the same call Script 19 has
 #   used since it was written. Identical semantics; the per-cell prepared-
@@ -923,6 +937,28 @@ def plot_residual_ssm(wt, features, dpi=300):
     if len(_ceh14):
         rrpt.add("residual_ceh14", float(_ceh14["residual_wb"].iloc[0]), unit="m/month",
                  well="CEH14", note="ridge-flank residual (cited in §4.9)")
+    # β₃-independence check for the ridge-flank wells (D-037).
+    # The residual expression carries β₃ directly, so at a well whose β₃ is
+    # itself anomalous the residual is not independent evidence about that β₃.
+    # Recompute CEH14's residual holding every other term at its own fitted
+    # value and substituting the C4 per-well median β₃, and publish both the
+    # substituted β₃ and the resulting residual so the supplement quotes a
+    # committed number rather than asserting the comparison.
+    _c4_id = next((cid for cid, lbl in CLUSTER_LABELS.items()
+                   if "Main Forest" in lbl), None)
+    _c4_b3 = (wt.loc[wt["cluster"] == _c4_id, "beta3"].median()
+              if _c4_id is not None else np.nan)
+    _c14w = wt[wt["well"].astype(str).str.lower().str.replace(" ", "") == "ceh14"]
+    if len(_c14w) and np.isfinite(_c4_b3) and pd.notna(_c14w["residual_wb"].iloc[0]):
+        _r0 = float(_c14w["residual_wb"].iloc[0])
+        _hd = float(_c14w["h_disp"].iloc[0])
+        _b3 = float(_c14w["beta3"].iloc[0])
+        rrpt.add("residual_c4_median_beta3", float(_c4_b3), unit="1/month",
+                 note="C4 per-well median beta_3, substituted in the CEH14 check")
+        rrpt.add("residual_ceh14_b3_c4median", _r0 + (_c4_b3 - _b3) * _hd,
+                 unit="m/month", well="CEH14",
+                 note="CEH14 residual recomputed with the C4 median beta_3, "
+                      "every other term unchanged (beta_3 independence check)")
     _n_band = int((_resid["residual_wb"] > 0.02).sum())
     rrpt.add("residual_n_gt_0p02", _n_band, unit="wells",
              note="wells with residual > +0.02 m/month (strong positive band)")
@@ -2170,7 +2206,10 @@ def _measured_ceh36_response():
     """Measured CEH36 scrape response (m), live from Script 09a paired BACI
     (CEH36 'Pure_Scraping' vs CEH4). This is the edge magnitude H0 anchor for
     the scrape-drain maps — an empirical quantity, not an assumed depth × Sy.
-    Falls back to 0.1295 m (the 2026-05 value) if the file is unavailable."""
+    Falls back to the documented first-pass default if the file is unavailable.
+    That fallback used to be the literal 0.1295 - a published BACI result typed
+    into an except branch, which pipeline_lint flags precisely because such a
+    value goes stale silently while still looking authoritative."""
     try:
         df = pd.read_csv(OUT_09_BACI_SHIFTS)
         df.columns = [str(c).strip().lower() for c in df.columns]
@@ -2180,7 +2219,8 @@ def _measured_ceh36_response():
                  (df[era].astype(str).str.contains("Pure_Scraping", case=False))]
         return float(row[val].iloc[0])
     except Exception:
-        return 0.1295
+        from utils.pipeline_params import default_value
+        return float(default_value("ceh36_scrape_response_m"))
 
 
 _COASTLINE_HWM_CACHE = None

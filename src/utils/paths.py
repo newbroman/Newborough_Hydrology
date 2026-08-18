@@ -11,7 +11,10 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-08-18. Adds
+__version__ = "1.5.0"  # Hollingham (2026) -- 2026-08-18. OUT_00_PET_WARMING
+#   added: Script 00 emits the PET response to warming (00_05).
+#
+# v1.4.0  # Hollingham (2026) — 2026-08-18. Adds
 #   OUT_03_CENTROID_WINDOW_SENS and OUT_03_PER_WELL_WINDOW_SENS. Script 03 wrote
 #   both by inline path, which was fine while it was the only party; Script 19
 #   now reads them for the viewer's basis toggle, and a path spelled in two
@@ -250,6 +253,9 @@ OUT_00_SUMMER_WARMING       = DIR_00 / "00_03_summer_warming_trend.png"
 OUT_00_ANNUAL_CLIMATE_TABLE = DIR_00 / "00_01_annual_climate_summary.csv"
 OUT_00_WELL_NETWORK_TABLE   = DIR_00 / "00_02_well_network_summary.csv"
 OUT_00_SUMMER_WARMING_TABLE = DIR_00 / "00_03_summer_warming_stats.csv"
+OUT_00_PET_WARMING          = DIR_00 / "00_05_pet_warming_response.csv"  # how much
+                                                                        # of the station's
+                                                                        # warming reaches PET
 OUT_00_CLIMATOLOGY          = DIR_00 / "00_04_climatology.csv"          # §4.1.1 12-month P/PET climatology (full-years well period)
 OUT_00_REPORT_NUMBERS       = DIR_00 / "00_report_numbers.csv"          # §4.1.1 cited climate stats
 

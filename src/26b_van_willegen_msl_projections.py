@@ -111,7 +111,10 @@ Cross-references
   Script 26 plot_cluster_trajectory()             — observed-trajectory layout this script extends
 """
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-05-27
+__version__ = "1.2.1"  # Hollingham (2026) -- 2026-08-18. UKCP18_SCENARIOS now
+#   imported from utils.config; this script and Script 19 each held a copy.
+#
+# v1.2.0  # Hollingham (2026) — 2026-05-27
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -157,10 +160,9 @@ OUT_TXT    = paths.OUT_26B_RESULTS_TXT
 #   Winter = Nov-Mar  (months 11, 12, 1, 2, 3)
 #   Summer = May-Sep  (months  5, 6, 7, 8, 9)
 #   Shoulder = Apr, Oct  — these get the mean of winter and summer multipliers
-UKCP18_SCENARIOS = {
-    "2050s": {"sP_w": 1.10, "sP_s": 0.85, "sPET_w": 1.05, "sPET_s": 1.20},
-    "2080s": {"sP_w": 1.20, "sP_s": 0.70, "sPET_w": 1.10, "sPET_s": 1.35},
-}
+# Imported from config rather than mirrored here: Script 19 held an identical
+# copy, and two copies of a published scenario parameter is one too many.
+from utils.config import UKCP18_SCENARIOS
 
 SCENARIO_STYLES = {
     "2050s": {"linestyle": (0, (4, 2)),       "linewidth": 1.4, "alpha": 0.85,

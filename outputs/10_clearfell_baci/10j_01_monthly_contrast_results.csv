@@ -1,2 +1,2 @@
 estimator,clearfell_step_m,clearfell_step_se_m,clearfell_ci_lo_m,clearfell_ci_hi_m,clearfell_p,scraping_step_m,scraping_step_se_m,scraping_p,edge_post_b_m,edge_post_p,edge_scraping_b_m,edge_scraping_p,R2,N
-OLS_well_FE_cluster_robust,0.0647,0.0162,0.033,0.0964,6.243320695983056e-05,-0.0223,0.0196,0.255621643173239,0.044,0.006431116967612854,-0.4402,6.188638996404515e-112,0.8341,891
+OLS_well_FE_cluster_robust,0.0653,0.0172,0.0317,0.099,0.00014335968546768407,-0.0255,0.0165,0.12293258789501015,0.0638,0.00020463044985032444,-0.4097,1.2768890418413452e-135,0.8207,891

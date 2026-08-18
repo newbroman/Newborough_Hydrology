@@ -1,7 +1,7 @@
 Metric,Traditional_Model_A,StateSpace_Model_B,Delta_B_minus_A
-Median one-step R2,0.92,0.92,0.0
-Median iterative R2,0.67,0.8,0.12
-Median iterative NSE,0.33,0.77,0.47
-Wells with iterative NSE > 0,52 / 66,65 / 66,—
-Max NSE improvement (CEH27),-1.7,0.7,2.4
-CEH6 iterative NSE,-1.69,0.66,2.35
+Median one-step R2,0.91,0.92,0.0
+Median iterative R2,0.64,0.77,0.14
+Median iterative NSE,-0.03,0.72,0.82
+Wells with iterative NSE > 0,30 / 66,65 / 66,—
+Max NSE improvement (CEH27),-2.18,0.68,2.86
+CEH6 iterative NSE,-1.89,0.67,2.56

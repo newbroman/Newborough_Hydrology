@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/PAPER1_SI_methods_v1_2.odt — do not edit.
+<!-- GENERATED MIRROR of docs/papers/paper_1/PAPER1_SI_methods_v1_3.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # Supporting Information
@@ -39,6 +39,8 @@ Two tests establish that the gradient is not itself seasonal. A full-panel seaso
 ## S1. Field protocol, data preparation, and date semantics
 
 The 88-well manual dipwell network is read monthly by the author. Readings are taken at the **end of each month** --- typically the last day of that month, or the first day or two of the following month. Each reading is the water level *for the month just ended*: a measurement taken on 1 May 2026 represents the **April 2026** water level. Climate data from RAF Valley Meteorological Station (53°14′32″N, ≈16 km from the site) is a monthly total for the same calendar month: rainfall *P* (mm), and minimum and maximum temperatures from which monthly Thornthwaite PET is computed at the RAF Valley latitude (53.25°).
+
+Thornthwaite (1948) defines the heat index *I* as the sum of the monthly contributions *i* = (*T*/5)\^1.514 over the calendar year. Here the sum is taken over the trailing twelve months ending at the month being computed. That window contains exactly one of each calendar month and is therefore a full annual heat sum, but unlike the calendar-year form it is defined at every month of a record that does not end in December, and the PET of a given month does not depend on the months that follow it. The monitoring record is live and is analysed part-way through a calendar year, where the calendar-year sum is undefined: applied to the two months of 2026 available, it returned *I* = 3.1 against a normal near 45 and a February PET of 66.8 mm against a range of 13.0 to 25.7 mm observed for that month at this station. Over the analysis period the two forms are equivalent in central tendency, differing in monthly PET by a median of 0.00% (5th to 95th percentile ±5.5%); individual months can differ by up to 16.6%. This is a departure from the published method rather than a correction to it, and is recorded as such.
 
 **Bucketing.** Readings on physical dates ≤ day 15 of month *M* are bucketed into month *M*−1 because they belong to the previous month's water table. Readings on physical dates \> day 15 of month *M* are bucketed into month *M*. The cutoff is at day 15 because field readings are nearly always taken either within the first week of a month or on the last day of the preceding month; day 15 is comfortably in the middle of the gap.
 

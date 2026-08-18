@@ -1,35 +1,35 @@
 Parameter,Well,Era,Value,Unit,Note
-Tier1_CUSUM_terminal,CEH4,,-10.5527,m,Final cumulative CUSUM vs Regional Mean
-Tier1_CUSUM_terminal,CEH22,,-19.022,m,Final cumulative CUSUM vs Regional Mean
-Tier2_BACI_shift,CEH36,Pure_Scraping,0.1294,m,vs CEH4
-Tier2_BACI_shift,CEH36,Felling_Pulse,0.0236,m,vs CEH4
-Tier2_BACI_shift,CEH4,Pure_Scraping,-0.0149,m,vs Regional Mean
-Tier2_BACI_shift,CEH4,Felling_Pulse,-0.0879,m,vs Regional Mean
-Tier2_BACI_shift,CEH18,Felling_Pulse,0.0297,m,vs CEH4
-Tier2_BACI_shift,CEH18,After_Scraping,0.0085,m,vs CEH4
-Tier2_BACI_shift,CEH21,Coastal_Drawdown,0.0431,m,vs CEH22
-Tier2_BACI_shift,CEH21,After_Scraping,0.0735,m,vs CEH22
-Tier2_BACI_shift,CEH22,Coastal_Drawdown,-0.1652,m,vs Regional Mean
-Tier2_BACI_shift,CEH22,After_Scraping,-0.1295,m,vs Regional Mean
-Net_benefit,CEH36,Pure_Scraping,0.1435,m,vs CEH21 coastal benchmark
-Net_benefit,CEH36,Felling_Pulse,-0.0489,m,vs CEH21 coastal benchmark
-Net_benefit,CEH18,Felling_Pulse,-0.0098,m,vs CEH21 coastal benchmark
-Net_benefit,CEH18,After_Scraping,-0.0725,m,vs CEH21 coastal benchmark
-beta3_era,CEH36,1_Baseline,0.0883,m,"CI=[0.0116,0.1649] p=0.0249"
-beta3_era,CEH36,2_Pure_Scraping,0.141,m,"CI=[0.0603,0.2218] p=0.0012"
-beta3_era,CEH36,3_Felling_Pulse,0.1089,m,"CI=[0.0503,0.1675] p=<0.001"
-beta3_era,CEH4,1_Baseline,0.0702,m,"CI=[0.0264,0.1140] p=0.0020"
-beta3_era,CEH4,2_Pure_Scraping,0.1628,m,"CI=[0.0804,0.2452] p=<0.001"
-beta3_era,CEH4,3_Felling_Pulse,0.1105,m,"CI=[0.0599,0.1610] p=<0.001"
-beta3_era,CEH18,1_Baseline,0.0752,m,"CI=[0.0364,0.1140] p=<0.001"
-beta3_era,CEH18,2_Felling_Pulse,0.1052,m,"CI=[0.0230,0.1874] p=0.0129"
-beta3_era,CEH18,3_After_Scraping,0.1559,m,"CI=[0.0211,0.2906] p=0.0251"
-beta3_era,CEH21,1_Baseline,0.1051,m,"CI=[0.0545,0.1556] p=<0.001"
-beta3_era,CEH21,2_Coastal_Drawdown,0.0581,m,"CI=[-0.0032,0.1194] p=0.0629"
-beta3_era,CEH21,3_After_Scraping,0.0812,m,"CI=[-0.0327,0.1950] p=0.1550"
-beta3_era,CEH22,1_Baseline,0.1364,m,"CI=[0.0833,0.1896] p=<0.001"
-beta3_era,CEH22,2_Coastal_Drawdown,0.152,m,"CI=[0.0737,0.2302] p=<0.001"
-beta3_era,CEH22,3_After_Scraping,0.2297,m,"CI=[0.0681,0.3912] p=0.0073"
+Tier1_CUSUM_terminal,CEH4,,-10.55274998465068,m,Final cumulative CUSUM vs Regional Mean
+Tier1_CUSUM_terminal,CEH22,,-19.021958174480666,m,Final cumulative CUSUM vs Regional Mean
+Tier2_BACI_shift,CEH36,Pure_Scraping,0.1294262107982894,m,vs CEH4
+Tier2_BACI_shift,CEH36,Felling_Pulse,0.023606505102040792,m,vs CEH4
+Tier2_BACI_shift,CEH4,Pure_Scraping,-0.014944747620500368,m,vs Regional Mean
+Tier2_BACI_shift,CEH4,Felling_Pulse,-0.08785645708148605,m,vs Regional Mean
+Tier2_BACI_shift,CEH18,Felling_Pulse,0.0297059584300923,m,vs CEH4
+Tier2_BACI_shift,CEH18,After_Scraping,0.008470878729253575,m,vs CEH4
+Tier2_BACI_shift,CEH21,Coastal_Drawdown,0.04308536306870281,m,vs CEH22
+Tier2_BACI_shift,CEH21,After_Scraping,0.0735465180060278,m,vs CEH22
+Tier2_BACI_shift,CEH22,Coastal_Drawdown,-0.16516713711494113,m,vs Regional Mean
+Tier2_BACI_shift,CEH22,After_Scraping,-0.12949064021022977,m,vs Regional Mean
+Net_benefit,CEH36,Pure_Scraping,0.14353184604419095,m,vs CEH21 coastal benchmark
+Net_benefit,CEH36,Felling_Pulse,-0.0489412022425072,m,vs CEH21 coastal benchmark
+Net_benefit,CEH18,Felling_Pulse,-0.009826996431941237,m,vs CEH21 coastal benchmark
+Net_benefit,CEH18,After_Scraping,-0.07252789388246444,m,vs CEH21 coastal benchmark
+beta3_era,CEH36,1_Baseline,0.08443403661356942,m,"CI=[0.0076,0.1613] p=0.0319"
+beta3_era,CEH36,2_Pure_Scraping,0.13904268724886212,m,"CI=[0.0577,0.2204] p=0.0015"
+beta3_era,CEH36,3_Felling_Pulse,0.11284582800653845,m,"CI=[0.0547,0.1710] p=<0.001"
+beta3_era,CEH4,1_Baseline,0.07043801890567279,m,"CI=[0.0267,0.1142] p=0.0019"
+beta3_era,CEH4,2_Pure_Scraping,0.16171875331227747,m,"CI=[0.0790,0.2445] p=<0.001"
+beta3_era,CEH4,3_Felling_Pulse,0.11547469604707289,m,"CI=[0.0650,0.1660] p=<0.001"
+beta3_era,CEH18,1_Baseline,0.07428774283423778,m,"CI=[0.0356,0.1130] p=<0.001"
+beta3_era,CEH18,2_Felling_Pulse,0.10341797737084277,m,"CI=[0.0212,0.1856] p=0.0144"
+beta3_era,CEH18,3_After_Scraping,0.17666992793411906,m,"CI=[0.0426,0.3107] p=0.0119"
+beta3_era,CEH21,1_Baseline,0.10291089356098015,m,"CI=[0.0522,0.1537] p=<0.001"
+beta3_era,CEH21,2_Coastal_Drawdown,0.0559774051188288,m,"CI=[-0.0051,0.1171] p=0.0719"
+beta3_era,CEH21,3_After_Scraping,0.09567002209601097,m,"CI=[-0.0174,0.2087] p=0.0940"
+beta3_era,CEH22,1_Baseline,0.13603190414255978,m,"CI=[0.0828,0.1892] p=<0.001"
+beta3_era,CEH22,2_Coastal_Drawdown,0.15155092268015374,m,"CI=[0.0733,0.2298] p=<0.001"
+beta3_era,CEH22,3_After_Scraping,0.23902935950459614,m,"CI=[0.0793,0.3988] p=0.0050"
 Summer_minimum_depth,CEH4,1_Baseline,-1.16,m,Mean of annual Jun-Sep minima
 Summer_minimum_depth,CEH4,2_Pure_Scraping,-1.18,m,Mean of annual Jun-Sep minima
 Summer_minimum_depth,CEH4,3_Felling_Pulse,-1.4,m,Mean of annual Jun-Sep minima

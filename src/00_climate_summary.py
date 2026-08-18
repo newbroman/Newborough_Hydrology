@@ -59,6 +59,7 @@ from utils.paths import (
     OUT_00_REPORT_NUMBERS,
 )
 from utils.report_numbers_utils import ReportNumbers
+from utils.paths import OUT_00_PET_WARMING
 from utils.config import REFERENCE_CUTOFF_DATE
 from utils.render_utils import render_figure
 
@@ -70,7 +71,17 @@ import re
 import os
 from scipy.stats import linregress
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-08-12
+__version__ = "1.4.1"  # Hollingham (2026) -- 2026-08-18. Store-time rounding
+#   removed from make_figure3_summer_warming's stats rows (D-035); Script 00
+#   was outside the original sweep. Emits the PET response
+#   to warming (00_05 and four report numbers). Thornthwaite carries the heat
+#   index in the denominator and builds it from the same temperatures, so the
+#   formula partly cancels its own response to warming. The report and Paper 1
+#   both argue that rising evaporative demand reaches the aquifer through the
+#   atmospheric-draw term, so how much of the warming the PET series actually
+#   carries is a number those arguments rest on.
+#
+# v1.3.0  # Hollingham (2026) — 2026-08-12
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -97,6 +108,12 @@ CUTOFF_DATE = pd.Timestamp(REFERENCE_CUTOFF_DATE)
 MIN_RECORD_MONTHS = 100
 DETREND_START = pd.Timestamp("2004-12-01")
 DETREND_END = pd.Timestamp("2025-12-01")
+
+
+# Length of the early and late comparison periods used by
+# pet_warming_response(). Thirty years is the standard climatological
+# normal; the station record holds three of them.
+PET_RESPONSE_PERIOD_YEARS = 30
 
 
 def _build_output_paths(profile: str) -> dict[str, str]:
@@ -663,16 +680,17 @@ def make_figure3_summer_warming(out_png: str, out_csv: str) -> None:
     })
     annual_out = pd.concat([annual_out, summary_row], ignore_index=True)
 
+    # Stored at computed precision (D-035): rounding is a rendering decision.
     meta_rows = pd.DataFrame([
-        {"year": "slope_C_per_yr",     "summer_max_mean": round(reg.slope, 5)},
-        {"year": "intercept_C",        "summer_max_mean": round(reg.intercept, 3)},
-        {"year": "r_squared",          "summer_max_mean": round(reg.rvalue ** 2, 4)},
+        {"year": "slope_C_per_yr",     "summer_max_mean": float(reg.slope)},
+        {"year": "intercept_C",        "summer_max_mean": float(reg.intercept)},
+        {"year": "r_squared",          "summer_max_mean": float(reg.rvalue ** 2)},
         {"year": "p_value",            "summer_max_mean": reg.pvalue},
         {"year": "n_years",            "summer_max_mean": int(len(yrs))},
         {"year": "year_range",         "summer_max_mean": f"{int(yrs.min())}-{int(yrs.max())}"},
-        {"year": "pre_2013_mean_C",    "summer_max_mean": round(pre_mean, 3)},
-        {"year": "post_2013_mean_C",   "summer_max_mean": round(post_mean, 3)},
-        {"year": "post_2013_anomaly",  "summer_max_mean": round(anomaly, 3)},
+        {"year": "pre_2013_mean_C",    "summer_max_mean": float(pre_mean)},
+        {"year": "post_2013_mean_C",   "summer_max_mean": float(post_mean)},
+        {"year": "post_2013_anomaly",  "summer_max_mean": float(anomaly)},
     ])
     annual_out = pd.concat([annual_out, meta_rows], ignore_index=True)
     annual_out.to_csv(out_csv, index=False)
@@ -715,6 +733,78 @@ def make_figure3_summer_warming(out_png: str, out_csv: str) -> None:
     plt.close(fig)
 
 
+def pet_warming_response(climate_full: pd.DataFrame, out_csv: str) -> dict:
+    """
+    How much of the station's warming actually reaches PET.
+
+    Thornthwaite puts the heat index I in the denominator - PET scales as
+    (10T/I)^a - and I is itself a sum of the same temperatures. A warming
+    climate therefore raises both the numerator and the denominator, and the
+    formula partly cancels its own response. This quantifies the cancellation,
+    because the report and Paper 1 both argue that rising evaporative demand
+    acts on the aquifer through the atmospheric-draw term, and the strength of
+    that route depends on how much of the warming the PET series carries.
+
+    Computed over complete calendar years of the FULL station record, on the
+    first and last thirty of them, so the comparison is climatological rather
+    than a regression through interannual noise. Temperature comes from the raw
+    station file (as make_figure3_summer_warming does; 01_climate.csv carries
+    P and PET only) and PET from the pipeline climate frame, so the two sides
+    are the same series the SSM is fitted to.
+
+    Returns a dict of statistics and writes the per-year table.
+    """
+    raw = pd.read_csv(DATA_CLIMATE_RAW)
+    raw.columns = ["date_str", "max_temp", "min_temp", "af_days", "rain_mm", "sun_hrs"]
+    parsed = raw["date_str"].apply(lambda x: pd.Series(_parse_raf_valley_date(x)))
+    parsed.columns = ["year", "month"]
+    t = pd.concat([parsed, raw[["max_temp", "min_temp"]]], axis=1, sort=False)
+    t = t.dropna(subset=["year", "month", "max_temp", "min_temp"])
+    t["year"] = t["year"].astype(int)
+    t["month"] = t["month"].astype(int)
+    t["t_mean"] = (t["max_temp"] + t["min_temp"]) / 2.0
+
+    pet = climate_full[["PET"]].copy()
+    pet["year"] = pet.index.year
+    pet["month"] = pet.index.month
+    j = t.merge(pet, on=["year", "month"], how="inner")
+
+    counts = j.groupby("year").size()
+    full_years = counts[counts == 12].index
+    j = j[j["year"].isin(full_years)]
+    ann = (j.groupby("year")
+             .agg(T_mean_C=("t_mean", "mean"), PET_annual_mm=("PET", lambda v: v.sum() * 1000.0))
+             .reset_index()
+             .sort_values("year"))
+
+    n_period = PET_RESPONSE_PERIOD_YEARS
+    early, late = ann.head(n_period), ann.tail(n_period)
+    dT = float(late["T_mean_C"].mean() - early["T_mean_C"].mean())
+    pct_T = float(late["T_mean_C"].mean() / early["T_mean_C"].mean() - 1.0) * 100.0
+    pct_PET = float(late["PET_annual_mm"].mean() / early["PET_annual_mm"].mean() - 1.0) * 100.0
+    elasticity = pct_PET / pct_T if pct_T else float("nan")
+
+    ann_out = ann.copy()
+    ann_out["period"] = ""
+    ann_out.loc[ann_out["year"].isin(early["year"]), "period"] = "early"
+    ann_out.loc[ann_out["year"].isin(late["year"]), "period"] = "late"
+    ann_out.to_csv(out_csv, index=False)
+
+    stats = {
+        "n_complete_years": int(len(ann)),
+        "early_first": int(early["year"].iloc[0]), "early_last": int(early["year"].iloc[-1]),
+        "late_first": int(late["year"].iloc[0]),   "late_last": int(late["year"].iloc[-1]),
+        "T_early_C": float(early["T_mean_C"].mean()), "T_late_C": float(late["T_mean_C"].mean()),
+        "PET_early_mm": float(early["PET_annual_mm"].mean()),
+        "PET_late_mm": float(late["PET_annual_mm"].mean()),
+        "dT_C": dT, "pct_T": pct_T, "pct_PET": pct_PET, "elasticity": elasticity,
+    }
+    print(f"  PET warming response: T {stats['T_early_C']:.2f} -> {stats['T_late_C']:.2f} degC "
+          f"({pct_T:+.1f}%), annual PET {stats['PET_early_mm']:.1f} -> {stats['PET_late_mm']:.1f} mm "
+          f"({pct_PET:+.1f}%), elasticity {elasticity:.2f}")
+    return stats
+
+
 def _run_all() -> None:
     """Generate all Script 00 outputs — full-record and monitoring-period — in one pass."""
 
@@ -749,7 +839,22 @@ def _run_all() -> None:
           f"({clim_stats['n_complete_years']} complete years "
           f"{clim_stats['year_first']}-{clim_stats['year_last']})")
 
+    print("Computing PET response to warming (full record)...")
+    pet_resp = pet_warming_response(climate_full, str(OUT_00_PET_WARMING))
+
     rr = ReportNumbers()
+    rr.add("pet_warming_dT", pet_resp["dT_C"], unit="degC",
+           era=f"{pet_resp['early_first']}-{pet_resp['early_last']} vs "
+               f"{pet_resp['late_first']}-{pet_resp['late_last']}",
+           note="change in mean annual temperature between the first and last "
+                "30 complete years of the station record")
+    rr.add("pet_warming_pct_T", pet_resp["pct_T"], unit="%",
+           note="same comparison, as a percentage of the early-period mean")
+    rr.add("pet_warming_pct_PET", pet_resp["pct_PET"], unit="%",
+           note="change in mean annual Thornthwaite PET over the same comparison")
+    rr.add("pet_warming_elasticity", pet_resp["elasticity"], unit="",
+           note="pct_PET / pct_T: the fraction of the warming signal the "
+                "Thornthwaite PET series carries, I being in the denominator")
     rr.add("winter_rainfall", clim_stats["winter_rainfall_mm"], unit="mm",
            era="Oct-Mar", note=f"sum of monthly climatology, full-years well period "
                                f"{clim_stats['year_first']}-{clim_stats['year_last']}")

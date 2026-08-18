@@ -7,7 +7,7 @@ TREND (AR(1)-corrected OLS): -28.16 mm/yr
   rho (lag-1 residual autocorr): 0.000   n_eff: 14.0
   Bootstrap 95% CI: [-34.23, -21.98] mm/yr (significant)
 
-Comparison — Script 25 delta_0 (forest_free, linear_capped fit): -29.26 mm/yr [-33.00, -25.52], L = 894 m
+Comparison — Script 25 delta_0 (forest_free, linear_capped fit): -29.22 mm/yr [-32.97, -25.47], L = 901 m
 
 DISCRIMINATOR READ: erosion-consistent growing gradient — the coast-inland MAM head difference trends progressively more negative, with the 95% CI excluding zero, consistent with a moving coastal boundary rather than a static, climate-wobbling offset.
 

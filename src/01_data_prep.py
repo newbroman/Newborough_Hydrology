@@ -15,7 +15,16 @@ Requirements:
     pandas, numpy
 """
 
-__version__ = "1.10.0"  # Hollingham (2026) — 2026-08-16
+__version__ = "1.11.0"  # Hollingham (2026) -- 2026-08-18. Thornthwaite heat
+#   index I is now summed over the TRAILING 12 months rather than the calendar
+#   year (D-036). The calendar-year form is undefined on a part-complete year:
+#   with January and February 2026 the only months present, I fell to 3.1
+#   against a normal ~45, and PET came out at 54.9 and 66.2 mm against
+#   observed ranges of 10.7-20.3 and 13.0-25.7. A trailing window always
+#   holds one of each calendar month, so it is a true annual heat sum and
+#   cannot collapse. Median effect on 2006-2025 PET: 0.00%.
+#
+# v1.10.0  # Hollingham (2026) — 2026-08-16
 #
 # 1.10.0 (2026-08-16): coverage-figure guard now names BOTH downstream
 # inputs. INT_PEAR_AUDIT_SITEWIDE (Script 06) was an unguarded backward
@@ -218,7 +227,8 @@ def thornthwaite_pet_m(t_mean: pd.Series, lat_deg: float = RAF_VALLEY_LAT_DEG) -
     The formula is:
         PET_unadj (mm) = 16 * (10 * T / I) ^ alpha     [for 0 < T < 26.5 °C]
         alpha = 6.75e-7 * I^3 - 7.71e-5 * I^2 + 1.792e-2 * I + 0.49239
-        I = sum of monthly heat-index contributions i = (T/5)^1.514 over 12 months
+        I = sum of monthly heat-index contributions i = (T/5)^1.514 over the
+            TRAILING 12 MONTHS ending at the month being computed (D-036)
         K = (N/12) * (NDM/30)   [day-length correction; N = mean photoperiod hours]
         PET_adj (m) = PET_unadj * K / 1000
 
@@ -245,12 +255,24 @@ def thornthwaite_pet_m(t_mean: pd.Series, lat_deg: float = RAF_VALLEY_LAT_DEG) -
     """
     temps_pos = t_mean.clip(lower=0).fillna(0)
 
-    # Annual heat index I: sum of 12 monthly contributions within each calendar year.
-    # Months with missing temperature contribute zero to I (conservative).
+    # Heat index I: sum of 12 monthly contributions over the TRAILING 12 months
+    # ending at the month being computed, rather than over the calendar year
+    # (D-036). Classical Thornthwaite sums the calendar year, which fails on a
+    # part-complete one: with only January and February present, I collapsed
+    # from ~45 to 3.1 and February 2026's PET came out at 66.8 mm against an
+    # observed range of 13.0-25.7 mm for that month. A trailing window is always
+    # a full annual heat sum - it contains exactly one of each calendar month -
+    # so it cannot collapse, and it tracks a warming climate rather than a fixed
+    # normal. Over 2006-2025 it moves PET by a median of 0.00% against the
+    # calendar-year form (5th-95th +/-5.5%), so it is centred on what it
+    # replaces. Months with missing temperature contribute zero (conservative).
     i_monthly = (temps_pos / 5) ** 1.514
-    i_annual  = i_monthly.groupby(t_mean.index.year).sum()
-    I = pd.Series(t_mean.index.year, index=t_mean.index).map(i_annual)
-    I = I.replace(0, np.nan)  # guard against all-zero temperature years
+    I = i_monthly.rolling(window=12, min_periods=12).sum()
+    # The first 11 months have no complete trailing window; back-fill them with
+    # the first one that does, so the series has no holes. These months precede
+    # any well record by 70 years.
+    I = I.bfill()
+    I = I.replace(0, np.nan)  # guard against an all-zero-temperature window
 
     alpha = (6.75e-7 * I**3) - (7.71e-5 * I**2) + (1.792e-2 * I) + 0.49239
 

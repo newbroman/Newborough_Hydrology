@@ -1,12 +1,12 @@
 Parameter,Well,Era,Value,Unit,Note
-c4_centroid_beta3,,,0.0182,per month,C4 centroid β₃ (canonical; matches Table 1)
-c4_centroid_beta3_p,,,0.002,,C4 centroid β₃ p-value (significant)
-c4_vif,,,1.0955,,"C4 VIF of h_disp_prev on {P,PET} — network minimum (no collinearity)"
-c4_corr_pet_hdisp,,,-0.0403,,"C4 corr(PET, h_disp_prev) — network minimum"
-c4_hd_sd,,,0.4767,m,C4 SD of displacement — network maximum (adequate leverage)
+c4_centroid_beta3,,,0.018455084326680533,per month,C4 centroid β₃ (canonical; matches Table 1)
+c4_centroid_beta3_p,,,0.0016311532730710026,,C4 centroid β₃ p-value (significant)
+c4_vif,,,1.0952388088971468,,"C4 VIF of h_disp_prev on {P,PET} — network minimum (no collinearity)"
+c4_corr_pet_hdisp,,,-0.042187709471427554,,"C4 corr(PET, h_disp_prev) — network minimum"
+c4_hd_sd,,,0.47665635243092214,m,C4 SD of displacement — network maximum (adequate leverage)
 c4_closure_min_beta3,,,0.019,per month,β₃ minimising the C4 water-balance closure residual (near canonical)
 c4_perwell_n_nonsig,,,6.0,wells,"C4 per-well fits with non-significant β₃ (sampling noise, not collinearity)"
 c4_perwell_sig_window100,,,3.0,wells,"C4 wells with significant positive β₃, 100-month window"
 c4_perwell_sig_fullrecord,,,7.0,wells,"C4 wells with significant positive β₃, full record"
-c4_centroid_beta3_excl,,,0.0286,per month,"C4 centroid β₃ excluding MSL5_EXCLUDED_WELLS — sensitivity, not the headline"
-c4_centroid_halflife_excl,,,24.2132,months,"C4 t½ = ln(2)/β₃ under the same exclusion — sensitivity, not the headline"
+c4_centroid_beta3_excl,,,0.029020037798721195,per month,"C4 centroid β₃ excluding MSL5_EXCLUDED_WELLS — sensitivity, not the headline"
+c4_centroid_halflife_excl,,,23.88512328507338,months,"C4 t½ = ln(2)/β₃ under the same exclusion — sensitivity, not the headline"

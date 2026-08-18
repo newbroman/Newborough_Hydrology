@@ -32,7 +32,22 @@ Purpose:
 #     here they clutter the well markers, so they are suppressed. Figures only;
 #     model formulations and metrics unchanged.
 
-__version__ = "1.4.2"  # Hollingham (2026) — 2026-08-16. Exports the SSM fit
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-08-18. Two changes to
+#   08_lcsc_04_table3_benchmark_summary.csv (report Table 5), both authorised
+#   by Martin 2026-08-18.
+#   (a) Store-time rounding removed. The six summary rows were written through
+#       round(x, 2), so the store carried a display decision and the one-step
+#       R2 delta persisted as "0.0" when the value is 0.0032. Per D-035 the
+#       store now carries what the pipeline computed; rounding happens where
+#       the number is rendered (values 3 dp, deltas 4 dp in the report).
+#   (b) A generated "CEH14 iterative NSE" row added beside the CEH6 row. The
+#       report has carried a CEH14 line in Table 5 for some time, typed rather
+#       than emitted, and it had drifted to -3.21 against a live -6.42. It is
+#       now produced from 08_lcsc_model_stats.csv like every other row.
+#   No change to any figure, to per-well outputs, or to the report-number keys
+#   added in 1.4.3.
+#
+# v1.4.3  # Hollingham (2026) — 2026-08-16. Exports the SSM fit
 #   columns that v1.4.0 computed: model_stats_df selects a fixed column list, so
 #   the coefficients and p-values were built onto each row and then dropped
 #   before the file was written. The metrics are unaffected - the acceptance
@@ -630,6 +645,34 @@ def export_nse_diagnostics(ok_df: pd.DataFrame, master_path: Path,
 
     # ΔNSE ↔ coefficient correlations (site-wide, reference network)
     rpt = ReportNumbers()
+
+    # Network-wide benchmark headlines. These are the figures §4.4 of the report
+    # actually quotes - the two median NSEs, the median gain and the two
+    # positive-NSE counts - and until 2026-08-18 none of them was emitted, so
+    # none was in the citation index and all five drifted silently across the
+    # August reruns. Emitted here so cite_check can watch them.
+    rpt.add("benchmark_median_NSE_SSM", pw["SSM_NSE"].median(), unit="",
+            note=f"median iterative NSE, state-space model, n={len(pw)}")
+    rpt.add("benchmark_median_NSE_TLM", pw["TLM_NSE"].median(), unit="",
+            note=f"median iterative NSE, traditional linear model, n={len(pw)}")
+    rpt.add("benchmark_median_dNSE", pw["dNSE"].median(), unit="",
+            note=f"median gain in iterative NSE, SSM over TLM, n={len(pw)}")
+    rpt.add("benchmark_positive_NSE_SSM", int((pw["SSM_NSE"] > 0).sum()), unit="wells",
+            note=f"wells with positive iterative NSE under the SSM, of {len(pw)}")
+    rpt.add("benchmark_positive_NSE_TLM", int((pw["TLM_NSE"] > 0).sum()), unit="wells",
+            note=f"wells with positive iterative NSE under the TLM, of {len(pw)}")
+    rpt.add("benchmark_n_wells", int(len(pw)), unit="wells",
+            note="reference wells entering the benchmark")
+
+    # Wells where the SSM loses to the linear model. Worth a named number: the
+    # cause is a non-positive beta_3, which makes the iterative recursion
+    # divergent rather than decaying, so the deficit is arithmetic and should
+    # not be read as the physical model failing.
+    _worse = pw[pw["dNSE"] < 0]
+    rpt.add("benchmark_wells_SSM_worse", int(len(_worse)), unit="wells",
+            note=("wells where the SSM scores below the TLM: "
+                  + (", ".join(str(w) for w in _worse["Well"]) if len(_worse) else "none")))
+
     for _, r in med_df.iterrows():
         rpt.add(f"{r['Cluster']}_median_dNSE", r["median_dNSE"], unit="",
                 note=f"median ΔNSE (SSM−TLM), {r['Cluster']}, n={int(r['n'])}")
@@ -675,43 +718,50 @@ def export_table3_summary(ok_df: pd.DataFrame, output_path: Path) -> None:
         return rows.iloc[0] if len(rows) else None
 
     ceh6 = _well_row('ceh6')
+    ceh14 = _well_row('ceh14')
 
     rows = [
         {
             'Metric': 'Median one-step R2',
-            'Traditional_Model_A': round(_median('OneStep_R2_Traditional'), 2),
-            'StateSpace_Model_B': round(_median('OneStep_R2_StateSpace'), 2),
-            'Delta_B_minus_A': round(_median('OneStep_R2_Improvement'), 2),
+            'Traditional_Model_A': _median('OneStep_R2_Traditional'),
+            'StateSpace_Model_B': _median('OneStep_R2_StateSpace'),
+            'Delta_B_minus_A': _median('OneStep_R2_Improvement'),
         },
         {
             'Metric': 'Median iterative R2',
-            'Traditional_Model_A': round(_median('Iterative_R2_Traditional'), 2),
-            'StateSpace_Model_B': round(_median('Iterative_R2_StateSpace'), 2),
-            'Delta_B_minus_A': round(_median('Iterative_R2_Improvement'), 2),
+            'Traditional_Model_A': _median('Iterative_R2_Traditional'),
+            'StateSpace_Model_B': _median('Iterative_R2_StateSpace'),
+            'Delta_B_minus_A': _median('Iterative_R2_Improvement'),
         },
         {
             'Metric': 'Median iterative NSE',
-            'Traditional_Model_A': round(_median('Iterative_NSE_Traditional'), 2),
-            'StateSpace_Model_B': round(_median('Iterative_NSE_StateSpace'), 2),
-            'Delta_B_minus_A': round(_median('Iterative_NSE_Improvement'), 2),
+            'Traditional_Model_A': _median('Iterative_NSE_Traditional'),
+            'StateSpace_Model_B': _median('Iterative_NSE_StateSpace'),
+            'Delta_B_minus_A': _median('Iterative_NSE_Improvement'),
         },
         {
             'Metric': 'Wells with iterative NSE > 0',
             'Traditional_Model_A': f'{trad_pos} / {n_wells}',
             'StateSpace_Model_B': f'{ss_pos} / {n_wells}',
-            'Delta_B_minus_A': '—',
+            'Delta_B_minus_A': '\u2014',
         },
         {
             'Metric': f'Max NSE improvement ({best_well})',
-            'Traditional_Model_A': round(float(best_row['Iterative_NSE_Traditional']), 2),
-            'StateSpace_Model_B': round(float(best_row['Iterative_NSE_StateSpace']), 2),
-            'Delta_B_minus_A': round(float(best_row['Iterative_NSE_Improvement']), 2),
+            'Traditional_Model_A': float(best_row['Iterative_NSE_Traditional']),
+            'StateSpace_Model_B': float(best_row['Iterative_NSE_StateSpace']),
+            'Delta_B_minus_A': float(best_row['Iterative_NSE_Improvement']),
         },
         {
             'Metric': 'CEH6 iterative NSE',
-            'Traditional_Model_A': round(float(ceh6['Iterative_NSE_Traditional']), 2) if ceh6 is not None else np.nan,
-            'StateSpace_Model_B': round(float(ceh6['Iterative_NSE_StateSpace']), 2) if ceh6 is not None else np.nan,
-            'Delta_B_minus_A': round(float(ceh6['Iterative_NSE_Improvement']), 2) if ceh6 is not None else np.nan,
+            'Traditional_Model_A': float(ceh6['Iterative_NSE_Traditional']) if ceh6 is not None else np.nan,
+            'StateSpace_Model_B': float(ceh6['Iterative_NSE_StateSpace']) if ceh6 is not None else np.nan,
+            'Delta_B_minus_A': float(ceh6['Iterative_NSE_Improvement']) if ceh6 is not None else np.nan,
+        },
+        {
+            'Metric': 'CEH14 iterative NSE',
+            'Traditional_Model_A': float(ceh14['Iterative_NSE_Traditional']) if ceh14 is not None else np.nan,
+            'StateSpace_Model_B': float(ceh14['Iterative_NSE_StateSpace']) if ceh14 is not None else np.nan,
+            'Delta_B_minus_A': float(ceh14['Iterative_NSE_Improvement']) if ceh14 is not None else np.nan,
         },
     ]
 

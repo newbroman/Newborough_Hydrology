@@ -1,55 +1,55 @@
 
 === 2005_2025  (2005–2025) ===
 wells mapped: 30; significant: 0; bootstrap agreement: 28/30
-holding/wetting (mm/yr): L7 +16.58, ceh20 +14.32, WMC2 +11.37, WMC1 +9.50, nw11 +7.28
-drying       (mm/yr): ceh3 -28.47, nw9 -23.34, ceh4 -18.96, nw7 -12.37, ceh17 -11.18
+holding/wetting (mm/yr): L7 +16.76, ceh20 +14.59, WMC2 +11.61, WMC1 +9.67, nw11 +8.12
+drying       (mm/yr): ceh3 -28.43, nw9 -23.21, ceh4 -18.80, nw7 -12.24, ceh17 -10.97
 
 === 2011_2025  (2011–2025) ===
-wells mapped: 55; significant: 2; bootstrap agreement: 21/55
-holding/wetting (mm/yr): ceh1 +41.48, ceh20 +37.96, nw11 +34.75, ceh13 +34.64, nw2 +33.89
-drying       (mm/yr): ceh22 -4.85, ceh3 +2.08, ceh11 +9.28, ceh19 +9.75, ceh4 +10.64
+wells mapped: 55; significant: 1; bootstrap agreement: 20/55
+holding/wetting (mm/yr): ceh1 +40.71, ceh20 +37.26, nw11 +34.11, nw2 +33.27, ceh13 +32.73
+drying       (mm/yr): ceh22 -5.17, ceh3 +1.80, ceh11 +8.84, ceh19 +9.36, ceh4 +10.23
 
 === 2006_2012  (2006–2012) ===
-wells mapped: 59; significant: 39; bootstrap agreement: 39/59
-holding/wetting (mm/yr): ceh6 -36.25*, ceh25 -49.48*, ceh11 -69.28, ceh7 -71.81, ceh5 -76.36
-drying       (mm/yr): ceh20 -433.60, D15 -418.57*, ceh15 -384.65*, D5 -384.19*, D9 -364.11*
+wells mapped: 59; significant: 36; bootstrap agreement: 36/59
+holding/wetting (mm/yr): ceh6 -34.83*, ceh7 -67.99, ceh11 -68.85, ceh5 -76.15, nw3 -103.09
+drying       (mm/yr): ceh20 -424.89, D15 -399.41*, D5 -386.20*, ceh15 -367.84*, D9 -358.06*
 
 === 2015_2017  (2015–2017) ===
 wells mapped: 57; significant: 56; bootstrap agreement: 56/57
-holding/wetting (mm/yr): ceh14 +2024.82*, WMC2 +1526.41*, nw5 +1496.67*, T41a +1430.19*, ceh10 +1424.41*
-drying       (mm/yr): ceh26 +253.51*, ceh6 +260.43*, ceh3 +336.21, ceh27 +398.28*, nw4b +453.19*
+holding/wetting (mm/yr): ceh14 +2803.77*, WMC2 +2109.64*, nw5 +2068.07*, T41a +1975.33*, ceh10 +1962.97*
+drying       (mm/yr): ceh6 +361.57*, ceh26 +366.48*, ceh3 +443.93, ceh27 +565.11*, nw4b +633.15*
 
 === 2017_2025  (2017–2025) ===
 wells mapped: 56; significant: 1; bootstrap agreement: 52/56
-holding/wetting (mm/yr): ceh14 +81.29, ceh13 +78.98, D25 +71.21, ceh2 +66.47, nw10 +63.86
-drying       (mm/yr): ceh8 -206.27*, ceh22 -6.78, ceh28 -0.03, ceh23 +0.58, ceh5 +1.01
+holding/wetting (mm/yr): ceh14 +82.21, ceh13 +79.71, D25 +71.17, ceh2 +67.24, nw10 +64.62
+drying       (mm/yr): ceh8 -246.80*, ceh22 -6.49, ceh28 +0.41, ceh23 +0.72, ceh5 +1.49
 
 === 2018_2025  (2018–2025) ===
 wells mapped: 55; significant: 0; bootstrap agreement: 52/55
-holding/wetting (mm/yr): ceh13 +89.44, ceh14 +74.57, ceh2 +73.88, D25 +72.57, nw10 +68.55
-drying       (mm/yr): ceh28 -4.99, ceh5 -2.21, ceh23 +0.58, D17 +1.59, ceh22 +1.65
+holding/wetting (mm/yr): ceh13 +89.49, ceh14 +74.87, ceh2 +74.09, D25 +71.99, nw10 +68.75
+drying       (mm/yr): ceh28 -5.66, ceh5 -2.02, ceh23 +0.72, D17 +1.54, ceh22 +1.73
 
 === 2005_2010  (2005–2010) ===
-wells mapped: 30; significant: 11; bootstrap agreement: 15/30
-holding/wetting (mm/yr): ceh11 +1.48, nw4b -6.52, nw1 -9.47, ceh6 -9.66, nw2 -12.74
-drying       (mm/yr): ceh15 -269.45*, ceh17 -244.52*, ceh14 -179.94, ceh13 -178.77, nw9 -175.34*
+wells mapped: 30; significant: 11; bootstrap agreement: 17/30
+holding/wetting (mm/yr): ceh11 +1.51, nw4b -6.84, ceh6 -9.41*, nw1 -10.12, nw2 -13.44
+drying       (mm/yr): ceh15 -244.96, ceh17 -234.93*, ceh14 -185.33, ceh13 -182.18, nw9 -175.41*
 
 === 2005_2013  (2005–2013) ===
-wells mapped: 59; significant: 19; bootstrap agreement: 25/59
-holding/wetting (mm/yr): ceh11 -12.13, ceh7 -17.84, ceh6 -27.49*, ceh14 -30.97, ceh5 -39.65
-drying       (mm/yr): ceh20 -449.37*, D15 -324.33, D5 -322.22, D9 -287.04, WMC1 -273.18*
+wells mapped: 59; significant: 5; bootstrap agreement: 11/59
+holding/wetting (mm/yr): ceh11 -10.94, ceh7 -14.00, ceh6 -24.85*, ceh14 -25.06, ceh5 -37.73
+drying       (mm/yr): ceh20 -414.71, D5 -268.08, D15 -262.05, WMC1 -259.81, WMC2 -236.44
 
 === 2005_2016  (2005–2016) ===
-wells mapped: 59; significant: 1; bootstrap agreement: 55/59
-holding/wetting (mm/yr): T41a +40.73, D38 +34.42, D25 +33.37, ceh24 +22.52, wmc3 +19.63
-drying       (mm/yr): ceh20 -95.19, ceh17 -86.83, nw8 -74.62, ceh16 -74.03, ceh3 -72.33*
+wells mapped: 59; significant: 1; bootstrap agreement: 56/59
+holding/wetting (mm/yr): T41a +76.22, D25 +71.72, D38 +61.33, ceh24 +60.99, wmc3 +56.02
+drying       (mm/yr): nw8 -74.65, ceh17 -73.69, ceh3 -72.08*, nw9 -67.84, ceh16 -59.11
 
 === 2005_2019  (2005–2019) ===
-wells mapped: 59; significant: 4; bootstrap agreement: 49/59
-holding/wetting (mm/yr): ceh28 +24.20, ceh26 +12.66, ceh27 +7.80, ceh25 +6.18, D6 +5.82
-drying       (mm/yr): nw8 -74.62, ceh3 -61.39*, nw9 -60.06*, ceh17 -57.46, ceh16 -49.98
+wells mapped: 59; significant: 4; bootstrap agreement: 50/59
+holding/wetting (mm/yr): ceh28 +27.64, ceh26 +14.27, ceh27 +9.80, D6 +9.74, ceh25 +6.92
+drying       (mm/yr): nw8 -74.65, ceh3 -61.28*, nw9 -59.97*, ceh17 -54.52, ceh13 -48.58
 
 === 2005_2022  (2005–2022) ===
-wells mapped: 59; significant: 1; bootstrap agreement: 48/59
-holding/wetting (mm/yr): D6 +29.05, D15 +28.21, D9 +27.90, D8 +27.41, ceh28 +26.37
-drying       (mm/yr): nw8 -74.62, ceh3 -44.43*, ceh15 -35.42, nw9 -33.96, ceh4 -26.26
+wells mapped: 59; significant: 1; bootstrap agreement: 49/59
+holding/wetting (mm/yr): D6 +29.16, D15 +28.33, D9 +27.95, D8 +27.46, ceh28 +27.16
+drying       (mm/yr): nw8 -74.65, ceh3 -44.48*, nw9 -33.94, ceh15 -31.29, ceh4 -26.22

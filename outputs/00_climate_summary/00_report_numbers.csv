@@ -1,9 +1,13 @@
 Parameter,Well,Era,Value,Unit,Note
-winter_rainfall,,Oct-Mar,516.415,mm,"sum of monthly climatology, full-years well period 2006-2025"
+pet_warming_dT,,1931-1960 vs 1996-2025,0.7288888888888874,degC,change in mean annual temperature between the first and last 30 complete years of the station record
+pet_warming_pct_T,,,7.204041291456176,%,"same comparison, as a percentage of the early-period mean"
+pet_warming_pct_PET,,,3.0029602360953422,%,change in mean annual Thornthwaite PET over the same comparison
+pet_warming_elasticity,,,0.4168438400896984,,"pct_PET / pct_T: the fraction of the warming signal the Thornthwaite PET series carries, I being in the denominator"
+winter_rainfall,,Oct-Mar,517.7249999999999,mm,"sum of monthly climatology, full-years well period 2006-2025"
 summer_rainfall,,Apr-Sep,373.145,mm,"sum of monthly climatology, full-years well period"
-rain_peak_mm,,month 12,108.6,mm,rainfall climatology peak
+rain_peak_mm,,month 12,108.59999999999998,mm,rainfall climatology peak
 rain_trough_mm,,month 4,45.66,mm,rainfall climatology trough
-pet_peak_mm,,month 7,106.9132,mm,PET climatology peak
-centring_constant,,,19.4606,mm/month,"cumulative-balance centring = mean monthly net (P-PET), Dec2004-Dec2025"
-cumbal_wl_r2,,,0.5124,,"R^2, network-mean WL vs cumulative balance, lag 0, n=250"
-cumbal_wl_slope,,,0.0021,m/mm,regression slope (well level per mm cumulative balance)
+pet_peak_mm,,month 7,106.92819617625867,mm,PET climatology peak
+centring_constant,,,19.50950509661819,mm/month,"cumulative-balance centring = mean monthly net (P-PET), Dec2004-Dec2025"
+cumbal_wl_r2,,,0.5155655486869843,,"R^2, network-mean WL vs cumulative balance, lag 0, n=250"
+cumbal_wl_slope,,,0.002118389562619722,m/mm,regression slope (well level per mm cumulative balance)

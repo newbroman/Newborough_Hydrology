@@ -40,7 +40,10 @@ File location: outputs/01_data_prep/pipeline_scenario_params.csv
 """
 from __future__ import annotations
 
-__version__ = "1.2.1"  # Hollingham (2026) — 2026-08-18
+__version__ = "1.2.2"  # Hollingham (2026) — 2026-08-18
+# v1.2.2 (2026-08-18): _DEFAULTS gains ceh36_scrape_response_m, so Script 20's
+#   fallback for the scrape H0 anchor reads a documented default instead of a
+#   published result typed into an except branch.
 # v1.2.1 (2026-08-18): _DEFAULTS["drawdown_lambda_m"] refreshed 224.9 -> 228.1 to
 #   match the committed 20_report_numbers.csv. A first-pass fallback that has
 #   drifted from the value it stands in for is worse than no fallback, because
@@ -219,6 +222,9 @@ _DEFAULTS = {
     "coast_reach_L_m":          894.0,   # 25_01 forest_free/linear_capped L
     "scrape_offsite_100m_vol":  -30.3,   # 09d_01 Scraping (off-site 100 m) mm w.e./month
     "clearfell_recovery_mm":    119.6,   # 10a ANCOVA_Forest_Impact_clearfell_step ×1000
+    "ceh36_scrape_response_m":  0.1294,  # 09a paired BACI, CEH36 Pure_Scraping vs
+                                         # CEH4; the H0 anchor for the scrape-drain
+                                         # maps in Script 20
     "climate_c_mm_yr":          -6.35,   # 25_01 forest_free/linear_capped c_mm_yr (uniform climate term)
     "wmc3_drawdown_mm":         -55.2,   # 10m WMC3_BACI_DiD_step_2015_scraping ×1000 (measured off-cut)
     "wmc3_distance_m":          262.4,   # 09b_01 wmc3 dist_m (CEH36 -> WMC3 separation)

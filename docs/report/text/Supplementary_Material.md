@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Supplementary_Material_v1_10.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Supplementary_Material_v1_12.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Supplementary Material
@@ -39,15 +39,15 @@ The tracer test reported by Betson et al. (2002) provides the single direct esti
 
 The physical interpretation of β₁ is the fraction of a unit rainfall pulse that reaches the water table as a head rise, integrated over the monthly timestep. In an unconfined aquifer, this is governed by the depth of the unsaturated zone and the specific yield: a thick unsaturated zone above a large storage volume attenuates the rainfall-to-head transfer, producing a low β₁. A shallow, low-storage aquifer (thin unsaturated zone, low Sy) produces a high β₁ --- rainfall arrives at the water table quickly and raises it sharply. Although β₁ cannot be inverted algebraically to yield aquifer thickness without independent knowledge of the recharge flux and specific yield, its spatial pattern is a reliable proxy for the relative contrast in aquifer thickness across the site.
 
-The Eastern Block (C1: β₁ = 4.576; C2: β₁ = 3.974) and Western Residual cluster (C3: β₁ = 3.573) contrast is consistent with the geological interpretation of Stratford et al. (2007): the Eastern Block sits on shallow till and estuarine deposits, producing a thin, storage-limited aquifer with a flashy response; the Western Residual Cluster occupies deep, clean aeolian sand, producing a capacious, buffered aquifer with an attenuated response. The Forest cluster (C4: β₁ = 2.487) is anomalously low even relative to C3, reflecting canopy interception rather than additional aquifer depth --- confirmed by the depth-dependent PET analysis (Script 15) which found λ = 0 optimal for C4, indicating that capillary disconnection at depth is not the primary control. C5 (Coastal Forest: β₁ = 2.423) shows a comparable value to C4, consistent with both clusters carrying the same Corsican pine canopy on the same deep sand substrate.
+The Eastern Block (C1: β₁ = 4.578; C2: β₁ = 3.972) and Western Residual cluster (C3: β₁ = 3.573) contrast is consistent with the geological interpretation of Stratford et al. (2007): the Eastern Block sits on shallow till and estuarine deposits, producing a thin, storage-limited aquifer with a flashy response; the Western Residual Cluster occupies deep, clean aeolian sand, producing a capacious, buffered aquifer with an attenuated response. The Forest cluster (C4: β₁ = 2.477) is anomalously low even relative to C3, reflecting canopy interception rather than additional aquifer depth --- confirmed by the depth-dependent PET analysis (Script 15) which found λ = 0 optimal for C4, indicating that capillary disconnection at depth is not the primary control. C5 (Coastal Forest: β₁ = 2.428) shows a comparable value to C4, consistent with both clusters carrying the same Corsican pine canopy on the same deep sand substrate.
 
   --------- ------------------ ------- ------- ------- -----------------------------------------------------------------------------------
   Cluster   Label              β₁      β₂      β₃      Geological context
-  C1        Lake Edge          4.576   0.956   0.088   Shallow till/estuarine substrate (NH1, NH2 boreholes: 6.5 m); rapid lake exchange
-  C2        Dune               3.974   1.762   0.064   Shallow till substrate consistent with C1; mature open dune
-  C3        Western Residual   3.573   1.833   0.057   Deep aeolian sand; Water borehole ≥12.8 m; DEM ridge geometry
-  C4        Main Forest        2.487   2.583   0.018   Same deep sand substrate as C3; low β₁ reflects 24% canopy interception
-  C5        Coastal Forest     2.423   1.307   0.044   Pine canopy on coastal sand; geomorphological thinning toward Menai Strait
+  C1        Lake Edge          4.578   0.923   0.089   Shallow till/estuarine substrate (NH1, NH2 boreholes: 6.5 m); rapid lake exchange
+  C2        Dune               3.972   1.742   0.064   Shallow till substrate consistent with C1; mature open dune
+  C3        Western Residual   3.573   1.807   0.057   Deep aeolian sand; Water borehole ≥12.8 m; DEM ridge geometry
+  C4        Main Forest        2.477   2.563   0.018   Same deep sand substrate as C3; low β₁ reflects 24% canopy interception
+  C5        Coastal Forest     2.428   1.274   0.045   Pine canopy on coastal sand; geomorphological thinning toward Menai Strait
   --------- ------------------ ------- ------- ------- -----------------------------------------------------------------------------------
 
 **Table S2.2.*** Cluster mechanistic coefficients (from Table 3, displacement-formulation SSM) and geological context. The β₁ contrast between Eastern Block (C1/C2) and Western Residual cluster (C3) is consistent with the stratigraphic interpretation of Stratford et al. (2007). C3 and C4 share the same deep aeolian sand body, confirmed by β₁ similarity after correcting for canopy interception and by Pearson affinity persistence post-felling. Borehole 3 (3.65 m, eastern margin) confirms progressive thinning toward the coast.*
@@ -173,72 +173,72 @@ The per-well equilibrium framework and climate/forestry scenario calculations ar
 **Table S4.1.** Individual Well WTF Specific Yield Estimates --- Newborough Warren 2005--2026: event-based median specific yield (Sy) derived from the water table fluctuation (WTF) method (Healy and Cook, 2002) for the 66 reference-network wells. Cl. = cluster under the k = 5 partition (C1 Lake Edge, C2 Dune, C3 Western Residual, C4 Main Forest, C5 Coastal Forest). n = number of qualifying monthly rising-limb events (criteria: Δh \> 5 mm, net recharge P − PET \> 10 mm). Q25/Q75 = interquartile range; a wide IQR reflects month-to-month variability in event estimates rather than measurement error. Wells in the forest clusters C4 and C5, marked Int. corr. = Yes, have net recharge adjusted for 24% canopy interception (Freeman, 2008). CEH12 (bedrock ridge --- WTF response reflects fractured rock) and CEH15 (forest slack floor --- slack topography dominates water table dynamics) are excluded from the IDW interpolation surface and do not appear here. Source: 18_wtf_01_well_sy_estimates.csv.
 
   ------- ---- ---- ------- ------- ------- -----
-  CEH11   C1   59   0.235   0.158   0.307   
-  CEH23   C1   44   0.207   0.123   0.252   
-  CEH25   C1   54   0.178   0.134   0.246   
-  CEH26   C1   49   0.214   0.115   0.276   
-  CEH27   C1   52   0.216   0.140   0.298   
-  CEH5    C1   65   0.194   0.159   0.275   
-  CEH6    C1   70   0.216   0.123   0.347   
-  CEH10   C2   64   0.263   0.161   0.353   
-  CEH24   C2   52   0.239   0.168   0.317   
-  CEH28   C2   41   0.236   0.183   0.314   
-  D10     C2   50   0.279   0.222   0.393   
-  D15     C2   54   0.288   0.232   0.370   
-  D17     C2   54   0.271   0.198   0.351   
-  D38     C2   54   0.227   0.172   0.287   
-  D41     C2   46   0.240   0.191   0.312   
-  D43     C2   59   0.271   0.212   0.347   
-  D44     C2   50   0.220   0.164   0.316   
-  D5      C2   49   0.274   0.202   0.348   
-  D6      C2   57   0.267   0.202   0.360   
-  D7      C2   50   0.286   0.220   0.323   
-  D8      C2   47   0.247   0.179   0.371   
-  D9      C2   49   0.259   0.203   0.362   
-  L7      C2   63   0.286   0.223   0.337   
-  NW3     C2   54   0.267   0.190   0.354   
-  NW4     C2   58   0.265   0.173   0.339   
-  NW4B    C2   54   0.240   0.159   0.318   
-  T41A    C2   55   0.227   0.172   0.323   
-  T41B    C2   45   0.215   0.159   0.313   
-  T41C    C2   47   0.215   0.189   0.308   
-  T41D    C2   47   0.254   0.197   0.334   
-  WMC1    C2   51   0.274   0.207   0.406   
-  CEH1    C3   67   0.273   0.226   0.346   
-  CEH18   C3   53   0.364   0.284   0.433   
-  CEH21   C3   31   0.413   0.356   0.445   
-  CEH36   C3   38   0.349   0.297   0.422   
-  CEH39   C3   38   0.349   0.287   0.407   
-  CEH4    C3   53   0.349   0.255   0.400   
-  CEH40   C3   27   0.285   0.243   0.323   
-  CEH41   C3   36   0.306   0.256   0.345   
-  CEH42   C3   34   0.351   0.284   0.389   
-  CEH9    C3   53   0.347   0.275   0.395   
-  D25     C3   45   0.289   0.242   0.393   
-  NW1     C3   72   0.259   0.215   0.369   
-  NW11    C3   68   0.285   0.229   0.336   
-  NW13    C3   50   0.249   0.206   0.334   
-  NW2     C3   68   0.252   0.212   0.342   
-  NW5     C3   56   0.305   0.250   0.350   
-  NW6     C3   45   0.281   0.206   0.346   
-  NW7     C3   47   0.333   0.280   0.398   
-  WMC2    C3   53   0.343   0.295   0.412   
-  WMC3    C3   36   0.328   0.279   0.423   
-  WMC4    C3   51   0.250   0.208   0.353   
-  CEH13   C4   50   0.231   0.172   0.325   Yes
-  CEH14   C4   55   0.194   0.126   0.265   Yes
-  CEH2    C4   60   0.241   0.188   0.337   Yes
-  CEH20   C4   50   0.254   0.208   0.312   Yes
-  CEH30   C4   48   0.278   0.211   0.355   Yes
-  CEH32   C4   49   0.240   0.181   0.366   Yes
-  CEH33   C4   48   0.255   0.201   0.321   Yes
-  CEH34   C4   50   0.264   0.196   0.342   Yes
-  NW10    C4   68   0.256   0.199   0.331   Yes
-  CEH16   C5   51   0.284   0.237   0.398   Yes
-  CEH17   C5   40   0.322   0.248   0.406   Yes
-  CEH19   C5   40   0.337   0.278   0.422   Yes
-  CEH31   C5   42   0.295   0.235   0.387   Yes
-  NW9     C5   60   0.308   0.241   0.382   Yes
+  CEH11   C1   59   0.235   0.161   0.312   
+  CEH23   C1   44   0.206   0.116   0.255   
+  CEH25   C1   54   0.178   0.131   0.247   
+  CEH26   C1   49   0.212   0.114   0.276   
+  CEH27   C1   54   0.218   0.143   0.301   
+  CEH5    C1   65   0.194   0.156   0.273   
+  CEH6    C1   68   0.211   0.122   0.345   
+  CEH10   C2   65   0.261   0.159   0.369   
+  CEH24   C2   53   0.240   0.172   0.318   
+  CEH28   C2   41   0.233   0.186   0.314   
+  D10     C2   49   0.277   0.221   0.382   
+  D15     C2   54   0.290   0.232   0.368   
+  D17     C2   54   0.271   0.199   0.355   
+  D38     C2   55   0.222   0.176   0.289   
+  D41     C2   46   0.240   0.193   0.312   
+  D43     C2   60   0.288   0.211   0.352   
+  D44     C2   49   0.218   0.162   0.315   
+  D5      C2   49   0.274   0.202   0.341   
+  D6      C2   57   0.271   0.199   0.366   
+  D7      C2   52   0.289   0.221   0.327   
+  D8      C2   48   0.248   0.181   0.381   
+  D9      C2   50   0.258   0.204   0.364   
+  L7      C2   65   0.288   0.224   0.353   
+  NW3     C2   53   0.266   0.187   0.355   
+  NW4     C2   57   0.257   0.181   0.339   
+  NW4B    C2   55   0.235   0.160   0.322   
+  T41A    C2   55   0.234   0.171   0.323   
+  T41B    C2   45   0.218   0.168   0.313   
+  T41C    C2   47   0.215   0.196   0.313   
+  T41D    C2   47   0.257   0.198   0.337   
+  WMC1    C2   52   0.282   0.200   0.413   
+  CEH1    C3   68   0.273   0.223   0.346   
+  CEH18   C3   56   0.366   0.287   0.441   
+  CEH21   C3   28   0.398   0.328   0.440   
+  CEH36   C3   39   0.358   0.297   0.424   
+  CEH39   C3   37   0.347   0.282   0.403   
+  CEH4    C3   53   0.350   0.254   0.399   
+  CEH40   C3   27   0.284   0.242   0.323   
+  CEH41   C3   37   0.308   0.258   0.355   
+  CEH42   C3   35   0.350   0.286   0.380   
+  CEH9    C3   53   0.341   0.272   0.389   
+  D25     C3   46   0.288   0.241   0.386   
+  NW1     C3   72   0.259   0.210   0.358   
+  NW11    C3   68   0.282   0.224   0.338   
+  NW13    C3   49   0.246   0.206   0.319   
+  NW2     C3   68   0.259   0.213   0.358   
+  NW5     C3   56   0.306   0.246   0.350   
+  NW6     C3   47   0.281   0.213   0.362   
+  NW7     C3   48   0.330   0.281   0.397   
+  WMC2    C3   53   0.343   0.293   0.418   
+  WMC3    C3   37   0.327   0.288   0.420   
+  WMC4    C3   51   0.252   0.208   0.335   
+  CEH13   C4   50   0.229   0.170   0.320   Yes
+  CEH14   C4   56   0.199   0.126   0.265   Yes
+  CEH2    C4   60   0.236   0.188   0.317   Yes
+  CEH20   C4   51   0.252   0.210   0.322   Yes
+  CEH30   C4   49   0.272   0.214   0.350   Yes
+  CEH32   C4   49   0.239   0.180   0.361   Yes
+  CEH33   C4   49   0.258   0.197   0.349   Yes
+  CEH34   C4   50   0.255   0.201   0.330   Yes
+  NW10    C4   68   0.252   0.194   0.340   Yes
+  CEH16   C5   51   0.282   0.236   0.374   Yes
+  CEH17   C5   40   0.310   0.244   0.400   Yes
+  CEH19   C5   42   0.337   0.279   0.424   Yes
+  CEH31   C5   44   0.294   0.234   0.394   Yes
+  NW9     C5   62   0.306   0.243   0.393   Yes
   ------- ---- ---- ------- ------- ------- -----
 
 ## S4.2 Reproducibility

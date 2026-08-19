@@ -11,7 +11,11 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.5.0"  # Hollingham (2026) -- 2026-08-18. OUT_00_PET_WARMING
+__version__ = "1.5.1"  # Hollingham (2026) — 2026-08-19. Reads the per-well
+#   WTF Sy table from OUT_18_WELL_SY_TABLE; INT_WTF_WELL_SY is retired
+#   (D-038). Pure path/symbol change, values identical.
+#
+# v1.5.0  # Hollingham (2026) -- 2026-08-18. OUT_00_PET_WARMING
 #   added: Script 00 emits the PET response to warming (00_05).
 #
 # v1.4.0  # Hollingham (2026) — 2026-08-18. Adds
@@ -586,7 +590,11 @@ OUT_17_REGRESSION           = DIR_17 / "17_wtf_02_regression.png"
 OUT_17_BOXPLOT              = DIR_17 / "17_wtf_03_event_boxplot.png"
 OUT_17_SUMMARY              = DIR_17 / "17_wtf_04_summary.txt"
 OUT_17_RAPID_EVENTS         = DIR_17 / "17_wtf_05_rapid_events.png"
-INT_WTF_WELL_SY             = OUT_DIR / "17_wtf_well_sy.csv"
+# INT_WTF_WELL_SY (outputs/17_wtf_well_sy.csv) RETIRED 2026-08-19, D-038.
+# Script 18 wrote the same well_results frame to two paths; the "17_" prefix
+# named a script that never produced it. All consumers now read
+# OUT_18_WELL_SY_TABLE. Removed rather than aliased so a stale importer fails
+# loudly.
 
 # Script 30 — C4 drainage identifiability diagnostic (Phase 14, opt-in).
 # Supersedes the retired 30_c4_constrained_fit.py (see Script 30 v2.1.0);

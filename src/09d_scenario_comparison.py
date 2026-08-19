@@ -36,7 +36,11 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "3.10.1"  # Hollingham (2026) -- 2026-08-18. Figure captions
+__version__ = "3.10.2"  # Hollingham (2026) — 2026-08-19. Reads the per-well
+#   WTF Sy table from OUT_18_WELL_SY_TABLE; INT_WTF_WELL_SY is retired
+#   (D-038). Pure path/symbol change, values identical.
+#
+# v3.10.1  # Hollingham (2026) -- 2026-08-18. Figure captions
 #   built their distances from typed literals - "bar = 100 m", "= 250 m",
 #   "at ~282 m" - beside a lambda already interpolated live. They now read
 #   OFFSITE_DIST_M, OFFSITE_FAR_M and CLEARFELL_MATCH_HINT, so moving a
@@ -51,7 +55,7 @@ __version__ = "3.10.1"  # Hollingham (2026) -- 2026-08-18. Figure captions
 #   pipeline_params.default_value("Sy"). The row-missing branch previously used
 #   a hard-coded 0.30 predating that convention; it is now 0.25, the documented
 #   default, so the two fallback paths cannot disagree. See DECISION_LOG D-014.
-# 3.8.0 (2026-08-16): the per-well Sy read (INT_WTF_WELL_SY, produced at
+# 3.8.0 (2026-08-16): the per-well Sy read (OUT_18_WELL_SY_TABLE, produced at
 # step 22 against this script's step 9) is now guarded and falls back to
 # pipeline_params.default_value("Sy") with a warning, instead of hard-failing
 # on a first pass.
@@ -68,7 +72,7 @@ _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
 from utils.paths import (
     make_all_dirs, OUT_09D_SCENARIO, OUT_09D_SCENARIO_CSV,
     OUT_09D_SUMMER_SCENARIO, OUT_09D_SUMMER_SCENARIO_CSV, INT_MASTER_DATA,
-    INT_WTF_WELL_SY, INT_WELLS_CLEAN,
+    OUT_18_WELL_SY_TABLE, INT_WELLS_CLEAN,
     OUT_20_REPORT_NUMBERS,
 )
 from utils.site_observations import load_site_observation
@@ -213,24 +217,24 @@ def _load_ceh36_params():
     cluster = int(row["Cluster"])
 
     # Get CEH36's own well-level Sy (more precise than cluster median).
-    # 17_wtf_well_sy.csv is produced at step 22 and this script runs at step 9,
+    # 18_wtf_01_well_sy_estimates.csv is produced at step 22 and this script runs at step 9,
     # so on a first pass the file does not exist yet: read it if present, else
     # fall back to the documented default with a console warning, per the
     # first-pass convention used by 09b/09f. Previously this read was
     # unguarded and hard-failed the whole script on a cold run.
     from utils.pipeline_params import default_value
-    if INT_WTF_WELL_SY.exists():
-        sy_df = pd.read_csv(INT_WTF_WELL_SY)
+    if OUT_18_WELL_SY_TABLE.exists():
+        sy_df = pd.read_csv(OUT_18_WELL_SY_TABLE)
         sy_row = sy_df[sy_df["Well"].str.lower() == WELL]
         if sy_row.empty:
             well_sy = default_value("Sy")
-            warn(f"{WELL} has no row in {INT_WTF_WELL_SY.name} - using the "
+            warn(f"{WELL} has no row in {OUT_18_WELL_SY_TABLE.name} - using the "
                  f"documented default Sy = {well_sy}")
         else:
             well_sy = float(sy_row["Sy_median"].iloc[0])
     else:
         well_sy = default_value("Sy")
-        warn(f"{INT_WTF_WELL_SY.name} not present (produced at a later step) - "
+        warn(f"{OUT_18_WELL_SY_TABLE.name} not present (produced at a later step) - "
              f"using the documented default Sy = {well_sy}; re-run after a full "
              "pipeline pass for the well-level value")
 

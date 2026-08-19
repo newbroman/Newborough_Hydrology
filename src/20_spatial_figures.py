@@ -64,7 +64,11 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds (config.SD15b / config.SD16)
 """
 
-__version__ = "1.38.4"  # Hollingham (2026) — 2026-08-18. Adds two report
+__version__ = "1.38.5"  # Hollingham (2026) — 2026-08-19. Reads the per-well
+#   WTF Sy table from OUT_18_WELL_SY_TABLE; INT_WTF_WELL_SY is retired
+#   (D-038). Pure path/symbol change, values identical.
+#
+# v1.38.4  # Hollingham (2026) — 2026-08-18. Adds two report
 #   numbers to 20_residual_report_numbers.csv: residual_c4_median_beta3 and
 #   residual_ceh14_b3_c4median. The water-balance residual carries beta_3
 #   directly (residual = b2*PET_bar + b3*h_disp - b1*P_bar), so at CEH14 —
@@ -133,7 +137,7 @@ from utils.paths import (
     INT_WELLS_CLEAN_MAOD, INT_WELLS_CLEAN,
     INT_LOCATIONS, INT_WELL_ELEVATIONS,
     INT_MASTER_DATA, INT_CLIMATE, INT_WELLS_EXTENDED, INT_PEAR_AUDIT_SITEWIDE,
-    INT_WTF_WELL_SY, OUT_03_MECHANISTIC_TABLE,
+    OUT_18_WELL_SY_TABLE, OUT_03_MECHANISTIC_TABLE,
     OUT_25_FIT_PARAMETERS, OUT_25_PER_WELL_SLOPES,
     OUT_26_5YR_PER_WELL,
 )
@@ -1201,7 +1205,7 @@ def plot_drawdown_propagation(wt, features, dpi=300, show_head=True):
     # forest interior where the drawdown originates).  The dominant
     # propagation medium beyond the forest edge is C3 (Western Residual,
     # open dune), so Sy and β₃ are sourced from C3 cluster outputs:
-    #   - Sy: cluster median of WTF Sy from outputs/17_wtf_well_sy.csv
+    #   - Sy: cluster median of WTF Sy from outputs/18_wtf_01_well_sy_estimates.csv
     #   - β₃: cluster centroid drainage coefficient from
     #         outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv
     # The realised λ is emitted to 20_report_numbers.csv (drawdown_lambda) on
@@ -1212,7 +1216,7 @@ def plot_drawdown_propagation(wt, features, dpi=300, show_head=True):
     H0      = DRAWDOWN_H0_MM    # mm forest interception deficit, from config.py
 
     # Load C3 (propagation medium) Sy and β₃ from upstream pipeline outputs
-    _sy_df    = pd.read_csv(INT_WTF_WELL_SY)
+    _sy_df    = pd.read_csv(OUT_18_WELL_SY_TABLE)
     Sy        = float(_sy_df[_sy_df['Cluster'] == 3]['Sy_median'].median())
     _mech_df  = pd.read_csv(OUT_03_MECHANISTIC_TABLE)
     BETA3_M   = float(_mech_df[_mech_df['Cluster'] == 3]['beta_3_drainage'].iloc[0])
@@ -1915,7 +1919,7 @@ def plot_slr_response(wt, features, dpi=300):
     from shapely import contains_xy
 
     # ── Diffusivity D = K·b/Sy (Sy live from C3 WTF, as in drawdown map) ──
-    _sy_df = pd.read_csv(INT_WTF_WELL_SY)
+    _sy_df = pd.read_csv(OUT_18_WELL_SY_TABLE)
     Sy = float(_sy_df[_sy_df["Cluster"] == 3]["Sy_median"].median())
     D = (DRAWDOWN_K_MDAY * DRAWDOWN_B_M) / Sy                      # m²/day
     t_days = SLR_WINDOW_YEARS * 365.0
@@ -2122,7 +2126,7 @@ def _slr_field(gx, gy):
     from scipy.special import erfc
     from shapely.geometry import Point
     from shapely import contains_xy
-    _sy_df = pd.read_csv(INT_WTF_WELL_SY)
+    _sy_df = pd.read_csv(OUT_18_WELL_SY_TABLE)
     Sy = float(_sy_df[_sy_df["Cluster"] == 3]["Sy_median"].median())
     D = (DRAWDOWN_K_MDAY * DRAWDOWN_B_M) / Sy
     diff_len = np.sqrt(D * SLR_WINDOW_YEARS * 365.0)
@@ -2370,7 +2374,7 @@ def _scrape_field(gx, gy, epochs=None):
     geom_union is the union of the *filtered* cut footprints."""
     from shapely.geometry import Point
     try:
-        _sy_df = pd.read_csv(INT_WTF_WELL_SY)
+        _sy_df = pd.read_csv(OUT_18_WELL_SY_TABLE)
         Sy = float(_sy_df[_sy_df["Cluster"] == 3]["Sy_median"].median())
         _mech = pd.read_csv(OUT_03_MECHANISTIC_TABLE)
         beta3_m = float(_mech[_mech["Cluster"] == 3]["beta_3_drainage"].iloc[0])
@@ -2451,7 +2455,7 @@ def _forest_field(gx, gy):
     if forest_geom is None:
         return None, None, None, None
     try:
-        _sy = pd.read_csv(INT_WTF_WELL_SY)
+        _sy = pd.read_csv(OUT_18_WELL_SY_TABLE)
         Sy = float(_sy[_sy["Cluster"] == 3]["Sy_median"].median())
         _m = pd.read_csv(OUT_03_MECHANISTIC_TABLE)
         b3 = float(_m[_m["Cluster"] == 3]["beta_3_drainage"].iloc[0])
@@ -2498,7 +2502,7 @@ def _broadleaf_field(gx, gy):
     if bl_geom is None or bl_geom.is_empty:
         return None, None, None, None
     try:
-        _sy = pd.read_csv(INT_WTF_WELL_SY)
+        _sy = pd.read_csv(OUT_18_WELL_SY_TABLE)
         Sy = float(_sy[_sy["Cluster"] == 3]["Sy_median"].median())
         _m = pd.read_csv(OUT_03_MECHANISTIC_TABLE)
         b3 = float(_m[_m["Cluster"] == 3]["beta_3_drainage"].iloc[0])
@@ -4072,7 +4076,7 @@ def plot_scrape_drawdown(wt, features, dpi=300, show_head=True):
     K = DRAWDOWN_K_MDAY            # m/day (Betson 2002), shared with drawdown/SLR maps
     b = DRAWDOWN_B_M            # m saturated thickness
 
-    _sy_df   = pd.read_csv(INT_WTF_WELL_SY)
+    _sy_df   = pd.read_csv(OUT_18_WELL_SY_TABLE)
     Sy       = float(_sy_df[_sy_df['Cluster'] == 3]['Sy_median'].median())
     # Edge drawdown = the MEASURED CEH36 response (Script 09a), an empirical
     # quantity. The excavation depth (not surveyed) is the inferred output:

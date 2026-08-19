@@ -54,16 +54,16 @@ ceh13,2022,5,-0.9786666666666666,-0.7840000000000001,0,4,C4 (Main Forest),Refere
 ceh13,2023,5,-1.02,-0.7700000000000001,0,4,C4 (Main Forest),Reference,True,near-zero SSM beta_3 - MSL5 unreliable over the 5yr window
 ceh13,2024,5,-0.772,-0.534,0,4,C4 (Main Forest),Reference,True,near-zero SSM beta_3 - MSL5 unreliable over the 5yr window
 ceh13,2025,5,-0.6913333333333332,-0.462,0,4,C4 (Main Forest),Reference,True,near-zero SSM beta_3 - MSL5 unreliable over the 5yr window
-ceh14,2011,5,-0.9246666666666666,-0.688,0,4,C4 (Main Forest),Reference,True,"negative SSM beta_3 (SSM failure, NSE -3.21) - MSL5 unreliable over the 5yr window"
-ceh14,2017,5,-0.7093333333333334,-0.316,0,4,C4 (Main Forest),Reference,True,"negative SSM beta_3 (SSM failure, NSE -3.21) - MSL5 unreliable over the 5yr window"
-ceh14,2018,5,-0.82,-0.476,0,4,C4 (Main Forest),Reference,True,"negative SSM beta_3 (SSM failure, NSE -3.21) - MSL5 unreliable over the 5yr window"
-ceh14,2019,5,-1.0493333333333335,-0.6460000000000001,0,4,C4 (Main Forest),Reference,True,"negative SSM beta_3 (SSM failure, NSE -3.21) - MSL5 unreliable over the 5yr window"
-ceh14,2020,5,-1.0260000000000002,-0.724,0,4,C4 (Main Forest),Reference,True,"negative SSM beta_3 (SSM failure, NSE -3.21) - MSL5 unreliable over the 5yr window"
-ceh14,2021,5,-0.952,-0.628,0,4,C4 (Main Forest),Reference,True,"negative SSM beta_3 (SSM failure, NSE -3.21) - MSL5 unreliable over the 5yr window"
-ceh14,2022,5,-0.7833333333333334,-0.568,0,4,C4 (Main Forest),Reference,True,"negative SSM beta_3 (SSM failure, NSE -3.21) - MSL5 unreliable over the 5yr window"
-ceh14,2023,5,-0.882,-0.6180000000000001,0,4,C4 (Main Forest),Reference,True,"negative SSM beta_3 (SSM failure, NSE -3.21) - MSL5 unreliable over the 5yr window"
-ceh14,2024,5,-0.5593333333333332,-0.348,0,4,C4 (Main Forest),Reference,True,"negative SSM beta_3 (SSM failure, NSE -3.21) - MSL5 unreliable over the 5yr window"
-ceh14,2025,5,-0.5346666666666666,-0.244,0,4,C4 (Main Forest),Reference,True,"negative SSM beta_3 (SSM failure, NSE -3.21) - MSL5 unreliable over the 5yr window"
+ceh14,2011,5,-0.9246666666666666,-0.688,0,4,C4 (Main Forest),Reference,True,negative SSM beta_3 (SSM failure) - MSL5 unreliable over the 5yr window
+ceh14,2017,5,-0.7093333333333334,-0.316,0,4,C4 (Main Forest),Reference,True,negative SSM beta_3 (SSM failure) - MSL5 unreliable over the 5yr window
+ceh14,2018,5,-0.82,-0.476,0,4,C4 (Main Forest),Reference,True,negative SSM beta_3 (SSM failure) - MSL5 unreliable over the 5yr window
+ceh14,2019,5,-1.0493333333333335,-0.6460000000000001,0,4,C4 (Main Forest),Reference,True,negative SSM beta_3 (SSM failure) - MSL5 unreliable over the 5yr window
+ceh14,2020,5,-1.0260000000000002,-0.724,0,4,C4 (Main Forest),Reference,True,negative SSM beta_3 (SSM failure) - MSL5 unreliable over the 5yr window
+ceh14,2021,5,-0.952,-0.628,0,4,C4 (Main Forest),Reference,True,negative SSM beta_3 (SSM failure) - MSL5 unreliable over the 5yr window
+ceh14,2022,5,-0.7833333333333334,-0.568,0,4,C4 (Main Forest),Reference,True,negative SSM beta_3 (SSM failure) - MSL5 unreliable over the 5yr window
+ceh14,2023,5,-0.882,-0.6180000000000001,0,4,C4 (Main Forest),Reference,True,negative SSM beta_3 (SSM failure) - MSL5 unreliable over the 5yr window
+ceh14,2024,5,-0.5593333333333332,-0.348,0,4,C4 (Main Forest),Reference,True,negative SSM beta_3 (SSM failure) - MSL5 unreliable over the 5yr window
+ceh14,2025,5,-0.5346666666666666,-0.244,0,4,C4 (Main Forest),Reference,True,negative SSM beta_3 (SSM failure) - MSL5 unreliable over the 5yr window
 ceh15,2012,5,-1.0592,-0.7354,0,4,C4 (Main Forest),Extended,False,
 ceh15,2013,5,-1.0883333333333334,-0.7932,0,4,C4 (Main Forest),Extended,False,
 ceh15,2014,5,-1.059,-0.8130000000000001,0,4,C4 (Main Forest),Extended,False,

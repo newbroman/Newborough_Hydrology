@@ -40,7 +40,11 @@ File location: outputs/01_data_prep/pipeline_scenario_params.csv
 """
 from __future__ import annotations
 
-__version__ = "1.2.2"  # Hollingham (2026) — 2026-08-18
+__version__ = "1.2.3"  # Hollingham (2026) — 2026-08-19. Reads the per-well
+#   WTF Sy table from OUT_18_WELL_SY_TABLE; INT_WTF_WELL_SY is retired
+#   (D-038). Pure path/symbol change, values identical.
+#
+# v1.2.2  # Hollingham (2026) — 2026-08-18
 # v1.2.2 (2026-08-18): _DEFAULTS gains ceh36_scrape_response_m, so Script 20's
 #   fallback for the scrape H0 anchor reads a documented default instead of a
 #   published result typed into an except branch.
@@ -263,7 +267,7 @@ def write_initial_params(wells_clean, climate):
       - 03_master_data.csv → h_disp, and
         03_03_cluster_mechanistic_coefficients.csv → β₁, β₂, β₃
       - 10e_01_coefficient_shifts.csv → clearfell_b2_mult, thinning_b2_mult
-      - 17_wtf_well_sy.csv → Sy
+      - 18_wtf_01_well_sy_estimates.csv → Sy
 
     Parameters
     ----------
@@ -275,7 +279,7 @@ def write_initial_params(wells_clean, climate):
     from utils.config import DRAINAGE_DATUM, FOREST_CIDS, BROADLEAF_B2_SUMMER, BROADLEAF_B2_WINTER
     from utils.paths import (
         INT_MASTER_DATA, OUT_03_MECHANISTIC_TABLE,
-        OUT_10E_COEFF_SHIFTS, INT_WTF_WELL_SY, INT_CLUSTER_PEAK_MONTHS,
+        OUT_10E_COEFF_SHIFTS, OUT_18_WELL_SY_TABLE, INT_CLUSTER_PEAK_MONTHS,
     )
 
     # Summer climate means
@@ -358,14 +362,14 @@ def write_initial_params(wells_clean, climate):
 
     # ── Try to load Sy from Script 17 ────────────────────────────────────
     sy_by_cluster = {}
-    if INT_WTF_WELL_SY.exists() and clusters:
+    if OUT_18_WELL_SY_TABLE.exists() and clusters:
         try:
-            sy_df = pd.read_csv(INT_WTF_WELL_SY)
+            sy_df = pd.read_csv(OUT_18_WELL_SY_TABLE)
             sy_median = sy_df.groupby("Cluster")["Sy_median"].median()
             for cl in clusters:
                 if cl in sy_median.index:
                     sy_by_cluster[cl] = float(sy_median[cl])
-            print(f"  Pipeline params: Sy loaded from {INT_WTF_WELL_SY.name} "
+            print(f"  Pipeline params: Sy loaded from {OUT_18_WELL_SY_TABLE.name} "
                   f"({len(sy_by_cluster)} clusters)")
         except Exception as e:
             print(f"  Pipeline params: could not read Sy: {e}")

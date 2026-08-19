@@ -26,7 +26,13 @@ PIPELINE_VERSION = "2.3.0"
 #   module-local declarations (model_utils, Scripts 03 and 08). Value unchanged
 #   at 100; see D-016.
 # v1.3.0 (2026-08-16): month-wise cluster-stability parameters added (D-030).
-__version__ = "1.4.1"  # Hollingham (2026) — 2026-08-18. SSM_BOOT_SEED added;
+__version__ = "1.4.2"  # Hollingham (2026) — 2026-08-18. The CEH14 entry in
+#   MSL5_EXCLUDED_WELLS carried a pipeline result as a literal — "NSE -3.21" —
+#   against the no-hardcoded-values rule, and it had drifted (live value
+#   -6.42). The reason string now names the condition without the number; the
+#   value lives in 08_perwell_nse.csv. Exclusion behaviour unchanged.
+#
+# v1.4.1  # Hollingham (2026) — 2026-08-18. SSM_BOOT_SEED added;
 #   earlier UKCP18_SCENARIOS added:
 #   Scripts 19 and 26b each carried their own copy of the same four seasonal
 #   multipliers per epoch.

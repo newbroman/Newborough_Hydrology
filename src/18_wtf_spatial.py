@@ -53,7 +53,13 @@ References:
     Freeman, S. (2008) Hydrological impact of Corsican pine at Newborough Warren.
 """
 
-__version__ = "1.9.1"  # Hollingham (2026) -- 2026-08-18. Store-time rounding removed (D-035): these values
+__version__ = "1.9.2"  # Hollingham (2026) — 2026-08-19. Reads the per-well
+#   WTF Sy table from OUT_18_WELL_SY_TABLE; INT_WTF_WELL_SY is retired
+#   (D-038). Pure path/symbol change, values identical.
+#   Also drops the duplicate write of well_results to the retired
+#   outputs/17_wtf_well_sy.csv (D-038): one frame, one path.
+#
+# v1.9.1  # Hollingham (2026) -- 2026-08-18. Store-time rounding removed (D-035): these values
 #   are written to CSV at the precision they were computed, and rounding
 #   happens where they are displayed. Three decimals is a display rule for
 #   quantities of order one; applied at storage it costs a significant
@@ -90,7 +96,7 @@ from utils.paths import (
     INT_PEAR_AUDIT_SITEWIDE, DATA_DIR, DATA_KML_SITE_BOUNDARY, DATA_KML_STREAMS,
     INT_LCSC_MODEL_STATS,
     OUT_18_WELL_SY_TABLE, OUT_18_SY_MAP, OUT_18_SY_CONTOUR,
-    OUT_18_SY_CONTOUR_EXT, INT_WTF_WELL_SY, OUT_18_HALFLIFE_MAP,
+    OUT_18_SY_CONTOUR_EXT, OUT_18_WELL_SY_TABLE, OUT_18_HALFLIFE_MAP,
     OUT_18_STORAGE_DRAINAGE_INDEX_CSV,
     OUT_18_AQUIFER_SYNTHESIS, OUT_18_REPORT_NUMBERS,
     OUT_18_SY_SPATIAL_TRENDS,
@@ -1262,8 +1268,6 @@ def main(supplementary=True):
     print("\nExporting reference well Sy table...")
     well_results.to_csv(path_well_sy, index=False)
     print(f"  Saved → {path_well_sy.name}")
-    well_results.to_csv(INT_WTF_WELL_SY, index=False)
-    print(f"  Intermediate copy → {INT_WTF_WELL_SY.name}")
 
     # ── Spatial Sy trends — always generated (paper-citable) ─────────────
     # Diagnostic re-run with the canopy interception correction disabled; used

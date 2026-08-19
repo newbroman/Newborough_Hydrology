@@ -15,7 +15,7 @@ Sign-off decisions (2026-07-06):
   2. Sy for the volume currency: PER-DRIVER REPRESENTATIVE Sy (not per-cell),
      read live from utils.pipeline_params.load_params()["clusters"] (the
      pipeline's single source of truth for per-cluster Sy — Script 17's
-     output, same numbers as INT_WTF_WELL_SY grouped by Cluster). Coast/
+     output, same numbers as OUT_18_WELL_SY_TABLE grouped by Cluster). Coast/
      scrape -> C3; forest (clearfell, broadleaf) -> well-count-weighted
      mean of C4/C5, weights read live from the well roster (never
      hardcoded 9/5).
@@ -89,7 +89,11 @@ Runs after Script 37 (Part A) in the driver-validation phase; the canonical
 step index is in outputs/pipeline_manifest.json.
 """
 
-__version__ = "1.2.0"  # 2026-07-17: add CLIMATE as a distinctly-flagged
+__version__ = "1.2.1"  # Hollingham (2026) — 2026-08-19. Reads the per-well
+#   WTF Sy table from OUT_18_WELL_SY_TABLE; INT_WTF_WELL_SY is retired
+#   (D-038). Pure path/symbol change, values identical.
+#
+# v1.2.0  # 2026-07-17: add CLIMATE as a distinctly-flagged
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -111,7 +115,7 @@ import matplotlib.pyplot as plt
 
 from utils import config, paths
 from utils.paths import (
-    INT_MASTER_DATA, INT_WELLS_CLEAN, INT_WTF_WELL_SY,
+    INT_MASTER_DATA, INT_WELLS_CLEAN, OUT_18_WELL_SY_TABLE,
     OUT_10A_REPORT, OUT_10M_REPORT, OUT_09_BACI_SHIFTS,
     OUT_20_REPORT_NUMBERS, OUT_25_FIT_PARAMETERS,
     DATA_KML_FEATURES,
@@ -304,7 +308,7 @@ def load_drawdown_lambda_m() -> float:
 def load_cluster_sy() -> dict:
     """{cluster_id(int): Sy} — canonical per-cluster Sy, live from
     pipeline_params.load_params() (Script 17's output; single source of
-    truth, matches INT_WTF_WELL_SY grouped by Cluster). Falls back to
+    truth, matches OUT_18_WELL_SY_TABLE grouped by Cluster). Falls back to
     default_value('Sy') per cluster with a console warning."""
     try:
         params = pipeline_params.load_params(warn_defaults=True)

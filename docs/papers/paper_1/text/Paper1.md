@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_8.odt — do not edit.
+<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_9.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 A parameter-sparse state-space framework for characterizing coastal dune-aquifer architecture from manual dipwell records
@@ -129,7 +129,7 @@ The water-balance residual field quantifies, at each reference well, the degree 
 
 ## []{#anchor-7}4.1 Climate and well-network characterization
 
-The RAF Valley record establishes that Newborough Warren operates under a persistent annual water surplus, with mean annual precipitation of approximately 890 mm against mean annual Thornthwaite PET of approximately 652 mm over the monitoring period, a study-period P/PET ratio of about 1.36 (Figure 2). The surplus is strongly seasonal in its expression: winter rainfall exceeds evaporative demand by a wide margin, while summer PET exceeds rainfall, concentrating atmospheric demand on the aquifer during the period of lowest recharge. Inter-annual variability in the water balance is driven almost entirely by precipitation rather than by evaporative demand, which shows strong seasonality but negligible inter-annual trend. The post-2013 period has run warmer than the earlier summer-temperature baseline (Figure 3), intensifying the summer deficit.
+The RAF Valley record establishes that Newborough Warren operates under a persistent annual water surplus, with mean annual precipitation of approximately 885 mm against mean annual Thornthwaite PET of approximately 652 mm over the monitoring period, a study-period P/PET ratio of about 1.36 (Figure 2). The surplus is strongly seasonal in its expression: winter rainfall exceeds evaporative demand by a wide margin, while summer PET exceeds rainfall, concentrating atmospheric demand on the aquifer during the period of lowest recharge. Inter-annual variability in the water balance is driven almost entirely by precipitation rather than by evaporative demand, which shows strong seasonality but negligible inter-annual trend. The post-2013 period has run warmer than the earlier summer-temperature baseline (Figure 3), intensifying the summer deficit.
 
 The reference network comprises 66 wells with monthly water-table records over the 2005--2026 monitoring period, supplemented by 21 extended-network wells with shorter records classified by pattern matching (Section 4.3). Records run to a median length well above a decade, giving the spatial density needed to distinguish cluster-scale behaviour from site-wide climate forcing.
 

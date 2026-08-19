@@ -59,7 +59,7 @@ from utils import pipeline_params as pp
 from utils.data_utils import normalize_well_name
 from utils.paths import (
     DIR_31, DATA_KML_FEATURES,
-    INT_MASTER_DATA, INT_WELL_ELEVATIONS, INT_WTF_WELL_SY,
+    INT_MASTER_DATA, INT_WELL_ELEVATIONS, OUT_18_WELL_SY_TABLE,
     INT_WELLS_CLEAN, INT_DRY_DEPTHS,
     OUT_31_VALIDATION_SUMMARY, OUT_31_METHOD_ROBUSTNESS,
     OUT_31_FOREST_CONFUSION, OUT_31_FOREST_BORDERLINE, OUT_31_PANEL_FIG,
@@ -74,7 +74,11 @@ from pyproj import Transformer
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
-__version__ = "1.4.0"
+__version__ = "1.4.1"  # Hollingham (2026) — 2026-08-19. Reads the per-well
+#   WTF Sy table from OUT_18_WELL_SY_TABLE; INT_WTF_WELL_SY is retired
+#   (D-038). Pure path/symbol change, values identical.
+#
+# v1.4.0
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 SCRIPT_ID = "31"
 VERSION = __version__
@@ -117,7 +121,7 @@ def load_data():
         elev[["key", "ground_elev_m", "dist_coast_m"]], on="key", how="left"
     )
 
-    wtf = pd.read_csv(INT_WTF_WELL_SY)
+    wtf = pd.read_csv(OUT_18_WELL_SY_TABLE)
     wtf["key"] = wtf["Well"].map(normalize_well_name)
     master = master.merge(wtf[["key", "Sy_median"]], on="key", how="left")
 

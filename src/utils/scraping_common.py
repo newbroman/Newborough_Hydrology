@@ -31,7 +31,11 @@ WELL_ERAS           {well: {era_name: (start, end)}} for all analysis wells.
                     Start is inclusive, end is exclusive.
 """
 
-__version__ = "1.6.0"  # 2026-07-19 — MPL_DEFAULTS relocated to render_utils.py;
+__version__ = "1.6.1"  # Hollingham (2026) — 2026-08-19. Reads the per-well
+#   WTF Sy table from OUT_18_WELL_SY_TABLE; INT_WTF_WELL_SY is retired
+#   (D-038). Pure path/symbol change, values identical.
+#
+# v1.6.0  # 2026-07-19 — MPL_DEFAULTS relocated to render_utils.py;
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -289,12 +293,12 @@ def load_cluster_params():
     """
     from utils.paths import (
         OUT_03_MECHANISTIC_TABLE, INT_MASTER_DATA,
-        INT_WTF_WELL_SY, INT_WELLS_CLEAN,
+        OUT_18_WELL_SY_TABLE, INT_WELLS_CLEAN,
     )
     from utils.config import DRAINAGE_DATUM
 
     coeff = pd.read_csv(OUT_03_MECHANISTIC_TABLE)
-    sy_df = pd.read_csv(INT_WTF_WELL_SY)
+    sy_df = pd.read_csv(OUT_18_WELL_SY_TABLE)
     sy_by_cluster = sy_df.groupby("Cluster")["Sy_median"].median()
 
     wells = pd.read_csv(INT_WELLS_CLEAN, index_col=0, parse_dates=True)

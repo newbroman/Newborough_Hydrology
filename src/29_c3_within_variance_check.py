@@ -37,7 +37,11 @@ Read-only on pipeline outputs; writes to outputs/29_within_c3_variance/.
 
 from __future__ import annotations
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-06-21
+__version__ = "1.4.1"  # Hollingham (2026) — 2026-08-19. Reads the per-well
+#   WTF Sy table from OUT_18_WELL_SY_TABLE; INT_WTF_WELL_SY is retired
+#   (D-038). Pure path/symbol change, values identical.
+#
+# v1.4.0  # Hollingham (2026) — 2026-06-21
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -79,7 +83,7 @@ F_BETAS         = paths.OUT_DIR / "07_spatial_coefficients" / "07_coeff_maps_dat
 F_FIT           = paths.OUT_25_FIT_PARAMETERS
 F_SLOPES        = paths.OUT_25_PER_WELL_SLOPES
 F_FOREST_KML    = paths.DATA_KML_FEATURES
-F_WTF_SY        = paths.INT_WTF_WELL_SY      # Script 17 WTF event-median Sy (Table 4c source)
+F_WTF_SY        = paths.OUT_18_WELL_SY_TABLE      # Script 17 WTF event-median Sy (Table 4c source)
 
 OUT_CSV          = paths.OUT_29_PANEL_CSV
 OUT_UNIVARIATE   = paths.OUT_29_UNIVARIATE_R2

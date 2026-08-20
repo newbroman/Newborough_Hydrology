@@ -102,7 +102,38 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
-__version__ = "1.8.0"  # Hollingham (2026) — 2026-08-20.  Adds the fit-window
+__version__ = "1.10.0"  # Hollingham (2026) — 2026-08-20.  The forest-free
+#         specification now excludes on LAND COVER, not on cluster (D-046,
+#         Martin's ruling this session).  "Forest-free" filtered
+#         ~cluster.isin(FOREST_CIDS), so it dropped ceh3, nw8 and lis1 —
+#         open ground on the in_forest flag, excluded only because they cluster
+#         with the forest — and retained ceh12 and nw11, which are under canopy
+#         but cluster C2/C3.  The exclusion therefore selected on the very axis
+#         being fitted: ceh3 sits 176 m from the shore, the second-nearest well
+#         in the panel, and carries 2-4 mm/yr of delta_0 by itself.  The panel
+#         goes 60 -> 61 wells and the headline delta_0 -26.42 -> -31.33, which
+#         is where the uncontrolled full fit (-31.71) and the canopy-controlled
+#         fit (-32.36) already sat.  The specification now means what its name
+#         says.  Where Script 01 has not written in_forest, the C4/C5 proxy
+#         stands in and reproduces the old exclusion exactly, so a first-pass
+#         run degrades to the previous behaviour rather than to a third answer.
+#
+# 1.9.0 — Hollingham (2026) — 2026-08-20.  Wires the canopy x
+#         time regressor into an EMITTED fit.  1.8.0 added forest_term to
+#         fit_panel but never called it with forest_term=True, so the canopy
+#         control existed in the code and reached no artefact: 25_01 carried no
+#         canopy-controlled row and nothing downstream could read one.  main()
+#         now fits the FULL network with forest cover controlled (source
+#         "full_canopy", both decay forms) and fit_panel returns the absorbed
+#         canopy drift as beta_forest_mm_yr, which is the quantity of interest —
+#         how much faster the water table falls under canopy, net of distance to
+#         the coast.  Reported in 25_report_numbers.csv.
+#         AIC CAVEAT.  k counts the non-linear parameters only; the CWB slope,
+#         the month fixed effects and the canopy term are absorbed by the FWL
+#         step and are not counted.  AIC is therefore comparable only WITHIN a
+#         linear block: full vs full_canopy must not be compared on it.
+#
+# 1.8.0 — Hollingham (2026) — 2026-08-20.  Adds the fit-window
 #         sensitivity sweep (25_12) and an optional canopy x time regressor.
 #         WINDOW SWEEP.  25_11 varies the WELL SET; 25_12 varies the WINDOW
 #         with the well set held fixed, which is the axis that actually moves
@@ -391,7 +422,8 @@ def load_panel(distances: pd.DataFrame, exclude_forested: bool = False,
     Parameters
     ----------
     distances : DataFrame with columns [well, dist_coast_m]
-    exclude_forested : if True, drop C4 and C5 wells entirely
+    exclude_forested : if True, drop wells under canopy — keyed on the
+        in_forest LAND-COVER flag, not on cluster membership
         (the forest-free network specification)
     restrict_cluster : if set, restrict to a single cluster only
         (the C3-only specification expects 3)
@@ -447,6 +479,15 @@ def load_panel(distances: pd.DataFrame, exclude_forested: bool = False,
     ext_cluster = dict(zip(audit["well"], audit["Best_Match_Cluster"]))
     long["cluster"] = long["cluster"].fillna(long["well"].map(ext_cluster))
 
+    # Canopy flag, resolved BEFORE the exclusions because the forest-free
+    # specification keys on it (v1.10.0).  Where Script 01 has not yet written
+    # in_forest the C4/C5 cluster proxy stands in, which reproduces the
+    # pre-v1.10.0 exclusion exactly — so the fallback is the old behaviour, not
+    # a third answer.
+    if "in_forest" not in long.columns:
+        long["in_forest"] = long["cluster"].isin(FOREST_CIDS)
+    long["in_forest"] = long["in_forest"].fillna(False).astype(float)
+
     # Exclusions
     long = long[~long["well"].isin(NON_DIPWELLS + FE_WELLS + SCRAPED_WELLS)]
     long = apply_scrape_treatment(long)
@@ -457,11 +498,13 @@ def load_panel(distances: pd.DataFrame, exclude_forested: bool = False,
     else:
         long = long[~long["well"].isin(CLEARFELL_ZONE)]
         if exclude_forested:
-            long = long[~long["cluster"].isin(FOREST_CIDS)]
+            # LAND COVER, not cluster.  Excluding on cluster dropped ceh3,
+            # nw8 and lis1, which are open ground, and retained ceh12 and
+            # nw11, which are under canopy.  ceh3 sits 176 m from the shore —
+            # the second-nearest well in the panel — so excluding it thinned
+            # the near-shore end of the very gradient being fitted.
+            long = long[long["in_forest"] == 0]
     long = long[long["easting"].notna() & long["dist_coast_m"].notna()].copy()
-    if "in_forest" not in long.columns:
-        long["in_forest"] = long["cluster"].isin(FOREST_CIDS)
-    long["in_forest"] = long["in_forest"].fillna(False).astype(float)
     return long
 
 
@@ -566,8 +609,31 @@ def fit_panel(df: pd.DataFrame, decay_func, p0, bounds,
                             index=df.index)
     _decay_t_s_dm = (_decay_t_s
                       - _decay_t_s.groupby(df["well"]).transform("mean")).values
-    _beta_s, *_ = np.linalg.lstsq(np.column_stack([cwb_dm, M_dm] + lin_extra),
-                                    h_dm - _decay_t_s_dm, rcond=None)
+    _X_s = np.column_stack([cwb_dm, M_dm] + lin_extra)
+    _beta_s, *_ = np.linalg.lstsq(_X_s, h_dm - _decay_t_s_dm, rcond=None)
+
+    # Standard error on the absorbed canopy coefficient.  Clustered by well,
+    # because the wells are the unit of independence — 12042 monthly rows come
+    # from 68 wells, of which only a handful are under canopy, so an
+    # observation-level SE would overstate the precision several-fold.
+    # CONDITIONAL on the fitted decay parameters: the FWL step treats delta(d)
+    # as known at the solution, so this does not carry the uncertainty in
+    # delta_0, L and c through.  It is an indicative SE, not a joint one.
+    _beta_forest_se = None
+    if forest_term:
+        _res_s = (h_dm - _decay_t_s_dm) - _X_s @ _beta_s
+        try:
+            _XtXi = np.linalg.inv(_X_s.T @ _X_s)
+            _meat = np.zeros((_X_s.shape[1], _X_s.shape[1]))
+            _wv = df["well"].values
+            for _wl in np.unique(_wv):
+                _m = _wv == _wl
+                _u = _X_s[_m].T @ _res_s[_m]
+                _meat += np.outer(_u, _u)
+            _vcov = _XtXi @ _meat @ _XtXi
+            _beta_forest_se = float(np.sqrt(np.diag(_vcov))[-1]) * 1000.0
+        except np.linalg.LinAlgError:
+            _beta_forest_se = None
 
     n = len(result.fun); k = len(result.x)
     rss = float(np.sum(result.fun ** 2))
@@ -593,6 +659,14 @@ def fit_panel(df: pd.DataFrame, decay_func, p0, bounds,
         "c_fixed": c_fixed,
         "forest_term": forest_term,
         "beta_cwb_m_per_mm": float(_beta_s[0]),
+        # Absorbed canopy drift, mm/yr.  The extra column is appended last in
+        # X, so its coefficient is _beta_s[-1]; h_depth is in m and t in years,
+        # hence the 1000.  Negative = the table falls faster under canopy than
+        # off it, once distance to the coast is already accounted for.
+        "beta_forest_mm_yr": (float(_beta_s[-1]) * 1000.0
+                              if forest_term else None),
+        # Well-clustered, conditional on the fitted decay parameters.
+        "beta_forest_se_mm_yr": _beta_forest_se,
         "date_min": df["date"].min(),
         "date_max": df["date"].max(),
         "n_wells": int(df["well"].nunique()),
@@ -1616,6 +1690,14 @@ def build_fit_parameters_table(fits: dict) -> pd.DataFrame:
             "L_ci_hi": round(float(ci[1, 1]), 0),
             "c_mm_yr": round(c_val, 2),
             "c_se": (round(c_se, 2) if not np.isnan(c_se) else None),
+            # Populated on canopy-controlled rows only; blank elsewhere,
+            # because those fits carry no canopy term to report.
+            # Stored unrounded (D-035): the columns above carry legacy
+            # store-time rounding that the lint baseline grandfathers, but new
+            # columns store what the pipeline computed and round at the point
+            # of display — the console line and the report-numbers notes.
+            "beta_forest_mm_yr": fit.get("beta_forest_mm_yr"),
+            "beta_forest_se_mm_yr": fit.get("beta_forest_se_mm_yr"),
         })
     return pd.DataFrame(rows)
 
@@ -1682,10 +1764,14 @@ def build_report_numbers(fits: dict,
                   "Well": "", "Era": "2005-2026",
                   "Value": round(float(ff["popt"][0]), 2),
                   "Unit": "mm/yr",
-                  "Note": (f"Forest-free linear-capped, "
-                            f"SE={ff['perr'][0]:.2f}, "
+                  "Note": (f"Forest-free linear-capped, n_wells="
+                            f"{ff['n_wells']}, SE={ff['perr'][0]:.2f}, "
                             f"95% CI [{ff['ci'][0, 0]:.1f}, "
-                            f"{ff['ci'][0, 1]:.1f}]")})
+                            f"{ff['ci'][0, 1]:.1f}]. Forest-free = not under "
+                            f"canopy on the in_forest LAND-COVER flag (D-046); "
+                            f"before v1.10.0 it meant not in cluster C4/C5, "
+                            f"which dropped three open-ground wells including "
+                            f"ceh3 at 176 m")})
     rows.append({"Parameter": "Headline_fit_L",
                   "Well": "", "Era": "2005-2026",
                   "Value": round(float(ff["popt"][1]), 0),
@@ -1696,8 +1782,13 @@ def build_report_numbers(fits: dict,
                   "Well": "", "Era": "2005-2026",
                   "Value": round(float(ff["popt"][2]), 2),
                   "Unit": "mm/yr",
-                  "Note": (f"Forest-free linear-capped climate background, "
-                            f"SE={ff['perr'][2]:.2f}")})
+                  "Note": (f"Forest-free linear-capped far-field asymptote, "
+                            f"SE={ff['perr'][2]:.2f}. NOT a climate background "
+                            f"and not quoted as a rate: with the well set held "
+                            f"fixed it moves across the range in "
+                            f"25_12_window_sweep.csv as the fit window start "
+                            f"moves, so it reports the slope of whatever "
+                            f"excursion its window spans")})
     # AIC comparison
     fe = fits[("forest_free", "exponential")]
     rows.append({"Parameter": "Headline_DeltaAIC_lincap_vs_exp",
@@ -1705,6 +1796,34 @@ def build_report_numbers(fits: dict,
                   "Value": round(fe["aic"] - ff["aic"], 1),
                   "Unit": "",
                   "Note": "exp − lin-cap; positive favours lin-cap"})
+    # Canopy-controlled full-network fit.  Reported beside the headline so the
+    # two ways of handling the forest — drop the wells, or measure the canopy
+    # drift and keep them — can be compared directly.
+    can = fits.get(("full_canopy", "linear_capped"))
+    if can is not None:
+        rows.append({"Parameter": "Canopy_controlled_delta_0",
+                      "Well": "", "Era": "2005-2026",
+                      "Value": float(can["popt"][0]),   # unrounded, D-035
+                      "Unit": "mm/yr",
+                      "Note": (f"Full network, linear-capped, canopy x time "
+                                f"controlled on the in_forest LAND-COVER flag "
+                                f"(Script 01), n_wells={can['n_wells']}, "
+                                f"SE={can['perr'][0]:.2f}. Compare the "
+                                f"forest-free headline, which drops the "
+                                f"forested wells instead of measuring them")})
+        rows.append({"Parameter": "Canopy_extra_drift",
+                      "Well": "", "Era": "2005-2026",
+                      "Value": float(can["beta_forest_mm_yr"]),  # unrounded, D-035
+                      "Unit": "mm/yr",
+                      "Note": (f"Absorbed canopy x time coefficient: extra fall "
+                                f"under pine net of distance to the coast. "
+                                f"Negative = the table falls faster under "
+                                f"canopy. Well-clustered SE="
+                                f"{can['beta_forest_se_mm_yr']:.2f}, "
+                                f"t={can['beta_forest_mm_yr'] / can['beta_forest_se_mm_yr']:+.2f}, "
+                                f"conditional on the fitted decay parameters. "
+                                f"Land cover, not cluster membership — the two "
+                                f"disagree at six wells")})
     # C5 attribution
     c5 = partition[partition["cluster_id"] == 5]
     if not c5.empty:
@@ -1768,7 +1887,7 @@ def main() -> None:
     cwb = load_cwb()
 
     # ── Fits ──
-    print("\n  Fitting [1/3] Full network ...")
+    print("\n  Fitting [1/4] Full network ...")
     long_full = load_panel(distances, exclude_forested=False)
     df_full = build_design(long_full, cwb)
     fit_full_l = fit_panel(df_full, model_linear_capped,
@@ -1780,7 +1899,7 @@ def main() -> None:
                             bounds=([-200, 50, -30], [50, 5000, 30]),
                             label="full_exp")
 
-    print("  Fitting [2/3] Forest-free network ...")
+    print("  Fitting [2/4] Forest-free network ...")
     long_ff = load_panel(distances, exclude_forested=True)
     df_ff = build_design(long_ff, cwb)
     fit_ff_l = fit_panel(df_ff, model_linear_capped,
@@ -1792,7 +1911,7 @@ def main() -> None:
                           bounds=([-200, 50, -30], [50, 5000, 30]),
                           label="ff_exp")
 
-    print("  Fitting [3/3] C3 only (c fixed to forest-free network) ...")
+    print("  Fitting [3/4] C3 only (c fixed to forest-free network) ...")
     long_c3 = load_panel(distances, restrict_cluster=3)
     df_c3 = build_design(long_c3, cwb)
     c_fix_l = float(fit_ff_l["popt"][2])
@@ -1806,18 +1925,43 @@ def main() -> None:
                           bounds=([-200, 50], [50, 5000]),
                           c_fixed=c_fix_e, label="c3_exp_cfix")
 
+    # ── Fits [4/4] Canopy-controlled full network ──
+    # The forest-free and C3-only panels test the canopy confound by REMOVING
+    # wells; this tests it by MEASURING it, on the whole network.  in_forest is
+    # land cover, not cluster membership, so a well under pine that clusters
+    # with the dune is treated as forested here and is not in either of the
+    # subsets above.  The canopy x time coefficient is the extra drift under
+    # canopy net of distance to the coast; delta_0 is then the coastal gradient
+    # with that drift already removed rather than with the forested wells
+    # dropped.
+    print("  Fitting [4/4] Full network, canopy controlled ...")
+    fit_full_l_can = fit_panel(df_full, model_linear_capped,
+                               p0=[-30.0, 1000.0, -5.0],
+                               bounds=([-200, 100, -30], [50, 10000, 30]),
+                               label="full_lincap_canopy", forest_term=True)
+    fit_full_e_can = fit_panel(df_full, model_exp,
+                               p0=[-40.0, 600.0, -5.0],
+                               bounds=([-200, 50, -30], [50, 5000, 30]),
+                               label="full_exp_canopy", forest_term=True)
+
     # ── Print summary to console ──
     print("\n  Fitted parameters (linear-capped form):")
     print(f"    {'Source':<14} {'δ₀ (mm/yr)':>14} {'L (m)':>10} {'c (mm/yr)':>14}")
     for name, fit in [("Full",         fit_full_l),
                        ("Forest-free",  fit_ff_l),
-                       ("C3 only",      fit_c3_l)]:
+                       ("C3 only",      fit_c3_l),
+                       ("Full +canopy", fit_full_l_can)]:
         d0 = fit["popt"][0]; L = fit["popt"][1]
         c = (fit["c_fixed"] if fit["c_fixed"] is not None
               else fit["popt"][2])
         print(f"    {name:<14} {d0:>+7.2f} ± {fit['perr'][0]:.2f}"
               f"   {L:>4.0f} ± {fit['perr'][1]:.0f}"
               f"   {c:>+7.2f}")
+    print(f"    canopy x time drift = "
+          f"{fit_full_l_can['beta_forest_mm_yr']:+.2f} "
+          f"± {fit_full_l_can['beta_forest_se_mm_yr']:.2f} mm/yr "
+          f"(extra fall under pine, net of distance to the coast; "
+          f"well-clustered SE)")
 
     delta_aic = fit_ff_e["aic"] - fit_ff_l["aic"]
     print(f"\n  ΔAIC (forest-free, exp − lin-cap) = {delta_aic:+.1f}  "
@@ -1922,6 +2066,11 @@ def main() -> None:
         ("forest_free", "exponential"):    fit_ff_e,
         ("c3_only", "linear_capped_cfix"): fit_c3_l,
         ("c3_only", "exponential_cfix"):   fit_c3_e,
+        # Canopy-controlled full network. AIC is NOT comparable with the rows
+        # above: these carry one more absorbed regressor and k counts only the
+        # non-linear parameters.
+        ("full_canopy", "linear_capped"):  fit_full_l_can,
+        ("full_canopy", "exponential"):    fit_full_e_can,
         ("full_mam", "linear_capped"):         fit_full_l_mam,
         ("full_mam", "exponential"):           fit_full_e_mam,
         ("forest_free_mam", "linear_capped"):  fit_ff_l_mam,

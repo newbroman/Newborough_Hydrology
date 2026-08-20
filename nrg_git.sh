@@ -471,6 +471,81 @@ normalise_versions_report(){
   echo -e "  ${Y}note${N} report only. To apply the fixes:  python3 tools/normalise_versions.py --apply"
 }
 
+# ── GitHub's hard per-file limit. Not a preference: the remote pre-receive
+#    hook rejects the whole push, and the rejection names the FILE, not the
+#    commit, which is confusing when the file is several commits back.
+GH_MAX_MB=100
+
+oversize_staged_paths(){
+  # Paths of staged files at or over GH_MAX_MB, one per line.
+  git diff --cached --name-only --diff-filter=ACM 2>/dev/null | while IFS= read -r f; do
+    [[ -f "$f" ]] || continue
+    sz=$(stat -c%s "$f" 2>/dev/null || echo 0)
+    if [ "$sz" -ge $(( GH_MAX_MB * 1048576 )) ]; then printf '%s\n' "$f"; fi
+  done
+}
+
+show_oversize_staged(){
+  # Returns 0 if any staged file is too big for GitHub, and prints them.
+  local big; big=$(oversize_staged_paths)
+  [[ -z "$big" ]] && return 1
+  echo -e "${Y}  Staged files at or over GitHub's ${GH_MAX_MB} MB limit:${N}"
+  while IFS= read -r f; do
+    [[ -z "$f" ]] && continue
+    printf '    %5d MB  %s\n' "$(( $(stat -c%s "$f") / 1048576 ))" "$f"
+  done <<< "$big"
+  return 0
+}
+
+# Undo commits that have not left this machine. The recovery path for a push
+# rejected on file size: .gitignore alone will not fix that, because the blob
+# is already inside the commit, so the commit has to be rewound first.
+do_undo_commit(){
+  say "Undo unpushed commits"
+  clear_stale_lock
+  git fetch origin --quiet 2>/dev/null || true
+
+  local n
+  n=$(git rev-list --count origin/main..HEAD 2>/dev/null || echo 0)
+  if [[ "$n" == "0" ]]; then
+    ok "Nothing to undo - HEAD already matches origin/main."
+    return
+  fi
+
+  echo "  ${n} commit(s) on main have not been pushed:"
+  git log --oneline origin/main..HEAD | sed 's/^/    /'
+  echo ""
+  echo "  Rewinding turns them back into staged changes. Nothing is lost:"
+  echo "    - every edit stays on disk, and stays staged"
+  echo "    - only the commit messages go, so you write a fresh one"
+  echo "  This is safe precisely because none of these commits has left this PC."
+  echo ""
+  read -rp "$(echo -e "${Y}Undo ${n} commit(s)? [y/N]: ${N}")" r
+  [[ "$r" =~ ^[Yy]$ ]] || { echo "  Left alone."; return; }
+
+  git reset --soft origin/main || { fail "reset failed - nothing changed"; return; }
+  ok "Rewound to origin/main. Your changes are still staged."
+
+  echo ""
+  if show_oversize_staged; then
+    echo ""
+    echo "  These are what GitHub rejected. Unstaging keeps them on disk -"
+    echo "  it only takes them out of the commit."
+    read -rp "$(echo -e "${Y}Unstage them? [y/N]: ${N}")" r2
+    if [[ "$r2" =~ ^[Yy]$ ]]; then
+      oversize_staged_paths | while IFS= read -r f; do
+        [[ -z "$f" ]] && continue
+        git rm --cached --quiet -- "$f" && echo "    unstaged  $f"
+      done
+      ok "Unstaged. Add them to .gitignore if they should never be tracked."
+    fi
+  else
+    ok "No staged file is over ${GH_MAX_MB} MB."
+  fi
+  echo ""
+  echo "  Next: option 2 to commit and push again."
+}
+
 do_push(){
   clear_stale_lock
   refresh_mirror || return
@@ -485,6 +560,14 @@ do_push(){
     say "Your local changes (committing these first)"
     git status --short
     echo ""
+    if show_oversize_staged; then
+      echo ""
+      echo "  GitHub will reject the whole push, and the error will name the"
+      echo "  file rather than the commit. Unstage these first (option 11 can"
+      echo "  do it), or add them to .gitignore."
+      read -rp "$(echo -e "${Y}Commit anyway? [y/N]: ${N}")" r
+      [[ "$r" =~ ^[Yy]$ ]] || { fail "commit cancelled - oversize files staged"; return; }
+    fi
     commit_staged "" || { fail "commit failed"; return; }
     ok "committed on your PC"
   else
@@ -630,9 +713,10 @@ while true; do
   echo "  7) Clean up git storage (sweep up dead objects, shrink .git)"
   echo "  8) Normalise versions   (dry-run report: script banner() vs __version__)"
   echo "  9) Review citations     (confirm which document numbers cite which pipeline value)"
-  echo " 10) Quit"
+  echo " 10) Undo unpushed commit(s)  (rewind to GitHub; keeps every change staged)"
+  echo " 11) Quit"
   echo ""
-  read -rp "Choose [1-10]: " choice
+  read -rp "Choose [1-11]: " choice
   case "$choice" in
     1) do_sync ;;
     2) do_push ;;
@@ -643,7 +727,8 @@ while true; do
     7) do_cleanup ;;
     8) normalise_versions_report ;;
     9) review_citations_menu ;;
-    10) echo "Bye."; break ;;
-    *) echo "Please pick 1-10." ;;
+    10) do_undo_commit ;;
+    11) echo "Bye."; break ;;
+    *) echo "Please pick 1-11." ;;
   esac
 done

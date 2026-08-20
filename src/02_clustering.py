@@ -14,7 +14,31 @@ Outputs (final — outputs/02_clustering/):
     02_02_validation_plots.png
 """
 
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-08-16. Adds month-wise
+__version__ = "1.6.0"  # Hollingham (2026) — 2026-08-19. Three fixes to the
+#        month-wise stability block, all following from the finding that the
+#        two published statistics diverge because median co-assignment cannot
+#        see whole-cluster merging. (a) The split-half start grid was pinned to
+#        row 0, so the remainder rows the block-aligned grid cannot cover - the
+#        newest months of the record - were excluded from EVERY replicate. The
+#        grid phase is now redrawn per replicate, so the uncovered remainder
+#        moves and the whole record is eligible; ARI values move accordingly.
+#        (b) The old guard fired only when the month-wise median fell below the
+#        well-wise one, which the degeneracy makes impossible; it is replaced
+#        by one that fires on the gap between the two statistics, thresholded
+#        by CLUSTER_MONTH_DEGENERACY_GAP. (c) The merge behaviour itself is now
+#        emitted - per-cluster intact and merge rates in the CSV, two summary
+#        keys in the report numbers - so the gap between the two published
+#        figures can be explained from the outputs rather than from prose.
+#
+# 1.5.1 (2026-08-19) — The split-half ARI
+#        replicates were computed and consumed (three report-number keys and
+#        the diagnostic figure) but never written out, so the distribution
+#        behind cluster_splithalf_ari_p05/p95 could not be re-derived from the
+#        outputs — the dropped-artefact failure mode. They are now carried in
+#        02_11_month_stability.csv as a second block of rows, discriminated by
+#        a new leading `record` column. No computed value changes.
+#
+# 1.5.0 (2026-08-16) — Adds month-wise
 #        partition stability (D-030): a 12-month moving-block bootstrap over
 #        MONTHS alongside the existing bootstrap over WELLS, plus a disjoint
 #        split-half ARI. The published bootstrap answers "does the partition
@@ -25,7 +49,6 @@ __version__ = "1.5.0"  # Hollingham (2026) — 2026-08-16. Adds month-wise
 #        the k=NUM_CLUSTERS membership CSV, and four report-numbers keys.
 #        The partition itself is unchanged — this measures it, nothing more.
 #
-# 1.4.2 (2026-08-12) — Cluster hydrograph and per-well spaghetti y-axes
 # 1.4.2 (2026-08-12) — Cluster hydrograph and per-well spaghetti y-axes
 #        relabelled "Water level (m, below ground)": the series is the
 #        master's ground-referenced `depth from surface`, and the bare
@@ -65,6 +88,7 @@ from utils.config import (
     CLUSTER_BOOT_SEED,
     CLUSTER_MONTH_BOOT_N, CLUSTER_MONTH_BLOCK_MONTHS,
     CLUSTER_MONTH_SPLIT_N, CLUSTER_MONTH_BOOT_SEED,
+    CLUSTER_MONTH_DEGENERACY_GAP,
 )
 from utils.data_utils import normalize_well_name
 from utils.paths import (
@@ -547,6 +571,15 @@ def month_bootstrap_stability(
         samples of the record. This is the reproducibility number — free of the
         overlap artefact that inflates any comparison against the full-record
         partition, which shares most of its months with any sub-sample.
+    merge_df           : one row per reference cluster, giving the fraction of
+        replicates in which it stayed intact (all members in one replicate
+        cluster) and the fraction in which it shared a replicate cluster with
+        another reference cluster. This is what explains a high co-assignment
+        sitting beside a low ARI: merging leaves every within-cluster pair
+        co-assigned, so the median cannot see it and the ARI can.
+    merge_summary      : replicate-level rates derived from the same pass —
+        how often ANY two reference clusters collapsed together, and the mean
+        number of reference clusters surviving both intact and unmerged.
     """
     rng = np.random.default_rng(seed)
     wells = wells_ref.columns.tolist()
@@ -566,6 +599,12 @@ def month_bootstrap_stability(
         return fcluster(linkage(squareform(d, checks=False), method="ward"),
                         t=k, criterion="maxclust")
 
+    ref_ids = np.asarray(sorted(ref_labels.unique()))
+    ref_arr = ref_labels.values
+    intact_counts = np.zeros(len(ref_ids), dtype=np.int64)
+    merged_counts = np.zeros(len(ref_ids), dtype=np.int64)
+    surviving, any_merge = [], 0
+
     coassign = np.zeros((n_wells, n_wells), dtype=np.int64)
     n_ok = 0
     for _ in range(n_boot):
@@ -576,7 +615,35 @@ def month_bootstrap_stability(
         same = (lab[:, None] == lab[None, :])
         coassign += same.astype(np.int64)
         n_ok += 1
+        # Merge bookkeeping on the same replicate. A reference cluster is
+        # INTACT when all its members land in one replicate cluster, and MERGED
+        # when a replicate cluster it occupies also holds a member of a
+        # different reference cluster. Merging is the case median co-assignment
+        # is blind to, so it is counted rather than inferred.
+        n_surviving, replicate_merged = 0, False
+        for ci, cid in enumerate(ref_ids):
+            member = ref_arr == cid
+            occupied = np.unique(lab[member])
+            is_intact = len(occupied) == 1
+            shares = bool(np.isin(lab[~member], occupied).any())
+            intact_counts[ci] += int(is_intact)
+            merged_counts[ci] += int(shares)
+            replicate_merged = replicate_merged or shares
+            n_surviving += int(is_intact and not shares)
+        surviving.append(n_surviving)
+        any_merge += int(replicate_merged)
     coassign_df = pd.DataFrame(coassign / max(n_ok, 1), index=wells, columns=wells)
+
+    merge_df = pd.DataFrame({
+        "cluster": ref_ids,
+        "n_wells": [int((ref_arr == cid).sum()) for cid in ref_ids],
+        "intact_rate": intact_counts / max(n_ok, 1),
+        "merge_rate": merged_counts / max(n_ok, 1),
+    })
+    merge_summary = {
+        "merge_rate_any": any_merge / max(n_ok, 1),
+        "clusters_surviving_mean": float(np.mean(surviving)) if surviving else np.nan,
+    }
 
     stability = {}
     for well in wells:
@@ -586,17 +653,32 @@ def month_bootstrap_stability(
     per_well = pd.Series(stability, name="stability_months")
 
     # Split-half: two disjoint block samples, no shared months.
-    n_blocks = int(np.floor(n_rows / block / 2))
+    #
+    # The grid is block-aligned, so it tiles n_rows // block whole blocks and
+    # leaves a remainder of n_rows % block rows uncovered. Pinning the grid to
+    # row 0 leaves the SAME remainder uncovered in every replicate, and because
+    # the grid is built from the start of the record that remainder is its most
+    # recent months — the newest year of data excluded from the statistic by an
+    # accident of arithmetic. The phase is therefore redrawn per replicate, so
+    # the uncovered remainder moves and every row is eligible. The alternative,
+    # a short final block, was rejected: a partial block does not carry the full
+    # seasonal cycle that CLUSTER_MONTH_BLOCK_MONTHS exists to keep intact, and
+    # would make the halves unequal in length as well as in phase.
+    n_grid = n_rows // block
+    max_offset = n_rows - block * n_grid
+    n_blocks = n_grid // 2
     aris = []
     for _ in range(n_split):
         try:
-            starts = rng.permutation(np.arange(0, n_rows - block + 1, block))
+            offset = int(rng.integers(0, max_offset + 1))
+            starts = rng.permutation(offset + np.arange(n_grid) * block)
             a = np.concatenate([np.arange(s, s + block) for s in starts[:n_blocks]])
             b = np.concatenate([np.arange(s, s + block) for s in starts[n_blocks:2 * n_blocks]])
             aris.append(adjusted_rand_score(_partition(np.sort(a)), _partition(np.sort(b))))
         except Exception:
             continue
-    return per_well, coassign_df, np.asarray(aris, dtype=float)
+    return (per_well, coassign_df, np.asarray(aris, dtype=float),
+            merge_df, merge_summary)
 
 
 def plot_month_stability(well_stab: pd.Series, month_stab: pd.Series,
@@ -697,16 +779,40 @@ def run_stability_diagnostics(wells_ref: pd.DataFrame) -> None:
         fcluster(linkage(squareform(dist_ref, checks=False), method="ward"),
                  t=NUM_CLUSTERS, criterion="maxclust"),
         index=wells_ref.columns)
-    month_stab, _month_coassign, splithalf = month_bootstrap_stability(
-        wells_ref, k=NUM_CLUSTERS)
+    (month_stab, _month_coassign, splithalf,
+     merge_df, merge_summary) = month_bootstrap_stability(wells_ref, k=NUM_CLUSTERS)
     well_stab_k, _ = bootstrap_cluster_stability(wells_ref, k=NUM_CLUSTERS)
 
     month_df = pd.DataFrame({
+        "record": "well",
         "well": wells_ref.columns,
         "cluster": ref_labels_k.reindex(wells_ref.columns).values,
         "stability_wells": well_stab_k.reindex(wells_ref.columns).values,
         "stability_months": month_stab.reindex(wells_ref.columns).values,
     }).sort_values(["cluster", "well"])
+    # The split-half replicates belong in the artefact, not only in the summary
+    # keys: without them the distribution behind cluster_splithalf_ari_p05/p95
+    # cannot be re-derived from the outputs. There are CLUSTER_MONTH_SPLIT_N of
+    # them against one row per well, so they are carried as a second block of
+    # rows rather than a column, discriminated by `record`.
+    ari_df = pd.DataFrame({
+        "record": "splithalf_replicate",
+        "replicate": np.arange(len(splithalf)),
+        "splithalf_ari": splithalf,
+    })
+    # Third block: why the two statistics differ. Median co-assignment stays
+    # high when whole reference clusters collapse together, because every
+    # within-cluster pair is still co-assigned; the ARI does not. Publishing
+    # both statistics without the merge rates would leave that gap unexplainable
+    # from the outputs.
+    merge_block = merge_df.assign(record="cluster_merge")
+    month_df = pd.concat([month_df, ari_df, merge_block], ignore_index=True)
+    # The three blocks carry different columns, so concatenation leaves gaps and
+    # would upcast the counting columns to float - a cluster written as 1.0.
+    # Nullable Int64 keeps them integral with blanks. This is a dtype choice,
+    # not rounding: no value is altered.
+    for _col in ("cluster", "replicate", "n_wells"):
+        month_df[_col] = month_df[_col].astype("Int64")
     month_df.to_csv(OUT_02_MONTH_STABILITY, index=False)
     step(f"Saved month-wise stability: {OUT_02_MONTH_STABILITY.name}")
 
@@ -723,9 +829,26 @@ def run_stability_diagnostics(wells_ref: pd.DataFrame) -> None:
              f"(5-95th pct {float(np.percentile(splithalf, 5)):.3f}-"
              f"{float(np.percentile(splithalf, 95)):.3f}, "
              f"{len(splithalf)} replicates)")
-    if float(np.nanmedian(month_stab)) < float(np.nanmedian(well_stab_k)):
-        warn("  the partition is less reproducible across PERIODS than across "
-             "MEMBERSHIP - report both (D-030)")
+    info(f"  reference clusters surviving intact and unmerged: "
+         f"{merge_summary['clusters_surviving_mean']:.3f} of {NUM_CLUSTERS} "
+         f"(>=2 clusters collapsed together in "
+         f"{merge_summary['merge_rate_any']:.3f} of replicates)")
+
+    # The two statistics answer different questions and both are published, so
+    # the guard is on their DIVERGENCE, not on their order. The old guard fired
+    # only when the month-wise median fell below the well-wise one, which the
+    # merge degeneracy makes essentially impossible: merging drives the median
+    # UP. A wide gap means the co-assignment figure is being carried by merging
+    # and must not be quoted as reproducibility on its own.
+    if len(splithalf):
+        gap = float(np.nanmedian(month_stab)) - float(np.mean(splithalf))
+        if gap > CLUSTER_MONTH_DEGENERACY_GAP:
+            warn(f"  month-wise co-assignment {float(np.nanmedian(month_stab)):.3f} "
+                 f"exceeds split-half ARI {float(np.mean(splithalf)):.3f} by "
+                 f"{gap:.3f}, over the {CLUSTER_MONTH_DEGENERACY_GAP} alert gap: "
+                 f"co-assignment is inflated by whole-cluster merging "
+                 f"(merge rate {merge_summary['merge_rate_any']:.3f}) and is not "
+                 "a reproducibility statistic - quote both (D-030)")
 
     rr.add("cluster_stability_wells_median", float(np.nanmedian(well_stab_k)),
            unit="", era=f"k={NUM_CLUSTERS}",
@@ -742,6 +865,15 @@ def run_stability_diagnostics(wells_ref: pd.DataFrame) -> None:
                era=f"k={NUM_CLUSTERS}", note="5th percentile of the split-half ARI")
         rr.add("cluster_splithalf_ari_p95", float(np.percentile(splithalf, 95)), unit="",
                era=f"k={NUM_CLUSTERS}", note="95th percentile of the split-half ARI")
+    rr.add("cluster_month_merge_rate", float(merge_summary["merge_rate_any"]), unit="",
+           era=f"k={NUM_CLUSTERS}",
+           note="fraction of month-bootstrap replicates in which two or more reference "
+                "clusters collapsed into one; median co-assignment is blind to this")
+    rr.add("cluster_month_clusters_surviving_mean",
+           float(merge_summary["clusters_surviving_mean"]), unit="",
+           era=f"k={NUM_CLUSTERS}",
+           note="mean count of reference clusters surviving a month-bootstrap replicate "
+                "both intact and unmerged")
 
     n_saved = rr.save(OUT_02_REPORT_NUMBERS)
     step(f"Saved report numbers: {OUT_02_REPORT_NUMBERS.name} ({n_saved} rows)")

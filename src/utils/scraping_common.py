@@ -31,7 +31,14 @@ WELL_ERAS           {well: {era_name: (start, end)}} for all analysis wells.
                     Start is inclusive, end is exclusive.
 """
 
-__version__ = "1.6.1"  # Hollingham (2026) — 2026-08-19. Reads the per-well
+__version__ = "1.7.0"  # Hollingham (2026) — 2026-08-20. Adds the
+#     scrape-affected-well registry (SCRAPE_WELLS_POST_INSTALL,
+#     SCRAPE_WELLS_CENSORED) and apply_scrape_treatment().  Script 25 held a
+#     per-script SCRAPED_WELLS = ["ceh36"] that contradicted
+#     config.SCRAPE_KML_FILES, so five wells inside scrape footprints sat in
+#     the coastal-gradient panel untreated.  The dates come from
+#     SCRAPING_DATE_2 rather than being restated.
+# 1.6.1  # Hollingham (2026) — 2026-08-19. Reads the per-well
 #   WTF Sy table from OUT_18_WELL_SY_TABLE; INT_WTF_WELL_SY is retired
 #   (D-038). Pure path/symbol change, values identical.
 #
@@ -74,6 +81,58 @@ FELLING_YEAR = INTERVENTION_DATE.year   # 2017
 # regional mean is unchanged (CEH22 starts 2010-03, already inside the
 # fixed-composition window).
 REGIONAL_MEAN_START = pd.Timestamp("2009-02-01")
+
+# ============================================================================
+# SCRAPE-AFFECTED WELLS — WHICH RECORD IS USABLE, AND FROM WHEN
+# ============================================================================
+# Six dipwells sit inside a GPS-traced scrape footprint (the canonical list is
+# config.SCRAPE_KML_FILES; Scrape_A and Scrape_B contain no wells).  Measured
+# perpendicular distances to the footprint outline, from the committed KML
+# geometry: ceh41 2 m, ceh40 3 m, ceh21 9 m, ceh42 11 m, ceh36 16 m, ceh18
+# 19 m.  They divide into two classes, and any trend analysis has to treat
+# them differently:
+#
+#   SCRAPE_WELLS_POST_INSTALL — installed AFTER their scrape.  No clean record
+#     exists at any point, so the well carries no usable pre-intervention
+#     baseline and is dropped entirely from trend work.
+#
+#   SCRAPE_WELLS_CENSORED — installed BEFORE their scrape, so the record up to
+#     the scrape date is clean and is kept; only the post-scrape tail is
+#     dropped.  CEH18 and CEH21 were scraped in October 2023 alone, which
+#     leaves 87% and 85% of their records respectively — dropping these wells
+#     outright would discard two of the three near-shore anchors of the
+#     coastal-gradient fit for the sake of their last two years.
+#
+# CEH36 is deliberately absent from both lists.  It is the scraping study's own
+# impact well and is excluded by the analyses that examine it, on separate
+# grounds; listing it here as well would double-book the exclusion.
+#
+# CEH4 is retained in full.  At 24 m it is the nearest well outside any
+# footprint, but the April-2015 before/after test finds no drawdown signature
+# at it: it changed -105 mm across the step against a network mean of -144 mm,
+# i.e. it moved LESS than average, which is the wrong sign for a drawdown cone.
+# It is also the principal near-shore anchor of the coastal-gradient fit.
+SCRAPE_WELLS_POST_INSTALL = ["ceh40", "ceh41", "ceh42"]
+
+SCRAPE_WELLS_CENSORED = {
+    "ceh18": SCRAPING_DATE_2,
+    "ceh21": SCRAPING_DATE_2,
+}
+
+
+def apply_scrape_treatment(long, well_col="well", date_col="date"):
+    """Remove scrape contamination from a long-form (well, date, value) frame.
+
+    Drops every row of a well installed after its own scrape, and truncates a
+    well installed before its scrape at that scrape's date.  Well names are
+    matched on the normalised (stripped, lower-cased) form used throughout the
+    pipeline.  Returns a filtered copy; the input is not modified.
+    """
+    wells = long[well_col].astype(str).str.strip().str.lower()
+    keep = ~wells.isin(SCRAPE_WELLS_POST_INSTALL)
+    for well, scrape_date in SCRAPE_WELLS_CENSORED.items():
+        keep &= ~((wells == well) & (long[date_col] >= scrape_date))
+    return long[keep].copy()
 
 # ============================================================================
 # WELL GROUPS

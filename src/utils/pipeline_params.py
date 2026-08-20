@@ -40,7 +40,26 @@ File location: outputs/01_data_prep/pipeline_scenario_params.csv
 """
 from __future__ import annotations
 
-__version__ = "1.2.3"  # Hollingham (2026) — 2026-08-19. Reads the per-well
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-08-19. climate_c_mm_yr
+#   refreshed -6.35 -> 0.18 to match the committed 25_01. It had drifted in sign
+#   as well as magnitude, and it now backs a drawn figure element
+#   (mechanism_fig_utils' far-field fallback) as well as Script 37b, so a
+#   fallback that fires would have drawn a fall where the fit gives a rise —
+#   the v1.2.1 lambda lesson, repeated.
+#
+# v1.4.0 (2026-08-19). D-043: the four
+#   far-field fallbacks added in 1.3.0 are removed again with the band they
+#   stood in for — farfield_sum_lo_mm_yr, farfield_sum_hi_mm_yr,
+#   mech_farfield_lo_5yr_mm, mech_farfield_hi_5yr_mm. A fallback with no live
+#   reader is a default waiting to be mistaken for a result. The 1.3.0
+#   retirement of mech_climate_20yr_mm STANDS: nothing draws a spatially
+#   uniform amplitude on the 09f/09g figures. climate_c_mm_yr is still retained
+#   for Script 37b, which reads it.
+#
+# v1.3.0 (2026-08-19): far-field fallbacks added for the 09f band (D-039,
+#   D-042); mech_climate_20yr_mm retired. Superseded in part by 1.4.0.
+#
+# v1.2.3  # Hollingham (2026) — 2026-08-19. Reads the per-well
 #   WTF Sy table from OUT_18_WELL_SY_TABLE; INT_WTF_WELL_SY is retired
 #   (D-038). Pure path/symbol change, values identical.
 #
@@ -229,7 +248,14 @@ _DEFAULTS = {
     "ceh36_scrape_response_m":  0.1294,  # 09a paired BACI, CEH36 Pure_Scraping vs
                                          # CEH4; the H0 anchor for the scrape-drain
                                          # maps in Script 20
-    "climate_c_mm_yr":          -6.35,   # 25_01 forest_free/linear_capped c_mm_yr (uniform climate term)
+    "climate_c_mm_yr":           0.18,   # 25_01 forest_free/linear_capped c_mm_yr,
+                                         # refreshed 2026-08-19 from the committed
+                                         # value; was -6.35, stale by the sign as
+                                         # well as the magnitude. NOT a climate
+                                         # background and NOT a rate to take abs()
+                                         # of: c is not separately identified
+                                         # (D-039). Read by Script 37b and by
+                                         # mechanism_fig_utils' far-field fallback.
     "wmc3_drawdown_mm":         -55.2,   # 10m WMC3_BACI_DiD_step_2015_scraping ×1000 (measured off-cut)
     "wmc3_distance_m":          262.4,   # 09b_01 wmc3 dist_m (CEH36 -> WMC3 separation)
     # --- Mechanism-diagram fallbacks (Script 09g) ----------------------------
@@ -242,7 +268,6 @@ _DEFAULTS = {
     "mech_coastal_5yr_mm":      -145.15, # 09f_01 coastal_5yr_head_mm
     "mech_scrape_cut_rise_mm":   129.43, # 09f_01 scrape_head_mm (CEH36 cut rise)
     "mech_thinned_mm":           -75.0,  # 09f_01 thinned_forest_head_mm
-    "mech_climate_20yr_mm":     -127.0,  # 09f_01 climate_20yr_head_mm (c x 20 yr)
     "mech_coastal_storm_mm":     -20.99, # 09f_01 coastal_6m_storm_head_mm
     "clearfell_summer_step_mm":   46.3,  # 10a ANCOVA_Forest_Impact_clearfell_step_summer x1000
 }

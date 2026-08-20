@@ -53,6 +53,12 @@ living/output/
 # Regenerate the mirror after every .odt edit and commit it alongside.
 report_edits/odt/
 report_edits/_frozen/
+# Pre-edit safety copies of the chapter .odt files, written before any
+# automated edit pass. Same size class as the originals — report9 alone is
+# 121 MB, over GitHub's hard 100 MB limit — and the same argument applies:
+# they are working files, not history. Added 2026-08-20, after seven of
+# them were committed by accident and the push was rejected.
+report_edits/backups/
 
 # Re-open the blanket *.sh rule for the mirror script only.
 !report_edits/*.sh

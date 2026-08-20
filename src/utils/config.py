@@ -26,11 +26,16 @@ PIPELINE_VERSION = "2.3.0"
 #   module-local declarations (model_utils, Scripts 03 and 08). Value unchanged
 #   at 100; see D-016.
 # v1.3.0 (2026-08-16): month-wise cluster-stability parameters added (D-030).
-__version__ = "1.4.2"  # Hollingham (2026) — 2026-08-18. The CEH14 entry in
-#   MSL5_EXCLUDED_WELLS carried a pipeline result as a literal — "NSE -3.21" —
-#   against the no-hardcoded-values rule, and it had drifted (live value
-#   -6.42). The reason string now names the condition without the number; the
-#   value lives in 08_perwell_nse.csv. Exclusion behaviour unchanged.
+# v1.4.2 (2026-08-18): the CEH14 entry in MSL5_EXCLUDED_WELLS carried a pipeline
+#   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
+#   and it had drifted. The reason string now names the condition without the
+#   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-08-19. Adds
+#   CLUSTER_MONTH_DEGENERACY_GAP, the alert threshold on the divergence between
+#   the two month-wise cluster-stability statistics Script 02 publishes. Both
+#   are reported; the constant is what lets the script say when they disagree
+#   by enough that the co-assignment figure is being inflated by cluster
+#   merging rather than measuring reproducibility.
 #
 # v1.4.1  # Hollingham (2026) — 2026-08-18. SSM_BOOT_SEED added;
 #   earlier UKCP18_SCENARIOS added:
@@ -830,6 +835,18 @@ CLUSTER_MONTH_BOOT_N      = 1000       # moving-block bootstrap replicates
 CLUSTER_MONTH_BLOCK_MONTHS = 12        # block length, months (one seasonal cycle)
 CLUSTER_MONTH_SPLIT_N     = 200        # disjoint split-half replicates for the ARI
 CLUSTER_MONTH_BOOT_SEED   = 20260816   # fixed seed - month-wise stability
+
+# Both month-wise statistics are published, because they answer different
+# questions: median co-assignment asks whether a well keeps its neighbours, the
+# split-half ARI asks whether the whole partition reproduces on another period.
+# They can diverge sharply, and the direction is diagnostic. Median
+# co-assignment is blind to two reference clusters collapsing into one - every
+# within-cluster pair still co-assigns - so whole-cluster merging pushes it UP
+# while the ARI falls. A gap wider than this between them means the
+# co-assignment figure is being carried by merging and must not be read as
+# reproducibility. It is an alert threshold on a diagnostic, not a test
+# criterion, and nothing downstream branches on it.
+CLUSTER_MONTH_DEGENERACY_GAP = 0.25    # median co-assignment minus mean split-half ARI
 RESIDUAL_CLIM_BOOT_SEED = 42         # Script 24b residual-climatology bootstrap (was module-local)
 
 # === Absolute climate-removed trend (Script 36) ===

@@ -1085,7 +1085,7 @@ R² ranges 0.73–0.96 across the five clusters (C4 Main Forest and C5 Coastal F
 ### Phase 11 — Coastal-Retreat Gradient Analysis
 
 #### Script 25 — 25_coastal_gradient (step 26)
-**Purpose.** Network-scale, physics-based non-linear regression of per-well water-table trends against perpendicular distance to the eroding Caernarfon Bay shoreline. Fits two functional forms (linear-with-cutoff and exponential decay) at three forest-confound specifications (full network, forest-free, C3-only) and partitions each cluster's summer-min slope into climate + coastal-retreat + residual components. Also corroborates the Script 10 BACI `easting × time` absorption against the gradient-model prediction. Script 25 also carries the per-cluster decomposition presentation layer — `25_03_cluster_partition.csv` carries per-component percentage shares and `25_07_cluster_decomposition.png` displays the five-cluster stacked-bar attribution figure that lands in §4.8.1 of the main report.
+**Purpose.** Network-scale, physics-based non-linear regression of per-well water-table trends against perpendicular distance to the eroding Caernarfon Bay shoreline. Fits two functional forms (linear-with-cutoff and exponential decay) at three forest-confound specifications (full network, forest-free, C3-only) and decomposes each cluster's observed seasonal-metric decline into a coastal-retreat gradient, the climate (CWB) trend contribution, the fitted far-field offset and an unexplained remainder. The decomposition is computed against a declared balanced basis — the slope of the annual cross-well mean of the per-well seasonal metric — named in the file by the `decomposition_basis` column; the Script-14 centroid slope and the per-well mean are retained beside it as context, not as the basis. The far-field offset *c* is **not separately identified**: it trades off against the CWB covariate's trend contribution, so only their sum is recovered, and the two are carried as separate columns for that reason. Also corroborates the Script 10 BACI `easting × time` absorption against the gradient-model prediction. Script 25 also carries the per-cluster decomposition presentation layer — `25_03_cluster_partition.csv` carries per-component percentage shares and `25_07_cluster_decomposition.png` displays the five-cluster stacked-bar attribution figure that lands in §4.8.1 of the main report.
 
 **Reads.**
 
@@ -1102,11 +1102,15 @@ R² ranges 0.73–0.96 across the five clusters (C4 Main Forest and C5 Coastal F
 
 - `25_01_panel_fit_parameters.csv` — all 6 fits (3 specs × 2 forms): δ₀, L, c, SEs, 95% CIs, AIC
 - `25_02_per_well_summer_min_slopes.csv` — per-well annual summer-min OLS slope vs distance
-- `25_03_cluster_partition.csv` — per-cluster decomposition (observed / gradient / climate / residual + per-component `gradient_pct_of_observed`, `climate_pct_of_observed`, `residual_pct_of_observed` shares; the % columns folded in from Script 30 at v1.1.0)
+- `25_03_cluster_partition.csv` — per-cluster decomposition against `observed_balanced_annual_mean_mm_yr` (the declared basis, named in the `decomposition_basis` column), with `observed_centroid_mm_yr` and `observed_per_well_mean_mm_yr` retained as context: `coastal_gradient_mm_yr`, `climate_cwb_mm_yr`, `far_field_offset_mm_yr`, `modelled_total_mm_yr`, `unexplained_mm_yr` and the matching `*_pct_of_basis` shares. Rebuilt at v1.6.0; the former `predicted_climate_mm_yr` / `predicted_total_mm_yr` / `residual_mm_yr` / `*_pct_of_observed` names are retired rather than reused, so a stale reader raises a `KeyError` instead of silently reading a different quantity
 - `25_04_baci_corroboration.csv` — BACI absorption vs gradient prediction per zone × control
 - `25_05_fit_diagnostic.jpg` — two-panel diagnostic figure
 - `25_06_baci_corroboration_chart.jpg` — forest plot
-- `25_07_cluster_decomposition.png` — horizontal stacked-bar figure of per-cluster climate + coastal + residual attribution (new at v1.1.0, folded in from standalone Script 30; lands in §4.8.1 of the main report)
+- `25_07_cluster_decomposition.png` — horizontal stacked-bar figure of the per-cluster coastal + climate (CWB) + far-field offset + unexplained attribution (new at v1.1.0, folded in from standalone Script 30; lands in §4.8.1 of the main report)
+- `25_08_spring_vs_summer_comparison.csv` + `.png` — summer-minimum vs spring-mean partition side by side
+- `25_09_season_interaction_test.csv` — season × δ(d)·t interaction test (is the gradient itself seasonal?)
+- `25_10_record_length_composition.csv` — per-cluster record-length composition diagnostic: the long-record and short-record subset means either side of the natural break in each cluster's record lengths, and the gap between the per-well mean and the balanced basis that the composition accounts for
+- `25_11_matched_window_sensitivity.csv` — **reported only, not adopted**: the headline specification refitted on the long-record well subset and on its complement. Nothing downstream reads it; δ₀ and L in `25_01` are unchanged
 - `25_report_numbers.csv`
 
 **Other.**

@@ -526,7 +526,7 @@ The same four-zone structure is also applied to the annual June--September summe
 
 **Spatial step-change mapping.** The post-felling step at each reference well --- relative to its pre-felling mean and corrected by subtracting the appropriate control centroid step --- was computed and rendered as climate-corrected spatial maps for the felling and scraping eras (Figures 34 and 25). These maps provide a visual diagnostic of whether the step changes show a spatial gradient consistent with a localized intervention effect. *Spatial step-change mapping is implemented in 10b_spatial_step_maps.py*
 
-**Within-forest position-matching.** The within-forest spatial coefficient analysis (Section 3.4.4, results in Section 4.9.5) underpins the C4-only composition of the Forest control: it establishes that elevation alone explains 96% of within-forest β₂ variance, so position-matched controls rather than canopy-matched controls are the appropriate counterfactual for testing canopy management effects. *The within-forest spatial coefficient analysis is implemented 10c_forest_zone_analysis.py.*
+**Within-forest position-matching.** The within-forest spatial coefficient analysis (Section 3.4.4, results in Section 4.9.5) underpins the C4-only composition of the Forest control: it establishes that elevation alone explains 97% of within-forest β₂ variance, so position-matched controls rather than canopy-matched controls are the appropriate counterfactual for testing canopy management effects. *The within-forest spatial coefficient analysis is implemented 10c_forest_zone_analysis.py.*
 
 2\) Summer-window analysis and climate-collinearity sensitivity
 

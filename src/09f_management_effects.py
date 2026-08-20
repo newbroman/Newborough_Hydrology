@@ -13,11 +13,14 @@ cross-cluster chart (09b_05) do not show on their face:
   slack, drawdown on the surrounding water table) and the standing/thinned
   forest canopy (a drawdown the canopy imposes, which clearfell would recover),
   both decaying over the leaky-aquifer length scale λ; plus the coastal-retreat
-  drawdown (large at the shore, decaying to zero at the reach L); plus the
-  CLIMATE term, which — being spatially uniform — is drawn as a FLAT line (no
-  λ, no decay). Showing all drivers on one reach axis makes the coastal-vs-
-  climate relationship explicit: coastal dominates near the shore, the two cross
-  at ≈698 m, and climate — modest but everywhere — dominates the site-wide mean.
+  drawdown (large at the shore, decaying to zero at the reach L). FIVE curves,
+  and nothing spatially uniform: the panel is a distance-decay panel, and the
+  only terms on it are terms that vary with distance. This is the 2026-07-02
+  design; the flat climate line, the crossing and the far-field band that
+  successively occupied that space are all withdrawn (D-043), because the
+  quantity every one of them rested on is not separately identified (D-039).
+  The distance axis runs to the fitted reach L, marked by the L rule — the
+  reason it extends past the interventions' λ decay.
   The single measured off-site scrape point (WMC3) is anchored on the curve; the
   wider scrape and coastal fields are modelled scenarios.
 
@@ -39,7 +42,9 @@ Data sources (all on `main`)
         the felling edge), for the panel (a) forest and scrape decay curves.
   outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv
       — delta_0_mm_yr, L_m (forest-free linear-capped fit) for the coastal
-        curve, and c_mm_yr (uniform climate term) for the flat climate line.
+        curve and the reach-L rule. The fitted constant c is NOT read: it is
+        not separately identified (D-039), and nothing on this figure stands
+        in for it.
   outputs/09_scraping_intervention/09d_01_scenario_comparison.csv
       — scrape scenario context (on-site + off-site volumetric bars).
   outputs/10_clearfell_baci/10a_report_numbers.csv
@@ -56,8 +61,8 @@ Outputs
 -------
   09f_management_effects.png        — two-panel figure (report / full)
   09f_management_effects_public.png — public/academic-summary variant (--public)
-  09f_01_reach_profile.csv          — panel (a) curve values (traceability),
-                                      incl. climate_5yr_head_mm / climate_20yr_head_mm.
+  09f_01_reach_profile.csv          — panel (a) curve values (traceability):
+                                      one column per drawn curve, no more.
 
 Not an SSM-fitting script: it reads equilibrium outputs and does not call
 fit_ssm(). No new physics; a re-presentation of existing modelled + measured
@@ -71,7 +76,21 @@ Companion to 09b/09d. PROJECT_NOTE scraping off-site drawdown measured
 ====================================================================================
 """
 
-__version__ = "1.7.0"  # Hollingham (2026) — 2026-07-18
+__version__ = "1.9.0"  # Hollingham (2026) — 2026-08-19. D-043: the far-field
+#   band of v1.8.0 is WITHDRAWN. Panel (a) is five distance-decay curves plus
+#   the measured anchors and the reach-L rule — the 2026-07-02 signed-off
+#   design, restored rather than newly decided. Removed: the axhspan band, its
+#   two dashed edge lines, the band note, _load_farfield_level_range(), the
+#   25_11 read and its two _plot_reach parameters, and the
+#   far_field_level_lo/hi_head_mm columns of 09f_01 (retired with nothing
+#   drawing them; the identified sum lives in 25_11, its own source). The 900 m
+#   axis STAYS — introduced in v1.6.0 for the crossing, kept because it shows
+#   the fitted reach L. Panel (b), the development timescale, is untouched.
+#
+# v1.8.0 (2026-08-19): far-field band replacing the flat climate line and the
+#   crossing (D-039, D-042). Superseded by 1.9.0 the same day; the removal of
+#   the flat climate line and the crossing STANDS, only the band is withdrawn.
+# v1.7.0 (2026-07-18): two-panel reach + development-timescale synthesis figure.
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -97,12 +116,12 @@ from utils.paths import (
     OUT_09F_EFFECTS, OUT_09F_EFFECTS_PUBLIC,
     OUT_09F_REACH_CSV,
 )
-from utils.console_utils import banner, phase, step, info, warn, saved
+from utils.console_utils import banner, phase, info, warn, saved
 from utils.site_observations import load_site_observation
 from utils.scraping_common import MPL_DEFAULTS
 from utils.config import (SCRAPE_RISE_BUFFER_M, COAST_RETREAT_M,
                           COAST_RETREAT_RATE, DRAWDOWN_H0_MM, COAST_CHRONIC_YEARS,
-                          MECHANISM_HORIZON_YEARS, FOREST_CIDS)
+                          FOREST_CIDS)
 from utils.pipeline_params import default_value
 from utils.render_utils import render_figure
 
@@ -206,27 +225,6 @@ def _load_coast_edge_rate():
         return d0, d0, d0, L
 
 
-def _load_climate_c():
-    """Spatially-uniform climate term c (mm/yr) — the modelled fit term
-    summarising the observed warren-wide fall.
-
-    Live from Script 25 (25_01_panel_fit_parameters.csv), the SAME forest-free
-    linear-capped row that supplies δ₀ and L. c is a NEGATIVE rate. Falls back
-    to the documented default on a first-pass run before Script 25 has executed.
-    """
-    try:
-        df = pd.read_csv(OUT_25_FIT_PARAMETERS)
-        row = df[(df["source"] == "forest_free") & (df["model"] == "linear_capped")]
-        if row.empty:
-            row = df[df["model"] == "linear_capped"]
-        return float(row["c_mm_yr"].iloc[0])
-    except (FileNotFoundError, KeyError, IndexError):
-        c = default_value("climate_c_mm_yr")
-        warn(f"25_01_panel_fit_parameters.csv unavailable — using default "
-             f"climate c = {c:.2f} mm/yr (run Script 25 for the live value).")
-        return float(c)
-
-
 def _load_wmc3_drawdown():
     """Measured WMC3 off-cut drawdown (mm, negative) — the one evidenced
     off-site scrape-drainage point.
@@ -324,11 +322,11 @@ def _coastal_retreat_edge_head(delta0_abs, L):
 # ----------------------------------------------------------------------------
 def _plot_reach(ax, lam, forest_h0_mm, scrape,
                 coast_edge_head_6m, coast_L, coast_edge_head_5yr,
-                scrape_edge_head, climate_c_mm_yr,
+                scrape_edge_head,
                 wmc3_dist_m, wmc3_drawdown_mm, clearfell_measured_mm=120.0):
-    """Distance-decay of scrape dipole, forest drawdown, TWO coastal curves and
-    the spatially-uniform CLIMATE line, on a single continuous y-axis, with the
-    one measured off-site scrape point (WMC3) anchored on the reach.
+    """Distance-decay of scrape dipole, forest drawdown and TWO coastal curves
+    on a single continuous y-axis, with the one measured off-site scrape point
+    (WMC3) anchored on the reach.
 
     Curves:
       - Scrape drain (dipole): exp decay over λ; edge = measured CEH36 response.
@@ -340,18 +338,20 @@ def _plot_reach(ax, lam, forest_h0_mm, scrape,
       - Coastal retreat, 5-year accumulation: five years of the fitted coast-edge
         trend δ₀, linear-capped to zero at L. Accumulation of the fitted trend,
         not a single event — labelled as such.
-      - Climate (uniform, 5-yr): the spatially-uniform recharge/PET term c
-        accumulated over the same 5-yr horizon as the coastal curve, drawn FLAT
-        (no λ — climate has no reach decay). c is a modelled fit term summarising
-        the observed warren-wide fall. On this shared horizon the coastal 5-yr
-        curve crosses the flat climate line at ≈{L·(1−|c|/|δ₀|)} m: coastal
-        dominates shoreward of the crossing, climate — modest but everywhere —
-        dominates inland and hence the site-wide mean.
+    Nothing spatially uniform is drawn. The level the coastal gradient decays
+    toward is not separately identified — the Script 25 panel recovers only the
+    sum of a constant and the CWB trend (D-039) — so it is neither a curve, nor
+    a band, nor a crossing on a distance-decay panel (D-043). Where it needs to
+    be quoted, its source is 25_11_matched_window_sensitivity.csv.
 
     Measured anchors (distinct from the modelled curves): scrape CEH36 rise and
     forest/clearfell drawdown at r≈0, and the WMC3 off-cut drawdown at its
     measured distance — the ONE evidenced off-site point.
     """
+    # The reach axis runs well past the interventions' λ decay so the fitted
+    # coastal reach L — marked by the L rule below, read live from 25_01 — sits
+    # inside the panel. That is the whole reason for its width: it was widened
+    # for the retired crossing, and it is kept for L (D-043).
     r = np.linspace(0, 900, 720)
 
     scrape_head = np.where(
@@ -367,21 +367,6 @@ def _plot_reach(ax, lam, forest_h0_mm, scrape,
     coastal_5yr = np.where(r <= coast_L,
                            -coast_edge_head_5yr * (1.0 - r / coast_L), 0.0)
 
-    # Climate: uniform (flat) at the 5-yr accumulated amplitude c × 5, matching
-    # the coastal 5-yr horizon so the two accumulating drivers are comparable.
-    climate_5yr_amp  = climate_c_mm_yr * COAST_CHRONIC_YEARS
-    climate_20yr_amp = climate_c_mm_yr * MECHANISM_HORIZON_YEARS
-    climate_5yr = np.full_like(r, climate_5yr_amp)
-    # crossing distance (horizon-free): coastal_5yr(x) == climate_5yr. Interpolated
-    # from the emitted profile arrays (NOT the closed form L*(1-|c|/edge), which
-    # ignores the linear-cap kink and reads ~1 m high) so this figure and the 09g
-    # mechanism reach quote the same data-faithful value.
-    _dif = np.abs(coastal_5yr) - abs(climate_5yr_amp)
-    _ix = np.where(np.diff(np.sign(_dif)))[0]
-    cross_x = (float(np.interp(0.0, [_dif[_ix[0]], _dif[_ix[0] + 1]],
-                               [r[_ix[0]], r[_ix[0] + 1]]))
-               if len(_ix) else coast_L * (1.0 - abs(climate_5yr_amp) / coast_edge_head_5yr))
-
     ax.axhline(0, color="0.4", lw=0.8, zorder=1)
     ax.plot(r, scrape_head, color="#c1272d", lw=2.4,
             label="Scrape drain (dipole, modelled)", zorder=3)
@@ -394,8 +379,6 @@ def _plot_reach(ax, lam, forest_h0_mm, scrape,
     ax.plot(r, coastal_5yr, color="#7d5ba6", lw=2.4, ls=":",
             label="Coastal retreat: 5-year accumulation (5\u00d7\u03b4\u2080)",
             zorder=3)
-    ax.plot(r, climate_5yr, color="#e08214", lw=2.6, ls=(0, (6, 3)),
-            label="Climate (uniform, 5-yr)", zorder=3)
 
     # measured anchors, nudged off the y-spine so the full marker shows
     ax.scatter([6], [scrape_edge_head], s=70, color="#c1272d",
@@ -416,15 +399,7 @@ def _plot_reach(ax, lam, forest_h0_mm, scrape,
                 xytext=(wmc3_dist_m + 45, -112), fontsize=7.5, color="#7a1a1e",
                 arrowprops=dict(arrowstyle="->", color="#c1272d", lw=0.9))
 
-    # coastal / climate crossing (on-plot) + reach L marker. Marked with an
-    # "x" (NOT a filled circle) so it is not confused with a measured anchor.
-    ax.scatter([cross_x], [climate_5yr_amp], s=70, marker="x",
-               color="#8a5000", zorder=7, linewidths=2.0)
-    ax.annotate(f"coastal 5-yr = climate at \u2248{cross_x:.0f} m\n"
-                "(climate deeper inland of here)",
-                xy=(cross_x, climate_5yr_amp), xytext=(cross_x - 260, 78),
-                fontsize=8, color="#8a5000",
-                arrowprops=dict(arrowstyle="->", color="#8a5000", lw=0.9))
+    # reach-L rule: the fitted coastal reach, and the reason the axis is this wide
     ax.axvline(coast_L, color="0.6", lw=0.8, ls=":", zorder=1)
     ax.text(coast_L, -160, "L", fontsize=8, color="0.5", ha="center", va="bottom")
 
@@ -453,11 +428,8 @@ def _plot_reach(ax, lam, forest_h0_mm, scrape,
         "thinned_forest_head_mm": forest_thinned,
         "coastal_6m_storm_head_mm": coastal_6m,
         "coastal_5yr_head_mm": coastal_5yr,
-        "climate_5yr_head_mm": climate_5yr,
-        "climate_20yr_head_mm": np.full_like(r, climate_20yr_amp),
     })
     prof.to_csv(OUT_09F_REACH_CSV, index=False, float_format="%.2f")
-    return cross_x
 
 
 def _plot_timescale(ax, forest_h0_mm, clearfell_measured_mm,
@@ -588,8 +560,7 @@ def main():
     # driver-change coastal field (config.COAST_CHRONIC_YEARS, shared).
     coast_edge_5yr = COAST_CHRONIC_YEARS * abs(coast_d0)
 
-    # Climate (uniform) amplitude and the measured WMC3 off-site anchor
-    climate_c = _load_climate_c()
+    # the measured WMC3 off-site anchor
     wmc3_drawdown = _load_wmc3_drawdown()
     wmc3_dist = _load_wmc3_distance()
 
@@ -601,19 +572,15 @@ def main():
     info(f"clearfell recovery = {clearfell_recovery_mm:.1f} mm")
     info(f"coast-edge \u03b4\u2080 = {coast_d0:.1f} mm/yr (CI {coast_lo:.1f}, {coast_hi:.1f}), L = {coast_L:.0f} m")
     info(f"coastal 6 m storm edge = {coast_edge_6m:.1f} mm; 5-year (5\u00d7\u03b4\u2080) edge = {coast_edge_5yr:.1f} mm")
-    info(f"climate c = {climate_c:.2f} mm/yr  \u2192  5-yr {climate_c*COAST_CHRONIC_YEARS:.1f} mm, "
-         f"20-yr {climate_c*MECHANISM_HORIZON_YEARS:.0f} mm (flat)")
     info(f"WMC3 measured off-cut drawdown = {wmc3_drawdown:.1f} mm at {wmc3_dist:.0f} m")
     info(f"forest t\u00bd (C4\u2013C5) = {thalf_slow:.0f}\u2013{thalf_fast:.0f} mo; C3 t\u00bd = {thalf_c3:.0f} mo")
 
     phase(2, "Plotting reach + timescale figure (stacked)")
     fig, (axA, axB) = plt.subplots(2, 1, figsize=(9.4, 12.2), dpi=300)
-    cross_x = _plot_reach(axA, lam, forest_h0, scrape,
+    _plot_reach(axA, lam, forest_h0, scrape,
                 coast_edge_6m, coast_L, coast_edge_5yr, scrape_edge_head,
-                climate_c, wmc3_dist, wmc3_drawdown,
+                wmc3_dist, wmc3_drawdown,
                 clearfell_measured_mm=clearfell_recovery_mm)
-    info(f"coastal/climate 5-yr crossing \u2248 {cross_x:.0f} m "
-         f"(interpolated from the plotted profile)")
     _plot_timescale(axB, forest_h0, clearfell_recovery_mm,
                     thalf_fast, thalf_slow, thalf_c3)
 

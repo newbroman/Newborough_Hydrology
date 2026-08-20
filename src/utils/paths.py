@@ -11,7 +11,21 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.5.1"  # Hollingham (2026) — 2026-08-19. Reads the per-well
+__version__ = "1.6.3"  # Hollingham (2026) — 2026-08-20. Adds
+#     OUT_20_SCRAPE_DRAWDOWN_PERWELL.
+# v1.6.2 (2026-08-20): Adds
+#     OUT_25_WINDOW_SWEEP / _FIG for Script 25's fit-window sensitivity sweep.
+# v1.6.1 (2026-08-20): Adds
+#     DATA_FOREST_BOUNDARY (data/geo/forest_boundary.geojson), the plantation
+#     outline in EPSG:27700, from which Script 01 derives the in_forest
+#     land-cover flag.
+# v1.6.0 (2026-08-19): Adds the Script 25
+#   cluster-attribution rebuild outputs: OUT_25_RECORD_LENGTH_COMPOSITION
+#   (+ _SPRING) for the per-cluster record-length composition diagnostic, and
+#   OUT_25_MATCHED_WINDOW_SENS for the reported-only matched-window
+#   sensitivity. Additive only; no existing path changes.
+#
+# v1.5.1  # Hollingham (2026) — 2026-08-19. Reads the per-well
 #   WTF Sy table from OUT_18_WELL_SY_TABLE; INT_WTF_WELL_SY is retired
 #   (D-038). Pure path/symbol change, values identical.
 #
@@ -170,6 +184,11 @@ DATA_COASTLINE_HWM     = data_geo("coastline_hwm.geojson")
 # perpendicular distance (dist_coast_m); Script 01 recomputes and validates
 # dist_coast_m against this geometry. EPSG:27700.
 DATA_COASTLINE_ERODING = data_geo("coastline_eroding_hwm.geojson")
+# Corsican pine plantation boundary, reprojected from the Features.kml
+# "Forest" placemark to EPSG:27700 once and committed, so the land-cover
+# flag costs the pipeline no CRS dependency — the same pattern as the
+# eroding-shoreline polyline above. Script 01 derives in_forest from it.
+DATA_FOREST_BOUNDARY   = data_geo("forest_boundary.geojson")
 # Broadleaf restock block boundary — geometry also embedded in Features.kml
 # for automatic rendering via add_kml_features(); this entry retained for
 # any script that loads the boundary explicitly.
@@ -762,6 +781,10 @@ OUT_20_SLR_RESPONSE         = DIR_20 / "20_slr_response.png"
 OUT_20_COASTAL_NET          = DIR_20 / "20_coastal_net_effect.png"
 OUT_20_SCRAPE_DRAWDOWN      = DIR_20 / "20_scrape_drawdown.png"
 OUT_20_SCRAPE_DRAWDOWN_NOHEAD = DIR_20 / "20_scrape_drawdown_nohead.png"
+# Per-well scrape drawdown, the superposed-source field of plot_scrape_drawdown().
+# Written so §4.9.6's contour claims can be checked against a committed output;
+# the field had no CSV of any kind before 2026-08-20.
+OUT_20_SCRAPE_DRAWDOWN_PERWELL = DIR_20 / "20_scrape_drawdown_perwell.csv"
 OUT_20_CLEARFELL_BASELINE_DRAWDOWN = DIR_20 / "20_clearfell_baseline_drawdown.png"
 OUT_20_PUBLIC_PANEL         = DIR_20 / "20_public_drivers_panel.png"
 OUT_20_NET_STATE_MAP        = DIR_20 / "20_net_state_map.png"
@@ -831,6 +854,14 @@ OUT_25_CLUSTER_DECOMP_FIG_SPRING = DIR_25 / "25_07_cluster_decomposition_spring.
 OUT_25_SPRING_VS_SUMMER_CSV     = DIR_25 / "25_08_spring_vs_summer_comparison.csv"
 OUT_25_SPRING_VS_SUMMER_FIG     = DIR_25 / "25_08_spring_vs_summer_comparison.png"
 OUT_25_SEASON_INTERACTION       = DIR_25 / "25_09_season_interaction_test.csv"
+# Cluster-attribution rebuild (Script 25 v1.6.0): the composition diagnostic
+# that explains the far-field background as a record-length artefact, and the
+# matched-window refit, which is REPORTED ONLY and is not adopted anywhere.
+OUT_25_RECORD_LENGTH_COMPOSITION        = DIR_25 / "25_10_record_length_composition.csv"
+OUT_25_RECORD_LENGTH_COMPOSITION_SPRING = DIR_25 / "25_10_record_length_composition_spring.csv"
+OUT_25_MATCHED_WINDOW_SENS              = DIR_25 / "25_11_matched_window_sensitivity.csv"
+OUT_25_WINDOW_SWEEP                     = DIR_25 / "25_12_window_sweep.csv"
+OUT_25_WINDOW_SWEEP_FIG                 = DIR_25 / "25_12_window_sweep.png"
 
 # Script 26 — Van Willegen et al. (2025) 5-year MSL aggregation (Phase 13)
 OUT_26_ANNUAL_PER_WELL    = DIR_26 / "26_msl_annual_per_well.csv"

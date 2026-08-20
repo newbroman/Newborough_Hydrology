@@ -64,7 +64,28 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds (config.SD15b / config.SD16)
 """
 
-__version__ = "1.38.5"  # Hollingham (2026) — 2026-08-19. Reads the per-well
+__version__ = "1.39.0"  # Hollingham (2026) — 2026-08-20. The forest-drawdown
+#     per-well CSV now stores the distance dd_mm was actually computed on.
+#     plot_drawdown_propagation() decays the drawdown along a FLOW-WEIGHTED
+#     cost distance (Dijkstra, cost = base_dist*(1 - 0.4*alignment) +
+#     max(0, dz)*2.0), but 20_drawdown_perwell.csv carried only the Euclidean
+#     dist_forest_m. The two differ substantially — CEH1 is 49 m Euclidean
+#     against 14 m cost — so the file read as self-inconsistent and the
+#     figure's own contour claims could not be checked against any committed
+#     output. Report §4.9.4 had said the drawdown "exceeds 50 mm only within
+#     ~100 m of the forest edge" when H0 = 150 mm and lambda ~ 230 m put that
+#     contour at lambda*ln(3) ~ 249 m; the claim went uncaught because the
+#     column needed to test it was never written. Adds dist_cost_m and
+#     dist_basis ("inside" / "cost" / "euclidean_fallback", the last marking
+#     wells off the grid where the Euclidean distance stands in), and sorts
+#     the CSV on the cost distance. Additive columns; dd_mm is unchanged.
+#     Also adds 20_scrape_drawdown_perwell.csv: plot_scrape_drawdown()
+#     computed a per-well value and threw it away, so the scrape field had no
+#     committed output at all and §4.9.6's contour claim was uncheckable.
+#     That field is a SUPERPOSITION of one source per cut, each with an image
+#     sink, on Euclidean distance — not the forest's cost-distance geometry —
+#     so no single exp(-d/lambda) radius describes it.
+# 1.38.5 — Hollingham (2026) — 2026-08-19. Reads the per-well
 #   WTF Sy table from OUT_18_WELL_SY_TABLE; INT_WTF_WELL_SY is retired
 #   (D-038). Pure path/symbol change, values identical.
 #
@@ -123,6 +144,7 @@ from utils.paths import (
     DIR_20, OUT_20_HEAD_STREAMS, OUT_20_RESIDUAL_SSM, OUT_20_SLOPE,
     OUT_20_DRAWDOWN, OUT_20_DRAWDOWN_NOHEAD,
     OUT_20_DRAWDOWN_PERWELL, OUT_20_REPORT_NUMBERS,
+    OUT_20_SCRAPE_DRAWDOWN_PERWELL,
     OUT_20_RESIDUAL_PERWELL, OUT_20_RESIDUAL_REPORT_NUMBERS,
     OUT_20_MSL5_CHANGE_PERWELL, OUT_20_MSL5_REPORT_NUMBERS,
     OUT_20_COASTAL_EROSION, OUT_20_SLR_RESPONSE,
@@ -1367,6 +1389,8 @@ def plot_drawdown_propagation(wt, features, dpi=300, show_head=True):
     # ── Well drawdown values ──────────────────────────────────────────────
     dd_vals = []
     dist_forest_vals = []
+    dist_cost_vals = []
+    dist_basis_vals = []
     for _, row in wt.iterrows():
         pt = Point(row["E"], row["N"])
         d_euc = forest_geom.exterior.distance(pt)
@@ -1374,21 +1398,38 @@ def plot_drawdown_propagation(wt, features, dpi=300, show_head=True):
         dist_forest_vals.append(0.0 if inside else float(d_euc))
         cj_ = int((row["E"] - e_arr[0]) / cell)
         ci_ = int((n_arr[0] - row["N"]) / cell)
+        # dd_mm decays on the FLOW-WEIGHTED COST distance, not the Euclidean
+        # one, so record the distance each well's value was actually computed
+        # on. Storing only dist_forest_m made the CSV look self-inconsistent —
+        # the two differ substantially (CEH1: 49 m Euclidean, 14 m cost) — and
+        # left the figure's own contour claims uncheckable against any
+        # committed output.
         if inside:
             dd_vals.append(H0)
+            dist_cost_vals.append(0.0)
+            dist_basis_vals.append("inside")
         elif 0 <= ci_ < nr and 0 <= cj_ < nc and dist[ci_, cj_] < INF:
+            dist_cost_vals.append(float(dist[ci_, cj_]))
             dd_vals.append(H0 * np.exp(-dist[ci_, cj_] / lam))
+            dist_basis_vals.append("cost")
         else:
+            # Off-grid or unreachable: the Euclidean distance stands in for the
+            # cost distance, so dd_mm is a fallback value at this well.
+            dist_cost_vals.append(float(d_euc))
             dd_vals.append(H0 * np.exp(-d_euc / lam))
+            dist_basis_vals.append("euclidean_fallback")
     wt = wt.copy()
     wt["dd_mm"] = dd_vals
     wt["dist_forest_m"] = dist_forest_vals
+    wt["dist_cost_m"] = dist_cost_vals
+    wt["dist_basis"] = dist_basis_vals
 
     # ── §4.9 traceable per-well drawdown CSV + report numbers ─────────────
     # dd_mm and λ are independent of show_head (which only toggles the head
     # render layer), so these committed sources are written on every pass.
-    _perwell = wt[["well", "E", "N", "dist_forest_m", "dd_mm"]].copy()
-    _perwell = _perwell.sort_values("dist_forest_m").reset_index(drop=True)
+    _perwell = wt[["well", "E", "N", "dist_forest_m", "dist_cost_m",
+                   "dist_basis", "dd_mm"]].copy()
+    _perwell = _perwell.sort_values("dist_cost_m").reset_index(drop=True)
     _perwell.to_csv(OUT_20_DRAWDOWN_PERWELL, index=False)
     print(f"  Saved → {OUT_20_DRAWDOWN_PERWELL.name} "
           f"({len(_perwell)} wells)")
@@ -4199,8 +4240,10 @@ def plot_scrape_drawdown(wt, features, dpi=300, show_head=True):
     # ── Per-well drawdown values (method-of-images superposition) ────────
     _wpts = wt[["E", "N"]].values
     _wd = np.zeros(len(wt))
+    _d_near = np.full(len(wt), np.inf)
     for real_tree, img_tree, h0 in _trees:
         d_real, _ = real_tree.query(_wpts)
+        _d_near = np.minimum(_d_near, d_real)
         if img_tree is not None:
             d_image, _ = img_tree.query(_wpts)
             _wd += h0 * (np.exp(-d_real / lam) - np.exp(-d_image / lam))
@@ -4209,6 +4252,20 @@ def plot_scrape_drawdown(wt, features, dpi=300, show_head=True):
     _wd = np.maximum(_wd, 0.0)
     wt = wt.copy()
     wt["dd_mm"] = _wd
+    wt["dist_nearest_cut_m"] = _d_near
+
+    # ── Traceable per-well scrape drawdown ────────────────────────────────
+    # This field had no committed output of any kind, so §4.9.6's "exceeds
+    # 50 mm only within ~100 m of the excavation" could not be checked against
+    # anything. Note it is NOT the forest geometry: the drawdown superposes one
+    # source per registered cut, each with an image sink, on the EUCLIDEAN
+    # distance to that cut's boundary — so no single exp(-d/λ) contour radius
+    # describes it, and dist_nearest_cut_m is context, not the sole predictor.
+    _sc = wt[["well", "E", "N", "dist_nearest_cut_m", "dd_mm"]].copy()
+    _sc = _sc.sort_values("dist_nearest_cut_m").reset_index(drop=True)
+    _sc.to_csv(OUT_20_SCRAPE_DRAWDOWN_PERWELL, index=False)
+    print(f"  Saved → {OUT_20_SCRAPE_DRAWDOWN_PERWELL.name} "
+          f"({len(_sc)} wells)")
 
     # ── Render ────────────────────────────────────────────────────────────
     fig, ax = plt.subplots(figsize=(10, 9), facecolor="white")

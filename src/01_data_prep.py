@@ -15,7 +15,15 @@ Requirements:
     pandas, numpy
 """
 
-__version__ = "1.11.0"  # Hollingham (2026) -- 2026-08-18. Thornthwaite heat
+__version__ = "1.12.0"  # Hollingham (2026) -- 2026-08-20. Adds the in_forest
+#     land-cover flag to 01_locations.csv, derived from the committed
+#     EPSG:27700 plantation outline (DATA_FOREST_BOUNDARY) by a pure-numpy
+#     point-in-polygon, the same dependency-free convention as the
+#     dist_coast validation. Cluster C4/C5 had been standing in for canopy
+#     and disagrees with the footprint at six wells, which matters to any
+#     analysis testing whether canopy confounds a result. Additive column;
+#     no existing value changes.
+# v1.11.0 (2026-08-18): Thornthwaite heat
 #   index I is now summed over the TRAILING 12 months rather than the calendar
 #   year (D-036). The calendar-year form is undefined on a part-complete year:
 #   with January and February 2026 the only months present, I fell to 3.1
@@ -56,7 +64,7 @@ from utils.paths import (
     DATA_WELLS_RAW, DATA_LOCATIONS_RAW, DATA_CLIMATE_RAW,
     DATA_WELL_ELEVATIONS,
     DATA_DIR,
-    INT_LOCATIONS, INT_CLIMATE, INT_WELLS_CLEAN, INT_WELLS_CLEAN_MAOD,
+    INT_LOCATIONS, DATA_FOREST_BOUNDARY, INT_CLIMATE, INT_WELLS_CLEAN, INT_WELLS_CLEAN_MAOD,
     INT_WELLS_PROVENANCE,
     INT_WELLS_REFERENCE, INT_WELLS_EXTENDED,
     INT_WELL_ELEVATIONS,
@@ -301,6 +309,51 @@ def thornthwaite_pet_m(t_mean: pd.Series, lat_deg: float = RAF_VALLEY_LAT_DEG) -
 
     return pet_m
 
+
+
+def _in_forest(easting, northing) -> np.ndarray:
+    """Land-cover flag: is each well inside the plantation boundary?
+
+    Reads the committed EPSG:27700 outline (DATA_FOREST_BOUNDARY) and answers
+    with a vectorised even-odd ray cast. Pure numpy, matching the
+    point-to-polyline convention of _validate_dist_coast() — the geometry is
+    reprojected once, offline, and committed, so the pipeline needs no CRS or
+    GIS dependency.
+
+    This is LAND COVER, not behaviour. The C4/C5 cluster pair has been used as
+    a canopy proxy, and it disagrees with the actual footprint at six wells:
+    ceh3, nw8 (best-match C5) and lis1 (C4) are NOT under canopy, while wmc3
+    and nw11 (C3) and ceh12 (C2) are. Any analysis asking whether canopy
+    confounds a result wants this column, not the cluster label.
+
+    Returns all-False with a warning if the geometry is missing, so a fresh
+    checkout still runs.
+    """
+    easting = np.asarray(easting, dtype=float)
+    northing = np.asarray(northing, dtype=float)
+    if not DATA_FOREST_BOUNDARY.exists():
+        warn(f"Forest boundary not found: {DATA_FOREST_BOUNDARY.name}; "
+             "in_forest set False for every well.")
+        return np.zeros(easting.shape, dtype=bool)
+
+    gj = json.loads(DATA_FOREST_BOUNDARY.read_text())
+    ring = np.asarray(
+        gj["features"][0]["geometry"]["coordinates"][0], dtype=float)
+    if ring.ndim != 2 or len(ring) < 4:
+        warn("Forest boundary is not a usable polygon; "
+             "in_forest set False for every well.")
+        return np.zeros(easting.shape, dtype=bool)
+
+    x1, y1 = ring[:-1, 0], ring[:-1, 1]
+    x2, y2 = ring[1:, 0], ring[1:, 1]
+    inside = np.zeros(easting.shape, dtype=bool)
+    for ax, ay, bx, by in zip(x1, y1, x2, y2):
+        if ay == by:                      # horizontal edge casts no crossing
+            continue
+        crosses = (ay > northing) != (by > northing)
+        x_int = (bx - ax) * (northing - ay) / (by - ay) + ax
+        inside ^= crosses & (easting < x_int)
+    return inside
 
 def _validate_dist_coast(tol_m: float = 25.0):
     """Regenerate-and-validate the well-to-coast perpendicular distance.
@@ -672,7 +725,11 @@ if __name__ == "__main__":
     # there is still exactly one definition. See GEOMETRY_ARCHITECTURE_SPEC.md.
     locs_raw["Match_ID"] = locs_raw["Name"].apply(normalize_well_name)
     locs_out = _derive_canonical_geometry(locs_raw)
-    locs_out.dropna(subset=["E", "N"]).to_csv(INT_LOCATIONS, index=False)
+    locs_out = locs_out.dropna(subset=["E", "N"]).copy()
+    locs_out["in_forest"] = _in_forest(locs_out["E"], locs_out["N"])
+    info(f"in_forest: {int(locs_out['in_forest'].sum())} of {len(locs_out)} "
+         "wells inside the plantation boundary.")
+    locs_out.to_csv(INT_LOCATIONS, index=False)
 
     # Climate
     climate = pd.read_csv(DATA_CLIMATE_RAW)

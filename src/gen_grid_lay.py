@@ -15,7 +15,7 @@ Design decisions (Martin, 2026-07-18):
      it. So the four drivers are split into TWO before/after figures, each with
      the undisturbed / forested starting state drawn explicitly above the after:
        A — management changes : undisturbed -> dune scrape | forest -> clearfell
-       B — site-wide drivers  : undisturbed -> coastal     | undisturbed -> climate
+       B — site-wide drivers  : undisturbed -> coastal     | undisturbed -> far-field
   4. Output labelled "lay" and written ALONGSIDE the technical outputs
      (same outputs/09_scraping_intervention/ folder).
 
@@ -29,7 +29,25 @@ translated Welsh/Polish builds).
 """
 from __future__ import annotations
 
-__version__ = "1.3.2"
+__version__ = "1.6.1"
+# CHANGELOG
+#   1.6.1 (2026-08-19): Figure B title reworded at Martin's request, from
+#       "What coast and climate do to the water table" to "What coastal erosion
+#       and climate do to the water table" - "coast" alone read as the place
+#       rather than the process. Text only; no geometry, no values.
+#   1.6.0 (2026-08-19): D-043 amended. Figure B's third panel is RESTORED as the
+#       far-field term - marginal, but a real driver and worth showing - and the
+#       title goes back with it. It is drawn SIGNED, so a positive c reads as the
+#       slight rise it is, and it is never called a climate rate. The 1.4.0
+#       removal of the crossing marker and its labels STANDS, and no band returns.
+#   1.5.0 (2026-08-19): D-043. Figure B's third panel withdrawn entirely, leaving
+#       two panels. Superseded by 1.6.0 the same day - the withdrawal was too
+#       broad; only the band was meant to go.
+#   1.4.0 (2026-08-19): D-039. The "climate drying" panel became a far-field
+#       band; the crossing marker, the "about NNN m" labels, the caption
+#       sentence quoting them and the show_crossing_note keyword were removed.
+#       The band is superseded by 1.5.0 the same day.
+#   1.3.2: this generator's state before it carried an inline changelog.
 
 import os
 import re
@@ -134,18 +152,19 @@ def build_management_svg():
 
 
 def build_drivers_svg():
-    """Figure B — coast vs climate stacked on the SHARED reach profile, full 0..900 m.
-    Three panels (undisturbed | coastal erosion | climate), vertically aligned on one
-    distance axis, so the reader can read across: coastal bites deep near the shore and
-    recovers inland, while climate is the same everywhere. Panels reuse the pipeline's
-    build_reach_panel(), so the lay figure shares the technical reach geometry exactly.
-    The crossing (~698 m) is marked so the near-shore/site-wide contrast is explicit."""
+    """Figure B — coast and the site-wide term stacked on the SHARED reach profile, full
+    0..900 m. Three panels (undisturbed | coastal erosion | far-field term), vertically
+    aligned on one distance axis, so the reader can read across: coastal retreat bites
+    deep near the shore and fades inland, while the far-field term is the same
+    everywhere and very small. Panels reuse the pipeline's build_reach_panel(), so the
+    lay figure shares the technical reach geometry exactly. Nothing is marked as a
+    crossing: the far-field term is not separately identified (D-039), so the two are
+    shown side by side and never compared (D-042, D-043)."""
     reach = M.load_reach()
-    cross = reach['crossing_m']
 
     PW = M.REACH_W                    # native reach width
     # crop each panel to just the profile band (dune crests..axis), full width, no x-shrink.
-    # titles + crossing note are drawn OUTSIDE the crop (below), so the band can be tight.
+    # titles are drawn OUTSIDE the crop (below), so the band can be tight.
     CROP_TOP, CROP_BOT = 96, int(M.BASE) + 24
     BAND = CROP_BOT - CROP_TOP
     HDR = 52
@@ -158,12 +177,13 @@ def build_drivers_svg():
     panels = [
         ("undisturbed", "Undisturbed dune (the starting point)"),
         ("coastal",     "With coastal retreat - deepest near the shore, fading inland"),
-        ("climate",     "With climate drying - the same fall across the whole site"),
+        ("far_field",   "Across the whole site - a very small change either way, "
+                        "too small to pin down"),
     ]
 
     s = [f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" '
          f'xmlns="http://www.w3.org/2000/svg"><rect width="{W}" height="{H}" fill="#fff"/>']
-    s.append(M.txt(M._R_NL, 26, "What coast and climate do to the water table", size=16, w='600'))
+    s.append(M.txt(M._R_NL, 26, "What coastal erosion and climate do to the water table", size=16, w='600'))
     s.append(M.txt(M._R_NL, 43,
                    "one long slice from the shore inland, on the same scale - "
                    "simple diagram, not to scale", size=11, col='#888780'))
@@ -171,24 +191,15 @@ def build_drivers_svg():
     for i, (driver, title) in enumerate(panels):
         row_top = HDR + i * (ROW + GAP)
         s.append(M.txt(M._R_NL, row_top + 13, title, size=12, w='600'))
-        # crossing marker across the panel (drawn here so it isn't clipped by the crop top)
-        if driver != "undisturbed":
-            xc = M._r_ix(cross)
-            s.append(f'<line x1="{xc:.0f}" y1="{row_top + TITLE_H:.0f}" x2="{xc:.0f}" '
-                     f'y2="{row_top + TITLE_H + BAND:.0f}" stroke="#444" stroke-width="1" '
-                     f'stroke-dasharray="2 3"/>')
-            s.append(M.txt(xc, row_top + 12, f"about {cross:.0f} m", size=9, w='600',
-                           col='#444', anchor='middle'))
-        axis = (driver == "climate")          # distance axis on the bottom panel only
-        body = M.build_reach_panel(reach, driver, title=None, show_axis=axis,
-                                   show_crossing_note=False)
+        axis = (driver == "far_field")        # distance axis on the bottom panel only
+        body = M.build_reach_panel(reach, driver, title=None, show_axis=axis)
         s.append(f'<svg x="0" y="{row_top + TITLE_H:.1f}" width="{W}" height="{BAND}" '
                  f'viewBox="0 {CROP_TOP} {PW} {BAND}">{body}</svg>')
 
     s.append(M.txt(W / 2, H - 8,
-                   "Climate is the biggest change overall because it lowers the whole "
-                   "site; the sea's retreat bites hardest near the shore and fades by "
-                   f"about {cross:.0f} m inland.",
+                   "The sea's retreat bites hardest near the shore and fades inland. "
+                   "Across the rest of the site the change is very small - small enough "
+                   "that the record cannot yet pin down its size, or even its direction.",
                    10, w='600', col='#3a3a33', anchor='middle', style=' font-style="italic"'))
     s.append('</svg>')
     return "".join(s)
@@ -247,7 +258,7 @@ def main():
     make_all_dirs()
     for n, (which, builder, svg_path, png_path) in enumerate(_FIGURES, 1):
         desc = ("before -> after, 2 columns" if which == "management"
-                else "full 900 m reach, coastal fringe vs site-wide climate")
+                else "full reach to the fitted L, coastal fringe vs the site-wide term")
         phase(n, f"Building lay figure: {which} ({desc})")
         svg = builder()
         _assert_glyph_safe(svg, which)

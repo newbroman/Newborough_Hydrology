@@ -4,8 +4,8 @@ refresh_mirrors.py
 ==================
 Regenerate the markdown mirrors that the document lints read.
 
-The ODTs are the editing surface; the mirrors under report_edits/text/ and
-docs/**/ are the machine-readable surface that tools/audit_number_drift.py and
+The ODTs (and the report's master .odm) are the editing surface; the mirrors
+under report_edits/text/ and docs/**/ are the machine-readable surface that tools/audit_number_drift.py and
 tools/cite_check.py search. A mirror that is not regenerated after an ODT edit
 silently turns every lint into a check of yesterday's text — which is exactly
 how five stale cluster coefficients survived in report9 and Paper 1 while the
@@ -24,6 +24,22 @@ Usage:
 """
 from __future__ import annotations
 
+__version__ = "1.1.0"  # Hollingham (2026) - 2026-08-20. report.odm, the
+#        LibreOffice MASTER document, joins the mirror set. The master is not
+#        an empty shell of links: it carries the title block and the whole
+#        ABSTRACT, text that exists in no chapter file. The source glob was
+#        "report*.odt", which cannot match a ".odm", so every number in the
+#        abstract - five LCSC values, two beta_2 values, the NSE improvement,
+#        the clearfell and scraping steps - sat outside the corpus that
+#        cite_check.py and audit_number_drift.py search, and had never once
+#        been checked against the pipeline. The mirror lands at
+#        report_edits/text/report.md, which cite_check's existing
+#        "report_edits/text/report*.md" glob already sweeps, so nothing in
+#        cite_check.py changes: the corpus follows the mirror, as designed.
+#
+# 1.0.0  marks the module's state before this change; it carried no
+#        __version__ constant previously.
+
 import argparse
 import re
 import subprocess
@@ -38,6 +54,13 @@ REPO = Path(__file__).resolve().parents[1]
 # path is stable across bumps.
 SOURCES = [
     ("report_edits/odt/report*.odt", "report_edits/text", False),
+    # The master document, mirrored as its own source. Everything the report
+    # says before Chapter 6 - title block, author block and the abstract -
+    # lives in report.odm and nowhere else, so mirroring only the chapters
+    # left the abstract unchecked. pandoc reads the master's own content.xml;
+    # the linked sub-documents are mirrored by the line above, so no chapter
+    # text is duplicated in the corpus. Not versioned: the filename is stable.
+    ("report_edits/odt/report.odm", "report_edits/text", False),
     ("docs/report/Newborough_Methods_Supplement_v*.odt", "docs/report/text", True),
     ("docs/report/Supplementary_Material_v*.odt", "docs/report/text", True),
     ("docs/papers/paper_1/Paper1_v*.odt", "docs/papers/paper_1/text", True),

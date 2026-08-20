@@ -5,7 +5,8 @@ SCRIPT 10c — Forest Zone Spatial Analysis Summary
 1. SPATIAL PREDICTORS
 ----------------------------------------
    β₂ vs elevation: r = 0.983, R² = 0.967
-   Elevation is the dominant predictor of β₂ (95.1% variance explained).
+   Elevation is the dominant predictor of β₂ (96.7% of β₂ variance explained in sample;
+   leave-one-out predicted R² = 0.955).
    Distance from ridge adds negligible information for β₂.
    β₃: elevation R² = 0.691, + dist_ridge R² = 0.788
    β₁: no strong spatial predictor (best: Easting r = 0.579)

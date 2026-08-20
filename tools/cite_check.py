@@ -28,6 +28,26 @@ Usage:
 """
 from __future__ import annotations
 
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-08-20. Matching is now
+#        numeric-boundary aware and context aware, and the citation index's
+#        stored `before`/`after` slices are finally used for what they were
+#        recorded for. Every place that asked `needle in text` asked a
+#        substring question and got a substring answer: 0.135 "found" inside
+#        the frame height 10.135cm, 1.29 inside 11.298cm, 1.76 inside the
+#        summer minimum -1.766 m, 30 inside "Figure 30" and inside "R2 <= 0.30",
+#        15.45 inside width="15.45cm". Those matches drove both directions of
+#        verdict - a phantom hit reported a value as "cited and current" when
+#        no document quotes it, and a phantom near miss put a healthy value on
+#        the triage list. `number_spans()` now yields only occurrences that are
+#        whole numbers in a citable context, `quotes()` replaces the bare `in`
+#        test, and `locate()` picks the occurrence an index row points at by
+#        scoring the stored context against the document. No behaviour outside
+#        matching changes: the anchor window, the near-miss span, the claims
+#        rules and the exit codes are untouched.
+#
+# 1.0.0  marks the module's state before this change; it carried no
+#        __version__ constant previously.
+
 import argparse
 import csv
 import re
@@ -134,8 +154,8 @@ def anchored(text: str, needle: str, keys: list[str]) -> bool:
         return True
     low = text.lower()
     lowkeys = [k.lower() for k in keys]
-    for m in re.finditer(re.escape(needle), text):
-        window = low[max(0, m.start() - ANCHOR_WINDOW): m.start() + ANCHOR_WINDOW]
+    for start, _end in number_spans(text, needle):
+        window = low[max(0, start - ANCHOR_WINDOW): start + ANCHOR_WINDOW]
         if any(k in window for k in lowkeys):
             return True
     return False
@@ -149,6 +169,157 @@ def _sig_digits(s: str) -> int:
 def searchable(s: str) -> bool:
     digits = re.sub(r"[^0-9]", "", s).lstrip("0")
     return len(digits) >= MIN_SIG_DIGITS
+
+
+# ---------------------------------------------------------------------------
+# What counts as the corpus quoting a number
+# ---------------------------------------------------------------------------
+# `s in text` is a substring test, not a citation test, and a document is full
+# of substrings that merely look like values. Three families account for
+# nearly all of them:
+#
+#   EMBEDDED    the digits sit inside a longer number. 0.135 inside the frame
+#               height 10.135cm; 1.29 inside 11.298cm; 1.76 inside the summer
+#               minimum -1.766 m; 30 inside "R2 <= 0.30"; 3.30 inside 13.30.
+#   GEOMETRY    the number is a page-layout dimension, not a measurement:
+#               width="15.45cm", height="10.956cm". strip_markup() removes HTML
+#               attributes but not the pandoc `{width=... height=...}` blocks
+#               the mirrors are full of.
+#   CROSS-REF   the number names a document part, not a quantity: "Figure 30",
+#               "Figure 65", "Table 9".
+#
+# A phantom is not merely noise. It corrupts the verdict in BOTH directions: a
+# phantom exact hit reports a value as "cited and current" when no document
+# quotes it - masking a real omission - and a phantom near miss puts a healthy
+# value on the triage list. Measured on the 2026-08-20 tree: 13 of 55 triage
+# rows and 26 exact "cited and current" verdicts were substring artefacts, and
+# 10 of the 59 locatable citation-index rows were being checked at a string
+# that is not the citation.
+#
+# On signs: this corpus writes the Unicode minus U+2212 while render() emits an
+# ASCII hyphen, and beta_2 is STORED positive but QUOTED negative (the design
+# matrix negates PET). Sign agreement is therefore deliberately NOT required -
+# a leading +, - or U+2212 is treated as a sign, so it neither breaks the
+# numeric boundary nor has to match. What the boundary rule cares about is
+# digits, not signs.
+
+# Context immediately before the number that means it is not a citation.
+_FRAME_ATTR = re.compile(r"(?i)(?:width|height)\s*[=:]\s*[\"']?$")
+_XREF_LABEL = re.compile(
+    r"(?i)\b(?:figure|fig|table|section|chapter|appendix|equation|eq|panel|"
+    r"plate)s?\.?\s*$")
+# Context immediately after: a typesetting unit glued to the digits. Units this
+# project actually publishes in (m, mm, %, days) are never glued this way.
+_TYPESET_UNIT = re.compile(r"(?i)^(?:cm|px|pt|em|ex)\b")
+
+_CONTEXT_LOOKBEHIND = 40         # characters of preceding text the rules see
+
+
+def _is_whole_number(text: str, start: int, end: int) -> bool:
+    """True if text[start:end] is a complete number, not part of a longer one.
+
+    Rejects a neighbouring digit on either side, a decimal point or thousands
+    comma that itself has a digit beyond it (so "30" inside "0.30" and "234"
+    inside "1,234" both fail), and a preceding ASCII letter, which is how a
+    number glues to an identifier: "30" inside "CEH30", "3" inside "WMC3".
+    """
+    prev = text[start - 1] if start else ""
+    nxt = text[end] if end < len(text) else ""
+    if prev.isdigit() or nxt.isdigit():
+        return False
+    if prev in ".," and start >= 2 and text[start - 2].isdigit():
+        return False
+    if nxt in ".," and end + 1 < len(text) and text[end + 1].isdigit():
+        return False
+    if "a" <= prev.lower() <= "z":
+        return False
+    return True
+
+
+def _citable_context(text: str, start: int, end: int) -> bool:
+    """True unless the surrounding text says this number is not a quantity."""
+    before = text[max(0, start - _CONTEXT_LOOKBEHIND):start]
+    if _FRAME_ATTR.search(before) or _XREF_LABEL.search(before):
+        return False
+    if _TYPESET_UNIT.match(text[end:end + 6]):
+        return False
+    return True
+
+
+def number_spans(text: str, needle: str):
+    """Yield (start, end) for each occurrence of `needle` that is a whole
+    number in a context where a number can be a citation."""
+    for m in re.finditer(re.escape(needle), text):
+        if _is_whole_number(text, m.start(), m.end()) and \
+                _citable_context(text, m.start(), m.end()):
+            yield m.start(), m.end()
+
+
+def quotes(text: str, needle: str) -> bool:
+    """True if the document quotes `needle` as a number. Use this, never
+    `needle in text`."""
+    return next(number_spans(text, needle), None) is not None
+
+
+# Context relocation. build_citation_index.py stores CTX characters either side
+# of each indexed citation, whitespace-normalised, precisely so the row can be
+# re-found when a document has several renderings of the same string - and
+# until now nothing read them except the DRIFTED printout. Scoring the stored
+# slices against each candidate occurrence points the check at the citation the
+# row is actually about.
+_CONTEXT_SCAN = 120              # characters of document context compared
+
+
+def _norm_ctx(s: str) -> str:
+    """Normalise a context slice. Whitespace collapses (matching
+    build_citation_index.norm) and backslashes are dropped: the mirrors gained
+    pandoc escaping (`h\\_min`) after parts of the index were built, and the
+    escape is not part of the text the citation sits in."""
+    return " ".join(s.replace("\\", "").split()).lower()
+
+
+def _common_tail(a: str, b: str) -> int:
+    n = 0
+    while n < min(len(a), len(b)) and a[-1 - n] == b[-1 - n]:
+        n += 1
+    return n
+
+
+def _common_head(a: str, b: str) -> int:
+    n = 0
+    while n < min(len(a), len(b)) and a[n] == b[n]:
+        n += 1
+    return n
+
+
+def _context_score(text: str, span: tuple[int, int], before: str,
+                   after: str) -> int:
+    """Characters of agreement between the stored context slices and the text
+    actually surrounding `span`. Zero means the string is present but nowhere
+    near where the index row recorded it."""
+    s, e = span
+    return (_common_tail(_norm_ctx(text[max(0, s - _CONTEXT_SCAN):s]),
+                         _norm_ctx(before))
+            + _common_head(_norm_ctx(text[e:e + _CONTEXT_SCAN]),
+                           _norm_ctx(after)))
+
+
+def locate(text: str, quoted: str, before: str = "",
+           after: str = "") -> tuple[int, int] | None:
+    """Span of the occurrence of `quoted` an index row points at, or None.
+
+    With no stored context this is simply the first citable occurrence. With
+    context it is the occurrence whose surroundings agree with the stored
+    slices best. A poor best score is not grounds for rejection: prose gets
+    rewritten around a number that is still cited, and the mirrors' escaping
+    has changed since parts of the index were built.
+    """
+    spans = list(number_spans(text, quoted))
+    if not spans:
+        return None
+    if not (before or after):
+        return spans[0]
+    return max(spans, key=lambda sp: _context_score(text, sp, before, after))
 
 
 # An HTML tag: opens with a letter (element) or "!" (comment/doctype) and, in
@@ -260,7 +431,8 @@ def check_numbers(docs, dps, span, min_rel=0.0, csv_out=None) -> int:
             s = render(v, dp)
             if not searchable(s):
                 continue
-            if any(s in t and anchored(t, s, anc) for t in docs.values()):
+            if any(quotes(t, s) and anchored(t, s, anc)
+                   for t in docs.values()):
                 hit_dp = dp
                 break
         if hit_dp is not None:
@@ -275,7 +447,7 @@ def check_numbers(docs, dps, span, min_rel=0.0, csv_out=None) -> int:
                 if not searchable(nm):
                     continue
                 where = [d for d, t in docs.items()
-                         if nm in t and anchored(t, nm, anc)]
+                         if quotes(t, nm) and anchored(t, nm, anc)]
                 if where:
                     found.append((nm, dp, where))
             if found:
@@ -357,7 +529,9 @@ def check_index(docs, values) -> int:
             continue
         dp = len(quoted.split(".")[1]) if "." in quoted else 0
         want = render(current[key], dp)
-        present = quoted in text
+        # The row's own before/after slices pick which occurrence it means.
+        span = locate(text, quoted, row.get("before", ""), row.get("after", ""))
+        present = span is not None
         if present and want == quoted:
             ok += 1
         elif present:
@@ -367,12 +541,23 @@ def check_index(docs, values) -> int:
                 advisory += 1
             print(f"\n  DRIFTED  {key}  [{row.get('status','')}]")
             print(f"           {doc} quotes {quoted}, pipeline now says {want}")
-            if row.get("before") or row.get("after"):
-                print(f"           ...{row.get('before','')[-50:]} "
-                      f"[{quoted}] {row.get('after','')[:50]}...")
+            # Context as the DOCUMENT now reads at the located occurrence,
+            # not as the index recorded it: the point is to show where the
+            # stale string still sits.
+            s, e = span
+            # A score of 0 means the string is present but not where the index
+            # says: the located occurrence may be a coincidence rather than
+            # the citation, and the row wants re-pointing before it is trusted.
+            agree = _context_score(text, span, row.get("before", ""),
+                                   row.get("after", ""))
+            print(f"           ...{_norm_ctx(text[max(0, s - 50):s])} "
+                  f"[{quoted}] {_norm_ctx(text[e:e + 50])}...")
+            if not agree:
+                print("           (stored context does not match here — "
+                      "location unconfirmed, re-point the index row)")
         else:
             moved += 1
-            if want in text:
+            if quotes(text, want):
                 ok += 0   # value updated in prose but index not re-pointed
                 print(f"\n  REPOINT  {key}: {doc} now quotes {want} "
                       f"(index still says {quoted}) — update the index row")

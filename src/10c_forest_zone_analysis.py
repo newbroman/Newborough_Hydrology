@@ -35,7 +35,8 @@ Ridge reference point (shared with Scripts 23, 24):
     config.RIDGE_REF_E / config.RIDGE_REF_N (OSGB36)
 
 Outputs:
-    INT_10C_CORRELATION_TABLE  — Pearson correlations and regression R² values
+    INT_10C_CORRELATION_TABLE  — Pearson correlations, regression R² values and
+                                 the leave-one-out (predicted) R²
     INT_10C_CLUSTER_SUMMARY    — C4 vs C5 summary statistics and t-test results
     OUT_10C_B1_B2_SCATTER      — β₁ vs β₂ scatter coloured by cluster
     OUT_10C_B2_ELEV_REGRESSION — β₂ vs elevation regression with R² annotation
@@ -44,11 +45,26 @@ Outputs:
 ====================================================================================
 """
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-08-12
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-08-20. Fixes a mislabelled
+#   hard-coded figure in write_summary(). The summary read "Elevation is the
+#   dominant predictor of β₂ (95.1% variance explained)" on the line directly
+#   below "β₂ vs elevation: r = 0.983, R² = 0.967", two numbers that cannot both
+#   describe the same fit. 95.1% was never the in-sample R²: it is the
+#   leave-one-out (predicted) R² of the β₂~elevation regression as it stood at
+#   the first committed coefficient table (R² = 0.963, LOO R² = 0.9514), frozen
+#   into a string literal and never recomputed as the coefficients moved. Both
+#   quantities are now derived live from the fit: the percentage is the
+#   in-sample R², and the leave-one-out predicted R² is computed by the new
+#   loo_r2() helper and published as a new R2_elevation_only_LOO column in
+#   10c_forest_zone_correlations.csv, so the summary line reads from the same
+#   table every other number on it reads from. The new column is stored
+#   unrounded (D-035) and rounded where it is displayed. No existing column,
+#   figure or other summary line changes.
 #
-# This module previously carried no __version__ constant; 1.0.0 marks its
-# introduction, not the start of the module's history. Prior revisions are the
-# dated notes and changelog entries elsewhere in the repository.
+# 1.0.0  # Hollingham (2026) — 2026-08-12. This module previously carried no
+#   __version__ constant; 1.0.0 marks its introduction, not the start of the
+#   module's history. Prior revisions are the dated notes and changelog entries
+#   elsewhere in the repository.
 
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 
@@ -137,6 +153,27 @@ def load_data():
 # 2. SPATIAL CORRELATION ANALYSIS (Question 1)
 # ═══════════════════════════════════════════════════════════════════════════
 
+def loo_r2(X, y):
+    """Leave-one-out (predicted) R² for an OLS fit of ``y`` on ``X``.
+
+    Each observation is predicted from a model fitted without it, so the
+    statistic is 1 − PRESS/TSS: out-of-sample explanatory power rather than
+    in-sample fit. With only 14 forest wells the two diverge enough to be
+    worth reporting alongside each other.
+    """
+    X = np.asarray(X, dtype=float)
+    y = np.asarray(y, dtype=float)
+    n = len(y)
+    pred = np.empty(n)
+    for i in range(n):
+        keep = np.ones(n, dtype=bool)
+        keep[i] = False
+        pred[i] = LinearRegression().fit(X[keep], y[keep]).predict(X[i:i + 1])[0]
+    press = float(((y - pred) ** 2).sum())
+    tss = float(((y - y.mean()) ** 2).sum())
+    return 1.0 - press / tss
+
+
 def compute_correlations(forest):
     """Pearson correlations and multiple regression for forest wells."""
 
@@ -177,6 +214,9 @@ def compute_correlations(forest):
             "R2_elevation_only": round(r2_elev, 3),
             "R2_elevation_plus_dist": round(r2_both, 3),
             "Marginal_gain": round(r2_both - r2_elev, 3),
+            # Stored unrounded (D-035): the summary line rounds at the
+            # point of display.
+            "R2_elevation_only_LOO": loo_r2(X_elev, y),
         })
 
     reg_df = pd.DataFrame(reg_rows)
@@ -417,8 +457,13 @@ def write_summary(forest, c4, c5, corr_df, reg_df, summary_df,
     lines.append("-" * 40)
     r_b2_elev = corr_df.loc[corr_df["Coefficient"] == "β₂_atm_draw", "r_vs_Elevation"].values[0]
     r2_elev = reg_df.loc[reg_df["Coefficient"] == "β₂_atm_draw", "R2_elevation_only"].values[0]
+    r2_elev_loo = reg_df.loc[
+        reg_df["Coefficient"] == "β₂_atm_draw", "R2_elevation_only_LOO"
+    ].values[0]
     lines.append(f"   β₂ vs elevation: r = {r_b2_elev}, R² = {r2_elev}")
-    lines.append("   Elevation is the dominant predictor of β₂ (95.1% variance explained).")
+    lines.append(f"   Elevation is the dominant predictor of β₂ "
+                 f"({r2_elev * 100:.1f}% of β₂ variance explained in sample;")
+    lines.append(f"   leave-one-out predicted R² = {r2_elev_loo:.3f}).")
     lines.append("   Distance from ridge adds negligible information for β₂.")
     r2_b3_e = reg_df.loc[reg_df["Coefficient"] == "β₃_drainage", "R2_elevation_only"].values[0]
     r2_b3_b = reg_df.loc[reg_df["Coefficient"] == "β₃_drainage", "R2_elevation_plus_dist"].values[0]

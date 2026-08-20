@@ -23,7 +23,7 @@
   "src/15_depth_dependent_pet.py": 10,
   "src/19_spatial_groundwater.py": 8,
   "src/21_forestry_scenarios.py": 20,
-  "src/25_coastal_gradient.py": 43,
+  "src/25_coastal_gradient.py": 33,
   "src/31_cluster_validation.py": 13,
   "src/31b_separation_vs_recoverability.py": 2,
   "src/32_differential_movement.py": 6,

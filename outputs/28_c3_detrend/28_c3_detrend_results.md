@@ -7,15 +7,15 @@
 
 | Parameter | Value |
 |---|---|
-| δ₀ (coast-edge slope) | **-29.22 mm/yr** |
-| L (decay length)      | **901 m** |
-| Sensitivity δ₀ (full fit) | -29.71 mm/yr |
-| Sensitivity L (full fit)  | 972 m |
+| δ₀ (coast-edge slope) | **-26.42 mm/yr** |
+| L (decay length)      | **964 m** |
+| Sensitivity δ₀ (full fit) | -31.71 mm/yr |
+| Sensitivity L (full fit)  | 994 m |
 
 ## Headline result — C3 hydrographs after forest-free monthly-uniform de-trending
 
-**19 of 21 C3 wells** carry a Script 25 dist_coast and
-hydrograph (excluded: 2 wells without coastal-distance metadata —
+**16 of 21 C3 wells** carry a Script 25 dist_coast and
+hydrograph (excluded: 5 wells without coastal-distance metadata —
 typically the forest-zone or heavily perturbed wells dropped from Script 25's
 forest-free fit, e.g. CEH36 and WMC3).
 
@@ -24,8 +24,8 @@ After de-trending against the un-de-trended cluster centroids:
 | Destination | n | % of n_with_drift |
 |---|---|---|
 | **→ C1** | 0 | 0% |
-| **→ C2** | 1 | 5% |
-| **→ C3** | 18 | 95% |
+| **→ C2** | 1 | 6% |
+| **→ C3** | 15 | 94% |
 | **→ C4** | 0 | 0% |
 | **→ C5** | 0 | 0% |
 
@@ -47,11 +47,11 @@ the procedure is contaminating hydrographs rather than testing a hypothesis.
 
 | Variant | → C2 | → C3 | Other |
 |---|---|---|---|
-| forest-free, monthly-uniform (HEADLINE) | 1 | 18 | 0 |
-| forest-free, summer-only Jun–Sep | 1 | 16 | 2 |
-| full δ₀ (includes forest) | 1 | 18 | 0 |
-| L = 500 m | 1 | 17 | 1 |
-| L = 1500 m | 1 | 18 | 0 |
+| forest-free, monthly-uniform (HEADLINE) | 1 | 15 | 0 |
+| forest-free, summer-only Jun–Sep | 1 | 13 | 2 |
+| full δ₀ (includes forest) | 1 | 15 | 0 |
+| L = 500 m | 1 | 14 | 1 |
+| L = 1500 m | 1 | 15 | 0 |
 
 ## Excluded wells (no dist_coast_m available)
 
@@ -67,6 +67,9 @@ the procedure is contaminating hydrographs rather than testing a hypothesis.
 - `ceh33` (C4 (Main Forest))
 - `ceh34` (C4 (Main Forest))
 - `ceh36` (C3 (Western Residual))
+- `ceh40` (C3 (Western Residual))
+- `ceh41` (C3 (Western Residual))
+- `ceh42` (C3 (Western Residual))
 - `wmc3` (C3 (Western Residual))
 
 ## Next step

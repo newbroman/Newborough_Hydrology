@@ -10,8 +10,8 @@ what explains the variation BETWEEN C3 wells?*
 
 | Source | Value |
 |---|---|
-| Script 25 forest-free exponential δ₀ | -40.20 mm/yr |
-| Script 25 forest-free exponential L  | 422 m |
+| Script 25 forest-free exponential δ₀ | -34.81 mm/yr |
+| Script 25 forest-free exponential L  | 567 m |
 | Coastal predictor form  | δ_coast(d) = δ₀ · exp(−d / L) ÷ 1000  (m/yr) |
 | Forest geometry  | `data/Features.kml`, feature "Forest" (area 7.22 km²) |
 | Scrape site | CEH36 at (241161, 363306) m OSGB36 |
@@ -46,15 +46,15 @@ Nine per-well metrics describing different facets of C3 well behaviour:
 
 | Metric | n | R² | adj R² | Strongest unique predictor |
 |---|---|---|---|---|
-| slope_m_yr | 19 | 0.682 | 0.559 | dist_ceh36_m (Δ=+0.029) |
-| beta_1_recharge | 19 | 0.844 | 0.784 | dist_ceh36_m (Δ=+0.164) |
-| beta_2_atmospheric_draw | 19 | 0.631 | 0.489 | dist_ceh36_m (Δ=+0.129) |
-| beta_3_drainage | 19 | 0.778 | 0.692 | dist_ceh36_m (Δ=+0.227) |
-| recession_time_months | 19 | 0.746 | 0.648 | dist_ceh36_m (Δ=+0.378) |
-| mean_head_maod | 19 | 1.000 | 1.000 | ground_elev_m (Δ=+0.015) |
-| summer_min_depth_m | 19 | 0.992 | 0.989 | depth_to_water_m (Δ=+0.516) |
-| winter_max_depth_m | 19 | 0.967 | 0.954 | depth_to_water_m (Δ=+0.637) |
-| seasonal_amplitude_m | 19 | 0.727 | 0.623 | dist_ceh36_m (Δ=+0.105) |
+| slope_m_yr | 16 | 0.784 | 0.676 | delta_coast_exp_m_yr (Δ=+0.032) |
+| beta_1_recharge | 16 | 0.864 | 0.796 | dist_ceh36_m (Δ=+0.129) |
+| beta_2_atmospheric_draw | 16 | 0.657 | 0.486 | dist_ceh36_m (Δ=+0.172) |
+| beta_3_drainage | 16 | 0.748 | 0.622 | dist_ceh36_m (Δ=+0.214) |
+| recession_time_months | 16 | 0.700 | 0.550 | dist_ceh36_m (Δ=+0.370) |
+| mean_head_maod | 16 | 1.000 | 1.000 | ground_elev_m (Δ=+0.014) |
+| summer_min_depth_m | 16 | 0.993 | 0.990 | depth_to_water_m (Δ=+0.571) |
+| winter_max_depth_m | 16 | 0.978 | 0.966 | depth_to_water_m (Δ=+0.707) |
+| seasonal_amplitude_m | 16 | 0.810 | 0.715 | delta_coast_exp_m_yr (Δ=+0.061) |
 
 ## Univariate R² — which predictor explains variance in which metric
 
@@ -63,15 +63,15 @@ Values ≥ 0.30 are bold-readable on inspection.)
 
 ```
                          delta_coast_exp_m_yr  dist_ceh36_m  dist_forest_m  ground_elev_m  depth_to_water_m
-slope_m_yr                              0.182         0.429          0.373          0.002             0.156
-beta_1_recharge                         0.352         0.349          0.118          0.520             0.000
-beta_2_atmospheric_draw                 0.484         0.216          0.001          0.341             0.019
-beta_3_drainage                         0.112         0.149          0.220          0.378             0.068
-recession_time_months                   0.030         0.092          0.149          0.178             0.013
-mean_head_maod                          0.675         0.227          0.332          0.991             0.086
-summer_min_depth_m                      0.049         0.001          0.288          0.296             0.953
-winter_max_depth_m                      0.014         0.080          0.174          0.038             0.920
-seasonal_amplitude_m                    0.472         0.436          0.045          0.489             0.002
+slope_m_yr                              0.213         0.422          0.293          0.010             0.101
+beta_1_recharge                         0.555         0.349          0.118          0.520             0.000
+beta_2_atmospheric_draw                 0.459         0.216          0.001          0.341             0.019
+beta_3_drainage                         0.271         0.149          0.220          0.378             0.068
+recession_time_months                   0.136         0.092          0.149          0.178             0.013
+mean_head_maod                          0.816         0.227          0.332          0.991             0.086
+summer_min_depth_m                      0.099         0.001          0.288          0.296             0.953
+winter_max_depth_m                      0.009         0.080          0.174          0.038             0.920
+seasonal_amplitude_m                    0.665         0.436          0.045          0.489             0.002
 ```
 
 ## Unique contribution (drop-one) — predictor × metric
@@ -81,20 +81,20 @@ the full 5-predictor model. Predictors with ≥ 0.05 loss are uniquely informati
 
 ```
                          delta_coast_exp_m_yr  dist_ceh36_m  dist_forest_m  ground_elev_m  depth_to_water_m
-slope_m_yr                              0.025         0.029          0.000          0.011             0.005
-beta_1_recharge                        -0.004         0.164          0.073          0.010             0.039
-beta_2_atmospheric_draw                -0.023         0.129          0.070          0.049             0.004
-beta_3_drainage                         0.013         0.227          0.100          0.022             0.004
-recession_time_months                   0.012         0.378          0.211          0.082             0.000
-mean_head_maod                          0.000         0.000          0.000          0.015             0.005
-summer_min_depth_m                     -0.001         0.001          0.000          0.000             0.516
-winter_max_depth_m                     -0.005         0.019          0.009          0.003             0.637
-seasonal_amplitude_m                   -0.022         0.105          0.038          0.006             0.024
+slope_m_yr                              0.032         0.028          0.001          0.010             0.011
+beta_1_recharge                         0.016         0.129          0.041          0.003             0.056
+beta_2_atmospheric_draw                 0.003         0.172          0.133          0.084             0.001
+beta_3_drainage                        -0.017         0.214          0.089          0.018             0.003
+recession_time_months                  -0.034         0.370          0.194          0.072             0.000
+mean_head_maod                          0.000         0.000          0.000          0.014             0.006
+summer_min_depth_m                      0.000         0.000          0.000          0.001             0.571
+winter_max_depth_m                      0.005         0.010          0.002          0.000             0.707
+seasonal_amplitude_m                    0.061         0.048          0.002          0.001             0.048
 ```
 
 ## Caveats
 
-- **n = 21 C3 wells**, of which 19 carry
+- **n = 21 C3 wells**, of which 16 carry
   a Script 25 `dist_coast_m`. Wells without coastal-distance (CEH36 itself and
   WMC3) are kept in the panel for the non-coastal metrics but absent from
   predictor 1 fits.

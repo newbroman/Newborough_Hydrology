@@ -1,10 +1,10 @@
 Parameter,Well,Era,Value,Unit,Note
-C3_gradient_n,,,19.0,wells,C3 wells with Script 25 dist_coast (CEH36/WMC3 excluded upstream)
-C3_beta1_vs_inland_r,,,0.7595716478759194,,"Pearson r, beta_1_recharge vs dist_coast_m, n=19"
-C3_beta1_vs_inland_p,,,0.00016165504123903036,,"p-value, beta_1_recharge vs dist_coast_m, n=19"
-C3_beta3_vs_inland_r,,,0.5753631334887123,,"Pearson r, beta_3_drainage vs dist_coast_m, n=19"
-C3_beta3_vs_inland_p,,,0.009952805286046768,,"p-value, beta_3_drainage vs dist_coast_m, n=19"
-C3_Sy_vs_inland_r,,,-0.8412367124571608,,"Pearson r, Sy_wtf_median vs dist_coast_m, n=19"
-C3_Sy_vs_inland_p,,,6.400284182433974e-06,,"p-value, Sy_wtf_median vs dist_coast_m, n=19"
+C3_gradient_n,,,16.0,wells,C3 wells with Script 25 dist_coast (CEH36/WMC3 excluded upstream)
+C3_beta1_vs_inland_r,,,0.8483236960176918,,"Pearson r, beta_1_recharge vs dist_coast_m, n=16"
+C3_beta1_vs_inland_p,,,3.283775145967887e-05,,"p-value, beta_1_recharge vs dist_coast_m, n=16"
+C3_beta3_vs_inland_r,,,0.6917477417712768,,"Pearson r, beta_3_drainage vs dist_coast_m, n=16"
+C3_beta3_vs_inland_p,,,0.002990871536340597,,"p-value, beta_3_drainage vs dist_coast_m, n=16"
+C3_Sy_vs_inland_r,,,-0.8443941385800706,,"Pearson r, Sy_wtf_median vs dist_coast_m, n=16"
+C3_Sy_vs_inland_p,,,3.8847087807901984e-05,,"p-value, Sy_wtf_median vs dist_coast_m, n=16"
 C3_Sy_max,ceh21,,0.3978240291191235,,"WTF event-median Sy, coastal/SW margin of C3"
 C3_Sy_min,nw13,,0.2455140935804224,,"WTF event-median Sy, inland/NE margin of C3"

@@ -23,7 +23,20 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.13.3"   # Hollingham (2026) -- 2026-08-18. CL_COLS now built from
+__version__ = "2.14.0"   # Hollingham (2026) -- 2026-08-20. Sy endpoint toggle:
+#   the map tooltip ignored it. It printed best.sy, the raw per-well WTF median,
+#   whatever the slider said -- so on the Fetter endpoint the table and the
+#   metric cards showed one Sy and hovering a well showed another, with nothing
+#   on screen to say which was which. The tooltip now routes through syEff(),
+#   the same accessor renderTable() and renderMetrics() use, and names the
+#   endpoint it is quoting ("Fetter" / "WTF" / "WTF, cluster fallback" where a
+#   well has no per-well median and syEff falls back to the cluster floor).
+#   The sidebar note also undersold the control: it said the toggle "drives the
+#   Storage shift row" and ended "Does not affect Ah itself", which read as
+#   doing nothing (Martin, 2026-08-20). It drives the Mean Sy row, the Storage
+#   shift row, the Sy and Storage cards for every cluster and for the site, and
+#   now the tooltip. Reworded to lead with what it changes; the Ah caveat stays
+#   but no longer has the last word. Earlier: CL_COLS now built from
 #   config.CLUSTER_COLOURS as well, so one palette is defined in one place and a
 #   cluster is the same colour in the viewer as in the report. Only the
 #   absolute-head bar chart uses it, so nothing else changes. Earlier:
@@ -1338,8 +1351,14 @@ footer a:hover{{text-decoration:underline;}}
     clamped to the cluster floor. Monthly WTF overestimates Sy through
     capillary-fringe conflation (Healy &amp; Cook 2002), so these values
     represent an empirical ceiling.<br>
-    Drives the <em>Storage shift</em> row (&#916;h&#8201;&#215;&#8201;Sy, mm of
-    equivalent water column). Does not affect &#916;h itself.</div>
+    <strong>What this changes:</strong> the <em>Mean Sy</em> and
+    <em>Storage shift</em> rows in the table, the <em>Sy</em> and
+    <em>Storage</em> cards for every cluster and for the site, and the
+    per-well Sy in the map tooltip. Storage shift is
+    &#916;h&#8201;&#215;&#8201;Sy, in mm of equivalent water column, so
+    switching endpoint rescales every storage figure on the page.
+    It does not change &#916;h, which the state-space model fits on heads
+    and never consumes an absolute Sy.</div>
   <div class="hr"></div>
 
   <div class="ch">Map</div>
@@ -1887,7 +1906,17 @@ document.addEventListener('DOMContentLoaded',function(){{
         +'<br>Scenario: '+(hb+dh).toFixed(2)+'\u00a0m\u00a0AOD'
         +'<br>\u0394h: '+(dh>=0?'+':'')+dh.toFixed(3)+'\u00a0m'
         +depTxt
-        +(best.sy?'<br>Sy: '+(best.sy*100).toFixed(1)+'%':'');
+        // Sy must follow the endpoint toggle. It used to print best.sy — the
+        // raw per-well WTF median — whatever the slider said, so on Fetter the
+        // cards and table showed one Sy and the tooltip showed another. Route
+        // it through syEff, the same accessor the table and cards use, and name
+        // the endpoint so the two can never be read as disagreeing again.
+        +(function(){{
+          var md=(CUR_SL||{{}}).sSyMode||0,syv=syEff(best,md);
+          if(!syv)return'';
+          var lab=md>=0.5?(best.sy!=null?'WTF':'WTF, cluster fallback'):'Fetter';
+          return'<br>Sy: '+(syv*100).toFixed(1)+'% ('+lab+')';
+        }})();
       tip.style.display='block';
       // Position fixed: offset from cursor
       var tx2=e.clientX+14,ty2=e.clientY-10;

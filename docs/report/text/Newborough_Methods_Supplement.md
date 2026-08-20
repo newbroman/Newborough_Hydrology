@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_29.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_31.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,9 +7,9 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 1.9.29 (August 2026).
+Document version: 1.9.31 (August 2026).
 
-## []{#anchor-1}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
+## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
 *run_analysis.py*\*\* --- 49 registered steps across 17 phases\*\* (canonical count: committed *outputs/pipeline_manifest.json*, emitted on every run --- cite that, not this line, if the two ever disagree). Those 49 steps are classified two independent ways. By tier: 39 analytical, 4 display/utility (Scripts 26c, 09f, 09g, 27) and 6 diagnostic. By execution: 46 run in a default pass, and 3 --- Scripts 24b, 31 and 31b, the Phase 16 remainder --- run only with *\--with-supplementary*. The two classifications each account for the same 49 steps and are not additive with one another.
 
@@ -38,7 +38,7 @@ Document version: 1.9.29 (August 2026).
 
 Sub-runners: *run_09_scraping.py* (Script 09 suite, §S.6), *run_10_clearfell.py* (Script 10 suite, §S.7).
 
-# []{#anchor-3}[]{#anchor-5}[]{#anchor-6}F.1 Scope and audience
+# []{#anchor-4}[]{#anchor-5}[]{#anchor-6}F.1 Scope and audience
 
 The main report's §3 *Methods* is calibrated to a journal-paper length: approximately 25 lines per method, with a single software-reference sentence pointing to the public repository at <https://github.com/newbroman/Newborough_Hydrology>. That length is appropriate for a paper. It is not enough for the audiences who will actually use this work.
 
@@ -58,37 +58,37 @@ Cross-references work in both directions. The supplement points to the report wh
 
 Where this supplement and the main report disagree, the main report is canonical for results and the supplement is canonical for methods. Where the supplement and the source code disagree, the source code is canonical --- the supplement describes how each script works, but the script itself is the implementation.
 
-# []{#anchor-5}[]{#anchor-7}[]{#anchor-8}F.2 Field protocol, bucketing convention, and date semantics
+# []{#anchor-6}[]{#anchor-7}[]{#anchor-8}F.2 Field protocol, bucketing convention, and date semantics
 
 The 88-well dipwell network is read monthly by the author. Readings are taken at the **end of each month** --- typically the last day of that month, or the first day or two of the following month. Each reading is the water level *for the month just ended*: a measurement taken on 1 May 2026 represents the **April 2026** water level.
 
 Climate data from RAF Valley Meteorological Station (53°14′32″N, ≈16 km from the site) is a monthly total for the same calendar month. Rainfall (mm) and minimum and maximum temperatures (°C) are tabulated month-by-month from 1930 to present. Potential evapotranspiration is computed inside the pipeline (Script 00) using the Thornthwaite method at the RAF Valley latitude, returning a monthly PET total in millimetres.
 
-### []{#anchor-7}[]{#anchor-9}[]{#anchor-10}Bucketing
+### []{#anchor-8}[]{#anchor-9}[]{#anchor-10}Bucketing
 
 Readings on physical dates ≤ day 15 of month *M* are bucketed into month *M*−1 because they belong to the previous month's water table. Readings on physical dates \> day 15 of month *M* are bucketed into month *M*. The cutoff is at day 15 because field readings are nearly always taken within the first week of the month or on the last day of the previous month; day 15 is comfortably in the middle of the gap and matches the field convention without ambiguity.
 
 This bucketing is implemented in Script 01 (*01_data_prep.py*). Once bucketed, every monthly timestamp in the pipeline is the first of the month (*YYYY-MM-01*). **The ***-01*\*\* day component is a pandas formatting artefact and does not refer to the 1st of the month.\*\* A row labelled *2007-07-01* is "July 2007" --- it contains the end-of-July water level and July's climate data.
 
-### []{#anchor-9}[]{#anchor-11}[]{#anchor-12}History: why HEADLINE_LAG was 1 and is now 0
+### []{#anchor-10}[]{#anchor-11}[]{#anchor-12}History: why HEADLINE_LAG was 1 and is now 0
 
 Before April 2026, the bucketing in Script 01 used nearest-month assignment: a reading on 1 September was bucketed to September even though it represented August's water level. The pipeline compensated by applying a one-month lag to rainfall in the SSM, so that September's labelled water-table change was modelled against August's labelled rainfall --- the correct physical pairing despite the mislabelled month. This was the *HEADLINE_LAG = 1* regime.
 
 The April 2026 bucketing fix corrected the convention to match the field protocol (day ≤ 15 → previous month). Once water-table readings are correctly labelled, the SSM should regress the August water-table change against the August rainfall, with no lag. *HEADLINE_LAG* was therefore changed to 0. All regression coefficients are numerically identical to the pre-fix lag-1 results, because the physical pairing is unchanged --- only the labelling differs. Hydrograph x-axis labels are now one month earlier than in pre-fix figures; all other numerical outputs are unaffected.
 
-### []{#anchor-11}[]{#anchor-13}[]{#anchor-14}Note on maOD invariance to ground-surface change
+### []{#anchor-12}[]{#anchor-13}[]{#anchor-14}Note on maOD invariance to ground-surface change
 
 The maOD (above-Ordnance-Datum) water-table elevation is a physical quantity independent of the ground surface above it. Removing material from the surface --- for example by intentional scraping for slack restoration, as at CEH18 and CEH21 in October 2023 --- does not move the water table; the maOD reading is the same before and after. Era-specific data handling is therefore only required where depth-below-ground is the quantity of interest, not where maOD water-table elevations are being averaged or compared. Script 11b (S.9) uses this principle: the DEM elevation at scraped wells is corrected by the scrape depth, but the full pre-and-post observed maOD record contributes to the water-table averaging.
 
-### []{#anchor-13}[]{#anchor-15}[]{#anchor-16}Reporting dates in the report and supplement
+### []{#anchor-14}[]{#anchor-15}[]{#anchor-16}Reporting dates in the report and supplement
 
 Pipeline output CSVs retain the *YYYY-MM-01* index for pandas compatibility. The reader never sees these directly. In text --- both in the report and in this supplement --- monthly data is referred to by month and year only: "July 2007", "the winter 2017--18 peak", "the summer 2022 minima". On figure axes, *matplotlib.dates.DateFormatter(\'%Y\')* (for plots spanning several years) or *\'%b %Y\'* (for shorter ranges) is used in preference to *\'%Y-%m-%d\'*, so axis tick labels read as years or "Jul 2007" rather than as specific days. The *CHANGELOG_date_formatting_sweep.md* entry records the audit that brought all figure axes into compliance with this convention.
 
-### []{#anchor-15}[]{#anchor-17}[]{#anchor-18}Hydrology year conventions
+### []{#anchor-16}[]{#anchor-17}[]{#anchor-18}Hydrology year conventions
 
 Most of the supplement reports time in calendar months and calendar years, as above. Two specific analytical contexts use *hydrology years* instead. The summer transfer functions in Script 11 Sections 2 and 4 (S.9) use an October-start hydrology year (1 October *y*−1 to 30 September *y*) --- the conventional choice for catchment-scale annual water balances. The van Willegen MSL aggregation in Script 26 (S.18), the Tool A spring MSL transfer function in Script 11 Section 5 (S.18b), and the Tool B UKCP18 MSL5 projection in Script 26b (S.18b) all use van Willegen 2025's **hydrology year B** (1 June *y*−1 to 31 May *y*). The June-start convention places the entire October-to-May antecedent forcing window --- winter peak, winter rainfall, spring rainfall, spring PET --- inside a single hydrology year alongside the spring response window it predicts. A reading dated 2010-04 therefore belongs to hydrology year 2010 under both conventions; a reading dated 2009-07 belongs to hydrology year 2010 under hydrology-year-B (because 1 June 2009 falls inside the year-2010 window) but to hydrology year 2009 under the October-start convention. The two conventions co-exist in the pipeline; chapters that use one or the other are explicit about which.
 
-### []{#anchor-17}[]{#anchor-19}[]{#anchor-20}Concrete example
+### []{#anchor-18}[]{#anchor-19}[]{#anchor-20}Concrete example
 
 The row labelled *2007-07-01* for well CEH9 contains the following fields in the SSM design matrix (constructed by *model_utils.build_ssm_frame()*):
 
@@ -104,11 +104,11 @@ The row labelled *2007-07-01* for well CEH9 contains the following fields in the
 
 The SSM uses this row to explain July's 170 mm drop using July's rainfall, July's PET, and the water-table position at the *start* of July (= end of June).
 
-# []{#anchor-19}[]{#anchor-21}[]{#anchor-22}F.3 The state-space model --- displacement formulation
+# []{#anchor-20}[]{#anchor-21}[]{#anchor-22}F.3 The state-space model --- displacement formulation
 
 The state-space model (SSM) is the methodological core of the analysis. Every cluster characterization, every BACI step, every forecasting threshold, every scenario response ultimately rests on it. This section gives the canonical form.
 
-### []{#anchor-21}[]{#anchor-23}[]{#anchor-24}Equation
+### []{#anchor-22}[]{#anchor-23}[]{#anchor-24}Equation
 
 The fitted equation is
 
@@ -125,7 +125,7 @@ where:
 
 The quantity *D + h(t−1)* is the *displacement* of the water table above the drainage datum at the start of month *t*. With *D = 3.7* and a typical end-of-previous-month head of −0.4 m, displacement is 3.3 m; with a deeper end-of-month head of −2.0 m, displacement is 1.7 m. The β₃ term says: the deeper the water table sits below ground at the start of a month, the smaller the drainage during that month --- Darcy-consistent.
 
-### []{#anchor-23}[]{#anchor-25}[]{#anchor-26}Sign conventions
+### []{#anchor-24}[]{#anchor-25}[]{#anchor-26}Sign conventions
 
 All three β values are reported as **positive** in the output CSV (*03_master_data.csv*, columns *beta_1_recharge*, *beta_2_atmospheric_draw*, *beta_3_drainage*). Sign conventions are baked into the OLS design matrix, not into the coefficient signs.
 
@@ -137,7 +137,7 @@ In the design matrix constructed by *build_ssm_frame()*:
 
 Two of these signs are hard-asserted by *model_utils.assert_physical_signs()*: a fitted β₁ ≤ 0 or β₂ ≤ 0 halts the pipeline because either is physical nonsense. β₃ \> 0 is soft-asserted --- a negative β₃ is anomalous and worth investigating but does not halt the pipeline, because under unusual partitions or short data windows it could reflect a genuine statistical artefact rather than a physical impossibility.
 
-### []{#anchor-25}[]{#anchor-27}[]{#anchor-28}Why *h(t−1)*, not *h(t)*
+### []{#anchor-26}[]{#anchor-27}[]{#anchor-28}Why *h(t−1)*, not *h(t)*
 
 The drainage term uses the water-table position at the *end* of the previous month, not the contemporaneous level. Two reasons.
 
@@ -155,7 +155,7 @@ h_disp_prev = DRAINAGE_DATUM + h.shift(1)
 
 which produces displacement above the datum *at the end of the previous month*. Every script that fits an SSM uses this function --- there is no script that reimplements the displacement calculation locally.
 
-### []{#anchor-27}[]{#anchor-29}[]{#anchor-30}Drainage datum (3.7 m)
+### []{#anchor-28}[]{#anchor-29}[]{#anchor-30}Drainage datum (3.7 m)
 
 DRAINAGE_DATUM = 3.7 m is the depth below ground surface used as the displacement reference. The value was selected to give comfortable β₃ identification at the forest clusters (C4 and C5), where β₃ is hardest to pin down. At the live empirical minimum of 1.5 m --- the shallowest depth at which all five clusters simultaneously satisfy β₃ \> 0 with p \< 0.05 --- C4's β₃ p-value sits at the significance edge (0.044). At 3.7 m it drops to 0.0017, with C5 also gaining substantially (β₃ p-value from 1 × 10⁻¹⁰ to 2 × 10⁻¹⁶ and R² from 0.648 to 0.685). The trade-off is small R² penalties at C1 Lake Edge (−0.059) and C2 Dune (−0.032), where β₃ is over-determined and remains significant at p \< 10⁻²⁵ at either depth. 3.7 m also aligns with the Script 16 water-balance sensitivity analysis, which matters for keeping the displacement reference consistent across the pipeline. The full sensitivity sweep is in 03_state_space_model.py (outputs 03_08_datum_sensitivity.csv and .png, plus the datum-regime diagnostic 03_12_partition_vs_datum.csv and 03_12_datum_regime.png) and the trade-off is discussed at the per-cluster level in chapter S.3.
 
@@ -169,7 +169,7 @@ Per-well optimal datums (where each well is fitted with whatever datum maximises
 
 ***Absolute versus surface-following base --- geometry test.*** The per-well sweep also indicates whether the drainage base is better represented as a fixed height above Ordnance Datum (a flat mAOD base) or as a uniform depth below the ground surface (a surface-following base that rides with the topography). The test is geometric: each well's R²-maximising datum, expressed as an elevation, is regressed on its ground elevation across the network's 10.9 m spread of ground elevations (3.53--14.42 mAOD). A flat base predicts a slope of 0 (optimal elevation independent of ground height; optimal depth tracking ground one-for-one); a surface-following base predicts a slope of +1 (optimal elevation tracking ground one-for-one; optimal depth flat). Across the 66 reference wells the datum-elevation slope is +0.868 and the mirror datum-depth slope +0.133, placing the effective base about seven-eighths of the way toward surface-following. A flat absolute base is in any case undefinable network-wide: the ground-elevation spread exceeds the active drainage-depth scale, so no single mAOD elevation keeps every well within the swept 0.5--8.0 m window. The uniform below-ground datum is therefore both the better-fitting and the physically appropriate convention: β₃ reads as a Darcy-consistent drainage coefficient --- drainage proportional to head above a base that follows the dune topography --- which is the interpretation the displacement datum is chosen to support, and the surface-following geometry is consistent with the theoretical flow paths and normalised Darcy vectors rendered from the mean-head surface (Script 20; main report §4.9.6, Figure 57). Because the datum and β₃ are identified jointly, as the intercept and slope of a single flux--head relation, the model constrains the lumped drainage coefficient together with its base rather than locating an absolute base or separating hydraulic conductivity from flow-path length; β₃ is Darcy-consistent in the lumped linear-reservoir sense. The weak residual depth-slope (+0.133) indicates the effective base is marginally flatter than purely surface-following, consistent with the westward-thickening substrate, but far from supporting an absolute datum. The two slopes are read directly from the committed per-well sweep: each well's R²-maximising datum in 03_09_well_optimal_datums.csv is taken both as a depth and, as ground elevation minus that depth, as an elevation, and each is regressed on the DGPS ground elevation in 01_well_elevations.csv (n = 66); no separate model is fitted.
 
-### []{#anchor-29}[]{#anchor-31}[]{#anchor-32}Implementation: *model_utils.fit_ssm()*
+### []{#anchor-30}[]{#anchor-31}[]{#anchor-32}Implementation: *model_utils.fit_ssm()*
 
 The authoritative implementation is *src/utils/model_utils.py*. Every per-well, per-cluster, or per-network SSM fit in the pipeline goes through *fit_ssm()* (no-intercept, "Model A") or *fit_ssm_intercept()* (with-intercept, "Model B"). Scripts must not reimplement OLS locally.
 
@@ -191,23 +191,23 @@ with defaults that produce the canonical SSM specification. The returned dict ca
 
 The *provenance=* and *exclude_interpolated=* kwargs control interpolated-row handling. Default behaviour: with *exclude_interpolated=False* (the default), interpolated rows from *01_wells_provenance.csv* remain in the SSM fit and the canonical β₁/β₂/β₃ coefficient table is preserved. Setting *exclude_interpolated=True* with a provenance series supplied restricts the fit to measured rows only, as a documented sensitivity path; the chapter that consumes this --- §S.3 --- describes when it would be invoked.
 
-### []{#anchor-31}[]{#anchor-33}[]{#anchor-34}Two regimes: no-intercept (A) and with-intercept (B)
+### []{#anchor-32}[]{#anchor-33}[]{#anchor-34}Two regimes: no-intercept (A) and with-intercept (B)
 
 The headline SSM is Model A --- no intercept. The justification: the SSM is a physically motivated decomposition of Δh into rainfall, PET, and drainage contributions, and there is no remaining physical mechanism for a constant bias. A non-zero intercept under Model A would indicate that one or more β coefficients is absorbing a constant lateral inflow/outflow that the model does not explicitly represent.
 
 Model B (with intercept α) is fitted in Scripts 22 and 24 as a diagnostic. A statistically significant α at a particular well flags that well as poorly described by the headline SSM --- typically because lateral subsidies (ridge-derived recharge, lake exchange) or local hydraulic effects matter at that location. Script 08 does not fit Model B. Its benchmark sets the headline Model A against a traditional linear model that carries its own constant term, so what it compares is the physical decomposition against a more flexible but unphysical alternative, not Model A against Model B.
 
-### []{#anchor-33}[]{#anchor-35}[]{#anchor-36}Sanity-check assertions
+### []{#anchor-34}[]{#anchor-35}[]{#anchor-36}Sanity-check assertions
 
 *assert_physical_signs()* is called at every cluster fit in Script 03. It returns a *(hard_violations, soft_warnings)* tuple. Hard violations halt the pipeline after the relevant diagnostic outputs (LOO, bootstrap, datum sensitivity) have been written, so the investigator has the supporting tables to diagnose the failure rather than just a stack trace. Soft warnings (β₃ ≤ 0) are printed and recorded; they do not halt.
 
 The principle is that the pipeline should fail loudly when its physical assumptions are violated. A negative β₁ is not a "degraded fit" --- it is physical nonsense that should never silently propagate into a report number.
 
-# []{#anchor-35}[]{#anchor-37}[]{#anchor-38}F.4 Configuration, constants, and the cluster partition
+# []{#anchor-36}[]{#anchor-37}[]{#anchor-38}F.4 Configuration, constants, and the cluster partition
 
 All values that are constant across the pipeline live in *src/utils/config.py*. Where a scientific decision determines a value --- the canonical 24% canopy interception fraction, the 3.7 m drainage datum, the Curreli ecohydrological thresholds, the UKCP18 climate scaling factors --- that decision is recorded against the constant. Scripts must not redefine these values locally; the principle is that there is one place to change a value, and the change propagates everywhere.
 
-### []{#anchor-37}[]{#anchor-39}[]{#anchor-40}What is in *config.py*
+### []{#anchor-38}[]{#anchor-39}[]{#anchor-40}What is in *config.py*
 
 The principal entries:
 
@@ -234,7 +234,7 @@ The principal entries:
 
 The B&W rendering mode (*BW_MODE*) is toggled by the *NRG_BW_MODE* environment variable, which *run_analysis.py* sets when invoked with *\--greyscale-full*. When active, scripts switch to the *CLUSTER_COLOURS_BW* palette, apply *BW_HATCHES* to bar charts, use *BW_LINESTYLES* for multi-series line plots, and call the hillshade DEM loader for map backgrounds. The convenience functions *get_cluster_colour()*, *get_bar_hatch()*, *get_line_style()*, *get_line_colour()*, and *get_cmap()* provide colour-mode and B&W-mode behaviour in a single call, so a script does not need to branch on *BW_MODE* itself.
 
-### []{#anchor-39}[]{#anchor-41}[]{#anchor-42}The k=5 partition
+### []{#anchor-40}[]{#anchor-41}[]{#anchor-42}The k=5 partition
 
 The reference network is partitioned into five behavioural clusters using Ward's linkage on correlation distance between cluster-mean hydrographs (Script 02). The cluster IDs and labels are:
 
@@ -249,13 +249,13 @@ The reference network is partitioned into five behavioural clusters using Ward's
 
 *02_clustering.py* carries a *CLUSTER_ID_ANCHORS* dict that pins Ward's raw (arbitrary) output to these canonical IDs. A guard at module load asserts that *CLUSTER_ID_ANCHORS* and *CLUSTER_LABELS* agree. Membership counts (live, May 2026 partition under *01_data_prep.py* v1.3.0 which blacklists the tidal *pdfs* well) are C1 = 7, C2 = 24, C3 = 21, C4 = 9, C5 = 5; total 66 wells in the reference network.
 
-### []{#anchor-41}[]{#anchor-43}[]{#anchor-44}Partition history
+### []{#anchor-42}[]{#anchor-43}[]{#anchor-44}Partition history
 
 The k=5 partition supersedes an earlier k=6 partition that included a separate "Lake" cluster for Llyn Rhos-Ddu. Under k=5, Llyn Rhos-Ddu is treated as a fixed-head boundary feature rather than a cluster --- it is the dominant local drainage sink for C1 Lake Edge wells but is not itself a behavioural cluster. The old C5 (Coastal, n=1, single tidally-influenced well) and old C6 (Lake, n=1) were dropped at the partition step as physically unreliable singletons. Their names re-appear under k=5 with different membership --- old C5 ≠ new C5.
 
 References to "C6 Lake" or "tidal exclusion" framing of C5 elsewhere in the project file store are from the superseded k=6 partition and should be ignored.
 
-### []{#anchor-43}[]{#anchor-45}[]{#anchor-46}The identity-vs-integer keying principle
+### []{#anchor-44}[]{#anchor-45}[]{#anchor-46}The identity-vs-integer keying principle
 
 This principle warrants its own section here, because future partition changes are not impossible (a sixth cluster could be identified, or the C5 Coastal Forest subset could be reabsorbed into C3 if the coastal-retreat signal proves to be exogenous), and the principle determines how downstream code survives.
 
@@ -267,7 +267,7 @@ The convention going forward: if a dict is keyed by integer cluster ID and holds
 
 Several dicts in the codebase are physical-data-keyed-by-integer and need verification under any future partition change: *SUMMER_TRENDS* and *FLOOD_FREQ* in Script 16, *RESIDUAL_PCT_SE* in the water-balance work, and *CLUSTER_PEAK_MONTH* in Script 11. These dicts are now read dynamically from upstream pipeline CSVs where possible (*03_cluster_peak_months.csv* for the peak months, *16_water_bal_table.csv* for residuals), but any remaining hardcoded entries should be revisited if the partition changes.
 
-### []{#anchor-45}[]{#anchor-47}[]{#anchor-48}Specific yield: two values per cluster
+### []{#anchor-46}[]{#anchor-47}[]{#anchor-48}Specific yield: two values per cluster
 
 Two per-cluster specific-yield references are cited in the report: literature values for unconfined dune sand (Fetter, 2001) and empirical estimates from the water-table-fluctuation (WTF) method (Scripts 17 and 18). The water-balance partition (Script 16) uses neither --- it is Sy-free (§S.11) --- so the two references serve as substrate-storage context and as a literature-versus-empirical comparison, not as inputs to the balance. For reference here:
 
@@ -282,7 +282,7 @@ Two per-cluster specific-yield references are cited in the report: literature va
 
 The Fetter values are literature specific yields for unconfined dune sand, cited as a comparison benchmark; they do not enter Script 16\'s water-balance partition, which is Sy-free (§S.11). The WTF values are the empirical estimates from rising-limb event analysis (Script 17, Table 4c). They are not in conflict; they are independent references --- one from the literature, one empirical --- and the report cites both. The Phase 6 chapter explains why the corrected and uncorrected C4 medians both appear in Table 4c, and the Phase 8 chapter explains why the well-level cluster mean (0.202 for C4) is lower than the cluster-aggregate value (0.227).
 
-### []{#anchor-47}[]{#anchor-49}[]{#anchor-50}Scripts in the post-Phase-2 region --- naming and step assignment
+### []{#anchor-48}[]{#anchor-49}[]{#anchor-50}Scripts in the post-Phase-2 region --- naming and step assignment
 
 The scripts in the post-Phase-2 region of the pipeline carry filename prefixes, orchestrator step numbers, and chapter assignments aligned as follows:
 
@@ -310,7 +310,7 @@ The scripts in the post-Phase-2 region of the pipeline carry filename prefixes, 
 -   **Script 09g** (*09g_mechanism_diagrams.py*) --- Four-driver mechanism-diagram suite: the §5.8 combined schematic grid and the standalone coastal-vs-climate reach figure. Step 48/49, Phase 17. Display/utility tier, not analytical. Reads only committed outputs of Scripts 09f, 10m and 10a; no recomputation. Documented in §S.15d.
 -   **Script 27** (*27_greyscale_figures.py*) --- Post-pipeline greyscale figure-rendering utility. Step 49/49, Phase 17. Display/utility tier, not analytical. Documented in Appendix A.
 
-### []{#anchor-49}[]{#anchor-51}[]{#anchor-52}MSL aggregation --- constants and conventions
+### []{#anchor-50}[]{#anchor-51}[]{#anchor-52}MSL aggregation --- constants and conventions
 
 A new family of constants in *utils/config.py* parameterises the van Willegen 5-year mean spring water level (MSL5) aggregation introduced at Script 26 and consumed by Tools A and B in S.18b. These constants are stable across the pipeline (changing them would re-define the metric) and are documented here as the canonical source.
 
@@ -331,7 +331,7 @@ UKCP18 multipliers used by Tool B are central-estimate Wales 50th-percentile val
 
 The multipliers scale the observed P and PET series; neither is recomputed from projected temperature, so the projections inherit the observed record's seasonal structure. One assumption follows and is worth stating. The UKCP18 PET changes are derived on a physically-based footing, whereas the baseline they scale is Thornthwaite, and the two do not respond proportionally to warming: Thornthwaite carries its heat index in the denominator and so damps its own response, measured at an elasticity of 0.42 over the RAF Valley record (00_05_pet_warming_response.csv). Applying a physically-based fractional change to a Thornthwaite baseline is therefore a deliberate choice, and a conservative one --- the scenario imposes more evaporative demand than Thornthwaite would generate from the same warming.
 
-### []{#anchor-51}[]{#anchor-53}[]{#anchor-54}*pipeline_params.py* --- the consolidated scenario parameter file
+### []{#anchor-52}[]{#anchor-53}[]{#anchor-54}*pipeline_params.py* --- the consolidated scenario parameter file
 
 A subset of *config.py* constants is supplemented at run time by values that are computed by the pipeline itself and consumed by downstream scenario scripts. These live in a per-run CSV at *outputs/01_data_prep/pipeline_scenario_params.csv*, managed by *utils/pipeline_params.py*.
 
@@ -345,15 +345,15 @@ The architecture is producer-consumer with explicit provenance:
 
 Each value carries a *source\_\** column flagging whether it is from *\"pipeline\"* (a script has updated it) or *\"defaults\"* (it is still a placeholder from the initial write). Where any consumer reads a placeholder, a warning is printed recommending a second pipeline run. The two-pass workflow described in *PIPELINE_README.md* exists for this reason: the scenario figures use Sy and β₂ multipliers that are computed later in the pipeline, so the first pass uses fallbacks and the second pass uses canonical values.
 
-# []{#anchor-53}[]{#anchor-55}[]{#anchor-56}F.5 Shared utility modules
+# []{#anchor-54}[]{#anchor-55}[]{#anchor-56}F.5 Shared utility modules
 
 Eight modules in *src/utils/* carry the shared functionality that the analytical scripts depend on. The module inventory:
 
-### []{#anchor-55}[]{#anchor-57}[]{#anchor-58}config.py
+### []{#anchor-56}[]{#anchor-57}[]{#anchor-58}config.py
 
 Constants and palette. F.4 covers its contents in full.
 
-### []{#anchor-57}[]{#anchor-59}[]{#anchor-60}paths.py
+### []{#anchor-58}[]{#anchor-59}[]{#anchor-60}paths.py
 
 Single source of truth for every input and output file path. The module is organized into four blocks:
 
@@ -364,7 +364,7 @@ Single source of truth for every input and output file path. The module is organ
 
 The naming convention is rigid: every path constant has a single owner (the script that writes it) and many readers. A grep for *OUT_03_MECHANISTIC_TABLE* finds the writer (Script 03) and every reader (Scripts 07, 11, 16, 19, 21). No script reads or writes a hardcoded path; every path goes through *utils.paths*.
 
-### []{#anchor-59}[]{#anchor-61}[]{#anchor-62}model_utils.py
+### []{#anchor-60}[]{#anchor-61}[]{#anchor-62}model_utils.py
 
 The SSM specification. F.3 covers *build_ssm_frame()* and *fit_ssm()*; the full function inventory:
 
@@ -381,7 +381,7 @@ A former *compute_intercept_audit()* helper, a Model A versus Model B comparison
 
 Two named thresholds: *MIN_OBS = 30* (minimum aligned rows for a per-well fit, applied inside *fit_ssm* and *fit_ssm_intercept*) and *LCSC_DATA_LIMIT = 100* (the equal-length per-well fitting window). Both are declared in *utils/config.py* --- as *SSM_MIN_OBS* and *LCSC_DATA_LIMIT* --- and re-exported under the names above by *model_utils*, so each value is declared once and every consumer imports it: Scripts 03, 08 and 30 for the window, and the *model_utils* fitters themselves for the minimum.
 
-### []{#anchor-61}[]{#anchor-63}[]{#anchor-64}data_utils.py
+### []{#anchor-62}[]{#anchor-63}[]{#anchor-64}data_utils.py
 
 Three short helpers shared across scripts:
 
@@ -390,7 +390,7 @@ Three short helpers shared across scripts:
 -   *clean_well_series(series, max_depth=4.0)* --- drop unphysical depth values (\> 4.0 m below ground) to NaN, then linearly interpolate single missed-visit gaps only (*limit=1*). The 4 m maximum is the *MAX_PHYSICAL_DEPTH* constant --- set at the deepest plausible water table for the warren given site geometry and historical records.
 -   *calculate_cusum(series, baseline_mean)* --- cumulative sum of departures from a baseline mean. The CUSUM diagnostic used by Scripts 09 and 10.
 
-### []{#anchor-63}[]{#anchor-65}[]{#anchor-66}clearfell_common.py
+### []{#anchor-64}[]{#anchor-65}[]{#anchor-66}clearfell_common.py
 
 Shared module for the Script 10 clearfell BACI suite (10a--10m). Provides:
 
@@ -403,7 +403,7 @@ Shared module for the Script 10 clearfell BACI suite (10a--10m). Provides:
 
 The suite-shared module makes it possible to change the impact-well list, the BACI dates, or the distance-weight function in one place, and have all thirteen sub-scripts pick up the change consistently.
 
-### []{#anchor-65}[]{#anchor-67}[]{#anchor-68}scraping_common.py
+### []{#anchor-66}[]{#anchor-67}[]{#anchor-68}scraping_common.py
 
 Analogous shared module for the Script 09 scraping suite (09a--09e). Provides:
 
@@ -416,7 +416,7 @@ Analogous shared module for the Script 09 scraping suite (09a--09e). Provides:
 -   **Cluster-parameter loader.** *load_cluster_params()* consolidates β coefficients (from Script 03), Sy (from Script 17), and head displacement (from Script 01) into a single per-cluster dict.
 -   **Scenario computation.** *compute_scenario_bars(cluster_params, summer_P, summer_PET, \...)* produces the per-cluster volumetric scenario bars (mm/month) for clearfell, thinning, broadleaf, climate-dry, and climate-wet scenarios using the Option 3 monthly perturbation formulation. This is the single source of truth for scenario values; Scripts 09d, 19, and 21 all call it.
 
-### []{#anchor-67}[]{#anchor-69}[]{#anchor-70}pipeline_params.py
+### []{#anchor-68}[]{#anchor-69}[]{#anchor-70}pipeline_params.py
 
 Consolidated scenario parameter file management. F.4 describes the architecture. The function inventory:
 
@@ -429,7 +429,7 @@ Consolidated scenario parameter file management. F.4 describes the architecture.
 
 The *\_DEFAULTS* dict at the top of the module records the placeholder values used on a first pipeline run (β₁ = 3.5, β₂ = 1.5, β₃ = 0.025, Sy = 0.25, clearfell_b2_mult = 1.10, thinning_b2_mult = 1.05, peak_month = 2). These are chosen as central plausible values rather than as scientifically meaningful --- they exist to keep the pipeline runnable on a fresh install before upstream scripts have produced canonical outputs.
 
-### []{#anchor-69}[]{#anchor-71}[]{#anchor-72}map_utils.py
+### []{#anchor-70}[]{#anchor-71}[]{#anchor-72}map_utils.py
 
 GIS and map-plotting helpers shared by every spatial-output script (04, 07, 08, 11b, 12, 13, 18, 19, 20). Key functions:
 
@@ -442,7 +442,7 @@ GIS and map-plotting helpers shared by every spatial-output script (04, 07, 08, 
 
 The module routes through *BW_MODE* for B&W mode rendering, switching to hillshade DEM, greyscale colormaps, and hatched legend markers when active.
 
-### []{#anchor-71}[]{#anchor-73}[]{#anchor-74}How the modules compose
+### []{#anchor-72}[]{#anchor-73}[]{#anchor-74}How the modules compose
 
 A typical analytical script imports from several utility modules:
 
@@ -462,7 +462,7 @@ from utils.data_utils import clean_well_series, normalize_well_name
 
 The pattern is intentional: constants from *config*, paths from *paths*, OLS from *model_utils*, and small per-row transformations from *data_utils*. Where the script implements one of the BACI or scraping analyses, it additionally imports from *clearfell_common* or *scraping_common* for the suite-shared logic. Where it is a spatial output, it imports *map_utils* for the rendering helpers. Scripts do not import from each other --- every shared piece of state passes through an intermediate CSV or through one of these utility modules.
 
-# []{#anchor-73}[]{#anchor-75}F.6 Which record does each analysis use
+# []{#anchor-74}[]{#anchor-75}F.6 Which record does each analysis use
 
 The reference network admits a well at more than 100 months of record. That threshold is an admission rule and not a fitting window, and the distinction matters because the analyses below deliberately use different parts of the record. Three roles are in play. A fit whose coefficients are consumed downstream wants every month available, because identification improves with record length. A comparison across wells wants an equal record at every well, because otherwise the wells are not comparable with each other. An intervention analysis wants the months either side of the event and nothing else.
 
@@ -485,17 +485,17 @@ Two consequences follow, and both are deliberate. The cluster-centroid coefficie
 
 Every window in the table is a named constant in utils/config.py, not a literal in a script: MIN_MONTHS_THRESH for admission, LCSC_DATA_LIMIT for the comparison window, RESIDUAL_DIAG_MIN_MONTHS for the residual-diagnostic floor, and the intervention dates in clearfell_common. The centroid fits pass window = None explicitly rather than by omission.
 
-# []{#anchor-73}[]{#anchor-76}[]{#anchor-77}Phase 1 --- Core LCSC Chain
+# []{#anchor-75}[]{#anchor-76}[]{#anchor-77}Phase 1 --- Core LCSC Chain
 
-## []{#anchor-76}[]{#anchor-78}[]{#anchor-79}S.1 Script 01 --- Data preparation
+## []{#anchor-77}[]{#anchor-78}[]{#anchor-79}S.1 Script 01 --- Data preparation
 
 Step 1 / 27. Phase 1.
 
-### []{#anchor-78}[]{#anchor-80}[]{#anchor-81}Motivation
+### []{#anchor-79}[]{#anchor-80}[]{#anchor-81}Motivation
 
 Script 01 is the gateway to every downstream step in the pipeline. Each of the 27 scripts that follow reads from one or more of its eight output files, and no other script touches the raw data CSVs (with two documented exceptions that re-read raw inputs for specialist purposes: Script 09a for BACI windowing and Script 24 for sunshine-hour series). The chapter therefore covers two distinct jobs that Script 01 performs together: a *technical* job --- converting three raw data sources into a self-consistent set of monthly time series with a single date convention, a single well-name convention, and well elevations in metres above Ordnance Datum --- and a *scientific* job, which is to declare the membership of the reference network and the extended network that subsequent analyses operate on. Three methodological choices here have particular weight in the rest of the document: the day-15 bucketing convention introduced in F.2, the hardcoded reference-network whitelist that excludes the Forest Enterprise clearfell wells, Llyn Rhos-Ddu, and two singleton-outlier CEH wells, and the single-month interpolation *limit=1* policy with its per-cell provenance partner file *01_wells_provenance.csv*. All three are described in summary in the front matter; this chapter is the full description.
 
-### []{#anchor-80}[]{#anchor-82}[]{#anchor-83}Inputs
+### []{#anchor-81}[]{#anchor-82}[]{#anchor-83}Inputs
 
   --------------------------------------- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   Input file                              Description
@@ -504,7 +504,7 @@ Script 01 is the gateway to every downstream step in the pipeline. Each of the 2
   data/RAF_Valley_Climate.csv             Met Office monthly returns from RAF Valley station, ≈16 km north-east of the site, 1930--present. Provides monthly maximum and minimum temperature, air-frost days, rainfall, and sunshine hours.
   --------------------------------------- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-### []{#anchor-82}[]{#anchor-84}[]{#anchor-85}Methodology
+### []{#anchor-83}[]{#anchor-84}[]{#anchor-85}Methodology
 
 The script runs four blocks in sequence, preceded by a metadata sanity check.
 
@@ -574,7 +574,7 @@ where *N* is the mean monthly daylight hours computed from the site latitude (*R
 
 **Scenario-parameter seed.** Finally, Script 01 calls *pipeline_params.write_initial_params()* to write the initial state of *01_data_prep/pipeline_scenario_params.csv*. This file is the consolidated scenario-parameter store described in F.4: a per-cluster table of SSM coefficients, specific yields, displacement values, peak month, and summer climate seeds, written here with placeholders and then updated in later passes by Scripts 03 (cluster SSM coefficients), 10e (clearfell coefficient decomposition), and 17 (peak-month seasonal stats). The Script 01 → downstream-scenario handshake is a producer-consumer pattern; the file is the contract, the script is one of four writers, and the scenario-running scripts (09b, 09d, 19, 21) are the consumers.
 
-### []{#anchor-84}[]{#anchor-86}[]{#anchor-87}Outputs
+### []{#anchor-85}[]{#anchor-86}[]{#anchor-87}Outputs
 
   ------------------------------------------- ------------------------------------------------------------------------------------------------- --------------------------------------------------------------------
   Output file                                 Contents                                                                                          Consumers
@@ -591,21 +591,21 @@ where *N* is the mean monthly daylight hours computed from the site latitude (*R
 
 All paths resolve through *utils/paths.py* (*INT_LOCATIONS*, *INT_CLIMATE*, *INT_WELLS_CLEAN*, *INT_WELLS_PROVENANCE*, *INT_WELLS_CLEAN_MAOD*, *INT_WELLS_REFERENCE*, *INT_WELLS_EXTENDED*, *INT_WELL_ELEVATIONS*, *DIR_01*) and are never hardcoded in the script body.
 
-### []{#anchor-86}[]{#anchor-88}[]{#anchor-89}Limitations and known caveats
+### []{#anchor-87}[]{#anchor-88}[]{#anchor-89}Limitations and known caveats
 
 -   **The reference-network whitelist is hardcoded.** Adding or removing a well requires a code change and a CHANGELOG entry. The trade-off is deterministic reproducibility against operational ease, and this script deliberately prioritises the former; the alternative --- an algorithmic selection that drifts silently when the data is updated --- has worse failure modes for a paper-of-record analysis.
 -   **The bucketing convention assumes monthly readings.** Multiple readings in the same bucketed month are averaged, which would mask any genuine intra-month dynamics if higher-frequency data became routinely available. The current monthly cadence is set by the field protocol and the script's design follows that cadence; sub-monthly logging would require a different implementation.
 -   **Thornthwaite PET is a simple empirical estimator.** It uses temperature and day length, not net radiation or vapour-pressure deficit, and is known to underestimate summer atmospheric demand for forested surfaces. The site-wide implications are taken up in S.10 (depth-dependent PET) and S.16 (residual seasonality), and §5.3 of the report discusses what this means for the cluster-mean β₂ values. For a long-term monthly model on a temperate site with the data the Met Office routinely publishes, Thornthwaite is the defensible choice; the limitation is acknowledged rather than corrected here.
 -   **The 4 m depth floor catches nothing in the current dataset.** No reading in *Newborough_Cleaned_For_Model.csv* is more negative than −2.87 m. The floor is a forward-looking safeguard against stray entries from future data drops or damaged-sensor records, not a constraint on the current data. It is implemented as a signed floor (*series \>= -4.0*) against the negative-valued depth series.
 
-### []{#anchor-88}[]{#anchor-90}[]{#anchor-91}Where the result appears in the report
+### []{#anchor-89}[]{#anchor-90}[]{#anchor-91}Where the result appears in the report
 
 -   §3.1 *Data preparation* --- bucketing convention, network partition.
 -   §3.1.2 --- the FE/LIS exclusion rationale and the Llyn Rhos / CEH3 / CEH22 routing.
 -   §3.2 --- Thornthwaite PET specification.
 -   §3.3 and onward --- implicit, in every analysis that reads from the Script 01 outputs.
 
-### []{#anchor-90}[]{#anchor-92}[]{#anchor-93}Cross-references
+### []{#anchor-91}[]{#anchor-92}[]{#anchor-93}Cross-references
 
 -   **F.2** --- bucketing convention, date semantics, the *HEADLINE_LAG = 0* decision and its history. Refer to F.2 rather than re-deriving.
 -   **F.3** --- SSM equation form and sign conventions; relevant background to the network-partition decisions but not re-stated here.
@@ -616,17 +616,17 @@ All paths resolve through *utils/paths.py* (*INT_LOCATIONS*, *INT_CLIMATE*, *INT
 -   **S.7** (sub-script 10e) --- updates *pipeline_scenario_params.csv* with the clearfell coefficient decomposition.
 -   **S.10** --- depth-dependent PET correction that addresses the Thornthwaite under-estimation noted above.
 
-## []{#anchor-92}[]{#anchor-94}[]{#anchor-95}S.2 Script 02 --- Behavioural clustering
+## []{#anchor-93}[]{#anchor-94}[]{#anchor-95}S.2 Script 02 --- Behavioural clustering
 
 Step 2 / 27. Phase 1.
 
-### []{#anchor-94}[]{#anchor-96}[]{#anchor-97}Motivation
+### []{#anchor-95}[]{#anchor-96}[]{#anchor-97}Motivation
 
 Script 02 produces the cluster partition that almost every downstream analysis inherits. It applies Ward's hierarchical clustering on Pearson correlation distance to the 66-well reference network defined by Script 01, cuts the resulting tree at *k* = 5, and writes a per-well cluster assignment to *02_cluster_stats.csv*. Three methodological decisions made here propagate through the rest of the supplement: the choice of Ward's linkage on correlation distance (rather than Euclidean or some other behavioural metric); the choice of *k* = 5 (rather than 4, 6, or some other partition order); and the anchor-well remap that pins Ward's arbitrary integer outputs to canonical, stable cluster IDs.
 
 Alongside the clustering itself the script computes a richer validation suite --- silhouette and Calinski-Harabasz across *k* = 2...10, bootstrap stability across *k* = 4...7, co-assignment heatmaps --- and a second analysis bundle that does not strictly belong to clustering: per-well and per-cluster seasonal-amplitude descriptors with a climate-normalized variant that excludes three identified drought summers. The amplitude descriptors feed §4.2 of the report directly.
 
-### []{#anchor-96}[]{#anchor-98}[]{#anchor-99}Inputs
+### []{#anchor-97}[]{#anchor-98}[]{#anchor-99}Inputs
 
   ------------------------ ------------------------------------------------------------------------------------------------------------------------------------
   Input file               Description
@@ -635,7 +635,7 @@ Alongside the clustering itself the script computes a richer validation suite --
   01_climate.csv           Monthly P and PET (m), used in the same figure (Script 01)
   ------------------------ ------------------------------------------------------------------------------------------------------------------------------------
 
-### []{#anchor-98}[]{#anchor-100}[]{#anchor-101}Methodology
+### []{#anchor-99}[]{#anchor-100}[]{#anchor-101}Methodology
 
 The script proceeds in seven blocks executed in order in *\_\_main\_\_*:
 
@@ -674,7 +674,7 @@ Two parallel climate-normalized variants drop the Jun--Sep monthly observations 
 
 Per-well descriptors are written to *02_08_cluster_amplitude_per_well.csv*. Per-cluster aggregation is **median-of-medians across wells** within each cluster (not aggregation on a cluster-mean hydrograph), with the per-cluster summary written to *02_09_cluster_amplitude_summary.csv* and a boxplot of post-2018 amplitude distributions to *02_10_cluster_amplitude_boxplot.png*. A defensive check at the top of the function rejects any *cluster_df* that contains non-canonical IDs (i.e. that has not been passed through the remap), so the amplitude file cannot drift away from the partition.
 
-### []{#anchor-100}[]{#anchor-102}[]{#anchor-103}Site-specific choices and rationale
+### []{#anchor-101}[]{#anchor-102}[]{#anchor-103}Site-specific choices and rationale
 
 -   **Ward's linkage.** Single-linkage produces chained clusters in this data --- the algorithm strings together intermediate wells and the lake-edge / dune distinction is lost. Complete-linkage produces overly compact clusters that split otherwise coherent behavioural groups across the partition boundary. Ward's variance-minimisation is the standard choice for small-network behavioural clustering and produces clusters that align with the site's hydrogeology on inspection.
 -   **Correlation distance, not Euclidean.** The clustering question is about behavioural similarity, not absolute level. Two wells with identical seasonal cycles but mean depths 1 m apart should cluster together --- and do under correlation distance. Euclidean distance on raw depths would separate them.
@@ -684,7 +684,7 @@ Per-well descriptors are written to *02_08_cluster_amplitude_per_well.csv*. Per-
 -   **Drought-summer normalization in the amplitude descriptor.** The post-2018 window contains three drought summers (2005, 2018, 2022) that disproportionately inflate raw *p90 − p10* in any well that responds to those summers. The climate-normalized variant drops the Jun--Sep months of those years, identified empirically against the 1931--2017 RAF Valley mean rather than against a model-derived definition; this preserves auditability and means the list does not change if a future analysis revises the PET model. The unnormalised variant is reported alongside so the reader can see what the normalization does.
 -   **N = 1000 bootstraps.** At N = 200, the per-well stability CIs are noticeably wider; at N = 5000 they tighten to within \~0.001 of the N = 1000 estimates at a runtime cost that is not justified for a diagnostic descriptor. 1000 is the standard published choice for bootstrap-stability diagnostics on networks of this size.
 
-### []{#anchor-102}[]{#anchor-104}[]{#anchor-105}Outputs
+### []{#anchor-103}[]{#anchor-104}[]{#anchor-105}Outputs
 
   ------------------------------------------------------ ------------------------------------------------------------------------------
   Output                                                 Description
@@ -702,7 +702,7 @@ Per-well descriptors are written to *02_08_cluster_amplitude_per_well.csv*. Per-
   02_clustering/02_10_cluster_amplitude_boxplot.png      Post-2018 amplitude distribution boxplot, one box per cluster
   ------------------------------------------------------ ------------------------------------------------------------------------------
 
-### []{#anchor-104}[]{#anchor-106}[]{#anchor-107}Limitations and known caveats
+### []{#anchor-105}[]{#anchor-106}[]{#anchor-107}Limitations and known caveats
 
 -   **C3 (Western Residual) is the lowest-stability cluster, not C1.** Bootstrap diagnostics give median within-cluster co-assignment of approximately 0.50 for C3 at k = 5, against ≥ 0.93 for C1, C2, C4, and C5. C3 contains two geographically distinguishable sub-populations --- a low-ground southern coastal fringe (ceh4, ceh18, ceh21, ceh36, ceh42) and the west-side open dune wells (nw1, nw2, nw5--7, nw11, nw13) --- that Ward's does not separate at any *k* from 5 to 9 because they share a common behavioural signature at the resolution the algorithm achieves. This is treated as a landscape/behaviour distinction in §3.2 rather than as a clustering failure.
 -   **CEH11 is the weakest member of C1 (Lake Edge).** Individual-well bootstrap co-assignment is approximately 0.68 for ceh11 at k = 5, against ≥ 0.95 for the other six C1 members. CEH11 is included on physical grounds (its lake-adjacent location matches the cluster's character) but is flagged as a borderline membership in both the script comment block above *CLUSTER_ID_ANCHORS* and in the report.
@@ -710,14 +710,14 @@ Per-well descriptors are written to *02_08_cluster_amplitude_per_well.csv*. Per-
 -   **The anchor remap fails loudly under sufficient perturbation.** If a future data change causes Ward's output to place two canonical anchors in the same raw cluster, or to split one anchor pair across two raw clusters, *\_remap_cluster_ids_by_anchor* raises *ValueError* rather than silently producing an ambiguous partition. The error is the intended behaviour; resolution is to inspect the dendrogram and either revise the anchors (if the new partition is a refinement of the old) or accept that the partition has genuinely changed and recompute everything that depends on it.
 -   *MIN_RECORD_MONTHS = 100*\*\* is duplicated from Script 01.\*\* Script 01's *MIN_MONTHS_THRESH = 100* defines the reference-network membership; Script 02's *MIN_RECORD_MONTHS = 100* is used only inside the cluster-hydrograph water-balance figure to filter the *full* (not reference) wells table for the short-profile panel. The two values happen to coincide and match by convention; if Script 01's threshold were ever changed, Script 02's local constant would need to be revisited.
 
-### []{#anchor-106}[]{#anchor-108}[]{#anchor-109}Where the result appears in the report
+### []{#anchor-107}[]{#anchor-108}[]{#anchor-109}Where the result appears in the report
 
 -   §3.2 *Cluster definition* --- Ward's, correlation distance, *k* = 5, anchor remap, validation suite.
 -   §4.2 *Cluster characterization and description* --- built from the cluster-hydrograph figure and the amplitude descriptors.
 -   Table 3 --- cluster mechanistic coefficients (β₁, β₂, β₃) per cluster, sourced from Script 03 but indexed by the partition defined here.
 -   Figures 7--9 --- dendrogram, validation, and cluster-hydrograph figures from *02_clustering/*.
 
-### []{#anchor-108}[]{#anchor-110}[]{#anchor-111}Cross-references
+### []{#anchor-109}[]{#anchor-110}[]{#anchor-111}Cross-references
 
 -   **F.4** --- *k* = 5 partition table with anchor wells and member counts; identity-vs-integer-keying principle, which *\_remap_cluster_ids_by_anchor* operationalises.
 -   **F.5** --- *paths.py*, *config.py*, and *data_utils.py* module roles.
@@ -726,15 +726,15 @@ Per-well descriptors are written to *02_08_cluster_amplitude_per_well.csv*. Per-
 -   **S.4** --- Pearson-affinity audit and extended-network analysis (grouped chapter covering Scripts 04, 05, 06), which quantify how confidently each well's cluster assignment can be defended.
 -   **F.4** --- partition history (k = 6 → k = 5 transition, dropped single-well clusters, identity-vs-integer-keying principle) is consolidated in F.4 of this supplement.
 
-## []{#anchor-110}[]{#anchor-112}[]{#anchor-113}S.3 Script 03 --- State-space regression and LCSC
+## []{#anchor-111}[]{#anchor-112}[]{#anchor-113}S.3 Script 03 --- State-space regression and LCSC
 
 Step 3 / 27. Phase 1.
 
-### []{#anchor-112}[]{#anchor-114}[]{#anchor-115}Motivation
+### []{#anchor-113}[]{#anchor-114}[]{#anchor-115}Motivation
 
 Script 03 is where the state-space model gets fitted to the data. Per-well coefficients are written to *03_master_data.csv* (consumed by Scripts 07, 08, 11, 16, 19, 21, and the rest); cluster-centroid coefficients are written to *03_03_cluster_mechanistic_coefficients.csv* (the source of Table 3 in the main report). Five quantitative validation outputs sit alongside the headline fits: a lag diagnostic that tests whether the centroid responds best to the current month's rainfall or to an earlier one, a 1,000-replicate bootstrap that asks how sensitive each cluster's β estimate is to the particular set of member wells, a leave-one-out sweep that checks for single-well domination, a pre/post-2018 split-window for C1 Lake Edge, and a drainage-datum sensitivity sweep that runs both at the cluster centroid and per-well. The chapter walks each in turn. The SSM equation, sign conventions, displacement formulation, and the role of *DRAINAGE_DATUM = 3.7 m* are covered in full in F.3; this chapter does not re-derive them. The Lumped Catchment Storage Coefficient (LCSC) --- the rescaled β₁ used as the report's headline mechanistic descriptor --- is introduced here for the first time.
 
-### []{#anchor-114}[]{#anchor-116}[]{#anchor-117}Inputs
+### []{#anchor-115}[]{#anchor-116}[]{#anchor-117}Inputs
 
   -------------------------------------- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   Input file                             Description
@@ -748,7 +748,7 @@ Script 03 is where the state-space model gets fitted to the data. Per-well coeff
   01_wells_provenance.csv                Per-cell provenance flags from Script 01 --- optional input, loaded only when a caller invokes *fit_ssm(\..., exclude_interpolated=True)* for the measured-only sensitivity. The canonical centroid fits do not consume this file.
   -------------------------------------- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-### []{#anchor-116}[]{#anchor-118}[]{#anchor-119}Methodology
+### []{#anchor-117}[]{#anchor-118}[]{#anchor-119}Methodology
 
 The script runs eleven blocks in *main()*. The order matters: per-well fits → centroid construction → centroid headline fits → diagnostic suite (lag, datum, bootstrap, leave-one-out, C1 split) → summary table → figures and regional-average exports. The hard-halt on a centroid sign violation is deferred to the very end so that the diagnostic tables and figures get written *before* the pipeline stops --- these are exactly the tables an investigator needs to diagnose the failure.
 
@@ -803,7 +803,7 @@ Six of 66 wells never achieve β₃ \> 0 with p \< 0.05 at any datum in the swee
 
 **Regional-average exports --- ***export_regional_averages***, ***export_regional_averages_maod***, ***export_cluster_peak_months***.** Three files for downstream consumption: the cluster-centroid hydrograph in depth-below-ground (*03_regional_averages.csv*), the same in m AOD (*03_regional_averages_maod.csv*), and a one-row-per-cluster table of the calendar month in which the centroid's long-term mean depth is shallowest (*03_cluster_peak_months.csv*). The peak-month table is the forecasting-horizon endpoint used by Script 11 and 11b --- the canonical "when in the year is the cluster's water table at its annual peak?".
 
-### []{#anchor-118}[]{#anchor-120}[]{#anchor-121}Site-specific choices and rationale
+### []{#anchor-119}[]{#anchor-120}[]{#anchor-121}Site-specific choices and rationale
 
 -   Cluster centroid as arithmetic mean of member wells. The simplest defensible aggregation. Median, record-length-weighted mean, and PCA-derived centroids were all considered during the rebuild and rejected as adding complexity without measurable benefit on this dataset --- the within-cluster amplitude distributions are well-behaved enough that the mean is not pulled around by outliers.
 -   *window = LCSC_DATA_LIMIT = 100*\*\* for per-well fits; ***window = None*** (full record) for centroid fits.\*\* The two-window design reflects the two different purposes. Per-well fits feed the spatial coefficient maps (Script 07), which inherit them unchanged, and the LCSC benchmarking (Script 08), which refits on the same most-recent 100-month window, so that what both show is contemporary behaviour rather than a long-term average. Cluster centroid fits feed the report's mechanistic table and the forecasting work, where the longest possible record tightens the standard errors and captures behaviour across the full instrumental period. The 100-month window choice itself was made to align with the LCSC analysis in the report (Section 3.3.1).
@@ -814,7 +814,7 @@ Six of 66 wells never achieve β₃ \> 0 with p \< 0.05 at any datum in the swee
 -   **C1 split at 2018-01-01.** Chosen because the post-2018 amplitude analysis (Script 02) showed that four of seven C1 wells had post-2018 *p90 − p10* ranges meaningfully wider than their pre-2018 values, *even after climate normalization* --- i.e. a structural change in cluster behaviour rather than a climate forcing effect. The Llyn Rhos-Ddu drawdown event provides the physical mechanism. The split-window diagnostic tests whether the change shows up in the β coefficients (it does), and the analysis is preserved as a known caveat rather than as a recommendation to fit two separate C1 models.
 -   **Sign violations halt the pipeline only at the *****centroid***\*\* level, and only \*\*\*\*\*after\*\*\*\*\* the diagnostic outputs are saved.\*\* A failing centroid fit is the only kind that propagates into the report's headline values. The decision to defer the halt until after the diagnostic tables and the signatures figure are written is deliberate: the LOO, bootstrap, and datum-sensitivity outputs are exactly the diagnostics an investigator needs to understand the failure. Halting before they are saved would give the user a stack trace and no diagnostic context. Per-well sign violations are reported as console diagnostics; they may flag wells worth visiting in the spatial chapters but do not invalidate the broader analysis.
 
-### []{#anchor-120}[]{#anchor-122}[]{#anchor-123}Outputs
+### []{#anchor-121}[]{#anchor-122}[]{#anchor-123}Outputs
 
   ---------------------------------------------------------------------------- -------------------------------------------------------------------------- --------------------------------------------------------------------------------
   Output file                                                                  Contents                                                                   Consumers
@@ -839,7 +839,7 @@ Six of 66 wells never achieve β₃ \> 0 with p \< 0.05 at any datum in the swee
 
 All paths resolve through *utils/paths.py* (*INT_MASTER_DATA*, *INT_REGIONAL_AVG*, *INT_CLUSTER_AVG_MAOD*, *INT_CLUSTER_PEAK_MONTHS*, *OUT_03\_\**, *DIR_03*).
 
-### []{#anchor-122}[]{#anchor-124}[]{#anchor-125}Limitations and known caveats
+### []{#anchor-123}[]{#anchor-124}[]{#anchor-125}Limitations and known caveats
 
 -   **The fitted β values are reliable for ranking clusters, not for quantifying absolute flux magnitudes.** The OLS estimator applied to a lumped monthly model carries two structural biases that inflate the absolute coefficient values: (i) collinearity between monthly P and PET inflates both β₁ and β₂ simultaneously, producing an upward bias whose magnitude cannot be recovered from the regression alone; (ii) the monthly climate regressors are area-averages over a spatially heterogeneous forcing field --- a form of errors-in-variables that further biases β away from the true site-scale coefficients. The net effect is that β₁, β₂, and β₃ as reported in Table 3 are biased somewhat high in absolute terms. The cluster contrasts --- C4 β₂ \> C5 β₂ \> C3 β₂; the open-dune β₁ gradient C1 \> C2 \> C3 --- are robust ordinal findings. Statements such as "the C4 forest cluster intercepts 2.55 m of water-table head per metre of PET" are not warranted; statements such as "C4 has a higher atmospheric draw coefficient than any open-dune cluster" are. Any downstream analysis that converts β values to volumetric fluxes (Scripts 16, 19, 21) should be read with this caveat in mind: the absolute magnitudes carry the OLS bias, so the scenario comparisons are relative rather than calibrated.
 -   **The SSM is a single-equation model.** It is a lumped decomposition of Δh into rainfall, PET, and drainage contributions. It does not represent boundary-layer hydraulics, lateral subsidies (ridge recharge into C4, lake exchange at C1), tidal couplings, or non-stationary effects (coastal retreat at C5). Where any of these matter for the science, they appear as systematic residuals diagnosed downstream --- Scripts 22 (residual lag structure), 23 (ridge recharge), 24 (residual seasonality), and 25 (coastal gradient).
@@ -849,7 +849,7 @@ All paths resolve through *utils/paths.py* (*INT_MASTER_DATA*, *INT_REGIONAL_AVG
 -   **The uniform 3.7 m datum is a deliberate trade, not an empirical optimum.** It sits above the live empirical minimum (1.5 m) and is the value at which the two forest clusters' β₃ identification is comfortably significant rather than near the threshold. The cost of going to 3.7 m rather than staying at the empirical minimum is an R² reduction of −0.059 at C1 Lake Edge and −0.032 at C2 Dune, both of which remain astronomically significant on β₃ regardless of depth. The benefit is a roughly twenty-six-fold improvement in C4 β₃ significance and substantially better fit at C5. For cluster-level work the uniform 3.7 m is the right choice; for any single-well question the per-well datum outputs (*03_09_well_optimal_datums.csv*) should be consulted --- the mean network R² penalty from using the uniform datum at every well, rather than the per-well R²-maximizing value, is +0.028 across the network, heaviest at C1 Lake Edge (+0.069) and lightest at C4 Main Forest (+0.001).
 -   **C4 Main Forest has the weakest β₃ identification of the five clusters.** Even at the canonical 3.7 m datum, C4's β₃ p-value (0.0016) is several orders of magnitude larger than the other four clusters' (which sit at 10⁻¹⁶ to 10⁻³⁵). The datum choice was deliberately set deeper than the empirical minimum to move C4 away from the significance boundary, and the move worked --- but C4 remains the cluster where the SSM most underdescribes the local hydrology. CEH14 carries a head-dependent term the three-term SSM does not represent; lateral recharge from the bedrock ridge is one candidate mechanism, and the diagnostics that bear on it are in S.16.
 
-### []{#anchor-124}[]{#anchor-126}[]{#anchor-127}Where the result appears in the report
+### []{#anchor-125}[]{#anchor-126}[]{#anchor-127}Where the result appears in the report
 
 -   §3.3 *State-space regression* --- methodology.
 -   §3.4 *Drainage datum sensitivity* --- *03_08_datum_sensitivity.png* and the per-well sensitivity discussion.
@@ -860,7 +860,7 @@ All paths resolve through *utils/paths.py* (*INT_MASTER_DATA*, *INT_REGIONAL_AVG
 -   §4.2 *C1 caveat* --- *03_07_c1_split_window.csv*.
 -   Subsequent §4 and §5 sections --- implicit, in every analysis that reads SSM outputs.
 
-### []{#anchor-126}[]{#anchor-128}[]{#anchor-129}Cross-references
+### []{#anchor-127}[]{#anchor-128}[]{#anchor-129}Cross-references
 
 -   **F.3** --- the full SSM specification (equation, displacement formulation, sign conventions, drainage datum rationale, *model_utils.fit_ssm()* interface). Refer to F.3 throughout rather than re-deriving.
 -   **F.4** --- the k=5 partition that the centroids and per-well fits use; per-cluster member counts (C1=7, C2=26, C3=19, C4=9, C5=5; n=66 total).
@@ -872,21 +872,21 @@ All paths resolve through *utils/paths.py* (*INT_MASTER_DATA*, *INT_REGIONAL_AVG
 -   **S.9** --- forecasting thresholds that consume *03_03_cluster_mechanistic_coefficients.csv* and *03_cluster_peak_months.csv*.
 -   **S.16** --- supplementary diagnostics that pick up the systematic SSM residuals (the unresolved C4/CEH14 residual, residual seasonality).
 
-# []{#anchor-128}[]{#anchor-130}[]{#anchor-131}Phase 2 --- Pearson Membership Audit
+# []{#anchor-129}[]{#anchor-130}[]{#anchor-131}Phase 2 --- Pearson Membership Audit
 
-## []{#anchor-130}[]{#anchor-132}[]{#anchor-133}S.4 Scripts 04, 05, 06 --- Cluster visualization and Pearson affinity audits
+## []{#anchor-131}[]{#anchor-132}[]{#anchor-133}S.4 Scripts 04, 05, 06 --- Cluster visualization and Pearson affinity audits
 
 Steps 4--6 / 27. Phase 2.
 
-### []{#anchor-132}[]{#anchor-134}[]{#anchor-135}Motivation (chapter-level)
+### []{#anchor-133}[]{#anchor-134}[]{#anchor-135}Motivation (chapter-level)
 
 Phase 2 answers two related questions that Phase 1 leaves open. First, where in the warren does each of the five behavioural clusters actually sit on the ground --- what does the partition look like as a map rather than a dendrogram? Script 04 produces the orientation figure. Second, how confidently is each well in the cluster the partition has placed it in, and how should the \~22 extended-network wells (FE1--4, LIS1, the demoted CEH wells, and the perimeter *p\** wells) be slotted into the same five-cluster scheme when they were not part of Ward's input? Scripts 05 and 06 are the confidence-quantification layer: per-well Pearson correlations against the five cluster centroids, gap statistics between best-match and runner-up, and a status flag that separates wells comfortably inside their cluster from wells on the boundary. The three scripts are grouped here because together they form a coherent visualization-and-audit package consumed in §4.2 and §4.3 of the main report. Script 04 visualises the partition; Scripts 05 and 06 quantify how strong the partition's claim on each well actually is.
 
 The methodology shared by Scripts 05 and 06 --- z-score each well's depth series before correlating, build cluster centroids as the mean of the z-scored member series, compute Pearson correlation against each centroid, gap = best − second-best --- is described once at the chapter level and not repeated in the two sub-sections. The cluster-identity conventions (IDs 1--5, labels, colours, markers) are inherited from F.4 and not re-derived.
 
-### []{#anchor-134}[]{#anchor-136}[]{#anchor-137}Sub-script 04 --- Cluster orientation map (*04_cluster_visualisations.py*)
+### []{#anchor-135}[]{#anchor-136}[]{#anchor-137}Sub-script 04 --- Cluster orientation map (*04_cluster_visualisations.py*)
 
-#### []{#anchor-136}[]{#anchor-138}Motivation
+#### []{#anchor-137}[]{#anchor-138}Motivation
 
 A single publication-quality map showing the five-cluster partition of the reference network on the Newborough Warren DEM, with each well as a cluster-coloured, cluster-shaped marker against the site's hydrological features (lake, streams, clearfell footprint). It is an orientation figure, not an analytical output: it carries no numbers, only the spatial arrangement of cluster membership that all subsequent spatial work assumes the reader has internalised.
 
@@ -915,7 +915,7 @@ The reference network only (66 wells) is plotted --- the extended-network wells 
 
 ### []{#anchor-141}[]{#anchor-142}[]{#anchor-143}Sub-script 05 --- Pearson affinity (reference network, *05_pearson_affinity.py*)
 
-#### []{#anchor-142}[]{#anchor-144}Motivation
+#### []{#anchor-143}[]{#anchor-144}Motivation
 
 For each of the 66 reference-network wells, Ward's clustering has produced a cluster assignment; the question Script 05 answers is *how confidently does that assignment sit*. Two wells in the same cluster can have very different relationships to the cluster's centroid --- one might be a tight match, another might correlate almost as strongly with a neighbouring cluster. The Pearson affinity audit computes the gap between best-match and assigned-cluster correlation for every well and produces a four-way status classification: Core (best-match = assigned, comfortable margin), Fuzzy (best-match = assigned but small margin), Spy (best-match ≠ assigned --- Ward's and Pearson disagree), and Unclassified (insufficient data to compute a correlation). The output is read by Scripts 11b (spatial threshold maps) and indirectly underpins the per-well confidence rendering on subsequent spatial figures.
 
@@ -967,7 +967,7 @@ The script writes one CSV --- *05_pear_membership_audit.csv* (the *INT_PEAR_AUDI
 
 ### []{#anchor-149}[]{#anchor-150}[]{#anchor-151}Sub-script 06 --- Pearson affinity (sitewide / extended, *06_pearson_extended.py*)
 
-#### []{#anchor-150}[]{#anchor-152}Motivation
+#### []{#anchor-151}[]{#anchor-152}Motivation
 
 Script 05 audits the 66 reference-network wells. Script 06 extends the same logic to the full 88-well sitewide network --- the 66 reference wells plus 22 extended wells (FE1--4, LIS1, the demoted CEH wells with shorter records or singleton-outlier behaviour, and the perimeter p1/p2/pe/pw wells; Llyn Rhos-Ddu and *pdfs* are blacklisted upstream in Script 01). Extended-network wells were excluded from Ward's input by design, because either their records are too short to anchor a stable distance to the reference wells or, in the CEH3/CEH22 case, they carry a non-stationary signal (tidal contamination, S.1) that Ward's clustering would either ignore or distort. The Pearson audit gives each of them a cluster label retroactively: the cluster whose centroid their shape best matches, with the gap statistic carried alongside as a calibration of confidence. Downstream consumers --- Script 11b for spatial thresholds, Script 18 for WTF Sy interpolation --- read the sitewide audit and decide for themselves how much weight to give a Pearson-assigned well; Script 06 does not gate-keep.
 
@@ -1022,19 +1022,19 @@ Under the live data, all 22 extended-network wells receive a valid Pearson best-
 -   **No CEH3/CEH22 in Script 05.** Script 01's *REFERENCE_NETWORK_WHITELIST* excludes them on tidal-contamination grounds (S.1); they appear only in Script 06's extended-network analysis, where their low best-match correlations (0.86 for both) are themselves a signature of the routing decision.
 -   **The same cluster colours and shapes across all three figures.** F.4's *CLUSTER_COLOURS* and *CLUSTER_MARKERS* are the single source of truth, so the orientation map (Script 04), the spatial confidence map (Script 05), and the sitewide integration map (Script 06) all use the same visual vocabulary. A reader who has internalised the colour-shape scheme from §4.2 reads §4.3's figures without effort.
 
-### []{#anchor-158}[]{#anchor-160}[]{#anchor-161}Limitations and known caveats (chapter-level)
+### []{#anchor-159}[]{#anchor-160}[]{#anchor-161}Limitations and known caveats (chapter-level)
 
 -   **The Pearson audit is the project's only per-well cluster-confidence quantification.** There is no formal bootstrap confidence interval on per-well affinity, only the bootstrap CI on the cluster-level partition (S.2). Per-well CIs would be a natural extension --- e.g. resampling each well's monthly observations and recomputing all five Pearson values --- but are not in scope here. The audit table's gap statistic is the closest the pipeline gets to a per-well confidence measure.
 -   **The sitewide integration map does not visualize the Pearson value itself.** Marker shape encodes best-match cluster, marker fill encodes network membership (reference / extended / spy). A reader who wants the specific correlation value or gap for an individual well must read *06_pear_membership_audit_sitewide.csv*. The trade is a map that stays legible at print resolution against carrying every diagnostic on the figure.
 -   **The audit assumes the five-cluster partition is the right one.** If the partition were re-cut at k = 4 or k = 6, the audit logic would still run but the conclusions would be different. The partition is itself defended in S.2; the audit inherits that defence and does not re-litigate it.
 
-### []{#anchor-160}[]{#anchor-162}[]{#anchor-163}Where the result appears in the report
+### []{#anchor-161}[]{#anchor-162}[]{#anchor-163}Where the result appears in the report
 
 -   §4.2 cluster orientation figure --- *04_01_core_architecture_map.png*.
 -   §4.3 Pearson affinity audit --- discussion of borderline wells and the Spy/Fuzzy/Core distribution, drawing on *05_pear_membership_audit.csv* and the spatial confidence map.
 -   §4.3 / Figure 14b --- *06_pear_02_integration_map.png* (sitewide integration map).
 
-### []{#anchor-162}[]{#anchor-164}[]{#anchor-165}Cross-references
+### []{#anchor-163}[]{#anchor-164}[]{#anchor-165}Cross-references
 
 -   **F.4** --- k=5 partition, cluster IDs, labels, colours, markers.
 -   **F.5** --- *map_utils.py* (DEM and KML rendering helpers used by all three scripts).
@@ -1043,7 +1043,7 @@ Under the live data, all 22 extended-network wells receive a valid Pearson best-
 -   **S.9** --- Script 11b (the threshold-map chapter) consumes *06_pear_membership_audit_sitewide.csv* for the extended-network rendering.
 -   **S.12** --- Script 18 (WTF spatial) consumes the sitewide audit for extended-network Sy interpolation.
 
-## []{#anchor-164}[]{#anchor-166}[]{#anchor-167}S.5 Scripts 07, 08 --- Spatial coefficient maps and LCSC model benchmarking
+## []{#anchor-165}[]{#anchor-166}[]{#anchor-167}S.5 Scripts 07, 08 --- Spatial coefficient maps and LCSC model benchmarking
 
 Steps 7 and 8 / 27. Phase 2 --- Pearson Membership Audit.
 
@@ -1051,7 +1051,7 @@ Scripts 07 and 08 sit immediately after the Pearson affinity audits and together
 
 The grouping is tight. Both scripts read per-well coefficients from the same canonical store; both produce site-scale spatial outputs over the same DEM-and-KML basemap; both rely on the same *map_utils* helpers (F.5). The methodological divergence is what they ask of the coefficients: Script 07 takes the values as given and visualises them as interpolated surfaces; Script 08 refits SSM and TLM on a constrained 100-month window and compares performance per well at the well locations themselves.
 
-### []{#anchor-166}[]{#anchor-168}[]{#anchor-169}Inputs (shared)
+### []{#anchor-167}[]{#anchor-168}[]{#anchor-169}Inputs (shared)
 
 Path resolution for both scripts goes through *utils.paths*. The canonical input constants and their roles:
 
@@ -1067,7 +1067,7 @@ Path resolution for both scripts goes through *utils.paths*. The canonical input
 
 Naming and pathing conventions are project-wide. Every input goes through an *INT\_* constant defined in *paths.py*; no script reads a hardcoded filename. Cluster colour, marker shape, and label dictionaries (*CLUSTER_COLOURS*, *CLUSTER_MARKERS*, *CLUSTER_LABELS*) come from *config.py*. Scenario parameters and per-cluster mechanistic constants used downstream are consolidated through *pipeline_params.py* (F.4) --- neither Script 07 nor Script 08 modifies that store, but they share its variable naming.
 
-### []{#anchor-168}[]{#anchor-170}[]{#anchor-171}Sub-script 07 --- Spatial coefficient mapping
+### []{#anchor-169}[]{#anchor-170}[]{#anchor-171}Sub-script 07 --- Spatial coefficient mapping
 
 **Motivation.** The SSM produces a triple (β₁, β₂, β₃) per well. Whether those coefficients vary as smooth functions of position, as cluster-level steps, or as noise around cluster means is a question that only a spatial render can answer. Script 07 produces the four maps that ground the main report's §4.4 spatial discussion: β₁ recharge sensitivity, β₂ atmospheric draw, β₃ drainage rate (log-scaled, as percentage per month), and the R² fit-quality map.
 
@@ -1118,7 +1118,7 @@ Where the result appears in the report.
 -   §4.9.2 *Spatial coefficient structure* --- the four maps as Figures 48a--d.
 -   §3.4 *Drainage datum sensitivity* --- the per-well R² map provides cross-check context for the per-well datum sensitivity discussion.
 
-### []{#anchor-170}[]{#anchor-172}[]{#anchor-173}Sub-script 08 --- LCSC model benchmarking
+### []{#anchor-171}[]{#anchor-172}[]{#anchor-173}Sub-script 08 --- LCSC model benchmarking
 
 **Motivation.** The headline SSM is a three-parameter physically motivated model. A reasonable counter-question is: what does the third parameter (β₃, the drainage feedback) actually buy over a simpler model that lacks it? Script 08 quantifies this by fitting both the SSM and a "Traditional Linear Model" (TLM, also called Model A and Model B in the historical intercept-audit naming) on a 100-month most-recent window per well, then comparing performance on three metrics: one-step R², iterative R², and iterative NSE.
 
@@ -1179,19 +1179,19 @@ Where the result appears in the report.
 -   §4.4 / Figure --- CEH6 showdown panel.
 -   §4.4 / Figure --- ΔR² and ΔNSE spatial maps.
 
-### []{#anchor-172}[]{#anchor-174}[]{#anchor-175}Site-specific choices and rationale (chapter-level)
+### []{#anchor-173}[]{#anchor-174}[]{#anchor-175}Site-specific choices and rationale (chapter-level)
 
 -   **Both scripts consume ***03_master_data.csv*\*\* as the per-well coefficient table.\*\* No script in this chapter refits the SSM on the headline (full-record) configuration; Script 07 inherits values from S.3, and Script 08's refits are on a deliberately restricted 100-month window for the model-comparison question. The headline cluster-level coefficients used elsewhere in the pipeline (S.9 thresholds, S.11 water balance, S.14 forestry scenarios, S.7 clearfell BACI) are S.3's full-record values, not the 100-month values from S.8.
 -   **Both scripts produce site-scale spatial outputs over the same basemap.** The DEM-and-KML basemap, the cluster-shape and cluster-colour marker convention, the variable-name conventions inherited from *pipeline_params.py* and *config.py*: all of these are project-wide. A reader can compare Script 07's β₃ map with Script 08's ΔNSE map directly because both are rendered on the same extent with the same cluster-shape marker convention.
 -   **The two scripts diverge on the question of interpolation.** Script 07's metric maps are continuous interpolated surfaces (Delaunay-linear) over the standard 50 m grid; the surface is the answer. Script 08's improvement maps are point-scatter plots: each well is a single coloured marker with no interpolation between wells. This is deliberate. Script 07's β values are correlated as members of the same cluster, so an interpolated surface between nearby wells in the same cluster is informative; Script 08's per-well improvement values encode where the canonical SSM specifically struggles, which is a per-well property, and interpolating would smooth across the localised structure that the maps exist to make visible.
 
-### []{#anchor-174}[]{#anchor-176}[]{#anchor-177}Limitations and known caveats (chapter-level)
+### []{#anchor-175}[]{#anchor-176}[]{#anchor-177}Limitations and known caveats (chapter-level)
 
 -   **Both spatial maps inherit the cluster partition's spatial structure.** Where the maps show step-like changes between adjacent regions, the underlying signal is that the wells on each side belong to different clusters with different mechanistic signatures (S.2, S.3). The partition is itself defended in S.2; this chapter inherits that defence rather than re-litigating it. If the cluster partition were re-cut at a different k, both Script 07's coefficient maps and Script 08's improvement maps would change.
 -   **CEH14 is the consistent outlier across both scripts.** Script 07's β₃ map flags it as the single negative-β₃ well at the canonical datum; Script 08's iterative NSE flags it as the worst-fitting well in the network (Δ_NSE = −6.82). Both signals point to the same missing term in the displacement-formulation SSM. Bedrock-ridge subsidy is the candidate mechanism raised for it; the diagnostics that test it are in S.16 (ridge recharge lag hypothesis test).
 -   **The benchmarking is a counterfactual, not a comprehensive model comparison.** The chapter does not claim the SSM is optimal --- only that it improves substantially over the simplest unphysical alternative. More elaborate alternatives exist; their evaluation is out of scope.
 
-### []{#anchor-176}[]{#anchor-178}[]{#anchor-179}Cross-references
+### []{#anchor-177}[]{#anchor-178}[]{#anchor-179}Cross-references
 
 -   **F.3** --- SSM equation form, sign conventions, drainage datum, *model_utils.fit_ssm()* interface. Both scripts use this implicitly through *03_master_data.csv* (Script 07) or directly through *build_ssm_frame()* and OLS (Script 08).
 -   **F.5** --- *map_utils.py* (DEM hillshade, KML overlay, grid interpolation helpers) and *model_utils.simulate_ssm()* (Script 08's SSM iterative simulation).
@@ -1200,9 +1200,9 @@ Where the result appears in the report.
 -   **S.16** --- supplementary diagnostic chapter on the unresolved CEH14 residual and the ridge-recharge hypothesis, picking up the residual signal that Script 07 and Script 08 both flag.
 -   **S.9** --- Script 11b uses the same 50 m grid for spatial threshold mapping; the grid resolution is a project-wide convention.
 
-# []{#anchor-178}[]{#anchor-180}[]{#anchor-181}Phase 3 --- Model Diagnostics and Intervention Analysis
+# []{#anchor-179}[]{#anchor-180}[]{#anchor-181}Phase 3 --- Model Diagnostics and Intervention Analysis
 
-## []{#anchor-180}[]{#anchor-182}[]{#anchor-183}S.6 Script 09 suite (a--e) --- Scraping intervention
+## []{#anchor-181}[]{#anchor-182}[]{#anchor-183}S.6 Script 09 suite (a--e) --- Scraping intervention
 
 Step 9 / 27 (sub-scripts 9a--9e). Phase 3 --- Model Diagnostics and Intervention Analysis.
 
@@ -1212,7 +1212,7 @@ The suite is five sub-scripts answering five distinct questions. *09a --- Hierar
 
 The suite's principal results --- the headline +0.129 m benefit at CEH36 (paired-BACI Pure-Scraping era, vs CEH4), the propagation signal across wells 247--776 m uphill, and the alternative-intervention comparisons --- populate §4.5 *Scraping intervention* in the main report, including Table 6 (β₃ era coefficients per well, mapped from *09_scrape_04b_beta3_era_summary.csv*) and Figures 17--20, 22--24, 26, and 27.
 
-### []{#anchor-182}[]{#anchor-184}[]{#anchor-185}Sub-script 09a --- Hierarchical paired BACI
+### []{#anchor-183}[]{#anchor-184}[]{#anchor-185}Sub-script 09a --- Hierarchical paired BACI
 
 **Motivation.** The core scraping analysis. A naïve paired BACI of CEH36 against CEH4 --- the obvious local control well, ≈100 m to the south --- would overstate the scraping benefit, because CEH4 is itself drying due to progressive coastal retreat affecting the western coastline. A two-tier hierarchical design separates the *scraping signal* at CEH36 from the *coastal drainage signal* contaminating the local controls.
 
@@ -1244,7 +1244,7 @@ Outputs.
   09_scrape_report_numbers.csv              All citable values for §4.5
   ----------------------------------------- ------------------------------------------------------------------
 
-### []{#anchor-184}[]{#anchor-186}[]{#anchor-187}Sub-script 09b --- Scraping propagation
+### []{#anchor-185}[]{#anchor-186}[]{#anchor-187}Sub-script 09b --- Scraping propagation
 
 **Motivation.** Did the ground-scraping at CEH36 propagate uphill into the surrounding forest as a detectable change in SSM coefficients? The physical hypothesis: increased drainage at the scraped site creates a hydraulic gradient that draws water from upgradient wells, manifesting most clearly as elevated β₃ at neighbouring wells north and northwest of CEH36 in the local groundwater-flow direction.
 
@@ -1283,7 +1283,7 @@ Outputs.
   09b_report_numbers.csv                        Citable values for §4.5
   --------------------------------------------- ---------------------------------------------------------------------------------
 
-### []{#anchor-186}[]{#anchor-188}[]{#anchor-189}Sub-script 09c --- Summer minima
+### []{#anchor-187}[]{#anchor-188}[]{#anchor-189}Sub-script 09c --- Summer minima
 
 **Motivation.** Annual mean shifts can hide ecologically critical summer minima. Dune-slack flora at Newborough are constrained by summer drying; an intervention that improves the annual mean but leaves summer minima unchanged is ecologically less valuable than one that lifts the minimum. The script measures whether scraping affected the critical Jun--Sep minimum depth, not just the annual mean.
 
@@ -1308,7 +1308,7 @@ Outputs.
   09c_report_numbers.csv                  Citable values for §4.5, plus the equilibration peak, residual plateau, and decay slopes (climate and paired controls)
   --------------------------------------- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-### []{#anchor-188}[]{#anchor-190}[]{#anchor-191}Sub-script 09d --- Scenario comparison
+### []{#anchor-189}[]{#anchor-190}[]{#anchor-191}Sub-script 09d --- Scenario comparison
 
 **Motivation.** Was scraping a good management choice for this site? Using CEH36's own SSM coefficients, its WTF-derived Sy, and its mean head displacement, the script computes the equilibrium volumetric response to alternative interventions --- clearfell, thinning, broadleaf conversion, UKCP18 dry and wet climate scenarios --- under both annual-mean and summer forcing, and compares each to the observed scraping benefit. The comparison is a like-for-like, single-site equivalent.
 
@@ -1333,7 +1333,7 @@ Outputs.
   09d_02_summer_scenario_comparison.{csv,png}   Equilibrium volumetric scenarios under summer (Jul--Sep) forcing at CEH36
   --------------------------------------------- ---------------------------------------------------------------------------
 
-### []{#anchor-190}[]{#anchor-192}[]{#anchor-193}Sub-script 09e --- Robustness
+### []{#anchor-191}[]{#anchor-192}[]{#anchor-193}Sub-script 09e --- Robustness
 
 **Motivation.** Three independent estimates of the CEH36 Pure-Scraping step change confirm that the headline +0.129 m benefit is not an artefact of any single method's assumptions --- specifically not an artefact of CEH4's own progressive deepening, which is the most plausible single-source contamination of the paired BACI estimate.
 
@@ -1353,13 +1353,13 @@ Outputs.
   09_scrape_08_ceh36_robustness.png   Three-panel: gap series, SSM forward residual, summary bar
   ----------------------------------- ------------------------------------------------------------
 
-### []{#anchor-192}[]{#anchor-194}[]{#anchor-195}Suite-level methodology
+### []{#anchor-193}[]{#anchor-194}[]{#anchor-195}Suite-level methodology
 
 **The era system.** Two intervention dates --- April 2015 (scraping at CEH36) and December 2017 (clearfell of the surrounding compartment) --- are the principal era boundaries for the scraping site itself. A third event --- the October 2023 second scraping at CEH18 and CEH21 --- defines an additional boundary for those two wells only. Era structures are therefore well-specific: CEH36 and CEH4 (its paired control) have three eras (Baseline, Pure Scraping, Felling Pulse); CEH18, CEH21, and CEH22 have three eras with different structure (Baseline, Felling Pulse or Coastal Drawdown, After Scraping). The per-well era windows are encoded in *scraping_common.WELL_ERAS* as start-inclusive, end-exclusive tuples and propagate identically across 09a, 09c, 09d, and 09e.
 
 *scraping_common*\*\* as the shared infrastructure.\*\* The five sub-scripts import their well groups, era boundaries, intervention dates, climate-control list, donor candidates, data loaders, and the scenario-bar engine from a single module. Specifically: *SCRAPING_DATE*, *INTERVENTION_DATE*, *SCRAPING_DATE_2*, *WELL_ERAS*, *IMPACT_WELLS*, *PAIRED_CONTROLS_MAP*, *CLIMATE_CONTROLS*, *DONOR_CANDIDATES*, *TIER1_WELLS*, *TIER2_WELLS*, *SUMMER_MONTHS*, and the helpers *load_scraping_data()*, *load_cluster_params()*, *load_summer_climate()*, *compute_scenario_bars()*, and *compute_scenario_bars_from_params()*, plus *scenario_cluster_sy()* (used to render the empirical scraping bar on the volumetric axis) and *load_annual_climate()* (added v1.5.0, the annual-mean companion to *load_summer_climate()* used by 09d's annual-forcing figure). The former flux→summer-minimum helpers (*summer_amplification_factors()*, *flux_to_summer_min_mm()*, *scenario_summer_min_bars()*) remain in the module but are unused after the 2026-07-02 volumetric re-basis. The BACI structure, era boundaries, well-group memberships, and scenario engine are defined once and propagate consistently. *scraping_common.py* is the scraping-suite analogue of *clearfell_common.py* (S.7).
 
-### []{#anchor-194}[]{#anchor-196}[]{#anchor-197}Site-specific choices and rationale (suite-level)
+### []{#anchor-195}[]{#anchor-196}[]{#anchor-197}Site-specific choices and rationale (suite-level)
 
 -   **CEH36 is the single scraped well.** The 2015 ground-lowering was a localised 0.3 ha excavation at one well. CEH18 and CEH21 are secondary impacts only by virtue of the 2023 second scraping; in the headline 2015 analysis they are tier-2 impact wells in the sense of being adjacent to forest management but not themselves scraped.
 -   *scraping_common.WELL_ERAS*\*\* defines well-specific era windows.\*\* Different wells experience different eras because the 2023 second scraping affects CEH18 and CEH21 but not CEH36 or CEH4. The era system encodes this directly rather than imposing a uniform per-well era structure that would conflate the second-scraping signal with the felling-pulse era at the directly-scraped well.
@@ -1367,7 +1367,7 @@ Outputs.
 -   **The propagation-analysis distance bands (uphill 247--776 m, control 852--1070 m).** Set empirically from the well-location data. The uphill band starts at CEH31 (247 m, the nearest uphill well) and extends to CEH1 (776 m, the most distant well that still sits within the local hydraulic-gradient catchment of CEH36). The control band is everything beyond ≈850 m --- far enough that the controls share regional climate forcing but are outside the scraping's gradient reach.
 -   **Provenance-aware summer minima.** 09c consumes *01_wells_provenance.csv* (S.1) and applies a *min_measured=2* rule per (well, year): a Jun--Sep row whose summer series contains fewer than two measured months is dropped from the per-well summer-minima table, on the principle that a year with effectively no measured Jun--Sep data cannot honestly supply a summer minimum however well the wider record bridges. The *min_measured=2* choice is the same value used by 10d in the clearfell suite; the consistency is deliberate, since the two scripts share *clearfell_common* / *scraping_common* infrastructure and use the same five climate-control wells. The new *n_interpolated* column on *09c_01_summer_minima.csv* flags any surviving row whose summer minimum was selected from a series containing at least one *limit=1*-interpolated month, so reviewers can see which year's value rests on a single-missed-visit gap-fill versus an entirely-measured Jun--Sep series.
 
-### []{#anchor-196}[]{#anchor-198}[]{#anchor-199}Limitations and known caveats (suite-level)
+### []{#anchor-197}[]{#anchor-198}[]{#anchor-199}Limitations and known caveats (suite-level)
 
 -   **Single scraped well in the headline.** CEH36 is the only well where ground was actually lowered in 2015. WMC3 in the clearfell suite is similarly constrained, but here the constraint is even tighter --- at the scraped well the n = 1 limit is structural to the intervention, not just to the network. Inference about scraping's effects is necessarily about *this* site rather than scraping as a general intervention.
 -   **The pure-scraping window is short.** Roughly 32 months between April 2015 and December 2017. Per-well SSM fits on this window have wide CIs at the per-well level. The reported step changes are robust at the cluster-mean level (09b) and at the headline CEH36 BACI (09a, 09e); per-well shifts in the propagation analysis are noisy.
@@ -1375,7 +1375,7 @@ Outputs.
 -   **The October 2023 second scraping affects CEH18 and CEH21.** Era 3 effects at these wells in 09a, 09c and the propagation analysis are taken up as supplementary; they do not alter the headline at CEH36.
 -   **The SSM forward-residual estimator in 09e gives a smaller step than raw and synthetic estimators.** All three are positive and substantial, but the SSM forward residual at +0.081 m is materially below the raw BACI (+0.129) and synthetic control (+0.137) estimates. The most plausible source of the divergence is the drainage-feedback term iteratively absorbing the elevated post-2015 water table back toward equilibrium across the forecast horizon; the divergence is a property of the estimator rather than evidence the step is smaller than reported.
 
-### []{#anchor-198}[]{#anchor-200}[]{#anchor-201}Outputs (consolidated)
+### []{#anchor-199}[]{#anchor-200}[]{#anchor-201}Outputs (consolidated)
 
   --------------------------------------------- ------------ --------------------------------------------------------------------------------------------------------------------
   Output file                                   Sub-script   Description
@@ -1406,13 +1406,13 @@ Outputs.
   09_scrape_08_ceh36_robustness.png             09e          Three-panel robustness figure
   --------------------------------------------- ------------ --------------------------------------------------------------------------------------------------------------------
 
-### []{#anchor-200}[]{#anchor-202}[]{#anchor-203}Where the result appears in the report
+### []{#anchor-201}[]{#anchor-202}[]{#anchor-203}Where the result appears in the report
 
 -   §4.5 *Scraping intervention* --- the entire section draws on this suite.
 -   Table 6 --- per-well β₃ era coefficients, sourced from *09_scrape_04b_beta3_era_summary.csv*.
 -   Figures 17--20, 22--24, 26, 27 --- multiple figures from the suite.
 
-### []{#anchor-202}[]{#anchor-204}[]{#anchor-205}Cross-references
+### []{#anchor-203}[]{#anchor-204}[]{#anchor-205}Cross-references
 
 -   **F.3** --- SSM equation, displacement formulation, sign conventions, *model_utils.fit_ssm()*. All five sub-scripts fit SSMs through this interface (09a directly via OLS using the same design matrix; 09b, 09e via *fit_ssm()*).
 -   **F.4** --- *pipeline_params.py* consolidation. 09b and 09d both prefer the consolidated params file (*pipeline_params.load_params()*) and fall back to individual loaders if it is absent.
@@ -1425,7 +1425,7 @@ Outputs.
 
 Spring-mean companion metric (Script 09c v1.5.0). Alongside the summer minimum, Script 09c computes an annual spring mean (Mar--May) through the identical dual-control BACI code path (a \_METRICS spec list driving \_run_metric()). Both metrics reduce a well to one value per year, so the spring mean carries the same N, wells and controls as the summer minimum at no power cost; being a three-month mean rather than an extreme-order statistic it is the less noisy of the two. The spring season and its strict 3-of-3 completeness rule are the MSL_SPRING_MONTHS / MSL_MIN_MONTHS_PER_SPRING constants (F.4), sourced via clearfell_common. Outputs 09c_05--09c_08 (spring means, pre/post shifts, and the two spring figures) mirror the summer set; the spring figures carry no SD15b/SD16 threshold bands, which are summer slack-viability limits with no spring equivalent. Spring rows append to 09c_report_numbers.csv. Results are collected in Supplementary Note S8.
 
-## []{#anchor-204}[]{#anchor-206}[]{#anchor-207}S.7 Script 10 suite (a--m) --- Clearfell BACI
+## []{#anchor-205}[]{#anchor-206}[]{#anchor-207}S.7 Script 10 suite (a--m) --- Clearfell BACI
 
 Step 10 / 30 (sub-scripts 10a--10m). Phase 3 --- Model Diagnostics and Intervention Analysis.
 
@@ -1437,7 +1437,7 @@ The suite asks eleven questions across its eleven primary sub-scripts. How is th
 
 The headline ANCOVA-BACI result is reported in the main report as Table 7 and Figures 28, 30 and 31 (§4.6 *Clearfell intervention*); spatial maps (Figures 25, 34), summer minima (Figure 32), coefficient shifts (Figure 35), the radial transect (Figure 36), and the supplementary forest-zone analysis (Table 16) draw on the other sub-scripts. The compositional mapping is recorded in the live *PIPELINE_README.md* table. Sub-script 10m produces a display figure (*10m_02_wmc3_baci_dual.png*) used for internal interpretation and, if placed, §4.6; it introduces no new reported statistic beyond the 10a ANCOVA headline it visualises (figure number TBC with Martin).
 
-### []{#anchor-206}[]{#anchor-208}[]{#anchor-209}Inputs (suite-shared)
+### []{#anchor-207}[]{#anchor-208}[]{#anchor-209}Inputs (suite-shared)
 
   ------------------------------------------------------- ------------ ----------------------------------------------------------------------------------------------------------
   Input file                                              Source       Used by
@@ -1457,7 +1457,7 @@ The headline ANCOVA-BACI result is reported in the main report as Table 7 and Fi
 
 All loading goes through *clearfell_common.load_clearfell_data()*, which merges the reference and extended well frames, normalises column names to lowercase, and validates the five tiers against the live data. Per-well locations are sourced first from the master data, with *Well_locations_height.csv* as a fallback for wells not in the reference network.
 
-### []{#anchor-208}[]{#anchor-210}[]{#anchor-211}Sub-script 10a --- Three-counterfactual ANCOVA-BACI
+### []{#anchor-209}[]{#anchor-210}[]{#anchor-211}Sub-script 10a --- Three-counterfactual ANCOVA-BACI
 
 **Motivation.** This is the headline analysis. The question is whether the December 2017 clearfell produced a step-change in the water-table displacement of the impact and edge wells relative to nearby unaffected controls, after climate forcing and the residual scraping effect are controlled out.
 
@@ -1496,7 +1496,7 @@ The annual Forest × Impact step is the durable headline of the clearfell analys
 
 **Curvature (CWB² × felling) sensitivity variant.** The headline ANCOVA fits a *linear* CWB × felling interaction, which tests whether felling changed the linear sensitivity of the water table to climate forcing --- the canopy-buffering hypothesis in its simplest form. That interaction is non-significant at both Forest-control zones (Impact p = 0.40, Edge p = 0.16): on a whole-range linear slope, the pre- and post-felling climate sensitivities are not distinguishable. A linear slope is, however, a blunt instrument for a hypothesis about climate *extremes* --- a buffering effect concentrated at the wet or dry tails can average to near-zero across the full CWB range. 10a v1.4.0 therefore also fits a non-linear extension on the full-data Forest-control Impact and Edge frames: the headline design matrix plus a centred CWB² main effect and a CWB² × felling interaction. The CWB² × felling term is significant at both zones (Impact −2.75 × 10⁻⁶ m mm⁻², p = 0.016; Edge −2.22 × 10⁻⁶ m mm⁻², p = 0.008), the curvature model improves on the linear model by ΔAIC −4.2 (Impact) and −10.7 (Edge), and the joint F-test of the two added curvature terms is significant at both zones. The CWB² *main* effect is non-significant at both zones --- the pre-felling relationship is linear; only the post-felling relationship bends. The negative interaction sign means the post-felling response is concave in CWB, i.e. the felling uplift is larger in dry (low-CWB) conditions. This is a reported sensitivity variant only: the headline clearfell step and the linear model are unchanged, and the curvature coefficients, the re-referenced clearfell step (which differs from the headline step because the step is evaluated at mean CWB under a curved fit --- +146 mm Impact, +50 mm Edge), the curvature-model R², the ΔAIC, and the joint-F statistic are emitted to *10a_report_numbers.csv* under the *ANCOVA_Forest\_{zone}\_coeff_cwb2_x_fell* / *\_curv\_\** keys. The result indicates the felling response is climate-state-dependent in a way the linear interaction averages away; it is consistent with --- but not on its own proof of --- a dry-period canopy-buffering mechanism, since climate-state-dependence has alternative explanations (post-felling non-stationary drift, the coastal-retreat gradient) that the variant does not exclude. The main report (§4.6) reports it neutrally as a flagged preliminary finding, not as a confirmed buffering effect.
 
-### []{#anchor-210}[]{#anchor-212}[]{#anchor-213}Sub-script 10b --- Spatial step-change maps
+### []{#anchor-211}[]{#anchor-212}[]{#anchor-213}Sub-script 10b --- Spatial step-change maps
 
 **Methodology.** For each well in the warren-wide network with at least six observations in each of the three eras (pre-scraping, post-scraping, post-felling), the script computes era-mean depths and two step-changes: a scraping step (post-scrape minus pre-scrape) and a felling step (post-felling minus post-scrape). The full network of approximately 90 wells is rendered as an IDW-interpolated surface on a 40 m grid with the standard DEM hillshade and KML feature overlay (*map_utils.add_idw_surface*, *load_dem_hillshade*, *add_kml_features*). Four publication figures result: raw and climate-corrected versions of both step-changes.
 
@@ -1511,7 +1511,7 @@ The climate correction uses the median step at a deliberately chosen subset of f
 
 The clearfell-era corrected map is the canonical Figure 34 in the main report; the scraping-era equivalent is Figure 25. The per-well step CSV is also consumed by Script 09b (scraping propagation) for the network-wide propagation modelling.
 
-### []{#anchor-212}[]{#anchor-214}[]{#anchor-215}Sub-script 10d --- Summer minima (dual-control)
+### []{#anchor-213}[]{#anchor-214}[]{#anchor-215}Sub-script 10d --- Summer minima (dual-control)
 
 **Motivation.** The annual June--September minimum water table is the ecologically critical metric for dune-slack vegetation. A clearfell that raises the mean monthly water table but leaves the summer minimum unchanged delivers a different kind of result than one that does both. 10d evaluates the summer-minimum response separately and through two independent control structures.
 
@@ -1530,7 +1530,7 @@ The Climate-control mixed-model Edge step is +48 mm (p = 0.28) --- the negative 
 
 **Clearfell no-decay comparator.** As the matched-currency reference for the scrape equilibration characterised in §S.6 (sub-script 09c), 10d reports the post-felling OLS slope of WMC3's summer-minimum forest-control gap. This is a shape comparator only --- it establishes that the clearfell response carries no post-intervention decay analogous to the scraping relaxation --- and is not a step estimate: the clearfell recovery is a mean-level and monthly effect that is weak in the summer minimum (the non-significant summer step noted above), so the durable-step claim rests on the annual/monthly ANCOVA in 10a, not on this comparator. Plain OLS, no AR(1) correction, subject to the same *EQUIL_MIN_FIT_POINTS* gate as the 09c decay characterisation.
 
-### []{#anchor-214}[]{#anchor-216}[]{#anchor-217}Sub-script 10e --- SSM coefficient shift diagnostic
+### []{#anchor-215}[]{#anchor-216}[]{#anchor-217}Sub-script 10e --- SSM coefficient shift diagnostic
 
 **Motivation.** The ANCOVA in 10a is the statistical estimate of the clearfell step magnitude. 10e is a complementary *mechanistic-direction* diagnostic: for each well it asks which SSM pathway moved after felling --- recharge sensitivity (β₁), atmospheric draw (β₂), or drainage feedback (β₃) --- and in which direction. It is a qualitative pattern diagnostic, not a second estimator of the step magnitude. The clearfell magnitude result is, and remains, the 10a ANCOVA BACI step.
 
@@ -1546,7 +1546,7 @@ The β₂ multiplier exported via *clearfell_common.load_clearfell_b2_multiplier
 
 where each "ratio" is the tier mean of *b2_after / b2_before* across that tier's wells. The construction takes the Edge-tier ratio and subtracts the Climate-control-tier ratio to remove background climate drift, recentring the result near 1.0; the thinning multiplier is the half-perturbation. Both values are read dynamically from *10e_01_coefficient_shifts.csv* by Scripts 19 and 21; the previous static-constant approach is retired. *Note: the individual per-tier b2_after / b2_before ratios are differently scaled under no-intercept fits than under intercept-bearing fits --- the raw ratios should not be read as direct canopy-effect magnitudes; only the Edge-minus-Climate differenced quantity is interpreted.*
 
-### []{#anchor-216}[]{#anchor-218}[]{#anchor-219}Sub-script 10f --- Robustness
+### []{#anchor-217}[]{#anchor-218}[]{#anchor-219}Sub-script 10f --- Robustness
 
 Two independent estimators broadly support the ANCOVA result at the Impact tier.
 
@@ -1556,7 +1556,7 @@ Two independent estimators broadly support the ANCOVA result at the Impact tier.
 
 Two independent estimators agreeing with 10a's headline at the Impact tier in direction and broad magnitude is the main message. The Edge tier diverges more across methods, reflecting the larger heterogeneity of edge wells and the differential climate-and-coastal-retreat correction that 10a's full ANCOVA design is built to handle.
 
-### []{#anchor-218}[]{#anchor-220}[]{#anchor-221}Sub-script 10g --- Diagnostics
+### []{#anchor-219}[]{#anchor-220}[]{#anchor-221}Sub-script 10g --- Diagnostics
 
 Three short diagnostics that justify network choices made elsewhere and characterize the trajectory of the recovery.
 
@@ -1566,7 +1566,7 @@ Three short diagnostics that justify network choices made elsewhere and characte
 
 **Rolling SSM coefficients.** 48-month rolling-window SSM fits at the Impact centroid (WMC3), C3 (open dune) centroid, and C4 (forest interior) centroid. The diagnostic question is whether the Impact centroid β₁ shifts toward C3 post-felling --- the expected behaviour if the canopy removal restores open-dune recharge sensitivity. The pre-felling Impact β₁ rolling mean is 2.48; post-felling 2.57; the C3 post-felling rolling mean is 3.49. The Impact β₁ rises slightly toward C3 but remains well below the C3 baseline, consistent with partial canopy recovery on a one-compartment, six-year time horizon and with the limited statistical power of rolling 48-month windows applied to a single well.
 
-### []{#anchor-220}[]{#anchor-222}[]{#anchor-223}Sub-script 10h --- Synthetic FE-well extension BACI
+### []{#anchor-221}[]{#anchor-222}[]{#anchor-223}Sub-script 10h --- Synthetic FE-well extension BACI
 
 **Motivation.** WMC3 is the only impact-zone well that spans all three eras. FE1--FE4 sit inside or at the immediate edge of the felled compartment but have no pre-clearfell baseline (FE1 and FE2 from July 2015, FE3 and FE4 from 2017). The published 10a headline therefore rests on a single impact well. 10h extends FE1 and FE2 backwards using donor regression on Forest Control wells unaffected by the clearfell, then reruns the ANCOVA with these synthetic baselines spliced in. The extension brings the Impact-tier N from one well to three and provides an independent test of the 10a Impact result.
 
@@ -1595,7 +1595,7 @@ Variant C (WMC3-only) is the headline result for the impact tier; it reproduces 
 
 The three Impact-tier variants span +80 to +113 mm against the Forest control, all positive and individually significant. Both synthetic-extension variants are smaller in magnitude than the WMC3-only headline, so the synthetic extension is best read as a robustness check on direction and sign rather than as an independent magnitude estimator. The methodological convergence available from 10h is: the clearfell signal is positive and significant at the Impact tier under every plausible centroid composition, and the WMC3-only step is not a one-well artefact in its sign or its direction. The magnitude attenuation under synthetic-baseline inclusion is noted but not given a physical interpretation in this chapter.
 
-### []{#anchor-222}[]{#anchor-224}[]{#anchor-225}Sub-script 10i --- CEH34 donor-regression hindcast
+### []{#anchor-223}[]{#anchor-224}[]{#anchor-225}Sub-script 10i --- CEH34 donor-regression hindcast
 
 **Motivation.** CEH34 is a Forest Control well used in the 10a Forest-control centroid and in the 10b spatial step maps. Its monthly record starts on 1 August 2010, later than the August 2010 first observation of several other Forest-control wells. Under the pre-fell window start in force when 10i was written (1 July 2010) this truncation affected the Forest-control centroid directly: including CEH34 with its truncated record either reduced the pre-fell N (and so the precision of the climate-corrected pre-fell mean) or introduced a composition shift around August 2010 as CEH34 joined the centroid. Following the *PRE_FELL_START* migration to 1 January 2011 (*clearfell_common* v1.7.0), CEH34's record start falls before the window and the in-window centroid is no longer truncated; the hindcast splice is retained for cross-version reproducibility and for analyses that opt into the earlier start. 10i removes the original asymmetry by hindcasting CEH34 backward to the pre-CEH34-record window using donor regression on a single donor well from the climate-control set.
 
@@ -1609,7 +1609,7 @@ The pre-clearfell window is used deliberately. Fitting in the post-fell era woul
 
 Script 10i (v1.0.0): CEH34 donor-regression hindcast against CEH9; pre-clearfell-only OLS calibration; spliced output consumed by 10a, 10b, 10e, 10h.
 
-### []{#anchor-224}[]{#anchor-226}[]{#anchor-227}Sub-script 10j --- Direct Impact-vs-Edge contrast
+### []{#anchor-225}[]{#anchor-226}[]{#anchor-227}Sub-script 10j --- Direct Impact-vs-Edge contrast
 
 **Motivation.** The three-counterfactual ANCOVA in 10a (Forest, Climate, Combined control tiers) accounts for climate forcing via the cumulative water balance (CWB) covariate and for coastal-retreat drift via an easting × time interaction whenever the well-set spans more than 200 m easting. Both covariates carry independent physical justification --- CWB tracks atmospheric forcing month by month, and the easting × time term reflects the documented coastal-retreat gradient at the western margin (Script 25; CEH4 retreat rate of order 29 mm per year over 2010--2024, with documented six-week losses during Storm Brendan, January 2020). However, the headline ANCOVA's identification of the felling step is materially dependent on the easting × time specification: a sensitivity run that omits the term (10j internal diagnostic, reported below) reduces the Forest-control Impact step from its full-specification value to a small positive figure that is not statistically distinguishable from zero. The dependence is mechanistically defensible --- coastal retreat is real, and well-documented --- but a sceptical reading of the headline benefits from a corroborating estimator whose identification does not pass through any easting × time covariate at all.
 
@@ -1647,7 +1647,7 @@ The monthly contrast is larger in magnitude and statistically significant; the s
 
 Script 10j (v1.0.0): direct Impact-vs-Edge BACI contrast at monthly and annual-summer-minimum resolution.
 
-### []{#anchor-226}[]{#anchor-228}[]{#anchor-229}Sub-scripts 10k and 10l --- Four-zone pooled-panel BACI
+### []{#anchor-227}[]{#anchor-228}[]{#anchor-229}Sub-scripts 10k and 10l --- Four-zone pooled-panel BACI
 
 **Motivation.** The three-counterfactual ANCOVA in 10a fits the same model six times, once per (control, zone) pair, and each fit has its own dependent variable --- the BACI displacement series is the target centroid minus a control centroid, and the control centroid differs between the Forest, Climate, and Combined configurations. The six step estimates therefore do not share a coefficient vector or a covariance matrix, and they are not subtractable: a reader cannot legitimately recover "Impact relative to Edge" by differencing the Forest × Impact and Forest × Edge steps, because the two fits do not share a baseline. Sub-script 10j addressed this for the two-zone Impact-vs-Edge case by stacking the Impact and Edge wells into a single long-form panel and reading the differential felling step off one interaction term. Sub-scripts 10k and 10l generalise the 10j method from two zones to four, so that every zone-vs-zone contrast comes from one internally-consistent fit. They are a methodological cross-check on the principal 10a analysis: 10a remains the principal clearfell BACI analysis of the report, and 10k/10l test whether its felling signal survives re-estimation in a single jointly-fitted panel.
 
@@ -1685,11 +1685,11 @@ The four-zone joint Impact-minus-Forest step (+32 mm) is smaller in magnitude th
 
 Script 10k (v1.0.0): four-zone monthly pooled-panel BACI. Script 10l (v1.0.0): four-zone summer-minimum pooled-panel BACI.
 
-### []{#anchor-228}[]{#anchor-230}[]{#anchor-231}Supplementary --- Sub-script 10c --- Forest zone analysis
+### []{#anchor-229}[]{#anchor-230}[]{#anchor-231}Supplementary --- Sub-script 10c --- Forest zone analysis
 
 Marked supplementary in *run_10_clearfell.py* and written to a separate output directory (*outputs/10c_forest_zone_analysis/*) rather than the suite's main directory. The analysis asks whether the C4/C5 partition reflects a substrate or topographic transition or is arbitrary within a continuous gradient. Per-well SSM coefficients from Script 07 are regressed against three spatial predictors (DEM elevation, distance from ridge crest at E = 241750, N = 364500, distance from coast); the C4--C5 boundary is mapped with elevation context; and the clearfell treatment wells (FE1--FE4, WMC3, LIS1) are located in β₁--β₂ space against the surrounding forest cluster. The outputs feed Table 16 in the main report and provide context for the suite's treatment of C4 and C5 as mechanistically distinct tiers in 10a. The analysis is not part of the §4.6 clearfell result and is not given further weight in this chapter.
 
-### []{#anchor-230}[]{#anchor-232}[]{#anchor-233}Methodology (suite-level) --- *clearfell_common.py*
+### []{#anchor-231}[]{#anchor-232}[]{#anchor-233}Methodology (suite-level) --- *clearfell_common.py*
 
 The suite-shared module sits at *src/utils/clearfell_common.py* and provides everything that needs to be consistent across the thirteen sub-scripts. Changing an impact-well list, an intervention date, or a distance-weight function in one place propagates to all of them.
 
@@ -1709,7 +1709,7 @@ The suite-shared module sits at *src/utils/clearfell_common.py* and provides eve
 
 **Reporting utility.** *ReportNumbers* is a simple accumulator class with *add(parameter, value, unit, well, era, note)* and *save(path)*. Every sub-script uses it to write a per-script *\*\_report_numbers.csv* exported into the main directory; *run_10_clearfell.py* then merges all per-sub-script files into *10_consolidated_report_numbers.csv*.
 
-### []{#anchor-232}[]{#anchor-234}[]{#anchor-235}Site-specific choices and rationale (suite-level)
+### []{#anchor-233}[]{#anchor-234}[]{#anchor-235}Site-specific choices and rationale (suite-level)
 
 -   **The 17-well BACI network excludes FE1--FE4, NW8, and NW8B.** FE1--FE4 lack pre-clearfell baselines (FE1 and FE2 start July 2015; FE3 and FE4 in 2017). NW8 and NW8B have data-quality issues in their pre-intervention records. CEH42 is excluded by length-of-baseline rule (3.4 years pre-felling, below the threshold). The exclusions are codified in the network constants --- there is no separate exclusion list.
 -   **Single impact well in the published headline (WMC3).** Like the scraping suite (S.6) where the impact-zone is CEH36 alone at the published level, the clearfell suite has structural n = 1 at the published Impact tier. 10h's synthetic extension via FE1/FE2 donor regression is the principal robustness check; both synthetic-extension variants (Variant A and Variant B) return positive, individually significant or marginally so Forest-control steps, confirming the direction and sign of the WMC3-only headline but at smaller magnitude.
@@ -1719,7 +1719,7 @@ The suite-shared module sits at *src/utils/clearfell_common.py* and provides eve
 -   **Fixed-membership control centroid.** As of *clearfell_common* v1.7.0, each control centroid is computed only over months in which every roster well has a value; a month with any roster well missing is excluded from the BACI series. The earlier implementation took a NaN-skipping monthly mean, so the centroid silently re-weighted whenever a control well went offline. The dominant case was the joint outage of NW10 and CEH2 from September 2011 to September 2012, during which the Forest-control centroid was the mean of only CEH32, CEH33, and CEH34. The fixed-membership rule removes that artefact. It lowers the Forest × Impact annual clearfell step from +0.135 m to +0.120 m as then computed (both p \< 0.001) and the model R² from 0.37 to 0.27; the result remains positive and highly significant. On current pipeline data the step is +0.113 m (p = 0.002). A coordinated change in the same *clearfell_common* v1.7.0 commit migrated the shared *PRE_FELL_START* cutoff from 1 July 2010 to 1 January 2011, so the legacy 10-series sub-scripts share the four-zone scripts' pre-felling start; the audit established this as a consistency change rather than the artefact fix (the 2010 install-ramp months were already outside the ANCOVA window after the cumulative-water-balance inner-join). The audit basis is *AUDIT_10series_PRE_FELL_START.md*.
 -   **Provenance-aware summer minima.** 10d consumes *01_wells_provenance.csv* (§S.1) and applies a *min_measured=2* rule to *annual_summer_minimum()*: a (well, year) summer minimum is admitted to the panel only when at least two of the four Jun--Sep months are actual field measurements. Single-month interpolations under *limit=1* are allowed to contribute and are flagged in the *n_interpolated* column of *10d_01_summer_minima.csv*. The rule excludes (well, year) combinations whose minimum would rest only on interpolated values. The same provenance file and rule is consumed by §S.6 sub-script 09c.
 
-### []{#anchor-234}[]{#anchor-236}[]{#anchor-237}Limitations and known caveats (suite-level)
+### []{#anchor-235}[]{#anchor-236}[]{#anchor-237}Limitations and known caveats (suite-level)
 
 -   **Single impact well in the published headline.** 10h's synthetic extension partially mitigates this but the synthetic baselines themselves carry calibration uncertainty (R² ≈ 0.99 across 29 months) and the assumption that the donor regression is stationary backward through pre-scraping years. The synthetic-extension variants confirm the direction and sign of the WMC3-only headline but return smaller magnitudes; the synthetic extension is read as a direction-and-sign robustness check rather than an independent magnitude estimator.
 -   **Mean monthly recovery is significant; summer minima are not.** This is the central scientific neutrality point for the suite. 10a's Forest-control Impact step is +113 mm, p = 0.002; 10d's Forest-control mixed-model Impact step is −1 mm, p = 0.99 --- no improvement (and no penalty) in summer minima at the impact well. The Forest-control Edge summer-minimum mixed-model step is −64 mm, p = 0.12 --- a negative shift that does not reach significance at α = 0.05 against the Forest control, and that does not reproduce against the Climate-control baseline (+48 mm, p = 0.28). The mean-recovery result is real, and the summer-minima result is real; the chapter presents both with equal weight rather than emphasising the recovery and softening the null summer signal.
@@ -1729,7 +1729,7 @@ The suite-shared module sits at *src/utils/clearfell_common.py* and provides eve
 -   **Forest β₂ uses a single annual mean in the suite-shared multiplier.** As above; flagged for future seasonal-split work.
 -   **10m DiD steps are raw, not climate-corrected.** The per-era difference-in-differences gaps in 10m are the raw WMC3-minus-Forest-control displacement differences, not the ANCOVA climate-corrected steps of 10a. They confirm direction and trajectory but are not the headline result. The on-figure 10a ANCOVA note is the scientific anchor; the DiD steps are display values only.
 
-### []{#anchor-236}[]{#anchor-238}[]{#anchor-239}Sub-script 10m --- WMC3 BACI dual-panel display figure (v1.0.0)
+### []{#anchor-237}[]{#anchor-238}[]{#anchor-239}Sub-script 10m --- WMC3 BACI dual-panel display figure (v1.0.0)
 
 **Motivation.** The headline ANCOVA result (10a, +113 mm, p = 0.002) and the broader six-tier analysis address the question of whether the clearfell raised the mean monthly water table. 10m steps back and asks: for the one well that bears the full 21-year history of both scraping events, the clearfell, and the re-scraping --- WMC3 --- what does the raw trajectory look like against the forest-control mean, and does that picture match the analytical story? The figure is a sanity-check and communication tool, not a new analysis.
 
@@ -1739,7 +1739,7 @@ The suite-shared module sits at *src/utils/clearfell_common.py* and provides eve
 
 **Report location.** Internal interpretation; if placed, §4.6. Figure number TBC with Martin.
 
-### []{#anchor-238}[]{#anchor-240}[]{#anchor-241}Outputs (consolidated)
+### []{#anchor-239}[]{#anchor-240}[]{#anchor-241}Outputs (consolidated)
 
   ------------ ---------------------------------------------------------------------------------------- --------------------------------------------------------------------------------------------------------------------------------------------------
   Sub-script   Output                                                                                   Description
@@ -1789,7 +1789,7 @@ The suite-shared module sits at *src/utils/clearfell_common.py* and provides eve
   All          *10\[a,d,e,f,g,h,i,j,k,l\]\_report_numbers.csv* → *10_consolidated_report_numbers.csv*   All citable values from each sub-script, consolidated by *run_10_clearfell.py*
   ------------ ---------------------------------------------------------------------------------------- --------------------------------------------------------------------------------------------------------------------------------------------------
 
-### []{#anchor-240}[]{#anchor-242}[]{#anchor-243}Where the result appears in the report
+### []{#anchor-241}[]{#anchor-242}[]{#anchor-243}Where the result appears in the report
 
 -   §4.6 *Clearfell intervention* --- entire section.
 -   **Table 7** (per the live *PIPELINE_README.md* table-mapping) --- Clearfell ANCOVA-BACI results, source: *10a_report_numbers.csv*.
@@ -1808,7 +1808,7 @@ The suite-shared module sits at *src/utils/clearfell_common.py* and provides eve
 -   §4.6 robustness paragraph --- easting × time sensitivity and the direct Impact-vs-Edge contrast (10j); values sourced from *pipeline_site_observations.csv* (entries *impact_vs_edge_clearfell_monthly_step* and *impact_vs_edge_clearfell_summer_step*) rather than from a cached constant.
 -   §4.6 / §5 conservation-management paragraph --- seasonal asymmetry between the monthly-mean and summer-minimum Impact-vs-Edge contrasts (10j), corroborating the 10d summer-minima null result against the 10a annual-mean positive result.
 
-### []{#anchor-242}[]{#anchor-244}[]{#anchor-245}Cross-references
+### []{#anchor-243}[]{#anchor-244}[]{#anchor-245}Cross-references
 
 -   **F.3** --- SSM equation, displacement formulation, sign conventions. 10e and 10f fit SSMs through this; 10e diverges from *fit_ssm()* by adding a scraping dummy for the Before fit.
 -   **F.4** --- *pipeline_params.py* consolidation, including the BACI-corrected β₂ multiplier consumed by Scripts 19 and 21.
@@ -1822,19 +1822,19 @@ The suite-shared module sits at *src/utils/clearfell_common.py* and provides eve
 
 Spring-mean companion metric (10d v1.7.0, 10l v1.2.0). The clearfell BACI summer-minimum scripts gain the annual spring mean (Mar--May) as a second seasonal metric through the same code path. In Script 10d the per-metric body (extraction, pre/post Welch shifts, mixed-effects models, figures) runs once per metric with a single shared ReportNumbers accumulator created and saved outside the loop. In the four-zone Script 10l the panel assembly, fit, contrasts and figures are parameterised on the metric; the spring panel is selected by the same WMC3 gatekeeper applied to Mar--May (wmc3_usable_spring_years). Because WMC3\'s spring record is near-complete, the spring panel gains a year: 2011 + 2013--2025 = 14 years (only 2012 dropped) against the summer panel\'s 13 (2012 and 2019 dropped) --- 2019, unusable in summer, is fully measured in spring --- even under the stricter 3-of-3 rule. The spring branch carries no Script-10j cross-check (there is no 10j spring estimator). Outputs 10d_06--10d_10 and 10l_06--10l_10; spring rows append to the shared per-metric report-numbers files and three four_zone_spring_step\_\* keys are added to the site-observations registry. Results in Supplementary Note S8.
 
-# []{#anchor-244}[]{#anchor-246}[]{#anchor-247}Phase 4 --- Climate and Spatial Context
+# []{#anchor-245}[]{#anchor-246}[]{#anchor-247}Phase 4 --- Climate and Spatial Context
 
-## []{#anchor-246}[]{#anchor-248}[]{#anchor-249}S.8 Scripts 00, 12, 13, 14 --- Climate baseline and site-overview figures
+## []{#anchor-247}[]{#anchor-248}[]{#anchor-249}S.8 Scripts 00, 12, 13, 14 --- Climate baseline and site-overview figures
 
 **Steps 13--16 / 27 (Phase 4 in ***run_analysis.py***). Phase 4 --- Climate and Spatial Context.**
 
-### []{#anchor-248}[]{#anchor-250}[]{#anchor-251}Motivation
+### []{#anchor-249}[]{#anchor-250}[]{#anchor-251}Motivation
 
 The four scripts in this chapter produce the report's foundational orientation material: the climate baseline that §2 leans on for site setting, the DEM map that opens §2 as Figure 1, the experimental-design diagram that opens §3 as the BACI network figure, and the observed-trajectory figures in §5 that frame the climate-change discussion. None of these scripts produces a CSV that feeds another analytical chain --- they are visualization and baseline-context outputs. The chapter accordingly compresses the methodological detail and concentrates on what each script chooses to render and why.
 
 Three of the four scripts (00, 12, 13) sit at Phase 4's start as orientation tools that run alongside the main analysis. Script 14 sits later in the phase, reading from *03_regional_averages.csv* to project cluster-centroid summer minima forward to 2040 and to evaluate observed winter maxima against the Curreli et al. (2013) flooding thresholds.
 
-### []{#anchor-250}[]{#anchor-252}[]{#anchor-253}Inputs
+### []{#anchor-251}[]{#anchor-252}[]{#anchor-253}Inputs
 
   ---------------------------------------------------- ------------------- ---------------------
   Input file                                           Used by             Note
@@ -1849,7 +1849,7 @@ Three of the four scripts (00, 12, 13) sit at Phase 4's start as orientation too
 
 Scripts 12 and 13 are the two pipeline scripts that legitimately read from *Well_locations_height.csv* directly rather than from a Script 01 intermediate. The exception is recorded in F.5: site-mapping figures need raw coordinates and the full locations register, including wells excluded from the analytical network, which the Script 01 intermediate does not retain.
 
-### []{#anchor-252}[]{#anchor-254}[]{#anchor-255}Sub-script 00 --- Climate summary
+### []{#anchor-253}[]{#anchor-254}[]{#anchor-255}Sub-script 00 --- Climate summary
 
 Script 00 generates two complete output sets in a single run via *\_run_all()*. The **full-record** set covers the entire RAF Valley climate series (December 1930 to present, \~95 years) and produces the climate timeseries figure, well-network summary figure, summer warming-trend figure, and three matching CSV tables. The **monitoring-period** set repeats the climate and network outputs over the well-record overlap window (roughly 2004 onwards), restricting climate and wells to the date span where the reference network has observations. The two filename groups are distinguished by a *\_short* suffix on the monitoring-period outputs.
 
@@ -1859,13 +1859,13 @@ The monitoring-period timeseries figure uses a four-panel layout (P, PET, cumula
 
 The summer warming-trend figure (*00_03_summer_warming_trend.png*) is the only Script 00 figure that reads from the raw *RAF_Valley_Climate.csv* rather than from *01_climate.csv* --- the pipeline-filtered climate file contains P and PET only, not maximum temperatures. The figure plots the JJA (June--July--August) mean maximum temperature for each year of the full 95-year record as red/blue bars relative to the pre-2013 mean, with a linear OLS trend overlay and the post-2013 mean as a horizontal reference. Only years with all three summer months recorded are used. The figure is produced on the full-record profile only --- running it over the monitoring-period subset would remove the long baseline that makes the recent warming interpretable. Output CSVs accompany each figure; for the warming-trend figure the table includes the regression slope, intercept, R², p-value, pre/post-2013 means, and the post-2013 anomaly. This figure appears in the main report as Figure 4 in §4.1.1 *Climate record*.
 
-### []{#anchor-254}[]{#anchor-256}[]{#anchor-257}Sub-script 12 --- Site overview map
+### []{#anchor-255}[]{#anchor-256}[]{#anchor-257}Sub-script 12 --- Site overview map
 
 Script 12 produces Figure 1 of the main report: a DEM hillshade over the full warren extent with every well in *Well_locations_height.csv* (currently 97 wells, including extended-network wells and lake-stage points) plotted as a red marker with a name label. The script reads the raw locations CSV, projects to EPSG:27700 (British National Grid), and overlays the local 1 m DEM (*newborough_dem.tif*) using *rasterio* with a custom topographic colormap. The colormap's *set_under(\'dodgerblue\')* paints any sub-zero elevation as water, and *TwoSlopeNorm* anchors the colour scale at 0 m sea level, 12 m at the slack-dune transition, and the true ridge maximum at the top. KML site features (forestry boundaries, broadleaf restock blocks, scrape sites) are added through *map_utils.add_kml_features* (F.5).
 
 If the local DEM is absent or *rasterio* is not installed, the script falls back to a *contextily* OpenTopoMap basemap framed around the well bounding box plus a 300 m buffer. The fallback exists so the pipeline runs end-to-end on a reviewer's machine without the 1 m DEM; the published Figure 1 uses the local DEM render.
 
-### []{#anchor-256}[]{#anchor-258}[]{#anchor-259}Sub-script 13 --- Experimental design map
+### []{#anchor-257}[]{#anchor-258}[]{#anchor-259}Sub-script 13 --- Experimental design map
 
 Script 13 produces the BACI / scraping design figure used in §3 of the main report. The well coordinates come from the same raw CSV as Script 12, restricted by a tight bounding box (240,500--243,500 E × 362,700--364,800 N) that frames the clearfell zone and the scraping sites without the open dune to the south-east. CEH12 is dropped on coordinate grounds (out-of-area).
 
@@ -1873,7 +1873,7 @@ Each well's experimental role is assigned by *assign_category* using a strict pr
 
 The DEM hillshade underlay uses the same *rasterio* + custom topographic colormap as Script 12. The legend is grouped under three headings (clear-fell BACI, topographical scraping, analytical linkages) with empty *Line2D* separators acting as section breaks. Excluded BACI wells are drawn as grey crosses so the reader can see where the rejected wells sit relative to the felling boundary --- this is the figure's most useful diagnostic feature for anyone wanting to understand why the BACI network excludes the FE wells.
 
-### []{#anchor-258}[]{#anchor-260}[]{#anchor-261}Sub-script 14 --- Climate projections
+### []{#anchor-259}[]{#anchor-260}[]{#anchor-261}Sub-script 14 --- Climate projections
 
 Script 14 reads *03_regional_averages.csv* (cluster-centroid hydrographs in m below ground) and computes per-cluster annual summer minima and winter maxima on a hydrological-year basis (year starts 1 October). Summer months are April--September; winter months are October--March; a minimum of three valid monthly readings is required for an annual minimum or maximum to be recorded. For each cluster, summer minima are fitted with *scipy.stats.linregress* and the trend is projected linearly from the first observation year to 2040, with a 95% confidence interval for the mean response (*fit_trend*). Winter maxima are computed and plotted as observation only --- no projection is fitted on the winter side because the report's framing is that summer minima are the climate-trajectory variable of interest, and winter exceedance is reported as an observed-frequency count against the Curreli flooding thresholds rather than as a forward projection. The observed-period winter trend (OLS slope, R², p-value, n-years) is nonetheless computed for each cluster and persisted to *14_winter_trend_stats.csv*; it is descriptive only and carries no projection, but it is written to a pipeline CSV so that any winter-trend figures cited in the report are sourced from a pipeline output rather than recomputed by hand from the raw annual extremes.
 
@@ -1881,7 +1881,7 @@ The three figure outputs are *14_climate_trajectory_summer.png* (summer panel, a
 
 The framing in the report is deliberate: the OLS linear extrapolation is **not** a climate forecast --- it is an observed-trajectory baseline against which the UKCP18-based forecast in Script 21 (S.14 of this supplement) can be compared. Script 14 answers "where is the cluster heading at its observed rate of change"; Script 21 answers "where could the cluster end up under a UKCP18 scenario." The pairing is explicit in §5 of the main report.
 
-### []{#anchor-260}[]{#anchor-262}[]{#anchor-263}Site-specific choices (suite-level)
+### []{#anchor-261}[]{#anchor-262}[]{#anchor-263}Site-specific choices (suite-level)
 
 -   **Two profiles in Script 00 (***full*\*\* and ***short***) rather than one.\*\* The well-network analysis runs over 2004--present; the climate context the report's §2 sets out runs over the full 95-year record. Producing both lets the report quote climate normals against either window without re-running the script. Both profiles are always generated; the function names retain the legacy "profile" terminology for clarity but there is no CLI flag to select one --- the orchestrator gets both.
 -   **The summer warming-trend figure reads the raw climate CSV, not ***01_climate.csv***.** This is the only Script 00 output that needs temperatures (P and PET alone do not give a warming signal); Script 01's intermediate carries P and PET only. The departure from the "everything reads from intermediates" rule is intentional and limited to this one figure.
@@ -1890,7 +1890,7 @@ The framing in the report is deliberate: the OLS linear extrapolation is **not**
 -   **Script 14 uses simple OLS rather than a more elaborate trend model.** The figure's purpose is the observed-trajectory baseline; UKCP18 scenarios (consolidated in *pipeline_params.py* and used by Script 21 in S.14) carry the forecast.
 -   **No projection on the winter side.** The winter panel reports observed maxima against the Curreli flooding thresholds and an exceedance-frequency count; it does not extrapolate. The asymmetric treatment matches the report's framing.
 
-### []{#anchor-262}[]{#anchor-264}[]{#anchor-265}Outputs
+### []{#anchor-263}[]{#anchor-264}[]{#anchor-265}Outputs
 
   ------------------------------------------------------------------ -------------------------------------------------------------- ---------------------------------------------------------------------
   Output                                                             Description                                                    Reference
@@ -1914,7 +1914,7 @@ The framing in the report is deliberate: the OLS linear extrapolation is **not**
 
 All paths resolve through *utils/paths.py* (*OUT_00\_\**, *OUT_12_DEM_OVERVIEW*, *OUT_13_EXPERIMENTAL_MAP*, *OUT_14\_\**).
 
-### []{#anchor-264}[]{#anchor-266}[]{#anchor-267}Where the result appears in the report
+### []{#anchor-265}[]{#anchor-266}[]{#anchor-267}Where the result appears in the report
 
 -   §2 *Site setting* --- Figure 1 from Script 12 (DEM render); climate-baseline figures and tables from Script 00.
 -   §3 *Methodology* --- BACI design map from Script 13.
@@ -1922,7 +1922,7 @@ All paths resolve through *utils/paths.py* (*OUT_00\_\**, *OUT_12_DEM_OVERVIEW*,
 -   §5 *Discussion / climate trajectory* --- summer- and winter-trajectory figures and exceedance summary from Script 14; the Script 00 warming-trend figure (§4.1.1 / Figure 4) provides the long-baseline temperature context that §5 draws on.
 -   Online Supplementary Tool --- seasonal-extremes scatter from Script 14, hosted at the project's GitHub Pages site.
 
-### []{#anchor-266}[]{#anchor-268}[]{#anchor-269}Cross-references
+### []{#anchor-267}[]{#anchor-268}[]{#anchor-269}Cross-references
 
 -   **F.3** --- SSM formulation that drives the cluster centroids that Script 14 reads.
 -   **F.4** --- Curreli thresholds (*SD15b*, *SD16*, *SD15b_WINTER*, *SD16_WINTER*); cluster colours and labels; *REFERENCE_CUTOFF_DATE*.
@@ -1932,7 +1932,7 @@ All paths resolve through *utils/paths.py* (*OUT_00\_\**, *OUT_12_DEM_OVERVIEW*,
 -   **S.7** --- *clearfell_common.py* tier definitions consumed by Script 13.
 -   **S.14** --- Script 21 forestry scenarios, which use UKCP18 climate constants from *pipeline_params.py* for the forecast model that Script 14's linear extrapolation does not provide.
 
-### []{#anchor-268}[]{#anchor-270}[]{#anchor-271}S.8.5 Script 14b --- Bootstrap year-of-crossing (post-review addition, Phase 4 step 16)
+### []{#anchor-269}[]{#anchor-270}[]{#anchor-271}S.8.5 Script 14b --- Bootstrap year-of-crossing (post-review addition, Phase 4 step 16)
 
 Script 14b was added on 2026-05-29 following the post-review pass on the main report. Conclusion 11 of the report previously read "*summer minimum trends indicate C1 summer minima approaching the SD16 dry slack viability threshold around 2030--2032 under current trajectories*", with the qualitative date band taken from a reading of Script 14's per-cluster summer-trend slopes but without a stated confidence interval. Script 14b replaces the qualitative band with a bootstrap CI on the crossing year per cluster × threshold, anchored in the same annual summer-minimum series that Script 14 produces.
 
@@ -1955,13 +1955,13 @@ Cross-references.
 
 Spring-mean centroid trend (Script 14 v1.4.x). Script 14 gains a spring-mean (Mar--May) cluster-centroid trend alongside its summer-minimum and winter-maximum trends, on the same descriptive-OLS footing from 03_regional_averages.csv, emitting 14_spring_trend_stats.csv (same columns as 14_summer_trend_stats.csv) and a trajectory figure 14_climate_trajectory_spring.png (observed means with per-cluster OLS trends; no projection and no threshold bands). Unlike the summer minimum and winter maximum --- indexed by the October-start hydrology year --- the spring mean sits wholly inside a calendar year and is indexed by calendar year (as Script 36 does, S.20). The spring trend is flat for every cluster except C5 (Coastal Forest, −0.038 m yr⁻¹, p = 0.020); see Supplementary Note S8.
 
-## []{#anchor-270}[]{#anchor-272}[]{#anchor-273}S.9 Scripts 11, 11b --- Forecasting and spatial thresholds
+## []{#anchor-271}[]{#anchor-272}[]{#anchor-273}S.9 Scripts 11, 11b --- Forecasting and spatial thresholds
 
 Steps 11 and 12 / 27. Phase 4 --- Climate and spatial context.
 
 The pair implements the §3.6 *Forecasting* methodology of the main report at two scales. Script 11 produces cluster-level temporal forecasts --- peak winter flood and summer drought transfer functions, plus the iterated closed-form P_flood that is the chapter's headline management tool. Script 11b applies the same threshold framework per-well, producing spatial maps of where the network sits relative to the Curreli et al. (2013) thresholds, the BACI-derived recovery limits, and the per-well P_flood surface (the §3.6.3 figure). The pair share the Curreli thresholds (F.4), the cluster β from Script 03's mechanistic table, hydrological-year indexing, and the iterated P_flood derivation in *model_utils.pflood_lambda()*; they differ only in aggregation level. Refer to F.3 for the SSM, F.4 for the constants and partition, and F.5 for the shared utilities.
 
-### []{#anchor-272}[]{#anchor-274}[]{#anchor-275}Inputs (suite-level)
+### []{#anchor-273}[]{#anchor-274}[]{#anchor-275}Inputs (suite-level)
 
   ----------------------------------------------- -----------------------------------------------------------------------------------------------------------------------------
   Input file                                      Source / description
@@ -1978,9 +1978,9 @@ The pair implements the §3.6 *Forecasting* methodology of the main report at tw
   *data/Features.kml*, *data/site_boundary.kml*   Site overlay and interpolation domain
   ----------------------------------------------- -----------------------------------------------------------------------------------------------------------------------------
 
-### []{#anchor-274}[]{#anchor-276}[]{#anchor-277}Sub-script 11 --- Cluster-level temporal forecasting
+### []{#anchor-275}[]{#anchor-276}[]{#anchor-277}Sub-script 11 --- Cluster-level temporal forecasting
 
-#### []{#anchor-276}[]{#anchor-278}Motivation
+#### []{#anchor-277}[]{#anchor-278}Motivation
 
 Script 11 takes Script 03's cluster-centroid SSM coefficients and answers five management-relevant forecasting questions. What rainfall is required to recover the slack from a known summer minimum (Section 2, empirical peak-flood transfer function)? What rainfall threshold triggers winter flooding to the slack floor (Section 3, the iterated P_flood, the chapter's headline)? Given a winter peak, how dry will the following summer get (Section 4, summer-drought transfer function)? Given the same winter peak, what will the *spring* mean be --- the metric the van Willegen 2025 monitoring framework uses (Section 5, added at Script 11 v1.1.1; documented in full in S.18b as Tool A)? And --- restated for the transcript --- what are the cluster-centroid coefficients that everything downstream rests on (Section 1)? The sections are independent and write to separate output CSVs.
 
@@ -2056,7 +2056,7 @@ over the same hydrological-year indexing, predicting the summer minimum from ant
 
 ### []{#anchor-282}[]{#anchor-283}[]{#anchor-284}Sub-script 11b --- Per-well spatial threshold maps
 
-#### []{#anchor-283}[]{#anchor-285}Motivation
+#### []{#anchor-284}[]{#anchor-285}Motivation
 
 Script 11b applies the threshold framework per-well. The core map products are a summer-minima depth map (binned against the Curreli SD15b/SD16 thresholds and the BACI recovery limits), a winter-maxima depth map (against the Curreli winter flooding thresholds), and the P_flood spatial map --- the per-well iterated rainfall threshold from §3.6.3, the chapter's principal spatial figure. A flood-frequency map, a Table 10 spreadsheet export, and an interactive forecaster HTML are written alongside.
 
@@ -2115,7 +2115,7 @@ The data bundle that backs the forecaster is built by *\_build_forecaster_data_b
 -   *MEAN_WINTER_RAINFALL_MM = 521* is the 2005--2026 monitoring-period Oct--Mar mean. Climatologies from the full Met Office record back to 1930 differ slightly. The forecaster fetches the live record at build time and recomputes; the static script value is the report-cited figure.
 -   **One peak-month per cluster.** Within-cluster heterogeneity in peak timing is not resolved by the cluster-level peak-month CSV. Wells in the spatial map inherit their cluster's peak month as the horizon end.
 
-### []{#anchor-290}[]{#anchor-292}[]{#anchor-293}Outputs (consolidated)
+### []{#anchor-291}[]{#anchor-292}[]{#anchor-293}Outputs (consolidated)
 
   ---------------------------------------------------------------------- -------- ----------------------------------------------
   Output file                                                            Script   Description
@@ -2133,14 +2133,14 @@ The data bundle that backs the forecaster is built by *\_build_forecaster_data_b
   11b_spatial_thresholds/forecaster.html                                 11b      Interactive forecaster tool
   ---------------------------------------------------------------------- -------- ----------------------------------------------
 
-### []{#anchor-292}[]{#anchor-294}[]{#anchor-295}Where the result appears in the report
+### []{#anchor-293}[]{#anchor-294}[]{#anchor-295}Where the result appears in the report
 
 -   §3.6 *Forecasting* --- Script 11 methodology and Tables 6, 7, 8, 9 (Table 9 = Section 5 spring MSL transfer function, Tool A in S.18b).
 -   §3.6.3 *P_flood management tool* --- the iterated closed-form derivation; report Tables 14 and 15 (per-cluster P_flood summary and cluster collapsed linear equations); and the per-well P_flood map from 11b.
 -   §4 --- Curreli-zone spatial maps from 11b (summer minima and winter maxima depth maps).
 -   §4 --- winter flooding frequency map from 11b.
 
-### []{#anchor-294}[]{#anchor-296}[]{#anchor-297}Cross-references
+### []{#anchor-295}[]{#anchor-296}[]{#anchor-297}Cross-references
 
 -   **F.3** --- SSM equation form, drainage datum, sign conventions; the basis for the iterated P_flood derivation.
 -   **F.4** --- Curreli ecohydrological thresholds (*SD15b*, *SD16*, *SD15b_WINTER*, *SD16_WINTER*, *SD15b_REC*, *SD16_REC*), *MEAN_WINTER_RAINFALL_MM*, cluster colours and labels. The new MSL-aggregation constants subsection covers *MSL_SPRING_MONTHS*, *MSL_HYDRO_YEAR_START_MONTH*, and the *MSL_MIN\_\** strictness rules consumed by Section 5's hydrology-year-B partitioning.
@@ -2151,7 +2151,7 @@ The data bundle that backs the forecaster is built by *\_build_forecaster_data_b
 -   **S.18** --- Script 26's observational MSL5 metric is the 5-year-mean target that Section 5's annual MSL forecast feeds into; managers add a Section 5 prediction to the rolling four-year history of observed MSLs to update the MSL5 statistic without waiting for end-May.
 -   **S.18b** --- Full Tool A treatment: §S.18b.2 carries the per-cluster coefficient table, the manager workflow, and the rejected previous-MSL variant discussion. Tool B (Script 26b) consumes the same cluster β coefficients as the SSM-coefficient summary in Section 1 of this chapter to project ΔMSL5 under UKCP18 RCP8.5 scenarios.
 
-### []{#anchor-296}[]{#anchor-298}[]{#anchor-299}S.9.3 Script 11c --- P_flood achievability map (post-review addition, Phase 3 step 13)
+### []{#anchor-297}[]{#anchor-298}[]{#anchor-299}S.9.3 Script 11c --- P_flood achievability map (post-review addition, Phase 3 step 13)
 
 Script 11c was added on 2026-05-29 following the post-review pass on the main report. Conclusion 4 of the report names a priority criterion for scrape-target identification --- "*priority targets are the C1/C2/C3 transitional wells where the aquifer base is stable and P_flood thresholds remain achievable (rainfall multiplier λ \< 1.5)*" --- but the report does not surface a per-well lookup against this criterion. Script 11c operationalises the criterion by reading the per-well P_flood multipliers already produced by Script 11b (*11b_03_pflood_per_well.csv*) and emitting a per-well categorical map on the canonical site DEM + KML overlay. The script consumes existing Script 11b output and adds no new model fitting; it is a presentation-layer step.
 
@@ -2185,17 +2185,17 @@ Cross-references.
 -   §5.9 of the main report --- the figure *11c_pflood_achievability.png* and the per-well lookup table land here as the operational figure for Conclusion 4.
 -   §7 Conclusion 4 of the main report --- the cross-reference is added to point the reader at the new figure and CSV.
 
-## []{#anchor-298}[]{#anchor-300}[]{#anchor-301}S.10 Script 15 --- Depth-dependent PET sensitivity
+## []{#anchor-299}[]{#anchor-300}[]{#anchor-301}S.10 Script 15 --- Depth-dependent PET sensitivity
 
 **Step 17 / 27. Phase 5 in ***run_analysis.py***; second chapter under Phase 4 --- Climate and Spatial Context in the supplement.**
 
-### []{#anchor-300}[]{#anchor-302}[]{#anchor-303}Motivation
+### []{#anchor-301}[]{#anchor-302}[]{#anchor-303}Motivation
 
 The canonical SSM (F.3, Script 03) fits a single β₂ per cluster: PET draws the water table down at a rate proportional to monthly PET, with no dependence on how deep the water table currently sits. This is a strong assumption. Physically, evapotranspiration reaches the saturated zone through capillary rise from the root zone, and capillary connectivity weakens as the column between root zone and water table lengthens. A deep water table should be drawn down by PET less efficiently than a shallow one.
 
 Script 15 tests this by replacing the fixed β₂ with a depth-decaying term, *β₂·exp(−λ·d)*, where *d* is the depth below ground surface and λ is a free parameter (m⁻¹) fitted per cluster. The script is a sensitivity analysis, not a replacement model: the canonical fixed-β₂ SSM remains the published headline. What Script 15 establishes is the *bound* on how much PET draw the fixed-β₂ formulation may be over- or under-estimating across the network --- a physically interpretable bracket on the headline model. The §5.3 discussion of Thornthwaite-PET limitations in the main report draws on this work; Scripts 19 and 21 consume β₂ in their spatial and forestry-scenario calculations and inherit the same caveat.
 
-### []{#anchor-302}[]{#anchor-304}[]{#anchor-305}Inputs
+### []{#anchor-303}[]{#anchor-304}[]{#anchor-305}Inputs
 
   ------------------------ ---------------------------------------------------------------------
   Input file               Description
@@ -2206,7 +2206,7 @@ Script 15 tests this by replacing the fixed β₂ with a depth-decaying term, *�
   01_well_elevations.csv   Script 01 --- per-well upstand heights
   ------------------------ ---------------------------------------------------------------------
 
-### []{#anchor-304}[]{#anchor-306}[]{#anchor-307}Methodology
+### []{#anchor-305}[]{#anchor-306}[]{#anchor-307}Methodology
 
 **Modified SSM.** The depth-coupled equation is
 
@@ -2224,7 +2224,7 @@ Cluster-centroid construction. Per-well fitting was rejected in favour of cluste
 
 **Fit window.** The script uses the most-recent 100 months (*DATA_LIMIT = 100*), matching the LCSC window of Script 03 (S.3). This privileges recent data --- under steady-state climate the choice would be immaterial, but Newborough's water-table levels have trended downward over the record (S.3 documents the LCSC empirical estimate at 100 months in this context), so using the same window keeps Script 15's β₂ estimates comparable to the canonical β₂ from *03_master_data.csv*.
 
-### []{#anchor-306}[]{#anchor-308}[]{#anchor-309}Site-specific choices and rationale
+### []{#anchor-307}[]{#anchor-308}[]{#anchor-309}Site-specific choices and rationale
 
 -   **λ grid range \[0, 6\] m⁻¹.** The lower bound is the canonical-SSM limit: λ = 0 returns the fixed-β₂ model exactly, so the null hypothesis (no depth coupling) is a special case in the search. The upper bound is generous: at λ = 6 m⁻¹ and a water-table depth of 1 m, *exp(−6) ≈ 0.0025*, so PET draw is effectively suppressed. No cluster's best λ approaches this bound, so the choice of upper limit does not bind any result.
 -   **Grid step 0.05 m⁻¹.** This resolution is finer than the cross-cluster spread of best λ values (0.15--1.90), so quantising at 0.05 does not blur any cluster's position. A finer step would change reported λ values at the third significant figure at most.
@@ -2233,7 +2233,7 @@ Cluster-centroid construction. Per-well fitting was rejected in favour of cluste
 -   **Iterative NSE as the headline metric.** Quoted from S.5: "the iterative NSE is where the SSM's structural advantage is unmasked". The same logic applies here: the depth-coupling parameter exists to change the multi-step behaviour of the model, so the multi-step metric is the appropriate test.
 -   **Depth lag.** The decay term uses *d(t−1)*, the depth at the *start* of the month, not the contemporaneous *d(t)*. This is the same simultaneity argument that motivates *h_disp_prev* in the canonical β₃ term (F.3): using the result of the month's drainage as a predictor of that drainage biases the fit. The depth-coupling formulation inherits the same lag convention without further argument.
 
-### []{#anchor-308}[]{#anchor-310}[]{#anchor-311}Outputs
+### []{#anchor-309}[]{#anchor-310}[]{#anchor-311}Outputs
 
   ------------------------------- ----------------------------------------------------------------------------------------------------------------
   Output                          Description
@@ -2246,7 +2246,7 @@ Cluster-centroid construction. Per-well fitting was rejected in favour of cluste
 
 The principal downstream consumer is the §5.2.2 *Displacement Formulation and Depth-Dependent PET* section of the main report. Script 15 outputs are not consumed by any other pipeline script --- the depth-coupled model is sensitivity context, not a replacement that propagates forward.
 
-### []{#anchor-310}[]{#anchor-312}[]{#anchor-313}Results to describe at the methodological level
+### []{#anchor-311}[]{#anchor-312}[]{#anchor-313}Results to describe at the methodological level
 
 The depth-coupled model improves iterative NSE over the canonical SSM at all five clusters. Differences are graded:
 
@@ -2263,11 +2263,11 @@ Three observations on the pattern. First, the cluster where depth coupling impro
 
 The cross-cluster λ pattern is consistent with the capillary-connectivity hypothesis: clusters where the water table is shallowest on average show steeper decay (because the working range of *d* is small, a larger λ is needed to produce a meaningful difference between summer and winter PET draw), while clusters where the water table is deepest show shallower decay (the canonical fixed-β₂ already roughly approximates the effective PET draw across the cluster's working depth range). The pattern is suggestive rather than definitive --- five points are not enough to fit a quantitative relationship between mean cluster depth and λ --- and the depth-coupling formulation is one of several physically motivated alternatives. It is the simplest one-parameter form consistent with monotonic decay of connectivity with depth.
 
-### []{#anchor-312}Spring-mean branch and the season × gradient interaction test (v1.5.x)
+### []{#anchor-313}Spring-mean branch and the season × gradient interaction test (v1.5.x)
 
 Script 25 adds the spring mean (Mar--May) as a second per-well seasonal metric (compute_per_well_slopes(metric=...); spring uses a Mar--May calendar-year mean under the strict 3-of-3 rule, otherwise identical OLS and the same PANEL_OBS_MIN_YEARS = 8 guard). Crucially, the panel fit and the coastal-retreat gradient are all-season (metric-independent) and remain the headline; the spring branch reuses that same forest-free linear-capped fit and differs only in the per-well response and the Script-14 observed-centroid table it is decomposed against (14_spring_trend_stats.csv). This is the exact parallel of the committed summer decomposition, so any spring--summer difference is attributable to the metric alone rather than to a refitted gradient. The BACI corroboration (25_04) is metric-independent and is not re-emitted.
 
-Two diagnostics accompany the spring branch. First, six MAM-only panel refits (the three specifications by two forms, restricted to Mar--May rows) are appended to 25_01_panel_fit_parameters.csv as a sensitivity: on a quarter of the panel, with the month fixed effects collapsed from 11 dummies to 2, the forest-free δ₀ standard error roughly doubles (1.91 to 3.43 mm yr⁻¹) and the reach SE loosens (52 to 84 m), while the point estimates move only a little (δ₀ −29.22 to −31.2 mm yr⁻¹; L 901 to 894 m). The loosening is expected sampling behaviour. The steepening of δ₀, about 7 %, is far too small against a doubled standard error to stand as a finding on its own, but it is of the same sign and roughly the same size as the interaction-test estimate below, which is not. Second, a full-panel season × δ(d)·t interaction test fits δ(d)·t·(1 + γ·S), with S = 1 in Mar--May, on the forest-free panel (11,834 observations, one model), estimating γ --- the fractional change in the gradient drift rate in spring --- with a Wald p-value (25_09_season_interaction_test.csv). This is the clean single-model test of whether the coastal-retreat gradient is itself seasonal, in place of comparing two subset fits with overlapping CIs. It rejects season-independence. γ = +0.135 ± 0.056 (t = 2.43, p = 0.015) for the linear-capped form and +0.143 ± 0.056 (t = 2.54, p = 0.011) for the exponential: both significant at the 0.05 level, both positive, and the gradient drift rate accordingly about 13--14 % steeper in Mar--May than over the rest of the year. Because the two decay forms return near-identical estimates, the seasonality is not an artefact of the assumed functional form. The coastal-retreat signal remains a year-round boundary effect --- γ modulates the drift rate, it does not switch it off outside spring --- but the all-season gradient is a season-averaged quantity rather than a season-independent one, and applying it unchanged to a spring metric understates the spring coastal contribution. The spring decompositions in Supplementary Note S8 are to be read on that basis. The new spring outputs are listed in the Outputs table below; full results, including the summer-vs-spring cluster comparison, are in Supplementary Note S8.
+Two diagnostics accompany the spring branch. First, six MAM-only panel refits (the three specifications by two forms, restricted to Mar--May rows) are appended to 25_01_panel_fit_parameters.csv as a sensitivity: on a quarter of the panel, with the month fixed effects collapsed from 11 dummies to 2, the forest-free δ₀ standard error roughly doubles (1.97 to 3.47 mm yr⁻¹) and the reach SE loosens (48 to 78 m), while the point estimates move only a little (δ₀ −31.33 to −33.34 mm yr⁻¹; L 895 to 894 m). At the reference distance the two fits are closer still, returning −26.18 and −26.33 mm yr⁻¹ against standard errors of 1.45 and 2.56 --- a difference of 0.15 mm yr⁻¹, which is the cleanest available statement that the gradient is not a seasonal artefact. The loosening is expected sampling behaviour. The steepening of δ₀, about 6 %, is far too small against a doubled standard error to stand as a finding on its own, but it is of the same sign and roughly the same size as the interaction-test estimate below, which is not. Second, a full-panel season × δ(d)·t interaction test fits δ(d)·t·(1 + γ·S), with S = 1 in Mar--May, on the forest-free panel (10,929 observations, one model), estimating γ --- the fractional change in the gradient drift rate in spring --- with a Wald p-value (25_09_season_interaction_test.csv). This is the clean single-model test of whether the coastal-retreat gradient is itself seasonal, in place of comparing two subset fits with overlapping CIs. It rejects season-independence. The estimate is γ = +0.126 ± 0.054 (t = 2.32, p = 0.0203) for the linear-capped form and +0.115 ± 0.053 (t = 2.15, p = 0.0317) for the exponential: both significant at the 0.05 level, both positive, and the gradient drift rate accordingly about 12--13 % steeper in Mar--May than over the rest of the year. Because the two decay forms return compatible estimates, the seasonality is not an artefact of the assumed functional form. The coastal-retreat signal remains a year-round boundary effect --- γ modulates the drift rate, it does not switch it off outside spring --- but the all-season gradient is a season-averaged quantity rather than a season-independent one, and applying it unchanged to a spring metric understates the spring coastal contribution. The spring decompositions in Supplementary Note S8 are to be read on that basis. The new spring outputs are listed in the Outputs table below; full results, including the summer-vs-spring cluster comparison, are in Supplementary Note S8.
 
 ### []{#anchor-314}[]{#anchor-315}[]{#anchor-316}Limitations and known caveats
 
@@ -2277,12 +2277,12 @@ Two diagnostics accompany the spring branch. First, six MAM-only panel refits (t
 -   **The improvement in iterative NSE is graded, not transformative.** Three clusters (C2, C3, C5) gain Δ NSE between 0.03 and 0.07; two (C1, C4) gain more substantially (0.10--0.18). The canonical fixed-β₂ formulation is therefore an acceptable approximation for most of the network at most depths, and the depth-coupled model is a refinement rather than a fundamentally different description. This is the central reason Script 15 remains a sensitivity analysis: the gain does not justify retiring the simpler model.
 -   **C4 sits at a coefficient-sign boundary.** The best-fit λ at 0.15 is the last physically valid grid point before β₃ flips negative for a band of intermediate λ values. This is a feature of the OLS geometry at that particular cluster centroid and may not survive perturbations (alternative climate input, longer fit window, different cluster membership). The C4 result is reported but should not be over-interpreted as a quantitative estimate of the cluster's depth-coupling parameter.
 
-### []{#anchor-315}[]{#anchor-317}[]{#anchor-318}Where the result appears in the report
+### []{#anchor-316}[]{#anchor-317}[]{#anchor-318}Where the result appears in the report
 
 -   **§5.2.2 *****Displacement Formulation and Depth-Dependent PET*** --- the Thornthwaite limitations discussion cites Script 15's depth-coupled λ values as evidence that the fixed-β₂ formulation is defensible across the network. The graded improvements (largest at C1, smallest at C3 and C5) appear in the limitations paragraph.
 -   **Not part of §4 headline results.** The canonical SSM (Script 03, fixed-β₂) remains the published model; Script 15 is sensitivity context for the §5 discussion.
 
-### []{#anchor-317}[]{#anchor-319}[]{#anchor-320}Cross-references
+### []{#anchor-318}[]{#anchor-319}[]{#anchor-320}Cross-references
 
 -   **F.3** --- canonical SSM, displacement formulation, drainage datum, P(t) under *HEADLINE_LAG = 0*.
 -   **F.4** --- cluster partition, *FOREST_CIDS = (4, 5)*, *DRAINAGE_DATUM = 3.7 m*.
@@ -2291,15 +2291,15 @@ Two diagnostics accompany the spring branch. First, six MAM-only panel refits (t
 -   **S.13** --- Scripts 19 and 20 spatial groundwater calculations consume β₂ at cluster level; the depth-coupling is sensitivity context for those.
 -   **S.14** --- Script 21 forestry scenarios consume β₂; the same caveat applies.
 
-## []{#anchor-319}[]{#anchor-321}[]{#anchor-322}S.11 Script 16 --- Water balance decomposition
+## []{#anchor-320}[]{#anchor-321}[]{#anchor-322}S.11 Script 16 --- Water balance decomposition
 
 **Step 19 / 27. Phase 7 --- Water Balance Decomposition in ***run_analysis.py***; third chapter under Phase 4 --- Climate and Spatial Context in the supplement.**
 
-### []{#anchor-321}[]{#anchor-323}[]{#anchor-324}Motivation
+### []{#anchor-322}[]{#anchor-323}[]{#anchor-324}Motivation
 
 The state-space model fitted in S.3 gives each cluster three regression coefficients --- β₁, β₂, β₃ --- and a closure statistic (LCSC) that quantifies how much of the monthly Δh variance the displacement formulation explains. Those coefficients carry the physics, but a reader looking at the numbers in isolation has no straightforward way to ask the question conservation managers actually want answered: *where does the water at this cluster go?* Script 16 answers that question. It reads the cluster-mean β coefficients, computes long-term mean P and PET from the regional-average series, and rewrites the SSM equation at its steady state --- Δh̄ ≈ 0 --- to expose each component as a physical-units flux. Two outputs result: a head-space decomposition reported in m head per month, and a volumetric partition reported in mm per year. Both feed §4.2.3 *Water balance* of the main report and the two-panel Figure 11.
 
-### []{#anchor-323}[]{#anchor-325}[]{#anchor-326}Inputs
+### []{#anchor-324}[]{#anchor-325}[]{#anchor-326}Inputs
 
   -------------------------------------------- -------------------------------------------------------------------------------------------------
   Input file                                   Description
@@ -2307,9 +2307,9 @@ The state-space model fitted in S.3 gives each cluster three regression coeffici
   03_03_cluster_mechanistic_coefficients.csv   Script 03 (S.3); per-cluster β₁, β₂, β₃, LCSC, and the drainage datum that was used to fit them
   -------------------------------------------- -------------------------------------------------------------------------------------------------
 
-### []{#anchor-325}[]{#anchor-327}[]{#anchor-328}Methodology
+### []{#anchor-326}[]{#anchor-327}[]{#anchor-328}Methodology
 
-#### []{#anchor-327}[]{#anchor-329}The head-space decomposition
+#### []{#anchor-328}[]{#anchor-329}The head-space decomposition
 
 The SSM displacement form (see F.3) is
 
@@ -2354,7 +2354,7 @@ The cancellation matters because interception is a partition of the rainfall ene
 -   **Forest interception 0.24, hardcoded centrally rather than per-script.** *FOREST_INTERCEPTION* and *FOREST_CIDS* are imported from *config.py* (F.4). The 0.24 value is Freeman (2008) at this site for Corsican pine; it is not a global canopy interception fraction. The two forest clusters (C4 Main Forest, C5 Coastal Forest) share the same canopy type and the same value applies to both.
 -   **Cluster-mean only, not per-well.** The water balance is at the cluster centroid. Per-well water balances are not produced because β₁, β₂, β₃ are noisier at the well level (S.3) and the residual closure tolerance the script enforces would not be met reliably for individual wells. The cluster-mean balance is the right scale for the methodological statement the report makes in §4.2.3.
 
-### []{#anchor-333}[]{#anchor-335}[]{#anchor-336}Outputs
+### []{#anchor-334}[]{#anchor-335}[]{#anchor-336}Outputs
 
   ---------------------------- --------------------------------------------------------------------------------------------------------------------------------------------------- --------------------------------
   Output                       Description                                                                                                                                         Report reference
@@ -2364,21 +2364,21 @@ The cancellation matters because interception is a partition of the rainfall ene
   16_water_bal_bar_lay.png     Figure 11 lay version (coloured background, 150 dpi)                                                                                                Report companion / web version
   ---------------------------- --------------------------------------------------------------------------------------------------------------------------------------------------- --------------------------------
 
-### []{#anchor-335}[]{#anchor-337}[]{#anchor-338}Limitations and known caveats
+### []{#anchor-336}[]{#anchor-337}[]{#anchor-338}Limitations and known caveats
 
 -   **The closure is steady-state.** Year-to-year variation, drought-recovery dynamics, and the response to single wet or dry years are deliberately absent from this analysis. They are the SSM's domain (S.3) and the residual-seasonality diagnostic's domain (S.16, Script 24). The water balance describes the average behaviour, not the operational range.
 -   **Thornthwaite PET inherits its own caveat.** The PET̄ used in the head-space balance is the Thornthwaite estimate (F.4), known to underestimate atmospheric demand under forest canopies and at southern aspects on hot dry days. The depth-dependent PET correction in S.10 (Script 15) quantifies how much of the β₂ inter-cluster spread is attributable to substrate properties rather than canopy demand; the water balance presented here uses the canonical fixed-β₂ SSM and therefore inherits whatever direction the Thornthwaite bias pushes the cluster-mean ET share. The volumetric partition's central tendency is robust to the bias direction, but the *magnitude* of the ET draw at the forest clusters in particular is more uncertain than the numbers in Table 4b might suggest in isolation.
 -   **The SSM/recession bracketing is the partition's honest uncertainty band, and at some clusters it is wide.** C1 Lake Edge differs by 20 percentage points between the two methods (SSM 80 % drainage, recession 60 %); C2 Dune by 30 (SSM 70 %, recession 40 %); C4 Main Forest by 30 (SSM 20 %, recession 50 %). The midpoint reported as the central estimate masks that spread. A reader looking at the volumetric breakdown should treat the hatched range on Figure 11b as the substantive uncertainty, not a decorative band.
 -   **Specific yield uncertainty is not propagated here, but it does exist.** The choice to use the head-space partition fraction rather than a Sy-weighted volumetric conversion keeps this script's output Sy-invariant, but the upstream β coefficients themselves were fitted on water-level data --- Sy enters implicitly through the relationship between water-level change and recharge in the unsaturated zone. The decomposition presented here treats the fitted β values as fixed inputs; the full uncertainty around them is given proper accounting in the WTF chapters (S.12).
 
-### []{#anchor-337}[]{#anchor-339}[]{#anchor-340}Where the result appears in the report
+### []{#anchor-338}[]{#anchor-339}[]{#anchor-340}Where the result appears in the report
 
 -   **§4.2.3 *****Water balance*** --- the section is built around the two tables and Figure 11 from this script.
 -   **Table 4a** --- head-space decomposition (*16_water_bal_table.csv*).
 -   **Table 4b** --- volumetric partition with SSM/recession bracket (*16_water_bal_vol_table.csv*).
 -   **Figure 11** --- two-panel water balance figure (*16_water_bal_bar_ms.png*).
 
-### []{#anchor-339}[]{#anchor-341}[]{#anchor-342}Cross-references
+### []{#anchor-340}[]{#anchor-341}[]{#anchor-342}Cross-references
 
 -   **F.3** --- SSM displacement formulation; the equation Script 16 rewrites at steady state.
 -   **F.4** --- *DRAINAGE_DATUM*, *FOREST_INTERCEPTION*, *FOREST_CIDS*, the centralised constants this script imports.
@@ -2388,15 +2388,15 @@ The cancellation matters because interception is a partition of the rainfall ene
 -   **S.12** --- WTF specific-yield analysis; the chapter that does carry the Sy uncertainty propagation Script 16 deliberately defers.
 -   **S.16** --- Scripts 22, 23, 24 residual diagnostics; Script 24 specifically addresses the residual seasonality the steady-state water balance does not capture.
 
-## []{#anchor-341}[]{#anchor-343}[]{#anchor-344}S.12 Scripts 17, 18 --- WTF Specific Yield (cluster and spatial)
+## []{#anchor-342}[]{#anchor-343}[]{#anchor-344}S.12 Scripts 17, 18 --- WTF Specific Yield (cluster and spatial)
 
 **Steps 18 and 20 / 27. Phase 6 (Script 17) and Phase 8 (Script 18) in ***run_analysis.py***; fourth chapter under Phase 4 --- Climate and Spatial Context in the supplement.**
 
 The Water Table Fluctuation (WTF) method (Healy and Cook, 2002) translates an observed water-table rise into a recharge-equivalent volume, with specific yield (Sy) as the proportionality constant: Sy = R / Δh. The SSM in chapter S.3 characterises the *dynamic* response of the aquifer (the β coefficients), but its coefficients are in head units; converting any head-equivalent quantity into a volumetric flux requires Sy. The WTF Sy is the only network-scale, spatially distributed Sy available for Newborough Warren. Betson and Bristow (2002) report a field-measured hydraulic conductivity of K = 6 m day⁻¹ from a pumping test at the site --- the source used throughout the pipeline for K --- but do not report a Sy value from that test, and no slug or pumping test has been run at the dipwell locations themselves. A representative Sy cannot be read off the literature for a coastal dune system with this particular substrate gradient: published coastal-dune Sy values span 0.10--0.45 depending on grain size, saturation history, and depth (Baird et al., 2020; Berendsen et al., 2007), a range wide enough to carry material uncertainty into any volumetric calculation. The WTF method provides the only means of producing a well-by-well, cluster-stratified Sy calibrated to the site's own observed head fluctuations. Scripts 17 and 18 are paired because they use the same WTF event-detection logic on the same monthly time series, but answer different questions: Script 17 produces a single Sy per cluster (the value consumed by Table 4c and by Script 19's spatial calculations and Script 21's forestry scenarios), while Script 18 produces a Sy per well and combines it with the well-level β₃ from the SSM to generate the storage--drainage index map τ = Sy / β₃ that informs the main report's discussion of aquifer architecture.
 
-### []{#anchor-343}[]{#anchor-345}[]{#anchor-346}Sub-script 17 --- *17_wtf_specific_yield.py* (cluster-level Sy)
+### []{#anchor-344}[]{#anchor-345}[]{#anchor-346}Sub-script 17 --- *17_wtf_specific_yield.py* (cluster-level Sy)
 
-#### []{#anchor-345}[]{#anchor-347}Motivation
+#### []{#anchor-346}[]{#anchor-347}Motivation
 
 The cluster-level Sy is the value most consumers downstream actually need: Script 21's forestry scenarios apply a multiplier to a cluster-mean head response and need to convert that to a volumetric flux at the cluster scale, not the individual-well scale. Per-well Sy values are noisier (Script 18 quantifies this) and not the right granularity for the cluster-mean SSM coefficients in *03_master_data.csv*. Script 17 produces a single Sy per cluster, with three independent methods (Approach A, Approach B, and Approach C), so the reader can see how sensitive the headline number is to the estimator choice. Approach C is a reported triangulation only; it does not propagate downstream.
 
@@ -2459,7 +2459,7 @@ Three cross-approach observations: C3 converges tightly across all three methods
 
 ### []{#anchor-350}[]{#anchor-351}[]{#anchor-352}Sub-script 18 --- *18_wtf_spatial.py* (per-well Sy and the drainage half-life map)
 
-#### []{#anchor-351}[]{#anchor-353}Motivation
+#### []{#anchor-352}[]{#anchor-353}Motivation
 
 Script 18 brings the WTF estimator down to the individual well, then interpolates the result spatially. Three downstream uses motivate the per-well treatment. First, the supplementary table S1 in the main report needs a per-well Sy so readers can cross-check the cluster-level headline against the spatial pattern. Second, the spatial contour map shows where the Sy assumption is most exposed (low-Sy pockets that the cluster-level mean smooths over). Third, combining per-well Sy with per-well β₃ from *03_master_data.csv* gives the storage--drainage index τ = Sy / β₃ (months), a per-well aquifer-architecture diagnostic that is not available from the SSM alone. τ is a deliberately storage-weighted composite --- it fuses two independently estimated quantities (Sy from the WTF method, β₃ from the SSM) and therefore carries information beyond β₃ alone. It is **not** a residence time or drainage timescale in the hydraulic sense: the head-space recession e-folding time is t_R = 1/β₃ (months), which is the genuinely time-like quantity (the interval over which a recharge perturbation decays). The figure that informs the main report's discussion of aquifer architecture is the drainage half-life map (*18_wtf_05_halflife_map.png*, t½ = ln(2)/β₃). Because Sy \< 1, τ = Sy/β₃ is always shorter than 1/β₃ --- for example, C2 has 1/β₃ ≈ 14 months but τ ≈ 4 months. The two should not be conflated; t_R = 1/β₃ is reported as an interpretation layer on the β₃ atlas (see *Site-specific choices* below).
 
@@ -2507,7 +2507,7 @@ Script 18 reads the cleaned reference-network hydrographs (*01_wells_clean.csv*)
 -   **Live network counts.** Script 17 works at the cluster level on the five reference clusters under the k=5 partition (C1 Lake Edge, C2 Dune, C3 Western Residual, C4 Main Forest, C5 Coastal Forest), each represented by a cluster-mean hydrograph in *03_regional_averages.csv*. Script 18 works at the well level on the 66 wells of the reference network plus the 22-well extended network. The 66/22 split is established in chapter S.4.
 -   **Event detection rules are identical in Scripts 17 and 18.** Minimum rise 5 mm, minimum net recharge 10 mm, Sy plausibility filter 0.01--0.50, minimum 5 events per well for inclusion. These rules are conservative --- the live event count per well averages around 50 --- and the script favours throwing out marginal events over including them.
 
-### []{#anchor-357}[]{#anchor-359}[]{#anchor-360}Limitations and known caveats
+### []{#anchor-358}[]{#anchor-359}[]{#anchor-360}Limitations and known caveats
 
 -   **Sy estimates from the WTF method are indicative, not definitive.** Slug or pumping tests at representative wells per cluster would be the gold standard. The WTF approach assumes that monthly net recharge during rising-limb winter months equals actual aquifer recharge --- a defensible approximation for this site but not a measurement.
 -   **Approach A and Approach B answer slightly different questions and are expected to differ within the data's natural spread.** Approach A's drainage correction means it is reporting Sy *given* the SSM's β₃, while Approach B is an empirical median across rising-limb months. Under the live partition the two estimators agree within \~10--15 % on C3, C4, and C5; they diverge on C1 (Lake Edge) and C2 (Dune). The chapter on Script 16's water balance (S.11) takes the view that any volumetric calculation built on a single Sy value is exposing itself to this spread, which is why Script 16 was designed to be Sy-free.
@@ -2517,7 +2517,7 @@ Script 18 reads the cleaned reference-network hydrographs (*01_wells_clean.csv*)
 -   **The contour interpolation extends 100 m beyond the convex hull of well locations** (*map_utils.add_idw_surface()*, *hull_buffer_m = 100*, applied from map_utils v1.5.0). The extension is bounded by nearest-neighbour fill within the buffered hull and then clipped to the site boundary and ridge mask, so the surface reaches the coastal margin rather than stopping at the outer well ring. Values in the 100 m extension zone are bounded extrapolation over unmeasured ground and should be read with corresponding caution. The dune fringes inside the hull are interpolated rather than measured; offshore and lake areas are hidden by the site-boundary mask.
 -   **Downstream consumer note --- broadleaf β₂ multiplier in Script 19.** The Sy values produced here feed Script 19's spatial calculations and Script 21's forestry scenarios. Script 19 imports the broadleaf β₂ seasonal split --- *sB2_w = 0.8817* (Nov--Apr, leaves off), *sB2_s = 1.0750* (May--Oct, full leaf) --- from *utils.config* (canonical values derived from Script 21's monthly profile, see chapter S.14). §4.10.2 of the main report carries the broadleaf-scenario values.
 
-### []{#anchor-359}[]{#anchor-361}[]{#anchor-362}Where the result appears in the report
+### []{#anchor-360}[]{#anchor-361}[]{#anchor-362}Where the result appears in the report
 
 -   **§4.2.4 (or the equivalent --- verify against the report's section numbering)** --- WTF Sy methodology and the cluster-level result.
 -   **Table 4c** --- cluster-level Sy estimates from Script 17's interception-corrected output.
@@ -2525,7 +2525,7 @@ Script 18 reads the cleaned reference-network hydrographs (*01_wells_clean.csv*)
 -   **Table S1** --- per-well Sy from Script 18, supplementary.
 -   **Spatial figures** --- Script 18's contour and τ maps; the t½ vs ΔNSE synthesis figure appears in the discussion of aquifer architecture.
 
-### []{#anchor-361}[]{#anchor-363}[]{#anchor-364}Cross-references
+### []{#anchor-362}[]{#anchor-363}[]{#anchor-364}Cross-references
 
 -   **F.3** --- SSM displacement formulation; the β coefficients consumed alongside Sy in volumetric calculations.
 -   **F.4** --- *FOREST_INTERCEPTION = 0.24*, *FOREST_CIDS = (4, 5)*.
@@ -2537,13 +2537,13 @@ Script 18 reads the cleaned reference-network hydrographs (*01_wells_clean.csv*)
 -   **S.13** --- Scripts 19 and 20 spatial groundwater calculations consume the cluster-level Sy values.
 -   **S.14** --- Script 21 forestry scenarios consume the cluster-level Sy values via *clearfell_common.load_clearfell_b2_multiplier()* and elsewhere.
 
-## []{#anchor-363}[]{#anchor-365}[]{#anchor-366}S.13 Scripts 19, 20 --- Spatial groundwater analysis
+## []{#anchor-364}[]{#anchor-365}[]{#anchor-366}S.13 Scripts 19, 20 --- Spatial groundwater analysis
 
 **Steps 21 and 22 / 27. Phase 9 --- Spatial Groundwater Analysis in ***run_analysis.py***; fifth chapter under Phase 4 --- Climate and Spatial Context in the supplement.**
 
 Scripts 19 and 20 together construct §4.9 *Spatial groundwater* of the main report. They share inputs (the per-well β coefficients from *03_master_data.csv*, monthly maOD heads from *01_wells_clean_maod.csv*, the 50 m project grid, the F.3 displacement formulation, the cluster-mean Sy from S.12) and methodological choices (Freeman 2008 forest interception, Betson 2002 hydraulic conductivity, the F.2 bucketing convention). They differ in deliverable: Script 19 generates *scenario_viewer.html*, a self-contained interactive HTML calculator; Script 20 generates the publication-quality static figures for §4.9. Script 19 at \~2100 lines is among the longest in the pipeline; Script 20 at \~4400 lines produces the publication spatial figures (ten headline outputs). The interactive viewer is part of the methods rather than a results artefact: it is the calculator that lets a reader exercise the per-cluster equation engine for any scenario combination, with sliders and parameter values exposed.
 
-### []{#anchor-365}[]{#anchor-367}[]{#anchor-368}Sub-script 19 --- Scenario viewer (interactive HTML)
+### []{#anchor-366}[]{#anchor-367}[]{#anchor-368}Sub-script 19 --- Scenario viewer (interactive HTML)
 
 **Motivation.** The mechanistic content of the report's forestry and climate scenarios sits in three places: the per-cluster β coefficients in *03_master_data.csv*, the seasonal climate baselines from *01_climate.csv*, and the seasonal cluster-mean heads. A reader who wants to interrogate any single scenario --- say, *what does a 30 % winter rainfall increase under UKCP18 2080s do to the C4 Main Forest summer minima?* --- needs all three sources combined through the equilibrium-perturbation engine. Script 19 builds that engine into a self-contained HTML file with every parameter exposed as a slider. Unlike the Flood Forecaster (S.9), which fits a temporal model to a single well, and unlike the Newborough Water-Level tool, which displays the monitoring record, the scenario viewer is purely diagnostic: it lets the reviewer see what the calibrated SSM implies for any combination of climate and forest-management perturbations.
 
@@ -2585,7 +2585,7 @@ The clearfell and thinning forest-β₂ multipliers (shown as "dyn." above) are 
 
 **Why per-well aggregation, and how it relates to Script 26b.** The viewer's per-well-averaged β does not algebraically reduce to Script 26b's cluster-centroid OLS, even on the same wells: the two aggregations differ by 0.5--3.7 mm per cluster per UKCP18 scenario, with the largest gap in C1 (lake-edge, n = 7, the most heterogeneous reference-network cluster). To anchor the viewer row against a matching canonical reference, Script 26b v1.1.0 (2026-05-27) added a parallel per-well aggregation pathway that writes *26b_msl5_ukcp18_projection_summary_perwell.csv* alongside the canonical centroid summary. The viewer's CSV-side computation includes a cross-script validation block that loads the 26b per-well CSV if present, iterates the 10 (cluster, UKCP18 scenario) pairs, and prints the maximum absolute difference; current state is 0.042 mm worst case (well within the 0.5 mm acceptance tolerance, a rounding artefact of the viewer CSV's 4-dp *round()*). The canonical report numbers for §3.7.5 / §4.8.5 / §4.10.1 remain anchored to the centroid-fitted *26b_msl5_ukcp18_projection_summary.csv* consumed by Script 26c (S.18c); the per-well CSV is a secondary artefact whose role is the viewer-row validation target.
 
-### []{#anchor-367}[]{#anchor-369}[]{#anchor-370}Sub-script 20 --- Publication spatial figures
+### []{#anchor-368}[]{#anchor-369}[]{#anchor-370}Sub-script 20 --- Publication spatial figures
 
 **Motivation.** Script 20 generates ten spatial outputs that the viewer alone cannot replace: a head-surface map with the stream network and flow vectors (*20_head_surface_streams.png*); a map of the SSM water-balance residual (*20_residual_ssm.png*); an independent topographic check from a smoothed-DEM ridge-slope map (a supporting diagnostic, not carried as a numbered report figure); a flow-weighted forest-drawdown propagation map (*20_drawdown_propagation_nohead.png*, filled no-head form since v1.4.0); a three-figure coastal-process family added in May 2026 (coastal-erosion drawdown, sea-level-rise head response, and the cell-by-cell SLR-erosion net coastal change --- the coastal-figures family, cited in §3.4.5 and §4.9.4 of the main report); a dune-scrape topographic-drain drawdown field at the CEH36 site (*20_scrape_drawdown_nohead.png*, the §5.4.2 "scrape as drain" reading); a composite clearfell pre-fell baseline drawdown that overlays the scrape on the Storm Brendan coastal retreat (*20_clearfell_baseline_drawdown.png*, the §5.4.2/§5.4.3 confounder framing); and a public-summary three-driver comparison panel (*20_public_drivers_panel.png*, a lay-summary figure not numbered in the main report; forest canopy / dune scrape / coastal erosion on the shared sequential drawdown scale). Script 20 generates all ten at publication DPI.
 
@@ -2603,7 +2603,7 @@ A windowed cross-check (water years 2010--2025, ≥ 12 of 16 years with ≥ 10 m
 
 *Forest drawdown propagation (20_drawdown_propagation_nohead.png).* A flow-weighted cost-distance is computed via Dijkstra's algorithm on the LiDAR DEM (downsampled to 10 m), seeded from forest-boundary cells; cell-to-cell costs are weighted by alignment with the DEM gradient (downhill cheap, uphill expensive). The drawdown signal decays with characteristic length λ = √(K·b / (Sy·β₃)), where D = K·b / Sy is the hydraulic diffusivity. The decay length depends on aquifer properties of the *propagation medium*, not of the forest itself. Since the drawdown signal propagates outward from the forest edge into the surrounding open dune, Sy and β₃ are sourced from C3 (Western Residual): Sy ≈ 0.31 from the C3 cluster median of the per-well WTF estimates (Script 17, S.12) and β₃ from the C3 centroid SSM coefficient (Script 03, S.3) --- currently ≈ 0.057 month⁻¹ under the *limit=1* interpolation policy. With K = 6 m/day from Betson (2002) and saturated thickness b = 5 m, this gives λ ≈ 228 m. The Δh = H₀·exp(−d/λ) field with H₀ = 150 mm (forest interception deficit) is overlaid on the mean head surface, with λ annotated as a horizontal bar. Both Sy and β₃ are read from the live pipeline CSVs at generation time (Script 20 v1.0.1), so the figure tracks the current pipeline state; pre-2026-05-17 the script used hardcoded snapshot values (Sy = 0.25 mid-range, β₃ = 0.060 month⁻¹) that gave λ = 245 m.
 
-#### []{#anchor-369}[]{#anchor-371}Coastal-process figures (erosion, sea-level-rise, and net coastal change)
+#### []{#anchor-370}[]{#anchor-371}Coastal-process figures (erosion, sea-level-rise, and net coastal change)
 
 The forest drawdown figure (*20_drawdown_propagation_nohead.png*) was joined in May 2026 by three companion fields that illustrate western-margin coastal influences on the dune water table. All three are single-mechanism illustrative constructions on the eroding Caernarfon Bay shore only, sharing the DEM hillshade base, the F.5 spatial-figure machinery, and a site-boundary clip applied through *data/site_boundary.kml* so the fields terminate at the coast and the warren edges rather than extrapolating offshore or onto the bedrock ridge. The construction of each field is documented in §3.4.5 of the main report; this sub-section carries the full parameter exposition that §3.4.5 deliberately defers to the supplement.
 
@@ -2722,7 +2722,7 @@ Site-specific choices.
 -   **The viewer's equation engine is shared with Script 21.** Both use the same monthly equilibrium perturbation, and ship the same clearfell and thinning multipliers (loaded via *clearfell_common*). The broadleaf β₂ values were briefly divergent between the two source files (Script 19 v2.6.0 used local literals; v2.7.0 consolidated to *utils.config*) --- see *Limitations*.
 -   **Forest-drawdown propagation constants from C3.** The forest-drawdown map's diffusivity inputs are sourced from the live pipeline: Sy ≈ 0.31 from the C3 cluster median of *17_wtf_well_sy.csv* (Script 17, S.12), and β₃ from the C3 row of *03_03_cluster_mechanistic_coefficients.csv* (Script 03, S.3) --- ≈ 0.057 month⁻¹ under the *limit=1* policy --- giving λ ≈ 228 m. K = 6 m/day (Betson 2002) and saturated thickness b = 5 m remain literature/estimate literals. The Sy and β₃ loads are dynamic, so the figure tracks pipeline state.
 
-### []{#anchor-378}[]{#anchor-380}[]{#anchor-381}Limitations and known caveats
+### []{#anchor-379}[]{#anchor-380}[]{#anchor-381}Limitations and known caveats
 
 -   **Displayed flow vectors carry direction only.** Both the head-surface map (*20_head_surface_streams.png*) and the residual map (*20_residual_ssm.png*) normalize (U, V) to unit length before plotting. The docstring's "normalized Darcy quiver" is accurate as to direction; the Darcy K = 6 m/day does not enter the displayed vectors. A reader expecting quiver length to scale with flow magnitude will not see that. K = 6 m/day is used in the forest-drawdown propagation λ length scale, not in the static-figure quivers.
 -   **The ***idw_surface()*\*\* name is misleading.\*\* It calls *scipy.interpolate.griddata(method=\'linear\')* --- Delaunay piecewise-linear interpolation, not Shepard inverse-distance weighting. The misnomer is shared with *map_utils.add_idw_surface()* and the S.5 chapter; consistency with the older scripts argues against renaming.
@@ -2733,7 +2733,7 @@ Site-specific choices.
 -   **Linear-domain assumption.** All scenarios remain inside the steady-state equilibrium framework. Within-year dynamical trajectories --- the timing of summer minima and winter peaks --- are not resolved. The 0.5--1.5× slider range stays within the linear domain of the fitted β coefficients.
 -   **The 50 m grid extends 100 m beyond the well-network convex hull** (*map_utils.add_idw_surface()*, *hull_buffer_m = 100*, applied from map_utils v1.5.0), then is clipped to the NNR site boundary and ridge mask. The extension is bounded nearest-neighbour extrapolation, not genuine interpolation, so observed maps now reach the coastal margin rather than stopping at the outer well ring. Values in the 100 m extension zone --- particularly along the northern bedrock ridge and the southern coast --- should be read as bounded extrapolation. The static figures and the viewer's ridge mask flag these zones.
 
-### []{#anchor-380}[]{#anchor-382}[]{#anchor-383}Outputs
+### []{#anchor-381}[]{#anchor-382}[]{#anchor-383}Outputs
 
   ------------------------------------------------------- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ------------------------------------------------------------------------------------
   Output                                                  Description                                                                                                                                                                                                                                                                                                                Reference
@@ -2751,7 +2751,7 @@ Site-specific choices.
   20_spatial_figures/20_public_drivers_panel.png          Public-summary three-driver comparison panel (forest canopy / dune scrape / coastal erosion); portrait 1-over-2 layout; shared drawdown scale; band-boundary contour lines                                                                                                                                                 Lay-summary report (Figure)
   ------------------------------------------------------- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ------------------------------------------------------------------------------------
 
-### []{#anchor-382}[]{#anchor-384}[]{#anchor-385}Where the result appears in the report
+### []{#anchor-383}[]{#anchor-384}[]{#anchor-385}Where the result appears in the report
 
 -   §3.4.5 *Drawdown-Field Visualisation* --- the methodological home of the drawdown-field figures (forest drawdown, coastal erosion, sea-level-rise head response, SLR-erosion net coastal change, dune-scrape topographic-drain drawdown, and the clearfell pre-fell baseline composite). The methods-register equation forms appear here; the supplement carries the full parameter exposition above.
 -   §4.9 *Spatial groundwater* --- the head-surface, residual, and slope maps from Script 20 (*20_head_surface_streams.png*, *20_residual_ssm.png*, *20_slope_gradient.png*).
@@ -2763,7 +2763,7 @@ Site-specific choices.
 -   §5.4.3 *Clearfell BACI confounder framing* --- the clearfell pre-fell baseline composite (*20_clearfell_baseline_drawdown.png*) renders the scrape + Storm Brendan retreat composite that the BACI's easting × time correction implicitly controls for.
 -   Lay-summary report --- the public-summary three-driver comparison panel (*20_public_drivers_panel.png*) is the primary lay-facing figure communicating that no single driver is the whole story.
 
-### []{#anchor-384}[]{#anchor-386}[]{#anchor-387}Cross-references
+### []{#anchor-385}[]{#anchor-386}[]{#anchor-387}Cross-references
 
 -   **F.3** --- SSM displacement formulation; the β coefficients the engine consumes.
 -   **F.4** --- *DRAINAGE_DATUM*, *FOREST_INTERCEPTION*, *FOREST_CIDS*, *BROADLEAF_INTERCEPTION*, *BROADLEAF_B2_WINTER/SUMMER*, the canonical cluster constants.
@@ -2775,11 +2775,11 @@ Site-specific choices.
 -   **S.14** --- Script 21 forestry scenarios; uses the same monthly perturbation engine. The broadleaf β₂ value reconciliation between Scripts 19 and 21 is owed to that chapter.
 -   **S.16** --- Script 23 ridge-recharge lag hypothesis test; the qualitative anchor for the CEH14 residual annotation on the residual map (*20_residual_ssm.png*).
 
-## []{#anchor-386}[]{#anchor-388}[]{#anchor-389}S.14 Script 21 --- Forestry scenarios
+## []{#anchor-387}[]{#anchor-388}[]{#anchor-389}S.14 Script 21 --- Forestry scenarios
 
 **Step 23 / 27. Phase 10 --- Forestry Scenario Analysis in ***run_analysis.py***; sixth chapter under Phase 4 --- Climate and Spatial Context in the supplement.**
 
-### []{#anchor-388}[]{#anchor-390}[]{#anchor-391}Motivation
+### []{#anchor-389}[]{#anchor-390}[]{#anchor-391}Motivation
 
 Section 4.10.2 of the main report quantifies how the C4 Main Forest groundwater regime would respond to three management alternatives --- full clearfell, 50 % thinning, and conversion to broadleaf --- under the calibrated SSM. Script 21 is the analysis behind that section. It produces a synthetic mean-year hydrograph that shows each scenario as a monthly perturbation from the observed C4 baseline, alongside an empirical benchmark derived from the BACI clearfell evidence accumulated in Script 10 (chapter S.7), and a series of observed summer-minimum depth distributions that document what actually happened across the site through the 2018 clearfell intervention.
 
@@ -2787,7 +2787,7 @@ The script is paired with Script 19 (chapter S.13) but answers a complementary q
 
 Script 21 is also the canonical source for the broadleaf monthly β₂ profile that Script 19 and the wider pipeline consume in seasonal-mean form. The 12 monthly values are defined inside *build_scenarios()* and propagate downstream through *config.BROADLEAF_B2_SUMMER* and *config.BROADLEAF_B2_WINTER*, and through *pipeline_params.csv*. Where this chapter and S.13 disagree on summary values, S.14 is the canonical reference.
 
-### []{#anchor-390}[]{#anchor-392}[]{#anchor-393}Inputs
+### []{#anchor-391}[]{#anchor-392}[]{#anchor-393}Inputs
 
   ----------------------------------- ----------------------------------------------------------------------------------------------------------------------------------------------
   Input file                          Description
@@ -2804,7 +2804,7 @@ Script 21 is also the canonical source for the broadleaf monthly β₂ profile t
 
 The script does not refit the SSM. All coefficients are loaded from upstream pipeline outputs; the master CSV is the fallback path when *pipeline_scenario_params.csv* is unavailable.
 
-### []{#anchor-392}[]{#anchor-394}[]{#anchor-395}Methodology
+### []{#anchor-393}[]{#anchor-394}[]{#anchor-395}Methodology
 
 **The Option 3 monthly perturbation.** The script's central operation is a single-step monthly perturbation:
 
@@ -2854,7 +2854,7 @@ On the live pipeline data the loaded multiplier is 1.0315 (Edge ratio 0.9830 min
 
 **Volumetric companion (***21_forestry_06***).** Alongside the volumetric panel, *plot_scenario_comparison()* also emits *21_forestry_06_summer_scenario.csv*: the per-cluster equilibrium volumetric metric *Delta_vol_summer_mm_per_month* for the three forest-management scenarios (clearfell, thinning, broadleaf), taken directly from the monthly scenario values and byte-identical with the forestry rows of *09b_05* by construction. The former summer-minimum amplification conversion (*scraping_common* flux → head ÷ Sy → summer minimum × amplification factor) was removed on 2026-07-02. This gives the §4.10.2 forestry narrative a forestry-module source for the volumetric ecological metric rather than having to reach into the scraping suite for it; the climate-scenario comparison remains with *09b_05*.
 
-### []{#anchor-394}[]{#anchor-396}[]{#anchor-397}Site-specific choices and rationale
+### []{#anchor-395}[]{#anchor-396}[]{#anchor-397}Site-specific choices and rationale
 
 -   **Monthly perturbation, not forward SSM simulation.** The SSM contains an implicit intercept term that closes the water balance at the well's long-term mean. A literal forward simulation from an arbitrary initial condition does not include that intercept and accumulates drift that has no physical meaning. The Option 3 perturbation circumvents this by expressing the scenario response as a difference against the observed baseline --- the intercept cancels, the drainage term cancels, and what remains is the first-order forcing-change response. This is the first-year-adjustment magnitude, not a steady-state prediction.
 -   **The BACI benchmark band as an empirical reference, not a target.** The figure overlays the BACI clearfell observation alongside the modelled clearfell trajectory. The two are not expected to coincide. The modelled value is a first-year forcing-change response; the BACI observation is an integrated displacement over multiple years of post-felling adjustment, during which the drainage flux responds to the new water-table position and the canopy regrowth, soil moisture, and groundwater--subsurface coupling evolve. The gap between modelled and BACI is the multi-year drainage feedback that the perturbation framework deliberately does not capture. Both are useful: the modelled value bounds the immediate response, the BACI value documents what happened.
@@ -2863,7 +2863,7 @@ On the live pipeline data the loaded multiplier is 1.0315 (Edge ratio 0.9830 min
 -   **C4 only for the synthetic hydrograph.** The hydrograph figure shows C4 (Main Forest) only. C5 (Coastal Forest) is forested and shares the same β₂ multipliers in the scenario-comparison panel, but it has no BACI clearfell observation --- the 2018 felling was the C4-side compartment, not C5. The hydrograph's value lies in the BACI overlay, so plotting C5 alongside C4 without an empirical reference would mislead. C5 does appear in the scenario-comparison panel (script figure 21-05) where the modelled response is presented at face value without a BACI anchor.
 -   **Cluster-mean β coefficients, not per-well.** All scenario calculations use the cluster mean of *beta_1_recharge*, *beta_2_atmospheric_draw*, and *beta_3_drainage* from *03_master_data.csv*. The scenario response is a cluster-level quantity; per-well projections would over-represent the spread within each cluster, which is captured separately by Script 19's spatial viewer (chapter S.13).
 
-### []{#anchor-396}[]{#anchor-398}[]{#anchor-399}Outputs
+### []{#anchor-397}[]{#anchor-398}[]{#anchor-399}Outputs
 
   ---------------------------------------- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ------------------------------------
   Output                                   Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                Reference
@@ -2880,7 +2880,7 @@ On the live pipeline data the loaded multiplier is 1.0315 (Edge ratio 0.9830 min
   21_forestry_06_summer_scenario.csv       Per-cluster equilibrium volumetric metric *Delta_vol_summer_mm_per_month* for clearfell, thinning, broadleaf --- byte-identical with *09b_05* forestry rows; former summer-minimum amplification conversion removed 2026-07-02                                                                                                                                                                                                                                                                             Main report §4.10.2
   ---------------------------------------- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ------------------------------------
 
-### []{#anchor-398}[]{#anchor-400}[]{#anchor-401}Limitations and known caveats
+### []{#anchor-399}[]{#anchor-400}[]{#anchor-401}Limitations and known caveats
 
 -   **First-year adjustment, not steady state.** Every Δh produced by *monthly_perturbation()* is the immediate response to a forcing change with h held at its baseline trajectory. The water table will continue to adjust in subsequent months as the drainage flux responds to the new equilibrium head. The synthetic hydrograph is therefore a useful magnitude reference rather than a prediction of the post-management cluster mean depth in year 5 or year 10.
 -   **The BACI gap is a feature.** The empirically-observed clearfell displacement at WMC3 and Edge tier (currently +0.113 m annual on the live data, with the directly-fitted summer step at +0.050 m, p = 0.41, N = 52) exceeds the single-month modelled Δh because the BACI step integrates multi-year drainage feedback that the perturbation does not. The figure presents both values; the gap is part of the result. The summer step is not significant at α = 0.05 against the Jun--Sep subsample, and is not retained as a separate statistical claim --- see the headline-values paragraph above and the Defect 14 entry in the flags log.
@@ -2890,13 +2890,13 @@ On the live pipeline data the loaded multiplier is 1.0315 (Edge ratio 0.9830 min
 -   **Sy enters at the scenario-comparison panel only.** The hydrograph and the distributions are in head units (m) throughout. The volumetric scenario-comparison panel converts through *cluster.Sy* from *17_wtf_01_sy_estimates.csv* (chapter S.12); the interception correction on forest-cluster Sy is the one Script 17 carries, with the uncertainty discussed there. The scenario-comparison panel inherits the same Sy uncertainty.
 -   **Fallback parameters in ***\_load_baci_params()***.** There are no arithmetic BACI fallbacks: missing *10a_report_numbers.csv*, missing *ANCOVA_Forest_Impact_clearfell_step*, or missing *ANCOVA_Forest_Impact_clearfell_step_summer* each raise an explicit error with a remediation message rather than silently substituting an arithmetic construct. The β₂ multiplier fallback (1.20) is independent and remains in place --- it activates only if *10e_01_coefficient_shifts.csv* is missing, and the script prints a *WARNING:* message when it does; chapter consumers should check the log for this message before quoting a β₂ multiplier.
 
-### []{#anchor-400}[]{#anchor-402}[]{#anchor-403}Where the result appears in the report
+### []{#anchor-401}[]{#anchor-402}[]{#anchor-403}Where the result appears in the report
 
 -   **§5.7.4 *****Forest Scenario Predictions Against the Observed Record*** --- script figure 21-01 (synthetic hydrograph) is published there as report Figure 71; the headline narrative on clearfell, thinning, and broadleaf at C4; the BACI-modelled gap. Script figure 21-02 (distributions) is a pipeline diagnostic and is not published in the main report.
 -   **Script figure 21-05** (scenario comparison panel), which carries the cross-cluster volumetric summary, is a pipeline diagnostic and is not published in the main report.
 -   **§4.5.4 and §4.6.4 Summer Minima** --- script figures 21-03 (scraping-era) and 21-04 (BACI tier violins) are published there; the forestry chapter draws on them for context where the forestry chapter draws on the scraping and BACI evidence for context.
 
-### []{#anchor-402}[]{#anchor-404}[]{#anchor-405}Cross-references
+### []{#anchor-403}[]{#anchor-404}[]{#anchor-405}Cross-references
 
 -   **F.3** --- SSM displacement formulation; β₃ cancellation in the perturbation derivation.
 -   **F.4** --- *FOREST_INTERCEPTION*, *BROADLEAF_INTERCEPTION*, *BROADLEAF_B2_WINTER*, *BROADLEAF_B2_SUMMER* constants.
@@ -2908,21 +2908,21 @@ On the live pipeline data the loaded multiplier is 1.0315 (Edge ratio 0.9830 min
 -   **S.12** --- WTF Sy values that the scenario-comparison panel consumes for the volumetric conversion.
 -   **S.13** --- Script 19's *scenario_viewer.html* is the interactive companion; the Option 3 engine is shared, and the broadleaf β₂ seasonal-mean divergence (defect 11) is documented here as the canonical anchor.
 
-# []{#anchor-404}[]{#anchor-406}[]{#anchor-407}Phase 5 --- Post-pipeline supplementary analyses
+# []{#anchor-405}[]{#anchor-406}[]{#anchor-407}Phase 5 --- Post-pipeline supplementary analyses
 
 The eleven Phase 4 chapters (S.8--S.14) cover the climate-and-spatial scripts that feed §4 of the report. Phase 5 collects six further chapters whose methodological purpose is supplementary: each consumes pipeline intermediates, none feeds downstream pipeline scripts, and the conclusions they produce inform the report's discussion rather than its core results chain. S.15 covers Script 25 (coastal-retreat gradient, step 26/49, Phase 11 in *run_analysis.py*). S.15c covers Script 09f (spatial-reach synthesis figure, step 47/49, Phase 17; display/utility). S.15d covers Script 09g (mechanism-diagram suite, step 48/49, Phase 17; display/utility). S.16 covers Scripts 22, 23, and 24 (residual diagnostics, steps 27--29/49, Phase 12 in *run_analysis.py*). S.18 covers Script 26 (van Willegen 5-year MSL aggregation, step 30/49, Phase 13). S.18b covers Script 11 Section 5 (Tool A --- spring MSL transfer function, embedded in Script 11 at step 11/49, Phase 3) together with Script 26b (Tool B --- UKCP18 RCP8.5 MSL5 projections, step 31/49, Phase 13). S.18c covers Script 26c (MSL5 report-format figures, step 32/49, Phase 13). S.19 covers Scripts 28, 29 and 30 (cluster framework diagnostics, steps 33--35/49, Phase 14). S.20 covers Scripts 32, 33, 35, 36, 37 and 37b (observed differential change, climate-response envelope, and driver validation; steps 36--41/49, Phase 15, all analytical-default as of 2026-07-13). S.21 covers Scripts 24b, 31, 31b, 34 and 38 (supplementary standalone diagnostics, steps 42--46/49, Phase 16 --- 34/38 analytical-default as of 2026-07-13; 24b/31/31b opt-in). S.17 is appendices. All scripts in S.15, S.15c, S.15d, S.16, S.18, S.18b, S.18c, S.19, S.20, and S.21 are part of the pipeline orchestrated by *run_analysis.py*; the "post-pipeline supplementary" framing reflects their role in the report (discussion-feeding rather than results-feeding), not their orchestration status. Scripts 26c (MSL5 report-format figures, Phase 13), 09f (spatial-reach synthesis, Phase 17), 09g (mechanism diagrams, Phase 17), and 27 (greyscale figures, Phase 17) are display/utility steps rather than analytical; Script 26c is documented in S.18c, Script 09f in S.15c, Script 09g in S.15d, and Script 27 in Appendix A.
 
-## []{#anchor-406}[]{#anchor-408}[]{#anchor-409}S.15 Script 25 --- Coastal-retreat gradient
+## []{#anchor-407}[]{#anchor-408}[]{#anchor-409}S.15 Script 25 --- Coastal-retreat gradient
 
 **Step 24 / 30. Phase 11 --- Coastal-Retreat Gradient Analysis in ***run_analysis.py***; first chapter under Phase 5 --- Post-pipeline supplementary analyses in the supplement.**
 
-### []{#anchor-408}[]{#anchor-410}[]{#anchor-411}Motivation
+### []{#anchor-409}[]{#anchor-410}[]{#anchor-411}Motivation
 
 The BACI ANCOVA in S.7 (Script 10a) returned a small but highly significant *easting × time* interaction. Eastings west of the clearfell block were drifting downward against time at a rate the BACI's other covariates --- cumulative water balance, scraping, the clearfell step itself --- could not absorb. That term is what allows the BACI to recover an unbiased clearfell-step coefficient; but it raised a separate question. What was easting × time actually correcting for? The candidate answer was the retreat of the Caernarfon Bay shoreline immediately west of the site, episodic but acute (Forgrave 2020; ongoing monitoring by Walker-Springett, Bangor University; \~50 m between 2014--2020 with most of the loss concentrated in Storm Brendan, January 2020). If the eroding shoreline is exporting freshwater storage westward as the dune front loses width, wells closer to the coast should show steeper summer-minimum declines than inland wells, with the steepness decaying inland on a length scale set by the aquifer's diffusive response.
 
-Script 25 tests that hypothesis. It fits a network-scale, physics-based non-linear regression of per-well summer-minimum trends against perpendicular distance to the eroding Caernarfon Bay shoreline, recovers a forest-independent distance-decay signal --- a coast-edge anomaly δ₀ ≈ −29 mm yr⁻¹ decaying over an inland reach L ≈ 900 m --- and uses the fit to corroborate the BACI ANCOVA's easting × time term. The third parameter of that fit, the constant c, is *not* separately identified, and it should not be read as a far-field climate background. The panel absorbs climate forcing through a cumulative-water-balance covariate; over the fitted span that covariate carries a trend of its own, so a constant drift and the covariate's trend contribution trade off and only their sum is recovered. On the committed fit c = +0.18 ± 0.54 mm yr⁻¹ while that sum is ≈ +3 mm yr⁻¹; refitted on the subset of wells whose records begin before 2007 the same sum is ≈ −5 mm yr⁻¹, with c itself at −8.4 mm yr⁻¹. The far-field decline the network does show is therefore not measured by c. δ₀ and L are unaffected by the trade-off --- they are identified by the distance dependence, not by the level --- and they are what this chapter rests on.
+Script 25 tests that hypothesis. It fits a network-scale, physics-based non-linear regression of per-well summer-minimum trends against perpendicular distance to the eroding Caernarfon Bay shoreline, recovers a forest-independent distance-decay signal --- a coast-edge rate of about −26 mm yr⁻¹ at the reference distance, decaying over an inland reach L ≈ 900 m --- and uses the fit to corroborate the BACI ANCOVA's easting × time term. The third parameter of that fit, the constant c, should not be read as a far-field climate background, and the reason is not that it is confounded with the climate covariate. Its variance inflation factor against the cumulative water balance is 1.01, and against δ₀ it is 1.44, so the constant is separately identified. What disqualifies it is instability with respect to the fitting window: holding the well set fixed and moving only the window start, c runs from −0.10 to +24.20 mm yr⁻¹ while δ₀ stays negative throughout. The constant is a straight line fitted to a non-monotonic series, and it reports the slope of whatever excursion its window spans; judged against the observed far-field trend it tracks that trend only loosely (r ≈ 0.55) and is biased high by about 7 mm yr⁻¹. The far-field decline the network does show is therefore not measured by c, and no far-field rate is quoted from this fit. The distance-dependent parameters are unaffected --- δ₀, the reference-distance rate and L are identified by the distance dependence, not by the level --- and they are what this chapter rests on.
 
-### []{#anchor-410}[]{#anchor-412}[]{#anchor-413}Inputs
+### []{#anchor-411}[]{#anchor-412}[]{#anchor-413}Inputs
 
   --------------------------------------------------------------- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   Input file                                                      Description
@@ -2936,9 +2936,9 @@ Script 25 tests that hypothesis. It fits a network-scale, physics-based non-line
   outputs/10_clearfell_baci/10a_02_ancova_full_coefficients.csv   Script 10a --- BACI ANCOVA coefficients for the corroboration check
   --------------------------------------------------------------- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-### []{#anchor-412}[]{#anchor-414}[]{#anchor-415}Methodology
+### []{#anchor-413}[]{#anchor-414}[]{#anchor-415}Methodology
 
-**Functional forms.** Two candidate decay forms are fitted, each with three parameters: a coast-edge anomaly δ₀ (mm yr⁻¹), an inland reach L (m), and a far-field climate background c (mm yr⁻¹).
+**Functional forms.** Two candidate decay forms are fitted, each with three parameters: a coast-edge anomaly δ₀ (mm yr⁻¹), an inland reach L (m), and a far-field asymptote c (mm yr⁻¹).
 
 The linear-with-cutoff form follows a Dupuit--Forchheimer strip-aquifer interpretation, in which the water-table response to a steadily retreating boundary decays linearly with distance from that boundary and asymptotes to the climate background beyond the reach L:
 
@@ -2962,34 +2962,40 @@ Both forms are tried at each specification, and AIC is used to compare them.
 
 **The panel fit method.** Non-linear fits run on the monthly long-form panel, not on the per-well slopes directly. Each panel observation has three components: well-and-month fixed effects absorbed by within-well demeaning (Frisch--Waugh--Lovell), a centred-cumulative-water-balance covariate (P − PET anomaly cumsum, mm), and a constrained decay term δ(d_w) · t whose coefficient is fixed at 1 --- non-linear search runs over the three parameters of δ(d_w) alone. Fitting is by *scipy.optimize.least_squares* with bounds on each parameter; the Jacobian gives a covariance matrix and Wald 95% CIs.
 
-**Cluster attribution.** The headline (forest-free linear-capped) fit is applied to each cluster's mean distance-to-coast to compute a *gradient-only* component (δ₀ · (1 − d̄/L), clipped at zero beyond the cutoff). The decomposition is computed against a declared, balanced observed basis: *observed_balanced_annual_mean_mm_yr*, the OLS slope of the annual cross-well mean of the per-well seasonal metric, taken over the same well-set as the per-well slopes. That is one regression on one annual series rather than an average of per-well fits taken over different record windows, and the column *decomposition_basis* names it inside the file so the basis travels with the table. The Script-14 cluster-centroid slope and the mean of the per-well slopes are retained beside it as context columns and are no longer subtracted from: the earlier table subtracted the model from the centroid slope, which put three different bases into one subtraction, since the panel δ(d) is CWB-adjusted and all-season while the per-well slopes are raw annual seasonal-metric OLS and the centroid is a third quantity again. Four components are then reported against the basis: the coastal gradient; the climate contribution 1000 · β_cwb · d(CWB)/dt carried by the cumulative-water-balance covariate; the fitted far-field offset c; and the unexplained remainder. The offset and the climate contribution are written as separate columns precisely because they are not separately identified --- their sum, not either alone, is what the fit recovers --- and the former column names *predicted_climate_mm_yr*, *predicted_total_mm_yr*, *residual_mm_yr* and the *\*\_pct_of_observed* shares are retired rather than reused, so a reader written against the old table fails loudly instead of reading a different quantity under a familiar name. Because each component is a rate rather than a share of a fitted total, the unexplained remainder can exceed the observed decline; for the clusters beyond the inland reach it does, and that is the honest reading of a model that explains none of their deepening.
+**Cluster attribution.** The headline (forest-free linear-capped) fit is applied to each cluster's mean distance-to-coast to compute a *gradient-only* component (δ₀ · (1 − d̄/L), clipped at zero beyond the cutoff). The decomposition is computed against a declared, balanced observed basis: *observed_balanced_annual_mean_mm_yr*, the OLS slope of the annual cross-well mean of the per-well seasonal metric, taken over the same well-set as the per-well slopes. That is one regression on one annual series rather than an average of per-well fits taken over different record windows, and the column *decomposition_basis* names it inside the file so the basis travels with the table. The Script-14 cluster-centroid slope and the mean of the per-well slopes are retained beside it as context columns and are no longer subtracted from: the earlier table subtracted the model from the centroid slope, which put three different bases into one subtraction, since the panel δ(d) is CWB-adjusted and all-season while the per-well slopes are raw annual seasonal-metric OLS and the centroid is a third quantity again. Four components are then reported against the basis: the coastal gradient; the climate contribution 1000 · β_cwb · d(CWB)/dt carried by the cumulative-water-balance covariate; the fitted far-field offset c; and the unexplained remainder. The offset and the climate contribution are written as separate columns because they measure different things, and because the offset is a window statistic rather than a rate, as the Cluster attribution note above sets out; the former column names *predicted_climate_mm_yr*, *predicted_total_mm_yr*, *residual_mm_yr* and the *\*\_pct_of_observed* shares are retired rather than reused, so a reader written against the old table fails loudly instead of reading a different quantity under a familiar name. Because each component is a rate rather than a share of a fitted total, a component can exceed the basis in either direction. The unexplained remainder does so at the clusters beyond the inland reach, which is the honest reading of a model that explains none of their deepening. The coastal gradient does so at C5, where it slightly over-explains a decline the balanced basis puts at −16.15 mm yr⁻¹.
 
 **BACI corroboration.** The BACI ANCOVA fits *delta_easting × months_since_intervention* as a covariate to absorb monotonic spatial drift. Its coefficient (units: m per m-easting per month) implies an absorbed differential deepening rate at the impact zone relative to each control tier, which can be compared directly against the gradient model's predicted differential δ(d_impact) − δ(d_control). For each (control tier × impact zone) pair, Script 25 computes both, runs a z-test of one against the other, and labels the pair "consistent" if \|z\| \< 2. The Forest-Impact comparison is the principal check: if the BACI's easting × time term is doing nothing but coastal-retreat correction, BACI absorption and model prediction should agree.
 
-### []{#anchor-414}[]{#anchor-416}[]{#anchor-417}Site-specific choices and rationale
+### []{#anchor-415}[]{#anchor-416}[]{#anchor-417}Site-specific choices and rationale
 
 -   **Caernarfon Bay west-facing coast only.** Only the \~15 km Caernarfon Bay west-facing shoreline is included. The Menai Strait north-east coast is a tidal channel, not subject to the SW-prevailing-wind erosion regime, and per project knowledge is not retreating. Llanddwyn Island is a bedrock islet, hydrogeologically separate. The Malltraeth Sands estuary is sheltered estuarine. The included polyline wraps around Abermenai Point at the SE end of the bay, which matters for the geometry of several eastern wells that would otherwise be misallocated.
 -   **Perpendicular distance, in-pipeline.** The minimum perpendicular distance from each well to any segment of the eroding-shoreline polyline, in EPSG:27700 --- geometrically correct for the irregular coastline. Computed in Script 01 as a pure-*numpy* point-to-polyline calculation (no *geopandas*/*shapely* dependency) from the committed west-facing coastline geometry (*data/geo/coastline_eroding_hwm.geojson*), and validated against the committed *dist_coast_m* values (audit: *outputs/01_dist_coast_validation.csv*).
 -   **Clearfell-zone exclusion.** All 17 BACI wells (WMC3 Impact + 4 Edge + 5 Forest controls + 2 Coastal controls + 5 Climate controls) are dropped from the full and forest-free fits. The December 2017 clearfell drives a positive water-table rise at Impact and Edge wells that would appear as a non-monotonic distance perturbation if left in. The list is imported from *clearfell_common.py* so any BACI design update propagates automatically.
--   **C3-only fit holds ***c*\*\* fixed.\*\* With no C3 well at d → 0, the three-parameter fit becomes under-identified: δ₀ and c trade off. Holding c to the forest-free value (+0.18 mm yr⁻¹ for linear-capped; +1.5 mm yr⁻¹ for exponential, read from *25_01_panel_fit_parameters.csv*) reduces the C3-only problem to two parameters and tests whether the same coast-edge anomaly is recoverable from C3 wells alone.
+-   **C3-only fit holds ***c*\*\* fixed.\*\* With no C3 well at d → 0, the three-parameter fit becomes under-identified: δ₀ and c trade off. Holding c to the forest-free value (−0.10 mm yr⁻¹ for linear-capped; +2.12 mm yr⁻¹ for exponential, read from *25_01_panel_fit_parameters.csv*) reduces the C3-only problem to two parameters and tests whether the same coast-edge anomaly is recoverable from C3 wells alone.
 -   **Storm Brendan is not separated.** The coastal-retreat rate is treated as a long-run mean. Newborough's retreat is in fact episodic --- order-of-magnitude losses concentrated in single storms, with Storm Brendan (January 2020) the principal event of the study period. The mean rate is the methodologically defensible quantity given the data; the implications are taken up in *Limitations*.
 
-### []{#anchor-416}[]{#anchor-418}[]{#anchor-419}Results to describe at the methodological level
+### []{#anchor-417}[]{#anchor-418}[]{#anchor-419}Results to describe at the methodological level
 
-All six fits (3 specifications × 2 functional forms) are written to *25_01_panel_fit_parameters.csv*. Under the forest-free specification the linear-capped and exponential forms are near-indistinguishable on AIC (−34320.0 against −34319.9; ΔAIC = +0.1, exp − lin-cap, i.e. a marginal preference for the linear-capped form). A gap of 0.1 AIC is not a discrimination between functional forms and should not be read as one; on the full network the same comparison gives ΔAIC = +1.9, again favouring linear-capped and again slight. The linear-capped form is the headline on the strength of its Dupuit--Forchheimer strip-aquifer interpretation rather than on any AIC margin, but the margin no longer points away from the form the chapter uses. The three all-season linear-capped fits --- full network, forest-free and C3-only --- return δ₀ values in the range −24.9 to −29.7 mm yr⁻¹, L values in the range 901--972 m, and c values close to zero (−0.15 to +0.18 mm yr⁻¹) --- which, as the Cluster attribution note above sets out, is not a far-field climate background, because c is not separately identified from the trend contribution of the cumulative-water-balance covariate. The C3-only δ₀ (−24.89 mm yr⁻¹, SE 2.62) and the forest-free network δ₀ (−29.22 mm yr⁻¹, SE 1.91) differ by 4.3 mm yr⁻¹, with overlapping 95 % confidence intervals (\[−30.0, −19.8\] against \[−33.0, −25.5\]). That compatibility is the chapter's primary identification claim: a coast-edge anomaly of the same sign, and of a magnitude the forest-free fit cannot be distinguished from, is recoverable from a single non-forested cluster, which is what rules out forest cover as the principal driver. The claim is one of statistical compatibility rather than of numerical coincidence, and the 4.3 mm yr⁻¹ gap makes it the weaker for that.
+All fits (each specification by two functional forms) are written to *25_01_panel_fit_parameters.csv*, together with the trend each returns at the reference distance. The headline coast-edge rate is quoted at 150 m from the shoreline rather than at the shoreline itself. The decay amplitude δ₀ is the value at zero distance, where no well sits --- the nearest is at 147 m --- so it is an extrapolation beyond the network, and it is the one distance at which the two functional forms disagree materially: they differ by 9.3 mm yr⁻¹ at the shoreline and by 1.6 mm yr⁻¹ at 150 m, converging further inland. Quoting the headline where the network has observations removes a dependence on a functional-form choice the data cannot make, rather than adjudicating it. The reference distance is the nearest round distance inside the observed range, so the headline is interpolated by construction, and Script 25 checks it against the panel's own minimum distance on every run. The cluster attribution and the BACI corroboration already evaluate the fitted decay at a cluster's mean distance, so the convention makes the headline consistent with the quantities derived from it. On the forest-free panel the headline rate is −26.18 mm yr⁻¹ (SE 1.45, 95 % CI \[−29.0, −23.3\]), its standard error propagated across the full parameter covariance by the delta method.
+
+Model selection by AIC favours the exponential form under every specification: ΔAIC (exp − lin-cap) is −4.9 on the forest-free panel, −4.1 on the full network and −15.5 on C3-only. The linear-capped form is nevertheless retained as the headline form, on two grounds. Its Dupuit--Forchheimer strip-aquifer interpretation supplies a finite inland reach, which the exponential does not. Its far-field asymptote also carries the right sign: the exponential returns +2.12 mm yr⁻¹, a rising far field, against an observed far-field trend of −6.14 mm yr⁻¹ across the 41 wells beyond 950 m over the same window, and it crosses zero near 1400 m, predicting the inland table to shallow. The exponential buys its advantage in the near field and pays for it in the far field, where the misfit is spread thinly enough over many wells that AIC barely penalises it. Because the headline is quoted at 150 m, where the forms agree to within 1.6 mm yr⁻¹, the choice of form does not carry the headline in any case.
+
+The three all-season linear-capped fits --- full network, forest-free and C3-only --- return δ₀ values in the range −29.1 to −31.7 mm yr⁻¹, L values in the range 895--994 m, reference-distance rates of −24.5 to −27.4 mm yr⁻¹, and c values close to zero (−0.47 to −0.10 mm yr⁻¹). As the Cluster attribution note above sets out, c is not a far-field climate background: it is a window statistic rather than a rate.
+
+The C3-only reference-distance rate (−24.47 mm yr⁻¹, SE 2.09) and the forest-free network rate (−26.18 mm yr⁻¹, SE 1.45) differ by 1.7 mm yr⁻¹, with substantially overlapping 95 % confidence intervals (\[−28.6, −20.4\] against \[−29.0, −23.3\]). That compatibility is the chapter's primary identification claim: a coast-edge anomaly of the same sign, and of a magnitude the forest-free fit cannot be distinguished from, is recoverable from a single non-forested cluster, which is what rules out forest cover as the principal driver. The two estimates agree to within about one standard error.
 
 The per-cluster attribution under the headline fit is in *25_03_cluster_partition.csv*, computed against the declared balanced basis. C5 (Coastal Forest, mean d̄ ≈ 419 m) carries by far the steepest observed decline (−32.7 mm yr⁻¹ on the basis; −35.9 mm yr⁻¹ at the Script-14 centroid, retained as a context column); the gradient model attributes −15.6 mm yr⁻¹, about 48 % of the basis, to coastal retreat, leaving −20.3 mm yr⁻¹ unexplained. C3 (Western Residual, d̄ ≈ 826 m) declines by −7.7 mm yr⁻¹ on the basis, of which the gradient accounts for −2.4 mm yr⁻¹, about 31 %. C1, C2 and C4 sit beyond the inland reach L, so their gradient component is zero; against balanced declines of −11.0, −10.1 and −12.6 mm yr⁻¹ the modelled total is +3.2 mm yr⁻¹ --- the climate term the cumulative-water-balance covariate carries, plus the fitted offset --- so the whole of their deepening, and a little more, is left unexplained. Why a mean of per-well slopes made that far-field deepening look smaller and better behaved is set out in *25_10_record_length_composition.csv*: within C2 the four wells with 20--21 years of record average −11.0 mm yr⁻¹ while the twenty with 15--17 years average +1.2 mm yr⁻¹, so a mean over per-well fits reports a composition of record lengths as though it were a rate.
 
 The BACI corroboration in *25_04_baci_corroboration.csv* is the chapter's substantive payoff. For Forest-Impact --- the principal BACI clearfell test --- the easting × time coefficient absorbs an implied differential deepening of −16.8 mm yr⁻¹ (SE 5.0); the gradient model predicts −11.0 mm yr⁻¹. The two agree at z = −1.18, "consistent". Climate-Impact is the one comparison the live data flags as *not* consistent (z = 2.17): the BACI absorbs +10.0 mm yr⁻¹ where the gradient model --- with impact and climate-control wells at almost identical distances to coast --- predicts essentially zero (−0.9 mm yr⁻¹). The Forest-Edge comparison is consistent (z = −0.29) and the Climate-Edge comparison sits just inside the threshold (z = 1.96). The Impact-zone Forest comparison is what matters for the BACI clearfell step's interpretation, and it is consistent; the Climate-Impact discrepancy reflects the easting × time covariate at the Climate-control tier absorbing spatial drift in components the coastal-retreat model does not represent. Headline numbers are repeated in *25_report_numbers.csv* for downstream cross-referencing.
 
-### []{#anchor-418}[]{#anchor-420}[]{#anchor-421}Limitations and known caveats
+### []{#anchor-419}[]{#anchor-420}[]{#anchor-421}Limitations and known caveats
 
 -   **The coastal-retreat rate itself is not fitted.** The model fits a per-well *response* to distance from a *known eroding boundary*; it does not derive the retreat rate from the water-level data. The literature value (\~50 m over 2014--2020, with acute losses in Storm Brendan, January 2020) is the assumed driver.
 -   **Episodic retreat is averaged to a mean rate.** Storm-event losses are absorbed into a long-run mean. Defensible for the question asked (does retreat *signal* in the data?) but understates year-to-year variability and any qualitative non-linearity in the dune-front aquifer's response.
 -   **The C3-only sample is modest.** 19 wells after the clearfell-zone exclusion (the live 21-well C3 minus the WMC3 BACI Impact well and the CEH36 scrape site). Three wells sit at d \< 400 m --- CEH4 (221 m), CEH21 (232 m) and CEH18 (302 m) --- anchoring the inward end of the fit; the remaining 16 are at d ≥ 458 m. The δ₀ recovered is a partial extrapolation from intermediate-to-inner distances. Closeness to the forest-free δ₀ is the reassurance; under-identification (hence c held fixed) is the caveat.
--   **The cluster partition's per-well subsample is small in the forested clusters.** After the clearfell-zone exclusion, the per-well slope panel contains only two C4 wells (CEH13, CEH14) and one C5 well (NW9). The cluster attribution accordingly uses the Script-14 centroid slope (computed from the full cluster hydrograph) for the *observed* column, with the per-well mean reported alongside. C5's gradient_pct_of_observed (40 %) should be read with that in mind.
+-   The cluster partition's per-well subsample is small in the forested clusters. After the clearfell-zone exclusion, the per-well slope panel contains four C4 wells and three C5 wells. The decomposition is computed against the balanced observed basis rather than the Script-14 centroid slope, and the centroid and the per-well mean are retained beside it as context columns. C5's *coastal_gradient_pct_of_basis* (113 %) should be read with that small subsample in mind: the fitted gradient slightly over-explains the cluster's observed decline, which a three-well basis cannot resolve finely.
 
-### []{#anchor-420}[]{#anchor-422}[]{#anchor-423}Outputs
+### []{#anchor-421}[]{#anchor-422}[]{#anchor-423}Outputs
 
   -------------------------------------------------------------------- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- -----------------------------
   Output                                                               Description                                                                                                                                                                        Reference
@@ -3013,7 +3019,7 @@ All paths resolve through *utils/paths.py* (*OUT_25_FIT_PARAMETERS*, *OUT_25_PER
 
 **Update --- 2026-05-29 (Script 25 v1.0.1 → v1.1.0).** Two changes were folded into Script 25 in the post-review cascade. First, *25_03_cluster_partition.csv* gains two percentage-share columns parallel to the existing *gradient_pct_of_observed*: *climate_pct_of_observed* and *residual_pct_of_observed*. All existing columns and numerical values remain byte-identical. Second, a new figure *25_07_cluster_decomposition.png* renders the per-cluster decomposition as a horizontal stacked-bar visualization, with each bar showing the cluster's observed centroid summer-minimum slope (diamond marker) decomposed into climate-uniform background (blue), coastal-retreat gradient (red), and unattributed residual (grey), and the cluster's mean perpendicular distance to coast and (n-in-fit / n-total) annotated to the right. This figure lands in §4.8.2 of the main report as the visual companion to the per-cluster decomposition table inserted in that section. The fold-in retired a short-lived standalone script (*30_cluster_slope_decomposition.py*, 2026-05-27 to 2026-05-29) that produced the same figure from already-existing Script 25 outputs; the decomposition logic is now resident in *cluster_partition()* and the rendering in *plot_cluster_decomposition()*. See also §S.19 for the post-review cluster framework diagnostics that motivated the surfacing of this decomposition as a report-level table and figure.
 
-### []{#anchor-422}[]{#anchor-424}[]{#anchor-425}Where the result appears in the report
+### []{#anchor-423}[]{#anchor-424}[]{#anchor-425}Where the result appears in the report
 
 -   §5.4.3 --- coastal-retreat gradient context for the BACI clearfell step.
 -   §5.7.2 --- corroboration of the BACI's *easting × time* covariate as a coastal-retreat correction at the Impact zone.
@@ -3023,7 +3029,7 @@ All paths resolve through *utils/paths.py* (*OUT_25_FIT_PARAMETERS*, *OUT_25_PER
 
 (The acknowledgement edits to §5.4.3, §5.7.2, §5.8, §5.9 and Conclusions regarding coastal retreat's network-wide implications are in progress at the time of writing.)
 
-### []{#anchor-424}[]{#anchor-426}[]{#anchor-427}Cross-references
+### []{#anchor-425}[]{#anchor-426}[]{#anchor-427}Cross-references
 
 -   **F.3** --- SSM displacement formulation; the per-well slopes in Script 25 are independent of the SSM but the cluster attribution lands against an SSM-fitted picture.
 -   **S.3** --- Script 03's cluster assignments are the basis for the per-cluster partition.
@@ -3034,15 +3040,15 @@ All paths resolve through *utils/paths.py* (*OUT_25_FIT_PARAMETERS*, *OUT_25_PER
 -   **Supplementary Note S8** --- the spring-mean seasonal robustness analysis (Scripts 09c, 10d, 10l, 14, 25), which reuses this chapter's all-season coastal-retreat gradient and adds the season × gradient interaction test.
 -   **S.16** --- Scripts 22/23/24 residual diagnostics, which benefit from the coastal-gradient framing established here.
 
-## []{#anchor-426}[]{#anchor-428}[]{#anchor-429}S.15c Script 09f --- Management-interventions-versus-coastal-retreat spatial reach
+## []{#anchor-427}[]{#anchor-428}[]{#anchor-429}S.15c Script 09f --- Management-interventions-versus-coastal-retreat spatial reach
 
 Step 47/49, Phase 17. Display/utility tier, not analytical. Documented here as a companion to §S.15 (Script 25, coastal gradient), whose outputs it reads.
 
-### []{#anchor-428}[]{#anchor-430}[]{#anchor-431}Motivation
+### []{#anchor-429}[]{#anchor-430}[]{#anchor-431}Motivation
 
 The scenario figures (Scripts 09b/09d) and the spatial drawdown fields (Script 20) quantify individual interventions, but the report's §5.8 argument --- that forest management and scraping are spatially confined while coastal retreat is a basin-wide drawdown --- is best carried by a single figure placing all of them on one axis. Script 09f produces that synthesis figure.
 
-### []{#anchor-430}[]{#anchor-432}[]{#anchor-433}Inputs
+### []{#anchor-431}[]{#anchor-432}[]{#anchor-433}Inputs
 
 All read live from committed pipeline outputs:
 
@@ -3057,20 +3063,20 @@ All read live from committed pipeline outputs:
 
 The measured scrape BACI edge response comes from the site-observations registry via the same *09_baci_shifts.csv* path used by Script 20.
 
-### []{#anchor-432}[]{#anchor-434}[]{#anchor-435}Method
+### []{#anchor-433}[]{#anchor-434}[]{#anchor-435}Method
 
 Each intervention and driver is expressed as an equilibrium head change decaying with distance from its source. The scrape drain is a dipole (local benefit at the slack inverting to neighbour drawdown) and the forest curves are canopy drawdowns, all decaying exponentially over λ ≈ 225 m. The two coastal-retreat curves decay linearly to zero at L ≈ 894 m, reusing Script 20's coastal-erosion construction exactly: a single Storm-Brendan-class 6 m event (edge drawdown = *COAST_RETREAT_M × δ₀ / COAST_RETREAT_RATE*) and a five-year accumulation of the fitted trend (edge = 5 × δ₀; the chronic rate cancels, so the curve is independent of the assumed chronic retreat rate). Two measured points are plotted as anchors (scrape BACI response; clearfell recovery); the standing-pine curve begins at the modelled canopy deficit (H₀ ≈ 150 mm), which exceeds the measured clearfell recovery (≈120 mm) because felling recovers most but not all of the modelled deficit.
 
-### []{#anchor-434}[]{#anchor-436}[]{#anchor-437}Site-specific choices
+### []{#anchor-435}[]{#anchor-436}[]{#anchor-437}Site-specific choices
 
 -   **Five years, not a decade, for the chronic accumulation curve.** The five-year horizon keeps the amplitude (≈−145 mm) on the same continuous axis as the other curves without requiring a broken axis, and is a less speculative projection than a decade.
 -   **Linear-capped coastal decay form.** The coastal curves use Script 20's linear-capped decay (its §4.8.2 fitted construction), not the drain-cone exponential, so the figure is internally consistent with the report's coastal gradient rather than reusing the drain law.
 
-### []{#anchor-436}[]{#anchor-438}[]{#anchor-439}Two-pass execution and defaults
+### []{#anchor-437}[]{#anchor-438}[]{#anchor-439}Two-pass execution and defaults
 
 Script 09f runs in Phase 17 (step 47), after all its upstream scripts, so on a normal full-pipeline run every input already exists. On a partial or interrupted run each loader falls back to a documented Newborough-2026 default (centralised in *pipeline_params.\_DEFAULTS*, read via *default_value()*) with a console warning, mirroring the Script 09b/09d Sy-default precedent. Because the figure re-presents existing modelled fields and performs no new analysis, first-pass defaults do not affect any analytical result.
 
-### []{#anchor-438}[]{#anchor-440}[]{#anchor-441}Outputs
+### []{#anchor-439}[]{#anchor-440}[]{#anchor-441}Outputs
 
   ----------------------------------- ----------------------------------------------------------------------------------- ------------------
   Output                              Description                                                                         Reference
@@ -3081,26 +3087,26 @@ Script 09f runs in Phase 17 (step 47), after all its upstream scripts, so on a n
 
 The figure caption is supplied in the report and summary document text, not baked into the figure.
 
-### []{#anchor-440}[]{#anchor-442}[]{#anchor-443}Limitations
+### []{#anchor-441}[]{#anchor-442}[]{#anchor-443}Limitations
 
 Every curve is a single-mechanism steady-state construction anchored at only one or two measured points; the five-year coastal curve is a forward projection of the fitted coast-edge retreat trend, not an observation; and the propagation timescales are multi-year to multi-decadal, so none of these fields is resolvable within the 31-month monitoring record.
 
-### []{#anchor-442}[]{#anchor-444}[]{#anchor-445}Cross-references
+### []{#anchor-443}[]{#anchor-444}[]{#anchor-445}Cross-references
 
 -   **§S.15** --- Script 25 produces *25_01_panel_fit_parameters.csv* (δ₀, L) consumed live here.
 -   **§S.13** --- Script 20 produces *20_report_numbers.csv* (λ, H₀) and the *\_scrape_field()* construction reused here.
 -   **§S.6/§S.7** --- Scripts 09d and 10a supply the two measured anchor points.
 -   **§5.8 of the main report** --- the primary destination for *09f_management_effects.png*.
 
-## []{#anchor-444}[]{#anchor-446}[]{#anchor-447}S.15d Script 09g --- Four-driver mechanism diagrams (§5.8 schematic figure)
+## []{#anchor-445}[]{#anchor-446}[]{#anchor-447}S.15d Script 09g --- Four-driver mechanism diagrams (§5.8 schematic figure)
 
 **Step 48/49, Phase 17. Display/utility (***tier=\"D\"***); not analytical. Added 2026-07-18 (***run_analysis.py*\*\* v2.2.0). Reads only committed outputs of Scripts 09f, 10m and 10a; no recomputation.\*\*
 
-### []{#anchor-446}[]{#anchor-448}[]{#anchor-449}Motivation
+### []{#anchor-447}[]{#anchor-448}[]{#anchor-449}Motivation
 
 Script 09f (§S.15c) places the management interventions and the coastal retreat on one quantitative spatial axis; §5.8 of the report also needs the *mechanisms* behind those numbers in a form a non-specialist reader can follow --- how a standing pine canopy suppresses the water table beneath and beside it, why a scrape pools where it is cut while drawing down the slack off the cut, why coastal retreat steepens the seaward water table while climate decline lowers it everywhere at once. Script 09g renders that argument as a single combined schematic grid: two starting states (wet dune with slacks; the same reach under standing forest), the two interventions (scrape; clearfell), and a full-width coastal-vs-climate panel along a continuous 900 m reach. A standalone version of the reach panel is emitted alongside the grid.
 
-### []{#anchor-448}[]{#anchor-450}[]{#anchor-451}Inputs
+### []{#anchor-449}[]{#anchor-450}[]{#anchor-451}Inputs
 
 All physical amplitudes are read live from committed pipeline outputs --- the script contains no hardcoded magnitudes:
 
@@ -3113,24 +3119,24 @@ All physical amplitudes are read live from committed pipeline outputs --- the sc
 
 Figure-design geometry (the shared cross-section profile, the 0.10 px/mm amplitude scale shared with 09f, retreat-state shorelines, erosion-ghosting fractions, the reach's inland dune body) comes from *config.py* (*MECH_FIG\_\**). Remaining per-mechanism drawing coordinates are named module constants in *utils/mechanism_fig_utils.py* --- internal drawing coordinates of the figure, not scientific parameters.
 
-### []{#anchor-450}[]{#anchor-452}[]{#anchor-453}Methodology
+### []{#anchor-451}[]{#anchor-452}[]{#anchor-453}Methodology
 
 A chained short-Dupuit-segment solver (developed and locked on the coastal figure) draws every water table on a shared schematic cross-section: within each flooded slack the table is pinned at the pond surface; between pinned levels it follows short Dupuit segments; slacks whose floor sits above the table are drawn dry. Per-mechanism builders add mechanism-specific geometry on top: canopy suppression bands and tree symbols (forest/clearfell), the excavated slack with its pool at the seaward-slack level and the measured off-cut drawdown (scrape), progressive shoreline-retreat states with eroded-dune ghosting (coastal), and a uniform lowering with pond-only refill (climate). All panels share one amplitude scale, so equal vertical distances mean equal head changes across the whole grid.
 
 The coastal-vs-climate reach panel joins the schematic near-shore cross-section (0--330 m of the reach scale) to a data-drawn inland continuation (330--900 m) on one continuous distance axis. The three near-shore retreat parabolas are anchored at the 330 m boundary to the same committed drawdowns the inland side plots, so every curve is exactly continuous at the join (verified to 0.00 px by the script's console checks); the single-storm and 5-yr curves continue inland along their committed CSV profiles, and the 20-yr coastal curve is the 5-yr profile scaled by the horizon ratio (*MECHANISM_HORIZON_YEARS / COAST_CHRONIC_YEARS*). The flat climate line is the committed 20-yr climate amplitude, and the crossing distance --- where the coastal and climate profiles are equal, beyond which climate is the deeper driver (≈ 697 m on current committed data) --- is derived from the CSV columns at run time, never typed.
 
-### []{#anchor-452}[]{#anchor-454}[]{#anchor-455}Site-specific choices and rationale
+### []{#anchor-453}[]{#anchor-454}[]{#anchor-455}Site-specific choices and rationale
 
 -   **Scrape physics follows ***SCRAPING_EFFECTS_KNOWLEDGE.md***:** the pool sits at the seaward-slack level (a high-permeability connection, not an impermeable basin); the off-cut drawdown is drawn as the single measured WMC3 point; no smooth network-wide drawdown cone is depicted, consistent with the Script 09b distance-decay null (§S.6).
 -   **The clearfell magnitude line quotes the live Script 10a BACI steps** with their significance strings, so the schematic cannot come adrift from the headline result when the pipeline reruns.
 -   **The coastal grid cell keeps schematic retreat-curve anchors** while the reach panel is data-anchored: the cell has no distance scale to be continuous with, and legible separation of the three retreat states is the cell's purpose (decision 2026-07-18; the data-derived anchors differ by 1.4--2.8 px and compress the storm curve without adding information the reach panel does not already carry).
 -   **Captions are supplied in the document text**, not baked into the figures, and must describe the figures as schematic, vertically exaggerated, and not to scale.
 
-### []{#anchor-454}[]{#anchor-456}[]{#anchor-457}Two-pass execution and defaults
+### []{#anchor-455}[]{#anchor-456}[]{#anchor-457}Two-pass execution and defaults
 
 Script 09g runs at the end of Phase 17 (step 48), after 09f, so on a normal full run every input exists. On a partial or interrupted run each loader falls back to a documented default in *pipeline_params.\_DEFAULTS* (read via *default_value()*) with a console warning --- the Script 09b/09d/09f precedent. The reach fallback is reconstructed from the documented Script 25 fit defaults (δ₀, L, c), not duplicated literals. Because the figures re-present existing modelled and measured fields, first-pass defaults affect no analytical result. As a final step Script 09g also renders two lay public-summary figures through *gen_grid_lay.render_all()* --- plain-language before/after diagrams built on the same committed geometry --- so the technical and lay figures cannot drift apart; *gen_grid_lay.py* is a public-summary asset and is not itself a registered pipeline step.
 
-### []{#anchor-456}[]{#anchor-458}[]{#anchor-459}Outputs
+### []{#anchor-457}[]{#anchor-458}[]{#anchor-459}Outputs
 
   --------------------------------------------- -------------------------------------------------------------------------------------------------- --------------------------------
   Output                                        Description                                                                                        Reference
@@ -3140,22 +3146,22 @@ Script 09g runs at the end of Phase 17 (step 48), after 09f, so on a normal full
   *09g_mechanism_lay_drivers.svg* / *.png*      Lay before/after figure: undisturbed → coastal, undisturbed → climate (public summary)             Public summary
   --------------------------------------------- -------------------------------------------------------------------------------------------------- --------------------------------
 
-### []{#anchor-458}[]{#anchor-460}[]{#anchor-461}Limitations and known caveats
+### []{#anchor-459}[]{#anchor-460}[]{#anchor-461}Limitations and known caveats
 
 -   **Schematic, not to scale.** Vertical amplitudes share one exaggerated scale; the cross-section topography is illustrative. No distance, depth or volume should be read off the grid panels; only the reach panel carries a real distance axis, and even there the terrain is schematic.
 -   **No new analysis.** Every magnitude is a re-presentation of a committed upstream value; the script fits nothing and its outputs must never be cited as evidence independent of their Script 09f/10a/10m sources.
 -   **The drawn off-cut drawdown is the measured WMC3 point applied schematically** to the inland slack; its spatial extent is not resolved by the network (the §S.6 distance-decay null) and the drawing does not claim otherwise.
 -   **The lay figures are register-shifted, not re-analysed.** *09g_mechanism_lay\_\** carry the same mechanisms and directions as the technical grid but with rounded plain-language annotations and no well names, p-values, or script references, and the modelled coastal driver is flagged in plain words as "expected, not yet directly measured". A build-time glyph guard rejects any drawn character outside the base sans font, guarding the Welsh and Polish rebuilds against missing-glyph boxes.
 
-### []{#anchor-460}[]{#anchor-462}[]{#anchor-463}Where the result appears
+### []{#anchor-461}[]{#anchor-462}[]{#anchor-463}Where the result appears
 
 The combined grid is the §5.8 conceptual figure of the main report (figure number assigned at placement). The standalone reach figure is available for the public summaries and presentations. Companion chapters: §S.15c (Script 09f, the quantitative reach), §S.6 and §S.7 (the scraping and clearfell analyses whose results the schematic re-presents), §S.15 (Script 25, source of the coastal-gradient parameters).
 
-## []{#anchor-462}[]{#anchor-464}[]{#anchor-465}S.16 Scripts 22, 23, 24 --- Residual diagnostics
+## []{#anchor-463}[]{#anchor-464}[]{#anchor-465}S.16 Scripts 22, 23, 24 --- Residual diagnostics
 
 **Steps 27--29/49 in the orchestrator (Phase 12 --- Residual Diagnostics in ***run_analysis.py***); analytical tier; second chapter under Phase 5 --- Post-pipeline supplementary analyses in the supplement.**
 
-### []{#anchor-464}[]{#anchor-466}[]{#anchor-467}Motivation
+### []{#anchor-465}[]{#anchor-466}[]{#anchor-467}Motivation
 
 Earlier revisions of the main report framed the spatial pattern of the SSM water-balance residual as ridge-derived recharge: wells along the northern bedrock ridge flank, with CEH14 as the canonical example, were reported as carrying persistent positive residuals that the three-term SSM did not represent. *That pattern is not present in the corrected residual field.* The correction (Script 20, 2026-08-06; §4.9.7, Figure 58, see S.13) removed the observation the framing rested on: sixty-four of the sixty-six reference wells now fall within ±0.01 m/month, residual magnitude is uncorrelated with position on either axis, no well exceeds +0.02 m/month, and the largest positive residuals sit in the open dune rather than at the ridge margin. At the network scale the balance closes without requiring an additional flux, and there is no forest-margin band for a lateral subsidy to explain.
 
@@ -3163,7 +3169,7 @@ One qualification attaches to CEH14 itself. The well --- the most ridge-proximal
 
 Scripts 22, 23 and 24 were built as the analytical apparatus that subjected the ridge-recharge interpretation to mechanistic testing. Their results stand and nothing here is recomputed; what changes is what they are for. They are retained as a bound on what a 21-year monthly record could have detected, in a network whose water balance closes without an additional flux. They share a single source --- the SSM residual series e(t) at each well --- and ask three complementary questions about that series. Script 22 characterises the residual: how time-structured is it well-by-well, and do the wells with the largest mean residuals (the intercept α from Model B) also have the most autocorrelated residuals? Script 23 puts the residual to a physical test: if it carries genuine ridge-to-well travel time, the cross-correlation peak lag against rainfall should increase with distance from the ridge. Script 24 asks the alternative-hypothesis question: does the residual carry a seasonal signature consistent with the Thornthwaite PET estimate misrepresenting summer demand, or is the seasonal structure flat (consistent with steady ridge baseflow), or something else again? Together the three diagnostics constrain what the residual can and cannot be, and in doing so establish the limits of what this monitoring design could have resolved had a lateral flux been present.
 
-### []{#anchor-466}[]{#anchor-468}[]{#anchor-469}Inputs
+### []{#anchor-467}[]{#anchor-468}[]{#anchor-469}Inputs
 
   ------------------------ --------------------------------------------------- ------------
   Input file               Source                                              Used by
@@ -3176,7 +3182,7 @@ Scripts 22, 23 and 24 were built as the analytical apparatus that subjected the 
 
 Sunshine hours are loaded from the raw RAF Valley climate CSV directly (*DATA_CLIMATE_RAW*) rather than from a pipeline intermediate. The pipeline's *01_climate.csv* carries P and PET only --- sunshine hours are not used anywhere else in the pipeline and so were not propagated into the cleaned climate file. Script 24 parses the original *MMM YY* date format (e.g. "Jan 25" = January 2025) directly from the raw file.
 
-### []{#anchor-468}[]{#anchor-470}[]{#anchor-471}Methodology --- Script 22 (residual lag analysis)
+### []{#anchor-469}[]{#anchor-470}[]{#anchor-471}Methodology --- Script 22 (residual lag analysis)
 
 Script 22 refits Model B --- the SSM with a constant intercept --- on the full record under the shared residual-diagnostic floor (RESIDUAL_DIAG_MIN_MONTHS, config.py), on the full record rather than the 100-month recent window used by Script 07. The model is the canonical displacement-formulation SSM with an additive constant:
 
@@ -3190,7 +3196,7 @@ For each well's residual series, Script 22 then computes an AR(1) diagnostic: it
 
 The Script 22 outputs are eight files: a wide residuals CSV (rows = months, columns = wells, values = e(t)), a per-well fits table with α, β₁, β₂, β₃, R², AR(1) statistics, mean and standard deviation of the residual, the per-well headline-SSM residual-inference table *22_05_ssm_residual_autocorrelation.csv* and the cluster-mean counterpart *22_06_ssm_cluster_mean_inference.csv* (both see below), and four figures --- an AR(1) histogram by cluster, a spatial map of AR(1) coefficient, the α-vs-φ scatter, and example residual time series for one well per cluster (chosen as the longest-record well with a valid AR(1) fit).
 
-### []{#anchor-470}[]{#anchor-472}[]{#anchor-473}Methodology --- Script 22 (headline-SSM residual inference)
+### []{#anchor-471}[]{#anchor-472}[]{#anchor-473}Methodology --- Script 22 (headline-SSM residual inference)
 
 Alongside the Model B AR(1) apparatus above, Script 22 (v1.2.0) carries a second, independent diagnostic addressing a distinct question: are the classical-OLS standard errors that produce the headline coefficient p-values valid under residual serial correlation? This is a fair question for any monthly time-series regression, and a sharper one here because the drainage term −β₃·(D + h(t−1)) makes the SSM a dynamic (lagged-level) model. The diagnostic refits the headline no-intercept (Model A) SSM --- ground-referenced, full record, the specification behind the published coefficient table --- at each of the 66 reference-network wells and interrogates the residuals.
 
@@ -3198,7 +3204,7 @@ Two findings. First, the residuals are close to white with a slight *negative* f
 
 The check runs at two levels. At the per-well level (the noisier fit), the diagnostics are written to *22_residual_lag_analysis/22_05_ssm_residual_autocorrelation.csv*. A companion routine applies the same battery to the five cluster centroids that carry the headline β table (Report Table 3; *outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv*) --- rebuilt exactly as Script 03 builds them, so the centroid β and OLS p-values reproduce the published table to full precision --- and writes *22_residual_lag_analysis/22_06_ssm_cluster_mean_inference.csv*. At the cluster-mean level none of the fifteen coefficient tests (five clusters × three) changes significance under HAC; the centroid residuals are near-white (Durbin--Watson 2.0--2.4) at every cluster except C4 Main Forest, where a mild positive autocorrelation (DW 1.83) still leaves all three coefficients HAC-significant. Together, the two levels are the committed backing for the bootstrap section's statement that the per-well CI question is already answered by the OLS p-values.
 
-### []{#anchor-472}[]{#anchor-474}[]{#anchor-475}Methodology --- Script 23 (ridge recharge lag test)
+### []{#anchor-473}[]{#anchor-474}[]{#anchor-475}Methodology --- Script 23 (ridge recharge lag test)
 
 Script 23 is the principal mechanistic test of the hypothesis. The physical reasoning is straightforward: if the water-balance residual were to reflect genuine lateral recharge from the northern rock ridge, then water arriving at any given well had to travel from the ridge to that well. That travel has a time, and that time must increase with distance from the ridge. The cross-correlation peak lag between the residual series and rainfall --- at what lag does the residual best correlate with past rainfall? --- should therefore increase systematically with distance from a fixed ridge reference point.
 
@@ -3216,7 +3222,7 @@ The hypothesis test itself is a Spearman rank correlation of peak lag against ri
 
 **A structural caveat on the test design.** Investigation of Script 23 in May 2026 established that the test as constructed cannot resolve the mechanism it is designed to detect, for three structural reasons: (a) monthly time resolution against a \~2 km transect collapses the expected lag range onto a 2--3 month discrete grid, leaving only a handful of distinguishable lag values across the network's distance range; (b) peak-lag is a poor cross-correlation summary, discarding amplitude and shape information that would carry the lateral-flux signature if it were present; (c) the residual signal the mechanism would explain is approximately 2.5 % of annual flux, at or below the per-well intercept α uncertainty in the headline SSM; and (d) a methodological floor at short lags --- OLS residuals are orthogonal to the fitted rainfall regressors at lags 0 and 1 by construction, so the peak-lag statistic is partly determined by the fitting procedure rather than by hydrology. The consequence of (d) is that the observed concentration of peak lags at 2 months (42 of the 50 significant-peak wells) should not be read as a travel-time observation at all; 47 of the 63 wells peak at lag 1 or 2 irrespective of ridge distance, a pattern that persists under a Box-Jenkins pre-whitened reformulation. A reframed α-geography test was also explored --- correlating per-well α against ridge distance and against elevation --- and was inconclusive due to physical collinearity between elevation and ridge distance: the ridge *is* the high ground, so any elevation-related residual structure is partly indistinguishable from a ridge-distance-related one. The script is retained in the pipeline as documentation of the analysis attempted; its null result should not be interpreted as evidence against ridge recharge, only as evidence that the present monitoring design cannot resolve the question. Sub-monthly water-level monitoring at the ridge-adjacent wells, paired with rainfall at the same resolution, would be the design needed to test the mechanism cleanly; that data does not exist at this site for the analysis period.
 
-### []{#anchor-474}[]{#anchor-476}[]{#anchor-477}Methodology --- Script 24 (residual seasonality)
+### []{#anchor-475}[]{#anchor-476}[]{#anchor-477}Methodology --- Script 24 (residual seasonality)
 
 Script 24 is the third diagnostic. It refits Model B via *fit_ssm_intercept()* for every well (so the residuals are directly comparable with Script 22's), and asks whether those residuals carry a systematic seasonal signature. Two physically distinct hypotheses produce contrasting predictions. If Thornthwaite PET --- computed from temperature only --- underestimates true summer atmospheric demand by some proportion, the residual should be systematically negative in summer (JJA) and approximately zero in winter (DJF), with a sinusoidal climatology peaking near the temperature low. If the unmodelled input is instead a flat year-round ridge baseflow, the climatology should be approximately flat across all months at a constant positive offset --- and that offset is, again, already absorbed into α, leaving the climatology of e(t) close to zero everywhere.
 
@@ -3232,7 +3238,7 @@ A C3 split diagnostic --- partitioning the Western Residual cluster by ridge dis
 
 The phase analysis uses a circular mean rather than an arithmetic mean to handle the December/January wrap correctly, and is plotted on a hydrological-year axis (September → August) to make the winter--early-spring versus summer signal easier to read off.
 
-### []{#anchor-476}[]{#anchor-478}[]{#anchor-479}Diagnostic --- cluster-stratified residual climatology (Script 24b, non-pipeline)
+### []{#anchor-477}[]{#anchor-478}[]{#anchor-479}Diagnostic --- cluster-stratified residual climatology (Script 24b, non-pipeline)
 
 Script 24b (*24b_residual_climatology.py*) is step 42/49 in the orchestrated pipeline, wired into Phase 16 alongside Scripts 31, 31b, 34, and 38 (§S.21). It runs after the canonical residual-diagnostics suite (Scripts 22--24) and reads their committed outputs. Its purpose is to ask whether the seasonal residual signature uncovered by Script 24 carries any cluster-level structure that would discriminate between candidate mechanisms --- in particular, whether the winter-spring residual is concentrated in the forested clusters (as a canopy-interception over-estimation would predict) or in the open-dune cluster (as a recharge-nonlinearity would predict). Full documentation is in §S.21.1.
 
@@ -3257,7 +3263,7 @@ Taken with Script 24's network-wide null on the sunshine-hours correlation, this
 
 The diagnostic emits three CSVs (per-well contrasts with covariates; cluster bootstrap summary; forest-only gradient regression), a single 3×2 PNG panel figure (per-cluster contrast distributions, the spatial map of per-well contrasts, the forest-only contrast-vs-ridge-distance scatter with regression line, the per-cluster bootstrap CI bars, the per-cluster boxplots, and a forest-edge-signed-distance panel), and a plain-text interpretation file. Outputs are listed below in the chapter's *Outputs* table under the "Script 24b --- cluster-stratified residual climatology" group; full documentation is in §S.21.1.
 
-### []{#anchor-478}[]{#anchor-480}[]{#anchor-481}Site-specific choices
+### []{#anchor-479}[]{#anchor-480}[]{#anchor-481}Site-specific choices
 
 -   **Full record vs the per-well 100-month window.** Scripts 22 and 24 use the full per-well record to maximize statistical power for the lag and seasonality analyses, which need as many monthly observations as possible. The trade-off is that the Model B fits here are not identical to the main report's per-well coefficient figures. The per-well coefficients in 03_master_data.csv remain the 100-month-window fits, and the report's headline cluster coefficients (Table 3) are full-record centroid fits; Scripts 22, 23, 24 are diagnostic companions, not revisions.
 -   \**140-month minimum record (*RESIDUAL_DIAG_MIN_MONTHS = 140*, config.py).*\* Roughly 11.7 years of continuous data; in practice the binding minimum among eligible wells is 151 months, so the floor drops only ceh40, ceh41 and ceh42. Wells with fewer observations are dropped from Scripts 23 and 24. This excludes shorter-record monitoring points without compromising the Bartlett confidence threshold calculation, which becomes unreliable below 100 monthly observations.
@@ -3266,7 +3272,7 @@ The diagnostic emits three CSVs (per-well contrasts with covariates; cluster boo
 -   **MAX_RIDGE_DISTANCE_M = 3000 m.** A coordinate-validity filter, not a methodological exclusion. Real Newborough wells all sit within \~2 km of the ridge reference; anything beyond 3 km is a placeholder coordinate that the location CSV carries for non-well records.
 -   **AR(1) pre-whitening with threshold \|φ\| ≥ 0.2 in Script 23.** A higher-order or non-parametric pre-whitening (e.g. ARMA-based or wavelet) could be defended; the AR(1) choice is what the standard CCF literature uses and is conservative against over-fitting at small effective sample size. The residual AR(1) coefficients across the network sit in a narrow band around −0.12 (see Script 22), so the additional pre-whitening rarely activates in practice.
 
-### []{#anchor-480}[]{#anchor-482}[]{#anchor-483}Results to describe at the methodological level
+### []{#anchor-481}[]{#anchor-482}[]{#anchor-483}Results to describe at the methodological level
 
 Script 22's per-well AR(1) diagnostics show that the network's Model B residuals are close to white. Across the 62 wells with valid fits, the AR(1) coefficient sits at a small negative value at most wells (network mean φ ≈ −0.13, median ≈ −0.12), and only two wells exceed \|φ\| = 0.3. The α-vs-φ scatter shows essentially no relationship (Pearson r ≈ −0.08): wells with large persistent subsidies (high α) are not preferentially the wells with the most time-structured residuals. The constant part of the unmodelled input --- whatever it is --- sits in α, and the small remaining time-varying part is not strongly clustered in any particular well or cluster.
 
@@ -3278,7 +3284,7 @@ Script 24's seasonal diagnostic supports neither the Thornthwaite-PET-misspecifi
 
 Taken together, the three diagnostics bound what the record could have shown. The spatial concentration of large residuals along the northern ridge flank, of which CEH14 was the canonical example, does not survive the Script 20 correction: the corrected field has no spatial structure on either axis, and CEH14 is its most negative well. Script 24 establishes that the residual does not carry a Thornthwaite-bias signature, ruling out the unmodelled-summer-ET interpretation. Script 23 establishes that no month-scale distance-dependent lag pattern is detectable --- but, as the structural caveat above records, the test design at monthly resolution cannot resolve a sub-monthly lag if one were present, and the residual amplitude itself sits at the noise floor of per-well α uncertainty. What survives across all three diagnostics is a residual that is (a) constant in time at the level the model can resolve, (b) absorbed into α at any well where it dominates, and (c) carries a small winter-spring recharge nonlinearity at the wider network. With the corrected field showing no spatial structure, model inadequacy distributed across the network is the parsimonious reading, and no additional flux is required to close the balance. Sub-monthly water-level monitoring at ridge-adjacent wells, paired with rainfall at the same resolution, would remain the design needed to establish whether a lateral flux exists at all.
 
-### []{#anchor-482}[]{#anchor-484}[]{#anchor-485}Limitations
+### []{#anchor-483}[]{#anchor-484}[]{#anchor-485}Limitations
 
 -   **Single-station climate.** The diagnostic relies on RAF Valley as the sole source for rainfall, PET, and sunshine hours. Any seasonal-bias diagnostic at the residual level is conditional on RAF Valley being representative; the chapter's null result on the Thornthwaite-misspecification hypothesis is therefore an absence of evidence given the available data, not a positive demonstration that Thornthwaite is well-specified at the dune-field scale.
 -   **140-month threshold and cluster representation.** With the 140-month minimum and the six-well exclusion set, Scripts 23 and 24 carry 63 wells. C5 Coastal Forest is represented by five wells in Script 24 and only one in the Script 23 significant-peak population --- too few to make a within-C5 statement. The cluster-mean lag and amplitude figures should be read with this n in mind.
@@ -3286,7 +3292,7 @@ Taken together, the three diagnostics bound what the record could have shown. Th
 -   **AR(1) pre-whitening.** Higher-order or non-parametric whitening could in principle reveal lag structure that AR(1) does not remove. The residual AR(1) magnitudes are small enough (most wells \|φ\| \< 0.2) that this is not a likely confound, but the choice is principled rather than verified.
 -   **Lag-extended SSM in Script 23 vs canonical Model B.** Script 23's extended model differs from the canonical SSM in including P(t−1) as a second rainfall regressor. The β₂ and β₃ from this fit are not propagated downstream, and the canonical β values in *03_master_data.csv* remain the report's source of truth.
 
-### []{#anchor-484}[]{#anchor-486}[]{#anchor-487}Outputs
+### []{#anchor-485}[]{#anchor-486}[]{#anchor-487}Outputs
 
   ----------------------------------------------------------------- ----------------------------------------------------------------------------------------- ------------------------------------------------------
   Output                                                            Description                                                                               Reference
@@ -3311,14 +3317,14 @@ Taken together, the three diagnostics bound what the record could have shown. Th
   24_residual_seasonality/24_05_diagnostic_summary.txt              Plain-text interpretive summary                                                           §5.4 PET-bias caveat
   ----------------------------------------------------------------- ----------------------------------------------------------------------------------------- ------------------------------------------------------
 
-### []{#anchor-486}[]{#anchor-488}[]{#anchor-489}Where the result appears in the report
+### []{#anchor-487}[]{#anchor-488}[]{#anchor-489}Where the result appears in the report
 
 -   §4.9.7 *Water Balance Residual Field* --- the corrected field, which closes without requiring an additional flux. Scripts 23 and 24 supply the bound on what the record could have detected.
 -   §5.2.1 *Water Balance Residuals as a Model-Adequacy Diagnostic* --- Script 23 is the principal test; its null result on the distance-lag relationship is the substantive finding that bounds what the monthly record could have resolved.
 -   §5.4 *PET-bias caveat* --- Script 24 supplies the diagnostic that the Thornthwaite-misspecification interpretation can be set aside, and that a winter-spring recharge nonlinearity is the residual signal that survives.
 -   §5 conclusions --- the integrated finding from the three diagnostics: the residual is observationally consistent with a steady or near-steady subsidy at ridge-adjacent wells (captured by α) plus a small winter-spring recharge nonlinearity at the wider network, but not with month-scale ridge-to-well lateral transport or with Thornthwaite PET misspecification.
 
-### []{#anchor-488}[]{#anchor-490}[]{#anchor-491}Cross-references
+### []{#anchor-489}[]{#anchor-490}[]{#anchor-491}Cross-references
 
 -   **F.3** --- SSM formulation; the displacement-formulation equation that Scripts 22 and 24 fit via *fit_ssm_intercept()* and that Script 23 extends with a lag-1 rainfall term.
 -   **F.4** --- *HEADLINE_LAG = 0*, *DRAINAGE_DATUM = 3.7 m*, cluster labels and colours.
@@ -3330,11 +3336,11 @@ Taken together, the three diagnostics bound what the record could have shown. Th
 
 End of chapter S.16.
 
-## []{#anchor-490}[]{#anchor-492}[]{#anchor-493}S.18 Script 26 --- Van Willegen MSL aggregation and Equilibrium Wetness Index
+## []{#anchor-491}[]{#anchor-492}[]{#anchor-493}S.18 Script 26 --- Van Willegen MSL aggregation and Equilibrium Wetness Index
 
 **Step 30 / 35. Phase 13 --- Van Willegen MSL Analyses in ***run_analysis.py***; paired with S.18b which covers the forecasting tools that operate on this chapter's outputs and with S.18c which covers the report-format figures that render this chapter's trajectory output for §4.8.5.**
 
-### []{#anchor-492}[]{#anchor-494}[]{#anchor-495}Motivation
+### []{#anchor-493}[]{#anchor-494}[]{#anchor-495}Motivation
 
 Curreli et al. (2013) is the foundational reference for ecohydrological thresholds in lowland dune slacks. That paper calibrated absolute groundwater-depth thresholds (SD15b at −0.61 m and SD16 at −0.98 m below ground) against vegetation community composition at fifteen Welsh dune sites, including Newborough, using a 4-year mean of winter water levels as the hydrological metric. The thresholds remain the operational standard for conservation management across the SAC network --- they are the numbers cited by Natural Resources Wales when reporting site condition against vegetation criteria.
 
@@ -3344,7 +3350,7 @@ The Newborough connection runs deeper than co-location alone. The author of the 
 
 The chapter sits as a complement to, not a replacement for, the report's existing summer-minimum predictive framework. The Scripts 11 / 11b transfer functions, the iterated P_flood derivation in §3.6.3 of the main report, the BACI clearfell summer-minimum step in Scripts 10a / 10d, the CEH36 scraping benefit in Script 09c, the climate projections in Script 14 --- all of these run in summer-minimum space, against the Curreli SD15b / SD16 thresholds. MSL5 serves a monitoring role rather than a predictive one: managers who collect spring readings can monitor MSL5 directly each year, and the 5-year integrated window damps single-year extremes. The two frameworks measure the same multi-year hydrological state through different seasonal windows, and the Empirical relationship to summer minima section below quantifies their cross-correlation at the network scale (Pearson r = 0.95 between MSL5 and the parallel 5-year summer-minimum mean) and the constant offset between them (≈ 0.54 m, the seasonal amplitude of the typical Newborough water table).
 
-### []{#anchor-494}[]{#anchor-496}[]{#anchor-497}Inputs
+### []{#anchor-495}[]{#anchor-496}[]{#anchor-497}Inputs
 
   ----------------------------------------------- ---------------------------------------------------------------------------------------------------------------------------------------------
   Input file                                      Description
@@ -3361,7 +3367,7 @@ The chapter sits as a complement to, not a replacement for, the report's existin
   data/Ecohydrology_dataset.xlsx                  Documented external input --- van Willegen et al. (2024) Mendeley dataset; gitignored, not redistributed; EbF Pass runs if present (v1.3.3)
   ----------------------------------------------- ---------------------------------------------------------------------------------------------------------------------------------------------
 
-### []{#anchor-496}[]{#anchor-498}[]{#anchor-499}Methodology
+### []{#anchor-497}[]{#anchor-498}[]{#anchor-499}Methodology
 
 **Spring window and hydrology year.** The spring window is calendar months 3, 4, and 5 --- March, April, May --- following van Willegen 2025 Table 2. The hydrology year *y* (van Willegen's "hydrology year B") runs from 1 June (*y*−1) to 31 May (*y*), so spring of hydrology year *y* is the three months immediately preceding the year's close. A reading dated 2010-04 therefore belongs to hydrology year 2010 (spring of 2010); a reading dated 2009-07 belongs to hydrology year 2010 (summer of the preceding calendar year). The annual MSL_y for a single piezometer is the unweighted mean of the three spring months of hydrology year *y*. The 5-year mean MSL5(end-year *y*) is the unweighted mean of the five consecutive annual MSLs {MSL\_{y−4}, MSL\_{y−3}, MSL\_{y−2}, MSL\_{y−1}, MSL_y}. The convention follows Curreli 2013 (who used a 4-year winter-mean version) and is sensitivity-tested at 5 years in van Willegen et al. (2025).
 
@@ -3375,7 +3381,7 @@ Sign conventions. The pipeline's native depth frame is below the ground surface,
 
 **Network coverage.** The script processes 1,433 (well, hydrology year) annual rows, of which 1,304 (91 %) pass the strict 3/3 rule. From these are derived 884 (well, end-year) 5-year window rows, covering 84 wells (66 reference + 18 extended). 16 of the 17 van Willegen quadrat wells are covered (T41 fails the rule because of an insufficient recent record). The cluster trajectory restricts to window-ends 2014 onwards (see the Site-specific choices section below) and contains 79 (cluster, end-year) rows across the five clusters and sixteen valid window-end years.
 
-### []{#anchor-498}[]{#anchor-500}[]{#anchor-501}Site-specific choices
+### []{#anchor-499}[]{#anchor-500}[]{#anchor-501}Site-specific choices
 
 Three editorial decisions warrant explicit defence in this chapter, since they depart from the most literal van Willegen 2025 protocol.
 
@@ -3387,7 +3393,7 @@ Three editorial decisions warrant explicit defence in this chapter, since they d
 
 **Analysis-specific exclusion of CEH13 and CEH14 from MSL5 (v1.2.0, 2026-06-25).** Two wells --- CEH13 and CEH14 --- are excluded from every derived MSL5 product: the Method A cluster-mean trajectory, the latest-per-well table, the IDW change map, and the quadrat figure. Both wells have a degenerate SSM drainage coefficient (CEH13 near-zero β₃, an SSM identification failure producing a physically implausible τ outlier; CEH14 negative β₃, SSM failure, NSE = −3.21) that makes their MSL5 five-year spring windows unreliable. The exclusion criterion is the MSL5-side application of the same β₃ identification criterion that already excluded CEH13 and CEH14 from the τ = Sy/β₃ storage--drainage index computation (§S.12): both are excluded on β₃ ≤ 0 or near-zero grounds; the same rationale applies here to the five-year windowed spring metric. The excluded wells are held in *config.MSL5_EXCLUDED_WELLS* (keys lowercase to match the normalized well column in the per-well CSV). The rows are **retained** in *26_msl_5yr_per_well.csv* with two new columns, *msl5_excluded* (boolean) and *msl5_excluded_reason*, for transparency; a filtered subset with excluded rows removed feeds all downstream products. This is an analysis-specific exclusion that does not affect either well's membership of the clustering, SSM, BACI, or any other pipeline analysis.
 
-### []{#anchor-500}[]{#anchor-502}[]{#anchor-503}Empirical relationship to summer minima
+### []{#anchor-501}[]{#anchor-502}[]{#anchor-503}Empirical relationship to summer minima
 
 A direct cross-check between MSL5 and the parallel 5-year mean of summer minima (5-yr SM5) was run as part of script verification. At the individual-year scale (annual MSL vs annual summer minimum, per well), the Pearson correlation across all valid (well, year) rows is 0.77. At the 5-year window scale (MSL5 vs the corresponding 5-year mean summer minimum, per well across window-ends 2014 onwards), the correlation rises to 0.945 (n = 829 (well, end-year) rows where both metrics are valid). The constant offset between the two metrics, computed as the mean of (5-yr SM5 − MSL5) across the same rows, is 0.54 m with a standard deviation of 0.15 m. The 5-yr SM5 is roughly 0.54 m deeper than MSL5 --- the seasonal amplitude of a typical Newborough water table between spring and the late-summer minimum.
 
@@ -3406,7 +3412,7 @@ The two metrics measure essentially the same multi-year hydrological state throu
 
 This complementarity is not a contradiction. The two frameworks describe the same hydrological state through different seasonal windows, and a reader who encounters substantial summer-minimum threshold-crossing predictions in §4.10.1 of the report alongside more modest MSL5 climate projections in §S.18b should not interpret the contrast as one framework overturning the other. Section S.18b.3.7 expands on this point in the context of the UKCP18 climate scenarios: the spring window's structural cancellation between increased winter rainfall and increased summer PET produces a smaller projected climate shift than the summer-minimum window, which has no compensating winter-rainfall effect. Both readings are correct; they sample the climate signal at different points of its seasonal structure.
 
-### []{#anchor-502}[]{#anchor-504}[]{#anchor-505}Climate context for the post-2024 trajectory lift
+### []{#anchor-503}[]{#anchor-504}[]{#anchor-505}Climate context for the post-2024 trajectory lift
 
 The cluster MSL5 trajectory shows a marked upward lift at window-ends 2024 and 2025. The lift is real, but it is largely climate-driven rather than evidence of management recovery. Hydrology year 2024 is the wettest in the 2007--2026 record at Newborough --- 1,143 mm annual rainfall against a long-term mean of 855 mm (+34 %), and 234 mm spring rainfall against a long-term mean of 161 mm (+45 %). The 2024 spring is the wettest spring in the record. By contrast, hydrology year 2025 returned to dry conditions: 746 mm annual (−13 %) and 121 mm spring rainfall (−25 %).
 
@@ -3414,7 +3420,7 @@ Because MSL5 at window-end 2024 averages hydrology years 2020 through 2024 --- a
 
 This is exactly the kind of single-year extreme influence that the 5-year window is designed to dampen, and the framework does dampen it --- the lift is real but smaller than the 2024 single-year anomaly would produce on an annual basis. The window smooths; it does not eliminate. The chapter's limitations section makes this caveat explicit, and the §5 discussion in the main report should mirror the same caution: trajectory readings from the most-recent window-ends should be interpreted with the underlying climate sequence in mind.
 
-### []{#anchor-504}[]{#anchor-506}[]{#anchor-507}Intervention markers and the management-response horizon
+### []{#anchor-505}[]{#anchor-506}[]{#anchor-507}Intervention markers and the management-response horizon
 
 The cluster trajectory and per-quadrat-well plots draw three intervention events as paired vertical lines, encoding the temporal logic of the 5-year window:
 
@@ -3431,7 +3437,7 @@ For the December 2017 clearfell, the first fully-post-clearfell window closes at
 
 Intervention dates are imported from *utils.scraping_common* as the canonical pipeline constants (*SCRAPING_DATE = 2015-04-01*, *INTERVENTION_DATE = 2017-12-01*, *SCRAPING_DATE_2 = 2023-10-01*); intervention line colours come from *utils.config* (*INTERVENTION_COLOUR_SCRAPE = \"#7b3294\"* purple for scraping, *INTERVENTION_COLOUR_CLEARFELL = \"#e66101\"* orange for clearfell). Both are sourced from configuration rather than hardcoded locally.
 
-### []{#anchor-506}[]{#anchor-508}[]{#anchor-509}Method A and Method B aggregation
+### []{#anchor-507}[]{#anchor-508}[]{#anchor-509}Method A and Method B aggregation
 
 Script 26 produces two per-cluster MSL5 aggregation methods alongside the per-well aggregation described above. The reason two methods exist is an internal consistency requirement: the SSM β coefficients in Script 03 are fitted against the cluster-centroid monthly series in *03_regional_averages.csv*, which uses the LCSC reference network only (the 66 reference wells, not the \~84 reference + extended pool). The MSL5 forecasting tools introduced in S.18b --- Section 5 of Script 11 (Tool A) and Script 26b (Tool B) --- would otherwise sit in a different baseline than the per-well-aggregated trajectory documented above. To make the forecasting tools internally consistent with the SSM coefficients they read from, Script 26 produces a second per-cluster CSV alongside the per-well-aggregated one.
 
@@ -3444,7 +3450,7 @@ The two methods can differ by tens of centimetres at any single (cluster, year) 
 
 Both methods are mathematically correct. They answer different questions and describe different cluster populations. Method A is "what is the typical well in this cluster experiencing?" --- the natural aggregation for monitoring, closest to van Willegen's per-piezometer calibration framework. Method B is "what is the cluster's reference-network signal?" --- the natural aggregation for any analysis that sits on top of the SSM coefficients. The chapter retains both and the report's editorial convention is that §4.8.5 figures cite Method A and any numerical claim from Tool A or Tool B carries the implicit Method B provenance. Each cluster MSL5 number quoted in the report should be qualified with the method that produced it; the supplement's chapter S.18b restates this point in its own context.
 
-### []{#anchor-508}[]{#anchor-510}[]{#anchor-511}Limitations
+### []{#anchor-509}[]{#anchor-510}[]{#anchor-511}Limitations
 
 A small set of limitations should be noted alongside the chapter's results, all of which are operational rather than methodological challenges to the metric itself.
 
@@ -3460,7 +3466,7 @@ The Curreli SD15b and SD16 reference lines on the trajectory plot are calibrated
 
 No UKCP18 forward projection of MSL5 is produced by this chapter. The predictive forecasting framework runs in summer-minimum space (Scripts 11, 11b, 14). A separate perturbation overlay applying UKCP18 RCP8.5 multipliers to the MSL5 trajectory is documented in chapter S.18b as Tool B; that capability sits in the Method B baseline (cluster centroid from *03_regional_averages.csv*) and produces small projected shifts of 1 to 4 cm at the 2050s and 2080s. The smallness of the projected MSL5 shifts is structural --- a feature of the spring window straddling the seasonal partition of the UKCP18 multipliers --- and is not in tension with the larger projected summer-minimum shifts that drive the report's climate-vulnerability framing.
 
-### []{#anchor-510}[]{#anchor-512}[]{#anchor-513}Outputs
+### []{#anchor-511}[]{#anchor-512}[]{#anchor-513}Outputs
 
   ----------------------------------------------------------------------- -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   Output                                                                  Description
@@ -3480,7 +3486,7 @@ No UKCP18 forward projection of MSL5 is produced by this chapter. The predictive
   outputs/26_van_willegen_msl/26_msl_results.txt                          Run transcript with cluster-level summary and per-quadrat-well numerical values
   ----------------------------------------------------------------------- -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-### []{#anchor-512}[]{#anchor-514}[]{#anchor-515}Where the result appears in the report
+### []{#anchor-513}[]{#anchor-514}[]{#anchor-515}Where the result appears in the report
 
   -------------------------------------------------------------------- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   Report section                                                       Content
@@ -3490,7 +3496,7 @@ No UKCP18 forward projection of MSL5 is produced by this chapter. The predictive
   §5.7.6 *Equilibrium wetness index as a monitoring complement*        EWI as a short-record alternative to MSL5; forest-cluster caveat (Discussion)
   -------------------------------------------------------------------- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-### []{#anchor-514}[]{#anchor-516}[]{#anchor-517}Cross-references
+### []{#anchor-515}[]{#anchor-516}[]{#anchor-517}Cross-references
 
 -   **F.4** --- Curreli SD15b / SD16 constants; the MSL\_\* constants; *VW_QUADRAT_WELLS*; *INTERVENTION_COLOUR\_\**
 -   **F.5** --- *paths.OUT_26\_\**, *paths.DIR_26*
@@ -3501,7 +3507,7 @@ No UKCP18 forward projection of MSL5 is produced by this chapter. The predictive
 -   **S.15** (Script 25) --- coastal-retreat gradient contributing to the western-margin pattern visible in the MSL5 map
 -   **S.18b** (Scripts 11 Section 5, 26b) --- forecasting tools that operate on this chapter's Method B output: empirical spring MSL transfer function (Tool A) and UKCP18 RCP8.5 climate projection (Tool B)
 
-### []{#anchor-516}[]{#anchor-518}[]{#anchor-519}Equilibrium wetness index and vegetation cross-validation (v1.3.2)
+### []{#anchor-517}[]{#anchor-518}[]{#anchor-519}Equilibrium wetness index and vegetation cross-validation (v1.3.2)
 
 Added 2026-07-03. Extends Script 26 with a coefficient-based steady-state wetness metric and a one-off cross-validation against the Ellenberg-F vegetation dataset.
 
@@ -3530,19 +3536,19 @@ References added (Script 26 v1.3.2).
 
 End of chapter S.18.
 
-## []{#anchor-518}[]{#anchor-520}[]{#anchor-521}S.18b --- Spring MSL forecasting tools (Script 11 Section 5, Script 26b)
+## []{#anchor-519}[]{#anchor-520}[]{#anchor-521}S.18b --- Spring MSL forecasting tools (Script 11 Section 5, Script 26b)
 
 **Step 31/49 for Script 26b (Phase 13 --- Van Willegen MSL Analyses in ***run_analysis.py***); Script 11 Section 5 lives in Phase 3 at step 11/49 inside ***11_forecasting_thresholds.py***. Companion to S.18; followed in the supplement by S.18c which documents Script 26c's display-only report-format figures.**
 
-### []{#anchor-520}[]{#anchor-522}[]{#anchor-523}S.18b.1 Purpose and editorial weighting
+### []{#anchor-521}[]{#anchor-522}[]{#anchor-523}S.18b.1 Purpose and editorial weighting
 
 This chapter documents two complementary forecasting capabilities that pair with the observational 5-year mean spring water level (MSL5) metric introduced in S.18. The first is a per-cluster empirical transfer function predicting next-year MSL from monthly readings collected through end-February (Tool A, implemented as Section 5 of Script *11_forecasting_thresholds.py*). The second is a perturbation-overlay capability producing per-cluster ΔMSL5 estimates under UKCP18 RCP8.5 50th-percentile climate scenarios for the 2050s and 2080s (Tool B, implemented as Script *26b_van_willegen_msl_projections.py*).
 
 The two tools sit at different levels of editorial weight in the report. Tool A produces fits with R² between 0.73 and 0.96 across the network and a clean operational use case for site managers; the equations are reported as Table 9 in §3.6 and the calibration scatter as a §3.6 figure. Tool B is a documented robustness / climate-sensitivity capability whose projected magnitudes (1--4 cm at 2050s and 2--4 cm at 2080s) sit within observed interannual variability and well below the forest-management BACI signal at this site. Tool B is therefore presented in this supplement chapter with full method detail but is summarized in the main report in a single discussion sentence rather than as a headline figure. This editorial weighting reflects the empirical scale of the result rather than a methodological reservation about the technique.
 
-### []{#anchor-522}[]{#anchor-524}[]{#anchor-525}S.18b.2 Tool A: empirical spring MSL transfer function
+### []{#anchor-523}[]{#anchor-524}[]{#anchor-525}S.18b.2 Tool A: empirical spring MSL transfer function
 
-#### []{#anchor-524}[]{#anchor-526}S.18b.2.1 Specification
+#### []{#anchor-525}[]{#anchor-526}S.18b.2.1 Specification
 
 For each of the five clusters (C1 Lake Edge, C2 Dune, C3 Western Residual, C4 Main Forest, C5 Coastal Forest) the transfer function takes the form
 
@@ -3585,7 +3591,7 @@ The workflow is most operationally useful for early-warning purposes: a predicte
 
 ### []{#anchor-530}[]{#anchor-531}[]{#anchor-532}S.18b.3 Tool B: UKCP18 RCP8.5 MSL5 climate projection
 
-#### []{#anchor-531}[]{#anchor-533}S.18b.3.1 Specification
+#### []{#anchor-532}[]{#anchor-533}S.18b.3.1 Specification
 
 Script *26b_van_willegen_msl_projections.py* produces per-cluster projected MSL5 trajectories under UKCP18 RCP8.5 50th-percentile Wales scenarios for the 2050s and 2080s. The script does not run the state-space model forward in time. Instead, it computes a monthly Δh perturbation from each cluster's fitted SSM coefficients and the UKCP18 multipliers, and applies the perturbation as a constant vertical shift to the observational Method B trajectory produced by Script 26.
 
@@ -3688,7 +3694,7 @@ Tool C is complementary, not a replacement: where both MSL5 and EWI are availabl
 
 Cross-reference: §S.18 (full EWI methodology, calibration statistics, vegetation cross-validation); §4.8.6 of the main report (EWI results and comparison table); §5.7.6 (monitoring complement framing).
 
-### []{#anchor-541}[]{#anchor-543}[]{#anchor-544}S.18b.5 Method A and Method B aggregation
+### []{#anchor-542}[]{#anchor-543}[]{#anchor-544}S.18b.5 Method A and Method B aggregation
 
 A consequence of paired Tools A and B both operating on Script 03's cluster-centroid monthly series is that the report carries two MSL5 aggregations side by side. Script 26 produces both as parallel CSV outputs:
 
@@ -3700,7 +3706,7 @@ The two methods are both valid; they answer different questions and describe dif
 
 The chapter S.18 of this supplement covers the Method A side as the headline monitoring metric. This chapter (S.18b) uses Method B because it is the SSM-consistent baseline for the predictive tools, and Tools A and B both read from *03_regional_averages.csv* (Method B's underlying monthly series) for that reason. Each cluster MSL5 number quoted in the report should be qualified with the method that produced it; the main-report convention is that §4.8.5 figures cite Method A and any number from Tool A or Tool B carries the implicit "Method B" provenance.
 
-### []{#anchor-543}[]{#anchor-545}[]{#anchor-546}S.18b.6 Pipeline integration
+### []{#anchor-544}[]{#anchor-545}[]{#anchor-546}S.18b.6 Pipeline integration
 
 Tool A and Tool B are integrated into the analytical pipeline managed by *run_analysis.py* as follows:
 
@@ -3712,7 +3718,7 @@ Script *26c_msl5_report_figures.py* (step 30 of the pipeline, Phase 13) follows 
 
 The greyscale figure-conversion utility (*27_greyscale_figures.py*) is step 44 of the pipeline and sits in Phase 17 as part of the post-analytical phase alongside Script 09f.
 
-### []{#anchor-545}[]{#anchor-547}[]{#anchor-548}S.18b.7 Data sources and reproducibility
+### []{#anchor-546}[]{#anchor-547}[]{#anchor-548}S.18b.7 Data sources and reproducibility
 
 UKCP18 RCP8.5 multipliers used by Tool B are central-estimate (50th-percentile) Wales values for the 2050s and 2080s time horizons. The 2050s constants also exist in *utils.config* as *UKCP18_DRY\_\** / *UKCP18_WET\_\** pairs (carried for cross-reference with Script 19's scenario viewer); the 2080s constants are hardcoded in Script 26b's *UKCP18_SCENARIOS* dictionary at the top of the file. Centralising the 2080s constants in *utils.config* alongside the 2050s pairs, so Scripts 19 and 26b share a single source, is noted as a follow-up.
 
@@ -3720,7 +3726,7 @@ Source: van Willegen et al. (2025), *Ecological Indicators* 170, 113016 --- met
 
 End of chapter S.18b.
 
-## []{#anchor-547}[]{#anchor-549}[]{#anchor-550}S.18c Script 26c --- Report-format MSL5 figures
+## []{#anchor-548}[]{#anchor-549}[]{#anchor-550}S.18c Script 26c --- Report-format MSL5 figures
 
 **Step 32 / 35. Phase 13 --- Van Willegen MSL Analyses in ***run_analysis.py***; display-only companion to S.18 and S.18b.**
 
@@ -3732,7 +3738,7 @@ The second output is *fig_msl5_vs_summer_min_projection.png*, a two-panel horizo
 
 End of chapter S.18c.
 
-## []{#anchor-549}[]{#anchor-551}[]{#anchor-552}S.19 Scripts 28, 29, 30 --- Cluster framework diagnostics (Phase 14)
+## []{#anchor-550}[]{#anchor-551}[]{#anchor-552}S.19 Scripts 28, 29, 30 --- Cluster framework diagnostics (Phase 14)
 
 Steps 33, 34 and 35 / 36. Phase 14 --- Cluster framework diagnostics.
 
@@ -3740,7 +3746,7 @@ The two scripts in this chapter were added on 2026-05-29 following the post-revi
 
 The methodological motivation for both diagnostics is the same. §5.1 of the main report frames C2 and C3 as eastern and western positions on a substrate-thickness gradient --- shallow sand over till in the east, deeper sand in the west as the basal till sheet dips and merges with the Menai Strait estuarine clays. The Ward's clustering on (1 − Pearson r) distance imposes a discrete cluster boundary on what is, on this substrate-architecture picture, a continuous behavioural gradient. The framing rests on Stratford et al. (2007) and Grootjans et al. (2004) but is not, in the published version of the report, validated against the project's own data. Two questions follow naturally. First: is the C2/C3 behavioural distinction reproducible by adding a coastal-erosion drift onto C2 hydrographs --- i.e., can the distinction be folded back into C2 by a single reductive operation acting on the level signal? Second: given that C3 is internally heterogeneous in spatial coefficients (visible in Script 07's per-well β maps), what is the structure of that heterogeneity, and does it resolve a smooth gradient or warrant a finer cluster partition? Script 28 addresses the first question; Script 29 addresses the second. Together they form a diagnostic dyad: Script 28 rules out one reductive alternative, Script 29 provides a spatial-gradient signature that the substrate-architecture picture predicts.
 
-### []{#anchor-551}[]{#anchor-553}[]{#anchor-554}S.19.1 Script 28 --- C3 detrend check
+### []{#anchor-552}[]{#anchor-553}[]{#anchor-554}S.19.1 Script 28 --- C3 detrend check
 
 **Motivation.** Test whether the C3 cluster is mechanistically C2 with a western-margin coastal-erosion drift superimposed (H1) or whether it is a behaviourally coherent cluster on a westward-thickening substrate gradient (H0). Under H1, removing the predicted coastal drift from each C3 well's hydrograph should cause the de-trended series to migrate to a C2 best-match against the un-de-trended cluster centroids; under H0, C3 wells should remain best-matched to C3 regardless of de-trending. The test rules out the simplest reductive explanation (a linear-in-time drift on level, added to otherwise C2-like behaviour); it does not by itself distinguish a discrete-architecture C3 from a continuous-substrate-gradient C3, which Script 29 addresses.
 
@@ -3778,7 +3784,7 @@ Outputs.
 
 **Limitations.** The de-trending is linear in time, applying the steady-state δ(d) over the full observation window. Any transient coastal-erosion signal (episodic retreat events such as Storm Brendan 2020) is not separately resolved. The drift correction operates only on the western-margin coastal-erosion mechanism on the level signal; if other site-wide mechanisms contribute to the C2/C3 distinction --- most notably an east-to-west substrate-thickness gradient as the basal till dips and merges with the Menai Strait estuarine clays, producing a continuous shift in the SSM coefficient field rather than a drift in level --- they are not represented in the test. The procedure tests a specific H1 (C3 = C2 + coastal drift on the level signal); it does not falsify a continuous-substrate-gradient explanation, which Script 29 is better positioned to address through the within-C3 spatial-structure analysis.
 
-### []{#anchor-553}[]{#anchor-555}[]{#anchor-556}S.19.2 Script 29 --- Within-C3 variance attribution
+### []{#anchor-554}[]{#anchor-555}[]{#anchor-556}S.19.2 Script 29 --- Within-C3 variance attribution
 
 **Motivation.** Given that Script 28 rejects the reductive "C3 = C2 + coastal drift" hypothesis, what is the structure of variation *between* C3 wells, and does it favour a discrete-architecture or continuous-substrate-gradient interpretation? The per-well β maps from Script 07 visibly show within-cluster heterogeneity in β₁, β₂, β₃, and τ across the C3 wells. The question is whether this within-cluster variance follows a spatial or hydrogeological axis that the cluster framework treats as noise but that warrants explicit treatment in the report's discussion of the §5.1 cluster boundaries, and --- if it does --- whether the axis location is geometrically consistent with the dipping-till / Menai-estuarine-clays substrate-gradient picture.
 
@@ -3837,7 +3843,7 @@ A methodological aside emerges from the regression: the Script 25 exponential co
 
 **Limitations.** The regression uses n = 19 wells (the C3 cluster minus CEH36 and WMC3, which carry direct intervention signals), so degrees of freedom are limited and the unique contributions of correlated predictors are not always cleanly separable. The dist_CEH36 axis is operationally defined by the 2015 scrape-site location, which is a hydrogeological anchor of opportunity rather than a parameter fitted to the data --- its physical interpretation (proximity to a topographic and hydrogeological transition within C3) is a candidate explanation rather than a tested one. The analysis is C3-specific by motivation; analogous within-cluster diagnostics for C1, C2, C4 and C5 are not produced, on the grounds that the original motivating question (the C3 cluster's distinctness and internal structure) is the §5.1-relevant one.
 
-### []{#anchor-555}[]{#anchor-557}[]{#anchor-558}Cross-references
+### []{#anchor-556}[]{#anchor-557}[]{#anchor-558}Cross-references
 
 -   **F.4** --- Cluster partition constants, k=5 anchor wells, partition history.
 -   **S.2** --- Ward's hierarchical clustering on (1 − Pearson r) distance; the metric used for the re-classification step in Script 28.
@@ -3846,7 +3852,7 @@ A methodological aside emerges from the regression: the Script 25 exponential co
 -   **S.15** --- Script 25 coastal-retreat gradient parameters (δ₀, L, c) feeding both scripts' coastal predictors.
 -   §5.1.1 of the main report --- primary destination for both scripts' headline findings (gap D in the 2026-05-29 post-review cascade).
 
-### []{#anchor-557}[]{#anchor-559}[]{#anchor-560}S.19.3 Script 30 --- C4 drainage identifiability diagnostic and reported sensitivities
+### []{#anchor-558}[]{#anchor-559}[]{#anchor-560}S.19.3 Script 30 --- C4 drainage identifiability diagnostic and reported sensitivities
 
 Step 35/49, Phase 14; opt-in diagnostic tier (cite the committed *pipeline_manifest.json* rather than these counts). Added 2026-06-23 as a constrained-β₃ triangulation sensitivity (v1.0.0--v1.1.0); replaced 2026-07-24 (v2.1.0) by the direct identifiability diagnostic documented here, after the degeneracy premise the earlier script rested on was tested and not supported; per-well two-basis panel and centroid exclusion sensitivity added 2026-08-16 (v2.2.0); results removed from the script's own docstring, comments and console strings in favour of run-time derivation 2026-08-16 (v2.2.1). The retired script's archived outputs remain committed under *outputs/30_c4_constrained_fit/* but are produced by no live script.
 
@@ -3896,7 +3902,7 @@ End of chapter S.19.
 
 Phase 15 (steps 36--41/49; 32/33/35 analytical-default, 36/37/37b opt-in --- *\--with-supplementary*). Six analyses that characterize observed network change and driver attribution directly, independently of (and, for 37/37b, in comparison against) the single-mechanism driver model of §S.13--§S.14: where the spring water table is moving relative to the site (Script 32, Figure 63), how far it swings between climate extremes (Script 33, Figure 65), how deep it sits in dry years against the ecological thresholds (Script 33, Figure 66), a per-well frame-independent coefficient extending the amplification metric to short-record wells (Script 35), an absolute climate-removed secular trend map placing the coastal and forest drying on one figure without mean-referencing or residual-construction artefacts (Script 36), a predicted-versus-observed validation of the modelled driver-change map (Script 37), and a comparative footing of forest/scrape/coastal effects on common currencies (Script 37b, Part B). All six read committed pipeline outputs and re-fit nothing in the SSM; their value layers are observational.
 
-### []{#anchor-562}[]{#anchor-564}[]{#anchor-565}S.20.1 Script 32 --- Secular differential water-table movement (Figure 63)
+### []{#anchor-563}[]{#anchor-564}[]{#anchor-565}S.20.1 Script 32 --- Secular differential water-table movement (Figure 63)
 
 **Motivation.** The two-window MSL5 comparison (Figure 62) cannot separate secular change from window choice (Script 34, §S.21.4). The differential-movement map isolates the secular component by fitting, for each well, the trend of its spring level relative to the site mean. Subtracting the site mean removes the common climate signal, leaving the relative drift --- the slow inland mound holding its position while the fast-draining lake and coastal margins decline. The map is explicitly a differential-recession field, not an absolute-drying map and not a management-signature map.
 
@@ -3912,7 +3918,7 @@ Phase 15 (steps 36--41/49; 32/33/35 analytical-default, 36/37/37b opt-in --- *\-
 
 **Report location.** Figure 63; main-report §4.9.8 (description) and §5.7.5 (interpretation).
 
-### []{#anchor-564}[]{#anchor-566}[]{#anchor-567}S.20.2 Script 33 --- Climate-swing amplification and dry-year spring floor (Figures 65 and 66)
+### []{#anchor-565}[]{#anchor-566}[]{#anchor-567}S.20.2 Script 33 --- Climate-swing amplification and dry-year spring floor (Figures 65 and 66)
 
 **Motivation.** A window-independent companion to the window-sensitivity caution (Script 34) and to Script 32's secular drift: rather than differencing two marginal windows, it compares genuine dry and wet end-members. From the envelope it derives two products --- a relative amplification field (how much each area magnifies or damps the shared climate swing) and an absolute drought-floor surface (how deep the dry-year spring table sits against the ecological thresholds).
 
@@ -3928,7 +3934,7 @@ Phase 15 (steps 36--41/49; 32/33/35 analytical-default, 36/37/37b opt-in --- *\-
 
 **Report location.** Figures 65 and 66; main-report §4.9.8 and §5.7.5.
 
-### []{#anchor-566}[]{#anchor-568}[]{#anchor-569}S.20.3 Script 35 --- Per-well climate-sensitivity coefficient
+### []{#anchor-567}[]{#anchor-568}[]{#anchor-569}S.20.3 Script 35 --- Per-well climate-sensitivity coefficient
 
 **Motivation.** A discrete, frame-independent per-well companion to Script 33's interpolated amplification field, extended to wells with short or inconsistent records that the matched surface and the SSM cannot reach. It produces no surface --- a coefficient table, an SSM-calibration figure, and a discrete marker map --- so it does not duplicate Script 33.
 
@@ -3942,7 +3948,7 @@ Phase 15 (steps 36--41/49; 32/33/35 analytical-default, 36/37/37b opt-in --- *\-
 
 **Report location.** Main-report §5.7.5 (and Paper 1).
 
-### []{#anchor-568}[]{#anchor-570}[]{#anchor-571}S.20.4 Script 36 --- Absolute climate-removed secular trend (Phase 15)
+### []{#anchor-569}[]{#anchor-570}[]{#anchor-571}S.20.4 Script 36 --- Absolute climate-removed secular trend (Phase 15)
 
 **Step 39/49, Phase 15. Added 2026-07-05 (v1.0.4); promoted to analytical tier (***exec=\"default\"***) 2026-07-13 per the Task E signed-off audit. Analytical tier. See the Pipeline-at-a-glance table and ***outputs/pipeline_manifest.json***.**
 
@@ -3976,7 +3982,7 @@ All at *outputs/36_absolute_climate_trend/*.
 
 **Report location.** Figure number TBC with Martin. Main-report §4.9.8 / §5.7.5, as the absolute companion to Figure 63 (Script 32 differential map). Pairs with the Script 20 modelled 2005→2025 driver-change map (*20_driver_change_2005_2025.png*) --- modelled versus observed over the same window. The per-well climate-sensitivity coefficient b̂ fitted here is the term that Script 37 (§S.20.5) removes when constructing its climate-corrected endpoint differences; Script 38 (§S.21.5) provides the one observational handle on δ₀ that triangulates with this figure's absolute-trend result.
 
-### []{#anchor-570}[]{#anchor-572}[]{#anchor-573}S.20.5 Script 37 --- Driver validation (per-driver scale-factor regression)
+### []{#anchor-571}[]{#anchor-572}[]{#anchor-573}S.20.5 Script 37 --- Driver validation (per-driver scale-factor regression)
 
 **Step 40/49, Phase 15. Analytical tier (***exec=\"default\"***), promoted 2026-07-13 per the Task E signed-off audit.**
 
@@ -4008,7 +4014,7 @@ Each field is β₃-corrected per well so a scale factor is dimensionless --- s 
 
 **Where it appears in the report.** ⟨§5.7 --- coastal driver subsection⟩: the modelled coastal field is carried as modelled-and-unconfirmed on the strength of this result; the common-mode dominance supports the site-wide recharge-decline reading.
 
-### []{#anchor-572}[]{#anchor-574}[]{#anchor-575}S.20.6 Script 37b --- Comparative driver footing (Part B)
+### []{#anchor-573}[]{#anchor-574}[]{#anchor-575}S.20.6 Script 37b --- Comparative driver footing (Part B)
 
 **Step 41/49, Phase 15. v1.0.1 (2026-07-07); promoted to analytical tier (***exec=\"default\"***) 2026-07-13 per the Task E signed-off audit. Analytical tier.**
 
@@ -4028,11 +4034,11 @@ Each field is β₃-corrected per well so a scale factor is dimensionless --- s 
 
 End of chapter S.20.
 
-## []{#anchor-574}[]{#anchor-576}[]{#anchor-577}S.21 Scripts 24b, 31, 31b, 34, 38 --- Supplementary standalone diagnostics
+## []{#anchor-575}[]{#anchor-576}[]{#anchor-577}S.21 Scripts 24b, 31, 31b, 34, 38 --- Supplementary standalone diagnostics
 
 Phase 16 (steps 42--46/49; all opt-in --- *\--with-supplementary*). Five standalone diagnostics wired into the orchestrator so they regenerate whenever upstream data change, each addressing a specific robustness question raised elsewhere in the analysis: the mechanism behind the seasonal SSM residual (Script 24b), whether the k=5 partition is corroborated by evidence the clustering never used (Scripts 31 and 31b), whether the two-window MSL5 method can resolve absolute site-wide change (Script 34), and whether the coast-to-inland MAM head gradient is growing (erosion-consistent) or static (substrate-geometry) as a model-free corroboration of the coastal-retreat rate δ₀ (Script 38). None re-fits the SSM; all read committed pipeline outputs.
 
-### []{#anchor-576}[]{#anchor-578}[]{#anchor-579}S.21.1 Script 24b --- Cluster-stratified residual climatology
+### []{#anchor-577}[]{#anchor-578}[]{#anchor-579}S.21.1 Script 24b --- Cluster-stratified residual climatology
 
 **Motivation.** Script 24 reports a seasonal structure in the SSM residual field. Three mechanisms could produce it, each with a distinct spatial signature: (1) winter-phased nonlinear recharge that the linear β₁·P term under-represents in heavy-rainfall months --- site-wide, including the open dune; (2) ridge-derived lateral input from the metamorphic bedrock ridge to the north --- ridge-proximal, concentrated at C4 and forest-margin wells; (3) over-estimation of the F = 0.24 canopy-interception correction in winter --- forest-confined, at both C4 and C5. Script 24b discriminates among them; it does not pre-judge.
 
@@ -4044,7 +4050,7 @@ Phase 16 (steps 42--46/49; all opt-in --- *\--with-supplementary*). Five standal
 
 **Report location.** Supports the discussion of the SSM residual field and the ridge-recharge hypothesis in the main report; supplementary diagnostic, not a headline result.
 
-### []{#anchor-578}[]{#anchor-580}[]{#anchor-581}S.21.2 Script 31 --- Independent k=5 partition validation
+### []{#anchor-579}[]{#anchor-580}[]{#anchor-581}S.21.2 Script 31 --- Independent k=5 partition validation
 
 **Motivation.** The canonical clusters are formed in Script 02 by Ward's linkage on (1 − Pearson correlation) distance between well hydrographs. Script 31 asks whether that partition is corroborated by evidence the clustering never used, organized by how independent each line of evidence actually is.
 
@@ -4054,7 +4060,7 @@ Phase 16 (steps 42--46/49; all opt-in --- *\--with-supplementary*). Five standal
 
 **Report location.** Supports the k=5 cluster-framework justification in the main report (§4.2 / §5.1); supplementary diagnostic.
 
-### []{#anchor-580}[]{#anchor-582}[]{#anchor-583}S.21.3 Script 31b --- Cluster separation versus recoverability
+### []{#anchor-581}[]{#anchor-582}[]{#anchor-583}S.21.3 Script 31b --- Cluster separation versus recoverability
 
 **Motivation.** A standalone companion to Script 31 making one point with one figure: the clusters differ on the independent variables (so they are real), but those variables do not by themselves reconstruct the clusters (because the hydrograph timing carries information no static attribute holds). High separation does not imply high recoverability.
 
@@ -4064,7 +4070,7 @@ Phase 16 (steps 42--46/49; all opt-in --- *\--with-supplementary*). Five standal
 
 **Report location.** Companion to Script 31; supplementary diagnostic.
 
-### []{#anchor-582}[]{#anchor-584}[]{#anchor-585}S.21.4 Script 34 --- MSL5 two-window sensitivity demonstration
+### []{#anchor-583}[]{#anchor-584}[]{#anchor-585}S.21.4 Script 34 --- MSL5 two-window sensitivity demonstration
 
 **Step 45/49, Phase 16. Analytical tier (***exec=\"default\"***), promoted 2026-07-13 per the Task E signed-off audit.**
 
@@ -4082,7 +4088,7 @@ Phase 16 (steps 42--46/49; all opt-in --- *\--with-supplementary*). Five standal
 
 **Report location.** Main-report §5.7.5 (window-sensitivity figure).
 
-### []{#anchor-584}[]{#anchor-586}[]{#anchor-587}S.21.5 Script 38 --- Coast-to-inland MAM transect (observational δ₀)
+### []{#anchor-585}[]{#anchor-586}[]{#anchor-587}S.21.5 Script 38 --- Coast-to-inland MAM transect (observational δ₀)
 
 **Step 46/49, Phase 16. v1.3.0 (2026-07-08, wired into ***run_analysis.py*\*\* --- previously standalone); promoted to analytical tier (***exec=\"default\"***) 2026-07-13 per the Task E signed-off audit. Analytical tier.\*\*
 
@@ -4102,13 +4108,13 @@ Phase 16 (steps 42--46/49; all opt-in --- *\--with-supplementary*). Five standal
 
 End of chapter S.21.
 
-## []{#anchor-586}[]{#anchor-588}[]{#anchor-589}S.17 Appendices
+## []{#anchor-587}[]{#anchor-588}[]{#anchor-589}S.17 Appendices
 
 Reference and post-pipeline material. Final chapter of the supplement.
 
 This chapter closes the Methods Supplement. It covers two pieces of material that belong with the document but sit outside the main script-by-script chapter sequence (S.1--S.18b). Appendix A documents the one remaining pipeline script not yet given a chapter --- the post-pipeline greyscale figure utility. Appendix B is the canonical-sources index: a reference table mapping each recurring concept across the supplement to the place where it is authoritatively defined.
 
-### []{#anchor-588}[]{#anchor-590}[]{#anchor-591}A. Greyscale figure post-processing --- Script 27
+### []{#anchor-589}[]{#anchor-590}[]{#anchor-591}A. Greyscale figure post-processing --- Script 27
 
 *27_greyscale_figures.py* is a post-pipeline rendering utility, not an analytical step. It exists to produce a journal-ready black-and-white bundle of the pipeline's colour figures without re-running any analytical script. Reviewers, journal proofs, and print compatibility occasionally require this; the conversion runs once and produces a parallel *outputs_bw/* tree alongside the canonical *outputs/* tree, preserving the directory structure so that any figure has the same relative path in both.
 
@@ -4126,13 +4132,13 @@ with *\--dpi* overriding the source DPI, *\--skip-maps* excluding the spatial-ma
 
 Script 27's filename prefix (*27\_*) and orchestrator step number (49/49) deliberately do not match --- the same convention applied to Script 26 (*26_van_willegen_msl.py* at step 30/49), Script 26b (*26b_van_willegen_msl_projections.py* at step 31/49), Script 26c (*26c_msl5_report_figures.py* at step 32/49), Script 09f (*09f_management_effects.py* at step 47/49), and Script 09g (*09g_mechanism_diagrams.py* at step 48/49). The filename groups Script 27 alphabetically with the other *2x\_* scripts; the orchestrator number reflects its position in the run order at the end of Phase 17. Script 27 carries no analytical-step number of its own --- it is the post-analysis utility documented in this appendix. Script 26c, the MSL5 report-format figure-rendering companion, is similarly display/utility and is documented in §S.18c. Script 09f, the spatial-reach synthesis figure, is also excluded and is documented in §S.15c. Script 09g, the mechanism-diagram companion to 09f, is likewise excluded and is documented in §S.15d.
 
-### []{#anchor-590}[]{#anchor-592}[]{#anchor-593}B. Canonical sources of truth --- reference table
+### []{#anchor-591}[]{#anchor-592}[]{#anchor-593}B. Canonical sources of truth --- reference table
 
 The supplement is long enough that a reader who has read it once and needs to find where a particular concept, parameter, or function is defined will not always remember which chapter to open. This table is the navigational index. For each recurring concept, it points to the single canonical source --- a chapter, a front-matter section, or a specific file in the repository --- where the concept is defined and explained. Where a constant is read from *config.py*, the table names the constant; where a function is the canonical implementation, it names the module.
 
 The convention throughout the supplement is that there is one place to change a value and one place to look it up. The table reflects that. Entries are organized into thematic groups --- model formulation, partition and cluster constants, intervention machinery, scenario engine, ecological thresholds, spatial machinery, MSL aggregation, and provenance and orchestration.
 
-#### []{#anchor-592}[]{#anchor-594}Model formulation
+#### []{#anchor-593}[]{#anchor-594}Model formulation
 
   ------------------------------------- ----------------------------------- --------------------------------------------------------------------------------------
   Concept                               Reference                           Definition / value

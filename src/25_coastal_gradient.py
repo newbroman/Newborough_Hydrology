@@ -102,7 +102,55 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
-__version__ = "1.10.0"  # Hollingham (2026) — 2026-08-20.  The forest-free
+__version__ = "1.12.0"  # Hollingham (2026) — 2026-08-20.  ceh12 leaves the
+#         coastal-gradient population on geological grounds (D-048, Martin's
+#         ruling).  It sits on the northern bedrock ridge, roughly 20 m above
+#         the next-highest well in the network, so a shoreline 1.1 km away
+#         cannot drain it.  It was ALREADY absent from the forest-free headline
+#         — but incidentally, as a canopy well, because its in_forest flag is
+#         true.  That was the wrong reason and a fragile one: it would have
+#         re-entered silently had the canopy flag changed, and it was still
+#         inside the canopy-controlled fit, where a bedrock well contributed to
+#         the estimate of extra drift under pine.  Excluded now via
+#         config.COASTAL_GRADIENT_EXCLUDED_WELLS, before the cluster
+#         restriction, so no specification can pick it up.  Measured effect:
+#         the headline does not move at all; the full-network d0 moves 0.02 and
+#         the canopy drift 0.12 mm/yr.  The change is for the well set to be
+#         right, not for the numbers.
+#
+# 1.11.0 — Hollingham (2026) — 2026-08-20.  The headline
+#         coast-edge trend is quoted at a reference distance the network
+#         actually covers, not at d = 0 (D-047, Martin's ruling this session).
+#         delta_0 is the decay amplitude at the shoreline, where no well sits,
+#         so it is an extrapolation beyond the data — and it is the one
+#         distance at which the two decay forms disagree materially, while over
+#         the observed range they track each other closely.  A headline at
+#         d = 0 is therefore a headline whose value is set by a functional-form
+#         choice the data cannot make.  New config constant
+#         COASTAL_REFERENCE_DISTANCE_M; new delta_at_distance(), which
+#         propagates the FULL parameter covariance by the delta method rather
+#         than the diagonal (delta_0 and L are strongly correlated in a decay
+#         fit) and takes its gradient by central finite differences on the
+#         decay function, so it works unchanged for either form or any form
+#         added later.  25_01 gains ref_distance_m / delta_ref_mm_yr / _se /
+#         _ci_lo / _ci_hi; 25_report_numbers gains
+#         Headline_coastal_rate_at_ref and Headline_reference_distance, and
+#         Headline_fit_delta_0's note now labels it an extrapolation and points
+#         at the new key.  main() warns if a well-set change ever leaves the
+#         reference distance inside the nearest well.  The cluster attribution
+#         and the BACI corroboration already evaluated the fitted decay at a
+#         cluster's mean distance, so this makes the headline consistent with
+#         the quantities derived from it rather than adding a convention.
+#         AIC NOTE: on this well set the exponential form is favoured on every
+#         specification (forest-free -4.9, full -4.4, C3-only -15.5), not the
+#         "delta-AIC 0.1, near-indistinguishable" the documents still assert.
+#         The linear-capped form is retained as the headline form on the
+#         Dupuit-Forchheimer strip-aquifer interpretation AND because the
+#         exponential's far-field asymptote has the wrong sign against the
+#         observed far-field trend; both are stated rather than the AIC margin
+#         being claimed in its favour.
+#
+# 1.10.0 — Hollingham (2026) — 2026-08-20.  The forest-free
 #         specification now excludes on LAND COVER, not on cluster (D-046,
 #         Martin's ruling this session).  "Forest-free" filtered
 #         ~cluster.isin(FOREST_CIDS), so it dropped ceh3, nw8 and lis1 —
@@ -266,6 +314,7 @@ from utils import paths  # noqa: E402
 from utils.config import (  # noqa: E402
     CLUSTER_COLOURS, CLUSTER_LABELS, FOREST_CIDS,
     MSL_SPRING_MONTHS, MSL_MIN_MONTHS_PER_SPRING,
+    COASTAL_REFERENCE_DISTANCE_M, COASTAL_GRADIENT_EXCLUDED_WELLS,
 )
 from utils.clearfell_common import (  # noqa: E402
     IMPACT_WELLS, EDGE_WELLS, FOREST_CONTROL_WELLS,
@@ -490,6 +539,10 @@ def load_panel(distances: pd.DataFrame, exclude_forested: bool = False,
 
     # Exclusions
     long = long[~long["well"].isin(NON_DIPWELLS + FE_WELLS + SCRAPED_WELLS)]
+    # Outside the coastal-gradient population on geological grounds — applied
+    # to EVERY specification, before the cluster restriction, so no fit can
+    # pick these wells up (D-048). config carries the reasoning.
+    long = long[~long["well"].isin(COASTAL_GRADIENT_EXCLUDED_WELLS)]
     long = apply_scrape_treatment(long)
     if restrict_cluster is not None:
         long = long[long["cluster"] == restrict_cluster]
@@ -643,6 +696,7 @@ def fit_panel(df: pd.DataFrame, decay_func, p0, bounds,
         cov = sigma2 * np.linalg.inv(J.T @ J)
         perr = np.sqrt(np.diag(cov))
     except np.linalg.LinAlgError:
+        cov = None
         perr = np.full(k, np.nan)
     t_crit = t_dist.ppf(0.975, df=max(n - k, 1))
     ci = np.column_stack([result.x - t_crit * perr,
@@ -657,6 +711,12 @@ def fit_panel(df: pd.DataFrame, decay_func, p0, bounds,
         "k": k,
         "aic": n * np.log(rss / n) + 2 * k,
         "c_fixed": c_fixed,
+        # Full parameter covariance, retained so delta_at_distance() can
+        # propagate the joint uncertainty. perr is only its diagonal, which
+        # would ignore the strong delta_0 / L correlation and understate the
+        # error on any quantity that depends on both.
+        "cov": cov,
+        "t_crit": float(t_crit),
         "forest_term": forest_term,
         "beta_cwb_m_per_mm": float(_beta_s[0]),
         # Absorbed canopy drift, mm/yr.  The extra column is appended last in
@@ -671,6 +731,71 @@ def fit_panel(df: pd.DataFrame, decay_func, p0, bounds,
         "date_max": df["date"].max(),
         "n_wells": int(df["well"].nunique()),
     }
+
+
+def delta_at_distance(fit: dict, decay_func, d_ref: float) -> dict:
+    """Fitted trend at a reference distance, with a delta-method standard error.
+
+    WHY THIS EXISTS, and why it is the headline rather than delta_0.
+
+    delta_0 is the decay amplitude at d = 0 — the shoreline. No well sits
+    there, so the shoreline value is an extrapolation beyond the data, and it
+    is also where the two candidate decay forms diverge most; over the range
+    the network actually covers they track each other closely. A headline
+    quoted at d = 0 is therefore a headline whose value is set by a
+    functional-form choice the data cannot make. Evaluating at a distance the
+    network covers gives a number the observations constrain, and demotes the
+    form choice to a methods footnote. main() emits the measured divergence
+    and the observed minimum distance rather than asserting either here.
+
+    The cluster attribution and the BACI corroboration already work this way —
+    both evaluate the fitted decay at a cluster's mean distance — so this makes
+    the headline consistent with the quantities derived from it rather than
+    introducing a new convention.
+
+    The standard error propagates the FULL covariance, not the diagonal:
+    delta_0 and L are strongly correlated in a decay fit, and ignoring that
+    would misstate the error at any distance. The gradient is taken by central
+    finite differences on decay_func itself, so this works unchanged for either
+    decay form and for any form added later — no per-form algebra to get wrong.
+
+    Returns a dict with value, se, ci_lo, ci_hi (all mm/yr) — se and the
+    interval are None where the fit returned no usable covariance.
+    """
+    popt = np.asarray(fit["popt"], dtype=float)
+    c_fixed = fit.get("c_fixed")
+
+    def _eval(theta):
+        if c_fixed is None:
+            d0, L, c = theta
+        else:
+            d0, L = theta[0], theta[1]
+            c = c_fixed
+        return float(decay_func(np.array([float(d_ref)]), d0, L, c)[0])
+
+    value = _eval(popt)
+
+    cov = fit.get("cov")
+    if cov is None or not np.all(np.isfinite(cov)):
+        return {"value": value, "se": None, "ci_lo": None, "ci_hi": None}
+
+    # Central differences, stepped relative to each parameter's own scale so
+    # the same code behaves for delta_0 (order 10) and L (order 1000).
+    grad = np.zeros(len(popt))
+    for i in range(len(popt)):
+        h = max(abs(popt[i]) * 1e-5, 1e-6)
+        up, dn = popt.copy(), popt.copy()
+        up[i] += h
+        dn[i] -= h
+        grad[i] = (_eval(up) - _eval(dn)) / (2.0 * h)
+
+    var = float(grad @ np.asarray(cov, dtype=float) @ grad)
+    if not np.isfinite(var) or var < 0:
+        return {"value": value, "se": None, "ci_lo": None, "ci_hi": None}
+    se = float(np.sqrt(var))
+    t_crit = float(fit.get("t_crit", 1.96))
+    return {"value": value, "se": se,
+            "ci_lo": value - t_crit * se, "ci_hi": value + t_crit * se}
 
 
 def cwb_trend(cwb: pd.Series, start, end) -> float:
@@ -1661,11 +1786,20 @@ def plot_spring_vs_summer(comparison: pd.DataFrame, fig_path: Path) -> None:
 
 # ── Output assembly ──────────────────────────────────────────────────────────
 
-def build_fit_parameters_table(fits: dict) -> pd.DataFrame:
-    """Assemble all six fits into a tidy parameter table."""
+def build_fit_parameters_table(fits: dict, decay_funcs: dict) -> pd.DataFrame:
+    """Assemble every fit into a tidy parameter table.
+
+    decay_funcs maps each (source, model) key to the decay function that fit
+    used, so the reference-distance trend can be evaluated per row without
+    guessing the form from the model name.
+    """
     rows = []
     for key, fit in fits.items():
         source, model = key
+        ref = (delta_at_distance(fit, decay_funcs[key],
+                                 COASTAL_REFERENCE_DISTANCE_M)
+               if key in decay_funcs else
+               {"value": None, "se": None, "ci_lo": None, "ci_hi": None})
         d0, L = fit["popt"][0], fit["popt"][1]
         d0_se, L_se = fit["perr"][0], fit["perr"][1]
         ci = fit["ci"]
@@ -1698,6 +1832,13 @@ def build_fit_parameters_table(fits: dict) -> pd.DataFrame:
             # of display — the console line and the report-numbers notes.
             "beta_forest_mm_yr": fit.get("beta_forest_mm_yr"),
             "beta_forest_se_mm_yr": fit.get("beta_forest_se_mm_yr"),
+            # Headline quantity (D-047): the fitted trend at a distance the
+            # network covers, rather than the d = 0 extrapolation above.
+            "ref_distance_m": COASTAL_REFERENCE_DISTANCE_M,
+            "delta_ref_mm_yr": ref["value"],
+            "delta_ref_se": ref["se"],
+            "delta_ref_ci_lo": ref["ci_lo"],
+            "delta_ref_ci_hi": ref["ci_hi"],
         })
     return pd.DataFrame(rows)
 
@@ -1753,19 +1894,68 @@ def _check2_correlation_rows(per_well: pd.DataFrame) -> list[dict]:
 def build_report_numbers(fits: dict,
                           partition: pd.DataFrame,
                           baci_corr: pd.DataFrame,
-                          per_well: pd.DataFrame) -> pd.DataFrame:
+                          per_well: pd.DataFrame,
+                          decay_funcs: dict | None = None) -> pd.DataFrame:
     """Headline numbers in the project-standard
     `Parameter, Well, Era, Value, Unit, Note` format.
     """
     rows = []
+    decay_funcs = decay_funcs or {}
     # Headline fit (forest-free linear-capped)
     ff = fits[("forest_free", "linear_capped")]
+
+    # THE HEADLINE COAST-EDGE RATE (D-047). Quoted at a distance the network
+    # covers, not at d = 0. delta_0 follows below as the fitted amplitude it
+    # is, explicitly labelled an extrapolation, so nothing downstream mistakes
+    # one for the other.
+    _ffk = ("forest_free", "linear_capped")
+    if _ffk in decay_funcs:
+        _ref = delta_at_distance(ff, decay_funcs[_ffk],
+                                 COASTAL_REFERENCE_DISTANCE_M)
+        _exk = ("forest_free", "exponential")
+        _spread = ""
+        if _exk in fits and _exk in decay_funcs:
+            _rex = delta_at_distance(fits[_exk], decay_funcs[_exk],
+                                     COASTAL_REFERENCE_DISTANCE_M)
+            _spread = (f" Exponential form gives {_rex['value']:+.2f} at the "
+                       f"same distance, a spread of "
+                       f"{abs(_rex['value'] - _ref['value']):.2f} mm/yr against "
+                       f"{abs(fits[_exk]['popt'][0] - ff['popt'][0]):.2f} at "
+                       f"d=0 — which is why the headline is quoted here.")
+        _se = (f"SE={_ref['se']:.2f}, 95% CI [{_ref['ci_lo']:.1f}, "
+               f"{_ref['ci_hi']:.1f}], " if _ref["se"] is not None else "")
+        rows.append({"Parameter": "Headline_coastal_rate_at_ref",
+                      "Well": "", "Era": "2005-2026",
+                      "Value": _ref["value"],
+                      "Unit": "mm/yr",
+                      "Note": (f"HEADLINE coast-edge trend, evaluated at "
+                               f"{COASTAL_REFERENCE_DISTANCE_M:.0f} m from the "
+                               f"eroding shoreline. Forest-free linear-capped, "
+                               f"n_wells={ff['n_wells']}, {_se}"
+                               f"delta-method SE over the full parameter "
+                               f"covariance.{_spread}")})
+        rows.append({"Parameter": "Headline_reference_distance",
+                      "Well": "", "Era": "2005-2026",
+                      "Value": float(COASTAL_REFERENCE_DISTANCE_M),
+                      "Unit": "m",
+                      "Note": ("config.COASTAL_REFERENCE_DISTANCE_M — the "
+                               "nearest round distance inside the observed "
+                               "range, so the headline is interpolated. Script "
+                               "25 warns if a well-set change ever leaves it "
+                               "outside the data")})
+
     rows.append({"Parameter": "Headline_fit_delta_0",
                   "Well": "", "Era": "2005-2026",
                   "Value": round(float(ff["popt"][0]), 2),
                   "Unit": "mm/yr",
-                  "Note": (f"Forest-free linear-capped, n_wells="
-                            f"{ff['n_wells']}, SE={ff['perr'][0]:.2f}, "
+                  "Note": (f"Fitted decay AMPLITUDE at d=0, not the headline "
+                            f"(D-047): no well sits at the shoreline, so this "
+                            f"is an extrapolation beyond the network and is "
+                            f"the one distance at which the two decay forms "
+                            f"disagree materially. Quote "
+                            f"Headline_coastal_rate_at_ref instead. Forest-free "
+                            f"linear-capped, n_wells={ff['n_wells']}, "
+                            f"SE={ff['perr'][0]:.2f}, "
                             f"95% CI [{ff['ci'][0, 0]:.1f}, "
                             f"{ff['ci'][0, 1]:.1f}]. Forest-free = not under "
                             f"canopy on the in_forest LAND-COVER flag (D-046); "
@@ -1795,7 +1985,20 @@ def build_report_numbers(fits: dict,
                   "Well": "", "Era": "2005-2026",
                   "Value": round(fe["aic"] - ff["aic"], 1),
                   "Unit": "",
-                  "Note": "exp − lin-cap; positive favours lin-cap"})
+                  "Note": (f"exp − lin-cap; positive favours lin-cap, negative "
+                            f"favours the exponential. Currently "
+                            f"{fe['aic'] - ff['aic']:+.1f}, i.e. AIC favours "
+                            f"the "
+                            f"{'exponential' if fe['aic'] < ff['aic'] else 'linear-capped'}"
+                            f" form. The linear-capped form is retained as the "
+                            f"headline form on the Dupuit-Forchheimer "
+                            f"strip-aquifer interpretation and because the "
+                            f"exponential's far-field asymptote takes the "
+                            f"opposite sign to the observed far-field trend in "
+                            f"25_12_window_sweep.csv — NOT on the AIC margin, "
+                            f"which points the other way. Documents asserting "
+                            f"the forms are near-indistinguishable at "
+                            f"delta-AIC 0.1 are stale (D-047)")})
     # Canopy-controlled full-network fit.  Reported beside the headline so the
     # two ways of handling the forest — drop the wells, or measure the canopy
     # drift and keep them — can be compared directly.
@@ -2078,8 +2281,41 @@ def main() -> None:
         ("c3_only_mam", "linear_capped_cfix"): fit_c3_l_mam,
         ("c3_only_mam", "exponential_cfix"):   fit_c3_e_mam,
     }
-    params = build_fit_parameters_table(fits)
+    # Which decay function produced each row, so the reference-distance trend
+    # is evaluated with the right form rather than inferred from the label.
+    decay_funcs = {k: (model_linear_capped if k[1].startswith("linear")
+                       else model_exp) for k in fits}
+    params = build_fit_parameters_table(fits, decay_funcs)
     params.to_csv(paths.OUT_25_FIT_PARAMETERS, index=False)
+
+    # ── Headline at the reference distance (D-047) ──
+    # The headline is the fitted trend where the network has wells, not the
+    # d = 0 amplitude. Guard it: if a change to the well set ever leaves the
+    # reference distance outside the observed range the number silently becomes
+    # an extrapolation again, which is the failure this convention exists to
+    # prevent.
+    _d_min = float(long_ff["dist_coast_m"].min())
+    if COASTAL_REFERENCE_DISTANCE_M < _d_min:
+        warn(f"COASTAL_REFERENCE_DISTANCE_M = "
+             f"{COASTAL_REFERENCE_DISTANCE_M:.0f} m is INSIDE the nearest "
+             f"forest-free well at {_d_min:.0f} m — the headline is an "
+             f"extrapolation. Move the constant or explain why not.")
+    _ref_l = delta_at_distance(fit_ff_l, model_linear_capped,
+                               COASTAL_REFERENCE_DISTANCE_M)
+    _ref_e = delta_at_distance(fit_ff_e, model_exp,
+                               COASTAL_REFERENCE_DISTANCE_M)
+    _d0_l = float(fit_ff_l["popt"][0])
+    _d0_e = float(fit_ff_e["popt"][0])
+    print(f"\n  Headline coast-edge trend at "
+          f"{COASTAL_REFERENCE_DISTANCE_M:.0f} m "
+          f"(nearest forest-free well {_d_min:.0f} m):")
+    print(f"    lin-cap {_ref_l['value']:+7.2f}"
+          + (f" ± {_ref_l['se']:.2f}" if _ref_l["se"] is not None else "")
+          + f"   exp {_ref_e['value']:+7.2f}"
+          + (f" ± {_ref_e['se']:.2f}" if _ref_e["se"] is not None else ""))
+    print(f"    form spread {abs(_ref_e['value'] - _ref_l['value']):.2f} mm/yr "
+          f"here against {abs(_d0_e - _d0_l):.2f} at d=0 — the headline is "
+          f"quoted where the forms agree and the data constrains them")
 
     # ── Season × δ(d)·t interaction test (is the gradient itself seasonal?) ──
     # One model on the full forest-free panel: δ(d)·t·(1 + γ·spring).  γ is the
@@ -2229,7 +2465,8 @@ def main() -> None:
     # Emitted from the summer metric (the report headline); unchanged.
     if "summer_min" in partitions:
         report = build_report_numbers(
-            fits, partitions["summer_min"], baci_corr, per_wells["summer_min"])
+            fits, partitions["summer_min"], baci_corr, per_wells["summer_min"],
+            decay_funcs=decay_funcs)
         report.to_csv(paths.OUT_25_REPORT_NUMBERS, index=False)
 
     print(f"\n  Outputs written to: {paths.DIR_25}/")

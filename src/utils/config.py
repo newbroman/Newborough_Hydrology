@@ -227,6 +227,45 @@ DRAWDOWN_B_M    = 5.0
 SCRAPE_RISE_BUFFER_M = 10.0
 COAST_RETREAT_M      = 6.0
 COAST_RETREAT_RATE   = 8.3
+
+# --- Coastal-gradient reference distance (Script 25) ---------------------------
+# The distance at which the headline coast-edge trend is quoted (m).
+#
+# The decay fit's delta_0 is the amplitude at d = 0, the shoreline, where no
+# well sits — so it is an extrapolation beyond the network, and it is the one
+# place the linear-capped and exponential forms disagree materially. Quoting the
+# headline at a distance the network actually covers gives a number the data
+# constrains and makes the functional-form choice a methods footnote rather than
+# a headline decision (D-047).
+#
+# 150 m is the nearest round distance inside the observed range, so the headline
+# is interpolated, not extrapolated. Script 25 checks this against the panel's
+# own minimum distance on every run and warns if a change to the well set ever
+# leaves the reference outside the data — the value must not be trusted blind
+# if the near-shore wells change.
+COASTAL_REFERENCE_DISTANCE_M = 150.0
+
+# --- Wells outside the coastal-gradient population (Script 25) -----------------
+# Excluded from EVERY coastal-retreat gradient specification, on the grounds that
+# they cannot respond to the mechanism being fitted — not on how they behave.
+#
+# ceh12 sits on the northern bedrock ridge. Its ground elevation is roughly 20 m
+# above the next-highest well in the network and far above the dune aquifer the
+# decay model describes, so a shoreline 1.1 km away cannot drain it. Whatever
+# trend it carries is governed by something the model does not represent, and
+# including it lets that trend be attributed to distance from the coast.
+#
+# It was already absent from the forest-free headline, but only incidentally:
+# its in_forest flag is true, so the land-cover filter removed it as a CANOPY
+# well. That is the wrong reason, and it is fragile — the well would silently
+# re-enter if the canopy flag changed, and it was still inside the
+# canopy-controlled fit, where a bedrock well was contributing to the estimate
+# of extra drift under pine. Naming the exclusion geologically makes it durable
+# and scopes it correctly (D-048).
+#
+# Scope is deliberately the coastal gradient alone. This says nothing about the
+# well's validity elsewhere in the pipeline.
+COASTAL_GRADIENT_EXCLUDED_WELLS = ["ceh12"]
 # Cumulative shoreline retreat over the 2005→2025 study window (m). Observed
 # figure (≈50 m since 2006, Forgrave 2020 / Pye & Blott 2024), used by the
 # 2005→2025 driver-change map (Script 20 plot_driver_change_2005_2025). Not

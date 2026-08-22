@@ -17,17 +17,17 @@ For 21 years this study has followed the Warren's water table using a network of
 
 Two forces are pulling the Warren's water table down, and both are bigger than the tools available to manage the site.
 
-**Climate --- the steady one.** Right across the site, the water table is drifting down year on year --- about **6 millimetres a year** --- as rainfall recharge falls and early summers grow hotter and thirstier. It is not dramatic in any single year, but it never stops and it acts *everywhere at once*. That makes it the single biggest change overall.
+**Climate --- the steady one.** Right across the site, the water table is drifting down year on year --- as rainfall recharge falls and early summers grow hotter and thirstier. It is not dramatic in any single year, but it never stops and it acts *everywhere at once*. We can see the fall in the levels themselves. What twenty-one years cannot do is say **how fast** it is going, because the swing from one year to the next is larger than the drift hidden inside it. So we describe this pressure by its direction and its reach, and we do not put a number on its rate.
 
 **Coastal erosion --- the sleeper.** Where the sea is cutting into the dune front, it draws the water table down with it. This effect is **strongest right at the shore and fades inland**, reaching background levels roughly **900 metres** in. It has been easy to overlook, but it is a serious and ongoing pressure. It also works by *exactly the same physics* as one of the management tools below --- a point we return to.
 
-**Where the two meet.** Near the coast, erosion dominates; but because climate acts across the whole site, further inland the climate signal takes over. The two big pressures hand over to each other as you move inland --- erosion near the sea, climate everywhere beyond (Figure 1). In the full modelling the two are about equal roughly **700 metres** in from the shore.
+**Where the two meet.** Near the coast, erosion dominates. Further inland its effect fades, while the climate pressure acts everywhere at once --- so the further from the sea you go, the more of what you see is the site-wide drift rather than the shore (Figure 1). We can no longer say where the two cross: that would need a rate for the climate term, and we do not have one.
 
 A note on certainty: the *size* of the coastal effect is modelled, and the well network cannot pin it down on its own --- but its **direction and mechanism are consistent with what has been documented at comparable dune systems in Wales**. We state the mechanism with confidence and the exact numbers with caution.
 
 ![](Pictures/0.png){width="6.29921in" height="2.7433070866032in"}
 
-**Figure 1 --- Coast and climate.** The two dominant drivers, before and after: the retreating shore pulls the water table down near the coast, while a changing climate lowers it slowly across the whole site. The site-wide climate fall is the biggest change overall; the sea's retreat matters most near the shore. Schematic, not to scale.
+**Figure 1 --- Coast and climate.** The two dominant drivers, before and after: the retreating shore pulls the water table down near the coast, while a changing climate lowers it slowly across the whole site. The sea's retreat is the largest change we can measure, and it matters most near the shore; the site-wide climate fall acts everywhere, but its rate cannot be measured from this record. Schematic, not to scale.
 
 ## []{#anchor}Management helps --- but it is limited, and one tool can backfire
 
@@ -35,7 +35,7 @@ A note on certainty: the *size* of the coastal effect is modelled, and the well 
 
 **Scraping slacks.** Scraping --- stripping a slack back down to the water table --- reliably makes the *scraped hollow itself* wetter. But near the coast it works by the **same mechanism as erosion**: cutting back into the landward edge of a slack draws the water table down in the ground just around it. So a scrape can **dry its neighbours even as it wets itself**. Placement is everything.
 
-Both interventions are **local** --- they change the worked slack and its close neighbours, not the whole site --- and both are **dwarfed by climate and coastal erosion** (Figure 2). Management is not pointless; but it is a scalpel, not a lever on the whole Warren.
+Both interventions are **local** --- they change the worked slack and its close neighbours, not the whole site --- and both are **dwarfed by coastal erosion and by the warren-wide decline** (Figure 2). Management is not pointless; but it is a scalpel, not a lever on the whole Warren.
 
 ![](Pictures/1.png){width="6.29921in" height="2.7433070866032in"}
 

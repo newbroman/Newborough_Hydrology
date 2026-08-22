@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_40.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_42.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 1.9.40 (August 2026).
+Document version: 1.9.42 (August 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -4036,7 +4036,7 @@ End of chapter S.20.
 
 ## []{#anchor-576}[]{#anchor-577}[]{#anchor-578}S.21 Scripts 24b, 31, 31b, 34, 38 --- Supplementary standalone diagnostics
 
-Phase 16 (steps 42--46/50; all opt-in --- *\--with-supplementary*). Five standalone diagnostics wired into the orchestrator so they regenerate whenever upstream data change, each addressing a specific robustness question raised elsewhere in the analysis: the mechanism behind the seasonal SSM residual (Script 24b), whether the k=5 partition is corroborated by evidence the clustering never used (Scripts 31 and 31b), whether the two-window MSL5 method can resolve absolute site-wide change (Script 34), and whether the coast-to-inland MAM head gradient is growing (erosion-consistent) or static (substrate-geometry) as a model-free corroboration of the coastal-retreat rate δ₀ (Script 38). None re-fits the SSM; all read committed pipeline outputs.
+Phase 16 (steps 42--46/50; the first three opt-in --- *\--with-supplementary* --- the last two running by default). Five standalone diagnostics wired into the orchestrator so they regenerate whenever upstream data change, each addressing a specific robustness question raised elsewhere in the analysis: the mechanism behind the seasonal SSM residual (Script 24b), whether the k=5 partition is corroborated by evidence the clustering never used (Scripts 31 and 31b), whether the two-window MSL5 method can resolve absolute site-wide change (Script 34), and whether the coast-to-inland MAM head gradient is growing (erosion-consistent) or static (substrate-geometry) as a model-free corroboration of the coastal-retreat rate δ₀ (Script 38). None re-fits the SSM; all read committed pipeline outputs.
 
 ### []{#anchor-578}[]{#anchor-579}[]{#anchor-580}S.21.1 Script 24b --- Cluster-stratified residual climatology
 
@@ -4108,13 +4108,85 @@ Phase 16 (steps 42--46/50; all opt-in --- *\--with-supplementary*). Five standal
 
 End of chapter S.21.
 
-## []{#anchor-588}[]{#anchor-589}[]{#anchor-590}S.17 Appendices
+## []{#anchor-588}S.22 Script 39 --- SSM hindcast against the 1989--96 CCW record
+
+**Step 47/50, Phase 16 in ***run_analysis.py***. Analytical tier (***exec=\"default\"***). The step skips cleanly when the historic inputs are absent, so a default full run cannot fail over an optional raw input.**
+
+### []{#anchor-589}Motivation
+
+Every other test of the state-space model in this corpus lies inside the window the model was fitted on. Script 39 is the one that does not. It predicts monthly water-table levels over May 1989 to April 1996 from RAF Valley climate alone, using per-well coefficients fitted over 2005--2026 by Script 03, and compares the prediction with the dipwell record of the Countryside Council for Wales (CCW) monitoring block. The comparison is against levels rather than against a rate, so unlike a trend comparison it does not depend on the network resolving a rate --- which, as §5.7.7 of the main report sets out, it does not.
+
+A second question is older than the model. The water table of the early 1990s was recorded as depressed, and that depression has been read since as a forest signal, a drought signal, or a compound of the two that the data of the day could not separate. The hindcast supplies the climate-only expectation directly, and the residual between it and the observation is the part climate does not explain. The script computes and emits that residual per month. It does not attribute it: attribution needs the canopy state of 1989, which is not observed.
+
+### []{#anchor-590}Data provenance and permission
+
+The 1989--96 dipwell records are held by Natural Resources Wales and were supplied for this study. Access is covered by the Environmental Information Regulations 2004; re-use and republication are separate matters, governed by whatever licence attaches. Written confirmation of those terms has been sought and was outstanding when this chapter was written, and the chapter is reported on that basis. The derived results below are this study's own; the underlying records are not.
+
+### []{#anchor-591}Inputs
+
+Read via *utils.paths*: *data/ccw_1989_1996_depths.csv* (the CCW Wells block as tidy rows --- month, reading date, code, depth, censoring flag); *data/ccw_1989_1996_code_map.csv* (code, well, status, datum offset and the evidence for each assignment); *01_climate.csv* (monthly P and PET in m/month); *03_master_data.csv* (per-well β₁, β₂, β₃); *01_locations.csv* (ground elevation); and *01_wells_clean.csv* (modern levels, for the epoch contrast). The committed canopy history is an optional input: absent, the canopy columns come back blank and nothing else changes.
+
+**The raw-input exception.** The two historic files are raw inputs that no pipeline step produces. Scripts other than Script 01 do not read raw CSVs without a documented exception, and this one is recorded as D-051 in the Decision Log. The record basis is RB-14 in *tools/record_basis.csv*, which records the evaluation basis only: this step fits nothing. The coefficients are read from Script 03's committed output and applied forward, so the basis of the coefficients is Script 03's and the basis recorded here is the window over which they are evaluated.
+
+### []{#anchor-592}Datum
+
+Historic depths are carried onto the modern ground datum by a per-well offset held in the code map. Where it is derivable, the offset is the 1989 ground elevation implied by the workbook's own derived level columns, less the committed DGPS value; it is derivable at four of the admitted wells and is at most 0.061 m. This is equivalent to reducing the original dip against today's measured upstand provided the pipe has not moved --- a construction the size of the offsets supports and nothing available here can prove. The raw dips are not in the workbook, so the implied-ground route is the only one open. Wells with no derivable offset are carried unadjusted and the fact travels with the result.
+
+### []{#anchor-593}Censoring
+
+Readings at the pipe base (*config.CCW_PIPE_BASE_M* = −2.000 m) are left-censored rather than missing: the water table was at or below the bottom of the pipe, and the reading records the pipe rather than the aquifer. Including them would bias the comparison toward the model, so they are dropped from every metric and counted in the output. A code is admitted only when fewer than *config.CCW_MAX_CENSORED_FRACTION* (0.25) of its months are censored. One admitted well, wmc3, has fifteen of its eighty-two months at the pipe base and is compared on the remaining sixty-seven.
+
+### []{#anchor-594}The admission gate
+
+Codes are mapped to wells through the committed code map, which carries a status per code, so a mapping question is settled in a committed file rather than in code. Of the thirteen historic codes, twelve are mapped to present wells and one (2A) was never identified. Nine are admitted, and the four exclusions are written into *39_results.txt* with a reason each: 1A (nw12) and 2D (nw8) have no committed coefficient triple, 1B (nw10) is censored in sixty-three of its eighty-two months, and 2A has no mapping. Wells nw8 and nw12 have historic records but no modern fit --- nw8's modern record ends in 2015 and nw8b succeeds it, and nw12 has no modern record at all.
+
+### []{#anchor-595}Methodology
+
+**Forcing and spin-up.** The recurrence is driven from the start of the committed RAF Valley record, December 1930, so the initial condition is forgotten long before the comparison window opens. The spin-up runs 701 months. This is reported rather than assumed: restarting from the equilibrium head displaced across the probed range (*config.CCW_H0_PROBE_OFFSETS_M*) changes the comparison window by at most 3 × 10⁻¹¹ m, and by exactly zero at four of the nine wells.
+
+**Recurrence.** *utils.model_utils.simulate_ssm* --- the shared implementation, not a local copy. Coefficients are read per well from the committed master data. Nothing is refitted, and no parameter is free to absorb the difference between the epochs.
+
+**Bucketing.** Historic readings are assigned to months by the project rule --- a reading on day 15 or earlier belongs to the previous month. Every one of these readings falls on day 14 or earlier, so each moves back one month and no month receives two readings.
+
+**Canopy.** Each well's 1989 canopy state and felling year are joined from the committed canopy history and travel with its result. The modern land-cover flag answers whether a well is under canopy now, which is the wrong question for a 1989--96 comparison: several of these wells were felled around 1995 and one in 2017, so their fitted coefficients describe a canopy that did not exist over the window being hindcast. Open-ground and under-canopy wells are reported apart in every output and are never pooled.
+
+**Reading r against NSE.** The correlation r asks whether the hindcast reproduces the shape of the record --- the timing and size of the seasonal and interannual swing. Nash--Sutcliffe efficiency additionally penalises the level. A well with high r and poor NSE has the dynamics right and the datum wrong, which is a statement about the record rather than about the model, so the script emits the bias-removed NSE alongside the NSE and the two are read together.
+
+### []{#anchor-596}Sensitivity to β₁
+
+The coefficients are fitted over 2005--2026 and the corpus establishes a site-wide β₁ decline, so the 1989 value was plausibly higher than the fitted one. Run at the fitted value alone, the hindcast would under-predict recharge and place the table too deep. The direction is knowable, so the script reports metrics across *config.CCW_BETA1_SCALINGS* rather than a single number, and keeps the two canopy groups apart. Over the six open-ground wells the mean NSE runs +0.235 at the fitted value, +0.306 at a 3 % scaling, +0.012 at 6 % and −0.949 at 10 %, with the mean bias passing through zero between the first two (−0.069 m and +0.057 m). Over the three canopy wells the mean NSE is negative at every scaling and falls monotonically, from −1.473 to −9.247. The open-ground optimum is shallow and sits below the scaling implied by the independently established β₁ decline, so the result is consistent in direction and order of magnitude with that decline and is not a measurement of it. It is worth recording because the two routes are wholly independent.
+
+### []{#anchor-597}Outputs
+
+*outputs/39_ccw_hindcast/*: *39_01_hindcast_per_well.csv* (per well --- months compared, censored count, canopy state, coefficients, datum offset, spin-up length, initial-condition sensitivity, observed and predicted means, NSE, RMSE, bias, r, bias-removed NSE, modern mean and epoch shift); *39_02_hindcast_series.csv* (observed, predicted and residual, monthly, per well); *39_03_beta1_sensitivity.csv* (metrics across the scaling range, grouped by canopy state); *39_04_hindcast.png* (observed against predicted, one panel per well); and *39_results.txt* (the console summary, including the exclusions and their reasons).
+
+### []{#anchor-598}Headline results
+
+The model reproduces the shape of the historic record. Across the nine admitted wells the observed-to-predicted correlation has a median of 0.859 and runs from 0.660 at nw11 to 0.945 at nw5. It reproduces the level less reliably, though the error is small: NSE is negative at five of the nine, while the bias-removed NSE at those same wells reaches 0.35 to 0.87 --- the signature of a model that has the dynamics and the datum only approximately. The mean residual (observed less predicted) is −0.057 m across the nine wells and +0.069 m across the six cleanest, so the prediction falls either side of the record rather than consistently to one side of it.
+
+The epoch shift is the level contrast between the two records: each well's 1989--96 mean less its modern mean. All nine are negative, from −0.132 m at wmc2 to −0.835 m at nw11, with a network median of −0.582 m. The direction is the same at every well --- the water table of the early 1990s stood lower than it stands today.
+
+Six of the nine wells were open ground in 1989 and are open ground now, and they carry the cleanest signal: a median correlation of 0.910, a median bias-removed NSE of 0.818 and a median epoch shift of −0.338 m. The remaining three either changed canopy state or sat under canopy throughout, and both their fits and their shifts are worse. The well that has been forest across both epochs, nw11, is simultaneously the poorest fit in the set and the largest shift, which is what a model carrying a modern canopy state would produce.
+
+That contrast is very largely climate, and the forcing says so before the model is consulted. The comparison window is the driest sustained stretch in the ninety-five-year RAF Valley record: rainfall averages 0.770 m yr⁻¹ over 1989--96 against 0.886 m yr⁻¹ over the modern record, and the surplus of rainfall over potential evapotranspiration is +0.127 m yr⁻¹ against +0.237 m yr⁻¹. A lower table in those years is what climate alone predicts, and the hindcast, which knows nothing else, produces it. What is left over at the six open-ground wells is +0.069 m against a contrast of −0.338 m. The shift is therefore a contrast between a dry epoch and a wetter one; its direction is a recovery rather than a decline, and it neither contradicts nor corroborates the declines reported inside the modern record.
+
+### []{#anchor-599}Limitations
+
+Coefficient stationarity is assumed and the corpus contradicts it; the β₁ scan above is the response, and it bounds the effect rather than removing it. The 1989 canopy state is not observed, so the under-canopy group rests on an assumption the open-ground group does not require, and the two are never pooled. The epoch shift is a level contrast and should be read as one: dividing it by the twenty-three years separating the midpoints of the two records assumes a straight line across years that hold no observations, and two windows cannot say what happened between them. The quotient is not a rate and must not be reported as one, in either direction. The residual is emitted per month and is not attributed. Two historic records, nw8 and nw12, cannot be used at all for want of a modern fit.
+
+### []{#anchor-600}Report location
+
+Main-report §5.7.8 (out-of-sample test against the 1989--96 record), which reports the result and the provenance note; §5.7.7 sets out the record-length argument the test sits inside.
+
+End of chapter S.22.
+
+## []{#anchor-601}[]{#anchor-602}[]{#anchor-603}S.17 Appendices
 
 Reference and post-pipeline material. Final chapter of the supplement.
 
 This chapter closes the Methods Supplement. It covers two pieces of material that belong with the document but sit outside the main script-by-script chapter sequence (S.1--S.18b). Appendix A documents the one remaining pipeline script not yet given a chapter --- the post-pipeline greyscale figure utility. Appendix B is the canonical-sources index: a reference table mapping each recurring concept across the supplement to the place where it is authoritatively defined.
 
-### []{#anchor-590}[]{#anchor-591}[]{#anchor-592}A. Greyscale figure post-processing --- Script 27
+### []{#anchor-603}[]{#anchor-604}[]{#anchor-605}A. Greyscale figure post-processing --- Script 27
 
 *27_greyscale_figures.py* is a post-pipeline rendering utility, not an analytical step. It exists to produce a journal-ready black-and-white bundle of the pipeline's colour figures without re-running any analytical script. Reviewers, journal proofs, and print compatibility occasionally require this; the conversion runs once and produces a parallel *outputs_bw/* tree alongside the canonical *outputs/* tree, preserving the directory structure so that any figure has the same relative path in both.
 
@@ -4132,13 +4204,13 @@ with *\--dpi* overriding the source DPI, *\--skip-maps* excluding the spatial-ma
 
 Script 27's filename prefix (*27\_*) and orchestrator step number (49/50) deliberately do not match --- the same convention applied to Script 26 (*26_van_willegen_msl.py* at step 30/50), Script 26b (*26b_van_willegen_msl_projections.py* at step 31/50), Script 26c (*26c_msl5_report_figures.py* at step 32/50), Script 09f (*09f_management_effects.py* at step 47/50), and Script 09g (*09g_mechanism_diagrams.py* at step 48/50). The filename groups Script 27 alphabetically with the other *2x\_* scripts; the orchestrator number reflects its position in the run order at the end of Phase 17. Script 27 carries no analytical-step number of its own --- it is the post-analysis utility documented in this appendix. Script 26c, the MSL5 report-format figure-rendering companion, is similarly display/utility and is documented in §S.18c. Script 09f, the spatial-reach synthesis figure, is also excluded and is documented in §S.15c. Script 09g, the mechanism-diagram companion to 09f, is likewise excluded and is documented in §S.15d.
 
-### []{#anchor-592}[]{#anchor-593}[]{#anchor-594}B. Canonical sources of truth --- reference table
+### []{#anchor-605}[]{#anchor-606}[]{#anchor-607}B. Canonical sources of truth --- reference table
 
 The supplement is long enough that a reader who has read it once and needs to find where a particular concept, parameter, or function is defined will not always remember which chapter to open. This table is the navigational index. For each recurring concept, it points to the single canonical source --- a chapter, a front-matter section, or a specific file in the repository --- where the concept is defined and explained. Where a constant is read from *config.py*, the table names the constant; where a function is the canonical implementation, it names the module.
 
 The convention throughout the supplement is that there is one place to change a value and one place to look it up. The table reflects that. Entries are organized into thematic groups --- model formulation, partition and cluster constants, intervention machinery, scenario engine, ecological thresholds, spatial machinery, MSL aggregation, and provenance and orchestration.
 
-#### []{#anchor-594}[]{#anchor-595}Model formulation
+#### []{#anchor-607}[]{#anchor-608}Model formulation
 
   ------------------------------------- ----------------------------------- --------------------------------------------------------------------------------------
   Concept                               Reference                           Definition / value
@@ -4157,7 +4229,7 @@ The convention throughout the supplement is that there is one place to change a 
   Two regimes (A / B)                   F.3 / S.5                           Model A is the headline; Model B used by Scripts 07, 08, 22, 24
   ------------------------------------- ----------------------------------- --------------------------------------------------------------------------------------
 
-#### []{#anchor-595}[]{#anchor-596}Partition and cluster constants
+#### []{#anchor-608}[]{#anchor-609}Partition and cluster constants
 
   ------------------------------------------------------------ ---------------------------------------------------- -------------------------------------------------------------
   Constant / concept                                           Reference                                            Value / meaning
@@ -4173,7 +4245,7 @@ The convention throughout the supplement is that there is one place to change a 
   *BW_MODE* rendering                                          F.4 / *config.py*                                    Toggled by *NRG_BW_MODE* environment variable
   ------------------------------------------------------------ ---------------------------------------------------- -------------------------------------------------------------
 
-#### []{#anchor-596}[]{#anchor-597}Specific yield
+#### []{#anchor-609}[]{#anchor-610}Specific yield
 
   --------------------------------------- ----------------------------------------------- -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   Constant / concept                      Reference                                       Value / meaning
@@ -4184,7 +4256,7 @@ The convention throughout the supplement is that there is one place to change a 
   Interception correction for forest Sy   S.12                                            Cluster vs well-level reconciliation
   --------------------------------------- ----------------------------------------------- -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-#### []{#anchor-597}[]{#anchor-598}Forest and forest scenarios
+#### []{#anchor-610}[]{#anchor-611}Forest and forest scenarios
 
   ---------------------------------------------- ----------------------------- ---------------------------------------------------------------------------------------
   Constant / concept                             Reference                     Value / meaning
@@ -4197,7 +4269,7 @@ The convention throughout the supplement is that there is one place to change a 
   Thinning β₂ multiplier                         F.5 / *clearfell_common.py*   Derived as half-perturbation from clearfell multiplier
   ---------------------------------------------- ----------------------------- ---------------------------------------------------------------------------------------
 
-#### []{#anchor-598}[]{#anchor-599}Intervention machinery
+#### []{#anchor-611}[]{#anchor-612}Intervention machinery
 
   --------------------------------------------------------------- ---------------------------------- ----------------------------------------------------------------------------------------------------------------------------------------
   Constant / concept                                              Reference                          Value / meaning
@@ -4211,7 +4283,7 @@ The convention throughout the supplement is that there is one place to change a 
   *INTERVENTION_COLOUR_SCRAPE*, *INTERVENTION_COLOUR_CLEARFELL*   F.4 / *config.py* / S.18           Purple *#7b3294* for scraping (2015 CEH36, 2023 CEH18/21), orange *#e66101* for the 2017 clearfell; used by Script 26 trajectory plots
   --------------------------------------------------------------- ---------------------------------- ----------------------------------------------------------------------------------------------------------------------------------------
 
-#### []{#anchor-599}[]{#anchor-600}Scenario engine
+#### []{#anchor-612}[]{#anchor-613}Scenario engine
 
   -------------------------------------------------------------------------------------------------------------------- ------------------------------------------------------------------------------------------------ ---------------------------------------------------------------------------------------------------------------------------------
   Constant / concept                                                                                                   Reference                                                                                        Value / meaning
@@ -4228,7 +4300,7 @@ The convention throughout the supplement is that there is one place to change a 
   Spring-window structural cancellation                                                                                S.18b §S.18b.3.5                                                                                 Why ΔMSL5 modest at 1--4 cm despite +20--35 % summer PET; the spring window straddles the UKCP18 seasonal partition
   -------------------------------------------------------------------------------------------------------------------- ------------------------------------------------------------------------------------------------ ---------------------------------------------------------------------------------------------------------------------------------
 
-#### []{#anchor-600}[]{#anchor-601}Ecological thresholds
+#### []{#anchor-613}[]{#anchor-614}Ecological thresholds
 
   -------------------------------- -------------------------------------------- ------------------------------------
   Constant / concept               Reference                                    Value / meaning
@@ -4238,7 +4310,7 @@ The convention throughout the supplement is that there is one place to change a 
   Ecological zone categorisation   S.9 / *11b_spatial_thresholds.py*            Native rendering of zone maps
   -------------------------------- -------------------------------------------- ------------------------------------
 
-#### []{#anchor-601}[]{#anchor-602}Coastal and spatial
+#### []{#anchor-614}[]{#anchor-615}Coastal and spatial
 
   -------------------------------------------- --------------------------------- --------------------------------------------------------
   Constant / concept                           Reference                         Value / meaning
@@ -4252,7 +4324,7 @@ The convention throughout the supplement is that there is one place to change a 
   plot_metric_map()                            F.5 / *map_utils.py*              High-level publication map wrapper
   -------------------------------------------- --------------------------------- --------------------------------------------------------
 
-#### []{#anchor-602}[]{#anchor-603}MSL aggregation
+#### []{#anchor-615}[]{#anchor-616}MSL aggregation
 
   ------------------------------------------------------------- ------------------------------------------------------------------------------ ---------------------------------------------------------------------------------------------------------------------------------
   Constant / concept                                            Reference                                                                      Value / meaning
@@ -4268,7 +4340,7 @@ The convention throughout the supplement is that there is one place to change a 
   Curreli SD15b/SD16 on MSL5 plots                              S.18 §Site-specific choices                                                    Reference lines retained for visual familiarity; calibrated against summer minima, not MSL5 --- figure captions flag the offset
   ------------------------------------------------------------- ------------------------------------------------------------------------------ ---------------------------------------------------------------------------------------------------------------------------------
 
-#### []{#anchor-603}[]{#anchor-604}Residuals and diagnostics
+#### []{#anchor-616}[]{#anchor-617}Residuals and diagnostics
 
   ---------------------------------- ------------------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   Constant / concept                 Reference          Value / meaning
@@ -4278,7 +4350,7 @@ The convention throughout the supplement is that there is one place to change a 
   LCSC vs TLM benchmarking           S.5 / Script 08    SSM (Model A) against a traditional linear model with its own constant term
   ---------------------------------- ------------------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-#### []{#anchor-604}[]{#anchor-605}Climate and field data
+#### []{#anchor-617}[]{#anchor-618}Climate and field data
 
   ---------------------------- ------------------------------------ --------------------------------------------------------------------
   Constant / concept           Reference                            Value / meaning
@@ -4290,7 +4362,7 @@ The convention throughout the supplement is that there is one place to change a 
   normalize_well_name()        F.5 / *data_utils.py*                Used wherever well names join across sources
   ---------------------------- ------------------------------------ --------------------------------------------------------------------
 
-#### []{#anchor-605}[]{#anchor-606}Orchestration and rendering
+#### []{#anchor-618}[]{#anchor-619}Orchestration and rendering
 
   ------------------------------------------------------------------------- ------------------------------------------------------- --------------------------------------------------------------------------------------------------------------------------------------
   Constant / concept                                                        Reference                                               Value / meaning
@@ -4313,8 +4385,8 @@ The convention throughout the supplement is that there is one place to change a 
   paths.OUT_25_CLUSTER_DECOMP_FIG                                           F.5 / *utils/paths.py* / S.15                           Script 25 v1.1.0 fold-in: per-cluster decomposition stacked-bar figure (§4.8.2 of the main report)
   ------------------------------------------------------------------------- ------------------------------------------------------- --------------------------------------------------------------------------------------------------------------------------------------
 
-### []{#anchor-606}[]{#anchor-607}[]{#anchor-608}Closing remarks
+### []{#anchor-619}[]{#anchor-620}[]{#anchor-621}Closing remarks
 
-The Methods Supplement closes here. The chapters S.1--S.21 together document the 49-step Newborough Warren analytical pipeline, the design choices behind each step, the rationale for site-specific parameters, and the verification chain by which pipeline outputs feed the main report. Script 26c (*26c_msl5_report_figures.py*, Phase 13 in *run_analysis.py*) is a display-only figure-rendering companion to Scripts 26 and 26b, display/utility rather than analytical, covered in §S.18c; Script 09f (*09f_management_effects.py*, Phase 17 in *run_analysis.py*) is the spatial-reach synthesis figure, display/utility rather than analytical, covered in §S.15c; Script 09g (*09g_mechanism_diagrams.py*, Phase 17 in *run_analysis.py*) is the mechanism-diagram companion to 09f, display/utility rather than analytical, covered in §S.15d; and Script 27 (*27_greyscale_figures.py*, Phase 17 in *run_analysis.py*) is a post-analysis figure-conversion utility, also display/utility rather than analytical, covered in Appendix A. Readers needing a specific topic should consult the canonical-sources table in Appendix B; readers needing the canonical implementation of any function or constant should consult the live *main* branch of <https://github.com/newbroman/Newborough_Hydrology>, which remains the source of truth. The supplement is a guide to what the repository contains and why each choice was made; the repository itself is the deliverable.
+The Methods Supplement closes here. The chapters S.1--S.22 together document the Newborough Warren analytical pipeline as registered in the committed *pipeline_manifest.json*, the design choices behind each step, the rationale for site-specific parameters, and the verification chain by which pipeline outputs feed the main report. Script 26c (*26c_msl5_report_figures.py*, Phase 13 in *run_analysis.py*) is a display-only figure-rendering companion to Scripts 26 and 26b, display/utility rather than analytical, covered in §S.18c; Script 09f (*09f_management_effects.py*, Phase 17 in *run_analysis.py*) is the spatial-reach synthesis figure, display/utility rather than analytical, covered in §S.15c; Script 09g (*09g_mechanism_diagrams.py*, Phase 17 in *run_analysis.py*) is the mechanism-diagram companion to 09f, display/utility rather than analytical, covered in §S.15d; and Script 27 (*27_greyscale_figures.py*, Phase 17 in *run_analysis.py*) is a post-analysis figure-conversion utility, also display/utility rather than analytical, covered in Appendix A. Readers needing a specific topic should consult the canonical-sources table in Appendix B; readers needing the canonical implementation of any function or constant should consult the live *main* branch of <https://github.com/newbroman/Newborough_Hydrology>, which remains the source of truth. The supplement is a guide to what the repository contains and why each choice was made; the repository itself is the deliverable.
 
 End of the Methods Supplement.

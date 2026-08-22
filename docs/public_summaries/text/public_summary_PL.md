@@ -15,17 +15,17 @@ Przez 21 lat badanie śledziło poziom wód gruntowych w Warren za pomocą sieci
 
 Dwie siły obniżają poziom wód gruntowych w Warren, i obie są większe niż narzędzia dostępne do zarządzania terenem.
 
-**Klimat --- ten stały.** W całym terenie poziom wody obniża się z roku na rok --- według naszego modelu o około **6 milimetrów rocznie** --- w miarę jak spada zasilanie z opadów, a wczesne lata stają się cieplejsze i bardziej spragnione wody. W pojedynczym roku nie jest to dramatyczne, ale nigdy nie ustaje i działa *wszędzie naraz*. To czyni go pojedynczo największą zmianą ogółem.
+**Klimat --- ten stały.** W całym terenie poziom wody obniża się z roku na rok --- w miarę jak spada zasilanie z opadów, a wczesne lata stają się cieplejsze i bardziej spragnione wody. W pojedynczym roku nie jest to dramatyczne, ale nigdy nie ustaje i działa *wszędzie naraz*. Sam spadek widzimy w poziomach wody. Czego dwadzieścia jeden lat nie pozwala ustalić, to **jak szybko** on postępuje, ponieważ wahania z roku na rok są większe niż ukryty w nich trend. Dlatego opisujemy tę presję przez jej kierunek i zasięg, a nie podajemy liczby określającej jej tempo.
 
 **Erozja wybrzeża --- ta ukryta.** Tam, gdzie morze wgryza się w czoło wydmy, ściąga poziom wody wraz z sobą. Efekt ten jest **najsilniejszy tuż przy brzegu i słabnie w głąb lądu**, osiągając poziom tła około **900 metrów** w głąb. Łatwo było go przeoczyć, ale jest to poważna i trwała presja. Działa również według *tej samej fizyki* co jedno z narzędzi zarządzania poniżej.
 
-**Gdzie się spotykają.** Przy brzegu dominuje erozja; ale ponieważ klimat działa w całym terenie, dalej w głąb lądu przejmuje sygnał klimatyczny. Obie duże presje przekazują sobie pałeczkę w miarę przesuwania się w głąb lądu --- erozja przy morzu, klimat wszędzie dalej (Rycina 1). W pełnym modelu obie są mniej więcej równe około **700 metrów** od brzegu.
+**Gdzie się spotykają.** Przy brzegu dominuje erozja. Dalej w głąb lądu jej wpływ słabnie, podczas gdy presja klimatyczna działa wszędzie naraz --- im dalej od morza, tym więcej z tego, co widać, jest ogólnoterenowym obniżeniem, a nie skutkiem cofania się brzegu (Rycina 1). Nie możemy już podać, gdzie obie się przecinają: wymagałoby to tempa dla członu klimatycznego, a takiego nie mamy.
 
 Uwaga o pewności: *wielkość* efektu przybrzeżnego jest wynikiem modelowania i sieć studzienek nie jest w stanie sama go dokładnie określić --- ale jego **kierunek i mechanizm są zgodne z tym, co udokumentowano w porównywalnych systemach wydmowych w Walii**. Mechanizm podajemy z pewnością, a dokładne liczby z ostrożnością.
 
 ![](Pictures/10000000000007D00000036782A0680B.png){width="16cm" height="6.967cm"}
 
-**Rycina 1 --- Wybrzeże i klimat.** Dwa główne czynniki, przed i po: cofający się brzeg ściąga poziom wody w dół w pobliżu wybrzeża, podczas gdy zmieniający się klimat obniża go powoli w całym terenie. Ogólnoterenowe obniżenie klimatyczne jest największą zmianą ogółem; cofanie się morza liczy się najbardziej przy brzegu. Schemat, nie w skali. (Tekst na rycinie jest w języku angielskim.)
+**Rycina 1 --- Wybrzeże i klimat.** Dwa główne czynniki, przed i po: cofający się brzeg ściąga poziom wody w dół w pobliżu wybrzeża, podczas gdy zmieniający się klimat obniża go powoli w całym terenie. Cofanie się morza jest największą zmianą, jaką potrafimy zmierzyć, i liczy się najbardziej przy brzegu; ogólnoterenowe obniżenie klimatyczne działa wszędzie, ale jego tempa nie da się zmierzyć na podstawie tych danych. Schemat, nie w skali. (Tekst na rycinie jest w języku angielskim.)
 
 ## []{#anchor}Zarządzanie pomaga --- ale jest ograniczone, a jedno narzędzie może przynieść odwrotny skutek
 
@@ -33,7 +33,7 @@ Uwaga o pewności: *wielkość* efektu przybrzeżnego jest wynikiem modelowania 
 
 **Zdzieranie niecek (scraping).** Zdzieranie --- ścięcie niecki z powrotem do poziomu wody --- niezawodnie sprawia, że sama zdarta niecka staje się wilgotniejsza. Ale przy brzegu działa według **tego samego mechanizmu co erozja**: wcinanie się w lądową krawędź niecki ściąga poziom wody w gruncie wokół niej. Więc zdzieranie może osuszyć sąsiadów, nawet gdy samo się nawadnia. Umiejscowienie jest wszystkim.
 
-Obie interwencje są **lokalne** --- zmieniają obrabianą nieckę i jej najbliższych sąsiadów, a nie cały teren --- i obie są **przyćmione przez klimat i erozję wybrzeża** (Rycina 2). Zarządzanie nie jest bezcelowe; ale to skalpel, a nie dźwignia dla całego Warren.
+Obie interwencje są **lokalne** --- zmieniają obrabianą nieckę i jej najbliższych sąsiadów, a nie cały teren --- i obie są **przyćmione przez erozję wybrzeża i przez ogólnoterenowe obniżenie** (Rycina 2). Zarządzanie nie jest bezcelowe; ale to skalpel, a nie dźwignia dla całego Warren.
 
 ![](Pictures/10000000000007D000000367AA4B3347.png){width="16cm" height="6.967cm"}
 

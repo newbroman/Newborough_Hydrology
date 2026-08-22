@@ -40,7 +40,13 @@ File location: outputs/01_data_prep/pipeline_scenario_params.csv
 """
 from __future__ import annotations
 
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-08-19. climate_c_mm_yr
+__version__ = "1.6.0"  # Hollingham (2026) — 2026-08-22. Adds
+#   uniform_residual_mm_yr, the first-pass default for the measured uniform
+#   decline that replaces c as Script 37b's uniform driver row (D-057).
+#   climate_c_mm_yr is retained: nothing consumes it now, but removing a
+#   documented default silently is how a first pass starts failing quietly.
+#
+# v1.5.0
 #   refreshed -6.35 -> 0.18 to match the committed 25_01. It had drifted in sign
 #   as well as magnitude, and it now backs a drawn figure element
 #   (mechanism_fig_utils' far-field fallback) as well as Script 37b, so a
@@ -248,6 +254,15 @@ _DEFAULTS = {
     "ceh36_scrape_response_m":  0.1294,  # 09a paired BACI, CEH36 Pure_Scraping vs
                                          # CEH4; the H0 anchor for the scrape-drain
                                          # maps in Script 20
+    "uniform_residual_mm_yr":  -11.0,   # mean over the open-dune clusters of
+                                         # (balanced observed decline − modelled coastal
+                                         # gradient), 25_03_cluster_partition.csv. The
+                                         # spatially-uniform decline the footing carries
+                                         # (D-057). A CENTRAL ESTIMATE, not a resolved
+                                         # rate: the clusters agree because their
+                                         # year-to-year swings are common-mode, so the
+                                         # agreement shows uniformity and does not lower
+                                         # the detection floor on the magnitude
     "climate_c_mm_yr":           0.18,   # 25_01 forest_free/linear_capped c_mm_yr,
                                          # refreshed 2026-08-19 from the committed
                                          # value; was -6.35, stale by the sign as

@@ -923,6 +923,9 @@ OUT_39_PER_WELL           = DIR_39 / "39_01_hindcast_per_well.csv"
 OUT_39_SERIES             = DIR_39 / "39_02_hindcast_series.csv"
 OUT_39_BETA1_SENSITIVITY  = DIR_39 / "39_03_beta1_sensitivity.csv"
 OUT_39_FIG                = DIR_39 / "39_04_hindcast.png"
+OUT_39_FULL_SITE          = DIR_39 / "39_05_full_hindcast_site.csv"
+OUT_39_FULL_DECADAL       = DIR_39 / "39_06_full_hindcast_decadal.csv"
+OUT_39_FULL_FIG           = DIR_39 / "39_07_full_hindcast.png"
 OUT_39_RESULTS            = DIR_39 / "39_results.txt"
 
 # Script 26 — Van Willegen et al. (2025) 5-year MSL aggregation (Phase 13)

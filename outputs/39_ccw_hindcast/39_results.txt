@@ -1,4 +1,4 @@
-39_ccw_hindcast v1.2.0
+39_ccw_hindcast v1.3.0
 comparison window 1989-05 to 1996-04
 climate forcing from 1930-12
 
@@ -47,3 +47,32 @@ Codes not admitted:
   1B  nw10   censored in 63 of 82 months
   2A  (none) mapping unidentified
   2D  nw8    no committed coefficients
+
+Full-record hindcast (open-ground panel, modern coefficients applied to the whole committed climate record):
+  panel 50 wells of 66 candidates; forcing 1930-12 to 2026-02
+  each well is expressed as an anomaly against its own modelled mean over its modern record span,
+  so the curve is internally consistent and carries no observed-to-modelled offset.
+
+  Decadal site anomaly (m):
+    1930s  -0.080
+    1940s  -0.277
+    1950s  -0.021
+    1960s  +0.177
+    1970s  -0.382
+    1980s  -0.043
+    1990s  -0.479
+    2000s  -0.004
+    2010s  -0.008
+    2020s  +0.021
+
+  Epoch check over the CCW window, each series against its own modern mean:
+    nw13   (1D)  observed -0.693 m   hindcast -0.484 m
+    nw3    (1E)  observed -0.416 m   hindcast -0.447 m
+    nw4    (1F)  observed -0.259 m   hindcast -0.423 m
+    nw6    (2E)  observed -0.583 m   hindcast -0.416 m
+    nw5    (2F)  observed -0.248 m   hindcast -0.469 m
+    wmc2   (2G)  observed -0.132 m   hindcast -0.500 m
+
+  The coefficients are fitted 2005-2026 and are applied unchanged across the whole record.
+  This is the modern aquifer driven by historic climate, not a reconstruction of the historic aquifer:
+  the drainage coefficient encodes a drainage geometry that the record cannot hold fixed.

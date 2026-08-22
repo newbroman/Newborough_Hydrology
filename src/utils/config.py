@@ -40,7 +40,13 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.11.0"  # Hollingham (2026) — 2026-08-22. Adds
+__version__ = "1.12.0"  # Hollingham (2026) — 2026-08-22. Adds
+#   FULL_HINDCAST_MIN_MODERN_MONTHS and FULL_HINDCAST_SMOOTH_MONTHS for the
+#   Script 39 full-record panel: the admission threshold for a well's modern
+#   baseline, and the display smoothing for the rendered curve. Additive; no
+#   existing constant changes and no committed output moves.
+#
+# v1.11.0  # Hollingham (2026) — 2026-08-22. Adds
 #   REACH_QUOTE_NEAREST_M, the display granularity for the modelled forest and
 #   scrape reach. The reach is a scaling argument, not a calibrated length —
 #   the report states it to the nearest tens of metres — but Script 20 rendered
@@ -992,6 +998,16 @@ CCW_BETA1_SCALINGS = (1.00, 1.03, 1.06, 1.10)
 # Restarts used to demonstrate that the spin-up has forgotten the initial
 # condition before the comparison window opens, rather than assuming it.
 CCW_H0_PROBE_OFFSETS_M = (-1.0, +1.0)
+
+# --- Full-record hindcast panel (Script 39) ---
+# The full-record run drives the same recurrence over the whole committed
+# climate record and reports each well as an anomaly against its own modern
+# mean, so a well needs enough modern record for that mean to be meaningful.
+FULL_HINDCAST_MIN_MODERN_MONTHS = 60
+
+# Rolling window used to render the panel curve. A display choice: the stored
+# series is monthly and unsmoothed.
+FULL_HINDCAST_SMOOTH_MONTHS = 12
 
 # Bootstrap seeds relocated here from per-script module locals so every fixed
 # seed lives in config.py (house rule: shared constants are imported, never

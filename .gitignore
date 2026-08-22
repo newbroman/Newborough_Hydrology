@@ -81,3 +81,35 @@ report_edits/_superseded/
 # local trash folder + LibreOffice deleted-but-open relics — never commit
 /_to_delete/
 .fuse_hidden*
+
+# --- Reference library (store/) — READ LOCALLY, NEVER PUBLISHED ---
+# Papers, agency reports and other third-party reference material live here so
+# they can be read from the working copy and survive between sessions.
+#
+# THIS REPOSITORY IS PUBLIC. Almost everything that belongs in this folder is
+# under publisher or agency copyright — the Journal of Ecology PDFs carry JSTOR
+# terms that permit personal, non-commercial use and forbid redistribution — so
+# the contents are never committed. Note that PDFs are NOT otherwise ignored by
+# this file: without the rule below, anything dropped in here would be tracked
+# and pushed on the next run of nrg_git.sh.
+#
+# The manifest IS tracked, so provenance is versioned without the material being
+# republished. Add a row to store/README.md when you add a document.
+store/*
+!store/README.md
+
+# --- Historic map scans — LOCAL ONLY, licence-restricted ---
+# Georeferenced scans of third-party historic mapping (OS County Series and the
+# like). This repository is public and these scans carry the publisher's or
+# host's licence — NLS georeferenced sheets are typically CC-BY-NC-SA — so they
+# are never committed, for the same reason as store/.
+#
+# What IS tracked is the DERIVED geometry digitised from them: coast.kml
+# (1899 high tide + dune edge) and DCoast_2015.kml (2015 dune edge) are original
+# work and are the evidence base for the retreat measurement, so they belong in
+# the repository and the scan does not.
+#
+# Put any further historic sheets in data/geo/histmaps/ rather than adding a
+# rule per file.
+data/geo/1900 copy_modified.tif
+data/geo/histmaps/

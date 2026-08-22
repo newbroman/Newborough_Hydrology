@@ -56,11 +56,27 @@ Method
     carries a status per code. Only `confirmed` codes enter the headline; the
     disputed and unidentified ones are reported separately and never pooled.
 
-Standalone by design
+Registered, and what it reads
+-----------------------------
+Registered in run_analysis.py (Phase 16, analytical tier, runs by default). It
+reads a raw input — the CCW block — that no pipeline step produces; the
+exception is recorded as D-051 and the evaluation basis as RB-14. The step
+SKIPS cleanly when that input is absent, so a default full run cannot fail over
+it. It can also be run directly:  python3 src/39_ccw_hindcast.py
+
+The full-record pass
 --------------------
-Not registered in run_analysis.py. It reads a raw input (the CCW block) that no
-pipeline step produces, and registering it would move the manifest counts. Run
-it directly:  python3 src/39_ccw_hindcast.py
+The recurrence already ran the whole committed climate record as spin-up before
+the comparison window opened. The full-record pass keeps that series instead of
+discarding it, over an open-ground panel whose inclusion policy is declared in
+open_ground_panel(). Each well is expressed as an anomaly against its OWN
+modelled mean over its OWN modern record span, so the curve carries no
+observed-to-modelled offset and no cross-well datum assumption.
+
+This is the modern aquifer driven by historic climate, NOT a reconstruction of
+the historic aquifer. The coefficients are fitted 2005-2026 and applied
+unchanged throughout; beta_3 in particular encodes a drainage geometry the
+record cannot hold fixed across the span. Any caption must say so.
 
 Inputs (via utils.paths):
     CCW_DEPTHS        (data/ccw_1989_1996_depths.csv)     historic depths, tidy
@@ -75,12 +91,26 @@ Outputs (outputs/39_ccw_hindcast/):
     39_02_hindcast_series.csv      observed and predicted, monthly, per well
     39_03_beta1_sensitivity.csv    metrics across the beta_1 scaling range
     39_04_hindcast.png             observed vs predicted, one panel per well
+    39_05_full_hindcast_site.csv   full-record site anomaly, monthly, with n_wells
+    39_06_full_hindcast_decadal.csv  per-decade mean anomaly, per well and site
+    39_07_full_hindcast.png        full-record panel + the CCW epoch check
     39_results.txt                 console summary
 """
 
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-08-22.
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-08-22.  Emits the
+#   full-record hindcast alongside the CCW comparison. The recurrence already
+#   ran the whole committed climate record as spin-up and discarded all but
+#   the comparison window; this issue keeps it. Three new artefacts, an
+#   open-ground panel whose inclusion policy is declared in one function, and
+#   an epoch check that puts the observed and hindcast contrasts over the CCW
+#   window side by side so the curve is anchored where there is data. Each
+#   well is expressed against its OWN modelled mean over its own modern span,
+#   so no observed-to-modelled offset enters the anomaly. Nothing in the
+#   existing outputs moves.
+#
+# v1.2.0  # Hollingham (2026) — 2026-08-22.
 #   Store-time rounding removed from the twenty-two stored columns of the per-well and
 #   per-month frames — every metric this script emits (D-035): the store now
 #   carries what the pipeline computed and rounding happens where the number
@@ -143,6 +173,8 @@ PIPE_BASE_M = config.CCW_PIPE_BASE_M
 BETA1_SCALINGS = config.CCW_BETA1_SCALINGS
 H0_PROBE_OFFSETS_M = config.CCW_H0_PROBE_OFFSETS_M
 DATUM = config.DRAINAGE_DATUM
+MIN_MODERN_MONTHS = config.FULL_HINDCAST_MIN_MODERN_MONTHS
+SMOOTH_MONTHS = config.FULL_HINDCAST_SMOOTH_MONTHS
 
 OUT_DIR = paths.DIR_39
 OUT_PER_WELL = paths.OUT_39_PER_WELL
@@ -150,6 +182,9 @@ OUT_SERIES = paths.OUT_39_SERIES
 OUT_SENSITIVITY = paths.OUT_39_BETA1_SENSITIVITY
 OUT_FIG = paths.OUT_39_FIG
 OUT_TXT = paths.OUT_39_RESULTS
+OUT_FULL_SITE = paths.OUT_39_FULL_SITE
+OUT_FULL_DECADAL = paths.OUT_39_FULL_DECADAL
+OUT_FULL_FIG = paths.OUT_39_FULL_FIG
 
 BETA_COLS = ("beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage")
 
@@ -305,6 +340,114 @@ def plot_hindcast(series: pd.DataFrame, adm: pd.DataFrame, fig_path) -> None:
     plt.close(fig)
 
 
+
+# ── full-record panel ─────────────────────────────────────────────────────────
+def modern_span(wells_clean: pd.DataFrame, well: str):
+    """First and last month of a well's modern committed record, and its length.
+
+    Returns (first, last, n_months); all NaT/0 when the well has no column or no
+    readings. The span defines the reference window that the full-record anomaly
+    is taken against, so it is read from the record rather than assumed.
+    """
+    col = {c.lower().strip(): c for c in wells_clean.columns}.get(well)
+    if col is None:
+        return pd.NaT, pd.NaT, 0
+    s = pd.to_numeric(wells_clean[col], errors="coerce").dropna()
+    if s.empty:
+        return pd.NaT, pd.NaT, 0
+    return s.index.min(), s.index.max(), int(len(s))
+
+
+def open_ground_panel(md: pd.DataFrame, loc: pd.DataFrame,
+                      wells_clean: pd.DataFrame) -> pd.DataFrame:
+    """Wells admitted to the full-record panel, with the reason for each refusal.
+
+    The inclusion policy is declared in one place rather than left implicit in a
+    filter chain. A well enters when three conditions hold: it is not under
+    canopy on the committed land-cover flag; it carries a committed coefficient
+    triple with a positive drainage coefficient; and its modern record reaches
+    config.FULL_HINDCAST_MIN_MODERN_MONTHS, which is the baseline the anomaly is
+    measured against. Wells failing any condition are returned with the reason
+    recorded, never silently dropped.
+    """
+    rows = []
+    for well in sorted(set(md.index) & set(loc.index)):
+        in_forest = bool(loc.loc[well, "in_forest"]) if "in_forest" in loc.columns else False
+        betas = tuple(pd.to_numeric(pd.Series([md.loc[well, c] for c in BETA_COLS]),
+                                    errors="coerce"))
+        first, last, n_mod = modern_span(wells_clean, well)
+        reason = ""
+        if in_forest:
+            reason = "under canopy"
+        elif not all(np.isfinite(b) for b in betas):
+            reason = "no committed coefficient triple"
+        elif not betas[2] > 0:
+            reason = "non-positive drainage coefficient"
+        elif n_mod < MIN_MODERN_MONTHS:
+            reason = f"modern record {n_mod} months, below {MIN_MODERN_MONTHS}"
+        rows.append(dict(well=well, admitted=(reason == ""), excluded_because=reason,
+                         beta_1_recharge=betas[0], beta_2_atmospheric_draw=betas[1],
+                         beta_3_drainage=betas[2],
+                         modern_first=first, modern_last=last, n_modern_months=n_mod))
+    return pd.DataFrame(rows)
+
+
+def full_hindcast_well(cl: pd.DataFrame, betas: tuple, h0: float) -> pd.Series:
+    """Simulate the whole committed climate record and return every month.
+
+    The same recurrence and the same shared implementation as the windowed
+    hindcast; only the returned span differs. The caller supplies the initial
+    condition and is responsible for reporting the spin-up.
+    """
+    b1, b2, b3 = betas
+    h = simulate_ssm(h0, cl["P_m"].values, cl["PET"].values, b1, b2, b3,
+                     drainage_datum=DATUM)
+    return pd.Series(h, index=cl.index, name="predicted_m_bg")
+
+
+def plot_full_hindcast(site: pd.DataFrame, epoch: pd.DataFrame,
+                       first_month, last_month, fig_path) -> None:
+    """Two panels: the full-record site anomaly, and the epoch check against it."""
+    fig, (ax, bx) = plt.subplots(
+        2, 1, figsize=(9.0, 6.4),
+        gridspec_kw=dict(height_ratios=[2.3, 1.0]))
+
+    ax.axhline(0.0, color="#777777", lw=0.8, ls="-")
+    ax.plot(site["month"], site["site_anomaly_m"], lw=0.6, color="#9ecae1")
+    ax.plot(site["month"], site["site_anomaly_smoothed_m"], lw=1.6, color="#08519c")
+    ax.fill_between(site["month"],
+                    site["site_anomaly_m"] - site["site_sd_m"],
+                    site["site_anomaly_m"] + site["site_sd_m"],
+                    color="#9ecae1", alpha=0.25, lw=0)
+    ax.axvspan(first_month, last_month, color="#D95F02", alpha=0.14, lw=0)
+    ax.annotate("CCW record", xy=(first_month, ax.get_ylim()[1]),
+                xytext=(4, -10), textcoords="offset points",
+                fontsize=9, color="#8c3b02", va="top")
+    ax.set_ylabel("anomaly vs modelled modern mean (m)", fontsize=9)
+    ax.tick_params(labelsize=9)
+    ax.set_title("Open-ground water table under the observed climate record, "
+                 "modern coefficients throughout", fontsize=11, loc="left")
+
+    if not epoch.empty:
+        idx = np.arange(len(epoch))
+        bx.bar(idx - 0.19, epoch["observed_epoch_anomaly_m"], width=0.38,
+               color="#1b1b1b", label="observed")
+        bx.bar(idx + 0.19, epoch["hindcast_epoch_anomaly_m"], width=0.38,
+               color="#D95F02", label="hindcast")
+        bx.set_xticks(idx)
+        bx.set_xticklabels(epoch["well"], fontsize=9)
+        bx.axhline(0.0, color="#777777", lw=0.8)
+        bx.set_ylabel("epoch anomaly (m)", fontsize=9)
+        bx.tick_params(labelsize=9)
+        bx.legend(fontsize=9, framealpha=0.9)
+        bx.set_title(f"Epoch contrast over {first_month:%Y-%m} to {last_month:%Y-%m}, "
+                     "each series against its own modern mean",
+                     fontsize=10, loc="left")
+    fig.tight_layout()
+    render_figure(fig, fig_path)
+    plt.close(fig)
+
+
 # ── main ──────────────────────────────────────────────────────────────────────
 def main() -> int:
     banner(SCRIPT_ID, "SSM hindcast against the 1989–96 CCW record", VERSION)
@@ -450,6 +593,75 @@ def main() -> int:
         sr_plot["month"] = pd.PeriodIndex(sr_plot["month"], freq="M").to_timestamp()
         plot_hindcast(sr_plot, admitted, OUT_FIG); saved(OUT_FIG.name)
 
+
+    phase(5, "Full-record hindcast")
+    panel = open_ground_panel(md, loc, wells_clean)
+    adm_panel = panel[panel["admitted"]]
+    for r in panel[~panel["admitted"]].itertuples():
+        note(f"{r.well} not in panel: {r.excluded_because}")
+    result("panel wells", f"{len(adm_panel)} of {len(panel)} candidates")
+
+    anomalies, modelled_modern = {}, {}
+    for r in adm_panel.itertuples():
+        betas = (r.beta_1_recharge, r.beta_2_atmospheric_draw, r.beta_3_drainage)
+        h0 = equilibrium_depth(betas, p_mean, pet_mean)
+        sim = full_hindcast_well(cl, betas, h0)
+        ref = sim.loc[r.modern_first:r.modern_last]
+        if ref.empty:
+            note(f"{r.well}: modern span falls outside the climate record")
+            continue
+        modelled_modern[r.well] = float(ref.mean())
+        anomalies[r.well] = sim - float(ref.mean())
+
+    site = pd.DataFrame(columns=["month"])
+    decadal = pd.DataFrame()
+    epoch = pd.DataFrame()
+    if anomalies:
+        anom = pd.DataFrame(anomalies)
+        site = pd.DataFrame({
+            "month": anom.index,
+            "site_anomaly_m": anom.mean(axis=1).values,
+            "site_sd_m": anom.std(axis=1, ddof=1).values,
+            "n_wells": anom.notna().sum(axis=1).values,
+            "P_m": cl.loc[anom.index, "P_m"].values,
+            "PET": cl.loc[anom.index, "PET"].values,
+        })
+        site["site_anomaly_smoothed_m"] = (
+            site["site_anomaly_m"].rolling(SMOOTH_MONTHS, center=True,
+                                           min_periods=SMOOTH_MONTHS).mean())
+
+        dec = (anom.index.year // 10) * 10
+        dw = anom.groupby(dec).mean().stack().reset_index()
+        dw.columns = ["decade", "well", "mean_anomaly_m"]
+        dw["scope"] = "well"
+        ds = anom.mean(axis=1).groupby(dec).mean().reset_index()
+        ds.columns = ["decade", "mean_anomaly_m"]
+        ds["well"] = "SITE"
+        ds["scope"] = "site"
+        decadal = pd.concat([ds[["decade", "well", "scope", "mean_anomaly_m"]],
+                             dw[["decade", "well", "scope", "mean_anomaly_m"]]],
+                            ignore_index=True)
+
+        rows = []
+        for r in pw.itertuples():
+            if r.well not in anom.columns:
+                continue
+            hind = anom[r.well].loc[first_month:last_month]
+            if hind.empty:
+                continue
+            rows.append(dict(well=r.well, code=r.code,
+                             observed_epoch_anomaly_m=r.epoch_shift_m,
+                             hindcast_epoch_anomaly_m=float(hind.mean()),
+                             modelled_modern_mean_m=modelled_modern[r.well],
+                             observed_modern_mean_m=r.mean_modern_m))
+        epoch = pd.DataFrame(rows)
+
+    if not site.empty:
+        site.to_csv(OUT_FULL_SITE, index=False); saved(OUT_FULL_SITE.name)
+        decadal.to_csv(OUT_FULL_DECADAL, index=False); saved(OUT_FULL_DECADAL.name)
+        plot_full_hindcast(site, epoch, first_month, last_month, OUT_FULL_FIG)
+        saved(OUT_FULL_FIG.name)
+
     lines = [f"39_ccw_hindcast v{VERSION}",
              f"comparison window {first_month:%Y-%m} to {last_month:%Y-%m}",
              f"climate forcing from {cl.index.min():%Y-%m}",
@@ -509,6 +721,36 @@ def main() -> int:
               "Codes not admitted:"]
     for r in adm[~adm["admitted"]].itertuples():
         lines.append(f"  {r.code:<3} {r.well or '(none)':<6} {r.excluded_because}")
+    if not site.empty:
+        lines += ["",
+                  "Full-record hindcast (open-ground panel, modern coefficients "
+                  "applied to the whole committed climate record):",
+                  f"  panel {len(adm_panel)} wells of {len(panel)} candidates; "
+                  f"forcing {cl.index.min():%Y-%m} to {cl.index.max():%Y-%m}",
+                  "  each well is expressed as an anomaly against its own modelled "
+                  "mean over its modern record span,",
+                  "  so the curve is internally consistent and carries no "
+                  "observed-to-modelled offset.",
+                  "",
+                  "  Decadal site anomaly (m):"]
+        ds = decadal[decadal["scope"] == "site"]
+        for r in ds.itertuples():
+            lines.append(f"    {int(r.decade)}s  {r.mean_anomaly_m:+.3f}")
+        if not epoch.empty:
+            lines += ["",
+                      "  Epoch check over the CCW window, each series against its "
+                      "own modern mean:"]
+            for r in epoch.itertuples():
+                lines.append(f"    {r.well:<6} ({r.code})  observed "
+                             f"{r.observed_epoch_anomaly_m:+.3f} m   hindcast "
+                             f"{r.hindcast_epoch_anomaly_m:+.3f} m")
+        lines += ["",
+                  "  The coefficients are fitted 2005-2026 and are applied "
+                  "unchanged across the whole record.",
+                  "  This is the modern aquifer driven by historic climate, not a "
+                  "reconstruction of the historic aquifer:",
+                  "  the drainage coefficient encodes a drainage geometry that the "
+                  "record cannot hold fixed."]
     OUT_TXT.write_text("\n".join(lines) + "\n")
     saved(OUT_TXT.name)
 

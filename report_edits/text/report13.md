@@ -49,6 +49,8 @@ Dargie, T.C.D. (1995) Sand dune vegetation survey of Great Britain: a national i
 
 Davy, A.J., Grootjans, A.P., Hiscock, K. and Petersen, J. (2006) Development of Eco-Hydrological Guidelines for Dune Habitats --- Phase 1. English Nature Research Reports, No. 696. Peterborough: English Nature.
 
+Davy, A.J., Hiscock, K.M., Jones, M.L.M., Low, R., Robins, N.S. and Stratford, C. (2010) Protecting the plant communities and rare species of dune wetland systems: ecohydrological guidelines for wet dune habitats --- Phase 2. Bristol: Environment Agency. Science Report GEHO0310BSGV-E-E.
+
 Deng, Z., Priestley, S.C., Guan, H., Love, A.J. and Simmons, C.T. (2013). Canopy enhanced chloride deposition in coastal South Australia and its application for the chloride mass balance method. *Journal of Hydrology*, 497, 62--70. *https://doi.org/10.1016/j.jhydrol.2013.05.038*
 
 Donohue, R.J., McVicar, T.R. and Roderick, M.L. (2010) Assessing the ability of potential evaporation formulations to capture the dynamics in evaporative demand within a changing climate. Journal of Hydrology, 386(1--4), pp. 186--197. [**https://doi.org/10.1016/j.jhydrol.2010.03.020**](https://doi.org/10.1016/j.jhydrol.2010.03.020)

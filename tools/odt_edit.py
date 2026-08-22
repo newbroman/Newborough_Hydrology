@@ -52,7 +52,21 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-08-22. Adds edit_entries(),
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-08-22. The declared-style
+#   guard checked EVERY style name in the document, so it aborted a sound edit to
+#   the public summary over a "Title" style the document already contained and
+#   the edit never touched. It now checks only the styles the edit INTRODUCES.
+#   The invariant is "no undeclared markup added", not "every style in the file
+#   resolves" — the second is a document-validity question and not this
+#   function's job.
+#
+#   edit() also had its OWN COPY of the whole guard block and never called
+#   _guards() — the refactor at v1.1.0 added the shared version without removing
+#   the original, so the fix above landed in the copy nothing was using. Both are
+#   now one function. Two copies of a guard is how a guard comes to disagree with
+#   itself.
+#
+# v1.2.0  # Hollingham (2026) — 2026-08-22. Adds edit_entries(),
 #   which reaches the EMBEDDED FORMULA OBJECTS. An ODF equation is not in
 #   content.xml: it is an "Object NN/content.xml" part holding a MathML tree and
 #   a StarMath annotation of the same expression. report8 carries 82 of them.
@@ -99,11 +113,18 @@ def _guards(orig_xml: str, xml: str, zin, name: str,
         if not allow_tag_change:
             print(f"  ABORT {name}: tag sequence changed")
             return False
+        # Only styles this EDIT introduced. Checking every style in the
+        # document flags whatever the document already contained — a Title
+        # style declared some other way, an inherited name — and aborts a
+        # sound edit for a condition that predates it. The invariant is "no
+        # undeclared markup ADDED", not "every style in the file resolves".
         styles = zin.read("styles.xml").decode("utf-8") + xml
-        used = set(re.findall(r'text:style-name="([^"]+)"', "".join(after_tags)))
-        undeclared = [u for u in used if f'style:name="{u}"' not in styles]
+        used_before = set(re.findall(r'text:style-name="([^"]+)"', "".join(before_tags)))
+        used_after = set(re.findall(r'text:style-name="([^"]+)"', "".join(after_tags)))
+        undeclared = [u for u in (used_after - used_before)
+                      if f'style:name="{u}"' not in styles]
         if undeclared:
-            print(f"  ABORT {name}: undeclared style(s) {undeclared}")
+            print(f"  ABORT {name}: edit introduces undeclared style(s) {undeclared}")
             return False
         b_open, b_close = _span_balance(orig_xml)
         a_open, a_close = _span_balance(xml)
@@ -202,7 +223,6 @@ def edit(src, dst, subs, expect, allow_tag_change: bool = False) -> bool:
         return False
     xml = zin.read("content.xml").decode("utf-8")
     orig_xml = xml
-    before_tags = re.findall(r"<[^>]+>", xml)
 
     total = 0
     for old, new, want in subs:
@@ -219,63 +239,12 @@ def edit(src, dst, subs, expect, allow_tag_change: bool = False) -> bool:
         zin.close()
         return False
 
-    after_tags = re.findall(r"<[^>]+>", xml)
-    if before_tags != after_tags:
-        if not allow_tag_change:
-            print(f"  ABORT {src.name}: tag sequence changed")
-            zin.close()
-            return False
-        styles = zin.read("styles.xml").decode("utf-8") + xml
-        used = set(re.findall(r'text:style-name="([^"]+)"', "".join(after_tags)))
-        undeclared = [u for u in used if f'style:name="{u}"' not in styles]
-        if undeclared:
-            print(f"  ABORT {src.name}: undeclared style(s) {undeclared}")
-            zin.close()
-            return False
-        b_open, b_close = _span_balance(orig_xml)
-        a_open, a_close = _span_balance(xml)
-        d_open, d_close = a_open - b_open, a_close - b_close
-        if d_open != d_close:
-            print(f"  ABORT {src.name}: edit unbalances spans "
-                  f"({d_open:+d} open, {d_close:+d} close)")
-            zin.close()
-            return False
-        print(f"  note: tag sequence changed by {len(after_tags) - len(before_tags)} "
-              f"tag(s); all styles declared; span delta balanced "
-              f"({d_open:+d}/{d_close:+d}) against a baseline of {b_open}/{b_close}")
-
-    if EM_SPACE in xml:
-        print(f"  ABORT {src.name}: em-space (U+2003) present")
+    if not _guards(orig_xml, xml, zin, src.name, allow_tag_change):
         zin.close()
         return False
-
-    data = xml.encode("utf-8")
-    tmp = pathlib.Path("/tmp") / (dst.name + ".ziptmp")
-    with zipfile.ZipFile(tmp, "w") as zout:
-        for info in zin.infolist():
-            payload = data if info.filename == "content.xml" else zin.read(info.filename)
-            ni = zipfile.ZipInfo(info.filename, date_time=info.date_time)
-            ni.external_attr = info.external_attr
-            ni.compress_type = (zipfile.ZIP_STORED if info.filename == "mimetype"
-                                else zipfile.ZIP_DEFLATED)
-            zout.writestr(ni, payload)
+    ok = _write(src, dst, xml, zin, names)
     zin.close()
-
-    zo = zipfile.ZipFile(tmp)
-    ok = (zo.namelist() == names
-          and zo.getinfo("mimetype").compress_type == zipfile.ZIP_STORED
-          and zo.testzip() is None)
-    zo.close()
-    if not ok:
-        print(f"  ABORT {src.name}: archive verification failed")
-        tmp.unlink()
-        return False
-
-    with open(tmp, "rb") as a, open(dst, "wb") as b:
-        shutil.copyfileobj(a, b)
-    tmp.unlink()
-    print(f"  OK  {dst.name}  ({dst.stat().st_size} bytes, {len(names)} entries)")
-    return True
+    return ok
 
 
 def read_text(src) -> str:

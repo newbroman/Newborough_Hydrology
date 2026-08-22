@@ -89,7 +89,17 @@ Runs after Script 37 (Part A) in the driver-validation phase; the canonical
 step index is in outputs/pipeline_manifest.json.
 """
 
-__version__ = "1.2.1"  # Hollingham (2026) — 2026-08-19. Reads the per-well
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-08-22. The uniform driver row
+#   is the MEASURED residual, not the panel's fitted constant. load_climate_c()
+#   read c, which is not separately identified (D-039), so the footing ranked a
+#   quantity with no rate — and when c moved the row moved with it, from -127 mm
+#   to -2 mm over the horizon, without anything about the site having changed.
+#   load_uniform_residual() reads the balanced observed decline minus the
+#   modelled coastal gradient, per open-dune cluster, and takes the mean. The row
+#   is renamed to say what it is: an unexplained uniform decline, a central
+#   estimate and not a resolved rate (D-057).
+#
+# v1.2.1
 #   WTF Sy table from OUT_18_WELL_SY_TABLE; INT_WTF_WELL_SY is retired
 #   (D-038). Pure path/symbol change, values identical.
 #
@@ -117,7 +127,7 @@ from utils import config, paths
 from utils.paths import (
     INT_MASTER_DATA, INT_WELLS_CLEAN, OUT_18_WELL_SY_TABLE,
     OUT_10A_REPORT, OUT_10M_REPORT, OUT_09_BACI_SHIFTS,
-    OUT_20_REPORT_NUMBERS, OUT_25_FIT_PARAMETERS,
+    OUT_20_REPORT_NUMBERS, OUT_25_FIT_PARAMETERS, OUT_25_CLUSTER_PARTITION,
     DATA_KML_FEATURES,
 )
 from utils.config import CLUSTER_LABELS
@@ -168,7 +178,7 @@ COMPONENT_META = {
     "broadleaf":     ("Forest management",  "progressive", "loss",   False),
     "scrape_onsite": ("Dune scraping",      "step",        "gain",   True),
     "scrape_offsite":("Dune scraping",      "redistributive","loss", True),
-    "climate":       ("Climate (common-mode)","uniform",   "loss",   False),
+    "climate":       ("Unexplained (uniform)","uniform",  "loss",   False),
 }
 COMPONENT_LABELS = {
     "coast_erosion":  "Coastal erosion (chronic drawdown)",
@@ -177,7 +187,7 @@ COMPONENT_LABELS = {
     "broadleaf":      "Broadleaf restock (canopy added)",
     "scrape_onsite":  "Scrape on-site (slack rise)",
     "scrape_offsite": "Scrape off-site (drain cone)",
-    "climate":        "Climate / common-mode (uniform decline)",
+    "climate":        "Unexplained uniform decline (central estimate, not resolved)",
 }
 
 
@@ -217,23 +227,45 @@ def load_coastal_fit() -> tuple[float, float]:
         return d0, L
 
 
-def load_climate_c() -> float:
-    """Spatially-uniform climate term c (mm/yr, negative) — the modelled fit
-    term summarising the observed warren-wide fall. Script 25 forest-free
-    linear-capped row (same row as δ₀/L). First-pass fallback to the documented
-    default."""
+def load_uniform_residual() -> float:
+    """The spatially-uniform decline this footing carries, mm/yr, negative.
+
+    NOT the panel's fitted constant c. c is not separately identified — it
+    trades off exactly against the cumulative-water-balance covariate and only
+    their sum is recovered (D-039) — so a driver row computed from it ranks a
+    quantity that has no rate. This function reads the MEASURED residual
+    instead: per open-dune cluster, the balanced observed decline minus the
+    modelled coastal gradient at that cluster's mean distance to the coast, and
+    the mean of those.
+
+    The open-dune clusters are the ones the coastal gradient is fitted on
+    (forest-free, D-046); the forest clusters carry a canopy term this
+    subtraction does not remove, which is why they are excluded here and why
+    their own residuals differ.
+
+    What the agreement does and does not buy: the clusters agree closely, which
+    is evidence the remaining decline is SPATIALLY UNIFORM. It is not evidence
+    that the rate is resolved. Their year-to-year swings are common-mode — same
+    weather, same aquifer — so the errors do not average down, and the
+    detection floor of the site-mean trend still applies to this magnitude.
+    Anything consuming this value must carry that caveat with it (D-057).
+    """
     try:
-        df = pd.read_csv(OUT_25_FIT_PARAMETERS)
-        row = df[(df["source"] == "forest_free") & (df["model"] == "linear_capped")]
-        if row.empty:
-            row = df[(df["source"] == "full") & (df["model"] == "linear_capped")]
-        c = float(row["c_mm_yr"].iloc[0])
-        info(f"climate c = {c:.2f} mm/yr (live, Script 25 forest-free linear-capped)")
-        return c
+        df = pd.read_csv(OUT_25_CLUSTER_PARTITION)
+        open_dune = df[~df["cluster_id"].astype(int).isin(config.FOREST_CIDS)]
+        resid = (open_dune["observed_balanced_annual_mean_mm_yr"]
+                 - open_dune["coastal_gradient_mm_yr"])
+        r = float(resid.mean())
+        info(f"uniform residual = {r:.2f} mm/yr (live, mean over "
+             f"{len(resid)} open-dune clusters; spread "
+             f"{float(resid.max() - resid.min()):.2f} mm/yr) — central estimate, "
+             f"not a resolved rate")
+        return r
     except Exception as exc:
-        c = float(pipeline_params.default_value("climate_c_mm_yr"))
-        warn(f"cannot read Script 25 fit ({exc}) — using first-pass default climate c = {c}")
-        return c
+        r = float(pipeline_params.default_value("uniform_residual_mm_yr"))
+        warn(f"cannot read Script 25 cluster partition ({exc}) — using first-pass "
+             f"default uniform residual = {r}")
+        return r
 
 
 def load_clearfell_step_mm() -> float:
@@ -886,7 +918,7 @@ def main() -> int:
 
     phase(1, "Load live parameters")
     delta0, L_coast = load_coastal_fit()
-    climate_c = load_climate_c()
+    climate_c = load_uniform_residual()
     clearfell_step_mm = load_clearfell_step_mm()
     scrape_onsite_mm = load_scrape_onsite_mm()
     scrape_offsite_mm = load_scrape_offsite_mm()

@@ -33,7 +33,28 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.5.1"  # Hollingham (2026) -- 2026-08-18. Store-time rounding removed (D-035): these values
+__version__ = "1.6.0"  # Hollingham (2026) -- 2026-08-21. Far-field control tier added
+#   to CONTROLS, plus the per-control-well spread refits behind
+#   10a_09_control_well_spread.csv.
+#
+#   The far-field tier is a control set chosen for DISTANCE CONTRAST against
+#   the impact zone rather than for matching its setting, so the BACI
+#   easting x time covariate can be tested against the Script 25 coastal-
+#   gradient model on a contrast large enough to carry the test. Membership,
+#   its admission criterion and the reason NW4 is excluded from it all live in
+#   clearfell_common.
+#
+#   'Combined' is deliberately NOT extended to include the new tier: folding it
+#   in would move a published number and buys nothing analytically, since the
+#   far-field tier is reported in its own right. See the CONTROLS comment.
+#
+#   The tier spans a wide band of distances and its members need not respond
+#   alike, so the tier estimate is not reported alone: every control tier is
+#   also refit one control well at a time and the resulting spread is emitted
+#   beside it, for the new tier and the existing ones on the same footing.
+#   Additive only -- the six published control x zone fits are untouched.
+#
+# v1.5.1  # Hollingham (2026) -- 2026-08-18. Store-time rounding removed (D-035): these values
 #   are written to CSV at the precision they were computed, and rounding
 #   happens where they are displayed. Three decimals is a display rule for
 #   quantities of order one; applied at storage it costs a significant
@@ -58,12 +79,14 @@ from utils.console_utils import (
 from utils.clearfell_common import (
     load_clearfell_data, apply_ceh34_hindcast, IMPACT_WELLS, EDGE_WELLS,
     FOREST_CONTROL_WELLS, COASTAL_CONTROL_WELLS, CLIMATE_CONTROL_WELLS,
+    FAR_FIELD_CONTROL_WELLS, FAR_FIELD_CONTROL_LABEL,
     ALL_NETWORK_WELLS, INTERVENTION_DATE, SCRAPING_DATE, SCRAPING_DATE_2,
     PRE_FELL_START, SCRAPING_DECAY_LAMBDA, compute_baci_displacement,
     compute_cwb, build_scraping_covariate_centroid, distance_from_ceh36,
     scraping_weight, ReportNumbers, print_network_summary,
+    well_distances_to_coast, tier_distance_stats, far_field_tier_audit,
 )
-from utils.paths import make_all_dirs, DIR_10
+from utils.paths import make_all_dirs, DIR_10, OUT_10A_CONTROL_WELL_SPREAD
 from utils.render_utils import render_figure
 import pandas as pd
 import numpy as np
@@ -82,6 +105,7 @@ OUT_COMPARISON    = DIR_10 / "10a_01_ancova_comparison_table.csv"
 OUT_FULL_COEFFS   = DIR_10 / "10a_02_ancova_full_coefficients.csv"
 OUT_TIMESERIES    = DIR_10 / "10a_03_baci_timeseries.csv"
 OUT_REPORT        = DIR_10 / "10a_report_numbers.csv"
+OUT_WELL_SPREAD   = OUT_10A_CONTROL_WELL_SPREAD   # paths.py — Script 25 reads it
 # Primary figures (Forest control only — for report)
 OUT_FIG_IMPACT    = DIR_10 / "10a_04_baci_timeseries_impact.png"
 OUT_FIG_EDGE      = DIR_10 / "10a_05_baci_timeseries_edge.png"
@@ -114,6 +138,12 @@ CB_CLIMATE = '#4575B4'
 CB_COMBINED = '#7570B3'  # muted purple
 CB_IMPACT  = '#D73027'
 CB_EDGE    = '#F46D43'
+# The controls the FIGURES plot. This is deliberately narrower than CONTROLS:
+# the supplementary three-panel figures are the three published counterfactuals
+# and their panel geometry is fixed to that set. The far-field tier is a
+# distance-contrast diagnostic feeding the Script 25 corroboration and is
+# reported through the CSVs, so adding it here would change published figures
+# for no analytical gain.
 CONTROL_COLOURS = {
     'Forest':   CB_FOREST,
     'Climate':  CB_CLIMATE,
@@ -189,16 +219,47 @@ wells, _wells_prov, climate, master, well_locations, valid_tiers = load_clearfel
 wells = apply_ceh34_hindcast(wells)
 print_network_summary(valid_tiers)
 
+# The far-field tier states its own geometry rather than a comment asserting
+# it: distances come from the committed well metadata and the admission
+# threshold is config.FAR_FIELD_REACH_MULTIPLE x the fitted cross-shore reach,
+# read live from Script 25's panel-fit table.
+_ff_audit = far_field_tier_audit()
+if not _ff_audit.empty:
+    _r0 = _ff_audit.iloc[0]
+    info(f"Far-field control tier: {len(_ff_audit)} wells, "
+         f"mean {_r0['tier_mean_dist_m']:.0f} m from the coast, "
+         f"span {_r0['tier_span_m']:.0f} m, "
+         f"contrast {_r0['contrast_vs_impact_m']:.0f} m against the impact "
+         f"zone at {_r0['impact_dist_m']:.0f} m")
+    info(f"  admission threshold {_r0['admission_threshold_m']:.0f} m "
+         f"= {_r0['admission_threshold_m'] / _r0['reach_L_m']:.2f} x the "
+         f"fitted reach {_r0['reach_L_m']:.0f} m ({_r0['reach_source']}); "
+         f"members clearing it: "
+         f"{int(_ff_audit['clears_threshold'].sum())}/{len(_ff_audit)}")
+    for _, _rw in _ff_audit.iterrows():
+        print(f"     {_rw['well']:<8}  d = {_rw['dist_coast_m']:7.1f} m"
+              f"   {'clears' if _rw['clears_threshold'] else 'BELOW'} "
+              f"threshold")
+
 # ============================================================================
 # BUILD BACI DISPLACEMENT TIME-SERIES (for each control)
 # ============================================================================
 phase(2, "Building BACI displacement time-series")
+# NOTE on 'Combined'.  It is the union of the three tiers it names and NOTHING
+# ELSE.  The far-field tier is a separate entry below and is deliberately NOT
+# folded into 'Combined': doing so would change a published clearfell step for
+# no analytical gain, since the far-field result is reported in its own right
+# and its value lies in the distance contrast that pooling would dilute.
 CONTROLS = {
     'Forest':   FOREST_CONTROL_WELLS,                    # C4 only (5 wells)
     'Climate':  CLIMATE_CONTROL_WELLS,                   # C3 (5 wells)
     'Combined': (FOREST_CONTROL_WELLS +                  # All 12 controls
                  COASTAL_CONTROL_WELLS +
                  CLIMATE_CONTROL_WELLS),
+    # Chosen for distance contrast, not for matching the impact zone's
+    # setting — see clearfell_common.FAR_FIELD_CONTROL_WELLS for the
+    # admission criteria and for why NW4 is excluded from it.
+    FAR_FIELD_CONTROL_LABEL: FAR_FIELD_CONTROL_WELLS,
 }
 
 ZONES = {
@@ -565,6 +626,113 @@ for zone_label in ZONES.keys():
           f"{fit_cur['clearfell_step']*1000:+.0f} mm")
 
 # ============================================================================
+# PER-CONTROL-WELL SPREAD
+# ============================================================================
+# A control tier's ANCOVA is fitted against the tier CENTROID, so the result is
+# a tier mean and says nothing about whether the tier's members agree.  That
+# matters most for a tier selected on distance rather than on setting: its
+# members can sit a long way apart and need not respond alike, in which case
+# the tier mean is the less meaningful summary and a reader has to be able to
+# see it.
+#
+# The spread is measured by refitting the SAME specification with each control
+# well used singly as the control set, and reporting the resulting range beside
+# the tier estimate.  It is computed for EVERY control tier, not only the new
+# one: a spread is only interpretable against the spread the established tiers
+# show, and quoting it for one tier alone would invite the reader to judge it
+# against zero.
+#
+# These are diagnostics.  None of them replaces a tier fit, and the tier fits
+# above are untouched by this section.
+print("\n3c. Per-control-well spread — refitting each tier one control well "
+      "at a time...")
+
+_coast_dists = well_distances_to_coast()
+spread_rows = []
+
+for ctrl_label, ctrl_wells in CONTROLS.items():
+    tier_stats = tier_distance_stats(ctrl_wells, _coast_dists)
+    for zone_label, zone_wells in ZONES.items():
+        tier_fit = results.get((ctrl_label, zone_label))
+        if tier_fit is None:
+            continue
+
+        tier_east = np.nan
+        if 'easting_x_time' in tier_fit['col_names']:
+            tier_east = float(
+                tier_fit['b'][tier_fit['col_names'].index('easting_x_time')])
+
+        per_well = []
+        for cw in ctrl_wells:
+            df_w = build_ancova_frame(
+                wells, climate, zone_wells, [cw],
+                well_locations, lambda_m=SCRAPING_DECAY_LAMBDA)
+            if df_w is None or len(df_w) < 20:
+                skipped(f"{ctrl_label} × {zone_label}: {cw.upper()} "
+                        f"(insufficient data)")
+                continue
+            fit_w = run_ancova(
+                df_w, include_easting=bool(df_w['has_easting'].iloc[0]))
+            e_coef = e_se = e_p = np.nan
+            if 'easting_x_time' in fit_w['col_names']:
+                _k = fit_w['col_names'].index('easting_x_time')
+                e_coef = float(fit_w['b'][_k])
+                e_se = float(fit_w['se'][_k])
+                e_p = float(fit_w['p'][_k])
+            per_well.append({
+                'Control': ctrl_label,
+                'Zone': zone_label,
+                'Control_well': cw.upper(),
+                'Control_dist_coast_m': _coast_dists.get(cw, np.nan),
+                'Clearfell_step_m': float(fit_w['clearfell_step']),
+                'Clearfell_p': float(fit_w['clearfell_p']),
+                'Easting_coef': e_coef,
+                'Easting_se': e_se,
+                'Easting_p': e_p,
+                'R2': float(fit_w['r2']),
+                'N': int(fit_w['n']),
+            })
+
+        if not per_well:
+            continue
+
+        steps = np.array([r['Clearfell_step_m'] for r in per_well], dtype=float)
+        easts = np.array([r['Easting_coef'] for r in per_well], dtype=float)
+        for r in per_well:
+            r.update({
+                'N_control_wells': len(per_well),
+                'Tier_mean_dist_coast_m': tier_stats['mean_m'],
+                'Tier_dist_span_m': tier_stats['span_m'],
+                'Tier_clearfell_step_m': float(tier_fit['clearfell_step']),
+                'Tier_easting_coef': tier_east,
+                'Spread_step_min_m': float(np.nanmin(steps)),
+                'Spread_step_max_m': float(np.nanmax(steps)),
+                'Spread_step_sd_m': (float(np.nanstd(steps, ddof=1))
+                                     if len(steps) > 1 else np.nan),
+                'Spread_easting_min': (float(np.nanmin(easts))
+                                       if np.isfinite(easts).any() else np.nan),
+                'Spread_easting_max': (float(np.nanmax(easts))
+                                       if np.isfinite(easts).any() else np.nan),
+                'Spread_easting_sd': (float(np.nanstd(easts, ddof=1))
+                                      if np.isfinite(easts).sum() > 1
+                                      else np.nan),
+            })
+        spread_rows.extend(per_well)
+
+        if len(steps) > 1:
+            detail = (f"per-well steps {np.nanmin(steps) * 1000:+.0f} to "
+                      f"{np.nanmax(steps) * 1000:+.0f} mm "
+                      f"(n={len(per_well)}, "
+                      f"SD={np.nanstd(steps, ddof=1) * 1000:.0f} mm)")
+        else:
+            detail = "single control well — no spread to report"
+        print(f"   {ctrl_label:<10} × {zone_label:<7} "
+              f"tier step = {tier_fit['clearfell_step'] * 1000:+.0f} mm   "
+              f"{detail}")
+
+spread_df = pd.DataFrame(spread_rows)
+
+# ============================================================================
 # SENSITIVITY: scraping decay length
 # ============================================================================
 phase(4, "Scraping decay sensitivity (λ = 200 m, 500 m)")
@@ -667,6 +835,10 @@ for (ctrl_label, zone_label), fit in results.items():
 coeff_df = pd.DataFrame(coeff_rows)
 coeff_df.to_csv(OUT_FULL_COEFFS, index=False)
 saved(f"{OUT_FULL_COEFFS.name} ({len(coeff_df)} rows)")
+
+# ── Per-control-well spread (see the section that built it) ──────────────
+spread_df.to_csv(OUT_WELL_SPREAD, index=False)
+saved(f"{OUT_WELL_SPREAD.name} ({len(spread_df)} rows)")
 
 # ============================================================================
 # EXPORT: BACI TIMESERIES DATA
@@ -1177,6 +1349,40 @@ for _, row in sensitivity_df.iterrows():
             row['Clearfell_step_m'],
             well=row['Zone'],
             note=f"p={format_p(row['Clearfell_p'])}, R²={row['R2']:.3f}")
+
+# Far-field tier geometry — derived, so a document can cite the contrast the
+# corroboration test rests on without any script typing a distance.
+if not _ff_audit.empty:
+    _r0 = _ff_audit.iloc[0]
+    rpt.add("FarField_tier_mean_dist_coast", _r0['tier_mean_dist_m'],
+            unit="m", well="FarField",
+            note=f"n_wells={len(_ff_audit)}, "
+                 f"span={_r0['tier_span_m']:.1f} m, "
+                 f"members={', '.join(_ff_audit['well'])}")
+    rpt.add("FarField_contrast_vs_impact", _r0['contrast_vs_impact_m'],
+            unit="m", well="FarField",
+            note=f"impact zone at {_r0['impact_dist_m']:.1f} m; the "
+                 f"distance contrast the Script 25 BACI corroboration is "
+                 f"tested on")
+    rpt.add("FarField_admission_threshold", _r0['admission_threshold_m'],
+            unit="m", well="FarField",
+            note=f"FAR_FIELD_REACH_MULTIPLE x fitted reach "
+                 f"{_r0['reach_L_m']:.1f} m (source: {_r0['reach_source']})")
+
+# Per-control-well spread — the range each tier's members give when used
+# singly, emitted so no tier estimate is quoted without it.
+_spread_groups = ([] if spread_df.empty
+                  else list(spread_df.groupby(['Control', 'Zone'])))
+for (_c, _z), _g in _spread_groups:
+    _row = _g.iloc[0]
+    rpt.add(f"Spread_{_c}_{_z}_step_range",
+            _row['Spread_step_max_m'] - _row['Spread_step_min_m'],
+            well=_z,
+            note=f"single-control-well refits: "
+                 f"[{_row['Spread_step_min_m']:.4f}, "
+                 f"{_row['Spread_step_max_m']:.4f}] m over "
+                 f"{int(_row['N_control_wells'])} wells; "
+                 f"tier step {_row['Tier_clearfell_step_m']:.4f} m")
 
 # Scraping distance weights for network wells
 print("   Scraping distance weights:")

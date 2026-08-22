@@ -28,7 +28,104 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-08-20. Matching is now
+__version__ = "1.10.0"  # Hollingham (2026) — 2026-08-22. near_misses() was
+#   generating the value's own rendering as a near miss of itself. It excluded
+#   k = 0 but not the STRING: 2.0865 renders at 3 dp as "2.087", and so does
+#   2.0865 + 0.001, because in binary that sum is 2.08749999999999991. Every
+#   document quoting such a number CORRECTLY was reported as drifted. This is
+#   the bulk of what made the triage list unreadable (M23).
+#
+# v1.9.0  # Hollingham (2026) — 2026-08-22. The sweep could tell
+#   whether the corpus quotes the COMMITTED value. It could not tell whether the
+#   corpus quotes the SAME value in every document, and that is the question that
+#   bit: the forest reach was quoted at 220, 223, 225, 228 and 230 m across five
+#   documents while the figure rendered 226 and the CSV held 226.442. None of
+#   those matched at any searched precision, so the quantity sat in the "not
+#   cited anywhere" bin, which is exactly where every deliberately-rounded prose
+#   figure lives and where nothing had ever looked.
+#
+#   Two changes, both asked for by Martin on 2026-08-22:
+#     (a) values of magnitude >= LARGE_VALUE_MIN are also searched at dp = 0, so
+#         a quantity of order hundreds is findable in the form prose writes it;
+#     (b) a new SPREAD check — for a registered quantity, collect EVERY rendering
+#         near its anchor across the whole corpus and report the distinct set.
+#         It fires on disagreement between documents, whether or not any of the
+#         renderings matches the CSV, which is the case the other checks cannot
+#         see. Advisory unless --spread-gate.
+#
+# v1.8.0  # Hollingham (2026) — 2026-08-21. EXTRA_VALUE_TABLES —
+#   the third hole. collect_values() reads only *report_numbers*.csv, so any
+#   script publishing into the documents without one was never checked at all.
+#   Twenty-four output directories carry CSVs and no report-numbers file; the
+#   register names the ones whose numbers are quoted, starting with Script 15,
+#   which was stale in four of five values and had flipped a published ranking
+#   while the gate stayed green.
+#
+# v1.7.0  # Hollingham (2026) — 2026-08-21. Manifest counts are
+#   registered only where a phrase anchor exists. A small integer without one
+#   cannot be distinguished from a step index, so the sub-step counts and
+#   analytical_phases — the latter cited in no document by standing rule — were
+#   reporting every occurrence of "11", "13" and "15" in the corpus as a stale
+#   count. Checking a number badly is worse than not checking it: it fills the
+#   triage list with noise and the real hits stop being read.
+#
+# v1.6.1  # Hollingham (2026) — 2026-08-21. The tier and exec
+#   phrases needed the number in them. "analytical" and "default pass" sit
+#   beside step indices as well as counts — "steps 36-41/50, all analytical-
+#   default" — so the loose phrases matched indices and reported 38 and 41 as
+#   stale counts. Every manifest phrase now pins {n}.
+#
+# v1.6.0  # Hollingham (2026) — 2026-08-21. Phrase anchors for the
+#   manifest counts. A token anchor cannot separate "50 steps" from "step 50" —
+#   both sit beside the word "steps" — so the counts fired on step indices and
+#   the triage list was unusable. ANCHOR_PHRASES requires a phrase, in a 60-
+#   character window rather than a 400-character one, with the number's own
+#   value substituted into the phrase where it belongs.
+#
+# v1.5.0  # Hollingham (2026) — 2026-08-21. Integer-valued
+#   quantities are searched at zero decimal places. The default precision set
+#   is [2, 3, 4], so the step count was rendered "50.00" and matched nothing:
+#   the manifest counts were registered, anchored and admitted, and still never
+#   searched for. Whole numbers now get dp=0 added automatically.
+#
+# v1.4.0  # Hollingham (2026) — 2026-08-21. Adds the MIXED class,
+#   which is where the corpus's real drift has been hiding. check_numbers()
+#   stopped at the first document quoting a value correctly and called it
+#   settled — so a number corrected in three documents and left stale in seven
+#   reported as "cited and current". The scan now continues past that hit and
+#   reports the stale occurrences as MIXED, sorted ahead of everything else: a
+#   value that is right in one document and wrong in another is a sweep that
+#   was started and not finished, which is more urgent than a value uniformly
+#   out of date.
+#
+# v1.3.0  # Hollingham (2026) — 2026-08-21. The manifest counts
+#   registered in v1.2.0 still did not fire, for two reasons found by probing
+#   rather than by reading: the keys' anchors were the manifest's own field
+#   names ("total", "registered") and not the words the documents use, and
+#   searchable() rejects two-digit values outright, so "49" was never even
+#   searched for. Keys are now named for the document vocabulary, and short
+#   values are admitted for anchored manifest keys only. With both in place the
+#   step count is found, anchored, in ten documents.
+#
+# v1.2.0  # Hollingham (2026) — 2026-08-21. Closes the two holes
+#   that let stale numbers sit behind a clean gate.
+#
+#   (1) EVERY OCCURRENCE, not the indexed one. check_index() walks index ROWS,
+#   and the index carries one row per (key, document). A value repeated across
+#   documents was therefore checked in one of them: the clearfell step was
+#   flagged in the Methods Supplement while the same stale figure stood in
+#   report10 and in the Conclusions. sweep_repeats() now takes every stale
+#   string the index check found and searches the WHOLE corpus for it, so a
+#   number that appears in five documents is reported five times.
+#
+#   (2) THE MANIFEST COUNTS. A number with no key was never checked at all, and
+#   the most-repeated numbers in the corpus - the registered step count, the
+#   phase count, the tier and exec splits - had none. Registering Script 39
+#   moved the step count from 49 to 50 and nine documents went stale in silence.
+#   collect_values() now reads outputs/pipeline_manifest.json, so the counts
+#   run_analysis.py already guards internally are guarded in the documents too.
+#
+# v1.1.0  # Hollingham (2026) — 2026-08-20. Matching is now
 #        numeric-boundary aware and context aware, and the citation index's
 #        stored `before`/`after` slices are finally used for what they were
 #        recorded for. Every place that asked `needle in text` asked a
@@ -50,8 +147,11 @@ __version__ = "1.1.0"  # Hollingham (2026) — 2026-08-20. Matching is now
 
 import argparse
 import csv
+import json
 import re
 import sys
+from bisect import bisect_left, bisect_right
+from collections import defaultdict
 from pathlib import Path
 
 import pandas as pd
@@ -89,6 +189,27 @@ HEADLINE_TABLES = [
      # covered rather than four of its six numeric columns.
      ["beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage",
       "R2", "LCSC_percent"]),
+]
+
+# Value tables that are NOT report-numbers files but whose numbers reach the
+# documents. collect_values() reads outputs/**/*report_numbers*.csv, so a script
+# that publishes into the prose without one is invisible to the whole check —
+# not "not cited", never looked at. Script 15 was stale in four of five lambda
+# values and four of five NSE improvements, and had flipped a published ranking,
+# with the gate green throughout. Twenty-four output directories carry CSVs and
+# no report-numbers file; these are the ones whose values are quoted.
+#   (csv path, key column, value columns)  — same shape as HEADLINE_TABLES.
+EXTRA_VALUE_TABLES = [
+    ("outputs/15_depth_dependent_pet/15_04_best_params.csv", "Cluster",
+     ["Best_Lambda", "NSE_Iterative", "SSM_NSE", "R2_OneStep"]),
+    ("outputs/03_state_space_model/03_04_lag_diagnostic.csv", "Cluster_Label",
+     ["R2"]),
+    ("outputs/32_differential_movement/32_site_mean_trend.csv", "period",
+     ["slope_mm_yr", "resid_sd_mm", "min_detectable_mm_yr"]),
+    ("outputs/22_residual_lag_analysis/22_06_ssm_cluster_mean_inference.csv",
+     "Cluster_Label", ["R2", "durbin_watson", "ar1_phi"]),
+    ("outputs/39_ccw_hindcast/39_01_hindcast_per_well.csv", "well",
+     ["nse", "pearson_r", "bias_m", "epoch_shift_m"]),
 ]
 
 # Claims register. rule is evaluated against the named CSV.
@@ -130,29 +251,141 @@ _STOPWORDS = {
 }
 
 
-def anchors(key: str) -> list[str]:
-    """Distinctive tokens from a report-numbers key: well ids, cluster ids,
-    topic words. Generic words are dropped — they anchor nothing."""
-    out = []
+# Some keys need a PHRASE, not a token. The manifest counts are the case: they
+# are small integers, and "49" sits near the word "steps" both when a document
+# states the step COUNT and when it names step 49. A single-token anchor cannot
+# tell those apart and floods the triage list with step indices. Where a key
+# appears here, anchored() requires one of these phrases in the window instead
+# of any derived token, and the phrase is matched with the number's own position
+# so "50 steps" counts and "step 50" does not.
+ANCHOR_PHRASES: dict[str, tuple[str, ...]] = {
+    "pipeline_steps_registered": (
+        "registered steps", "registered pipeline steps", "steps across",
+        "steps in order", "-step", "step reproducible", "all {n} steps",
+        "same {n} steps", "scripts ({n} steps", "total registered steps",
+    ),
+    "pipeline_phases_total": (
+        "across {n} phases", "{n} phases", "phases 1-{n}", "phases 1--{n}",
+    ),
+    # These two need the NUMBER in the phrase. "analytical" and "default pass"
+    # both sit beside step indices — "steps 36-41/50, all analytical-default" —
+    # and a phrase that does not pin the number matches those too.
+    "pipeline_steps_analytical": (
+        "{n} analytical", "analytical top-level: {n}", "tier: {n}",
+    ),
+    "pipeline_steps_default": (
+        "{n} in a default", "{n} run in a default", "execution: {n}",
+        "default-exec {n}",
+    ),
+    "pipeline_steps_display": ("{n} display/utility",),
+    "pipeline_steps_diagnostic": ("{n} diagnostic",),
+    "pipeline_steps_optin": ("{n} opt-in", "{n} only under", "{n} only behind"),
+}
+
+PHRASE_WINDOW = 60           # characters either side, for phrase anchors
+
+
+def phrase_anchored(text: str, needle: str, phrases) -> bool:
+    """True if `needle` occurs with one of `phrases` close by.
+
+    Deliberately tighter than anchored(): the window is a phrase's worth of
+    characters, not a paragraph's, because the whole point is to separate a
+    count from an index that sits near the same vocabulary.
+    """
+    low = text.lower()
+    want = [ph.replace("{n}", needle).lower() for ph in phrases]
+    for start, end in number_spans(text, needle):
+        window = low[max(0, start - PHRASE_WINDOW): end + PHRASE_WINDOW]
+        if any(w in window for w in want):
+            return True
+    return False
+
+
+# A key often names BOTH a subject and a quantity — CoeffShift_CEH2_b1_before is
+# well CEH2 and coefficient β₁. The subject alone is a weak anchor: report10 says
+# "β₂ = 2.628 at NW10 is below CEH2 (β₂ = 2.891)", and a scan anchored on "CEH2"
+# alone reads that 2.628 as a stale rendering of CEH2's β₁. Requiring a quantity
+# marker too rejects it, because the quantity in that sentence is β₂.
+#
+# The coefficient shorthands never appear in prose in the form the CSV keys use,
+# so the key's own token cannot do the work; this is the translation.
+_QUANTITY_FORMS = {
+    "b1": ["β₁", "beta_1", "beta 1", "recharge sensitivity"],
+    "b2": ["β₂", "beta_2", "beta 2", "atmospheric draw"],
+    "b3": ["β₃", "beta_3", "beta 3", "drainage coefficient", "drainage decay"],
+    "r2": ["r²", "r2"],
+    "sy": ["specific yield", "sy"],
+    "nse": ["nse", "nash"],
+    "se": ["standard error", "se"],
+    "p": ["p ="],
+}
+
+
+def anchor_groups(key: str) -> tuple[list[str], list[str]]:
+    """(subject anchors, quantity anchors) from a report-numbers key.
+
+    Subjects are well and cluster ids — what the number is ABOUT. Quantities are
+    the topic words and the coefficient shorthands — what the number IS. A key
+    carrying both must match both, because a sentence naming the subject while
+    reporting a different quantity is the commonest false positive in the sweep.
+    """
+    subj, quant = [], []
     for t in re.split(r"[_\W]+", key):
         if not t or t.lower() in _STOPWORDS:
             continue
+        low = t.lower()
         if re.fullmatch(r"(?i)(ceh|nw|wmc|lis|fe|d|t)\d+[a-z]?", t):
-            out.append(t)                       # well id
+            subj.append(t)                      # well id
         elif re.fullmatch(r"(?i)c[1-5]", t):
-            out.append(t)                       # cluster id
+            subj.append(t)                      # cluster id
+        elif low in _QUANTITY_FORMS:
+            quant.extend(_QUANTITY_FORMS[low])
         elif t.isupper() and len(t) >= 3:
-            out.append(t)                       # acronym: BACI, ANCOVA, MSL...
+            quant.append(t)                     # acronym: BACI, ANCOVA, MSL...
         elif len(t) >= 5 and not t.isdigit():
-            out.append(t)                       # topic word
-    return out
+            quant.append(t)                     # topic word
+    return subj, quant
 
 
-def anchored(text: str, needle: str, keys: list[str]) -> bool:
-    """True if `needle` occurs anywhere within ANCHOR_WINDOW of an anchor."""
+def anchors(key: str) -> list[str]:
+    """Flat anchor list — kept for callers that do not need the split."""
+    subj, quant = anchor_groups(key)
+    return subj + quant
+
+
+def anchored(text: str, needle: str, keys: list[str],
+             key: str | None = None, strict: bool = False) -> bool:
+    """True if `needle` occurs anywhere within ANCHOR_WINDOW of an anchor.
+
+    A key listed in ANCHOR_PHRASES bypasses the token test entirely and must
+    satisfy the tighter phrase test instead.
+
+    `strict` demands a SUBJECT anchor and a QUANTITY anchor, not just either.
+    The burden of proof scales with how speculative the claim is: finding the
+    exact committed value near the well id is strong evidence the document is
+    citing that number, so the exact-hit scan stays permissive. A NEAR MISS is
+    weak evidence — it says "a different number sits near this well id" — and
+    applied permissively it reports every other coefficient in the sentence.
+    Demanding the quantity there costs nothing real and removes the commonest
+    false positive in the triage list.
+    """
+    if key and key in ANCHOR_PHRASES:
+        return phrase_anchored(text, needle, ANCHOR_PHRASES[key])
     if not keys:
         return True
     low = text.lower()
+    subj, quant = anchor_groups(key) if key else ([], [])
+    # When the key names both a subject and a quantity, demand both. When it
+    # names only one, fall back to the flat any-match — tightening a key that
+    # has nothing to tighten with only loses sensitivity.
+    if strict and subj and quant:
+        lowsubj = [k.lower() for k in subj]
+        lowquant = [k.lower() for k in quant]
+        for start, _end in number_spans(text, needle):
+            window = low[max(0, start - ANCHOR_WINDOW): start + ANCHOR_WINDOW]
+            if any(k in window for k in lowsubj) and any(k in window for k in lowquant):
+                return True
+        return False
     lowkeys = [k.lower() for k in keys]
     for start, _end in number_spans(text, needle):
         window = low[max(0, start - ANCHOR_WINDOW): start + ANCHOR_WINDOW]
@@ -166,9 +399,21 @@ def _sig_digits(s: str) -> int:
         len(re.findall(r"(?<=[1-9])0", s.replace(".", "")))
 
 
-def searchable(s: str) -> bool:
+# Keys whose values are short whole numbers and would fail the significant-digit
+# test, but which carry strong anchors ("pipeline", "steps", "phases") so a
+# two-digit match near one of them is a citation rather than a coincidence. The
+# manifest counts are the whole of this exception: they are the most-repeated
+# numbers in the corpus and the general rule was hiding every one of them.
+SHORT_VALUE_KEY_PREFIXES = ("pipeline_",)
+
+
+def searchable(s: str, key: str | None = None) -> bool:
     digits = re.sub(r"[^0-9]", "", s).lstrip("0")
-    return len(digits) >= MIN_SIG_DIGITS
+    if len(digits) >= MIN_SIG_DIGITS:
+        return True
+    if key and key.startswith(SHORT_VALUE_KEY_PREFIXES) and len(digits) >= 2:
+        return True
+    return False
 
 
 # ---------------------------------------------------------------------------
@@ -363,13 +608,25 @@ def render(v: float, dp: int) -> str:
 
 
 def near_misses(v: float, dp: int, span: int) -> list[str]:
-    """Renderings within `span` units of the last decimal place, excluding v."""
+    """Renderings within `span` units of the last decimal place, excluding v.
+
+    "Excluding v" has to mean excluding v's own RENDERING, not merely skipping
+    k = 0. Binary floating point breaks the two apart: 2.0865 renders at three
+    decimals as "2.087", and so does 2.0865 + 0.001, because that sum is really
+    2.08749999999999991. So the correct rendering was being generated as a near
+    miss of itself, and every document quoting the number correctly was reported
+    as drifted. That accounted for most of a 200-row triage list, all of it
+    under a 1 % gap, and it is why the list had stopped being read.
+    """
     step = 10 ** -dp
+    self_render = render(v, dp)
     out = []
     for k in range(-span, span + 1):
         if k == 0:
             continue
-        out.append(render(v + k * step, dp))
+        r = render(v + k * step, dp)
+        if r != self_render and r not in out:
+            out.append(r)
     return out
 
 
@@ -396,7 +653,52 @@ def collect_values() -> list[tuple[str, str, float]]:
                 vals.append((str(p.relative_to(REPO)), str(r[kcol]), float(r[vcol])))
             except (TypeError, ValueError):
                 continue
-    for rel, kcol, vcols in HEADLINE_TABLES:
+    # Manifest counts. These are the most-repeated numbers in the corpus and
+    # had no key, so nothing checked them: run_analysis.py guards its own
+    # _DOCUMENTED_COUNTS internally, but that guard never reached the prose.
+    # Sourced from the committed manifest so the documents are checked against
+    # what the pipeline actually registered, not against a second declaration.
+    man = REPO / "outputs" / "pipeline_manifest.json"
+    if man.exists():
+        try:
+            m = json.loads(man.read_text(encoding="utf8"))
+            flat = {k: v for k, v in m.items() if isinstance(v, (int, float))}
+            for grp in ("by_tier", "by_exec"):
+                for k, v in (m.get(grp) or {}).items():
+                    if isinstance(v, (int, float)):
+                        flat[f"{grp}.{k}"] = v
+            # Key names are chosen so anchors() derives the words the
+            # DOCUMENTS use — "pipeline", "steps", "phases" — rather than the
+            # manifest's own field names. A near miss is only reported when it
+            # sits near an anchor, so "49 steps across 17 phases" is invisible
+            # to a key anchored on "registered" and "total".
+            rename = {
+                "total_registered":            "pipeline_steps_registered",
+                "total_phases":                "pipeline_phases_total",
+                "analytical_phases":           "pipeline_phases_analytical",
+                "scraping_substeps":           "pipeline_scraping_substeps",
+                "clearfell_substeps":          "pipeline_clearfell_substeps",
+                "by_tier.analytical_toplevel": "pipeline_steps_analytical",
+                "by_tier.display_utility":     "pipeline_steps_display",
+                "by_tier.optin_diagnostic":    "pipeline_steps_diagnostic",
+                "by_exec.default":             "pipeline_steps_default",
+                "by_exec.optin":               "pipeline_steps_optin",
+            }
+            for k, v in flat.items():
+                name = rename.get(k, f"pipeline_{k}")
+                # Only counts with a phrase anchor are registered. A small
+                # integer without one cannot be told from a step index and
+                # would report every occurrence of "13" in the corpus. Two are
+                # deliberately absent: analytical_phases, which the working
+                # rules say is emitted for completeness and cited nowhere, and
+                # the sub-step counts, which appear only as ranges.
+                if name not in ANCHOR_PHRASES:
+                    continue
+                vals.append(("outputs/pipeline_manifest.json", name, float(v)))
+        except (OSError, ValueError):
+            pass
+
+    for rel, kcol, vcols in list(HEADLINE_TABLES) + list(EXTRA_VALUE_TABLES):
         p = REPO / rel
         if not p.exists():
             continue
@@ -408,6 +710,177 @@ def collect_values() -> list[tuple[str, str, float]]:
                 except (TypeError, ValueError, KeyError):
                     continue
     return vals
+
+
+# ---------------------------------------------------------------------------
+# SPREAD — one quantity, several renderings
+# ---------------------------------------------------------------------------
+# Every other check in this file asks "does the corpus quote the committed
+# value?". That question has a blind spot: a quantity the documents deliberately
+# round — a modelled reach stated to the nearest tens of metres, say — never
+# equals the CSV at any searched precision, so it lands in the uncited bin and
+# no check ever looks at it again. Meanwhile the documents are free to disagree
+# with each other, and they do.
+#
+# SPREAD asks the other question: does the corpus quote the SAME value
+# everywhere? It collects every rendering that sits near the quantity's anchor
+# and reports the distinct set. More than one member is the finding.
+#
+# Each register entry is (anchor phrases, window, relative band, exclusions):
+#   anchors     one must appear within `window` characters of the number. For a
+#               quantity with a symbol, the symbol is the anchor — it is far
+#               tighter than the key's own vocabulary.
+#   window      characters either side. Deliberately small; a paragraph-sized
+#               window sweeps in every other number in the paragraph.
+#   band        renderings are kept only within this relative distance of the
+#               committed value, so an unrelated number near the same symbol is
+#               not mistaken for a rendering of this quantity.
+#   exclusions  a phrase in the window that means this occurrence is a DIFFERENT
+#               quantity sharing the symbol. λ names both the drawdown reach and
+#               the scraping covariate; the register is where they are separated,
+#               and tools/symbol_register.csv carries the same distinction for
+#               the symbol audit.
+LARGE_VALUE_MIN = 100.0
+
+# Documents whose job is to record what a value USED to be. A spread check on
+# them reports the history as though it were disagreement, which inverts their
+# purpose: the Decision Log and the ledgers are where a superseded number is
+# supposed to survive. They stay inside every other check.
+SPREAD_EXCLUDE_DOCS = ("DECISION_LOG.md", "NUMBER_LEDGER.md",
+                       "SCRIPT_LEDGER.md", "FIGURE_LEDGER.md")
+
+QUANTITY_ANCHORS = {
+    # The forest/scrape reach. λ also names the scraping BACI covariate and the
+    # P_flood rainfall multiplier, so the exclusions carry the same sense
+    # separation that tools/symbol_register.csv carries for the symbol audit.
+    "drawdown_lambda": (["λ"], 40, 0.15,
+                        ["scraping", "covariate", "spans roughly", "sensitivity",
+                         "500 m", "p_flood", "p\\_flood", "multiplier"]),
+    # The coastal fit's parameters, quoted rounded in six passages across three
+    # chapters and previously drifted by a whole generation of the fit (D-047,
+    # D-039). δ₀ is the shoreline amplitude, not the headline; the headline is
+    # quoted at the reference distance and is registered separately.
+    "Headline_fit_delta_0": (["δ₀"], 45, 0.12,
+                             ["150 m", "reference distance", "95 % ci", "95% ci"]),
+    "Headline_coastal_rate_at_ref": (["coast-edge trend", "at the 150 m",
+                                      "reference distance"], 90, 0.12, []),
+    "Headline_fit_L": (["reach", "strip-aquifer width", "inland over"], 45, 0.10,
+                       # 2√(Dt) is the diffusive length-scale of the sea-level-rise
+                       # field, and a cluster's mean distance to the coast is a
+                       # position, not the reach. Both sit next to the word "reach".
+                       ["scraping", "λ", "√(dt)", "mean distance", "roughly 900",
+                        "about 900", "≈ 900"]),
+}
+
+# A leading minus is only a minus when nothing precedes it. In the pandoc
+# mirrors an en dash is written "--", so "16--17" was yielding "-17" as a
+# negative number and the phase count appeared to disagree with itself.
+_NUMERIC = re.compile(r"(?<![\w.\-–—])(-?\d+(?:\.\d+)?)(?![\w.])")
+
+
+_NUM_INDEX: list | None = None       # [(abs_value, doc, rendering, start, end)]
+_NUM_KEYS: list | None = None        # the magnitudes alone, for bisect
+
+
+def _number_index(docs) -> list:
+    """Every numeric token in the corpus, once, sorted by magnitude.
+
+    --spread-all asks the same question of a thousand values. Rescanning the
+    corpus per value is a thousand passes; indexing once and bisecting into the
+    band is one. Built lazily so the default run pays nothing extra.
+    """
+    global _NUM_INDEX, _NUM_KEYS
+    if _NUM_INDEX is None:
+        idx = []
+        for doc, text in sorted(docs.items()):
+            if doc.split("/")[-1] in SPREAD_EXCLUDE_DOCS:
+                continue
+            for m in _NUMERIC.finditer(text):
+                try:
+                    x = abs(float(m.group(1)))
+                except ValueError:
+                    continue
+                idx.append((x, doc, m.group(1), m.start(), m.end()))
+        idx.sort(key=lambda r: r[0])
+        _NUM_INDEX = idx
+        _NUM_KEYS = [r[0] for r in idx]
+    return _NUM_INDEX
+
+
+def renderings_near(docs, value, anchor_list, window, band, excludes,
+                    require_all=False):
+    """{rendering: [documents]} for every number near an anchor and in band."""
+    idx = _number_index(docs)
+    keys = _NUM_KEYS
+    lo, hi = abs(value) * (1 - band), abs(value) * (1 + band)
+    out: dict[str, list[str]] = defaultdict(list)
+    lowanchors = [a.lower() for a in anchor_list]
+    lowex = [e.lower() for e in excludes]
+    for x, doc, rendering, start, end in idx[bisect_left(keys, lo):
+                                             bisect_right(keys, hi)]:
+        text = docs[doc]
+        win = text[max(0, start - window): end + window].lower()
+        ok = (all(a in win for a in lowanchors) if require_all
+              else any(a in win for a in lowanchors))
+        if not ok:
+            continue
+        if any(e in win for e in lowex):
+            continue
+        out[rendering].append(doc)
+    return out
+
+
+def generic_anchors(key: str):
+    """Fallback register entry for --spread-all: the key's own vocabulary.
+
+    Far stricter than a registered entry, and it has to be. A registered entry
+    anchors on the quantity's own symbol, which is unambiguous; a key's tokens
+    are words like "C3" and "NSE" that sit near dozens of unrelated numbers. So
+    the fallback demands EVERY token inside a tight window and a 2 % band, and
+    even then this mode is a way of finding quantities that DESERVE a register
+    entry, not a findings list. Anything it surfaces should be read, checked by
+    hand, and then registered properly with its own anchor.
+    """
+    toks = anchors(key)
+    if len(toks) < 2:
+        return None
+    return (toks, 60, 0.02, [], True)
+
+
+def check_spread(docs, values, spread_all=False, gate=False) -> int:
+    print("=" * 78)
+    print("SPREAD — does the corpus quote the same value everywhere?")
+    print("=" * 78)
+    print("  A quantity the documents round never matches the CSV at any searched"
+          "\n  precision, so the other checks cannot see it disagree with itself."
+          "\n  More than one rendering near the same anchor is the finding.")
+    seen, hits = set(), 0
+    for source, label, v in values:
+        if not (abs(v) > 0) or (label, v) in seen:
+            continue
+        seen.add((label, v))
+        entry = QUANTITY_ANCHORS.get(label)
+        if entry is None:
+            if not spread_all:
+                continue
+            entry = generic_anchors(label)
+            if entry is None:
+                continue
+        found = renderings_near(docs, v, *entry)
+        if len(found) <= 1:
+            continue
+        hits += 1
+        print(f"\n  {label}   committed {v:g}   ({source})")
+        for r, where in sorted(found.items(), key=lambda kv: -len(kv[1])):
+            docs_ = sorted({d.split("/")[-1] for d in where})
+            print(f"      {r:>10s}  x{len(where):<3d} {', '.join(docs_)}")
+    if not hits:
+        print("\n  No registered quantity is rendered inconsistently.")
+    else:
+        print(f"\n  {hits} quantity(ies) rendered inconsistently across the corpus.")
+        if not gate:
+            print("  Advisory — pass --spread-gate to make this a gating check.")
+    return hits if gate else 0
 
 
 def check_numbers(docs, dps, span, min_rel=0.0, csv_out=None) -> int:
@@ -427,27 +900,46 @@ def check_numbers(docs, dps, span, min_rel=0.0, csv_out=None) -> int:
         seen.add((label, v))
         hit_dp = None
         anc = anchors(label)
-        for dp in dps:
+        # Whole numbers are written without a decimal point, and the default
+        # precision set starts at two: rendering the step count as "50.00" finds
+        # nothing, and the count was never searched for at all. Any integer-
+        # valued published quantity has the same problem.
+        # Whole numbers, and any quantity of order hundreds or more, are
+        # written without a decimal point in prose. Rendering a 226 m reach as
+        # "226.44" finds nothing, and the quantity is then reported as uncited
+        # rather than as quoted-and-rounded.
+        dps_v = list(dps)
+        if float(v).is_integer() or abs(v) >= LARGE_VALUE_MIN:
+            dps_v = [0] + dps_v
+        for dp in dps_v:
             s = render(v, dp)
-            if not searchable(s):
+            if not searchable(s, label):
                 continue
-            if any(quotes(t, s) and anchored(t, s, anc)
+            if any(quotes(t, s) and anchored(t, s, anc, label)
                    for t in docs.values()):
                 hit_dp = dp
                 break
-        if hit_dp is not None:
+        # A value found SOMEWHERE was previously treated as settled, and the
+        # scan stopped. That is the deepest form of the repeats problem: a
+        # number corrected in three documents and left stale in seven reads as
+        # "cited and current", because one hit satisfied the check. The scan now
+        # continues in both cases; when the current value is present the stale
+        # occurrences are reported as MIXED, which is a different and more
+        # urgent finding than a value that is wrong everywhere.
+        mixed = hit_dp is not None
+        if mixed:
             ok += 1
-            continue
         found = []
-        for dp in sorted(dps, reverse=True):   # most precise first
-            if not searchable(render(v, dp)):
+        for dp in sorted(dps_v, reverse=True):   # most precise first
+            if not searchable(render(v, dp), label):
                 continue
             anc = anchors(label)
             for nm in near_misses(v, dp, span):
-                if not searchable(nm):
+                if not searchable(nm, label):
                     continue
                 where = [d for d, t in docs.items()
-                         if quotes(t, nm) and anchored(t, nm, anc)]
+                         if quotes(t, nm)
+                         and anchored(t, nm, anc, label, strict=True)]
                 if where:
                     found.append((nm, dp, where))
             if found:
@@ -456,26 +948,32 @@ def check_numbers(docs, dps, span, min_rel=0.0, csv_out=None) -> int:
             gaps = [abs(float(nm) - v) / abs(v) for nm, _, _ in found]
             rel = min(gaps) if gaps else 0.0
             if rel >= min_rel:
-                stale.append((source, label, v, found, rel))
-        else:
+                stale.append((source, label, v, found, rel, mixed))
+        elif not mixed:
             uncited.append((source, label, v))
 
-    stale.sort(key=lambda r: -r[4])          # widest gap first: triage top-down
+    # MIXED first: a value that is right in one document and wrong in another
+    # is the more urgent class, whatever the size of the gap.
+    stale.sort(key=lambda r: (not r[5], -r[4]))
 
     if csv_out:
         import csv as _csv
         with open(csv_out, "w", newline="", encoding="utf8") as fh:
             w = _csv.writer(fh)
             w.writerow(["rel_gap_pct", "key", "committed", "corpus_value",
-                        "documents", "source_csv"])
-            for source, label, v, found, rel in stale:
+                        "documents", "source_csv", "class"])
+            for source, label, v, found, rel, mixed in stale:
                 nm, _dp, where = found[0]
                 w.writerow([f"{rel*100:.2f}", label, f"{v:g}", nm,
-                            "; ".join(sorted(where)), source])
+                            "; ".join(sorted(where)), source,
+                            "MIXED" if mixed else "STALE"])
         print(f"  triage list written to {csv_out}")
     else:
-        for source, label, v, found, rel in stale:
-            print(f"\n  STALE?  {label}   (gap {rel*100:.2f}%)")
+        for source, label, v, found, rel, mixed in stale:
+            tag = "MIXED " if mixed else "STALE?"
+            note = ("  — the current value IS quoted elsewhere, so these "
+                    "documents were missed by an earlier sweep" if mixed else "")
+            print(f"\n  {tag}  {label}   (gap {rel*100:.2f}%){note}")
             print(f"          committed {v:g}   ({source})")
             for nm, dp, where in found[:3]:
                 print(f"          corpus has {nm} at {dp}dp in: "
@@ -515,6 +1013,11 @@ def check_index(docs, values) -> int:
         current.setdefault(label, v)
 
     ok = drifted = moved = unknown = advisory = 0
+    # (key, stale string, current string, document the index row named). Filled
+    # as rows are checked and swept across the whole corpus afterwards, because
+    # the index carries one row per document and a repeated number is otherwise
+    # checked in one place only.
+    stale_strings: list[tuple[str, str, str, str]] = []
     for row in csv.DictReader(open(idx, encoding="utf8")):
         # Rejected rows are recorded coincidences — keeping them stops the
         # builder re-proposing them, but they are not citations to check.
@@ -541,6 +1044,7 @@ def check_index(docs, values) -> int:
                 advisory += 1
             print(f"\n  DRIFTED  {key}  [{row.get('status','')}]")
             print(f"           {doc} quotes {quoted}, pipeline now says {want}")
+            stale_strings.append((key, quoted, want, doc))
             # Context as the DOCUMENT now reads at the located occurrence,
             # not as the index recorded it: the point is to show where the
             # stale string still sits.
@@ -561,14 +1065,57 @@ def check_index(docs, values) -> int:
                 ok += 0   # value updated in prose but index not re-pointed
                 print(f"\n  REPOINT  {key}: {doc} now quotes {want} "
                       f"(index still says {quoted}) — update the index row")
+                # The indexed document has been updated; other documents may
+                # still carry the old string, and nothing else would look.
+                stale_strings.append((key, quoted, want, doc))
             else:
                 print(f"\n  MOVED    {key}: {quoted} no longer in {doc} "
                       "— prose rewritten, or citation dropped")
+    sweep_repeats(docs, stale_strings)
     print(f"\n  {ok} citation(s) exact and current; {drifted} DRIFTED "
           f"(confirmed rows — these gate); {advisory} drifted on unreviewed "
           f"rows (advisory); {moved} moved/re-pointed; "
           f"{unknown} key(s) no longer published.")
     return drifted
+
+
+def sweep_repeats(docs, stale_strings) -> None:
+    """Search the whole corpus for every stale string the index check found.
+
+    The index holds one row per (key, document), so a value quoted in five
+    documents is verified in one of them and the other four stand unexamined
+    behind a passing gate. This takes each stale string the index check
+    identified and looks for it everywhere else, in a citable context, so the
+    repeats surface with the original.
+
+    Reported separately from DRIFTED because these locations have no index row:
+    they are places to check and re-point, not rows that already gate.
+    """
+    if not stale_strings:
+        return
+    seen: set[tuple[str, str]] = set()
+    hits: list[tuple[str, str, str, str]] = []
+    for key, quoted, want, indexed_doc in stale_strings:
+        for doc, text in docs.items():
+            if doc == indexed_doc or (doc, quoted) in seen:
+                continue
+            if not quotes(text, quoted):
+                continue
+            seen.add((doc, quoted))
+            hits.append((key, quoted, want, doc))
+    if not hits:
+        return
+    print()
+    print("-" * 78)
+    print("REPEATS — the same stale string in documents the index does not cover")
+    print("-" * 78)
+    for key, quoted, want, doc in sorted(hits, key=lambda h: (h[0], h[3])):
+        print(f"  UNINDEXED  {key}: {doc} also carries {quoted} "
+              f"(pipeline says {want}) — no index row covers this occurrence")
+    docs_hit = len({h[3] for h in hits})
+    print(f"\n  {len(hits)} unindexed occurrence(s) across {docs_hit} document(s). "
+          "Each needs the same edit as its indexed twin, and an index row so it "
+          "is checked next time.")
 
 
 def check_claims(docs) -> int:
@@ -632,6 +1179,13 @@ def main() -> int:
                          "(e.g. 0.005 hides rounding-level differences)")
     ap.add_argument("--csv", default=None,
                     help="write the triage list to a CSV and print a summary only")
+    ap.add_argument("--spread-all", action="store_true",
+                    help="run the SPREAD check over every published value using "
+                         "the key's own vocabulary as the anchor, not just the "
+                         "quantities in QUANTITY_ANCHORS. Exploratory: noisier, "
+                         "and it is how a quantity earns a register entry.")
+    ap.add_argument("--spread-gate", action="store_true",
+                    help="make SPREAD a gating check rather than advisory")
     args = ap.parse_args()
 
     docs = load_documents()
@@ -646,6 +1200,7 @@ def main() -> int:
         rc += check_index(docs, values)
         if not args.index_only:
             rc += check_numbers(docs, args.dp, args.near, args.min_rel, args.csv)
+            rc += check_spread(docs, values, args.spread_all, args.spread_gate)
     rc += check_claims(docs)
     return 1 if rc else 0
 

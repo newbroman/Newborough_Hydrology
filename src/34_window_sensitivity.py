@@ -50,8 +50,8 @@ Outputs (outputs/34_window_sensitivity/):
 
 Panel B note: the own-panel OLS trend shown is DESCRIPTIVE. The canonical secular
 trend is Script 32's AR-corrected site-mean trend, read at runtime from the
-committed 32_site_mean_trend.csv (full-record row) — no longer hard-coded here.
-Both are non-significant.
+committed 32_site_mean_trend.csv (full-record row, spring basis) — not
+hard-coded here, and the basis is selected by name rather than by row order.
 
 """
 
@@ -74,7 +74,11 @@ from utils import config, paths
 from utils.console_utils import banner, phase, step, info, note, result, saved, done, hr
 from utils.render_utils import render_figure
 
-__version__ = "0.5.0"
+__version__ = "0.6.0"  # 2026-08-21: load_script32_secular_trend() selects the
+#   site-mean basis explicitly (config.DIFF_SITE_MEAN_CITED_BASIS). Script 32
+#   v1.3.0 emits one row per basis per period, so the previous longest-span
+#   selection would have returned whichever basis was written last. Read-side
+#   change only; the quoted figure is unchanged.
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 SCRIPT_ID = "34"
 VERSION = __version__
@@ -93,13 +97,19 @@ ANCHOR = tuple(config.MSL5_WINDOW_ANCHOR)            # (2017, 2023)
 
 
 def load_script32_secular_trend():
-    """Read Script 32's committed site-mean spring-level trend (the canonical
-    AR-corrected secular figure cited in §5.7.5).
+    """Read Script 32's committed site-mean trend (the canonical AR-corrected
+    secular figure cited in the spatial chapter).
 
     Returns (slope_mm_yr, p_ar, period_label) for the full-record row (the
     longest-span period in 32_site_mean_trend.csv), or None if Script 32 has not
     been run yet (Script 32 is step 36, this is step 42, so on a full run the file
     exists).
+
+    Since Script 32 v1.3.0 that file carries one row per basis per period, so the
+    basis is selected explicitly here rather than taken from row order: the figure
+    this script quotes is the spring one, matching Panel B's spring trajectory.
+    Selecting on span alone would silently return whichever basis happened to be
+    written last.
     """
     if not paths.OUT_32_SITE_MEAN_TREND.exists():
         return None
@@ -107,6 +117,10 @@ def load_script32_secular_trend():
     if df.empty:
         return None
     df = df.copy()
+    if "basis" in df.columns:
+        df = df[df["basis"] == config.DIFF_SITE_MEAN_CITED_BASIS]
+        if df.empty:
+            return None
     df["_span"] = df["last_year"] - df["first_year"]
     row = df.sort_values("_span").iloc[-1]           # full record = longest span
     return float(row["slope_mm_yr"]), float(row["p_ar"]), str(row["period"])

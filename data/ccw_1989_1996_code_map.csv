@@ -1,0 +1,14 @@
+code,well,status,datum_offset_m,datum_offset_source,evidence
+1A,nw12,confirmed,,not derivable,01_locations alias '1a'; ceh14 sited within ~10 m (Martin 2026-08-21)
+1B,nw10,confirmed,,not derivable,01_locations alias '1b'
+1C,nw11,confirmed,,not derivable,01_locations alias '1c'
+1D,nw13,confirmed,,not derivable,"Martin 2026-08-21 (confirmed): 1D is nw13. NW2 stands near it but is not the same well. Agrees with the CCW Wells header and the 01_locations alias '1d'; Sheet4's name row and Sheet3's arithmetic are superseded, consistent with Sheet3 also being wrong at 2C"
+1E,nw3,confirmed,0.052,Sheet3 implied 1989 ground 10.708 minus committed 10.656,01_locations alias '1e'; Sheet3 level column reproduced exactly from this code
+1F,nw4,confirmed,0.028,Sheet3 implied 1989 ground 9.188 minus committed 9.160,01_locations alias '1f'; Sheet3 level column reproduced exactly from this code
+2A,,unidentified,,not derivable,"never identified (Martin 2026-08-21); ceh13 alias 'nr 2a' records ceh13's siting only. No location, no ground elevation"
+2B,nw9,confirmed,,not derivable,CCW Wells header; Sheet3's contrary derivation at 2C is now known to be Sheet3's error
+2C,wmc3,confirmed,,not derivable,"Martin 2026-08-21 (corrected): wmc3 is 2C and wmc2 is 2G, restoring the CCW Wells header. Sheet3's column headed nw9 was derived from this code using nw9's ground elevation, which is Sheet3 in error, not the header"
+2D,nw8,confirmed,-0.005,Sheet3 implied 1989 ground 7.239 minus committed 7.244,01_locations alias '2d'; Sheet3 level column reproduced exactly from this code
+2E,nw6,confirmed,-0.008,Sheet3 implied 1989 ground 6.353 minus committed 6.361,01_locations alias '2e'; Sheet3 level column reproduced exactly from this code
+2F,nw5,confirmed,0.061,Sheet3 implied 1989 ground 5.786 minus committed 5.725,01_locations alias '2f'; Sheet3 level column reproduced exactly from this code
+2G,wmc2,confirmed,,not derivable,"Martin 2026-08-21 (corrected): wmc2 is 2G, as the CCW Wells header states; 01_locations alias 'nr 2g' is a later well sited near it"

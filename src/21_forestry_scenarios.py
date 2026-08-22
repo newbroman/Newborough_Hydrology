@@ -87,7 +87,12 @@ References
                           Impact tier) at runtime; see _load_baci_params().
 """
 
-__version__ = "1.6.1"  # 2026-07-02 — 21_forestry_06 re-based to VOLUMETRIC.
+__version__ = "1.6.2"  # 2026-08-21 — the BACI-zone violin (Figure 30) is
+#   pinned to clearfell_common.CORE_TIERS, the published five-tier design,
+#   rather than TIERS, which now also carries the far-field control tier.
+#   Zone membership, the figure and 21_forestry_04 are unchanged.
+#
+# v1.6.1  # 2026-07-02 — 21_forestry_06 re-based to VOLUMETRIC.
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -1416,15 +1421,22 @@ def plot_scraping_eras(df, dates, well_names, elev, dpi=FIG_DPI):
 
 # BACI experimental zone definitions
 # 5-tier BACI network — read from clearfell_common (single source of truth)
+#
+# CORE_TIERS, not TIERS: this figure and its CSV are the published five-tier
+# BACI design. clearfell_common.TIERS additionally carries the far-field
+# control tier, a distance-contrast diagnostic for the Script 10a/25
+# corroboration that has no place in a zone violin of the felling experiment —
+# and iterating it here would have added a sixth zone to a published figure as
+# a side effect. Zone membership and every 21 output are unchanged.
 from utils.clearfell_common import (
-    TIERS, TIER_COLOURS, annual_summer_minimum as _cc_annual_summer_minimum,
+    CORE_TIERS, TIER_COLOURS, annual_summer_minimum as _cc_annual_summer_minimum,
 )
 from utils.render_utils import render_figure
 
 # Build display labels from the tier definitions
 BACI_ZONE_WELLS = {}
 BACI_ZONE_COLOURS = {}
-for _tier_name, _tier_wells in TIERS.items():
+for _tier_name, _tier_wells in CORE_TIERS.items():
     _well_labels = ", ".join(w.upper() for w in _tier_wells)
     _lbl = f"{_tier_name}\n({_well_labels})"
     BACI_ZONE_WELLS[_lbl] = list(_tier_wells)

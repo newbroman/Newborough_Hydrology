@@ -34,6 +34,14 @@ Method (signed-off spec, 2026-06-26):
     dropped; cause is the text layer, not a data surgery.
   * Periods: 2011-2025 primary; 2005-2025 robustness check.
   * IDW power 2, 50 m grid, 450 m mask.
+  * Site-mean trend (2026-08-21): computed on every basis in
+    config.DIFF_SITE_MEAN_BASES — spring MAM, and the annual all-month mean —
+    each reported with the interannual residual spread about its own fitted
+    trend and the smallest slope the period could distinguish from zero at
+    config.DIFF_POWER_ALPHA / DIFF_POWER_TARGET. A trend inside that threshold
+    is not evidence of stability, only of a record too short to say; reporting
+    the pair is what keeps the two readings apart. The per-well anomaly map is
+    unaffected and remains a spring metric.
 
 Pipeline-integrated in the driver-validation phase of run_analysis.py; the
 canonical step index is in outputs/pipeline_manifest.json. Reads
@@ -50,9 +58,19 @@ Inputs (read at runtime via utils.paths constants; no values hardcoded):
 
 Outputs (outputs/32_differential_movement/):
     32_differential_movement_per_well.csv   slope, mm/yr, significance, both periods
-    32_site_mean_trend.csv                  per-period site-mean spring-level trend
-                                            (AR-corrected + OLS), the canonical
-                                            secular figure cited in §5.7.5
+    32_site_mean_trend.csv                  per-period site-mean level trend
+                                            (AR-corrected + OLS) on each basis in
+                                            config.DIFF_SITE_MEAN_BASES, one row
+                                            per basis x period, keyed by a leading
+                                            `basis` column. Downstream readers
+                                            select a basis explicitly; the one the
+                                            spatial chapter and Script 34 cite is
+                                            config.DIFF_SITE_MEAN_CITED_BASIS.
+                                            Each row also carries resid_sd_mm, the
+                                            interannual spread about its own trend,
+                                            and min_detectable_mm_yr, the smallest
+                                            slope that period could distinguish
+                                            from zero at the configured power
     32_differential_movement_2011_2025.png  primary map
     32_differential_movement_2005_2025.png  robustness map
     32_results.txt                          console summary
@@ -79,13 +97,32 @@ from utils.map_utils import load_dem_hillshade, add_kml_features, add_en_axes
 from utils.console_utils import banner, phase, step, info, saved, note, result, done, hr
 from utils.render_utils import render_figure
 
-__version__ = "1.2.0"  # 2026-06-29: IDW surface alpha 1.0 → 0.55 (DEM hillshade visible through surface)
+__version__ = "1.4.0"  # 2026-08-22.
+#   Store-time rounding removed from the two columns added at v1.3.0, resid_sd_mm and
+#   min_detectable_mm_yr (D-035): the store now
+#   carries what the pipeline computed and rounding happens where the number
+#   is displayed. No published value moves — the stored precision was at or
+#   above the displayed precision at every site — but rounding_lint counts
+#   these and the count had gone up, which is how 304 accepted sites
+#   accumulated across the pipeline in the first place.
+#
+# v1.3.0  # 2026-08-21: site-mean trend gains the interannual residual
+#   spread and the smallest slope the period can distinguish from zero, and is
+#   emitted on two named bases (spring MAM and annual all-month) rather than
+#   spring alone. 32_site_mean_trend.csv gains a leading `basis` column and
+#   doubles in rows; downstream readers must select a basis explicitly, which
+#   Script 34 now does. The per-well anomaly map, its trends and both figures are
+#   untouched — they remain a spring metric on the spring panel.
+# 2026-06-29: IDW surface alpha 1.0 → 0.55 (DEM hillshade visible through surface)
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 SCRIPT_ID = "32"
 VERSION = __version__
 
 # --- method constants (from utils.config; spec-locked 2026-06-26) -----------------
 SPRING_MONTHS = config.MSL_SPRING_MONTHS
+SITE_MEAN_BASES = config.DIFF_SITE_MEAN_BASES
+POWER_ALPHA = config.DIFF_POWER_ALPHA
+POWER_TARGET = config.DIFF_POWER_TARGET
 PANEL_MIN_FRACTION = config.DIFF_PANEL_MIN_FRACTION
 PER_WELL_MIN_YEARS = config.DIFF_PER_WELL_MIN_YEARS
 PERIODS = config.DIFF_PERIODS
@@ -129,10 +166,19 @@ def load_inputs() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     return levels, loc, master
 
 
+def season_year_table(levels: pd.DataFrame, months=None) -> pd.DataFrame:
+    """Mean level per well per year over `months`. Rows = year, columns = well.
+
+    `months = None` takes every month, giving the annual mean level; passing
+    SPRING_MONTHS gives the spring (MAM) table the per-well anomaly map uses.
+    """
+    sub = levels if months is None else levels[levels.index.month.isin(months)]
+    return sub.groupby(sub.index.year).mean(numeric_only=True)
+
+
 def spring_year_table(levels: pd.DataFrame) -> pd.DataFrame:
     """Mean MAM level per well per year. Rows = year, columns = well."""
-    spring = levels[levels.index.month.isin(SPRING_MONTHS)]
-    return spring.groupby(spring.index.year).mean(numeric_only=True)
+    return season_year_table(levels, SPRING_MONTHS)
 
 
 def _panel_and_site(yr: pd.DataFrame, first: int, last: int):
@@ -159,14 +205,16 @@ def build_anomalies(yr: pd.DataFrame, first: int, last: int) -> tuple[pd.DataFra
 
 
 def site_mean_trend(yr: pd.DataFrame, first: int, last: int) -> dict | None:
-    """Trend of the site-mean spring level itself over [first, last].
+    """Trend of the site-mean level itself over [first, last].
 
-    This is the secular site-wide trend (the common-climate signal that the
-    per-well anomaly map removes by subtraction). It is the canonical figure
-    cited in §5.7.5 — e.g. −7.0 mm/yr (AR-corrected, p=0.52) over 2005–2025 —
-    and is read by Script 34 for its window-sensitivity caption. Returns the
-    same fields as trend_with_significance() plus the panel size, or None if
-    the panel is too short.
+    This is the secular site-wide trend: the common-climate signal that the
+    per-well anomaly map removes by subtraction. The value is read from the
+    committed CSV by Script 34 and cited in the spatial chapter; it is not
+    reproduced here, so that this docstring cannot drift from what the pipeline
+    computes. `yr` is a year-indexed table on one of the SITE_MEAN_BASES, so the
+    basis is the caller's choice and travels with the row. Returns the same
+    fields as trend_with_significance() plus the panel size, or None if the
+    panel is too short.
     """
     _, site, panel = _panel_and_site(yr, first, last)
     res = trend_with_significance(site.index.values.astype(float), site.values)
@@ -232,12 +280,28 @@ def trend_with_significance(years: np.ndarray, vals: np.ndarray,
     lo, hi = np.percentile(slopes, [2.5, 97.5])
     boot_sig = bool(lo > 0 or hi < 0)
 
+    # Interannual spread about the fitted trend, and the smallest slope this
+    # series could distinguish from zero. The spread is the residual standard
+    # deviation on the fit's own degrees of freedom; the detection threshold is
+    # the AR-corrected standard error scaled by the multiplier the configured
+    # alpha and target power imply, so it answers "how large would a trend have
+    # to be before this record could see it" on the same footing as the p-value
+    # reported alongside it. Both are properties of the series, not results:
+    # they describe what the period can resolve, whatever it happens to contain.
+    resid_sd = float(np.sqrt(s2)) if s2 > 0 else 0.0
+    power_mult = float(stats.norm.ppf(1.0 - POWER_ALPHA / 2.0)
+                       + stats.norm.ppf(POWER_TARGET))
+    min_detectable = float(power_mult * se_adj)
+
     return dict(
         n=n, slope_m_yr=float(b), slope_mm_yr=float(b * 1000.0),
         rho=rho, n_eff=float(n_eff), se_adj=float(se_adj),
         p_ar=p_ar, p_ols=p_ols, sig=bool(p_ar < 0.05),
         boot_lo_mm_yr=float(lo * 1000.0), boot_hi_mm_yr=float(hi * 1000.0),
         boot_sig=boot_sig,
+        resid_sd_mm=resid_sd * 1000.0,
+        min_detectable_mm_yr=min_detectable * 1000.0,
+        power_alpha=POWER_ALPHA, power_target=POWER_TARGET,
     )
 
 
@@ -366,15 +430,30 @@ def main() -> int:
         result(f"{plabel} bootstrap agreement", f"{agree}/{len(df)}")
         result(f"{plabel} median drift", f"{med:+.2f} mm/yr")
 
-        # Site-mean spring-level trend (the common-climate secular signal that the
-        # anomaly map removes). This is the canonical figure §5.7.5 / Script 34 cite.
-        smt = site_mean_trend(yr, first, last)
-        if smt is not None:
+        # Site-mean level trend (the common-climate secular signal that the anomaly
+        # map removes), on each configured basis. The spring row is the one Script
+        # 34 and the spatial chapter cite; the annual row is what prose meaning
+        # "the site mean" refers to. Each row also carries the interannual spread
+        # about its own trend and the smallest slope that period could resolve —
+        # the pair that says whether a non-significant trend is evidence of
+        # stability or of insufficient record.
+        smt_by_basis: dict[str, dict] = {}
+        for basis, months in SITE_MEAN_BASES.items():
+            yr_basis = yr if months == SPRING_MONTHS else season_year_table(levels, months)
+            smt = site_mean_trend(yr_basis, first, last)
+            if smt is None:
+                continue
+            smt_by_basis[basis] = smt
             sig_tag = "" if smt["p_ar"] < 0.05 else " (n.s.)"
-            result(f"{plabel} site-mean spring-level trend",
+            result(f"{plabel} site-mean trend [{basis}]",
                    f"{smt['slope_mm_yr']:+.2f} mm/yr  AR p={smt['p_ar']:.3f}"
                    f"  (OLS p={smt['p_ols']:.3f}){sig_tag}")
+            result(f"{plabel} resolvable [{basis}]",
+                   f"residual sd {smt['resid_sd_mm']:.1f} mm; smallest detectable "
+                   f"slope +/-{smt['min_detectable_mm_yr']:.1f} mm/yr "
+                   f"at {smt['power_target']:.0%} power")
             site_trend_rows.append({
+                "basis": basis,
                 "period": plabel, "first_year": first, "last_year": last,
                 "panel_n": smt["panel_n"], "n_years": smt["n"],
                 "slope_mm_yr": round(smt["slope_mm_yr"], 3),
@@ -384,7 +463,16 @@ def main() -> int:
                 "boot_lo_mm_yr": round(smt["boot_lo_mm_yr"], 3),
                 "boot_hi_mm_yr": round(smt["boot_hi_mm_yr"], 3),
                 "ar_significant": bool(smt["p_ar"] < 0.05),
+                "resid_sd_mm": smt["resid_sd_mm"],
+                "min_detectable_mm_yr": smt["min_detectable_mm_yr"],
+                "resolved": bool(abs(smt["slope_mm_yr"])
+                                 >= smt["min_detectable_mm_yr"]),
+                "power_alpha": smt["power_alpha"],
+                "power_target": smt["power_target"],
             })
+        if config.DIFF_SITE_MEAN_CITED_BASIS in smt_by_basis:
+            note(f"basis read downstream (Script 34, spatial chapter): "
+                 f"{config.DIFF_SITE_MEAN_CITED_BASIS}")
 
         # top movers either way
         up = df.sort_values("slope_mm_yr", ascending=False).head(5)
@@ -398,13 +486,20 @@ def main() -> int:
         lines.append("sinks    (mm/yr): " +
                      ", ".join(f"{r.col} {r.slope_mm_yr:+.2f}{'*' if r.sig else ''}"
                                for r in dn.itertuples()))
-        if smt is not None:
+        for basis, s in smt_by_basis.items():
             lines.append(
-                f"site-mean spring-level trend: {smt['slope_mm_yr']:+.2f} mm/yr "
-                f"(AR-corrected p={smt['p_ar']:.3f}; OLS p={smt['p_ols']:.3f}; "
-                f"bootstrap CI [{smt['boot_lo_mm_yr']:+.2f}, {smt['boot_hi_mm_yr']:+.2f}]; "
-                f"panel n={smt['panel_n']}, {smt['n']} years)"
-                + ("" if smt["p_ar"] < 0.05 else "  — not significant"))
+                f"site-mean level trend [{basis}]: {s['slope_mm_yr']:+.2f} mm/yr "
+                f"(AR-corrected p={s['p_ar']:.3f}; OLS p={s['p_ols']:.3f}; "
+                f"bootstrap CI [{s['boot_lo_mm_yr']:+.2f}, {s['boot_hi_mm_yr']:+.2f}]; "
+                f"panel n={s['panel_n']}, {s['n']} years)"
+                + ("" if s["p_ar"] < 0.05 else "  — not significant"))
+            lines.append(
+                f"    interannual residual sd {s['resid_sd_mm']:.1f} mm; smallest slope "
+                f"distinguishable from zero +/-{s['min_detectable_mm_yr']:.1f} mm/yr "
+                f"(alpha {s['power_alpha']}, power {s['power_target']:.0%}) — "
+                + ("trend exceeds it" if abs(s['slope_mm_yr']) >= s['min_detectable_mm_yr']
+                   else "trend falls inside it, so the record does not resolve a rate "
+                        "of this size either way"))
 
         phase(3, f"Render map {plabel}")
         make_map(df, loc, plabel, first, last, OUT_FIG[plabel])

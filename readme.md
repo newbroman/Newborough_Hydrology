@@ -45,18 +45,18 @@ All documents are in [`docs/`](docs/) and linked from the
 
 | Option | Description |
 |--------|-------------|
-| **1 — Run full pipeline** | Runs all 49 steps in order from the beginning |
+| **1 — Run full pipeline** | Runs all 50 steps in order from the beginning |
 | **2 — Resume from step** | Skips completed steps; useful after a partial run |
 | **3 — Run a single step** | Runs one script in isolation for debugging or re-running |
 | **4 — Prepare scenario viewer** | Runs script 19 to build the self-contained HTML viewer |
 | **5 — Run supplementary diagnostics** | Runs scripts 22–24 (residual lag, ridge recharge, seasonality) |
 | **6 — Convert figures to greyscale** | Journal-ready B&W conversion (sub-options 6a quick / 6b full B&W re-run / 6h help) |
-| **7 — Show step list** | Lists all 49 steps with script names and availability status |
+| **7 — Show step list** | Lists all 50 steps with script names and availability status |
 
 For non-interactive use (e.g. in a batch job):
 
 ```bash
-python run_analysis.py --full          # run all 49 steps
+python run_analysis.py --full          # run all 50 steps
 python run_analysis.py --from 14       # resume from step 14
 python run_analysis.py --viewer        # build scenario viewer only
 python run_analysis.py --supplementary # run supplementary diagnostics (22–24) only
@@ -97,7 +97,7 @@ Newborough_Hydrology/
 │   │   └── scenario_viewer.html        ← self-contained interactive viewer (standalone)
 │   ├── outputs_bw/                      ← greyscale figure tree (built by Phase 17, Script 27)
 │   └── [other output directories]
-├── src/                         Analysis scripts (49 steps; script 19 also builds the viewer)
+├── src/                         Analysis scripts (50 steps; script 19 also builds the viewer)
 │   ├── utils/
 │   │   ├── config.py            Cluster colours, labels, DRAINAGE_DATUM, HEADLINE_LAG, FOREST_INTERCEPTION
 │   │   ├── data_utils.py        Cleaning and normalisation helpers
@@ -138,11 +138,11 @@ Newborough_Hydrology/
 
 ## Pipeline Phases
 
-The pipeline comprises **49 registered steps across 17 phases**. Those 49 steps
-are classified two independent ways: by tier — 39 analytical, 4 display/utility
-(Scripts 26c, 09f, 09g and 27) and 6 diagnostic; and by execution — 46 run in a
+The pipeline comprises **50 registered steps across 17 phases**. Those 50 steps
+are classified two independent ways: by tier — 40 analytical, 4 display/utility
+(Scripts 26c, 09f, 09g and 27) and 6 diagnostic; and by execution — 47 run in a
 default pass, 3 (Scripts 24b, 31 and 31b) only under `--with-supplementary`.
-The two breakdowns each account for the same 49 steps and are not additive with
+The two breakdowns each account for the same 50 steps and are not additive with
 one another. Current values are written to `outputs/pipeline_manifest.json` on
 every run — cite that file if it disagrees with this text. Validation
 checkpoints run after Phases 1, 3, 9, and 10.
@@ -189,7 +189,7 @@ colours and labels are centralised in `src/utils/config.py`.
 | 14 | 28, 29, 30 (cluster framework diagnostics) | 33–35 | C3 detrend check (28), within-C3 variance attribution (29), and C4 constrained-β₃ triangulation (30) — post-review additions supporting §5.1.1 / §4.2.2 of the main report |
 | 15 | 32, 33, 35, 36, 37, 37b (observed differential change, envelope, and driver validation) | 36–41 | Secular differential water-table drift (32, report Fig 59); climate-swing amplification + drought-floor surface (33, report Fig 60); per-well climate-sensitivity coefficient (35); absolute climate-removed per-well secular trend (36, Figure 63); predicted-vs-observed driver validation (37); comparative driver footing across forest/scrape/coast on common currencies (37b) — all analytical-default |
 | 16 | 24b, 31, 31b (opt-in), 34, 38 (analytical-default) | 42–46 | Cluster-stratified residual climatology (24b), independent k=5 partition validation (31) and its separation-vs-recoverability companion (31b) — opt-in supplementary diagnostics; the MSL5 two-window sensitivity demonstration figure for §5.7.5 (34) and the coast-to-inland MAM transect observational δ₀ diagnostic for §4.8.3 (38) — both analytical-default |
-| 17 | 09f, 09g, 27 | 47–49 | Management-interventions-vs-coastal-retreat spatial-reach synthesis figure for §5.8 (09f, display/utility, two-pass — reads Scripts 20/25/09d/10a); four-driver mechanism grid + coastal-vs-climate reach for §5.8 (09g, display/utility — reads 09f/10m/10a); greyscale figure conversion utility (27, journal-ready B&W) — post-processing |
+| 17 | 09f, 09g, 27 | 47–49 | Management-interventions-vs-coastal-retreat spatial-reach synthesis figure for §5.8 (09f, display/utility, two-pass — reads Scripts 20/25/09d/10a); mechanism grid + coastal reach for §5.8 (09g, display/utility — reads 09f/10m/10a); greyscale figure conversion utility (27, journal-ready B&W) — post-processing |
 
 Phases 1–11 produce the main analytical results documented in the report. Phase 12
 (Scripts 22–24) runs supplementary residual diagnostics. Phase 13 runs the van
@@ -220,7 +220,7 @@ residual climatology (Script 24b, step 42), independent k=5 partition validation
 step 44), which run only with `--with-supplementary`. Phase 17 runs the
 management-interventions-vs-coastal-retreat spatial-reach synthesis figure
 (Script 09f, step 47, §5.8; two-pass, reading Scripts 20/25/09d/10a with
-documented first-pass fallbacks), the four-driver mechanism grid and
+documented first-pass fallbacks), the mechanism grid and
 coastal-vs-climate reach schematic (Script 09g, step 48, §5.8 conceptual;
 reads the 09f reach profile, 10m WMC3 BACI and 10a clearfell steps produced
 earlier in the same pass) and then
@@ -235,7 +235,7 @@ Script 14's annual summer-min series). References to "Script 25" mean coastal-gr
 "Script 26" means van Willegen MSL aggregation and the equilibrium wetness index; "Script 26b" means UKCP18 MSL
 projection; "Script 26c" means MSL5 report-format figures; "Script 09f" means
 management-vs-coastal spatial-reach synthesis; "Script 09g" means the
-four-driver mechanism-diagram grid + coastal-vs-climate reach; "Script 27" means
+mechanism-diagram grid + coastal reach; "Script 27" means
 greyscale post-processing; "Script 28" means C3 detrend check; "Script 29" means
 within-C3 variance attribution; "Script 30" means C4 constrained-β₃ triangulation;
 "Script 36" means absolute climate-removed secular trend; "Script 37" means driver

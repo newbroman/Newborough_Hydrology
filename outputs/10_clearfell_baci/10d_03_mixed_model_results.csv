@@ -4,8 +4,10 @@ Forest,Edge,Mixed-effects (random intercept),-0.064,0.0415,0.1229391419096199,-0
 Forest,Forest Ctrl,Mixed-effects (random intercept),-0.0079,0.0159,0.6181883413686721,-0.013,0.5055634186404794,72,5
 Forest,Coastal Ctrl,Mixed-effects (random intercept),-0.1757,0.0929,0.05862775087360814,-0.1334,0.2441523454376514,29,2
 Forest,Climate Ctrl,Mixed-effects (random intercept),-0.0459,0.0575,0.42509968606918314,-0.0353,0.6217243373229377,69,5
+Forest,Far-field Ctrl,Mixed-effects (random intercept),-0.1335,0.0814,0.10089836029693545,-0.0918,0.36556733030471544,75,5
 Climate,Impact,OLS (single well),-0.0275,0.0571,0.6409918768084368,-0.0177,0.7991748432001641,13,1
 Climate,Edge,Mixed-effects (random intercept),0.0507,0.044,0.2500535489735105,0.1035,0.05821101664553641,59,4
 Climate,Forest Ctrl,Mixed-effects (random intercept),0.0563,0.0547,0.3031267675286202,0.0743,0.26853505420496726,72,5
 Climate,Coastal Ctrl,Mixed-effects (random intercept),-0.0386,0.0422,0.36026937500751455,0.0174,0.7379636370235826,29,2
 Climate,Climate Ctrl,Mixed-effects (random intercept),0.0533,0.0235,0.023301240731272602,0.0781,0.007443686345578486,69,5
+Climate,Far-field Ctrl,Mixed-effects (random intercept),-0.0127,0.0314,0.6865397561919678,0.059,0.13241340037865998,75,5

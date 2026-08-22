@@ -11,7 +11,27 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.6.3"  # Hollingham (2026) — 2026-08-20. Adds
+__version__ = "1.6.8"  # Hollingham (2026) — 2026-08-21. Adds CANOPY_HISTORY,
+#     the per-well 1989 canopy state and felling year read by Script 39.
+#     Additive only.
+# v1.6.7 (2026-08-21): Adds CCW_DEPTHS and
+#     CCW_CODE_MAP (raw inputs for the standalone 1989-96 hindcast) and the
+#     DIR_39 output block. Additive only; no existing path changes.
+# v1.6.6 (2026-08-21): Adds
+#     OUT_25_CORRECTION_DIAGNOSTIC and its spring companion (25_14), carrying
+#     the three quantities that decide whether the fitted coastal gradient can
+#     be applied to individual wells as a correction. Additive only; no
+#     existing path changes.
+# v1.6.5 (2026-08-21): Adds
+#     OUT_10A_CONTROL_WELL_SPREAD (10a_09) and OUT_25_BACI_TIER_SPREAD (25_04b),
+#     the per-control-well spread emitted beside every BACI control-tier
+#     estimate and its carry-through to the coastal-gradient corroboration.
+#     Additive only; no existing path changes.
+# v1.6.4 (2026-08-20): Adds
+#     OUT_25_ROLLING_WINDOW / _FIG for Script 25's fixed-length rolling-window
+#     sweep (25_13), which slides a window of constant length along the record
+#     beside the moving-start sweep already in 25_12.
+# v1.6.3 (2026-08-20): Adds
 #     OUT_20_SCRAPE_DRAWDOWN_PERWELL.
 # v1.6.2 (2026-08-20): Adds
 #     OUT_25_WINDOW_SWEEP / _FIG for Script 25's fit-window sensitivity sweep.
@@ -397,7 +417,7 @@ OUT_09D_SCENARIO_CSV        = DIR_09 / "09d_01_scenario_comparison.csv"
 OUT_09F_EFFECTS             = DIR_09 / "09f_management_effects.png"
 OUT_09F_EFFECTS_PUBLIC      = DIR_09 / "09f_management_effects_public.png"
 OUT_09F_REACH_CSV           = DIR_09 / "09f_01_reach_profile.csv"
-# Script 09g — mechanism diagrams: four-driver schematic grid + coastal-vs-climate
+# Script 09g — mechanism diagrams: driver schematic grid + coastal reach
 # reach (§5.8 conceptual figure; display/utility, tier D). SVG is the editable
 # master; PNG is the report/summary placement copy.
 OUT_09G_GRID_SVG            = DIR_09 / "09g_mechanism_grid.svg"
@@ -426,6 +446,10 @@ OUT_10A_FIG_IMPACT          = DIR_10 / "10a_04_baci_timeseries_impact.png"
 OUT_10A_FIG_EDGE            = DIR_10 / "10a_05_baci_timeseries_edge.png"
 OUT_10A_FIG_SCATTER         = DIR_10 / "10a_06_climate_sensitivity.png"
 OUT_10A_REPORT              = DIR_10 / "10a_report_numbers.csv"
+# Single-control-well refits of each control tier's ANCOVA — the per-well
+# spread that must be reported beside every tier estimate.  Read by Script 25,
+# which carries it through to the BACI corroboration spread table.
+OUT_10A_CONTROL_WELL_SPREAD = DIR_10 / "10a_09_control_well_spread.csv"
 
 # Script 10b — Spatial step-change maps (scraping + clearfell)
 OUT_10B_SCRAPE_RAW          = DIR_10 / "10b_spatial_scrape_raw.png"
@@ -839,6 +863,10 @@ OUT_25_FIT_PARAMETERS     = DIR_25 / "25_01_panel_fit_parameters.csv"
 OUT_25_PER_WELL_SLOPES    = DIR_25 / "25_02_per_well_summer_min_slopes.csv"
 OUT_25_CLUSTER_PARTITION  = DIR_25 / "25_03_cluster_partition.csv"
 OUT_25_BACI_CORROBORATION = DIR_25 / "25_04_baci_corroboration.csv"
+# Per-control-well breakdown of the rows in 25_04: every control tier's
+# members carried through the same comparison individually, so a reader can
+# judge how much of a tier verdict rests on the tier mean.
+OUT_25_BACI_TIER_SPREAD   = DIR_25 / "25_04b_baci_corroboration_spread.csv"
 OUT_25_FIT_DIAGNOSTIC     = DIR_25 / "25_05_fit_diagnostic.jpg"
 OUT_25_BACI_CHART         = DIR_25 / "25_06_baci_corroboration_chart.jpg"
 OUT_25_CLUSTER_DECOMP_FIG = DIR_25 / "25_07_cluster_decomposition.png"
@@ -862,6 +890,40 @@ OUT_25_RECORD_LENGTH_COMPOSITION_SPRING = DIR_25 / "25_10_record_length_composit
 OUT_25_MATCHED_WINDOW_SENS              = DIR_25 / "25_11_matched_window_sensitivity.csv"
 OUT_25_WINDOW_SWEEP                     = DIR_25 / "25_12_window_sweep.csv"
 OUT_25_WINDOW_SWEEP_FIG                 = DIR_25 / "25_12_window_sweep.png"
+# Fixed-length rolling-window sweep (Script 25 v1.13.0). 25_12 moves the window
+# start with the end pinned, so position and length are confounded; 25_13 holds
+# the length fixed and slides the whole window, at each length in
+# config.ROLLING_WINDOW_YEARS.
+OUT_25_ROLLING_WINDOW                   = DIR_25 / "25_13_rolling_window.csv"
+OUT_25_ROLLING_WINDOW_FIG               = DIR_25 / "25_13_rolling_window.png"
+
+# 25_14 — whether the fitted coastal gradient can be applied to individual wells
+# as a correction: BACI-tier membership of the fit panel, the dispersion of
+# per-well trend about the fitted profile, and the differential the profile
+# predicts between the impact zone and each control tier. Emitted per metric,
+# because the per-well slopes it reads are a seasonal quantity.
+OUT_25_CORRECTION_DIAGNOSTIC            = DIR_25 / "25_14_correction_diagnostic.csv"
+OUT_25_CORRECTION_DIAGNOSTIC_SPRING     = DIR_25 / "25_14_correction_diagnostic_spring.csv"
+
+
+# --- Script 39: SSM hindcast against the 1989-96 CCW record (standalone) -------
+# The CCW block is a RAW input: no pipeline step produces it. Script 39 is the
+# documented exception, in the same class as Scripts 09/10 for the BACI and
+# Script 24 for sunshine hours.
+CCW_DEPTHS   = DATA_DIR / "ccw_1989_1996_depths.csv"
+CCW_CODE_MAP = DATA_DIR / "ccw_1989_1996_code_map.csv"
+# Canopy state in 1989 and felling year per well, from site history. Optional:
+# Script 39 emits blank columns without it. The modern in_forest flag cannot
+# stand in for this — several of these wells were felled between the two epochs.
+CANOPY_HISTORY = DATA_DIR / "canopy_history.csv"
+
+DIR_39 = OUT_DIR / "39_ccw_hindcast"
+DIR_39.mkdir(parents=True, exist_ok=True)
+OUT_39_PER_WELL           = DIR_39 / "39_01_hindcast_per_well.csv"
+OUT_39_SERIES             = DIR_39 / "39_02_hindcast_series.csv"
+OUT_39_BETA1_SENSITIVITY  = DIR_39 / "39_03_beta1_sensitivity.csv"
+OUT_39_FIG                = DIR_39 / "39_04_hindcast.png"
+OUT_39_RESULTS            = DIR_39 / "39_results.txt"
 
 # Script 26 — Van Willegen et al. (2025) 5-year MSL aggregation (Phase 13)
 OUT_26_ANNUAL_PER_WELL    = DIR_26 / "26_msl_annual_per_well.csv"

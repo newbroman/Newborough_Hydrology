@@ -72,11 +72,11 @@ degeneracy artefact and finding it is not — the centroid β₃ is cleanly
 identified and the low value is real) — documented in §5.1.1 and §4.2.2 of
 the report and §S.19 of the Methods Supplement.
 Phase 15 is wholly analytical-default (Scripts 32, 33, 35, 36, 37, 37b all
-run by default). Phase 16 runs Scripts 34 and 38 by default plus a
+run by default). Phase 16 runs Scripts 34, 38 and 39 by default plus a
 supplementary opt-in remainder — Scripts
 24b, 31, 31b — which still runs only with --with-supplementary (or the menu
 option 1 prompt). Phase 17 runs the synthesis figures (Script 09f, and
-Script 09g — the §5.8 four-driver mechanism grid + coastal-vs-climate reach,
+Script 09g — the §5.8 mechanism grid + coastal reach,
 which reads the 09f reach profile emitted moments earlier in the same pass —
 both auto-run as part of a normal full run) and the greyscale figure-conversion
 utility (Script 27, which never auto-runs — it's a callable utility step,
@@ -131,7 +131,12 @@ import time
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.4.0"
+__version__ = "2.5.0"  # 2026-08-21: Script 39 registered in Phase 16 (tier A,
+#   default) — the SSM hindcast against the 1989-96 CCW record, the pipeline's
+#   first out-of-sample validation. _DOCUMENTED_COUNTS moves deliberately:
+#   registered 49 -> 50, analytical top-level 39 -> 40, default 46 -> 47.
+#   Phase count unchanged. Script 39 skips cleanly if the CCW raw inputs are
+#   absent, so a checkout without them still completes a full run.
 
 ROOT_DIR = Path(__file__).resolve().parent
 SRC_DIR  = ROOT_DIR / "src"
@@ -320,10 +325,11 @@ PHASE_16 = [
     Step("31b_separation_vs_recoverability.py", "Cluster separation vs recoverability (supplementary diagnostic)",      "X", "optin"),
     Step("34_window_sensitivity.py",            "MSL5 two-window sensitivity demonstration figure (\u00a75.7.5)",       "A"),
     Step("38_coastal_transect.py",              "Coast-to-inland MAM transect \u2014 observational delta_0 diagnostic (\u00a75.7)", "A"),
+    Step("39_ccw_hindcast.py",                  "SSM hindcast against the 1989\u201396 CCW record \u2014 out-of-sample validation (\u00a75.7.8)", "A"),
 ]
 PHASE_17 = [
     Step("09f_management_effects.py",  "Figure: management-interventions + coastal-retreat spatial reach (\u00a75.8; two-pass, reads Scripts 20/25/09d/10a)",   "D"),
-    Step("09g_mechanism_diagrams.py",  "Figure: four-driver mechanism grid + coastal-vs-climate reach (\u00a75.8 conceptual; display only, reads 09f/10m/10a)", "D"),
+    Step("09g_mechanism_diagrams.py",  "Figure: mechanism grid + coastal reach (\u00a75.8 conceptual; display only, reads 09f/10m/10a)", "D"),
     Step("27_greyscale_figures.py",    "Greyscale figure conversion (journal-ready B&W)",                                                                       "D"),
 ]
 
@@ -362,13 +368,19 @@ ALL_PHASES = [
 # read plausibly and were wrong. Every count below is checked against a value
 # recomputed from ALL_PHASES. Documents cite manifest fields; the short-form
 # headline is the total registered count.
+# 2026-08-21: Script 39 registered (Phase 16, tier A, default). This is a
+# DELIBERATE change to the analytical core, so analytical_toplevel and the
+# registered total both move; the guard below is what makes that visible rather
+# than silent. Script 39 is the first out-of-sample validation of the SSM in
+# this pipeline and is cited in the report, which is what puts it in tier A
+# rather than among the opt-in diagnostics.
 _DOCUMENTED_COUNTS = {
-    "total_registered":            49,
+    "total_registered":            50,
     "total_phases":                17,
-    "by_tier.analytical_toplevel": 39,
+    "by_tier.analytical_toplevel": 40,
     "by_tier.display_utility":      4,
     "by_tier.optin_diagnostic":     6,
-    "by_exec.default":             46,
+    "by_exec.default":             47,
     "by_exec.optin":                3,
     "analytical_phases":           15,   # phases carrying >=1 tier-A step; emitted
                                          # for completeness, NOT cited in any document
@@ -495,22 +507,25 @@ def build_manifest(write: bool = True) -> dict:
 
 
 def _check_version_guard() -> None:
-    """Warn if the orchestrator's __version__ has drifted from the canonical
-    utils.config.PIPELINE_VERSION (the value the analysis scripts import). Lazy
-    import keeps the orchestrator runnable standalone if utils is unavailable —
-    mirrors the declared-constant-plus-drift-guard idiom used for the counts."""
+    """Report the pipeline release this run belongs to.
+
+    The release string in utils.config is a RELEASE identifier and moves only at
+    a release; every script, this orchestrator included, carries its own module
+    __version__ and bumps on any edit — adding an output to one script bumps that
+    script and nothing else. A module version ahead of the release string is
+    therefore the normal state between releases and is not reported as a fault.
+    Lazy import keeps the orchestrator runnable standalone if utils is
+    unavailable.
+    """
     try:
         if str(SRC_DIR) not in sys.path:
             sys.path.insert(0, str(SRC_DIR))
-        from utils.config import PIPELINE_VERSION as _cfg_ver
+        from utils.config import PIPELINE_VERSION as _rel
+        from utils.config import PIPELINE_RELEASE_DATE as _rel_date
     except Exception:
         return
-    if _cfg_ver != __version__:
-        say_warn(
-            f"Pipeline version mismatch: run_analysis __version__ = "
-            f"{__version__!r} but utils.config.PIPELINE_VERSION = {_cfg_ver!r}. "
-            "Set both to the same string before release."
-        )
+    say_info(f"pipeline release {_rel} ({_rel_date}); "
+             f"orchestrator module v{__version__}")
 
 
 def _manifest_field(manifest: dict, dotted: str):

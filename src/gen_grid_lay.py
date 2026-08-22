@@ -12,10 +12,10 @@ Design decisions (Martin, 2026-07-18):
   2. One plain sentence instead of the footing table.
   3. Simpler than the technical grid, BUT the starting ("before") state must be
      visible to a lay reader — the dashed reference line alone does not carry
-     it. So the four drivers are split into TWO before/after figures, each with
+     it. So the drivers are split into TWO before/after figures, each with
      the undisturbed / forested starting state drawn explicitly above the after:
        A — management changes : undisturbed -> dune scrape | forest -> clearfell
-       B — site-wide drivers  : undisturbed -> coastal     | undisturbed -> far-field
+       B — site-wide drivers  : undisturbed -> coastal retreat
   4. Output labelled "lay" and written ALONGSIDE the technical outputs
      (same outputs/09_scraping_intervention/ folder).
 
@@ -29,8 +29,18 @@ translated Welsh/Polish builds).
 """
 from __future__ import annotations
 
-__version__ = "1.6.1"
+__version__ = "1.7.0"
 # CHANGELOG
+#   1.7.0 (2026-08-20): the far-field panel is REMOVED from Figure B, reversing
+#       the 1.6.0 restoration on new evidence: across fixed-length rolling windows
+#       the fitted constant c correlates at about -0.8 with the climate covariate's
+#       trend contribution (25_13_rolling_window.csv), so it compensates that
+#       covariate rather than measuring a site-wide driver. Figure B is two panels
+#       (undisturbed, coastal retreat), the distance axis moves to the coastal
+#       panel, the title drops "and climate", and the caption's second sentence -
+#       which described the site-wide change - goes with the panel. Nothing else
+#       moves: the coastal curve, the undisturbed table, the ghosted retreat wedges
+#       and the 900 m axis are untouched. Follows mechanism_fig_utils v1.10.0.
 #   1.6.1 (2026-08-19): Figure B title reworded at Martin's request, from
 #       "What coast and climate do to the water table" to "What coastal erosion
 #       and climate do to the water table" - "coast" alone read as the place
@@ -152,14 +162,16 @@ def build_management_svg():
 
 
 def build_drivers_svg():
-    """Figure B — coast and the site-wide term stacked on the SHARED reach profile, full
-    0..900 m. Three panels (undisturbed | coastal erosion | far-field term), vertically
-    aligned on one distance axis, so the reader can read across: coastal retreat bites
-    deep near the shore and fades inland, while the far-field term is the same
-    everywhere and very small. Panels reuse the pipeline's build_reach_panel(), so the
-    lay figure shares the technical reach geometry exactly. Nothing is marked as a
-    crossing: the far-field term is not separately identified (D-039), so the two are
-    shown side by side and never compared (D-042, D-043)."""
+    """Figure B — the coast stacked on the SHARED reach profile, full 0..900 m. One panel
+    per M.REACH_STACK_PANELS entry (undisturbed | coastal erosion), vertically aligned on
+    one distance axis, so the reader can read across: coastal retreat bites deep near the
+    shore and fades inland. Panels reuse the pipeline's build_reach_panel(), so the lay
+    figure shares the technical reach geometry exactly.
+
+    No far-field panel: the fitted constant is a compensating window statistic rather
+    than a site-wide driver, so the lay figure would be showing a reader a change that
+    the fit does not attribute to anything. Nothing is marked as a crossing either — with
+    one driver on the reach there is nothing to cross."""
     reach = M.load_reach()
 
     PW = M.REACH_W                    # native reach width
@@ -172,18 +184,19 @@ def build_drivers_svg():
     GAP = 10
     W = PW
     ROW = TITLE_H + BAND
-    H = HDR + 3 * ROW + 2 * GAP + 30
 
-    panels = [
-        ("undisturbed", "Undisturbed dune (the starting point)"),
-        ("coastal",     "With coastal retreat - deepest near the shore, fading inland"),
-        ("far_field",   "Across the whole site - a very small change either way, "
-                        "too small to pin down"),
-    ]
+    # Titles keyed by the shared panel register, so a panel retired in the pipeline
+    # module cannot linger here with a title of its own.
+    TITLES = {
+        "undisturbed": "Undisturbed dune (the starting point)",
+        "coastal":     "With coastal retreat - deepest near the shore, fading inland",
+    }
+    panels = [(d, TITLES[d]) for d in M.REACH_STACK_PANELS]
+    H = HDR + len(panels) * ROW + (len(panels) - 1) * GAP + 30
 
     s = [f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" '
          f'xmlns="http://www.w3.org/2000/svg"><rect width="{W}" height="{H}" fill="#fff"/>']
-    s.append(M.txt(M._R_NL, 26, "What coastal erosion and climate do to the water table", size=16, w='600'))
+    s.append(M.txt(M._R_NL, 26, "What coastal erosion does to the water table", size=16, w='600'))
     s.append(M.txt(M._R_NL, 43,
                    "one long slice from the shore inland, on the same scale - "
                    "simple diagram, not to scale", size=11, col='#888780'))
@@ -191,15 +204,14 @@ def build_drivers_svg():
     for i, (driver, title) in enumerate(panels):
         row_top = HDR + i * (ROW + GAP)
         s.append(M.txt(M._R_NL, row_top + 13, title, size=12, w='600'))
-        axis = (driver == "far_field")        # distance axis on the bottom panel only
+        axis = (i == len(panels) - 1)         # distance axis on the bottom panel only
         body = M.build_reach_panel(reach, driver, title=None, show_axis=axis)
         s.append(f'<svg x="0" y="{row_top + TITLE_H:.1f}" width="{W}" height="{BAND}" '
                  f'viewBox="0 {CROP_TOP} {PW} {BAND}">{body}</svg>')
 
     s.append(M.txt(W / 2, H - 8,
                    "The sea's retreat bites hardest near the shore and fades inland. "
-                   "Across the rest of the site the change is very small - small enough "
-                   "that the record cannot yet pin down its size, or even its direction.",
+                   "Further inland it makes almost no difference.",
                    10, w='600', col='#3a3a33', anchor='middle', style=' font-style="italic"'))
     s.append('</svg>')
     return "".join(s)
@@ -258,7 +270,8 @@ def main():
     make_all_dirs()
     for n, (which, builder, svg_path, png_path) in enumerate(_FIGURES, 1):
         desc = ("before -> after, 2 columns" if which == "management"
-                else "full reach to the fitted L, coastal fringe vs the site-wide term")
+                else "full reach to the fitted L, coastal fringe against the "
+                     "undisturbed table")
         phase(n, f"Building lay figure: {which} ({desc})")
         svg = builder()
         _assert_glyph_safe(svg, which)

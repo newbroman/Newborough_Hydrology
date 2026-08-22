@@ -11,11 +11,21 @@ over "all clusters" should iterate over CLUSTER_LABELS.keys().
 """
 
 # ── Pipeline version ─────────────────────────────────────────────────────────
-# Single canonical version string for the analysis pipeline. run_analysis.py
-# sets its __version__ from this value, and build_manifest() stamps it into
-# outputs/pipeline_manifest.json, so the manifest, the Methods Supplement / SI,
-# and the Zenodo release all pin to one string. Bump on any release.
+# Single canonical version string for the analysis pipeline. build_manifest()
+# stamps it into outputs/pipeline_manifest.json, so the manifest, the Methods
+# Supplement / SI and the Zenodo release all pin to one string.
+#
+# This is a RELEASE identifier and moves only at a release. Individual scripts —
+# including run_analysis.py — carry their own module __version__ and bump on any
+# edit, so a script version ahead of this string is the normal state between
+# releases and is not a defect. Adding an output to a script bumps that script
+# and nothing else.
+#
+# Releases are dated. PIPELINE_RELEASE_DATE is the date this release string was
+# cut, in ISO form, and travels with it into the manifest so a reader can tell
+# which vintage of the pipeline produced a figure without reading a changelog.
 PIPELINE_VERSION = "2.3.0"
+PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 
 # ── Module version ───────────────────────────────────────────────────────────
 # Version of this config module itself (distinct from PIPELINE_VERSION, the
@@ -30,7 +40,47 @@ PIPELINE_VERSION = "2.3.0"
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-08-19. Adds
+__version__ = "1.11.0"  # Hollingham (2026) — 2026-08-22. Adds
+#   REACH_QUOTE_NEAREST_M, the display granularity for the modelled forest and
+#   scrape reach. The reach is a scaling argument, not a calibrated length —
+#   the report states it to the nearest tens of metres — but Script 20 rendered
+#   it to the metre on the figure while every document quoted the rounded form,
+#   so the plot and the prose disagreed and neither was wrong. Rounding is a
+#   rendering decision: the stored value in 20_report_numbers.csv is unchanged
+#   and the field is computed from the unrounded length.
+#
+# v1.10.0  # Hollingham (2026) — 2026-08-21. Adds
+#   PIPELINE_RELEASE_DATE and rewrites the PIPELINE_VERSION note: the release
+#   string is decoupled from script module versions, which bump on any edit, so
+#   a script ahead of the release is normal rather than a mismatch. Releases are
+#   dated (M18, Martin 2026-08-21).
+#
+# v1.9.0  # Hollingham (2026) — 2026-08-21. Adds the CCW_* block
+#   used by the standalone 1989-96 hindcast (Script 39): the dipwell pipe base
+#   at which the historic readings are left-censored, the beta_1 scalings the
+#   hindcast reports its envelope over, the initial-condition probe offsets and
+#   the censoring admission threshold. Additive only.
+#
+# v1.8.0  # Hollingham (2026) — 2026-08-21. Adds
+#   DIFF_SITE_MEAN_BASES, DIFF_POWER_ALPHA and DIFF_POWER_TARGET, supporting
+#   Script 32's emission of the interannual residual spread and the smallest
+#   site-wide rate the record can distinguish from zero. The two power
+#   parameters are the test's alpha and target power; the multiplier they imply
+#   is derived in the script from the normal quantiles, never typed. Additive
+#   only; no existing constant changes.
+#
+# v1.7.0  # Hollingham (2026) — 2026-08-21. Adds
+#   FAR_FIELD_REACH_MULTIPLE, the admission threshold for the far-field BACI
+#   control tier, carried as a multiple of the FITTED cross-shore reach rather
+#   than as a distance in metres so the criterion tracks the fit. Additive only;
+#   no existing constant changes.
+#
+# v1.6.0  # Hollingham (2026) — 2026-08-20. Adds
+#   ROLLING_WINDOW_YEARS and ROLLING_WINDOW_STEP_MONTHS, the window lengths and
+#   the step of Script 25's fixed-length rolling-window sweep (25_13). Additive
+#   only; no existing constant changes.
+#
+# v1.5.0  # Hollingham (2026) — 2026-08-19. Adds
 #   CLUSTER_MONTH_DEGENERACY_GAP, the alert threshold on the divergence between
 #   the two month-wise cluster-stability statistics Script 02 publishes. Both
 #   are reported; the constant is what lets the script say when they disagree
@@ -213,6 +263,14 @@ DRAWDOWN_H0_MM  = 150.0
 DRAWDOWN_K_MDAY = 6.0
 DRAWDOWN_B_M    = 5.0
 
+# Display granularity for the modelled reach. λ is derived from an assumed
+# hydraulic conductivity and saturated thickness, so it carries roughly a factor
+# of two of input uncertainty and is quoted to the nearest tens of metres
+# throughout the corpus. This constant is the rounding applied where the reach is
+# WRITTEN ON A FIGURE OR PRINTED; it is never applied to the value used to build
+# the drawdown field, nor to the value stored in 20_report_numbers.csv.
+REACH_QUOTE_NEAREST_M = 10.0
+
 # --- Scrape rise-zone + coastal-retreat geometry (Scripts 20, 09d, 09f) --------
 # Shared geometry constants for the scrape drain-cone and coastal-erosion fields.
 # Previously declared as in-function or module locals in Script 20 and mirrored
@@ -266,6 +324,58 @@ COASTAL_REFERENCE_DISTANCE_M = 150.0
 # Scope is deliberately the coastal gradient alone. This says nothing about the
 # well's validity elsewhere in the pipeline.
 COASTAL_GRADIENT_EXCLUDED_WELLS = ["ceh12"]
+
+# --- Fixed-length rolling-window sweep (Script 25, 25_13) ----------------------
+# Window lengths (yr) at which the cross-shore decay fit is re-estimated on a
+# window of FIXED length slid along the record.
+#
+# Script 25's other window sweep (25_12) pins the window END at the last month of
+# the panel and moves only its START, so the window necessarily shortens as the
+# start moves later. Where the window sits in the record and how much record it
+# contains therefore move together, and a parameter that moves across that sweep
+# cannot be attributed to either one. Holding the length constant and sliding the
+# whole window separates the two axes.
+#
+# Several lengths are swept rather than one because the LENGTH is the axis under
+# test. Whether the spread in a fitted parameter across windows is a property of
+# where the window sits or of how long it is cannot be answered inside a single
+# length — it needs the same slide repeated at different lengths and the spreads
+# compared. The shortest length here is deliberately shorter than the minimum
+# Script 25 will fit in 25_12, so that short-window behaviour is visible rather
+# than excluded; the longest is bounded by the record itself, since a window
+# approaching the panel's full span has almost nowhere left to slide.
+ROLLING_WINDOW_YEARS = (10.0, 12.0, 15.0, 18.0)
+
+# Step (months) by which the fixed-length window is advanced along the record.
+# Quarterly rather than monthly: consecutive monthly windows differ by two months
+# out of well over a hundred and their fits are near-duplicates, so a monthly step
+# multiplies the fitting cost roughly threefold while adding almost nothing to the
+# sampled spread. Quarterly still gives tens of windows at every length in
+# ROLLING_WINDOW_YEARS.
+ROLLING_WINDOW_STEP_MONTHS = 3
+
+# --- Far-field BACI control tier: distance criterion --------------------------
+# Admission threshold for the far-field clearfell control tier
+# (clearfell_common.FAR_FIELD_CONTROL_WELLS), expressed as a MULTIPLE of the
+# fitted cross-shore decay reach L rather than as a distance in metres.
+#
+# Why a multiple and not a distance. The criterion the tier exists to satisfy is
+# "far enough from the shore that the control cannot itself be carrying the
+# gradient it is being used to measure". That condition is defined relative to
+# the reach, which is a fitted quantity (Script 25, forest-free linear-capped
+# panel; live value in 25_01_panel_fit_parameters.csv, first-pass fallback
+# pipeline_params default_value("coast_reach_L_m")). A metre threshold typed
+# here would be a pipeline result restated as a literal, and would go stale
+# silently the first time the reach is re-estimated. As a multiple the threshold
+# moves with the fit and the tier can be re-screened without editing this file.
+#
+# The multiple is set far enough above 1 that the threshold clears the reach's
+# upper 95 % confidence bound with margin. A control admitted inside that bound
+# may carry a gradient component of its own, which biases the measured contrast
+# toward zero and makes the corroboration test conservative by an amount the
+# test cannot quantify.
+FAR_FIELD_REACH_MULTIPLE = 1.6
+
 # Cumulative shoreline retreat over the 2005→2025 study window (m). Observed
 # figure (≈50 m since 2006, Forgrave 2020 / Pye & Blott 2024), used by the
 # 2005→2025 driver-change map (Script 20 plot_driver_change_2005_2025). Not
@@ -847,6 +957,41 @@ DIFF_IDW_MASK_M = 450.0
 DIFF_BOOT_N = 2000
 DIFF_BOOT_BLOCK = 3
 DIFF_BOOT_SEED = 20260626
+
+# Site-mean trend bases (Script 32). The per-well anomaly map is a SPRING metric
+# and is unaffected by this setting; what the bases govern is the site-mean
+# trajectory whose trend Script 32 publishes. Two are emitted because prose that
+# says "the site mean" is read as the annual level, while the committed figure
+# cited in the spatial chapter is the spring one — naming the basis in the CSV is
+# what stops the two being quoted interchangeably. None = every month.
+DIFF_SITE_MEAN_BASES = {"spring_mam": MSL_SPRING_MONTHS, "annual_all_month": None}
+DIFF_SITE_MEAN_CITED_BASIS = "spring_mam"   # the basis downstream scripts read
+
+# Detectability of a site-wide rate. Script 32 reports, alongside each site-mean
+# trend, the interannual residual spread about that trend and the smallest slope
+# the period could distinguish from zero at these settings. The two-sided test's
+# multiplier is derived from these quantiles in the script, not typed here, so
+# changing the target power changes the reported figure.
+DIFF_POWER_ALPHA = 0.05                      # two-sided significance level
+DIFF_POWER_TARGET = 0.80                     # target power
+
+
+# === CCW 1989-96 historic record (standalone Script 39) ===
+# The CCW dipwells were 2 m deep and the record holds readings pinned at exactly
+# that depth: they are left-censored, not measurements, and are dropped from
+# every metric rather than compared against a prediction.
+CCW_PIPE_BASE_M = -2.000                     # dipwell base, m below ground
+CCW_MAX_CENSORED_FRACTION = 0.25             # a code censored more often is not admitted
+
+# The hindcast applies coefficients fitted 2005-2026 to 1989-96. The site-wide
+# beta_1 decline means the historic value was plausibly higher, so the result is
+# reported as an envelope over these scalings rather than as a point estimate.
+# Unity must be present: it is the fitted value and anchors the headline.
+CCW_BETA1_SCALINGS = (1.00, 1.03, 1.06, 1.10)
+
+# Restarts used to demonstrate that the spin-up has forgotten the initial
+# condition before the comparison window opens, rather than assuming it.
+CCW_H0_PROBE_OFFSETS_M = (-1.0, +1.0)
 
 # Bootstrap seeds relocated here from per-script module locals so every fixed
 # seed lives in config.py (house rule: shared constants are imported, never

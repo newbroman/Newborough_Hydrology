@@ -3,10 +3,16 @@
 site-mean panel: 66 wells; mapped: 74; significant: 8; bootstrap agreement: 60/74
 holds up (mm/yr): Ceh32 +20.48, ceh13 +18.52, ceh34 +17.21, ceh1 +16.62, ceh14 +15.14
 sinks    (mm/yr): ceh22 -26.50*, ceh3 -18.88, ceh21 -15.13*, ceh11 -13.25*, ceh19 -12.20
-site-mean spring-level trend: +19.66 mm/yr (AR-corrected p=0.275; OLS p=0.275; bootstrap CI [-3.13, +42.82]; panel n=66, 15 years)  — not significant
+site-mean level trend [spring_mam]: +19.66 mm/yr (AR-corrected p=0.275; OLS p=0.275; bootstrap CI [-3.13, +42.82]; panel n=66, 15 years)  — not significant
+    interannual residual sd 288.8 mm; smallest slope distinguishable from zero +/-48.4 mm/yr (alpha 0.05, power 80%) — trend falls inside it, so the record does not resolve a rate of this size either way
+site-mean level trend [annual_all_month]: +13.38 mm/yr (AR-corrected p=0.250; OLS p=0.250; bootstrap CI [-3.74, +30.42]; panel n=66, 15 years)  — not significant
+    interannual residual sd 186.1 mm; smallest slope distinguishable from zero +/-31.2 mm/yr (alpha 0.05, power 80%) — trend falls inside it, so the record does not resolve a rate of this size either way
 
 === 2005_2025  (2005-2025) ===
 site-mean panel: 21 wells; mapped: 77; significant: 13; bootstrap agreement: 68/77
 holds up (mm/yr): Ceh32 +20.60, ceh8 +20.45*, ceh7 +17.97*, ceh34 +17.33, ceh33 +13.48
 sinks    (mm/yr): ceh22 -27.53*, nw8 -27.37*, ceh3 -23.74*, nw9 -19.28*, ceh17 -16.12*
-site-mean spring-level trend: -7.03 mm/yr (AR-corrected p=0.516; OLS p=0.503; bootstrap CI [-27.24, +11.86]; panel n=21, 21 years)  — not significant
+site-mean level trend [spring_mam]: -7.03 mm/yr (AR-corrected p=0.516; OLS p=0.503; bootstrap CI [-27.24, +11.86]; panel n=21, 21 years)  — not significant
+    interannual residual sd 285.7 mm; smallest slope distinguishable from zero +/-29.7 mm/yr (alpha 0.05, power 80%) — trend falls inside it, so the record does not resolve a rate of this size either way
+site-mean level trend [annual_all_month]: -13.12 mm/yr (AR-corrected p=0.232; OLS p=0.104; bootstrap CI [-30.04, +3.36]; panel n=25, 21 years)  — not significant
+    interannual residual sd 213.3 mm; smallest slope distinguishable from zero +/-28.8 mm/yr (alpha 0.05, power 80%) — trend falls inside it, so the record does not resolve a rate of this size either way

@@ -9,28 +9,30 @@ mechanism figure set for the report and public summaries.
 
   09g_mechanism_grid            THE report figure. A composited grid of schematic
       cross-sections drawn on ONE shared, vertically exaggerated dune profile and
-      a common vertical amplitude scale (so the four drivers' relative magnitudes
+      a common vertical amplitude scale (so the drivers' relative magnitudes
       compare): row 1 the two starting states (undisturbed wet slacks; standing
       forest), row 2 the two local interventions (dune scrape; clearfell), row 3
-      a full-width reach panel carrying the two site-wide drivers: coastal
-      retreat near-shore with erosion ghosting, tapering to zero at the fitted
-      reach L, and the spatially uniform far-field term. The far-field term is
-      drawn SIGNED and is marginal — on the committed fit a slight rise, which
-      is why it is worth showing — but it is never labelled a climate rate:
-      only the sum of the constant and the CWB trend is identified (D-039), so
-      the two drivers are never compared, no crossing is drawn (D-042), and no
-      band stands in for the term (D-043).
+      a full-width reach panel carrying the one site-wide driver: coastal retreat
+      near-shore with erosion ghosting, tapering to zero at the fitted reach L.
+      The grid title COUNTS the drivers drawn rather than spelling a number
+      (mechanism_fig_utils.DRIVERS), so it cannot outlive one of them.
+
+      NO spatially uniform far-field term is drawn. The fitted constant c of the
+      Script 25 coastal decay compensates the cumulative-water-balance covariate
+      rather than measuring a driver: across fixed-length rolling windows the two
+      correlate at about -0.8 (25_13_rolling_window.csv), so when the covariate
+      takes more of the decline the constant takes less. Drawing it beside the
+      coastal curve invites a comparison it cannot support.
 
   09g_coastal_vs_climate_reach  The reach panel standalone (same body). Filename
       retained so committed report/paper figure references keep resolving.
 
 Schematic, not to scale, illustrative: amplitudes sit on the shared 09f-derived
 scale and illustrate mechanism and direction, not measured section geometry. The
-quantitative treatment lives in Scripts 09f (reach), 20 (λ), 25 (δ₀, L and the
-identified far-field sum) and 37b (site footing); the report caption carries the
-observed/modelled split (only the coastal water-table drawdown is modelled; the
-clearfell step and both scrape terms are observed; the far-field term is
-neither — it is fitted, marginal and not separately identified).
+quantitative treatment lives in Scripts 09f (reach), 20 (λ), 25 (δ₀ and L) and
+37b (site footing); the report caption carries the observed/modelled split (only
+the coastal water-table drawdown is modelled; the clearfell step and both scrape
+terms are observed).
 
 All PHYSICAL amplitudes are read live from committed pipeline outputs via
 utils/mechanism_fig_utils (no hardcoded amplitudes), with documented first-pass
@@ -43,10 +45,6 @@ Data sources (all on `main`)
       — row 0: edge amplitudes per driver (standing pine, coastal 5-yr/storm,
         scrape cut rise, thinned); full columns: the coastal 20-yr decay
         (= (20/5) x |coastal_5yr(d)|). No crossing is read or computed.
-  outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv
-      — c_mm_yr (forest-free linear-capped), SIGNED, drawn as the spatially
-        uniform far-field term. Read here rather than through 09f, whose panel
-        no longer carries it (D-043).
   outputs/10_clearfell_baci/10m_report_numbers.csv
       — WMC3_BACI_DiD_step_2015_scraping: the one measured off-cut drawdown
         (-55 mm; reproducible -54 mm in 2023).
@@ -61,8 +59,7 @@ Outputs
 Verification
 ------------
 Image-view is unreliable in-session — verify by the printed numeric checks
-(slack wet/dry states, pool level, off-cut drawdown, coastal reach, far-field
-term and seams).
+(slack wet/dry states, pool level, off-cut drawdown, coastal reach and seams).
 
 No SSM fitting, no new physics: a schematic re-presentation of existing
 modelled + measured fields. Captions are supplied in the document text, not
@@ -76,7 +73,28 @@ HANDOVER_mechanism_figs_to_pipeline_2026-07-17 (signed-off design).
 ====================================================================================
 """
 
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-08-19. D-043 amended: the
+__version__ = "1.7.0"  # Hollingham (2026) — 2026-08-21. Two reach-panel render
+#   defects Martin found in the regenerated figures, both fixed in
+#   mechanism_fig_utils v1.11.0: the storm and 5-yr water-table curves ran above
+#   the drawn dune surface between roughly 80 m and 250 m (a head drawn as
+#   standing water, and drawn as if retreat RAISED it), and the delta-0
+#   annotation was unreadable under the leader line. This script gains the
+#   sub-surface assertion: it prints each retreat curve's clearance below the
+#   ground and below the undisturbed table and RAISES if any is negative, because
+#   image-view does not catch a curve over the dune reliably in-session.
+#
+# v1.6.0 (2026-08-20). The far-field term is
+#   REMOVED from every figure this script emits, reversing the 1.5.0 restoration
+#   on new evidence: the fixed-length rolling-window sweep (25_13) measures
+#   corr(c, CWB trend contribution) at about -0.8 at every window length, so c
+#   compensates the covariate rather than carrying a site-wide signal of its own.
+#   The grid's reach row and the standalone reach lose the far-field curve, its
+#   callout and its legend swatch; the lay drivers figure loses its third panel;
+#   the numeric checks lose the far-field block; 25_01 is no longer read. The
+#   grid title now counts the drivers it draws. Follows mechanism_fig_utils
+#   v1.10.0 and gen_grid_lay v1.7.0. Script 09f is untouched at v1.9.0.
+#
+# v1.5.0 (2026-08-19): D-043 amended: the
 #   far-field term is RESTORED as a driver, drawn SIGNED (the earlier render
 #   showed it falling because an abs() was applied to a positive c) and labelled
 #   as fitted, marginal and not separately identified. The stack is three panels
@@ -142,20 +160,32 @@ def _print_numeric_checks(reach):
          f"({'DRY' if _at(wt_scrape, inland_c) > inland_floor else 'still wet'}, "
          f"{_at(wt_scrape, inland_c) - inland_floor:+.1f} vs floor {inland_floor:.0f})")
 
-    # far-field term — SIGNED, so the sign printed here is the sign drawn (D-043)
-    ff = reach['far_field_mm']
-    _, _, ff_ponds = M.uniform_offset_table(wt_before, ff)
-    info(f"far-field term {ff:+.1f} mm over {M.MECHANISM_HORIZON_YEARS:.0f} yr "
-         f"(c {reach['far_field_c_mm_yr']:+.2f} mm/yr, "
-         f"{'rise' if ff > 0 else 'fall'}); ponds remaining: "
-         f"{[(round(a), round(b)) for a, b, _l in ff_ponds] if ff_ponds else 'none (both slacks dry)'}")
-
-    # reach
+    # reach — coastal retreat is the only driver drawn; no spatially uniform term
     cdd = reach['coastal_dd']
     info(f"reach ({reach['source']}): coastal shore {-cdd(0.0):.0f} mm, tapering to "
          f"zero at the fitted reach L = {reach['reach_L_m']:.0f} m "
-         f"(\u03b4\u2080 {-reach['delta0_mm_yr']:.2f} mm/yr); far-field term "
-         f"{ff:+.1f} mm, not separately identified, no crossing computed")
+         f"(\u03b4\u2080 {-reach['delta0_mm_yr']:.2f} mm/yr); no far-field term "
+         f"drawn, no crossing computed")
+    info(f"drivers drawn: {M.count_word(len(M.DRIVERS)).lower()} "
+         f"({', '.join(M.DRIVERS)}) \u2014 the grid title counts this register")
+
+    # Sub-surface guarantee. A water-table curve drawn above the dune, or above the
+    # water standing in a slack, is a physical error \u2014 coastal retreat lowers heads, it
+    # does not raise them \u2014 and image-view does not catch it reliably in-session, so it
+    # is asserted rather than looked at. The first margin is against the surface a
+    # reader sees (ground where the slack is dry, water surface where it is wet); the
+    # second is against the undisturbed table the drawdowns are measured from. Both
+    # cover the near-shore and inland halves together.
+    clearance = M.reach_clearance(reach, multiples=True)
+    worst = min(min(v) for v in clearance.values())
+    for k, (vs_s, vs_u) in clearance.items():
+        info(f"  clearance [{k:>5s}]: {vs_s:+6.2f} px below the drawn surface, "
+             f"{vs_u:+6.2f} px below the undisturbed table")
+    if worst < 0.0:
+        raise AssertionError(
+            f"09g: a retreat curve is drawn {abs(worst):.2f} px above a surface it may "
+            "not cross \u2014 see mechanism_fig_utils.subsurface()")
+    info(f"sub-surface check: OK, minimum clearance {worst:+.2f} px")
     for d in (0.0, reach['reach_L_m'] / 2.0, reach['reach_L_m']):
         info(f"  d={d:5.0f} m  coastal_dd={cdd(d):6.1f} mm")
     # seam continuity: near-shore parabolas are anchored to the committed drawdowns at

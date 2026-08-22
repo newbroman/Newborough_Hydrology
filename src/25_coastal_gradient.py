@@ -73,6 +73,7 @@ Outputs
                                        decomposition_basis names the column the
                                        decomposition is computed against
 25_04_baci_corroboration.csv           BACI absorption vs model prediction
+25_14_correction_diagnostic.csv        can the gradient correct single wells?
 25_05_fit_diagnostic.jpg               Two-panel figure (a) per-well + fits,
                                        (b) cluster stacked bars
 25_06_baci_corroboration_chart.jpg     Forest plot of corroboration
@@ -86,6 +87,17 @@ Outputs
                                        the long-record well subset and on its
                                        complement.  Not adopted; delta_0 and L
                                        in 25_01 are unchanged
+25_12_window_sweep.csv / .png          Fit-window sensitivity: the window END is
+                                       pinned at the panel's last month and the
+                                       START moves, well set held fixed
+25_13_rolling_window.csv / .png        Fixed-length rolling-window sweep: a
+                                       window of CONSTANT length, at each length
+                                       in config.ROLLING_WINDOW_YEARS, slid along
+                                       the record.  Separates window position
+                                       from window length, which 25_12 varies
+                                       together, and carries the CWB-covariate
+                                       contribution beside the fitted constant
+                                       so the two can be read against their sum
 25_report_numbers.csv                  Headline numbers in standard format
                                        (incl. §5.7.5 Check 2: raw MSL5-change
                                        vs summer-min-slope Pearson/Spearman)
@@ -102,7 +114,108 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
-__version__ = "1.12.0"  # Hollingham (2026) — 2026-08-20.  ceh12 leaves the
+__version__ = "1.17.0"  # Hollingham (2026) — 2026-08-22.
+#   Store-time rounding removed from the seven columns of correction_applicability(), the 25_14
+#   diagnostic added at v1.16.0 (D-035): the store now
+#   carries what the pipeline computed and rounding happens where the number
+#   is displayed. No published value moves — the stored precision was at or
+#   above the displayed precision at every site — but rounding_lint counts
+#   these and the count had gone up, which is how 304 accepted sites
+#   accumulated across the pipeline in the first place.
+#
+# v1.16.0  # Hollingham (2026) — 2026-08-21.  Adds
+#         correction_applicability() and its output 25_14, which carries the
+#         three quantities that decide whether the fitted gradient can be
+#         applied to individual wells as a correction rather than only read as
+#         a population relationship: how many wells of each BACI tier are in
+#         the panel the gradient was fitted on, how much of the variation in
+#         per-well trend the distance profile accounts for and how far wells
+#         sit from it, and the differential the profile predicts between the
+#         impact zone and each control tier.  The BACI clearfell zone is
+#         withheld from the fit panel by design, so the first of those is not
+#         a detail: a correction built from this gradient would be returned to
+#         the population it was built to exclude.  Emitted per metric, since
+#         the per-well slopes it reads are a seasonal quantity; the profile is
+#         the all-season headline in both cases and is named in the columns.
+#         Additive: no existing output changes.
+#
+# v1.15.0  # Hollingham (2026) — 2026-08-21.  baci_corroboration()
+#         gains the FAR-FIELD control tier, and emits the per-control-well
+#         spread behind every tier row.
+#
+#         The corroboration test lives in distance-to-coast, so its power is
+#         set by the distance CONTRAST between the impact zone and the control
+#         tier.  The Climate tier's contrast is a few tens of metres, at which
+#         the gradient model predicts a differential indistinguishable from
+#         zero: that row was never a failed test of the gradient, it was a test
+#         the contrast could not carry.  The Forest tier's control mean sits
+#         inside the fitted reach's confidence interval, so those controls may
+#         carry a gradient component themselves, which biases the measured
+#         contrast toward zero by an unquantified amount.  The far-field tier
+#         is selected on distance and clears the reach's upper bound, so it is
+#         the row that puts the gradient model at risk.  Membership and the
+#         admission criterion live in clearfell_common; the reason NW4 is
+#         excluded is recorded there too.
+#
+#         25_04 gains two rows and NOTHING ELSE — same columns, same values,
+#         same order for the four rows already in it.  25_04b is new: every
+#         control tier's members carried through the same comparison one at a
+#         time, so a tier verdict is never read without the spread behind it.
+#         The far-field tier spans a wide band of distances by construction and
+#         its members need not respond alike; the spread is emitted for the
+#         established tiers on the same footing, so it can be judged against
+#         them rather than against zero.
+#
+# v1.14.0  # Hollingham (2026) — 2026-08-21.  Both window
+#         sweeps gain an IDENTIFIABILITY test, and 25_13's figure loses its
+#         confidence band.  The bound test alone passed fits whose fitted reach
+#         ran past the far end of the network: beyond the observed distance
+#         range the decay is near-linear in d, so delta_0, L and c stop being
+#         separately identified and the search trades one against the others at
+#         almost no cost in fit.  Nothing sits at a bound in that regime, so
+#         at_bound cannot see it, and the Wald standard error on c goes to
+#         millions of mm/yr while the row still reads usable.  New
+#         sweep_usability(), shared by window_sweep and rolling_window_sweep so
+#         the two outputs cannot come to mean different things, rejects a fit
+#         whose reach exceeds the maximum distance in THAT window's own panel —
+#         measured from the panel at run time, never typed, since it moves with
+#         the well set.  Both CSVs gain reach_exceeds_panel and
+#         panel_max_dist_m; rejected rows stay in the file with usable=False, as
+#         before.  The guard is inert in 25_12 on the current well set and is
+#         applied there for consistency, not because it bites.  In 25_13 it
+#         moves the reported per-length means materially, which is the point of
+#         adding it.  Figure: the 95% band on c is removed — one window with a
+#         very wide interval filled a panel across a run of years and read as a
+#         highlighted epoch rather than an interval — and is replaced by the
+#         between-window spread of c against its median within-window standard
+#         error, stated per panel and in the footnote.  Panels now scale to
+#         every plotted value, rejected fits included, so no marker is clipped.
+#
+# 1.13.0 — Hollingham (2026) — 2026-08-20.  Adds the
+#         fixed-length rolling-window sweep, 25_13_rolling_window.csv / .png,
+#         beside the moving-start sweep in 25_12.  25_12 pins the window END at
+#         the panel's last month and moves only the START, so the window also
+#         gets shorter as the start moves later: where the window sits in the
+#         record and how much record it contains are varied together, and a
+#         parameter that moves across that sweep cannot be assigned to either.
+#         The new sweep holds the length constant and slides the whole window,
+#         repeating the slide at each length in config.ROLLING_WINDOW_YEARS
+#         (new, with config.ROLLING_WINDOW_STEP_MONTHS for the step), so the
+#         two axes are separated and the spread at one length can be compared
+#         with the spread at another.  Each row carries the fitted constant c
+#         AND the CWB-covariate contribution beta_cwb*d(CWB)/dt over the same
+#         window, plus their sum, because the two are not separately identified
+#         — the sum is the quantity the panel actually recovers, and the figure
+#         plots all three against the window midpoint so their relationship is
+#         visible rather than asserted.  New rolling_window_sweep() and
+#         plot_rolling_window(), reusing fit_panel / build_design / cwb_trend
+#         and the same at-bound rejection rule as window_sweep (fits on a
+#         parameter bound are written out with usable=False, never dropped
+#         silently).  Reported only: nothing downstream reads 25_13 and the
+#         published delta_0 / L / c are unchanged.  New paths
+#         OUT_25_ROLLING_WINDOW / _FIG.
+#
+# 1.12.0 — Hollingham (2026) — 2026-08-20.  ceh12 leaves the
 #         coastal-gradient population on geological grounds (D-048, Martin's
 #         ruling).  It sits on the northern bedrock ridge, roughly 20 m above
 #         the next-highest well in the network, so a shoreline 1.1 km away
@@ -315,10 +428,12 @@ from utils.config import (  # noqa: E402
     CLUSTER_COLOURS, CLUSTER_LABELS, FOREST_CIDS,
     MSL_SPRING_MONTHS, MSL_MIN_MONTHS_PER_SPRING,
     COASTAL_REFERENCE_DISTANCE_M, COASTAL_GRADIENT_EXCLUDED_WELLS,
+    ROLLING_WINDOW_YEARS, ROLLING_WINDOW_STEP_MONTHS,
 )
 from utils.clearfell_common import (  # noqa: E402
     IMPACT_WELLS, EDGE_WELLS, FOREST_CONTROL_WELLS,
     COASTAL_CONTROL_WELLS, CLIMATE_CONTROL_WELLS,
+    FAR_FIELD_CONTROL_WELLS, FAR_FIELD_CONTROL_LABEL,
 )
 from utils.scraping_common import apply_scrape_treatment  # noqa: E402
 from utils.render_utils import render_figure
@@ -369,6 +484,16 @@ WINDOW_SWEEP_MIN_YEARS   = 12.0    # shorter windows do not identify L
 WINDOW_SWEEP_FAR_FIELD_M = 950.0   # "far field" = beyond the fitted reach
 WINDOW_SWEEP_BOUND_TOL   = 0.01    # fraction of a bound's range; at-bound fits
                                    # are reported but flagged unusable
+
+# ── Fixed-length rolling-window sweep (25_13) ────────────────────────────────
+# The lengths swept and the step between windows are config constants
+# (ROLLING_WINDOW_YEARS, ROLLING_WINDOW_STEP_MONTHS) — the sweep's geometry is
+# a methodological choice and is declared with the others.  The only quantity
+# kept here is a unit conversion: a length given in years is turned into a whole
+# number of monthly observations, so a window covers the same number of months
+# wherever in the record it sits.  The at-bound rejection rule is shared with
+# window_sweep above rather than restated.
+MONTHS_PER_YEAR = 12
 
 # Matched-window sensitivity (v1.6.0) — REPORTED ONLY, never adopted.  The
 # panel's record-start distribution has a twelve-month break between the last
@@ -425,6 +550,7 @@ _METRICS = [
         "out_diag": paths.OUT_25_FIT_DIAGNOSTIC,
         "out_decomp": paths.OUT_25_CLUSTER_DECOMP_FIG,
         "out_composition": paths.OUT_25_RECORD_LENGTH_COMPOSITION,
+        "out_correction": paths.OUT_25_CORRECTION_DIAGNOSTIC,
         "figlabels": _SUMMER_FIG,
     },
     {
@@ -436,6 +562,7 @@ _METRICS = [
         "out_diag": paths.OUT_25_FIT_DIAGNOSTIC_SPRING,
         "out_decomp": paths.OUT_25_CLUSTER_DECOMP_FIG_SPRING,
         "out_composition": paths.OUT_25_RECORD_LENGTH_COMPOSITION_SPRING,
+        "out_correction": paths.OUT_25_CORRECTION_DIAGNOSTIC_SPRING,
         "figlabels": _SPRING_FIG,
     },
 ]
@@ -1214,6 +1341,52 @@ def matched_window_sensitivity(df_panel: pd.DataFrame, cwb: pd.Series,
 # ── BACI corroboration ──────────────────────────────────────────────────────
 
 
+def sweep_usability(popt, perr, panel_max_dist_m: float,
+                    lo, hi, span) -> dict:
+    """The rejection rules both window sweeps apply to a single fit.
+
+    Shared by ``window_sweep`` and ``rolling_window_sweep`` so the two outputs
+    cannot come to mean different things through the flag being tightened in
+    one and not the other.
+
+    ``at_bound``
+        A fitted parameter sits within WINDOW_SWEEP_BOUND_TOL of its search
+        bound, i.e. the optimiser stopped against the edge of the search space
+        rather than at an interior optimum.
+
+    ``reach_exceeds_panel``
+        The fitted inland reach L is longer than the greatest distance any well
+        in THAT window's panel actually covers. Outside the observed range the
+        decay is close to linear in d, so delta_0, L and c stop being separately
+        identified: the search can trade a longer reach against a larger
+        amplitude and a shifted constant with almost no change in fit, and the
+        Wald standard errors blow up accordingly. A fit like that is not a
+        measurement of a long reach — it is the fit telling us the data cannot
+        locate one. The comparison is against the distance range measured from
+        the panel at run time, never a typed distance: it moves with the well
+        set, and typing it would freeze a result into the code.
+
+    A non-finite covariance is folded into ``usable`` without a column of its
+    own, as it always was — it is a failure of the fit rather than a diagnosis
+    of it. Callers write the returned flags out beside the fit and set
+    ``usable`` from them; no sweep drops a fit silently.
+    """
+    popt = np.asarray(popt, dtype=float)
+    perr = np.asarray(perr, dtype=float)
+    at_bound = bool(np.any((np.abs(popt - lo) <= WINDOW_SWEEP_BOUND_TOL * span)
+                           | (np.abs(popt - hi) <= WINDOW_SWEEP_BOUND_TOL * span)))
+    bad_cov = bool(not np.all(np.isfinite(perr)))
+    # popt[1] is L in every specification: the c_fixed fits drop the constant,
+    # not the reach.
+    reach_exceeds = bool(np.isfinite(panel_max_dist_m)
+                         and float(popt[1]) > float(panel_max_dist_m))
+    return {
+        "at_bound": at_bound,
+        "reach_exceeds_panel": reach_exceeds,
+        "usable": bool(not (at_bound or bad_cov or reach_exceeds)),
+    }
+
+
 def window_sweep(specs: dict, cwb: pd.Series, decay_func, p0, bounds) -> pd.DataFrame:
     """Refit each specification over a moving window start, well set fixed.
 
@@ -1230,9 +1403,11 @@ def window_sweep(specs: dict, cwb: pd.Series, decay_func, p0, bounds) -> pd.Data
     the same window, computed through ``balanced_annual_mean_slope`` so it
     rests on the same annual aggregation as the cluster decomposition.
 
-    ``usable`` is False where any fitted parameter sits within
-    WINDOW_SWEEP_BOUND_TOL of its search bound, or where the covariance is
-    not finite. Such fits are written out rather than dropped silently.
+    ``usable`` is set by ``sweep_usability`` — False at a parameter bound, on a
+    non-finite covariance, or where the fitted reach exceeds the distance range
+    the window's own panel covers. Such fits are written out rather than dropped
+    silently. The reach test is shared with ``rolling_window_sweep`` for
+    consistency rather than because it bites here.
     """
     lo, hi = np.asarray(bounds[0], dtype=float), np.asarray(bounds[1], dtype=float)
     span = hi - lo
@@ -1261,9 +1436,8 @@ def window_sweep(specs: dict, cwb: pd.Series, decay_func, p0, bounds) -> pd.Data
             except Exception:                        # a window that will not fit
                 continue
             popt, perr = np.asarray(fit["popt"]), np.asarray(fit["perr"])
-            at_bound = bool(np.any((np.abs(popt - lo) <= WINDOW_SWEEP_BOUND_TOL * span)
-                                   | (np.abs(popt - hi) <= WINDOW_SWEEP_BOUND_TOL * span)))
-            bad_cov = bool(not np.all(np.isfinite(perr)))
+            d_max = float(sub["dist_coast_m"].max())
+            flags = sweep_usability(popt, perr, d_max, lo, hi, span)
             obs = balanced_annual_mean_slope(
                 annual[annual[year_col] >= start.year + 1], year_col, far_wells)
             rows.append({
@@ -1278,15 +1452,20 @@ def window_sweep(specs: dict, cwb: pd.Series, decay_func, p0, bounds) -> pd.Data
                 "c_mm_yr": float(popt[2]),       "c_se": float(perr[2]),
                 "far_field_observed_mm_yr": obs,
                 "n_far_field_wells": len(far_wells),
-                "at_bound": at_bound,
-                "usable": bool(not (at_bound or bad_cov)),
+                "panel_max_dist_m": d_max,
+                "at_bound": flags["at_bound"],
+                "reach_exceeds_panel": flags["reach_exceeds_panel"],
+                "usable": flags["usable"],
             })
 
     out = pd.DataFrame(rows)
     if not out.empty:
         n_bad = int((~out["usable"]).sum())
         info(f"window sweep: {len(out)} fits, {len(out) - n_bad} usable, "
-             f"{n_bad} rejected at a parameter bound")
+             f"{n_bad} rejected "
+             f"({int(out['at_bound'].sum())} at a parameter bound, "
+             f"{int(out['reach_exceeds_panel'].sum())} with a reach beyond the "
+             f"panel's distance range)")
         for label, g in out.groupby("spec"):
             u = g[g["usable"]]
             if len(u):
@@ -1368,6 +1547,274 @@ def plot_window_sweep(sweep: pd.DataFrame, fig_path: Path) -> None:
     render_figure(fig, fig_path)
     plt.close(fig)
 
+
+def rolling_window_sweep(specs: dict, cwb: pd.Series, decay_func, p0, bounds,
+                         lengths=ROLLING_WINDOW_YEARS,
+                         step_months: int = ROLLING_WINDOW_STEP_MONTHS
+                         ) -> pd.DataFrame:
+    """Refit each specification on a window of FIXED length slid along the
+    record, well set fixed, repeating the slide at every length in ``lengths``.
+
+    ``specs`` maps a label to the long-form panel for that specification, as in
+    ``window_sweep``.  The difference is the window geometry.  ``window_sweep``
+    pins the window END at the panel's last month and moves only the START, so
+    the window shortens as the start moves later — window POSITION and window
+    LENGTH are varied together, and a parameter that moves across that sweep
+    cannot be attributed to either.  Here the length is held constant and the
+    whole window is advanced ``step_months`` at a time, so position moves and
+    length does not; sweeping several lengths then puts a spread measured at one
+    length beside the spread at another, which is what makes length itself
+    testable.  Both constants come from ``config`` so the sweep's geometry is
+    declared in one place.
+
+    Each row carries the fitted far-field constant ``c_mm_yr``, the drift the
+    CWB covariate contributes over the SAME window
+    (``climate_term_mm_yr`` = 1000 * beta_cwb * d(CWB)/dt, as in
+    ``matched_window_sensitivity``), and their sum.  The two are not separately
+    identified in this panel — only the sum is recovered — so reporting c alone
+    would describe a split the fit does not make.  Values are stored unrounded
+    (D-035); rounding belongs where they are displayed.
+
+    ``usable`` comes from ``sweep_usability``, shared with ``window_sweep``:
+    False at a parameter bound, on a non-finite covariance, or where the fitted
+    reach exceeds the distance range that window's own panel covers.  The last
+    of those is what bites here — a short window can put the search into a
+    regime where the reach runs past the far end of the network and delta_0, L
+    and c are no longer separately identified, which no bound test can see
+    because no parameter is at its bound.  ``reach_exceeds_panel`` and
+    ``panel_max_dist_m`` are written out beside the fit so the rejection can be
+    audited, and rejected rows stay in the file rather than being dropped
+    silently.
+
+    REPORTED ONLY: nothing downstream reads 25_13, and the published delta_0, L
+    and c in 25_01 are not refitted here.
+    """
+    lo, hi = np.asarray(bounds[0], dtype=float), np.asarray(bounds[1], dtype=float)
+    span = hi - lo
+    rows = []
+
+    for label, long in specs.items():
+        design = build_design(long, cwb)
+        if design.empty:
+            continue
+        first, last = design["date"].min(), design["date"].max()
+
+        for years in lengths:
+            # Whole months, so the window covers the same NUMBER of monthly
+            # observations wherever it sits; a day-count length would drift
+            # across month boundaries and change the row count with position.
+            n_months = int(round(float(years) * MONTHS_PER_YEAR))
+            for start in pd.date_range(first, last, freq=f"{int(step_months)}MS"):
+                end = start + pd.DateOffset(months=n_months - 1)
+                if end > last:
+                    break
+                sub = design[(design["date"] >= start) & (design["date"] <= end)]
+                if sub.empty or sub["well"].nunique() < 3:
+                    continue
+                try:
+                    fit = fit_panel(sub, decay_func, p0=p0, bounds=bounds,
+                                    label=f"{label}@{start:%Y-%m}+{years:g}y")
+                except Exception:                    # a window that will not fit
+                    continue
+                popt, perr = np.asarray(fit["popt"]), np.asarray(fit["perr"])
+                d_max = float(sub["dist_coast_m"].max())
+                flags = sweep_usability(popt, perr, d_max, lo, hi, span)
+                trend = cwb_trend(cwb, fit["date_min"], fit["date_max"])
+                # h_depth is in metres and the reported rates are mm/yr.
+                climate_term = 1000.0 * fit["beta_cwb_m_per_mm"] * trend
+                mid = start + (end - start) / 2
+                rows.append({
+                    "spec": label,
+                    # The REQUESTED length — the sweep's grouping variable.
+                    # observed_span_years is what the fitted rows actually cover,
+                    # which is shorter wherever a month carries no reading.
+                    "window_years": float(years),
+                    "window_start": f"{start:%Y-%m}",
+                    "window_end": f"{end:%Y-%m}",
+                    "window_mid": f"{mid:%Y-%m}",
+                    "observed_span_years": (fit["date_max"]
+                                            - fit["date_min"]).days / 365.25,
+                    "n_obs": int(fit["n"]),
+                    "n_wells": int(sub["well"].nunique()),
+                    "delta_0_mm_yr": float(popt[0]), "delta_0_se": float(perr[0]),
+                    "L_m": float(popt[1]),           "L_se": float(perr[1]),
+                    "c_mm_yr": float(popt[2]),       "c_se": float(perr[2]),
+                    "beta_cwb_m_per_mm": float(fit["beta_cwb_m_per_mm"]),
+                    "cwb_trend_mm_yr": float(trend),
+                    "climate_term_mm_yr": float(climate_term),
+                    "identified_sum_mm_yr": float(popt[2]) + float(climate_term),
+                    "panel_max_dist_m": d_max,
+                    "at_bound": flags["at_bound"],
+                    "reach_exceeds_panel": flags["reach_exceeds_panel"],
+                    "usable": flags["usable"],
+                })
+
+    out = pd.DataFrame(rows)
+    if out.empty:
+        return out
+
+    n_bad = int((~out["usable"]).sum())
+    info(f"rolling window sweep: {len(out)} fits, {len(out) - n_bad} usable, "
+         f"{n_bad} rejected "
+         f"({int(out['at_bound'].sum())} at a parameter bound, "
+         f"{int(out['reach_exceeds_panel'].sum())} with a fitted reach beyond "
+         f"the panel's own distance range) "
+         f"(step {int(step_months)} months)")
+    for (label, years), g in out[out["usable"]].groupby(["spec", "window_years"]):
+        if len(g) < 2:
+            continue
+        r = float(np.corrcoef(g["c_mm_yr"], g["climate_term_mm_yr"])[0, 1])
+        info(f"  {label} {years:g}y  n={len(g):>3d}  "
+             f"c {g['c_mm_yr'].mean():+6.2f} (sd {g['c_mm_yr'].std():5.2f})  "
+             f"climate {g['climate_term_mm_yr'].mean():+6.2f} "
+             f"(sd {g['climate_term_mm_yr'].std():5.2f})  "
+             f"sum {g['identified_sum_mm_yr'].mean():+6.2f} "
+             f"(sd {g['identified_sum_mm_yr'].std():5.2f})  "
+             f"corr(c, climate) {r:+.3f}")
+    return out
+
+
+def plot_rolling_window(rolling: pd.DataFrame, fig_path: Path,
+                        spec: str | None = None) -> None:
+    """One panel per window length: c, the climate term and their sum against
+    the window MIDPOINT, with the window length held constant along each panel.
+
+    Plotting the three together is the point of the figure.  c and
+    beta_cwb*d(CWB)/dt are not separately identified in this panel, so each
+    panel's caption carries the correlation between them and the spread of each
+    of the three series, and the reader can see how the sum behaves relative to
+    its parts rather than being told.  Reading DOWN the panels holds the slide
+    fixed and changes only the length, which is the comparison 25_12 cannot
+    make.
+
+    NO confidence band is drawn, deliberately.  A single window with a very wide
+    Wald interval on c fills the panel from top to bottom across a run of years,
+    and a filled block spanning a date range reads as a highlighted epoch — an
+    annotation about that period — not as an interval about a line.  The band
+    was also the wrong statistic for the argument: what matters here is that the
+    spread of c BETWEEN windows is many times its standard error WITHIN any one
+    of them, and that ratio is stated per panel and summarised in the footnote,
+    which says it plainly where a band only implied it.
+
+    Rejected fits are drawn as open markers rather than dropped, as in
+    ``plot_window_sweep``, and the axis is scaled to include them so no marker
+    is clipped at a panel edge.
+    """
+    if rolling.empty:
+        warn("rolling window sweep is empty; figure not drawn.")
+        return
+
+    rolling = rolling.copy()
+    specs = list(dict.fromkeys(rolling["spec"]))
+    if spec is None:
+        spec = specs[0]
+    if len(specs) > 1:
+        warn(f"rolling window figure drawn for '{spec}' only; "
+             f"{len(specs) - 1} further specification(s) are in the CSV")
+    rolling = rolling[rolling["spec"] == spec]
+    if rolling.empty:
+        warn(f"no rolling-window rows for '{spec}'; figure not drawn.")
+        return
+
+    rolling["x"] = pd.to_datetime(rolling["window_mid"] + "-01")
+    lengths = sorted(rolling["window_years"].unique())
+    series = [
+        ("c_mm_yr", "#1f4e79", r"far-field constant $c$"),
+        ("climate_term_mm_yr", "#c1440e",
+         r"climate term  $\beta_{\mathrm{cwb}}\cdot$d(CWB)/d$t$"),
+        ("identified_sum_mm_yr", "#222222", "sum (the identified quantity)"),
+    ]
+
+    fig_h = 2.6 * len(lengths) + 1.6
+    fig, axes = plt.subplots(len(lengths), 1, figsize=(9.6, fig_h),
+                             sharex=True, squeeze=False)
+    axes = axes[:, 0]
+    ratios = []
+    for i, (ax, years) in enumerate(zip(axes, lengths)):
+        g_all = rolling[rolling["window_years"] == years].sort_values("x")
+        g = g_all[g_all["usable"]]
+        bad = g_all[~g_all["usable"]]
+        for key, colour, lab in series:
+            # Rejected fits are drawn, but drawn quietly and UNDER the accepted
+            # series: at the short lengths they outnumber the accepted fits, and
+            # at full weight a cloud of markers reads as a fourth series rather
+            # than as the fits the sweep declined to use.
+            if len(bad):
+                ax.plot(bad["x"], bad[key], "o", ms=4.5, mfc="none",
+                        mec="#8c8c8c", mew=1.0, zorder=1.5)
+            if not g.empty:
+                ax.plot(g["x"], g[key], color=colour, lw=1.9, zorder=3,
+                        label=lab if i == 0 else None)
+        ax.axhline(0, color="k", lw=0.9, alpha=0.45)
+        ax.set_ylabel("mm yr$^{-1}$")
+        # Scaled to EVERY plotted value, rejected fits included, so no marker
+        # sits on a panel edge.
+        vals = pd.concat([g_all[k] for k, _, _ in series]).astype(float)
+        vals = vals[np.isfinite(vals)]
+        if len(vals):
+            span_v = max(float(vals.max() - vals.min()), 1.0)
+            ax.set_ylim(float(vals.min()) - 0.12 * span_v,
+                        float(vals.max()) + 0.12 * span_v)
+        if len(g) > 1:
+            r = float(np.corrcoef(g["c_mm_yr"], g["climate_term_mm_yr"])[0, 1])
+            sd_c = float(g["c_mm_yr"].std())
+            se_c = float(g["c_se"].median())
+            if np.isfinite(se_c) and se_c > 0:
+                ratios.append(sd_c / se_c)
+            sub = (f"n = {len(g)} windows   "
+                   f"sd(c) = {sd_c:.2f}   "
+                   f"sd(climate) = {g['climate_term_mm_yr'].std():.2f}   "
+                   f"sd(sum) = {g['identified_sum_mm_yr'].std():.2f}   "
+                   f"corr(c, climate) = {r:+.2f}   "
+                   f"median SE(c) = {se_c:.2f}")
+        else:
+            sub = f"n = {len(g)} windows"
+        ax.set_title(f"({chr(97 + i)}) {years:g}-year window — {sub}",
+                     loc="left", fontsize=10.5, fontweight="bold")
+        ax.grid(alpha=0.25)
+        ax.margins(x=0.03)
+
+    axes[-1].set_xlabel("window midpoint "
+                        "(the window length and the well set are held fixed)")
+    n_bad = int((~rolling["usable"]).sum())
+    # Header and footer heights are fixed in INCHES and converted to figure
+    # fractions, because the figure grows with the number of window lengths —
+    # a fraction that suits four panels crowds the title at two.
+    def _fy(inches_from_top):
+        return 1.0 - inches_from_top / fig_h
+    fig.suptitle("Fixed-length rolling-window sensitivity of the "
+                 "cross-shore decay fit",
+                 x=0.05, ha="left", fontsize=14, fontweight="bold",
+                 y=_fy(0.30))
+    fig.text(0.05, _fy(0.58),
+             f"{spec} panel; the window length is constant within each row and "
+             "the whole window slides along the record",
+             ha="left", fontsize=10, color="#666")
+    handles, labels = axes[0].get_legend_handles_labels()
+    if handles:
+        fig.legend(handles, labels, loc="upper left",
+                   bbox_to_anchor=(0.05, _fy(0.74)), ncol=3,
+                   frameon=True, fontsize=9.5)
+    if ratios:
+        spread = (f"{min(ratios):.0f} to {max(ratios):.0f} times"
+                  if max(ratios) - min(ratios) >= 1.0
+                  else f"about {min(ratios):.0f} times")
+        band_note = (f"No interval is drawn: between windows, c moves {spread} "
+                     f"its own within-window standard error (per-panel sd and "
+                     f"median SE above). ")
+    else:
+        band_note = "No interval is drawn. "
+    fig.text(0.05, 0.28 / fig_h,
+             f"{band_note}Grey open markers: {n_bad} fit(s) rejected for "
+             f"sitting on a parameter bound or for a fitted reach beyond the "
+             f"panel's own distance range. Windows advance in "
+             f"{int(ROLLING_WINDOW_STEP_MONTHS)}-month steps.",
+             ha="left", fontsize=8.6, color="#444")
+    fig.tight_layout(rect=[0, 0.62 / fig_h, 1, _fy(1.15)])
+    render_figure(fig, fig_path)
+    plt.close(fig)
+
+
 def baci_corroboration(distances: pd.DataFrame,
                         fit_headline: dict,
                         baci_csv_path: Path) -> pd.DataFrame:
@@ -1388,6 +1835,20 @@ def baci_corroboration(distances: pd.DataFrame,
     independently-fitted gradient. If the BACI absorbs much more,
     its easting × time term is doing more than just coastal-retreat
     correction (likely absorbing other monotonic spatial drift).
+
+    The comparison lives in distance-to-coast, so its power is set by the
+    distance CONTRAST between the impact zone and the control tier, and a
+    verdict is only as informative as that contrast. Read the ``d_target_m``
+    and ``d_control_m`` columns before reading ``consistent``: where the two
+    are close the gradient model predicts a differential near zero and the row
+    cannot discriminate, whatever verdict it carries. This is a property of
+    how each tier was chosen, not a defect in the tier — a control sited to
+    match its impact zone's setting necessarily matches its distance from the
+    shore.
+
+    Every row is a tier MEAN, and ``baci_tier_spread()`` carries the same
+    comparison through one control well at a time so a reader can see how much
+    of a verdict rests on that mean.
     """
     d0_h, L_h, c_h = fit_headline["popt"]
     dists = distances.set_index("well")["dist_coast_m"].to_dict()
@@ -1398,11 +1859,6 @@ def baci_corroboration(distances: pd.DataFrame,
     def grad_only(d):
         return float(model_linear_capped(d, d0_h, L_h, 0))
 
-    d_imp = mean_d(IMPACT_WELLS)
-    d_edge = mean_d(EDGE_WELLS)
-    d_forest = mean_d(FOREST_CONTROL_WELLS)
-    d_climate = mean_d(CLIMATE_CONTROL_WELLS)
-
     # Easting too (BACI uses easting, not distance to coast)
     locs = pd.read_csv(paths.INT_LOCATIONS)
     locs["well"] = locs["Name"].str.strip().str.lower()
@@ -1411,21 +1867,35 @@ def baci_corroboration(distances: pd.DataFrame,
     def mean_E(wells):
         return float(np.mean([E[w] for w in wells if w in E]))
 
-    E_imp = mean_E(IMPACT_WELLS)
-    E_edge = mean_E(EDGE_WELLS)
-    E_forest = mean_E(FOREST_CONTROL_WELLS)
-    E_climate = mean_E(CLIMATE_CONTROL_WELLS)
-
     # BACI coefficients
     baci = pd.read_csv(baci_csv_path)
     baci = baci[baci["Coefficient"] == "easting_x_time"].copy()
 
+    # Control tiers and impact zones, iterated tier-outer / zone-inner so the
+    # rows the four published comparisons occupy keep their order and the new
+    # tier is appended after them.  The tier names are the values Script 10a
+    # writes into the `Control` column; they come from clearfell_common rather
+    # than being typed here, so the two scripts cannot drift apart.
+    control_tiers = {
+        "Forest":  FOREST_CONTROL_WELLS,
+        "Climate": CLIMATE_CONTROL_WELLS,
+        # Selected for distance contrast rather than for matching the impact
+        # zone's setting — the only one of the three whose contrast is large
+        # enough to put the gradient model at risk.  See clearfell_common.
+        FAR_FIELD_CONTROL_LABEL: FAR_FIELD_CONTROL_WELLS,
+    }
+    impact_zones = {
+        "Impact": IMPACT_WELLS,
+        "Edge":   EDGE_WELLS,
+    }
+
     rows = []
     pairs = [
-        ("Forest", "Impact", d_imp, E_imp, d_forest, E_forest),
-        ("Forest", "Edge",   d_edge, E_edge, d_forest, E_forest),
-        ("Climate", "Impact", d_imp, E_imp, d_climate, E_climate),
-        ("Climate", "Edge",   d_edge, E_edge, d_climate, E_climate),
+        (ctl_name, zone_name,
+         mean_d(zone_wells), mean_E(zone_wells),
+         mean_d(ctl_wells), mean_E(ctl_wells))
+        for ctl_name, ctl_wells in control_tiers.items()
+        for zone_name, zone_wells in impact_zones.items()
     ]
     for ctl_name, zone_name, d_tgt, E_tgt, d_ctl, E_ctl in pairs:
         # Gradient-model differential (target − control), gradient only
@@ -1466,7 +1936,202 @@ def baci_corroboration(distances: pd.DataFrame,
     return pd.DataFrame(rows)
 
 
+def baci_tier_spread(distances: pd.DataFrame,
+                      fit_headline: dict,
+                      spread_csv_path: Path,
+                      baci_corr: pd.DataFrame) -> pd.DataFrame:
+    """Per-control-well breakdown of the rows in ``baci_corroboration``.
+
+    Every row of 25_04 is a tier mean: one control centroid, one easting ×
+    time coefficient, one verdict.  That summary is silent about whether the
+    tier's members agree, which matters most for a tier selected on distance,
+    whose members can sit a long way apart and need not respond alike.
+
+    Script 10a refits the same ANCOVA specification with each control well
+    used singly; this reads those fits and carries each one through the same
+    comparison the tier row makes — its own distance, its own easting
+    differential, its own predicted differential from the gradient model, its
+    own z.  The spread across a tier's members is then visible beside the tier
+    verdict instead of being folded into it.
+
+    The breakdown is produced for EVERY control tier, not only the far-field
+    one: a spread is interpretable only against the spread the established
+    tiers show.
+
+    Returns an empty frame (and warns) when the Script 10a spread table has
+    not been written yet — the first-pass case, since 10a runs earlier in the
+    same pass and the file is present on any complete run.
+    """
+    if not Path(spread_csv_path).exists():
+        warn(f"{Path(spread_csv_path).name} not found — the per-control-well "
+             f"spread needs Script 10a to have run in this pass; emitting an "
+             f"empty spread table")
+        return pd.DataFrame()
+
+    sp = pd.read_csv(spread_csv_path)
+    d0_h, L_h, c_h = fit_headline["popt"]
+    dists = distances.set_index("well")["dist_coast_m"].to_dict()
+    locs = pd.read_csv(paths.INT_LOCATIONS)
+    locs["well"] = locs["Name"].str.strip().str.lower()
+    E = dict(zip(locs["well"], locs["E"]))
+
+    def grad_only(d):
+        return float(model_linear_capped(d, d0_h, L_h, 0))
+
+    rows = []
+    for tier_row in baci_corr.itertuples():
+        members = sp[(sp["Control"] == tier_row.control_tier)
+                      & (sp["Zone"] == tier_row.impact_zone)]
+        if members.empty:
+            continue
+        # The target zone's mean easting, recovered from the tier row rather
+        # than recomputed, so the per-well differential is referenced to
+        # exactly the target the tier row used.
+        tier_members = members["Control_well"].str.lower().tolist()
+        E_ctl_mean = float(np.mean([E[w] for w in tier_members if w in E]))
+        E_tgt = tier_row.delta_E_m + E_ctl_mean
+        for m in members.itertuples():
+            w = m.Control_well.lower()
+            d_ctl = dists.get(w, np.nan)
+            model_pred = grad_only(tier_row.d_target_m) - grad_only(d_ctl)
+            dE = E_tgt - E.get(w, np.nan)
+            absorb = m.Easting_coef * dE * 12 * 1000
+            absorb_se = m.Easting_se * abs(dE) * 12 * 1000
+            z = ((absorb - model_pred) / absorb_se
+                  if np.isfinite(absorb_se) and absorb_se > 0 else np.nan)
+            # Stored at the precision they were computed (D-035); the tier
+            # columns beside them carry 25_04's rounding because they are
+            # copied from that table rather than recomputed here.
+            rows.append({
+                "control_tier": tier_row.control_tier,
+                "impact_zone": tier_row.impact_zone,
+                "control_well": m.Control_well,
+                "d_target_m": tier_row.d_target_m,
+                "d_control_m": d_ctl,
+                "delta_E_m": dE,
+                "baci_coef": m.Easting_coef,
+                "baci_coef_se": m.Easting_se,
+                "baci_coef_p": m.Easting_p,
+                "baci_absorbs_mm_yr": absorb,
+                "baci_absorbs_se_mm_yr": absorb_se,
+                "model_predicts_mm_yr": model_pred,
+                "z_test_baci_vs_model": (z if np.isfinite(z) else None),
+                # Three states, not two.  Script 10a drops the easting x time
+                # term when the easting range across the target and the single
+                # control well is too small to identify it, and a member with
+                # no coefficient has not failed the test — it was never given
+                # one.  Recording that as "no" would count an absent
+                # measurement as a disagreement.
+                "consistent": ("not estimated" if not np.isfinite(z)
+                                else "yes" if abs(z) < 2 else "no"),
+                "clearfell_step_m": m.Clearfell_step_m,
+                "n_months": m.N,
+                # The tier row this member belongs to, repeated so the
+                # comparison travels with the breakdown.
+                "tier_d_control_m": tier_row.d_control_m,
+                "tier_baci_absorbs_mm_yr": tier_row.baci_absorbs_mm_yr,
+                "tier_model_predicts_mm_yr": tier_row.model_predicts_mm_yr,
+                "tier_z_test_baci_vs_model": tier_row.z_test_baci_vs_model,
+                "tier_consistent": tier_row.consistent,
+            })
+    return pd.DataFrame(rows)
+
+
 # ── Figures ──────────────────────────────────────────────────────────────────
+
+def correction_applicability(distances: pd.DataFrame,
+                             fit_headline: dict,
+                             decay_func,
+                             panel_wells: set,
+                             per_well: pd.DataFrame,
+                             metric_label: str) -> pd.DataFrame:
+    """Whether the fitted gradient can be applied to individual wells.
+
+    The gradient is estimated by pooling wells; a correction is applied one
+    well at a time, and the second does not follow from the first. Three
+    quantities decide it, and this table carries all three so the answer
+    traces to a committed file rather than to an argument:
+
+      * MEMBERSHIP — how many wells of each BACI tier sit in the panel the
+        gradient was fitted on. The clearfell zone is withheld from that panel
+        by design (see the exclusions above), so a correction built from this
+        gradient would be returned to the population it was built to exclude.
+      * DISPERSION — how much of the variation in per-well trend the distance
+        profile accounts for, and how far individual wells sit from it. A
+        correction smaller than that spread carries more scatter than signal,
+        however well determined the pooled relationship is.
+      * MAGNITUDE — the differential the profile predicts between the impact
+        zone and each control tier, which is the correction that would be
+        applied, expressed both in mm/yr and as a fraction of the dispersion.
+
+    Emitted per metric because the per-well slopes it reads are a seasonal
+    quantity; the profile is the all-season headline in both cases, and the
+    fit it comes from is named in every row. Nothing here is a verdict: the
+    table reports the three quantities and lets the reader take the decision.
+    """
+    dists = distances.set_index("well")["dist_coast_m"].to_dict()
+    popt = fit_headline["popt"]
+
+    pw = per_well.copy()
+    pw["well"] = pw["well"].astype(str).str.lower().str.strip()
+    pw = pw[pw["well"].isin(panel_wells)]
+    obs = pw["slope_m_yr"].values * 1000.0   # m/yr -> mm/yr, as elsewhere here
+    pred_w = np.asarray([float(decay_func(d, *popt))
+                         for d in pw["dist_coast_m"].values])
+    resid = obs - pred_w
+    var_obs = float(np.var(obs, ddof=1)) if len(obs) > 1 else np.nan
+    var_res = float(np.var(resid, ddof=1)) if len(resid) > 1 else np.nan
+    r2 = (1.0 - var_res / var_obs
+          if np.isfinite(var_obs) and var_obs > 0 else np.nan)
+    resid_sd = float(np.std(resid, ddof=1)) if len(resid) > 1 else np.nan
+    med_se = (float(np.nanmedian(pw["slope_se"].values)) * 1000.0
+              if len(pw) else np.nan)
+
+    tiers = {
+        "Impact": IMPACT_WELLS,
+        "Edge": EDGE_WELLS,
+        "Forest": FOREST_CONTROL_WELLS,
+        "Coastal": COASTAL_CONTROL_WELLS,
+        "Climate": CLIMATE_CONTROL_WELLS,
+        FAR_FIELD_CONTROL_LABEL: FAR_FIELD_CONTROL_WELLS,
+    }
+
+    def tier_profile(wells):
+        ds = [dists[w.lower()] for w in wells if w.lower() in dists]
+        if not ds:
+            return np.nan, np.nan
+        return (float(np.mean([float(decay_func(d, *popt)) for d in ds])),
+                float(np.mean(ds)))
+
+    ref_pred, _ = tier_profile(IMPACT_WELLS)
+
+    rows = []
+    for tier, wells in tiers.items():
+        pred, mean_d = tier_profile(wells)
+        n_in = sum(1 for w in wells if w.lower() in panel_wells)
+        diff = ref_pred - pred
+        rows.append({
+            "metric": metric_label,
+            "fit_label": fit_headline.get("label", ""),
+            "tier": tier,
+            "n_wells": len(wells),
+            "n_in_fit_panel": n_in,
+            "all_in_fit_panel": bool(n_in == len(wells)),
+            "mean_dist_coast_m": mean_d,
+            "predicted_trend_mm_yr": pred,
+            "predicted_diff_vs_impact_mm_yr": diff,
+            "abs_diff_over_resid_sd": (abs(diff) / resid_sd
+                                       if np.isfinite(resid_sd) and resid_sd > 0
+                                       else np.nan),
+            "n_panel_wells": len(panel_wells),
+            "n_slopes_used": len(pw),
+            "r2_distance": r2 if np.isfinite(r2) else np.nan,
+            "resid_sd_mm_yr": resid_sd if np.isfinite(resid_sd) else np.nan,
+            "median_slope_se_mm_yr": (med_se
+                                      if np.isfinite(med_se) else np.nan),
+        })
+    return pd.DataFrame(rows)
+
 
 def plot_fit_diagnostic(per_well: pd.DataFrame,
                           fit_full_l: dict, fit_ff_l: dict, fit_c3_l: dict,
@@ -1602,7 +2267,10 @@ def plot_baci_corroboration(baci_df: pd.DataFrame, fig_path: Path) -> None:
     """Forest plot of BACI easting × time absorption vs gradient-model
     prediction, per impact-zone × control-tier comparison.
     """
-    fig, ax = plt.subplots(figsize=(10, 4.5))
+    # Height derives from the number of comparisons so the rows keep a
+    # constant pitch as tiers are added, rather than compressing into a fixed
+    # canvas until the labels collide.
+    fig, ax = plt.subplots(figsize=(10, 2.3 + 0.55 * len(baci_df)))
     labels = [f"{r.control_tier} {r.impact_zone}"
               for r in baci_df.itertuples()]
     y_pos = np.arange(len(baci_df))[::-1]
@@ -2045,19 +2713,29 @@ def build_report_numbers(fits: dict,
                                 f"(offset and CWB trend not separately "
                                 f"identified), unexplained "
                                 f"{r['unexplained_mm_yr']:+.1f}")})
-    # BACI corroboration headline (Forest Impact)
-    fi = baci_corr[(baci_corr["control_tier"] == "Forest")
-                   & (baci_corr["impact_zone"] == "Impact")]
-    if not fi.empty:
-        r = fi.iloc[0]
-        rows.append({"Parameter": "BACI_corroboration_Forest_Impact_z",
+    # BACI corroboration — one row per control tier x impact zone.  Every
+    # tier is emitted, not just the Forest headline: a tier whose distance
+    # contrast cannot carry the test and a tier selected to carry it are both
+    # part of what the corroboration says, and reporting one without the
+    # others is what made the Climate row read as a failed test rather than an
+    # underpowered one.  The contrast is carried in the note so no verdict is
+    # quoted without it.
+    for r in baci_corr.itertuples():
+        if not np.isfinite(pd.to_numeric(r.z_test_baci_vs_model,
+                                          errors="coerce")):
+            continue
+        rows.append({"Parameter": (f"BACI_corroboration_{r.control_tier}_"
+                                    f"{r.impact_zone}_z"),
                       "Well": "", "Era": "BACI window",
-                      "Value": float(r["z_test_baci_vs_model"]),
+                      "Value": float(r.z_test_baci_vs_model),
                       "Unit": "z",
-                      "Note": (f"BACI absorbs {r['baci_absorbs_mm_yr']:+.1f} "
+                      "Note": (f"BACI absorbs {r.baci_absorbs_mm_yr:+.1f} "
                                 f"mm/yr, model predicts "
-                                f"{r['model_predicts_mm_yr']:+.1f} mm/yr; "
-                                f"consistent={r['consistent']}")})
+                                f"{r.model_predicts_mm_yr:+.1f} mm/yr; "
+                                f"consistent={r.consistent}; distance "
+                                f"contrast {r.d_control_m - r.d_target_m:+.0f} "
+                                f"m (target {r.d_target_m:.0f} m, control "
+                                f"{r.d_control_m:.0f} m)")})
     # §5.7.5 Check 2 (raw): MSL5 raw change vs summer-min slope correlation
     rows.extend(_check2_correlation_rows(per_well))
     return pd.DataFrame(rows)
@@ -2213,6 +2891,26 @@ def main() -> None:
                  f"{_ff['c_mm_yr'].max():+.2f} mm/yr on the forest-free panel "
                  "with the well set unchanged — it is a property of the fit "
                  "window, not a rate, and is not quoted as one")
+
+    # ── Fixed-length rolling-window sweep (25_13) ──
+    # 25_12 above pins the window end and moves the start, so the window also
+    # shortens as the start moves later: position and length are varied
+    # together.  This holds the length fixed and slides the whole window,
+    # repeating the slide at each length in ROLLING_WINDOW_YEARS, so the two
+    # can be told apart.  Reuses the forest-free panel already loaded above;
+    # the CWB term is carried beside c because only their sum is identified.
+    step("Fixed-length rolling-window sweep")
+    rolling = rolling_window_sweep(
+        {"forest_free": long_ff},
+        cwb, model_linear_capped,
+        p0=[-30.0, 1000.0, -5.0],            # as the headline fit above
+        bounds=([-200, 100, -30], [50, 10000, 30]))
+    rolling.to_csv(paths.OUT_25_ROLLING_WINDOW, index=False)
+    saved(paths.OUT_25_ROLLING_WINDOW.name)
+    plot_rolling_window(rolling, paths.OUT_25_ROLLING_WINDOW_FIG)
+    saved(paths.OUT_25_ROLLING_WINDOW_FIG.name)
+    warn("25_13 is a sensitivity: nothing downstream reads it and the "
+         "published δ₀ / L / c are unchanged")
 
     # ── MAM-only sensitivity fits (panel refit on Mar–May rows only) ──
     # The HEADLINE gradient is the all-season fit above; these MAM-restricted
@@ -2371,9 +3069,40 @@ def main() -> None:
                                      paths.OUT_10A_FULL_COEFFS)
     baci_corr.to_csv(paths.OUT_25_BACI_CORROBORATION, index=False)
     print(baci_corr[["control_tier", "impact_zone",
+                       "d_target_m", "d_control_m",
                        "baci_absorbs_mm_yr", "model_predicts_mm_yr",
                        "z_test_baci_vs_model", "consistent"]].to_string(index=False))
+    print("    (read d_target_m against d_control_m before reading the "
+          "verdict: a tier with little distance contrast cannot carry the "
+          "test, whichever way its row falls)")
     plot_baci_corroboration(baci_corr, paths.OUT_25_BACI_CHART)
+
+    # ── Per-control-well spread behind each tier row (25_04b) ──
+    baci_spread = baci_tier_spread(distances, fit_ff_l,
+                                    paths.OUT_10A_CONTROL_WELL_SPREAD,
+                                    baci_corr)
+    baci_spread.to_csv(paths.OUT_25_BACI_TIER_SPREAD, index=False)
+    if not baci_spread.empty:
+        print("\n  Per-control-well spread behind each tier row:")
+        for (ctl, zone), g in baci_spread.groupby(
+                ["control_tier", "impact_zone"], sort=False):
+            zs = pd.to_numeric(g["z_test_baci_vs_model"], errors="coerce")
+            ab = pd.to_numeric(g["baci_absorbs_mm_yr"], errors="coerce")
+            tier_z = g["tier_z_test_baci_vs_model"].iloc[0]
+            n_est = int(zs.notna().sum())
+            n_consistent = int((g["consistent"] == "yes").sum())
+            if n_est == 0:
+                print(f"    {ctl:<9} {zone:<7} tier z = {tier_z:+.2f}   "
+                      f"no member carries an easting x time term")
+                continue
+            missing = ("" if n_est == len(g)
+                       else f"  [{len(g) - n_est} member(s) carry no "
+                            f"easting x time term]")
+            print(f"    {ctl:<9} {zone:<7} tier z = {tier_z:+.2f}   "
+                  f"per-well z {zs.min():+.2f} to {zs.max():+.2f}   "
+                  f"absorbs {ab.min():+.1f} to {ab.max():+.1f} mm/yr   "
+                  f"{n_consistent}/{n_est} estimated members consistent"
+                  f"{missing}")
 
     # ── Per-metric: per-well slopes, cluster partition, diagnostic figures ──
     # The all-season gradient (fit_ff_l) is the headline and is applied to BOTH
@@ -2414,6 +3143,32 @@ def main() -> None:
         pw.to_csv(m["out_per_well"], index=False)
         info(f"{len(pw)} wells with ≥{PANEL_OBS_MIN_YEARS} years "
              f"({m['out_per_well'].name})")
+
+        # 25_14 — can this gradient correct individual wells? Membership of
+        # the fit panel, dispersion about the fitted profile, and the
+        # differential the profile predicts between the impact zone and each
+        # control tier. The panel is the forest-free headline panel, so
+        # `panel_wells` is taken from the frame that fit was run on rather
+        # than assumed from the per-well table.
+        corr_diag = correction_applicability(
+            distances, fit_ff_l, model_linear_capped,
+            set(long_ff["well"].astype(str).str.lower().str.strip().unique()),
+            pw, m["key"])
+        corr_diag.to_csv(m["out_correction"], index=False)
+        saved(m["out_correction"].name)
+        if not corr_diag.empty:
+            _r0 = corr_diag.iloc[0]
+            info(f"distance accounts for {_r0['r2_distance']:.3f} of the "
+                 f"variation in per-well trend; wells sit "
+                 f"{_r0['resid_sd_mm_yr']:.2f} mm/yr from the profile "
+                 f"(median per-well slope SE {_r0['median_slope_se_mm_yr']:.2f})")
+            for _r in corr_diag.itertuples():
+                if _r.tier == "Impact":
+                    continue
+                info(f"  {_r.tier:<14} {_r.n_in_fit_panel}/{_r.n_wells} in the "
+                     f"fit panel; profile predicts "
+                     f"{_r.predicted_diff_vs_impact_mm_yr:+.2f} mm/yr vs Impact "
+                     f"({_r.abs_diff_over_resid_sd:.2f} x the dispersion)")
 
         print(f"  [{m['label']}] Computing per-cluster attribution "
               f"(all-season gradient × balanced annual mean; "
@@ -2474,6 +3229,8 @@ def main() -> None:
     print("    25_02_per_well_summer_min_slopes.csv / _spring_mean_slopes.csv")
     print("    25_03_cluster_partition.csv / _spring.csv")
     print("    25_04_baci_corroboration.csv")
+    print("    25_14_correction_diagnostic.csv (+ _spring)")
+    print("    25_04b_baci_corroboration_spread.csv")
     print("    25_05_fit_diagnostic.jpg / _spring.jpg")
     print("    25_06_baci_corroboration_chart.jpg")
     print("    25_07_cluster_decomposition.png / _spring.png")

@@ -54,10 +54,23 @@ from utils.model_utils import build_ssm_frame, fit_ssm
 from utils.config import DRAINAGE_DATUM, HEADLINE_LAG
 from utils.clearfell_common import (
     load_clearfell_data, print_network_summary, INTERVENTION_DATE,
-    SCRAPING_DATE, ALL_NETWORK_WELLS, ReportNumbers,
+    SCRAPING_DATE, ALL_NETWORK_WELLS, CORE_NETWORK_WELLS, ReportNumbers,
 )
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-05-18
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-08-21
+#
+# v1.2.0 (2026-08-21) — the synthetic-control donor pool is now excluded
+#   against CORE_NETWORK_WELLS (the published five-tier clearfell design)
+#   rather than ALL_NETWORK_WELLS. The two were the same list until the
+#   far-field control tier was added to ALL_NETWORK_WELLS; two of that tier's
+#   members are also donor candidates here, so leaving the exclusion on
+#   ALL_NETWORK_WELLS would have shrunk the donor pool and moved a published
+#   synthetic-control result as a side effect of adding a diagnostic tier.
+#   A far-field control is exactly what this pool wants in a donor — untreated,
+#   long record, remote from the intervention — so it belongs IN the pool, not
+#   excluded from it. Donor membership and every 10f output are unchanged.
+#
+# v1.1.0 (2026-05-18)
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -67,9 +80,15 @@ __version__ = "1.1.0"  # Hollingham (2026) — 2026-05-18
 # ── Exclusions ──────────────────────────────────────────────────────────────
 EXCLUDED_WELLS = {'nw8', 'nw8b'}
 
-# Donor pool for synthetic control — wells outside the 17-well BACI network
+# Donor pool for synthetic control — wells outside the five-tier BACI design
 # that have long records and no clearfell/scraping treatment.
 # NW8/NW8B excluded (compromised).
+#
+# "Outside the design" is CORE_NETWORK_WELLS, not ALL_NETWORK_WELLS: a well in
+# the far-field control tier is untreated, remote from the intervention and
+# long-recorded, which is precisely the donor profile this pool selects for.
+# Excluding it would remove a valid donor for no reason other than that a
+# separate diagnostic tier happens to name it.
 SYNTH_DONOR_CANDIDATES = [
     'ceh1', 'ceh5', 'ceh6', 'ceh10', 'ceh11', 'ceh24',
 ]
@@ -265,7 +284,7 @@ def synthetic_control_analysis(wells, valid_tiers, rpt):
     """Construct synthetic counterfactual from donor pool outside the network."""
     phase(3, "Synthetic Control Analysis — zone-level")
     # Identify available donors
-    network_set = set(ALL_NETWORK_WELLS) | EXCLUDED_WELLS
+    network_set = set(CORE_NETWORK_WELLS) | EXCLUDED_WELLS
     synth_donors = [w for w in SYNTH_DONOR_CANDIDATES
                     if w in wells.columns and w not in network_set]
     print(f"   Donor pool: {', '.join(w.upper() for w in synth_donors)} "

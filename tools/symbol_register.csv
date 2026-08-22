@@ -1,0 +1,25 @@
+glyph,sense_id,form,meaning,units,status,replacement,context_any,defined_in
+D,D_diffusivity,bare,hydraulic diffusivity K·b/Sy,m2 d-1,canonical,,diffusivity|K·b|Kb/|sea-level rise|propagation timescale|T/S,report8 §3.9
+D,D_datum,bare,"drainage datum, the reference depth displacement is measured from",m,displaced,z₀,datum|DRAINAGE_DATUM|h_disp|h\_disp|3.7 m|reference depth|β₃·(D|β₃·D|β3·(D|drainage loss proportional|(D + h|D + h_prev|D + h\_prev|D·(1−α|+D·(1−α|\beta_{3}\cdot D|S_{E} + D|cumulative drainage loss|drainage-weighted|P_flood|P\_flood,config.py DRAINAGE_DATUM
+D,D_fell,subscripted,step-function indicator for the December 2017 clearfell,dimensionless,ok,,D_fell|D\_fell|step function|felling step,report8 §3.6
+D,D_scrape,subscripted,step-function indicator for the April 2015 scraping,dimensionless,ok,,D_scrape|D\_scrape|scraping date,report8 §3.6
+D,D_residual,subscripted,"drainage residual, dh less the rainfall and PET contributions",m month-1,ok,,D_residual|D\_residual|drainage residual,report8 §3.4
+λ,lambda_reach,bare,drawdown e-folding reach sqrt(Kb/(Sy·b3)); the forest field and the scrape field share it by design,m,canonical,,"drawdown|e-folding|leaky-aquifer|leaky aquifer|characteristic length|226|223|230 m|220 m|drawdown_lambda|cost-distance|forest boundary|forest field|spans roughly|m day|hydraulic conductivity|aquifer thickness|130--420|method of images|radial-drain|50 mm contour|228 m|√(Kb|figure 19 reach|inland reach|the value behind|by name, never by number|sy-scaled volumetric|λ anchor|factor of √2|drawdown propagation|drawdown-propagation|λ by name",report9 §4.9.3
+λ,lambda_scrape_covariate,bare,"distance-decay length of the BACI scraping covariate, a separate parameter from the field reach",m,displaced,L_s,"distance-weighted scraping covariate|exponential weight|= 300 m|λ = 300|200 m and 500 m|distance-weighted scraping|scraping covariate|scraping decay length|200, 300 and 500",MS §S.11
+λ,lambda_depth,bare,depth-coupling decay rate in the depth-dependent PET diagnostic,m-1,displaced,kappa,depth-coupling|depth coupling|depth-dependent PET|grid search|m⁻¹|1/e decay depth|attenuates with water table depth|exponential decay rate,report9 §4.4
+λ,lambda_pflood,bare,rainfall multiplier in the P_flood calculation,dimensionless,displaced,m_P,P_flood|P\_flood|rainfall multiplier|unreachable|achievable|wet winters|mildly wet|Conclusion 4|borderline|λ map|achievability|long-recession|short-recession|denominator for λ|live λ preset|per-well λ table|winter_climatology|winter\_climatology|wet-winter-reachable|reachable band|a multiplier representing|λ is a multiplier|departure of a given winter|climatological rainfall and PET|an exactly average winter|climatological mean|live pipeline values,report9 §4.7
+α,alpha_sig,bare,significance level,dimensionless,canonical,,significance|two-sided|alpha level|p < 0.05|0.05 level,statistics convention
+α,alpha_intercept,bare,SSM water-balance intercept (Model B),m month-1,displaced,a0,Model B|intercept|water balance residual|22_model_b|lateral subsidy,report8 §3.4
+α,alpha_persist,bare,head persistence factor 1 - b3,dimensionless,displaced,rho_h,persistence|1 − β₃|1-β₃|recurrence,report9 §4.7
+α,alpha_vanwillegen,bare,van Willegen winter-maximum regression coefficient,dimensionless,displaced,b_W,van Willegen|winter maximum|MSL5 equation,report9 §4.8.5
+L,L_reach,bare,fitted inland reach of the coastal gradient,m,canonical,,coastal|inland reach|decay|δ₀|895|894|901,report9 §4.10
+L,L_boussinesq,bare,flow-path geometry length in the Boussinesq reading of b3,m,displaced,l_B,Boussinesq|flow path|flow-path|geometry,report8 §3.4
+d,d_coast,bare,perpendicular distance to the eroding shoreline,m,canonical,,distance to|cross-shore|shoreline|coastal gradient|δ(d)|dist_coast,report9 §4.10.1
+d,d_depth,bare,depth of the water table below ground surface,m,displaced,z,below ground|water table depth|depth below|summer minimum depth,report8 §3.2
+c,c_farfield,bare,far-field asymptote of the coastal decay model,mm yr-1,canonical,,far-field|far field|asymptote|decays to|panel constant,report9 §4.10.3
+c,c_intercept,bare,"the SSM's absent intercept, written c = 0",m month-1,retired,(rewrite as: no intercept is fitted),through the origin|no intercept|c = 0|constant term,report8 §3.4
+φ,phi_ar1,bare,lag-1 autocorrelation coefficient,dimensionless,canonical,,AR(1)|autocorrelation|lag-1|ar1_phi,report8 §3.4
+φ,phi_fell,subscripted,BACI felling-step coefficient phi_F,m,displaced,beta_F,felling step|clearfell step|φ_F|coefficient on D,report8 §3.6
+η,eta_sq,bare,"eta squared, proportion of variance explained",dimensionless,canonical,,η²|eta squared|variance explained|effect size,statistics convention
+η,eta_interaction,bare,CWB x D_fell interaction coefficient,m,displaced,beta_CF,interaction|CWB ×|CWB x|D_fell|D\_fell,report8 §3.6
+D,D_excavation,bare,inferred scrape excavation depth H0/Sy,m,displaced,d_ex,excavation depth|H₀ / Sy|H0/Sy|unsurveyed|inferred quantity|0.42 m|H₀/Sy|inferred* output|the *inferred*,report8 §3.8.1

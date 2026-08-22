@@ -3,7 +3,7 @@
 
 LIVE PARAMETERS
 --------------------------------------------------------------------------
-  δ₀ (Script 25, forest-free linear-capped): 26.42 mm/yr; L = 964 m
+  δ₀ (Script 25, forest-free linear-capped): 31.33 mm/yr; L = 895 m
   clearfell step (10a ANCOVA, Path B, observed): 112.8 mm
   scrape on-site (CEH36 Pure_Scraping, observed): 129.4 mm
   scrape off-site (WMC3 DiD mean, observed): -54.5 mm
@@ -15,7 +15,7 @@ LIVE PARAMETERS
 COMPARISON TABLE
 --------------------------------------------------------------------------
   Coastal erosion (chronic drawdown)     [Coast, progressive, loss, modelled]
-      peak=-528.4 mm  area=-73872.2 mm·ha  volume=-227734.8 m³
+      peak=-626.6 mm  area=-80282.0 mm·ha  volume=-247494.8 m³
       SD15b (wet-slack, 610 mm): worsen=0  relieve=0   SD16 (dry-slack, 980 mm): worsen=6  relieve=0  (n=66)
 
   Sea-level rise (head gain)             [Coast, progressive, gain, modelled]
@@ -39,7 +39,7 @@ COMPARISON TABLE
       SD15b (wet-slack, 610 mm): worsen=0  relieve=0   SD16 (dry-slack, 980 mm): worsen=5  relieve=0  (n=66)
 
   Climate / common-mode (uniform decline) [Climate (common-mode), uniform, loss, modelled]
-      peak=-3.4 mm  area=-3227.4 mm·ha  volume=-9949.6 m³
+      peak=-2.0 mm  area=-1898.5 mm·ha  volume=-5852.7 m³
       SD15b (wet-slack, 610 mm): worsen=0  relieve=0   SD16 (dry-slack, 980 mm): worsen=1  relieve=0  (n=66)
 
   Scrape NET (on-site + off-site)        [Dune scraping, redistributive, net, observed+modelled]
@@ -51,7 +51,7 @@ THE 'SCRAPING WORSENS SITE-WIDE DECLINE' CLAIM, IN CONTEXT
   Scrape on-site (rise):  area=+613.1 mm·ha  volume=+1890.0 m³
   Scrape off-site (drain): area=-21685.8 mm·ha  volume=-66853.4 m³
   Scrape NET: area=-21072.7 mm·ha  volume=-64963.4 m³
-  The net sign (a net site-wide LOSS) is the quantitative basis for the claim. Set beside the coastal integral, the scrape net volume is 29% of the coastal volume in magnitude — smaller than coast, but not negligible beside it; a moderate secondary contributor, not a match for coastal retreat and not a headline driver on its own. This ratio inherits Script 20's own scrape-field construction (8 cuts superposed with λ≈226 m reach each, summed over the whole site extent — mean field ≈23 mm across the 949 ha site, not a tiny near-field patch), which is why the off-site total doesn't stay small despite each cut's own footprint being modest. Consistent with, not overriding, the coastal-dominance picture from Part A / Script 25.
+  The net sign (a net site-wide LOSS) is the quantitative basis for the claim. Set beside the coastal integral, the scrape net volume is 26% of the coastal volume in magnitude — smaller than coast, but not negligible beside it; a moderate secondary contributor, not a match for coastal retreat and not a headline driver on its own. This ratio inherits Script 20's own scrape-field construction (8 cuts superposed with λ≈226 m reach each, summed over the whole site extent — mean field ≈23 mm across the 949 ha site, not a tiny near-field patch), which is why the off-site total doesn't stay small despite each cut's own footprint being modest. Consistent with, not overriding, the coastal-dominance picture from Part A / Script 25.
 
 CAVEATS (even-handed framing, per working rules)
 --------------------------------------------------------------------------

@@ -4,7 +4,8 @@ utils/clearfell_common.py
 Shared module for the Script 10 clearfell analysis suite (10a–10h).
 
 Provides:
-  - Well tier definitions (impact, edge, forest control, climate control)
+  - Well tier definitions (impact, edge, forest control, coastal control,
+    climate control, far-field control)
   - Intervention dates
   - Record-length-balance BACI cutoffs (PRE_FELL_START family)
   - Spatial constants and distance functions
@@ -69,7 +70,37 @@ provenance with ``_ = wells_prov``. Script 10d uses it to require
 >=2 measured Jun-Sep months in ``annual_summer_minimum``.
 """
 
-__version__ = "1.8.0"  # Hollingham (2026) — 2026-08-13 (generalised seasonal metrics; spring-mean MAM wrappers)
+__version__ = "1.9.0"  # Hollingham (2026) — 2026-08-21 (far-field control tier)
+#
+# 1.9.0 — FAR_FIELD_CONTROL_WELLS added beside the three existing control tiers:
+#         a control set chosen for DISTANCE CONTRAST against the impact zone, so
+#         the BACI easting × time covariate can be tested against the coastal-
+#         gradient model on a contrast large enough to carry the test. NW4 is
+#         deliberately excluded — see the comment at the definition.
+#         (a) CORE_NETWORK_WELLS and CORE_TIERS name the published five-tier
+#             design explicitly. ALL_NETWORK_WELLS and TIERS are the same five
+#             with the far-field tier APPENDED, so existing membership, order
+#             and every table or figure built by iterating them are unchanged.
+#             Consumers that must stay at five tiers now say so by name rather
+#             than by omission — Script 10f's synthetic-control donor pool
+#             (which defines donors as wells outside the design, and would
+#             otherwise have silently lost two donors to the new tier) and
+#             Script 21's BACI-zone violin.
+#         (b) TIER_COLOURS gains the far-field entry; the label constants
+#             FAR_FIELD_TIER_LABEL / FAR_FIELD_CONTROL_LABEL are shared with
+#             Scripts 10a and 25 so the two naming schemes cannot drift.
+#         (c) New derivation helpers — well_distances_to_coast(),
+#             tier_distance_stats(), far_field_admission_threshold_m() and
+#             far_field_tier_audit() — so the tier's geometry and its
+#             admission criterion are computed from the committed metadata and
+#             the fitted reach at run time instead of being asserted anywhere.
+#             The threshold is config.FAR_FIELD_REACH_MULTIPLE × the fitted
+#             reach L, read live from 25_01 with the documented first-pass
+#             fallback.
+#         (d) print_network_summary() takes its tier count from the mapping it
+#             is handed instead of a typed "5-tier".
+#         No change to any existing tier's membership, to the centroid or BACI
+#         machinery, or to any committed value.
 #
 # 1.8.0 — Seasonal metric extraction generalised so the spring mean (MAM) can be
 #         computed on exactly the same footing as the summer minimum, for the
@@ -100,14 +131,15 @@ import pandas as pd
 
 from utils.paths import (
     INT_WELLS_CLEAN, INT_WELLS_PROVENANCE, INT_WELLS_EXTENDED, INT_CLIMATE,
-    INT_MASTER_DATA, DATA_WELL_ELEVATIONS, OUT_10E_COEFF_SHIFTS,
-    OUT_10I_HINDCAST,
+    INT_MASTER_DATA, DATA_WELL_ELEVATIONS, DATA_DIST_COAST,
+    OUT_10E_COEFF_SHIFTS, OUT_10I_HINDCAST, OUT_25_FIT_PARAMETERS,
 )
 from utils.data_utils import PROV_MEASURED, PROV_MISSING
 from utils.config import (
     CEH36_E as _CEH36_E, CEH36_N as _CEH36_N,
     MSL_SPRING_MONTHS as _MSL_SPRING_MONTHS,
     MSL_MIN_MONTHS_PER_SPRING as _MSL_MIN_MONTHS_PER_SPRING,
+    FAR_FIELD_REACH_MULTIPLE,
 )
 
 # ============================================================================
@@ -131,11 +163,85 @@ CLIMATE_CONTROL_WELLS = [
 ]
 # Excluded: CEH42 (3.4 yr pre-felling baseline)
 
-ALL_NETWORK_WELLS = (
+# ----------------------------------------------------------------------------
+# FAR-FIELD CONTROL TIER  (Scripts 10a and 25)
+# ----------------------------------------------------------------------------
+# A control tier selected for DISTANCE CONTRAST against the impact zone, so
+# that the BACI easting × time covariate can be tested against the coastal-
+# gradient model on a contrast large enough to carry the test.
+#
+# Why it exists.  The Forest and Climate tiers are each sited to match their
+# impact zone's setting, which necessarily matches its distance from the
+# shore.  A control that sits at the impact zone's own distance gives the
+# gradient model almost no differential to predict, so whatever the easting ×
+# time term absorbs there is not being compared against the gradient — the
+# comparison cannot discriminate.  A tier selected on distance is the only one
+# of the three that puts the gradient model at risk.
+#
+# Admission criteria, applied in this order.  Every member satisfies all five,
+# and the screen is re-derivable from the committed metadata and the fitted
+# reach — no distance is restated as a literal here or in config.py:
+#
+#   1. Distance to the coast beyond config.FAR_FIELD_REACH_MULTIPLE times the
+#      FITTED reach L (Script 25, forest-free linear-capped panel).  See
+#      far_field_admission_threshold_m() below, and the config docstring for
+#      why the criterion is a multiple rather than a distance.
+#   2. Open ground — Script 01's `in_forest` land-cover flag false.  A
+#      forested control would confound canopy with distance, which is the
+#      confound the forest-free panel exists to avoid.
+#   3. The same pre-felling baseline requirement already applied to
+#      CLIMATE_CONTROL_WELLS, on which CEH42 was excluded.
+#   4. A post-felling record.  This is NOT redundant with (3): CEH7's record
+#      ends at the intervention and CEH8's post-felling record is a small
+#      fraction of the others', so both would have entered a tier built on
+#      distance and baseline alone, and CEH7 would have contributed nothing to
+#      a before-and-after comparison while still appearing in the well count.
+#   5. Not already assigned to another tier, and not scrape-affected.
+#
+# NW4 IS DELIBERATELY EXCLUDED even though it satisfies every criterion above.
+# It is the inland anchor of the Script 38 shore-normal transect, which the
+# report cites as INDEPENDENT corroboration of the same coastal gradient.  A
+# well used in both places would make the two corroborations share a member
+# and stop them being independent, which is the whole value of quoting them
+# side by side.  Excluding it costs one well and slightly RAISES the tier's
+# mean distance.  This is a deliberate omission — do not "fix" it by adding
+# NW4 back.
+#
+# The tier spans a wide band of distances by construction, and its members may
+# not respond alike.  Consumers must therefore report the PER-WELL SPREAD
+# beside the tier estimate rather than the tier mean alone: Script 10a emits
+# the single-control-well BACI refits and Script 25 carries them through to
+# the corroboration spread table.
+FAR_FIELD_CONTROL_WELLS = [
+    'nw4b', 'wmc1', 'ceh5', 'l7', 'ceh6',
+]
+
+# Two labels, because the suite already carries two naming schemes and the new
+# tier has to answer to both: TIERS / TIER_COLOURS use the "<name> Ctrl" form
+# ('Forest Ctrl'), while the Script 10a CONTROLS dict and the `Control` column
+# it writes use the bare form ('Forest').  Script 25 matches its corroboration
+# rows on the value 10a wrote, so both scripts take the label from here rather
+# than typing it twice and drifting.
+FAR_FIELD_TIER_LABEL    = 'Far-field Ctrl'   # TIERS / TIER_COLOURS key
+FAR_FIELD_CONTROL_LABEL = 'FarField'         # 10a CONTROLS key / 25 control_tier
+
+# The five-tier clearfell design — the network whose BACI results are
+# published.  Named separately from ALL_NETWORK_WELLS so that consumers which
+# must NOT see the far-field diagnostic tier can say so explicitly rather than
+# by omission: the Script 10f synthetic-control donor pool (which defines
+# donors as wells OUTSIDE the design, and would otherwise silently lose two
+# donors to the new tier) and the Script 21 BACI-zone violin are both keyed on
+# this constant.
+CORE_NETWORK_WELLS = (
     IMPACT_WELLS + EDGE_WELLS +
     FOREST_CONTROL_WELLS + COASTAL_CONTROL_WELLS +
     CLIMATE_CONTROL_WELLS
 )
+
+# Every well the clearfell suite loads locations for.  The far-field tier is
+# APPENDED, so the membership and the order of the five published tiers are
+# unchanged and per-well loops over this list gain rows without moving any.
+ALL_NETWORK_WELLS = CORE_NETWORK_WELLS + FAR_FIELD_CONTROL_WELLS
 
 # ----------------------------------------------------------------------------
 # C3 / WARREN ZONE — for the Script 10k four-zone pooled-panel BACI
@@ -175,13 +281,25 @@ ALL_NETWORK_WELLS = (
 # zone is specific to Script 10k.
 C3_WARREN_WELLS = ['ceh1', 'nw1', 'nw2', 'nw11']
 
-# Convenience grouping for iteration
-TIERS = {
+# Convenience grouping for iteration.
+#
+# CORE_TIERS is the published five-tier design.  TIERS adds the far-field
+# control tier and is what the per-well loops and tier-label lookups iterate;
+# the far-field entry is appended LAST, so iteration order over the five
+# published tiers — and therefore every figure and table built by iterating
+# them — is unchanged.  A consumer that must stay at five tiers reads
+# CORE_TIERS (Script 21's BACI-zone violin does).
+CORE_TIERS = {
     'Impact':        IMPACT_WELLS,
     'Edge':          EDGE_WELLS,
     'Forest Ctrl':   FOREST_CONTROL_WELLS,
     'Coastal Ctrl':  COASTAL_CONTROL_WELLS,
     'Climate Ctrl':  CLIMATE_CONTROL_WELLS,
+}
+
+TIERS = {
+    **CORE_TIERS,
+    FAR_FIELD_TIER_LABEL: FAR_FIELD_CONTROL_WELLS,
 }
 
 # ============================================================================
@@ -659,6 +777,131 @@ def compute_cwb(climate, baseline_start=None, baseline_end=None):
 
     cwb = (wb - baseline_mean).cumsum()
     return cwb
+
+
+# ============================================================================
+# DISTANCE TO COAST — TIER GEOMETRY (Scripts 10a and 25)
+# ============================================================================
+# Everything a document or a console banner might want to say about how far a
+# tier sits from the shore is DERIVED here from the committed well metadata.
+# No script, comment or docstring in the suite types a tier distance.
+
+def well_distances_to_coast():
+    """Distance to the coast, in metres, keyed by lowercase well name.
+
+    Read from the committed well metadata (`DATA_DIST_COAST`), the same file
+    Script 25 fits its cross-shore panel against, so the tier geometry and the
+    gradient model cannot disagree about where a well is.
+    """
+    meta = pd.read_csv(DATA_DIST_COAST)
+    meta['well'] = meta['Name'].astype(str).str.strip().str.lower()
+    return dict(zip(meta['well'], meta['dist_coast_m'].astype(float)))
+
+
+def tier_distance_stats(tier_wells, distances=None):
+    """Distance-to-coast summary for one tier.
+
+    Parameters
+    ----------
+    tier_wells : sequence of str
+        Lowercase well names.
+    distances : dict, optional
+        Pre-loaded {well: distance_m}; loaded via well_distances_to_coast()
+        when omitted.
+
+    Returns
+    -------
+    dict with keys ``n``, ``mean_m``, ``sd_m``, ``min_m``, ``max_m``,
+    ``span_m`` and ``wells`` (the members that carried a distance, ordered
+    nearest to furthest).  Wells absent from the metadata are skipped and are
+    absent from ``wells``, so ``n`` always describes the wells the statistics
+    were actually computed over.
+    """
+    if distances is None:
+        distances = well_distances_to_coast()
+    pairs = [(w, distances[w]) for w in tier_wells
+             if w in distances and np.isfinite(distances[w])]
+    pairs.sort(key=lambda p: p[1])
+    d = np.array([p[1] for p in pairs], dtype=float)
+    if len(d) == 0:
+        return dict(n=0, mean_m=np.nan, sd_m=np.nan, min_m=np.nan,
+                    max_m=np.nan, span_m=np.nan, wells=[])
+    return dict(
+        n=len(d),
+        mean_m=float(d.mean()),
+        sd_m=float(d.std(ddof=1)) if len(d) > 1 else np.nan,
+        min_m=float(d.min()),
+        max_m=float(d.max()),
+        span_m=float(d.max() - d.min()),
+        wells=[p[0] for p in pairs],
+    )
+
+
+def far_field_admission_threshold_m(verbose=True):
+    """The far-field tier's distance criterion, in metres, for THIS run.
+
+    ``config.FAR_FIELD_REACH_MULTIPLE`` × the fitted cross-shore reach L.  The
+    reach is read live from Script 25's committed panel-fit table (forest-free,
+    linear-capped — the headline fit), and falls back to the documented
+    first-pass default with a console warning when that table has not been
+    written yet, following the same pattern as the other second-run consumers.
+
+    Returns
+    -------
+    (threshold_m, reach_L_m, source) : tuple[float, float, str]
+    """
+    reach = None
+    source = None
+    try:
+        if OUT_25_FIT_PARAMETERS.exists():
+            fits = pd.read_csv(OUT_25_FIT_PARAMETERS)
+            row = fits[(fits['source'] == 'forest_free')
+                       & (fits['model'] == 'linear_capped')]
+            if not row.empty and np.isfinite(float(row['L_m'].iloc[0])):
+                reach = float(row['L_m'].iloc[0])
+                source = OUT_25_FIT_PARAMETERS.name
+    except Exception as exc:                              # pragma: no cover
+        warnings.warn(f"Could not read the fitted reach from "
+                      f"{OUT_25_FIT_PARAMETERS.name}: {exc}", stacklevel=2)
+    if reach is None:
+        from utils.pipeline_params import default_value
+        reach = float(default_value("coast_reach_L_m"))
+        source = "pipeline_params default_value('coast_reach_L_m')"
+        if verbose:
+            print(f"   ! Fitted reach unavailable — falling back to the "
+                  f"documented default ({source})")
+    return FAR_FIELD_REACH_MULTIPLE * reach, reach, source
+
+
+def far_field_tier_audit(verbose=True):
+    """Re-derive the far-field tier's geometry and check it against the
+    criterion, so the tier states its own properties instead of a comment
+    asserting them.
+
+    Returns a DataFrame with one row per member — distance to the coast, the
+    admission threshold in force this run, and whether the member clears it —
+    carrying the tier mean, span and the contrast against the impact zone as
+    columns so the summary travels with the rows.
+    """
+    dists = well_distances_to_coast()
+    threshold, reach, source = far_field_admission_threshold_m(verbose=verbose)
+    ff = tier_distance_stats(FAR_FIELD_CONTROL_WELLS, dists)
+    imp = tier_distance_stats(IMPACT_WELLS, dists)
+    rows = []
+    for w in ff['wells']:
+        rows.append({
+            'well': w.upper(),
+            'dist_coast_m': dists[w],
+            'reach_L_m': reach,
+            'reach_source': source,
+            'admission_threshold_m': threshold,
+            'clears_threshold': bool(dists[w] > threshold),
+            'tier_mean_dist_m': ff['mean_m'],
+            'tier_span_m': ff['span_m'],
+            'impact_dist_m': imp['mean_m'],
+            'contrast_vs_impact_m': ff['mean_m'] - imp['mean_m'],
+        })
+    return pd.DataFrame(rows)
 
 
 # ============================================================================
@@ -1220,6 +1463,9 @@ TIER_COLOURS = {
     'Forest Ctrl':   '#4DAC26',
     'Coastal Ctrl':  '#8B6914',  # brown — C5 Coastal Forest
     'Climate Ctrl':  '#4575B4',
+    # Colour-blind-safe purple (Dark2), well separated from the two blues and
+    # the green above; the far-field tier plots beside all five.
+    FAR_FIELD_TIER_LABEL: '#7570B3',
 }
 
 WELL_MARKERS = ['o', 's', '^', 'D', 'v', 'P', 'X', 'h', '<', '>']
@@ -1230,9 +1476,15 @@ WELL_MARKERS = ['o', 's', '^', 'D', 'v', 'P', 'X', 'h', '<', '>']
 # ============================================================================
 
 def print_network_summary(valid_tiers):
-    """Print the 5-tier network summary to console."""
+    """Print the network summary to console.
+
+    The tier count is taken from the mapping passed in rather than typed, so
+    a caller that hands over a subset (Script 10j passes Impact + Edge only)
+    is described correctly and adding a tier does not leave a stale count
+    behind in the banner.
+    """
     total = sum(len(v) for v in valid_tiers.values())
-    print(f"\n  Network: {total} wells (5-tier design)")
+    print(f"\n  Network: {total} wells ({len(valid_tiers)}-tier design)")
     for tier, wells_list in valid_tiers.items():
         print(f"    {tier:<14}: {', '.join(w.upper() for w in wells_list)}")
     print()

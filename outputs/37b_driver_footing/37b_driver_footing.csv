@@ -1,9 +1,9 @@
 component,label,driver_group,mechanism_type,gain_or_loss,observed_or_modelled,peak_mm,area_mm_ha,volume_m3,n_wells_evaluated,sd15b_crossings_worsen,sd15b_crossings_relieve,sd16_crossings_worsen,sd16_crossings_relieve
-coast_erosion,Coastal erosion (chronic drawdown),Coast,progressive,loss,modelled,-528.4,-73872.2,-227734.8,66.0,0.0,0.0,6.0,0.0
+coast_erosion,Coastal erosion (chronic drawdown),Coast,progressive,loss,modelled,-626.6,-80282.0,-247494.8,66.0,0.0,0.0,6.0,0.0
 slr,Sea-level rise (head gain),Coast,progressive,gain,modelled,20.0,2806.1,8650.6,66.0,0.0,0.0,0.0,1.0
 clearfell,Clearfell (canopy removed),Forest management,step,gain,observed,112.8,5965.0,16176.7,66.0,0.0,0.0,0.0,2.0
 broadleaf,Broadleaf restock (canopy added),Forest management,progressive,loss,modelled,-56.2,-3812.7,-10339.8,66.0,0.0,0.0,1.0,0.0
 scrape_onsite,Scrape on-site (slack rise),Dune scraping,step,gain,observed,129.4,613.1,1890.0,66.0,0.0,0.0,0.0,1.0
 scrape_offsite,Scrape off-site (drain cone),Dune scraping,redistributive,loss,observed,-54.5,-21685.8,-66853.4,66.0,0.0,0.0,5.0,0.0
-climate,Climate / common-mode (uniform decline),Climate (common-mode),uniform,loss,modelled,-3.4,-3227.4,-9949.6,66.0,0.0,0.0,1.0,0.0
+climate,Climate / common-mode (uniform decline),Climate (common-mode),uniform,loss,modelled,-2.0,-1898.5,-5852.7,66.0,0.0,0.0,1.0,0.0
 scrape_net,Scrape NET (on-site + off-site),Dune scraping,redistributive,net,observed+modelled,,-21072.7,-64963.4,,,,,

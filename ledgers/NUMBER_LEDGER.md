@@ -28,10 +28,10 @@ it from a docstring, a prior document, or an earlier row of this table — the
 
 | ID | Quantity | Committed value | Source | Volatility | Cited in | Notes |
 |----|----------|-----------------|--------|-----------|----------|-------|
-| N-01 | Total registered steps | **49** | `outputs/pipeline_manifest.json` `total_registered` | stable | short-form headline everywhere | pipeline v2.3.0 |
+| N-01 | Total registered steps | **50** | `outputs/pipeline_manifest.json` `total_registered` | stable | short-form headline everywhere | pipeline v2.3.0 |
 | N-02 | Total phases | **17** | manifest `total_phases` | stable | R8, MS | |
-| N-03 | Analytical top-level / display-utility / opt-in diagnostic | **39 / 4 / 6** | manifest `by_tier` | stable | MS | |
-| N-04 | Default-exec / opt-in steps | **46 / 3** | manifest `by_exec` | stable | MS | |
+| N-03 | Analytical top-level / display-utility / opt-in diagnostic | **40 / 4 / 6** | manifest `by_tier` | stable | MS | |
+| N-04 | Default-exec / opt-in steps | **47 / 3** | manifest `by_exec` | stable | MS | |
 | N-04b | Analytical phases | **15** | manifest `analytical_phases` | stable | **none — do not cite** | ⚠ the working-rules box says "17 analytical phases"; the manifest says 15 and the field is explicitly not for citation. See D-023. |
 | N-05 | Script 20 figure count / line count | **18 figures**, 4399 lines | `src/20_spatial_figures.py` | stable | MS §S.13 | ⚠ MS says "ten spatial outputs", "~1200 lines". Script 19: 2127 lines, MS says ~1800. |
 
@@ -116,7 +116,7 @@ report Fig 50 = Paper 1 Fig 19 (**Script 20**, not 09f).
 | N-31 | Wells with TLM iterative NSE > 0 | **44 / 66** (SSM: 65/66) | same | stable | ⚠ MS says "Forty-three" |
 | N-32 | Median iterative R² | TLM **0.66** → SSM **0.80** (Δ 0.13) | same | stable | |
 | N-33 | Median one-step R² | TLM 0.91 → SSM 0.92 | same | stable | |
-| N-34 | Clearfell ANCOVA step (Forest Impact) | **0.1196 m**, p < 0.001, CI [0.0497, 0.1894] | `10a_report_numbers.csv` | **volatile** | the "+0.120 m" headline; retrace every time |
+| N-34 | Clearfell ANCOVA step (Forest Impact) | **0.1196 m**, p < 0.001, CI [0.0497, 0.1894] | `10a_report_numbers.csv` | **volatile** | the "+0.113 m" headline; retrace every time |
 | N-35 | Scraping ANCOVA step | **0.3436 m**, p = 0.0019 | `10a_report_numbers.csv` | volatile | model R² 0.2737, n = 162 months |
 | N-36 | CEH34 hindcast R² | **0.9115** | `10i_report_numbers.csv` `CEH34_hindcast_r2` | volatile | ⚠ **the 2026-08-14 audit was wrong here**: it claimed the committed value was 0.89 and the report's 0.91 was stale. The committed value is 0.9115 — the report is right. Donor CEH9; α −0.1485, slope 1.0515; RMSE 0.1246 m; 80-month calibration, 51-month synthetic extension |
 | N-37 | CEH36 pure-scraping BACI shift | **+0.1294 m** vs CEH4 | `09_scrape_report_numbers.csv` | volatile | net benefit vs CEH21 coastal benchmark: +0.1435 m |

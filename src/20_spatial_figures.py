@@ -64,7 +64,18 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds (config.SD15b / config.SD16)
 """
 
-__version__ = "1.39.0"  # Hollingham (2026) — 2026-08-20. The forest-drawdown
+__version__ = "1.40.0"  # Hollingham (2026) — 2026-08-22. The reach is now
+#   written at the granularity the documents quote it at. quote_reach_m()
+#   rounds to config.REACH_QUOTE_NEAREST_M wherever λ is annotated on a figure
+#   or printed to the console; the drawdown field is still built from the
+#   unrounded length and 20_report_numbers.csv still stores it unrounded. The
+#   figure and the prose previously disagreed on a quantity neither of them had
+#   got wrong, which is the kind of divergence the number sweep could not see.
+#   The coastal reach L and the diffusion length √(Dt) are deliberately left at
+#   metre granularity: their quoted values in the documents are exact, and
+#   rounding them here would create the divergence this change removes.
+#
+# v1.39.0  # Hollingham (2026) — 2026-08-20. The forest-drawdown
 #     per-well CSV now stores the distance dd_mm was actually computed on.
 #     plot_drawdown_propagation() decays the drawdown along a FLOW-WEIGHTED
 #     cost distance (Dijkstra, cost = base_dist*(1 - 0.4*alignment) +
@@ -168,6 +179,7 @@ from utils.map_utils import (load_dem_hillshade, load_scrape_kml, add_en_axes,
 from utils.config import (CLUSTER_COLOURS, CLUSTER_LABELS, DRAINAGE_DATUM, FOREST_INTERCEPTION,
                           SCRAPE_KML_FILES,
                           DRAWDOWN_H0_MM, DRAWDOWN_K_MDAY, DRAWDOWN_B_M,
+                          REACH_QUOTE_NEAREST_M,
                           BROADLEAF_INTERCEPTION, BL_CANOPY_FRACTION_2005,
                           BL_CANOPY_FRACTION_2025, COAST_CHRONIC_YEARS,
                           COAST_RETREAT_M, COAST_RETREAT_RATE,
@@ -176,6 +188,19 @@ from utils.config import (CLUSTER_COLOURS, CLUSTER_LABELS, DRAINAGE_DATUM, FORES
                           CEH36_E, CEH36_N)
 from utils.data_utils import normalize_well_name
 from utils.report_numbers_utils import ReportNumbers
+
+
+def quote_reach_m(length_m: float) -> float:
+    """The reach as it is WRITTEN, not as it is used.
+
+    The e-folding length is built from an assumed conductivity and saturated
+    thickness, so it is quoted to the nearest REACH_QUOTE_NEAREST_M throughout
+    the corpus. Every figure annotation and console line goes through this;
+    the drawdown field and the stored value do not.
+    """
+    step = REACH_QUOTE_NEAREST_M
+    return round(float(length_m) / step) * step
+
 from utils.render_utils import render_figure
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1246,7 +1271,7 @@ def plot_drawdown_propagation(wt, features, dpi=300, show_head=True):
     lam       = np.sqrt((K * b) / (Sy * BETA3_D))
     OUT_PATH  = OUT_20_DRAWDOWN if show_head else OUT_20_DRAWDOWN_NOHEAD
 
-    print(f"  λ = {lam:.0f} m  (K={K}, Sy={Sy:.4f} [C3 WTF], "
+    print(f"  λ = {quote_reach_m(lam):.0f} m  (K={K}, Sy={Sy:.4f} [C3 WTF], "
           f"b={b}, β₃={BETA3_M:.4f}/month [C3 SSM])")
 
     # ── Load DEM and build flow-weighted distance grid ────────────────────
@@ -1564,7 +1589,7 @@ def plot_drawdown_propagation(wt, features, dpi=300, show_head=True):
                 xytext=(ref_e, ref_n - 100),
                 arrowprops=dict(arrowstyle="<->", color="#d62728", lw=1.5),
                 zorder=10)
-    ax.text(ref_e + lam / 2, ref_n - 200, f"λ = {lam:.0f} m",
+    ax.text(ref_e + lam / 2, ref_n - 200, f"λ = {quote_reach_m(lam):.0f} m",
             ha="center", va="top", fontsize=9, fontweight="bold",
             color="#d62728", zorder=10,
             bbox=dict(facecolor="white", alpha=0.8, edgecolor="none", pad=2))
@@ -1593,7 +1618,7 @@ def plot_drawdown_propagation(wt, features, dpi=300, show_head=True):
         "Forest drawdown propagation "
         + ("with mean head surface" if show_head else "on DEM hillshade")
         + "\n"
-        f"Flow-weighted cost-distance · λ = {lam:.0f} m",
+        f"Flow-weighted cost-distance · λ = {quote_reach_m(lam):.0f} m",
         fontsize=10, fontweight="bold", pad=10)
 
     plt.tight_layout()
@@ -4131,7 +4156,7 @@ def plot_scrape_drawdown(wt, features, dpi=300, show_head=True):
     lam      = np.sqrt((K * b) / (Sy * BETA3_D))
     OUT_PATH = OUT_20_SCRAPE_DRAWDOWN if show_head else OUT_20_SCRAPE_DRAWDOWN_NOHEAD
 
-    print(f"  λ = {lam:.0f} m  (K={K}, Sy={Sy:.4f} [C3 WTF], "
+    print(f"  λ = {quote_reach_m(lam):.0f} m  (K={K}, Sy={Sy:.4f} [C3 WTF], "
           f"b={b}, β₃={BETA3_M:.4f}/month [C3 SSM]);  "
           f"H0 = {H0:.0f} mm (measured CEH36 response) → inferred cut {D_inferred:.2f} m")
 
@@ -4391,7 +4416,7 @@ def plot_scrape_drawdown(wt, features, dpi=300, show_head=True):
                 xytext=(ref_e, ref_n - 100),
                 arrowprops=dict(arrowstyle="<->", color="#d62728", lw=1.5),
                 zorder=10)
-    ax.text(ref_e + lam / 2, ref_n - 200, f"λ = {lam:.0f} m",
+    ax.text(ref_e + lam / 2, ref_n - 200, f"λ = {quote_reach_m(lam):.0f} m",
             ha="center", va="top", fontsize=9, fontweight="bold",
             color="#d62728", zorder=10,
             bbox=dict(facecolor="white", alpha=0.8, edgecolor="none", pad=2))
@@ -4419,7 +4444,7 @@ def plot_scrape_drawdown(wt, features, dpi=300, show_head=True):
         "Scrape-drain drawdown — surrounding water table only\n"
         + f"mapped scrape footprints {SCR_AREA_HA:.2f} ha total · {SCRAPE_TIMESCALE} · "
         + ("drain, landward-truncated · " if SCRAPE_TRUNCATE_SEAWARD else "drain · ")
-        + f"λ = {lam:.0f} m\n"
+        + f"λ = {quote_reach_m(lam):.0f} m\n"
         + "cut slacks RISE (not drawn down); per-cut cones — H₀ measured at CEH36/18/21, assumed = CEH36 elsewhere (modelled reach, not resolved in the network)",
         fontsize=9.5, fontweight="bold", pad=10)
 

@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/academic_summaries/academic_Summary_v1_5.odt — do not edit.
+<!-- GENERATED MIRROR of docs/academic_summaries/academic_Summary_v1_8.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Newborough Warren Groundwater Study
@@ -7,7 +7,7 @@ Evidence Summary --- Hydrogeological Dynamics, Behavioural Clustering and Manage
 
 Hollingham, M. (2026) \| Draft \| Summarised for researchers, evidence reviewers and dune system managers
 
-Full report, methods supplement and data: github.com/newbroman/Newborough_Hydrology \| Contact: martin.hollingham+nrg@gmail.com \| ORCID: 0000-0003-0253-9301
+Full report, methods supplement and data: github.com/newbroman/Newborough\_Hydrology \| Contact: martin.hollingham+nrg\@gmail.com \| ORCID: 0000-0003-0253-9301
 
 Study design and methods
 
@@ -25,14 +25,14 @@ The k=5 partition yields five zones with distinct SSM coefficient profiles (Tabl
 
   ------------------- ---- ------------- -------------- ------------- ------
   Zone                n    β₁ recharge   β₂ atm. draw   β₃ drainage   LCSC
-  C1 Lake Edge        7    4.58          0.96           0.09          0.22
-  C2 Dune             24   3.97          1.76           0.06          0.25
-  C3 W. Residual      21   3.57          1.83           0.06          0.28
-  C4 Main Forest      9    2.49          2.58           0.02          0.4
-  C5 Coastal Forest   5    2.42          1.31           0.04          0.41
+  C1 Lake Edge        7    4.58          0.92           0.09          0.22
+  C2 Dune             24   3.97          1.74           0.06          0.25
+  C3 W. Residual      21   3.57          1.81           0.06          0.28
+  C4 Main Forest      9    2.48          2.56           0.02          0.4
+  C5 Coastal Forest   5    2.43          1.27           0.04          0.41
   ------------------- ---- ------------- -------------- ------------- ------
 
-Table 1. SSM mechanistic coefficients by cluster (medians). β₁, β₂ dimensionless; β₃ month⁻¹. LCSC = lumped climate-storage contribution (100/β₁), the reciprocal of recharge sensitivity.
+Table 1. SSM mechanistic coefficients by cluster (cluster-centroid fits). β₁, β₂ dimensionless; β₃ month⁻¹. LCSC = lumped climate-storage contribution (100/β₁), the reciprocal of recharge sensitivity.
 
 Climate forcing and threshold analysis
 
@@ -60,7 +60,7 @@ CEH18/CEH21 (October 2023): Insufficient post-intervention record (\<2 years) fo
 
 Clearfell BACI --- December 2017 (8.4 ha)
 
-Five-tier ANCOVA-BACI design: 17 wells, three independent control definitions (Forest, Climate, Combined). Headline result (Forest control, WMC3 impact well): clearfell step +0.120 m (p \< 0.001, CI \[0.050, 0.189\]). Forest Edge: +0.033 m (p = 0.193). Synthetic extension (10h, WMC3+FE1+FE2 centroid): +0.085 m (p \< 0.001). Summer-only ANCOVA (Jun--Sep subset): +0.046 m (p = 0.436) --- not significant. The summer non-result is robust across all control definitions.
+Five-tier ANCOVA-BACI design: 17 wells, three independent control definitions (Forest, Climate, Combined). Headline result (Forest control, WMC3 impact well): clearfell step +0.113 m (p \< 0.001, CI \[0.050, 0.189\]). Forest Edge: +0.033 m (p = 0.193). Synthetic extension (10h, WMC3+FE1+FE2 centroid): +0.085 m (p \< 0.001). Summer-only ANCOVA (Jun--Sep subset): +0.046 m (p = 0.436) --- not significant. The summer non-result is robust across all control definitions.
 
 The null summer result is consistent with a dual canopy role: interception removal increases winter recharge but exposure increases direct summer evapotranspiration from the now-unshaded soil. These effects approximately cancel in the June--September window. A site-wide decline in recharge efficiency (β₁ declining over time across all clusters) is identified as the primary driver of summer minimum deterioration, operating independently of canopy management.
 
@@ -70,7 +70,7 @@ MSL5 comparison (window-end 2017 vs window-end 2023): site-mean deepening −97 
 
 ![](Pictures/10000001000009EE00000967C79BE1C0.png){width="13cm" height="9.377cm"}
 
-Figure 4. MSL5 change 2017→2023. n=59 wells; 56 deepened \>25 mm, 0 shallower \>25 mm. Source: 20_msl5_change_2017_2023.png; Report Figure 58.
+Figure 4. MSL5 change 2017→2023. n=59 wells; 56 deepened \>25 mm, 0 shallower \>25 mm. Source: 20\_msl5\_change\_2017\_2023.png; Report Figure 58.
 
 Differential spring movement analysis (Script 32, 2011--2025) reveals divergent within-network trends. C4 Main Forest is uniformly positive (+8.4 to +20.5 mm yr⁻¹ relative to site mean, cluster mean +14.9 mm yr⁻¹); none individually significant after AR(1) correction. This reflects two reinforcing mechanisms: (1) the forest occupies the hydraulic high of the aquifer, furthest from any constant-head boundary (lake to the east, Menai Strait to the south-east, coast to the south-west), giving the water table maximum freedom to rise in wet years and fall in dry ones; (2) the low-specific-yield substrate (thin sand over bedrock) concentrates recharge into larger head changes. Recent wet springs (2021, 2024) have amplified C4 relative to the network. C1 Lake Edge and C5 Coastal Forest are uniformly negative (−8.0 and −6.8 mm yr⁻¹ respectively), driven by the coastal-retreat boundary signal. C2 Dune is near-neutral on average.
 
@@ -80,11 +80,11 @@ Figure 5. Differential spring movement 2011--2025. C4 uniformly positive (amplif
 
 Coastal retreat signal
 
-A network-scale easting×time covariate in the clearfell ANCOVA captures a real coastal-retreat gradient affecting the western margin. Independently, a two-well transect of coastal control wells deteriorates in a pattern consistent with progressive boundary-condition lowering. The coastal-retreat signal accounts for approximately 41% of C5's exceptional decline. Groundwater propagation lags mean current data partly reflect historical erosion; if erosion is accelerating, the worst effects have not yet reached interior wells. CEH22 (outside the reference network, SW coastal margin) is declining at −26.5 mm yr⁻¹ (p \< 0.001), the fastest in the network.
+A network-scale easting×time covariate in the clearfell ANCOVA captures a real coastal-retreat gradient affecting the western margin. Independently, a two-well transect of coastal control wells deteriorates in a pattern consistent with progressive boundary-condition lowering. The coastal-retreat signal accounts, within uncertainty, for the whole of C5's exceptional decline. Groundwater propagation lags mean current data partly reflect historical erosion; if erosion is accelerating, the worst effects have not yet reached interior wells. CEH22 (outside the reference network, SW coastal margin) is declining at −26.5 mm yr⁻¹ (p \< 0.001), the fastest in the network.
 
 The scale of observed change in context
 
-The management interventions studied to date have produced measurable effects at the local scale: the scraping benefit at CEH36 is statistically robust and ecologically significant, and the clearfell produced a detectable improvement in mean monthly water levels against forest controls. However, the site-wide spring baseline deepened by 97 mm between the 2017 and 2023 comparison windows --- a change affecting 56 of 59 monitored wells simultaneously and driven by forces operating at the scale of the whole aquifer. Summer temperatures have trended upward at +0.014°C yr⁻¹ since 1931, with a step increase of +0.94°C above baseline since 2013. The coastal-retreat signal accounts for approximately 41% of the Coastal Forest zone's exceptional decline and extends several hundred metres inland. Against these signals, the scraping benefit at a single well (+195 mm) and the clearfell monthly-mean improvement (+120 mm relative to unfelled forest) represent localised responses that do not alter the direction of the network-wide trend. The UKCP18 projections indicate a further summer minimum deepening of 71--134 mm by the 2080s --- which, added to the 97 mm already lost between the 2017 and 2023 comparison windows, places cumulative losses from the pre-clearfell baseline in the range of 170--230 mm, substantially exceeding any management effect observed in this record.
+The management interventions studied to date have produced measurable effects at the local scale: the scraping benefit at CEH36 is statistically robust and ecologically significant, and the clearfell produced a detectable improvement in mean monthly water levels against forest controls. However, the site-wide spring baseline deepened by 97 mm between the 2017 and 2023 comparison windows --- a change affecting 56 of 59 monitored wells simultaneously and driven by forces operating at the scale of the whole aquifer. Summer temperatures have trended upward at +0.014°C yr⁻¹ since 1931, with a step increase of +0.94°C above baseline since 2013. The coastal-retreat signal accounts, within uncertainty, for the whole of the Coastal Forest zone's exceptional decline, and extends several hundred metres inland. Against these signals, the scraping benefit at a single well (+195 mm) and the clearfell monthly-mean improvement (+113 mm relative to unfelled forest) represent localised responses that do not alter the direction of the network-wide trend. The UKCP18 projections indicate a further summer minimum deepening of 71--134 mm by the 2080s --- which, added to the 97 mm already lost between the 2017 and 2023 comparison windows, places cumulative losses from the pre-clearfell baseline in the range of 170--230 mm, substantially exceeding any management effect observed in this record.
 
 Key quantitative findings
 
@@ -109,16 +109,16 @@ Table 2. Headline quantitative results. All figures from committed pipeline CSVs
 
 Conclusions
 
-> • The summer minimum water table is the ecologically binding variable. MSL5 is a better-measured proxy that tracks slower system drift but understates the amplitude of the ecological risk.
+• The summer minimum water table is the ecologically binding variable. MSL5 is a better-measured proxy that tracks slower system drift but understates the amplitude of the ecological risk.
 
-> • Dune scraping at well-chosen inland sites is the most effective available direct intervention but does not address the underlying drivers. Benefits erode against the background climate trend.
+• Dune scraping at well-chosen inland sites is the most effective available direct intervention but does not address the underlying drivers. Benefits erode against the background climate trend.
 
-> • Clearfell raises mean water-table levels in the forest zone relative to unfelled controls but produces no detectable summer minimum improvement, consistent with canopy-removal dual effects cancelling in summer.
+• Clearfell raises mean water-table levels in the forest zone relative to unfelled controls but produces no detectable summer minimum improvement, consistent with canopy-removal dual effects cancelling in summer.
 
-> • A site-wide decline in recharge efficiency, operating independently of surface management, is the dominant driver of summer minimum deterioration.
+• A site-wide decline in recharge efficiency, operating independently of surface management, is the dominant driver of summer minimum deterioration.
 
-> • The coastal-retreat boundary signal is a distinct, lagged, and currently unmanageable threat to the western margin. Interior wells have not yet experienced the full effect of recent accelerated erosion.
+• The coastal-retreat boundary signal is a distinct, lagged, and currently unmanageable threat to the western margin. Interior wells have not yet experienced the full effect of recent accelerated erosion.
 
-> • The hydraulic position of the forest (topographic and aquifer high, no nearby constant-head boundary) makes it a strong amplifier of year-to-year climate variability, not a recovery signal.
+• The hydraulic position of the forest (topographic and aquifer high, no nearby constant-head boundary) makes it a strong amplifier of year-to-year climate variability, not a recovery signal.
 
-> • Climate and coastal forces are operating at a magnitude that swamps the localised management interventions observed to date.
+• Climate and coastal forces are operating at a magnitude that swamps the localised management interventions observed to date.

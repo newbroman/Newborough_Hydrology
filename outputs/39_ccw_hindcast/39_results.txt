@@ -1,0 +1,49 @@
+39_ccw_hindcast v1.2.0
+comparison window 1989-05 to 1996-04
+climate forcing from 1930-12
+
+Per well (beta_1 at its fitted value):
+  nw11   (1C)  NSE -3.032  r +0.660  NSE with the level offset removed -0.109  bias +0.461 m  RMSE 0.541 m  n 82  censored dropped 0
+  nw13   (1D)  NSE -0.449  r +0.750  NSE with the level offset removed +0.409  bias +0.302 m  RMSE 0.392 m  n 82  censored dropped 0
+  nw3    (1E)  NSE +0.732  r +0.907  NSE with the level offset removed +0.803  bias -0.085 m  RMSE 0.165 m  n 82  censored dropped 0
+  nw4    (1F)  NSE +0.326  r +0.912  NSE with the level offset removed +0.832  bias -0.211 m  RMSE 0.244 m  n 82  censored dropped 0
+  nw9    (2B)  NSE -0.674  r +0.826  NSE with the level offset removed +0.581  bias +0.229 m  RMSE 0.264 m  n 82  censored dropped 0
+  wmc3   (2C)  NSE -0.713  r +0.689  NSE with the level offset removed +0.346  bias +0.238 m  RMSE 0.303 m  n 67  censored dropped 15
+  nw6    (2E)  NSE +0.607  r +0.859  NSE with the level offset removed +0.718  bias +0.090 m  RMSE 0.169 m  n 82  censored dropped 0
+  nw5    (2F)  NSE +0.206  r +0.945  NSE with the level offset removed +0.874  bias -0.244 m  RMSE 0.266 m  n 82  censored dropped 0
+  wmc2   (2G)  NSE -0.013  r +0.934  NSE with the level offset removed +0.854  bias -0.263 m  RMSE 0.285 m  n 82  censored dropped 0
+
+Read r against NSE. r is whether the hindcast reproduces the SHAPE
+of the record — the timing and size of the seasonal and interannual
+swing. NSE additionally penalises the LEVEL. A well with high r and
+poor NSE has the dynamics right and the datum wrong, which is a
+statement about the record rather than about the model.
+
+Epoch shift, each well's 1989-96 mean less its modern mean (network median -0.582 m):
+  nw11   (1C)  -0.835 m
+  nw13   (1D)  -0.693 m
+  nw3    (1E)  -0.416 m
+  nw4    (1F)  -0.259 m
+  nw9    (2B)  -0.683 m
+  wmc3   (2C)  -0.582 m
+  nw6    (2E)  -0.583 m
+  nw5    (2F)  -0.248 m
+  wmc2   (2G)  -0.132 m
+
+mean residual (observed minus hindcast) across wells: -0.057 m
+  positive means the record sits SHALLOWER than the climate-only hindcast
+largest initial-condition sensitivity over the window: 3.02e-11 m — the spin-up has forgotten the starting value
+
+beta_1 sensitivity (the coefficients are fitted 2005-2026 and the site-wide beta_1 decline means 1989 values were plausibly higher):
+  scale 1.00:  open ground (n=6) mean NSE +0.235, mean bias -0.069 m   |  under canopy (n=3) mean NSE -1.473, mean bias +0.309 m
+  scale 1.03:  open ground (n=6) mean NSE +0.306, mean bias +0.057 m   |  under canopy (n=3) mean NSE -3.123, mean bias +0.434 m
+  scale 1.06:  open ground (n=6) mean NSE +0.012, mean bias +0.182 m   |  under canopy (n=3) mean NSE -5.358, mean bias +0.558 m
+  scale 1.10:  open ground (n=6) mean NSE -0.949, mean bias +0.349 m   |  under canopy (n=3) mean NSE -9.247, mean bias +0.724 m
+
+The two groups are reported apart because the canopy state of 1989 is not observed and the coefficients are fitted over 2005-2026, which for the clearfell-zone wells spans the felling. Transfer of a canopy well's coefficients to 1989 is therefore an assumption the open-ground wells do not require.
+
+Codes not admitted:
+  1A  nw12   no committed coefficients
+  1B  nw10   censored in 63 of 82 months
+  2A  (none) mapping unidentified
+  2D  nw8    no committed coefficients

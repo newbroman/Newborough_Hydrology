@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/academic_summaries/crynodeb_academaidd_v1_4.odt — do not edit.
+<!-- GENERATED MIRROR of docs/academic_summaries/crynodeb_academaidd_v1_6.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Astudiaeth Dŵr Daear Cwningar Niwbwrch
@@ -25,11 +25,11 @@ Mae\'r rhaniad k=5 yn cynhyrchu pum parth â phroffiliau cyfernod SSM gwahanol (
 
   ----------------------- ---- ------------- --------------- ------------ ------
   Parth                   n    β₁ ailwefru   β₂ tynfa atm.   β₃ draenio   LCSC
-  C1 Ymyl y Llyn          7    4.58          0.96            0.09         0.22
-  C2 Twyn                 24   3.97          1.76            0.06         0.25
-  C3 Gweddilliol Gorll.   21   3.57          1.83            0.06         0.28
-  C4 Prif Goedwig         9    2.49          2.58            0.02         0.4
-  C5 Coedwig Arfordirol   5    2.42          1.31            0.04         0.41
+  C1 Ymyl y Llyn          7    4.58          0.92            0.09         0.22
+  C2 Twyn                 24   3.97          1.74            0.06         0.25
+  C3 Gweddilliol Gorll.   21   3.57          1.81            0.06         0.28
+  C4 Prif Goedwig         9    2.48          2.56            0.02         0.4
+  C5 Coedwig Arfordirol   5    2.43          1.27            0.04         0.41
   ----------------------- ---- ------------- --------------- ------------ ------
 
 Tabl 1. Cyfernodau mecanistig SSM fesul clwstwr (canolrifau). β₁, β₂ heb ddimensiwn; β₃ mis⁻¹. LCSC = cyfraniad hinsawdd-storfa cyfun (100/β₁), gwrthdro\'r sensitifrwydd ailwefru.
@@ -60,7 +60,7 @@ CEH18/CEH21 (Hydref 2023): Cofnod ôl-ymyrraeth annigonol (\<2 flynedd) ar gyfer
 
 BACI clirdorri --- Rhagfyr 2017 (8.4 ha)
 
-Cynllun ANCOVA-BACI pum haen: 17 ffynnon, tri diffiniad rheoli annibynnol (Coedwig, Hinsawdd, Cyfunol). Prif ganlyniad (rheolydd Coedwig, ffynnon effaith WMC3): cam clirdorri +0.120 m (p \< 0.001, CI \[0.050, 0.189\]). Ymyl y Goedwig: +0.033 m (p = 0.193). Estyniad synthetig (10h, centroid WMC3+FE1+FE2): +0.085 m (p \< 0.001). ANCOVA haf yn unig (is-set Meh--Medi): +0.046 m (p = 0.436) --- heb fod yn arwyddocaol. Mae\'r di-ganlyniad haf yn gadarn ar draws pob diffiniad rheoli.
+Cynllun ANCOVA-BACI pum haen: 17 ffynnon, tri diffiniad rheoli annibynnol (Coedwig, Hinsawdd, Cyfunol). Prif ganlyniad (rheolydd Coedwig, ffynnon effaith WMC3): cam clirdorri +0.113 m (p \< 0.001, CI \[0.050, 0.189\]). Ymyl y Goedwig: +0.033 m (p = 0.193). Estyniad synthetig (10h, centroid WMC3+FE1+FE2): +0.085 m (p \< 0.001). ANCOVA haf yn unig (is-set Meh--Medi): +0.046 m (p = 0.436) --- heb fod yn arwyddocaol. Mae\'r di-ganlyniad haf yn gadarn ar draws pob diffiniad rheoli.
 
 Mae\'r di-ganlyniad haf yn gyson â rôl ddeuol i\'r canopi: mae tynnu rhyng-gipiad yn cynyddu ailwefru\'r gaeaf ond mae dinoethiad yn cynyddu anwedddrydarthiad haf uniongyrchol o\'r pridd sydd bellach heb ei gysgodi. Mae\'r effeithiau hyn tua\'n canslo ei gilydd yn ffenestr Mehefin--Medi. Nodir gostyngiad ar draws y safle mewn effeithlonrwydd ailwefru (β₁ yn gostwng dros amser ar draws pob clwstwr) fel prif yrrwr dirywiad yr isafswm haf, gan weithredu\'n annibynnol ar reoli\'r canopi.
 
@@ -84,14 +84,14 @@ Mae cyd-newidyn dwyreinio×amser ar raddfa rhwydwaith yn ANCOVA\'r clirdorri yn 
 
 Graddfa\'r newid a arsylwyd yn ei gyd-destun
 
-Mae\'r ymyriadau rheoli a astudiwyd hyd yma wedi cynhyrchu effeithiau mesuradwy ar y raddfa leol: mae budd y crafu yn CEH36 yn gadarn yn ystadegol ac yn arwyddocaol yn ecolegol, a chynhyrchodd y clirdorri welliant canfyddadwy mewn lefelau dŵr misol cymedrig yn erbyn rheolyddion coedwig. Fodd bynnag, dyfnhaodd sylfaen gwanwyn y safle cyfan 97 mm rhwng ffenestri cymharu 2017 a 2023 --- newid sy\'n effeithio ar 56 o 59 ffynnon a fonitrwyd ar yr un pryd ac wedi\'i yrru gan rymoedd sy\'n gweithredu ar raddfa\'r dyfrhaen gyfan. Mae tymheredd yr haf wedi tueddu i fyny ar +0.014°C y flwyddyn⁻¹ ers 1931, gyda chynnydd cam o +0.94°C uwchlaw\'r llinell sylfaen ers 2013. Mae signal cilio\'r arfordir yn cyfrif am tua 41% o ddirywiad eithriadol parth y Goedwig Arfordirol ac yn ymestyn sawl can metr i mewn i\'r tir. Yn erbyn y signalau hyn, mae budd y crafu mewn un ffynnon (+195 mm) a gwelliant misol-cymedrig y clirdorri (+120 mm o\'i gymharu â choedwig heb ei chwympo) yn cynrychioli ymatebion lleol nad ydynt yn newid cyfeiriad y duedd ar draws y rhwydwaith. Mae rhagamcanion UKCP18 yn dangos dyfnhau isafswm haf pellach o 71--134 mm erbyn y 2080au --- sydd, o\'i ychwanegu at y 97 mm a gollwyd eisoes rhwng ffenestri cymharu 2017 a 2023, yn gosod colledion cronnus o\'r llinell sylfaen cyn-clirdorri yn yr ystod 170--230 mm, gan ragori\'n sylweddol ar unrhyw effaith reoli a arsylwyd yn y cofnod hwn.
+Mae\'r ymyriadau rheoli a astudiwyd hyd yma wedi cynhyrchu effeithiau mesuradwy ar y raddfa leol: mae budd y crafu yn CEH36 yn gadarn yn ystadegol ac yn arwyddocaol yn ecolegol, a chynhyrchodd y clirdorri welliant canfyddadwy mewn lefelau dŵr misol cymedrig yn erbyn rheolyddion coedwig. Fodd bynnag, dyfnhaodd sylfaen gwanwyn y safle cyfan 97 mm rhwng ffenestri cymharu 2017 a 2023 --- newid sy\'n effeithio ar 56 o 59 ffynnon a fonitrwyd ar yr un pryd ac wedi\'i yrru gan rymoedd sy\'n gweithredu ar raddfa\'r dyfrhaen gyfan. Mae tymheredd yr haf wedi tueddu i fyny ar +0.014°C y flwyddyn⁻¹ ers 1931, gyda chynnydd cam o +0.94°C uwchlaw\'r llinell sylfaen ers 2013. Mae signal cilio\'r arfordir yn cyfrif am tua 41% o ddirywiad eithriadol parth y Goedwig Arfordirol ac yn ymestyn sawl can metr i mewn i\'r tir. Yn erbyn y signalau hyn, mae budd y crafu mewn un ffynnon (+195 mm) a gwelliant misol-cymedrig y clirdorri (+113 mm o\'i gymharu â choedwig heb ei chwympo) yn cynrychioli ymatebion lleol nad ydynt yn newid cyfeiriad y duedd ar draws y rhwydwaith. Mae rhagamcanion UKCP18 yn dangos dyfnhau isafswm haf pellach o 71--134 mm erbyn y 2080au --- sydd, o\'i ychwanegu at y 97 mm a gollwyd eisoes rhwng ffenestri cymharu 2017 a 2023, yn gosod colledion cronnus o\'r llinell sylfaen cyn-clirdorri yn yr ystod 170--230 mm, gan ragori\'n sylweddol ar unrhyw effaith reoli a arsylwyd yn y cofnod hwn.
 
 Prif ganfyddiadau meintiol
 
   -------------------------------------------------------- -------------------------- ----------------
   Canfyddiad                                               Gwerth                     Ffynhonnell
   Cam crafu CEH36 (BACI pâr)                               \+ 195 mm p = 0.004        Script 09c
-  Cam clirdorri yn erbyn rheolydd Coedwig (cymedr misol)   \+ 120 mm p \< 0.001       Script 10a
+  Cam clirdorri yn erbyn rheolydd Coedwig (cymedr misol)   \+ 113 mm p \< 0.001       Script 10a
   Cam clirdorri yn erbyn rheolydd Coedwig (haf yn unig)    \+ 46 mm p = 0.44 (n.s.)   Script 10a
   Newid MSL5 2017→2023 (cymedr y safle)                    − 97 mm                    Script 26 / 20
   Ffynhonnau a ddyfnhaodd \>25 mm (o 59 dilys)             56 (95%)                   Script 20

@@ -26,15 +26,18 @@ PHYSICAL amplitudes are read LIVE from committed CSVs (no hardcoded amplitudes):
         coastal 5-yr/storm, scrape cut rise, thinned), and the full reach columns
         for the coastal reach panel (coastal 20-yr decay =
         (MECHANISM_HORIZON_YEARS / COAST_CHRONIC_YEARS) x |coastal_5yr(d)|).
-    25_01_panel_fit_parameters.csv — the fitted constant c (forest-free linear-capped),
-        read directly rather than through 09f. Drawn as the spatially uniform far-field
-        term, SIGNED and marginal. It is not a climate rate and is never labelled one:
-        only c + beta_cwb*d(CWB)/dt is identified (D-039), so the term carries no
-        crossing with the coastal curve (D-042) and no band stands in for it (D-043).
     10m_report_numbers.csv — WMC3_BACI_DiD_step_2015_scraping: the ONE measured
         off-cut drawdown point (-55 mm; reproducible -54 mm in 2023).
     10a_report_numbers.csv — clearfell BACI steps (annual + summer) for the grid's
         clearfell magnitude line.
+
+NO spatially uniform far-field term is drawn on any of these figures. The fitted
+constant c of the Script 25 coastal decay is a COMPENSATING window statistic, not a
+site-wide driver: across fixed-length rolling windows it correlates at about -0.8 with
+the CWB covariate's trend contribution (25_13_rolling_window.csv), so when the covariate
+takes more of the decline c takes less. It carries no independent information about a
+site-wide driver, and drawing it beside the coastal curve invites a comparison it cannot
+support. 25_01_panel_fit_parameters.csv is therefore no longer read here.
 First-pass fallbacks live in pipeline_params._DEFAULTS (read via default_value())
 with console warnings — the 09b/09d/09f precedent. Script 09g runs after 09f in
 Phase 17, so fallbacks engage only on a partial/interrupted run.
@@ -53,8 +56,53 @@ printed checks) and writes the outputs via paths.py.
 """
 from __future__ import annotations
 
-__version__ = "1.9.0"
+__version__ = "1.11.0"
 # CHANGELOG
+#   1.11.0 (2026-08-21): two reach-panel rendering defects Martin found in the
+#       regenerated figures.
+#       (a) PHYSICAL. The storm and 5-yr water-table curves ran ABOVE the drawn
+#           dune surface from roughly 80 m to 250 m — up to 11.5 px on the
+#           standalone reach — and above the undisturbed table with them, which
+#           says coastal retreat RAISES a head. Cause: _flat_pond() and
+#           segmented() level a flooded slack by different rules, and for the
+#           shallow curves _flat_pond()'s level came out above the slack's own
+#           seaward outlet rim. Retreat curves now go through the new
+#           subsurface(), which clamps them to the undisturbed table; np.maximum
+#           is monotone so storm <= 5-yr <= 20-yr survives, and the seam anchors
+#           are untouched. Clamping to the GROUND as well was tried and rejected:
+#           it pinned the storm curve to the dune over 40 % of its length. Instead
+#           the reach panel now draws the standing water in its slacks
+#           (_inland_ponds(), plus _reach_ponds() on the reach body), which every
+#           cross-section cell has always done via water(); the reach was the only
+#           member of the figure set carrying a water table but no water, which is
+#           why the same geometry read as a wet slack in the cells and as a
+#           floating line on the reach. A head at or below the undisturbed table is
+#           therefore at or below the drawn water surface. The dotted undisturbed
+#           reference is deliberately NOT clamped: it IS a water table. New
+#           reach_clearance() rebuilds the curves through the same helpers and
+#           returns the margins, which Script 09g prints and fails on.
+#       (b) The delta-0 annotation sat at the leader's midpoint, crossed by the
+#           dotted rule and crowded by 'sea' at grid scale. It and the mm label are
+#           now one centred two-line callout stacked above the leader, each line on
+#           a white backing plate sized by the new shared text_width().
+#       No amplitude, scale, colour or axis changes; the surface geometry did not
+#       move.
+#   1.10.0 (2026-08-20): the far-field term is REMOVED from every 09g figure, on
+#       new evidence — D-043's amendment (which restored it) is reversed, and its
+#       original withdrawal stands. The fixed-length rolling-window sweep
+#       (25_13_rolling_window.csv) measures corr(c, CWB trend contribution) at
+#       about -0.8 at every window length: c is a compensating term that absorbs
+#       whatever the covariate does not take, so it carries no independent
+#       site-wide signal to draw. Gone: _load_far_field_term(), the far_field_mm /
+#       far_field_c_mm_yr keys of load_reach(), uniform_offset_table() (with
+#       PIN_A / PIN_B), the FARF palette entry, the 'far_field' branch of
+#       build_reach_panel(), the third panel of build_reach_stack(), and the
+#       far-field curve, boxed callout and legend swatch of build_reach_body().
+#       The OUT_25_FIT_PARAMETERS import goes with them. The grid title now COUNTS
+#       the drawn drivers (DRIVERS) rather than spelling a fixed number, so a
+#       driver cannot be retired again while the title still claims it. NOT
+#       touched: the coastal curve, the undisturbed table, the ghosted retreat
+#       wedges and the 900 m axis (D-043: the axis marks the fitted reach L).
 #   1.9.0 (2026-08-19): D-043 amended. The far-field term is RESTORED as a driver
 #       (Martin: marginal, but worth showing), read straight from 25_01 by the new
 #       _load_far_field_term() rather than through 09f, which no longer carries it.
@@ -92,8 +140,7 @@ import pandas as pd
 
 from utils.console_utils import info, warn
 from utils.pipeline_params import default_value
-from utils.paths import (OUT_09F_REACH_CSV, OUT_10M_REPORT, OUT_10A_REPORT,
-                         OUT_25_FIT_PARAMETERS)
+from utils.paths import OUT_09F_REACH_CSV, OUT_10M_REPORT, OUT_10A_REPORT
 from utils.config import (
     MECHANISM_HORIZON_YEARS, COAST_CHRONIC_YEARS,
     MECH_FIG_PX_PER_MM, MECH_FIG_PROFILE_GX, MECH_FIG_PROFILE_GY,
@@ -131,8 +178,27 @@ WT_BLUE = '#185FA5'              # water-table stroke
 REF_GREY = '#6B7280'             # reference / no-change dotted
 GHOST_BROWN = '#B48A50'          # ghost dune dashed
 COL = {'storm': '#9b86bf', '5yr': '#6b3fa0', '20yr': '#3d1f66'}   # retreat-state strokes
-COAST = '#3d1f66'; FARF = '#8a5a2b'; INK = '#26261f'   # FARF: fitted far-field term
+COAST = '#3d1f66'; INK = '#26261f'
 TAGCOL = {'accumulating': '#8a5a2b', 'settles': '#2b6a8a'}
+
+# ==== driver register ===========================================================================
+# The drivers these figures draw, in drawn order. The grid title COUNTS this register
+# rather than spelling a number, so retiring or adding a driver moves the title with it
+# (D-011: no asserted results in code). LOCAL_DRIVERS are the two management panels of
+# grid row 2; REACH_DRIVERS are the site-wide terms on the full-width reach panel, which
+# is the coastal term alone — the fitted far-field constant is a compensating window
+# statistic, not a driver, and is not drawn (see the module docstring).
+LOCAL_DRIVERS = ('scrape', 'clearfell')
+REACH_DRIVERS = ('coastal',)
+DRIVERS = LOCAL_DRIVERS + REACH_DRIVERS
+REACH_STACK_PANELS = ('undisturbed',) + REACH_DRIVERS
+
+_COUNT_WORDS = ('Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven')
+
+def count_word(n):
+    """Spell a small count for a figure title; digits beyond the table (a rendering
+    convenience, not a stored quantity)."""
+    return _COUNT_WORDS[n] if 0 <= n < len(_COUNT_WORDS) else f"{n}"
 
 def lighten(hexc, f):
     """blend a hex colour toward white by fraction f (0..1)."""
@@ -198,33 +264,6 @@ def load_amplitudes():
     return dict(EDGE_DH_MM)
 
 
-def _load_far_field_term():
-    """Fitted far-field term: (c_mm_yr, amp_mm) — both SIGNED.
-
-    `c` is the constant of the Script 25 coastal-gradient fit, read from the SAME
-    forest-free linear-capped row that supplies delta_0 and L. It is read directly from
-    25_01 rather than through 09f, which no longer carries it (D-043).
-
-    It is NOT a climate rate and must never be labelled as one: only the sum
-    c + beta_cwb*d(CWB)/dt is identified (D-039), and 25_11 puts that sum anywhere from
-    negative to positive. What the figures draw is the fitted far-field term itself,
-    marginal, signed as fitted, with its non-identification stated on the label. Signed
-    throughout — no abs(): on the committed fit c is POSITIVE, a slight rise, and an
-    abs() here is what drew it as a fall.
-    """
-    try:
-        df = pd.read_csv(OUT_25_FIT_PARAMETERS)
-        row = df[(df["source"] == "forest_free") & (df["model"] == "linear_capped")]
-        if row.empty:
-            row = df[df["model"] == "linear_capped"]
-        c = float(row["c_mm_yr"].iloc[0])
-    except (FileNotFoundError, KeyError, IndexError):
-        c = float(default_value('climate_c_mm_yr'))
-        warn(f"25_01_panel_fit_parameters.csv unavailable — far-field term from default "
-             f"c = {c:+.2f} mm/yr (run Script 25 for the live value).")
-    return c, c * MECHANISM_HORIZON_YEARS
-
-
 def load_reach():
     """Coastal reach quantities, fully derived from committed 09f_01 columns.
 
@@ -233,17 +272,14 @@ def load_reach():
                              (MECHANISM_HORIZON_YEARS / COAST_CHRONIC_YEARS) x |coastal_5yr(d)|
         c5_dd(d)           : 5-yr coastal drawdown (mm, +ve) = |coastal_5yr(d)|
         storm_dd(d)        : single 6 m storm drawdown (mm, +ve) = |coastal_6m_storm(d)|
-        far_field_mm       : fitted far-field term over MECHANISM_HORIZON_YEARS (mm, SIGNED)
-        far_field_c_mm_yr  : the same term as a rate (mm/yr, SIGNED)
         reach_L_m, delta0_mm_yr, source
 
-    The far-field term is SIGNED and comes from 25_01 via _load_far_field_term(), not
-    from 09f. It is drawn, because it is a real driver of the schematic even though it is
-    marginal, but it is never labelled a climate rate: only c + beta_cwb*d(CWB)/dt is
-    identified (D-039), so no crossing with the coastal curve is computed or drawn
-    (D-042) and no band stands in for it (D-043). The retired keys `crossing_m`,
-    `climate_mm` and `far_field_lo/hi_mm` are deliberately NOT emitted: a stale reader
-    raises KeyError instead of silently reading something else.
+    Coastal retreat is the ONLY driver this dict carries. The retired keys `crossing_m`,
+    `climate_mm`, `climate_c_mm_yr`, `far_field_lo/hi_mm`, `far_field_mm` and
+    `far_field_c_mm_yr` are deliberately NOT emitted: a stale reader raises KeyError
+    instead of silently reading something else. The fitted constant c is a compensating
+    window statistic rather than a site-wide driver (see the module docstring), so
+    nothing here reads it and no figure draws it.
 
     All three drawdown interpolators cover the full 0..900 m reach, so the drawn
     near-shore curves can be seam-anchored to the same values the inland
@@ -254,7 +290,6 @@ def load_reach():
     mech_coastal_storm_mm), with a warning.
     """
     n20 = MECHANISM_HORIZON_YEARS / COAST_CHRONIC_YEARS      # 4.0 on current config
-    ff_c, ff_mm = _load_far_field_term()
     try:
         df = pd.read_csv(OUT_09F_REACH_CSV)
         d   = df['distance_m'].to_numpy(float)
@@ -270,7 +305,6 @@ def load_reach():
         def coastal_dd(dd):
             return n20 * c5_dd(dd)
         return {'coastal_dd': coastal_dd, 'c5_dd': c5_dd, 'storm_dd': storm_dd,
-                'far_field_mm': ff_mm, 'far_field_c_mm_yr': ff_c,
                 'reach_L_m': Lfit,
                 'delta0_mm_yr': edge5 / COAST_CHRONIC_YEARS,
                 'source': f"committed 09f ({OUT_09F_REACH_CSV.name})"}
@@ -287,7 +321,6 @@ def load_reach():
         warn(f"09f_01_reach_profile.csv unavailable — reach from documented defaults "
              f"(L={L:.0f} m, delta0={d0:.1f} mm/yr; run Script 09f for live values).")
         return {'coastal_dd': coastal_dd, 'c5_dd': c5_dd, 'storm_dd': storm_dd,
-                'far_field_mm': ff_mm, 'far_field_c_mm_yr': ff_c,
                 'reach_L_m': L, 'delta0_mm_yr': d0,
                 'source': 'first-pass defaults (09f_01 absent)'}
 
@@ -424,6 +457,19 @@ def ld(x1, y1, x2, y2): return (f'<line x1="{x1:.0f}" y1="{y1:.0f}" x2="{x2:.0f}
 def tick(x, yb): return (f'<line x1="{x:.0f}" y1="{yb-5:.0f}" x2="{x:.0f}" y2="{yb+5:.0f}" '
                          f'stroke="#3B8BD4" stroke-width="1.4"/>')
 
+TEXT_WIDTH_PER_PT = 0.517        # mean advance of the base sans, as a fraction of font size
+
+def text_width(s, size):
+    """Estimated rendered width of `s` at `size` px in the base sans stack.
+
+    One shared estimate, so a label's white backing plate and the build-time collision
+    check cannot disagree about how wide a label is. The constant is lbl()'s long-standing
+    12 px figure (6.2 px per character) expressed per point; an estimate is enough here
+    because every use has margin designed around it, and measuring real glyph advances
+    would need a font library this module deliberately does not depend on."""
+    return len(str(s)) * TEXT_WIDTH_PER_PT * float(size)
+
+
 def txt(x, y, s, size=12, w='400', col='#26261f', anchor='start', style='', escape=True):
     if escape:
         s = str(s).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
@@ -545,40 +591,10 @@ def scrape_build_after_table():
     _rise_out(xr, min(_inland) if _inland else XE)  # inland: to the next flooded slack
     return y, (xl, xr)
 
-# ================================================================================================
-# UNIFORM-OFFSET table — the spatially uniform far-field term on the shared profile
-# ================================================================================================
-PIN_A, PIN_B = 160.0, 215.0      # offset ramps 0 (sea pin) -> full over the fore dune
-
-def uniform_offset_table(wt_before, amp_mm, px_per_mm=None):
-    """Offset the CONTINUOUS grand Dupuit curve by a spatially-uniform SIGNED amplitude
-    `amp_mm` in mm (ramped from the sea pin so the shore stays at sea level).
-
-    SIGNED, and deliberately without abs(): on the committed fit the far-field term is
-    POSITIVE — a slight rise — and taking its magnitude is what previously drew it as a
-    fall. A negative amp_mm lowers the table, a positive one raises it. The table only
-    STEPS to a flat pond where the offset curve still meets the surface. Returns
-    (wt, offset_px, ponds=[(xl, xr, level), ...]). `px_per_mm` overrides the global mm
-    scale (for the reach figure's local scale)."""
-    _pxmm = PX_PER_MM if px_per_mm is None else px_per_mm
-    # SVG y increases downward, so a NEGATIVE amplitude (a fall) is a POSITIVE y shift.
-    drop = (-float(amp_mm) * _pxmm) * _ramp(X, PIN_A, PIN_B)
-    # Offset the ACTUAL undisturbed table (wt_before, which already carries the correct
-    # near-shore slack ponds) by the ramped offset — not a fresh smooth parabola, which
-    # at a small offset would sit above the slack floors and clamp into one long flat
-    # pond (the "flat climate curve" bug). Re-pond only where the offset table still
-    # floods a slack.
-    wt = np.asarray(wt_before, float).copy() + drop
-    ponds = []
-    for c in SLACK_C:
-        floor = g1(c)
-        lvl = float(np.interp(c, X, wt))
-        if lvl < floor - 0.5:                        # head above floor => flooded
-            xl, xr = wateredges(c, lvl)
-            m = (X >= xl) & (X <= xr); wt[m] = lvl
-            ponds.append((xl, xr, lvl))
-    return wt, drop, ponds
-
+# The spatially-uniform-offset table (uniform_offset_table, with its PIN_A / PIN_B sea
+# pin) lived here and drew the fitted far-field term. It is retired: c is a compensating
+# window statistic, not a site-wide driver, so nothing on these figures offsets the whole
+# profile by a constant. See the module docstring.
 
 # ================================================================================================
 # Cell geometry builders (from gen_grid v0.8.0; native panel coords, no text)
@@ -591,7 +607,7 @@ def _refline(wy):   return (f'<path d="{Pth(X, wy)}" fill="none" stroke="{REF_GR
                             f'stroke-width="1.4" stroke-dasharray="2 3"/>')
 
 def geo_wet_before():
-    """undisturbed 'before' — coastal / scrape / far-field share this starting state."""
+    """undisturbed 'before' — coastal and scrape share this starting state."""
     wt = segmented(110.0, 78.0, nudge_seg2=True)[0]
     return sea(250, 110) + _dunefill(ground) + water(ground, wt, 0, 110) + _topline(ground) + _wt(wt)
 
@@ -720,6 +736,77 @@ def _r_und_flat(dd):
     dd = np.asarray(dd, float)
     return _flat_pond(dd, _r_und_in(dd), _r_ground_in(dd))
 
+
+def subsurface(y, und):
+    """Clamp a drawn RETREAT head to the undisturbed table (y-down canvas).
+
+    **Coastal retreat never raises a head**, so no retreat curve may sit above the
+    undisturbed table: `y >= und`. `_flat_pond()` did not enforce this, and that is the
+    whole of the defect it caused. It set a flooded slack's level from the raw surface
+    just seaward of the flooded run, while the undisturbed table takes its level from
+    `segmented()`'s chained rule (the parabola one segment seaward of the slack centre).
+    The two rules disagree, and for the shallow storm / 5-yr curves `_flat_pond()`'s
+    level came out ABOVE the slack's own seaward outlet rim — and so above the
+    undisturbed table, and above the dune — which is why those curves rode over the
+    surface between roughly 80 m and 250 m.
+
+    The ground is deliberately NOT a second clamp here. Where the undisturbed table
+    stands above the illustrative ground the slack is WET, and the reach panel now draws
+    that standing water (see `_reach_ponds()` / `_inland_ponds()`), exactly as the
+    cross-section cells always have via `water()`. A head at or below the undisturbed
+    table is therefore at or below the drawn water surface, never floating. Clamping to
+    the ground instead was tried and rejected: it pinned the storm curve to the dune
+    surface over 40 % of its length, which states a head the fit does not give.
+
+    `np.maximum` is monotone, so applying it to an already-ordered family preserves the
+    storm <= 5-yr <= 20-yr drawdown ordering the panel exists to show. The seam anchors
+    are untouched: at the cross-section boundary every curve sits well below the
+    undisturbed table, so the clamp is inactive there and continuity is unaffected.
+    """
+    return np.maximum(np.asarray(y, float), np.asarray(und, float))
+
+
+def reach_clearance(reach, multiples=True):
+    """Clearance of every plotted retreat head below the surfaces it may not cross, px.
+
+    Rebuilds the curves through the same helpers `build_reach_body()` draws them with,
+    and returns {curve: (min_vs_drawn_surface, min_vs_undisturbed)} over the near-shore
+    and inland halves together. Positive means below.
+
+    `min_vs_drawn_surface` is measured against the composite the reader actually sees:
+    the illustrative ground where the slack is dry, and the DRAWN WATER SURFACE (the
+    undisturbed table) where it is wet, since the reach panel now fills its slacks. A
+    head may sit above a slack floor — that is standing water — but never above the
+    ground in the open, and never above the water surface. Script 09g prints this and
+    fails the run if either value goes negative: a water table drawn above the dune is a
+    physical error, not an untidiness, and image-view does not catch it reliably
+    in-session.
+    """
+    coastal_dd = reach['coastal_dd']
+    _und = segmented(110.0, 78.0, nudge_seg2=True)[0]
+    _grd = ground(X)
+    _gap_px = SEA - float(np.interp(SH['20yr'], X, _und))
+    _RPX = _gap_px / coastal_dd(0.0)
+    _dd_at = {'storm': reach['storm_dd'], '5yr': reach['c5_dd'], '20yr': coastal_dd}
+    _und_seam = float(np.interp(XE, X, _und))
+    keys = ('storm', '5yr', '20yr') if multiples else ('20yr',)
+    di = np.linspace(_R_DN, 900, 240)
+    _und_raw = _r_und_in(di); _grd_in = _r_ground_in(di)
+    _undf = _flat_pond(di, _und_raw, _grd_in)
+    # the surface a reader sees: ground where dry, water surface where the slack is wet
+    _surf_near = np.minimum(_grd, _und)
+    _surf_in = np.minimum(_grd_in, _undf)
+    out = {}
+    for k in keys:
+        hg = SEA - (_und_seam + _dd_at[k](_R_DN) * _RPX)
+        near = subsurface(grandf(SH[k], hg)(X), _und)
+        m = X >= SH[k]
+        inl = subsurface(_und_raw + np.array([_dd_at[k](d) for d in di], float) * _RPX,
+                         _undf)
+        out[k] = (float(min((near[m] - _surf_near[m]).min(), (inl - _surf_in).min())),
+                  float(min((near[m] - _und[m]).min(), (inl - _undf).min())))
+    return out
+
 def _r_txt(x, y, s, sz=12, w='400', c=INK, a='start', it=False):
     return (f'<text x="{x:.1f}" y="{y:.1f}" font-family="{FONT_STACK}" font-size="{sz}" '
             f'font-weight="{w}" fill="{c}" text-anchor="{a}"'
@@ -729,8 +816,8 @@ def _reach_base(s, pth, draw_erosion):
     """Shared reach profile — sea, dune, near-shore cross-section (0..330 m) joined to
     the inland ground (330..900 m) — drawn identically for the technical figure and
     the lay stack. `draw_erosion` toggles the retreat-ghost fore-dune (on for coastal,
-    off for the plain undisturbed / far-field panels). Returns the undisturbed water
-    table array `_und` for callers that overlay drivers."""
+    off for the plain undisturbed panel). Returns the undisturbed water table array
+    `_und` for callers that overlay drivers."""
     _und = segmented(110.0, 78.0, nudge_seg2=True)[0]
     SEALV = 250.0
     xs = [_r_nx(x) for x in X]
@@ -791,39 +878,67 @@ def _reach_ponds(wt, pth):
     return "".join(out)
 
 
+def _inland_ponds(di, wt, gxi, grd):
+    """Blue standing water in the INLAND slacks (330..900 m), the counterpart of
+    `_reach_ponds()` for the near-shore third.
+
+    Fills between the water surface `wt` and the ground `grd` wherever the ground dips
+    below the table. Without it the reach panel was the only member of the figure set
+    that carried a water table but no water: the cross-section cells have always drawn
+    their slack water with `water()`, so the same geometry that reads as a wet slack in
+    the cells read as a line floating over the dune on the reach. Drawn once, from the
+    undisturbed table, beneath every driver curve — it is the panel's starting wetness,
+    not a per-scenario result."""
+    out = []
+    fl = np.asarray(grd, float) > np.asarray(wt, float) + 0.2
+    i, n = 0, len(di)
+    while i < n:
+        if fl[i]:
+            j = i
+            while j < n and fl[j]:
+                j += 1
+            seg = range(i, j)
+            pts = " ".join(f"{gxi[k]:.1f},{wt[k]:.1f}" for k in seg) + " " + \
+                  " ".join(f"{gxi[k]:.1f},{grd[k]:.1f}" for k in reversed(seg))
+            out.append(f'<polygon points="{pts}" fill="{SEA_BLUE}"/>')
+            i = j
+        else:
+            i += 1
+    return "".join(out)
+
+
 def build_reach_panel(reach, driver, title=None, show_axis=True, register="technical"):
     """A single reach panel on the shared profile, full 0..900 m. `driver` is one of
-    'undisturbed', 'coastal' or 'far_field'. Used by the lay stacked figure so the lay
-    panels share the technical figure's exact profile and amplitudes; only one thing is
-    drawn per panel. `register` toggles technical-only annotation (the storm/5yr/20yr
-    retreat-band labels on the coastal panel).
+    REACH_STACK_PANELS — 'undisturbed' or 'coastal'. Used by the lay stacked figure so
+    the lay panels share the technical figure's exact profile and amplitudes; only one
+    thing is drawn per panel. `register` toggles technical-only annotation (the
+    storm/5yr/20yr retreat-band labels on the coastal panel).
 
-    'far_field' draws the fitted far-field term as a spatially uniform offset — SIGNED,
-    so on the committed fit it reads as the slight rise it is, and marginal, which is
-    the point of showing it. It is never labelled a climate rate (D-039) and carries no
-    crossing with the coastal curve (D-042). Returns the panel body SVG (no wrapper)."""
+    There is no 'far_field' panel: the fitted constant c is a compensating window
+    statistic rather than a site-wide driver (module docstring), so nothing on the reach
+    offsets the whole profile by a constant. Returns the panel body SVG (no wrapper)."""
     coastal_dd = reach['coastal_dd']
-    FF_MM = reach['far_field_mm']
     def pth(xs, ys): return "M " + " L ".join(f"{a:.1f},{b:.1f}" for a, b in zip(xs, ys))
     s = []
     if title:
         s.append(_r_txt(_R_NL, 20, title, 13, '600'))
     _und, di, gxi = _reach_base(s, pth, draw_erosion=(driver == 'coastal'))
     _und_raw = _r_und_in(di); _grd = _r_ground_in(di)         # per-curve flood base
-    def _pond_g(off_fn):                                       # flat-pond flatten of und + drawdown(mm, +ve)
-        surf = _und_raw + np.array([mm_px(off_fn(d)) for d in di], float)
-        return _flat_pond(di, surf, _grd)
-    def _pond_signed(amp_mm):    # flat-pond flatten of und + a SIGNED uniform offset (mm)
-        return _flat_pond(di, _und_raw - float(amp_mm) * PX_PER_MM, _grd)
     _undf = _flat_pond(di, _und_raw, _grd)                     # reference: floods where und does
+    def _pond_g(off_fn):                        # und + drawdown(mm, +ve), clamped sub-surface
+        surf = _und_raw + np.array([mm_px(off_fn(d)) for d in di], float)
+        return subsurface(surf, _undf)
     xs = [_r_nx(x) for x in X]
 
-    # pond fill in the near-shore slacks (undisturbed / far-field share the wet 'before';
+    # pond fill in the near-shore slacks (the undisturbed panel carries the wet 'before';
     # coastal near-shore is eroded, so its ponds are subsumed by the retreat ghosting)
     if driver == 'undisturbed':
         s.append(_reach_ponds(_und, pth))
-    elif driver == 'far_field':
-        s.append(_reach_ponds(uniform_offset_table(_und, FF_MM)[0], pth))
+    # the inland slacks' standing water, on EVERY panel. Without it the inland coastal
+    # curve ran up to 0.9 px over the dune with nothing drawn under it — the same defect
+    # as the near-shore one, in the lay figure. Drawn from the undisturbed table, under
+    # whatever the panel draws on top.
+    s.append(_inland_ponds(di, _undf, gxi, _grd))
 
     # undisturbed reference — dashed grey, on every panel
     s.append(f'<path d="{pth(xs, list(_und))}" fill="none" stroke="{REF_GREY}" '
@@ -835,8 +950,8 @@ def build_reach_panel(reach, driver, title=None, show_axis=True, register="techn
         # 20-yr coastal drawdown: near-shore parabola seam-anchored, inland continuation
         _und_seam = float(np.interp(XE, X, _und))
         hg = SEA - (_und_seam + mm_px(coastal_dd(_R_DN)))
-        # ponded on the same per-curve basis as the inland continuation (see build_reach_body)
-        wt = _flat_pond(X, grandf(SH['20yr'], hg)(X), ground(X)); m = X >= SH['20yr']
+        # clamped sub-surface on the same basis as the inland continuation (see subsurface)
+        wt = subsurface(grandf(SH['20yr'], hg)(X), _und); m = X >= SH['20yr']
         s.append(f'<path d="{pth([_r_nx(x) for x in X[m]], [v for v in wt[m]])}" '
                  f'fill="none" stroke="{COAST}" stroke-width="2.6"/>')
         s.append(f'<path d="{pth(gxi, list(_pond_g(coastal_dd)))}" '
@@ -849,13 +964,6 @@ def build_reach_panel(reach, driver, title=None, show_axis=True, register="techn
                 xmid = (_r_nx(_prev) + _r_nx(SH[k])) / 2
                 s.append(_r_txt(xmid, BASE + 2, lab, 8, '600', c=COL[k], a='middle'))
                 _prev = SH[k]
-    elif driver == 'far_field':
-        _ff = uniform_offset_table(_und, FF_MM)[0]
-        s.append(f'<path d="{pth(xs, list(_ff))}" fill="none" stroke="{FARF}" '
-                 f'stroke-width="2.4" stroke-dasharray="7 3"/>')
-        s.append(f'<path d="{pth(gxi, list(_pond_signed(FF_MM)))}" fill="none" '
-                 f'stroke="{FARF}" stroke-width="2.4" stroke-dasharray="7 3"/>')
-        s.append(_r_txt(_r_nx(120), BASE - 46, 'sea', 10, c='#5f5e5a'))
     elif driver == 'undisturbed':
         # draw the wet table line so the ponds read as water, not gaps — across the WHOLE
         # slice. The near-shore path alone stopped the blue line at the cross-section
@@ -866,10 +974,10 @@ def build_reach_panel(reach, driver, title=None, show_axis=True, register="techn
                  f'stroke-width="2.0"/>')
         s.append(_r_txt(_r_nx(120), BASE - 46, 'sea', 10, c='#5f5e5a'))
     else:
-        # A retired driver name ('climate') must not fall through to an undisturbed
-        # panel wearing someone else's title.
+        # A retired driver name ('climate', 'far_field') must not fall through to an
+        # undisturbed panel wearing someone else's title.
         raise ValueError(f"build_reach_panel: unknown driver {driver!r} — "
-                         "'undisturbed', 'coastal' or 'far_field'")
+                         f"expected one of {REACH_STACK_PANELS}")
 
     if show_axis:
         for d in (0, 150, 300, 450, 600, 750, 900):
@@ -879,19 +987,20 @@ def build_reach_panel(reach, driver, title=None, show_axis=True, register="techn
 
 
 def build_reach_stack(reach, register="technical"):
-    """Stacked reach: three panels (undisturbed / coastal / far-field term) on the SHARED
-    profile, full 0..900 m, vertically aligned on one distance axis. `register` is
-    'technical' (mm amplitudes, precise labels) or 'lay' (plain language). Used by
-    Script 09g (technical) and gen_grid_lay (lay), so both registers share one geometry.
+    """Stacked reach: one panel per REACH_STACK_PANELS entry (undisturbed / coastal) on
+    the SHARED profile, full 0..900 m, vertically aligned on one distance axis.
+    `register` is 'technical' (mm amplitudes, precise labels) or 'lay' (plain language).
+    Used by Script 09g (technical) and gen_grid_lay (lay), so both registers share one
+    geometry.
 
-    Nothing is marked as a crossing: the far-field term is not separately identified
-    (D-039), so the two drivers are shown side by side and never compared. Returns a
+    Coastal retreat is the only driver on the stack: no spatially uniform far-field term
+    is drawn, so nothing is compared across panels and no crossing is marked. Returns a
     complete <svg> string."""
     coastal_dd = reach['coastal_dd']
-    FF_MM, FF_C = reach['far_field_mm'], reach['far_field_c_mm_yr']
     shore_mm = coastal_dd(0.0)
     lay = (register == "lay")
 
+    panels = REACH_STACK_PANELS
     PW = REACH_W
     CROP_TOP, CROP_BOT = 96, int(BASE) + 24
     CROP_H = CROP_BOT - CROP_TOP
@@ -900,7 +1009,7 @@ def build_reach_stack(reach, register="technical"):
     GAP = 10
     W = PW
     ROW = TITLE_H + CROP_H
-    H = HDR + 3 * ROW + 2 * GAP + 30
+    H = HDR + len(panels) * ROW + (len(panels) - 1) * GAP + 30
 
     if lay:
         head = "What the coast does to the water table"
@@ -909,40 +1018,34 @@ def build_reach_stack(reach, register="technical"):
         titles = {
             'undisturbed': "Undisturbed dune (the starting point)",
             'coastal': "With coastal retreat - deepest near the shore, fading inland",
-            'far_field': "Across the whole site - a very small change either way, "
-                         "too small to pin down",
         }
         foot = ("The sea's retreat bites hardest near the shore and fades inland. "
-                "Across the rest of the site the change is very small - small enough "
-                "that the record cannot yet pin down its size, or even its direction.")
+                "Further inland it makes almost no difference.")
     else:
-        head = "Coastal retreat and the far-field term along the reach"
-        sub = ("undisturbed / coastal / far-field on one continuous scale to the fitted "
-               "reach L \u00b7 shared amplitude scale \u00b7 no crossing is drawn")
+        head = "Coastal retreat along the reach"
+        sub = ("undisturbed / coastal on one continuous scale to the fitted reach L "
+               "\u00b7 shared amplitude scale \u00b7 no site-wide term is drawn")
         titles = {
             'undisturbed': "Undisturbed water table",
             'coastal': f"Coastal retreat: -{shore_mm:.0f} mm at shore over "
                        f"{MECHANISM_HORIZON_YEARS:.0f} yr, tapering to 0 by "
                        f"~{reach['reach_L_m']:.0f} m "
                        f"(\u03b4\u2080 -{reach['delta0_mm_yr']:.0f} mm/yr)",
-            'far_field': f"Far-field term: {FF_MM:+.1f} mm over "
-                         f"{MECHANISM_HORIZON_YEARS:.0f} yr (c {FF_C:+.2f} mm/yr) "
-                         f"\u2014 marginal, and not separately identified",
         }
-        foot = ("Coastal retreat is the only identified distance-dependent term. The "
-                "far-field term is drawn as fitted and signed; only its sum with the "
-                "CWB trend is identified, so the two are not compared and no crossing "
-                "is drawn.")
+        foot = ("Coastal retreat is the only identified distance-dependent term, and "
+                "the only driver drawn on the reach: the fitted far-field constant is a "
+                "compensating window statistic, not a site-wide driver, so no uniform "
+                "term is drawn beside it.")
 
     s = [f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" '
          f'xmlns="http://www.w3.org/2000/svg"><rect width="{W}" height="{H}" fill="#fff"/>']
     s.append(_r_txt(_R_NL, 26, head, 16, '600'))
     s.append(_r_txt(_R_NL, 43, sub, 11, c='#888780'))
 
-    for i, driver in enumerate(('undisturbed', 'coastal', 'far_field')):
+    for i, driver in enumerate(panels):
         row_top = HDR + i * (ROW + GAP)
         s.append(_r_txt(_R_NL, row_top + 13, titles[driver], 12, '600'))
-        axis = (driver == 'far_field')        # distance axis on the bottom panel only
+        axis = (i == len(panels) - 1)         # distance axis on the bottom panel only
         body = build_reach_panel(reach, driver, title=None, show_axis=axis,
                                  register=register)
         s.append(f'<svg x="0" y="{row_top + TITLE_H:.1f}" width="{W}" height="{CROP_H}" '
@@ -960,21 +1063,19 @@ def build_reach_body(reach, multiples=False):
     `multiples=False` (standalone reach) draws only the single 20-yr horizon that the
     paper reviewer asked for, with the retreat sequence carried by the ghost shades."""
     coastal_dd = reach['coastal_dd']
-    FF_MM, FF_C = reach['far_field_mm'], reach['far_field_c_mm_yr']
     _und = segmented(110.0, 78.0, nudge_seg2=True)[0]
     # LOCAL reach amplitude scale (Martin): rather than lift the dune/water-table geometry
     # (which would decouple this figure from the management diagrams that share ground()/
     # segmented()), we take the EXISTING drawn gap between the undisturbed line and the
     # sea-level 20-yr erosion toe at the nose and DEFINE it as the modelled shore drawdown
-    # (coastal_dd(0) = 581 mm). Everything else on the figure — far-field offset, inland
-    # drawdown curves, the 100 mm scale bar — is then drawn to this same scale, so it is
-    # internally consistent without touching the shared geometry. The global PX_PER_MM
-    # (0.10, shared with 09f) is untouched.
+    # (coastal_dd(0) = the committed shore amplitude). Everything else on the figure —
+    # inland drawdown curves, the 100 mm scale bar — is then drawn to this same scale, so
+    # it is internally consistent without touching the shared geometry. The global
+    # PX_PER_MM (0.10, shared with 09f) is untouched.
     _gap_px = SEA - float(np.interp(SH['20yr'], X, _und))     # undisturbed -> sea at the nose
     _RPX = _gap_px / coastal_dd(0.0)                          # reach px per mm
     def _rpx(mm): return mm * _RPX
     _EXAG = round(_RPX * 1000.0 / _R_PXM)                     # vertical exaggeration factor
-    _ff = uniform_offset_table(_und, FF_MM, px_per_mm=_RPX)[0]
     # Seam-anchored retreat curves: the parabola's inland end (shared XE = 330 m on the
     # reach scale) is pinned to the SAME committed drawdown the inland continuation plots,
     # so every curve is exactly continuous at the cross-section boundary. (The coastal
@@ -983,27 +1084,26 @@ def build_reach_body(reach, multiples=False):
     _dd_at = {'storm': reach['storm_dd'], '5yr': reach['c5_dd'], '20yr': coastal_dd}
     _und_seam = float(np.interp(XE, X, _und))
     _hg = {k: SEA - (_und_seam + _rpx(_dd_at[k](_R_DN))) for k in ('storm', '5yr', '20yr')}
-    # Per-curve flooding, the same basis the inland continuation already uses: where a
-    # retreat curve still stands above a slack floor it flattens to a pond across the
-    # flooded width and rises out of it on the smoothstep. Drawing the raw Dupuit
-    # parabola sent the storm / 5-yr / 20-yr lines straight through both slacks.
-    _ret = {k: _flat_pond(X, grandf(SH[k], _hg[k])(X), ground(X))
+    # Each retreat curve is clamped to the undisturbed table and to the drawn ground —
+    # see subsurface() for why the previous per-curve _flat_pond() treatment put the
+    # shallow storm and 5-yr curves ABOVE the dune between roughly 80 m and 250 m.
+    _ret = {k: subsurface(grandf(SH[k], _hg[k])(X), _und)
             for k in ('storm', '5yr', '20yr')}
     SEALV = 250.0
     def pth(xs, ys): return "M " + " L ".join(f"{a:.1f},{b:.1f}" for a, b in zip(xs, ys))
     s = []
     s.append(_r_txt(_R_NL, 26,
-                    'Coastal retreat and the far-field term along the reach inland',
+                    'Coastal retreat along the reach inland',
                     15, '600'))
     s.append(_r_txt(_R_NL, 42,
                     'water-table curves and 900 m reach to committed scale; dune surface '
                     f'illustrative; vertical exaggerated x{_EXAG}', 10, c='#888780'))
     s.append(_r_txt(_R_NL, 55,
-                    'conceptual reach built from the fitted d0, L and c (Section 4.11); '
-                    'c is drawn as fitted and is not separately identified', 9.5,
+                    'conceptual reach built from the fitted d0 and L (Section 4.11); no '
+                    'spatially uniform far-field term is drawn', 9.5,
                     c='#9a968a', it=True))
 
-    # ==== near-shore: coastal erosion ghosting + retreat curves + far-field (shared solver) ====
+    # ==== near-shore: coastal erosion ghosting + retreat curves (shared solver) ====
     xs = [_r_nx(x) for x in X]
     rz = [(ORIG_SHORE, SH['storm'], 'storm'), (SH['storm'], SH['5yr'], '5yr'),
           (SH['5yr'], SH['20yr'], '20yr')]
@@ -1022,10 +1122,14 @@ def build_reach_body(reach, multiples=False):
              f'L{_r_nx(640):.1f},{BASE} L{_r_nx(SH["20yr"]):.1f},{BASE} Z" fill="{DUNE}"/>')
     s.append(f'<path d="{pth([_r_nx(x) for x in xsi], [ground(x) for x in xsi])}" '
              f'fill="none" stroke="#C4A867" stroke-width="1"/>')
+    # standing water in the near-shore slacks, from the undisturbed table — the wetness
+    # the panel starts from. Drawn under the curves so a head at or below the table is
+    # visibly IN the water rather than floating over the dune. Landward of the 20-yr
+    # shoreline only: seaward of it the slack has been eroded away and its water is
+    # carried by the ghosted sea.
+    s.append(_reach_ponds(np.where(X >= SH['20yr'], _und, ground(X)), pth))
     s.append(f'<path d="{pth(xs, list(_und))}" fill="none" stroke="{REF_GREY}" '
              f'stroke-width="1.3" stroke-dasharray="2 3"/>')
-    s.append(f'<path d="{pth(xs, list(_ff))}" fill="none" stroke="{FARF}" '
-             f'stroke-width="2.4" stroke-dasharray="7 3"/>')
     # near-shore water-table curves. multiples=True (grid): all three storm/5-yr/20-yr
     # Dupuit lines. multiples=False (standalone/paper): only the 20-yr horizon, with the
     # retreat sequence carried by the ghost shades + consolidated label.
@@ -1062,15 +1166,14 @@ def build_reach_body(reach, multiples=False):
     # ==== inland: 20-yr coastal drawdown recovers to the reach L; no crossing ====
     di = np.linspace(_R_DN, 900, 240); gxi = [_r_ix(d) for d in di]
     _und_raw = _r_und_in(di); _grd = _r_ground_in(di)         # per-curve flood base
-    def _pond(off_arr):                          # flat-pond flatten of und + drawdown(mm, +ve)
-        return _flat_pond(di, _und_raw + np.asarray(off_arr, float) * _RPX, _grd)
-    def _pond_signed(amp_mm):                    # flat-pond flatten of und + SIGNED offset(mm)
-        return _flat_pond(di, _und_raw - float(amp_mm) * _RPX, _grd)
     _undf = _flat_pond(di, _und_raw, _grd)                     # reference: floods where und does
+    def _pond(off_arr):                          # und + drawdown(mm, +ve), clamped sub-surface
+        return subsurface(_und_raw + np.asarray(off_arr, float) * _RPX, _undf)
     s.append(f'<path d="{pth(gxi, [_r_ground_in(d) for d in di])} L{_r_ix(900):.1f},{BASE} '
              f'L{_r_ix(_R_DN):.1f},{BASE} Z" fill="{DUNE}"/>')
     s.append(f'<path d="{pth(gxi, [_r_ground_in(d) for d in di])}" fill="none" '
              f'stroke="#C4A867" stroke-width="1"/>')
+    s.append(_inland_ponds(di, _undf, gxi, _grd))   # the inland slacks' standing water
     s.append(f'<path d="{pth(gxi, list(_undf))}" fill="none" stroke="{REF_GREY}" '
              f'stroke-width="1.3" stroke-dasharray="2 3"/>')
     # inland coastal horizon(s). multiples: storm / 5-yr continue inland too; otherwise
@@ -1085,8 +1188,6 @@ def build_reach_body(reach, multiples=False):
     _coast = _pond([coastal_dd(d) for d in di])
     s.append(f'<path d="{pth(gxi, list(_coast))}" '
              f'fill="none" stroke="{COAST}" stroke-width="2.6"/>')
-    s.append(f'<path d="{pth(gxi, list(_pond_signed(FF_MM)))}" fill="none" '
-             f'stroke="{FARF}" stroke-width="2.4" stroke-dasharray="7 3"/>')
 
     # ==== drawdown marker: dotted line at the TOE of the 20-yr erosion (the eroded nose),
     # spanning the undisturbed line down to the sea-level toe — the gap that DEFINES the
@@ -1099,22 +1200,25 @@ def build_reach_body(reach, multiples=False):
     for yy in (y_und, y_dd):
         s.append(f'<line x1="{x_nose-3:.0f}" y1="{yy:.1f}" x2="{x_nose+3:.0f}" y2="{yy:.1f}" '
                  f'stroke="{COAST}" stroke-width="1.0"/>')
-    s.append(_r_txt(x_nose, y_und - 6, f"{coastal_dd(0.0):.0f} mm", 9, '600',
-                    c=COAST, a='middle'))
-    s.append(_r_txt(x_nose + 6, (y_und + y_dd) / 2 + 3,
-                    f"(δ₀ {reach['delta0_mm_yr']:.2f} mm/yr x "
-                    f"{MECHANISM_HORIZON_YEARS:.0f} yr)", 7, '400', c=COAST))
-    # far-field term — boxed callout in clear space beside its line. SIGNED: on the
-    # committed fit this is a slight RISE, and the marginality is the point of drawing
-    # it. Never called a climate rate — only c + beta_cwb*d(CWB)/dt is identified.
-    _cbx, _cby = _r_ix(430), 150.0
-    s.append(f'<rect x="{_cbx-4:.0f}" y="{_cby-11:.0f}" width="300" height="16" rx="2.5" '
-             f'fill="#fff" opacity="0.82"/>')
-    s.append(_r_txt(_cbx, _cby,
-                    f"far-field term {FF_MM:+.1f} mm everywhere "
-                    f"(c {FF_C:+.2f} mm/yr x {MECHANISM_HORIZON_YEARS:.0f} yr) "
-                    f"\u2014 not separately identified",
-                    8.5, '600', c=FARF))
+    # Two-line callout, STACKED ABOVE the leader in the sky over the fore dune. The
+    # delta-0 line used to sit at the leader's midpoint, where the dotted rule ran
+    # through it, the ghost wedges sat behind it and the 'sea' label crowded it at grid
+    # scale; it rendered as an unreadable overlap. Both lines now share one centred
+    # column clear of the rule, each on its own white backing plate so nothing drawn
+    # afterwards can cross them — the plate is needed because the wider second line
+    # overhangs the dune crest and would otherwise sit on the tan fill.
+    _mm_txt = f"{coastal_dd(0.0):.0f} mm"
+    _d0_txt = (f"(δ₀ {reach['delta0_mm_yr']:.2f} mm/yr x "
+               f"{MECHANISM_HORIZON_YEARS:.0f} yr)")
+    for _t, _sz, _wt, _dy in ((_mm_txt, 9, '600', 19.0), (_d0_txt, 7, '400', 8.0)):
+        _w = text_width(_t, _sz) + 6.0
+        s.append(f'<rect x="{x_nose - _w / 2:.1f}" y="{y_und - _dy - _sz + 1:.1f}" '
+                 f'width="{_w:.1f}" height="{_sz + 3:.1f}" rx="2" fill="#fff" '
+                 f'opacity="0.85"/>')
+        s.append(_r_txt(x_nose, y_und - _dy, _t, _sz, _wt, c=COAST, a='middle'))
+    # The far-field term's boxed callout stood in the clear space beside its line. Both
+    # are retired: c compensates the CWB covariate rather than measuring a site-wide
+    # driver, so there is nothing spatially uniform left to call out.
     # 100 mm vertical scale bar (100 * PX_PER_MM px), far-right clear space
     _sbx = _r_ix(880); _sby = 120.0; _sbh = _rpx(100)
     s.append(f'<line x1="{_sbx:.0f}" y1="{_sby:.0f}" x2="{_sbx:.0f}" y2="{_sby+_sbh:.0f}" '
@@ -1140,17 +1244,16 @@ def build_reach_body(reach, multiples=False):
                     else 'coastal water table (retreat / 20 yr)')
     s.append(f'<line x1="{_R_NL}" y1="{yL}" x2="{_R_NL+26}" y2="{yL}" stroke="{COAST}" '
              f'stroke-width="2.6"/>' + _r_txt(_R_NL + 32, yL + 4, _coastal_leg, 10.5))
-    s.append(f'<line x1="{_R_NL+250}" y1="{yL}" x2="{_R_NL+276}" y2="{yL}" stroke="{FARF}" '
-             f'stroke-width="2.4" stroke-dasharray="7 3"/>'
-             + _r_txt(_R_NL + 282, yL + 4,
-                      f'far-field term (c x {MECHANISM_HORIZON_YEARS:.0f} yr, '
-                      'not identified)', 10.5))
-    s.append(f'<line x1="{_R_NL+470}" y1="{yL}" x2="{_R_NL+496}" y2="{yL}" stroke="{REF_GREY}" '
-             f'stroke-width="1.3" stroke-dasharray="2 3"/>' + _r_txt(_R_NL + 502, yL + 4, 'undisturbed table', 10.5))
+    # The far-field swatch sat between these two; with it retired the undisturbed entry
+    # closes up rather than leaving a gap where a legend key used to be.
+    s.append(f'<line x1="{_R_NL+250}" y1="{yL}" x2="{_R_NL+276}" y2="{yL}" stroke="{REF_GREY}" '
+             f'stroke-width="1.3" stroke-dasharray="2 3"/>' + _r_txt(_R_NL + 282, yL + 4, 'undisturbed table', 10.5))
+    # Kept to roughly the retired sentence's length: at 9 px centred on REACH_W this
+    # footer is already close to the canvas width, and a longer one runs to the edges.
     s.append(_r_txt(REACH_W / 2, REACH_H - 8,
                     'Near-shore shows the coastal retreat and erosion (ghosted); the '
-                    'drawdown tapers to zero at the fitted reach. The far-field term is '
-                    'marginal at this scale, which is the point of showing it.',
+                    'drawdown tapers to zero at the fitted reach. No spatially uniform '
+                    'term is drawn.',
                     9, c='#888780', a='middle'))
     return "".join(s)
 
@@ -1183,17 +1286,28 @@ def build_grid_combined_svg(reach, clearfell):
 
     `reach` = load_reach() dict; `clearfell` = load_clearfell_steps() tuple
     (annual_m, annual_ptxt, summer_m, summer_ptxt). Scrape magnitudes come from the
-    resolved EDGE_DH_MM (call load_amplitudes() first)."""
+    resolved EDGE_DH_MM (call load_amplitudes() first).
+
+    The title COUNTS the drivers actually drawn \u2014 the two local panels of row 2 plus
+    REACH_DRIVERS on the full-width reach \u2014 rather than spelling a fixed number, so a
+    driver cannot be retired while the title still claims it (D-011)."""
     cf_a, cf_ap, cf_s, cf_sp = clearfell
     cut = EDGE_DH_MM['scrape_cut_rise']
     offc = EDGE_DH_MM['scrape_offslack']
     mag_scrape = (f'cut {cut:+.0f} mm \u00b7 off-cut {offc:.0f} mm (WMC3) \u00b7 both measured')
     mag_fell = (f'{cf_a:+.2f} m over the year ({cf_ap}) \u00b7 '
                 f'{cf_s:+.2f} m summer ({cf_sp})')
+    # row 2 \u2014 local interventions (scrape under undisturbed | clearfell under standing
+    # forest). Built here, before the title, because the title counts them.
+    locals_ = [('Dune scrape', geo_scrape_after, mag_scrape, 'settles', 'observed'),
+               ('Clearfell', lambda: geo_forest(True), mag_fell, 'settles', 'observed')]
+    n_drivers = len(locals_) + len(REACH_DRIVERS)
     s = [f'<svg width="{GRID_W}" height="{GRID_H:.0f}" viewBox="0 0 {GRID_W} {GRID_H:.0f}" '
          f'xmlns="http://www.w3.org/2000/svg">'
          f'<rect width="{GRID_W}" height="{GRID_H:.0f}" fill="#fff"/>']
-    s.append(txt(_G_ML, 24, 'Four drivers of water-table change at Newborough', size=15, w='600'))
+    s.append(txt(_G_ML, 24,
+                 f'{count_word(n_drivers)} drivers of water-table change at Newborough',
+                 size=15, w='600'))
     s.append(txt(_G_ML, 40, 'schematic \u00b7 not to scale', size=10.5, col='#888780'))
 
     # row 1 — starting states
@@ -1209,9 +1323,6 @@ def build_grid_combined_svg(reach, clearfell):
     s.append(f'<line x1="{_G_ML}" y1="{_G_Y_LOCAL:.0f}" x2="{GRID_W-_G_MR}" y2="{_G_Y_LOCAL:.0f}" '
              f'stroke="#ECE7DA" stroke-width="1"/>')
 
-    # row 2 — local interventions (scrape under undisturbed | clearfell under standing forest)
-    locals_ = [('Dune scrape', geo_scrape_after, mag_scrape, 'settles', 'observed'),
-               ('Clearfell', lambda: geo_forest(True), mag_fell, 'settles', 'observed')]
     for cxi, (title, geo, mag, tstag, evtag) in enumerate(locals_):
         colx = _G_COLX[cxi]
         s.append(txt(colx + _G_COLW / 2, _G_Y_LOCAL + 16, title, size=12.5, w='600', anchor='middle'))
@@ -1223,7 +1334,7 @@ def build_grid_combined_svg(reach, clearfell):
     s.append(f'<line x1="{_G_ML}" y1="{_G_Y_REACH:.0f}" x2="{GRID_W-_G_MR}" y2="{_G_Y_REACH:.0f}" '
              f'stroke="#ECE7DA" stroke-width="1"/>')
 
-    # row 3 — embedded reach panel (full width; coastal driver + far-field level band)
+    # row 3 — embedded reach panel (full width; the coastal driver alone)
     s.append(f'<g transform="translate({_G_ML},{_G_Y_REACH:.1f}) scale({_G_RSC:.4f})">'
              f'{build_reach_body(reach, multiples=True)}</g>')
     s.append('</svg>')

@@ -103,7 +103,9 @@ _VER = re.compile(r"_v(\d+(?:[_.]\d+)*)\.odt$")
 # has quietly lost its equations is worse than a stale one, because nothing
 # reports it: the lints go on passing over text that is no longer there.
 #
-# Verified: pandoc 3.1.3 reproduces the committed report11 mirror byte for byte.
+# Verified 2026-08-23: pandoc 3.1.3 reproduces ALL 23 committed mirrors byte for
+# byte — not one sampled document. `--verify` is that check, and re-running it is
+# how the claim stays true rather than becoming a comment nobody tests.
 #
 # So the generator is pinned, not merely configured. Writing on an unsupported
 # pandoc ABORTS. --check WARNS and does not gate, because a "drift" report that
@@ -200,6 +202,17 @@ def main() -> int:
     # resolve() has always known which file is current; nothing exposed it.
     ap.add_argument("--paths", action="store_true",
                     help="print the resolved source -> mirror pairs and exit")
+    # --check reads modification times and nothing else, and says so. That is
+    # cheap and it is also how two people can spend an evening arguing about
+    # pandoc: on 2026-08-23 a mirror was compared against a regeneration of a
+    # source that had been re-saved by LibreOffice in between, the difference
+    # was attributed to a version divergence between two pandocs, and the
+    # claim survived because nothing could answer "is this mirror actually
+    # what its source produces?". --verify answers exactly that, by
+    # regenerating into a temporary directory and comparing bytes.
+    ap.add_argument("--verify", action="store_true",
+                    help="regenerate each mirror in a temp dir and byte-compare; "
+                         "reads content, not timestamps")
     args = ap.parse_args()
 
     jobs = resolve()
@@ -215,6 +228,34 @@ def main() -> int:
         return 0
     if args.check:
         require_supported_pandoc(writing=False)
+
+    if args.verify:
+        require_supported_pandoc(writing=True)
+        drift = []
+        for src, dst in jobs:
+            if not dst.exists():
+                print(f"MISSING  {dst.relative_to(REPO)}")
+                drift.append(dst)
+                continue
+            with tempfile.TemporaryDirectory() as tmp:
+                probe = Path(tmp) / "probe.md"
+                convert(src, probe)
+                same = probe.read_bytes() == dst.read_bytes()
+            print(f"{'MATCH' if same else 'DRIFT'}    {dst.relative_to(REPO)}"
+                  f"   <- {src.relative_to(REPO)}")
+            if not same:
+                drift.append(dst)
+        v = ".".join(str(n) for n in PANDOC_VERSION)
+        if drift:
+            print(f"\n{len(drift)} mirror(s) are NOT what their source produces "
+                  f"under pandoc {v}.\nEither the source changed since the mirror "
+                  f"was written, or this pandoc differs from the one that wrote "
+                  f"it.\nRegenerate, and if the content then changes, the mirror "
+                  f"was stale; if it does not, the two pandocs agree after all.")
+            return 1
+        print(f"\nAll {len(jobs)} mirrors reproduce byte for byte under "
+              f"pandoc {v}.")
+        return 0
 
     stale = []
     for src, dst in jobs:

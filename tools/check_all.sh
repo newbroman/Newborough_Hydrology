@@ -103,7 +103,7 @@ echo "── exports (is each published PDF newer than its sources?) ───�
 # edit and the next export gets switched off inside a week — the same reasoning
 # check_all already applies to pipeline_lint's literal check. It prints loudly
 # instead, and figref_lint REFUSES outright rather than linting a stale export.
-python3 tools/export_lag.py | grep -E "^  (STALE|MISSING|UNMAPPED)|behind their sources" || true
+python3 tools/export_lag.py | grep -E "^  (STALE|MISSING|UNMAPPED|UNBUILT)|behind their sources" || true
 
 echo
 echo "── claims ───────────────────────────────────────────────────────────"

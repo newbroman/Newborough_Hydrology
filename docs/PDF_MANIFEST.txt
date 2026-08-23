@@ -6,7 +6,7 @@ docs/papers/paper_1/PAPER1_SI_methods.pdf  <-  PAPER1_SI_methods_v1_10.odt  |  2
 docs/public_summaries/Newborough_Warren_Podsumowanie.pdf  <-  public_summary_PL.odt  |  2026-08-22T16:58:50Z
 docs/public_summaries/Newborough_Warren_Public_Summary.pdf  <-  public_summary_EN.odt  |  2026-08-22T16:58:49Z
 docs/public_summaries/Niwbwrch_Crynodeb_Cyhoeddus.pdf  <-  public_summary_CY.odt  |  2026-08-22T16:58:50Z
-docs/report/Newborough_Methods_Supplement.pdf  <-  Newborough_Methods_Supplement_v1_9_42.odt  |  2026-08-22T18:43:51Z
+docs/report/Newborough_Methods_Supplement.pdf  <-  Newborough_Methods_Supplement_v1_9_43.odt  |  2026-08-23T08:32:45Z
 docs/report/Supplementary_Material.pdf  <-  Supplementary_Material_v1_18.odt  |  2026-08-22T08:46:45Z
 docs/web_tools/NRG_Web_Tools_Technical_Note.pdf  <-  NRG_Web_Tools_Technical_Note.odt  |  2026-08-18T22:32:09Z
 docs/web_tools/NRG_Web_Tools_User_Manual.pdf  <-  NRG_Web_Tools_User_Manual.odt  |  2026-08-18T22:32:09Z

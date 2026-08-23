@@ -130,8 +130,10 @@ SECTION_MAP = {
     "4.9.8.1": "4.9.7.1",
     # Scenario Analysis becomes §4.11.
     "4.10": "4.11", "4.10.1": "4.11.1", "4.10.2": "4.11.2",
-    # The relocated blocks, by their new home in §4.10.
-    "4.8.2": "4.10.2", "4.8.3": "4.10.5", "4.9.4": "4.10.6",
+    # The relocated blocks, by their new home in §4.10. Martin folded the
+    # cluster-partition subsection into the trend profile (2026-08-23), so §4.10
+    # has SIX subsections, not seven, and the transect and reach each move up one.
+    "4.8.2": "4.10.2", "4.8.3": "4.10.4", "4.9.4": "4.10.5",
 }
 
 

@@ -843,6 +843,21 @@ def _run_all() -> None:
     pet_resp = pet_warming_response(climate_full, str(OUT_00_PET_WARMING))
 
     rr = ReportNumbers()
+    # Seasonal-redistribution trends — the committed home for the numbers
+    # section 4.10.3 uses. Sibling keys share a prefix so the trend and its
+    # t-statistic travel together (one confirmation per result, not two).
+    _srt = seasonal_redistribution_trends(climate_short)
+    for _k, _unit, _what in (
+            ("annual_pet", "mm/yr", "annual Thornthwaite PET"),
+            ("winter_rainfall", "mm/yr", "Oct-Mar rainfall, winter assigned forward"),
+            ("summer_balance", "mm/yr", "Apr-Sep water balance P-PET"),
+            ("winter_balance", "mm/yr", "Oct-Mar water balance P-PET"),
+            ("annual_balance", "mm/yr", "annual water balance P-PET")):
+        rr.add(f"trend_{_k}", _srt[_k]["slope"], unit=_unit, era=_srt["era"],
+               note=f"OLS trend in {_what}; complete seasons only, "
+                    f"n={_srt[_k]['n']}")
+        rr.add(f"trend_{_k}_t", _srt[_k]["t"], unit="", era=_srt["era"],
+               note=f"t-statistic of trend_{_k}")
     rr.add("pet_warming_dT", pet_resp["dT_C"], unit="degC",
            era=f"{pet_resp['early_first']}-{pet_resp['early_last']} vs "
                f"{pet_resp['late_first']}-{pet_resp['late_last']}",
@@ -894,6 +909,77 @@ def _run_all() -> None:
     print(f" - Reference wells: {n_wells}")
 
     print("\n00 climate summary complete.")
+
+
+def seasonal_redistribution_trends(climate, year_first: int = 2007,
+                                   year_last: int = 2025) -> dict:
+    """OLS trends in annual PET, winter rainfall and the seasonal water balance.
+
+    WHY THIS IS A PIPELINE OUTPUT AND NOT A SENTENCE
+
+      Section 4.10.3 argues that a near-zero far-field constant is not evidence
+      of an unchanging climate but of a change that is SEASONAL in character: a
+      summer loss and a winter gain that very nearly cancel within the year, to
+      which an annual-rate term is structurally blind. That argument was written
+      from session probes. Under the project rule a number entering a document
+      traces to a committed CSV, so it is computed here, once, from the same
+      01_climate.csv every other climate number comes from.
+
+    THE WINTER CONVENTION, STATED BECAUSE IT MOVES THE ANSWER
+
+      A winter spans a year boundary and has to be assigned to one of the two.
+      Here Oct-Dec is assigned FORWARD, so "winter Y" is Oct(Y-1) to Mar(Y) and
+      is the winter whose recharge feeds the summer of year Y. That is the
+      hydrologically meaningful pairing for this site and it is the convention
+      the summer-minimum analysis already assumes.
+
+      It is not a free choice: the winter-rainfall trend is sensitive to it, and
+      a value computed under the other attribution should not be compared with
+      one computed under this. Only complete seasons are used.
+    """
+    import numpy as np
+
+    def _ols(y, x):
+        x = np.asarray(x, float); y = np.asarray(y, float)
+        m = np.isfinite(x) & np.isfinite(y)
+        x, y = x[m], y[m]
+        if len(y) < 3:
+            return float("nan"), float("nan"), len(y)
+        X = np.column_stack([np.ones_like(x), x])
+        b, *_ = np.linalg.lstsq(X, y, rcond=None)
+        r = y - X @ b
+        s2 = r @ r / (len(y) - 2)
+        se = np.sqrt(np.diag(s2 * np.linalg.inv(X.T @ X)))
+        return float(b[1]), float(b[1] / se[1]), int(len(y))
+
+    d = climate[(climate.index.year >= year_first)
+                & (climate.index.year <= year_last)].copy()
+    d["P"] = d["P_m"] * 1000.0
+    d["PET_mm"] = d["PET"] * 1000.0
+    d["bal"] = d["P"] - d["PET_mm"]
+    d["yr"] = d.index.year
+    d["wyr"] = np.where(d.index.month >= 10, d.index.year + 1, d.index.year)
+
+    ann = d.groupby("yr").agg(PET=("PET_mm", "sum"), bal=("bal", "sum"),
+                              n=("bal", "size"))
+    ann = ann[ann["n"] == 12]
+    smr = d[d.index.month.isin(range(4, 10))].groupby("yr").agg(
+        bal=("bal", "sum"), n=("bal", "size"))
+    smr = smr[smr["n"] == 6]
+    wtr = d[d.index.month.isin([10, 11, 12, 1, 2, 3])].groupby("wyr").agg(
+        P=("P", "sum"), bal=("bal", "sum"), n=("bal", "size"))
+    wtr = wtr[wtr["n"] == 6]
+
+    out = {}
+    for key, series in (("annual_pet", ann["PET"]),
+                        ("winter_rainfall", wtr["P"]),
+                        ("summer_balance", smr["bal"]),
+                        ("winter_balance", wtr["bal"]),
+                        ("annual_balance", ann["bal"])):
+        slope, tstat, n = _ols(series.values, series.index.values)
+        out[key] = {"slope": slope, "t": tstat, "n": n}
+    out["era"] = f"{year_first}-{year_last}"
+    return out
 
 
 def main() -> None:

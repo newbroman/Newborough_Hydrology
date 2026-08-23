@@ -70,7 +70,7 @@ MSL5 comparison (window-end 2017 vs window-end 2023): site-mean deepening −97 
 
 ![](Pictures/10000001000009EE00000967C79BE1C0.png){width="13cm" height="9.377cm"}
 
-Figure 4. MSL5 change 2017→2023. n=59 wells; 56 deepened \>25 mm, 0 shallower \>25 mm. Source: 20_msl5_change_2017_2023.png; Report Figure 55.
+Figure 4. MSL5 change 2017→2023. n=59 wells; 56 deepened \>25 mm, 0 shallower \>25 mm. Source: 20_msl5_change_2017_2023.png; Report Figure 63.
 
 Differential spring movement analysis (Script 32, 2011--2025) reveals divergent within-network trends. C4 Main Forest is uniformly positive (+8.4 to +20.5 mm yr⁻¹ relative to site mean, cluster mean +14.9 mm yr⁻¹); none individually significant after AR(1) correction. This reflects two reinforcing mechanisms: (1) the forest occupies the hydraulic high of the aquifer, furthest from any constant-head boundary (lake to the east, Menai Strait to the south-east, coast to the south-west), giving the water table maximum freedom to rise in wet years and fall in dry ones; (2) the low-specific-yield substrate (thin sand over bedrock) concentrates recharge into larger head changes. Recent wet springs (2021, 2024) have amplified C4 relative to the network. C1 Lake Edge and C5 Coastal Forest are uniformly negative (−8.0 and −6.8 mm yr⁻¹ respectively), driven by the coastal-retreat boundary signal. C2 Dune is near-neutral on average.
 

@@ -102,7 +102,13 @@ ODTS = {
 TEXTS = ["PIPELINE_README.md", "readme.md"]
 
 # word, optional markup/whitespace, digit run
-FIG = re.compile(r'(?i)(\bfigures?\b)((?:</?[^>]+>|\s)*?)(\d{1,3})(?!\d)(?!\.\d)')
+# The ABBREVIATED form is matched too. PIPELINE_README and readme write
+# "report Fig 59" beside the full word elsewhere, and a matcher that reads only
+# "Figure" moved half of each document and left the other half — which is worse
+# than moving neither, because the two halves then disagree. "figure" cannot
+# match here: after "fig" comes "u", and \\b requires a boundary.
+FIG = re.compile(r'(?i)(\bfigures?\b|\bfigs?\.?(?=\s*\d))((?:</?[^>]+>|\s)*?)(\d{1,3})(?!\d)(?!\.\d)')
+FIG_ABBR = re.compile(r'(?i)(\bfigs?\.?(?=\s*\d))((?:</?[^>]+>|\s)*?)(\d{1,3})(?!\d)(?!\.\d)')
 SEC = re.compile(r'(?i)(\bsections?\b)((?:</?[^>]+>|\s)*?)(4\.\d+(?:\.\d+){0,2})(?!\d)')
 TAB = re.compile(r'(?i)(\btables?\b)((?:</?[^>]+>|\s)*?)(\d{1,3})(?!\d)(?!\.\d)')
 # PLURAL "Figures" governs every number in the list that follows, so the list is
@@ -380,6 +386,10 @@ def main() -> int:
     # its own reasons, so both the error and its repair stay legible.
     ap.add_argument("--plan", default=None,
                     help="use this CSV instead of renumber_plan.csv")
+    # One-off catch-up for the abbreviated form, which no pass before 1.6.0
+    # could see. Same shape as --symbol-only and for the same reason.
+    ap.add_argument("--abbrev-only", action="store_true",
+                    help="only 'Fig 59' references; the full word is untouched")
     ap.add_argument("--symbol-only", action="store_true",
                     help="only '§4.9.6' references; figures and tables untouched")
     ap.add_argument("--missed-only", action="store_true",
@@ -394,6 +404,13 @@ def main() -> int:
     if args.symbol_only and args.missed_only:
         ap.error("--symbol-only and --missed-only are different repairs; "
                  "run them separately")
+    if args.abbrev_only:
+        globals()["FIG"] = FIG_ABBR
+        globals()["SEC"] = re.compile(r'(?!)')
+        globals()["TAB"] = re.compile(r'(?!)')
+        globals()["PLURAL"] = re.compile(r'(?!)')
+        globals()["PLURAL_TAB"] = re.compile(r'(?!)')
+        print("  --abbrev-only: 'Fig N' references only\n")
     if args.symbol_only:
         globals()["SEC"] = re.compile(r'(§)(\s?)(4\.\d+(?:\.\d+){0,2})(?!\d)')
         globals()["FIG"] = re.compile(r'(?!)')

@@ -125,11 +125,12 @@ def _newest(globs: list[str]) -> list[pathlib.Path]:
     return found
 
 
-def run(strict: bool) -> int:
+def run(strict: bool, only: str | None = None) -> int:
     print("=" * 78)
     print("EXPORT LAG — is each published PDF newer than its sources?")
     print("=" * 78)
     lagging = 0
+    stale: list[str] = []
     man = manifest()
     for pdf_rel, globs in pairs():
         pdf = REPO / pdf_rel
@@ -137,6 +138,7 @@ def run(strict: bool) -> int:
         if not srcs:
             continue
         if not pdf.exists():
+            stale.append(pdf_rel)
             print(f"\n  MISSING  {pdf_rel} has never been built")
             lagging += 1
             continue
@@ -146,6 +148,7 @@ def run(strict: bool) -> int:
         if recorded and "_v" in live.name:
             if recorded != live.name:
                 lagging += 1
+                stale.append(pdf_rel)
                 print(f"\n  STALE    {pdf_rel}")
                 print(f"           built from {recorded}")
                 print(f"           live source is {live.name}")
@@ -154,6 +157,7 @@ def run(strict: bool) -> int:
             continue
         if recorded is None and any("_v" in g for g in globs):
             lagging += 1
+            stale.append(pdf_rel)
             print(f"\n  UNBUILT  {pdf_rel}")
             print(f"           no line in {MANIFEST.relative_to(REPO)} — "
                   f"build_pdfs.sh has never built it")
@@ -165,6 +169,7 @@ def run(strict: bool) -> int:
         ahead = [s for s in srcs if s.stat().st_mtime > pt]
         if ahead:
             lagging += 1
+            stale.append(pdf_rel)
             print(f"\n  STALE?   {pdf_rel}   (by modification time only — "
                   f"unreliable after a git checkout)")
             print(f"           {len(ahead)} source(s) modified since it was built:")
@@ -200,12 +205,24 @@ def run(strict: bool) -> int:
     print()
     if lagging:
         print(f"  {lagging} published PDF(s) behind their sources.")
-        print("  Rebuild the buildable ones with tools/build_pdfs.sh; report.pdf is")
-        print("  exported by hand from report.odm (File > Export as PDF).")
-        print("  Until then report_edits/figref_lint.py is reading a document that")
-        print("  no longer exists and will report it clean.")
+        print("  Rebuild the buildable ones with tools/build_pdfs.sh.")
+        # Only say this when it is TRUE of report.pdf. It used to print
+        # unconditionally, which put the string "report.pdf" into the output of
+        # every run — and figref_lint's guard matched on that substring, so it
+        # refused to lint a perfectly current report.pdf because Paper 2 was
+        # unbuilt. A filename appearing in a sentence is not a verdict.
+        if MASTER[0] in stale:
+            print(f"  {MASTER[0]} is exported by hand from report.odm "
+                  f"(File > Export as PDF);")
+            print("  until then report_edits/figref_lint.py is reading a document "
+                  "that no longer")
+            print("  exists and would report it clean.")
     else:
         print("  every published PDF is at least as new as its sources.")
+
+    # --pdf asks about ONE artefact and is answered by its exit code alone.
+    if only is not None:
+        return 1 if only in stale else 0
     return 1 if (lagging and strict) else 0
 
 
@@ -213,7 +230,16 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--strict", action="store_true",
                     help="exit non-zero when anything lags (for a release check)")
-    return run(ap.parse_args().strict)
+    ap.add_argument("--pdf", metavar="PATH", default=None,
+                    help="exit non-zero only if THIS pdf is stale; ignore the rest")
+    a = ap.parse_args()
+    only = a.pdf
+    if only:
+        try:
+            only = str(pathlib.Path(only).resolve().relative_to(REPO))
+        except ValueError:
+            only = a.pdf
+    return run(a.strict, only)
 
 
 if __name__ == "__main__":

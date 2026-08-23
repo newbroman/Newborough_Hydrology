@@ -20,6 +20,9 @@
 # ============================================================================
 # VERSION 1.2.0 - 2026-08-23
 # CHANGELOG
+#   1.3.0 (2026-08-23): ref_audit and section_ref_audit join the chain, and the
+#     reference-form census prints with them. Resolution was never the weak
+#     point — pointing at the wrong thing was, and nothing looked for it.
 #   1.2.0 (2026-08-23): symbol_check and reference_lint join the chain. Both
 #       were written months apart, both were run by hand, and neither gated —
 #       which is why a register collision and a table-reference cascade could
@@ -96,6 +99,21 @@ echo "── references (do typed Table/Figure numbers still resolve?) ───
 # step silently. Read from the ODTs in master order, so no PDF export is needed
 # and the check cannot run on a stale artefact.
 python3 tools/reference_lint.py --kind table || rc=1
+
+echo
+echo "── references by meaning (does a number point at what the text names?) ─"
+# reference_lint asks whether a number RESOLVES. These two ask whether it points
+# at the right thing, which is a different question and the one that was missed:
+# on 2026-08-23 nine table references and fifteen figure references were wrong
+# while every resolution check was green (D-068). Both read evidence the corpus
+# already carries — the script named beside a figure, the figure cited beside a
+# section — and neither guesses.
+# Run twice, as symbol_check above does: a pipeline's exit status is grep's, so
+# `tool | grep || rc=1` gates on whether the GREP matched, not on the tool.
+python3 tools/ref_audit.py | grep -E "^   DISAGREES|^ref_audit:" || true
+python3 tools/ref_audit.py >/dev/null 2>&1 || rc=1
+python3 tools/section_ref_audit.py | grep -E "^  reference forms|^      [A-Z§]|^section_ref_audit:|disagree" || true
+python3 tools/section_ref_audit.py >/dev/null 2>&1 || rc=1
 
 echo
 echo "── exports (is each published PDF newer than its sources?) ──────────"

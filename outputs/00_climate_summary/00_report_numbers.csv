@@ -1,4 +1,14 @@
 Parameter,Well,Era,Value,Unit,Note
+trend_annual_pet,,2007-2025,1.9564598501113912,mm/yr,"OLS trend in annual Thornthwaite PET; complete seasons only, n=19"
+trend_annual_pet_t,,2007-2025,2.673237276776031,,t-statistic of trend_annual_pet
+trend_winter_rainfall,,2007-2025,4.630237358101083,mm/yr,"OLS trend in Oct-Mar rainfall, winter keyed to its October year; complete seasons only, n=18"
+trend_winter_rainfall_t,,2007-2025,1.0480355902750942,,t-statistic of trend_winter_rainfall
+trend_summer_balance,,2007-2025,-4.185612555877525,mm/yr,"OLS trend in Jun-Sep (JJAS) water balance P-PET; complete seasons only, n=19"
+trend_summer_balance_t,,2007-2025,-1.2816823146577725,,t-statistic of trend_summer_balance
+trend_winter_balance,,2007-2025,3.7396279761948574,mm/yr,"OLS trend in Oct-Mar water balance P-PET; complete seasons only, n=18"
+trend_winter_balance_t,,2007-2025,0.838783112076383,,t-statistic of trend_winter_balance
+trend_annual_balance,,2007-2025,1.1017857639235102,mm/yr,"OLS trend in annual water balance P-PET; complete seasons only, n=19"
+trend_annual_balance_t,,2007-2025,0.2726930878968045,,t-statistic of trend_annual_balance
 pet_warming_dT,,1931-1960 vs 1996-2025,0.7288888888888874,degC,change in mean annual temperature between the first and last 30 complete years of the station record
 pet_warming_pct_T,,,7.204041291456176,%,"same comparison, as a percentage of the early-period mean"
 pet_warming_pct_PET,,,3.0029602360953422,%,change in mean annual Thornthwaite PET over the same comparison

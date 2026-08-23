@@ -1,0 +1,4 @@
+kind,old,new,why
+section,4.8.4,4.8.3,"PIPELINE_README/readme cite Script 26c's fig_msl5_trajectory_report.png here; that figure is 1.40 -> global 41, which figure_map places in 4.8.3 'Five-Year Mean Spring Water Level (MSL5)'"
+section,4.10.1,4.11.1,"they cite fig_msl5_vs_summer_min_projection.png here; that is 1.66 -> global 70, in 4.11.1 'Climate Scenario Projections'"
+section,4.8.3,4.10.4,"they cite Script 38's coast-to-inland MAM transect here; the report's transect subsection is 4.10.4 'Independent transect estimate of the coastal drawdown rate'"

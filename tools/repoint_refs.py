@@ -42,7 +42,14 @@ __version__ = "1.2.0"  # 2026-08-23. THE LOOKAHEAD BUG. v1.0 wrote (?![\d.]) to
 #   number still falls inside the figure map. The guard now rejects a decimal
 #   continuation specifically, and captions are excluded by _caption_ranges()
 #   instead of by the accident of their numbering.
-__version_prev__ = "1.1.0"  # Hollingham (2026) — 2026-08-23. Tables added: a move
+__version_prev__ = "1.1.0"
+# 1.3.0 — 2026-08-23. --symbol-only: the "§4.9.6" form, which no pass had ever
+#   read. Held back until tools/section_ref_audit.py could show, from figures
+#   cited alongside, that 9 of 9 evidenced § references are stale in exactly the
+#   way the plan says and that no currently-correct § reference carries a number
+#   the plan would move. PIPELINE_README.md and readme.md are excluded by hand:
+#   they are on an older baseline (D-067) and no § reference in either has
+#   evidence either way.  # Hollingham (2026) — 2026-08-23. Tables added: a move
 #   renumbers tables exactly as it renumbers figures, and the table permutation
 #   is derived from the caption text by tools/table_renumber_plan.py rather than
 #   typed. Caption sequence fields are now excluded BY CONSTRUCTION rather than
@@ -327,6 +334,16 @@ def main() -> int:
     # reference whose digits are followed by a full stop. --missed-only
     # processes THAT CLASS ONLY, so the incomplete pass can be finished without
     # moving anything the incomplete pass already moved.
+    # The § form. Separate from --missed-only because it is a different class
+    # for a different reason: not a bug in the matcher, a form the matcher was
+    # never written to read.
+    # A CORRECTION is a plan of its own. renumber_plan.csv records what was
+    # applied and is not rewritten; a plan that fixes it is a separate file with
+    # its own reasons, so both the error and its repair stay legible.
+    ap.add_argument("--plan", default=None,
+                    help="use this CSV instead of renumber_plan.csv")
+    ap.add_argument("--symbol-only", action="store_true",
+                    help="only '§4.9.6' references; figures and tables untouched")
     ap.add_argument("--missed-only", action="store_true",
                     help="only references immediately followed by '.' — repairs "
                          "a v1.0 pass, and is a no-op on anything else")
@@ -336,6 +353,16 @@ def main() -> int:
     args = ap.parse_args()
     if not (args.apply or args.dry_run):
         ap.error("choose --dry-run or --apply")
+    if args.symbol_only and args.missed_only:
+        ap.error("--symbol-only and --missed-only are different repairs; "
+                 "run them separately")
+    if args.symbol_only:
+        globals()["SEC"] = re.compile(r'(§)(\s?)(4\.\d+(?:\.\d+){0,2})(?!\d)')
+        globals()["FIG"] = re.compile(r'(?!)')
+        globals()["TAB"] = re.compile(r'(?!)')
+        globals()["PLURAL"] = re.compile(r'(?!)')
+        globals()["PLURAL_TAB"] = re.compile(r'(?!)')
+        print("  --symbol-only: § references only\n")
     if args.missed_only:
         globals()["FIG"] = re.compile(
             r'(?i)(\bfigures?\b)((?:</?[^>]+>|\s)*?)(\d{1,3})(?=\.)(?!\.\d)')
@@ -349,6 +376,9 @@ def main() -> int:
     bad = set(kinds) - {"figure", "section", "table"}
     if bad:
         ap.error(f"unknown kind(s): {', '.join(sorted(bad))}")
+    if args.plan:
+        globals()["PLAN"] = Path(args.plan)
+        print(f"  plan file: {args.plan}")
     fig, sec, tab = load_plan(kinds)
     print(f"  kinds: {', '.join(kinds)}")
     print(f"  plan: {len(fig)} figure, {len(sec)} section and {len(tab)} "
@@ -356,7 +386,15 @@ def main() -> int:
     tot_f = tot_s = tot_t = tot_skip = 0
     jobs = list(ODTS.items()) + [(t, t) for t in TEXTS]
     if args.only:
-        jobs = [j for j in jobs if args.only.lower() in j[0].lower()]
+        # "readme.md" is a SUBSTRING of "PIPELINE_README.md", so a substring
+        # filter meant for one of them silently selects both — and a second run
+        # then double-applies the permutation to the first. A leading "=" asks
+        # for an exact key.
+        if args.only.startswith("="):
+            want = args.only[1:].lower()
+            jobs = [j for j in jobs if j[0].lower() == want]
+        else:
+            jobs = [j for j in jobs if args.only.lower() in j[0].lower()]
         print(f"  --only {args.only!r}: {len(jobs)} document(s)\n")
     review = []
     for name, rel in jobs:

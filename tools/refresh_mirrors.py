@@ -193,6 +193,13 @@ def main() -> int:
     ap.add_argument("--check", action="store_true",
                     help="report stale mirrors and exit non-zero; write nothing")
     ap.add_argument("--only", default=None, help="substring filter on source name")
+    # Ask for the resolved source rather than guessing it. `ls | tail` sorts
+    # v1_9 AFTER v1_18, which on 2026-08-23 produced a confident report that
+    # Paper 1's Table 9 was stale on four axes — read out of Paper1_v1_9.odt
+    # while the live document was Paper1_v1_19.odt and the table was correct.
+    # resolve() has always known which file is current; nothing exposed it.
+    ap.add_argument("--paths", action="store_true",
+                    help="print the resolved source -> mirror pairs and exit")
     args = ap.parse_args()
 
     jobs = resolve()
@@ -202,6 +209,10 @@ def main() -> int:
         print("No sources matched.")
         return 1
 
+    if args.paths:
+        for src, dst in jobs:
+            print(f"{src.relative_to(REPO)}  ->  {dst.relative_to(REPO)}")
+        return 0
     if args.check:
         require_supported_pandoc(writing=False)
 

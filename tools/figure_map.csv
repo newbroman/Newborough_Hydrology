@@ -1,0 +1,75 @@
+number,document,section,section_heading,caption
+1,report7.odt,2,Study Site,Figure 1.1: Site topography and hydrogeological features. Digital elevation model of Newborough Warren showing
+2,report7.odt,2,Study Site,Figure 1.2: Hierarchical experimental design. Spatial layout of the monitoring network showing the five-tier B
+3,report8.odt,3.1.1,Groundwater Records,"Figure 1.1a: Data coverage and monthly observation state of the reference network (66 wells), April 2005 – Feb"
+4,report9.odt,4.1.1,Climate Record,"Figure 1.1: Climate record summary for the well-monitoring period (April 2005 – February 2026), derived from R"
+5,report9.odt,4.1.1,Climate Record,"Figure 1.2: Summer maximum temperature anomaly at RAF Valley, 1931–2025, expressed as departure from the pre-2"
+6,report9.odt,4.1.2,4.1.2 Well Network,Figure 1.3: Well network characterization for the 66-well reference network. Upper left: frequency distributio
+7,report9.odt,4.2,Network Clustering and Spatial Architecture,"Figure 1.4: Cluster validation plots: silhouette coefficient, Calinski–Harabasz index, and Ward&apos;s merge d"
+8,report9.odt,4.2,Network Clustering and Spatial Architecture,Figure 1.5: Clustering results: Ward&apos;s hierarchical clustering dendrogram for the 66-well reference netwo
+9,report9.odt,4.2.1,Cluster Hydrographs and Seasonal Amplitudes,"Figure 1.6: Cluster-mean relative water level hydrographs for the five hydrogeological clusters, April 2005 to"
+10,report9.odt,4.2.1,Cluster Hydrographs and Seasonal Amplitudes,"Figure 1.7: Per-well relative water level for the 66 reference wells, shown as one stacked panel per hydrogeol"
+11,report9.odt,4.2.3,Recharge and Losses: A Cluster-Level Water Balance,"Figure 1.8: Water balance decomposition by hydrogeological cluster, Newborough Warren 2005–2026. (a) Mean mont"
+12,report9.odt,4.2.4,Specific Yield Estimation,"Figure 1.9: Interpolated WTF specific yield surface for the combined reference and extended networks, Newborou"
+13,report9.odt,4.3,Checking the Clusters Pearson Affinity Analysis,"Figure 1.10: Pearson affinity analysis of selected reference and extended network wells, showing the correlati"
+14,report9.odt,4.3,Checking the Clusters Pearson Affinity Analysis,Figure 1.11a: Spatial distribution of the five primary hydrogeological clusters validated via Pearson affinity
+15,report9.odt,4.4,Model Benchmarking: State-Space Model Comparison with Traditional Linear Models,Figure 1.12: Dual-model performance comparison at dune well CEH6. Upper panel: one-step diagnostic fit — both 
+16,report9.odt,4.4,Model Benchmarking: State-Space Model Comparison with Traditional Linear Models,Figure 1.13a: SSM gain over TLM across all 66 reference wells. Panel (a): iterative R² improvement — largest g
+17,report9.odt,4.5.1,Background Environmental Drift,Figure 1.14: Tier 1 background environmental drift analysis. CUSUM time series for control wells CEH4 (left) a
+18,report9.odt,4.5.2,Paired BACI and Robustness,"Figure 1.15: Tier 2 paired CUSUM analysis at treatment wells CEH36 (top), CEH18 (centre) and CEH21 (bottom), d"
+19,report9.odt,4.5.2,Paired BACI and Robustness,Figure 1.16: Three-method robustness assessment of the scraping signal at CEH36. (a) Raw BACI gap series (CEH3
+20,report9.odt,4.5.3,Drainage Coefficient Response,Figure 1.17: Era-specific β₃ storage decay coefficients with 95% confidence intervals at scraping treatment we
+21,report9.odt,4.5.4,Summer Minima,"Figure 1.18: Annual summer minimum depth below ground surface at scraping treatment wells (CEH36, CEH18, CEH21"
+22,report9.odt,4.5.4,Summer Minima,Figure 1.19: Summer minima analysis for the scraping intervention against the climate control centroid. (a) Ra
+23,report9.odt,4.5.4,Summer Minima,Figure 1.20: Paired BACI summer minimum analysis: CEH36 (scraped) vs CEH4 (control). (a) Annual summer minimum
+24,report9.odt,4.5.4,Summer Minima,"Figure 1.21: Climate-corrected anomaly trajectory at CEH36 (scraped) vs CEH4 (control), showing the divergence"
+25,report9.odt,4.5.5,Scraping Propagation into the Surrounding Aquifer,Figure 1.22: Climate-corrected spatial step-change map for the scraping era (April 2015 – November 2017). Each
+26,report9.odt,4.5.6,Scenario Contextualization,Figure 1.23: Scenario comparison at CEH36 (scraped site) — annual-mean forcing. Equilibrium volumetric water t
+27,report9.odt,4.5.6,Scenario Contextualization,Figure 1.24: Scenario comparison at CEH36 (scraped site) — summer (July–September) forcing. As Figure 26 but w
+28,report9.odt,4.6.2,Climate Sensitivity,Figure 1.25: Climate sensitivity: cumulative water balance (CWB) vs BACI displacement against the Forest contr
+29,report9.odt,4.6.3,ANCOVA-BACI Results,"Figure 1.26: WMC3 (Impact well) and the forest-control mean across the three interventions, in water-table dis"
+30,report9.odt,4.6.3,ANCOVA-BACI Results,Figure 1.27: Forest control BACI timeseries and CUSUM for the Impact tier (WMC3). Upper panel: monthly BACI ga
+31,report9.odt,4.6.3,ANCOVA-BACI Results,"Figure 1.28: Forest control BACI timeseries and CUSUM for the Edge tier (CEH31, CEH20, CEH30, CEH16). Upper pa"
+32,report9.odt,4.6.4,Summer Minima,Figure 1.29: Summer minima analysis against the Forest control. (a) Raw annual summer minimum depth (June–Sept
+33,report9.odt,4.6.4,Summer Minima,"Figure 1.30: Summer minimum depth distributions by BACI tier, Newborough Warren 2007–2026. Three phases: pre-s"
+34,report9.odt,4.6.5,Spatial Step-Change Maps,Figure 1.31: Climate-corrected spatial step-change map for the clearfell era (December 2017 – end of record). 
+35,report9.odt,4.6.6,Coefficient Decomposition,Figure 1.32: Before- and after-clearfell SSM coefficient estimates with 95% CI for all 17 wells in the BACI ne
+36,report9.odt,4.6.7,Robustness,Figure 1.33: Clearfell transect: post-felling step change vs distance from felling compartment centroid. Gradi
+37,report9.odt,4.7.4,Spatial Distribution of P_flood and Flooding Status Across the Well Network,Figure 1.34: Spatial distribution of mean annual summer minimum water table depth below ground across the full
+38,report9.odt,4.7.4,Spatial Distribution of P_flood and Flooding Status Across the Well Network,Figure 1.35: Spatial distribution of P_flood — the minimum cumulative winter rainfall (mm) required to raise t
+39,report9.odt,4.7.4,Spatial Distribution of P_flood and Flooding Status Across the Well Network,Figure 1.36: Spatial distribution of mean annual winter maximum water table depth below ground across the full
+40,report9.odt,4.7.4,Spatial Distribution of P_flood and Flooding Status Across the Well Network,Figure 1.37: Winter flooding frequency across the full dipwell network (66 reference wells and 22 extended wel
+41,report9.odt,4.8.2,Network-scale partition of the summer-minimum decline.,"Figure 1.38: Network-scale coastal-retreat gradient. Per-well summer-minimum slope (mm yr⁻¹, error bars = ±1 S"
+42,report9.odt,4.8.3,Independent transect estimate of the coastal drawdown rate,"Figure 1.39: Independent, model-free estimate of the coastal drawdown rate. The coast-minus-inland MAM head di"
+43,report9.odt,4.8.5,Five-Year Mean Spring Water Level (MSL5),"Figure 1.40: Cluster-mean 5-year mean spring water level (MSL5) trajectory, window-ends 2014–2025, for the fiv"
+44,report9.odt,4.8.5,Five-Year Mean Spring Water Level (MSL5),"Figure 1.41: Spatial pattern of the latest available 5-year mean spring water level (MSL5) per well, IDW-inter"
+45,report9.odt,4.8.5,Five-Year Mean Spring Water Level (MSL5),"Figure 1.42: Climate trajectory and threshold exceedance analysis for Newborough Warren, 2005–2025. Panel (a):"
+46,report9.odt,4.8.6,Equilibrium Wetness Index and Vegetation Cross-Validation,"Figure 1.43: Between-well prediction of mean Ellenberg-F moisture by three water-table metrics, across the eig"
+47,report9.odt,4.9.1,Datum Sensitivity,"Figure 1.44a: Per-well optimal SSM drainage datum across the 66-well reference network, Newborough Warren. Eac"
+48,report9.odt,4.9.2,Spatial Coefficient Structure,"Figure 1.45: Spatial SSM coefficient atlas for the 66-well reference network, Newborough Warren. Per-well coef"
+49,report9.odt,4.9.3,Drainage Decay Half-Life and Forest Drawdown Propagation,"Figure 1.46: Drainage decay half-life (t½ = ln(2)/β₃, months) across the 66-well reference network (CEH 13 and"
+50,report9.odt,4.9.3,Drainage Decay Half-Life and Forest Drawdown Propagation,"Figure 1.47: Forest drawdown propagation across the Newborough Warren dune aquifer, showing the estimated stea"
+51,report9.odt,4.9.3,Drainage Decay Half-Life and Forest Drawdown Propagation,"Figure 1.48: Aquifer diagnostic synthesis across the reference well network, Newborough Warren 2005–2026. Drai"
+52,report9.odt,4.9.4,Coastal-Margin Processes and the Easting Gradient,"Figure 1.49: Coastal-erosion drawdown at the western dune margin, Newborough Warren, on the DEM hillshade base"
+53,report9.odt,4.9.4,Coastal-Margin Processes and the Easting Gradient,"Figure 1.50: Sea-level-rise head response at the western dune margin, on the same hillshade base and clip as F"
+54,report9.odt,4.9.4,Coastal-Margin Processes and the Easting Gradient,Figure 1.51: Net coastal-margin change at the western dune margin: the cell-by-cell difference between the sea
+55,report9.odt,4.9.4,Coastal-Margin Processes and the Easting Gradient,"Figure 1.52: Dune-scrape drawdown across all eight mapped cuts, Newborough Warren (Feb 2013, Apr 2015, Oct 202"
+56,report9.odt,4.9.4,Coastal-Margin Processes and the Easting Gradient,Figure 1.53: Combined drawdown imposed on the clearfell pre-fell baseline (Oct 2017): the cell-by-cell sum of 
+57,report9.odt,4.9.6,Mean Water Table Surface and Groundwater Flow Direction,"Figure 1.54: Mean annual water table elevation (m AOD) across the Newborough Warren dune aquifer, 2005–2026, d"
+58,report9.odt,4.9.7,Water Balance Residual Field,"Figure 1.55: SSM water balance residual across the Newborough Warren dune aquifer, 2005–2026. The residual at "
+59,report9.odt,4.9.8,Combined Driver Assessment and Observed Network Change,"Figure 1.56: Clearfell step-change map — climate-corrected mean water-table shift, pre-felling (scraping era) "
+60,report9.odt,4.9.8,Combined Driver Assessment and Observed Network Change,Figure 1.57: Net water-table state — parametric combination of five simultaneous annual-mean drivers: forest c
+61,report9.odt,4.9.8,Combined Driver Assessment and Observed Network Change,"Figure 1.58: Modelled water-table change across Newborough Warren, 2005–2025 — full-window (20-year) coastal h"
+62,report9.odt,4.9.8,Combined Driver Assessment and Observed Network Change,"Figure 1.59: Observed MSL5 change: window end 2017 (springs 2013–2017, pre-clearfell) vs window end 2023 (spri"
+63,report9.odt,4.9.8,Combined Driver Assessment and Observed Network Change,"Figure 1.60: Secular differential movement of the spring (March,April, May) water table, 2011–2025. For each w"
+64,report9.odt,4.9.8,Combined Driver Assessment and Observed Network Change,"Figure 1.61: Absolute climate-removed secular trend of the spring (March, April, May) water table, 2005–2025. "
+65,report9.odt,4.9.8,Combined Driver Assessment and Observed Network Change,Figure 1.62: The climate-response envelope of the spring water table. Relative amplification field — each well
+66,report9.odt,4.9.8,Combined Driver Assessment and Observed Network Change,Figure 1.63: The climate-response envelope of the spring water table: Dry-year spring water-table depth — mean
+67,report9.odt,4.9.8.1,Driver validation and comparative footing,Figure 1.64: Independent test of the chronic coastal-drying assumption: implied coastal decline rate δ₀ from t
+68,report9.odt,4.9.8.1,Driver validation and comparative footing,"Figure 1.65: Comparative footing of the drivers over the 2005–2025 horizon, on three common measures — peak lo"
+69,report9.odt,4.10.1,Climate Scenario Projections,"Figure 1.66: Projected shift in the five-year mean spring water level (ΔMSL5, blue) compared with the projecte"
+70,report10.odt,5.2.5,Seasonal Prediction and the Intervention Window,Figure 1.1: Bootstrap year-of-crossing for the five-cluster summer-minimum trends against the Curreli et al.(2
+71,report10.odt,5.7.4,Forest Scenario Predictions Against the Observed Record,Figure 1.2: Synthetic mean-year hydrograph for the C4 Forest cluster under four management scenarios: baseline
+72,report10.odt,5.8.2,Climate Trajectory as the Binding Constraint,"Figure 1.3: Spatial reach and development timescale of the management interventions, coastal retreat and clima"
+73,report10.odt,5.8.2,Climate Trajectory as the Binding Constraint,Figure 1.4: Four drivers of the Newborough water table — schematic cross-sections (not to scale; vertical scal
+74,report10.odt,5.9,Implications for Restoration and Monitoring,"Figure 1.5: Per-well achievability categorization against the P_flood rainfall multiplier (λ), the cumulative "

@@ -114,6 +114,24 @@ DOC_GLOBS = [
     "ledgers/*.md",
 ]
 
+# Paths the report sweeps must never read, whatever the globs above match.
+#
+# living/ is a separate operational lane (D-063): the Water Watch newsletter and
+# the live forecaster feeds. Its hub, readings_living.csv, GROWS EVERY MONTH by
+# design, while the report is fitted to a record that record_basis.csv declares.
+# A sweep that read living/ would compare corpus numbers against a moving target
+# and report drift that is not drift.
+#
+# It is excluded today only because no glob happens to reach it. That is not a
+# guarantee — widening "docs/**/text/*.md" to "**/text/*.md" would pull it in
+# silently — so the exclusion is stated here and enforced, rather than left to
+# the accident of a pattern.
+EXCLUDE_PREFIXES = ("living/",)
+
+
+def _excluded(rel: str) -> bool:
+    return any(rel.startswith(p) for p in EXCLUDE_PREFIXES)
+
 CONTEXT_WINDOW = 260     # characters either side of the glyph
 _MARKUP = re.compile(r"<[^>]+>")
 
@@ -122,8 +140,11 @@ def load_documents() -> dict[str, str]:
     docs: dict[str, str] = {}
     for g in DOC_GLOBS:
         for p in REPO.glob(g):
+            rel = str(p.relative_to(REPO))
+            if _excluded(rel):
+                continue
             try:
-                docs[str(p.relative_to(REPO))] = _MARKUP.sub(" ", p.read_text(encoding="utf8"))
+                docs[rel] = _MARKUP.sub(" ", p.read_text(encoding="utf8"))
             except OSError:
                 pass
     return docs

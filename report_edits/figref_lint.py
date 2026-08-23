@@ -69,8 +69,10 @@ def _refuse_if_stale(pdf_path):
     lag = os.path.join(repo, "tools", "export_lag.py")
     if not os.path.exists(lag):
         return
-    r = _sp.run([sys.executable, lag, "--strict"], capture_output=True, text=True)
-    if r.returncode != 0 and os.path.basename(pdf_path) in r.stdout:
+    # Ask about THIS pdf and nothing else, and believe only the exit code.
+    r = _sp.run([sys.executable, lag, "--pdf", pdf_path],
+                capture_output=True, text=True)
+    if r.returncode != 0:
         sys.exit(_c(r.stdout + "\nrefusing to lint a PDF older than its sources — "
                     "re-export first", C_RED))
 

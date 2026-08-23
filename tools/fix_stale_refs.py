@@ -43,7 +43,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from odt_edit import edit_spans                                   # noqa: E402
-from repoint_refs import _text_view, _xml_edits                   # noqa: E402
+from repoint_refs import _text_view, _xml_edits, _versioned      # noqa: E402
 
 REPO = Path(__file__).resolve().parents[1]
 
@@ -60,22 +60,22 @@ FIXES = [
      "19",
      "same table; same pre-existing error"),
 
-    ("docs/report/Newborough_Methods_Supplement_v1_9_45.odt",
+    (_versioned("Newborough_Methods_Supplement"),
      r"the supplementary forest-zone analysis \(Table (16)\)",
      "19",
      "names the forest-zone table in the same clause"),
 
-    ("docs/report/Newborough_Methods_Supplement_v1_9_45.odt",
+    (_versioned("Newborough_Methods_Supplement"),
      r"The outputs feed Table (16) in the main report",
      "19",
      "10c's outputs are the forest-zone table"),
 
-    ("docs/report/Newborough_Methods_Supplement_v1_9_45.odt",
+    (_versioned("Newborough_Methods_Supplement"),
      r"Its outputs feed Table (17) but the",
      "19",
      "10c again, by a third different number"),
 
-    ("docs/report/Newborough_Methods_Supplement_v1_9_45.odt",
+    (_versioned("Newborough_Methods_Supplement"),
      r"Table (17)\s*(?:—|---|–)\s*Forest zone spatial predictors",
      "19",
      "the caption is quoted in the clause, so the intent is not in doubt"),
@@ -85,7 +85,7 @@ FIXES = [
      "19",
      "same table, in the pipeline output index"),
 
-    ("docs/academic_summaries/academic_Summary_v1_9.odt",
+    (_versioned("academic_Summary"),
      r"20_msl5_change_2017_2023\.png; Report Figure (58)",
      "55",
      "the MSL5-change map is Figure 55; 58 is the SSM water-balance residual"),

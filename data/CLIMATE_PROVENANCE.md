@@ -58,30 +58,59 @@ Temperature and rainfall carry no estimated values anywhere in the record. That
 is a cleaner input than this project has any right to expect and is worth knowing
 before anyone goes looking for a data-quality explanation of a result.
 
-## One defect, recorded rather than fixed
+## One defect, found here and fixed on 2026-08-23
 
-`src/01_data_prep.py` reads the rainfall column as
+`src/01_data_prep.py` used to read the rainfall column as
 
 ```python
 pd.to_numeric(climate["Rain (mm)"].replace("---", "0"), errors="coerce").fillna(0) / 1000
 ```
 
-so **June 1941's missing rainfall enters the pipeline as 0 mm rather than as
-unknown.** A month the Met Office declares unmeasured is recorded as the driest
-possible month in the record.
+so **June 1941's missing rainfall entered the pipeline as 0 mm rather than as
+unknown** — a month the Met Office declares unmeasured recorded as the driest
+possible month in the record. It now reads
 
-**What it does not touch.** June 1941 lies 64 years before the well record, so no
-BACI result, no SSM coefficient, no summer-minimum trend and none of the
-coastal-gradient fits see it. The PET series is computed from temperature and is
-unaffected, so the long-record PET trends (`trend_annual_pet_1931_2025` and its
-siblings) are unaffected.
+```python
+_rain_missing = _rain_raw.str.contains("---", na=False)
+climate["P_m"] = pd.to_numeric(_rain_raw.where(~_rain_missing), errors="coerce") / 1000
+```
 
-**What it does touch.** The 95-year annual rainfall table understates 1941, and
-any long-record rainfall statistic that spans the 1940s inherits it — including
-the "driest decade in the long RAF Valley rainfall record" framing used when
-discussing Betson et al. (2002).
+and the run prints which months were affected.
 
-**Not fixed here** because the fix is a decision, not an edit: leaving the month
-as NaN changes what downstream aggregations do with an incomplete year, and the
-annual summary already carries `Months_complete` and a `Notes` flag that could
-carry it properly instead. Raised for Martin.
+**How much it mattered, measured before it was changed.** June at Valley has a
+median of 48.1 mm, so 1941's true total is near 734 mm against the 686.3 mm the
+pipeline recorded.
+
+| | |
+|---|---|
+| 95-year mean annual rainfall, 1941 in at June = 0 | 856.0 mm |
+| 95-year mean annual rainfall, 1941 excluded | **857.8 mm** |
+| difference | 1.8 mm |
+
+And the claim that rests on the 1940s does not move: the 1990s are the driest
+decade at 793.4 mm either way, against 819.1 mm for the 1940s excluding 1941 or
+805.8 mm including the zero. **That measurement is why the record was not
+truncated.** Starting the analysis after the gap would have discarded 126 good
+months to avoid one bad one, and would have moved every long-record baseline
+including the PET trends that anchor §4.10.3 — trends computed from
+temperature, which has no missing values at all.
+
+**What changed downstream.** One committed number: `summer_P` in
+`pipeline_scenario_params.csv`, from 0.0646926 to 0.0648633 m/month
+(+0.17 mm/month), because `load_summer_climate()` in
+`src/utils/scraping_common.py` averages June across all 95 years. Everything
+else either slices to the well record or drops NaN before use — checked across
+all nine readers of `01_climate.csv`.
+
+**A related thing noticed and not changed.** `load_summer_climate()` and
+`load_annual_climate()` average the FULL 95-year record. That is the same shape
+as the defect Script 20 fixed at v1.35.0, where a 95-year climate normal was
+being used to evaluate wells whose mean heads span the monitoring record only.
+Whether the scenario forcing should be a 95-year normal or a well-period normal
+is a modelling decision, not a bug fix, and is raised rather than taken.
+
+**Where the numbers live now.** `mean_annual_rain_long_record`,
+`rain_months_missing_in_source` and the decade series are committed keys in
+`outputs/00_climate_summary/00_report_numbers.csv` (D-070). Before this, the
+long-run rainfall mean and the driest-decade figure existed only as prose in
+report10.

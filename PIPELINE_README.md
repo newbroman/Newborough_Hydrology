@@ -228,6 +228,8 @@ src/
 
 **Purpose.** Cleans raw dipwell and climate data, applies QC, splits into reference (66 wells) and extended networks, exports upstand/elevation lookup, computes Thornthwaite PET.
 
+**A missing rainfall month is missing, not dry.** The Met Office marks a month with more than two days unmeasured as `---`. Until 2026-08-23 that was read as `"0"`, and June 1941 — the only gap in the whole 95-year file — entered the pipeline as the driest month on record. It is now carried as `NaN`, and the run prints which months were affected. Downstream that is handled rather than propagated: `make_table1_annual_climate` counts complete months, flags 1941, and drops it from the long-term mean row; every other reader of `01_climate.csv` either slices to the well record or drops NaN before use. The one number it moves is `summer_P` in `pipeline_scenario_params.csv`, +0.17 mm/month, because `load_summer_climate()` averages June across all 95 years. See D-070 and `data/CLIMATE_PROVENANCE.md`.
+
 **Reads.**
 
 - `RAF_Valley_Climate.csv` (raw data)
@@ -798,6 +800,21 @@ R² ranges 0.73–0.96 across the five clusters (C4 Main Forest and C5 Coastal F
 #### Step 14 — 00_climate_summary
 
 **Purpose.** Climate timeseries (full + monitoring period) and well-network summary statistics. Three figures (climate ts, network, summer warming) and three CSVs.
+
+**Long-record rainfall context** (new 2026-08-23, D-070). `long_record_rainfall_context()` emits the 95-year rainfall level, spread and decade structure as committed keys, so the framing used against Betson et al. (2002) is recomputable rather than prose:
+
+| key | what it is |
+|---|---|
+| `mean_annual_rain_long_record` | mean annual rainfall, complete years only |
+| `sd_annual_rain_long_record` | standard deviation of those annual totals |
+| `n_years_annual_rain_complete` / `_incomplete` | how many years the mean rests on, and how many were dropped |
+| `rain_months_missing_in_source` | the `---` inventory, named month by month in the note |
+| `wettest_year_rain` / `driest_year_rain` | with the year in the `era` field |
+| `mean_annual_rain_1930s` … `_2020s` | one key per decade, each saying whether it was ranked |
+| `driest_decade_mean_rain` / `wettest_decade_mean_rain` | the `era` field IS the answer to "which decade" |
+| `trend_annual_rain_1931_2025` / `_1960_2025` / `_1990_2025`, each with `_t` | nested windows sharing an end year, mirroring the PET windows |
+
+Two guards are worth knowing about. **Only covered decades are ranked** — the record opens in December 1930 and the 2020s are six years old, so ranking everything would crown the 2020s "wettest" on six years. A decade counts as covered when all ten of its calendar years appear in the record, which is a statement about the record and not about measurement: the 1940s stay rankable even though June 1941 is unmeasured and 1941 drops out of the mean. Without that distinction, repairing the June 1941 defect would silently have disqualified the 1940s from the decade comparison.
 
 **Reads.**
 

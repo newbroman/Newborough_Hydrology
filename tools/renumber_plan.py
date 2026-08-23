@@ -57,7 +57,11 @@ OUT = Path(__file__).resolve().parent / "renumber_plan.csv"
 # Pye & Blott's retreat-rate figure is NOT included — the project does not own
 # it (Martin, 2026-08-23). §4.10.7 therefore carries no figure.
 MOVED_INTO_410 = [
-    ("NEW:4.10.1",  1),   # the cross-shore coordinate — 1 new figure
+    # §4.10.1 carries NO figure. Script 01 emits no figure for the cross-shore
+    # coordinate, and the figure that would illustrate it already exists: the
+    # trend profile (old Figure 41) plots per-well slope AGAINST that coordinate
+    # and sits in the very next subsection. A separate coordinate map would
+    # duplicate the axis.
     ("Network-scale partition of the summer-minimum decline.", 0),
     ("NEW:4.10.3",  1),   # the far-field asymptote is not a rate — 1 new figure
     ("Independent transect estimate of the coastal drawdown rate", 0),

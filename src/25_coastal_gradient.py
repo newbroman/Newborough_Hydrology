@@ -1725,7 +1725,10 @@ def plot_rolling_window(rolling: pd.DataFrame, fig_path: Path,
         ("identified_sum_mm_yr", "#222222", "sum (the identified quantity)"),
     ]
 
-    fig_h = 2.6 * len(lengths) + 1.6
+    # 2.95 rather than 2.6: each panel now carries a bold label plus two
+    # statistics lines, and at 2.6 the header of one panel touched the
+    # axis of the one above it.
+    fig_h = 2.95 * len(lengths) + 1.6
     fig, axes = plt.subplots(len(lengths), 1, figsize=(9.6, fig_h),
                              sharex=True, squeeze=False)
     axes = axes[:, 0]
@@ -1761,16 +1764,32 @@ def plot_rolling_window(rolling: pd.DataFrame, fig_path: Path,
             se_c = float(g["c_se"].median())
             if np.isfinite(se_c) and se_c > 0:
                 ratios.append(sd_c / se_c)
-            sub = (f"n = {len(g)} windows   "
-                   f"sd(c) = {sd_c:.2f}   "
-                   f"sd(climate) = {g['climate_term_mm_yr'].std():.2f}   "
-                   f"sd(sum) = {g['identified_sum_mm_yr'].std():.2f}   "
-                   f"corr(c, climate) = {r:+.2f}   "
-                   f"median SE(c) = {se_c:.2f}")
+            # Two grouped lines, not one long one, and not blind wrapping.
+            # The three spreads belong together — they are the same statistic
+            # for the three series — and the correlation and the within-window
+            # SE belong together, because the argument is that the spread
+            # BETWEEN windows dwarfs the SE WITHIN one. Running all six across a
+            # single title line ran it off the panel in the report (Martin,
+            # 2026-08-23) and buried that pairing in the middle of a sentence.
+            sub = (f"n = {len(g)} windows    "
+                   f"sd(c) = {sd_c:.2f}    "
+                   f"sd(climate) = {g['climate_term_mm_yr'].std():.2f}    "
+                   f"sd(sum) = {g['identified_sum_mm_yr'].std():.2f}")
+            sub2 = (f"corr(c, climate) = {r:+.2f}    "
+                    f"median SE(c) = {se_c:.2f}")
         else:
             sub = f"n = {len(g)} windows"
-        ax.set_title(f"({chr(97 + i)}) {years:g}-year window — {sub}",
-                     loc="left", fontsize=10.5, fontweight="bold")
+            sub2 = ""
+        # The panel label is bold; the statistics are not. Statistics set in
+        # bold read as a headline, and they are supporting detail.
+        ax.set_title(f"({chr(97 + i)}) {years:g}-year window",
+                     loc="left", fontsize=11.5, fontweight="bold",
+                     pad=30 if sub2 else 18)
+        ax.text(0.0, 1.075, sub, transform=ax.transAxes, ha="left",
+                va="bottom", fontsize=8.8, color="#444")
+        if sub2:
+            ax.text(0.0, 1.012, sub2, transform=ax.transAxes, ha="left",
+                    va="bottom", fontsize=8.8, color="#444")
         ax.grid(alpha=0.25)
         ax.margins(x=0.03)
 
@@ -1786,7 +1805,7 @@ def plot_rolling_window(rolling: pd.DataFrame, fig_path: Path,
                  "cross-shore decay fit",
                  x=0.05, ha="left", fontsize=14, fontweight="bold",
                  y=_fy(0.30))
-    fig.text(0.05, _fy(0.58),
+    fig.text(0.05, _fy(0.66),
              f"{spec} panel; the window length is constant within each row and "
              "the whole window slides along the record",
              ha="left", fontsize=10, color="#666")
@@ -1804,13 +1823,19 @@ def plot_rolling_window(rolling: pd.DataFrame, fig_path: Path,
                      f"median SE above). ")
     else:
         band_note = "No interval is drawn. "
-    fig.text(0.05, 0.28 / fig_h,
-             f"{band_note}Grey open markers: {n_bad} fit(s) rejected for "
+    # Wrapped, not one line. Unwrapped it ran off the right edge of the canvas
+    # and the last clause was lost entirely (Martin, 2026-08-23). Wrapping in
+    # CHARACTERS is crude but stable across backends; the width is set from the
+    # figure width so it holds if the panel count changes.
+    import textwrap as _tw
+    _foot = (f"{band_note}Grey open markers: {n_bad} fit(s) rejected for "
              f"sitting on a parameter bound or for a fitted reach beyond the "
              f"panel's own distance range. Windows advance in "
-             f"{int(ROLLING_WINDOW_STEP_MONTHS)}-month steps.",
-             ha="left", fontsize=8.6, color="#444")
-    fig.tight_layout(rect=[0, 0.62 / fig_h, 1, _fy(1.15)])
+             f"{int(ROLLING_WINDOW_STEP_MONTHS)}-month steps.")
+    _lines = _tw.wrap(_foot, width=125)
+    fig.text(0.05, 0.20 / fig_h, "\n".join(_lines),
+             ha="left", va="bottom", fontsize=8.6, color="#444")
+    fig.tight_layout(rect=[0, (0.30 + 0.18 * len(_lines)) / fig_h, 1, _fy(1.15)])
     render_figure(fig, fig_path)
     plt.close(fig)
 

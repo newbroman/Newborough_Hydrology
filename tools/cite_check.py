@@ -28,6 +28,34 @@ Usage:
 """
 from __future__ import annotations
 
+__version__ = "1.11.0"  # Hollingham (2026) — 2026-08-23. M31: a value stored
+#   in metres and quoted in millimetres could never match, because check_numbers
+#   renders the stored value in its stored unit and no conversion existed. That
+#   is not a rare shape: 22 metre-stored keys are quoted in mm at 105 places
+#   across 7 documents, including the +113 mm clearfell headline, and NONE of
+#   those 105 was covered by any index row or by this scan.
+#
+#   The pass added below is ADDITIVE — it runs after the same-unit scan and can
+#   only add hits, so nothing that passes today can be broken by it. Two guards
+#   decide whether it is usable, and both were measured before it shipped:
+#
+#     >= 3 significant digits   at 2 digits or fewer the mm rendering of a metre
+#                               value collides constantly (0, 1, 7, 29 mm) and
+#                               admits 160+ noise pairs. searchable() already
+#                               enforces MIN_SIG_DIGITS = 3, so it is reused.
+#     strict anchoring          at >= 3 digits with the permissive exact-hit
+#                               anchor precision is 42%; with the strict anchor
+#                               (subject AND quantity) it is 86% on 28 hand-
+#                               adjudicated candidates. The strict anchor is not
+#                               optional here, and this is also the answer to
+#                               M23: the tightening M23 wanted is worth having
+#                               exactly where this pass needs it, and nowhere
+#                               else — applied to the existing exact-hit path it
+#                               loses 102 recognitions and makes triage worse.
+#
+#   The unit token is also required: the matched number must be followed by mm.
+#   Without that the pass is a bare 1000x sweep, which is the collision trap.
+#
 __version__ = "1.10.0"  # Hollingham (2026) — 2026-08-22. near_misses() was
 #   generating the value's own rendering as a near miss of itself. It excluded
 #   k = 0 but not the STRING: 2.0865 renders at 3 dp as "2.087", and so does
@@ -662,6 +690,7 @@ def collect_values() -> list[tuple[str, str, float]]:
             continue
         cols = {c.lower(): c for c in df.columns}
         kcol = cols.get("key") or df.columns[0]
+        ucol = cols.get("unit")
         vcol = cols.get("value")
         if vcol is None:
             num = [c for c in df.columns if pd.api.types.is_numeric_dtype(df[c])]
@@ -670,7 +699,13 @@ def collect_values() -> list[tuple[str, str, float]]:
             vcol = num[0]
         for _, r in df.iterrows():
             try:
-                vals.append((str(p.relative_to(REPO)), str(r[kcol]), float(r[vcol])))
+                rel = str(p.relative_to(REPO))
+                lab = str(r[kcol])
+                vals.append((rel, lab, float(r[vcol])))
+                if ucol is not None:
+                    u = str(r[ucol]).strip()
+                    if u and u.lower() != "nan":
+                        VALUE_UNITS[(rel, lab)] = u
             except (TypeError, ValueError):
                 continue
     # Manifest counts. These are the most-repeated numbers in the corpus and
@@ -903,11 +938,52 @@ def check_spread(docs, values, spread_all=False, gate=False) -> int:
     return hits if gate else 0
 
 
+# ---------------------------------------------------------------------------
+# M31 — metre-stored values quoted in millimetres
+# ---------------------------------------------------------------------------
+# Populated by collect_values() from the report-numbers Unit column. Keyed on
+# (source, label) because the same label appears in more than one CSV and the
+# unit is a property of the row, not of the name.
+VALUE_UNITS: dict[tuple[str, str], str] = {}
+
+METRE_UNITS = {"m"}          # only the bare metre. m/yr, m/month and the like
+                             # are rates and are not converted.
+_MM_SUFFIX = re.compile(r"\s{0,2}mm\b")
+
+
+def quotes_as_mm(text: str, needle: str) -> bool:
+    """True if the document quotes `needle` as a number followed by an mm unit.
+
+    The unit token is the whole guard against a bare 1000x sweep. Requiring it
+    is what takes the candidate pool from 483 occurrences to 105.
+    """
+    for a, b in number_spans(text, needle):
+        if _MM_SUFFIX.match(text, b):
+            return True
+    return False
+
+
+def mm_renderings(v: float) -> list[str]:
+    """Millimetre renderings of a metre-stored value, at >= 3 sig digits.
+
+    Unsigned: the corpus writes U+2212 for a minus, and some quantities are
+    stored positive and quoted negative. number_spans() decides whether the
+    digits are a number; the sign is not part of the match.
+    """
+    out = []
+    for dp in (0, 1, 2):
+        s = render(abs(v) * 1000.0, dp)
+        if searchable(s) and s not in out:
+            out.append(s)
+    return out
+
+
 def check_numbers(docs, dps, span, min_rel=0.0, csv_out=None) -> int:
     print("=" * 78)
     print("NUMBERS — every published value vs the corpus")
     print("=" * 78)
     stale, uncited, ok = [], [], 0
+    mm_hits: list[tuple[str, str, float, str, list[str]]] = []
     seen: set[tuple[str, float]] = set()
     for source, label, v in collect_values():
         if not (abs(v) > 0):
@@ -946,6 +1022,21 @@ def check_numbers(docs, dps, span, min_rel=0.0, csv_out=None) -> int:
         # continues in both cases; when the current value is present the stale
         # occurrences are reported as MIXED, which is a different and more
         # urgent finding than a value that is wrong everywhere.
+        # ---- M31: the same value quoted in millimetres --------------
+        # Additive. Runs whether or not the metre rendering was found, so a
+        # value that is current in one document and quoted in mm in another is
+        # still reported rather than being settled by the first hit.
+        if VALUE_UNITS.get((source, label), "").lower() in METRE_UNITS:
+            for s in mm_renderings(v):
+                where = [d for d, t in docs.items()
+                         if quotes_as_mm(t, s)
+                         and anchored(t, s, anc, label, strict=True)]
+                if where:
+                    mm_hits.append((source, label, v, s, where))
+                    if hit_dp is None:
+                        hit_dp = 0
+                    break
+
         mixed = hit_dp is not None
         if mixed:
             ok += 1
@@ -998,6 +1089,14 @@ def check_numbers(docs, dps, span, min_rel=0.0, csv_out=None) -> int:
             for nm, dp, where in found[:3]:
                 print(f"          corpus has {nm} at {dp}dp in: "
                       f"{', '.join(sorted(where))}")
+
+    if mm_hits:
+        print("\n  MILLIMETRE CITATIONS (metre-stored value quoted in mm; M31)")
+        for source, label, v, s, where in sorted(mm_hits, key=lambda r: r[1]):
+            docs_s = ", ".join(sorted(where))
+            print(f"      {label} = {v:.6g} m  quoted as {s} mm  in {docs_s}")
+        print(f"    {len(mm_hits)} metre-stored value(s) cited in millimetres.")
+        print("    Advisory. Measured precision at this gate is 86% (24 of 28\n    hand-adjudicated), so a few rows are numeric collisions in mm-dense\n    tables — an se quoted beside the estimate it belongs to, a cluster\n    trend equal to 1000x an unrelated metre value. Adjudicate before acting.")
 
     print(f"\n  {ok} value(s) cited and current; {len(stale)} possible stale "
           f"citation(s){f' above {min_rel*100:g}%' if min_rel else ''}; "

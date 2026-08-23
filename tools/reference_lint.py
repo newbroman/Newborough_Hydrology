@@ -41,6 +41,18 @@ EXIT CODES — split deliberately
     that is an editorial backlog, not a broken document, and gating on it would
     make the check unadoptable on day one.
 
+WORKFLOW WHEN A CAPTION CHANGES ON PURPOSE
+    A reworded caption fires the same check as a renumbering, because from the
+    outside they are the same event: the number now means something else. That
+    is deliberate — it forces a look at the citing documents, which the report
+    names — and the resolution is to review the list and re-pin:
+
+        python3 tools/reference_lint.py             # read what moved, and who cites it
+        python3 tools/reference_lint.py --snapshot  # re-pin, once satisfied
+
+    Same as tools/citation_index.csv's confirmed rows: the snapshot records a
+    human decision, not an automatic state.
+
 USAGE
     python3 tools/reference_lint.py                 # tables (default)
     python3 tools/reference_lint.py --kind table

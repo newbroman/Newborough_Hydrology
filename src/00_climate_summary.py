@@ -849,8 +849,8 @@ def _run_all() -> None:
     _srt = seasonal_redistribution_trends(climate_short)
     for _k, _unit, _what in (
             ("annual_pet", "mm/yr", "annual Thornthwaite PET"),
-            ("winter_rainfall", "mm/yr", "Oct-Mar rainfall, winter assigned forward"),
-            ("summer_balance", "mm/yr", "Apr-Sep water balance P-PET"),
+            ("winter_rainfall", "mm/yr", "Oct-Mar rainfall, winter keyed to its October year"),
+            ("summer_balance", "mm/yr", "Jun-Sep (JJAS) water balance P-PET"),
             ("winter_balance", "mm/yr", "Oct-Mar water balance P-PET"),
             ("annual_balance", "mm/yr", "annual water balance P-PET")):
         rr.add(f"trend_{_k}", _srt[_k]["slope"], unit=_unit, era=_srt["era"],
@@ -925,17 +925,34 @@ def seasonal_redistribution_trends(climate, year_first: int = 2007,
       traces to a committed CSV, so it is computed here, once, from the same
       01_climate.csv every other climate number comes from.
 
-    THE WINTER CONVENTION, STATED BECAUSE IT MOVES THE ANSWER
+    THE SEASONS ARE THE PROJECT'S, NOT THIS FUNCTION'S
 
-      A winter spans a year boundary and has to be assigned to one of the two.
-      Here Oct-Dec is assigned FORWARD, so "winter Y" is Oct(Y-1) to Mar(Y) and
-      is the winter whose recharge feeds the summer of year Y. That is the
-      hydrologically meaningful pairing for this site and it is the convention
-      the summer-minimum analysis already assumes.
+      Summer = Jun-Sep (JJAS) and winter = Oct-Mar, with a winter keyed to the
+      year its OCTOBER falls in. Both are taken from the winter-maximum /
+      summer-minimum extraction in this same script, which is what the winter
+      flooding thresholds SD15b_WINTER and SD16_WINTER are evaluated against.
+      A first draft of this function used Apr-Sep and the opposite winter
+      attribution — inventing seasons for one paragraph while the flooding
+      analysis three hundred lines above used different ones (Martin,
+      2026-08-23). Never define a season here. Read it from what the analysis
+      already uses.
 
-      It is not a free choice: the winter-rainfall trend is sensitive to it, and
-      a value computed under the other attribution should not be compared with
-      one computed under this. Only complete seasons are used.
+      These are HYDROLOGICAL seasons and are deliberately neither of the
+      calendar definitions: meteorological winter is Dec-Feb, astronomical
+      winter is the solstice to the equinox, and monthly data cannot represent
+      the latter at all. Oct-Mar is the recharge season at this site, which is
+      the quantity the water balance is about.
+
+      Note the overlap with MSL_SPRING_MONTHS = (3, 4, 5): March belongs to both
+      the hydrological winter and the MSL5 spring. That is not double counting —
+      they answer different questions, a winter recharge total against a spring
+      mean level — but a reader comparing the two should know the month is in
+      both.
+
+      The year attribution does NOT move the trend, only the labels: forward
+      and backward attribution group the same months into the same winters and
+      differ by a shift in the x-axis, so the slope is identical. Verified
+      2026-08-23. Only complete seasons are used.
     """
     import numpy as np
 
@@ -958,14 +975,18 @@ def seasonal_redistribution_trends(climate, year_first: int = 2007,
     d["PET_mm"] = d["PET"] * 1000.0
     d["bal"] = d["P"] - d["PET_mm"]
     d["yr"] = d.index.year
-    d["wyr"] = np.where(d.index.month >= 10, d.index.year + 1, d.index.year)
+    # Winter keyed to the year its October falls in — the convention used by the
+    # winter-maximum extraction in this script, and therefore by the flooding
+    # analysis. Do not change it here without changing it there.
+    d["wyr"] = np.where(d.index.month >= 10, d.index.year, d.index.year - 1)
 
     ann = d.groupby("yr").agg(PET=("PET_mm", "sum"), bal=("bal", "sum"),
                               n=("bal", "size"))
     ann = ann[ann["n"] == 12]
-    smr = d[d.index.month.isin(range(4, 10))].groupby("yr").agg(
+    # JJAS, matching SUMMER_MONTHS and the summer-minimum extraction. NOT Apr-Sep.
+    smr = d[d.index.month.isin([6, 7, 8, 9])].groupby("yr").agg(
         bal=("bal", "sum"), n=("bal", "size"))
-    smr = smr[smr["n"] == 6]
+    smr = smr[smr["n"] == 4]
     wtr = d[d.index.month.isin([10, 11, 12, 1, 2, 3])].groupby("wyr").agg(
         P=("P", "sum"), bal=("bal", "sum"), n=("bal", "size"))
     wtr = wtr[wtr["n"] == 6]

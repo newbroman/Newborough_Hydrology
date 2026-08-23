@@ -1,0 +1,110 @@
+#!/usr/bin/env bash
+# check_all.sh — the gate. Run before every commit, and in CI.
+#
+# Each check answers a question that was answered wrongly at least once:
+#   versions   does a document's in-text version string still agree with the
+#              filename it was saved under? The Methods Supplement said 1.9.7
+#              while its filename said _v1_9_24.
+#   mirrors    are the lints reading current text, or yesterday's?
+#   cite       does the corpus still agree with the committed pipeline outputs?
+#   decisions  did a change encode a choice that nobody recorded?
+#   basis      does the Methods Supplement still describe which record each
+#              analysis is fitted on? It asserted a fitting window for Script 07
+#              for months; Script 07 performs no fit.
+#
+# Exit non-zero if any gate fails. --fix syncs the document version strings and
+# regenerates the mirrors instead of failing on them — the two failures with a
+# safe automatic remedy. The version sync runs FIRST: it edits the ODTs, so
+# mirrors regenerated before it would be stale the moment it ran.
+#
+# ============================================================================
+# VERSION 1.2.0 - 2026-08-23
+# CHANGELOG
+#   1.2.0 (2026-08-23): symbol_check and reference_lint join the chain. Both
+#       were written months apart, both were run by hand, and neither gated —
+#       which is why a register collision and a table-reference cascade could
+#       both sit undetected. Each splits its exit code: the structural fault
+#       gates, the inherited backlog reports.
+#   1.1.0 (2026-08-19): document-version gate added, ahead of the mirrors block
+#       for the ordering reason above. tools/doc_version_sync.py --check.
+#   1.0.0: this script's state before it carried a version number. 1.0.0 marks
+#       the number's introduction, not the start of the script's history.
+# ============================================================================
+set -uo pipefail
+cd "$(dirname "$0")/.." || exit 1
+
+FIX=0
+[ "${1:-}" = "--fix" ] && FIX=1
+rc=0
+
+echo "── document versions (does the text agree with the filename?) ───────"
+if [ "$FIX" = "1" ]; then
+    python3 tools/doc_version_sync.py --quiet || rc=1
+else
+    python3 tools/doc_version_sync.py --check --quiet || {
+        echo "  (run tools/check_all.sh --fix to sync them)"
+        rc=1
+    }
+fi
+
+echo
+echo "── mirrors ──────────────────────────────────────────────────────────"
+if [ "$FIX" = "1" ]; then
+    python3 tools/refresh_mirrors.py || rc=1
+else
+    python3 tools/refresh_mirrors.py --check || {
+        echo "  (run tools/check_all.sh --fix to regenerate)"
+        rc=1
+    }
+fi
+
+echo
+echo "── pipeline (are the SCRIPTS importing the right numbers?) ───────────"
+# defaults and backward dependencies GATE: a default masquerading as a result,
+# or a script reading an output that does not exist yet, both put a wrong number
+# into the outputs silently. The literal lint is advisory — it over-reports, and
+# a gate that fires 30 times on day one gets switched off by day three.
+python3 tools/pipeline_lint.py --check defaults || rc=1
+python3 tools/pipeline_lint.py --check deps     || rc=1
+python3 tools/pipeline_lint.py --check literals 2>/dev/null | grep -cE "FAIL" \
+  | xargs -I{} echo "  {} hard-coded constant(s) — python3 tools/pipeline_lint.py --check literals"
+
+echo
+echo "── record basis (does §F.6 still describe the code?) ─────────────────"
+python3 tools/record_basis_lint.py --quiet || rc=1
+
+echo
+echo "── rounding (has new store-time rounding appeared?) ─────────────────"
+python3 tools/rounding_lint.py || rc=1
+
+echo
+echo "── decisions ────────────────────────────────────────────────────────"
+python3 tools/decision_lint.py --quiet || rc=1
+
+echo
+echo "── symbols (does the register contradict itself?) ───────────────────"
+# The register GATES; the ambiguous-glyph inventory is advisory and prints only.
+# Split deliberately: the backlog is 148 entries and gating on it kept this tool
+# out of the chain entirely, which is how the register came to hand z to d_depth
+# while z0 was the datum with nothing to catch it (D-062).
+python3 tools/symbol_check.py 2>/dev/null | grep -E "^  (RESERVED|OCCUPIED|DUPLICATE)|^  register faults" || true
+python3 tools/symbol_check.py >/dev/null 2>&1 || rc=1
+
+echo
+echo "── references (do typed Table/Figure numbers still resolve?) ─────────"
+# Captions auto-number; in-text references are typed by hand and fall out of
+# step silently. Read from the ODTs in master order, so no PDF export is needed
+# and the check cannot run on a stale artefact.
+python3 tools/reference_lint.py --kind table || rc=1
+
+echo
+echo "── claims ───────────────────────────────────────────────────────────"
+python3 tools/cite_check.py --claims-only || rc=1
+
+echo
+echo "── citations (advisory: triage list, does not gate) ──────────────────"
+python3 tools/cite_check.py 2>/dev/null | grep "value(s) cited" || true
+
+echo
+[ "$rc" = "0" ] && echo "check_all: OK" || echo "check_all: FAIL"
+exit "$rc"

@@ -30,6 +30,8 @@ report.docx
 *.docx
 *.xls*
 *.sh
+# the gate and the build scripts are source, not generated output
+!tools/*.sh
 *.tmp
 
 # --- Reference only (frozen-PL chat's call; already-tracked needs git rm --cached) ---

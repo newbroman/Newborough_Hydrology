@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_42.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_43.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 1.9.42 (August 2026).
+Document version: 1.9.43 (August 2026).
 
 ## []{#anchor-1}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -1793,7 +1793,7 @@ The suite-shared module sits at *src/utils/clearfell_common.py* and provides eve
 
 -   §4.6 *Clearfell intervention* --- entire section.
 -   **Table 7** (per the live *PIPELINE_README.md* table-mapping) --- Clearfell ANCOVA-BACI results, source: *10a_report_numbers.csv*.
--   **Table 8** --- Independent corroboration of the BACI ANCOVA easting × time covariate against the Script 25 coastal-retreat gradient model, source: *25_04_baci_corroboration.csv*.
+-   **Table 8** --- The easting × time term fitted in each ANCOVA contrast, with the differential drift each absorbs, source: *25_04_baci_corroboration.csv*.
 -   **Table 9** --- Per-well summer minimum shifts, source: *10d_02_summer_minima_shifts.csv*.
 -   **Table 10** --- Mixed-effects clearfell step by tier, source: 10d / mixed-effects output.
 -   **Table 11** --- Before/after clearfell SSM coefficients for all 17 BACI-network wells, source: *10e_01_coefficient_shifts.csv*.
@@ -2986,7 +2986,7 @@ The C3-only reference-distance rate (−24.47 mm yr⁻¹, SE 2.09) and the fores
 
 The per-cluster attribution under the headline fit is in *25_03_cluster_partition.csv*, computed against the declared balanced basis. C5 (Coastal Forest, mean d̄ ≈ 419 m) carries by far the steepest observed decline (−32.7 mm yr⁻¹ on the basis; −35.9 mm yr⁻¹ at the Script-14 centroid, retained as a context column); the gradient model attributes −15.6 mm yr⁻¹, about 48 % of the basis, to coastal retreat, leaving −20.3 mm yr⁻¹ unexplained. C3 (Western Residual, d̄ ≈ 826 m) declines by −7.7 mm yr⁻¹ on the basis, of which the gradient accounts for −2.4 mm yr⁻¹, about 31 %. C1, C2 and C4 sit beyond the inland reach L, so their gradient component is zero; against balanced declines of −11.0, −10.1 and −12.6 mm yr⁻¹ the modelled total is +3.2 mm yr⁻¹ --- the climate term the cumulative-water-balance covariate carries, plus the fitted offset --- so the whole of their deepening, and a little more, is left unexplained. Why a mean of per-well slopes made that far-field deepening look smaller and better behaved is set out in *25_10_record_length_composition.csv*: within C2 the four wells with 20--21 years of record average −11.0 mm yr⁻¹ while the twenty with 15--17 years average +1.2 mm yr⁻¹, so a mean over per-well fits reports a composition of record lengths as though it were a rate.
 
-The BACI corroboration in *25_04_baci_corroboration.csv* is the chapter's substantive payoff. For Forest-Impact --- the principal BACI clearfell test --- the easting × time coefficient absorbs an implied differential deepening of −16.8 mm yr⁻¹ (SE 5.0); the gradient model predicts −11.0 mm yr⁻¹. The two agree at z = −1.18, "consistent". Climate-Impact is the one comparison the live data flags as *not* consistent (z = 2.17): the BACI absorbs +10.0 mm yr⁻¹ where the gradient model --- with impact and climate-control wells at almost identical distances to coast --- predicts essentially zero (−0.9 mm yr⁻¹). The Forest-Edge comparison is consistent (z = −0.29) and the Climate-Edge comparison sits just inside the threshold (z = 1.96). The Impact-zone Forest comparison is what matters for the BACI clearfell step's interpretation, and it is consistent; the Climate-Impact discrepancy reflects the easting × time covariate at the Climate-control tier absorbing spatial drift in components the coastal-retreat model does not represent. Headline numbers are repeated in *25_report_numbers.csv* for downstream cross-referencing.
+The BACI corroboration in *25_04_baci_corroboration.csv* reports the easting × time term fitted in each ANCOVA contrast, and the differential drift each absorbs. The coefficient collapses by more than an order of magnitude and changes sign as the easting separation grows, which is what a single scalar easting difference multiplied by elapsed months produces: within any one per-contrast fit the term is collinear with a plain linear time trend, so the easting sets only the column's scale. What it absorbs is therefore a nuisance parameter fitted to whatever the model leaves, not an independent estimate of the coastal gradient. An earlier version of this section set the absorbed drift against the Script 25 gradient prediction and read the agreement at the Forest tier as corroboration. That comparison is withdrawn (D-050): it places two quantities of different kinds side by side, and the agreement at the Forest tier is as much a consequence of that tier's narrow easting span as the disagreement elsewhere is of a wide one. The file still carries the z_test_baci_vs_model and consistent columns from that reading, and they should not be quoted. Headline numbers are repeated in *25_report_numbers.csv* for downstream cross-referencing.
 
 ### []{#anchor-418}[]{#anchor-420}[]{#anchor-421}Limitations and known caveats
 

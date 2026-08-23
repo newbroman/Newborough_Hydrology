@@ -1718,6 +1718,9 @@ def plot_rolling_window(rolling: pd.DataFrame, fig_path: Path,
 
     rolling["x"] = pd.to_datetime(rolling["window_mid"] + "-01")
     lengths = sorted(rolling["window_years"].unique())
+    _rs = pd.to_datetime(rolling["window_start"]).min()
+    _re = pd.to_datetime(rolling["window_end"]).max()
+    record_years = (_re - _rs).days / 365.25
     series = [
         ("c_mm_yr", "#1f4e79", r"far-field constant $c$"),
         ("climate_term_mm_yr", "#c1440e",
@@ -1728,7 +1731,7 @@ def plot_rolling_window(rolling: pd.DataFrame, fig_path: Path,
     # 2.95 rather than 2.6: each panel now carries a bold label plus two
     # statistics lines, and at 2.6 the header of one panel touched the
     # axis of the one above it.
-    fig_h = 2.95 * len(lengths) + 1.6
+    fig_h = 3.25 * len(lengths) + 1.7
     fig, axes = plt.subplots(len(lengths), 1, figsize=(9.6, fig_h),
                              sharex=True, squeeze=False)
     axes = axes[:, 0]
@@ -1744,9 +1747,20 @@ def plot_rolling_window(rolling: pd.DataFrame, fig_path: Path,
             # than as the fits the sweep declined to use.
             if len(bad):
                 ax.plot(bad["x"], bad[key], "o", ms=4.5, mfc="none",
-                        mec="#8c8c8c", mew=1.0, zorder=1.5)
-            if not g.empty:
-                ax.plot(g["x"], g[key], color=colour, lw=1.9, zorder=3,
+                        mec="#8c8c8c", mew=1.0, zorder=1.5,
+                        label=("fit rejected (bound hit, or fitted reach "
+                               "beyond the panel's wells)")
+                        if (i == 0 and key == series[0][0]) else None)
+            # Masked, NOT subset. Plotting only the usable rows joins the
+            # last accepted window to the next one across a run of rejected
+            # ones, and matplotlib draws that as a straight segment — which
+            # reads as a smooth trend through the very windows the sweep
+            # declined to use. In the 10-year panel that produced a long
+            # straight run from 2012 to 2015 across twelve rejected fits.
+            # Masking breaks the line at the gap, so a gap looks like a gap.
+            y = g_all[key].where(g_all["usable"])
+            if y.notna().any():
+                ax.plot(g_all["x"], y, color=colour, lw=1.9, zorder=3,
                         label=lab if i == 0 else None)
         ax.axhline(0, color="k", lw=0.9, alpha=0.45)
         ax.set_ylabel("mm yr$^{-1}$")
@@ -1780,21 +1794,37 @@ def plot_rolling_window(rolling: pd.DataFrame, fig_path: Path,
         else:
             sub = f"n = {len(g)} windows"
             sub2 = ""
+        # The achievable span of midpoints is arithmetic, not evidence: a
+        # record of R years admits only (R - W) years of slide at window length
+        # W, centred on the record's own midpoint. Without this stated, the
+        # 18-year panel's three-year span reads as missing data rather than as
+        # the only span that exists — which is exactly how it was read on first
+        # showing (Martin, 2026-08-23).
+        span_lo, span_hi = g_all["x"].min(), g_all["x"].max()
+        sub3 = (f"midpoints {span_lo:%b %Y} to {span_hi:%b %Y} — a "
+                f"{record_years:.0f}-year record admits "
+                f"{max(record_years - years, 0):.0f} year(s) of slide at this "
+                f"length")
         # The panel label is bold; the statistics are not. Statistics set in
         # bold read as a headline, and they are supporting detail.
+        # Three stacked left-aligned lines under a bold label. The span note was
+        # first put right-aligned on the same line as the statistics and simply
+        # printed on top of them — right alignment is not a layout strategy when
+        # the left-hand string has no fixed width.
         ax.set_title(f"({chr(97 + i)}) {years:g}-year window",
                      loc="left", fontsize=11.5, fontweight="bold",
-                     pad=30 if sub2 else 18)
-        ax.text(0.0, 1.075, sub, transform=ax.transAxes, ha="left",
+                     pad=46 if sub2 else 24)
+        ax.text(0.0, 1.125, sub3, transform=ax.transAxes, ha="left",
+                va="bottom", fontsize=8.4, color="#777", style="italic")
+        ax.text(0.0, 1.062, sub, transform=ax.transAxes, ha="left",
                 va="bottom", fontsize=8.8, color="#444")
         if sub2:
-            ax.text(0.0, 1.012, sub2, transform=ax.transAxes, ha="left",
+            ax.text(0.0, 1.004, sub2, transform=ax.transAxes, ha="left",
                     va="bottom", fontsize=8.8, color="#444")
         ax.grid(alpha=0.25)
         ax.margins(x=0.03)
 
-    axes[-1].set_xlabel("window midpoint "
-                        "(the window length and the well set are held fixed)")
+    axes[-1].set_xlabel("window midpoint (the well set is held fixed)")
     n_bad = int((~rolling["usable"]).sum())
     # Header and footer heights are fixed in INCHES and converted to figure
     # fractions, because the figure grows with the number of window lengths —
@@ -1805,14 +1835,17 @@ def plot_rolling_window(rolling: pd.DataFrame, fig_path: Path,
                  "cross-shore decay fit",
                  x=0.05, ha="left", fontsize=14, fontweight="bold",
                  y=_fy(0.30))
-    fig.text(0.05, _fy(0.66),
-             f"{spec} panel; the window length is constant within each row and "
-             "the whole window slides along the record",
-             ha="left", fontsize=10, color="#666")
+    # va="top": the strap-line is two lines now, and anchored by its baseline
+    # the first line climbed into the title.
+    fig.text(0.05, _fy(0.52),
+             f"{spec} panel; record {_rs:%b %Y} to {_re:%b %Y} "
+             f"({record_years:.0f} years).\nWindow length is fixed within a "
+             "row; the window slides along the record.",
+             ha="left", va="top", fontsize=10, color="#666")
     handles, labels = axes[0].get_legend_handles_labels()
     if handles:
         fig.legend(handles, labels, loc="upper left",
-                   bbox_to_anchor=(0.05, _fy(0.74)), ncol=3,
+                   bbox_to_anchor=(0.05, _fy(1.06)), ncol=2,
                    frameon=True, fontsize=9.5)
     if ratios:
         spread = (f"{min(ratios):.0f} to {max(ratios):.0f} times"
@@ -1835,7 +1868,7 @@ def plot_rolling_window(rolling: pd.DataFrame, fig_path: Path,
     _lines = _tw.wrap(_foot, width=125)
     fig.text(0.05, 0.20 / fig_h, "\n".join(_lines),
              ha="left", va="bottom", fontsize=8.6, color="#444")
-    fig.tight_layout(rect=[0, (0.30 + 0.18 * len(_lines)) / fig_h, 1, _fy(1.15)])
+    fig.tight_layout(rect=[0, (0.30 + 0.18 * len(_lines)) / fig_h, 1, _fy(1.66)])
     render_figure(fig, fig_path)
     plt.close(fig)
 

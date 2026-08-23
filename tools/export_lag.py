@@ -47,6 +47,42 @@ BUILD_PDFS = REPO / "tools/build_pdfs.sh"
 MASTER = ("docs/report/report.pdf",
           ["report_edits/odt/report.odm", "report_edits/odt/report*.odt"])
 
+# build_pdfs.sh already records which ODT VERSION each PDF was built from, which
+# is a better signal than a modification time and the reason this tool reads it.
+#
+# git does not preserve mtimes. A clone or a checkout stamps every file with the
+# checkout time, so on a fresh clone "the ODT is newer than the PDF" means
+# nothing at all, and after a pull it can be true of a PDF that is perfectly
+# current. A recorded source VERSION survives all of that: v1_9_42 against a live
+# v1_9_43 is a fact about content, not about when a file happened to be written.
+#
+# mtime is still the only signal available for unversioned sources (the public
+# summaries, the web-tools notes) and for the hand-exported master, and those are
+# labelled as such rather than presented with the same confidence.
+MANIFEST = REPO / "docs/PDF_MANIFEST.txt"
+
+# Published PDFs with no ODT source, authored directly. Listed rather than left
+# silent: an unexplained gap in a check is indistinguishable from an oversight,
+# and this tool exists because an unmapped PDF went two months unnoticed.
+NO_SOURCE = {
+    "docs/Glossaries/Dune_Hydrology_Glossary.pdf",
+    "docs/Glossaries/Geirfa_Hydroleg_Twyni.pdf",
+    "docs/Glossaries/Slownik_Hydrologii_Wydm.pdf",
+}
+
+
+def manifest() -> dict:
+    """{pdf path: source basename recorded at build time}."""
+    out = {}
+    if not MANIFEST.exists():
+        return out
+    for line in MANIFEST.read_text(encoding="utf8").splitlines():
+        if line.startswith("#") or "<-" not in line:
+            continue
+        pdf, rest = line.split("<-", 1)
+        out[pdf.strip()] = rest.split("|")[0].strip()
+    return out
+
 _PAIR = re.compile(r'^\s*"([^"|]+)\|([^"|]+)"\s*$')
 
 
@@ -94,6 +130,7 @@ def run(strict: bool) -> int:
     print("EXPORT LAG — is each published PDF newer than its sources?")
     print("=" * 78)
     lagging = 0
+    man = manifest()
     for pdf_rel, globs in pairs():
         pdf = REPO / pdf_rel
         srcs = _newest(globs)
@@ -103,12 +140,34 @@ def run(strict: bool) -> int:
             print(f"\n  MISSING  {pdf_rel} has never been built")
             lagging += 1
             continue
+        # Version drift first: the strong signal, and immune to git's mtimes.
+        recorded = man.get(pdf_rel)
+        live = max(srcs, key=_version_key)
+        if recorded and "_v" in live.name:
+            if recorded != live.name:
+                lagging += 1
+                print(f"\n  STALE    {pdf_rel}")
+                print(f"           built from {recorded}")
+                print(f"           live source is {live.name}")
+                continue
+            print(f"  current  {pdf_rel}  <-  {recorded}")
+            continue
+        if recorded is None and any("_v" in g for g in globs):
+            lagging += 1
+            print(f"\n  UNBUILT  {pdf_rel}")
+            print(f"           no line in {MANIFEST.relative_to(REPO)} — "
+                  f"build_pdfs.sh has never built it")
+            print(f"           live source is {live.name}")
+            continue
+
+        # Unversioned sources, and the hand-exported master: mtime is all there is.
         pt = pdf.stat().st_mtime
         ahead = [s for s in srcs if s.stat().st_mtime > pt]
         if ahead:
             lagging += 1
-            print(f"\n  STALE    {pdf_rel}")
-            print(f"           {len(ahead)} source(s) edited since it was built:")
+            print(f"\n  STALE?   {pdf_rel}   (by modification time only — "
+                  f"unreliable after a git checkout)")
+            print(f"           {len(ahead)} source(s) modified since it was built:")
             for s in sorted(ahead, key=lambda x: -x.stat().st_mtime):
                 print(f"             {s.relative_to(REPO)}")
     # A PDF with no mapping is never checked by anything, which is the same
@@ -121,7 +180,14 @@ def run(strict: bool) -> int:
         q for q in REPO.glob("docs/**/*.pdf")
         if q.resolve() not in mapped
         and not any(part.startswith("_") for part in q.relative_to(REPO).parts)
+        and str(q.relative_to(REPO)) not in NO_SOURCE
     )
+    if NO_SOURCE:
+        print(f"\n  NO SOURCE — {len(NO_SOURCE)} PDF(s) declared as authored "
+              f"directly, with no ODT to rebuild from:")
+        for q in sorted(NO_SOURCE):
+            print(f"             {q}")
+
     if unmapped:
         print(f"\n  UNMAPPED — {len(unmapped)} published PDF(s) with no source "
               f"pairing in tools/build_pdfs.sh.")

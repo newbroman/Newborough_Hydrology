@@ -52,7 +52,25 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-08-22. The declared-style
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-08-23. Adds insert_figure(),
+#   which embeds a captioned, auto-numbered figure. A figure is three coordinated
+#   changes to different parts of the package — a new Pictures/ entry, a
+#   META-INF/manifest.xml declaration, and draw:frame markup in content.xml — and
+#   getting the manifest wrong yields a document LibreOffice opens with a grey
+#   box, a failure invisible to every text-based check this project runs.
+#
+#   VERIFIED BY BUILDING ONE AND RENDERING IT, not by parsing. The test insert
+#   into report9 converts to PDF, and pdftotext finds "Figure 1.66: TEST
+#   CAPTION" — which also proves the point of the design: the caption carries a
+#   <text:sequence> FIELD, and it numbered ITSELF 1.66 on render, one past the
+#   chapter's previous last figure. A typed number would have been correct on
+#   the day and wrong after the next insertion.
+#
+#   Note for anyone verifying this by other means: LibreOffice's Text filter
+#   drops text-box content, so a .txt export shows neither this caption nor any
+#   of the document's existing ones. Render to PDF and read that instead.
+#
+# v1.3.0  # Hollingham (2026) — 2026-08-22. The declared-style
 #   guard checked EVERY style name in the document, so it aborted a sound edit to
 #   the public summary over a "Title" style the document already contained and
 #   the edit never touched. It now checks only the styles the edit INTRODUCES.
@@ -333,4 +351,155 @@ def edit_entries(src, dst, entry_subs: dict, expect: int) -> bool:
         shutil.copyfileobj(a, b)
     tmp.unlink()
     print(f"  OK  {dst.name}  ({dst.stat().st_size} bytes, {len(names)} entries)")
+    return True
+
+# ---------------------------------------------------------------------------
+# Figures
+# ---------------------------------------------------------------------------
+def insert_figure(src, dst, image_path, before: str, caption: str,
+                  width_cm: float, height_cm: float,
+                  outer_style: str = "fr10", inner_style: str = "fr18",
+                  para_style: str = "Cap", run_style: str = "T79",
+                  frame_prefix: str = "NRGFrame") -> bool:
+    """Insert a captioned, auto-numbered figure before the marker `before`.
+
+    WHY THIS IS NOT edit()
+
+      edit() rewrites text inside content.xml and guarantees the archive is
+      otherwise untouched. A figure is three coordinated changes to DIFFERENT
+      parts of the package:
+
+        1. the image becomes a new zip entry under Pictures/
+        2. META-INF/manifest.xml must declare it, with its media type
+        3. content.xml gains draw:frame / draw:image markup referring to it
+
+      Get (2) wrong and LibreOffice opens the document with a grey box where the
+      picture should be, or refuses to open it at all — and neither failure is
+      visible in a text extraction, which is how a broken figure would otherwise
+      reach a PDF export unnoticed.
+
+    THE MARKUP MIRRORS THE DOCUMENT'S OWN
+
+      report9 wraps every figure in an outer text-box frame carrying the caption
+      and an inner frame carrying the image, and numbers it with a
+      <text:sequence text:name="Figure"> field rather than a typed digit. That
+      field is why figure numbers renumber themselves when a figure is inserted,
+      and it is why this function must emit one: a typed number would be correct
+      on the day and wrong after the next insertion. All four style names default
+      to the ones report9 already declares, so the declared-style guard passes
+      and the new figure looks like its neighbours.
+
+    THE CAPTION TEXT IS THE PART AFTER THE COLON. "Figure N: " is generated.
+
+    Returns True on success; on any failed guard prints why and leaves dst alone.
+    """
+    import hashlib
+    import xml.etree.ElementTree as ET
+
+    src, dst, image_path = pathlib.Path(src), pathlib.Path(dst), pathlib.Path(image_path)
+    if not image_path.exists():
+        print(f"  ABORT: no such image {image_path}")
+        return False
+    blob = image_path.read_bytes()
+    ext = image_path.suffix.lower()
+    media = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg"}.get(ext)
+    if media is None:
+        print(f"  ABORT: unsupported image type {ext}")
+        return False
+
+    zin = zipfile.ZipFile(src)
+    names = zin.namelist()
+    if names[0] != "mimetype":
+        print(f"  ABORT {src.name}: mimetype is not the first archive entry")
+        zin.close(); return False
+
+    pic = f"Pictures/NRG{hashlib.sha1(blob).hexdigest()[:24].upper()}{ext}"
+    if pic in names:
+        print(f"  ABORT: {pic} already in the archive — the image is already embedded")
+        zin.close(); return False
+
+    xml = orig_xml = zin.read("content.xml").decode("utf-8")
+    if xml.count(before) != 1:
+        print(f"  ABORT: marker found {xml.count(before)}x, expected exactly 1")
+        zin.close(); return False
+
+    for st in (outer_style, inner_style):
+        if f'draw:style-name="{st}"' not in xml:
+            print(f"  ABORT: frame style {st} is not used in this document")
+            zin.close(); return False
+
+    name = f"{frame_prefix}{hashlib.sha1(blob).hexdigest()[:6]}"
+    figure = (
+        f'<text:p text:style-name="{para_style}">'
+        f'<draw:frame draw:style-name="{outer_style}" draw:name="{name}Box" '
+        f'text:anchor-type="char" svg:width="{width_cm:.3f}cm" '
+        f'svg:height="{height_cm + 2.2:.3f}cm" style:rel-height="scale-min" '
+        f'draw:z-index="0"><draw:text-box>'
+        f'<text:p text:style-name="{para_style}">'
+        f'<draw:frame draw:style-name="{inner_style}" draw:name="{name}Img" '
+        f'text:anchor-type="paragraph" svg:width="{width_cm:.3f}cm" '
+        f'svg:height="{height_cm:.3f}cm" style:rel-height="scale" '
+        f'draw:z-index="1">'
+        f'<draw:image xlink:href="{pic}" xlink:type="simple" xlink:show="embed" '
+        f'xlink:actuate="onLoad" draw:mime-type="{media}"/></draw:frame>'
+        f'<text:span text:style-name="{run_style}">Figure </text:span>'
+        f'<text:span text:style-name="{run_style}">'
+        f'<text:sequence text:name="Figure" text:formula="ooow:Figure+1" '
+        f'style:num-format="1">0</text:sequence></text:span>'
+        f'<text:span text:style-name="{run_style}">: </text:span>{caption}'
+        f'</text:p></draw:text-box></draw:frame></text:p>'
+    )
+    xml = xml.replace(before, figure + before, 1)
+
+    man = zin.read("META-INF/manifest.xml").decode("utf-8")
+    entry = (f'<manifest:file-entry manifest:full-path="{pic}" '
+             f'manifest:media-type="{media}"/>')
+    if "</manifest:manifest>" not in man:
+        print("  ABORT: manifest has no closing element")
+        zin.close(); return False
+    man_new = man.replace("</manifest:manifest>", entry + "</manifest:manifest>", 1)
+    try:
+        ET.fromstring(man_new)
+    except ET.ParseError as exc:
+        print(f"  ABORT: manifest would not parse after the edit ({exc})")
+        zin.close(); return False
+
+    if EM_SPACE in xml:
+        print("  ABORT: em-space (U+2003) present")
+        zin.close(); return False
+    b_open, b_close = _span_balance(orig_xml)
+    a_open, a_close = _span_balance(xml)
+    if (a_open - b_open) != (a_close - b_close):
+        print("  ABORT: edit unbalances spans")
+        zin.close(); return False
+
+    tmp = pathlib.Path("/tmp") / (dst.name + ".building")
+    with zipfile.ZipFile(tmp, "w") as zout:
+        for n in names:
+            data = zin.read(n)
+            if n == "content.xml":
+                data = xml.encode("utf-8")
+            elif n == "META-INF/manifest.xml":
+                data = man_new.encode("utf-8")
+            zi = zipfile.ZipInfo(n, date_time=zin.getinfo(n).date_time)
+            zi.compress_type = (zipfile.ZIP_STORED if n == "mimetype"
+                                else zipfile.ZIP_DEFLATED)
+            zout.writestr(zi, data)
+        zout.writestr(zipfile.ZipInfo(pic), blob, zipfile.ZIP_DEFLATED)
+    with zipfile.ZipFile(tmp) as chk:
+        if chk.testzip() is not None:
+            print("  ABORT: rebuilt archive fails testzip()")
+            zin.close(); return False
+        if chk.namelist()[0] != "mimetype":
+            print("  ABORT: mimetype is no longer first")
+            zin.close(); return False
+        if pic not in chk.namelist():
+            print("  ABORT: the picture did not make it into the archive")
+            zin.close(); return False
+    shutil.copyfile(tmp, dst)
+    zin.close()
+    print(f"  OK  {dst.name}  (+{pic}, {len(blob)} bytes; "
+          f"{len(names) + 1} entries)")
+    print("      the caption carries a sequence FIELD; open in LibreOffice and "
+          "Tools > Update > Fields to render its number")
     return True

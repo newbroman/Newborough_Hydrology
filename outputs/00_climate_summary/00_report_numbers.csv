@@ -9,6 +9,18 @@ trend_winter_balance,,2007-2025,3.7396279761948574,mm/yr,"OLS trend in Oct-Mar w
 trend_winter_balance_t,,2007-2025,0.838783112076383,,t-statistic of trend_winter_balance
 trend_annual_balance,,2007-2025,1.1017857639235102,mm/yr,"OLS trend in annual water balance P-PET; complete seasons only, n=19"
 trend_annual_balance_t,,2007-2025,0.2726930878968045,,t-statistic of trend_annual_balance
+trend_annual_pet_1931_2025,,1931-2025,0.31987906145719347,mm/yr,"OLS trend in annual Thornthwaite PET over the 1931-2025 window, n=95. Nested with the other PET windows and sharing an end year: evidence that the rise is of long standing and steepening, NOT a test of acceleration."
+trend_annual_pet_1931_2025_t,,1931-2025,4.513203464811712,,t-statistic of trend_annual_pet_1931_2025
+trend_annual_pet_1960_2025,,1960-2025,0.5850515068522284,mm/yr,"OLS trend in annual Thornthwaite PET over the 1960-2025 window, n=66. Nested with the other PET windows and sharing an end year: evidence that the rise is of long standing and steepening, NOT a test of acceleration."
+trend_annual_pet_1960_2025_t,,1960-2025,5.03105236145866,,t-statistic of trend_annual_pet_1960_2025
+trend_annual_pet_1990_2025,,1990-2025,0.6656128988029741,mm/yr,"OLS trend in annual Thornthwaite PET over the 1990-2025 window, n=36. Nested with the other PET windows and sharing an end year: evidence that the rise is of long standing and steepening, NOT a test of acceleration."
+trend_annual_pet_1990_2025_t,,1990-2025,2.2023913237616326,,t-statistic of trend_annual_pet_1990_2025
+var_annual_pet_mean,,2007-2025,651.9939101030369,mm,"mean of the annual series, n=19"
+var_annual_pet_sd,,2007-2025,20.23759876694094,mm,standard deviation of the annual series
+var_annual_pet_cv_pct,,2007-2025,3.103955183222911,%,coefficient of variation: sd as a percentage of the mean. This is why PET separates from zero and a larger winter rainfall trend does not.
+var_winter_rainfall_mean,,2007-2025,511.01666666666654,mm,"mean of the annual series, n=18"
+var_winter_rainfall_sd,,2007-2025,97.52750592404537,mm,standard deviation of the annual series
+var_winter_rainfall_cv_pct,,2007-2025,19.08499512554295,%,coefficient of variation: sd as a percentage of the mean. This is why PET separates from zero and a larger winter rainfall trend does not.
 pet_warming_dT,,1931-1960 vs 1996-2025,0.7288888888888874,degC,change in mean annual temperature between the first and last 30 complete years of the station record
 pet_warming_pct_T,,,7.204041291456176,%,"same comparison, as a percentage of the early-period mean"
 pet_warming_pct_PET,,,3.0029602360953422,%,change in mean annual Thornthwaite PET over the same comparison

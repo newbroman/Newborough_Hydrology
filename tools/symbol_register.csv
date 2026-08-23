@@ -15,7 +15,7 @@ D,D_residual,subscripted,"drainage residual, dh less the rainfall and PET contri
 L,L_reach,bare,fitted inland reach of the coastal gradient,m,canonical,,coastal|inland reach|decay|δ₀|895|894|901,report9 §4.10
 L,L_boussinesq,bare,flow-path geometry length in the Boussinesq reading of b3,m,displaced,l_B,Boussinesq|flow path|flow-path|geometry,report8 §3.4
 d,d_coast,bare,perpendicular distance to the eroding shoreline,m,canonical,,distance to|cross-shore|shoreline|coastal gradient|δ(d)|dist_coast,report9 §4.10.1
-d,d_depth,bare,depth of the water table below ground surface,m,displaced,z,below ground|water table depth|depth below|summer minimum depth,report8 §3.2
+d,d_depth,bare,depth of the water table below ground surface,m,retired,"(rewrite as: −h, depth below ground)",below ground|water table depth|depth below|summer minimum depth,report8 §3.2
 c,c_farfield,bare,far-field asymptote of the coastal decay model,mm yr-1,canonical,,far-field|far field|asymptote|decays to|panel constant,report9 §4.10.3
 c,c_intercept,bare,"the SSM's absent intercept, written c = 0",m month-1,retired,(rewrite as: no intercept is fitted),through the origin|no intercept|c = 0|constant term,report8 §3.4
 φ,phi_ar1,bare,lag-1 autocorrelation coefficient,dimensionless,canonical,,AR(1)|autocorrelation|lag-1|ar1_phi,report8 §3.4

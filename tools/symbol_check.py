@@ -43,7 +43,13 @@ Usage
 
 from __future__ import annotations
 
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-08-22. A QUOTED single letter
+__version__ = "1.6.0"  # Hollingham (2026) — 2026-08-23. check_register():
+#   the replacement column was never validated, so the register could hand a
+#   displaced sense a glyph already spoken for — and had, giving z to d_depth
+#   while z₀ was the datum. Exit codes split so the register gates and the
+#   ambiguous backlog reports; that is what lets the tool join check_all.
+#
+# _superseded  # Hollingham (2026) — 2026-08-22. A QUOTED single letter
 #   is a code literal, not a symbol. CLUSTER_MARKERS in the Methods Supplement
 #   lists matplotlib's marker codes — {1: 'o', 2: 's', 3: '^', 4: 'D', 5: 'P'} —
 #   and the constants table puts DRAINAGE_DATUM in the next row, so the D of the
@@ -130,6 +136,78 @@ def load_register() -> list[dict]:
     return list(csv.DictReader(p.open(encoding="utf8")))
 
 
+# Glyphs that are spoken for, and by which sense. A displaced sense may not be
+# re-lettered onto one of these.
+#
+#   z   the standard-normal test statistic. Standard usage in every statistics
+#       text, so under D-055's own rule — a glyph standard in an established
+#       formula keeps it, report-coined quantities yield — the statistic keeps
+#       the bare letter. No register sense owns it, so no replacement may take
+#       it. (D-062)
+#   z₀  the drainage datum, DRAINAGE_DATUM = 3.7 m (D-055, applied).
+#
+# This block exists because the register handed z to d_depth while z₀ was the
+# datum — re-creating, one row further down the same file, precisely the
+# collision D-055 was written to kill. Nothing validated the replacement column.
+RESERVED_GLYPHS = {
+    "z₀": "D_datum",
+    "z": None,          # owned by the test statistic, which is not a register sense
+}
+
+
+def check_register(senses: list[dict]) -> int:
+    """Is the register self-consistent? Returns the number of STRUCTURAL faults.
+
+    Three ways a `replacement` can be wrong, all silent until now:
+      1. it is another sense's canonical glyph — the rename walks into an
+         occupied seat;
+      2. two displaced senses resolve to the same replacement — the rename
+         creates the collision it was meant to remove;
+      3. it takes a reserved glyph (see RESERVED_GLYPHS).
+
+    A replacement in the "(rewrite as: …)" form is a prose instruction, not a
+    glyph, and is skipped — that is the c_intercept precedent.
+    """
+    print("=" * 78)
+    print("REGISTER — is the replacement column self-consistent?")
+    print("=" * 78)
+
+    canonical = {x["glyph"]: x["sense_id"]
+                 for x in senses if x.get("status") == "canonical"}
+    faults = 0
+    seen = {}
+
+    for sense in senses:
+        rep = (sense.get("replacement") or "").strip()
+        sid = sense["sense_id"]
+        if not rep or rep.startswith("("):
+            continue
+
+        if rep in RESERVED_GLYPHS and RESERVED_GLYPHS[rep] != sid:
+            owner = RESERVED_GLYPHS[rep]
+            who = ("the sense " + owner) if owner else "the standard-normal test statistic"
+            print("\n  RESERVED   %s (glyph %s) -> %r" % (sid, sense["glyph"], rep))
+            print("             %r is reserved for %s" % (rep, who))
+            faults += 1
+
+        if rep in canonical and canonical[rep] != sid:
+            print("\n  OCCUPIED   %s (glyph %s) -> %r" % (sid, sense["glyph"], rep))
+            print("             %r is the canonical glyph of %s" % (rep, canonical[rep]))
+            faults += 1
+
+        if rep in seen:
+            print("\n  DUPLICATE  %s and %s both resolve to %r" % (sid, seen[rep], rep))
+            faults += 1
+        else:
+            seen[rep] = sid
+
+    if faults:
+        print("\n  %d structural fault(s) in %s — these gate" % (faults, REGISTER))
+    else:
+        print("  %d replacement(s), all distinct, none reserved or occupied" % len(seen))
+    return faults
+
+
 def occurrences(text: str, glyph: str):
     """Spans of `glyph` used AS A SYMBOL, not as a letter inside a word.
 
@@ -172,6 +250,7 @@ def main() -> int:
     args = ap.parse_args()
 
     reg = load_register()
+    register_faults = check_register(reg)
     if args.glyph:
         reg = [r for r in reg if r["glyph"] == args.glyph]
         if not reg:
@@ -267,7 +346,23 @@ def main() -> int:
             w.writerows(proposal)
         print(f"  proposal written to {args.proposal} ({len(proposal)} edit(s))")
     print("  Nothing has been changed. Review the proposal before any edit.")
-    return 1 if totals["ambiguous"] else 0
+
+    # EXIT CODES ARE SPLIT, DELIBERATELY.
+    #
+    # The ambiguous list is an inherited editorial backlog — 148 entries when
+    # this split was written — and gating on it would keep this tool out of
+    # tools/check_all.sh forever, which is exactly where it has been. A register
+    # that contradicts itself is a different kind of problem: it is wrong now,
+    # it is small, and every entry is actionable. So the register gates and the
+    # backlog reports.
+    print()
+    print("  register faults %d (gate)   ambiguous %d (advisory)"
+          % (register_faults, totals["ambiguous"]))
+    if register_faults:
+        print("symbol_check: FAIL — the register contradicts itself")
+        return 1
+    print("symbol_check: OK")
+    return 0
 
 
 if __name__ == "__main__":

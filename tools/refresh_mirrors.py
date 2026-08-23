@@ -84,6 +84,69 @@ SOURCES = [
 _VER = re.compile(r"_v(\d+(?:[_.]\d+)*)\.odt$")
 
 
+
+# THE MIRRORS ARE NOT PANDOC-VERSION-INDEPENDENT, AND OLD PANDOC LOSES CONTENT.
+#
+# This project runs on two machines — the bridge VM and the cloud container —
+# and their pandoc differs. Regenerating report8 on the bridge's 2.9.2.1 against
+# the committed mirror produced 2,300 changed lines, of which:
+#
+#   cosmetic   setext headings instead of ATX (pandoc changed the default at
+#              2.11.2), and underscores escaped where the committed mirrors
+#              leave them bare — run\_analysis.py against run_analysis.py.
+#   NOT cosmetic
+#              DISPLAY EQUATIONS DROPPED ENTIRELY. report8's Thornthwaite heat
+#              index, $$I = \sum (T_m/5)^{1.514}$$, is simply absent from the
+#              2.9.2.1 output.
+#
+# The mirrors are the surface cite_check and symbol_check search. A mirror that
+# has quietly lost its equations is worse than a stale one, because nothing
+# reports it: the lints go on passing over text that is no longer there.
+#
+# Verified: pandoc 3.1.3 reproduces the committed report11 mirror byte for byte.
+#
+# So the generator is pinned, not merely configured. Writing on an unsupported
+# pandoc ABORTS. --check WARNS and does not gate, because a "drift" report that
+# is really a version difference would train the reader to ignore the gate.
+MIN_PANDOC = (3, 0)
+
+
+def _pandoc_version() -> tuple:
+    import subprocess
+    out = subprocess.run(["pandoc", "--version"], capture_output=True, text=True).stdout
+    m = re.search(r"pandoc\s+(\d+)\.(\d+)(?:\.(\d+))?", out)
+    if not m:
+        raise SystemExit("cannot determine the pandoc version")
+    return tuple(int(g) for g in m.groups(default="0"))
+
+
+PANDOC_VERSION = _pandoc_version()
+PANDOC_OK = PANDOC_VERSION >= MIN_PANDOC
+
+
+def require_supported_pandoc(writing: bool) -> None:
+    if PANDOC_OK:
+        return
+    v = ".".join(str(n) for n in PANDOC_VERSION)
+    msg = (f"pandoc {v} is below the pinned minimum "
+           f"{'.'.join(str(n) for n in MIN_PANDOC)}. It drops display equations "
+           f"from the mirrors and escapes underscores the committed mirrors "
+           f"leave bare.")
+    if writing:
+        raise SystemExit(
+            f"  ABORT  {msg}\n"
+            f"         Regenerate on a machine with pandoc >= "
+            f"{'.'.join(str(n) for n in MIN_PANDOC)} (the cloud container has "
+            f"3.1.3); do not commit mirrors written here.")
+    print(f"  WARN   {msg}")
+    print("         --check compares MODIFICATION TIMES ONLY — it never reads the "
+          "content — so")
+    print("         a mirror written here will read as current while missing its "
+          "equations.")
+
+
+_ATX_FLAG = "--markdown-headings=atx"
+
 def _version_key(p: Path):
     m = _VER.search(p.name)
     return [int(n) for n in re.split(r"[_.]", m.group(1))] if m else [-1]
@@ -110,10 +173,12 @@ def resolve() -> list[tuple[Path, Path]]:
 
 
 def convert(src: Path, dst: Path) -> None:
+    require_supported_pandoc(writing=True)
     dst.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory() as tmp:
         subprocess.run(
             ["pandoc", "-f", "odt", "-t", "markdown", "--wrap=none",
+             _ATX_FLAG,
              "-o", str(Path(tmp) / "out.md"), str(src)],
             check=True, capture_output=True,
         )
@@ -136,6 +201,9 @@ def main() -> int:
     if not jobs:
         print("No sources matched.")
         return 1
+
+    if args.check:
+        require_supported_pandoc(writing=False)
 
     stale = []
     for src, dst in jobs:

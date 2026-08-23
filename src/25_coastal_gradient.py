@@ -2308,9 +2308,23 @@ def plot_fit_diagnostic(per_well: pd.DataFrame,
     # own magnitude and none is occluded. The modelled total is then the
     # ALGEBRAIC sum rather than the top of the stack, so it is marked
     # explicitly — otherwise a signed stack shows the parts and hides the whole.
-    comps = [(cli,  "#4488cc", "Climate (CWB trend)"),
+    # The far-field offset is NOT drawn as a segment of its own. Two reasons,
+    # and the second is the real one.
+    #
+    #   It is invisible. c = -0.10 mm/yr against a coastal term of -18.3 at C5
+    #   is a sliver a reader cannot see or measure (Martin, 2026-08-23).
+    #
+    #   More importantly, drawing it separately CONTRADICTS the caption of the
+    #   table it illustrates. Table 16 states that the climate contribution and
+    #   the fitted constant are "the identified sum ... which trade off against
+    #   one another and are not separately identified", and section 4.10.3's
+    #   whole argument is that c is a window statistic rather than a rate. A
+    #   figure that gives c its own labelled block asserts a separability the
+    #   text spends a subsection denying. Summed, it says what the analysis
+    #   actually supports.
+    comps = [(cli + off, "#4488cc",
+              "Climate + far-field (not separately identified)"),
              (grad, "#cc5500", "Coastal-retreat gradient"),
-             (off,  "#7f4fbf", "Far-field offset (c)"),
              (unx,  "#bbbbbb", "Unexplained")]
     pos_base = np.zeros(len(p))
     neg_base = np.zeros(len(p))
@@ -2338,7 +2352,7 @@ def plot_fit_diagnostic(per_well: pd.DataFrame,
     modelled = cli + grad + off
     ax2.hlines(modelled, x + width / 2 - width / 2, x + width / 2 + width / 2,
                color="black", linewidth=2.0, zorder=6,
-               label="Modelled (climate + coastal + offset)")
+               label="Modelled (climate + far-field + coastal)")
 
     ax2.axhline(0, color="black", linewidth=0.5)
     ax2.set_xticks(x)

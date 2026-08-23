@@ -60,15 +60,15 @@ lie in that propagation sector.  The zone is therefore expected to be
 shielded from the felling signal: the EXPECTED RESULT IS
 phi_{C3/Warren} ≈ 0, behaving like the Forest control.  A clearly
 non-zero C3/Warren step is to be treated as a flag (possible unshielded
-propagation or another confound), NOT as a felling finding.  See the
-four-zone BACI design spec §4.4 and its decision record (Item B).
+propagation or another confound), NOT as a felling finding.
 
 Relationship to Script 10a
 --------------------------
-This script is the PRIMARY §4.6 clearfell result.  10a's three separate
-ANCOVAs are retained as a robustness panel ("the same contrasts as
-independent fits give consistent signs and overlapping intervals") and
-are not deleted.  10a continues to emit 10a_report_numbers.csv unchanged,
+10a's three separate ANCOVAs and this joint fit estimate different things
+and both are retained.  The joint fit's virtue is that every pairwise
+contrast comes from one coefficient vector with one covariance matrix, so
+the zones are exactly subtractable; that is what it is for.
+10a continues to emit 10a_report_numbers.csv unchanged,
 so Script 21's dependency on it is undisturbed.  10k emits its own
 report-numbers CSV with FourZone_* keys — no key collision with 10a's
 ANCOVA_* keys or 10j's ImpactVsEdge_* keys.
@@ -77,9 +77,9 @@ The four-zone joint fit does NOT reproduce 10a's separate-fit
 Forest-control headline (load from 10a_report_numbers.csv).  The joint model estimates climate
 sensitivity from the full cross-zone record, so the felling step absorbs
 less climate variance; the joint Impact-vs-Forest step is consequently
-smaller (see this script's own committed output).  This is a substantive,
-defensible change to the headline — see the design spec §6 for how §4.6
-presents it.
+smaller (see this script's own committed output).  Which estimator the
+report leads on is a documentation question, settled in the report and the
+Decision Log and not here (D-011).
 
 Dependencies
 ------------
@@ -134,7 +134,10 @@ from utils.clearfell_common import (
 from utils.site_observations import update_site_observation
 from utils.render_utils import render_figure
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-05-22
+__version__ = "1.3.1"  # Hollingham (2026) — 2026-08-22.  Docstring only:
+#   retired an asserted result (D-011) and two citations to a design spec
+#   and decision record that are not in the repository.  No code path,
+#   no output, no committed value changes.
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live

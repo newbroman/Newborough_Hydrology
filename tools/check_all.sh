@@ -60,6 +60,12 @@ else
         rc=1
     }
 fi
+# --check compares modification times and gates on them because it is instant.
+# It cannot tell you whether a mirror is what its source PRODUCES. When that is
+# the question — a mirror that keeps coming back changed, a suspicion that two
+# pandocs disagree — `--verify` regenerates every mirror and compares bytes. It
+# is not in the gate because it runs pandoc 23 times.
+echo "  (content check, on demand: python3 tools/refresh_mirrors.py --verify)"
 
 echo
 echo "── pipeline (are the SCRIPTS importing the right numbers?) ───────────"

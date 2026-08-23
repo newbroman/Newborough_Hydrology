@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_44.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_45.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 1.9.44 (August 2026).
+Document version: 1.9.45 (August 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -3995,7 +3995,7 @@ Inputs.
   Climate-corrected per-well endpoint differences   Script 36                           b̂ fitted on *ACT_BHAT_WINDOW = 2005--2017*; *h_corr = h − b̂·CWB*; endpoint means with *ACT_ENDPOINT_FRACTION = 1/3*
   Unit driver fields                                Script 20 v1.32.0                   *\_erosion_field*, felling-polygon clearfell shape, *\_broadleaf_field*; imported live
   δ₀, L                                             Script 25 *OUT_25_FIT_PARAMETERS*   Forest-free linear-capped fit; δ₀ = −29.03 mm yr⁻¹
-  Clearfell step                                    10a_report_numbers.csv              ANCOVA Path B, +119.6 mm observed
+  Clearfell step                                    10a_report_numbers.csv              ANCOVA Path B, +112.8 mm observed
   ------------------------------------------------- ----------------------------------- ---------------------------------------------------------------------------------------------------------------------
 
 No raw inputs; no hard-coded amplitudes.
@@ -4020,13 +4020,13 @@ Each field is β₃-corrected per well so a scale factor is dimensionless --- s 
 
 **Motivation.** The report weighs interventions and natural processes against one another, but the drivers are mechanistically incommensurate (equilibrium suppression vs local redistribution vs progressive accumulation). Script 37b places forest, scraping and coast on a common footing by expressing each in three shared currencies over a common 2005→2025 horizon, so the comparison is explicit rather than rhetorical.
 
-**Inputs.** The Script 20 unit fields at 2025 amplitude; observed anchors (clearfell +119.6 mm from *10a_report_numbers.csv*; scrape on-site +129.4 mm and off-site −54.5 mm from the scraping BACI/DiD outputs; δ₀ and L from Script 25); Sy = 0.311 (C3, read live from Script 17's cluster table); Curreli (2013) summer thresholds (wet-slack SD15b −0.61 m, dry-slack SD16 −0.98 m); the observed summer-minimum baseline per well. **Script 37b uses observed anchors and modelled fields --- never Script 37's scale factors**, which are null.
+**Inputs.** The Script 20 unit fields at 2025 amplitude; observed anchors (clearfell +112.8 mm from *10a_report_numbers.csv*; scrape on-site +129.4 mm and off-site −54.5 mm from the scraping BACI/DiD outputs; δ₀ and L from Script 25); two representative specific yields, read live from Script 17's cluster table --- 0.308 for the coast and scrape fields (C3) and 0.271 for the forest fields (C4/C5, weighted); Curreli (2013) summer thresholds (wet-slack SD15b −0.61 m, dry-slack SD16 −0.98 m); the observed summer-minimum baseline per well. **Script 37b uses observed anchors and modelled fields --- never Script 37's scale factors**, which are null.
 
 **Methodology.** Each driver enters as a *gain* and a *loss* component (forest = clearfell + broadleaf restock; scrape = on-site rise + off-site drain cone; coast = sea-level rise + erosion drawdown), because all three are two-sided. Three currencies: (1) **peak local head change** --- one number per component; (2) **area-integrated change** --- each field integrated over the site mask, in mm·ha and in m³ via Sy; (3) **ecological threshold crossings** --- each field added to the observed per-well summer-minimum baseline, counting wells crossing the Curreli thresholds. A mechanism-type column (step / redistributive / progressive) keeps the currencies from implying the drivers are the same kind of quantity.
 
 **Site-specific choices and rationale.** Per-driver representative Sy (C3 0.311 for scrape/coast) rather than per-cell, for traceability, with the ±40 % Sy spread noted. Threshold crossings are computed per-well (not per-area) to avoid double interpolation. The scrape is reported as rise, drain and **net** separately, because the net integral is the quantitative basis for the "scraping worsens the site-wide table while benefiting the slack" claim.
 
-**Outputs.** *outputs/37b_driver_footing/*: *37b_driver_footing.csv* (component × currency, with mechanism-type and observed/modelled flags); comparative figure. Headline values: coastal erosion peak −580.6 mm, area −74,291 mm·ha, volume **−227,108 m³**, six dry-slack wells worsened; scrape on-site +129.4 mm (613 mm·ha) but off-site −54.5 mm (−21,470 mm·ha), net **−63,759 m³**, five dry-slack wells worsened vs one relieved; clearfell +119.6 mm, **+17,132 m³**, the only unambiguous net relief (three dry-slack wells un-crossed); broadleaf −10,339 m³; SLR +8,619 m³. *Regenerate from the committed CSV before quoting --- do not cache these numbers.*
+**Outputs.** *outputs/37b_driver_footing/*: *37b_driver_footing.csv* (component × currency, with mechanism-type and observed/modelled flags); comparative figure. Headline values: coastal erosion peak −626.6 mm, area −80,282 mm·ha, volume **−247,495 m³**, six dry-slack wells worsened; scrape on-site +129.4 mm (613 mm·ha, +1,890 m³) but off-site −54.5 mm (−21,686 mm·ha, −66,853 m³), net **−64,963 m³**, five dry-slack wells worsened vs one relieved; clearfell +112.8 mm, **+16,177 m³**, the only unambiguous net relief (two dry-slack wells un-crossed); broadleaf −10,340 m³; SLR +8,651 m³. *Regenerate from the committed CSV before quoting --- do not cache these numbers.*
 
 **Limitations and known caveats.** First-order linear superposition --- an upper bound in overlap zones, the same caveat as the Script 20 map. The coastal figures (both components) are **modelled** and, per Script 37, spatially unconfirmed; the scrape near-field cone is modelled and unresolvable (nearest uphill well 247 m); clearfell and scrape on-site/off-site points are observed. The currency-conversion assumptions use a representative Sy, not a per-cell value; the ±40 % spread on C3 Sy propagates to the volume figures. The "scraping worsens site-wide" result is reported *with its magnitude set against the coastal integral* --- a real net loss, but a fraction of coast's --- so it should not be read as a headline driver.
 

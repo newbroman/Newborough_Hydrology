@@ -98,6 +98,14 @@ echo "── references (do typed Table/Figure numbers still resolve?) ───
 python3 tools/reference_lint.py --kind table || rc=1
 
 echo
+echo "── exports (is each published PDF newer than its sources?) ──────────"
+# ADVISORY. A PDF export is slow and manual, and a gate firing between every ODT
+# edit and the next export gets switched off inside a week — the same reasoning
+# check_all already applies to pipeline_lint's literal check. It prints loudly
+# instead, and figref_lint REFUSES outright rather than linting a stale export.
+python3 tools/export_lag.py | grep -E "^  (STALE|MISSING|UNMAPPED)|behind their sources" || true
+
+echo
 echo "── claims ───────────────────────────────────────────────────────────"
 python3 tools/cite_check.py --claims-only || rc=1
 

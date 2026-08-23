@@ -1,0 +1,6 @@
+kind,old,new,title
+table,16,20,Per-cluster decomposition of the observed summer-minimum decline under the forest-free lin
+table,17,16,"Cluster-mean 5-year mean spring water level (MSL5) at window-end 2025, with counts of wind"
+table,18,17,Between-well prediction of mean Ellenberg-F moisture by observed MSL5 and by the equilibri
+table,19,18,"Ellenberg-F prediction accuracy by match band, MSL5 versus the equilibrium wetness index ("
+table,20,19,Per-well spatial predictors of SSM coefficient variation within the forest zone (C4 Main F

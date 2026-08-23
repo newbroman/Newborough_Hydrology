@@ -15,6 +15,31 @@ trend_annual_pet_1960_2025,,1960-2025,0.5850515068522284,mm/yr,"OLS trend in ann
 trend_annual_pet_1960_2025_t,,1960-2025,5.03105236145866,,t-statistic of trend_annual_pet_1960_2025
 trend_annual_pet_1990_2025,,1990-2025,0.6656128988029741,mm/yr,"OLS trend in annual Thornthwaite PET over the 1990-2025 window, n=36. Nested with the other PET windows and sharing an end year: evidence that the rise is of long standing and steepening, NOT a test of acceleration."
 trend_annual_pet_1990_2025_t,,1990-2025,2.2023913237616326,,t-statistic of trend_annual_pet_1990_2025
+mean_annual_rain_long_record,,1931-2025,857.7702127659572,mm,"mean annual rainfall, RAF Valley, complete years only (n=94). This is the 'long-run average' the discussion of the 1990s attribution work is read against."
+sd_annual_rain_long_record,,1931-2025,111.66788106846049,mm,standard deviation of the annual totals over the same years
+n_years_annual_rain_complete,,1931-2025,94.0,,years with all twelve monthly rainfall values
+n_years_annual_rain_incomplete,,1931-2025,1.0,,"calendar years present in the record but missing at least one monthly rainfall value, and therefore excluded from every annual rainfall statistic here"
+rain_months_missing_in_source,,1931-2025,1.0,,"months the Met Office marks '---' (more than two days unmeasured): Jun 1941. Carried as NaN, not as zero — see D-070."
+wettest_year_rain,,2000,1208.8,mm,highest annual total in the record
+driest_year_rain,,1945,592.1999999999998,mm,lowest annual total in the record
+mean_annual_rain_1930s,,1930s,859.1999999999999,mm,decade-mean annual rainfall over its usable years (n=9); NOT ranked — the record does not cover the whole decade
+mean_annual_rain_1940s,,1940s,819.0555555555553,mm,decade-mean annual rainfall over its usable years (n=9); ranked
+mean_annual_rain_1950s,,1950s,892.4599999999998,mm,decade-mean annual rainfall over its usable years (n=10); ranked
+mean_annual_rain_1960s,,1960s,900.6599999999999,mm,decade-mean annual rainfall over its usable years (n=10); ranked
+mean_annual_rain_1970s,,1970s,801.1799999999998,mm,decade-mean annual rainfall over its usable years (n=10); ranked
+mean_annual_rain_1980s,,1980s,856.4999999999998,mm,decade-mean annual rainfall over its usable years (n=10); ranked
+mean_annual_rain_1990s,,1990s,793.3799999999999,mm,decade-mean annual rainfall over its usable years (n=10); ranked
+mean_annual_rain_2000s,,2000s,890.5599999999998,mm,decade-mean annual rainfall over its usable years (n=10); ranked
+mean_annual_rain_2010s,,2010s,871.4099999999999,mm,decade-mean annual rainfall over its usable years (n=10); ranked
+mean_annual_rain_2020s,,2020s,910.7666666666665,mm,decade-mean annual rainfall over its usable years (n=6); NOT ranked — the record does not cover the whole decade
+driest_decade_mean_rain,,1990s,793.3799999999999,mm,"the driest decade in the record on complete years; the era field IS the answer to 'which decade'. Ranked against the 8 COMPLETE decades, not asserted; the part-decades 1930s, 2020s are excluded from the ranking but keep their own keys."
+wettest_decade_mean_rain,,1960s,900.6599999999999,mm,"the wettest COMPLETE decade, on the same basis"
+trend_annual_rain_1931_2025,,1931-2025,0.2404404655517075,mm/yr,"OLS trend in annual rainfall over the 1931-2025 window, n=94. Nested with the other rainfall windows and sharing an end year, exactly as the PET windows are: evidence about long standing, NOT a test of acceleration."
+trend_annual_rain_1931_2025_t,,1931-2025,0.5678262117532022,,t-statistic of trend_annual_rain_1931_2025
+trend_annual_rain_1960_2025,,1960-2025,0.5663730299551362,mm/yr,"OLS trend in annual rainfall over the 1960-2025 window, n=66. Nested with the other rainfall windows and sharing an end year, exactly as the PET windows are: evidence about long standing, NOT a test of acceleration."
+trend_annual_rain_1960_2025_t,,1960-2025,0.8018990477231848,,t-statistic of trend_annual_rain_1960_2025
+trend_annual_rain_1990_2025,,1990-2025,3.6217374517374514,mm/yr,"OLS trend in annual rainfall over the 1990-2025 window, n=36. Nested with the other rainfall windows and sharing an end year, exactly as the PET windows are: evidence about long standing, NOT a test of acceleration."
+trend_annual_rain_1990_2025_t,,1990-2025,1.9744066089780061,,t-statistic of trend_annual_rain_1990_2025
 var_annual_pet_mean,,2007-2025,651.9939101030369,mm,"mean of the annual series, n=19"
 var_annual_pet_sd,,2007-2025,20.23759876694094,mm,standard deviation of the annual series
 var_annual_pet_cv_pct,,2007-2025,3.103955183222911,%,coefficient of variation: sd as a percentage of the mean. This is why PET separates from zero and a larger winter rainfall trend does not.

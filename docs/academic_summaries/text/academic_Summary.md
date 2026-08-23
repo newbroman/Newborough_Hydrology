@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/academic_summaries/academic_Summary_v1_8.odt — do not edit.
+<!-- GENERATED MIRROR of docs/academic_summaries/academic_Summary_v1_9.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Newborough Warren Groundwater Study
@@ -91,7 +91,7 @@ Key quantitative findings
   ------------------------------------------------- -------------------------- ----------------
   Finding                                           Value                      Source
   Scraping step CEH36 (paired BACI)                 \+ 195 mm p = 0.004        Script 09c
-  Clearfell step vs Forest control (monthly mean)   \+ 120 mm p \< 0.001       Script 10a
+  Clearfell step vs Forest control (monthly mean)   \+ 113 mm p = 0.002        Script 10a
   Clearfell step vs Forest control (summer only)    \+ 46 mm p = 0.44 (n.s.)   Script 10a
   MSL5 change 2017→2023 (site mean)                 − 97 mm                    Script 26 / 20
   Wells deepened \>25 mm (of 59 valid)              56 (95%)                   Script 20

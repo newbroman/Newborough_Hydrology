@@ -297,18 +297,36 @@ def _load_coastal_fit() -> tuple[float, float]:
 
 
 def _load_clearfell_step() -> float:
-    """Clearfell ANCOVA step (mm) — Path B, from 10a_report_numbers.csv."""
-    snapshot_mm = 119.6
-    try:
-        df      = pd.read_csv(OUT_10A_REPORT)
-        key_col = df.iloc[:, 0].astype(str)
-        row     = df[key_col == "ANCOVA_Forest_Impact_clearfell_step"]
-        val_mm  = float(row.iloc[0, 3]) * 1000.0
-        info(f"clearfell step (Path B, live): {val_mm:.1f} mm")
-        return val_mm
-    except Exception as exc:
-        warn(f"cannot read 10a clearfell step ({exc}) — using {snapshot_mm:.1f} mm")
-        return snapshot_mm
+    """Clearfell ANCOVA step (mm) — Path B, from 10a_report_numbers.csv.
+
+    NO FALLBACK. This value anchors the whole site-integrated driver footing —
+    the shares that report10 and Paper 2 quote for scraping and clearfell
+    against coastal retreat — so a run that cannot read it must stop, not
+    continue on a remembered number.
+
+    It used to carry `snapshot_mm = 119.6` and warn. Three things were wrong
+    with that. The snapshot went stale when D-061 settled the headline at
+    +112.8 mm and nothing updated it, so the fallback would have silently
+    computed the entire footing on a superseded step. A warn-and-continue path
+    produces a complete, plausible, wrong result — the worst failure shape
+    available. And the stale number leaked into the prose: the Methods
+    Supplement and PIPELINE_README both documented the anchor as "+119.6 mm
+    observed", describing the fallback rather than the value every committed run
+    actually used (112.8 mm, per 37_results.txt and 37b_results.txt). Found by
+    `cite_check` 1.11.0's millimetre pass on its first run, 2026-08-23 (D-066).
+    """
+    df      = pd.read_csv(OUT_10A_REPORT)
+    key_col = df.iloc[:, 0].astype(str)
+    row     = df[key_col == "ANCOVA_Forest_Impact_clearfell_step"]
+    if row.empty:
+        raise SystemExit(
+            "37: ANCOVA_Forest_Impact_clearfell_step is absent from "
+            f"{OUT_10A_REPORT}. The driver footing anchors on it and there is "
+            "no fallback by design — run Script 10a first."
+        )
+    val_mm = float(row.iloc[0, 3]) * 1000.0
+    info(f"clearfell step (Path B, live): {val_mm:.1f} mm")
+    return val_mm
 
 
 # ---------------------------------------------------------------------------

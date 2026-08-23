@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_43.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_44.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 1.9.43 (August 2026).
+Document version: 1.9.44 (August 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -2964,7 +2964,7 @@ Both forms are tried at each specification, and AIC is used to compare them.
 
 **Cluster attribution.** The headline (forest-free linear-capped) fit is applied to each cluster's mean distance-to-coast to compute a *gradient-only* component (δ₀ · (1 − d̄/L), clipped at zero beyond the cutoff). The decomposition is computed against a declared, balanced observed basis: *observed_balanced_annual_mean_mm_yr*, the OLS slope of the annual cross-well mean of the per-well seasonal metric, taken over the same well-set as the per-well slopes. That is one regression on one annual series rather than an average of per-well fits taken over different record windows, and the column *decomposition_basis* names it inside the file so the basis travels with the table. The Script-14 cluster-centroid slope and the mean of the per-well slopes are retained beside it as context columns and are no longer subtracted from: the earlier table subtracted the model from the centroid slope, which put three different bases into one subtraction, since the panel δ(d) is CWB-adjusted and all-season while the per-well slopes are raw annual seasonal-metric OLS and the centroid is a third quantity again. Four components are then reported against the basis: the coastal gradient; the climate contribution 1000 · β_cwb · d(CWB)/dt carried by the cumulative-water-balance covariate; the fitted far-field offset c; and the unexplained remainder. The offset and the climate contribution are written as separate columns because they measure different things, and because the offset is a window statistic rather than a rate, as the Cluster attribution note above sets out; the former column names *predicted_climate_mm_yr*, *predicted_total_mm_yr*, *residual_mm_yr* and the *\*\_pct_of_observed* shares are retired rather than reused, so a reader written against the old table fails loudly instead of reading a different quantity under a familiar name. Because each component is a rate rather than a share of a fitted total, a component can exceed the basis in either direction. The unexplained remainder does so at the clusters beyond the inland reach, which is the honest reading of a model that explains none of their deepening. The coastal gradient does so at C5, where it slightly over-explains a decline the balanced basis puts at −16.15 mm yr⁻¹.
 
-**BACI corroboration.** The BACI ANCOVA fits *delta_easting × months_since_intervention* as a covariate to absorb monotonic spatial drift. Its coefficient (units: m per m-easting per month) implies an absorbed differential deepening rate at the impact zone relative to each control tier, which can be compared directly against the gradient model's predicted differential δ(d_impact) − δ(d_control). For each (control tier × impact zone) pair, Script 25 computes both, runs a z-test of one against the other, and labels the pair "consistent" if \|z\| \< 2. The Forest-Impact comparison is the principal check: if the BACI's easting × time term is doing nothing but coastal-retreat correction, BACI absorption and model prediction should agree.
+**BACI absorption, and the withdrawn corroboration.** The BACI ANCOVA fits *delta_easting × months_since_intervention* as a covariate to absorb monotonic spatial drift. Its coefficient (units: m per m-easting per month) implies an absorbed differential deepening rate at the impact zone relative to each control tier. Script 25 computes that absorbed rate for each (control tier × impact zone) pair alongside the gradient model's predicted differential δ(d_impact) − δ(d_control), runs a z-test of one against the other, and labels the pair "consistent" if \|z\| \< 2. **That comparison was read as a corroboration of the easting × time term as a coastal-retreat correction, and the reading is withdrawn (D-050).** The paragraph below sets out why; the *z_test_baci_vs_model* and *consistent* columns survive in the output file and should not be quoted. What stands is the absorbed rate itself, as a statement of what the covariate removes; what does not is reading it as an independent estimate of the coastal gradient.
 
 ### []{#anchor-415}[]{#anchor-416}[]{#anchor-417}Site-specific choices and rationale
 
@@ -3022,7 +3022,7 @@ All paths resolve through *utils/paths.py* (*OUT_25_FIT_PARAMETERS*, *OUT_25_PER
 ### []{#anchor-423}[]{#anchor-424}[]{#anchor-425}Where the result appears in the report
 
 -   §5.4.3 --- coastal-retreat gradient context for the BACI clearfell step.
--   §5.7.2 --- corroboration of the BACI's *easting × time* covariate as a coastal-retreat correction at the Impact zone.
+-   §5.7.2 --- the BACI's *easting × time* covariate, and why the drift it absorbs is not a measurement of coastal retreat at the Impact zone (D-050; the corroboration reading is withdrawn).
 -   §5.8 --- cluster-level summer-trend partition (C5 Coastal Forest attribution, C3 Western Residual attribution).
 -   §5.9 --- implications for the whole-site interpretation of summer-minimum decline.
 -   Conclusions --- coastal retreat as a network-wide confound on long-term trend interpretation.
@@ -3033,7 +3033,7 @@ All paths resolve through *utils/paths.py* (*OUT_25_FIT_PARAMETERS*, *OUT_25_PER
 
 -   **F.3** --- SSM displacement formulation; the per-well slopes in Script 25 are independent of the SSM but the cluster attribution lands against an SSM-fitted picture.
 -   **S.3** --- Script 03's cluster assignments are the basis for the per-cluster partition.
--   **S.7** --- Script 10 suite (BACI); Script 25's BACI corroboration directly references Script 10a's *easting × time* coefficient.
+-   **S.7** --- Script 10 suite (BACI); Script 25's absorption comparison reads Script 10a's *easting × time* coefficient directly. The corroboration reading of that comparison is withdrawn (D-050); the comparison is still computed and its verdict columns are not quoted.
 -   **S.13** --- Script 19's residual and per-well slope figures show the same coast-to-inland gradient from an independent visualization. Script 20's coastal-process figures (*20_coastal_erosion.png*, *20_slr_response.png*, *20_coastal_net_effect.png*) consume δ₀ and L from this chapter's *25_01_panel_fit_parameters.csv* live at generation time; see *COASTAL_NET_VS_EASTING_MEMO.md* (project store) for the SLR-extended comparison against the BACI easting × time coefficient.
 -   **S.15c** --- Script 09f (spatial-reach synthesis figure) reads δ₀ and L live from *25_01_panel_fit_parameters.csv* produced by this chapter.
 -   **S.15d** --- Script 09g (mechanism diagrams) draws its coastal reach from the columns of *09f_01_reach_profile.csv*, whose coastal decay derives from this chapter's δ₀ and L.

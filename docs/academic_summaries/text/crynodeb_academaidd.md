@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/academic_summaries/crynodeb_academaidd_v1_7.odt — do not edit.
+<!-- GENERATED MIRROR of docs/academic_summaries/crynodeb_academaidd_v1_8.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Astudiaeth Dŵr Daear Cwningar Niwbwrch
@@ -91,7 +91,7 @@ Prif ganfyddiadau meintiol
   -------------------------------------------------------- -------------------------- ----------------
   Canfyddiad                                               Gwerth                     Ffynhonnell
   Cam crafu CEH36 (BACI pâr)                               \+ 195 mm p = 0.004        Script 09c
-  Cam clirdorri yn erbyn rheolydd Coedwig (cymedr misol)   \+ 113 mm p \< 0.001       Script 10a
+  Cam clirdorri yn erbyn rheolydd Coedwig (cymedr misol)   \+ 113 mm p = 0.002        Script 10a
   Cam clirdorri yn erbyn rheolydd Coedwig (haf yn unig)    \+ 46 mm p = 0.44 (n.s.)   Script 10a
   Newid MSL5 2017→2023 (cymedr y safle)                    − 97 mm                    Script 26 / 20
   Ffynhonnau a ddyfnhaodd \>25 mm (o 59 dilys)             56 (95%)                   Script 20

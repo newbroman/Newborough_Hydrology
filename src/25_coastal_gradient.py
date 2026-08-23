@@ -740,6 +740,42 @@ def fit_panel(df: pd.DataFrame, decay_func, p0, bounds,
     at 1; non-linear search runs over the parameters of δ(d_w).
     """
     h_dm, cwb_dm, M_dm = _within_demeaned_design(df)
+    # ── Is the far-field constant separately identified from the climate term?
+    # c enters the model as c·t, so its covariate IS elapsed time, and the
+    # question is the variance inflation of demeaned t against the rest of the
+    # linear design. Computed here because this is the only place the actual
+    # demeaned design exists.
+    #
+    # THE NUMBER IS MEANINGLESS WITHOUT THE DESIGN IT IS COMPUTED ON, and the
+    # difference is not marginal: on the RAW monthly series the cumulative water
+    # balance is a near-straight line in time (R² = 0.993, VIF ≈ 151), because a
+    # cumulative sum of a near-constant-mean series must be. After within-well
+    # demeaning and month fixed effects most of that shared signal is absorbed
+    # and the inflation is small. Both are reported: quoting only the small one
+    # tells a reader the two covariates are nearly orthogonal when the raw pair
+    # is anything but.
+    _t_dm = (df["t_years"]
+             - df.groupby("well")["t_years"].transform("mean")).values
+
+    def _vif_of(y, X):
+        y = np.asarray(y, dtype=float)
+        if X is None or X.size == 0 or len(y) < 3:
+            return float("nan")
+        X = np.asarray(X, dtype=float)
+        if X.ndim == 1:
+            X = X.reshape(-1, 1)
+        b, *_ = np.linalg.lstsq(X, y, rcond=None)
+        r = y - X @ b
+        ss_tot = float(y @ y)
+        if not np.isfinite(ss_tot) or ss_tot <= 0:
+            return float("nan")
+        r2 = 1.0 - float(r @ r) / ss_tot
+        r2 = min(max(r2, 0.0), 1.0 - 1e-12)
+        return float(1.0 / (1.0 - r2))
+
+    _vif_cwb = _vif_of(_t_dm, cwb_dm)
+    _vif_design = _vif_of(_t_dm, np.column_stack([cwb_dm, M_dm]))
+
     d_w = df["dist_coast_m"].values
     t = df["t_years"].values
 

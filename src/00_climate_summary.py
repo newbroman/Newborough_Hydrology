@@ -858,6 +858,29 @@ def _run_all() -> None:
                     f"n={_srt[_k]['n']}")
         rr.add(f"trend_{_k}_t", _srt[_k]["t"], unit="", era=_srt["era"],
                note=f"t-statistic of trend_{_k}")
+
+    # Long-record context for the PET trend, so the well-record figure is not
+    # read as a secular rate, and the variability that explains why PET
+    # separates from zero while a larger winter-rainfall trend does not.
+    _plc = pet_long_record_context(climate)
+    for _w, _r in _plc["windows"].items():
+        rr.add(f"trend_annual_pet_{_w}", _r["slope"], unit="mm/yr", era=_r["era"],
+               note=f"OLS trend in annual Thornthwaite PET over the {_r['era']} "
+                    f"window, n={_r['n']}. Nested with the other PET windows and "
+                    f"sharing an end year: evidence that the rise is of long "
+                    f"standing and steepening, NOT a test of acceleration.")
+        rr.add(f"trend_annual_pet_{_w}_t", _r["t"], unit="", era=_r["era"],
+               note=f"t-statistic of trend_annual_pet_{_w}")
+    _var = series_variability(climate_short)
+    for _k in ("annual_pet", "winter_rainfall"):
+        rr.add(f"var_{_k}_mean", _var[_k]["mean"], unit="mm", era=_var["era"],
+               note=f"mean of the annual series, n={_var[_k]['n']}")
+        rr.add(f"var_{_k}_sd", _var[_k]["sd"], unit="mm", era=_var["era"],
+               note="standard deviation of the annual series")
+        rr.add(f"var_{_k}_cv_pct", _var[_k]["cv_pct"], unit="%", era=_var["era"],
+               note="coefficient of variation: sd as a percentage of the mean. "
+                    "This is why PET separates from zero and a larger winter "
+                    "rainfall trend does not.")
     rr.add("pet_warming_dT", pet_resp["dT_C"], unit="degC",
            era=f"{pet_resp['early_first']}-{pet_resp['early_last']} vs "
                f"{pet_resp['late_first']}-{pet_resp['late_last']}",
@@ -1000,6 +1023,88 @@ def seasonal_redistribution_trends(climate, year_first: int = 2007,
         slope, tstat, n = _ols(series.values, series.index.values)
         out[key] = {"slope": slope, "t": tstat, "n": n}
     out["era"] = f"{year_first}-{year_last}"
+    return out
+
+
+def pet_long_record_context(climate_full, windows=((1931, 2025), (1960, 2025),
+                                                   (1990, 2025))) -> dict:
+    """Annual-PET trend over successively shorter windows, and the variability
+    of PET against winter rainfall.
+
+    WHY BOTH, AND WHY THE LONG WINDOWS
+
+      Section 4.10.3 quotes the PET trend over the well record (+1.96 mm/yr,
+      t = 2.67). Quoted alone that is a nineteen-year figure presented as a
+      rate — which is the exact error the same subsection warns against two
+      paragraphs later when it cautions that a short-window trend reports which
+      years fall inside the window. The long-record trends are therefore emitted
+      beside it so the short one can be read against them. They are nested and
+      all end in the same year, so they establish that the trend is of long
+      standing and STEEPENING; they do not constitute a test of acceleration and
+      must not be quoted as one (Martin, 2026-08-23).
+
+      The variability statistics answer the question the significance pattern
+      raises. Winter rainfall's trend is the LARGER of the two in millimetres
+      and the smaller relative to its own noise: PET varies by about 3% about
+      its mean where winter rainfall varies by about 19%. Significance here is a
+      statement about signal-to-noise, not about magnitude, and a reader who is
+      told only the t-statistics will draw the wrong conclusion about which
+      quantity is moving more.
+    """
+    import numpy as np
+
+    def _ols(y, x):
+        x = np.asarray(x, float); y = np.asarray(y, float)
+        m = np.isfinite(x) & np.isfinite(y)
+        x, y = x[m], y[m]
+        if len(y) < 3:
+            return float("nan"), float("nan"), len(y)
+        X = np.column_stack([np.ones_like(x), x])
+        b, *_ = np.linalg.lstsq(X, y, rcond=None)
+        r = y - X @ b
+        s2 = r @ r / (len(y) - 2)
+        se = np.sqrt(np.diag(s2 * np.linalg.inv(X.T @ X)))
+        return float(b[1]), float(b[1] / se[1]), int(len(y))
+
+    out = {"windows": {}}
+    for y0, y1 in windows:
+        d = climate_full[(climate_full.index.year >= y0)
+                         & (climate_full.index.year <= y1)].copy()
+        d["yr"] = d.index.year
+        d["PET_mm"] = d["PET"] * 1000.0
+        ann = d.groupby("yr").agg(PET=("PET_mm", "sum"), n=("PET_mm", "size"))
+        ann = ann[ann["n"] == 12]
+        slope, tstat, n = _ols(ann["PET"].values, ann.index.values)
+        out["windows"][f"{y0}_{y1}"] = {"slope": slope, "t": tstat, "n": n,
+                                        "era": f"{y0}-{y1}"}
+    return out
+
+
+def series_variability(climate, year_first: int = 2007,
+                       year_last: int = 2025) -> dict:
+    """Mean, sd and coefficient of variation for annual PET and winter rainfall.
+
+    Seasons as everywhere else in this script: winter is Oct-Mar, keyed to the
+    year its October falls in. Complete seasons only.
+    """
+    import numpy as np
+    d = climate[(climate.index.year >= year_first)
+                & (climate.index.year <= year_last)].copy()
+    d["P"] = d["P_m"] * 1000.0
+    d["PET_mm"] = d["PET"] * 1000.0
+    d["yr"] = d.index.year
+    d["wyr"] = np.where(d.index.month >= 10, d.index.year, d.index.year - 1)
+    ann = d.groupby("yr").agg(PET=("PET_mm", "sum"), n=("PET_mm", "size"))
+    ann = ann[ann["n"] == 12]
+    wtr = d[d.index.month.isin([10, 11, 12, 1, 2, 3])].groupby("wyr").agg(
+        P=("P", "sum"), n=("P", "size"))
+    wtr = wtr[wtr["n"] == 6]
+    out = {"era": f"{year_first}-{year_last}"}
+    for key, ser in (("annual_pet", ann["PET"]), ("winter_rainfall", wtr["P"])):
+        mu = float(ser.mean()); sd = float(ser.std(ddof=1))
+        out[key] = {"mean": mu, "sd": sd,
+                    "cv_pct": 100.0 * sd / mu if mu else float("nan"),
+                    "n": int(len(ser))}
     return out
 
 

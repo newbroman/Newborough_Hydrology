@@ -43,6 +43,7 @@
 #   v1.0.0  2026-07-12
 # =============================================================================
 
+import os
 import re
 import sys
 import json
@@ -55,7 +56,27 @@ def _c(s, c):
     return s if not sys.stdout.isatty() else f"{c}{s}{C_0}"
 
 
+def _refuse_if_stale(pdf_path):
+    """A stale PDF does not make this lint fail — it makes it LIE.
+
+    On 2026-08-23 report.pdf was dated 06:51 while four of its source documents
+    had been edited after it, so this tool parsed a document that no longer
+    existed and reported it clean. Reading an out-of-date artefact is worse than
+    not reading one, because the green result is taken as evidence.
+    """
+    import subprocess as _sp
+    repo = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    lag = os.path.join(repo, "tools", "export_lag.py")
+    if not os.path.exists(lag):
+        return
+    r = _sp.run([sys.executable, lag, "--strict"], capture_output=True, text=True)
+    if r.returncode != 0 and os.path.basename(pdf_path) in r.stdout:
+        sys.exit(_c(r.stdout + "\nrefusing to lint a PDF older than its sources — "
+                    "re-export first", C_RED))
+
+
 def extract_text(pdf_path):
+    _refuse_if_stale(pdf_path)
     if not shutil.which("pdftotext"):
         sys.exit(_c("error: pdftotext not found (install poppler-utils)", C_RED))
     try:

@@ -41,6 +41,7 @@ MAP=(
   # the working ODTs. Same convention as every row above: newest versioned ODT
   # in, stable published filename out.
   "docs/papers/paper_1/Paper1_v1_*.odt|docs/papers/paper_1/Paper1.pdf"
+  "docs/papers/paper_2/Hollingham_2026_Paper2_amended_v*.odt|docs/papers/paper_2/Hollingham_2026_Paper2_amended.pdf"
   "docs/papers/paper_1/PAPER1_SI_methods_v1_*.odt|docs/papers/paper_1/PAPER1_SI_methods.pdf"
 )
 latest() { ls -v $1 2>/dev/null | tail -1; }        # highest version matching the glob

@@ -862,7 +862,7 @@ def _run_all() -> None:
     # Long-record context for the PET trend, so the well-record figure is not
     # read as a secular rate, and the variability that explains why PET
     # separates from zero while a larger winter-rainfall trend does not.
-    _plc = pet_long_record_context(climate)
+    _plc = pet_long_record_context(climate_full)
     for _w, _r in _plc["windows"].items():
         rr.add(f"trend_annual_pet_{_w}", _r["slope"], unit="mm/yr", era=_r["era"],
                note=f"OLS trend in annual Thornthwaite PET over the {_r['era']} "

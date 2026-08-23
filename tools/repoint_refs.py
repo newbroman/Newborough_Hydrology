@@ -193,6 +193,11 @@ def _caption_ranges(xml: str):
     return [(m.start(), m.end()) for m in CAPTION_FIELD.finditer(xml)]
 
 
+_BLOCK_END = re.compile(
+    r"</(?:text:p|text:h|text:list-item|text:list|table:table-cell"
+    r"|table:table-row|table:table|draw:frame|office:annotation)>")
+
+
 def _text_view(xml: str):
     """(plain text, index map) — text characters only, each mapped to its XML
     offset.
@@ -213,6 +218,22 @@ def _text_view(xml: str):
     while i < n:
         if xml[i] == "<":
             k = xml.find(">", i)
+            tag = xml[i:k + 1] if k >= 0 else ""
+            if _BLOCK_END.match(tag):
+                # A BLOCK BOUNDARY IS A WORD BOUNDARY. Stripping tags without
+                # putting anything in their place runs the end of a heading
+                # straight into the start of the next paragraph — the corpus
+                # really contained "movementFigure 63 shows the secular
+                # differential movement", and \bfigure\b cannot match there
+                # because "tF" is not a boundary. Four references were invisible
+                # to the 2026-08-23 re-point for exactly this reason, and no
+                # check could see them: a reference nothing matches is a
+                # reference nothing reports.
+                #
+                # The newline is synthetic, so it is mapped to the tag's own
+                # offset. Nothing can ever write through it: every edit span
+                # comes from a group of digits, and a digit is not a newline.
+                out.append("\n"); idx.append(i)
             i = n if k < 0 else k + 1
             continue
         out.append(xml[i]); idx.append(i); i += 1

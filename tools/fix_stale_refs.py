@@ -28,7 +28,7 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-08-23. Second batch: the
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-08-23. Second batch: the
 #   eleven figure references in PIPELINE_README.md and readme.md that name the
 #   script producing the figure. Those two documents are on an older baseline
 #   than the report, so the 2026-08-23 permutation moved several of them from
@@ -219,6 +219,39 @@ FIXES += [
      r"the single 2017→2023 MSL5 comparison \(the (§4\.9\.8) headline",
      "§4.9.7",
      "the 2017-vs-2023 comparison is figure 55, in 4.9.7"),
+]
+
+
+# ---------------------------------------------------------------------------
+# FIFTH BATCH — the four references the 2026-08-23 pass could not SEE, 2026-08-23.
+#
+# _text_view stripped tags without putting anything in their place, so the end
+# of a heading ran straight into the start of the next paragraph: the corpus
+# really contained "movementFigure 63 shows the secular differential movement",
+# and \bfigure\b cannot match where the preceding character is a letter. Four
+# references were therefore invisible to every pass, and no check could see
+# them either — a reference nothing matches is a reference nothing reports.
+#
+# _text_view now emits a newline at each block boundary (repoint_refs 1.5.0), so
+# a future pass sees them. These four are the ones the broken view missed, each
+# confirmed against what the sentence describes.
+FIXES += [
+    ("report_edits/odt/report9.odt",
+     r"movement\s*(Figure 63) shows the secular differential movement",
+     "Figure 56",
+     "secular differential movement is 1.60 -> Figure 56"),
+    ("report_edits/odt/report9.odt",
+     r"Summary of pattern\s*(Figure 60) predicts a large net loss",
+     "Figure 53",
+     "the net-state parametric combination is 1.57 -> Figure 53"),
+    (_versioned("Newborough_Methods_Supplement"),
+     r"Motivation\s*(Section 4\.10\.2) of the main report quantifies",
+     "Section 4.11.2",
+     "clearfell / thinning / broadleaf is Forest Management Scenarios, 4.11.2"),
+    ("docs/report/Supplementary_Material_v1_18.odt",
+     r"units\s*(Figure 63) — Differential movement",
+     "Figure 56",
+     "Script 32's differential movement is Figure 56"),
 ]
 
 

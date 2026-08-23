@@ -2292,18 +2292,53 @@ def plot_fit_diagnostic(per_well: pd.DataFrame,
              color="#333333", alpha=0.9,
              label="Observed (balanced annual mean)",
              edgecolor="black", linewidth=0.5)
-    ax2.bar(x + width / 2, cli, width,
-             color="#4488cc", alpha=0.85, label="Climate (CWB trend)",
-             edgecolor="black", linewidth=0.5)
-    ax2.bar(x + width / 2, grad, width, bottom=cli,
-             color="#cc5500", alpha=0.85, label="Coastal-retreat gradient",
-             edgecolor="black", linewidth=0.5)
-    ax2.bar(x + width / 2, off, width, bottom=cli + grad,
-             color="#7f4fbf", alpha=0.85, label="Far-field offset (c)",
-             edgecolor="black", linewidth=0.5)
-    ax2.bar(x + width / 2, unx, width, bottom=cli + grad + off,
-             color="#bbbbbb", alpha=0.85, label="Unexplained",
-             edgecolor="black", linewidth=0.5)
+
+    # SIGNED stacking. The components have mixed signs — at C5 the climate term
+    # is +2.9 while the coastal gradient is −18.3 — and a naive cumulative
+    # `bottom=` stack DRAWS THE NEGATIVE SEGMENT BACK OVER THE POSITIVE ONE it
+    # was stacked on. That is what happened here: C5's orange gradient bar was
+    # drawn from +2.9 downward to −15.4, painting over the blue climate bar
+    # entirely, so the figure showed an orange bar apparently running 0 to +3
+    # when the quantity it stood for was −18.3. The arithmetic was right — the
+    # stack still terminated at the modelled total — but nothing a reader could
+    # see was. Found by Martin, 2026-08-23, asking what the straddling bar meant.
+    #
+    # Positives now accumulate upward from zero and negatives downward from
+    # zero, each on its own running baseline, so every segment is drawn at its
+    # own magnitude and none is occluded. The modelled total is then the
+    # ALGEBRAIC sum rather than the top of the stack, so it is marked
+    # explicitly — otherwise a signed stack shows the parts and hides the whole.
+    comps = [(cli,  "#4488cc", "Climate (CWB trend)"),
+             (grad, "#cc5500", "Coastal-retreat gradient"),
+             (off,  "#7f4fbf", "Far-field offset (c)"),
+             (unx,  "#bbbbbb", "Unexplained")]
+    pos_base = np.zeros(len(p))
+    neg_base = np.zeros(len(p))
+    for vals, colour, lab in comps:
+        vals = np.asarray(vals, dtype=float)
+        up = np.where(vals > 0, vals, 0.0)
+        dn = np.where(vals < 0, vals, 0.0)
+        ax2.bar(x + width / 2, up, width, bottom=pos_base,
+                color=colour, alpha=0.85, label=lab,
+                edgecolor="black", linewidth=0.5)
+        ax2.bar(x + width / 2, dn, width, bottom=neg_base,
+                color=colour, alpha=0.85,
+                edgecolor="black", linewidth=0.5)
+        pos_base = pos_base + up
+        neg_base = neg_base + dn
+
+    # The MODELLED total — climate + coastal gradient + far-field offset, and
+    # deliberately NOT including the unexplained term. Marking the sum of all
+    # four would have been a tautology: `unexplained` is defined as observed
+    # minus modelled, so the four always sum to the observed bar exactly and a
+    # tick there tells the reader nothing they can act on. Drawn without it, the
+    # tick is what the model claims and the distance from it to the top of the
+    # observed bar IS the unexplained term, made visible as a gap rather than
+    # asserted as a grey block.
+    modelled = cli + grad + off
+    ax2.hlines(modelled, x + width / 2 - width / 2, x + width / 2 + width / 2,
+               color="black", linewidth=2.0, zorder=6,
+               label="Modelled (climate + coastal + offset)")
 
     ax2.axhline(0, color="black", linewidth=0.5)
     ax2.set_xticks(x)

@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_45.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_46.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 1.9.45 (August 2026).
+Document version: 1.9.46 (August 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -62,7 +62,7 @@ Where this supplement and the main report disagree, the main report is canonical
 
 The 88-well dipwell network is read monthly by the author. Readings are taken at the **end of each month** --- typically the last day of that month, or the first day or two of the following month. Each reading is the water level *for the month just ended*: a measurement taken on 1 May 2026 represents the **April 2026** water level.
 
-Climate data from RAF Valley Meteorological Station (53°14′32″N, ≈16 km from the site) is a monthly total for the same calendar month. Rainfall (mm) and minimum and maximum temperatures (°C) are tabulated month-by-month from 1930 to present. Potential evapotranspiration is computed inside the pipeline (Script 00) using the Thornthwaite method at the RAF Valley latitude, returning a monthly PET total in millimetres.
+Climate data from RAF Valley Meteorological Station (53°14′32″N, ≈16 km from the site) is a monthly total for the same calendar month. Rainfall (mm) and minimum and maximum temperatures (°C) are tabulated month-by-month from 1930 to present. Potential evapotranspiration is computed inside the pipeline (Script 00) using the Thornthwaite method at the RAF Valley latitude, returning a monthly PET total in millimetres. A month the Met Office marks "\-\--" --- more than two days unmeasured --- is carried as missing and not as zero. There is exactly one in the 95-year file, June 1941; until 2026-08-23 it entered the pipeline as 0 mm, which recorded a month declared unmeasured as the driest in the record. Annual rainfall statistics therefore rest on complete years only, and 1941 is excluded from them (D-070).
 
 ### []{#anchor-8}[]{#anchor-9}[]{#anchor-10}Bucketing
 
@@ -1851,7 +1851,7 @@ Scripts 12 and 13 are the two pipeline scripts that legitimately read from *Well
 
 ### []{#anchor-253}[]{#anchor-254}[]{#anchor-255}Sub-script 00 --- Climate summary
 
-Script 00 generates two complete output sets in a single run via *\_run_all()*. The **full-record** set covers the entire RAF Valley climate series (December 1930 to present, \~95 years) and produces the climate timeseries figure, well-network summary figure, summer warming-trend figure, and three matching CSV tables. The **monitoring-period** set repeats the climate and network outputs over the well-record overlap window (roughly 2004 onwards), restricting climate and wells to the date span where the reference network has observations. The two filename groups are distinguished by a *\_short* suffix on the monitoring-period outputs.
+Script 00 generates two complete output sets in a single run via *\_run_all()*. The **full-record** set covers the entire RAF Valley climate series (December 1930 to present, \~95 years) and produces the climate timeseries figure, well-network summary figure, summer warming-trend figure, and three matching CSV tables. The **monitoring-period** set repeats the climate and network outputs over the well-record overlap window (roughly 2004 onwards), restricting climate and wells to the date span where the reference network has observations. The two filename groups are distinguished by a \_short suffix on the monitoring-period outputs. Script 00 also emits the long-record rainfall context as committed keys: the 95-year mean and standard deviation of annual rainfall over complete years, one mean per decade, the driest and wettest covered decade, the wettest and driest single years, the inventory of months missing from the source, and nested OLS trends over 1931--2025, 1960--2025 and 1990--2025 with their t-statistics. The decade ranking uses only decades the record covers in full, so the part-decades at either end --- the 1930s, which open in December 1930, and the six-year 2020s --- keep their own keys but are not ranked. These exist because the framing used against Betson et al. (2002) in the discussion turned on two numbers that traced to nothing (D-070).
 
 The well filter retains wells with at least *MIN_RECORD_MONTHS = 100* valid records up to *REFERENCE_CUTOFF_DATE*. Llyn Rhos-Ddu is hard-excluded by name because it is a lake-stage measurement rather than a water-table observation; this mirrors the EXTENDED_NETWORK_BLACKLIST in Script 01. Annual climate aggregation (*make_table1_annual_climate*) computes annual P, annual PET, and the P/PET ratio per year, with a *Months_complete* count and a long-term-mean summary row. The well-network table (*make_table2_well_network*) writes per-well record start/end, valid month count, mean, standard deviation, seasonal amplitude (August mean minus February mean), and the per-hydrological-year summer minimum and winter maximum.
 

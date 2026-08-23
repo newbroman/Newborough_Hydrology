@@ -735,10 +735,32 @@ if __name__ == "__main__":
     climate = pd.read_csv(DATA_CLIMATE_RAW)
     climate["Date"] = climate["Unnamed: 0"].apply(parse_met_date)
     climate = climate.set_index("Date")
+    # RAINFALL: A MISSING MONTH IS MISSING, NOT DRY.
+    #
+    # The source marks a month with more than two days unmeasured as "---".
+    # Reading that as "0" and then filling any remaining NaN with 0 recorded
+    # June 1941 — the ONLY gap in the whole 95-year file — as the driest month
+    # in the record. Nothing downstream could see it: the annual table counted
+    # twelve complete months for 1941 and averaged 686.3 mm into the long-run
+    # mean, where the true total is nearer 734 (June at Valley has a median of
+    # 48.1 mm).
+    #
+    # Left as NaN, the machinery that already exists does the right thing:
+    # make_table1_annual_climate counts complete months, flags 1941 with "*",
+    # and excludes it from the long-term mean row. Every consumer that spans
+    # the gap either slices to the well record (2004 onward) or drops NaN
+    # before use — checked across all nine readers of 01_climate.csv on
+    # 2026-08-23 (D-070).
+    _rain_raw = climate["Rain (mm)"].astype(str).str.strip()
+    _rain_missing = _rain_raw.str.contains("---", na=False)
     climate["P_m"] = (
-        pd.to_numeric(climate["Rain (mm)"].replace("---", "0"), errors="coerce")
-        .fillna(0) / 1000
+        pd.to_numeric(_rain_raw.where(~_rain_missing), errors="coerce") / 1000
     )
+    if int(_rain_missing.sum()):
+        _gaps = ", ".join(d.strftime("%b %Y")
+                          for d in climate.index[_rain_missing])
+        info(f"rainfall: {int(_rain_missing.sum())} month(s) marked missing in "
+             f"the source and carried as NaN — {_gaps}")
     t_max_col = "Max Temp ©" if "Max Temp ©" in climate.columns else "Max Temp (C)"
     t_mean = (
         pd.to_numeric(climate[t_max_col], errors="coerce")

@@ -64,10 +64,27 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from odt_edit import edit_spans                              # noqa: E402
+from refresh_mirrors import resolve                          # noqa: E402
 
 REPO = Path(__file__).resolve().parents[1]
 PLAN = Path(__file__).resolve().parent / "renumber_plan.csv"
 PLAN_TABLE = Path(__file__).resolve().parent / "renumber_plan_table.csv"
+
+def _versioned(stem: str) -> str:
+    """The CURRENT file for a versioned document, resolved not typed.
+
+    These paths used to be literals — "..._v1_9_45.odt". Bumping the Methods
+    Supplement to v1.9.46 then broke every tool that named it, in the middle of
+    check_all, with a FileNotFoundError rather than a lint failure. resolve()
+    has always known which file is current; nothing was asking it. (The same
+    mistake in the other direction cost a confident wrong verdict on Paper 1's
+    Table 9, where `ls | tail` sorted v1_9 after v1_18.)
+    """
+    for src, _mirror in resolve():
+        if src.name.startswith(stem):
+            return str(src.relative_to(REPO))
+    raise SystemExit(f"no current document found for {stem!r}")
+
 
 ODTS = {
     "report8":  "report_edits/odt/report8.odt",
@@ -75,9 +92,9 @@ ODTS = {
     "report10": "report_edits/odt/report10.odt",
     "report11": "report_edits/odt/report11.odt",
     "report12": "report_edits/odt/report12.odt",
-    "Newborough_Methods_Supplement": "docs/report/Newborough_Methods_Supplement_v1_9_45.odt",
-    "Supplementary_Material":        "docs/report/Supplementary_Material_v1_18.odt",
-    "academic_Summary":              "docs/academic_summaries/academic_Summary_v1_9.odt",
+    "Newborough_Methods_Supplement": _versioned("Newborough_Methods_Supplement"),
+    "Supplementary_Material":        _versioned("Supplementary_Material"),
+    "academic_Summary":              _versioned("academic_Summary"),
 }
 # Plain-text files that are re-pointed. changelogs/ and DECISION_LOG.md are NOT:
 # they are dated records, and rewriting them would falsify what was true when

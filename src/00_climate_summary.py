@@ -871,6 +871,57 @@ def _run_all() -> None:
                     f"standing and steepening, NOT a test of acceleration.")
         rr.add(f"trend_annual_pet_{_w}_t", _r["t"], unit="", era=_r["era"],
                note=f"t-statistic of trend_annual_pet_{_w}")
+    # Long-record RAINFALL, so the decade framing used against Betson et al.
+    # (2002) is recomputable rather than prose (D-070).
+    _lrr = long_record_rainfall_context(climate_full)
+    _era = f"{_lrr['year_first']}-{_lrr['year_last']}"
+    rr.add("mean_annual_rain_long_record", _lrr["mean"], unit="mm", era=_era,
+           note=f"mean annual rainfall, RAF Valley, complete years only "
+                f"(n={_lrr['n_complete']}). This is the 'long-run average' the "
+                f"discussion of the 1990s attribution work is read against.")
+    rr.add("sd_annual_rain_long_record", _lrr["sd"], unit="mm", era=_era,
+           note="standard deviation of the annual totals over the same years")
+    rr.add("n_years_annual_rain_complete", _lrr["n_complete"], unit="",
+           era=_era, note="years with all twelve monthly rainfall values")
+    rr.add("n_years_annual_rain_incomplete", _lrr["n_incomplete_full_years"],
+           unit="", era=_era,
+           note="calendar years present in the record but missing at least one "
+                "monthly rainfall value, and therefore excluded from every "
+                "annual rainfall statistic here")
+    rr.add("rain_months_missing_in_source", _lrr["months_missing"], unit="",
+           era=_era,
+           note=f"months the Met Office marks '---' (more than two days "
+                f"unmeasured): {_lrr['months_missing_list']}. Carried as NaN, "
+                f"not as zero — see D-070.")
+    rr.add("wettest_year_rain", _lrr["wettest_mm"], unit="mm",
+           era=str(_lrr["wettest_year"]), note="highest annual total in the record")
+    rr.add("driest_year_rain", _lrr["driest_mm"], unit="mm",
+           era=str(_lrr["driest_year"]), note="lowest annual total in the record")
+    for _d, _st in sorted(_lrr["decades"].items()):
+        rr.add(f"mean_annual_rain_{_d}s", _st["mean"], unit="mm", era=f"{_d}s",
+               note=f"decade-mean annual rainfall over its usable years "
+                    f"(n={_st['n']}); "
+                    f"{'ranked' if _st['covered'] else 'NOT ranked — the record does not cover the whole decade'}")
+    rr.add("driest_decade_mean_rain", _lrr["driest_decade_stats"]["mean"],
+           unit="mm", era=f"{_lrr['driest_decade']}s",
+           note=f"the driest decade in the record on complete years; the era "
+                f"field IS the answer to 'which decade'. Ranked against the "
+                f"{_lrr['n_decades_ranked']} COMPLETE decades, not asserted; "
+                f"the part-decades "
+                f"{', '.join(str(d) + 's' for d in _lrr['decades_excluded'])} "
+                f"are excluded from the ranking but keep their own keys.")
+    rr.add("wettest_decade_mean_rain", _lrr["wettest_decade_stats"]["mean"],
+           unit="mm", era=f"{_lrr['wettest_decade']}s",
+           note="the wettest COMPLETE decade, on the same basis")
+    for _w, _r in _lrr["windows"].items():
+        rr.add(f"trend_annual_rain_{_w}", _r["slope"], unit="mm/yr", era=_r["era"],
+               note=f"OLS trend in annual rainfall over the {_r['era']} window, "
+                    f"n={_r['n']}. Nested with the other rainfall windows and "
+                    f"sharing an end year, exactly as the PET windows are: "
+                    f"evidence about long standing, NOT a test of acceleration.")
+        rr.add(f"trend_annual_rain_{_w}_t", _r["t"], unit="", era=_r["era"],
+               note=f"t-statistic of trend_annual_rain_{_w}")
+
     _var = series_variability(climate_short)
     for _k in ("annual_pet", "winter_rainfall"):
         rr.add(f"var_{_k}_mean", _var[_k]["mean"], unit="mm", era=_var["era"],
@@ -1076,6 +1127,109 @@ def pet_long_record_context(climate_full, windows=((1931, 2025), (1960, 2025),
         ann = ann[ann["n"] == 12]
         slope, tstat, n = _ols(ann["PET"].values, ann.index.values)
         out["windows"][f"{y0}_{y1}"] = {"slope": slope, "t": tstat, "n": n,
+                                        "era": f"{y0}-{y1}"}
+    return out
+
+
+def long_record_rainfall_context(climate_full, windows=((1931, 2025), (1960, 2025),
+                                                        (1990, 2025))) -> dict:
+    """Annual rainfall over the 95-year station record: level, spread, decades.
+
+    WHY THIS EXISTS
+
+      report10 discusses the 1990s attribution work against "the driest decade
+      in the 95-year RAF Valley record (mean annual rainfall 793 mm against a
+      long-run average of 853 mm)". Neither number traced to a committed key on
+      2026-08-23 — they were prose. A figure that decides how an earlier study
+      is read should be recomputable, and the decade ranking in particular is a
+      claim about the whole record that nobody could check.
+
+      The trend windows mirror pet_long_record_context exactly, and for the
+      same reason: they are nested and share an end year, so they say the level
+      is or is not moving over the long run. They are NOT a test of
+      acceleration and must not be quoted as one.
+
+    COMPLETE YEARS ONLY
+
+      A year is used only if all twelve months carry a rainfall value. That
+      matters here rather than being a formality: June 1941 is the single
+      missing month in the record, and before it was read as missing rather
+      than as zero it dragged 1941 into the mean at 686.3 mm (D-070). The
+      long-run mean moves by 1.8 mm between the two treatments, and the driest
+      decade does not change under either — which is the measurement that
+      settled how much the defect mattered.
+    """
+    import numpy as np
+
+    def _ols(y, x):
+        x = np.asarray(x, float); y = np.asarray(y, float)
+        m = np.isfinite(x) & np.isfinite(y)
+        x, y = x[m], y[m]
+        if len(y) < 3:
+            return float("nan"), float("nan"), len(y)
+        X = np.column_stack([np.ones_like(x), x])
+        b, *_ = np.linalg.lstsq(X, y, rcond=None)
+        r = y - X @ b
+        s2 = r @ r / (len(y) - 2)
+        se = np.sqrt(np.diag(s2 * np.linalg.inv(X.T @ X)))
+        return float(b[1]), float(b[1] / se[1]), int(len(y))
+
+    d = climate_full.copy()
+    d["P_mm"] = d["P_m"] * 1000.0
+    d["yr"] = d.index.year
+    ann = d.groupby("yr").agg(P=("P_mm", "sum"), got=("P_mm", "count"),
+                              n=("P_mm", "size"))
+    complete = ann[(ann["n"] == 12) & (ann["got"] == 12)]
+    incomplete = ann[(ann["n"] == 12) & (ann["got"] < 12)]
+
+    missing = d.index[d["P_mm"].isna()]
+    out = {
+        "mean": float(complete["P"].mean()),
+        "sd": float(complete["P"].std(ddof=1)),
+        "n_complete": int(len(complete)),
+        "n_incomplete_full_years": int(len(incomplete)),
+        "year_first": int(complete.index.min()),
+        "year_last": int(complete.index.max()),
+        "wettest_year": int(complete["P"].idxmax()),
+        "wettest_mm": float(complete["P"].max()),
+        "driest_year": int(complete["P"].idxmin()),
+        "driest_mm": float(complete["P"].min()),
+        "months_missing": int(len(missing)),
+        "months_missing_list": ", ".join(t.strftime("%b %Y") for t in missing) or "none",
+        "decades": {}, "windows": {},
+    }
+
+    dec = complete.copy()
+    dec["dec"] = (dec.index // 10) * 10
+    # A decade is COVERED if all ten of its calendar years appear in the record
+    # with twelve months each. That is a statement about the record, not about
+    # measurement: the 1940s are covered even though June 1941 is unmeasured
+    # and 1941 therefore drops out of the mean. Without the distinction, fixing
+    # the June 1941 defect would have silently disqualified the 1940s from the
+    # decade ranking — a data repair quietly changing what can be compared.
+    present = ann[ann["n"] == 12]
+    covered = {d for d in range((present.index.min() // 10) * 10,
+                                present.index.max() + 1, 10)
+               if all(y in present.index for y in range(d, d + 10))}
+    for k, g in dec.groupby("dec"):
+        out["decades"][int(k)] = {"mean": float(g["P"].mean()), "n": int(len(g)),
+                                  "covered": int(k) in covered}
+    # RANK COVERED DECADES ONLY. The record opens in Dec 1930 and the 2020s are
+    # six years old, so both ends are part-decades. Ranked with everything in,
+    # the 2020s come out "wettest" on six years — a claim about a decade that
+    # has not happened yet. The 1990s are driest either way; the guard is there
+    # so the ranking cannot be read as more than it is.
+    full = {k: v for k, v in out["decades"].items() if v["covered"]}
+    out["n_decades_ranked"] = len(full)
+    out["decades_excluded"] = sorted(k for k in out["decades"] if k not in full)
+    ranked = sorted(full.items(), key=lambda kv: kv[1]["mean"])
+    out["driest_decade"], out["driest_decade_stats"] = ranked[0]
+    out["wettest_decade"], out["wettest_decade_stats"] = ranked[-1]
+
+    for y0, y1 in windows:
+        sel = complete[(complete.index >= y0) & (complete.index <= y1)]
+        slope, t, n = _ols(sel["P"].values, sel.index.values)
+        out["windows"][f"{y0}_{y1}"] = {"slope": slope, "t": t, "n": n,
                                         "era": f"{y0}-{y1}"}
     return out
 

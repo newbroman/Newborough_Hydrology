@@ -830,6 +830,8 @@ def fit_panel(df: pd.DataFrame, decay_func, p0, bounds,
                             result.x + t_crit * perr])
     return {
         "label": label,
+        "c_vif_vs_cwb": _vif_cwb,
+        "c_vif_vs_design": _vif_design,
         "popt": result.x,
         "perr": perr,
         "ci": ci,
@@ -2678,6 +2680,25 @@ def build_report_numbers(fits: dict,
     decay_funcs = decay_funcs or {}
     # Headline fit (forest-free linear-capped)
     ff = fits[("forest_free", "linear_capped")]
+
+    # Far-field identifiability — the numbers section 4.10.3 rests on. Both are
+    # emitted because the pair is the finding: the constant is separable within
+    # a window (small VIF on the demeaned design) while its covariate is very
+    # nearly collinear with the climate term before the fixed effects are taken
+    # out. Quoting either alone misleads in the opposite direction.
+    for _k, _u, _note in (
+            ("c_vif_vs_cwb", "",
+             "VIF of the far-field constant's covariate (elapsed time) against "
+             "the CWB covariate ALONE, on the within-well demeaned design. Not "
+             "comparable with a VIF computed on the raw monthly series, where "
+             "cumulative water balance is a near-straight line in time."),
+            ("c_vif_vs_design", "",
+             "the same, against the full linear design (CWB + month fixed "
+             "effects, within-well demeaned)")):
+        _v = ff.get(_k)
+        if _v is not None and np.isfinite(_v):
+            rows.append({"Parameter": f"far_field_{_k}", "Well": "", "Era": "",
+                         "Value": float(_v), "Unit": _u, "Note": _note})
 
     # THE HEADLINE COAST-EDGE RATE (D-047). Quoted at a distance the network
     # covers, not at d = 0. delta_0 follows below as the fitted amplitude it

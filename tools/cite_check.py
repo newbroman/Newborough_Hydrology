@@ -1052,10 +1052,18 @@ def check_index(docs, values) -> int:
             continue
         dp = len(quoted.split(".")[1]) if "." in quoted else 0
         want = render(current[key], dp)
+        # Compare NUMBERS, not glyphs. Two of the drifted rows were never drift:
+        # report9 quotes "−0.03" with U+2212 against a rendered "-0.03", and
+        # "+0.82" with an explicit plus against a rendered "0.82". Both are the
+        # same value written differently, and reporting them as stale citations
+        # is how a gating check teaches its reader to ignore it.
+        def _same(a: str, b: str) -> bool:
+            f = lambda x: x.replace("\u2212", "-").lstrip("+")
+            return f(a) == f(b)
         # The row's own before/after slices pick which occurrence it means.
         span = locate(text, quoted, row.get("before", ""), row.get("after", ""))
         present = span is not None
-        if present and want == quoted:
+        if present and _same(want, quoted):
             ok += 1
         elif present:
             if row.get("status") == "confirmed":

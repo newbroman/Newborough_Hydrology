@@ -187,7 +187,7 @@ colours and labels are centralised in `src/utils/config.py`.
 | 12 | 22–24 | 27–29 | Supplementary diagnostics: residual lag structure, ridge recharge hypothesis test, residual seasonality |
 | 13 | 26, 26b, 26c (van Willegen MSL) | 30–32 | Van Willegen et al. (2025) MSL analyses: 5-year observational aggregation with the equilibrium wetness index and Ellenberg-F cross-validation (26), UKCP18 climate projections (26b), and report-format MSL5 figures for §4.8.4 / §4.10.1 (26c) |
 | 14 | 28, 29, 30 (cluster framework diagnostics) | 33–35 | C3 detrend check (28), within-C3 variance attribution (29), and C4 constrained-β₃ triangulation (30) — post-review additions supporting §5.1.1 / §4.2.2 of the main report |
-| 15 | 32, 33, 35, 36, 37, 37b (observed differential change, envelope, and driver validation) | 36–41 | Secular differential water-table drift (32, report Fig 59); climate-swing amplification + drought-floor surface (33, report Fig 60); per-well climate-sensitivity coefficient (35); absolute climate-removed per-well secular trend (36, Figure 63); predicted-vs-observed driver validation (37); comparative driver footing across forest/scrape/coast on common currencies (37b) — all analytical-default |
+| 15 | 32, 33, 35, 36, 37, 37b (observed differential change, envelope, and driver validation) | 36–41 | Secular differential water-table drift (32, report Fig 59); climate-swing amplification + drought-floor surface (33, report Fig 60); per-well climate-sensitivity coefficient (35); absolute climate-removed per-well secular trend (36, Figure 56); predicted-vs-observed driver validation (37); comparative driver footing across forest/scrape/coast on common currencies (37b) — all analytical-default |
 | 16 | 24b, 31, 31b (opt-in), 34, 38 (analytical-default) | 42–46 | Cluster-stratified residual climatology (24b), independent k=5 partition validation (31) and its separation-vs-recoverability companion (31b) — opt-in supplementary diagnostics; the MSL5 two-window sensitivity demonstration figure for §5.7.5 (34) and the coast-to-inland MAM transect observational δ₀ diagnostic for §4.8.3 (38) — both analytical-default |
 | 17 | 09f, 09g, 27 | 47–49 | Management-interventions-vs-coastal-retreat spatial-reach synthesis figure for §5.8 (09f, display/utility, two-pass — reads Scripts 20/25/09d/10a); mechanism grid + coastal reach for §5.8 (09g, display/utility — reads 09f/10m/10a); greyscale figure conversion utility (27, journal-ready B&W) — post-processing |
 
@@ -207,7 +207,7 @@ fit is degenerate. Phase 15 runs the observed-change figure suite: secular
 differential water-table drift (Script 32, step 36, report Fig 59), climate-swing
 amplification and drought-floor surface (Script 33, step 37, report Fig 60), the
 per-well climate-sensitivity coefficient (Script 35, step 38), the absolute
-climate-removed secular trend map (Script 36, step 39, Figure 63), the
+climate-removed secular trend map (Script 36, step 39, Figure 56), the
 predicted-vs-observed driver-change validation (Script 37, step 40), and the
 comparative driver footing across forest/scrape/coast on common currencies
 (Script 37b, step 41). All six run at analytical-default tier.

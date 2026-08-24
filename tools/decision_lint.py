@@ -74,9 +74,22 @@ def main() -> int:
     args = ap.parse_args()
     fail = 0
 
+    # The working record is deliberately untracked (2026-08-24), so a clone of
+    # the public repository has no DECISION_LOG.md at all and every checkout
+    # would fail this gate on a file it is not meant to carry. An ABSENT log is
+    # skipped with a note; a log that is PRESENT but yields nothing is still a
+    # failure, because that means the format changed under the parser — which is
+    # the thing this check exists to catch.
+    if not LOG.exists():
+        print(f"  SKIP  {LOG.name} is not in this checkout — the working record "
+              f"is untracked by decision.")
+        print(f"        Settled decisions are in DECISIONS_PUBLIC.md.")
+        return 0
+
     entries, unconfirmed = parse_log()
     if not entries:
-        print(f"FAIL  no entries found in {LOG.name} (is it missing?)")
+        print(f"FAIL  {LOG.name} is present but no entries parsed — the "
+              f"heading format has changed under the parser.")
         return 1
     if not args.quiet:
         print(f"DECISION_LOG.md: {len(entries)} entries "

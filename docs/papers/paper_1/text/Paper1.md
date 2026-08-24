@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_19.odt — do not edit.
+<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_20.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 A parameter-sparse state-space framework for characterizing coastal dune-aquifer architecture from manual dipwell records
@@ -9,7 +9,11 @@ Draft --- 2026
 
 # Abstract
 
-The vegetation communities of coastal dune slacks occupy a band of water-table depth only a few tens of centimetres wide, so that small differences separate a functioning wet slack from a dry one. Characterizing the aquifer that governs that water-table depth is difficult in unconsolidated dune sand, where distributed flow models demand hydraulic-conductivity fields and aquifer-thickness surfaces that are expensive to measure and poorly constrained. Many dune systems are nonetheless monitored over decades by manual dipwell networks. We ask whether that routine record alone can resolve dune-aquifer architecture, and present a parameter-sparse framework that does so without coring, hydraulic testing or calibrated continuous-flow modelling. The framework couples hierarchical clustering of hydrograph dynamics with a three-term state-space model --- recharge, atmospheric draw, and head-dependent drainage referenced to a fixed sub-surface displacement datum --- fitted at each well from monthly rainfall and temperature at a single station. Around this core we derive a water-balance decomposition, an independent water-table-fluctuation estimate of specific yield, a benchmarking diagnostic against a traditional linear model, continuous coefficient and head surfaces, a residual field treated as a structural diagnostic of where the lumped balance is insufficient rather than as a quantified flux map, and a network-scale regression of long-term trend against distance from an eroding shoreline. Demonstrated at Newborough Warren (Anglesey, UK; 88 dipwells, 21 years), the framework resolves five hydrogeological clusters that are independently confirmed by the mechanistic coefficients and by a synthesis of drainage half-life, forecasting skill and specific yield. Interception-corrected specific yields converge across clusters, showing that the behavioural contrasts are surface- and land-cover-mediated rather than reflecting different subsurface storage. The displacement-formulation model closes the monthly water balance to within 1.8% of losses and raises median iterative Nash--Sutcliffe efficiency from −0.03 to 0.72 over the linear benchmark, with the spatial pattern of the gain delineating where storage dynamics govern the aquifer. A coastal-retreat gradient, resolved by a network-scale regression and corroborated by the progressive deepening of the coast-to-inland head difference along a shore-normal transect, is distinguished from a site-wide climate background and explains the anomalous decline of the most coast-proximal cluster; it is spatially structured --- strongest at the shore and decaying to nothing by about 900 m inland --- so that a climate-only attribution would fold it into an apparent network-wide decline. The framework is transferable to any dune system with a monitoring network and a nearby climate station; the hydrological consequences of management interventions at the site are reported in a companion paper.
+**Study region:** Newborough Warren, Anglesey, Wales --- a coastal dune system on the Irish Sea monitored by a manual dipwell network of 88 wells over 21 years alongside a single climate station.
+
+**Study focus:** Dune-slack vegetation occupies a band of water-table depth only a few tens of centimetres wide, yet characterizing the aquifer beneath it is difficult in unconsolidated sand, where distributed flow models demand hydraulic-conductivity and aquifer-thickness fields that are expensive to measure and poorly constrained. We ask whether the routine dipwell record alone can resolve dune-aquifer architecture, and present a parameter-sparse framework that does so without coring, hydraulic testing or calibrated flow modelling: hierarchical clustering of hydrograph dynamics coupled to a three-term state-space model --- recharge, atmospheric draw and head-dependent drainage referenced to a fixed sub-surface displacement datum --- fitted at each well from monthly rainfall and temperature.
+
+**New hydrological insights for the region:** Five hydrogeological clusters emerge, independently confirmed by their mechanistic coefficients. Interception-corrected specific yields converge across them, showing the behavioural contrasts to be surface- and land-cover-mediated rather than differences in subsurface storage. The displacement formulation closes the monthly water balance to within 1.8% of losses and raises median iterative Nash--Sutcliffe efficiency from −0.03 to 0.72 over a linear benchmark. A coastal-retreat gradient, strongest at the shore and decaying to nothing by about 900 m inland, is separated from the site-wide climate background and explains the anomalous decline of the most coast-proximal cluster.
 
 **Keywords:** coastal dune aquifer; dune slack; state-space model; specific yield; groundwater characterization; coastal retreat
 
@@ -18,8 +22,8 @@ Highlights
 -   Dune-aquifer architecture resolved from manual dipwells and one climate station
 -   State-space model with a displacement datum closes the water balance to within 1.8%
 -   Iterative forecast skill rises from NSE −0.03 to 0.72 over a linear benchmark
--   Interception-corrected specific yields converge: storage uniform, contrasts surface-led
--   []{#abstract}Coastal retreat resolved as a forcing distinct from climate on long-term decline
+-   Interception-corrected specific yields converge across clusters: storage is uniform
+-   Coastal retreat resolved as a forcing distinct from climate on long-term decline
 
 # 1. Introduction
 

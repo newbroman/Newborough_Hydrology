@@ -80,7 +80,7 @@ Figure 5. Differential spring movement 2011--2025. C4 uniformly positive (amplif
 
 Coastal retreat signal
 
-A network-scale easting×time covariate in the clearfell ANCOVA captures a real coastal-retreat gradient affecting the western margin. Independently, a two-well transect of coastal control wells deteriorates in a pattern consistent with progressive boundary-condition lowering. The coastal-retreat signal accounts, within uncertainty, for the whole of C5's exceptional decline. Groundwater propagation lags mean current data partly reflect historical erosion; if erosion is accelerating, the worst effects have not yet reached interior wells. CEH22 (outside the reference network, SW coastal margin) is declining at −26.5 mm yr⁻¹ (p \< 0.001), the fastest in the network.
+A network-scale regression of per-well trends against distance to the eroding shoreline resolves a real coastal-retreat gradient affecting the western margin. Independently, a two-well transect of coastal control wells deteriorates in a pattern consistent with progressive boundary-condition lowering. The coastal-retreat signal accounts, within uncertainty, for the whole of C5's exceptional decline. Groundwater propagation lags mean current data partly reflect historical erosion; if erosion is accelerating, the worst effects have not yet reached interior wells. CEH22 (outside the reference network, SW coastal margin) is declining at −26.5 mm yr⁻¹ (p \< 0.001), the fastest in the network.
 
 The scale of observed change in context
 

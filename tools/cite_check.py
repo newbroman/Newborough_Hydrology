@@ -228,6 +228,21 @@ def _excluded(rel: str) -> bool:
 
 # Headline tables whose values are cited directly rather than via a
 # report-numbers key. (csv path, key column, value columns).
+# Declared CONSTANTS. config.py and pipeline_params.py hold the pipeline's
+# inputs — retreat rates, reference distances, datums, thresholds — and 60 of
+# them are quoted somewhere in the corpus while none was a value this check
+# could see. pipeline_lint asks whether a constant is a real parameter rather
+# than a leftover default; nothing asked whether the PROSE still agrees with it.
+#
+# Fitted results do NOT belong here and are not read from here. A δ₀ written
+# into a constants file would be a hard-coded result that could drift from its
+# own fit, which is the thing pipeline_lint --check literals exists to catch.
+# Inputs live in config.py; results live in report-numbers files. That is the
+# same line the report draws between Methods and Results (D-075).
+CONSTANT_SOURCES = ["src/utils/config.py", "src/utils/pipeline_params.py"]
+_CONSTANT_RE = re.compile(r"(?m)^([A-Z][A-Z0-9_]{2,})\s*=\s*(-?\d+(?:\.\d+)?)\s*(?:#|$)")
+
+
 HEADLINE_TABLES = [
     ("outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv",
      "Cluster_Label",
@@ -537,10 +552,33 @@ def _citable_context(text: str, start: int, end: int) -> bool:
     return True
 
 
+# THE MINUS SIGN. render() writes an ASCII hyphen; the corpus writes U+2212.
+# `re.escape("-31.3")` therefore matched NOTHING, in any document, for any
+# negative value — and 529 of the committed values are negative. Measured on
+# 2026-08-23: 40 matched, and 69 more appeared the moment the glyph was
+# normalised, among them trend_summer_balance, the ANCOVA clearfell steps and
+# the summer-minimum depths. That is why report8 and report9 could disagree
+# about δ₀ = 31.3 versus 29.0 with the gate green.
+#
+# The substitution is character-for-character, so match offsets stay valid and
+# _is_whole_number and _citable_context still see the same positions.
+_MINUS_CLASS = "[-\u2212\u2013\u2010\u2011\u2012\u2014]"
+
+
+def _minus_tolerant(needle: str) -> str:
+    # Most needles have no sign at all, and a character class per character is
+    # measurably slower than a literal across 1,700 values x 30 documents — the
+    # citations pass went from comfortable to over the bridge's timeout. Only
+    # pay for the class when there is a minus to be tolerant about.
+    if "-" not in needle:
+        return re.escape(needle)
+    return "".join(_MINUS_CLASS if ch == "-" else re.escape(ch) for ch in needle)
+
+
 def number_spans(text: str, needle: str):
     """Yield (start, end) for each occurrence of `needle` that is a whole
     number in a context where a number can be a citation."""
-    for m in re.finditer(re.escape(needle), text):
+    for m in re.finditer(_minus_tolerant(needle), text):
         if _is_whole_number(text, m.start(), m.end()) and \
                 _citable_context(text, m.start(), m.end()):
             yield m.start(), m.end()
@@ -752,6 +790,13 @@ def collect_values() -> list[tuple[str, str, float]]:
                 vals.append(("outputs/pipeline_manifest.json", name, float(v)))
         except (OSError, ValueError):
             pass
+
+    for rel in CONSTANT_SOURCES:
+        f = REPO / rel
+        if not f.exists():
+            continue
+        for m in _CONSTANT_RE.finditer(f.read_text(encoding="utf8")):
+            vals.append((rel, m.group(1), float(m.group(2))))
 
     for rel, kcol, vcols in list(HEADLINE_TABLES) + list(EXTRA_VALUE_TABLES):
         p = REPO / rel

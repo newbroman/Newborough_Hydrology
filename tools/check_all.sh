@@ -135,7 +135,17 @@ python3 tools/cite_check.py --claims-only || rc=1
 
 echo
 echo "── citations (advisory: triage list, does not gate) ──────────────────"
-python3 tools/cite_check.py 2>/dev/null | grep "value(s) cited" || true
+# The claims gate above is instant. This triage LINE runs the full sweep —
+# 1,700 committed values against 30 documents — and since the minus-tolerant
+# match and the constants sources landed it takes the best part of a minute,
+# which is enough to put check_all over the desktop bridge's ceiling. Same
+# treatment as refresh_mirrors --verify: out of the chain, one line saying how
+# to ask for it.
+if [ "${CITE_TRIAGE:-0}" = "1" ]; then
+    python3 tools/cite_check.py 2>/dev/null | grep "value(s) cited" || true
+else
+    echo "  (full citation triage, on demand: python3 tools/cite_check.py)"
+fi
 
 echo
 [ "$rc" = "0" ] && echo "check_all: OK" || echo "check_all: FAIL"

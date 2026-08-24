@@ -89,6 +89,10 @@ python3 tools/rounding_lint.py || rc=1
 echo
 echo "── decisions ────────────────────────────────────────────────────────"
 python3 tools/decision_lint.py --quiet || rc=1
+# DECISIONS_PUBLIC.md is derived from the working record, which is no longer
+# tracked. Nothing else would notice the two drifting apart, and the public one
+# is the only one a reader outside this machine can see.
+python3 tools/build_public_decisions.py --check || rc=1
 
 echo
 echo "── symbols (does the register contradict itself?) ───────────────────"

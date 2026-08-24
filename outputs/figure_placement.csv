@@ -1,0 +1,76 @@
+figure,section,gap_words,document,caption
+1,2,793,report7.odt,Figure 1.1: Site topography and hydrogeological features. Di
+2,2,348,report7.odt,Figure 1.2: Hierarchical experimental design. Spatial layout
+3,3.1.1,,report8.odt,Figure 1.1a: Data coverage and monthly observation state of 
+4,4.1.1,,report9.odt,Figure 1.1: Climate record summary for the well-monitoring p
+5,4.1.1,90,report9.odt,Figure 1.2: Summer maximum temperature anomaly at RAF Valley
+6,4.1.2,164,report9.odt,Figure 1.3: Well network characterization for the 66-well re
+7,4.2,143,report9.odt,Figure 1.4: Cluster validation plots: silhouette coefficient
+8,4.2,,report9.odt,Figure 1.5: Clustering results: Ward&apos;s hierarchical clu
+9,4.2.1,-120,report9.odt,Figure 1.6: Cluster-mean relative water level hydrographs fo
+10,4.2.1,103,report9.odt,Figure 1.7: Per-well relative water level for the 66 referen
+11,4.2.3,624,report9.odt,Figure 1.8: Water balance decomposition by hydrogeological c
+12,4.2.4,597,report9.odt,Figure 1.9: Interpolated WTF specific yield surface for the 
+13,4.3,86,report9.odt,Figure 1.10: Pearson affinity analysis of selected reference
+14,4.3,,report9.odt,Figure 1.11a: Spatial distribution of the five primary hydro
+15,4.4,341,report9.odt,Figure 1.12: Dual-model performance comparison at dune well 
+16,4.4,437,report9.odt,Figure 1.13a: SSM gain over TLM across all 66 reference well
+17,4.5.1,69,report9.odt,Figure 1.14: Tier 1 background environmental drift analysis.
+18,4.5.2,378,report9.odt,Figure 1.15: Tier 2 paired CUSUM analysis at treatment wells
+19,4.5.2,453,report9.odt,Figure 1.16: Three-method robustness assessment of the scrap
+20,4.5.3,291,report9.odt,Figure 1.17: Era-specific β₃ storage decay coefficients with
+21,4.5.4,1098,report9.odt,Figure 1.18: Annual summer minimum depth below ground surfac
+22,4.5.4,241,report9.odt,Figure 1.19: Summer minima analysis for the scraping interve
+23,4.5.4,106,report9.odt,Figure 1.20: Paired BACI summer minimum analysis: CEH36 (scr
+24,4.5.4,,report9.odt,Figure 1.21: Climate-corrected anomaly trajectory at CEH36 (
+25,4.5.5,85,report9.odt,Figure 1.22: Climate-corrected spatial step-change map for t
+26,4.5.6,215,report9.odt,Figure 1.23: Scenario comparison at CEH36 (scraped site) — a
+27,4.5.6,181,report9.odt,Figure 1.24: Scenario comparison at CEH36 (scraped site) — s
+28,4.6.2,422,report9.odt,Figure 1.25: Climate sensitivity: cumulative water balance (
+29,4.6.3,317,report9.odt,Figure 1.26: WMC3 (Impact well) and the forest-control mean 
+30,4.6.3,672,report9.odt,Figure 1.27: Forest control BACI timeseries and CUSUM for th
+31,4.6.3,671,report9.odt,Figure 1.28: Forest control BACI timeseries and CUSUM for th
+32,4.6.4,54,report9.odt,Figure 1.29: Summer minima analysis against the Forest contr
+33,4.6.4,5060,report9.odt,Figure 1.30: Summer minimum depth distributions by BACI tier
+34,4.6.5,-4397,report9.odt,Figure 1.31: Climate-corrected spatial step-change map for t
+35,4.6.6,50,report9.odt,Figure 1.32: Before- and after-clearfell SSM coefficient est
+36,4.6.7,1357,report9.odt,Figure 1.33: Clearfell transect: post-felling step change vs
+37,4.7.4,489,report9.odt,Figure 1.34: Spatial distribution of mean annual summer mini
+38,4.7.4,,report9.odt,Figure 1.35: Spatial distribution of P_flood — the minimum c
+39,4.7.4,514,report9.odt,Figure 1.36: Spatial distribution of mean annual winter maxi
+40,4.7.4,658,report9.odt,Figure 1.37: Winter flooding frequency across the full dipwe
+41,4.8.3,6572,report9.odt,Figure 1.38: Cluster-mean 5-year mean spring water level (MS
+42,4.8.3,865,report9.odt,Figure 1.39: Spatial pattern of the latest available 5-year 
+43,4.8.3,2242,report9.odt,Figure 1.40: Climate trajectory and threshold exceedance ana
+44,4.8.4,183,report9.odt,Figure 1.41: Between-well prediction of mean Ellenberg-F moi
+45,4.9.1,,report9.odt,Figure 1.42a: Per-well optimal SSM drainage datum across the
+46,4.9.2,,report9.odt,Figure 1.43: Spatial SSM coefficient atlas for the 66-well r
+47,4.9.3,643,report9.odt,"Figure 1.44: Drainage decay half-life (t½ = ln(2)/β₃, months"
+48,4.9.3,479,report9.odt,Figure 1.46: Aquifer diagnostic synthesis across the referen
+49,4.9.5,181,report9.odt,Figure 1.47: Mean annual water table elevation (m AOD) acros
+50,4.9.6,567,report9.odt,Figure 1.48: SSM water balance residual across the Newboroug
+51,4.10.2,796,report9.odt,Figure 1.59: Network-scale coastal-retreat gradient. Per-wel
+52,4.10.3,,report9.odt,Figure 1.60: Fixed-length rolling-window sensitivity of the 
+53,4.10.4,154,report9.odt,"Figure 1.61: Independent, model-free estimate of the coastal"
+54,4.10.5,293,report9.odt,Figure 1.62: Coastal-erosion drawdown at the western dune ma
+55,4.10.5,382,report9.odt,Figure 1.63: Sea-level-rise head response at the western dun
+56,4.10.5,462,report9.odt,Figure 1.64: Net coastal-margin change at the western dune m
+57,4.11,1267,report9.odt,Figure 1.45: Forest drawdown propagation across the Newborou
+58,4.11,118,report9.odt,Figure 1.65: Dune-scrape drawdown across all eight mapped cu
+59,4.12,,report9.odt,Figure 1.66: Combined drawdown imposed on the clearfell pre-
+60,4.12,,report9.odt,Figure 1.49: Clearfell step-change map — climate-corrected m
+61,4.12,,report9.odt,Figure 1.50: Net water-table state — parametric combination 
+62,4.12,935,report9.odt,Figure 1.51: Modelled water-table change across Newborough W
+63,4.12,2111,report9.odt,Figure 1.52: Observed MSL5 change: window end 2017 (springs 
+64,4.12,528,report9.odt,Figure 1.53: Secular differential movement of the spring (Ma
+65,4.12,2247,report9.odt,Figure 1.54: Absolute climate-removed secular trend of the s
+66,4.12,1594,report9.odt,Figure 1.55: The climate-response envelope of the spring wat
+67,4.12,401,report9.odt,Figure 1.56: The climate-response envelope of the spring wat
+68,4.12.1,15,report9.odt,Figure 1.57: Independent test of the chronic coastal-drying 
+69,4.12.1,576,report9.odt,Figure 1.58: Comparative footing of the drivers over the 200
+70,4.13.1,193,report9.odt,Figure 1.67: Projected shift in the five-year mean spring wa
+71,5.2.5,355,report10.odt,Figure 1.1: Bootstrap year-of-crossing for the five-cluster 
+72,5.7.4,2339,report10.odt,Figure 1.2: Synthetic mean-year hydrograph for the C4 Forest
+73,5.8.2,282,report10.odt,Figure 1.3: Spatial reach and development timescale of the m
+74,5.8.2,,report10.odt,Figure 1.4: Four drivers of the Newborough water table — sch
+75,5.9,539,report10.odt,Figure 1.5: Per-well achievability categorization against th

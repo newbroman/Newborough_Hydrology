@@ -108,6 +108,10 @@ SUBSCRIPTS = [
     ("10k_four_zone_baci.py",           "10k", "Four-zone pooled-panel BACI (primary §4.6 result)"),
     ("10l_four_zone_summer_minima.py",  "10l", "Four-zone summer-minima BACI (Phase 2)"),
     ("10m_wmc3_baci_dual.py",           "10m", "WMC3-vs-forest-control dual-panel intervention figure (display)"),
+    # 10n must follow 10f: it reads 10f's donor pool from that module so the
+    # two cannot drift, and its whole purpose is to normalise 10f's gross
+    # synthetic-control step against unfelled forest.
+    ("10n_synthetic_did.py",            "10n", "Forest-normalised synthetic control (difference-in-differences)"),
 ]
 
 
@@ -144,7 +148,8 @@ def consolidate_report_numbers():
     """
     import pandas as pd
 
-    pattern_prefixes = ["10a_", "10d_", "10e_", "10f_", "10g_", "10h_", "10i_", "10k_", "10l_", "10m_"]
+    pattern_prefixes = ["10a_", "10d_", "10e_", "10f_", "10g_", "10h_", "10i_",
+                        "10k_", "10l_", "10m_", "10n_"]
     frames = []
 
     for prefix in pattern_prefixes:

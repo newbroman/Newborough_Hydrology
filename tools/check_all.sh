@@ -95,6 +95,15 @@ python3 tools/decision_lint.py --quiet || rc=1
 python3 tools/build_public_decisions.py --check || rc=1
 
 echo
+echo "── ledgers (does SCRIPT_LEDGER still describe the code?) ─────────────"
+# Gates on structural faults only — a script with no row, a row with no script.
+# Version drift is printed and counted but does not gate: it was 29 rows deep on
+# the day this landed, and a gate that fails from birth is a gate that gets
+# commented out. Same treatment as pipeline_lint's literal check and export_lag.
+python3 tools/ledger_lint.py --quiet || rc=1
+python3 tools/ledger_lint.py | grep -E "row\(s\) with a stale version" || true
+
+echo
 echo "── symbols (does the register contradict itself?) ───────────────────"
 # The register GATES; the ambiguous-glyph inventory is advisory and prints only.
 # Split deliberately: the backlog is 148 entries and gating on it kept this tool

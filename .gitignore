@@ -115,3 +115,14 @@ store/*
 # rule per file.
 data/geo/1900 copy_modified.tif
 data/geo/histmaps/
+
+# ── Working records: private by decision, 2026-08-24 ─────────────────────────
+# The raw decision log and the changelog deltas are working documents — they
+# carry the back-and-forth of the analysis, not its conclusions. What belongs
+# in a public repository is the settled decision, which lives in
+# DECISIONS_PUBLIC.md and keeps the same D-numbers so existing citations
+# resolve. These stay on disk and out of git.
+DECISION_LOG.md
+changelogs/
+WORK_REGISTER.md
+_audit_tmp/

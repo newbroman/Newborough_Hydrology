@@ -75,6 +75,12 @@ _URLISH = re.compile(r"https?://|www\.|github\.com|\.org/|\.io/")
 # beside the project rather than in it. Whether each was lost, never committed,
 # or still sits in a folder on the author's machine is not yet established.
 #
+# 2026-08-25, later the same day: the question is answered for some of them.
+# They are in the author's Google Drive project store, under `methods/` and its
+# parent - INTERCEPTION_TREATMENT.md and PARTITION_HISTORY.md were recovered
+# from there and are now in this repository. Entries below carry the Drive id
+# where one is known, so recovery is a fetch rather than a search.
+#
 # They are frozen here rather than deleted or repointed for one reason: a
 # citation is evidence that the reasoning existed, and a silent deletion
 # destroys that evidence. The gate's job is to stop the list GROWING.
@@ -98,7 +104,7 @@ KNOWN_DANGLING = {
     'CHANGELOG_forecaster_simplification.md':
         "dated delta not carried into changelogs/",
     'CHAPTER_FLAGS_TO_REVIEW.md':
-        "build-era review flags; 4 scripts in the 10-series and 21",
+        "build-era review flags; 4 scripts in the 10-series and 21 IN DRIVE: 1gXTSFwHwnSRG_E4z_0AGv9GCYIxcjGQk (84 KB, 2026-05-15).",
     'COASTAL_NET_VS_EASTING_MEMO.md':
         "the coastal-vs-easting memo; 3 MS citations",
     'DEFECT_NOTE_script20_residual_field_2026-08-06.md':
@@ -140,13 +146,13 @@ KNOWN_DANGLING = {
     'claude/NRG_spring_BACI_spec_2026-08-13.md':
         "spring-BACI spec, in a working folder never committed",
     'methods_supplement_master_v1_9_7.md':
-        "a superseded MS working filename",
+        "a superseded MS working filename IN DRIVE, dropped version suffix: 1cbTlyO1P2utddeIbc0rzyT1XcwdmclLr (440 KB).",
     'paper2.md':
         "removed deliberately (see the 2026-08-23d delta); the ODT text is the live copy",
     'site_geography.md':
-        "site-geography note cited from the MS",
+        "site-geography note cited from the MS IN DRIVE: 1FaTyM0EBnMWxgwx6IfmxV-bErAcJLR69 (6 KB, 2026-05-01).",
     'wtf_interception_methodology.md':
-        "the WTF interception derivation; substance now in INTERCEPTION_TREATMENT.md sec 3c",
+        "the WTF interception derivation; substance now in INTERCEPTION_TREATMENT.md sec 3c IN DRIVE: 1Gso77njdZwge3B07fyOoNAF30zfBzY2C (11 KB, 2026-04-17).",
 }
 
 _CAND = re.compile(r"[A-Za-z0-9_][A-Za-z0-9_./\\-]*\.md\b")

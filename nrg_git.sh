@@ -6,6 +6,11 @@
 # ============================================================================
 # VERSION 1.6.0 - 2026-08-16
 # CHANGELOG
+#   1.9.3 (2026-08-25): clear_stale_lock sweeps every *.lock under .git too.
+#       1.9.1 fixed this for the private repo and left the public half with
+#       the same blind spot it has had since 1.4.0. An interrupted commit
+#       left .git/HEAD.lock and the self-heal walked past it, so option 2
+#       failed with a message naming a file the helper could not see.
 #   1.9.2 (2026-08-25): WGIT_PATHS carries setup_working_repo.sh and wgit.
 #       The public .gitignore excludes both by name and the private repo did
 #       not admit them, so this repository's own bootstrap script and its git
@@ -158,13 +163,25 @@ stage_all(){ git add -A; }
 # works, so if the lock is present AND no git process is actually running, it is
 # stale - clear it before any git action. It never removes a live lock.
 clear_stale_lock(){
-  local lock="${REPO_DIR}/.git/index.lock"
-  [[ -e "$lock" ]] || return 0
+  # Sweep EVERY *.lock under .git, not just index.lock. On 2026-08-25 an
+  # interrupted commit left .git/HEAD.lock, and this helper - which knew only
+  # index.lock - walked straight past it, so option 2 failed at the commit with
+  # a message naming a file the self-heal could not see. Exactly the fault
+  # wclear_stale_lock had, in the half that has existed since 1.4.0.
+  local gd="${REPO_DIR}/.git"
+  [[ -d "$gd" ]] || return 0
   if pgrep -x git >/dev/null 2>&1; then
-    echo -e "  ${Y}note${N} a git process is running - leaving .git/index.lock alone"
+    if find "$gd" -name '*.lock' -print -quit 2>/dev/null | grep -q .; then
+      echo -e "  ${Y}note${N} a git process is running - leaving the .git lock(s) alone"
+    fi
     return 0
   fi
-  rm -f "$lock" && ok "cleared a stale .git/index.lock (safe: no git process was running)"
+  local lock n=0
+  while IFS= read -r lock; do
+    rm -f "$lock" && n=$((n+1))
+  done < <(find "$gd" -name '*.lock' 2>/dev/null)
+  (( n > 0 )) && ok "cleared ${n} stale lock file(s) in .git (no git process was running)"
+  return 0
 }
 
 # --- the private working repository ----------------------------------------

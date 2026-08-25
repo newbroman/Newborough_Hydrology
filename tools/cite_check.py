@@ -203,6 +203,8 @@ DOC_GLOBS = [
     "index.html",
     "readme.md",
     "PIPELINE_README.md",
+    "INTERCEPTION_TREATMENT.md",
+    "PARTITION_HISTORY.md",
     "REPORT_STRUCTURE.md",
     "DECISION_LOG.md",
     "ledgers/*.md",

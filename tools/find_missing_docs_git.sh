@@ -27,11 +27,19 @@ for g in "$REPO/.git" "$REPO/.git-working" "$REPO/wgit" \
          "$HOME/projects/NRG_plan/.git"; do
   [ -d "$g" ] && gitdirs+=("$g")
 done
-# Anything else that looks like a clone of this project.
-while IFS= read -r g; do
-  case " ${gitdirs[*]} " in *" $g "*) continue ;; esac
-  gitdirs+=("$g")
-done < <(find "$HOME" -xdev -maxdepth 4 -type d -name .git 2>/dev/null | grep -i -E 'newborough|NRG' || true)
+# Anything else that looks like a clone of this project. The roots file is used
+# rather than a bare `find $HOME` because -xdev skips the cloud drives, and the
+# depth allowance is generous because an archived tree can sit well down a path
+# such as "Google Drive/projects/newborough/Reports/.../scripts/NRG/.git".
+# shellcheck source=/dev/null
+source "$REPO/tools/_search_roots.sh"
+for r in "${ROOTS[@]}"; do
+  while IFS= read -r g; do
+    case " ${gitdirs[*]:-} " in *" $g "*) continue ;; esac
+    gitdirs+=("$g")
+  done < <(find "$r" -xdev -maxdepth 8 -type d -name .git 2>/dev/null |
+           grep -i -E 'newborough|NRG' || true)
+done
 
 echo "== searching ${#gitdirs[@]} git store(s) =="
 for g in "${gitdirs[@]}"; do echo "   $g"; done

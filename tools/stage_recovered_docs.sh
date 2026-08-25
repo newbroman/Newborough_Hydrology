@@ -27,10 +27,10 @@ n_names=$(grep -c . "$LIST")
 echo "== staging candidates for $n_names document name(s) =="
 [ "$DRY" -eq 0 ] && printf 'name\tstaged_as\tsource\tmtime\tbytes\tsha256\n' > "$MAN"
 
-roots=("$HOME" /tmp /var/tmp "$HOME/.local/share/Trash/files" "$HOME/.Trash")
-for m in /media/*/".Trash-$(id -u)" /run/media/*/*/".Trash-$(id -u)"; do
-  [ -d "$m" ] && roots+=("$m")
-done
+# shellcheck source=/dev/null
+source "$REPO/tools/_search_roots.sh"
+roots=( "${ROOTS[@]}" )
+echo "== ${#roots[@]} search root(s); cloud drives included (NRG_SKIP_CLOUD=1 to skip) =="
 
 staged=0; skipped=0
 while IFS= read -r name; do

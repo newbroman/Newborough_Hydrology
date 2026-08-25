@@ -82,6 +82,25 @@ tracked publicly.
 - **Do not leave files staged in his tree.** His next `nrg_git.sh` commit will
   sweep them into his message.
 
+## 4b. Two machines at once
+
+Both git repositories merge, so code, tools, the decision log and the changelogs
+are safe to work on from two machines simultaneously.
+
+**The ODTs are not.** `rclone copy` is one-way with no conflict detection, and a
+zip has nothing to merge. Worse: **the mirrors are committed and the ODTs are
+not**, so a machine holding a stale ODT regenerates the mirror from it and
+pushes a reversion of someone else's prose — and `check_all`'s mirror gate
+compares modification times only, never content, so it reads as green.
+
+`tools/doc_lock.py` makes that a refusal instead. `nrg_git.sh` **12)** takes and
+releases; **11)** will not archive while another machine holds it; **2)** warns
+if documents changed here without it. The lock lives in the private repo, so it
+is only as current as the last fetch — it is a handover protocol between one
+person's machines, not a mutex.
+
+Never run `refresh_mirrors.py` on a machine whose ODTs you have not just pulled.
+
 ## 5. Where numbers come from
 
 **The committed CSVs under `outputs/` are the truth.** Documents quote them;

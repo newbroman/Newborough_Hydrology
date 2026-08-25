@@ -6,6 +6,15 @@
 # ============================================================================
 # VERSION 1.6.0 - 2026-08-16
 # CHANGELOG
+#   1.7.0 (2026-08-25): the toolkit manages BOTH repositories. Since the
+#       public/private split the project is two git directories over one
+#       working tree, and option 2 was committing only the public half -
+#       leaving the decision log and changelogs uncommitted, silently.
+#       New wgit()/wclear_stale_lock()/push_working(); option 2 pushes the
+#       public repo then the working records; option 5 reports both.
+#       Private staging is `add -f` on four explicit paths: -f because the
+#       public .gitignore outranks the private repo's exclude list, and
+#       explicit because `add -A` there would swallow the public repo.
 #   1.6.0 (2026-08-16): menu 9) "Review citations" wired in.
 #       * review_citations_menu() - walks the proposed rows of
 #         tools/citation_index.csv, showing each cited number in its live
@@ -128,6 +137,79 @@ clear_stale_lock(){
     return 0
   fi
   rm -f "$lock" && ok "cleared a stale .git/index.lock (safe: no git process was running)"
+}
+
+# --- the private working repository ----------------------------------------
+# A second git directory over the SAME working tree, holding the records the
+# public repository deliberately does not carry. Nothing moved: DECISION_LOG.md
+# is still at the root where decision_lint and build_public_decisions expect it.
+#
+# WGIT_PATHS is explicit and must stay that way. `wgit add -A` against this work
+# tree would stage the entire public repository into the private one, which is
+# the one mistake in this arrangement that would be genuinely hard to undo.
+WGIT_DIR="${REPO_DIR}/.git-working"
+WGIT_PATHS=( DECISION_LOG.md WORK_REGISTER.md README_WORKING.md
+             changelogs Updates_required )
+
+have_working_repo(){ [[ -d "$WGIT_DIR" ]]; }
+
+wgit(){ git --git-dir="$WGIT_DIR" --work-tree="${REPO_DIR}" "$@"; }
+
+# Same reasoning as clear_stale_lock, for the second git directory.
+wclear_stale_lock(){
+  local lock
+  for lock in "${WGIT_DIR}/index.lock" "${WGIT_DIR}/HEAD.lock"; do
+    [[ -e "$lock" ]] || continue
+    if pgrep -x git >/dev/null 2>&1; then
+      echo -e "  ${Y}note${N} a git process is running - leaving $(basename "$lock") alone"
+      continue
+    fi
+    rm -f "$lock" && ok "cleared a stale $(basename "$lock") in .git-working"
+  done
+}
+
+# Commit and push the working records. Called AFTER the public push, so that if
+# anything goes wrong here the public repository is already consistent.
+#
+# $1 = a message to offer as the default (usually the public commit's).
+push_working(){
+  have_working_repo || return 0
+  wclear_stale_lock
+  say "Working records (private repo)"
+
+  # -f because the public .gitignore lists these paths and outranks the private
+  # repo's own exclude list. Without it a NEW changelog is silently skipped.
+  wgit add -f "${WGIT_PATHS[@]}" 2>/dev/null
+
+  if wgit diff --cached --quiet; then
+    ok "no change to the working records"
+  else
+    wgit status --short
+    echo ""
+    local msg="${1:-}"
+    if [[ -n "$msg" ]]; then
+      read -rp "$(echo -e "${Y}Message for the working records [Enter = \"${msg}\"]: ${N}")" reply
+      [[ -n "$reply" ]] && msg="$reply"
+    else
+      read -rp "$(echo -e "${Y}Short description of the working-record changes: ${N}")" msg
+      [[ -z "$msg" ]] && msg="working records $(date +%Y-%m-%d)"
+    fi
+    wgit commit -q -m "$msg" || { fail "working-record commit failed"; return 1; }
+    ok "committed to the private repo"
+  fi
+
+  if ! wgit remote get-url origin >/dev/null 2>&1; then
+    echo -e "  ${Y}note${N} the private repo has no remote yet - nothing pushed"
+    return 0
+  fi
+  local ahead
+  ahead=$(wgit rev-list --count origin/main..main 2>/dev/null || echo 0)
+  if [[ "$ahead" == "0" ]]; then
+    ok "private repo already up to date on GitHub"
+  else
+    say "Pushing ${ahead} working-record commit(s)"
+    wgit push -q && ok "pushed the working records" || fail "private push failed"
+  fi
 }
 
 # Stage everything EXCEPT the report. report_edits/ holds the .odt subdocuments
@@ -575,6 +657,9 @@ do_push(){
   fi
   integrate || return
   push_if_ahead
+  # The working records go last: if this fails, the public repo is
+  # already consistent and the failure is recoverable on its own.
+  push_working "$(git log -1 --format=%s 2>/dev/null)"
 }
 
 # Push everything except the report. Skips refresh_mirror and lint_figrefs -
@@ -705,10 +790,10 @@ while true; do
   echo ""
   echo -e "${C}${B}===== Newborough Git Toolkit =====${N}"
   echo "  1) Sync forecaster      (monthly: rebuild feeds + web tools, then push)"
-  echo "  2) Push my changes      (commit + push anything I've edited OR added)"
+  echo "  2) Push my changes      (commit + push BOTH repos: public, then working records)"
   echo "  3) Push, skip report    (everything except report_edits/ and docs/report/)"
   echo "  4) Pull latest          (just fetch what's on GitHub)"
-  echo "  5) Status               (show what's changed, untracked, etc.)"
+  echo "  5) Status               (both repositories: what's changed, untracked, etc.)"
   echo "  6) Repo size            (how big the repo and git history are)"
   echo "  7) Clean up git storage (sweep up dead objects, shrink .git)"
   echo "  8) Normalise versions   (dry-run report: script banner() vs __version__)"
@@ -722,7 +807,14 @@ while true; do
     2) do_push ;;
     3) do_push_no_report ;;
     4) integrate ;;
-    5) say "Current status"; git status ;;
+    5) say "Public repository"; git status
+       if have_working_repo; then
+         say "Private working repository (.git-working)"
+         wgit add -f "${WGIT_PATHS[@]}" 2>/dev/null
+         wgit status --short
+         wgit diff --cached --quiet && ok "working records unchanged" \
+           || echo -e "  ${Y}uncommitted working-record changes above${N}"
+       fi ;;
     6) do_size ;;
     7) do_cleanup ;;
     8) normalise_versions_report ;;

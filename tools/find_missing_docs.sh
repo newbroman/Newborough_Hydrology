@@ -17,17 +17,16 @@ python3 "$(dirname "$0")/docref_lint.py" --list-missing > "$LIST" || {
   echo "cannot read the missing-document list from tools/docref_lint.py" >&2; exit 1; }
 echo "== $(grep -c . "$LIST") document(s) to look for =="
 
-# Every place a deleted or stray file can hide. -xdev per root so one slow
-# network mount cannot stall the sweep; missing paths are skipped silently.
-ROOTS=( "$HOME" /tmp /var/tmp )
-for t in "$HOME/.local/share/Trash/files" "$HOME/.Trash" /media/*/.Trash-"$(id -u)" \
-         /run/media/"$USER"/*/.Trash-"$(id -u)" /media/"$USER"/*; do
-  [ -d "$t" ] && ROOTS+=( "$t" )
-done
+# Where to look. tools/_search_roots.sh owns that list — including the cloud
+# drives, which -xdev would otherwise skip.
+# shellcheck source=/dev/null
+source "$(dirname "$0")/_search_roots.sh"
+echo "== ${#ROOTS[@]} search root(s); cloud drives included (NRG_SKIP_CLOUD=1 to skip) =="
 
 echo "== searching by FILENAME =="
 for r in "${ROOTS[@]}"; do
   [ -d "$r" ] || continue
+  printf '  ... %s\n' "$r" >&2
   find "$r" -xdev -type f -print 2>/dev/null | grep -Ff "$LIST" || true
 done | sort -u | sed 's/^/  /'
 
@@ -44,7 +43,7 @@ if [ "${1:-}" = "--content" ]; then
              "scale factor regression" "comparative footing" \
              "cluster assignment diagnostic" "window policy"; do
     hits=$(grep -rlI --exclude-dir=.git --include='*.md' --include='*.txt' \
-             -- "$pat" "$HOME" 2>/dev/null | head -5)
+             -- "$pat" "${ROOTS[@]}" 2>/dev/null | sort -u | head -8)
     [ -n "$hits" ] && { echo "  [$pat]"; echo "$hits" | sed 's/^/     /'; }
   done
 fi

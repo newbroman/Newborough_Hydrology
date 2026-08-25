@@ -86,6 +86,8 @@ cat > .git-working/info/exclude <<'EOF'
 !/changelogs/
 !/Updates_required/
 !/README_WORKING.md
+!/setup_working_repo.sh
+!/wgit
 EOF
 ```
 

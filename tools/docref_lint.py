@@ -108,8 +108,6 @@ KNOWN_DANGLING = {
         "dated delta not carried into changelogs/",
     'CHANGELOG_forecaster_simplification.md':
         "dated delta not carried into changelogs/",
-    'CHAPTER_FLAGS_TO_REVIEW.md':
-        "build-era review flags; 4 scripts in the 10-series and 21 IN DRIVE: 1gXTSFwHwnSRG_E4z_0AGv9GCYIxcjGQk (84 KB, 2026-05-15).",
     'COASTAL_NET_VS_EASTING_MEMO.md':
         "the coastal-vs-easting memo; 3 MS citations",
     'DEFECT_NOTE_script20_residual_field_2026-08-06.md':

@@ -104,6 +104,13 @@ python3 tools/ledger_lint.py --quiet || rc=1
 python3 tools/ledger_lint.py | grep -E "row\(s\) with a stale version" || true
 
 echo
+echo "── tasks (is any outstanding job now finished, or newly broken?) ─────"
+# Gates ONLY on a check that could not answer. An open task is work in hand and
+# must not fail the build; a broken check is a lie waiting to happen, and does.
+python3 tools/task_lint.py --quiet || rc=1
+python3 tools/task_lint.py --open | grep -E "^  [0-9]+ open|OPEN " || true
+
+echo
 echo "── symbols (does the register contradict itself?) ───────────────────"
 # The register GATES; the ambiguous-glyph inventory is advisory and prints only.
 # Split deliberately: the backlog is 148 entries and gating on it kept this tool

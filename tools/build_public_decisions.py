@@ -68,6 +68,27 @@ edit by hand.*
 
 """
 
+# Until 2026-08-16 two decision logs ran in parallel and every id from D-001 to
+# D-017 meant two different things. That mapping is not deliberation — it is the
+# lookup a reader needs to interpret any citation written before that date — and
+# the first version of this file omitted it, so a public reader following an old
+# D-number had no way to learn the id had moved. Carried through from the
+# working record rather than retyped, so the two cannot disagree.
+COLLISION_HEADING = "## Old ledger ids → this file"
+
+
+def collision_note(src: str) -> str:
+    i = src.find(COLLISION_HEADING)
+    if i < 0:
+        return ""
+    end = src.find("\n### ", i)
+    body = src[i:end if end > 0 else len(src)].strip()
+    # The source heading carries its own merge parenthetical, which reads
+    # oddly under the new title. Replace the whole line, not the prefix.
+    first, _, rest = body.partition("\n")
+    body = "## Citations written before 2026-08-16\n" + rest
+    return body + "\n\n---\n\n"
+
 
 # A Decision statement in the working record is a reply to the Question above
 # it, so a fifth of them open with a bare answer token — "No. The triangulation
@@ -177,8 +198,8 @@ def parse(text: str) -> list[dict]:
     return out
 
 
-def render(entries: list[dict]) -> str:
-    body = [PREAMBLE]
+def render(entries: list[dict], src: str = "") -> str:
+    body = [PREAMBLE, collision_note(src)]
     for e in entries:
         when = e["when"] or "undated"
         stat = "" if e["status"] == "active" else f" · **{e['status']}**"
@@ -203,7 +224,8 @@ def main() -> int:
         print(f"  {SRC.name} not found — nothing to derive from.")
         return 0 if args.check else 1
 
-    new = render(parse(SRC.read_text(encoding="utf-8")))
+    raw = SRC.read_text(encoding="utf-8")
+    new = render(parse(raw), raw)
 
     if args.check:
         if not DST.exists():

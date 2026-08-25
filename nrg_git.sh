@@ -6,6 +6,13 @@
 # ============================================================================
 # VERSION 1.6.0 - 2026-08-16
 # CHANGELOG
+#   1.10.0 (2026-08-25): the documents lock, for working from two machines.
+#       Both git repos merge; the ODTs cannot - rclone copy is one-way with no
+#       conflict detection and a zip has nothing to merge. Worse, the MIRRORS
+#       are committed and the ODTs are not, so a machine holding a stale ODT
+#       regenerates the mirror from it and pushes a reversion that every gate
+#       reads as green. 12) takes and releases; 11) refuses while another
+#       machine holds it; 2) warns if documents changed here without it.
 #   1.9.3 (2026-08-25): clear_stale_lock sweeps every *.lock under .git too.
 #       1.9.1 fixed this for the private repo and left the public half with
 #       the same blind spot it has had since 1.4.0. An interrupted commit
@@ -195,7 +202,7 @@ clear_stale_lock(){
 WGIT_DIR="${REPO_DIR}/.git-working"
 WGIT_PATHS=( DECISION_LOG.md WORK_REGISTER.md README_WORKING.md
              changelogs Updates_required
-             setup_working_repo.sh wgit )
+             setup_working_repo.sh wgit DOCUMENT_LOCK.json )
 
 have_working_repo(){ [[ -d "$WGIT_DIR" ]]; }
 
@@ -309,6 +316,15 @@ documents_since_archive(){
 }
 
 archive_documents(){
+  # The documents are the one store that cannot merge. Archiving while another
+  # machine holds them uploads this machine's copy over theirs, and an ODT is a
+  # zip - there is nothing to reconcile afterwards.
+  if ! python3 tools/doc_lock.py check --quiet; then
+    say "Documents are locked elsewhere"
+    python3 tools/doc_lock.py status
+    fail "not archiving. Take the lock first (option 12) once that machine has released it."
+    return 1
+  fi
   if ! command -v rclone >/dev/null 2>&1; then
     fail "rclone is not installed - see README_WORKING.md"; return 1
   fi
@@ -784,7 +800,15 @@ do_push(){
   push_working "$(git log -1 --format=%s 2>/dev/null)"
   # The Drive archive is REPORTED, not run. An upload that can take an hour
   # does not belong inside a push; a push nobody runs protects nothing.
+  # Editing documents without the lock is how a machine ends up regenerating a
+  # mirror from a stale ODT and pushing it as though it were new prose.
   local nd; nd="$(documents_since_archive)"
+  if [[ -n "$nd" && "$nd" != "0" && "$nd" != "never" ]]; then
+    if ! python3 tools/doc_lock.py check --quiet; then
+      echo -e "  ${Y}WARNING${N} ${nd} document(s) changed here and the lock is held elsewhere:"
+      python3 tools/doc_lock.py status | sed 's/^/      /'
+    fi
+  fi
   if [[ "$nd" == "never" ]]; then
     echo -e "  ${Y}note${N} the ODTs have never been archived to Drive - option 12"
   elif [[ -n "$nd" && "$nd" != "0" ]]; then
@@ -930,9 +954,10 @@ while true; do
   echo "  9) Review citations     (confirm which document numbers cite which pipeline value)"
   echo " 10) Undo unpushed commit(s)  (rewind to GitHub; keeps every change staged)"
   echo " 11) Archive documents  (rclone the ODTs to Google Drive)"
+  echo " 12) Documents lock     (take or release; one machine at a time may edit ODTs)"
   echo "  q) Quit"
   echo ""
-  read -rp "Choose [1-11, q]: " choice
+  read -rp "Choose [1-12, q]: " choice
   case "$choice" in
     1) do_sync ;;
     2) do_push ;;
@@ -952,7 +977,14 @@ while true; do
     9) review_citations_menu ;;
     10) do_undo_commit ;;
     11) archive_documents ;;
-    q|Q|12) echo "Bye."; break ;;
-    *) echo "Please pick 1-11, or q to quit." ;;
+    12) python3 tools/doc_lock.py status
+        read -rp "$(echo -e "${Y}(t)ake, (r)elease, or Enter to leave alone: ${N}")" lk
+        case "$lk" in
+          t|T) read -rp "What are you editing? " ln
+               python3 tools/doc_lock.py take --note "$ln" ;;
+          r|R) python3 tools/doc_lock.py release ;;
+        esac ;;
+    q|Q) echo "Bye."; break ;;
+    *) echo "Please pick 1-12, or q to quit." ;;
   esac
 done

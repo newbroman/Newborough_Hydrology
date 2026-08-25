@@ -21,5 +21,5 @@ c,c_intercept,bare,"the SSM's absent intercept, written c = 0",m month-1,retired
 φ,phi_ar1,bare,lag-1 autocorrelation coefficient,dimensionless,canonical,,AR(1)|autocorrelation|lag-1|ar1_phi,report8 §3.4
 φ,phi_fell,subscripted,BACI felling-step coefficient phi_F,m,ok,,felling step|clearfell step|φ_F|coefficient on D,report8 §3.6
 η,eta_sq,bare,"eta squared, proportion of variance explained",dimensionless,canonical,,η²|eta squared|variance explained|effect size,statistics convention
-η,eta_interaction,bare,CWB x D_fell interaction coefficient,m,displaced,η_CF,interaction|CWB ×|CWB x|D_fell|D\_fell,report8 §3.6
+η,eta_interaction,bare,"CWB x D_fell interaction coefficient in the BACI ANCOVA (report8 §3.6), alongside alpha, delta, sigma, phi, psi",m,canonical,,interaction|CWB ×|CWB x|D_fell|D\_fell,report8 §3.6
 D,D_excavation,bare,inferred scrape excavation depth H0/Sy,m,displaced,d_ex,excavation depth|H₀ / Sy|H0/Sy|unsurveyed|inferred quantity|0.42 m|H₀/Sy|inferred* output|the *inferred*,report8 §3.8.1

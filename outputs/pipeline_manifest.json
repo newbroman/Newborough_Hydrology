@@ -13,8 +13,8 @@
   },
   "analytical_phases": 15,
   "scraping_substeps": 5,
-  "clearfell_substeps": 13,
-  "generated": "2026-08-25T00:31:56",
+  "clearfell_substeps": 14,
+  "generated": "2026-08-25T08:47:38",
   "steps": [
     {
       "index": 1,

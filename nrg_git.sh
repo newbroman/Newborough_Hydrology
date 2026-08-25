@@ -6,6 +6,10 @@
 # ============================================================================
 # VERSION 1.6.0 - 2026-08-16
 # CHANGELOG
+#   1.9.1 (2026-08-25): wclear_stale_lock sweeps every *.lock under the git
+#       directory. A failed private commit left refs/heads/main.lock behind
+#       and the helper, which knew only index.lock and HEAD.lock, could not
+#       clear it - so the retry failed too, pointing at a file it was blind to.
 #   1.9.0 (2026-08-25): push_working refuses to commit a public file.
 #       Three ledgers/ files - public, committed, unmodified - were found
 #       staged in the private index, put there by some earlier broad
@@ -177,15 +181,23 @@ wgit(){ git --git-dir="$WGIT_DIR" --work-tree="${REPO_DIR}" "$@"; }
 
 # Same reasoning as clear_stale_lock, for the second git directory.
 wclear_stale_lock(){
-  local lock
-  for lock in "${WGIT_DIR}/index.lock" "${WGIT_DIR}/HEAD.lock"; do
-    [[ -e "$lock" ]] || continue
-    if pgrep -x git >/dev/null 2>&1; then
-      echo -e "  ${Y}note${N} a git process is running - leaving $(basename "$lock") alone"
-      continue
+  # Sweep EVERY *.lock under the git directory, not just index and HEAD. A
+  # failed commit on 2026-08-25 left refs/heads/main.lock behind, and a helper
+  # that knew only about index.lock and HEAD.lock could not clear it - so the
+  # retry failed too, with a message pointing at a file the helper was blind to.
+  [[ -d "$WGIT_DIR" ]] || return 0
+  if pgrep -x git >/dev/null 2>&1; then
+    if find "$WGIT_DIR" -name '*.lock' -print -quit 2>/dev/null | grep -q .; then
+      echo -e "  ${Y}note${N} a git process is running - leaving the .git-working lock(s) alone"
     fi
-    rm -f "$lock" && ok "cleared a stale $(basename "$lock") in .git-working"
-  done
+    return 0
+  fi
+  local lock n=0
+  while IFS= read -r lock; do
+    rm -f "$lock" && n=$((n+1))
+  done < <(find "$WGIT_DIR" -name '*.lock' 2>/dev/null)
+  (( n > 0 )) && ok "cleared ${n} stale lock file(s) in .git-working"
+  return 0
 }
 
 # Commit and push the working records. Called AFTER the public push, so that if

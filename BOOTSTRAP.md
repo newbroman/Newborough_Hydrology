@@ -64,6 +64,17 @@ git --git-dir=.git-working --work-tree=. checkout -f main
 `checkout -f` is safe here and only here: the private repository's four paths do
 not exist in the public one, so nothing of the public checkout is overwritten.
 
+Give it an identity. The public repository keeps `user.name` / `user.email` in
+`.git/config` rather than globally, and a second git directory inherits none of
+it — without this the first `wgit commit` dies with *"cannot auto-detect email
+address"* after the message has already been typed:
+
+```bash
+for k in user.name user.email; do
+  git --git-dir=.git-working --work-tree=. config "$k" "$(git config "$k")"
+done
+```
+
 Then restore its exclude list, or a later `wgit status` will offer to commit the
 entire public repository:
 

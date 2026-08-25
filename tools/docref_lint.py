@@ -104,12 +104,12 @@ KNOWN_DANGLING = {
         "dated delta not carried into changelogs/",
     'CHANGELOG_delta_2026-06-30_scrape_drawdown_physics.md':
         "dated delta predating changelogs/",
+    'CHANGELOG_delta_2026-08-08_pipe_top_upstand_correction.md':
+        "dated delta cited by the recovered geometry spec; never carried into changelogs/",
     'CHANGELOG_delta_2026-08-10_18_sy_spatial_trends.md':
         "dated delta not carried into changelogs/",
     'CHANGELOG_forecaster_simplification.md':
         "dated delta not carried into changelogs/",
-    'COASTAL_NET_VS_EASTING_MEMO.md':
-        "the coastal-vs-easting memo; 3 MS citations",
     'DEFECT_NOTE_script20_residual_field_2026-08-06.md':
         "the DEFECT D1 note; substance now in INTERCEPTION_TREATMENT.md sec 4",
     'DIAGNOSTIC_REPORT_script_26_cluster_assignment.md':
@@ -120,8 +120,8 @@ KNOWN_DANGLING = {
         "summer-minima findings behind script 21",
     'FINDING_canopy_buffering_consolidated.md':
         "the canopy-buffering finding behind 10a",
-    'GEOMETRY_ARCHITECTURE_SPEC.md':
-        "the site-geometry spec; cited from 8 scripts, the widest orphan",
+    'HUB_CORRECTION_NOTE_2026-08-08.md':
+        "hub recompute note cited by the recovered geometry spec sec 7",
     'HANDOVER_SCRIPT03_DATUM.md':
         "the drainage-datum handover, cited from config.py",
     'HANDOVER_c3_detrend_check.md':

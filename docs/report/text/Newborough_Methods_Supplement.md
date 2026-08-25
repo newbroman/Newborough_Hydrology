@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_46.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_47.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -265,7 +265,7 @@ Things keyed on **cluster integer** --- Python dicts mapping *1*, *2*, ... to ph
 
 The convention going forward: if a dict is keyed by integer cluster ID and holds anything other than labels, colours, or markers, treat it as physical data tied to a specific cluster. When the partition changes, walk through every such dict and verify each entry; do not assume.
 
-Several dicts in the codebase are physical-data-keyed-by-integer and need verification under any future partition change: *SUMMER_TRENDS* and *FLOOD_FREQ* in Script 16, *RESIDUAL_PCT_SE* in the water-balance work, and *CLUSTER_PEAK_MONTH* in Script 11. These dicts are now read dynamically from upstream pipeline CSVs where possible (*03_cluster_peak_months.csv* for the peak months, *16_water_bal_table.csv* for residuals), but any remaining hardcoded entries should be revisited if the partition changes.
+Several dicts in the codebase are physical-data-keyed-by-integer and need verification under any future partition change: *SUMMER_TRENDS* and *FLOOD_FREQ* in Script 16 --- both since REMOVED, along with *RESIDUAL_PCT_SE*, when D-021 made the water-balance partition Sy-free; the only survivor is *CLUSTER_PEAK_MONTH* in Script 11. These dicts are now read dynamically from upstream pipeline CSVs where possible (*03_cluster_peak_months.csv* for the peak months, *16_water_bal_table.csv* for residuals), but any remaining hardcoded entries should be revisited if the partition changes.
 
 ### []{#anchor-46}[]{#anchor-47}[]{#anchor-48}Specific yield: two values per cluster
 
@@ -273,11 +273,11 @@ Two per-cluster specific-yield references are cited in the report: literature va
 
   --------------------- ------------ ------------------ ---------------------------
   Cluster               Sy assumed   Approach A (OLS)   Approach B (event median)
-  C1 Lake Edge          0.08         0.341              0.210
-  C2 Dune               0.12         0.335              0.281
-  C3 Western Residual   0.12         0.351              0.328
-  C4 Main Forest        0.12         0.302              0.259 (corr)
-  C5 Coastal Forest     0.12         0.419              0.321 (corr)
+  C1 Lake Edge          0.08         0.342              0.210
+  C2 Dune               0.12         0.338              0.267
+  C3 Western Residual   0.12         0.352              0.327
+  C4 Main Forest        0.12         0.297              0.260 (corr)
+  C5 Coastal Forest     0.12         0.412              0.321 (corr)
   --------------------- ------------ ------------------ ---------------------------
 
 The Fetter values are literature specific yields for unconfined dune sand, cited as a comparison benchmark; they do not enter Script 16\'s water-balance partition, which is Sy-free (§S.11). The WTF values are the empirical estimates from rising-limb event analysis (Script 17, Table 4c). They are not in conflict; they are independent references --- one from the literature, one empirical --- and the report cites both. The Phase 6 chapter explains why the corrected and uncorrected C4 medians both appear in Table 4c, and the Phase 8 chapter explains why the well-level cluster mean (0.202 for C4) is lower than the cluster-aggregate value (0.227).
@@ -2333,7 +2333,7 @@ Each cluster receives the same forcing --- P̄ = 74.4 mm/month, PET̄ = 55.1 mm/
 
 The head-space components are millimetres of head per month. To compare them with the climate baseline they have to be expressed as millimetres of water per year. The current Script 16 does this directly through the partition fractions, without an explicit specific-yield (Sy) conversion. The reasoning is simple: at the closure condition β₁·P̄ ≈ β₂·PET̄ + β₃·h̄\_disp, the head-space recharge is itself the head-equivalent of the net water flux into the cluster per month. Dividing the SSM losses into their two head-space components gives a partition fraction --- the ratio of β₂·PET̄ to total head-space loss is the ET share, and β₃·h̄\_disp / total is the drainage share --- and that partition fraction is a dimensionless ratio that transfers cleanly from the head-space to the volumetric description.
 
-*save_volumetric_table()* implements the partition. Annual rainfall (P_annual = 892.5 mm/yr, the same for all clusters by construction) is reduced by interception at forest clusters (*I = 0.24 × P* per F.4 for C4 and C5; zero elsewhere), giving *P_net = P − I*. P_net is then split into ET and drainage according to the cluster's drainage fraction. The result is a per-cluster mm/yr breakdown that can be read alongside the 892.5 mm/yr rainfall input and the 661 mm/yr Thornthwaite PET ceiling.
+*save_volumetric_table()* implements the partition. Annual rainfall (P_annual = 892.2 mm/yr, the same for all clusters by construction) is reduced by interception at forest clusters (*I = 0.24 × P* per F.4 for C4 and C5; zero elsewhere), giving *P_net = P − I*. P_net is then split into ET and drainage according to the cluster's drainage fraction. The result is a per-cluster mm/yr breakdown that can be read alongside the 892.2 mm/yr rainfall input and the 657 mm/yr Thornthwaite PET ceiling.
 
 #### []{#anchor-330}[]{#anchor-331}Recession as an independent check
 
@@ -2424,23 +2424,23 @@ Rearranging to estimate Sy gives R = Sy · (Δh + β₃·\|h_prev\|), so the OLS
 
   ----------------------- ------------- ------- ------- ---- --------------- ------------------ ----------
   Cluster                 Sy (A, OLS)   SE      R²      n    Sy (B, event)   IQR                n events
-  C1 (Lake Edge)          0.341         0.045   0.605   39   0.210           \[0.129, 0.259\]   59
-  C2 (Dune)               0.335         0.034   0.666   50   0.281           \[0.197, 0.374\]   64
-  C3 (Western Residual)   0.351         0.022   0.836   52   0.328           \[0.284, 0.410\]   57
-  C4 (Main Forest)        0.302         0.018   0.864   46   0.259 (corr)    \[0.179, 0.330\]   62
-  C5 (Coastal Forest)     0.419         0.024   0.871   48   0.321 (corr)    \[0.243, 0.383\]   49
+  C1 (Lake Edge)          0.342         0.045   0.594   40   0.210           \[0.127, 0.255\]   58
+  C2 (Dune)               0.338         0.034   0.666   51   0.267           \[0.194, 0.369\]   62
+  C3 (Western Residual)   0.352         0.022   0.837   53   0.327           \[0.281, 0.393\]   56
+  C4 (Main Forest)        0.297         0.019   0.845   48   0.260 (corr)    \[0.181, 0.324\]   63
+  C5 (Coastal Forest)     0.412         0.023   0.863   50   0.321 (corr)    \[0.244, 0.388\]   51
   ----------------------- ------------- ------- ------- ---- --------------- ------------------ ----------
 
   --------------------- ---------------------- ------------------ ----
   Cluster               Sy (per-well median)   95% CI             n
-  C1 Lake Edge          0.195                  \[0.098, 0.230\]   20
-  C2 Dune               0.261                  \[0.197, 0.336\]   21
-  C3 Western Residual   0.334                  \[0.288, 0.437\]   17
-  C4 Main Forest        0.274 (corr)           \[0.229, 0.312\]   13
-  C5 Coastal Forest     0.298 (corr)           \[0.269, 0.355\]   14
+  C1 Lake Edge          0.180                  \[0.097, 0.220\]   19
+  C2 Dune               0.260                  \[0.180, 0.333\]   20
+  C3 Western Residual   0.319                  \[0.274, 0.409\]   16
+  C4 Main Forest        0.273 (corr)           \[0.235, 0.348\]   13
+  C5 Coastal Forest     0.311 (corr)           \[0.270, 0.376\]   13
   --------------------- ---------------------- ------------------ ----
 
-Three cross-approach observations: C3 converges tightly across all three methods (≈ 0.33--0.34), which solidifies the Fig-17 λ anchor at that cluster. C1 has B and C both well below A (0.210 and 0.195 vs 0.334), consistent with β₃ over-correcting in the lake-buffered cluster --- a diagnostic reading, not grounds for rejecting A. The coarse Sy gradient across the five clusters is robust to estimator choice; the fine top-end ranking (C3 vs C5) remains method-dependent: A puts C5 highest, B and C put C3 highest. The pipeline-consumed canonical for forest clusters is the corrected Approach B value (Script 18 → *17_wtf_well_sy.csv*); Table 4c of the main report uses Approach B with interception correction.
+Three cross-approach observations: C3 has the tightest spread of the five clusters (0.319--0.352 across the three methods), which solidifies the Fig-17 λ anchor at that cluster. C1 has B and C both well below A (0.210 and 0.180 vs 0.342), consistent with β₃ over-correcting in the lake-buffered cluster --- a diagnostic reading, not grounds for rejecting A. The coarse Sy gradient across the five clusters is robust to estimator choice; the fine top-end ranking (C3 vs C5) remains method-dependent: A puts C5 highest, B and C put C3 highest. The pipeline-consumed canonical for forest clusters is the corrected Approach B value (Script 18 → *17_wtf_well_sy.csv*); Table 4c of the main report uses Approach B with interception correction.
 
 #### []{#anchor-348}[]{#anchor-349}Site-specific choices
 
@@ -2515,7 +2515,7 @@ Script 18 reads the cleaned reference-network hydrographs (*01_wells_clean.csv*)
 
 -   **Sy estimates from the WTF method are indicative, not definitive.** Slug or pumping tests at representative wells per cluster would be the gold standard. The WTF approach assumes that monthly net recharge during rising-limb winter months equals actual aquifer recharge --- a defensible approximation for this site but not a measurement.
 -   **Approach A and Approach B answer slightly different questions and are expected to differ within the data's natural spread.** Approach A's drainage correction means it is reporting Sy *given* the SSM's β₃, while Approach B is an empirical median across rising-limb months. Under the live partition the two estimators agree within \~10--15 % on C3, C4, and C5; they diverge on C1 (Lake Edge) and C2 (Dune). The chapter on Script 16's water balance (S.11) takes the view that any volumetric calculation built on a single Sy value is exposing itself to this spread, which is why Script 16 was designed to be Sy-free.
--   **C1 Lake Edge carries materially more uncertainty than the cluster-level summary suggests.** At C1 the three estimators diverge: Approach A Sy = 0.334, Approach B Sy = 0.210, Approach C Sy = 0.195. B and C converge at the lower end and independently corroborate each other, strengthening the reading that β₃ over-corrects at the lake-buffered cluster --- the Pearson correlation between R and the drainage-corrected rise at C1 is effectively zero (r ≈ 0.00 across the qualifying winter months), against r = 0.72 at C3, 0.70 at C4, and 0.76 at C5. This is a diagnostic reading, not grounds for rejecting Approach A: it means the β₃ correction is poorly identified at C1, as expected for a sluice-managed water body. At this cluster the per-event median (Approach B) is treated as the more reliable estimator, and the cluster's headline Sy in Table 4c reflects that choice.
+-   **C1 Lake Edge carries materially more uncertainty than the cluster-level summary suggests.** At C1 the three estimators diverge: Approach A Sy = 0.342, Approach B Sy = 0.210, Approach C Sy = 0.180. B and C converge at the lower end and independently corroborate each other, strengthening the reading that β₃ over-corrects at the lake-buffered cluster --- the Pearson correlation between R and the drainage-corrected rise at C1 is effectively zero (r ≈ 0.00 across the qualifying winter months), against r = 0.72 at C3, 0.70 at C4, and 0.76 at C5. This is a diagnostic reading, not grounds for rejecting Approach A: it means the β₃ correction is poorly identified at C1, as expected for a sluice-managed water body. At this cluster the per-event median (Approach B) is treated as the more reliable estimator, and the cluster's headline Sy in Table 4c reflects that choice.
 -   **Forest-cluster Sy carries additional uncertainty from the interception value.** The 0.24 throughfall-loss fraction is a single Freeman (2008) value, measured under one canopy density in one stand. Its own uncertainty band is not propagated through the WTF estimate. Section S.13 (Scripts 19, 20) and S.14 (Script 21) both consume the corrected forest Sy values without re-propagating that uncertainty; the size of the cluster's Sy range itself remains the dominant uncertainty term.
 -   **Per-well Sy in Script 18 is noisy at short-record wells.** Extended-network wells with few rise events produce wide confidence intervals; the spatial contour map smooths over this but the per-well CSV (Table S1) should be read with care. The 15-event threshold for the high-confidence flag is conservative but does not eliminate the issue.
 -   **The contour interpolation extends 100 m beyond the convex hull of well locations** (*map_utils.add_idw_surface()*, *hull_buffer_m = 100*, applied from map_utils v1.5.0). The extension is bounded by nearest-neighbour fill within the buffered hull and then clipped to the site boundary and ridge mask, so the surface reaches the coastal margin rather than stopping at the outer well ring. Values in the 100 m extension zone are bounded extrapolation over unmeasured ground and should be read with corresponding caution. The dune fringes inside the hull are interpolated rather than measured; offshore and lake areas are hidden by the site-boundary mask.

@@ -2,44 +2,20 @@
 # find_missing_docs.sh — hunt the documents the live source cites and the
 # repository does not contain (T-10). Read-only: it finds, it never moves.
 #
-# The list below is the searchable subset of docref_lint.py's KNOWN_DANGLING
-# (29 entries; 'CHANGELOG.md' is too generic to search for by name).
+# The list comes from docref_lint.py --list-missing, so it can never drift
+# from what the linter is actually freezing.
 #
 #   bash tools/find_missing_docs.sh            names only, home + trash + mounts
 #   bash tools/find_missing_docs.sh --content  also grep file CONTENTS, for a
 #                                              document that was renamed
 set -uo pipefail
 LIST="$(mktemp)"; trap 'rm -f "$LIST"' EXIT
-cat > "$LIST" <<'EOF'
-AUDIT_10series_PRE_FELL_START.md
-BETA2_DECOMPOSITION_UPDATED.md
-CHANGELOG_date_formatting_sweep.md
-CHANGELOG_delta_2026-06-30_scrape_drawdown_physics.md
-CHANGELOG_delta_2026-08-08_pipe_top_upstand_correction.md
-CHANGELOG_delta_2026-08-10_18_sy_spatial_trends.md
-CHANGELOG_forecaster_simplification.md
-DEFECT_NOTE_script20_residual_field_2026-08-06.md
-DIAGNOSTIC_REPORT_script_26_cluster_assignment.md
-FIGURE_LEDGER.md
-FINDINGS_script21_summer_minima.md
-FINDING_canopy_buffering_consolidated.md
-HANDOVER_SCRIPT03_DATUM.md
-HUB_CORRECTION_NOTE_2026-08-08.md
-HANDOVER_c3_detrend_check.md
-MODEL_SPECIFICATION_AUDIT.md
-NRG_spring_BACI_spec_2026-08-13.md
-NRG_window_policy_spec_2026-08-14.md
-PLAN_differential_movement_writeup.md
-REPORT_STRUCTURE.md
-SCRAPING_EFFECTS_KNOWLEDGE.md
-SPEC_script35_per_well_amplification_metric.md
-SPEC_script37_scale_factor_regression_2026-07-06.md
-SPEC_script37b_partB_comparative_footing_2026-07-06.md
-c3_detrend_check_results.md
-ledgers_DECISION_LOG_premerge_2026-08-16.md
-methods_supplement_master_v1_9_7.md
-paper2.md
-EOF
+# One list, one place. docref_lint.py owns it: KNOWN_DANGLING minus the three
+# documents that are missing by ruling (see its RETIRED dict) minus names too
+# generic to search by. Never keep a second copy here.
+python3 "$(dirname "$0")/docref_lint.py" --list-missing > "$LIST" || {
+  echo "cannot read the missing-document list from tools/docref_lint.py" >&2; exit 1; }
+echo "== $(grep -c . "$LIST") document(s) to look for =="
 
 # Every place a deleted or stray file can hide. -xdev per root so one slow
 # network mount cannot stall the sweep; missing paths are skipped silently.

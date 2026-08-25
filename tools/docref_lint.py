@@ -93,6 +93,24 @@ _URLISH = re.compile(r"https?://|www\.|github\.com|\.org/|\.io/")
 # Remove an entry when the document is found, written, or the citation is
 # repointed. Do not add one without deciding, explicitly, that the document is
 # not going to be recovered.
+# Documents that are missing BY RULING, not by loss. Searching the disk for
+# these is wasted effort and finding one is not good news: an old copy of a
+# retired document is exactly the fork the ruling removed. Frozen for gating
+# like KNOWN_DANGLING, but excluded from --list-missing.
+RETIRED = {
+    'paper2.md':
+        "deleted deliberately — WORK_REGISTER M33, closed 2026-08-23: a month "
+        "stale, carried the superseded +0.120 m clearfell step and the withdrawn "
+        "climate ranking. the PAPER2_EDITS, PAPER2_TABLES and PAPER2_FIGURES notes are the maintained surface.",
+    'methods_supplement_master_v1_9_7.md':
+        "retired by D-012 as a hand-maintained master — a second editable copy of "
+        "a document is a fork, not a source. The ODT is canonical; "
+        "docs/report/text/Newborough_Methods_Supplement.md is its mirror.",
+    '_to_delete/ledgers_DECISION_LOG_premerge_2026-08-16.md':
+        "the pre-merge original behind the D-id collision. An archival trace, not "
+        "a live document; the merged root DECISION_LOG.md supersedes it.",
+}
+
 KNOWN_DANGLING = {
     'AUDIT_10series_PRE_FELL_START.md':
         "the pre-fell start-date audit behind clearfell_common",
@@ -142,16 +160,10 @@ KNOWN_DANGLING = {
         "spec for the driver-validation regression",
     'SPEC_script37b_partB_comparative_footing_2026-07-06.md':
         "spec for 37b part B",
-    '_to_delete/ledgers_DECISION_LOG_premerge_2026-08-16.md':
-        "RECOVERABLE: the file was retrieved to Updates_required/_recovered_2026-08-25/",
     'c3_detrend_check_results.md':
         "results file for the C3 detrend check",
     'claude/NRG_spring_BACI_spec_2026-08-13.md':
         "spring-BACI spec, in a working folder never committed",
-    'methods_supplement_master_v1_9_7.md':
-        "a superseded MS working filename IN DRIVE, dropped version suffix: 1cbTlyO1P2utddeIbc0rzyT1XcwdmclLr (440 KB).",
-    'paper2.md':
-        "removed deliberately (see the 2026-08-23d delta); the ODT text is the live copy",
 }
 
 _CAND = re.compile(r"[A-Za-z0-9_][A-Za-z0-9_./\\-]*\.md\b")
@@ -178,7 +190,20 @@ def resolves(ref, basenames):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--quiet", action="store_true")
+    ap.add_argument("--list-missing", action="store_true",
+                    help="print the documents worth searching for, one per line: "
+                         "KNOWN_DANGLING minus RETIRED minus names too generic to "
+                         "search by. The recovery tools read this rather than "
+                         "keeping their own copy of the list.")
     a = ap.parse_args()
+
+    if a.list_missing:
+        # 'CHANGELOG.md' is a generic pointer, not a document with that name.
+        for name in sorted(KNOWN_DANGLING):
+            if name in RETIRED or name == "CHANGELOG.md":
+                continue
+            print(name.rsplit("/", 1)[-1])
+        return 0
 
     basenames = {p.name for p in REPO.rglob("*.md")
                  if not (SKIP_PARTS & set(p.relative_to(REPO).parts))}
@@ -202,13 +227,15 @@ def main():
             if resolves(ref, basenames):
                 continue
             line = text.count("\n", 0, m.start()) + 1
-            bucket = frozen if ref in KNOWN_DANGLING else faults
+            known = ref in KNOWN_DANGLING or ref in RETIRED
+            bucket = frozen if known else faults
             bucket.setdefault(ref, []).append(f"{rel}:{line}")
 
     if frozen and not a.quiet:
         n = sum(len(v) for v in frozen.values())
-        print(f"  docref_lint: {len(frozen)} known-missing document(s), "
-              f"{n} citation(s) — frozen inventory, see KNOWN_DANGLING")
+        n_ret = sum(1 for r in frozen if r in RETIRED)
+        print(f"  docref_lint: {len(frozen) - n_ret} known-missing + {n_ret} "
+              f"retired-by-ruling document(s), {n} citation(s) — frozen inventory")
 
     if faults:
         print("  docref_lint: FAULT — NEW reference(s) to documents that do not exist")

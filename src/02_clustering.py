@@ -161,10 +161,16 @@ AMP_SUMMER_MONTHS     = (6, 7, 8, 9)
 # that also map onto clean spatial groupings at the site:
 #
 #   1. Lake              (n=7)   — wells around the eastern lake system
-#   2. Dune              (n=26)  — central-east mature dune system
-#   3. Western Residual  (n=19)  — mid-west open ground + coastal-adjacent
+#   2. Dune              (n=24)  — central-east mature dune system
+#   3. Western Residual  (n=21)  — mid-west open ground + coastal-adjacent
 #   4. Main Forest       (n=9)   — mature inland forest block
 #   5. Coastal Forest    (n=5)   — coastal-edge forest strip
+#
+# Counts corrected 2026-08-25 against 02_07_cluster_membership_k5.csv. They had
+# read 26 and 19 — the PRE-blacklist membership. The v1.3.0 `pdfs` exclusion
+# moved two wells from Dune to Western Residual at re-clustering and this block
+# was not updated. Both versions sum to 66, so no total ever flagged it.
+# See PARTITION_HISTORY.md.
 #
 # The Western Residual cluster contains two geographically distinguishable
 # sub-populations (the low-ground southern coastal fringe including ceh4,

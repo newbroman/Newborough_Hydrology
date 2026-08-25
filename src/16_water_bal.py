@@ -39,7 +39,16 @@ Volumetric water balance (mm/yr):
     PET          =  Thornthwaite PET (identical for all clusters)
     I            =  0.24 × P (forest only; Freeman 2008)
     Net recharge =  P − I
-    ET at WT     =  PET − I (interception consumes PET energy)
+    ET + drainage=  P_net, split by the cluster's drainage fraction
+
+    Interception is subtracted ONCE, from the input, and drawn a second time on
+    the loss bar, where the two appearances cancel in the net surplus. It is NOT
+    computed as PET − I. That identity states the energy partition correctly as
+    an ANNUAL MEAN, but it is not what this script evaluates and it cannot be
+    evaluated monthly: 0.24·P exceeds Thornthwaite PET in December and January
+    (23.0 vs 18.8 mm, 20.4 vs 16.9 mm), so the residual demand would go negative.
+    Wet-canopy evaporation is advection-driven and routinely outruns the
+    temperature-based demand of the same month. See INTERCEPTION_TREATMENT.md §4.
     P − PET      =  computed at runtime from the live climate record
                     (≈ 232 mm/yr long-term, RAF Valley 2005–present).
                     Live value is also exposed via the pipeline_site_

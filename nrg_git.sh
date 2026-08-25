@@ -6,6 +6,10 @@
 # ============================================================================
 # VERSION 1.6.0 - 2026-08-16
 # CHANGELOG
+#   1.9.2 (2026-08-25): WGIT_PATHS carries setup_working_repo.sh and wgit.
+#       The public .gitignore excludes both by name and the private repo did
+#       not admit them, so this repository's own bootstrap script and its git
+#       wrapper were tracked NOWHERE - present on one disk and nowhere else.
 #   1.9.1 (2026-08-25): wclear_stale_lock sweeps every *.lock under the git
 #       directory. A failed private commit left refs/heads/main.lock behind
 #       and the helper, which knew only index.lock and HEAD.lock, could not
@@ -173,7 +177,8 @@ clear_stale_lock(){
 # the one mistake in this arrangement that would be genuinely hard to undo.
 WGIT_DIR="${REPO_DIR}/.git-working"
 WGIT_PATHS=( DECISION_LOG.md WORK_REGISTER.md README_WORKING.md
-             changelogs Updates_required )
+             changelogs Updates_required
+             setup_working_repo.sh wgit )
 
 have_working_repo(){ [[ -d "$WGIT_DIR" ]]; }
 

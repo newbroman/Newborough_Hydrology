@@ -67,6 +67,7 @@ from __future__ import annotations
 __version__ = "1.0.0"  # Hollingham (2026) — 2026-08-24.
 
 import argparse
+import re
 import csv
 import importlib.util
 import sys
@@ -79,6 +80,18 @@ MIN_CONTEXT_MATCH = 12   # only used where the key names no subject
 # How far from the value the subject may sit and still identify it. A table row
 # label is a few dozen characters away; anything further is a passing mention.
 SUBJECT_REACH = 80
+
+# ...except in a table row, where the whole line is the subject's reach however
+# wide the table. A pandoc mirror renders tables two ways: pipe-delimited, and
+# whitespace-aligned columns. Both show gutters. Prose does not - a sentence has
+# single spaces between words - so prose keeps the SUBJECT_REACH clip.
+_GUTTER = re.compile(r"\S {2,}\S")
+
+
+def _is_table_row(line: str) -> bool:
+    if line.lstrip().startswith("|"):
+        return True
+    return len(_GUTTER.findall(line)) >= 3
 
 
 def _load_cite_check():
@@ -142,11 +155,26 @@ def main() -> int:
             paragraph. A row label sits within a few dozen characters of its
             value; a passing mention two hundred words away is not
             identification.
+            EXCEPT IN A WIDE TABLE. SUBJECT_REACH = 80 was set from narrow
+            tables. report9's cluster-coefficient table is ten columns, and
+            "C1 Lake Edge" sits 97 characters before its LCSC value - outside
+            the reach - so the subject test could never pass and the row was
+            refused as "current value is not quoted in that document" while
+            the document quoted it correctly, once, unambiguously. Five LCSC
+            rows failed exactly this way on 2026-08-25.
+
+            So: clip to the LINE when the line is a table row, to
+            SUBJECT_REACH otherwise. That keeps the guard the docstring above
+            was written for - a prose paragraph is also a line - while letting
+            a table row identify its own value however wide the table is.
             """
-            ls = max(text.rfind("\n", 0, a) + 1, a - SUBJECT_REACH)
-            le = text.find("\n", b)
-            le = min(le if le >= 0 else len(text), b + SUBJECT_REACH)
-            return text[ls:le]
+            ls_line = text.rfind("\n", 0, a) + 1
+            le_line = text.find("\n", b)
+            le_line = le_line if le_line >= 0 else len(text)
+            if _is_table_row(text[ls_line:le_line]):
+                return text[ls_line:le_line]
+            return text[max(ls_line, a - SUBJECT_REACH):
+                        min(le_line, b + SUBJECT_REACH)]
 
         def context_score(a: int, b: int) -> int:
             return (cc._common_tail(st_before, cc._norm_ctx(text[max(0, a - CTX):a]))

@@ -1,0 +1,31 @@
+# Which ODTs go to Drive. Used as:
+#   rclone copy . gdrive:NRG_documents --filter-from tools/rclone-odt-filter.txt
+#
+# ORDER MATTERS: rclone takes the FIRST rule that matches a path, so the
+# exclusions must come before the inclusions. Mixing --include and --exclude on
+# the command line is parsed in an indeterminate order, which is what rclone
+# warns about; a filter file makes the order explicit.
+#
+# copy, never sync. sync makes the destination match the source, so it DELETES
+# anything on Drive that is no longer on disk — exactly backwards for an
+# archive. The moment an old Paper1_v1_4.odt is tidied up locally is the moment
+# the Drive copy matters most.
+
+# --- scratch and pre-edit snapshots: 2.4 GB, superseded the moment the edit
+# --- they guarded was verified. Not archive material.
+- _to_delete/**
+- _transfer/**
+- _audit_tmp/**
+- **/_frozen/**
+- **/_superseded/**
+- **/backups/**
+- **/.git/**
+- **/.git-working/**
+
+# --- the documents themselves
++ **/*.odt
++ **/*.odm
+
+# --- everything else stays out. Without this catch-all rclone would upload the
+# --- entire repository, which is already in git twice over.
+- **

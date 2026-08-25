@@ -200,11 +200,6 @@ DRAINAGE_DATUM = 3.7  # metres below ground surface
 # All regression coefficients are numerically identical.
 HEADLINE_LAG = 0
 
-# Canopy interception fraction for Corsican pine (Freeman, 2008).
-# Measured at C5 (Coastal Forest) throughfall gauge, applied to all
-# forested clusters (C4 and C5). The interception is a partition of the
-# PET energy budget: ET_at_WT = PET − I, so I is NOT additive to PET.
-# See INTERCEPTION_TREATMENT.md for the full derivation.
 # ── UKCP18 seasonal climate-change multipliers ───────────────────────────────
 # Applied to the OBSERVED P and PET series; neither is recomputed from projected
 # temperature. Scripts 19 (scenario viewer) and 26b (MSL5 projections) each held
@@ -225,6 +220,18 @@ UKCP18_SCENARIOS = {
     "2080s": {"sP_w": 1.20, "sP_s": 0.70, "sPET_w": 1.10, "sPET_s": 1.35},
 }
 
+# Canopy interception fraction for Corsican pine (Freeman, 2008).
+# Measured at C5 (Coastal Forest) throughfall gauge, applied to all forested
+# clusters (C4 and C5). Interception is a PARTITION of the atmospheric energy
+# budget, not a term additive to PET: it is subtracted from rainfall exactly
+# once, and only where the term it modifies was not itself fitted on gross
+# rainfall. Script 03 fits the SSM on gross P and above-canopy PET, so the
+# canopy loss is already inside the fitted β — reducing P̄ again double-counts.
+#
+# (This block sat 21 lines above, separated from its constant by the whole
+#  UKCP18 scenario section; moved here 2026-08-25 so the value meets its reason.)
+#
+# See INTERCEPTION_TREATMENT.md for the full derivation.
 FOREST_INTERCEPTION = 0.24
 
 # Cluster IDs carrying forest canopy (Corsican pine). These receive the

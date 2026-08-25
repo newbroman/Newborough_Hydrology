@@ -104,6 +104,16 @@ python3 tools/ledger_lint.py --quiet || rc=1
 python3 tools/ledger_lint.py | grep -E "row\(s\) with a stale version" || true
 
 echo
+echo "── document references (does every cited .md exist?) ─────────────────"
+# Gates on NEW dangling references only. 32 were already dangling on the day
+# this landed - 99 citations, mostly build-era specs and audits that lived
+# beside the project rather than in it - and they are frozen in the tool's
+# KNOWN_DANGLING inventory rather than deleted, because a citation is evidence
+# that the reasoning existed. The job of the gate is to stop the list growing.
+python3 tools/docref_lint.py --quiet || rc=1
+python3 tools/docref_lint.py | grep -E "known-missing document" || true
+
+echo
 echo "── tasks (is any outstanding job now finished, or newly broken?) ─────"
 # Gates ONLY on a check that could not answer. An open task is work in hand and
 # must not fail the build; a broken check is a lie waiting to happen, and does.

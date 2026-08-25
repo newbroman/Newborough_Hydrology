@@ -32,7 +32,6 @@ for m in /media/*/".Trash-$(id -u)" /run/media/*/*/".Trash-$(id -u)"; do
   [ -d "$m" ] && roots+=("$m")
 done
 
-seen_hashes=""
 staged=0; skipped=0
 while IFS= read -r name; do
   [ -z "$name" ] && continue
@@ -48,8 +47,10 @@ while IFS= read -r name; do
     done < <(find "$root" -xdev -type f -name "$name" 2>/dev/null)
   done
   [ -z "$hits" ] && continue
+  # Dedup is per NAME, not global: two different documents can hold identical
+  # bytes (a stub, a one-line note) and both are wanted.
+  seen_hashes=""
 
-  i=0
   while IFS= read -r src; do
     [ -z "$src" ] && continue
     h=$(sha256sum "$src" 2>/dev/null | cut -c1-12) || continue
@@ -63,15 +64,17 @@ while IFS= read -r name; do
       *)                                         tag=disk ;;
     esac
     base="${name%.md}"
-    out="$base__${tag}_${h}.md"
-    i=$((i+1))
+    out="${base}__${tag}_${h}.md"
     mt=$(date -r "$src" +%F' '%T 2>/dev/null || echo unknown)
     sz=$(stat -c%s "$src" 2>/dev/null || echo 0)
     if [ "$DRY" -eq 1 ]; then
       printf '  %-58s <- %s  (%s, %s bytes)\n' "$out" "$src" "$mt" "$sz"
     else
-      cp -n "$src" "$DEST/$out" 2>/dev/null && \
-        printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$name" "$out" "$src" "$mt" "$sz" "$h" >> "$MAN"
+      # cp -n so a re-run never clobbers a staged file. The name carries the
+      # content hash, so an existing file of that name IS this content - record
+      # the row either way, or a second run would produce an empty manifest.
+      [ -e "$DEST/$out" ] || cp "$src" "$DEST/$out" 2>/dev/null
+      printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$name" "$out" "$src" "$mt" "$sz" "$h" >> "$MAN"
     fi
     staged=$((staged+1))
   done <<< "$hits"

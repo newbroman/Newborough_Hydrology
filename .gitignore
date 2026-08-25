@@ -139,3 +139,9 @@ wgit
 
 # Marker touched by nrg_git option 11 on a successful Drive archive
 .last_drive_archive
+
+# The documents lock is a working record: it says which MACHINE currently
+# holds the ODTs. It belongs to the private repo (WGIT_PATHS carries it) and
+# must never reach the public one, where it would be meaningless to a reader
+# and would conflict on every push between machines.
+DOCUMENT_LOCK.json

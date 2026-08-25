@@ -154,10 +154,25 @@ def main() -> int:
 
         hit = None
         problem = None
+        # Can the value be searched AT THE PRECISION THE DOCUMENT USES? That
+        # is the question, and it is not the same as "at any precision":
+        # benchmark_positive_NSE_SSM is 65, which cite_check declines to search
+        # because two significant digits match coincidentally everywhere, yet
+        # render(65.0, 2) = "65.00" sails through the same guard and is then
+        # reported absent — which it is, and which means nothing.
+        #
+        # Without this distinction the two reasons a row cannot be resolved are
+        # reported as one: genuinely missing from the document, and unverifiable
+        # by construction. Triaging the refusal list on 2026-08-25 cost an hour
+        # to that conflation — five rows read as "not quoted" while the document
+        # quoted every one of them correctly.
+        at_doc_precision = cc.searchable(cc.render(v, want_dp), r["key"])
+        searched = False
         for dp in order:
             s = cc.render(v, dp)
             if not cc.searchable(s, r["key"]):
                 continue
+            searched = True
             cands = list(cc.number_spans(text, s))
             if not cands:
                 continue
@@ -180,7 +195,12 @@ def main() -> int:
             refused.append((r, problem))
             continue
         if hit is None:
-            refused.append((r, "current value is not quoted in that document"))
+            if not at_doc_precision:
+                refused.append((r, f"too few significant digits to search safely "
+                                   f"({cc.render(v, want_dp)}) — unverifiable "
+                                   f"either way, not evidence of a problem"))
+            else:
+                refused.append((r, "current value is not quoted in that document"))
             continue
 
         s, (a, b), how = hit

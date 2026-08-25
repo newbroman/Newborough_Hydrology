@@ -100,8 +100,8 @@ echo "── ledgers (does SCRIPT_LEDGER still describe the code?) ────�
 # Version drift is printed and counted but does not gate: it was 29 rows deep on
 # the day this landed, and a gate that fails from birth is a gate that gets
 # commented out. Same treatment as pipeline_lint's literal check and export_lag.
-python3 tools/ledger_lint.py --quiet || rc=1
-python3 tools/ledger_lint.py | grep -E "row\(s\) with a stale version" || true
+ledger_out="$(python3 tools/ledger_lint.py 2>&1)" || rc=1
+printf '%s\n' "$ledger_out" | grep -E "row\(s\) with a stale version|^  ledger_lint:" || true
 
 echo
 echo "── document references (does every cited .md exist?) ─────────────────"
@@ -110,15 +110,19 @@ echo "── document references (does every cited .md exist?) ─────�
 # beside the project rather than in it - and they are frozen in the tool's
 # KNOWN_DANGLING inventory rather than deleted, because a citation is evidence
 # that the reasoning existed. The job of the gate is to stop the list growing.
-python3 tools/docref_lint.py --quiet || rc=1
-python3 tools/docref_lint.py | grep -E "known-missing document" || true
+docref_out="$(python3 tools/docref_lint.py 2>&1)" || rc=1
+printf '%s\n' "$docref_out" | grep -E "known-missing document|^  docref_lint: (OK|FAULT)" || true
 
 echo
 echo "── tasks (is any outstanding job now finished, or newly broken?) ─────"
 # Gates ONLY on a check that could not answer. An open task is work in hand and
 # must not fail the build; a broken check is a lie waiting to happen, and does.
-python3 tools/task_lint.py --quiet || rc=1
-python3 tools/task_lint.py --open | grep -E "^  [0-9]+ open|OPEN " || true
+# task_lint executes every registered check, several of which invoke other
+# linters, so it is the most expensive gate in the file - 10 s. It was run
+# TWICE, once to gate and once to display. --open carries the same exit code,
+# so one run does both.
+task_out="$(python3 tools/task_lint.py --open 2>&1)" || rc=1
+printf '%s\n' "$task_out" | grep -E "^  [0-9]+ open|OPEN |task\(s\): " || true
 
 echo
 echo "── symbols (does the register contradict itself?) ───────────────────"
@@ -126,8 +130,8 @@ echo "── symbols (does the register contradict itself?) ──────�
 # Split deliberately: the backlog is 148 entries and gating on it kept this tool
 # out of the chain entirely, which is how the register came to hand z to d_depth
 # while z0 was the datum with nothing to catch it (D-062).
-python3 tools/symbol_check.py 2>/dev/null | grep -E "^  (RESERVED|OCCUPIED|DUPLICATE)|^  register faults" || true
-python3 tools/symbol_check.py >/dev/null 2>&1 || rc=1
+symbol_out="$(python3 tools/symbol_check.py 2>/dev/null)" || rc=1
+printf '%s\n' "$symbol_out" | grep -E "^  (RESERVED|OCCUPIED|DUPLICATE)|^  register faults" || true
 
 echo
 echo "── references (do typed Table/Figure numbers still resolve?) ─────────"
@@ -146,10 +150,10 @@ echo "── references by meaning (does a number point at what the text names?)
 # section — and neither guesses.
 # Run twice, as symbol_check above does: a pipeline's exit status is grep's, so
 # `tool | grep || rc=1` gates on whether the GREP matched, not on the tool.
-python3 tools/ref_audit.py | grep -E "^   DISAGREES|^ref_audit:" || true
-python3 tools/ref_audit.py >/dev/null 2>&1 || rc=1
-python3 tools/section_ref_audit.py | grep -E "^  reference forms|^      [A-Z§]|^section_ref_audit:|disagree" || true
-python3 tools/section_ref_audit.py >/dev/null 2>&1 || rc=1
+refaudit_out="$(python3 tools/ref_audit.py 2>&1)" || rc=1
+printf '%s\n' "$refaudit_out" | grep -E "^   DISAGREES|^ref_audit:" || true
+sectionrefaudit_out="$(python3 tools/section_ref_audit.py 2>&1)" || rc=1
+printf '%s\n' "$sectionrefaudit_out" | grep -E "^  reference forms|^      [A-Z§]|^section_ref_audit:|disagree" || true
 
 echo
 echo "── exports (is each published PDF newer than its sources?) ──────────"

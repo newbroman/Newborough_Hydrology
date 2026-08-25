@@ -6,6 +6,18 @@
 # ============================================================================
 # VERSION 1.6.0 - 2026-08-16
 # CHANGELOG
+#   1.8.0 (2026-08-25): the Drive archive, and q to quit.
+#       * 11) Archive documents - rclone copies the ODTs to gdrive:NRG_documents
+#         using tools/rclone-odt-filter.txt. NOT folded into option 2: the
+#         first 404 MB run took over an hour on a domestic upstream, and a
+#         push that might block for an hour is a push nobody runs.
+#       * do_push REPORTS the drift instead, counting ODTs newer than the
+#         .last_drive_archive marker. Same reasoning as export_lag on PDFs:
+#         make staleness visible where someone is already looking.
+#       * the marker is touched only on a SUCCESSFUL copy, so a failed run
+#         keeps reporting the drift rather than silently claiming success.
+#       * q quits. The number still does too - muscle memory should not be
+#         punished, and neither should the reasonable guess.
 #   1.7.0 (2026-08-25): the toolkit manages BOTH repositories. Since the
 #       public/private split the project is two git directories over one
 #       working tree, and option 2 was committing only the public half -
@@ -209,6 +221,54 @@ push_working(){
   else
     say "Pushing ${ahead} working-record commit(s)"
     wgit push -q && ok "pushed the working records" || fail "private push failed"
+  fi
+}
+
+# --- the ODT archive on Google Drive ---------------------------------------
+# The third store. An ODT is a zip: two saves share almost no bytes, so git
+# keeps each one whole and report9.odt is 123 MB. That is how .git reached
+# 6.9 GB before the 2026-08-24 rewrite. The markdown mirrors are the diffable
+# surface, so the TEXT of every document is version controlled - just not the
+# zip around it. Drive holds the zips.
+DRIVE_REMOTE="gdrive:NRG_documents"
+DRIVE_FILTER="tools/rclone-odt-filter.txt"
+DRIVE_MARKER=".last_drive_archive"
+
+# How many documents have changed since the archive last ran. Cheap: one find
+# against a marker file, no network. Used by do_push to make a stale archive
+# visible without making anyone wait for it.
+documents_since_archive(){
+  [[ -f "$DRIVE_FILTER" ]] || { echo ""; return 0; }
+  if [[ ! -f "$DRIVE_MARKER" ]]; then echo "never"; return 0; fi
+  find . \( -name '*.odt' -o -name '*.odm' \) \
+       -not -path './_to_delete/*' -not -path './_transfer/*' \
+       -not -path '*/_frozen/*' -not -path '*/_superseded/*' \
+       -not -path '*/backups/*' -newer "$DRIVE_MARKER" 2>/dev/null | wc -l
+}
+
+archive_documents(){
+  if ! command -v rclone >/dev/null 2>&1; then
+    fail "rclone is not installed - see README_WORKING.md"; return 1
+  fi
+  [[ -f "$DRIVE_FILTER" ]] || { fail "$DRIVE_FILTER is missing"; return 1; }
+
+  say "Documents to archive"
+  rclone copy . "$DRIVE_REMOTE" --filter-from "$DRIVE_FILTER" --dry-run 2>&1 \
+    | grep -c 'Skipped copy' | sed 's/^/  /' | sed 's/$/ file(s) would transfer/'
+  echo ""
+  echo "  copy, never sync: sync would DELETE from Drive anything no longer on"
+  echo "  disk, which is backwards for an archive."
+  read -rp "$(echo -e "${Y}Upload now? A first run of ~400 MB can take an hour. [y/N]: ${N}")" r
+  [[ "$r" =~ ^[Yy]$ ]] || { ok "not uploaded"; return 0; }
+
+  say "Copying to $DRIVE_REMOTE"
+  if rclone copy . "$DRIVE_REMOTE" --filter-from "$DRIVE_FILTER" \
+       --drive-chunk-size=64M --transfers=8 --progress; then
+    touch "$DRIVE_MARKER"
+    ok "documents archived - marker updated"
+  else
+    fail "rclone reported a problem - marker NOT updated, so the next run still
+        reports the drift. Re-running is safe: copy skips what is already there."
   fi
 }
 
@@ -660,6 +720,14 @@ do_push(){
   # The working records go last: if this fails, the public repo is
   # already consistent and the failure is recoverable on its own.
   push_working "$(git log -1 --format=%s 2>/dev/null)"
+  # The Drive archive is REPORTED, not run. An upload that can take an hour
+  # does not belong inside a push; a push nobody runs protects nothing.
+  local nd; nd="$(documents_since_archive)"
+  if [[ "$nd" == "never" ]]; then
+    echo -e "  ${Y}note${N} the ODTs have never been archived to Drive - option 12"
+  elif [[ -n "$nd" && "$nd" != "0" ]]; then
+    echo -e "  ${Y}note${N} ${nd} document(s) changed since the last Drive archive - option 12"
+  fi
 }
 
 # Push everything except the report. Skips refresh_mirror and lint_figrefs -
@@ -799,9 +867,10 @@ while true; do
   echo "  8) Normalise versions   (dry-run report: script banner() vs __version__)"
   echo "  9) Review citations     (confirm which document numbers cite which pipeline value)"
   echo " 10) Undo unpushed commit(s)  (rewind to GitHub; keeps every change staged)"
-  echo " 11) Quit"
+  echo " 11) Archive documents  (rclone the ODTs to Google Drive)"
+  echo "  q) Quit"
   echo ""
-  read -rp "Choose [1-11]: " choice
+  read -rp "Choose [1-11, q]: " choice
   case "$choice" in
     1) do_sync ;;
     2) do_push ;;
@@ -820,7 +889,8 @@ while true; do
     8) normalise_versions_report ;;
     9) review_citations_menu ;;
     10) do_undo_commit ;;
-    11) echo "Bye."; break ;;
-    *) echo "Please pick 1-11." ;;
+    11) archive_documents ;;
+    q|Q|12) echo "Bye."; break ;;
+    *) echo "Please pick 1-11, or q to quit." ;;
   esac
 done

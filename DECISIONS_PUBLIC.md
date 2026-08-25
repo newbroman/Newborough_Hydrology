@@ -21,6 +21,36 @@ edit by hand.*
 
 ---
 
+## Citations written before 2026-08-16
+
+`ledgers/DECISION_LOG.md` was a second decision log whose D-numbers meant
+different things. It is retired. Anything written before 2026-08-16 that cites a
+D-id may be using the ledger numbering — translate it here first.
+
+| Was | Is now | |
+|---|---|---|
+| ledger D-001 | **D-019** | imported verbatim on merge |
+| ledger D-002 | **D-007** | already recorded here under a different number |
+| ledger D-003 | **D-001** | already recorded here under a different number |
+| ledger D-004 | **D-005** | already recorded here under a different number |
+| ledger D-005 | **D-002** | already recorded here under a different number |
+| ledger D-006 | **D-010** | already recorded here under a different number |
+| ledger D-007 | **D-009** | already recorded here under a different number |
+| ledger D-008 | **D-020** | imported verbatim on merge |
+| ledger D-009 | **D-008** | already recorded here under a different number |
+| ledger D-010 | **D-021** | imported verbatim on merge |
+| ledger D-011 | **D-022** | imported verbatim on merge |
+| ledger D-012 | **D-023** | imported verbatim on merge |
+| ledger D-013 | **D-024** | imported verbatim on merge |
+| ledger D-014 | **D-025** | imported verbatim on merge |
+| ledger D-015 | **D-026** | imported verbatim on merge |
+| ledger D-016 | **D-027** | imported verbatim on merge |
+| ledger D-017 | **D-028** | imported verbatim on merge |
+
+---
+
+---
+
 ### D-001 — C4 β₃ triangulation retired
 
 *2026-07-24*

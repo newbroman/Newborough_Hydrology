@@ -6,6 +6,14 @@
 # ============================================================================
 # VERSION 1.6.0 - 2026-08-16
 # CHANGELOG
+#   1.9.0 (2026-08-25): push_working refuses to commit a public file.
+#       Three ledgers/ files - public, committed, unmodified - were found
+#       staged in the private index, put there by some earlier broad
+#       `wgit add`. Caught before any commit, so nothing was lost, but a
+#       private commit of a public file is the hard-to-undo mistake in this
+#       arrangement: the file lives in two histories and diverges silently.
+#       Explicit WGIT_PATHS does not cover a person typing `wgit add` by
+#       hand, so the check is now at the commit, where it cannot be skipped.
 #   1.8.0 (2026-08-25): the Drive archive, and q to quit.
 #       * 11) Archive documents - rclone copies the ODTs to gdrive:NRG_documents
 #         using tools/rclone-odt-filter.txt. NOT folded into option 2: the
@@ -192,6 +200,26 @@ push_working(){
   # -f because the public .gitignore lists these paths and outranks the private
   # repo's own exclude list. Without it a NEW changelog is silently skipped.
   wgit add -f "${WGIT_PATHS[@]}" 2>/dev/null
+
+  # GUARD: nothing staged privately may also be tracked publicly. On
+  # 2026-08-25 three ledgers/ files - public, committed, unmodified - were
+  # found sitting in the private index, staged by some earlier broad `wgit
+  # add`. Nothing was lost because they were caught before a commit, but a
+  # private commit of a public file is the one mistake in this arrangement
+  # that is genuinely hard to undo: the file then lives in two histories and
+  # diverges silently. Explicit WGIT_PATHS is not enough on its own, because
+  # a person typing `wgit add` by hand bypasses it.
+  local overlap
+  overlap="$(comm -12 \
+      <(wgit diff --cached --name-only 2>/dev/null | sort -u) \
+      <(git ls-files | sort -u))"
+  if [[ -n "$overlap" ]]; then
+    fail "these files are staged in the PRIVATE repo but tracked in the PUBLIC one:"
+    echo "$overlap" | sed 's/^/        /'
+    echo "        Unstage them:  ./wgit reset <path>"
+    echo "        Nothing is lost - they remain committed in the public repo."
+    return 1
+  fi
 
   if wgit diff --cached --quiet; then
     ok "no change to the working records"

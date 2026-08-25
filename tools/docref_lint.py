@@ -76,6 +76,11 @@ _URLISH = re.compile(r"https?://|www\.|github\.com|\.org/|\.io/")
 # or still sits in a folder on the author's machine is not yet established.
 #
 # 2026-08-25, later the same day: the question is answered for some of them.
+# Four were found and two recovered into this repository - wtf_interception_
+# methodology and site_geography, both with a superseded-values banner because
+# they predate the k=5 repartition. Local backups held none of the rest, and
+# git has never carried any of them: they were written beside the project, not
+# in it.
 # They are in the author's Google Drive project store, under `methods/` and its
 # parent - INTERCEPTION_TREATMENT.md and PARTITION_HISTORY.md were recovered
 # from there and are now in this repository. Entries below carry the Drive id
@@ -149,10 +154,6 @@ KNOWN_DANGLING = {
         "a superseded MS working filename IN DRIVE, dropped version suffix: 1cbTlyO1P2utddeIbc0rzyT1XcwdmclLr (440 KB).",
     'paper2.md':
         "removed deliberately (see the 2026-08-23d delta); the ODT text is the live copy",
-    'site_geography.md':
-        "site-geography note cited from the MS IN DRIVE: 1FaTyM0EBnMWxgwx6IfmxV-bErAcJLR69 (6 KB, 2026-05-01).",
-    'wtf_interception_methodology.md':
-        "the WTF interception derivation; substance now in INTERCEPTION_TREATMENT.md sec 3c IN DRIVE: 1Gso77njdZwge3B07fyOoNAF30zfBzY2C (11 KB, 2026-04-17).",
 }
 
 _CAND = re.compile(r"[A-Za-z0-9_][A-Za-z0-9_./\\-]*\.md\b")

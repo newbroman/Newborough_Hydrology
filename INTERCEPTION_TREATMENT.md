@@ -138,6 +138,33 @@ exceeds the Penman-family demand of the same period, let alone the Thornthwaite
 estimate. The partition is a closure statement about the year, not an operation
 available month by month. Scripts 17 and 18 work month by month.
 
+**Two further points, recovered from `wtf_interception_methodology.md`
+(2026-04-17) and still current.**
+
+*The accounting has a citation.* Treating intercepted water as a
+**pre-infiltration loss** rather than a component of ET follows Healy and Cook
+(2002, §3.2). The 0.24·P term is water that never reached the ground and could
+never have infiltrated, so it leaves the input side; the PET term on the loss
+side goes on describing demand imposed on whatever water *did* reach the soil.
+The two terms describe different water and must not be netted against each
+other. Reducing P by interception **and** reducing PET by the evaporation of
+that same intercepted water would remove the same quantity from both sides —
+and that, precisely, is the double-counting to avoid.
+
+*The correction does not simply lower Sy — it changes which events qualify.*
+Event-wise, reducing the numerator lowers every individual estimate. But the
+event pool is filtered to 0.01 < Sy < 0.50 on plausibility grounds, and under
+gross rainfall a forest month with strongly suppressed Δh returns an
+implausibly high Sy and is thrown out. The correction pulls those months back
+inside the filter. So the corrected pool is *larger* than the uncorrected one —
+today 63 events against 51 at C4, 51 against 36 at C5 — and the median moves by
+a competition between two effects: downward from the smaller numerator, upward
+from the recovered events. In April the recovery won at C4 (0.215 → 0.227);
+under the current partition the numerator wins (0.312 → 0.260). Both are the
+same mechanism. Which way it resolves depends on how many events sit near the
+0.50 clip, which is exactly why C5 — where a majority of rising limbs are
+clip-constrained — is reported as only weakly corroborative.
+
 ### (d) The Script 16 figure — two panels, two different treatments
 
 This is where the April text has been overtaken, and the difference matters
@@ -263,10 +290,13 @@ standing candidates for the C4 semi-annual residual (D-022, Revisit-if).
    UKCP18 scenario block intervenes; the constant is assigned at line 228.
    Registered as **T-13**.
 
-3. **`wtf_interception_methodology.md`** is cited by
-   `17_wtf_specific_yield.py:29` and holds the fuller WTF derivation. It is in
-   the Drive store, not the repository. §4(c) carries its conclusion; the file
-   itself should be brought in or the citation repointed. Part of **T-10**.
+3. **`wtf_interception_methodology.md` is recovered** (2026-08-25) and now sits
+   beside this file, carrying a superseded-values banner: its numbers predate the
+   k = 5 repartition, and its §6 "action required" — restore the correction to
+   Script 17 — was discharged long ago. Its §2 and §3 are folded into §4(c) above.
+   `DEFECT_NOTE_script20_residual_field_2026-08-06.md`, cited by
+   `20_spatial_figures.py:564`, was **not** found in any store; §5 above is now
+   the record of that defect. Both remain part of **T-10**.
 
 ---
 

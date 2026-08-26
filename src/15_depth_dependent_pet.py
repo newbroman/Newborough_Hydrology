@@ -45,7 +45,7 @@ Outputs (in outputs/15_depth_dependent_pet/):
     15_04_best_params.csv           — Optimal λ and β coefficients per cluster
 """
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-05-17
+__version__ = "1.2.1"  # Hollingham (2026) — 2026-08-26: dropped k=6 "C6 if fitted" comment fossil (T-14 E4)
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -648,7 +648,7 @@ def main():
     pd.DataFrame(params_rows).to_csv(OUT_BEST_PARAMS, index=False)
     saved(f"{OUT_BEST_PARAMS.name}")
 
-    # Lambda profile for all clusters (including C5, C6 if fitted)
+    # Lambda profile for all clusters (C1-C5 under the k = 5 partition)
     profile_all = pd.concat(
         {f"C{cid}": prof for cid, prof in profiles.items()},
         names=["Cluster"]

@@ -50,10 +50,12 @@ Volumetric water balance (mm/yr):
     Wet-canopy evaporation is advection-driven and routinely outruns the
     temperature-based demand of the same month. See INTERCEPTION_TREATMENT.md §4.
     P − PET      =  computed at runtime from the live climate record
-                    (≈ 232 mm/yr long-term, RAF Valley 2005–present).
-                    Live value is also exposed via the pipeline_site_
-                    observations.csv registry (key:
-                    'site_p_minus_pet_annual') for downstream consumers.
+                    (RAF Valley, 2005–present). No figure is quoted here
+                    deliberately: it moves with every climate update. The
+                    live value is written to the pipeline_site_observations.csv
+                    registry (key: 'site_p_minus_pet_annual') and to
+                    16_water_bal_vol_table.csv (column P_minus_PET_mm_yr);
+                    read it from there.
 
     The ET/Drainage partition is estimated by two independent methods:
       SSM:       ratio of β₂·PET̄ to β₃·h̄_disp from the closed headspace balance
@@ -74,7 +76,7 @@ References:
       for water table depths. WRR 36(1), 181–188.
 """
 
-__version__ = "1.1.1"  # Hollingham (2026) — 2026-05-17
+__version__ = "1.1.2"  # Hollingham (2026) — 2026-08-26: removed stale P−PET literal from docstring (T-14 E10)
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live

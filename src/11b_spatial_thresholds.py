@@ -74,7 +74,7 @@ Dependencies
     Skeletonisation: not required (map_utils handles DEM/IDW)
 """
 
-__version__ = "1.6.3"  # Hollingham (2026) — 2026-08-16
+__version__ = "1.6.4"  # Hollingham (2026) — 2026-08-26: β₃ sign docstring corrected to match CSV (T-14 D2)
 #
 # 1.6.3 (2026-08-16): map-extent note only, no behaviour change.
 #   This script sets its map extent inline in four places
@@ -436,8 +436,11 @@ def _load_cluster_coefficients() -> dict:
     11b's _p_flood_iterated and _load_climatology work in mm rainfall (the
     P_mm / PET_mm columns of 03_regional_averages.csv), so we divide by
     1000 here to convert m/m -> m/mm. \u03b2\u2083 is the per-month drainage fraction
-    (no unit conversion needed) and is stored negative in the CSV; the SSM
-    applies \u03b1 = 1 - |\u03b2\u2083| so we take the absolute value.
+    (no unit conversion needed) and is stored *positive* in the CSV under the
+    displacement formulation (all five clusters, verified 2026-08-26); the SSM
+    applies \u03b1 = 1 - |\u03b2\u2083|, and the abs() below is a defensive guard against
+    any legacy negative value reaching this loader (the warn() immediately
+    below fires if one does).
 
     The Cluster column is read defensively because Script 03 writes integer
     cluster IDs while Script 11 writes 'C1'-style strings; this loader

@@ -1,9 +1,9 @@
 Parameter,Well,Era,Value,Unit,Note
-SynthDiD_Impact_step,,,0.04726989410116693,m,"vs Forest Ctrl, HAC p=0.135, maxlags=4"
-SynthDiD_Impact_se,,,0.03159865689056632,m,Newey-West HAC
-SynthDiD_Edge_step,,,-0.009815913580471356,m,"vs Forest Ctrl, HAC p=0.617, maxlags=4"
-SynthDiD_Edge_se,,,0.019615252734811305,m,Newey-West HAC
-SynthDiD_Impact_pretrend,,,-0.013215374606915284,m/yr,HAC p=0.007; PARALLEL TRENDS FAIL
-SynthDiD_Impact_step_detrended,,,0.039364214979878354,m,"discontinuity net of a common linear trend, HAC p=0.318"
+SynthDiD_Impact_step,,,0.04726989410116725,m,"vs Forest Ctrl, HAC p=0.135, maxlags=4"
+SynthDiD_Impact_se,,,0.03159865689056659,m,Newey-West HAC
+SynthDiD_Edge_step,,,-0.009815913580471411,m,"vs Forest Ctrl, HAC p=0.617, maxlags=4"
+SynthDiD_Edge_se,,,0.019615252734811277,m,Newey-West HAC
+SynthDiD_Impact_pretrend,,,-0.013215374606915294,m/yr,HAC p=0.007; PARALLEL TRENDS FAIL
+SynthDiD_Impact_step_detrended,,,0.03936421497987864,m,"discontinuity net of a common linear trend, HAC p=0.318"
 SynthDiD_Edge_pretrend,,,-0.020484387913708206,m/yr,HAC p=<0.001; PARALLEL TRENDS FAIL
-SynthDiD_Edge_step_detrended,,,0.006429003224270917,m,"discontinuity net of a common linear trend, HAC p=0.836"
+SynthDiD_Edge_step_detrended,,,0.006429003224270908,m,"discontinuity net of a common linear trend, HAC p=0.836"

@@ -1,18 +1,18 @@
 Parameter,Well,Era,Value,Unit,Note
-FourZone_C3Warren_clearfell_step,C3/Warren,Post_felling,0.007513327701797555,m,"vs Forest; p=0.5277, CI=[-0.0158,0.0308]"
-FourZone_C3Warren_clearfell_step_se,C3/Warren,Post_felling,0.011898245443391528,m,
-FourZone_C3Warren_scraping_step,C3/Warren,Post_scraping,-0.034983474413139225,m,vs Forest; p=0.1677
-FourZone_Edge_clearfell_step,Edge,Post_felling,-0.03474846845758426,m,"vs Forest; p=0.0821, CI=[-0.0739,0.0044]"
-FourZone_Edge_clearfell_step_se,Edge,Post_felling,0.01998356083963032,m,
-FourZone_Edge_scraping_step,Edge,Post_scraping,0.07700888332421725,m,vs Forest; p=0.0050
-FourZone_Impact_clearfell_step,Impact,Post_felling,0.02811555908631823,m,"vs Forest; p=0.0156, CI=[0.0053,0.0509]"
-FourZone_Impact_clearfell_step_se,Impact,Post_felling,0.011629336832103,m,
-FourZone_Impact_scraping_step,Impact,Post_scraping,0.04980290679870975,m,vs Forest; p=0.0286
-FourZone_R2,all_zones,,0.8478649039612358,,Joint model R²
+FourZone_C3Warren_clearfell_step,C3/Warren,Post_felling,0.008537232168967934,m,"vs Forest; p=0.4854, CI=[-0.0154,0.0325]"
+FourZone_C3Warren_clearfell_step_se,C3/Warren,Post_felling,0.012238122576420226,m,
+FourZone_C3Warren_scraping_step,C3/Warren,Post_scraping,-0.03510464708858178,m,vs Forest; p=0.1633
+FourZone_Edge_clearfell_step,Edge,Post_felling,-0.03850783901939256,m,"vs Forest; p=0.0638, CI=[-0.0792,0.0022]"
+FourZone_Edge_clearfell_step_se,Edge,Post_felling,0.020774169787390377,m,
+FourZone_Edge_scraping_step,Edge,Post_scraping,0.0744064483720263,m,vs Forest; p=0.0059
+FourZone_Impact_clearfell_step,Impact,Post_felling,0.02411784149492649,m,"vs Forest; p=0.0427, CI=[0.0008,0.0474]"
+FourZone_Impact_clearfell_step_se,Impact,Post_felling,0.011902229190817293,m,
+FourZone_Impact_scraping_step,Impact,Post_scraping,0.0466590478553141,m,vs Forest; p=0.0401
+FourZone_R2,all_zones,,0.8478458498880498,,Joint model R²
 FourZone_N,all_zones,,2489.0,well-months,Pooled-panel sample size
-FourZone_contrast_C3Warren_vs_Forest,C3/Warren - Forest,Post_felling,0.0075,m,"primary; p=0.5277, CI=[-0.0158,0.0308]"
-FourZone_contrast_Edge_vs_Forest,Edge - Forest,Post_felling,-0.0347,m,"primary; p=0.0821, CI=[-0.0739,0.0044]"
-FourZone_contrast_Impact_vs_Forest,Impact - Forest,Post_felling,0.0281,m,"primary; p=0.0156, CI=[0.0053,0.0509]"
-FourZone_contrast_Impact_vs_Edge,Impact - Edge,Post_felling,0.0629,m,"DERIVED contrast — point estimate exact, but SE/p are covariance-dependent and not comparable to primary contrasts; do not cite as significance (p_derived=0.0001)"
-FourZone_contrast_Impact_vs_C3Warren,Impact - C3/Warren,Post_felling,0.0206,m,"DERIVED contrast — point estimate exact, but SE/p are covariance-dependent and not comparable to primary contrasts; do not cite as significance (p_derived=0.0000)"
-FourZone_contrast_Edge_vs_C3Warren,Edge - C3/Warren,Post_felling,-0.0423,m,"DERIVED contrast — point estimate exact, but SE/p are covariance-dependent and not comparable to primary contrasts; do not cite as significance (p_derived=0.0098)"
+FourZone_contrast_C3Warren_vs_Forest,C3/Warren - Forest,Post_felling,0.0085,m,"primary; p=0.4854, CI=[-0.0154,0.0325]"
+FourZone_contrast_Edge_vs_Forest,Edge - Forest,Post_felling,-0.0385,m,"primary; p=0.0638, CI=[-0.0792,0.0022]"
+FourZone_contrast_Impact_vs_Forest,Impact - Forest,Post_felling,0.0241,m,"primary; p=0.0427, CI=[0.0008,0.0474]"
+FourZone_contrast_Impact_vs_Edge,Impact - Edge,Post_felling,0.0626,m,"DERIVED contrast — point estimate exact, but SE/p are covariance-dependent and not comparable to primary contrasts; do not cite as significance (p_derived=0.0002)"
+FourZone_contrast_Impact_vs_C3Warren,Impact - C3/Warren,Post_felling,0.0156,m,"DERIVED contrast — point estimate exact, but SE/p are covariance-dependent and not comparable to primary contrasts; do not cite as significance (p_derived=0.0000)"
+FourZone_contrast_Edge_vs_C3Warren,Edge - C3/Warren,Post_felling,-0.047,m,"DERIVED contrast — point estimate exact, but SE/p are covariance-dependent and not comparable to primary contrasts; do not cite as significance (p_derived=0.0062)"

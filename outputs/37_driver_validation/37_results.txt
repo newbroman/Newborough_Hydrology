@@ -4,7 +4,7 @@
 LIVE PARAMETERS
 ----------------------------------------------------------------------
   δ₀ (Script 25, forest-free linear-capped): 31.33 mm/yr
-  clearfell step (10a ANCOVA, Path B, observed BACI): 112.8 mm
+  clearfell step (10a ANCOVA, Path B, observed BACI): 113.1 mm
 
 SCALE-FACTOR TABLE (HC3 robust SEs, 95% CI)
 ----------------------------------------------------------------------
@@ -15,19 +15,19 @@ SCALE-FACTOR TABLE (HC3 robust SEs, 95% CI)
 
   window=2018_2025    variant=primary                n=44
     s_coast =   1.031  95%CI [-0.848, 2.910]
-    s_cf    =   3.732  95%CI [-0.699, 8.163]
+    s_cf    =   3.722  95%CI [-0.697, 8.141]
     c       =    98.7 mm  95%CI [66.0, 131.5]
     R²      = 0.224
 
   window=2005_2025    variant=primary                n=20
     s_coast =   0.508  95%CI [-0.101, 1.117]
-    s_cf    =  -0.419  95%CI [-4.874, 4.035]
+    s_cf    =  -0.418  95%CI [-4.860, 4.024]
     c       =    92.8 mm  95%CI [22.2, 163.3]
     R²      = 0.303
 
   window=2018_2025    variant=with_broadleaf_covariate n=44
     s_coast =   0.306  95%CI [-1.338, 1.950]
-    s_cf    =   2.658  95%CI [-0.654, 5.970]
+    s_cf    =   2.650  95%CI [-0.653, 5.953]
     s_bl    =  -3.818  95%CI [-5.990, -1.646]  (robustness only — NOT headline)
     c       =    78.8 mm  95%CI [48.3, 109.3]
     R²      = 0.427

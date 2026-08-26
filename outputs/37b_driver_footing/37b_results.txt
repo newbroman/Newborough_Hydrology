@@ -4,7 +4,7 @@
 LIVE PARAMETERS
 --------------------------------------------------------------------------
   δ₀ (Script 25, forest-free linear-capped): 31.33 mm/yr; L = 895 m
-  clearfell step (10a ANCOVA, Path B, observed): 112.8 mm
+  clearfell step (10a ANCOVA, Path B, observed): 113.1 mm
   scrape on-site (CEH36 Pure_Scraping, observed): 129.4 mm
   scrape off-site (WMC3 DiD mean, observed): -54.5 mm
   drain-cone / forest λ (20_report_numbers): 226.4 m
@@ -23,7 +23,7 @@ COMPARISON TABLE
       SD15b (wet-slack, 610 mm): worsen=0  relieve=0   SD16 (dry-slack, 980 mm): worsen=0  relieve=1  (n=66)
 
   Clearfell (canopy removed)             [Forest management, step, gain, observed]
-      peak=+112.8 mm  area=+5965.0 mm·ha  volume=+16176.7 m³
+      peak=+113.1 mm  area=+5981.4 mm·ha  volume=+16221.4 m³
       SD15b (wet-slack, 610 mm): worsen=0  relieve=0   SD16 (dry-slack, 980 mm): worsen=0  relieve=2  (n=66)
 
   Broadleaf restock (canopy added)       [Forest management, progressive, loss, modelled]

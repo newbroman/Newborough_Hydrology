@@ -32,7 +32,7 @@ Epoch shift, each well's 1989-96 mean less its modern mean (network median -0.58
 
 mean residual (observed minus hindcast) across wells: -0.057 m
   positive means the record sits SHALLOWER than the climate-only hindcast
-largest initial-condition sensitivity over the window: 3.02e-11 m — the spin-up has forgotten the starting value
+largest initial-condition sensitivity over the window: 3.12e-11 m — the spin-up has forgotten the starting value
 
 beta_1 sensitivity (the coefficients are fitted 2005-2026 and the site-wide beta_1 decline means 1989 values were plausibly higher):
   scale 1.00:  open ground (n=6) mean NSE +0.235, mean bias -0.069 m   |  under canopy (n=3) mean NSE -1.473, mean bias +0.309 m
@@ -55,8 +55,8 @@ Full-record hindcast (open-ground panel, modern coefficients applied to the whol
 
   Decadal site anomaly (m):
     1930s  -0.080
-    1940s  -0.277
-    1950s  -0.021
+    1940s  -0.235
+    1950s  -0.020
     1960s  +0.177
     1970s  -0.382
     1980s  -0.043

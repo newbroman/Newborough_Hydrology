@@ -10,12 +10,12 @@ Headline_DeltaAIC_lincap_vs_exp,,2005-2026,-4.9,,"exp − lin-cap; positive favo
 Canopy_controlled_delta_0,,2005-2026,-32.367744424930486,mm/yr,"Full network, linear-capped, canopy x time controlled on the in_forest LAND-COVER flag (Script 01), n_wells=67, SE=1.95. Compare the forest-free headline, which drops the forested wells instead of measuring them"
 Canopy_extra_drift,,2005-2026,-8.999932412737527,mm/yr,"Absorbed canopy x time coefficient: extra fall under pine net of distance to the coast. Negative = the table falls faster under canopy. Well-clustered SE=2.51, t=-3.58, conditional on the fitted decay parameters. Land cover, not cluster membership — the two disagree at six wells"
 C5_gradient_pct_of_basis,,2005-2026,113.34733256933848,%,"basis = observed_balanced_annual_mean_mm_yr -16.1 mm/yr; coastal gradient -18.3, climate (CWB) +2.9, far-field offset -0.1 (offset and CWB trend not separately identified), unexplained -0.7"
-BACI_corroboration_Forest_Impact_z,,BACI window,-0.95,z,"BACI absorbs -16.5 mm/yr, model predicts -12.0 mm/yr; consistent=yes; distance contrast +402 m (target 553 m, control 955 m)"
-BACI_corroboration_Forest_Edge_z,,BACI window,-0.05,z,"BACI absorbs -10.9 mm/yr, model predicts -10.8 mm/yr; consistent=yes; distance contrast +368 m (target 587 m, control 955 m)"
-BACI_corroboration_Climate_Impact_z,,BACI window,2.74,z,"BACI absorbs +7.6 mm/yr, model predicts -0.9 mm/yr; consistent=no; distance contrast +27 m (target 553 m, control 580 m)"
-BACI_corroboration_Climate_Edge_z,,BACI window,3.04,z,"BACI absorbs +12.4 mm/yr, model predicts +0.3 mm/yr; consistent=no; distance contrast -7 m (target 587 m, control 580 m)"
-BACI_corroboration_FarField_Impact_z,,BACI window,3.96,z,"BACI absorbs +19.9 mm/yr, model predicts -12.0 mm/yr; consistent=no; distance contrast +1393 m (target 553 m, control 1946 m)"
-BACI_corroboration_FarField_Edge_z,,BACI window,3.83,z,"BACI absorbs +23.7 mm/yr, model predicts -10.8 mm/yr; consistent=no; distance contrast +1359 m (target 587 m, control 1946 m)"
+BACI_corroboration_Forest_Impact_z,,BACI window,-1.07,z,"BACI absorbs -17.0 mm/yr, model predicts -12.0 mm/yr; consistent=yes; distance contrast +402 m (target 553 m, control 955 m)"
+BACI_corroboration_Forest_Edge_z,,BACI window,-0.26,z,"BACI absorbs -11.7 mm/yr, model predicts -10.8 mm/yr; consistent=yes; distance contrast +368 m (target 587 m, control 955 m)"
+BACI_corroboration_Climate_Impact_z,,BACI window,2.64,z,"BACI absorbs +7.3 mm/yr, model predicts -0.9 mm/yr; consistent=no; distance contrast +27 m (target 553 m, control 580 m)"
+BACI_corroboration_Climate_Edge_z,,BACI window,2.94,z,"BACI absorbs +11.9 mm/yr, model predicts +0.3 mm/yr; consistent=no; distance contrast -7 m (target 587 m, control 580 m)"
+BACI_corroboration_FarField_Impact_z,,BACI window,3.95,z,"BACI absorbs +19.8 mm/yr, model predicts -12.0 mm/yr; consistent=no; distance contrast +1393 m (target 553 m, control 1946 m)"
+BACI_corroboration_FarField_Edge_z,,BACI window,3.82,z,"BACI absorbs +23.6 mm/yr, model predicts -10.8 mm/yr; consistent=no; distance contrast +1359 m (target 587 m, control 1946 m)"
 Check2_msl5raw_vs_summermin_pearson_r,,2017-2023 vs full record,0.498,r,§5.7.5 Check 2: raw 2017→2023 MSL5 change (20_msl5_change_perwell.csv) vs summer-min slope; n=46 wells
 Check2_msl5raw_vs_summermin_pearson_p,,2017-2023 vs full record,0.0004,p,§5.7.5 Check 2: raw 2017→2023 MSL5 change (20_msl5_change_perwell.csv) vs summer-min slope; n=46 wells
 Check2_msl5raw_vs_summermin_spearman_r,,2017-2023 vs full record,0.433,r,§5.7.5 Check 2: raw 2017→2023 MSL5 change (20_msl5_change_perwell.csv) vs summer-min slope; n=46 wells

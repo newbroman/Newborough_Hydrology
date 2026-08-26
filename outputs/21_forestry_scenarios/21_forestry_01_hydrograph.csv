@@ -64,27 +64,27 @@ Observed C4 baseline,observed,9,Sep,1.463
 Observed C4 baseline,observed,10,Oct,1.4716
 Observed C4 baseline,observed,11,Nov,1.2475
 Observed C4 baseline,observed,12,Dec,1.0005
-BACI annual benchmark,benchmark,1,Jan,1.0197
-BACI annual benchmark,benchmark,2,Feb,0.9463
-BACI annual benchmark,benchmark,3,Mar,0.9434
-BACI annual benchmark,benchmark,4,Apr,0.9988
-BACI annual benchmark,benchmark,5,May,1.0624
-BACI annual benchmark,benchmark,6,Jun,1.226
-BACI annual benchmark,benchmark,7,Jul,1.3605
-BACI annual benchmark,benchmark,8,Aug,1.4665
-BACI annual benchmark,benchmark,9,Sep,1.5757
-BACI annual benchmark,benchmark,10,Oct,1.5844
-BACI annual benchmark,benchmark,11,Nov,1.3603
-BACI annual benchmark,benchmark,12,Dec,1.1133
+BACI annual benchmark,benchmark,1,Jan,1.02
+BACI annual benchmark,benchmark,2,Feb,0.9466
+BACI annual benchmark,benchmark,3,Mar,0.9437
+BACI annual benchmark,benchmark,4,Apr,0.9991
+BACI annual benchmark,benchmark,5,May,1.0627
+BACI annual benchmark,benchmark,6,Jun,1.2263
+BACI annual benchmark,benchmark,7,Jul,1.3608
+BACI annual benchmark,benchmark,8,Aug,1.4668
+BACI annual benchmark,benchmark,9,Sep,1.5761
+BACI annual benchmark,benchmark,10,Oct,1.5847
+BACI annual benchmark,benchmark,11,Nov,1.3606
+BACI annual benchmark,benchmark,12,Dec,1.1136
 BACI summer benchmark,benchmark,1,Jan,0.9069
 BACI summer benchmark,benchmark,2,Feb,0.8336
 BACI summer benchmark,benchmark,3,Mar,0.8306
 BACI summer benchmark,benchmark,4,Apr,0.886
 BACI summer benchmark,benchmark,5,May,0.9496
-BACI summer benchmark,benchmark,6,Jun,1.163
-BACI summer benchmark,benchmark,7,Jul,1.2975
-BACI summer benchmark,benchmark,8,Aug,1.4034
-BACI summer benchmark,benchmark,9,Sep,1.5127
+BACI summer benchmark,benchmark,6,Jun,1.1633
+BACI summer benchmark,benchmark,7,Jul,1.2978
+BACI summer benchmark,benchmark,8,Aug,1.4037
+BACI summer benchmark,benchmark,9,Sep,1.513
 BACI summer benchmark,benchmark,10,Oct,1.4716
 BACI summer benchmark,benchmark,11,Nov,1.2475
 BACI summer benchmark,benchmark,12,Dec,1.0005
@@ -120,7 +120,7 @@ Full clearfell,scenario,Sep,9,1.4162,0.0634,0.0467,Sep
 50% thinning,scenario,Oct,10,1.4399,0.0317,0.0234,Sep
 Broadleaf conversion,scenario,Sep,9,1.4622,0.0222,-0.021,Aug
 Observed C4 baseline,observed,Oct,10,1.4716,0.0,0.0,Jun
-BACI annual benchmark,benchmark,Oct,10,1.5844,-0.1128,-0.1128,Jun
-BACI summer benchmark,benchmark,Sep,9,1.5127,0.0,-0.0498,Jun
+BACI annual benchmark,benchmark,Oct,10,1.5847,-0.1131,-0.1131,Jun
+BACI summer benchmark,benchmark,Sep,9,1.513,0.0,-0.0501,Jun
 C1 Eastern lake-buffer (observed),observed,Jul,7,1.1004,0.7476,0.4538,Sep
 C2 Eastern mature dune (observed),observed,Sep,9,0.7776,1.0318,0.6854,Sep

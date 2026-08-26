@@ -61,6 +61,10 @@ EXEMPT = {
     "{name}.md", "{stem}.md",
     # scratch names constructed inside a tool at run time, never on disk
     "out.md", "probe.md", "a.md", "b.md",
+    # placeholders with a stand-in for a number, written as prose in the
+    # recovered documents: "methods_supplement_master_v1_8_N" means any of the
+    # v1_8_* series, "report_edits/text/reportN.md" means report8, 9, 10...
+    "methods_supplement_master_v1_8_N.md", "report_edits/text/reportN.md",
 }
 
 # A reference inside a URL is a link to someone else's repository, not a
@@ -112,54 +116,32 @@ RETIRED = {
 }
 
 KNOWN_DANGLING = {
+    'DDP_EVALUATION.md':
+        "depth-dependent-PET evaluation, cited from the recovered beta-2 note",
+    'DIAGNOSTIC_script21_vs_script10_summer_minima.md':
+        "the diagnostic FINDINGS_script21_summer_minima.md was written in answer "
+        "to; the answer survived and the question did not",
+    'HANDOVER_cowork_NRG_2026-08-14_C4_centroid_triangulation.md':
+        "the handover whose Decision 3 the window-policy spec settles; the other "
+        "HANDOVER_cowork_NRG_* files are in Updates_required/ but not this one",
     'AUDIT_10series_PRE_FELL_START.md':
         "the pre-fell start-date audit behind clearfell_common",
-    'BETA2_DECOMPOSITION_UPDATED.md':
-        "beta-2 decomposition note, cited from the MS",
     'CHANGELOG.md':
         "a generic pointer; the project keeps dated deltas in changelogs/",
-    'CHANGELOG_date_formatting_sweep.md':
-        "dated delta not carried into changelogs/",
-    'CHANGELOG_delta_2026-06-30_scrape_drawdown_physics.md':
-        "dated delta predating changelogs/",
     'CHANGELOG_delta_2026-08-08_pipe_top_upstand_correction.md':
         "dated delta cited by the recovered geometry spec; never carried into changelogs/",
-    'CHANGELOG_delta_2026-08-10_18_sy_spatial_trends.md':
-        "dated delta not carried into changelogs/",
-    'CHANGELOG_forecaster_simplification.md':
-        "dated delta not carried into changelogs/",
     'DEFECT_NOTE_script20_residual_field_2026-08-06.md':
         "the DEFECT D1 note; substance now in INTERCEPTION_TREATMENT.md sec 4",
     'DIAGNOSTIC_REPORT_script_26_cluster_assignment.md':
         "script 26 cluster-assignment diagnostic",
     'FIGURE_LEDGER.md':
         "referenced by cite_check; the figure ledger was never committed",
-    'FINDINGS_script21_summer_minima.md':
-        "summer-minima findings behind script 21",
-    'FINDING_canopy_buffering_consolidated.md':
-        "the canopy-buffering finding behind 10a",
-    'HUB_CORRECTION_NOTE_2026-08-08.md':
-        "hub recompute note cited by the recovered geometry spec sec 7",
-    'HANDOVER_SCRIPT03_DATUM.md':
-        "the drainage-datum handover, cited from config.py",
     'HANDOVER_c3_detrend_check.md':
         "handover for script 28; also cited from PIPELINE_README",
-    'MODEL_SPECIFICATION_AUDIT.md':
-        "model-specification audit behind script 23",
-    'NRG_window_policy_spec_2026-08-14.md':
-        "window-policy spec behind a decision entry",
-    'PLAN_differential_movement_writeup.md':
-        "plan for the script 32 write-up",
-    'REPORT_STRUCTURE.md':
-        "cited by cite_check DOC_GLOBS and symbol_check; never existed here",
-    'SCRAPING_EFFECTS_KNOWLEDGE.md':
-        "scraping mechanism notes behind 09g and the MS",
     'SPEC_script35_per_well_amplification_metric.md':
         "spec for the amplification metric",
     'SPEC_script37_scale_factor_regression_2026-07-06.md':
         "spec for the driver-validation regression",
-    'SPEC_script37b_partB_comparative_footing_2026-07-06.md':
-        "spec for 37b part B",
     'c3_detrend_check_results.md':
         "results file for the C3 detrend check",
     'claude/NRG_spring_BACI_spec_2026-08-13.md':

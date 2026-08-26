@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_47.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_48.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 1.9.47 (August 2026).
+Document version: 1.9.48 (August 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -72,9 +72,11 @@ This bucketing is implemented in Script 01 (*01_data_prep.py*). Once bucketed, e
 
 ### []{#anchor-10}[]{#anchor-11}[]{#anchor-12}History: why HEADLINE_LAG was 1 and is now 0
 
-Before April 2026, the bucketing in Script 01 used nearest-month assignment: a reading on 1 September was bucketed to September even though it represented August's water level. The pipeline compensated by applying a one-month lag to rainfall in the SSM, so that September's labelled water-table change was modelled against August's labelled rainfall --- the correct physical pairing despite the mislabelled month. This was the *HEADLINE_LAG = 1* regime.
+Before April 2026, Script 01 bucketed each reading to the calendar month of the field visit. Because visits cluster on the days either side of a month boundary, this mislabelled the start-of-month readings and not the end-of-month ones: a reading on 1 September represented August's water level but was bucketed to September, while a reading on 31 August represented the same month and was bucketed correctly. The pipeline compensated by applying a one-month lag to rainfall in the SSM, so that September's labelled water-table change was modelled against August's labelled rainfall --- the correct physical pairing for the mislabelled readings, and a one-month error for the rest. This was the *HEADLINE_LAG = 1* regime.
 
-The April 2026 bucketing fix corrected the convention to match the field protocol (day ≤ 15 → previous month). Once water-table readings are correctly labelled, the SSM should regress the August water-table change against the August rainfall, with no lag. *HEADLINE_LAG* was therefore changed to 0. All regression coefficients are numerically identical to the pre-fix lag-1 results, because the physical pairing is unchanged --- only the labelling differs. Hydrograph x-axis labels are now one month earlier than in pre-fix figures; all other numerical outputs are unaffected.
+The April 2026 bucketing fix assigned every reading to the month it represents, following the field protocol (day ≤ 15 → previous month). A visit on 30 May and a visit on 5 June both represent May, and both now take May's rainfall. Once readings are labelled this way the SSM regresses the August water-table change against August rainfall with no lag. *HEADLINE_LAG* was therefore changed to 0.
+
+The two regimes do not agree everywhere, and the difference is not confined to labelling. Of the 278 reading dates in *Newborough_Cleaned_For_Model.csv*, 160 (57.6 %) fall on day ≤ 15: for these rows the bucket moves back one month, the lag falls from one to zero, and the rainfall pairing is unchanged. The remaining 118 (42.4 %) fall after the 15th, so their bucket does not move and dropping the lag pairs them with rainfall one month later than before. Under the old regime a reading taken on 31 October --- an October water-table change --- was regressed against September rainfall; the fix corrects that pairing. Because each coefficient is fitted over the whole record, a change affecting two rows in five changes every fitted value: the coefficients are not numerically identical across the two regimes, and figures published or quoted before the April 2026 fix are not directly comparable with those reported here. Every value in this supplement and in the accompanying papers is post-fix and internally consistent. Hydrograph x-axis labels are also one month earlier than in pre-fix figures.
 
 ### []{#anchor-12}[]{#anchor-13}[]{#anchor-14}Note on maOD invariance to ground-surface change
 

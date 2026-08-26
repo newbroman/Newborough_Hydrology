@@ -37,15 +37,24 @@
 > - The decomposition **method** and the C4-anomaly reasoning are what this note
 >   is for.
 >
-> **Two cautions on the May banner's own wording.** It attributes the β₂ shift to
-> the move from lag-1 to lag-0. That is doubtful: D-008, `config.py:188` and the
-> Methods Supplement all state that the lag change is a relabelling under which
-> the coefficients are numerically identical, so something else moved these
-> numbers — most likely the intervening Script 03 work. The cause is not
-> established here, only that the movement is real. And the banner cites
-> `SSM_FORMULATION_REFERENCE`, which does not exist in this repository under any
-> name; the live authority for the headline lag is **D-008**, `config.py:188`,
-> and the Methods Supplement section "History: why HEADLINE_LAG was 1 and is now 0".
+> **On the May banner's attribution — it was right, and the project's own
+> documentation was wrong.** The banner blames the β₂ shift on the move from
+> lag-1 to lag-0. `config.py`, Script 03 and the Methods Supplement all said that
+> change was a pure relabelling leaving the coefficients identical, which would
+> have made the attribution impossible. Checked 2026-08-26: of the 278 reading
+> dates in `Newborough_Cleaned_For_Model.csv`, 160 (57.6 %) fall on day ≤ 15 and
+> shift back a month, so lag-1 and lag-0 pair them with the same rainfall — but
+> the other **118 (42.4 %) fall after the 15th, keep their bucket, and under
+> lag-1 were paired with the previous month's rainfall**. A 31 October reading,
+> an October water-table change, was regressed against September rainfall. Lag-0
+> corrects that. Since a fit spans the whole record, every coefficient moved.
+> The "numerically identical" claim has been corrected in the Methods Supplement
+> (v1_9_48), `config.py`, `03_state_space_model.py`, and as a dated note on
+> D-008. **The banner cites
+> `SSM_FORMULATION_REFERENCE`**, which does not exist in this repository under
+> any name; the live authority for the headline lag is **D-008**,
+> `config.py:188`, and the Methods Supplement section "History: why HEADLINE_LAG
+> was 1 and is now 0".
 >
 > ---
 

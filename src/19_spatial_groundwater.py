@@ -23,7 +23,13 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.15.0"   # 2026-08-26. 19_scenario_summary.csv gains
+__version__ = "2.15.1"   # 2026-08-26. Comments only (T-14 items 16, 17):
+                         # the broadleaf SCENARIO_PARAMS entry now says why
+                         # sI_c4 == sI_c5 (phenology lives in the sB2 split),
+                         # and both engines record that the b3 term cancels in
+                         # the perturbation. No computed value changes; the
+                         # viewer HTML gains three JS comment lines.  Old header:
+# 2.15.0   # 2026-08-26. 19_scenario_summary.csv gains
                          # we_mean_mm / we_median_mm / sy_mean: the
                          # Sy x dh water equivalent, previously computed
                          # only in the viewer's JavaScript off a slider
@@ -403,6 +409,12 @@ def _init_scenario_params():
                         # sB2: BACI-corrected Edge-tier ratio, non-seasonal
                         "sB2_w": CLEARFELL_B2_MULT, "sB2_s": CLEARFELL_B2_MULT},
         "broadleaf":   {"sP_w": 1.00, "sP_s": 1.00, "sPET_w": 1.00, "sPET_s": 1.00,
+                        # sI: annual-mean interception (Komatsu et al. 2011),
+                        # deliberately season-symmetric. Deciduous interception
+                        # is ~0% leafless winter / ~25% leafed summer; that
+                        # seasonal split is carried by the sB2_w / sB2_s pair
+                        # below, not here, so do not read sI_c4 == sI_c5 as a
+                        # claim that winter and summer interception are equal.
                         "sI_c4": BROADLEAF_INTERCEPTION, "sI_c5": BROADLEAF_INTERCEPTION,
                         # sB2: deciduous phenology — Script 21 monthly profile
                         "sB2_w": BROADLEAF_B2_WINTER, "sB2_s": BROADLEAF_B2_SUMMER},
@@ -1584,6 +1596,9 @@ function go(){{
   // Seasonal baselines -- always needed so annual can weight winter+summer
   var cldW=CLIMATE.winter,cldS=CLIMATE.summer;
   function dhOne(b1,b2,b3,P_base,PET_base,sP,sPET,h,cl,sB2_cur){{
+    // b3*abs(h) is written in place of F.3's b3*(D + h): kept for symmetry
+    // with the full SSM, but identical in net0 and the scenario net, so it
+    // cancels exactly in the returned perturbation. See chapter S.13.
     var isForest=(cl===4||cl===5);
     var sI_cur=cl===4?sl.sI_c4:cl===5?sl.sI_c5:0;
     var Peff_0=isForest?P_base*(1-FOREST_INTERCEPTION):P_base;
@@ -2165,6 +2180,11 @@ def _well_dh(row, sl, P0, PET0, h_col, cluster_betas, season):
     sI_key = "sI_c4" if cl == 4 else "sI_c5" if cl == 5 else None
 
     def _dh_one(P_base, PET_base, sP, sPET, sB2_cur):
+        # The β₃ drainage term is written β₃·|h| here rather than F.3's
+        # β₃·(D + h). It is retained for symmetry with the full SSM but is
+        # identical in net0 and net_sc, so it cancels exactly in the returned
+        # perturbation (net_sc − net0) and the choice of displacement
+        # reference cannot affect the result. See chapter S.13 §Methodology.
         Peff_0 = P_base * (1 - FOREST_INTERCEPTION) if is_forest else P_base
         net0 = b1 * Peff_0 - b2 * PET_base - b3 * abs(h)
         Psc = P_base * sP

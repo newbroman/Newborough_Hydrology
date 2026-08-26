@@ -7,33 +7,84 @@ Publication-quality spatial figures for Section 4.9 of:
   Management Intervention Analysis at Newborough Warren Coastal Sand Dune
   Aquifer, Wales". Journal of Hydrology: Regional Studies.
 
-Two figures are produced:
+Sixteen figure builders run in a full pass — main() calls each in turn — and
+between them write 25 output files (18 figures, 7 tables); the complete list is
+in the Outputs block below. Two of the 18 figures are show_head=True variants
+that a default pass does not produce, so a default pass writes 23 files. The
+two headline figures are:
 
   Figure 1 — Mean Annual Water Table with Stream Network and Flow Vectors
   -----------------------------------------------------------------------
   Output: outputs/20_spatial_figures/20_head_surface_streams.png
 
-  Mean annual water table (m AOD) as an IDW-interpolated surface over a
+  Mean annual water table (m AOD) as an interpolated surface over a
   greyscale DEM hillshade, with:
     - SAGA stream network (skeletonised) as connected blue polylines
-    - Groundwater flow direction vectors (normalised Darcy quiver)
+    - Groundwater flow direction vectors: the unit-normalised negative head
+      gradient (direction only). No hydraulic conductivity enters — this is
+      not a Darcy flux quiver. Darcy K (config.DRAWDOWN_K_MDAY) is used by
+      the drawdown-propagation figure, not here.
     - Site feature overlays (forest boundary, lake, clearfell zone, channels)
     - Well symbols coloured by cluster
     - 1 m head contours with labels
 
-  Figure 2 — SSM Water Balance Residual vs Ridge Hillslope Gradient
-  -------------------------------------------------------------------
-  Output: outputs/20_spatial_figures/20_residual_ssm.png
+  Note on the surface: the local helper is named idw_surface() for historical
+  reasons but calls scipy.interpolate.griddata(method="linear") — piecewise-
+  linear barycentric interpolation over a Delaunay triangulation, not
+  inverse-distance weighting. The same naming caveat applies to
+  map_utils.add_idw_surface().
 
-  Two-panel validation figure:
-    Left:  SSM water balance residual — where the water balance requires
-           external inflow (β coefficients only, no DEM)
-    Right: Ridge hillslope gradient (50 m smoothed DEM) — independent
-           topographic evidence consistent with ridge-originating recharge
+  Figures 2a / 2b — SSM Water Balance Residual and Ridge Hillslope Gradient
+  ------------------------------------------------------------------------
+  Outputs: outputs/20_spatial_figures/20_residual_ssm.png
+           outputs/20_spatial_figures/20_slope_gradient.png
+
+  Two separate single-panel figures — plot_residual_ssm() and
+  plot_slope_gradient() — read side by side as a validation pair:
+    2a: SSM water balance residual — where the water balance requires
+        external inflow (β coefficients only, no DEM)
+    2b: Ridge hillslope gradient (50 m smoothed DEM) — independent
+        topographic evidence consistent with ridge-originating recharge
   Spatial correspondence in the NW forest/ridge zone is consistent with
   ridge-derived water balance residual (CEH14 α computed at runtime).
   Note: there are no natural watercourses on the dune warren; D8 flow
   accumulation was discarded as it does not represent real recharge paths.
+
+Outputs
+-------
+  All paths resolve under outputs/20_spatial_figures/ and come from the
+  OUT_20_* import block. Keep this list in step with that block.
+
+  Figures
+    20_head_surface_streams.png         — plot_head_streams()        [Fig 1]
+    20_residual_ssm.png                 — plot_residual_ssm()        [Fig 2a]
+    20_slope_gradient.png               — plot_slope_gradient()      [Fig 2b]
+    20_drawdown_propagation_nohead.png  — plot_drawdown_propagation() [Fig 3]
+    20_drawdown_propagation.png         — plot_drawdown_propagation(show_head=True);
+                                          not written by a default main() pass
+    20_coastal_erosion.png              — plot_coastal_erosion()     [Fig 4]
+    20_slr_response.png                 — plot_slr_response()        [Fig 5]
+    20_coastal_net_effect.png           — plot_coastal_net_effect()  [Fig 6]
+    20_scrape_drawdown_nohead.png       — plot_scrape_drawdown()     [Fig 7]
+    20_scrape_drawdown.png              — plot_scrape_drawdown(show_head=True);
+                                          not written by a default main() pass
+    20_clearfell_baseline_drawdown.png  — plot_scrape_coastal_net()
+    20_public_drivers_panel.png         — plot_public_panel()
+    20_msl5_change_2017_2023.png        — plot_msl5_change()
+    20_observed_change_2012_2026.png    — plot_observed_change()
+    20_net_state_map.png                — plot_net_state_map()
+    20_driver_change_2005_2025.png      — plot_driver_change_2005_2025()
+    20_driver_change_20yr.png           — plot_driver_change_20yr()
+    20_clearfell_gain.png               — plot_clearfell_gain()
+
+  Tables
+    20_drawdown_perwell.csv             — plot_drawdown_propagation()
+    20_report_numbers.csv               — plot_drawdown_propagation()
+    20_residual_perwell.csv             — plot_residual_ssm()
+    20_residual_report_numbers.csv      — plot_residual_ssm()
+    20_msl5_change_perwell.csv          — plot_msl5_change()
+    20_msl5_report_numbers.csv          — plot_msl5_change()
+    20_scrape_drawdown_perwell.csv      — plot_scrape_drawdown()
 
 Inputs
 ------
@@ -64,7 +115,18 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds (config.SD15b / config.SD16)
 """
 
-__version__ = "1.40.0"  # Hollingham (2026) — 2026-08-22. The reach is now
+__version__ = "1.40.1"  # Hollingham (2026) — 2026-08-26. Docstring-only sweep
+#   (T-14 items 13 and 14, plus one off-list catch). The module header claimed
+#   "Two figures are produced" and described Figure 2 as two-panel; there are
+#   16 plot_* builders writing 25 OUT_20_* files, and the residual and slope
+#   panels are separate figures. The header now carries a full Outputs block
+#   derived from the OUT_20_* import list. The flow quiver is described as the
+#   unit-normalised head gradient rather than a "normalised Darcy quiver" — no
+#   conductivity term enters it. Off-list: idw_surface() is
+#   griddata(method="linear"), not IDW, so both its own docstring and the
+#   header no longer call the head surface IDW. No executable line changed.
+#
+# v1.40.0  # Hollingham (2026) — 2026-08-22. The reach is now
 #   written at the granularity the documents quote it at. quote_reach_m()
 #   rounds to config.REACH_QUOTE_NEAREST_M wherever λ is annotated on a figure
 #   or printed to the console; the drawdown field is still built from the
@@ -826,7 +888,12 @@ def compute_slope_surface(smooth_m=50):
 # ─────────────────────────────────────────────────────────────────────────────
 def idw_surface(pts, vals, gx, gy, sea_pts=None, sea_vals=None, mask=None):
     """
-    IDW to regular grid using scipy griddata (linear).
+    Interpolate scattered point values to a regular grid.
+
+    Despite the name (kept for continuity with earlier versions and with
+    map_utils.add_idw_surface()), this is NOT inverse-distance weighting:
+    it calls scipy.interpolate.griddata(method="linear"), i.e. piecewise-
+    linear barycentric interpolation over a Delaunay triangulation.
     Optionally augments with sea boundary anchor points and applies a mask.
     """
     if sea_pts is not None and sea_vals is not None:

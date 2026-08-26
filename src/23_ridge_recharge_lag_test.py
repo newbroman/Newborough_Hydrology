@@ -108,7 +108,7 @@ Ridge reference point: config.RIDGE_REF_E / config.RIDGE_REF_N (OSGB36)
 ====================================================================================
 """
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-08-09
+__version__ = "1.2.1"  # Hollingham (2026) — 2026-08-26: comment on the inactive n_eff floor (T-14 D6)
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -659,6 +659,11 @@ def main():
         r_vals = np.array([ccf[f'r_lag{lag:02d}'] for lag in range(MAX_LAG + 1)])
         # Bartlett CI using the smallest n across the computed lags
         n_eff = min(ccf[f'n_lag{lag:02d}'] for lag in range(MAX_LAG + 1))
+        # The max(..., 30) floor is inactive in this pipeline: MIN_MONTHS =
+        # RESIDUAL_DIAG_MIN_MONTHS = 140 is enforced upstream (see the length
+        # guards on the well loop), so n_eff cannot approach 30. It is kept
+        # rather than removed so the Bartlett threshold stays safe if this
+        # block is ever reused behind a looser length filter.
         sig_threshold = 1.96 / np.sqrt(max(n_eff, 30))
 
         peak_lag = int(np.nanargmax(np.abs(r_vals)))

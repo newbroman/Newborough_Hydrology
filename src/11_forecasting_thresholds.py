@@ -27,10 +27,11 @@ Purpose:
         summer minimum to each cluster's historical peak-of-record month, with
         rainfall scaled by a multiplier λ and PET held at RAF Valley monthly
         climatology. Solves the resulting closed form for λ:
-            λ = (h_target - h_0·αⁿ + β₂·S_E) / (β₁·S_P)
+            λ = (h_target - h_0·αⁿ + β₂·S_E + D·(1-αⁿ)) / (β₁·S_P)
             P_flood = λ · Σ P̄ᵢ
-        where α = 1 - β₃, S_P and S_E are drainage-weighted climatology sums,
-        and n is the cluster-specific horizon length.
+        where α = 1 - β₃, D is the drainage datum, S_P and S_E are the
+        α^(n-1-i)-weighted climatology sums, and n is the cluster-specific
+        horizon length.
 
         Supersedes the earlier single-step formulation
             P_flood = (h_gap + β₃·h_prev) / β₁
@@ -98,7 +99,7 @@ Cluster scope (k=5 partition):
 ====================================================================================
 """
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-05-20
+__version__ = "1.2.1"  # Hollingham (2026) — 2026-08-26: Section 3 docstring algebra aligned to pflood_lambda (T-14 D1)
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -501,18 +502,23 @@ def run_critical_flood_thresholds(results_dict: dict, df: pd.DataFrame) -> None:
 
     Derivation (see Section 3.6.3 of Hollingham 2026):
 
-        Monthly recurrence (PET retained):
-            h_t = \u03b1\u00b7h_{t-1} + \u03b2\u2081\u00b7P_t \u2212 \u03b2\u2082\u00b7E_t        (\u03b1 = 1 \u2212 \u03b2\u2083)
+        Monthly recurrence (PET retained, displacement formulation):
+            h_t = \u03b1\u00b7h_{t-1} + \u03b2\u2081\u00b7P_t \u2212 \u03b2\u2082\u00b7E_t \u2212 \u03b2\u2083\u00b7D    (\u03b1 = 1 \u2212 \u03b2\u2083, D = drainage datum)
 
         With P_t = \u03bb\u00b7P_clim(t) and E_t = E_clim(t), iterating from h_0 over
         n monthly steps yields:
-            h_n = h_0\u00b7\u03b1\u207f + \u03b2\u2081\u00b7\u03bb\u00b7S_P \u2212 \u03b2\u2082\u00b7S_E
+            h_n = h_0\u00b7\u03b1\u207f + \u03b2\u2081\u00b7\u03bb\u00b7S_P \u2212 \u03b2\u2082\u00b7S_E \u2212 D\u00b7(1\u2212\u03b1\u207f)
 
-        where S_P = \u03a3 \u03b1^(n-i)\u00b7P_clim(month_i),
-              S_E = \u03a3 \u03b1^(n-i)\u00b7E_clim(month_i).
+        where S_P = \u03a3 \u03b1^(n-1-i)\u00b7P_clim(month_i),
+              S_E = \u03a3 \u03b1^(n-1-i)\u00b7E_clim(month_i),
+        summed over i = 0 \u2026 n\u22121 across the horizon.
 
         Solving h_n = h_target for \u03bb:
-            \u03bb = (h_target \u2212 h_0\u00b7\u03b1\u207f + \u03b2\u2082\u00b7S_E) / (\u03b2\u2081\u00b7S_P)
+            \u03bb = (h_target \u2212 h_0\u00b7\u03b1\u207f + \u03b2\u2082\u00b7S_E + D\u00b7(1\u2212\u03b1\u207f)) / (\u03b2\u2081\u00b7S_P)
+
+        This is the canonical form implemented by
+        `model_utils.pflood_lambda()`, which Section 3 calls; the \u03b1^(n-1-i)
+        weighting and the +D\u00b7(1\u2212\u03b1\u207f) datum-drain term are both part of it.
 
         Cumulative rainfall threshold:
             P_flood = \u03bb \u00b7 \u03a3 P_clim(month_i)

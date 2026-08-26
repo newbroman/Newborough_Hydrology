@@ -23,7 +23,12 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.14.0"   # Hollingham (2026) -- 2026-08-20. Sy endpoint toggle:
+__version__ = "2.15.0"   # 2026-08-26. 19_scenario_summary.csv gains
+                         # we_mean_mm / we_median_mm / sy_mean: the
+                         # Sy x dh water equivalent, previously computed
+                         # only in the viewer's JavaScript off a slider
+                         # and therefore never traceable.  Old header:
+# 2.14.0   # Hollingham (2026) -- 2026-08-20. Sy endpoint toggle:
 #   the map tooltip ignored it. It printed best.sy, the raw per-well WTF median,
 #   whatever the slider said -- so on the Fetter endpoint the table and the
 #   metric cards showed one Sy and hovering a well showed another, with nothing
@@ -2185,11 +2190,64 @@ def _well_dh(row, sl, P0, PET0, h_col, cluster_betas, season):
         return 0.5 * (dh_w + dh_s)
 
 
+def _water_equivalent(sub) -> dict:
+    """Sy x Delta-h x 1000, per well, then averaged. See compute_scenario_summary.
+
+    An empty selection, or one with no usable Sy, returns NaN rather than 0.0:
+    a zero storage change is a claim, and "we could not compute it" is not.
+    """
+    if len(sub) == 0:
+        return {"we_mean_mm": np.nan, "we_median_mm": np.nan, "sy_mean": np.nan}
+    ok = sub[sub["sy"].notna()]
+    if len(ok) == 0:
+        return {"we_mean_mm": np.nan, "we_median_mm": np.nan, "sy_mean": np.nan}
+    we = ok["sy"] * ok["_dh"] * 1000.0
+    # Stored unrounded, per D-035: store what the pipeline computed and round
+    # where the number is shown. The dh_* columns beside these round at store
+    # time and predate the rule; do not copy that here.
+    return {
+        "we_mean_mm":   float(we.mean()),
+        "we_median_mm": float(we.median()),
+        "sy_mean":      float(ok["sy"].mean()),
+    }
+
+
 def compute_scenario_summary(wt, climate_stats, out_dir):
     """
     For each scenario x season x cluster, compute the mean Delta-h across all
     wells assigned to that cluster (excluding wells with missing beta or head).
     Writes a tidy summary CSV to out_dir and returns the DataFrame.
+
+    Water equivalent (v2.15.0)
+    --------------------------
+    `we_mean_mm` / `we_median_mm` are the storage change implied by the head
+    change: Sy x Delta-h x 1000, in mm of water.
+
+    This existed before only inside scenario_viewer.html's JavaScript
+    (`mSy*mDH*1000`), and every water-equivalent figure quoted in the report and
+    the Supplementary Material was read off that screen. Two problems with that.
+    The viewer's Sy comes from `syEff(w, sSyMode)`, which follows a slider, so
+    the number shown depended on where the slider was standing; and nothing was
+    written to disk, so no published figure could be traced or re-derived. On
+    2026-08-26 the report, the supplement and the pipeline were found to hold
+    three different vintages of these numbers with no way to tell which was
+    current.
+
+    Two deliberate choices here:
+
+      per-well, then averaged.  we_mean_mm is mean(Sy_i x dh_i), NOT
+      mean(Sy_i) x mean(dh_i). The viewer computes the latter. The mean of the
+      products is each well's own storage change averaged across the cluster,
+      which is the quantity meant; the product of the means only coincides with
+      it when Sy and dh are uncorrelated across wells, and at C4/C5 they are not.
+
+      one Sy, named.  `sy` is the per-well WTF median from 17_wtf_well_sy.csv
+      with the cluster floor applied (see fill_sy), NOT either of the viewer's
+      two slider endpoints. `sy_mean` is exported alongside so the conversion
+      can be checked by hand from the CSV without opening the viewer.
+
+    The MSL5 rows are centroid-level and have no per-well set behind them, so
+    they carry no water equivalent rather than a fabricated one.
     """
     cluster_betas = {}
     for cl_int in [1, 2, 3, 4, 5]:
@@ -2230,6 +2288,7 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
                     "n_wells":     int(len(sub)),
                     "dh_mean_m":   round(dh_mean, 4) if pd.notna(dh_mean) else np.nan,
                     "dh_median_m": round(dh_med,  4) if pd.notna(dh_med)  else np.nan,
+                    **_water_equivalent(sub),
                 })
             sub_all = wt_tmp[wt_tmp["_dh"].notna()]
             rows.append({
@@ -2239,6 +2298,7 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
                 "n_wells":     int(len(sub_all)),
                 "dh_mean_m":   round(sub_all["_dh"].mean(),   4) if len(sub_all) else np.nan,
                 "dh_median_m": round(sub_all["_dh"].median(), 4) if len(sub_all) else np.nan,
+                **_water_equivalent(sub_all),
             })
 
         # ── v2.8.0 ΔMSL5 row (mean Mar/Apr/May Δh, van Willegen et al. 2025) ──

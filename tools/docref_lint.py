@@ -97,6 +97,27 @@ _URLISH = re.compile(r"https?://|www\.|github\.com|\.org/|\.io/")
 # Remove an entry when the document is found, written, or the citation is
 # repointed. Do not add one without deciding, explicitly, that the document is
 # not going to be recovered.
+#
+# 2026-08-26, T-10 closing pass. Two more recovered and now in this repository:
+# DDP_EVALUATION.md, from a zip member in ~/Downloads (the only archive hit in
+# 108 archives), and DIAGNOSTIC_script21_vs_script10_summer_minima.md, from
+# ~/Downloads/cleanup - the question whose answer,
+# FINDINGS_script21_summer_minima.md, was recovered earlier the same day. Both
+# carry status banners: the DDP recommendation still stands and every number in
+# it has moved, and all five script-21 divergences were fixed by v1.1.0 the day
+# the brief was written. Restoring the DDP note added BETA2_DECOMPOSITION.md to
+# this list, below. c3_detrend_check_results.md moved to RETIRED - it is a
+# committed output under a different name, not a missing document.
+#
+# Ten of the original thirteen remain. They were searched for on 2026-08-26
+# across every mounted root (home, Downloads, Documents, Desktop, Files_sync,
+# projects, audit, NRG-rewrite and the whole of Google Drive including the
+# earlier NRG tree under Reports/Gemini Paper/scripts/NRG), inside 108 archives,
+# and in the git history of the audit clone and NRG-rewrite. Not one of the ten
+# leaves a trace anywhere. They were working notes that lived beside the project
+# and were never in it. The full account is in
+# Updates_required/T10_RECOVERY_2026-08-26.md.
+
 # Documents that are missing BY RULING, not by loss. Searching the disk for
 # these is wasted effort and finding one is not good news: an old copy of a
 # retired document is exactly the fork the ruling removed. Frozen for gating
@@ -113,19 +134,33 @@ RETIRED = {
     '_to_delete/ledgers_DECISION_LOG_premerge_2026-08-16.md':
         "the pre-merge original behind the D-id collision. An archival trace, not "
         "a live document; the merged root DECISION_LOG.md supersedes it.",
+    'c3_detrend_check_results.md':
+        "superseded by its own committed name. Ruled 2026-08-26 under T-10: this "
+        "document is not lost, it is in the repository as "
+        "outputs/28_c3_detrend/28_c3_detrend_results.md - same title ('C3 "
+        "de-trending check - results'), same producer (28_c3_detrend_check.py), "
+        "same H0 result that src/29_c3_within_variance_check.py:389 cites it for. "
+        "The pre-commit working name never made it into the tree. Searching the "
+        "disk for it is wasted effort and a loose copy found would be a second "
+        "editable copy of a pipeline output - a fork, not a recovery. The clean "
+        "close is to repoint the citation in src/29_c3_within_variance_check.py "
+        "at outputs/28_c3_detrend/28_c3_detrend_results.md; T-10 could not edit "
+        "src/ and left the citation standing.",
 }
 
 KNOWN_DANGLING = {
-    'DDP_EVALUATION.md':
-        "depth-dependent-PET evaluation, cited from the recovered beta-2 note",
-    'DIAGNOSTIC_script21_vs_script10_summer_minima.md':
-        "the diagnostic FINDINGS_script21_summer_minima.md was written in answer "
-        "to; the answer survived and the question did not",
     'HANDOVER_cowork_NRG_2026-08-14_C4_centroid_triangulation.md':
         "the handover whose Decision 3 the window-policy spec settles; the other "
         "HANDOVER_cowork_NRG_* files are in Updates_required/ but not this one",
     'AUDIT_10series_PRE_FELL_START.md':
-        "the pre-fell start-date audit behind clearfell_common",
+        "the pre-fell start-date audit behind clearfell_common; also cited from "
+        "the recovered script-21 diagnostic brief",
+    'BETA2_DECOMPOSITION.md':
+        "NEW 2026-08-26: introduced by restoring DDP_EVALUATION.md, whose section 4 "
+        "cites it for the superseded C4 lambda=0.05. The pre-rebuild beta-2 note; "
+        "its successor BETA2_DECOMPOSITION_UPDATED.md is in the repository and "
+        "carries two superseded banners of its own. Restoring a document restores "
+        "its bibliography, and this is that cost, paid openly.",
     'CHANGELOG.md':
         "a generic pointer; the project keeps dated deltas in changelogs/",
     'CHANGELOG_delta_2026-08-08_pipe_top_upstand_correction.md':
@@ -135,15 +170,19 @@ KNOWN_DANGLING = {
     'DIAGNOSTIC_REPORT_script_26_cluster_assignment.md':
         "script 26 cluster-assignment diagnostic",
     'FIGURE_LEDGER.md':
-        "referenced by cite_check; the figure ledger was never committed",
+        "never written, not lost. ledgers/README.md lists it as **proposed** - "
+        "'seed from tools/figure_table_manifest.csv and "
+        "NRG_report_figure_xref_2026-08-13.csv' - alongside TABLE_LEDGER and "
+        "DOC_LEDGER, which are equally unwritten. tools/cite_check.py:893 names it "
+        "as a ledger to check. Do not search the disk: T-10's archive sweep matched "
+        "two 13-byte members reading 'fixture body', which are that tool's own test "
+        "fixtures. The close is to write the ledger, not to find it.",
     'HANDOVER_c3_detrend_check.md':
         "handover for script 28; also cited from PIPELINE_README",
     'SPEC_script35_per_well_amplification_metric.md':
         "spec for the amplification metric",
     'SPEC_script37_scale_factor_regression_2026-07-06.md':
         "spec for the driver-validation regression",
-    'c3_detrend_check_results.md':
-        "results file for the C3 detrend check",
     'claude/NRG_spring_BACI_spec_2026-08-13.md':
         "spring-BACI spec, in a working folder never committed",
 }

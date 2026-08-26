@@ -133,7 +133,19 @@ def _excluded(rel: str) -> bool:
     return any(rel.startswith(p) for p in EXCLUDE_PREFIXES)
 
 CONTEXT_WINDOW = 260     # characters either side of the glyph
-_MARKUP = re.compile(r"<[^>]+>")
+
+# Strip HTML/XML tags before counting glyphs. The character class EXCLUDES the
+# newline deliberately.
+#
+# It was `<[^>]+>` until 2026-08-26. `[^>]` matches newlines, so a single
+# unescaped `<` in prose swallowed everything up to the next `>` anywhere later
+# in the file. The Methods Supplement mirror contains four such `<`, and the
+# document went from 863,455 characters to 410,924 before a single symbol was
+# counted — every figure this tool has ever reported for the Supplement came
+# from 48% of it, and the missing 52% was silent. A tag never spans a line in
+# these mirrors, so bounding the class to a line costs nothing and cannot
+# swallow prose.
+_MARKUP = re.compile(r"<[^>\n]+>")
 
 
 def load_documents() -> dict[str, str]:

@@ -33,14 +33,15 @@
 > headline lag", and the headline lag is now 0. **Do not reintroduce a lag-1
 > term on the strength of this document** — D-008 explicitly retires that scheme.
 >
-> **Its one unticked action was never applied, and should not be applied without
-> a ruling.** Line 95 asks for `RAF_VALLEY_LAT_DEG` 53.25 → 53.15. The constant
-> is still 53.25, and `config.py:585` now documents why: it is the RAF Valley
-> *station* latitude, 53°14′32″N, confirmed. 53.15 is roughly the *site*
-> latitude. The two differ by 0.1°, which is immaterial to a Thornthwaite
-> day-length correction, so nothing is broken either way — but the question of
-> which latitude the correction should use was never actually settled, only
-> overtaken. Martin's call if it is worth settling.
+> **Its one unticked action is now formally rejected.** Line 95 asks for
+> `RAF_VALLEY_LAT_DEG` 53.25 → 53.15. **Do not make that change.** Ruled by
+> Martin, 2026-08-26, on the Met Office station header itself:
+>
+> > Valley — Location: 230800E 375800N, Lat 53.252 Lon -4.535, 10 metres amsl
+>
+> 53.252 rounds to 53.25. The constant is the station's latitude and it is
+> right as it stands; 53.15 is roughly the site, and was never the intended
+> basis. The checkbox below is closed, not outstanding.
 >
 > **The per-script audit below is an April 2026 snapshot.** Script versions,
 > line numbers and file names have all moved since. It is useful as a record of

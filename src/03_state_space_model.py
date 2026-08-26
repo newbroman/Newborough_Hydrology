@@ -207,8 +207,11 @@ MIN_OBS_PER_WELL = SSM_MIN_OBS
 # History: originally set to 1 to compensate for a bucketing convention that
 # assigned readings to the wrong month. After fixing the bucketing in
 # Script 01 (day ≤ 15 → previous month), lag-0 gives the correct physical
-# pairing and numerically identical coefficients. The lag diagnostic (03_04)
-# tests lags 0–3 regardless of the headline value.
+# pairing. It does not give identical coefficients: 42.4% of reading dates fall
+# after the 15th, keep their bucket, and so pair with rainfall a month later
+# than they did under lag-1 — which is the correction. Pre-fix and post-fix
+# coefficients are not comparable. See utils/config.py HEADLINE_LAG.
+# The lag diagnostic (03_04) tests lags 0–3 regardless of the headline value.
 
 # Bootstrap configuration — well-level resampling within each cluster.
 N_BOOTSTRAP = 1000

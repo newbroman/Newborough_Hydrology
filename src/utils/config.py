@@ -196,8 +196,17 @@ DRAINAGE_DATUM = 3.7  # metres below ground surface
 # mislabelled month.
 #
 # After fixing the bucketing in Script 01 (day ≤ 15 → previous month), the
-# well data is correctly labelled and lag-0 gives the same physical pairing.
-# All regression coefficients are numerically identical.
+# well data is correctly labelled and lag-0 gives the correct physical pairing.
+#
+# The pairing is NOT unchanged for the whole record, and an earlier version of
+# this comment said it was. Of the 278 reading dates in
+# Newborough_Cleaned_For_Model.csv, 160 (57.6%) fall on day ≤ 15: their bucket
+# moves back a month, the lag drops to zero, and the rainfall they pair with is
+# the same as before. The other 118 (42.4%) fall after the 15th, so their bucket
+# does NOT move and dropping the lag pairs them one month later. Under the old
+# scheme a 31 October reading — an October change — was regressed against
+# September rainfall; lag-0 fixes that. A fit spans the whole record, so
+# coefficients from before and after the fix are not comparable.
 HEADLINE_LAG = 0
 
 # ── UKCP18 seasonal climate-change multipliers ───────────────────────────────

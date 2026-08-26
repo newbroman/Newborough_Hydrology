@@ -106,8 +106,10 @@ _URLISH = re.compile(r"https?://|www\.|github\.com|\.org/|\.io/")
 # carry status banners: the DDP recommendation still stands and every number in
 # it has moved, and all five script-21 divergences were fixed by v1.1.0 the day
 # the brief was written. Restoring the DDP note added BETA2_DECOMPOSITION.md to
-# this list, below. c3_detrend_check_results.md moved to RETIRED - it is a
-# committed output under a different name, not a missing document.
+# this list, below. The old c3_detrend results file is gone from both dicts: it
+# was a committed output under a different name, and on 2026-08-26 its one
+# citation in Script 29 was repointed at outputs/28_c3_detrend/, so there is
+# nothing left to freeze.
 #
 # Ten of the original thirteen remain. They were searched for on 2026-08-26
 # across every mounted root (home, Downloads, Documents, Desktop, Files_sync,
@@ -134,18 +136,6 @@ RETIRED = {
     '_to_delete/ledgers_DECISION_LOG_premerge_2026-08-16.md':
         "the pre-merge original behind the D-id collision. An archival trace, not "
         "a live document; the merged root DECISION_LOG.md supersedes it.",
-    'c3_detrend_check_results.md':
-        "superseded by its own committed name. Ruled 2026-08-26 under T-10: this "
-        "document is not lost, it is in the repository as "
-        "outputs/28_c3_detrend/28_c3_detrend_results.md - same title ('C3 "
-        "de-trending check - results'), same producer (28_c3_detrend_check.py), "
-        "same H0 result that src/29_c3_within_variance_check.py:389 cites it for. "
-        "The pre-commit working name never made it into the tree. Searching the "
-        "disk for it is wasted effort and a loose copy found would be a second "
-        "editable copy of a pipeline output - a fork, not a recovery. The clean "
-        "close is to repoint the citation in src/29_c3_within_variance_check.py "
-        "at outputs/28_c3_detrend/28_c3_detrend_results.md; T-10 could not edit "
-        "src/ and left the citation standing.",
 }
 
 KNOWN_DANGLING = {

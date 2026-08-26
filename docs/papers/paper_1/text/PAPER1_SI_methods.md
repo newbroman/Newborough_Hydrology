@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/PAPER1_SI_methods_v1_10.odt — do not edit.
+<!-- GENERATED MIRROR of docs/papers/paper_1/PAPER1_SI_methods_v1_11.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # Supporting Information
@@ -433,8 +433,8 @@ where *t*~*ij*~ is the monthly water-table change at well *i* in month *j*, *d*~
 
 Two functional forms are tested for the distance decay δ(·):
 
--   **Linear-capped**: δ(*d*) = δ₀ + (*c* − δ₀) · min(*d*/*L*, 1). A linear decline from a coast-edge intercept δ₀ to a far-field background *c* over an inland reach *L*; flat at *c* beyond *L*.
--   **Exponential**: δ(*d*) = *c* + (δ₀ − *c*) · exp(−*d*/*L*). An exponential decay from δ₀ at *d* = 0 to *c* asymptotically, with characteristic length *L*.
+-   **Linear-capped**: δ(*d*) = δ₀ + (*c_far* − δ₀) · min(*d*/*L_cg*, 1). A linear decline from a coast-edge intercept δ₀ to a far-field background *c_far* over an inland reach *L_cg*; flat at *c_far* beyond *L_cg*.
+-   **Exponential**: δ(*d*) = *c_far* + (δ₀ − *c_far*) · exp(−*d*/*L_cg*). An exponential decay from δ₀ at *d* = 0 to *c_far* asymptotically, with characteristic length *L_cg*.
 
 []{#s13.1-panel-regression-specification}Both forms are fitted by nonlinear least squares. Model selection between the two is by the Akaike information criterion (Akaike, 1974).
 
@@ -444,32 +444,32 @@ Three nested specifications are fitted to test robustness:
 
 -   **Full network**: all open-dune and forested wells in the reference network, excluding the clearfell-zone wells (which carry a non-coastal management forcing).
 -   **Forest-free**: the open-dune wells (C1, C2, C3) only, excluding all forested wells. This is the primary specification reported in the manuscript: it removes any contamination from forest interception or canopy-driven evaporative demand from the distance fit.
--   **C3-only**: wells in C3 Western Residual only, with the far-field background *c* fixed at the forest-free value rather than re-estimated. This tests whether the distance gradient is identifiable within the single cluster geographically closest to the eroding shoreline.
+-   **C3-only**: wells in C3 Western Residual only, with the far-field background *c_far* fixed at the forest-free value rather than re-estimated. This tests whether the distance gradient is identifiable within the single cluster geographically closest to the eroding shoreline.
 
 ### []{#anchor-16}S13.3 Parameter values
 
 Fitted parameters, read live from outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv:
 
-  ------------- --------------------------- -------- ----------- --------------- ----------- --------------
-  Full          linear-capped               12,006   −33,668.5   −31.73 ± 1.95   994 ± 57    −0.47 ± 0.56
-  Full          exponential                 12,006   −33,672.6   −41.30 ± 2.58   609 ± 99    +3.28 ± 1.52
-  Forest-free   linear-capped               10,929   −31,848.8   −31.33 ± 1.97   895 ± 48    −0.10 ± 0.55
-  Forest-free   exponential                 10,929   −31,853.7   −40.63 ± 3.15   489 ± 76    +2.12 ± 1.09
-  C3-only       linear-capped (*c* fixed)   3,676    −10,254.1   −29.06 ± 2.75   928 ± 71    −0.10
-  C3-only       exponential (*c* fixed)     3,676    −10,269.6   −32.15 ± 3.71   713 ± 109   +2.12
-  ------------- --------------------------- -------- ----------- --------------- ----------- --------------
+  ------------- ------------------------------- -------- ----------- --------------- ----------- --------------
+  Full          linear-capped                   12,006   −33,668.5   −31.73 ± 1.95   994 ± 57    −0.47 ± 0.56
+  Full          exponential                     12,006   −33,672.6   −41.30 ± 2.58   609 ± 99    +3.28 ± 1.52
+  Forest-free   linear-capped                   10,929   −31,848.8   −31.33 ± 1.97   895 ± 48    −0.10 ± 0.55
+  Forest-free   exponential                     10,929   −31,853.7   −40.63 ± 3.15   489 ± 76    +2.12 ± 1.09
+  C3-only       linear-capped (*c_far* fixed)   3,676    −10,254.1   −29.06 ± 2.75   928 ± 71    −0.10
+  C3-only       exponential (*c_far* fixed)     3,676    −10,269.6   −32.15 ± 3.71   713 ± 109   +2.12
+  ------------- ------------------------------- -------- ----------- --------------- ----------- --------------
 
-Confidence intervals are 95% (1.96 SE). The forest-free linear-capped fit is the headline specification: δ₀ = −31.33 mm yr⁻¹, *L* = 895 m, *c* = −0.10 mm yr⁻¹. The rate quoted in the manuscript is the fitted trend at 150 m from the shoreline, −26.18 mm yr⁻¹ (SE 1.45), rather than δ₀ itself: no well sits at the shoreline, and the two decay forms disagree there by 9.3 mm yr⁻¹ against 1.6 mm yr⁻¹ at 150 m. The constant *c* is the fitted far-field asymptote, not a climate background. It is separately identified --- its variance inflation factor against the cumulative water-balance covariate is 1.01 --- but it is unstable with respect to the fitting window, running from −0.10 to +24.20 mm yr⁻¹ as the window start is moved with the well set held fixed, so it is a window statistic rather than a rate.
+Confidence intervals are 95% (1.96 SE). The forest-free linear-capped fit is the headline specification: δ₀ = −31.33 mm yr⁻¹, *L_cg* = 895 m, *c_far* = −0.10 mm yr⁻¹. The rate quoted in the manuscript is the fitted trend at 150 m from the shoreline, −26.18 mm yr⁻¹ (SE 1.45), rather than δ₀ itself: no well sits at the shoreline, and the two decay forms disagree there by 9.3 mm yr⁻¹ against 1.6 mm yr⁻¹ at 150 m. The constant *c_far* is the fitted far-field asymptote, not a climate background. It is separately identified --- its variance inflation factor against the cumulative water-balance covariate is 1.01 --- but it is unstable with respect to the fitting window, running from −0.10 to +24.20 mm yr⁻¹ as the window start is moved with the well set held fixed, so it is a window statistic rather than a rate.
 
 ### []{#anchor-16}S13.4 Model selection
 
-Model selection by AIC favours the exponential form in the forest-free specification: the difference is −4.9 (−31,848.8 against −31,853.7, exp − lin-capped). On the full network the same comparison gives −4.1, and on C3-only −15.5, in each case favouring the exponential. Both fits agree on the sense of the gradient --- a coast-edge deepening that decays inland --- and on the magnitude of the coast-edge component (about −29 to −41 mm yr⁻¹), and both return a far-field asymptote *c* between −0.47 and +3.28 mm yr⁻¹ across the six fits. The choice of functional form changes the inland reach *L* and the partition of the coast-edge intercept δ₀ between the two functions, but does not change the central finding: a near-coast water-table deepening of order 25--41 mm yr⁻¹ relative to the far field, declining over an inland reach of order 400--1000 m. Quoting the headline at 150 m from the shoreline, where the two forms agree to within 1.6 mm yr⁻¹, keeps the reported rate largely independent of that choice. The far-field level is not a climate background: *c* is separately identified but unstable with respect to the fitting window, as S13.3 sets out.
+Model selection by AIC favours the exponential form in the forest-free specification: the difference is −4.9 (−31,848.8 against −31,853.7, exp − lin-capped). On the full network the same comparison gives −4.1, and on C3-only −15.5, in each case favouring the exponential. Both fits agree on the sense of the gradient --- a coast-edge deepening that decays inland --- and on the magnitude of the coast-edge component (about −29 to −41 mm yr⁻¹), and both return a far-field asymptote *c_far* between −0.47 and +3.28 mm yr⁻¹ across the six fits. The choice of functional form changes the inland reach *L_cg* and the partition of the coast-edge intercept δ₀ between the two functions, but does not change the central finding: a near-coast water-table deepening of order 25--41 mm yr⁻¹ relative to the far field, declining over an inland reach of order 400--1000 m. Quoting the headline at 150 m from the shoreline, where the two forms agree to within 1.6 mm yr⁻¹, keeps the reported rate largely independent of that choice. The far-field level is not a climate background: *c_far* is separately identified but unstable with respect to the fitting window, as S13.3 sets out.
 
-The headline values reported in the manuscript adopt the linear-capped fit for its Dupuit--Forchheimer interpretation of a finite inland reach, and because its far-field asymptote takes the same sign as the observed far-field trend where the exponential's does not: the exponential returns +2.12 mm yr⁻¹ against an observed far-field trend of −6.14 mm yr⁻¹ over the same window. Its reach is also the more interpretable of the two --- a capped-linear *L* of 895 m is closer to the physical scale of the dune body than the exponential *L* of 489 m, which is an e-folding length rather than a reach. AIC runs against that choice rather than with it, which is stated in S13.4 rather than left implicit. The exponential fit is reported as a sensitivity case.
+The headline values reported in the manuscript adopt the linear-capped fit for its Dupuit--Forchheimer interpretation of a finite inland reach, and because its far-field asymptote takes the same sign as the observed far-field trend where the exponential's does not: the exponential returns +2.12 mm yr⁻¹ against an observed far-field trend of −6.14 mm yr⁻¹ over the same window. Its reach is also the more interpretable of the two --- a capped-linear *L_cg* of 895 m is closer to the physical scale of the dune body than the exponential *L_cg* of 489 m, which is an e-folding length rather than a reach. AIC runs against that choice rather than with it, which is stated in S13.4 rather than left implicit. The exponential fit is reported as a sensitivity case.
 
 ### []{#anchor-16}S13.5 C5 out-of-sample sentinel
 
-The C5 Coastal Forest well nw9, at 419 m from the eroding shoreline, shows a decline of −32.7 mm yr⁻¹ (p = 0.002, R² = 0.41, n = 20 years, from *25_02_per_well_summer_min_slopes.csv*). nw9 is under canopy and is excluded from the forest-free regression; it therefore functions as an out-of-sample sentinel, testing the fitted gradient at a near-coast position without contributing to it. Under the headline linear-capped fit the gradient at 419 m predicts a coastal-retreat contribution of −16.65 mm yr⁻¹, leaving −16.05 mm yr⁻¹ of the observed decline unaccounted for by distance to the shoreline. No climate background closes that gap. The two cluster-independent terms are the trend contribution the cumulative water-balance covariate carries, +2.93 mm yr⁻¹, and the fitted far-field asymptote *c*, −0.10 mm yr⁻¹; their sum is positive, so the remainder unexplained at this well is larger still, at −18.88 mm yr⁻¹. That remainder is what the substrate-position amplification developed in Section 5.2 of the manuscript addresses.
+The C5 Coastal Forest well nw9, at 419 m from the eroding shoreline, shows a decline of −32.7 mm yr⁻¹ (p = 0.002, R² = 0.41, n = 20 years, from *25_02_per_well_summer_min_slopes.csv*). nw9 is under canopy and is excluded from the forest-free regression; it therefore functions as an out-of-sample sentinel, testing the fitted gradient at a near-coast position without contributing to it. Under the headline linear-capped fit the gradient at 419 m predicts a coastal-retreat contribution of −16.65 mm yr⁻¹, leaving −16.05 mm yr⁻¹ of the observed decline unaccounted for by distance to the shoreline. No climate background closes that gap. The two cluster-independent terms are the trend contribution the cumulative water-balance covariate carries, +2.93 mm yr⁻¹, and the fitted far-field asymptote *c_far*, −0.10 mm yr⁻¹; their sum is positive, so the remainder unexplained at this well is larger still, at −18.88 mm yr⁻¹. That remainder is what the substrate-position amplification developed in Section 5.2 of the manuscript addresses.
 
 ## []{#anchor-16}S14. Forest-interception drawdown reach (Figure 19)
 
@@ -485,7 +485,7 @@ With these inputs, λ ≈ 230 m (matching the value rendered on Figure 19). The 
 
 This is the only output of the framework that depends on *K*. Every other coefficient surface, residual field, water-balance partition, *S*y estimate, coastal-retreat gradient and diagnostic synthesis presented in the manuscript is derived without a *K* estimate (Section 5.6 of the main manuscript). A measured *K* --- from slug tests at representative wells per cluster, the priority future field measurement --- would tighten only the Figure 19 reach calculation.
 
-The empirically fitted coastal-retreat reach (Figure 20 of the manuscript) is *not* an analogue of the Figure 19 reach in this sense: the coastal-reach length *L* is fitted directly from the panel regression (Section S13) and *K* and *b* do not enter its derivation. The forest and coastal reaches are therefore methodologically distinct: Figure 19 is a forward calculation from independent SSM and literature parameters, while Figure 20 is a back-calculation from observed water-table trends. Section 5.6 of the main manuscript discusses the implications.\
+The empirically fitted coastal-retreat reach (Figure 20 of the manuscript) is *not* an analogue of the Figure 19 reach in this sense: the coastal-reach length *L_cg* is fitted directly from the panel regression (Section S13) and *K* and *b* do not enter its derivation. The forest and coastal reaches are therefore methodologically distinct: Figure 19 is a forward calculation from independent SSM and literature parameters, while Figure 20 is a back-calculation from observed water-table trends. Section 5.6 of the main manuscript discusses the implications.\
 
 ## []{#anchor-17}S15. Software, parameters and reproducibility
 
@@ -499,17 +499,17 @@ The full analysis pipeline is open source and version-controlled on GitHub at gi
 
 **Pipeline parameters table.** Headline values used in this document, all read live from the canonical CSVs at the time of submission:
 
-  ------------------------------------ --------------------- --------------------------------------------
-  Network size (reference)             66 wells              01_wells_provenance.csv
-  Drainage datum *z₀*                  3.7 m                 pipeline_scenario_params.csv
-  HEADLINE_LAG                         0                     pipeline_scenario_params.csv
-  Forest interception                  0.24                  Freeman (2008), config.py
-  C1--C5 β₁, β₂, β₃, *R*²              (see Section S6.2)    03_03_cluster_mechanistic_coefficients.csv
-  Cluster *S*y                         (see Section S11.2)   17_wtf_01_sy_estimates.csv
-  Coastal δ₀, *L*, *c* (forest-free)   (see Section S13)     25_01_panel_fit_parameters.csv
-  nw9 decline                          (see Section S13.5)   25_02_per_well_summer_min_slopes.csv
-  Hydraulic conductivity *K*           6 m day⁻¹             Betson et al. (2002)
-  ------------------------------------ --------------------- --------------------------------------------
+  ------------------------------------------- --------------------- --------------------------------------------
+  Network size (reference)                    66 wells              01_wells_provenance.csv
+  Drainage datum *z₀*                         3.7 m                 pipeline_scenario_params.csv
+  HEADLINE_LAG                                0                     pipeline_scenario_params.csv
+  Forest interception                         0.24                  Freeman (2008), config.py
+  C1--C5 β₁, β₂, β₃, *R*²                     (see Section S6.2)    03_03_cluster_mechanistic_coefficients.csv
+  Cluster *S*y                                (see Section S11.2)   17_wtf_01_sy_estimates.csv
+  Coastal δ₀, *L_cg*, *c_far* (forest-free)   (see Section S13)     25_01_panel_fit_parameters.csv
+  nw9 decline                                 (see Section S13.5)   25_02_per_well_summer_min_slopes.csv
+  Hydraulic conductivity *K*                  6 m day⁻¹             Betson et al. (2002)
+  ------------------------------------------- --------------------- --------------------------------------------
 
 **Data availability.** The dipwell water-level records and the well location/elevation data analysed here were collected by the author and are deposited, in cleaned form, in the Zenodo archive alongside the code (Newborough_Cleaned_For_Model.csv, Well_locations_height.csv). The RAF Valley climate series (monthly rainfall, and the mean-temperature series used to derive Thornthwaite PET) are Met Office historic station observations, © Crown Copyright, Met Office, available from the Met Office at https://www.metoffice.gov.uk/pub/data/weather/uk/climate/stationdata/valleydata.txt under the Open Government Licence v3.0, and are not re-archived here. This dataset contains public sector information licensed under the Open Government Licence v3.0.
 

@@ -248,10 +248,28 @@ FIXES += [
      r"Motivation\s*(Section 4\.10\.2) of the main report quantifies",
      "Section 4.11.2",
      "clearfell / thinning / broadleaf is Forest Management Scenarios, 4.11.2"),
-    ("docs/report/Supplementary_Material_v1_18.odt",
-     r"units\s*(Figure 63) — Differential movement",
-     "Figure 56",
-     "Script 32's differential movement is Figure 56"),
+    # REMOVED 2026-08-26. This entry was wrong twice over and would have
+    # damaged a correct document if it had ever fired.
+    #
+    #   ("docs/report/Supplementary_Material_v1_18.odt",
+    #    r"units\s*(Figure 63) — Differential movement",
+    #    "Figure 56",
+    #    "Script 32's differential movement is Figure 56"),
+    #
+    # 1. The target was wrong. Script 32's differential-movement map is
+    #    Figure 64, not 56 — the Supplementary Material says so itself at
+    #    mirror line 521, "Figure 64 --- Differential movement (Script 32)",
+    #    and report10:368 agrees. Firing this would have replaced a correct
+    #    number with an incorrect one.
+    # 2. The anchor no longer matches anything; the passage was rewritten.
+    # 3. The path was hard-coded to v1_18 while every sibling entry uses
+    #    _versioned(). The Supplement is now v1_20, so the entry pointed at a
+    #    stale file as well.
+    #
+    # The near-miss is the point: a queued fix is a claim about a document,
+    # and it ages exactly as badly as the document's own numbers. Anything
+    # added here should use _versioned() and should be re-checked against the
+    # live text before it is trusted, not just before it is written.
 ]
 
 

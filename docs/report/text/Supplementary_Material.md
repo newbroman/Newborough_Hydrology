@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Supplementary_Material_v1_20.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Supplementary_Material_v1_21.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Supplementary Material
@@ -243,7 +243,7 @@ The per-well equilibrium framework and climate/forestry scenario calculations ar
 
 ## S4.2 Reproducibility
 
-The WTF specific yield estimates tabulated in Table S4.1 are computed by 17_wtf_specific_yield.py, which identifies qualifying monthly rising-limb events, applies the canopy interception correction for C4 wells, and exports per-well Sy statistics to 17_wtf_well_sy.csv. The spatial IDW interpolation of Sy values and the exclusion of CEH12 and CEH15 from the interpolation surface are implemented in 18_wtf_spatial.py, which generates the Sy map figure and exports the interpolated surface. Both scripts read intermediate data from the main pipeline (01_wells_clean.csv, 01_climate.csv, 01_locations.csv, 02_cluster_stats.csv) and are maintained in the canonical pipeline sequence.
+The per-well WTF specific yield estimates tabulated in Table S4.1 are computed by 18_wtf_spatial.py (wtf_individual_wells), which identifies qualifying monthly rising-limb events, applies the canopy interception correction to the C4 and C5 forest wells, and exports the per-well statistics to 18_wtf_01_well_sy_estimates.csv --- the file the table\'s caption names. The same script performs the spatial interpolation of Sy and the exclusion of CEH12 and CEH15 from the interpolated surface. 17_wtf_specific_yield.py is the cluster-level estimator and exports 17_wtf_01_sy_estimates.csv; it does not produce the per-well table. Its earlier output name, 17_wtf_well_sy.csv, was retired under D-038 on 2026-08-19; the two files were byte-identical while both existed, and the name was superseded rather than the content changed. 18_wtf_spatial.py reads 01_wells_clean.csv, 01_climate.csv, 01_locations.csv and 02_cluster_stats.csv; both scripts are maintained in the canonical pipeline sequence.
 
 # Supplementary Note S5: Residual-Lag Test for Ridge-Derived Recharge
 

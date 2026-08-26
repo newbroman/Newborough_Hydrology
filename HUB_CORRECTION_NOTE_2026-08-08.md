@@ -29,10 +29,48 @@
 > row, 2024-03-01, and precisely the 3-dp rounding artefact the note predicted.
 > Not a defect.
 >
-> **The open question at the end is still open**, and still worth an answer: was
-> `ceh13`'s `Pipe_Top_Elev` edited deliberately in `a75f693`, or did it ride along
-> with the metre/cm fix? It no longer affects the correction, but it bears on
-> whether the same thing happened elsewhere.
+> ### The open question at the end is now answered (2026-08-26)
+>
+> The note asks whether `ceh13`'s `Pipe_Top_Elev` was edited deliberately or rode
+> along with the metre/cm fix. **It was a deliberate correction, and it corrected
+> the value in the right direction.**
+>
+> First, the hash. In this repository the commit is **`ee0f2e2`** (Martin
+> Hollingham, 2026-07-04 19:17, *"forecaster june update"*), not `a75f693` — the
+> note was written against a different clone. The diff is as described: nine
+> lines, eight of them touching only the `aliases` column
+> (`clearing`→`clearing;c`, blank→`f1`…), one numeric.
+>
+> **What the numeric change actually was:**
+>
+> | | value | equals |
+> |---|---|---|
+> | before | 11.415 | `DEM_Ground_Elev` 11.325 + `Upstand_m` 0.09 |
+> | after | 11.325 | `DGPS_Ground_Elev` 11.235 + `Upstand_m` 0.09 |
+>
+> The edit moved `ceh13` from a DEM-derived pipe top to a DGPS-derived one.
+> Across all 98 wells in `well_metadata.csv`, `Pipe_Top_Elev` equals ground plus
+> upstand on one basis or the other with no exceptions: all 21 `ground_source =
+> lidar` wells derive from the DEM, and of the 77 `dgps` wells, 68 derive from
+> DGPS, 8 are indistinguishable because their two ground values agree, and
+> exactly one derives from the DEM — **`L1`**, which carries no readings, is not
+> in the reference network, and is already excluded by Martin's ruling in
+> `GEOMETRY_ARCHITECTURE_SPEC.md` §8 at the same 0.696 m.
+>
+> So the July edit put `ceh13` onto the basis its own `ground_source` column
+> specifies and that 68 of its 77 peers already used. It reads as deliberate
+> rather than incidental: a sweep adding aliases touches the last column, not
+> the seventh, and `ceh13`'s alias — `nr 2a` — is the one alias in that diff
+> that did **not** change.
+>
+> **This retrospectively vindicates not taking Option A.** Reverting to 11.415
+> would have moved `ceh13` back onto the minority basis, against its own
+> `ground_source`, and would then have had to be undone again by the August
+> geometry rework.
+>
+> Answering the note's wider worry: it did **not** happen elsewhere. The
+> metadata is internally consistent on this rule for 97 of 98 wells, and the
+> 98th is known, ruled on, and carries no data.
 >
 > ---
 

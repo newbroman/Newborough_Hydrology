@@ -286,6 +286,47 @@ CLAIMS_REGISTER = "tools/claims_register.csv"
 # heuristic scan is then only for values the index does not yet cover.
 CITATION_INDEX = "tools/citation_index.csv"
 
+# Adjudicated false positives.
+#
+# The index locates a citation by its VALUE plus a slice of surrounding
+# characters. Inside a wide table that is not enough: "1.83" in the Methods
+# Supplement is a Durbin-Watson statistic, not a beta-2, and the neighbouring
+# characters in a run of table cells look like any other run of table cells. On
+# 2026-08-26 every value this check reported against the Methods Supplement, the
+# Supplementary Material and report9 turned out to be one of these — a table
+# cell, a confidence-interval bound, or a different quantity that happens to
+# round the same way.
+#
+# The cost of not recording that is that the same eleven have to be
+# re-adjudicated, by hand, on every run — and the reader learns to skim a
+# gating check, which is worse than the check not existing.
+#
+# A row here is a claim that EVERY occurrence of that string in that document
+# has been looked at and none of them is the citation. Not "the located one
+# looked wrong": all of them. `what_it_actually_is` must say what the number
+# really is, so the judgement can be re-examined rather than taken on trust.
+#
+# Remove a row when the document changes: a rewrite can put a real citation of
+# that value into a document that previously only had coincidences.
+CITATION_FALSE_POSITIVES = "tools/citation_false_positives.csv"
+
+
+def load_false_positives() -> dict:
+    """{(key, document, quoted): what_it_actually_is}"""
+    path = REPO / CITATION_FALSE_POSITIVES
+    if not path.exists():
+        return {}
+    import csv as _csv
+    out = {}
+    with path.open(encoding="utf-8") as fh:
+        for row in _csv.DictReader(fh):
+            out[(row["key"].strip(), row["document"].strip(),
+                 row["quoted"].strip())] = row.get("what_it_actually_is", "").strip()
+    return out
+
+
+_FALSE_POSITIVES = load_false_positives()
+
 # Archived output trees produced by no live script — their values are history,
 # not current publications, so they must not drive a staleness verdict.
 EXCLUDE_OUTPUT_DIRS = ("30_c4_constrained_fit",)
@@ -1184,6 +1225,7 @@ def check_index(docs, values) -> int:
     # the index carries one row per document and a repeated number is otherwise
     # checked in one place only.
     stale_strings: list[tuple[str, str, str, str]] = []
+    adjudicated: list[tuple[str, str, str, str]] = []
     for row in csv.DictReader(open(idx, encoding="utf8")):
         # Rejected rows are recorded coincidences — keeping them stops the
         # builder re-proposing them, but they are not citations to check.
@@ -1211,6 +1253,8 @@ def check_index(docs, values) -> int:
         present = span is not None
         if present and _same(want, quoted):
             ok += 1
+        elif present and (key, doc, quoted) in _FALSE_POSITIVES:
+            adjudicated.append((key, doc, quoted, _FALSE_POSITIVES[(key, doc, quoted)]))
         elif present:
             if row.get("status") == "confirmed":
                 drifted += 1
@@ -1245,7 +1289,20 @@ def check_index(docs, values) -> int:
             else:
                 print(f"\n  MOVED    {key}: {quoted} no longer in {doc} "
                       "— prose rewritten, or citation dropped")
-    sweep_repeats(docs, stale_strings)
+    sweep_repeats(docs, stale_strings, adjudicated)
+    if adjudicated:
+        print()
+        print("-" * 78)
+        print("ADJUDICATED — checked by hand, not the citation, will not be "
+              "reported again")
+        print("-" * 78)
+        for key, doc, quoted, why in sorted(adjudicated):
+            print(f"  {key}: {quoted} in {doc.split('/')[-1]}")
+            print(f"      {why}")
+        print(f"\n  {len(adjudicated)} occurrence(s) held in "
+              f"{CITATION_FALSE_POSITIVES}. Remove a row there if the document "
+              "is rewritten — a rewrite can introduce a real citation of a "
+              "value that was previously only a coincidence.")
     print(f"\n  {ok} citation(s) exact and current; {drifted} DRIFTED "
           f"(confirmed rows — these gate); {advisory} drifted on unreviewed "
           f"rows (advisory); {moved} moved/re-pointed; "
@@ -1253,7 +1310,7 @@ def check_index(docs, values) -> int:
     return drifted
 
 
-def sweep_repeats(docs, stale_strings) -> None:
+def sweep_repeats(docs, stale_strings, adjudicated=None) -> None:
     """Search the whole corpus for every stale string the index check found.
 
     The index holds one row per (key, document), so a value quoted in five
@@ -1276,6 +1333,11 @@ def sweep_repeats(docs, stale_strings) -> None:
             if not quotes(text, quoted):
                 continue
             seen.add((doc, quoted))
+            if (key, doc, quoted) in _FALSE_POSITIVES:
+                if adjudicated is not None:
+                    adjudicated.append((key, doc, quoted,
+                                        _FALSE_POSITIVES[(key, doc, quoted)]))
+                continue
             hits.append((key, quoted, want, doc))
     if not hits:
         return

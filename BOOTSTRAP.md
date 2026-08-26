@@ -104,10 +104,20 @@ rclone copy gdrive:NRG_documents . --progress
 Scope **1** (full access), not `drive.file`: the folder was created outside
 rclone, and `drive.file` only shows rclone what it made itself.
 
-About 404 MB. Then mark the archive current so the toolkit does not report drift
-that is not there:
+About 404 MB. Then mark the archive current, so `tools/drive_lag.py` does not
+report drift that is not there:
 
 ```bash
+touch .last_drive_archive
+```
+
+That marker is read by `tools/drive_lag.py`, which `check_all` runs. It answers
+the one question the `.gitignore` creates: the `.odt` and `.odm` documents are
+in no repository, so between an edit and the next `rclone copy` they exist on
+one disk only. Re-touch the marker after every upload:
+
+```bash
+rclone copy . gdrive:NRG_documents --include '*.odt' --include '*.odm' --progress
 touch .last_drive_archive
 ```
 

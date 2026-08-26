@@ -149,6 +149,10 @@ RETIRED = {
 }
 
 KNOWN_DANGLING = {
+    'claude/HANDOVER_cowork_NRG_2026-08-13.md':
+        "NEW 2026-08-26: named by the recovered 2026-08-13b handover as the "
+        "authoritative onboarding document for that session. Not in the project "
+        "store, on disk, or in the repository.",
     'HANDOVER_cowork_NRG_2026-08-14_C4_centroid_triangulation.md':
         "the handover whose Decision 3 the window-policy spec settles; the other "
         "HANDOVER_cowork_NRG_* files are in Updates_required/ but not this one",
@@ -183,8 +187,6 @@ KNOWN_DANGLING = {
         "spec for the amplification metric",
     'SPEC_script37_scale_factor_regression_2026-07-06.md':
         "spec for the driver-validation regression",
-    'claude/NRG_spring_BACI_spec_2026-08-13.md':
-        "spring-BACI spec, in a working folder never committed",
 }
 
 _CAND = re.compile(r"[A-Za-z0-9_][A-Za-z0-9_./\\-]*\.md\b")

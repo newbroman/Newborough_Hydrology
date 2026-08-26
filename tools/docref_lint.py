@@ -153,9 +153,6 @@ KNOWN_DANGLING = {
         "NEW 2026-08-26: named by the recovered 2026-08-13b handover as the "
         "authoritative onboarding document for that session. Not in the project "
         "store, on disk, or in the repository.",
-    'HANDOVER_cowork_NRG_2026-08-14_C4_centroid_triangulation.md':
-        "the handover whose Decision 3 the window-policy spec settles; the other "
-        "HANDOVER_cowork_NRG_* files are in Updates_required/ but not this one",
     'AUDIT_10series_PRE_FELL_START.md':
         "the pre-fell start-date audit behind clearfell_common; also cited from "
         "the recovered script-21 diagnostic brief",

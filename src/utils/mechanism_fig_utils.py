@@ -56,8 +56,14 @@ printed checks) and writes the outputs via paths.py.
 """
 from __future__ import annotations
 
-__version__ = "1.11.0"
+__version__ = "1.11.1"
 # CHANGELOG
+#   1.11.1 (2026-08-26): _r_txt no longer puts an escaped quote inside an
+#       f-string expression, which was 3.12-only syntax and the tree's only
+#       undeclared version constraint. NOT a live defect — the machine that runs
+#       this is on 3.12.3. A first version of this note said the import had been
+#       failing since 2026-07-19; that was the Cowork sandbox's Python 3.10 being
+#       mistaken for the real environment. Rendering is unchanged.
 #   1.11.0 (2026-08-21): two reach-panel rendering defects Martin found in the
 #       regenerated figures.
 #       (a) PHYSICAL. The storm and 5-yr water-table curves ran ABOVE the drawn
@@ -808,9 +814,16 @@ def reach_clearance(reach, multiples=True):
     return out
 
 def _r_txt(x, y, s, sz=12, w='400', c=INK, a='start', it=False):
+    # The italic attribute is built OUTSIDE the f-string. An escaped quote inside
+    # an f-string expression is a syntax error before Python 3.12, so this line
+    # was an undeclared ≥3.12 requirement -- the only one in the tree, in a module
+    # Script 09g imports, with no `requires-python` anywhere to state it. It has
+    # never actually broken: Martin's machine runs 3.12.3. Rendering is identical
+    # either way, so the constraint is simply removed rather than documented.
+    italic = ' font-style="italic"' if it else ''
     return (f'<text x="{x:.1f}" y="{y:.1f}" font-family="{FONT_STACK}" font-size="{sz}" '
             f'font-weight="{w}" fill="{c}" text-anchor="{a}"'
-            f'{" font-style=\"italic\"" if it else ""}>{s}</text>')
+            f'{italic}>{s}</text>')
 
 def _reach_base(s, pth, draw_erosion):
     """Shared reach profile — sea, dune, near-shore cross-section (0..330 m) joined to

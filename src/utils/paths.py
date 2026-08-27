@@ -11,7 +11,10 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.6.8"  # Hollingham (2026) — 2026-08-21. Adds CANOPY_HISTORY,
+__version__ = "1.6.9"  # Hollingham (2026) — 2026-08-27. OUT_10C_CORRELATION_TABLE
+#     and OUT_10C_CLUSTER_SUMMARY replace the INT_ pair and move into DIR_10C.
+#     Path change only; both files keep their names.
+# v1.6.8  # Hollingham (2026) — 2026-08-21. Adds CANOPY_HISTORY,
 #     the per-well 1989 canopy state and felling year read by Script 39.
 #     Additive only.
 # v1.6.7 (2026-08-21): Adds CCW_DEPTHS and
@@ -459,8 +462,14 @@ OUT_10B_FELL_CORRECTED      = DIR_10 / "10b_spatial_fell_corrected.png"
 OUT_10B_STEP_DATA           = DIR_10 / "10b_spatial_step_data.csv"
 
 # Script 10c — Forest zone spatial analysis
-INT_10C_CORRELATION_TABLE   = OUT_DIR / "10c_forest_zone_correlations.csv"
-INT_10C_CLUSTER_SUMMARY     = OUT_DIR / "10c_forest_zone_cluster_summary.csv"
+# Both were INT_ at OUT_DIR root until 2026-08-27. The INT_/OUT_ convention this
+# module states is "intermediate (read by a downstream script) at the root, final
+# output in the per-script folder" — and nothing outside Script 10c has ever read
+# either file. They were finals wearing an intermediate's prefix, and the wrong
+# prefix put them in the wrong directory. Names unchanged, so every document that
+# cites them by filename still resolves.
+OUT_10C_CORRELATION_TABLE   = DIR_10C / "10c_forest_zone_correlations.csv"
+OUT_10C_CLUSTER_SUMMARY     = DIR_10C / "10c_forest_zone_cluster_summary.csv"
 OUT_10C_B1_B2_SCATTER       = DIR_10C / "10c_01_b1_b2_scatter.png"
 OUT_10C_B2_ELEV_REGRESSION  = DIR_10C / "10c_02_b2_elevation_regression.png"
 OUT_10C_BOUNDARY_MAP        = DIR_10C / "10c_03_c4_c5_boundary_map.png"

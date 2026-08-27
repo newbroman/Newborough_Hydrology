@@ -41,7 +41,11 @@ REPO = pathlib.Path(__file__).resolve().parents[1]
 # changelog is a dated record of what was true then, and a path that existed in
 # June and does not exist now is history, not a fault. Rewriting dated records
 # to make a linter happy is the one thing this project does not do.
-SCAN_GLOBS = ["src/**/*.py", "tools/*.py", "*.md", "docs/**/*.md", "data/*.md"]
+# notes/** joined the list on 2026-08-27, when the root tidy moved 26 documents
+# there. Without it the count fell from 347 references to 287 — sixty stopped
+# being checked and nothing said so, which is the failure this tool exists for.
+SCAN_GLOBS = ["src/**/*.py", "tools/*.py", "*.md", "docs/**/*.md",
+              "notes/**/*.md", "data/*.md"]
 
 # Directories that hold snapshots, recoveries and scratch. A dangling reference
 # inside a backup is a fact about the past, not a fault in the project.
@@ -139,6 +143,22 @@ RETIRED = {
 }
 
 KNOWN_DANGLING = {
+    # --- surfaced 2026-08-27, when the root tidy put notes/** into SCAN_GLOBS ---
+    # Not new dangles. The ledgers were outside the scan until that day, so these
+    # three had never been checked. Sixty references joined the net with them.
+    'TABLE_LEDGER.md':
+        "PROPOSED, never written. notes/ledgers/README.md:24 lists it as one of "
+        "three ledgers still to build, with its seed source named. A plan is not "
+        "a missing document.",
+    'DOC_LEDGER.md':
+        "PROPOSED, never written. notes/ledgers/README.md:25, same as above — it "
+        "would track the 'ODT bumped, PDF lags' state that tools/export_lag.py "
+        "now answers directly, so it may never be needed.",
+    'NRG_methods_code_audit_2026-08-14.md':
+        "LOST. The code-vs-doc audit the script ledger was seeded from "
+        "(notes/ledgers/SCRIPT_LEDGER.md:10). Not on disk, in either repository, "
+        "or in any Claude project store searched during T-10. Its findings "
+        "survive as the ledger's own rows; the reasoning behind them does not.",
     'claude/HANDOVER_cowork_NRG_2026-08-13.md':
         "NEW 2026-08-26: named by the recovered 2026-08-13b handover as the "
         "authoritative onboarding document for that session. Not in the project "

@@ -103,16 +103,10 @@ REGISTER = "tools/symbol_register.csv"
 
 # Kept in step with cite_check.DOC_GLOBS: a document outside this list is
 # invisible to both nets, and the two should never diverge.
-DOC_GLOBS = [
-    "report_edits/text/report*.md",
-    "docs/**/text/*.md",
-    "index.html",
-    "readme.md",
-    "PIPELINE_README.md",
-    "REPORT_STRUCTURE.md",
-    "DECISION_LOG.md",
-    "ledgers/*.md",
-]
+# DOC_GLOBS now lives in tools/doc_globs.py -- see the note there. The
+# copy that used to sit here had already drifted from cite_check's.
+from doc_globs import DOC_GLOBS
+
 
 # Paths the report sweeps must never read, whatever the globs above match.
 #

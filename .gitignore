@@ -97,8 +97,8 @@ report_edits/_superseded/
 #
 # The manifest IS tracked, so provenance is versioned without the material being
 # republished. Add a row to store/README.md when you add a document.
-store/*
-!store/README.md
+literature/*
+!literature/README.md
 
 # --- Historic map scans — LOCAL ONLY, licence-restricted ---
 # Georeferenced scans of third-party historic mapping (OS County Series and the

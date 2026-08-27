@@ -35,9 +35,9 @@ Ridge reference point (shared with Scripts 23, 24):
     config.RIDGE_REF_E / config.RIDGE_REF_N (OSGB36)
 
 Outputs:
-    INT_10C_CORRELATION_TABLE  — Pearson correlations, regression R² values and
+    OUT_10C_CORRELATION_TABLE  — Pearson correlations, regression R² values and
                                  the leave-one-out (predicted) R²
-    INT_10C_CLUSTER_SUMMARY    — C4 vs C5 summary statistics and t-test results
+    OUT_10C_CLUSTER_SUMMARY    — C4 vs C5 summary statistics and t-test results
     OUT_10C_B1_B2_SCATTER      — β₁ vs β₂ scatter coloured by cluster
     OUT_10C_B2_ELEV_REGRESSION — β₂ vs elevation regression with R² annotation
     OUT_10C_BOUNDARY_MAP       — Spatial map of C4/C5 wells with elevation context
@@ -45,7 +45,13 @@ Outputs:
 ====================================================================================
 """
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-08-20. Fixes a mislabelled
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-08-27. The two CSVs move from
+#     the outputs/ root into outputs/10c_forest_zone_analysis/, and their path
+#     constants go INT_ -> OUT_. Nothing outside this script has ever read
+#     either, so the INT_ prefix — which paths.py defines as "read by a
+#     downstream script" — was wrong, and it was what put them at the root.
+#     Filenames unchanged: every document citing them still resolves.
+# v1.1.0 (2026-08-20): Fixes a mislabelled
 #   hard-coded figure in write_summary(). The summary read "Elevation is the
 #   dominant predictor of β₂ (95.1% variance explained)" on the line directly
 #   below "β₂ vs elevation: r = 0.983, R² = 0.967", two numbers that cannot both
@@ -79,7 +85,7 @@ from sklearn.linear_model import LinearRegression
 
 from utils.paths import (
     make_all_dirs, DATA_DIR, OUT_07_MAPS_DATA, INT_PEAR_AUDIT_SITEWIDE,
-    INT_10C_CORRELATION_TABLE, INT_10C_CLUSTER_SUMMARY, OUT_10C_B1_B2_SCATTER,
+    OUT_10C_CORRELATION_TABLE, OUT_10C_CLUSTER_SUMMARY, OUT_10C_B1_B2_SCATTER,
     OUT_10C_B2_ELEV_REGRESSION, OUT_10C_BOUNDARY_MAP, OUT_10C_SUMMARY,
 )
 from utils.map_utils import load_dem_hillshade, add_kml_features
@@ -554,13 +560,13 @@ def main():
     # Q1: Correlations
     corr_df, reg_df = compute_correlations(forest)
     combined = pd.concat([corr_df, pd.DataFrame([{}]), reg_df], ignore_index=True)
-    combined.to_csv(INT_10C_CORRELATION_TABLE, index=False)
-    print(f"  [saved] {INT_10C_CORRELATION_TABLE.name}")
+    combined.to_csv(OUT_10C_CORRELATION_TABLE, index=False)
+    print(f"  [saved] {OUT_10C_CORRELATION_TABLE.name}")
 
     # Q2/Q4: Cluster summary
     summary_df = compute_cluster_summary(c4, c5)
-    summary_df.to_csv(INT_10C_CLUSTER_SUMMARY, index=False)
-    print(f"  [saved] {INT_10C_CLUSTER_SUMMARY.name}")
+    summary_df.to_csv(OUT_10C_CLUSTER_SUMMARY, index=False)
+    print(f"  [saved] {OUT_10C_CLUSTER_SUMMARY.name}")
 
     # Figures
     plot_b1_b2_scatter(forest, clearfell, c3_boundary)

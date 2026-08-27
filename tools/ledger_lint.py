@@ -4,7 +4,7 @@ ledger_lint.py — does SCRIPT_LEDGER.md still describe the code?
 
 WHAT GOES WRONG WITHOUT IT
 
-  `ledgers/SCRIPT_LEDGER.md` calls itself "the anti-drift spine — read it to know
+  `notes/ledgers/SCRIPT_LEDGER.md` calls itself "the anti-drift spine — read it to know
   the current state without replaying the changelog history", and states its own
   maintenance rule: *every script change updates its row here*. Nothing enforced
   that rule, and on 2026-08-24 the measurement was:
@@ -55,7 +55,7 @@ import re
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
-LEDGER = REPO / "ledgers/SCRIPT_LEDGER.md"
+LEDGER = REPO / "notes/ledgers/SCRIPT_LEDGER.md"
 SRC = REPO / "src"
 
 # The ledger declares its own exemptions, in prose:

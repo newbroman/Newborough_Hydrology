@@ -129,16 +129,22 @@ def probe() -> dict:
         except Exception:
             libs[name] = None
 
-    # The venv is worth recording verbatim: `src/venv/bin/python3.12` is a
-    # symlink to the host's system python, so its NAME promises a version it
-    # does not pin. That is the trap this whole tool exists to surface.
-    venv = REPO / "src/venv/bin/python3.12"
-    venv_target = None
-    if venv.exists() or venv.is_symlink():
-        try:
-            venv_target = str(venv.resolve())
-        except OSError:
-            venv_target = "<unresolvable>"
+    # Any venv is worth recording verbatim, because a venv here pins nothing:
+    # `src/venv/bin/python3.12` was a symlink to the host's system python, so its
+    # NAME promised a version the machine did not have. That is the trap this
+    # tool exists to surface, so it looks wherever a venv might be rather than at
+    # one hard-coded path. (src/venv itself was retired on 2026-08-27 — it had
+    # been built at a Google Drive path from before the project moved.)
+    venv_target = {}
+    for cand in ("venv", "src/venv", ".venv"):
+        for exe in ("python3.12", "python3", "python"):
+            p = REPO / cand / "bin" / exe
+            if p.exists() or p.is_symlink():
+                try:
+                    venv_target[f"{cand}/bin/{exe}"] = str(p.resolve())
+                except OSError:
+                    venv_target[f"{cand}/bin/{exe}"] = "<unresolvable>"
+    venv_target = venv_target or None
 
     return {
         "machine": {
@@ -150,7 +156,7 @@ def probe() -> dict:
         "python": {
             "version": platform.python_version(),
             "executable": sys.executable,
-            "venv_python3_12_resolves_to": venv_target,
+            "venv_interpreters": venv_target,
         },
         "externals": ext,
         "libraries": libs,

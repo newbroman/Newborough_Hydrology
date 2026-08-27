@@ -61,7 +61,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 SRC = REPO / "src"
-LEDGER = REPO / "ledgers/SCRIPT_LEDGER.md"
+LEDGER = REPO / "notes/ledgers/SCRIPT_LEDGER.md"
 
 READ_FUNCS = {"read_csv", "read_excel", "read_parquet", "read_table",
               "read_json", "read_file", "load", "loadtxt", "genfromtxt",

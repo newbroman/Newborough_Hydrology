@@ -197,18 +197,13 @@ REPO = Path(__file__).resolve().parents[1]
 # and strip_markup() handles index.html's HTML. index.html is the only published
 # page that states pipeline numbers, and only its step and phase counts were
 # protected before 2026-08-18, via the PL markers.
-DOC_GLOBS = [
-    "report_edits/text/report*.md",
-    "docs/**/text/*.md",
-    "index.html",
-    "readme.md",
-    "PIPELINE_README.md",
-    "INTERCEPTION_TREATMENT.md",
-    "PARTITION_HISTORY.md",
-    "REPORT_STRUCTURE.md",
-    "DECISION_LOG.md",
-    "ledgers/*.md",
-]
+# DOC_GLOBS now lives in tools/doc_globs.py. This file and symbol_check
+# each carried a copy, symbol_check's asserting the two 'should never
+# diverge' -- and they had: INTERCEPTION_TREATMENT.md was swept here and
+# not there. A comment asking for two lists to agree is a request; one
+# list is a guarantee.
+from doc_globs import DOC_GLOBS
+
 
 # Paths the report sweeps must never read, whatever the globs above match.
 #

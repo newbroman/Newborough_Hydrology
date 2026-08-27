@@ -171,7 +171,7 @@ colours and labels are centralised in `src/utils/config.py`.
 - Script 17 (WTF Sy) must run before script 16 (water balance)
 - Script 18 (WTF spatial) must run before script 19 (spatial groundwater)
 - Script 11b runs after scripts 11 and 06
-- Script 11c runs after script 11b (consumes its per-well λ table)
+- Script 11c runs after script 11b (consumes its per-well m_P table)
 - Script 14b runs after script 14 (consumes its annual summer-min series)
 - Script 21 requires `03_cluster_averages_maod.csv` from script 03; its summer-minimum companion output (`21_forestry_06_summer_scenario.csv`) additionally reads the cluster-centroid hydrographs (`03_regional_averages.csv`) and the Script 17 WTF Sy table for the flux→summer-minimum conversion shared with script 09b
 - Script 25 (coastal-retreat) requires `14_summer_trend_stats.csv` from script 14 and `10a_02_ancova_full_coefficients.csv` from script 10a
@@ -237,7 +237,7 @@ post-processing step, retained in `run_analysis.py` but not treated as an analyt
 phase. Two further post-review diagnostics added in the same cascade slot into
 earlier phases as successors to their data source: `11c_pflood_achievability.py`
 (Phase 3, step 13, the per-well categorical priority map for §5.9 / Conclusion 4
-reading Script 11b's per-well λ table) and `14b_year_of_crossing.py` (Phase 4,
+reading Script 11b's per-well m_P table) and `14b_year_of_crossing.py` (Phase 4,
 step 16, the bootstrap year-of-crossing diagnostic for §7 Conclusion 11 reading
 Script 14's annual summer-min series). References to "Script 25" mean coastal-gradient;
 "Script 26" means van Willegen MSL aggregation and the equilibrium wetness index; "Script 26b" means UKCP18 MSL

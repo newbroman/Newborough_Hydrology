@@ -290,8 +290,10 @@ standing candidates for the C4 semi-annual residual (D-022, Revisit-if).
    UKCP18 scenario block intervenes; the constant is assigned at line 228.
    Registered as **T-13**.
 
-3. **`wtf_interception_methodology.md` is recovered** (2026-08-25) and now sits
-   beside this file, carrying a superseded-values banner: its numbers predate the
+3. **`wtf_interception_methodology.md` is recovered** (2026-08-25) and now lives
+   at `docs/notes/wtf_interception_methodology.md` (moved there 2026-08-27 in the
+   root tidy; it sat beside this file until then), carrying a superseded-values
+   banner: its numbers predate the
    k = 5 repartition, and its §6 "action required" — restore the correction to
    Script 17 — was discharged long ago. Its §2 and §3 are folded into §4(c) above.
    `DEFECT_NOTE_script20_residual_field_2026-08-06.md`, cited by

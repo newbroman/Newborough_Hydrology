@@ -93,8 +93,11 @@ EXTERNALS = {
 
 # Libraries whose version can change a committed number rather than merely a
 # message. Probed by import, in the interpreter that would run the pipeline.
+# (import name, reported name) — odfpy installs as `odf`, and probing "odfpy"
+# recorded a false "absent" in the first reference written on 2026-08-26.
 LIBRARIES = ["numpy", "pandas", "scipy", "statsmodels", "matplotlib",
-             "sklearn", "geopandas", "shapely", "pyproj", "odfpy"]
+             "sklearn", "geopandas", "shapely", "pyproj", "odf", "cairosvg",
+             "rasterio", "contextily"]
 
 
 def _run(cmd: list[str]) -> str | None:
@@ -155,7 +158,29 @@ def probe() -> dict:
 
 
 # ── record / compare ─────────────────────────────────────────────────────────
-def do_record(live: dict) -> int:
+def do_record(live: dict, force: bool = False) -> int:
+    # A second machine must not quietly become the reference. tools/environment.json
+    # is TRACKED and PUSHED, so running --record on the A475 would overwrite the
+    # L14's record, publish it, and leave every later run comparing against
+    # whichever machine recorded last. The correct behaviour on a second machine
+    # is to report "NOT THE MACHINE" forever; that is the tool working.
+    if RECORD.exists() and not force:
+        rec = json.loads(RECORD.read_text(encoding="utf8"))
+        if not same_machine(live, rec):
+            r, m = rec["machine"], live["machine"]
+            print(_c("  REFUSING to re-record from a different machine.", C_RED))
+            print(f"      recorded {r['user']}@{r['hostname']}")
+            print(f"      here     {m['user']}@{m['hostname']}")
+            print("  tools/environment.json is tracked and pushed. Recording here "
+                  "would overwrite")
+            print("  the reference and publish it, and every later run would "
+                  "compare against")
+            print("  whichever machine recorded last. A second machine SHOULD "
+                  "report 'NOT THE")
+            print("  MACHINE' — that is the tool working, not a fault to clear.")
+            print(_c("  If the reference machine has genuinely changed: "
+                     "--record --force", C_YEL))
+            return 1
     print(_c("Recording this environment as the pipeline's reference.", C_YEL))
     print("  Only meaningful if this IS the machine that runs the pipeline —")
     print(f"  recording as: {live['machine']['user']}@{live['machine']['hostname']} "
@@ -207,6 +232,8 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--record", action="store_true",
                     help="write tools/environment.json from THIS environment")
+    ap.add_argument("--force", action="store_true",
+                    help="with --record: re-record even from a different machine")
     ap.add_argument("--strict", action="store_true",
                     help="exit non-zero if the live environment differs")
     ap.add_argument("--quiet", action="store_true",
@@ -215,7 +242,7 @@ def main() -> int:
 
     live = probe()
     if a.record:
-        return do_record(live)
+        return do_record(live, a.force)
 
     if not RECORD.exists():
         # Not "fine". Unknown. Those are different, and the second is the one

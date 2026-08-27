@@ -52,7 +52,7 @@ closer to the water table, restoring wet-slack conditions.
 
 - **Excavation depth is not surveyed.** The ~0.4 m figure used at CEH36 in
   Script 20 (`_measured_ceh36_response()` → H0; depth is the *derived*,
-  informed-estimate output, D = H0/Sy ≈ 0.42 m) is a judgement call, not a
+  informed-estimate output, d_ex = H0/Sy ≈ 0.42 m) is a judgement call, not a
   field measurement, and is known to vary within and across the scraped
   area. CEH18 (0.50 m) and CEH21 (0.70 m) are committed DEM-correction
   values in `src/11b_spatial_thresholds.py`'s `SCRAPED` dict, used only to

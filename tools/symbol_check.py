@@ -120,7 +120,18 @@ from doc_globs import DOC_GLOBS
 # guarantee — widening "docs/**/text/*.md" to "**/text/*.md" would pull it in
 # silently — so the exclusion is stated here and enforced, rather than left to
 # the accident of a pattern.
-EXCLUDE_PREFIXES = ("living/",)
+# working/DECISION_LOG.md is a DATED DELIBERATION RECORD, and the project's
+# standing rule is that dated records are not rewritten — corrections go in as
+# dated Notes appended, never edits in place. Twenty-four of T-01's remaining
+# 128 substitutions were inside it: renaming a symbol in an entry written on
+# 2026-08-13 would make the log say something nobody wrote that day, and would
+# do it to the one document whose whole value is being a faithful account of
+# what was decided and why. The register's job is to make the CORPUS consistent;
+# the log records how the corpus got that way, quoting the notation of the time.
+#
+# It stays in cite_check's sweep, where it belongs: the numbers it states must
+# still be true. Only the symbol rewrite is refused.
+EXCLUDE_PREFIXES = ("living/", "working/DECISION_LOG.md")
 
 
 def _excluded(rel: str) -> bool:

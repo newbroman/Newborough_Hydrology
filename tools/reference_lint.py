@@ -70,11 +70,12 @@ import pathlib
 import re
 import sys
 import zipfile
+from doc_paths import MASTER_ODM, ODT_DIR, MIRROR_DIR
 
 REPO = pathlib.Path(__file__).resolve().parent.parent
-MASTER = REPO / "report_edits/odt/report.odm"
-ODT_DIR = REPO / "report_edits/odt"
-MIRROR_DIR = REPO / "report_edits/text"
+MASTER = REPO / str(MASTER_ODM)
+ODT_DIR = REPO / str(ODT_DIR)
+MIRROR_DIR = REPO / str(MIRROR_DIR)
 
 # A caption's own "Table 8:" text must never be read as a reference to itself.
 CAPTION_LEAD = re.compile(r"^\s*\*?\*?(Table|Figure)\s")

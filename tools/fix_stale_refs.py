@@ -44,18 +44,19 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from odt_edit import edit_spans                                   # noqa: E402
 from repoint_refs import _text_view, _xml_edits, _versioned      # noqa: E402
+from doc_paths import chapter_odt, REPO
 
 REPO = Path(__file__).resolve().parents[1]
 
 # (document, anchor — must be unique in the document, group 1 = the digits,
 #  new value, why)
 FIXES = [
-    ("report_edits/odt/report8.odt",
+    (str(chapter_odt(8).relative_to(REPO)),
      r"Results are reported in Section 4\.9\.4 \(Table (18)\)",
      "19",
      "cites the forest-zone spatial-predictor table, which report9 numbers 20"),
 
-    ("report_edits/odt/report10.odt",
+    (str(chapter_odt(10).relative_to(REPO)),
      r"spans nearly the full site-wide range \(Section 4\.9\.4; Table (18)\)",
      "19",
      "same table; same pre-existing error"),
@@ -185,7 +186,7 @@ FIXES += [
 # before the move and must not be shifted with the other fifteen; its answer
 # comes from the figure it cites.
 FIXES += [
-    ("report_edits/odt/report10.odt",
+    (str(chapter_odt(10).relative_to(REPO)),
      r"across the monitoring record \(Section (4\.10\.5), Figure 43\)",
      "4.8.3",
      "cites Figure 43, which figure_map puts in §4.8.3; was stale before the move"),
@@ -236,11 +237,11 @@ FIXES += [
 # a future pass sees them. These four are the ones the broken view missed, each
 # confirmed against what the sentence describes.
 FIXES += [
-    ("report_edits/odt/report9.odt",
+    (str(chapter_odt(9).relative_to(REPO)),
      r"movement\s*(Figure 63) shows the secular differential movement",
      "Figure 56",
      "secular differential movement is 1.60 -> Figure 56"),
-    ("report_edits/odt/report9.odt",
+    (str(chapter_odt(9).relative_to(REPO)),
      r"Summary of pattern\s*(Figure 60) predicts a large net loss",
      "Figure 53",
      "the net-state parametric combination is 1.57 -> Figure 53"),

@@ -42,6 +42,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from refresh_mirrors import resolve                              # noqa: E402
+from doc_paths import MIRROR_DIR, MASTER_ODM, ODT_DIR
 
 REPO = Path(__file__).resolve().parents[1]
 OUT = REPO / "_to_delete"
@@ -53,7 +54,7 @@ TINY = base64.b64decode(
     "hKmMIQAAAABJRU5ErkJggg==")
 
 TEXT = (".py", ".sh", ".csv", ".md", ".txt", ".json")
-DOC_TREES = ["report_edits/text", "docs/report/text", "docs/papers",
+DOC_TREES = [str(MIRROR_DIR), "docs/report/text", "docs/papers",
              "docs/academic_summaries/text", "docs/public_summaries/text",
              "docs/web_tools/text"]
 LOOSE = ["PIPELINE_README.md", "readme.md", "working/DECISION_LOG.md", "config.py"]
@@ -84,8 +85,8 @@ def live_documents() -> list[Path]:
     verdict (refresh_mirrors, 2026-08-23).
     """
     docs = [src for src, _ in resolve()]
-    docs += [REPO / "report_edits/odt" / f"report{i}.odt" for i in range(6, 16)]
-    docs += [REPO / "report_edits/odt/report.odm"]
+    docs += [REPO / str(ODT_DIR) / f"report{i}.odt" for i in range(6, 16)]
+    docs += [REPO / str(MASTER_ODM)]
     return [p for p in dict.fromkeys(docs) if p.exists()]
 
 

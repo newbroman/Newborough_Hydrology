@@ -46,6 +46,7 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+from doc_paths import ODT_GLOB, ODM_GLOB, MIRROR_DIR
 
 REPO = Path(__file__).resolve().parents[1]
 
@@ -53,14 +54,14 @@ REPO = Path(__file__).resolve().parents[1]
 # highest version only and drop the version from the mirror name, so the mirror
 # path is stable across bumps.
 SOURCES = [
-    ("report_edits/odt/report*.odt", "report_edits/text", False),
+    (ODT_GLOB, str(MIRROR_DIR.relative_to(REPO)), False),
     # The master document, mirrored as its own source. Everything the report
     # says before Chapter 6 - title block, author block and the abstract -
     # lives in report.odm and nowhere else, so mirroring only the chapters
     # left the abstract unchecked. pandoc reads the master's own content.xml;
     # the linked sub-documents are mirrored by the line above, so no chapter
     # text is duplicated in the corpus. Not versioned: the filename is stable.
-    ("report_edits/odt/report.odm", "report_edits/text", False),
+    (ODM_GLOB, str(MIRROR_DIR.relative_to(REPO)), False),
     ("docs/report/Newborough_Methods_Supplement_v*.odt", "docs/report/text", True),
     ("docs/report/Supplementary_Material_v*.odt", "docs/report/text", True),
     ("docs/papers/paper_1/Paper1_v*.odt", "docs/papers/paper_1/text", True),

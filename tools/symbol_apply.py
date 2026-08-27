@@ -47,6 +47,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import symbol_check as sc          # noqa: E402  — occurrence guard + classifier
 from odt_edit import edit_spans    # noqa: E402
+from doc_paths import ODT_GLOB, ODM_GLOB
 
 REPO = Path(__file__).resolve().parents[1]
 
@@ -55,8 +56,8 @@ REPO = Path(__file__).resolve().parents[1]
 # place, as the report chapters are.
 TARGETS = [
     # (glob for the source ODT, versioned?)
-    ("report_edits/odt/report*.odt", False),
-    ("report_edits/odt/report.odm", False),
+    (ODT_GLOB, False),
+    (ODM_GLOB, False),
     ("docs/report/Newborough_Methods_Supplement_v*.odt", True),
     ("docs/report/Supplementary_Material_v*.odt", True),
     ("docs/papers/paper_1/Paper1_v*.odt", True),

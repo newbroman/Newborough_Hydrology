@@ -299,10 +299,69 @@ def check_literals(min_sig: int) -> int:
     return hits
 
 
+def check_kml() -> int:
+    """Every KML read must name its driver, or go through utils.kml_io.
+
+    `gpd.read_file(path)` with no `driver=` lets fiona sniff, fiona picks LIBKML
+    for a .kml, and LIBKML is a GDAL build option Ubuntu does not enable. On
+    2026-08-27 that stopped Script 29 dead and had been silently returning None
+    from Script 24b's forest-edge distance for an unknown length of time — the
+    same defect, one loud and one quiet, and only the loud one got noticed.
+
+    Eight scripts got this right by hand. Three did not. A convention held by
+    hand in eight places is not a convention, so this is the check that makes it
+    one.
+    """
+    faults = []
+    for f in sorted((REPO / "src").rglob("*.py")):
+        if "venv" in f.parts:
+            continue
+        try:
+            src = f.read_text(encoding="utf8")
+        except OSError:
+            continue
+        try:
+            tree = ast.parse(src)
+        except SyntaxError:
+            continue
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call):
+                continue
+            fn_name = getattr(node.func, "attr", None)
+            if fn_name != "read_file":
+                continue
+            if any(k.arg == "driver" for k in node.keywords):
+                continue
+            # Is the argument plausibly a KML? A literal ending .kml, or a name
+            # with KML in it — DATA_KML_FEATURES, F_FOREST_KML, INPUT_KML.
+            looks_kml = False
+            for arg in node.args[:1]:
+                for sub in ast.walk(arg):
+                    if isinstance(sub, ast.Constant) and isinstance(sub.value, str) \
+                            and sub.value.lower().endswith(".kml"):
+                        looks_kml = True
+                    if isinstance(sub, ast.Name) and "KML" in sub.id.upper():
+                        looks_kml = True
+                    if isinstance(sub, ast.Attribute) and "KML" in sub.attr.upper():
+                        looks_kml = True
+            if looks_kml:
+                faults.append((f.relative_to(REPO).as_posix(), node.lineno))
+    if faults:
+        print("  pipeline_lint: FAULT — KML read with no driver named")
+        for rel, ln in faults:
+            print(f"    {rel}:{ln}")
+        print("    Use utils.kml_io.read_kml(path, crs), which registers KML and")
+        print("    LIBKML and falls back to parsing the XML. A bare read_file")
+        print("    resolves to LIBKML, which Ubuntu's GDAL is not built with.")
+        return 1
+    print("  pipeline_lint: OK — every KML read names its driver or uses kml_io")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", default="all",
-                    choices=["all", "defaults", "deps", "literals"])
+                    choices=["all", "defaults", "deps", "literals", "kml"])
     ap.add_argument("--min-sig", type=int, default=3,
                     help="ignore literals with fewer significant digits")
     args = ap.parse_args()
@@ -311,6 +370,8 @@ def main() -> int:
         rc += check_defaults()
     if args.check in {"all", "deps"}:
         rc += check_deps()
+    if args.check in {"all", "kml"}:
+        rc += check_kml()
     if args.check in {"all", "literals"}:
         rc += check_literals(args.min_sig)
     print(f"\npipeline_lint: {'FAIL' if rc else 'OK'}")

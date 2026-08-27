@@ -9,7 +9,7 @@ HEADLINE_LAG = 0) is:
     where h_disp = DRAINAGE_DATUM + h_depth     (displacement above the config datum)
 
 The modified model replaces the fixed β₂ with a depth-dependent term:
-    Δh_t = β₁·P(t)  −  β₂·exp(−λ·d_{t-1})·PET(t)  −  β₃·h_disp_prev(t)
+    Δh_t = β₁·P(t)  −  β₂·exp(−κ·d_{t-1})·PET(t)  −  β₃·h_disp_prev(t)
 
 where d_{t-1} = depth below ground surface at the previous timestep:
     d_{t-1} = max(−h_{t-1}, 0)                     (m, always ≥ 0)
@@ -25,27 +25,37 @@ The displacement h_disp = DRAINAGE_DATUM + h is for the β₃ design matrix
 only (hydraulic drainage above a reference base). These are two different
 uses of depth and must not be conflated.
 
-λ is a new free parameter (m⁻¹). When λ=0, exp(−λd) = 1 and the standard
-SSM is recovered exactly. As λ → ∞, PET influence vanishes at depth.
+κ is a new free parameter (m⁻¹). When κ=0, exp(−κd) = 1 and the standard
+SSM is recovered exactly. As κ → ∞, PET influence vanishes at depth.
 
 The physical interpretation: capillary connectivity between root zone and
 saturated zone decays exponentially with depth, so evapotranspiration exerts
 diminishing influence as the water table falls.
 
 Fitting strategy:
-    - Grid search λ over [0, 6] in steps of 0.05
-    - At each λ, the modified predictor  −exp(−λ·d)·PET  is linear in β₂,
+    - Grid search κ over [0, 6] in steps of 0.05
+    - At each κ, the modified predictor  −exp(−κ·d)·PET  is linear in β₂,
       so β₁, β₂, β₃ are recovered by no-intercept OLS
-    - Best λ selected by iterative NSE on held-out simulation
+    - Best κ selected by iterative NSE on held-out simulation
 
 Outputs (in outputs/15_depth_dependent_pet/):
-    15_01_lambda_profile.png        — NSE vs λ for each cluster
+    15_01_lambda_profile.png        — NSE vs κ for each cluster
     15_02_fit_comparison.png        — Observed vs fitted (best model vs SSM)
     15_03_benchmark_table.csv       — Cluster-level comparison table
-    15_04_best_params.csv           — Optimal λ and β coefficients per cluster
+    15_04_best_params.csv           — Optimal κ and β coefficients per cluster
 """
 
-__version__ = "1.2.1"  # Hollingham (2026) — 2026-08-26: dropped k=6 "C6 if fitted" comment fossil (T-14 E4)
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-08-27: the decay parameter is
+#   κ, not λ. report8 §3.4.6 and the symbol register have called it κ throughout;
+#   this script called it λ in its docstring, its identifiers and its output
+#   columns. λ is spoken for three ways in this project — the drawdown reach
+#   √(Kb/β₃), the BACI scraping distance-decay length L_s, and the P_flood
+#   rainfall multiplier m_P — which is how the collision arose and why the
+#   register displaces it. OUTPUT FILENAMES ARE UNCHANGED: they are identifiers,
+#   not symbols, and renaming them would ripple into paths.py, the Methods
+#   Supplement output table, the manifest and the archive for no gain.
+#
+# _superseded  # Hollingham (2026) — 2026-08-26: dropped k=6 "C6 if fitted" comment fossil (T-14 E4)
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -92,9 +102,9 @@ OUT_BEST_PARAMS     = OUT_15_BEST_PARAMS
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-LAMBDA_MIN   = 0.0
-LAMBDA_MAX   = 6.0
-LAMBDA_STEP  = 0.05
+KAPPA_MIN   = 0.0
+KAPPA_MAX   = 6.0
+KAPPA_STEP  = 0.05
 DATA_LIMIT   = 100   # months — same cap as script 03
 
 # HEADLINE_LAG imported from config.py (= 0 after bucketing fix).
@@ -125,7 +135,7 @@ def nse(observed: np.ndarray, simulated: np.ndarray) -> float:
 
 def iterative_simulate(h0: float, P: np.ndarray, PET: np.ndarray,
                        b1: float, b2: float, b3: float,
-                       lam: float,
+                       kap: float,
                        drainage_datum: float = DRAINAGE_DATUM) -> np.ndarray:
     """
     Simulate water table iteratively from initial condition h0.
@@ -133,7 +143,7 @@ def iterative_simulate(h0: float, P: np.ndarray, PET: np.ndarray,
     Uses the displacement formulation for β₃ and contemporaneous rainfall
     (HEADLINE_LAG = 0), matching Script 03's headline SSM specification.
 
-    For the standard SSM (lam=0), depth_prev is ignored because exp(0)=1.
+    For the standard SSM (kap=0), depth_prev is ignored because exp(0)=1.
     For the depth-dependent model, depth_prev is recalculated at each step
     from the *simulated* h, so the decay feedback is genuine.
 
@@ -143,7 +153,7 @@ def iterative_simulate(h0: float, P: np.ndarray, PET: np.ndarray,
     P        : precipitation array (m) — contemporaneous (HEADLINE_LAG = 0)
     PET      : PET array (m) — contemporaneous
     b1,b2,b3 : OLS coefficients (β₃ fitted against displacement)
-    lam      : decay parameter λ (m⁻¹)
+    kap      : decay parameter κ (m⁻¹)
     drainage_datum : reference depth for displacement (default DRAINAGE_DATUM)
     """
     n = len(P)
@@ -154,7 +164,7 @@ def iterative_simulate(h0: float, P: np.ndarray, PET: np.ndarray,
         # PET extinction depth: physical distance below ground surface (≥ 0)
         # This is NOT the displacement term — it is a separate concept.
         d_t = max(-h_t, 0.0)
-        decay = np.exp(-lam * d_t)
+        decay = np.exp(-kap * d_t)
 
         # Displacement above drainage datum for β₃ term
         h_disp_t = drainage_datum + h_t
@@ -166,11 +176,11 @@ def iterative_simulate(h0: float, P: np.ndarray, PET: np.ndarray,
     return h
 
 
-def fit_at_lambda(df: pd.DataFrame, lam: float,
+def fit_at_kappa(df: pd.DataFrame, kap: float,
                   drainage_datum: float = DRAINAGE_DATUM) -> dict:
     """
     Given a cluster centroid DataFrame with columns [h, P_m, PET, h_prev,
-    h_disp_prev], fit the depth-dependent SSM by OLS at a fixed lambda.
+    h_disp_prev], fit the depth-dependent SSM by OLS at a fixed κ.
 
     Uses contemporaneous rainfall (HEADLINE_LAG = 0) and displacement for β₃,
     matching Script 03.
@@ -179,7 +189,7 @@ def fit_at_lambda(df: pd.DataFrame, lam: float,
     """
     # PET extinction depth: physical distance below ground (always ≥ 0)
     d_prev = np.maximum(-df["h_prev"].values, 0.0)
-    decay  = np.exp(-lam * d_prev)
+    decay  = np.exp(-kap * d_prev)
 
     X = pd.DataFrame({
         "beta_1_recharge":         df["P"].values,
@@ -197,7 +207,7 @@ def fit_at_lambda(df: pd.DataFrame, lam: float,
     }
 
 
-def evaluate_iterative_nse(df: pd.DataFrame, lam: float,
+def evaluate_iterative_nse(df: pd.DataFrame, kap: float,
                             b1: float, b2: float, b3: float) -> float:
     """
     Run the full iterative simulation and return NSE vs observed centroid.
@@ -206,7 +216,7 @@ def evaluate_iterative_nse(df: pd.DataFrame, lam: float,
         h0      = df["h"].iloc[0],
         P       = df["P"].values,
         PET     = df["PET"].values,
-        b1=b1, b2=b2, b3=b3, lam=lam,
+        b1=b1, b2=b2, b3=b3, kap=kap,
     )
     return nse(df["h"].values, h_sim)
 
@@ -300,7 +310,7 @@ def build_regression_df(centroid: pd.Series, climate: pd.DataFrame,
     """Merge centroid with climate and build Δh, h_prev, h_disp_prev, P.
 
     Builds the design-matrix columns used downstream by fit_standard_ssm
-    and fit_at_lambda.  Column naming matches model_utils.build_ssm_frame:
+    and fit_at_kappa.  Column naming matches model_utils.build_ssm_frame:
     rainfall is stored under "P" rather than "P_lag1" — the canonical
     SSM is contemporaneous (HEADLINE_LAG = 0) so the historical "lag1"
     label was misleading.  The `.shift(HEADLINE_LAG)` is retained for
@@ -328,7 +338,7 @@ def build_regression_df(centroid: pd.Series, climate: pd.DataFrame,
 
 
 # ---------------------------------------------------------------------------
-# Standard SSM baseline (λ=0)
+# Standard SSM baseline (κ=0)
 # ---------------------------------------------------------------------------
 
 def fit_standard_ssm(df: pd.DataFrame) -> dict:
@@ -345,11 +355,11 @@ def fit_standard_ssm(df: pd.DataFrame) -> dict:
     # One-step R²
     r2 = model.rsquared
 
-    # Iterative NSE — for the standard SSM (λ=0) the PET decay is exp(0)=1,
+    # Iterative NSE — for the standard SSM (κ=0) the PET decay is exp(0)=1,
     # but displacement is still needed for β₃.
     h_sim = iterative_simulate(
         h0=df["h"].iloc[0], P=df["P"].values, PET=df["PET"].values,
-        b1=b1, b2=b2, b3=b3, lam=0.0,
+        b1=b1, b2=b2, b3=b3, kap=0.0,
     )
     nse_val = nse(df["h"].values, h_sim)
 
@@ -360,27 +370,27 @@ def fit_standard_ssm(df: pd.DataFrame) -> dict:
 # Grid search
 # ---------------------------------------------------------------------------
 
-def grid_search_lambda(df: pd.DataFrame) -> pd.DataFrame:
+def grid_search_kappa(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Search λ over [LAMBDA_MIN, LAMBDA_MAX] and record OLS R² and
+    Search κ over [KAPPA_MIN, KAPPA_MAX] and record OLS R² and
     iterative NSE at each step.
     """
-    lambdas = np.arange(LAMBDA_MIN, LAMBDA_MAX + LAMBDA_STEP / 2, LAMBDA_STEP)
+    kappas = np.arange(KAPPA_MIN, KAPPA_MAX + KAPPA_STEP / 2, KAPPA_STEP)
     records = []
 
-    for lam in lambdas:
-        fit = fit_at_lambda(df, lam)
+    for kap in kappas:
+        fit = fit_at_kappa(df, kap)
         # Only evaluate iterative NSE if all coefficients are physically
         # plausible (positive β₁, positive β₂, positive β₃)
         if fit["b1"] > 0 and fit["b2"] > 0 and fit["b3"] > 0:
             nse_val = evaluate_iterative_nse(
-                df, lam, fit["b1"], fit["b2"], fit["b3"]
+                df, kap, fit["b1"], fit["b2"], fit["b3"]
             )
         else:
             nse_val = np.nan
 
         records.append({
-            "lambda": round(lam, 4),
+            "kappa": round(kap, 4),
             "b1": fit["b1"],
             "b2": fit["b2"],
             "b3": fit["b3"],
@@ -398,9 +408,9 @@ def grid_search_lambda(df: pd.DataFrame) -> pd.DataFrame:
 CLUSTER_ORDER = sorted(CLUSTER_LABELS.keys())   # all clusters under k=5
 
 
-def plot_lambda_profiles(profiles: dict, ssm_baselines: dict):
+def plot_kappa_profiles(profiles: dict, ssm_baselines: dict):
     """
-    One panel per cluster: NSE vs λ, with horizontal dashed line at SSM NSE.
+    One panel per cluster: NSE vs κ, with horizontal dashed line at SSM NSE.
     """
     # 2x3 grid accommodates up to 6 clusters; unused panels hidden after the loop.
     fig, axes = plt.subplots(2, 3, figsize=(15, 8), dpi=150)
@@ -416,32 +426,32 @@ def plot_lambda_profiles(profiles: dict, ssm_baselines: dict):
         col  = CLUSTER_COLOURS.get(cid, "steelblue")
         label = CLUSTER_LABELS.get(cid, f"C{cid}")
 
-        ax.plot(prof["lambda"], prof["nse_iterative"], color=col, lw=2,
+        ax.plot(prof["kappa"], prof["nse_iterative"], color=col, lw=2,
                 label="Depth-dependent model")
         ax.axhline(ssm["nse_iterative"], color="black", lw=1.5, ls="--",
                    label=f"Standard SSM (NSE = {ssm['nse_iterative']:.3f})")
 
-        # Mark best λ
+        # Mark best κ
         best_idx = prof["nse_iterative"].idxmax()
         if pd.notna(prof.loc[best_idx, "nse_iterative"]):
-            best_lam = prof.loc[best_idx, "lambda"]
+            best_kap = prof.loc[best_idx, "kappa"]
             best_nse = prof.loc[best_idx, "nse_iterative"]
-            ax.axvline(best_lam, color=col, lw=1, ls=":", alpha=0.7)
-            ax.scatter([best_lam], [best_nse], color=col, zorder=5, s=60,
-                       label=f"Best λ = {best_lam:.2f} m⁻¹")
+            ax.axvline(best_kap, color=col, lw=1, ls=":", alpha=0.7)
+            ax.scatter([best_kap], [best_nse], color=col, zorder=5, s=60,
+                       label=f"Best κ = {best_kap:.2f} m⁻¹")
 
         ax.set_title(label, fontsize=11, fontweight="bold")
-        ax.set_xlabel("λ (m⁻¹)", fontsize=10)
+        ax.set_xlabel("κ (m⁻¹)", fontsize=10)
         ax.set_ylabel("Iterative NSE", fontsize=10)
         ax.legend(fontsize=8)
         ax.grid(True, alpha=0.3)
-        ax.set_xlim(LAMBDA_MIN, LAMBDA_MAX)
+        ax.set_xlim(KAPPA_MIN, KAPPA_MAX)
 
     # Hide any unused panels (e.g. the 6th in a 2x3 grid with 5 clusters).
     for ax in axes[len(CLUSTER_ORDER):]:
         ax.set_visible(False)
 
-    fig.suptitle("Depth-Dependent PET Model: NSE vs Decay Parameter λ\n"
+    fig.suptitle("Depth-Dependent PET Model: NSE vs Decay Parameter κ\n"
                  "(dashed = Standard SSM baseline)",
                  fontsize=13, fontweight="bold")
     plt.tight_layout()
@@ -470,17 +480,17 @@ def plot_fit_comparison(regression_dfs: dict, centroids: dict, climate: pd.DataF
         ssm = ssm_baselines[cid]
         col = CLUSTER_COLOURS.get(cid, "steelblue")
         label = CLUSTER_LABELS.get(cid, f"C{cid}")
-        # Standard SSM simulation (λ=0 → exp(0)=1, no PET depth decay)
+        # Standard SSM simulation (κ=0 → exp(0)=1, no PET depth decay)
         h_ssm = iterative_simulate(
             h0=df["h"].iloc[0], P=df["P"].values, PET=df["PET"].values,
-            b1=ssm["b1"], b2=ssm["b2"], b3=ssm["b3"], lam=0.0,
+            b1=ssm["b1"], b2=ssm["b2"], b3=ssm["b3"], kap=0.0,
         )
 
         # Depth-dependent simulation
         h_ddp = iterative_simulate(
             h0=df["h"].iloc[0], P=df["P"].values, PET=df["PET"].values,
             b1=bp["b1"], b2=bp["b2"], b3=bp["b3"],
-            lam=bp["best_lambda"],
+            kap=bp["best_kappa"],
         )
 
         ax.plot(df.index, df["h"].values, color="black", lw=1.5,
@@ -488,7 +498,7 @@ def plot_fit_comparison(regression_dfs: dict, centroids: dict, climate: pd.DataF
         ax.plot(df.index, h_ssm, color="grey", lw=1, ls="--",
                 label=f"SSM (NSE={ssm['nse_iterative']:.2f})")
         ax.plot(df.index, h_ddp, color=col, lw=1.5,
-                label=f"Depth-dep. λ={bp['best_lambda']:.2f} (NSE={bp['nse_iterative']:.2f})")
+                label=f"Depth-dep. κ={bp['best_kappa']:.2f} (NSE={bp['nse_iterative']:.2f})")
 
         ax.set_title(label, fontsize=10, fontweight="bold")
         ax.set_ylabel("Depth to WT (m)", fontsize=9)
@@ -525,7 +535,7 @@ def main():
             regression_dfs[cid] = df
 
     # Standard SSM baseline
-    print("\nFitting standard SSM baselines (λ=0)...")
+    print("\nFitting standard SSM baselines (κ=0)...")
     ssm_baselines = {}
     for cid, df in regression_dfs.items():
         ssm = fit_standard_ssm(df)
@@ -534,19 +544,19 @@ def main():
               f"iterative NSE={ssm['nse_iterative']:.3f}")
 
     # Grid search
-    print(f"\nGrid searching λ ∈ [{LAMBDA_MIN}, {LAMBDA_MAX}] "
-          f"step {LAMBDA_STEP} ({int((LAMBDA_MAX - LAMBDA_MIN) / LAMBDA_STEP) + 1} values)...")
+    print(f"\nGrid searching κ ∈ [{KAPPA_MIN}, {KAPPA_MAX}] "
+          f"step {KAPPA_STEP} ({int((KAPPA_MAX - KAPPA_MIN) / KAPPA_STEP) + 1} values)...")
     profiles = {}
     for cid, df in regression_dfs.items():
         print(f"  C{cid} ...", end=" ", flush=True)
-        prof = grid_search_lambda(df)
+        prof = grid_search_kappa(df)
         profiles[cid] = prof
         valid = prof.dropna(subset=["nse_iterative"])
         if not valid.empty:
             best = valid.loc[valid["nse_iterative"].idxmax()]
-            print(f"best λ={best['lambda']:.2f}  NSE={best['nse_iterative']:.3f}")
+            print(f"best κ={best['kappa']:.2f}  NSE={best['nse_iterative']:.3f}")
         else:
-            skipped("no valid λ found")
+            skipped("no valid κ found")
 
     # Extract best params per cluster
     print("\nExtracting best parameters...")
@@ -558,7 +568,7 @@ def main():
         best_row = valid.loc[valid["nse_iterative"].idxmax()]
         _, upstand = centroids[cid]
         best_params[cid] = {
-            "best_lambda":    best_row["lambda"],
+            "best_kappa":    best_row["kappa"],
             "b1":             best_row["b1"],
             "b2":             best_row["b2"],
             "b3":             best_row["b3"],
@@ -574,7 +584,7 @@ def main():
     print("  BENCHMARK SUMMARY — Depth-Dependent vs Standard SSM")
     print("=" * 65)
     print(f"{'Cluster':<8} {'SSM NSE':>9} {'DDP NSE':>9} {'Δ NSE':>8}  "
-          f"{'Best λ':>8}  {'Note'}")
+          f"{'Best κ':>8}  {'Note'}")
     print("-" * 65)
 
     benchmark_rows = []
@@ -586,7 +596,7 @@ def main():
         ssm_nse = ssm["nse_iterative"]
         ddp_nse = bp["nse_iterative"] if bp else np.nan
         delta   = ddp_nse - ssm_nse if (bp and pd.notna(ddp_nse)) else np.nan
-        best_lam = bp["best_lambda"] if bp else np.nan
+        best_kap = bp["best_kappa"] if bp else np.nan
 
         # Flag if improvement is marginal (< 0.01) or model performs worse
         if pd.isna(delta):
@@ -601,7 +611,7 @@ def main():
             note = "↓ worse"
 
         print(f"  C{cid:<5}  {ssm_nse:>9.3f}  {ddp_nse:>9.3f}  {delta:>+8.3f}  "
-              f"{best_lam:>8.2f}  {note}")
+              f"{best_kap:>8.2f}  {note}")
 
         benchmark_rows.append({
             "Cluster":           f"C{cid}",
@@ -609,7 +619,7 @@ def main():
             "SSM_Iterative_NSE": round(ssm_nse, 3),
             "DDP_Iterative_NSE": round(ddp_nse, 3) if pd.notna(ddp_nse) else np.nan,
             "Delta_NSE":         round(delta, 3)   if pd.notna(delta) else np.nan,
-            "Best_Lambda_m-1":   round(best_lam, 2) if pd.notna(best_lam) else np.nan,
+            "Best_Kappa_m-1":   round(best_kap, 2) if pd.notna(best_kap) else np.nan,
             "DDP_b1":            round(bp["b1"], 4) if bp else np.nan,
             "DDP_b2":            round(bp["b2"], 4) if bp else np.nan,
             "DDP_b3":            round(bp["b3"], 4) if bp else np.nan,
@@ -633,7 +643,7 @@ def main():
         params_rows.append({
             "Cluster":        f"C{cid}",
             "Label":          CLUSTER_LABELS.get(cid, ""),
-            "Best_Lambda":    bp["best_lambda"],
+            "Best_Kappa":    bp["best_kappa"],
             "b1":             bp["b1"],
             "b2":             bp["b2"],
             "b3":             bp["b3"],
@@ -648,7 +658,7 @@ def main():
     pd.DataFrame(params_rows).to_csv(OUT_BEST_PARAMS, index=False)
     saved(f"{OUT_BEST_PARAMS.name}")
 
-    # Lambda profile for all clusters (C1-C5 under the k = 5 partition)
+    # Kappa profile for all clusters (C1-C5 under the k = 5 partition)
     profile_all = pd.concat(
         {f"C{cid}": prof for cid, prof in profiles.items()},
         names=["Cluster"]
@@ -657,7 +667,7 @@ def main():
 
     # Figures
     print("\nGenerating figures...")
-    plot_lambda_profiles(profiles, ssm_baselines)
+    plot_kappa_profiles(profiles, ssm_baselines)
     plot_fit_comparison(regression_dfs, centroids, climate, best_params, ssm_baselines)
 
     print("\n15 Complete.")

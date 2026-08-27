@@ -189,6 +189,15 @@ echo "── exports (is each published PDF newer than its sources?) ───�
 # instead, and figref_lint REFUSES outright rather than linting a stale export.
 python3 tools/export_lag.py | grep -E "^  (STALE|MISSING|UNMAPPED|UNBUILT)|behind their sources" || true
 
+# export_lag asks whether each PDF is newer than its ODT. This asks the same
+# question one layer down: whether a script has changed since the outputs in
+# outputs/ were produced. Nothing asked it until 2026-08-27, so a script could be
+# edited, committed and pushed while the corpus quoted the previous version's
+# numbers with every gate green. Advisory: it cannot tell a coefficient change
+# from a docstring edit, and a check that cries stale over comments is one people
+# learn to skip.
+python3 tools/output_lag.py --quiet || true
+
 echo
 echo "── archive (are the canonical documents anywhere but this disk?) ─────"
 # Advisory, like export_lag and for the same reason: an rclone copy is slow and

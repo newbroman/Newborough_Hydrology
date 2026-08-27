@@ -1,0 +1,31 @@
+{
+  "externals": {
+    "git": "2.43.0",
+    "pandoc": "3.1.3",
+    "pdftotext": "24.02.0",
+    "soffice": "24.2.7.2"
+  },
+  "libraries": {
+    "geopandas": "0.14.3",
+    "matplotlib": "3.6.3",
+    "numpy": "1.26.4",
+    "odfpy": null,
+    "pandas": "2.1.4",
+    "pyproj": "3.6.1",
+    "scipy": "1.11.4",
+    "shapely": "2.0.3",
+    "sklearn": "1.4.1.post1",
+    "statsmodels": "0.14.6"
+  },
+  "machine": {
+    "hostname": "john-ThinkPad-L14",
+    "repo_path": "/home/john/projects/NRG",
+    "system": "Linux 7.0.0-30-generic",
+    "user": "john"
+  },
+  "python": {
+    "executable": "/usr/bin/python3",
+    "venv_python3_12_resolves_to": "/usr/bin/python3.12",
+    "version": "3.12.3"
+  }
+}

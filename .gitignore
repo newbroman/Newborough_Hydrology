@@ -53,13 +53,17 @@ living/output/
 # equations preserved as LaTeX), CHAPTER_MAP.md, and make_text_mirror.sh.
 # Regenerate the mirror after every .odt edit and commit it alongside.
 report_edits/odt/
-report_edits/_frozen/
+
+# The three graveyards — _frozen/, backups/, _superseded/ — moved to scratch/
+# on 2026-08-27. 888 MB of pre-edit snapshots that had been sitting inside a
+# content directory. report_edits/ now holds only the live documents (odt/)
+# and their mirrors (text/).
+/scratch/
 # Pre-edit safety copies of the chapter .odt files, written before any
 # automated edit pass. Same size class as the originals — report9 alone is
 # 121 MB, over GitHub's hard 100 MB limit — and the same argument applies:
 # they are working files, not history. Added 2026-08-20, after seven of
 # them were committed by accident and the push was rejected.
-report_edits/backups/
 
 # Re-open the blanket *.sh rule for the mirror script only.
 !report_edits/*.sh
@@ -73,7 +77,6 @@ report_edits/backups/
 report_edits/**/.~lock.*#
 report_edits/**/*.bak
 report_edits/**/*~
-report_edits/_superseded/
 
 # Sentinel-watcher auto-push state (runtime only; never versioned).
 # Sentinel, logs, result and lock for tools/nrg_push_watch.sh + nrg_autopush.sh.

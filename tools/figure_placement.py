@@ -45,9 +45,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from reference_lint import master_order                            # noqa: E402
+from doc_paths import MIRROR_DIR
 
 REPO = Path(__file__).resolve().parents[1]
-MIRROR_DIR = REPO / "report_edits/text"
+MIRROR_DIR = REPO / str(MIRROR_DIR)
 FIGMAP = REPO / "tools/figure_map.csv"
 CAPTION_LEAD = re.compile(r"^\s*\*?\*?Figure\s", re.I)
 

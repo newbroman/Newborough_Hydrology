@@ -65,6 +65,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from odt_edit import edit_spans                              # noqa: E402
 from refresh_mirrors import resolve                          # noqa: E402
+from doc_paths import chapter_odt, REPO
 
 REPO = Path(__file__).resolve().parents[1]
 PLAN = Path(__file__).resolve().parent / "renumber_plan.csv"
@@ -87,11 +88,11 @@ def _versioned(stem: str) -> str:
 
 
 ODTS = {
-    "report8":  "report_edits/odt/report8.odt",
-    "report9":  "report_edits/odt/report9.odt",
-    "report10": "report_edits/odt/report10.odt",
-    "report11": "report_edits/odt/report11.odt",
-    "report12": "report_edits/odt/report12.odt",
+    "report8":  str(chapter_odt(8).relative_to(REPO)),
+    "report9":  str(chapter_odt(9).relative_to(REPO)),
+    "report10": str(chapter_odt(10).relative_to(REPO)),
+    "report11": str(chapter_odt(11).relative_to(REPO)),
+    "report12": str(chapter_odt(12).relative_to(REPO)),
     "Newborough_Methods_Supplement": _versioned("Newborough_Methods_Supplement"),
     "Supplementary_Material":        _versioned("Supplementary_Material"),
     "academic_Summary":              _versioned("academic_Summary"),

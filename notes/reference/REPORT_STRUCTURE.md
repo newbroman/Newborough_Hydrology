@@ -133,7 +133,7 @@ live document — confirm against the operator's `.odm`, not the mirror or the P
 - **Prose/section edits:** JSON manifest + `apply_report_edits.py` (operator runs
   locally; default interactive walk shows before/after y/n/q; `--yes-all` skips it;
   each edit carries `expect_count`).
-- **Figure-reference integrity:** `report_edits/figref_lint.py` reads the exported
+- **Figure-reference integrity:** `tools/figref_lint.py` reads the exported
   PDF, reports caption-sequence gaps/duplicates, dangling references, and
   unreferenced figures. Wired into nrg_git.sh option 2 (warns, never blocks).
   Reads the PDF, so export before linting.

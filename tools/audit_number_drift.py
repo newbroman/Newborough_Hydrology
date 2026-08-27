@@ -32,12 +32,13 @@ import sys
 from pathlib import Path
 
 import pandas as pd
+from doc_paths import MIRROR_GLOB
 
 REPO = Path(__file__).resolve().parents[1]
 
 # Document corpus. PDFs are converted with pdftotext when available.
 DOC_GLOBS = [
-    "report_edits/text/report*.md",
+    MIRROR_GLOB,
     "docs/papers/paper_1/*.md",
     "docs/papers/**/*.md",
     "docs/**/*.md",

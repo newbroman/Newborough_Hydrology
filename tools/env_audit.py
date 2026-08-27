@@ -85,7 +85,7 @@ EXTERNALS = {
                    "refresh_mirrors.py — mirrors are byte-reproducible only on "
                    "the version that wrote them"),
     "pdftotext":  (["pdftotext", "-v"],         r"pdftotext\s+version\s+([0-9.]+)",
-                   "report_edits/figref_lint.py, tools/audit_number_drift.py"),
+                   "tools/figref_lint.py, tools/audit_number_drift.py"),
     "soffice":    (["soffice", "--version"],    r"([0-9]+\.[0-9.]+)",
                    "tools/build_pdfs.sh, nrg_git.sh — every published PDF"),
     "git":        (["git", "--version"],        r"git version\s+([0-9.]+)", "nrg_git.sh"),

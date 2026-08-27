@@ -36,9 +36,10 @@ from __future__ import annotations
 __version__ = "1.0.0"  # Hollingham (2026) — 2026-08-25. First issue.
 
 import csv, re, pathlib, collections, argparse
+from doc_paths import MIRROR_GLOB
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
-DOCS = ["report_edits/text/report*.md", "docs/**/text/*.md",
+DOCS = [MIRROR_GLOB, "docs/**/text/*.md",
         "PIPELINE_README.md", "readme.md"]
 
 GREEK = "αβγδεζηθικλμνξοπρστυφχψωΓΔΘΛΞΠΣΦΨΩ"

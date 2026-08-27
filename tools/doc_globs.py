@@ -34,12 +34,13 @@ WHAT BELONGS HERE
   standing references the report leans on.
 """
 from __future__ import annotations
+from doc_paths import MIRROR_GLOB
 
 __version__ = "1.0.0"  # Hollingham (2026) — 2026-08-27.
 
 DOC_GLOBS = [
     # the report, chapter by chapter
-    "report_edits/text/report*.md",
+    MIRROR_GLOB,
     # every published document's markdown mirror
     "docs/**/text/*.md",
     # the two web pages that state pipeline numbers

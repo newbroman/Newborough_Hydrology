@@ -4,7 +4,7 @@ export_lag.py — which published PDFs are older than the documents they came fr
 
 WHY
     A PDF is a derived artefact with no link back to its source, so it goes stale
-    silently. That is not only untidy — `report_edits/figref_lint.py` PARSES the
+    silently. That is not only untidy — `tools/figref_lint.py` PARSES the
     exported PDF, because it is the only artefact where captions and in-text
     references both carry resolved numbers. On 2026-08-23 report.pdf was dated
     06:51 while four of its source documents had been edited after it, so the
@@ -39,13 +39,14 @@ import argparse
 import pathlib
 import re
 import sys
+from doc_paths import MASTER_ODM, ODT_GLOB
 
 REPO = pathlib.Path(__file__).resolve().parent.parent
 BUILD_PDFS = REPO / "tools/build_pdfs.sh"
 
 # The hand-exported master, which build_pdfs.sh deliberately does not build.
 MASTER = ("docs/report/report.pdf",
-          ["report_edits/odt/report.odm", "report_edits/odt/report*.odt"])
+          [str(MASTER_ODM.relative_to(REPO)), ODT_GLOB])
 
 # build_pdfs.sh already records which ODT VERSION each PDF was built from, which
 # is a better signal than a modification time and the reason this tool reads it.
@@ -214,7 +215,7 @@ def run(strict: bool, only: str | None = None) -> int:
         if MASTER[0] in stale:
             print(f"  {MASTER[0]} is exported by hand from report.odm "
                   f"(File > Export as PDF);")
-            print("  until then report_edits/figref_lint.py is reading a document "
+            print("  until then tools/figref_lint.py is reading a document "
                   "that no longer")
             print("  exists and would report it clean.")
     else:

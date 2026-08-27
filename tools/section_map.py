@@ -57,10 +57,11 @@ import re
 import sys
 import zipfile
 from pathlib import Path
+from doc_paths import MASTER_ODM, ODT_DIR as _ODT_DIR
 
 REPO = Path(__file__).resolve().parents[1]
-MASTER = REPO / "report_edits" / "odt" / "report.odm"
-ODT_DIR = REPO / "report_edits" / "odt"
+MASTER = MASTER_ODM
+ODT_DIR = _ODT_DIR
 OUT = Path(__file__).resolve().parent / "section_map.csv"
 
 _H = re.compile(r'<text:h\b([^>]*)>(.*?)</text:h>', re.S)

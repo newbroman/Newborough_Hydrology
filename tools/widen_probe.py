@@ -25,6 +25,7 @@ import csv, glob, os, pathlib, sys, collections
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import cite_check as cc
 import number_census as nc
+from doc_paths import chapter_md
 
 MAX_LABELS_TESTED = 40          # bound the anchor work; ambiguity is recorded exactly
 
@@ -106,7 +107,7 @@ print(f"largest ambiguity in the index: "
 
 docs = cc.load_documents()
 index = nc._load_index()
-TARGETS = ["report_edits/text/report9.md",
+TARGETS = [str(chapter_md(9)),
            "docs/report/text/Supplementary_Material.md",
            "docs/papers/paper_1/text/Paper1.md",
            "docs/papers/paper_2/text/Hollingham_2026_Paper2_amended.md"]

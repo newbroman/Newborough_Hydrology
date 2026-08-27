@@ -1,7 +1,7 @@
 # C3 within-cluster variance check — results
 
 *Diagnostic from `29_c3_within_variance_check.py`. Follow-on from the
-H0 result in `c3_detrend_check_results.md`: C3 is constitutively
+H0 result in `outputs/28_c3_detrend/28_c3_detrend_results.md`: C3 is constitutively
 distinct from C2 (aquifer architecture — thin sand over clay east,
 deeper sand west). This diagnostic asks: given C3 is its own cluster,
 what explains the variation BETWEEN C3 wells?*

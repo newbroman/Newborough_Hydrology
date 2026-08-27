@@ -22,9 +22,26 @@ is either true of the committed CSV or it is not; the register makes that
 machine-decidable and names every document asserting it.
 
 Usage:
-    python3 tools/cite_check.py                  # numbers + claims
-    python3 tools/cite_check.py --claims-only
+    python3 tools/cite_check.py                  # everything; takes minutes
+    python3 tools/cite_check.py --out /tmp/cite.log      # ...and keep the log
+    python3 tools/cite_check.py --claims-only    # ~1s; what check_all runs
     python3 tools/cite_check.py --dp 2 3 4 --near 2
+
+  Five sections. Four cost about a second each; NUMBERS costs minutes, because
+  it scans every mirror for every committed value at three precisions. Run them
+  separately when that matters:
+
+    --section columns   are the named value columns still in the CSVs?   ~1s
+    --section index     the exact citation-index check                   ~1s
+    --section numbers   every published value against the corpus         MINUTES
+    --section spread    one quantity, several renderings                 ~1s
+    --section claims    assertions with no number                        ~1s
+
+  --section is repeatable. --docs SUBSTR restricts the corpus and is repeatable
+  too, matched as OR, which is what makes NUMBERS runnable in pieces:
+
+    python3 tools/cite_check.py --section numbers --docs report_edits
+    python3 tools/cite_check.py --section numbers --docs docs/ --docs readme
 """
 from __future__ import annotations
 
@@ -259,7 +276,11 @@ HEADLINE_TABLES = [
 #   (csv path, key column, value columns)  — same shape as HEADLINE_TABLES.
 EXTRA_VALUE_TABLES = [
     ("outputs/15_depth_dependent_pet/15_04_best_params.csv", "Cluster",
-     ["Best_Lambda", "NSE_Iterative", "SSM_NSE", "R2_OneStep"]),
+     # Best_Kappa from Script 15 v1.3.0 (2026-08-27). The column was
+     # Best_Lambda; report8 §3.4.6 and the register have always called the
+     # decay parameter κ. THIS GATE FAILS UNTIL SCRIPT 15 IS RERUN — the
+     # committed CSV still carries the old header.
+     ["Best_Kappa", "NSE_Iterative", "SSM_NSE", "R2_OneStep"]),
     ("outputs/03_state_space_model/03_04_lag_diagnostic.csv", "Cluster_Label",
      ["R2"]),
     ("outputs/32_differential_movement/32_site_mean_trend.csv", "period",
@@ -1396,6 +1417,79 @@ def check_claims(docs) -> int:
     return bad
 
 
+class _Tee:
+    """stdout that also writes to a file.
+
+    cite_check's full output is ~450 lines and the run takes minutes, so it is
+    read in a terminal once and then gone. `--out` keeps it. Written here rather
+    than left to shell redirection because a check whose output is habitually
+    discarded is a check nobody acts on.
+    """
+
+    def __init__(self, stream, path):
+        self._s = stream
+        # Line-buffered: NUMBERS takes minutes, and a log that only appears at
+        # the end is no better than the terminal it was written to escape.
+        self._f = open(path, "w", encoding="utf8", buffering=1)
+
+    def write(self, text):
+        self._s.write(text)
+        self._f.write(text)
+        return len(text)
+
+    def flush(self):
+        self._s.flush()
+        self._f.flush()
+
+    def close(self):
+        self._f.close()
+
+
+def check_value_columns() -> int:
+    """Does every column HEADLINE_TABLES and EXTRA_VALUE_TABLES name still exist?
+
+    `collect_values()` reads those columns inside a
+    `except (TypeError, ValueError, KeyError): continue`. A column that has been
+    renamed or dropped therefore does not fail — it SILENTLY LEAVES THE VALUE
+    INDEX, and every number it carried stops being checked against the corpus
+    while the gate stays green.
+
+    That is not hypothetical for this exact file. The comment above
+    EXTRA_VALUE_TABLES records the last time: "Script 15 was stale in four of
+    five lambda values and four of five NSE improvements, and had flipped a
+    published ranking, with the gate green throughout."
+
+    Added 2026-08-27, immediately after renaming Best_Lambda to Best_Kappa and
+    telling Martin the gate would fail until Script 15 was rerun. It would not
+    have. It would have gone quiet, which is worse.
+
+    Header row only, so this is cheap enough to run in --claims-only and reach
+    check_all, which is the only mode check_all runs.
+    """
+    missing = []
+    for rel, kcol, vcols in list(HEADLINE_TABLES) + list(EXTRA_VALUE_TABLES):
+        f = REPO / rel
+        if not f.exists():
+            continue                      # absent files are reported elsewhere
+        try:
+            have = set(pd.read_csv(f, nrows=0).columns)
+        except Exception as e:            # noqa: BLE001 — an unreadable table
+            missing.append((rel, f"UNREADABLE: {e}"))
+            continue
+        for c in [kcol] + list(vcols):
+            if c not in have:
+                missing.append((rel, c))
+    if missing:
+        print("  cite_check: FAULT — value column(s) named here and absent from "
+              "the CSV")
+        for rel, c in missing:
+            print(f"    {rel}   no column {c!r}")
+        print("  These numbers are NOT being checked against the corpus. Rerun the")
+        print("  script, or update the column name here — do not leave it.")
+        return 1
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dp", nargs="+", type=int, default=[2, 3, 4])
@@ -1417,22 +1511,74 @@ def main() -> int:
                          "and it is how a quantity earns a register entry.")
     ap.add_argument("--spread-gate", action="store_true",
                     help="make SPREAD a gating check rather than advisory")
+    ap.add_argument("--section", action="append", default=None,
+                    choices=["columns", "index", "numbers", "spread", "claims"],
+                    help="run only these section(s); repeatable. Default: all. "
+                         "NUMBERS is the slow one — minutes, where every other "
+                         "section is about a second — so this is what makes the "
+                         "check runnable in pieces.")
+    ap.add_argument("--docs", action="append", default=None,
+                    help="restrict the corpus to mirrors whose path contains "
+                         "this substring; repeatable, matched as OR. Chunks "
+                         "NUMBERS, whose cost is values x documents and which "
+                         "takes minutes over the whole corpus.")
+    ap.add_argument("--out", default=None,
+                    help="also write everything printed to this file")
     args = ap.parse_args()
 
+    tee = None
+    if args.out:
+        tee = _Tee(sys.stdout, args.out)
+        sys.stdout = tee
+    try:
+        return _run(args)
+    finally:
+        if tee is not None:
+            sys.stdout = tee._s
+            tee.close()
+            print(f"  (written to {args.out})")
+
+
+def _run(args) -> int:
+    # --claims-only and --index-only predate --section and still work. They are
+    # what check_all and the habit of years call, so they select sections rather
+    # than being replaced by them.
+    if args.section:
+        want = set(args.section)
+    elif args.claims_only:
+        want = {"columns", "claims"}
+    elif args.index_only:
+        want = {"columns", "index", "claims"}
+    else:
+        want = {"columns", "index", "numbers", "spread", "claims"}
+
     docs = load_documents()
+    if args.docs:
+        docs = {k: v for k, v in docs.items()
+                if any(d in k for d in args.docs)}
+        if not docs:
+            print(f"No mirror path contains any of {args.docs!r} — "
+                  "nothing to check.")
+            return 1
     if not docs:
         print("No mirrors found — run tools/refresh_mirrors.py first.")
         return 1
-    print(f"corpus: {len(docs)} mirror(s)\n")
+    filt = f", filtered to {' | '.join(args.docs)}" if args.docs else ""
+    print(f"corpus: {len(docs)} mirror(s){filt}")
+    print(f"sections: {' '.join(sorted(want))}\n")
 
     rc = 0
-    if not args.claims_only:
-        values = collect_values()
+    if "columns" in want:
+        rc += check_value_columns()
+    values = collect_values() if {"index", "spread"} & want else []
+    if "index" in want:
         rc += check_index(docs, values)
-        if not args.index_only:
-            rc += check_numbers(docs, args.dp, args.near, args.min_rel, args.csv)
-            rc += check_spread(docs, values, args.spread_all, args.spread_gate)
-    rc += check_claims(docs)
+    if "numbers" in want:
+        rc += check_numbers(docs, args.dp, args.near, args.min_rel, args.csv)
+    if "spread" in want:
+        rc += check_spread(docs, values, args.spread_all, args.spread_gate)
+    if "claims" in want:
+        rc += check_claims(docs)
     return 1 if rc else 0
 
 

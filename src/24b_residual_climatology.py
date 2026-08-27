@@ -55,7 +55,12 @@ Conventions:
 ====================================================================================
 """
 
-__version__ = "1.3.1"  # Hollingham (2026) — Script 24b. v1.2.0: wired into run_analysis.py
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-08-27: forest-edge distance
+#   read Features.kml with a bare gpd.read_file inside a try/except that
+#   returns None. LIBKML is absent from Ubuntu's GDAL, so the predictor had
+#   been silently NaN. Now via utils.kml_io.read_kml.
+#
+# _superseded  # Hollingham (2026) — Script 24b. v1.2.0: wired into run_analysis.py
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -163,9 +168,15 @@ def load_forest_polygon():
         warn("geopandas not installed; forest-edge distance → NaN.")
         return None
     try:
+        # read_kml, not gpd.read_file. The bare read picked LIBKML, which is not
+        # in Ubuntu's GDAL, and the DriverError was swallowed by the except
+        # below — so the forest-edge distance predictor QUIETLY BECAME NaN
+        # rather than failing. Found 2026-08-27 while fixing the same defect in
+        # Script 29, which had the decency to crash.
+        from utils.kml_io import read_kml
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            gdf = gpd.read_file(DATA_KML_FEATURES)
+            gdf = read_kml(DATA_KML_FEATURES, None, quiet=True)
         name_col = "Name" if "Name" in gdf.columns else gdf.columns[0]
         forest = gdf[gdf[name_col].astype(str).str.lower().str.contains("forest")]
         if forest.empty:

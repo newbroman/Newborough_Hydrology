@@ -37,7 +37,12 @@ Read-only on pipeline outputs; writes to outputs/29_within_c3_variance/.
 
 from __future__ import annotations
 
-__version__ = "1.4.1"  # Hollingham (2026) — 2026-08-19. Reads the per-well
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-08-27: reads Features.kml
+#   through utils.kml_io.read_kml. The bare gpd.read_file let fiona sniff and
+#   choose LIBKML, which Ubuntu's GDAL is not built with, so this script could
+#   not start at all. It is the third KML defect of the same shape in the tree.
+#
+# _superseded  # Hollingham (2026) — 2026-08-19. Reads the per-well
 #   WTF Sy table from OUT_18_WELL_SY_TABLE; INT_WTF_WELL_SY is retired
 #   (D-038). Pure path/symbol change, values identical.
 #
@@ -65,6 +70,7 @@ _HERE = Path(__file__).resolve().parent
 REPO = _HERE.parent
 sys.path.insert(0, str(_HERE))
 
+from utils.kml_io import read_kml
 from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
     hr, skipped,
@@ -140,8 +146,11 @@ wtf_sy["mid"] = wtf_sy["Well"].apply(norm)
 wells = pd.read_csv(F_WELLS, index_col=0, parse_dates=True)
 wells.columns = [norm(c) for c in wells.columns]
 
-# Forest extent
-forest_gdf = gpd.read_file(F_FOREST_KML).to_crs(epsg=27700)
+# Forest extent. read_kml, not gpd.read_file: a bare read lets fiona sniff the
+# driver, fiona picks LIBKML for a .kml, and LIBKML is a GDAL build option Ubuntu
+# does not enable — DriverError, 2026-08-27. Every other KML reader in this tree
+# asks for "KML" by name; this one did not.
+forest_gdf = read_kml(F_FOREST_KML, "EPSG:27700")
 forest_geom = forest_gdf[forest_gdf["Name"] == "Forest"].unary_union
 print(f"Forest geometry: area = {forest_geom.area/1e6:.2f} km²")
 

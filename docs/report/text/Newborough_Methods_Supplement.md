@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_54.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_55.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 1.9.54 (August 2026).
+Document version: 1.9.55 (August 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -2633,7 +2633,7 @@ The forest drawdown figure (*20_drawdown_propagation_nohead.png*) was joined in 
   Dune-toe offset (inland of waterline)          COAST_DUNE_OFFSET_M   100 m                                                                                   Estimate (DEM-derived dune-toe position)                 Erosion, Net
   DEM waterline contour                          COAST_SHORE_LEVEL_M   0.5 m AOD                                                                               DEM-derived                                              Erosion, Net
   Coast-edge anomaly                             δ₀                    live (Script 25 fit)                                                                    Live: Script 25, S.15                                    Erosion, Net
-  Erosion-decay characteristic length            L                     live (Script 25 fit)                                                                    Live: Script 25, S.15                                    Erosion, Net
+  Erosion-decay characteristic length            L_cg                  live (Script 25 fit)                                                                    Live: Script 25, S.15                                    Erosion, Net
   Mean-sea-level rise (window total)             SLR_RISE_M            0.02 m                                                                                  UKCP18 north-Wales central, near-term                    SLR, Net
   Response window                                SLR_WINDOW_YEARS      5 yr                                                                                    Near-term horizon                                        SLR, Net
   SLR boundary datum                             SLR_SHORE_LEVEL_M     0 m AOD                                                                                 Physical convention (water-table head, not inundation)   SLR, Net
@@ -4000,7 +4000,7 @@ Inputs.
   Field                                             Source                              Detail
   Climate-corrected per-well endpoint differences   Script 36                           b̂ fitted on *ACT_BHAT_WINDOW = 2005--2017*; *h_corr = h − b̂·CWB*; endpoint means with *ACT_ENDPOINT_FRACTION = 1/3*
   Unit driver fields                                Script 20 v1.32.0                   *\_erosion_field*, felling-polygon clearfell shape, *\_broadleaf_field*; imported live
-  δ₀, L                                             Script 25 *OUT_25_FIT_PARAMETERS*   Forest-free linear-capped fit; δ₀ = −29.03 mm yr⁻¹
+  δ₀, L_cg                                          Script 25 *OUT_25_FIT_PARAMETERS*   Forest-free linear-capped fit; δ₀ = −29.03 mm yr⁻¹
   Clearfell step                                    10a_report_numbers.csv              ANCOVA Path B, +112.8 mm observed
   ------------------------------------------------- ----------------------------------- ---------------------------------------------------------------------------------------------------------------------
 

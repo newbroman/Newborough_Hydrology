@@ -40,10 +40,11 @@ MIN_VERTICES_PER_LINE = 2  # need at least 2 vertices to form a line
 
 # Read streams.kml and reproject to EPSG:27700 (DEM CRS)
 print(f"Reading streams from: {INPUT_KML}")
-gdf_in = gpd.read_file(INPUT_KML)
-if gdf_in.crs is None:
-    gdf_in.set_crs(epsg=4326, inplace=True)
-gdf_in_27700 = gdf_in.to_crs("EPSG:27700")
+# read_kml registers both drivers and falls back to XML. This file registered
+# them at line 130 and read the KML at line 43, eighty-seven lines earlier, so
+# the registration had no effect on this call at all.
+from kml_io import read_kml                                    # noqa: E402
+gdf_in_27700 = read_kml(INPUT_KML, "EPSG:27700")
 print(f"  Input lines: {len(gdf_in_27700)}")
 total_in_length_km = gdf_in_27700.geometry.length.sum() / 1000.0
 print(f"  Input total length: {total_in_length_km:.2f} km")

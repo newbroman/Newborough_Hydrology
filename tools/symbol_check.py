@@ -279,6 +279,31 @@ QUALIFIED_NEXT = re.compile(
     r"^(?:_|\\_|[\u2080-\u2089]|[\u2090-\u209c]|[\u1d62-\u1d6a]|\()")
 
 
+_QUOTES = ("'", '"', "`", "&apos;", "&quot;", "&#39;", "&#x27;")
+
+
+def is_code_literal(text: str, s0: int, e0: int) -> bool:
+    """Is the occurrence a QUOTED single letter — a code literal, not a symbol?
+
+    `occurrences()` already skips a glyph abutting a quote, added 2026-08-22
+    after CLUSTER_MARKERS — matplotlib's marker codes, {1: 'o', 2: 's', 3: '^',
+    4: 'D', 5: 'P'} — put a diamond marker next to DRAINAGE_DATUM in the Methods
+    Supplement's constants table and the D was renamed to z₀.
+
+    That guard reads literal quote characters. **In an ODT's content.xml the
+    quotes are XML entities**, so the glyph reads as `&apos;D&apos;` and neither
+    neighbouring character is a quote. The same marker table came back the
+    moment the flattener stopped concatenating table cells.
+
+    Both sides must be quoted. One side is ambiguous — an apostrophe in
+    "cluster&apos;s" is not a delimiter — and over-suppressing here hides real
+    symbols, which is the failure this net exists to prevent.
+    """
+    before, after = text[max(0, s0 - 8):s0], text[e0:e0 + 8]
+    return (any(before.endswith(q) for q in _QUOTES)
+            and any(after.startswith(q) for q in _QUOTES))
+
+
 def is_qualified(text: str, end: int) -> bool:
     """Is the occurrence ending at `end` already qualified — subscript or argument?
 

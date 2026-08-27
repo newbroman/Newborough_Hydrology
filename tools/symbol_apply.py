@@ -122,6 +122,17 @@ def bumped_name(p: Path) -> Path:
     return p.with_name(p.name[:m.start()] + "_v" + "_".join(parts) + ".odt")
 
 
+_BLOCK_END = re.compile(
+    r"</(?:text:p|text:h|table:table-cell|text:list-item)>"
+    r"|<text:(?:line-break|tab)/>")
+# text:span is deliberately NOT in that list. Spans are inline and split words
+# mid-character: report8 carries "ground-referenced <text:span>(</text:span>
+# Section 3.1.1)". Separating on them would insert a space inside a word — and,
+# worse, could separate a glyph from its subscript, so δ<span>_F</span> would
+# stop reading as qualified and become eligible for exactly the rename that
+# corrupted three published documents this morning.
+
+
 def flatten_with_map(xml: str):
     """(flat text, [(flat_start, xml_start, length)]) over the text segments.
 
@@ -136,6 +147,23 @@ def flatten_with_map(xml: str):
             flat.append(seg)
             spans.append((out_len, pos, len(seg)))
             out_len += len(seg)
+        # BLOCK BOUNDARY -> a space with NO span behind it.
+        #
+        # Without this, adjacent table cells concatenate. The Methods
+        # Supplement's constants table flattened to
+        # "Erosion-decay characteristic lengthLlive (Script 25 fit)", and
+        # occurrences()'s Latin word-boundary guard then correctly refused that
+        # L as a symbol — it is mid-word in the text it was handed. The audit,
+        # reading pandoc's mirror where the cell is its own line, saw a bare L
+        # and proposed the rename; this tool found nothing to rename. Two
+        # occurrences the two halves could not agree existed.
+        #
+        # The separator has no XML source, so flat_to_xml returns None for any
+        # position inside it and the existing straddles-markup check drops the
+        # occurrence. It can only ever separate; it can never be written.
+        if _BLOCK_END.match(m.group(0)):
+            flat.append(" ")
+            out_len += 1
         pos = m.end()
     tail = xml[pos:]
     if tail:
@@ -169,6 +197,12 @@ def plan_for(path: Path, senses: list[dict], sense_id: str, glyph: str):
     for f_start, f_end in sc.occurrences(flat, glyph):
         hits = sc.classify(flat, (f_start, f_end), senses)
         if hits != [sense_id]:
+            continue
+        # A QUOTED single letter is a code literal. The regex guard in
+        # occurrences() catches the plain form; this catches the entity form,
+        # which is the only form that reaches here, because this tool reads
+        # content.xml and the audit reads pandoc's mirror.
+        if sc.is_code_literal(flat, f_start, f_end):
             continue
         x0 = flat_to_xml(spans, f_start)
         x1 = flat_to_xml(spans, f_end - 1)

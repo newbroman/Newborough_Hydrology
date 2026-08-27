@@ -41,11 +41,19 @@ REPO = pathlib.Path(__file__).resolve().parents[1]
 # changelog is a dated record of what was true then, and a path that existed in
 # June and does not exist now is history, not a fault. Rewriting dated records
 # to make a linter happy is the one thing this project does not do.
-# notes/** joined the list on 2026-08-27, when the root tidy moved 26 documents
-# there. Without it the count fell from 347 references to 287 — sixty stopped
-# being checked and nothing said so, which is the failure this tool exists for.
+# This list has now lost references TWICE to a directory move, on the same day,
+# in the tool whose whole job is to notice a reference going missing.
+#   notes/**    added when the root tidy moved 26 documents there: 347 -> 287.
+#   working/*   added when tier 2 moved DECISION_LOG.md, WORK_REGISTER.md and
+#               README_WORKING.md off the root: 357 -> 290.
+# Only working/*.md, deliberately — NOT working/**. The 231 files under
+# working/changelogs/ and working/updates/ have never been scanned; they are
+# dated working records, they cite documents that were superseded or lost on
+# purpose, and sweeping them would bury the live corpus in historical dangles.
+# ANY move of a scanned document must be followed by re-running this tool and
+# comparing the count. A move is exactly when the net silently narrows.
 SCAN_GLOBS = ["src/**/*.py", "tools/*.py", "*.md", "docs/**/*.md",
-              "notes/**/*.md", "data/*.md"]
+              "notes/**/*.md", "working/*.md", "data/*.md"]
 
 # Directories that hold snapshots, recoveries and scratch. A dangling reference
 # inside a backup is a fact about the past, not a fault in the project.

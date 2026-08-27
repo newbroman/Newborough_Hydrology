@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/PAPER1_SI_methods_v1_11.odt — do not edit.
+<!-- GENERATED MIRROR of docs/papers/paper_1/PAPER1_SI_methods_v1_12.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # Supporting Information
@@ -269,9 +269,9 @@ The SSM's third coefficient β₃ --- the drainage feedback term --- is what dis
 
 The TLM is the simplest unphysical alternative:
 
-> Δ*h*(*t*) = α + β₁ · *P*(*t*) − β₂ · PET(*t*)
+> Δ*h*(*t*) = α_B + β₁ · *P*(*t*) − β₂ · PET(*t*)
 
---- rainfall, PET, and an intercept α; no drainage feedback. The intercept absorbs any constant lateral subsidy or systematic offset that the SSM's β₃ term would otherwise represent. The TLM therefore has one degree of freedom more than the SSM (the intercept) but lacks the drainage feedback. This makes the comparison conservative: if the SSM outperforms the TLM, it does so despite the TLM's extra fitted parameter.
+--- rainfall, PET, and an intercept α_B; no drainage feedback. The intercept absorbs any constant lateral subsidy or systematic offset that the SSM's β₃ term would otherwise represent. The TLM therefore has one degree of freedom more than the SSM (the intercept) but lacks the drainage feedback. This makes the comparison conservative: if the SSM outperforms the TLM, it does so despite the TLM's extra fitted parameter.
 
 The TLM is not proposed as a published model and is not claimed to be optimal in any sense. It is a deliberately weak counterfactual that quantifies how much explanatory power the SSM contributes beyond a structurally simpler unphysical baseline.
 

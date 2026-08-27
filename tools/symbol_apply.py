@@ -138,7 +138,22 @@ def plan_for(path: Path, senses: list[dict], sense_id: str, glyph: str):
         x1 = flat_to_xml(spans, f_end - 1)
         if x0 is None or x1 is None or (x1 + 1 - x0) != (f_end - f_start):
             continue                      # occurrence straddles markup — skip it
-        out.append((x0, x1 + 1, target["replacement"],
+        # ALREADY CONVERTED? Skip it. symbol_check.occurrences() guards Latin
+        # glyphs against a following _[A-Za-z] but gives Greek glyphs a bare
+        # re.escape with no guard at all — deliberately, because for COUNTING
+        # "subscripted forms count as occurrences of the base glyph". For
+        # APPLYING that is wrong: the alpha inside an already-converted α_B
+        # matches, and the write turns it into α_B_B.
+        #
+        # Measured on 2026-08-27, before this guard existed: the Methods
+        # Supplement held 45 α occurrences of which 31 already read α_B, plus one
+        # each in report8 and report9. Running --apply would have corrupted
+        # thirty-three places in three published documents, silently, and the
+        # mirrors would have carried it straight into the corpus.
+        repl = target["replacement"]
+        if flat[f_start:f_start + len(repl)] == repl:
+            continue
+        out.append((x0, x1 + 1, repl,
                     re.sub(r"\s+", " ", flat[max(0, f_start - 60):f_end + 60])))
     return out
 

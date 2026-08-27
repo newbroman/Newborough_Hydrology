@@ -12,7 +12,7 @@ know the current state without replaying the changelog history.
   `ledger_lint --fix-versions` had bumped without re-reading — was adjudicated
   against the script, its diff since the ledger was built, and the documents its
   `Cited` cell names. Evidence per row:
-  `Updates_required/T02_LEDGER_2026-08-26.md`.
+  `working/updates/T02_LEDGER_2026-08-26.md`.
 - **Maintenance rule:** every script change updates its row here AND drops a
   dated `CHANGELOG_delta`. The delta records *what changed*; this row records
   *what is now true*. When you touch a script, re-check its Consumes/Emits and

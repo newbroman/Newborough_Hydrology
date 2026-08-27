@@ -3,7 +3,7 @@
 # into the repo so Claude can read them over the bridge (which sees only
 # ~/projects/NRG). Copies only: sources are never moved, renamed or deleted.
 #
-#   bash tools/stage_recovered_docs.sh           stage into Updates_required/_recovered_<today>/
+#   bash tools/stage_recovered_docs.sh           stage into working/updates/_recovered_<today>/
 #   bash tools/stage_recovered_docs.sh --dry-run show what it would copy
 #
 # Identical content is staged once. Differing copies of the same name are all
@@ -14,7 +14,7 @@ cd "$(dirname "$0")/.." || exit 1
 REPO="$PWD"
 DRY=0; [ "${1:-}" = "--dry-run" ] && DRY=1
 
-DEST="$REPO/Updates_required/_recovered_$(date +%F)"
+DEST="$REPO/working/updates/_recovered_$(date +%F)"
 [ "$DRY" -eq 0 ] && mkdir -p "$DEST"
 MAN="$DEST/MANIFEST.tsv"
 
@@ -84,7 +84,7 @@ echo
 if [ "$DRY" -eq 1 ]; then
   echo "dry run: $staged file(s) would be staged, $skipped duplicate(s) skipped"
 else
-  echo "staged $staged file(s) into Updates_required/_recovered_$(date +%F)/"
+  echo "staged $staged file(s) into working/updates/_recovered_$(date +%F)/"
   echo "$skipped byte-identical duplicate(s) skipped"
   echo "manifest: $MAN"
   echo

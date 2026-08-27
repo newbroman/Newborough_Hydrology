@@ -10,7 +10,7 @@ names against the missing list.
     python3 tools/find_missing_docs_archives.py --extract  pull matches out
 
 Read-only on the archives themselves: members are extracted to
-Updates_required/_recovered_<date>/, never back into the archive, and the
+working/updates/_recovered_<date>/, never back into the archive, and the
 archive is never rewritten. Matching is on the BASENAME, so a document filed
 under any directory inside the archive is still found.
 
@@ -97,7 +97,7 @@ def members(path):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--extract", action="store_true",
-                    help="write matching members into Updates_required/_recovered_<date>/")
+                    help="write matching members into working/updates/_recovered_<date>/")
     a = ap.parse_args()
 
     names = missing_names()

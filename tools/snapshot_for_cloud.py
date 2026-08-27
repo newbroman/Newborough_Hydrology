@@ -56,7 +56,7 @@ TEXT = (".py", ".sh", ".csv", ".md", ".txt", ".json")
 DOC_TREES = ["report_edits/text", "docs/report/text", "docs/papers",
              "docs/academic_summaries/text", "docs/public_summaries/text",
              "docs/web_tools/text"]
-LOOSE = ["PIPELINE_README.md", "readme.md", "DECISION_LOG.md", "config.py"]
+LOOSE = ["PIPELINE_README.md", "readme.md", "working/DECISION_LOG.md", "config.py"]
 
 
 def strip_one(src: Path, dst: Path) -> None:

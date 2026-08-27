@@ -18,8 +18,15 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.2.0 - 2026-08-23
+# VERSION 1.4.0 - 2026-08-26
 # CHANGELOG
+#   1.4.0 (2026-08-26): env_audit runs first. Half the checks below print a
+#     version and act on it, and none of them said whose. A Cowork sandbox's
+#     pandoc 2.9.2 and python 3.10 were read as this project's for a day, and a
+#     five-week outage was written up for a script that had never failed. The
+#     environment line now names the machine before anything else reports.
+#     (The VERSION line above read 1.2.0 against a 1.3.0 changelog entry until
+#     this bump — the header had drifted from its own history.)
 #   1.3.0 (2026-08-23): ref_audit and section_ref_audit join the chain, and the
 #     reference-form census prints with them. Resolution was never the weak
 #     point — pointing at the wrong thing was, and nothing looked for it.
@@ -40,6 +47,17 @@ FIX=0
 [ "${1:-}" = "--fix" ] && FIX=1
 rc=0
 
+# FIRST, deliberately. Several checks below print a version and act on it -
+# refresh_mirrors refuses to write under an old pandoc, figref_lint needs
+# pdftotext, build_pdfs needs LibreOffice - and none of them says WHOSE version
+# it is reporting. On 2026-08-26 that cost a day: a Cowork sandbox's pandoc 2.9.2
+# and python 3.10 were read as this project's, and a five-week outage was written
+# up for a script that had never failed. env_audit runs before anything else so
+# that every line after it is read against the right machine. It never gates.
+echo "── environment (is this the machine the pipeline runs on?) ──────────"
+python3 tools/env_audit.py --quiet || true
+
+echo
 echo "── document versions (does the text agree with the filename?) ───────"
 if [ "$FIX" = "1" ]; then
     python3 tools/doc_version_sync.py --quiet || rc=1

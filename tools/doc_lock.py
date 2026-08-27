@@ -82,7 +82,12 @@ def status(quiet: bool = False) -> int:
 def acquire(note: str, force: bool) -> int:
     st = read()
     me = _who()
-    if st and st.get("holder") != me and not force:
+    # `st.get("holder")` FIRST. A released lock is a file with holder null — this
+    # module says so at status() and the bridge mount's refusal to unlink is why.
+    # Without that clause `None != me` is true, so every correctly released lock
+    # refused the next taker and the only way past it was --force. Which is what
+    # was done on 2026-08-27, on a lock nobody held.
+    if st and st.get("holder") and st.get("holder") != me and not force:
         print(f"  REFUSED — {st.get('holder')} has held the documents since {st.get('since')}.")
         print("  Ask that machine to release, or --force if you know it is idle.")
         print("  Forcing while the other machine has unarchived edits loses them.")

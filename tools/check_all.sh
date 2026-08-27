@@ -151,6 +151,14 @@ echo "── symbols (does the register contradict itself?) ──────�
 symbol_out="$(python3 tools/symbol_check.py 2>/dev/null)" || rc=1
 printf '%s\n' "$symbol_out" | grep -E "^  (RESERVED|OCCUPIED|DUPLICATE)|^  register faults" || true
 
+# The equations are embedded ODF objects: each carries the formula as MathML AND
+# as a StarMath annotation, and LibreOffice regenerates the first from the
+# second. Edit one and not the other and the change survives every check above,
+# renders correctly in the PDF, and reverts the next time the formula is opened.
+# THAT gates. The displaced-glyph and variant-codepoint counts are advisory.
+starmath_out="$(python3 tools/starmath_log.py 2>&1)" || rc=1
+printf '%s\n' "$starmath_out" | grep -E "^  starmath_log:|MathML and StarMath disagree" || true
+
 echo
 echo "── references (do typed Table/Figure numbers still resolve?) ─────────"
 # Captions auto-number; in-text references are typed by hand and fall out of

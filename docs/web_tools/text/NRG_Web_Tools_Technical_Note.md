@@ -30,7 +30,7 @@ The Groundwater Flooding Forecaster (forecaster.html) is a single-page applicati
   cluster_coeffs          Per-cluster: label, peak_month, trough_month, P_flood slope A and intercept B, P_clim_total_mm, horizon_months, monthly_clim (12-month depth climatology). Five clusters: C1--C5.
   block_tf                Seasonal transfer-function coefficients (b1, b2, c, R²) for each geographic block, split into winter and summer sub-models. Each block lists its member clusters.
   P_clim / PET_clim       Monthly climatological precipitation and PET (mm), keyed 1--12, from RAF Valley 2005--2026 means.
-  winter_climatology_mm   Mean Oct--Mar cumulative rainfall (\~516 mm), the denominator for λ.
+  winter_climatology_mm   Mean Oct--Mar cumulative rainfall (\~516 mm), the denominator for m_P.
   wells                   Array of well objects with: name, display_name, E/N (OSGB), ground_elev, cluster, nearest_cluster_only, default_h_prev, default_h_max, and (from the simplification) monthly_clim (per-well 12-month depth climatology), trough_month, and peak_month.
   base_layer              Map extent (OSGB: E 240100--243900, N 362100--365900 --- a 3800 m × 3800 m square), Base64 hillshade PNG, and KML feature polylines with styling.
   ----------------------- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -49,7 +49,7 @@ Forecast 2 (summer minimum, Table 7):
 
 **h_min = β₁ · P_summer + β₂ · h_max(winter) + intercept**
 
-R² values range from 0.41 (Lake Edge summer) to 0.92 (Forest summer). When R² \< 0.50 the forecast card displays a low-explanatory-power caveat. P_winter is the climatological Oct--peak_month total scaled by λ; P_summer is the climatological Apr--Sep total (always at λ = 1.00).
+R² values range from 0.41 (Lake Edge summer) to 0.92 (Forest summer). When R² \< 0.50 the forecast card displays a low-explanatory-power caveat. P_winter is the climatological Oct--peak_month total scaled by m_P; P_summer is the climatological Apr--Sep total (always at m_P = 1.00).
 
 ## A3.2 P_flood linear form (Table 10)
 
@@ -57,7 +57,7 @@ Forecast 3 (cumulative rainfall to slack floor):
 
 **P_flood (mm) = A · d + B**
 
-where d is depth below ground (m, positive), A is slope (mm/m), and B is intercept (mm). The result is normalised as λ = P_flood / P_clim_total.
+where d is depth below ground (m, positive), A is slope (mm/m), and B is intercept (mm). The result is normalised as m_P = P_flood / P_clim_total.
 
 # A4. Cluster and Block Mapping
 

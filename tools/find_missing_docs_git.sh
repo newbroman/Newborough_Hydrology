@@ -12,7 +12,7 @@ set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
 REPO="$PWD"
 RECOVER=0; [ "${1:-}" = "--recover" ] && RECOVER=1
-DEST="$REPO/Updates_required/_recovered_$(date +%F)"
+DEST="$REPO/working/updates/_recovered_$(date +%F)"
 [ "$RECOVER" -eq 1 ] && mkdir -p "$DEST"
 
 LIST="$(mktemp)"; trap 'rm -f "$LIST"' EXIT
@@ -85,7 +85,7 @@ done < "$LIST"
 echo
 echo "$found document(s) located in history, $miss with no trace"
 if [ "$RECOVER" -eq 1 ]; then
-  echo "extracted into Updates_required/_recovered_$(date +%F)/"
+  echo "extracted into working/updates/_recovered_$(date +%F)/"
   echo "Nothing committed. Tell Claude it is there."
 else
   echo "re-run with --recover to extract them"

@@ -40,7 +40,7 @@ import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
-LOG = REPO / "DECISION_LOG.md"   # canonical since 2026-08-16 (D-029)
+LOG = REPO / "working/DECISION_LOG.md"   # canonical since 2026-08-16 (D-029)
 CHANGELOG_DIR = REPO / "changelogs"
 CLAIMS = REPO / "tools" / "claims_register.csv"
 

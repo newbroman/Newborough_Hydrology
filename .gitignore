@@ -14,7 +14,6 @@ __pycache__/
 !Newborough_well_records_pipeline.ods
 
 # --- Local work notes (not for publishing) ---
-Updates_required/
 
 # --- Water Watch newsletters (Google Drive + Facebook, not git) ---
 Living_output/
@@ -122,9 +121,6 @@ data/geo/histmaps/
 # in a public repository is the settled decision, which lives in
 # DECISIONS_PUBLIC.md and keeps the same D-numbers so existing citations
 # resolve. These stay on disk and out of git.
-DECISION_LOG.md
-changelogs/
-WORK_REGISTER.md
 _audit_tmp/
 tools/Handover_NRG_rebuild_Cowork.md
 tools/NRG_figure_refresh_plan_2026-08-12.md
@@ -133,9 +129,15 @@ docs/papers/paper_2/PAPER2_EDITS.md
 
 # The private working-records repository (see README_WORKING.md)
 .git-working/
-setup_working_repo.sh
-README_WORKING.md
-wgit
+
+# NOTE — /working/ and /nrg_git.sh are NOT ignored here, deliberately.
+# .gitignore is a working-tree file and BOTH repositories read it, and it
+# outranks $GIT_DIR/info/exclude. Naming the private paths here hid them from
+# the private repository too, which is the one that is supposed to track them.
+# Each repository's exclusion therefore lives in its own git directory:
+#     .git/info/exclude          ignores /working/ and /nrg_git.sh
+#     .git-working/info/exclude  ignores /* and re-includes exactly those two
+# See BOOTSTRAP.md — a fresh clone must be given both.
 
 # Marker touched by nrg_git option 11 on a successful Drive archive
 .last_drive_archive
@@ -144,4 +146,3 @@ wgit
 # holds the ODTs. It belongs to the private repo (WGIT_PATHS carries it) and
 # must never reach the public one, where it would be meaningless to a reader
 # and would conflict on every push between machines.
-DOCUMENT_LOCK.json

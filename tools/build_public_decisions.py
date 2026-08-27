@@ -40,7 +40,7 @@ import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
-SRC = REPO / "DECISION_LOG.md"
+SRC = REPO / "working/DECISION_LOG.md"
 DST = REPO / "DECISIONS_PUBLIC.md"
 
 PREAMBLE = """# Decisions

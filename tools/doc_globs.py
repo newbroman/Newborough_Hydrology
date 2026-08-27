@@ -52,5 +52,5 @@ DOC_GLOBS = [
     # the ledgers, which quote versions and counts
     "notes/ledgers/*.md",
     # the decision log states the numbers the decisions turned on
-    "DECISION_LOG.md",
+    "working/DECISION_LOG.md",
 ]

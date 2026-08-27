@@ -37,7 +37,7 @@ __version__ = "1.0.0"  # Hollingham (2026) — 2026-08-25. First issue.
 import argparse, datetime, json, os, pathlib, socket, subprocess, sys
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
-LOCK = REPO / "DOCUMENT_LOCK.json"
+LOCK = REPO / "working/DOCUMENT_LOCK.json"
 
 
 def _who() -> str:

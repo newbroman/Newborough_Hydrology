@@ -329,10 +329,32 @@ def main() -> int:
                 if len(hits) == 1:
                     sense = next(s for s in senses if s["sense_id"] == hits[0])
                     kind = sense["status"]
+                    s0, e0 = span
+                    # ALREADY CARRYING THE REPLACEMENT? Then it is done, and
+                    # counting it as "to change" makes the headline unreachable.
+                    #
+                    # occurrences() gives a Greek glyph a bare re.escape with no
+                    # guard, deliberately — for COLLISION detection a subscripted
+                    # form is still an occurrence of the base glyph, and that is
+                    # what the register's fault gate needs. But it means α inside
+                    # α_B still counts, so converting α -> α_B does not reduce
+                    # the count at all. Measured 2026-08-27: twenty-six
+                    # substitutions were applied to six documents and the
+                    # headline moved 87 -> 82, because the twenty α and δ
+                    # conversions each left the glyph in place. Only the λ and L
+                    # ones, where the glyph genuinely disappears, showed up.
+                    #
+                    # So T-01 could never have reached zero. Same shape as T-14's
+                    # check, which counted markers in a document that may not be
+                    # edited. A target that cannot be reached is not a target.
+                    rep = (sense.get("replacement") or "").strip()
+                    if rep and not rep.startswith("(") and text[s0:s0 + len(rep)] == rep:
+                        table[(glyph, doc)]["canonical"] += 1
+                        totals["canonical"] += 1
+                        continue
                     table[(glyph, doc)][kind] += 1
                     totals[kind] += 1
                     if kind in ("displaced", "retired"):
-                        s0, e0 = span
                         proposal.append({
                             "glyph": glyph, "sense_id": sense["sense_id"],
                             "replacement": sense["replacement"], "document": doc,

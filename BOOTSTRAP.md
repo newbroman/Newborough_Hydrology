@@ -286,10 +286,23 @@ exclusion. Its `REPO_DIR` is absolute, so it behaves identically from anywhere.
   stages them from `outputs/`; only the published copy lives on the branch.
 - **q** quits.
 
-**GitHub Pages must be set to serve `gh-pages` at `/ (root)`**, under Settings →
-Pages → Source. If it is left serving `main` from the root, the *entire
-repository* is web-accessible — `docs/papers/` included, and those are
-unsubmitted manuscripts.
+**GitHub Pages** serves `main` from the root, which publishes the *entire
+repository* at `newbroman.github.io/Newborough_Hydrology/` — every output CSV,
+every figure, `notes/`, and `docs/papers/`. Martin confirmed on 2026-08-27 that
+the manuscript PDFs are deliberately public, so this is untidiness rather than
+exposure, and switching is optional.
+
+What switching buys, if you want it: the published site becomes the three web
+tools and nothing else, instead of 200 MB of intermediate CSVs and working notes
+that search engines will otherwise index. Order matters, because the branch has
+to exist on GitHub before the setting can name it:
+
+1. `working/nrg_git.sh` option 13 — builds `gh-pages` and offers to push it
+2. Settings → Pages → Source → *Deploy from a branch* → `gh-pages` → `/ (root)`
+
+Note the repository, not just the setting: `Newborough_Hydrology`. The private
+`Newborough_Hydrology_working` cannot serve Pages at all without Enterprise, and
+`Newborough_welllogger` is a different project.
 
 ## 7. The second machine
 

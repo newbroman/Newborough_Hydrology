@@ -10,11 +10,19 @@ Reproducible Python workflow supporting the manuscript:
 ## Quick Start
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-python run_analysis.py           # opens interactive menu
+python3 --version                # must be 3.12.x — a floor AND a ceiling
+sudo apt install python3-numpy python3-pandas python3-scipy \
+    python3-matplotlib python3-sklearn python3-geopandas python3-shapely \
+    python3-pyproj python3-odf pandoc poppler-utils
+python3 tools/import_audit.py    # MISSING-DEP names anything still absent
+python3 run_analysis.py          # opens interactive menu
 ```
+
+Not a venv, and **not** `pip install -r requirements.txt`. The reference
+environment is Ubuntu 24.04's apt packages; that file is a `pip freeze` from an
+environment this project has never run in, and pins numpy and pandas two major
+versions past what produced the published numbers. `BOOTSTRAP.md` §1 has the
+full story.
 
 ---
 

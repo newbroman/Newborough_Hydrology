@@ -81,17 +81,17 @@ This lets you compare the individual well's behaviour against its cluster averag
 On load, the forecaster fetches the Met Office Historic Station Data file for RAF Valley (valleydata.txt). If the fetch succeeds, a banner below the header shows:
 
 -   Cumulative winter rainfall (Oct--Mar) for the current and/or most recently completed hydrological winter.
--   The observed rainfall expressed as λ (lambda), the ratio of observed to climatological winter total.
+-   The observed rainfall expressed as m_P, the ratio of observed to climatological winter total.
 
-Two preset links appear above the slider allowing you to set the rainfall multiplier to the live λ or to the climatological default (λ = 1.00).
+Two preset links appear above the slider allowing you to set the rainfall multiplier to the live m_P or to the climatological default (m_P = 1.00).
 
 ## A5.1 Manual fallback
 
 If the live fetch fails (CORS restriction, no internet, server down), a Retry button and an Enter rainfall manually button appear. The manual option opens a modal where you can paste the full contents of valleydata.txt copied from a browser tab. The parser extracts the same monthly totals and populates the banner identically.
 
-# A6. The Rainfall Multiplier (λ)
+# A6. The Rainfall Multiplier (m_P)
 
-The slider at the top-right of the map controls the assumed winter rainfall multiplier λ, ranging from 0.60× (dry winter) to 2.00× (exceptional winter). As you drag it:
+The slider at the top-right of the map controls the assumed winter rainfall multiplier m_P, ranging from 0.60× (dry winter) to 2.00× (exceptional winter). As you drag it:
 
 -   The map dots re-colour in real time to reflect updated P_flood vulnerability.
 -   The forecast panel recalculates all three forecasts.
@@ -134,12 +134,12 @@ Calculates the cumulative rainfall (in mm) over the cluster's horizon period nee
 
 P_flood = A · d + B
 
-The result is also expressed as λ, the multiple of climatological rainfall:
+The result is also expressed as m_P, the multiple of climatological rainfall:
 
--   Reachable (green): λ \< 1.0 --- surface flooding possible under normal rainfall.
--   Wet winter required (amber): λ 1.0--1.3.
--   Exceptional winter (red): λ 1.3--2.0.
--   Structurally unreachable (grey): λ \> 2.0 --- flooding essentially impossible.
+-   Reachable (green): m_P \< 1.0 --- surface flooding possible under normal rainfall.
+-   Wet winter required (amber): m_P 1.0--1.3.
+-   Exceptional winter (red): m_P 1.3--2.0.
+-   Structurally unreachable (grey): m_P \> 2.0 --- flooding essentially impossible.
 
 ## A7.4 Ecohydrology indices (EWI, EbF, MSL5)
 
@@ -158,7 +158,7 @@ These values update automatically from the project\'s live feed. If the page is 
 The map uses a square viewBox (1000 × 1000) matching the square base-layer extent (3800 m × 3800 m). Well dots occupy a horizontal strip across the middle of the map reflecting their actual geography. Each dot is coloured by P_flood vulnerability:
 
   -------- -------------------------- ---------------------
-  Colour   Category                   λ range
+  Colour   Category                   m_P range
   Green    Reachable                  \< 1.0× climatology
   Amber    Wet winter required        1.0--1.3×
   Red      Exceptional winter         1.3--2.0×
@@ -174,7 +174,7 @@ Some wells are flagged with an asterisk (\*) and display a nearest-type assignme
 # A10. Practical Tips
 
 -   After selecting a well, check both depth inputs: the current-depth default is the cluster's long-term mean for this calendar month, and the summer-minimum default is the cluster's long-term trough. Edit either to match your actual observations.
--   Use the live λ preset when available --- it incorporates the actual current-season rainfall.
+-   Use the live m_P preset when available --- it incorporates the actual current-season rainfall.
 -   Compare the per-well long-term depths against the cluster averages in the well-details panel; large differences indicate the well behaves atypically within its cluster.
 -   The forecaster works entirely offline after the initial page load; you can save the HTML file to a USB stick or phone for field use.
 -   Drag the panel gutters to adjust the sidebar, map, and forecast panel widths to suit your screen.

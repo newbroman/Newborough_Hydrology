@@ -65,7 +65,35 @@ TARGETS = [
     ("docs/papers/paper_2/Hollingham_2026_Paper2_amended*.odt", True),
     ("docs/academic_summaries/academic_Summary_v*.odt", True),
     ("docs/academic_summaries/crynodeb_academaidd_v*.odt", True),
+    # Added 2026-08-27. symbol_check sweeps `docs/**/text/*.md`, which is every
+    # mirror under docs/; this list was written by hand and named six document
+    # families. The Web Tools pair and the three public summaries were swept by
+    # the audit and unreachable by the apply — so T-01's sixteen λ→m_P, twelve of
+    # them in the User Manual, could be counted forever and never applied. Same
+    # shape as cite_check and symbol_check keeping separate copies of DOC_GLOBS.
+    # `unreachable()` below now says so out loud rather than trusting this list.
+    ("docs/web_tools/NRG_Web_Tools_*.odt", False),
+    ("docs/public_summaries/public_summary_*.odt", False),
 ]
+
+
+def unreachable() -> list[str]:
+    """Mirrors the audit sweeps that this tool has no ODT for.
+
+    A hand-maintained list of edit targets beside a glob-driven audit is two
+    lists that must agree and cannot check each other. This does not fix that —
+    it makes the disagreement visible, which is the difference between a gap and
+    a silent gap.
+    """
+    covered = {q.resolve() for g, v in TARGETS for q in newest(g, v)}
+    out = []
+    for mirror in sorted(REPO.glob("docs/**/text/*.md")):
+        family = mirror.parent.parent / mirror.stem
+        if any(c.parent == family.parent and c.stem.startswith(family.name)
+               for c in covered):
+            continue
+        out.append(mirror.relative_to(REPO).as_posix())
+    return out
 
 _VER = re.compile(r"_v(\d+(?:_\d+)*)\.odt$")
 
@@ -123,6 +151,14 @@ def flat_to_xml(spans, flat_i: int) -> int | None:
     return None
 
 
+# The subscript predicate lives in symbol_check (`is_subscripted`) and is
+# imported, not copied. Two copies of a rule are two rules, and this repository
+# has spent the week paying for exactly that: cite_check and symbol_check each
+# holding their own DOC_GLOBS until they diverged, and this tool's TARGETS list
+# holding six document families while the audit swept nine.
+_qualified = sc.is_qualified
+
+
 def plan_for(path: Path, senses: list[dict], sense_id: str, glyph: str):
     """[(xml_start, xml_end, replacement)] for one document."""
     import zipfile
@@ -153,6 +189,30 @@ def plan_for(path: Path, senses: list[dict], sense_id: str, glyph: str):
         repl = target["replacement"]
         if flat[f_start:f_start + len(repl)] == repl:
             continue
+        # ALREADY QUALIFIED? Skip it — and this is the one that got through.
+        #
+        # `occurrences()` counts δ_F and β₃ as occurrences of the base glyph,
+        # deliberately and correctly: the collision the audit is looking for is
+        # in the glyph. But the span it returns is the BARE glyph, so applying a
+        # rename to it inserts the replacement in FRONT of the existing
+        # subscript. δ_F became δ_cwb_F. α_W — the van Willegen coefficient, a
+        # different registered sense with its own replacement — became α_B_W.
+        # δ₀, the coast-edge anomaly of the Script 25 gradient fit, became
+        # δ_cwb₀, and the published constants table then read
+        # "δ_cwb₀ = −29.03 mm yr⁻¹": the coastal gradient's value under the
+        # climate coefficient's name.
+        #
+        # Eleven such writes reached three published documents on 2026-08-27
+        # (5115434) and were verified clean afterwards by a check that looked
+        # only for DOUBLED REPLACEMENTS — α_B_B, δ_cwb_cwb. None of the eleven
+        # is a doubled replacement, so it passed.
+        #
+        # The register already settles this: only BARE senses compete for a
+        # glyph, because a reader seeing δ_F is in no doubt which quantity is
+        # meant. An occurrence carrying a subscript is therefore never the
+        # thing a bare sense's rename is for.
+        if _qualified(flat, f_end):
+            continue
         out.append((x0, x1 + 1, repl,
                     re.sub(r"\s+", " ", flat[max(0, f_start - 60):f_end + 60])))
     return out
@@ -182,6 +242,14 @@ def main() -> int:
     print("=" * 78)
     if not args.apply:
         print("  DRY RUN — nothing is written. Add --apply.\n")
+
+    gap = unreachable()
+    if gap:
+        print("  WARNING — swept by the audit, unreachable by this tool:")
+        for m in gap:
+            print(f"    {m}")
+        print("  Add the source ODT to TARGETS or these can be counted forever")
+        print("  and never applied.\n")
 
     total, failures = 0, 0
     for glob, versioned in TARGETS:

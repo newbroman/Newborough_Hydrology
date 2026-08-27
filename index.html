@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Newborough Warren Groundwater Research</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --sand: #f4f0e6;
+      --sand-dark: #e8e0cc;
+      --dune: #c8b878;
+      --slate: #3a4a52;
+      --slate-light: #5a6e78;
+      --water: #4a7a8a;
+      --water-light: #6a9aaa;
+      --water-pale: #e8f2f5;
+      --pine: #3d5c3a;
+      --pine-light: #5a7d56;
+      --text: #2a3338;
+      --text-light: #5a6a72;
+      --border: #d4c8a8;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Source Sans 3', sans-serif;
+      font-weight: 400;
+      background: var(--sand);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    /* ── HEADER ─────────────────────────────────────────── */
+    header {
+      background: var(--slate);
+      color: white;
+      padding: 3rem 2rem 2.6rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        repeating-linear-gradient(
+          135deg,
+          transparent,
+          transparent 40px,
+          rgba(255,255,255,0.018) 40px,
+          rgba(255,255,255,0.018) 80px
+        );
+      pointer-events: none;
+    }
+
+    header::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--dune), var(--water), var(--pine));
+    }
+
+    .header-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .site-label {
+      font-family: 'Source Sans 3', sans-serif;
+      font-weight: 300;
+      font-size: 0.78rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--dune);
+      margin-bottom: 0.7rem;
+    }
+
+    h1 {
+      font-family: 'Libre Baskerville', Georgia, serif;
+      font-weight: 700;
+      font-size: clamp(1.5rem, 3.5vw, 2.2rem);
+      line-height: 1.25;
+      color: white;
+      margin-bottom: 0.8rem;
+    }
+
+    .header-meta {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.62);
+      font-weight: 300;
+    }
+
+    .header-meta span + span::before {
+      content: ' · ';
+      color: var(--dune);
+    }
+
+    /* ── NAV ─────────────────────────────────────────────── */
+    nav {
+      background: var(--slate-light);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    nav ul {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      list-style: none;
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    nav ul li a {
+      display: block;
+      padding: 0.85rem 1.2rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.72);
+      text-decoration: none;
+      transition: color 0.2s;
+      white-space: nowrap;
+    }
+
+    nav ul li a:hover { color: white; }
+
+    /* ── MAIN LAYOUT ─────────────────────────────────────── */
+    main {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 2rem 4rem;
+    }
+
+    section {
+      padding: 2.5rem 0 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    section:last-child { border-bottom: none; }
+
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--water);
+      margin-bottom: 0.6rem;
+    }
+
+    h2 {
+      font-family: 'Libre Baskerville', Georgia, serif;
+      font-weight: 700;
+      font-size: 1.35rem;
+      color: var(--slate);
+      margin-bottom: 1.2rem;
+      line-height: 1.3;
+    }
+
+    p { margin-bottom: 1rem; color: var(--text); }
+    p:last-child { margin-bottom: 0; }
+
+    a { color: var(--water); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── STAT CHIPS ──────────────────────────────────────── */
+    .stat-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      margin: 1.2rem 0 1rem;
+    }
+
+    .stat-chip {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 0.5rem 0.9rem;
+      font-size: 0.82rem;
+    }
+
+    .stat-chip strong {
+      display: block;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--slate);
+      line-height: 1.2;
+    }
+
+    .stat-chip span {
+      color: var(--text-light);
+      font-size: 0.75rem;
+    }
+
+    /* ── THREE PILLARS ───────────────────────────────────── */
+    .pillars {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.2rem;
+      margin-top: 1.4rem;
+    }
+
+    @media (max-width: 800px) {
+      .pillars { grid-template-columns: 1fr; }
+    }
+
+    .pillar {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 1.6rem 1.5rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      transition: box-shadow 0.2s, border-color 0.2s;
+    }
+
+    .pillar:hover {
+      box-shadow: 0 4px 18px rgba(74,122,138,0.10);
+      border-color: var(--water-light);
+    }
+
+    .pillar-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
+
+    .pillar-icon.docs   { background: #eae5d5; color: var(--dune); }
+    .pillar-icon.models { background: var(--water-pale); color: var(--water); }
+    .pillar-icon.pipe   { background: #dce8dc; color: var(--pine); }
+
+    .pillar h3 {
+      font-family: 'Libre Baskerville', Georgia, serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--slate);
+      margin-bottom: 0.45rem;
+    }
+
+    .pillar .pillar-desc {
+      font-size: 0.84rem;
+      color: var(--text-light);
+      flex: 1;
+      margin-bottom: 1rem;
+    }
+
+    .pillar-count {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-light);
+      margin-bottom: 0.6rem;
+    }
+
+    .pillar .btn {
+      align-self: flex-start;
+    }
+
+    /* ── BUTTONS ──────────────────────────────────────────── */
+    .btn {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      border-radius: 3px;
+      transition: background 0.18s, color 0.18s;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--water);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--slate);
+      text-decoration: none;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--water);
+      border: 1px solid var(--water);
+    }
+
+    .btn-secondary:hover {
+      background: var(--water-pale);
+      text-decoration: none;
+    }
+
+    .btn-pine {
+      background: var(--pine);
+      color: white;
+    }
+
+    .btn-pine:hover {
+      background: var(--slate);
+      text-decoration: none;
+    }
+
+    .btn-dune {
+      background: var(--dune);
+      color: var(--slate);
+    }
+
+    .btn-dune:hover {
+      background: #b8a868;
+      text-decoration: none;
+    }
+
+    /* ── DOCUMENT GRID ───────────────────────────────────── */
+    .doc-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.2rem;
+      margin-top: 1.2rem;
+    }
+
+    .doc-group {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1.2rem 1.4rem;
+    }
+
+    .doc-group-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--water);
+      margin-bottom: 0.5rem;
+    }
+
+    .doc-group h3 {
+      font-family: 'Libre Baskerville', Georgia, serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--slate);
+      margin-bottom: 0.35rem;
+    }
+
+    .doc-group .doc-desc {
+      font-size: 0.82rem;
+      color: var(--text-light);
+      margin-bottom: 0.7rem;
+    }
+
+    .doc-links {
+      display: flex;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+    }
+
+    .doc-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.35rem 0.7rem;
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: var(--slate);
+      background: var(--sand);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      text-decoration: none;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .doc-link:hover {
+      background: var(--water-pale);
+      border-color: var(--water-light);
+      text-decoration: none;
+    }
+
+    .doc-link .file-type {
+      font-size: 0.62rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--water);
+      background: var(--water-pale);
+      padding: 0.08rem 0.3rem;
+      border-radius: 2px;
+    }
+
+    .doc-link .lang-flag {
+      font-size: 0.8rem;
+      line-height: 1;
+    }
+
+    /* ── MODEL CARDS ──────────────────────────────────────── */
+    .model-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.2rem;
+      margin-top: 1.2rem;
+    }
+
+    .model-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1.3rem 1.4rem 1.4rem;
+      transition: box-shadow 0.2s, border-color 0.2s;
+    }
+
+    .model-card:hover {
+      box-shadow: 0 4px 16px rgba(74,122,138,0.12);
+      border-color: var(--water-light);
+    }
+
+    .model-card-tag {
+      display: inline-block;
+      font-size: 0.66rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      background: var(--water-pale);
+      color: var(--water);
+      border-radius: 2px;
+      padding: 0.18rem 0.45rem;
+      margin-bottom: 0.7rem;
+    }
+
+    .model-card h3 {
+      font-family: 'Libre Baskerville', Georgia, serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--slate);
+      margin-bottom: 0.4rem;
+    }
+
+    .model-card p {
+      font-size: 0.84rem;
+      color: var(--text-light);
+      margin-bottom: 0.9rem;
+    }
+
+    /* ── PIPELINE ────────────────────────────────────────── */
+    .pipeline-block {
+      background: var(--slate);
+      border-radius: 4px;
+      padding: 1.2rem 1.4rem;
+      margin: 1.2rem 0 0.8rem;
+      color: white;
+      font-family: 'Courier New', monospace;
+      font-size: 0.82rem;
+      line-height: 1.8;
+    }
+
+    .pipeline-block .comment {
+      color: var(--dune);
+      font-style: italic;
+    }
+
+    .pipeline-block .cmd {
+      color: #a8d8a8;
+    }
+
+    .requirements-note {
+      background: var(--water-pale);
+      border: 1px solid var(--water-light);
+      border-radius: 4px;
+      padding: 0.9rem 1.1rem;
+      font-size: 0.85rem;
+      margin-top: 0.8rem;
+    }
+
+    /* ── FOOTER ──────────────────────────────────────────── */
+    footer {
+      background: var(--slate);
+      color: rgba(255,255,255,0.55);
+      font-size: 0.8rem;
+      padding: 2rem;
+      margin-top: 0;
+    }
+
+    footer .footer-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: space-between;
+      align-items: start;
+    }
+
+    footer a { color: var(--dune); }
+
+    .ack {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.4);
+      margin-top: 0.4rem;
+    }
+
+    /* ── RESPONSIVE ──────────────────────────────────────── */
+    @media (max-width: 600px) {
+      header { padding: 2rem 1.2rem 1.6rem; }
+      main { padding: 0 1.2rem 3rem; }
+      nav ul { padding: 0 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <p class="site-label">Isle of Anglesey SAC &middot; 2005&ndash;2026</p>
+    <h1>Newborough Warren Groundwater Research</h1>
+    <p class="header-meta">
+      <span>M. Hollingham</span>
+      <span>88-well dipwell network</span>
+      <span>Coastal sand dune aquifer dynamics</span>
+    </p>
+  </div>
+</header>
+
+<nav aria-label="Page sections">
+  <ul>
+    <li><a href="#about">About</a></li>
+    <li><a href="#documents">Documents</a></li>
+    <li><a href="#models">Models</a></li>
+    <li><a href="#pipeline">Pipeline</a></li>
+  </ul>
+</nav>
+
+<main>
+
+  <!-- ══════════════════════════════════════════════════════
+       SECTION: About the study (intro, stats, pillars)
+       ══════════════════════════════════════════════════════ -->
+  <section id="about">
+
+    <div class="stat-row" aria-label="Key study statistics">
+      <div class="stat-chip">
+        <strong>88</strong>
+        <span>dipwells analysed</span>
+      </div>
+      <div class="stat-chip">
+        <strong>21 years</strong>
+        <span>2005&ndash;2026</span>
+      </div>
+      <div class="stat-chip">
+        <strong>5</strong>
+        <span>hydrogeological clusters</span>
+      </div>
+      <div class="stat-chip">
+        <strong><!--PL:total-->50<!--/PL:total--></strong>
+        <span>pipeline steps</span>
+      </div>
+    </div>
+
+    <p>
+      Newborough Warren is one of Wales&rsquo;s most significant coastal sand dune systems
+      and a designated Special Area of Conservation (SAC). This site accompanies a
+      hydrogeological study of the coastal sand dune aquifer on the Isle of Anglesey.
+      A <!--PL:total-->50<!--/PL:total-->-step reproducible analytical pipeline &mdash; requiring only monthly dipwell
+      readings and publicly available climate data &mdash; characterises groundwater
+      dynamics across five behavioural clusters, quantifies the hydrological effects of
+      Corsican pine plantation and clearfell interventions, and provides operational
+      forecasting tools for conservation management.
+      <a href="https://www.google.com/maps/d/viewer?mid=1hXLAauiMeaVsXhBR_IoUTziAtjk"
+         target="_blank" rel="noopener">View site map &rarr;</a>
+    </p>
+
+    <p>
+      The principal finding is that the plantation simultaneously acts as a
+      hydrological sink &mdash; consuming water through interception and transpiration
+      &mdash; and a microclimatic buffer &mdash; shielding the water table from atmospheric
+      evaporative demand. Removing the canopy eliminates both functions; the net
+      effect is baseline displacement downward rather than the water-table recovery
+      that conventional forestry hydrology would predict.
+    </p>
+
+    <!-- ── Three pillars ──────────────────────────────────── -->
+    <div class="pillars">
+
+      <a href="#documents" class="pillar" style="text-decoration:none; color:inherit;">
+        <div class="pillar-icon docs">&#128196;</div>
+        <h3>Documents</h3>
+        <p class="pillar-desc">
+          Full report, academic and public summaries, glossaries
+          and web-tool reference manuals.
+        </p>
+        <p class="pillar-count">10 documents &middot; 3 languages</p>
+        <span class="btn btn-dune">Browse documents &darr;</span>
+      </a>
+
+      <a href="#models" class="pillar" style="text-decoration:none; color:inherit;">
+        <div class="pillar-icon models">&#127758;</div>
+        <h3>Interactive Models</h3>
+        <p class="pillar-desc">
+          Scenario viewer, groundwater flood forecaster and
+          seasonal extremes scatter &mdash; all browser-based, no install.
+        </p>
+        <p class="pillar-count">3 tools &middot; fully offline-capable</p>
+        <span class="btn btn-primary">Open models &darr;</span>
+      </a>
+
+      <a href="#pipeline" class="pillar" style="text-decoration:none; color:inherit;">
+        <div class="pillar-icon pipe">&#9881;</div>
+        <h3>Analysis Pipeline</h3>
+        <p class="pillar-desc">
+          Reproducible Python workflow: <!--PL:total-->50<!--/PL:total--> steps across
+          <!--PL:phases-->17<!--/PL:phases--> phases, from raw dipwell data to publication figures.
+        </p>
+        <p class="pillar-count"><!--PL:total-->50<!--/PL:total--> steps &middot; Python 3.10+</p>
+        <span class="btn btn-pine">View pipeline &darr;</span>
+      </a>
+
+    </div>
+
+    <p style="margin-top:1.6rem; font-size:0.88rem;">
+      <strong>Citation:</strong> Hollingham, M. (2026) Hydrogeological Dynamics,
+      Behavioural Clustering and Management Intervention Analysis at Newborough
+      Warren Coastal Sand Dune Aquifer, Wales.
+    </p>
+
+    <p style="font-size:0.88rem;">
+      <strong>Contact:</strong>
+      <a id="about-contact" href="#">loading&hellip;</a>
+      &middot;
+      ORCID: <a href="https://orcid.org/0000-0003-0253-9301"
+         target="_blank" rel="noopener">0000-0003-0253-9301</a>
+    </p>
+
+    <p style="font-size:0.82rem; color:var(--text-light);">
+      Dipwell records &copy; M. Hollingham.
+      Meteorological inputs from RAF Valley.
+      Conservation management support: Natural Resources Wales (NRW).
+    </p>
+
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════
+       SECTION: Documents
+       ══════════════════════════════════════════════════════ -->
+  <section id="documents">
+    <p class="section-label">Reports, summaries &amp; reference</p>
+    <h2>Documents</h2>
+
+    <div class="doc-grid">
+
+      <div class="doc-group">
+        <p class="doc-group-label">Research report</p>
+        <h3>Full Manuscript</h3>
+        <p class="doc-desc">
+          Main report with 47 figures and 16 tables, plus supplementary
+          material and the per-script methods supplement.
+        </p>
+        <div class="doc-links">
+          <a class="doc-link" href="docs/report/report.pdf">
+            Report <span class="file-type">PDF</span>
+          </a>
+          <a class="doc-link" href="docs/report/Supplementary_Material.pdf">
+            Supplementary material <span class="file-type">PDF</span>
+          </a>
+          <a class="doc-link" href="docs/report/Newborough_Methods_Supplement.pdf">
+            Methods supplement <span class="file-type">PDF</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="doc-group">
+        <p class="doc-group-label">Summaries</p>
+        <h3>Academic &amp; Public Summaries</h3>
+        <p class="doc-desc">
+          Concise research summary for academics; plain-language overview for
+          land managers and community stakeholders in English, Welsh and Polish.
+        </p>
+        <div class="doc-links">
+          <a class="doc-link" href="docs/academic_summaries/academic_summary.pdf">
+            <span class="lang-flag">&#127468;&#127463;</span> Academic summary <span class="file-type">PDF</span>
+          </a>
+          <a class="doc-link" href="docs/academic_summaries/crynodeb_academaidd.pdf">
+            <span class="lang-flag">&#127988;&#917607;&#917602;&#917623;&#917612;&#917619;&#917631;</span> Crynodeb academaidd <span class="file-type">PDF</span>
+          </a>
+          <a class="doc-link" href="docs/public_summaries/Newborough_Warren_Public_Summary.pdf">
+            <span class="lang-flag">&#127468;&#127463;</span> Public summary <span class="file-type">PDF</span>
+          </a>
+          <a class="doc-link" href="docs/public_summaries/Niwbwrch_Crynodeb_Cyhoeddus.pdf">
+            <span class="lang-flag">&#127988;&#917607;&#917602;&#917623;&#917612;&#917619;&#917631;</span> Crynodeb cyhoeddus <span class="file-type">PDF</span>
+          </a>
+          <a class="doc-link" href="docs/public_summaries/Newborough_Warren_Podsumowanie.pdf">
+            <span class="lang-flag">&#127477;&#127473;</span> Podsumowanie <span class="file-type">PDF</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="doc-group">
+        <p class="doc-group-label">Glossaries</p>
+        <h3>Dune Hydrology Glossary</h3>
+        <p class="doc-desc">
+          Technical terms used in the report and web tools.
+          Available in English, Welsh and Polish.
+        </p>
+        <div class="doc-links">
+          <a class="doc-link" href="docs/Glossaries/Dune_Hydrology_Glossary.pdf">
+            <span class="lang-flag">&#127468;&#127463;</span> English <span class="file-type">PDF</span>
+          </a>
+          <a class="doc-link" href="docs/Glossaries/Geirfa_Hydroleg_Twyni.pdf">
+            <span class="lang-flag">&#127988;&#917607;&#917602;&#917623;&#917612;&#917619;&#917631;</span> Cymraeg <span class="file-type">PDF</span>
+          </a>
+          <a class="doc-link" href="docs/Glossaries/Slownik_Hydrologii_Wydm.pdf">
+            <span class="lang-flag">&#127477;&#127473;</span> Polski <span class="file-type">PDF</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="doc-group">
+        <p class="doc-group-label">Web tools documentation</p>
+        <h3>User Manual &amp; Technical Note</h3>
+        <p class="doc-desc">
+          How to operate the Forecaster, Scenario Viewer and Scatter (User Manual);
+          model equations, data bundles and rendering (Technical Note).
+        </p>
+        <div class="doc-links">
+          <a class="doc-link" href="docs/web_tools/NRG_Web_Tools_User_Manual.pdf">
+            User Manual <span class="file-type">PDF</span>
+          </a>
+          <a class="doc-link" href="docs/web_tools/NRG_Web_Tools_Technical_Note.pdf">
+            Technical Note <span class="file-type">PDF</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════
+       SECTION: Interactive Models
+       ══════════════════════════════════════════════════════ -->
+  <section id="models">
+    <p class="section-label">Interactive web tools</p>
+    <h2>Models</h2>
+
+    <p style="margin-bottom:1.2rem;">
+      All three tools are self-contained HTML files with embedded data and
+      JavaScript &mdash; no server, no installation, fully offline-capable.
+      See the <a href="docs/web_tools/NRG_Web_Tools_User_Manual.pdf">User Manual</a>
+      for operating instructions and the
+      <a href="docs/web_tools/NRG_Web_Tools_Technical_Note.pdf">Technical Note</a>
+      for model equations.
+    </p>
+
+    <div class="model-cards">
+
+      <div class="model-card">
+        <span class="model-card-tag">Scenario viewer</span>
+        <h3>Hydrogeological Modelling Suite</h3>
+        <p>
+          Explore groundwater dynamics under climate and management scenarios
+          for all five clusters. IDW-interpolated map surface, cluster bar charts,
+          and per-well data tables with UKCP18, clearfell, broadleaf and thinning presets.
+        </p>
+        <a class="btn btn-primary"
+           href="https://newbroman.github.io/Newborough_Hydrology/scenario_viewer.html"
+           target="_blank" rel="noopener">
+          Open scenario viewer &rarr;
+        </a>
+      </div>
+
+      <div class="model-card">
+        <span class="model-card-tag">Flood forecaster</span>
+        <h3>Groundwater Flood Forecasting Tool</h3>
+        <p>
+          Per-well flood-risk assessment driven by SSM P<sub>flood</sub>
+          threshold equations. Live Met Office rainfall integration,
+          cluster-specific horizons, and interactive map.
+        </p>
+        <a class="btn btn-primary"
+           href="https://newbroman.github.io/Newborough_Hydrology/outputs/11b_spatial_thresholds/forecaster.html"
+           target="_blank" rel="noopener">
+          Open flood forecaster &rarr;
+        </a>
+      </div>
+
+      <div class="model-card">
+        <span class="model-card-tag">Network scatter</span>
+        <h3>Seasonal Extremes Scatter</h3>
+        <p>
+          Mean annual summer minima vs winter maxima across the well network,
+          coloured by cluster, with Curreli et al. (2013)
+          eco-hydrological threshold lines and per-well search.
+        </p>
+        <a class="btn btn-primary"
+           href="https://newbroman.github.io/Newborough_Hydrology/seasonal_extremes_scatter.html"
+           target="_blank" rel="noopener">
+          Open scatter plot &rarr;
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════
+       SECTION: Pipeline
+       ══════════════════════════════════════════════════════ -->
+  <section id="pipeline">
+    <p class="section-label">Reproducible analysis</p>
+    <h2>Pipeline</h2>
+
+    <p>
+      <!--PL:total-->50<!--/PL:total--> registered steps across <!--PL:phases-->17<!--/PL:phases-->
+      phases, coordinated by <code>run_analysis.py</code>. Those steps are classified two
+      independent ways: by tier &mdash; <!--PL:analytical-->40<!--/PL:analytical--> analytical,
+      <!--PL:display-->4<!--/PL:display--> display/utility and
+      <!--PL:diagnostic-->6<!--/PL:diagnostic--> diagnostic; and by execution &mdash;
+      <!--PL:default-->47<!--/PL:default--> run in a default pass, with
+      <!--PL:optin-->3<!--/PL:optin--> reached only via <code>--with-supplementary</code>.
+      The two breakdowns each account for the same steps and are not additive with one
+      another. Current values: <code>outputs/pipeline_manifest.json</code>. All file paths managed centrally through
+      <code>src/utils/paths.py</code>. Python 3.10+ required (3.12 tested).
+    </p>
+
+    <div class="pipeline-block" role="region" aria-label="Installation and run commands">
+      <span class="comment"># Clone and install</span><br>
+      <span class="cmd">git clone https://github.com/newbroman/Newborough_Hydrology.git</span><br>
+      <span class="cmd">cd Newborough_Hydrology</span><br>
+      <span class="cmd">python -m venv .venv &amp;&amp; source .venv/bin/activate</span><br>
+      <span class="cmd">pip install -r requirements.txt</span><br>
+      <br>
+      <span class="comment"># Run</span><br>
+      <span class="cmd">python run_analysis.py &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># interactive menu</span></span><br>
+      <span class="cmd">python run_analysis.py --full &nbsp;&nbsp;<span class="comment"># complete pipeline (all <!--PL:total-->50<!--/PL:total--> steps)</span></span><br>
+      <span class="cmd">python run_analysis.py --from 14 <span class="comment"># resume from step 14</span></span><br>
+      <span class="cmd">python run_analysis.py --viewer &nbsp;<span class="comment"># build scenario viewer only</span></span>
+    </div>
+
+    <div style="display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:1rem;">
+      <a class="btn btn-pine"
+         href="https://github.com/newbroman/Newborough_Hydrology"
+         target="_blank" rel="noopener">
+        GitHub repository &rarr;
+      </a>
+      <a class="btn btn-secondary"
+         href="https://github.com/newbroman/Newborough_Hydrology/tree/main/outputs"
+         target="_blank" rel="noopener">
+        Browse outputs
+      </a>
+      <a class="btn btn-secondary"
+         href="https://github.com/newbroman/Newborough_Hydrology/blob/main/PIPELINE_README.md"
+         target="_blank" rel="noopener">
+        Pipeline reference
+      </a>
+    </div>
+
+    <div class="requirements-note" style="margin-top:1rem;">
+      <strong>Note:</strong> KML support uses pure XML + pyproj + shapely (no Fiona KML driver required).
+      Stream network skeletonisation (script 20) requires scikit-image.
+      The <code>outputs/</code> directory should be excluded from version control.
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div>
+      <strong style="color:rgba(255,255,255,0.8);">Newborough Warren Groundwater Research</strong>
+      <p class="ack" style="margin-top:0.5rem;">
+        Dipwell data: &copy; M. Hollingham &middot;
+        Meteorological data: RAF Valley &middot;
+        Conservation management support: Natural Resources Wales (NRW)
+      </p>
+    </div>
+    <div style="text-align:right;">
+      <span>M. Hollingham, 2026</span><br>
+      <a href="https://orcid.org/0000-0003-0253-9301" target="_blank" rel="noopener"
+         style="font-size:0.78rem;">ORCID: 0000-0003-0253-9301</a><br>
+      <a href="https://github.com/newbroman/Newborough_Hydrology"
+         style="font-size:0.78rem;">GitHub repository</a><br>
+      <a id="contact-link" href="#" style="font-size:0.78rem;">
+        Feedback &amp; comments
+      </a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var user = 'martin.hollingham+nrg';
+    var domain = 'gmail.com';
+    var addr = user + '@' + domain;
+    var href = 'mailto:' + addr + '?subject=Newborough%20Warren%20research%20feedback';
+
+    var footer = document.getElementById('contact-link');
+    if (footer) { footer.href = href; footer.textContent = addr; }
+
+    var about = document.getElementById('about-contact');
+    if (about) { about.href = href; about.textContent = addr; }
+  })();
+</script>
+
+</body>
+</html>

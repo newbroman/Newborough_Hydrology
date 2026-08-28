@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Supplementary_Material_v1_24.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Supplementary_Material_v1_25.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Supplementary Material
@@ -33,7 +33,7 @@ The available borehole evidence is confined to four locations documented in Bets
 
 **Table S2.1.*** Borehole constraints on saturated thickness from Betson et al. (2002). Values represent confirmed minimum depth to the low-permeability substrate (glacial till or bedrock). The Water borehole value of 12.8 m is a minimum --- drilling did not reach the substrate. The eastern borehole (Borehole 3) shows progressive thinning toward the Menai Strait. These four boreholes constitute the only direct subsurface lithological evidence available for the 700 ha dune system and represent the most important data gap for any future spatially explicit groundwater model.*
 
-The tracer test reported by Betson et al. (2002) provides the single direct estimate of hydraulic conductivity for the site, yielding K = 6.0 m/day at the central dune plain (range 3.0--9.0 m/day from the sensitivity analysis). This value is used as the site-wide K constant where transmissivity is required for the Darcy flow direction vectors in the spatial figures (§4.9.5, Figure 49), with the range providing the basis for the exploratory uncertainty envelope noted in the figure annotations.
+The tracer test reported by Betson et al. (2002) provides the single direct estimate of hydraulic conductivity for the site, yielding K = 6.0 m/day at the central dune plain (range 3.0--9.0 m/day from the sensitivity analysis). This value is used as the site-wide K constant in the drawdown-propagation construction. It does NOT enter the flow-direction quiver of §4.9.5 (Figure 49), which is a unit-normalised head gradient and is independent of both K and aquifer thickness --- as stated four paragraphs below. The range provides the basis for the exploratory uncertainty envelope noted in the figure annotations.
 
 ## S2.2 The β₁ Proxy for Relative Aquifer Thickness
 
@@ -76,7 +76,7 @@ This persistence is consistent with the interpretation that the Forest cluster s
 
 ## S2.4 Reproducibility
 
-The spatial model parameterisation documented in this note is implemented in 19_spatial_groundwater.py (scenario viewer data preparation, IDW thickness surface, per-well equilibrium calculations) and 20_spatial_figures.py (Darcy flow direction vectors, mean head surface, water balance residual field). The β₁ proxy analysis draws on the cluster-level SSM coefficients exported by 03_state_space_model.py (03_03_cluster_mechanistic_coefficients.csv). The Pearson affinity test for C4 cluster persistence post-felling is computed in 05_pearson_affinity.py. All scripts read intermediate data produced by the main pipeline and are maintained in the canonical pipeline sequence. The interactive scenario viewer (scenario_viewer.html) is a standalone browser application that reads the per-well coefficient and location CSVs exported by Script 19.
+The spatial model parameterisation documented in this note is implemented in 19_spatial_groundwater.py (scenario viewer data preparation, IDW thickness surface, per-well equilibrium calculations) and 20_spatial_figures.py (flow-direction quiver --- a unit-normalised head gradient, not a Darcy flux --- mean head surface, water balance residual field). The β₁ proxy analysis draws on the cluster-level SSM coefficients exported by 03_state_space_model.py (03_03_cluster_mechanistic_coefficients.csv). The Pearson affinity test for C4 cluster persistence post-felling is computed in 05_pearson_affinity.py. All scripts read intermediate data produced by the main pipeline and are maintained in the canonical pipeline sequence. The interactive scenario viewer (scenario_viewer.html) is a standalone browser application that reads the per-well coefficient and location CSVs exported by Script 19.
 
 # Supplementary Note S3: Scenario Modelling Framework and Limitations
 

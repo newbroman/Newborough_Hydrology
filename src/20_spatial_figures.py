@@ -3370,7 +3370,10 @@ def plot_msl5_change(wt, features, dpi=300):
     base_net = float(dfall["MSL5_m_bg_base"].mean() * 1000)
     curr_net = float(dfall["MSL5_m_bg_curr"].mean() * 1000)
 
-    # ── §4.9.8 traceable per-well MSL5-change CSV + report numbers (Fig 54) ─
+    # ── §4.12 traceable per-well MSL5-change CSV + report numbers (Fig 63) ─
+    # (§4.9.8 / Fig 54 until 2026-08-28: the Combined Driver Assessment moved
+    #  to §4.12 and this map is Figure 63 — tools/section_map.csv and
+    #  tools/figure_map.csv are the authorities, and both said so.)
     # Raw below-ground change (no C2/C3 normalisation — the 5-yr spring mean
     # already averages inter-annual climate noise). Significance at ±25 mm on
     # the raw change. n = 61 wells common to both windows.

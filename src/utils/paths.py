@@ -317,6 +317,16 @@ OUT_02_REPORT_NUMBERS      = DIR_02 / "02_report_numbers.csv"          # §4.2 c
 OUT_02_STABILITY_PER_WELL  = DIR_02 / "02_05_bootstrap_stability_per_well.csv"
 # The following two are templates — .format(k=...) is applied at the call site
 # because one file is written per bootstrap k value.
+# THE 02_06 PREFIX IS USED TWICE, AND IS LEFT THAT WAY DELIBERATELY.
+# OUT_02_K_SWEEP above is 02_06_k_sweep_validation.csv and this is
+# 02_06_coassignment_heatmap_k{k}.png. Raised by T-02, 2026-08-26, and
+# checked on 2026-08-28: the two never collide, because the extensions
+# differ and nothing in src/ or tools/ globs the prefix. The number is a
+# naming convention, not an index anything resolves against.
+# Renaming either would move a committed output and would have to be
+# followed through the Methods Supplement's file-list table and the
+# SCRIPT_LEDGER's Emits cell — three records changed to tidy a clash that
+# has never cost anything. Noted so the next reader does not re-raise it.
 OUT_02_COASSIGN_HEATMAP    = DIR_02 / "02_06_coassignment_heatmap_k{k}.png"
 OUT_02_MEMBERSHIP_SWEEP    = DIR_02 / "02_07_cluster_membership_k{k}.csv"
 # Cluster amplitude descriptors (pattern/amplitude orthogonality — Section 4.2).

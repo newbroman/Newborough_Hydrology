@@ -873,6 +873,78 @@ def far_field_admission_threshold_m(verbose=True):
     return FAR_FIELD_REACH_MULTIPLE * reach, reach, source
 
 
+def coastal_decay_params(source="full_canopy", model="linear_capped",
+                         verbose=True):
+    """(delta_0_mm_yr, L_m, provenance) for one of Script 25's panel fits.
+
+    Read live from the committed panel-fit table, with the same documented
+    first-pass fallback every other second-run consumer in this module uses.
+
+    The default donor is the CANOPY-CONTROLLED full-network fit, per D-076.
+    Twelve of the seventeen BACI wells are under canopy, so the forest-free
+    headline — which drops those wells — estimates the gradient on the part of
+    the network this panel mostly excludes. `full_canopy` keeps them and
+    measures the canopy drift as its own term, so its delta_0 and L are net of
+    canopy rather than free of forest.
+    """
+    d0 = L = None
+    prov = None
+    try:
+        if OUT_25_FIT_PARAMETERS.exists():
+            fits = pd.read_csv(OUT_25_FIT_PARAMETERS)
+            row = fits[(fits['source'] == source) & (fits['model'] == model)]
+            if not row.empty:
+                d0v, Lv = float(row['delta_0_mm_yr'].iloc[0]), float(row['L_m'].iloc[0])
+                if np.isfinite(d0v) and np.isfinite(Lv):
+                    d0, L = d0v, Lv
+                    prov = f"{OUT_25_FIT_PARAMETERS.name} [{source}/{model}]"
+    except Exception as exc:                              # pragma: no cover
+        warnings.warn(f"Could not read the coastal decay from "
+                      f"{OUT_25_FIT_PARAMETERS.name}: {exc}", stacklevel=2)
+    if d0 is None:
+        from utils.pipeline_params import default_value
+        d0 = float(default_value("coast_delta0_mm_yr"))
+        L = float(default_value("coast_reach_L_m"))
+        prov = "pipeline_params default_value(coast_delta0_mm_yr, coast_reach_L_m)"
+        if verbose:
+            print(f"   ! Coastal decay unavailable — falling back to the "
+                  f"documented default ({prov})")
+    return d0, L, prov
+
+
+def coastal_drift_differential(target_wells, control_wells,
+                               source="full_canopy", model="linear_capped",
+                               verbose=True):
+    """The coastal field's contribution to a BACI displacement, mm/yr.
+
+    ``mean_w∈target δ(d_w) − mean_w∈control δ(d_w)``, with
+    ``δ(d) = δ₀·max(0, 1 − d/L)``.
+
+    THE MEAN OF THE DECAY, NOT THE DECAY OF THE MEAN. δ is capped, so the two
+    differ wherever a tier straddles the reach — and the Forest control tier
+    does, at a mean 955 m against L ≈ 895–930 m, where evaluating at the mean
+    returns zero and credits the controls with no coastal drift at all. That
+    exact mistake was live in Script 25's `baci_corroboration()` until
+    2026-08-28 and put 1.9 mm/yr into a published z-test. Same defect class as
+    D-046.
+
+    The fit's constant `c` is deliberately omitted: it is common to both sides
+    and cancels in a differential, so carrying it would only invite the reader
+    to wonder whether it had been handled.
+
+    Returns (differential_mm_yr, delta_0, L, provenance).
+    """
+    d0, L, prov = coastal_decay_params(source, model, verbose=verbose)
+    dists = well_distances_to_coast()
+
+    def mean_delta(wells):
+        vals = [d0 * max(0.0, 1.0 - dists[w.lower()] / L)
+                for w in wells if w.lower() in dists]
+        return float(np.mean(vals)) if vals else float('nan')
+
+    return mean_delta(target_wells) - mean_delta(control_wells), d0, L, prov
+
+
 def far_field_tier_audit(verbose=True):
     """Re-derive the far-field tier's geometry and check it against the
     criterion, so the tier states its own properties instead of a comment

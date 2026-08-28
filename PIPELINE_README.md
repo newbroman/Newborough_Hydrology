@@ -118,7 +118,7 @@ New code should prefer `pipeline_params.load_params()`.
 ```
 load_cluster_params()
   Reads: 03_03_cluster_mechanistic_coefficients.csv (β₁, β₂, β₃)
-         17_wtf_well_sy.csv (Sy, cluster median)
+         18_wtf_01_well_sy_estimates.csv (Sy, cluster median)
          01_wells_clean.csv + DRAINAGE_DATUM (h_disp)
   Returns: {C1: {b1, b2, b3, Sy, h_disp, forest}, ...}
 
@@ -981,7 +981,7 @@ Two guards are worth knowing about. **Only covered decades are ranked** — the 
 
 **Writes.**
 
-- `17_wtf_well_sy.csv`
+- `18_wtf_01_well_sy_estimates.csv`
 - `18_wtf_01_well_sy_estimates.csv`
 - `18_wtf_02_spatial_sy_map.png`
 - `18_wtf_03_sy_contour.png` (supplementary)
@@ -1421,7 +1421,7 @@ Phase 14 contains three diagnostic scripts that test post-Script-25 implications
 
 **Purpose.** Direct identifiability test of C4 Main Forest's low drainage coefficient. Because β₂·PET and β₃·h_disp are the two loss terms, the obvious objection to C4's low β₃ is that they are collinear at the deep-water-table forest cluster, making the low value a fitting artefact. This script tests that objection at the cluster-centroid scale (the scale the report cites, reproducing Table 1) with four diagnostics: (A) collinearity — VIF of `h_disp_prev` on {P, PET}, corr(PET, h_disp_prev), condition number; (B) signal — SD/range of `h_disp_prev` (the leverage that sets β₃'s precision) and β₃'s SE; (C) recession — recession-only (Δh<0) drainage response controlling for PET; (D) closure — the water-balance-closure-minimising β₃ (β₁,β₂ refit at each). C4 has the network-minimum collinearity (VIF ≈ 1.1) and the network-maximum displacement variation, β₃ = 0.020 is significant (p = 0.003), and the closure-minimising β₃ (≈ 0.026) sits near it — so the low β₃ is real, not degenerate. A per-well panel shows individual C4 fits are noisy (CEH14 negative, most individually non-significant) but with low VIF throughout, confirming the instability is limited power on a small coefficient rather than collinearity. Supersedes the earlier triangulation sensitivity (`30_c4_constrained_fit.py`); labelled diagnostic — does not revise the canonical coefficients.
 
-**Reads.** `01_wells_clean.csv`, `01_climate.csv`, `01_locations.csv`, `03_master_data.csv`, `26_msl_5yr_per_well.csv` (cluster ids), `17_wtf_well_sy.csv`.
+**Reads.** `01_wells_clean.csv`, `01_climate.csv`, `01_locations.csv`, `03_master_data.csv`, `26_msl_5yr_per_well.csv` (cluster ids), `18_wtf_01_well_sy_estimates.csv`.
 
 **Writes.** `30_c4_identifiability_by_cluster.csv`, `30_c4_perwell_beta3.csv`, `30_c4_report_numbers.csv`, `30_c4_drainage_identifiability.png`.
 

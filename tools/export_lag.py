@@ -226,8 +226,15 @@ def run(strict: bool, only: str | None = None) -> int:
         # refused to lint a perfectly current report.pdf because Paper 2 was
         # unbuilt. A filename appearing in a sentence is not a verdict.
         if MASTER[0] in stale:
-            print(f"  {MASTER[0]} is exported by hand from report.odm "
-                  f"(File > Export as PDF);")
+            # Was "exported by hand (File > Export as PDF)" until 2026-08-28.
+            # It no longer has to be: tools/export_master_pdf.py drives the
+            # link / field / index refresh through UNO and refuses to publish
+            # an export that does not pass figref_lint. The hand route still
+            # works and is still correct; it is no longer the only one.
+            print(f"  {MASTER[0]} comes from report.odm, a MASTER document:")
+            print("    python3 tools/export_master_pdf.py    "
+                  "(links, fields and indexes refreshed, then linted)")
+            print("    or File > Export as PDF in LibreOffice, by hand")
             print("  until then tools/figref_lint.py is reading a document "
                   "that no longer")
             print("  exists and would report it clean.")

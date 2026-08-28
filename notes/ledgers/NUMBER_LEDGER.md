@@ -97,8 +97,8 @@ under D-005.
 | ID | Quantity | Source | Volatility | Consumed by |
 |----|----------|--------|-----------|-------------|
 | N-23 | C3 **cluster event median** | `17_wtf_01_sy_estimates.csv` `Sy_event_median` | stable | **no script** — reported in Paper 1 Table 4 only |
-| N-24 | C3 **median of per-well** | `outputs/17_wtf_well_sy.csv` `Sy_median` (written by Script **18**) | stable | 09d, 20, 21, 29, 30, 31, 37b — and λ |
-| N-25 | Per-cluster median-of-per-well | `17_wtf_well_sy.csv` | stable | C4/C5 flagged `Corrected` |
+| N-24 | C3 **median of per-well** | `outputs/18_wtf_spatial/18_wtf_01_well_sy_estimates.csv` `Sy_median` (written by Script **18**) | stable | 09d, 20, 21, 29, 30, 31, 37b — and λ |
+| N-25 | Per-cluster median-of-per-well | `18_wtf_01_well_sy_estimates.csv` | stable | C4/C5 flagged `Corrected` |
 | N-26 | Per-cluster event medians | `17_wtf_01_sy_estimates.csv` | stable | |
 
 ⚠ **N-23 drift:** the project working-rules box states the C3 cluster event median
@@ -190,3 +190,5 @@ current canonical **0.0185**
    document corpus for renderings of the old value. Run it before any publication
    pass — it over-reports by design, so every hit still needs eyeballing.
 3. A number that cannot be given a `Source` cell does not go in a document.
+
+> *Note added 2026-08-28 (T-15).* N-24 and N-25 named `17_wtf_well_sy.csv`, a path **retired on 2026-08-19 under D-038** and no longer written by anything — `paths.py` says so in terms, and the file is not on disk. Re-pointed to Script 18's `18_wtf_01_well_sy_estimates.csv`, which is the same content under the name that survived. The same stale path was live in eight places in the Methods Supplement and one in `PAPER1_TABLES.md`; all corrected the same day.

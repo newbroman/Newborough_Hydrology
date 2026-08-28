@@ -33,7 +33,9 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.6.0"  # Hollingham (2026) -- 2026-08-21. Far-field control tier added
+__version__ = "1.7.0"  # Hollingham (2026) -- 2026-08-28. s_coast derived from psi
+#   (M14 / D-076) and the fixed-at-1 sensitivity committed.
+# 1.6.0  # Hollingham (2026) -- 2026-08-21. Far-field control tier added
 #   to CONTROLS, plus the per-control-well spread refits behind
 #   10a_09_control_well_spread.csv.
 #
@@ -83,6 +85,7 @@ from utils.clearfell_common import (
     ALL_NETWORK_WELLS, INTERVENTION_DATE, SCRAPING_DATE, SCRAPING_DATE_2,
     PRE_FELL_START, SCRAPING_DECAY_LAMBDA, compute_baci_displacement,
     compute_cwb, build_scraping_covariate_centroid, distance_from_ceh36,
+    coastal_drift_differential,
     scraping_weight, ReportNumbers, print_network_summary,
     well_distances_to_coast, tier_distance_stats, far_field_tier_audit,
 )
@@ -106,6 +109,8 @@ OUT_FULL_COEFFS   = DIR_10 / "10a_02_ancova_full_coefficients.csv"
 OUT_TIMESERIES    = DIR_10 / "10a_03_baci_timeseries.csv"
 OUT_REPORT        = DIR_10 / "10a_report_numbers.csv"
 OUT_WELL_SPREAD   = OUT_10A_CONTROL_WELL_SPREAD   # paths.py — Script 25 reads it
+OUT_COASTAL_SCALE = DIR_10 / "10a_09_coastal_scale_factor.csv"
+OUT_COASTAL_FIXED1= DIR_10 / "10a_10_coastal_fixed1_sensitivity.csv"
 # Primary figures (Forest control only — for report)
 OUT_FIG_IMPACT    = DIR_10 / "10a_04_baci_timeseries_impact.png"
 OUT_FIG_EDGE      = DIR_10 / "10a_05_baci_timeseries_edge.png"
@@ -340,6 +345,15 @@ def build_ancova_frame(wells, climate, target_wells, control_wells,
     # easting, interacted with post-felling time.  If the easting range
     # among all wells < 200 m (i.e. forest control wells all clustered
     # together), we drop this term.
+    # Months since the start of the frame, kept as a COLUMN rather than a
+    # local. It was local until 2026-08-28 and computed only inside the easting
+    # branch, so the elapsed-time axis every drift term shares was reachable
+    # only through a term that may not exist. The s_coast fixed-at-1 sensitivity
+    # (D-076) needs the same axis, and rebuilding it downstream from df.index
+    # would be one more place for the epoch to disagree.
+    t0 = df.index.min()
+    df['months_since'] = (df.index - t0).days / 30.4375
+
     df['has_easting'] = False
     if easting_range > 200:
         target_eastings = [well_locations[w]['easting'] for w in target_wells
@@ -348,10 +362,7 @@ def build_ancova_frame(wells, climate, target_wells, control_wells,
                             if w in well_locations]
         if target_eastings and control_eastings:
             delta_easting = np.mean(target_eastings) - np.mean(control_eastings)
-            # Time trend: months since start of record
-            t0 = df.index.min()
-            months_since = ((df.index - t0).days / 30.4375)
-            df['easting_x_time'] = delta_easting * months_since
+            df['easting_x_time'] = delta_easting * df['months_since']
             df['has_easting'] = True
 
     return df
@@ -1226,6 +1237,150 @@ saved(f"{OUT_FIG_SCATTER_3P.name}")
 # EXPORT: REPORT NUMBERS
 # ============================================================================
 phase(9, "Exporting report numbers")
+# ============================================================================
+# COASTAL SCALE FACTOR s_coast  (M14 / D-076)
+# ============================================================================
+# WHY THIS IS A DERIVATION AND NOT A REFIT.
+#
+# D-050 withdrew the reading of psi -- the easting x time coefficient -- as a
+# measurement of coastal retreat, because within this panel easting carries no
+# information about distance to the shore (r = +0.022 across the fifteen
+# clearfell wells) and the term is a nuisance control nobody could interpret.
+# M14 asked whether replacing it with the fitted coastal decay evaluated at
+# each well's own distance would make it interpretable.
+#
+# In a PAIRED BACI the answer is that the two are the same column. Both are one
+# scalar times elapsed months -- `delta_easting x months` and
+# `delta_delta x months / 12000` -- so they span the same one-dimensional space
+# and the two designs are the same model: same clearfell step, same p, same
+# AIC to machine precision. Measured, not assumed (M14_RESULT_2026-08-28.md).
+#
+# So refitting would be work with risk and no information: it would change the
+# name of a column that Script 25's baci_corroboration() matches on, and return
+# the numbers already committed. What the re-parameterisation actually buys is
+# a MEANING, and a meaning can be derived exactly:
+#
+#     s_coast = psi * delta_easting * 12 * 1000 / delta_delta
+#     se      = se_psi * |delta_easting| * 12 * 1000 / |delta_delta|
+#
+# s_coast = 1 means the pair feels precisely the amplitude Script 25 fitted.
+# The departure from 1 is the finding, and unlike psi it has a scale.
+#
+# READ THE DENOMINATOR BEFORE READING THE RATIO. Where a control tier sits at
+# nearly the impact zone's distance from the shore, delta_delta is near zero,
+# s_coast is a small denominator rather than a measurement, and the row says so
+# in its `identified` column instead of leaving the reader to notice.
+print("\n3d. Coastal scale factor s_coast (M14 / D-076) ...")
+
+# IDENTIFICATION IS JUDGED ON THE SCALE FACTOR'S OWN SE, NOT ON A DISTANCE.
+#
+# A threshold on |delta_delta| looks like the natural guard and is the wrong
+# one: it asks whether the tiers are far apart, when the question is whether
+# the ratio is determined. The two hypotheses this quantity exists to separate
+# are s = 1 (the pair feels exactly the fitted field) and s = 0 (it feels none
+# of it), and they are ONE APART -- so an estimate whose standard error exceeds
+# 1 cannot distinguish them, and one whose SE exceeds 2 is not evidence about
+# either. That is a statement about the estimate, and it holds whatever the
+# geometry that produced it.
+#
+# On the committed panel this separates the rows the way reading them by hand
+# does: the Climate pairs, whose differentials are -0.94 and +0.26 mm/yr,
+# return SEs of 3.3 and 15.3 and are excluded; the Combined pairs, at -3.74 and
+# -2.54 mm/yr, return 0.61 and 0.67 and are kept. A distance floor set anywhere
+# high enough to exclude the first would have taken the second with it.
+S_COAST_MAX_SE = 2.0
+S_COAST_MIN_DIFFERENTIAL = 0.5   # mm/yr — only to keep the division honest
+
+coastal_rows = []
+for (ctrl_label, zone_label), fit in results.items():
+    if 'easting_x_time' not in fit['col_names']:
+        continue
+    zone_wells = ZONES[zone_label]
+    ctrl_wells = CONTROLS[ctrl_label]
+    d_delta, d0, L, prov = coastal_drift_differential(
+        zone_wells, ctrl_wells, verbose=False)
+    df_k = ancova_frames[(ctrl_label, zone_label)]
+    te = [well_locations[w]['easting'] for w in zone_wells if w in well_locations]
+    ce = [well_locations[w]['easting'] for w in ctrl_wells if w in well_locations]
+    dE = np.mean(te) - np.mean(ce)
+    i = fit['col_names'].index('easting_x_time')
+    absorbed = fit['b'][i] * dE * 12 * 1000.0          # mm/yr
+    absorbed_se = fit['se'][i] * abs(dE) * 12 * 1000.0
+    if np.isfinite(d_delta) and abs(d_delta) >= S_COAST_MIN_DIFFERENTIAL:
+        s = absorbed / d_delta
+        s_se = absorbed_se / abs(d_delta)
+        t1 = (s - 1.0) / s_se
+        p1 = 2 * sp_stats.t.sf(abs(t1), df=fit['n'] - fit['k'])
+    else:
+        s = s_se = p1 = np.nan
+    identified = bool(np.isfinite(s_se) and s_se <= S_COAST_MAX_SE)
+    coastal_rows.append({
+        'control_tier': ctrl_label, 'zone': zone_label,
+        'coastal_differential_mm_yr': d_delta,
+        'delta_0_mm_yr': d0, 'reach_L_m': L, 'donor': prov,
+        'delta_easting_m': dE,
+        'absorbed_drift_mm_yr': absorbed,
+        'absorbed_drift_se_mm_yr': absorbed_se,
+        's_coast': s, 's_coast_se': s_se,
+        'p_vs_zero': fit['p'][i],      # identical to psi's: a ratio by a constant
+        'p_vs_one': p1,
+        'identified': identified,
+        'n_months': fit['n'],
+    })
+    if identified:
+        print(f"   {ctrl_label:<9} {zone_label:<7} "
+              f"Δδ={d_delta:+6.2f} mm/yr  absorbed={absorbed:+6.2f}  "
+              f"s_coast={s:+.3f} ± {s_se:.3f}  "
+              f"(p vs 0 {format_p(fit['p'][i])}, p vs 1 {format_p(p1)})")
+    else:
+        print(f"   {ctrl_label:<9} {zone_label:<7} "
+              f"Δδ={d_delta:+6.2f} mm/yr  s_coast={s:+.2f} ± {s_se:.2f}  "
+              f"— NOT IDENTIFIED (SE > {S_COAST_MAX_SE}: cannot separate "
+              f"s = 1 from s = 0; these tiers sit at nearly the same distance "
+              f"from the shore)")
+
+coastal_df = pd.DataFrame(coastal_rows)
+coastal_df.to_csv(OUT_COASTAL_SCALE, index=False)
+saved(f"{OUT_COASTAL_SCALE.name} ({len(coastal_df)} rows)")
+
+# --- the fixed-at-1 sensitivity ---------------------------------------------
+# D-076 keeps s_coast FREE as canonical and reports fixed-at-1 as a sensitivity.
+# Fixing it is NOT a re-parameterisation -- it is a different model, because the
+# term stops being fitted and becomes an offset subtracted from the response.
+# That is the variant that moves the headline step, and it is committed here so
+# the number is a pipeline output rather than a figure in a working note.
+sens_rows = []
+for row in coastal_rows:
+    if not row['identified']:
+        continue
+    key = (row['control_tier'], row['zone'])
+    df_k = ancova_frames[key]
+    off = (row['coastal_differential_mm_yr'] / 12.0 / 1000.0) \
+        * df_k['months_since'].values if 'months_since' in df_k.columns else None
+    if off is None:
+        continue
+    cols = ['cwb_c', 'D_scrape', 'D_fell', 'cwb_x_fell']
+    X = np.column_stack([np.ones(len(df_k))] + [df_k[c].values for c in cols])
+    f1 = ols_fit(df_k['baci_disp'].values - off, X)
+    j = 3   # D_fell, with the intercept prepended
+    sens_rows.append({
+        'control_tier': row['control_tier'], 'zone': row['zone'],
+        'clearfell_step_free_m': results[key]['clearfell_step'],
+        'clearfell_step_free_p': results[key]['clearfell_p'],
+        's_coast_fitted': row['s_coast'],
+        'clearfell_step_fixed1_m': f1['b'][j],
+        'clearfell_step_fixed1_se_m': f1['se'][j],
+        'clearfell_step_fixed1_p': f1['p'][j],
+        'shift_mm': (f1['b'][j] - results[key]['clearfell_step']) * 1000.0,
+    })
+    print(f"   {row['control_tier']:<9} {row['zone']:<7} "
+          f"step {results[key]['clearfell_step']*1000:+.1f} mm (s free) -> "
+          f"{f1['b'][j]*1000:+.1f} mm (s fixed at 1, "
+          f"p={format_p(f1['p'][j])})")
+sens_df = pd.DataFrame(sens_rows)
+sens_df.to_csv(OUT_COASTAL_FIXED1, index=False)
+saved(f"{OUT_COASTAL_FIXED1.name} ({len(sens_df)} rows)")
+
 rpt = ReportNumbers()
 
 for (ctrl_label, zone_label), fit in results.items():
@@ -1251,6 +1406,47 @@ for (ctrl_label, zone_label), fit in results.items():
         rpt.add(f"{prefix}_coeff_{cname}", fit['b'][i],
                 well=zone_label,
                 note=f"SE={fit['se'][i]:.6f}, p={format_p(fit['p'][i])}")
+
+    # s_coast (M14 / D-076) — the interpretable form of the drift coefficient.
+    # Emitted per pair so a document can cite the scale factor rather than psi,
+    # and always with `identified` in the note, because the ratio is meaningless
+    # where the two tiers sit at the same distance from the shore.
+    _cs = [r for r in coastal_rows
+           if r['control_tier'] == ctrl_label and r['zone'] == zone_label]
+    if _cs:
+        _r = _cs[0]
+        if _r['identified']:
+            rpt.add(f"{prefix}_s_coast", _r['s_coast'], unit="",
+                    well=zone_label,
+                    note=(f"SE={_r['s_coast_se']:.4f}, "
+                          f"p vs 0={format_p(_r['p_vs_zero'])}, "
+                          f"p vs 1={format_p(_r['p_vs_one'])}; "
+                          f"the amplitude of the Script 25 coastal gradient "
+                          f"this pair feels, 1 = exactly the fitted field. "
+                          f"Differential {_r['coastal_differential_mm_yr']:+.2f} "
+                          f"mm/yr from {_r['donor']}"))
+        else:
+            rpt.add(f"{prefix}_s_coast_identified", 0.0, unit="",
+                    well=zone_label,
+                    note=(f"NOT IDENTIFIED: s_coast = {_r['s_coast']:+.2f} "
+                          f"± {_r['s_coast_se']:.2f}, and an SE above "
+                          f"{S_COAST_MAX_SE} cannot separate s = 1 from "
+                          f"s = 0. The coastal differential here is "
+                          f"{_r['coastal_differential_mm_yr']:+.2f} mm/yr — "
+                          f"these tiers sit at nearly the same distance from "
+                          f"the shore, so the ratio is a small denominator, "
+                          f"not a measurement"))
+    _sn = [r for r in sens_rows
+           if r['control_tier'] == ctrl_label and r['zone'] == zone_label]
+    if _sn:
+        _s = _sn[0]
+        rpt.add(f"{prefix}_clearfell_step_s_fixed1", _s['clearfell_step_fixed1_m'],
+                well=zone_label, era="Post_felling",
+                note=(f"SENSITIVITY, not the headline (D-076): the clearfell "
+                      f"step with the coastal correction imposed at the fitted "
+                      f"amplitude (s_coast = 1) instead of estimated. "
+                      f"p={format_p(_s['clearfell_step_fixed1_p'])}; moves the "
+                      f"headline by {_s['shift_mm']:+.1f} mm"))
 
     # Oct 2023 re-scraping test
     if not np.isnan(fit['m3_scrape2_coef']):

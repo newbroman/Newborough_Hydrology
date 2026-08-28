@@ -32,7 +32,7 @@ variant.
 
 Note also that two Approach B aggregations exist and are not interchangeable: the
 cluster-level event median in `17_wtf_01_sy_estimates.csv`, which is what Table 4
-reports, and the median of per-well event estimates in `17_wtf_well_sy.csv`, which is
+reports, and the median of per-well event estimates in `18_wtf_01_well_sy_estimates.csv`, which is
 what the pipeline consumes downstream.
 
 **Table 7 — read the `half_life_months` column.** The paper reports the drainage decay

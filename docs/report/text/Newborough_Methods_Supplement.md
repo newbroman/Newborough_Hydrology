@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_55.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_56.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 1.9.55 (August 2026).
+Document version: 1.9.56 (August 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -373,7 +373,7 @@ The SSM specification. F.3 covers *build_ssm_frame()* and *fit_ssm()*; the full 
 -   *build_ssm_frame(h_series, climate, lag, window, drainage_datum)* --- align well and climate data, compute the SSM predictor columns (*h*, *h_prev*, *Delta_h*, *P*, *PET*, *h_disp_prev*), drop NaN, apply optional windowing. The data-alignment helper every script was previously duplicating.
 -   *fit_ssm(\...)* --- no-intercept OLS (Model A / headline SSM). Returns a dict with *beta_1_recharge*, *beta_2_atmospheric_draw*, *beta_3_drainage*, their p-values, R², n, and the residual series.
 -   *fit_ssm_intercept(\...)* --- with-intercept OLS (Model B), returning the same dict plus α_B and its p-value. Used by Scripts 22 and 24.
--   *simulate_ssm(h0, P, PET, b1, b2, b3, drainage_datum)* --- iterative forward simulation using the displacement recurrence *h(t) = (1−β₃)·h(t−1) + β₁·P(t) − β₂·PET(t) − β₃·z₀*. Used by Scripts 08, 09, 15.
+-   *simulate_ssm(h0, P, PET, b1, b2, b3, drainage_datum)* --- iterative forward simulation using the displacement recurrence *h(t) = (1−β₃)·h(t−1) + β₁·P(t) − β₂·PET(t) − β₃·z₀*. Used by Scripts 08 and 39.
 -   *pflood_lambda(h_target, h_0, b1, b2, b3, months, P_clim, PET_clim, drainage_datum)* --- iterated closed-form P_flood threshold with the datum drain correction. Solves for the rainfall multiplier m_P that brings h from h_0 to h_target over a specified horizon. Returns m_P, P_flood in mm, the collapsed linear-form slope and intercept (so P_flood = A·d + B), and the weighted sums. Used by Scripts 11 and 11b.
 -   *monthly_perturbation(b1, b2_base, b2_scen_arr, P_eff_base, P_eff_scen, monthly_PET)* --- single-step forcing-change response. Computes Δh(m) = β₁·(P_scen(m) − P_base(m)) − (β₂_scen(m) − β₂_base)·PET(m). Used by Script 21 for forestry scenarios; replaced an earlier equilibrium formulation (*Δh / β₃*) that produced physically implausible magnitudes.
 -   *assert_physical_signs(fit, context)* --- sign-rule enforcement. Returns hard violations (β₁ ≤ 0, β₂ ≤ 0) and soft warnings (β₃ ≤ 0).

@@ -1401,7 +1401,7 @@ Phase 14 contains three diagnostic scripts that test post-Script-25 implications
 - `07_spatial_coefficients/07_coeff_05_cluster_ranges.csv` (Script 07)
 - `25_01_panel_fit_parameters.csv` (Script 25)
 - `25_02_per_well_summer_min_slopes.csv` (Script 25)
-- `data/Features.kml` (forest polygon for dist_forest predictor)
+- `data/geo/Features.kml` (forest polygon for dist_forest predictor)
 
 **Writes.**
 
@@ -1471,7 +1471,7 @@ Outputs to `outputs/39_ccw_hindcast/`: `39_01_hindcast_per_well.csv`, `39_02_hin
 
 ### Phase 17 — Synthesis Figures and Greyscale Conversion
 
-Step 47 — `09f_management_effects.py` — the spatial-reach synthesis figure (management interventions + coastal retreat, §5.8; two-pass, reads Scripts 20/25/09d/10a with documented first-pass fallbacks via `pipeline_params.default_value()`). Step 48 — `09g_mechanism_diagrams.py` — the mechanism-diagram grid (starting states + dune scrape + clearfell + full-width coastal reach panel) and the standalone coastal reach figure, both for §5.8 (schematic, not to scale, illustrative — captions supplied in the document text). Built on `utils/mechanism_fig_utils.py` (chained short-Dupuit-segment solver on a shared exaggerated profile, common 09f-derived amplitude scale); all physical amplitudes read live from `09f_01_reach_profile.csv` (row 0 edge amplitudes + full reach columns), `10m_report_numbers.csv` (measured WMC3 off-cut) and `10a_report_numbers.csv` (clearfell steps), with `pipeline_params` first-pass fallbacks; schematic drawing constants in `config.py` (`MECH_FIG_*`). Outputs `09g_mechanism_grid.svg/.png` and `09g_coastal_vs_climate_reach.svg/.png` to `outputs/09_scraping_intervention/`. Step 49 — `27_greyscale_figures.py` — converts all colour figures in `outputs/` to journal-ready greyscale versions under `outputs_bw/`. Discovery-based: rglobs the colour output tree; no per-figure paths needed. See the script docstring for usage flags (`--enhanced`, `--dpi`, `--skip-maps`, `--exclude-problem`, `--dry-run`).
+Step 47 — `09f_management_effects.py` — the spatial-reach synthesis figure (management interventions + coastal retreat, §5.8; two-pass, reads Scripts 20/25/09d/10a with documented first-pass fallbacks via `pipeline_params.default_value()`). Step 48 — `09g_mechanism_diagrams.py` — the mechanism-diagram grid (starting states + dune scrape + clearfell + full-width coastal reach panel) and the standalone coastal reach figure, both for §5.8 (schematic, not to scale, illustrative — captions supplied in the document text). Built on `utils/mechanism_fig_utils.py` (chained short-Dupuit-segment solver on a shared exaggerated profile, common 09f-derived amplitude scale); all physical amplitudes read live from `09f_01_reach_profile.csv` (row 0 edge amplitudes + full reach columns), `10m_report_numbers.csv` (measured WMC3 off-cut) and `10a_report_numbers.csv` (clearfell steps), with `pipeline_params` first-pass fallbacks; schematic drawing constants in `config.py` (`MECH_FIG_*`). Outputs `09g_mechanism_grid.svg/.png` and `09g_coastal_vs_climate_reach.svg/.png` to `outputs/09_scraping_intervention/`. Step 49 — `27_greyscale_figures.py` — converts all colour figures in `outputs/` to journal-ready greyscale versions under `outputs_bw/`. Discovery-based: rglobs the colour output tree; no per-figure paths needed. See the script docstring for usage flags (`--enhanced`, `--dpi`, `--skip-maps`, `--exclude-problem`, `--dry-run`).  <!-- former path -->
 
 
 ---

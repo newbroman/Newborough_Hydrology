@@ -70,7 +70,7 @@ python3 --version        # must say 3.12.x
 
 Ignore `venv/` if you see one in a working copy. Nothing activates it, and the
 recorded environment is the *system* interpreter with apt packages. A venv here
-also pins nothing: `src/venv/bin/python3.12` used to be a symlink to
+also pins nothing: `src/venv/bin/python3.12` used to be a symlink to  <!-- former path -->
 `/usr/bin/python3`, a name promising a version the machine did not have, and on
 2026-08-26 that cost a day and a false bug report. That venv has been retired.
 
@@ -144,7 +144,7 @@ EOF
 This goes in `.git/info/exclude` and **not** in `.gitignore`, and the reason is
 worth understanding before you are tempted to move it. `.gitignore` is a
 working-tree file, so both repositories read it, and it outranks a git
-directory's `info/exclude`. A private path named in `.gitignore` is therefore
+directory's `info/exclude`. A private path named in `.gitignore` is therefore  <!-- former path -->
 hidden from the repository that is supposed to track it. Each repository excludes
 the other's half in its own git directory; the shared `.gitignore` stays silent
 on the subject and carries a comment saying so.
@@ -213,7 +213,7 @@ nowhere else.
 
 `working/.gitignore` arrives with the checkout and carries `!*.sh`. Leave it
 there. The root `.gitignore` blanket-ignores shell scripts, both repositories
-read it, and it outranks `info/exclude` — so without that one line `nrg_git.sh`
+read it, and it outranks `info/exclude` — so without that one line `nrg_git.sh`  <!-- former path -->
 and `setup_working_repo.sh` are invisible to the repository that owns them.
 
 `wgit`, `nrg_git.sh` and `README_WORKING.md` all arrive with this checkout. Use
@@ -332,8 +332,9 @@ the document it was made from.
 
 ## What is deliberately not reproduced
 
-`_to_delete/`, `_audit_tmp/`, `report_edits/_frozen/`, `_superseded/` and
-`backups/` — a few gigabytes of pre-edit snapshots, each superseded the moment
+`_to_delete/`, `_audit_tmp/`, and the three graveyards the 2026-08-27
+restructure moved into `scratch/` and renamed flat — `scratch/report_edits__frozen/`,
+`scratch/report_edits__superseded/` and `scratch/report_edits_backups/` — a few gigabytes of pre-edit snapshots, each superseded the moment
 the edit it guarded was verified. They are excluded from the Drive archive and
 from both repositories. If you find yourself wanting one, the git history of the
 public repository and the bundle taken before the 2026-08-24 rewrite are the

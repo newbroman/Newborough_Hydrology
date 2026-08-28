@@ -45,7 +45,16 @@ Outputs (in outputs/15_depth_dependent_pet/):
     15_04_best_params.csv           — Optimal κ and β coefficients per cluster
 """
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-08-27: the decay parameter is
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-08-28 (T-14 E7): the κ=0
+#   baseline is fitted by utils.model_utils.fit_ssm instead of a local
+#   re-implementation of the same three-column no-intercept design. The
+#   grid-search fit stays inline: its β₂ column carries −exp(−κ·d)·PET and
+#   is not an SSM. PREDICTION, falsifiable on the next run: SSM_NSE and
+#   SSM_OneStep_R2 in 15_03_benchmark_table.csv do not change. If they do,
+#   the baseline was NOT the canonical SSM and report8 §3.4.6 rests on a
+#   comparison against something else.
+#
+# _superseded  __version__ = "1.3.0"  # Hollingham (2026) — 2026-08-27: the decay parameter is
 #   κ, not λ. report8 §3.4.6 and the symbol register have called it κ throughout;
 #   this script called it λ in its docstring, its identifiers and its output
 #   columns. λ is spoken for three ways in this project — the drawdown reach
@@ -91,6 +100,7 @@ from utils.console_utils import (
     hr, skipped,
 )
 from utils.render_utils import render_figure
+from utils.model_utils import fit_ssm            # T-14 E7, 2026-08-28
 make_all_dirs()
 
 INT_WELL_ELEV       = INT_WELL_ELEVATIONS   # local alias used throughout script
@@ -341,19 +351,36 @@ def build_regression_df(centroid: pd.Series, climate: pd.DataFrame,
 # Standard SSM baseline (κ=0)
 # ---------------------------------------------------------------------------
 
-def fit_standard_ssm(df: pd.DataFrame) -> dict:
-    X = pd.DataFrame({
-        "beta_1_recharge":         df["P"].values,
-        "beta_2_atmospheric_draw": -df["PET"].values,
-        "beta_3_drainage":         -df["h_disp_prev"].values,
-    }, index=df.index)
-    model = sm.OLS(df["Delta_h"], X).fit()
-    b1 = model.params["beta_1_recharge"]
-    b2 = model.params["beta_2_atmospheric_draw"]
-    b3 = model.params["beta_3_drainage"]
+def fit_standard_ssm(df: pd.DataFrame) -> dict | None:
+    """The κ=0 baseline, fitted by the SHARED SSM routine (T-14 E7).
 
-    # One-step R²
-    r2 = model.rsquared
+    This used to build its own three-column no-intercept design and call
+    sm.OLS directly. That design was character-for-character the one in
+    `model_utils.fit_ssm` — the same P, −PET, −h_disp_prev columns, the same
+    no-intercept OLS — so the baseline was a re-implementation of the canonical
+    SSM that was BELIEVED identical to Script 03's rather than known to be.
+
+    It matters because `SSM_NSE` and `SSM_OneStep_R2` in 15_03_benchmark_table
+    are the reference the depth-coupled model is scored against, and report8
+    §3.4.6's decision not to adopt the depth-dependent formulation rests on
+    that comparison. A baseline that drifts from the canonical SSM would move
+    the reported NSE gains with nothing to catch it.
+
+    Delegating is numerically identical — verified column by column before the
+    change — and buys the p-values, standard errors and the insufficient-data
+    guard that the inline version had none of.
+
+    NOT done at fit_at_kappa (the grid search): its β₂ column carries
+    −exp(−κ·d)·PET, which is a different design matrix and not an SSM. That one
+    stays inline, deliberately.
+    """
+    fit = fit_ssm(pre_built_frame=df)
+    if fit is None:                        # < SSM_MIN_OBS rows, or OLS failed
+        return None
+    b1 = fit["beta_1_recharge"]
+    b2 = fit["beta_2_atmospheric_draw"]
+    b3 = fit["beta_3_drainage"]
+    r2 = fit["R2"]
 
     # Iterative NSE — for the standard SSM (κ=0) the PET decay is exp(0)=1,
     # but displacement is still needed for β₃.
@@ -363,7 +390,11 @@ def fit_standard_ssm(df: pd.DataFrame) -> dict:
     )
     nse_val = nse(df["h"].values, h_sim)
 
-    return {"b1": b1, "b2": b2, "b3": b3, "r2_onestep": r2, "nse_iterative": nse_val}
+    return {"b1": b1, "b2": b2, "b3": b3, "r2_onestep": r2,
+            "nse_iterative": nse_val,
+            # Free from the shared routine; the inline OLS reported none of it.
+            "se_b1": fit["se_beta_1"], "se_b2": fit["se_beta_2"],
+            "se_b3": fit["se_beta_3"], "n_obs": fit["n"]}
 
 
 # ---------------------------------------------------------------------------
@@ -423,6 +454,8 @@ def plot_kappa_profiles(profiles: dict, ssm_baselines: dict):
 
         prof = profiles[cid]
         ssm  = ssm_baselines[cid]
+        if ssm is None:                    # fit_ssm declined this cluster
+            continue
         col  = CLUSTER_COLOURS.get(cid, "steelblue")
         label = CLUSTER_LABELS.get(cid, f"C{cid}")
 
@@ -478,6 +511,8 @@ def plot_fit_comparison(regression_dfs: dict, centroids: dict, climate: pd.DataF
         df  = regression_dfs[cid]
         bp  = best_params[cid]
         ssm = ssm_baselines[cid]
+        if ssm is None:
+            continue
         col = CLUSTER_COLOURS.get(cid, "steelblue")
         label = CLUSTER_LABELS.get(cid, f"C{cid}")
         # Standard SSM simulation (κ=0 → exp(0)=1, no PET depth decay)
@@ -540,8 +575,14 @@ def main():
     for cid, df in regression_dfs.items():
         ssm = fit_standard_ssm(df)
         ssm_baselines[cid] = ssm
+        if ssm is None:
+            # fit_ssm returns None below SSM_MIN_OBS or on an OLS failure. The
+            # inline version could not express that and would have raised.
+            print(f"  C{cid}  SKIPPED — fewer than SSM_MIN_OBS rows, or the "
+                  f"OLS did not converge")
+            continue
         print(f"  C{cid}  one-step R²={ssm['r2_onestep']:.3f}  "
-              f"iterative NSE={ssm['nse_iterative']:.3f}")
+              f"iterative NSE={ssm['nse_iterative']:.3f}  n={ssm['n_obs']}")
 
     # Grid search
     print(f"\nGrid searching κ ∈ [{KAPPA_MIN}, {KAPPA_MAX}] "

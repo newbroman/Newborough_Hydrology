@@ -18,7 +18,7 @@ WHY THIS EXISTS
   Martin, the third time he ran the sequence by hand: *"shouldnt these be in the
   nrg_git script."*
 
-THE MANIFEST IS THE RECORD OF A RUN
+WHAT COUNTS AS EVIDENCE THAT A SCRIPT RAN
 
   First version compared the script against its outputs' commit times and got a
   false positive the moment it was tested against a real full run. On
@@ -30,15 +30,32 @@ THE MANIFEST IS THE RECORD OF A RUN
   outputs' commit times did not move, so four scripts stayed flagged after being
   run.
 
-  A reproducible pipeline defeats a staleness check built on output timestamps,
-  which is a good problem to have and still a wrong answer. `outputs/
-  pipeline_manifest.json` carries `generated` and the fifty scripts the run
-  executed. A script listed there was run at that time whether or not it changed
-  a byte, and that is the fact this tool actually needs.
+  A reproducible pipeline defeats a staleness check built on output COMMIT
+  times, which is a good problem to have and still a wrong answer.
 
-  Caveat, stated rather than hidden: `generated` is one timestamp for the whole
-  run, so a script that failed midway still counts as run. The console log is
-  where a failure shows; this is not a substitute for reading it.
+  v1.2.0 tried to fix that with `outputs/pipeline_manifest.json`, taking
+  `generated` as the moment all fifty listed scripts last ran. **That was wrong
+  and it failed within the hour.** On 2026-08-28 the manifest read 01:42:55
+  while Script 19's own output had been written at 00:39 and Scripts 15, 22 and
+  25's at 23:25-23:29. Something rewrites `generated` without executing
+  anything, so the field records that a tool looked at the manifest, not that a
+  pipeline ran — and this check reported OK across six edited, unrun scripts.
+
+  Two signals now, in order of authority.
+
+  FIRST, `outputs/pipeline_run_log.json` — a real run log, added to
+  `run_analysis.run_script()` on 2026-08-28 because the manifest was never one.
+  One entry per step, written as each finishes, carrying `last_run` and
+  `status`. A step that ran and FAILED is recorded as such and does not count:
+  it has not produced current outputs however recently it executed, which is a
+  distinction no timestamp on a file can make.
+
+  SECOND, for scripts the log has no entry for — anything invoked outside
+  `run_analysis`, such as `19b_scraping_simulator` — an output's time is
+  `max(commit time, mtime)`. The commit time survives a checkout; the mtime
+  catches a rerun that regenerated the file byte-identically and so produced no
+  commit. Neither can be advanced by a tool that merely reads the file, which is
+  what the manifest's `generated` could be.
 
 WHY GIT TIMES, NOT MTIMES
 
@@ -98,19 +115,30 @@ def _git_time(rel: str) -> int | None:
         return None
 
 
-def manifest_run() -> tuple[int | None, set[str]]:
-    """(run timestamp, scripts the run executed) from outputs/pipeline_manifest.json."""
-    mf = OUTPUTS / "pipeline_manifest.json"
-    if not mf.exists():
-        return None, set()
+def run_log() -> dict[str, int]:
+    """{script name: unix time of last SUCCESSFUL run} from the pipeline run log.
+
+    Failed steps are omitted deliberately — the question is whether current
+    outputs exist, and a failed step has not made any.
+    """
+    f = OUTPUTS / "pipeline_run_log.json"
+    if not f.exists():
+        return {}
     try:
         import json
         from datetime import datetime
-        d = json.loads(mf.read_text(encoding="utf8"))
-        ts = int(datetime.fromisoformat(d["generated"]).timestamp())
-        return ts, {s["script"] for s in d.get("steps", []) if "script" in s}
-    except Exception:                                     # noqa: BLE001
-        return None, set()
+        d = json.loads(f.read_text(encoding="utf8"))
+        out = {}
+        for name, rec in (d.get("scripts") or {}).items():
+            if rec.get("status") != "ok":
+                continue
+            try:
+                out[name] = int(datetime.fromisoformat(rec["last_run"]).timestamp())
+            except (KeyError, ValueError):
+                continue
+        return out
+    except (ValueError, OSError):
+        return {}
 
 
 def _dirty() -> set[str]:
@@ -125,12 +153,32 @@ def _dirty() -> set[str]:
 def when(path: Path, dirty: set[str]) -> tuple[int | None, bool]:
     """(timestamp, uncommitted). Commit time normally; mtime when uncommitted."""
     rel = path.relative_to(REPO).as_posix()
+    try:
+        mt = int(path.stat().st_mtime)
+    except OSError:
+        mt = None
     if rel in dirty:
-        try:
-            return int(path.stat().st_mtime), True
-        except OSError:
-            return None, True
+        return mt, True
     return _git_time(rel), False
+
+
+def output_time(path: Path, dirty: set[str]) -> int | None:
+    """When an OUTPUT was last written — max(commit time, mtime).
+
+    Commit time alone misses a rerun that regenerated the file byte-identically:
+    git records nothing, so the artefact looks as old as its last content
+    change. mtime alone is rewritten by a checkout. The later of the two is
+    right for the question asked here, which is "has anything written this since
+    the script changed?".
+    """
+    rel = path.relative_to(REPO).as_posix()
+    gt = _git_time(rel)
+    try:
+        mt = int(path.stat().st_mtime)
+    except OSError:
+        mt = None
+    vals = [v for v in (gt, mt) if v is not None]
+    return max(vals) if vals else None
 
 
 def _executable_signature(src: str) -> str | None:
@@ -229,7 +277,7 @@ def main() -> int:
     a = ap.parse_args()
 
     dirty = _dirty()
-    run_at, ran = manifest_run()
+    ran = run_log()
     behind, unresolved, no_emits = [], [], []
 
     for script, emits in ledger_rows():
@@ -255,14 +303,14 @@ def main() -> int:
             if op is None:
                 missing.append(name)
                 continue
-            o_t, _ = when(op, dirty)
+            o_t = output_time(op, dirty)
             if o_t is not None and (newest is None or o_t > newest[0]):
                 newest = (o_t, name)
         if missing:
             unresolved.append((script, missing))
-        # A run the manifest records counts even when it changed no byte.
-        if run_at and script in ran and (newest is None or run_at > newest[0]):
-            newest = (run_at, "pipeline run (no output changed)")
+        # A recorded successful run counts even if it changed no byte.
+        if script in ran and (newest is None or ran[script] > newest[0]):
+            newest = (ran[script], "recorded run (no output changed)")
         if newest and s_t > newest[0]:
             behind.append((script, s_dirty, newest[1],
                            (s_t - newest[0]) / 86400.0,
@@ -282,6 +330,10 @@ def main() -> int:
         print(f"  output_lag: {len(docs)} script(s) ahead of their outputs by "
               f"docstring or comment only — no rerun owed:")
         print("    " + ", ".join(sorted(r[0] for r in docs)))
+    if not ran and not a.quiet:
+        print("  output_lag: no outputs/pipeline_run_log.json yet — falling back "
+              "to output write times. The log fills in from the next "
+              "run_analysis.py run.")
     if not behind and not a.quiet:
         print("  output_lag: OK — every script's outputs are at least as new "
               "as its code")

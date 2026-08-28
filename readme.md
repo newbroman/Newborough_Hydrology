@@ -97,8 +97,7 @@ Newborough_Hydrology/
 │   ├── 03_master_data.csv              │
 │   ├── 03_regional_averages.csv        │
 │   ├── 03_cluster_averages_maod.csv    │  Cluster mean heads in maOD (feeds 21)
-│   ├── 03_cluster_peak_months.csv      │  Peak month per cluster (feeds 11, 11b)
-│   └── 17_wtf_well_sy.csv             ┘  Per-well Sy intermediate (feeds 18, 19)
+│   └── 03_cluster_peak_months.csv      ┘  Peak month per cluster (feeds 11, 11b)
 │   ├── 11b_spatial_thresholds/
 │   │   └── forecaster.html              ← interactive groundwater forecaster (built by 11b)
 │   ├── 19_spatial_groundwater/

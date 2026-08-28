@@ -244,13 +244,32 @@ _DEFAULTS = {
     # 10a_report_numbers) and falls back to these with a console warning. Any
     # future script needing these first-pass values should read them via
     # default_value().
-    "drawdown_lambda_m":        228.1,   # 20_report_numbers.csv (drawdown_lambda),
-                                         # refreshed 2026-08-18 from the committed
-                                         # value; was 224.9 and 3 m stale
-    "coast_delta0_mm_yr":       -29.0,   # 25_01 forest_free/linear_capped δ₀
-    "coast_reach_L_m":          894.0,   # 25_01 forest_free/linear_capped L
-    "scrape_offsite_100m_vol":  -30.3,   # 09d_01 Scraping (off-site 100 m) mm w.e./month
-    "clearfell_recovery_mm":    119.6,   # 10a ANCOVA_Forest_Impact_clearfell_step ×1000
+    # REFRESHED 2026-08-28 against the committed CSVs. Four of the six below
+    # had drifted, and the drift was invisible because these values are only
+    # read when the live CSV is missing — a path that, by construction, nobody
+    # exercises on a complete run. A fallback that is never taken is never
+    # checked, and a fallback that IS taken is taken on the run where nothing
+    # else is available to notice.
+    #
+    # Two of the four matter beyond tidiness. `clearfell_recovery_mm` was 119.6
+    # against a committed 113.09 — M31 raised exactly this: Script 37b's
+    # clearfell anchor falls back to it with a warning and continues, so a
+    # failed CSV read would compute the whole site-integrated footing on a
+    # superseded step. And `coast_delta0_mm_yr` / `coast_reach_L_m` were
+    # -29.0 / 894, which is the PRE-D-046 parameter block T-18c spent a morning
+    # clearing out of the Methods Supplement. Leaving the same pair here as the
+    # pipeline's own fallback is how it would have come back.
+    "drawdown_lambda_m":        226.4,   # 20_report_numbers.csv (drawdown_lambda
+                                         # = 226.442); was 228.1, refreshed
+                                         # 2026-08-28
+    "coast_delta0_mm_yr":       -31.33,  # 25_01 forest_free/linear_capped δ₀;
+                                         # was -29.0, the pre-D-046 value
+    "coast_reach_L_m":          895.0,   # 25_01 forest_free/linear_capped L;
+                                         # was 894.0, the pre-D-046 value
+    "scrape_offsite_100m_vol":  -31.2,   # 09d_01 Scraping (off-site 100 m)
+                                         # mm w.e./month; was -30.3
+    "clearfell_recovery_mm":    113.1,   # 10a ANCOVA_Forest_Impact_clearfell_step
+                                         # ×1000 = 113.09; was 119.6 — see M31
     "ceh36_scrape_response_m":  0.1294,  # 09a paired BACI, CEH36 Pure_Scraping vs
                                          # CEH4; the H0 anchor for the scrape-drain
                                          # maps in Script 20

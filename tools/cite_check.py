@@ -1060,6 +1060,16 @@ VALUE_UNITS: dict[tuple[str, str], str] = {}
 METRE_UNITS = {"m"}          # only the bare metre. m/yr, m/month and the like
                              # are rates and are not converted.
 _MM_SUFFIX = re.compile(r"\s{0,2}mm\b")
+# A DENOMINATED mm is a rate, not a length, and a rate is not 1000x a stored
+# metre value — METRE_UNITS admits only the bare metre for exactly that reason.
+# But `\bmm\b` matches "mm" in "mm/month" and "mm yr⁻¹" too, because "/" and " "
+# are both word boundaries. Measured 2026-08-28: 13 of the 33 false rows on the
+# millimetre pass were denominated units, including all three `_se` keys, which
+# collided 3-for-3 with cluster trends in mm yr⁻¹.
+# `w.e.` (water equivalent) is itself a length, so it is skipped over rather
+# than rejected — what matters is whether a denominator follows it.
+_MM_DENOM = re.compile(
+    r"\s{0,3}(?:w\.e\.)?\s{0,3}(?:/|per\b|yr\b|month\b|day\b|a\b|⁻¹|-1\b)", re.I)
 
 
 def quotes_as_mm(text: str, needle: str) -> bool:
@@ -1069,8 +1079,12 @@ def quotes_as_mm(text: str, needle: str) -> bool:
     is what takes the candidate pool from 483 occurrences to 105.
     """
     for a, b in number_spans(text, needle):
-        if _MM_SUFFIX.match(text, b):
-            return True
+        m = _MM_SUFFIX.match(text, b)
+        if not m:
+            continue
+        if _MM_DENOM.match(text, m.end()):
+            continue                      # mm/month, mm yr⁻¹ — a rate
+        return True
     return False
 
 
@@ -1082,10 +1096,21 @@ def mm_renderings(v: float) -> list[str]:
     digits are a number; the sign is not part of the match.
     """
     out = []
+    mm = abs(v) * 1000.0
     for dp in (0, 1, 2):
-        s = render(abs(v) * 1000.0, dp)
-        if searchable(s) and s not in out:
-            out.append(s)
+        cands = [render(mm, dp)]
+        # BANKER'S ROUNDING. Python renders 194.5 as "194" (ties-to-even), so a
+        # corpus correctly writing "+195 mm" was never searched for and the gate
+        # went hunting an unrelated value instead. Found 2026-08-28: the CEH36
+        # paired-BACI shift, 0.1945 m, stated correctly as 195 mm in four
+        # documents and as 165 mm in two, and M31 saw none of it. Every value
+        # ending .5 at the searched precision had the same hole.
+        import decimal as _d
+        cands.append(str(_d.Decimal(repr(mm)).quantize(
+            _d.Decimal(1).scaleb(-dp), rounding=_d.ROUND_HALF_UP)))
+        for c in cands:
+            if searchable(c) and c not in out:
+                out.append(c)
     return out
 
 

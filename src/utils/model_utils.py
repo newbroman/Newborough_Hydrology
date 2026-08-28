@@ -432,6 +432,30 @@ def fit_ssm_intercept(h_series, climate, lag=None, window=None,
 # FORWARD SIMULATION
 # ═══════════════════════════════════════════════════════════════════════════════
 
+def horizon_months(peak_month: int) -> list:
+    """[10, 11, ..., peak_month] as a sequence of calendar months.
+
+    The forecast horizon runs from October to a cluster's historical
+    peak-of-record month. Hoisted here 2026-08-28 (T-14 D5, S.9) from two
+    byte-identical copies in `11_forecasting_thresholds.py` and
+    `11b_spatial_thresholds.py`.
+
+    Two copies of a function that visibly disagree are recoverable; a shared
+    helper that later diverges silently is not, which is the risk this project
+    weighed before hoisting. It is taken because the horizon defines what
+    P_flood integrates over, and two definitions of that would be a numerical
+    difference between the per-well and the spatial tool with nothing to catch
+    it.
+    """
+    months, m = [], 10
+    for _ in range(12):
+        months.append(m)
+        if m == peak_month:
+            return months
+        m = (m % 12) + 1
+    return months
+
+
 def simulate_ssm(h0, P, PET, b1, b2, b3,
                  drainage_datum=DRAINAGE_DATUM):
     """

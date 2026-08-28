@@ -281,6 +281,13 @@ EXTRA_VALUE_TABLES = [
      # decay parameter κ. THIS GATE FAILS UNTIL SCRIPT 15 IS RERUN — the
      # committed CSV still carries the old header.
      ["Best_Kappa", "NSE_Iterative", "SSM_NSE", "R2_OneStep"]),
+    # Script 19's scenario table. Added 2026-08-28 after the D-046 interception
+    # fix moved 69 cells in it and the corpus turned out to quote them in seven
+    # documents — none of it visible to any check, because this file has no
+    # report-numbers counterpart and was in no value table. The forestry
+    # scenarios moved 23-118%; nothing would have said so.
+    ("outputs/19_spatial_groundwater/19_scenario_summary.csv", "cluster",
+     ["dh_mean_m", "dh_median_m", "we_mean_mm", "we_median_mm"]),
     ("outputs/03_state_space_model/03_04_lag_diagnostic.csv", "Cluster_Label",
      ["R2"]),
     ("outputs/32_differential_movement/32_site_mean_trend.csv", "period",

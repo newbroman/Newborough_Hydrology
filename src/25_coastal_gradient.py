@@ -466,9 +466,14 @@ CLEARFELL_ZONE = list(set(
 # Within the C3-only fit, only WMC3 (BACI Impact) is in C3 AND in the
 # clearfell zone — drop it. CEH36 is also in C3 but already in
 # SCRAPED_WELLS. All other C3 wells are retained.
-CLEARFELL_ZONE_IN_C3 = list(
-    (set(CLEARFELL_ZONE) & {"wmc3", "ceh19", "ceh17"}) | {"wmc3"}
-)
+# T-14 S15-3, 2026-08-28. Was:
+#     list((set(CLEARFELL_ZONE) & {"wmc3", "ceh19", "ceh17"}) | {"wmc3"})
+# Over-determined, and the name was not true. Verified against
+# outputs/02_cluster_stats.csv: ceh17 and ceh19 are C5 (Coastal Forest), not
+# C3. This list is consumed at ONE site, inside `if restrict_cluster == 3:`,
+# AFTER the frame has been filtered to cluster 3 — so neither could ever match,
+# and the `| {"wmc3"}` forced the only member that could. Behaviour-identical.
+CLEARFELL_ZONE_IN_C3 = ["wmc3"]
 
 PANEL_OBS_MIN_YEARS = 8  # per-well seasonal slopes require ≥8 years
 

@@ -114,7 +114,7 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
-__version__ = "1.18.0"  # Hollingham (2026) — 2026-08-28.
+__version__ = "1.19.0"  # Hollingham (2026) — 2026-08-28.
 #   Store-time rounding removed from the seven columns of correction_applicability(), the 25_14
 #   diagnostic added at v1.16.0 (D-035): the store now
 #   carries what the pipeline computed and rounding happens where the number
@@ -1928,8 +1928,11 @@ def baci_corroboration(distances: pd.DataFrame,
     differential deepening rate of  coef × ΔE × 12 × 1000 mm/yr.
 
     The gradient model predicts a differential of
-        δ(d_impact) − δ(d_control)
-    where δ is the headline linear-capped form.
+        mean_w∈impact δ(d_w) − mean_w∈control δ(d_w)
+    where δ is the headline linear-capped form. Note the averaging is over
+    the WELLS of each side, not over their mean distance: δ is capped, so
+    the two differ wherever a tier straddles the reach, and the Forest
+    control tier does. See mean_grad() below.
 
     If the two agree, the BACI's easting × time correction is
     accounting for coastal-retreat drift consistently with the
@@ -1959,6 +1962,35 @@ def baci_corroboration(distances: pd.DataFrame,
 
     def grad_only(d):
         return float(model_linear_capped(d, d0_h, L_h, 0))
+
+    # THE MEAN OF THE DECAY, NOT THE DECAY OF THE MEAN.
+    #
+    # delta(d) is linear-CAPPED, so it is not a linear function of distance
+    # and delta(mean d) != mean delta(d) whenever a tier straddles the cap.
+    # The Forest control tier does exactly that: its five wells average
+    # 955 m against a fitted reach L = 895 m, so evaluating the tier at its
+    # mean distance returns ZERO and credits the controls with no coastal
+    # drift at all — while three of the five sit inside the reach and
+    # 25_14_correction_diagnostic.csv, computed in this same script by
+    # averaging over the members, puts their mean at -1.93 mm/yr.
+    #
+    # The consequence was a published number. model_predicts_mm_yr read
+    # -12.0 mm/yr for Forest x Impact where the tier's own members give
+    # -10.15, and z_test_baci_vs_model read -1.07 where it should read
+    # -1.46. The verdict did not flip (both are inside |z| < 2), which is
+    # why it survived: a wrong number carrying a right verdict.
+    #
+    # Same defect class as D-046 — a nonlinear function evaluated at an
+    # aggregate instead of aggregated over members. Found 2026-08-28 while
+    # M14 computed the same differential the other way and the two tables
+    # disagreed by 15%.
+    #
+    # The other tiers are unaffected: Climate sits wholly inside the reach
+    # (where delta IS linear, so the two agree) and the far-field tier lies
+    # wholly beyond it (where both give zero).
+    def mean_grad(wells):
+        vals = [grad_only(dists[w]) for w in wells if w in dists]
+        return float(np.mean(vals)) if vals else float("nan")
 
     # Easting too (BACI uses easting, not distance to coast)
     locs = pd.read_csv(paths.INT_LOCATIONS)
@@ -1994,14 +2026,18 @@ def baci_corroboration(distances: pd.DataFrame,
     pairs = [
         (ctl_name, zone_name,
          mean_d(zone_wells), mean_E(zone_wells),
-         mean_d(ctl_wells), mean_E(ctl_wells))
+         mean_d(ctl_wells), mean_E(ctl_wells),
+         zone_wells, ctl_wells)
         for ctl_name, ctl_wells in control_tiers.items()
         for zone_name, zone_wells in impact_zones.items()
     ]
-    for ctl_name, zone_name, d_tgt, E_tgt, d_ctl, E_ctl in pairs:
-        # Gradient-model differential (target − control), gradient only
-        grad_tgt = grad_only(d_tgt)
-        grad_ctl = grad_only(d_ctl)
+    for (ctl_name, zone_name, d_tgt, E_tgt, d_ctl, E_ctl,
+         zone_wells, ctl_wells) in pairs:
+        # Gradient-model differential (target − control), gradient only,
+        # averaged over each side's WELLS rather than evaluated at each
+        # side's mean distance — see mean_grad() above.
+        grad_tgt = mean_grad(zone_wells)
+        grad_ctl = mean_grad(ctl_wells)
         model_pred = grad_tgt - grad_ctl  # mm/yr
         # BACI coefficient
         match = baci[(baci["Control"] == ctl_name) & (baci["Zone"] == zone_name)]
@@ -2079,6 +2115,17 @@ def baci_tier_spread(distances: pd.DataFrame,
     def grad_only(d):
         return float(model_linear_capped(d, d0_h, L_h, 0))
 
+    # The CONTROL side here is a single well, so grad_only(d_ctl) is already
+    # a member evaluation. The TARGET side is a zone, and Edge has four
+    # wells, so it needs the same mean-of-the-decay treatment as the tier
+    # rows — otherwise a member breakdown would not reconcile with the tier
+    # row it sits under. Impact is one well and is unaffected either way.
+    _ZONE_WELLS = {"Impact": IMPACT_WELLS, "Edge": EDGE_WELLS}
+
+    def mean_grad(wells):
+        vals = [grad_only(dists[w]) for w in wells if w in dists]
+        return float(np.mean(vals)) if vals else float("nan")
+
     rows = []
     for tier_row in baci_corr.itertuples():
         members = sp[(sp["Control"] == tier_row.control_tier)
@@ -2094,7 +2141,8 @@ def baci_tier_spread(distances: pd.DataFrame,
         for m in members.itertuples():
             w = m.Control_well.lower()
             d_ctl = dists.get(w, np.nan)
-            model_pred = grad_only(tier_row.d_target_m) - grad_only(d_ctl)
+            model_pred = (mean_grad(_ZONE_WELLS[tier_row.impact_zone])
+                          - grad_only(d_ctl))
             dE = E_tgt - E.get(w, np.nan)
             absorb = m.Easting_coef * dE * 12 * 1000
             absorb_se = m.Easting_se * abs(dE) * 12 * 1000

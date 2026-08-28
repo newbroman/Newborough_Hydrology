@@ -114,7 +114,7 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
-__version__ = "1.17.0"  # Hollingham (2026) — 2026-08-22.
+__version__ = "1.18.0"  # Hollingham (2026) — 2026-08-28.
 #   Store-time rounding removed from the seven columns of correction_applicability(), the 25_14
 #   diagnostic added at v1.16.0 (D-035): the store now
 #   carries what the pipeline computed and rounding happens where the number
@@ -3323,6 +3323,25 @@ def main() -> None:
             distances, fit_ff_l, model_linear_capped,
             set(long_ff["well"].astype(str).str.lower().str.strip().unique()),
             pw, m["key"])
+        # M14 — the canopy-controlled fit as a SECOND donor, appended rather
+        # than substituted. The BACI panel is 12/17 under canopy, so the
+        # forest-free headline estimates the gradient on the wells that panel
+        # mostly excludes; the canopy-controlled fit measures the canopy drift
+        # instead of dropping the wells, and its delta_0 / L are therefore net
+        # of it. Which donor a correction should use is a judgement, so both
+        # are committed and the row carries the fit label that produced it.
+        #
+        # beta_forest is deliberately NOT evaluated here. It is the donor fit's
+        # canopy term, not part of the coastal field; folding it into a
+        # "coastal" correction would put the canopy effect inside the number
+        # M14 exists to separate from it. The BACI's own tier structure —
+        # clearfelled Impact against under-canopy Forest controls — is what
+        # carries canopy.
+        corr_diag_can = correction_applicability(
+            distances, fit_full_l_can, model_linear_capped,
+            set(long_full["well"].astype(str).str.lower().str.strip().unique()),
+            pw, m["key"])
+        corr_diag = pd.concat([corr_diag, corr_diag_can], ignore_index=True)
         corr_diag.to_csv(m["out_correction"], index=False)
         saved(m["out_correction"].name)
         if not corr_diag.empty:
@@ -3334,7 +3353,11 @@ def main() -> None:
             for _r in corr_diag.itertuples():
                 if _r.tier == "Impact":
                     continue
-                info(f"  {_r.tier:<14} {_r.n_in_fit_panel}/{_r.n_wells} in the "
+                # The fit label goes in the line, not just the file: the table
+                # now carries two donors and an unlabelled tier name would read
+                # as one set of numbers stated twice.
+                info(f"  [{_r.fit_label}] {_r.tier:<14} "
+                     f"{_r.n_in_fit_panel}/{_r.n_wells} in the "
                      f"fit panel; profile predicts "
                      f"{_r.predicted_diff_vs_impact_mm_yr:+.2f} mm/yr vs Impact "
                      f"({_r.abs_diff_over_resid_sd:.2f} x the dispersion)")

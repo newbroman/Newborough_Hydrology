@@ -143,8 +143,17 @@ Values are not reproduced here; `cite_check` holds them and checks them against
 the corpus.
 
 `MOVING` — C4 and the site aggregate change under D-005. The C4 closure-minimising
-β₃ is **0.0160** (`30_c4_report_numbers.csv` `c4_closure_min_beta3`), close to the
-current canonical 0.0183.
+β₃ is **0.019** (`30_c4_report_numbers.csv` `c4_closure_min_beta3`), close to the
+current canonical **0.0185**
+(`03_03_cluster_mechanistic_coefficients.csv`, C4 `beta_3_drainage` = 0.018455).
+
+> *Note added 2026-08-28 (T-18d).* Both numbers in the sentence above were
+> stale. The canonical was written 0.0183 against a committed 0.018455, and the
+> closure-minimising value was written 0.0160 against a committed 0.019 — which
+> the T-18d sweep did not reach, because `c4_closure_min_beta3` is stored at
+> 3 dp and 0.0160 was therefore never a near-miss on anything it could search.
+> A ledger other documents are told to trust is the worst place in the corpus
+> for a stale number, and this row's own `MOVING` marker is what it was for.
 
 ## I. Config constants (change only by deliberate edit)
 

@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_56.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_57.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 1.9.56 (August 2026).
+Document version: 1.9.57 (August 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -1320,7 +1320,7 @@ The observed scraping value is computed differently --- directly from the paired
 
 The live monthly scenario bars at CEH36 give (annual-mean forcing): scraping (observed) +45.2 mm/month, clearfell (hypothetical) +15.4, thinning 50 % (hypothetical) +7.7, broadleaf (hypothetical) +4.5, climate-dry −13.8, climate-wet +7.7. Under summer (July--September) forcing: clearfell +13.5, thinning +6.7, broadleaf +2.9, climate-dry −14.4, climate-wet +7.8. The forestry scenarios are *hypothetical* in the sense that CEH36 is in C3 (not forested under current land use); the question they answer is "what would each intervention have produced at CEH36's hydrogeological setting if CEH36 were forested?" --- a like-for-like comparison framework, not a prediction.
 
-**Two forcings, and the off-site scraping drawdown.** The scenario dict is computed twice --- once under annual-mean P and PET (*09d_01*) and once under summer (July--September) P and PET (*09d_02*) --- so the two figures are genuinely distinct rather than a single forcing re-expressed. Both are volumetric and directly comparable. Each figure also carries a modelled *off-site* scraping bar: the neighbour drawdown the scrape drain imposes on the surrounding water table, from the same steady-state drain cone that feeds the Script 20 spatial maps (edge magnitude H₀ anchored to the measured CEH36 response, decay length λ read live from *20_report_numbers.csv*, λ = 230 m). The bar is drawn at 100 m; a dark reference line across it marks the milder drawdown at 250 m (near the nearest real uphill well, 247 m). The 100 m point lies inside the near field the 88-well network cannot resolve, so this bar is explicitly modelled and captioned as such. Because the summer figure is an equilibrium response to summer forcing and *not* a summer minimum, the observed paired-BACI summer-minimum shift at CEH36 (+165 mm) is reported in the caption for context rather than plotted as a bar.
+**Two forcings, and the off-site scraping drawdown.** The scenario dict is computed twice --- once under annual-mean P and PET (*09d_01*) and once under summer (July--September) P and PET (*09d_02*) --- so the two figures are genuinely distinct rather than a single forcing re-expressed. Both are volumetric and directly comparable. Each figure also carries a modelled *off-site* scraping bar: the neighbour drawdown the scrape drain imposes on the surrounding water table, from the same steady-state drain cone that feeds the Script 20 spatial maps (edge magnitude H₀ anchored to the measured CEH36 response, decay length λ read live from *20_report_numbers.csv*, λ = 230 m). The bar is drawn at 100 m; a dark reference line across it marks the milder drawdown at 250 m (near the nearest real uphill well, 247 m). The 100 m point lies inside the near field the 88-well network cannot resolve, so this bar is explicitly modelled and captioned as such. Because the summer figure is an equilibrium response to summer forcing and *not* a summer minimum, the observed paired-BACI summer-minimum shift at CEH36 (+195 mm) is reported in the caption for context rather than plotted as a bar.
 
 Site-specific choices.
 
@@ -3075,7 +3075,7 @@ Each intervention and driver is expressed as an equilibrium head change decaying
 
 ### []{#anchor-435}[]{#anchor-436}[]{#anchor-437}Site-specific choices
 
--   **Five years, not a decade, for the chronic accumulation curve.** The five-year horizon keeps the amplitude (≈−145 mm) on the same continuous axis as the other curves without requiring a broken axis, and is a less speculative projection than a decade.
+-   **Five years, not a decade, for the chronic accumulation curve.** The five-year horizon keeps the amplitude (≈−157 mm) on the same continuous axis as the other curves without requiring a broken axis, and is a less speculative projection than a decade.
 -   **Linear-capped coastal decay form.** The coastal curves use Script 20's linear-capped decay (its §4.10.2 fitted construction), not the drain-cone exponential, so the figure is internally consistent with the report's coastal gradient rather than reusing the drain law.
 
 ### []{#anchor-437}[]{#anchor-438}[]{#anchor-439}Two-pass execution and defaults
@@ -3767,7 +3767,7 @@ Inputs.
   25_02_per_well_summer_min_slopes.csv   Script 25   Per-well *dist_coast_m* for evaluating δ(d)
   -------------------------------------- ----------- ----------------------------------------------------------------------
 
-**Methodology.** For each well, the predicted coastal-erosion drift rate is δ(d) = δ₀ · max(0, 1 − d/L_cg) using the live Script 25 forest-free linear-capped fit (δ₀ = −29.03 mm/yr, L_cg = 894 m, c_far = −6.40 mm/yr at the headline state of 2026-05-29). The well's monthly hydrograph is de-trended by subtracting the linear trend of slope δ(d) over the observation window: since δ is negative (a decline rate), the correction is positive in time, undoing the drift the model attributes to coastal-erosion proximity. The de-trended series is then re-classified against the un-de-trended cluster centroids using correlation distance on monthly anomalies (1 − Pearson r, the same metric Script 02 uses to construct the clusters). The well is assigned to the cluster whose centroid it correlates with most strongly post-de-trending.
+**Methodology.** For each well, the predicted coastal-erosion drift rate is δ(d) = δ₀ · max(0, 1 − d/L_cg) using the live Script 25 forest-free linear-capped fit (δ₀ = −31.33 mm/yr, L_cg = 895 m, c_far = −0.10 mm/yr, from 25_01_panel_fit_parameters.csv at the headline state of 2026-08-28). The well's monthly hydrograph is de-trended by subtracting the linear trend of slope δ(d) over the observation window: since δ is negative (a decline rate), the correction is positive in time, undoing the drift the model attributes to coastal-erosion proximity. The de-trended series is then re-classified against the un-de-trended cluster centroids using correlation distance on monthly anomalies (1 − Pearson r, the same metric Script 02 uses to construct the clusters). The well is assigned to the cluster whose centroid it correlates with most strongly post-de-trending.
 
 The diagnostic rule of decision is calibrated against the C3 cluster size of n = 21 wells (with two intervention wells excluded --- CEH36, the 2015 dune-scrape site, and WMC3, the 2017 clearfell Impact well --- leaving 19 testable C3 wells). If ≥ 17 of 19 (≈ 90 %) C3 wells migrate to a C2 best-match after de-trending, H1 is strongly supported. If 11--16 wells migrate, the result is partial. If ≤ 10 wells migrate, H1 is rejected --- the reductive "C2 + coastal drift" explanation does not account for the C2/C3 distinction.
 
@@ -3970,7 +3970,7 @@ and the secular trend is the fitted time coefficient c (mm yr⁻¹). Because CWB
 
 A **coverage filter** removes wells that cannot support a trend over the window: a well is included only if it has at least one spring observation before 2011 (the start of the shorter window) and its observed span covers at least 80 % of the window. Without this filter, short-record wells whose record begins after 2011 fit only a post-2011 drought-recovery trajectory and contribute spurious strong positive slopes. Two periods are fitted: **2005--2025 (primary)** and 2011--2025 (robustness); the longer window is primary because the shorter one is coverage-corrupted for many wells. Only the Llyn Rhos-Ddu lake gauge is excluded; CEH13 and CEH14 are retained (observational metric, independent of the SSM). The per-well trends are interpolated to the canonical 50 m grid via IDW (*map_utils.add_idw_surface()*, *hull_buffer_m = 100* so the surface extends 100 m beyond the well convex hull to reach the coastal margin) and clipped to the NNR site boundary.
 
-**Headline result.** Over 2005--2025 the coastal-forest cluster (C5) has a mean climate-removed trend of −11.6 mm yr⁻¹ --- clearly negative and the most negative of the clusters, consistent with the coastal-retreat gradient (δ₀ ≈ −29 mm yr⁻¹ at the shoreline; C5 wells sit back from the edge so the cluster mean is smaller in magnitude). The forest interior no longer reads as strongly wetting once the coverage artefact and the mean-referencing of Figure 64 are removed. *Regenerate exact figures from 36_absolute_climate_trend_per_well.csv before quoting --- do not cache these numbers.*
+**Headline result.** Over 2005--2025 the coastal-forest cluster (C5) has a mean climate-removed trend of −11.6 mm yr⁻¹ --- clearly negative and the most negative of the clusters, consistent with the coastal-retreat gradient (δ₀ ≈ −31 mm yr⁻¹ at the shoreline; C5 wells sit back from the edge so the cluster mean is smaller in magnitude). The forest interior no longer reads as strongly wetting once the coverage artefact and the mean-referencing of Figure 64 are removed. *Regenerate exact figures from 36_absolute_climate_trend_per_well.csv before quoting --- do not cache these numbers.*
 
 Outputs.
 
@@ -4000,7 +4000,7 @@ Inputs.
   Field                                             Source                              Detail
   Climate-corrected per-well endpoint differences   Script 36                           b̂ fitted on *ACT_BHAT_WINDOW = 2005--2017*; *h_corr = h − b̂·CWB*; endpoint means with *ACT_ENDPOINT_FRACTION = 1/3*
   Unit driver fields                                Script 20 v1.32.0                   *\_erosion_field*, felling-polygon clearfell shape, *\_broadleaf_field*; imported live
-  δ₀, L_cg                                          Script 25 *OUT_25_FIT_PARAMETERS*   Forest-free linear-capped fit; δ₀ = −29.03 mm yr⁻¹
+  δ₀, L_cg                                          Script 25 *OUT_25_FIT_PARAMETERS*   Forest-free linear-capped fit; δ₀ = −31.33 mm yr⁻¹, L_cg = 895 m
   Clearfell step                                    10a_report_numbers.csv              ANCOVA Path B, +112.8 mm observed
   ------------------------------------------------- ----------------------------------- ---------------------------------------------------------------------------------------------------------------------
 
@@ -4108,7 +4108,7 @@ Phase 16 (steps 42--46/50; the first three opt-in --- *\--with-supplementary* --
 
 **Outputs.** *outputs/38_coastal_transect/*: *38_coast_inland_difference.jpg* (the δ₀ headline figure); *38_transect_profile.jpg* (two-panel: raw and climate-corrected); *38_transect.csv*; *38_results.txt*.
 
-**Limitations and known caveats.** Trend −28.16 mm yr⁻¹, 95 % CI \[−34.23, −21.98\], n = 14 --- sitting essentially on the modelled δ₀ (−29.03 mm yr⁻¹ from Script 25). The coast falls −21.9 mm yr⁻¹ in absolute terms; the inland anchor is near-flat, so the divergence is the coast dropping, not the inland rising. Anchor-referenced coastal-end ordering Spearman −0.873 (raw −0.321), and spring CWB does not trend over the window (VIF ≈ 1.0), so the metric is not a disguised climate trend. Caveats: n = 14, so a jackknife shows the *magnitude* robust (all leave-one-out slopes −19 to −37 mm yr⁻¹) but formal significance is borderline on shorter sub-windows; one line and four/five wells, so a *growing* gradient is erosion-specific but a *flat* one would mean erosion is undetectable *here*, not absent; a growing gradient separates erosion-like from substrate-geometry-like, but not erosion from a *time-varying* substrate effect. The result is stated as *consistent with* the modelled δ₀, independently and observationally --- not as confirmation. The cored SW--NE transect remains the mechanism-resolving test.
+**Limitations and known caveats.** Trend −28.16 mm yr⁻¹, 95 % CI \[−34.23, −21.98\], n = 14 --- sitting essentially on the modelled δ₀ (−31.33 mm yr⁻¹ from Script 25). The coast falls −21.9 mm yr⁻¹ in absolute terms; the inland anchor is near-flat, so the divergence is the coast dropping, not the inland rising. Anchor-referenced coastal-end ordering Spearman −0.873 (raw −0.321), and spring CWB does not trend over the window (VIF ≈ 1.0), so the metric is not a disguised climate trend. Caveats: n = 14, so a jackknife shows the *magnitude* robust (all leave-one-out slopes −19 to −37 mm yr⁻¹) but formal significance is borderline on shorter sub-windows; one line and four/five wells, so a *growing* gradient is erosion-specific but a *flat* one would mean erosion is undetectable *here*, not absent; a growing gradient separates erosion-like from substrate-geometry-like, but not erosion from a *time-varying* substrate effect. The result is stated as *consistent with* the modelled δ₀, independently and observationally --- not as confirmation. The cored SW--NE transect remains the mechanism-resolving test.
 
 **Where it appears in the report.** ⟨§5.7 --- coastal driver subsection⟩, as the one observational support for the modelled coastal field and the lead-in to the cored-transect structural prediction.
 
@@ -4320,7 +4320,7 @@ The convention throughout the supplement is that there is one place to change a 
 
   -------------------------------------------- --------------------------------- --------------------------------------------------------
   Constant / concept                           Reference                         Value / meaning
-  Coastal-retreat gradient parameters          S.15 / *25_coastal_gradient.py*   δ₀ = −28.6 mm/yr, L_cg = 894 m, c_far = −6.3 mm/yr
+  Coastal-retreat gradient parameters          S.15 / *25_coastal_gradient.py*   δ₀ = −31.33 mm/yr, L_cg = 895 m, c_far = −0.10 mm/yr
   Coastline provenance                         S.15                              OpenStreetMap MHW (*natural=coastline*), EPSG:27700
   *well_metadata.csv* (*dist_coast_m*)         S.15 / *paths.DATA_DIST_COAST*    Regenerated + validated in Script 01
   Site geography (drainage paths, ridge)       F.2 / *site_geography.md*         Bedrock ridge as northern boundary; bipartite drainage

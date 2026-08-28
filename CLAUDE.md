@@ -30,7 +30,7 @@ both repositories, **11)** archives the ODTs to Drive, **q** quits.
 | store | holds |
 |---|---|
 | this repository, **public** | code, tools, markdown mirrors, `DECISIONS_PUBLIC.md` |
-| `Newborough_Hydrology_working`, **private** | `DECISION_LOG.md`, `changelogs/`, `WORK_REGISTER.md`, `Updates_required/`, and this repo's own tooling |
+| `Newborough_Hydrology_working`, **private** | `DECISION_LOG.md`, `changelogs/`, `updates/` (was `Updates_required/`), `WORK_REGISTER.md` (a signpost; the live register is `updates/NRG_WORK_REGISTER.md`), and this repo's own tooling |  <!-- former path -->
 | `gdrive:NRG_documents` | the ODTs themselves (git cannot diff a zip) |
 
 Two git directories over **one** working tree. `./wgit` is the private one;
@@ -72,7 +72,7 @@ tracked publicly.
   mkdir -p _to_delete/locks
   find .git .git-working -name '*.lock' -exec mv {} _to_delete/locks/ \;
   ```
-  Locks appear as `index.lock`, `HEAD.lock` **and** `refs/heads/main.lock` —
+  Locks appear as `index.lock`, `HEAD.lock` **and** `refs/heads/main.lock` —  <!-- former path -->
   sweep all of them, not just the first.
 - **`device_bash` has no network.** `git push` returns 403 from the proxy;
   Martin pushes. The **cloud container does** have network and pandoc 3.1.3 —

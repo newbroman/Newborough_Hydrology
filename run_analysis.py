@@ -148,6 +148,14 @@ OUT_DIR  = ROOT_DIR / "outputs"
 # the same physical file, outputs/pipeline_manifest.json.
 OUT_MANIFEST = OUT_DIR / "pipeline_manifest.json"
 
+# The manifest is a REGISTRY of what the pipeline contains, written on every run
+# and by --manifest-only, so its `generated` field records when the registry was
+# emitted and not that anything executed. On 2026-08-28 tools/output_lag.py read
+# it as a run log and reported every script current while six sat edited and
+# unrun. This is the run log the manifest was never claiming to be: one entry per
+# step, written as each finishes, carrying the status the manifest cannot.
+OUT_RUN_LOG = OUT_DIR / "pipeline_run_log.json"
+
 # ── Console styling (ANSI colour, auto-detected) ──────────────────────────────
 # Colour is enabled only when stdout is a real terminal and not disabled via
 # the NO_COLOR env var or --no-colour. When output is piped or logged, colour
@@ -859,6 +867,43 @@ def _run_subprocess(cmd, cwd):
         raise subprocess.CalledProcessError(ret, cmd)
 
 
+def _record_run(script_name: str, status: str, seconds: float, label: str) -> None:
+    """Append one step's outcome to outputs/pipeline_run_log.json.
+
+    Written AS EACH STEP FINISHES, not at the end, so a run that dies at step 30
+    still records the twenty-nine that completed — which is the whole difference
+    between this and the manifest's single `generated` stamp.
+
+    Records `status`, so a script that ran and failed is distinguishable from one
+    that ran and succeeded. `tools/output_lag.py` needs exactly that: a failed
+    step has not produced current outputs however recently it executed.
+
+    Wrapped so that nothing here can stop a pipeline run. A run record is a
+    convenience; losing it must never cost an hour of compute.
+    """
+    try:
+        import json as _json
+        from datetime import datetime as _dt
+        log = {}
+        if OUT_RUN_LOG.exists():
+            try:
+                log = _json.loads(OUT_RUN_LOG.read_text(encoding="utf8"))
+            except (ValueError, OSError):
+                log = {}
+        log.setdefault("scripts", {})[script_name] = {
+            "last_run": _dt.now().isoformat(timespec="seconds"),
+            "status":   status,
+            "seconds":  round(float(seconds), 1),
+            "step":     label,
+        }
+        log["updated"] = _dt.now().isoformat(timespec="seconds")
+        OUT_RUN_LOG.parent.mkdir(parents=True, exist_ok=True)
+        OUT_RUN_LOG.write_text(_json.dumps(log, indent=1, sort_keys=True) + "\n",
+                               encoding="utf8")
+    except Exception:                                     # noqa: BLE001
+        pass
+
+
 def run_script(script_name: str, label: str, extra_args: list = None) -> None:
     script_path = SRC_DIR / script_name
     if not script_path.exists():
@@ -876,8 +921,10 @@ def run_script(script_name: str, label: str, extra_args: list = None) -> None:
     except Exception:
         print("  " + paint(f"{GLYPH_FAIL} FAILED", _Ansi.BRED, _Ansi.BOLD)
               + paint(f"  ({script_path.name})", _Ansi.GREY))
+        _record_run(script_name, "failed", time.time() - t0, step_txt)
         raise
     dt = time.time() - t0
+    _record_run(script_name, "ok", dt, step_txt)
     print("  " + paint(f"{GLYPH_OK} done", _Ansi.BGREEN, _Ansi.BOLD)
           + paint(f"  ({dt:0.1f}s)", _Ansi.GREY))
 

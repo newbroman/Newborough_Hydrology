@@ -4,7 +4,7 @@
 
 A deliberate cautionary DEMONSTRATION: how strongly an apparent "site-mean
 water-table change" depends on WHICH two five-year spring windows are differenced.
-The §4.9.8 headline differences window-end 2017 (springs 2013-2017) against
+The §4.12 headline differences window-end 2017 (springs 2013-2017) against
 window-end 2023 (springs 2019-2023). This script places that
 single comparison inside the envelope of EVERY admissible window pair, so §5.7.5
 can show — from a committed, reproducible figure — that the two-window MSL5 method
@@ -208,7 +208,7 @@ def make_figure(d: pd.DataFrame, piv: pd.DataFrame, annual_p: pd.Series,
     axA.set_title(f"A  Site-wide MSL change (mm) by window pair\n"
                   f"admissible: {lo:+.0f} to {hi:+.0f} mm "
                   f"({lo/1000:+.2f} to {hi/1000:+.2f} m); {n_neg} neg / {n_pos} pos; "
-                  f"outlined = \u00a74.9.8 headline",
+                  f"outlined = \u00a74.12 headline",
                   fontsize=10, loc="left")
     for r in range(len(baselines)):
         for cc in range(len(currents)):
@@ -219,7 +219,7 @@ def make_figure(d: pd.DataFrame, piv: pd.DataFrame, annual_p: pd.Series,
             axA.text(cc, r, f"{v:+.0f}", ha="center", va="center",
                      fontsize=8, color=shade,
                      fontweight="bold" if abs(v) == vmax else "normal")
-    # outline the §4.9.8 anchor cell (the report headline comparison)
+    # outline the §4.12 anchor cell (the report headline comparison)
     if ANCHOR[0] in baselines and ANCHOR[1] in currents:
         ri, ci = baselines.index(ANCHOR[0]), currents.index(ANCHOR[1])
         axA.add_patch(Rectangle((ci - 0.5, ri - 0.5), 1, 1, fill=False,

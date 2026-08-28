@@ -1143,7 +1143,7 @@ ENVELOPE_DRY_YEARS = [2011, 2012, 2019]      # antecedent-dry deep springs
 #     are common to both windows (held FIXED across the pair, so composition change
 #     cannot inflate the difference). 40 also auto-excludes the thin 7-well
 #     2005-2009 baseline (every pair touching window-end 2009 has <=7 common wells).
-#   * MSL5_WINDOW_ANCHOR — the §4.9.8 comparison (window-ends), validated against the
+#   * MSL5_WINDOW_ANCHOR — the §4.12 comparison (window-ends), validated against the
 #     committed -96.8 mm (n=59) headline.
 # Spec-locked 2026-06-27 (all-pairs demonstration); supersedes the wet-2024-excluded
 # variant. See CHANGELOG delta for Script 34 v0.3.0.

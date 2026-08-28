@@ -445,7 +445,7 @@ def cluster_trajectory(per_well_with_cluster: pd.DataFrame) -> pd.DataFrame:
 # monitoring metric (maximum spatial coverage). Method B is the SSM-consistent
 # companion (same baseline as the cluster β coefficients, P_flood, Scripts 11
 # transfer functions, and Script 26b UKCP18 projections). The report uses
-# Method A in §4.9.8 spatial / trajectory figures, and Method B in §3.6 /
+# Method A in §4.12 spatial / trajectory figures, and Method B in §3.6 /
 # Tools A & B projection figures.
 #
 # This function consumes 03_regional_averages.csv directly. The block-column

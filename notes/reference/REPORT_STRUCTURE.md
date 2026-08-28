@@ -111,7 +111,8 @@ live document — confirm against the operator's `.odm`, not the mirror or the P
 6. The December 2017 Experimental Clearfell
 7. Critical Rainfall Threshold Forecasting
 8. Climate Trajectory and Threshold Exceedance
-9. Spatial Groundwater Analysis (incl. §4.9.8 Combined Driver Assessment)
+9. Spatial Groundwater Analysis  ·  Combined Driver Assessment is now its own
+   chapter at **§4.12** (was §4.9.8; §4.9 ends at 4.9.6). Corrected 2026-08-28.
 10. Scenario Analysis
 
 ## Chapter 5 (Discussion) section order — report10.odt

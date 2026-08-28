@@ -15,7 +15,22 @@ Requirements:
     pandas, numpy
 """
 
-__version__ = "1.12.0"  # Hollingham (2026) -- 2026-08-20. Adds the in_forest
+__version__ = "1.13.0"  # Hollingham (2026) -- 2026-08-23. D-070: the Met
+#     Office's "---" (more than two days unmeasured) is read as MISSING rather
+#     than as "0". June 1941 -- the only gap in the 95-year file -- had been
+#     entering the pipeline as the driest month on record. Carried as NaN, the
+#     existing machinery does the right thing: make_table1_annual_climate
+#     counts complete months, flags the year, and excludes it from the
+#     long-term mean. Every consumer that spans the gap either slices to the
+#     well record or drops NaN first -- checked across all nine readers of
+#     01_climate.csv. The record is NOT truncated: the month is excluded, not
+#     the eleven years before it.
+#     ENTERED LATE, 2026-08-28: the change shipped on 2026-08-23 and the file
+#     went five days describing itself as 1.12.0, i.e. behind its own last
+#     behavioural change -- found by T-02 and recorded here rather than
+#     back-dated, because the ledger row and the changelog both key on this
+#     line and a silent renumber would make three records disagree.
+# v1.12.0 (2026-08-20): Adds the in_forest
 #     land-cover flag to 01_locations.csv, derived from the committed
 #     EPSG:27700 plantation outline (DATA_FOREST_BOUNDARY) by a pure-numpy
 #     point-in-polygon, the same dependency-free convention as the

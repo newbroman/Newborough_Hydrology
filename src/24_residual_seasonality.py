@@ -105,7 +105,10 @@ EXCLUDED_WELLS_NORM = RESIDUAL_DIAG_EXCLUDED_WELLS
 RIDGE_E = RIDGE_REF_E   # config.py — shared ridge reference point
 RIDGE_N = RIDGE_REF_N
 MAX_RIDGE_DISTANCE_M = RIDGE_MAX_DISTANCE_M   # config.py
-C3_SPLIT_DISTANCE_M = 1000.0  # legacy: under the new partition the forest-adjacent
+# T-14 D5 (S.16), 2026-08-28. Renamed from C3_SPLIT_DISTANCE_M. The intra-C3
+# check is KEPT — it is a diagnostic, not a partition — and the name now says
+# what it measures: distance from the ridge, within C3, not a split of C3.
+C3_INTRA_RIDGE_DISTANCE_M = 1000.0  # legacy: under the new partition the forest-adjacent
                               # subset of the old C3 has been split out as C5
                               # (Coastal Forest); this constant retains a within-
                               # cluster diagnostic on the new C3 (Western Residual).
@@ -455,7 +458,7 @@ def write_summary(clim_df, output_path):
     lines.append("")
     lines.append(f"  Wells analysed: {len(clim_df)}")
     lines.append(f"  Ridge reference: E={RIDGE_E:.0f}, N={RIDGE_N:.0f}")
-    lines.append(f"  C3 split distance: {C3_SPLIT_DISTANCE_M:.0f} m")
+    lines.append(f"  C3 split distance: {C3_INTRA_RIDGE_DISTANCE_M:.0f} m")
     lines.append("")
 
     # Summer-winter, amplitude, phase by cluster
@@ -513,10 +516,10 @@ def write_summary(clim_df, output_path):
     # C3 split
     c3 = clim_df[clim_df['Cluster'] == 3]
     if len(c3) > 0:
-        adj = c3[c3['ridge_distance_m'] < C3_SPLIT_DISTANCE_M]
-        far = c3[c3['ridge_distance_m'] >= C3_SPLIT_DISTANCE_M]
+        adj = c3[c3['ridge_distance_m'] < C3_INTRA_RIDGE_DISTANCE_M]
+        far = c3[c3['ridge_distance_m'] >= C3_INTRA_RIDGE_DISTANCE_M]
         lines.append("-" * 78)
-        lines.append(f"  C3 SPLIT BY DISTANCE (< vs >= {C3_SPLIT_DISTANCE_M:.0f} m from ridge)")
+        lines.append(f"  C3 SPLIT BY DISTANCE (< vs >= {C3_INTRA_RIDGE_DISTANCE_M:.0f} m from ridge)")
         lines.append("-" * 78)
         lines.append(f"  Forest-adjacent (n={len(adj)}): "
                      f"amplitude = {adj['amplitude'].mean():.4f}  "

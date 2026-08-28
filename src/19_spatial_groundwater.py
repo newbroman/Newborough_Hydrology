@@ -23,7 +23,16 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.15.1"   # 2026-08-26. Comments only (T-14 items 16, 17):
+__version__ = "2.16.0"  # Hollingham (2026) — 2026-08-28 (T-14 item 15):
+#   interception keys on the in_forest LAND-COVER flag, not on cluster
+#   membership. D-046 settled that cluster is behaviour and canopy is land
+#   cover; this script had kept the cluster proxy in BOTH surfaces — the
+#   Python _well_dh and the scenario viewer JavaScript it generates. Nine
+#   wells change: nw11 and wmc3 (C3, under pine) plus seven unclustered
+#   wells defaulted to cluster 3, all of which now receive interception.
+#   None loses it. The viewer stays in sync because this script writes it.
+#
+# _superseded  __version__ = "2.15.1"   # 2026-08-26. Comments only (T-14 items 16, 17):
                          # the broadleaf SCENARIO_PARAMS entry now says why
                          # sI_c4 == sI_c5 (phenology lives in the sB2 split),
                          # and both engines record that the b3 term cancels in
@@ -732,7 +741,16 @@ def build_well_table(loc, cl, md, elev, maod, clim, sy_df):
         "monthly_P_m_arr":   monthly_P_m_arr,
         "monthly_PET_m_arr": monthly_PET_m_arr,
     }
-    wt = loc[["id", "E", "N"]].copy()
+    # in_forest is LAND COVER, from the committed plantation outline (Script 01).
+    # D-046: cluster is behaviour, canopy is land cover, and they disagree at
+    # nine wells here. Interception is a canopy effect, so it must key on this
+    # flag and not on cluster membership. Loud if absent — a silent fallback to
+    # cluster is the defect this replaces.
+    if "in_forest" not in loc.columns:
+        raise KeyError("01_locations.csv has no in_forest column — Script 01 "
+                       "derives it; interception cannot key on land cover "
+                       "without it (D-046)")
+    wt = loc[["id", "E", "N", "in_forest"]].copy()
     wt = wt.merge(cl[["id", "Cluster"]], on="id", how="left")
     wt = wt.merge(
         md[["id", "beta_1_recharge", "beta_2_atmospheric_draw",
@@ -1048,7 +1066,11 @@ def serialise_wells(wt):
                      "b2": _r(r["b2"],6), "b3": _r(r["b3"],6),
                      "b1f": _r(r.get("b1f"), 6), "b2f": _r(r.get("b2f"), 6),
                      "b3f": _r(r.get("b3f"), 6),
-                     "dg": _r(r.get("dem_g"), 2) if pd.notna(r.get("dem_g")) else None})
+                     "dg": _r(r.get("dem_g"), 2) if pd.notna(r.get("dem_g")) else None,
+                     # "fo": under canopy (land cover), NOT cl in (4,5). The
+                     # viewer's go() keys interception on this; cl still selects
+                     # WHICH slider value applies. D-046.
+                     "fo": 1 if bool(r.get("in_forest")) else 0})
     return rows
 
 
@@ -1595,12 +1617,15 @@ function go(){{
   checkExtremes(sl);
   // Seasonal baselines -- always needed so annual can weight winter+summer
   var cldW=CLIMATE.winter,cldS=CLIMATE.summer;
-  function dhOne(b1,b2,b3,P_base,PET_base,sP,sPET,h,cl,sB2_cur){{
+  function dhOne(b1,b2,b3,P_base,PET_base,sP,sPET,h,cl,sB2_cur,fo){{
     // b3*abs(h) is written in place of F.3's b3*(D + h): kept for symmetry
     // with the full SSM, but identical in net0 and the scenario net, so it
     // cancels exactly in the returned perturbation. See chapter S.13.
-    var isForest=(cl===4||cl===5);
-    var sI_cur=cl===4?sl.sI_c4:cl===5?sl.sI_c5:0;
+    // Land cover, not cluster (D-046) — mirrors _well_dh above, which is the
+    // point of this function. fo is the committed in_forest flag; cl still
+    // selects which of the two interception sliders applies.
+    var isForest=(fo===1);
+    var sI_cur=isForest?(cl===5?sl.sI_c5:sl.sI_c4):0;
     var Peff_0=isForest?P_base*(1-FOREST_INTERCEPTION):P_base;
     var net0=b1*Peff_0-b2*PET_base-b3*Math.abs(h);
     var Psc=P_base*sP,PETsc=PET_base*sPET;
@@ -1616,12 +1641,12 @@ function go(){{
     var h=sea==='annual'?w.mh:sea==='winter'?w.wh:w.sh;
     if(h==null)continue;
     if(sea==='winter'){{
-      well_dh[w.n]=dhOne(b1,b2,b3,cldW.P,cldW.PET,sl.sP_w,sl.sPET_w,h,w.cl,sl.sB2_w);
+      well_dh[w.n]=dhOne(b1,b2,b3,cldW.P,cldW.PET,sl.sP_w,sl.sPET_w,h,w.cl,sl.sB2_w,w.fo);
     }}else if(sea==='summer'){{
-      well_dh[w.n]=dhOne(b1,b2,b3,cldS.P,cldS.PET,sl.sP_s,sl.sPET_s,h,w.cl,sl.sB2_s);
+      well_dh[w.n]=dhOne(b1,b2,b3,cldS.P,cldS.PET,sl.sP_s,sl.sPET_s,h,w.cl,sl.sB2_s,w.fo);
     }}else{{
-      var dhW=dhOne(b1,b2,b3,cldW.P,cldW.PET,sl.sP_w,sl.sPET_w,h,w.cl,sl.sB2_w);
-      var dhS=dhOne(b1,b2,b3,cldS.P,cldS.PET,sl.sP_s,sl.sPET_s,h,w.cl,sl.sB2_s);
+      var dhW=dhOne(b1,b2,b3,cldW.P,cldW.PET,sl.sP_w,sl.sPET_w,h,w.cl,sl.sB2_w,w.fo);
+      var dhS=dhOne(b1,b2,b3,cldS.P,cldS.PET,sl.sP_s,sl.sPET_s,h,w.cl,sl.sB2_s,w.fo);
       well_dh[w.n]=0.5*(dhW+dhS);
     }}
   }}
@@ -2176,8 +2201,13 @@ def _well_dh(row, sl, P0, PET0, h_col, cluster_betas, season):
     if pd.isna(h):
         return None
 
-    is_forest = (cl == 4 or cl == 5)
-    sI_key = "sI_c4" if cl == 4 else "sI_c5" if cl == 5 else None
+    # LAND COVER, not cluster (D-046). Cluster is behaviour; interception is a
+    # canopy effect. The two disagree at nine wells — nw11 and wmc3 sit in C3
+    # under pine, and seven unclustered wells (ceh12, ceh15, nw12, fe1-fe4) were
+    # defaulted to cluster 3 and so received no interception at all. Cluster
+    # still chooses WHICH slider applies; the flag decides whether any does.
+    is_forest = bool(row.get("in_forest", False))
+    sI_key = ("sI_c5" if cl == 5 else "sI_c4") if is_forest else None
 
     def _dh_one(P_base, PET_base, sP, sPET, sB2_cur):
         # The β₃ drainage term is written β₃·|h| here rather than F.3's

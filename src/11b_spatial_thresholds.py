@@ -414,15 +414,10 @@ def _summer_mins(series: pd.Series) -> dict:
 # ─────────────────────────────────────────────────────────────────────────────
 # P_FLOOD HELPERS (iterated closed form — Section 3.6.3)
 # ─────────────────────────────────────────────────────────────────────────────
-def _horizon_months(peak_month: int) -> list:
-    """Return [10, 11, ..., peak_month] as a sequence of calendar months."""
-    months, m = [], 10
-    for _ in range(12):
-        months.append(m)
-        if m == peak_month:
-            return months
-        m = (m % 12) + 1
-    return months
+# T-14 D5 (S.9), 2026-08-28: this function existed byte-identically here and in
+# the other P_flood script. It defines what the forecast horizon integrates
+# over, so two copies are a numerical difference waiting to happen.
+from utils.model_utils import horizon_months as _horizon_months   # noqa: E402
 
 
 def _load_cluster_coefficients() -> dict:

@@ -552,6 +552,13 @@ def main():
         })
 
     fits_df = pd.DataFrame(fits)
+    # T-14 D4 (S.16), 2026-08-28. AR1_DIAG_PVAL was console-only: the count of
+    # significant wells was printed and nothing downstream could reproduce which
+    # wells they were, or at what threshold. Two columns make the test auditable
+    # from the committed CSV — the flag, and the threshold it was taken at, so a
+    # later change to AR1_DIAG_PVAL cannot silently re-label a published count.
+    fits_df["ar1_significant"] = fits_df["ar1_pvalue"] < AR1_DIAG_PVAL
+    fits_df["ar1_alpha"] = AR1_DIAG_PVAL
     print(f" -> Fitted Model B for {len(fits_df)} wells "
           f"(>= {MIN_MONTHS} months of data).")
 

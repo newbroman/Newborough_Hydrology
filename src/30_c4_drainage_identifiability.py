@@ -72,7 +72,9 @@ This is a supplementary diagnostic (Phase 14, opt-in). It does NOT revise the
 canonical C4 coefficients; nothing downstream reads its outputs.
 """
 from __future__ import annotations
-__version__ = "2.2.1"  # Hollingham (2026) — 2026-08-16. Removes every hard-coded
+__version__ = "2.3.0"  # Hollingham (2026) — 2026-08-28. Derives the ReportNumbers
+#   note= ranks that v2.2.1 left hard-coded (D-011, T-18a).
+# v2.2.1  # Hollingham (2026) — 2026-08-16. Removes every hard-coded
 #   value and asserted result from the docstring, comments and console strings.
 #   The "network-min VIF" and "network-max displacement" labels were typed
 #   claims, and the first had gone stale — C4 is not the network minimum on the
@@ -409,12 +411,30 @@ def main():
             note="C4 centroid β₃ (canonical; matches Table 1)")
     rpt.add("c4_centroid_beta3_p", float(c4["p3"]), unit="",
             note="C4 centroid β₃ p-value (significant)")
+    # The ranks in these notes are DERIVED, for the same reason the console
+    # line above derives them (D-011). v2.2.1 cleared the hard-coded values
+    # from the docstring, comments and console strings and missed the `note=`
+    # strings, which are written verbatim into 30_c4_report_numbers.csv — so
+    # the exact superlative D-011 retired, "C4 VIF ... network minimum", went
+    # on being PUBLISHED by the pipeline for twelve days, one directory from
+    # the CSV that disproves it (C5 is lower at 1.075 against C4's 1.095).
+    # Found by T-18a, 2026-08-28: check_claims reads documents, not the Note
+    # column of outputs.
+    #
+    # corr(PET, h_disp_prev) is ranked on MAGNITUDE and says so. C4's -0.042 is
+    # the smallest in magnitude and the LARGEST signed value in the network, so
+    # a bare "minimum" is true or false depending on which is meant — which is
+    # exactly the ambiguity that let the VIF claim survive.
+    corr_rank = int((ident["corr_PET_hd"].abs() < abs(c4["corr_PET_hd"])).sum()) + 1
     rpt.add("c4_vif", float(c4["VIF"]), unit="",
-            note="C4 VIF of h_disp_prev on {P,PET} — network minimum (no collinearity)")
+            note=f"C4 VIF of h_disp_prev on {{P,PET}} — "
+                 f"{_ord(vif_rank, n_cl)} of {n_cl} clusters (no collinearity)")
     rpt.add("c4_corr_pet_hdisp", float(c4["corr_PET_hd"]), unit="",
-            note="C4 corr(PET, h_disp_prev) — network minimum")
+            note=f"C4 corr(PET, h_disp_prev) — {_ord(corr_rank, n_cl)} "
+                 f"of {n_cl} clusters BY MAGNITUDE (signed value is the largest)")
     rpt.add("c4_hd_sd", float(c4["hd_sd"]), unit="m",
-            note="C4 SD of displacement — network maximum (adequate leverage)")
+            note=f"C4 SD of displacement — {_ord(sd_rank, n_cl, 'largest')} "
+                 f"of {n_cl} clusters (adequate leverage)")
     rpt.add("c4_closure_min_beta3", float(best_b3), unit="per month",
             note="β₃ minimising the C4 water-balance closure residual (near canonical)")
     rpt.add("c4_perwell_n_nonsig", float(n_nonsig), unit="wells",

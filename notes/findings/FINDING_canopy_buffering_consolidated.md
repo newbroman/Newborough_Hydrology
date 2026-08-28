@@ -246,3 +246,46 @@ only 29, entirely post-scraping, giving a truncated non-comparable pre-period.
 No FE-inclusive interaction test, headline or robustness. §3.1.1 exclusion
 reason (a) — insufficient pre-felling baseline — is decisive. §4.6 can note
 this in a footnote if the buffering paragraph invites the question.
+
+---
+
+## Note added 2026-08-28 — the numbers have now been re-checked, and the substantive result reverses
+
+The 2026-08-26 recovery header said *"its numbers have not been re-checked
+against the current pipeline … treat every figure in it as dated."* They have
+been, under T-18. The body above is **kept verbatim**; this note records what
+the check found.
+
+The 10a curvature block was refitted directly from the committed data, and the
+re-fit reproduces `10a_report_numbers.csv` to every digit — including all eight
+committed headline clearfell steps — so the current CSV is what the current code
+and data produce. Against §3 of this document:
+
+| | this document | committed 2026-08-28 |
+|---|---|---|
+| Impact `cwb2_x_fell` | −2.75 × 10⁻⁶, **p = 0.016** | −1.550678e−06, **p = 0.1705** |
+| Edge `cwb2_x_fell` | −2.22 × 10⁻⁶, **p = 0.008** | −9.116139e−07, **p = 0.2806** |
+| ΔAIC vs linear | −4 / −11 | **+0.63 (Impact) / −2.27 (Edge)** |
+| joint F | significant at both | **p = 0.2010 / 0.0509** |
+| linear CWB × felling | p = 0.40 / 0.16 | p = 0.6347 / 0.3487 |
+
+**§3's heading — "The curvature term — significant, and the substantive result"
+— no longer holds.** The interaction is negative at both zones, which is the
+direction this document argues for, and significant at neither. At Impact the
+curvature model is not preferred over the linear one by AIC, which is the
+opposite of what ΔAIC −4 asserts. The Edge joint F at p = 0.051 is on the line.
+
+What survives is the part the recovery header already identified as the thing
+worth keeping: the **standing instruction**. Report the variant neutrally; state
+dependence has alternative explanations; a linear slope is a blunt instrument for
+a tail effect. That instruction is unaffected, and `src/10a_ancova_baci.py:560`
+can go on citing it.
+
+What must not survive is the claim's onward propagation. The significant version
+had reached `report9` §4.6.2, `report10` §4.12 and §5, and the Methods
+Supplement, where it carries an argument. Draft replacement wording for all four
+is in `working/updates/T18_A3_DRAFT_2026-08-28.md`; **none of it has been
+applied**, because withdrawing a finding from the defended surface is Martin's
+call, not a number fix.
+
+*Nothing above this note has been edited. — T-18, 2026-08-28.*

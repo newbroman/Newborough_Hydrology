@@ -24,6 +24,18 @@ WHERE THE MAPPING COMES FROM
     That is the pairing this project actually gets wrong, so it is stated
     explicitly below.
 
+THE SECOND LAG
+    A PDF can be current against its ODT and still be a version behind on the
+    live site, because publishing is a separate manual act. On 2026-08-28
+    gh-pages was built at 01:46 and both report.pdf and the Methods Supplement
+    PDF were re-exported after it — every link resolved, every file present, and
+    two of them were the previous export. `publish_pages` checks that the
+    published set is COMPLETE; nothing checked that it was CURRENT.
+
+    check_pages_lag() answers that by content, not by time: each published file's
+    working-tree blob hash against the blob recorded in the gh-pages tree. Hashes
+    do not care about mtimes, so it is as true after a clone as before one.
+
 EXIT
     0   always, by default — this is advisory. A PDF export is slow and manual,
         and a gate that fires between every ODT edit and the next export would be
@@ -33,11 +45,12 @@ EXIT
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-08-23
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-08-28
 
 import argparse
 import pathlib
 import re
+import subprocess
 import sys
 from doc_paths import MASTER_ODM, ODT_GLOB
 
@@ -227,12 +240,137 @@ def run(strict: bool, only: str | None = None) -> int:
     return 1 if (lagging and strict) else 0
 
 
+# --- the published site ------------------------------------------------------
+# The published set is derived from index.html exactly as working/nrg_git.sh
+# derives it, and for the same reason: a list of what to publish and a list of
+# what the page links to are the same list. Two lists that must agree are a
+# defect waiting for a quiet afternoon, so this reads the page rather than
+# repeating the answer.
+PAGES_ROOT = ["index.html", "scenario_viewer.html",
+              "seasonal_extremes_scatter.html"]
+PAGES_BRANCH = "gh-pages"
+_SITE = "https://newbroman.github.io/Newborough_Hydrology/"
+_HREF = re.compile(r'href="([^"]+)"')
+
+
+def _git(*args: str) -> tuple[int, str]:
+    """git, read-only. --no-optional-locks: the bridge mount cannot unlink, so a
+    command that takes the index lock leaves one behind that nothing can clear."""
+    r = subprocess.run(["git", "--no-optional-locks", *args],
+                       cwd=REPO, capture_output=True, text=True)
+    return r.returncode, r.stdout
+
+
+def pages_links() -> list[str]:
+    """Every site-local href in index.html, absolute ones reduced to their path."""
+    idx = REPO / "index.html"
+    if not idx.exists():
+        return []
+    out = set()
+    for h in _HREF.findall(idx.read_text(encoding="utf8", errors="replace")):
+        h = h.removeprefix(_SITE)
+        if h.startswith(("#", "http:", "https:", "mailto:")):
+            continue
+        out.add(h)
+    return sorted(out)
+
+
+def check_pages_lag(strict: bool) -> int:
+    """Is what is PUBLISHED the same content as what is built?
+
+    Returns the number of published files behind the working tree.
+    """
+    print()
+    print("=" * 78)
+    print("PAGES LAG — is the published site the same content as the working tree?")
+    print("=" * 78)
+
+    rc, _ = _git("rev-parse", "-q", "--verify", f"refs/heads/{PAGES_BRANCH}")
+    if rc != 0:
+        # Silence here would read as "nothing to report", which is the exact
+        # failure this file exists to remove.
+        print(f"  no {PAGES_BRANCH} branch in this clone — nothing has been "
+              f"published from here.")
+        print("  (nrg_git.sh option 13 builds and pushes it.)")
+        return 0
+
+    rc, out = _git("ls-tree", "-r", PAGES_BRANCH)
+    if rc != 0:
+        print(f"  could not read the {PAGES_BRANCH} tree.")
+        return 0
+    published: dict[str, str] = {}
+    for line in out.splitlines():
+        meta, _, path = line.partition("\t")
+        parts = meta.split()
+        if len(parts) == 3 and parts[1] == "blob":
+            published[path] = parts[2]
+
+    wanted = sorted(set(PAGES_ROOT) | set(pages_links()))
+    behind: list[str] = []
+    absent: list[str] = []
+    untracked: list[str] = []
+
+    for rel in wanted:
+        local = REPO / rel
+        if not local.exists():
+            # publish_pages refuses this case outright; here it is only noted,
+            # because the fix is to the page, not to the publish.
+            untracked.append(rel)
+            continue
+        rc, h = _git("hash-object", "--", rel)
+        if rc != 0:
+            continue
+        h = h.strip()
+        if rel not in published:
+            absent.append(rel)
+        elif published[rel] != h:
+            behind.append(rel)
+
+    for rel in behind:
+        print(f"\n  BEHIND   {rel}")
+        print(f"           published {published[rel][:8]}, built "
+              f"{_git('hash-object', '--', rel)[1].strip()[:8]}")
+    for rel in absent:
+        print(f"\n  ABSENT   {rel} is linked from index.html but is not on "
+              f"{PAGES_BRANCH}")
+    for rel in untracked:
+        print(f"\n  MISSING  {rel} is linked from index.html but is not in the "
+              f"working tree")
+
+    # A file published from a tree that no longer names it is a 404 waiting for
+    # a visitor, and the reverse of everything above.
+    orphan = sorted(k for k in published
+                    if k not in set(wanted) and k != ".nojekyll")
+    if orphan:
+        print(f"\n  ORPHAN — {len(orphan)} file(s) published but no longer "
+              f"linked from index.html:")
+        for k in orphan:
+            print(f"             {k}")
+
+    n = len(behind) + len(absent)
+    print()
+    if n:
+        print(f"  {n} published file(s) are not the ones you built.")
+        print("  Republish with nrg_git.sh option 13.")
+    elif untracked:
+        print("  the published files match, but index.html links "
+              f"{len(untracked)} file(s) that do not exist.")
+    else:
+        print(f"  the published site matches the working tree "
+              f"({len(wanted)} file(s)).")
+    return n
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--strict", action="store_true",
                     help="exit non-zero when anything lags (for a release check)")
     ap.add_argument("--pdf", metavar="PATH", default=None,
                     help="exit non-zero only if THIS pdf is stale; ignore the rest")
+    ap.add_argument("--pages", action="store_true",
+                    help="only the gh-pages check; skip the PDF/ODT comparison")
+    ap.add_argument("--no-pages", action="store_true",
+                    help="skip the gh-pages check")
     a = ap.parse_args()
     only = a.pdf
     if only:
@@ -240,7 +378,16 @@ def main() -> int:
             only = str(pathlib.Path(only).resolve().relative_to(REPO))
         except ValueError:
             only = a.pdf
-    return run(a.strict, only)
+
+    # --pdf asks one question and is answered by its exit code, so the pages
+    # section would only add noise to it.
+    if a.pages:
+        return 1 if (check_pages_lag(a.strict) and a.strict) else 0
+    rc = run(a.strict, only)
+    if only is None and not a.no_pages:
+        if check_pages_lag(a.strict) and a.strict:
+            rc = 1
+    return rc
 
 
 if __name__ == "__main__":

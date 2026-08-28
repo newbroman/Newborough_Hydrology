@@ -187,7 +187,13 @@ echo "── exports (is each published PDF newer than its sources?) ───�
 # edit and the next export gets switched off inside a week — the same reasoning
 # check_all already applies to pipeline_lint's literal check. It prints loudly
 # instead, and figref_lint REFUSES outright rather than linting a stale export.
-python3 tools/export_lag.py | grep -E "^  (STALE|MISSING|UNMAPPED|UNBUILT)|behind their sources" || true
+# --no-pages: export_lag 1.1.0 also compares the gh-pages branch against the
+# working tree, and that section belongs at PUSH time, not here. Its lines do
+# not match the grep below, so running it here would produce a check whose
+# output is silently discarded — which is the one thing this file must never
+# do. It runs in nrg_git.sh do_push instead, after the push, where the answer
+# is actionable: `nrg_git.sh` option 13 republishes.
+python3 tools/export_lag.py --no-pages | grep -E "^  (STALE|MISSING|UNMAPPED|UNBUILT)|behind their sources" || true
 
 # export_lag asks whether each PDF is newer than its ODT. This asks the same
 # question one layer down: whether a script has changed since the outputs in

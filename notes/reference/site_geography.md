@@ -111,4 +111,4 @@ The northern ~700 ha were afforested with Corsican pine (*Pinus nigra* var. *lar
 
 ## Climate Reference
 
-Meteorological data from RAF Valley, approximately 16 km from the site. Mean annual rainfall 856 mm (full record 1930–2026); 890 mm (monitoring period 2005–2026). Monthly monitoring interval aligned with RAF Valley precipitation record.
+Meteorological data from RAF Valley, approximately 16 km from the site. Mean annual rainfall 858 mm (full record 1930–2026); 890 mm (monitoring period 2005–2026). Monthly monitoring interval aligned with RAF Valley precipitation record.

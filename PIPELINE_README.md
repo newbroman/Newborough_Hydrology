@@ -1299,7 +1299,7 @@ where β₁ and β₂ are the cluster's SSM coefficients (Script 03), and P_scen
 Because the perturbation is linear in P and PET and the multipliers are constant year-on-year (climatology shift, not interannual sequence), the projected trajectory is the observed Method B trajectory shifted by this constant. Three findings worth noting:
 
 1. **The spring window has structural cancellation**: winter +P partly offsets summer +PET, so the net ΔMSL5 is modest (1–4 cm at 2050s, 2–4 cm at 2080s). Applying the same multipliers to summer minima would produce much larger shifts.
-2. **C4 Main Forest has the largest shift** (highest β₂ = 2.55, most PET-sensitive); C1 Lake Edge and C5 Coastal Forest have the smallest (low β₂).
+2. **C4 Main Forest has the largest shift** (highest β₂ = 2.56, most PET-sensitive); C1 Lake Edge and C5 Coastal Forest have the smallest (low β₂).
 3. **The climate signal is small relative to forest management at this site.** The BACI clearfell step is +13.6 cm at the Forest Impact tier — 3–7× larger than central-estimate UKCP18 spring climate shifts.
 
 UKCP18 multipliers used (matching Script 19 `SCENARIO_PARAMS`):

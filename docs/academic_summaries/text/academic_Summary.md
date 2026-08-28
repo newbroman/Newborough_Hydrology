@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/academic_summaries/academic_Summary_v1_10.odt — do not edit.
+<!-- GENERATED MIRROR of docs/academic_summaries/academic_Summary_v1_11.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Newborough Warren Groundwater Study
@@ -54,7 +54,7 @@ Management intervention analysis
 
 Dune scraping --- CEH36 (April 2015) and CEH18/CEH21 (October 2023)
 
-CEH36: Three independent estimators yield consistent scraping effects --- raw paired BACI +130 mm, synthetic control +137 mm, SSM forward-residual +81 mm. The headline figure is the paired summer minimum BACI shift: +195 mm (p = 0.004) relative to the unscraped control CEH4. This represents a permanent geometric benefit: the ground surface is closer to the water table, so the relative water-table depth is shallower regardless of absolute level. CEH36 predates the MSL5 comparison windows (2013--2017 vs 2019--2023); its initial rise does not appear in Figure 4.
+CEH36: Three independent estimators yield consistent scraping effects --- raw paired BACI +129 mm, synthetic control +137 mm, SSM forward-residual +73 mm. The headline figure is the paired summer minimum BACI shift: +195 mm (p = 0.004) relative to the unscraped control CEH4. This represents a permanent geometric benefit: the ground surface is closer to the water table, so the relative water-table depth is shallower regardless of absolute level. CEH36 predates the MSL5 comparison windows (2013--2017 vs 2019--2023); its initial rise does not appear in Figure 4.
 
 CEH18/CEH21 (October 2023): Insufficient post-intervention record (\<2 years) for statistical inference. Both sites occupy more seaward positions where the coastal-retreat gradient is a confounding factor. No significant post-scraping signal is detectable at either well against the backdrop of year-to-year variability.
 
@@ -66,7 +66,7 @@ The null summer result is consistent with a dual canopy role: interception remov
 
 Observed spring baseline change and spatial structure
 
-MSL5 comparison (window-end 2017 vs window-end 2023): site-mean deepening −97 mm (network mean −492 to −589 mm). Of 59 wells with valid data in both windows, 56 deepened \>25 mm; 0 became shallower \>25 mm. Largest declines at the south-western coastal margin (CEH22: −229 mm); smallest at the eastern Lake Edge. Clearfell zone shows no distinguishable signal.
+MSL5 comparison (window-end 2017 vs window-end 2023): site-mean deepening −97 mm (network mean −588 to −685 mm). Of 59 wells with valid data in both windows, 56 deepened \>25 mm; 0 became shallower \>25 mm. Largest declines at the south-western coastal margin (CEH22: −229 mm); smallest at the eastern Lake Edge. Clearfell zone shows no distinguishable signal.
 
 ![](Pictures/10000001000009EE00000967C79BE1C0.png){width="13cm" height="9.377cm"}
 

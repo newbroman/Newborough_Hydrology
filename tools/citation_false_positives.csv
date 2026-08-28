@@ -4,9 +4,12 @@ ANCOVA_A_WMC3+FE1+FE2_Climate_R2,docs/report/text/Newborough_Methods_Supplement.
 ANCOVA_Climate_Impact_R2,docs/report/text/Supplementary_Material.md,0.191,"the value -0.191 in the S7 EWI per-well calibration table, well D10 (C2 Dune). Negative, and a different quantity.",2026-08-26,1
 ANCOVA_Combined_Edge_Oct2023_step,docs/report/text/Supplementary_Material.md,0.117,"three occurrences, all in the S7 EWI per-well calibration table (CEH6, CEH24, CEH34); two of them negative.",2026-08-26,3
 ANCOVA_Combined_Impact_R2,docs/report/text/Supplementary_Material.md,0.268,"the value -0.268 in the S7 EWI per-well calibration table, well CEH26 (C1 Lake Edge). Negative.",2026-08-26,1
-C3_Sy_min,docs/report/text/Supplementary_Material.md,0.246,"two per-well quartiles in the S4.1 WTF specific-yield table — NW13's median and NW5's Q25. Neither is the C3 cluster minimum.",2026-08-26,2
+C3_Sy_min,docs/report/text/Supplementary_Material.md,0.246,two per-well quartiles in the S4.1 WTF specific-yield table — NW13's median and NW5's Q25. Neither is the C3 cluster minimum.,2026-08-26,2
 ANCOVA_Climate_Impact_R2,report_edits/text/report9.md,0.191,"a confidence-interval upper bound in a wide table — CEH22 Control Baseline 0.138 [0.085, 0.191].",2026-08-26,1
 ANCOVA_C_WMC3_only_Climate_R2,report_edits/text/report9.md,0.191,"the same CEH22 CI upper bound as the row above; one occurrence in the document, claimed by two index keys.",2026-08-26,1
-ANCOVA_Climate_Edge_R2,report_edits/text/report9.md,0.219,"a cell in the Forest Ctrl row of a wide before/after table (2.627 2.718 +0.091 2.582 2.801 +0.219 ...).",2026-08-26,1
+ANCOVA_Climate_Edge_R2,report_edits/text/report9.md,0.219,a cell in the Forest Ctrl row of a wide before/after table (2.627 2.718 +0.091 2.582 2.801 +0.219 ...).,2026-08-26,1
 CoeffShift_CEH2_db1,report_edits/text/report9.md,0.115,"two confidence-interval upper bounds — CEH18 Treatment Baseline 0.076 [0.038, 0.115] and CEH4 Control Baseline 0.071 [0.028, 0.115]. Neither is a CEH2 coefficient shift.",2026-08-26,2
 C2 (Dune) · beta_2_atmospheric_draw,report_edits/text/report9.md,1.76,"a cell in a C4 Main Forest row of a counts/range table (13, 692--1,200, 818, 1.76). Whatever that column is, it is not the C2 beta-2. The column meaning is unverified.",2026-08-26,1
+C3 (Western Residual) · beta_2_atmospheric_draw,report_edits/text/report9.md,1.83,"Climate-Edge row of the far-field contrast table: a negative statistic, not an SSM beta_2 (T-18a C.1)",2026-08-28,1
+C4 (Main Forest) · beta_2_atmospheric_draw,docs/papers/paper_1/text/PAPER1_SI_methods.md,2.58,"SE on delta_0 of the full-exponential coastal fit (-41.30 +/- 2.58 mm/yr), not an SSM beta_2 (T-18a C.2)",2026-08-28,1
+Net_benefit,docs/report/text/Supplementary_Material.md,0.143,"Q25 specific yield at CEH27, and a seasonal gradient coefficient; not the BACI scraping benefit (T-18a C.3)",2026-08-28,2

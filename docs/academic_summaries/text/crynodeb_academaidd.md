@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/academic_summaries/crynodeb_academaidd_v1_8.odt — do not edit.
+<!-- GENERATED MIRROR of docs/academic_summaries/crynodeb_academaidd_v1_9.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Astudiaeth Dŵr Daear Cwningar Niwbwrch
@@ -54,7 +54,7 @@ Dadansoddi ymyriadau rheoli
 
 Crafu twyni --- CEH36 (Ebrill 2015) a CEH18/CEH21 (Hydref 2023)
 
-CEH36: Mae tri amcangyfrifwr annibynnol yn cynhyrchu effeithiau crafu cyson --- BACI pâr crai +130 mm, rheolydd synthetig +137 mm, gweddill-ymlaen SSM +81 mm. Y ffigur pennawd yw\'r symudiad BACI isafswm haf pâr: +195 mm (p = 0.004) o\'i gymharu â\'r rheolydd heb ei grafu CEH4. Mae hyn yn cynrychioli budd geometrig parhaol: mae wyneb y tir yn agosach at y lefel ddŵr, felly mae dyfnder cymharol y lefel ddŵr yn fwy bas waeth beth fo\'r lefel absoliwt. Mae CEH36 yn rhagflaenu ffenestri cymharu MSL5 (2013--2017 yn erbyn 2019--2023); nid yw ei godiad cychwynnol yn ymddangos yn Ffigur 4.
+CEH36: Mae tri amcangyfrifwr annibynnol yn cynhyrchu effeithiau crafu cyson --- BACI pâr crai +129 mm, rheolydd synthetig +137 mm, gweddill-ymlaen SSM +73 mm. Y ffigur pennawd yw\'r symudiad BACI isafswm haf pâr: +195 mm (p = 0.004) o\'i gymharu â\'r rheolydd heb ei grafu CEH4. Mae hyn yn cynrychioli budd geometrig parhaol: mae wyneb y tir yn agosach at y lefel ddŵr, felly mae dyfnder cymharol y lefel ddŵr yn fwy bas waeth beth fo\'r lefel absoliwt. Mae CEH36 yn rhagflaenu ffenestri cymharu MSL5 (2013--2017 yn erbyn 2019--2023); nid yw ei godiad cychwynnol yn ymddangos yn Ffigur 4.
 
 CEH18/CEH21 (Hydref 2023): Cofnod ôl-ymyrraeth annigonol (\<2 flynedd) ar gyfer casgliad ystadegol. Mae\'r ddau safle mewn safleoedd mwy tua\'r môr lle mae graddiant cilio\'r arfordir yn ffactor cymysglyd. Nid oes signal ôl-grafu arwyddocaol yn ganfyddadwy yn y naill ffynnon na\'r llall yn erbyn cefndir amrywioldeb o flwyddyn i flwyddyn.
 
@@ -66,7 +66,7 @@ Mae\'r di-ganlyniad haf yn gyson â rôl ddeuol i\'r canopi: mae tynnu rhyng-gip
 
 Newid sylfaenol y gwanwyn a arsylwyd a\'r strwythur gofodol
 
-Cymhariaeth MSL5 (diwedd-ffenestr 2017 yn erbyn diwedd-ffenestr 2023): dyfnhau cymedrig y safle −97 mm (cymedr y rhwydwaith −492 i −589 mm). O 59 ffynnon â data dilys yn y ddwy ffenestr, dyfnhaodd 56 \>25 mm; aeth 0 yn fwy bas \>25 mm. Y gostyngiadau mwyaf ar ymyl arfordirol y de-orllewin (CEH22: −229 mm); y lleiaf ar Ymyl y Llyn dwyreiniol. Nid yw parth y clirdorri\'n dangos signal gwahaniaethadwy.
+Cymhariaeth MSL5 (diwedd-ffenestr 2017 yn erbyn diwedd-ffenestr 2023): dyfnhau cymedrig y safle −97 mm (cymedr y rhwydwaith −588 i −685 mm). O 59 ffynnon â data dilys yn y ddwy ffenestr, dyfnhaodd 56 \>25 mm; aeth 0 yn fwy bas \>25 mm. Y gostyngiadau mwyaf ar ymyl arfordirol y de-orllewin (CEH22: −229 mm); y lleiaf ar Ymyl y Llyn dwyreiniol. Nid yw parth y clirdorri\'n dangos signal gwahaniaethadwy.
 
 ![](Pictures/10000001000009EE00000967C79BE1C0.png){width="13cm" height="9.377cm"}
 

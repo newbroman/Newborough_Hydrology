@@ -9,8 +9,11 @@
 #
 # Requires LibreOffice (soffice). Close the LibreOffice GUI first — a headless
 # run can clash with an open instance. Version traceability -> docs/PDF_MANIFEST.txt
-# (which ODT version each published PDF came from). report.pdf is NOT built here
-# (report.odm is a master document — export it by hand to docs/report/report.pdf).
+# (which ODT version each published PDF came from). report.pdf is NOT built here:
+# report.odm is a master document, and a plain convert-to neither pulls its linked
+# chapters nor refreshes the sequence fields the figure numbers live in. Since
+# 2026-08-28 tools/export_master_pdf.py does that through UNO and lints the result
+# before publishing it; nrg_git.sh offers it immediately after this script runs.
 
 set -euo pipefail
 # Work from the repo root no matter where this script lives (root, tools/, …).
@@ -89,5 +92,7 @@ if [[ $CHECK -eq 1 ]]; then
 else
   { echo "# published PDF  <-  source ODT  |  built (UTC)"; sort "$NEW_MANIFEST"; } > "$MANIFEST"
   echo "Rebuilt $built PDF(s); $current already current. Manifest: $MANIFEST"
-  echo "Reminder: report.pdf (from report.odm) is exported by hand — not built here."
+  echo "Note: report.pdf (from report.odm) is not built here — a master document needs its"
+echo "      links, fields and indexes refreshed first. tools/export_master_pdf.py does that"
+echo "      and lints the result; nrg_git.sh offers it straight after this step."
 fi

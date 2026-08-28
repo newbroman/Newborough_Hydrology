@@ -62,7 +62,9 @@ EXIT
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-08-28.
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-08-28. Pins the PDF
+#   export settings and reports the size delta; 1.0.0 inherited the API
+#   defaults and produced a file 26% larger than the hand export.
 
 import argparse
 import os
@@ -187,6 +189,43 @@ def _prop(name, value):
     return p
 
 
+# PDF EXPORT SETTINGS ARE PINNED, BECAUSE THE DEFAULTS ARE NOT THE HAND EXPORT'S.
+#
+# The first automated run produced a PDF that passed every check and was
+# **26% larger** than the hand export it replaced: 36.6 MB against 28.9 MB.
+# Nothing was wrong with it — the images were simply compressed differently,
+# because `storeToURL` with no FilterData takes the API defaults and the hand
+# route took whatever was set in the GUI.
+#
+# That matters more now than it did, and the reason is the automation itself.
+# report.pdf is a ~30 MB binary committed to git; while it was hand-exported it
+# was rebuilt rarely, and every rebuild now costs its full size in history
+# whether or not the prose changed. Making the export cheap makes its size a
+# standing cost rather than an occasional one.
+#
+# So the settings are named here rather than inherited. JPEG at quality 90 and
+# a 300 DPI ceiling are LibreOffice's own dialog defaults for a print-quality
+# export, and 300 DPI is the figure resolution this project already targets
+# (config.FIG_TARGET_PRINT_DPI). Change them deliberately, and expect the size
+# report below to tell you.
+PDF_FILTER_DATA = {
+    "UseLosslessCompression": False,   # JPEG, not PNG-in-PDF
+    "Quality": 90,                     # LibreOffice's own default
+    "ReduceImageResolution": True,
+    "MaxImageResolution": 300,         # matches config.FIG_TARGET_PRINT_DPI
+    "ExportBookmarks": True,           # the master's headings, for navigation
+    "UseTaggedPDF": True,              # accessibility; a journal will want it
+}
+# Warn above this, as a fraction of the currently published file. Not a gate:
+# a report that genuinely grew is not a defect, and a size check that blocks a
+# correct export teaches people to pass --force.
+SIZE_WARN_FRACTION = 0.15
+
+
+def _filter_data():
+    return tuple(_prop(k, v) for k, v in PDF_FILTER_DATA.items())
+
+
 def export(out_pdf: pathlib.Path) -> bool:
     import uno  # noqa: F401
     soffice = _find_soffice()
@@ -233,7 +272,10 @@ def export(out_pdf: pathlib.Path) -> bool:
         out_pdf.parent.mkdir(parents=True, exist_ok=True)
         dst = uno.systemPathToFileUrl(str(out_pdf))
         print("  exporting PDF ...")
-        doc.storeToURL(dst, (_prop("FilterName", "writer_pdf_Export"),))
+        doc.storeToURL(dst, (_prop("FilterName", "writer_pdf_Export"),
+                             _prop("FilterData", uno.Any(
+                                 "[]com.sun.star.beans.PropertyValue",
+                                 _filter_data()))))
         return True
     finally:
         try:
@@ -366,6 +408,20 @@ def main() -> int:
     if a.check:
         print(f"\n  --check: passed, not published. Export at {tmp}")
         return 0
+
+    if target.exists():
+        was, now = target.stat().st_size, tmp.stat().st_size
+        frac = (now - was) / was if was else 0.0
+        line = (f"    size: {now / 1e6:.1f} MB against {was / 1e6:.1f} MB "
+                f"published ({frac:+.0%})")
+        print(line)
+        if frac > SIZE_WARN_FRACTION:
+            print(f"    NOTE that is more than {SIZE_WARN_FRACTION:.0%} larger. "
+                  f"This file is committed to git at full size on every")
+            print( "         rebuild, so a step change is worth a look before it "
+                   "becomes the new baseline.")
+            print( "         PDF_FILTER_DATA at the top of this file is where the "
+                   "image settings live.")
 
     shutil.copy2(tmp, target)
     tmp.unlink(missing_ok=True)

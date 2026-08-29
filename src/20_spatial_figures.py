@@ -278,6 +278,7 @@ def quote_reach_m(length_m: float) -> float:
     return round(float(length_m) / step) * step
 
 from utils.render_utils import render_figure
+from utils.coastal_utils import coastal_edge_h0, load_measured_retreat_rate
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CONSTANTS
@@ -1558,20 +1559,22 @@ def plot_drawdown_propagation(wt, features, dpi=300, show_head=True):
     # audit_number_drift nor cite_check could bind the value the report types.
     # That is how a stale h₀ survived in two places (W77).
     _h0, _d0, _L, _rm, _pm = _coastal_edge_h0()
+    _rate, _prov = load_measured_retreat_rate(quiet=True)
     rpt.add("coastal_h0", float(_h0), unit="mm",
             note=f"single-event edge drawdown, {_rm:.0f} m retreat × "
-                 f"(δ₀/COAST_RETREAT_RATE); δ₀={_d0:.2f} mm/yr "
-                 f"[Script 25 forest-free linear_capped], "
-                 f"rate={COAST_RETREAT_RATE:.1f} m/yr — rate DISPUTED, see D-085")
+                 f"(δ₀/measured retreat rate); δ₀={_d0:.2f} mm/yr "
+                 f"[Script 25 forest-free linear_capped, 2005-03 to 2026-02], "
+                 f"rate={_rate:.4f} m/yr [{_prov}] — windows matched to 99 %, D-090")
     rpt.add("coastal_h0_per_metre", float(_pm), unit="mm/m",
-            note="δ₀/COAST_RETREAT_RATE — head per metre of shoreline retreat; "
-                 "the quantity Scripts 20 and 09f actually divide by")
+            note="δ₀/measured retreat rate — head per metre of shoreline "
+                 "retreat; the quantity Scripts 20 and 09f divide by")
     rpt.add("coastal_delta0", float(_d0), unit="mm/yr",
             note="live Script 25 forest-free linear_capped δ₀ (absolute); "
-                 "fitted over the whole record")
-    rpt.add("coastal_retreat_rate", float(COAST_RETREAT_RATE), unit="m/yr",
-            note="config COAST_RETREAT_RATE — a six-year window against a "
-                 "full-record δ₀; DISPUTED, see D-085 and W74/W77")
+                 "fitted 2005-03 to 2026-02")
+    rpt.add("coastal_retreat_rate", float(_rate), unit="m/yr",
+            note=f"MEASURED, {_prov}. Supersedes config.COAST_RETREAT_RATE = "
+                 f"{COAST_RETREAT_RATE} (a 2014-2020 window divided into a "
+                 f"whole-record δ₀ — D-090)")
     rpt.add("coastal_reach_L", float(_L), unit="m",
             note="live Script 25 forest-free linear_capped reach L_cg")
 
@@ -1773,16 +1776,21 @@ def _coastal_edge_h0(retreat_m=None):
     shoreline retreat -- the quantity the pipeline actually uses, and the one
     the report numbers carry so it enters the drift net.
 
-    CAVEAT (D-085): COAST_RETREAT_RATE is under active dispute. It divides
-    here, so h0 scales inversely with it; and delta_0 is fitted over the whole
-    record while the committed rate is a six-year window. Neither is resolved.
-    See working/updates/NRG_coast_retreat_rate_exposure_2026-08-29.md.
+    The divisor is no longer config.COAST_RETREAT_RATE. It is MEASURED by
+    Script 40 from the digitised coastline epochs over 2006-2026, a window
+    matched to delta_0's own fit span to 99 % (D-090), and read live by
+    utils.coastal_utils with a documented first-pass fallback. The old constant
+    divided a whole-record delta_0 by a six-year window, which understated h0
+    3.6-fold.
+
+    ONE CONSEQUENCE TRAVELS WITH THIS: h0 is no longer an independent
+    calibration. delta_0 comes from the water-table record and the rate from
+    shoreline position - different data, so not circular - but the methods text
+    must say so.
     """
     delta0, L = _load_coastal_fit()
-    if retreat_m is None:
-        retreat_m = COAST_RETREAT_M
-    per_metre = delta0 / COAST_RETREAT_RATE
-    return retreat_m * per_metre, delta0, L, retreat_m, per_metre
+    h0, rate, per_metre, prov = coastal_edge_h0(delta0, retreat_m)
+    return h0, delta0, L, (retreat_m if retreat_m is not None else COAST_RETREAT_M), per_metre
 
 
 def _dem_waterline_to_dune_edge(shore_level=None, offset_m=None):
@@ -1919,9 +1927,10 @@ def plot_coastal_erosion(wt, features, dpi=300):
 
     # ── Headline fit (live) + edge magnitude from the retreat assumption ──
     h0, delta0, L, _r, _pm = _coastal_edge_h0()
+    _r, _p = load_measured_retreat_rate(quiet=True)
     print(f"  h₀ = {h0:.1f} mm  "
-          f"({COAST_RETREAT_M:.0f} m retreat × {delta0:.2f}/"
-          f"{COAST_RETREAT_RATE:.1f} mm per m), L = {L:.0f} m")
+          f"({COAST_RETREAT_M:.0f} m retreat × {delta0:.2f}/{_r:.4f} "
+          f"mm per m, rate {_p}), L = {L:.0f} m")
 
     # ── Erosion front (dune edge) from the DEM ────────────────────────────
     front, waterline = _dem_waterline_to_dune_edge()

@@ -222,11 +222,20 @@ def _nearest_signed(p, n, Q):
 def _identify_1899_lines(lines_m, ref_2020, inland_xy):
     """Which placemark of coast1899.kml is the dune edge?
 
-    The file carries two lines and labels neither. Index order is not trusted:
-    a re-export that reordered them would silently swap the high-water line for
-    the dune edge, and every long-run rate with it. Instead each candidate is
-    measured against the 2020 line and the SMALLER displacement is the dune
-    edge, the high-water mark lying further seaward by construction.
+    CORRECTION 2026-08-29: an earlier version of this docstring said the file
+    "labels neither" line. It does. Its <description> names them (id=1
+    High_tide, id=2 Dune_edge, mean separation 124 m) and each placemark
+    carries a High_tide / Dune_edge SimpleData flag. The claim was false and is
+    withdrawn.
+
+    The measurement check is kept anyway, for a better reason than the one
+    given: it does not depend on the labels being preserved. A re-export, a
+    reorder, or a rebuild of the file that dropped the SimpleData would swap the
+    high-water line for the dune edge and take every long-run rate with it, and
+    nothing downstream would notice. Each candidate is measured against the 2020
+    line and the SMALLER displacement is the dune edge, the high-water mark
+    lying further seaward by construction. The labels and the measurement agree
+    today; the point is that the script does not need them to.
     """
     S, _ = _resample(ref_2020, SPACING_M)
     N = _normals(S, inland_xy)

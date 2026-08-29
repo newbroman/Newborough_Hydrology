@@ -153,9 +153,18 @@ regenerates them, so nothing would catch an error.
 ### The modern seaward-edge series — `coast2006.kml`, `coast2012.kml`, `coast2020.kml`
 
 **One source, one method, three epochs.** All three digitised by Martin
-Hollingham in **Google Earth Pro 7.3.7.1155** from historic imagery, each named
-for the imagery date, each recording the application in its own `atom:link` and
-the date and reasoning in its `<description>`:
+Hollingham in **Google Earth Pro 7.3.7.1155** from historic imagery and named
+for the imagery date. All three carry the application in an `atom:link`.
+**Two of the three carry the reasoning in a `<description>`, not all three:
+`coast2006.kml` has no `<description>` element at all** — checked 2026-08-29,
+correcting an earlier claim here that every file was self-documenting. Nothing
+is lost, since this record holds the same facts, but a reader who trusted the
+files to carry their own provenance would have found one of them silent.
+
+**None of the three records the DIGITISING date**, only the imagery date and the
+2026-08-28 filing. Whether the coarser 2006 and 2020 lines were traced in a
+different sitting from the denser 2012 one is therefore not answerable from the
+files, and it bears directly on the indicator-drift question:
 
 | file | imagery date | vertices | supplied as |
 |---|---|---|---|

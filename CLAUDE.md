@@ -134,4 +134,13 @@ add a new entry to the decision log. Everything else — audits, tooling, mirror
 value corrections, the Methods Supplement and Supplementary Material — he has
 asked to be done and then reported, not asked about first.
 
+**Pushing: ask whether he is at the PC first (2026-08-29, his instruction).**
+A session with the bridge *can* rebuild the PDFs and push both repos, and on
+2026-08-29 it did — but report9.odt is 123 MB and report.pdf 36 MB, so every file
+crosses the bridge in checksum-verified parts and the whole sequence costs the
+best part of an hour. At his own machine he does it in minutes with
+`working/nrg_git.sh`. So the question to ask is not *may I push* but **"are you
+at the PC and able to push, or shall I?"** — and if he is away, do it, because
+knowing it can be done unattended is the point.
+
 Show your working. He checks.

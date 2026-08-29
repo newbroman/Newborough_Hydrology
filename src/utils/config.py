@@ -40,7 +40,22 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.15.0"  # Hollingham (2026) — 2026-08-29. commentary follows the CLEARFELL_DATE rename (T-17).
+__version__ = "1.16.0"  # Hollingham (2026) — 2026-08-29. Coastal-retreat
+#   commentary corrected (W77). THREE defects, all in comments, no value changed.
+#   (1) One Forgrave ≈50 m was cited to two incompatible windows — "2014–2020"
+#   for COAST_RETREAT_RATE (50/6 ≈ 8.3) and "since 2006" for
+#   COAST_RETREAT_2005_2025_M (50/14 ≈ 3.6). No window is asserted now; the
+#   dispute is recorded (D-085) rather than settled by picking one.
+#   (2) COAST_RETREAT_2005_2025_M and COAST_RETREAT_EFFECTIVE_M each named a
+#   consumer that does not import them (Script 20's driver-change map, whose
+#   coastal field is 5×δ₀ and rate-independent; and Script 37). They are read by
+#   NO script and are documentation anchors for numbers report9 §4.10 types —
+#   now labelled as such rather than deleted.
+#   (3) COAST_RETREAT_RATE did not say that it DIVIDES, so h0 scales inversely
+#   with it. Now stated with the three candidate values and its call sites.
+#   Comment-only: verified by re-running 09f (byte-identical) and Script 20
+#   Figures 3, 4 and 6 (byte-identical).
+# v1.15.0  # Hollingham (2026) — 2026-08-29. commentary follows the CLEARFELL_DATE rename (T-17).
 #   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
 # v1.14.0  # Hollingham (2026) — 2026-08-29. Intervention dates
 #   centralised here as ISO strings (D-084); they were declared independently in
@@ -310,9 +325,17 @@ REACH_QUOTE_NEAREST_M = 10.0
 #                          drawdown cone is measured from this buffer outward.
 #   COAST_RETREAT_M      : single-event shoreline retreat visualised (m;
 #                          Storm-Brendan-scale exemplar, Pye & Blott 2024).
-#   COAST_RETREAT_RATE   : long-term storm-inclusive retreat rate (m/yr;
-#                          ≈50 m / 2014–2020, Forgrave 2020) — the normaliser
-#                          converting a retreat event to an edge drawdown.
+#   COAST_RETREAT_RATE   : long-term storm-inclusive retreat rate (m/yr) — the
+#                          normaliser converting a retreat event to an edge
+#                          drawdown. PROVENANCE DISPUTED, see the block below
+#                          and D-085. It DIVIDES in
+#                          h0 = COAST_RETREAT_M * (delta_0/COAST_RETREAT_RATE)
+#                          at 20_spatial_figures.py:1862/:2239 and
+#                          09f_management_effects.py:316, so h0 scales
+#                          INVERSELY with it: 22.6 mm at 8.3, 56 mm at 3.34,
+#                          106 mm at 1.77, against a 150 mm forest source.
+#                          Live value emitted as coastal_retreat_rate in
+#                          20_report_numbers.csv.
 SCRAPE_RISE_BUFFER_M = 10.0
 COAST_RETREAT_M      = 6.0
 COAST_RETREAT_RATE   = 8.3
@@ -407,17 +430,46 @@ ROLLING_WINDOW_STEP_MONTHS = 3
 # test cannot quantify.
 FAR_FIELD_REACH_MULTIPLE = 1.6
 
-# Cumulative shoreline retreat over the 2005→2025 study window (m). Observed
-# figure (≈50 m since 2006, Forgrave 2020 / Pye & Blott 2024), used by the
-# 2005→2025 driver-change map (Script 20 plot_driver_change_2005_2025). Not
-# derived from COAST_RETREAT_RATE × 20 (which would give ~166 m and overstate
-# the accumulation); the observed 20-year retreat is the smaller ~50 m.
+# --- Coastal-retreat magnitudes: DOCUMENTATION ANCHORS, not pipeline inputs ---
+# Both constants below are read by NO script. They are the traceable home for two
+# numbers the report types — report9 §4.10 quotes them together: "the retreat
+# treated as effective over 2005–2025 is 105 m against a physical shoreline
+# measurement of about 50 m". Kept for that reason; their earlier comments each
+# named a consumer that does not import them (Script 20's driver-change map and
+# Script 37's validation respectively), which is the same defect as a comment
+# describing a relationship the code does not have. Corrected 2026-08-29 (W77).
+#
+# THE PROVENANCE DEFECT, recorded rather than resolved (D-085). Forgrave (2020)
+# reports ONE figure of ≈50 m of retreat, and this file has cited that same
+# ≈50 m to two incompatible windows: as "2014–2020" for COAST_RETREAT_RATE above
+# (50/6 ≈ 8.3 m/yr) and as "since 2006" here (50/14 ≈ 3.6 m/yr). One quantity
+# cannot have accrued over both, so at most one of those readings is right and
+# neither is established. The note immediately below already objected to the
+# 2014–2020 reading from the other side — it declines to extrapolate 8.3 over
+# twenty years because ~166 m would overstate the accumulation — and that
+# objection was left unacted on. NO WINDOW IS ASSERTED HERE until the shoreline
+# measurement is scripted; see working/updates/ NRG_coast_retreat_rate_exposure
+# and NRG_script40_retreat_spec (2026-08-29).
+#
+# Forgrave (2020) is a newspaper report of then-ongoing Bangor measurements and
+# is the ONLY external source these constants have. Pye & Blott (2024), the only
+# other measurement of this frontage, is a DUNE-TOE sequence giving ≈1.8 m/yr at
+# its most active point — a different indicator from the seaward-edge lines the
+# project digitised, which sit 20–34 m landward of the 3–4 m AOD toe band.
+#
+# Cumulative shoreline retreat over the 2005→2025 study window (m). Physical
+# shoreline measurement, ≈50 m (Forgrave 2020 / Pye & Blott 2024), window
+# disputed as above. NOT derived from COAST_RETREAT_RATE × 20, which would give
+# ~166 m and overstate the accumulation.
 COAST_RETREAT_2005_2025_M = 50.0
-# Effective hydraulic coastal retreat calibrated from Script 37 groundwater validation
-# (n=24 clean wells, 2005–2025 window, single-parameter OLS with SLR fixed at 4 mm/yr).
-# Distinct from COAST_RETREAT_2005_2025_M (50 m; physical shoreline measurement, Pye &
-# Blott 2024).  The larger effective value reflects integrated hydraulic response across
-# the full bay frontage vs the reference transect.  Scales linearly with window duration.
+# Effective HYDRAULIC coastal retreat, calibrated from the Script 37 groundwater
+# validation (n=24 clean wells, 2005–2025 window, single-parameter OLS with SLR
+# fixed at 4 mm/yr). Distinct from COAST_RETREAT_2005_2025_M above: the larger
+# effective value reflects integrated hydraulic response across the full bay
+# frontage against the reference transect, the dune toe and the hydraulic
+# boundary not being obliged to move together. Scales linearly with window
+# duration. Script 37 does not import this; the calibration is its provenance,
+# not a live dependency.
 COAST_RETREAT_EFFECTIVE_M = 105.0
 
 # Chronic coastal-drawdown accumulation window (yr) — the near-term horizon over

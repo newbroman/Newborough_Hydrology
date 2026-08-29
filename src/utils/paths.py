@@ -597,6 +597,13 @@ OUT_11B_FLOOD_FREQ      = DIR_11B / "11b_04_flood_frequency.png"
 OUT_11B_TABLE10         = DIR_11B / "11b_05_table10_pflood_spreadsheet.csv"
 OUT_11B_FORECASTER_HTML = DIR_11B / "forecaster.html"
 
+# The forecast-engine feed for the Well Logger app. Written by
+# utils/forecaster_engine.py from 11b's DATA bundle, hash-gated so a no-op run
+# writes nothing. It lands in living/ rather than outputs/ deliberately: it is
+# consumed live from raw.githubusercontent by a separate app, alongside the
+# other living feeds, and is not a pipeline output any downstream script reads.
+LIVING_FORECASTER_ENGINE = ROOT_DIR / "living" / "forecaster_engine.json"
+
 # Script 11c — P_flood achievability categorical map (Phase 3, step 12b)
 OUT_11C_ACHIEVABILITY_MAP    = DIR_11B / "11c_pflood_achievability.png"
 OUT_11C_PER_WELL             = DIR_11B / "11c_pflood_achievability_per_well.csv"

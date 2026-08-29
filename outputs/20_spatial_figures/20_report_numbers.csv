@@ -7,3 +7,8 @@ drawdown_d15,D15,,34.72852167459555,mm,modelled steady-state forest drawdown
 drawdown_ceh24,CEH24,,0.63155532640528,mm,modelled steady-state forest drawdown
 drawdown_ceh10,CEH10,,1.4069693265341634,mm,modelled steady-state forest drawdown
 drawdown_ceh11,CEH11,,0.36273137585316884,mm,modelled steady-state forest drawdown
+coastal_h0,,,22.648192771084336,mm,"single-event edge drawdown, 6 m retreat × (δ₀/COAST_RETREAT_RATE); δ₀=31.33 mm/yr [Script 25 forest-free linear_capped], rate=8.3 m/yr — rate DISPUTED, see D-085"
+coastal_h0_per_metre,,,3.7746987951807225,mm/m,δ₀/COAST_RETREAT_RATE — head per metre of shoreline retreat; the quantity Scripts 20 and 09f actually divide by
+coastal_delta0,,,31.33,mm/yr,live Script 25 forest-free linear_capped δ₀ (absolute); fitted over the whole record
+coastal_retreat_rate,,,8.3,m/yr,"config COAST_RETREAT_RATE — a six-year window against a full-record δ₀; DISPUTED, see D-085 and W74/W77"
+coastal_reach_L,,,895.0,m,live Script 25 forest-free linear_capped reach L_cg

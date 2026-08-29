@@ -47,7 +47,16 @@ Reading order for anyone picking this up
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-08-29. THE GATE OPENS. The
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-08-29. Emits the coastal
+#   sensitivity delta_0/rate WITH the period match checked, closing the mismatch
+#   in h0 = COAST_RETREAT_M * (delta_0 / COAST_RETREAT_RATE): delta_0 is fitted
+#   over the whole record and the committed rate is a six-year window, so the
+#   ratio was never a sensitivity. Measured, the fault is entirely in the
+#   denominator - a window-matched delta_0 moves 0.5 %, the rate by 3.6x. The
+#   window overlap is now computed and warned on every run rather than assumed.
+#   New output 40_06_coastal_sensitivity.csv. See D-090.
+#
+# v1.2.0  # Hollingham (2026) — 2026-08-29. THE GATE OPENS. The
 #   control is a BLIND repeat tracing of the 1/1/2006 imagery, which replaces the
 #   fixed-feature test the spec first called for: two tracings of one image
 #   cannot differ by real change, so their separation is this process's
@@ -515,6 +524,110 @@ def _dtm_profile(measured, lat0, lon0):
     return pd.DataFrame(rows)
 
 
+def _coastal_sensitivity(measured, epoch_date):
+    """delta_0 / retreat_rate — and the period match that makes it meaningful.
+
+    THE DEFECT THIS FIXES. Scripts 20 and 09f build the single-event edge
+    drawdown as
+
+        h0 = COAST_RETREAT_M * (delta_0 / COAST_RETREAT_RATE)
+
+    where delta_0 is fitted over the WHOLE record (2005-03 to 2026-02) and the
+    committed COAST_RETREAT_RATE = 8.3 m/yr is a SIX-YEAR window (2014-2020).
+    The ratio asserts "the water table fell delta_0 per year while the shore
+    retreated R per year, so this much head per metre of retreat" - which is only
+    a sensitivity if both describe the same period. They did not.
+
+    Measured 2026-08-29, the mismatch is entirely in the denominator: refitting
+    delta_0 on a window matched to the retreat epochs moves it 0.5 % (31.328 ->
+    31.481 mm/yr), while the rate moves by a factor of 3.6 (8.3 -> 2.321). So the
+    numerator was never the problem.
+
+    This emits the matched sensitivity and, more importantly, the OVERLAP between
+    the two windows, so the match is checked on every run rather than asserted
+    once in a comment.
+    """
+    rows = []
+    try:
+        head = pd.read_csv(paths.OUT_25_FIT_PARAMETERS)
+        hrow = head[(head["source"] == "forest_free") & (head["model"] == "linear_capped")]
+        d0_head = abs(float(hrow["delta_0_mm_yr"].iloc[0])) if len(hrow) else float("nan")
+    except Exception as exc:
+        warn(f"coastal sensitivity: headline fit unreadable ({exc})")
+        return pd.DataFrame()
+
+    d0_match, w_start, w_end = float("nan"), None, None
+    try:
+        sweep = pd.read_csv(paths.OUT_25_WINDOW_SWEEP)
+        # the sweep row whose window START is closest to the retreat window start
+        target = epoch_date["2006"]
+        sweep["_s"] = pd.to_datetime(sweep["window_start"] + "-01")
+        pick = sweep.iloc[(sweep["_s"] - target).abs().argmin()]
+        d0_match = abs(float(pick["delta_0_mm_yr"]))
+        w_start, w_end = pick["window_start"], pick["window_end"]
+    except Exception as exc:
+        warn(f"coastal sensitivity: window sweep unreadable ({exc}) — "
+             f"matched delta_0 unavailable")
+
+    m = measured.get(FLOOR_INTERVAL)
+    if m is None:
+        return pd.DataFrame()
+    r_start, r_end = epoch_date[FLOOR_INTERVAL[0]], epoch_date[FLOOR_INTERVAL[1]]
+
+    overlap = float("nan")
+    if w_start is not None:
+        ws, we = pd.Timestamp(w_start + "-01"), pd.Timestamp(w_end + "-01")
+        lo, hi = max(ws, r_start), min(we, r_end)
+        span = max((we - ws).days, (r_end - r_start).days)
+        overlap = max((hi - lo).days, 0) / span if span else float("nan")
+
+    rate = m["rate_m_yr"]
+    for label, d0, note in (("headline", d0_head, "Script 25 forest-free linear_capped, whole record"),
+                            ("window_matched", d0_match,
+                             f"Script 25 window sweep, {w_start} to {w_end}")):
+        if d0 != d0:
+            continue
+        rows.append({
+            "delta0_basis": label, "delta0_mm_yr": d0,
+            "delta0_window_start": w_start if label == "window_matched" else "2005-03",
+            "delta0_window_end": w_end if label == "window_matched" else "2026-02",
+            "retreat_interval": f"{FLOOR_INTERVAL[0]}-{FLOOR_INTERVAL[1]}",
+            "retreat_rate_m_yr": rate,
+            "retreat_years": m["years"],
+            "window_overlap_fraction": overlap,
+            "sensitivity_mm_per_m": d0 / rate,
+            "h0_single_event_mm": config.COAST_RETREAT_M * d0 / rate,
+            "note": note,
+        })
+    # and the committed constant, for the comparison the documents need
+    rows.append({
+        "delta0_basis": "headline", "delta0_mm_yr": d0_head,
+        "delta0_window_start": "2005-03", "delta0_window_end": "2026-02",
+        "retreat_interval": "config COAST_RETREAT_RATE (2014-2020)",
+        "retreat_rate_m_yr": config.COAST_RETREAT_RATE,
+        "retreat_years": 6.0, "window_overlap_fraction": float("nan"),
+        "sensitivity_mm_per_m": d0_head / config.COAST_RETREAT_RATE,
+        "h0_single_event_mm": config.COAST_RETREAT_M * d0_head / config.COAST_RETREAT_RATE,
+        "note": "THE COMMITTED CONSTRUCTION — periods do NOT match; kept for comparison",
+    })
+    df = pd.DataFrame(rows)
+
+    if overlap == overlap and overlap < 0.9:
+        warn(f"delta_0 and the retreat rate overlap on only {overlap:.0%} of their "
+             f"windows — the ratio is not a sensitivity at that overlap")
+    else:
+        info(f"period match: delta_0 {w_start}–{w_end} against retreat "
+             f"{FLOOR_INTERVAL[0]}–{FLOOR_INTERVAL[1]}, overlap {overlap:.0%}")
+    mm = df[df.delta0_basis == "window_matched"]
+    if len(mm):
+        r = mm.iloc[0]
+        info(f"matched sensitivity {r['sensitivity_mm_per_m']:.3f} mm per m of "
+             f"retreat -> h0 = {r['h0_single_event_mm']:.2f} mm for a "
+             f"{config.COAST_RETREAT_M:.0f} m event "
+             f"(committed construction gives {df.iloc[-1]['h0_single_event_mm']:.2f} mm)")
+    return df
+
+
 # ======================================================================
 # The gate
 # ======================================================================
@@ -749,6 +862,7 @@ def main():
              f"across {int(ctl_df.iloc[0]['n'])} normals, 0 shared vertices")
     dtm_df = (_dtm_profile(modern_common[FLOOR_INTERVAL], lat0, lon0)
               if modern_common.get(FLOOR_INTERVAL) else pd.DataFrame())
+    sens_df = _coastal_sensitivity(modern_common, epoch_date)
 
     phase(5, "Anchors")
     reg = _regression_test(epoch_line["1899"], epoch_line["2006"], inland_xy)
@@ -836,6 +950,8 @@ def main():
     saved(paths.OUT_40_GENERALISATION.name, f"bound {sagitta:.3f} m")
     dtm_df.to_csv(paths.OUT_40_DTM_PROFILE, index=False)
     saved(paths.OUT_40_DTM_PROFILE.name, f"{len(dtm_df)} rows")
+    sens_df.to_csv(paths.OUT_40_SENSITIVITY, index=False)
+    saved(paths.OUT_40_SENSITIVITY.name, f"{len(sens_df)} bases")
 
     _figure(modern_common, paths.OUT_40_FIG)
     saved(paths.OUT_40_FIG.name)

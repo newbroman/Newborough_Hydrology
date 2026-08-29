@@ -1,0 +1,4 @@
+delta0_basis,delta0_mm_yr,delta0_window_start,delta0_window_end,retreat_interval,retreat_rate_m_yr,retreat_years,window_overlap_fraction,sensitivity_mm_per_m,h0_single_event_mm,note
+headline,31.33,2005-03,2026-02,2006-2026,2.3207128967456545,20.243668720054757,0.9921558020016229,13.50016197347556,81.00097184085335,"Script 25 forest-free linear_capped, whole record"
+window_matched,31.48077222700154,2006-01,2026-02,2006-2026,2.3207128967456545,20.243668720054757,0.9921558020016229,13.565130038768329,81.39078023260997,"Script 25 window sweep, 2006-01 to 2026-02"
+headline,31.33,2005-03,2026-02,config COAST_RETREAT_RATE (2014-2020),8.3,6.0,,3.7746987951807225,22.648192771084336,THE COMMITTED CONSTRUCTION — periods do NOT match; kept for comparison

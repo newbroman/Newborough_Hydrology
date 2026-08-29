@@ -954,6 +954,7 @@ OUT_40_NORMALS         = DIR_40 / "40_02_normals.csv"
 OUT_40_CONTROL         = DIR_40 / "40_03_control.csv"
 OUT_40_GENERALISATION  = DIR_40 / "40_04_generalisation.csv"
 OUT_40_DTM_PROFILE     = DIR_40 / "40_05_dtm_profile.csv"
+OUT_40_SENSITIVITY     = DIR_40 / "40_06_coastal_sensitivity.csv"
 OUT_40_FIG             = DIR_40 / "40_01_alongshore_profile.png"
 
 # Coastline epochs. coast1899.kml carries TWO placemarks and labels neither;

@@ -74,7 +74,13 @@ Dependencies
     Skeletonisation: not required (map_utils handles DEM/IDW)
 """
 
-__version__ = "1.6.4"  # Hollingham (2026) — 2026-08-26: β₃ sign docstring corrected to match CSV (T-14 D2)
+__version__ = "1.7.0"  # Hollingham (2026) — 2026-08-29: emits the forecast-engine
+#   feed for the Well Logger app (living/forecaster_engine.json) from the DATA
+#   bundle it already builds, through utils/forecaster_engine.emit_engine().
+#   Hash-gated, so a run that does not move the engine subset writes nothing.
+#   The emit is beside the existing DATA injection and does not touch the
+#   rendered forecaster.html.
+# v1.6.4  # Hollingham (2026) — 2026-08-26: β₃ sign docstring corrected to match CSV (T-14 D2)
 #
 # 1.6.3 (2026-08-16): map-extent note only, no behaviour change.
 #   This script sets its map extent inline in four places
@@ -125,6 +131,7 @@ from utils.console_utils import (
     hr, skipped,
 )
 from utils.render_utils import bump_fig_fonts, render_figure
+from utils.forecaster_engine import emit_engine
 
 # ─────────────────────────────────────────────────────────────────────────────
 # LOCAL ALIASES
@@ -1917,6 +1924,13 @@ def build_forecaster_html() -> None:
             return
 
     bundle = _build_forecaster_data_bundle()
+
+    # The Well Logger app reads the forecast constants live rather than
+    # carrying a baked copy that drifts. Hash-gated: a run that does not move
+    # the engine subset writes nothing, so `last_changed` in the feed records
+    # when what the app reads actually moved. See utils/forecaster_engine.py
+    # for what the gate does and does not cover.
+    emit_engine(bundle)
 
     n_wells = len(bundle["wells"])
     n_clusters = len(bundle["cluster_coeffs"])

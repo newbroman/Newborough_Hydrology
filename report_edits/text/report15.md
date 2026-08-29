@@ -15,8 +15,12 @@ Full diagnostic outputs for all 66 reference network wells and all 17 clearfell 
 
 -   **Climate Data:** Meteorological records for RAF Valley were obtained from the UK Met Office (MIDAS Open Government Licence).
 
--   **Topographic Data:** Terrain analysis was performed using 1-metre resolution LiDAR composite datasets provided by Natural Resources Wales (NRW) and accessed via the Welsh Government's Lle Geo-Portal.
+-   **Topographic Data:** Terrain analysis was performed using the 2 m resolution LiDAR digital terrain model provided by Natural Resources Wales (NRW) and accessed via DataMapWales (the Welsh Government geospatial portal, successor to the decommissioned Lle Geo-Portal); 2 m DTM, captured March 2023. © Natural Resources Wales and Ordnance Survey.
 
 -   **Groundwater Data:** The primary dipwell monitoring record was independently maintained by the author.
+
+-   **Historic Mapping:** The nineteenth-century shoreline and dune edge were digitised from Ordnance Survey, Anglesey Sheet XXV.NW, revised 1899, published 1901, reproduced with the permission of the National Library of Scotland (https://maps.nls.uk) under CC-BY-NC-SA 4.0. The sheet was georeferenced to OSGB36 / British National Grid from 27 ground control points (RMSE 5.95 m; 3.27 m excluding two outliers). The source raster is not redistributed; the digitised vectors are original work.
+
+-   **Shoreline Data:** The mean-high-water shoreline from which every well-to-coast distance in this study is measured was derived from OpenStreetMap (**natural=coastline**), retrieved via the Overpass API and clipped to the west-facing Caernarfon Bay frontage. Map data © OpenStreetMap contributors, available under the Open Database Licence (ODbL, https://www.openstreetmap.org/copyright).
 
 -   **Methods Supplement:** Hollingham, M., 2026c. Newborough Warren Hydrogeological Analysis --- Methods Supplement. Unpublished technical document, version 1.5.3. Accompanies this report.

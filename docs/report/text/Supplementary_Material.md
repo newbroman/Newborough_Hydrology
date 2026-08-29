@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Supplementary_Material_v1_25.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Supplementary_Material_v1_26.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Supplementary Material
@@ -72,7 +72,7 @@ Wells CEH7 (243,386 E, 363,613 N) and CEH8 (243,150 E, 363,382 N) sit at the far
 
 A key question for the scenario analysis is whether the clearfell treatment wells (FE1, FE2, FE4, LIS1) converged toward C3 open-dune behaviour after the December 2017 felling. The Pearson affinity analysis (Section 4.3) provides a direct empirical test: all four impact wells maintained r \> 0.97 affinity with C4 even in the post-felling period (2018--2026), with no significant shift toward C3 affinity.
 
-This persistence is consistent with the interpretation that the Forest cluster signature at these wells reflects deep sandy substrate at high topographic elevation rather than canopy influence alone --- in which case convergence toward open-dune behaviour may not be achievable regardless of management intervention. C4 wells sit at the highest topographic positions in the dune system (mean head 9.52 m AOD), and their deep unsaturated zones and low recharge sensitivity reflect their geological position, not only their canopy cover. This conclusion is independently supported by the NW10 broadleaf comparison (§5.6.3): NW10, situated within the 1993 clearfell and 1996 broadleaf restocking block, has maintained C4 cluster affinity (r = 0.986) throughout the 18-year monitoring period despite its different canopy cover, confirming that substrate position rather than canopy type is the dominant control on cluster identity.
+This persistence is consistent with the interpretation that the Forest cluster signature at these wells reflects deep sandy substrate at high topographic elevation rather than canopy influence alone --- in which case convergence toward open-dune behaviour may not be achievable regardless of management intervention. C4 wells sit at the highest topographic positions in the dune system (mean head 9.52 m AOD), and their deep unsaturated zones and low recharge sensitivity reflect their geological position, not only their canopy cover. This conclusion is independently supported by the NW10 broadleaf comparison (§5.6.3): NW10, situated within the 1993 clearfell and 1995 broadleaf restocking block, has maintained C4 cluster affinity (r = 0.986) throughout the 18-year monitoring period despite its different canopy cover, confirming that substrate position rather than canopy type is the dominant control on cluster identity.
 
 ## S2.4 Reproducibility
 

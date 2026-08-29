@@ -52,7 +52,9 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-08-13 (spring-mean MAM analysis alongside the summer minimum)
+__version__ = "1.6.0"  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
+#   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
+# v1.5.0  # Hollingham (2026) — 2026-08-13 (spring-mean MAM analysis alongside the summer minimum)
 #
 # 1.5.0 — Added the annual SPRING MEAN (Mar-May) as a second seasonal metric,
 #         run through the identical BACI code path as the summer minimum.
@@ -91,7 +93,7 @@ from utils.paths import (
     OUT_09C_FIG_SPRING_CLIMATE, OUT_09C_FIG_SPRING_PAIRED,
 )
 from utils.scraping_common import (
-    SCRAPING_DATE, INTERVENTION_DATE, SCRAPING_DATE_2, CLIMATE_CONTROLS, SUMMER_MONTHS,
+    SCRAPING_DATE, CLEARFELL_DATE, SCRAPING_DATE_2, CLIMATE_CONTROLS, SUMMER_MONTHS,
     TIER1_WELLS, TIER2_WELLS, PAIRED_CONTROLS_MAP,
     MPL_DEFAULTS,
     load_scraping_data, format_p_value, significance_stars,
@@ -510,7 +512,7 @@ def _plot_climate_control(well_mins, climate_centroid_mins, post_year, spec):
         ax.plot(wy, [well_mins[w][yr] for yr in wy], "o-", color=wc.get(w, "#999"),
                 lw=1.5, ms=5, alpha=0.8, label=w.upper())
     ax.axvline(post_year - 0.5, color="#DAA520", ls="--", lw=2, alpha=0.7, label="Scraping (Apr 2015)")
-    ax.axvline(INTERVENTION_DATE.year + 0.5, color="#1b5e20", ls="-.", lw=2, alpha=0.8, label="Clearfell (Dec 2017)")
+    ax.axvline(CLEARFELL_DATE.year + 0.5, color="#1b5e20", ls="-.", lw=2, alpha=0.8, label="Clearfell (Dec 2017)")
     ax.axvline(SCRAPING_DATE_2.year + 0.5, color="#e7298a", ls="-.", lw=2, alpha=0.8, label="Re-scrape (Oct 2023)")
     ax.axhline(-0.61, color="green", ls=":", alpha=0.4, label="Wet slack threshold")
     ax.axhline(-0.98, color="brown", ls=":", alpha=0.4, label="Dry slack threshold")
@@ -518,7 +520,7 @@ def _plot_climate_control(well_mins, climate_centroid_mins, post_year, spec):
     ax.set_title(f"(a) Raw annual {spec['name']} ({spec['season']})",
                  loc="left", fontweight="bold")
     ax.legend(fontsize=8, ncol=3, loc="lower left",
-              bbox_to_anchor=(INTERVENTION_DATE.year + 0.5, 0.0),
+              bbox_to_anchor=(CLEARFELL_DATE.year + 0.5, 0.0),
               bbox_transform=ax.get_xaxis_transform(), framealpha=0.9)
     ax.grid(axis="y", alpha=0.25)
     ax.invert_yaxis()
@@ -537,7 +539,7 @@ def _plot_climate_control(well_mins, climate_centroid_mins, post_year, spec):
         if post:
             ax.axhline(np.mean(post), color=wc.get(w, "#999"), ls="--", lw=1, alpha=0.5)
     ax.axvline(post_year - 0.5, color="#DAA520", ls="--", lw=2, alpha=0.7)
-    ax.axvline(INTERVENTION_DATE.year + 0.5, color="#1b5e20", ls="-.", lw=2, alpha=0.8)
+    ax.axvline(CLEARFELL_DATE.year + 0.5, color="#1b5e20", ls="-.", lw=2, alpha=0.8)
     ax.axvline(SCRAPING_DATE_2.year + 0.5, color="#e7298a", ls="-.", lw=2, alpha=0.8)
     ax.axhline(0, color="black", lw=0.6, alpha=0.5)
     ax.set_ylabel("Gap: well \u2212 climate ctrl (m)")
@@ -553,7 +555,7 @@ def _plot_climate_control(well_mins, climate_centroid_mins, post_year, spec):
         gaps = [well_mins[w][yr] - climate_centroid_mins[yr] for yr in common]
         ax.plot(common, gaps, "o-", color=wc.get(w, "#999"), lw=1.5, ms=5, alpha=0.8, label=w.upper())
     ax.axvline(post_year - 0.5, color="#DAA520", ls="--", lw=2, alpha=0.7)
-    ax.axvline(INTERVENTION_DATE.year + 0.5, color="#1b5e20", ls="-.", lw=2, alpha=0.8)
+    ax.axvline(CLEARFELL_DATE.year + 0.5, color="#1b5e20", ls="-.", lw=2, alpha=0.8)
     ax.axvline(SCRAPING_DATE_2.year + 0.5, color="#e7298a", ls="-.", lw=2, alpha=0.8)
     ax.axhline(0, color="black", lw=0.6, alpha=0.5)
     ax.set_xlabel("Year")
@@ -589,7 +591,7 @@ def _plot_paired(well_mins, paired_mins, post_year, spec):
     ax.plot(common, [well_mins["ceh36"][yr] for yr in common], "o-", color="#d62728", lw=2, ms=7, label="CEH36 (scraped)")
     ax.plot(common, [ceh4_mins[yr] for yr in common], "s-", color="#ff7f0e", lw=2, ms=7, label="CEH4 (paired control)")
     ax.axvline(post_year - 0.5, color="#DAA520", ls="--", lw=2.5, alpha=0.7, label="Scraping (Apr 2015)")
-    ax.axvline(INTERVENTION_DATE.year + 0.5, color="#1b5e20", ls="-.", lw=2.5, alpha=0.8, label="Clearfell (Dec 2017)")
+    ax.axvline(CLEARFELL_DATE.year + 0.5, color="#1b5e20", ls="-.", lw=2.5, alpha=0.8, label="Clearfell (Dec 2017)")
     ax.axvline(SCRAPING_DATE_2.year + 0.5, color="#e7298a", ls="-.", lw=2.5, alpha=0.8, label="Re-scrape (Oct 2023)")
     # SD15b/SD16 are the SUMMER slack viability limits; there is no spring
     # equivalent constant, so the spring figure carries no threshold bands
@@ -616,7 +618,7 @@ def _plot_paired(well_mins, paired_mins, post_year, spec):
         ax.axhline(np.mean(post_gap), color="#CC79A7", ls="--", lw=2,
                     label=f"Post-scraping mean: {np.mean(post_gap)*1000:+.0f} mm")
     ax.axvline(post_year - 0.5, color="#DAA520", ls="--", lw=2.5, alpha=0.7)
-    ax.axvline(INTERVENTION_DATE.year + 0.5, color="#1b5e20", ls="-.", lw=2.5, alpha=0.8)
+    ax.axvline(CLEARFELL_DATE.year + 0.5, color="#1b5e20", ls="-.", lw=2.5, alpha=0.8)
     ax.axvline(SCRAPING_DATE_2.year + 0.5, color="#e7298a", ls="-.", lw=2.5, alpha=0.8)
     ax.axhline(0, color="black", lw=0.6, alpha=0.5)
     if len(pre_gap) >= 2 and len(post_gap) >= 2:

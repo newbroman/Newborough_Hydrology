@@ -127,14 +127,16 @@ from utils.paths import (
     OUT_10K_REPORT, OUT_10J_MONTHLY_RESULTS,
 )
 from utils.clearfell_common import (
-    load_clearfell_data, INTERVENTION_DATE, SCRAPING_DATE,
+    load_clearfell_data, CLEARFELL_DATE, SCRAPING_DATE,
     PRE_FELL_START_FOURZONE, IMPACT_WELLS, EDGE_WELLS, FOREST_CONTROL_WELLS,
     C3_WARREN_WELLS, compute_cwb, ReportNumbers, TIER_COLOURS,
 )
 from utils.site_observations import update_site_observation
 from utils.render_utils import render_figure
 
-__version__ = "1.3.1"  # Hollingham (2026) — 2026-08-22.  Docstring only:
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
+#   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
+# v1.3.1  # Hollingham (2026) — 2026-08-22.  Docstring only:
 #   retired an asserted result (D-011) and two citations to a design spec
 #   and decision record that are not in the repository.  No code path,
 #   no output, no committed value changes.
@@ -225,7 +227,7 @@ def build_monthly_panel(wells, climate):
                     'h':        h,
                     'cwb':      cwb_series.get(date, np.nan),
                     'Scraped1': 1.0 if date >= SCRAPING_DATE else 0.0,
-                    'Post':     1.0 if date >= INTERVENTION_DATE else 0.0,
+                    'Post':     1.0 if date >= CLEARFELL_DATE else 0.0,
                 })
     panel = pd.DataFrame(records).dropna(subset=['cwb'])
     return panel
@@ -795,7 +797,7 @@ def figure_zone_centroids(panel, fit, out_path):
 
     ax.axvline(SCRAPING_DATE,     color='grey', ls='--', alpha=0.7,
                label='Apr 2015 scraping')
-    ax.axvline(INTERVENTION_DATE, color='k',    ls='--', alpha=0.8,
+    ax.axvline(CLEARFELL_DATE, color='k',    ls='--', alpha=0.8,
                label='Dec 2017 felling')
     ax.set_ylabel('Water-table depth (m)')
     ax.set_xlabel('Date')
@@ -831,7 +833,7 @@ def figure_contrast_forest(panel, out_path):
 
     ax.axhline(0, color='grey', ls='-', alpha=0.5)
     ax.axvline(SCRAPING_DATE,     color='grey', ls='--', alpha=0.7)
-    ax.axvline(INTERVENTION_DATE, color='k',    ls='--', alpha=0.8)
+    ax.axvline(CLEARFELL_DATE, color='k',    ls='--', alpha=0.8)
     ax.set_ylabel('Zone − Forest centroid (mm)')
     ax.set_xlabel('Date')
     ax.set_title('Differential series — each zone relative to the '
@@ -960,7 +962,7 @@ def main():
         print(f"    {z:<11}: {', '.join(w.upper() for w in present)}{ref}")
     print(f"  PRE_FELL_START_FOURZONE:  {PRE_FELL_START_FOURZONE.date()}")
     print(f"  SCRAPING_DATE:   {SCRAPING_DATE.date()}")
-    print(f"  INTERVENTION:    {INTERVENTION_DATE.date()}")
+    print(f"  INTERVENTION:    {CLEARFELL_DATE.date()}")
     print()
 
     # ── 1. Build panel ──────────────────────────────────────────────────

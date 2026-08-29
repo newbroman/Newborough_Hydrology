@@ -33,7 +33,9 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.7.0"  # Hollingham (2026) -- 2026-08-28. s_coast derived from psi
+__version__ = "1.8.0"  # Hollingham (2026) — 2026-08-29. the clearfell date constant is now named CLEARFELL_DATE (T-17).
+#   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
+# v1.7.0  # Hollingham (2026) -- 2026-08-28. s_coast derived from psi
 #   (M14 / D-076) and the fixed-at-1 sensitivity committed.
 # 1.6.0  # Hollingham (2026) -- 2026-08-21. Far-field control tier added
 #   to CONTROLS, plus the per-control-well spread refits behind
@@ -82,7 +84,7 @@ from utils.clearfell_common import (
     load_clearfell_data, apply_ceh34_hindcast, IMPACT_WELLS, EDGE_WELLS,
     FOREST_CONTROL_WELLS, COASTAL_CONTROL_WELLS, CLIMATE_CONTROL_WELLS,
     FAR_FIELD_CONTROL_WELLS, FAR_FIELD_CONTROL_LABEL,
-    ALL_NETWORK_WELLS, INTERVENTION_DATE, SCRAPING_DATE, SCRAPING_DATE_2,
+    ALL_NETWORK_WELLS, CLEARFELL_DATE, SCRAPING_DATE, SCRAPING_DATE_2,
     PRE_FELL_START, SCRAPING_DECAY_LAMBDA, compute_baci_displacement,
     compute_cwb, build_scraping_covariate_centroid, distance_from_ceh36,
     coastal_drift_differential,
@@ -324,7 +326,7 @@ def build_ancova_frame(wells, climate, target_wells, control_wells,
     df['D_scrape2'] = target_scrape2.loc[df.index] - control_scrape2.loc[df.index]
 
     # ── Clearfell dummy ──────────────────────────────────────────────
-    df['D_fell'] = (df.index >= INTERVENTION_DATE).astype(float)
+    df['D_fell'] = (df.index >= CLEARFELL_DATE).astype(float)
 
     # ── CWB × clearfell interaction ──────────────────────────────────
     df['cwb_x_fell'] = df['cwb_c'] * df['D_fell']
@@ -896,7 +898,7 @@ CB_FOREST = '#4DAC26'
 def _vlines(ax):
     """Add intervention date lines."""
     ax.axvline(SCRAPING_DATE, color='#999999', ls='--', lw=0.8, zorder=1)
-    ax.axvline(INTERVENTION_DATE, color='#333333', ls='-', lw=1.2, zorder=1)
+    ax.axvline(CLEARFELL_DATE, color='#333333', ls='-', lw=1.2, zorder=1)
     ax.axvline(SCRAPING_DATE_2, color='#999999', ls=':', lw=0.8, zorder=1)
 
 
@@ -926,10 +928,10 @@ def _plot_era_means(ax, df, corrected_mm, color=None):
     for mask, x0, x1 in [
         (df.index < SCRAPING_DATE,
          df.index[0], SCRAPING_DATE),
-        ((df.index >= SCRAPING_DATE) & (df.index < INTERVENTION_DATE),
-         SCRAPING_DATE, INTERVENTION_DATE),
-        (df.index >= INTERVENTION_DATE,
-         INTERVENTION_DATE, df.index[-1]),
+        ((df.index >= SCRAPING_DATE) & (df.index < CLEARFELL_DATE),
+         SCRAPING_DATE, CLEARFELL_DATE),
+        (df.index >= CLEARFELL_DATE,
+         CLEARFELL_DATE, df.index[-1]),
     ]:
         era_data = corrected_mm[mask]
         if len(era_data) > 0:
@@ -1009,8 +1011,8 @@ for j, zone_label in enumerate(ZONES.keys()):
 
     df = ancova_frames[key]
     fit = results[key]
-    pre = df[df.index < INTERVENTION_DATE]
-    post = df[df.index >= INTERVENTION_DATE]
+    pre = df[df.index < CLEARFELL_DATE]
+    post = df[df.index >= CLEARFELL_DATE]
 
     ax.scatter(pre['cwb'], pre['baci_disp'] * 1000,
                color=CB_FOREST, alpha=0.4, s=20, label='Pre-felling (data)')
@@ -1080,7 +1082,7 @@ for zone_label, out_path in [('Impact', OUT_FIG_CUSUM_IMP),
     corrected = _compute_corrected(df, fit)
 
     # CUSUM: demeaned on pre-felling baseline
-    pre_fell_mean = corrected[corrected.index < INTERVENTION_DATE].mean()
+    pre_fell_mean = corrected[corrected.index < CLEARFELL_DATE].mean()
     detrended = corrected - pre_fell_mean
     cusum = detrended.cumsum() * 1000  # mm
 
@@ -1115,10 +1117,10 @@ for zone_label, out_path in [('Impact', OUT_FIG_CUSUM_IMP),
     ax.axhline(0, color='grey', lw=0.5)
     _vlines(ax)
 
-    cusum_at_fell = cusum.loc[cusum.index >= INTERVENTION_DATE]
+    cusum_at_fell = cusum.loc[cusum.index >= CLEARFELL_DATE]
     if len(cusum_at_fell) > 0:
         ax.annotate(f'At clearfell: {cusum_at_fell.iloc[0]:.0f} mm',
-                    xy=(INTERVENTION_DATE, cusum_at_fell.iloc[0]),
+                    xy=(CLEARFELL_DATE, cusum_at_fell.iloc[0]),
                     fontsize=9, ha='left', va='bottom',
                     xytext=(10, 5), textcoords='offset points')
     cusum_final = cusum.iloc[-1]
@@ -1208,8 +1210,8 @@ for j, zone_label in enumerate(ZONES.keys()):
             continue
         df = ancova_frames[key]
         fit = results[key]
-        pre = df[df.index < INTERVENTION_DATE]
-        post = df[df.index >= INTERVENTION_DATE]
+        pre = df[df.index < CLEARFELL_DATE]
+        post = df[df.index >= CLEARFELL_DATE]
         ax.scatter(pre['cwb'], pre['baci_disp'] * 1000,
                    color=colour, alpha=0.4, s=20, label='Pre-felling')
         ax.scatter(post['cwb'], post['baci_disp'] * 1000,

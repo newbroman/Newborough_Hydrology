@@ -30,7 +30,10 @@ Reads:
 ==========================================================================
 """
 
-__version__ = "1.6.0"  # Hollingham (2026) — 2026-07-02
+__version__ = "1.7.0"  # Hollingham (2026) — 2026-08-29. FELL_DATE, SCRAPE_DATE
+#   and SCRAPE2_DATE were private literals; now imported from clearfell_common
+#   (D-084). No value changes.
+# v1.6.0  # Hollingham (2026) — 2026-07-02
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -69,9 +72,14 @@ from scipy import stats as _stats
 # ============================================================================
 # CONSTANTS
 # ============================================================================
-SCRAPE_DATE  = pd.Timestamp("2015-04-01")
-FELL_DATE    = pd.Timestamp("2017-12-01")
-SCRAPE2_DATE = pd.Timestamp("2023-10-01")
+# All three were private literals until 2026-08-29 (D-084). Now the shared
+# constants from utils.clearfell_common, which builds them from utils.config.
+# Values unchanged.
+from utils.clearfell_common import (
+    CLEARFELL_DATE as FELL_DATE,
+    SCRAPING_DATE as SCRAPE_DATE,
+    SCRAPING_DATE_2 as SCRAPE2_DATE,
+)
 
 E_CEH36 = CEH36_E   # config.py — documented 2015 dune-scrape site
 N_CEH36 = CEH36_N

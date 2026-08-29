@@ -51,7 +51,7 @@ a pooled centroid.
 Usage
 -----
     from utils.clearfell_common import (
-        load_clearfell_data, INTERVENTION_DATE, SCRAPING_DATE,
+        load_clearfell_data, CLEARFELL_DATE, SCRAPING_DATE,
         PRE_FELL_START, PRE_FELL_START_LONG, LONG_RECORD_NETWORK_WELLS,
         IMPACT_WELLS, EDGE_WELLS, FOREST_CONTROL_WELLS,
         CLIMATE_CONTROL_WELLS, ALL_NETWORK_WELLS,
@@ -70,7 +70,12 @@ provenance with ``_ = wells_prov``. Script 10d uses it to require
 >=2 measured Jun-Sep months in ``annual_summer_minimum``.
 """
 
-__version__ = "1.9.0"  # Hollingham (2026) — 2026-08-21 (far-field control tier)
+__version__ = "1.11.0"  # Hollingham (2026) — 2026-08-29. the legacy alias is removed; CLEARFELL_DATE is the only name (T-17).
+#   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
+# v1.10.0  # Hollingham (2026) — 2026-08-29. The four intervention
+#   dates are built from utils.config rather than declared here (D-084); adds
+#   CLEARFELL_DATE as the unambiguous alias for CLEARFELL_DATE. No value changes.
+# v1.9.0  # Hollingham (2026) — 2026-08-21 (far-field control tier)
 #
 # 1.9.0 — FAR_FIELD_CONTROL_WELLS added beside the three existing control tiers:
 #         a control set chosen for DISTANCE CONTRAST against the impact zone, so
@@ -140,6 +145,10 @@ from utils.config import (
     MSL_SPRING_MONTHS as _MSL_SPRING_MONTHS,
     MSL_MIN_MONTHS_PER_SPRING as _MSL_MIN_MONTHS_PER_SPRING,
     FAR_FIELD_REACH_MULTIPLE,
+    CLEARFELL_DATE_ISO as _CLEARFELL_DATE_ISO,
+    SCRAPING_DATE_0_ISO as _SCRAPING_DATE_0_ISO,
+    SCRAPING_DATE_ISO as _SCRAPING_DATE_ISO,
+    SCRAPING_DATE_2_ISO as _SCRAPING_DATE_2_ISO,
 )
 
 # ============================================================================
@@ -306,12 +315,15 @@ TIERS = {
 # INTERVENTION DATES
 # ============================================================================
 
-INTERVENTION_DATE = pd.Timestamp('2017-12-01')   # December 2017 clearfell
-SCRAPING_DATE_0   = pd.Timestamp('2013-02-01')   # February 2013 scraping (CEH40/41/42 unmonitored cuts)
-SCRAPING_DATE     = pd.Timestamp('2015-04-01')   # April 2015 scraping
-SCRAPING_DATE_2   = pd.Timestamp('2023-10-01')   # October 2023 re-scraping
+# Built from utils.config, which holds the ISO strings as the single source of
+# truth (D-084). These four were literals here until 2026-08-29, duplicated in
+# scraping_common and again in 09b. Values unchanged.
+CLEARFELL_DATE    = pd.Timestamp(_CLEARFELL_DATE_ISO)    # December 2017 clearfell
+SCRAPING_DATE_0   = pd.Timestamp(_SCRAPING_DATE_0_ISO)   # February 2013 (CEH40/41/42 unmonitored cuts)
+SCRAPING_DATE     = pd.Timestamp(_SCRAPING_DATE_ISO)     # April 2015 scraping
+SCRAPING_DATE_2   = pd.Timestamp(_SCRAPING_DATE_2_ISO)   # October 2023 re-scraping
 
-FELLING_YEAR = INTERVENTION_DATE.year  # 2017
+FELLING_YEAR = CLEARFELL_DATE.year  # 2017
 
 # ============================================================================
 # RECORD-LENGTH-BALANCE BACI CUTOFFS

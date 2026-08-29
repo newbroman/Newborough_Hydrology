@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+<Document>
+	<name>coast2012.kml</name>
+	<description><![CDATA[
+Newborough Warren seaward edge (dune edge), digitised by Martin Hollingham in
+Google Earth Pro 7.3.7.1155 from imagery dated 2012-05-26.
+
+Named for the IMAGERY date. Supplied as "Coast 26-5-2012.kml", filed 2026-08-28.
+
+Part of a single-source modern series with coast2006.kml (imagery 2006-01-01)
+and coast2020.kml (imagery 2020-04-24), comparable with the id=2 dune-edge line
+of coast1899.kml. This line REPLACES DCoast_2015.kml as the intermediate epoch:
+that line lies seaward of this one at 10 of 12 sampled longitudes despite being
+three years later, which is impossible under monotonic retreat.
+See data/geo/GEO_PROVENANCE.md.
+]]></description>
+	<StyleMap id="m_ylw-pushpin">
+		<Pair>
+			<key>normal</key>
+			<styleUrl>#s_ylw-pushpin</styleUrl>
+		</Pair>
+		<Pair>
+			<key>highlight</key>
+			<styleUrl>#s_ylw-pushpin_hl</styleUrl>
+		</Pair>
+	</StyleMap>
+	<Style id="s_ylw-pushpin">
+		<IconStyle>
+			<scale>1.1</scale>
+			<Icon>
+				<href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+			</Icon>
+			<hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
+		</IconStyle>
+	</Style>
+	<Style id="s_ylw-pushpin_hl">
+		<IconStyle>
+			<scale>1.3</scale>
+			<Icon>
+				<href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+			</Icon>
+			<hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
+		</IconStyle>
+	</Style>
+	<Placemark>
+		<name>coast2012 (imagery 2012-05-26)</name>
+		<styleUrl>#m_ylw-pushpin</styleUrl>
+		<LineString>
+			<tessellate>1</tessellate>
+			<coordinates>
+				-4.399274907225545,53.14561824499769,0 -4.397081181955337,53.14536369718908,0 -4.395507890423014,53.14514046917515,0 -4.393430481821632,53.1447910880912,0 -4.391513870219286,53.1443292806735,0 -4.390066743868775,53.14385507323848,0 -4.388194763133301,53.14355712303979,0 -4.386824860398861,53.14329121819271,0 -4.385343338293746,53.14297963191616,0 -4.384052408413882,53.1426899056505,0 -4.383180298810919,53.14249625991339,0 -4.382390421032464,53.14209666573051,0 -4.381258222643451,53.14178630195018,0 -4.379862744734914,53.14143079641986,0 -4.378667282235781,53.1409133965742,0 -4.377096993558732,53.14032868737152,0 -4.375351891358966,53.13951630025132,0 -4.372750016787911,53.13815434300475,0 -4.369991456320398,53.13673650311937,0 -4.367890925323847,53.13553623276689,0 -4.365874958071794,53.13452121080436,0 -4.363778742762491,53.13368648260352,0 -4.3616893582075,53.13301045315226,0 -4.359892286890155,53.13240412609436,0 -4.356478517525693,53.13126113985853,0 -4.354280192941965,53.13107797048157,0 -4.351161573847929,53.13080139750481,0 -4.348890788046433,53.13087249714877,0 -4.345843132117631,53.13073222716032,0 
+			</coordinates>
+		</LineString>
+		<atom:link rel="app" href="https://www.google.com/earth/about/versions/#earth-pro" title="Google Earth Pro 7.3.7.1155"></atom:link>
+	</Placemark>
+</Document>
+</kml>

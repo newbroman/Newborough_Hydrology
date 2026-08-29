@@ -28,7 +28,9 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "2.1.0"  # Hollingham (2026) — modularised from monolithic 09
+__version__ = "2.2.0"  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
+#   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
+# v2.1.0  # Hollingham (2026) — modularised from monolithic 09
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 
 import sys as _sys, os as _os
@@ -43,7 +45,7 @@ from utils.paths import (
     make_all_dirs, OUT_09_ROBUSTNESS, OUT_09E_REPORT_NUMBERS,
 )
 from utils.scraping_common import (
-    SCRAPING_DATE, INTERVENTION_DATE, SCRAPING_DATE_2,
+    SCRAPING_DATE, CLEARFELL_DATE, SCRAPING_DATE_2,
     DONOR_CANDIDATES, MPL_DEFAULTS,
     load_scraping_data,
 )
@@ -73,7 +75,7 @@ def main():
     wells, _wells_prov, climate = load_scraping_data()
 
     date_2015 = SCRAPING_DATE
-    date_felling = INTERVENTION_DATE
+    date_felling = CLEARFELL_DATE
 
     donors = [w for w in DONOR_CANDIDATES if w in wells.columns]
 
@@ -219,7 +221,7 @@ def _plot_robustness(gap_raw, gap_syn, ts_fwd,
                      ssm_step, donors):
     """Three-panel robustness figure."""
     date_2015 = SCRAPING_DATE
-    date_felling = INTERVENTION_DATE
+    date_felling = CLEARFELL_DATE
     date_2023 = SCRAPING_DATE_2
 
     fig = plt.figure(figsize=(13, 11), dpi=300)

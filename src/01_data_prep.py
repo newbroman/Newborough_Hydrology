@@ -15,7 +15,9 @@ Requirements:
     pandas, numpy
 """
 
-__version__ = "1.13.0"  # Hollingham (2026) -- 2026-08-23. D-070: the Met
+__version__ = "1.14.0"  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
+#   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
+# v1.13.0  # Hollingham (2026) -- 2026-08-23. D-070: the Met
 #     Office's "---" (more than two days unmeasured) is read as MISSING rather
 #     than as "0". June 1941 -- the only gap in the 95-year file -- had been
 #     entering the pipeline as the driest month on record. Carried as NaN, the
@@ -534,7 +536,7 @@ def _render_coverage_figure(wells_scope, states):
     import matplotlib.dates as mdates
     from matplotlib.patches import Patch
     from matplotlib.lines import Line2D
-    from utils.clearfell_common import SCRAPING_DATE, INTERVENTION_DATE
+    from utils.clearfell_common import SCRAPING_DATE, CLEARFELL_DATE
 
     obs_face = get_obs_state_colours()
     obs_hatch = get_obs_state_hatches()
@@ -681,7 +683,7 @@ def _render_coverage_figure(wells_scope, states):
         ax.set_yticks(np.arange(m) + 0.5)
         ax.set_yticklabels([lbl for (_, _, _, lbl) in sub_rows], fontsize=8)
         ax.set_ylim(m, 0)
-        for d in (pd.Timestamp(SCRAPING_DATE), pd.Timestamp(INTERVENTION_DATE)):
+        for d in (pd.Timestamp(SCRAPING_DATE), pd.Timestamp(CLEARFELL_DATE)):
             ax.axvline(d, color="black", ls="--", lw=1.0, alpha=0.7)
         fig.legend(handles=legend, loc="lower center", bbox_to_anchor=(0.5, 0.015),
                    ncol=3, fontsize=7, frameon=False)

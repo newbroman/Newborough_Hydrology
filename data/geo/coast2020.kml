@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+<Document>
+	<name>coast2020.kml</name>
+	<description><![CDATA[
+Newborough Warren seaward edge (dune edge), digitised by Martin Hollingham in
+Google Earth Pro 7.3.7.1155 from imagery dated 2020-04-24.
+
+Named for the IMAGERY date, not the digitising date. Supplied as "coast 2021.kml"
+and renamed 2026-08-28 once the imagery date was confirmed: an epoch used in a
+retreat rate has to be the date of the imagery it was traced from.
+
+Comparable with coast2006.kml (imagery 2006-01-01) and with the id=2 dune-edge
+line of coast1899.kml - all three are dune edges. See data/geo/GEO_PROVENANCE.md.
+]]></description>
+	<StyleMap id="m_ylw-pushpin">
+		<Pair>
+			<key>normal</key>
+			<styleUrl>#s_ylw-pushpin</styleUrl>
+		</Pair>
+		<Pair>
+			<key>highlight</key>
+			<styleUrl>#s_ylw-pushpin_hl</styleUrl>
+		</Pair>
+	</StyleMap>
+	<Style id="s_ylw-pushpin">
+		<IconStyle>
+			<scale>1.1</scale>
+			<Icon>
+				<href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+			</Icon>
+			<hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
+		</IconStyle>
+	</Style>
+	<Style id="s_ylw-pushpin_hl">
+		<IconStyle>
+			<scale>1.3</scale>
+			<Icon>
+				<href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+			</Icon>
+			<hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
+		</IconStyle>
+	</Style>
+	<Placemark>
+		<name>coast2020</name>
+		<styleUrl>#m_ylw-pushpin</styleUrl>
+		<LineString>
+			<tessellate>1</tessellate>
+			<coordinates>
+				-4.350371757850924,53.13032072635644,0 -4.354510381095952,53.13105102094622,0 -4.359729363612845,53.13267859974511,0 -4.363769207624252,53.13396884063747,0 -4.366970728505104,53.13535454732743,0 -4.368583243485307,53.13632920229929,0 -4.370410438676108,53.13722598333735,0 -4.372263727320487,53.13834319188155,0 -4.373396039780982,53.13908350915921,0 -4.37516383778933,53.13974428447066,0 -4.377425237966147,53.14060000227571,0 -4.38019839909547,53.1418708591429,0 -4.382786692033097,53.14284668948396,0 -4.392516415957503,53.144657323699,0 
+			</coordinates>
+		</LineString>
+		<atom:link rel="app" href="https://www.google.com/earth/about/versions/#earth-pro" title="Google Earth Pro 7.3.7.1155"></atom:link>
+	</Placemark>
+</Document>
+</kml>

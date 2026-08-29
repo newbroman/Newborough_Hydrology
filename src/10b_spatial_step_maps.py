@@ -67,12 +67,14 @@ from utils.config import (
     SITE_MAP_EAST_MIN, SITE_MAP_EAST_MAX, SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX,
 )
 from utils.clearfell_common import (
-    INTERVENTION_DATE, SCRAPING_DATE, PRE_FELL_START, apply_ceh34_hindcast,
+    CLEARFELL_DATE, SCRAPING_DATE, PRE_FELL_START, apply_ceh34_hindcast,
     IMPACT_WELLS, EDGE_WELLS, FOREST_CONTROL_WELLS, COASTAL_CONTROL_WELLS,
 )
 from utils.render_utils import render_figure
 
-__version__ = "1.6.0"
+__version__ = "1.7.0"  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
+#   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
+# v1.6.0
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -84,7 +86,7 @@ __version__ = "1.6.0"
 # OUT_10B_FELL_CORRECTED, OUT_10B_STEP_DATA
 
 # ── Era boundaries ──────────────────────────────────────────────────────────
-# SCRAPING_DATE and INTERVENTION_DATE imported from clearfell_common
+# SCRAPING_DATE and CLEARFELL_DATE imported from clearfell_common
 MIN_MONTHS        = 6   # minimum observations per era for inclusion
 
 # Climate reference wells — C3 western subset for spatial correction.
@@ -154,8 +156,8 @@ def main():
     # ══════════════════════════════════════════════════════════════════════════════
     phase(2, "Computing step changes")
     mask_pre    = (wells.index >= PRE_FELL_START) & (wells.index < SCRAPING_DATE)
-    mask_scrape = (wells.index >= SCRAPING_DATE) & (wells.index < INTERVENTION_DATE)
-    mask_post   = wells.index >= INTERVENTION_DATE
+    mask_scrape = (wells.index >= SCRAPING_DATE) & (wells.index < CLEARFELL_DATE)
+    mask_post   = wells.index >= CLEARFELL_DATE
 
     rows = []
     for col in wells.columns:

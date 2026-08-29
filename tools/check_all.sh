@@ -105,8 +105,19 @@ echo "── rounding (has new store-time rounding appeared?) ──────
 python3 tools/rounding_lint.py || rc=1
 
 echo
+echo "── geographic inputs ────────────────────────────────────────────────"
+# Advisory, not a gate: the open TO CONFIRM fields are questions only Martin can
+# answer, and failing the build on them every run would just teach us to ignore
+# it. What would be a real failure is a layer with no entry at all, or an entry
+# pointing at a file that has gone.
+python3 tools/geo_provenance.py || true
+
+echo
 echo "── decisions ────────────────────────────────────────────────────────"
 python3 tools/decision_lint.py --quiet || rc=1
+# Every entry must say what it governs, or context_for cannot surface it and the
+# next session works without it (D-080).
+python3 tools/context_for.py --audit || true
 # DECISIONS_PUBLIC.md is derived from the working record, which is no longer
 # tracked. Nothing else would notice the two drifting apart, and the public one
 # is the only one a reader outside this machine can see.

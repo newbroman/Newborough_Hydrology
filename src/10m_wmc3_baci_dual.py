@@ -74,14 +74,16 @@ from utils.paths import (
 )
 from utils.clearfell_common import (
     load_clearfell_data,
-    INTERVENTION_DATE, SCRAPING_DATE, SCRAPING_DATE_2,
+    CLEARFELL_DATE, SCRAPING_DATE, SCRAPING_DATE_2,
     IMPACT_WELLS, FOREST_CONTROL_WELLS,
     ReportNumbers,
 )
 from utils.config import DRAINAGE_DATUM
 from utils.render_utils import render_figure
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-07-04
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
+#   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
+# v1.1.0  # Hollingham (2026) — 2026-07-04
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -144,8 +146,8 @@ def era_masks(index):
     """Four eras bracketed by the three intervention dates."""
     return [
         ('Pre-2015 scrape (baseline)',   index <  SCRAPING_DATE),
-        ('Post-2015 scrape / pre-fell', (index >= SCRAPING_DATE)  & (index < INTERVENTION_DATE)),
-        ('Post-clearfell / pre-2023',   (index >= INTERVENTION_DATE) & (index < SCRAPING_DATE_2)),
+        ('Post-2015 scrape / pre-fell', (index >= SCRAPING_DATE)  & (index < CLEARFELL_DATE)),
+        ('Post-clearfell / pre-2023',   (index >= CLEARFELL_DATE) & (index < SCRAPING_DATE_2)),
         ('Post-2023 scrape',             index >= SCRAPING_DATE_2),
     ]
 
@@ -205,7 +207,7 @@ def _roll(series):
 def _intervention_lines(ax, top_labels=False, y_top=None):
     specs = [
         (SCRAPING_DATE,   '#888888', '--', 1.0, 'Apr 2015\nCEH36 scraping'),
-        (INTERVENTION_DATE, '#111111', '-', 1.6, 'Dec 2017\nCorsican pine\nclearfell (~8 ha)'),
+        (CLEARFELL_DATE, '#111111', '-', 1.6, 'Dec 2017\nCorsican pine\nclearfell (~8 ha)'),
         (SCRAPING_DATE_2, '#888888', ':',  1.0, 'Oct 2023\nCEH18/21\nre-scraping'),
     ]
     for dt, col, ls, lw, label in specs:
@@ -304,7 +306,7 @@ def make_figure(df, era_df, step_df, ancova, impact, ctrl_present, out_path):
     # Annotate the three consecutive-era DiD steps at their boundaries
     boundary_dates = {
         '2015 scraping':  SCRAPING_DATE,
-        '2017 clearfell': INTERVENTION_DATE,
+        '2017 clearfell': CLEARFELL_DATE,
         '2023 scraping':  SCRAPING_DATE_2,
     }
     for _, r in step_df.iterrows():

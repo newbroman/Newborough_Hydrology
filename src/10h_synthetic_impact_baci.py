@@ -61,7 +61,9 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.4.1"  # Hollingham (2026) -- 2026-08-18. Store-time rounding removed (D-035): these values
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
+#   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
+# v1.4.1  # Hollingham (2026) -- 2026-08-18. Store-time rounding removed (D-035): these values
 #   are written to CSV at the precision they were computed, and rounding
 #   happens where they are displayed. Three decimals is a display rule for
 #   quantities of order one; applied at storage it costs a significant
@@ -85,7 +87,7 @@ from utils.console_utils import (
 
 from utils.clearfell_common import (
     load_clearfell_data, apply_ceh34_hindcast, FOREST_CONTROL_WELLS,
-    COASTAL_CONTROL_WELLS, CLIMATE_CONTROL_WELLS, INTERVENTION_DATE,
+    COASTAL_CONTROL_WELLS, CLIMATE_CONTROL_WELLS, CLEARFELL_DATE,
     SCRAPING_DATE, SCRAPING_DATE_2, PRE_FELL_START, SCRAPING_DECAY_LAMBDA,
     compute_baci_displacement, compute_cwb, build_scraping_covariate_centroid,
     ReportNumbers, print_network_summary,
@@ -230,7 +232,7 @@ for fe_name in FE_SYNTH_WELLS:
     fe = wells[fe_name].dropna()
 
     # Calibration window: pre-clearfell overlap
-    cal_idx = fe.index[fe.index < INTERVENTION_DATE]
+    cal_idx = fe.index[fe.index < CLEARFELL_DATE]
     common_cal = cal_idx
     for d in DONOR_WELLS:
         common_cal = common_cal.intersection(donor_data[d].index)
@@ -268,7 +270,7 @@ for fe_name in FE_SYNTH_WELLS:
     synthetic_wells[fe_name] = combined
 
     # Post-clearfell divergence (validation)
-    post_dates = fe.index[fe.index >= INTERVENTION_DATE]
+    post_dates = fe.index[fe.index >= CLEARFELL_DATE]
     common_post = post_dates
     for d in DONOR_WELLS:
         common_post = common_post.intersection(donor_data[d].index)
@@ -400,7 +402,7 @@ def build_ancova_frame(wells_df, target_wells, control_wells,
         df.index, SCRAPING_DATE_2, wl, control_wells, lambda_m)
     df['D_scrape2'] = target_scrape2.loc[df.index] - control_scrape2.loc[df.index]
 
-    df['D_fell'] = (df.index >= INTERVENTION_DATE).astype(float)
+    df['D_fell'] = (df.index >= CLEARFELL_DATE).astype(float)
     df['cwb_x_fell'] = df['cwb_c'] * df['D_fell']
 
     # Easting interaction
@@ -620,7 +622,7 @@ for row, fe_name in enumerate(synthetic_wells):
     ax.plot(fe_actual.index, fe_actual.values * 1000,
             color='#1B7837', lw=1.2, label='Actual observations')
     ax.axvline(SCRAPING_DATE, color='grey', ls='--', lw=0.8)
-    ax.axvline(INTERVENTION_DATE, color='k', ls='-', lw=1)
+    ax.axvline(CLEARFELL_DATE, color='k', ls='-', lw=1)
     ax.set_ylabel('Depth (mm)')
     ax.set_title(f'{fe_name.upper()} — synthetic + actual', fontsize=11)
     ax.legend(fontsize=8, frameon=False)
@@ -653,7 +655,7 @@ for row, fe_name in enumerate(synthetic_wells):
 
     # Panel 3: Post-clearfell divergence
     ax = axes[row, 2]
-    post_mask = fe_actual.index >= INTERVENTION_DATE
+    post_mask = fe_actual.index >= CLEARFELL_DATE
     fe_post = fe_actual[post_mask]
     common_post = fe_post.index
     for d in DONOR_WELLS:
@@ -687,7 +689,7 @@ saved(f"{OUT_FIG_DONORS.name}")
 phase(7, "Generating BACI time-series figures")
 def _vlines(ax):
     ax.axvline(SCRAPING_DATE, color='#999999', ls='--', lw=0.8, zorder=1)
-    ax.axvline(INTERVENTION_DATE, color='#333333', ls='-', lw=1.2, zorder=1)
+    ax.axvline(CLEARFELL_DATE, color='#333333', ls='-', lw=1.2, zorder=1)
     ax.axvline(SCRAPING_DATE_2, color='#999999', ls=':', lw=0.8, zorder=1)
 
 
@@ -734,17 +736,17 @@ def plot_variant_timeseries(var_label, out_path):
             ax.hlines(era_mean, pre_scr.index[0], SCRAPING_DATE,
                       colors='grey', ls=':', lw=1)
 
-        scr_fell = df[(df.index >= SCRAPING_DATE) & (df.index < INTERVENTION_DATE)]
+        scr_fell = df[(df.index >= SCRAPING_DATE) & (df.index < CLEARFELL_DATE)]
         if len(scr_fell) > 0:
             era_mean = corrected_mm.loc[scr_fell.index].mean()
-            ax.hlines(era_mean, SCRAPING_DATE, INTERVENTION_DATE,
+            ax.hlines(era_mean, SCRAPING_DATE, CLEARFELL_DATE,
                       colors='grey', ls=':', lw=1)
 
-        post_fell = df[df.index >= INTERVENTION_DATE]
+        post_fell = df[df.index >= CLEARFELL_DATE]
         if len(post_fell) > 0:
             era_mean = corrected_mm.loc[post_fell.index].mean()
             ax.hlines(era_mean,
-                      INTERVENTION_DATE, post_fell.index[-1],
+                      CLEARFELL_DATE, post_fell.index[-1],
                       colors='grey', ls=':', lw=1)
 
         _vlines(ax)
@@ -799,7 +801,7 @@ if cusum_key in all_frames and cusum_key in all_results:
         corrected = corrected - fit_cusum['b'][east_idx] * df_cusum['easting_x_time']
 
     # CUSUM of the climate-corrected series (demeaned on pre-felling baseline)
-    pre_fell_mean = corrected[corrected.index < INTERVENTION_DATE].mean()
+    pre_fell_mean = corrected[corrected.index < CLEARFELL_DATE].mean()
     detrended = corrected - pre_fell_mean
     cusum = detrended.cumsum() * 1000  # mm
 
@@ -819,10 +821,10 @@ if cusum_key in all_frames and cusum_key in all_results:
     for era_mask, x0, x1 in [
         (df_cusum.index < SCRAPING_DATE,
          df_cusum.index[0], SCRAPING_DATE),
-        ((df_cusum.index >= SCRAPING_DATE) & (df_cusum.index < INTERVENTION_DATE),
-         SCRAPING_DATE, INTERVENTION_DATE),
-        (df_cusum.index >= INTERVENTION_DATE,
-         INTERVENTION_DATE, df_cusum.index[-1]),
+        ((df_cusum.index >= SCRAPING_DATE) & (df_cusum.index < CLEARFELL_DATE),
+         SCRAPING_DATE, CLEARFELL_DATE),
+        (df_cusum.index >= CLEARFELL_DATE,
+         CLEARFELL_DATE, df_cusum.index[-1]),
     ]:
         era_data = corrected_mm[era_mask]
         if len(era_data) > 0:
@@ -843,10 +845,10 @@ if cusum_key in all_frames and cusum_key in all_results:
     _vlines(ax)
 
     # Annotate key values
-    cusum_at_fell = cusum.loc[cusum.index >= INTERVENTION_DATE]
+    cusum_at_fell = cusum.loc[cusum.index >= CLEARFELL_DATE]
     if len(cusum_at_fell) > 0:
         ax.annotate(f'At clearfell: {cusum_at_fell.iloc[0]:.0f} mm',
-                    xy=(INTERVENTION_DATE, cusum_at_fell.iloc[0]),
+                    xy=(CLEARFELL_DATE, cusum_at_fell.iloc[0]),
                     fontsize=9, ha='left', va='bottom',
                     xytext=(10, 5), textcoords='offset points')
     cusum_final = cusum.iloc[-1]
@@ -891,8 +893,8 @@ for i, (var_label, var_colour) in enumerate([
     df = all_frames[key]
     fit = all_results[key]
 
-    pre = df[df.index < INTERVENTION_DATE]
-    post = df[df.index >= INTERVENTION_DATE]
+    pre = df[df.index < CLEARFELL_DATE]
+    post = df[df.index >= CLEARFELL_DATE]
 
     ax.scatter(pre['cwb'], pre['baci_disp'] * 1000,
                color=var_colour, alpha=0.4, s=20, label='Pre-felling')

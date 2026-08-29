@@ -53,9 +53,18 @@ rc=0
 # it is reporting. On 2026-08-26 that cost a day: a Cowork sandbox's pandoc 2.9.2
 # and python 3.10 were read as this project's, and a five-week outage was written
 # up for a script that had never failed. env_audit runs before anything else so
-# that every line after it is read against the right machine. It never gates.
+# that every line after it is read against the right machine.
+#
+# IT GATES SINCE 2026-08-29, and only on the two faults that are true wherever
+# they are seen: a library the pipeline imports being NOT IMPORTABLE, and the
+# record disagreeing with requirements.txt. Identity never gates - a second
+# machine SHOULD report "NOT THE MACHINE", that is the tool working - and
+# version drift gates only on the recorded machine, where re-recording is the
+# one-command fix. Until this date the line ended `|| true`: it ran, printed the
+# whole finding, and could not fail, which is how a recorded reference that
+# CANNOT RUN THE PIPELINE sat here for weeks with every gate green (D-093).
 echo "── environment (is this the machine the pipeline runs on?) ──────────"
-python3 tools/env_audit.py --quiet || true
+python3 tools/env_audit.py --quiet --gate || rc=1
 
 echo
 echo "── document versions (does the text agree with the filename?) ───────"
@@ -95,6 +104,12 @@ python3 tools/pipeline_lint.py --check defaults || rc=1
 python3 tools/pipeline_lint.py --check deps     || rc=1
 python3 tools/pipeline_lint.py --check literals 2>/dev/null | grep -cE "FAIL" \
   | xargs -I{} echo "  {} hard-coded constant(s) — python3 tools/pipeline_lint.py --check literals"
+# defaults_lint asks the OTHER defaults question: pipeline_lint asks whether a
+# committed parameter is still a first-pass default; this asks whether each
+# documented default still equals the committed cell its comment names. It
+# GATES: the trailing comment on every entry IS the advisory, and the drift
+# recurred five times in eleven days regardless.
+python3 tools/defaults_lint.py || rc=1
 
 echo
 echo "── record basis (does §F.6 still describe the code?) ─────────────────"
@@ -128,6 +143,14 @@ echo "── withheld headlines ────────────────
 # to route around the gate. What would be a real failure is the file vanishing
 # or the D-060 regression breaking, and both are visible below.
 python3 tools/withheld_report.py || true
+
+echo
+# deferred_report is the "what is waiting on ME" half of the decision record.
+# REPORTED, NOT GATED: a deferral is a session declining to make someone else's
+# call, which is the behaviour that keeps the record honest. What must not happen
+# is it going quiet. Retire one by adding "Deferral discharged:" to its entry.
+echo "── deferred decisions (what is waiting on a person?) ─────────────────"
+python3 tools/deferred_report.py || true
 
 echo
 echo "── decisions ────────────────────────────────────────────────────────"

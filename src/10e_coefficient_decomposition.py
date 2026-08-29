@@ -17,9 +17,9 @@ Method
    SSM (contemporaneous rainfall, displacement formulation — Model A,
    as used by Script 03 and the headline analysis) separately for the
    Before and After eras.  "Before" is the record-length-balanced
-   pre-felling window (PRE_FELL_START → INTERVENTION_DATE) with a
+   pre-felling window (PRE_FELL_START → CLEARFELL_DATE) with a
    scraping dummy for the April 2015 event.  "After" covers
-   INTERVENTION_DATE → end of record.
+   CLEARFELL_DATE → end of record.
 2. Compute per-well Δβ₁, Δβ₂, Δβ₃ (After − Before).
 3. Report Δβ per well and per tier — sign and magnitude of the
    coefficient shift.  This is a qualitative mechanistic diagnostic:
@@ -71,7 +71,9 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.6.0"  # Hollingham (2026) — 2026-05-31
+__version__ = "1.7.0"  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
+#   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
+# v1.6.0  # Hollingham (2026) — 2026-05-31
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -88,7 +90,7 @@ from utils.console_utils import (
 
 from utils.clearfell_common import (
     load_clearfell_data, apply_ceh34_hindcast, ALL_NETWORK_WELLS,
-    INTERVENTION_DATE, SCRAPING_DATE, PRE_FELL_START, TIER_COLOURS,
+    CLEARFELL_DATE, SCRAPING_DATE, PRE_FELL_START, TIER_COLOURS,
     ReportNumbers, print_network_summary, get_tier,
 )
 from utils.paths import make_all_dirs, DIR_10
@@ -150,7 +152,7 @@ print_network_summary(valid_tiers)
 # ============================================================================
 phase(2, "Fitting per-era SSM coefficients")
 # The "Before" era is the record-length-balanced pre-felling window
-# (PRE_FELL_START → INTERVENTION_DATE) with a scraping dummy.
+# (PRE_FELL_START → CLEARFELL_DATE) with a scraping dummy.
 # The "After" era runs from felling to end of record.
 
 COEFF_NAMES = ['beta_1_recharge', 'beta_2_atmospheric_draw', 'beta_3_drainage']
@@ -176,8 +178,8 @@ for w in ALL_NETWORK_WELLS:
     # PRE_FELL_START enforces record-length balance — every well's Before
     # era starts on the same date.  See clearfell_common.py docstring.
     before = ssm_frame[(ssm_frame.index >= PRE_FELL_START) &
-                       (ssm_frame.index < INTERVENTION_DATE)].copy()
-    after = ssm_frame[ssm_frame.index >= INTERVENTION_DATE].copy()
+                       (ssm_frame.index < CLEARFELL_DATE)].copy()
+    after = ssm_frame[ssm_frame.index >= CLEARFELL_DATE].copy()
 
     if len(before) < 12 or len(after) < 6:
         skipped(f"{w.upper()}: before={len(before)}, after={len(after)}")

@@ -94,7 +94,9 @@ Curreli, A. et al. (2013) — SD15b/SD16 threshold reference lines.
 
 from __future__ import annotations
 
-__version__ = "1.7.0"  # Hollingham (2026) — 2026-08-13
+__version__ = "1.8.0"  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
+#   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
+# v1.7.0  # Hollingham (2026) — 2026-08-13
 # v1.7.0 (2026-08-13): dead upstand plumbing removed — _ground_offset() and the
 #   unused `upstand` parameter of annual_msl_max() (its "reported downstream"
 #   comment was false; the EWI block reads Upstand_m independently and is
@@ -207,18 +209,18 @@ def _intervention_markers_from_canonical():
     """
     Build the intervention-marker list from canonical pipeline constants.
 
-    Dates: utils.scraping_common (SCRAPING_DATE, INTERVENTION_DATE,
+    Dates: utils.scraping_common (SCRAPING_DATE, CLEARFELL_DATE,
     SCRAPING_DATE_2). Colours: utils.config (INTERVENTION_COLOUR_SCRAPE,
     INTERVENTION_COLOUR_CLEARFELL).
     """
     from utils.scraping_common import (
-        SCRAPING_DATE, INTERVENTION_DATE, SCRAPING_DATE_2,
+        SCRAPING_DATE, CLEARFELL_DATE, SCRAPING_DATE_2,
     )
     return [
         {"date":   SCRAPING_DATE,
          "label":  "Scrape (CEH36, Apr 2015)",
          "colour": config.INTERVENTION_COLOUR_SCRAPE},
-        {"date":   INTERVENTION_DATE,
+        {"date":   CLEARFELL_DATE,
          "label":  "Clearfell (Dec 2017)",
          "colour": config.INTERVENTION_COLOUR_CLEARFELL},
         {"date":   SCRAPING_DATE_2,

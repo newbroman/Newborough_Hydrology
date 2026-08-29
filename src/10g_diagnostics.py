@@ -59,13 +59,15 @@ from utils.paths import (
 from utils.model_utils import build_ssm_frame
 from utils.config import DRAINAGE_DATUM, HEADLINE_LAG
 from utils.clearfell_common import (
-    load_clearfell_data, print_network_summary, INTERVENTION_DATE,
+    load_clearfell_data, print_network_summary, CLEARFELL_DATE,
     SCRAPING_DATE, SCRAPING_DATE_2, IMPACT_WELLS, SUMMER_MONTHS,
     ReportNumbers,
 )
 from utils.render_utils import render_figure
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
+#   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
+# v1.1.0
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 
 # ── Exclusions ──────────────────────────────────────────────────────────────
@@ -222,8 +224,8 @@ def clearfell_transect(wells, rpt):
 
     # Era masks
     mask_scrape = ((wells.index >= SCRAPING_DATE) &
-                   (wells.index < INTERVENTION_DATE))
-    mask_post = wells.index >= INTERVENTION_DATE
+                   (wells.index < CLEARFELL_DATE))
+    mask_post = wells.index >= CLEARFELL_DATE
 
     # Step changes
     step_changes = {}
@@ -262,11 +264,11 @@ def clearfell_transect(wells, rpt):
     ax_a.axhline(0, color='black', lw=0.8, ls='-', alpha=0.4)
     for vdate, vcol, vlbl in [
             (SCRAPING_DATE,     '#2166AC', 'Scrape'),
-            (INTERVENTION_DATE, '#CC0000', 'Clearfell'),
+            (CLEARFELL_DATE, '#CC0000', 'Clearfell'),
             (SCRAPING_DATE_2,   '#888888', 'Scrape 2')]:
         ax_a.axvline(pd.Timestamp(vdate), color=vcol, lw=1.1, ls='--', alpha=0.7)
-    ax_a.axvspan(SCRAPING_DATE, INTERVENTION_DATE, alpha=0.06, color='#2166AC')
-    ax_a.axvspan(INTERVENTION_DATE, wells.index.max(), alpha=0.06, color='#CC0000')
+    ax_a.axvspan(SCRAPING_DATE, CLEARFELL_DATE, alpha=0.06, color='#2166AC')
+    ax_a.axvspan(CLEARFELL_DATE, wells.index.max(), alpha=0.06, color='#CC0000')
     ax_a.set_ylabel('Anomaly vs scrape-era mean (m)', fontsize=8)
     ax_a.legend(fontsize=6.5, loc='upper left', framealpha=0.9, ncol=2)
     ax_a.grid(axis='y', alpha=0.2, lw=0.5)
@@ -298,11 +300,11 @@ def clearfell_transect(wells, rpt):
 
     ax_b.axhline(0, color='black', lw=0.8, ls='-', alpha=0.5)
     for vdate, vcol in [(SCRAPING_DATE, '#2166AC'),
-                         (INTERVENTION_DATE, '#CC0000'),
+                         (CLEARFELL_DATE, '#CC0000'),
                          (SCRAPING_DATE_2, '#888888')]:
         ax_b.axvline(pd.Timestamp(vdate), color=vcol, lw=1.1, ls='--', alpha=0.7)
-    ax_b.axvspan(SCRAPING_DATE, INTERVENTION_DATE, alpha=0.06, color='#2166AC')
-    ax_b.axvspan(INTERVENTION_DATE, wells.index.max(), alpha=0.06, color='#CC0000')
+    ax_b.axvspan(SCRAPING_DATE, CLEARFELL_DATE, alpha=0.06, color='#2166AC')
+    ax_b.axvspan(CLEARFELL_DATE, wells.index.max(), alpha=0.06, color='#CC0000')
     ax_b.set_ylabel('Anomaly vs transect mean (m)', fontsize=8)
     ax_b.set_title('(b) Relative position — zone means', fontsize=9, fontweight='bold')
     ax_b.grid(axis='y', alpha=0.2, lw=0.5)
@@ -439,17 +441,17 @@ def rolling_coefficients(wells, climate, rpt):
 
     # Transition assessment
     if not roll_impact.empty and not roll_c3.empty:
-        post_roll = roll_impact[roll_impact.index >= INTERVENTION_DATE]
+        post_roll = roll_impact[roll_impact.index >= CLEARFELL_DATE]
         pre_roll = roll_impact[(roll_impact.index >= SCRAPING_DATE) &
-                               (roll_impact.index < INTERVENTION_DATE)]
-        c3_post = roll_c3[roll_c3.index >= INTERVENTION_DATE]
+                               (roll_impact.index < CLEARFELL_DATE)]
+        c3_post = roll_c3[roll_c3.index >= CLEARFELL_DATE]
 
         if len(post_roll) >= 6 and len(c3_post) >= 6:
             b1_impact_post = post_roll['beta_1'].mean()
             b3_impact_post = post_roll['beta_3'].mean()
             b1_c3_post = c3_post['beta_1'].mean()
             b3_c3_post = c3_post['beta_3'].mean()
-            b1_c4_post = (roll_c4[roll_c4.index >= INTERVENTION_DATE]['beta_1'].mean()
+            b1_c4_post = (roll_c4[roll_c4.index >= CLEARFELL_DATE]['beta_1'].mean()
                           if not roll_c4.empty else np.nan)
 
             if len(pre_roll) >= 3:

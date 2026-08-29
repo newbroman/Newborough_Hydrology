@@ -47,7 +47,9 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.7.0"  # Hollingham (2026) — 2026-08-13 (spring-mean MAM analysis alongside the summer minimum)
+__version__ = "1.8.0"  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
+#   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
+# v1.7.0  # Hollingham (2026) — 2026-08-13 (spring-mean MAM analysis alongside the summer minimum)
 #
 # 1.7.0 — Added the annual SPRING MEAN (Mar-May) as a second seasonal metric,
 #         run through the identical clearfell BACI code path as the summer
@@ -81,7 +83,7 @@ from utils.clearfell_common import (
     IMPACT_WELLS, EDGE_WELLS,
     FOREST_CONTROL_WELLS, COASTAL_CONTROL_WELLS, CLIMATE_CONTROL_WELLS,
     TIERS, ALL_NETWORK_WELLS,
-    INTERVENTION_DATE, SCRAPING_DATE, SCRAPING_DATE_2, FELLING_YEAR,
+    CLEARFELL_DATE, SCRAPING_DATE, SCRAPING_DATE_2, FELLING_YEAR,
     TIER_COLOURS, ReportNumbers, print_network_summary,
     annual_summer_minimum, forest_control_centroid_summer_min,
     annual_spring_mean, forest_control_centroid_spring_mean,

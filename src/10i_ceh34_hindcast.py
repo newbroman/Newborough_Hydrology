@@ -63,7 +63,9 @@ clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-05-16
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
+#   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
+# v1.1.0  # Hollingham (2026) — 2026-05-16
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 
 import sys as _sys, os as _os
@@ -76,7 +78,7 @@ from utils.console_utils import (
 
 from utils.clearfell_common import (
     load_clearfell_data,
-    INTERVENTION_DATE,
+    CLEARFELL_DATE,
     ReportNumbers,
 )
 from utils.paths import (
@@ -101,7 +103,7 @@ make_all_dirs()
 TARGET_WELL   = 'ceh34'
 DONOR_WELL    = 'ceh9'
 CAL_START     = pd.Timestamp('2010-08-01')   # CEH34 first observation
-CAL_END       = INTERVENTION_DATE             # exclusive — pre-clearfell only
+CAL_END       = CLEARFELL_DATE             # exclusive — pre-clearfell only
 
 # ============================================================================
 # OUTPUT PATHS (from utils.paths)
@@ -298,7 +300,7 @@ def main():
     # Mark splice point
     ax.axvline(target.index.min(), color='black', ls='--', lw=0.8,
                alpha=0.7, label=f'Splice  ({target.index.min().date()})')
-    ax.axvline(INTERVENTION_DATE, color='#222', ls='-', lw=1.0,
+    ax.axvline(CLEARFELL_DATE, color='#222', ls='-', lw=1.0,
                alpha=0.7, label='Clearfell  (Dec 2017)')
     ax.set_xlabel('Date')
     ax.set_ylabel('CEH34 depth (m)')

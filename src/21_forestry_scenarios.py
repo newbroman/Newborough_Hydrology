@@ -87,7 +87,12 @@ References
                           Impact tier) at runtime; see _load_baci_params().
 """
 
-__version__ = "1.6.2"  # 2026-08-21 — the BACI-zone violin (Figure 30) is
+__version__ = "1.7.0"  # 2026-08-29 — the three private copies of the scraping
+#   dates now come from utils.config (D-084); FELL_DATE_21 keeps its value and
+#   gains a note that it is the post-felling ERA BOUNDARY, not the felling date,
+#   its previous comment having said "December 2017 clearfell" against a value of
+#   2018-01-01. No value changes.
+# v1.6.2  # 2026-08-21 — the BACI-zone violin (Figure 30) is
 #   pinned to clearfell_common.CORE_TIERS, the published five-tier design,
 #   rather than TIERS, which now also carries the far-field control tier.
 #   Zone membership, the figure and 21_forestry_04 are unchanged.
@@ -127,6 +132,8 @@ from utils.config import (
     BW_MODE, FOREST_INTERCEPTION, BROADLEAF_INTERCEPTION,
     REFERENCE_CUTOFF_DATE, CLUSTER_COLOURS as CONFIG_CLUSTER_COLOURS, SD15b,
     SD16, SD16_REC,
+    SCRAPING_DATE_ISO as _SCRAPING_DATE_ISO,
+    SCRAPING_DATE_2_ISO as _SCRAPING_DATE_2_ISO,
 )
 from utils.model_utils import monthly_perturbation
 
@@ -801,8 +808,15 @@ def plot_hydrograph(scenario_shifts, obs_monthly, monthly_P, monthly_PET,
 # ============================================================================
 
 # C3 well lists — split by proximity to C4 centroid
-SCRAPE_DATE  = "2015-04-01"   # April 2015 scraping
-FELL_DATE_21 = "2018-01-01"   # December 2017 clearfell
+SCRAPE_DATE  = _SCRAPING_DATE_ISO   # April 2015 scraping (utils.config, D-084)
+
+# NOT the felling date, despite the name. This is the POST-FELLING ERA BOUNDARY,
+# placed at 2018-01-01 so that summers (Jun-Sep) fall cleanly into exactly one
+# BACI phase - see _phase_year_range(). The clearfell itself is 2017-12-01
+# (config.CLEARFELL_DATE_ISO). The comment here read "December 2017 clearfell"
+# until 2026-08-29, which described the event rather than the constant and made
+# a deliberate modelling choice look like a wrong date. Value unchanged.
+FELL_DATE_21 = "2018-01-01"   # post-felling era boundary; see note above
 
 
 def _get_maod_monthly_21(w, df, dates, well_names, elev):
@@ -1126,8 +1140,8 @@ def plot_distributions(master, df, dates, well_names, elev, dpi=FIG_DPI):
 # FIGURE 3 — SCRAPING TREATMENT AND CONTROL WELLS BY ERA
 # ============================================================================
 
-SCRAPE_DATE_21  = "2015-04-01"   # April 2015 scraping
-SCRAPE2_DATE_21 = "2023-10-01"   # October 2023 re-scraping
+SCRAPE_DATE_21  = _SCRAPING_DATE_ISO     # April 2015 scraping (utils.config, D-084)
+SCRAPE2_DATE_21 = _SCRAPING_DATE_2_ISO   # October 2023 re-scraping
 
 SCRAPING_WELLS = {
     "CEH36\n(scraped)": "ceh36",
@@ -1233,7 +1247,7 @@ def plot_scraping_eras(df, dates, well_names, elev, dpi=FIG_DPI):
     """
     import matplotlib.patches as mpatches
 
-    SCRAPE36_DATE = "2015-04-01"
+    SCRAPE36_DATE = _SCRAPING_DATE_ISO   # utils.config, D-084
 
     eras = [
         ("Pre-2015",              None,          SCRAPE36_DATE, "o"),

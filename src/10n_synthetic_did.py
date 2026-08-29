@@ -102,7 +102,9 @@ Hollingham (2026), §4.6.7. D-050; report9 §4.6.7; Script 10f.
 ====================================================================================
 """
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-08-24.
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
+#   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
+# v1.0.0  # Hollingham (2026) — 2026-08-24.
 
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
@@ -115,7 +117,7 @@ from scipy import stats as sp_stats
 from utils.console_utils import banner, phase, skipped
 from utils.paths import make_all_dirs, OUT_10F_SYNTH_CTRL
 from utils.clearfell_common import (
-    load_clearfell_data, print_network_summary, INTERVENTION_DATE,
+    load_clearfell_data, print_network_summary, CLEARFELL_DATE,
     SCRAPING_DATE, CORE_NETWORK_WELLS, ReportNumbers,
 )
 
@@ -332,7 +334,7 @@ def main():
             gap_rows.append({"Zone": zone, "Status": f"refused: {diag}"})
             continue
         gaps[zone] = g
-        st, why = step_on(g, SCRAPING_DATE, INTERVENTION_DATE, INTERVENTION_DATE)
+        st, why = step_on(g, SCRAPING_DATE, CLEARFELL_DATE, CLEARFELL_DATE)
         row = {"Zone": zone, "Status": "ok", **diag}
         if st:
             row.update({"gross_step_m": st["step_m"],
@@ -354,7 +356,7 @@ def main():
             print(f"   {treat} − {ctrl}: unavailable")
             continue
         delta = (gaps[treat] - gaps[ctrl]).dropna()
-        st, why = step_on(delta, SCRAPING_DATE, INTERVENTION_DATE, INTERVENTION_DATE)
+        st, why = step_on(delta, SCRAPING_DATE, CLEARFELL_DATE, CLEARFELL_DATE)
         if st is None:
             print(f"   {treat} − {ctrl}: {why}")
             continue
@@ -372,7 +374,7 @@ def main():
                 note="Newey-West HAC")
 
         # sensitivity: full pre-felling record as the reference window
-        st2, _ = step_on(delta, delta.index.min(), INTERVENTION_DATE, INTERVENTION_DATE)
+        st2, _ = step_on(delta, delta.index.min(), CLEARFELL_DATE, CLEARFELL_DATE)
         if st2:
             did_rows.append({"Contrast": f"{treat} - {ctrl}",
                              "Basis": "all pre-fell vs post-fell",
@@ -401,7 +403,7 @@ def main():
                  "spans the April 2015 scrape"),
                 ("pre-trend (post-scrape only)", SCRAPING_DATE,
                  "scrape excluded; short window")):
-            pt, why = pretrend(delta, start, INTERVENTION_DATE)
+            pt, why = pretrend(delta, start, CLEARFELL_DATE)
             if pt is None:
                 print(f"   {label:26} {span}: {why}")
                 continue
@@ -416,7 +418,7 @@ def main():
                         pt["slope_m_yr"], "m/yr",
                         note=f"HAC p={_p_fmt(pt['p_hac'])}; {verdict}")
 
-        sn, why = step_net_of_trend(delta, delta.index.min(), INTERVENTION_DATE)
+        sn, why = step_net_of_trend(delta, delta.index.min(), CLEARFELL_DATE)
         if sn is None:
             print(f"   {label}: trend-adjusted step {why}")
             continue
@@ -442,11 +444,11 @@ def main():
             print(f"   in-space {treat} − {ctrl}: unavailable")
             continue
         delta = (gaps[treat] - gaps[ctrl]).dropna()
-        st, why = step_on(delta, SCRAPING_DATE, INTERVENTION_DATE, INTERVENTION_DATE)
+        st, why = step_on(delta, SCRAPING_DATE, CLEARFELL_DATE, CLEARFELL_DATE)
         if st is None:
             continue
         pl_rows.append({"Placebo": "in-space", "Contrast": f"{treat} - {ctrl}",
-                        "Pseudo_date": str(INTERVENTION_DATE.date()),
+                        "Pseudo_date": str(CLEARFELL_DATE.date()),
                         **st})
         print(f"   in-space  {treat:14} − {ctrl:12} step={st['step_m']*1000:+7.1f} mm  "
               f"p_HAC={_p_fmt(st['p_hac'])} {_p_sig(st['p_hac'])}")
@@ -454,7 +456,7 @@ def main():
     # in-time: move the intervention back inside the pre-felling record
     if "Impact" in gaps and "Forest Ctrl" in gaps:
         delta = (gaps["Impact"] - gaps["Forest Ctrl"]).dropna()
-        pre_only = delta[delta.index < INTERVENTION_DATE]
+        pre_only = delta[delta.index < CLEARFELL_DATE]
         for frac, label in ((0.50, "midpoint"), (0.70, "70%")):
             if len(pre_only) < 4 * MIN_WINDOW_MONTHS:
                 break

@@ -33,7 +33,9 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "2.7.3"  # Hollingham (2026) -- 2026-08-18. Store-time rounding removed (D-035): these values
+__version__ = "2.8.0"  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
+#   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
+# v2.7.3  # Hollingham (2026) -- 2026-08-18. Store-time rounding removed (D-035): these values
 #   are written to CSV at the precision they were computed, and rounding
 #   happens where they are displayed. Three decimals is a display rule for
 #   quantities of order one; applied at storage it costs a significant
@@ -64,7 +66,7 @@ from utils.scraping_common import (
     PAIRED_CONTROLS_MAP, TIER1_WELLS, TIER2_WELLS,
     ERA_COLORS, ERA_MARKERS, ERA_LINESTYLES,
     MPL_DEFAULTS, SUMMER_MONTHS,
-    SCRAPING_DATE, INTERVENTION_DATE, SCRAPING_DATE_2,
+    SCRAPING_DATE, CLEARFELL_DATE, SCRAPING_DATE_2,
     era_filter, load_scraping_data,
     format_p_value, significance_stars,
 )
@@ -381,7 +383,7 @@ def _plot_tier1(plot_data):
     # and Scrape A/B (same event); October-2023 covers CEH18/CEH21 (re-scrape).
     event_markers = [
         (SCRAPING_DATE,     "#1a4e80", "Apr 2015 scrape — CEH36, Scrape A, Scrape B"),
-        (INTERVENTION_DATE, "#1b5e20", "Dec 2017 clearfell"),
+        (CLEARFELL_DATE, "#1b5e20", "Dec 2017 clearfell"),
         (SCRAPING_DATE_2,   "#7a3a8c", "Oct 2023 re-scrape — CEH18, CEH21"),
     ]
     for ax in axes.flatten():
@@ -508,7 +510,7 @@ def _plot_tier2(plot_data):
     # April 2015 covers CEH36 + Scrape A/B; October 2023 covers CEH18/CEH21.
     event_markers = [
         (SCRAPING_DATE,     "#1a4e80", "Apr 2015 scrape — CEH36, Scrape A, Scrape B"),
-        (INTERVENTION_DATE, "#1b5e20", "Dec 2017 clearfell"),
+        (CLEARFELL_DATE, "#1b5e20", "Dec 2017 clearfell"),
         (SCRAPING_DATE_2,   "#7a3a8c", "Oct 2023 re-scrape — CEH18, CEH21"),
     ]
     for ax in axes.flatten():

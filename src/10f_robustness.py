@@ -53,11 +53,13 @@ from utils.paths import (
 from utils.model_utils import build_ssm_frame, fit_ssm
 from utils.config import DRAINAGE_DATUM, HEADLINE_LAG
 from utils.clearfell_common import (
-    load_clearfell_data, print_network_summary, INTERVENTION_DATE,
+    load_clearfell_data, print_network_summary, CLEARFELL_DATE,
     SCRAPING_DATE, ALL_NETWORK_WELLS, CORE_NETWORK_WELLS, ReportNumbers,
 )
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-08-21
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
+#   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
+# v1.2.0  # Hollingham (2026) — 2026-08-21
 #
 # v1.2.0 (2026-08-21) — the synthetic-control donor pool is now excluded
 #   against CORE_NETWORK_WELLS (the published five-tier clearfell design)
@@ -190,8 +192,8 @@ def ssm_residual_analysis(wells, climate, valid_tiers, rpt):
 
         # Era means
         mask_scrape = ((resid.index >= SCRAPING_DATE) &
-                       (resid.index < INTERVENTION_DATE))
-        mask_fell = resid.index >= INTERVENTION_DATE
+                       (resid.index < CLEARFELL_DATE))
+        mask_fell = resid.index >= CLEARFELL_DATE
         scrape_mean = float(resid[mask_scrape].mean()) if mask_scrape.any() else np.nan
         fell_mean = float(resid[mask_fell].mean()) if mask_fell.any() else np.nan
 
@@ -235,10 +237,10 @@ def ssm_residual_analysis(wells, climate, valid_tiers, rpt):
 
             scrape_vals = norm_resid[
                 (norm_resid.index >= SCRAPING_DATE) &
-                (norm_resid.index < INTERVENTION_DATE)
+                (norm_resid.index < CLEARFELL_DATE)
             ].dropna()
             fell_vals = norm_resid[
-                norm_resid.index >= INTERVENTION_DATE
+                norm_resid.index >= CLEARFELL_DATE
             ].dropna()
             if len(scrape_vals) >= 3 and len(fell_vals) >= 3:
                 _, p_val = sp_stats.ttest_ind(fell_vals, scrape_vals,
@@ -341,9 +343,9 @@ def synthetic_control_analysis(wells, valid_tiers, rpt):
 
         gap_scrape = gap_series[
             (gap_series.index >= SCRAPING_DATE) &
-            (gap_series.index < INTERVENTION_DATE)
+            (gap_series.index < CLEARFELL_DATE)
         ]
-        gap_fell = gap_series[gap_series.index >= INTERVENTION_DATE]
+        gap_fell = gap_series[gap_series.index >= CLEARFELL_DATE]
 
         mean_gap_scrape = float(gap_scrape.mean()) if len(gap_scrape) > 0 else np.nan
         mean_gap_fell = float(gap_fell.mean()) if len(gap_fell) > 0 else np.nan

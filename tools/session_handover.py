@@ -11,7 +11,8 @@ Why this exists.
 
   This splits the handover in two:
 
-    working/BOOTSTRAP.md      the STABLE half — read order, standing constraints,
+    working/HANDOVER_BOOTSTRAP.md
+                              the STABLE half — read order, standing constraints,
                               environment facts, how to pick up work. Changes
                               rarely, is written by hand, and is the first thing
                               a new session reads.
@@ -35,7 +36,7 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-08-28. First cut: the volatile
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-08-28. First cut: the volatile
 #   half of a handover, generated rather than remembered.
 
 import re
@@ -48,7 +49,7 @@ REPO = Path(__file__).resolve().parent.parent
 PRIVATE_GIT = REPO / ".git-working"
 REGISTER = REPO / "working" / "updates" / "NRG_WORK_REGISTER.md"
 DECISIONS = REPO / "working" / "DECISION_LOG.md"
-BOOTSTRAP = REPO / "working" / "BOOTSTRAP.md"
+BOOTSTRAP = REPO / "working" / "HANDOVER_BOOTSTRAP.md"
 
 DOC_DIRS = [REPO / "docs" / "report",
             REPO / "docs" / "papers" / "paper_1",
@@ -172,15 +173,16 @@ def section_decisions() -> str:
     out = ["## Decision log", ""]
     if not DECISIONS.is_file():
         return "\n".join(out + ["- not found", ""])
-    text = DECISIONS.read_text(encoding="utf-8")
-    # status is not always one word — "superseded by D-0xx" also occurs, and the
-    # single-\w+ form silently dropped 15 of 79 entries from the count.
-    ids = re.findall(r"^### (D-\d+)\s+(.*?)\s+\((\d{4}-\d{2}-\d{2}) · status: ([^)]+)\)",
-                     text, re.M)
-    active = [i for i in ids if i[3].strip() == "active"]
+    # Parse through context_for rather than with a second regex of our own. Two
+    # parsers of one format drift, and this repo's characteristic defect is
+    # exactly that: a derived artifact outliving agreement with its source.
+    sys.path.insert(0, str(REPO / "tools"))
+    from context_for import parse_entries          # noqa: E402
+    ids = [(e["id"], e["title"], e["date"], e["status"]) for e in parse_entries()]
+    active = [i for i in ids if i[3].strip().startswith("active")]
     if ids:
         other = len(ids) - len(active)
-        out.append(f"{len(ids)} entries parsed, {len(active)} active"
+        out.append(f"{len(ids)} entries, {len(active)} active"
                    + (f", {other} superseded or retired" if other else "")
                    + f". Latest: **{ids[-1][0]}** — {ids[-1][1]}")
     else:
@@ -193,6 +195,13 @@ def section_decisions() -> str:
             ""]
     rc, _, _ = _run([sys.executable, "tools/decision_lint.py"])
     out += [f"`decision_lint`: **{'OK' if rc == 0 else 'FAILING'}**", ""]
+    # Keep the one-line index in step with the log it indexes. Regenerating it
+    # here means it cannot drift from the log between sessions.
+    _run([sys.executable, "tools/context_for.py", "--index"])
+    out += ["Scan `working/DECISION_INDEX.md` for the whole set in ~85 lines. "
+            "**Do not read the log itself** — query it:", "",
+            "```", 'python3 tools/context_for.py "report10 §4.2.3"',
+            "python3 tools/context_for.py --changed", "```", ""]
     return "\n".join(out)
 
 
@@ -214,6 +223,37 @@ def section_environment() -> str:
             "that is not the recorded pipeline environment, reproduce that script's "
             "committed output first. Byte-identical means the rerun is trustworthy *for "
             "that script* and no further.", ""]
+    return "\n".join(out)
+
+
+def section_tier0() -> str:
+    """Measure the read-every-session set, so its growth is visible rather than felt.
+
+    D-080 caps Tier 0. A cap nobody measures is a wish, and this is the file best
+    placed to measure it — it is regenerated every time the set changes.
+    """
+    out = ["## Tier 0 budget", ""]
+    index = REPO / "working" / "DECISION_INDEX.md"
+    latest = sorted((REPO / "working" / "updates").glob("HANDOFF_*.md"))
+    members = [BOOTSTRAP, latest[-1] if latest else None, index]
+    total, rows = 0, []
+    for m in members:
+        if m and m.is_file():
+            n = len(m.read_text(encoding="utf-8").splitlines())
+            total += n
+            rows.append(f"- `{m.relative_to(REPO)}` — {n} lines")
+    rows.append(f"- **total {total} lines**")
+    out += rows + [""]
+    # The index costs about one line per decision and grows with the log; that is
+    # the right price. The prose is what must be held down.
+    prose = total - (len(index.read_text(encoding="utf-8").splitlines())
+                     if index.is_file() else 0)
+    out.append(f"Prose portion (excluding the one-line-per-decision index): "
+               f"**{prose} lines**, against a D-080 budget of **250**. "
+               + ("Within budget." if prose <= 250 else
+                  f"**Over by {prose - 250}** — something must leave Tier 0 before "
+                  "anything joins it."))
+    out.append("")
     return "\n".join(out)
 
 
@@ -243,6 +283,7 @@ def build(include_lag: bool) -> str:
         section_open_rulings(),
         section_decisions(),
         section_environment(),
+        section_tier0(),
     ]
     if include_lag:
         parts.append(section_lag())
@@ -256,7 +297,8 @@ def build(include_lag: bool) -> str:
         "`working/DECISION_LOG.md`. These are appended as they happen, not at the end.",
         "2. A register row in `working/updates/NRG_WORK_REGISTER.md` — with the status "
         "cell saying **open** if a ruling is owed, so this script surfaces it.",
-        "3. Regenerate this file: `python3 tools/session_handover.py --write`.",
+        "3. Regenerate this file: `python3 tools/session_handover.py --write` "
+        "(which refreshes `working/DECISION_INDEX.md` with it).",
         "",
     ]
     return "\n".join(parts)

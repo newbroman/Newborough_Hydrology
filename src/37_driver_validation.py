@@ -117,7 +117,9 @@ Observed Differential Change, Envelope, and Validation. Runs after Script 36
 in the driver-validation phase; step index in outputs/pipeline_manifest.json.
 """
 
-__version__ = "3.2.0"  # 2026-07-06: ADDENDUM 1 —
+__version__ = "3.3.0"  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
+#   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
+# v3.2.0  # 2026-07-06: ADDENDUM 1 —
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -148,7 +150,7 @@ from utils.paths import (
     OUT_25_FIT_PARAMETERS,
 )
 from utils.config import CLUSTER_LABELS, CLUSTER_MARKERS
-from utils.clearfell_common import INTERVENTION_DATE
+from utils.clearfell_common import CLEARFELL_DATE
 from utils.map_utils import (
     load_dem_hillshade, add_idw_surface, add_en_axes, add_kml_features,
 )
@@ -606,11 +608,11 @@ def build_window_frame(df36: pd.DataFrame, window: str,
         clearfell_i = np.nan
         if "clearfell_i" in regressors:
             fobs = first_obs.get(key, pd.NaT)
-            if pd.isna(fobs) or fobs > INTERVENTION_DATE:
+            if pd.isna(fobs) or fobs > CLEARFELL_DATE:
                 clearfell_i = 0.0  # no pre-clearfell baseline to attribute a gain against
             else:
                 cf   = float(spatial["clearfell"][idx])
-                t_cf = max(0.0, (win_end - INTERVENTION_DATE).days / DAYS_PER_MONTH)
+                t_cf = max(0.0, (win_end - CLEARFELL_DATE).days / DAYS_PER_MONTH)
                 clearfell_i = cf * _step_factor(b3e, t_cf)
 
         # --- Broadleaf covariate (2018_2025 only): -H0_incr*ramp_factor -----

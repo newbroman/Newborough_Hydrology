@@ -85,7 +85,7 @@ from utils.paths import (
 )
 from utils.clearfell_common import (
     load_clearfell_data, print_network_summary,
-    INTERVENTION_DATE, SCRAPING_DATE, PRE_FELL_START,
+    CLEARFELL_DATE, SCRAPING_DATE, PRE_FELL_START,
     IMPACT_WELLS, EDGE_WELLS,
     compute_cwb, wmc3_usable_summer_years,
     ReportNumbers, TIER_COLOURS,
@@ -93,7 +93,9 @@ from utils.clearfell_common import (
 from utils.site_observations import update_site_observation
 from utils.render_utils import render_figure
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-07-04
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
+#   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
+# v1.3.0  # Hollingham (2026) — 2026-07-04
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -231,10 +233,10 @@ def fit_summer_contrast(summer_df, panel_years):
     # minimum occurred ~6 months before the felling and cannot carry a
     # felling signal, so it belongs in the pre-felling group.  This
     # matches Script 10d (POST_YEAR = FELLING_YEAR + 1) and Script 10l.
-    # (Earlier 10j versions used Year >= INTERVENTION_DATE.year, which
+    # (Earlier 10j versions used Year >= CLEARFELL_DATE.year, which
     # mislabelled the pre-felling 2017 summer as post — see the v1.1.0
     # changelog entry.)
-    df['Post']    = (df['Year'] >= INTERVENTION_DATE.year + 1).astype(float)
+    df['Post']    = (df['Year'] >= CLEARFELL_DATE.year + 1).astype(float)
     df['Impact_x_Post'] = (df['zone'] == 'Impact').astype(float) * df['Post']
     df['y']       = df['Summer_min_m']
 
@@ -299,7 +301,7 @@ def build_monthly_panel(wells, climate):
                 'h':        h,
                 'cwb':      cwb_series.get(date, np.nan),
                 'Scraped1': 1.0 if date >= SCRAPING_DATE else 0.0,
-                'Post':     1.0 if date >= INTERVENTION_DATE else 0.0,
+                'Post':     1.0 if date >= CLEARFELL_DATE else 0.0,
             })
     panel = pd.DataFrame(records).dropna(subset=['cwb'])
     return panel
@@ -322,12 +324,12 @@ def figure_monthly_contrast(panel, monthly, out_path):
 
     # Pre/post split for period means
     # Period means — each series masked on its own index (lengths differ)
-    imp_pre_mean  = impact_mean[impact_mean.index <  INTERVENTION_DATE].mean()
-    imp_post_mean = impact_mean[impact_mean.index >= INTERVENTION_DATE].mean()
-    edg_pre_mean  = edge_mean[edge_mean.index   <  INTERVENTION_DATE].mean()
-    edg_post_mean = edge_mean[edge_mean.index   >= INTERVENTION_DATE].mean()
-    diff_pre_mean  = diff[diff.index <  INTERVENTION_DATE].mean() * 1000
-    diff_post_mean = diff[diff.index >= INTERVENTION_DATE].mean() * 1000
+    imp_pre_mean  = impact_mean[impact_mean.index <  CLEARFELL_DATE].mean()
+    imp_post_mean = impact_mean[impact_mean.index >= CLEARFELL_DATE].mean()
+    edg_pre_mean  = edge_mean[edge_mean.index   <  CLEARFELL_DATE].mean()
+    edg_post_mean = edge_mean[edge_mean.index   >= CLEARFELL_DATE].mean()
+    diff_pre_mean  = diff[diff.index <  CLEARFELL_DATE].mean() * 1000
+    diff_post_mean = diff[diff.index >= CLEARFELL_DATE].mean() * 1000
 
     ax0 = axes[0]
     ax0.plot(impact_mean.index, impact_mean.values,
@@ -336,19 +338,19 @@ def figure_monthly_contrast(panel, monthly, out_path):
              color=TIER_COLOURS['Edge'], lw=1.5, label='Edge centroid')
     ax0.axvline(SCRAPING_DATE,     color='grey', ls='--', alpha=0.7,
                 label='Apr 2015 scraping')
-    ax0.axvline(INTERVENTION_DATE, color='k',    ls='--', alpha=0.8,
+    ax0.axvline(CLEARFELL_DATE, color='k',    ls='--', alpha=0.8,
                 label='Dec 2017 felling')
     # Pre-felling period means
     ax0.axhline(imp_pre_mean,  color=TIER_COLOURS['Impact'], ls=':',
                 lw=1.2, alpha=0.7, xmin=0,
-                xmax=(INTERVENTION_DATE - impact_mean.index[0]).days /
+                xmax=(CLEARFELL_DATE - impact_mean.index[0]).days /
                      (impact_mean.index[-1] - impact_mean.index[0]).days)
     ax0.axhline(edg_pre_mean,  color=TIER_COLOURS['Edge'],   ls=':',
                 lw=1.2, alpha=0.7, xmin=0,
-                xmax=(INTERVENTION_DATE - impact_mean.index[0]).days /
+                xmax=(CLEARFELL_DATE - impact_mean.index[0]).days /
                      (impact_mean.index[-1] - impact_mean.index[0]).days)
     # Post-felling period means
-    xmin_post = (INTERVENTION_DATE - impact_mean.index[0]).days / \
+    xmin_post = (CLEARFELL_DATE - impact_mean.index[0]).days / \
                 (impact_mean.index[-1] - impact_mean.index[0]).days
     ax0.axhline(imp_post_mean, color=TIER_COLOURS['Impact'], ls=':',
                 lw=1.2, alpha=0.7, xmin=xmin_post, xmax=1)
@@ -356,11 +358,11 @@ def figure_monthly_contrast(panel, monthly, out_path):
                 lw=1.2, alpha=0.7, xmin=xmin_post, xmax=1)
     # Annotate shifts
     ax0.annotate(f'Δ Impact = {(imp_post_mean - imp_pre_mean)*1000:+.0f} mm',
-                 xy=(INTERVENTION_DATE, imp_post_mean), xytext=(10, 8),
+                 xy=(CLEARFELL_DATE, imp_post_mean), xytext=(10, 8),
                  textcoords='offset points', fontsize=7.5,
                  color=TIER_COLOURS['Impact'])
     ax0.annotate(f'Δ Edge = {(edg_post_mean - edg_pre_mean)*1000:+.0f} mm',
-                 xy=(INTERVENTION_DATE, edg_post_mean), xytext=(10, -14),
+                 xy=(CLEARFELL_DATE, edg_post_mean), xytext=(10, -14),
                  textcoords='offset points', fontsize=7.5,
                  color=TIER_COLOURS['Edge'])
     ax0.set_ylabel('Water-table depth (m)')
@@ -372,7 +374,7 @@ def figure_monthly_contrast(panel, monthly, out_path):
     ax1.plot(diff.index, diff.values * 1000, color='k', lw=1.2)
     ax1.axhline(0, color='grey', ls='-', alpha=0.5)
     ax1.axvline(SCRAPING_DATE,     color='grey', ls='--', alpha=0.7)
-    ax1.axvline(INTERVENTION_DATE, color='k',    ls='--', alpha=0.8)
+    ax1.axvline(CLEARFELL_DATE, color='k',    ls='--', alpha=0.8)
     # Pre/post mean lines on contrast panel
     ax1.axhline(diff_pre_mean,  color='steelblue', ls=':', lw=1.4, alpha=0.8,
                 xmin=0, xmax=xmin_post)
@@ -383,7 +385,7 @@ def figure_monthly_contrast(panel, monthly, out_path):
                  xytext=(4, 5), textcoords='offset points', fontsize=7.5,
                  color='steelblue')
     ax1.annotate(f'Post mean: {diff_post_mean:+.0f} mm',
-                 xy=(INTERVENTION_DATE, diff_post_mean),
+                 xy=(CLEARFELL_DATE, diff_post_mean),
                  xytext=(10, 5), textcoords='offset points', fontsize=7.5,
                  color='steelblue')
     ax1.set_ylabel('Impact − Edge (mm)')
@@ -447,7 +449,7 @@ def figure_summer_contrast(summer_df, summer, panel_years, out_path):
 
     ax.axvline(SCRAPING_DATE.year,     color='grey', ls='--', alpha=0.7,
                label='Apr 2015 scraping')
-    ax.axvline(INTERVENTION_DATE.year, color='k',    ls='--', alpha=0.8,
+    ax.axvline(CLEARFELL_DATE.year, color='k',    ls='--', alpha=0.8,
                label='Dec 2017 felling')
     ax.set_xlabel('Year')
     ax.set_ylabel('Annual Jun–Sep minimum water-table depth (m)')
@@ -571,7 +573,7 @@ def main():
 
     print(f"  PRE_FELL_START:   {PRE_FELL_START.date()}")
     print(f"  SCRAPING_DATE:    {SCRAPING_DATE.date()}")
-    print(f"  INTERVENTION:     {INTERVENTION_DATE.date()}")
+    print(f"  INTERVENTION:     {CLEARFELL_DATE.date()}")
     print()
 
     # ── 1. Monthly contrast ────────────────────────────────────────────

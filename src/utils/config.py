@@ -40,7 +40,16 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.12.0"  # Hollingham (2026) — 2026-08-22. Adds
+__version__ = "1.15.0"  # Hollingham (2026) — 2026-08-29. commentary follows the CLEARFELL_DATE rename (T-17).
+#   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
+# v1.14.0  # Hollingham (2026) — 2026-08-29. Intervention dates
+#   centralised here as ISO strings (D-084); they were declared independently in
+#   clearfell_common, scraping_common and 09b. No value changes.
+# v1.13.0  # Hollingham (2026) — 2026-08-29. Broadleaf restock year
+#   corrected 1998 -> 1995 in the BL_CANOPY_FRACTION commentary (comment only; no
+#   constant changed). Flags that f_2005 = 0.4 was judged on seven growing seasons
+#   and the corrected year gives ten. See D-082.
+# v1.12.0  # Hollingham (2026) — 2026-08-22. Adds
 #   FULL_HINDCAST_MIN_MODERN_MONTHS and FULL_HINDCAST_SMOOTH_MONTHS for the
 #   Script 39 full-record panel: the admission threshold for a well's modern
 #   baseline, and the display smoothing for the rendered curve. Additive; no
@@ -707,9 +716,41 @@ SITE_MAP_NORTH_MAX = 365500
 # over the year. Used in replanting scenarios (scripts 19, 21).
 BROADLEAF_INTERCEPTION = 0.15
 
+# ── Intervention dates — the site's event history ─────────────────────────────
+# SINGLE SOURCE OF TRUTH. Until 2026-08-29 these were declared independently in
+# utils/clearfell_common.py, utils/scraping_common.py and 09b_scraping_
+# propagation.py (as FELL_DATE) — three copies of a date that defines the
+# before/after split of the clearfell BACI, consumed by twelve modules. Same
+# defect D-016 fixed for LCSC_DATA_LIMIT. See D-084.
+#
+# ISO STRINGS, not pd.Timestamp, on purpose: this module imports only `os` and
+# is imported almost everywhere, so it must not pull pandas into every import
+# chain. The util modules build Timestamps from these.
+#
+# NAMING. The clearfell constant is exported downstream as CLEARFELL_DATE,
+# which reads ambiguously inside scraping_common — it is the CLEARFELL, never a
+# scraping event. Named unambiguously here; the util modules also export
+# CLEARFELL_DATE as the preferred alias for new code.
+#
+# PROVENANCE: Martin's recollection (D-083), with one exception — the April 2015
+# CEH36 scrape is documented. This is a stated limitation of the study, not an
+# oversight, and belongs in the methods text.
+CLEARFELL_DATE_ISO  = "2017-12-01"   # December 2017 pine clearfell
+SCRAPING_DATE_0_ISO = "2013-02-01"   # February 2013 — CEH40/41/42 unmonitored cuts
+SCRAPING_DATE_ISO   = "2015-04-01"   # April 2015 — CEH36 scrape (documented)
+SCRAPING_DATE_2_ISO = "2023-10-01"   # October 2023 — re-scraping
+
 # ── Broadleaf restock canopy-establishment fractions (2005→2025 driver map) ────
 # The broadleaf restock block (data/geo/broadleaf_restock.kml) was felled 1993,
-# restocked 1998, and reaches full canopy by 2025. For the 2005→2025 modelled
+# restocked 1995, and reaches full canopy by 2025.
+# RESTOCK YEAR CORRECTED 2026-08-29 from 1998 to 1995 (Martin's ruling). The
+# corpus carried three different years - 1995 in the KML's own layer name
+# (Broadleaf_conversion_1995), 1996 in report10 and the Supplementary Material,
+# 1998 here and in report9 - and 1995 is now used throughout.
+# CONSEQUENCE, NOT YET ACTED ON: f_2005 below was judged against a 1998 restock,
+# i.e. SEVEN growing seasons by the 2005 baseline. On a 1995 restock it is TEN.
+# The value is unchanged pending Martin, because moving it changes a published
+# figure; but its stated basis has shifted and 0.4 is now likely low. For the 2005→2025 modelled
 # driver-CHANGE map (Script 20 plot_driver_change_2005_2025) only the INCREMENT
 # of interception developed over the window contributes:
 #     Δh_BL = (BL_CANOPY_FRACTION_2025 − BL_CANOPY_FRACTION_2005) × H0_BL_full

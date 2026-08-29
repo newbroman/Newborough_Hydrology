@@ -153,7 +153,7 @@ from utils.paths import (
 )
 from utils.clearfell_common import (
     load_clearfell_data,
-    INTERVENTION_DATE,
+    CLEARFELL_DATE,
     IMPACT_WELLS, EDGE_WELLS, FOREST_CONTROL_WELLS, C3_WARREN_WELLS,
     annual_summer_minimum, annual_spring_mean,
     wmc3_usable_summer_years, wmc3_usable_spring_years,
@@ -163,7 +163,9 @@ from utils.clearfell_common import (
 from utils.site_observations import update_site_observation
 from utils.render_utils import render_figure
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-08-13 (spring-mean MAM analysis alongside the summer minimum)
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
+#   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
+# v1.2.0  # Hollingham (2026) — 2026-08-13 (spring-mean MAM analysis alongside the summer minimum)
 #
 # 1.2.0 — Added the annual SPRING MEAN (Mar-May) four-zone BACI as a second
 #         seasonal metric, run through the identical code path as the summer
@@ -405,7 +407,7 @@ def build_zone_panel(spec, wells, wells_provenance):
     panel = panel.loc[panel['Year'].isin(panel_years)].copy()
 
     panel['well'] = panel['Well'].str.lower()
-    panel['Post'] = (panel['Year'] >= INTERVENTION_DATE.year + 1).astype(float)
+    panel['Post'] = (panel['Year'] >= CLEARFELL_DATE.year + 1).astype(float)
     # Post-felling seasons start the first FULL season after the Dec 2017
     # felling — i.e. 2018 — matching 10d's POST_YEAR convention.
 
@@ -833,7 +835,7 @@ def figure_zone_trajectories(spec, panel, fit, out_path):
 
     ax.axvline(2015.0, color='grey', ls='--', alpha=0.7,
                label='Apr 2015 scraping')
-    ax.axvline(INTERVENTION_DATE.year + 0.5, color='k', ls='--', alpha=0.8,
+    ax.axvline(CLEARFELL_DATE.year + 0.5, color='k', ls='--', alpha=0.8,
                label='Dec 2017 felling')
     ax.set_xlabel('Year')
     ax.set_ylabel(spec["traj_ylabel"])
@@ -1067,7 +1069,7 @@ def main():
         ref = ' [reference]' if z == REFERENCE_ZONE else ''
         print(f"    {z:<11}: {', '.join(w.upper() for w in wl)}{ref}")
     print(f"  Annual frame: {FIRST_YEAR}+ (matches Script 10d cutoff)")
-    print(f"  Post-felling seasons: {INTERVENTION_DATE.year + 1}+")
+    print(f"  Post-felling seasons: {CLEARFELL_DATE.year + 1}+")
     print()
 
     # The ReportNumbers accumulator is created ONCE and saved ONCE, outside

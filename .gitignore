@@ -105,13 +105,20 @@ literature/*
 # --- Historic map scans — LOCAL ONLY, licence-restricted ---
 # Georeferenced scans of third-party historic mapping (OS County Series and the
 # like). This repository is public and these scans carry the publisher's or
-# host's licence — NLS georeferenced sheets are typically CC-BY-NC-SA — so they
-# are never committed, for the same reason as store/.
+# host's licence — so they are never committed, for the same reason as store/.
+# CONFIRMED 2026-08-28: the 1899 sheet came from the National Library of
+# Scotland, whose georeferenced OS scans are CC-BY-NC-SA 4.0. That licence would
+# in fact permit redistribution with attribution; the file stays out because
+# share-alike and non-commercial terms should not attach to a repository
+# supporting a journal submission (D-081). Attribution is still owed by the
+# derived vector — see data/geo/GEO_PROVENANCE.md.
 #
-# What IS tracked is the DERIVED geometry digitised from them: coast.kml
-# (1899 high tide + dune edge) and DCoast_2015.kml (2015 dune edge) are original
-# work and are the evidence base for the retreat measurement, so they belong in
-# the repository and the scan does not.
+# What IS tracked is the DERIVED geometry digitised from them: coast1899.kml
+# (two lines — id=1 high tide, id=2 dune edge), DCoast_2015.kml, coast2006.kml
+# and coast2020.kml are original work and are the evidence base for the retreat
+# measurement, so they belong in the repository and the scan does not.
+# Files are named for the epoch they represent — the 1899 survey revision, and
+# the imagery date of each modern line — not for a publication or capture year.
 #
 # Put any further historic sheets in data/geo/histmaps/ rather than adding a
 # rule per file.

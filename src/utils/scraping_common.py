@@ -11,7 +11,7 @@ focused on analysis.
 Constants
 ---------
 SCRAPING_DATE         April 2015 — ground scraping at CEH36
-INTERVENTION_DATE     December 2017 — pine clearfell (shared with clearfell)
+CLEARFELL_DATE     December 2017 — pine clearfell (shared with clearfell)
 SCRAPING_DATE_2       October 2023 — second (re-)scraping event
 FELLING_YEAR          2017
 REGIONAL_MEAN_START   Feb 2009 — fixed-composition window for regional mean
@@ -31,7 +31,13 @@ WELL_ERAS           {well: {era_name: (start, end)}} for all analysis wells.
                     Start is inclusive, end is exclusive.
 """
 
-__version__ = "1.7.0"  # Hollingham (2026) — 2026-08-20. Adds the
+__version__ = "1.9.0"  # Hollingham (2026) — 2026-08-29. the legacy alias is removed; CLEARFELL_DATE is the only name (T-17).
+#   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
+# v1.8.0  # Hollingham (2026) — 2026-08-29. Intervention dates now
+#   built from utils.config instead of duplicating clearfell_common (D-084);
+#   SCRAPING_DATE_0 (Feb 2013) added, having been absent here; CLEARFELL_DATE
+#   added as the unambiguous alias. No value changes.
+# v1.7.0  # Hollingham (2026) — 2026-08-20. Adds the
 #     scrape-affected-well registry (SCRAPE_WELLS_POST_INSTALL,
 #     SCRAPE_WELLS_CENSORED) and apply_scrape_treatment().  Script 25 held a
 #     per-script SCRAPED_WELLS = ["ceh36"] that contradicted
@@ -56,11 +62,23 @@ from scipy import stats as _stats
 # ============================================================================
 # INTERVENTION DATES
 # ============================================================================
-SCRAPING_DATE    = pd.Timestamp("2015-04-01")
-INTERVENTION_DATE = pd.Timestamp("2017-12-01")   # clearfell
-SCRAPING_DATE_2  = pd.Timestamp("2023-10-01")
+# Built from utils.config (D-084). These were literals here until 2026-08-29,
+# duplicating clearfell_common. Values unchanged. SCRAPING_DATE_0 is NEW here —
+# the February 2013 cuts existed only in clearfell_common, so no scraping
+# analysis working from this module could see them.
+from utils.config import (
+    CLEARFELL_DATE_ISO as _CLEARFELL_DATE_ISO,
+    SCRAPING_DATE_0_ISO as _SCRAPING_DATE_0_ISO,
+    SCRAPING_DATE_ISO as _SCRAPING_DATE_ISO,
+    SCRAPING_DATE_2_ISO as _SCRAPING_DATE_2_ISO,
+)
 
-FELLING_YEAR = INTERVENTION_DATE.year   # 2017
+SCRAPING_DATE_0  = pd.Timestamp(_SCRAPING_DATE_0_ISO)  # Feb 2013 unmonitored cuts
+SCRAPING_DATE    = pd.Timestamp(_SCRAPING_DATE_ISO)    # April 2015 CEH36 scrape
+CLEARFELL_DATE   = pd.Timestamp(_CLEARFELL_DATE_ISO)   # December 2017 clearfell
+SCRAPING_DATE_2  = pd.Timestamp(_SCRAPING_DATE_2_ISO)  # October 2023 re-scraping
+
+FELLING_YEAR = CLEARFELL_DATE.year   # 2017
 
 # ============================================================================
 # RECORD-LENGTH-BALANCE CUTOFFS
@@ -168,27 +186,27 @@ SUMMER_MONTHS = [6, 7, 8, 9]
 WELL_ERAS = {
     "ceh36": {
         "1_Baseline":       (None, SCRAPING_DATE),
-        "2_Pure_Scraping":  (SCRAPING_DATE, INTERVENTION_DATE),
-        "3_Felling_Pulse":  (INTERVENTION_DATE, None),
+        "2_Pure_Scraping":  (SCRAPING_DATE, CLEARFELL_DATE),
+        "3_Felling_Pulse":  (CLEARFELL_DATE, None),
     },
     "ceh4": {
         "1_Baseline":       (None, SCRAPING_DATE),
-        "2_Pure_Scraping":  (SCRAPING_DATE, INTERVENTION_DATE),
-        "3_Felling_Pulse":  (INTERVENTION_DATE, None),
+        "2_Pure_Scraping":  (SCRAPING_DATE, CLEARFELL_DATE),
+        "3_Felling_Pulse":  (CLEARFELL_DATE, None),
     },
     "ceh18": {
-        "1_Baseline":       (None, INTERVENTION_DATE),
-        "2_Felling_Pulse":  (INTERVENTION_DATE, SCRAPING_DATE_2),
+        "1_Baseline":       (None, CLEARFELL_DATE),
+        "2_Felling_Pulse":  (CLEARFELL_DATE, SCRAPING_DATE_2),
         "3_After_Scraping": (SCRAPING_DATE_2, None),
     },
     "ceh21": {
-        "1_Baseline":        (None, INTERVENTION_DATE),
-        "2_Coastal_Drawdown": (INTERVENTION_DATE, SCRAPING_DATE_2),
+        "1_Baseline":        (None, CLEARFELL_DATE),
+        "2_Coastal_Drawdown": (CLEARFELL_DATE, SCRAPING_DATE_2),
         "3_After_Scraping":  (SCRAPING_DATE_2, None),
     },
     "ceh22": {
-        "1_Baseline":        (None, INTERVENTION_DATE),
-        "2_Coastal_Drawdown": (INTERVENTION_DATE, SCRAPING_DATE_2),
+        "1_Baseline":        (None, CLEARFELL_DATE),
+        "2_Coastal_Drawdown": (CLEARFELL_DATE, SCRAPING_DATE_2),
         "3_After_Scraping":  (SCRAPING_DATE_2, None),
     },
 }

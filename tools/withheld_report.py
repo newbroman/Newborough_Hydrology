@@ -41,19 +41,29 @@ def main() -> int:
         return 0
     df = pd.read_csv(SERIES)
 
-    reg = df[df["basis"] == "d060_regression_unrestricted"]
+    ANCHORS = ("d060_anchor_unrestricted", "synthetic_translation_anchor")
+
+    reg = df[df["basis"] == "d060_anchor_unrestricted"]
     if reg.empty:
-        print(f"  {RED}FAIL{RESET}     Script 40: no D-060 regression row — the method is unchecked")
+        print(f"  {RED}FAIL{RESET}     Script 40: no D-060 anchor row — the method is unchecked")
     else:
         r = reg.iloc[0]
         dev = float(r.get("deviation_pct", float("nan")))
         colour = GREEN if dev <= 10.0 else RED
-        print(f"  {colour}D-060{RESET}    reproduction {r['median_m']:.3f} m / "
-              f"{r['rate_m_yr']:.3f} m/yr against published "
-              f"{r.get('d060_published_m')} m / {r.get('d060_published_rate_m_yr')} m/yr "
-              f"({dev:.1f}%)")
+        print(f"  {colour}D-060{RESET}    anchor {r['rate_m_yr']:.3f} m/yr against published "
+              f"{r.get('d060_published_rate_m_yr')} m/yr ({dev:.1f}%)")
 
-    gated = df[df["basis"] != "d060_regression_unrestricted"]
+    syn = df[df["basis"] == "synthetic_translation_anchor"]
+    if syn.empty:
+        print(f"  {RED}FAIL{RESET}     Script 40: no synthetic anchor row")
+    else:
+        s = syn.iloc[0]
+        err = float(s.get("error_m", float("nan")))
+        colour = GREEN if err <= 1.0 else RED
+        print(f"  {colour}synth{RESET}    a {s.get('synthetic_offset_m')} m translation "
+              f"measures as {s['median_m']:.3f} m (error {err:.3f} m)")
+
+    gated = df[~df["basis"].isin(ANCHORS)]
     withheld = gated[gated["withheld"] == True]          # noqa: E712
     if withheld.empty:
         print(f"  {GREEN}OK{RESET}       Script 40: headline EMITTED — the gate passes")

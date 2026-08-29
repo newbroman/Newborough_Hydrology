@@ -183,6 +183,35 @@ fixed-feature control has not been digitised. The repeatability figure above
 bounds registration *and* interpretation together, which is the more relevant
 quantity for this measurement but is not the same test.
 
+### `coast2006B_blind.kml` — the CONTROL
+
+The 1/1/2006 imagery traced a **second time, blind**: the existing line not
+loaded, so no vertex could be reused. 53 vertices, `<description>` "Dune edge".
+Digitised by Martin Hollingham in Google Earth Pro, supplied 2026-08-29 as
+*coast 112006B.kml*.
+
+**Independence verified before use — zero shared vertices to 1e-9 degrees**
+against either earlier tracing of the same imagery. That check is not
+ceremonial: the first attempt at this control reused five vertices of the line
+it was meant to check, and the resulting 1.71 m read as excellent agreement
+while being partly agreement of a line with itself. `Script 40._control()` now
+refuses to report a tolerance-grade number if any vertex is shared.
+
+**What it measures.** Two tracings of one image cannot differ by real shoreline
+change, so their separation is the digitising-plus-registration error of this
+process: **|offset| median 2.34 m, p90 5.14, p95 5.53, max 11.57** across 130
+normals. That set `SHORE_CONTROL_TOLERANCE_M` = 6.0 and opened Script 40's gate.
+
+**And it separates two errors.** Against the sparse 14-vertex 2026-08-28 line
+the same blind trace differs at **p95 36.98 m** — sparsity, a coarse polyline
+cutting corners, not interpretation. The old series carried tens of metres of
+generalisation error, far more than its 7.467 m chord-sagitta bound implied:
+**that statistic understates the disagreement between two independent tracings
+of differing density, and should not be read as bounding it.**
+
+**Not a measurement input.** It is an epoch the series already has; using it as
+a series line would double-count 2006.
+
 ### `_superseded/` — the 2026-08-28 series, withdrawn 2026-08-29
 
 `coast2006_digitised_2026-08-28.kml`, `coast2012_digitised_2026-08-28.kml`,

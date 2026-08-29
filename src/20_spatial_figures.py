@@ -115,7 +115,21 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds (config.SD15b / config.SD16)
 """
 
-__version__ = "1.40.1"  # Hollingham (2026) — 2026-08-26. Docstring-only sweep
+__version__ = "1.41.0"  # Hollingham (2026) — 2026-08-29. The coastal edge
+#   drawdown h₀ now reaches a committed CSV. It was computed inside the plotting
+#   functions and rendered straight into the figure, so no *_report_numbers.csv
+#   carried it and neither audit_number_drift nor cite_check could bind the
+#   value the report types — which is how report8:757 and the report9:894
+#   caption kept h₀ = 21 mm, _load_coastal_fit()'s May-2026 fallback snapshot
+#   (δ₀=28.83), after the live fit moved to δ₀=31.33 and h₀ to 22.6 mm (W77).
+#   Five rows added to 20_report_numbers.csv: coastal_h0, coastal_h0_per_metre,
+#   coastal_delta0, coastal_retreat_rate and coastal_reach_L. The construction
+#   h₀ = retreat × (δ₀/COAST_RETREAT_RATE), previously written out at each call
+#   site, is centralised in _coastal_edge_h0(); the two existing call sites now
+#   read it. Behaviour-preserving — Figures 3, 4 and 6 verified byte-identical
+#   against the committed outputs. 09f_management_effects.py:316 still carries
+#   its own copy and is left for a session that can rerun it.
+# v1.40.1  # Hollingham (2026) — 2026-08-26. Docstring-only sweep
 #   (T-14 items 13 and 14, plus one off-list catch). The module header claimed
 #   "Two figures are produced" and described Figure 2 as two-panel; there are
 #   16 plot_* builders writing 25 OUT_20_* files, and the residual and slope
@@ -1538,6 +1552,29 @@ def plot_drawdown_propagation(wt, features, dpi=300, show_head=True):
             rpt.add(f"drawdown_{_w}", float(_ddmap[_w]), unit="mm",
                     well=_w.upper(),
                     note="modelled steady-state forest drawdown")
+    # Coastal edge drawdown — emitted here so the quantity enters the drift
+    # net. It is computed in plot_coastal_erosion() and rendered straight into
+    # the figure, so until now it reached no committed CSV and neither
+    # audit_number_drift nor cite_check could bind the value the report types.
+    # That is how a stale h₀ survived in two places (W77).
+    _h0, _d0, _L, _rm, _pm = _coastal_edge_h0()
+    rpt.add("coastal_h0", float(_h0), unit="mm",
+            note=f"single-event edge drawdown, {_rm:.0f} m retreat × "
+                 f"(δ₀/COAST_RETREAT_RATE); δ₀={_d0:.2f} mm/yr "
+                 f"[Script 25 forest-free linear_capped], "
+                 f"rate={COAST_RETREAT_RATE:.1f} m/yr — rate DISPUTED, see D-085")
+    rpt.add("coastal_h0_per_metre", float(_pm), unit="mm/m",
+            note="δ₀/COAST_RETREAT_RATE — head per metre of shoreline retreat; "
+                 "the quantity Scripts 20 and 09f actually divide by")
+    rpt.add("coastal_delta0", float(_d0), unit="mm/yr",
+            note="live Script 25 forest-free linear_capped δ₀ (absolute); "
+                 "fitted over the whole record")
+    rpt.add("coastal_retreat_rate", float(COAST_RETREAT_RATE), unit="m/yr",
+            note="config COAST_RETREAT_RATE — a six-year window against a "
+                 "full-record δ₀; DISPUTED, see D-085 and W74/W77")
+    rpt.add("coastal_reach_L", float(_L), unit="m",
+            note="live Script 25 forest-free linear_capped reach L_cg")
+
     n_saved = rpt.save(OUT_20_REPORT_NUMBERS)
     print(f"  Saved → {OUT_20_REPORT_NUMBERS.name} "
           f"({n_saved} report numbers)")
@@ -1725,6 +1762,29 @@ def _load_coastal_fit():
         return snapshot
 
 
+def _coastal_edge_h0(retreat_m=None):
+    """Edge water-table drawdown for a single shoreline-retreat event (mm).
+
+        h0 = retreat_m * (delta_0 / COAST_RETREAT_RATE)
+
+    The single definition of the construction, previously written out at each
+    call site. Returns (h0_mm, delta0_mm_yr, L_m, retreat_m, per_metre) where
+    per_metre = delta_0 / COAST_RETREAT_RATE is the mm of head per metre of
+    shoreline retreat -- the quantity the pipeline actually uses, and the one
+    the report numbers carry so it enters the drift net.
+
+    CAVEAT (D-085): COAST_RETREAT_RATE is under active dispute. It divides
+    here, so h0 scales inversely with it; and delta_0 is fitted over the whole
+    record while the committed rate is a six-year window. Neither is resolved.
+    See working/updates/NRG_coast_retreat_rate_exposure_2026-08-29.md.
+    """
+    delta0, L = _load_coastal_fit()
+    if retreat_m is None:
+        retreat_m = COAST_RETREAT_M
+    per_metre = delta0 / COAST_RETREAT_RATE
+    return retreat_m * per_metre, delta0, L, retreat_m, per_metre
+
+
 def _dem_waterline_to_dune_edge(shore_level=None, offset_m=None):
     """Derive a SW-facing shore line from the DEM, optionally offset inland.
 
@@ -1858,8 +1918,7 @@ def plot_coastal_erosion(wt, features, dpi=300):
     from shapely import contains_xy
 
     # ── Headline fit (live) + edge magnitude from the retreat assumption ──
-    delta0, L = _load_coastal_fit()
-    h0 = COAST_RETREAT_M * (delta0 / COAST_RETREAT_RATE)
+    h0, delta0, L, _r, _pm = _coastal_edge_h0()
     print(f"  h₀ = {h0:.1f} mm  "
           f"({COAST_RETREAT_M:.0f} m retreat × {delta0:.2f}/"
           f"{COAST_RETREAT_RATE:.1f} mm per m), L = {L:.0f} m")
@@ -2230,13 +2289,8 @@ def _erosion_field(gx, gy, retreat_m=None, h0_mm=None):
     """
     from shapely.geometry import Point
     from shapely import contains_xy
-    delta0, L = _load_coastal_fit()
-    if h0_mm is not None:
-        h0 = float(h0_mm)
-    else:
-        if retreat_m is None:
-            retreat_m = COAST_RETREAT_M
-        h0 = retreat_m * (delta0 / COAST_RETREAT_RATE)
+    _h0_default, delta0, L, _r, _pm = _coastal_edge_h0(retreat_m)
+    h0 = float(h0_mm) if h0_mm is not None else _h0_default
     front, waterline = _dem_waterline_to_dune_edge()
     if front is None:
         return None, None, None, None, None

@@ -1,1 +1,2 @@
-feature,pair,apparent_displacement_m
+pair,n,shared_vertices,median_abs_m,p90_abs_m,p95_abs_m,max_abs_m,signed_median_m
+coast2006 vs coast2006B_blind,130,0,2.341173097520315,5.138656848325035,5.531591924228962,11.57173348095931,0.5307304869392429

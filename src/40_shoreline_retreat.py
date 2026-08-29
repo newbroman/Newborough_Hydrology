@@ -47,7 +47,18 @@ Reading order for anyone picking this up
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-08-29. Re-based on the
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-08-29. THE GATE OPENS. The
+#   control is a BLIND repeat tracing of the 1/1/2006 imagery, which replaces the
+#   fixed-feature test the spec first called for: two tracings of one image
+#   cannot differ by real change, so their separation is this process's
+#   digitising-plus-registration error - 2.34 m median, 5.53 m p95 across 130
+#   normals. Tolerances set from that (6.0 m control, 5.0 m generalisation) and
+#   all three tests now pass, so rate_m_yr is emitted and citable under D-006.
+#   _control() verifies INDEPENDENCE first and refuses a tolerance-grade number
+#   if the two tracings share any vertex - the previous attempt reused five and
+#   read as excellent agreement. See D-089.
+#
+# v1.1.0  # Hollingham (2026) — 2026-08-29. Re-based on the
 #   four-epoch series re-digitised in one sitting (2006 / 2017 / 2021 / 2026),
 #   which carries its own control: the new 1/1/2006 line is the same imagery date
 #   as the withdrawn one, and the pair measures digitising repeatability at
@@ -155,6 +166,9 @@ def _read_kml(path):
     if not out:
         raise ValueError(f"no usable <coordinates> in {path}")
     return out
+
+
+_ORIGIN = (0.0, 0.0)   # set in main() once every input is loaded
 
 
 def _projection_origin(all_lonlat):
@@ -400,32 +414,54 @@ def _generalisation_bound(lines_m, names):
     return pd.DataFrame(rows), bound
 
 
-def _control(inland_xy, keep_lo, keep_hi, lat0, lon0):
-    """Apparent displacement of features that did not move = registration error.
+def _control(line_2006, inland_xy):
+    """The repeat-tracing control: one image traced twice, independently.
 
-    Absent is a valid state and it is NOT a pass: with no control there is no
-    evidence about registration, and the gate treats that as failing.
+    Two tracings of the SAME imagery cannot differ by real shoreline change, so
+    their separation is the digitising-plus-registration error of this process,
+    measured rather than assumed.
+
+    It replaces the fixed-feature control the spec first called for. Martin ruled
+    against holding out for that, and this is arguably the better test anyway: a
+    fixed feature isolates registration, while what actually threatens the
+    measurement is the whole process - registration AND where the operator judges
+    the dune edge to be.
+
+    INDEPENDENCE IS THE WHOLE POINT AND IS CHECKED HERE. The first attempt at
+    this control was traced with the earlier line loaded and reused five of its
+    vertices; the resulting 1.71 m looked like excellent agreement and was
+    partly agreement of a line with itself. If any vertex is shared, this refuses
+    to report a tolerance-grade number.
     """
-    path = paths.DATA_KML_SHORE_CONTROL
+    path = paths.DATA_KML_COAST_2006_REPEAT
     if not path.exists():
-        return pd.DataFrame(columns=["feature", "pair", "apparent_displacement_m"]), None
-    lines = [_to_local_m(a, lat0, lon0) for a in _read_kml(path)]
-    rows = []
-    for i, P in enumerate(lines):
-        for j, Q in enumerate(lines):
-            if j <= i:
-                continue
-            S, _ = _resample(P, SPACING_M)
-            N = _normals(S, inland_xy)
-            d = np.array([_ray_signed(S[k], N[k], Q, MAX_RANGE_M)
-                          for k in range(len(S))])
-            d = d[~np.isnan(d)]
-            if len(d):
-                rows.append({"feature": f"line_{i}", "pair": f"{i}->{j}",
-                             "apparent_displacement_m": float(np.median(d))})
-    df = pd.DataFrame(rows)
-    worst = float(df["apparent_displacement_m"].abs().max()) if len(df) else None
-    return df, worst
+        return pd.DataFrame(columns=["pair", "n", "median_abs_m", "p95_abs_m"]), None
+    repeat = _to_local_m(_read_kml(path)[0], *_ORIGIN)
+
+    shared = ({tuple(np.round(p, 9)) for p in line_2006}
+              & {tuple(np.round(p, 9)) for p in repeat})
+    if shared:
+        warn(f"control REJECTED: the two tracings share {len(shared)} vertices to "
+             f"1e-9 — they are not independent, and a tolerance set from them "
+             f"would calibrate the gate against itself")
+        return pd.DataFrame([{"pair": "2006 vs 2006_blind", "n": 0,
+                              "median_abs_m": float("nan"),
+                              "p95_abs_m": float("nan"),
+                              "shared_vertices": len(shared)}]), None
+
+    lo, hi = _common_extent([line_2006, repeat], SPACING_M)
+    m = _measure(line_2006, repeat, 1.0, inland_xy, lo, hi)
+    if m is None:
+        return pd.DataFrame(), None
+    a = np.abs(m["_ray"][m["_ok"]])
+    row = {"pair": "coast2006 vs coast2006B_blind", "n": int(len(a)),
+           "shared_vertices": 0,
+           "median_abs_m": float(np.median(a)),
+           "p90_abs_m": float(np.percentile(a, 90)),
+           "p95_abs_m": float(np.percentile(a, 95)),
+           "max_abs_m": float(a.max()),
+           "signed_median_m": float(np.median(m["_ray"][m["_ok"]]))}
+    return pd.DataFrame([row]), row["p95_abs_m"]
 
 
 def _dtm_profile(measured, lat0, lon0):
@@ -511,13 +547,13 @@ def _evaluate_gate(floor, control_worst, sagitta_bound):
     # 2. Control. Absent is not a pass: with no fixed feature there is no
     #    evidence about registration at all.
     if control_worst is None:
-        reasons.append("control test: control absent — no fixed-feature lines to measure")
+        reasons.append("control test: no usable independent repeat tracing")
     elif TOL_CONTROL is None:
         reasons.append("control test: SHORE_CONTROL_TOLERANCE_M is unset "
                        "(deliberately — set it from the observed spread)")
     elif control_worst > TOL_CONTROL:
-        reasons.append(f"control test: apparent displacement of a fixed feature "
-                       f"{control_worst:.3f} m exceeds {TOL_CONTROL:.3f} m")
+        reasons.append(f"control test: repeat-tracing p95 {control_worst:.3f} m "
+                       f"exceeds {TOL_CONTROL:.3f} m")
 
     # 3. Generalisation.
     if TOL_GENERAL is None:
@@ -537,11 +573,11 @@ def _assert_thresholds_can_fail(floor):
     """
     if floor is None or TOL_CONTROL is None:
         return
-    offset_scale = floor["min_m"]
-    if TOL_CONTROL >= offset_scale:
-        warn(f"SHORE_CONTROL_TOLERANCE_M = {TOL_CONTROL:.3f} m would NOT flag the "
-             f"present {offset_scale:.3f} m floor — the threshold is decoration, "
-             f"not a gate")
+    signal = abs(floor["median_m"])
+    if TOL_CONTROL >= 0.25 * signal:
+        warn(f"SHORE_CONTROL_TOLERANCE_M = {TOL_CONTROL:.3f} m is not small "
+             f"against the {signal:.3f} m displacement being measured — a gate "
+             f"that admits a quarter of its own signal is decoration")
 
 
 def _regression_test(edge_1899, line_2006, inland_xy):
@@ -633,6 +669,8 @@ def main():
     lat0, lon0 = _projection_origin([a for v in raw.values() for a in v])
     info(f"local projection origin {lat0:.4f} N, {lon0:.4f} E")
 
+    global _ORIGIN
+    _ORIGIN = (lat0, lon0)
     lines = {name: [_to_local_m(a, lat0, lon0) for a in v] for name, v in raw.items()}
     inland_xy = np.vstack([_to_local_m(a, lat0, lon0) for a in boundary]).mean(axis=0)
     info(f"inland reference (site-boundary centroid) at "
@@ -702,11 +740,13 @@ def main():
         [epoch_line[n] for n in ("2006", "2017", "2021", "2026")],
         ["coast2006", "coast2017", "coast2021", "coast2026"])
     info(f"chord-sagitta bound {sagitta:.3f} m (measured, not densified away)")
-    ctl_df, ctl_worst = _control(inland_xy, keep_lo, keep_hi, lat0, lon0)
+    ctl_df, ctl_worst = _control(epoch_line["2006"], inland_xy)
     if ctl_worst is None:
-        note("fixed-feature control: ABSENT — the discriminating test has not been run")
+        note("repeat-tracing control: unavailable or rejected — see 40_03_control.csv")
     else:
-        info(f"fixed-feature control: worst apparent displacement {ctl_worst:.3f} m")
+        info(f"repeat-tracing control: |offset| median "
+             f"{ctl_df.iloc[0]['median_abs_m']:.3f} m, p95 {ctl_worst:.3f} m "
+             f"across {int(ctl_df.iloc[0]['n'])} normals, 0 shared vertices")
     dtm_df = (_dtm_profile(modern_common[FLOOR_INTERVAL], lat0, lon0)
               if modern_common.get(FLOOR_INTERVAL) else pd.DataFrame())
 

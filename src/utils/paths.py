@@ -970,6 +970,13 @@ DATA_KML_COAST_2006    = data_geo("coast2006.kml")
 DATA_KML_COAST_2017    = data_geo("coast2017.kml")
 DATA_KML_COAST_2021    = data_geo("coast2021.kml")
 DATA_KML_COAST_2026    = data_geo("coast2026.kml")
+# The CONTROL: the 1/1/2006 imagery traced a second time, BLIND - the existing
+# line not loaded, so no vertex could be reused (verified: zero shared vertices
+# to 1e-9 deg against either earlier tracing). Two independent tracings of one
+# image differ only by digitising and registration error, so the pair measures
+# exactly what the gate needs. It replaces the fixed-feature control the spec
+# originally called for, which Martin ruled against holding out for. See D-089.
+DATA_KML_COAST_2006_REPEAT = data_geo("coast2006B_blind.kml")
 # Withdrawn 2026-08-29, retained for corroboration and audit only - NOT inputs.
 # coast2020 is the one that failed: it sits 0.59 m from the 2026 line when six
 # years of retreat should put it ~12 m seaward. coast2006/coast2012 sit near the

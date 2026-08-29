@@ -40,7 +40,13 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.18.0"  # Hollingham (2026) — 2026-08-29. Constants for Script 40,
+__version__ = "1.19.0"  # Hollingham (2026) — 2026-08-29. The two Script 40 gate
+#   tolerances are SET, from observation rather than guess (D-089): a blind
+#   second tracing of the 1/1/2006 imagery gives an independent
+#   digitising-plus-registration error of 2.34 m median / 5.53 m p95, so
+#   SHORE_CONTROL_TOLERANCE_M = 6.0; the measured sagitta bound is 3.829 m, so
+#   SHORE_GENERALISATION_TOLERANCE_M = 5.0. Both can fail on real data.
+# v1.18.0  # Hollingham (2026) — 2026-08-29. Constants for Script 40,
 #   the shoreline-retreat measurement (spec signed off). SHORE_NORMAL_SPACING_M,
 #   SHORE_NORMAL_MAX_RANGE_M and PUBLISHED_MAX_PROFILE_RATE (Pye & Blott 2024,
 #   carrying its dune-toe indicator with it). The two gate tolerances are
@@ -387,8 +393,21 @@ PUBLISHED_MAX_PROFILE_RATE = 1.8
 # they must be CAPABLE OF FAILING on the committed lines - a tolerance that would
 # not flag the present ~25 m offset is decoration - and Script 40 asserts that
 # at run time rather than leaving it to the reader.
-SHORE_CONTROL_TOLERANCE_M        = None
-SHORE_GENERALISATION_TOLERANCE_M = None
+# SET FROM OBSERVATION 2026-08-29, not guessed ahead of it (D-089).
+#
+# SHORE_CONTROL_TOLERANCE_M. The 1/1/2006 imagery was traced twice, the second
+# time BLIND. The two independent lines differ by |offset| median 2.34 m, p90
+# 5.14, p95 5.53, max 11.57 - that IS the digitising-plus-registration error of
+# this process, measured rather than assumed. The tolerance is the p95 rounded
+# up. It is capable of failing and would have: the sparse 14-vertex 2026-08-28
+# line differs from the blind trace at p95 36.98 m, and the 7-8 m systematic
+# displacement of the withdrawn coast2020 line also exceeds it.
+SHORE_CONTROL_TOLERANCE_M        = 6.0
+#
+# SHORE_GENERALISATION_TOLERANCE_M. Measured chord-sagitta bound on the current
+# series is 3.829 m (26/36/41/86 vertices). Set at 5.0 m: the current lines pass
+# with margin, and the old sparse series - whose bound was 7.467 m - would not.
+SHORE_GENERALISATION_TOLERANCE_M = 5.0
 
 # --- Coastal-gradient reference distance (Script 25) ---------------------------
 # The distance at which the headline coast-edge trend is quoted (m).

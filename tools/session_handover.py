@@ -169,6 +169,27 @@ def section_open_rulings() -> str:
     return "\n".join(out)
 
 
+def section_deferred() -> str:
+    """Decisions deliberately left to a person, and still waiting.
+
+    Martin, 2026-08-29: "Ideally I would like to be reminded of deferred
+    decisions. These should be part of the daily report and work lists." The
+    open-rulings section above reads the work register's status cells, which are
+    hand-maintained and drift; this reads the decision log itself, so a deferral
+    that never got a W row still surfaces.
+    """
+    out = ["## Deferred decisions — waiting on a person", ""]
+    _rc, stdout, _err = _run(["python3", "tools/deferred_report.py"])
+    body = re.sub(r"\x1b\[[0-9;]*m", "", stdout or "").rstrip()
+    if not body:
+        return "\n".join(out + ["- deferred_report did not run", ""])
+    out.append("```")
+    out.append(body)
+    out.append("```")
+    out.append("")
+    return "\n".join(out)
+
+
 def section_decisions() -> str:
     out = ["## Decision log", ""]
     if not DECISIONS.is_file():
@@ -293,6 +314,7 @@ def build(include_lag: bool) -> str:
         section_repos(),
         section_documents(),
         section_open_rulings(),
+        section_deferred(),
         section_decisions(),
         section_environment(),
         section_tier0(),

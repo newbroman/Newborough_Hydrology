@@ -40,7 +40,18 @@ File location: outputs/01_data_prep/pipeline_scenario_params.csv
 """
 from __future__ import annotations
 
-__version__ = "1.8.0"  # Hollingham (2026) — 2026-08-29. Refreshes the two
+__version__ = "1.9.0"  # Hollingham (2026) — 2026-08-29. Refreshes the two
+#   defaults tools/defaults_lint.py found on its first run, both invisible to
+#   every gate until it existed. climate_c_mm_yr 0.18 -> -0.10: the SECOND
+#   recurrence on this key (see v1.5.0 below), stale nine days as the fit moved,
+#   and wrong in sign as well as magnitude. Git history settles that it is a
+#   stale mirror of the row its comment names — 0.18 WAS forest_free/
+#   linear_capped on 2026-08-18 — and not a mislabelled mirror of full_canopy,
+#   which reads 0.17 today and is a trap for anyone checking by value rather
+#   than by history. clearfell_summer_step_mm 46.3 -> 50.1, which matched no
+#   committed value in the visible window; its neighbour clearfell_recovery_mm
+#   was corrected on 2026-08-28 and this one was not.
+# v1.8.0  # Hollingham (2026) — 2026-08-29. Refreshes the two
 #   mechanism-diagram coastal fallbacks against the committed 09f_01 row 0.
 #   mech_coastal_storm_mm -20.99 -> -81.00 follows D-091 (the storm amplitude is
 #   now divided by the MEASURED retreat rate). mech_coastal_5yr_mm -145.15 ->
@@ -304,7 +315,7 @@ _DEFAULTS = {
                                          # matched value is 3.6x smaller, so h0
                                          # is 3.6x larger; a stale fallback here
                                          # would silently restore the old figure
-    "climate_c_mm_yr":           0.18,   # 25_01 forest_free/linear_capped c_mm_yr,
+    "climate_c_mm_yr":          -0.10,   # 25_01 forest_free/linear_capped c_mm_yr,
                                          # refreshed 2026-08-19 from the committed
                                          # value; was -6.35, stale by the sign as
                                          # well as the magnitude. NOT a climate
@@ -325,7 +336,7 @@ _DEFAULTS = {
     "mech_scrape_cut_rise_mm":   129.43, # 09f_01 scrape_head_mm (CEH36 cut rise)
     "mech_thinned_mm":           -75.0,  # 09f_01 thinned_forest_head_mm
     "mech_coastal_storm_mm":     -81.00, # 09f_01 coastal_6m_storm_head_mm (D-091)
-    "clearfell_summer_step_mm":   46.3,  # 10a ANCOVA_Forest_Impact_clearfell_step_summer x1000
+    "clearfell_summer_step_mm":   50.1,  # 10a ANCOVA_Forest_Impact_clearfell_step_summer x1000
 }
 
 

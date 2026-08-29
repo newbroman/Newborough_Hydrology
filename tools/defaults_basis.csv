@@ -1,0 +1,25 @@
+key,path_symbol,row,column,scale,verify,note
+beta_1,,,,,seed,initial-write placeholder; not a mirror of any CSV
+beta_2,,,,,seed,initial-write placeholder; not a mirror of any CSV
+beta_3,,,,,seed,initial-write placeholder; not a mirror of any CSV
+Sy,,,,,seed,initial-write placeholder; not a mirror of any CSV
+clearfell_b2_mult,,,,,seed,scenario multiplier; a modelling choice, not a mirror
+thinning_b2_mult,,,,,seed,scenario multiplier; a modelling choice, not a mirror
+peak_month,,,,,seed,February — typical for most clusters; not a mirror
+drawdown_lambda_m,OUT_20_REPORT_NUMBERS,Parameter=drawdown_lambda,Value,1.0,cell,forest-interception drawdown reach
+coast_delta0_mm_yr,OUT_25_FIT_PARAMETERS,source=forest_free;model=linear_capped,delta_0_mm_yr,1.0,cell,coast-edge anomaly; stored negative in both places
+coast_reach_L_m,OUT_25_FIT_PARAMETERS,source=forest_free;model=linear_capped,L_m,1.0,cell,fitted inland reach
+scrape_offsite_100m_vol,OUT_09D_SCENARIO_CSV,Scenario=Scraping (off-site 100 m),Delta_vol_mm_per_month,1.0,cell,off-site scraping volume change
+clearfell_recovery_mm,OUT_10A_REPORT,Parameter=ANCOVA_Forest_Impact_clearfell_step,Value,1000.0,cell,clearfell step in mm; CSV stores metres
+ceh36_scrape_response_m,OUT_09_BACI_SHIFTS,Well=CEH36;Shift=Pure_Scraping,Delta_m,1.0,cell,CEH36 paired BACI against CEH4
+uniform_residual_mm_yr,OUT_25_CLUSTER_PARTITION,,,,derived,"mean over the open-dune clusters of (balanced observed decline - modelled coastal gradient); computed in 37b_driver_footing.py, not a single cell"
+coast_retreat_rate_m_yr,OUT_40_EPOCH_SERIES,basis=modern_common_frontage;from_epoch=2006;to_epoch=2026,rate_m_yr,1.0,cell,measured shoreline retreat rate E_c (D-091)
+climate_c_mm_yr,OUT_25_FIT_PARAMETERS,source=forest_free;model=linear_capped,c_mm_yr,1.0,cell,far-field asymptote; NOT a climate background (D-039)
+wmc3_drawdown_mm,OUT_10M_REPORT,Parameter=WMC3_BACI_DiD_step_2015_scraping,Value,1000.0,cell,measured off-cut drawdown; CSV stores metres
+wmc3_distance_m,OUT_09B_INDIVIDUAL,well=wmc3,dist_m,1.0,cell,CEH36 to WMC3 separation
+mech_forest_standing_mm,OUT_09F_REACH_CSV,#0,standing_pine_head_mm,1.0,cell,mechanism-diagram edge amplitude at distance 0
+mech_coastal_5yr_mm,OUT_09F_REACH_CSV,#0,coastal_5yr_head_mm,1.0,cell,mechanism-diagram edge amplitude at distance 0
+mech_scrape_cut_rise_mm,OUT_09F_REACH_CSV,#0,scrape_head_mm,1.0,cell,mechanism-diagram edge amplitude at distance 0
+mech_thinned_mm,OUT_09F_REACH_CSV,#0,thinned_forest_head_mm,1.0,cell,mechanism-diagram edge amplitude at distance 0
+mech_coastal_storm_mm,OUT_09F_REACH_CSV,#0,coastal_6m_storm_head_mm,1.0,cell,mechanism-diagram edge amplitude at distance 0 (D-091)
+clearfell_summer_step_mm,OUT_10A_REPORT,Parameter=ANCOVA_Forest_Impact_clearfell_step_summer,Value,1000.0,cell,summer clearfell step in mm; CSV stores metres

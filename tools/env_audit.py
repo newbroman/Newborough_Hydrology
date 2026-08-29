@@ -239,6 +239,80 @@ def compare(live: dict, rec: dict, quiet: bool) -> list[str]:
     return diffs
 
 
+# ── record validity — is the RECORD itself a runnable environment? ───────────
+# D-093's failure was not a live environment that differed; it was a RECORD that
+# described a stack the pipeline cannot run on, and every session's gate passing
+# against it. Nothing in this file tested the record's central claim. This does,
+# and it does so machine-independently, because both files it reads are tracked:
+# tools/environment.json against requirements.txt, which D-093 settled as the
+# environment ("venv/ IS the environment").
+#
+# The import name is not the distribution name. odfpy installs as `odf` and
+# probing the wrong one recorded a false "absent" that lasted weeks (see the
+# note above LIBRARIES); scikit-learn imports as `sklearn`. That map is EXPLICIT
+# here rather than heuristic, because a heuristic is how the first one happened.
+DIST_NAME = {
+    "sklearn": "scikit-learn",
+    "odf": "odfpy",
+}
+
+REQUIREMENTS = REPO / "requirements.txt"
+
+
+def record_vs_requirements(rec: dict) -> list[str]:
+    """Disagreements between the recorded reference and requirements.txt."""
+    if not REQUIREMENTS.exists():
+        return ["requirements.txt is absent — the record cannot be validated"]
+    pins = {}
+    for line in REQUIREMENTS.read_text(encoding="utf8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "==" not in line:
+            continue
+        name, _, ver = line.partition("==")
+        pins[name.strip().lower()] = ver.strip()
+    out = []
+    for name, recorded in sorted(rec.get("libraries", {}).items()):
+        if recorded in (None, "?"):
+            continue                      # no __version__ to compare; not a fault
+        pinned = pins.get(DIST_NAME.get(name, name).lower())
+        if pinned is None:
+            continue                      # not pinned; requirements is not exhaustive
+        if pinned != recorded:
+            out.append(f"{name}: record says {recorded}, requirements.txt "
+                       f"pins {pinned}")
+    return out
+
+
+def classify(live: dict, rec: dict) -> tuple[list[str], list[str], list[str]]:
+    """Split the comparison into (capability, externals, version drift).
+
+    Capability — a library the pipeline imports is NOT IMPORTABLE — is not a
+    statement about WHICH pipeline you would run. It is a statement that there
+    is no pipeline here, and it is true on every machine. Version drift is only
+    meaningful on the recorded one.
+    """
+    cap, ext, drift = [], [], []
+    for name in LIBRARIES:
+        l, r = live["libraries"].get(name), rec["libraries"].get(name)
+        if l == r or (l is None and r is None):
+            continue
+        if l is None:
+            cap.append(f"{name} NOT IMPORTABLE  (recorded {r})")
+        elif r is None:
+            drift.append(f"{name} {l}  (absent when recorded)")
+        else:
+            drift.append(f"{name} {l}  (recorded {r})")
+    for name in EXTERNALS:
+        l, r = live["externals"].get(name), rec["externals"].get(name)
+        if l == r:
+            continue
+        if l is None:
+            ext.append(f"{name} NOT ON PATH  (recorded {r})")
+        else:
+            drift.append(f"{name} {l}  (recorded {r})")
+    return cap, ext, drift
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--record", action="store_true",
@@ -249,6 +323,12 @@ def main() -> int:
                     help="exit non-zero if the live environment differs")
     ap.add_argument("--quiet", action="store_true",
                     help="one verdict line (for check_all)")
+    ap.add_argument("--gate", action="store_true",
+                    help="exit non-zero on a fault that is true on ANY machine: "
+                         "a library the pipeline needs not importable, or a "
+                         "record that disagrees with requirements.txt. Identity "
+                         "never gates; version drift gates only on the recorded "
+                         "machine.")
     a = ap.parse_args()
 
     live = probe()
@@ -273,6 +353,36 @@ def main() -> int:
     rec = json.loads(RECORD.read_text(encoding="utf8"))
     here = same_machine(live, rec)
     diffs = compare(live, rec, a.quiet)
+    cap, ext, drift = classify(live, rec)
+    invalid = record_vs_requirements(rec)
+
+    # Faults that are true wherever they are seen. Neither depends on which
+    # machine this is, so neither is excused by the identity banner below.
+    gate_fault = bool(cap) or bool(invalid)
+
+    def _report_universal() -> None:
+        if invalid:
+            print(_c("  THE RECORD ITSELF DISAGREES WITH requirements.txt",
+                     C_RED))
+            for d in invalid:
+                print(f"      {d}")
+            print("  requirements.txt is the environment (D-093). A record that "
+                  "disagrees with it")
+            print("  is not a reference; it is a second opinion nothing "
+                  "checked.")
+        if cap:
+            print(_c(f"  {len(cap)} librar(y/ies) THE PIPELINE IMPORTS ARE NOT "
+                     f"IMPORTABLE HERE:", C_RED))
+            for d in cap:
+                print(f"      {d}")
+            print("  This is not a version disagreement. Nothing in this run "
+                  "that touches an")
+            print("  output can be trusted from this environment.")
+        if ext:
+            print(_c(f"  {len(ext)} external(s) not on PATH "
+                     f"(document toolchain — reported, not gated):", C_YEL))
+            for d in ext:
+                print(f"      {d}")
 
     if not here:
         m, r = live["machine"], rec["machine"]
@@ -294,7 +404,19 @@ def main() -> int:
         # Difference from the record is expected on a different machine and is
         # not, by itself, a fault. --strict still fails: a release check has no
         # business running anywhere but the recorded machine.
-        return 1 if a.strict else 0
+        #
+        # But the banner is NOT an amnesty. It used to swallow everything below
+        # it, which is how eight absent libraries read as green. The two faults
+        # that are true on any machine are reported and gated here, and the
+        # banner says which classes it is suppressing so silence is never
+        # ambiguous.
+        _report_universal()
+        if not gate_fault:
+            print(_c("  identity and version drift suppressed here (expected "
+                     "on a second machine);", C_YEL))
+            print(_c("  capability and record validity checked and clean.",
+                     C_YEL))
+        return 1 if (a.strict or (a.gate and gate_fault)) else 0
 
     if not diffs:
         if a.quiet:
@@ -307,7 +429,8 @@ def main() -> int:
                   + ", ".join(f"{k} {v}" for k, v in live["externals"].items()
                               if v) + ".")
             print(_c("  every recorded version matches.", C_GRN))
-        return 0
+        _report_universal()
+        return 1 if (a.gate and gate_fault) else 0
 
     print(_c(f"  the recorded machine, but {len(diffs)} version(s) have moved:",
              C_YEL))
@@ -321,7 +444,11 @@ def main() -> int:
               "mirror diff.")
     print("  If these upgrades are intended, re-record: "
           "python3 tools/env_audit.py --record")
-    return 1 if a.strict else 0
+    _report_universal()
+    # On the recorded machine a moved version means the reference is stale and a
+    # published number may not reproduce, and re-recording is a one-command fix.
+    # That is worth failing on. Off this machine it means nothing and must not.
+    return 1 if (a.strict or a.gate) else 0
 
 
 if __name__ == "__main__":

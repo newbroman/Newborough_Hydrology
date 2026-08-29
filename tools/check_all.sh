@@ -113,6 +113,14 @@ echo "── geographic inputs ────────────────�
 python3 tools/geo_provenance.py || true
 
 echo
+echo "── manifest (is the committed one what the orchestrator produces?) ───"
+# The manifest is the number every document cites, and it is the one committed
+# output any full pipeline run rewrites - so a run from an older tree silently
+# reverts it. That happened on 2026-08-29 and dropped a registered script.
+# GATED: a drifting manifest is a wrong citable number.
+python3 tools/manifest_lint.py || rc=1
+
+echo
 echo "── withheld headlines ───────────────────────────────────────────────"
 # Script 40 withholds its own rate when its gate fails (D-085). A silent
 # absence reads as success, so the state is REPORTED here. Reported, not gated:

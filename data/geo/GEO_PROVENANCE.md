@@ -441,58 +441,165 @@ decision, having no copy anywhere is an accident.
 
 ## Retreat is accelerating — a four-epoch series, and the two ends of the corpus reconciled
 
+*Corrected in place 2026-08-29.* This section was written on 2026-08-28 against a
+four-epoch series that included `DCoast_2015.kml`. That line was withdrawn the
+same day (register W64) once `coast2012.kml` made a single-source modern series
+available and showed the 2015 line lying seaward of the 2012 one at 10 of 12
+sampled longitudes. The withdrawal reached the decision log, the changelog and
+the register and did not reach this file, which then stood for a day publishing a
+retracted rate. The superseded rows and the corroboration claim built on them are
+gone; what replaces them is below.
+
 Re-running D-060's method (shore-normals at 25 m along the later line of each
-pair, distance to the earlier) across all four epochs, 2026-08-28:
+pair, distance to the earlier) across the four epochs, single-source modern lines
+throughout:
 
 | interval | n | median | years | rate |
 |---|---|---|---|---|
 | 1899 → 2006 | 131 | 64.2 m | 107 | **0.60 m yr⁻¹** |
-| 2006 → 2015 | 153 | 15.7 m | 9 | **1.74 m yr⁻¹** |
-| 2015 → 2020 | 131 | 38.7 m | 5 | **7.74 m yr⁻¹** |
+| 2006 → 2012 | 131 | 16.6 m | 6 | **2.77 m yr⁻¹** |
+| 2012 → 2020 | 131 | 30.5 m | 8 | **3.81 m yr⁻¹** |
 | 2006 → 2020 | 131 | 46.8 m | 14 | 3.34 m yr⁻¹ |
 | **1899 → 2020** | 131 | 116.0 m | 121 | **0.96 m yr⁻¹** |
 
-**Monotonic acceleration across three consecutive intervals**, and the most
-recent one lands on a number the corpus already holds independently:
-`COAST_RETREAT_RATE` = **8.3 m yr⁻¹ for 2014–20**, against **7.74** measured
-here for 2015–20 — agreement to within 7 %, from lines digitised years apart by
-different means.
+The modern series is internally additive: 16.6 + 30.5 = 47.1 m against 46.8 m
+measured directly over 2006→2020, so the two sub-intervals and the span they
+partition agree to 0.3 m.
 
-**Why this matters beyond the rate.** D-060 exists because the corpus carried
-two coastal-retreat numbers that sat awkwardly together: a short-run 8.3 m yr⁻¹
-and a long-run 0.65 m yr⁻¹, with `config.py` warning that extrapolating the
-short one overstates accumulation. They were never in conflict — they are the
-two ends of a single accelerating series, and the intermediate epochs show the
-transition. That reading is available now and was not before, because 2006 and
-2020 did not exist as digitised lines when D-060 was written.
+**Monotonic acceleration across three consecutive intervals.** That is the
+qualitative claim, and it is robust: 0.60 m yr⁻¹ across the twentieth century
+against something of order 2–4 m yr⁻¹ recently. **Its magnitude is a separate
+question and is open** — see the caveats below. Do not let the qualitative claim
+ride on the quantitative one.
 
-**Consequences for the swap Martin asked for.** Substituting the 2020 line for
-the 2015 one as the modern endpoint moves the long-run rate from **0.63 to 0.96
-m yr⁻¹, a 52 % increase** — not a cosmetic change, and it happens because the
-last five years contribute a third of the total displacement.
+**A defect in `config.py`, and no corroboration.** Forgrave (2020) reports ≈50 m
+of retreat, and `config.py` cites that same ≈50 m twice to incompatible windows:
+at line 314 as 2014–2020 (giving `COAST_RETREAT_RATE` = 8.3 m yr⁻¹) and at line
+411 as "since 2006" (giving `COAST_RETREAT_2005_2025_M` = 50 m). One quantity
+cannot have accrued over both windows, and `config.py:413` already declines to
+extrapolate 8.3 over twenty years on the grounds that it would overstate the
+accumulation. **That defect stands on its own and is recorded.**
+
+**What does not stand is reading Forgrave as corroboration of anything here.**
+Read on the 2006–2020 window, ≈50 m sits against 46.8 m measured over that exact
+window, about 6 % apart — and that agreement was offered, on 2026-08-29, as
+support for the measured series. **Withdrawn.** If the measured field carries a
+systematic offset (see the caveats below) then a newspaper figure agreeing with
+it to 6 % is most likely either sharing the same indicator confusion — plausible
+if it came from comparing photographs — or coincidence. Two unreliable numbers
+agreeing is not evidence, which is the objection that retired the earlier
+7.74-versus-8.3 claim in this same section, committed a second time with a
+different pair. **No external source currently corroborates the modern series.**
+Pye & Blott (2024) is the only remaining external measurement of this frontage
+and it disagrees by roughly a factor of two, so dropping Forgrave as a mere
+newspaper citation would not settle the question — it would remove the source
+that happened to agree, and leave both `config.py` constants unsourced, one of
+them a divisor in a published construction.
+
+**Why this matters beyond the rate.** D-060 exists because the corpus carried two
+coastal-retreat numbers that sat awkwardly together: a short-run 8.3 m yr⁻¹ and a
+long-run 0.65 m yr⁻¹, with `config.py` warning that extrapolating the short one
+overstates accumulation. The intermediate epochs show the transition, and the
+tension resolves — but not as two ends of one series. It resolves because the 8.3
+divides a 2006–2020 displacement by a 2014–2020 window. `config.py:413` already
+declines to extrapolate 8.3 over twenty years on the grounds that it would
+overstate the accumulation: the same objection, reached from the other side and
+left unacted on.
+
+**Consequences of the endpoint swap.** Substituting the 2020 line for the 2015
+one as the modern endpoint leaves the long-run rate at **0.96 m yr⁻¹** — the
+1899→2020 span never involved the 2015 line and is unaffected by its withdrawal.
+The 0.63 m yr⁻¹ figure this section previously quoted was the 1899→2015 pairing,
+retained below only as the reproduction check on the method.
 
 **Method and status.** Reimplemented independently of QGIS in local
-equirectangular metres about the site centroid; over 4 km at 53° N the
-projection distortion is far below the 5.95 m georeferencing error and does not
-bear on the result. **Validation: run against D-060's own pairing (1899 dune
-edge → 2015) it returns 72.5 m and 0.63 m yr⁻¹ against the published 75.2 m and
-0.65 — agreement within 4 %,** so the method reproduces the original.
+equirectangular metres about the site centroid; over 4 km at 53° N the projection
+distortion is far below the 5.95 m georeferencing error and does not bear on the
+result. The estimator is **nearest-distance**, which is biased low against true
+shore-normal displacement and therefore cannot manufacture a hot rate.
+**Validation: run against D-060's own pairing (1899 dune edge → 2015) it returns
+72.5 m and 0.63 m yr⁻¹ against the published 75.2 m and 0.65 — agreement within
+4 %,** so the method reproduces the original.
 
-**This is INDICATIVE and NOT CITABLE.** Under D-006 a sensitivity becomes
-citable only once it is a pipeline output; this is a session computation. To
-publish any of it, the measurement needs to become a script with the lines as
-declared inputs.
+**This is INDICATIVE and NOT CITABLE.** Under D-006 a sensitivity becomes citable
+only once it is a pipeline output; this is a session computation. To publish any
+of it, the measurement needs to become a script with the lines as declared
+inputs.
 
 **Caveats that must travel with these numbers.**
-- The 1899 line carries ±5.95 m of georeferencing error. Over a 5-year interval
-  that alone is ±1.2 m yr⁻¹ — though it does not enter the 2015→2020 or
+- The 1899 line carries ±5.95 m of georeferencing error. Over a short interval
+  that dominates — though it does not enter the 2006→2012, 2012→2020 or
   2006→2020 comparisons, which are modern-to-modern.
 - The registration accuracy of the Google Earth lines is unrecorded, and Google
   Earth imagery georeferencing is typically a few metres. Over short intervals
-  that is a large fraction of the signal.
-- Both intervals involving 2015 inherit that line's unknown source imagery.
-- Short intervals amplify everything: 5 years converts a few metres of
-  registration difference into a whole m yr⁻¹.
+  that is a large fraction of the signal. **This is the outstanding
+  measurement**: digitising a fixed feature — a road junction, a building corner,
+  the forest boundary — in the 2012 and 2020 imagery gives the apparent
+  displacement of something that did not move, which is the registration error
+  measured rather than assumed. That is the error bar the script should carry.
+- **The modern series has a floor in it, and a shoreline does not.** Measured
+  again on 2026-08-29 with *signed* shore-normal displacement rather than nearest
+  distance, and restricted to the northing band all three modern lines span
+  (1470 m, 113 normals): over 2006→2020 **every one of the 113 normals shows
+  retreat**, from +24.8 m to +81.1 m. The least-eroding point on the frontage
+  gives **1.77 m yr⁻¹**. Pye & Blott (2024) survey the same frontage and report
+  **progradation in the north** with retreat concentrated at the southern Twyni
+  Penrhos end, up to 16.3 m over 2013–2022 — **≈1.8 m yr⁻¹ at the most active
+  point**. Our minimum is their maximum, and where they measure advance we
+  measure 40–50 m of retreat. The natural reading is a near-constant **offset of
+  order +25 m between the 2006 and 2020 lines** on top of a true signal of
+  roughly ±16 m, which is what produces no negatives, a floor above zero and a
+  gradient too weak to match either survey. **Until that is resolved the modern
+  rates should not be quoted at all** — not 3.81, not 3.34, not 3.50. Full
+  working: `working/updates/NRG_retreat_alongshore_probe_2026-08-29.md`. Note
+  the estimator matters here and nothing else did: nearest distance is always
+  positive, so it cannot see a floor, a sign change or progradation, which is why
+  this was invisible until 2026-08-29.
+- **The indicator mismatch against Pye & Blott is now measured, not asserted.**
+  Sampling the 2 m NRW LiDAR DTM along the same 117 shore normals (2026-08-29),
+  **the 2020 line lies 34 m landward of the DTM's 3 m contour, 20 m landward of
+  its 4 m contour and 86 m landward of its 0.5 m contour**, sitting at ≈9 m AOD
+  — 20–34 m landward of anything a dune toe could mean, and 5–6 m higher up the
+  profile. Pye & Blott's sequence is explicitly a **dune-toe** sequence. **These
+  are different features on the profile**, and retreat measured at a mid-face
+  contour agrees with retreat measured at the toe only if the profile translates
+  without changing shape. **This comparison is sound because the line and the
+  surface are three years apart**; the ones below are not.
+- **The elevations of the 2006 and 2012 lines on this DTM are withdrawn, and so
+  is the argument built on them.** A first version of this bullet reported all
+  three lines' elevations — 1.86 / 3.64 / 9.36 m AOD — and read their being
+  **monotonic in age** as evidence that the displacements are real retreat rather
+  than indicator drift. **That is void.** There is one surface here, dated after
+  all three lines: sampling it at a 2006 position gives the 2023 elevation of
+  that ground, not the elevation at which the line was drawn. The monotonic
+  ordering is then near-tautological — three positions ordered in space, read off
+  one surface that falls away seaward — and carries no information about what
+  each line was digitised at. **The DTM test says nothing either way about drift
+  inside the series.** Drift is untested, not weakened; the floor is unexplained;
+  and the fixed-feature control is the only discriminating test available.
+  (The KMLs' own altitude values are not involved — they are zero in the files,
+  and the raster was sampled at the lines' horizontal positions. The fault is
+  one DEM against four dates, not the KML encoding.)
+- **An incidental corroboration.** `20_spatial_figures.py` builds its erosion
+  front as the 0.5 m AOD waterline offset `COAST_DUNE_OFFSET_M` = 100 m inland.
+  Measured here, the 2020 line sits **86 m** landward of the 0.5 m contour — so
+  the assumed 100 m offset lands within ~14 m of the independently digitised
+  line. The constant is supported. It also means that front sits at ≈9 m AOD,
+  well up the dune, which is where the erosion field is being applied.
+- **The acceleration is not an artefact of the intervals covering different
+  lengths of coast.** Restricting all three to a common frontage by *extent*
+  moves nothing by more than 0.15 m yr⁻¹ (2.50 / 3.91 / 3.50 against 2.77 / 3.81
+  / 3.34). Restricting by *hit-success* instead does not work — `coast2012.kml`
+  runs ~400 m further south than the other two, and normals in that gap strike
+  its unmatched tail and return a spurious hit. A pass on 2026-08-29 that made
+  that mistake reported 22.8 m of progradation at the southern end; there is no
+  such progradation, and the report is withdrawn.
+- **A median is not a comparison to a profile.** The long-run run showed the
+  alongshore rate varying from 1.18 to 0.10 m yr⁻¹, and the median hides that.
+  Any comparison against a published profile figure must be made at the
+  shore-normal nearest that profile.
+- Short intervals amplify everything: a few metres of registration difference
+  becomes a whole m yr⁻¹.
 
 ---
 
@@ -524,8 +631,12 @@ might: if a felling record turns up giving November 2017 or January 2018, the
 date changes — and two of the three copies would silently not follow, while
 twelve modules carried on importing whichever one they happened to import.
 
-**Recommended, not done here:** centralise onto a single `config.py` constant,
-as D-016 did, and apply the environment-adequacy control — reproduce each
-affected script's committed output first, and require byte-identical results,
-since the value is unchanged and nothing should move. Deliberately not attempted
-from the desktop bridge, where 31 of 71 `src/` scripts cannot run at all.
+**Done, 2026-08-29 (T-17, D-084).** Centralised onto a single `config.py`
+constant and renamed `CLEARFELL_DATE`, "intervention date" being too vague for a
+constant that fixes the before/after split of the clearfell BACI. 152 occurrences
+across 22 files, with the environment-adequacy control applied: all 19 affected
+scripts reproduced byte-identical outputs, 483 of 483. The four intervention
+dates now live once, in `config.py`, as ISO strings. The earlier note here said
+this was "deliberately not attempted from the desktop bridge, where 31 of 71
+`src/` scripts cannot run at all" — that constraint was untested and wrong; it
+was six missing packages.

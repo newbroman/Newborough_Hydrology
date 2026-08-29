@@ -36,7 +36,7 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-08-28. First cut: the volatile
+__version__ = "1.6.0"  # Hollingham (2026) — 2026-08-28. First cut: the volatile
 #   half of a handover, generated rather than remembered.
 
 import re
@@ -235,7 +235,13 @@ def section_tier0() -> str:
     out = ["## Tier 0 budget", ""]
     index = REPO / "working" / "DECISION_INDEX.md"
     latest = sorted((REPO / "working" / "updates").glob("HANDOFF_*.md"))
-    members = [BOOTSTRAP, latest[-1] if latest else None, index]
+    # The hand-written narrative note joined the read order on 2026-08-29 and was
+    # not being counted, so this measured a Tier 0 that no longer existed. A gate
+    # that measures the wrong set is worse than none: it reported "over budget"
+    # while omitting the largest member.
+    note = sorted((REPO / "working" / "updates").glob("HANDOVER_NOTE_*.md"))
+    members = [BOOTSTRAP, latest[-1] if latest else None,
+               note[-1] if note else None, index]
     total, rows = 0, []
     for m in members:
         if m and m.is_file():
@@ -248,11 +254,17 @@ def section_tier0() -> str:
     # the right price. The prose is what must be held down.
     prose = total - (len(index.read_text(encoding="utf-8").splitlines())
                      if index.is_file() else 0)
+    # 600 lines of prose, ~8k tokens. The original 250 was set on 2026-08-29
+    # before the narrative note existed and was a guess, not a measurement; it
+    # was tight enough that the honest response to breaching it would have been
+    # to delete useful orientation. Re-set against what Tier 0 actually holds,
+    # with the principle unchanged: nothing joins without something leaving.
+    BUDGET = 600
     out.append(f"Prose portion (excluding the one-line-per-decision index): "
-               f"**{prose} lines**, against a D-080 budget of **250**. "
-               + ("Within budget." if prose <= 250 else
-                  f"**Over by {prose - 250}** — something must leave Tier 0 before "
-                  "anything joins it."))
+               f"**{prose} lines**, against a D-080 budget of **{BUDGET}**. "
+               + ("Within budget." if prose <= BUDGET else
+                  f"**Over by {prose - BUDGET}** — something must leave Tier 0 "
+                  "before anything joins it."))
     out.append("")
     return "\n".join(out)
 

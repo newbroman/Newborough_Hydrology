@@ -945,6 +945,32 @@ OUT_39_FIG                = DIR_39 / "39_04_hindcast.png"
 OUT_39_FULL_SITE          = DIR_39 / "39_05_full_hindcast_site.csv"
 OUT_39_FULL_DECADAL       = DIR_39 / "39_06_full_hindcast_decadal.csv"
 OUT_39_FULL_FIG           = DIR_39 / "39_07_full_hindcast.png"
+
+# --- Script 40 — shoreline-retreat measurement ---------------------------------
+DIR_40 = OUT_DIR / "40_shoreline_retreat"
+DIR_40.mkdir(parents=True, exist_ok=True)
+OUT_40_EPOCH_SERIES    = DIR_40 / "40_01_epoch_series.csv"
+OUT_40_NORMALS         = DIR_40 / "40_02_normals.csv"
+OUT_40_CONTROL         = DIR_40 / "40_03_control.csv"
+OUT_40_GENERALISATION  = DIR_40 / "40_04_generalisation.csv"
+OUT_40_DTM_PROFILE     = DIR_40 / "40_05_dtm_profile.csv"
+OUT_40_FIG             = DIR_40 / "40_01_alongshore_profile.png"
+
+# Coastline epochs. coast1899.kml carries TWO placemarks and labels neither;
+# Script 40 identifies them by which reproduces the D-060 baseline rather than
+# trusting index order, so a re-export that reorders them cannot silently swap
+# the high-water line for the dune edge.
+DATA_KML_COAST_1899    = data_geo("coast1899.kml")
+DATA_KML_COAST_2006    = data_geo("coast2006.kml")
+DATA_KML_COAST_2012    = data_geo("coast2012.kml")
+DATA_KML_COAST_2020    = data_geo("coast2020.kml")
+# The fixed-feature registration control, owed by Martin (three hard-edged
+# features, opposite ends plus mid-frontage). Absent is a valid state: Script 40
+# reports "control: absent" and its gate treats absent as failing.
+DATA_KML_SHORE_CONTROL = data_geo("shore_control.kml")
+# Withdrawn as evidence, retained as the D-060 regression anchor. NOT a
+# measurement input - see data/geo/GEO_PROVENANCE.md.
+DATA_KML_COAST_2015_FIXTURE = DATA_GEO_DIR / "_fixtures" / "DCoast_2015.kml"
 OUT_39_RESULTS            = DIR_39 / "39_results.txt"
 
 # Script 26 — Van Willegen et al. (2025) 5-year MSL aggregation (Phase 13)

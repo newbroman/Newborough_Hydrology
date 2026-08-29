@@ -334,6 +334,7 @@ PHASE_16 = [
     Step("34_window_sensitivity.py",            "MSL5 two-window sensitivity demonstration figure (\u00a75.7.5)",       "A"),
     Step("38_coastal_transect.py",              "Coast-to-inland MAM transect \u2014 observational delta_0 diagnostic (\u00a75.7)", "A"),
     Step("39_ccw_hindcast.py",                  "SSM hindcast against the 1989\u201396 CCW record \u2014 out-of-sample validation (\u00a75.7.8)", "A"),
+    Step("40_shoreline_retreat.py",             "Shoreline retreat from the digitised coastline epochs \u2014 signed shore-normal displacement; WITHHOLDS its own headline until the gate passes (D-085)", "A"),
 ]
 PHASE_17 = [
     Step("09f_management_effects.py",  "Figure: management-interventions + coastal-retreat spatial reach (\u00a75.8; two-pass, reads Scripts 20/25/09d/10a)",   "D"),
@@ -383,12 +384,12 @@ ALL_PHASES = [
 # this pipeline and is cited in the report, which is what puts it in tier A
 # rather than among the opt-in diagnostics.
 _DOCUMENTED_COUNTS = {
-    "total_registered":            50,
+    "total_registered":            51,
     "total_phases":                17,
-    "by_tier.analytical_toplevel": 40,
+    "by_tier.analytical_toplevel": 41,
     "by_tier.display_utility":      4,
     "by_tier.optin_diagnostic":     6,
-    "by_exec.default":             47,
+    "by_exec.default":             48,
     "by_exec.optin":                3,
     "analytical_phases":           15,   # phases carrying >=1 tier-A step; emitted
                                          # for completeness, NOT cited in any document

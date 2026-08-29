@@ -113,6 +113,15 @@ echo "── geographic inputs ────────────────�
 python3 tools/geo_provenance.py || true
 
 echo
+echo "── withheld headlines ───────────────────────────────────────────────"
+# Script 40 withholds its own rate when its gate fails (D-085). A silent
+# absence reads as success, so the state is REPORTED here. Reported, not gated:
+# withholding is the script working, and failing the build on it would teach us
+# to route around the gate. What would be a real failure is the file vanishing
+# or the D-060 regression breaking, and both are visible below.
+python3 tools/withheld_report.py || true
+
+echo
 echo "── decisions ────────────────────────────────────────────────────────"
 python3 tools/decision_lint.py --quiet || rc=1
 # Every entry must say what it governs, or context_for cannot surface it and the

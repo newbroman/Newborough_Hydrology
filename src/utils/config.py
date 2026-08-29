@@ -40,7 +40,13 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.17.0"  # Hollingham (2026) — 2026-08-29. COAST_RETREAT_EFFECTIVE_M
+__version__ = "1.18.0"  # Hollingham (2026) — 2026-08-29. Constants for Script 40,
+#   the shoreline-retreat measurement (spec signed off). SHORE_NORMAL_SPACING_M,
+#   SHORE_NORMAL_MAX_RANGE_M and PUBLISHED_MAX_PROFILE_RATE (Pye & Blott 2024,
+#   carrying its dune-toe indicator with it). The two gate tolerances are
+#   declared as None on purpose: the spec forbids choosing them before the
+#   distributions they judge exist, and Script 40 treats None as failing.
+# v1.17.0  # Hollingham (2026) — 2026-08-29. COAST_RETREAT_EFFECTIVE_M
 #   (105 m) WITHDRAWN (W80). It was an input to a Script 37 construction that the
 #   script no longer performs, and the successor — a fitted coastal scale factor
 #   of 0.51, CI −0.10 to 1.12 — disagrees with it by a factor of about four and
@@ -346,6 +352,43 @@ REACH_QUOTE_NEAREST_M = 10.0
 SCRAPE_RISE_BUFFER_M = 10.0
 COAST_RETREAT_M      = 6.0
 COAST_RETREAT_RATE   = 8.3
+
+# --- Shoreline-retreat measurement (Script 40) ---------------------------------
+# The measurement that makes the retreat series a pipeline output rather than a
+# session computation (D-085, D-086). Its estimator is SIGNED shore-normal
+# displacement: nearest distance is always positive and so cannot see
+# progradation, a sign change, or a floor, which is why a field with no
+# progradation anywhere once read as a clean rate.
+#
+#   SHORE_NORMAL_SPACING_M   : spacing of shore normals along the later line (m).
+#   SHORE_NORMAL_MAX_RANGE_M : bound on the ray search; beyond it, no hit -> NaN,
+#                              never zero.
+SHORE_NORMAL_SPACING_M   = 25.0
+SHORE_NORMAL_MAX_RANGE_M = 400.0
+
+# Highest independently surveyed retreat rate on this frontage (m/yr).
+# Pye & Blott (2024), NRW Evidence Report 787: 16.3 m over 2013-2022 at the most
+# active point of the Twyni Penrhos profile. THE INDICATOR TRAVELS WITH THE
+# NUMBER and is the whole point of the comparison: theirs is a DUNE-TOE sequence,
+# while the digitised lines are the warren's seaward EDGE, which sits 20-34 m
+# landward of the 3-4 m AOD toe band and 5-6 m higher up the profile (measured
+# against the LiDAR DTM, 2026-08-29). The two agree only if the profile
+# translates without changing shape. Used by Script 40's floor test, where a
+# whole-frontage MINIMUM at or above this most-active-point MAXIMUM is taken as
+# evidence that the field is not a measurement of a shoreline.
+PUBLISHED_MAX_PROFILE_RATE = 1.8
+
+# Gate tolerances for Script 40 — DELIBERATELY UNSET (None).
+# Per the signed-off spec, these are not chosen before the distributions they
+# judge are known: a threshold guessed ahead of the data is a guess dressed as a
+# gate. Script 40 reports the measured control displacement and sagitta bound and
+# treats None as FAILING, so the headline stays withheld until they are set from
+# observation. The acceptance criterion for whichever values are chosen is that
+# they must be CAPABLE OF FAILING on the committed lines - a tolerance that would
+# not flag the present ~25 m offset is decoration - and Script 40 asserts that
+# at run time rather than leaving it to the reader.
+SHORE_CONTROL_TOLERANCE_M        = None
+SHORE_GENERALISATION_TOLERANCE_M = None
 
 # --- Coastal-gradient reference distance (Script 25) ---------------------------
 # The distance at which the headline coast-edge trend is quoted (m).

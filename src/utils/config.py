@@ -40,7 +40,14 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.16.0"  # Hollingham (2026) — 2026-08-29. Coastal-retreat
+__version__ = "1.17.0"  # Hollingham (2026) — 2026-08-29. COAST_RETREAT_EFFECTIVE_M
+#   (105 m) WITHDRAWN (W80). It was an input to a Script 37 construction that the
+#   script no longer performs, and the successor — a fitted coastal scale factor
+#   of 0.51, CI −0.10 to 1.12 — disagrees with it by a factor of about four and
+#   does not resolve from zero. Read by nothing; quoted by one report sentence,
+#   which is rewritten in the same batch. COAST_RETREAT_2005_2025_M is KEPT: it
+#   is an external observation, and D-075 puts inputs in this file.
+# v1.16.0  # Hollingham (2026) — 2026-08-29. Coastal-retreat
 #   commentary corrected (W77). THREE defects, all in comments, no value changed.
 #   (1) One Forgrave ≈50 m was cited to two incompatible windows — "2014–2020"
 #   for COAST_RETREAT_RATE (50/6 ≈ 8.3) and "since 2006" for
@@ -462,15 +469,22 @@ FAR_FIELD_REACH_MULTIPLE = 1.6
 # disputed as above. NOT derived from COAST_RETREAT_RATE × 20, which would give
 # ~166 m and overstate the accumulation.
 COAST_RETREAT_2005_2025_M = 50.0
-# Effective HYDRAULIC coastal retreat, calibrated from the Script 37 groundwater
-# validation (n=24 clean wells, 2005–2025 window, single-parameter OLS with SLR
-# fixed at 4 mm/yr). Distinct from COAST_RETREAT_2005_2025_M above: the larger
-# effective value reflects integrated hydraulic response across the full bay
-# frontage against the reference transect, the dune toe and the hydraulic
-# boundary not being obliged to move together. Scales linearly with window
-# duration. Script 37 does not import this; the calibration is its provenance,
-# not a live dependency.
-COAST_RETREAT_EFFECTIVE_M = 105.0
+# COAST_RETREAT_EFFECTIVE_M (105.0 m) WAS HERE AND IS WITHDRAWN, 2026-08-29
+# (Martin's ruling, W80). It was a real INPUT, not a stray: at commit 01db41d
+# (2026-07-06) Script 37 drove its coastal field with
+#     h0_mm = COAST_RETREAT_EFFECTIVE_M * (T_yr / REF_WINDOW_YR) * δ₀ / rate
+# Script 37 was then rewritten to FIT that quantity rather than assume it, and
+# the constant was orphaned by its own consumer being improved. The successor
+# disagrees with it: the fitted coastal scale factor over 2005–2025 is 0.51,
+# 95% CI −0.10 to 1.12 (outputs/37_driver_validation/37_scale_factors_by_window.csv),
+# which spans zero and unity, where 105 m against a physical 50 m would need
+# ≈2.1. Its comment also described an n=24 single-parameter fit that the current
+# script does not perform. The one document sentence that quoted it — report9
+# §4.10.6 — is rewritten to say what §4.12.1 already said: the record does not
+# resolve whether the hydraulic boundary moved further than the dune toe.
+# Do not reinstate a calibrated effective retreat here: per D-075 a fitted value
+# in a constants file is a hard-coded result that drifts from the fit that made
+# it, which is precisely what happened.
 
 # Chronic coastal-drawdown accumulation window (yr) — the near-term horizon over
 # which the fitted coastal-decline rate δ₀ is accumulated to a source drawdown

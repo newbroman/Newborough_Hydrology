@@ -131,7 +131,20 @@ import time
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.5.0"  # 2026-08-21: Script 39 registered in Phase 16 (tier A,
+__version__ = "2.6.0"  # 2026-08-29: Script 40 registered in Phase 16 (tier A,
+#   default). _DOCUMENTED_COUNTS moves deliberately: registered 50 -> 51,
+#   analytical top-level 40 -> 41, default 47 -> 48. Phase count unchanged.
+#   THIS BUMP IS PART OF A FIX, not bookkeeping. Script 40 was registered earlier
+#   the same day WITHOUT bumping this, and a pipeline run from a tree predating
+#   the registration then rewrote pipeline_manifest.json back to 50 steps with
+#   Script 40 absent. Nothing noticed, because the manifest records
+#   pipeline_version and the version had not moved: a stale manifest and a
+#   current one were indistinguishable. build_manifest() now warns when it is
+#   about to write an OLDER orchestrator version over a newer one, and
+#   tools/manifest_lint.py gates the committed manifest against the live
+#   orchestrator. Registering a step without bumping this is now a gate failure.
+#
+# v2.5.0  # 2026-08-21: Script 39 registered in Phase 16 (tier A,
 #   default) — the SSM hindcast against the 1989-96 CCW record, the pipeline's
 #   first out-of-sample validation. _DOCUMENTED_COUNTS moves deliberately:
 #   registered 49 -> 50, analytical top-level 39 -> 40, default 46 -> 47.
@@ -469,6 +482,15 @@ def _compress_ranges(indices: list) -> str:
     return ", ".join(f"{a}" if a == b else f"{a}\u2013{b}" for a, b in ranges)
 
 
+def _ver_tuple(v: str) -> tuple:
+    """Dotted version as a comparable tuple; unparseable parts sort as 0."""
+    out = []
+    for part in str(v).split("."):
+        digits = "".join(ch for ch in part if ch.isdigit())
+        out.append(int(digits) if digits else 0)
+    return tuple(out)
+
+
 def build_manifest(write: bool = True) -> dict:
     """Build (and, by default, write) outputs/pipeline_manifest.json — the
     committed, machine-readable source of truth for step/phase totals and
@@ -507,6 +529,26 @@ def build_manifest(write: bool = True) -> dict:
         "steps": steps_out,
     }
     if write:
+        # Refuse to downgrade SILENTLY. A run from a tree older than the one that
+        # last wrote this file reverted it to 50 steps on 2026-08-29, dropping a
+        # registered script, and nothing noticed until a git status looked odd.
+        try:
+            prior = json.loads(OUT_MANIFEST.read_text(encoding="utf-8"))
+            pv = str(prior.get("pipeline_version", ""))
+            if pv and _ver_tuple(pv) > _ver_tuple(__version__):
+                print(f"  [WARNING] the manifest on disk was written by orchestrator "
+                      f"{pv}, which is NEWER than this one ({__version__}). Writing "
+                      f"it anyway would be a DOWNGRADE — check you are on the "
+                      f"current tree before trusting the result.")
+            elif pv and _ver_tuple(pv) == _ver_tuple(__version__) and \
+                    prior.get("total_registered") != manifest["total_registered"]:
+                print(f"  [WARNING] same orchestrator version ({pv}) but the step "
+                      f"count moved {prior.get('total_registered')} -> "
+                      f"{manifest['total_registered']}. Bump __version__ when the "
+                      f"registry changes, or a stale manifest cannot be told from "
+                      f"a current one.")
+        except Exception:
+            pass
         OUT_DIR.mkdir(exist_ok=True)
         with open(OUT_MANIFEST, "w", encoding="utf-8") as fh:
             json.dump(manifest, fh, indent=2)

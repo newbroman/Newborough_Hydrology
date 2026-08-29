@@ -960,17 +960,32 @@ OUT_40_FIG             = DIR_40 / "40_01_alongshore_profile.png"
 # Script 40 identifies them by which reproduces the D-060 baseline rather than
 # trusting index order, so a re-export that reorders them cannot silently swap
 # the high-water line for the dune edge.
+# The measurement series, re-digitised 2026-08-29 in ONE sitting by one operator
+# at four epochs. It replaced the 2026-08-28 series after the new 1/1/2006 line -
+# the same imagery date traced twice - showed digitising repeatability of 1.71 m
+# median, and sampling every epoch on one set of normals localised the old
+# series' inflated recent rate to a single displaced line (D-087).
 DATA_KML_COAST_1899    = data_geo("coast1899.kml")
 DATA_KML_COAST_2006    = data_geo("coast2006.kml")
-DATA_KML_COAST_2012    = data_geo("coast2012.kml")
-DATA_KML_COAST_2020    = data_geo("coast2020.kml")
+DATA_KML_COAST_2017    = data_geo("coast2017.kml")
+DATA_KML_COAST_2021    = data_geo("coast2021.kml")
+DATA_KML_COAST_2026    = data_geo("coast2026.kml")
+# Withdrawn 2026-08-29, retained for corroboration and audit only - NOT inputs.
+# coast2020 is the one that failed: it sits 0.59 m from the 2026 line when six
+# years of retreat should put it ~12 m seaward. coast2006/coast2012 sit near the
+# new series and are kept because they agree, not because they are used.
+DATA_KML_COAST_SUPERSEDED_DIR = DATA_GEO_DIR / "_superseded"
 # The fixed-feature registration control, owed by Martin (three hard-edged
 # features, opposite ends plus mid-frontage). Absent is a valid state: Script 40
 # reports "control: absent" and its gate treats absent as failing.
 DATA_KML_SHORE_CONTROL = data_geo("shore_control.kml")
-# Withdrawn as evidence, retained as the D-060 regression anchor. NOT a
-# measurement input - see data/geo/GEO_PROVENANCE.md.
-DATA_KML_COAST_2015_FIXTURE = DATA_GEO_DIR / "_fixtures" / "DCoast_2015.kml"
+# DCoast_2015.kml WAS HERE and is DELETED, 2026-08-29 (Martin: "we should remove
+# DCoast 2015 as its not verifiable. I cant tell you what it represents"). It had
+# been retained as the D-060 regression anchor; that role is gone and is not
+# missed, because D-060's published 0.65 m/yr is reproduced WITHOUT it - the 1899
+# dune edge against the new 2006 line gives 0.645 m/yr over 107 years, a route
+# whose every input has known provenance. Script 40's regression test now uses
+# that pairing. See D-087.
 OUT_39_RESULTS            = DIR_39 / "39_results.txt"
 
 # Script 26 — Van Willegen et al. (2025) 5-year MSL aggregation (Phase 13)

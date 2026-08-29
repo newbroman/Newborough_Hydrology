@@ -47,7 +47,18 @@ Reading order for anyone picking this up
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-08-29. First issue, to the
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-08-29. Re-based on the
+#   four-epoch series re-digitised in one sitting (2006 / 2017 / 2021 / 2026),
+#   which carries its own control: the new 1/1/2006 line is the same imagery date
+#   as the withdrawn one, and the pair measures digitising repeatability at
+#   1.71 m median. DCoast_2015.kml deleted as unverifiable, so the D-060 anchor
+#   is re-pointed at 1899 -> 2006 (0.645 m/yr against a published 0.65) and a
+#   SECOND anchor added that depends on no historical file at all: a line
+#   translated by a known distance must measure as that distance. The
+#   no-progradation gate condition is dropped - it over-triggers on a long span
+#   and the min-rate condition does the real work. See D-087.
+#
+# v1.0.0  # Hollingham (2026) — 2026-08-29. First issue, to the
 #   signed-off spec. Signed shore-normal displacement; common frontage
 #   restricted by EXTENT rather than hit-success (a spurious hit is a hit, and
 #   a hit-success mask produced a phantom 22.8 m of southern progradation on
@@ -92,21 +103,38 @@ TOL_GENERAL  = config.SHORE_GENERALISATION_TOLERANCE_M
 EPOCHS = [
     ("1899", paths.DATA_KML_COAST_1899, "1899-01-01"),
     ("2006", paths.DATA_KML_COAST_2006, "2006-01-01"),
-    ("2012", paths.DATA_KML_COAST_2012, "2012-05-26"),
-    ("2020", paths.DATA_KML_COAST_2020, "2020-04-24"),
+    ("2017", paths.DATA_KML_COAST_2017, "2017-03-24"),
+    ("2021", paths.DATA_KML_COAST_2021, "2021-04-04"),
+    ("2026", paths.DATA_KML_COAST_2026, "2026-03-31"),
 ]
-FIXTURE_EPOCH = ("2015", paths.DATA_KML_COAST_2015_FIXTURE, "2015-01-01")
 
 # The pairs reported. Consecutive intervals show the shape of the series; the
 # two spans are what the documents would quote.
-INTERVALS = [("1899", "2006"), ("2006", "2012"), ("2012", "2020"),
-             ("2006", "2020"), ("1899", "2020")]
-FLOOR_INTERVAL = ("2006", "2020")   # longest modern interval; the floor test
+INTERVALS = [("1899", "2006"), ("2006", "2017"), ("2017", "2021"),
+             ("2021", "2026"), ("2006", "2026"), ("1899", "2026")]
+FLOOR_INTERVAL = ("2006", "2026")   # longest modern interval; the floor test
 
-# D-060's published result, the only external anchor the method has.
-D060_DISPLACEMENT_M = 75.2
-D060_RATE_M_YR      = 0.65
-D060_TOLERANCE_PCT  = 10.0
+# D-060's published long-run rate, the external anchor. It was originally
+# computed against DCoast_2015.kml, which was DELETED on 2026-08-29 as
+# unverifiable. The anchor survived the deletion: the same 1899 dune edge
+# measured against the 2006 line of the re-digitised series returns 0.645 m/yr
+# over 107 years, so the published figure is reproduced by a route whose every
+# input has known provenance. RATES are compared, not displacements, because the
+# endpoints now differ.
+D060_RATE_M_YR     = 0.65
+D060_TOLERANCE_PCT = 10.0
+
+# Second anchor, independent of every historical file: a line translated by a
+# known distance must measure as that distance. It tests the ESTIMATOR rather
+# than agreement with a past computation, so it cannot rot when an input is
+# withdrawn -- which is exactly what happened to the first one.
+SYNTHETIC_OFFSET_M    = 37.5
+# Not exact, and the reason is geometric rather than sloppy: a RIGID translation
+# of a curved line is not a constant shore-normal offset along it, so the median
+# recovers the translation to about a percent. The tolerance is set to catch a
+# sign error or a broken estimator, which is what it is for, not to certify
+# sub-metre accuracy.
+SYNTHETIC_TOLERANCE_M = 1.0
 
 
 # ======================================================================
@@ -175,6 +203,24 @@ def _normals(P, inland_xy):
 
 def _bearings_deg(N):
     return (np.degrees(np.arctan2(N[:, 0], N[:, 1])) + 360.0) % 360.0
+
+
+def _cone_mask(N, half_angle_deg=90.0):
+    """Normals within `half_angle_deg` of the frontage's mean seaward direction.
+
+    A near-duplicate or doubled-back vertex makes the local tangent degenerate
+    and can flip a normal by ~180 degrees. One such normal contributes a
+    sign-flipped displacement to the median, so they are EXCLUDED rather than
+    trusted -- and counted, because a frontage where many fall outside the cone
+    is one this method should not be measuring at all.
+
+    The mean direction is a circular mean, not an average of bearings: bearings
+    near 0/360 average to nonsense.
+    """
+    mean = N.mean(axis=0)
+    mean = mean / float(np.hypot(*mean))
+    cos_lim = math.cos(math.radians(half_angle_deg))
+    return (N @ mean) >= cos_lim, mean
 
 
 def _ray_signed(p, n, Q, max_range):
@@ -273,8 +319,10 @@ def _measure(earlier, later, years, inland_xy, keep_lo=None, keep_hi=None):
     """
     S, arc = _resample(later, SPACING_M)
     N = _normals(S, inland_xy)
+    good, _ = _cone_mask(N)
     within = (np.ones(len(S), dtype=bool) if keep_lo is None
               else (S[:, 1] >= keep_lo) & (S[:, 1] <= keep_hi))
+    within = within & good
     ray = np.full(len(S), np.nan)
     near = np.full(len(S), np.nan)
     for k in np.where(within)[0]:
@@ -416,7 +464,7 @@ def _dtm_profile(measured, lat0, lon0):
         return band[row, col]
 
     S, N, ok = measured["_S"], measured["_N"], measured["_ok"]
-    rows = [{"line": "coast2020", "elevation_median_m_aod": float(np.median(z_at(S)[ok]))}]
+    rows = [{"line": "coast2026", "elevation_median_m_aod": float(np.median(z_at(S)[ok]))}]
     offs = np.arange(0.0, 260.0, 2.0)
     prof = np.stack([z_at(S + o * N) for o in offs], axis=1)
     for thr in (0.5, 2.0, 3.0, 4.0):
@@ -425,7 +473,7 @@ def _dtm_profile(measured, lat0, lon0):
             below = np.where(prof[k] <= thr)[0]
             hits.append(offs[below[0]] if len(below) else np.nan)
         h = np.array(hits, dtype=float)
-        rows.append({"line": "coast2020",
+        rows.append({"line": "coast2026",
                      "contour_m_aod": thr,
                      "seaward_distance_median_m": float(np.nanmedian(h))})
     return pd.DataFrame(rows)
@@ -448,10 +496,13 @@ def _evaluate_gate(floor, control_worst, sagitta_bound):
     if floor is None:
         reasons.append("floor test: the floor interval could not be measured")
     else:
-        if floor["n_progradation"] == 0:
-            reasons.append(
-                f"floor test: {floor['n']} of {floor['n']} normals show retreat, "
-                f"none progradation")
+        # The no-progradation condition was DROPPED 2026-08-29 (Martin's ruling,
+        # D-087). It caught the old series, but so did the min-rate condition,
+        # and it over-triggers on a long span: a coast retreating at ~2.3 m/yr
+        # for two decades retreating everywhere is expected, not suspicious. The
+        # sub-intervals do carry progradation, so the field is not sign-locked,
+        # and n_progradation is still emitted for every interval - reported,
+        # not gated.
         if floor["min_rate_m_yr"] > PUBLISHED_MAX:
             reasons.append(
                 f"floor test: least-eroding normal {floor['min_rate_m_yr']:.3f} m/yr "
@@ -493,38 +544,58 @@ def _assert_thresholds_can_fail(floor):
              f"not a gate")
 
 
-def _regression_test(edge_1899, inland_xy, lat0, lon0):
-    """Reproduce D-060's published 1899 dune edge -> 2015 result.
+def _regression_test(edge_1899, line_2006, inland_xy):
+    """Reproduce D-060's published long-run rate, 0.65 m/yr.
 
-    The only external anchor the method has. The 2015 line is withdrawn as
-    evidence and retained ONLY for this; it is not a measurement input.
+    Measured UNRESTRICTED, on D-060's own basis: imposing this project's masking
+    on a historical result and then calling the difference a failure compares two
+    different quantities. That was established the hard way -- restricting to the
+    modern common frontage returned 87.8 m against a published 75.2 m, a 16.8%
+    "failure" that was entirely the mask.
 
-    Measured UNRESTRICTED, on D-060's own basis. That matters and was found by
-    this test failing: restricting to the modern common frontage returns
-    87.8 m (16.8% off) and to this pair's own overlap 86.0 m (14.3% off),
-    because the excluded normals sit at the ends of the frontage where
-    displacement is smallest, so cutting them raises the median. Unrestricted
-    returns 74.2 m, within 1.3%. The extent choice is nearly free on the modern
-    series and is NOT free on the 1899 comparison, whose displacement varies far
-    more alongshore -- which is itself worth knowing.
+    The pairing changed on 2026-08-29 when DCoast_2015.kml was deleted as
+    unverifiable. It is now 1899 dune edge -> 2006, and the RATE is compared,
+    the endpoint no longer matching D-060's.
     """
-    path = paths.DATA_KML_COAST_2015_FIXTURE
-    if not path.exists():
-        warn("regression fixture absent — D-060 reproduction NOT checked")
-        return None
-    line = _to_local_m(_read_kml(path)[0], lat0, lon0)
-    m = _measure(edge_1899, line, 116.0, inland_xy)
+    m = _measure(edge_1899, line_2006, 107.0, inland_xy)
     if m is None:
-        warn("regression fixture produced no measurable normals")
+        warn("D-060 anchor produced no measurable normals")
         return None
-    dev = abs(m["median_m"] - D060_DISPLACEMENT_M) / D060_DISPLACEMENT_M * 100.0
+    dev = abs(m["rate_m_yr"] - D060_RATE_M_YR) / D060_RATE_M_YR * 100.0
     ok = dev <= D060_TOLERANCE_PCT
     (info if ok else warn)(
-        f"D-060 reproduction: {m['median_m']:.3f} m / {m['rate_m_yr']:.3f} m/yr "
-        f"against published {D060_DISPLACEMENT_M} m / {D060_RATE_M_YR} m/yr "
+        f"D-060 anchor: {m['rate_m_yr']:.3f} m/yr (from {m['median_m']:.3f} m over "
+        f"107 yr) against published {D060_RATE_M_YR} m/yr "
         f"({dev:.1f}% — {'within' if ok else 'OUTSIDE'} {D060_TOLERANCE_PCT:.0f}%)")
     return {"median_m": m["median_m"], "rate_m_yr": m["rate_m_yr"],
             "deviation_pct": dev, "passed": ok}
+
+
+def _synthetic_test(line, inland_xy):
+    """A line translated landward by a known distance must measure as that.
+
+    Independent of every historical file, so it cannot be lost when an input is
+    withdrawn. The translation is applied along the mean seaward normal, and the
+    measurement must return SYNTHETIC_OFFSET_M.
+    """
+    S, _ = _resample(line, SPACING_M)
+    _, n_mean = _cone_mask(_normals(S, inland_xy))
+    # LANDWARD, i.e. -n: the shifted line stands in for a LATER, retreated
+    # shoreline, so the original is the seaward "earlier" one. Translating
+    # seaward instead returns a correctly-signed progradation and reads as a
+    # failure -- which is how this test found its own sign error on first run.
+    shifted = line - SYNTHETIC_OFFSET_M * n_mean
+    m = _measure(line, shifted, 1.0, inland_xy)
+    if m is None:
+        warn("synthetic anchor produced no measurable normals")
+        return None
+    err = abs(m["median_m"] - SYNTHETIC_OFFSET_M)
+    ok = err <= SYNTHETIC_TOLERANCE_M
+    (info if ok else warn)(
+        f"synthetic anchor: a {SYNTHETIC_OFFSET_M:.1f} m translation measures as "
+        f"{m['median_m']:.3f} m (error {err:.3f} m — "
+        f"{'within' if ok else 'OUTSIDE'} {SYNTHETIC_TOLERANCE_M:.1f} m)")
+    return {"measured_m": m["median_m"], "error_m": err, "passed": ok}
 
 
 def _figure(measured, out_path):
@@ -567,27 +638,33 @@ def main():
     info(f"inland reference (site-boundary centroid) at "
          f"{inland_xy[0]:.0f}, {inland_xy[1]:.0f} m local")
 
-    edge_i, hwm_i, meds = _identify_1899_lines(lines["1899"], lines["2020"][0], inland_xy)
+    edge_i, hwm_i, meds = _identify_1899_lines(lines["1899"], lines["2026"][0], inland_xy)
     info(f"coast1899 placemarks resolved by measurement, not index order: "
          f"dune edge = placemark {edge_i} (median {meds[edge_i]:.1f} m to 2020), "
          f"high water = placemark {hwm_i} ({meds[hwm_i]:.1f} m)")
     epoch_line = {"1899": lines["1899"][edge_i], "2006": lines["2006"][0],
-                  "2012": lines["2012"][0], "2020": lines["2020"][0]}
+                  "2017": lines["2017"][0], "2021": lines["2021"][0],
+                  "2026": lines["2026"][0]}
     epoch_date = {n: pd.Timestamp(d) for n, _, d in EPOCHS}
 
     phase(2, "Common frontage and normal orientation")
-    keep_lo, keep_hi = _common_extent([epoch_line[n] for n in ("2006", "2012", "2020")],
-                                      SPACING_M)
+    keep_lo, keep_hi = _common_extent(
+        [epoch_line[n] for n in ("2006", "2017", "2021", "2026")], SPACING_M)
     info(f"common northing band {keep_lo:.0f} to {keep_hi:.0f} m local "
          f"(span {keep_hi - keep_lo:.0f} m) — restricted by EXTENT, not hit-success")
-    S_chk, _ = _resample(epoch_line["2020"], SPACING_M)
-    brg = _bearings_deg(_normals(S_chk, inland_xy))
-    spread = float(brg.max() - brg.min())
-    if spread > 90.0:
-        raise RuntimeError(f"seaward normals span {spread:.0f} deg — orientation is "
-                           f"unreliable on this frontage; refusing to measure")
-    info(f"seaward normals {brg.min():.0f}–{brg.max():.0f} deg "
-         f"(spread {spread:.0f} deg, inside the 90 deg cone)")
+    S_chk, _ = _resample(epoch_line["2026"], SPACING_M)
+    N_chk = _normals(S_chk, inland_xy)
+    good, _mean = _cone_mask(N_chk)
+    brg = _bearings_deg(N_chk)
+    bad = int((~good).sum())
+    frac = bad / len(good)
+    if frac > 0.05:
+        raise RuntimeError(f"{bad} of {len(good)} seaward normals ({frac:.0%}) fall "
+                           f"outside the cone — orientation is unreliable on this "
+                           f"frontage; refusing to measure")
+    info(f"seaward normals {np.percentile(brg[good], 1):.0f}–"
+         f"{np.percentile(brg[good], 99):.0f} deg across {int(good.sum())} normals; "
+         f"{bad} degenerate ({frac:.1%}) excluded")
 
     phase(3, "Signed shore-normal displacement")
     # Primary basis: each interval on the common extent of ITS OWN two lines,
@@ -611,7 +688,8 @@ def main():
         step(f"{a}→{b}: median {m['median_m']:.3f} m over {yrs:.1f} yr "
              f"= {m['rate_m_yr']:.3f} m/yr  (n={m['n']}, "
              f"progradation {m['n_progradation']}, nearest {m['nearest_median_m']:.3f} m)")
-    for a, b in (("2006", "2012"), ("2012", "2020"), ("2006", "2020")):
+    for a, b in (("2006", "2017"), ("2017", "2021"), ("2021", "2026"),
+                 ("2006", "2026")):
         mc = _measure(epoch_line[a], epoch_line[b], years[(a, b)], inland_xy,
                       keep_lo, keep_hi)
         modern_common[(a, b)] = mc
@@ -621,7 +699,8 @@ def main():
 
     phase(4, "Diagnostics")
     gen_df, sagitta = _generalisation_bound(
-        [epoch_line[n] for n in ("2006", "2012", "2020")], ["coast2006", "coast2012", "coast2020"])
+        [epoch_line[n] for n in ("2006", "2017", "2021", "2026")],
+        ["coast2006", "coast2017", "coast2021", "coast2026"])
     info(f"chord-sagitta bound {sagitta:.3f} m (measured, not densified away)")
     ctl_df, ctl_worst = _control(inland_xy, keep_lo, keep_hi, lat0, lon0)
     if ctl_worst is None:
@@ -631,8 +710,9 @@ def main():
     dtm_df = (_dtm_profile(modern_common[FLOOR_INTERVAL], lat0, lon0)
               if modern_common.get(FLOOR_INTERVAL) else pd.DataFrame())
 
-    phase(5, "Regression test against D-060")
-    reg = _regression_test(epoch_line["1899"], inland_xy, lat0, lon0)
+    phase(5, "Anchors")
+    reg = _regression_test(epoch_line["1899"], epoch_line["2006"], inland_xy)
+    syn = _synthetic_test(epoch_line["2026"], inland_xy)
 
     phase(6, "Gate")
     floor = modern_common.get(FLOOR_INTERVAL)
@@ -672,16 +752,24 @@ def main():
         # The regression result belongs in a committed file, not only the
         # console: it is the evidence that the estimator still reproduces the
         # one published number this method can be checked against.
-        rows.append({"from_epoch": "1899", "to_epoch": "2015",
-                     "basis": "d060_regression_unrestricted",
-                     "from_date": "1899-01-01", "to_date": "2015-01-01",
+        rows.append({"from_epoch": "1899", "to_epoch": "2006",
+                     "basis": "d060_anchor_unrestricted",
+                     "from_date": "1899-01-01", "to_date": "2006-01-01",
                      "years": 116.0, "median_m": reg["median_m"],
                      "rate_m_yr": reg["rate_m_yr"],
-                     "d060_published_m": D060_DISPLACEMENT_M,
                      "d060_published_rate_m_yr": D060_RATE_M_YR,
                      "deviation_pct": reg["deviation_pct"],
                      "withheld": False,
                      "withheld_reason": "" if reg["passed"] else "regression test FAILED",
+                     "estimator": "signed_shore_normal_ray"})
+    if syn is not None:
+        rows.append({"from_epoch": "synthetic", "to_epoch": "synthetic",
+                     "basis": "synthetic_translation_anchor",
+                     "years": 1.0, "median_m": syn["measured_m"],
+                     "rate_m_yr": syn["measured_m"],
+                     "synthetic_offset_m": SYNTHETIC_OFFSET_M,
+                     "error_m": syn["error_m"], "withheld": False,
+                     "withheld_reason": "" if syn["passed"] else "synthetic anchor FAILED",
                      "estimator": "signed_shore_normal_ray"})
     series = pd.DataFrame(rows)
     series.to_csv(paths.OUT_40_EPOCH_SERIES, index=False)
@@ -712,9 +800,9 @@ def main():
     _figure(modern_common, paths.OUT_40_FIG)
     saved(paths.OUT_40_FIG.name)
 
-    if reg is not None and not reg["passed"]:
-        warn("the method no longer reproduces D-060 — investigate before trusting "
-             "anything above")
+    for a in (reg, syn):
+        if a is not None and not a["passed"]:
+            warn("an anchor failed — investigate before trusting anything above")
     done(SCRIPT_ID)
 
 

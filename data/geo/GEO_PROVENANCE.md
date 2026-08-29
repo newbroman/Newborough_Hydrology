@@ -150,7 +150,74 @@ regenerates them, so nothing would catch an error.
   National Grid position; it should not be used.
 - **Read by:** no code.
 
-### The modern seaward-edge series — `coast2006.kml`, `coast2012.kml`, `coast2020.kml`
+### The measurement series — `coast2006` / `coast2017` / `coast2021` / `coast2026`
+
+**Re-digitised 2026-08-29 by Martin Hollingham in ONE sitting** (file mtimes
+14:49–14:51), four epochs read from each file's own `<name>`: **1/1/2006,
+24/3/2017, 4/4/2021, 31/3/2026**. Renamed here to the imagery-date convention
+from *coast 112006*, *Coast 2432017*, *coast 442021*, *coast 3132026*.
+
+| file | imagery date | vertices | median vertex spacing |
+|---|---|---|---|
+| `coast2006.kml` | 2006-01-01 | 26 | 146 m |
+| `coast2017.kml` | 2017-03-24 | 36 | 105 m |
+| `coast2021.kml` | 2021-04-04 | 41 | 91 m |
+| `coast2026.kml` | 2026-03-31 | 86 | 42 m |
+
+**This series carries its own control**, which is why it replaced the previous
+one. Its 1/1/2006 line is **the same imagery date** as the 2026-08-28
+`coast2006.kml`, traced on a different occasion, so the pair measures digitising
+repeatability directly: **median 1.71 m, exactly 0.00 m across the middle ~1 km,
+rising to ~9.7 m at the north end; 95th percentile of |offset| 10.78 m.** The
+operator reproduces his own line to under two metres through the middle of the
+frontage. Indicator drift is therefore not available as an explanation for
+anything at the tens-of-metres scale.
+
+Sampling every epoch on **one** set of normals (medians taken on different
+reference lines are not comparable) puts the old series' problem in one place —
+see `_superseded/` below and D-087. The chord-sagitta generalisation bound falls
+from **7.467 m to 3.829 m** on these denser lines.
+
+**Registration accuracy is still not recorded** for any line, and the
+fixed-feature control has not been digitised. The repeatability figure above
+bounds registration *and* interpretation together, which is the more relevant
+quantity for this measurement but is not the same test.
+
+### `_superseded/` — the 2026-08-28 series, withdrawn 2026-08-29
+
+`coast2006_digitised_2026-08-28.kml`, `coast2012_digitised_2026-08-28.kml`,
+`coast2020_digitised_2026-08-28.kml`. **Retained for corroboration and audit, not
+as inputs.**
+
+**`coast2020` is the one that failed.** Measured on a single normal set, seaward
+distance back from the 2026 line: 2006 → 47.88 m, 2017 → 25.04 m, 2021 → 8.00 m,
+2026 → 0. Smooth and monotonic. `coast2020` sits at **0.59 m** — effectively on
+the 2026 line — when five to six years of retreat should put it ~12 m seaward.
+**It is displaced landward by roughly 7–8 m relative to every other line in the
+record**, and it alone produced the apparent modern acceleration (0.60 → 2.77 →
+3.81) that the re-digitised series does not reproduce (1.81 → 2.37 → 2.14).
+
+`coast2006` and `coast2012` are kept because they **agree** with the new series
+(the 2006 pair to 1.71 m), which is what makes them useful as corroboration.
+
+### DCoast_2015.kml — DELETED 2026-08-29
+
+Martin: *"we should remove DCoast 2015 as its not verifiable. I cant tell you
+what it represents."* Removed from the repository, not parked. It had been
+retained as the D-060 regression anchor; **that role is gone and is not missed**,
+because D-060's published 0.65 m yr⁻¹ is reproduced without it — the 1899 dune
+edge against the new 2006 line gives **0.645 m yr⁻¹ over 107 years, 0.8 %** — by
+a route whose every input has known provenance. Script 40 now anchors there, and
+carries a second anchor that depends on no historical file at all.
+
+For the record, since it cannot be re-derived once the file is gone: measured
+against the new 24/3/2017 line it lay **+17.46 m seaward at 118 of 118
+normals**, where `coast2012` is only +7.55 m seaward of that line. It was
+seaward of both 2012 and 2017, so it behaved like a pre-2012 line or a more
+seaward indicator, and the recollection that it came from 2017 imagery is not
+supported by the geometry.
+
+### The 2026-08-28 series — superseded; kept below for the record
 
 **One source, one method, three epochs.** All three digitised by Martin
 Hollingham in **Google Earth Pro 7.3.7.1155** from historic imagery and named

@@ -172,9 +172,27 @@ recorded for any of the three**, and Google Earth imagery georeferencing is
 typically a few metres; over the short recent intervals that is a material
 fraction of the signal. It is the main remaining uncertainty in the series.
 
-### DCoast_2015.kml — superseded and removed 2026-08-28
+### DCoast_2015.kml — withdrawn as evidence, RETAINED AS A REGRESSION FIXTURE
 
-Parked in `_to_delete/geo_superseded_2026-08-28/`, not destroyed.
+**Location: `data/geo/_fixtures/DCoast_2015.kml`** (with its `.qmd` sidecar),
+moved there 2026-08-29 from `_to_delete/geo_superseded_2026-08-28/` on Martin's
+ruling. `_to_delete/` is a bin, not a fixture store, and this file is wanted.
+
+**Its presence is not reinstatement.** It is withdrawn as evidence — see below —
+and kept for exactly one purpose: it is the only input that reproduces D-060's
+**published 75.2 m / 0.65 m yr⁻¹** for 1899 dune edge → 2015, which is the sole
+anchor any reimplementation of the retreat measurement has. **Verified from its
+new location, 2026-08-29: 74.2 m over 116 yr = 0.64 m yr⁻¹ across 148 shore
+normals, against the published 75.2 m / 0.65 — 1.3 % on displacement, 1.5 % on
+rate.** (An earlier check gave 72.5 m / 0.63, within 4 %; that used the
+nearest-distance estimator, and the signed shore-normal one lands closer to the
+published QGIS figure.) Script 40 (spec:
+`working/updates/NRG_script40_retreat_spec_2026-08-29.md`) asserts that
+agreement as its own regression test, and cannot without this file.
+
+**Do not use it in a retreat series.** Nothing in `_fixtures/` is a measurement
+input. The modern series is `coast2006` / `coast2012` / `coast2020` — one
+source, one method, three epochs.
 
 **It was removed on evidence, not only for want of provenance.** With
 `coast2012.kml` available the line could be tested against a consistent series,

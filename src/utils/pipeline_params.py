@@ -40,7 +40,19 @@ File location: outputs/01_data_prep/pipeline_scenario_params.csv
 """
 from __future__ import annotations
 
-__version__ = "1.6.0"  # Hollingham (2026) — 2026-08-22. Adds
+__version__ = "1.8.0"  # Hollingham (2026) — 2026-08-29. Refreshes the two
+#   mechanism-diagram coastal fallbacks against the committed 09f_01 row 0.
+#   mech_coastal_storm_mm -20.99 -> -81.00 follows D-091 (the storm amplitude is
+#   now divided by the MEASURED retreat rate). mech_coastal_5yr_mm -145.15 ->
+#   -156.65 does NOT: that one had drifted from the committed CSV already, as
+#   delta_0 moved, and was found while checking the first. Nothing gates a
+#   documented default against the CSV it mirrors — flagged, not built.
+# v1.7.0  # Hollingham (2026) — 2026-08-29. Adds
+#   coast_retreat_rate_m_yr = 2.3207, the first-pass fallback for the divisor in
+#   the coastal edge-drawdown construction now that it is MEASURED by Script 40
+#   rather than taken from config.COAST_RETREAT_RATE. D-075 puts results here
+#   rather than in a constants file; D-090 is why the value moved.
+# v1.6.0  # Hollingham (2026) — 2026-08-22. Adds
 #   uniform_residual_mm_yr, the first-pass default for the measured uniform
 #   decline that replaces c as Script 37b's uniform driver row (D-057).
 #   climate_c_mm_yr is retained: nothing consumes it now, but removing a
@@ -282,6 +294,16 @@ _DEFAULTS = {
                                          # year-to-year swings are common-mode, so the
                                          # agreement shows uniformity and does not lower
                                          # the detection floor on the magnitude
+    "coast_retreat_rate_m_yr":   2.3207,  # Script 40, 2006->2026 on the modern
+                                         # common frontage, 20.2 yr. The DIVISOR
+                                         # in h0 = retreat x (delta_0/rate).
+                                         # Replaces config.COAST_RETREAT_RATE =
+                                         # 8.3, which was a six-year window
+                                         # (2014-2020) divided into a
+                                         # whole-record delta_0 — see D-090. The
+                                         # matched value is 3.6x smaller, so h0
+                                         # is 3.6x larger; a stale fallback here
+                                         # would silently restore the old figure
     "climate_c_mm_yr":           0.18,   # 25_01 forest_free/linear_capped c_mm_yr,
                                          # refreshed 2026-08-19 from the committed
                                          # value; was -6.35, stale by the sign as
@@ -299,10 +321,10 @@ _DEFAULTS = {
     # off-cut reuses "wmc3_drawdown_mm" above (10m WMC3 BACI). 09g runs after
     # 09f in Phase 17, so these engage only on a partial/interrupted run.
     "mech_forest_standing_mm":  -150.0,  # 09f_01 standing_pine_head_mm
-    "mech_coastal_5yr_mm":      -145.15, # 09f_01 coastal_5yr_head_mm
+    "mech_coastal_5yr_mm":      -156.65, # 09f_01 coastal_5yr_head_mm
     "mech_scrape_cut_rise_mm":   129.43, # 09f_01 scrape_head_mm (CEH36 cut rise)
     "mech_thinned_mm":           -75.0,  # 09f_01 thinned_forest_head_mm
-    "mech_coastal_storm_mm":     -20.99, # 09f_01 coastal_6m_storm_head_mm
+    "mech_coastal_storm_mm":     -81.00, # 09f_01 coastal_6m_storm_head_mm (D-091)
     "clearfell_summer_step_mm":   46.3,  # 10a ANCOVA_Forest_Impact_clearfell_step_summer x1000
 }
 

@@ -120,9 +120,10 @@ from utils.console_utils import banner, phase, info, warn, saved
 from utils.site_observations import load_site_observation
 from utils.scraping_common import MPL_DEFAULTS
 from utils.config import (SCRAPE_RISE_BUFFER_M, COAST_RETREAT_M,
-                          COAST_RETREAT_RATE, DRAWDOWN_H0_MM, COAST_CHRONIC_YEARS,
+                          DRAWDOWN_H0_MM, COAST_CHRONIC_YEARS,
                           FOREST_CIDS)
 from utils.pipeline_params import default_value
+from utils.coastal_utils import coastal_edge_h0
 from utils.render_utils import render_figure
 
 
@@ -308,12 +309,12 @@ def _coastal_retreat_edge_head(delta0_abs, L):
     """Edge head drawdown (mm) and reach L (m) for a single COAST_RETREAT_M
     shoreline-retreat event, EXACTLY as Script 20's plot_coastal_erosion:
 
-        h0 = COAST_RETREAT_M * (δ₀ / COAST_RETREAT_RATE)     (mm)
+        h0 = COAST_RETREAT_M * (δ₀ / measured_retreat_rate)  (mm)
         Δh(d) = h0 * (1 - d/L)   (linear-capped, to zero at L)
 
     Constants match Script 20 module constants (single source of truth).
     """
-    h0 = COAST_RETREAT_M * (delta0_abs / COAST_RETREAT_RATE)
+    h0, _rate, _per_m, _prov = coastal_edge_h0(delta0_abs)
     return h0, L, COAST_RETREAT_M
 
 

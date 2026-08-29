@@ -97,7 +97,12 @@ EXTERNALS = {
 # recorded a false "absent" in the first reference written on 2026-08-26.
 LIBRARIES = ["numpy", "pandas", "scipy", "statsmodels", "matplotlib",
              "sklearn", "geopandas", "shapely", "pyproj", "odf", "cairosvg",
-             "rasterio", "contextily"]
+             "rasterio", "contextily", "adjustText"]
+# adjustText added 2026-08-29: the figure scripts import it, so a version change
+# moves label placement in five maps, and it was outside the comparison. The
+# record's key for the ODF reader was "odfpy" while this list probes "odf", so
+# every run reported it "absent when recorded" against a record that had it —
+# a permanent false difference, corrected in the same pass.
 
 
 def _run(cmd: list[str]) -> str | None:

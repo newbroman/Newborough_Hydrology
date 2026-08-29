@@ -40,7 +40,14 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.19.0"  # Hollingham (2026) — 2026-08-29. The two Script 40 gate
+__version__ = "1.20.0"  # Hollingham (2026) — 2026-08-29. COAST_RETREAT_RATE is
+#   SUPERSEDED (D-090): no script divides by it any more. The divisor in the
+#   coastal edge-drawdown construction is now measured by Script 40 over a window
+#   matched to delta_0's fit span, read live by utils.coastal_utils, with the
+#   first-pass fallback in pipeline_params where D-075 says a fitted value
+#   belongs. h0 moves 22.65 -> 81.00 mm. The constant is retained only for
+#   Script 40's comparison row and for the documents still citing it.
+# v1.19.0  # Hollingham (2026) — 2026-08-29. The two Script 40 gate
 #   tolerances are SET, from observation rather than guess (D-089): a blind
 #   second tracing of the 1/1/2006 imagery gives an independent
 #   digitising-plus-registration error of 2.34 m median / 5.53 m p95, so
@@ -344,17 +351,22 @@ REACH_QUOTE_NEAREST_M = 10.0
 #                          drawdown cone is measured from this buffer outward.
 #   COAST_RETREAT_M      : single-event shoreline retreat visualised (m;
 #                          Storm-Brendan-scale exemplar, Pye & Blott 2024).
-#   COAST_RETREAT_RATE   : long-term storm-inclusive retreat rate (m/yr) — the
-#                          normaliser converting a retreat event to an edge
-#                          drawdown. PROVENANCE DISPUTED, see the block below
-#                          and D-085. It DIVIDES in
-#                          h0 = COAST_RETREAT_M * (delta_0/COAST_RETREAT_RATE)
-#                          at 20_spatial_figures.py:1862/:2239 and
-#                          09f_management_effects.py:316, so h0 scales
-#                          INVERSELY with it: 22.6 mm at 8.3, 56 mm at 3.34,
-#                          106 mm at 1.77, against a 150 mm forest source.
-#                          Live value emitted as coastal_retreat_rate in
-#                          20_report_numbers.csv.
+#   COAST_RETREAT_RATE   : SUPERSEDED 2026-08-29 (D-090). NO SCRIPT DIVIDES BY
+#                          THIS ANY MORE. It was the normaliser converting a
+#                          retreat event to an edge drawdown, and it was a
+#                          SIX-YEAR window (2014-2020, from a newspaper report)
+#                          divided into a delta_0 fitted over the WHOLE record —
+#                          so the ratio was never a sensitivity. The divisor is
+#                          now MEASURED by Script 40 over 2006-2026, a window
+#                          matched to delta_0's own span to 99 %, and read live
+#                          by utils.coastal_utils. The measured rate is 2.321
+#                          m/yr, so h0 went from 22.65 mm to 81.00 mm.
+#                          RETAINED only so Script 40 can emit the old
+#                          construction beside the new one for comparison, and
+#                          because the documents still cite it while they are
+#                          brought up to date. Do not reintroduce it as a
+#                          divisor; and per D-075 the replacement does not
+#                          belong in this file, being a fitted result.
 SCRAPE_RISE_BUFFER_M = 10.0
 COAST_RETREAT_M      = 6.0
 COAST_RETREAT_RATE   = 8.3

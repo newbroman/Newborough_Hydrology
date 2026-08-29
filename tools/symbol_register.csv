@@ -36,3 +36,4 @@ c,c_cluster,bare,"cluster index, paired with w for well index in the per-well vs
 z,z_DEM,subscripted,LiDAR DEM ground elevation at a grid cell (m AOD),m AOD,ok,,z_DEM|z\_DEM|DEM elevation|bilinearly-interpolated,Supplementary Material S.19b
 z,z_WT,subscripted,interpolated scenario water-table elevation at a grid cell (m AOD),m AOD,ok,,z_WT|z\_WT|water table elevation|IDW-interpolated,Supplementary Material S.19b
 z,z_datum,subscripted,"drainage datum, 3.7 m below ground — the replacement D_datum yields to",m,ok,,z₀|z_0|drainage datum|DRAINAGE_DATUM,config.py DRAINAGE_DATUM
+E,E_coast_retreat,subscript,"measured shoreline retreat rate at the Caernarfon Bay frontage, the divisor converting the coast-edge anomaly to head per metre of retreat",m yr-1,canonical,,retreat rate|shoreline retreat|coast-edge anomaly|per metre of retreat|digitized|Script 40,report8 §3.4.5

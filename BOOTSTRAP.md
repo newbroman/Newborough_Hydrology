@@ -68,40 +68,49 @@ no cp313 wheels, so 3.13 is untested and 3.11 will fail. Ubuntu 24.04 ships
 python3 --version        # must say 3.12.x
 ```
 
-Ignore `venv/` if you see one in a working copy. Nothing activates it, and the
-recorded environment is the *system* interpreter with apt packages. A venv here
-also pins nothing: `src/venv/bin/python3.12` used to be a symlink to  <!-- former path -->
-`/usr/bin/python3`, a name promising a version the machine did not have, and on
-2026-08-26 that cost a day and a false bug report. That venv has been retired.
+**`venv/` IS the environment.** Until 2026-08-29 this section said to ignore it
+and use the system interpreter with apt packages. That was wrong, and provably
+so: built exactly to the apt line this section used to give, the pipeline dies at
+Step 3 — `03_state_space_model.py` calls `ax.boxplot(tick_labels=…)`, and
+`tick_labels` was added in **matplotlib 3.9**, above the 3.6.3 that apt ships on
+noble. The documented environment could not run the code it documented.
 
-### The libraries: apt, not pip
-
-The reference environment is **Ubuntu 24.04's apt packages**. Every recorded
-library except one is exactly noble's version — numpy 1.26.4, pandas 2.1.4,
-scipy 1.11.4, matplotlib 3.6.3, scikit-learn 1.4.1, geopandas 0.14.3, shapely
-2.0.3, pyproj 3.6.1. That is not an accident of history; 24.04 enforces PEP 668
-and refuses a bare `pip install` into the system interpreter, which is *why*
-these came from apt.
+Activate the venv, or call its interpreter directly:
 
 ```bash
-sudo apt install git rclone libreoffice pandoc poppler-utils \
-    python3-numpy python3-pandas python3-scipy python3-matplotlib \
-    python3-sklearn python3-geopandas python3-shapely python3-pyproj \
-    python3-odf python3-cairosvg python3-rasterio python3-skimage \
-    python3-networkx python3-fiona python3-pyogrio
+source venv/bin/activate
+python3 --version        # must say 3.12.3
 ```
 
-**`requirements.txt` is not the list.** It is a `pip freeze` from an environment
-this project has never run in: it pins numpy 2.4.6 and pandas 3.0.3, two major
-versions past what produced every published number. Only `statsmodels` matches,
-and only because that one *was* pip-installed. The code would probably still
-*run* under numpy 2 — nothing removed in that major is used — which is the
-problem rather than the reassurance: it would run and quietly give different
-numbers.
+One trap survives from the old text and is worth keeping in mind:
+`venv/bin/python3` is a symlink to `/usr/bin/python3`, so the venv supplies
+libraries but **not** an interpreter. On a machine whose `python3` is not 3.12
+the venv appears to work and imports nothing — the same shape of failure that
+cost a day on 2026-08-26 with `src/venv`.  <!-- former path -->
+If `python3 --version` disagrees with
+`venv/lib/python3.12`, that is the cause.
 
-`statsmodels` is the exception. The record says **0.14.6**, newer than noble's
-0.14.1, so it came from pip. Match the recorded version rather than taking
-whatever apt offers.
+### The libraries: `requirements.txt`, and it is accurate
+
+```bash
+python3 -m venv venv                       # only if there is no venv/
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+`requirements.txt` pins the nineteen packages the pipeline actually runs on —
+numpy 2.4.6, pandas 3.0.3, scipy 1.17.1, matplotlib 3.10.9, scikit-learn 1.9.0,
+geopandas 1.1.3, shapely 2.1.2, pyproj 3.7.2, statsmodels 0.14.6, and the figure
+dependencies adjustText, contextily and cairosvg. Its own header used to
+disclaim it as *"a pip freeze from an environment this project has never run
+in"*; that disclaimer was backwards and has been corrected.
+
+Non-Python tools still come from apt, and pandoc's version matters (below):
+
+```bash
+sudo apt install git rclone libreoffice pandoc poppler-utils
+```
+
 
 ### Do not trust this list — verify it
 

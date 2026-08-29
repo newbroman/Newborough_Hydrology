@@ -1,14 +1,14 @@
 Parameter,Well,Era,Value,Unit,Note
-drawdown_lambda,,,226.44221643042601,m,"e-folding length √(Kb/(Sy·β₃/30)); Sy=0.3083, β₃=0.0569/month [C3]"
+drawdown_lambda,,,226.44221643042582,m,"e-folding length √(Kb/(Sy·β₃/30)); Sy=0.3083, β₃=0.0569/month [C3]"
 drawdown_H0,,,150.0,mm,forest interception deficit at felling edge (config)
-drawdown_ceh23,CEH23,,24.86062121651225,mm,modelled steady-state forest drawdown
-drawdown_ceh6,CEH6,,8.272731024201194,mm,modelled steady-state forest drawdown
-drawdown_d15,D15,,34.72852167459555,mm,modelled steady-state forest drawdown
-drawdown_ceh24,CEH24,,0.63155532640528,mm,modelled steady-state forest drawdown
-drawdown_ceh10,CEH10,,1.4069693265341634,mm,modelled steady-state forest drawdown
-drawdown_ceh11,CEH11,,0.36273137585316884,mm,modelled steady-state forest drawdown
-coastal_h0,,,22.648192771084336,mm,"single-event edge drawdown, 6 m retreat × (δ₀/COAST_RETREAT_RATE); δ₀=31.33 mm/yr [Script 25 forest-free linear_capped], rate=8.3 m/yr — rate DISPUTED, see D-085"
-coastal_h0_per_metre,,,3.7746987951807225,mm/m,δ₀/COAST_RETREAT_RATE — head per metre of shoreline retreat; the quantity Scripts 20 and 09f actually divide by
-coastal_delta0,,,31.33,mm/yr,live Script 25 forest-free linear_capped δ₀ (absolute); fitted over the whole record
-coastal_retreat_rate,,,8.3,m/yr,"config COAST_RETREAT_RATE — a six-year window against a full-record δ₀; DISPUTED, see D-085 and W74/W77"
+drawdown_ceh23,CEH23,,24.860621216512207,mm,modelled steady-state forest drawdown
+drawdown_ceh6,CEH6,,8.272731024201173,mm,modelled steady-state forest drawdown
+drawdown_d15,D15,,34.7285216745955,mm,modelled steady-state forest drawdown
+drawdown_ceh24,CEH24,,0.6315553264052771,mm,modelled steady-state forest drawdown
+drawdown_ceh10,CEH10,,1.4069693265341572,mm,modelled steady-state forest drawdown
+drawdown_ceh11,CEH11,,0.3627313758531669,mm,modelled steady-state forest drawdown
+coastal_h0,,,81.00097184085337,mm,"single-event edge drawdown, 6 m retreat × (δ₀/measured retreat rate); δ₀=31.33 mm/yr [Script 25 forest-free linear_capped, 2005-03 to 2026-02], rate=2.3207 m/yr [Script 40 measured 2006-2026 (20.2 yr)] — windows matched to 99 %, D-090"
+coastal_h0_per_metre,,,13.50016197347556,mm/m,δ₀/measured retreat rate — head per metre of shoreline retreat; the quantity Scripts 20 and 09f divide by
+coastal_delta0,,,31.33,mm/yr,live Script 25 forest-free linear_capped δ₀ (absolute); fitted 2005-03 to 2026-02
+coastal_retreat_rate,,,2.3207128967456545,m/yr,"MEASURED, Script 40 measured 2006-2026 (20.2 yr). Supersedes config.COAST_RETREAT_RATE = 8.3 (a 2014-2020 window divided into a whole-record δ₀ — D-090)"
 coastal_reach_L,,,895.0,m,live Script 25 forest-free linear_capped reach L_cg

@@ -1,24 +1,24 @@
 {
   "pipeline_version": "2.5.0",
-  "total_registered": 50,
+  "total_registered": 51,
   "total_phases": 17,
   "by_tier": {
-    "analytical_toplevel": 40,
+    "analytical_toplevel": 41,
     "display_utility": 4,
     "optin_diagnostic": 6
   },
   "by_exec": {
-    "default": 47,
+    "default": 48,
     "optin": 3
   },
   "analytical_phases": 15,
   "scraping_substeps": 5,
   "clearfell_substeps": 14,
-  "generated": "2026-08-29T08:56:43",
+  "generated": "2026-08-29T10:55:33",
   "steps": [
     {
       "index": 1,
-      "total": 50,
+      "total": 51,
       "script": "01_data_prep.py",
       "desc": "Data preparation",
       "tier": "A",
@@ -26,7 +26,7 @@
     },
     {
       "index": 2,
-      "total": 50,
+      "total": 51,
       "script": "02_clustering.py",
       "desc": "Behavioural clustering",
       "tier": "A",
@@ -34,7 +34,7 @@
     },
     {
       "index": 3,
-      "total": 50,
+      "total": 51,
       "script": "03_state_space_model.py",
       "desc": "State-space regression + LCSC",
       "tier": "A",
@@ -42,7 +42,7 @@
     },
     {
       "index": 4,
-      "total": 50,
+      "total": 51,
       "script": "04_cluster_visualisations.py",
       "desc": "Core cluster visualisation",
       "tier": "A",
@@ -50,7 +50,7 @@
     },
     {
       "index": 5,
-      "total": 50,
+      "total": 51,
       "script": "05_pearson_affinity.py",
       "desc": "Pearson membership audit",
       "tier": "A",
@@ -58,7 +58,7 @@
     },
     {
       "index": 6,
-      "total": 50,
+      "total": 51,
       "script": "06_pearson_extended.py",
       "desc": "Pearson extended network integration",
       "tier": "A",
@@ -66,7 +66,7 @@
     },
     {
       "index": 7,
-      "total": 50,
+      "total": 51,
       "script": "07_spatial_coefficients.py",
       "desc": "Spatial coefficient mapping",
       "tier": "A",
@@ -74,7 +74,7 @@
     },
     {
       "index": 8,
-      "total": 50,
+      "total": 51,
       "script": "08_model_benchmarking.py",
       "desc": "Model benchmarking (LCSC vs Traditional)",
       "tier": "A",
@@ -82,7 +82,7 @@
     },
     {
       "index": 9,
-      "total": 50,
+      "total": 51,
       "script": "run_09_scraping.py",
       "desc": "Scraping analysis suite (09a\u201309e)",
       "tier": "A",
@@ -90,7 +90,7 @@
     },
     {
       "index": 10,
-      "total": 50,
+      "total": 51,
       "script": "run_10_clearfell.py",
       "desc": "Clear-fell BACI analysis suite (10a\u201310m)",
       "tier": "A",
@@ -98,7 +98,7 @@
     },
     {
       "index": 11,
-      "total": 50,
+      "total": 51,
       "script": "11_forecasting_thresholds.py",
       "desc": "Forecasting and critical thresholds",
       "tier": "A",
@@ -106,7 +106,7 @@
     },
     {
       "index": 12,
-      "total": 50,
+      "total": 51,
       "script": "11b_spatial_thresholds.py",
       "desc": "Spatial eco-hydrological threshold maps",
       "tier": "A",
@@ -114,7 +114,7 @@
     },
     {
       "index": 13,
-      "total": 50,
+      "total": 51,
       "script": "11c_pflood_achievability.py",
       "desc": "P_flood achievability categorical map (\u00a75.9 / Conclusion 4)",
       "tier": "A",
@@ -122,7 +122,7 @@
     },
     {
       "index": 14,
-      "total": 50,
+      "total": 51,
       "script": "00_climate_summary.py",
       "desc": "Climate summary outputs",
       "tier": "A",
@@ -130,7 +130,7 @@
     },
     {
       "index": 15,
-      "total": 50,
+      "total": 51,
       "script": "14_climate_projections.py",
       "desc": "Figure: Climate trajectory projections",
       "tier": "A",
@@ -138,7 +138,7 @@
     },
     {
       "index": 16,
-      "total": 50,
+      "total": 51,
       "script": "14b_year_of_crossing.py",
       "desc": "Bootstrap year-of-crossing for Curreli thresholds (\u00a77 Conclusion 11)",
       "tier": "A",
@@ -146,7 +146,7 @@
     },
     {
       "index": 17,
-      "total": 50,
+      "total": 51,
       "script": "12_figure_site_overview.py",
       "desc": "Figure: DEM site overview",
       "tier": "A",
@@ -154,7 +154,7 @@
     },
     {
       "index": 18,
-      "total": 50,
+      "total": 51,
       "script": "13_figure_experimental_design.py",
       "desc": "Figure: Experimental design GIS map",
       "tier": "A",
@@ -162,7 +162,7 @@
     },
     {
       "index": 19,
-      "total": 50,
+      "total": 51,
       "script": "15_depth_dependent_pet.py",
       "desc": "Depth-dependent PET analysis",
       "tier": "A",
@@ -170,7 +170,7 @@
     },
     {
       "index": 20,
-      "total": 50,
+      "total": 51,
       "script": "17_wtf_specific_yield.py",
       "desc": "WTF cluster Sy estimation",
       "tier": "A",
@@ -178,7 +178,7 @@
     },
     {
       "index": 21,
-      "total": 50,
+      "total": 51,
       "script": "16_water_bal.py",
       "desc": "Water balance decomposition",
       "tier": "A",
@@ -186,7 +186,7 @@
     },
     {
       "index": 22,
-      "total": 50,
+      "total": 51,
       "script": "18_wtf_spatial.py",
       "desc": "WTF spatial analysis and Sy mapping",
       "tier": "A",
@@ -194,7 +194,7 @@
     },
     {
       "index": 23,
-      "total": 50,
+      "total": 51,
       "script": "19_spatial_groundwater.py",
       "desc": "Spatial groundwater analysis",
       "tier": "A",
@@ -202,7 +202,7 @@
     },
     {
       "index": 24,
-      "total": 50,
+      "total": 51,
       "script": "20_spatial_figures.py",
       "desc": "Spatial paper figures",
       "tier": "A",
@@ -210,7 +210,7 @@
     },
     {
       "index": 25,
-      "total": 50,
+      "total": 51,
       "script": "21_forestry_scenarios.py",
       "desc": "Forestry scenarios and management figures",
       "tier": "A",
@@ -218,7 +218,7 @@
     },
     {
       "index": 26,
-      "total": 50,
+      "total": 51,
       "script": "25_coastal_gradient.py",
       "desc": "Coastal-retreat gradient analysis",
       "tier": "A",
@@ -226,7 +226,7 @@
     },
     {
       "index": 27,
-      "total": 50,
+      "total": 51,
       "script": "22_residual_lag_analysis.py",
       "desc": "Residual lag structure analysis",
       "tier": "A",
@@ -234,7 +234,7 @@
     },
     {
       "index": 28,
-      "total": 50,
+      "total": 51,
       "script": "23_ridge_recharge_lag_test.py",
       "desc": "Ridge recharge lag hypothesis test",
       "tier": "A",
@@ -242,7 +242,7 @@
     },
     {
       "index": 29,
-      "total": 50,
+      "total": 51,
       "script": "24_residual_seasonality.py",
       "desc": "Residual seasonality diagnostics",
       "tier": "A",
@@ -250,7 +250,7 @@
     },
     {
       "index": 30,
-      "total": 50,
+      "total": 51,
       "script": "26_van_willegen_msl.py",
       "desc": "Van Willegen (2025) 5-year MSL aggregation",
       "tier": "A",
@@ -258,7 +258,7 @@
     },
     {
       "index": 31,
-      "total": 50,
+      "total": 51,
       "script": "26b_van_willegen_msl_projections.py",
       "desc": "UKCP18 MSL5 climate projections (Tool B)",
       "tier": "A",
@@ -266,7 +266,7 @@
     },
     {
       "index": 32,
-      "total": 50,
+      "total": 51,
       "script": "26c_msl5_report_figures.py",
       "desc": "MSL5 report-format figures (Figures for \u00a74.8.4 / \u00a74.10.1)",
       "tier": "D",
@@ -274,7 +274,7 @@
     },
     {
       "index": 33,
-      "total": 50,
+      "total": 51,
       "script": "28_c3_detrend_check.py",
       "desc": "Cluster framework diagnostic: C3 detrend check (H0)",
       "tier": "X",
@@ -282,7 +282,7 @@
     },
     {
       "index": 34,
-      "total": 50,
+      "total": 51,
       "script": "29_c3_within_variance_check.py",
       "desc": "Cluster framework diagnostic: within-C3 spatial structure",
       "tier": "X",
@@ -290,7 +290,7 @@
     },
     {
       "index": 35,
-      "total": 50,
+      "total": 51,
       "script": "30_c4_drainage_identifiability.py",
       "desc": "Cluster framework diagnostic: C4 drainage identifiability (tests \u03b22/\u03b23 separability; reports two sensitivities)",
       "tier": "X",
@@ -298,7 +298,7 @@
     },
     {
       "index": 36,
-      "total": 50,
+      "total": 51,
       "script": "32_differential_movement.py",
       "desc": "Figure: secular differential water-table drift (report Fig 59)",
       "tier": "A",
@@ -306,7 +306,7 @@
     },
     {
       "index": 37,
-      "total": 50,
+      "total": 51,
       "script": "33_envelope_amplification.py",
       "desc": "Figure: climate-swing amplification + drought-floor (report Fig 60)",
       "tier": "A",
@@ -314,7 +314,7 @@
     },
     {
       "index": 38,
-      "total": 50,
+      "total": 51,
       "script": "35_per_well_amplification.py",
       "desc": "Figure+table: per-well climate-sensitivity coefficient (Paper 1; co-temporal, SSM-calibrated)",
       "tier": "A",
@@ -322,7 +322,7 @@
     },
     {
       "index": 39,
-      "total": 50,
+      "total": 51,
       "script": "36_absolute_climate_trend.py",
       "desc": "Figure: absolute climate-removed per-well secular trend map (spring CWB detrended)",
       "tier": "A",
@@ -330,7 +330,7 @@
     },
     {
       "index": 40,
-      "total": 50,
+      "total": 51,
       "script": "37_driver_validation.py",
       "desc": "Validation: predicted-vs-observed driver-change map (scatter + residual map)",
       "tier": "A",
@@ -338,7 +338,7 @@
     },
     {
       "index": 41,
-      "total": 50,
+      "total": 51,
       "script": "37b_driver_footing.py",
       "desc": "Part B: comparative driver footing \u2014 forest \u00b7 scrape \u00b7 coast on common currencies (peak / area-integrated / ecological-threshold)",
       "tier": "A",
@@ -346,7 +346,7 @@
     },
     {
       "index": 42,
-      "total": 50,
+      "total": 51,
       "script": "24b_residual_climatology.py",
       "desc": "Cluster-stratified residual climatology (supplementary diagnostic)",
       "tier": "X",
@@ -354,7 +354,7 @@
     },
     {
       "index": 43,
-      "total": 50,
+      "total": 51,
       "script": "31_cluster_validation.py",
       "desc": "Independent k=5 partition validation (supplementary diagnostic)",
       "tier": "X",
@@ -362,7 +362,7 @@
     },
     {
       "index": 44,
-      "total": 50,
+      "total": 51,
       "script": "31b_separation_vs_recoverability.py",
       "desc": "Cluster separation vs recoverability (supplementary diagnostic)",
       "tier": "X",
@@ -370,7 +370,7 @@
     },
     {
       "index": 45,
-      "total": 50,
+      "total": 51,
       "script": "34_window_sensitivity.py",
       "desc": "MSL5 two-window sensitivity demonstration figure (\u00a75.7.5)",
       "tier": "A",
@@ -378,7 +378,7 @@
     },
     {
       "index": 46,
-      "total": 50,
+      "total": 51,
       "script": "38_coastal_transect.py",
       "desc": "Coast-to-inland MAM transect \u2014 observational delta_0 diagnostic (\u00a75.7)",
       "tier": "A",
@@ -386,7 +386,7 @@
     },
     {
       "index": 47,
-      "total": 50,
+      "total": 51,
       "script": "39_ccw_hindcast.py",
       "desc": "SSM hindcast against the 1989\u201396 CCW record \u2014 out-of-sample validation (\u00a75.7.8)",
       "tier": "A",
@@ -394,23 +394,31 @@
     },
     {
       "index": 48,
-      "total": 50,
+      "total": 51,
+      "script": "40_shoreline_retreat.py",
+      "desc": "Shoreline retreat from the digitised coastline epochs \u2014 signed shore-normal displacement; WITHHOLDS its own headline until the gate passes (D-085)",
+      "tier": "A",
+      "exec": "default"
+    },
+    {
+      "index": 49,
+      "total": 51,
       "script": "09f_management_effects.py",
       "desc": "Figure: management-interventions + coastal-retreat spatial reach (\u00a75.8; two-pass, reads Scripts 20/25/09d/10a)",
       "tier": "D",
       "exec": "default"
     },
     {
-      "index": 49,
-      "total": 50,
+      "index": 50,
+      "total": 51,
       "script": "09g_mechanism_diagrams.py",
       "desc": "Figure: mechanism grid + coastal reach (\u00a75.8 conceptual; display only, reads 09f/10m/10a)",
       "tier": "D",
       "exec": "default"
     },
     {
-      "index": 50,
-      "total": 50,
+      "index": 51,
+      "total": 51,
       "script": "27_greyscale_figures.py",
       "desc": "Greyscale figure conversion (journal-ready B&W)",
       "tier": "D",

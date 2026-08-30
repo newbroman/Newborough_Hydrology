@@ -47,7 +47,42 @@ Reading order for anyone picking this up
 """
 from __future__ import annotations
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-08-29. Emits the coastal
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-08-30. The storm-pair
+#   instance label becomes `winter2019` and every emitted parameter name carries
+#   it (`winter2019_displacement_median_m`, `winter2019_between_storm_expectation_m`,
+#   `winter2019_context_rate_m_yr`, ...), replacing `storm_pair_2019_20`.
+#   THE TAG NOW COMES FROM THE REGISTRY ROW, not from a literal inside
+#   _report_numbers(): v1.4.0 hard-typed `tag = "storm_pair_2019_20"` there,
+#   which is precisely the failure D-098's own Revisit-if anticipated for a
+#   second pair - it would have silently emitted the first pair's parameter
+#   names. _check_storm_tags() now refuses a duplicate or a malformed tag at
+#   run time, so the collision cannot happen quietly. The tag is also emitted as
+#   a column of 40_07_storm_pair.csv.
+#   STORM_PAIRS keeps its name and 40_07_storm_pair.csv keeps its filename: the
+#   registry is the CLASS (pairs bracketing a storm season) and winter2019 is one
+#   INSTANCE of it. See the registry comment - do not "tidy" that split away.
+#   SEASON CONVENTION, and a collision worth knowing about: see D-098's
+#   2026-08-30 note and the registry comment below.
+#
+# v1.4.0  # Hollingham (2026) — 2026-08-30. Adds the STORM
+#   PAIR: two shorelines bracketing the 2019/20 winter storm season, measured on
+#   the same estimator and the same projection origin as the epochs but held in
+#   a SEPARATE registry (STORM_PAIRS) that feeds neither EPOCHS nor INTERVALS.
+#   A 0.55-year interval in INTERVALS would enter the rate series AND move the
+#   common-extent band every committed number is measured on, so the separation
+#   is structural, not stylistic. NO RATE IS EMITTED for a storm pair - the
+#   annualised figure is 16.2 m/yr and annualising one storm season is precisely
+#   the error the coastal section warns against - so _measure's rate_m_yr,
+#   min_rate_m_yr and years are dropped by an explicit key list and a runtime
+#   assertion that none of them reaches the file. New outputs
+#   40_07_storm_pair.csv and 40_report_numbers.csv; the storm displacement
+#   travels with its two contexts (the repeat-tracing control p95 and the
+#   between-storm expectation computed from the committed 2006-2026 rate).
+#   The inputs were renamed brendan*.kml -> coast2019-09-11.kml /
+#   coast2020-03-31.kml: the interval spans Brendan, Ciara and Dennis and cannot
+#   separate them. See D-098.
+#
+# v1.3.0  # Hollingham (2026) — 2026-08-29. Emits the coastal
 #   sensitivity delta_0/rate WITH the period match checked, closing the mismatch
 #   in h0 = COAST_RETREAT_M * (delta_0 / COAST_RETREAT_RATE): delta_0 is fitted
 #   over the whole record and the committed rate is a six-year window, so the
@@ -134,6 +169,109 @@ INTERVALS = [("1899", "2006"), ("2006", "2017"), ("2017", "2021"),
              ("2021", "2026"), ("2006", "2026"), ("1899", "2026")]
 FLOOR_INTERVAL = ("2006", "2026")   # longest modern interval; the floor test
 
+# Storm pairs — (label, earlier path, earlier date, later path, later date).
+#
+# A SEPARATE REGISTRY, and the separation is the whole point (D-098). These two
+# lines bracket a single winter, not an epoch of the shoreline series. Adding
+# them to EPOCHS or INTERVALS would do two things this script must not do: put a
+# 0.55-year interval into the rate series, where a reader meets it beside
+# 2.32 m/yr and reads it as comparable; and enlarge the set whose _common_extent
+# defines the modern frontage band, which would move every committed number
+# measured on that band. Held here, the storm pair is measured on the same
+# estimator, the same projection origin and the same cone mask as the epochs,
+# and touches nothing else.
+#
+# The dates are the imagery dates in GEO_PROVENANCE.md, on the same footing as
+# the EPOCHS dates above: each is the date the line depicts, and the interval is
+# their difference. The label is deliberately the SEASON, not a storm. The
+# interval contains Storm Brendan (13-14 January 2020) and Ciara and Dennis
+# (February 2020); two frames five months apart cannot separate them, so naming
+# the measurement for one of them would be a false attribution.
+# CLASS AND INSTANCE - do not "tidy" this into one name. `STORM_PAIRS` is the
+# CLASS: pairs of frames bracketing a storm season, measured as displacements.
+# `winter2019` is one INSTANCE of that class. Renaming the registry (or
+# 40_07_storm_pair.csv) to "winter" would lose the reason the registry exists,
+# and renaming the instance to "storm_pair" would lose which winter it is.
+#
+# Row fields, in order:
+#   tag           machine identity. It is the prefix of EVERY parameter name
+#                 this pair emits, and it is READ FROM HERE - never re-typed in
+#                 _report_numbers(). See _check_storm_tags().
+#   label         prose, for the console and for figure text. Editing it is
+#                 cosmetic BY DESIGN: deriving the tag by slugifying this string
+#                 would mean a wording change silently renamed published
+#                 parameters, which is a worse bug than the one being fixed.
+#   earlier path, earlier date, later path, later date.
+#
+# SEASON CONVENTION FOR THE TAG. Martin's seasonal year runs Spring, Summer,
+# Autumn, Winter, so winter CLOSES the year: `winter2019` is the winter that
+# ends the 2019 seasonal year, i.e. December 2019 to February 2020. That is what
+# makes the 31 March 2020 frame the correct closing frame - it is the first
+# imagery after that winter, not a frame from the following year.
+#
+# ** IT DOES NOT AGREE WITH THE YEAR CONVENTION ALREADY IN THIS PIPELINE, AND
+#    THE DISAGREEMENT IS ONLY IN THE LABEL. ** config.MSL_HYDRO_YEAR_START_MONTH
+# = 6 defines van Willegen / Curreli "hydrology year B": 1 June (y-1) to 31 May
+# (y), labelled by the year it ENDS in (26_van_willegen_msl.hydrology_year:
+# "A reading dated 2010-06 to 2011-05 belongs to hydrology year 2011"). Under
+# that rule December 2019 to February 2020 is hydrology year 2020. The two
+# schemes agree on the months and on spring being MAM (MSL_SPRING_MONTHS =
+# (3, 4, 5)); they differ on where the year starts (March vs June) and on which
+# end it is named for (start vs finish). SO THE SAME WINTER IS 2019 HERE AND
+# 2020 IN SCRIPT 26. Both are internally consistent and nothing is wrong in
+# either script - but a reader who knows one will misread the other, so the tag
+# is never written without this gloss nearby. Flagged for Martin; see D-098.
+STORM_PAIRS = [
+    ("winter2019", "2019/20 winter storm sequence",
+     paths.DATA_KML_COAST_2019_09_11, "2019-09-11",
+     paths.DATA_KML_COAST_2020_03_31, "2020-03-31"),
+]
+
+
+def _check_storm_tags():
+    """No two pairs may share a tag, and a tag must be usable as a name prefix.
+
+    This is the check that makes the registry-derived tag worth having. Deriving
+    it rather than typing it stops one pair borrowing another's parameter names
+    by omission; this stops it by collision. Both are the same defect - two pairs
+    emitting `winter2019_displacement_median_m` - arriving by different routes.
+    """
+    tags = [row[0] for row in STORM_PAIRS]
+    dupes = sorted({x for x in tags if tags.count(x) > 1})
+    if dupes:
+        raise RuntimeError(
+            f"STORM_PAIRS tags are not unique: {dupes}. Every parameter name a "
+            f"pair emits is prefixed with its tag, so two pairs sharing one "
+            f"would overwrite each other in 40_report_numbers.csv")
+    bad = [x for x in tags if not re.fullmatch(r"[a-z][a-z0-9_]*", x)]
+    if bad:
+        raise RuntimeError(
+            f"STORM_PAIRS tags must be lowercase identifiers: {bad}. The tag is "
+            f"a parameter-name prefix, not prose - the prose is the label field")
+
+# The interval whose MEASURED rate supplies the between-storm expectation — what
+# this frontage would have moved over the storm interval at its long-run pace.
+# It is read from the measurement made in this same run, never typed: the
+# expectation has to move when the rate does, or it becomes a stale comparator
+# that flatters the storm result.
+STORM_CONTEXT_INTERVAL = FLOOR_INTERVAL
+
+# Keys _measure returns that MUST NOT reach a storm-pair row. rate_m_yr for the
+# pair is 16.2 m/yr, which is arithmetic, not a rate of shoreline change; years
+# is 0.55 and invites the division. The row is therefore built from an explicit
+# key list and this set is asserted absent before the frame is written, because
+# an output list is exactly the mechanism that has silently dropped a wanted
+# column before and the same mechanism has to be checked when it is dropping one
+# deliberately.
+STORM_FORBIDDEN_KEYS = ("rate_m_yr", "min_rate_m_yr", "years")
+
+# The fields a storm-pair row DOES carry. Displacement and the interval in days.
+STORM_KEEP_KEYS = ("n", "median_m", "p10_m", "p90_m", "min_m", "max_m",
+                   "n_progradation", "alongshore_slope_m_per_km",
+                   "alongshore_r", "frontage_span_m",
+                   "frontage_lo_local_m", "frontage_hi_local_m",
+                   "nearest_median_m")
+
 # D-060's published long-run rate, the external anchor. It was originally
 # computed against DCoast_2015.kml, which was DELETED on 2026-08-29 as
 # unverifiable. The anchor survived the deletion: the same 1899 dune edge
@@ -155,6 +293,12 @@ SYNTHETIC_OFFSET_M    = 37.5
 # sign error or a broken estimator, which is what it is for, not to certify
 # sub-metre accuracy.
 SYNTHETIC_TOLERANCE_M = 1.0
+
+# Days in a Julian year. Not a scientific parameter: it is the unit conversion
+# already used to turn an epoch date difference into `years` in main(), named
+# here so the storm pair's expectation uses the same one rather than a second
+# copy of the literal.
+DAYS_PER_YEAR = 365.25
 
 
 # ======================================================================
@@ -628,6 +772,138 @@ def _coastal_sensitivity(measured, epoch_date):
     return df
 
 
+def _storm_pair(inland_xy, control_p95_m, context):
+    """Shore-normal displacement across a storm season — a DISPLACEMENT, no rate.
+
+    Same estimator, same projection origin, same cone mask and the same
+    pair-extent basis as an epoch interval. What differs is what comes out: an
+    epoch interval is quoted as a rate because two decades of shoreline change
+    average to one, and a single winter does not. Dividing 8.9 m by 0.55 yr
+    gives 16.2 m/yr, a number with the units of a rate and the meaning of an
+    arithmetic accident, and the coastal section exists partly to warn against
+    exactly that step. So the rate is not withheld-with-a-reason here as the
+    D-085 headline is; it is never formed.
+
+    Two contexts travel in the same row, because the displacement alone does not
+    say whether it is a measurement:
+
+      control_p95_m -- the repeat-tracing control, measured this run by
+          _control(). Tracing error scatters about zero, so it bounds what a
+          digitising artefact could produce.
+      expected_m    -- what this frontage moves over the SAME number of days at
+          the measured long-run rate, computed from the interval in `context`.
+          Never typed: a comparator frozen at the moment someone read it would
+          flatter this result the moment the rate moved.
+    """
+    ctx_rate, ctx_label, ctx_years = context
+    _check_storm_tags()
+    rows = []
+    for tag, label, e_path, e_date, l_path, l_date in STORM_PAIRS:
+        earlier = _to_local_m(_read_kml(e_path)[0], *_ORIGIN)
+        later = _to_local_m(_read_kml(l_path)[0], *_ORIGIN)
+        t0, t1 = pd.Timestamp(e_date), pd.Timestamp(l_date)
+        days = int((t1 - t0).days)
+        lo, hi = _common_extent([earlier, later], SPACING_M)
+        # years=1.0 is passed only because _measure's signature requires it. The
+        # rate fields it computes from it are discarded below and never reach
+        # the file; nothing here divides by an interval.
+        m = _measure(earlier, later, 1.0, inland_xy, lo, hi)
+        if m is None:
+            warn(f"storm pair {label}: no measurable normals")
+            continue
+        # `tag` is carried into the emitted file so the CSV and the parameter
+        # names in 40_report_numbers.csv can be tied together without knowing
+        # the registry.
+        row = {"tag": tag, "label": label,
+               "earlier_file": pathlib.Path(e_path).name,
+               "later_file": pathlib.Path(l_path).name,
+               "earlier_date": e_date, "later_date": l_date,
+               "interval_days": days}
+        row.update({k: m[k] for k in STORM_KEEP_KEYS})
+        row["control_p95_m"] = control_p95_m
+        row["expected_m"] = (float("nan") if ctx_rate != ctx_rate
+                             else ctx_rate * days / DAYS_PER_YEAR)
+        row["expected_basis"] = ctx_label
+        row["estimator"] = "signed_shore_normal_ray"
+        row["basis"] = "pair_extent"
+        row["rate_emitted"] = False
+        row["rate_note"] = ("displacement only — a single storm season is not "
+                            "annualised (D-098)")
+        leaked = sorted(set(row) & set(STORM_FORBIDDEN_KEYS))
+        if leaked:
+            raise RuntimeError(f"storm-pair row carries {leaked}; a storm pair "
+                               f"must not emit an annualised rate (D-098)")
+        rows.append(row)
+        step(f"{label}: median {row['median_m']:.3f} m over {days} days "
+             f"(n={row['n']}, progradation {row['n_progradation']}, "
+             f"min {row['min_m']:.3f} m)")
+        info(f"    against a repeat-tracing control p95 of "
+             f"{control_p95_m if control_p95_m is None else f'{control_p95_m:.3f}'} m "
+             f"and a between-storm expectation of {row['expected_m']:.3f} m "
+             f"over the same {days} days at the {ctx_label} rate "
+             f"({ctx_rate:.4f} m/yr over {ctx_years:.2f} yr)")
+    return pd.DataFrame(rows)
+
+
+def _report_numbers(storm_df, context):
+    """The citable storm-pair values, so displacement and context travel together.
+
+    Every value is read out of the frame this run produced. Nothing is retyped.
+    """
+    ctx_rate, ctx_label, ctx_years = context
+    rows = []
+    for _, r in storm_df.iterrows():
+        era = f"{r['earlier_date']} to {r['later_date']}"
+        # THE TAG COMES FROM THE ROW, which came from the registry. v1.4.0 typed
+        # a literal here, and a second pair would then have emitted the FIRST
+        # pair's parameter names into this same file - silently, because nothing
+        # about a duplicated Parameter string looks wrong. D-098's Revisit-if
+        # named this exact case; _check_storm_tags() now also refuses duplicates
+        # at source.
+        tag = r["tag"]
+        season_note = ("`winter2019` is the winter CLOSING the 2019 seasonal "
+                       "year (Dec 2019 - Feb 2020) on Martin's Spring-Summer-"
+                       "Autumn-Winter year. NOTE this is hydrology year 2020 "
+                       "under config.MSL_HYDRO_YEAR_START_MONTH, which Script 26 "
+                       "labels by its ENDING year - same months, different "
+                       "number. See D-098.")
+        pairs = [
+            (f"{tag}_displacement_median_m", r["median_m"], "m",
+             "median signed shore-normal displacement, positive = retreat; "
+             "NOT annualised — see 40_07_storm_pair.csv. " + season_note),
+            (f"{tag}_interval_days", r["interval_days"], "days",
+             "imagery dates, inclusive difference"),
+            (f"{tag}_n_normals", r["n"], "count",
+             "normals returning an intersection on the pair extent"),
+            (f"{tag}_n_progradation", r["n_progradation"], "count",
+             "normals moving seaward; tracing error scatters about zero, so an "
+             "all-positive field is the evidence this is not a digitising artefact"),
+            (f"{tag}_displacement_min_m", r["min_m"], "m",
+             "least-retreating normal on the frontage"),
+            (f"{tag}_displacement_p10_m", r["p10_m"], "m", "10th percentile"),
+            (f"{tag}_displacement_p90_m", r["p90_m"], "m", "90th percentile"),
+            (f"{tag}_displacement_max_m", r["max_m"], "m",
+             "most-retreating normal on the frontage"),
+            (f"{tag}_frontage_span_m", r["frontage_span_m"], "m",
+             "alongshore span measured"),
+            (f"{tag}_control_p95_m", r["control_p95_m"], "m",
+             "repeat-tracing control p95 from 40_03_control.csv, measured this "
+             "run; the 1/1/2006 imagery traced twice, blind"),
+            (f"{tag}_between_storm_expectation_m", r["expected_m"], "m",
+             f"what this frontage moves over the same {int(r['interval_days'])} "
+             f"days at the measured {ctx_label} rate — computed, not typed"),
+            (f"{tag}_context_rate_m_yr", ctx_rate, "m/yr",
+             f"the long-run rate the expectation is built from, measured over "
+             f"{ctx_years:.4f} yr ({ctx_label}) on the modern_common_frontage "
+             f"basis in 40_01_epoch_series.csv. Carries this pair's tag because "
+             f"it is context FOR this pair, not a free-standing constant"),
+        ]
+        for name, val, unit, note_txt in pairs:
+            rows.append({"Parameter": name, "Well": "", "Era": era,
+                         "Value": val, "Unit": unit, "Note": note_txt})
+    return pd.DataFrame(rows)
+
+
 # ======================================================================
 # The gate
 # ======================================================================
@@ -828,7 +1104,7 @@ def main():
     measured, modern_common = {}, {}
     years = {}
     for a, b in INTERVALS:
-        yrs = (epoch_date[b] - epoch_date[a]).days / 365.25
+        yrs = (epoch_date[b] - epoch_date[a]).days / DAYS_PER_YEAR
         years[(a, b)] = yrs
         lo, hi = _common_extent([epoch_line[a], epoch_line[b]], SPACING_M)
         m = _measure(epoch_line[a], epoch_line[b], yrs, inland_xy, lo, hi)
@@ -864,11 +1140,24 @@ def main():
               if modern_common.get(FLOOR_INTERVAL) else pd.DataFrame())
     sens_df = _coastal_sensitivity(modern_common, epoch_date)
 
-    phase(5, "Anchors")
+    phase(5, "Storm pair — displacement, not rate")
+    ctx = modern_common.get(STORM_CONTEXT_INTERVAL)
+    if ctx is None:
+        warn(f"storm-pair context interval {STORM_CONTEXT_INTERVAL} was not "
+             f"measured — the between-storm expectation will be NA")
+        context = (float("nan"), "unavailable", float("nan"))
+    else:
+        context = (ctx["rate_m_yr"],
+                   f"{STORM_CONTEXT_INTERVAL[0]}-{STORM_CONTEXT_INTERVAL[1]}",
+                   ctx["years"])
+    storm_df = _storm_pair(inland_xy, ctl_worst, context)
+    rn_df = _report_numbers(storm_df, context) if len(storm_df) else pd.DataFrame()
+
+    phase(6, "Anchors")
     reg = _regression_test(epoch_line["1899"], epoch_line["2006"], inland_xy)
     syn = _synthetic_test(epoch_line["2026"], inland_xy)
 
-    phase(6, "Gate")
+    phase(7, "Gate")
     floor = modern_common.get(FLOOR_INTERVAL)
     _assert_thresholds_can_fail(floor)
     ok, reasons = _evaluate_gate(floor, ctl_worst, sagitta)
@@ -880,7 +1169,7 @@ def main():
             warn(f"    {r}")
     withheld_reason = "" if ok else "; ".join(reasons)
 
-    phase(7, "Writing outputs")
+    phase(8, "Writing outputs")
     rows = []
 
     def _row(a, b, m, basis, gated=True):
@@ -952,6 +1241,13 @@ def main():
     saved(paths.OUT_40_DTM_PROFILE.name, f"{len(dtm_df)} rows")
     sens_df.to_csv(paths.OUT_40_SENSITIVITY, index=False)
     saved(paths.OUT_40_SENSITIVITY.name, f"{len(sens_df)} bases")
+    # The storm pair goes to its OWN file, not into the epoch series. A row in
+    # 40_01 would sit in a table whose every other row carries a rate, which is
+    # how a displacement acquires one.
+    storm_df.to_csv(paths.OUT_40_STORM_PAIR, index=False)
+    saved(paths.OUT_40_STORM_PAIR.name, f"{len(storm_df)} pair(s), no rate emitted")
+    rn_df.to_csv(paths.OUT_40_REPORT_NUMBERS, index=False)
+    saved(paths.OUT_40_REPORT_NUMBERS.name, f"{len(rn_df)} value(s)")
 
     _figure(modern_common, paths.OUT_40_FIG)
     saved(paths.OUT_40_FIG.name)

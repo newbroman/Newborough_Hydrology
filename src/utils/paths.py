@@ -11,7 +11,12 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.6.9"  # Hollingham (2026) — 2026-08-27. OUT_10C_CORRELATION_TABLE
+__version__ = "1.7.0"  # Hollingham (2026) — 2026-08-30. Storm-pair inputs and
+#   outputs for Script 40: DATA_KML_COAST_2019_09_11 / DATA_KML_COAST_2020_03_31
+#   (renamed from brendan*.kml), OUT_40_STORM_PAIR and OUT_40_REPORT_NUMBERS.
+#   See D-098.
+#
+# v1.6.9  # Hollingham (2026) — 2026-08-27. OUT_10C_CORRELATION_TABLE
 #     and OUT_10C_CLUSTER_SUMMARY replace the INT_ pair and move into DIR_10C.
 #     Path change only; both files keep their names.
 # v1.6.8  # Hollingham (2026) — 2026-08-21. Adds CANOPY_HISTORY,
@@ -962,6 +967,13 @@ OUT_40_CONTROL         = DIR_40 / "40_03_control.csv"
 OUT_40_GENERALISATION  = DIR_40 / "40_04_generalisation.csv"
 OUT_40_DTM_PROFILE     = DIR_40 / "40_05_dtm_profile.csv"
 OUT_40_SENSITIVITY     = DIR_40 / "40_06_coastal_sensitivity.csv"
+# The storm-pair measurement. NOT an epoch interval and deliberately not in the
+# epoch series file: an 0.55-year displacement sitting in a table of rates is an
+# invitation to divide it by its interval, which is the one thing this
+# measurement must never carry (D-098). Numbered 07 because 05 and 06 are taken;
+# the spec called it 40_05 before those existed.
+OUT_40_STORM_PAIR      = DIR_40 / "40_07_storm_pair.csv"
+OUT_40_REPORT_NUMBERS  = DIR_40 / "40_report_numbers.csv"
 
 # ── Script 41 — canopy and forest cover from the dated aerial series ──────────
 # The IMAGERY IS NOT IN THE REPOSITORY BY DEFAULT. It is screen capture of a
@@ -996,6 +1008,17 @@ DATA_KML_COAST_2006    = data_geo("coast2006.kml")
 DATA_KML_COAST_2017    = data_geo("coast2017.kml")
 DATA_KML_COAST_2021    = data_geo("coast2021.kml")
 DATA_KML_COAST_2026    = data_geo("coast2026.kml")
+# STORM-PAIR frames, NOT epochs. Two shorelines bracketing the 2019/20 winter
+# storm season, digitised from imagery of 11/9/2019 and 31/3/2020. They are
+# deliberately absent from Script 40's EPOCHS and INTERVALS: a 0.55-year interval
+# in the epoch series would enter the rate series and shift the common-extent
+# band that every committed number is measured on. Named for their imagery dates
+# rather than for a storm - the interval spans Brendan, Ciara AND Dennis and
+# cannot separate them, so naming it for one would be a false attribution
+# (D-098). Nothing globs data/geo/coast*.kml, so the coast prefix is safe;
+# checked before the rename.
+DATA_KML_COAST_2019_09_11 = data_geo("coast2019-09-11.kml")
+DATA_KML_COAST_2020_03_31 = data_geo("coast2020-03-31.kml")
 # The CONTROL: the 1/1/2006 imagery traced a second time, BLIND - the existing
 # line not loaded, so no vertex could be reused (verified: zero shared vertices
 # to 1e-9 deg against either earlier tracing). Two independent tracings of one

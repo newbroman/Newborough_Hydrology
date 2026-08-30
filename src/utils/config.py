@@ -903,6 +903,24 @@ SCRAPING_DATE_2_ISO = "2023-10-01"   # October 2023 — re-scraping
 BL_CANOPY_FRACTION_2005 = 0.4
 BL_CANOPY_FRACTION_2025 = 1.0
 
+# ── Script 41 — canopy / forest-cover texture index from the aerial series ────
+# The index is a TEXTURE POSITION BETWEEN TWO IN-FRAME REFERENCES, not a canopy
+# fraction. Its upper anchor is mature conifer, so a closed BROADLEAF canopy
+# legitimately reads below 1 and the index cannot speak to full closure at all.
+# Script 41 states that in its own output; it is repeated here because a reader
+# who finds these constants first will otherwise assume a percentage.
+CANOPY_TEXTURE_WINDOW   = 5      # px; local sd window, ~5-7 m at the series scale
+CANOPY_MIN_REGION_PX    = 400    # below this a region is too small to texture
+CANOPY_MIN_REF_SEPARATION = 0.02 # (conifer - open) floor; below it the
+                                 # normalisation divides by noise and is withheld
+CANOPY_MAX_RESIDUAL_M   = 25.0   # registration residual (p95) tolerance, metres.
+                                 # Set from the observed placemark spread, not
+                                 # chosen first - the D-089 discipline.
+CANOPY_CHANGE_PCTL      = 98.5   # change-detection threshold percentile
+CANOPY_REF_BUFFER_M     = 40.0   # buffer excluded around the managed blocks when
+                                 # building the conifer reference from the forest
+                                 # polygon, so an edge is never a reference
+
 # Broadleaf summer β₂ multiplier — deciduous phenology effect on ET.
 # Derived from Script 21's monthly β₂ profile (Hollingham, 2026), averaged
 # over the canopy-on phenological window:

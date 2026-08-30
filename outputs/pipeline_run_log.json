@@ -283,8 +283,8 @@
    "step": "47/52  SSM hindcast against the 1989\u201396 CCW record \u2014 out-of-sample validation (\u00a75.7.8)"
   },
   "40_shoreline_retreat.py": {
-   "last_run": "2026-08-30T07:44:18",
-   "seconds": 1.9,
+   "last_run": "2026-08-30T08:09:23",
+   "seconds": 1.7,
    "status": "ok",
    "step": "48/52  Shoreline retreat from the digitised coastline epochs \u2014 signed shore-normal displacement; WITHHOLDS its own headline until the gate passes (D-085)"
   },
@@ -307,5 +307,5 @@
    "step": "10/52  Clear-fell BACI analysis suite (10a\u201310m)"
   }
  },
- "updated": "2026-08-30T07:44:22"
+ "updated": "2026-08-30T08:09:23"
 }

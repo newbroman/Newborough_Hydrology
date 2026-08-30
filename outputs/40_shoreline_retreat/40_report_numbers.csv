@@ -1,13 +1,13 @@
 Parameter,Well,Era,Value,Unit,Note
-storm_pair_2019_20_median_displacement_m,,2019-09-11 to 2020-03-31,8.948348937012296,m,"median signed shore-normal displacement, positive = retreat; NOT annualised — see 40_07_storm_pair.csv"
-storm_pair_2019_20_interval_days,,2019-09-11 to 2020-03-31,202.0,days,"imagery dates, inclusive difference"
-storm_pair_2019_20_n_normals,,2019-09-11 to 2020-03-31,139.0,count,normals returning an intersection on the pair extent
-storm_pair_2019_20_n_progradation,,2019-09-11 to 2020-03-31,0.0,count,"normals moving seaward; tracing error scatters about zero, so an all-positive field is the evidence this is not a digitising artefact"
-storm_pair_2019_20_min_displacement_m,,2019-09-11 to 2020-03-31,0.7621305889245659,m,least-retreating normal on the frontage
-storm_pair_2019_20_p10_displacement_m,,2019-09-11 to 2020-03-31,4.0613585604233,m,10th percentile
-storm_pair_2019_20_p90_displacement_m,,2019-09-11 to 2020-03-31,21.76832613569528,m,90th percentile
-storm_pair_2019_20_max_displacement_m,,2019-09-11 to 2020-03-31,42.839963310615126,m,most-retreating normal on the frontage
-storm_pair_2019_20_frontage_span_m,,2019-09-11 to 2020-03-31,3454.1103047192732,m,alongshore span measured
-storm_pair_2019_20_control_p95_m,,2019-09-11 to 2020-03-31,5.531591924228962,m,"repeat-tracing control p95 from 40_03_control.csv, measured this run; the 1/1/2006 imagery traced twice, blind"
-storm_pair_2019_20_between_storm_expectation_m,,2019-09-11 to 2020-03-31,1.2834606574746672,m,"what this frontage moves over the same 202 days at the measured 2006-2026 rate — computed, not typed"
-storm_pair_context_rate_m_yr,,2006-2026,2.3207128967456545,m/yr,"the long-run rate the expectation is built from, measured over 20.2437 yr on the modern_common_frontage basis in 40_01_epoch_series.csv"
+winter2019_displacement_median_m,,2019-09-11 to 2020-03-31,8.948348937012296,m,"median signed shore-normal displacement, positive = retreat; NOT annualised — see 40_07_storm_pair.csv. `winter2019` is the winter CLOSING the 2019 seasonal year (Dec 2019 - Feb 2020) on Martin's Spring-Summer-Autumn-Winter year. NOTE this is hydrology year 2020 under config.MSL_HYDRO_YEAR_START_MONTH, which Script 26 labels by its ENDING year - same months, different number. See D-098."
+winter2019_interval_days,,2019-09-11 to 2020-03-31,202.0,days,"imagery dates, inclusive difference"
+winter2019_n_normals,,2019-09-11 to 2020-03-31,139.0,count,normals returning an intersection on the pair extent
+winter2019_n_progradation,,2019-09-11 to 2020-03-31,0.0,count,"normals moving seaward; tracing error scatters about zero, so an all-positive field is the evidence this is not a digitising artefact"
+winter2019_displacement_min_m,,2019-09-11 to 2020-03-31,0.7621305889245659,m,least-retreating normal on the frontage
+winter2019_displacement_p10_m,,2019-09-11 to 2020-03-31,4.0613585604233,m,10th percentile
+winter2019_displacement_p90_m,,2019-09-11 to 2020-03-31,21.76832613569528,m,90th percentile
+winter2019_displacement_max_m,,2019-09-11 to 2020-03-31,42.839963310615126,m,most-retreating normal on the frontage
+winter2019_frontage_span_m,,2019-09-11 to 2020-03-31,3454.1103047192732,m,alongshore span measured
+winter2019_control_p95_m,,2019-09-11 to 2020-03-31,5.531591924228962,m,"repeat-tracing control p95 from 40_03_control.csv, measured this run; the 1/1/2006 imagery traced twice, blind"
+winter2019_between_storm_expectation_m,,2019-09-11 to 2020-03-31,1.2834606574746672,m,"what this frontage moves over the same 202 days at the measured 2006-2026 rate — computed, not typed"
+winter2019_context_rate_m_yr,,2019-09-11 to 2020-03-31,2.3207128967456545,m/yr,"the long-run rate the expectation is built from, measured over 20.2437 yr (2006-2026) on the modern_common_frontage basis in 40_01_epoch_series.csv. Carries this pair's tag because it is context FOR this pair, not a free-standing constant"

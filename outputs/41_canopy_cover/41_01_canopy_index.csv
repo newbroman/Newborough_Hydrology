@@ -3,107 +3,115 @@ broadleaf_restock,2006-01-01,aerial 1-1-2006.png,31740,0.5707633252420002,
 clearfell,2006-01-01,aerial 1-1-2006.png,25186,1.6000690589229905,
 felling_experiment,2006-01-01,aerial 1-1-2006.png,22603,1.6423079165709455,
 forest_in_view,2006-01-01,aerial 1-1-2006.png,901931,1.0065734172635583,
-broadleaf_restock,2006-01-01,site1-1-2006.png,31740,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-clearfell,2006-01-01,site1-1-2006.png,25186,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-felling_experiment,2006-01-01,site1-1-2006.png,22603,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-forest_in_view,2006-01-01,site1-1-2006.png,901931,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-broadleaf_restock,2009-04-20,site20-4-2007.png,31740,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-clearfell,2009-04-20,site20-4-2007.png,25186,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-felling_experiment,2009-04-20,site20-4-2007.png,22603,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-forest_in_view,2009-04-20,site20-4-2007.png,901931,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+broadleaf_restock,2006-01-01,site1-1-2006m.png,31740,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+clearfell,2006-01-01,site1-1-2006m.png,25186,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+felling_experiment,2006-01-01,site1-1-2006m.png,22603,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+forest_in_view,2006-01-01,site1-1-2006m.png,901931,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+broadleaf_restock,2006-01-01,seabed1-1-2006.png,31740,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+clearfell,2006-01-01,seabed1-1-2006.png,25186,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+felling_experiment,2006-01-01,seabed1-1-2006.png,22603,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+forest_in_view,2006-01-01,seabed1-1-2006.png,901931,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+broadleaf_restock,2009-04-20,site 20-4-2009m.png,31740,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+clearfell,2009-04-20,site 20-4-2009m.png,25186,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+felling_experiment,2009-04-20,site 20-4-2009m.png,22603,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+forest_in_view,2009-04-20,site 20-4-2009m.png,901931,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
 broadleaf_restock,2009-04-20,aerial20-4-2009.png,31740,0.9058145022547243,
 clearfell,2009-04-20,aerial20-4-2009.png,25186,1.3229161498813664,
 felling_experiment,2009-04-20,aerial20-4-2009.png,22603,1.3726747838820523,
 forest_in_view,2009-04-20,aerial20-4-2009.png,901931,1.0095147614994362,
-broadleaf_restock,2010-05-27,site 27-5-2010.png,31740,,reference separation 0.0019 < 0.02
-clearfell,2010-05-27,site 27-5-2010.png,25186,,reference separation 0.0019 < 0.02
-felling_experiment,2010-05-27,site 27-5-2010.png,22603,,reference separation 0.0019 < 0.02
-forest_in_view,2010-05-27,site 27-5-2010.png,901931,,reference separation 0.0019 < 0.02
-broadleaf_restock,2011-06-19,site19-6-2011.png,31740,,reference separation 0.0043 < 0.02
-clearfell,2011-06-19,site19-6-2011.png,25186,,reference separation 0.0043 < 0.02
-felling_experiment,2011-06-19,site19-6-2011.png,22603,,reference separation 0.0043 < 0.02
-forest_in_view,2011-06-19,site19-6-2011.png,901931,,reference separation 0.0043 < 0.02
-broadleaf_restock,2012-05-26,site26-5-2012.png,31740,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-clearfell,2012-05-26,site26-5-2012.png,25186,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-felling_experiment,2012-05-26,site26-5-2012.png,22603,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-forest_in_view,2012-05-26,site26-5-2012.png,901931,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+broadleaf_restock,2011-06-19,site27-5-2010m.png,31740,,reference separation 0.0124 < 0.02
+clearfell,2011-06-19,site27-5-2010m.png,25186,,reference separation 0.0124 < 0.02
+felling_experiment,2011-06-19,site27-5-2010m.png,22603,,reference separation 0.0124 < 0.02
+forest_in_view,2011-06-19,site27-5-2010m.png,901931,,reference separation 0.0124 < 0.02
+broadleaf_restock,2011-06-19,site19-6-2011m.png,31740,,reference separation 0.0104 < 0.02
+clearfell,2011-06-19,site19-6-2011m.png,25186,,reference separation 0.0104 < 0.02
+felling_experiment,2011-06-19,site19-6-2011m.png,22603,,reference separation 0.0104 < 0.02
+forest_in_view,2011-06-19,site19-6-2011m.png,901931,,reference separation 0.0104 < 0.02
 broadleaf_restock,2012-05-26,aerial26-5-2012.png,31740,1.22880240659132,
 clearfell,2012-05-26,aerial26-5-2012.png,25186,1.091022210205115,
 felling_experiment,2012-05-26,aerial26-5-2012.png,22603,1.1367467734554426,
 forest_in_view,2012-05-26,aerial26-5-2012.png,901931,1.019087206910456,
-broadleaf_restock,2017-03-24,site24-3-2017.png,31740,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-clearfell,2017-03-24,site24-3-2017.png,25186,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-felling_experiment,2017-03-24,site24-3-2017.png,22603,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-forest_in_view,2017-03-24,site24-3-2017.png,901931,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+broadleaf_restock,2012-05-26,site26-5-2012m.png,31740,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+clearfell,2012-05-26,site26-5-2012m.png,25186,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+felling_experiment,2012-05-26,site26-5-2012m.png,22603,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+forest_in_view,2012-05-26,site26-5-2012m.png,901931,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
 broadleaf_restock,2017-03-24,aerial24-3-2017.png,31740,0.8808756779158825,
 clearfell,2017-03-24,aerial24-3-2017.png,25186,1.3915628137885723,
 felling_experiment,2017-03-24,aerial24-3-2017.png,22603,1.4129340745268826,
 forest_in_view,2017-03-24,aerial24-3-2017.png,901931,1.004221689898984,
-broadleaf_restock,2017-04-22,site22-4-2017.png,31740,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-clearfell,2017-04-22,site22-4-2017.png,25186,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-felling_experiment,2017-04-22,site22-4-2017.png,22603,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-forest_in_view,2017-04-22,site22-4-2017.png,901931,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+broadleaf_restock,2017-03-24,site24-3-2017m.png,31740,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+clearfell,2017-03-24,site24-3-2017m.png,25186,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+felling_experiment,2017-03-24,site24-3-2017m.png,22603,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+forest_in_view,2017-03-24,site24-3-2017m.png,901931,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+broadleaf_restock,2017-04-22,site22-4-2017m.png,31740,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+clearfell,2017-04-22,site22-4-2017m.png,25186,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+felling_experiment,2017-04-22,site22-4-2017m.png,22603,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+forest_in_view,2017-04-22,site22-4-2017m.png,901931,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+broadleaf_restock,2017-04-22,seabed22-4-2017.png,31740,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+clearfell,2017-04-22,seabed22-4-2017.png,25186,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+felling_experiment,2017-04-22,seabed22-4-2017.png,22603,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+forest_in_view,2017-04-22,seabed22-4-2017.png,901931,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
 broadleaf_restock,2017-04-22,aerial22-4-2017.png,31740,1.0234041557984528,
 clearfell,2017-04-22,aerial22-4-2017.png,25186,1.2627177200192987,
 felling_experiment,2017-04-22,aerial22-4-2017.png,22603,1.288430661794099,
 forest_in_view,2017-04-22,aerial22-4-2017.png,901931,1.012197267278991,
+broadleaf_restock,2018-06-28,site28-6-2018m.png,31740,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+clearfell,2018-06-28,site28-6-2018m.png,25186,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+felling_experiment,2018-06-28,site28-6-2018m.png,22603,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+forest_in_view,2018-06-28,site28-6-2018m.png,901931,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
 broadleaf_restock,2018-06-28,aerial28-6-2018.png,31740,1.1321333699778076,
 clearfell,2018-06-28,aerial28-6-2018.png,25186,0.1394838094872737,
 felling_experiment,2018-06-28,aerial28-6-2018.png,22603,0.11194549650086826,
 forest_in_view,2018-06-28,aerial28-6-2018.png,901931,0.9629819625347382,
-broadleaf_restock,2018-06-28,site28-6-2018.png,31740,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-clearfell,2018-06-28,site28-6-2018.png,25186,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-felling_experiment,2018-06-28,site28-6-2018.png,22603,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-forest_in_view,2018-06-28,site28-6-2018.png,901931,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+broadleaf_restock,2018-07-08,site8-7-2018m.png,31740,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+clearfell,2018-07-08,site8-7-2018m.png,25186,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+felling_experiment,2018-07-08,site8-7-2018m.png,22603,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+forest_in_view,2018-07-08,site8-7-2018m.png,901931,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
 broadleaf_restock,2018-07-08,aerial8-7-2018.png,31740,1.2035470245010695,
 clearfell,2018-07-08,aerial8-7-2018.png,25186,0.13626886207053726,
 felling_experiment,2018-07-08,aerial8-7-2018.png,22603,0.11059356035697887,
 forest_in_view,2018-07-08,aerial8-7-2018.png,901931,0.9415084846821673,
-broadleaf_restock,2018-07-08,site8-7-2018.png,31740,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-clearfell,2018-07-08,site8-7-2018.png,25186,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-felling_experiment,2018-07-08,site8-7-2018.png,22603,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-forest_in_view,2018-07-08,site8-7-2018.png,901931,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
 broadleaf_restock,2019-07-29,aerial29-7-2019.png,31740,1.1311384575307402,
 clearfell,2019-07-29,aerial29-7-2019.png,25186,0.059492375182245025,
 felling_experiment,2019-07-29,aerial29-7-2019.png,22603,0.03461824606995353,
 forest_in_view,2019-07-29,aerial29-7-2019.png,901931,0.9423087846971454,
-broadleaf_restock,2019-07-29,site29-7-2019.png,31740,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-clearfell,2019-07-29,site29-7-2019.png,25186,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-felling_experiment,2019-07-29,site29-7-2019.png,22603,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-forest_in_view,2019-07-29,site29-7-2019.png,901931,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+broadleaf_restock,2019-07-29,site29-7-2019m.png,31740,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+clearfell,2019-07-29,site29-7-2019m.png,25186,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+felling_experiment,2019-07-29,site29-7-2019m.png,22603,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+forest_in_view,2019-07-29,site29-7-2019m.png,901931,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
 broadleaf_restock,2019-09-11,aerial11-9-2019.png,31740,1.0425796387568573,
 clearfell,2019-09-11,aerial11-9-2019.png,25186,0.09089501661715287,
 felling_experiment,2019-09-11,aerial11-9-2019.png,22603,0.07080214030193045,
 forest_in_view,2019-09-11,aerial11-9-2019.png,901931,0.9403514365711113,
-broadleaf_restock,2019-09-11,site11-9-2019.png,31740,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-clearfell,2019-09-11,site11-9-2019.png,25186,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-felling_experiment,2019-09-11,site11-9-2019.png,22603,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-forest_in_view,2019-09-11,site11-9-2019.png,901931,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-broadleaf_restock,2020-03-31,site31-3-2020.png,31740,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-clearfell,2020-03-31,site31-3-2020.png,25186,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-felling_experiment,2020-03-31,site31-3-2020.png,22603,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-forest_in_view,2020-03-31,site31-3-2020.png,901931,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+broadleaf_restock,2019-09-11,site11-9-2019m.png,31740,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+clearfell,2019-09-11,site11-9-2019m.png,25186,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+felling_experiment,2019-09-11,site11-9-2019m.png,22603,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+forest_in_view,2019-09-11,site11-9-2019m.png,901931,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
 broadleaf_restock,2020-03-31,aerial31-3-2020.png,31740,1.158416200813707,
 clearfell,2020-03-31,aerial31-3-2020.png,25186,0.2075436423129004,
 felling_experiment,2020-03-31,aerial31-3-2020.png,22603,0.18321586450649066,
 forest_in_view,2020-03-31,aerial31-3-2020.png,901931,0.9779539024802815,
+broadleaf_restock,2020-03-31,site31-3-2020m.png,31740,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+clearfell,2020-03-31,site31-3-2020m.png,25186,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+felling_experiment,2020-03-31,site31-3-2020m.png,22603,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+forest_in_view,2020-03-31,site31-3-2020m.png,901931,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
 broadleaf_restock,2020-04-24,aerial24-4-2020.png,31740,1.1276621187691194,
 clearfell,2020-04-24,aerial24-4-2020.png,25186,0.14226796173729617,
 felling_experiment,2020-04-24,aerial24-4-2020.png,22603,0.12110142661252335,
 forest_in_view,2020-04-24,aerial24-4-2020.png,901931,0.9565904430912723,
-broadleaf_restock,2021-03-24,site24-3-2021.png,31740,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-clearfell,2021-03-24,site24-3-2021.png,25186,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-felling_experiment,2021-03-24,site24-3-2021.png,22603,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-forest_in_view,2021-03-24,site24-3-2021.png,901931,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-broadleaf_restock,2021-04-04,site4-4-2021.png,31740,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-clearfell,2021-04-04,site4-4-2021.png,25186,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-felling_experiment,2021-04-04,site4-4-2021.png,22603,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-forest_in_view,2021-04-04,site4-4-2021.png,901931,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+broadleaf_restock,2021-03-24,site24-3-2021m.png,31740,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+clearfell,2021-03-24,site24-3-2021m.png,25186,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+felling_experiment,2021-03-24,site24-3-2021m.png,22603,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+forest_in_view,2021-03-24,site24-3-2021m.png,901931,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+broadleaf_restock,2021-04-04,site4-4-2021m.png,31740,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+clearfell,2021-04-04,site4-4-2021m.png,25186,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+felling_experiment,2021-04-04,site4-4-2021m.png,22603,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+forest_in_view,2021-04-04,site4-4-2021m.png,901931,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
 broadleaf_restock,2026-03-31,aerial31-3-2026.png,31740,,"registration failed: only 5 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
 clearfell,2026-03-31,aerial31-3-2026.png,25186,,"registration failed: only 5 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
 felling_experiment,2026-03-31,aerial31-3-2026.png,22603,,"registration failed: only 5 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
 forest_in_view,2026-03-31,aerial31-3-2026.png,901931,,"registration failed: only 5 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-broadleaf_restock,2026-03-31,site31-3-2026.png,31740,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-clearfell,2026-03-31,site31-3-2026.png,25186,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-felling_experiment,2026-03-31,site31-3-2026.png,22603,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-forest_in_view,2026-03-31,site31-3-2026.png,901931,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+broadleaf_restock,2026-03-31,site31-3-2026m.png,31740,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+clearfell,2026-03-31,site31-3-2026m.png,25186,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+felling_experiment,2026-03-31,site31-3-2026m.png,22603,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+forest_in_view,2026-03-31,site31-3-2026m.png,901931,,"registration failed: only 0 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"

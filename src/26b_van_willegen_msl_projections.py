@@ -111,7 +111,11 @@ Cross-references
   Script 26 plot_cluster_trajectory()             — observed-trajectory layout this script extends
 """
 
-__version__ = "1.2.1"  # Hollingham (2026) -- 2026-08-18. UKCP18_SCENARIOS now
+__version__ = "1.2.2"  # Hollingham (2026) — 2026-08-30. WINTER_MONTHS now imported
+#   from config.WINTER_WET_CLIMATE_MONTHS — same months, one definition
+#   (D-100). No behavioural change; asserted equal to the literal it replaced.
+#
+# v1.2.1  # Hollingham (2026) -- 2026-08-18. UKCP18_SCENARIOS now
 #   imported from utils.config; this script and Script 19 each held a copy.
 #
 # v1.2.0  # Hollingham (2026) — 2026-05-27
@@ -171,7 +175,8 @@ SCENARIO_STYLES = {
               "label": "UKCP18 RCP8.5 2080s (50th %ile)"},
 }
 
-WINTER_MONTHS = [11, 12, 1, 2, 3]
+WINTER_MONTHS = list(config.WINTER_WET_CLIMATE_MONTHS)   # Nov-Mar wet-season
+                                                        # climate (D-100)
 SUMMER_MONTHS = [5, 6, 7, 8, 9]
 SHOULDER_MONTHS = [4, 10]
 

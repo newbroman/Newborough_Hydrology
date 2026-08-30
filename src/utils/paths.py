@@ -11,7 +11,11 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.7.0"  # Hollingham (2026) — 2026-08-30. Storm-pair inputs and
+__version__ = "1.8.0"  # Hollingham (2026) — 2026-08-30. Script 12 becomes a
+#   numeric emitter: OUT_12_BREAK_IN_SLOPE, OUT_12_BREAK_FIG and
+#   OUT_12_REPORT_NUMBERS for the northern break in slope. See D-099.
+#
+# v1.7.0  # Hollingham (2026) — 2026-08-30. Storm-pair inputs and
 #   outputs for Script 40: DATA_KML_COAST_2019_09_11 / DATA_KML_COAST_2020_03_31
 #   (renamed from brendan*.kml), OUT_40_STORM_PAIR and OUT_40_REPORT_NUMBERS.
 #   See D-098.
@@ -640,6 +644,12 @@ OUT_15_BEST_PARAMS      = DIR_15 / "15_04_best_params.csv"
 
 # Script 12 — Figure: site overview
 OUT_12_DEM_OVERVIEW         = DIR_12 / "12_01_dem_site_overview.png"
+# The northern break in slope (D-099). A SEPARATE figure, not an overlay on
+# 12_01: that PNG is report Figure 1 and altering a published figure is Martin's
+# call, not a side effect of adding a measurement.
+OUT_12_BREAK_IN_SLOPE       = DIR_12 / "12_02_break_in_slope.csv"
+OUT_12_BREAK_FIG            = DIR_12 / "12_02_break_in_slope.png"
+OUT_12_REPORT_NUMBERS       = DIR_12 / "12_report_numbers.csv"
 
 # Script 13 — Figure: experimental design
 OUT_13_EXPERIMENTAL_MAP     = DIR_13 / "13_01_experimental_setup_map.png"

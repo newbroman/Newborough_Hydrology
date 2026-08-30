@@ -55,7 +55,11 @@ Conventions:
 ====================================================================================
 """
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-08-27: forest-edge distance
+__version__ = "1.4.1"  # Hollingham (2026) — 2026-08-30. WINTER_MONTHS now imported
+#   from config.WINTER_METEOROLOGICAL_MONTHS — same months, one definition
+#   (D-100). No behavioural change; asserted equal to the literal it replaced.
+#
+# v1.4.0  # Hollingham (2026) — 2026-08-27: forest-edge distance
 #   read Features.kml with a bare gpd.read_file inside a try/except that
 #   returns None. LIBKML is absent from Ubuntu's GDAL, so the predictor had
 #   been silently NaN. Now via utils.kml_io.read_kml.
@@ -105,6 +109,7 @@ from utils.paths import (
 )
 from utils.data_utils import normalize_well_name
 from utils.config import (
+    WINTER_METEOROLOGICAL_MONTHS,
     CLUSTER_LABELS,
     FOREST_CIDS,
     get_cluster_colour,
@@ -133,7 +138,7 @@ OUT_SUMMARY             = OUT_24B_SUMMARY
 RIDGE_REFERENCE_E = RIDGE_REF_E   # config.py — shared ridge reference point
 RIDGE_REFERENCE_N = RIDGE_REF_N
 
-WINTER_MONTHS = (12, 1, 2)    # DJF
+WINTER_MONTHS = WINTER_METEOROLOGICAL_MONTHS   # DJF, from config (D-100)
 SUMMER_MONTHS = (6, 7, 8)     # JJA
 MIN_OBS_PER_SEASON = 3        # min raw obs in each season for a per-well test
 N_BOOTSTRAP = 1000            # well-level resamples for cluster-contrast CI

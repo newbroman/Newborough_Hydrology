@@ -1,0 +1,12 @@
+Parameter,Well,Era,Value,Unit,Note
+break_n_columns,,,835.0,count,easting columns of the 2 m DEM resolving a break inside the window
+break_elevation_median_m,,,11.387250945681616,m AOD,median elevation of the northern break in slope
+break_elevation_p10_m,,,8.918849277496339,m AOD,10th percentile
+break_elevation_p90_m,,,13.714214306785946,m AOD,90th percentile
+break_elevation_sd_m,,,1.6829264112979108,m,coherence statistic; the gate withholds above config.BREAK_ELEV_SD_TOL_M = 3.0
+break_northing_min_m,,,364623.0,m OSGB36,median-filtered
+break_northing_max_m,,,365505.0,m OSGB36,median-filtered
+break_easting_min_m,,,241823.0,m OSGB36,westernmost resolving column
+break_easting_max_m,,,243491.0,m OSGB36,easternmost resolving column
+break_lake_offset_north_m,,,220.12199999997392,m,"the break lies this far north of Llyn Rhos-Ddu at the lake's easting; lake position from 01_locations.csv, not typed"
+break_lake_offset_vertical_m,,,4.043159047081357,m,the break stands this far above the lake surface at the lake's easting

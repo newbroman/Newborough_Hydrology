@@ -6,3 +6,5 @@ script,literal,constant,reason
 20_spatial_figures.py,240100,SITE_MAP_EAST_MIN,D-013: map extent pinned inline
 20_spatial_figures.py,243900,SITE_MAP_EAST_MAX,D-013: map extent pinned inline
 20_spatial_figures.py,362200,SITE_MAP_NORTH_MIN,D-013: map extent pinned inline
+07_spatial_coefficients.py,243800,BREAK_WINDOW_E_MAX,"collision, not a re-typing: this is GRID_XI's eastern edge for the IDW coefficient maps, pinned inline by D-013, and has nothing to do with the break-in-slope detection window that happens to share the value (D-099)"
+20_spatial_figures.py,241000,BREAK_WINDOW_E_MIN,"collision, not a re-typing: a contour-label placement mask, unrelated to the break-in-slope detection window that happens to share the value (D-099)"

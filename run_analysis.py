@@ -131,7 +131,12 @@ import time
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.6.0"  # 2026-08-29: Script 40 registered in Phase 16 (tier A,
+__version__ = "2.7.0"  # 2026-08-29: Script 41 registered in Phase 16 (tier A,
+#   default). _DOCUMENTED_COUNTS moves deliberately: registered 51 -> 52,
+#   analytical top-level 41 -> 42, default 49. Phases unchanged at 17. The
+#   version bump is part of the guard (D-088): registering a step without it
+#   leaves a stale manifest indistinguishable from a current one.
+# v2.6.0  # 2026-08-29: Script 40 registered in Phase 16 (tier A,
 #   default). _DOCUMENTED_COUNTS moves deliberately: registered 50 -> 51,
 #   analytical top-level 40 -> 41, default 47 -> 48. Phase count unchanged.
 #   THIS BUMP IS PART OF A FIX, not bookkeeping. Script 40 was registered earlier
@@ -348,6 +353,7 @@ PHASE_16 = [
     Step("38_coastal_transect.py",              "Coast-to-inland MAM transect \u2014 observational delta_0 diagnostic (\u00a75.7)", "A"),
     Step("39_ccw_hindcast.py",                  "SSM hindcast against the 1989\u201396 CCW record \u2014 out-of-sample validation (\u00a75.7.8)", "A"),
     Step("40_shoreline_retreat.py",             "Shoreline retreat from the digitised coastline epochs \u2014 signed shore-normal displacement; WITHHOLDS its own headline until the gate passes (D-085)", "A"),
+    Step("41_canopy_cover.py",                  "Canopy and forest-cover texture index from the dated aerial series \u2014 registration fitted from the dipwell placemarks; WITHHOLDS a value whose frame is unregistered. Skips when the imagery is absent, which is its normal state in a clone (D-081)", "A"),
 ]
 PHASE_17 = [
     Step("09f_management_effects.py",  "Figure: management-interventions + coastal-retreat spatial reach (\u00a75.8; two-pass, reads Scripts 20/25/09d/10a)",   "D"),
@@ -397,12 +403,12 @@ ALL_PHASES = [
 # this pipeline and is cited in the report, which is what puts it in tier A
 # rather than among the opt-in diagnostics.
 _DOCUMENTED_COUNTS = {
-    "total_registered":            51,
+    "total_registered":            52,
     "total_phases":                17,
-    "by_tier.analytical_toplevel": 41,
+    "by_tier.analytical_toplevel": 42,
     "by_tier.display_utility":      4,
     "by_tier.optin_diagnostic":     6,
-    "by_exec.default":             48,
+    "by_exec.default":             49,
     "by_exec.optin":                3,
     "analytical_phases":           15,   # phases carrying >=1 tier-A step; emitted
                                          # for completeness, NOT cited in any document

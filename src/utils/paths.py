@@ -962,6 +962,24 @@ OUT_40_CONTROL         = DIR_40 / "40_03_control.csv"
 OUT_40_GENERALISATION  = DIR_40 / "40_04_generalisation.csv"
 OUT_40_DTM_PROFILE     = DIR_40 / "40_05_dtm_profile.csv"
 OUT_40_SENSITIVITY     = DIR_40 / "40_06_coastal_sensitivity.csv"
+
+# ── Script 41 — canopy and forest cover from the dated aerial series ──────────
+# The IMAGERY IS NOT IN THE REPOSITORY BY DEFAULT. It is screen capture of a
+# licensed basemap, and D-081 already settled the shape of that question for the
+# historic OS scan: the source stays out, the attribution travels with the
+# derived product. AERIAL_DIR is therefore a location, not a promise — Script 41
+# skips with a notice when it is empty, exactly as the pipeline skips when any
+# optional input is absent, so a clone without the imagery still runs.
+AERIAL_DIR      = DATA_GEO_DIR
+AERIAL_MANIFEST = AERIAL_DIR / "aerial_manifest.csv"
+
+DIR_41 = OUT_DIR / "41_canopy_cover"
+DIR_41.mkdir(parents=True, exist_ok=True)
+OUT_41_INDEX          = DIR_41 / "41_01_canopy_index.csv"
+OUT_41_CHANGE         = DIR_41 / "41_02_change_events.csv"
+OUT_41_REGISTRATION   = DIR_41 / "41_03_registration.csv"
+OUT_41_SERIES_FIG     = DIR_41 / "41_04_canopy_series.png"
+OUT_41_REPORT_NUMBERS = DIR_41 / "41_report_numbers.csv"
 OUT_40_FIG             = DIR_40 / "40_01_alongshore_profile.png"
 
 # Coastline epochs. coast1899.kml carries TWO placemarks and labels neither;

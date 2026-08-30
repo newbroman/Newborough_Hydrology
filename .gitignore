@@ -156,3 +156,16 @@ docs/papers/paper_2/PAPER2_EDITS.md
 # holds the ODTs. It belongs to the private repo (WGIT_PATHS carries it) and
 # must never reach the public one, where it would be meaningless to a reader
 # and would conflict on every push between machines.
+
+# Google Earth Pro screen captures — the imagery series behind Script 41.
+# Licensed basemap (Bluesky, Infoterra Ltd & COWI A/S), and committing it to a
+# PUBLIC repository attached to a journal submission is redistribution, which is
+# a different act from publishing a figure with attribution. D-081 settled the
+# shape of this for the historic OS scan: the source stays out, the attribution
+# travels with the derived product. Script 41 skips with a notice when the
+# imagery is absent, so a clone still runs the pipeline.
+# The MANIFEST is tracked - it carries the dates, the viewpoint and the
+# attribution, which is the part a reader needs.
+data/geo/aerial*.png
+data/geo/site*.png
+!data/geo/aerial_manifest.csv

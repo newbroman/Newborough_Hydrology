@@ -212,6 +212,53 @@ of differing density, and should not be read as bounding it.**
 **Not a measurement input.** It is an epoch the series already has; using it as
 a series line would double-count 2006.
 
+### `coast2019-09-11.kml` / `coast2020-03-31.kml` — the STORM PAIR, not epochs
+
+**Two shorelines bracketing one winter.** Digitised by Martin Hollingham in
+**Google Earth Pro 7.3.7.1155** (both carry the application in an `atom:link`)
+from historic imagery of **11 September 2019** and **31 March 2020**. Each holds
+one Placemark on a single LineString — **70 vertices** and **74 vertices**
+respectively — depicting the **dune edge**, the same indicator as the epoch
+series. Coordinates are WGS84 lon/lat, as KML requires. Neither carries a
+`<description>`, so the indicator is recorded here rather than in the file.
+
+**Renamed on filing, 2026-08-30.** Supplied as *brendan11-9-2019.kml* and
+*brendan31-3-2020.kml*; filed as `coast2019-09-11.kml` and `coast2020-03-31.kml`.
+The interval is 202 days and spans **Storm Brendan (13-14 January 2020), Storm
+Ciara and Storm Dennis (February 2020)**. Two frames five months apart cannot
+apportion the movement between them, so naming the pair for one storm would
+assert an attribution the measurement does not support. They are named for their
+imagery dates, like every other line here. **The internal `<name>` elements still
+read `brendan11-9-2019` and `brendan31-3-2020`** — the files were renamed on disk
+and not otherwise altered, which is why the supplied names are recorded above.
+Nothing globs `data/geo/coast*.kml`; checked across the repository before the
+rename, so the `coast` prefix pulls them into no series.
+
+**They are NOT epochs and are not in the epoch series.** Script 40 holds them in
+a separate `STORM_PAIRS` registry that feeds neither `EPOCHS` nor `INTERVALS`.
+Two reasons, both structural: a 0.55-year interval in `INTERVALS` would enter the
+rate series and be read beside 2.32 m yr⁻¹ as comparable; and the epoch lines
+also set the common-extent band on which every committed retreat number is
+measured, so admitting these two would move published values. See **D-098**.
+
+**What they measure, and what is deliberately not emitted.** Signed shore-normal
+displacement on the pair extent, same estimator and same projection origin as the
+epochs: **median +8.948 m across 139 normals, p10 +4.061, p90 +21.768, min
++0.762, max +42.840, zero progradation, over a 3454 m frontage.** Emitted to
+`outputs/40_shoreline_retreat/40_07_storm_pair.csv` and
+`40_report_numbers.csv`. **No rate is emitted for this pair, ever.** The interval
+is carried in days. Annualising it gives 16.2 m yr⁻¹, which has the units of a
+rate and the meaning of an arithmetic accident.
+
+**Reading it.** The strongest evidence is not the median: it is that **none of
+the 139 normals prograded and the least-retreating sat at +0.76 m**. Tracing
+error scatters about zero, so an all-positive field is not what a digitising
+artefact produces. For scale, the blind repeat-tracing control above is 2.34 m
+median / **5.53 m p95**, and this frontage's measured 2006-2026 rate implies
+**1.28 m** over the same 202 days. **Caveat, and it is not small: these two
+frames were each traced once, by one operator, and borrow their error estimate
+from the 2006 repeat-tracing control rather than carrying one of their own.**
+
 ### `_superseded/` — the 2026-08-28 series, withdrawn 2026-08-29
 
 `coast2006_digitised_2026-08-28.kml`, `coast2012_digitised_2026-08-28.kml`,

@@ -14,10 +14,57 @@ Outputs:
     (PNG @ dpi=300 — preserves DEM hillshade detail and well-label
     text; project convention is PNG @ dpi=300 for spatial / dense
     figures and JPEG @ dpi=200 for hydrograph / scenario panels.)
+    outputs/12_figure_site_overview/12_02_break_in_slope.csv
+    outputs/12_figure_site_overview/12_02_break_in_slope.png
+    outputs/12_figure_site_overview/12_report_numbers.csv
+
+The northern break in slope (v1.4.0, D-099)
+    Script 12 already reads the DEM and owns the site topographic overview, so
+    the break is an emission from an existing step rather than a new pipeline
+    step: no _DOCUMENTED_COUNTS move and no manifest-guard trip. It does make
+    Script 12 a NUMERIC emitter for the first time, which is why a
+    report-numbers file appears here.
+
+    12_01_dem_site_overview.png is REPORT FIGURE 1 and is not touched. The
+    break line gets its own map. Overlaying it on Figure 1 is available and is
+    Martin's call, not a side effect.
 ====================================================================================
 """
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-08-12
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-08-30
+#
+# Changelog
+#   1.4.0 (2026-08-30) — THE NORTHERN BREAK IN SLOPE. Script 12 becomes a
+#         numeric emitter. Per easting column of the 2 m DEM, inside a window
+#         that covers the massif-to-plain transition and nothing else, the
+#         north-south profile is smoothed and the break is the first sample,
+#         walking north to south, within BREAK_RELATIVE_M of the column's own
+#         10th-percentile "plain" elevation. Break northings are then median
+#         filtered across columns.
+#
+#         THE RULE IS PERCENTILE-RELATIVE, AND THAT IS THE WHOLE DESIGN. Two
+#         other rules were built and rejected on measurement, not taste:
+#           * "first flattening walking south" catches an upper BENCH on the
+#             massif, 557 m north of the lake — a real flattening, the wrong
+#             feature;
+#           * "steepest sustained descent" catches individual DUNE FACES and
+#             scatters the toe elevation by 8 m.
+#         Both fail because they look for a shape. Measuring height above the
+#         column's own low ground looks for the surface instead, which is what
+#         the boundary actually is.
+#
+#         GATED, D-085/D-089 shape. The result is WITHHELD with a stated reason
+#         if too few columns resolve or if the break-elevation sd exceeds
+#         config.BREAK_ELEV_SD_TOL_M — an incoherent line means the rule found
+#         different features in different columns, and an average of those is
+#         plausible and meaningless. The tolerance is BREAK_RELATIVE_M itself,
+#         the band that defines the feature; the rejected rules sit 2.7x outside
+#         it. See config.py and D-099.
+#
+#         WHAT IT DOES NOT CLAIM. It is a CANDIDATE landward limit for the sand
+#         aquifer, flagged modelled and unconfirmed. It emits no cluster-relative
+#         column: the C1 association was tested and rejected as definitional
+#         (D-099).
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -46,10 +93,16 @@ from utils.paths import (
     make_all_dirs,
     DATA_DIR,
     DATA_LOCATIONS_RAW,
+    INT_LOCATIONS,
     OUT_12_DEM_OVERVIEW,
+    OUT_12_BREAK_IN_SLOPE,
+    OUT_12_BREAK_FIG,
+    OUT_12_REPORT_NUMBERS,
 )
-from utils.map_utils import add_kml_features, load_dem_layer
+from utils.map_utils import add_kml_features, load_dem_layer, load_dem_hillshade
+from utils import config
 import os
+import numpy as np
 import pandas as pd
 import geopandas as gpd
 import matplotlib.pyplot as plt
@@ -220,7 +273,276 @@ def generate_dem_map():
     print(f"  [SUCCESS] Map saved locally as {output_filename}")
     plt.close()
 
+# ======================================================================
+# The northern break in slope (D-099)
+# ======================================================================
+def _boxcar(a, w):
+    """Moving average of `a` over `w` samples, padded by EDGE REPETITION.
+
+    Zero-padding would drag the ends of every profile toward zero and invent a
+    break at the window edge, which is the one place a break must not be
+    invented: the window edge is an artefact of where the window was drawn.
+    """
+    return np.convolve(np.pad(a, w // 2, mode="edge"),
+                       np.ones(w) / w, mode="valid")
+
+
+def _detect_break(dem_e_arr, dem_n_arr, dem_data):
+    """Per-easting-column break in slope. Returns a DataFrame, possibly empty.
+
+    THE RULE, and why it is percentile-relative.
+
+      For each column, the plain reference is the 10th percentile of the
+      smoothed north-south profile — not its minimum, which is one pixel and
+      follows any hollow. The break is the first sample, WALKING NORTH TO SOUTH,
+      that comes within BREAK_RELATIVE_M of that reference: the southern edge of
+      the northern massif.
+
+      Two rules that look more natural were built first and both fail, on
+      measurement rather than taste. "First flattening walking south" finds an
+      upper BENCH on the massif 557 m north of the lake: a real flattening, the
+      wrong feature. "Steepest sustained descent" finds individual DUNE FACES
+      and scatters the toe elevation by 8 m. Both search for a SHAPE, and the
+      massif has many shapes. Height above the column's own low ground searches
+      for the SURFACE, which is what the physiographic boundary is.
+
+    Coordinates are CELL CENTRES. dem_e_arr / dem_n_arr as returned by
+    load_dem_hillshade are cell origins; half a cell is 1 m here and the break
+    is reported to the metre, so the offset is applied rather than ignored.
+    """
+    from scipy.ndimage import median_filter
+
+    half_e = abs(float(dem_e_arr[1] - dem_e_arr[0])) / 2.0
+    half_n = abs(float(dem_n_arr[1] - dem_n_arr[0])) / 2.0
+    e_cent = dem_e_arr + half_e
+    # dem_n_arr descends (north to south), so row order IS the walk direction
+    # and no reversal is needed. Asserted rather than assumed: a DEM written
+    # south-up would silently invert the rule.
+    if not dem_n_arr[0] > dem_n_arr[-1]:
+        raise RuntimeError("DEM rows are not north-to-south; the break rule "
+                           "walks north to south and would be inverted")
+    n_cent = dem_n_arr - half_n
+
+    cm = ((e_cent >= config.BREAK_WINDOW_E_MIN)
+          & (e_cent < config.BREAK_WINDOW_E_MAX))
+    rm = ((n_cent >= config.BREAK_WINDOW_N_MIN)
+          & (n_cent < config.BREAK_WINDOW_N_MAX))
+    ecols, nrows = e_cent[cm], n_cent[rm]
+    sub = dem_data[np.ix_(rm, cm)]
+    info(f"break window {config.BREAK_WINDOW_E_MIN:.0f}-{config.BREAK_WINDOW_E_MAX:.0f} E, "
+         f"{config.BREAK_WINDOW_N_MIN:.0f}-{config.BREAK_WINDOW_N_MAX:.0f} N "
+         f"— {sub.shape[1]} columns x {sub.shape[0]} rows of the DEM")
+
+    rows, skipped_counts = [], {"nodata": 0, "no_plain": 0, "no_relief": 0,
+                                "no_break": 0, "starts_on_plain": 0}
+    for j in range(sub.shape[1]):
+        col = sub[:, j]
+        if np.isnan(col).all():
+            skipped_counts["nodata"] += 1
+            continue
+        sm = _boxcar(col, config.BREAK_SMOOTH_SAMPLES)
+        plain = float(np.nanpercentile(sm, config.BREAK_PLAIN_PERCENTILE))
+        if plain > config.BREAK_MAX_PLAIN_ELEV_M:
+            skipped_counts["no_plain"] += 1
+            continue
+        if float(np.nanmax(sm)) - plain < config.BREAK_MIN_RELIEF_M:
+            skipped_counts["no_relief"] += 1
+            continue
+        hit = np.where(sm <= plain + config.BREAK_RELATIVE_M)[0]
+        if len(hit) == 0:
+            skipped_counts["no_break"] += 1
+            continue
+        i = int(hit[0])
+        if i < config.BREAK_MIN_INDEX:
+            skipped_counts["starts_on_plain"] += 1
+            continue
+        rows.append({"easting_m": float(ecols[j]),
+                     "break_northing_raw_m": float(nrows[i]),
+                     "break_elevation_m": float(sm[i]),
+                     "plain_elevation_m": plain,
+                     "relief_m": float(np.nanmax(sm)) - plain})
+    for k, v in skipped_counts.items():
+        if v:
+            step(f"skipped {v} column(s): {k}")
+    if not rows:
+        return pd.DataFrame()
+
+    df = pd.DataFrame(rows).sort_values("easting_m").reset_index(drop=True)
+    # Outlier rejection ACROSS columns, on the northings. A single column that
+    # found the wrong feature moves the line by hundreds of metres and would
+    # otherwise stand in the emitted geometry.
+    df["break_northing_m"] = median_filter(
+        df["break_northing_raw_m"].to_numpy(),
+        size=config.BREAK_MEDIAN_COLUMNS, mode="reflect")
+    return df
+
+
+def _break_gate(df):
+    """Withhold the break with a NAMED reason, D-085/D-089 shape.
+
+    An incoherent line is the failure this gate exists for: the rule found
+    different features in different columns, and their average is plausible and
+    describes nothing. That has to fail loudly, because it is exactly what the
+    two rejected rules did.
+    """
+    reasons = []
+    if len(df) == 0:
+        return False, ["no column in the window resolved a break"], float("nan")
+    sd = float(df["break_elevation_m"].std(ddof=1))
+    if len(df) < config.BREAK_MIN_COLUMNS:
+        reasons.append(
+            f"coverage: {len(df)} column(s) resolved, below the "
+            f"{config.BREAK_MIN_COLUMNS} required "
+            f"({config.BREAK_MEDIAN_COLUMNS}-column filter x 5)")
+    if sd > config.BREAK_ELEV_SD_TOL_M:
+        reasons.append(
+            f"coherence: break-elevation sd {sd:.3f} m exceeds "
+            f"{config.BREAK_ELEV_SD_TOL_M:.3f} m — the columns are not on one "
+            f"surface, so the line is an average of different features")
+    return (len(reasons) == 0), reasons, sd
+
+
+def _break_report_numbers(df, sd, lake):
+    """The citable values. Every one read from the frame this run produced."""
+    e = df["easting_m"].to_numpy()
+    z = df["break_elevation_m"].to_numpy()
+    nf = df["break_northing_m"].to_numpy()
+    k = int(np.argmin(np.abs(e - lake["E"])))
+    lake_break_n, lake_break_z = float(nf[k]), float(z[k])
+    rows = [
+        ("break_n_columns", len(df), "count",
+         "easting columns of the 2 m DEM resolving a break inside the window"),
+        ("break_elevation_median_m", float(np.median(z)), "m AOD",
+         "median elevation of the northern break in slope"),
+        ("break_elevation_p10_m", float(np.percentile(z, 10)), "m AOD", "10th percentile"),
+        ("break_elevation_p90_m", float(np.percentile(z, 90)), "m AOD", "90th percentile"),
+        ("break_elevation_sd_m", sd, "m",
+         "coherence statistic; the gate withholds above "
+         f"config.BREAK_ELEV_SD_TOL_M = {config.BREAK_ELEV_SD_TOL_M}"),
+        ("break_northing_min_m", float(nf.min()), "m OSGB36", "median-filtered"),
+        ("break_northing_max_m", float(nf.max()), "m OSGB36", "median-filtered"),
+        ("break_easting_min_m", float(e.min()), "m OSGB36",
+         "westernmost resolving column"),
+        ("break_easting_max_m", float(e.max()), "m OSGB36",
+         "easternmost resolving column"),
+        ("break_lake_offset_north_m", lake_break_n - float(lake["N"]), "m",
+         "the break lies this far north of Llyn Rhos-Ddu at the lake's easting; "
+         "lake position from 01_locations.csv, not typed"),
+        ("break_lake_offset_vertical_m", lake_break_z - float(lake["Z"]), "m",
+         "the break stands this far above the lake surface at the lake's easting"),
+    ]
+    return pd.DataFrame([
+        {"Parameter": n, "Well": "", "Era": "",
+         "Value": v, "Unit": u, "Note": note_txt}
+        for n, v, u, note_txt in rows])
+
+
+def _break_figure(df, lake, out_path):
+    """The break on its own map. NOT an overlay on Figure 1.
+
+    load_dem_hillshade() needs an `ax` because it draws. There is no bare
+    array-only DEM loader in map_utils, so rather than open the raster
+    independently this figure's own axes are created FIRST and the loader draws
+    the hillshade it is meant to draw; the arrays it returns are what the
+    detection ran on. One read, one loader, no duplicate raster access.
+    """
+    fig, ax = plt.subplots(figsize=(11, 7), facecolor="white")
+    load_dem_hillshade(ax, DATA_DIR, alpha=0.55)
+    ax.plot(df["easting_m"], df["break_northing_m"], color="crimson", lw=2.0,
+            zorder=6, label=f"Northern break in slope (n={len(df)} columns)")
+    ax.plot(df["easting_m"], df["break_northing_raw_m"], color="crimson",
+            lw=0.5, alpha=0.35, zorder=5,
+            label="before the alongshore median filter")
+    ax.plot([lake["E"]], [lake["N"]], marker="o", ms=8, color="dodgerblue",
+            markeredgecolor="black", zorder=7, ls="none", label="Llyn Rhos-Ddu")
+    ax.set_xlim(config.BREAK_WINDOW_E_MIN, config.BREAK_WINDOW_E_MAX)
+    ax.set_ylim(config.BREAK_WINDOW_N_MIN, config.BREAK_WINDOW_N_MAX)
+    ax.set_xlabel("Easting (m, OSGB36)")
+    ax.set_ylabel("Northing (m, OSGB36)")
+    ax.set_title("Northern break in slope — the dune massif against the "
+                 "Malltraeth plain\n(northern boundary only; a CANDIDATE "
+                 "aquifer limit, modelled and unconfirmed)",
+                 fontsize=11, fontweight="bold")
+    ax.legend(loc="lower left", framealpha=0.9, edgecolor="black", fontsize=8)
+    fig.tight_layout()
+    render_figure(fig, out_path)
+    plt.close(fig)
+
+
+def measure_break_in_slope():
+    """Detect, gate, and emit the northern break in slope."""
+    phase(2, "Northern break in slope")
+
+    locs = pd.read_csv(INT_LOCATIONS)
+    key = locs["Name"].astype(str).str.strip().str.lower()
+    hit = locs[key.isin({k.lower() for k in config.LAKE_GAUGE_KEYS})]
+    if hit.empty:
+        warn("Llyn Rhos-Ddu not found in 01_locations.csv — break offsets "
+             "cannot be computed; skipping the break measurement")
+        return
+    lr = hit.iloc[0]
+    lake = {"E": float(lr["E"]), "N": float(lr["N"]),
+            "Z": float(lr["ground_elev_m"])}
+    info(f"Llyn Rhos-Ddu from 01_locations.csv: E {lake['E']:.3f}, "
+         f"N {lake['N']:.3f}, {lake['Z']:.2f} m AOD")
+
+    # The loader draws, so it needs axes. This throwaway figure exists only to
+    # satisfy that signature; the real map is drawn in _break_figure() from the
+    # same loader. Noted rather than hidden — see that function's docstring.
+    fig_tmp, ax_tmp = plt.subplots()
+    _hs, dem_loaded, dem_e_arr, dem_n_arr, dem_data = load_dem_hillshade(
+        ax_tmp, DATA_DIR)
+    plt.close(fig_tmp)
+    if not dem_loaded:
+        warn("DEM unavailable — the break in slope cannot be measured; "
+             "skipping (this is a valid state in a clone without the raster)")
+        return
+
+    df = _detect_break(dem_e_arr, dem_n_arr, dem_data)
+    ok, reasons, sd = _break_gate(df)
+    if not ok:
+        warn("BREAK IN SLOPE WITHHELD. Reasons:")
+        for r in reasons:
+            warn(f"    {r}")
+        out = df.copy() if len(df) else pd.DataFrame()
+        if len(out):
+            out["withheld"] = True
+            out["withheld_reason"] = "; ".join(reasons)
+            out.to_csv(OUT_12_BREAK_IN_SLOPE, index=False)
+            saved(OUT_12_BREAK_IN_SLOPE.name, "WITHHELD")
+        return
+
+    z = df["break_elevation_m"]
+    result("break", f"{len(df)} columns; elevation median {z.median():.3f} m AOD "
+                    f"(p10 {z.quantile(0.10):.3f}, p90 {z.quantile(0.90):.3f}, "
+                    f"sd {sd:.3f} m)")
+    info(f"    northing {df['break_northing_m'].min():.0f} to "
+         f"{df['break_northing_m'].max():.0f}, easting "
+         f"{df['easting_m'].min():.0f} to {df['easting_m'].max():.0f}")
+
+    df_out = df.copy()
+    df_out["withheld"] = False
+    df_out["withheld_reason"] = ""
+    df_out.to_csv(OUT_12_BREAK_IN_SLOPE, index=False)
+    saved(OUT_12_BREAK_IN_SLOPE.name, f"{len(df_out)} columns")
+
+    rn = _break_report_numbers(df, sd, lake)
+    rn.to_csv(OUT_12_REPORT_NUMBERS, index=False)
+    saved(OUT_12_REPORT_NUMBERS.name, f"{len(rn)} value(s)")
+    for nm in ("break_lake_offset_north_m", "break_lake_offset_vertical_m"):
+        v = float(rn.loc[rn.Parameter == nm, "Value"].iloc[0])
+        info(f"    {nm}: {v:.2f}")
+    note("a CANDIDATE landward limit for the sand aquifer — modelled and "
+         "unconfirmed, and the NORTHERN boundary only")
+
+    _break_figure(df, lake, OUT_12_BREAK_FIG)
+    saved(OUT_12_BREAK_FIG.name)
+
+
 if __name__ == "__main__":
     banner("12", "Figure — Site Overview", version=__version__)
     make_all_dirs()
+    phase(1, "Site overview map (report Figure 1)")
     generate_dem_map()
+    measure_break_in_slope()
+    done("12")

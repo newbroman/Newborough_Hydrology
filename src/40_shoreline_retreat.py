@@ -47,10 +47,27 @@ Reading order for anyone picking this up
 """
 from __future__ import annotations
 
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-08-30. The storm-pair
+__version__ = "1.6.0"  # Hollingham (2026) — 2026-08-30. The instance tag
+#   becomes `winter2019_20` (was `winter2019`, was `storm_pair_2019_20`), so all
+#   twelve emitted parameter names change again: `winter2019_20_displacement_median_m`,
+#   `winter2019_20_between_storm_expectation_m`, `winter2019_20_context_rate_m_yr`.
+#   WHY, and it is the point of the change: `winter2019` was only unambiguous
+#   under Martin's seasonal year (Spring-Summer-Autumn-Winter, named for its
+#   start). Under config.MSL_HYDRO_YEAR_START_MONTH - van Willegen / Curreli
+#   hydrology year B, 1 June to 31 May, named for its END, used by Scripts 11,
+#   14, 25, 26, 32, 33 and 38 - the same winter is 2020. `winter2019_20` names
+#   BOTH calendar years and so reads correctly under either convention, which is
+#   what lets the three-place explanatory gloss come out. The gloss is REPLACED
+#   by a plain statement of what the tag denotes (December 2019 to February
+#   2020), not deleted: a reader still needs the months.
+#   The tag SIDESTEPS the two-convention collision; it does not resolve it. Both
+#   conventions remain in the corpus, untouched. See D-098's second 2026-08-30
+#   note and work-register M30.
+#
+# v1.5.0  # Hollingham (2026) — 2026-08-30. The storm-pair
 #   instance label becomes `winter2019` and every emitted parameter name carries
-#   it (`winter2019_displacement_median_m`, `winter2019_between_storm_expectation_m`,
-#   `winter2019_context_rate_m_yr`, ...), replacing `storm_pair_2019_20`.
+#   it, replacing `storm_pair_2019_20`. (Superseded by v1.6.0's `winter2019_20`;
+#   the entry stands as the record of what v1.5.0 did.)
 #   THE TAG NOW COMES FROM THE REGISTRY ROW, not from a literal inside
 #   _report_numbers(): v1.4.0 hard-typed `tag = "storm_pair_2019_20"` there,
 #   which is precisely the failure D-098's own Revisit-if anticipated for a
@@ -59,10 +76,8 @@ __version__ = "1.5.0"  # Hollingham (2026) — 2026-08-30. The storm-pair
 #   run time, so the collision cannot happen quietly. The tag is also emitted as
 #   a column of 40_07_storm_pair.csv.
 #   STORM_PAIRS keeps its name and 40_07_storm_pair.csv keeps its filename: the
-#   registry is the CLASS (pairs bracketing a storm season) and winter2019 is one
+#   registry is the CLASS (pairs bracketing a storm season) and the tag is one
 #   INSTANCE of it. See the registry comment - do not "tidy" that split away.
-#   SEASON CONVENTION, and a collision worth knowing about: see D-098's
-#   2026-08-30 note and the registry comment below.
 #
 # v1.4.0  # Hollingham (2026) — 2026-08-30. Adds the STORM
 #   PAIR: two shorelines bracketing the 2019/20 winter storm season, measured on
@@ -189,7 +204,7 @@ FLOOR_INTERVAL = ("2006", "2026")   # longest modern interval; the floor test
 # the measurement for one of them would be a false attribution.
 # CLASS AND INSTANCE - do not "tidy" this into one name. `STORM_PAIRS` is the
 # CLASS: pairs of frames bracketing a storm season, measured as displacements.
-# `winter2019` is one INSTANCE of that class. Renaming the registry (or
+# `winter2019_20` is one INSTANCE of that class. Renaming the registry (or
 # 40_07_storm_pair.csv) to "winter" would lose the reason the registry exists,
 # and renaming the instance to "storm_pair" would lose which winter it is.
 #
@@ -203,26 +218,14 @@ FLOOR_INTERVAL = ("2006", "2026")   # longest modern interval; the floor test
 #                 parameters, which is a worse bug than the one being fixed.
 #   earlier path, earlier date, later path, later date.
 #
-# SEASON CONVENTION FOR THE TAG. Martin's seasonal year runs Spring, Summer,
-# Autumn, Winter, so winter CLOSES the year: `winter2019` is the winter that
-# ends the 2019 seasonal year, i.e. December 2019 to February 2020. That is what
-# makes the 31 March 2020 frame the correct closing frame - it is the first
-# imagery after that winter, not a frame from the following year.
-#
-# ** IT DOES NOT AGREE WITH THE YEAR CONVENTION ALREADY IN THIS PIPELINE, AND
-#    THE DISAGREEMENT IS ONLY IN THE LABEL. ** config.MSL_HYDRO_YEAR_START_MONTH
-# = 6 defines van Willegen / Curreli "hydrology year B": 1 June (y-1) to 31 May
-# (y), labelled by the year it ENDS in (26_van_willegen_msl.hydrology_year:
-# "A reading dated 2010-06 to 2011-05 belongs to hydrology year 2011"). Under
-# that rule December 2019 to February 2020 is hydrology year 2020. The two
-# schemes agree on the months and on spring being MAM (MSL_SPRING_MONTHS =
-# (3, 4, 5)); they differ on where the year starts (March vs June) and on which
-# end it is named for (start vs finish). SO THE SAME WINTER IS 2019 HERE AND
-# 2020 IN SCRIPT 26. Both are internally consistent and nothing is wrong in
-# either script - but a reader who knows one will misread the other, so the tag
-# is never written without this gloss nearby. Flagged for Martin; see D-098.
+# WHAT THE TAG DENOTES. `winter2019_20` is the winter of December 2019 to
+# February 2020 - the winter the two frames bracket. It names both calendar
+# years deliberately, so it reads correctly whether the reader numbers a year
+# from its start or from its finish, and therefore needs no convention gloss to
+# be unambiguous. (It replaced `winter2019`, which was correct only under a year
+# numbered from its start; see D-098.)
 STORM_PAIRS = [
-    ("winter2019", "2019/20 winter storm sequence",
+    ("winter2019_20", "2019/20 winter storm sequence",
      paths.DATA_KML_COAST_2019_09_11, "2019-09-11",
      paths.DATA_KML_COAST_2020_03_31, "2020-03-31"),
 ]
@@ -234,7 +237,7 @@ def _check_storm_tags():
     This is the check that makes the registry-derived tag worth having. Deriving
     it rather than typing it stops one pair borrowing another's parameter names
     by omission; this stops it by collision. Both are the same defect - two pairs
-    emitting `winter2019_displacement_median_m` - arriving by different routes.
+    emitting `winter2019_20_displacement_median_m` - arriving by different routes.
     """
     tags = [row[0] for row in STORM_PAIRS]
     dupes = sorted({x for x in tags if tags.count(x) > 1})
@@ -861,16 +864,16 @@ def _report_numbers(storm_df, context):
         # named this exact case; _check_storm_tags() now also refuses duplicates
         # at source.
         tag = r["tag"]
-        season_note = ("`winter2019` is the winter CLOSING the 2019 seasonal "
-                       "year (Dec 2019 - Feb 2020) on Martin's Spring-Summer-"
-                       "Autumn-Winter year. NOTE this is hydrology year 2020 "
-                       "under config.MSL_HYDRO_YEAR_START_MONTH, which Script 26 "
-                       "labels by its ENDING year - same months, different "
-                       "number. See D-098.")
+        # A plain statement of what the tag denotes, not a convention gloss:
+        # `winter2019_20` names both calendar years, so it does not depend on
+        # which end of a year the reader numbers from. The gloss v1.5.0 carried
+        # here was load-bearing only while the tag was `winter2019`.
+        season_note = ("the winter of December 2019 to February 2020, which "
+                       "these two frames bracket")
         pairs = [
             (f"{tag}_displacement_median_m", r["median_m"], "m",
              "median signed shore-normal displacement, positive = retreat; "
-             "NOT annualised — see 40_07_storm_pair.csv. " + season_note),
+             "NOT annualised — see 40_07_storm_pair.csv. Covers " + season_note),
             (f"{tag}_interval_days", r["interval_days"], "days",
              "imagery dates, inclusive difference"),
             (f"{tag}_n_normals", r["n"], "count",

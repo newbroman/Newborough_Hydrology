@@ -76,7 +76,11 @@ References:
       for water table depths. WRR 36(1), 181–188.
 """
 
-__version__ = "1.1.2"  # Hollingham (2026) — 2026-08-26: removed stale P−PET literal from docstring (T-14 E10)
+__version__ = "1.1.3"  # Hollingham (2026) — 2026-08-30. WINTER_MONTHS now imported
+#   from config.WINTER_RECESSION_MONTHS — same months, one definition
+#   (D-100). No behavioural change; asserted equal to the literal it replaced.
+#
+# v1.1.2  # Hollingham (2026) — 2026-08-26: removed stale P−PET literal from docstring (T-14 E10)
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -105,6 +109,7 @@ from utils.paths import (
     OUT_16_BAR_LAY, OUT_16_BAR_MS, OUT_03_MECHANISTIC_TABLE,
 )
 from utils.config import (
+    WINTER_RECESSION_MONTHS,
     BW_MODE, CLUSTER_LABELS as _CFG_LABELS, DRAINAGE_DATUM,
     FOREST_INTERCEPTION, FOREST_CIDS,
 )
@@ -115,7 +120,8 @@ make_all_dirs()
 # FOREST_CIDS imported from config.py — forested clusters (4, 5).
 
 # Recession analysis seasons (calendar months)
-WINTER_MONTHS = [11, 12, 1, 2]
+WINTER_MONTHS = list(WINTER_RECESSION_MONTHS)   # Nov-Feb; March excluded
+                                               # as transitional (D-100)
 SUMMER_MONTHS = [6, 7, 8, 9]
 
 # ── Figure colours ─────────────────────────────────────────────────────────────

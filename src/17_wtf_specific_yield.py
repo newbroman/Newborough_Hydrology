@@ -30,7 +30,11 @@ S.12 §"Forest interception correction"; see also `wtf_interception_methodology.
 in the project store.
 """
 
-__version__ = "1.4.2"  # Hollingham (2026) -- 2026-08-18. Store-time rounding removed (D-035): these values
+__version__ = "1.4.3"  # Hollingham (2026) — 2026-08-30. WINTER_MONTHS now imported
+#   from config.WINTER_WET_CLIMATE_MONTHS — same months, one definition
+#   (D-100). No behavioural change; asserted equal to the literal it replaced.
+#
+# v1.4.2  # Hollingham (2026) -- 2026-08-18. Store-time rounding removed (D-035): these values
 #   are written to CSV at the precision they were computed, and rounding
 #   happens where they are displayed. Three decimals is a display rule for
 #   quantities of order one; applied at storage it costs a significant
@@ -59,6 +63,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 from utils.config import (
+    WINTER_WET_CLIMATE_MONTHS,
     CLUSTER_LABELS as _CFG_CLUSTER_LABELS,
     CLUSTER_COLOURS as _CFG_CLUSTER_COLOURS,
     FOREST_CIDS,
@@ -74,7 +79,7 @@ from utils.render_utils import render_figure
 make_all_dirs()
 
 # ── Constants ──────────────────────────────────────────────────────────────────
-WINTER_MONTHS   = [11, 12, 1, 2, 3]    # Nov–Mar: PET negligible
+WINTER_MONTHS   = list(WINTER_WET_CLIMATE_MONTHS)   # Nov-Mar: PET negligible (D-100)
 PET_MAX_WINTER  = 0.025                 # m/month — exclude months above this
 MIN_RISE_M      = 0.005                 # minimum detectable water table rise (m)
 MIN_NET_RECH    = 0.010                 # minimum net recharge for event method (m)

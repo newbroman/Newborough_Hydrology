@@ -40,7 +40,22 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.20.0"  # Hollingham (2026) — 2026-08-29. COAST_RETREAT_RATE is
+__version__ = "1.22.0"  # Hollingham (2026) — 2026-08-30. THE FOUR WINTERS.
+#   Batch one of the seasonal-windows spec: WINTER_RECHARGE_MONTHS,
+#   WINTER_WET_CLIMATE_MONTHS, WINTER_RECESSION_MONTHS and
+#   WINTER_METEOROLOGICAL_MONTHS, replacing seven per-script locals all
+#   called WINTER_MONTHS and meaning four different things. Named for what
+#   each window IS FOR, not for the season, because the season name is
+#   exactly what made four incompatible definitions look interchangeable.
+#   Summer and spring are batch two. See D-100.
+#
+# v1.21.0  # Hollingham (2026) — 2026-08-30. Adds the BREAK_*
+#   block: the detection parameters for the northern break in slope measured by
+#   Script 12, and the two gate tolerances that withhold it. Every number in the
+#   block is a PARAMETER of the detector; the results live in
+#   12_02_break_in_slope.csv. See D-099.
+#
+# v1.20.0  # Hollingham (2026) — 2026-08-29. COAST_RETREAT_RATE is
 #   SUPERSEDED (D-090): no script divides by it any more. The divisor in the
 #   coastal edge-drawdown construction is now measured by Script 40 over a window
 #   matched to delta_0's fit span, read live by utils.coastal_utils, with the
@@ -1071,6 +1086,61 @@ OBSERVATION_FLOOD_LEVEL_HINTS = ["ceh 24", "ceh24"]
 # at least one recorded-dry month -- is marked dry_inferred.
 DRY_SEASON_MONTHS = (7, 8, 9, 10)
 
+
+# ── The four winters ──────────────────────────────────────────────────────────
+#
+# Seven scripts each carried a local called `WINTER_MONTHS`, and between them
+# they held FOUR different sets of months. None was wrong. Each is the right
+# window for the question its script asks, and the shared name is what made them
+# look interchangeable — a reader who checked one and moved on would have been
+# misled about the other six.
+#
+# So these are named for WHAT THE WINDOW IS FOR, never for the season. A constant
+# called WINTER_MONTHS in config.py would have re-created the defect at a wider
+# scope, and would have invited the tidy-up that merges two of them. **Merging
+# any two of these is a methodological change, not housekeeping**: two are fixed
+# by parties outside this project, and a third is defined by the exclusion that
+# makes its metric work. See D-100.
+#
+# Seasonal-year convention, recorded here because it is otherwise only in a
+# reader's head: Martin's seasonal year runs Spring, Summer, Autumn, Winter, so
+# winter CLOSES the year rather than opening it. That convention is what makes
+# Script 40's `winter2019_20` tag denote December 2019 to February 2020. It sits
+# alongside, and does not replace, MSL_HYDRO_YEAR_START_MONTH = 6 (the van
+# Willegen MSL hydrological year) and 00_climate_summary.py's October-start
+# hydrological year used for the winter-maximum extraction. Three year
+# conventions coexist in this project on purpose; each is stated where it is used.
+
+# Recharge and flood season, Oct-Mar. The wet half-year: the window over which
+# the water table refills and over which Curreli's SD15b_WINTER / SD16_WINTER
+# flooding limits are evaluated. Rationale is 00_climate_summary.py's, moved here
+# with the constant rather than reworded — the winter maximum is taken over these
+# months, grouped into an October-start hydrological year, because a slack that
+# floods does so somewhere in the refill half-year and not reliably inside DJF.
+# Six months, and its complement (Apr-Sep) is the drought/recession half-year.
+WINTER_RECHARGE_MONTHS       = (10, 11, 12, 1, 2, 3)   # Oct-Mar
+
+# Wet-season climate, Nov-Mar. THIS WINDOW IS NOT OURS TO CHANGE. The UKCP18
+# seasonal multipliers in this file — UKCP18_DRY_P_WINTER, UKCP18_WET_PET_WINTER
+# and the rest — are published against these months, so redefining the window
+# without re-deriving the multipliers would silently apply a correction to a
+# season it was not measured for. Also the window over which Script 17 treats PET
+# as negligible for the water-table-fluctuation method, which is a physical claim
+# about these five months and not about October.
+WINTER_WET_CLIMATE_MONTHS    = (11, 12, 1, 2, 3)       # Nov-Mar — UKCP18
+
+# Hydrograph recession, Nov-Feb. The narrowest of the four, and deliberately so:
+# March is excluded as transitional. The metric measures a consistent recession
+# limb, and a month in which recharge and recession alternate between years adds
+# variance without adding signal. The exclusion IS the metric — widening this
+# window to match either of the two above would change what Script 16 reports.
+WINTER_RECESSION_MONTHS      = (11, 12, 1, 2)          # Nov-Feb
+
+# Meteorological winter, DJF. The standard climatological season, used where the
+# quantity being compared is a season-mean in the ordinary sense and pairs with a
+# JJA summer. External convention, like the UKCP18 window, but a universal one.
+WINTER_METEOROLOGICAL_MONTHS = (12, 1, 2)              # DJF
+
 # "dry at X" depths: values above this are centimetres and divided by 100 to give
 # metres (e.g. "dry at 110" -> 1.10 m); at or below are already metres.
 DRY_DEPTH_CM_THRESHOLD = 10.0
@@ -1427,3 +1497,77 @@ FIG_TARGET_PRINT_DPI = 300     # DPI ceiling at placed size
 # v1.4.0. Callers may override the target via min_placed_pt=.
 FIG_MIN_PLACED_PT = 6.5        # smallest acceptable printed label size (pt)
 FIG_MAX_FONT_SCALE = 1.7       # ceiling on the automatic text enlargement
+
+
+# ── Northern break in slope — detection parameters (Script 12, D-099) ────────
+#
+# WHAT IS BEING FOUND. The northern physiographic boundary of the site: the
+# southern edge of the dune massif, where it gives way to the low Malltraeth
+# plain. Llyn Rhos-Ddu sits at its foot. It is a CANDIDATE landward limit for
+# the sand aquifer and is reported as modelled and unconfirmed — nothing here
+# establishes it as the aquifer limit.
+#
+# THIS IS THE NORTHERN BOUNDARY ONLY. The window deliberately excludes most of
+# the site. It is not a site-wide product and must not be read as one.
+#
+# The window. Chosen to contain the massif-to-plain transition and nothing else;
+# a wider window admits the coastal frontage and the southern scrapes, which are
+# different features and would be found by the same rule.
+BREAK_WINDOW_E_MIN = 241000.0   # m OSGB36
+BREAK_WINDOW_E_MAX = 243800.0   # m OSGB36 — 1400 columns of the 2 m DEM
+BREAK_WINDOW_N_MIN = 364100.0   # m OSGB36
+BREAK_WINDOW_N_MAX = 365600.0   # m OSGB36
+
+# Along-profile smoothing, in DEM samples. 21 samples of a 2 m DEM is 42 m — long
+# enough to average out individual dune faces, short enough to keep the massif
+# edge. Padded by edge repetition so the ends are not dragged toward zero.
+BREAK_SMOOTH_SAMPLES = 21
+
+# The plain reference. The 10th percentile of the smoothed column, not its
+# minimum: a minimum is one pixel and follows any hollow. Everything else in the
+# rule is measured RELATIVE to this, which is what makes the detector work where
+# absolute-elevation and slope-based rules fail (see D-099).
+BREAK_PLAIN_PERCENTILE = 10
+
+# Column admission. A column with no low ground in it has no plain to measure
+# from; a column with no high ground in it has no massif to find the edge of.
+BREAK_MAX_PLAIN_ELEV_M = 12.0   # skip if the plain reference is above this
+BREAK_MIN_RELIEF_M     = 6.0    # skip if smoothed max minus plain is below this
+
+# The break itself: walking NORTH to SOUTH, the first sample within this height
+# of the plain reference. That is the southern edge of the northern massif.
+BREAK_RELATIVE_M = 3.0
+
+# A break found in the first few samples means the column began on the plain
+# already, so there was no massif edge inside the window to find.
+BREAK_MIN_INDEX = 5
+
+# Alongshore outlier rejection: a median filter across easting columns, applied
+# to the break northings after sorting by easting. 61 columns of a 2 m DEM is
+# 122 m.
+BREAK_MEDIAN_COLUMNS = 61
+
+# ── Gate tolerances (D-085 / D-089 shape: withhold with a reason) ────────────
+#
+# BREAK_ELEV_SD_TOL_M. An incoherent line means the rule found DIFFERENT
+# features in different columns, and averaging those gives a plausible-looking
+# number that describes nothing. That must fail loudly rather than emit.
+#
+# The bound is not chosen as a number; it is set equal to BREAK_RELATIVE_M, the
+# vertical band that DEFINES the feature. The reasoning: columns declared to be
+# on one surface are, by construction, within that band of their own plain
+# reference, so a scatter of break elevations wider than the band is evidence
+# the columns are not on one surface at all. Measured against the record it has
+# to discriminate: the accepted rule scatters at sd 1.68 m (56 % of the bound),
+# and the two rejected rules — first-flattening-walking-south, which catches an
+# upper bench, and steepest-sustained-descent, which catches individual dune
+# faces — scatter at sd 8.00 m, 2.7x outside it. It would have caught both
+# without being tuned to pass the third.
+BREAK_ELEV_SD_TOL_M = BREAK_RELATIVE_M
+
+# BREAK_MIN_COLUMNS. Columns legitimately fail at the ends of the window, where
+# there is no massif — that is the detector working, not failing, so this is not
+# a high fraction of the window. It is set to five times the median-filter width
+# instead: a run shorter than a few filter widths is mostly the filter's own
+# edge handling, not a boundary. 5 x 61 = 305 columns = 610 m.
+BREAK_MIN_COLUMNS = 5 * BREAK_MEDIAN_COLUMNS

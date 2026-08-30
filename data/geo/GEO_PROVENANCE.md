@@ -386,6 +386,202 @@ modern end of D-060's published 0.65 m yr⁻¹.
 
 ---
 
+## Google Earth Pro screen captures — the imagery series (46 files)
+
+**What they are.** Screen captures of Google Earth Pro at 1920×1080, taken by
+Martin Hollingham. **They are not orthophotos.** They are pictures of a rendered
+perspective view, so they carry perspective distortion: absolute areas and
+distances measured off them are approximate. Comparisons *between* frames at the
+same viewpoint largely cancel it, which is why Script 41's canopy measure is a
+comparative index rather than a fraction (D-097).
+
+**Every imagery date, eye altitude and attribution below was READ OFF THE
+RENDERED PIXELS on 2026-08-30**, frame by frame, not copied from a filename or
+from the manifest's former blanket value. The rendered status bar is the
+authoritative source for the date.
+
+**Four viewpoints**, distinguished by the eye altitude and centre the frames
+themselves print:
+
+| viewpoint | eye alt | centre | files | what it shows |
+|---|---|---|---|---|
+| `vp1` | 1.79 km | 53°08'53.91"N 4°22'34.56"W | 12 | partial site: the forest block and its surroundings |
+| `vp2` | 3.70 km | 53°08'39.92"N 4°21'58.07"W | 27 | the whole site |
+| `vp2_2006` | 3.77 km | 53°08'38.76"N 4°21'57.52"W | 4 | the whole site, a *different* capture position — **not** pixel-registered with `vp2` |
+| `vp3` | 6.30 km | 53°07'56.86"N 4°22'10.40"W | 2 | wide Caernarfon Bay, Llanddwyn to Abermenai Point |
+
+`aerial31-3-2026.png` prints **2.00 km** and a centre 3 arc-seconds north of the
+other eleven `vp1` frames — it is a shifted viewpoint. It is **left in `vp1`**,
+where it already sat and where D-097 records the consequence (it matches only 5
+placemarks and all four of its regions are withheld). The geometry is stated
+rather than re-grouped, because re-grouping would change what Script 41 registers.
+
+**`site*` frames come in PAIRS, and the `m` suffix means MARKERS.** The plain name
+is markers **OFF**; `m` is the same view with the dipwell placemarks **ON**.
+Verified on all 15 pairs by differencing each pair and inspecting the result, and
+confirmed by eye on `site1-1-2006`, `site22-4-2017` and `site27-5-2010`. `aerial*`
+frames carry markers **and** draw the green control polygon; `vp3` frames carry
+markers and are unpaired.
+
+**Role follows from that**: registration is done from the markers, so the
+markers-ON frame is the **registration** frame, and the texture measurement needs
+unoccluded canopy, so the markers-OFF frame is the **measurement** frame.
+`aerial_manifest.csv` had this **inverted for all 15 site pairs** and was
+corrected on 2026-08-30 — see the note below.
+
+**Where they are held.** Per **D-081** and D-097's note of 2026-08-30 the captures
+stay **out of the public repository**: the licensed source stays out, the
+attribution travels with the derived product. They live on Martin's machine under
+`data/geo/`, ignored by `.gitignore` (`aerial*.png`, `site*.png`, `seabed*.png`),
+with `aerial_manifest.csv` tracked because it carries the dates, viewpoints and
+attributions a reader needs. Script 41 skips with a notice when the imagery is
+absent, its normal state in a clone.
+
+### Attribution is per frame — six distinct rights-holders across the series
+
+The manifest formerly asserted *"Bluesky, Infoterra Ltd & COWI A/S"* on every
+row. Google Earth composites several providers and switches between them by date
+and area, so one blanket value cannot be right across 2006–2026. Read off the
+frames, the series carries:
+
+| attribution | frames |
+|---|---|
+| Image © 2026 Maxar Technologies | 2010–2012 and 2017 imagery |
+| Image © 2026 CNES / Airbus | 2018–2021 imagery |
+| Image © 2026 Airbus | 2026 imagery |
+| Image © 2026 Getmapping plc | 2009 imagery |
+| Image © 2026 Bluesky, Infoterra Ltd & COWI A/S | 2006 and 2009 imagery |
+| Image Landsat / Copernicus | 2006 `vp2_2006` / `vp3` frames, as a *second* line |
+
+Some frames render **two** attribution lines (both 2006 whole-site frames, the
+2006 seabed frame, and both 20-4-2009 frames); both are recorded. **Three frames
+render no attribution line at all** — `aerial28-6-2018.png`, `site28-6-2018.png`
+and `site28-6-2018m.png` — checked on a 190 px band, so this is a property of the
+28 June 2018 layer and not a crop artefact.
+
+### CORRECTED 2026-08-30: the manifest's `role` column was inverted
+
+For all 15 `site*` pairs the manifest assigned `role = registration` to the plain
+(markers **OFF**) frame. `41_canopy_cover.py` selects its registration frames with
+`man = man[man["role"] == "registration"]`, so on the whole-site viewpoint **it was
+attempting to register from frames with no markers on them.** Flipped on Martin's
+instruction (*"the suffix m stands for marker! please flip the column"*).
+
+**What the flip does to Script 41, measured rather than assumed:**
+
+- **No citable value moves.** 44 emitted region-frame values before and after,
+  identical keys, maximum difference **0.0**, and `41_report_numbers.csv` is
+  byte-identical.
+- **The whole-site viewpoint still withholds all 60 values**, for the reason
+  D-097 already identifies: the registration bootstrap looks for the control
+  polygon's outline, which the `site*` frames do not draw, so 52 of them fail with
+  *"registration failed: only 0 placemark(s) matched"*. **The flip does not fix
+  that and was not expected to.**
+- **The evidence that the flip is nevertheless right** is in the eight frames that
+  get past registration to the reference-separation test: their separation
+  improves from **0.0019 / 0.0043 to 0.0124 / 0.0104**, three to five times
+  better, because the index is now measured on clean frames instead of
+  marker-covered ones. Still below the `CANOPY_MIN_REF_SEPARATION` floor of 0.02,
+  so still withheld — the crown-resolution limit D-097 describes is unchanged.
+- **The two `vp3` frames now enter the pipeline** (they previously had no manifest
+  row) and contribute 8 further withheld values, all *"0 placemark(s) matched"*.
+
+Total region-frame values 108 → **116**, withheld 64 → **72**, emitted **44 → 44**.
+
+### CORRECTED 2026-08-30: structural faults in the manifest
+
+* **`site20-4-2007.png` named a file that does not exist.** Its own note recorded
+  that the 2007 in the filename was wrong and the frame prints 4/20/2009; the file
+  had been renamed to `site20-4-2009.png` and the row never followed.
+  **Repointed** to the file on disk.
+* **Rows added** for every PNG that lacked one: `site20-4-2009.png`,
+  `site27-5-2010.png`, and both `vp3` frames.
+* The manifest now has **45 rows for 45 PNGs**; every row names a file that
+  exists and every file has a row.
+
+### FOUND 2026-08-30: `site27-5-2010.png` and `site27-5-2010m.png` are misdated
+
+Both render **Imagery Date: 6/19/2011** and sit at the **3.77 km** viewpoint —
+not 27 May 2010, and not `vp2`. Their `imagery_date` is recorded as the **rendered**
+2011-06-19 and they are assigned to `vp2_2006`, which therefore holds four frames:
+the two 1/1/2006 and these two. **Nothing was renamed**; the filenames are left as
+they are and the disagreement is recorded here and in the manifest note.
+
+This also resolves the two spellings of that name. **`site 27-5-2010.png` (with a
+space) and `site27-5-2010.png` (without) are NOT duplicates** — different files,
+different sizes (2 338 408 vs 2 354 319 bytes), different MD5s, and different
+content: the spaced file genuinely renders **5/27/2010** at 3.70 km, the unspaced
+one renders **6/19/2011** at 3.77 km. Both are kept and both have rows. Note that
+the spaced file is therefore a `vp2` **measurement** frame whose `m` partner is
+absent, and that `site19-6-2011.png` / `site19-6-2011m.png` render the same
+6/19/2011 imagery at the *other* viewpoint.
+
+Three filenames contain a **space** — `aerial 1-1-2006.png`, `site 20-4-2009m.png`,
+`site 27-5-2010.png` — and are recorded exactly as they are on disk.
+
+### The frames
+
+| file | imagery date (rendered) | viewpoint | eye alt | markers | role | attribution (rendered) |
+|---|---|---|---|---|---|---|
+| `aerial 1-1-2006.png` | 2006-01-01 | vp1 | 1.79 km | ON | registration | Image © 2026 Bluesky, Infoterra Ltd & COWI A/S |
+| `aerial11-9-2019.png` | 2019-09-11 | vp1 | 1.79 km | ON | registration | Image © 2026 CNES / Airbus |
+| `aerial20-4-2009.png` | 2009-04-20 | vp1 | 1.79 km | ON | registration | Image © 2026 Getmapping plc |
+| `aerial22-4-2017.png` | 2017-04-22 | vp1 | 1.79 km | ON | registration | Image © 2026 Maxar Technologies |
+| `aerial24-3-2017.png` | 2017-03-24 | vp1 | 1.79 km | ON | registration | Image © 2026 Maxar Technologies |
+| `aerial24-4-2020.png` | 2020-04-24 | vp1 | 1.79 km | ON | registration | Image © 2026 CNES / Airbus |
+| `aerial26-5-2012.png` | 2012-05-26 | vp1 | 1.79 km | ON | registration | Image © 2026 Maxar Technologies |
+| `aerial28-6-2018.png` | 2018-06-28 | vp1 | 1.79 km | ON | registration | NO attribution rendered in this frame (verified 2026-08-30 on a 190 px band) |
+| `aerial29-7-2019.png` | 2019-07-29 | vp1 | 1.79 km | ON | registration | Image © 2026 CNES / Airbus |
+| `aerial31-3-2020.png` | 2020-03-31 | vp1 | 1.79 km | ON | registration | Image © 2026 CNES / Airbus |
+| `aerial31-3-2026.png` | 2026-03-31 **⚠ shifted viewpoint, 2.00 km** | vp1 | 1.79 km | ON | registration | Image © 2026 Airbus |
+| `aerial8-7-2018.png` | 2018-07-08 | vp1 | 1.79 km | ON | registration | Image © 2026 CNES / Airbus |
+| `seabed1-1-2006.png` | 2006-01-01 | vp3 | 6.30 km | ON | registration | Image Landsat / Copernicus; Image © 2026 Bluesky, Infoterra Ltd & COWI A/S |
+| `seabed22-4-2017.png` | 2017-04-22 | vp3 | 6.30 km | ON | registration | Image © 2026 Maxar Technologies |
+| `site 20-4-2009m.png` | 2009-04-20 | vp2 | 3.70 km | ON | registration | Image © 2026 Bluesky, Infoterra Ltd & COWI A/S; Image © 2026 Getmapping plc |
+| `site 27-5-2010.png` | 2010-05-27 | vp2 | 3.70 km | OFF | measurement | Image © 2026 Maxar Technologies |
+| `site1-1-2006.png` | 2006-01-01 | vp2_2006 | 3.77 km | OFF | measurement | Image Landsat / Copernicus; Image © 2026 Bluesky, Infoterra Ltd & COWI A/S |
+| `site1-1-2006m.png` | 2006-01-01 | vp2_2006 | 3.77 km | ON | registration | Image Landsat / Copernicus; Image © 2026 Bluesky, Infoterra Ltd & COWI A/S |
+| `site11-9-2019.png` | 2019-09-11 | vp2 | 3.70 km | OFF | measurement | Image © 2026 CNES / Airbus |
+| `site11-9-2019m.png` | 2019-09-11 | vp2 | 3.70 km | ON | registration | Image © 2026 CNES / Airbus |
+| `site19-6-2011.png` | 2011-06-19 | vp2 | 3.70 km | OFF | measurement | Image © 2026 Maxar Technologies |
+| `site19-6-2011m.png` | 2011-06-19 | vp2 | 3.70 km | ON | registration | Image © 2026 Maxar Technologies |
+| `site20-4-2009.png` | 2009-04-20 | vp2 | 3.70 km | OFF | measurement | Image © 2026 Getmapping plc; Image © 2026 Bluesky, Infoterra Ltd & COWI A/S |
+| `site22-4-2017.png` | 2017-04-22 | vp2 | 3.70 km | OFF | measurement | Image © 2026 Maxar Technologies |
+| `site22-4-2017m.png` | 2017-04-22 | vp2 | 3.70 km | ON | registration | Image © 2026 Maxar Technologies |
+| `site24-3-2017.png` | 2017-03-24 | vp2 | 3.70 km | OFF | measurement | Image © 2026 Maxar Technologies |
+| `site24-3-2017m.png` | 2017-03-24 | vp2 | 3.70 km | ON | registration | Image © 2026 Maxar Technologies |
+| `site24-3-2021.png` | 2021-03-24 | vp2 | 3.70 km | OFF | measurement | Image © 2026 CNES / Airbus |
+| `site24-3-2021m.png` | 2021-03-24 | vp2 | 3.70 km | ON | registration | Image © 2026 CNES / Airbus |
+| `site26-5-2012.png` | 2012-05-26 | vp2 | 3.70 km | OFF | measurement | Image © 2026 Maxar Technologies |
+| `site26-5-2012m.png` | 2012-05-26 | vp2 | 3.70 km | ON | registration | Image © 2026 Maxar Technologies |
+| `site27-5-2010.png` | 2011-06-19 **⚠ filename date wrong** | vp2_2006 | 3.77 km | OFF | measurement | Image © 2026 Maxar Technologies |
+| `site27-5-2010m.png` | 2011-06-19 **⚠ filename date wrong** | vp2_2006 | 3.77 km | ON | registration | Image © 2026 Maxar Technologies |
+| `site28-6-2018.png` | 2018-06-28 | vp2 | 3.70 km | OFF | measurement | NO attribution rendered in this frame (verified 2026-08-30 on a 190 px band) |
+| `site28-6-2018m.png` | 2018-06-28 | vp2 | 3.70 km | ON | registration | NO attribution rendered in this frame (verified 2026-08-30 on a 190 px band) |
+| `site29-7-2019.png` | 2019-07-29 | vp2 | 3.70 km | OFF | measurement | Image © 2026 CNES / Airbus |
+| `site29-7-2019m.png` | 2019-07-29 | vp2 | 3.70 km | ON | registration | Image © 2026 CNES / Airbus |
+| `site31-3-2020.png` | 2020-03-31 | vp2 | 3.70 km | OFF | measurement | Image © 2026 CNES / Airbus |
+| `site31-3-2020m.png` | 2020-03-31 | vp2 | 3.70 km | ON | registration | Image © 2026 CNES / Airbus |
+| `site31-3-2026.png` | 2026-03-31 | vp2 | 3.70 km | OFF | measurement | Image © 2026 Airbus |
+| `site31-3-2026m.png` | 2026-03-31 | vp2 | 3.70 km | ON | registration | Image © 2026 Airbus |
+| `site4-4-2021.png` | 2021-04-04 | vp2 | 3.70 km | OFF | measurement | Image © 2026 CNES / Airbus |
+| `site4-4-2021m.png` | 2021-04-04 | vp2 | 3.70 km | ON | registration | Image © 2026 CNES / Airbus |
+| `site8-7-2018.png` | 2018-07-08 | vp2 | 3.70 km | OFF | measurement | Image © 2026 CNES / Airbus |
+| `site8-7-2018m.png` | 2018-07-08 | vp2 | 3.70 km | ON | registration | Image © 2026 CNES / Airbus |
+
+### `aerial_manifest.csv`
+
+The tracked index of the series: one row per frame giving filename, imagery date,
+viewpoint, role, attribution and a note. **Tracked deliberately** while the
+imagery is not (D-081, D-097) — it carries what a reader needs without
+redistributing a licensed basemap. Script 41 reads it through
+`paths.AERIAL_MANIFEST` and filters on `role`.
+
+Rewritten 2026-08-30: `role` flipped for the 15 site pairs, every attribution
+replaced with the one rendered in its own frame, the dangling `site20-4-2007.png`
+row repointed, and rows added for the four PNGs that had none. 45 rows, 45 files,
+and every attribution in this section is a rendered reading rather than a gap.
+
 ## Site, terrain and management layers
 
 **Provenance confirmed by Martin 2026-08-28: he digitised these himself in

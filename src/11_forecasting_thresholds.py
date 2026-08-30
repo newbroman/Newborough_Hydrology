@@ -99,7 +99,11 @@ Cluster scope (k=5 partition):
 ====================================================================================
 """
 
-__version__ = "1.2.1"  # Hollingham (2026) — 2026-08-26: Section 3 docstring algebra aligned to pflood_lambda (T-14 D1)
+__version__ = "1.2.2"  # Hollingham (2026) — 2026-08-30. WINTER_MONTHS now imported
+#   from config.WINTER_RECHARGE_MONTHS — same months, one definition
+#   (D-100). No behavioural change; asserted equal to the literal it replaced.
+#
+# v1.2.1  # Hollingham (2026) — 2026-08-26: Section 3 docstring algebra aligned to pflood_lambda (T-14 D1)
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -127,6 +131,7 @@ from utils.paths import (
     OUT_11_SPRING_CALIBRATION,
 )
 from utils.config import (
+    WINTER_RECHARGE_MONTHS,
     CLUSTER_LABELS,
     CLUSTER_COLOURS,
     DRAINAGE_DATUM,
@@ -222,7 +227,10 @@ BLOCK_COLUMNS = [
 ]
 
 SUMMER_MONTHS  = [4, 5, 6, 7, 8, 9]     # Apr-Sep  (drought / recession season)
-WINTER_MONTHS  = [10, 11, 12, 1, 2, 3]  # Oct-Mar  (recharge / flood season)
+# Oct-Mar recharge/flood season, from config (D-100). Kept a LIST: this
+# script indexes with .isin(WINTER_MONTHS) and the local type is preserved
+# rather than changed to save a line.
+WINTER_MONTHS  = list(WINTER_RECHARGE_MONTHS)
 # Spring transfer function (Section 5) — single-year MSL prediction.
 # SPRING_MONTHS matches utils.config.MSL_SPRING_MONTHS (the van Willegen
 # 2025 spring window: March-May). Listed here separately so Script 11's

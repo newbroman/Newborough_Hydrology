@@ -35,7 +35,11 @@ Reviewer-facing method summary:
 
 from __future__ import annotations
 
-__version__ = "1.4.1"  # Hollingham (2026) — 2026-08-13 (spring trajectory figure 14_climate_trajectory_spring.png)
+__version__ = "1.4.2"  # Hollingham (2026) — 2026-08-30. WINTER_MONTHS now imported
+#   from config.WINTER_RECHARGE_MONTHS — same months, one definition
+#   (D-100). No behavioural change; asserted equal to the literal it replaced.
+#
+# v1.4.1  # Hollingham (2026) — 2026-08-13 (spring trajectory figure 14_climate_trajectory_spring.png)
 #
 # 1.4.1 — Added render_spring_figure() → 14_climate_trajectory_spring.png: observed
 #         spring means per cluster with per-cluster OLS trend lines (significant
@@ -90,6 +94,7 @@ from utils.paths import (
     OUT_00_WELL_NETWORK_TABLE, INT_CLUSTER_STATS, make_all_dirs,
 )
 from utils.config import (
+    WINTER_RECHARGE_MONTHS,
     BW_MODE, CLUSTER_LABELS as _CFG_LABELS, CLUSTER_COLOURS as _CFG_COLOURS,
     CLUSTER_COLOURS_BW as _CFG_COLOURS_BW, CLUSTER_MARKERS as _CFG_MARKERS,
     BW_LINESTYLES, SD15b, SD16, SD15b_WINTER, SD16_WINTER,
@@ -114,7 +119,7 @@ PROJ_END = 2040
 YEAR_MIN = 2000
 YEAR_MAX = 2045
 SUMMER_MONTHS = [4, 5, 6, 7, 8, 9]
-WINTER_MONTHS = [10, 11, 12, 1, 2, 3]
+WINTER_MONTHS = list(WINTER_RECHARGE_MONTHS)   # Oct-Mar recharge/flood season (D-100)
 MIN_MONTHS = 3
 # Spring (MAM) centroid trend, v1.4.0.  Season and strictness come from config
 # so "spring" has one definition across the pipeline (BACI 09c/10d/10l, Script

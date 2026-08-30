@@ -23,7 +23,11 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.16.0"  # Hollingham (2026) — 2026-08-28 (T-14 item 15):
+__version__ = "2.16.1"  # Hollingham (2026) — 2026-08-30. WINTER_MONTHS now imported
+#   from config.WINTER_WET_CLIMATE_MONTHS — same months, one definition
+#   (D-100). No behavioural change; asserted equal to the literal it replaced.
+#
+# v2.16.0  # Hollingham (2026) — 2026-08-28 (T-14 item 15):
 #   interception keys on the in_forest LAND-COVER flag, not on cluster
 #   membership. D-046 settled that cluster is behaviour and canopy is land
 #   cover; this script had kept the cluster proxy in BOTH surfaces — the
@@ -258,6 +262,7 @@ from utils.paths import (
     OUT_26B_PROJECTION_TABLE_PERWELL,    # v2.8.0 cross-check target
 )
 from utils.config import (
+    WINTER_WET_CLIMATE_MONTHS,
     CLUSTER_LABELS,
     CLUSTER_COLOURS,
     UKCP18_SCENARIOS,
@@ -288,7 +293,7 @@ MONITOR_END   = "2026-02-28"
 # Nov–Mar for wet-season climate (highest recharge), 5-month May–Sep for
 # dry-season climate (highest ET).  Used by serialise_climate and the
 # winter/summer mean-head aggregations on lines 545–546.
-WINTER_MONTHS = [11, 12, 1, 2, 3]
+WINTER_MONTHS = list(WINTER_WET_CLIMATE_MONTHS)   # Nov-Mar wet-season climate (D-100)
 SUMMER_MONTHS = [5, 6, 7, 8, 9]
 SHOULDER_MONTHS = [4, 10]            # April + October -- transitional months
                                      # straddling winter/summer; assigned the

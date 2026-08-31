@@ -128,10 +128,21 @@ import json
 import os
 import re
 import time
+import uuid
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.7.0"  # 2026-08-29: Script 41 registered in Phase 16 (tier A,
+__version__ = "2.8.0"  # 2026-08-31: Sets NRG_RUN_ID at the top of main(), so
+#   every subprocess this run launches carries one token identifying the pass.
+#   utils/site_observations.py stamps it into pipeline_site_observations.csv,
+#   which is RUN-SCOPED: Script 01 resets it to placeholders and seven producers
+#   overwrite their own rows, so a producer run OUTSIDE a pass silently makes the
+#   file a mixture of two runs. The token has to come from HERE and not from the
+#   file: a producer that read the existing token and wrote it back would make a
+#   standalone write indistinguishable from an in-run one, which is the whole
+#   defect. No step count or phase count changes. See D-101.
+#
+# v2.7.0  # 2026-08-29: Script 41 registered in Phase 16 (tier A,
 #   default). _DOCUMENTED_COUNTS moves deliberately: registered 51 -> 52,
 #   analytical top-level 41 -> 42, default 49. Phases unchanged at 17. The
 #   version bump is part of the guard (D-088): registering a step without it
@@ -1645,6 +1656,27 @@ def main() -> None:
     args = parser.parse_args()
 
     _init_colour(disable=args.no_colour)
+
+    # ONE token per pass, set before anything is launched so every child
+    # inherits it (steps run as subprocesses via _run_subprocess, and the
+    # sub-runners' own children inherit in turn). Idiomatic here: NRG_N_CLUSTERS
+    # below and NRG_BW_MODE already travel the same way.
+    #
+    # It is set unconditionally, including on the paths that return early
+    # without running a step (--manifest-only, --explain, --deps) and on the
+    # interactive menu, because the menu runs steps too and a token set only on
+    # --full would leave interactive runs looking standalone.
+    #
+    # THE POINT IS WHERE IT COMES FROM. utils/site_observations.py reads this
+    # from the environment and never from the file it is writing. A script run
+    # on its own inherits no token, so its row is marked standalone and both the
+    # console warning and tools/pipeline_lint.py --check runid can see it. If
+    # producers took the token from the existing file instead, a standalone run
+    # would copy the previous pass's token forward and the pollution would be
+    # invisible — which is exactly the failure this guards (D-101).
+    os.environ["NRG_RUN_ID"] = (
+        f"run:{datetime.datetime.now().strftime('%Y%m%dT%H%M%S')}"
+        f"-{uuid.uuid4().hex[:6]}")
 
     if args.manifest_only:
         _manifest = build_manifest(write=True)

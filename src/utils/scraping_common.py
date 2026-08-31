@@ -31,7 +31,13 @@ WELL_ERAS           {well: {era_name: (start, end)}} for all analysis wells.
                     Start is inclusive, end is exclusive.
 """
 
-__version__ = "1.9.0"  # Hollingham (2026) — 2026-08-29. the legacy alias is removed; CLEARFELL_DATE is the only name (T-17).
+__version__ = "1.10.0"  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS and SCENARIO_SUMMER_MONTHS both now from config.SUMMER_MINIMUM_MONTHS - this module held two copies of the same window.
+#   Batch two of the seasonal-windows migration (D-100): the window's
+#   MONTHS ARE UNCHANGED and the constant is asserted equal to the literal it
+#   replaced, in value and in type, read mechanically out of git HEAD. No
+#   committed value moves.
+#
+# v1.9.0  # Hollingham (2026) — 2026-08-29. the legacy alias is removed; CLEARFELL_DATE is the only name (T-17).
 #   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
 # v1.8.0  # Hollingham (2026) — 2026-08-29. Intervention dates now
 #   built from utils.config instead of duplicating clearfell_common (D-084);
@@ -67,6 +73,7 @@ from scipy import stats as _stats
 # the February 2013 cuts existed only in clearfell_common, so no scraping
 # analysis working from this module could see them.
 from utils.config import (
+    SUMMER_MINIMUM_MONTHS,
     CLEARFELL_DATE_ISO as _CLEARFELL_DATE_ISO,
     SCRAPING_DATE_0_ISO as _SCRAPING_DATE_0_ISO,
     SCRAPING_DATE_ISO as _SCRAPING_DATE_ISO,
@@ -178,7 +185,7 @@ DONOR_CANDIDATES = [
 ]
 
 # --- Summer months (Jun–Sep) for ecological threshold analysis ---
-SUMMER_MONTHS = [6, 7, 8, 9]
+SUMMER_MONTHS = list(SUMMER_MINIMUM_MONTHS)
 
 # ============================================================================
 # ERA DEFINITIONS
@@ -588,7 +595,7 @@ def compute_scenario_bars_from_params():
 # v1.3.0, 2026-05-30) without behavioural change.
 # ============================================================================
 
-SCENARIO_SUMMER_MONTHS = (6, 7, 8, 9)
+SCENARIO_SUMMER_MONTHS = SUMMER_MINIMUM_MONTHS
 SY_SCENARIO_FALLBACK = 0.20
 AMP_FACTOR_FALLBACK = 0.85
 

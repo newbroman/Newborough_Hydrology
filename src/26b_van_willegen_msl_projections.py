@@ -111,7 +111,13 @@ Cross-references
   Script 26 plot_cluster_trajectory()             — observed-trajectory layout this script extends
 """
 
-__version__ = "1.2.2"  # Hollingham (2026) — 2026-08-30. WINTER_MONTHS now imported
+__version__ = "1.3.0"  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS now imported from config.SUMMER_DRY_CLIMATE_MONTHS.
+#   Batch two of the seasonal-windows migration (D-100): the window's
+#   MONTHS ARE UNCHANGED and the constant is asserted equal to the literal it
+#   replaced, in value and in type, read mechanically out of git HEAD. No
+#   committed value moves.
+#
+# v1.2.2  # Hollingham (2026) — 2026-08-30. WINTER_MONTHS now imported
 #   from config.WINTER_WET_CLIMATE_MONTHS — same months, one definition
 #   (D-100). No behavioural change; asserted equal to the literal it replaced.
 #
@@ -177,7 +183,8 @@ SCENARIO_STYLES = {
 
 WINTER_MONTHS = list(config.WINTER_WET_CLIMATE_MONTHS)   # Nov-Mar wet-season
                                                         # climate (D-100)
-SUMMER_MONTHS = [5, 6, 7, 8, 9]
+SUMMER_MONTHS = list(config.SUMMER_DRY_CLIMATE_MONTHS)   # May-Sep dry-season
+                                                        # climate (D-100)
 SHOULDER_MONTHS = [4, 10]
 
 def _monthly_multipliers(scenario_key: str) -> tuple[np.ndarray, np.ndarray]:

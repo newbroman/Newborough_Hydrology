@@ -35,7 +35,13 @@ Reviewer-facing method summary:
 
 from __future__ import annotations
 
-__version__ = "1.4.2"  # Hollingham (2026) — 2026-08-30. WINTER_MONTHS now imported
+__version__ = "1.5.0"  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS now imported from config.SUMMER_DROUGHT_MONTHS.
+#   Batch two of the seasonal-windows migration (D-100): the window's
+#   MONTHS ARE UNCHANGED and the constant is asserted equal to the literal it
+#   replaced, in value and in type, read mechanically out of git HEAD. No
+#   committed value moves.
+#
+# v1.4.2  # Hollingham (2026) — 2026-08-30. WINTER_MONTHS now imported
 #   from config.WINTER_RECHARGE_MONTHS — same months, one definition
 #   (D-100). No behavioural change; asserted equal to the literal it replaced.
 #
@@ -94,6 +100,7 @@ from utils.paths import (
     OUT_00_WELL_NETWORK_TABLE, INT_CLUSTER_STATS, make_all_dirs,
 )
 from utils.config import (
+    SUMMER_DROUGHT_MONTHS,
     WINTER_RECHARGE_MONTHS,
     BW_MODE, CLUSTER_LABELS as _CFG_LABELS, CLUSTER_COLOURS as _CFG_COLOURS,
     CLUSTER_COLOURS_BW as _CFG_COLOURS_BW, CLUSTER_MARKERS as _CFG_MARKERS,
@@ -118,7 +125,7 @@ OBS_END = 2025
 PROJ_END = 2040
 YEAR_MIN = 2000
 YEAR_MAX = 2045
-SUMMER_MONTHS = [4, 5, 6, 7, 8, 9]
+SUMMER_MONTHS = list(SUMMER_DROUGHT_MONTHS)    # Apr-Sep drought/recession season (D-100)
 WINTER_MONTHS = list(WINTER_RECHARGE_MONTHS)   # Oct-Mar recharge/flood season (D-100)
 MIN_MONTHS = 3
 # Spring (MAM) centroid trend, v1.4.0.  Season and strictness come from config

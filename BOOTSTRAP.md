@@ -259,6 +259,7 @@ touch .last_drive_archive
 ## 5. Verify
 
 ```bash
+python3 run_analysis.py --full --with-supplementary
 bash tools/check_all.sh
 ```
 

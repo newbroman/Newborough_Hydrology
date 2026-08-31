@@ -99,7 +99,13 @@ Cluster scope (k=5 partition):
 ====================================================================================
 """
 
-__version__ = "1.2.2"  # Hollingham (2026) — 2026-08-30. WINTER_MONTHS now imported
+__version__ = "1.3.0"  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS now imported from config.SUMMER_DROUGHT_MONTHS.
+#   Batch two of the seasonal-windows migration (D-100): the window's
+#   MONTHS ARE UNCHANGED and the constant is asserted equal to the literal it
+#   replaced, in value and in type, read mechanically out of git HEAD. No
+#   committed value moves.
+#
+# v1.2.2  # Hollingham (2026) — 2026-08-30. WINTER_MONTHS now imported
 #   from config.WINTER_RECHARGE_MONTHS — same months, one definition
 #   (D-100). No behavioural change; asserted equal to the literal it replaced.
 #
@@ -131,6 +137,7 @@ from utils.paths import (
     OUT_11_SPRING_CALIBRATION,
 )
 from utils.config import (
+    SUMMER_DROUGHT_MONTHS,
     WINTER_RECHARGE_MONTHS,
     CLUSTER_LABELS,
     CLUSTER_COLOURS,
@@ -226,7 +233,9 @@ BLOCK_COLUMNS = [
     "Coastal_Forest",
 ]
 
-SUMMER_MONTHS  = [4, 5, 6, 7, 8, 9]     # Apr-Sep  (drought / recession season)
+SUMMER_MONTHS  = list(SUMMER_DROUGHT_MONTHS)   # Apr-Sep drought/recession
+                                               # season, from config (D-100);
+                                               # kept a LIST for .isin()
 # Oct-Mar recharge/flood season, from config (D-100). Kept a LIST: this
 # script indexes with .isin(WINTER_MONTHS) and the local type is preserved
 # rather than changed to save a line.

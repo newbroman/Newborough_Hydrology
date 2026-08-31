@@ -18,8 +18,19 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.4.0 - 2026-08-26
+# VERSION 1.5.0 - 2026-08-31
 # CHANGELOG
+#   1.5.0 (2026-08-31): output_lag GATES (D-102). It ran advisory since
+#     2026-08-27 because it cannot tell a coefficient change from a docstring
+#     edit, and a check that cries stale over comments is one people learn to
+#     skip. That argument prices the false positive, which costs one re-run. The
+#     false negative was priced on 2026-08-31 and it was silent:
+#     24b_residual_climatology.py is an OPT-IN step, --full does not run it, and
+#     it sat with edited code and outputs from the previous version while every
+#     other gate read green - because every other gate reads the outputs and
+#     finds them self-consistent, which they are, with the older code. The
+#     pre-commit run is now `run_analysis.py --full --with-supplementary` and
+#     this is what enforces it. Wired only after confirming it passes.
 #   1.4.0 (2026-08-26): env_audit runs first. Half the checks below print a
 #     version and act on it, and none of them said whose. A Cowork sandbox's
 #     pandoc 2.9.2 and python 3.10 were read as this project's for a day, and a
@@ -102,6 +113,13 @@ echo "── pipeline (are the SCRIPTS importing the right numbers?) ───�
 # a gate that fires 30 times on day one gets switched off by day three.
 python3 tools/pipeline_lint.py --check defaults || rc=1
 python3 tools/pipeline_lint.py --check deps     || rc=1
+# runid GATES too, and asks a provenance question the two above cannot: is
+# pipeline_site_observations.csv the product of ONE pass? It is run-scoped, so a
+# producer run on its own writes a real value into a file otherwise recording
+# the previous pass. Not a nineteenth gate script — a fourth sub-check of the
+# tool that already owns the "are the scripts working from the right numbers?"
+# family. See D-101.
+python3 tools/pipeline_lint.py --check runid    || rc=1
 python3 tools/pipeline_lint.py --check literals 2>/dev/null | grep -cE "FAIL" \
   | xargs -I{} echo "  {} hard-coded constant(s) — python3 tools/pipeline_lint.py --check literals"
 # defaults_lint asks the OTHER defaults question: pipeline_lint asks whether a
@@ -116,6 +134,10 @@ echo "── record basis (does §F.6 still describe the code?) ─────�
 python3 tools/record_basis_lint.py --quiet || rc=1
 
 echo
+echo "── seasons (is any seasonal window defined outside config.py?) ──────"
+python3 tools/season_lint.py --quiet || rc=1
+echo
+
 echo "── rounding (has new store-time rounding appeared?) ─────────────────"
 python3 tools/rounding_lint.py || rc=1
 
@@ -250,10 +272,20 @@ python3 tools/export_lag.py --no-pages | grep -E "^  (STALE|MISSING|UNMAPPED|UNB
 # question one layer down: whether a script has changed since the outputs in
 # outputs/ were produced. Nothing asked it until 2026-08-27, so a script could be
 # edited, committed and pushed while the corpus quoted the previous version's
-# numbers with every gate green. Advisory: it cannot tell a coefficient change
-# from a docstring edit, and a check that cries stale over comments is one people
-# learn to skip.
-python3 tools/output_lag.py --quiet || true
+# numbers with every gate green.
+#
+# A GATE since 2026-08-31 (D-102), not advice. It was advisory because it cannot
+# tell a coefficient change from a docstring edit, and a check that cries stale
+# over comments is one people learn to skip. What changed is that the cost of the
+# false positive is now one command — re-run the script — while the cost of the
+# false negative was demonstrated: 24b_residual_climatology.py is an OPT-IN step,
+# `--full` does not run it, and it sat with edited code and outputs from the
+# previous version while every other gate read green. No other check in this file
+# can see that, because every one of them reads the outputs and finds them
+# self-consistent. The pre-commit run is therefore
+# `python3 run_analysis.py --full --with-supplementary`, and this is the gate
+# that enforces it.
+python3 tools/output_lag.py --quiet --gate || rc=1
 
 echo
 echo "── archive (are the canonical documents anywhere but this disk?) ─────"

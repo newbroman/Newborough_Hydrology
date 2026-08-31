@@ -33,7 +33,13 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.8.0"  # Hollingham (2026) — 2026-08-29. the clearfell date constant is now named CLEARFELL_DATE (T-17).
+__version__ = "1.9.0"  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS now imported from config.SUMMER_MINIMUM_MONTHS.
+#   Batch two of the seasonal-windows migration (D-100): the window's
+#   MONTHS ARE UNCHANGED and the constant is asserted equal to the literal it
+#   replaced, in value and in type, read mechanically out of git HEAD. No
+#   committed value moves.
+#
+# v1.8.0  # Hollingham (2026) — 2026-08-29. the clearfell date constant is now named CLEARFELL_DATE (T-17).
 #   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
 # v1.7.0  # Hollingham (2026) -- 2026-08-28. s_coast derived from psi
 #   (M14 / D-076) and the fixed-at-1 sensitivity committed.
@@ -93,6 +99,7 @@ from utils.clearfell_common import (
 )
 from utils.paths import make_all_dirs, DIR_10, OUT_10A_CONTROL_WELL_SPREAD
 from utils.render_utils import render_figure
+from utils.config import SUMMER_MINIMUM_MONTHS
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -484,7 +491,7 @@ for ctrl_label, ctrl_wells in CONTROLS.items():
 print("\n3a. Direct summer (Jun-Sep) ANCOVA — Forest × Impact...")
 
 summer_results = {}
-SUMMER_MONTHS = [6, 7, 8, 9]
+SUMMER_MONTHS = list(SUMMER_MINIMUM_MONTHS)
 SUMMER_KEY = ('Forest', 'Impact')
 
 if SUMMER_KEY in ancova_frames:

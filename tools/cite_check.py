@@ -45,7 +45,38 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.11.0"  # Hollingham (2026) — 2026-08-23. M31: a value stored
+__version__ = "1.12.0"  # Hollingham (2026) — 2026-08-31. The net is extended
+#   on evidence rather than on recollection, and the key may now be composite.
+#
+#   WHAT WAS MEASURED. Every CSV under outputs/ that no report-numbers file and
+#   no value table reaches was tested against the corpus: does a DISTINCTIVE
+#   rendering of one of its values appear literally in a swept document?
+#   Distinctive means four or more SIGNIFICANT digits — trailing zeros stripped,
+#   not just leading ones, so 1.000, 2.000 and 11.00 are rejected. That
+#   distinction is the whole difference between a shortlist and a list of
+#   everything: with only leading zeros stripped, "1.000" reads as four digits
+#   and every table in the tree looks quoted.
+#
+#   Candidates were then ranked by HIT RATE, not hit count. A per-well table
+#   with 400 distinctive values collects chance matches in a 20-Mchar corpus
+#   whatever it contains; a five-row summary table whose values keep appearing
+#   is being quoted. Ranking by count put a file written the same day, cited
+#   nowhere, at the top of the list.
+#
+#   AND THE FILTER THAT MATTERS MOST: a table is added only for the columns
+#   carrying quantities NOT already watched elsewhere. Several of the highest-
+#   scoring candidates score highly because they REPEAT the cluster betas, which
+#   HEADLINE_TABLES already covers; adding those columns would inflate the index
+#   and check the same number five times. The betas are excluded from every
+#   table added below.
+#
+#   COMPOSITE KEYS. Three of the best candidates key on a pair — cluster and
+#   scenario, zone and phase, cluster and basis — and the loop assumed a single
+#   column, so every second row overwrote the first in the report's vocabulary.
+#   `kcol` may now be a tuple, joined with " / ". Backward compatible: a string
+#   behaves exactly as before, so no existing entry changes.
+
+# v1.11.0  # Hollingham (2026) — 2026-08-23. M31: a value stored
 #   in metres and quoted in millimetres could never match, because check_numbers
 #   renders the stored value in its stored unit and no conversion existed. That
 #   is not a rare shape: 22 metre-stored keys are quoted in mm at 105 places
@@ -296,7 +327,73 @@ EXTRA_VALUE_TABLES = [
      "Cluster_Label", ["R2", "durbin_watson", "ar1_phi"]),
     ("outputs/39_ccw_hindcast/39_01_hindcast_per_well.csv", "well",
      ["nse", "pearson_r", "bias_m", "epoch_shift_m"]),
+
+    # ── Added 2026-08-31 by the coverage sweep described in the v1.12.0 note.
+    # Seven tables, each carrying quantities watched nowhere else. The cluster
+    # betas are deliberately EXCLUDED from every one of them: they are already
+    # in HEADLINE_TABLES, and re-registering them here would check one number
+    # five times and tell the reader nothing.
+
+    # The scenario parameter block. This is the file W100 caught carrying a
+    # value that could not reproduce its own formula — thinning_b2_mult stored
+    # at sixteen significant figures where seventeen were needed — and it had
+    # no watcher of any kind at the time. The multipliers and Sy are quoted in
+    # three documents. beta_1/2/3 and h_disp are omitted: HEADLINE_TABLES and
+    # the Sy tables already carry them.
+    ("outputs/01_data_prep/pipeline_scenario_params.csv", "Cluster",
+     ["clearfell_b2_mult", "thinning_b2_mult",
+      "broadleaf_b2_summer", "broadleaf_b2_winter"]),
+
+    # The water-balance partition. The betas in this table are copies; the
+    # partition itself — recharge, ET draw, drainage, residual and the two
+    # percentages — exists only here and is quoted in report9 and report10.
+    ("outputs/16_water_balance/16_water_bal_table.csv", "Label",
+     ["Recharge_m_month", "ET_draw_m_month", "Drainage_m_month",
+      "Total_loss_m_month", "Residual_m_month", "Drainage_pct", "ET_pct"]),
+
+    # Per-well coefficient shifts across the clearfell. The SHIFTS are the
+    # quantity — db1, db2, db3 — and they are quoted in report9; the before and
+    # after levels are not, and registering them would triple the index for no
+    # gain.
+    ("outputs/10_clearfell_baci/10e_01_coefficient_shifts.csv", "Well",
+     ["db1", "db2", "db3"]),
+
+    # The driver footing table: peak, area-normalised and volumetric magnitudes
+    # per driver, quoted in report9 and report13. Nothing else carries them.
+    ("outputs/37b_driver_footing/37b_driver_footing.csv", "component",
+     ["peak_mm", "area_mm_ha", "volume_m3"]),
+
+    # ── Composite keys (the v1.12.0 change). Each of these has two rows per
+    # label, so a single-column key silently collapsed them.
+    ("outputs/03_state_space_model/03_14_centroid_window_sensitivity.csv",
+     ("Cluster_Label", "basis"),
+     ["R2", "LCSC_percent", "beta_3_pct_vs_full_record"]),
+    ("outputs/26b_van_willegen_msl_projections/"
+     "26b_msl5_ukcp18_projection_summary.csv",
+     ("cluster_label", "scenario"),
+     ["spring_delta_h_mean_m", "msl5_observed_window_mean_m",
+      "msl5_perturbed_window_mean_m", "msl5_shift_mean_m"]),
+    ("outputs/21_forestry_scenarios/21_forestry_04_baci_zone_means.csv",
+     ("Zone", "Phase"),
+     ["Mean_depth_m", "Median_depth_m", "SD_depth_m",
+      "Min_depth_m", "Max_depth_m"]),
 ]
+
+
+def _key_label(row, kcol) -> str:
+    """The vocabulary a report line uses to name one cell of a value table.
+
+    `kcol` is a column name, or a tuple of them for a table whose rows are
+    identified by a pair. Joined with " / " so the report reads
+    "C4 (Main Forest) / comparison_window · R2".
+    """
+    if isinstance(kcol, (tuple, list)):
+        return " / ".join(str(row[c]) for c in kcol)
+    return str(row[kcol])
+
+
+def _key_columns(kcol) -> list:
+    return list(kcol) if isinstance(kcol, (tuple, list)) else [kcol]
 
 # Claims register. rule is evaluated against the named CSV.
 #   argmin:<col>  / argmax:<col>  -> `expect` must be the value of `key_col`
@@ -872,7 +969,7 @@ def collect_values() -> list[tuple[str, str, float]]:
         for _, r in df.iterrows():
             for c in vcols:
                 try:
-                    vals.append((rel, f"{r[kcol]} · {c}", float(r[c])))
+                    vals.append((rel, f"{_key_label(r, kcol)} · {c}", float(r[c])))
                 except (TypeError, ValueError, KeyError):
                     continue
     return vals
@@ -1508,7 +1605,7 @@ def check_value_columns() -> int:
         except Exception as e:            # noqa: BLE001 — an unreadable table
             missing.append((rel, f"UNREADABLE: {e}"))
             continue
-        for c in [kcol] + list(vcols):
+        for c in _key_columns(kcol) + list(vcols):
             if c not in have:
                 missing.append((rel, c))
     if missing:

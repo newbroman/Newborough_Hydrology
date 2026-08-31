@@ -117,7 +117,21 @@ Observed Differential Change, Envelope, and Validation. Runs after Script 36
 in the driver-validation phase; step index in outputs/pipeline_manifest.json.
 """
 
-__version__ = "3.3.0"  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
+__version__ = "3.4.0"  # Hollingham (2026) — 2026-08-31. TWO FIXES to the same
+#   defect, one of them load-bearing. (1) The E/N repair block could never fire:
+#   its candidate id columns were ("key","col","Name_Original") and
+#   01_locations.csv has none of them (Name, Match_ID), so id_col was always
+#   None and the surrounding except caught nothing, a missing column raising no
+#   exception. Name and Match_ID added, and every patch is now REPORTED — a
+#   repair nobody sees is how the underlying defect survived. (2) _build_spatial
+#   now REFUSES a non-finite coordinate instead of letting it become zero: a
+#   NaN gave Point(nan,nan), distance inf, exp(-inf/lambda) = 0.0, so 29 of 59
+#   wells were entering the regression with every spatial predictor identically
+#   zero and indistinguishable from wells far from every driver. Root cause is
+#   fixed in Script 36 v1.4.0; these are now defence in depth. Numbers in this
+#   script MOVE, because they were computed from wrong data. See D-104.
+#
+# v3.3.0  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
 #   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
 # v3.2.0  # 2026-07-06: ADDENDUM 1 —
 #
@@ -432,18 +446,53 @@ def load_script36_wells() -> pd.DataFrame:
         warn(f"trajectory windows missing from Script 36 CSV: {missing_traj} — "
              "δ₀(t) trajectory test will be incomplete")
 
+    # DEFENCE IN DEPTH, and it used to be neither. The candidate id columns were
+    # ("key", "col", "Name_Original"); 01_locations.csv has NONE of them -- its
+    # identifiers are Name and Match_ID. So id_col was always None, the patch
+    # was always skipped, and nothing said so: the surrounding except catches
+    # exceptions, and a column that is simply not there raises none. 29 of 59
+    # wells reached the regression with NaN coordinates for as long as that
+    # stood. Note the line just below this block DOES successfully patch `col`
+    # via fillna -- someone met this symptom, fixed one column and left the
+    # other silently broken, which is the argument for warning loudly rather
+    # than repairing quietly.
+    #
+    # Since Script 36 v1.4.0 fixed the root cause (D-104) this should never
+    # fire. That is exactly why it must be LOUD when it does: a repair running
+    # unnoticed is what let the original defect persist, and a silent success
+    # here would mean Script 36 had regressed with nothing to show for it.
     if df[["E", "N"]].isna().any().any():
+        n_missing = int(df["E"].isna().sum())
+        warn(f"{n_missing} well(s) arrived from Script 36 with no coordinate — "
+             f"Script 36 v1.4.0+ should make this impossible (D-104). Patching "
+             f"from {INT_LOCATIONS.name} and reporting every well patched.")
         try:
             locs = pd.read_csv(INT_LOCATIONS)
-            id_col = next((c for c in ("key", "col", "Name_Original")
+            id_col = next((c for c in ("key", "col", "Name_Original",
+                                       "Name", "Match_ID")
                            if c in locs.columns), None)
-            if id_col:
+            if id_col is None:
+                warn(f"  {INT_LOCATIONS.name} carries none of the candidate id "
+                     f"columns (has: {list(locs.columns)[:8]}...) — CANNOT "
+                     f"patch; the refusal in _build_spatial will stop the run")
+            else:
                 locs["_key"] = locs[id_col].astype(str).str.strip().str.lower()
                 lut = locs.set_index("_key")[["E", "N"]].to_dict("index")
+                patched, unresolved = [], []
                 for idx, row in df[df["E"].isna()].iterrows():
-                    if row["key"] in lut:
-                        df.loc[idx, "E"] = lut[row["key"]]["E"]
-                        df.loc[idx, "N"] = lut[row["key"]]["N"]
+                    k = str(row["key"]).strip().lower()
+                    if k in lut:
+                        df.loc[idx, "E"] = lut[k]["E"]
+                        df.loc[idx, "N"] = lut[k]["N"]
+                        patched.append(row["key"])
+                    else:
+                        unresolved.append(row["key"])
+                if patched:
+                    warn(f"  PATCHED {len(patched)} well(s) on '{id_col}': "
+                         f"{', '.join(map(str, patched))}")
+                if unresolved:
+                    warn(f"  UNRESOLVED {len(unresolved)} well(s): "
+                         f"{', '.join(map(str, unresolved))}")
         except Exception as exc:
             warn(f"could not patch E/N: {exc}")
 
@@ -506,7 +555,7 @@ def load_first_obs_dates(well_keys: list) -> dict:
 # ---------------------------------------------------------------------------
 
 def _build_spatial(s20, E: np.ndarray, N: np.ndarray,
-                   clearfell_step_mm: float) -> dict:
+                   clearfell_step_mm: float, well_keys=None) -> dict:
     """
     Build equilibrium spatial fields at well locations.
 
@@ -521,6 +570,32 @@ def _build_spatial(s20, E: np.ndarray, N: np.ndarray,
     gy = np.asarray(N, dtype=float)
     n  = len(gx)
     zeros = np.zeros(n)
+
+    # A NaN COORDINATE MUST NEVER BECOME "NO DRIVER HERE" (D-104).
+    #
+    # This is the deeper half of the fix, and it is here rather than upstream
+    # because here is where the NaN stopped being visible. shapely returns inf
+    # for the distance from Point(nan, nan) to any geometry, exp(-inf/lam) is
+    # 0.0, and the nan_to_num guards below turn the coast and broadleaf fields
+    # to 0.0 as well. So a well with no coordinate entered the regression with
+    # all three spatial predictors identically zero -- numerically identical to
+    # a well genuinely far from every driver, and contributing to the fit as
+    # evidence for that. The only outward sign was a handful of shapely
+    # RuntimeWarnings that read as cosmetic.
+    #
+    # Refuse, naming the wells. Silence is what made this survive; a zero that
+    # means "unknown" is worse than a stop.
+    _bad = ~(np.isfinite(gx) & np.isfinite(gy))
+    if _bad.any():
+        _keys = (list(np.asarray(well_keys)[_bad]) if well_keys is not None
+                 else [f"index {i}" for i in np.where(_bad)[0]])
+        raise ValueError(
+            f"_build_spatial received {int(_bad.sum())} well(s) with a "
+            f"non-finite coordinate: {', '.join(map(str, _keys))}. A missing "
+            f"coordinate would silently become zero for every spatial "
+            f"predictor (shapely gives inf, exp(-inf/lambda) gives 0.0), which "
+            f"is indistinguishable from a well far from every driver. Fix the "
+            f"upstream identity block rather than zeroing here — see D-104.")
 
     coast_res  = s20._erosion_field(gx, gy, h0_mm=1.0)
     coast_unit = np.nan_to_num(coast_res[0], nan=0.0) if coast_res[0] is not None else zeros.copy()
@@ -1215,7 +1290,9 @@ def main() -> int:
     step("importing Script 20 via importlib …")
     s20 = _load_s20()
     info("Script 20 loaded")
-    spatial = _build_spatial(s20, df36["E"].values, df36["N"].values, clearfell_step_mm)
+    spatial = _build_spatial(s20, df36["E"].values, df36["N"].values,
+                             clearfell_step_mm,
+                             well_keys=df36["key"].tolist())
 
     step("importing Script 36 via importlib (for endpoint-group years only) …")
     s36 = _load_s36()

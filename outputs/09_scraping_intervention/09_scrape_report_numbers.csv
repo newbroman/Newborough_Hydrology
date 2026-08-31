@@ -36,3 +36,15 @@ Summer_minimum_depth,CEH4,3_Felling_Pulse,-1.4,m,Mean of annual Jun-Sep minima
 Summer_minimum_depth,CEH36,1_Baseline,-1.23,m,Mean of annual Jun-Sep minima
 Summer_minimum_depth,CEH36,2_Pure_Scraping,-1.11,m,Mean of annual Jun-Sep minima
 Summer_minimum_depth,CEH36,3_Felling_Pulse,-1.1,m,Mean of annual Jun-Sep minima
+BACI_step_with_trend,CEH21,"CEH21 vs CEH22, 2023 re-scrape",0.023932523675123617,m,"step once a linear trend is allowed for; HAC se=0.041379 m, p=0.5630; step-only was 0.073547 m (p=0.0147)"
+BACI_pre_window_trend,CEH21,"CEH21 vs CEH22, 2023 re-scrape",0.016548883574010347,m/yr,"trend fitted on the PRE-intervention window ALONE, p=0.0097 — this is the evidence on which the step+trend model is admitted, not a preference for it"
+BACI_step_with_trend,CEH18,"CEH18 vs CEH4, 2023 re-scrape",0.022324184163016025,m,"step once a linear trend is allowed for; HAC se=0.028725 m, p=0.4371; step-only was 0.008471 m (p=0.6054)"
+BACI_pre_window_trend,CEH18,"CEH18 vs CEH4, 2023 re-scrape",-0.003997742591309506,m/yr,"trend fitted on the PRE-intervention window ALONE, p=0.5924 — this is the evidence on which the step+trend model is admitted, not a preference for it"
+BACI_step_with_trend,CEH36,"CEH36 vs CEH4, 2015 scrape (positive control)",0.09953270994340158,m,"step once a linear trend is allowed for; HAC se=0.026869 m, p=<0.001; step-only was 0.147222 m (p=<0.001)"
+BACI_pre_window_trend,CEH36,"CEH36 vs CEH4, 2015 scrape (positive control)",0.01532901755631938,m/yr,"trend fitted on the PRE-intervention window ALONE, p=0.1055 — this is the evidence on which the step+trend model is admitted, not a preference for it"
+BACI_min_detectable_step,CEH21,"CEH21 vs CEH22, 2023 re-scrape",115.92647700183127,mm,"smallest step this record could distinguish from zero at alpha=0.05, power=0.8; the observed step+trend estimate +23.9 mm lies BELOW it"
+BACI_step_below_floor,CEH21,"CEH21 vs CEH22, 2023 re-scrape",1.0,flag,1 = the observed step is smaller than the smallest step this record could reliably detect
+BACI_min_detectable_step,CEH18,"CEH18 vs CEH4, 2023 re-scrape",80.4768212721585,mm,"smallest step this record could distinguish from zero at alpha=0.05, power=0.8; the observed step+trend estimate +22.3 mm lies BELOW it"
+BACI_step_below_floor,CEH18,"CEH18 vs CEH4, 2023 re-scrape",1.0,flag,1 = the observed step is smaller than the smallest step this record could reliably detect
+BACI_min_detectable_step,CEH36,"CEH36 vs CEH4, 2015 scrape (positive control)",75.27591937695529,mm,"smallest step this record could distinguish from zero at alpha=0.05, power=0.8; the observed step+trend estimate +99.5 mm lies above it"
+BACI_step_below_floor,CEH36,"CEH36 vs CEH4, 2015 scrape (positive control)",0.0,flag,1 = the observed step is smaller than the smallest step this record could reliably detect

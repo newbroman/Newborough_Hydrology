@@ -108,8 +108,19 @@ in"*; that disclaimer was backwards and has been corrected.
 Non-Python tools still come from apt, and pandoc's version matters (below):
 
 ```bash
-sudo apt install git rclone libreoffice pandoc poppler-utils
+sudo apt install git rclone libreoffice pandoc poppler-utils python3-uno
 ```
+
+**`python3-uno` is not optional and its absence is silent.** Without it
+`tools/export_master_pdf.py` cannot drive LibreOffice, and `report.pdf` — the
+only PDF built from a MASTER document (`report.odm`), and so the only one
+`tools/build_pdfs.sh` will not touch — can never be rebuilt unattended. What
+makes it worth a line here rather than a discovery: nothing fails. `nrg_git.sh`
+prints a one-line note, `build_pdfs.sh` reports every other PDF current, and
+`figref_lint` correctly refuses to lint a PDF older than its sources — so the
+published report PDF simply stays behind its ODT while every gate reads green
+around it. Measured on the L14, 2026-08-31: report9.odt was edited, report.pdf
+was not rebuilt, and only the export-lag line said so.
 
 
 ### Do not trust this list — verify it

@@ -91,7 +91,17 @@ from utils.map_utils import load_dem_hillshade, add_kml_features, add_en_axes, a
 from utils.console_utils import banner, phase, step, info, note, result, saved, done, warn
 from utils.render_utils import render_figure
 
-__version__ = "1.3.0"  # 2026-07-06: add 2018_2025 sequential window (clearfell,
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-08-31. The per-well CSV's
+#   identity block (key, col, Cluster, E, N) now comes from the UNION of every
+#   period, not from ACT_PRIMARY_PERIOD alone. Under the old basis a well with a
+#   trend in some other window but not in the primary window was appended by the
+#   how="outer" merge with NaN col/Cluster/E/N: 29 of 59 rows carried no
+#   coordinates, all of them short-record wells, and Script 37 silently turned
+#   those NaNs into zero for every spatial predictor. Only NaN cells gain
+#   values; every previously emitted value is unchanged, checked cell by cell.
+#   See D-104.
+#
+# v1.3.0  # 2026-07-06: add 2018_2025 sequential window (clearfell,
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -752,9 +762,58 @@ def main() -> int:
             note(f"No figure path for {plabel} (calibration window — slopes written to CSV only)")
 
     phase(4, "Write per-well CSV")
-    base = all_results[PRIMARY_PERIOD][
-        ["key", "col", "Cluster", "E", "N"]
-    ].copy()
+    # IDENTITY FROM THE UNION OF EVERY PERIOD, NOT FROM THE PRIMARY ALONE.
+    #
+    # THE DEFECT THIS FIXES (D-104). `base` used to be built from
+    # all_results[PRIMARY_PERIOD] only, and every other window was then merged
+    # onto it with how="outer". A well with a valid trend in some other window
+    # but NOT in the primary window is appended by that outer merge as a NEW
+    # ROW, and its col / Cluster / E / N are NaN -- because those four columns
+    # only ever came from `base`. Measured on the committed CSV before the fix:
+    # 29 of 59 rows carried NaN coordinates, and the separation was perfect --
+    # all 29 lacked slope_mm_yr_2005_2025, all 30 good rows had it. They are the
+    # short-record wells; they carry slopes in five other windows and simply do
+    # not clear the full-span window's minimum. Their coordinates were never
+    # missing: all 29 resolve in 01_locations.csv.
+    #
+    # It is not a cosmetic gap. Script 37 turns a NaN coordinate into
+    # Point(nan, nan), whose distance to any geometry is inf, and exp(-inf/lam)
+    # is 0.0 -- so those wells entered driver validation with every spatial
+    # predictor identically zero, indistinguishable from wells genuinely far
+    # from every driver. The NaN never surfaced as a NaN.
+    #
+    # WHY THE UNION AND NOT A LOOKUP from 01_locations.csv / 03_master_data.csv:
+    # every row of this CSV comes from some period's result frame, so the union
+    # over periods is exactly sufficient -- a well absent from all of them has
+    # no row here to give an identity to. A lookup would also add the failure
+    # mode that broke Script 37's repair block: joining on a normalised key
+    # against a file whose identifier columns are named differently. The union
+    # takes identity from the same frames that produce the slopes, so there is
+    # no second naming convention to keep in step.
+    #
+    # PRIMARY FIRST, then first non-null per key. Ordering the concat with the
+    # primary period first means every value already emitted is the value still
+    # emitted -- the guarantee is that only NaN cells may gain content, and that
+    # is checked cell by cell after the run, not asserted here. A well with a
+    # genuinely absent Cluster in every window (ceh3) keeps its NaN: this fills
+    # what the merge dropped, and invents nothing.
+    _ident = ["key", "col", "Cluster", "E", "N"]
+    _order = ([PRIMARY_PERIOD] +
+              [k for k in all_results if k != PRIMARY_PERIOD])
+    _frames = [all_results[k][_ident] for k in _order
+               if not all_results[k].empty]
+    base = (pd.concat(_frames, ignore_index=True)
+              .groupby("key", sort=False, as_index=False)
+              .first())
+    _filled = int(base["E"].notna().sum() -
+                  all_results[PRIMARY_PERIOD]["E"].notna().sum())
+    if _filled:
+        info(f"identity block taken from the union of {len(_frames)} period(s): "
+             f"{_filled} well(s) recovered coordinates the primary-window-only "
+             f"basis dropped (D-104)")
+    if base["E"].isna().any():
+        warn(f"{int(base['E'].isna().sum())} well(s) still carry no coordinate "
+             f"after the union — Script 37 will refuse them")
     for plabel, df in all_results.items():
         if df.empty:
             note(f"{plabel}: empty — no columns merged into CSV")

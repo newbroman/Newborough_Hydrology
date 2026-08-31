@@ -40,7 +40,16 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.23.0"  # Hollingham (2026) — 2026-08-31. THE FOUR SUMMERS.
+__version__ = "1.24.0"  # Hollingham (2026) — 2026-08-31. Detectability
+#   settings are named for the QUANTITY, not for the script that first needed
+#   them: DETECTABILITY_ALPHA / DETECTABILITY_POWER, with Script 32's
+#   DIFF_POWER_ALPHA / DIFF_POWER_TARGET kept as aliases so nothing that imports
+#   them changes and no value moves. Script 09a's BACI detectability floor needs
+#   the same two numbers, and a second copy of 0.05 and 0.80 is the duplication
+#   this file exists to prevent. Adds BACI_DETECT_MIN_ERA_MONTHS and
+#   BACI_DETECT_HORIZON_YEARS. See D-103.
+#
+# v1.23.0  # Hollingham (2026) — 2026-08-31. THE FOUR SUMMERS.
 #   Batch two of the seasonal-windows spec: SUMMER_MINIMUM_MONTHS,
 #   SUMMER_DROUGHT_MONTHS, SUMMER_DRY_CLIMATE_MONTHS and
 #   SUMMER_METEOROLOGICAL_MONTHS, replacing nine per-script locals across
@@ -1314,8 +1323,34 @@ DIFF_SITE_MEAN_CITED_BASIS = "spring_mam"   # the basis downstream scripts read
 # the period could distinguish from zero at these settings. The two-sided test's
 # multiplier is derived from these quantiles in the script, not typed here, so
 # changing the target power changes the reported figure.
-DIFF_POWER_ALPHA = 0.05                      # two-sided significance level
-DIFF_POWER_TARGET = 0.80                     # target power
+# The settings themselves are NOT Script 32's. Every "what is the smallest
+# effect this record could have seen?" calculation in the pipeline uses the same
+# two, and the DIFF_ prefix named a script rather than a quantity. Defined once
+# here; DIFF_POWER_ALPHA / DIFF_POWER_TARGET remain as aliases so Script 32 is
+# untouched and no committed value moves (D-103).
+DETECTABILITY_ALPHA = 0.05                   # two-sided significance level
+DETECTABILITY_POWER = 0.80                   # target power
+DIFF_POWER_ALPHA = DETECTABILITY_ALPHA
+DIFF_POWER_TARGET = DETECTABILITY_POWER
+
+# --- Script 09a: the BACI step reported with its own detection floor ---------
+# BACI_DETECT_MIN_ERA_MONTHS. A step estimated from less than one annual cycle
+# is confounded with season: the pre and post windows would sample different
+# months, and the difference between them would carry the seasonal cycle as
+# well as the intervention. Twelve months is the smallest window in which that
+# cannot happen by construction. It is a real gate, not decoration - the
+# shortest window in the current registry is the 27-month CEH21 post-window, so
+# it sits at a factor of 2.25 and would fire on a pair added a year after its
+# event. A pair failing it is WITHHELD WITH A REASON (D-085), never dropped.
+BACI_DETECT_MIN_ERA_MONTHS = 12
+
+# BACI_DETECT_HORIZON_YEARS. Extra years of post-intervention record the floor
+# is reported against. Zero is the record as it stands; the rest answer "how
+# much longer would this have to run?". Twenty is included because it is where
+# the answer stops being about fieldwork: for a pair whose PRE-window is the
+# binding constraint the floor barely moves across the whole span, and no
+# amount of future monitoring collects more of the past.
+BACI_DETECT_HORIZON_YEARS = (0, 2, 5, 10, 20)
 
 
 # === CCW 1989-96 historic record (standalone Script 39) ===

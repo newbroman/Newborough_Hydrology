@@ -20,6 +20,8 @@ CSVs:
   09_scrape_04_net_benefits.csv       — net benefits vs CEH21 benchmark
   09_scrape_04b_beta3_era_summary.csv — formatted β₃ era summary
   09_tier1_final_cusum.csv            — terminal CUSUM values for Tier 1
+  09_scrape_09_monthly_step_trend.csv — monthly step / step+trend HAC fits
+  09_scrape_10_detectability.csv      — the smallest step each record could see
 
 Figures:
   09_scrape_05_tier1_background_drift.png — Tier 1 BACI + CUSUM
@@ -33,7 +35,29 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "2.8.0"  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
+__version__ = "2.9.0"  # Hollingham (2026) — 2026-08-31. THE STEP NOW TRAVELS
+#   WITH ITS OWN DETECTION FLOOR. 09_scrape_03's CEH21 / After_Scraping
+#   contrast is nominally significant, sits below the smallest step this design
+#   could reliably detect, and does not survive a linear trend that the
+#   PRE-intervention window independently supports. The academic summary already
+#   said as much in words; all three clauses were assertions, and the third was
+#   quietly contradicted by this script's own committed output. They are now
+#   measurements, emitted from the same script as the number they qualify -
+#   because a caveat emitted elsewhere is how a number gets cited without it.
+#
+#   Three pairs in a registry (BACI_DETECT_PAIRS), so a fourth needs no code.
+#   CEH36/CEH4 is in as a POSITIVE CONTROL, not as a result: it changes nothing
+#   about the 2015 finding, and it is what makes the 2023 nulls readable as a
+#   statement about those records rather than a property of the method.
+#
+#   THE ASSERTION THAT MAKES THE REST ADMISSIBLE: where the fitting window is
+#   exactly the two named eras, the step-only HAC coefficient MUST reproduce
+#   this script's own era contrast. It does, to 1e-12 m. That is what makes the
+#   regression the SAME estimator rather than a different one landing nearby,
+#   and it raises rather than warns. No rate is formed and no existing output
+#   changes. New outputs 09_scrape_09 and 09_scrape_10. See D-103.
+#
+# v2.8.0  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
 #   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
 # v2.7.3  # Hollingham (2026) -- 2026-08-18. Store-time rounding removed (D-035): these values
 #   are written to CSV at the precision they were computed, and rounding
@@ -59,6 +83,7 @@ from utils.paths import (
     OUT_09_TIER1_DRIFT, OUT_09_TIER2_SIGNAL, OUT_09_BETA3_CI,
     OUT_09_REPORT_NUMBERS,
     OUT_09_TIER1_CUSUM,
+    OUT_09_STEP_TREND, OUT_09_DETECTABILITY,
 )
 from utils.scraping_common import (
     REGIONAL_MEAN_START,
@@ -71,7 +96,10 @@ from utils.scraping_common import (
     format_p_value, significance_stars,
 )
 from utils.data_utils import calculate_cusum
-from utils.config import DRAINAGE_DATUM, HEADLINE_LAG
+from utils.config import (DRAINAGE_DATUM, HEADLINE_LAG,
+                          DETECTABILITY_ALPHA, DETECTABILITY_POWER,
+                          BACI_DETECT_MIN_ERA_MONTHS,
+                          BACI_DETECT_HORIZON_YEARS)
 
 import pandas as pd
 import numpy as np
@@ -80,12 +108,288 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import statsmodels.api as sm
+from scipy import stats as _sps
 from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
     hr, skipped,
 )
 from utils.render_utils import bump_fig_fonts, bump_label_and_legend_fonts, render_figure
 
+
+
+# ============================================================================
+# THE STEP, AND THE SMALLEST STEP THIS RECORD COULD HAVE SEEN
+# ============================================================================
+# The registry. (impact, control, event date, window start, label, note).
+# Data, not code: a fourth pair is a row. Dates come from scraping_common, never
+# typed. `window_start = None` means the full paired record.
+#
+# CEH36/CEH4 IS A POSITIVE CONTROL, NOT A RESULT. It changes nothing about the
+# 2015 finding and is not re-reported as one. Its job is to show the method
+# firing on a record that has the length to support it, so the two 2023 nulls
+# read as a statement about THOSE records rather than as a property of the
+# procedure. Without it a reader cannot tell the two apart.
+BACI_DETECT_PAIRS = [
+    ("ceh21", "ceh22", SCRAPING_DATE_2, CLEARFELL_DATE,
+     "CEH21 vs CEH22, 2023 re-scrape",
+     "the coastal pair; the contrast this analysis exists to qualify"),
+    ("ceh18", "ceh4", SCRAPING_DATE_2, CLEARFELL_DATE,
+     "CEH18 vs CEH4, 2023 re-scrape",
+     "the boundary pair; same event, independent control"),
+    ("ceh36", "ceh4", SCRAPING_DATE, None,
+     "CEH36 vs CEH4, 2015 scrape (positive control)",
+     "POSITIVE CONTROL, not a result: a record long enough for the method to "
+     "fire on, so the 2023 nulls are readable"),
+]
+
+# The era-contrast reproduction tolerance. Not a scientific parameter: the two
+# quantities are the same arithmetic by construction (OLS on a single 0/1
+# indicator returns the difference of group means exactly), so anything above
+# float noise means the windows have stopped agreeing and the check has caught
+# it. 1e-12 m is a picometre.
+ERA_CONTRAST_TOL_M = 1e-12
+
+
+def _hac_lags(n):
+    """Newey-West lag truncation, the standard floor(4*(n/100)^(2/9)) rule.
+
+    Written once and used by every fit here, so the step fit and the trend fit
+    cannot silently disagree about how much autocorrelation they are allowing
+    for - which would make their standard errors incomparable, and the
+    detectability floor is a ratio of exactly those.
+    """
+    return int(np.floor(4.0 * (n / 100.0) ** (2.0 / 9.0)))
+
+
+def _era_contrast_for(wells, impact, control, event):
+    """This script's own era contrast for the pair, and whether it is comparable.
+
+    Returns (contrast_m, comparable, reason). The contrast is only the same
+    quantity as the step-only coefficient when the fitting window is EXACTLY the
+    union of the two named eras that meet at the event. For CEH21 and CEH18 it
+    is: the window opens at CLEARFELL_DATE, which is the start of the era before
+    the event, and the later era runs to the end of record. For CEH36 the window
+    is the full record and the post side spans TWO eras (Pure_Scraping and
+    Felling_Pulse), so the step-only coefficient is a different contrast from
+    the committed Pure_Scraping one and must NOT be asserted equal to it. That
+    is reported, not hidden, and it is why this returns a flag rather than a
+    number alone.
+    """
+    eras = WELL_ERAS.get(impact)
+    if not eras:
+        return float("nan"), False, "no era definition for this well"
+    names = list(eras.keys())
+    d = (wells[impact] - wells[control]).dropna()
+    idx = [i for i, nm in enumerate(names) if eras[nm][0] == event]
+    if not idx:
+        return float("nan"), False, "event is not an era boundary for this well"
+    j = idx[0]
+    prev_name, post_name = names[j - 1], names[j]
+    prev_start, _ = eras[prev_name]
+    _, post_end = eras[post_name]
+    contrast = float(era_filter(d, *eras[post_name]).mean()
+                     - era_filter(d, *eras[prev_name]).mean())
+    # comparable only if the window is exactly these two eras and nothing else
+    comparable = (post_end is None) and (j == len(names) - 1)
+    reason = "" if comparable else (
+        f"window spans more than {prev_name} and {post_name} "
+        f"(the post side continues past this era), so the step-only "
+        f"coefficient is a different contrast and is NOT asserted equal")
+    return contrast, comparable, reason
+
+
+def _mde_mm(se_step_m, phi, n_pre, n_post, extra_years):
+    """Minimum detectable step, at DETECTABILITY_ALPHA / DETECTABILITY_POWER.
+
+    The base is the FITTED standard error of the step in the step+trend model,
+    so the residual scale, the HAC autocorrelation correction and the step/trend
+    collinearity inflation are all MEASURED from the fit rather than assumed
+    (D-089's rule, applied here). Extrapolating to a longer record then scales
+    that base by the design factor alone:
+
+        se  proportional to  sqrt( 1 / ( n_eff * p * (1 - p) ) )
+
+    with n_eff = n(1-phi)/(1+phi) the autocorrelation-adjusted count and
+    p = n_post/n the post-window share. The ratio of design factors is what is
+    applied; everything else is held at its measured value.
+
+    HOLDING THE INFLATION CONSTANT IS CONSERVATIVE, and deliberately so.
+    Collinearity between the step and the trend EASES as the post-window grows,
+    so the real future standard error falls faster than this says. The forward
+    floors are therefore if anything pessimistic - they cannot make a record
+    look better able to detect a step than it will be.
+    """
+    z = (_sps.norm.ppf(1.0 - DETECTABILITY_ALPHA / 2.0)
+         + _sps.norm.ppf(DETECTABILITY_POWER))
+    n_now = n_pre + n_post
+    n_post2 = n_post + int(round(extra_years * 12))
+    n_tot = n_pre + n_post2
+    scale = (1.0 - phi) / (1.0 + phi)
+    p_now, p_new = n_post / n_now, n_post2 / n_tot
+    df_now = np.sqrt(1.0 / (n_now * scale * p_now * (1.0 - p_now)))
+    df_new = np.sqrt(1.0 / (n_tot * scale * p_new * (1.0 - p_new)))
+    return z * se_step_m * (df_new / df_now) * 1000.0, n_post2, n_tot * scale
+
+
+def _monthly_step_trend(wells):
+    """Per pair: step-only, step+trend, and the pre-window trend, HAC throughout.
+
+    The series is the paired monthly difference (impact minus control) that this
+    script already uses for its era means, restricted to the pair's window. The
+    three fits answer three separate questions and are reported together because
+    the second and third are what qualify the first:
+
+        M1  d ~ 1 + post                  the step, on its own
+        M2  d ~ 1 + years_since + post    the step, once a linear trend is
+                                          allowed for
+        M3  d[pre] ~ 1 + years_since      whether the PRE-intervention window
+                                          supports such a trend on its own
+                                          evidence, which is what admits M2
+
+    A pair is WITHHELD WITH A REASON (D-085) rather than omitted: a missing row
+    relies on the next reader noticing the absence, and this script's whole
+    point is that a caveat has to travel with its number.
+    """
+    rows, det_rows = [], []
+    for impact, control, event, wstart, label, pair_note in BACI_DETECT_PAIRS:
+        withheld = []
+        if impact not in wells.columns or control not in wells.columns:
+            withheld.append(f"{impact} or {control} absent from the well frame")
+            d = pd.Series(dtype=float)
+        else:
+            d = (wells[impact] - wells[control]).dropna()
+            if wstart is not None:
+                d = d[d.index >= wstart]
+        post_mask = (d.index >= event) if len(d) else np.array([], dtype=bool)
+        n_pre, n_post = int((~post_mask).sum()), int(post_mask.sum())
+        if n_pre < BACI_DETECT_MIN_ERA_MONTHS:
+            withheld.append(f"pre-window {n_pre} months is under "
+                            f"{BACI_DETECT_MIN_ERA_MONTHS} — a step estimated "
+                            f"from less than an annual cycle carries the "
+                            f"seasonal cycle with it")
+        if n_post < BACI_DETECT_MIN_ERA_MONTHS:
+            withheld.append(f"post-window {n_post} months is under "
+                            f"{BACI_DETECT_MIN_ERA_MONTHS} — as above")
+
+        contrast, comparable, contrast_reason = (
+            _era_contrast_for(wells, impact, control, event)
+            if len(d) else (float("nan"), False, "no paired record"))
+
+        row = {"pair": label, "impact_well": impact.upper(),
+               "control_well": control.upper(),
+               "event_date": pd.Timestamp(event).date().isoformat(),
+               "window_start": ("full paired record" if wstart is None
+                                else pd.Timestamp(wstart).date().isoformat()),
+               "n_months": len(d), "n_pre": n_pre, "n_post": n_post,
+               "note": pair_note}
+
+        if withheld:
+            row.update({"withheld": True,
+                        "withheld_reason": "; ".join(withheld)})
+            rows.append(row)
+            warn(f"{label}: WITHHELD — {'; '.join(withheld)}")
+            continue
+
+        n = len(d)
+        lags = _hac_lags(n)
+        years_since = (d.index - pd.Timestamp(event)).days / 365.25
+        post = post_mask.astype(float)
+
+        X1 = sm.add_constant(pd.DataFrame({"post": post}, index=d.index))
+        m1 = sm.OLS(d, X1).fit(cov_type="HAC", cov_kwds={"maxlags": lags})
+        X2 = sm.add_constant(pd.DataFrame({"years_since_event": years_since,
+                                           "post": post}, index=d.index))
+        m2 = sm.OLS(d, X2).fit(cov_type="HAC", cov_kwds={"maxlags": lags})
+        pre = d[~post_mask]
+        Xp = sm.add_constant(pd.DataFrame(
+            {"years_since_event": (pre.index - pd.Timestamp(event)).days / 365.25},
+            index=pre.index))
+        m3 = sm.OLS(pre, Xp).fit(cov_type="HAC",
+                                 cov_kwds={"maxlags": _hac_lags(len(pre))})
+
+        resid = np.asarray(m2.resid, dtype=float)
+        phi = float(pd.Series(resid).autocorr(1))
+        resid_sd = float(np.std(resid, ddof=len(m2.params)))
+
+        # THE ASSERTION. Where the window is exactly the two named eras, OLS on
+        # a single 0/1 indicator returns the difference of group means exactly,
+        # so the step-only coefficient IS this script's era contrast. If that
+        # ever stops holding, the two are no longer the same estimator and the
+        # script must fail rather than emit a number that looks like a
+        # restatement of the committed one and is not.
+        step_only = float(m1.params["post"])
+        if comparable:
+            dev = abs(step_only - contrast)
+            if dev > ERA_CONTRAST_TOL_M:
+                raise RuntimeError(
+                    f"{label}: the step-only coefficient {step_only:.12f} m does "
+                    f"not reproduce this script's era contrast {contrast:.12f} m "
+                    f"(differs by {dev:.3e} m > {ERA_CONTRAST_TOL_M:.0e}). The "
+                    f"monthly fit is no longer the same estimator as the era "
+                    f"means in {OUT_09_BACI_SHIFTS.name}; refusing to emit.")
+            info(f"{label}: step-only reproduces the era contrast "
+                 f"({step_only * 1000:+.4f} mm, |diff| {dev:.2e} m)")
+        else:
+            note(f"{label}: era contrast not comparable — {contrast_reason}")
+
+        row.update({
+            "withheld": False, "withheld_reason": "",
+            "maxlags": lags, "resid_lag1_phi": phi, "resid_sd_m": resid_sd,
+            "step_only_m": step_only,
+            "step_only_se_m": float(m1.bse["post"]),
+            "step_only_p": float(m1.pvalues["post"]),
+            "step_with_trend_m": float(m2.params["post"]),
+            "step_with_trend_se_m": float(m2.bse["post"]),
+            "step_with_trend_p": float(m2.pvalues["post"]),
+            "trend_m_per_yr": float(m2.params["years_since_event"]),
+            "trend_se_m_per_yr": float(m2.bse["years_since_event"]),
+            "trend_p": float(m2.pvalues["years_since_event"]),
+            "pre_trend_m_per_yr": float(m3.params["years_since_event"]),
+            "pre_trend_se_m_per_yr": float(m3.bse["years_since_event"]),
+            "pre_trend_p": float(m3.pvalues["years_since_event"]),
+            "era_contrast_m": contrast,
+            "era_contrast_comparable": comparable,
+            "era_contrast_check": ("reproduced to "
+                                   f"{ERA_CONTRAST_TOL_M:.0e} m" if comparable
+                                   else contrast_reason),
+            "collinearity_inflation": float(m2.bse["post"] / m1.bse["post"]),
+            "estimator": "paired monthly difference, OLS with Newey-West (HAC) errors",
+        })
+        rows.append(row)
+        step(f"{label}: step {step_only*1000:+.1f} mm (p={m1.pvalues['post']:.4g}) "
+             f"-> {m2.params['post']*1000:+.1f} mm with a trend "
+             f"(p={m2.pvalues['post']:.4g}); pre-window trend "
+             f"{m3.params['years_since_event']*1000:+.1f} mm/yr "
+             f"(p={m3.pvalues['years_since_event']:.4g})")
+
+        se2 = float(m2.bse["post"])
+        for extra in BACI_DETECT_HORIZON_YEARS:
+            mde, n_post2, n_eff = _mde_mm(se2, phi, n_pre, n_post, extra)
+            observed = float(m2.params["post"]) * 1000.0
+            det_rows.append({
+                "pair": label, "impact_well": impact.upper(),
+                "control_well": control.upper(),
+                "extra_years": extra, "n_post": n_post2,
+                "n_eff": n_eff, "mde_mm": mde,
+                "observed_step_mm": observed,
+                "observed_below_floor": bool(abs(observed) < mde),
+                "note": ("smallest step distinguishable from zero at alpha="
+                         f"{DETECTABILITY_ALPHA}, power={DETECTABILITY_POWER}; "
+                         "observed_step_mm is the step+trend estimate, the same "
+                         "model this floor is derived from. The step/trend "
+                         "collinearity inflation is held at its measured value "
+                         "as the record is extrapolated, which is CONSERVATIVE "
+                         "— that collinearity eases as the post-window grows, "
+                         "so the forward floors are if anything pessimistic"),
+            })
+        below = [r for r in det_rows if r["pair"] == label and r["extra_years"] == 0]
+        if below:
+            b = below[0]
+            (warn if b["observed_below_floor"] else info)(
+                f"    floor now {b['mde_mm']:.1f} mm against an observed "
+                f"{b['observed_step_mm']:+.1f} mm — "
+                f"{'BELOW the floor' if b['observed_below_floor'] else 'above the floor'}")
+    return pd.DataFrame(rows), pd.DataFrame(det_rows)
 
 
 # ============================================================================
@@ -283,6 +587,17 @@ def main():
     pd.DataFrame(net_summary).to_csv(OUT_09_NET_BENEFITS, index=False)
     _export_beta3_era_summary(significance_results)
 
+    # The step, with the trend it has to survive and the floor it has to clear.
+    # Emitted here rather than from a new script: D-088 makes a new top-level
+    # step a deliberate act and this does not earn one, both quantities fall out
+    # of a fit this script is already doing, and a caveat emitted from somewhere
+    # else is how a number gets cited without it.
+    step_trend_df, detect_df = _monthly_step_trend(wells)
+    step_trend_df.to_csv(OUT_09_STEP_TREND, index=False)
+    saved(f"{OUT_09_STEP_TREND.name} ({len(step_trend_df)} pairs)")
+    detect_df.to_csv(OUT_09_DETECTABILITY, index=False)
+    saved(f"{OUT_09_DETECTABILITY.name} ({len(detect_df)} rows)")
+
     # Update site-wide observations registry — CEH36 BACI step values
     # are consumed downstream (09d) for scenario comparison.  See
     # utils/site_observations.py for the registered observation keys.
@@ -307,7 +622,8 @@ def main():
     # ── 5. Report numbers ─────────────────────────────────────────────────
     print("\nExporting report numbers CSV...")
     _export_report_numbers(plot_data, baci_results, net_summary,
-                           significance_results, wells)
+                           significance_results, wells,
+                           step_trend_df, detect_df)
 
     print("\nDone.")
 
@@ -633,7 +949,8 @@ def _plot_beta3_ci(significance_results):
 # ============================================================================
 
 def _export_report_numbers(plot_data, baci_results, net_summary,
-                           significance_results, wells):
+                           significance_results, wells,
+                           step_trend_df=None, detect_df=None):
     """Export all citable values for §4.5."""
     rows = []
 
@@ -683,6 +1000,42 @@ def _export_report_numbers(plot_data, baci_results, net_summary,
                 rr("Summer_minimum_depth", summer_min_depth,
                    well=sw.upper(), era=era_name,
                    note="Mean of annual Jun-Sep minima")
+
+    # 6. The step with its trend and its floor — beside the shift rows above,
+    #    so a reader who finds Tier2_BACI_shift finds the qualification too.
+    if step_trend_df is not None and len(step_trend_df):
+        for _, sr in step_trend_df.iterrows():
+            if sr.get("withheld", False):
+                rr("BACI_step_withheld", np.nan, unit="",
+                   well=sr["impact_well"], era=sr["pair"],
+                   note=f"WITHHELD (D-085): {sr['withheld_reason']}")
+                continue
+            rr("BACI_step_with_trend", sr["step_with_trend_m"],
+               well=sr["impact_well"], era=sr["pair"],
+               note=f"step once a linear trend is allowed for; HAC se="
+                    f"{sr['step_with_trend_se_m']:.6f} m, "
+                    f"p={format_p_value(sr['step_with_trend_p'])}; "
+                    f"step-only was {sr['step_only_m']:.6f} m "
+                    f"(p={format_p_value(sr['step_only_p'])})")
+            rr("BACI_pre_window_trend", sr["pre_trend_m_per_yr"], unit="m/yr",
+               well=sr["impact_well"], era=sr["pair"],
+               note=f"trend fitted on the PRE-intervention window ALONE, "
+                    f"p={format_p_value(sr['pre_trend_p'])} — this is the "
+                    f"evidence on which the step+trend model is admitted, not "
+                    f"a preference for it")
+    if detect_df is not None and len(detect_df):
+        for _, dr in detect_df[detect_df["extra_years"] == 0].iterrows():
+            rr("BACI_min_detectable_step", dr["mde_mm"], unit="mm",
+               well=dr["impact_well"], era=dr["pair"],
+               note=f"smallest step this record could distinguish from zero at "
+                    f"alpha={DETECTABILITY_ALPHA}, power={DETECTABILITY_POWER}; "
+                    f"the observed step+trend estimate "
+                    f"{dr['observed_step_mm']:+.1f} mm lies "
+                    f"{'BELOW' if dr['observed_below_floor'] else 'above'} it")
+            rr("BACI_step_below_floor", 1.0 if dr["observed_below_floor"] else 0.0,
+               unit="flag", well=dr["impact_well"], era=dr["pair"],
+               note="1 = the observed step is smaller than the smallest step "
+                    "this record could reliably detect")
 
     report_df = pd.DataFrame(rows)
     report_df.to_csv(OUT_09_REPORT_NUMBERS, index=False)

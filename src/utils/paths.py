@@ -11,7 +11,11 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.8.0"  # Hollingham (2026) — 2026-08-30. Script 12 becomes a
+__version__ = "1.9.0"  # Hollingham (2026) — 2026-08-31. OUT_09_STEP_TREND
+#   and OUT_09_DETECTABILITY: Script 09a's monthly step/trend fits and the
+#   detectability floor they are read against. See D-103.
+#
+# v1.8.0  # Hollingham (2026) — 2026-08-30. Script 12 becomes a
 #   numeric emitter: OUT_12_BREAK_IN_SLOPE, OUT_12_BREAK_FIG and
 #   OUT_12_REPORT_NUMBERS for the northern break in slope. See D-099.
 #
@@ -406,6 +410,12 @@ OUT_09_TIER2_SIGNAL         = DIR_09 / "09_scrape_06_tier2_scraping_signal.png"
 OUT_09_BETA3_CI             = DIR_09 / "09_scrape_07_beta3_confidence.png"
 OUT_09_ROBUSTNESS           = DIR_09 / "09_scrape_08_ceh36_robustness.png"
 OUT_09_REPORT_NUMBERS       = DIR_09 / "09_scrape_report_numbers.csv"
+# The step reported with its own detection floor (D-103). These sit beside the
+# era contrasts in 09_scrape_03, and deliberately come from the SAME script,
+# because a caveat emitted from a different script than the number it qualifies
+# is how a number gets cited without its caveat.
+OUT_09_STEP_TREND           = DIR_09 / "09_scrape_09_monthly_step_trend.csv"
+OUT_09_DETECTABILITY        = DIR_09 / "09_scrape_10_detectability.csv"
 OUT_09_TIER1_CUSUM          = DIR_09 / "09_tier1_final_cusum.csv"
 
 # Script 09b — Scraping propagation into forest

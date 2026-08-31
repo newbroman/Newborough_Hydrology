@@ -871,6 +871,46 @@ The pre-commit run is **`python3 run_analysis.py --full --with-supplementary`**,
 
 **Revisit if** (a) the opt-in tier grows enough that `--full --with-supplementary` no longer fits the time a person will actually wait, in which case the answer is to make the gate name what is stale rather than to drop it; (b) `output_lag` starts producing false positives often enough that people reach for `git checkout` on outputs to silence it — that is the failure mode the original advisory note predicted, and it would be evidence against this entry rather than a reason to work around it; (c) a mechanism arrives that can compare outputs by content rather than mtime, which would let the gate distinguish a docstring edit from a coefficient change and make the false-positive objection moot.
 
+### D-103 — the BACI step is reported with the trend it has to survive and the floor it has to clear, from the same script
+
+*2026-08-31*
+
+They are measured, and they are emitted **from 09a itself**, in `09_scrape_09_monthly_step_trend.csv` and `09_scrape_10_detectability.csv`. Three fits per pair on the paired monthly difference, HAC (Newey–West) throughout: step only (`d ~ 1 + post`), step with trend (`d ~ 1 + years_since_event + post`), and the trend fitted on the **pre-intervention window alone**. Alongside each, the smallest step the record could have distinguished from zero at α = 0.05, power = 0.80, reported against 0, 2, 5, 10 and 20 further years. Three pairs in a registry (`BACI_DETECT_PAIRS`), so a fourth needs no code.
+
+**Revisit if** (a) **CEH21's post-window passes the point where its floor drops below its observed step** — on the emitted schedule the floor is 115.9 mm now and 69.5 mm after twenty more years, against an observed +23.9 mm, so on the present estimate that point is not reached at any horizon in the table; a larger true step, or a fall in residual scale, would change that and the schedule is emitted so it can be checked rather than assumed; (b) the era boundaries in `scraping_common.WELL_ERAS` change, which would break the run-time contrast assertion by design and must be met by re-deriving the windows, never by loosening `ERA_CONTRAST_TOL_M`; (c) a fourth pair is added, which is a registry row and needs no code — but its window must be checked against `_era_contrast_for`'s comparability test rather than assumed comparable; (d) `BACI_DETECT_MIN_ERA_MONTHS` fires on a real pair, at which point the withheld row and its reason are the output, not an omission.
+
+### D-104 — identity columns come from the union of every window, and a NaN coordinate refuses rather than zeroes
+
+*2026-08-31*
+
+Three changes, and the third is the one that matters most. 1. **Script 36 v1.4.0** builds the identity block (`key, col, Cluster, E, N`) from the **union of every period**, primary first, first non-null per key — not from `ACT_PRIMARY_PERIOD` alone. 2. **Script 37 v3.4.0** fixes the E/N repair block's id-column candidates and makes every patch it performs **loud**. 3. **Script 37 `_build_spatial` REFUSES a non-finite coordinate**, naming the wells, instead of letting it become zero.
+
+**Revisit if** (a) **a window is added to or removed from `ACT_PERIODS`** — the union basis absorbs it automatically, but the empty-diff over Script 36's non-NaN cells must be re-checked, because a new window can introduce wells no existing window has; (b) a well appears in **no** period frame yet is wanted in the CSV, which the union cannot supply and which would need a lookup against `01_locations.csv` keyed on `Name`/`Match_ID`; (c) the `nan_to_num` guards on `coast_unit` and `broadleaf` are revisited — measured 2026-08-31 across all 59 wells at real coordinates, both fields return **zero NaNs**, so the guards currently mask nothing and were kept rather than removed blind; (d) anyone proposes to soften the `_build_spatial` refusal back into a fallback.
+
+### D-105 — `c` is a window-averaged far-field rate; the "record-length composition effect" is a window effect and the name is retired
+
+*2026-08-31*
+
+`c` is a **window-averaged far-field rate**, correctly estimated on every subset, and there is **no composition effect**. The name is retired. `c` is quoted **with the window it was fitted over, or not quoted as a rate at all**. δ₀ and L are untouched and 25_01 is unchanged.
+
+**Revisit if** (a) **a covariate absorbs the oscillation** — a winter-recharge term built on `config.WINTER_RECHARGE_MONTHS` is the obvious candidate given r = 0.511, and if `c` stops moving with the window under it then `c` becomes quotable as a rate and this entry's central claim needs restating; (b) **a well enters the panel whose record does not run to the present**, which breaks the identity *record start = window start* on which the whole finding rests and makes 25_11 mean something different; (c) the net-decline question above is answered, in either direction; (d) the record lengthens enough that a five-year window stops being a large fraction of a cycle.
+
+### D-106 — the panel's memory of climate is about five months; the cumulative water balance is the worst covariate tested, and it is not swapped out on this evidence alone
+
+*2026-08-31*
+
+Two decisions, taken together. 1. **The finding is recorded: the CWB is the wrong memory length.** Scored against the within-well-demeaned panel with month fixed effects and **no trend or decay term**, the CWB reaches out-of-sample R² **0.541** — the worst of every non-degenerate covariate tried. An exponential accumulator of the same series reaches **0.706** at a half-life of **five months**, with a broad plateau from three to six. An undecayed cumulative sum is the t½ → ∞ limit of that curve and the curve is falling long before it. 2. **Nothing is swapped.** Script 25 keeps `load_cwb()`, and `25_01` is unchanged. Adopting a different covariate moves δ₀ from −31.73 to about −28.7 mm yr⁻¹ and **L from 994 m to about 1 230 m**, and those are the published far-field parameters. That is a methodological change to a defended result and is Martin's to make, on a case that includes the unresolved discrepancy in the rationale below — not a consequence of a covariate sweep.
+
+**Revisit if** (a) **the ln2/β₃ ≈ 10 months against ≈ 5 months discrepancy is explained** — the cheap test is a per-well memory fit against each well's own β₃, which needs no pipeline change; if the two reconcile, the β₃-recursion becomes a physically justified covariate and adopting it in Script 25 becomes a live question; (b) **β₃ itself is re-estimated** on a different basis, since the recursion inherits it; (c) anyone proposes adopting a *tuned* accumulator — the five-month half-life is fitted on this record and would be a new free parameter in a model that currently has three.
+
+### D-107 — δ₀ and L are quoted with a specification-inclusive interval; the CWB stays and the reach loses its third significant figure
+
+*2026-08-31*
+
+**Neither. Keep `load_cwb()` unchanged, and widen the stated interval on δ₀ and L to span the choice of climate covariate.** On the **forest-free** fit — the one the corpus actually quotes — that is:
+
+**Revisit if** (a) a covariate is adopted for an independent reason — D-106's Revisit-if (a) resolving in favour of the β₃-recursion would do it — in which case the headline moves and this interval is recomputed, not merely widened; (b) a new panel specification is added whose fit falls **outside** 895–1046 m, which would mean the interval was set on too narrow a family; (c) a reviewer requires the best-fitting covariate as the headline, in which case D-106's measurements are the answer and this entry records why it was not the default.
+
 ---
 
-102 decisions. Generated by `tools/build_public_decisions.py`.
+107 decisions. Generated by `tools/build_public_decisions.py`.

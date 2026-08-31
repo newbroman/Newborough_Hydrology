@@ -289,8 +289,8 @@
    "step": "48/52  Shoreline retreat from the digitised coastline epochs \u2014 signed shore-normal displacement; WITHHOLDS its own headline until the gate passes (D-085)"
   },
   "41_canopy_cover.py": {
-   "last_run": "2026-08-31T17:08:16",
-   "seconds": 43.8,
+   "last_run": "2026-08-31T17:18:02",
+   "seconds": 42.1,
    "status": "ok",
    "step": "49/52  Canopy and forest-cover texture index from the dated aerial series \u2014 registration fitted from the dipwell placemarks; WITHHOLDS a value whose frame is unregistered. Skips when the imagery is absent, which is its normal state in a clone (D-081)"
   },
@@ -307,5 +307,5 @@
    "step": "10/52  Clear-fell BACI analysis suite (10a\u201310m)"
   }
  },
- "updated": "2026-08-31T17:08:16"
+ "updated": "2026-08-31T17:18:02"
 }

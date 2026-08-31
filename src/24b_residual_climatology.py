@@ -55,7 +55,13 @@ Conventions:
 ====================================================================================
 """
 
-__version__ = "1.4.1"  # Hollingham (2026) — 2026-08-30. WINTER_MONTHS now imported
+__version__ = "1.5.0"  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS now imported from config.SUMMER_METEOROLOGICAL_MONTHS, pairing with the WINTER_METEOROLOGICAL_MONTHS import added in batch one.
+#   Batch two of the seasonal-windows migration (D-100): the window's
+#   MONTHS ARE UNCHANGED and the constant is asserted equal to the literal it
+#   replaced, in value and in type, read mechanically out of git HEAD. No
+#   committed value moves.
+#
+# v1.4.1  # Hollingham (2026) — 2026-08-30. WINTER_MONTHS now imported
 #   from config.WINTER_METEOROLOGICAL_MONTHS — same months, one definition
 #   (D-100). No behavioural change; asserted equal to the literal it replaced.
 #
@@ -109,6 +115,7 @@ from utils.paths import (
 )
 from utils.data_utils import normalize_well_name
 from utils.config import (
+    SUMMER_METEOROLOGICAL_MONTHS,
     WINTER_METEOROLOGICAL_MONTHS,
     CLUSTER_LABELS,
     FOREST_CIDS,
@@ -139,7 +146,7 @@ RIDGE_REFERENCE_E = RIDGE_REF_E   # config.py — shared ridge reference point
 RIDGE_REFERENCE_N = RIDGE_REF_N
 
 WINTER_MONTHS = WINTER_METEOROLOGICAL_MONTHS   # DJF, from config (D-100)
-SUMMER_MONTHS = (6, 7, 8)     # JJA
+SUMMER_MONTHS = SUMMER_METEOROLOGICAL_MONTHS   # JJA, from config (D-100)
 MIN_OBS_PER_SEASON = 3        # min raw obs in each season for a per-well test
 N_BOOTSTRAP = 1000            # well-level resamples for cluster-contrast CI
 BOOTSTRAP_SEED = RESIDUAL_CLIM_BOOT_SEED   # canonical seed in utils.config (value unchanged: 42)

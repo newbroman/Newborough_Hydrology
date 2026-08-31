@@ -76,7 +76,13 @@ References:
       for water table depths. WRR 36(1), 181–188.
 """
 
-__version__ = "1.1.3"  # Hollingham (2026) — 2026-08-30. WINTER_MONTHS now imported
+__version__ = "1.2.0"  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS now imported from config.SUMMER_MINIMUM_MONTHS.
+#   Batch two of the seasonal-windows migration (D-100): the window's
+#   MONTHS ARE UNCHANGED and the constant is asserted equal to the literal it
+#   replaced, in value and in type, read mechanically out of git HEAD. No
+#   committed value moves.
+#
+# v1.1.3  # Hollingham (2026) — 2026-08-30. WINTER_MONTHS now imported
 #   from config.WINTER_RECESSION_MONTHS — same months, one definition
 #   (D-100). No behavioural change; asserted equal to the literal it replaced.
 #
@@ -109,6 +115,7 @@ from utils.paths import (
     OUT_16_BAR_LAY, OUT_16_BAR_MS, OUT_03_MECHANISTIC_TABLE,
 )
 from utils.config import (
+    SUMMER_MINIMUM_MONTHS,
     WINTER_RECESSION_MONTHS,
     BW_MODE, CLUSTER_LABELS as _CFG_LABELS, DRAINAGE_DATUM,
     FOREST_INTERCEPTION, FOREST_CIDS,
@@ -122,7 +129,7 @@ make_all_dirs()
 # Recession analysis seasons (calendar months)
 WINTER_MONTHS = list(WINTER_RECESSION_MONTHS)   # Nov-Feb; March excluded
                                                # as transitional (D-100)
-SUMMER_MONTHS = [6, 7, 8, 9]
+SUMMER_MONTHS = list(SUMMER_MINIMUM_MONTHS)
 
 # ── Figure colours ─────────────────────────────────────────────────────────────
 C_RECH  = "#4A90D9"   # blue — recharge

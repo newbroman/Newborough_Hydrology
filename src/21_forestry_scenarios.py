@@ -87,7 +87,13 @@ References
                           Impact tier) at runtime; see _load_baci_params().
 """
 
-__version__ = "1.7.0"  # 2026-08-29 — the three private copies of the scraping
+__version__ = "1.8.0"  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS now imported from config.SUMMER_MINIMUM_MONTHS.
+#   Batch two of the seasonal-windows migration (D-100): the window's
+#   MONTHS ARE UNCHANGED and the constant is asserted equal to the literal it
+#   replaced, in value and in type, read mechanically out of git HEAD. No
+#   committed value moves.
+#
+# v1.7.0  # 2026-08-29 — the three private copies of the scraping
 #   dates now come from utils.config (D-084); FELL_DATE_21 keeps its value and
 #   gains a note that it is the post-felling ERA BOUNDARY, not the felling date,
 #   its previous comment having said "December 2017 clearfell" against a value of
@@ -129,6 +135,7 @@ from utils.paths import (
     OUT_09C_SUMMER_MINIMA,
 )
 from utils.config import (
+    SUMMER_MINIMUM_MONTHS,
     BW_MODE, FOREST_INTERCEPTION, BROADLEAF_INTERCEPTION,
     REFERENCE_CUTOFF_DATE, CLUSTER_COLOURS as CONFIG_CLUSTER_COLOURS, SD15b,
     SD16, SD16_REC,
@@ -292,7 +299,7 @@ def _init_baci_params():
     THINNING_B2_MULT = 1.0 + (CLEARFELL_B2_MULT - 1.0) / 2  # 50% of clearfell effect
 
 # Summer months (Jun-Sep inclusive, 1-based)
-SUMMER_MONTHS = [6, 7, 8, 9]
+SUMMER_MONTHS = list(SUMMER_MINIMUM_MONTHS)
 FELLING_DATE  = "2018-01-01"
 
 MONTHS = ["Jan","Feb","Mar","Apr","May","Jun",

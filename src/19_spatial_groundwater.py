@@ -23,7 +23,13 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.16.1"  # Hollingham (2026) — 2026-08-30. WINTER_MONTHS now imported
+__version__ = "2.17.0"  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS from config.SUMMER_DRY_CLIMATE_MONTHS and SPRING_MONTHS from config.MSL_SPRING_MONTHS - the last local copy of the van Willegen spring window, which nine other scripts already imported.
+#   Batch two of the seasonal-windows migration (D-100): the window's
+#   MONTHS ARE UNCHANGED and the constant is asserted equal to the literal it
+#   replaced, in value and in type, read mechanically out of git HEAD. No
+#   committed value moves.
+#
+# v2.16.1  # Hollingham (2026) — 2026-08-30. WINTER_MONTHS now imported
 #   from config.WINTER_WET_CLIMATE_MONTHS — same months, one definition
 #   (D-100). No behavioural change; asserted equal to the literal it replaced.
 #
@@ -262,6 +268,8 @@ from utils.paths import (
     OUT_26B_PROJECTION_TABLE_PERWELL,    # v2.8.0 cross-check target
 )
 from utils.config import (
+    MSL_SPRING_MONTHS,
+    SUMMER_DRY_CLIMATE_MONTHS,
     WINTER_WET_CLIMATE_MONTHS,
     CLUSTER_LABELS,
     CLUSTER_COLOURS,
@@ -294,7 +302,7 @@ MONITOR_END   = "2026-02-28"
 # dry-season climate (highest ET).  Used by serialise_climate and the
 # winter/summer mean-head aggregations on lines 545–546.
 WINTER_MONTHS = list(WINTER_WET_CLIMATE_MONTHS)   # Nov-Mar wet-season climate (D-100)
-SUMMER_MONTHS = [5, 6, 7, 8, 9]
+SUMMER_MONTHS = list(SUMMER_DRY_CLIMATE_MONTHS)   # May-Sep dry-season climate (D-100)
 SHOULDER_MONTHS = [4, 10]            # April + October -- transitional months
                                      # straddling winter/summer; assigned the
                                      # mean of the two seasonal multipliers when
@@ -303,7 +311,9 @@ SHOULDER_MONTHS = [4, 10]            # April + October -- transitional months
                                      # the v2.8.0 ΔMSL5 row (see below) and
                                      # matches the identical convention in
                                      # Script 26b.
-SPRING_MONTHS = [3, 4, 5]            # van Willegen et al. (2025) spring window
+SPRING_MONTHS = list(MSL_SPRING_MONTHS)   # van Willegen et al. (2025) spring window,
+                                     # from config (D-100) — nine other scripts
+                                     # already import it; this was the last local
                                      # for the 5-year mean spring water level
                                      # (MSL5).  Used by the v2.8.0 viewer
                                      # ΔMSL5 row to mirror Script 26b's

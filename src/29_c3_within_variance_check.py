@@ -37,7 +37,13 @@ Read-only on pipeline outputs; writes to outputs/29_within_c3_variance/.
 
 from __future__ import annotations
 
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-08-27: reads Features.kml
+__version__ = "1.6.0"  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS now imported from config.SUMMER_MINIMUM_MONTHS. WINTER_MONTHS stays LOCAL and exempt.
+#   Batch two of the seasonal-windows migration (D-100): the window's
+#   MONTHS ARE UNCHANGED and the constant is asserted equal to the literal it
+#   replaced, in value and in type, read mechanically out of git HEAD. No
+#   committed value moves.
+#
+# v1.5.0  # Hollingham (2026) — 2026-08-27: reads Features.kml
 #   through utils.kml_io.read_kml. The bare gpd.read_file let fiona sniff and
 #   choose LIBKML, which Ubuntu's GDAL is not built with, so this script could
 #   not start at all. It is the third KML defect of the same shape in the tree.
@@ -79,6 +85,7 @@ from utils import paths  # noqa: E402
 from utils.report_numbers_utils import ReportNumbers  # noqa: E402
 from utils.render_utils import render_figure
 from utils.config import CEH36_E as _CEH36_E, CEH36_N as _CEH36_N
+from utils.config import SUMMER_MINIMUM_MONTHS
 
 paths.make_all_dirs()
 
@@ -100,7 +107,7 @@ OUT_REPORT       = paths.OUT_29_REPORT_NUMBERS
 
 # ── Constants ──────────────────────────────────────────────────────────────
 CEH36_E, CEH36_N = _CEH36_E, _CEH36_N   # config.py — documented 2015 dune-scrape site
-SUMMER_MONTHS = [6, 7, 8, 9]
+SUMMER_MONTHS = list(SUMMER_MINIMUM_MONTHS)
 WINTER_MONTHS = [12, 1, 2]
 
 

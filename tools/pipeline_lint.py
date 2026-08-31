@@ -20,6 +20,14 @@ it claims to, or has a value been silently substituted somewhere upstream?
              from the previous one. Guarded cases fall back to a default, which
              is the `defaults` check above waiting to happen.
 
+  runid      Is pipeline_site_observations.csv the product of ONE pass?
+             That file is run-scoped: Script 01 resets it to placeholders and
+             seven producers overwrite their own rows. Run a producer on its
+             own and it writes a real value into a file otherwise recording the
+             PREVIOUS pass, with nothing saying so. Every row now carries the
+             run token its writer inherited from the environment, so a write
+             made outside a run is visible instead of silent.
+
   literals   Does a script hard-code a number that should come from config.py
              or an upstream CSV? The project rule is that it must not: shared
              constants live in config.py and are imported. A pasted 3.7 or
@@ -45,6 +53,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 SRC = REPO / "src"
 PARAMS = REPO / "outputs" / "01_data_prep" / "pipeline_scenario_params.csv"
+SITE_OBS = REPO / "outputs" / "01_data_prep" / "pipeline_site_observations.csv"
 MANIFEST = REPO / "outputs" / "pipeline_manifest.json"
 
 G, Y, R, B, N = "\033[0;32m", "\033[1;33m", "\033[0;31m", "\033[1m", "\033[0m"
@@ -113,6 +122,80 @@ def check_defaults() -> int:
         print("        Run the full pipeline twice so the producing scripts fill them.")
         return len(bad)
     print(f"  {G}OK{N}: all {n} parameter provenance cells read 'pipeline'")
+    return 0
+
+
+def check_runid() -> int:
+    """Is the site-observations ledger the product of one pipeline pass?
+
+    WHAT FAILS, AND WHAT DELIBERATELY DOES NOT.
+
+    FAILS on a `standalone:` marker. That row was written by a producer run
+    outside any pipeline pass, so the file mixes that write with whatever the
+    last full run left. Nothing is corrupted and no value is wrong; what is
+    wrong is that the file no longer records a single state of the analysis.
+
+    DOES NOT FAIL on two or more genuine run tokens, and this is the important
+    exception. The documented second pass is `--from 9`, which does NOT re-run
+    Script 01, so the file is not reset: rows the second pass rewrites carry its
+    token and the rest legitimately keep the first pass's. A uniform-token rule
+    would fail the project's own prescribed workflow, so mixed genuine tokens
+    are REPORTED and not gated.
+
+    An absent run_id column is a file from before the guard. Reported as owed,
+    not failed: it becomes correct at the next full run, and failing here would
+    be a gate that fires from birth on a state nobody can fix without a run.
+    """
+    print(f"{B}runid{N} — is the site-observations ledger one pipeline pass?")
+    if not SITE_OBS.exists():
+        print(f"  {Y}skip{N}: {SITE_OBS.relative_to(REPO)} not present")
+        return 0
+    with open(SITE_OBS, encoding="utf8") as fh:
+        rows = list(csv.DictReader(fh))
+    if not rows:
+        print(f"  {Y}skip{N}: {SITE_OBS.name} is empty")
+        return 0
+    if "run_id" not in rows[0]:
+        print(f"  {Y}owed{N}: {SITE_OBS.name} has no run_id column — it "
+              f"predates the guard.")
+        print(f"        The next full pipeline run stamps it. Nothing to fix "
+              f"by hand: a token written here would assert a pass that did not "
+              f"happen.")
+        return 0
+
+    tokens = {}
+    for r in rows:
+        tokens.setdefault(str(r.get("run_id", "")).strip(), []).append(
+            r.get("observation", "?"))
+    loose = sorted(k for k in tokens if not k.startswith("run:"))
+    genuine = sorted(k for k in tokens if k.startswith("run:"))
+
+    if loose:
+        n = sum(len(tokens[k]) for k in loose)
+        print(f"  {R}FAIL{N}: {n} of {len(rows)} row(s) were not written "
+              f"inside a pipeline run:")
+        for k in loose:
+            shown = ", ".join(tokens[k][:4])
+            more = f", +{len(tokens[k]) - 4} more" if len(tokens[k]) > 4 else ""
+            print(f"        {k or '(blank)'}  ->  {shown}{more}")
+        print(f"        {SITE_OBS.name} is run-scoped, so it now mixes those "
+              f"writes with the last full pass.")
+        print("        Re-run the pipeline before committing it; do not edit "
+              "the file by hand.")
+        return len(loose)
+
+    if len(genuine) > 1:
+        print(f"  {G}OK{N}: every row was written inside a pipeline run "
+              f"({len(rows)} rows).")
+        print(f"  {Y}note{N}: {len(genuine)} run tokens present — expected "
+              f"after a `--from N` second pass, which does not re-run Script 01 "
+              f"and so does not reset the file:")
+        for k in genuine:
+            print(f"        {k}  ->  {len(tokens[k])} row(s)")
+        return 0
+
+    print(f"  {G}OK{N}: all {len(rows)} row(s) carry one run token "
+          f"({genuine[0]})")
     return 0
 
 
@@ -361,13 +444,16 @@ def check_kml() -> int:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", default="all",
-                    choices=["all", "defaults", "deps", "literals", "kml"])
+                    choices=["all", "defaults", "deps", "literals", "kml",
+                             "runid"])
     ap.add_argument("--min-sig", type=int, default=3,
                     help="ignore literals with fewer significant digits")
     args = ap.parse_args()
     rc = 0
     if args.check in {"all", "defaults"}:
         rc += check_defaults()
+    if args.check in {"all", "runid"}:
+        rc += check_runid()
     if args.check in {"all", "deps"}:
         rc += check_deps()
     if args.check in {"all", "kml"}:

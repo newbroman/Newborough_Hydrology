@@ -70,7 +70,13 @@ provenance with ``_ = wells_prov``. Script 10d uses it to require
 >=2 measured Jun-Sep months in ``annual_summer_minimum``.
 """
 
-__version__ = "1.11.0"  # Hollingham (2026) — 2026-08-29. the legacy alias is removed; CLEARFELL_DATE is the only name (T-17).
+__version__ = "1.12.0"  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS now imported from config.SUMMER_MINIMUM_MONTHS, joining SPRING_MONTHS which was already re-exported from config.
+#   Batch two of the seasonal-windows migration (D-100): the window's
+#   MONTHS ARE UNCHANGED and the constant is asserted equal to the literal it
+#   replaced, in value and in type, read mechanically out of git HEAD. No
+#   committed value moves.
+#
+# v1.11.0  # Hollingham (2026) — 2026-08-29. the legacy alias is removed; CLEARFELL_DATE is the only name (T-17).
 #   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
 # v1.10.0  # Hollingham (2026) — 2026-08-29. The four intervention
 #   dates are built from utils.config rather than declared here (D-084); adds
@@ -141,6 +147,7 @@ from utils.paths import (
 )
 from utils.data_utils import PROV_MEASURED, PROV_MISSING
 from utils.config import (
+    SUMMER_MINIMUM_MONTHS,
     CEH36_E as _CEH36_E, CEH36_N as _CEH36_N,
     MSL_SPRING_MONTHS as _MSL_SPRING_MONTHS,
     MSL_MIN_MONTHS_PER_SPRING as _MSL_MIN_MONTHS_PER_SPRING,
@@ -429,7 +436,7 @@ FELL_CENTROID_NORTHING = 363607.0
 SCRAPING_DECAY_LAMBDA = 300.0
 
 # Summer months (1-indexed)
-SUMMER_MONTHS = [6, 7, 8, 9]
+SUMMER_MONTHS = list(SUMMER_MINIMUM_MONTHS)
 
 # Spring months (1-indexed) — re-exported from config so the clearfell/scraping
 # suite shares ONE definition of "spring" with the van Willegen MSL machinery

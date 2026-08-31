@@ -40,7 +40,17 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.22.0"  # Hollingham (2026) — 2026-08-30. THE FOUR WINTERS.
+__version__ = "1.23.0"  # Hollingham (2026) — 2026-08-31. THE FOUR SUMMERS.
+#   Batch two of the seasonal-windows spec: SUMMER_MINIMUM_MONTHS,
+#   SUMMER_DROUGHT_MONTHS, SUMMER_DRY_CLIMATE_MONTHS and
+#   SUMMER_METEOROLOGICAL_MONTHS, replacing nine per-script locals across
+#   five distinct month-sets. Summer was the larger duplication and the
+#   quieter one: SUMMER_MINIMUM_MONTHS alone was written out seven times.
+#   No window's months change and no committed value moves. Script 02's
+#   AMP_SUMMER_MONTHS and Script 29's WINTER_MONTHS are deliberately NOT
+#   folded in — same months, different questions. See D-100.
+#
+# v1.22.0  # Hollingham (2026) — 2026-08-30. THE FOUR WINTERS.
 #   Batch one of the seasonal-windows spec: WINTER_RECHARGE_MONTHS,
 #   WINTER_WET_CLIMATE_MONTHS, WINTER_RECESSION_MONTHS and
 #   WINTER_METEOROLOGICAL_MONTHS, replacing seven per-script locals all
@@ -1140,6 +1150,47 @@ WINTER_RECESSION_MONTHS      = (11, 12, 1, 2)          # Nov-Feb
 # quantity being compared is a season-mean in the ordinary sense and pairs with a
 # JJA summer. External convention, like the UKCP18 window, but a universal one.
 WINTER_METEOROLOGICAL_MONTHS = (12, 1, 2)              # DJF
+
+# ── The four summers ─────────────────────────────────────────────────────────
+# Batch two of the same migration, and the mirror image of the winters above:
+# four windows named for the QUESTION each answers, not for the season, because
+# "summer" alone does not say which of them is meant. Each is paired with a
+# winter, and the pairing is the check on both.
+
+# Summer-minimum window, Jun-Sep. The window in which the annual MINIMUM head is
+# sought — the driest four months, when a slack that dries does so. This is the
+# most duplicated definition in the pipeline: it was written out separately in
+# SEVEN places (Scripts 02, 10a, 16, 21, 29 and the clearfell and scraping
+# helper modules) and nobody ever disagreed about it, because unlike winter it
+# had no contested name to argue over. Silent agreement across seven copies is
+# not the same as one definition, which is why it is here.
+SUMMER_MINIMUM_MONTHS        = (6, 7, 8, 9)           # Jun-Sep
+
+# Drought and recession season, Apr-Sep. The COMPLEMENT of
+# WINTER_RECHARGE_MONTHS: the two partition the year, six months each, and
+# changing either without the other would leave months belonging to both seasons
+# or to neither. The dry half-year over which the water table draws down.
+SUMMER_DROUGHT_MONTHS        = (4, 5, 6, 7, 8, 9)     # Apr-Sep
+
+# Dry-season climate, May-Sep. THIS WINDOW IS NOT OURS TO CHANGE, for the same
+# reason as WINTER_WET_CLIMATE_MONTHS: the UKCP18 seasonal multipliers are
+# published against these months. It is NOT the complement of the Nov-Mar wet
+# window — April and October fall in neither, and are handled explicitly as
+# shoulder months by Scripts 19 and 26b, which give them the mean of the two
+# seasonal multipliers. That gap is deliberate and the shoulder logic depends on
+# it; widening this window to close the gap would double-count April and October.
+SUMMER_DRY_CLIMATE_MONTHS    = (5, 6, 7, 8, 9)        # May-Sep — UKCP18
+
+# Meteorological summer, JJA. The standard climatological season, paired with
+# WINTER_METEOROLOGICAL_MONTHS wherever the quantity is a season-mean in the
+# ordinary sense. External convention, and a universal one.
+SUMMER_METEOROLOGICAL_MONTHS = (6, 7, 8)              # JJA
+
+# NOT here, and deliberately: CV_AMPLITUDE_MONTHS (utils/pipeline_params.py) is
+# the summer-AMPLITUDE window and shares these months by coincidence of the
+# calendar, not because it answers the same question; Script 02's
+# AMP_SUMMER_MONTHS belongs with it rather than with SUMMER_MINIMUM_MONTHS. See
+# D-100's note for the reasoning and what is owed.
 
 # "dry at X" depths: values above this are centimetres and divided by 100 to give
 # metres (e.g. "dry at 110" -> 1.10 m); at or below are already metres.

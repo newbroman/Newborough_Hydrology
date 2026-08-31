@@ -47,6 +47,10 @@ Schema (long format, one row per observation)::
     producer_script   (str)   e.g. "09a", "16"
     description       (str)   human-readable one-liner
     updated           (str)   ISO date of last write
+    run_id            (str)   which pipeline pass wrote this row —
+                              "run:<stamp>-<hex>" from NRG_RUN_ID, or
+                              "standalone:<ISO timestamp>" if the writer was
+                              called outside a run.  See _run_token().
 
 Adding a new observation
 ------------------------
@@ -59,15 +63,32 @@ Adding a new observation
    pipeline-sourced values rather than defaults.
 """
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-05-22
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-08-31. Adds the run_id
+#   column and the standalone-run guard (D-101). This file is RUN-SCOPED:
+#   write_initial_site_observations() resets it to placeholders near the start
+#   of each pass and seven producers overwrite their own rows, so a producer run
+#   OUTSIDE a pass leaves a file that mixes two runs with nothing recording that
+#   it does. Both writers now stamp run_id from the ENVIRONMENT (NRG_RUN_ID, set
+#   by run_analysis.py before it launches anything) and NEVER from the file:
+#   reading the existing token and writing it back would let a standalone write
+#   inherit the previous pass's token, which is the defect, not the fix. With no
+#   token in the environment the row is marked "standalone:<ISO timestamp>" and
+#   update_site_observation() warns. It WARNS, it does not refuse — running a
+#   single script is normal debugging practice here, and this project's culture
+#   is gates that report rather than locks that prevent. The gate is
+#   tools/pipeline_lint.py --check runid.
+#
+# v1.3.0  # Hollingham (2026) — 2026-05-22
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
 # from the committed CSVs (falling back to utils/pipeline_params.default_value()
 # with a console warning on a first pass).
 
+import os
+from datetime import date, datetime
+
 import pandas as pd
-from datetime import date
 
 
 # ============================================================================
@@ -184,6 +205,43 @@ _KNOWN_OBSERVATIONS = {
 
 
 # ============================================================================
+# RUN TOKEN — the interlock
+# ============================================================================
+
+RUN_ID_ENV = "NRG_RUN_ID"
+STANDALONE_PREFIX = "standalone:"
+RUN_PREFIX = "run:"
+
+
+def _run_token():
+    """Return (token, is_standalone) for the CURRENT process.
+
+    THE SOURCE OF THE TOKEN IS THE WHOLE MECHANISM, so it is worth being
+    explicit about what is deliberately NOT done here.
+
+    ``run_analysis.py`` sets ``NRG_RUN_ID`` once, at the top of ``main()``,
+    before it launches anything; steps run as subprocesses, so every child
+    inherits it. This function reads THAT, and never the ``run_id`` already in
+    ``pipeline_site_observations.csv``.
+
+    The file-reading version is the obvious implementation and it is inert. A
+    producer run on its own would read the token the previous pass left in the
+    file, write it back into its own row, and the resulting mixture would be
+    indistinguishable from a clean pass — the pollution would be recorded as
+    legitimate by the very column meant to detect it. Reading the environment
+    instead means a row can only carry a genuine run token if it was written
+    inside a run, which is the property the gate depends on.
+
+    With no token in the environment the writer is outside a pipeline pass, and
+    the row is marked so.
+    """
+    token = os.environ.get(RUN_ID_ENV, "").strip()
+    if token:
+        return token, False
+    return f"{STANDALONE_PREFIX}{datetime.now().isoformat(timespec='seconds')}", True
+
+
+# ============================================================================
 # PATH HELPER
 # ============================================================================
 
@@ -216,6 +274,7 @@ def write_initial_site_observations():
     """
     rows = []
     today = date.today().isoformat()
+    token, _ = _run_token()
     for key, meta in _KNOWN_OBSERVATIONS.items():
         rows.append({
             "observation":     key,
@@ -225,10 +284,11 @@ def write_initial_site_observations():
             "producer_script": meta["producer"],
             "description":     meta["description"],
             "updated":         today,
+            "run_id":          token,
         })
     df = pd.DataFrame(rows, columns=[
         "observation", "value", "unit",
-        "source", "producer_script", "description", "updated"
+        "source", "producer_script", "description", "updated", "run_id"
     ])
     path = _path()
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -279,6 +339,22 @@ def update_site_observation(observation, value, producer_script,
             f"To add a new one, edit _KNOWN_OBSERVATIONS in "
             f"utils/site_observations.py.")
 
+    # From the environment, never from the file — see _run_token().
+    token, standalone = _run_token()
+    if standalone:
+        # WARN, DO NOT REFUSE. Running one producer on its own is normal
+        # practice here and blocking it would make debugging materially worse.
+        # What is not acceptable is doing it SILENTLY: this file is run-scoped,
+        # so the row just written belongs to a different run from every row
+        # around it, and without this line nothing says so.
+        from utils.console_utils import warn as _warn
+        _warn(f"site_observations: '{observation}' is being written OUTSIDE a "
+              f"pipeline run ({RUN_ID_ENV} is unset). The row will be marked "
+              f"'{token}', and {_path().name} now mixes this write with "
+              f"whatever the last full pass left. Re-run the pipeline before "
+              f"trusting or committing it "
+              f"(tools/pipeline_lint.py --check runid).")
+
     path = _path()
     if not path.exists():
         # Auto-bootstrap: producer script is updating a value before
@@ -291,6 +367,12 @@ def update_site_observation(observation, value, producer_script,
         write_initial_site_observations()
 
     df = pd.read_csv(path)
+    if "run_id" not in df.columns:
+        # A file left by a pass that predates this guard. The other rows'
+        # provenance is genuinely unknown and must not be guessed: they are
+        # marked as such rather than back-filled with this write's token, which
+        # would assert that one run produced all of them.
+        df["run_id"] = "unstamped:pre-guard"
     mask = df["observation"] == observation
     if not mask.any():
         # Row missing — append (defends against partial CSVs from older runs)
@@ -303,6 +385,7 @@ def update_site_observation(observation, value, producer_script,
             "producer_script": producer_script,
             "description":     meta["description"],
             "updated":         date.today().isoformat(),
+            "run_id":          token,
         }])
         df = pd.concat([df, new_row], ignore_index=True)
     else:
@@ -310,6 +393,7 @@ def update_site_observation(observation, value, producer_script,
         df.loc[mask, "source"]          = source
         df.loc[mask, "producer_script"] = producer_script
         df.loc[mask, "updated"]         = date.today().isoformat()
+        df.loc[mask, "run_id"]          = token
 
     df.to_csv(path, index=False)
 

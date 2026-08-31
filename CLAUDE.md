@@ -13,8 +13,17 @@ Hollingham is the author. **This repository is public.**
 ## 1. The one command
 
 ```bash
-bash tools/check_all.sh        # must end "check_all: OK"
+python3 run_analysis.py --full --with-supplementary   # regenerate EVERYTHING
+bash tools/check_all.sh                               # must end "check_all: OK"
 ```
+
+**`--with-supplementary` is not optional before a commit** (D-102). `--full` skips
+the opt-in diagnostics, so an opt-in step can sit on `main` with edited code and
+outputs from the previous version while every other gate reads green — every one
+of them reads the outputs and finds them self-consistent. That happened to
+`24b_residual_climatology.py` on 2026-08-31. `output_lag` is now a **gate** rather
+than advice and is what enforces this; if it fails, the fix is to re-run the
+script it names, never to skip the check.
 
 Fifteen gates: document versions, mirrors, pipeline literals, record basis,
 store-time rounding, decisions, ledgers, document references, tasks, symbols,
@@ -74,6 +83,9 @@ tracked publicly.
   ```
   Locks appear as `index.lock`, `HEAD.lock` **and** `refs/heads/main.lock` —  <!-- former path -->
   sweep all of them, not just the first.
+  **`tools/check_all.sh` creates an `index.lock` too** — measured, 2026-08-31:
+  one appears after every run over the bridge. Locks are not only left by
+  running git directly, so sweep after `check_all` as well.
 - **`device_bash` has no network.** `git push` returns 403 from the proxy;
   Martin pushes. The **cloud container does** have network and pandoc 3.1.3 —
   use it for anything needing either.

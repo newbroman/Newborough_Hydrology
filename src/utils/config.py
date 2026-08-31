@@ -40,7 +40,14 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.26.0"  # Hollingham (2026) — 2026-08-31. Script 41 v2.1.0:
+__version__ = "1.27.0"  # Hollingham (2026) — 2026-08-31. CANOPY_MAX_GSD_M, the
+#   resolution gate. Recovering the site* frames worked and produced numbers that
+#   measure nothing: r = +0.089 against the aerial index of the same region on
+#   the same day. Checking a number badly is worse than not checking it, so the
+#   coarse viewpoints are now WITHHELD with the reason, on a measured ground
+#   sampling distance rather than a list of filenames.
+
+# v1.26.0  # Hollingham (2026) — 2026-08-31. Script 41 v2.1.0:
 #   the registration constants. The frames fall into five constellation groups
 #   and every one of them was being seeded from the first frame's affine, which
 #   is why the site* viewpoint (91 px away) and the 2026 aerial frame (49 px
@@ -1036,6 +1043,30 @@ CANOPY_MATCH_MAX_ITER     = 5       # refits at each radius, stopping when the
                                     # match count stops growing. v1.0.0 did
                                     # exactly two passes, which cannot bootstrap
                                     # from a seed that starts with a handful.
+# ── Resolution gate (v2.2.0, 2026-08-31) ───────────────────────────────────
+# MEASURED, and it closes the 2021 question rather than leaving it open. Once
+# the site* and seabed frames registered, they produced plausible-looking index
+# values that measure nothing: pooled across the managed regions their index
+# correlates with the aerial index of the SAME region on the SAME day at
+# r = +0.089 (n = 33), and for the broadleaf restock at -0.513 - the wrong sign.
+# The decisive case is the clearfell. The aerial view goes 1.235 (2017-04) to
+# 0.141 (2018-06) across the December 2017 fell; the site view goes 0.016 to
+# -0.048, and was already near zero in 2009, eight years before.
+#
+# The mechanism is resolution, not registration - those frames now register at
+# 2.7-4.4 m median residual. The site captures are a wider view at roughly
+# 2.9 x 3.3 m/px against the aerial 1.35 x 1.59, so a CANOPY_TEXTURE_WINDOW of
+# 5 px spans about 15 m of ground rather than about 7 m, and averages over
+# several crowns instead of resolving them.
+#
+# So the gate is on GROUND SAMPLING DISTANCE, derived per frame from its own
+# fitted transform - not on a list of filenames, which would not survive the
+# next capture session.
+CANOPY_MAX_GSD_M        = 2.0    # metres per pixel. Above this the texture
+                                 # window spans more than about 10 m and cannot
+                                 # resolve a crown. The aerial captures sit at
+                                 # ~1.5 and pass; the site and seabed captures
+                                 # sit at ~3 and are withheld.
 CANOPY_CHANGE_GRID_M    = 2.0    # ground resolution for change detection. Frames
                                  # are differenced on a common OSGB grid, never
                                  # pixel-to-pixel: they differ in size and

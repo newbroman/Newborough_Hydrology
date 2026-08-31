@@ -154,7 +154,21 @@ __version__ : 2.0.0
 """
 from __future__ import annotations
 
-__version__ = "2.1.0"  # Hollingham (2026) — 2026-08-31. THE SEED, which is what
+__version__ = "2.2.0"  # Hollingham (2026) — 2026-08-31. THE RESOLUTION GATE,
+#   and it closes the 2021 question with a negative rather than leaving it open.
+#   v2.1.0 recovered the site* and seabed frames and they promptly produced
+#   plausible-looking values that measure nothing: pooled over the managed
+#   regions their index correlates with the AERIAL index of the same region on
+#   the same day at r = +0.089 (n = 33), and for the restock at -0.513, the
+#   wrong sign. The clearfell settles it — aerial 1.235 (2017-04) to 0.141
+#   (2018-06) across the December 2017 fell, site 0.016 to -0.048 and already
+#   near zero in 2009. Not registration: those frames now sit at 2.7-4.4 m. It
+#   is resolution, and the gate is on measured GROUND SAMPLING DISTANCE, derived
+#   per group from its own fitted transform. So 2021, which exists only in the
+#   site viewpoint, is NOT recoverable as a canopy measurement - and the reason
+#   is now in the output rather than in someone's memory.
+#
+# v2.1.0  # Hollingham (2026) — 2026-08-31. THE SEED, which is what
 #   v2.0.0 got wrong. Fixing the marker SIZE was necessary and not sufficient:
 #   site24-3-2021m yielded 97 marker blobs and still matched four, because every
 #   frame was seeded from the FIRST frame's affine and the site* captures are a
@@ -222,7 +236,7 @@ from utils.config import (                                   # noqa: E402
     CANOPY_CROP_FRAC_BOTTOM, CANOPY_CHANGE_GRID_M,
     CANOPY_CONSTELLATION_TOL_PX, CANOPY_GROUP_MIN_FRACTION, CANOPY_CHAIN_MIN_TIPS,
     CANOPY_MIN_CONTROL_POINTS, CANOPY_MATCH_RADII_NARROW, CANOPY_MATCH_RADII_WIDE,
-    CANOPY_MATCH_MAX_ITER,
+    CANOPY_MATCH_MAX_ITER, CANOPY_MAX_GSD_M,
     LEAF_OFF_MONTHS, LEAF_EMERGING_MONTHS, LEAF_FULL_MONTHS,
     LEAF_SENESCING_MONTHS,
 )
@@ -702,17 +716,26 @@ def _register_all(paths, ctrl_geom, E, N):
                 continue
             med, p95, n, pred, how = best
             solved[gi] = (pred, T)
+            # Ground sampling distance from the fitted transform itself: move a
+            # well 100 m east and 100 m north and see how far the image moves.
+            _E0, _N0 = float(np.mean(E)), float(np.mean(N))
+            _u0, _v0 = pred(_E0, _N0)
+            _ue, _ve = pred(_E0 + 100.0, _N0)
+            _un, _vn = pred(_E0, _N0 + 100.0)
+            _ge = 100.0 / max(float(np.hypot(_ue - _u0, _ve - _v0)), 1e-9)
+            _gn = 100.0 / max(float(np.hypot(_un - _u0, _vn - _v0)), 1e-9)
+            gsd = (_ge + _gn) / 2.0
             for f in g:
                 out[f] = dict(fitted=pred, median_m=med, p95_m=p95,
-                              n=n, group=gi, seed=how)
-            info(f"    group {gi}: {n} points, median {med:.2f} m, p95 {p95:.2f} m "
-                 f"— {how}")
+                              n=n, group=gi, seed=how, gsd_m=gsd)
+            info(f"    group {gi}: {n} points, median {med:.2f} m, p95 {p95:.2f} m, "
+                 f"GSD {gsd:.2f} m/px — {how}")
 
     for gi, g in enumerate(groups):
         if gi not in solved:
             for f in g:
                 out[f] = dict(fitted=None, median_m=np.nan, p95_m=np.nan,
-                              n=len(tips_by[f]), group=gi,
+                              n=len(tips_by[f]), group=gi, gsd_m=np.nan,
                               seed="no seed produced an accepted fit")
             warn(f"    group {gi} UNREGISTERED ({len(tips_by[g[0]])} tips): "
                  f"{', '.join(g)}")
@@ -905,6 +928,7 @@ def main() -> int:
         nmatch = int(r.get("n", 0))
         reg_rows.append({"frame": p.name, "imagery_date": d.date(),
                          "constellation_group": r.get("group"),
+                         "gsd_m": r.get("gsd_m"),
                          "seed": r.get("seed", ""),
                          "n_control_points": nmatch,
                          "residual_median_m": None if not np.isfinite(med) else med,
@@ -927,7 +951,16 @@ def main() -> int:
         for name, m in masks.items():
             r_stat, npx = _region_stat(tex, lum, m)
             reason = ""
-            if not np.isfinite(p95):
+            _gsd = r.get("gsd_m", np.nan)
+            if np.isfinite(_gsd) and _gsd > CANOPY_MAX_GSD_M:
+                reason = (f"ground sampling distance {_gsd:.2f} m/px > "
+                          f"{CANOPY_MAX_GSD_M} — the {CANOPY_TEXTURE_WINDOW} px "
+                          f"texture window spans "
+                          f"{_gsd * CANOPY_TEXTURE_WINDOW:.0f} m of ground and "
+                          f"cannot resolve a crown. Measured: this viewpoint's "
+                          f"index correlates with the aerial index of the same "
+                          f"region on the same day at r = +0.089")
+            elif not np.isfinite(p95):
                 reason = (f"registration failed: only {nmatch} placemark(s) "
                           f"matched — the frame is not registered, so the "
                           f"region mask cannot be trusted")

@@ -45,7 +45,46 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.12.0"  # Hollingham (2026) — 2026-08-31. The net is extended
+__version__ = "1.13.0"  # Hollingham (2026) — 2026-08-31. The claims register
+#   gains a threshold rule, a self-consistency check, and a hard failure for any
+#   row it cannot evaluate. Martin: "I don't like the sound of numbers that
+#   aren't being checked."
+#
+#   WHAT WENT WRONG. Paper 1's numbered conclusion 5 said "roughly 29 mm/yr"
+#   and "around a third" while Paper 1's own §4.11 and §5 said "roughly 26 mm/yr
+#   at 150 m" and "about a quarter", and the committed CSVs agreed with the
+#   results section throughout — δ₀ −31.33, the 150 m rate −26.18 ± 1.45, C3's
+#   coastal share 22.81%. Nothing fired, and three separate gaps are why.
+#
+#   (1) `band:<col>:<lo>:<hi>`. The register could express "C4 has the lowest
+#   β₃" but not "C3's coastal share is about a quarter", because the rule
+#   vocabulary was argmin/argmax only. A share is a threshold claim.
+#   `expect` names the row, the band is checked against it, and the selection
+#   must match EXACTLY ONE row or the entry faults — a band silently evaluated
+#   against the first of several matching rows is worse than no band.
+#
+#   (2) COMPOSITE KEYS, `key_col = "source+model"`. 25_01_panel_fit_parameters
+#   has no single identifying column: `source` matches two models, `model`
+#   matches four sources. So the headline coastal fit could not be registered as
+#   a claim AT ALL. That is why the coast-edge rate was unwatched.
+#
+#   (3) `contradicts`, and this is the one that would have caught it. Every
+#   other check here asks whether the corpus matches the DATA. No committed
+#   value had moved, so that question was answered correctly and the corpus was
+#   still contradicting itself. `contradicts` is a pipe-separated list of
+#   literal phrasings known to be wrong — in practice, wordings that were in the
+#   corpus and were corrected. Their reappearance is a breach whatever the CSV
+#   says. Enumerating wrong values in the abstract would be fragile; enumerating
+#   the ones that actually occurred is not, and it is the same discipline as
+#   keeping a falsified claim in the register so it cannot come back unnoticed.
+#
+#   AND THE SKIP IS GONE. An unrecognised rule, an absent column, a missing CSV
+#   or an ambiguous key used to print SKIP and pass. That left rows sitting in
+#   the register looking like cover while nothing evaluated them — the same
+#   silent-gap failure as a renamed value column (check_value_columns) and the
+#   swallowed git error in push_working. All four now FAULT and gate.
+
+# v1.12.0  # Hollingham (2026) — 2026-08-31. The net is extended
 #   on evidence rather than on recollection, and the key may now be composite.
 #
 #   WHAT WAS MEASURED. Every CSV under outputs/ that no report-numbers file and
@@ -1499,6 +1538,34 @@ def sweep_repeats(docs, stale_strings, adjudicated=None) -> None:
           "is checked next time.")
 
 
+def _claim_key_columns(key_col: str) -> list:
+    """`key_col` may name one column or several joined with '+'.
+
+    25_01_panel_fit_parameters.csv has no single column that identifies a row:
+    `source` alone matches two models and `model` alone matches four sources.
+    Without a composite key the headline fit cannot be registered as a claim at
+    all — which is why the coast-edge rate was unwatched when Paper 1's
+    conclusions quoted a value it never had.
+    """
+    return [c.strip() for c in key_col.split("+") if c.strip()]
+
+
+def _claim_label(row, key_col: str) -> str:
+    return "+".join(str(row[c]) for c in _claim_key_columns(key_col))
+
+
+def _claim_mask(df, key_col: str, expect: str):
+    cols = _claim_key_columns(key_col)
+    want = [w.strip() for w in str(expect).split("+")]
+    if len(cols) != len(want):
+        return df.index == -1                     # selects nothing; caller faults
+    m = None
+    for c, w in zip(cols, want):
+        this = df[c].astype(str) == w
+        m = this if m is None else (m & this)
+    return m
+
+
 def check_claims(docs) -> int:
     reg = REPO / CLAIMS_REGISTER
     print()
@@ -1513,36 +1580,111 @@ def check_claims(docs) -> int:
     for row in csv.DictReader(open(reg, encoding="utf8")):
         p = REPO / row["csv"]
         if not p.exists():
-            print(f"  SKIP   {row['claim_id']}: {row['csv']} missing")
+            print(f"  FAULT  {row['claim_id']}: {row['csv']} missing — this "
+                  f"claim is NOT being checked")
+            bad += 1
             continue
         df = pd.read_csv(p)
-        kind, _, col = row["rule"].partition(":")
-        if kind not in {"argmin", "argmax"} or col not in df.columns:
-            print(f"  SKIP   {row['claim_id']}: unsupported rule {row['rule']!r}")
+        kind, _, rest = row["rule"].partition(":")
+        detail = ""
+        if kind in {"argmin", "argmax"}:
+            col = rest
+            if col not in df.columns:
+                print(f"  FAULT  {row['claim_id']}: no column {col!r} in "
+                      f"{row['csv']} — this claim is NOT being checked")
+                bad += 1
+                continue
+            idx = df[col].idxmin() if kind == "argmin" else df[col].idxmax()
+            actual = _claim_label(df.loc[idx], row["key_col"])
+            holds = actual == row["expect"]
+            detail = f"{row['rule']} is {actual!r}, not {row['expect']!r}"
+        elif kind == "band":
+            col, _, bounds = rest.partition(":")
+            lo_s, _, hi_s = bounds.partition(":")
+            try:
+                lo, hi = float(lo_s), float(hi_s)
+            except ValueError:
+                print(f"  FAULT  {row['claim_id']}: band needs "
+                      f"band:<col>:<lo>:<hi>, got {row['rule']!r} — this claim "
+                      f"is NOT being checked")
+                bad += 1
+                continue
+            if col not in df.columns:
+                print(f"  FAULT  {row['claim_id']}: no column {col!r} in "
+                      f"{row['csv']} — this claim is NOT being checked")
+                bad += 1
+                continue
+            hit = df[_claim_mask(df, row["key_col"], row["expect"])]
+            if len(hit) != 1:
+                print(f"  FAULT  {row['claim_id']}: {row['key_col']} == "
+                      f"{row['expect']!r} selects {len(hit)} row(s), needs "
+                      f"exactly 1 — this claim is NOT being checked")
+                bad += 1
+                continue
+            val = float(hit.iloc[0][col])
+            holds = lo <= val <= hi
+            detail = f"{col} is {val:.4g}, outside [{lo:g}, {hi:g}]"
+        else:
+            # NOT a skip. An unrecognised rule used to print SKIP and pass,
+            # which left a row sitting in the register looking like cover while
+            # nothing evaluated it — the same silent-gap failure as a renamed
+            # value column (check_value_columns) and a swallowed git error in
+            # push_working. A register entry that cannot be evaluated is a
+            # fault in the register, and the gate says so.
+            print(f"  FAULT  {row['claim_id']}: unsupported rule "
+                  f"{row['rule']!r} — this claim is NOT being checked")
+            bad += 1
             continue
-        idx = df[col].idxmin() if kind == "argmin" else df[col].idxmax()
-        actual = str(df.loc[idx, row["key_col"]])
-        holds = actual == row["expect"]
 
         needle = row.get("phrase", "").strip()
         where = [d for d, t in docs.items() if needle in t] if needle else []
 
+        # CONTRADICTS — the corpus checked against itself, not against the CSV.
+        #
+        # The register's original question is "has the DATA moved out from under
+        # a standing claim?". That question cannot catch the failure that put
+        # this column here: Paper 1's conclusions said "around a third" and
+        # "roughly 29 mm/yr" while Paper 1's own results section said "about a
+        # quarter" and "roughly 26 mm/yr", and the CSV agreed with the results
+        # section throughout. No committed value had moved, so nothing fired.
+        #
+        # A `contradicts` entry is a pipe-separated list of literal phrasings
+        # that are KNOWN WRONG — in practice, wordings that were actually in the
+        # corpus and were corrected. Their reappearance is a breach whatever the
+        # CSV says. Enumerating wrong values in the abstract would be fragile;
+        # enumerating the ones that have actually occurred is not, and it is the
+        # same discipline as keeping a falsified claim in the register so it
+        # cannot come back unnoticed.
+        contra = [c.strip() for c in (row.get("contradicts") or "").split("|")
+                  if c.strip()]
+        contra_hits = {c: sorted(d for d, t in docs.items() if c in t)
+                       for c in contra}
+        contra_hits = {c: v for c, v in contra_hits.items() if v}
+
         # Gate on ASSERTED-AND-FALSE, not on false alone. Entries kept as
         # tripwires are false by design — that is the point of keeping them.
         asserted_false = (not holds) and bool(where)
-        if asserted_false:
+        if asserted_false or contra_hits:
             bad += 1
 
-        verdict = "BREACH" if asserted_false else ("HOLDS " if holds else "false ")
+        if contra_hits:
+            verdict = "BREACH"
+        elif asserted_false:
+            verdict = "BREACH"
+        else:
+            verdict = "HOLDS " if holds else "false "
         did = (row.get("decision_id") or "").strip()
         print(f"  {verdict} {row['claim_id']}"
               f"{f' [{did}]' if did else ''}: {row['assertion']}")
         if not holds:
-            print(f"          {row['rule']} is {actual!r}, not {row['expect']!r}")
+            print(f"          {detail}")
         if where:
             print(f"          asserted in: {', '.join(sorted(where))}")
         elif not holds:
             print("          not asserted in the corpus — tripwire only")
+        for c, v in contra_hits.items():
+            print(f"          CONTRADICTED: a corrected wording is back — "
+                  f"{c!r} in {', '.join(v)}")
     return bad
 
 

@@ -1,3 +1,5 @@
 Parameter,Well,Era,Value,Unit,Note
-canopy_index_restock_first_frame,,2006-01-01,0.5707633252420002,index,"texture position between in-frame open and conifer references; NOT a canopy fraction, and its upper anchor is conifer so a closed broadleaf canopy reads below 1"
-canopy_index_restock_plateau_median,,2009-2026,1.1294002881499297,index,median of every frame after the first
+canopy_ratio_restock_conifer_full_leaf_median,,2012-05-26–2019-07-29,1.1716695000565598,ratio,"restock texture index divided by the conifer control in the SAME frame, full-leaf frames only. Above 1 because the index sees canopy and understorey together and a young open block has structure at two levels; it is not a canopy fraction. AERIAL viewpoint only — the index is not comparable between viewpoints"
+canopy_ratio_restock_conifer_full_leaf_sd,,2012-05-26–2019-07-29,0.048865746345650676,ratio,"spread of the full-leaf class; the emerging class scatters several times as much, which is why the basis is full leaf only"
+canopy_full_leaf_frames_n,,2012-05-26–2019-07-29,4.0,frames,"frames on the comparison basis; the rest are withheld from the summary, not from the table"
+canopy_index_clearfell_full_leaf_median,,2012-05-26–2019-07-29,0.1386376510995024,index,"the clearfell area is deliberately kept clear of trees (Martin, 2026-08-31), so a low value is a management outcome and not failed regeneration"

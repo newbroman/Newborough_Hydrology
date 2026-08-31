@@ -40,7 +40,23 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.24.0"  # Hollingham (2026) — 2026-08-31. Detectability
+__version__ = "1.26.0"  # Hollingham (2026) — 2026-08-31. Script 41 v2.1.0:
+#   the registration constants. The frames fall into five constellation groups
+#   and every one of them was being seeded from the first frame's affine, which
+#   is why the site* viewpoint (91 px away) and the 2026 aerial frame (49 px
+#   from its own group, against a 45 px radius) could not register however well
+#   their markers were detected. Also corrects the v1.25.0 crop fractions, which
+#   assumed a 1200 x 1920 frame when the frames are 1920 x 1080.
+
+# v1.25.0  # Hollingham (2026) — 2026-08-31. Script 41 v2.0.0:
+#   marker-detection, framing and change-grid constants lifted out of the script
+#   (they were literals tuned to the large marker symbol, and rejected every
+#   small one), plus the four LEAF_*_MONTHS classes. The leaf classes are named
+#   for leaf state rather than season under D-100, because they answer a
+#   different question from any seasonal window and merging them would be a
+#   methodological change, not a tidy-up.
+
+# v1.24.0  # Hollingham (2026) — 2026-08-31. Detectability
 #   settings are named for the QUANTITY, not for the script that first needed
 #   them: DETECTABILITY_ALPHA / DETECTABILITY_POWER, with Script 32's
 #   DIFF_POWER_ALPHA / DIFF_POWER_TARGET kept as aliases so nothing that imports
@@ -954,6 +970,93 @@ CANOPY_CHANGE_PCTL      = 98.5   # change-detection threshold percentile
 CANOPY_REF_BUFFER_M     = 40.0   # buffer excluded around the managed blocks when
                                  # building the conifer reference from the forest
                                  # polygon, so an edge is never a reference
+
+# ── Script 41: marker detection, framing and change grid (v2.0.0, 2026-08-31)
+# The first issue carried these as literals inside _fit_from_placemarks() and
+# _affine_from_control(), calibrated to the LARGE marker symbol of the `aerial`
+# captures. The `site*m` captures render the same markers much smaller, so a
+# 120 px floor rejected every one of them and 60 region-frame values were
+# withheld as "0 placemark(s) matched" — 2021 was lost entirely (W112).
+CANOPY_MARKER_MIN_PX    = 12     # smallest accepted marker blob, AFTER dilation.
+                                 # Sized for the small blue `m`-frame symbol, not
+                                 # the large one; the matching radius and the
+                                 # >= 6-pair requirement do the rejecting, which
+                                 # is what they are for.
+CANOPY_MARKER_MAX_PX    = 1500   # largest accepted blob (unchanged)
+CANOPY_MARKER_DILATE    = False  # MEASURED OFF, 2026-08-31. The idea was that a
+                                 # small symbol is mostly anti-aliased edge and a
+                                 # per-pixel colour test would fragment it. It
+                                 # does not: the small markers label cleanly at
+                                 # 30-56 px undilated. What dilation DOES do is
+                                 # merge adjacent large markers - blobs of 336
+                                 # and 400 px where singles are ~230 - losing a
+                                 # control point and putting the merged tip
+                                 # between two wells. Off is better on every
+                                 # frame tested (37 vs 36, 40 vs 38, 97 vs 96).
+# Framing margins as FRACTIONS of the frame, never pixels. The 2026 capture is a
+# different size because the window shifts when the historic imagery is toggled
+# off (Martin, 2026-08-31), and absolute margins mask the wrong region on it.
+CANOPY_CROP_FRAC_TOP    = 0.0833   # 90 / 1080
+CANOPY_CROP_FRAC_LEFT   = 0.112    # 215 / 1920
+CANOPY_CROP_FRAC_RIGHT  = 0.961    # 1845 / 1920
+CANOPY_CROP_FRAC_BOTTOM = 0.9259   # 1000 / 1080
+# CORRECTED 2026-08-31, same day, before anything was committed. The first
+# values assumed a 1200 x 1920 frame; the frames are 1920 x 1080, measured
+# directly. The vertical pair therefore cropped rows 81-900 instead of 90-1000
+# and cut 100 rows of usable frame off every capture. The fractions above
+# reproduce v1.0.0's pixel literals exactly at 1920 x 1080 - which is the test
+# any replacement must pass, and which the first pair silently failed.
+# ── Registration: constellation groups and the seed (v2.1.0, 2026-08-31) ────
+# Martin: "they are all in the same location in all images, and the same size."
+# Measured true, and it is the key to the whole problem. The 29 frames fall into
+# FIVE constellation groups; within a group the detected marker positions agree
+# to 0.0 px, and between groups they differ by a small rigid offset because the
+# view was nudged between capture sessions.
+#
+# v2.0.0 seeded EVERY frame from the FIRST frame's affine. The site* frames are
+# a different viewpoint 91 px away and could never match from there; the 2026
+# aerial frame sits 49 px from its own group against a 45 px first radius.
+# Fixing the marker SIZE was necessary and not sufficient: site24-3-2021m
+# yielded 97 marker blobs and still matched four.
+CANOPY_CONSTELLATION_TOL_PX = 3.0   # two frames are the same viewpoint when
+                                    # their marker tips agree within this
+CANOPY_GROUP_MIN_FRACTION   = 0.6   # ...for at least this fraction of tips
+CANOPY_CHAIN_MIN_TIPS       = 15    # tips that must coincide before one group's
+                                    # solution may seed another. Measured: the
+                                    # two site groups share 20, so they chain;
+                                    # site-to-aerial shares 3, so they do not -
+                                    # the guard that stops a seed being carried
+                                    # across genuinely different viewpoints.
+CANOPY_MIN_CONTROL_POINTS   = 8     # below this a registration is not accepted,
+                                    # whatever its residual. Six is the least an
+                                    # affine needs and is not a measurement.
+CANOPY_MATCH_RADII_NARROW = (45.0, 30.0, 22.0, 18.0)
+CANOPY_MATCH_RADII_WIDE   = (140.0, 90.0, 60.0, 40.0, 28.0, 18.0)
+CANOPY_MATCH_MAX_ITER     = 5       # refits at each radius, stopping when the
+                                    # match count stops growing. v1.0.0 did
+                                    # exactly two passes, which cannot bootstrap
+                                    # from a seed that starts with a handful.
+CANOPY_CHANGE_GRID_M    = 2.0    # ground resolution for change detection. Frames
+                                 # are differenced on a common OSGB grid, never
+                                 # pixel-to-pixel: they differ in size and
+                                 # viewpoint, so a pixel difference is dominated
+                                 # by perspective rather than by the ground.
+
+# ── Leaf state, for the deciduous regions in Script 41 ──────────────────────
+# Named for LEAF STATE, not for season (the D-100 rule): these classify a frame
+# by what the canopy is doing when it was captured, which is a different
+# question from any of the seasonal windows above and must not be merged with
+# them. Set by Martin, 2026-08-31, from the series itself: "1-1-2006 is clearly
+# winter no leaf. Photos in March and April are the leaves coming out. May, June,
+# July are full leaf out."
+#
+# This matters more than it looks. On the in-frame ratio to the conifer control,
+# the full-leaf class is stable to 3.6% across 2012-2019 while the emerging class
+# scatters five times as much - stratifying is what makes the series usable.
+LEAF_OFF_MONTHS       = (11, 12, 1, 2)   # bare
+LEAF_EMERGING_MONTHS  = (3, 4)           # leaves coming out
+LEAF_FULL_MONTHS      = (5, 6, 7)        # full leaf out - the comparison basis
+LEAF_SENESCING_MONTHS = (8, 9, 10)       # turning
 
 # Broadleaf summer β₂ multiplier — deciduous phenology effect on ET.
 # Derived from Script 21's monthly β₂ profile (Hollingham, 2026), averaged

@@ -49,7 +49,7 @@ Bootstrap / verify from an already-rendered forecaster.html (path or URL):
 
     python3 src/utils/forecaster_engine.py --from-html outputs/11b_spatial_thresholds/forecaster.html
 
-__version__ : 1.1.0
+__version__ : 1.2.0
 """
 from __future__ import annotations
 

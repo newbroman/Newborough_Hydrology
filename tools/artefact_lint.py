@@ -57,7 +57,20 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) - 2026-09-01. First issue, from
+__version__ = "1.1.0"  # Hollingham (2026) - 2026-09-01. CHECK C, the
+#   PRODUCER GATE. Two safeguards failed in series on 2026-09-01 and let a
+#   bridge-built PDF into the published corpus: build_pdfs.sh decides staleness
+#   from PDF_MANIFEST.txt, so hand-editing the manifest CERTIFIED the bad build;
+#   and its check is mtime-only, so a PDF written after its ODT reads as current
+#   whatever produced it. Neither knows WHICH LibreOffice ran. This does: it
+#   compares each published PDF's /Producer against externals.soffice in
+#   tools/environment.json, on major.minor. No new constant and no new register -
+#   env_audit already records the reference machine's LibreOffice, and poppler is
+#   already a declared dependency (BOOTSTRAP installs it, figref_lint requires
+#   it, env_audit versions pdftotext). First run found Supplementary_Material.pdf
+#   at 26.2, committed 2026-08-29 in baf4a56 and published for three days.
+#
+# v1.0.0  # Hollingham (2026) - 2026-09-01. First issue, from
 #   NRG_spec_artefact_lint_2026-09-01.md, built to the derived-tolerance option.
 #   The envelope carries TWO terms, not one. The spec described only the
 #   components; writing its own verification test 2 showed that a result
@@ -70,7 +83,10 @@ import argparse
 import ast
 import csv
 import io
+import json
 import re
+import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -81,6 +97,8 @@ OUTPUTS = ROOT / "outputs"
 RULES = ROOT / "tools" / "row_arithmetic.csv"
 ALLOWED_EMPTY = ROOT / "tools" / "empty_outputs_allowed.csv"
 SRC = ROOT / "src"
+PDF_MANIFEST = ROOT / "docs" / "PDF_MANIFEST.txt"
+ENV_RECORD = ROOT / "tools" / "environment.json"
 
 GREEN, YELLOW, RED, DIM, RESET = (
     "\033[32m", "\033[33m", "\033[31m", "\033[2m", "\033[0m")
@@ -340,6 +358,121 @@ def check_empty(quiet: bool = False) -> int:
     return 0
 
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# CHECK C - WAS THIS PDF BUILT BY THE MACHINE THAT PUBLISHES?
+# ═══════════════════════════════════════════════════════════════════════════════
+
+_VER_RE = re.compile(r"(\d+)\.(\d+)")
+
+
+def _major_minor(text: str) -> str | None:
+    """'LibreOffice 26.2.5.2 (X86_64)' -> '26.2'; '24.2.7.2' -> '24.2'.
+
+    Producer strings and the recorded version are written by different code
+    paths and agree on nothing but the leading numbers: LibreOffice stamps a
+    PDF with major.minor only, reports major.minor.micro.patch to --version,
+    and a sandbox build appends its architecture. Compare what both carry.
+    """
+    m = _VER_RE.search(text or "")
+    return f"{m.group(1)}.{m.group(2)}" if m else None
+
+
+def _producer(pdf: Path) -> str | None:
+    """The /Producer string, via pdfinfo. None if it cannot be read.
+
+    Not parsed from the raw bytes: LibreOffice puts the info dictionary in a
+    compressed object stream, so a regex over the file finds nothing.
+    """
+    try:
+        out = subprocess.run(["pdfinfo", str(pdf)], capture_output=True,
+                             text=True, timeout=60).stdout
+    except Exception:
+        return None
+    m = re.search(r"^Producer:\s*(.+)$", out, re.M)
+    return m.group(1).strip() if m else None
+
+
+def _published_pdfs() -> list[Path]:
+    """The published set, read from PDF_MANIFEST.txt.
+
+    Deliberately the manifest and not a glob: it is the same list build_pdfs.sh
+    maintains, so the gate and the builder cannot drift apart over which files
+    are published.
+    """
+    if not PDF_MANIFEST.exists():
+        return []
+    out = []
+    for line in PDF_MANIFEST.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "<-" not in line:
+            continue
+        out.append(ROOT / line.split("<-")[0].strip())
+    return out
+
+
+def check_producer(quiet: bool = False) -> int:
+    """Every published PDF must come from the recorded machine's LibreOffice."""
+    if not ENV_RECORD.exists():
+        print(f"  {RED}NO RECORD{RESET}  {ENV_RECORD.relative_to(ROOT)} is absent")
+        print("artefact_lint (producer): FAIL - run tools/env_audit.py --record")
+        return 1
+    rec = json.loads(ENV_RECORD.read_text(encoding="utf-8"))
+    recorded = (rec.get("externals") or {}).get("soffice")
+    want = _major_minor(recorded or "")
+    if not want:
+        print(f"  {RED}NO SOFFICE{RESET}  externals.soffice missing from "
+              f"{ENV_RECORD.relative_to(ROOT)}")
+        print("artefact_lint (producer): FAIL - re-record the environment")
+        return 1
+    if not shutil.which("pdfinfo"):
+        print(f"  {RED}NO PDFINFO{RESET}  poppler-utils is not on PATH")
+        print("artefact_lint (producer): FAIL - this gate cannot be skipped "
+              "quietly; install poppler-utils (BOOTSTRAP step 1).")
+        return 1
+
+    pdfs = _published_pdfs()
+    if not pdfs:
+        print(f"  {RED}NO MANIFEST{RESET}  {PDF_MANIFEST.relative_to(ROOT)} "
+              f"lists no published PDF")
+        print("artefact_lint (producer): FAIL - run tools/build_pdfs.sh")
+        return 1
+
+    bad, unreadable = [], []
+    for pdf in pdfs:
+        if not pdf.exists():
+            unreadable.append((str(pdf.relative_to(ROOT)), "missing"))
+            continue
+        prod = _producer(pdf)
+        if prod is None:
+            unreadable.append((str(pdf.relative_to(ROOT)), "no /Producer"))
+            continue
+        got = _major_minor(prod)
+        if got != want:
+            bad.append((str(pdf.relative_to(ROOT)), prod, got))
+
+    for rel, why in unreadable:
+        print(f"  {RED}UNREAD{RESET}  {rel} - {why}")
+    for rel, prod, got in bad:
+        print(f"  {RED}PRODUCER{RESET}  {rel}")
+        print(f"            built by {prod} ({got}), recorded machine is "
+              f"{recorded} ({want})")
+    if bad or unreadable:
+        print(f"\nartefact_lint (producer): FAIL - {len(bad) + len(unreadable)} "
+              f"published PDF(s) not from the recorded LibreOffice.")
+        print("  A PDF built elsewhere is not the publication artefact: pagination")
+        print("  differs, and every hard-typed page and figure reference is made")
+        print("  against the published one. build_pdfs.sh will NOT fix this on its")
+        print("  own - it reads mtime, and a foreign build is newer than its source,")
+        print("  so it reports 'current'. DELETE the offending PDF and re-run")
+        print("  build_pdfs.sh on the recorded machine.")
+        return 1
+    if not quiet:
+        print(f"  {GREEN}OK{RESET}    {len(pdfs)} published PDF(s), all built by "
+              f"LibreOffice {want}")
+    print("artefact_lint (producer): OK")
+    return 0
+
+
 def advise_source(quiet: bool = False) -> None:
     """Advisory: an empty container returned from inside an `except`.
 
@@ -398,19 +531,22 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[1])
     ap.add_argument("--arithmetic", action="store_true", help="check A only")
     ap.add_argument("--empty", action="store_true", help="check B only")
+    ap.add_argument("--producer", action="store_true", help="check C only")
     ap.add_argument("--candidates", action="store_true",
                     help="list undeclared candidate columns and exit")
     ap.add_argument("--quiet", action="store_true")
     a = ap.parse_args()
     if a.candidates:
         return list_candidates()
-    both = not (a.arithmetic or a.empty)
+    both = not (a.arithmetic or a.empty or a.producer)
     rc = 0
     if a.arithmetic or both:
         rc |= check_arithmetic(a.quiet)
     if a.empty or both:
         rc |= check_empty(a.quiet)
         advise_source(a.quiet)
+    if a.producer or both:
+        rc |= check_producer(a.quiet)
     return rc
 
 

@@ -25,7 +25,7 @@ CSV schema (one row per cited number):
 - Unit      : "m", "months", "", etc.
 - Note      : free-text provenance / caveat.
 
-__version__ : 1.0.0
+__version__ : 1.0.1
 """
 
 __version__ = "1.0.1"  # Hollingham (2026) -- 2026-08-18. ReportNumbers.add() rounded EVERY report number to 4 dp

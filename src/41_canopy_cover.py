@@ -150,7 +150,7 @@ THE IMAGERY IS NOT IN THE REPOSITORY BY DEFAULT
   frames are the test of the marker change, and a recovered frame with a poor
   residual is a false-positive match, not a recovery.
 
-__version__ : 2.0.0
+__version__ : 2.2.0
 """
 from __future__ import annotations
 

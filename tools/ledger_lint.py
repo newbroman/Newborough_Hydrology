@@ -48,7 +48,16 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-08-25.
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-09-01. Adds the
+#   DOCSTRING VERSION check. Three modules carried a `__version__ :` line inside
+#   their module docstring that had drifted from the real assignment, because the
+#   bump convention updates one copy and not the other. Nothing downstream was
+#   broken — every tool here reads the assignment — but on 2026-09-01 the stale
+#   docstring line in 41_canopy_cover.py was read as the live version and a sound
+#   ledger row was reported as a defect on the strength of it. A file that states
+#   a version it does not have is a trap for the next reader, human or not.
+#
+# v1.0.0  # Hollingham (2026) — 2026-08-25.
 
 import argparse
 import re
@@ -91,6 +100,33 @@ def live_version(script: str) -> str | None:
         return None
     m = _VER.search(p.read_text(encoding="utf-8", errors="ignore"))
     return m.group(1) if m else None
+
+
+# A version line inside a module docstring, e.g. `__version__ : 2.0.0`. Not an
+# assignment — the colon form is prose, and Python never reads it — which is
+# exactly why it drifts.
+_DOC_VER = re.compile(r'^__version__\s*:\s*([0-9][0-9A-Za-z._-]*)\s*$', re.M)
+
+
+def docstring_version_drift() -> list[tuple[str, str, str]]:
+    """Files whose docstring version line disagrees with the assignment.
+
+    Scans src/ recursively, not just the ledger's rows: two of the three known
+    cases were in src/utils/, which has no ledger row and would otherwise never
+    be checked.
+    """
+    out = []
+    for p in sorted(SRC.rglob("*.py")):
+        text = p.read_text(encoding="utf-8", errors="ignore")
+        md = _DOC_VER.search(text)
+        if not md:
+            continue
+        ma = _VER.search(text)
+        if not ma:
+            continue
+        if md.group(1) != ma.group(1):
+            out.append((str(p.relative_to(REPO)), md.group(1), ma.group(1)))
+    return out
 
 
 def rows(text: str) -> list[dict]:
@@ -149,6 +185,19 @@ def main() -> int:
         print(f"  FAIL  {len(orphan)} row(s) naming a script that no longer exists:")
         for s in orphan:
             print(f"          {s}")
+
+    docdrift = docstring_version_drift()
+    if docdrift:
+        fail = 1
+        print(f"  FAIL  {len(docdrift)} module(s) whose docstring states a "
+              f"version the file does not have:")
+        for rel, doc, live in docdrift:
+            print(f"          {rel:<40} docstring {doc:<10} assignment {live}")
+        print("          The assignment is authoritative and every tool reads it;")
+        print("          the docstring line is prose that the bump convention")
+        print("          forgets. Correct the docstring, not the assignment.")
+    elif not args.quiet:
+        print("  docstring version lines agree with their assignments")
 
     if not args.quiet or drift:
         print(f"  {len(drift)} row(s) with a stale version "

@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_65.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_68.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 1.9.65 (August 2026).
+Document version: 1.9.68 (August 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -44,7 +44,7 @@ The main report's §3 *Methods* is calibrated to a journal-paper length: approxi
 
 This supplement is for those audiences. Four are anticipated. **Hydrogeological and ecohydrological researchers** rebuilding parts of the analysis on their own sites need the per-script methodological detail that the main report compresses. **Conservation managers at Newborough Warren NNR**, and at Natural Resources Wales more broadly, need to know what each result is and is not telling them --- particularly which findings are robust, which are conditional on a methodological choice that could reasonably have gone the other way, and which are honestly tentative. **Future site investigators** --- including, almost certainly, future PhD or MSc students at the warren --- need a starting point that does not require them to reconstruct the methodological reasoning from the code. And **the author**, three years on, needs to be able to defend any particular methodological choice without re-deriving why it was made.
 
-The supplement covers the registered pipeline steps (Phases 1--17) in script-by-script chapters. The registered total is not typed here: it is \`total_registered\` in the committed pipeline_manifest.json, which run_analysis.py guards against a recount, and the manifest counts the pipeline on two independent axes --- execution and tier --- which must not be mixed. One registered step has no chapter yet: Script 41 (canopy and forest-cover texture index from the dated aerial series, step 49), which withholds its value where a frame is unregistered and skips entirely when the imagery is absent, as it is in a clone (D-081). Four of those steps are display/utility rather than analytical: Script 26c (MSL5 report-format figures, step 32, §S.18c), Script 09f (spatial-reach synthesis, step 47, §S.15c), Script 09g (mechanism diagrams, step 48, §S.15d), and Script 27 (greyscale, step 49, Appendix A). Each chapter addresses seven concerns: motivation, inputs, methodology, site-specific choices and rationale, outputs, limitations and known caveats, and where the result appears in the report. Some chapters are short (figure-only or post-processing scripts); some are longer (Scripts 01, 02, 03, 10 suite, 17, 21, 25, 26). Total document length is approximately 260 pages.
+The supplement covers the registered pipeline steps (Phases 1--17) in script-by-script chapters. The registered total is not typed here: it is \`total_registered\` in the committed pipeline_manifest.json, which run_analysis.py guards against a recount, and the manifest counts the pipeline on two independent axes --- execution and tier --- which must not be mixed. One registered step has no chapter yet: Script 40 (shoreline retreat from the digitised coastline series, step 48), which is referenced in §S.15 and §S.16 but has no chapter of its own. Script 41 is documented in §S.23. Four of those steps are display/utility rather than analytical: Script 26c (MSL5 report-format figures, step 32, §S.18c), Script 09f (spatial-reach synthesis, step 47, §S.15c), Script 09g (mechanism diagrams, step 48, §S.15d), and Script 27 (greyscale, step 49, Appendix A). Each chapter addresses seven concerns: motivation, inputs, methodology, site-specific choices and rationale, outputs, limitations and known caveats, and where the result appears in the report. Some chapters are short (figure-only or post-processing scripts); some are longer (Scripts 01, 02, 03, 10 suite, 17, 21, 25, 26). Total document length is approximately 260 pages.
 
 This document is **not** a tutorial on Python or scientific computing. It is not a literature review --- references appear where they are required for methods provenance, not as a research review. It is not a redo of the main report's results; results appear only as concrete examples of what the methods produce. And it is not exhaustive code documentation --- the scripts in *src/* are the code documentation. This supplement is the methodological narrative.
 
@@ -1898,13 +1898,13 @@ The framing in the report is deliberate: the OLS linear extrapolation is **not**
 
 ### []{#anchor-263}[]{#anchor-264}[]{#anchor-265}Outputs
 
-  ------------------------------------------------------------------ -------------------------------------------------------------- ----------------------------------------------------------------------
+  ------------------------------------------------------------------ -------------------------------------------------------------- ---------------------------------------------------------------------
   Output                                                             Description                                                    Reference
   00_climate_summary/00_01_climate_timeseries\[\_short\].png         Monthly P, PET, balance, well level                            Report §2 (Figure)
   00_climate_summary/00_02_well_network_summary\[\_short\].png       Per-well record bar / summary                                  Report §2 (Figure)
   00_climate_summary/00_03_summer_warming_trend.png                  RAF Valley JJA max-temp anomaly, 1931--2025                    Report §4.1.1, Figure 4
   00_climate_summary/00_01_annual_climate_summary\[\_short\].csv     Annual P, PET, P/PET ratio                                     Report §2 (Table)
-  00_climate_summary/00_02_well_network_summary\[\_short\].csv       Per-well record stats, summer min, winter max                  Report §2 (Table); Script 14 references *OUT_00_WELL_NETWORK\_TABLE*
+  00_climate_summary/00_02_well_network_summary\[\_short\].csv       Per-well record stats, summer min, winter max                  Report §2 (Table); Script 14 references *OUT_00_WELL_NETWORK_TABLE*
   00_climate_summary/00_03_summer_warming_stats.csv                  Annual JJA means + OLS trend parameters                        Report §4.1.1
   12_figure_site_overview/12_01_dem_site_overview.png                DEM + 97-well site map                                         Report Figure 1
   13_figure_experimental_design/13_01_experimental_setup_map.png     Five-tier BACI + scraping design map                           Report §3 (BACI design figure)
@@ -1916,7 +1916,7 @@ The framing in the report is deliberate: the OLS linear extrapolation is **not**
   14_climate_projections/14_annual_extremes.csv                      Annual summer min / winter max per cluster                     Report §5
   14_climate_projections/14_winter_exceedance.csv                    Winter exceedance counts per cluster                           Report §5
   14_climate_projections/14_seasonal_extremes_scatter.html           Interactive per-well scatter, summer min vs winter max         Online Supplementary Tool (GitHub Pages)
-  ------------------------------------------------------------------ -------------------------------------------------------------- ----------------------------------------------------------------------
+  ------------------------------------------------------------------ -------------------------------------------------------------- ---------------------------------------------------------------------
 
 All paths resolve through *utils/paths.py* (*OUT_00\_\**, *OUT_12_DEM_OVERVIEW*, *OUT_13_EXPERIMENTAL_MAP*, *OUT_14\_\**).
 
@@ -2916,7 +2916,7 @@ On the live pipeline data the loaded multiplier is 1.0315 (Edge ratio 0.9830 min
 
 # []{#anchor-405}[]{#anchor-406}[]{#anchor-407}Phase 5 --- Post-pipeline supplementary analyses
 
-The eleven Phase 4 chapters (S.8--S.14) cover the climate-and-spatial scripts that feed §4 of the report. Phase 5 collects six further chapters whose methodological purpose is supplementary: each consumes pipeline intermediates, none feeds downstream pipeline scripts, and the conclusions they produce inform the report's discussion rather than its core results chain. S.15 covers Script 25 (coastal-retreat gradient, step 26/50, Phase 11 in *run_analysis.py*). S.15c covers Script 09f (spatial-reach synthesis figure, step 47/50, Phase 17; display/utility). S.15d covers Script 09g (mechanism-diagram suite, step 48/50, Phase 17; display/utility). S.16 covers Scripts 22, 23, and 24 (residual diagnostics, steps 27--29/50, Phase 12 in *run_analysis.py*). S.18 covers Script 26 (van Willegen 5-year MSL aggregation, step 30/50, Phase 13). S.18b covers Script 11 Section 5 (Tool A --- spring MSL transfer function, embedded in Script 11 at step 11/50, Phase 3) together with Script 26b (Tool B --- UKCP18 RCP8.5 MSL5 projections, step 31/50, Phase 13). S.18c covers Script 26c (MSL5 report-format figures, step 32/50, Phase 13). S.19 covers Scripts 28, 29 and 30 (cluster framework diagnostics, steps 33--35/50, Phase 14). S.20 covers Scripts 32, 33, 35, 36, 37 and 37b (observed differential change, climate-response envelope, and driver validation; steps 36--41/50, Phase 15, all analytical-default as of 2026-07-13). S.21 covers Scripts 24b, 31, 31b, 34 and 38 (supplementary standalone diagnostics, steps 42--46/50, Phase 16 --- 34/38 analytical-default as of 2026-07-13; 24b/31/31b opt-in). S.17 is appendices. All scripts in S.15, S.15c, S.15d, S.16, S.18, S.18b, S.18c, S.19, S.20, and S.21 are part of the pipeline orchestrated by *run_analysis.py*; the "post-pipeline supplementary" framing reflects their role in the report (discussion-feeding rather than results-feeding), not their orchestration status. Scripts 26c (MSL5 report-format figures, Phase 13), 09f (spatial-reach synthesis, Phase 17), 09g (mechanism diagrams, Phase 17), and 27 (greyscale figures, Phase 17) are display/utility steps rather than analytical; Script 26c is documented in S.18c, Script 09f in S.15c, Script 09g in S.15d, and Script 27 in Appendix A.
+The eleven Phase 4 chapters (S.8--S.14) cover the climate-and-spatial scripts that feed §4 of the report. Phase 5 collects six further chapters whose methodological purpose is supplementary: each consumes pipeline intermediates, none feeds downstream pipeline scripts, and the conclusions they produce inform the report's discussion rather than its core results chain. S.15 covers Script 25 (coastal-retreat gradient, step 26/50, Phase 11 in *run_analysis.py*). S.15c covers Script 09f (spatial-reach synthesis figure, step 47/50, Phase 17; display/utility). S.15d covers Script 09g (mechanism-diagram suite, step 48/50, Phase 17; display/utility). S.16 covers Scripts 22, 23, and 24 (residual diagnostics, steps 27--29/50, Phase 12 in *run_analysis.py*). S.18 covers Script 26 (van Willegen 5-year MSL aggregation, step 30/50, Phase 13). S.18b covers Script 11 Section 5 (Tool A --- spring MSL transfer function, embedded in Script 11 at step 11/50, Phase 3) together with Script 26b (Tool B --- UKCP18 RCP8.5 MSL5 projections, step 31/50, Phase 13). S.18c covers Script 26c (MSL5 report-format figures, step 32/50, Phase 13). S.19 covers Scripts 28, 29 and 30 (cluster framework diagnostics, steps 33--35/50, Phase 14). S.20 covers Scripts 32, 33, 35, 36, 37 and 37b (observed differential change, climate-response envelope, and driver validation; steps 36--41/50, Phase 15, all analytical-default as of 2026-07-13). S.21 covers Scripts 24b, 31, 31b, 34 and 38 (supplementary standalone diagnostics, steps 42--46/50, Phase 16 --- 34/38 analytical-default as of 2026-07-13; 24b/31/31b opt-in). Two further chapters were added after that group: S.22 covers Script 39 (SSM hindcast against the 1989--96 CCW record) and S.23 covers Script 41 (canopy and forest cover from the dated aerial series). S.24 is appendices; there is no chapter S.17, which is the number the appendices carried when the supplement ended at S.16, renumbered on 2026-08-31 once they came to sit after S.23. All scripts in S.15, S.15c, S.15d, S.16, S.18, S.18b, S.18c, S.19, S.20, S.21, S.22 and S.23 are part of the pipeline orchestrated by *run_analysis.py*; the "post-pipeline supplementary" framing reflects their role in the report (discussion-feeding rather than results-feeding), not their orchestration status. Scripts 26c (MSL5 report-format figures, Phase 13), 09f (spatial-reach synthesis, Phase 17), 09g (mechanism diagrams, Phase 17), and 27 (greyscale figures, Phase 17) are display/utility steps rather than analytical; Script 26c is documented in S.18c, Script 09f in S.15c, Script 09g in S.15d, and Script 27 in Appendix A.
 
 ## []{#anchor-407}[]{#anchor-408}[]{#anchor-409}S.15 Script 25 --- Coastal-retreat gradient
 
@@ -4186,13 +4186,81 @@ Main-report §5.7.8 (out-of-sample test against the 1989--96 record), which repo
 
 End of chapter S.22.
 
-## []{#anchor-616}[]{#anchor-617}[]{#anchor-618}S.17 Appendices
+## []{#anchor-616}[]{#anchor-617}S.23 Script 41 --- canopy and forest cover from the dated aerial series
+
+**Step 49/52, Phase 16 in ***run_analysis.py***. Analytical tier (***exec=\"default\"***). The step skips cleanly when the imagery is absent, so a default full run in a clone cannot fail over an optional raw input.**
+
+### []{#anchor-618}[]{#anchor-619}Motivation
+
+Every other line of evidence in this corpus about the forest --- the clearfell step, the interception correction, the growing canopy of the broadleaf restock --- is inferred from the dipwell record itself. Script 41 is the one that is not. It measures canopy structure directly from dated aerial imagery, so the December 2017 clearfell can be dated and bounded by evidence the state-space model never sees.
+
+It also addresses a question the hydrological record cannot. *BL_CANOPY_FRACTION_2025* is an input to the interception scenarios, and until this script there was no measurement behind it.
+
+### []{#anchor-620}[]{#anchor-621}Data provenance and permission
+
+The frames are screen captures of a licensed basemap (Bluesky, Infoterra and COWI, via Google Earth Pro). **The imagery is not in the repository and does not become part of it.** D-081 settled the shape of this for the historic Ordnance Survey scan: the source stays out and the attribution travels with the derived product. *data/geo/aerial_manifest.csv* names each frame and its imagery date; the frames themselves are held on the author's machine. A clone therefore runs the pipeline without them, and Script 41 skips with a notice rather than failing.
+
+### []{#anchor-622}[]{#anchor-623}Inputs
+
+*data/geo/aerial_manifest.csv* and the frames it names (role *registration*: 29 frames across 15 imagery dates, 2006-01-01 to 2026-03-31); *broadleaf_restock.kml*, *clearfell.kml*, *site_boundary.kml*, and the *Forest* and *Felling experiment* layers of *Features.kml*; and *01_locations.csv* for the 88 surveyed well positions, which serve as the registration control points.
+
+### []{#anchor-624}[]{#anchor-625}Methodology
+
+**The measure is a texture index, not a canopy fraction.** For each region and frame: the local standard deviation of luminance in a *CANOPY_TEXTURE_WINDOW* (5 px) window, averaged over the region and divided by that region's mean luminance, then placed between two references taken inside the same frame --- index = (region − open) / (conifer − open). Zero is the texture of open ground and one that of mature conifer.
+
+The in-frame normalisation carries the method. Frame luminance runs 28.7 to 81.4 across this series, because these are screen captures at varying exposure and compression, and both references move with it in step. Texture rather than colour, because colour confuses species with season: the restock reads reddish-brown in the March frames and green in June.
+
+**Registration.** These are perspective captures rather than orthophotos --- the control polygon gives 1.35 m/px east--west against 1.59 north--south, and that 15 per cent anisotropy *is* the perspective. Each frame is therefore registered to the ground by detecting the rendered dipwell placemarks, matching them to the 88 known coordinates and fitting an eight-parameter homography, which is the transform the geometry calls for and one an affine cannot represent.
+
+**Frames are grouped by constellation before they are seeded.** The markers sit in the same place in every frame of a capture session and at the same size, measured true to 0.0 px, but the view was nudged between sessions. The 29 frames fall into five groups: eleven *aerial* frames of 2006--2020 at a ground sampling distance of 1.26 m/px; the 2026 *aerial* frame at 1.38; thirteen *site* frames including both 2021 captures at 2.88; two further *site* frames at 2.95; and two *seabed* frames at 4.77.
+
+The 2026 group sits 49 px from its aerial siblings and the *site* groups 91 px from the aerial viewpoint, so seeding every frame from one frame's transform cannot register them however well their markers are found. Each group is seeded in its own right: from its own control outline where it has one; from an already-solved group where the two constellations genuinely coincide, at fifteen or more shared markers --- the two *site* groups share twenty and chain, *site* to *aerial* shares three and does not; and otherwise from a scan over pixels-per-metre in which the implied translation is taken as the peak of a vote over every well-and-marker pair. Matching and refitting then iterate to convergence rather than for a fixed two passes. The seed each group used is written into *41_03_registration.csv*, so the choice is auditable. The main aerial group registers on 30 control points at 5.73 m median residual and the 2026 frame on 32 at 5.36 m.
+
+### []{#anchor-626}[]{#anchor-627}Site-specific choices and rationale
+
+**The comparison basis is full leaf, and it has to be.** For a deciduous region the index is comparable only between frames in the same phenological state: on the in-frame ratio to the conifer control the full-leaf class is stable to 3.6 per cent while the emerging class scatters five times as widely. The four classes live in *config.py* as *LEAF_OFF_MONTHS* (Nov--Feb), *LEAF_EMERGING_MONTHS* (Mar--Apr), *LEAF_FULL_MONTHS* (May--Jul) and *LEAF_SENESCING_MONTHS* (Aug--Oct), named for leaf state rather than season under D-100, and every report number is computed on full-leaf frames alone.
+
+**The control excludes what it is a control for.** *forest_in_view* is mature conifer and its stability is what says the normalisation works. It originally used the raw *Forest* polygon, which overlaps the felled area, and stepped from 1.010 over 2006--2017 to 0.954 over 2018--2020 across the clearfell. The managed blocks are now subtracted from it, but **not** the 40 m collar the conifer reference uses: subtracting both makes the control identical to the reference, whereupon it reads 1.000 with zero variance, and a control that cannot move is not a control. On the corrected mask it reads 1.000 ± 0.005 across 2006--2026.
+
+**Only viewpoints that can resolve a crown are used.** *CANOPY_MAX_GSD_M* = 2.0 withholds any frame whose fitted ground sampling distance is coarser, judged on the distance measured from that frame's own transform rather than on a list of filenames, which would not survive the next capture session.
+
+**Change is differenced on the ground, not on the screen.** Consecutive imagery dates are compared, using only pairs where both frames registered, resampled onto a common OSGB grid at *CANOPY_CHANGE_GRID_M* = 2 m. The frames differ in viewpoint, so a pixel-by-pixel difference measures the perspective rather than the ground.
+
+### []{#anchor-628}[]{#anchor-629}Outputs
+
+*outputs/41_canopy_cover/*: *41_01_canopy_index.csv* (region × frame, carrying *leaf_state*, *viewpoint*, *ratio_to_conifer* and a *withheld_reason*); *41_02_change_events.csv*; *41_03_registration.csv* (per frame: constellation group, seed used, control points, residuals and ground sampling distance); *41_04_canopy_series.png*; and *41_report_numbers.csv*.
+
+Report numbers are computed on the aerial viewpoint and full-leaf frames only, spanning 2012-05 to 2019-07: restock-to-conifer ratio median 1.172, standard deviation 0.049, on four frames; clearfell index median 0.139.
+
+### []{#anchor-630}[]{#anchor-631}Limitations and known caveats
+
+**The index measures canopy and understorey together.** A young open broadleaf block has structure at two levels where a closed conifer stand has a bare, shaded floor, so the restock reads above the conifer anchor. The expected signature of a maturing block is therefore a rise and then a fall, as its own closing canopy suppresses the understorey that was contributing the roughness. The index is not bounded above by one and is not a canopy fraction.
+
+**It is not comparable between viewpoints.** The same region on the same day reads 1.045 from *aerial22-4-2017* and −0.113 from *site22-4-2017m*.
+
+**2021 is not measurable, and that is a resolution limit rather than a registration failure.** The only 2021 frames are *site* viewpoint. Those frames register well --- 87 control points at 3.93 m --- but at 2.88 m/px a 5 px window spans some 15 m of ground and averages over several crowns. Measured against the aerial index of the same region on the same day, the site index correlates at r = +0.089 (n = 33), and for the restock at −0.513, the wrong sign; across the December 2017 clearfell it moves from 0.016 to −0.048, having already been near zero in 2009. It does not see the fell. Sixty-eight of 116 region-frame values are withheld on that basis, each with the reason recorded in the output.
+
+**No growth number is emitted.** Before 2012 there is no full-leaf frame at all: the 2006 frame is leaf-off, the 2009 frame emerging and the 2012 frame full leaf, three points in ascending order of leaf state. Growth and phenology cannot be separated on this record, and on the full-leaf subset alone the series is flat.
+
+**Absolute areas carry the perspective; changes do not.** The frames of one viewpoint share their distortion, so it cancels between them. The script reports change fractions and never an area in hectares.
+
+### []{#anchor-632}[]{#anchor-633}Where it appears in the report
+
+Main-report §5.5, in the clearfell discussion, for two statements. The first is that the December 2017 clearfell is dated and bounded by imagery: across it the clearfell region moves from 1.235 (2017-04-22) to 0.141 (2018-06-28) and the felling experiment from 1.248 to 0.123, while the conifer control holds at 1.007. That is independent confirmation of the intervention's date and extent from a source the state-space model never sees.
+
+The second is that the clearfell area is deliberately kept clear of trees, so the low index that follows is a management outcome and not failed regeneration --- and the clearfell's hydrological step is therefore permanent rather than transient, because nothing is being replanted to re-impose interception. That is a statement about how the BACI result should be read.
+
+The restock series is reported here and not in the main report. On the aerial viewpoint, and comparing like with like on month, leaf state and viewpoint, it reads 0.899 in March 2017, 1.157 in March 2020 and 0.975 in March 2026 --- the rise and fall the mechanism predicts, on five points and resting on a single recovered frame.
+
+End of chapter S.23.
+
+## []{#anchor-634}[]{#anchor-635}[]{#anchor-636}S.24 Appendices
 
 Reference and post-pipeline material. Final chapter of the supplement.
 
 This chapter closes the Methods Supplement. It covers two pieces of material that belong with the document but sit outside the main script-by-script chapter sequence (S.1--S.18b). Appendix A documents the one remaining pipeline script not yet given a chapter --- the post-pipeline greyscale figure utility. Appendix B is the canonical-sources index: a reference table mapping each recurring concept across the supplement to the place where it is authoritatively defined.
 
-### []{#anchor-618}[]{#anchor-619}[]{#anchor-620}A. Greyscale figure post-processing --- Script 27
+### []{#anchor-637}[]{#anchor-638}[]{#anchor-639}A. Greyscale figure post-processing --- Script 27
 
 *27_greyscale_figures.py* is a post-pipeline rendering utility, not an analytical step. It exists to produce a journal-ready black-and-white bundle of the pipeline's colour figures without re-running any analytical script. Reviewers, journal proofs, and print compatibility occasionally require this; the conversion runs once and produces a parallel *outputs_bw/* tree alongside the canonical *outputs/* tree, preserving the directory structure so that any figure has the same relative path in both.
 
@@ -4210,13 +4278,13 @@ with *\--dpi* overriding the source DPI, *\--skip-maps* excluding the spatial-ma
 
 Script 27's filename prefix (*27\_*) and orchestrator step number (49/50) deliberately do not match --- the same convention applied to Script 26 (*26_van_willegen_msl.py* at step 30/50), Script 26b (*26b_van_willegen_msl_projections.py* at step 31/50), Script 26c (*26c_msl5_report_figures.py* at step 32/50), Script 09f (*09f_management_effects.py* at step 47/50), and Script 09g (*09g_mechanism_diagrams.py* at step 48/50). The filename groups Script 27 alphabetically with the other *2x\_* scripts; the orchestrator number reflects its position in the run order at the end of Phase 17. Script 27 carries no analytical-step number of its own --- it is the post-analysis utility documented in this appendix. Script 26c, the MSL5 report-format figure-rendering companion, is similarly display/utility and is documented in §S.18c. Script 09f, the spatial-reach synthesis figure, is also excluded and is documented in §S.15c. Script 09g, the mechanism-diagram companion to 09f, is likewise excluded and is documented in §S.15d.
 
-### []{#anchor-620}[]{#anchor-621}[]{#anchor-622}B. Canonical sources of truth --- reference table
+### []{#anchor-639}[]{#anchor-640}[]{#anchor-641}B. Canonical sources of truth --- reference table
 
 The supplement is long enough that a reader who has read it once and needs to find where a particular concept, parameter, or function is defined will not always remember which chapter to open. This table is the navigational index. For each recurring concept, it points to the single canonical source --- a chapter, a front-matter section, or a specific file in the repository --- where the concept is defined and explained. Where a constant is read from *config.py*, the table names the constant; where a function is the canonical implementation, it names the module.
 
 The convention throughout the supplement is that there is one place to change a value and one place to look it up. The table reflects that. Entries are organized into thematic groups --- model formulation, partition and cluster constants, intervention machinery, scenario engine, ecological thresholds, spatial machinery, MSL aggregation, and provenance and orchestration.
 
-#### []{#anchor-622}[]{#anchor-623}Model formulation
+#### []{#anchor-641}[]{#anchor-642}Model formulation
 
   ------------------------------------- ----------------------------------- --------------------------------------------------------------------------------------
   Concept                               Reference                           Definition / value
@@ -4235,7 +4303,7 @@ The convention throughout the supplement is that there is one place to change a 
   Two regimes (A / B)                   F.3 / S.5                           Model A is the headline; Model B used by Scripts 07, 08, 22, 24
   ------------------------------------- ----------------------------------- --------------------------------------------------------------------------------------
 
-#### []{#anchor-623}[]{#anchor-624}Partition and cluster constants
+#### []{#anchor-642}[]{#anchor-643}Partition and cluster constants
 
   ------------------------------------------------------------ ---------------------------------------------------- -------------------------------------------------------------
   Constant / concept                                           Reference                                            Value / meaning
@@ -4251,7 +4319,7 @@ The convention throughout the supplement is that there is one place to change a 
   *BW_MODE* rendering                                          F.4 / *config.py*                                    Toggled by *NRG_BW_MODE* environment variable
   ------------------------------------------------------------ ---------------------------------------------------- -------------------------------------------------------------
 
-#### []{#anchor-624}[]{#anchor-625}Specific yield
+#### []{#anchor-643}[]{#anchor-644}Specific yield
 
   --------------------------------------- ----------------------------------------------- -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   Constant / concept                      Reference                                       Value / meaning
@@ -4262,7 +4330,7 @@ The convention throughout the supplement is that there is one place to change a 
   Interception correction for forest Sy   S.12                                            Cluster vs well-level reconciliation
   --------------------------------------- ----------------------------------------------- -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-#### []{#anchor-625}[]{#anchor-626}Forest and forest scenarios
+#### []{#anchor-644}[]{#anchor-645}Forest and forest scenarios
 
   ---------------------------------------------- ----------------------------- ---------------------------------------------------------------------------------------
   Constant / concept                             Reference                     Value / meaning
@@ -4275,7 +4343,7 @@ The convention throughout the supplement is that there is one place to change a 
   Thinning β₂ multiplier                         F.5 / *clearfell_common.py*   Derived as half-perturbation from clearfell multiplier
   ---------------------------------------------- ----------------------------- ---------------------------------------------------------------------------------------
 
-#### []{#anchor-626}[]{#anchor-627}Intervention machinery
+#### []{#anchor-645}[]{#anchor-646}Intervention machinery
 
   --------------------------------------------------------------- ---------------------------------- ----------------------------------------------------------------------------------------------------------------------------------------
   Constant / concept                                              Reference                          Value / meaning
@@ -4289,7 +4357,7 @@ The convention throughout the supplement is that there is one place to change a 
   *INTERVENTION_COLOUR_SCRAPE*, *INTERVENTION_COLOUR_CLEARFELL*   F.4 / *config.py* / S.18           Purple *#7b3294* for scraping (2015 CEH36, 2023 CEH18/21), orange *#e66101* for the 2017 clearfell; used by Script 26 trajectory plots
   --------------------------------------------------------------- ---------------------------------- ----------------------------------------------------------------------------------------------------------------------------------------
 
-#### []{#anchor-627}[]{#anchor-628}Scenario engine
+#### []{#anchor-646}[]{#anchor-647}Scenario engine
 
   -------------------------------------------------------------------------------------------------------------------- ------------------------------------------------------------------------------------------------ -----------------------------------------------------------------------------------------------------------------------------------
   Constant / concept                                                                                                   Reference                                                                                        Value / meaning
@@ -4306,7 +4374,7 @@ The convention throughout the supplement is that there is one place to change a 
   Spring-window structural cancellation                                                                                S.18b §S.18b.3.5                                                                                 Why ΔMSL5 modest at 1--4 cm despite +20--35 % summer PET; the spring window straddles the UKCP18 seasonal partition
   -------------------------------------------------------------------------------------------------------------------- ------------------------------------------------------------------------------------------------ -----------------------------------------------------------------------------------------------------------------------------------
 
-#### []{#anchor-628}[]{#anchor-629}Ecological thresholds
+#### []{#anchor-647}[]{#anchor-648}Ecological thresholds
 
   -------------------------------- -------------------------------------------- ------------------------------------
   Constant / concept               Reference                                    Value / meaning
@@ -4316,7 +4384,7 @@ The convention throughout the supplement is that there is one place to change a 
   Ecological zone categorisation   S.9 / *11b_spatial_thresholds.py*            Native rendering of zone maps
   -------------------------------- -------------------------------------------- ------------------------------------
 
-#### []{#anchor-629}[]{#anchor-630}Coastal and spatial
+#### []{#anchor-648}[]{#anchor-649}Coastal and spatial
 
   -------------------------------------------- --------------------------------- --------------------------------------------------------
   Constant / concept                           Reference                         Value / meaning
@@ -4330,7 +4398,7 @@ The convention throughout the supplement is that there is one place to change a 
   plot_metric_map()                            F.5 / *map_utils.py*              High-level publication map wrapper
   -------------------------------------------- --------------------------------- --------------------------------------------------------
 
-#### []{#anchor-630}[]{#anchor-631}MSL aggregation
+#### []{#anchor-649}[]{#anchor-650}MSL aggregation
 
   ------------------------------------------------------------- ------------------------------------------------------------------------------ ---------------------------------------------------------------------------------------------------------------------------------
   Constant / concept                                            Reference                                                                      Value / meaning
@@ -4346,7 +4414,7 @@ The convention throughout the supplement is that there is one place to change a 
   Curreli SD15b/SD16 on MSL5 plots                              S.18 §Site-specific choices                                                    Reference lines retained for visual familiarity; calibrated against summer minima, not MSL5 --- figure captions flag the offset
   ------------------------------------------------------------- ------------------------------------------------------------------------------ ---------------------------------------------------------------------------------------------------------------------------------
 
-#### []{#anchor-631}[]{#anchor-632}Residuals and diagnostics
+#### []{#anchor-650}[]{#anchor-651}Residuals and diagnostics
 
   ---------------------------------- ------------------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   Constant / concept                 Reference          Value / meaning
@@ -4356,7 +4424,7 @@ The convention throughout the supplement is that there is one place to change a 
   LCSC vs TLM benchmarking           S.5 / Script 08    SSM (Model A) against a traditional linear model with its own constant term
   ---------------------------------- ------------------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-#### []{#anchor-632}[]{#anchor-633}Climate and field data
+#### []{#anchor-651}[]{#anchor-652}Climate and field data
 
   ---------------------------- ------------------------------------ --------------------------------------------------------------------
   Constant / concept           Reference                            Value / meaning
@@ -4368,7 +4436,7 @@ The convention throughout the supplement is that there is one place to change a 
   normalize_well_name()        F.5 / *data_utils.py*                Used wherever well names join across sources
   ---------------------------- ------------------------------------ --------------------------------------------------------------------
 
-#### []{#anchor-633}[]{#anchor-634}Orchestration and rendering
+#### []{#anchor-652}[]{#anchor-653}Orchestration and rendering
 
   ------------------------------------------------------------------------- ------------------------------------------------------- --------------------------------------------------------------------------------------------------------------------------------------
   Constant / concept                                                        Reference                                               Value / meaning
@@ -4391,8 +4459,8 @@ The convention throughout the supplement is that there is one place to change a 
   paths.OUT_25_CLUSTER_DECOMP_FIG                                           F.5 / *utils/paths.py* / S.15                           Script 25 v1.1.0 fold-in: per-cluster decomposition stacked-bar figure (§4.10.2 of the main report)
   ------------------------------------------------------------------------- ------------------------------------------------------- --------------------------------------------------------------------------------------------------------------------------------------
 
-### []{#anchor-634}[]{#anchor-635}[]{#anchor-636}Closing remarks
+### []{#anchor-653}[]{#anchor-654}[]{#anchor-655}Closing remarks
 
-The Methods Supplement closes here. The chapters S.1--S.22 together document the Newborough Warren analytical pipeline as registered in the committed *pipeline_manifest.json*, the design choices behind each step, the rationale for site-specific parameters, and the verification chain by which pipeline outputs feed the main report. Script 26c (*26c_msl5_report_figures.py*, Phase 13 in *run_analysis.py*) is a display-only figure-rendering companion to Scripts 26 and 26b, display/utility rather than analytical, covered in §S.18c; Script 09f (*09f_management_effects.py*, Phase 17 in *run_analysis.py*) is the spatial-reach synthesis figure, display/utility rather than analytical, covered in §S.15c; Script 09g (*09g_mechanism_diagrams.py*, Phase 17 in *run_analysis.py*) is the mechanism-diagram companion to 09f, display/utility rather than analytical, covered in §S.15d; and Script 27 (*27_greyscale_figures.py*, Phase 17 in *run_analysis.py*) is a post-analysis figure-conversion utility, also display/utility rather than analytical, covered in Appendix A. Readers needing a specific topic should consult the canonical-sources table in Appendix B; readers needing the canonical implementation of any function or constant should consult the live *main* branch of <https://github.com/newbroman/Newborough_Hydrology>, which remains the source of truth. The supplement is a guide to what the repository contains and why each choice was made; the repository itself is the deliverable.
+The Methods Supplement closes here. The chapters S.1--S.23 together document the Newborough Warren analytical pipeline as registered in the committed *pipeline_manifest.json*, the design choices behind each step, the rationale for site-specific parameters, and the verification chain by which pipeline outputs feed the main report. Script 26c (*26c_msl5_report_figures.py*, Phase 13 in *run_analysis.py*) is a display-only figure-rendering companion to Scripts 26 and 26b, display/utility rather than analytical, covered in §S.18c; Script 09f (*09f_management_effects.py*, Phase 17 in *run_analysis.py*) is the spatial-reach synthesis figure, display/utility rather than analytical, covered in §S.15c; Script 09g (*09g_mechanism_diagrams.py*, Phase 17 in *run_analysis.py*) is the mechanism-diagram companion to 09f, display/utility rather than analytical, covered in §S.15d; and Script 27 (*27_greyscale_figures.py*, Phase 17 in *run_analysis.py*) is a post-analysis figure-conversion utility, also display/utility rather than analytical, covered in Appendix A. Readers needing a specific topic should consult the canonical-sources table in Appendix B; readers needing the canonical implementation of any function or constant should consult the live *main* branch of <https://github.com/newbroman/Newborough_Hydrology>, which remains the source of truth. The supplement is a guide to what the repository contains and why each choice was made; the repository itself is the deliverable.
 
 End of the Methods Supplement.

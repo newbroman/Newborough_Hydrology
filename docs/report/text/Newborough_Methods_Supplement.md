@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_68.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_69.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,11 +7,11 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 1.9.68 (August 2026).
+Document version: 1.9.69 (September 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
-*run_analysis.py*\*\* --- 50 registered steps across 17 phases\*\* (canonical count: committed *outputs/pipeline_manifest.json*, emitted on every run --- cite that, not this line, if the two ever disagree). Those 50 steps are classified two independent ways. By tier: 40 analytical, 4 display/utility (Scripts 26c, 09f, 09g, 27) and 6 diagnostic. By execution: 47 run in a default pass, and 3 --- Scripts 24b, 31 and 31b, the Phase 16 remainder --- run only with *\--with-supplementary*. The two classifications each account for the same 50 steps and are not additive with one another.
+*run_analysis.py*\*\* --- 52 registered steps across 17 phases\*\* (canonical count: committed *outputs/pipeline_manifest.json*, emitted on every run --- cite that, not this line, if the two ever disagree). Those 52 steps are classified two independent ways. By tier: 42 analytical, 4 display/utility (Scripts 26c, 09f, 09g, 27) and 6 diagnostic. By execution: 49 run in a default pass, and 3 --- Scripts 24b, 31 and 31b, the Phase 16 remainder --- run only with *\--with-supplementary*. The two classifications each account for the same 52 steps and are not additive with one another.
 
   ------- --------- ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ------------------------
   Group   Scripts   Coverage                                                                                                                                                                                                    Supplement §

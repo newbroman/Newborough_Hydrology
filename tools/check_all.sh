@@ -142,6 +142,14 @@ echo "── rounding (has new store-time rounding appeared?) ──────
 python3 tools/rounding_lint.py || rc=1
 
 echo
+echo "── artefacts (is a committed output truthful about itself?) ─────────"
+# The gate the other fifteen did not cover: an output checked against ITSELF.
+# Row arithmetic (a quantity must be reproduced by the columns that define it)
+# and the empty artefact (a step that could not run must not overwrite its
+# committed file with a header). Both start green; see W124 and W128.
+python3 tools/artefact_lint.py || rc=1
+
+echo
 echo "── geographic inputs ────────────────────────────────────────────────"
 # Advisory, not a gate: the open TO CONFIRM fields are questions only Martin can
 # answer, and failing the build on them every run would just teach us to ignore

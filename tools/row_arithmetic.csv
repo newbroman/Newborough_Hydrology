@@ -1,0 +1,2 @@
+csv,result_col,expression,rows,tolerance_rel,note
+outputs/40_shoreline_retreat/40_01_epoch_series.csv,rate_m_yr,median_m / years,,,"A rate is its displacement over its span. The years literal in the d060_anchor_unrestricted row drifted from the measurement when D-087 re-pointed the anchor on 2026-08-29 and nothing noticed for three days (W124): the row read median 69.021, years 116.0, rate 0.645058, and 69.021/116 = 0.595."

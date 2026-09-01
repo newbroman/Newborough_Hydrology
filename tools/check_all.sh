@@ -246,6 +246,15 @@ echo "── references (do typed Table/Figure numbers still resolve?) ───
 # step silently. Read from the ODTs in master order, so no PDF export is needed
 # and the check cannot run on a stale artefact.
 python3 tools/reference_lint.py --kind table || rc=1
+# FIGURES, since 2026-09-01. nrg_git.sh runs figref_lint at push time and its own
+# comment says what that does NOT cover: "Semantic mistakes (a reference pointing
+# at the wrong existing figure) are NOT caught here." figref_lint asks whether a
+# number RESOLVES; this asks whether it still MEANS what it did. Remove one figure
+# and every later caption renumbers while the typed references stay put - all of
+# them resolve, to the wrong figure. Found on its first run: the project box gave
+# the forest drawdown render as report Figure 50; it is 57, and 50 is the SSM water
+# balance residual. figref_lint had passed that PDF clean, correctly.
+python3 tools/reference_lint.py --kind figure || rc=1
 
 echo
 echo "── references by meaning (does a number point at what the text names?) ─"

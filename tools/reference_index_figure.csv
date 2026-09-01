@@ -1,0 +1,76 @@
+number,document,title
+1,report7.odt,Site topography and hydrogeological features. Digital elevation model of Newborough Warren
+2,report7.odt,Hierarchical experimental design. Spatial layout of the monitoring network showing the fiv
+3,report8.odt,"a: Data coverage and monthly observation state of the reference network (66 wells), April "
+4,report9.odt,"Climate record summary for the well-monitoring period (April 2005 – February 2026), derive"
+5,report9.odt,"Summer maximum temperature anomaly at RAF Valley, 1931–2025, expressed as departure from t"
+6,report9.odt,Well network characterization for the 66-well reference network. Upper left: frequency dis
+7,report9.odt,"Cluster validation plots: silhouette coefficient, Calinski–Harabasz index, and Ward's merg"
+8,report9.odt,Clustering results: Ward's hierarchical clustering dendrogram for the 66-well reference ne
+9,report9.odt,"Cluster-mean relative water level hydrographs for the five hydrogeological clusters, April"
+10,report9.odt,"Per-well relative water level for the 66 reference wells, shown as one stacked panel per h"
+11,report9.odt,"Water balance decomposition by hydrogeological cluster, Newborough Warren 2005–2026. (a) M"
+12,report9.odt,"Interpolated WTF specific yield surface for the combined reference and extended networks, "
+13,report9.odt,"Pearson affinity analysis of selected reference and extended network wells, showing the co"
+14,report9.odt,a: Spatial distribution of the five primary hydrogeological clusters validated via Pearson
+15,report9.odt,Dual-model performance comparison at dune well CEH6. Upper panel: one-step diagnostic fit 
+16,report9.odt,a: SSM gain over TLM across all 66 reference wells. Panel (a): iterative R² improvement — 
+17,report9.odt,Tier 1 background environmental drift analysis. CUSUM time series for control wells CEH4 (
+18,report9.odt,"Tier 2 paired CUSUM analysis at treatment wells CEH36 (top), CEH18 (centre) and CEH21 (bot"
+19,report9.odt,Three-method robustness assessment of the scraping signal at CEH36. (a) Raw BACI gap serie
+20,report9.odt,Era-specific β₃ storage decay coefficients with 95% confidence intervals at scraping treat
+21,report9.odt,"Annual summer minimum depth below ground surface at scraping treatment wells (CEH36, CEH18"
+22,report9.odt,Summer minima analysis for the scraping intervention against the climate control centroid.
+23,report9.odt,Paired BACI summer minimum analysis: CEH36 (scraped) vs CEH4 (control). (a) Annual summer 
+24,report9.odt,"Climate-corrected anomaly trajectory at CEH36 (scraped) vs CEH4 (control), showing the div"
+25,report9.odt,Climate-corrected spatial step-change map for the scraping era (April 2015 – November 2017
+26,report9.odt,Scenario comparison at CEH36 (scraped site) — annual-mean forcing. Equilibrium volumetric 
+27,report9.odt,Scenario comparison at CEH36 (scraped site) — summer (July–September) forcing. As Figure 2
+28,report9.odt,Climate sensitivity: cumulative water balance (CWB) vs BACI displacement against the Fores
+29,report9.odt,"WMC3 (Impact well) and the forest-control mean across the three interventions, in water-ta"
+30,report9.odt,Forest control BACI timeseries and CUSUM for the Impact tier (WMC3). Upper panel: monthly 
+31,report9.odt,"Forest control BACI timeseries and CUSUM for the Edge tier (CEH31, CEH20, CEH30, CEH16). U"
+32,report9.odt,Summer minima analysis against the Forest control. (a) Raw annual summer minimum depth (Ju
+33,report9.odt,"Summer minimum depth distributions by BACI tier, Newborough Warren 2011–2025. Three phases"
+34,report9.odt,Climate-corrected spatial step-change map for the clearfell era (December 2017 – end of re
+35,report9.odt,Before- and after-clearfell SSM coefficient estimates with 95% CI for all 17 wells in the 
+36,report9.odt,Clearfell transect: post-felling step change vs distance from felling compartment centroid
+37,report9.odt,Spatial distribution of mean annual summer minimum water table depth below ground across t
+38,report9.odt,Spatial distribution of P_flood — the minimum cumulative winter rainfall (mm) required to 
+39,report9.odt,Spatial distribution of mean annual winter maximum water table depth below ground across t
+40,report9.odt,Winter flooding frequency across the full dipwell network (66 reference wells and 22 exten
+41,report9.odt,"Cluster-mean 5-year mean spring water level (MSL5) trajectory, window-ends 2014–2025, for "
+42,report9.odt,"Spatial pattern of the latest available 5-year mean spring water level (MSL5) per well, ID"
+43,report9.odt,"Climate trajectory and threshold exceedance analysis for Newborough Warren, 2005–2025. Pan"
+44,report9.odt,"Between-well prediction of mean Ellenberg-F moisture by three water-table metrics, across "
+45,report9.odt,"a: Per-well optimal SSM drainage datum across the 66-well reference network, Newborough Wa"
+46,report9.odt,"Spatial SSM coefficient atlas for the 66-well reference network, Newborough Warren. Per-we"
+47,report9.odt,"Drainage decay half-life (t½ = ln(2)/β₃, months) across the 66-well reference network (CEH"
+48,report9.odt,"Aquifer diagnostic synthesis across the reference well network, Newborough Warren 2005–202"
+49,report9.odt,"Mean annual water table elevation (m AOD) across the Newborough Warren dune aquifer, 2005–"
+50,report9.odt,"SSM water balance residual across the Newborough Warren dune aquifer, 2005–2026. The resid"
+51,report9.odt,"Network-scale coastal-retreat gradient. Per-well summer-minimum slope (mm yr⁻¹, error bars"
+52,report9.odt,Fixed-length rolling-window sensitivity of the cross-shore decay fit. One panel per window
+53,report9.odt,"Independent, model-free estimate of the coastal drawdown rate. The coast-minus-inland MAM "
+54,report9.odt,"Coastal-erosion drawdown at the western dune margin, Newborough Warren, on the DEM hillsha"
+55,report9.odt,"Sea-level-rise head response at the western dune margin, on the same hillshade base and cl"
+56,report9.odt,Net coastal-margin change at the western dune margin: the cell-by-cell difference between 
+57,report9.odt,"Forest drawdown propagation across the Newborough Warren dune aquifer, showing the estimat"
+58,report9.odt,"Dune-scrape drawdown across all eight mapped cuts, Newborough Warren (Feb 2013, Apr 2015, "
+59,report9.odt,Combined drawdown imposed on the clearfell pre-fell baseline (Oct 2017): the cell-by-cell 
+60,report9.odt,"Clearfell step-change map — climate-corrected mean water-table shift, pre-felling (scrapin"
+61,report9.odt,Net water-table state — parametric combination of five simultaneous annual-mean drivers: f
+62,report9.odt,"Modelled water-table change across Newborough Warren, 2005–2025 — full-window (20-year) co"
+63,report9.odt,"Observed MSL5 change: window end 2017 (springs 2013–2017, pre-clearfell) vs window end 202"
+64,report9.odt,"Secular differential movement of the spring (March,April, May) water table, 2011–2025. For"
+65,report9.odt,"Absolute climate-removed secular trend of the spring (March, April, May) water table, 2005"
+66,report9.odt,The climate-response envelope of the spring water table. Relative amplification field — ea
+67,report9.odt,The climate-response envelope of the spring water table: Dry-year spring water-table depth
+68,report9.odt,Independent test of the chronic coastal-drying assumption: implied coastal decline rate δ₀
+69,report9.odt,"Comparative footing of the drivers over the 2005–2025 horizon, on three common measures — "
+70,report9.odt,"Projected shift in the five-year mean spring water level (ΔMSL5, blue) compared with the p"
+71,report10.odt,Bootstrap year-of-crossing for the five-cluster summer-minimum trends against the Curreli 
+72,report10.odt,Synthetic mean-year hydrograph for the C4 Forest cluster under four management scenarios: 
+73,report10.odt,"Spatial reach and development timescale of the management interventions, coastal retreat a"
+74,report10.odt,Four drivers of the Newborough water table — schematic cross-sections (not to scale; verti
+75,report10.odt,"Per-well achievability categorization against the P_flood rainfall multiplier (m_P), the c"

@@ -60,7 +60,18 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-08-23. Tables only. Figures and
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-09-01. FIGURES ARE NOW LIVE.
+#   No code changed: --kind figure already worked, and v1.0.0 predicted it would.
+#   What was missing was the pinned snapshot and a line in check_all.sh. Pinned
+#   2026-09-01 from a corpus at check_all: OK - 75 captions, 277 typed references
+#   across 6 documents. It earned itself immediately: the project instructions
+#   named the forest drawdown render as report Figure 50, and it is 57 (50 is the
+#   SSM water balance residual). figref_lint passes that PDF clean and is right
+#   to - the reference resolves, it just resolves to the wrong figure, which is
+#   the failure mode this snapshot exists for. The symbol register still folds in
+#   behind the same switch and is still not done.
+#
+# v1.0.0  # Hollingham (2026) — 2026-08-23. Tables only. Figures and
 #   the symbol register fold in behind the same --kind switch; the caption reader
 #   and the reference scraper are already kind-agnostic.
 

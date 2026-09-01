@@ -1006,3 +1006,37 @@ dates now live once, in `config.py`, as ISO strings. The earlier note here said
 this was "deliberately not attempted from the desktop bridge, where 31 of 71
 `src/` scripts cannot run at all" — that constraint was untested and wrong; it
 was six missing packages.
+
+---
+
+## `sea_ridge.kml` — the nearshore ridge digitisation (added 2026-09-01)
+
+**Martin's own digitisation, drawn by eye in Google Earth Pro 7.3.7.1155 and
+supplied on 2026-09-01.** One placemark, `sea ridge`, holding a MultiGeometry of
+**four polygons**: the dark seabed features he can see off the Newborough
+frontage. Not derived from any pipeline output and not traced from a licensed
+product — it is an observer's outline over a basemap, so unlike the screen
+captures it carries no third-party rights and belongs in the repository (D-081
+governs the imagery, not a digitisation made from it).
+
+| ridge | area | centroid (OSGB) | extent | approx. axis | bearing |
+|---|---|---|---|---|---|
+| R1 | 11.07 ha | E 240296 / N 363075 | E 240056–240597, N 362836–363301 | 400 × 176 m | 51.1° |
+| R2 | 9.31 ha | E 240399 / N 362820 | E 240151–240749, N 362480–363153 | 537 × 113 m | 38.7° |
+| R3 | 18.75 ha | E 240610 / N 362655 | E 240214–241018, N 362333–363007 | 515 × 205 m | 47.8° |
+| R4 | 22.55 ha | E 241106 / N 362078 | E 240501–241699, N 361686–362390 | 775 × 173 m | 57.9° |
+
+**Total 61.68 ha**, union bounds E 240056–241699, N 361686–363301.
+
+**Two things follow from the geometry and are worth recording here rather than
+being rediscovered.** The four bearings span **38.7° to 57.9°**, a sub-parallel
+set; the 2017 shoreline bears 118°, so all four are oblique to shore-normal and
+none is shore-parallel. And **R4 lies almost entirely outside the `site` (vp2)
+frame window** — only about a twentieth of it is imaged there — so it can only
+be measured on the wide `seabed` (vp3) viewpoint. Any analysis that uses vp2
+alone will silently under-sample it.
+
+Measured against each frame's own open-water level (90th percentile of the
+imaged sea), all four read darker than open water in **every** usable frame of
+both viewpoints; R3 is the strongest, reaching 0.199 of open water in its
+darkest quartile on 22 April 2017. The full table is in the W117 register entry.

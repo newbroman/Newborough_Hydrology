@@ -47,7 +47,34 @@ Reading order for anyone picking this up
 """
 from __future__ import annotations
 
-__version__ = "1.6.0"  # Hollingham (2026) — 2026-08-30. The instance tag
+__version__ = "1.6.2"  # Hollingham (2026) — 2026-09-01. A SKIPPED STEP NO
+#   LONGER DESTROYS ITS COMMITTED OUTPUT. `_dtm_profile` catches an ImportError,
+#   warns, and returned an EMPTY FRAME — which `main()` then wrote over the good
+#   committed file and announced as `Saved (0 rows)`. Measured 2026-09-01: with
+#   rasterio absent, 40_05_dtm_profile.csv went from five rows to a bare header,
+#   and the only symptom was a check_all failure pointing nowhere near the cause.
+#   `git checkout` cannot undo it over the desktop bridge, where the mount refuses
+#   the unlink.
+#
+#   THE DISTINCTION IS NOW EXPLICIT, and it is the fix: a DataFrame means the step
+#   RAN (write it, zero rows included — "ran and found nothing" is a result);
+#   None means it COULD NOT RUN (leave the committed file alone and say so).
+#   `_write_or_preserve()` enforces it. THREE sites had the same shape, not one:
+#   `_dtm_profile` on a missing library, `_coastal_sensitivity` on an unreadable
+#   headline fit, and `_control` on a failed measurement. A stale artefact is the
+#   lesser evil ON PURPOSE — it is visible to output_lag and to the console,
+#   whereas an empty one looks like a measurement.
+#
+# v1.6.1  # Hollingham (2026) — 2026-09-01. ONE-LINE VALUE FIX.
+#   The D-060 anchor row in 40_01_epoch_series.csv carried a hard-typed
+#   `"years": 116.0` while _regression_test measures over 107.0. rate_m_yr is
+#   computed, so it was right (0.645058 = 69.021/107); the row was internally
+#   inconsistent and median/years returned 0.595. No document quotes either
+#   span, so nothing had drifted into the corpus. Found 2026-09-01 by reading
+#   the committed CSV, not by a gate: NOTHING CHECKS THAT rate_m_yr EQUALS
+#   median_m / years WITHIN A ROW, and that check is worth adding.
+#
+# v1.6.0  # Hollingham (2026) — 2026-08-30. The instance tag
 #   becomes `winter2019_20` (was `winter2019`, was `storm_pair_2019_20`), so all
 #   twelve emitted parameter names change again: `winter2019_20_displacement_median_m`,
 #   `winter2019_20_between_storm_expectation_m`, `winter2019_20_context_rate_m_yr`.
@@ -608,7 +635,7 @@ def _control(line_2006, inland_xy):
     lo, hi = _common_extent([line_2006, repeat], SPACING_M)
     m = _measure(line_2006, repeat, 1.0, inland_xy, lo, hi)
     if m is None:
-        return pd.DataFrame(), None
+        return None, None                # skipped, NOT empty: see _write_or_preserve
     a = np.abs(m["_ray"][m["_ok"]])
     row = {"pair": "coast2006 vs coast2006B_blind", "n": int(len(a)),
            "shared_vertices": 0,
@@ -618,6 +645,40 @@ def _control(line_2006, inland_xy):
            "max_abs_m": float(a.max()),
            "signed_median_m": float(np.median(m["_ray"][m["_ok"]]))}
     return pd.DataFrame([row]), row["p95_abs_m"]
+
+
+def _write_or_preserve(df, path, what: str) -> None:
+    """Write a result, or LEAVE A COMMITTED ARTEFACT ALONE when the step was skipped.
+
+    The distinction this draws is the whole point of the function, and getting
+    it wrong destroyed data on 2026-09-01:
+
+      df is a DataFrame  -- the step RAN. Write it, even with zero rows: "the
+                            step ran and found nothing" is a result and the
+                            committed file should say so.
+      df is None         -- the step COULD NOT RUN, because a library is missing
+                            or an input was unreadable. That is not a result. The
+                            previous file is left exactly as it stands and the
+                            skip is reported.
+
+    Before this existed, a skipped step returned an empty frame that was written
+    unconditionally, so a missing optional dependency silently replaced a good
+    committed output with a header-only file and announced it as `Saved (0
+    rows)`. The only symptom was a check_all failure pointing nowhere near the
+    cause, and `git checkout` cannot undo it over the desktop bridge, where the
+    mount refuses the unlink.
+
+    Leaving the file stale is the lesser evil ON PURPOSE. A stale artefact is
+    visible to `output_lag` and to anyone reading the console; an empty one
+    looks like a measurement.
+    """
+    if df is None:
+        warn(f"{path.name} NOT written — the step was skipped, so the committed "
+             f"file is left as it stands. Re-run where the step can run before "
+             f"trusting it.")
+        return
+    df.to_csv(path, index=False)
+    saved(path.name, what.format(n=len(df)))
 
 
 def _dtm_profile(measured, lat0, lon0):
@@ -635,7 +696,7 @@ def _dtm_profile(measured, lat0, lon0):
         from pyproj import Transformer
     except Exception as exc:                                   # pragma: no cover
         warn(f"DTM profile skipped — {exc}")
-        return pd.DataFrame()
+        return None                      # skipped, NOT empty: see _write_or_preserve
     src = rasterio.open(paths.DATA_DEM)
     band = src.read(1).astype(float)
     inv = ~src.transform
@@ -701,7 +762,7 @@ def _coastal_sensitivity(measured, epoch_date):
         d0_head = abs(float(hrow["delta_0_mm_yr"].iloc[0])) if len(hrow) else float("nan")
     except Exception as exc:
         warn(f"coastal sensitivity: headline fit unreadable ({exc})")
-        return pd.DataFrame()
+        return None                      # skipped, NOT empty: see _write_or_preserve
 
     d0_match, w_start, w_end = float("nan"), None, None
     try:
@@ -1201,7 +1262,15 @@ def main():
         rows.append({"from_epoch": "1899", "to_epoch": "2006",
                      "basis": "d060_anchor_unrestricted",
                      "from_date": "1899-01-01", "to_date": "2006-01-01",
-                     "years": 116.0, "median_m": reg["median_m"],
+                     # 107.0, not 116.0. The 116 was the 1899 -> 2015 DEM span
+                     # of D-060 as first computed; when DCoast_2015.kml was
+                     # deleted (D-087) and the anchor re-pointed to 1899 -> 2006,
+                     # _regression_test moved to 107.0 and the docstring and
+                     # console line moved with it, but this literal did not. The
+                     # committed row therefore carried median 69.021 with years
+                     # 116.0 and rate 0.645058 = 69.021/107, so recomputing the
+                     # rate from the row's own two columns gave 0.595 -- 7.7% out.
+                     "years": 107.0, "median_m": reg["median_m"],
                      "rate_m_yr": reg["rate_m_yr"],
                      "d060_published_rate_m_yr": D060_RATE_M_YR,
                      "deviation_pct": reg["deviation_pct"],
@@ -1235,15 +1304,12 @@ def main():
     nrm.to_csv(paths.OUT_40_NORMALS, index=False)
     saved(paths.OUT_40_NORMALS.name, f"{len(nrm)} normals")
 
-    ctl_df.to_csv(paths.OUT_40_CONTROL, index=False)
-    saved(paths.OUT_40_CONTROL.name,
-          "control absent" if ctl_worst is None else f"{len(ctl_df)} pairs")
+    _write_or_preserve(ctl_df, paths.OUT_40_CONTROL,
+                       "control absent" if ctl_worst is None else "{n} pairs")
     gen_df.to_csv(paths.OUT_40_GENERALISATION, index=False)
     saved(paths.OUT_40_GENERALISATION.name, f"bound {sagitta:.3f} m")
-    dtm_df.to_csv(paths.OUT_40_DTM_PROFILE, index=False)
-    saved(paths.OUT_40_DTM_PROFILE.name, f"{len(dtm_df)} rows")
-    sens_df.to_csv(paths.OUT_40_SENSITIVITY, index=False)
-    saved(paths.OUT_40_SENSITIVITY.name, f"{len(sens_df)} bases")
+    _write_or_preserve(dtm_df, paths.OUT_40_DTM_PROFILE, "{n} rows")
+    _write_or_preserve(sens_df, paths.OUT_40_SENSITIVITY, "{n} bases")
     # The storm pair goes to its OWN file, not into the epoch series. A row in
     # 40_01 would sit in a table whose every other row carries a rate, which is
     # how a displacement acquires one.

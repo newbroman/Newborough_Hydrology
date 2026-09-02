@@ -18,7 +18,8 @@ Full options:
         --valley valleydata.txt \\
         --dem newborough_dem.tif \\
         --kml_dir ./kml \\
-        --wu_station ILLANF24 \\
+        --wu_station IBODOR6 \\
+        --wu_station_2 ILLANF24 \\
         --output_dir ./output
 """
 
@@ -62,7 +63,46 @@ Full options:
 #     so a run against IBODOR6 is labelled IBODOR6. Previously a Bodorgan total
 #     was published under the ILLANF24 name - a provenance error in a
 #     public-facing newsletter, not merely cosmetic.
-__version__ = "1.2.2"
+# v1.3.0 (2026-09-02)
+#   * The newsletter now reports BOTH private gauges alongside RAF Valley.
+#     A second station is fetched via the new --wu_station_2 argument
+#     (defaults: primary ILLANF24 unchanged, secondary IBODOR6; the August
+#     2026 run inverted them on the command line so Bodorgan is primary,
+#     per the standing MONTHLY_ROUTINE note), and the PDF weather
+#     table gains a column for it: Local (primary) / Local (secondary) /
+#     RAF Valley / Typical. Rainfall row only - the temperature rows stay
+#     Valley-only and are blank in both local columns, as before.
+#     Rationale: for August 2026 the three sources read 84.1, 73.7 and
+#     39.2 mm. Publishing one local figure hides a spread that large, and
+#     which of the two PWS gauges is the more trustworthy is not fixed -
+#     the standing MONTHLY_ROUTINE note warns ILLANF24 OVER-reads on
+#     intense-rain days, but in August 2026 it read 12% LOW against
+#     Bodorgan. Showing both lets the reader see the local uncertainty.
+#   * The markdown Met summary likewise emits one "Local station" block per
+#     gauge instead of one.
+#   * The rainfall-pattern paragraph and the structured
+#     rainfall_summary_*.txt remain on the PRIMARY gauge only - they need a
+#     single daily series, and mixing two would misdescribe both. The
+#     paragraph now names that gauge instead of saying "the local gauge",
+#     so the daily pattern cannot be read as belonging to the other column.
+#   * Secondary-gauge failure is non-fatal: if the fetch fails, or no second
+#     station is configured, or it duplicates the primary, the table falls
+#     back to the v1.2.2 four-column layout.
+# v1.4.0 (2026-09-02)
+#   * Difference maps can outline the five SSM cluster regions, from a new
+#     data/geo/cluster_regions.kml. add_kml_features() gains cluster_regions=,
+#     and create_difference_map() passes it (default True). The MSL map is
+#     deliberately NOT changed. Absent the KML the map is byte-comparable to
+#     v1.3.0, so a clone without the layer loses nothing.
+#   * Outlines only, never filled: the difference surface underneath is the
+#     month's signal and a colour wash over it would corrupt the reader's
+#     judgement of it. Regions are tagged C1..C5 at their representative points
+#     so the legend needs one entry rather than five.
+#   * Region colours are READ FROM THE KML's own <Style> blocks
+#     (_cluster_region_colours), not restated here. The KML is generated from
+#     config.py CLUSTER_COLOURS and carries them with it, so this script
+#     mirrors no constant and the two cannot drift.
+__version__ = "1.4.0"
 
 import argparse
 import sys
@@ -94,6 +134,7 @@ DEFAULT_DEM = 'data/newborough_dem.tif'
 DEFAULT_COORDS_CSV = 'data/Well_locations_height.csv'
 DEFAULT_KML_DIR = 'kml'
 DEFAULT_WU_STATION = 'ILLANF24'
+DEFAULT_WU_STATION_2 = 'IBODOR6'   # second local gauge, reported alongside the first
 DEFAULT_OUTPUT_DIR = 'output'
 
 # Map extent for interpolation (Newborough Warren area, OSGB)
@@ -114,6 +155,12 @@ KML_STYLES = {
     'broadleaf_restock': {'color': '#228B22', 'linewidth': 0.8, 'linestyle': '--', 'fill': True, 'facecolor': '#228B2220'},
     'Features':          {'color': '#FF6600', 'linewidth': 0.8, 'linestyle': '-',  'fill': False},
 }
+
+# Cluster-region overlay: a detached part is tagged only if its area is at least
+# this fraction of the cluster's largest part. Keeps genuine outlier cells (C1's
+# detached CEH11 cell is 61% of C1's main part) labelled while suppressing
+# slivers left by clipping.
+CLUSTER_TAG_MIN_AREA_FRAC = 0.05
 
 # WU reliability thresholds
 WU_MAX_MISSING_DAYS = 5          # flag if more than 5 days missing
@@ -295,11 +342,39 @@ def _safe_read_kml(path_obj):
         return None
 
 
-def add_kml_features(ax, kml_dir, include_streams=True):
+def _cluster_region_colours(path_obj):
+    """
+    {placemark name: '#rrggbb'} read from cluster_regions.kml's own <Style>
+    blocks. The colours are read from the FILE rather than restated here, so
+    this script mirrors no constant: the KML is generated with config.py's
+    CLUSTER_COLOURS and carries them with it. KML colour order is aabbggrr.
+    """
+    try:
+        raw = Path(path_obj).read_text(encoding='utf-8')
+    except OSError:
+        return {}
+    styles = {}
+    for sid, colour in re.findall(
+            r'<Style id="([^"]+)">.*?<LineStyle>.*?<color>([0-9a-fA-F]{8})</color>',
+            raw, re.S):
+        styles[sid] = f'#{colour[6:8]}{colour[4:6]}{colour[2:4]}'
+    out = {}
+    for name, sid in re.findall(
+            r'<Placemark>\s*<name>(.*?)</name>.*?<styleUrl>#([^<]+)</styleUrl>',
+            raw, re.S):
+        if sid in styles:
+            out[name.strip()] = styles[sid]
+    return out
+
+
+def add_kml_features(ax, kml_dir, include_streams=True, cluster_regions=False):
     """
     Overlay site feature KML layers onto ax using geopandas.
     Matches the styling from map_utils.py exactly.
     Returns list of Line2D legend handles.
+
+    cluster_regions=True additionally outlines the five SSM cluster regions from
+    cluster_regions.kml, if that file is present in kml_dir.
     """
     from matplotlib.lines import Line2D
 
@@ -393,6 +468,52 @@ def add_kml_features(ax, kml_dir, include_streams=True):
             site_feature_handles.append(
                 Line2D([0], [0], color='darkorange', linestyle='-.',
                        linewidth=2.2, label='Felling Area'))
+
+    # ── SSM cluster regions ──
+    # Outlines only, never filled: the difference surface underneath carries the
+    # month's signal and a wash over it would corrupt the reader's colour
+    # judgement. Each region is tagged at its representative point, so the
+    # legend needs one entry rather than five.
+    if cluster_regions:
+        cr_path = kml_dir / 'cluster_regions.kml'
+        if cr_path.exists():
+            gdf_cr = _safe_read_kml(cr_path)
+            if gdf_cr is not None and not gdf_cr.empty:
+                if gdf_cr.crs is None:
+                    gdf_cr.set_crs(epsg=4326, inplace=True)
+                gdf_cr = gdf_cr.to_crs('EPSG:27700')
+                colours = _cluster_region_colours(cr_path)
+                names = (gdf_cr.get('Name', pd.Series('', index=gdf_cr.index))
+                         .fillna('').astype(str))
+                for idx, geom in gdf_cr.geometry.items():
+                    if geom is None or geom.is_empty:
+                        continue
+                    name = names.loc[idx].strip()
+                    colour = colours.get(name, '#444444')
+                    gdf_cr.loc[[idx]].plot(
+                        ax=ax, facecolor='none', edgecolor=colour,
+                        linewidth=1.4, linestyle=(0, (6, 2)), zorder=3)
+                    tag = name.split(' ')[0] if name else ''
+                    if tag:
+                        # Tag every PART, not every region. A cluster can be
+                        # spatially detached — C1 is, because CEH11 sits 2.1 km
+                        # from the rest of it — and a single label on the main
+                        # body leaves the outlier's cell unexplained on the map.
+                        parts = (list(geom.geoms)
+                                 if geom.geom_type == 'MultiPolygon' else [geom])
+                        biggest = max(p.area for p in parts)
+                        for part in parts:
+                            if part.area < biggest * CLUSTER_TAG_MIN_AREA_FRAC:
+                                continue          # sliver: would only clutter
+                            pt = part.representative_point()
+                            ax.annotate(
+                                tag, (pt.x, pt.y), fontsize=8, fontweight='bold',
+                                color=colour, ha='center', va='center', zorder=6,
+                                bbox=dict(boxstyle='round,pad=0.18', fc='white',
+                                          ec=colour, lw=0.6, alpha=0.75))
+                site_feature_handles.append(
+                    Line2D([0], [0], color='#444444', linestyle=(0, (6, 2)),
+                           linewidth=1.4, label='Cluster regions (C1–C5)'))
 
     # Deduplicate by label
     dedup = {}
@@ -573,10 +694,14 @@ def assess_wu_reliability(wu_result, valley_rain_mm=None):
 def rainfall_pattern_prose(wu_result):
     """
     One newsletter-ready sentence-paragraph describing HOW the month's rain fell,
-    from the ILLANF24 daily record: rain days vs dry days, the wettest day, the
-    first- vs second-half split, and the longest dry spell. Returns '' if there
+    from the PRIMARY gauge's daily record: rain days vs dry days, the wettest day,
+    the first- vs second-half split, and the longest dry spell. Returns '' if there
     is no usable daily data. (This is the reader-facing counterpart to the
     structured generate_rainfall_summary .txt, which is kept for reference.)
+
+    The paragraph names the station it describes. Since v1.3.0 the weather table
+    can carry two local gauges, and an unattributed "the local gauge" would leave
+    the reader unable to tell which column the daily pattern belongs to.
     """
     if not wu_result:
         return ""
@@ -612,8 +737,10 @@ def rainfall_pattern_prose(wu_result):
         except Exception:
             return str(ds)
 
+    gauge = wu_result.get('station')
+    where = f"At the {gauge} gauge" if gauge else "At the local gauge"
     parts = [
-        f"At the local gauge, rain fell on {len(rain_days)} of {n} days "
+        f"{where}, rain fell on {len(rain_days)} of {n} days "
         f"({len(dry_days)} dry days under 1 mm)."
     ]
     if wettest['precip_mm'] and wettest['precip_mm'] >= 1.0:
@@ -905,10 +1032,15 @@ def write_difference_csv(results, filepath):
 # ─── Interpolation Map with Hillshade ────────────────────────────────────────
 
 def create_difference_map(results, title, filepath, extent=MAP_EXTENT,
-                          hillshade=None, hs_extent=None, kml_dir=None):
+                          hillshade=None, hs_extent=None, kml_dir=None,
+                          cluster_regions=True):
     """
     Create an interpolated difference map as a PNG.
     Overlays interpolation on DEM hillshade with KML feature layers.
+
+    cluster_regions (default True) outlines the five SSM cluster regions from
+    cluster_regions.kml when that file is present; it is silently skipped when
+    it is not, so a clone without the layer produces the pre-v1.4.0 map.
     """
     try:
         from scipy.interpolate import griddata
@@ -979,7 +1111,8 @@ def create_difference_map(results, title, filepath, extent=MAP_EXTENT,
     # 4. KML overlays
     kml_handles = []
     if kml_dir:
-        kml_handles = add_kml_features(ax, kml_dir, include_streams=False)
+        kml_handles = add_kml_features(ax, kml_dir, include_streams=False,
+                                       cluster_regions=cluster_regions)
 
     # 5. Well points
     ax.scatter(es, ns, c=zs, cmap=cmap, norm=norm,
@@ -1011,7 +1144,8 @@ def create_difference_map(results, title, filepath, extent=MAP_EXTENT,
 
 # ─── Met Report ──────────────────────────────────────────────────────────────
 
-def generate_met_summary(valley_df, year, month, wu_result=None, wu_warnings=None):
+def generate_met_summary(valley_df, year, month, wu_result=None, wu_warnings=None,
+                         wu_result_2=None, wu_warnings_2=None):
     """Generate a meteorological summary for a given month."""
     row = valley_df[(valley_df['year'] == year) & (valley_df['month'] == month)]
 
@@ -1123,25 +1257,31 @@ def generate_met_summary(valley_df, year, month, wu_result=None, wu_warnings=Non
             f"{cum_rain/avg_cum*100:.0f}%)."
         )
 
-    # ── Weather Underground local station ──
-    if wu_result is not None:
+    # ── Weather Underground local stations ──
+    # One block per gauge. Since v1.3.0 a second local gauge may be reported
+    # alongside the first; the loop skips a missing or duplicate secondary.
+    seen_stations = set()
+    for res, warns in ((wu_result, wu_warnings), (wu_result_2, wu_warnings_2)):
+        if res is None or res['station'] in seen_stations:
+            continue
+        seen_stations.add(res['station'])
         lines.append("")
-        lines.append(f"### Local station: {wu_result['station']} (Weather Underground)")
+        lines.append(f"### Local station: {res['station']} (Weather Underground)")
         lines.append("")
         lines.append(
-            f"Monthly precipitation: {wu_result['total_mm']:.1f} mm "
-            f"({wu_result['days_with_data']}/{wu_result['days_expected']} days recorded)."
+            f"Monthly precipitation: {res['total_mm']:.1f} mm "
+            f"({res['days_with_data']}/{res['days_expected']} days recorded)."
         )
-        if wu_result['spike_warning']:
-            lines.append(f"*Note: {wu_result['spike_warning']}*")
+        if res['spike_warning']:
+            lines.append(f"*Note: {res['spike_warning']}*")
             lines.append(
-                f"Adjusted total (excluding spikes): {wu_result['total_excl_spikes_mm']:.1f} mm."
+                f"Adjusted total (excluding spikes): {res['total_excl_spikes_mm']:.1f} mm."
             )
 
-        if wu_warnings:
+        if warns:
             lines.append("")
             lines.append("**⚠ Data quality warnings:**")
-            for w in wu_warnings:
+            for w in warns:
                 lines.append(f"- {w}")
 
     return '\n'.join(lines)
@@ -1188,7 +1328,8 @@ def generate_pdf_report(output_dir, year, month, met_text,
                         low_results, low_d1, low_d2,
                         coords, wu_result=None, wu_warnings=None,
                         valley_df=None, wells=None, dates=None, latest_idx=None,
-                        round_date=None, wu_station=None):
+                        round_date=None, wu_station=None,
+                        wu_result_2=None, wu_station_2=None):
     """
     Generate a PDF report in the style of the Newborough Warren
     Weather & Water Watch newsletter.
@@ -1278,28 +1419,50 @@ def generate_pdf_report(output_dir, year, month, met_text,
         avg_tmax = avg_data['tmax'].mean()
         avg_tmin = avg_data['tmin'].mean()
 
+    def _wu_rain_str(res):
+        """Published total for a gauge: spike-adjusted where a spike was flagged."""
+        if not res:
+            return 'N/A'
+        total = res['total_excl_spikes_mm'] if res['spike_warning'] else res['total_mm']
+        return f"{total:.1f} mm"
+
+    # A second local gauge earns a column only if it exists and is a DIFFERENT
+    # station; otherwise the table keeps its original four-column shape.
+    show_second = (
+        wu_result_2 is not None
+        and wu_result is not None
+        and wu_result_2['station'] != wu_result['station']
+    )
+
+    local_headers = [f'Local Gauge\n({wu_station or "local"})']
+    local_rain = [_wu_rain_str(wu_result) if wu_result else 'N/A']
+    if show_second:
+        local_headers.append(f'Local Gauge\n({wu_station_2 or wu_result_2["station"]})')
+        local_rain.append(_wu_rain_str(wu_result_2))
+
     table_data = [
-        ['Metric', f'Local Gauge\n({wu_station or "local"})', 'RAF Valley',
-         f'Typical {MONTH_NAMES[month]}*']
+        ['Metric'] + local_headers + ['RAF Valley', f'Typical {MONTH_NAMES[month]}*']
     ]
 
-    wu_rain = ''
-    if wu_result:
-        wu_total = wu_result['total_excl_spikes_mm'] if wu_result['spike_warning'] else wu_result['total_mm']
-        wu_rain = f"{wu_total:.1f} mm"
     valley_rain_str = f"{valley_row['rain']:.1f} mm" if valley_row is not None and valley_row['rain'] is not None else 'N/A'
     avg_rain_str = f"~{avg_rain:.1f} mm" if avg_rain else 'N/A'
-    table_data.append(['Total Rainfall', wu_rain or 'N/A', valley_rain_str, avg_rain_str])
+    table_data.append(['Total Rainfall'] + local_rain + [valley_rain_str, avg_rain_str])
+
+    # Temperature is RAF Valley only - the PWS gauges are read for rainfall.
+    blanks = [''] * len(local_headers)
 
     valley_tmax_str = f"{valley_row['tmax']:.1f} C" if valley_row is not None else 'N/A'
     avg_tmax_str = f"{avg_tmax:.1f} C" if avg_tmax else 'N/A'
-    table_data.append(['Average Highs', '', valley_tmax_str, avg_tmax_str])
+    table_data.append(['Average Highs'] + blanks + [valley_tmax_str, avg_tmax_str])
 
     valley_tmin_str = f"{valley_row['tmin']:.1f} C" if valley_row is not None else 'N/A'
     avg_tmin_str = f"{avg_tmin:.1f} C" if avg_tmin else 'N/A'
-    table_data.append(['Average Lows', '', valley_tmin_str, avg_tmin_str])
+    table_data.append(['Average Lows'] + blanks + [valley_tmin_str, avg_tmin_str])
 
-    tbl = Table(table_data, colWidths=[35*mm, 40*mm, 35*mm, 40*mm])
+    # Widths must stay inside the 170 mm text block (A4 less 20 mm margins).
+    col_widths = ([32*mm] + [34*mm] * len(local_headers) + [32*mm, 36*mm]
+                  if show_second else [35*mm, 40*mm, 35*mm, 40*mm])
+    tbl = Table(table_data, colWidths=col_widths)
     tbl.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), HexColor('#2e86c1')),
         ('TEXTCOLOR', (0, 0), (-1, 0), HexColor('#ffffff')),
@@ -1352,7 +1515,7 @@ def generate_pdf_report(output_dir, year, month, met_text,
             )
         story.append(Paragraph(rain_narrative, style_body))
 
-    # Rainfall pattern through the month (from the ILLANF24 daily record)
+    # Rainfall pattern through the month (primary gauge's daily record only)
     pattern_text = rainfall_pattern_prose(wu_result)
     if pattern_text:
         story.append(Paragraph(pattern_text, style_body))
@@ -1788,7 +1951,7 @@ def compute_msl_summary(wells, dates, coords, current_year,
 def generate_monthly_report(wells_path, valley_path, diff_creator_path,
                             target_month, output_dir, dem_path=None,
                             kml_dir=None, wu_station=None, coords_csv_path=None,
-                            update_valley=False):
+                            update_valley=False, wu_station_2=None):
     """Generate the complete monthly report."""
 
     os.makedirs(output_dir, exist_ok=True)
@@ -1877,9 +2040,35 @@ def generate_monthly_report(wells_path, valley_path, diff_creator_path,
     else:
         print("\n3. WU station: skipped (no station specified)")
 
+    # ── 3b. Second local gauge (reported alongside the first) ──
+    # Reported, not adjudicated: no reliability prompt and no substitution, so a
+    # bad secondary can never displace the primary. Any warnings are recorded in
+    # the markdown summary and the console; a failure just drops the column.
+    wu_result_2 = None
+    wu_warnings_2 = []
+
+    if wu_station and wu_station_2 and wu_station_2 != wu_station:
+        print(f"\n3b. Fetching second local gauge ({wu_station_2})...")
+        wu_result_2, wu_err_2 = fetch_wu_monthly(wu_station_2, year, month)
+        if wu_err_2:
+            print(f"   Error: {wu_err_2}")
+            print("   → Continuing with the primary gauge only.")
+            wu_result_2 = None
+        else:
+            print(f"   Total: {wu_result_2['total_mm']:.1f} mm "
+                  f"({wu_result_2['days_with_data']}/{wu_result_2['days_expected']} days)")
+            valley_row_2 = valley_df[
+                (valley_df['year'] == year) & (valley_df['month'] == month)
+            ]
+            valley_rain_2 = valley_row_2.iloc[0]['rain'] if not valley_row_2.empty else None
+            _, wu_warnings_2 = assess_wu_reliability(wu_result_2, valley_rain_2)
+            for w in wu_warnings_2:
+                print(f"   Note: {w}")
+
     # ── 4. Met summary ──
     print("\n4. Generating Met summary...")
-    met_text = generate_met_summary(valley_df, year, month, wu_result, wu_warnings)
+    met_text = generate_met_summary(valley_df, year, month, wu_result, wu_warnings,
+                                    wu_result_2, wu_warnings_2)
     print("   Done.")
 
     # ── 4b. Rainfall pattern summary for AI ──
@@ -2169,7 +2358,8 @@ def generate_monthly_report(wells_path, valley_path, diff_creator_path,
         low_results, low_d1, low_d2,
         coords, wu_result=wu_result, wu_warnings=wu_warnings,
         valley_df=valley_df, wells=wells, dates=dates, latest_idx=latest_idx,
-        round_date=latest_date, wu_station=wu_station
+        round_date=latest_date, wu_station=wu_station,
+        wu_result_2=wu_result_2, wu_station_2=wu_station_2
     )
 
     print(f"\n{'═'*60}")
@@ -2188,7 +2378,8 @@ def main():
         epilog="""
 Examples:
   %(prog)s 2026-02
-  %(prog)s 2026-03 --wu_station ILLANF24
+  %(prog)s 2026-03 --wu_station IBODOR6 --wu_station_2 ILLANF24
+  %(prog)s 2026-03 --wu_station ILLANF24 --wu_station_2 ''   # one gauge only
   %(prog)s 2026-02 --wells path/to/records.ods --valley path/to/valleydata.txt
   %(prog)s 2026-02 --dem newborough_dem.tif --kml_dir ./kml
         """
@@ -2209,6 +2400,10 @@ Examples:
                         help=f'Directory containing KML overlay files (default: {DEFAULT_KML_DIR})')
     parser.add_argument('--wu_station', default=DEFAULT_WU_STATION,
                         help=f'Weather Underground station ID (default: {DEFAULT_WU_STATION})')
+    parser.add_argument('--wu_station_2', default=DEFAULT_WU_STATION_2,
+                        help=f'Second local gauge, reported alongside the first '
+                             f'(default: {DEFAULT_WU_STATION_2}). Pass an empty '
+                             f'string to report one gauge only.')
     parser.add_argument('--no_wu', action='store_true',
                         help='Skip Weather Underground data')
     parser.add_argument('--no_valley_update', action='store_true',
@@ -2219,6 +2414,7 @@ Examples:
     args = parser.parse_args()
     target = datetime.strptime(args.month, '%Y-%m')
     wu = None if args.no_wu else args.wu_station
+    wu_2 = None if args.no_wu else (args.wu_station_2 or None)
 
     generate_monthly_report(
         wells_path=args.wells,
@@ -2230,6 +2426,7 @@ Examples:
         dem_path=args.dem,
         kml_dir=args.kml_dir,
         wu_station=wu,
+        wu_station_2=wu_2,
         update_valley=not args.no_valley_update,
     )
 

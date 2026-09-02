@@ -72,16 +72,33 @@ tracked publicly.
 - **ODTs are versioned.** Edit `Doc_v1_9_46.odt` → write `Doc_v1_9_47.odt`.
   Mirrors follow the highest version automatically.
 - **Mirrors need pandoc ≥ 3.0** and are byte-reproducible on 3.1.3.
-- **A 118 MB ODT will not cross the bridge — strip `Pictures/` and it will.**
+- **Do not send a reader to the Methods Supplement.** Say the thing, or name
+  the script that does it. A cross-reference is a promise that the other
+  document says what you think it says, and this corpus has repeatedly not.
+  Applies to the Supplement referring to itself by chapter as well.
+- **A 0.01 difference at the quoted precision is acceptable — do not churn the
+  corpus over it** (Martin, 2026-09-02). Two-decimal renderings sit near
+  rounding boundaries and a rerun can flip the last digit without anything
+  being wrong: `ANCOVA_FarField_Impact_s_coast` went -1.5049 -> -1.5083 on the
+  PE/PW run, moving the published digit from -1.50 to -1.51 and back again in
+  one day. Fix a number when it MOVES, not when it rounds differently. This
+  does not license quoting a stale value: a change larger than that at the
+  quoted precision is still a correction.
+- **`export_master_pdf.py` exports JPEG at quality 80 because that is what
+  Martin does by hand.** It used LibreOffice's default of 90 until 2026-09-02,
+  which is the whole of W126's "+27% larger than published" — not the
+  LibreOffice version it was blamed on. If a rebuilt `report.pdf` is suddenly
+  much bigger, check `PDF_FILTER_DATA["Quality"]` before the toolchain.
+- **A 118 MB ODT will not cross the bridge — strip its image members and it will.**
   `device_stage_files` fails on `report9.odt` twice over, once on a wall-clock
   timeout and once on an upload failure, while report8 (0.8 MB) and report11
-  (69 KB) go through fine. Rebuild the archive without its `Pictures/` members
+  (69 KB) go through fine. Rebuild the archive without its ODF **Pictures** members
   — mimetype STORED first, everything else copied — and it drops to **0.19 MB**.
   Pandoc reads image geometry from `draw:frame` attributes in `content.xml`, not
   from the image bytes, so **the mirror built from the stripped copy is
   BYTE-IDENTICAL to the one built from the full document** (verified 2026-09-02
   against a mirror generated on Martin's own machine: diff 0 lines). Write the
-  stripped copy to the VM's own home, never into `mnt/`. **A read path only** —
+  stripped copy to the VM's own home, never into the mounted folder. **A read path only** —
   never commit or edit the stripped file, and never let it near
   `report_edits/odt/`.
   `refresh_mirrors.py` refuses below 3.0 — let it.

@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_71.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_72.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 1.9.71 (September 2026).
+Document version: 1.9.72 (September 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -1476,10 +1476,12 @@ For each (control, zone) pairing the script:
 1.  Computes the BACI displacement timeseries: target-zone monthly mean minus control-zone monthly mean.
 2.  Adds a centred climate-water-balance (CWB) covariate, computed by *compute_cwb()* as the demeaned cumulative *(P − PET)* anomaly in mm.
 3.  Adds a distance-weighted scraping covariate as the *difference* of target and control centroid weights, with weight *exp(−d / L_s)* and L_s = 300 m by default. The differential form is essential because the BACI itself is target-minus-control.
-4.  Adds the December 2017 felling dummy, the CWB × felling interaction, and where geometrically valid, an easting × time interaction that absorbs linear divergence between the impact wells and their controls.
+4.  Adds the December 2017 felling dummy, the CWB × felling interaction, and a differential-drift covariate absorbing progressive divergence between the target wells and their controls.
 5.  Adds a sensitivity to the October 2023 re-scraping (Model 3 includes the second scraping pulse; the difference in AIC from the baseline Model 2 records whether the second pulse measurably improves the fit).
 
-The easting × time term is included only when the easting range across the union of target and control wells exceeds 200 m. For the Forest control runs, the C4 wells cluster too tightly in easting for the term to be informative, and it is dropped. For the Climate and Combined runs the range is large enough to fit the gradient cleanly. This is automatic --- *build_ancova_frame()* writes a boolean *has_easting* flag and *run_ancova()* reads it.
+Which drift covariate is fitted is set by *config.BACI_DRIFT_DESIGN* and is a documented choice of the analysis rather than part of the model. The published fits use *coastal_free*: Drift(t) is the coastal drawdown profile of chapter S.17 evaluated at each tier\'s mean distance from the shore, differenced between target and control and multiplied by elapsed months, so its coefficient ξ is the fraction of that field the contrast feels and ξ = 1 is exactly the amplitude fitted network-wide. The differential is read from the committed tier table rather than recomputed, so the profile is fitted once and consumed here. Two further settings exist: *easting*, the design under which every result published before September 2026 was produced, in which Drift(t) is the impact-minus-control easting difference multiplied by elapsed months and is included only where that difference exceeds 200 m; and *coastal_fixed1*, in which the term is subtracted from the response as an offset rather than fitted, pinning ξ at unity. With ξ free the coastal and easting designs are the same fit re-parameterised, returning identical steps, p-values and AIC, and the run asserts that equivalence rather than assuming it.
+
+The easting form was replaced because its coefficient could not be interpreted. Within the fifteen wells of the clearfell panel, easting carries no information about distance to the shore --- the correlation is +0.022, and the two easternmost wells of the panel are also the two nearest the coast --- so a term built from the easting difference is algebraically a linear time trend and carries no spatial content. It remained a valid control for linear divergence, which is the role it was retained in, but it could not be read as a measurement of the coastal gradient. The coastal form is built from distance to the shore directly and its coefficient can be read; it is the test that earlier drafts identified as outstanding.
 
 Sensitivity is checked by re-running every (control, zone) pairing at L_s = 200 m and L_s = 500 m. The headline values are at L_s = 300 m, which sits roughly at the centroid of the within-network distances.
 

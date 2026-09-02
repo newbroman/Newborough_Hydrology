@@ -51,7 +51,14 @@ Usage
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-08-27.
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-09-02. %xi added to _GREEK.
+#   An escape missing from that map does not read as unknown — it reads as the
+#   two representations disagreeing, which is this tool's one hard fault. D-111
+#   put xi into the BACI equation and the next run reported report8 Object 34 as
+#   edited on one side only, when both sides were correct. See the note at
+#   _GREEK.
+#
+# v1.0.0  # Hollingham (2026) — 2026-08-27.
 
 import argparse
 import csv
@@ -78,8 +85,18 @@ _MI = re.compile(r"<m(?:i|o)[^>]*>([^<]*)</m(?:i|o)>")
 _GREEK = {
     "%alpha": "α", "%delta": "δ", "%epsilon": "ε", "%eta": "η",
     "%lambda": "λ", "%sigma": "σ", "%tau": "τ", "%phi": "φ", "%psi": "ψ",
+    "%xi": "ξ",
     "%ALPHA": "Α", "%DELTA": "Δ",
 }
+# A GLYPH MISSING FROM THIS MAP READS AS A MISMATCH, NOT AS AN UNKNOWN. The
+# MathML side carries the literal character and the StarMath side the escape, so
+# an unmapped escape makes the two glyph sets differ and the check reports the
+# formula as edited on one side only — which is the one fault this tool exists
+# to catch, and the most alarming thing it can say. %xi was missing on
+# 2026-09-02 when D-111 put xi into the BACI equation, and the first run after
+# that edit reported a disagreement in a formula whose two representations were
+# in fact identical. Add the escape here whenever a new Greek glyph enters an
+# equation object.
 
 # LibreOffice does NOT render %phi as φ. It renders it as ϕ (U+03D5, GREEK PHI
 # SYMBOL), and %epsilon as ϵ (U+03F5), and it writes those codepoints into the

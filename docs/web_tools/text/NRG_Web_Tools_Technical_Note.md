@@ -43,11 +43,11 @@ The forecaster now presents only the three report-table equations. Per-well SSM 
 
 Forecast 1 (winter peak, Table 6):
 
-**h_peak = β₁ · P_winter + β₂ · h_min(summer) + intercept**
+**h_peak = a_P · P_winter + a_h · h_min(summer) + intercept**
 
 Forecast 2 (summer minimum, Table 7):
 
-**h_min = β₁ · P_summer + β₂ · h_max(winter) + intercept**
+**h_min = a_P · P_summer + a_h · h_max(winter) + intercept**
 
 R² values range from 0.41 (Lake Edge summer) to 0.92 (Forest summer). When R² \< 0.50 the forecast card displays a low-explanatory-power caveat. P_winter is the climatological Oct--peak_month total scaled by m_P; P_summer is the climatological Apr--Sep total (always at m_P = 1.00).
 

@@ -74,7 +74,15 @@ Dependencies
     Skeletonisation: not required (map_utils handles DEM/IDW)
 """
 
-__version__ = "1.7.0"  # Hollingham (2026) — 2026-08-29: emits the forecast-engine
+__version__ = "1.7.1"  # Hollingham (2026) — 2026-09-02: follows Script 11 v1.3.2's
+#   transfer-function column rename — a_P_winter / a_h_min / a_P_summer /
+#   a_h_max_winter, read at the four sites that build the forecaster engine
+#   blocks. Reader-side only; no value and no emitted column of this script
+#   changes. Run AFTER Script 11 has regenerated the three CSVs, or the reads
+#   raise KeyError on the old headers — which is the intended failure, being
+#   loud rather than silent.
+#
+# v1.7.0  # Hollingham (2026) — 2026-08-29: emits the forecast-engine
 #   feed for the Well Logger app (living/forecaster_engine.json) from the DATA
 #   bundle it already builds, through utils/forecaster_engine.emit_engine().
 #   Hash-gated, so a run that does not move the engine subset writes nothing.
@@ -1593,15 +1601,15 @@ def _build_forecaster_data_bundle() -> dict:
         wr, sr = w.iloc[0], s.iloc[0]
         block_tf[block] = {
             "winter": {
-                "b1":       float(wr["beta_1_P_winter"]),
-                "b2":       float(wr["beta_2_h_min"]),
+                "b1":       float(wr["a_P_winter"]),
+                "b2":       float(wr["a_h_min"]),
                 "c":        float(wr["intercept"]),
                 "r2":       float(wr["R2"]),
                 "clusters": cs,
             },
             "summer": {
-                "b1":       float(sr["beta_1_P_summer"]),
-                "b2":       float(sr["beta_2_h_max_winter"]),
+                "b1":       float(sr["a_P_summer"]),
+                "b2":       float(sr["a_h_max_winter"]),
                 "c":        float(sr["intercept"]),
                 "r2":       float(sr["R2"]),
                 "clusters": cs,

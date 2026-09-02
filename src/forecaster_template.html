@@ -1350,7 +1350,7 @@ function renderForecasts(w){
 
   // ═════════════════════════════════════════════════════════════════════
   // FORECAST 1: next winter peak — Table 6 transfer function
-  //   h_peak = β₁·P_winter + β₂·h_min + intercept
+  //   h_peak = a_P·P_winter + a_h·h_min + intercept
   //
   // Uses h_min from the summer-min-input field. When the current month is
   // before this cluster's trough_month, this year's summer minimum has
@@ -1396,7 +1396,7 @@ function renderForecasts(w){
 
   // ═════════════════════════════════════════════════════════════════════
   // FORECAST 2: following summer minimum — Table 7 transfer function
-  //   h_min_summer = β₁·P_summer + β₂·h_max_winter + intercept
+  //   h_min_summer = a_P·P_summer + a_h·h_max_winter + intercept
   //
   // Uses cluster-mean winter maximum (default_h_max) and climatological
   // summer rainfall.

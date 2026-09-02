@@ -106,7 +106,7 @@ The right panel displays three forecast cards. Each card shows the general form 
 
 Uses the block transfer function to predict winter peak depth from the entered summer minimum and assumed winter rainfall. The equation is displayed inline:
 
-h_peak = β₁ · P_winter + β₂ · h_min + intercept
+h_peak = a_P · P_winter + a_h · h_min + intercept
 
 An amber timing note appears if the current date is before the cluster's trough month (i.e. this year's summer minimum has not yet been observed). The note explains three options: wait for the observation, enter last summer's known value, or keep the long-term cluster mean as a "typical year" projection.
 
@@ -120,7 +120,7 @@ Ecological badge thresholds:
 
 Projects the deepest summer water-table depth from the cluster-mean winter peak and climatological summer rainfall (Apr--Sep). The equation is displayed inline:
 
-h_min = β₁ · P_summer + β₂ · h_max(winter) + intercept
+h_min = a_P · P_summer + a_h · h_max(winter) + intercept
 
 Ecological badge thresholds:
 

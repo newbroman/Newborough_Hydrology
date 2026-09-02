@@ -1,5 +1,5 @@
 # published PDF  <-  source ODT  |  built (UTC)
-docs/academic_summaries/academic_summary.pdf  <-  academic_Summary_v1_12.odt  |  2026-09-01T20:32:01Z
+docs/academic_summaries/academic_summary.pdf  <-  academic_Summary_v1_13.odt  |  2026-09-02T21:57:05Z
 docs/academic_summaries/crynodeb_academaidd.pdf  <-  crynodeb_academaidd_v1_9.odt  |  2026-08-28T06:39:28Z
 docs/papers/paper_1/Paper1.pdf  <-  Paper1_v1_28.odt  |  2026-09-01T20:32:05Z
 docs/papers/paper_1/PAPER1_SI_methods.pdf  <-  PAPER1_SI_methods_v1_13.odt  |  2026-08-31T13:07:45Z

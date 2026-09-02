@@ -1,15 +1,15 @@
 {
-  "generated": "2026-08-09T09:15:25Z",
+  "generated": "2026-09-02T22:02:07Z",
   "method": "EWI: equilibrium wetness index (m below ground) from SSM coefficients. EbF: measured for surveyed wells, else projected from EWI_annual (EbF = a + b*EWI_annual). Tiers: measured / projected / extrapolated.",
   "ebf_calibration": {
     "n": 18,
-    "slope": 2.0315,
-    "intercept": 7.4927,
-    "loo_q2": 0.037,
-    "loo_rmse": 0.59,
+    "slope": 2.1465,
+    "intercept": 7.5562,
+    "loo_q2": 0.031,
+    "loo_rmse": 0.592,
     "ewi_annual_range": [
-      -1.422,
-      -0.399
+      -1.378,
+      -0.406
     ],
     "ebf_range": [
       4.86,
@@ -19,534 +19,534 @@
   "n_wells": 84,
   "wells": {
     "ceh1": {
-      "EWI_m_bg": -0.713,
-      "EWI_annual": -0.713,
+      "EWI_m_bg": -0.666,
+      "EWI_annual": -0.666,
       "EbF": 6.16,
       "EbF_tier": "measured"
     },
     "ceh10": {
-      "EWI_m_bg": -1.374,
-      "EWI_annual": -1.374,
-      "EbF": 4.7,
+      "EWI_m_bg": -1.307,
+      "EWI_annual": -1.307,
+      "EbF": 4.75,
       "EbF_tier": "projected"
     },
     "ceh11": {
-      "EWI_m_bg": -0.628,
-      "EWI_annual": -0.628,
-      "EbF": 6.22,
+      "EWI_m_bg": -0.63,
+      "EWI_annual": -0.63,
+      "EbF": 6.2,
       "EbF_tier": "projected"
     },
     "ceh12": {
-      "EWI_m_bg": -1.188,
-      "EWI_annual": -1.188,
-      "EbF": 5.08,
+      "EWI_m_bg": -1.2,
+      "EWI_annual": -1.2,
+      "EbF": 4.98,
       "EbF_tier": "projected"
     },
     "ceh15": {
-      "EWI_m_bg": -1.357,
-      "EWI_annual": -1.357,
-      "EbF": 4.74,
+      "EWI_m_bg": -1.349,
+      "EWI_annual": -1.349,
+      "EbF": 4.66,
       "EbF_tier": "projected"
     },
     "ceh16": {
-      "EWI_m_bg": -0.974,
-      "EWI_annual": -0.974,
-      "EbF": 5.51,
+      "EWI_m_bg": -0.936,
+      "EWI_annual": -0.936,
+      "EbF": 5.55,
       "EbF_tier": "projected"
     },
     "ceh17": {
-      "EWI_m_bg": -2.204,
-      "EWI_annual": -2.204,
-      "EbF": 3.02,
+      "EWI_m_bg": -2.184,
+      "EWI_annual": -2.184,
+      "EbF": 2.87,
       "EbF_tier": "extrapolated"
     },
     "ceh18": {
-      "EWI_m_bg": -1.008,
-      "EWI_annual": -1.008,
+      "EWI_m_bg": -0.982,
+      "EWI_annual": -0.982,
       "EbF": 5.45,
       "EbF_tier": "projected"
     },
     "ceh19": {
-      "EWI_m_bg": -1.051,
-      "EWI_annual": -1.051,
-      "EbF": 5.36,
+      "EWI_m_bg": -1.011,
+      "EWI_annual": -1.011,
+      "EbF": 5.39,
       "EbF_tier": "projected"
     },
     "ceh2": {
-      "EWI_m_bg": -1.171,
-      "EWI_annual": -1.171,
-      "EbF": 5.11,
+      "EWI_m_bg": -1.153,
+      "EWI_annual": -1.153,
+      "EbF": 5.08,
       "EbF_tier": "projected"
     },
     "ceh20": {
-      "EWI_m_bg": -1.297,
-      "EWI_annual": -1.297,
-      "EbF": 4.86,
+      "EWI_m_bg": -1.269,
+      "EWI_annual": -1.269,
+      "EbF": 4.83,
       "EbF_tier": "projected"
     },
     "ceh21": {
-      "EWI_m_bg": -1.151,
-      "EWI_annual": -1.151,
-      "EbF": 5.15,
+      "EWI_m_bg": -1.146,
+      "EWI_annual": -1.146,
+      "EbF": 5.1,
       "EbF_tier": "projected"
     },
     "ceh22": {
-      "EWI_m_bg": -0.707,
-      "EWI_annual": -0.707,
+      "EWI_m_bg": -0.695,
+      "EWI_annual": -0.695,
       "EbF": 6.06,
       "EbF_tier": "projected"
     },
     "ceh23": {
-      "EWI_m_bg": -0.53,
-      "EWI_annual": -0.53,
+      "EWI_m_bg": -0.523,
+      "EWI_annual": -0.523,
       "EbF": 6.61,
       "EbF_tier": "measured"
     },
     "ceh24": {
-      "EWI_m_bg": -0.432,
-      "EWI_annual": -0.432,
+      "EWI_m_bg": -0.435,
+      "EWI_annual": -0.435,
       "EbF": 7.16,
       "EbF_tier": "measured"
     },
     "ceh25": {
-      "EWI_m_bg": -0.522,
-      "EWI_annual": -0.522,
-      "EbF": 6.43,
+      "EWI_m_bg": -0.504,
+      "EWI_annual": -0.504,
+      "EbF": 6.48,
       "EbF_tier": "projected"
     },
     "ceh26": {
-      "EWI_m_bg": -0.493,
-      "EWI_annual": -0.493,
+      "EWI_m_bg": -0.508,
+      "EWI_annual": -0.508,
       "EbF": 6.31,
       "EbF_tier": "measured"
     },
     "ceh27": {
-      "EWI_m_bg": -0.459,
-      "EWI_annual": -0.459,
-      "EbF": 6.56,
+      "EWI_m_bg": -0.453,
+      "EWI_annual": -0.453,
+      "EbF": 6.58,
       "EbF_tier": "projected"
     },
     "ceh28": {
-      "EWI_m_bg": -0.603,
-      "EWI_annual": -0.603,
-      "EbF": 6.27,
+      "EWI_m_bg": -0.582,
+      "EWI_annual": -0.582,
+      "EbF": 6.31,
       "EbF_tier": "projected"
     },
     "ceh3": {
-      "EWI_m_bg": -1.17,
-      "EWI_annual": -1.17,
-      "EbF": 5.12,
+      "EWI_m_bg": -1.166,
+      "EWI_annual": -1.166,
+      "EbF": 5.05,
       "EbF_tier": "projected"
     },
     "ceh30": {
-      "EWI_m_bg": -1.664,
-      "EWI_annual": -1.664,
-      "EbF": 4.11,
+      "EWI_m_bg": -1.638,
+      "EWI_annual": -1.638,
+      "EbF": 4.04,
       "EbF_tier": "extrapolated"
     },
     "ceh31": {
-      "EWI_m_bg": -1.61,
-      "EWI_annual": -1.61,
-      "EbF": 4.22,
+      "EWI_m_bg": -1.576,
+      "EWI_annual": -1.576,
+      "EbF": 4.17,
       "EbF_tier": "extrapolated"
     },
     "ceh32": {
-      "EWI_m_bg": -1.435,
-      "EWI_annual": -1.435,
-      "EbF": 4.58,
+      "EWI_m_bg": -1.45,
+      "EWI_annual": -1.45,
+      "EbF": 4.44,
       "EbF_tier": "extrapolated"
     },
     "ceh33": {
-      "EWI_m_bg": -1.619,
-      "EWI_annual": -1.619,
-      "EbF": 4.2,
+      "EWI_m_bg": -1.602,
+      "EWI_annual": -1.602,
+      "EbF": 4.12,
       "EbF_tier": "extrapolated"
     },
     "ceh34": {
-      "EWI_m_bg": -0.381,
-      "EWI_annual": -0.381,
-      "EbF": 6.72,
+      "EWI_m_bg": -0.382,
+      "EWI_annual": -0.382,
+      "EbF": 6.74,
       "EbF_tier": "extrapolated"
     },
     "ceh35": {
-      "EWI_m_bg": -0.8,
-      "EWI_annual": -0.8,
-      "EbF": 5.87,
+      "EWI_m_bg": -0.794,
+      "EWI_annual": -0.794,
+      "EbF": 5.85,
       "EbF_tier": "projected"
     },
     "ceh36": {
-      "EWI_m_bg": -0.745,
-      "EWI_annual": -0.745,
-      "EbF": 5.98,
+      "EWI_m_bg": -0.711,
+      "EWI_annual": -0.711,
+      "EbF": 6.03,
       "EbF_tier": "projected"
     },
     "ceh37": {
-      "EWI_m_bg": -0.542,
-      "EWI_annual": -0.542,
-      "EbF": 6.39,
+      "EWI_m_bg": -0.535,
+      "EWI_annual": -0.535,
+      "EbF": 6.41,
       "EbF_tier": "projected"
     },
     "ceh38": {
-      "EWI_m_bg": -0.779,
-      "EWI_annual": -0.779,
-      "EbF": 5.91,
+      "EWI_m_bg": -0.774,
+      "EWI_annual": -0.774,
+      "EbF": 5.89,
       "EbF_tier": "projected"
     },
     "ceh39": {
-      "EWI_m_bg": -0.483,
-      "EWI_annual": -0.483,
-      "EbF": 6.51,
+      "EWI_m_bg": -0.502,
+      "EWI_annual": -0.502,
+      "EbF": 6.48,
       "EbF_tier": "projected"
     },
     "ceh4": {
-      "EWI_m_bg": -0.859,
-      "EWI_annual": -0.859,
+      "EWI_m_bg": -0.84,
+      "EWI_annual": -0.84,
       "EbF": 5.44,
       "EbF_tier": "measured"
     },
     "ceh40": {
-      "EWI_m_bg": -0.623,
-      "EWI_annual": -0.623,
-      "EbF": 6.23,
+      "EWI_m_bg": -0.644,
+      "EWI_annual": -0.644,
+      "EbF": 6.17,
       "EbF_tier": "projected"
     },
     "ceh41": {
-      "EWI_m_bg": -0.478,
-      "EWI_annual": -0.478,
-      "EbF": 6.52,
+      "EWI_m_bg": -0.527,
+      "EWI_annual": -0.527,
+      "EbF": 6.42,
       "EbF_tier": "projected"
     },
     "ceh42": {
-      "EWI_m_bg": -0.511,
-      "EWI_annual": -0.511,
-      "EbF": 6.45,
+      "EWI_m_bg": -0.49,
+      "EWI_annual": -0.49,
+      "EbF": 6.5,
       "EbF_tier": "projected"
     },
     "ceh5": {
-      "EWI_m_bg": -0.514,
-      "EWI_annual": -0.514,
+      "EWI_m_bg": -0.521,
+      "EWI_annual": -0.521,
       "EbF": 6.91,
       "EbF_tier": "measured"
     },
     "ceh6": {
-      "EWI_m_bg": -0.381,
-      "EWI_annual": -0.381,
-      "EbF": 6.72,
+      "EWI_m_bg": -0.398,
+      "EWI_annual": -0.398,
+      "EbF": 6.7,
       "EbF_tier": "extrapolated"
     },
     "ceh7": {
-      "EWI_m_bg": -0.687,
-      "EWI_annual": -0.687,
+      "EWI_m_bg": -0.679,
+      "EWI_annual": -0.679,
       "EbF": 6.1,
       "EbF_tier": "projected"
     },
     "ceh8": {
-      "EWI_m_bg": -0.772,
-      "EWI_annual": -0.772,
-      "EbF": 5.92,
+      "EWI_m_bg": -0.771,
+      "EWI_annual": -0.771,
+      "EbF": 5.9,
       "EbF_tier": "projected"
     },
     "ceh9": {
-      "EWI_m_bg": -0.712,
-      "EWI_annual": -0.712,
+      "EWI_m_bg": -0.704,
+      "EWI_annual": -0.704,
       "EbF": 5.88,
       "EbF_tier": "measured"
     },
     "d10": {
-      "EWI_m_bg": -0.461,
-      "EWI_annual": -0.461,
-      "EbF": 6.56,
+      "EWI_m_bg": -0.476,
+      "EWI_annual": -0.476,
+      "EbF": 6.53,
       "EbF_tier": "projected"
     },
     "d15": {
-      "EWI_m_bg": -0.405,
-      "EWI_annual": -0.405,
+      "EWI_m_bg": -0.413,
+      "EWI_annual": -0.413,
       "EbF": 6.67,
       "EbF_tier": "projected"
     },
     "d17": {
-      "EWI_m_bg": -0.427,
-      "EWI_annual": -0.427,
-      "EbF": 6.62,
+      "EWI_m_bg": -0.425,
+      "EWI_annual": -0.425,
+      "EbF": 6.64,
       "EbF_tier": "projected"
     },
     "d25": {
-      "EWI_m_bg": -0.644,
-      "EWI_annual": -0.644,
-      "EbF": 6.19,
+      "EWI_m_bg": -0.629,
+      "EWI_annual": -0.629,
+      "EbF": 6.21,
       "EbF_tier": "projected"
     },
     "d38": {
-      "EWI_m_bg": -0.741,
-      "EWI_annual": -0.741,
-      "EbF": 5.99,
+      "EWI_m_bg": -0.714,
+      "EWI_annual": -0.714,
+      "EbF": 6.02,
       "EbF_tier": "projected"
     },
     "d41": {
-      "EWI_m_bg": -0.48,
-      "EWI_annual": -0.48,
-      "EbF": 6.52,
+      "EWI_m_bg": -0.493,
+      "EWI_annual": -0.493,
+      "EbF": 6.5,
       "EbF_tier": "projected"
     },
     "d43": {
-      "EWI_m_bg": -0.659,
-      "EWI_annual": -0.659,
-      "EbF": 6.15,
+      "EWI_m_bg": -0.658,
+      "EWI_annual": -0.658,
+      "EbF": 6.14,
       "EbF_tier": "projected"
     },
     "d44": {
-      "EWI_m_bg": -0.741,
-      "EWI_annual": -0.741,
-      "EbF": 5.99,
+      "EWI_m_bg": -0.749,
+      "EWI_annual": -0.749,
+      "EbF": 5.95,
       "EbF_tier": "projected"
     },
     "d5": {
-      "EWI_m_bg": -0.592,
-      "EWI_annual": -0.592,
-      "EbF": 6.29,
+      "EWI_m_bg": -0.608,
+      "EWI_annual": -0.608,
+      "EbF": 6.25,
       "EbF_tier": "projected"
     },
     "d6": {
-      "EWI_m_bg": -0.578,
-      "EWI_annual": -0.578,
-      "EbF": 6.32,
+      "EWI_m_bg": -0.589,
+      "EWI_annual": -0.589,
+      "EbF": 6.29,
       "EbF_tier": "projected"
     },
     "d7": {
-      "EWI_m_bg": -0.47,
-      "EWI_annual": -0.47,
-      "EbF": 6.54,
+      "EWI_m_bg": -0.438,
+      "EWI_annual": -0.438,
+      "EbF": 6.62,
       "EbF_tier": "projected"
     },
     "d8": {
-      "EWI_m_bg": -0.436,
-      "EWI_annual": -0.436,
-      "EbF": 6.61,
+      "EWI_m_bg": -0.45,
+      "EWI_annual": -0.45,
+      "EbF": 6.59,
       "EbF_tier": "projected"
     },
     "d9": {
-      "EWI_m_bg": -0.567,
-      "EWI_annual": -0.567,
-      "EbF": 6.34,
+      "EWI_m_bg": -0.553,
+      "EWI_annual": -0.553,
+      "EbF": 6.37,
       "EbF_tier": "projected"
     },
     "fe1": {
-      "EWI_m_bg": -0.863,
-      "EWI_annual": -0.863,
-      "EbF": 5.74,
+      "EWI_m_bg": -0.838,
+      "EWI_annual": -0.838,
+      "EbF": 5.76,
       "EbF_tier": "projected"
     },
     "fe2": {
-      "EWI_m_bg": -1.708,
-      "EWI_annual": -1.708,
-      "EbF": 4.02,
+      "EWI_m_bg": -1.696,
+      "EWI_annual": -1.696,
+      "EbF": 3.92,
       "EbF_tier": "extrapolated"
     },
     "fe3": {
-      "EWI_m_bg": -2.032,
-      "EWI_annual": -2.032,
-      "EbF": 3.37,
+      "EWI_m_bg": -2.017,
+      "EWI_annual": -2.017,
+      "EbF": 3.23,
       "EbF_tier": "extrapolated"
     },
     "fe4": {
-      "EWI_m_bg": -1.621,
-      "EWI_annual": -1.621,
-      "EbF": 4.2,
+      "EWI_m_bg": -1.594,
+      "EWI_annual": -1.594,
+      "EbF": 4.13,
       "EbF_tier": "extrapolated"
     },
     "l7": {
-      "EWI_m_bg": -1.598,
-      "EWI_annual": -1.598,
-      "EbF": 4.25,
+      "EWI_m_bg": -1.613,
+      "EWI_annual": -1.613,
+      "EbF": 4.09,
       "EbF_tier": "extrapolated"
     },
     "lis1": {
-      "EWI_m_bg": -0.934,
-      "EWI_annual": -0.934,
-      "EbF": 5.6,
+      "EWI_m_bg": -0.905,
+      "EWI_annual": -0.905,
+      "EbF": 5.61,
       "EbF_tier": "projected"
     },
     "nw1": {
-      "EWI_m_bg": -1.637,
-      "EWI_annual": -1.637,
-      "EbF": 4.17,
+      "EWI_m_bg": -1.622,
+      "EWI_annual": -1.622,
+      "EbF": 4.07,
       "EbF_tier": "extrapolated"
     },
     "nw10": {
-      "EWI_m_bg": -1.02,
-      "EWI_annual": -1.02,
-      "EbF": 5.42,
+      "EWI_m_bg": -0.992,
+      "EWI_annual": -0.992,
+      "EbF": 5.43,
       "EbF_tier": "projected"
     },
     "nw11": {
-      "EWI_m_bg": -0.882,
-      "EWI_annual": -0.882,
-      "EbF": 5.7,
+      "EWI_m_bg": -0.851,
+      "EWI_annual": -0.851,
+      "EbF": 5.73,
       "EbF_tier": "projected"
     },
     "nw13": {
-      "EWI_m_bg": -0.803,
-      "EWI_annual": -0.803,
+      "EWI_m_bg": -0.79,
+      "EWI_annual": -0.79,
       "EbF": 5.86,
       "EbF_tier": "projected"
     },
     "nw2": {
-      "EWI_m_bg": -0.831,
-      "EWI_annual": -0.831,
+      "EWI_m_bg": -0.84,
+      "EWI_annual": -0.84,
       "EbF": 4.86,
       "EbF_tier": "measured"
     },
     "nw3": {
-      "EWI_m_bg": -0.594,
-      "EWI_annual": -0.594,
+      "EWI_m_bg": -0.596,
+      "EWI_annual": -0.596,
       "EbF": 6.1,
       "EbF_tier": "measured"
     },
     "nw4": {
-      "EWI_m_bg": -0.443,
-      "EWI_annual": -0.443,
+      "EWI_m_bg": -0.462,
+      "EWI_annual": -0.462,
       "EbF": 6.65,
       "EbF_tier": "measured"
     },
     "nw4b": {
-      "EWI_m_bg": -0.472,
-      "EWI_annual": -0.472,
-      "EbF": 6.53,
+      "EWI_m_bg": -0.487,
+      "EWI_annual": -0.487,
+      "EbF": 6.51,
       "EbF_tier": "projected"
     },
     "nw5": {
-      "EWI_m_bg": -0.735,
-      "EWI_annual": -0.735,
+      "EWI_m_bg": -0.72,
+      "EWI_annual": -0.72,
       "EbF": 6.14,
       "EbF_tier": "measured"
     },
     "nw6": {
-      "EWI_m_bg": -0.628,
-      "EWI_annual": -0.628,
+      "EWI_m_bg": -0.588,
+      "EWI_annual": -0.588,
       "EbF": 5.67,
       "EbF_tier": "measured"
     },
     "nw7": {
-      "EWI_m_bg": -1.422,
-      "EWI_annual": -1.422,
+      "EWI_m_bg": -1.378,
+      "EWI_annual": -1.378,
       "EbF": 5.21,
       "EbF_tier": "measured"
     },
     "nw8": {
-      "EWI_m_bg": -1.484,
-      "EWI_annual": -1.484,
-      "EbF": 4.48,
+      "EWI_m_bg": -1.483,
+      "EWI_annual": -1.483,
+      "EbF": 4.37,
       "EbF_tier": "extrapolated"
     },
     "nw8b": {
-      "EWI_m_bg": -1.592,
-      "EWI_annual": -1.592,
-      "EbF": 4.26,
+      "EWI_m_bg": -1.574,
+      "EWI_annual": -1.574,
+      "EbF": 4.18,
       "EbF_tier": "extrapolated"
     },
     "nw9": {
-      "EWI_m_bg": -0.933,
-      "EWI_annual": -0.933,
-      "EbF": 5.6,
+      "EWI_m_bg": -0.898,
+      "EWI_annual": -0.898,
+      "EbF": 5.63,
       "EbF_tier": "projected"
     },
     "p1": {
-      "EWI_m_bg": -0.319,
-      "EWI_annual": -0.319,
-      "EbF": 6.85,
+      "EWI_m_bg": -0.301,
+      "EWI_annual": -0.301,
+      "EbF": 6.91,
       "EbF_tier": "extrapolated"
     },
     "p2": {
-      "EWI_m_bg": -0.503,
-      "EWI_annual": -0.503,
-      "EbF": 6.47,
+      "EWI_m_bg": -0.483,
+      "EWI_annual": -0.483,
+      "EbF": 6.52,
       "EbF_tier": "projected"
     },
     "pe": {
-      "EWI_m_bg": -0.732,
-      "EWI_annual": -0.732,
-      "EbF": 6.0,
+      "EWI_m_bg": -0.862,
+      "EWI_annual": -0.862,
+      "EbF": 5.71,
       "EbF_tier": "projected"
     },
     "pw": {
-      "EWI_m_bg": -0.882,
-      "EWI_annual": -0.882,
-      "EbF": 5.7,
+      "EWI_m_bg": -0.751,
+      "EWI_annual": -0.751,
+      "EbF": 5.95,
       "EbF_tier": "projected"
     },
     "t41a": {
-      "EWI_m_bg": -0.487,
-      "EWI_annual": -0.487,
+      "EWI_m_bg": -0.482,
+      "EWI_annual": -0.482,
       "EbF": 6.69,
       "EbF_tier": "measured"
     },
     "t41b": {
-      "EWI_m_bg": -0.399,
-      "EWI_annual": -0.399,
+      "EWI_m_bg": -0.406,
+      "EWI_annual": -0.406,
       "EbF": 6.72,
       "EbF_tier": "measured"
     },
     "t41c": {
-      "EWI_m_bg": -0.436,
-      "EWI_annual": -0.436,
+      "EWI_m_bg": -0.443,
+      "EWI_annual": -0.443,
       "EbF": 6.76,
       "EbF_tier": "measured"
     },
     "t41d": {
-      "EWI_m_bg": -0.662,
-      "EWI_annual": -0.662,
+      "EWI_m_bg": -0.67,
+      "EWI_annual": -0.67,
       "EbF": 5.86,
       "EbF_tier": "measured"
     },
     "wmc1": {
-      "EWI_m_bg": -0.599,
-      "EWI_annual": -0.599,
-      "EbF": 6.28,
+      "EWI_m_bg": -0.619,
+      "EWI_annual": -0.619,
+      "EbF": 6.23,
       "EbF_tier": "projected"
     },
     "wmc2": {
-      "EWI_m_bg": -0.623,
-      "EWI_annual": -0.623,
+      "EWI_m_bg": -0.645,
+      "EWI_annual": -0.645,
       "EbF": 6.36,
       "EbF_tier": "measured"
     },
     "wmc3": {
-      "EWI_m_bg": -1.35,
-      "EWI_annual": -1.35,
-      "EbF": 4.75,
+      "EWI_m_bg": -1.289,
+      "EWI_annual": -1.289,
+      "EbF": 4.79,
       "EbF_tier": "projected"
     },
     "wmc4": {
-      "EWI_m_bg": -0.836,
-      "EWI_annual": -0.836,
+      "EWI_m_bg": -0.821,
+      "EWI_annual": -0.821,
       "EbF": 5.79,
       "EbF_tier": "projected"
     }
   },
   "clusters": {
     "C1": {
-      "mean_EWI_m_bg": -0.504,
-      "mean_EbF": 6.53,
+      "mean_EWI_m_bg": -0.503,
+      "mean_EbF": 6.54,
       "n": 8
     },
     "C2": {
-      "mean_EWI_m_bg": -0.653,
-      "mean_EbF": 6.18,
+      "mean_EWI_m_bg": -0.652,
+      "mean_EbF": 6.17,
       "n": 31
     },
     "C3": {
-      "mean_EWI_m_bg": -0.844,
-      "mean_EbF": 5.74,
+      "mean_EWI_m_bg": -0.831,
+      "mean_EbF": 5.73,
       "n": 25
     },
     "C4": {
-      "mean_EWI_m_bg": -1.174,
-      "mean_EbF": 5.11,
+      "mean_EWI_m_bg": -1.158,
+      "mean_EbF": 5.07,
       "n": 10
     },
     "C5": {
-      "mean_EWI_m_bg": -1.479,
-      "mean_EbF": 4.49,
+      "mean_EWI_m_bg": -1.456,
+      "mean_EbF": 4.43,
       "n": 10
     }
   }

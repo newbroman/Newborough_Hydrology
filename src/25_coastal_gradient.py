@@ -114,7 +114,22 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
-__version__ = "1.21.0"  # Hollingham (2026) — 2026-09-02. THE DRIFT
+__version__ = "1.22.0"  # Hollingham (2026) — 2026-09-02. 25_04 EMITS THE
+#   SCALE THE DRIFT COEFFICIENT MULTIPLIES — `drift_scale` with its units —
+#   so the table carries all three of coefficient, scale and absorbed rate
+#   rather than two of them and an arithmetic step the reader has to trust.
+#   That step is precisely what v1.20.0 got wrong. Under the coastal design the
+#   scale is the tier's coastal differential in mm/yr; under the easting design
+#   it is the easting separation in metres.
+#
+#   This is what report9 Table 8 is rebuilt from. The table becomes s_coast-only
+#   (Martin's ruling, this date): the published design is the coastal one, and
+#   the report states what the analysis uses rather than carrying a
+#   re-parameterisation the reader would then have to be told why they are
+#   seeing. D-111's equivalence keeps its own artefact in
+#   10a_02b_drift_design_equivalence.csv, cited by no document.
+#
+# v1.21.0  # Hollingham (2026) — 2026-09-02. THE DRIFT
 #   COEFFICIENT'S UNITS, NOT ONLY ITS NAME. v1.20.0 resolved the column by
 #   accessor and then fed the result into the easting design's conversion,
 #   coef x dE x 12 x 1000. Under the coastal design the coefficient is the
@@ -2188,9 +2203,11 @@ def baci_corroboration(distances: pd.DataFrame,
             diff_mm_yr = coastal_differential_mm_yr(ctl_name, zone_name)
             baci_absorb = coef * diff_mm_yr
             baci_absorb_se = coef_se * abs(diff_mm_yr)
+            drift_scale, drift_scale_units = diff_mm_yr, "mm/yr (tier differential)"
         else:
             baci_absorb = coef * dE * 12 * 1000
             baci_absorb_se = coef_se * abs(dE) * 12 * 1000
+            drift_scale, drift_scale_units = dE, "m (easting separation)"
         # z-test against model prediction (treating model pred as known)
         z = ((baci_absorb - model_pred) / baci_absorb_se
               if baci_absorb_se > 0 else np.nan)
@@ -2201,6 +2218,16 @@ def baci_corroboration(distances: pd.DataFrame,
             "d_control_m": round(d_ctl, 0),
             "delta_E_m": round(dE, 0),
             "drift_design": drift_col,
+            # THE SCALE THE COEFFICIENT MULTIPLIES, emitted rather than left
+            # implicit. Under the coastal design the absorbed rate is
+            # coefficient x this; under the easting design it is
+            # coefficient x this x 12 x 1000. A reader — or a report table —
+            # that has the coefficient and the absorbed rate but not the scale
+            # between them cannot check the arithmetic, and the arithmetic is
+            # exactly what went wrong in v1.20.0. Units travel with it, in the
+            # column, because the two designs put different quantities here.
+            "drift_scale": drift_scale,
+            "drift_scale_units": drift_scale_units,
             "baci_coef": coef,
             "baci_coef_se": coef_se,
             "baci_coef_p": coef_p,

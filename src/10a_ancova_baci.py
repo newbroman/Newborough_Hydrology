@@ -33,7 +33,44 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.9.0"  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS now imported from config.SUMMER_MINIMUM_MONTHS.
+__version__ = "1.10.0"  # Hollingham (2026) - 2026-09-02. BACI_DRIFT_DESIGN
+#   (D-111, M14). The differential-drift covariate is selectable: "easting" as
+#   before, "coastal_free" (adopted, the default) and "coastal_fixed1" (D-111's
+#   stated sensitivity, the term subtracted from y as an OFFSET, which is what
+#   fixed-at-1 has to mean rather than fitted-and-hoped-near-1).
+#
+#   THE COLUMN NAME IS NO LONGER TESTED ANYWHERE. `easting_x_time` was a literal
+#   string in 28 places here, five of them `if 'easting_x_time' in
+#   fit['col_names']` guarding a CORRECTION. A second design under a second
+#   column name would have left every one of those False - and a False guard
+#   there does not raise, it skips the correction and returns a "corrected"
+#   series that was never corrected. Silent, plausible and wrong, in the
+#   headline script, under the new default. So downstream asks
+#   clearfell_common.drift_term() for THE drift term and never names a design,
+#   and the one place a missing column is loud is run_ancova(), once.
+#
+#   The coastal differential is READ from the committed 25_14 rather than
+#   recomputed - evaluating Script 25's decay function a second time here is how
+#   two "coastal gradients" begin to disagree. Script 25 runs after Script 10,
+#   so this is a second-pass read with a documented first-pass default, the
+#   09b/09d/09f pattern. The column is scaled by the differential so the fitted
+#   coefficient IS s_coast, directly testable against 1.
+#
+#   THE DIFFERENTIAL IS PER ZONE x CONTROL, not per control. The first cut of
+#   this keyed it on the control alone and so scaled every Edge contrast by the
+#   Impact differential; s_coast came out low by exactly Impact-Forest over
+#   Edge-Forest = 1.127. It was caught only because the older
+#   coastal_drift_differential() still printed the correct Delta-delta beside
+#   the wrong s_coast, and the two disagreed in the console. Had both numbers
+#   come from the same place they would have agreed with each other and been
+#   wrong together, which is the failure this note exists to prevent repeating.
+#
+#   D-111's premise is ASSERTED, not remembered: with s_coast free the fit must
+#   reproduce the easting design's step, p and AIC to machine precision, and the
+#   run stops if it does not. That equivalence is the whole reason the change
+#   was judged to cost nothing.
+#
+# v1.9.0
 #   Batch two of the seasonal-windows migration (D-100): the window's
 #   MONTHS ARE UNCHANGED and the constant is asserted equal to the literal it
 #   replaced, in value and in type, read mechanically out of git HEAD. No
@@ -98,6 +135,11 @@ from utils.clearfell_common import (
     well_distances_to_coast, tier_distance_stats, far_field_tier_audit,
 )
 from utils.paths import make_all_dirs, DIR_10, OUT_10A_CONTROL_WELL_SPREAD
+from utils.config import BACI_DRIFT_DESIGN
+from utils.clearfell_common import (
+    drift_term, coastal_differential_mm_yr, CONTROL_TIER_COMPOSITION,
+    DRIFT_COLUMNS,
+)
 from utils.render_utils import render_figure
 from utils.config import SUMMER_MINIMUM_MONTHS
 import pandas as pd
@@ -283,7 +325,8 @@ ZONES = {
 
 
 def build_ancova_frame(wells, climate, target_wells, control_wells,
-                       well_locations, lambda_m=SCRAPING_DECAY_LAMBDA):
+                       well_locations, lambda_m=SCRAPING_DECAY_LAMBDA,
+                       control_label=None, zone_label='Impact'):
     """Build the ANCOVA design matrix for one zone × one control.
 
     Returns a DataFrame with columns:
@@ -363,47 +406,98 @@ def build_ancova_frame(wells, climate, target_wells, control_wells,
     t0 = df.index.min()
     df['months_since'] = (df.index - t0).days / 30.4375
 
+    # ── The drift term (D-111) ───────────────────────────────────────
+    # Which covariate carries the differential drift is config.BACI_DRIFT_DESIGN.
+    # A per-well control (control_label=None) has no 25_14 tier row and so no
+    # coastal differential; it keeps the easting design whatever the flag says,
+    # and that is stated rather than silently defaulted — the per-well table is
+    # a diagnostic breakdown, not the headline.
+    design = (BACI_DRIFT_DESIGN if control_label in CONTROL_TIER_COMPOSITION
+              else 'easting')
+
     df['has_easting'] = False
-    if easting_range > 200:
-        target_eastings = [well_locations[w]['easting'] for w in target_wells
-                           if w in well_locations]
-        control_eastings = [well_locations[w]['easting'] for w in control_wells
-                            if w in well_locations]
-        if target_eastings and control_eastings:
-            delta_easting = np.mean(target_eastings) - np.mean(control_eastings)
-            df['easting_x_time'] = delta_easting * df['months_since']
-            df['has_easting'] = True
+    df['has_drift'] = False
+
+    if design == 'easting':
+        if easting_range > 200:
+            target_eastings = [well_locations[w]['easting'] for w in target_wells
+                               if w in well_locations]
+            control_eastings = [well_locations[w]['easting'] for w in control_wells
+                                if w in well_locations]
+            if target_eastings and control_eastings:
+                delta_easting = np.mean(target_eastings) - np.mean(control_eastings)
+                df['easting_x_time'] = delta_easting * df['months_since']
+                df['has_easting'] = True
+                df['has_drift'] = True
+    else:
+        # SCALED SO THE COEFFICIENT IS s_coast ITSELF. The differential is
+        # mm/yr and baci_disp is metres, so /1000 and /12 put the column in
+        # metres per month; the fitted coefficient is then dimensionless and
+        # s_coast = 1 means "the panel drifts at exactly the amplitude Script 25
+        # fitted network-wide", which is the quantity D-111 tests against 1.
+        d_delta = coastal_differential_mm_yr(control_label, zone_label)
+        df['coastal_x_time'] = (d_delta / 12000.0) * df['months_since']
+        df['has_drift'] = True
 
     return df
 
 
-def run_ancova(df, include_easting=None, include_scrape2=False):
+def run_ancova(df, include_drift=None, include_scrape2=False,
+               include_easting=None):
     """Run ANCOVA on a prepared DataFrame.
 
     Parameters
     ----------
     df : DataFrame from build_ancova_frame()
-    include_easting : bool or None
-        If None, auto-detect from df['has_easting'].
+    include_drift : bool or None
+        If None, auto-detect from df['has_drift'].
     include_scrape2 : bool
         If True, add Oct 2023 re-scraping term and compare AIC.
+    include_easting : bool or None
+        Accepted spelling of include_drift, kept so callers written against the
+        easting-only design keep working. The term is no longer necessarily an
+        easting one — see config.BACI_DRIFT_DESIGN.
 
     Returns
     -------
     dict with full results
     """
-    if include_easting is None:
-        include_easting = df['has_easting'].iloc[0] if 'has_easting' in df else False
+    if include_easting is not None and include_drift is None:
+        include_drift = include_easting
+    if include_drift is None:
+        include_drift = (df['has_drift'].iloc[0] if 'has_drift' in df
+                         else (df['has_easting'].iloc[0]
+                               if 'has_easting' in df else False))
 
     # Build design matrix
     cols = ['cwb_c', 'D_scrape', 'D_fell', 'cwb_x_fell']
     col_names = ['intercept', 'cwb', 'scraping', 'clearfell', 'cwb_x_fell']
-    if include_easting and 'easting_x_time' in df.columns:
-        cols.append('easting_x_time')
-        col_names.append('easting_x_time')
+    y = df['baci_disp'].values
+
+    # THE ONE PLACE A MISSING DRIFT COLUMN IS LOUD. Every downstream site asks
+    # drift_term(..., required=False) and skips when there is none, which is
+    # correct there and would be silent here: a design that declares a drift
+    # term and finds no column would fit a model with no drift correction at all
+    # and report it as the headline. So it raises here, once.
+    dcol = drift_term(df, required=False)
+    if include_drift and dcol is None:
+        raise KeyError(
+            f"BACI_DRIFT_DESIGN={BACI_DRIFT_DESIGN!r} declares a drift term but "
+            f"the frame carries no column from {list(DRIFT_COLUMNS)}. "
+            "build_ancova_frame() was called without control_label, or the "
+            "coastal donor could not be read.")
+
+    if include_drift and dcol is not None:
+        if BACI_DRIFT_DESIGN == 'coastal_fixed1':
+            # FIXED AT 1 MEANS NOT FITTED. Subtracting the column from y as an
+            # offset is what pins the coefficient at exactly 1; adding it to the
+            # design matrix and hoping it comes out near 1 is a different claim.
+            y = y - df[dcol].values
+        else:
+            cols.append(dcol)
+            col_names.append(dcol)
 
     X = np.column_stack([np.ones(len(df))] + [df[c].values for c in cols])
-    y = df['baci_disp'].values
 
     fit = ols_fit(y, X)
     fit['col_names'] = col_names
@@ -453,7 +547,8 @@ for ctrl_label, ctrl_wells in CONTROLS.items():
 
         df = build_ancova_frame(
             wells, climate, zone_wells, ctrl_wells,
-            well_locations, lambda_m=SCRAPING_DECAY_LAMBDA)
+            well_locations, lambda_m=SCRAPING_DECAY_LAMBDA,
+            control_label=ctrl_label, zone_label=zone_label)
 
         if df is None or len(df) < 20:
             skipped("(insufficient data)")
@@ -461,12 +556,39 @@ for ctrl_label, ctrl_wells in CONTROLS.items():
 
         ancova_frames[key] = df
 
-        # Easting interaction: auto-detect from data (easting range > 200 m)
-        use_easting = df['has_easting'].iloc[0]
+        # Drift term: auto-detect from the frame the design built.
+        use_easting = df['has_drift'].iloc[0]
 
-        fit = run_ancova(df, include_easting=use_easting,
+        fit = run_ancova(df, include_drift=use_easting,
                          include_scrape2=True)
         results[key] = fit
+
+        # ── D-111's premise, asserted rather than remembered ─────────
+        # D-111 adopts coastal_free on the grounds that with s_coast FREE the
+        # decay term is the easting design RE-PARAMETERISED: identical step,
+        # p-value and AIC to machine precision, so no published number moves.
+        # That is the entire reason the change was judged to cost nothing. If it
+        # ever stops holding, the decision's basis has gone, and it should stop
+        # the run rather than quietly publish a different number under a
+        # decision that assumed this one.
+        if BACI_DRIFT_DESIGN == 'coastal_free' and use_easting:
+            df_e = build_ancova_frame(
+                wells, climate, zone_wells, ctrl_wells,
+                well_locations, lambda_m=SCRAPING_DECAY_LAMBDA,
+                control_label=None, zone_label=zone_label)  # None -> easting
+            if df_e is not None and bool(df_e['has_drift'].iloc[0]):
+                fit_e = run_ancova(df_e, include_drift=True)
+                for field, tol in (('clearfell_step', 1e-9),
+                                   ('clearfell_p', 1e-9),
+                                   ('aic', 1e-6)):
+                    a, b_ = float(fit[field]), float(fit_e[field])
+                    if not np.isclose(a, b_, rtol=0, atol=tol):
+                        raise AssertionError(
+                            f"D-111 equivalence FAILED at {ctrl_label} x "
+                            f"{zone_label}: {field} is {a!r} under coastal_free "
+                            f"and {b_!r} under easting (atol {tol}). With "
+                            f"s_coast free these must agree to machine "
+                            f"precision; D-111 rests on it.")
 
         step_mm = fit['clearfell_step'] * 1000
         ci_mm = (fit['clearfell_ci'][0] * 1000, fit['clearfell_ci'][1] * 1000)
@@ -503,8 +625,8 @@ if SUMMER_KEY in ancova_frames:
     print(f"   Summer panel: N = {len(df_summer)}  (pre-fell {n_pre}, post-fell {n_post})")
 
     # --- Fit A: full spec (mirrors annual model) ---
-    use_easting = bool(df_summer['has_easting'].iloc[0])
-    summer_fit_full = run_ancova(df_summer, include_easting=use_easting,
+    use_easting = bool(df_summer['has_drift'].iloc[0])
+    summer_fit_full = run_ancova(df_summer, include_drift=use_easting,
                                  include_scrape2=False)
     summer_results['full'] = summer_fit_full
 
@@ -522,9 +644,10 @@ if SUMMER_KEY in ancova_frames:
     # cwb_c and cwb_x_fell columns omitted.
     cols_noCWB = ['D_scrape', 'D_fell']
     names_noCWB = ['intercept', 'scraping', 'clearfell']
-    if use_easting and 'easting_x_time' in df_summer.columns:
-        cols_noCWB.append('easting_x_time')
-        names_noCWB.append('easting_x_time')
+    _d = drift_term(df_summer, required=False)
+    if use_easting and _d is not None and BACI_DRIFT_DESIGN != 'coastal_fixed1':
+        cols_noCWB.append(_d)
+        names_noCWB.append(_d)
     X_noCWB = np.column_stack([np.ones(len(df_summer))]
                               + [df_summer[c].values for c in cols_noCWB])
     y_summer = df_summer['baci_disp'].values
@@ -588,7 +711,7 @@ for zone_label in ZONES.keys():
         continue
 
     df_c = ancova_frames[ckey].copy()
-    use_easting = bool(df_c['has_easting'].iloc[0])
+    use_easting = bool(df_c['has_drift'].iloc[0])
 
     # Centred CWB² main effect and its interaction with the felling dummy.
     # cwb_c is already mean-centred in build_ancova_frame(); squaring it
@@ -600,9 +723,10 @@ for zone_label in ZONES.keys():
     # on the identical row set as the curvature model.
     lin_cols = ['cwb_c', 'D_scrape', 'D_fell', 'cwb_x_fell']
     lin_names = ['intercept', 'cwb', 'scraping', 'clearfell', 'cwb_x_fell']
-    if use_easting and 'easting_x_time' in df_c.columns:
-        lin_cols.append('easting_x_time')
-        lin_names.append('easting_x_time')
+    _d = drift_term(df_c, required=False)
+    if use_easting and _d is not None and BACI_DRIFT_DESIGN != 'coastal_fixed1':
+        lin_cols.append(_d)
+        lin_names.append(_d)
     y_c = df_c['baci_disp'].values
     X_lin = np.column_stack([np.ones(len(df_c))]
                             + [df_c[c].values for c in lin_cols])
@@ -678,9 +802,9 @@ for ctrl_label, ctrl_wells in CONTROLS.items():
             continue
 
         tier_east = np.nan
-        if 'easting_x_time' in tier_fit['col_names']:
-            tier_east = float(
-                tier_fit['b'][tier_fit['col_names'].index('easting_x_time')])
+        _d = drift_term(tier_fit['col_names'], required=False)
+        if _d is not None:
+            tier_east = float(tier_fit['b'][tier_fit['col_names'].index(_d)])
 
         per_well = []
         for cw in ctrl_wells:
@@ -692,10 +816,11 @@ for ctrl_label, ctrl_wells in CONTROLS.items():
                         f"(insufficient data)")
                 continue
             fit_w = run_ancova(
-                df_w, include_easting=bool(df_w['has_easting'].iloc[0]))
+                df_w, include_drift=bool(df_w['has_drift'].iloc[0]))
             e_coef = e_se = e_p = np.nan
-            if 'easting_x_time' in fit_w['col_names']:
-                _k = fit_w['col_names'].index('easting_x_time')
+            _dw = drift_term(fit_w['col_names'], required=False)
+            if _dw is not None:
+                _k = fit_w['col_names'].index(_dw)
                 e_coef = float(fit_w['b'][_k])
                 e_se = float(fit_w['se'][_k])
                 e_p = float(fit_w['p'][_k])
@@ -762,11 +887,12 @@ for lam in [200, 500]:
         for zone_label, zone_wells in ZONES.items():
             df = build_ancova_frame(
                 wells, climate, zone_wells, ctrl_wells,
-                well_locations, lambda_m=lam)
+                well_locations, lambda_m=lam, control_label=ctrl_label,
+                zone_label=zone_label)
             if df is None:
                 continue
-            use_easting = df['has_easting'].iloc[0]
-            fit = run_ancova(df, include_easting=use_easting)
+            use_easting = df['has_drift'].iloc[0]
+            fit = run_ancova(df, include_drift=use_easting)
             sensitivity_rows.append({
                 'Lambda_m': lam,
                 'Control': ctrl_label,
@@ -791,8 +917,9 @@ comp_rows = []
 for (ctrl_label, zone_label), fit in results.items():
     easting_coef = np.nan
     easting_p = np.nan
-    if 'easting_x_time' in fit['col_names']:
-        idx = fit['col_names'].index('easting_x_time')
+    _d = drift_term(fit['col_names'], required=False)
+    if _d is not None:
+        idx = fit['col_names'].index(_d)
         easting_coef = fit['b'][idx]
         easting_p = fit['p'][idx]
 
@@ -876,10 +1003,13 @@ for (ctrl_label, zone_label), df in ancova_frames.items():
                  - fit['b'][cwb_idx] * df['cwb_c']
                  - fit['b'][cwb_fell_idx] * df['cwb_c'] * df['D_fell'])
 
-    # Also remove easting if present
-    if 'easting_x_time' in fit['col_names']:
-        east_idx = fit['col_names'].index('easting_x_time')
-        corrected = corrected - fit['b'][east_idx] * df['easting_x_time']
+    # Also remove the drift term if present. Under coastal_fixed1 there is no
+    # fitted drift column because the term was subtracted from y before fitting,
+    # so there is correctly nothing to remove here.
+    _d = drift_term(fit['col_names'], required=False)
+    if _d is not None:
+        east_idx = fit['col_names'].index(_d)
+        corrected = corrected - fit['b'][east_idx] * df[_d]
 
     ts_out = pd.DataFrame({
         'Date': df.index,
@@ -916,9 +1046,10 @@ def _compute_corrected(df, fit):
     corrected = (df['baci_disp']
                  - fit['b'][cwb_idx] * df['cwb_c']
                  - fit['b'][cwb_fell_idx] * df['cwb_c'] * df['D_fell'])
-    if 'easting_x_time' in fit['col_names']:
-        east_idx = fit['col_names'].index('easting_x_time')
-        corrected = corrected - fit['b'][east_idx] * df['easting_x_time']
+    _d = drift_term(fit['col_names'], required=False)
+    if _d is not None:
+        east_idx = fit['col_names'].index(_d)
+        corrected = corrected - fit['b'][east_idx] * df[_d]
     return corrected
 
 
@@ -1038,8 +1169,9 @@ for j, zone_label in enumerate(ZONES.keys()):
     b_fell = b[cn.index('clearfell')]
     b_cxf  = b[cn.index('cwb_x_fell')]
     b_scr  = b[cn.index('scraping')]
-    has_e  = 'easting_x_time' in cn
-    b_east = b[cn.index('easting_x_time')] if has_e else 0.0
+    _d     = drift_term(cn, required=False)
+    has_e  = _d is not None
+    b_east = b[cn.index(_d)] if has_e else 0.0
 
     for subset, ls, lbl, d_fell in [
             (pre,  '--', 'Pre-felling (ANCOVA fit)',  0.0),
@@ -1049,7 +1181,7 @@ for j, zone_label in enumerate(ZONES.keys()):
         x_raw = np.linspace(subset['cwb'].min(), subset['cwb'].max(), 50)
         x_c = x_raw - cwb_mean
         scr_mean = subset['D_scrape'].mean()
-        east_mean = subset['easting_x_time'].mean() if has_e else 0.0
+        east_mean = subset[_d].mean() if has_e else 0.0
         y_fit = (b_int
                  + b_cwb * x_c
                  + b_fell * d_fell
@@ -1302,7 +1434,8 @@ S_COAST_MIN_DIFFERENTIAL = 0.5   # mm/yr — only to keep the division honest
 
 coastal_rows = []
 for (ctrl_label, zone_label), fit in results.items():
-    if 'easting_x_time' not in fit['col_names']:
+    _d = drift_term(fit['col_names'], required=False)
+    if _d is None:
         continue
     zone_wells = ZONES[zone_label]
     ctrl_wells = CONTROLS[ctrl_label]
@@ -1312,15 +1445,27 @@ for (ctrl_label, zone_label), fit in results.items():
     te = [well_locations[w]['easting'] for w in zone_wells if w in well_locations]
     ce = [well_locations[w]['easting'] for w in ctrl_wells if w in well_locations]
     dE = np.mean(te) - np.mean(ce)
-    i = fit['col_names'].index('easting_x_time')
-    absorbed = fit['b'][i] * dE * 12 * 1000.0          # mm/yr
-    absorbed_se = fit['se'][i] * abs(dE) * 12 * 1000.0
-    if np.isfinite(d_delta) and abs(d_delta) >= S_COAST_MIN_DIFFERENTIAL:
+    i = fit['col_names'].index(_d)
+    if _d == 'coastal_x_time':
+        # THE COEFFICIENT IS s_coast. The column was scaled by the differential
+        # when it was built, so no division is needed and none is done — the
+        # ratio below would divide by the same quantity twice.
+        s, s_se = float(fit['b'][i]), float(fit['se'][i])
+        absorbed = s * d_delta
+        absorbed_se = s_se * abs(d_delta)
+        t1 = (s - 1.0) / s_se if s_se > 0 else np.nan
+        p1 = (2 * sp_stats.t.sf(abs(t1), df=fit['n'] - fit['k'])
+              if np.isfinite(t1) else np.nan)
+    else:
+        absorbed = fit['b'][i] * dE * 12 * 1000.0          # mm/yr
+        absorbed_se = fit['se'][i] * abs(dE) * 12 * 1000.0
+        s = s_se = p1 = np.nan
+    if _d != 'coastal_x_time' and np.isfinite(d_delta) and abs(d_delta) >= S_COAST_MIN_DIFFERENTIAL:
         s = absorbed / d_delta
         s_se = absorbed_se / abs(d_delta)
         t1 = (s - 1.0) / s_se
         p1 = 2 * sp_stats.t.sf(abs(t1), df=fit['n'] - fit['k'])
-    else:
+    elif _d != 'coastal_x_time':
         s = s_se = p1 = np.nan
     identified = bool(np.isfinite(s_se) and s_se <= S_COAST_MAX_SE)
     coastal_rows.append({

@@ -384,6 +384,34 @@ WTF_RAPID_BOOT_SEED  = 20260611  # fixed seed — Approach C median-CI bootstrap
 # H0·exp(-d/λ), where the e-folding length λ = sqrt(K·b / (Sy·β₃_daily)) is
 # derived live from the C3 propagation-medium Sy (WTF, Script 17) and β₃
 # (SSM, Script 03); only the fixed model inputs are centralised here.
+# ── BACI drift design (D-111, M14) ────────────────────────────────────────────
+# Which covariate carries the differential drift between the Impact well and its
+# controls in the paired clearfell BACI (Script 10a).
+#
+#   "easting"        delta_easting x months_since. The design every committed
+#                    number before 2026-09-02 was produced under. Kept reachable
+#                    so the equivalence below can be DEMONSTRATED, not asserted.
+#   "coastal_free"   the coastal differential x months_since, coefficient FITTED.
+#                    D-111's adopted design. With s_coast free this is the
+#                    easting design re-parameterised - identical step, p-value
+#                    and AIC to machine precision - so no published number moves.
+#   "coastal_fixed1" the same column SUBTRACTED FROM y as an offset, not fitted,
+#                    which is what "fixed at 1" has to mean. Reported as D-111's
+#                    stated sensitivity (+77.2 mm against the published +113),
+#                    NOT as the headline.
+#
+# 10k is deliberately NOT switched by this flag: its per-well easting term is a
+# genuine spatial interaction rather than a rescaled time trend, so the
+# equivalence does not carry and the same substitution there is a real design
+# change with its own answer (D-111 Revisit-if).
+BACI_DRIFT_DESIGN = "coastal_free"
+
+# Which row of 25_14_correction_diagnostic.csv donates the coastal amplitude.
+# The all-season canopy fit, per M14's decision-4 note: 10a's BACI displacement
+# is a monthly all-season centroid difference, not a summer minimum, so the
+# MAM-fitted gradient is the wrong donor.
+BACI_COASTAL_DONOR_FIT = "full_lincap_canopy"
+
 #   DRAWDOWN_H0_MM : forest interception deficit at the felling edge (mm).
 #   DRAWDOWN_K_MDAY: aquifer hydraulic conductivity (m/day; Betson 2002).
 #   DRAWDOWN_B_M   : saturated aquifer thickness used for λ (m; estimate).

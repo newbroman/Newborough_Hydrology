@@ -33,7 +33,33 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.10.0"  # Hollingham (2026) - 2026-09-02. BACI_DRIFT_DESIGN
+__version__ = "1.11.0"  # Hollingham (2026) - 2026-09-02. D-111'S EQUIVALENCE
+#   IS NOW AN ARTEFACT, NOT ONLY AN ASSERTION. Since 1.10.0 this script has
+#   fitted the easting design on every run purely to check D-111's premise -
+#   that with s_coast FREE the coastal form is that design re-parameterised,
+#   identical step, p and AIC to machine precision - and then DISCARDED the fit.
+#   So the claim the decision rests on passed silently when it held and stopped
+#   the run when it did not, and a reader of the report had nothing to check it
+#   against. The fit is already computed; keeping it costs nothing.
+#
+#   New output 10a_02b_drift_design_equivalence.csv: two rows per contrast,
+#   coastal_free and easting, each carrying its drift coefficient IN ITS OWN
+#   UNITS beside the step, p and AIC that must agree between them. It is the
+#   source for report9 Table 8's easting columns, which until now had no live
+#   CSV behind them at all - the published design stopped emitting
+#   easting_x_time and the table would have been quoting a superseded run.
+#
+#   SEPARATE FILE ON PURPOSE. Appending easting_x_time rows to
+#   10a_02_ancova_full_coefficients.csv would put two DRIFT_COLUMNS members in
+#   one table and trip drift_term()'s two-at-once guard - a guard that exists
+#   precisely because a coefficient table ambiguous about which drift the step
+#   is net of is worse than one that refuses to load.
+#
+#   The units column is not decoration. Script 25 v1.20.0 fed the dimensionless
+#   s_coast into the easting conversion, coef x dE x 12 x 1000, and emitted an
+#   absorbed drift of -309,628,313 mm/yr into this table's own consumer.
+#
+# v1.10.0  # Hollingham (2026) - 2026-09-02. BACI_DRIFT_DESIGN
 #   (D-111, M14). The differential-drift covariate is selectable: "easting" as
 #   before, "coastal_free" (adopted, the default) and "coastal_fixed1" (D-111's
 #   stated sensitivity, the term subtracted from y as an OFFSET, which is what
@@ -157,6 +183,7 @@ make_all_dirs()
 # ============================================================================
 OUT_COMPARISON    = DIR_10 / "10a_01_ancova_comparison_table.csv"
 OUT_FULL_COEFFS   = DIR_10 / "10a_02_ancova_full_coefficients.csv"
+OUT_DRIFT_EQUIV   = OUT_10A_DRIFT_EQUIVALENCE      # paths.py — Script 25 reads it
 OUT_TIMESERIES    = DIR_10 / "10a_03_baci_timeseries.csv"
 OUT_REPORT        = DIR_10 / "10a_report_numbers.csv"
 OUT_WELL_SPREAD   = OUT_10A_CONTROL_WELL_SPREAD   # paths.py — Script 25 reads it
@@ -538,6 +565,9 @@ def run_ancova(df, include_drift=None, include_scrape2=False,
 # ============================================================================
 phase(3, "Running three-counterfactual ANCOVA")
 results = {}       # keyed by (control_label, zone_label)
+# The easting-design fit kept beside each coastal fit, for the D-111
+# equivalence artefact. Empty unless BACI_DRIFT_DESIGN == 'coastal_free'.
+easting_equivalence = {}
 ancova_frames = {} # keyed the same way
 
 for ctrl_label, ctrl_wells in CONTROLS.items():
@@ -578,6 +608,13 @@ for ctrl_label, ctrl_wells in CONTROLS.items():
                 control_label=None, zone_label=zone_label)  # None -> easting
             if df_e is not None and bool(df_e['has_drift'].iloc[0]):
                 fit_e = run_ancova(df_e, include_drift=True)
+                # KEEP IT. Until 2026-09-02 this fit was made, compared, and
+                # thrown away, so D-111's premise was asserted on every run and
+                # evidenced on none: a reader of the report had no artefact
+                # against which to check the claim the decision rests on. It
+                # costs nothing to retain — the fit is already computed — and it
+                # is what report9 Table 8's easting columns are sourced from.
+                easting_equivalence[(ctrl_label, zone_label)] = fit_e
                 for field, tol in (('clearfell_step', 1e-9),
                                    ('clearfell_p', 1e-9),
                                    ('aic', 1e-6)):
@@ -982,6 +1019,60 @@ for (ctrl_label, zone_label), fit in results.items():
 coeff_df = pd.DataFrame(coeff_rows)
 coeff_df.to_csv(OUT_FULL_COEFFS, index=False)
 saved(f"{OUT_FULL_COEFFS.name} ({len(coeff_df)} rows)")
+
+# ============================================================================
+# EXPORT: DRIFT-DESIGN EQUIVALENCE (D-111 made checkable)
+# ============================================================================
+# Two rows per contrast — the published coastal_free fit and the easting fit
+# already made above to assert D-111 — carrying each design's drift coefficient
+# in ITS OWN UNITS beside the step, p and AIC that must agree between them.
+#
+# The units differ and the table says so, because conflating them is not
+# hypothetical: Script 25 v1.20.0 fed the dimensionless s_coast into the
+# easting design's coef x dE x 12 x 1000 conversion and emitted an absorbed
+# drift of -309,628,313 mm/yr into report9 Table 8's source.
+#
+#   coastal_x_time   s_coast, DIMENSIONLESS. 1 = exactly the network-scale
+#                    field. Becomes mm/yr by multiplying the tier's coastal
+#                    differential (clearfell_common.coastal_differential_mm_yr).
+#   easting_x_time   m of head per m of easting per month. Becomes mm/yr by
+#                    coef x delta_E x 12 x 1000.
+#
+# clearfell_step_m, clearfell_p and aic are the D-111 equivalence itself: they
+# must match across the two rows to the tolerances asserted above, and a reader
+# can now verify that rather than take it on the decision's word.
+if easting_equivalence:
+    equiv_rows = []
+    for (ctrl_label, zone_label), fit_e in easting_equivalence.items():
+        fit_c = results.get((ctrl_label, zone_label))
+        if fit_c is None:
+            continue
+        for design, fit_x in (('coastal_free', fit_c), ('easting', fit_e)):
+            dcol = drift_term(fit_x['col_names'], required=False)
+            if dcol is None:
+                continue
+            i = list(fit_x['col_names']).index(dcol)
+            equiv_rows.append({
+                'Control': ctrl_label,
+                'Zone': zone_label,
+                'drift_design': design,
+                'drift_coefficient': dcol,
+                'drift_value': float(fit_x['b'][i]),
+                'drift_se': float(fit_x['se'][i]),
+                'drift_p': fit_x['p'][i],
+                'drift_units': ('dimensionless (s_coast)' if design == 'coastal_free'
+                                else 'm head / m easting / month'),
+                'clearfell_step_m': float(fit_x['clearfell_step']),
+                'clearfell_p': float(fit_x['clearfell_p']),
+                'aic': float(fit_x['aic']),
+            })
+    equiv_df = pd.DataFrame(equiv_rows)
+    equiv_df.to_csv(OUT_DRIFT_EQUIV, index=False)
+    saved(f"{OUT_DRIFT_EQUIV.name} ({len(equiv_df)} rows)")
+else:
+    info(f"{OUT_DRIFT_EQUIV.name} not written: no easting equivalence fits "
+         f"(BACI_DRIFT_DESIGN = {BACI_DRIFT_DESIGN!r}). The committed file is "
+         f"left alone rather than emptied.")
 
 # ── Per-control-well spread (see the section that built it) ──────────────
 spread_df.to_csv(OUT_WELL_SPREAD, index=False)

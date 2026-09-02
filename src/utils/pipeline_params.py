@@ -40,7 +40,21 @@ File location: outputs/01_data_prep/pipeline_scenario_params.csv
 """
 from __future__ import annotations
 
-__version__ = "1.9.0"  # Hollingham (2026) — 2026-08-29. Refreshes the two
+__version__ = "1.10.0"  # Hollingham (2026) — 2026-09-02. Refreshes four
+#   fallbacks after the D-115 PE/PW correction and its pipeline run. Two wells
+#   exchanging their reading series moves the coastal fit: forest_free /
+#   linear_capped goes delta_0 -31.33 -> -31.35 mm/yr and L 895 -> 894 m, and
+#   Script 09f's reach profile follows it to -156.75 and -81.05 mm. Small, and
+#   defaults_lint failed on every one of them, which is the point of the gate:
+#   a stale fallback is worse than none because the console says "default" and
+#   the reader believes it.
+#
+#   THE REACH HAS CONVERGED WITH THE SPRING FIT and that is worth knowing
+#   before anyone reads a document about it: forest_free_mam is also 894 m now,
+#   where the corpus contrasts an all-season 895 against a spring 894. The
+#   contrast is gone, not merely renumbered.
+#
+# v1.9.0  # Hollingham (2026) — 2026-08-29. Refreshes the two
 #   defaults tools/defaults_lint.py found on its first run, both invisible to
 #   every gate until it existed. climate_c_mm_yr 0.18 -> -0.10: the SECOND
 #   recurrence on this key (see v1.5.0 below), stale nine days as the fit moved,
@@ -285,9 +299,9 @@ _DEFAULTS = {
     "drawdown_lambda_m":        226.4,   # 20_report_numbers.csv (drawdown_lambda
                                          # = 226.442); was 228.1, refreshed
                                          # 2026-08-28
-    "coast_delta0_mm_yr":       -31.33,  # 25_01 forest_free/linear_capped δ₀;
+    "coast_delta0_mm_yr":       -31.35,  # 25_01 forest_free/linear_capped δ₀;
                                          # was -29.0, the pre-D-046 value
-    "coast_reach_L_m":          895.0,   # 25_01 forest_free/linear_capped L;
+    "coast_reach_L_m":          894.0,   # 25_01 forest_free/linear_capped L;
                                          # was 894.0, the pre-D-046 value
     "scrape_offsite_100m_vol":  -31.2,   # 09d_01 Scraping (off-site 100 m)
                                          # mm w.e./month; was -30.3
@@ -304,12 +318,12 @@ _DEFAULTS = {
     # Stored as the six TIER TRENDS, not as the eight zone x control
     # differentials: every differential derives from these, so there are six
     # numbers to keep true rather than eight, and a new zone adds none.
-    "baci_coastal_trend_impact_mm_yr":   -12.9572,
-    "baci_coastal_trend_edge_mm_yr":     -11.7547,
-    "baci_coastal_trend_forest_mm_yr":    -2.2604,
-    "baci_coastal_trend_coastal_mm_yr":  -19.6202,
-    "baci_coastal_trend_climate_mm_yr":  -12.0154,
-    "baci_coastal_trend_farfield_mm_yr":   0.1716,
+    "baci_coastal_trend_impact_mm_yr":   -12.9347,
+    "baci_coastal_trend_edge_mm_yr":     -11.7284,
+    "baci_coastal_trend_forest_mm_yr":    -2.2326,
+    "baci_coastal_trend_coastal_mm_yr":  -19.6189,
+    "baci_coastal_trend_climate_mm_yr":  -11.9899,
+    "baci_coastal_trend_farfield_mm_yr":   0.1642,
     "uniform_residual_mm_yr":  -11.0,   # mean over the open-dune clusters of
                                          # (balanced observed decline − modelled coastal
                                          # gradient), 25_03_cluster_partition.csv. The
@@ -346,10 +360,10 @@ _DEFAULTS = {
     # off-cut reuses "wmc3_drawdown_mm" above (10m WMC3 BACI). 09g runs after
     # 09f in Phase 17, so these engage only on a partial/interrupted run.
     "mech_forest_standing_mm":  -150.0,  # 09f_01 standing_pine_head_mm
-    "mech_coastal_5yr_mm":      -156.65, # 09f_01 coastal_5yr_head_mm
+    "mech_coastal_5yr_mm":      -156.75, # 09f_01 coastal_5yr_head_mm
     "mech_scrape_cut_rise_mm":   129.43, # 09f_01 scrape_head_mm (CEH36 cut rise)
     "mech_thinned_mm":           -75.0,  # 09f_01 thinned_forest_head_mm
-    "mech_coastal_storm_mm":     -81.00, # 09f_01 coastal_6m_storm_head_mm (D-091)
+    "mech_coastal_storm_mm":     -81.05, # 09f_01 coastal_6m_storm_head_mm (D-091)
     "clearfell_summer_step_mm":   50.1,  # 10a ANCOVA_Forest_Impact_clearfell_step_summer x1000
 }
 

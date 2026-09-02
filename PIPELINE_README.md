@@ -717,7 +717,7 @@ Summer climate via `scraping_common.load_summer_climate()`. Scenario constants
 
 Section 5 is the predictive companion to Script 26's observational MSL5 monitoring metric. For each cluster, an OLS-with-intercept fit on `03_regional_averages.csv` produces an equation of the form
 
-    MSL_y = α · h_max_winter + β · P_win_to_spr + γ · PET_win_to_spr + intercept
+    MSL_y = α_W · h_max_winter + a_P · P_win_to_spr + a_E · PET_win_to_spr + intercept
 
 where the hydrology year *y* runs from 1 June (*y*−1) to 31 May (*y*) (van Willegen 2025 convention), the winter peak is the maximum of Oct *y*−1 to Feb *y*, and the antecedent forcing totals run Oct *y*−1 to May *y*. Each cluster's transfer function lets managers predict the next year's MSL_y from monthly readings collected through end-February, then add to a rolling four-year history of observed MSLs to update the 5-year MSL5 monitoring statistic without waiting until end-May for the actual reading.
 

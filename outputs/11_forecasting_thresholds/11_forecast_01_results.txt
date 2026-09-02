@@ -20,7 +20,7 @@ SECTION 1: MECHANISTIC STATE-SPACE EQUATIONS  (dh = b1*P - b2*PET - b3*h_prev)
         p-values:  P = 1.8852e-54   PET = 2.3503e-15   h_prev = 1.0909e-16
 
 ======================================================================
-SECTION 2: PEAK FLOOD TRANSFER FUNCTIONS  (h_peak = β₁·P_winter + β₂·h_min + c)
+SECTION 2: PEAK FLOOD TRANSFER FUNCTIONS  (h_peak = a_P·P_winter + a_h·h_min + c)
 ======================================================================
   OLS with intercept | Hydrological year: Oct 1 - Sep 30
   Blocks (one per cluster, k=5 partition): Lake_Edge (C1), Eastern_Block (C2), Western_Block (C3), Forest (C4), Coastal_Forest (C5).
@@ -52,7 +52,7 @@ SECTION 2: PEAK FLOOD TRANSFER FUNCTIONS  (h_peak = β₁·P_winter + β₂·h_m
 
 
 ======================================================================
-SECTION 4: SUMMER DROUGHT TRANSFER FUNCTIONS  (h_min = β₁·P_summer + β₂·h_max_winter + c)
+SECTION 4: SUMMER DROUGHT TRANSFER FUNCTIONS  (h_min = a_P·P_summer + a_h·h_max_winter + c)
 ======================================================================
   OLS with intercept | Hydrological year: Oct 1 - Sep 30
   Predicting summer minimum from antecedent winter peak and summer rain.

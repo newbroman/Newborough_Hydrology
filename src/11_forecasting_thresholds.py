@@ -16,7 +16,7 @@ Purpose:
     SECTION 2 — Peak Flood Transfer Functions
         Constructs empirical transfer functions for the Eastern, Western, and
         Forest blocks that predict maximum winter water level from:
-            h_peak = β₁·P_winter + β₂·h_min + c
+            h_peak = a_P·P_winter + a_h·h_min + c
         where h_min is the preceding summer drought minimum (April-September)
         and P_winter is cumulative precipitation over October-March.
         Data are indexed by Hydrological Year (starting 1 October) to keep
@@ -46,7 +46,7 @@ Purpose:
         Fits empirical OLS models for each block predicting the summer drought
         minimum (h_min_summer) from antecedent winter storage and cumulative
         summer rainfall:
-            h_min_summer = β₁·P_summer + β₂·h_max_winter + c
+            h_min_summer = a_P·P_summer + a_h·h_max_winter + c
         Complements Section 2 by characterising the drying leg of the annual
         water-table cycle.
 
@@ -55,7 +55,7 @@ Purpose:
         Spring water Level (MSL, van Willegen et al. 2025 monitoring metric)
         from antecedent winter conditions:
 
-            MSL_y = α·h_max_winter + β·P_win_to_spr + γ·PET_win_to_spr + c
+            MSL_y = α_W·h_max_winter + a_P·P_win_to_spr + a_E·PET_win_to_spr + c
 
         where h_max_winter is the maximum cluster-mean head over Oct y-1 to
         Feb y, and P_win_to_spr / PET_win_to_spr are cumulative totals over
@@ -99,7 +99,37 @@ Cluster scope (k=5 partition):
 ====================================================================================
 """
 
-__version__ = "1.3.0"  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS now imported from config.SUMMER_DROUGHT_MONTHS.
+__version__ = "1.3.3"  # Hollingham (2026) - 2026-09-02. Two console banners
+#   still printed the old symbols and went on printing them into the COMMITTED
+#   transcript 11_forecast_01_results.txt. They survived the v1.3.2 sweep because
+#   they are written as escape sequences - \u03b2\u2081, not the literal glyph -
+#   so a grep for the character could not see them. Worth remembering: a symbol
+#   sweep that greps for the glyph misses every escaped spelling of it, and the
+#   miss is invisible until the script is run and the output read.
+#
+# v1.3.2  # Hollingham (2026) - 2026-09-02. The transfer-function
+#   coefficients are named a_P, a_h and a_E - and alpha_W where van Willegen's
+#   attribution is meant - in the equations AND in the emitted columns. They were
+#   never the SSM's betas, and this docstring carried both senses four lines
+#   apart: the Section 2/4/5 regressions against the Section 3 lambda and P_flood
+#   forms, which ARE the SSM's.
+#
+#   COLUMNS RENAMED, so the three transfer-function CSVs change header on the
+#   next run:
+#       beta_1_P_winter     -> a_P_winter        beta_2_h_min        -> a_h_min
+#       beta_1_P_summer     -> a_P_summer        beta_2_h_max_winter -> a_h_max_winter
+#       beta_P_win_to_spr   -> a_P_win_to_spr    beta_PET_win_to_spr -> a_PET_win_to_spr
+#       beta_h_max_winter   -> alpha_W_h_max_winter
+#   Read only by this script and 11b, both updated in the same batch. No fitted
+#   value moves; the p_value_* columns were already named by covariate. v1.3.1
+#   said the columns would stay - Martin ruled to align them, which is the
+#   stronger position: the header was the last place the old sense survived.
+#
+#   The old naming is recorded in tools/symbol_register.csv as the retired senses
+#   beta_transfer and beta_msl, and tools/symbol_definition_index.csv pins the
+#   glyph so a reappearance fails check_all.
+#
+# v1.3.0  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS now imported from config.SUMMER_DROUGHT_MONTHS.
 #   Batch two of the seasonal-windows migration (D-100): the window's
 #   MONTHS ARE UNCHANGED and the constant is asserted equal to the literal it
 #   replaced, in value and in type, read mechanically out of git HEAD. No
@@ -436,9 +466,9 @@ def run_peak_forecasting(df: pd.DataFrame) -> None:
         h_peak   = maximum water level over Oct-Mar  (target variable)
 
     Regression (OLS with intercept):
-        h_peak = \u03b2\u2081\u00b7P_winter + \u03b2\u2082\u00b7h_min + c
+        h_peak = a_P\u00b7P_winter + a_h\u00b7h_min + c
     """
-    print(sep("SECTION 2: PEAK FLOOD TRANSFER FUNCTIONS  (h_peak = \u03b2\u2081\u00b7P_winter + \u03b2\u2082\u00b7h_min + c)"))
+    print(sep("SECTION 2: PEAK FLOOD TRANSFER FUNCTIONS  (h_peak = a_P\u00b7P_winter + a_h\u00b7h_min + c)"))
     print("  OLS with intercept | Hydrological year: Oct 1 - Sep 30")
     print("  Blocks (one per cluster, k=5 partition): Lake_Edge (C1), "
           "Eastern_Block (C2), Western_Block (C3), Forest (C4), Coastal_Forest (C5).\n")
@@ -489,8 +519,8 @@ def run_peak_forecasting(df: pd.DataFrame) -> None:
 
         table6_rows.append({
             'Block': block,
-            'beta_1_P_winter': float(b1),
-            'beta_2_h_min': float(b2),
+            'a_P_winter': float(b1),
+            'a_h_min': float(b2),
             'intercept': float(c),
             'R2': float(model.rsquared),
             'n_hydrological_years': int(len(hydro_df)),
@@ -730,10 +760,10 @@ def run_summer_drought_forecasting(df: pd.DataFrame) -> None:
         h_min_summer = minimum water level over Apr-Sep (target drought variable)
 
     Regression (OLS with intercept):
-        h_min_summer = \u03b2\u2081\u00b7P_summer + \u03b2\u2082\u00b7h_max_winter + c
+        h_min_summer = a_P\u00b7P_summer + a_h\u00b7h_max_winter + c
     """
     print(sep("SECTION 4: SUMMER DROUGHT TRANSFER FUNCTIONS  "
-              "(h_min = \u03b2\u2081\u00b7P_summer + \u03b2\u2082\u00b7h_max_winter + c)"))
+              "(h_min = a_P\u00b7P_summer + a_h\u00b7h_max_winter + c)"))
     print("  OLS with intercept | Hydrological year: Oct 1 - Sep 30")
     print("  Predicting summer minimum from antecedent winter peak and summer rain.\n")
 
@@ -783,8 +813,8 @@ def run_summer_drought_forecasting(df: pd.DataFrame) -> None:
 
         table7_rows.append({
             'Block': block,
-            'beta_1_P_summer': float(b1),
-            'beta_2_h_max_winter': float(b2),
+            'a_P_summer': float(b1),
+            'a_h_max_winter': float(b2),
             'intercept': float(c),
             'R2': float(model.rsquared),
             'n_hydrological_years': int(len(hydro_df)),
@@ -907,7 +937,7 @@ def run_spring_msl_forecasting(df: pd.DataFrame) -> None:
     where the hydrology year y runs from 1 June (y-1) to 31 May (y).
 
     Transfer function:
-        MSL_y = α·h_max_winter + β·P_win_to_spr + γ·PET_win_to_spr + intercept
+        MSL_y = α_W·h_max_winter + a_P·P_win_to_spr + a_E·PET_win_to_spr + intercept
 
     Inputs are the previous winter peak (max of Oct-Feb cluster-mean head) and
     cumulative rainfall and PET over the Oct-to-May antecedent window. Fitted
@@ -1012,9 +1042,9 @@ def run_spring_msl_forecasting(df: pd.DataFrame) -> None:
                  for k in ("h_max_winter", "P_win_to_spr", "PET_win_to_spr")]
         out_rows.append({
             "Block":                       block,
-            "beta_h_max_winter":           c["h_max_winter"],
-            "beta_P_win_to_spr":           c["P_win_to_spr"],
-            "beta_PET_win_to_spr":         c["PET_win_to_spr"],
+            "alpha_W_h_max_winter":           c["h_max_winter"],
+            "a_P_win_to_spr":           c["P_win_to_spr"],
+            "a_PET_win_to_spr":         c["PET_win_to_spr"],
             "intercept":                   c["const"],
             "R2":                          fit["r2"],
             "n_hydrological_years":        fit["n_years"],

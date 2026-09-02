@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_70.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_71.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 1.9.70 (September 2026).
+Document version: 1.9.71 (September 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -1998,9 +1998,9 @@ Script 11 takes Script 03's cluster-centroid SSM coefficients and answers five m
 
 **Section 2 --- Peak flood transfer functions.** For each block column in the regional-averages frame, the script computes a per-hydrological-year triple --- summer minimum (*h_min*, Apr--Sep minimum of the centroid hydrograph), cumulative winter rainfall (*P_winter*, Oct--Mar sum of *P_mm*), and winter maximum (*h_peak*, Oct--Mar maximum) --- and fits an OLS regression with intercept
 
-> h_peak = β₁ · P_winter + β₂ · h_min + c
+> h_peak = a_P · P_winter + a_h · h_min + c
 
-β₁ here is the regression slope on winter rainfall, not the SSM β₁ of Section 1 (the symbol-reuse is unfortunate but harmless because the regression is separately reported). Output *11_forecast_winter_transfer_functions.csv* (Table 6). Forecast use: given an observed summer minimum and a forecast winter rainfall (e.g. a UKCP18 percentile), predict the winter peak.
+a_P is the regression slope on winter rainfall and a_h the slope on the antecedent summer minimum; both are OLS coefficients of this transfer function alone and are unrelated to the SSM coefficients of Section 1. Output *11_forecast_winter_transfer_functions.csv* (Table 6). Forecast use: given an observed summer minimum and a forecast winter rainfall (e.g. a UKCP18 percentile), predict the winter peak.
 
 **Section 3 --- Critical rainfall thresholds (the iterated P_flood).** The headline forecasting tool of the chapter. The April 2026 revision replaced an earlier single-step inversion of the SSM with an iterated closed-form solution, because the single-step form neglected winter PET (≈30% of winter atmospheric demand at RAF Valley) and implicitly treated the six-month recharge season as one SSM timestep --- an approximation that produced physically implausible thresholds at the cluster extremes. The iterated form starts from the monthly recurrence with displacement-formulation drainage, written in collapsed form as
 
@@ -2028,11 +2028,11 @@ The implementation calls *model_utils.pflood_lambda()* (F.5), which is the singl
 
 **Section 4 --- Summer drought transfer functions.** The mirror-image regression: for each block, fit
 
-> h_min_summer = β₁ · P_summer + β₂ · h_max_winter + c
+> h_min_summer = a_P · P_summer + a_h · h_max_winter + c
 
 over the same hydrological-year indexing, predicting the summer minimum from antecedent winter peak and summer rainfall. Output *11_forecast_summer_transfer_functions.csv* (Table 7). The forecast use is to bound the drought risk implied by a known winter peak under a UKCP18 summer climate, complementing Section 2's flood-direction prediction.
 
-**Section 5 --- Spring MSL transfer functions (Tool A).** Tool A sits alongside the Phase 13 van Willegen 5-year MSL aggregation (Script 26, S.18). For each cluster, fit *MSL_y = α_W·h_max_winter + β·P_win_to_spr + γ·PET_win_to_spr + intercept* using van Willegen's hydrology year B (1 Jun *y*−1 to 31 May *y*; see F.2). The response is the cluster-centroid mean of {March, April, May} water levels in hydrology year *y*; the predictors are the cluster-centroid October-to-February maximum, the cumulative October-to-May rainfall, and the cumulative October-to-May PET. The fits read from *03_regional_averages.csv* --- the same Method B baseline that Tool B's UKCP18 projection uses (see S.18 §Method A and Method B aggregation). Output *11_forecast_spring_transfer_functions.csv* (Table 9) plus a per-cluster calibration scatter at *11_forecast_02_spring_calibration.png*. R² ranges 0.73 (Lake Edge) to 0.96 (Coastal Forest). A previous-MSL variant was tested at v1.1.0 and dropped at v1.1.1 on empirical grounds (previous-MSL R² 0.18--0.44; coefficient non-significant at four of five clusters). The full Tool A treatment --- coefficient table, manager workflow, rejected-variant discussion --- is in S.18b §S.18b.2.
+**Section 5 --- Spring MSL transfer functions (Tool A).** Tool A sits alongside the Phase 13 van Willegen 5-year MSL aggregation (Script 26, S.18). For each cluster, fit *MSL_y = α_W·h_max_winter + a_P·P_win_to_spr + a_E·PET_win_to_spr + intercept* using van Willegen's hydrology year B (1 Jun *y*−1 to 31 May *y*; see F.2). The response is the cluster-centroid mean of {March, April, May} water levels in hydrology year *y*; the predictors are the cluster-centroid October-to-February maximum, the cumulative October-to-May rainfall, and the cumulative October-to-May PET. The fits read from *03_regional_averages.csv* --- the same Method B baseline that Tool B's UKCP18 projection uses (see S.18 §Method A and Method B aggregation). Output *11_forecast_spring_transfer_functions.csv* (Table 9) plus a per-cluster calibration scatter at *11_forecast_02_spring_calibration.png*. R² ranges 0.73 (Lake Edge) to 0.96 (Coastal Forest). A previous-MSL variant was tested at v1.1.0 and dropped at v1.1.1 on empirical grounds (previous-MSL R² 0.18--0.44; coefficient non-significant at four of five clusters). The full Tool A treatment --- coefficient table, manager workflow, rejected-variant discussion --- is in S.18b §S.18b.2.
 
 #### []{#anchor-279}[]{#anchor-280}Site-specific choices (Script 11)
 
@@ -3558,9 +3558,9 @@ The two tools sit at different levels of editorial weight in the report. Tool A 
 
 For each of the five clusters (C1 Lake Edge, C2 Dune, C3 Western Residual, C4 Main Forest, C5 Coastal Forest) the transfer function takes the form
 
-MSL_y = α_W · h_max_winter + β · P_win_to_spr + γ · PET_win_to_spr + intercept
+MSL_y = α_W · h_max_winter + a_P · P_win_to_spr + a_E · PET_win_to_spr + intercept
 
-where MSL_y is the mean of March, April, and May water levels in hydrology year y (the van Willegen 2025 spring window), h_max_winter is the maximum cluster-centroid head over October y−1 to February y, and P_win_to_spr and PET_win_to_spr are cumulative totals over October y−1 to May y. The hydrology year follows van Willegen's "hydrology year B" (1 June y−1 to 31 May y), so the response and all three predictors fall within the same hydrology year by construction. Coefficients are fitted independently per cluster by ordinary least squares with an intercept term.
+where MSL_y is the mean of March, April, and May water levels in hydrology year y (the van Willegen 2025 spring window), h_max_winter is the maximum cluster-centroid head over October y−1 to February y, and P_win_to_spr and PET_win_to_spr are cumulative totals over October y−1 to May y. The hydrology year follows van Willegen's "hydrology year B" (1 June y−1 to 31 May y), so the response and all three predictors fall within the same hydrology year by construction. Coefficients are fitted independently per cluster by ordinary least squares with an intercept term: α_W is the van Willegen winter-maximum coefficient, a_P the slope on winter-to-spring rainfall and a_E the slope on winter-to-spring PET.
 
 #### []{#anchor-527}[]{#anchor-528}S.18b.2.2 Data source
 
@@ -4359,7 +4359,7 @@ The convention throughout the supplement is that there is one place to change a 
 
 #### []{#anchor-646}[]{#anchor-647}Scenario engine
 
-  -------------------------------------------------------------------------------------------------------------------- ------------------------------------------------------------------------------------------------ -----------------------------------------------------------------------------------------------------------------------------------
+  -------------------------------------------------------------------------------------------------------------------- ------------------------------------------------------------------------------------------------ ---------------------------------------------------------------------------------------------------------------------------------------
   Constant / concept                                                                                                   Reference                                                                                        Value / meaning
   monthly_perturbation()                                                                                               F.5 / *model_utils.py* / S.14                                                                    Option 3 single-step forcing-change response; replaces equilibrium *Δh / β₃*
   compute_scenario_bars()                                                                                              F.5 / *scraping_common.py*                                                                       Per-cluster scenario engine consumed by Scripts 09d, 19, 21
@@ -4369,10 +4369,10 @@ The convention throughout the supplement is that there is one place to change a 
   UKCP18 2080s scaling factors                                                                                         F.4 / S.18b / *26b_van_willegen_msl_projections.py*                                              Centralised in *config.py* as *UKCP18_SCENARIOS* (both epochs), imported by Scripts 19 and 26b since v1.2.1
   pipeline_scenario_params.csv                                                                                         F.4 / *pipeline_params.py* / S.1                                                                 Producer-consumer architecture for cross-script parameters
   load_params()                                                                                                        F.5 / *pipeline_params.py*                                                                       Read by Scripts 09b, 09d, 19, 21
-  Tool A --- spring MSL transfer function                                                                              S.9 (§Sub-script 11 Methodology) / S.18b (§S.18b.2) / *11_forecasting_thresholds.py* Section 5   *MSL_y = α_W·h_max_winter + β·P_win_to_spr + γ·PET_win_to_spr + intercept*; R² 0.73--0.96; previous-MSL variant dropped at v1.1.1
+  Tool A --- spring MSL transfer function                                                                              S.9 (§Sub-script 11 Methodology) / S.18b (§S.18b.2) / *11_forecasting_thresholds.py* Section 5   *MSL_y = α_W·h_max_winter + a_P·P_win_to_spr + a_E·PET_win_to_spr + intercept*; R² 0.73--0.96; previous-MSL variant dropped at v1.1.1
   Tool B --- UKCP18 MSL5 perturbation overlay                                                                          S.18b (§S.18b.3) / *26b_van_willegen_msl_projections.py*                                         Single-step *Δh(m) = β₁·ΔP − β₂·ΔPET*; drift-free by construction; ΔMSL5 1--4 cm
   Spring-window structural cancellation                                                                                S.18b §S.18b.3.5                                                                                 Why ΔMSL5 modest at 1--4 cm despite +20--35 % summer PET; the spring window straddles the UKCP18 seasonal partition
-  -------------------------------------------------------------------------------------------------------------------- ------------------------------------------------------------------------------------------------ -----------------------------------------------------------------------------------------------------------------------------------
+  -------------------------------------------------------------------------------------------------------------------- ------------------------------------------------------------------------------------------------ ---------------------------------------------------------------------------------------------------------------------------------------
 
 #### []{#anchor-647}[]{#anchor-648}Ecological thresholds
 

@@ -62,7 +62,12 @@ EXIT
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-08-28. Pins the PDF
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-09-02. JPEG quality
+#   90 -> 80, matching Martin's hand export on the L14. W126 recorded a
+#   bridge-built report.pdf 27% larger than the published one and blamed the
+#   LibreOffice version; the cause was this line. Content is unaffected —
+#   only the image compression of the embedded figures.
+# v1.1.0  # Hollingham (2026) — 2026-08-28. Pins the PDF
 #   export settings and reports the size delta; 1.0.0 inherited the API
 #   defaults and produced a file 26% larger than the hand export.
 
@@ -210,7 +215,14 @@ def _prop(name, value):
 # report below to tell you.
 PDF_FILTER_DATA = {
     "UseLosslessCompression": False,   # JPEG, not PNG-in-PDF
-    "Quality": 90,                     # LibreOffice's own default
+    "Quality": 80,                     # MATCHES MARTIN'S HAND EXPORT ON THE L14.
+    #   LibreOffice's own default is 90, and that is what this tool used until
+    #   2026-09-02 — which is why W126 found a bridge-built report.pdf at
+    #   36.8 MB against 28.9 MB published, +27%, and attributed it to the
+    #   LibreOffice version. It was not the version: it was ten points of JPEG
+    #   quality on several hundred figure images. Martin compresses to 80 by
+    #   hand, so the tool now does the same and SIZE_WARN_FRACTION stops firing
+    #   on a correct export.
     "ReduceImageResolution": True,
     "MaxImageResolution": 300,         # matches config.FIG_TARGET_PRINT_DPI
     "ExportBookmarks": True,           # the master's headings, for navigation

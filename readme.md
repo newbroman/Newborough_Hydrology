@@ -53,18 +53,18 @@ All documents are in [`docs/`](docs/) and linked from the
 
 | Option | Description |
 |--------|-------------|
-| **1 — Run full pipeline** | Runs all 50 steps in order from the beginning |
+| **1 — Run full pipeline** | Runs all 52 steps in order from the beginning |
 | **2 — Resume from step** | Skips completed steps; useful after a partial run |
 | **3 — Run a single step** | Runs one script in isolation for debugging or re-running |
 | **4 — Prepare scenario viewer** | Runs script 19 to build the self-contained HTML viewer |
 | **5 — Run supplementary diagnostics** | Runs scripts 22–24 (residual lag, ridge recharge, seasonality) |
 | **6 — Convert figures to greyscale** | Journal-ready B&W conversion (sub-options 6a quick / 6b full B&W re-run / 6h help) |
-| **7 — Show step list** | Lists all 50 steps with script names and availability status |
+| **7 — Show step list** | Lists all 52 steps with script names and availability status |
 
 For non-interactive use (e.g. in a batch job):
 
 ```bash
-python run_analysis.py --full          # run all 50 steps
+python run_analysis.py --full          # run all 52 steps
 python run_analysis.py --from 14       # resume from step 14
 python run_analysis.py --viewer        # build scenario viewer only
 python run_analysis.py --supplementary # run supplementary diagnostics (22–24) only
@@ -104,7 +104,7 @@ Newborough_Hydrology/
 │   │   └── scenario_viewer.html        ← self-contained interactive viewer (standalone)
 │   ├── outputs_bw/                      ← greyscale figure tree (built by Phase 17, Script 27)
 │   └── [other output directories]
-├── src/                         Analysis scripts (50 steps; script 19 also builds the viewer)
+├── src/                         Analysis scripts (52 steps; script 19 also builds the viewer)
 │   ├── utils/
 │   │   ├── config.py            Cluster colours, labels, DRAINAGE_DATUM, HEADLINE_LAG, FOREST_INTERCEPTION
 │   │   ├── data_utils.py        Cleaning and normalisation helpers
@@ -145,11 +145,11 @@ Newborough_Hydrology/
 
 ## Pipeline Phases
 
-The pipeline comprises **50 registered steps across 17 phases**. Those 50 steps
-are classified two independent ways: by tier — 40 analytical, 4 display/utility
-(Scripts 26c, 09f, 09g and 27) and 6 diagnostic; and by execution — 47 run in a
+The pipeline comprises **52 registered steps across 17 phases**. Those 52 steps
+are classified two independent ways: by tier — 42 analytical, 4 display/utility
+(Scripts 26c, 09f, 09g and 27) and 6 diagnostic; and by execution — 49 run in a
 default pass, 3 (Scripts 24b, 31 and 31b) only under `--with-supplementary`.
-The two breakdowns each account for the same 50 steps and are not additive with
+The two breakdowns each account for the same 52 steps and are not additive with
 one another. Current values are written to `outputs/pipeline_manifest.json` on
 every run — cite that file if it disagrees with this text. Validation
 checkpoints run after Phases 1, 3, 9, and 10.

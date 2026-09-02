@@ -142,6 +142,14 @@ tracked publicly.
   because the sandbox mounts only the connected folder and never `/home/john`,
   and there is no TTY to prompt at. Corrected 2026-09-01; it is not a 403.
   With a credential helper populated inside the repo it pushes normally.
+  **On the L14 that condition is now MET** — `.git/credentials` exists,
+  written 2026-09-02, and `credential.helper` is `store --file=.git/credentials`,
+  which is inside the mount and therefore visible to the sandbox. So a push
+  from the bridge should work on this machine; ASK FIRST regardless (below).
+  **The project-instructions box still says pushes CANNOT be made from the
+  bridge, unconditionally.** That was true before the helper existed and is
+  now too strong; the box is Martin's to edit, not this file's, so the two
+  disagree until he does. Believe this line — it is checkable in one command.
 - **Install pandoc 3.1.3 on the bridge and the mirror problem goes away.** Its
   own is 2.9.2 and `refresh_mirrors.py` rightly refuses below the pinned 3.0.
   Put a modern one in the VM's OWN home — never in Martin's tree:

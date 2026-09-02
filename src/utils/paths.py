@@ -473,6 +473,15 @@ OUT_10_CONSOLIDATED_REPORT  = DIR_10 / "10_consolidated_report_numbers.csv"
 # Script 10a — Three-counterfactual ANCOVA-BACI (primary result)
 OUT_10A_COMPARISON          = DIR_10 / "10a_01_ancova_comparison_table.csv"
 OUT_10A_FULL_COEFFS         = DIR_10 / "10a_02_ancova_full_coefficients.csv"
+# The D-111 equivalence made citable. 10a already FITS the easting design on
+# every run to assert that with s_coast free the coastal form is that design
+# re-parameterised; until 2026-09-02 it threw the fit away, so the claim the
+# decision rests on had no artefact a reader could check. Script 25 reads this
+# for the easting columns of report9 Table 8. Kept SEPARATE from 10a_02 on
+# purpose: appending easting_x_time rows there would put two DRIFT_COLUMNS
+# members in one table and trip drift_term()'s two-at-once guard, which exists
+# to stop exactly that ambiguity.
+OUT_10A_DRIFT_EQUIVALENCE   = DIR_10 / "10a_02b_drift_design_equivalence.csv"
 OUT_10A_TIMESERIES          = DIR_10 / "10a_03_baci_timeseries.csv"
 OUT_10A_FIG_IMPACT          = DIR_10 / "10a_04_baci_timeseries_impact.png"
 OUT_10A_FIG_EDGE            = DIR_10 / "10a_05_baci_timeseries_edge.png"

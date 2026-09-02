@@ -76,16 +76,44 @@ tracked publicly.
 
 ## 4. Environment traps that have each cost a session
 
-- **`device_bash` is NOT Martin's machine.** It is a sandbox with its own
-  package set. Its pandoc reports **2.9.2**; his is 3.1.3. A session once told
-  him to downgrade on that evidence. Only `$HOME/mnt/NRG` is real; `$HOME`
-  is not his home directory.
+- **`device_bash` is NOT Martin's machine.** It is a separate Linux VM with his
+  `~/projects` mounted — not a shell on the ThinkPad. Its pandoc reports
+  **2.9.2** against his 3.1.3, its Python is 3.10 against his 3.12, and scipy,
+  statsmodels, sklearn, geopandas, shapely, contextily and adjustText are **not
+  importable there at all**. A session once told him to downgrade pandoc on that
+  evidence. Only `$HOME/mnt/NRG` is real; `$HOME` is not his home directory.
+- **THE PIPELINE CANNOT BE RUN FROM HERE, and sharing more of his disk would not
+  change that.** Asked on 2026-09-02 whether granting the home directory would
+  help: it would not. The venv is built against his system Python and its
+  compiled wheels; mounting it does not change which machine executes. Installing
+  the libraries into the sandbox would not help either, because `env_audit`
+  refuses results from a machine that is not the recorded one — which is the
+  gate that makes the foreign-PDF class of error catchable. **Pipeline runs and
+  PDF builds are Martin's, by design.** Everything text-only runs here.
+- **ASK FOR A LOG FILE, NOT A PASTE.** `scratch/` is gitignored and inside the
+  mount, so anything he runs can be captured where this session can read it:
+  ```bash
+  bash tools/check_all.sh 2>&1 | tee scratch/last_run.log
+  python3 src/10a_ancova_baci.py 2>&1 | tee scratch/10a.log
+  ```
+  He still sees it scroll; the session reads the file and can grep it rather
+  than being handed 400 lines. Adopted 2026-09-02 at his request — copying long
+  terminal output by hand was the friction. `tee -a` to accumulate a session.
 - **The mount refuses `unlink`.** `rm -f` on a stale git lock *fails silently*.
   Move it instead:
   ```bash
   mkdir -p _to_delete/locks
-  find .git .git-working -name '*.lock' -exec mv {} _to_delete/locks/ \;
+  for f in $(find .git .git-working -name '*.lock' 2>/dev/null); do
+    mv "$f" "_to_delete/locks/$(basename $f).stale.$$" 2>/dev/null
+  done
   ```
+  **THE `.stale.$$` SUFFIX IS NOT DECORATION.** `-exec mv {} _to_delete/locks/ \;`
+  is the obvious form and it silently STOPS WORKING after the first sweep: the
+  destination name is taken, overwriting it needs an unlink, the mount refuses
+  that, and `2>/dev/null` hides the failure. Measured 2026-09-02 — two commits
+  in a row died with *"Another git process seems to be running"* when none was,
+  because every sweep after the first had quietly done nothing. `working/wgit`
+  has always appended `.stale.$$`; that is why.
   Locks appear as `index.lock`, `HEAD.lock` **and** `refs/heads/*.lock` —
   sweep all of them, not just the first. **A commit also leaves temp objects**
   (`.git/objects/*/tmp_obj_*`), measured 2026-09-01: harmless, but move them too

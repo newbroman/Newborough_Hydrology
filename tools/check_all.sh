@@ -232,6 +232,16 @@ echo "── symbols (does the register contradict itself?) ──────�
 symbol_out="$(python3 tools/symbol_check.py 2>/dev/null)" || rc=1
 printf '%s\n' "$symbol_out" | grep -E "^  (RESERVED|OCCUPIED|DUPLICATE)|^  register faults" || true
 
+# COVERAGE, which the check above cannot see. symbol_check asks whether an
+# occurrence matches a REGISTERED sense; a glyph carrying a second sense nobody
+# registered has no sense to fail against, so it reads as silence. beta_1 meant
+# the SSM recharge coefficient and an OLS transfer-function slope in one
+# document for months, and every check above passed throughout. This gates on a
+# glyph GAINING a group against tools/symbol_definition_index.csv; re-pin with
+# `symbol_check.py --definitions --snapshot` when a new sense is deliberate.
+defs_out="$(python3 tools/symbol_check.py --definitions 2>&1)" || rc=1
+printf '%s\n' "$defs_out" | grep -E "^  FAULT |^  RESOLVED |^definitions_audit:" || true
+
 # The equations are embedded ODF objects: each carries the formula as MathML AND
 # as a StarMath annotation, and LibreOffice regenerates the first from the
 # second. Edit one and not the other and the change survives every check above,

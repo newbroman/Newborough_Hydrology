@@ -43,7 +43,23 @@ Usage
 
 from __future__ import annotations
 
-__version__ = "1.6.0"  # Hollingham (2026) — 2026-08-23. check_register():
+__version__ = "1.7.0"  # Hollingham (2026) — 2026-09-01. --definitions: the
+#   COVERAGE audit. symbol_check could only ever ask "does this occurrence match
+#   a registered sense?" — it had nothing to say about a glyph carrying a second
+#   sense NOBODY registered, which is not ambiguity but absence, and reads as
+#   silence. beta_1 meant both the SSM recharge coefficient and an OLS slope in
+#   a forecast transfer function, in one document, for months, and this tool
+#   passed clean throughout because beta was not in the register.
+#
+#   The question is answered from the EQUATIONS, not from prose: a glyph written
+#   about disjoint sets of quantities has more than one job. Two false starts,
+#   both kept in the code as comments because both are easy to repeat — naive
+#   substring containment (a Latin glyph matches any word carrying the letter),
+#   and taking prose words as covariates (which linked all 88 beta equations into
+#   one component and reported nothing at all). Advisory until the snapshot is
+#   pinned; then a glyph GAINING a group is a fault.
+#
+# v1.6.0  # Hollingham (2026) — 2026-08-23. check_register():
 #   the replacement column was never validated, so the register could hand a
 #   displaced sense a glyph already spoken for — and had, giving z to d_depth
 #   while z₀ was the datum. Exit codes split so the register gates and the
@@ -341,15 +357,184 @@ def classify(text: str, span, senses: list[dict]) -> list[str]:
     return hits
 
 
+# ---------------------------------------------------------------- definitions
+
+GREEK = "αβγδεζηθικλμνξπρστυφχψω"
+
+# Tokens that carry no sense — they appear in every fitted equation and so would
+# join any two equations into one component regardless of what they mean.
+_UBIQUITOUS = {"intercept", "const", "c", "e", "y", "t", "n", "where", "and",
+               "the", "is", "are", "fit", "fitted", "per", "of"}
+
+_EQN = re.compile(r"[A-Za-zΑ-Ωα-ω_][A-Za-z0-9Α-Ωα-ω_₀-₉]*\s*=\s*[^.;:\n|]{6,220}")
+_TOKEN = re.compile(r"[A-Za-z][A-Za-z0-9_]{1,}")
+
+# A FORMULA, not an assignment. `FELLING_YEAR = 2017` and `k=5` are settings;
+# a URL fragment is not maths at all. What separates them is a term structure:
+# an operator sitting between two things. Without this the audit reported every
+# config line in PIPELINE_README as an equation and buried the real finding.
+_OPERATOR = re.compile(r"[A-Za-z0-9_₀-₉ΑΩα-ω\)]\s*[·×+/−-]\s*[A-Za-zΑ-Ωα-ω_(]")
+_URLISH_EQ = re.compile(r"https?:|mid=|@|\bdomain\b")
+
+
+def _is_formula(eqn: str) -> bool:
+    return bool(_OPERATOR.search(eqn)) and not _URLISH_EQ.search(eqn)
+
+
+# A COVARIATE IS AN IDENTIFIER, NOT A WORD.
+#
+# The equation regex necessarily runs past the maths into the prose that follows
+# it, and the first draft took every word it found. "aquifer", "with" and "by"
+# then linked equations that have nothing to do with one another, and all 88
+# beta equations collapsed into a single component — the audit reported nothing
+# because everything was joined to everything. The project writes its variables
+# with underscores (P_winter, h_disp_prev, P_win_to_spr) or in caps (PET, MSL),
+# and that is a shape prose does not have.
+_IDENT = re.compile(r"[A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)+|\b[A-Z]{2,}\b")
+
+
+def _covariates(eqn: str) -> frozenset:
+    """The identifier-shaped tokens of an equation. Words are not covariates."""
+    return frozenset(t.lower() for t in _IDENT.findall(eqn)
+                     if t.lower() not in _UBIQUITOUS)
+
+
+def _components(items: list[tuple[str, str, frozenset]]) -> list[list[int]]:
+    """Connected components over 'shares at least one covariate'.
+
+    Two equations belong to the same sense of a glyph when they are written
+    about the same quantities. The SSM's many forms all share P, PET and the
+    displacement; a forecast transfer function shares none of them. Union-find,
+    because a chain A-B-C is one sense even where A and C share nothing.
+    """
+    parent = list(range(len(items)))
+
+    def find(a):
+        while parent[a] != a:
+            parent[a] = parent[parent[a]]
+            a = parent[a]
+        return a
+
+    def union(a, b):
+        ra, rb = find(a), find(b)
+        if ra != rb:
+            parent[rb] = ra
+
+    for i in range(len(items)):
+        for j in range(i + 1, len(items)):
+            if items[i][2] & items[j][2]:
+                union(i, j)
+    out: dict[int, list[int]] = defaultdict(list)
+    for i in range(len(items)):
+        out[find(i)].append(i)
+    return sorted(out.values(), key=len, reverse=True)
+
+
+def definitions_audit(docs: dict[str, str], reg: list[dict],
+                      only: str | None, write_snapshot: bool) -> int:
+    """Does any glyph carry more than one sense NOBODY registered?
+
+    symbol_check proper asks "does this occurrence match a registered sense?".
+    It cannot ask "is there a second sense here at all", because an unregistered
+    glyph has no senses to match and an unregistered SENSE looks like ambiguity.
+    That is the gap that let beta_1 mean the SSM recharge coefficient and an OLS
+    slope in a forecast transfer function, in one document, for months.
+
+    The question is answered from the EQUATIONS rather than from prose: a glyph
+    written about disjoint sets of quantities is a glyph with more than one job.
+    """
+    print("=" * 78)
+    print("DEFINITIONS AUDIT — glyphs written about disjoint sets of quantities")
+    print("=" * 78)
+
+    glyphs = set(GREEK) | {r["glyph"] for r in reg}
+    if only:
+        glyphs = {only}
+    registered = {r["glyph"] for r in reg}
+
+    findings: list[tuple[str, int, list]] = []
+    for g in sorted(glyphs):
+        items: list[tuple[str, str, frozenset]] = []
+        seen: set[str] = set()
+        for doc, text in sorted(docs.items()):
+            for m in _EQN.finditer(text):
+                eqn = re.sub(r"\s+", " ", m.group(0)).strip()
+                if eqn in seen or not _is_formula(eqn):
+                    continue
+                # A bare Latin letter is mostly not a symbol — `d` is in
+                # "widths". occurrences() already draws that line for the audit
+                # proper; substring containment does not, and reported every
+                # word carrying the letter.
+                if not occurrences(eqn, g):
+                    continue
+                seen.add(eqn)
+                cov = _covariates(eqn)
+                if len(cov) >= 2:
+                    items.append((doc, eqn, cov))
+        if len(items) < 2:
+            continue
+        comps = _components(items)
+        if len(comps) > 1:
+            findings.append((g, len(comps), [(items[c[0]], len(c)) for c in comps]))
+
+    if not findings:
+        print("  no glyph carries equations about disjoint quantities")
+    for g, n, examples in findings:
+        mark = "registered" if g in registered else "NOT IN THE REGISTER"
+        print(f"\n  {g}   {n} disjoint equation group(s)   [{mark}]")
+        for (doc, eqn, _), size in examples[:4]:
+            print(f"      {size:3d} eqn(s)  {doc}")
+            print(f"               {eqn[:150]}")
+
+    snap = REPO / "tools/symbol_definition_index.csv"
+    current = {g: n for g, n, _ in findings}
+    if write_snapshot:
+        with snap.open("w", encoding="utf8", newline="") as f:
+            w = csv.writer(f)
+            w.writerow(["glyph", "groups"])
+            for g in sorted(current):
+                w.writerow([g, current[g]])
+        print(f"\n  snapshot pinned: {snap.name} ({len(current)} glyph(s))")
+        return 0
+
+    if not snap.exists():
+        print("\n  no snapshot pinned yet — advisory only.")
+        print("  Review the groups above, then: symbol_check.py --definitions --snapshot")
+        return 0
+
+    pinned = {r["glyph"]: int(r["groups"])
+              for r in csv.DictReader(snap.open(encoding="utf8"))}
+    faults = 0
+    for g in sorted(set(pinned) | set(current)):
+        was, now = pinned.get(g, 0), current.get(g, 0)
+        if now > was:
+            print(f"\n  FAULT  {g}: {was} group(s) pinned, {now} now — a glyph has "
+                  f"gained a sense")
+            faults += 1
+        elif now < was:
+            print(f"\n  RESOLVED  {g}: {was} -> {now}. Re-pin with --snapshot.")
+    if faults:
+        print(f"\ndefinitions_audit: FAIL — {faults} glyph(s) gained a sense")
+        return 1
+    print("\ndefinitions_audit: OK — no glyph has gained a sense since the pin")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--proposal", help="write the edit proposal to this CSV")
     ap.add_argument("--glyph", help="restrict to one glyph")
     ap.add_argument("--show-ambiguous", type=int, default=6,
                     help="how many ambiguous contexts to print per glyph")
+    ap.add_argument("--definitions", action="store_true",
+                    help="audit for glyphs carrying more than one sense")
+    ap.add_argument("--snapshot", action="store_true",
+                    help="with --definitions: pin the current groups")
     args = ap.parse_args()
 
     reg = load_register()
+    if args.definitions:
+        return definitions_audit(load_documents(), reg, args.glyph, args.snapshot)
     register_faults = check_register(reg)
     if args.glyph:
         reg = [r for r in reg if r["glyph"] == args.glyph]

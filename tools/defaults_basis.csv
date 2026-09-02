@@ -23,3 +23,9 @@ mech_scrape_cut_rise_mm,OUT_09F_REACH_CSV,#0,scrape_head_mm,1.0,cell,mechanism-d
 mech_thinned_mm,OUT_09F_REACH_CSV,#0,thinned_forest_head_mm,1.0,cell,mechanism-diagram edge amplitude at distance 0
 mech_coastal_storm_mm,OUT_09F_REACH_CSV,#0,coastal_6m_storm_head_mm,1.0,cell,mechanism-diagram edge amplitude at distance 0 (D-091)
 clearfell_summer_step_mm,OUT_10A_REPORT,Parameter=ANCOVA_Forest_Impact_clearfell_step_summer,Value,1000.0,cell,summer clearfell step in mm; CSV stores metres
+baci_coastal_trend_impact_mm_yr,OUT_25_CORRECTION_DIAGNOSTIC,fit_label=full_lincap_canopy;tier=Impact,predicted_trend_mm_yr,1.0,cell,D-111 BACI drift donor; Impact tier coastal trend
+baci_coastal_trend_edge_mm_yr,OUT_25_CORRECTION_DIAGNOSTIC,fit_label=full_lincap_canopy;tier=Edge,predicted_trend_mm_yr,1.0,cell,D-111 BACI drift donor; Edge tier coastal trend
+baci_coastal_trend_forest_mm_yr,OUT_25_CORRECTION_DIAGNOSTIC,fit_label=full_lincap_canopy;tier=Forest,predicted_trend_mm_yr,1.0,cell,D-111 BACI drift donor; Forest tier coastal trend
+baci_coastal_trend_coastal_mm_yr,OUT_25_CORRECTION_DIAGNOSTIC,fit_label=full_lincap_canopy;tier=Coastal,predicted_trend_mm_yr,1.0,cell,D-111 BACI drift donor; Coastal tier coastal trend
+baci_coastal_trend_climate_mm_yr,OUT_25_CORRECTION_DIAGNOSTIC,fit_label=full_lincap_canopy;tier=Climate,predicted_trend_mm_yr,1.0,cell,D-111 BACI drift donor; Climate tier coastal trend
+baci_coastal_trend_farfield_mm_yr,OUT_25_CORRECTION_DIAGNOSTIC,fit_label=full_lincap_canopy;tier=FarField,predicted_trend_mm_yr,1.0,cell,D-111 BACI drift donor; FarField tier coastal trend

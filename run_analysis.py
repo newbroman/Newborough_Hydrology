@@ -110,6 +110,25 @@ Script 09g (also Phase 17, display/utility) reads the 09f_01 reach profile,
 the 10m WMC3 BACI and the 10a clearfell steps, all produced earlier in the
 same pass, with the same pipeline_params fallback pattern for partial runs.
 
+Script 10a (D-111, from 2026-09-02) reads OUT_25_CORRECTION_DIAGNOSTIC — the
+Script 25 coastal donor — which is produced LATER in the pass, not earlier.
+It is the first entry in this note that runs BEFORE its source rather than
+after, and the first to reach its source through a shared helper
+(clearfell_common.coastal_differential_mm_yr) rather than by naming the path
+in the script. `pipeline_lint --check deps` scans the numbered scripts for
+path symbols and so does not see this read; it is registered here instead,
+and the four differentials have rows in tools/defaults_basis.csv so that
+defaults_lint checks the fallbacks against the CSV they mirror.
+
+ON A FIRST PASS THIS MATTERS MORE THAN THE Sy CASES ABOVE. The drift
+covariate is part of the published clearfell model, not a figure's
+volumetric conversion, so a first pass takes the documented differentials
+rather than the run's own. On a complete run — Script 25 having been run at
+least once before — the live CSV is read and the defaults are never touched.
+A first-pass 10a result is therefore provisional until the pipeline has been
+round-tripped, which is the same rule the Sy cases carry, applied to a
+number that reaches the headline.
+
 For the most accurate scenario figures on a NEW dataset:
 
     1. python run_analysis.py --full          # first pass

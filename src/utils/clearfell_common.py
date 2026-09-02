@@ -70,7 +70,28 @@ provenance with ``_ = wells_prov``. Script 10d uses it to require
 >=2 measured Jun-Sep months in ``annual_summer_minimum``.
 """
 
-__version__ = "1.12.0"  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS now imported from config.SUMMER_MINIMUM_MONTHS, joining SPRING_MONTHS which was already re-exported from config.
+__version__ = "1.13.1"  # Hollingham (2026) - 2026-09-02. drift_term() and
+#   coastal_differential_mm_yr(), for D-111's BACI_DRIFT_DESIGN. The accessor
+#   exists so that no downstream site names a drift design: five guards in 10a
+#   tested the literal 'easting_x_time' and each one guarded a CORRECTION, so a
+#   second design under a second name would have skipped them silently. It
+#   RAISES on absence where the caller says a term is required, because a
+#   missing drift column is a build fault and not a case to skip.
+#
+#   The differential is read from the committed 25_14 rather than recomputed;
+#   Combined has no tier row of its own and is the well-count-weighted mean of
+#   Forest, Coastal and Climate. All four reproduce M14_RESULT §3 exactly:
+#   Forest -10.70, Climate -0.94, Combined -3.74, FarField -13.13.
+#
+#   1.13.1 (same day): the differential is per ZONE x control, not per control.
+#   1.13.0 keyed it on the control alone and returned the Impact differential
+#   for every zone, so the Edge contrasts were scaled by the wrong quantity and
+#   s_coast came out low by exactly Impact-Forest / Edge-Forest = 1.127. Stored
+#   defaults are now the six TIER TRENDS rather than eight differentials: every
+#   zone x control combination derives from them, six numbers instead of eight,
+#   and a new zone adds none.
+#
+# v1.12.0  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS now imported from config.SUMMER_MINIMUM_MONTHS, joining SPRING_MONTHS which was already re-exported from config.
 #   Batch two of the seasonal-windows migration (D-100): the window's
 #   MONTHS ARE UNCHANGED and the constant is asserted equal to the literal it
 #   replaced, in value and in type, read mechanically out of git HEAD. No
@@ -144,6 +165,7 @@ from utils.paths import (
     INT_WELLS_CLEAN, INT_WELLS_PROVENANCE, INT_WELLS_EXTENDED, INT_CLIMATE,
     INT_MASTER_DATA, DATA_WELL_ELEVATIONS, DATA_DIST_COAST,
     OUT_10E_COEFF_SHIFTS, OUT_10I_HINDCAST, OUT_25_FIT_PARAMETERS,
+    OUT_25_CORRECTION_DIAGNOSTIC,
 )
 from utils.data_utils import PROV_MEASURED, PROV_MISSING
 from utils.config import (
@@ -240,6 +262,128 @@ FAR_FIELD_CONTROL_WELLS = [
 # than typing it twice and drifting.
 FAR_FIELD_TIER_LABEL    = 'Far-field Ctrl'   # TIERS / TIER_COLOURS key
 FAR_FIELD_CONTROL_LABEL = 'FarField'         # 10a CONTROLS key / 25 control_tier
+
+# ── BACI drift term: the accessor and the coastal donor (D-111, M14) ─────────
+#
+# WHY AN ACCESSOR AND NOT A NAME. The drift covariate was called
+# `easting_x_time` and that literal string was tested in five places in 10a of
+# the form `if 'easting_x_time' in fit['col_names']`, each guarding a CORRECTION.
+# Introducing a second design under a second column name would have left every
+# one of those guards False, and a guard that is False here does not raise — it
+# skips the correction and returns a "corrected" series that was never
+# corrected. Silent, plausible, and wrong. So downstream code asks for THE DRIFT
+# TERM and never names a design.
+DRIFT_COLUMNS = ('easting_x_time', 'coastal_x_time')
+
+
+def drift_term(col_names, required=True):
+    """The drift column present in `col_names`, or None.
+
+    `col_names` may be a fit's col_names list or a DataFrame's columns.
+
+    Raises when `required` and none is present: under a design that declares a
+    drift term, its absence is a build fault, not a case to skip. That is the
+    whole reason this function exists — see the note above.
+    """
+    names = list(getattr(col_names, 'columns', col_names))
+    found = [c for c in DRIFT_COLUMNS if c in names]
+    if len(found) > 1:
+        raise ValueError(f"two drift columns present at once: {found}. "
+                         "The design chooses one; carrying both makes the "
+                         "coefficient table ambiguous about which drift the "
+                         "step is net of.")
+    if not found:
+        if required:
+            raise KeyError(
+                "no drift column in " + repr(names) + ". Expected one of "
+                + repr(list(DRIFT_COLUMNS)) + ".")
+        return None
+    return found[0]
+
+
+# Which 25_14 tiers make up each of 10a's CONTROLS keys. 'Combined' has no tier
+# row of its own in 25_14 — it is Forest + Coastal + Climate — so its
+# differential is the well-count-weighted mean of the three. Verified against
+# M14_RESULT_2026-08-28 §3: Forest -10.70, Climate -0.94, Combined -3.74,
+# FarField -13.13, all four reproduced from the committed CSV.
+CONTROL_TIER_COMPOSITION = {
+    'Forest':                ('Forest',),
+    'Climate':               ('Climate',),
+    'Combined':              ('Forest', 'Coastal', 'Climate'),
+    FAR_FIELD_CONTROL_LABEL: ('FarField',),
+}
+
+
+def coastal_differential_mm_yr(control_label, zone_label='Impact',
+                               donor_fit=None, quiet=False):
+    """ZONE-minus-control coastal trend differential, mm/yr, from 25_14.
+
+    THE ZONE IS NOT OPTIONAL. The first version of this took the control label
+    alone and returned the Impact differential for every zone, so the Edge
+    contrasts were scaled by the wrong quantity and s_coast came out low by
+    exactly Impact-Forest / Edge-Forest = 1.127. It was visible only because the
+    older coastal_drift_differential() still printed the right Delta-delta
+    beside the wrong s_coast; had both come from here they would have agreed
+    with each other and been wrong together.
+
+    Read live from the committed `25_14_correction_diagnostic.csv` rather than
+    recomputed: the decay function and its fitted parameters belong to Script
+    25, and evaluating them a second time here is how two "coastal gradients"
+    start to disagree.
+
+    SECOND-PASS READ. Script 25 runs AFTER Script 10, so on a first pass this
+    file may not exist. Falls back to the documented default with a console
+    warning, which is the 09b/09d/09f pattern.
+    """
+    from utils.config import BACI_COASTAL_DONOR_FIT
+    from utils.pipeline_params import default_value
+
+    donor_fit = donor_fit or BACI_COASTAL_DONOR_FIT
+    tiers = CONTROL_TIER_COMPOSITION.get(control_label)
+    if tiers is None:
+        raise KeyError(
+            f"no 25_14 tier composition for control set {control_label!r}. "
+            f"Known: {sorted(CONTROL_TIER_COMPOSITION)}. Add a row rather than "
+            f"defaulting — a missing composition silently means zero drift.")
+
+    # The six TIER TRENDS are the stored quantity, not the eight differentials:
+    # every zone x control combination derives from them, so there are six
+    # numbers to keep true rather than eight, and adding a zone adds none.
+    if OUT_25_CORRECTION_DIAGNOSTIC.exists():
+        d = pd.read_csv(OUT_25_CORRECTION_DIAGNOSTIC)
+        d = d[d['fit_label'] == donor_fit].set_index('tier')
+        if d.empty:
+            raise ValueError(
+                f"donor fit {donor_fit!r} is not in "
+                f"{OUT_25_CORRECTION_DIAGNOSTIC.name}; present: "
+                f"{sorted(pd.read_csv(OUT_25_CORRECTION_DIAGNOSTIC).fit_label.unique())}")
+        trend = {t: float(d.loc[t, 'predicted_trend_mm_yr']) for t in d.index}
+    else:
+        trend = {t: float(default_value(f"baci_coastal_trend_{t.lower()}_mm_yr"))
+                 for t in ('Impact', 'Edge', 'Forest', 'Coastal', 'Climate',
+                           'FarField')}
+        if not quiet:
+            warnings.warn(
+                f"{OUT_25_CORRECTION_DIAGNOSTIC.name} not found — using the "
+                f"documented first-pass tier trends for "
+                f"{zone_label} x {control_label}", RuntimeWarning)
+
+    if zone_label not in trend:
+        raise KeyError(f"no 25_14 tier for zone {zone_label!r}; "
+                       f"present: {sorted(trend)}")
+
+    # Weighted by the DESIGN's own well counts, from the tier lists above, so
+    # the weighting does not depend on a column of the donor CSV.
+    counts = {'Forest': len(FOREST_CONTROL_WELLS),
+              'Coastal': len(COASTAL_CONTROL_WELLS),
+              'Climate': len(CLIMATE_CONTROL_WELLS),
+              'Edge': len(EDGE_WELLS),
+              'Impact': len(IMPACT_WELLS),
+              'FarField': len(FAR_FIELD_CONTROL_WELLS)}
+    n = sum(counts[t] for t in tiers)
+    mean_ctrl = sum(trend[t] * counts[t] for t in tiers) / n
+    return trend[zone_label] - mean_ctrl
+
 
 # The five-tier clearfell design — the network whose BACI results are
 # published.  Named separately from ALL_NETWORK_WELLS so that consumers which

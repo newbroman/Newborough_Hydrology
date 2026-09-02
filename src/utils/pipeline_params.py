@@ -296,6 +296,20 @@ _DEFAULTS = {
     "ceh36_scrape_response_m":  0.1294,  # 09a paired BACI, CEH36 Pure_Scraping vs
                                          # CEH4; the H0 anchor for the scrape-drain
                                          # maps in Script 20
+    # --- BACI coastal-drift differentials (D-111, Script 10a) ---------------
+    # Impact minus control coastal trend, mm/yr, from 25_14 fit_label
+    # full_lincap_canopy. Script 25 runs AFTER Script 10, so 10a reads the live
+    # CSV first and falls back to these on a first pass, with a warning.
+    # Refreshed from the committed CSV 2026-09-02; reproduce M14_RESULT §3.
+    # Stored as the six TIER TRENDS, not as the eight zone x control
+    # differentials: every differential derives from these, so there are six
+    # numbers to keep true rather than eight, and a new zone adds none.
+    "baci_coastal_trend_impact_mm_yr":   -12.9572,
+    "baci_coastal_trend_edge_mm_yr":     -11.7547,
+    "baci_coastal_trend_forest_mm_yr":    -2.2604,
+    "baci_coastal_trend_coastal_mm_yr":  -19.6202,
+    "baci_coastal_trend_climate_mm_yr":  -12.0154,
+    "baci_coastal_trend_farfield_mm_yr":   0.1716,
     "uniform_residual_mm_yr":  -11.0,   # mean over the open-dune clusters of
                                          # (balanced observed decline − modelled coastal
                                          # gradient), 25_03_cluster_partition.csv. The

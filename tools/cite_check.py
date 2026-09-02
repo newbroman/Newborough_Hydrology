@@ -367,6 +367,25 @@ EXTRA_VALUE_TABLES = [
     ("outputs/39_ccw_hindcast/39_01_hindcast_per_well.csv", "well",
      ["nse", "pearson_r", "bias_m", "epoch_shift_m"]),
 
+    # ── Added 2026-09-02 (T13). THE HEADLINE ANALYSIS WAS IN NO VALUE TABLE.
+    # Of the whole Script 10 clearfell family only 10e_01 was registered, so
+    # the +113 mm step, its CI, its p-value and the four-zone contrasts were
+    # watched by nothing. Three stale numbers were found by hand on 2026-09-02
+    # — report12's Edge step +33 against a committed 30, report10's pooled step
+    # +28 against 24.1, and six report9 four-zone values whose R2 and N matched
+    # the committed run while every coefficient and p-value did not. A full
+    # cite_check run would have caught none of them.
+    ("outputs/10_clearfell_baci/10a_01_ancova_comparison_table.csv", "Control",
+     ["Clearfell_step_m", "Clearfell_CI_lo_m", "Clearfell_CI_hi_m", "Clearfell_p"]),
+    ("outputs/10_clearfell_baci/10k_01_four_zone_results.csv", "zone",
+     ["clearfell_step_m", "clearfell_ci_lo_m", "clearfell_ci_hi_m", "clearfell_p"]),
+    ("outputs/10_clearfell_baci/10k_03_easting_sensitivity.csv", "zone",
+     ["clearfell_step_m", "clearfell_p"]),
+    ("outputs/10_clearfell_baci/10a_09_coastal_scale_factor.csv", "control_tier",
+     ["s_coast", "s_coast_se", "coastal_differential_mm_yr"]),
+    ("outputs/10_clearfell_baci/10a_10_coastal_fixed1_sensitivity.csv", "control_tier",
+     ["clearfell_step_free_m", "clearfell_step_fixed1_m", "s_coast_fitted"]),
+
     # ── Added 2026-08-31 by the coverage sweep described in the v1.12.0 note.
     # Seven tables, each carrying quantities watched nowhere else. The cluster
     # betas are deliberately EXCLUDED from every one of them: they are already

@@ -3,7 +3,7 @@
 
 LIVE PARAMETERS
 --------------------------------------------------------------------------
-  δ₀ (Script 25, forest-free linear-capped): 31.33 mm/yr; L = 895 m
+  δ₀ (Script 25, forest-free linear-capped): 31.35 mm/yr; L = 894 m
   clearfell step (10a ANCOVA, Path B, observed): 113.1 mm
   scrape on-site (CEH36 Pure_Scraping, observed): 129.4 mm
   scrape off-site (WMC3 DiD mean, observed): -54.5 mm
@@ -15,7 +15,7 @@ LIVE PARAMETERS
 COMPARISON TABLE
 --------------------------------------------------------------------------
   Coastal erosion (chronic drawdown)     [Coast, progressive, loss, modelled]
-      peak=-626.6 mm  area=-80282.0 mm·ha  volume=-247494.8 m³
+      peak=-627.0 mm  area=-80228.3 mm·ha  volume=-247329.4 m³
       SD15b (wet-slack, 610 mm): worsen=0  relieve=0   SD16 (dry-slack, 980 mm): worsen=6  relieve=0  (n=66)
 
   Sea-level rise (head gain)             [Coast, progressive, gain, modelled]
@@ -39,7 +39,7 @@ COMPARISON TABLE
       SD15b (wet-slack, 610 mm): worsen=0  relieve=0   SD16 (dry-slack, 980 mm): worsen=5  relieve=0  (n=66)
 
   Unexplained uniform decline (central estimate, not resolved) [Unexplained (uniform), uniform, loss, modelled]
-      peak=-220.0 mm  area=-208813.2 mm·ha  volume=-643733.4 m³
+      peak=-220.2 mm  area=-209026.5 mm·ha  volume=-644390.9 m³
       SD15b (wet-slack, 610 mm): worsen=0  relieve=0   SD16 (dry-slack, 980 mm): worsen=26  relieve=0  (n=66)
 
   Scrape NET (on-site + off-site)        [Dune scraping, redistributive, net, observed+modelled]

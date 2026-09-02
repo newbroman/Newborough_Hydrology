@@ -1,7 +1,7 @@
 {
- "generated": "2026-08-29T22:39:42Z",
- "last_changed": "2026-08-29T22:39:42Z",
- "hash": "07b23367e042cb6b",
+ "generated": "2026-09-02T12:56:10Z",
+ "last_changed": "2026-09-02T12:56:10Z",
+ "hash": "9e68b9e5550b2051",
  "schema": "nw-engine-1",
  "source": "11b_spatial_thresholds DATA (base_layer excluded)",
  "cluster_coeffs": {
@@ -1123,11 +1123,11 @@
    "peak_month": 2
   },
   {
-   "name": "pw",
-   "display_name": "pw",
-   "E": 242056.0,
-   "N": 363286.0,
-   "ground_elev": 6.88,
+   "name": "pe",
+   "display_name": "pe",
+   "E": 242739.0,
+   "N": 362823.0,
+   "ground_elev": 5.15,
    "cluster": "C2",
    "nearest_cluster_only": false,
    "default_h_prev": -0.8991328367348385,
@@ -1804,11 +1804,11 @@
    "default_h_max": -0.4442641444302426
   },
   {
-   "name": "pe",
-   "display_name": "pe",
-   "E": 242739.0,
-   "N": 362823.0,
-   "ground_elev": 5.15,
+   "name": "pw",
+   "display_name": "pw",
+   "E": 242056.0,
+   "N": 363286.0,
+   "ground_elev": 6.88,
    "cluster": "C3",
    "nearest_cluster_only": false,
    "default_h_prev": -1.106776497907581,

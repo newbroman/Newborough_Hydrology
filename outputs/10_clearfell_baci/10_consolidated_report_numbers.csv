@@ -1,149 +1,149 @@
 Parameter,Well,Era,Value,Unit,Note,Source
-ANCOVA_Forest_Impact_clearfell_step,Impact,Post_felling,0.1130946667961032,m,"p=0.0021, CI=[0.0423,0.1839]",10a
-ANCOVA_Forest_Impact_scraping_step,Impact,Post_scraping,0.3241766489333968,m,p=0.0035,10a
-ANCOVA_Forest_Impact_R2,Impact,,0.2405987112370747,,Model R²,10a
+ANCOVA_Forest_Impact_clearfell_step,Impact,Post_felling,0.1130946667961028,m,"p=0.0021, CI=[0.0423,0.1839]",10a
+ANCOVA_Forest_Impact_scraping_step,Impact,Post_scraping,0.3241766489334295,m,p=0.0035,10a
+ANCOVA_Forest_Impact_R2,Impact,,0.2405987112370746,,Model R²,10a
 ANCOVA_Forest_Impact_N,Impact,,163.0,months,Sample size,10a
-ANCOVA_Forest_Impact_coeff_intercept,Impact,,0.1141569801256181,m,"SE=0.025597, p=<0.001",10a
-ANCOVA_Forest_Impact_coeff_cwb,Impact,,-0.0004073799562812,m,"SE=0.000128, p=0.0018",10a
-ANCOVA_Forest_Impact_coeff_scraping,Impact,,0.3241766489333968,m,"SE=0.109506, p=0.0035",10a
-ANCOVA_Forest_Impact_coeff_clearfell,Impact,,0.1130946667961032,m,"SE=0.036135, p=0.0021",10a
-ANCOVA_Forest_Impact_coeff_cwb_x_fell,Impact,,-7.832108708708807e-05,m,"SE=0.000165, p=0.6347",10a
-ANCOVA_Forest_Impact_coeff_easting_x_time,Impact,,3.440573676554619e-05,m,"SE=0.000010, p=<0.001",10a
-ANCOVA_Forest_Impact_s_coast,Impact,,1.5929395970171143,,"SE=0.4423, p vs 0=<0.001, p vs 1=0.1820; the amplitude of the Script 25 coastal gradient this pair feels, 1 = exactly the fitted field. Differential -10.70 mm/yr from 25_01_panel_fit_parameters.csv [full_canopy/linear_capped]",10a
-ANCOVA_Forest_Impact_clearfell_step_s_fixed1,Impact,Post_felling,0.0772188896569094,m,"SENSITIVITY, not the headline (D-076): the clearfell step with the coastal correction imposed at the fitted amplitude (s_coast = 1) instead of estimated. p=0.0018; moves the headline by -35.9 mm",10a
-ANCOVA_Forest_Impact_Oct2023_step,Impact,Oct2023,0.4551901169887161,m,"p=<0.001, dAIC=-10.99",10a
-ANCOVA_Forest_Edge_clearfell_step,Edge,Post_felling,0.0296701060648095,m,"p=0.2486, CI=[-0.0205,0.0799]",10a
-ANCOVA_Forest_Edge_scraping_step,Edge,Post_scraping,0.568728998859389,m,p=<0.001,10a
-ANCOVA_Forest_Edge_R2,Edge,,0.4568463192171718,,Model R²,10a
+ANCOVA_Forest_Impact_coeff_intercept,Impact,,0.1141569801256202,m,"SE=0.025597, p=<0.001",10a
+ANCOVA_Forest_Impact_coeff_cwb,Impact,,-0.000407379956281,m,"SE=0.000128, p=0.0018",10a
+ANCOVA_Forest_Impact_coeff_scraping,Impact,,0.3241766489334295,m,"SE=0.109506, p=0.0035",10a
+ANCOVA_Forest_Impact_coeff_clearfell,Impact,,0.1130946667961028,m,"SE=0.036135, p=0.0021",10a
+ANCOVA_Forest_Impact_coeff_cwb_x_fell,Impact,,-7.832108708758e-05,m,"SE=0.000165, p=0.6347",10a
+ANCOVA_Forest_Impact_coeff_coastal_x_time,Impact,,1.5922376538915286,m,"SE=0.442077, p=<0.001",10a
+ANCOVA_Forest_Impact_s_coast,Impact,,1.5922376538915286,,"SE=0.4421, p vs 0=<0.001, p vs 1=0.1823; the amplitude of the Script 25 coastal gradient this pair feels, 1 = exactly the fitted field. Differential -10.70 mm/yr from 25_01_panel_fit_parameters.csv [full_canopy/linear_capped]",10a
+ANCOVA_Forest_Impact_clearfell_step_s_fixed1,Impact,Post_felling,0.0772475052262695,m,"SENSITIVITY, not the headline (D-076): the clearfell step with the coastal correction imposed at the fitted amplitude (s_coast = 1) instead of estimated. p=0.0018; moves the headline by -35.8 mm",10a
+ANCOVA_Forest_Impact_Oct2023_step,Impact,Oct2023,0.4551901169887169,m,"p=<0.001, dAIC=-10.99",10a
+ANCOVA_Forest_Edge_clearfell_step,Edge,Post_felling,0.0296701060648085,m,"p=0.2486, CI=[-0.0205,0.0799]",10a
+ANCOVA_Forest_Edge_scraping_step,Edge,Post_scraping,0.5687289988593981,m,p=<0.001,10a
+ANCOVA_Forest_Edge_R2,Edge,,0.4568463192171716,,Model R²,10a
 ANCOVA_Forest_Edge_N,Edge,,159.0,months,Sample size,10a
-ANCOVA_Forest_Edge_coeff_intercept,Edge,,-0.018804197864545,m,"SE=0.018398, p=0.3084",10a
-ANCOVA_Forest_Edge_coeff_cwb,Edge,,-0.0005212968620926,m,"SE=0.000091, p=<0.001",10a
-ANCOVA_Forest_Edge_coeff_scraping,Edge,,0.568728998859389,m,"SE=0.135614, p=<0.001",10a
-ANCOVA_Forest_Edge_coeff_clearfell,Edge,,0.0296701060648095,m,"SE=0.025618, p=0.2486",10a
-ANCOVA_Forest_Edge_coeff_cwb_x_fell,Edge,,-0.0001118393426048,m,"SE=0.000119, p=0.3487",10a
-ANCOVA_Forest_Edge_coeff_easting_x_time,Edge,,5.210494661408798e-06,m,"SE=0.000002, p=<0.001",10a
-ANCOVA_Forest_Edge_s_coast,Edge,,1.2284545970288832,,"SE=0.3600, p vs 0=<0.001, p vs 1=0.5267; the amplitude of the Script 25 coastal gradient this pair feels, 1 = exactly the fitted field. Differential -9.49 mm/yr from 25_01_panel_fit_parameters.csv [full_canopy/linear_capped]",10a
-ANCOVA_Forest_Edge_clearfell_step_s_fixed1,Edge,Post_felling,0.0177461599328528,m,"SENSITIVITY, not the headline (D-076): the clearfell step with the coastal correction imposed at the fitted amplitude (s_coast = 1) instead of estimated. p=0.3087; moves the headline by -11.9 mm",10a
-ANCOVA_Forest_Edge_Oct2023_step,Edge,Oct2023,0.6361584585424576,m,"p=<0.001, dAIC=-13.76",10a
+ANCOVA_Forest_Edge_coeff_intercept,Edge,,-0.0188041978645427,m,"SE=0.018398, p=0.3084",10a
+ANCOVA_Forest_Edge_coeff_cwb,Edge,,-0.0005212968620927,m,"SE=0.000091, p=<0.001",10a
+ANCOVA_Forest_Edge_coeff_scraping,Edge,,0.5687289988593981,m,"SE=0.135614, p=<0.001",10a
+ANCOVA_Forest_Edge_coeff_clearfell,Edge,,0.0296701060648085,m,"SE=0.025618, p=0.2486",10a
+ANCOVA_Forest_Edge_coeff_cwb_x_fell,Edge,,-0.000111839342605,m,"SE=0.000119, p=0.3487",10a
+ANCOVA_Forest_Edge_coeff_coastal_x_time,Edge,,1.2283234866759538,m,"SE=0.359990, p=<0.001",10a
+ANCOVA_Forest_Edge_s_coast,Edge,,1.2283234866759538,,"SE=0.3600, p vs 0=<0.001, p vs 1=0.5269; the amplitude of the Script 25 coastal gradient this pair feels, 1 = exactly the fitted field. Differential -9.50 mm/yr from 25_01_panel_fit_parameters.csv [full_canopy/linear_capped]",10a
+ANCOVA_Forest_Edge_clearfell_step_s_fixed1,Edge,Post_felling,0.0177535845653626,m,"SENSITIVITY, not the headline (D-076): the clearfell step with the coastal correction imposed at the fitted amplitude (s_coast = 1) instead of estimated. p=0.3085; moves the headline by -11.9 mm",10a
+ANCOVA_Forest_Edge_Oct2023_step,Edge,Oct2023,0.6361584585424575,m,"p=<0.001, dAIC=-13.76",10a
 ANCOVA_Climate_Impact_clearfell_step,Impact,Post_felling,-0.0146070726395706,m,"p=0.5551, CI=[-0.0630,0.0338]",10a
-ANCOVA_Climate_Impact_scraping_step,Impact,Post_scraping,0.0280938652440344,m,p=0.8135,10a
+ANCOVA_Climate_Impact_scraping_step,Impact,Post_scraping,0.0280938652440386,m,p=0.8135,10a
 ANCOVA_Climate_Impact_R2,Impact,,0.2061576155827327,,Model R²,10a
 ANCOVA_Climate_Impact_N,Impact,,147.0,months,Sample size,10a
-ANCOVA_Climate_Impact_coeff_intercept,Impact,,-0.523369121857335,m,"SE=0.019025, p=<0.001",10a
-ANCOVA_Climate_Impact_coeff_cwb,Impact,,-0.000369190267977,m,"SE=0.000100, p=<0.001",10a
-ANCOVA_Climate_Impact_coeff_scraping,Impact,,0.0280938652440344,m,"SE=0.118894, p=0.8135",10a
+ANCOVA_Climate_Impact_coeff_intercept,Impact,,-0.5233691218573338,m,"SE=0.019025, p=<0.001",10a
+ANCOVA_Climate_Impact_coeff_cwb,Impact,,-0.000369190267976,m,"SE=0.000100, p=<0.001",10a
+ANCOVA_Climate_Impact_coeff_scraping,Impact,,0.0280938652440386,m,"SE=0.118894, p=0.8135",10a
 ANCOVA_Climate_Impact_coeff_clearfell,Impact,,-0.0146070726395706,m,"SE=0.024696, p=0.5551",10a
-ANCOVA_Climate_Impact_coeff_cwb_x_fell,Impact,,9.280570415305164e-05,m,"SE=0.000123, p=0.4530",10a
-ANCOVA_Climate_Impact_coeff_easting_x_time,Impact,,-1.453370167188515e-06,m,"SE=0.000001, p=0.0211",10a
-ANCOVA_Climate_Impact_s_coast_identified,Impact,,0.0,,"NOT IDENTIFIED: s_coast = -7.74 ± 3.32, and an SE above 2.0 cannot separate s = 1 from s = 0. The coastal differential here is -0.94 mm/yr — these tiers sit at nearly the same distance from the shore, so the ratio is a small denominator, not a measurement",10a
-ANCOVA_Climate_Impact_Oct2023_step,Impact,Oct2023,0.1245172982540644,m,"p=0.3280, dAIC=0.99",10a
-ANCOVA_Climate_Edge_clearfell_step,Edge,Post_felling,-0.1067925725678177,m,"p=<0.001, CI=[-0.1674,-0.0462]",10a
-ANCOVA_Climate_Edge_scraping_step,Edge,Post_scraping,0.2891810282102634,m,p=0.4565,10a
-ANCOVA_Climate_Edge_R2,Edge,,0.240832668831646,,Model R²,10a
+ANCOVA_Climate_Impact_coeff_cwb_x_fell,Impact,,9.280570415146724e-05,m,"SE=0.000123, p=0.4530",10a
+ANCOVA_Climate_Impact_coeff_coastal_x_time,Impact,,-7.714431275939838,m,"SE=3.307272, p=0.0211",10a
+ANCOVA_Climate_Impact_s_coast_identified,Impact,,0.0,,"NOT IDENTIFIED: s_coast = -7.71 ± 3.31, and an SE above 2.0 cannot separate s = 1 from s = 0. The coastal differential here is -0.94 mm/yr — these tiers sit at nearly the same distance from the shore, so the ratio is a small denominator, not a measurement",10a
+ANCOVA_Climate_Impact_Oct2023_step,Impact,Oct2023,0.1245172982540515,m,"p=0.3280, dAIC=0.99",10a
+ANCOVA_Climate_Edge_clearfell_step,Edge,Post_felling,-0.1067925725678083,m,"p=<0.001, CI=[-0.1674,-0.0462]",10a
+ANCOVA_Climate_Edge_scraping_step,Edge,Post_scraping,0.2891810282101615,m,p=0.4565,10a
+ANCOVA_Climate_Edge_R2,Edge,,0.2408326688316461,,Model R²,10a
 ANCOVA_Climate_Edge_N,Edge,,144.0,months,Sample size,10a
-ANCOVA_Climate_Edge_coeff_intercept,Edge,,-0.6676973044525409,m,"SE=0.023881, p=<0.001",10a
-ANCOVA_Climate_Edge_coeff_cwb,Edge,,-0.0005202044509383,m,"SE=0.000125, p=<0.001",10a
-ANCOVA_Climate_Edge_coeff_scraping,Edge,,0.2891810282102634,m,"SE=0.387229, p=0.4565",10a
-ANCOVA_Climate_Edge_coeff_clearfell,Edge,,-0.1067925725678177,m,"SE=0.030938, p=<0.001",10a
-ANCOVA_Climate_Edge_coeff_cwb_x_fell,Edge,,0.0001767302288137,m,"SE=0.000154, p=0.2536",10a
-ANCOVA_Climate_Edge_coeff_easting_x_time,Edge,,-1.7672344892336522e-06,m,"SE=0.000001, p=0.0032",10a
-ANCOVA_Climate_Edge_s_coast_identified,Edge,,0.0,,"NOT IDENTIFIED: s_coast = +nan ± nan, and an SE above 2.0 cannot separate s = 1 from s = 0. The coastal differential here is +0.26 mm/yr — these tiers sit at nearly the same distance from the shore, so the ratio is a small denominator, not a measurement",10a
-ANCOVA_Climate_Edge_Oct2023_step,Edge,Oct2023,-0.2824869112700374,m,"p=0.5092, dAIC=1.54",10a
-ANCOVA_Combined_Impact_clearfell_step,Impact,Post_felling,0.0696927374814475,m,"p=<0.001, CI=[0.0344,0.1050]",10a
-ANCOVA_Combined_Impact_scraping_step,Impact,Post_scraping,0.0767192388998287,m,p=0.3049,10a
+ANCOVA_Climate_Edge_coeff_intercept,Edge,,-0.66769730445253,m,"SE=0.023881, p=<0.001",10a
+ANCOVA_Climate_Edge_coeff_cwb,Edge,,-0.000520204450937,m,"SE=0.000125, p=<0.001",10a
+ANCOVA_Climate_Edge_coeff_scraping,Edge,,0.2891810282101615,m,"SE=0.387229, p=0.4565",10a
+ANCOVA_Climate_Edge_coeff_clearfell,Edge,,-0.1067925725678083,m,"SE=0.030938, p=<0.001",10a
+ANCOVA_Climate_Edge_coeff_cwb_x_fell,Edge,,0.0001767302288117,m,"SE=0.000154, p=0.2536",10a
+ANCOVA_Climate_Edge_coeff_coastal_x_time,Edge,,45.67079000283152,m,"SE=15.208081, p=0.0032",10a
+ANCOVA_Climate_Edge_s_coast_identified,Edge,,0.0,,"NOT IDENTIFIED: s_coast = +45.67 ± 15.21, and an SE above 2.0 cannot separate s = 1 from s = 0. The coastal differential here is +0.26 mm/yr — these tiers sit at nearly the same distance from the shore, so the ratio is a small denominator, not a measurement",10a
+ANCOVA_Climate_Edge_Oct2023_step,Edge,Oct2023,-0.2824869112701952,m,"p=0.5092, dAIC=1.54",10a
+ANCOVA_Combined_Impact_clearfell_step,Impact,Post_felling,0.0696927374814466,m,"p=<0.001, CI=[0.0344,0.1050]",10a
+ANCOVA_Combined_Impact_scraping_step,Impact,Post_scraping,0.0767192388998212,m,p=0.3049,10a
 ANCOVA_Combined_Impact_R2,Impact,,0.2562629185572002,,Model R²,10a
 ANCOVA_Combined_Impact_N,Impact,,145.0,months,Sample size,10a
-ANCOVA_Combined_Impact_coeff_intercept,Impact,,-0.1052587812606677,m,"SE=0.013767, p=<0.001",10a
-ANCOVA_Combined_Impact_coeff_cwb,Impact,,-0.0001794323392264,m,"SE=0.000072, p=0.0140",10a
-ANCOVA_Combined_Impact_coeff_scraping,Impact,,0.0767192388998287,m,"SE=0.074502, p=0.3049",10a
-ANCOVA_Combined_Impact_coeff_clearfell,Impact,,0.0696927374814475,m,"SE=0.018014, p=<0.001",10a
-ANCOVA_Combined_Impact_coeff_cwb_x_fell,Impact,,-6.694515627946999e-05,m,"SE=0.000089, p=0.4539",10a
-ANCOVA_Combined_Impact_coeff_easting_x_time,Impact,,3.309802965676458e-06,m,"SE=0.000002, p=0.0295",10a
-ANCOVA_Combined_Impact_s_coast,Impact,,1.3379958901010327,,"SE=0.6084, p vs 0=0.0295, p vs 1=0.5794; the amplitude of the Script 25 coastal gradient this pair feels, 1 = exactly the fitted field. Differential -3.74 mm/yr from 25_01_panel_fit_parameters.csv [full_canopy/linear_capped]",10a
-ANCOVA_Combined_Impact_clearfell_step_s_fixed1,Impact,Post_felling,0.0623005749682706,m,"SENSITIVITY, not the headline (D-076): the clearfell step with the coastal correction imposed at the fitted amplitude (s_coast = 1) instead of estimated. p=<0.001; moves the headline by -7.4 mm",10a
-ANCOVA_Combined_Impact_Oct2023_step,Impact,Oct2023,0.2166233809856577,m,"p=0.0060, dAIC=-5.96",10a
-ANCOVA_Combined_Edge_clearfell_step,Edge,Post_felling,-0.0202173439087844,m,"p=0.1289, CI=[-0.0462,0.0057]",10a
-ANCOVA_Combined_Edge_scraping_step,Edge,Post_scraping,0.3114998839238219,m,p=0.0090,10a
+ANCOVA_Combined_Impact_coeff_intercept,Impact,,-0.1052587812606673,m,"SE=0.013767, p=<0.001",10a
+ANCOVA_Combined_Impact_coeff_cwb,Impact,,-0.000179432339226,m,"SE=0.000072, p=0.0140",10a
+ANCOVA_Combined_Impact_coeff_scraping,Impact,,0.0767192388998212,m,"SE=0.074502, p=0.3049",10a
+ANCOVA_Combined_Impact_coeff_clearfell,Impact,,0.0696927374814466,m,"SE=0.018014, p=<0.001",10a
+ANCOVA_Combined_Impact_coeff_cwb_x_fell,Impact,,-6.694515628001183e-05,m,"SE=0.000089, p=0.4539",10a
+ANCOVA_Combined_Impact_coeff_coastal_x_time,Impact,,1.33808398010372,m,"SE=0.608444, p=0.0295",10a
+ANCOVA_Combined_Impact_s_coast,Impact,,1.33808398010372,,"SE=0.6084, p vs 0=0.0295, p vs 1=0.5793; the amplitude of the Script 25 coastal gradient this pair feels, 1 = exactly the fitted field. Differential -3.74 mm/yr from 25_01_panel_fit_parameters.csv [full_canopy/linear_capped]",10a
+ANCOVA_Combined_Impact_clearfell_step_s_fixed1,Impact,Post_felling,0.0622999504430776,m,"SENSITIVITY, not the headline (D-076): the clearfell step with the coastal correction imposed at the fitted amplitude (s_coast = 1) instead of estimated. p=<0.001; moves the headline by -7.4 mm",10a
+ANCOVA_Combined_Impact_Oct2023_step,Impact,Oct2023,0.2166233809856576,m,"p=0.0060, dAIC=-5.96",10a
+ANCOVA_Combined_Edge_clearfell_step,Edge,Post_felling,-0.0202173439087888,m,"p=0.1289, CI=[-0.0462,0.0057]",10a
+ANCOVA_Combined_Edge_scraping_step,Edge,Post_scraping,0.3114998839238778,m,p=0.0090,10a
 ANCOVA_Combined_Edge_R2,Edge,,0.4838353386200638,,Model R²,10a
 ANCOVA_Combined_Edge_N,Edge,,142.0,months,Sample size,10a
-ANCOVA_Combined_Edge_coeff_intercept,Edge,,-0.2506534211500021,m,"SE=0.010137, p=<0.001",10a
-ANCOVA_Combined_Edge_coeff_cwb,Edge,,-0.0003317388708556,m,"SE=0.000053, p=<0.001",10a
-ANCOVA_Combined_Edge_coeff_scraping,Edge,,0.3114998839238219,m,"SE=0.117577, p=0.0090",10a
-ANCOVA_Combined_Edge_coeff_clearfell,Edge,,-0.0202173439087844,m,"SE=0.013235, p=0.1289",10a
-ANCOVA_Combined_Edge_coeff_cwb_x_fell,Edge,,1.1409261660509058e-07,m,"SE=0.000065, p=0.9986",10a
-ANCOVA_Combined_Edge_coeff_easting_x_time,Edge,,-7.968975659314748e-09,m,"SE=0.000001, p=0.9878",10a
-ANCOVA_Combined_Edge_s_coast,Edge,,-0.0102256410958583,,"SE=0.6692, p vs 0=0.9878, p vs 1=0.1335; the amplitude of the Script 25 coastal gradient this pair feels, 1 = exactly the fitted field. Differential -2.54 mm/yr from 25_01_panel_fit_parameters.csv [full_canopy/linear_capped]",10a
-ANCOVA_Combined_Edge_clearfell_step_s_fixed1,Edge,Post_felling,-0.0054793240294378,m,"SENSITIVITY, not the headline (D-076): the clearfell step with the coastal correction imposed at the fitted amplitude (s_coast = 1) instead of estimated. p=0.5427; moves the headline by +14.7 mm",10a
+ANCOVA_Combined_Edge_coeff_intercept,Edge,,-0.2506534211500006,m,"SE=0.010137, p=<0.001",10a
+ANCOVA_Combined_Edge_coeff_cwb,Edge,,-0.0003317388708551,m,"SE=0.000053, p=<0.001",10a
+ANCOVA_Combined_Edge_coeff_scraping,Edge,,0.3114998839238778,m,"SE=0.117577, p=0.0090",10a
+ANCOVA_Combined_Edge_coeff_clearfell,Edge,,-0.0202173439087888,m,"SE=0.013235, p=0.1289",10a
+ANCOVA_Combined_Edge_coeff_cwb_x_fell,Edge,,1.1409261584734329e-07,m,"SE=0.000065, p=0.9986",10a
+ANCOVA_Combined_Edge_coeff_coastal_x_time,Edge,,-0.0102415844544317,m,"SE=0.670232, p=0.9878",10a
+ANCOVA_Combined_Edge_s_coast,Edge,,-0.0102415844544317,,"SE=0.6702, p vs 0=0.9878, p vs 1=0.1341; the amplitude of the Script 25 coastal gradient this pair feels, 1 = exactly the fitted field. Differential -2.53 mm/yr from 25_01_panel_fit_parameters.csv [full_canopy/linear_capped]",10a
+ANCOVA_Combined_Edge_clearfell_step_s_fixed1,Edge,Post_felling,-0.0055012684831405,m,"SENSITIVITY, not the headline (D-076): the clearfell step with the coastal correction imposed at the fitted amplitude (s_coast = 1) instead of estimated. p=0.5410; moves the headline by +14.7 mm",10a
 ANCOVA_Combined_Edge_Oct2023_step,Edge,Oct2023,0.163986071804995,m,"p=0.2062, dAIC=0.31",10a
-ANCOVA_FarField_Impact_clearfell_step,Impact,Post_felling,-0.0814223434618957,m,"p=0.1895, CI=[-0.2026,0.0397]",10a
-ANCOVA_FarField_Impact_scraping_step,Impact,Post_scraping,-0.220564566032953,m,p=0.1248,10a
-ANCOVA_FarField_Impact_R2,Impact,,0.0499473356561527,,Model R²,10a
+ANCOVA_FarField_Impact_clearfell_step,Impact,Post_felling,-0.0814223434619024,m,"p=0.1895, CI=[-0.2026,0.0397]",10a
+ANCOVA_FarField_Impact_scraping_step,Impact,Post_scraping,-0.2205645660329357,m,p=0.1248,10a
+ANCOVA_FarField_Impact_R2,Impact,,0.0499473356561531,,Model R²,10a
 ANCOVA_FarField_Impact_N,Impact,,171.0,months,Sample size,10a
-ANCOVA_FarField_Impact_coeff_intercept,Impact,,-0.6556504463577012,m,"SE=0.042391, p=<0.001",10a
-ANCOVA_FarField_Impact_coeff_cwb,Impact,,0.0001895494628311,m,"SE=0.000201, p=0.3475",10a
-ANCOVA_FarField_Impact_coeff_scraping,Impact,,-0.220564566032953,m,"SE=0.142977, p=0.1248",10a
-ANCOVA_FarField_Impact_coeff_clearfell,Impact,,-0.0814223434618957,m,"SE=0.061800, p=0.1895",10a
-ANCOVA_FarField_Impact_coeff_cwb_x_fell,Impact,,-0.0003361636922626,m,"SE=0.000267, p=0.2100",10a
-ANCOVA_FarField_Impact_coeff_easting_x_time,Impact,,-1.1679554905756552e-06,m,"SE=0.000000, p=0.0149",10a
-ANCOVA_FarField_Impact_s_coast,Impact,,-1.5048676474823233,,"SE=0.6114, p vs 0=0.0149, p vs 1=<0.001; the amplitude of the Script 25 coastal gradient this pair feels, 1 = exactly the fitted field. Differential -13.13 mm/yr from 25_01_panel_fit_parameters.csv [full_canopy/linear_capped]",10a
-ANCOVA_FarField_Impact_clearfell_step_s_fixed1,Impact,Post_felling,0.1044045219717699,m,"SENSITIVITY, not the headline (D-076): the clearfell step with the coastal correction imposed at the fitted amplitude (s_coast = 1) instead of estimated. p=0.0186; moves the headline by +185.8 mm",10a
-ANCOVA_FarField_Impact_Oct2023_step,Impact,Oct2023,-0.0481239519069433,m,"p=0.7795, dAIC=1.92",10a
-ANCOVA_FarField_Edge_clearfell_step,Edge,Post_felling,-0.1582217402296795,m,"p=0.0210, CI=[-0.2913,-0.0251]",10a
-ANCOVA_FarField_Edge_scraping_step,Edge,Post_scraping,-0.3288283749560878,m,p=0.1629,10a
-ANCOVA_FarField_Edge_R2,Edge,,0.0749772137968296,,Model R²,10a
+ANCOVA_FarField_Impact_coeff_intercept,Impact,,-0.6556504463577059,m,"SE=0.042391, p=<0.001",10a
+ANCOVA_FarField_Impact_coeff_cwb,Impact,,0.0001895494628326,m,"SE=0.000201, p=0.3475",10a
+ANCOVA_FarField_Impact_coeff_scraping,Impact,,-0.2205645660329357,m,"SE=0.142977, p=0.1248",10a
+ANCOVA_FarField_Impact_coeff_clearfell,Impact,,-0.0814223434619024,m,"SE=0.061800, p=0.1895",10a
+ANCOVA_FarField_Impact_coeff_cwb_x_fell,Impact,,-0.0003361636922654,m,"SE=0.000267, p=0.2100",10a
+ANCOVA_FarField_Impact_coeff_coastal_x_time,Impact,,-1.508328823934125,m,"SE=0.612817, p=0.0149",10a
+ANCOVA_FarField_Impact_s_coast,Impact,,-1.508328823934125,,"SE=0.6128, p vs 0=0.0149, p vs 1=<0.001; the amplitude of the Script 25 coastal gradient this pair feels, 1 = exactly the fitted field. Differential -13.10 mm/yr from 25_01_panel_fit_parameters.csv [full_canopy/linear_capped]",10a
+ANCOVA_FarField_Impact_clearfell_step_s_fixed1,Impact,Post_felling,0.1042387434157213,m,"SENSITIVITY, not the headline (D-076): the clearfell step with the coastal correction imposed at the fitted amplitude (s_coast = 1) instead of estimated. p=0.0188; moves the headline by +185.7 mm",10a
+ANCOVA_FarField_Impact_Oct2023_step,Impact,Oct2023,-0.0481239519069434,m,"p=0.7795, dAIC=1.92",10a
+ANCOVA_FarField_Edge_clearfell_step,Edge,Post_felling,-0.1582217402296782,m,"p=0.0210, CI=[-0.2913,-0.0251]",10a
+ANCOVA_FarField_Edge_scraping_step,Edge,Post_scraping,-0.3288283749560607,m,p=0.1629,10a
+ANCOVA_FarField_Edge_R2,Edge,,0.0749772137968298,,Model R²,10a
 ANCOVA_FarField_Edge_N,Edge,,173.0,months,Sample size,10a
-ANCOVA_FarField_Edge_coeff_intercept,Edge,,-0.7895472500968157,m,"SE=0.046255, p=<0.001",10a
-ANCOVA_FarField_Edge_coeff_cwb,Edge,,0.0003555456828831,m,"SE=0.000208, p=0.0896",10a
-ANCOVA_FarField_Edge_coeff_scraping,Edge,,-0.3288283749560878,m,"SE=0.234602, p=0.1629",10a
-ANCOVA_FarField_Edge_coeff_clearfell,Edge,,-0.1582217402296795,m,"SE=0.067921, p=0.0210",10a
-ANCOVA_FarField_Edge_coeff_cwb_x_fell,Edge,,-0.0005304912059153,m,"SE=0.000286, p=0.0657",10a
-ANCOVA_FarField_Edge_coeff_easting_x_time,Edge,,-1.2642542014110129e-06,m,"SE=0.000000, p=0.0095",10a
-ANCOVA_FarField_Edge_s_coast,Edge,,-1.9779899426764205,,"SE=0.7536, p vs 0=0.0095, p vs 1=<0.001; the amplitude of the Script 25 coastal gradient this pair feels, 1 = exactly the fitted field. Differential -11.93 mm/yr from 25_01_panel_fit_parameters.csv [full_canopy/linear_capped]",10a
-ANCOVA_FarField_Edge_clearfell_step_s_fixed1,Edge,Post_felling,0.0348055369272357,m,"SENSITIVITY, not the headline (D-076): the clearfell step with the coastal correction imposed at the fitted amplitude (s_coast = 1) instead of estimated. p=0.4803; moves the headline by +193.0 mm",10a
-ANCOVA_FarField_Edge_Oct2023_step,Edge,Oct2023,-0.3026299450530324,m,"p=0.2961, dAIC=0.86",10a
-ANCOVA_Forest_Impact_clearfell_step_summer,Impact,Post_felling_Jun-Sep,0.0500746906836839,m,"p=0.4080, CI=[-0.0675,0.1676], Jun-Sep subset, full ANCOVA spec",10a
-ANCOVA_Forest_Impact_summer_R2,Impact,Jun-Sep,0.3147051288679182,,Summer model R² (full spec),10a
+ANCOVA_FarField_Edge_coeff_intercept,Edge,,-0.7895472500968193,m,"SE=0.046255, p=<0.001",10a
+ANCOVA_FarField_Edge_coeff_cwb,Edge,,0.0003555456828846,m,"SE=0.000208, p=0.0896",10a
+ANCOVA_FarField_Edge_coeff_scraping,Edge,,-0.3288283749560607,m,"SE=0.234602, p=0.1629",10a
+ANCOVA_FarField_Edge_coeff_clearfell,Edge,,-0.1582217402296782,m,"SE=0.067921, p=0.0210",10a
+ANCOVA_FarField_Edge_coeff_cwb_x_fell,Edge,,-0.0005304912059183,m,"SE=0.000286, p=0.0657",10a
+ANCOVA_FarField_Edge_coeff_coastal_x_time,Edge,,-1.9836165411563684,m,"SE=0.755755, p=0.0095",10a
+ANCOVA_FarField_Edge_s_coast,Edge,,-1.9836165411563684,,"SE=0.7558, p vs 0=0.0095, p vs 1=<0.001; the amplitude of the Script 25 coastal gradient this pair feels, 1 = exactly the fitted field. Differential -11.89 mm/yr from 25_01_panel_fit_parameters.csv [full_canopy/linear_capped]",10a
+ANCOVA_FarField_Edge_clearfell_step_s_fixed1,Edge,Post_felling,0.034625932377959,m,"SENSITIVITY, not the headline (D-076): the clearfell step with the coastal correction imposed at the fitted amplitude (s_coast = 1) instead of estimated. p=0.4825; moves the headline by +192.8 mm",10a
+ANCOVA_FarField_Edge_Oct2023_step,Edge,Oct2023,-0.3026299450530304,m,"p=0.2961, dAIC=0.86",10a
+ANCOVA_Forest_Impact_clearfell_step_summer,Impact,Post_felling_Jun-Sep,0.0500746906836743,m,"p=0.4080, CI=[-0.0675,0.1676], Jun-Sep subset, full ANCOVA spec",10a
+ANCOVA_Forest_Impact_summer_R2,Impact,Jun-Sep,0.3147051288679183,,Summer model R² (full spec),10a
 ANCOVA_Forest_Impact_summer_N,Impact,Jun-Sep,52.0,months,Summer sample size (Jun-Sep months only),10a
-ANCOVA_Forest_Impact_coeff_intercept_summer,Impact,Jun-Sep,0.0478475836341977,m,"SE=0.059720, p=0.4271",10a
-ANCOVA_Forest_Impact_coeff_cwb_summer,Impact,Jun-Sep,-0.0004709267578689,m,"SE=0.000234, p=0.0503",10a
-ANCOVA_Forest_Impact_coeff_scraping_summer,Impact,Jun-Sep,0.3945460521692477,m,"SE=0.186879, p=0.0402",10a
-ANCOVA_Forest_Impact_coeff_clearfell_summer,Impact,Jun-Sep,0.0500746906836839,m,"SE=0.059965, p=0.4080",10a
-ANCOVA_Forest_Impact_coeff_cwb_x_fell_summer,Impact,Jun-Sep,-0.0002308881349208,m,"SE=0.000315, p=0.4679",10a
-ANCOVA_Forest_Impact_coeff_easting_x_time_summer,Impact,Jun-Sep,2.930239950868518e-05,m,"SE=0.000016, p=0.0733",10a
-ANCOVA_Forest_Impact_clearfell_step_summer_noCWB,Impact,Post_felling_Jun-Sep,0.122867029549531,m,"p=0.0584, CI=[-0.0013,0.2471], Jun-Sep subset, CWB dropped (sensitivity variant)",10a
-ANCOVA_Forest_Impact_summer_noCWB_R2,Impact,Jun-Sep,0.0978297023272585,,Summer model R² (CWB dropped),10a
+ANCOVA_Forest_Impact_coeff_intercept_summer,Impact,Jun-Sep,0.0478475836341935,m,"SE=0.059720, p=0.4271",10a
+ANCOVA_Forest_Impact_coeff_cwb_summer,Impact,Jun-Sep,-0.0004709267578688,m,"SE=0.000234, p=0.0503",10a
+ANCOVA_Forest_Impact_coeff_scraping_summer,Impact,Jun-Sep,0.3945460521692324,m,"SE=0.186879, p=0.0402",10a
+ANCOVA_Forest_Impact_coeff_clearfell_summer,Impact,Jun-Sep,0.0500746906836743,m,"SE=0.059965, p=0.4080",10a
+ANCOVA_Forest_Impact_coeff_cwb_x_fell_summer,Impact,Jun-Sep,-0.0002308881349209,m,"SE=0.000315, p=0.4679",10a
+ANCOVA_Forest_Impact_coeff_coastal_x_time_summer,Impact,Jun-Sep,1.3560640821334566,m,"SE=0.739843, p=0.0733",10a
+ANCOVA_Forest_Impact_clearfell_step_summer_noCWB,Impact,Post_felling_Jun-Sep,0.1228670295496588,m,"p=0.0584, CI=[-0.0013,0.2471], Jun-Sep subset, CWB dropped (sensitivity variant)",10a
+ANCOVA_Forest_Impact_summer_noCWB_R2,Impact,Jun-Sep,0.0978297023272584,,Summer model R² (CWB dropped),10a
 ANCOVA_Forest_Impact_summer_noCWB_N,Impact,Jun-Sep,52.0,months,"Summer sample size (CWB dropped fit, Jun-Sep only)",10a
-ANCOVA_Forest_Impact_coeff_cwb2_x_fell,Impact,,-15.506780858542143,mm per (100mm CWB)^2,"native=-1.550678e-06 m/mm^2, SE_native=1.126032e-06, p=0.1705, curvature variant — buffering term",10a
-ANCOVA_Forest_Impact_coeff_cwb2_c,Impact,,0.2656221262934592,mm per (100mm CWB)^2,"native=2.656221e-08 m/mm^2, SE_native=7.326268e-07, p=0.9711, curvature variant — CWB² main effect",10a
-ANCOVA_Forest_Impact_curv_clearfell_step,Impact,Post_felling,0.1269479162874039,m,"p=0.0011, CI=[0.0522,0.2017], clearfell step re-referenced under curvature model (NOT the headline step)",10a
-ANCOVA_Forest_Impact_curv_R2,Impact,,0.2561583512076596,,Curvature model R²,10a
-ANCOVA_Forest_Impact_curv_dAIC,Impact,,0.6255462343337967,,AIC(curvature) − AIC(linear); negative = curvature preferred,10a
-ANCOVA_Forest_Impact_curv_jointF,Impact,,1.621140870073775,,"joint F-test, cwb2_c + cwb2_x_fell, p=0.2010",10a
-ANCOVA_Forest_Edge_coeff_cwb2_x_fell,Edge,,-9.11613915610004,mm per (100mm CWB)^2,"native=-9.116139e-07 m/mm^2, SE_native=8.419256e-07, p=0.2806, curvature variant — buffering term",10a
-ANCOVA_Forest_Edge_coeff_cwb2_c,Edge,,-5.425020252219806,mm per (100mm CWB)^2,"native=-5.425020e-07 m/mm^2, SE_native=5.174095e-07, p=0.2961, curvature variant — CWB² main effect",10a
-ANCOVA_Forest_Edge_curv_clearfell_step,Edge,Post_felling,0.0335801633992157,m,"p=0.2109, CI=[-0.0188,0.0860], clearfell step re-referenced under curvature model (NOT the headline step)",10a
-ANCOVA_Forest_Edge_curv_R2,Edge,,0.4778511506884884,,Curvature model R²,10a
-ANCOVA_Forest_Edge_curv_dAIC,Edge,,-2.270896784467596,,AIC(curvature) − AIC(linear); negative = curvature preferred,10a
-ANCOVA_Forest_Edge_curv_jointF,Edge,,3.0371890662508947,,"joint F-test, cwb2_c + cwb2_x_fell, p=0.0509",10a
-Sensitivity_lambda200_Forest_Impact_clearfell,Impact,,0.113094666796114,m,"p=0.0021, R²=0.241",10a
-Sensitivity_lambda200_Forest_Edge_clearfell,Edge,,0.0296701060648008,m,"p=0.2486, R²=0.457",10a
-Sensitivity_lambda200_Climate_Impact_clearfell,Impact,,-0.0146070726395701,m,"p=0.5551, R²=0.206",10a
-Sensitivity_lambda200_Climate_Edge_clearfell,Edge,,-0.1067925725678071,m,"p=<0.001, R²=0.241",10a
-Sensitivity_lambda200_Combined_Impact_clearfell,Impact,,0.0696927374814464,m,"p=<0.001, R²=0.256",10a
-Sensitivity_lambda200_Combined_Edge_clearfell,Edge,,-0.0202173439087893,m,"p=0.1289, R²=0.484",10a
-Sensitivity_lambda200_FarField_Impact_clearfell,Impact,,-0.0814223434618953,m,"p=0.1895, R²=0.050",10a
-Sensitivity_lambda200_FarField_Edge_clearfell,Edge,,-0.1582217402296725,m,"p=0.0210, R²=0.075",10a
-Sensitivity_lambda500_Forest_Impact_clearfell,Impact,,0.1130946667960965,m,"p=0.0021, R²=0.241",10a
-Sensitivity_lambda500_Forest_Edge_clearfell,Edge,,0.0296701060647982,m,"p=0.2486, R²=0.457",10a
-Sensitivity_lambda500_Climate_Impact_clearfell,Impact,,-0.0146070726395712,m,"p=0.5551, R²=0.206",10a
-Sensitivity_lambda500_Climate_Edge_clearfell,Edge,,-0.1067925725678061,m,"p=<0.001, R²=0.241",10a
-Sensitivity_lambda500_Combined_Impact_clearfell,Impact,,0.0696927374814471,m,"p=<0.001, R²=0.256",10a
-Sensitivity_lambda500_Combined_Edge_clearfell,Edge,,-0.0202173439087893,m,"p=0.1289, R²=0.484",10a
-Sensitivity_lambda500_FarField_Impact_clearfell,Impact,,-0.0814223434618999,m,"p=0.1895, R²=0.050",10a
-Sensitivity_lambda500_FarField_Edge_clearfell,Edge,,-0.1582217402296712,m,"p=0.0210, R²=0.075",10a
+ANCOVA_Forest_Impact_coeff_cwb2_x_fell,Impact,,-15.506780858661948,mm per (100mm CWB)^2,"native=-1.550678e-06 m/mm^2, SE_native=1.126032e-06, p=0.1705, curvature variant — buffering term",10a
+ANCOVA_Forest_Impact_coeff_cwb2_c,Impact,,0.2656221260121088,mm per (100mm CWB)^2,"native=2.656221e-08 m/mm^2, SE_native=7.326268e-07, p=0.9711, curvature variant — CWB² main effect",10a
+ANCOVA_Forest_Impact_curv_clearfell_step,Impact,Post_felling,0.1269479162866386,m,"p=0.0011, CI=[0.0522,0.2017], clearfell step re-referenced under curvature model (NOT the headline step)",10a
+ANCOVA_Forest_Impact_curv_R2,Impact,,0.2561583512076598,,Curvature model R²,10a
+ANCOVA_Forest_Impact_curv_dAIC,Impact,,0.6255462343335694,,AIC(curvature) − AIC(linear); negative = curvature preferred,10a
+ANCOVA_Forest_Impact_curv_jointF,Impact,,1.6211408700738088,,"joint F-test, cwb2_c + cwb2_x_fell, p=0.2010",10a
+ANCOVA_Forest_Edge_coeff_cwb2_x_fell,Edge,,-9.116139155886994,mm per (100mm CWB)^2,"native=-9.116139e-07 m/mm^2, SE_native=8.419256e-07, p=0.2806, curvature variant — buffering term",10a
+ANCOVA_Forest_Edge_coeff_cwb2_c,Edge,,-5.425020252336358,mm per (100mm CWB)^2,"native=-5.425020e-07 m/mm^2, SE_native=5.174095e-07, p=0.2961, curvature variant — CWB² main effect",10a
+ANCOVA_Forest_Edge_curv_clearfell_step,Edge,Post_felling,0.0335801633990713,m,"p=0.2109, CI=[-0.0188,0.0860], clearfell step re-referenced under curvature model (NOT the headline step)",10a
+ANCOVA_Forest_Edge_curv_R2,Edge,,0.4778511506884885,,Curvature model R²,10a
+ANCOVA_Forest_Edge_curv_dAIC,Edge,,-2.270896784467709,,AIC(curvature) − AIC(linear); negative = curvature preferred,10a
+ANCOVA_Forest_Edge_curv_jointF,Edge,,3.037189066250928,,"joint F-test, cwb2_c + cwb2_x_fell, p=0.0509",10a
+Sensitivity_lambda200_Forest_Impact_clearfell,Impact,,0.1130946667961036,m,"p=0.0021, R²=0.241",10a
+Sensitivity_lambda200_Forest_Edge_clearfell,Edge,,0.0296701060648071,m,"p=0.2486, R²=0.457",10a
+Sensitivity_lambda200_Climate_Impact_clearfell,Impact,,-0.01460707263957,m,"p=0.5551, R²=0.206",10a
+Sensitivity_lambda200_Climate_Edge_clearfell,Edge,,-0.1067925725678101,m,"p=<0.001, R²=0.241",10a
+Sensitivity_lambda200_Combined_Impact_clearfell,Impact,,0.0696927374814465,m,"p=<0.001, R²=0.256",10a
+Sensitivity_lambda200_Combined_Edge_clearfell,Edge,,-0.0202173439087937,m,"p=0.1289, R²=0.484",10a
+Sensitivity_lambda200_FarField_Impact_clearfell,Impact,,-0.0814223434618959,m,"p=0.1895, R²=0.050",10a
+Sensitivity_lambda200_FarField_Edge_clearfell,Edge,,-0.1582217402296758,m,"p=0.0210, R²=0.075",10a
+Sensitivity_lambda500_Forest_Impact_clearfell,Impact,,0.1130946667961033,m,"p=0.0021, R²=0.241",10a
+Sensitivity_lambda500_Forest_Edge_clearfell,Edge,,0.0296701060648097,m,"p=0.2486, R²=0.457",10a
+Sensitivity_lambda500_Climate_Impact_clearfell,Impact,,-0.0146070726395707,m,"p=0.5551, R²=0.206",10a
+Sensitivity_lambda500_Climate_Edge_clearfell,Edge,,-0.1067925725678093,m,"p=<0.001, R²=0.241",10a
+Sensitivity_lambda500_Combined_Impact_clearfell,Impact,,0.0696927374814467,m,"p=<0.001, R²=0.256",10a
+Sensitivity_lambda500_Combined_Edge_clearfell,Edge,,-0.0202173439087887,m,"p=0.1289, R²=0.484",10a
+Sensitivity_lambda500_FarField_Impact_clearfell,Impact,,-0.0814223434619001,m,"p=0.1895, R²=0.050",10a
+Sensitivity_lambda500_FarField_Edge_clearfell,Edge,,-0.1582217402296735,m,"p=0.0210, R²=0.075",10a
 FarField_tier_mean_dist_coast,FarField,,1945.52,m,"n_wells=5, span=866.3 m, members=NW4B, WMC1, CEH5, L7, CEH6",10a
 FarField_contrast_vs_impact,FarField,,1392.72,m,impact zone at 552.8 m; the distance contrast the Script 25 BACI corroboration is tested on,10a
-FarField_admission_threshold,FarField,,1432.0,m,FAR_FIELD_REACH_MULTIPLE x fitted reach 895.0 m (source: 25_01_panel_fit_parameters.csv),10a
+FarField_admission_threshold,FarField,,1430.4,m,FAR_FIELD_REACH_MULTIPLE x fitted reach 894.0 m (source: 25_01_panel_fit_parameters.csv),10a
 Spread_Climate_Edge_step_range,Edge,,0.0764291169957319,m,"single-control-well refits: [-0.1290, -0.0526] m over 5 wells; tier step -0.1068 m",10a
 Spread_Climate_Impact_step_range,Impact,,0.0909404557769916,m,"single-control-well refits: [-0.0495, 0.0415] m over 5 wells; tier step -0.0146 m",10a
 Spread_Combined_Edge_step_range,Edge,,0.1796045694815676,m,"single-control-well refits: [-0.1290, 0.0506] m over 12 wells; tier step -0.0202 m",10a
@@ -647,7 +647,7 @@ FourZoneSpring_contrast_Edge_vs_C3Warren,Edge - C3/Warren,Post_felling_Mar-May,-
 WMC3_BACI_DiD_step_2015_scraping,WMC3,Post-2015 scrape / pre-fell,-0.0552145898381927,m,"raw difference-in-differences, Pre-2015 scrape (baseline) → Post-2015 scrape / pre-fell; consistent with scraping drawdown",10m
 WMC3_BACI_DiD_step_2017_clearfell,WMC3,Post-clearfell / pre-2023,0.0408178868604073,m,"raw difference-in-differences, Post-2015 scrape / pre-fell → Post-clearfell / pre-2023; consistent with clearfell recovery",10m
 WMC3_BACI_DiD_step_2023_scraping,WMC3,Post-2023 scrape,-0.0538281857580895,m,"raw difference-in-differences, Post-clearfell / pre-2023 → Post-2023 scrape; consistent with scraping drawdown",10m
-WMC3_ANCOVA_clearfell_step_ref,WMC3,Post_felling,0.1130946667961032,m,"reference copy of 10a headline (p=0.0021, CI=[0.0423,0.1839])",10m
+WMC3_ANCOVA_clearfell_step_ref,WMC3,Post_felling,0.1130946667961028,m,"reference copy of 10a headline (p=0.0021, CI=[0.0423,0.1839])",10m
 SynthDiD_Impact_step,,,0.0472698941011672,m,"vs Forest Ctrl, HAC p=0.135, maxlags=4",10n
 SynthDiD_Impact_se,,,0.0315986568905665,m,Newey-West HAC,10n
 SynthDiD_Edge_step,,,-0.0098159135804714,m,"vs Forest Ctrl, HAC p=0.617, maxlags=4",10n

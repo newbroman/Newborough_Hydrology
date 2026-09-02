@@ -114,7 +114,36 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
-__version__ = "1.19.1"  # Hollingham (2026) — 2026-09-02. DATED NOTE ON 1.13.0,
+__version__ = "1.20.0"  # Hollingham (2026) — 2026-09-02. THE DRIFT
+#   COEFFICIENT NAME IS NO LONGER TYPED HERE. baci_corroboration() filtered
+#   Script 10a's coefficient table on the literal `easting_x_time`. D-111 made
+#   the coastal design the published one, so 10a emits `coastal_x_time`, the
+#   filter matched nothing, and the pipeline died at this script on a full run.
+#
+#   THE FAILURE MODE MATTERS MORE THAN THE FIX. The empty filter returned a
+#   column-less DataFrame; the caller wrote it to 25_04_baci_corroboration.csv,
+#   which `to_csv` renders as a SINGLE NEWLINE over a good committed artefact;
+#   and only then did the next statement raise a KeyError on a column that no
+#   longer existed. So the traceback named a display line while the cause was
+#   forty lines earlier and a committed output had already been destroyed. That
+#   is the W128 shape recurring in a script that was never swept for it.
+#
+#   Two changes, because the two faults are independent. (1) The filter now
+#   asks `drift_term()` — the clearfell_common accessor added for exactly this
+#   under D-111 — which returns whichever of DRIFT_COLUMNS is present and
+#   RAISES, before any write, when none is. The accessor was applied to the
+#   PRODUCER (10a, twelve sites) and the consumers were not swept; this is the
+#   first of them. (2) The 25_04 write now refuses an empty frame outright
+#   rather than overwriting, so a different cause of emptiness leaves the
+#   committed file stale — visible to output_lag — instead of blank.
+#
+#   Still carrying the literal and NOT fixed here: `10h_synthetic_impact_baci.py`
+#   (nine occurrences, reads fit coefficients the same way and will break the
+#   moment its inputs come from a coastal-design fit) and
+#   `10k_four_zone_baci.py` (two, but it BUILDS the column it reads, so it is
+#   self-consistent). Registered rather than swept in a hotfix.
+#
+# v1.19.1  # Hollingham (2026) — 2026-09-02. DATED NOTE ON 1.13.0,
 #   which is not rewritten: dated records in this project are not edited, and
 #   1.13.0 is an accurate account of what was built and why it was built THEN.
 #   Its stated reason is nevertheless overturned. It says 25_13 carries c, the
@@ -452,6 +481,7 @@ from utils.clearfell_common import (  # noqa: E402
     IMPACT_WELLS, EDGE_WELLS, FOREST_CONTROL_WELLS,
     COASTAL_CONTROL_WELLS, CLIMATE_CONTROL_WELLS,
     FAR_FIELD_CONTROL_WELLS, FAR_FIELD_CONTROL_LABEL,
+    drift_term,
 )
 from utils.scraping_common import apply_scrape_treatment  # noqa: E402
 from utils.render_utils import render_figure
@@ -2018,9 +2048,27 @@ def baci_corroboration(distances: pd.DataFrame,
     def mean_E(wells):
         return float(np.mean([E[w] for w in wells if w in E]))
 
-    # BACI coefficients
+    # BACI coefficients.
+    #
+    # THE DRIFT COEFFICIENT IS NAMED BY THE DESIGN, NOT BY THIS SCRIPT. Under
+    # BACI_DRIFT_DESIGN = "coastal_free" Script 10a writes `coastal_x_time`;
+    # under the easting design it writes `easting_x_time`. This line carried
+    # the literal `easting_x_time` and so matched nothing after D-111 switched
+    # the published design — and the failure was silent in the worst way: the
+    # filter returned an EMPTY, COLUMN-LESS frame, the caller wrote it over the
+    # committed 25_04 with a bare newline, and only THEN did the next line
+    # raise a KeyError on a column that no longer existed. A destroyed artefact
+    # and a traceback pointing away from the cause.
+    #
+    # The irony is four lines below: the tier names are imported from
+    # clearfell_common precisely "so the two scripts cannot drift apart", while
+    # the coefficient name sat here as a string. drift_term() is the accessor
+    # that closes it, and it RAISES when no drift column is present — before
+    # anything is written — because under a design that declares a drift term
+    # its absence is a build fault, not a case to skip.
     baci = pd.read_csv(baci_csv_path)
-    baci = baci[baci["Coefficient"] == "easting_x_time"].copy()
+    drift_col = drift_term(baci["Coefficient"].unique(), required=True)
+    baci = baci[baci["Coefficient"] == drift_col].copy()
 
     # Control tiers and impact zones, iterated tier-outer / zone-inner so the
     # rows the four published comparisons occupy keep their order and the new
@@ -3302,6 +3350,19 @@ def main() -> None:
     print("\n  Running BACI corroboration check ...")
     baci_corr = baci_corroboration(distances, fit_ff_l,
                                      paths.OUT_10A_FULL_COEFFS)
+    # A SECOND CAUSE OF EMPTINESS MUST NOT DESTROY THE FILE EITHER. The named
+    # cause above is fixed at source, but `to_csv` on a column-less frame
+    # writes a single newline over a committed output and reports success — the
+    # W128 shape, and this is where it recurred. Refuse instead: a stale
+    # artefact is visible to output_lag and to a reader, an empty one is not.
+    if baci_corr is None or baci_corr.empty:
+        raise RuntimeError(
+            "baci_corroboration() produced no rows. The committed "
+            f"{paths.OUT_25_BACI_CORROBORATION.name} has been LEFT ALONE "
+            "rather than overwritten. Check that "
+            f"{paths.OUT_10A_FULL_COEFFS.name} carries a drift coefficient "
+            "and that the control tiers still match Script 10a's Control "
+            "column.")
     baci_corr.to_csv(paths.OUT_25_BACI_CORROBORATION, index=False)
     print(baci_corr[["control_tier", "impact_zone",
                        "d_target_m", "d_control_m",

@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_72.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_73.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 1.9.72 (September 2026).
+Document version: 1.9.73 (September 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -2947,6 +2947,8 @@ Script 25 tests that hypothesis. It fits a network-scale, physics-based non-line
 ### []{#anchor-413}[]{#anchor-414}[]{#anchor-415}Methodology
 
 **Functional forms.** Two candidate decay forms are fitted, each with three parameters: a coast-edge anomaly δ₀ (mm yr⁻¹), an inland reach L_cg (m), and a far-field asymptote c_far (mm yr⁻¹).
+
+**What c_far is, and what it is not.** The asymptote is a structural necessity rather than a choice: a coast-edge amplitude is defined relative to something, and a decay fit cannot be stated without it. Fitted over the committed window it returns a small value with a small standard error, and a well-determined parameter invites reading as a site-wide background rate of change. It is not one. A standard error describes precision within the window fitted and says nothing about whether that window was representative. Holding the well set fixed and advancing only the first month of the fit, c_far runs from −0.10 to +24.20 mm yr⁻¹ on the forest-free panel while δ₀ stays negative throughout and L_cg barely moves; the movement is seven to sixteen times its own within-window standard error, so it is not sampling noise. Across fixed-length rolling windows c_far correlates at −0.60 to −0.82 with the climate covariate\'s trend contribution: the two compensate, their sum is far better determined than either part, and the spread of both narrows as the window lengthens. c_far is separately identified --- its variance inflation against that covariate is 1.01 on the within-well and month-demeaned design --- but it is not stably estimated. It is a window-averaged far-field rate (D-105), and it is quoted with the window it was fitted over or not quoted as a rate at all. No far-field rate is quoted as a site background in this work.
 
 The linear-with-cutoff form follows a Dupuit--Forchheimer strip-aquifer interpretation, in which the water-table response to a steadily retreating boundary decays linearly with distance from that boundary and asymptotes to the climate background beyond the reach L_cg:
 

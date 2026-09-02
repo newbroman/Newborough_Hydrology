@@ -114,7 +114,25 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
-__version__ = "1.19.0"  # Hollingham (2026) — 2026-08-28.
+__version__ = "1.19.1"  # Hollingham (2026) — 2026-09-02. DATED NOTE ON 1.13.0,
+#   which is not rewritten: dated records in this project are not edited, and
+#   1.13.0 is an accurate account of what was built and why it was built THEN.
+#   Its stated reason is nevertheless overturned. It says 25_13 carries c, the
+#   CWB contribution and their sum together "because the two are not separately
+#   identified". They ARE separately identified — variance inflation 1.01 on the
+#   within-well and month-demeaned design, r = +0.084, condition number 3.54 —
+#   and D-105 (2026-08-31) settled what the spread actually is: c_far is a
+#   WINDOW-AVERAGED far-field rate, correctly estimated on every subset, with no
+#   composition effect. Crossing the window and well-set axes gives long-record
+#   +6.76 ± 1.01 against short-record +7.22 ± 0.66, a difference of 0.46 ± 1.20;
+#   the whole 15.3 mm/yr spread is the window axis.
+#
+#   THE EMISSION IS UNCHANGED AND STILL RIGHT, on the better reason: the sum is
+#   the quantity that is stable across windows while its two parts compensate at
+#   r = −0.60 to −0.82, so plotting all three is what makes the compensation
+#   visible. What changes is why, not what. No value moves and nothing reruns.
+#
+# 1.19.0  # Hollingham (2026) — 2026-08-28.
 #   Store-time rounding removed from the seven columns of correction_applicability(), the 25_14
 #   diagnostic added at v1.16.0 (D-035): the store now
 #   carries what the pipeline computed and rounding happens where the number

@@ -33,7 +33,27 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.11.0"  # Hollingham (2026) - 2026-09-02. D-111'S EQUIVALENCE
+__version__ = "1.11.1"  # Hollingham (2026) - 2026-09-02. 1.11.0 DID NOT
+#   IMPORT THE PATH IT USED. OUT_10A_DRIFT_EQUIVALENCE was added to paths.py and
+#   referenced at module level here, but not added to the `from utils.paths
+#   import ...` list - so the module raised NameError on import and run_10 failed
+#   at 10a with 13 of 14 sub-scripts already done.
+#
+#   HOW IT GOT PAST VERIFICATION, WHICH IS THE POINT. The new export block was
+#   checked by slicing it out of this file and exec'ing it against a stubbed
+#   namespace - and that namespace SUPPLIED OUT_DRIFT_EQUIV directly, so the
+#   missing import was invisible to the only test that ran. Testing a fragment
+#   in a namespace you built yourself cannot see what the module fails to bring
+#   into scope. ast.parse() cannot either: the file was always syntactically
+#   valid.
+#
+#   pyflakes WOULD have caught it, in one command, and was not run. Confirmed
+#   after the fact by removing the import again: `undefined name
+#   'OUT_10A_DRIFT_EQUIVALENCE'` at the exact line. It is now the first check on
+#   any script edited from the bridge, where the module cannot be imported
+#   because statsmodels and scipy are absent.
+#
+# v1.11.0  # Hollingham (2026) - 2026-09-02. D-111'S EQUIVALENCE
 #   IS NOW AN ARTEFACT, NOT ONLY AN ASSERTION. Since 1.10.0 this script has
 #   fitted the easting design on every run purely to check D-111's premise -
 #   that with s_coast FREE the coastal form is that design re-parameterised,
@@ -160,7 +180,8 @@ from utils.clearfell_common import (
     scraping_weight, ReportNumbers, print_network_summary,
     well_distances_to_coast, tier_distance_stats, far_field_tier_audit,
 )
-from utils.paths import make_all_dirs, DIR_10, OUT_10A_CONTROL_WELL_SPREAD
+from utils.paths import (make_all_dirs, DIR_10, OUT_10A_CONTROL_WELL_SPREAD,
+                        OUT_10A_DRIFT_EQUIVALENCE)
 from utils.config import BACI_DRIFT_DESIGN
 from utils.clearfell_common import (
     drift_term, coastal_differential_mm_yr, CONTROL_TIER_COMPOSITION,

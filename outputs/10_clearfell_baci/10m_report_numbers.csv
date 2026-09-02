@@ -2,4 +2,4 @@ Parameter,Well,Era,Value,Unit,Note
 WMC3_BACI_DiD_step_2015_scraping,WMC3,Post-2015 scrape / pre-fell,-0.05521458983819276,m,"raw difference-in-differences, Pre-2015 scrape (baseline) → Post-2015 scrape / pre-fell; consistent with scraping drawdown"
 WMC3_BACI_DiD_step_2017_clearfell,WMC3,Post-clearfell / pre-2023,0.04081788686040737,m,"raw difference-in-differences, Post-2015 scrape / pre-fell → Post-clearfell / pre-2023; consistent with clearfell recovery"
 WMC3_BACI_DiD_step_2023_scraping,WMC3,Post-2023 scrape,-0.05382818575808959,m,"raw difference-in-differences, Post-clearfell / pre-2023 → Post-2023 scrape; consistent with scraping drawdown"
-WMC3_ANCOVA_clearfell_step_ref,WMC3,Post_felling,0.1130946667961032,m,"reference copy of 10a headline (p=0.0021, CI=[0.0423,0.1839])"
+WMC3_ANCOVA_clearfell_step_ref,WMC3,Post_felling,0.1130946667961028,m,"reference copy of 10a headline (p=0.0021, CI=[0.0423,0.1839])"

@@ -38,7 +38,7 @@
 | CEH37 | Extended | C2 (Dune) | 0.0776 | -0.535 | 352 | -0.119 | -0.260 | -141 | Calibration |
 | CEH7 | Extended | C2 (Dune) | 0.0477 | -0.679 | 663 | -0.266 | -0.398 | -132 | Calibration |
 | CEH8 | Extended | C2 (Dune) | 0.0320 | -0.771 | 512 | -0.363 | -0.486 | -123 | Calibration |
-| PW | Extended | C2 (Dune) | 0.0715 | -0.862 | 429 | -0.609 | -0.573 | 35 | Calibration |
+| PE | Extended | C2 (Dune) | 0.0715 | -0.862 | 429 | -0.609 | -0.573 | 35 | Calibration |
 | CEH1 | Reference | C3 (Western Residual) | 0.0657 | -0.666 | 428 | -0.277 | -0.385 | -109 | Calibration |
 | CEH18 | Reference | C3 (Western Residual) | 0.0567 | -0.982 | 513 | -0.695 | -0.688 | 7 | Calibration |
 | CEH21 | Reference | C3 (Western Residual) | 0.0431 | -1.146 | 409 | -0.923 | -0.846 | 76 | Calibration |
@@ -63,7 +63,7 @@
 | CEH38 | Extended | C3 (Western Residual) | 0.0552 | -0.774 | 437 | -0.599 | -0.489 | 110 | Calibration |
 | NW8B | Extended | C3 (Western Residual) | 0.0602 | -1.574 | 341 | -1.205 | -1.257 | -51 | Calibration |
 | P1 | Extended | C3 (Western Residual) | 0.0425 | -0.301 | 888 |  | -0.035 |  | Reconstructed |
-| PE | Extended | C3 (Western Residual) | 0.0543 | -0.751 | 494 | -0.495 | -0.466 | 29 | Calibration |
+| PW | Extended | C3 (Western Residual) | 0.0543 | -0.751 | 494 | -0.495 | -0.466 | 29 | Calibration |
 | CEH2 | Reference | C4 (Main Forest) | 0.0182 | -1.153 | 1611 | -0.846 | -0.852 | -6 | Out of scope |
 | CEH20 | Reference | C4 (Main Forest) | 0.0299 | -1.269 | 841 | -0.927 | -0.964 | -37 | Out of scope |
 | CEH30 | Reference | C4 (Main Forest) | 0.0256 | -1.638 | 903 | -1.424 | -1.318 | 106 | Out of scope |

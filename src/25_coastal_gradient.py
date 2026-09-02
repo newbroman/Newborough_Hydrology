@@ -114,7 +114,37 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
-__version__ = "1.20.0"  # Hollingham (2026) — 2026-09-02. THE DRIFT
+__version__ = "1.21.0"  # Hollingham (2026) — 2026-09-02. THE DRIFT
+#   COEFFICIENT'S UNITS, NOT ONLY ITS NAME. v1.20.0 resolved the column by
+#   accessor and then fed the result into the easting design's conversion,
+#   coef x dE x 12 x 1000. Under the coastal design the coefficient is the
+#   DIMENSIONLESS amplitude s_coast, order 1, not a per-metre-easting slope of
+#   order 1e-6 — so the script ran, wrote, and emitted
+#   baci_absorbs_mm_yr = -309,628,313 mm/yr against a model prediction of +0.3,
+#   every row `consistent = no`, into the file behind report9 Table 1.8.
+#
+#   THAT IS WORSE THAN THE CRASH IT REPLACED and it is worth saying why it got
+#   through. v1.20.0 was "verified" by checking that the filter selected 8 rows
+#   where the literal selected 0. The rule in CLAUDE.md is that a script is not
+#   verified until the ARTEFACT has been read back, and the selection is not the
+#   artefact. Resolving a column's NAME by accessor without resolving its UNITS
+#   is half a fix, and the half that was done is the half that hides the other.
+#
+#   The conversion now branches on the resolved drift column: xi x the tier's
+#   coastal differential (mm/yr, from coastal_differential_mm_yr, the helper
+#   added under D-111 and not used here until now) under the coastal design;
+#   the unchanged easting arithmetic otherwise. 25_04 gains a `drift_design`
+#   column so the artefact records which question each row answers.
+#
+#   AND THE COMPARISON'S MEANING CHANGES WITH THE DESIGN — a caveat for the
+#   documents, not just the code. Under the easting design 25_04 set two
+#   independent constructions against each other. Under the coastal design the
+#   covariate IS the gradient field, so the test is close to asking whether
+#   s_coast = 1. Still not identical — the differential comes from 25_14 under
+#   the donor fit while model_predicts_mm_yr is averaged over each side's wells
+#   from the headline fit — but no longer independent corroboration.
+#
+# v1.20.0  # Hollingham (2026) — 2026-09-02. THE DRIFT
 #   COEFFICIENT NAME IS NO LONGER TYPED HERE. baci_corroboration() filtered
 #   Script 10a's coefficient table on the literal `easting_x_time`. D-111 made
 #   the coastal design the published one, so 10a emits `coastal_x_time`, the
@@ -481,7 +511,7 @@ from utils.clearfell_common import (  # noqa: E402
     IMPACT_WELLS, EDGE_WELLS, FOREST_CONTROL_WELLS,
     COASTAL_CONTROL_WELLS, CLIMATE_CONTROL_WELLS,
     FAR_FIELD_CONTROL_WELLS, FAR_FIELD_CONTROL_LABEL,
-    drift_term,
+    drift_term, coastal_differential_mm_yr,
 )
 from utils.scraping_common import apply_scrape_treatment  # noqa: E402
 from utils.render_utils import render_figure
@@ -1967,13 +1997,31 @@ def plot_rolling_window(rolling: pd.DataFrame, fig_path: Path,
 def baci_corroboration(distances: pd.DataFrame,
                         fit_headline: dict,
                         baci_csv_path: Path) -> pd.DataFrame:
-    """Compare the BACI easting × time coefficient absorption to the
-    gradient model's predicted differential between each impact zone
-    and each control tier.
+    """Compare the BACI drift coefficient's absorption to the gradient
+    model's predicted differential between each impact zone and each
+    control tier.
 
-    The BACI fits `delta_easting × months_since` as a covariate; its
-    coefficient (m per m-easting per month) implies an absorbed
-    differential deepening rate of  coef × ΔE × 12 × 1000 mm/yr.
+    WHICH COVARIATE, AND WHAT ITS COEFFICIENT MEANS, IS SET BY
+    `BACI_DRIFT_DESIGN`. Under the easting design the BACI fits
+    `delta_easting × months_since`, whose coefficient is metres of head per
+    metre of easting per month, and the absorbed differential rate is
+    coef × ΔE × 12 × 1000 mm/yr. Under the coastal design (D-111, the
+    published one) it fits the fitted coastal profile differenced between
+    target and control and already scaled by that differential, so the
+    coefficient is the dimensionless amplitude s_coast and the absorbed rate
+    is coef × the tier's coastal differential in mm/yr, with no ΔE in it.
+
+    WHAT THE COMPARISON MEANS ALSO CHANGES WITH THE DESIGN, and this is a
+    scientific caveat rather than a coding one. Under the easting design the
+    two sides are independent constructions: an easting proxy fitted by the
+    BACI against a distance-decay field fitted network-wide. Under the coastal
+    design the covariate IS that field, so the comparison is close to asking
+    whether s_coast = 1 — a weaker test, and not the independent corroboration
+    the easting version provided. The two sides are still not identical: the
+    differential here comes from 25_14 under the donor fit, while
+    model_predicts_mm_yr is averaged over each side's wells from the headline
+    fit. Read the verdict with that in mind, and read `drift_design` in the
+    emitted CSV to know which question a given row answers.
 
     The gradient model predicts a differential of
         mean_w∈impact δ(d_w) − mean_w∈control δ(d_w)
@@ -2109,13 +2157,40 @@ def baci_corroboration(distances: pd.DataFrame,
         match = baci[(baci["Control"] == ctl_name) & (baci["Zone"] == zone_name)]
         if match.empty:
             continue
-        coef = float(match["Value"].iloc[0])  # m / (m_easting × month)
+        coef = float(match["Value"].iloc[0])
         coef_se = float(match["SE"].iloc[0])
         coef_p = float(match["p"].iloc[0])
         dE = E_tgt - E_ctl
-        # Absorbed differential = coef × ΔE × 12 (months/yr) × 1000 (m → mm)
-        baci_absorb = coef * dE * 12 * 1000
-        baci_absorb_se = coef_se * abs(dE) * 12 * 1000
+
+        # THE TWO DESIGNS PUT DIFFERENT QUANTITIES IN THIS COLUMN, AND THE
+        # CONVERSION IS NOT SHARED.
+        #
+        #   easting_x_time  the coefficient is a SLOPE, metres of head per
+        #                   metre of easting per month — order 1e-6. It becomes
+        #                   a differential rate through the easting separation:
+        #                   coef x dE x 12 months x 1000 mm.
+        #   coastal_x_time  the design column was already scaled by the tier's
+        #                   coastal differential in 10a, so the coefficient is
+        #                   the DIMENSIONLESS AMPLITUDE s_coast (xi) — order 1,
+        #                   and 1 means "exactly the network-scale field". It
+        #                   becomes a rate by multiplying that differential
+        #                   back in, and dE must not appear at all.
+        #
+        # Feeding xi into the easting formula multiplies an order-1 number by
+        # an easting separation of thousands of metres and by 12000, and this
+        # is not hypothetical: v1.20.0 did exactly that and emitted
+        # baci_absorbs_mm_yr = -309,628,313 against a model prediction of +0.3,
+        # with every row reading `consistent = no`. It ran, it wrote, and the
+        # table was nonsense — which is worse than the crash it replaced,
+        # because 25_04 is report9 Table 1.8. Resolving the column NAME by
+        # accessor without resolving its UNITS is half a fix.
+        if drift_col == "coastal_x_time":
+            diff_mm_yr = coastal_differential_mm_yr(ctl_name, zone_name)
+            baci_absorb = coef * diff_mm_yr
+            baci_absorb_se = coef_se * abs(diff_mm_yr)
+        else:
+            baci_absorb = coef * dE * 12 * 1000
+            baci_absorb_se = coef_se * abs(dE) * 12 * 1000
         # z-test against model prediction (treating model pred as known)
         z = ((baci_absorb - model_pred) / baci_absorb_se
               if baci_absorb_se > 0 else np.nan)
@@ -2125,6 +2200,7 @@ def baci_corroboration(distances: pd.DataFrame,
             "d_target_m": round(d_tgt, 0),
             "d_control_m": round(d_ctl, 0),
             "delta_E_m": round(dE, 0),
+            "drift_design": drift_col,
             "baci_coef": coef,
             "baci_coef_se": coef_se,
             "baci_coef_p": coef_p,

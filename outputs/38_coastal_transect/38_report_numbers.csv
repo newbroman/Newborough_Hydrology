@@ -1,0 +1,11 @@
+Parameter,Well,Era,Value,Unit,Note
+transect_trend_mm_yr,,,-28.16117216117173,mm/yr,"AR(1)-corrected OLS slope of the coast-minus-inland MAM head difference against year. THE HEADLINE OF THIS SCRIPT, and one of the three grounds of D-105. Compare Script 25's delta_0, which is a different estimator of the same physical rate."
+transect_trend_ci_lo,,,-34.22666948436158,mm/yr,bootstrap 95% CI lower bound on transect_trend_mm_yr
+transect_trend_ci_hi,,,-21.984078412429483,mm/yr,bootstrap 95% CI upper bound on transect_trend_mm_yr
+transect_trend_p_ar,,,5.6617487907333496e-05,,p-value after the AR(1) correction — the one to quote
+transect_trend_p_ols,,,5.6617487907333496e-05,,"uncorrected OLS p-value, reported for comparison only"
+transect_resid_rho_lag1,,,0.0,,lag-1 residual autocorrelation; 0 means the AR correction changed nothing and the two p-values agree
+transect_n_eff,,,14.0,,effective sample size after the AR(1) correction
+transect_n_points,,,14.0,,MAM points in the window
+transect_coastal_end_spearman_raw,,,-0.3142857142857143,,Spearman rho of the RAW coastal-anchor spring level against year. The weaker of the pair by design: common-mode climate is still in it.
+transect_coastal_end_spearman_anchored,,,-0.8681318681318682,,Spearman rho of the ANCHOR-REFERENCED coast-minus-inland difference against year. Referencing to the erosion-free inland anchor removes common-mode climate model-free; closer to -1 is a cleaner monotonic coastal drawdown.

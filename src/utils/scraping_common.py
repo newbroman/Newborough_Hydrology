@@ -367,7 +367,8 @@ def load_cluster_params():
 
     Combines:
       - beta from Script 03 cluster mechanistic table
-      - Sy from Script 17 WTF per-well estimates (cluster median)
+      - Sy from the WTF per-well estimates, cluster median (Script 17's
+        method, written by Script 18 — D-038)
       - h_disp from Script 01 wells + DRAINAGE_DATUM
       - forest flag (clusters 4 and 5)
 

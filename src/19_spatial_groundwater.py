@@ -2306,7 +2306,9 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
       which is the quantity meant; the product of the means only coincides with
       it when Sy and dh are uncorrelated across wells, and at C4/C5 they are not.
 
-      one Sy, named.  `sy` is the per-well WTF median from 17_wtf_well_sy.csv
+      one Sy, named.  `sy` is the per-well WTF median from
+      18_wtf_01_well_sy_estimates.csv (written by Script 18, not 17 — the
+      17_-prefixed copy was retired 2026-08-19 under D-038)
       with the cluster floor applied (see fill_sy), NOT either of the viewer's
       two slider endpoints. `sy_mean` is exported alongside so the conversion
       can be checked by hand from the CSV without opening the viewer.

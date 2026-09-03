@@ -339,7 +339,8 @@ def load_drawdown_lambda_m() -> float:
 
 def load_cluster_sy() -> dict:
     """{cluster_id(int): Sy} — canonical per-cluster Sy, live from
-    pipeline_params.load_params() (Script 17's output; single source of
+    pipeline_params.load_params() (written by Script 18, not 17 — D-038;
+    single source of
     truth, matches OUT_18_WELL_SY_TABLE grouped by Cluster). Falls back to
     default_value('Sy') per cluster with a console warning."""
     try:

@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_80.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_81.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -62,7 +62,7 @@ Where this supplement and the main report disagree, the main report is canonical
 
 The 88-well dipwell network is read monthly by the author. Readings are taken at the **end of each month** --- typically the last day of that month, or the first day or two of the following month. Each reading is the water level *for the month just ended*: a measurement taken on 1 May 2026 represents the **April 2026** water level.
 
-Climate data from RAF Valley Meteorological Station (53°14′32″N, ≈16 km from the site) is a monthly total for the same calendar month. Rainfall (mm) and minimum and maximum temperatures (°C) are tabulated month-by-month from 1930 to present. Potential evapotranspiration is computed inside the pipeline (Script 01) using the Thornthwaite method at the RAF Valley latitude, returning a monthly PET total in millimetres. A month the Met Office marks "\-\--" --- more than two days unmeasured --- is carried as missing and not as zero. There is exactly one in the 95-year file, June 1941; until 2026-08-23 it entered the pipeline as 0 mm, which recorded a month declared unmeasured as the driest in the record. Annual rainfall statistics therefore rest on complete years only, and 1941 is excluded from them (D-070).
+Climate data from RAF Valley Meteorological Station (53°15′00″N, ≈16 km from the site) is a monthly total for the same calendar month. Rainfall (mm) and minimum and maximum temperatures (°C) are tabulated month-by-month from 1930 to present. Potential evapotranspiration is computed inside the pipeline (Script 01) using the Thornthwaite method at the RAF Valley latitude, returning a monthly PET total in millimetres. A month the Met Office marks "\-\--" --- more than two days unmeasured --- is carried as missing and not as zero. There is exactly one in the 95-year file, June 1941; until 2026-08-23 it entered the pipeline as 0 mm, which recorded a month declared unmeasured as the driest in the record. Annual rainfall statistics therefore rest on complete years only, and 1941 is excluded from them (D-070).
 
 ### []{#anchor-8}[]{#anchor-9}[]{#anchor-10}Bucketing
 
@@ -227,7 +227,7 @@ The principal entries:
   BROADLEAF_B2_SUMMER                        1.0750                                                                                                                         Script 21 monthly β₂ profile, May--Oct mean (canopy-on window)
   BROADLEAF_B2_WINTER                        0.8817                                                                                                                         Script 21 monthly β₂ profile, Nov--Apr mean (canopy-off window)
   REFERENCE_CUTOFF_DATE                      "2026-02-01"                                                                                                                   Reference-network selection in Script 01
-  RAF_VALLEY_LAT_DEG                         53.25                                                                                                                          53°14′32″N, used for Thornthwaite PET
+  RAF_VALLEY_LAT_DEG                         53.25                                                                                                                          53°15′00″N, used for Thornthwaite PET
   *SD15b*, *SD15b_REC*, *SD16*, *SD16_REC*   0.61, 0.75, 0.98, 1.20 m                                                                                                       Curreli et al. (2013) summer slack thresholds
   *SD15b_WINTER*, *SD16_WINTER*              0.10, 0.25 m                                                                                                                   Curreli winter flooding limits
   *UKCP18_DRY\_\**, *UKCP18_WET\_\**         seasonal P and PET scaling factors                                                                                             UKCP18 RCP8.5 Wales, 50th percentile, 2050s
@@ -4432,7 +4432,7 @@ The convention throughout the supplement is that there is one place to change a 
 
   ---------------------------- ------------------------------------ --------------------------------------------------------------------
   Constant / concept           Reference                            Value / meaning
-  RAF Valley climate station   F.2 / *RAF_VALLEY_LAT_DEG = 53.25*   53°14′32″N, ≈16 km from site
+  RAF Valley climate station   F.2 / *RAF_VALLEY_LAT_DEG = 53.25*   53°15′00″N, ≈16 km from site
   Thornthwaite PET             F.2 / S.8 / Script 01                Computed at RAF Valley latitude
   Dipwell field protocol       F.2                                  End-of-month readings, day-15 bucketing
   clean_well_series()          F.5 / *data_utils.py*                Drops \> 4.0 m depths; linear interp single-month gaps (*limit=1*)

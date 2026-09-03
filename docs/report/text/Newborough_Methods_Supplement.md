@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_98.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_99.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 1.9.98 (September 2026).
+Document version: 1.9.99 (September 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -249,7 +249,7 @@ The reference network is partitioned into five behavioural clusters using Ward's
   5    C5 Coastal Forest     ceh16, nw9     Coastal Forest   Corsican pine, coastal margin
   ---- --------------------- -------------- ---------------- --------------------------------
 
-*02_clustering.py* carries a *CLUSTER_ID_ANCHORS* dict that pins Ward's raw (arbitrary) output to these canonical IDs. A guard at module load asserts that *CLUSTER_ID_ANCHORS* and *CLUSTER_LABELS* agree. Membership counts (live, May 2026 partition under *01_data_prep.py* v1.3.0 which blacklists the tidal *pdfs* well) are C1 = 7, C2 = 24, C3 = 21, C4 = 9, C5 = 5; total 66 wells in the reference network.
+*02_clustering.py* carries a *CLUSTER_ID_ANCHORS* dict that pins Ward's raw (arbitrary) output to these canonical IDs. A guard at module load asserts that *CLUSTER_ID_ANCHORS* and *CLUSTER_LABELS* agree. Membership counts (live partition, k=5 blacklist introduced in *01_data_prep.py* v1.3.0 which blacklists the tidal *pdfs* well) are C1 = 7, C2 = 24, C3 = 21, C4 = 9, C5 = 5; total 66 wells in the reference network.
 
 ### []{#anchor-42}[]{#anchor-43}[]{#anchor-44}Partition history
 
@@ -360,7 +360,7 @@ Constants and palette. F.4 covers its contents in full.
 Single source of truth for every input and output file path. The module is organized into four blocks:
 
 1.  **Root directories** --- *ROOT_DIR*, *DATA_DIR*, *OUT_DIR*, and per-script subdirectories *DIR_00* through *DIR_27*, plus *DIR_26B* for Script 26b's outputs. A helper function *make_all_dirs()* creates any missing directories. Scripts call this at the top of their main function rather than checking individual directories.
-2.  **Data inputs** --- paths to raw CSV and GIS files in *data/*: *DATA_WELLS_RAW* (the cleaned monthly dipwell CSV), *DATA_LOCATIONS_RAW*, *DATA_CLIMATE_RAW*, the KML files (*Features.kml*, *streams.kml*, *clearfell.kml*, *broadleaf_restock.kml*), the DEM (*newborough_dem.tif*), and the precomputed coastal-distance CSV (*DATA_DIST_COAST*).
+2.  **Data inputs** --- paths to raw CSV and GIS files in *data/*: *DATA_WELLS_RAW* (the cleaned monthly dipwell CSV), *DATA_LOCATIONS_RAW*, *DATA_CLIMATE_RAW*, the KML files (*Features.kml*, *streams.kml*, *clearfell.kml*, *broadleaf_restock.kml*), the DEM (*newborough_dem.tif*), and the coastal-distance source, regenerated and validated in Script 01 (*DATA_DIST_COAST*).
 3.  **Intermediate files** --- outputs written to *OUT_DIR* root by upstream scripts and read by downstream scripts. These are named with the *INT\_* prefix: *INT_WELLS_CLEAN*, *INT_CLIMATE*, *INT_LOCATIONS*, *INT_MASTER_DATA*, *INT_REGIONAL_AVG*, *INT_CLUSTER_AVG_MAOD*, *INT_CLUSTER_PEAK_MONTHS*, and so on.
 4.  **Final outputs** --- figures, tables, and report CSVs written to per-script subdirectories. These are named with the *OUT_NN\_* prefix to indicate which script writes them: *OUT_03_MECHANISTIC_TABLE*, *OUT_10E_COEFF_SHIFTS*, *OUT_25_FIT_PARAMETERS*, and so on.
 
@@ -495,22 +495,22 @@ Step 1 / 27. Phase 1.
 
 ### []{#anchor-79}[]{#anchor-80}[]{#anchor-81}Motivation
 
-Script 01 is the gateway to every downstream step in the pipeline. Each of the 27 scripts that follow reads from one or more of its eight output files, and no other script touches the raw data CSVs (with two documented exceptions that re-read raw inputs for specialist purposes: Script 09a for BACI windowing and Script 24 for sunshine-hour series). The chapter therefore covers two distinct jobs that Script 01 performs together: a *technical* job --- converting three raw data sources into a self-consistent set of monthly time series with a single date convention, a single well-name convention, and well elevations in metres above Ordnance Datum --- and a *scientific* job, which is to declare the membership of the reference network and the extended network that subsequent analyses operate on. Three methodological choices here have particular weight in the rest of the document: the day-15 bucketing convention introduced in F.2, the hardcoded reference-network whitelist that excludes the Forest Enterprise clearfell wells, Llyn Rhos-Ddu, and two singleton-outlier CEH wells, and the single-month interpolation *limit=1* policy with its per-cell provenance partner file *01_wells_provenance.csv*. All three are described in summary in the front matter; this chapter is the full description.
+Script 01 is the gateway to every downstream step in the pipeline. Each of the 27 scripts that follow reads from one or more of its output files, and no other script touches the raw data CSVs (with two documented exceptions that re-read raw inputs for specialist purposes: Script 09a for BACI windowing and Script 24 for sunshine-hour series). The chapter therefore covers two distinct jobs that Script 01 performs together: a *technical* job --- converting three raw data sources into a self-consistent set of monthly time series with a single date convention, a single well-name convention, and well elevations in metres above Ordnance Datum --- and a *scientific* job, which is to declare the membership of the reference network and the extended network that subsequent analyses operate on. Three methodological choices here have particular weight in the rest of the document: the day-15 bucketing convention introduced in F.2, the hardcoded reference-network whitelist that excludes the Forest Enterprise clearfell wells, Llyn Rhos-Ddu, and two singleton-outlier CEH wells, and the single-month interpolation *limit=1* policy with its per-cell provenance partner file *01_wells_provenance.csv*. All three are described in summary in the front matter; this chapter is the full description.
 
 ### []{#anchor-81}[]{#anchor-82}[]{#anchor-83}Inputs
 
-  --------------------------------------- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  --------------------------------------- -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   Input file                              Description
   data/Newborough_Cleaned_For_Model.csv   Field-collected monthly dipwell readings, manually pre-cleaned by the author. Wells are columns, reading dates are rows in *DD/MM/YYYY* form.
-  data/Well_locations_height.csv          DGPS-surveyed easting, northing, ground elevation, and pipe-top upstand per well. The *Pipe_Top_Elev* column is the independently measured reference datum for field readings.
+  data/well_metadata.csv                  DGPS-surveyed easting, northing, ground elevation, and pipe-top upstand per well. The *Pipe_Top_Elev* column is an input column that the pipeline does not use as the datum: field readings are referenced to a pipe-top derived as ground elevation + upstand (see below).
   data/RAF_Valley_Climate.csv             Met Office monthly returns from RAF Valley station, ≈16 km north-east of the site, 1930--present. Provides monthly maximum and minimum temperature, air-frost days, rainfall, and sunshine hours.
-  --------------------------------------- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  --------------------------------------- -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ### []{#anchor-83}[]{#anchor-84}[]{#anchor-85}Methodology
 
 The script runs four blocks in sequence, preceded by a metadata sanity check.
 
-The sanity check passes both the well-name set from *Well_locations_height.csv* and the well-name set from the dipwell CSV through *normalize_well_name* (lower-case, whitespace-stripped) and prints any mismatch. The function is also used by every downstream script that joins on well name, so the same normalization rule applies throughout the pipeline.
+The sanity check passes both the well-name set from *well_metadata.csv* and the well-name set from the dipwell CSV through *normalize_well_name* (lower-case, whitespace-stripped) and prints any mismatch. The function is also used by every downstream script that joins on well name, so the same normalization rule applies throughout the pipeline.
 
 **Climate processing.** The Met Office CSV has *Mon YY* header dates (e.g. "Jan 95", "Dec 26"). These are parsed by *parse_met_date* with a two-digit-year cutover handled internally: years ≤ 26 are interpreted as 21st century, otherwise 20th century. The cutover is rolled forward each year as part of the annual data update. Rainfall is converted from millimetres to metres, and the Met Office *\"\-\--\"* missing-data marker is replaced by zero. Treating missing rainfall as no rainfall rather than as unknown rainfall is a conservative choice; long gaps in the RAF Valley record are rare and the 1930--present series is otherwise complete, so the alternative --- propagating NaNs through every downstream water-balance calculation --- would lose more information than it preserves. Mean monthly temperature is taken as the arithmetic mean of the recorded monthly maximum and minimum. The maximum-temperature column header occasionally migrates between *\"Max Temp ©\"* and *\"Max Temp (C)\"* between Met Office releases; both forms are handled.
 
@@ -538,7 +538,7 @@ The *limit=1* rule permits interpolation across single missed-visit gaps only. A
 
 Positive readings are not masked. The dune slacks at Newborough regularly flood above the dipwell pipe top, and on those visits the surveyor records the standing-water level above the pipe rim. These are real water-level observations, not measurement artefacts, and the SSM, the clustering, and the flood-threshold work all depend on them. The current dataset contains around 1,400 such readings, with a median of +13 cm above pipe top, a 99th percentile of +53 cm, and a maximum of +73 cm. They pass through the cleaning step unchanged.
 
-**Provenance tracking.** Alongside the cleaned wells file, Script 01 emits *01_wells_provenance.csv* --- a sibling table of identical shape (same row index, same column set as *01_wells_clean.csv*) recording per-cell origin as one of three string values: *\"measured\"* for a value present in the raw bucketed series, *\"interpolated\"* for a value created by *clean_well_series* linear-fill, *\"missing\"* for a cell still NaN after cleaning. The provenance file is the public record of what was inferred versus what was observed. Across the full 80-well reference + extended panel from 2005 onwards (250 monthly rows × 80 columns = 20,000 cells), the current state is 14,948 measured, 274 interpolated, 4,778 missing. Restricted to the 17-well clearfell-BACI panel from 2007-01 onwards (229 months × 17 wells = 3,893 cells), the state is 3,399 measured, 72 interpolated, 422 missing.
+**Provenance tracking.** Alongside the cleaned wells file, Script 01 emits *01_wells_provenance.csv* --- a sibling table of identical shape (same row index, same column set as *01_wells_clean.csv*) recording per-cell origin as one of three string values: *\"measured\"* for a value present in the raw bucketed series, *\"interpolated\"* for a value created by *clean_well_series* linear-fill, *\"missing\"* for a cell still NaN after cleaning. The provenance file is the public record of what was inferred versus what was observed. Across the full 78-column cleaned panel (reference plus surviving extended wells) from 2005 onwards (250 monthly rows × 78 columns = 19,500 cells), the current state is 14,747 measured, 275 interpolated, 4,478 missing. Restricted to the 17-well clearfell-BACI panel from 2007-01 onwards (229 months × 17 wells = 3,893 cells), the state is 3,399 measured, 72 interpolated, 422 missing.
 
 The provenance file is consumed by analysis scripts that have an interpretive reason to discount cells with low measured-coverage. Two consumers are wired in the current pipeline: Script 10d (clearfell summer minima) and Script 09c (scraping summer minima) load the provenance file via *clearfell_common* / *scraping_common* and apply *min_measured=2* to *annual_summer_minimum*, dropping any (well, year) row whose Jun--Sep series contains fewer than two measured months. The new *n_interpolated* column in *10d_01_summer_minima.csv* and *09c_01_summer_minima.csv* flags the surviving rows for reviewer inspection. Script 03's *build_ssm_frame* / *fit_ssm* accept an optional *provenance* argument and an *exclude_interpolated=False* flag that defaults to retaining all rows in the canonical SSM fit. Retaining all rows is a separate matter from the interpolation *limit* setting, which alters *01_wells_clean.csv* itself: the canonical β₁/β₂/β₃ cluster-coefficient table is computed under *limit=1* (see §S.3). The *exclude_interpolated* flag is documented as an available sensitivity path, run on demand.
 
@@ -1159,7 +1159,7 @@ Site-specific choices and rationale.
 
 -   **100-month window** rather than the full record. The choice keeps both fits on a recent, well-sampled segment of the record and avoids letting older data (with sparser sampling, pre-clearfell baselines, and possible measurement-protocol drift) dominate. The number is *LCSC_DATA_LIMIT = 100*, declared in *config.py* and imported by every script that uses it (Scripts 03, 08 and 30).
 -   **Excluded wells: CEH7, CEH8, CEH37.** These three wells have inconsistent records --- gaps, regime changes, or sampling discontinuities that disqualify them from a 100-month-window benchmarking exercise. The exclusion is recorded as a fixed rule in *EXCLUDED_WELLS_NORM* at the top of the script. The exclusion is empirical and field-driven rather than algorithmic: documenting the per-well reason in an in-code comment at the exclusion site is on the to-fix list.
--   **CEH6 as the showcase well.** CEH6 was chosen because it produces a clear visual contrast between the TLM and SSM iterative trajectories without being the most extreme well in the network. A more extreme case would compress the visual difference into the same plot range; CEH6's NSE_TLM ≈ −1.1 / NSE_SSM ≈ +0.7 produces two trajectories that diverge visibly but both stay on a readable scale. No other methodological consideration entered the choice.
+-   **CEH6 as the showcase well.** CEH6 was chosen because it produces a clear visual contrast between the TLM and SSM iterative trajectories without being the most extreme well in the network. A more extreme case would compress the visual difference into the same plot range; CEH6's NSE_TLM ≈ −1.9 / NSE_SSM ≈ +0.7 produces two trajectories that diverge visibly but both stay on a readable scale. No other methodological consideration entered the choice.
 -   **Lake sentinel excluded from the max-improvement reporting.** The Table 5 "Max NSE improvement" row excludes the lake-side *LlynRhos* sentinel well. The lake sentinel has a tightly bounded surface-water signal that makes its TLM-vs-SSM comparison atypical of warren hydrology.
 -   **The TLM iterative simulation has no feedback term.** That is the deliberate point. The TLM fits a constant Δh-per-month from climate alone, with no recovery mechanism if water level drifts off the observed trajectory. Without a drainage term the TLM cannot represent the physical fact that drier sites drain less slowly than wet sites; without the displacement formulation the iterative simulation accumulates whatever climate-driven Δh the OLS estimated, and drifts. This is the model the SSM is being compared against --- the simplest specification under which "memory of the water-table position" is absent.
 
@@ -1171,7 +1171,7 @@ Outputs.
   08_model_benchmarking/08_lcsc_01_ceh6_showdown.png              CEH6 dual-panel showdown (one-step top, iterative bottom)
   08_model_benchmarking/08_lcsc_02_r2_improvement_map.png         Spatial ΔR² (iterative) point-scatter map
   08_model_benchmarking/08_lcsc_03_nse_improvement_map.png        Spatial ΔNSE point-scatter map
-  08_model_benchmarking/08_lcsc_04_table3_benchmark_summary.csv   Six-row summary table for the main report (Table 5)
+  08_model_benchmarking/08_lcsc_04_table3_benchmark_summary.csv   Seven-row summary table for the main report (Table 5)
   --------------------------------------------------------------- -----------------------------------------------------------------------------------------------
 
 The live Table 5 summary records: median one-step R² of 0.91 (TLM) vs 0.92 (SSM); median iterative R² of 0.64 vs 0.77; median iterative NSE of −0.03 vs 0.72. The one-step gap is small --- both models recover diagnostic fit. The iterative-NSE gap is large --- the SSM contributes most of its value in forecasting stability, not in one-step diagnostic fit. Thirty of 66 reference wells have iterative NSE \> 0 under the TLM; 65 of 66 do under the SSM. The single well where SSM iterative NSE is negative is CEH14 --- the same ridge-flank well that produces the negative β₃ in Script 07's map. The two diagnostics agree on which well the canonical SSM does not describe.
@@ -1464,7 +1464,7 @@ The headline ANCOVA-BACI result is reported in the main report as Table 7 and Fi
   10i_01_ceh34_hindcast.csv                               Script 10i   10a, 10b, 10e, 10h via *clearfell_common.apply_ceh34_hindcast()*; 10d, 10f, 10j, 10k, 10l do not consume
   ------------------------------------------------------- ------------ ----------------------------------------------------------------------------------------------------------
 
-All loading goes through *clearfell_common.load_clearfell_data()*, which merges the reference and extended well frames, normalises column names to lowercase, and validates the five tiers against the live data. Per-well locations are sourced first from the master data, with *Well_locations_height.csv* as a fallback for wells not in the reference network.
+All loading goes through *clearfell_common.load_clearfell_data()*, which merges the reference and extended well frames, normalises column names to lowercase, and validates the five tiers against the live data. Per-well locations are sourced first from the master data, with *well_metadata.csv* as a fallback for wells not in the reference network.
 
 ### []{#anchor-209}[]{#anchor-210}[]{#anchor-211}Sub-script 10a --- Three-counterfactual ANCOVA-BACI
 
@@ -1716,7 +1716,7 @@ The suite-shared module sits at *src/utils/clearfell_common.py* and provides eve
 
 **Intervention dates.** *INTERVENTION_DATE = 2017-12-01*; *SCRAPING_DATE = 2015-04-01*; *SCRAPING_DATE_2 = 2023-10-01*. *FELLING_YEAR = 2017*. These three dates appear throughout the suite as era boundary masks (*wells.index \>= INTERVENTION_DATE*, etc.) --- the suite has no *WELL_ERAS* dict; era boundaries are inline masks against the date constants.
 
-**Data loading.** *load_clearfell_data()* returns *(wells, climate, master, well_locations, valid_tiers)*. It merges the reference and extended well frames, lowercases the column names, applies *clean_well_series()* to each column, reads climate with *parse_dates=True*, parses *03_master_data.csv*, and builds *well_locations* from the master data (with a *Well_locations_height.csv* fallback for wells not in the master). It also validates the five tiers, emitting a warning for any well in a tier that is missing from the data.
+**Data loading.** *load_clearfell_data()* returns *(wells, climate, master, well_locations, valid_tiers)*. It merges the reference and extended well frames, lowercases the column names, applies *clean_well_series()* to each column, reads climate with *parse_dates=True*, parses *03_master_data.csv*, and builds *well_locations* from the master data (with a *well_metadata.csv* fallback for wells not in the master). It also validates the five tiers, emitting a warning for any well in a tier that is missing from the data.
 
 **BACI helpers.** *compute_baci_displacement(wells, target_list, control_list)* returns the target-centroid minus control-centroid timeseries. *compute_cwb(climate, baseline_start, baseline_end)* returns the centred cumulative *(P − PET)* anomaly in mm. *compute_control_centroid()* returns the monthly mean of an arbitrary control list.
 
@@ -1864,13 +1864,13 @@ Three of the four scripts (00, 12, 13) sit at Phase 4's start as orientation too
   01_climate.csv                                       00                  Script 01
   01_wells_clean.csv                                   00                  Script 01
   data/RAF_Valley_Climate.csv                          00 (Figures 4, 5)   Raw climate input
-  data/Well_locations_height.csv                       12, 13              Raw locations input
+  data/well_metadata.csv                               12, 13              Raw locations input
   data/newborough_dem.tif                              12, 13              Raw DEM input
   *data/\*.kml* (clearfell, broadleaf restock, etc.)   12, 13              Raw site features
   03_regional_averages.csv                             14                  Script 03
   ---------------------------------------------------- ------------------- ---------------------
 
-Scripts 12 and 13 are the two pipeline scripts that legitimately read from *Well_locations_height.csv* directly rather than from a Script 01 intermediate. The exception is recorded in F.5: site-mapping figures need raw coordinates and the full locations register, including wells excluded from the analytical network, which the Script 01 intermediate does not retain.
+Scripts 12 and 13 are the two pipeline scripts that legitimately read from *well_metadata.csv* directly rather than from a Script 01 intermediate. The exception is recorded in F.5: site-mapping figures need raw coordinates and the full locations register, including wells excluded from the analytical network, which the Script 01 intermediate does not retain.
 
 ### []{#anchor-253}[]{#anchor-254}[]{#anchor-255}Sub-script 00 --- Climate summary
 
@@ -1884,7 +1884,7 @@ The summer warming-trend figure (*00_03_summer_warming_trend.png*) is the only S
 
 ### []{#anchor-255}[]{#anchor-256}[]{#anchor-257}Sub-script 12 --- Site overview map
 
-Script 12 produces Figure 1 of the main report: a DEM hillshade over the full warren extent with every well in *Well_locations_height.csv* (currently 97 wells, including extended-network wells and lake-stage points) plotted as a red marker with a name label. The script reads the raw locations CSV, projects to EPSG:27700 (British National Grid), and overlays the local 1 m DEM (*newborough_dem.tif*) using *rasterio* with a custom topographic colormap. The colormap's *set_under(\'dodgerblue\')* paints any sub-zero elevation as water, and *TwoSlopeNorm* anchors the colour scale at 0 m sea level, 12 m at the slack-dune transition, and the true ridge maximum at the top. KML site features (forestry boundaries, broadleaf restock blocks, scrape sites) are added through *map_utils.add_kml_features* (F.5).
+Script 12 produces Figure 1 of the main report: a DEM hillshade over the full warren extent with every well in *well_metadata.csv* (currently 97 wells, including extended-network wells and lake-stage points) plotted as a red marker with a name label. The script reads the raw locations CSV, projects to EPSG:27700 (British National Grid), and overlays the local 1 m DEM (*newborough_dem.tif*) using *rasterio* with a custom topographic colormap. The colormap's *set_under(\'dodgerblue\')* paints any sub-zero elevation as water, and *TwoSlopeNorm* anchors the colour scale at 0 m sea level, 12 m at the slack-dune transition, and the true ridge maximum at the top. KML site features (forestry boundaries, broadleaf restock blocks, scrape sites) are added through *map_utils.add_kml_features* (F.5).
 
 If the local DEM is absent or *rasterio* is not installed, the script falls back to a *contextily* OpenTopoMap basemap framed around the well bounding box plus a 300 m buffer. The fallback exists so the pipeline runs end-to-end on a reviewer's machine without the 1 m DEM; the published Figure 1 uses the local DEM render.
 
@@ -2817,7 +2817,7 @@ Script 21 is also the canonical source for the broadleaf monthly β₂ profile t
   03_master_data.csv                  Script 03 --- per-well β coefficients (recharge, atmospheric draw, drainage) and cluster ID
   01_climate.csv                      Script 01 --- monthly P and PET (RAF Valley)
   03_regional_averages_maod.csv       Script 03 --- cluster-mean head time series in m AOD
-  Well_locations_height.csv           Raw data input --- DEM ground elevation and pipe-top elevation per well
+  well_metadata.csv                   Raw data input --- DEM ground elevation and pipe-top elevation per well
   *01_wells_clean.csv* (+ extended)   Script 01 --- quality-controlled monthly depth series; used by the distribution and BACI-violin figures
   pipeline_scenario_params.csv        Script 01's consolidated parameter file --- cluster β, Sy, h_disp, peak month, BACI-corrected β₂ multipliers, UKCP18 climate scaling
   10a_report_numbers.csv              Script 10a --- ANCOVA BACI clearfell step for Forest Impact (annual displacement)

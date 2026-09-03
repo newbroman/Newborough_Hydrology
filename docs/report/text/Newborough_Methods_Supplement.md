@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_93.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_94.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 1.9.93 (September 2026).
+Document version: 1.9.94 (September 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -3935,9 +3935,9 @@ Phase 15 (steps 36--41/52; 32/33/35 analytical-default, 36/37/37b also analytica
 
 **Headline result.** Over 2011--2025, 8 of 74 mapped wells move significantly, almost all sinkers on the south-western coastal and western margin (CEH22 −26.5, CEH21 −15.1, CEH11 −13.3 mm yr⁻¹). Over 2005--2025 the pattern firms to 13 of 77, the coastal and western sinkers (CEH22, NW8, CEH3, NW9, CEH17) strengthening. The forest interior holds its position, with the forest control wells (CEH32 +20.5, CEH34 +17.2, CEH2 +14.9 mm yr⁻¹) among the few drifting upward.
 
-**Outputs.** *outputs/32_differential_movement/*: *32_differential_movement_per_well.csv* (slope, significance, both periods); *32_differential_movement_2011_2025.png* (Figure 64 primary); *32_differential_movement_2005_2025.png* (robustness); *32_results.txt*.
+**Outputs.** *outputs/32_differential_movement/*: *32_differential_movement_per_well.csv* (slope, significance, both periods); *32_site_mean_trend.csv* (absolute site-mean trend on two bases × two periods, with detectability columns); *32_differential_movement_2011_2025.png* (Figure 64 primary); *32_differential_movement_2005_2025.png* (robustness); *32_results.txt*.
 
-**Limitations.** The differential framing answers "where relative to the site", not "how much in absolute terms" --- the absolute site-mean trend is separately and non-significantly −7.0 mm yr⁻¹ (Script 32 site-mean panel, AR-corrected, p = 0.52). The per-well metric is an OLS slope; the AR correction enters the significance test only. Sparse-coverage wells are flagged via the panel rule rather than dropped.
+**Limitations.** The differential framing answers "where relative to the site", not "how much in absolute terms" --- the absolute site-mean trend is reported separately in *32_site_mean_trend.csv*, computed on two bases (spring MAM and the annual all-month mean, *config.DIFF_SITE_MEAN_BASES*) over each of the two periods --- four rows in all. None is significant on the AR-corrected test, and the sign flips between windows (spring-MAM +19.7 mm yr⁻¹ over 2011--2025 against −7.0 over 2005--2025, p = 0.52) --- the same window-sensitivity the differential framing is designed to sidestep. A power analysis accompanies each row (*DETECTABILITY_ALPHA* = 0.05, *DETECTABILITY_POWER* = 0.8): the minimum detectable site-mean trend is 29--48 mm yr⁻¹ across the four rows, well above every point estimate, so the non-significance is a resolution limit rather than evidence of no drift. The window-independent secular signal is recovered instead by the differential and absolute-trend maps (Figures 64 and 65). The per-well metric is an OLS slope; the AR correction enters the significance test only. Sparse-coverage wells are flagged via the panel rule rather than dropped.
 
 **Report location.** Figure 64; main-report §4.12 (description) and §5.7.5 (interpretation).
 

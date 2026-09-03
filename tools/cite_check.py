@@ -45,7 +45,15 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.14.0"  # Hollingham (2026) — 2026-09-03. Script 37 enters
+__version__ = "1.15.0"  # Hollingham (2026) — 2026-09-03. Scripts 17 and 38
+#   enter EXTRA_VALUE_TABLES, and HISTORY_DOCS stops the CITATION check reading
+#   the Decision Log and PARTITION_HISTORY — documents whose job is to record
+#   what a value used to be, and which the spread check had always excluded.
+#   Script 17 is keyed on (Cluster, Corrected); Script 38 registers only its
+#   coast-minus-inland difference, its quoted trend being in a .txt no value
+#   table can reach.
+#
+# v1.14.0   # Hollingham (2026) — 2026-09-03. Script 37 enters
 #   EXTRA_VALUE_TABLES. It has no report-numbers file and was in no value table,
 #   so collect_values() never read it and not one of its numbers had ever been
 #   checked. D-104 corrected its fit on 2026-08-31 and retired every earlier

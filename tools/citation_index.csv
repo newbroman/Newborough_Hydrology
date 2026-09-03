@@ -237,3 +237,25 @@ benchmark_median_NSE_TLM,outputs/08_model_benchmarking/08_report_numbers.csv,rep
 benchmark_median_dNSE,outputs/08_model_benchmarking/08_report_numbers.csv,report_edits/text/report9.md,+0.82,f 0.72 compared with −0.03 for the TLM --- a median gain of,NSE units --- and returns a positive iterative NSE at 65 of,high,confirmed
 benchmark_positive_NSE_TLM,outputs/08_model_benchmarking/08_report_numbers.csv,report_edits/text/report9.md,30,ns a positive iterative NSE at 65 of 66 wells compared with,of 66 for the TLM (Table 5). The improvement varies systema,high,confirmed
 benchmark_positive_NSE_SSM,outputs/08_model_benchmarking/08_report_numbers.csv,report_edits/text/report9.md,65,+0.82 NSE units --- and returns a positive iterative NSE at,of 66 wells compared with 30 of 66 for the TLM (Table 5). T,high,confirmed
+2005_2025 / primary · s_coast,outputs/37_driver_validation/37_scale_factors_by_window.csv,report_edits/text/report9.md,0.51,the coastal factor is,(95% CI,high,confirmed
+2005_2025 / primary · s_coast_ci_lo,outputs/37_driver_validation/37_scale_factors_by_window.csv,report_edits/text/report9.md,-0.10,0.51 (95% CI,to 1.12),high,confirmed
+2005_2025 / primary · s_coast_ci_hi,outputs/37_driver_validation/37_scale_factors_by_window.csv,report_edits/text/report9.md,1.12,95% CI −0.10 to,) over the full,high,confirmed
+2006_2012 / primary · s_coast,outputs/37_driver_validation/37_scale_factors_by_window.csv,report_edits/text/report9.md,1.25,2005–2025 record and,(−1.27 to 3.77),high,confirmed
+2006_2012 / primary · s_coast_ci_lo,outputs/37_driver_validation/37_scale_factors_by_window.csv,report_edits/text/report9.md,-1.27,record and 1.25 (,to 3.77),high,confirmed
+2006_2012 / primary · s_coast_ci_hi,outputs/37_driver_validation/37_scale_factors_by_window.csv,report_edits/text/report9.md,3.77,1.25 (−1.27 to,) over the pre,high,confirmed
+2018_2025 / primary · s_cf,outputs/37_driver_validation/37_scale_factors_by_window.csv,report_edits/text/report9.md,1.65,2018–2025 window is,(−1.94 to 5.24),high,confirmed
+2018_2025 / primary · s_cf_ci_lo,outputs/37_driver_validation/37_scale_factors_by_window.csv,report_edits/text/report9.md,-1.94,window is 1.65 (,to 5.25),high,confirmed
+2018_2025 / primary · s_cf_ci_hi,outputs/37_driver_validation/37_scale_factors_by_window.csv,report_edits/text/report9.md,5.25,1.65 (−1.94 to,).,high,confirmed
+2006_2012 / primary · c_ci_lo,outputs/37_driver_validation/37_scale_factors_by_window.csv,report_edits/text/report9.md,-636,2006–2012 (95% CI,to −550),high,confirmed
+2006_2012 / primary · c_ci_hi,outputs/37_driver_validation/37_scale_factors_by_window.csv,report_edits/text/report9.md,-550,(95% CI −636 to,),high,confirmed
+2018_2025 / with_broadleaf_covariate · s_bl,outputs/37_driver_validation/37_scale_factors_by_window.csv,report_edits/text/report9.md,-4.16,whose coefficient is,(−6.43 to −1.90),high,confirmed
+2018_2025 / with_broadleaf_covariate · s_bl_ci_lo,outputs/37_driver_validation/37_scale_factors_by_window.csv,report_edits/text/report9.md,-6.43,coefficient is −4.16 (,to −1.90),high,confirmed
+2018_2025 / with_broadleaf_covariate · s_bl_ci_hi,outputs/37_driver_validation/37_scale_factors_by_window.csv,report_edits/text/report9.md,-1.90,−4.16 (−6.43 to,) and is the only,high,confirmed
+2005_2025 / primary · n,outputs/37_driver_validation/37_scale_factors_by_window.csv,report_edits/text/report9.md,20,window is fitted on,wells against 40,high,confirmed
+2018_2025 / primary · n,outputs/37_driver_validation/37_scale_factors_by_window.csv,report_edits/text/report9.md,40,on 20 wells against,in the two shorter,high,confirmed
+2005_2025 / primary · s_coast,outputs/37_driver_validation/37_scale_factors_by_window.csv,docs/report/text/Newborough_Methods_Supplement.md,0.51,spans zero (s_coast,"[−0.10, 1.12] full-record)",high,confirmed
+2005_2025 / primary · s_coast_ci_lo,outputs/37_driver_validation/37_scale_factors_by_window.csv,docs/report/text/Newborough_Methods_Supplement.md,-0.10,(s_coast 0.51 [,", 1.12] full-record)",high,confirmed
+2005_2025 / primary · s_coast_ci_hi,outputs/37_driver_validation/37_scale_factors_by_window.csv,docs/report/text/Newborough_Methods_Supplement.md,1.12,"0.51 [−0.10,",] full-record),high,confirmed
+2006_2012 / primary · c,outputs/37_driver_validation/37_scale_factors_by_window.csv,docs/report/text/Newborough_Methods_Supplement.md,-593,the uniform intercept (,mm through the 2006,high,confirmed
+2018_2025 / primary · c,outputs/37_driver_validation/37_scale_factors_by_window.csv,docs/report/text/Newborough_Methods_Supplement.md,108,drought;,mm post-2017),high,confirmed
+2018_2025 / with_broadleaf_covariate · s_bl,outputs/37_driver_validation/37_scale_factors_by_window.csv,docs/report/text/Newborough_Methods_Supplement.md,-4.16,broadleaf-restock covariate (,"[−6.43, −1.90]",high,confirmed

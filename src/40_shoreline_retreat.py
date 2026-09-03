@@ -47,7 +47,10 @@ Reading order for anyone picking this up
 """
 from __future__ import annotations
 
-__version__ = "1.6.2"  # Hollingham (2026) — 2026-09-01. A SKIPPED STEP NO
+__version__ = "1.6.3"  # Hollingham (2026) — 2026-09-03. Creates DIR_40 in
+#   main() rather than relying on paths.py doing it at import. No behavioural
+#   change to the analysis. See paths.py 1.11.0 and task_register T-18.
+# v1.6.2  # Hollingham (2026) — 2026-09-01. A SKIPPED STEP NO
 #   LONGER DESTROYS ITS COMMITTED OUTPUT. `_dtm_profile` catches an ImportError,
 #   warns, and returned an EMPTY FRAME — which `main()` then wrote over the good
 #   committed file and announced as `Saved (0 rows)`. Measured 2026-09-01: with
@@ -1115,6 +1118,10 @@ def _figure(measured, out_path):
 def main():
     banner(SCRIPT_ID, "Shoreline retreat from the digitised coastline epochs",
            VERSION)
+    # The script creates its own output directory, as Scripts 30, 32, 34, 35, 36,
+    # 37, 37b, 38 and 39 do. paths.py used to do it at import, which meant every
+    # module in the project created this directory just by importing paths.
+    paths.DIR_40.mkdir(parents=True, exist_ok=True)
 
     phase(1, "Loading coastline epochs")
     raw = {name: _read_kml(path) for name, path, _ in EPOCHS}

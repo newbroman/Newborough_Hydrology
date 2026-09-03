@@ -150,11 +150,14 @@ THE IMAGERY IS NOT IN THE REPOSITORY BY DEFAULT
   frames are the test of the marker change, and a recovered frame with a poor
   residual is a false-positive match, not a recovery.
 
-__version__ : 2.2.0
+__version__ : 2.2.1
 """
 from __future__ import annotations
 
-__version__ = "2.2.0"  # Hollingham (2026) — 2026-08-31. THE RESOLUTION GATE,
+__version__ = "2.2.1"  # Hollingham (2026) — 2026-09-03. Creates DIR_41 in
+#   main() rather than relying on paths.py doing it at import. No behavioural
+#   change. See paths.py 1.11.0 and task_register T-18.
+# v2.2.0  # Hollingham (2026) — 2026-08-31. THE RESOLUTION GATE,
 #   and it closes the 2021 question with a negative rather than leaving it open.
 #   v2.1.0 recovered the site* and seabed frames and they promptly produced
 #   plausible-looking values that measure nothing: pooled over the managed
@@ -224,7 +227,7 @@ import pandas as pd
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 
 from utils.paths import (                                    # noqa: E402
-    AERIAL_DIR, AERIAL_MANIFEST, KML_BROADLEAF, DATA_GEO_DIR,
+    AERIAL_DIR, AERIAL_MANIFEST, KML_BROADLEAF, DATA_GEO_DIR, DIR_41,
     OUT_41_INDEX, OUT_41_CHANGE, OUT_41_REGISTRATION,
     OUT_41_SERIES_FIG, OUT_41_REPORT_NUMBERS, INT_LOCATIONS,
 )
@@ -812,6 +815,13 @@ def main() -> int:
         warn(f"No aerial manifest at {AERIAL_MANIFEST.name} — the imagery is not "
              f"in the repository by design (D-081). Skipping Script 41.")
         return 0
+    # The script creates its own output directory, as Scripts 30, 32, 34, 35, 36,
+    # 37, 37b, 38, 39 and 40 do. paths.py used to do it at import, which meant
+    # every module in the project created this directory just by importing paths.
+    # DIR_41 is imported by name: `paths` is rebound to a list a few lines below,
+    # so `paths.DIR_41` would not resolve here.
+    DIR_41.mkdir(parents=True, exist_ok=True)
+
     man = pd.read_csv(AERIAL_MANIFEST)
     man = man[man["role"] == "registration"].copy()
     man["imagery_date"] = pd.to_datetime(man["imagery_date"])

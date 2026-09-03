@@ -11,7 +11,17 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.10.0"  # Hollingham (2026) — 2026-09-02. OUT_25_COVARIATE_SPEC_RANGE
+__version__ = "1.11.0"  # Hollingham (2026) — 2026-09-03. IMPORTING paths NO
+#                        LONGER WRITES TO DISK. DIR_36/37/37B/38/39/40/41 each
+#                        called .mkdir() at module level, so merely importing
+#                        this module — which every module does — created seven
+#                        directories under outputs/. Removed; each script
+#                        creates its own output directory in its body, which is
+#                        what Scripts 30, 32, 34, 35 and five of these seven
+#                        already did. The NAMES stay here, which is the rule;
+#                        only the side effect goes. import_audit --static and
+#                        task_register T-18.
+# v1.10.0  # Hollingham (2026) — 2026-09-02. OUT_25_COVARIATE_SPEC_RANGE
 #                        added for Script 25's climate-covariate specification
 #                        range (W136). Additive only.
 # v1.9.0  # Hollingham (2026) — 2026-08-31. OUT_09_STEP_TREND
@@ -745,7 +755,6 @@ OUT_35_RESULTS = DIR_35 / "35_results.txt"
 
 # Script 36 — absolute climate-removed per-well secular trend map (Phase 15)
 DIR_36 = OUT_DIR / "36_absolute_climate_trend"
-DIR_36.mkdir(parents=True, exist_ok=True)
 OUT_36_PER_WELL             = DIR_36 / "36_absolute_climate_trend_per_well.csv"
 OUT_36_FIG_PRIMARY          = DIR_36 / "36_absolute_climate_trend_2005_2025.png"
 OUT_36_FIG_ROBUST           = DIR_36 / "36_absolute_climate_trend_2011_2025.png"
@@ -753,7 +762,6 @@ OUT_36_RESULTS              = DIR_36 / "36_results.txt"
 
 # Script 37 — driver-change map validation: predicted vs observed (Phase 15)
 DIR_37 = OUT_DIR / "37_driver_validation"
-DIR_37.mkdir(parents=True, exist_ok=True)
 OUT_37_PER_WELL          = DIR_37 / "37_driver_validation_per_well.csv"
 OUT_37_SCATTER           = DIR_37 / "37_predicted_vs_observed.png"
 OUT_37_RESIDUAL_MAP      = DIR_37 / "37_residual_map.png"
@@ -764,7 +772,6 @@ OUT_37_DELTA0_TRAJECTORY = DIR_37 / "37_implied_delta0_trajectory.png"
 
 # Script 37b — Part B comparative driver footing (forest · scrape · coast)
 DIR_37B = OUT_DIR / "37b_driver_footing"
-DIR_37B.mkdir(parents=True, exist_ok=True)
 OUT_37B_COMPARISON = DIR_37B / "37b_driver_footing.csv"
 OUT_37B_FIGURE     = DIR_37B / "37b_driver_footing.png"
 OUT_37B_RESULTS    = DIR_37B / "37b_results.txt"
@@ -782,7 +789,6 @@ OUT_34_FIG                  = DIR_34 / "34_window_sensitivity.png"
 # pipeline intermediates only (01_wells_clean_maod.csv, 01_locations.csv,
 # 25_01_panel_fit_parameters.csv); writes nothing consumed downstream.
 DIR_38 = OUT_DIR / "38_coastal_transect"
-DIR_38.mkdir(parents=True, exist_ok=True)
 OUT_38_CSV         = DIR_38 / "38_transect.csv"
 OUT_38_FIG_PROFILE = DIR_38 / "38_transect_profile.jpg"
 OUT_38_FIG_DIFF    = DIR_38 / "38_coast_inland_difference.jpg"
@@ -991,7 +997,6 @@ CCW_CODE_MAP = DATA_DIR / "ccw_1989_1996_code_map.csv"
 CANOPY_HISTORY = DATA_DIR / "canopy_history.csv"
 
 DIR_39 = OUT_DIR / "39_ccw_hindcast"
-DIR_39.mkdir(parents=True, exist_ok=True)
 OUT_39_PER_WELL           = DIR_39 / "39_01_hindcast_per_well.csv"
 OUT_39_SERIES             = DIR_39 / "39_02_hindcast_series.csv"
 OUT_39_BETA1_SENSITIVITY  = DIR_39 / "39_03_beta1_sensitivity.csv"
@@ -1002,7 +1007,6 @@ OUT_39_FULL_FIG           = DIR_39 / "39_07_full_hindcast.png"
 
 # --- Script 40 — shoreline-retreat measurement ---------------------------------
 DIR_40 = OUT_DIR / "40_shoreline_retreat"
-DIR_40.mkdir(parents=True, exist_ok=True)
 OUT_40_EPOCH_SERIES    = DIR_40 / "40_01_epoch_series.csv"
 OUT_40_NORMALS         = DIR_40 / "40_02_normals.csv"
 OUT_40_CONTROL         = DIR_40 / "40_03_control.csv"
@@ -1028,7 +1032,6 @@ AERIAL_DIR      = DATA_GEO_DIR
 AERIAL_MANIFEST = AERIAL_DIR / "aerial_manifest.csv"
 
 DIR_41 = OUT_DIR / "41_canopy_cover"
-DIR_41.mkdir(parents=True, exist_ok=True)
 OUT_41_INDEX          = DIR_41 / "41_01_canopy_index.csv"
 OUT_41_CHANGE         = DIR_41 / "41_02_change_events.csv"
 OUT_41_REGISTRATION   = DIR_41 / "41_03_registration.csv"

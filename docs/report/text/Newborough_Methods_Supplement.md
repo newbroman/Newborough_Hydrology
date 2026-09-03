@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_96.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_97.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 1.9.96 (September 2026).
+Document version: 1.9.97 (September 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -1261,7 +1261,7 @@ Outputs.
 
 Ten uphill wells north and northwest of CEH36 enter the analysis (CEH31, WMC3, NW6, NW7, CEH30, CEH20, CEH33, CEH9, CEH34, CEH1), at distances 247--776 m. Wells south or coastward of CEH36 (CEH4, CEH18, CEH21, CEH22, NW5) are excluded as downhill of the scraping in the flow direction --- a change at a downhill well is not attributable to scraping in the same way, because scraping draws water *uphill* via the local hydraulic gradient, not downhill. The outer C5 coastal wells (NW9, CEH16, CEH19, CEH17) are also excluded as confounded by coastal boundary effects. FE1--4 and LIS1 are excluded because they have no pre-scraping record. CEH39 was included in an earlier 11-well pass of the analysis but has been dropped from the live set on baseline-length grounds (n_pre = 24, too short for a reliable pre-scraping SSM fit at this well).
 
-After per-well fitting, wells are aggregated into three centroid groups: scraped (CEH36 alone), non-forest uphill (CEH31 with the C3 uphill wells), and forest uphill (the C4 wells). The centroid time series is averaged across wells and refit on the same split windows, producing a centroid-level pre β₃, post β₃, and BACI-corrected percentage shift.
+After per-well fitting, wells are aggregated into four centroid groups: scraped (CEH36 alone), non-forest uphill (CEH31 with the C3 uphill wells), forest uphill (the C4 wells), and all uphill wells combined. The centroid time series is averaged across wells and refit on the same split windows, producing a centroid-level pre β₃, post β₃, and BACI-corrected percentage shift.
 
 The live centroid summary gives BACI-corrected β₃ shifts of +7.6 % (non-forest uphill, 6 wells), +9.4 % (forest uphill, 4 wells), and +11.0 % (all uphill, 10 wells). At the individual-well level the shifts span −24 % (CEH34) to +29 % (WMC3 at 262 m) with no monotonic distance decay: CEH9 at 571 m gives +21 % and WMC3 at 262 m gives +29 %, while NW7 at 383 m gives +5 % and NW6 at 284 m gives +0.5 %. The centroid-level signal is the robust summary; per-well shifts at this n are noisy. All three centroids are positive, individual wells are noisy, and there is no clean distance gradient.
 
@@ -1289,7 +1289,6 @@ Outputs.
   09b_03_ceh36_equilibration.jpg                CEH36 climate-corrected post-scraping trajectory
   09b_04_scenario_comparison.{csv,jpg}          Cross-cluster scenario bar chart with scraping bars
   09b_05_summer_scenario_comparison.{csv,png}   Volumetric cross-cluster scenario comparison (equilibrium mm water-equiv/month)
-  09b_report_numbers.csv                        Citable values for §4.5
   --------------------------------------------- ---------------------------------------------------------------------------------
 
 ### []{#anchor-187}[]{#anchor-188}[]{#anchor-189}Sub-script 09c --- Summer minima
@@ -1298,7 +1297,7 @@ Outputs.
 
 **Methodology.** Per-well annual summer-minimum depth (the minimum Jun--Sep value each year) is computed pre- and post-scraping at CEH36, CEH18, CEH21, with CEH4 and CEH22 carried as controls. Each well's "gap" each year is the well's summer minimum minus a control centroid's summer minimum. Two control centroids run in parallel --- a *climate-only* centroid (the five climate-control wells averaged) and a *paired* centroid (CEH36's paired control CEH4; CEH21's paired control CEH22) --- giving the dual-control name. The gap series is compared via Welch t-test pre- versus post-intervention, with the 2015 cut-off year as the boundary. The methodology mirrors Script 10d (S.7), applied to the scraping timeline rather than the clearfell timeline.
 
-The dual-control design now produces two clearly significant results pointing the same direction. CEH36's summer-minimum gap against the climate-control centroid widens by +159 mm post-scraping (p = 0.007, \*\*); the gap against the paired control CEH4 widens by +195 mm (p = 0.004, \*\*). The two shift magnitudes are within 36 mm of each other. Both controls tell the same story at similar magnitude: at CEH36, scraping lifted the summer minimum.
+The dual-control design now produces two clearly significant results pointing the same direction. CEH36's summer-minimum gap against the climate-control centroid widens by +161 mm post-scraping (p = 0.006, \*\*); the gap against the paired control CEH4 widens by +195 mm (p = 0.004, \*\*). The two shift magnitudes are within 34 mm of each other. Both controls tell the same story at similar magnitude: at CEH36, scraping lifted the summer minimum.
 
 The interpolation policy matters to this result. The five climate-control wells include NW6 and NW7, which have multi-month Jun--Sep gaps in several years; under a loose interpolation *limit* those gaps are bridged by straight lines from May to October endpoints, imputing phantom summer values into the control centroid (S.1). The *limit=1* policy excludes those multi-month bridges, so the climate-control centroid here rests on measured Jun--Sep data, and the *min_measured=2* rule (below) drops any control-well year that cannot honestly supply a summer minimum.
 
@@ -1403,7 +1402,6 @@ Outputs.
   09b_03_ceh36_equilibration.jpg                09b          CEH36 equilibration trajectory
   09b_04_scenario_comparison.{csv,jpg}          09b          Cross-cluster scenario chart
   09b_05_summer_scenario_comparison.{csv,png}   09b          Volumetric cross-cluster scenario comparison (equilibrium mm water-equiv/month)
-  09b_report_numbers.csv                        09b          Citable §4.5 values
   09c_01_summer_minima.csv                      09c          Per-well, per-year summer minima
   09c_02_summer_minima_shifts.csv               09c          Welch t-test results (both controls)
   09c_03_summer_minima_climate_ctrl.png         09c          Three-panel summer minima vs climate control
@@ -1567,7 +1565,7 @@ Two independent estimators broadly support the ANCOVA result at the Impact tier.
 
 **SSM forward residual.** For each network well, the SSM (no scraping dummy, three columns) is calibrated by OLS on the pre-scraping era (where available, requiring at least 36 calibration months) and iterated forward through the scraping and felling eras to generate a counterfactual trajectory. The residual (observed minus predicted) is normalized by subtracting the mean of the control-tier residuals. The era-mean residuals are tested via Welch t-test. The Impact mean step is +56 mm (positive, but smaller in magnitude than 10a's +113 mm Forest-control step at WMC3; the SSM forward-residual estimator is a per-well calibration against a counterfactual built from the pre-scraping era and is more sensitive than the ANCOVA to month-by-month variation); Edge mean step is essentially zero (+5 mm), reflecting that the Edge wells are well-explained by their own pre-scraping SSM fit and the felling produces a residual within climate noise --- consistent with 10a's small non-significant Forest-control Edge step.
 
-**Synthetic control.** A donor pool of six wells outside the BACI network (CEH1, CEH5, CEH6, CEH10, CEH11, CEH24) is used to build a synthetic counterfactual at each zone. The donor weights are fitted by OLS on the pre-scraping baseline (no intercept). The gap series (observed zone mean minus synthetic) is segmented at the felling date; the step is the post-felling minus post-scraping gap. The Impact step is +99 mm, p = 0.001; the Edge step is +40 mm, p = 0.233. The three Impact-tier estimators span +56 to +113 mm (SSM forward residual, synthetic control, 10a ANCOVA Forest control). All three are positive; the synthetic-control and ANCOVA results are significant at conventional thresholds, and the SSM forward-residual estimate, though it lies at the low end of the range, is also individually significant (WMC3, p = 0.001). The methodological convergence the script exists to test holds in direction; the magnitude spread is wider than within-rounding, with the SSM residual estimator sitting roughly 57 mm below the ANCOVA headline.
+**Synthetic control.** A donor pool of six wells outside the published five-tier BACI design (CEH1, CEH5, CEH6, CEH10, CEH11, CEH24) is used to build a synthetic counterfactual at each zone; CEH5 and CEH6 sit in the supplementary far-field control tier, but the donor exclusion is applied against the five published tiers (CORE_NETWORK_WELLS), not the full network (ALL_NETWORK_WELLS), so they remain eligible donors. The donor weights are fitted by OLS on the pre-scraping baseline (no intercept). The gap series (observed zone mean minus synthetic) is segmented at the felling date; the step is the post-felling minus post-scraping gap. The Impact step is +99 mm, p = 0.001; the Edge step is +40 mm, p = 0.233. The three Impact-tier estimators span +56 to +113 mm (SSM forward residual, synthetic control, 10a ANCOVA Forest control). All three are positive; the synthetic-control and ANCOVA results are significant at conventional thresholds, and the SSM forward-residual estimate, though it lies at the low end of the range, is also individually significant (WMC3, p = 0.001). The methodological convergence the script exists to test holds in direction; the magnitude spread is wider than within-rounding, with the SSM residual estimator sitting roughly 57 mm below the ANCOVA headline.
 
 Two independent estimators agreeing with 10a's headline at the Impact tier in direction and broad magnitude is the main message. The Edge tier diverges more across methods, reflecting the larger heterogeneity of edge wells and the differential climate-and-coastal-retreat correction that 10a's full ANCOVA design is built to handle.
 
@@ -1587,7 +1585,7 @@ Three short diagnostics that justify network choices made elsewhere and characte
 
 (FE3 and FE4 are not synthesised. Both start in 2017 --- too late for a calibration window with adequate length.)
 
-**Methodology.** Three donor candidates (CEH34, CEH2, CEH33) are jointly regressed against FE1 and FE2 on the pre-clearfell overlap window (July 2015 to November 2017, 29 months). The donor regression is multi-donor OLS with intercept, fitted independently per FE well. The calibrated relationship is then used to hindcast each FE well backward to August 2010, gaining 49 pre-scraping months of synthetic record per well. The calibration R² is 0.998 for FE1 and 0.994 for FE2, with RMSEs of 18 and 25 mm respectively. The synthetic record is spliced with the actual FE observations from July 2015 onward.
+**Methodology.** Three donor candidates (CEH34, CEH2, CEH33) are jointly regressed against FE1 and FE2 on the pre-clearfell overlap window (July 2015 to November 2017, 29 months). The donor regression is multi-donor OLS with intercept, fitted independently per FE well. The calibrated relationship is then used to hindcast each FE well backward to July 2010, gaining 45 pre-scraping months of synthetic record per well. The calibration R² is 0.998 for FE1 and 0.994 for FE2, with RMSEs of 18 and 25 mm respectively. The synthetic record is spliced with the actual FE observations from July 2015 onward.
 
 Three impact-centroid variants are then run through the identical 10a ANCOVA framework:
 
@@ -1706,7 +1704,7 @@ Script 10k (v1.0.0): four-zone monthly pooled-panel BACI. Script 10l (v1.0.0): f
 
 ### []{#anchor-229}[]{#anchor-230}[]{#anchor-231}Supplementary --- Sub-script 10c --- Forest zone analysis
 
-Marked supplementary in *run_10_clearfell.py* and written to a separate output directory (*outputs/10c_forest_zone_analysis/*) rather than the suite's main directory. The analysis asks whether the C4/C5 partition reflects a substrate or topographic transition or is arbitrary within a continuous gradient. Per-well SSM coefficients from Script 07 are regressed against three spatial predictors (DEM elevation, distance from ridge crest at E = 241750, N = 364500, distance from coast); the C4--C5 boundary is mapped with elevation context; and the clearfell treatment wells (FE1--FE4, WMC3, LIS1) are located in β₁--β₂ space against the surrounding forest cluster. The outputs feed Table 19 in the main report and provide context for the suite's treatment of C4 and C5 as mechanistically distinct tiers in 10a. The analysis is not part of the §4.6 clearfell result and is not given further weight in this chapter.
+Marked supplementary in *run_10_clearfell.py* and written to a separate output directory (*outputs/10c_forest_zone_analysis/*) rather than the suite's main directory. The analysis asks whether the C4/C5 partition reflects a substrate or topographic transition or is arbitrary within a continuous gradient. Per-well SSM coefficients from Script 07 are regressed against three spatial predictors (DEM elevation, distance from ridge crest at E = 241750, N = 364500, distance from coast); the C4--C5 boundary is mapped with elevation context; and the clearfell treatment wells (FE1--FE4, WMC3, LIS1) are located in β₁--β₂ space against the surrounding forest cluster. The β₂-versus-elevation relationship is the strongest of the three (in-sample R² = 0.967); because only 14 forest wells enter the fit, a leave-one-out predicted R² of 0.955 is reported alongside it as the out-of-sample check (both in 10c_forest_zone_correlations.csv). The outputs feed Table 19 in the main report and provide context for the suite's treatment of C4 and C5 as mechanistically distinct tiers in 10a. The analysis is not part of the §4.6 clearfell result and is not given further weight in this chapter.
 
 ### []{#anchor-231}[]{#anchor-232}[]{#anchor-233}Methodology (suite-level) --- *clearfell_common.py*
 

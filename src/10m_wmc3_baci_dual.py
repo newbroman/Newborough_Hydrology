@@ -67,6 +67,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.ticker as mticker
+import re
 
 from utils.paths import (
     make_all_dirs, OUT_10A_REPORT,
@@ -81,7 +82,11 @@ from utils.clearfell_common import (
 from utils.config import DRAINAGE_DATUM
 from utils.render_utils import render_figure
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
+__version__ = "1.2.1"  # Hollingham (2026) — 2026-09-03. On-figure ANCOVA p read
+#   live from the 10a note string instead of a hardcoded (p<0.001); the committed
+#   value is p = 0.002 (0.0021). The step magnitude was already live. 10m_02 must
+#   be regenerated for the figure note to update. (T-15 class-5 straggler.)
+# v1.2.0  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
 #   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
 # v1.1.0  # Hollingham (2026) — 2026-07-04
 #
@@ -271,9 +276,13 @@ def make_figure(df, era_df, step_df, ancova, impact, ctrl_present, out_path):
                            'did_step_m'].iloc[0] * 1000
     if ancova is not None:
         anc_mm = ancova['step_m'] * 1000
+        _pm = re.search(r'p\s*=\s*([0-9.]+)', ancova.get('note', ''))
+        _pv = float(_pm.group(1)) if _pm else None
+        _pstr = (f"p = {_pv:.3f}" if _pv is not None and _pv >= 0.001
+                 else "p < 0.001")
         note_txt = (
             f"Clearfell step:\n"
-            f"ANCOVA climate-corrected +{anc_mm:.0f} mm (p<0.001);\n"
+            f"ANCOVA climate-corrected +{anc_mm:.0f} mm ({_pstr});\n"
             f"raw difference-in-differences +{did_fell:.0f} mm.\n"
             f"The two differ because the raw step is\n"
             f"uncorrected for climate."

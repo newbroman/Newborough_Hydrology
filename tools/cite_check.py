@@ -45,7 +45,15 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.13.0"  # Hollingham (2026) — 2026-08-31. The claims register
+__version__ = "1.14.0"  # Hollingham (2026) — 2026-09-03. Script 37 enters
+#   EXTRA_VALUE_TABLES. It has no report-numbers file and was in no value table,
+#   so collect_values() never read it and not one of its numbers had ever been
+#   checked. D-104 corrected its fit on 2026-08-31 and retired every earlier
+#   scale factor; the corpus went on quoting them for three days, with report9
+#   and the Supplement disagreeing about one of them, and every gate green.
+#   Keyed on (window, variant) because 2018_2025 appears twice. W101.
+#
+# v1.13.0   # Hollingham (2026) — 2026-08-31. The claims register
 #   gains a threshold rule, a self-consistency check, and a hard failure for any
 #   row it cannot evaluate. Martin: "I don't like the sound of numbers that
 #   aren't being checked."
@@ -366,6 +374,26 @@ EXTRA_VALUE_TABLES = [
      "Cluster_Label", ["R2", "durbin_watson", "ar1_phi"]),
     ("outputs/39_ccw_hindcast/39_01_hindcast_per_well.csv", "well",
      ["nse", "pearson_r", "bias_m", "epoch_shift_m"]),
+
+    # ── Added 2026-09-03 (W101). SCRIPT 37 WAS IN NO VALUE TABLE AND HAS NO
+    # report-numbers FILE, so not one of its numbers had ever been looked at.
+    # D-104 corrected the fit on 2026-08-31 — 29 of 59 wells had reached it
+    # with fabricated zero predictors and four had defeated the C1 sluice
+    # exclusion — and explicitly retired every pre-correction scale factor, CI,
+    # R2 and n. The corpus went on quoting them for three days: report9 carried
+    # s_cf 3.72 against a committed 1.65 and an intercept of -559 against -593,
+    # while the Supplement carried s_coast 0.53 against report9's own 0.51 —
+    # two documents disagreeing about one number, with every gate green,
+    # because nothing was watching this file.
+    # The key is (window, variant): 2018_2025 appears twice, once as the
+    # primary fit and once as the broadleaf-covariate sensitivity, and keying
+    # on the window alone would silently collapse them.
+    ("outputs/37_driver_validation/37_scale_factors_by_window.csv",
+     ("window", "variant"),
+     ["s_coast", "s_coast_ci_lo", "s_coast_ci_hi",
+      "s_cf", "s_cf_ci_lo", "s_cf_ci_hi",
+      "s_bl", "s_bl_ci_lo", "s_bl_ci_hi",
+      "c", "c_ci_lo", "c_ci_hi", "r_squared", "n"]),
 
     # ── Added 2026-09-02 (T13). THE HEADLINE ANALYSIS WAS IN NO VALUE TABLE.
     # Of the whole Script 10 clearfell family only 10e_01 was registered, so

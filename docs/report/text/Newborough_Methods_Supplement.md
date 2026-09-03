@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_81.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_82.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -1222,7 +1222,7 @@ The suite's principal results --- the headline +0.129 m benefit at CEH36 (paired
 
 Within each tier, per-well analysis runs in two layers. First, the well-minus-control time series is averaged within each era window (from *WELL_ERAS*, described in *Suite-level methodology* below), and the change in mean between successive eras is the BACI step. Second, the SSM (F.3) is refit per-well per-era via direct OLS on the era's monthly observations, with the same *\[+P, −PET, −(z₀ + h_prev)\]* design matrix as Script 03. Per-era β₃ estimates with 95 % confidence intervals come from an "isolated" refit: the script first fits the full SSM to extract β₁ and β₂, subtracts the climate-driven Δh component, then regresses the remaining drainage component on *−h_disp_prev* with an intercept to recover an unbiased β₃ and its CI. The isolated β₃ estimates populate the report's per-well β₃ era table (Table 6 in the main report).
 
-The live numbers tell the story. CEH36's β₃ rises from 0.096 (Baseline, p = 0.011) to 0.142 (Pure Scraping, p = 0.001) to 0.124 (Felling Pulse, p \< 0.001) --- a structural drainage signal consistent with the surface having been lowered by 0.2 m. The paired BACI shift at CEH36 vs CEH4 is +0.129 m for the Pure Scraping era and +0.024 m for the Felling Pulse era. The net benefit against CEH21 --- the coastal benchmark, secondary impact, but the well whose own trajectory most closely represents what CEH36 would have done without scraping --- is +0.144 m.
+The live numbers tell the story. CEH36's β₃ rises from 0.084 (Baseline, p = 0.032) to 0.139 (Pure Scraping, p = 0.002) to 0.113 (Felling Pulse, p \< 0.001) --- a structural drainage signal consistent with the surface having been lowered by 0.2 m. The paired BACI shift at CEH36 vs CEH4 is +0.129 m for the Pure Scraping era and +0.024 m for the Felling Pulse era. The net benefit against CEH21 --- the coastal benchmark, secondary impact, but the well whose own trajectory most closely represents what CEH36 would have done without scraping --- is +0.144 m.
 
 Site-specific choices.
 

@@ -279,6 +279,7 @@ __version__ = "1.10.0"  # Hollingham (2026) — 2026-08-22. near_misses() was
 import argparse
 import csv
 import json
+import math
 import re
 import sys
 from bisect import bisect_left, bisect_right
@@ -396,6 +397,63 @@ EXTRA_VALUE_TABLES = [
     # The key is (window, variant): 2018_2025 appears twice, once as the
     # primary fit and once as the broadleaf-covariate sensitivity, and keying
     # on the window alone would silently collapse them.
+    # ── Added 2026-09-03, the next three of the twelve, ranked by how much of
+    # each table the corpus actually quotes (a screen re-run AFTER the builder's
+    # minus blindness was fixed, since the first ranking could not see a
+    # negative number).
+    #
+    # 10c, 50.7% quoted. Two tables. The correlations file stacks TWO blocks
+    # separated by a blank row, so beta_2 and beta_3 each appear twice as a
+    # Coefficient — but the blocks populate disjoint columns, so keying on
+    # Coefficient alone emits 26 distinct (label, column) keys and collides on
+    # none of them. Checked rather than assumed, because the composite-key trap
+    # has now bitten in Script 37 and Script 17.
+    ("outputs/10c_forest_zone_analysis/10c_forest_zone_cluster_summary.csv",
+     "Metric",
+     ["C4_mean", "C4_sd", "C4_min", "C4_max",
+      "C5_mean", "C5_sd", "C5_min", "C5_max", "t_statistic", "p_value"]),
+    ("outputs/10c_forest_zone_analysis/10c_forest_zone_correlations.csv",
+     "Coefficient",
+     ["r_vs_Elevation", "p_vs_Elevation", "r_vs_Dist_from_ridge",
+      "p_vs_Dist_from_ridge", "r_vs_Easting", "p_vs_Easting",
+      "R2_elevation_only", "R2_elevation_plus_dist", "Marginal_gain",
+      "R2_elevation_only_LOO"]),
+
+    # 26b, 43.4%. Keyed on (cluster_label, scenario): ten rows are five
+    # clusters times two UKCP18 scenarios, and the scenario is exactly what a
+    # document means when it says "under the 2080s trajectory". The per-well
+    # sibling adds `aggregation` for the same reason. The 120-row monthly
+    # delta_h table is deliberately NOT registered — a per-month series is
+    # working data, and registering it would propose noise rather than
+    # citations.
+    ("outputs/26b_van_willegen_msl_projections/26b_msl5_ukcp18_projection_summary.csv",
+     ("cluster_label", "scenario"),
+     # beta_1_recharge and beta_2_atmospheric_draw are OMITTED, following the
+     # precedent above: 26b republishes the cluster SSM coefficients that
+     # HEADLINE_TABLES already carries, and registering them here would check
+     # one number twice under two keys. Left in, they were 176 of this table's
+     # 181 proposals — the table's own quantities are the five MSL5 ones.
+     ["spring_delta_h_mean_m",
+      "msl5_observed_window_mean_m", "msl5_perturbed_window_mean_m",
+      "msl5_shift_mean_m", "n_common_window_ends"]),
+    ("outputs/26b_van_willegen_msl_projections/26b_msl5_ukcp18_projection_summary_perwell.csv",
+     ("cluster_label", "scenario", "aggregation"),
+     # same omission, same reason
+     ["spring_delta_h_mean_m", "spring_delta_h_median_m", "n_wells"]),
+
+    # 31, 39.4%. The validation summary is keyed on all three of tier, test and
+    # descriptor: one descriptor is tested several ways and one test is applied
+    # to several descriptors, so any pair of them collides. The k = 6 / linkage
+    # robustness table is keyed on the whole specification for the same reason.
+    ("outputs/31_cluster_validation/31_validation_summary.csv",
+     ("tier", "test", "descriptor"), ["statistic", "p_value"]),
+    ("outputs/31_cluster_validation/31_method_robustness_ari.csv",
+     ("distance", "linkage", "k"), ["n_wells", "ARI_vs_canonical"]),
+    ("outputs/31_cluster_validation/31b_separation_vs_recoverability.csv",
+     ("descriptor", "column"), ["eta2_separation", "ari_recoverability"]),
+    ("outputs/31_cluster_validation/31_forest_borderline.csv",
+     "well", ["signed_dist_m"]),
+
     # ── Added 2026-09-03 (W101 follow-on). Two of the fourteen remaining
     # unregistered directories, taken first on RISK rather than on how many of
     # their numbers appear in the corpus.
@@ -1097,9 +1155,21 @@ def collect_values() -> list[tuple[str, str, float]]:
         for _, r in df.iterrows():
             for c in vcols:
                 try:
-                    vals.append((rel, f"{_key_label(r, kcol)} · {c}", float(r[c])))
+                    _v = float(r[c])
                 except (TypeError, ValueError, KeyError):
                     continue
+                # A BLANK CELL IS NOT A PUBLISHED VALUE. csv reads it as "" and
+                # skips it; pandas reads it as NaN and float(NaN) succeeds, so
+                # without this guard an empty cell registers as a value — and
+                # where two rows share a key label, the NaN silently overwrites
+                # the real number. 10c's correlations file stacks two blocks
+                # separated by a blank row, so beta_2 and beta_3 each appear
+                # twice with DISJOINT columns populated; every R2 in it read
+                # back as nan and four true citations in report9 and Paper 1
+                # were reported as drifted against it.
+                if not math.isfinite(_v):
+                    continue
+                vals.append((rel, f"{_key_label(r, kcol)} · {c}", _v))
     return vals
 
 

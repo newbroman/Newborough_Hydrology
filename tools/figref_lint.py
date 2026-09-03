@@ -36,6 +36,9 @@
 #   2 = usage / environment error
 #
 # VERSION
+#   v1.2.0  2026-09-03  a no-argument run printed the word "None" (the header is
+#                       comments, so __doc__ is None) and exited 2, which reads as
+#                       a broken gate rather than a usage error. Prints USAGE now.
 #   v1.1.0  2026-08-12  caption detector now ignores in-text references that wrap
 #                       onto a line start (e.g. "…drawn in\nFigure 73. A dune…").
 #                       These were being miscounted as duplicate captions and
@@ -195,6 +198,29 @@ def parse_refs(lines):
     return refs
 
 
+# This file documents itself in a "#" header rather than a module docstring, so
+# __doc__ is None and printing it printed the word "None" — which is what a
+# usage error looked like from the outside until 2026-09-03, and is why a
+# no-argument run reads as a broken gate rather than as "you forgot the PDF".
+USAGE = """figref_lint.py — figure reference linter for the Newborough report
+
+usage:
+    python3 tools/figref_lint.py path/to/report.pdf
+    python3 tools/figref_lint.py path/to/report.pdf --index
+    python3 tools/figref_lint.py path/to/report.pdf --json out.json
+
+It reads the EXPORTED PDF, because that is the only artefact carrying resolved
+numbers for both captions and in-text references, and it REFUSES to lint a PDF
+older than its sources. report.pdf comes from the master document report.odm:
+re-export it with `python3 tools/export_master_pdf.py` first.
+
+It asks whether a figure number RESOLVES, not whether it points at the right
+figure — reference_lint.py --kind figure asks that.
+
+exit codes:  0 clean   1 problems found   2 usage / environment error
+"""
+
+
 def base_int(num_str):
     m = re.match(r"\d+", num_str)
     return int(m.group()) if m else None
@@ -203,7 +229,7 @@ def base_int(num_str):
 def main():
     args = [a for a in sys.argv[1:]]
     if not args or args[0] in ("-h", "--help"):
-        print(__doc__)
+        print(USAGE)
         sys.exit(2)
     pdf = args[0]
     want_index = "--index" in args

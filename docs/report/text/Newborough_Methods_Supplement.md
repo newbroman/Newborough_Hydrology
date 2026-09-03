@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_89.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_90.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -651,6 +651,8 @@ The matrix is computed by *\_correlation_distance()*: *corr = wells.corr()* (whi
 
 **4. Bootstrap stability diagnostics (***bootstrap_cluster_stability***).** For each *k* in *K_RANGE_BOOTSTRAP = (4, 5, 6, 7)*, the reference network is resampled with replacement *N_BOOTSTRAP = 1000* times. Each bootstrap re-fits Ward's at *k* on the resampled distance matrix. Pairwise co-assignment counts are accumulated: numerator counts bootstraps in which both wells appear and land in the same cluster, denominator counts bootstraps in which both appear. The per-well stability is the median co-assignment probability between the well and its cluster-mates in the reference (full-sample) fit, which is the "does this well stick with its neighbours" interpretation. Reproducibility is fixed by *BOOTSTRAP_SEED = 20260424*. Outputs include per-well stability scores, per-cluster summary statistics, and a co-assignment heatmap for each *k*.
 
+**Month-wise partition stability (D-030). **The bootstrap above resamples wells and answers whether the partition depends on which wells are in it (it does not --- median co-assignment 0.938); it says nothing about whether it depends on which months are observed. A second diagnostic addresses that: a 12-month moving-block bootstrap over the record\'s months, re-fitting Ward\'s at *k* = 5 on each resample, together with a disjoint split-half ARI --- the adjusted Rand index between partitions fitted to two non-overlapping block samples of the record, the reproducibility number free of the overlap that inflates any comparison against the full-record partition. Each well carries a *stability_months* score on the same median-co-assignment scale as its well-bootstrap score, written onto *02_07_cluster_membership_k5.csv*. Because a high median co-assignment can sit beside a low split-half ARI when whole clusters merge --- merging keeps every within-cluster pair co-assigned, so the median cannot see it while the ARI can --- the diagnostic also reports, per reference cluster, the fraction of replicates it stayed intact and the fraction it merged with another, and a guard fires on the gap between the median and the ARI (*CLUSTER_MONTH_DEGENERACY_GAP*) rather than on their order. These outputs are diagnostic, not report figures.
+
 **5. Canonical-ID remap (***\_remap_cluster_ids_by_anchor***).** *fcluster* returns arbitrary integer IDs that depend on the order Ward's encounters merges, so the same partition can come back with cluster integers permuted between runs. The remap function locates each canonical anchor well in the raw labelling, identifies the raw cluster it belongs to, and reassigns that raw ID to its canonical ID. Two integrity checks are enforced: anchor wells listed for the same canonical ID must land in the same raw cluster (otherwise the partition assumptions have been violated and *ValueError* is raised), and no raw cluster can be claimed by two different canonical IDs (also a *ValueError*). A guard at module load asserts that *CLUSTER_ID_ANCHORS* and *utils.config.CLUSTER_LABELS* describe the same set of cluster IDs; if they disagree, *RuntimeError* is raised before any analysis runs.
 
 The canonical anchors are:
@@ -688,7 +690,7 @@ Per-well descriptors are written to *02_08_cluster_amplitude_per_well.csv*. Per-
 
 ### []{#anchor-103}[]{#anchor-104}[]{#anchor-105}Outputs
 
-  ------------------------------------------------------ ------------------------------------------------------------------------------
+  ------------------------------------------------------ ------------------------------------------------------------------------------------------------------------------------------------------------------
   Output                                                 Description
   *02_cluster_stats.csv* (INT\_)                         Per-well: *Match_ID*, *Name_Original*, *Cluster*, *Cluster_Label*
   02_clustering/02_01_dendrogram.png                     Ward's dendrogram, tick labels coloured by canonical cluster
@@ -698,11 +700,13 @@ Per-well descriptors are written to *02_08_cluster_amplitude_per_well.csv*. Per-
   02_clustering/02_04_bootstrap_stability_summary.csv    Per-cluster median pairwise co-assignment at each *k* in *K_RANGE_BOOTSTRAP*
   02_clustering/02_05_bootstrap_stability_per_well.csv   Per-well stability scores across *k*
   02_clustering/02_06_coassignment_heatmap_k{k}.png      Co-assignment heatmap, one per *k* in *K_RANGE_BOOTSTRAP*
+  02_clustering/02_11_month_stability.csv                Per-well month-stability, split-half ARI replicates, and per-cluster intact/merge rates (the leading *record* column discriminates the three blocks)
+  02_clustering/02_12_month_stability_diagnostic.png     Month-stability diagnostic figure (diagnostic tier, not a report figure)
   02_clustering/02_07_cluster_membership_k{k}.csv        Per-well majority assignment at each *k*
   02_clustering/02_08_cluster_amplitude_per_well.csv     Per-well amplitude descriptors
   02_clustering/02_09_cluster_amplitude_summary.csv      Per-cluster median-of-medians amplitude summary
   02_clustering/02_10_cluster_amplitude_boxplot.png      Post-2018 amplitude distribution boxplot, one box per cluster
-  ------------------------------------------------------ ------------------------------------------------------------------------------
+  ------------------------------------------------------ ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ### []{#anchor-105}[]{#anchor-106}[]{#anchor-107}Limitations and known caveats
 

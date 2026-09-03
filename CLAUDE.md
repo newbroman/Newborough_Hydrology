@@ -256,7 +256,7 @@ written beside the project and never in it.
 
 ## 7. What needs Martin
 
-Prose judgement in the ODTs (the symbol register, T-01), anything that changes a
+Prose judgement in the ODTs, anything that changes a
 published claim rather than a stale value, pushing, and any decision that would
 add a new entry to the decision log. Everything else — audits, tooling, mirrors,
 value corrections, the Methods Supplement and Supplementary Material — he has

@@ -43,7 +43,6 @@ from __future__ import annotations
 import argparse
 import csv
 import importlib.util
-import re
 import sys
 from pathlib import Path
 
@@ -82,6 +81,22 @@ def existing_rows() -> list[dict]:
         return list(csv.DictReader(fh))
 
 
+class _Span:
+    """Minimal stand-in for a regex match: number_spans yields plain offsets,
+    and the proposal loop below reads .start() and .end()."""
+
+    __slots__ = ("_s", "_e")
+
+    def __init__(self, s: int, e: int):
+        self._s, self._e = s, e
+
+    def start(self) -> int:
+        return self._s
+
+    def end(self) -> int:
+        return self._e
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
@@ -117,7 +132,30 @@ def main() -> int:
                 continue
             hit = False
             for dname, text in docs.items():
-                for m in re.finditer(re.escape(s), text):
+                # A history document records what a value USED to be, so a
+                # citation row pointing at one would go red exactly when it was
+                # doing its job. cite_check skips these in the citation check;
+                # proposing them here would put them straight back.
+                if dname.split("/")[-1] in cc.HISTORY_DOCS:
+                    continue
+                # cc.number_spans, NOT re.finditer(re.escape(s)). The two are
+                # not equivalent and the difference was a systematic blind
+                # spot: render() emits an ASCII hyphen, the mirrors carry the
+                # typographic minus U+2212, and a literal search therefore
+                # matched NO negative value anywhere in the corpus. On
+                # 2026-09-03 the index held 337 rows of which 13 were negative,
+                # and 11 of those had been written by hand that day. Script
+                # 38's transect trend — quoted as "−28.2" in report9 and Paper
+                # 1, 151 characters from its own anchor — proposed nothing at
+                # any precision.
+                #
+                # cite_check's own checker has always been minus-tolerant, so
+                # the builder and the check were using different matchers.
+                # Sharing one means the builder proposes exactly what the check
+                # can find, and inherits its whole-number and citable-context
+                # guards for free.
+                for _s0, _e0 in cc.number_spans(text, s):
+                    m = _Span(_s0, _e0)
                     lo = text[max(0, m.start() - cc.ANCHOR_WINDOW):
                               m.start() + cc.ANCHOR_WINDOW].lower()
                     tight = text[max(0, m.start() - TIGHT):

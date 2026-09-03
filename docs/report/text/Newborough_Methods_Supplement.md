@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_100.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_101.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 1.9.100 (September 2026).
+Document version: 1.9.101 (September 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -2355,7 +2355,7 @@ with the three terms in head-equivalent units (m head per month). Each term has 
 
 The function *compute_headspace()* does exactly this: it joins the per-cluster water-level series to P and PET on the date index, takes column means after *dropna()*, and computes *recharge = β₁·P̄*, *et_draw = β₂·PET̄*, *drainage = β₃·h̄\_disp* for each cluster. The residual *recharge − (et_draw + drainage)* is the closure check; in the current pipeline it sits between 0.02 % and 1.79 % of total losses, well inside the 2.5 % the script's docstring quotes as the design tolerance.
 
-Each cluster receives the same forcing --- P̄ = 74.4 mm/month, PET̄ = 55.1 mm/month from the RAF Valley series --- but maps it into different head fluxes through its own β triplet. C1 Lake Edge converts that forcing into roughly 0.34 m/month of recharge, with drainage dominating losses (85 %, β₃ at the high end of the range and h̄\_disp deepest under the lake-buffered cluster). C4 Main Forest, at the other extreme, converts the same P̄ into only 0.19 m/month of recharge --- the β₁ ratio of 2.48 to C1's 4.58 reflects the canopy interception and the deeper unsaturated zone --- and the ET draw share rises to 76 % of losses.
+Each cluster receives the same forcing --- P̄ = 74.4 mm/month, PET̄ = 54.7 mm/month from the RAF Valley series --- but maps it into different head fluxes through its own β triplet. C1 Lake Edge converts that forcing into roughly 0.34 m/month of recharge, with drainage dominating losses (85 %, β₃ at the high end of the range and h̄\_disp deepest under the lake-buffered cluster). C4 Main Forest, at the other extreme, converts the same P̄ into only 0.19 m/month of recharge --- the β₁ ratio of 2.48 to C1's 4.58 reflects the canopy interception and the deeper unsaturated zone --- and the ET draw share rises to 76 % of losses.
 
 #### []{#anchor-329}[]{#anchor-330}From head-space to volume
 

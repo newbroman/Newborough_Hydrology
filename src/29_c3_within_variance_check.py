@@ -37,7 +37,12 @@ Read-only on pipeline outputs; writes to outputs/29_within_c3_variance/.
 
 from __future__ import annotations
 
-__version__ = "1.6.0"  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS now imported from config.SUMMER_MINIMUM_MONTHS. WINTER_MONTHS stays LOCAL and exempt.
+__version__ = "1.7.0"  # Hollingham (2026) - 2026-09-03. WINTER_MONTHS hoisted to
+#   module level (function-local since 1.6.0) so season_lint sees it and its D-100
+#   exemption stays active/enforced. Value and type unchanged ([12,1,2] list);
+#   empty-diff verified. WINTER_MONTHS stays LOCAL and distinct per D-100 — the
+#   annual winter-MAXIMUM window, not the DJF season-mean.
+# v1.6.0  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS now imported from config.SUMMER_MINIMUM_MONTHS. WINTER_MONTHS stays LOCAL and exempt.
 #   Batch two of the seasonal-windows migration (D-100): the window's
 #   MONTHS ARE UNCHANGED and the constant is asserted equal to the literal it
 #   replaced, in value and in type, read mechanically out of git HEAD. No
@@ -70,6 +75,13 @@ from shapely.geometry import Point
 from pathlib import Path
 
 warnings.filterwarnings("ignore")
+
+# ── Seasonal window (module level so season_lint sees it; D-100 exempt) ──────
+# The window in which Script 29 seeks the ANNUAL WINTER MAXIMUM head (see the
+# .isin() use in main), paired with a JJAS summer — NOT the DJF climatological
+# season-mean that config.WINTER_METEOROLOGICAL_MONTHS names. Same months today,
+# a different quantity; kept local and distinct per D-100.
+WINTER_MONTHS = [12, 1, 2]
 
 # ── Pipeline imports ──────────────────────────────────────────────────────
 def main():
@@ -109,8 +121,7 @@ def main():
 
     # ── Constants ──────────────────────────────────────────────────────────────
     CEH36_E, CEH36_N = _CEH36_E, _CEH36_N   # config.py — documented 2015 dune-scrape site
-    SUMMER_MONTHS = list(SUMMER_MINIMUM_MONTHS)
-    WINTER_MONTHS = [12, 1, 2]
+    SUMMER_MONTHS = list(SUMMER_MINIMUM_MONTHS)  # WINTER_MONTHS is module-level (above)
 
 
     def norm(x):

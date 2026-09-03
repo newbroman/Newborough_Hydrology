@@ -32,7 +32,11 @@ Purpose:
 #     here they clutter the well markers, so they are suppressed. Figures only;
 #     model formulations and metrics unchanged.
 
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-08-18. Two changes to
+__version__ = "1.5.1"  # Hollingham (2026) — 2026-09-03. Comment-only: the CEH6
+#   showcase comment carried stale literals (-1.15/+0.63/+1.78) and wrongly called it
+#   the largest on-site NSE improvement; corrected to the committed -1.885/+0.674/+2.559
+#   (CEH27 is largest at +2.865). No behaviour, output or figure change.
+# v1.5.0  # Hollingham (2026) — 2026-08-18. Two changes to
 #   08_lcsc_04_table3_benchmark_summary.csv (report Table 5), both authorised
 #   by Martin 2026-08-18.
 #   (a) Store-time rounding removed. The six summary rows were written through
@@ -840,8 +844,8 @@ if __name__ == '__main__':
     # Generate detailed dual-panel plots for selected manuscript wells
 
     # CEH6 dual-panel showdown: TLM vs SSM
-    # CEH6 chosen as showcase: TLM drifts to NSE = -1.15 while SSM holds at +0.63,
-    # the largest iterative NSE improvement on site (Δ = +1.78).
+    # CEH6 chosen as showcase: TLM drifts to NSE = -1.885 while SSM holds at +0.674,
+    # the second-largest iterative NSE improvement on site (Δ = +2.559; CEH27 largest at +2.865).
     _, ceh6_payload = compute_showdown_metrics('ceh6', wells_clean, climate)
     if ceh6_payload is not None:
         showdown_path = OUT_08_SHOWDOWN

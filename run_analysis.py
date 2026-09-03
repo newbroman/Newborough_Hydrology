@@ -151,7 +151,14 @@ import uuid
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.8.0"  # 2026-08-31: Sets NRG_RUN_ID at the top of main(), so
+__version__ = "2.9.0"  # 2026-09-03: Emit per-step "phase" in the manifest step
+#   records (1-based ALL_PHASES position via _PHASE_NUM), so pipeline_manifest.json
+#   is the complete committed source for (index, total, phase) per script, consumed
+#   by tools/step_number_lint.py to keep the Methods Supplement step/phase numbering
+#   in sync with the orchestrator. Additive: no step or phase count change, so
+#   _DOCUMENTED_COUNTS and the count/version guards are untouched.
+#
+# v2.8.0  # 2026-08-31: Sets NRG_RUN_ID at the top of main(), so
 #   every subprocess this run launches carries one token identifying the pass.
 #   utils/site_observations.py stamps it into pipeline_site_observations.csv,
 #   which is RUN-SCOPED: Script 01 resets it to placeholders and seven producers
@@ -411,6 +418,10 @@ ALL_PHASES = [
     ("PHASE 17 \u2014 Synthesis Figures and Greyscale Conversion (Scripts 09f, 09g, 27)",  PHASE_17),
 ]
 
+# Phase number = 1-based position in ALL_PHASES (the orchestrator phase order).
+# The single derived source for each step's phase, emitted into the manifest below.
+_PHASE_NUM = {label: i for i, (label, _entries) in enumerate(ALL_PHASES, start=1)}
+
 # ── Document-drift guard ─────────────────────────────────────────────────────
 # NOTHING here feeds an output. Every count in the manifest is computed from
 # ALL_PHASES in build_manifest(). This table records only what the report,
@@ -545,6 +556,7 @@ def build_manifest(write: bool = True) -> dict:
         steps_out.append({
             "index": rs.index, "total": rs.total, "script": rs.script,
             "desc": rs.desc, "tier": rs.tier, "exec": rs.exec,
+            "phase": _PHASE_NUM[rs.phase_label],
         })
     # Phase counts, derived. total_phases is the citable figure; analytical_phases
     # counts phases carrying at least one tier-"A" step (Phase 14 is all tier X and

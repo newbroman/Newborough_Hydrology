@@ -61,6 +61,13 @@ outputs/20_spatial_figures/20_msl5_change_perwell.csv
 Outputs
 -------
 25_01_panel_fit_parameters.csv         All fits (3 specs × 2 forms)
+25_15_covariate_specification_range.csv
+                                       The forest-free linear-capped
+                                       fit repeated against a family of
+                                       climate covariates, with the
+                                       range of delta_0 and L across
+                                       them as two endpoint rows.
+                                       Reported only; nothing adopted.
 25_02_per_well_summer_min_slopes.csv   Per-well OLS slopes
 25_03_cluster_partition.csv            Cluster attribution table — the
                                        balanced annual-mean observed decline
@@ -114,7 +121,20 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
-__version__ = "1.22.0"  # Hollingham (2026) — 2026-09-02. 25_04 EMITS THE
+__version__ = "1.23.0"  # Hollingham (2026) — 2026-09-02. ADDS 25_15, THE
+#   CLIMATE-COVARIATE SPECIFICATION RANGE (W136). The published fit conditions
+#   on the cumulative water balance; 25_15 refits the SAME forest-free
+#   linear-capped specification against five decayed-memory accumulators and
+#   the SSM's own forward recursion, and publishes the spread of delta_0 and L
+#   across them. Nothing is adopted — the CWB remains the published covariate.
+#   The band the Methods Supplement quotes came from a working note no script
+#   could regenerate, so it went stale on every run that touched the fit and no
+#   gate could see it; under D-006 a sensitivity is citable only once it is a
+#   pipeline output. The four endpoints are also registered in
+#   25_report_numbers.csv. load_cwb is refactored onto _wb_anomaly and returns
+#   an unchanged series.
+#
+# v1.22.0  # Hollingham (2026) — 2026-09-02. 25_04 EMITS THE
 #   SCALE THE DRIFT COEFFICIENT MULTIPLIES — `drift_scale` with its units —
 #   so the table carries all three of coefficient, scale and absorbed rate
 #   rather than two of them and an arithmetic step the reader has to trust.
@@ -521,6 +541,7 @@ from utils.config import (  # noqa: E402
     MSL_SPRING_MONTHS, MSL_MIN_MONTHS_PER_SPRING,
     COASTAL_REFERENCE_DISTANCE_M, COASTAL_GRADIENT_EXCLUDED_WELLS,
     ROLLING_WINDOW_YEARS, ROLLING_WINDOW_STEP_MONTHS,
+    COVARIATE_SWEEP_HALF_LIVES_MO, DRAINAGE_DATUM,
 )
 from utils.clearfell_common import (  # noqa: E402
     IMPACT_WELLS, EDGE_WELLS, FOREST_CONTROL_WELLS,
@@ -786,16 +807,191 @@ def load_panel(distances: pd.DataFrame, exclude_forested: bool = False,
     return long
 
 
-def load_cwb() -> pd.Series:
-    """Centred cumulative water balance (P − PET anomaly cumsum), mm."""
+def _climate_monthly() -> pd.DataFrame:
+    """The monthly climate record over the panel window, P_m and PET in metres.
+
+    Factored out of load_cwb so the covariate sweep (25_15) reads the SAME
+    record the published covariate is built from. Every covariate in the sweep
+    must be a transformation of this one series or the comparison is between
+    two different climates rather than two different memories.
+    """
     cl = pd.read_csv(paths.INT_CLIMATE, index_col=0, parse_dates=True).sort_index()
-    cl = cl[(cl.index.year >= 2004) & (cl.index.year <= 2026)]
+    return cl[(cl.index.year >= 2004) & (cl.index.year <= 2026)]
+
+
+def _wb_anomaly() -> pd.Series:
+    """Monthly water-balance anomaly (P − PET, demeaned), mm — the series the
+    cumulative water balance accumulates."""
+    cl = _climate_monthly()
     P_mm = pd.to_numeric(cl["P_m"], errors="coerce") * 1000
     PET_mm = pd.to_numeric(cl["PET"], errors="coerce") * 1000
     wb = (P_mm - PET_mm).dropna()
-    cwb = (wb - wb.mean()).cumsum()
+    return wb - wb.mean()
+
+
+def load_cwb() -> pd.Series:
+    """Centred cumulative water balance (P − PET anomaly cumsum), mm."""
+    cwb = _wb_anomaly().cumsum()
     cwb.name = "cwb"
     return cwb
+
+
+def accumulator_covariate(half_life_months: float) -> pd.Series:
+    """Exponentially-decayed accumulation of the water-balance anomaly, mm.
+
+        A(t) = φ·A(t−1) + (P − PET)′(t),   φ = 0.5 ** (1 / half_life)
+
+    φ = 1 (an infinite half-life) is the cumulative water balance itself, so
+    load_cwb is the limiting member of this family and not a different kind of
+    covariate. Returned centred and named "cwb" so it is a drop-in for
+    build_design: the panel fit absorbs well and month fixed effects by within
+    demeaning, so the centring is cosmetic and the NAME is what the design
+    keys on.
+    """
+    if not half_life_months > 0:
+        raise ValueError("half_life_months must be positive")
+    anom = _wb_anomaly()
+    phi = 0.5 ** (1.0 / float(half_life_months))
+    acc = np.zeros(len(anom), dtype=float)
+    running = 0.0
+    for i, v in enumerate(anom.values):
+        running = phi * running + float(v)
+        acc[i] = running
+    out = pd.Series(acc, index=anom.index)
+    out = out - out.mean()
+    out.name = "cwb"
+    return out
+
+
+def beta3_recursion_covariate(panel_wells) -> tuple[pd.Series, dict]:
+    """The project's own SSM stepped forward on climate alone, mm.
+
+        h(t) = h(t−1) + β₁·P(t) − β₂·PET(t) − β₃·(DRAINAGE_DATUM + h(t−1))
+
+    with the MEDIAN coefficients of the panel's own wells. It has no free
+    parameter: every constant in it was fitted elsewhere, for another purpose,
+    by Script 03. That is what makes it worth carrying alongside the tuned
+    accumulators — it is the one alternative covariate whose memory is asserted
+    by the model the report already publishes rather than chosen here.
+
+    The medians are taken over the wells that are BOTH in the panel being
+    fitted and in 03_master_data.csv, so the covariate moves with the panel
+    rather than with the reference network. Returns the series and the basis,
+    which is written into the emitted table so the row can be reproduced.
+    """
+    cl = _climate_monthly()
+    P_m = pd.to_numeric(cl["P_m"], errors="coerce")
+    PET_m = pd.to_numeric(cl["PET"], errors="coerce")
+    idx = P_m.dropna().index.intersection(PET_m.dropna().index).sort_values()
+
+    master = pd.read_csv(paths.INT_MASTER_DATA)
+    key = master["Name_Original"].astype(str).str.strip().str.lower()
+    sub = master[key.isin(set(panel_wells))]
+    if sub.empty:
+        raise ValueError("no panel well appears in 03_master_data.csv — the "
+                         "beta3-recursion covariate has no basis")
+    b1 = float(sub["beta_1_recharge"].median())
+    b2 = float(sub["beta_2_atmospheric_draw"].median())
+    b3 = float(sub["beta_3_drainage"].median())
+
+    h = 0.0
+    vals = np.empty(len(idx), dtype=float)
+    for i, d in enumerate(idx):
+        h = h + b1 * float(P_m[d]) - b2 * float(PET_m[d]) \
+            - b3 * (DRAINAGE_DATUM + h)
+        vals[i] = h * 1000.0            # m → mm, the units of the other covariates
+    out = pd.Series(vals, index=idx)
+    out = out - out.mean()
+    out.name = "cwb"
+    basis = {"n_wells": int(len(sub)),
+             "beta_1_recharge": b1,
+             "beta_2_atmospheric_draw": b2,
+             "beta_3_drainage": b3}
+    return out, basis
+
+
+def covariate_specification_range(long: pd.DataFrame, decay_func, p0, bounds,
+                                  spec_label: str) -> pd.DataFrame:
+    """Refit ONE specification against a family of climate covariates (W136).
+
+    The published coastal fit conditions on the cumulative water balance. That
+    is a choice, and δ₀ and L move when it is made differently — by about 10%
+    and about 17% respectively. The report's wording covers that spread, but
+    until this function existed the spread itself came from a working note and
+    no script could regenerate it, so it went stale on every run that touched
+    the fit and nothing could see that it had (W136; D-006 makes a sensitivity
+    citable only once it is a pipeline output).
+
+    NOTHING HERE IS ADOPTED. The published covariate stays the published
+    covariate; this measures how much the published parameters depend on it.
+    The alternatives fit the panel far better on AIC — by thousands — and that
+    is deliberately NOT a selection criterion, because the covariate that wins
+    such a search wins it partly on the 2005–2010 window, which every honest
+    covariate leaves where it was (see the covariate note behind W103).
+
+    Returns one row per covariate plus a final `specification_range` row
+    carrying the min and max of δ₀ and L across the family, which is the
+    quantity the documents quote.
+    """
+    panel_wells = set(long["well"].unique())
+    covariates: list[tuple[str, str, pd.Series, dict]] = [
+        ("cumulative_water_balance", "published",
+         load_cwb(), {}),
+    ]
+    for hl in COVARIATE_SWEEP_HALF_LIVES_MO:
+        covariates.append(
+            (f"accumulator_half_life_{hl:g}mo", "alternative",
+             accumulator_covariate(hl), {"half_life_months": float(hl)}))
+    _rec, _basis = beta3_recursion_covariate(panel_wells)
+    covariates.append(("beta3_recursion", "alternative", _rec, _basis))
+
+    rows = []
+    for name, role, cov, basis in covariates:
+        df = build_design(long, cov)
+        fit = fit_panel(df, decay_func, p0=p0, bounds=bounds, label=name)
+        rows.append({
+            "spec": spec_label,
+            "covariate": name,
+            "role": role,
+            "n_obs": int(fit["n"]),
+            "delta_0_mm_yr": round(float(fit["popt"][0]), 3),
+            "delta_0_se": round(float(fit["perr"][0]), 3),
+            "L_m": round(float(fit["popt"][1]), 3),
+            "L_se": round(float(fit["perr"][1]), 3),
+            "c_mm_yr": round(float(fit["popt"][2]), 3),
+            "c_se": round(float(fit["perr"][2]), 3),
+            "AIC": round(float(fit["aic"]), 1),
+            "basis": ("; ".join(f"{k}={v:g}" if isinstance(v, float) else f"{k}={v}"
+                                for k, v in basis.items()) if basis else ""),
+        })
+
+    # The range is emitted as two explicit endpoint rows, not one row with the
+    # minima in the value cells and the maxima in prose: a consumer that reads
+    # delta_0_mm_yr off a row called "range" must get an endpoint, not a
+    # silently-chosen end of one. δ₀ and L need not attain their extremes under
+    # the same covariate, so each endpoint names the covariate that supplies it.
+    n_cov = len(rows)
+    d0 = {r["covariate"]: r["delta_0_mm_yr"] for r in rows}
+    Lm = {r["covariate"]: r["L_m"] for r in rows}
+    for end, pick in (("min", min), ("max", max)):
+        d0_cov = pick(d0, key=d0.get)
+        L_cov = pick(Lm, key=Lm.get)
+        rows.append({
+            "spec": spec_label,
+            "covariate": f"specification_range_{end}",
+            "role": "range",
+            "n_obs": int(rows[0]["n_obs"]),
+            "delta_0_mm_yr": d0[d0_cov],
+            "delta_0_se": None,
+            "L_m": Lm[L_cov],
+            "L_se": None,
+            "c_mm_yr": None,
+            "c_se": None,
+            "AIC": None,
+            "basis": (f"{end} across {n_cov} covariates including the "
+                      f"published one; delta_0 from {d0_cov}, L from {L_cov}"),
+        })
+    return pd.DataFrame(rows)
 
 
 def build_design(long: pd.DataFrame, cwb: pd.Series) -> pd.DataFrame:
@@ -2930,9 +3126,15 @@ def build_report_numbers(fits: dict,
                           partition: pd.DataFrame,
                           baci_corr: pd.DataFrame,
                           per_well: pd.DataFrame,
-                          decay_funcs: dict | None = None) -> pd.DataFrame:
+                          decay_funcs: dict | None = None,
+                          cov_range: pd.DataFrame | None = None) -> pd.DataFrame:
     """Headline numbers in the project-standard
     `Parameter, Well, Era, Value, Unit, Note` format.
+
+    ``cov_range`` is the 25_15 table; when given, the four endpoints of the
+    climate-covariate specification range are registered here as well, so the
+    band the documents quote is addressable as a named parameter and not only
+    as a row in a sensitivity table.
     """
     rows = []
     decay_funcs = decay_funcs or {}
@@ -3124,6 +3326,38 @@ def build_report_numbers(fits: dict,
                                 f"{r.d_control_m:.0f} m)")})
     # §5.7.5 Check 2 (raw): MSL5 raw change vs summer-min slope correlation
     rows.extend(_check2_correlation_rows(per_well))
+
+    # Climate-covariate specification range (25_15, W136). Registered here so
+    # the band the documents quote has a named parameter to trace to, rather
+    # than the reader having to know which two rows of a sensitivity table to
+    # read and in which direction.
+    if cov_range is not None and not cov_range.empty:
+        _n_cov = int((cov_range["role"] != "range").sum())
+        for _end in ("min", "max"):
+            _sel = cov_range[cov_range["covariate"]
+                             == f"specification_range_{_end}"]
+            if _sel.empty:
+                continue
+            _r = _sel.iloc[0]
+            for _param, _col, _unit in (
+                    ("coastal_spec_range_delta0", "delta_0_mm_yr", "mm/yr"),
+                    ("coastal_spec_range_L", "L_m", "m")):
+                rows.append({
+                    "Parameter": f"{_param}_{_end}",
+                    "Well": "", "Era": "",
+                    "Value": float(_r[_col]),
+                    "Unit": _unit,
+                    "Note": (f"{_end} of the fitted value across {_n_cov} "
+                             f"climate covariates (the published cumulative "
+                             f"water balance, {_n_cov - 2} decayed-memory "
+                             f"accumulators and the SSM forward recursion), "
+                             f"forest-free linear-capped "
+                             f"specification. NOT an uncertainty on the "
+                             f"published fit and not a confidence interval: "
+                             f"it is how far the parameter moves when the "
+                             f"climate covariate is chosen differently. "
+                             f"Source {paths.OUT_25_COVARIATE_SPEC_RANGE.name}; "
+                             f"{_r['basis']}.")})
     return pd.DataFrame(rows)
 
 
@@ -3447,6 +3681,34 @@ def main() -> None:
               f"gradient {'IS' if (np.isfinite(si['gamma_p']) and si['gamma_p']<0.05) else 'is NOT'} "
               f"seasonal at 0.05")
 
+    # ── Climate-covariate specification range (25_15, W136) ──
+    # How far the published δ₀ and L depend on the CHOICE of climate covariate,
+    # measured on the specification the documents quote (forest-free,
+    # linear-capped, all-season). Nothing here is adopted; the CWB stays the
+    # published covariate. The point is that the spread is now a committed
+    # number that moves with the fit, instead of a working-note table that went
+    # stale on every run and that no gate could see.
+    print("\n  Climate-covariate specification range (forest-free lin-cap) ...")
+    cov_range = covariate_specification_range(
+        long_ff, model_linear_capped,
+        p0=[-30.0, 1000.0, -5.0],
+        bounds=([-200, 100, -30], [50, 10000, 30]),
+        spec_label="forest_free_linear_capped")
+    if cov_range is None or cov_range.empty:
+        raise RuntimeError(
+            "covariate_specification_range() produced no rows; "
+            f"{paths.OUT_25_COVARIATE_SPEC_RANGE.name} has been LEFT ALONE.")
+    cov_range.to_csv(paths.OUT_25_COVARIATE_SPEC_RANGE, index=False)
+    saved(paths.OUT_25_COVARIATE_SPEC_RANGE.name)
+    _lo = cov_range[cov_range["covariate"] == "specification_range_min"].iloc[0]
+    _hi = cov_range[cov_range["covariate"] == "specification_range_max"].iloc[0]
+    print(f"    δ₀ spans {_lo['delta_0_mm_yr']:+.2f} to "
+          f"{_hi['delta_0_mm_yr']:+.2f} mm/yr and L spans "
+          f"{_lo['L_m']:.0f} to {_hi['L_m']:.0f} m across "
+          f"{len(cov_range) - 2} climate covariates "
+          f"(published: δ₀ {fit_ff_l['popt'][0]:+.2f}, "
+          f"L {fit_ff_l['popt'][1]:.0f})")
+
     # ── BACI corroboration (all-season gradient; metric-independent) ──
     # 25_04 is not re-emitted per metric — the BACI easting × time coefficient
     # it reads is the same regardless of the seasonal response variable.
@@ -3643,11 +3905,12 @@ def main() -> None:
     if "summer_min" in partitions:
         report = build_report_numbers(
             fits, partitions["summer_min"], baci_corr, per_wells["summer_min"],
-            decay_funcs=decay_funcs)
+            decay_funcs=decay_funcs, cov_range=cov_range)
         report.to_csv(paths.OUT_25_REPORT_NUMBERS, index=False)
 
     print(f"\n  Outputs written to: {paths.DIR_25}/")
     print("    25_01_panel_fit_parameters.csv  (all-season + MAM sensitivity)")
+    print("    25_15_covariate_specification_range.csv  (climate-covariate range)")
     print("    25_02_per_well_summer_min_slopes.csv / _spring_mean_slopes.csv")
     print("    25_03_cluster_partition.csv / _spring.csv")
     print("    25_04_baci_corroboration.csv")

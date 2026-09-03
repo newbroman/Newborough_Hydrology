@@ -40,7 +40,11 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.27.0"  # Hollingham (2026) — 2026-08-31. CANOPY_MAX_GSD_M, the
+__version__ = "1.28.0"  # Hollingham (2026) — 2026-09-02. COVARIATE_SWEEP_HALF_LIVES_MO,
+#   the memory half-lives of Script 25's climate-covariate specification sweep
+#   (25_15, W136). Additive only; no existing constant changes.
+#
+# v1.27.0  # Hollingham (2026) — 2026-08-31. CANOPY_MAX_GSD_M, the
 #   resolution gate. Recovering the site* frames worked and produced numbers that
 #   measure nothing: r = +0.089 against the aerial index of the same region on
 #   the same day. Checking a number badly is worse than not checking it, so the
@@ -573,6 +577,22 @@ ROLLING_WINDOW_YEARS = (10.0, 12.0, 15.0, 18.0)
 # sampled spread. Quarterly still gives tens of windows at every length in
 # ROLLING_WINDOW_YEARS.
 ROLLING_WINDOW_STEP_MONTHS = 3
+
+# --- Script 25: climate-covariate specification sweep (25_15, W136) ----------
+# Memory half-lives, in months, of the exponentially-decayed water-balance
+# accumulators the coastal panel fit is re-estimated against. The published
+# covariate is the UNdecayed cumulative water balance, which is the half-life
+# = infinity limit of the same column; this family brackets it on the finite
+# side, and the spread of the fitted delta_0 and L across the family is what
+# 25_15 publishes.
+#
+# The set is a bracket, not a search. It spans from well inside the panel's
+# fitted memory optimum to well outside it, at roughly doubling steps, so the
+# range it reports is bounded by covariates that are demonstrably worse
+# predictors on both sides rather than by a fine grid around the best one. A
+# finer or wider grid would narrow nothing and would invite the covariate to
+# be selected on the fit rather than fixed in advance.
+COVARIATE_SWEEP_HALF_LIVES_MO = (2.0, 4.0, 8.0, 12.0, 24.0)
 
 # --- Far-field BACI control tier: distance criterion --------------------------
 # Admission threshold for the far-field clearfell control tier

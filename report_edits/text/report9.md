@@ -263,32 +263,32 @@ The annual summer minimum records for all three treatment wells, partitioned by 
 
 ### []{#anchor-14}Drainage Coefficient Response
 
-Era-specific β₃ estimates show directional increases at both treatment and control wells (Table 6), CEH36 increased from ****0.091**** at baseline to 0.142 during the Pure Scraping era; CEH4, its unmanipulated control, showed a comparable increase from 0.071 to 0.164 over the same period. CEH18 and CEH21 show similar patterns against their respective controls (Figure 20). Because the β₃ increases extend to unmanipulated wells, they are more consistent with SSM fitting artefacts --- arising from calibration windows straddling transitions between hydrological equilibria at wells undergoing long-run coastal erosion --- than with a genuine drainage response to scraping. The per-well era estimates are reported in Table 6; they should not be interpreted as evidence of management-driven drainage change.
+Era-specific β₃ estimates show directional increases at both treatment and control wells (Table 6), CEH36 increased from ****0.084**** at baseline to 0.139 during the Pure Scraping era; CEH4, its unmanipulated control, showed a comparable increase from 0.070 to 0.162 over the same period. CEH18 and CEH21 show similar patterns against their respective controls (Figure 20). Because the β₃ increases extend to unmanipulated wells, they are more consistent with SSM fitting artefacts --- arising from calibration windows straddling transitions between hydrological equilibria at wells undergoing long-run coastal erosion --- than with a genuine drainage response to scraping. The per-well era estimates are reported in Table 6; they should not be interpreted as evidence of management-driven drainage change.
 
   ------- ----------- ------------------ ------- ------------------- --------- --------
   Well    Role        Era                β₃      95% CI              p-value   Sig
-  CEH36   Treatment   Baseline           0.091   \[0.014, 0.167\]    0.021     \*
-  CEH36   Treatment   Pure Scraping      0.142   \[0.062, 0.223\]    0.001     \*\*
-  CEH36   Treatment   Felling Pulse      0.124   \[0.065, 0.183\]    \<0.001   \*\*\*
-  CEH18   Treatment   Baseline           0.076   \[0.038, 0.115\]    \<0.001   \*\*\*
-  CEH18   Treatment   Felling Pulse      0.107   \[0.025, 0.189\]    0.011     \*
-  CEH18   Treatment   After Scraping     0.187   \[0.057, 0.318\]    0.007     \*\*
-  CEH21   Treatment   Baseline           0.106   \[0.055, 0.156\]    \<0.001   \*\*\*
-  CEH21   Treatment   Coastal Drawdown   0.060   \[−0.001, 0.121\]   0.055     ns
-  CEH21   Treatment   After Scraping     0.104   \[−0.012, 0.220\]   0.076     ns
-  CEH4    Control     Baseline           0.071   \[0.028, 0.115\]    0.002     \*\*
-  CEH4    Control     Pure Scraping      0.164   \[0.081, 0.246\]    \<0.001   \*\*\*
-  CEH4    Control     Felling Pulse      0.122   \[0.072, 0.173\]    \<0.001   \*\*\*
-  CEH22   Control     Baseline           0.138   \[0.085, 0.191\]    \<0.001   \*\*\*
-  CEH22   Control     Coastal Drawdown   0.155   \[0.077, 0.233\]    \<0.001   \*\*\*
-  CEH22   Control     After Scraping     0.271   \[0.113, 0.429\]    0.002     \*\*
+  CEH36   Treatment   Baseline           0.084   \[0.008, 0.161\]    0.032     \*
+  CEH36   Treatment   Pure Scraping      0.139   \[0.058, 0.220\]    0.002     \*\*
+  CEH36   Treatment   Felling Pulse      0.113   \[0.055, 0.171\]    \<0.001   \*\*\*
+  CEH18   Treatment   Baseline           0.074   \[0.036, 0.113\]    \<0.001   \*\*\*
+  CEH18   Treatment   Felling Pulse      0.103   \[0.021, 0.186\]    0.014     \*
+  CEH18   Treatment   After Scraping     0.177   \[0.043, 0.311\]    0.012     \*
+  CEH21   Treatment   Baseline           0.103   \[0.052, 0.154\]    \<0.001   \*\*\*
+  CEH21   Treatment   Coastal Drawdown   0.056   \[−0.005, 0.117\]   0.072     ns
+  CEH21   Treatment   After Scraping     0.096   \[−0.017, 0.209\]   0.094     ns
+  CEH4    Control     Baseline           0.070   \[0.027, 0.114\]    0.002     \*\*
+  CEH4    Control     Pure Scraping      0.162   \[0.079, 0.244\]    \<0.001   \*\*\*
+  CEH4    Control     Felling Pulse      0.115   \[0.065, 0.166\]    \<0.001   \*\*\*
+  CEH22   Control     Baseline           0.136   \[0.083, 0.189\]    \<0.001   \*\*\*
+  CEH22   Control     Coastal Drawdown   0.152   \[0.073, 0.230\]    \<0.001   \*\*\*
+  CEH22   Control     After Scraping     0.239   \[0.079, 0.399\]    0.005     \*\*
   ------- ----------- ------------------ ------- ------------------- --------- --------
 
 **Table :** Era-specific β₃ storage decay coefficients at scraping treatment and control wells with 95% confidence intervals. Treatment wells (CEH36, CEH18, CEH21) shaded blue; control wells (CEH4, CEH22) shaded grey. β₃ increases at control wells reflect the system-wide hydraulic adjustment associated with the 2018 plantation clearance rather than scraping. Treatment-well era-specific β₃ estimates are plotted in Figure 20. Significance: \*\*\* p \< 0.001, \*\* p \< 0.01, \* p \< 0.05. (Source: 09_scrape_04b_beta3_era_summary.csv).
 
 ******
 
-![**Figure : ** Era-specific β₃ storage decay coefficients with 95% confidence intervals at scraping treatment wells (CEH36, CEH18, CEH21) and their unscraped controls (CEH4, CEH22). Each symbol represents a management era: Baseline (hollow circle), Pure Scraping (filled square), Felling Pulse (triangle), After Scraping (diamond) and Coastal Drawdown (inverted triangle). Where confidence intervals overlap between eras, β₃ changes are not statistically distinguishable. CEH36 shows a directional increase from Baseline (0.091) through Pure Scraping (0.142) and Felling Pulse (0.124), though the confidence intervals overlap across all three eras. CEH18 shows a similar directional increase from Baseline (0.076) through Felling Pulse (0.107), with a further increase after the October 2023 scraping (0.187); the latter is significant (p = 0.007) though the confidence interval remains wide. CEH21\'s Coastal Drawdown estimate (0.060 ns) and After Scraping estimate (0.104, ns) are not significant. Control wells (CEH4, CEH22) are drawn faded, to the right of the dashed separator; their β₃ rises parallel the treatment wells, which is why the cross-era increase is not read as a scraping effect (full control values in Table 6). (Source: 09_scrape_07_beta3_confidence.png).](Pictures/1000000100000755000003F79A3EFEC6.png "fig:"){width="15.803cm" height="8.546cm"}
+![**Figure : ** Era-specific β₃ storage decay coefficients with 95% confidence intervals at scraping treatment wells (CEH36, CEH18, CEH21) and their unscraped controls (CEH4, CEH22). Each symbol represents a management era: Baseline (hollow circle), Pure Scraping (filled square), Felling Pulse (triangle), After Scraping (diamond) and Coastal Drawdown (inverted triangle). Where confidence intervals overlap between eras, β₃ changes are not statistically distinguishable. CEH36 shows a directional increase from Baseline (0.084) through Pure Scraping (0.139) and Felling Pulse (0.113), though the confidence intervals overlap across all three eras. CEH18 shows a similar directional increase from Baseline (0.074) through Felling Pulse (0.103), with a further increase after the October 2023 scraping (0.177); the latter is significant (p = 0.012) though the confidence interval remains wide. CEH21\'s Coastal Drawdown estimate (0.056 ns) and After Scraping estimate (0.096, ns) are not significant. Control wells (CEH4, CEH22) are drawn faded, to the right of the dashed separator; their β₃ rises parallel the treatment wells, which is why the cross-era increase is not read as a scraping effect (full control values in Table 6). (Source: 09_scrape_07_beta3_confidence.png).](Pictures/1000000100000755000003F79A3EFEC6.png "fig:"){width="15.803cm" height="8.546cm"}
 
 ### []{#anchor-15}**Summer Minima**
 

@@ -97,7 +97,8 @@ def main():
     F_FIT           = paths.OUT_25_FIT_PARAMETERS
     F_SLOPES        = paths.OUT_25_PER_WELL_SLOPES
     F_FOREST_KML    = paths.DATA_KML_FEATURES
-    F_WTF_SY        = paths.OUT_18_WELL_SY_TABLE      # Script 17 WTF event-median Sy (Table 4c source)
+    F_WTF_SY        = paths.OUT_18_WELL_SY_TABLE      # per-well WTF event-median Sy,
+                                                     # written by SCRIPT 18 (D-038); Table 4c source
 
     OUT_CSV          = paths.OUT_29_PANEL_CSV
     OUT_UNIVARIATE   = paths.OUT_29_UNIVARIATE_R2
@@ -248,8 +249,9 @@ def main():
     # "Inland" axis = distance from coast (dist_coast_m); larger = more inland.
     # CEH36 (scraped) and WMC3 (clearfell impact) carry no Script 25 dist_coast
     # by design (intervention-affected wells dropped upstream), so the coastal
-    # correlations run on n = 19 of the 21 C3 wells. Sy is the Script 17 WTF
-    # event-median (Table 4c); the cited endpoints are the empirical C3 range.
+    # correlations run on n = 19 of the 21 C3 wells. Sy is the per-well WTF
+    # event-median — Script 17's METHOD, Script 18's TABLE (D-038); Table 4c.
+    # The cited endpoints are the empirical C3 range.
     rpt = ReportNumbers()
     grad = df.dropna(subset=["dist_coast_m"]).copy()
     n_grad = len(grad)

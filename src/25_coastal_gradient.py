@@ -121,7 +121,12 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
-__version__ = "1.23.0"  # Hollingham (2026) — 2026-09-02. ADDS 25_15, THE
+__version__ = "1.24.0"  # Hollingham (2026) — 2026-09-03. D-035: the 25_15
+#   covariate-range fit outputs (delta_0/L/c, their SEs, AIC) are now STORED at
+#   full precision — the 7 store-time round() calls removed, rounding left to the
+#   display point. No cited number moves (the range is quoted coarsely, "about
+#   -28.5 to -31.5 mm/yr" / "900 to 1050 m"); rounding_lint 40 -> 33 (= baseline).
+# v1.23.0  # Hollingham (2026) — 2026-09-02. ADDS 25_15, THE
 #   CLIMATE-COVARIATE SPECIFICATION RANGE (W136). The published fit conditions
 #   on the cumulative water balance; 25_15 refits the SAME forest-free
 #   linear-capped specification against five decayed-memory accumulators and
@@ -954,13 +959,13 @@ def covariate_specification_range(long: pd.DataFrame, decay_func, p0, bounds,
             "covariate": name,
             "role": role,
             "n_obs": int(fit["n"]),
-            "delta_0_mm_yr": round(float(fit["popt"][0]), 3),
-            "delta_0_se": round(float(fit["perr"][0]), 3),
-            "L_m": round(float(fit["popt"][1]), 3),
-            "L_se": round(float(fit["perr"][1]), 3),
-            "c_mm_yr": round(float(fit["popt"][2]), 3),
-            "c_se": round(float(fit["perr"][2]), 3),
-            "AIC": round(float(fit["aic"]), 1),
+            "delta_0_mm_yr": float(fit["popt"][0]),
+            "delta_0_se": float(fit["perr"][0]),
+            "L_m": float(fit["popt"][1]),
+            "L_se": float(fit["perr"][1]),
+            "c_mm_yr": float(fit["popt"][2]),
+            "c_se": float(fit["perr"][2]),
+            "AIC": float(fit["aic"]),
             "basis": ("; ".join(f"{k}={v:g}" if isinstance(v, float) else f"{k}={v}"
                                 for k, v in basis.items()) if basis else ""),
         })

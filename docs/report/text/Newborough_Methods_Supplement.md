@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_94.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_95.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 1.9.94 (September 2026).
+Document version: 1.9.95 (September 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -1103,7 +1103,7 @@ Site-specific choices and rationale.
 
 Outputs.
 
-  -------------------------------------------------------- -------------------------------------------------------------
+  -------------------------------------------------------- -------------------------------------------------------------------
   Output                                                   Description
   07_coefficient_summary.csv                               Per-cluster summary (mean, std, min, max) for each β and R²
   07_spatial_coefficients/07_coeff_01_beta1_recharge.png   β₁ map
@@ -1111,7 +1111,10 @@ Outputs.
   07_spatial_coefficients/07_coeff_03_beta3_drainage.png   β₃ map (log scale, percentage)
   07_spatial_coefficients/07_coeff_04_r2_quality.png       R² map
   07_spatial_coefficients/07_coeff_maps_data.csv           Per-well data underlying the maps
-  -------------------------------------------------------- -------------------------------------------------------------
+  07_spatial_coefficients/07_cluster_coeff_means.csv       Per-cluster mean β₁, β₂, β₃ and R² (the §4.9 cluster-mean table)
+  07_spatial_coefficients/07_coeff_05_cluster_ranges.csv   Per-cluster min/max of β₁, β₂, β₃ with n (Paper 1 Table 6 source)
+  07_spatial_coefficients/07_report_numbers.csv            Per-cluster mean-β report values
+  -------------------------------------------------------- -------------------------------------------------------------------
 
 Limitations and known caveats.
 
@@ -1611,13 +1614,13 @@ The three Impact-tier variants span +80 to +113 mm against the Forest control, a
 
 **Motivation.** CEH34 is a Forest Control well used in the 10a Forest-control centroid and in the 10b spatial step maps. Its monthly record starts on 1 August 2010, later than the August 2010 first observation of several other Forest-control wells. Under the pre-fell window start in force when 10i was written (1 July 2010) this truncation affected the Forest-control centroid directly: including CEH34 with its truncated record either reduced the pre-fell N (and so the precision of the climate-corrected pre-fell mean) or introduced a composition shift around August 2010 as CEH34 joined the centroid. Following the *PRE_FELL_START* migration to 1 January 2011 (*clearfell_common* v1.7.0), CEH34's record start falls before the window and the in-window centroid is no longer truncated; the hindcast splice is retained for cross-version reproducibility and for analyses that opt into the earlier start. 10i removes the original asymmetry by hindcasting CEH34 backward to the pre-CEH34-record window using donor regression on a single donor well from the climate-control set.
 
-**Methodology.** The donor well is CEH9. CEH2 has a stronger empirical correlation with CEH34 (r² = 0.97 against CEH9's r² = 0.89), but CEH2 is itself a Forest Control well that contributes to the BACI Forest Control centroid; hindcasting CEH34 against CEH2 and then adding both to the Forest Control set would amount to upweighting CEH2's contribution to the pre-fell baseline --- a partial double-count. CEH9 sits in the Climate Control tier and is therefore independent of the Forest Control centroid; its slightly weaker correlation reflects the strong site-wide groundwater synchrony at Newborough rather than any methodological weakness. The fit is OLS on the pre-clearfell overlap window (August 2010 to November 2017):
+**Methodology.** The donor well is CEH9. CEH2 has a stronger empirical correlation with CEH34 (r² = 0.97 against CEH9's r² = 0.91), but CEH2 is itself a Forest Control well that contributes to the BACI Forest Control centroid; hindcasting CEH34 against CEH2 and then adding both to the Forest Control set would amount to upweighting CEH2's contribution to the pre-fell baseline --- a partial double-count. CEH9 sits in the Climate Control tier and is therefore independent of the Forest Control centroid; its slightly weaker correlation reflects the strong site-wide groundwater synchrony at Newborough rather than any methodological weakness. The fit is OLS on the pre-clearfell overlap window (August 2010 to November 2017):
 
 > CEH34(t) = α + β · CEH9(t) + ε
 
 The pre-clearfell window is used deliberately. Fitting in the post-fell era would risk inheriting any clearfell-related divergence between CEH34 and CEH9 into the calibrated relationship; the pre-fell-only fit gives the unconditional donor regression that pre-dates the intervention. The fitted relationship is then applied to CEH9's pre-CEH34 record (May 2006 to July 2010, 51 monthly cells) to produce a synthetic CEH34 trajectory. The output is a spliced series --- synthetic for dates before 1 August 2010, observed afterwards --- with a *source* flag distinguishing the two.
 
-**Downstream consumption.** The spliced series is exposed via *clearfell_common.load_ceh34_hindcast_series()* (added in *clearfell_common* v1.2.0). Scripts that opt in call the loader explicitly: 10a, 10b, 10e, and 10h consume the hindcast and gain a four-year extension to the Forest-control centroid's pre-fell window. Scripts 10d, 10f, and 10j do not consume the hindcast --- 10d works at annual summer-minimum resolution where the 2010 part-year would contribute no annual statistic anyway; 10f's per-well SSM forward residual fits each well independently and is not affected; 10j uses the Edge tier as control rather than the Forest tier so CEH34 is not in its design at all.
+**Downstream consumption.** The spliced series is exposed via *clearfell_common.apply_ceh34_hindcast()*, which wraps the *load_ceh34_hindcast_series()* loader (added in *clearfell_common* v1.2.0). Scripts that opt in call *apply_ceh34_hindcast()* explicitly: 10a, 10b, 10e, and 10h consume the hindcast and gain a four-year extension to the Forest-control centroid's pre-fell window. Scripts 10d, 10f, and 10j do not consume the hindcast --- 10d works at annual summer-minimum resolution where the 2010 part-year would contribute no annual statistic anyway; 10f's per-well SSM forward residual fits each well independently and is not affected; 10j uses the Edge tier as control rather than the Forest tier so CEH34 is not in its design at all.
 
 Script 10i (v1.0.0): CEH34 donor-regression hindcast against CEH9; pre-clearfell-only OLS calibration; spliced output consumed by 10a, 10b, 10e, 10h.
 
@@ -2341,7 +2344,7 @@ where *z₀ = DRAINAGE_DATUM = 3.7 m* and *h_disp(t−1) = z₀ + h(t−1)* is t
 
 with the three terms in head-equivalent units (m head per month). Each term has a transparent physical reading. *β₁·P̄* is the **recharge** --- the head added per month by mean rainfall, filtered through whatever fraction of P actually reaches the water table at this cluster. *β₂·PET̄* is the **evapotranspirative draw** --- the head removed per month by mean PET demand. *β₃·h̄\_disp* is the **drainage flux** --- the head lost per month to lateral discharge, proportional to the cluster's mean displacement above the datum.
 
-The function *compute_headspace()* does exactly this: it joins the per-cluster water-level series to P and PET on the date index, takes column means after *dropna()*, and computes *recharge = β₁·P̄*, *et_draw = β₂·PET̄*, *drainage = β₃·h̄\_disp* for each cluster. The residual *recharge − (et_draw + drainage)* is the closure check; in the current pipeline it sits between 0.03 % and 2.28 % of total losses, well inside the 2.5 % the script's docstring quotes as the design tolerance.
+The function *compute_headspace()* does exactly this: it joins the per-cluster water-level series to P and PET on the date index, takes column means after *dropna()*, and computes *recharge = β₁·P̄*, *et_draw = β₂·PET̄*, *drainage = β₃·h̄\_disp* for each cluster. The residual *recharge − (et_draw + drainage)* is the closure check; in the current pipeline it sits between 0.02 % and 1.79 % of total losses, well inside the 2.5 % the script's docstring quotes as the design tolerance.
 
 Each cluster receives the same forcing --- P̄ = 74.4 mm/month, PET̄ = 55.1 mm/month from the RAF Valley series --- but maps it into different head fluxes through its own β triplet. C1 Lake Edge converts that forcing into roughly 0.34 m/month of recharge, with drainage dominating losses (85 %, β₃ at the high end of the range and h̄\_disp deepest under the lake-buffered cluster). C4 Main Forest, at the other extreme, converts the same P̄ into only 0.19 m/month of recharge --- the β₁ ratio of 2.48 to C1's 4.58 reflects the canopy interception and the deeper unsaturated zone --- and the ET draw share rises to 76 % of losses.
 
@@ -2357,7 +2360,7 @@ The head-space partition is one way to split the SSM losses. It rests on the dis
 
 The reasoning is that ET is strongly seasonal --- high in summer, low in winter --- while drainage is roughly proportional to head and varies more slowly. A winter month with low PET and a falling water table is approximately a drainage-only signal; a summer month with high PET and a falling water table carries drainage plus ET. Taking the average month-on-month decline (*Δh \< 0*) in winter (Nov--Feb) and in summer (Jun--Sep), the ratio winter / summer estimates the drainage share of summer losses. That ratio is *drain_frac* in *recession\[cid\]*, with *et_frac = 1 − drain_frac*.
 
-Two independent constraints on the same partition then exist: the SSM head-space ratio and the recession ratio. The script does not enforce convergence --- it reports both and uses their midpoint as the central estimate, the range between them as a partition uncertainty band shown as the hatched area on the ET/drainage boundary of Figure 11b. Numerical agreement is cluster-specific: C3 Western Residual produces identical fractions under both methods (0.6/0.6, SSM/recession) and C5 Coastal Forest agrees closely (0.6/0.7), C1 Lake Edge moderately (0.8/0.6, a 20-percentage-point spread), and C2 Dune (0.7/0.4) and C4 Main Forest (0.2/0.5) the most discrepant, both at a 30-percentage-point spread. The figure shows that spread honestly rather than smoothing it; the bracket is the message.
+Two independent constraints on the same partition then exist: the SSM head-space ratio and the recession ratio. The script does not enforce convergence --- it reports both and uses their midpoint as the central estimate, the range between them as a partition uncertainty band shown as the hatched area on the ET/drainage boundary of Figure 11b. Numerical agreement is cluster-specific: C3 Western Residual produces identical fractions under both methods (0.6/0.6, SSM/recession) and C5 Coastal Forest agrees closely (0.6/0.7), C1 Lake Edge moderately (0.85/0.6, a 25-percentage-point spread), and C2 Dune (0.7/0.4) and C4 Main Forest (0.2/0.5) the most discrepant, both at a 30-percentage-point spread. The figure shows that spread honestly rather than smoothing it; the bracket is the message.
 
 #### []{#anchor-331}[]{#anchor-332}Interception and the energy budget
 
@@ -2388,7 +2391,7 @@ The cancellation matters because interception is a partition of the rainfall ene
 
 -   **The closure is steady-state.** Year-to-year variation, drought-recovery dynamics, and the response to single wet or dry years are deliberately absent from this analysis. They are the SSM's domain (S.3) and the residual-seasonality diagnostic's domain (S.16, Script 24). The water balance describes the average behaviour, not the operational range.
 -   **Thornthwaite PET inherits its own caveat.** The PET̄ used in the head-space balance is the Thornthwaite estimate (F.4), known to underestimate atmospheric demand under forest canopies and at southern aspects on hot dry days. The depth-dependent PET correction in S.10 (Script 15) quantifies how much of the β₂ inter-cluster spread is attributable to substrate properties rather than canopy demand; the water balance presented here uses the canonical fixed-β₂ SSM and therefore inherits whatever direction the Thornthwaite bias pushes the cluster-mean ET share. The volumetric partition's central tendency is robust to the bias direction, but the *magnitude* of the ET draw at the forest clusters in particular is more uncertain than the numbers in Table 4b might suggest in isolation.
--   **The SSM/recession bracketing is the partition's honest uncertainty band, and at some clusters it is wide.** C1 Lake Edge differs by 20 percentage points between the two methods (SSM 80 % drainage, recession 60 %); C2 Dune by 30 (SSM 70 %, recession 40 %); C4 Main Forest by 30 (SSM 20 %, recession 50 %). The midpoint reported as the central estimate masks that spread. A reader looking at the volumetric breakdown should treat the hatched range on Figure 11b as the substantive uncertainty, not a decorative band.
+-   **The SSM/recession bracketing is the partition's honest uncertainty band, and at some clusters it is wide.** C1 Lake Edge differs by 25 percentage points between the two methods (SSM 85 % drainage, recession 60 %); C2 Dune by 30 (SSM 70 %, recession 40 %); C4 Main Forest by 30 (SSM 20 %, recession 50 %). The midpoint reported as the central estimate masks that spread. A reader looking at the volumetric breakdown should treat the hatched range on Figure 11b as the substantive uncertainty, not a decorative band.
 -   **Specific yield uncertainty is not propagated here, but it does exist.** The choice to use the head-space partition fraction rather than a Sy-weighted volumetric conversion keeps this script's output Sy-invariant, but the upstream β coefficients themselves were fitted on water-level data --- Sy enters implicitly through the relationship between water-level change and recharge in the unsaturated zone. The decomposition presented here treats the fitted β values as fixed inputs; the full uncertainty around them is given proper accounting in the WTF chapters (S.12).
 
 ### []{#anchor-338}[]{#anchor-339}[]{#anchor-340}Where the result appears in the report
@@ -3127,26 +3130,26 @@ Every curve is a single-mechanism steady-state construction anchored at only one
 
 ### []{#anchor-448}[]{#anchor-449}[]{#anchor-450}Motivation
 
-Script 09f (§S.15c) places the management interventions and the coastal retreat on one quantitative spatial axis; §5.8 of the report also needs the *mechanisms* behind those numbers in a form a non-specialist reader can follow --- how a standing pine canopy suppresses the water table beneath and beside it, why a scrape pools where it is cut while drawing down the slack off the cut, why coastal retreat steepens the seaward water table while climate decline lowers it everywhere at once. Script 09g renders that argument as a single combined schematic grid: two starting states (wet dune with slacks; the same reach under standing forest), the two interventions (scrape; clearfell), and a full-width coastal-vs-climate panel along a continuous 900 m reach. A standalone version of the reach panel is emitted alongside the grid.
+Script 09f (§S.15c) places the management interventions and the coastal retreat on one quantitative spatial axis; §5.8 of the report also needs the *mechanisms* behind those numbers in a form a non-specialist reader can follow --- how a standing pine canopy suppresses the water table beneath and beside it, why a scrape pools where it is cut while drawing down the slack off the cut, why coastal retreat steepens the seaward water table, tapering inland to the fitted reach. Script 09g renders that argument as a single combined schematic grid: two starting states (wet dune with slacks; the same reach under standing forest), the two interventions (scrape; clearfell), and a full-width coastal-retreat panel along a continuous 900 m reach. A standalone version of the reach panel is emitted alongside the grid.
 
 ### []{#anchor-450}[]{#anchor-451}[]{#anchor-452}Inputs
 
 All physical amplitudes are read live from committed pipeline outputs --- the script contains no hardcoded magnitudes:
 
-  -------------------------------------------- ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  -------------------------------------------- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   Input file                                   Description
-  *09f_01_reach_profile.csv* (Script 09f)      One edge amplitude per driver (row 0: forest standing, thinned, scrape cut rise, coastal 5-yr and single-storm, climate 20-yr) and the full 0--900 m reach columns (coastal 5-yr, single-storm and climate profiles)
+  *09f_01_reach_profile.csv* (Script 09f)      The full 0--900 m reach columns for the five distance-decay curves --- scrape dipole, standing pine, thinned forest, coastal 6 m single-storm and coastal 5-yr accumulation (row 0 gives each curve's edge amplitude). No climate or far-field column (retired, D-039/D-043)
   *10m_report_numbers.csv* (Script 10 suite)   *WMC3_BACI_DiD_step_2015_scraping* --- the one measured off-cut scrape drawdown
   *10a_report_numbers.csv* (Script 10 suite)   Clearfell BACI annual and summer steps with their significance strings, carried as the grid's clearfell magnitude note
-  -------------------------------------------- ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  -------------------------------------------- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Figure-design geometry (the shared cross-section profile, the 0.10 px/mm amplitude scale shared with 09f, retreat-state shorelines, erosion-ghosting fractions, the reach's inland dune body) comes from *config.py* (*MECH_FIG\_\**). Remaining per-mechanism drawing coordinates are named module constants in *utils/mechanism_fig_utils.py* --- internal drawing coordinates of the figure, not scientific parameters.
 
 ### []{#anchor-452}[]{#anchor-453}[]{#anchor-454}Methodology
 
-A chained short-Dupuit-segment solver (developed and locked on the coastal figure) draws every water table on a shared schematic cross-section: within each flooded slack the table is pinned at the pond surface; between pinned levels it follows short Dupuit segments; slacks whose floor sits above the table are drawn dry. Per-mechanism builders add mechanism-specific geometry on top: canopy suppression bands and tree symbols (forest/clearfell), the excavated slack with its pool at the seaward-slack level and the measured off-cut drawdown (scrape), progressive shoreline-retreat states with eroded-dune ghosting (coastal), and a uniform lowering with pond-only refill (climate). All panels share one amplitude scale, so equal vertical distances mean equal head changes across the whole grid.
+A chained short-Dupuit-segment solver (developed and locked on the coastal figure) draws every water table on a shared schematic cross-section: within each flooded slack the table is pinned at the pond surface; between pinned levels it follows short Dupuit segments; slacks whose floor sits above the table are drawn dry. Per-mechanism builders add mechanism-specific geometry on top: canopy suppression bands and tree symbols (forest/clearfell), the excavated slack with its pool at the seaward-slack level and the measured off-cut drawdown (scrape), progressive shoreline-retreat states with eroded-dune ghosting (coastal). All panels share one amplitude scale, so equal vertical distances mean equal head changes across the whole grid.
 
-The coastal-vs-climate reach panel joins the schematic near-shore cross-section (0--330 m of the reach scale) to a data-drawn inland continuation (330--900 m) on one continuous distance axis. The three near-shore retreat parabolas are anchored at the 330 m boundary to the same committed drawdowns the inland side plots, so every curve is exactly continuous at the join (verified to 0.00 px by the script's console checks); the single-storm and 5-yr curves continue inland along their committed CSV profiles, and the 20-yr coastal curve is the 5-yr profile scaled by the horizon ratio (*MECHANISM_HORIZON_YEARS / COAST_CHRONIC_YEARS*). The flat climate line is the committed 20-yr climate amplitude, and the crossing distance --- where the coastal and climate profiles are equal, beyond which climate is the deeper driver (≈ 697 m on current committed data) --- is derived from the CSV columns at run time, never typed.
+The coastal-vs-climate reach panel joins the schematic near-shore cross-section (0--330 m of the reach scale) to a data-drawn inland continuation (330--900 m) on one continuous distance axis. The three near-shore retreat parabolas are anchored at the 330 m boundary to the same committed drawdowns the inland side plots, so every curve is exactly continuous at the join (verified to 0.00 px by the script's console checks); the single-storm and 5-yr curves continue inland along their committed CSV profiles, and the 20-yr coastal curve is the 5-yr profile scaled by the horizon ratio (*MECHANISM_HORIZON_YEARS / COAST_CHRONIC_YEARS*). No flat climate line or coastal--climate crossing is drawn: the level the coastal gradient decays toward is a window statistic rather than a separately identified rate (D-039, D-043), so it is neither a curve nor a crossing on this panel.
 
 ### []{#anchor-454}[]{#anchor-455}[]{#anchor-456}Site-specific choices and rationale
 
@@ -3157,17 +3160,17 @@ The coastal-vs-climate reach panel joins the schematic near-shore cross-section 
 
 ### []{#anchor-456}[]{#anchor-457}[]{#anchor-458}Two-pass execution and defaults
 
-Script 09g runs at the end of Phase 17 (step 51), after 09f, so on a normal full run every input exists. On a partial or interrupted run each loader falls back to a documented default in *pipeline_params.\_DEFAULTS* (read via *default_value()*) with a console warning --- the Script 09b/09d/09f precedent. The reach fallback is reconstructed from the documented Script 25 fit defaults (δ₀, L_cg, c_far), not duplicated literals. Because the figures re-present existing modelled and measured fields, first-pass defaults affect no analytical result. As a final step Script 09g also renders two lay public-summary figures through *gen_grid_lay.render_all()* --- plain-language before/after diagrams built on the same committed geometry --- so the technical and lay figures cannot drift apart; *gen_grid_lay.py* is a public-summary asset and is not itself a registered pipeline step.
+Script 09g runs at the end of Phase 17 (step 51), after 09f, so on a normal full run every input exists. On a partial or interrupted run each loader falls back to a documented default in *pipeline_params.\_DEFAULTS* (read via *default_value()*) with a console warning --- the Script 09b/09d/09f precedent. The reach fallback is reconstructed from the documented Script 25 fit defaults (δ₀, L_cg), not duplicated literals. Because the figures re-present existing modelled and measured fields, first-pass defaults affect no analytical result. As a final step Script 09g also renders two lay public-summary figures through *gen_grid_lay.render_all()* --- plain-language before/after diagrams built on the same committed geometry --- so the technical and lay figures cannot drift apart; *gen_grid_lay.py* is a public-summary asset and is not itself a registered pipeline step.
 
 ### []{#anchor-458}[]{#anchor-459}[]{#anchor-460}Outputs
 
-  --------------------------------------------- -------------------------------------------------------------------------------------------------- --------------------------------
-  Output                                        Description                                                                                        Reference
-  *09g_mechanism_grid.svg* / *.png*             Combined mechanism grid: starting states, scrape, clearfell, full-width coastal-vs-climate reach   §5.8
-  *09g_coastal_vs_climate_reach.svg* / *.png*   Standalone coastal-vs-climate reach figure                                                         §5.8 (optional standalone use)
-  *09g_mechanism_lay_management.svg* / *.png*   Lay before/after figure: undisturbed → scrape, forest → clearfell (public summary)                 Public summary
-  *09g_mechanism_lay_drivers.svg* / *.png*      Lay before/after figure: undisturbed → coastal, undisturbed → climate (public summary)             Public summary
-  --------------------------------------------- -------------------------------------------------------------------------------------------------- --------------------------------
+  --------------------------------------------- ----------------------------------------------------------------------------------------------- --------------------------------
+  Output                                        Description                                                                                     Reference
+  *09g_mechanism_grid.svg* / *.png*             Combined mechanism grid: starting states, scrape, clearfell, full-width coastal-retreat reach   §5.8
+  *09g_coastal_vs_climate_reach.svg* / *.png*   Standalone coastal-retreat reach figure                                                         §5.8 (optional standalone use)
+  *09g_mechanism_lay_management.svg* / *.png*   Lay before/after figure: undisturbed → scrape, forest → clearfell (public summary)              Public summary
+  *09g_mechanism_lay_drivers.svg* / *.png*      Lay before/after figure: undisturbed → coastal (public summary)                                 Public summary
+  --------------------------------------------- ----------------------------------------------------------------------------------------------- --------------------------------
 
 ### []{#anchor-460}[]{#anchor-461}[]{#anchor-462}Limitations and known caveats
 

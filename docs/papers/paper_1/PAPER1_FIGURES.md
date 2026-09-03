@@ -21,14 +21,14 @@ committed tree.*
 | 5 | `05_pear_01_spatial_confidence_map.png` | `05_pear_membership_audit.csv`; `01_locations.csv` | 05 | Spatial cluster distribution, Pearson-affinity validation | modelled |
 | 6 | `02_03_cluster_hydrographs_wb.png` | `02_clustering/02_09_cluster_amplitude_summary.csv` | 02 | Cluster-centroid hydrographs & seasonal amplitudes | measured |
 | 7 | `16_water_bal_bar_ms.png` | `16_water_balance/16_water_bal_table.csv` | 16 | Water-balance decomposition by cluster | modelled |
-| 8 | `18_wtf_02_spatial_sy_map.png` | `17_wtf_specific_yield/17_wtf_01_sy_estimates.csv` | 18 | Interception-corrected WTF specific-yield surface | modelled |
+| 8 | `18_wtf_02_spatial_sy_map.png` | `18_wtf_spatial/18_wtf_01_well_sy_estimates.csv` | 18 | Interception-corrected WTF specific-yield surface | modelled |
 | 9 | `08_lcsc_02_r2_improvement_map.png` | `08_model_benchmarking/08_perwell_nse.csv` | 08 | SSM-over-TLM iterative NSE gain | modelled |
 | 10 | `03_09_well_optimal_datums.png` + `03_10_well_r2_gain_map.png` | `03_state_space_model/03_09_well_optimal_datums.csv`; `03_state_space_model/03_08_datum_sensitivity.csv` | 03 | Per-well optimal drainage datum + R² gain over 3.7 m | modelled |
 | 11 | `07_coeff_01_beta1_recharge.png` | `07_spatial_coefficients/07_coeff_maps_data.csv` | 07 | β₁ recharge-sensitivity surface | modelled |
 | 12 | `07_coeff_02_beta2_atm_draw.png` | `07_spatial_coefficients/07_coeff_maps_data.csv` | 07 | β₂ atmospheric-draw surface | modelled |
 | 13 | `07_coeff_03_beta3_drainage.png` | `07_spatial_coefficients/07_coeff_maps_data.csv` | 07 | β₃ drainage-rate surface | modelled |
 | 14 | `18_wtf_spatial/18_wtf_05_halflife_map.png` | `18_wtf_spatial/18_wtf_05_storage_drainage_index.csv` (`half_life_months`) | 18 | Drainage decay half-life t½ = ln(2)/β₃ | modelled |
-| 15 | `18_wtf_spatial/18_wtf_06_aquifer_diagnostic_synthesis.png` | `18_wtf_spatial/18_wtf_05_storage_drainage_index.csv`; `08_model_benchmarking/08_perwell_nse.csv`; `17_wtf_specific_yield/17_wtf_01_sy_estimates.csv` | 18 | Aquifer diagnostic synthesis (t½ vs ΔNSE, sized by Sy) | modelled |
+| 15 | `18_wtf_spatial/18_wtf_06_aquifer_diagnostic_synthesis.png` | `18_wtf_spatial/18_wtf_05_storage_drainage_index.csv`; `08_model_benchmarking/08_perwell_nse.csv`; `18_wtf_spatial/18_wtf_01_well_sy_estimates.csv` | 18 | Aquifer diagnostic synthesis (t½ vs ΔNSE, sized by Sy) | modelled |
 | 16 | `20_head_surface_streams.png` | `03_master_data.csv` (per-well mean annual head, IDW-interpolated) | 20 | Mean head surface + normalised Darcy vectors | modelled |
 | 17 | `20_residual_ssm.png` | `20_spatial_figures/20_residual_perwell.csv` | 20 | SSM water-balance residual field | modelled |
 | 18 | `25_05_fit_diagnostic.jpg` (a) + `25_07_cluster_decomposition.png` (b) + `25_06_baci_corroboration_chart.jpg` (c) | `25_coastal_gradient/25_report_numbers.csv`; `25_coastal_gradient/25_03_cluster_partition.csv`; `38_coastal_transect/38_results.txt` | 25 (+38) | Coastal-retreat gradient; per-cluster decomposition; transect corroboration | modelled |

@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_31.odt — do not edit.
+<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_32.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 A parameter-sparse state-space framework for characterizing coastal dune-aquifer architecture from manual dipwell records
@@ -455,14 +455,14 @@ For review only --- every figure and table below traces to a committed file in t
   Figure 5 --- spatial cluster distribution (Pearson affinity)                                 05_pear_membership_audit.csv (+ 01_locations.csv)
   Figure 6 --- cluster-centroid hydrographs and amplitudes                                     02_clustering/02_09_cluster_amplitude_summary.csv
   Figure 7 --- water-balance decomposition by cluster                                          16_water_balance/16_water_bal_table.csv
-  Figure 8 --- WTF specific-yield surface                                                      17_wtf_specific_yield/17_wtf_01_sy_estimates.csv
+  Figure 8 --- WTF specific-yield surface                                                      18_wtf_spatial/18_wtf_01_well_sy_estimates.csv
   Figure 9 --- SSM-over-TLM Nash--Sutcliffe improvement                                        08_model_benchmarking/08_perwell_nse.csv
   Figure 10 --- optimal drainage datum and R² gain                                             03_state_space_model/03_09_well_optimal_datums.csv; 03_08_datum_sensitivity.csv
   Figure 11 --- β₁ recharge-sensitivity surface                                                07_spatial_coefficients/07_coeff_maps_data.csv
   Figure 12 --- β₂ atmospheric-draw surface                                                    07_spatial_coefficients/07_coeff_maps_data.csv
   Figure 13 --- β₃ drainage-rate surface                                                       07_spatial_coefficients/07_coeff_maps_data.csv
   Figure 14 --- drainage decay half-life t½                                                    18_wtf_spatial/18_wtf_05_storage_drainage_index.csv
-  Figure 15 --- aquifer diagnostic synthesis                                                   18_wtf_spatial/18_wtf_05_storage_drainage_index.csv; 08_model_benchmarking/08_perwell_nse.csv; 17_wtf_specific_yield/17_wtf_01_sy_estimates.csv
+  Figure 15 --- aquifer diagnostic synthesis                                                   18_wtf_spatial/18_wtf_05_storage_drainage_index.csv; 08_model_benchmarking/08_perwell_nse.csv; 18_wtf_spatial/18_wtf_01_well_sy_estimates.csv
   Figure 16 --- mean annual water-table surface with Darcy flow-directions                     20_spatial_figures/20_head_surface_streams.png (head surface IDW-interpolated from per-well mean annual head in 03_master_data.csv; vectors are direction-only)
   Figure 17 --- SSM water-balance residual field                                               20_spatial_figures/20_residual_perwell.csv
   Figure 18 --- coastal-retreat gradient (a, b, c)                                             25_coastal_gradient/25_report_numbers.csv; 25_coastal_gradient/25_03_cluster_partition.csv; 38_coastal_transect/38_results.txt

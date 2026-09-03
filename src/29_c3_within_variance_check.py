@@ -72,334 +72,335 @@ from pathlib import Path
 warnings.filterwarnings("ignore")
 
 # ── Pipeline imports ──────────────────────────────────────────────────────
-_HERE = Path(__file__).resolve().parent
-REPO = _HERE.parent
-sys.path.insert(0, str(_HERE))
+def main():
+    _HERE = Path(__file__).resolve().parent
+    REPO = _HERE.parent
+    sys.path.insert(0, str(_HERE))
 
-from utils.kml_io import read_kml
-from utils.console_utils import (
-    banner, phase, step, info, saved, warn, error, note, done, result,
-    hr, skipped,
-)
-from utils import paths  # noqa: E402
-from utils.report_numbers_utils import ReportNumbers  # noqa: E402
-from utils.render_utils import render_figure
-from utils.config import CEH36_E as _CEH36_E, CEH36_N as _CEH36_N
-from utils.config import SUMMER_MINIMUM_MONTHS
+    from utils.kml_io import read_kml
+    from utils.console_utils import (
+        banner, phase, step, info, saved, warn, error, note, done, result,
+        hr, skipped,
+    )
+    from utils import paths  # noqa: E402
+    from utils.report_numbers_utils import ReportNumbers  # noqa: E402
+    from utils.render_utils import render_figure
+    from utils.config import CEH36_E as _CEH36_E, CEH36_N as _CEH36_N
+    from utils.config import SUMMER_MINIMUM_MONTHS
 
-paths.make_all_dirs()
+    paths.make_all_dirs()
 
-F_CLUSTER       = paths.INT_CLUSTER_STATS
-F_WELLS         = paths.INT_WELLS_CLEAN_MAOD
-F_LOCATIONS     = paths.OUT_DIR / "01_locations.csv"
-F_BETAS         = paths.OUT_DIR / "07_spatial_coefficients" / "07_coeff_maps_data.csv"
-F_FIT           = paths.OUT_25_FIT_PARAMETERS
-F_SLOPES        = paths.OUT_25_PER_WELL_SLOPES
-F_FOREST_KML    = paths.DATA_KML_FEATURES
-F_WTF_SY        = paths.OUT_18_WELL_SY_TABLE      # Script 17 WTF event-median Sy (Table 4c source)
+    F_CLUSTER       = paths.INT_CLUSTER_STATS
+    F_WELLS         = paths.INT_WELLS_CLEAN_MAOD
+    F_LOCATIONS     = paths.OUT_DIR / "01_locations.csv"
+    F_BETAS         = paths.OUT_DIR / "07_spatial_coefficients" / "07_coeff_maps_data.csv"
+    F_FIT           = paths.OUT_25_FIT_PARAMETERS
+    F_SLOPES        = paths.OUT_25_PER_WELL_SLOPES
+    F_FOREST_KML    = paths.DATA_KML_FEATURES
+    F_WTF_SY        = paths.OUT_18_WELL_SY_TABLE      # Script 17 WTF event-median Sy (Table 4c source)
 
-OUT_CSV          = paths.OUT_29_PANEL_CSV
-OUT_UNIVARIATE   = paths.OUT_29_UNIVARIATE_R2
-OUT_DROP_ONE     = paths.OUT_29_DROP_ONE
-OUT_MEMO         = paths.OUT_29_MEMO
-OUT_FIG          = paths.OUT_29_PANEL_FIG
-OUT_REPORT       = paths.OUT_29_REPORT_NUMBERS
+    OUT_CSV          = paths.OUT_29_PANEL_CSV
+    OUT_UNIVARIATE   = paths.OUT_29_UNIVARIATE_R2
+    OUT_DROP_ONE     = paths.OUT_29_DROP_ONE
+    OUT_MEMO         = paths.OUT_29_MEMO
+    OUT_FIG          = paths.OUT_29_PANEL_FIG
+    OUT_REPORT       = paths.OUT_29_REPORT_NUMBERS
 
-# ── Constants ──────────────────────────────────────────────────────────────
-CEH36_E, CEH36_N = _CEH36_E, _CEH36_N   # config.py — documented 2015 dune-scrape site
-SUMMER_MONTHS = list(SUMMER_MINIMUM_MONTHS)
-WINTER_MONTHS = [12, 1, 2]
-
-
-def norm(x):
-    return str(x).strip().lower().replace(" ", "")
+    # ── Constants ──────────────────────────────────────────────────────────────
+    CEH36_E, CEH36_N = _CEH36_E, _CEH36_N   # config.py — documented 2015 dune-scrape site
+    SUMMER_MONTHS = list(SUMMER_MINIMUM_MONTHS)
+    WINTER_MONTHS = [12, 1, 2]
 
 
-# ── Load data ──────────────────────────────────────────────────────────────
-
-print("─" * 72)
-print("c3_within_variance_check — what explains within-C3 variation")
-print("─" * 72)
-
-# Cluster assignments
-clust = pd.read_csv(F_CLUSTER)
-clust["mid"] = clust["Match_ID"].apply(norm)
-c3_ids = clust.loc[clust["Cluster"] == 3, "mid"].tolist()
-print(f"C3 wells: {len(c3_ids)}")
-
-# Coastal gradient fit (exponential form, forest-free)
-fit = pd.read_csv(F_FIT)
-ff_exp = fit[(fit["source"] == "forest_free") & (fit["model"] == "exponential")].iloc[0]
-DELTA0_EXP_mm_yr, L_EXP_m = ff_exp["delta_0_mm_yr"], ff_exp["L_m"]
-print(f"Coastal exponential (forest-free): δ₀ = {DELTA0_EXP_mm_yr:.2f} mm/yr, L = {L_EXP_m:.0f} m")
-
-# Per-well slopes + dist_coast (Script 25)
-slopes = pd.read_csv(F_SLOPES)
-slopes["mid"] = slopes["well"].apply(norm)
-
-# Locations (E, N, ground elevation)
-loc = pd.read_csv(F_LOCATIONS)
-loc["mid"] = loc["Match_ID"].apply(norm)
-
-# Per-well SSM betas (Script 07)
-betas = pd.read_csv(F_BETAS)
-betas["mid"] = betas["Name_Original"].apply(norm)
-
-# Per-well WTF event-median Sy (Script 17, Table 4c source)
-wtf_sy = pd.read_csv(F_WTF_SY)
-wtf_sy["mid"] = wtf_sy["Well"].apply(norm)
-
-# Hydrographs (mAOD)
-wells = pd.read_csv(F_WELLS, index_col=0, parse_dates=True)
-wells.columns = [norm(c) for c in wells.columns]
-
-# Forest extent. read_kml, not gpd.read_file: a bare read lets fiona sniff the
-# driver, fiona picks LIBKML for a .kml, and LIBKML is a GDAL build option Ubuntu
-# does not enable — DriverError, 2026-08-27. Every other KML reader in this tree
-# asks for "KML" by name; this one did not.
-forest_gdf = read_kml(F_FOREST_KML, "EPSG:27700")
-forest_geom = forest_gdf[forest_gdf["Name"] == "Forest"].unary_union
-print(f"Forest geometry: area = {forest_geom.area/1e6:.2f} km²")
+    def norm(x):
+        return str(x).strip().lower().replace(" ", "")
 
 
-# ── Build per-well panel ───────────────────────────────────────────────────
+    # ── Load data ──────────────────────────────────────────────────────────────
 
-rows = []
-for mid in c3_ids:
-    rec = {"mid": mid, "Match_ID": clust.loc[clust.mid == mid, "Match_ID"].iloc[0]}
+    print("─" * 72)
+    print("c3_within_variance_check — what explains within-C3 variation")
+    print("─" * 72)
 
-    # Location
-    lr = loc[loc.mid == mid]
-    if len(lr) == 0:
-        continue
-    e = float(lr["E"].iloc[0])
-    n = float(lr["N"].iloc[0])
-    ground_elev = float(lr["ground_elev_m"].iloc[0])
-    rec.update({"easting": e, "northing": n, "ground_elev_m": ground_elev})
+    # Cluster assignments
+    clust = pd.read_csv(F_CLUSTER)
+    clust["mid"] = clust["Match_ID"].apply(norm)
+    c3_ids = clust.loc[clust["Cluster"] == 3, "mid"].tolist()
+    print(f"C3 wells: {len(c3_ids)}")
 
-    # Predictors that depend only on position
-    rec["dist_ceh36_m"] = float(np.hypot(e - CEH36_E, n - CEH36_N))
-    p = Point(e, n)
-    rec["dist_forest_m"] = 0.0 if forest_geom.contains(p) else p.distance(forest_geom.boundary)
+    # Coastal gradient fit (exponential form, forest-free)
+    fit = pd.read_csv(F_FIT)
+    ff_exp = fit[(fit["source"] == "forest_free") & (fit["model"] == "exponential")].iloc[0]
+    DELTA0_EXP_mm_yr, L_EXP_m = ff_exp["delta_0_mm_yr"], ff_exp["L_m"]
+    print(f"Coastal exponential (forest-free): δ₀ = {DELTA0_EXP_mm_yr:.2f} mm/yr, L = {L_EXP_m:.0f} m")
 
-    # Distance to coast (from Script 25 if available, else NaN)
-    sr = slopes[slopes.mid == mid]
-    rec["dist_coast_m"] = float(sr["dist_coast_m"].iloc[0]) if len(sr) else np.nan
-    rec["slope_m_yr"]   = float(sr["slope_m_yr"].iloc[0])   if len(sr) else np.nan
-    rec["slope_r2"]     = float(sr["r2"].iloc[0])           if len(sr) else np.nan
+    # Per-well slopes + dist_coast (Script 25)
+    slopes = pd.read_csv(F_SLOPES)
+    slopes["mid"] = slopes["well"].apply(norm)
 
-    # Coastal exponential predictor (m/yr)
-    if pd.notna(rec["dist_coast_m"]):
-        rec["delta_coast_exp_m_yr"] = (DELTA0_EXP_mm_yr * np.exp(-rec["dist_coast_m"] / L_EXP_m)) / 1000.0
-    else:
-        rec["delta_coast_exp_m_yr"] = np.nan
+    # Locations (E, N, ground elevation)
+    loc = pd.read_csv(F_LOCATIONS)
+    loc["mid"] = loc["Match_ID"].apply(norm)
 
-    # Per-well SSM coefficients (Script 07)
-    br = betas[betas.mid == mid]
-    if len(br):
-        rec["beta_1_recharge"]        = float(br["beta_1_recharge"].iloc[0])
-        rec["beta_2_atmospheric_draw"] = float(br["beta_2_atmospheric_draw"].iloc[0])
-        rec["beta_3_drainage"]         = float(br["beta_3_drainage"].iloc[0])
-        rec["model_R2"]                = float(br["Model_R2"].iloc[0])
-        rec["recession_time_months"]     = 1.0 / rec["beta_3_drainage"]  # recession e-folding time t_R (Sy-free)
-    else:
-        for k in ["beta_1_recharge","beta_2_atmospheric_draw","beta_3_drainage","model_R2","recession_time_months"]:
-            rec[k] = np.nan
+    # Per-well SSM betas (Script 07)
+    betas = pd.read_csv(F_BETAS)
+    betas["mid"] = betas["Name_Original"].apply(norm)
 
-    # Per-well WTF event-median specific yield (Script 17, Table 4c)
-    syr = wtf_sy[wtf_sy.mid == mid]
-    rec["Sy_wtf_median"] = float(syr["Sy_median"].iloc[0]) if len(syr) else np.nan
+    # Per-well WTF event-median Sy (Script 17, Table 4c source)
+    wtf_sy = pd.read_csv(F_WTF_SY)
+    wtf_sy["mid"] = wtf_sy["Well"].apply(norm)
 
-    # Hydrograph-derived metrics
-    if mid in wells.columns:
-        h = wells[mid].dropna()
-        if len(h) >= 24:
-            mean_head = h.mean()
-            rec["mean_head_maod"]        = mean_head
-            rec["depth_to_water_m"]      = ground_elev - mean_head  # positive = water table is below ground
-            # Per-year summer-min and winter-max, then average across years
-            df = pd.DataFrame({"h": h.values}, index=h.index)
-            df["year"] = df.index.year
-            df["month"] = df.index.month
-            sm = df[df.month.isin(SUMMER_MONTHS)].groupby("year")["h"].min()
-            wm = df[df.month.isin(WINTER_MONTHS)].groupby("year")["h"].max()
-            rec["summer_min_mean_maod"]  = sm.mean() if len(sm) else np.nan
-            rec["winter_max_mean_maod"]  = wm.mean() if len(wm) else np.nan
-            rec["seasonal_amplitude_m"]  = (rec["winter_max_mean_maod"] - rec["summer_min_mean_maod"]
-                                            if pd.notna(rec["summer_min_mean_maod"]) and pd.notna(rec["winter_max_mean_maod"])
-                                            else np.nan)
-            rec["summer_min_depth_m"]    = ground_elev - rec["summer_min_mean_maod"] if pd.notna(rec["summer_min_mean_maod"]) else np.nan
-            rec["winter_max_depth_m"]    = ground_elev - rec["winter_max_mean_maod"] if pd.notna(rec["winter_max_mean_maod"]) else np.nan
+    # Hydrographs (mAOD)
+    wells = pd.read_csv(F_WELLS, index_col=0, parse_dates=True)
+    wells.columns = [norm(c) for c in wells.columns]
+
+    # Forest extent. read_kml, not gpd.read_file: a bare read lets fiona sniff the
+    # driver, fiona picks LIBKML for a .kml, and LIBKML is a GDAL build option Ubuntu
+    # does not enable — DriverError, 2026-08-27. Every other KML reader in this tree
+    # asks for "KML" by name; this one did not.
+    forest_gdf = read_kml(F_FOREST_KML, "EPSG:27700")
+    forest_geom = forest_gdf[forest_gdf["Name"] == "Forest"].unary_union
+    print(f"Forest geometry: area = {forest_geom.area/1e6:.2f} km²")
+
+
+    # ── Build per-well panel ───────────────────────────────────────────────────
+
+    rows = []
+    for mid in c3_ids:
+        rec = {"mid": mid, "Match_ID": clust.loc[clust.mid == mid, "Match_ID"].iloc[0]}
+
+        # Location
+        lr = loc[loc.mid == mid]
+        if len(lr) == 0:
+            continue
+        e = float(lr["E"].iloc[0])
+        n = float(lr["N"].iloc[0])
+        ground_elev = float(lr["ground_elev_m"].iloc[0])
+        rec.update({"easting": e, "northing": n, "ground_elev_m": ground_elev})
+
+        # Predictors that depend only on position
+        rec["dist_ceh36_m"] = float(np.hypot(e - CEH36_E, n - CEH36_N))
+        p = Point(e, n)
+        rec["dist_forest_m"] = 0.0 if forest_geom.contains(p) else p.distance(forest_geom.boundary)
+
+        # Distance to coast (from Script 25 if available, else NaN)
+        sr = slopes[slopes.mid == mid]
+        rec["dist_coast_m"] = float(sr["dist_coast_m"].iloc[0]) if len(sr) else np.nan
+        rec["slope_m_yr"]   = float(sr["slope_m_yr"].iloc[0])   if len(sr) else np.nan
+        rec["slope_r2"]     = float(sr["r2"].iloc[0])           if len(sr) else np.nan
+
+        # Coastal exponential predictor (m/yr)
+        if pd.notna(rec["dist_coast_m"]):
+            rec["delta_coast_exp_m_yr"] = (DELTA0_EXP_mm_yr * np.exp(-rec["dist_coast_m"] / L_EXP_m)) / 1000.0
         else:
-            for k in ["mean_head_maod","depth_to_water_m","summer_min_mean_maod","winter_max_mean_maod",
-                      "seasonal_amplitude_m","summer_min_depth_m","winter_max_depth_m"]:
+            rec["delta_coast_exp_m_yr"] = np.nan
+
+        # Per-well SSM coefficients (Script 07)
+        br = betas[betas.mid == mid]
+        if len(br):
+            rec["beta_1_recharge"]        = float(br["beta_1_recharge"].iloc[0])
+            rec["beta_2_atmospheric_draw"] = float(br["beta_2_atmospheric_draw"].iloc[0])
+            rec["beta_3_drainage"]         = float(br["beta_3_drainage"].iloc[0])
+            rec["model_R2"]                = float(br["Model_R2"].iloc[0])
+            rec["recession_time_months"]     = 1.0 / rec["beta_3_drainage"]  # recession e-folding time t_R (Sy-free)
+        else:
+            for k in ["beta_1_recharge","beta_2_atmospheric_draw","beta_3_drainage","model_R2","recession_time_months"]:
                 rec[k] = np.nan
 
-    rows.append(rec)
+        # Per-well WTF event-median specific yield (Script 17, Table 4c)
+        syr = wtf_sy[wtf_sy.mid == mid]
+        rec["Sy_wtf_median"] = float(syr["Sy_median"].iloc[0]) if len(syr) else np.nan
 
-df = pd.DataFrame(rows)
-df.to_csv(OUT_CSV, index=False)
-print(f"\nBuilt panel: {len(df)} C3 wells × {df.shape[1]} columns")
-print(f"Saved {OUT_CSV.relative_to(REPO)}")
+        # Hydrograph-derived metrics
+        if mid in wells.columns:
+            h = wells[mid].dropna()
+            if len(h) >= 24:
+                mean_head = h.mean()
+                rec["mean_head_maod"]        = mean_head
+                rec["depth_to_water_m"]      = ground_elev - mean_head  # positive = water table is below ground
+                # Per-year summer-min and winter-max, then average across years
+                df = pd.DataFrame({"h": h.values}, index=h.index)
+                df["year"] = df.index.year
+                df["month"] = df.index.month
+                sm = df[df.month.isin(SUMMER_MONTHS)].groupby("year")["h"].min()
+                wm = df[df.month.isin(WINTER_MONTHS)].groupby("year")["h"].max()
+                rec["summer_min_mean_maod"]  = sm.mean() if len(sm) else np.nan
+                rec["winter_max_mean_maod"]  = wm.mean() if len(wm) else np.nan
+                rec["seasonal_amplitude_m"]  = (rec["winter_max_mean_maod"] - rec["summer_min_mean_maod"]
+                                                if pd.notna(rec["summer_min_mean_maod"]) and pd.notna(rec["winter_max_mean_maod"])
+                                                else np.nan)
+                rec["summer_min_depth_m"]    = ground_elev - rec["summer_min_mean_maod"] if pd.notna(rec["summer_min_mean_maod"]) else np.nan
+                rec["winter_max_depth_m"]    = ground_elev - rec["winter_max_mean_maod"] if pd.notna(rec["winter_max_mean_maod"]) else np.nan
+            else:
+                for k in ["mean_head_maod","depth_to_water_m","summer_min_mean_maod","winter_max_mean_maod",
+                          "seasonal_amplitude_m","summer_min_depth_m","winter_max_depth_m"]:
+                    rec[k] = np.nan
 
+        rows.append(rec)
 
-# ── §4.9.2 traceable report numbers: C3 inland gradient correlations ────────
-# "Inland" axis = distance from coast (dist_coast_m); larger = more inland.
-# CEH36 (scraped) and WMC3 (clearfell impact) carry no Script 25 dist_coast
-# by design (intervention-affected wells dropped upstream), so the coastal
-# correlations run on n = 19 of the 21 C3 wells. Sy is the Script 17 WTF
-# event-median (Table 4c); the cited endpoints are the empirical C3 range.
-rpt = ReportNumbers()
-grad = df.dropna(subset=["dist_coast_m"]).copy()
-n_grad = len(grad)
-rpt.add("C3_gradient_n", n_grad, unit="wells",
-        note="C3 wells with Script 25 dist_coast (CEH36/WMC3 excluded upstream)")
-
-for col, key in [("beta_1_recharge", "beta1"),
-                 ("beta_3_drainage", "beta3"),
-                 ("Sy_wtf_median",   "Sy")]:
-    sub = grad.dropna(subset=[col])
-    if len(sub) >= 3:
-        r, p = stats.pearsonr(sub["dist_coast_m"], sub[col])
-        rpt.add(f"C3_{key}_vs_inland_r", r, unit="",
-                note=f"Pearson r, {col} vs dist_coast_m, n={len(sub)}")
-        rpt.add(f"C3_{key}_vs_inland_p", p, unit="",
-                note=f"p-value, {col} vs dist_coast_m, n={len(sub)}")
-
-# Empirical C3 Sy range (the report's SW-margin / NE endpoints)
-sy_c3 = df["Sy_wtf_median"].dropna()
-if len(sy_c3):
-    sy_max = float(sy_c3.max()); sy_min = float(sy_c3.min())
-    w_max = df.loc[df["Sy_wtf_median"].idxmax(), "mid"]
-    w_min = df.loc[df["Sy_wtf_median"].idxmin(), "mid"]
-    rpt.add("C3_Sy_max", sy_max, unit="", well=str(w_max),
-            note="WTF event-median Sy, coastal/SW margin of C3")
-    rpt.add("C3_Sy_min", sy_min, unit="", well=str(w_min),
-            note="WTF event-median Sy, inland/NE margin of C3")
-
-n_saved = rpt.save(OUT_REPORT)
-print(f"Saved {OUT_REPORT.relative_to(REPO)} ({n_saved} report numbers)")
+    df = pd.DataFrame(rows)
+    df.to_csv(OUT_CSV, index=False)
+    print(f"\nBuilt panel: {len(df)} C3 wells × {df.shape[1]} columns")
+    print(f"Saved {OUT_CSV.relative_to(REPO)}")
 
 
-# ── Predictor / metric definitions ─────────────────────────────────────────
+    # ── §4.9.2 traceable report numbers: C3 inland gradient correlations ────────
+    # "Inland" axis = distance from coast (dist_coast_m); larger = more inland.
+    # CEH36 (scraped) and WMC3 (clearfell impact) carry no Script 25 dist_coast
+    # by design (intervention-affected wells dropped upstream), so the coastal
+    # correlations run on n = 19 of the 21 C3 wells. Sy is the Script 17 WTF
+    # event-median (Table 4c); the cited endpoints are the empirical C3 range.
+    rpt = ReportNumbers()
+    grad = df.dropna(subset=["dist_coast_m"]).copy()
+    n_grad = len(grad)
+    rpt.add("C3_gradient_n", n_grad, unit="wells",
+            note="C3 wells with Script 25 dist_coast (CEH36/WMC3 excluded upstream)")
 
-PREDICTORS = [
-    "delta_coast_exp_m_yr",
-    "dist_ceh36_m",
-    "dist_forest_m",
-    "ground_elev_m",
-    "depth_to_water_m",
-]
+    for col, key in [("beta_1_recharge", "beta1"),
+                     ("beta_3_drainage", "beta3"),
+                     ("Sy_wtf_median",   "Sy")]:
+        sub = grad.dropna(subset=[col])
+        if len(sub) >= 3:
+            r, p = stats.pearsonr(sub["dist_coast_m"], sub[col])
+            rpt.add(f"C3_{key}_vs_inland_r", r, unit="",
+                    note=f"Pearson r, {col} vs dist_coast_m, n={len(sub)}")
+            rpt.add(f"C3_{key}_vs_inland_p", p, unit="",
+                    note=f"p-value, {col} vs dist_coast_m, n={len(sub)}")
 
-METRICS = [
-    "slope_m_yr",
-    "beta_1_recharge",
-    "beta_2_atmospheric_draw",
-    "beta_3_drainage",
-    "recession_time_months",
-    "mean_head_maod",
-    "summer_min_depth_m",
-    "winter_max_depth_m",
-    "seasonal_amplitude_m",
-]
+    # Empirical C3 Sy range (the report's SW-margin / NE endpoints)
+    sy_c3 = df["Sy_wtf_median"].dropna()
+    if len(sy_c3):
+        sy_max = float(sy_c3.max()); sy_min = float(sy_c3.min())
+        w_max = df.loc[df["Sy_wtf_median"].idxmax(), "mid"]
+        w_min = df.loc[df["Sy_wtf_median"].idxmin(), "mid"]
+        rpt.add("C3_Sy_max", sy_max, unit="", well=str(w_max),
+                note="WTF event-median Sy, coastal/SW margin of C3")
+        rpt.add("C3_Sy_min", sy_min, unit="", well=str(w_min),
+                note="WTF event-median Sy, inland/NE margin of C3")
 
-
-# ── Regression utilities ───────────────────────────────────────────────────
-
-def ols_fit(X, y):
-    """OLS with intercept; returns (R², adj R², coefs, n)."""
-    mask = ~np.any(pd.isna(X), axis=1) & ~pd.isna(y)
-    X = X[mask]
-    y = y[mask]
-    if X.shape[0] < X.shape[1] + 2:
-        return np.nan, np.nan, None, X.shape[0]
-    Xi = np.column_stack([np.ones(len(X)), X])
-    coefs, *_ = np.linalg.lstsq(Xi, y, rcond=None)
-    yhat = Xi @ coefs
-    ss_res = float(((y - yhat) ** 2).sum())
-    ss_tot = float(((y - y.mean()) ** 2).sum())
-    r2 = 1.0 - ss_res / ss_tot if ss_tot > 0 else np.nan
-    n, k = len(y), X.shape[1]
-    adj = 1.0 - (1.0 - r2) * (n - 1) / (n - k - 1) if (n - k - 1) > 0 else np.nan
-    return r2, adj, coefs, n
+    n_saved = rpt.save(OUT_REPORT)
+    print(f"Saved {OUT_REPORT.relative_to(REPO)} ({n_saved} report numbers)")
 
 
-def regression_summary(df, metric, predictors):
-    """Full fit + univariate fits + drop-one losses."""
-    y = df[metric].values.astype(float)
-    X_full = df[predictors].values.astype(float)
-    full_r2, full_adj, _, n_full = ols_fit(X_full, y)
+    # ── Predictor / metric definitions ─────────────────────────────────────────
 
-    # Univariate R² per predictor
-    uni = {}
-    for p in predictors:
-        Xp = df[[p]].values.astype(float)
-        r2p, *_ = ols_fit(Xp, y)
-        uni[p] = r2p
+    PREDICTORS = [
+        "delta_coast_exp_m_yr",
+        "dist_ceh36_m",
+        "dist_forest_m",
+        "ground_elev_m",
+        "depth_to_water_m",
+    ]
 
-    # Drop-one
-    drop = {}
-    for i, p in enumerate(predictors):
-        keep = [predictors[j] for j in range(len(predictors)) if j != i]
-        Xr = df[keep].values.astype(float)
-        r2r, *_ = ols_fit(Xr, y)
-        drop[p] = full_r2 - r2r if pd.notna(full_r2) and pd.notna(r2r) else np.nan
-
-    return {
-        "metric": metric,
-        "n": n_full,
-        "full_R2": full_r2,
-        "full_adj_R2": full_adj,
-        "univariate_R2": uni,
-        "unique_contribution": drop,
-    }
+    METRICS = [
+        "slope_m_yr",
+        "beta_1_recharge",
+        "beta_2_atmospheric_draw",
+        "beta_3_drainage",
+        "recession_time_months",
+        "mean_head_maod",
+        "summer_min_depth_m",
+        "winter_max_depth_m",
+        "seasonal_amplitude_m",
+    ]
 
 
-# ── Main: nested models for each metric ────────────────────────────────────
+    # ── Regression utilities ───────────────────────────────────────────────────
 
-print()
-print("─" * 72)
-print("Per-metric regression against all 5 predictors")
-print("─" * 72)
-print(f"{'Metric':28} {'n':>3} {'R²':>7} {'adj R²':>8}  Strongest unique predictor")
-print("-" * 72)
-
-results = []
-for m in METRICS:
-    if m not in df.columns:
-        continue
-    summ = regression_summary(df, m, PREDICTORS)
-    # Identify strongest unique predictor
-    drops = {k: v for k, v in summ["unique_contribution"].items() if pd.notna(v) and v > 0}
-    strongest = max(drops, key=drops.get) if drops else "—"
-    drop_val  = drops.get(strongest, 0)
-    r2  = summ["full_R2"]
-    adj = summ["full_adj_R2"]
-    print(f"{m:28} {summ['n']:3} {r2:7.3f} {adj:8.3f}  {strongest} (Δ={drop_val:+.3f})")
-    results.append(summ)
+    def ols_fit(X, y):
+        """OLS with intercept; returns (R², adj R², coefs, n)."""
+        mask = ~np.any(pd.isna(X), axis=1) & ~pd.isna(y)
+        X = X[mask]
+        y = y[mask]
+        if X.shape[0] < X.shape[1] + 2:
+            return np.nan, np.nan, None, X.shape[0]
+        Xi = np.column_stack([np.ones(len(X)), X])
+        coefs, *_ = np.linalg.lstsq(Xi, y, rcond=None)
+        yhat = Xi @ coefs
+        ss_res = float(((y - yhat) ** 2).sum())
+        ss_tot = float(((y - y.mean()) ** 2).sum())
+        r2 = 1.0 - ss_res / ss_tot if ss_tot > 0 else np.nan
+        n, k = len(y), X.shape[1]
+        adj = 1.0 - (1.0 - r2) * (n - 1) / (n - k - 1) if (n - k - 1) > 0 else np.nan
+        return r2, adj, coefs, n
 
 
-# Univariate matrix as a heatmap-friendly table
-uni_matrix = pd.DataFrame(
-    {res["metric"]: res["univariate_R2"] for res in results}
-).T  # rows = metrics, columns = predictors
-uni_matrix.to_csv(OUT_UNIVARIATE)
-print(f"\nUnivariate R² matrix saved.")
+    def regression_summary(df, metric, predictors):
+        """Full fit + univariate fits + drop-one losses."""
+        y = df[metric].values.astype(float)
+        X_full = df[predictors].values.astype(float)
+        full_r2, full_adj, _, n_full = ols_fit(X_full, y)
 
-# Drop-one matrix
-drop_matrix = pd.DataFrame(
-    {res["metric"]: res["unique_contribution"] for res in results}
-).T
-drop_matrix.to_csv(OUT_DROP_ONE)
-print(f"Drop-one (unique contribution) matrix saved.")
+        # Univariate R² per predictor
+        uni = {}
+        for p in predictors:
+            Xp = df[[p]].values.astype(float)
+            r2p, *_ = ols_fit(Xp, y)
+            uni[p] = r2p
+
+        # Drop-one
+        drop = {}
+        for i, p in enumerate(predictors):
+            keep = [predictors[j] for j in range(len(predictors)) if j != i]
+            Xr = df[keep].values.astype(float)
+            r2r, *_ = ols_fit(Xr, y)
+            drop[p] = full_r2 - r2r if pd.notna(full_r2) and pd.notna(r2r) else np.nan
+
+        return {
+            "metric": metric,
+            "n": n_full,
+            "full_R2": full_r2,
+            "full_adj_R2": full_adj,
+            "univariate_R2": uni,
+            "unique_contribution": drop,
+        }
 
 
-# ── Memo ───────────────────────────────────────────────────────────────────
+    # ── Main: nested models for each metric ────────────────────────────────────
 
-def fmt_row(d, predictors):
-    return " | ".join(f"{d[p]:+.3f}" if pd.notna(d[p]) else "  —  " for p in predictors)
+    print()
+    print("─" * 72)
+    print("Per-metric regression against all 5 predictors")
+    print("─" * 72)
+    print(f"{'Metric':28} {'n':>3} {'R²':>7} {'adj R²':>8}  Strongest unique predictor")
+    print("-" * 72)
 
-memo = f"""# C3 within-cluster variance check — results
+    results = []
+    for m in METRICS:
+        if m not in df.columns:
+            continue
+        summ = regression_summary(df, m, PREDICTORS)
+        # Identify strongest unique predictor
+        drops = {k: v for k, v in summ["unique_contribution"].items() if pd.notna(v) and v > 0}
+        strongest = max(drops, key=drops.get) if drops else "—"
+        drop_val  = drops.get(strongest, 0)
+        r2  = summ["full_R2"]
+        adj = summ["full_adj_R2"]
+        print(f"{m:28} {summ['n']:3} {r2:7.3f} {adj:8.3f}  {strongest} (Δ={drop_val:+.3f})")
+        results.append(summ)
+
+
+    # Univariate matrix as a heatmap-friendly table
+    uni_matrix = pd.DataFrame(
+        {res["metric"]: res["univariate_R2"] for res in results}
+    ).T  # rows = metrics, columns = predictors
+    uni_matrix.to_csv(OUT_UNIVARIATE)
+    print(f"\nUnivariate R² matrix saved.")
+
+    # Drop-one matrix
+    drop_matrix = pd.DataFrame(
+        {res["metric"]: res["unique_contribution"] for res in results}
+    ).T
+    drop_matrix.to_csv(OUT_DROP_ONE)
+    print(f"Drop-one (unique contribution) matrix saved.")
+
+
+    # ── Memo ───────────────────────────────────────────────────────────────────
+
+    def fmt_row(d, predictors):
+        return " | ".join(f"{d[p]:+.3f}" if pd.notna(d[p]) else "  —  " for p in predictors)
+
+    memo = f"""# C3 within-cluster variance check — results
 
 *Diagnostic from `29_c3_within_variance_check.py`. Follow-on from the
 H0 result in `outputs/28_c3_detrend/28_c3_detrend_results.md`: C3 is constitutively
@@ -449,13 +450,13 @@ Nine per-well metrics describing different facets of C3 well behaviour:
 |---|---|---|---|---|
 """
 
-for res in results:
-    drops = {k: v for k, v in res["unique_contribution"].items() if pd.notna(v) and v > 0}
-    strongest = max(drops, key=drops.get) if drops else "—"
-    drop_val  = drops.get(strongest, 0)
-    memo += f"| {res['metric']} | {res['n']} | {res['full_R2']:.3f} | {res['full_adj_R2']:.3f} | {strongest} (Δ={drop_val:+.3f}) |\n"
+    for res in results:
+        drops = {k: v for k, v in res["unique_contribution"].items() if pd.notna(v) and v > 0}
+        strongest = max(drops, key=drops.get) if drops else "—"
+        drop_val  = drops.get(strongest, 0)
+        memo += f"| {res['metric']} | {res['n']} | {res['full_R2']:.3f} | {res['full_adj_R2']:.3f} | {strongest} (Δ={drop_val:+.3f}) |\n"
 
-memo += f"""
+    memo += f"""
 ## Univariate R² — which predictor explains variance in which metric
 
 (Each cell is the R² of `metric ~ predictor`; column = predictor, row = metric.
@@ -535,39 +536,43 @@ matrices in `c3_within_variance_univariate_R2.csv` and
 `c3_within_variance_drop_one.csv`.
 """
 
-OUT_MEMO.write_text(memo)
-print(f"\nWrote {OUT_MEMO.relative_to(REPO)}")
+    OUT_MEMO.write_text(memo)
+    print(f"\nWrote {OUT_MEMO.relative_to(REPO)}")
 
 
-# ── Figure: heatmap of univariate R² ──────────────────────────────────────
+    # ── Figure: heatmap of univariate R² ──────────────────────────────────────
 
-fig, ax = plt.subplots(figsize=(8.5, 6.0))
-M = uni_matrix.reindex(METRICS).reindex(columns=PREDICTORS)
-im = ax.imshow(M.values, cmap="RdYlBu_r", vmin=0, vmax=0.7, aspect="auto")
+    fig, ax = plt.subplots(figsize=(8.5, 6.0))
+    M = uni_matrix.reindex(METRICS).reindex(columns=PREDICTORS)
+    im = ax.imshow(M.values, cmap="RdYlBu_r", vmin=0, vmax=0.7, aspect="auto")
 
-ax.set_xticks(range(len(PREDICTORS)))
-ax.set_xticklabels(PREDICTORS, rotation=35, ha="right", fontsize=9)
-ax.set_yticks(range(len(METRICS)))
-ax.set_yticklabels(METRICS, fontsize=9)
+    ax.set_xticks(range(len(PREDICTORS)))
+    ax.set_xticklabels(PREDICTORS, rotation=35, ha="right", fontsize=9)
+    ax.set_yticks(range(len(METRICS)))
+    ax.set_yticklabels(METRICS, fontsize=9)
 
-# Annotate cells
-for i in range(M.shape[0]):
-    for j in range(M.shape[1]):
-        v = M.values[i, j]
-        if pd.notna(v):
-            ax.text(j, i, f"{v:.2f}", ha="center", va="center",
-                    fontsize=8.5, color="white" if v > 0.40 else "black")
+    # Annotate cells
+    for i in range(M.shape[0]):
+        for j in range(M.shape[1]):
+            v = M.values[i, j]
+            if pd.notna(v):
+                ax.text(j, i, f"{v:.2f}", ha="center", va="center",
+                        fontsize=8.5, color="white" if v > 0.40 else "black")
 
-cb = plt.colorbar(im, ax=ax, shrink=0.85)
-cb.set_label("Univariate R²", fontsize=9)
+    cb = plt.colorbar(im, ax=ax, shrink=0.85)
+    cb.set_label("Univariate R²", fontsize=9)
 
-ax.set_title("Within-C3 variance: univariate R² of behavioural metric (row) vs predictor (column)\n"
-             f"n = {df.shape[0]} C3 wells | OLS | rows = metrics, columns = predictors",
-             fontsize=10)
-fig.tight_layout()
-render_figure(fig, OUT_FIG)
-print(f"Wrote {OUT_FIG.relative_to(REPO)}")
-print()
-print("─" * 72)
-done()
-print("─" * 72)
+    ax.set_title("Within-C3 variance: univariate R² of behavioural metric (row) vs predictor (column)\n"
+                 f"n = {df.shape[0]} C3 wells | OLS | rows = metrics, columns = predictors",
+                 fontsize=10)
+    fig.tight_layout()
+    render_figure(fig, OUT_FIG)
+    print(f"Wrote {OUT_FIG.relative_to(REPO)}")
+    print()
+    print("─" * 72)
+    done()
+    print("─" * 72)
+
+
+if __name__ == "__main__":
+    main()

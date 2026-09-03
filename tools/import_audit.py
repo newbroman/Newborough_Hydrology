@@ -61,7 +61,12 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-08-26.
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-09-03. --static: the
+#   source-only half of the audit, in milliseconds instead of minutes, so it
+#   can be a standing check. Covers src/utils/ as well as the flat scripts,
+#   which the guard grep could not — mask_streams_to_land.py was a script
+#   living in src/utils/. D-120; task_register T-18.
+# v1.0.0  # Hollingham (2026) — 2026-08-26.
 
 import argparse
 import json
@@ -213,13 +218,90 @@ def modules(only: str | None) -> list[str]:
     return out
 
 
+# --- static mode -------------------------------------------------------------
+# The audit above is the real answer: it IMPORTS each module behind a write
+# tripwire and reports what actually happened. It also takes many minutes, which
+# is longer than task_lint's TIMEOUT, so it cannot BE a standing check — a row
+# calling it records "timed out", which task_lint treats as an error and never
+# as a pass.
+#
+# --static answers the cheap half in milliseconds, by reading the source instead
+# of running it: does any module carry work at the TOP LEVEL — a loop, a `with`,
+# or a call statement that is not one of the recognised bootstrap calls — while
+# having no `__main__` guard to stop that work happening on import? That is the
+# D-120 condition, and it covers src/utils/ as well as the flat scripts, which
+# the guard grep alone could not: mask_streams_to_land.py was a SCRIPT living in
+# src/utils/, and no check that globs src/*.py would ever have seen it.
+#
+# It is a proxy and says so. A module that opens a file inside a top-level
+# ASSIGNMENT (`DF = pd.read_csv(...)`) passes this and would fail the real
+# audit. Static mode narrows the gap; it does not close it, and --strict still
+# runs the imports.
+_BOOTSTRAP_CALLS = {"insert", "append", "filterwarnings", "use",
+                    "register_matplotlib_converters", "seed"}
+
+
+def _toplevel_work(path) -> list[tuple[int, str]]:
+    """Top-level statements that DO something when the module is imported."""
+    import ast
+    try:
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+    except SyntaxError as e:
+        return [(getattr(e, "lineno", 0) or 0, f"unparseable: {e.msg}")]
+    found = []
+    for n in tree.body:
+        if isinstance(n, (ast.For, ast.While, ast.With,
+                          ast.AsyncFor, ast.AsyncWith)):
+            found.append((n.lineno, type(n).__name__.lower()))
+        elif isinstance(n, ast.Expr) and isinstance(n.value, ast.Call):
+            fn = n.value.func
+            name = getattr(fn, "attr", getattr(fn, "id", "?"))
+            if name not in _BOOTSTRAP_CALLS:
+                found.append((n.lineno, f"{name}()"))
+    return found
+
+
+def _guarded(path) -> bool:
+    with open(path, encoding="utf-8") as fh:
+        return any(line.startswith("if __name__ ==") for line in fh)
+
+
+def static_scan(quiet: bool = False) -> int:
+    """Count modules that run work on import. Returns that count."""
+    paths = sorted(SRC.glob("*.py")) + sorted((SRC / "utils").glob("*.py"))
+    offenders = {}
+    for p in paths:
+        if p.stem == "__init__":
+            continue
+        work = _toplevel_work(p)
+        if work and not _guarded(p):
+            offenders[p] = work
+    if not quiet:
+        for p, work in offenders.items():
+            where = ", ".join(f"line {ln}: {what}" for ln, what in work[:4])
+            extra = "" if len(work) <= 4 else f" (+{len(work) - 4} more)"
+            print(_c(f"  RUNS ON IMPORT  {p.relative_to(REPO)}", C_RED))
+            print(f"      {where}{extra}")
+        verdict = (f"  import_audit --static: {len(paths)} module(s), "
+                   f"{len(offenders)} run work on import with no __main__ guard")
+        print(_c(verdict, C_RED if offenders else C_GRN))
+    print(len(offenders))
+    return len(offenders)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("only", nargs="?", default=None,
                     help="'utils' to limit to the shared modules")
     ap.add_argument("--quiet", action="store_true")
     ap.add_argument("--strict", action="store_true")
+    ap.add_argument("--static", action="store_true",
+                    help="fast source-only scan: which modules run work on "
+                         "import with no __main__ guard (task_register T-18)")
     a = ap.parse_args()
+
+    if a.static:
+        return 1 if (static_scan(a.quiet) and a.strict) else 0
 
     writes, failed, syntax, missing, ok = {}, {}, {}, {}, 0
     names = modules(a.only)

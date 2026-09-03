@@ -420,12 +420,13 @@ EXTRA_VALUE_TABLES = [
     # registered; the five per-well level columns are a working series, not
     # quoted values, and registering them would propose noise.
     #
-    # NOTE THE LIMIT OF THIS ROW. The number the documents actually quote from
-    # Script 38 — the AR(1)-corrected trend of -28.16 mm/yr that is one of the
-    # three grounds of the far-field ruling (D-105) — is in 38_results.txt, a
-    # TEXT file, and no value table can reach it. Gating it needs Script 38 to
-    # emit a report-numbers CSV. Registered as an open item rather than left
-    # implicit.
+    # This row used to carry a limit: the number the documents actually quote
+    # from Script 38 — the AR(1)-corrected trend of -28.16 mm/yr, one of the
+    # three grounds of the far-field ruling (D-105) — was in 38_results.txt, a
+    # TEXT file no value table can reach. Script 38 v1.6.0 now emits
+    # 38_report_numbers.csv, which collect_values() picks up by glob without
+    # needing a row here, so the trend is gated and this entry covers only the
+    # difference series it always did.
     ("outputs/38_coastal_transect/38_transect.csv", "year",
      ["diff_coast_inland_m"]),
 

@@ -127,7 +127,14 @@ from utils.data_utils import normalize_well_name
 from utils.console_utils import banner, phase, step, info, note, result, saved, done, warn
 from utils.render_utils import render_figure
 
-__version__ = "1.5.0"  # 2026-07-13: profile figure reduced to a single
+__version__ = "1.6.0"  # Hollingham (2026) — 2026-09-03. EMITS
+#   38_report_numbers.csv. The transect trend the documents quote — the
+#   AR(1)-corrected -28.16 mm/yr that is one of the three grounds of D-105 —
+#   was published ONLY into 38_results.txt, and cite_check reads CSVs, not
+#   prose, so no gate could hold it. The rows are built beside the lines of
+#   prose that report the same numbers, so the two cannot drift apart.
+#   No analysis changes.
+# v1.5.0 2026-07-13: profile figure reduced to a single
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -167,6 +174,20 @@ OUT_TXT       = paths.OUT_38_RESULTS
 # =================================================================================
 # Data
 # =================================================================================
+
+def _rn(parameter: str, value, unit: str = "", note: str = "",
+        well: str = "", era: str = "") -> dict:
+    """One row of the project-standard Parameter, Well, Era, Value, Unit, Note.
+
+    Built beside the line of prose that reports the same number, so the two
+    cannot drift apart: until 2026-09-03 this script published its trend ONLY
+    into 38_results.txt, and cite_check cannot read prose. The -28.16 mm/yr
+    that is one of the three grounds of D-105 was therefore outside every
+    check in the project.
+    """
+    return {"Parameter": parameter, "Well": well, "Era": era,
+            "Value": float(value), "Unit": unit, "Note": note}
+
 
 def load_inputs() -> tuple[pd.DataFrame, pd.DataFrame, dict]:
     """Load MAOD levels, well locations, and Script 25's live delta_0/L fit.
@@ -498,6 +519,8 @@ def main() -> int:
     fit = ar_corrected_slope(years_arr, diff_arr)
 
     lines: list[str] = []
+
+    report_rows: list[dict] = []
     lines.append(f"=== Script 38 — coast-to-inland MAM transect ({start}\u2013{end}) ===")
     lines.append(f"Wells: coastal anchor {COAST_ANCHOR.upper()}, inland anchor "
                  f"{INLAND_ANCHOR.upper()}, interior {', '.join(w.upper() for w in INTERIOR_CLEAN)}, "
@@ -517,6 +540,29 @@ def main() -> int:
         result("Delta_coast_inland trend", f"{fit['slope_mm_yr']:+.2f} mm/yr "
                f"(AR p={fit['p_ar']:.3f}, OLS p={fit['p_ols']:.3f})")
         result("bootstrap 95% CI", f"[{fit['boot_lo_mm_yr']:+.2f}, {fit['boot_hi_mm_yr']:+.2f}] mm/yr")
+        for _k, _v, _u, _n in (
+                ("transect_trend_mm_yr", fit["slope_mm_yr"], "mm/yr",
+                 "AR(1)-corrected OLS slope of the coast-minus-inland MAM head "
+                 "difference against year. THE HEADLINE OF THIS SCRIPT, and one "
+                 "of the three grounds of D-105. Compare Script 25's delta_0, "
+                 "which is a different estimator of the same physical rate."),
+                ("transect_trend_ci_lo", fit["boot_lo_mm_yr"], "mm/yr",
+                 "bootstrap 95% CI lower bound on transect_trend_mm_yr"),
+                ("transect_trend_ci_hi", fit["boot_hi_mm_yr"], "mm/yr",
+                 "bootstrap 95% CI upper bound on transect_trend_mm_yr"),
+                ("transect_trend_p_ar", fit["p_ar"], "",
+                 "p-value after the AR(1) correction — the one to quote"),
+                ("transect_trend_p_ols", fit["p_ols"], "",
+                 "uncorrected OLS p-value, reported for comparison only"),
+                ("transect_resid_rho_lag1", fit["rho"], "",
+                 "lag-1 residual autocorrelation; 0 means the AR correction "
+                 "changed nothing and the two p-values agree"),
+                ("transect_n_eff", fit["n_eff"], "",
+                 "effective sample size after the AR(1) correction"),
+                ("transect_n_points", float(n_pts), "",
+                 "MAM points in the window"),
+        ):
+            report_rows.append(_rn(_k, _v, _u, _n))
         lines.append(f"TREND (AR(1)-corrected OLS): {fit['slope_mm_yr']:+.2f} mm/yr")
         lines.append(f"  AR p-value: {fit['p_ar']:.4f}   OLS p-value: {fit['p_ols']:.4f}")
         lines.append(f"  rho (lag-1 residual autocorr): {fit['rho']:.3f}   n_eff: {fit['n_eff']:.1f}")
@@ -565,6 +611,15 @@ def main() -> int:
     if len(ce_ref) >= 3:
         rho_raw = stats.spearmanr(ce_raw.dropna().values, ce_raw.dropna().index.values).correlation
         rho_ref = stats.spearmanr(ce_ref.values, ce_ref.index.values).correlation
+        report_rows.append(_rn("transect_coastal_end_spearman_raw", rho_raw, "",
+                               "Spearman rho of the RAW coastal-anchor spring level "
+                               "against year. The weaker of the pair by design: "
+                               "common-mode climate is still in it."))
+        report_rows.append(_rn("transect_coastal_end_spearman_anchored", rho_ref, "",
+                               "Spearman rho of the ANCHOR-REFERENCED coast-minus-inland "
+                               "difference against year. Referencing to the erosion-free "
+                               "inland anchor removes common-mode climate model-free; "
+                               "closer to -1 is a cleaner monotonic coastal drawdown."))
         lines.append("")
         lines.append("CLIMATE-CORRECTED PROFILE (figure panel b, anchor-referenced to NW4):")
         lines.append(f"  Coastal-end ordering vs year (Spearman rho):")
@@ -616,6 +671,19 @@ def main() -> int:
 
     OUT_TXT.write_text("\n".join(lines) + "\n")
     saved(OUT_TXT)
+
+    # The same numbers, in the form a gate can hold. Refuse an empty frame
+    # rather than writing a header-only file over a committed artefact —
+    # to_csv on a column-less frame writes a single newline and reports
+    # success, which is the W128 shape.
+    if not report_rows:
+        warn("no report-number rows collected — "
+             f"{paths.OUT_38_REPORT_NUMBERS.name} left as it was")
+    else:
+        pd.DataFrame(report_rows,
+                     columns=["Parameter", "Well", "Era", "Value", "Unit", "Note"]
+                     ).to_csv(paths.OUT_38_REPORT_NUMBERS, index=False)
+        saved(paths.OUT_38_REPORT_NUMBERS, extra=f"{len(report_rows)} value(s)")
 
     done(SCRIPT_ID)
     return 0

@@ -11,7 +11,11 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.11.0"  # Hollingham (2026) — 2026-09-03. IMPORTING paths NO
+__version__ = "1.12.0"  # Hollingham (2026) — 2026-09-03.
+#                        OUT_38_REPORT_NUMBERS, so Script 38's transect
+#                        trend can be gated instead of living in prose.
+#                        Additive only.
+# v1.11.0 Hollingham (2026) — 2026-09-03. IMPORTING paths NO
 #                        LONGER WRITES TO DISK. DIR_36/37/37B/38/39/40/41 each
 #                        called .mkdir() at module level, so merely importing
 #                        this module — which every module does — created seven
@@ -793,6 +797,12 @@ OUT_38_CSV         = DIR_38 / "38_transect.csv"
 OUT_38_FIG_PROFILE = DIR_38 / "38_transect_profile.jpg"
 OUT_38_FIG_DIFF    = DIR_38 / "38_coast_inland_difference.jpg"
 OUT_38_RESULTS     = DIR_38 / "38_results.txt"
+# The transect trend the documents quote lived ONLY in 38_results.txt until
+# 2026-09-03. cite_check reads outputs/**/*report_numbers*.csv and value
+# tables; it cannot read prose, so the -28.16 mm/yr that is one of the three
+# grounds of D-105 was outside every check. A text file is for a reader; a
+# report-numbers file is what a gate can hold.
+OUT_38_REPORT_NUMBERS = DIR_38 / "38_report_numbers.csv"
 
 # Script 24b — cluster-stratified residual climatology (supplementary diagnostic)
 DIR_24B = OUT_DIR / "24b_residual_climatology"

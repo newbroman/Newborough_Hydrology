@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_28.odt — do not edit.
+<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_29.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 A parameter-sparse state-space framework for characterizing coastal dune-aquifer architecture from manual dipwell records
@@ -466,9 +466,9 @@ For review only --- every figure and table below traces to a committed file in t
   Figure 16 --- mean annual water-table surface with Darcy flow-directions                     20_spatial_figures/20_head_surface_streams.png (head surface IDW-interpolated from per-well mean annual head in 03_master_data.csv; vectors are direction-only)
   Figure 17 --- SSM water-balance residual field                                               20_spatial_figures/20_residual_perwell.csv
   Figure 18 --- coastal-retreat gradient (a, b, c)                                             25_coastal_gradient/25_report_numbers.csv; 25_coastal_gradient/25_03_cluster_partition.csv; 38_coastal_transect/38_results.txt
-  Figure 19 --- illustrative forest reach                                                      schematic; parameters from config.py (FOREST_INTERCEPTION, DRAWDOWN_H0/K/B) via Script 09f
+  Figure 19 --- illustrative forest reach                                                      20_drawdown_propagation_nohead.png; schematic, parameters from config.py (FOREST_INTERCEPTION, DRAWDOWN_H0/K/B), rendered via Script 20
   Figure 20 --- episodic coastal reach                                                         schematic; parameters from 25_coastal_gradient/25_report_numbers.csv and config.py (COAST_RETREAT\_\*)
-  Figure 21 --- spatial reach and development timescale of interventions and coastal retreat   09_scraping_intervention/09f_01_reach_profile.csv (δ₀/L_cg from 25_coastal_gradient/25_01_panel_fit_parameters.csv), rendered via Script 09f
+  Figure 21 --- spatial reach and development timescale of interventions and coastal retreat   09g_coastal_vs_climate_reach.png; schematic, δ₀/L_cg from 25_coastal_gradient/25_01_panel_fit_parameters.csv, rendered via Script 09g
   -------------------------------------------------------------------------------------------- -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # []{#anchor-19}References

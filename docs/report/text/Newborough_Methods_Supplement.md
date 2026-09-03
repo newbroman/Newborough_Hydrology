@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_99.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_100.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 1.9.99 (September 2026).
+Document version: 1.9.100 (September 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -499,12 +499,15 @@ Script 01 is the gateway to every downstream step in the pipeline. Each of the 2
 
 ### []{#anchor-81}[]{#anchor-82}[]{#anchor-83}Inputs
 
-  --------------------------------------- -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  Input file                              Description
-  data/Newborough_Cleaned_For_Model.csv   Field-collected monthly dipwell readings, manually pre-cleaned by the author. Wells are columns, reading dates are rows in *DD/MM/YYYY* form.
-  data/well_metadata.csv                  DGPS-surveyed easting, northing, ground elevation, and pipe-top upstand per well. The *Pipe_Top_Elev* column is an input column that the pipeline does not use as the datum: field readings are referenced to a pipe-top derived as ground elevation + upstand (see below).
-  data/RAF_Valley_Climate.csv             Met Office monthly returns from RAF Valley station, ≈16 km north-east of the site, 1930--present. Provides monthly maximum and minimum temperature, air-frost days, rainfall, and sunshine hours.
-  --------------------------------------- -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  ------------------------------------------- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  Input file                                  Description
+  data/Newborough_Cleaned_For_Model.csv       Field-collected monthly dipwell readings, manually pre-cleaned by the author. Wells are columns, reading dates are rows in *DD/MM/YYYY* form.
+  data/well_metadata.csv                      DGPS-surveyed easting, northing, ground elevation, and pipe-top upstand per well. The *Pipe_Top_Elev* column is an input column that the pipeline does not use as the datum: field readings are referenced to a pipe-top derived as ground elevation + upstand (see below).
+  data/RAF_Valley_Climate.csv                 Met Office monthly returns from RAF Valley station, ≈16 km north-east of the site, 1930--present. Provides monthly maximum and minimum temperature, air-frost days, rainfall, and sunshine hours.
+  data/Newborough_well_records_pipeline.ods   Slimmed two-sheet pipeline copy of the raw well-records workbook. Read to build the per-well monthly observation states (measured, dry, flooded, not-found, inaccessible) that back the coverage figures and the dry-at-depth accounting; ancillary to the three time-series sources above.
+  data/geo/coastline_eroding_hwm.geojson      EPSG:27700 eroding-shoreline high-water-mark geometry (Caernarfon Bay). Read only to reproduce and validate the committed well-to-coast distance dist_coast_m, which remains the canonical value carried in well_metadata.csv.
+  data/geo/forest_boundary.geojson            EPSG:27700 Corsican pine plantation outline. Read to flag each well inside or outside the canopy (the in_forest column of 01_locations.csv).
+  ------------------------------------------- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ### []{#anchor-83}[]{#anchor-84}[]{#anchor-85}Methodology
 
@@ -578,18 +581,24 @@ where *N* is the mean monthly daylight hours computed from the site latitude (*R
 
 ### []{#anchor-85}[]{#anchor-86}[]{#anchor-87}Outputs
 
-  ------------------------------------------- ------------------------------------------------------------------------------------------------- --------------------------------------------------------------------
-  Output file                                 Contents                                                                                          Consumers
-  01_locations.csv                            E, N, ground elevation, pipe-top elevation, and upstand per well                                  Scripts 02--25 (any spatial analysis)
-  01_climate.csv                              Monthly P (m), PET (m), source temperatures                                                       All SSM-fitting and water-balance scripts
-  01_wells_clean.csv                          Bucketed, cleaned, interpolated depth time series                                                 Scripts 02, 03, 09--21
-  01_wells_provenance.csv                     Per-cell provenance partner to *01_wells_clean.csv*: values *{measured, interpolated, missing}*   Scripts 03 (optional *exclude_interpolated* sensitivity), 09c, 10d
-  01_wells_clean_maod.csv                     The same series in m AOD                                                                          Scripts 03 (centroid m AOD), 20
-  01_wells_reference.csv                      Reference-network subset (66 wells)                                                               Scripts 02 (clustering), 06 (extension audit)
-  01_wells_extended.csv                       Extended-network subset (22 wells)                                                                Scripts 06, 09b, 10h, 18, 25
-  01_well_elevations.csv                      Ground elevation, upstand, pipe-top per well                                                      Scripts 03 (upstand audit), 10--21
-  01_data_prep/pipeline_scenario_params.csv   Per-cluster β, Sy, h_disp, peak month, summer climate seeds                                       Scripts 09b, 09d, 19, 21
-  ------------------------------------------- ------------------------------------------------------------------------------------------------- --------------------------------------------------------------------
+  ------------------------------------------- ------------------------------------------------------------------------------------------------------------------------------------------------- --------------------------------------------------------------------
+  Output file                                 Contents                                                                                                                                          Consumers
+  01_locations.csv                            E, N, ground elevation, pipe-top elevation, upstand, well-to-coast distance (dist_coast_m), and in-forest flag (in_forest) per well               Scripts 02--25 (any spatial analysis)
+  01_climate.csv                              Monthly P (m), PET (m), source temperatures                                                                                                       All SSM-fitting and water-balance scripts
+  01_wells_clean.csv                          Bucketed, cleaned, interpolated depth time series                                                                                                 Scripts 02, 03, 09--21
+  01_wells_provenance.csv                     Per-cell provenance partner to *01_wells_clean.csv*: values *{measured, interpolated, missing}*                                                   Scripts 03 (optional *exclude_interpolated* sensitivity), 09c, 10d
+  01_wells_clean_maod.csv                     The same series in m AOD                                                                                                                          Scripts 03 (centroid m AOD), 20
+  01_wells_reference.csv                      Reference-network subset (66 wells)                                                                                                               Scripts 02 (clustering), 06 (extension audit)
+  01_wells_extended.csv                       Extended-network subset (22 wells)                                                                                                                Scripts 06, 09b, 10h, 18, 25
+  01_well_elevations.csv                      Ground elevation, upstand, pipe-top per well                                                                                                      Scripts 03 (upstand audit), 10--21
+  01_dist_coast_validation.csv                Per-well audit: committed dist_coast_m against the value recomputed from the eroding-shoreline geometry, with the absolute difference per well.   Validation audit (not read downstream)
+  01_observation_states.csv                   Per-well monthly observation state (measured, interpolated, dry, flooded, not-found, inaccessible) built from the raw records workbook.           Script 01 (coverage figures); also self-read as the .ods fallback
+  01_dry_depths.csv                           Cells recorded dry-at-depth, with the depth logged at each dry visit.                                                                             Scripts 31, 31b
+  01_observation_state_conflicts.csv          Wells flagged both not-found and measured in the same month (the reading was kept).                                                               Diagnostic (not read downstream)
+  01_coverage_states_reference.png            Observation-state coverage plate for the reference network.                                                                                       Report data-coverage figure (reference)
+  01_coverage_states_extended.png             Observation-state coverage plate for the extended network and excluded study-area markers.                                                        Report data-coverage figure (extended)
+  01_data_prep/pipeline_scenario_params.csv   Per-cluster β, Sy, h_disp, peak month, summer climate seeds                                                                                       Scripts 09b, 09d, 19, 21
+  ------------------------------------------- ------------------------------------------------------------------------------------------------------------------------------------------------- --------------------------------------------------------------------
 
 All paths resolve through *utils/paths.py* (*INT_LOCATIONS*, *INT_CLIMATE*, *INT_WELLS_CLEAN*, *INT_WELLS_PROVENANCE*, *INT_WELLS_CLEAN_MAOD*, *INT_WELLS_REFERENCE*, *INT_WELLS_EXTENDED*, *INT_WELL_ELEVATIONS*, *DIR_01*) and are never hardcoded in the script body.
 

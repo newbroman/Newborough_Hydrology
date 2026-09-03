@@ -11,7 +11,10 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.9.0"  # Hollingham (2026) — 2026-08-31. OUT_09_STEP_TREND
+__version__ = "1.10.0"  # Hollingham (2026) — 2026-09-02. OUT_25_COVARIATE_SPEC_RANGE
+#                        added for Script 25's climate-covariate specification
+#                        range (W136). Additive only.
+# v1.9.0  # Hollingham (2026) — 2026-08-31. OUT_09_STEP_TREND
 #   and OUT_09_DETECTABILITY: Script 09a's monthly step/trend fits and the
 #   detectability floor they are read against. See D-103.
 #
@@ -964,6 +967,16 @@ OUT_25_ROLLING_WINDOW_FIG               = DIR_25 / "25_13_rolling_window.png"
 # because the per-well slopes it reads are a seasonal quantity.
 OUT_25_CORRECTION_DIAGNOSTIC            = DIR_25 / "25_14_correction_diagnostic.csv"
 OUT_25_CORRECTION_DIAGNOSTIC_SPRING     = DIR_25 / "25_14_correction_diagnostic_spring.csv"
+
+# 25_15 — the climate-covariate specification range (W136). The published fit
+# uses the cumulative water balance; this refits the SAME forest-free
+# linear-capped specification against a family of decayed-memory alternatives
+# and against the SSM's own forward recursion, so the spread of delta_0 and L
+# ACROSS covariate choices is a committed number rather than a session
+# computation. Under D-006 a sensitivity is citable only once it is a pipeline
+# output, and the banded wording in the Methods Supplement was cited from a
+# working note that no script could regenerate.
+OUT_25_COVARIATE_SPEC_RANGE             = DIR_25 / "25_15_covariate_specification_range.csv"
 
 
 # --- Script 39: SSM hindcast against the 1989-96 CCW record (standalone) -------

@@ -388,6 +388,39 @@ EXTRA_VALUE_TABLES = [
     # The key is (window, variant): 2018_2025 appears twice, once as the
     # primary fit and once as the broadleaf-covariate sensitivity, and keying
     # on the window alone would silently collapse them.
+    # ── Added 2026-09-03 (W101 follow-on). Two of the fourteen remaining
+    # unregistered directories, taken first on RISK rather than on how many of
+    # their numbers appear in the corpus.
+    #
+    # Script 17's specific yield is the file the project rules single out: two
+    # Approach B aggregations exist and are NOT interchangeable — the
+    # cluster-level Sy_event_median here, and the median of per-well event
+    # estimates in Script 18 — and Sy is the only quantity lambda consumes
+    # absolutely. A document quoting the wrong aggregation is a scientific
+    # error, not a stale value, and nothing was watching either file.
+    # Keyed on (Cluster, Corrected): the table carries seven rows, five
+    # uncorrected and two corrected, so keying on Cluster alone would collapse
+    # two different estimates of the same cluster onto one key — the Script 37
+    # (window, variant) trap again.
+    ("outputs/17_wtf_specific_yield/17_wtf_01_sy_estimates.csv",
+     ("Cluster", "Corrected"),
+     ["Sy_assumed", "Sy_OLS_winter", "Sy_OLS_SE", "Sy_OLS_R2",
+      "Sy_event_median", "Sy_event_Q25", "Sy_event_Q75",
+      "Sy_rapid_median", "Sy_rapid_CI_lo", "Sy_rapid_CI_hi"]),
+
+    # Script 38's transect. Only the coast-minus-inland difference is
+    # registered; the five per-well level columns are a working series, not
+    # quoted values, and registering them would propose noise.
+    #
+    # NOTE THE LIMIT OF THIS ROW. The number the documents actually quote from
+    # Script 38 — the AR(1)-corrected trend of -28.16 mm/yr that is one of the
+    # three grounds of the far-field ruling (D-105) — is in 38_results.txt, a
+    # TEXT file, and no value table can reach it. Gating it needs Script 38 to
+    # emit a report-numbers CSV. Registered as an open item rather than left
+    # implicit.
+    ("outputs/38_coastal_transect/38_transect.csv", "year",
+     ["diff_coast_inland_m"]),
+
     ("outputs/37_driver_validation/37_scale_factors_by_window.csv",
      ("window", "variant"),
      ["s_coast", "s_coast_ci_lo", "s_coast_ci_hi",
@@ -1095,8 +1128,21 @@ LARGE_VALUE_MIN = 100.0
 # them reports the history as though it were disagreement, which inverts their
 # purpose: the Decision Log and the ledgers are where a superseded number is
 # supposed to survive. They stay inside every other check.
-SPREAD_EXCLUDE_DOCS = ("DECISION_LOG.md", "NUMBER_LEDGER.md",
-                       "SCRIPT_LEDGER.md", "FIGURE_LEDGER.md")
+# Documents whose job is to record what a value USED to be. Checking them for
+# CURRENCY inverts their purpose: a decision entry that no longer quotes the
+# number it overturned has stopped being a record. The spread check has excluded
+# them since it was written; the CITATION check did not, and on 2026-09-03 the
+# index builder duly proposed 17 rows in the Decision Log and PARTITION_HISTORY
+# — rows that would have gone red precisely when they were doing their job.
+# PARTITION_HISTORY joins the list for the same reason: it states in its own
+# header that the April text is preserved wherever it still holds.
+HISTORY_DOCS = ("DECISION_LOG.md", "NUMBER_LEDGER.md",
+                "SCRIPT_LEDGER.md", "FIGURE_LEDGER.md",
+                "PARTITION_HISTORY.md")
+
+# Kept as an alias: the spread check reads this name, and the two exclusions are
+# the same idea rather than a coincidence.
+SPREAD_EXCLUDE_DOCS = HISTORY_DOCS
 
 QUANTITY_ANCHORS = {
     # The forest/scrape reach. λ also names the scraping BACI covariate and the
@@ -1463,6 +1509,9 @@ def check_index(docs, values) -> int:
         if row.get("status") == "rejected":
             continue
         key, doc, quoted = row["key"], row["document"], row["quoted"]
+        # A history document is not a citation site — see HISTORY_DOCS.
+        if doc.split("/")[-1] in HISTORY_DOCS:
+            continue
         text = docs.get(doc)
         if text is None:
             continue

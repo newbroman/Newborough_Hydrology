@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_82.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_83.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -470,20 +470,20 @@ The reference network admits a well at more than 100 months of record. That thre
 
 Two consequences follow, and both are deliberate. The cluster-centroid coefficients of Table 3 are fitted on each cluster\'s full record, while the per-well coefficients behind the coefficient atlas are fitted on an equal trailing window; the two are therefore on different bases, and Table 3 prints both so the difference is visible rather than implied. The benchmark of §S.5 refits both models on the same capped frame, which is the one place an equal window is load-bearing rather than conventional.
 
-  ---------------------------------- ---------------------------------- -------------------------------------- --------------------------------------------------------------------------------------------------------
+  ---------------------------------- ---------------------------------- -------------------------------------- -------------------------------------------------------------------------------------------------------------------------------
   Analysis (script)                  Wells                              Record used to fit                     Notes
   Network admission (01)             88 → 66                            ---                                    a well is admitted at more than 100 months of valid record, still reporting after February 2026
   Clustering (02)                    66                                 full record, pairwise-complete         each well pair is correlated on the months the two share; overlap ranges 113 to 250 months, median 185
   Cluster-centroid SSM (03)          5 centroids                        full record (window = None)            n = 236 to 248; the headline mechanistic table
   Per-well SSM (03)                  66                                 trailing 100 months                    n = 100 at every well; the per-well coefficient store
   Coefficient atlas (07)             66                                 inherited, no refit                    maps the per-well store; performs no fit of its own
-  SSM vs TLM benchmark (08)          63                                 trailing 100 months, both models       scored over the same 100 months; CEH7, CEH8 and CEH37 excluded by rule
+  SSM vs TLM benchmark (08)          66                                 trailing 100 months, both models       scored over the same 100 months; the CEH7/8/37 quality exclusion sits upstream of the partition and removes no reference well
   Residual diagnostics (22, 24)      wells at 140+ months, 6 excluded   full record, with intercept            Model B; the diagnostic companions of §S.16
   Identifiability diagnostic (30)    C4 wells and all centroids         both bases, reported side by side      a sensitivity, not a headline
   BACI intervention suite (09, 10)   BACI tiers                         era windows either side of the event   clearfell 2017-12; scrapes 2015-04 and 2023-10
   Specific yield, WTF (17)           66                                 event-based, not a window              individual recharge events; consumes the per-well store
   MSL5 (26, 26b)                     reference and extended tiers       five-year spring windows               window means, anchored 2017 to 2023
-  ---------------------------------- ---------------------------------- -------------------------------------- --------------------------------------------------------------------------------------------------------
+  ---------------------------------- ---------------------------------- -------------------------------------- -------------------------------------------------------------------------------------------------------------------------------
 
 Every window in the table is a named constant in utils/config.py, not a literal in a script: MIN_MONTHS_THRESH for admission, LCSC_DATA_LIMIT for the comparison window, RESIDUAL_DIAG_MIN_MONTHS for the residual-diagnostic floor, and the intervention dates in clearfell_common. The centroid fits pass window = None explicitly rather than by omission.
 

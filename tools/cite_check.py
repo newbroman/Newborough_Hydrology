@@ -45,7 +45,14 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.15.0"  # Hollingham (2026) — 2026-09-03. Scripts 17 and 38
+__version__ = "1.16.0"  # Hollingham (2026) — 2026-09-03. 10c, 26b and 31
+#   enter EXTRA_VALUE_TABLES, and collect_values SKIPS NON-FINITE CELLS. A
+#   blank numeric cell is "" to csv and NaN to pandas, and float(NaN)
+#   succeeds — so where two rows shared a key label the NaN overwrote the
+#   real value. 10c stacks two blocks separated by a blank row; every R2 in
+#   it read back as nan and four true citations were reported as drifted.
+#
+# v1.15.0   # Hollingham (2026) — 2026-09-03. Scripts 17 and 38
 #   enter EXTRA_VALUE_TABLES, and HISTORY_DOCS stops the CITATION check reading
 #   the Decision Log and PARTITION_HISTORY — documents whose job is to record
 #   what a value used to be, and which the spread check had always excluded.

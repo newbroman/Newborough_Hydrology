@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_97.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_98.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 1.9.97 (September 2026).
+Document version: 1.9.98 (September 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -1225,7 +1225,7 @@ The suite's principal results --- the headline +0.129 m benefit at CEH36 (paired
 
 **Motivation.** The core scraping analysis. A naïve paired BACI of CEH36 against CEH4 --- the obvious local control well, ≈100 m to the south --- would overstate the scraping benefit, because CEH4 is itself drying due to progressive coastal retreat affecting the western coastline. A two-tier hierarchical design separates the *scraping signal* at CEH36 from the *coastal drainage signal* contaminating the local controls.
 
-**Methodology.** Tier 1 evaluates the local controls (CEH4, CEH22) against the regional mean --- a five-well climate-only composite (*CLIMATE_CONTROLS = ceh9, nw7, nw6, nw5, wmc2*). If the local controls dry faster than the regional baseline, Tier 1 has demonstrated a coastal drainage signal at the controls themselves. The result in the live data is unambiguous: CEH4 drifts to a CUSUM terminal value of −10.7 m relative to the regional mean, and CEH22 to −19.1 m. The local controls are themselves carrying a coastal signal. Tier 2 evaluates the impact wells (CEH36, CEH18, CEH21) against the paired local controls. Once Tier 1 has established the coastal signal, the Tier 2 BACI shift at CEH36 vs CEH4 is the *pure scraping effect* net of that signal.
+**Methodology.** Tier 1 evaluates the local controls (CEH4, CEH22) against the regional mean --- a five-well climate-only composite (*CLIMATE_CONTROLS = ceh9, nw7, nw6, nw5, wmc2*). If the local controls dry faster than the regional baseline, Tier 1 has demonstrated a coastal drainage signal at the controls themselves. The result in the live data is unambiguous: CEH4 drifts to a CUSUM terminal value of −10.55 m relative to the regional mean, and CEH22 to −19.02 m. The local controls are themselves carrying a coastal signal. Tier 2 evaluates the impact wells (CEH36, CEH18, CEH21) against the paired local controls. Once Tier 1 has established the coastal signal, the Tier 2 BACI shift at CEH36 vs CEH4 is the *pure scraping effect* net of that signal.
 
 Within each tier, per-well analysis runs in two layers. First, the well-minus-control time series is averaged within each era window (from *WELL_ERAS*, described in *Suite-level methodology* below), and the change in mean between successive eras is the BACI step. Second, the SSM (F.3) is refit per-well per-era via direct OLS on the era's monthly observations, with the same *\[+P, −PET, −(z₀ + h_prev)\]* design matrix as Script 03. Per-era β₃ estimates with 95 % confidence intervals come from an "isolated" refit: the script first fits the full SSM to extract β₁ and β₂, subtracts the climate-driven Δh component, then regresses the remaining drainage component on *−h_disp_prev* with an intercept to recover an unbiased β₃ and its CI. The isolated β₃ estimates populate the report's per-well β₃ era table (Table 6 in the main report).
 
@@ -1239,7 +1239,7 @@ Site-specific choices.
 
 Outputs.
 
-  ----------------------------------------- ------------------------------------------------------------------
+  ----------------------------------------- ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   Output                                    Description
   09_scrape_01_full_parameters.csv          Per-well, per-era SSM coefficients (β₁, β₂, β₃)
   09_scrape_02_beta3_significance.csv       Isolated β₃ estimates with 95 % CIs and p-values
@@ -1247,11 +1247,13 @@ Outputs.
   09_scrape_04_net_benefits.csv             Net benefits at impact wells vs CEH21 benchmark
   09_scrape_04b_beta3_era_summary.csv       Formatted β₃ era summary (the Table 6 source in the main report)
   09_tier1_final_cusum.csv                  Tier 1 CUSUM terminal values
+  09_scrape_09_monthly_step_trend.csv       Monthly step-with-trend fit per contrast (09a v2.9.0): the era step qualified against a co-fitted linear trend
+  09_scrape_10_detectability.csv            Minimum-detectable-step floor per contrast (D-103, 09a v2.9.0): the 2015 CEH36 scrape step (+99.5 mm) clears its 75.3 mm floor; the 2023 CEH18/CEH21 re-scrape steps fall below theirs (80.5 and 115.9 mm), so those nulls are floor-limited
   09_scrape_05_tier1_background_drift.png   Tier 1 BACI hydrographs + CUSUM panel
   09_scrape_06_tier2_scraping_signal.png    Tier 2 BACI hydrographs + CUSUM panel
   09_scrape_07_beta3_confidence.png         β₃ era estimates with 95 % CIs across wells
   09_scrape_report_numbers.csv              All citable values for §4.5
-  ----------------------------------------- ------------------------------------------------------------------
+  ----------------------------------------- ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ### []{#anchor-185}[]{#anchor-186}[]{#anchor-187}Sub-script 09b --- Scraping propagation
 

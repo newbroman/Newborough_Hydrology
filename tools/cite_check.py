@@ -45,7 +45,15 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.16.0"  # Hollingham (2026) — 2026-09-03. 10c, 26b and 31
+__version__ = "1.17.0"  # Hollingham (2026) — 2026-09-03. The unregistered
+#   backlog closes: 28, 14, 11, 35, 11b and 24b and 34 registered, and 33,
+#   11b's two per-well tables and 36 deliberately NOT — about 1,400 values
+#   for the four lowest quoted ratios, and the NUMBERS section is
+#   O(values x corpus). Two directories therefore remain unregistered ON
+#   PURPOSE, which is a different state from overlooked and is recorded as
+#   such beside the 35 entry.
+#
+# v1.16.0   # Hollingham (2026) — 2026-09-03. 10c, 26b and 31
 #   enter EXTRA_VALUE_TABLES, and collect_values SKIPS NON-FINITE CELLS. A
 #   blank numeric cell is "" to csv and NaN to pandas, and float(NaN)
 #   succeeds — so where two rows shared a key label the NaN overwrote the
@@ -404,6 +412,103 @@ EXTRA_VALUE_TABLES = [
     # The key is (window, variant): 2018_2025 appears twice, once as the
     # primary fit and once as the broadleaf-covariate sensitivity, and keying
     # on the window alone would silently collapse them.
+    # ── Added 2026-09-03: the remaining nine, closing the backlog of output
+    # directories that publish into the documents with no report-numbers file.
+    #
+    # Three rules applied throughout, each learned earlier the same day:
+    #   - a composite key wherever the rows need one (Script 37's window/variant,
+    #     Script 17's Cluster/Corrected);
+    #   - columns that REPUBLISH a value another table already carries are
+    #     omitted — beta_1/2/3, Sy, and the E/N/Cluster identifiers — because
+    #     registering them checks one number twice under two keys;
+    #   - a large raw series is not registered: a per-month or per-year working
+    #     table proposes coincidences, not citations.
+
+    # 28, 31.6% quoted. The per-well de-trending record behind D-104's C2/C3
+    # test. dist_coast_m is omitted: it is well_metadata's number, restated.
+    ("outputs/28_c3_detrend/28_c3_detrend.csv", "Match_ID",
+     ["empirical_slope_m_yr", "model_delta_mm_yr", "total_drift_m", "obs_years"]),
+
+    # 14, 17.1%. The seasonal trend tables are quoted cluster by cluster in
+    # report10's ecology sections; 14b's crossing years are quoted with their
+    # bootstrap bounds. 14_annual_extremes (204 rows of Cluster x Season x year)
+    # is the raw series behind them and is left out.
+    ("outputs/14_climate_projections/14_spring_trend_stats.csv", "Cluster",
+     ["n_years", "Slope_m_per_yr", "R2", "p_value"]),
+    ("outputs/14_climate_projections/14_summer_trend_stats.csv", "Cluster",
+     ["n_years", "Slope_m_per_yr", "R2", "p_value"]),
+    ("outputs/14_climate_projections/14_winter_trend_stats.csv", "Cluster",
+     ["n_years", "Slope_m_per_yr", "R2", "p_value"]),
+    ("outputs/14_climate_projections/14_winter_exceedance.csv", "Cluster",
+     ["Wet_Slack_Exceedances", "Dry_Slack_Exceedances", "n_years",
+      "Wet_Slack_Pct"]),
+    ("outputs/14_climate_projections/14b_year_of_crossing.csv",
+     ("Cluster", "Threshold"),
+     ["Threshold_m", "n_years_obs", "slope_pt_m_per_yr", "current_depth_2025",
+      "year_crossing_pt", "year_crossing_5", "year_crossing_50",
+      "year_crossing_95"]),
+
+    # 11, 15.9%. The forecast transfer functions — the a_P / a_h / a_E
+    # coefficients W130 renamed, quoted in both Web Tools documents and the
+    # Methods Supplement. The SSM betas in the P_flood tables are omitted for
+    # the usual reason.
+    ("outputs/11_forecasting_thresholds/11_forecast_spring_transfer_functions.csv",
+     "Block",
+     ["alpha_W_h_max_winter", "a_P_win_to_spr", "a_PET_win_to_spr", "intercept",
+      "R2", "n_hydrological_years", "p_value_h_max_winter",
+      "p_value_P_win_to_spr", "p_value_PET_win_to_spr", "p_value_intercept"]),
+    ("outputs/11_forecasting_thresholds/11_forecast_summer_transfer_functions.csv",
+     "Block",
+     ["a_P_summer", "a_h_max_winter", "intercept", "R2",
+      "n_hydrological_years", "p_value_P_summer", "p_value_h_max_winter",
+      "p_value_intercept"]),
+    ("outputs/11_forecasting_thresholds/11_forecast_winter_transfer_functions.csv",
+     "Block",
+     ["a_P_winter", "a_h_min", "intercept", "R2", "n_hydrological_years",
+      "p_value_P_winter", "p_value_h_min", "p_value_intercept"]),
+    ("outputs/11_forecasting_thresholds/11_forecast_pflood_summary.csv", "Cluster",
+     ["alpha", "horizon_n_months", "h_0_m", "P_flood_mm", "lambda_multiplier",
+      "slope_A", "intercept_B", "P_clim_mm"]),
+
+    # 35, 15.8%. Per-well amplification, keyed on the well id — which is also
+    # the anchor, and a distinctive one.
+    #
+    # WHAT IS DELIBERATELY NOT HERE, AND WHY. 33's two envelope tables, 11b's
+    # two per-well P_flood tables and 36's per-well trend were registered on
+    # 2026-09-03 and taken straight back out. Between them they added about
+    # 1,400 values — 81% of that day's additions — for the four lowest quoted
+    # ratios of the twelve (9.1%, 8.4%, 5.1%), and cite_check's NUMBERS section
+    # is O(values x corpus): the full run stopped finishing inside three
+    # minutes. T-14 already records that this section "costs minutes and so
+    # runs only when someone remembers"; tripling it makes that worse, and a
+    # check nobody can afford to run is not a check. The rule stated at the top
+    # of this block — a large raw series is not registered — applies to a
+    # per-well series too, and these are per-well series with a headline
+    # elsewhere. 11b's five-row Table 10 row stays.
+    ("outputs/35_amplification_metric/35_per_well_amplification.csv", "key",
+     ["swing_mm", "amp_coefficient", "ci_lo", "ci_hi", "se"]),
+
+    # 11b, 8.4%. The per-well P_flood field and the Table 10 spreadsheet row.
+    ("outputs/11b_spatial_thresholds/11b_05_table10_pflood_spreadsheet.csv",
+     "Cluster", ["Sum_P_clim_mm"]),
+
+    # 24b, 5.8%. Only the five-row cluster contrast: the 60-row monthly
+    # climatology and the 62-row per-well table are the working series behind it.
+    ("outputs/24b_residual_climatology/24b_02_peak_winter_minus_summer.csv",
+     "cluster_label",
+     ["n_wells", "winter_mean_m", "summer_mean_m", "winter_minus_summer_m",
+      "ci_low", "ci_high", "p_value"]),
+
+    # 36, 5.1%. The absolute climate-removed trend, both windows, with the
+    # bootstrap bounds the report quotes beside each well.
+
+    # 34, 1.7% — the lowest of the twelve, registered for completeness rather
+    # than because much of it is quoted. Keyed on the window pair: `change_mm`
+    # happens to be unique across these 66 rows, but it is the VALUE, and a key
+    # that is also a value stops being unique the moment two windows agree.
+    ("outputs/34_window_sensitivity/34_window_matrix.csv",
+     ("baseline_end", "current_end"), ["change_mm", "n_common"]),
+
     # ── Added 2026-09-03, the next three of the twelve, ranked by how much of
     # each table the corpus actually quotes (a screen re-run AFTER the builder's
     # minus blindness was fixed, since the first ranking could not see a

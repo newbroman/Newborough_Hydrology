@@ -45,7 +45,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from doc_globs import DOC_GLOBS
 
-__version__ = "2.0.0"  # Hollingham (2026) — 2026-09-03. Keyed on script identity;
+__version__ = "2.0.1"  # Hollingham (2026) — 2026-09-03. Excludes HISTORY_DOCS
+#   (decision log, public decisions, ledgers) which quote superseded/example
+#   locators. v2.0.0 keyed on script identity;
 #   excludes the supplement's 27-chapter walk. (v1 keyed on numerator alone and
 #   false-flagged the walk.)
 
@@ -53,6 +55,13 @@ REPO = Path(__file__).resolve().parents[1]
 MANIFEST = REPO / "outputs" / "pipeline_manifest.json"
 
 WALK_DENOMINATOR = 27  # the supplement's analytical-chapter walk; never a step total
+
+# History documents quote superseded and example locators by design (the decision
+# log describes drift like Script 27 "step 44"; the ledgers record past states).
+# cite_check excludes the same set from its spread/citation checks — this is the
+# same idea, not a coincidence. DECISIONS_PUBLIC.md is built from the decision log.
+HISTORY_DOCS = {"DECISION_LOG.md", "DECISIONS_PUBLIC.md", "NUMBER_LEDGER.md",
+                "SCRIPT_LEDGER.md", "FIGURE_LEDGER.md", "PARTITION_HISTORY.md"}
 
 # a script named in prose: a filename prefix, or "Script NN[x]"
 SCRIPT_RE = re.compile(
@@ -148,6 +157,8 @@ def check() -> int:
             if not p.is_file():
                 continue
             rel = str(p.relative_to(REPO))
+            if p.name in HISTORY_DOCS:
+                continue
             for lineno, line in enumerate(
                     p.read_text(encoding="utf-8", errors="replace").splitlines(), 1):
                 scripts = scripts_on_line(line)

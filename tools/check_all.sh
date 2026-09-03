@@ -134,6 +134,17 @@ echo "── record basis (does §F.6 still describe the code?) ─────�
 python3 tools/record_basis_lint.py --quiet || rc=1
 
 echo
+echo "── drift term (does any consumer name 10a's drift column by literal?) ──"
+# D-111 swept the PRODUCER and not the consumers: 10a stopped emitting
+# easting_x_time, Script 25 went on filtering on that literal, matched nothing,
+# wrote a one-byte file over a committed artefact and killed a full pipeline
+# run. drift_term() was written to resolve the column and raise before any
+# write; this is what makes anyone use it. --selftest first, because a lint
+# that passes proves nothing unless its detection still works.
+python3 tools/drift_term_lint.py --selftest || rc=1
+python3 tools/drift_term_lint.py || rc=1
+
+echo
 echo "── seasons (is any seasonal window defined outside config.py?) ──────"
 python3 tools/season_lint.py --quiet || rc=1
 echo

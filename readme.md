@@ -226,12 +226,12 @@ residual climatology (Script 24b, step 42), independent k=5 partition validation
 (Script 31, step 43), and its separation-vs-recoverability companion (Script 31b,
 step 44), which run only with `--with-supplementary`. Phase 17 runs the
 management-interventions-vs-coastal-retreat spatial-reach synthesis figure
-(Script 09f, step 47, §5.8; two-pass, reading Scripts 20/25/09d/10a with
+(Script 09f, step 50, §5.8; two-pass, reading Scripts 20/25/09d/10a with
 documented first-pass fallbacks), the mechanism grid and
-coastal-vs-climate reach schematic (Script 09g, step 48, §5.8 conceptual;
+coastal-vs-climate reach schematic (Script 09g, step 51, §5.8 conceptual;
 reads the 09f reach profile, 10m WMC3 BACI and 10a clearfell steps produced
 earlier in the same pass) and then
-the greyscale figure-conversion utility (Script 27, step 49) as a callable
+the greyscale figure-conversion utility (Script 27, step 52) as a callable
 post-processing step, retained in `run_analysis.py` but not treated as an analytical
 phase. Two further post-review diagnostics added in the same cascade slot into
 earlier phases as successors to their data source: `11c_pflood_achievability.py`

@@ -177,6 +177,16 @@ echo "── manifest (is the committed one what the orchestrator produces?) ─
 python3 tools/manifest_lint.py || rc=1
 
 echo
+echo "── step/phase locators (do the MS step numbers match the manifest?) ──"
+# D-023 put the HEADLINE counts under the manifest guard; nothing watched the
+# per-step "Script XX ... step N/T, Phase P" LOCATORS in the prose, so they
+# drifted silently (Script 27 read "step 44" and "step 49" while the manifest
+# said 52). This keys each locator on the script beside it and checks its index,
+# total and phase against the manifest. GATED.
+python3 tools/step_number_lint.py --selftest >/dev/null || rc=1
+python3 tools/step_number_lint.py || rc=1
+
+echo
 echo "── withheld headlines ───────────────────────────────────────────────"
 # Script 40 withholds its own rate when its gate fails (D-085). A silent
 # absence reads as success, so the state is REPORTED here. Reported, not gated:

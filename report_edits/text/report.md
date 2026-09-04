@@ -5,7 +5,7 @@
 
 *A twenty-one-year analysis of recharge, atmospheric draw and drainage across a clustered dipwell network, with intervention assessment, ecohydrological indices and critical rainfall forecasting*
 
-M. Hollingham \| June 2026
+M. Hollingham
 
 ORCID: 0000-0003-0253-9301
 

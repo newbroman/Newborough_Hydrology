@@ -54,7 +54,19 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.6.0"  # Hollingham (2026) — 2026-09-04. Adds fmt "val_p"
+__version__ = "1.7.0"  # Hollingham (2026) — 2026-09-04. Methods Supplement
+#   batch. (1) `lookup` gains `key_re`: the key columns on BOTH sides are
+#   reduced to the pattern's first group before comparison, so a row can join
+#   to its own variant in the same CSV (17_wtf_01's "C4 (Main Forest)" and
+#   "C4 (Main Forest) (corrected)" join on ^(C\d)). Matching only, no maths.
+#   (2) fmt "ci" honours `scale`, as fixed does (a CI the CSV holds in metres
+#   and the table shows in millimetres). (3) `rows.exclude`: a list of
+#   {col: value | [values]} clauses; a row matching EVERY condition of any
+#   clause is dropped — for a table that shows all but one (variant, control)
+#   pair of a long CSV (10h's Variant C / Climate row). (4) A template
+#   field that is not a number takes a STRING spec ("{Variant:.1}" is its
+#   first character) instead of failing on float().
+# v1.6.0  # Hollingham (2026) — 2026-09-04. Adds fmt "val_p"
 #   ("estimate (p-value)" composite: value fixed at dp + p rendered by the
 #   pvalue rule) and rows.require (keep rows where the named column(s) are
 #   non-empty, to select one block of a multi-block CSV). For report9 Table 1.19.
@@ -173,12 +185,13 @@ class _Field(str):
     str.format cannot apply ".3f" to the string "0.1234"; this can, so a
     template like "[{lo:+.3f}, {hi:+.3f}]" or "{d:,.0f} m" is pure config.
     Negatives render with the Unicode minus, as every table in the corpus does.
-    An empty spec ({name}) is the raw text, unchanged.
+    An empty spec ({name}) is the raw text, unchanged; a NON-numeric field
+    takes a string spec ("{Variant:.1}" is its first character).
     """
     def __format__(self, spec):
-        if spec:
+        if spec and _is_num(self):
             return format(_num(self), spec).replace("-", MINUS)
-        return str(self)
+        return format(str(self), spec)
 
 
 def _fields(row: dict) -> dict:
@@ -202,10 +215,21 @@ def render(spec: dict, row: dict, sources: dict) -> str:
         lk = spec["lookup"]
         if isinstance(lk, dict):
             alias, key_col, value_col = lk["source"], lk["key"], lk["col"]
-            where = lk.get("where", {})
+            where, key_re = lk.get("where", {}), lk.get("key_re")
         else:
-            (alias, key_col, value_col), where = lk, {}
-        hits = [r for r in sources[alias] if r[key_col] == row[key_col]
+            (alias, key_col, value_col), where, key_re = lk, {}, None
+
+        def _key(v):
+            # key_re: both sides reduced to the pattern's first group, so a
+            # row joins its own variant ("C4 (Main Forest) (corrected)")
+            if key_re is None:
+                return v
+            m = re.match(key_re, v)
+            if not m:
+                raise ValueError(f"lookup key_re {key_re!r} does not match {v!r}")
+            return m.group(1)
+        want_key = _key(row[key_col])
+        hits = [r for r in sources[alias] if _key(r[key_col]) == want_key
                 and all(r[c] == v for c, v in where.items())]
         if len(hits) != 1:
             raise ValueError(f"lookup {lk}: {len(hits)} match(es) "
@@ -240,8 +264,8 @@ def render(spec: dict, row: dict, sources: dict) -> str:
         text = spec["template"].format(**_fields(row))
     elif fmt == "ci":
         lo, hi = (row[c] for c in spec["cols"])
-        d = spec["dp"]
-        text = (f"[{_num(lo):{sign}.{d}f}, {_num(hi):{sign}.{d}f}]"
+        d, k = spec["dp"], spec.get("scale", 1)
+        text = (f"[{_num(lo) * k:{sign}.{d}f}, {_num(hi) * k:{sign}.{d}f}]"
                 .replace("-", MINUS))
     elif fmt == "val_p":
         # "estimate (p-value)" in one cell: cols=[value_col, p_col]. The value
@@ -277,6 +301,11 @@ def expected_grid(cfg: dict) -> list[list[str | None]]:
         rows = [r for r in rows if r[col] in keep]
     for col in cfg["rows"].get("require", []):   # keep rows where col is non-empty
         rows = [r for r in rows if (r.get(col) or "").strip()]
+    for clause in cfg["rows"].get("exclude", []):   # drop rows matching a whole clause
+        def _hit(r, clause=clause):
+            return all(r[c] in (set(v) if isinstance(v, (list, tuple)) else {v})
+                       for c, v in clause.items())
+        rows = [r for r in rows if not _hit(r)]
     order = cfg["rows"].get("order")
     if order:                              # stable: ties keep CSV order
         col, values = order["col"], list(order["values"])

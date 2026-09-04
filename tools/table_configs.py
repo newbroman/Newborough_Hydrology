@@ -47,7 +47,12 @@ SCHEMA (one dict per table)
       lookup    (alias, key_col, value_col) — take value_col from the row of
                 `alias` whose key_col equals this row's key_col (a join); or
                 {"source": alias, "key": key_col, "col": value_col,
-                 "where": {col: value}} to pin the joined row further
+                 "where": {col: value}} to pin the joined row further, with
+                an optional "key_re": both keys are reduced to the pattern's
+                first group before comparison, so a row can join its own
+                variant in the same CSV ("C4 (Main Forest)" to
+                "C4 (Main Forest) (corrected)" on ^(C\d)) — matching, not
+                maths
       fmt       "text" | "int" | "fixed" | "pvalue" | "stars" | "map" |
                 "template" | "ci" | "val_p"
       dp        decimal places for fixed / pvalue / ci
@@ -56,9 +61,11 @@ SCHEMA (one dict per table)
                 str.format-ed over the row's fields
       template  for fmt "template": str.format-ed over the row's fields, and a
                 NUMERIC spec formats the field as a number — "{lo:+.3f}",
-                "{d:,.0f} m", "{v:+.1f} ± {se:.1f}" — with the Unicode minus
-      cols      [lo, hi] for fmt "ci" -> "[lo, hi]" at dp places; for fmt
-                "sum" the columns to add, rendered as one total at dp places
+                "{d:,.0f} m", "{v:+.1f} ± {se:.1f}" — with the Unicode minus;
+                a field that is not a number takes a string spec
+                ("{Variant:.1}" is its first character)
+      cols      [lo, hi] for fmt "ci" -> "[lo, hi]" at dp places (`scale`
+                and `sign` apply as for fixed); [value, p] for fmt "val_p"
       label     transpose only — the stub-column text of the row this spec makes
       re        [pattern, replacement] applied to the text after formatting,
                 or a list of such pairs applied in order
@@ -68,9 +75,15 @@ SCHEMA (one dict per table)
                 col is (in) the value; otherwise the cell shows `else`
       unless    the complement of `when`
       else      what a row excluded by when / unless shows (default "—")
-      scale     fixed only — multiply the value before rendering, for a
-                column the table shows with the opposite sign to its CSV
+      scale     fixed / ci — multiply the value before rendering, for a
+                column the table shows with the opposite sign to its CSV, or
+                in millimetres where the CSV holds metres
   rows.filter   {col: value | [values]} — keep rows whose col is (in) the value
+  rows.require  [cols] — keep rows where the named columns are non-empty (one
+                block of a multi-block CSV)
+  rows.exclude  [{col: value | [values]}, ...] — drop a row that matches EVERY
+                condition of any one clause (a table that shows all but one
+                (variant, control) pair of a long CSV)
   rows.order    {"col": c, "values": [...]} — rows sorted by that list, stable
 
   A cell LibreOffice has typed as a number carries an office:value attribute
@@ -97,7 +110,13 @@ SCHEMA (one dict per table)
 """
 from __future__ import annotations
 
-__version__ = "1.6.0"  # Hollingham (2026) — 2026-09-04. report9 Table 1.19
+__version__ = "1.7.0"  # Hollingham (2026) — 2026-09-04. Methods Supplement
+#   batch 2: ms/Table5 and ms/Table45 (Script 17 Sy by cluster, Approaches A
+#   and B, the forest rows joined to their interception-corrected variants
+#   via lookup key_re), ms/Table46 (Approach C rapid-event Sy) and ms/Table31
+#   (Script 10h synthetic-extension ANCOVA variants, via rows.exclude and a
+#   scaled ci). Needs table_gen 1.7.0.
+# v1.6.0  # Hollingham (2026) — 2026-09-04. report9 Table 1.19
 #   (ODF Table20) from 10c_forest_zone_correlations.csv via fmt "val_p" +
 #   rows.require. Table 1.20
 #   (ODF Table18) from 25_03_cluster_partition.csv; the climate + far-field
@@ -673,6 +692,125 @@ TABLES = [
             {"fmt": "val_p", "cols": ["r_vs_Elevation", "p_vs_Elevation"], "dp": 3},
             {"fmt": "val_p", "cols": ["r_vs_Dist_from_ridge", "p_vs_Dist_from_ridge"], "dp": 3},
             {"fmt": "val_p", "cols": ["r_vs_Easting", "p_vs_Easting"], "dp": 3},
+        ],
+    },
+    # ── 2026-09-04 Methods Supplement batch 2: Tables 5, 45, 46, 31 ──────────
+    {
+        "id": "ms/Table5",
+        "doc": "docs/report/Newborough_Methods_Supplement_v*.odt",
+        "table_name": "Table5",
+        "caption": "Methods Supplement — specific yield, two values per cluster: the "
+                   "assumed Sy and the WTF Approaches A and B (Script 17)",
+        "sources": {"sy": "outputs/17_wtf_specific_yield/17_wtf_01_sy_estimates.csv"},
+        # one row per cluster: the forest clusters are shown on their
+        # interception-corrected (Approach B) rows, whose Approach A cells are
+        # empty in the CSV and are taken from the uncorrected row by a lookup
+        # keyed on the cluster id (key_re) — no value is computed here
+        "rows": {"source": "sy",
+                 "filter": {"Cluster": ["C1 (Lake Edge)", "C2 (Dune)", "C3 (Western Residual)",
+                                        "C4 (Main Forest) (corrected)",
+                                        "C5 (Coastal Forest) (corrected)"]}},
+        "header": ["Cluster", "Sy assumed", "Approach A (OLS)", "Approach B (event median)"],
+        "columns": [
+            {"col": "Cluster", "fmt": "text",
+             "re": [[r" \(corrected\)$", ""], [r"^(C\d) \((.+)\)$", r"\1 \2"]]},   # "C4 (Main Forest) (corrected)" -> "C4 Main Forest"
+            {"col": "Sy_assumed", "fmt": "fixed", "dp": 2},   # the assumed constants, as published
+            {"lookup": {"source": "sy", "key": "Cluster", "key_re": r"^(C\d)",
+                        "col": "Sy_OLS_winter", "where": {"Corrected": "False"}},
+             "fmt": "fixed", "dp": 3},
+            {"col": "Corrected", "fmt": "map",
+             "map": {"False": "{Sy_event_median:.3f}",
+                     "True":  "{Sy_event_median:.3f} (corr)"}},
+        ],
+    },
+    {
+        "id": "ms/Table45",
+        "doc": "docs/report/Newborough_Methods_Supplement_v*.odt",
+        "table_name": "Table45",
+        "caption": "Methods Supplement — WTF specific yield by cluster, Approach A (OLS-winter) "
+                   "and Approach B (event median) (Script 17)",
+        "sources": {"sy": "outputs/17_wtf_specific_yield/17_wtf_01_sy_estimates.csv"},
+        # as ms/Table5: forest clusters on their corrected rows; the four
+        # Approach A cells come from the uncorrected row via key_re
+        "rows": {"source": "sy",
+                 "filter": {"Cluster": ["C1 (Lake Edge)", "C2 (Dune)", "C3 (Western Residual)",
+                                        "C4 (Main Forest) (corrected)",
+                                        "C5 (Coastal Forest) (corrected)"]}},
+        "header": ["Cluster", "Sy (A, OLS)", "SE", "R²", "n", "Sy (B, event)", "IQR", "n events"],
+        "columns": [
+            {"col": "Cluster", "fmt": "text", "re": [r" \(corrected\)$", ""]},   # "C4 (Main Forest) (corrected)" -> "C4 (Main Forest)"
+            {"lookup": {"source": "sy", "key": "Cluster", "key_re": r"^(C\d)",
+                        "col": "Sy_OLS_winter", "where": {"Corrected": "False"}},
+             "fmt": "fixed", "dp": 3},
+            {"lookup": {"source": "sy", "key": "Cluster", "key_re": r"^(C\d)",
+                        "col": "Sy_OLS_SE", "where": {"Corrected": "False"}},
+             "fmt": "fixed", "dp": 3},
+            {"lookup": {"source": "sy", "key": "Cluster", "key_re": r"^(C\d)",
+                        "col": "Sy_OLS_R2", "where": {"Corrected": "False"}},
+             "fmt": "fixed", "dp": 3},
+            {"lookup": {"source": "sy", "key": "Cluster", "key_re": r"^(C\d)",
+                        "col": "Sy_OLS_n", "where": {"Corrected": "False"}},
+             "fmt": "int"},
+            {"col": "Corrected", "fmt": "map",
+             "map": {"False": "{Sy_event_median:.3f}",
+                     "True":  "{Sy_event_median:.3f} (corr)"}},
+            {"fmt": "ci", "cols": ["Sy_event_Q25", "Sy_event_Q75"], "dp": 3},
+            {"col": "Sy_event_n", "fmt": "int"},
+        ],
+    },
+    {
+        "id": "ms/Table46",
+        "doc": "docs/report/Newborough_Methods_Supplement_v*.odt",
+        "table_name": "Table46",
+        "caption": "Methods Supplement — WTF specific yield by cluster, Approach C "
+                   "(rapid recharge events, Crosbie et al. 2005) (Script 17)",
+        "sources": {"sy": "outputs/17_wtf_specific_yield/17_wtf_01_sy_estimates.csv"},
+        # Approach C attaches to the uncorrected (base) cluster row only; the
+        # "(corr)" suffix marks the forest clusters, whose Approach C recharge
+        # is interception-corrected in Script 17 (FOREST_CIDS). The CSV carries
+        # no flag for that — its Corrected column is the A/B row identity — so
+        # the map names the two clusters; a Sy_rapid_corrected column from
+        # Script 17 would let this read from the file instead.
+        "rows": {"source": "sy", "filter": {"Corrected": "False"}},
+        "header": ["Cluster", "Sy (per-well median)", "95% CI", "n"],
+        "columns": [
+            {"col": "Cluster", "fmt": "text", "re": [r"^(C\d) \((.+)\)$", r"\1 \2"]},   # "C1 (Lake Edge)" -> "C1 Lake Edge"
+            {"col": "Cluster", "fmt": "map",
+             "map": {"C1 (Lake Edge)":        "{Sy_rapid_median:.3f}",
+                     "C2 (Dune)":             "{Sy_rapid_median:.3f}",
+                     "C3 (Western Residual)": "{Sy_rapid_median:.3f}",
+                     "C4 (Main Forest)":      "{Sy_rapid_median:.3f} (corr)",
+                     "C5 (Coastal Forest)":   "{Sy_rapid_median:.3f} (corr)"}},
+            {"fmt": "ci", "cols": ["Sy_rapid_CI_lo", "Sy_rapid_CI_hi"], "dp": 3},
+            {"col": "Sy_rapid_n", "fmt": "int"},
+        ],
+    },
+    {
+        "id": "ms/Table31",
+        "doc": "docs/report/Newborough_Methods_Supplement_v*.odt",
+        "table_name": "Table31",
+        "caption": "Methods Supplement — synthetic-extension ANCOVA-BACI variants A, B, C "
+                   "against the Forest and Climate controls (Script 10h)",
+        "sources": {"an": "outputs/10_clearfell_baci/10h_02_ancova_comparison_table.csv"},
+        # Forest and Climate controls only (Combined is not shown), and the
+        # table omits Variant C's Climate row — C is WMC3 alone and its Climate
+        # contrast is 10a's, quoted in the prose; the five rows are as published
+        "rows": {"source": "an",
+                 "filter": {"Control": ["Forest", "Climate"]},
+                 "exclude": [{"Variant": "C (WMC3 only)", "Control": "Climate"}]},
+        "header": ["Variant", "Zone", "Step (mm)", "95% CI", "p"],
+        "columns": [
+            # the variant label is written in full on its Forest row and
+            # reduced to the letter on the Climate row beneath it, as
+            # published: "A (WMC3+FE1+FE2)" -> "A (WMC3 + FE1 + FE2)" / "A"
+            {"col": "Control", "fmt": "map",
+             "map": {"Forest": "{Variant}", "Climate": "{Variant:.1}"},
+             "re": [[r"\+", " + "], [r" only\)", ")"]]},
+            {"col": "Control", "fmt": "text"},
+            {"col": "Clearfell_step_m", "fmt": "fixed", "dp": 0, "sign": True, "scale": 1000},
+            {"fmt": "ci", "cols": ["Clearfell_CI_lo_m", "Clearfell_CI_hi_m"],
+             "dp": 0, "sign": True, "scale": 1000},
+            {"col": "Clearfell_p", "fmt": "pvalue", "dp": 3, "re": [r"^<", "< "]},   # "< 0.001" with the space, as published
         ],
     },
 ]

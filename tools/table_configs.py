@@ -56,6 +56,12 @@ SCHEMA (one dict per table)
       re        [pattern, replacement] applied to the text after formatting
       rowspan   True — the cell is written once per run of equal values and
                 the continuation rows carry covered cells (a vertical merge)
+      when      {col: value | [values]} — render the cell only on rows whose
+                col is (in) the value; otherwise the cell shows `else`
+      unless    the complement of `when`
+      else      what a row excluded by when / unless shows (default "—")
+      scale     fixed only — multiply the value before rendering, for a
+                column the table shows with the opposite sign to its CSV
   rows.filter   {col: value | [values]} — keep rows whose col is (in) the value
   rows.order    {"col": c, "values": [...]} — rows sorted by that list, stable
 
@@ -79,7 +85,15 @@ SCHEMA (one dict per table)
 """
 from __future__ import annotations
 
-__version__ = "1.2.1"  # 2026-09-04. ms/Table12 to 3 dp throughout (Martin's
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-09-04. Batch 5: five more
+#   report9 tables (1.1, 1.2, 1.4c, 1.10, 1.15) — the span-wrapped and
+#   fragmented cells batch 2 set aside, now that table_gen 1.3.0 reads them.
+#   Uses the new `when` / `unless` / `else` and `scale` column options. Tables
+#   1.14, 1.16, 1.17, 1.18 and 1.20 remain unconfigured: their cells are
+#   AGGREGATES (window-end counts, r / CI / RMSE, band counts, a column sum)
+#   that no pipeline CSV carries, and a config never computes.
+#
+# v1.2.1  # 2026-09-04. ms/Table12 to 3 dp throughout (Martin's
 #   ruling, matching report9 Table 1.3); ms/Table71 regenerated under D-127.
 #
 # v1.2.0  # Hollingham (2026) — 2026-09-04. Batch 3: the Methods
@@ -418,6 +432,115 @@ TABLES = [
             {"lookup": {"source": "pj", "key": "cluster_id", "col": "msl5_shift_mean_m",
                         "where": {"scenario": "2080s"}},
              "fmt": "fixed", "dp": 3, "sign": True},
+        ],
+    },
+    # ── 2026-09-04 batch 5: report9 Tables 1.1, 1.2, 1.4c, 1.10, 1.15 ─────────
+    {
+        "id": "report9/Table1",
+        "doc": 9,
+        "table_name": "Table1",
+        "caption": "Table 1.1 — annual climate summary, RAF Valley (Script 00)",
+        "sources": {"cl": "outputs/00_climate_summary/00_01_annual_climate_summary_short.csv"},
+        "rows": {"source": "cl"},
+        "header": ["Year", "Annual P mm", "Annual PET mm", "Months complete", "P PET ratio"],
+        "columns": [
+            {"col": "Year", "fmt": "text"},
+            {"col": "Annual_P_mm",   "fmt": "fixed", "dp": 1},   # PRECISION: 1 dp as published (mm totals)
+            {"col": "Annual_PET_mm", "fmt": "fixed", "dp": 1},   # PRECISION
+            # the mean row's "12" means "complete years only"; the table leaves it blank
+            {"col": "Months_complete", "fmt": "int",
+             "unless": {"Year": "Long-term mean"}, "else": ""},
+            # no ratio is shown for a partial year (the caption says so)
+            {"col": "P_PET_ratio", "fmt": "fixed", "dp": 2,     # PRECISION: 2 dp as published
+             "when": {"Months_complete": "12.0"}, "else": "—"},
+        ],
+    },
+    {
+        "id": "report9/Table2",
+        "doc": 9,
+        "table_name": "Table2",
+        "caption": "Table 1.2 — per-well seasonal amplitude by cluster, pre- vs post-2018 (Script 02)",
+        "sources": {"am": "outputs/02_clustering/02_09_cluster_amplitude_summary.csv"},
+        "rows": {"source": "am"},
+        "header": ["Cluster", "n", "Pre-2018 (m)", "Post-2018 (m)", "Δ pre→post (%)",
+                   "Climate-normalized Δ (%)"],
+        "columns": [
+            {"col": "cluster_name", "fmt": "text", "re": [r"^(C\d) \((.+)\)$", r"\1 \2"]},
+            {"col": "n_wells", "fmt": "int"},
+            {"col": "median_p90_p10_pre2018",  "fmt": "fixed", "dp": 2},   # PRECISION: 2 dp as published
+            {"col": "median_p90_p10_post2018", "fmt": "fixed", "dp": 2},   # PRECISION
+            # the CSV stores DAMPING (positive = amplitude reduced); the table
+            # shows the change pre→post, so the sign flips (caption: negative =
+            # damping, positive = amplification)
+            {"col": "amplitude_damping_pct", "fmt": "fixed", "dp": 0, "sign": True,
+             "scale": -1, "re": [r"$", "%"]},
+            {"col": "amplitude_damping_pct_climnorm", "fmt": "fixed", "dp": 0, "sign": True,
+             "scale": -1, "re": [r"$", "%"]},
+        ],
+    },
+    {
+        "id": "report9/Table6",
+        "doc": 9,
+        "table_name": "Table6",
+        "caption": "Table 1.4 (c) — WTF specific-yield estimates by cluster (Script 17)",
+        "sources": {"sy": "outputs/17_wtf_specific_yield/17_wtf_01_sy_estimates.csv"},
+        "rows": {"source": "sy"},
+        "header": ["Cluster", "n events", "Sy assumed", "WTF event-median", "OLS-winter",
+                   "Q25", "Q75", "Interception corrected?"],
+        "columns": [
+            {"col": "Cluster", "fmt": "text", "re": [r"^(C\d) \(([^)]+)\)", r"\1 \2"]},   # "C4 (Main Forest) (corrected)" -> "C4 Main Forest (corrected)"
+            {"col": "Sy_event_n",  "fmt": "int"},
+            {"col": "Sy_assumed",  "fmt": "fixed", "dp": 2},   # PRECISION: the assumed constants, as published
+            {"col": "Sy_event_median", "fmt": "fixed", "dp": 3},
+            {"col": "Sy_OLS_winter",   "fmt": "fixed", "dp": 3,
+             "when": {"Corrected": "False"}, "else": "—"},    # no OLS fit on the corrected rows
+            {"col": "Sy_event_Q25",    "fmt": "fixed", "dp": 3},
+            {"col": "Sy_event_Q75",    "fmt": "fixed", "dp": 3},
+            {"col": "Corrected", "fmt": "map",
+             "map": {"False": "No", "True": "Yes — Freeman (2008)"}},
+        ],
+    },
+    {
+        "id": "report9/Table12",
+        "doc": 9,
+        "table_name": "Table12",
+        "caption": "Table 1.10 — pooled mixed-effects clearfell step by tier vs the Forest control (Script 10d)",
+        "sources": {"mm": "outputs/10_clearfell_baci/10d_03_mixed_model_results.csv"},
+        "rows": {"source": "mm",
+                 "filter": {"Control": "Forest",
+                            "Tier": ["Impact", "Edge", "Forest Ctrl",
+                                     "Coastal Ctrl", "Climate Ctrl"]}},   # Far-field Ctrl and the Climate-control block not shown
+        "header": ["Control", "Tier", "Model", "Clearfell coef (m)", "SE", "p", "n obs"],
+        "columns": [
+            {"col": "Control", "fmt": "text"},
+            {"col": "Tier",    "fmt": "text"},
+            {"col": "Model", "fmt": "map",
+             "map": {"OLS (single well)": "OLS (single well)",
+                     "Mixed-effects (random intercept)": "Mixed-effects"}},
+            {"col": "Clearfell_coef_m", "fmt": "fixed", "dp": 3, "sign": True},
+            {"col": "Clearfell_SE_m",   "fmt": "fixed", "dp": 3},
+            {"col": "Clearfell_p",      "fmt": "pvalue", "dp": 3},
+            {"col": "N",                "fmt": "int"},
+        ],
+    },
+    {
+        "id": "report9/Table17",
+        "doc": 9,
+        "table_name": "Table17",
+        "caption": "Table 1.15 — cluster-specific P_flood linear forms and recharge-horizon Σ P_clim (Script 11)",
+        "sources": {"pf": "outputs/11_forecasting_thresholds/11_forecast_pflood_summary.csv"},
+        "rows": {"source": "pf"},
+        "header": ["Cluster", "Label", "Horizon", "P_flood equation (mm)", "Σ P_clim (mm)"],
+        "columns": [
+            {"col": "Cluster", "fmt": "text"},
+            {"col": "Label", "fmt": "text", "re": [r"^C\d \((.+)\)$", r"\1"]},
+            # the horizon label is built from peak_month and horizon_n_months,
+            # not the CSV's `horizon` string, which renders January as "M1"
+            {"col": "peak_month", "fmt": "map",
+             "map": {"1": "Oct–Jan ({horizon_n_months} mo)",
+                     "2": "Oct–Feb ({horizon_n_months} mo)"}},
+            {"fmt": "template", "template": "{slope_A:.2f}·d + {intercept_B:.2f}"},   # PRECISION: 2 dp as published
+            {"col": "P_clim_mm", "fmt": "fixed", "dp": 0},   # PRECISION: 0 dp as published (mm)
         ],
     },
 ]

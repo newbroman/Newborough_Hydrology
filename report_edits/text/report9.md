@@ -752,7 +752,7 @@ Two individual wells merit comment. CEH14, at the highest elevation in the fores
   Coefficient      vs Elevation r (p)   vs Dist. ridge r (p)   vs Easting r (p)
   β₁ (recharge)    0.192 (0.512)        −0.512 (0.061)         0.579 (0.030)
   β₂ (atm. draw)   0.983 (\<0.001)      −0.905 (\<0.001)       0.750 (0.002)
-  β₃ (drainage)    −0.831 (\<0.001)     0.644 (0.013)          −0.480 (0.082)
+  β₃ (drainage)    −0.831 (\<0.001)     0.644 (0.013)          −0.480 (0.083)
   ---------------- -------------------- ---------------------- ------------------
 
 **Table : **Per-well spatial predictors of SSM coefficient variation within the forest zone (C4 Main Forest and C5 Coastal Forest, n = 14). Pearson correlation coefficients and p-values for three spatial variables. Elevation dominates β₂ (R² = 0.967); β₁ shows no significant elevation dependence. (Source: 10c_forest_zone_correlations.csv).

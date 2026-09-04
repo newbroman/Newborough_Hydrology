@@ -49,7 +49,7 @@ SCHEMA (one dict per table)
                 {"source": alias, "key": key_col, "col": value_col,
                  "where": {col: value}} to pin the joined row further
       fmt       "text" | "int" | "fixed" | "pvalue" | "stars" | "map" |
-                "template" | "ci" | "sum"
+                "template" | "ci" | "val_p"
       dp        decimal places for fixed / pvalue / ci
       sign      True — fixed / ci render a leading "+" on positives
       map       {csv_value: template} for fmt "map"; the template is
@@ -97,7 +97,9 @@ SCHEMA (one dict per table)
 """
 from __future__ import annotations
 
-__version__ = "1.5.1"  # Hollingham (2026) — 2026-09-04. report9 Table 1.20
+__version__ = "1.6.0"  # Hollingham (2026) — 2026-09-04. report9 Table 1.19
+#   (ODF Table20) from 10c_forest_zone_correlations.csv via fmt "val_p" +
+#   rows.require. Table 1.20
 #   (ODF Table18) from 25_03_cluster_partition.csv; the climate + far-field
 #   column reads Script 25's committed climate_plus_far_field_mm_yr (D-126).
 # v1.4.0  # Hollingham (2026) — 2026-09-04. Batch 6: report9
@@ -649,6 +651,28 @@ TABLES = [
             {"col": "climate_plus_far_field_mm_yr", "fmt": "fixed", "dp": 2, "sign": True},
             {"col": "coastal_gradient_mm_yr", "fmt": "fixed", "dp": 2},
             {"col": "unexplained_mm_yr", "fmt": "fixed", "dp": 2},
+        ],
+    },
+    {
+        "id": "report9/Table20",
+        "doc": 9,
+        "table_name": "Table20",
+        "caption": "Table 1.19 - per-well spatial predictors of SSM coefficient "
+                   "variation in the forest zone (Script 10c)",
+        "sources": {"fz": "outputs/10c_forest_zone_analysis/10c_forest_zone_correlations.csv"},
+        # the CSV packs the correlation block and an R2 block (blank separator);
+        # require r_vs_Elevation non-empty to take the three correlation rows only.
+        "rows": {"source": "fz", "require": ["r_vs_Elevation"]},
+        "header": ["Coefficient", "vs Elevation r (p)", "vs Dist. ridge r (p)",
+                   "vs Easting r (p)"],
+        "columns": [
+            {"col": "Coefficient", "fmt": "map", "map": {
+                "β₁_recharge": "β₁ (recharge)",
+                "β₂_atm_draw": "β₂ (atm. draw)",
+                "β₃_drainage": "β₃ (drainage)"}},
+            {"fmt": "val_p", "cols": ["r_vs_Elevation", "p_vs_Elevation"], "dp": 3},
+            {"fmt": "val_p", "cols": ["r_vs_Dist_from_ridge", "p_vs_Dist_from_ridge"], "dp": 3},
+            {"fmt": "val_p", "cols": ["r_vs_Easting", "p_vs_Easting"], "dp": 3},
         ],
     },
 ]

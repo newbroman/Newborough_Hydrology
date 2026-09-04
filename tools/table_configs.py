@@ -79,7 +79,10 @@ SCHEMA (one dict per table)
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-09-04. Batch 3: the Methods
+__version__ = "1.2.1"  # 2026-09-04. ms/Table12 to 3 dp throughout (Martin's
+#   ruling, matching report9 Table 1.3); ms/Table71 regenerated under D-127.
+#
+# v1.2.0  # Hollingham (2026) — 2026-09-04. Batch 3: the Methods
 #   Supplement, reached through the versioned-document resolver (`doc` is a
 #   glob; table_gen reads the newest file and writes the next). Four tables.
 #
@@ -351,11 +354,11 @@ TABLES = [
         "columns": [
             {"col": "Cluster_Label", "fmt": "text"},
             {"col": "n", "fmt": "int"},
-            {"col": "beta_1_recharge",         "fmt": "fixed", "dp": 2},   # PRECISION: 2 dp as published
-            {"col": "beta_2_atmospheric_draw", "fmt": "fixed", "dp": 2},   # PRECISION: 2 dp as published
+            {"col": "beta_1_recharge",         "fmt": "fixed", "dp": 3},   # 3 dp — Martin, 2026-09-04 (as report9 Table 1.3)
+            {"col": "beta_2_atmospheric_draw", "fmt": "fixed", "dp": 3},
             {"col": "beta_3_drainage",         "fmt": "fixed", "dp": 3},
             {"col": "R2",                      "fmt": "fixed", "dp": 3},
-            {"col": "LCSC_percent",            "fmt": "fixed", "dp": 1},   # PRECISION: 1 dp as published
+            {"col": "LCSC_percent",            "fmt": "fixed", "dp": 3},
         ],
     },
     {

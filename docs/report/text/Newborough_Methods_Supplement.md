@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_102.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_103.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 1.9.102 (September 2026).
+Document version: 1.9.103 (September 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -485,7 +485,7 @@ Two consequences follow, and both are deliberate. The cluster-centroid coefficie
   MSL5 (26, 26b)                     reference and extended tiers       five-year spring windows               window means, anchored 2017 to 2023
   ---------------------------------- ---------------------------------- -------------------------------------- -------------------------------------------------------------------------------------------------------------------------------
 
-Every window in the table is a named constant in utils/config.py, not a literal in a script: MIN_MONTHS_THRESH for admission, LCSC_DATA_LIMIT for the comparison window, RESIDUAL_DIAG_MIN_MONTHS for the residual-diagnostic floor, and the intervention dates in clearfell_common. The centroid fits pass window = None explicitly rather than by omission.
+Every window in the table is a named constant in utils/config.py, not a literal in a script: MIN_MONTHS_THRESH for admission, LCSC_DATA_LIMIT for the comparison window, RESIDUAL_DIAG_MIN_MONTHS for the residual-diagnostic floor, and the intervention dates in clearfell_common. The dates that define the interventions --- the December 2017 clearfell and the dune-scrape years --- are the author's recollection, from twenty-one years monitoring the site; the one exception is the April 2015 scrape at CEH36, which is separately documented. No documentary record of the operations has been obtained from NRW or Forestry. These dates set the before/after split of the clearfell BACI. The centroid fits pass window = None explicitly rather than by omission.
 
 # []{#anchor-75}[]{#anchor-76}[]{#anchor-77}Phase 1 --- Core LCSC Chain
 

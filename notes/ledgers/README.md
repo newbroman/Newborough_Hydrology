@@ -20,9 +20,9 @@ replaces the other, and the whole point is that you should never have to replay
 | `SCRIPT_LEDGER.md` | what does each script consume, emit, and which documents describe it? | populated 2026-08-14 |
 | `DECISION_LOG.md` | **retired 2026-08-16** — merged into the repo-root `DECISION_LOG.md`, which is now the only decision log (D-029). The file here is a stub. |
 | `NUMBER_LEDGER.md` | where does this cited number come from, and has it drifted? | populated 2026-08-14 (55 rows) |
-| `FIGURE_LEDGER.md` | figure no. → source script → PNG → caption location → body-text citations → regen-pending? | **proposed** — seed from `tools/figure_table_manifest.csv` and `NRG_report_figure_xref_2026-08-13.csv` |
-| `TABLE_LEDGER.md` | table no. → source CSV → generating script → document + location | **proposed** |
-| `DOC_LEDGER.md` | document → current version → companion PDF status → pending regenerations | **proposed** — tracks the "ODT bumped, PDF lags" state that currently lives only in people's heads |
+| `FIGURE_LEDGER.md` | figure no. → source → PNG → resolution; global caption index | **generated** by `tools/build_figure_ledger.py` (from `figure_table_manifest.csv` + `reference_index_figure.csv`; the xref bridge was lost under T-10) |
+| `TABLE_LEDGER.md` | table no. → source → document + resolution; global caption index | **generated** by `tools/build_table_ledger.py` (from `figure_table_manifest.csv` + `reference_index_table.csv`) |
+| `DOC_LEDGER.md` | published PDF → source ODT → built date → live lag state | **generated** by `tools/build_doc_ledger.py` (from `PDF_MANIFEST.txt` + `export_lag.py`) |
 
 ## The three upkeep rules
 

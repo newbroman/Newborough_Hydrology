@@ -61,7 +61,8 @@ WALK_DENOMINATOR = 27  # the supplement's analytical-chapter walk; never a step 
 # cite_check excludes the same set from its spread/citation checks — this is the
 # same idea, not a coincidence. DECISIONS_PUBLIC.md is built from the decision log.
 HISTORY_DOCS = {"DECISION_LOG.md", "DECISIONS_PUBLIC.md", "NUMBER_LEDGER.md",
-                "SCRIPT_LEDGER.md", "FIGURE_LEDGER.md", "PARTITION_HISTORY.md"}
+                "SCRIPT_LEDGER.md", "FIGURE_LEDGER.md", "TABLE_LEDGER.md",
+                "DOC_LEDGER.md", "PARTITION_HISTORY.md"}
 
 # a script named in prose: a filename prefix, or "Script NN[x]"
 SCRIPT_RE = re.compile(

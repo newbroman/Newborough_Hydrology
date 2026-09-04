@@ -134,6 +134,10 @@ echo "── record basis (does §F.6 still describe the code?) ─────�
 python3 tools/record_basis_lint.py --quiet || rc=1
 
 echo
+echo "── table sources (config, map and caption agree on number->source?) ──"
+python3 tools/table_source_lint.py || rc=1
+
+echo
 echo "── drift term (does any consumer name 10a's drift column by literal?) ──"
 # D-111 swept the PRODUCER and not the consumers: 10a stopped emitting
 # easting_x_time, Script 25 went on filtering on that literal, matched nothing,

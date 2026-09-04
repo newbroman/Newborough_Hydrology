@@ -45,7 +45,13 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.17.0"  # Hollingham (2026) — 2026-09-03. The unregistered
+__version__ = "1.18.0"  # Hollingham (2026) — 2026-09-04. T7: check_claims
+#   now searches a claim's phrase (asserted-and-false) and its `contradicts`
+#   wordings in the outputs' note-like CSV columns, not only in documents — a
+#   retired claim written into a report_numbers Note is the D-011 failure one
+#   step downstream. (NB a pre-existing stray second `__version__` assignment
+#   below makes the runtime value stale; flagged, not fixed here.)
+# v1.17.0  # Hollingham (2026) — 2026-09-03. The unregistered
 #   backlog closes: 28, 14, 11, 35, 11b and 24b and 34 registered, and 33,
 #   11b's two per-well tables and 36 deliberately NOT — about 1,400 values
 #   for the four lowest quoted ratios, and the NUMBERS section is
@@ -1854,6 +1860,34 @@ def _claim_mask(df, key_col: str, expect: str):
     return m
 
 
+def _note_prose_corpus() -> dict:
+    """Prose the pipeline writes into note-like CSV columns, keyed by file.
+
+    D-011 forbids asserted findings in code; a superlative written into a
+    report_numbers Note column is that same failure one step downstream, and
+    check_claims searched only documents, never here (T7). Returns
+    {relpath + " (note)": joined note text} over outputs/**/*.csv.
+    """
+    import glob
+    NOTE_COLS = {"note", "notes", "comment", "caveat", "description"}
+    out = {}
+    for f in sorted(glob.glob(str(REPO / "outputs" / "**" / "*.csv"), recursive=True)):
+        try:
+            with open(f, encoding="utf-8") as fh:
+                rdr = csv.DictReader(fh)
+                cols = [c for c in (rdr.fieldnames or [])
+                        if c and c.strip().lower() in NOTE_COLS]
+                if not cols:
+                    continue
+                texts = [(row.get(c) or "").strip()
+                         for row in rdr for c in cols if (row.get(c) or "").strip()]
+        except Exception:
+            continue
+        if texts:
+            out[str(Path(f).relative_to(REPO)) + " (note)"] = "\n".join(texts)
+    return out
+
+
 def check_claims(docs) -> int:
     reg = REPO / CLAIMS_REGISTER
     print()
@@ -1865,6 +1899,7 @@ def check_claims(docs) -> int:
         print(f"  no register at {CLAIMS_REGISTER} — skipped")
         return 0
     bad = 0
+    notes = _note_prose_corpus()   # T7: prose the pipeline writes into CSV Note columns
     for row in csv.DictReader(open(reg, encoding="utf8")):
         p = REPO / row["csv"]
         if not p.exists():
@@ -1926,6 +1961,8 @@ def check_claims(docs) -> int:
 
         needle = row.get("phrase", "").strip()
         where = [d for d, t in docs.items() if needle in t] if needle else []
+        if needle:                                   # T7: search Note columns too
+            where += [loc for loc, t in notes.items() if needle in t]
 
         # CONTRADICTS — the corpus checked against itself, not against the CSV.
         #
@@ -1945,7 +1982,8 @@ def check_claims(docs) -> int:
         # cannot come back unnoticed.
         contra = [c.strip() for c in (row.get("contradicts") or "").split("|")
                   if c.strip()]
-        contra_hits = {c: sorted(d for d, t in docs.items() if c in t)
+        contra_hits = {c: sorted([d for d, t in docs.items() if c in t]
+                                 + [loc for loc, t in notes.items() if c in t])  # T7
                        for c in contra}
         contra_hits = {c: v for c, v in contra_hits.items() if v}
 

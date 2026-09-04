@@ -97,9 +97,9 @@ SCHEMA (one dict per table)
 """
 from __future__ import annotations
 
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-09-04. Adds report9 Table 1.20
-#   (ODF Table18) from 25_03_cluster_partition.csv, using fmt "sum" for the
-#   climate + far-field column.
+__version__ = "1.5.1"  # Hollingham (2026) — 2026-09-04. report9 Table 1.20
+#   (ODF Table18) from 25_03_cluster_partition.csv; the climate + far-field
+#   column reads Script 25's committed climate_plus_far_field_mm_yr (D-126).
 # v1.4.0  # Hollingham (2026) — 2026-09-04. Batch 6: report9
 #   Tables 1.16, 1.17 and 1.18, now that Script 26 1.9.0 emits their sources
 #   (CHANGELOG 2026-09-04o). Table 1.17 is the first `transpose` entry (its
@@ -644,9 +644,9 @@ TABLES = [
             {"col": "n_wells", "fmt": "int"},
             {"fmt": "template", "template": "{mean_dist_coast_m:.0f} m"},
             {"col": "observed_balanced_annual_mean_mm_yr", "fmt": "fixed", "dp": 2},
-            # identified climate + far-field component: a sum of two CSV columns
-            {"fmt": "sum", "cols": ["climate_cwb_mm_yr", "far_field_offset_mm_yr"],
-             "dp": 2, "sign": True},
+            # identified climate + far-field component, emitted by Script 25
+            # (D-126: the script emits derived quantities; the config never computes)
+            {"col": "climate_plus_far_field_mm_yr", "fmt": "fixed", "dp": 2, "sign": True},
             {"col": "coastal_gradient_mm_yr", "fmt": "fixed", "dp": 2},
             {"col": "unexplained_mm_yr", "fmt": "fixed", "dp": 2},
         ],

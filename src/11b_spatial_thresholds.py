@@ -74,7 +74,15 @@ Dependencies
     Skeletonisation: not required (map_utils handles DEM/IDW)
 """
 
-__version__ = "1.7.1"  # Hollingham (2026) — 2026-09-02: follows Script 11 v1.3.2's
+__version__ = "1.8.0"  # Hollingham (2026) — 2026-09-04: the P_flood map's two
+#   colourbar reference lines are drawn from OUT_11_PFLOOD_SUMMARY
+#   (11_forecast_pflood_summary.csv), not hard-coded. Removes P_CLIM_5MO=464 and
+#   P_CLIM_6MO=524 (stale values, labelled one month too long). One dashed line
+#   per distinct (horizon_n_months, peak_month) band; value is the band's mean
+#   cumulative P_clim, horizon label from peak_month via calendar.month_abbr.
+#   Current pipeline: C1/C2 400 mm Oct–Jan, C3/C4/C5 461 mm Oct–Feb. Rerun
+#   11b to regenerate 11b_03_pflood.png. See CHANGELOG_delta 2026-09-04m.
+# v1.7.1  # Hollingham (2026) — 2026-09-02: follows Script 11 v1.3.2's
 #   transfer-function column rename — a_P_winter / a_h_min / a_P_summer /
 #   a_h_max_winter, read at the four sites that build the forecaster engine
 #   blocks. Reader-side only; no value and no emitted column of this script
@@ -108,6 +116,7 @@ __version__ = "1.7.1"  # Hollingham (2026) — 2026-09-02: follows Script 11 v1.
 # with a console warning on a first pass).
 
 import argparse
+import calendar
 import json
 import numpy as np
 import pandas as pd
@@ -122,7 +131,7 @@ from utils.paths import (
     INT_WELLS_CLEAN_MAOD, INT_WELLS_EXTENDED, INT_WELL_ELEVATIONS,
     INT_PEAR_AUDIT_SITEWIDE, INT_REGIONAL_AVG, INT_CLUSTER_PEAK_MONTHS,
     OUT_03_MECHANISTIC_TABLE, OUT_11_TABLE8_THRESHOLDS, OUT_11_TABLE6_WINTER,
-    OUT_11_TABLE7_SUMMER, DIR_11B, OUT_11B_SUMMER_MAP, OUT_11B_WINTER_MAP,
+    OUT_11_TABLE7_SUMMER, OUT_11_PFLOOD_SUMMARY, DIR_11B, OUT_11B_SUMMER_MAP, OUT_11B_WINTER_MAP,
     OUT_11B_PFLOOD_MAP, OUT_11B_PFLOOD_PER_WELL, OUT_11B_FLOOD_FREQ,
     OUT_11B_TABLE10, OUT_11B_FORECASTER_HTML, SRC_FORECASTER_TEMPLATE,
 )
@@ -1205,16 +1214,29 @@ def plot_pflood_map(df: pd.DataFrame, dpi: int = 300) -> None:
 
     if sc is not None:
         cbar = fig.colorbar(sc, ax=ax, fraction=0.02, pad=0.02, shrink=0.85)
-        # Two reference lines: one per recharge horizon
-        P_CLIM_5MO = 464   # C1/C2: Oct–Feb
-        P_CLIM_6MO = 524   # C3/C4/C5: Oct–Mar
-        cbar.ax.axhline(P_CLIM_5MO, color="#1a6faf", lw=1.5, ls="--")
-        cbar.ax.axhline(P_CLIM_6MO, color="#d62728", lw=1.5, ls="--")
-        cbar.set_label(
-            f"P_flood — cumulative winter rainfall (mm)\n"
-            f"Blue dashed: C1/C2 mean ({P_CLIM_5MO} mm, Oct–Feb)\n"
-            f"Red dashed: C3–C5 mean ({P_CLIM_6MO} mm, Oct–Mar)",
-            fontsize=7.5)
+        # Reference lines: one per recharge horizon, sourced from the Script 11
+        # pflood summary (not hard-coded). Each distinct (horizon, cumulative
+        # P_clim) band gets a dashed line at its mean climatological winter
+        # total; the horizon label is derived from the band's peak month.
+        pf_sum = pd.read_csv(OUT_11_PFLOOD_SUMMARY)
+        _band_style = [("#1a6faf", "Blue"), ("#d62728", "Red"),
+                       ("#2ca02c", "Green"), ("#9467bd", "Purple")]
+        _bands = (pf_sum
+                  .groupby(["horizon_n_months", "peak_month"], sort=True)
+                  .agg(P_clim_mm=("P_clim_mm", "mean"),
+                       clusters=("Cluster", lambda s: sorted(set(s))))
+                  .reset_index()
+                  .sort_values("horizon_n_months"))
+        _label_lines = ["P_flood — cumulative winter rainfall (mm)"]
+        for _i, (_, _b) in enumerate(_bands.iterrows()):
+            _col, _cname = _band_style[_i % len(_band_style)]
+            cbar.ax.axhline(_b["P_clim_mm"], color=_col, lw=1.5, ls="--")
+            _cl = "/".join(_b["clusters"])
+            _hz = f"Oct–{calendar.month_abbr[int(_b['peak_month'])]}"
+            _label_lines.append(
+                f"{_cname} dashed: {_cl} mean "
+                f"({_b['P_clim_mm']:.0f} mm, {_hz})")
+        cbar.set_label("\n".join(_label_lines), fontsize=7.5)
 
     legend_patches = [
         mpatches.Patch(facecolor="#91cf60",

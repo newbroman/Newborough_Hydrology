@@ -61,7 +61,7 @@ SCHEMA (one dict per table)
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-09-04. First table: report9
+__version__ = "1.0.1"  # Hollingham (2026) — 2026-09-04. First table: report9
 #   Table 1.3 (cluster mechanistic coefficients, two record bases), the
 #   phase-4 prototype of the pipeline-first number ledger.
 
@@ -90,8 +90,8 @@ TABLES = [
             {"col": "beta_2_atmospheric_draw", "fmt": "fixed",  "dp": 3},
             {"col": "beta_3_drainage",         "fmt": "fixed",  "dp": 3},
             {"col": "pvalue_beta_3",           "fmt": "pvalue", "dp": 3},
-            {"col": "LCSC_percent",            "fmt": "fixed",  "dp": 2},
-            {"col": "R2",                      "fmt": "fixed",  "dp": 2},
+            {"col": "LCSC_percent",            "fmt": "fixed",  "dp": 3},
+            {"col": "R2",                      "fmt": "fixed",  "dp": 3},
         ],
     },
 ]

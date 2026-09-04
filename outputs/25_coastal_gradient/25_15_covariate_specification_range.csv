@@ -1,10 +1,10 @@
 spec,covariate,role,n_obs,delta_0_mm_yr,delta_0_se,L_m,L_se,c_mm_yr,c_se,AIC,basis
-forest_free_linear_capped,cumulative_water_balance,published,10929,-31.346,1.97,893.826,47.604,-0.104,0.546,-31848.8,
-forest_free_linear_capped,accumulator_half_life_2mo,alternative,10929,-29.255,1.671,1023.485,60.415,2.923,0.462,-35388.4,half_life_months=2
-forest_free_linear_capped,accumulator_half_life_4mo,alternative,10929,-28.83,1.521,1035.766,57.469,2.572,0.42,-37454.4,half_life_months=4
-forest_free_linear_capped,accumulator_half_life_8mo,alternative,10929,-29.068,1.585,1046.127,60.922,1.917,0.438,-36544.5,half_life_months=8
-forest_free_linear_capped,accumulator_half_life_12mo,alternative,10929,-29.823,1.712,1046.841,64.222,1.47,0.473,-34868.0,half_life_months=12
-forest_free_linear_capped,accumulator_half_life_24mo,alternative,10929,-31.474,1.908,1020.602,63.654,-0.419,0.531,-32494.7,half_life_months=24
-forest_free_linear_capped,beta3_recursion,alternative,10929,-28.544,1.599,1011.255,57.493,-1.496,0.445,-36351.4,n_wells=46; beta_1_recharge=4.2941; beta_2_atmospheric_draw=1.54614; beta_3_drainage=0.0693955
-forest_free_linear_capped,specification_range_min,range,10929,-31.474,,893.826,,,,,"min across 7 covariates including the published one; delta_0 from accumulator_half_life_24mo, L from cumulative_water_balance"
-forest_free_linear_capped,specification_range_max,range,10929,-28.544,,1046.841,,,,,"max across 7 covariates including the published one; delta_0 from beta3_recursion, L from accumulator_half_life_12mo"
+forest_free_linear_capped,cumulative_water_balance,published,10929,-31.346200177944056,1.9704236817117726,893.8257779509511,47.603645655715475,-0.10383484282252585,0.5464934407138563,-31848.77181376284,
+forest_free_linear_capped,accumulator_half_life_2mo,alternative,10929,-29.254976570345676,1.6714207698596868,1023.4849152936889,60.415469682977694,2.923021808357703,0.4615040646540855,-35388.38056374648,half_life_months=2
+forest_free_linear_capped,accumulator_half_life_4mo,alternative,10929,-28.82989349778602,1.5206964483499266,1035.7662233072897,57.46909654658319,2.5717458107669824,0.4199383593537968,-37454.438688708244,half_life_months=4
+forest_free_linear_capped,accumulator_half_life_8mo,alternative,10929,-29.06779724641844,1.5853184005841094,1046.1273148737373,60.92200591977502,1.9172257094547145,0.43804102226943326,-36544.54775169758,half_life_months=8
+forest_free_linear_capped,accumulator_half_life_12mo,alternative,10929,-29.823321737056126,1.7116414592571993,1046.8406099301021,64.22237808140143,1.4700863180516572,0.473327695833247,-34868.04476279258,half_life_months=12
+forest_free_linear_capped,accumulator_half_life_24mo,alternative,10929,-31.473867996518436,1.9079554999316837,1020.6024999913867,63.654282171015744,-0.4191121740443281,0.5309433314071997,-32494.662731883876,half_life_months=24
+forest_free_linear_capped,beta3_recursion,alternative,10929,-28.543716190567096,1.5994486375794352,1011.2550600538145,57.493062016577724,-1.496136797154487,0.4446481642910147,-36351.4132919276,n_wells=46; beta_1_recharge=4.2941; beta_2_atmospheric_draw=1.54614; beta_3_drainage=0.0693955
+forest_free_linear_capped,specification_range_min,range,10929,-31.473867996518436,,893.8257779509511,,,,,"min across 7 covariates including the published one; delta_0 from accumulator_half_life_24mo, L from cumulative_water_balance"
+forest_free_linear_capped,specification_range_max,range,10929,-28.543716190567096,,1046.8406099301021,,,,,"max across 7 covariates including the published one; delta_0 from beta3_recursion, L from accumulator_half_life_12mo"

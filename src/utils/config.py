@@ -40,7 +40,13 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.28.0"  # Hollingham (2026) — 2026-09-02. COVARIATE_SWEEP_HALF_LIVES_MO,
+__version__ = "1.28.1"  # Hollingham (2026) - 2026-09-04. W66: BL_CANOPY_FRACTION_2005
+#   basis corrected - 0.4 is confirmed against the aerial photography at the
+#   2005/2006 baseline (observation-anchored), not a seasons-since-restock
+#   judgement, so the D-082 restock-year change (1998->1995) does not move it.
+#   Comment only; value unchanged; no figure regenerated.
+#
+# v1.28.0  # Hollingham (2026) — 2026-09-02. COVARIATE_SWEEP_HALF_LIVES_MO,
 #   the memory half-lives of Script 25's climate-covariate specification sweep
 #   (25_15, W136). Additive only; no existing constant changes.
 #
@@ -992,16 +998,19 @@ SCRAPING_DATE_2_ISO = "2023-10-01"   # October 2023 — re-scraping
 # corpus carried three different years - 1995 in the KML's own layer name
 # (Broadleaf_conversion_1995), 1996 in report10 and the Supplementary Material,
 # 1998 here and in report9 - and 1995 is now used throughout.
-# CONSEQUENCE, NOT YET ACTED ON: f_2005 below was judged against a 1998 restock,
-# i.e. SEVEN growing seasons by the 2005 baseline. On a 1995 restock it is TEN.
-# The value is unchanged pending Martin, because moving it changes a published
-# figure; but its stated basis has shifted and 0.4 is now likely low. For the 2005→2025 modelled
+# f_2005 CONFIRMED 2026-09-04 (Martin): the 0.4 baseline was checked against the
+# aerial photography, which reads about 0.4 broadleaf canopy at the 2005/2006
+# baseline. It is an OBSERVATION-anchored value, not a seasons-since-restock
+# judgement, so the D-082 restock-year correction (1998 -> 1995) does NOT move it.
+# (An earlier note flagged 0.4 as "likely low" on a ten-growing-season basis; that
+# concern is discharged - the aerial photography sets the value, not a growth curve.)
+# For the 2005→2025 modelled
 # driver-CHANGE map (Script 20 plot_driver_change_2005_2025) only the INCREMENT
 # of interception developed over the window contributes:
 #     Δh_BL = (BL_CANOPY_FRACTION_2025 − BL_CANOPY_FRACTION_2005) × H0_BL_full
 # where H0_BL_full = DRAWDOWN_H0_MM × (BROADLEAF_INTERCEPTION / FOREST_INTERCEPTION)
 #                  = 150 × (0.15 / 0.24) ≈ 94 mm at full canopy.
-# f_2005 = 0.4 (Martin's judgement, 2026-07-05) → increment 0.6 × 94 ≈ 56 mm at
+# f_2005 = 0.4 (Martin 2026-07-05, confirmed against the aerial photography 2026-09-04) → increment 0.6 × 94 ≈ 56 mm at
 # source. This is the least-constrained field on the map; the caption flags the
 # BL patch as modelled/indicative. Stored here (not hardcoded) so the basis is
 # auditable and the sensitivity can be varied.

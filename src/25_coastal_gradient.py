@@ -121,7 +121,14 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
-__version__ = "1.24.0"  # Hollingham (2026) — 2026-09-03. D-035: the 25_15
+__version__ = "1.25.0"  # Hollingham (2026) — 2026-09-04. Emits
+#   climate_plus_far_field_mm_yr = climate_cwb_mm_yr + far_field_offset_mm_yr in
+#   25_03_cluster_partition.csv, the identified "climate + far-field" component
+#   report9 Table 1.20 displays. Committed as a first-class pipeline number so the
+#   table cell traces to a CSV column rather than being summed at render time
+#   (D-126: the config never computes; the script emits derived quantities).
+#   Emission only; no existing value changes. See CHANGELOG_delta 2026-09-04w.
+# v1.24.0  # Hollingham (2026) — 2026-09-03. D-035: the 25_15
 #   covariate-range fit outputs (delta_0/L/c, their SEs, AIC) are now STORED at
 #   full precision — the 7 store-time round() calls removed, rounding left to the
 #   display point. No cited number moves (the range is quoted coarsely, "about
@@ -1538,6 +1545,7 @@ def cluster_partition(per_well: pd.DataFrame,
             "coastal_gradient_mm_yr": grad_only,
             "climate_cwb_mm_yr": climate_cwb,
             "far_field_offset_mm_yr": c,
+            "climate_plus_far_field_mm_yr": climate_cwb + c,
             "modelled_total_mm_yr": modelled_total,
             "unexplained_mm_yr": unexplained,
             "coastal_gradient_pct_of_basis": pct(grad_only),

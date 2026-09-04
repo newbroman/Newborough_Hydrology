@@ -23,7 +23,8 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.17.0"  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS from config.SUMMER_DRY_CLIMATE_MONTHS and SPRING_MONTHS from config.MSL_SPRING_MONTHS - the last local copy of the van Willegen spring window, which nine other scripts already imported.
+__version__ = "2.17.1"  # Hollingham (2026) - 2026-09-04 (T-14 item 15, cosmetic): the "Forest wells (C4+C5)" console label now reads config.FOREST_CIDS instead of the cl==4|cl==5 literal. No behaviour or output change - a console label only.
+# v2.17.0  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS from config.SUMMER_DRY_CLIMATE_MONTHS and SPRING_MONTHS from config.MSL_SPRING_MONTHS - the last local copy of the van Willegen spring window, which nine other scripts already imported.
 #   Batch two of the seasonal-windows migration (D-100): the window's
 #   MONTHS ARE UNCHANGED and the constant is asserted equal to the literal it
 #   replaced, in value and in type, read mechanically out of git HEAD. No
@@ -273,6 +274,7 @@ from utils.config import (
     WINTER_WET_CLIMATE_MONTHS,
     CLUSTER_LABELS,
     CLUSTER_COLOURS,
+    FOREST_CIDS,
     UKCP18_SCENARIOS,
     FOREST_INTERCEPTION,
     BROADLEAF_INTERCEPTION,
@@ -824,7 +826,7 @@ def build_well_table(loc, cl, md, elev, maod, clim, sy_df):
     wt = wt.reset_index(drop=True)
     print(f"  Well table: {len(wt)} wells")
     print(f"  beta available: {wt['b1'].notna().sum()} wells")
-    print(f"  Forest wells (C4+C5): {((wt['Cluster'] == 4) | (wt['Cluster'] == 5)).sum()}")
+    print(f"  Forest wells (C4+C5): {wt['Cluster'].isin(FOREST_CIDS).sum()}")
     print(f"  P_bar  = {P_bar*1000:.2f} mm/mo   PET_bar = {PET_bar*1000:.2f} mm/mo")
     return wt, climate_stats
 

@@ -709,7 +709,7 @@ The long-run rate is measurable. From OS Anglesey XXV.NW (revised 1899) against 
 
 **The restock year is 1995**, used consistently everywhere. **`site_boundary.kml` is the GRASS-derived stream network of the study area** — Martin's own, the source from which `streams.kml` was made, and used in the pipeline as a mask. The catchment is the unit of study, this being a hydrological study, so a catchment-derived mask is the right object and the filename is a description of its role rather than an error.
 
-**Revisit if** a primary forestry record gives a restocking date other than 1995, or `f_2005` is revisited — at which point the ten-season basis is the starting point, not seven.
+**Revisit if** a primary forestry record gives a restocking date other than 1995. (The f_2005 concern is discharged — 0.4 is aerial-photography-anchored at the 2005/2006 baseline, W66/2026-09-04, so the restock year no longer bears on it.)
 
 ### D-083 — intervention dates are the author's recollection, and are recorded as such
 

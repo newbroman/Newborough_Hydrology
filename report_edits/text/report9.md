@@ -509,34 +509,34 @@ The cluster-level state-space equations (Section 3.6.1) fitted without intercept
 
 The prediction equations were fitted at hydrological-year resolution, one equation per cluster under the k = 5 partition (Table 12). The two predictor terms --- winter rainfall total (P_winter) and antecedent summer minimum (h_min) --- show a clear spatial partitioning of dominance across the site.
 
-In the Eastern Block, winter rainfall is the dominant predictor. P_winter is significant at Lake Edge (p = 0.002) and Dune (p = 0.004), while h_min is non-significant in both (p = 0.545 and 0.475 respectively). This is consistent with the faster-draining, lower-memory character of the eastern aquifer, where same-season rainfall dominates the winter flooding response.
+In the Eastern Block, winter rainfall is the dominant predictor. P_winter is significant at Lake Edge (p = 0.002) and Dune (p = 0.004), while h_min is non-significant in both (p = 0.780 and 0.575 respectively). This is consistent with the faster-draining, lower-memory character of the eastern aquifer, where same-season rainfall dominates the winter flooding response.
 
-In the Western Residual and forest clusters, the pattern reverses. The antecedent summer minimum is the dominant predictor: Western Residual (p = 0.017, R² = 0.638), Forest (p \< 0.001, R² = 0.865) and Coastal Forest (p \< 0.001, R² = 0.882). Winter rainfall is non-significant at all three (p = 0.078, 0.919 and 0.379 respectively). The depth of the preceding summer drought is a stronger predictor of winter flooding potential than the actual winter rainfall amount in these more buffered domains. This reflects the aquifer\'s multi-month memory --- a deep summer minimum requires progressively more winter rainfall simply to restore the water table to its pre-drought position before any flooding can occur. The significant intercepts at Forest (p = 0.035) and Coastal Forest (p = 0.003) are consistent with the strong structural offset imposed by the plantation canopy on water table depth.
+In the Western Residual and forest clusters, the pattern reverses. The antecedent summer minimum is the dominant predictor: Western Residual (p = 0.008, R² = 0.670), Forest (p \< 0.001, R² = 0.885) and Coastal Forest (p \< 0.001, R² = 0.873). Winter rainfall is non-significant at all three (p = 0.052, 0.924 and 0.338 respectively). The depth of the preceding summer drought is a stronger predictor of winter flooding potential than the actual winter rainfall amount in these more buffered domains. This reflects the aquifer\'s multi-month memory --- a deep summer minimum requires progressively more winter rainfall simply to restore the water table to its pre-drought position before any flooding can occur. The significant intercepts at Forest (p = 0.035) and Coastal Forest (p = 0.003) are consistent with the strong structural offset imposed by the plantation canopy on water table depth.
 
-Two individual coefficients require comment. The negative h_min coefficient at Lake Edge (−0.134) is not mechanistically meaningful given its non-significance; it is an artefact of the small sample (n = 19) and the dominance of P_winter in that cluster. The negative P_winter coefficient in the Forest cluster (−0.00006) reflects multicollinearity with h_min and should not be interpreted mechanistically.
+Two individual coefficients require comment. The negative h_min coefficient at Lake Edge (−0.058) is not mechanistically meaningful given its non-significance; it is an artefact of the small sample (n = 19) and the dominance of P_winter in that cluster. The negative P_winter coefficient in the Forest cluster (−0.00006) reflects multicollinearity with h_min and should not be interpreted mechanistically.
 
-  ----------------------- -------------------------------------------------- ------ ---- ------------- ----------
-  Block                   Equation                                           R²     n    p(P_winter)   p(h_min)
-  Lake Edge (C1)          h_peak = 0.00108·P_winter − 0.134·h_min − 0.687    0.47   19   0.002         0.545
-  Dune (C2)               h_peak = 0.00160·P_winter + 0.210·h_min − 0.786    0.53   20   0.004         0.475
-  Western Residual (C3)   h_peak = 0.00119·P_winter + 0.827·h_min − 0.053    0.64   20   0.078         0.017
-  Main Forest (C4)        h_peak = −0.00006·P_winter + 1.270·h_min + 1.259   0.86   19   0.919         \<0.001
-  Coastal Forest (C5)     h_peak = 0.00040·P_winter + 1.631·h_min + 1.415    0.88   19   0.379         \<0.001
-  ----------------------- -------------------------------------------------- ------ ---- ------------- ----------
+  ----------------------- ------------------------------------------------- ------ ---- ------------- ----------
+  Block                   Equation                                          R²     n    p(P_winter)   p(h_min)
+  Lake Edge (C1)          h_peak = 0.00108·P_winter − 0.058·h_min − 0.550   0.48   19   0.002         0.780
+  Dune (C2)               h_peak = 0.00171·P_winter + 0.165·h_min − 0.829   0.55   20   0.002         0.575
+  Western Residual (C3)   h_peak = 0.00124·P_winter + 0.847·h_min − 0.040   0.67   20   0.052         0.008
+  Main Forest (C4)        h_peak = 0.00005·P_winter + 1.253·h_min + 1.134   0.88   19   0.924         \<0.001
+  Coastal Forest (C5)     h_peak = 0.00045·P_winter + 1.609·h_min + 1.293   0.87   19   0.338         \<0.001
+  ----------------------- ------------------------------------------------- ------ ---- ------------- ----------
 
 **Table :** Winter peak prediction equations fitted at hydrological-year resolution (Section 3.6.2), one equation per cluster under the k = 5 partition. P_winter = total winter rainfall (mm) accumulated over the cluster-specific recharge horizon (October--January for C1 and C2; October--February for C3, C4 and C5). h_min = preceding summer water table minimum (m below surface). (Source: 11_forecast_winter_transfer_functions.csv)
 
 ### []{#anchor-28}Summer Drought Prediction Equations              
 
-The summer drought prediction equations performed substantially better than the winter peak functions (Section 3.6.2). Both predictors --- antecedent winter peak (h_max_winter) and cumulative summer precipitation (P_summer) --- were significant in all five blocks (all p \< 0.05). Model fit was highest for the Forest (R² = 0.916) and Coastal Forest (R² = 0.905) blocks, high for the Western Residual (R² = 0.707), moderate-to-high for the Dune (R² = 0.654), and moderate for the Lake Edge cluster (R² = 0.406). These functions provide a reliable basis for forecasting summer drought severity from the preceding winter state and are the more operationally useful of the two prediction equation pairs (Table 13).
+The summer drought prediction equations performed substantially better than the winter peak functions (Section 3.6.2). Both predictors --- antecedent winter peak (h_max_winter) and cumulative summer precipitation (P_summer) --- were significant in all five blocks (all p \< 0.05). Model fit was highest for the Forest (R² = 0.935) and Coastal Forest (R² = 0.897) blocks, high for the Western Residual (R² = 0.733), moderate-to-high for the Dune (R² = 0.642), and moderate for the Lake Edge cluster (R² = 0.437). These functions provide a reliable basis for forecasting summer drought severity from the preceding winter state and are the more operationally useful of the two prediction equation pairs (Table 13).
 
   ----------------------- ------------------------------------------------------- ------- ------------- ----------
   Block                   Equation                                                R²      p(P_summer)   p(h_max)
-  Lake Edge (C1)          h_min = 0.00139·P_summer + 0.419·h_max_winter − 1.430   0.406   0.005         0.047
-  Dune (C2)               h_min = 0.00184·P_summer + 0.540·h_max_winter − 1.653   0.654   \<0.001       \<0.001
-  Western Residual (C3)   h_min = 0.00121·P_summer + 0.547·h_max_winter − 1.445   0.707   0.010         \<0.001
-  Forest (C4)             h_min = 0.00122·P_summer + 0.747·h_max_winter − 1.470   0.916   0.007         \<0.001
-  Coastal Forest (C5)     h_min = 0.00067·P_summer + 0.522·h_max_winter − 1.331   0.905   0.043         \<0.001
+  Lake Edge (C1)          h_min = 0.00146·P_summer + 0.459·h_max_winter − 1.423   0.437   0.004         0.031
+  Dune (C2)               h_min = 0.00178·P_summer + 0.526·h_max_winter − 1.598   0.642   \<0.001       \<0.001
+  Western Residual (C3)   h_min = 0.00125·P_summer + 0.563·h_max_winter − 1.410   0.733   0.007         \<0.001
+  Forest (C4)             h_min = 0.00129·P_summer + 0.758·h_max_winter − 1.447   0.935   0.003         \<0.001
+  Coastal Forest (C5)     h_min = 0.00069·P_summer + 0.522·h_max_winter − 1.288   0.897   0.041         \<0.001
   ----------------------- ------------------------------------------------------- ------- ------------- ----------
 
 **Table :** Summer drought prediction equations (Section 3.6.2). P_summer = total April--September rainfall (mm); h_max_winter = preceding winter water table peak (m below surface). All coefficients significant at p \< 0.05. (Source: 11_forecast_summer_transfer_functions.csv).

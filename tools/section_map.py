@@ -49,7 +49,7 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-08-23.
+__version__ = "1.1.0"  # Hollingham (2026) - 2026-09-04. --check-refs resolves per document family (W36): a Paper reference checks against that Paper own numbering, not the report chapter map.
 
 import argparse
 import csv
@@ -124,21 +124,72 @@ def build() -> list[dict]:
 
 _REF = re.compile(r"(?i)\bsection\s+(\d+(?:\.\d+){0,3})")
 
+# ── per-document-family resolution (W36) ────────────────────────────────────
+# Papers 1 and 2 are standalone ODTs, NOT sub-documents of report.odm, and they
+# number their own sections. A "Section 4.1.3" in Paper 2 means Paper 2 own
+# 4.1.3, not report9 — so resolving every reference against the report chapter
+# map alone reported valid intra-Paper cross-references as unresolved. Each
+# family reference is resolved against that family own section numbers.
+_VER = re.compile(r"_v(\d+(?:[._]\d+)*)")
+FAMILY_GLOBS = {
+    "paper1": "docs/papers/paper_1/Paper1_v*.odt",
+    "paper2": "docs/papers/paper_2/Hollingham_2026_Paper2_amended*.odt",
+}
+_NUM_PREFIX = re.compile(r"^\s*(\d+(?:\.\d+)*)\b")
+
+
+def _version_key(p: Path):
+    m = _VER.search(p.name)
+    return [int(n) for n in re.split(r"[._]", m.group(1))] if m else [-1]
+
+
+def _latest(glob: str) -> Path | None:
+    # by VERSION, never alphabetically -- Paper1_v1_9 sorts after v1_32.
+    matches = sorted(REPO.glob(glob), key=_version_key)
+    return matches[-1] if matches else None
+
+
+def standalone_numbers(odt: Path) -> set[str]:
+    """Section numbers of a standalone document, read from the numeric prefix its
+    headings carry in text (the Papers hand-number their headings, e.g.
+    '4.1.3 Drainage coefficient and propagation')."""
+    nums = set()
+    for _lvl, txt in headings(odt):
+        m = _NUM_PREFIX.match(txt)
+        if m:
+            nums.add(m.group(1))
+    return nums
+
+
+def _family_of(doc_key: str) -> str:
+    d = doc_key.lower()
+    if "paper_1" in d or "paper1" in d:
+        return "paper1"
+    if "paper_2" in d or "paper2" in d:
+        return "paper2"
+    return "report"
+
 
 def check_refs(rows: list[dict]) -> int:
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     import cite_check as cc
-    valid = {r["number"] for r in rows}
+    valid = {"report": {r["number"] for r in rows}}
+    for fam, glob in FAMILY_GLOBS.items():
+        odt = _latest(glob)
+        valid[fam] = standalone_numbers(odt) if odt else set()
     bad, total = {}, 0
     for doc, text in cc.load_documents().items():
+        fam = _family_of(doc)
+        resolves = valid.get(fam, valid["report"])
         for m in _REF.finditer(text):
             total += 1
             n = m.group(1)
-            if n not in valid:
+            if n not in resolves:
                 bad.setdefault(n, []).append(doc)
-    print(f"  {total} typed 'Section N' reference(s) across the corpus")
+    print(f"  {total} typed 'Section N' reference(s) across the corpus "
+          f"(resolved per family: report chapters, Paper 1, Paper 2)")
     if not bad:
-        print("  every typed section reference resolves against the map")
+        print("  every typed section reference resolves against its family map")
         return 0
     print(f"  {len(bad)} distinct reference(s) do NOT resolve:")
     for n in sorted(bad, key=lambda s: [int(p) for p in s.split(".")]):

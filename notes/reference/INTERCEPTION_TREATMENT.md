@@ -296,9 +296,11 @@ standing candidates for the C4 semi-annual residual (D-022, Revisit-if).
    banner: its numbers predate the
    k = 5 repartition, and its §6 "action required" — restore the correction to
    Script 17 — was discharged long ago. Its §2 and §3 are folded into §4(c) above.
-   `DEFECT_NOTE_script20_residual_field_2026-08-06.md`, cited by
-   `20_spatial_figures.py:564`, was **not** found in any store; §5 above is now
-   the record of that defect. Both remain part of **T-10**.
+   The standalone DEFECT D1 note (script 20 residual field, 2026-08-06) was
+   never committed and was not found in any store — searched under T-10 on
+   2026-08-26 and 2026-09-04. **§5 above is now the record of that defect**,
+   and the Script 20 code comment points here rather than to the lost note
+   (T-10 closed by repoint, 2026-09-04).
 
 ---
 

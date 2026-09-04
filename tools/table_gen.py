@@ -43,10 +43,24 @@ USAGE
     python3 tools/table_gen.py --write --id report9/Table21
     python3 tools/table_gen.py --write --force --id report9/Table21 --out /tmp/x.odt
     python3 tools/table_gen.py --check --id report9/Table21 --src /tmp/copy.odt
+    python3 tools/table_gen.py --write --id ms/Table12     # versioned: writes _v1_9_(N+1)
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-09-04. Second batch (ten
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-09-04. Versioned documents.
+#   `doc` may now be a repo-relative GLOB ("docs/report/Newborough_Methods_
+#   Supplement_v*.odt"): the newest file by refresh_mirrors._version_key is
+#   read — the same resolver the mirrors and doc_version_sync use, so the three
+#   can never disagree about which file is live — and a --write goes to the
+#   BUMPED filename (_v1_9_104 -> _v1_9_105), never in place, per the
+#   versioned-document rule; the prior file stays on disk and no backup is
+#   taken. After such a write run doc_version_sync.py (the in-text version
+#   string) and refresh_mirrors.py --only (the mirror). `lookup` also accepts
+#   a dict form with a constant `where` — {"source": a, "key": k, "col": c,
+#   "where": {col: value}} — for a table whose columns are scenarios of one
+#   long CSV (Table 73's 2050s / 2080s).
+#
+# v1.1.0  # Hollingham (2026) — 2026-09-04. Second batch (ten
 #   more report9 tables). Formats gain `template` (str.format over the row
 #   with NUMERIC specs — "{lo:+.3f}" — which covers "[lo, hi]", "v ± se",
 #   "1819 m" and "1,044" without a formatter each), `ci`, `stars`, and `sign`
@@ -70,6 +84,7 @@ import zipfile
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from doc_paths import REPO, chapter_odt, rel      # noqa: E402
 from odt_edit import edit_spans                   # noqa: E402
+from refresh_mirrors import _version_key, _VER    # noqa: E402
 import table_configs                              # noqa: E402
 
 MINUS = "−"
@@ -125,10 +140,16 @@ def render(spec: dict, row: dict, sources: dict) -> str:
     """
     fmt = spec.get("fmt", "text")
     if "lookup" in spec:
-        alias, key_col, value_col = spec["lookup"]
-        hits = [r for r in sources[alias] if r[key_col] == row[key_col]]
+        lk = spec["lookup"]
+        if isinstance(lk, dict):
+            alias, key_col, value_col = lk["source"], lk["key"], lk["col"]
+            where = lk.get("where", {})
+        else:
+            (alias, key_col, value_col), where = lk, {}
+        hits = [r for r in sources[alias] if r[key_col] == row[key_col]
+                and all(r[c] == v for c, v in where.items())]
         if len(hits) != 1:
-            raise ValueError(f"lookup {spec['lookup']}: {len(hits)} match(es) "
+            raise ValueError(f"lookup {lk}: {len(hits)} match(es) "
                              f"for {key_col}={row[key_col]!r}")
         raw = hits[0][value_col]
     elif fmt in ("template", "ci"):
@@ -271,13 +292,46 @@ def plan(cfg: dict, xml: str):
     return n_cells, drift, spans_all
 
 
+# ── documents ────────────────────────────────────────────────────────────────
+def resolve_doc(doc) -> tuple[pathlib.Path, bool]:
+    """(live ODT, versioned?) for a config `doc`.
+
+    An int is a report chapter (report_edits/odt/reportN.odt, edited in place).
+    A string is a repo-relative glob for a VERSIONED document; the live file is
+    the highest version by refresh_mirrors._version_key — `ls | tail` sorts
+    v1_9 after v1_18 and once produced a confident report against a stale file.
+    """
+    if isinstance(doc, int):
+        return chapter_odt(doc), False
+    matches = sorted(REPO.glob(doc))
+    if not matches:
+        raise LookupError(f"no document matches {doc!r}")
+    return max(matches, key=_version_key), True
+
+
+def bumped(path: pathlib.Path) -> pathlib.Path:
+    """The next version's filename: _v1_9_104.odt -> _v1_9_105.odt."""
+    m = _VER.search(path.name)
+    if not m:
+        raise ValueError(f"{path.name} carries no _vN version suffix")
+    parts = m.group(1).split("_")
+    parts[-1] = str(int(parts[-1]) + 1)
+    return path.with_name(path.name[:m.start()] + "_v" + "_".join(parts) + ".odt")
+
+
 # ── driver ───────────────────────────────────────────────────────────────────
 def run(cfg: dict, write: bool, force: bool, out: pathlib.Path | None,
         src: pathlib.Path | None = None) -> int:
-    src = src or chapter_odt(cfg["doc"])
+    versioned = False
+    if src is None:
+        try:
+            src, versioned = resolve_doc(cfg["doc"])
+        except LookupError as exc:
+            print(f"{cfg['id']}\n  REFUSED: {exc}")
+            return 2
     with zipfile.ZipFile(src) as z:
         xml = z.read("content.xml").decode("utf-8")
-    print(f"{cfg['id']}  ({cfg['caption']})")
+    print(f"{cfg['id']}  ({cfg['caption']})  <- {rel(src)}")
     try:
         n_cells, drift, spans_all = plan(cfg, xml)
     except (ValueError, LookupError) as exc:
@@ -295,7 +349,10 @@ def run(cfg: dict, write: bool, force: bool, out: pathlib.Path | None,
     if not spans:
         print("  nothing to write — the table already matches its source")
         return 0
-    dst = out or src
+    dst = out or (bumped(src) if versioned else src)
+    if versioned and dst.exists():
+        print(f"  REFUSED: {rel(dst)} already exists — the next version is taken")
+        return 2
     if dst == src:
         BACKUP_DIR.mkdir(parents=True, exist_ok=True)
         bak = BACKUP_DIR / f"{src.name}.{time.strftime('%Y%m%d-%H%M%S')}.bak"
@@ -304,8 +361,12 @@ def run(cfg: dict, write: bool, force: bool, out: pathlib.Path | None,
     ok = edit_spans(src, dst, spans, expect=len(spans))
     if not ok:
         return 2
-    print(f"  wrote {len(spans)} cell(s) -> {rel(dst)}"
-          + ("  (mirror now stale: run refresh_mirrors.py)" if dst == src else ""))
+    print(f"  wrote {len(spans)} cell(s) -> {rel(dst)}")
+    if dst == src:
+        print("  (mirror now stale: run refresh_mirrors.py --only)")
+    elif versioned and out is None:
+        print("  (new version: run doc_version_sync.py for the in-text version "
+              "string, then refresh_mirrors.py --only for the mirror)")
     return 0
 
 

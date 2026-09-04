@@ -46,7 +46,15 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-09-04. Phase-4 prototype:
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-09-04. Second batch (ten
+#   more report9 tables). Formats gain `template` (str.format over the row
+#   with NUMERIC specs — "{lo:+.3f}" — which covers "[lo, hi]", "v ± se",
+#   "1819 m" and "1,044" without a formatter each), `ci`, `stars`, and `sign`
+#   on fixed; fixed/pvalue/int pass a non-numeric cell through unchanged
+#   ("30 / 66", "—", a CSV that already says "<0.001"); a row filter value
+#   may be a list (membership); `order` sorts rows by a declared value list.
+#
+# v1.0.0  # Hollingham (2026) — 2026-09-04. Phase-4 prototype:
 #   one table (report9 Table 1.3) generated end to end through odt_edit.
 
 import argparse
@@ -79,11 +87,43 @@ _PLAIN_P = re.compile(r"^<text:p\b[^>]*>([^<]*)</text:p>$", re.S)
 
 # ── rendering ────────────────────────────────────────────────────────────────
 def _num(s: str) -> float:
-    return float(s.strip())
+    return float(s.strip().replace(",", ""))
+
+
+def _is_num(s: str) -> bool:
+    try:
+        _num(s)
+        return True
+    except (ValueError, AttributeError):
+        return False
+
+
+class _Field(str):
+    """A CSV cell that formats as a NUMBER when given a numeric spec.
+
+    str.format cannot apply ".3f" to the string "0.1234"; this can, so a
+    template like "[{lo:+.3f}, {hi:+.3f}]" or "{d:,.0f} m" is pure config.
+    Negatives render with the Unicode minus, as every table in the corpus does.
+    An empty spec ({name}) is the raw text, unchanged.
+    """
+    def __format__(self, spec):
+        if spec:
+            return format(_num(self), spec).replace("-", MINUS)
+        return str(self)
+
+
+def _fields(row: dict) -> dict:
+    return {k: _Field(v) for k, v in row.items()}
 
 
 def render(spec: dict, row: dict, sources: dict) -> str:
-    """One cell's display text from one CSV row, per the column spec."""
+    """One cell's display text from one CSV row, per the column spec.
+
+    fixed / pvalue / int pass a NON-NUMERIC cell through unchanged: some
+    sources carry "30 / 66", "—" or an already-rendered "<0.001", and the
+    table shows exactly that.
+    """
+    fmt = spec.get("fmt", "text")
     if "lookup" in spec:
         alias, key_col, value_col = spec["lookup"]
         hits = [r for r in sources[alias] if r[key_col] == row[key_col]]
@@ -91,21 +131,38 @@ def render(spec: dict, row: dict, sources: dict) -> str:
             raise ValueError(f"lookup {spec['lookup']}: {len(hits)} match(es) "
                              f"for {key_col}={row[key_col]!r}")
         raw = hits[0][value_col]
+    elif fmt in ("template", "ci"):
+        raw = None
     else:
         raw = row[spec["col"]]
 
-    fmt = spec.get("fmt", "text")
+    sign = "+" if spec.get("sign") else ""
     if fmt == "text":
         text = raw
     elif fmt == "int":
-        text = str(int(round(_num(raw))))
+        text = str(int(round(_num(raw)))) if _is_num(raw) else raw
     elif fmt == "fixed":
-        text = f"{_num(raw):.{spec['dp']}f}".replace("-", MINUS)
+        text = (f"{_num(raw):{sign}.{spec['dp']}f}".replace("-", MINUS)
+                if _is_num(raw) else raw)
     elif fmt == "pvalue":
+        if _is_num(raw):
+            v = _num(raw)
+            text = "<0.001" if v < 0.001 else f"{v:.{spec['dp']}f}"
+        else:
+            text = raw
+    elif fmt == "stars":
         v = _num(raw)
-        text = "<0.001" if v < 0.001 else f"{v:.{spec['dp']}f}"
+        text = ("***" if v < 0.001 else "**" if v < 0.01
+                else "*" if v < 0.05 else "ns")
     elif fmt == "map":
-        text = spec["map"][raw].format(**row)
+        text = spec["map"][raw].format(**_fields(row))
+    elif fmt == "template":
+        text = spec["template"].format(**_fields(row))
+    elif fmt == "ci":
+        lo, hi = (row[c] for c in spec["cols"])
+        d = spec["dp"]
+        text = (f"[{_num(lo):{sign}.{d}f}, {_num(hi):{sign}.{d}f}]"
+                .replace("-", MINUS))
     else:
         raise ValueError(f"unknown fmt {fmt!r}")
 
@@ -124,7 +181,15 @@ def expected_grid(cfg: dict) -> list[list[str | None]]:
             sources[alias] = list(csv.DictReader(fh))
     rows = sources[cfg["rows"]["source"]]
     for col, val in cfg["rows"].get("filter", {}).items():
-        rows = [r for r in rows if r[col] == val]
+        keep = set(val) if isinstance(val, (list, tuple)) else {val}
+        rows = [r for r in rows if r[col] in keep]
+    order = cfg["rows"].get("order")
+    if order:                              # stable: ties keep CSV order
+        col, values = order["col"], list(order["values"])
+        missing = sorted({r[col] for r in rows} - set(values))
+        if missing:
+            raise ValueError(f"order: {col} value(s) {missing} not in the declared list")
+        rows = sorted(rows, key=lambda r: values.index(r[col]))
 
     grid = [[render(spec, r, sources) for spec in cfg["columns"]] for r in rows]
     for j, spec in enumerate(cfg["columns"]):

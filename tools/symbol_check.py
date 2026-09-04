@@ -29,7 +29,10 @@ Register: tools/symbol_register.csv
                  recorded so the register is complete, not because it collides
     meaning      what the glyph denotes in this sense
     units        units, or "dimensionless"
-    status       canonical | displaced | retired
+    status       canonical | displaced | retired | registered.
+                 canonical is BARE-only (the sense that keeps the glyph);
+                 registered is SUBSCRIPTED-only (accepted, not competing);
+                 displaced / retired apply to either form.
     replacement  the symbol a displaced sense becomes (blank if canonical)
     context_any  pipe-separated phrases; the sense matches when any occurs
                  within CONTEXT_WINDOW characters of the glyph
@@ -43,7 +46,12 @@ Usage
 
 from __future__ import annotations
 
-__version__ = "1.7.0"  # Hollingham (2026) — 2026-09-01. --definitions: the
+__version__ = "1.8.0"  # Hollingham (2026) — 2026-09-04. check_register
+#   validates the status/form vocabularies (T12, D-129): status in
+#   {canonical, displaced, retired, registered}, form in {bare, subscripted},
+#   canonical bare-only and registered subscripted-only. The canonical map is
+#   now built bare-only so a subscripted sense cannot own a bare glyph.
+# v1.7.0  # Hollingham (2026) — 2026-09-01. --definitions: the
 #   COVERAGE audit. symbol_check could only ever ask "does this occurrence match
 #   a registered sense?" — it had nothing to say about a glyph carrying a second
 #   sense NOBODY registered, which is not ambiguity but absence, and reads as
@@ -231,9 +239,35 @@ def check_register(senses: list[dict]) -> int:
     print("REGISTER — is the replacement column self-consistent?")
     print("=" * 78)
 
-    canonical = {x["glyph"]: x["sense_id"]
-                 for x in senses if x.get("status") == "canonical"}
+    # vocabulary validation (T12 / D-129): status and form must be documented,
+    # and they interlock — canonical is bare-only, registered subscripted-only.
+    STATUS_VOCAB = {"canonical", "displaced", "retired", "registered"}
+    FORM_VOCAB = {"bare", "subscripted"}
     faults = 0
+    for s in senses:
+        sid = s["sense_id"]
+        st = (s.get("status") or "").strip()
+        fm = (s.get("form") or "").strip()
+        if st not in STATUS_VOCAB:
+            print("\n  BAD STATUS  %s: %r not in %s" % (sid, st, sorted(STATUS_VOCAB)))
+            faults += 1
+        if fm not in FORM_VOCAB:
+            print("\n  BAD FORM    %s: %r not in %s" % (sid, fm, sorted(FORM_VOCAB)))
+            faults += 1
+        if st == "canonical" and fm != "bare":
+            print("\n  CANON/FORM  %s: canonical but form=%r — canonical is bare-only "
+                  "(an accepted subscripted sense is 'registered')" % (sid, fm))
+            faults += 1
+        if st == "registered" and fm != "subscripted":
+            print("\n  REG/FORM    %s: registered but form=%r — registered is for "
+                  "subscripted senses" % (sid, fm))
+            faults += 1
+
+    # canonical map is bare-only by construction (a subscripted sense is never
+    # canonical), so it cannot gain a phantom owner from a subscripted entry.
+    canonical = {x["glyph"]: x["sense_id"]
+                 for x in senses if x.get("status") == "canonical"
+                 and x.get("form", "bare") == "bare"}
     seen = {}
 
     for sense in senses:

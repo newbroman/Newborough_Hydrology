@@ -270,8 +270,9 @@ touch .last_drive_archive
 ## 5. Verify
 
 ```bash
+source venv/bin/activate            # both commands run python3 as-is: it MUST be the venv
 python3 run_analysis.py --full --with-supplementary
-bash tools/check_all.sh
+bash tools/check_all.sh 2>&1 | tee /tmp/check_all.txt; echo "verdict: ${PIPESTATUS[0]}"
 ```
 
 Expect `check_all: OK`. Read the **first** section before any other: it names the
@@ -279,6 +280,17 @@ machine you are on and whether it is the recorded one. Every check below it that
 mentions a version — pandoc, LibreOffice, pdftotext — is describing *this*
 machine, and until 2026-08-27 none of them said so. A day was lost to a sandbox's
 pandoc 2.9.2 being read as this project's.
+
+**Run `check_all` under the venv, not bare.** `tools/check_all.sh` calls `python3`
+as it finds it, so an un-activated shell runs every gate against the *system*
+libraries. On the recorded machine that still fails: env_audit confirms the
+machine is correct but reports 11 library versions "moved" — numpy 1.26.4
+against the recorded 2.4.6, matplotlib 3.6.3, cairosvg NOT IMPORTABLE, and the
+rest — prints "Nothing in this run that touches an output can be trusted", and
+the run ends `check_all: FAIL`. That is a false red: it is system python, not the
+venv (§1, `venv/` IS the environment, D-093). `source venv/bin/activate` first and
+the library lines all match the record; the only differences that can then remain
+are the externals (pandoc, pdftotext, soffice, git) the paragraph above covers.
 
 If the mirrors section complains, the ODTs did not arrive. If the decisions
 section complains, the private repository did not.

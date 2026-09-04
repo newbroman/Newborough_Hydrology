@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_2/Hollingham_2026_Paper2_amended_v15.odt — do not edit.
+<!-- GENERATED MIRROR of docs/papers/paper_2/Hollingham_2026_Paper2_amended_v16.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Hydrological response of a coastal dune aquifer to plantation clearfell and dune scraping: a BACI analysis of a 21-year manual record
@@ -49,7 +49,7 @@ In April 2015 the ground surface of one dune slack, instrumented by dipwell CEH3
 
 ## []{#anchor}2.3 The clearfell intervention
 
-In December 2017 approximately 8.4 ha of Corsican pine was felled. The felled compartment straddles the gradational boundary between C4 Main Forest and C5 Coastal Forest, and the wells within and adjacent to it show mixed cluster affinities spanning C3, C4 and C5 (Hollingham, 2026a). The compartment cannot, therefore, be treated as a clean single-cluster experiment; its hydrological effects propagate downslope into the coastal catchment along the continuous drainage pathway. The sole in-situ Impact well is WMC3; four edge wells (CEH31, CEH20, CEH30, CEH16) sit closer to the felling boundary, and unfelled forest, coastal and climate controls complete the five-tier design described below.
+In December 2017 approximately 8.4 ha of Corsican pine was felled. The felled compartment straddles the gradational boundary between C4 Main Forest and C5 Coastal Forest, and the wells within and adjacent to it show mixed cluster affinities spanning C3, C4 and C5 (Hollingham, 2026a). The compartment cannot, therefore, be treated as a clean single-cluster experiment; its hydrological effects propagate downslope into the coastal catchment along the continuous drainage pathway. The sole in-situ Impact well is WMC3; four edge wells (CEH31, CEH20, CEH30, CEH16) sit closer to the felling boundary, and unfelled forest, coastal and climate controls complete the five-tier design described below. The dates that define the interventions --- the December 2017 clearfell and the dune-scrape years --- are the author's recollection, from twenty-one years monitoring the site; the one exception is the April 2015 scrape at CEH36, which is separately documented. No documentary record of the operations has been obtained from NRW or Forestry. These dates set the before/after split of the clearfell BACI.
 
 # []{#anchor}3. Methods
 

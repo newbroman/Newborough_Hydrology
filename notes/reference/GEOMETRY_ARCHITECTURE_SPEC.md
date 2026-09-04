@@ -203,10 +203,15 @@ inconsistent between runs.
 - **`nw13` / `wmc4` share easting 241761.0 / northing 364180.0.** Both have real records
   (166 and 169 hub rows). Martin: 1 m apart, separate by adding a decimal. Needs his
   pick of which moves and which way.
-- **Prior work to reconcile.** A corrected `well_metadata.csv` and
-  `CHANGELOG_delta_2026-08-08_pipe_top_upstand_correction.md` were produced earlier
-  today (67 wells; 197 CSVs identical, 11 changed). This spec must be applied on top of
-  that file, not the committed one. Confirm which version is current before step 1.
+- **Prior work to reconcile.** A corrected `well_metadata.csv` and a standalone
+  pipe-top/upstand correction changelog were produced on 2026-08-08 (67 wells;
+  197 CSVs identical, 11 changed). That standalone changelog was never committed
+  and is lost (searched under T-10, 2026-08-26 and 2026-09-04); the correction it
+  recorded landed as part of the site-wide geometry rework recorded in this spec,
+  and the corrected `well_metadata.csv` is the committed source of truth. The
+  ceh13 pipe-top facet of that day's work is recorded in
+  `notes/findings/HUB_CORRECTION_NOTE_2026-08-08.md`. This open item is historical:
+  the rework has landed — confirm `well_metadata.csv` is current before step 1.
 - **`L1`, `L4`** carry no readings and are not in the reference network. `L1`'s
   `DEM_Ground_Elev` is 0.696 m below master ground. Excluded from the ground rule by
   Martin's ruling; no action.

@@ -638,7 +638,7 @@ def build_well_table(data):
     # (Residual_m_month); this field now agrees with it. Interception belongs in the
     # volumetric budget (Script 16 panel b) and in the WTF net-recharge flux
     # (Scripts 17/18), where throughfall is used directly and no β₁ is
-    # applied. See DEFECT_NOTE_script20_residual_field_2026-08-06.md.
+    # applied. See section 5 of notes/reference/INTERCEPTION_TREATMENT.md (DEFECT D1).
     wt["residual_wb"] = np.where(
         wt["beta1"].notna() & wt["h_disp"].notna(),
         wt["beta2"] * PET_bar + wt["beta3"] * wt["h_disp"]

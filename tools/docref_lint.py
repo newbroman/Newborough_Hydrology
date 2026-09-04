@@ -9,7 +9,7 @@ WHY THIS EXISTS
       DECISION_LOG.md D-022     -> INTERCEPTION_TREATMENT.md
       DECISION_LOG.md D-020     -> PARTITION_HISTORY.md
       17_wtf_specific_yield.py  -> wtf_interception_methodology.md
-      20_spatial_figures.py     -> DEFECT_NOTE_script20_residual_field_2026-08-06.md
+      20_spatial_figures.py     -> DEFECT_NOTE_script20_residual_field_2026-08-06 [repointed 2026-09-04]
 
   Each read as a promise that the reasoning was recorded somewhere. None of them
   was. A reader following the pointer finds nothing; a reader who does not
@@ -83,6 +83,9 @@ EXEMPT = {
     # recovered documents: "methods_supplement_master_v1_8_N" means any of the
     # v1_8_* series, "report_edits/text/reportN.md" means report8, 9, 10...
     "methods_supplement_master_v1_8_N.md", "report_edits/text/reportN.md",
+    # a generic pointer, not a document with that name; the project keeps
+    # dated deltas in changelogs/ (T-10 ruling, 2026-09-04)
+    "CHANGELOG.md",
 }
 
 # A reference inside a URL is a link to someone else's repository, not a
@@ -154,46 +157,45 @@ RETIRED = {
     '_to_delete/ledgers_DECISION_LOG_premerge_2026-08-16.md':
         "the pre-merge original behind the D-id collision. An archival trace, not "
         "a live document; the merged root DECISION_LOG.md supersedes it.",
+    'BETA2_DECOMPOSITION.md':
+        "superseded, not lost - T-10 ruling 2026-09-04. The pre-rebuild beta-2 "
+        "note, cited by DDP_EVALUATION.md sec 4 for the superseded C4 lambda=0.05. "
+        "Its successor notes/findings/BETA2_DECOMPOSITION_UPDATED.md is in the "
+        "repository and is the maintained surface; an old copy survives in the "
+        "desktop trash but restoring it would reintroduce the fork the successor "
+        "removed (cf. paper2.md).",
 }
 
 KNOWN_DANGLING = {
     # --- surfaced 2026-08-27, when the root tidy put notes/** into SCAN_GLOBS ---
     # Not new dangles. The ledgers were outside the scan until that day, so these
     # three had never been checked. Sixty references joined the net with them.
+    #
+    # 2026-09-04, T-10 closing pass. The other eleven originals are resolved:
+    #   recovered  - NRG_methods_code_audit_2026-08-14.md (Claude project store),
+    #                DIAGNOSTIC_REPORT_script_26_cluster_assignment.md (desktop trash);
+    #   rebuilt    - AUDIT_10series_PRE_FELL_START.md, HANDOVER_c3_detrend_check.md,
+    #                SPEC_script35_per_well_amplification_metric.md and
+    #                SPEC_script37_scale_factor_regression_2026-07-06.md, each written
+    #                as a labelled 2026-09-04 reconstruction from the surviving script +
+    #                Methods Supplement (this gate sanctions "written" as a fix);
+    #   repointed  - the script-20 residual-field defect note -> INTERCEPTION_TREATMENT
+    #                sec 5; the 2026-08-08 pipe_top_upstand changelog ->
+    #                GEOMETRY_ARCHITECTURE_SPEC sec 8 / the hub correction note;
+    #   retired    - BETA2_DECOMPOSITION.md -> RETIRED (superseded);
+    #   exempted   - CHANGELOG.md (generic pointer) and the claude/ store-path rule
+    #                added in main().
+    # The trash-and-Downloads sweep behind the recover/rebuild decisions ran twice
+    # (working/updates/T10_RECOVERY_2026-08-26.md and this session's changelog).
+    # Only the three proposed ledgers remain - unwritten by plan, not lost.
     'TABLE_LEDGER.md':
         "PROPOSED, never written. notes/ledgers/README.md:24 lists it as one of "
         "three ledgers still to build, with its seed source named. A plan is not "
         "a missing document.",
     'DOC_LEDGER.md':
-        "PROPOSED, never written. notes/ledgers/README.md:25, same as above — it "
+        "PROPOSED, never written. notes/ledgers/README.md:25, same as above - it "
         "would track the 'ODT bumped, PDF lags' state that tools/export_lag.py "
         "now answers directly, so it may never be needed.",
-    'NRG_methods_code_audit_2026-08-14.md':
-        "LOST. The code-vs-doc audit the script ledger was seeded from "
-        "(notes/ledgers/SCRIPT_LEDGER.md:10). Not on disk, in either repository, "
-        "or in any Claude project store searched during T-10. Its findings "
-        "survive as the ledger's own rows; the reasoning behind them does not.",
-    'claude/HANDOVER_cowork_NRG_2026-08-13.md':
-        "NEW 2026-08-26: named by the recovered 2026-08-13b handover as the "
-        "authoritative onboarding document for that session. Not in the project "
-        "store, on disk, or in the repository.",
-    'AUDIT_10series_PRE_FELL_START.md':
-        "the pre-fell start-date audit behind clearfell_common; also cited from "
-        "the recovered script-21 diagnostic brief",
-    'BETA2_DECOMPOSITION.md':
-        "NEW 2026-08-26: introduced by restoring DDP_EVALUATION.md, whose section 4 "
-        "cites it for the superseded C4 lambda=0.05. The pre-rebuild beta-2 note; "
-        "its successor BETA2_DECOMPOSITION_UPDATED.md is in the repository and "
-        "carries two superseded banners of its own. Restoring a document restores "
-        "its bibliography, and this is that cost, paid openly.",
-    'CHANGELOG.md':
-        "a generic pointer; the project keeps dated deltas in changelogs/",
-    'CHANGELOG_delta_2026-08-08_pipe_top_upstand_correction.md':
-        "dated delta cited by the recovered geometry spec; never carried into changelogs/",
-    'DEFECT_NOTE_script20_residual_field_2026-08-06.md':
-        "the DEFECT D1 note; substance now in INTERCEPTION_TREATMENT.md sec 4",
-    'DIAGNOSTIC_REPORT_script_26_cluster_assignment.md':
-        "script 26 cluster-assignment diagnostic",
     'FIGURE_LEDGER.md':
         "never written, not lost. ledgers/README.md lists it as **proposed** - "
         "'seed from tools/figure_table_manifest.csv and "
@@ -202,12 +204,6 @@ KNOWN_DANGLING = {
         "as a ledger to check. Do not search the disk: T-10's archive sweep matched "
         "two 13-byte members reading 'fixture body', which are that tool's own test "
         "fixtures. The close is to write the ledger, not to find it.",
-    'HANDOVER_c3_detrend_check.md':
-        "handover for script 28; also cited from PIPELINE_README",
-    'SPEC_script35_per_well_amplification_metric.md':
-        "spec for the amplification metric",
-    'SPEC_script37_scale_factor_regression_2026-07-06.md':
-        "spec for the driver-validation regression",
 }
 
 _CAND = re.compile(r"[A-Za-z0-9_][A-Za-z0-9_./\\-]*\.md\b")
@@ -334,6 +330,11 @@ def main():
         for m in _CAND.finditer(text):
             ref = m.group(0).replace("\\", "/")
             if ref in EXEMPT:
+                continue
+            # a claude/ path is a pointer into the Claude project store, a
+            # deliberately-external document surface, not a path in this repo
+            # (T-10, 2026-09-04). Handovers live there by design.
+            if ref.startswith("claude/"):
                 continue
             ls = text.rfind("\n", 0, m.start()) + 1
             le = text.find("\n", m.end())

@@ -49,7 +49,7 @@ SCHEMA (one dict per table)
                 {"source": alias, "key": key_col, "col": value_col,
                  "where": {col: value}} to pin the joined row further
       fmt       "text" | "int" | "fixed" | "pvalue" | "stars" | "map" |
-                "template" | "ci"
+                "template" | "ci" | "sum"
       dp        decimal places for fixed / pvalue / ci
       sign      True — fixed / ci render a leading "+" on positives
       map       {csv_value: template} for fmt "map"; the template is
@@ -57,7 +57,8 @@ SCHEMA (one dict per table)
       template  for fmt "template": str.format-ed over the row's fields, and a
                 NUMERIC spec formats the field as a number — "{lo:+.3f}",
                 "{d:,.0f} m", "{v:+.1f} ± {se:.1f}" — with the Unicode minus
-      cols      [lo, hi] for fmt "ci" -> "[lo, hi]" at dp places
+      cols      [lo, hi] for fmt "ci" -> "[lo, hi]" at dp places; for fmt
+                "sum" the columns to add, rendered as one total at dp places
       label     transpose only — the stub-column text of the row this spec makes
       re        [pattern, replacement] applied to the text after formatting,
                 or a list of such pairs applied in order
@@ -96,7 +97,10 @@ SCHEMA (one dict per table)
 """
 from __future__ import annotations
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-09-04. Batch 6: report9
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-09-04. Adds report9 Table 1.20
+#   (ODF Table18) from 25_03_cluster_partition.csv, using fmt "sum" for the
+#   climate + far-field column.
+# v1.4.0  # Hollingham (2026) — 2026-09-04. Batch 6: report9
 #   Tables 1.16, 1.17 and 1.18, now that Script 26 1.9.0 emits their sources
 #   (CHANGELOG 2026-09-04o). Table 1.17 is the first `transpose` entry (its
 #   CSV is one row per metric; the table shows metrics across) and its
@@ -622,6 +626,29 @@ TABLES = [
             # table_gen keeps the attribute equal to the text
             {"col": "n_wells_MSL5", "fmt": "int"},
             {"col": "n_wells_EWI",  "fmt": "int"},
+        ],
+    },
+    {
+        "id": "report9/Table18",
+        "doc": 9,
+        "table_name": "Table18",
+        "caption": "Table 1.20 - per-cluster decomposition of the summer-minimum decline "
+                   "under the forest-free linear-capped panel regression (Script 25)",
+        "sources": {"dec": "outputs/25_coastal_gradient/25_03_cluster_partition.csv"},
+        "rows": {"source": "dec"},
+        "header": ["Cluster", "n in fit", "Mean dist. to coast",
+                   "Observed, balanced (mm/yr)", "Climate + far-field (mm/yr)",
+                   "Coastal (mm/yr)", "Unexplained (mm/yr)"],
+        "columns": [
+            {"col": "cluster_label", "fmt": "text"},
+            {"col": "n_wells", "fmt": "int"},
+            {"fmt": "template", "template": "{mean_dist_coast_m:.0f} m"},
+            {"col": "observed_balanced_annual_mean_mm_yr", "fmt": "fixed", "dp": 2},
+            # identified climate + far-field component: a sum of two CSV columns
+            {"fmt": "sum", "cols": ["climate_cwb_mm_yr", "far_field_offset_mm_yr"],
+             "dp": 2, "sign": True},
+            {"col": "coastal_gradient_mm_yr", "fmt": "fixed", "dp": 2},
+            {"col": "unexplained_mm_yr", "fmt": "fixed", "dp": 2},
         ],
     },
 ]

@@ -25,6 +25,12 @@ quoted retreat rate in a submitted paper.
 
 ## Coastline — the D-060 retreat measurement
 
+> **⚠ Superseded 2026-08-29.** The four-epoch 2006 / 2012 / 2020 series in the
+> box below was re-digitised to **2006 / 2017 / 2021 / 2026** and
+> `coast2006`/`2012`/`2020.kml` withdrawn to `_superseded/` (D-087, D-089);
+> `DCoast_2015.kml` was deleted. The current control is `coast2006B_blind.kml`
+> (below). The 2026-08-28 box is kept as the dated record.
+>
 > **Settled position, 2026-08-28.** Everything below is closed except two
 > questions only Martin can answer (Google Earth imagery dates; the method
 > behind DCoast_2015.kml). In brief:
@@ -168,7 +174,7 @@ from *coast 112006*, *Coast 2432017*, *coast 442021*, *coast 3132026*.
 one. Its 1/1/2006 line is **the same imagery date** as the 2026-08-28
 `coast2006.kml`, traced on a different occasion, so the pair measures digitising
 repeatability directly: **median 1.71 m, exactly 0.00 m across the middle ~1 km,
-rising to ~9.7 m at the north end; 95th percentile of |offset| 10.78 m.** The
+rising to ~9.7 m at the north end; 95th percentile of |offset| 10.78 m.** *(Superseded — this pair is contaminated: 5 of the 14 vertices are shared, so the 0.00 m middle kilometre is zero by construction; a blind re-trace gives median 3.66 m, p95 11.23 — see the `coast2006B_blind.kml` control below, W83 / D-089.)* The
 operator reproduces his own line to under two metres through the middle of the
 frontage. Indicator drift is therefore not available as an explanation for
 anything at the tens-of-metres scale.

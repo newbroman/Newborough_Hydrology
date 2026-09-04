@@ -37,6 +37,11 @@ SCHEMA (one dict per table)
   header      the exact header-row cell texts. The engine REFUSES to touch a
               table whose header differs — it is the assertion that the table
               found by name is the table this entry describes.
+  transpose   True — the CSV is one row per displayed COLUMN (a table of
+              metrics across and statistics down). Each column spec becomes a
+              table ROW with its `label` in the stub column, and each CSV row
+              that survives the filter a table column, in CSV order; `header`
+              is then the stub heading followed by one cell per CSV row.
   columns     one spec per displayed column, in display order:
       col       CSV column of the row source
       lookup    (alias, key_col, value_col) — take value_col from the row of
@@ -53,7 +58,9 @@ SCHEMA (one dict per table)
                 NUMERIC spec formats the field as a number — "{lo:+.3f}",
                 "{d:,.0f} m", "{v:+.1f} ± {se:.1f}" — with the Unicode minus
       cols      [lo, hi] for fmt "ci" -> "[lo, hi]" at dp places
-      re        [pattern, replacement] applied to the text after formatting
+      label     transpose only — the stub-column text of the row this spec makes
+      re        [pattern, replacement] applied to the text after formatting,
+                or a list of such pairs applied in order
       rowspan   True — the cell is written once per run of equal values and
                 the continuation rows carry covered cells (a vertical merge)
       when      {col: value | [values]} — render the cell only on rows whose
@@ -64,6 +71,10 @@ SCHEMA (one dict per table)
                 column the table shows with the opposite sign to its CSV
   rows.filter   {col: value | [values]} — keep rows whose col is (in) the value
   rows.order    {"col": c, "values": [...]} — rows sorted by that list, stable
+
+  A cell LibreOffice has typed as a number carries an office:value attribute
+  beside its text; the engine reads it with the cell and keeps it equal to the
+  text it writes, so a config need not know which cells are typed.
 
   fixed, pvalue and int pass a NON-NUMERIC cell through unchanged: a source
   may carry "30 / 66", "—" or an already-rendered "<0.001", and the table
@@ -85,7 +96,15 @@ SCHEMA (one dict per table)
 """
 from __future__ import annotations
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-09-04. Batch 5: five more
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-09-04. Batch 6: report9
+#   Tables 1.16, 1.17 and 1.18, now that Script 26 1.9.0 emits their sources
+#   (CHANGELOG 2026-09-04o). Table 1.17 is the first `transpose` entry (its
+#   CSV is one row per metric; the table shows metrics across) and its
+#   "value [lo, hi]" cells are `template`s; Table 1.18 is the first table
+#   whose cells LibreOffice typed as numbers. Tables 1.14 and 1.20 remain
+#   unconfigured (no pipeline source for their cells).
+#
+# v1.3.0  # Hollingham (2026) — 2026-09-04. Batch 5: five more
 #   report9 tables (1.1, 1.2, 1.4c, 1.10, 1.15) — the span-wrapped and
 #   fragmented cells batch 2 set aside, now that table_gen 1.3.0 reads them.
 #   Uses the new `when` / `unless` / `else` and `scale` column options. Tables
@@ -541,6 +560,68 @@ TABLES = [
                      "2": "Oct–Feb ({horizon_n_months} mo)"}},
             {"fmt": "template", "template": "{slope_A:.2f}·d + {intercept_B:.2f}"},   # PRECISION: 2 dp as published
             {"col": "P_clim_mm", "fmt": "fixed", "dp": 0},   # PRECISION: 0 dp as published (mm)
+        ],
+    },
+    # ── 2026-09-04 batch 6: report9 Tables 1.16, 1.17, 1.18 (Script 26 1.9.0) ──
+    {
+        "id": "report9/Table19",
+        "doc": 9,
+        "table_name": "Table19",
+        "caption": "Table 1.16 — cluster-mean MSL5 at the latest window-end, with counts of "
+                   "window-ends below the SD15b / SD16 thresholds (Script 26)",
+        "sources": {"th": "outputs/26_van_willegen_msl/26_msl_5yr_cluster_threshold_summary.csv"},
+        "rows": {"source": "th"},
+        # the header hard-types the window-end year the CSV carries as
+        # window_end_current: a later window-end fails this assertion rather
+        # than refreshing the cells under a stale "(2025)"
+        "header": ["Cluster", "n wells (2025)", "Current MSL5 (m)", "below SD15b", "below SD16"],
+        "columns": [
+            {"col": "cluster_label", "fmt": "text", "re": [r"^(C\d) \((.+)\)$", r"\1 \2"]},   # "C4 (Main Forest)" -> "C4 Main Forest"
+            {"col": "n_wells_current",       "fmt": "int"},
+            {"col": "MSL5_current_m_bg",     "fmt": "fixed", "dp": 3},
+            {"col": "n_windows_below_SD15b", "fmt": "int"},
+            {"col": "n_windows_below_SD16",  "fmt": "int"},
+        ],
+    },
+    {
+        "id": "report9/T140087",
+        "doc": 9,
+        "table_name": "T140087",
+        "caption": "Table 1.17 — between-well prediction of mean Ellenberg-F by observed MSL5 "
+                   "and by the equilibrium wetness index (Script 26)",
+        "sources": {"ebf": "outputs/26_van_willegen_msl/26_ebf_prediction_summary.csv"},
+        # the CSV is one row per METRIC and the table shows metrics ACROSS with
+        # the statistics down, so it is transposed: each column spec below is a
+        # table row (its `label` the stub cell) and each surviving CSV row a
+        # table column. EWI_spring is not shown — the table carries the annual
+        # basis adopted in Section 3.7.6.
+        "rows": {"source": "ebf", "filter": {"metric": ["MSL5", "EWI_annual"]}},
+        "transpose": True,
+        "header": ["", "MSL5", "Equilibrium wetness index "],   # the trailing space is as typed
+        "columns": [
+            {"label": "r [95% CI]", "fmt": "template",
+             "template": "{pearson_r:+.2f} [{r_ci_lo:.2f}, {r_ci_hi:.2f}]"},           # PRECISION: 2 dp as published
+            {"label": "RMSE (Ellenberg-F units)", "fmt": "template",
+             "template": "{rmse_ebf:.3f} [{rmse_ci_lo:.2f}, {rmse_ci_hi:.2f}]"},       # PRECISION: CI bounds at 2 dp as published
+        ],
+    },
+    {
+        "id": "report9/T140087_1",
+        "doc": 9,
+        "table_name": "T140087_1",
+        "caption": "Table 1.18 — Ellenberg-F prediction accuracy by match band, MSL5 versus "
+                   "the equilibrium wetness index (Script 26)",
+        "sources": {"bd": "outputs/26_van_willegen_msl/26_ebf_band_summary.csv"},
+        "rows": {"source": "bd"},
+        "header": ["Match band", "Absolute error (Ellenberg-F units)", "MSL5 (wells)", "EWI (wells)"],
+        "columns": [
+            {"col": "band_label", "fmt": "text", "re": [r"^(\w) \((.+)\)$", r"\1 — \2"]},   # "A (excellent)" -> "A — excellent"
+            {"col": "abs_error_ebf_range", "fmt": "text",
+             "re": [[r"^<= ", "≤ "], [r"^(\d\.\d+)-(\d\.\d+)$", r"\1–\2"]]},     # "<= 0.15" -> "≤ 0.15"; "0.15-0.30" -> en dash
+            # the count cells are typed as numbers in the ODT (office:value);
+            # table_gen keeps the attribute equal to the text
+            {"col": "n_wells_MSL5", "fmt": "int"},
+            {"col": "n_wells_EWI",  "fmt": "int"},
         ],
     },
 ]

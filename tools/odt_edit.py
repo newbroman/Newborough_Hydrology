@@ -52,7 +52,15 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-08-23. Adds insert_figure(),
+__version__ = "1.4.1"  # Hollingham (2026) — 2026-09-04. edit_spans() gains
+#   allow_tag_change (default False, so every existing caller is unchanged),
+#   the parameter edit() has always had. table_gen 1.4.0 needs it for ONE
+#   tag change — the office:value attribute of a cell LibreOffice typed as a
+#   number, which must follow the text the cell shows — and proves before
+#   calling that nothing else in the tag sequence moves; the shared guards
+#   (declared styles, span delta, em-space) then apply here as in edit().
+#
+# v1.4.0  # Hollingham (2026) — 2026-08-23. Adds insert_figure(),
 #   which embeds a captioned, auto-numbered figure. A figure is three coordinated
 #   changes to different parts of the package — a new Pictures/ entry, a
 #   META-INF/manifest.xml declaration, and draw:frame markup in content.xml — and
@@ -187,14 +195,18 @@ def _write(src, dst, xml: str, zin, names) -> bool:
     return True
 
 
-def edit_spans(src, dst, spans, expect: int) -> bool:
+def edit_spans(src, dst, spans, expect: int,
+               allow_tag_change: bool = False) -> bool:
     """Replace content.xml character ranges. spans = [(start, end, new_text)].
 
     For callers that located occurrences by POSITION rather than by literal
     string — renaming one sense of a glyph while leaving the glyph's other
     senses alone, where the same three characters must change in one place and
     not in the next. Ranges must not overlap; they are applied last-first so
-    earlier offsets stay valid.
+    earlier offsets stay valid. allow_tag_change is as in edit(): off, the tag
+    sequence must be byte-identical; on, the style and span-delta guards apply
+    instead. A caller that sets it should have proved its own, narrower
+    invariant first (table_gen masks office:value and requires identity).
     """
     src, dst = pathlib.Path(src), pathlib.Path(dst)
     zin = zipfile.ZipFile(src)
@@ -214,7 +226,7 @@ def edit_spans(src, dst, spans, expect: int) -> bool:
     for start, end, new in reversed(spans):
         xml = xml[:start] + new + xml[end:]
     print(f"  {len(spans)}x  span replacement(s) in {src.name}")
-    if not _guards(orig_xml, xml, zin, src.name, allow_tag_change=False):
+    if not _guards(orig_xml, xml, zin, src.name, allow_tag_change):
         zin.close(); return False
     ok = _write(src, dst, xml, zin, names)
     zin.close()

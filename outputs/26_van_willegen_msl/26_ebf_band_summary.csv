@@ -1,0 +1,5 @@
+band,band_label,abs_error_ebf_range,n_wells_MSL5,n_wells_EWI
+A,A (excellent),<= 0.15,4,5
+B,B (good),0.15-0.30,7,7
+C,C (moderate),0.30-0.50,5,2
+D,D (poor),> 0.50,2,4

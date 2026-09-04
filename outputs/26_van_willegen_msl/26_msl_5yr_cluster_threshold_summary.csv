@@ -1,0 +1,6 @@
+cluster_id,cluster_label,window_start,window_end_current,n_windows,n_wells_current,MSL5_current_m_bg,n_windows_below_SD15b,n_windows_below_SD16
+1,C1 (Lake Edge),2014,2025,12,8,-0.28904371584699456,0,0
+2,C2 (Dune),2014,2025,12,26,-0.34116939890710385,0,0
+3,C3 (Western Residual),2014,2025,12,22,-0.5717511177347243,10,0
+4,C4 (Main Forest),2014,2025,12,9,-0.8837777777777778,12,10
+5,C5 (Coastal Forest),2014,2025,12,9,-1.2182592592592594,12,12

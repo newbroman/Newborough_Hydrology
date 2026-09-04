@@ -25,7 +25,12 @@ WHAT IT DOES, EXACTLY
      is re-typed): the display text is the runs joined, a write goes into
      the first non-empty run and blanks the rest. A cell holding any other
      element is reported and the table is refused, rather than guessed at.
-  4. Builds the expected grid from the CSV rows, cell by cell, and diffs.
+     A cell LibreOffice typed as a number (`office:value-type="float"
+     office:value="6"`) is read with that attribute, and a write keeps the
+     attribute equal to the text it shows.
+  4. Builds the expected grid from the CSV rows, cell by cell, and diffs. A
+     `transpose` table turns the grid: each CSV row is a table COLUMN and
+     each column spec a table ROW, labelled by the spec's `label`.
   5. `--check`: prints the drift and exits non-zero if any cell differs.
      `--write`: replaces the differing cells through `odt_edit.edit_spans`,
      which keeps the tag sequence byte-identical, refuses an em-space, and
@@ -49,7 +54,25 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-09-04. Cell vocabulary.
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-09-04. Transposed tables,
+#   numeric cells, chained `re`. (1) `transpose: True` on a table whose CSV is
+#   one row per displayed COLUMN (Table 1.17: one row per metric, the table
+#   shows metrics across and statistics down): each column spec becomes a
+#   table row with its `label` in the stub column, each surviving CSV row a
+#   table column, and the header is asserted as before. (2) A cell LibreOffice
+#   has typed as a number carries `office:value="6"` beside its text (Table
+#   1.18's counts). LibreOffice displays the TEXT and drops the attribute on
+#   its next save (measured on a mini ODT, 2026-09-04), so a stale value is
+#   harmless to the reader — but a file this tool has written must not carry
+#   a number that contradicts the number it shows. The attribute is read with
+#   the cell, reported as drift when it disagrees, and rewritten with the
+#   text; because that changes a TAG, the write goes through odt_edit with
+#   allow_tag_change and its own stricter guard here: the tag sequence must be
+#   byte-identical once `office:value="…"` is masked. A non-numeric text into
+#   a numeric cell refuses. (3) `re` may be a LIST of [pattern, replacement]
+#   pairs, applied in order, for a label needing two glyph substitutions.
+#
+# v1.3.0  # Hollingham (2026) — 2026-09-04. Cell vocabulary.
 #   A data cell may now be a <text:p> whose content is text nodes and
 #   <text:span> tags ONLY — the shape LibreOffice leaves behind after a cell is
 #   re-typed (a "−0.04" run followed by a span holding "6", or a value wrapped
@@ -118,6 +141,7 @@ _PLAIN_P = re.compile(r"^<text:p\b[^>]*>([^<]*)</text:p>$", re.S)
 # LibreOffice leaves behind when a value is re-typed. Anything else refuses.
 _SPAN_P = re.compile(r"^<text:p\b[^>]*>((?:[^<]|<text:span\b[^>]*>|</text:span>)*)</text:p>$", re.S)
 _EMPTY_P = re.compile(r"^<text:p\b[^>]*/>$")
+_VALUE_ATTR = re.compile(r'\boffice:value="([^"]*)"')
 
 
 # ── rendering ────────────────────────────────────────────────────────────────
@@ -213,8 +237,11 @@ def render(spec: dict, row: dict, sources: dict) -> str:
         raise ValueError(f"unknown fmt {fmt!r}")
 
     if "re" in spec:
-        pat, rep = spec["re"]
-        text = re.sub(pat, rep, text)
+        pairs = spec["re"]
+        if pairs and isinstance(pairs[0], str):   # a single [pattern, replacement]
+            pairs = [pairs]
+        for pat, rep in pairs:
+            text = re.sub(pat, rep, text)
     return text
 
 
@@ -238,6 +265,16 @@ def expected_grid(cfg: dict) -> list[list[str | None]]:
         rows = sorted(rows, key=lambda r: values.index(r[col]))
 
     grid = [[render(spec, r, sources) for spec in cfg["columns"]] for r in rows]
+    if cfg.get("transpose"):
+        # one table ROW per column spec, its `label` in the stub column; one
+        # table COLUMN per CSV row. A vertical merge has no meaning here.
+        if any(spec.get("rowspan") for spec in cfg["columns"]):
+            raise ValueError("transpose and rowspan do not combine")
+        missing = [i for i, spec in enumerate(cfg["columns"]) if "label" not in spec]
+        if missing:
+            raise ValueError(f"transpose: column spec(s) {missing} carry no `label`")
+        return [[spec["label"]] + [row_cells[i] for row_cells in grid]
+                for i, spec in enumerate(cfg["columns"])]
     for j, spec in enumerate(cfg["columns"]):
         if not spec.get("rowspan"):
             continue
@@ -277,13 +314,16 @@ def _cell_nodes(inner: str, base: int):
 def read_cells(xml: str, start: int, end: int):
     """[(row_index, [cell | None]), ...] — None for a covered cell.
 
-    A cell is (abs_start, abs_end, text, extras): the text node a write goes
-    into, the cell's DISPLAY text (every text node joined, XML-escaped as in
-    the file), and the other non-empty text nodes [(abs_start, abs_end)] that
-    a write must blank so the display text is the written text alone. A plain
-    cell has no extras. Offsets address text inside the cell's <text:p>. An
-    empty self-closing <text:p/> reads as "" with offsets -1: it can be left
-    blank but never written into (that would change the tag sequence)."""
+    A cell is (abs_start, abs_end, text, extras, value): the text node a write
+    goes into, the cell's DISPLAY text (every text node joined, XML-escaped as
+    in the file), the other non-empty text nodes [(abs_start, abs_end)] that
+    a write must blank so the display text is the written text alone, and the
+    cell's `office:value` attribute as (abs_start, abs_end, current) when
+    LibreOffice has typed the cell as a number, else None. A plain cell has no
+    extras. Offsets address text inside the cell's <text:p>, or the attribute
+    value inside the <table:table-cell> tag. An empty self-closing <text:p/>
+    reads as "" with offsets -1: it can be left blank but never written into
+    (that would change the tag sequence)."""
     if xml.count("<table:table ", start, end) > 1:
         raise ValueError("nested table")
     out = []
@@ -298,13 +338,18 @@ def read_cells(xml: str, start: int, end: int):
                 raise ValueError(f"row {ri} cell {len(cells)}: empty self-closing "
                                  f"cell, no text node to write into")
             base = rm.start(1) + cm.start(1)
+            open_tag = cm.group(0)[:cm.group(0).index(">") + 1]
+            am = _VALUE_ATTR.search(open_tag)
+            value = ((rm.start(1) + cm.start() + am.start(1),
+                      rm.start(1) + cm.start() + am.end(1), am.group(1))
+                     if am else None)
             if _EMPTY_P.match(inner):      # <text:p .../>: reads as "", takes no text
-                cells.append((-1, -1, "", []))
+                cells.append((-1, -1, "", [], value))
                 continue
             pm = _PLAIN_P.match(inner)
             if pm:
                 a = base + pm.start(1)
-                cells.append((a, a + len(pm.group(1)), pm.group(1), []))
+                cells.append((a, a + len(pm.group(1)), pm.group(1), [], value))
                 continue
             nodes = _cell_nodes(inner, base)
             if nodes is None:
@@ -322,13 +367,26 @@ def read_cells(xml: str, start: int, end: int):
                     depth += 1
                 primary, extras = nodes[max(depth - 1, 0)], []
             cells.append((primary[0], primary[1],
-                          "".join(n[2] for n in nodes), extras))
+                          "".join(n[2] for n in nodes), extras, value))
         out.append((ri, cells))
     return out
 
 
+def _attr_value(text: str) -> str:
+    """The `office:value` form of a rendered cell: ASCII minus, no separators.
+    LibreOffice writes the number the cell shows; so does this."""
+    raw = text.replace(MINUS, "-").replace(",", "").strip()
+    if not _is_num(raw):
+        raise ValueError(f"{text!r} is not a number, and the cell is typed as one")
+    return raw
+
+
 def plan(cfg: dict, xml: str):
-    """Compare the ODT table with the CSV. Returns (cells, drift, spans_all)."""
+    """Compare the ODT table with the CSV.
+
+    Returns (cells, drift, spans_all, attr_starts): the data-cell count, the
+    differing cells, one (write group, differs) per cell, and the start
+    offsets of the office:value attribute writes among those groups."""
     s, e = locate_table(xml, cfg["table_name"])
     rows = read_cells(xml, s, e)
     header = [unescape(c[2]) if c else None for c in rows[0][1]]
@@ -338,7 +396,7 @@ def plan(cfg: dict, xml: str):
     grid = expected_grid(cfg)
     if len(data) != len(grid):
         raise ValueError(f"{len(data)} data row(s) in the ODT, {len(grid)} from the CSV")
-    drift, writes_all, n_cells = [], [], 0
+    drift, writes_all, n_cells, attr_starts = [], [], 0, set()
     for (ri, cells), exp_row in zip(data, grid):
         if len(cells) != len(exp_row):
             raise ValueError(f"row {ri}: {len(cells)} cell(s) in the ODT, "
@@ -360,11 +418,28 @@ def plan(cfg: dict, xml: str):
                 continue
             # one write group per cell: the value, plus a blank for every
             # other text node the cell's display text was spread across
-            writes_all.append(([(cell[0], cell[1], new)]
-                               + [(a, b, "") for a, b in cell[3]], differs))
+            group = [(cell[0], cell[1], new)] + [(a, b, "") for a, b in cell[3]]
             if differs:
                 drift.append((ri, ci, unescape(cell[2]), exp))
-    return n_cells, drift, writes_all
+            if cell[4] is not None:        # a numeric cell: office:value = the text
+                try:
+                    want = _attr_value(exp)
+                except ValueError as exc:
+                    raise ValueError(f"row {ri} col {ci}: {exc}") from None
+                group.append((cell[4][0], cell[4][1], want))
+                attr_starts.add(cell[4][0])
+                if cell[4][2] != want:
+                    differs = True
+                    drift.append((ri, ci, f'office:value="{cell[4][2]}"',
+                                  f'office:value="{want}"'))
+            writes_all.append((group, differs))
+    return n_cells, drift, writes_all, attr_starts
+
+
+def _tags_masked(xml: str) -> list[str]:
+    """The tag sequence with every office:value blanked — what must be
+    byte-identical across a write that follows a numeric cell's attribute."""
+    return re.findall(r"<[^>]+>", _VALUE_ATTR.sub('office:value=""', xml))
 
 
 # ── documents ────────────────────────────────────────────────────────────────
@@ -408,13 +483,14 @@ def run(cfg: dict, write: bool, force: bool, out: pathlib.Path | None,
         xml = z.read("content.xml").decode("utf-8")
     print(f"{cfg['id']}  ({cfg['caption']})  <- {rel(src)}")
     try:
-        n_cells, drift, spans_all = plan(cfg, xml)
+        n_cells, drift, spans_all, attr_starts = plan(cfg, xml)
     except (ValueError, LookupError) as exc:
         print(f"  REFUSED: {exc}")
         return 2
     for ri, ci, old, new in drift:
         print(f"  DRIFT row {ri} col {ci}: {old!r} -> {new!r}")
-    print(f"  {n_cells} data cell(s) read; {len(drift)} differ from the CSV")
+    n_differ = sum(1 for _, d in spans_all if d)     # cells, not drift lines
+    print(f"  {n_cells} data cell(s) read; {n_differ} differ from the CSV")
 
     if not write:
         return 1 if drift else 0
@@ -433,11 +509,23 @@ def run(cfg: dict, write: bool, force: bool, out: pathlib.Path | None,
         bak = BACKUP_DIR / f"{src.name}.{time.strftime('%Y%m%d-%H%M%S')}.bak"
         shutil.copyfile(src, bak)
         print(f"  backup: {rel(bak)}")
-    ok = edit_spans(src, dst, spans, expect=len(spans))
+    # A numeric cell's office:value lives in a TAG. Rewriting it is the one
+    # tag change this tool makes, so it is allowed through odt_edit only
+    # after proving here that nothing else in the tag sequence moves.
+    allow = any(a in attr_starts for a, _, _ in spans)
+    if allow:
+        trial = xml
+        for a, b, new in sorted(spans, reverse=True):
+            trial = trial[:a] + new + trial[b:]
+        if _tags_masked(trial) != _tags_masked(xml):
+            print("  REFUSED: a write would change the tag sequence beyond "
+                  "office:value attributes")
+            return 2
+    ok = edit_spans(src, dst, spans, expect=len(spans), allow_tag_change=allow)
     if not ok:
         return 2
     n_changed = sum(1 for _, d in spans_all if d or force)
-    print(f"  wrote {n_changed} cell(s) ({len(spans)} text node(s)) -> {rel(dst)}")
+    print(f"  wrote {n_changed} cell(s) ({len(spans)} replacement(s)) -> {rel(dst)}")
     if dst == src:
         print("  (mirror now stale: run refresh_mirrors.py --only)")
     elif versioned and out is None:

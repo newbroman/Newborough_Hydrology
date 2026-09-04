@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_107.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_108.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 1.9.107 (September 2026).
+Document version: 1.9.108 (September 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -1608,11 +1608,11 @@ The reason for Variant B is that FE1 sits approximately 20 m outside the clearfe
 
   ---------------------- --------- ----------- --------------- ----------
   Variant                Zone      Step (mm)   95% CI          p
-  A (WMC3 + FE1 + FE2)   Forest    +80         \[+34, +126\]   \< 0.001
-  A                      Climate   −58         \[−118, +2\]    0.062
-  B (WMC3 + FE2)         Forest    +97         \[+38, +156\]   0.002
-  B                      Climate   −36         \[−90, +17\]    0.188
-  C (WMC3)               Forest    +113        \[+42, +183\]   0.002
+  A (WMC3 + FE1 + FE2)   Forest    +80         \[+34, +127\]   \< 0.001
+  A                      Climate   −58         \[−119, +2\]    0.060
+  B (WMC3 + FE2)         Forest    +97         \[+38, +157\]   0.002
+  B                      Climate   −37         \[−90, +17\]    0.184
+  C (WMC3)               Forest    +113        \[+42, +184\]   0.002
   ---------------------- --------- ----------- --------------- ----------
 
 Variant C (WMC3-only) is the headline result for the impact tier; it reproduces 10a's Forest-control Impact step (+113 mm, p = 0.002) and is the form quoted as the chapter's primary impact-zone estimate. Variants A and B are robustness checks built on synthetic pre-clearfell baselines for FE1 and FE2 via donor regression on Forest Control wells. Variant B is a two-well centroid (WMC3 at the compartment edge; FE2 inside the compartment) against forested controls, returning a Forest-control step of +97 mm, p = 0.002. Variant A (which adds FE1) gives +80 mm, p \< 0.001 against the Forest control; the script reports it but does not recommend it as a robustness anchor because FE1 sits in standing forest outside the clearfell boundary.
@@ -2848,7 +2848,7 @@ The β₃ drainage term does not appear. This is not an oversight. The formulati
 
 **The synthetic mean-year hydrograph.** For script figure 21-01 (*OUT_21_HYDROGRAPH*), the scenario Δh vectors are added to the observed C4 mean monthly depth-below-ground cycle, which is computed from the *03_regional_averages_maod.csv* cluster-mean head series referenced to the C4-mean DEM elevation. The result is four 12-month hydrographs --- Corsican pine baseline (observed), full clearfell (observed + Δh_cf), 50 % thinning (observed + Δh_thin), and broadleaf conversion (observed + Δh_bl). They are plotted on a single axis with the wet-slack winter threshold SD15b and the dry-slack summer threshold SD16 (Curreli et al., 2013) drawn for reference, along with the C1 and C2 observed cycles as spatial context. From Script 21 v1.2.0 the figure is accompanied by a companion data file (*21_forestry_01_hydrograph.csv*, *OUT_21_HYDROGRAPH_CSV*) so the scenario separations can be cited from a pipeline output rather than read off the figure. It carries the plotted monthly depths for every line in tidy long format, and a trough/separation summary that reports each series' deepest month, its separation from the observed C4 baseline at the baseline trough month, and the largest Jun--Sep summer separation with the month it occurs. The two-anchor design is deliberate: the scenario shifts move the deepest month --- the observed baseline troughs one month later than the shifted scenarios --- so a single unqualified "trough separation" would be ambiguous.
 
-The BACI-observed clearfell displacement is overlaid as a benchmark band: a horizontal shift applied to the C4 baseline that brackets the empirical post-2018 displacement at the Forest Impact well WMC3 (and at the wider Edge tier; chapter S.7 has the full BACI account). On the live pipeline data the ANCOVA Forest-Impact clearfell step is +0.113 m annual (95 % CI \[+0.042, +0.183\], p = 0.002, N = 163 months). The summer BACI benchmark band is the clearfell step from a Jun--Sep refit of the Script 10a ANCOVA specification, fit on N = 52 months under the same model terms as the annual headline: intercept, climate-water-balance covariate, distance-weighted scraping, clearfell dummy, CWB × clearfell interaction, and the coastal-drift term. The directly-fitted summer step is +0.050 m (95 % CI \[−0.068, +0.168\], p = 0.41, R² = 0.314) --- not significant at conventional thresholds against the Jun--Sep subsample. A CWB-dropped sensitivity variant (+0.123 m, p = 0.058) is emitted to *10a_report_numbers.csv* as *ANCOVA_Forest_Impact_clearfell_step_summer_noCWB*; the full specification is preferred on ΔAIC grounds. The annual headline is the durable BACI-observed clearfell signal; the summer step corroborates the direction but is not retained as a separate statistical claim. This whole construct replaces an earlier arithmetic construct (BACI_ANNUAL × 1.5034) preserved transiently as a fallback in Script 21 v1.0.2 and removed in v1.0.3; the legacy construct is documented as Defect 14 in the project flags log. The chapter writes the headline as displacement towards ground (water table closer to surface = positive in the script's convention).
+The BACI-observed clearfell displacement is overlaid as a benchmark band: a horizontal shift applied to the C4 baseline that brackets the empirical post-2018 displacement at the Forest Impact well WMC3 (and at the wider Edge tier; chapter S.7 has the full BACI account). On the live pipeline data the ANCOVA Forest-Impact clearfell step is +0.113 m annual (95 % CI \[+0.042, +0.184\], p = 0.002, N = 163 months). The summer BACI benchmark band is the clearfell step from a Jun--Sep refit of the Script 10a ANCOVA specification, fit on N = 52 months under the same model terms as the annual headline: intercept, climate-water-balance covariate, distance-weighted scraping, clearfell dummy, CWB × clearfell interaction, and the coastal-drift term. The directly-fitted summer step is +0.050 m (95 % CI \[−0.068, +0.168\], p = 0.41, R² = 0.314) --- not significant at conventional thresholds against the Jun--Sep subsample. A CWB-dropped sensitivity variant (+0.123 m, p = 0.058) is emitted to *10a_report_numbers.csv* as *ANCOVA_Forest_Impact_clearfell_step_summer_noCWB*; the full specification is preferred on ΔAIC grounds. The annual headline is the durable BACI-observed clearfell signal; the summer step corroborates the direction but is not retained as a separate statistical claim. This whole construct replaces an earlier arithmetic construct (BACI_ANNUAL × 1.5034) preserved transiently as a fallback in Script 21 v1.0.2 and removed in v1.0.3; the legacy construct is documented as Defect 14 in the project flags log. The chapter writes the headline as displacement towards ground (water table closer to surface = positive in the script's convention).
 
 **The broadleaf monthly β₂ profile (canonical).** Broadleaf conversion is the one scenario where β₂ varies through the year. Deciduous phenology --- bare in winter, full canopy in summer --- gives lower transpirative draw than evergreen pine when leaves are off and higher draw at peak LAI. The canonical 12-month profile is defined directly in *build_scenarios()*:
 

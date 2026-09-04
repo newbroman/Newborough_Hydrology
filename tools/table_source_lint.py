@@ -18,8 +18,12 @@ for that (document, number), and that declaration must not be blank. It would
 have caught the report9 1.16-1.20 off-by-one on its first run.
 
 Configs whose caption carries no "Table N.M" number (the Methods Supplement
-tables, captioned by name) are reported as not-cross-checked, not failed: their
-identity is the ms document plus name, outside the number-shift this gate guards.
+tables, captioned by name) have their identity in the ms document plus the ODF
+table name (D-128), outside the number-shift this gate guards. Since 2026-09-04
+they are cross-checked on THAT key: the map row's document is the config's
+`doc` glob basename ("Newborough_Methods_Supplement_v*.odt") and its number
+the ODF `table_name`, so the declaration of record is complete for every
+configured table and the config and the map cannot disagree about a source.
 """
 from __future__ import annotations
 import csv
@@ -37,12 +41,12 @@ _NUM = re.compile(r"Table\s+(\d+\.\d+)")
 
 
 def _document(doc):
-    """Config 'doc' -> the document name figure_table_sources uses, or None
-    when the config names the document by glob (the Methods Supplement), which
-    this number-keyed gate does not cross-check."""
+    """Config 'doc' -> the document name figure_table_sources uses: reportN.odt
+    for a chapter, the glob's basename for a versioned document (the Methods
+    Supplement's rows are keyed "Newborough_Methods_Supplement_v*.odt")."""
     if isinstance(doc, int):
         return f"report{doc}.odt"
-    return None
+    return os.path.basename(doc)
 
 
 def _load_map():
@@ -70,10 +74,13 @@ def main() -> int:
         srcs = t.get("sources", {})
         primary = srcs.get(src_alias) if src_alias else next(iter(srcs.values()), None)
         pbase = os.path.basename(primary) if primary else None
-        if doc is None or not mnum:
+        if mnum:
+            num = mnum.group(1)
+        elif isinstance(t.get("doc"), str):    # versioned, captioned by name: key on the ODF name
+            num = t["table_name"]
+        else:
             skipped.append(t["id"])
             continue
-        num = mnum.group(1)
         declared = fts.get((doc, num))
         if not declared:
             fails.append(f"{t['id']}: no non-blank source in figure_table_sources.csv "
@@ -86,7 +93,7 @@ def main() -> int:
     for line in fails:
         print(f"  FAIL  {line}")
     if skipped:
-        print(f"  (not cross-checked, caption carries no 'Table N.M': {', '.join(skipped)})")
+        print(f"  (not cross-checked, chapter caption carries no 'Table N.M': {', '.join(skipped)})")
     print(f"table_source_lint: {ok} table(s) agree; {len(fails)} mismatch(es); "
           f"{len(skipped)} not cross-checked")
     return 1 if fails else 0

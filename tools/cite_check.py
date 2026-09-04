@@ -1329,6 +1329,7 @@ LARGE_VALUE_MIN = 100.0
 # header that the April text is preserved wherever it still holds.
 HISTORY_DOCS = ("DECISION_LOG.md", "NUMBER_LEDGER.md",
                 "SCRIPT_LEDGER.md", "FIGURE_LEDGER.md",
+                "TABLE_LEDGER.md", "DOC_LEDGER.md",
                 "PARTITION_HISTORY.md")
 
 # Kept as an alias: the spread check reads this name, and the two exclusions are

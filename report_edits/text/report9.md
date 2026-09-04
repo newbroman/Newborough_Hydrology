@@ -347,7 +347,7 @@ The Climate-control models --- which contrast the felled wells against the unfor
 ****The ANCOVA-BACI model (Section 3.5.4) was run three times with different control centroids (Table 7).****
 
   ---------- -------- -------- -------------------- --------- -------- -------- --------- ------- -----
-  Forest     Impact   +0.113   \[+0.042, +0.183\]   0.002     \*\*     +0.324   0.004     0.241   163
+  Forest     Impact   +0.113   \[+0.042, +0.184\]   0.002     \*\*     +0.324   0.004     0.241   163
   Forest     Edge     +0.030   \[−0.021, +0.080\]   0.249     ns       +0.569   \<0.001   0.457   159
   Climate    Impact   −0.015   \[−0.063, +0.034\]   0.555     ns       +0.028   0.814     0.206   147
   Climate    Edge     −0.107   \[−0.167, −0.046\]   \<0.001   \*\*\*   +0.289   0.456     0.241   144
@@ -377,7 +377,7 @@ The coastal-drift covariate in Table 7\'s ANCOVA design absorbs progressive dive
   Climate     Impact   −0.94    −7.714    3.307    0.021     +7.3 ± 3.1
   Climate     Edge     +0.26    +45.671   15.208   0.003     +11.9 ± 4.0
   Far-field   Impact   −13.10   −1.508    0.613    0.015     +19.8 ± 8.0
-  Far-field   Edge     −11.89   −1.984    0.756    0.010     +23.6 ± 9.0
+  Far-field   Edge     −11.89   −1.984    0.756    0.009     +23.6 ± 9.0
   ----------- -------- -------- --------- -------- --------- -------------
 
 **Table : ** The coastal-drift term fitted in each ANCOVA contrast (Section 4.6.3). ξ is the amplitude of the network-scale coastal gradient that each target-minus-control contrast feels, and is dimensionless: ξ = 1 is exactly the field fitted independently in Section 4.10.2. The absorbed differential is ξ × the tier\'s coastal differential (mm yr⁻¹), with ±1 SE propagated from the coefficient SE. Because the covariate is the fitted gradient field itself, the comparison with the model prediction is an internal consistency check rather than independent corroboration: it asks, in effect, whether ξ = 1. It is a drift control, not a measurement of a spatial gradient. (Source: 25_04_baci_corroboration.csv)

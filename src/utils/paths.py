@@ -1118,6 +1118,9 @@ OUT_26_EWI_MSL5_COMPARISON = DIR_26 / "26_ewi_msl5_comparison.csv"
 # external Ellenberg dataset (DATA_ELLENBERG_EXT); skipped if that file is absent.
 OUT_26_EBF_COMPARISON     = DIR_26 / "26_ebf_comparison.csv"
 OUT_26_EBF_SCATTER        = DIR_26 / "26_ebf_prediction_scatter.png"
+OUT_26_MSL5_THRESHOLD_SUMMARY = DIR_26 / "26_msl_5yr_cluster_threshold_summary.csv"
+OUT_26_EBF_PREDICTION_SUMMARY = DIR_26 / "26_ebf_prediction_summary.csv"
+OUT_26_EBF_BAND_SUMMARY       = DIR_26 / "26_ebf_band_summary.csv"
 # Metric diagnostics (v1.4.0) — window sensitivity of MSL5 and the precision of
 # the two indices, per well and rolled up per cluster. Supplies the cited
 # statistics for report §4.8.6 / §6.9 (spring autocorrelation, interannual

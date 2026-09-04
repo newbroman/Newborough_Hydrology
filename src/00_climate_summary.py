@@ -60,7 +60,7 @@ from utils.paths import (
 )
 from utils.report_numbers_utils import ReportNumbers
 from utils.paths import OUT_00_PET_WARMING
-from utils.config import REFERENCE_CUTOFF_DATE
+from utils.config import REFERENCE_CUTOFF_DATE, CLEARFELL_DATE_ISO
 from utils.render_utils import render_figure
 
 import pandas as pd
@@ -71,7 +71,14 @@ import re
 import os
 from scipy.stats import linregress
 
-__version__ = "1.4.1"  # Hollingham (2026) -- 2026-08-18. Store-time rounding
+__version__ = "1.5.0"  # Hollingham (2026) -- 2026-09-04. Emits pre- and
+#   post-clearfell mean annual rainfall (mean_annual_rain_pre_felling /
+#   _post_felling / rain_pre_post_felling_diff) to 00_report_numbers.csv so
+#   report9 section 4.1's 887/896 mm either side of the December 2017 fell trace
+#   to a committed CSV, not a hand mean of the annual table. Complete
+#   well-record years only; split derived from config.CLEARFELL_DATE_ISO. See
+#   CHANGELOG_delta 2026-09-04o.
+# v1.4.1  # Hollingham (2026) -- 2026-08-18. Store-time rounding
 #   removed from make_figure3_summer_warming's stats rows (D-035); Script 00
 #   was outside the original sweep. Emits the PET response
 #   to warming (00_05 and four report numbers). Thornthwaite carries the heat
@@ -922,6 +929,24 @@ def _run_all() -> None:
         rr.add(f"trend_annual_rain_{_w}_t", _r["t"], unit="", era=_r["era"],
                note=f"t-statistic of trend_annual_rain_{_w}")
 
+    # Pre- vs post-clearfell mean annual rainfall (well record, complete years),
+    # so report section 4.1's "no rainfall difference either side of the fell" is
+    # traceable rather than a hand mean of the annual table.
+    _fsr = felling_split_rainfall_context(table1_short, int(CLEARFELL_DATE_ISO[:4]))
+    rr.add("mean_annual_rain_pre_felling", _fsr["pre_mean"], unit="mm",
+           era=_fsr["pre_era"],
+           note=f"mean annual precipitation over complete well-record years up "
+                f"to and including the {_fsr['clearfell_year']} clearfell "
+                f"(n={_fsr['pre_n']}); split derived from config.CLEARFELL_DATE_ISO.")
+    rr.add("mean_annual_rain_post_felling", _fsr["post_mean"], unit="mm",
+           era=_fsr["post_era"],
+           note=f"mean annual precipitation over complete well-record years after "
+                f"the clearfell (n={_fsr['post_n']}).")
+    rr.add("rain_pre_post_felling_diff", _fsr["diff"], unit="mm",
+           era=f"{_fsr['post_era']} vs {_fsr['pre_era']}",
+           note="post minus pre; small relative to interannual variability, the "
+                "basis for 'no meaningful rainfall difference' either side of the fell.")
+
     _var = series_variability(climate_short)
     for _k in ("annual_pet", "winter_rainfall"):
         rr.add(f"var_{_k}_mean", _var[_k]["mean"], unit="mm", era=_var["era"],
@@ -1129,6 +1154,33 @@ def pet_long_record_context(climate_full, windows=((1931, 2025), (1960, 2025),
         out["windows"][f"{y0}_{y1}"] = {"slope": slope, "t": tstat, "n": n,
                                         "era": f"{y0}-{y1}"}
     return out
+
+
+def felling_split_rainfall_context(annual: pd.DataFrame, clearfell_year: int) -> dict:
+    """Pre- vs post-clearfell mean annual rainfall over the well record.
+
+    report section 4.1 contrasts mean annual precipitation either side of the
+    December 2017 pine clearfell to show the post-2018 BACI signal is not a
+    rainfall artefact. COMPLETE calendar years only (Months_complete == 12), so
+    the partial end years are excluded exactly as the long-term-mean row is. The
+    clearfell year itself counts as PRE, the fell being at that year's end.
+    Window bounds are the first and last complete year present, not hard-typed.
+    """
+    a = annual.copy()
+    a = a[pd.to_numeric(a["Year"], errors="coerce").notna()].copy()
+    a["Year"] = a["Year"].astype(int)
+    a = a[a["Months_complete"] == 12]
+    pre = a[a["Year"] <= clearfell_year]
+    post = a[a["Year"] > clearfell_year]
+    pre_mean = float(pre["Annual_P_mm"].mean())
+    post_mean = float(post["Annual_P_mm"].mean())
+    return dict(
+        pre_mean=pre_mean, post_mean=post_mean, diff=post_mean - pre_mean,
+        pre_n=int(len(pre)), post_n=int(len(post)),
+        pre_era=f"{int(pre['Year'].min())}-{int(pre['Year'].max())}",
+        post_era=f"{int(post['Year'].min())}-{int(post['Year'].max())}",
+        clearfell_year=clearfell_year,
+    )
 
 
 def long_record_rainfall_context(climate_full, windows=((1931, 2025), (1960, 2025),

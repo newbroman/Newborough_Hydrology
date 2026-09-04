@@ -68,15 +68,15 @@ report9.odt,Figure,1.35,11b_03_pflood.png
 report9.odt,Figure,1.36,11b_02_winter_maxima_depth.png
 report9.odt,Figure,1.37,11b_04_flood_frequency.png
 report9.odt,Table,1.15,11_forecast_pflood_summary.csv
-report9.odt,Table,1.16,25_03_cluster_partition.csv
+report9.odt,Table,1.16,26_msl_5yr_cluster_threshold_summary.csv
 report9.odt,Figure,1.59,25_05_fit_diagnostic.jpg
 report9.odt,Figure,1.61,38_coast_inland_difference.jpg
-report9.odt,Table,1.17,26_msl_5yr_per_cluster.csv
+report9.odt,Table,1.17,26_ebf_prediction_summary.csv
 report9.odt,Figure,1.38,Script 26c output fig_msl5_trajectory_report.png
 report9.odt,Figure,1.39,26_msl_5yr_map.png
 report9.odt,Figure,1.40,14_climate_trajectory_stacked.png
 report9.odt,Figure,1.41,26_ebf_prediction_scatter.png
-report9.odt,Table,1.18,26_ebf_comparison.csv
+report9.odt,Table,1.18,26_ebf_band_summary.csv
 report9.odt,Table,1.19,26_ebf_comparison.csv
 report9.odt,Figure,1.44,03_10_well_datum_r2max_map.png
 report9.odt,Figure,1.44,03_10_well_r2_gain_map.png

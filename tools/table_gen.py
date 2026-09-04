@@ -54,7 +54,12 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-09-04. Transposed tables,
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-09-04. Adds fmt "sum":
+#   a cell that adds the CSV columns in `cols` and renders the total at `dp`
+#   (with `sign` and the Unicode minus), for a displayed column that is the
+#   identified sum of two pipeline components. First used by report9 Table 1.20
+#   (climate + far-field = climate_cwb_mm_yr + far_field_offset_mm_yr).
+# v1.4.0  # Hollingham (2026) — 2026-09-04. Transposed tables,
 #   numeric cells, chained `re`. (1) `transpose: True` on a table whose CSV is
 #   one row per displayed COLUMN (Table 1.17: one row per metric, the table
 #   shows metrics across and statistics down): each column spec becomes a
@@ -201,7 +206,7 @@ def render(spec: dict, row: dict, sources: dict) -> str:
             raise ValueError(f"lookup {lk}: {len(hits)} match(es) "
                              f"for {key_col}={row[key_col]!r}")
         raw = hits[0][value_col]
-    elif fmt in ("template", "ci"):
+    elif fmt in ("template", "ci", "sum"):
         raw = None
     else:
         raw = row[spec["col"]]
@@ -233,6 +238,9 @@ def render(spec: dict, row: dict, sources: dict) -> str:
         d = spec["dp"]
         text = (f"[{_num(lo):{sign}.{d}f}, {_num(hi):{sign}.{d}f}]"
                 .replace("-", MINUS))
+    elif fmt == "sum":
+        total = sum(_num(row[c]) for c in spec["cols"])
+        text = f"{total:{sign}.{spec['dp']}f}".replace("-", MINUS)
     else:
         raise ValueError(f"unknown fmt {fmt!r}")
 

@@ -20,9 +20,11 @@ WHAT IT DOES, EXACTLY
   2. Reads the header row and REFUSES if it differs from the config's header.
      A table found by name is not yet the table the entry describes.
   3. Reads every data cell as (start, end, current text) in content.xml
-     coordinates. A cell must be one <text:p> holding plain text — the shape
-     every table in report9 has. A cell with spans or breaks is reported and
-     the table is refused, rather than guessed at.
+     coordinates. A cell must be one <text:p> holding plain text, or text
+     spread across <text:span> runs (what LibreOffice leaves after a value
+     is re-typed): the display text is the runs joined, a write goes into
+     the first non-empty run and blanks the rest. A cell holding any other
+     element is reported and the table is refused, rather than guessed at.
   4. Builds the expected grid from the CSV rows, cell by cell, and diffs.
   5. `--check`: prints the drift and exits non-zero if any cell differs.
      `--write`: replaces the differing cells through `odt_edit.edit_spans`,
@@ -47,7 +49,21 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-09-04. Versioned documents.
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-09-04. Cell vocabulary.
+#   A data cell may now be a <text:p> whose content is text nodes and
+#   <text:span> tags ONLY — the shape LibreOffice leaves behind after a cell is
+#   re-typed (a "−0.04" run followed by a span holding "6", or a value wrapped
+#   in nested emphasis/rsid spans). Its display text is the text nodes joined;
+#   a write goes into the first non-empty text node and BLANKS the others, so
+#   the tag sequence is byte-identical and odt_edit's guard still holds. Any
+#   other element inside a cell (a line break, a tab, a frame) still refuses.
+#   Column specs gain `when` / `unless` ({col: value | [values]}) with `else`
+#   (default "—") for a cell the table shows only on some rows — Table 1.1's
+#   P/PET ratio on complete years, Table 1.4c's OLS Sy on uncorrected rows —
+#   and `scale` on fixed (multiply before rendering) for a column the table
+#   displays with the opposite sign convention to its CSV (Table 1.2).
+#
+# v1.2.0  # Hollingham (2026) — 2026-09-04. Versioned documents.
 #   `doc` may now be a repo-relative GLOB ("docs/report/Newborough_Methods_
 #   Supplement_v*.odt"): the newest file by refresh_mirrors._version_key is
 #   read — the same resolver the mirrors and doc_version_sync use, so the three
@@ -98,6 +114,10 @@ _CELL = re.compile(
     r"|<table:table-cell\b[^>]*>(.*?)</table:table-cell>", re.S)
 _ROW = re.compile(r"<table:table-row\b[^>]*>(.*?)</table:table-row>", re.S)
 _PLAIN_P = re.compile(r"^<text:p\b[^>]*>([^<]*)</text:p>$", re.S)
+# A cell whose paragraph holds only text and <text:span> tags: the runs
+# LibreOffice leaves behind when a value is re-typed. Anything else refuses.
+_SPAN_P = re.compile(r"^<text:p\b[^>]*>((?:[^<]|<text:span\b[^>]*>|</text:span>)*)</text:p>$", re.S)
+_EMPTY_P = re.compile(r"^<text:p\b[^>]*/>$")
 
 
 # ── rendering ────────────────────────────────────────────────────────────────
@@ -139,6 +159,11 @@ def render(spec: dict, row: dict, sources: dict) -> str:
     table shows exactly that.
     """
     fmt = spec.get("fmt", "text")
+    for key, want in (("when", True), ("unless", False)):
+        for col, val in spec.get(key, {}).items():
+            keep = set(val) if isinstance(val, (list, tuple)) else {val}
+            if (row[col] in keep) != want:
+                return spec.get("else", "—")
     if "lookup" in spec:
         lk = spec["lookup"]
         if isinstance(lk, dict):
@@ -163,8 +188,8 @@ def render(spec: dict, row: dict, sources: dict) -> str:
     elif fmt == "int":
         text = str(int(round(_num(raw)))) if _is_num(raw) else raw
     elif fmt == "fixed":
-        text = (f"{_num(raw):{sign}.{spec['dp']}f}".replace("-", MINUS)
-                if _is_num(raw) else raw)
+        text = (f"{_num(raw) * spec.get('scale', 1):{sign}.{spec['dp']}f}"
+                .replace("-", MINUS) if _is_num(raw) else raw)
     elif fmt == "pvalue":
         if _is_num(raw):
             v = _num(raw)
@@ -234,9 +259,31 @@ def locate_table(xml: str, name: str) -> tuple[int, int]:
     return m.start(), end + len("</table:table>")
 
 
+def _cell_nodes(inner: str, base: int):
+    """The text nodes of a span-only cell paragraph as [(abs_start, abs_end,
+    text)], in document order, including the empty positions between tags."""
+    pm = _SPAN_P.match(inner)
+    if not pm:
+        return None
+    body, off = pm.group(1), base + pm.start(1)
+    nodes, pos = [], 0
+    for tag in re.finditer(r"<[^>]+>", body):
+        nodes.append((off + pos, off + tag.start(), body[pos:tag.start()]))
+        pos = tag.end()
+    nodes.append((off + pos, off + len(body), body[pos:]))
+    return nodes
+
+
 def read_cells(xml: str, start: int, end: int):
-    """[(row_index, [(abs_start, abs_end, text) | None]), ...] — None for a
-    covered cell. Offsets address the TEXT inside the cell's <text:p>."""
+    """[(row_index, [cell | None]), ...] — None for a covered cell.
+
+    A cell is (abs_start, abs_end, text, extras): the text node a write goes
+    into, the cell's DISPLAY text (every text node joined, XML-escaped as in
+    the file), and the other non-empty text nodes [(abs_start, abs_end)] that
+    a write must blank so the display text is the written text alone. A plain
+    cell has no extras. Offsets address text inside the cell's <text:p>. An
+    empty self-closing <text:p/> reads as "" with offsets -1: it can be left
+    blank but never written into (that would change the tag sequence)."""
     if xml.count("<table:table ", start, end) > 1:
         raise ValueError("nested table")
     out = []
@@ -250,14 +297,32 @@ def read_cells(xml: str, start: int, end: int):
             if inner is None:
                 raise ValueError(f"row {ri} cell {len(cells)}: empty self-closing "
                                  f"cell, no text node to write into")
+            base = rm.start(1) + cm.start(1)
+            if _EMPTY_P.match(inner):      # <text:p .../>: reads as "", takes no text
+                cells.append((-1, -1, "", []))
+                continue
             pm = _PLAIN_P.match(inner)
-            if not pm:
+            if pm:
+                a = base + pm.start(1)
+                cells.append((a, a + len(pm.group(1)), pm.group(1), []))
+                continue
+            nodes = _cell_nodes(inner, base)
+            if nodes is None:
                 raise ValueError(
-                    f"row {ri} cell {len(cells)}: not a single plain <text:p> — "
-                    f"{inner[:120]!r}")
-            # absolute offsets of the text node
-            base = rm.start(1) + cm.start(1) + pm.start(1)
-            cells.append((base, base + len(pm.group(1)), pm.group(1)))
+                    f"row {ri} cell {len(cells)}: not text and <text:span> runs "
+                    f"in one <text:p> — {inner[:120]!r}")
+            filled = [n for n in nodes if n[2]]
+            if filled:
+                primary, extras = filled[0], [(a, b) for a, b, _ in filled[1:]]
+            else:                          # all empty: write inside the spans
+                depth = 0
+                for tag in re.finditer(r"<[^>]+>", inner):
+                    if tag.group(0).startswith("</"):
+                        break
+                    depth += 1
+                primary, extras = nodes[max(depth - 1, 0)], []
+            cells.append((primary[0], primary[1],
+                          "".join(n[2] for n in nodes), extras))
         out.append((ri, cells))
     return out
 
@@ -273,7 +338,7 @@ def plan(cfg: dict, xml: str):
     grid = expected_grid(cfg)
     if len(data) != len(grid):
         raise ValueError(f"{len(data)} data row(s) in the ODT, {len(grid)} from the CSV")
-    drift, spans_all, n_cells = [], [], 0
+    drift, writes_all, n_cells = [], [], 0
     for (ri, cells), exp_row in zip(data, grid):
         if len(cells) != len(exp_row):
             raise ValueError(f"row {ri}: {len(cells)} cell(s) in the ODT, "
@@ -286,10 +351,20 @@ def plan(cfg: dict, xml: str):
                 continue
             n_cells += 1
             new = escape(exp)
-            spans_all.append((cell[0], cell[1], new))
-            if cell[2] != new:
+            differs = cell[2] != new
+            if cell[0] < 0:                # an empty self-closing paragraph
+                if new:
+                    raise ValueError(f"row {ri} col {ci}: the cell is an empty "
+                                     f"self-closing <text:p/> and {exp!r} needs a text node")
+                writes_all.append(([], False))
+                continue
+            # one write group per cell: the value, plus a blank for every
+            # other text node the cell's display text was spread across
+            writes_all.append(([(cell[0], cell[1], new)]
+                               + [(a, b, "") for a, b in cell[3]], differs))
+            if differs:
                 drift.append((ri, ci, unescape(cell[2]), exp))
-    return n_cells, drift, spans_all
+    return n_cells, drift, writes_all
 
 
 # ── documents ────────────────────────────────────────────────────────────────
@@ -344,8 +419,8 @@ def run(cfg: dict, write: bool, force: bool, out: pathlib.Path | None,
     if not write:
         return 1 if drift else 0
 
-    spans = spans_all if force else [(a, b, t) for (a, b, t) in spans_all
-                                     if xml[a:b] != t]
+    spans = [w for group, differs in spans_all if (differs or force)
+             for w in group]
     if not spans:
         print("  nothing to write — the table already matches its source")
         return 0
@@ -361,7 +436,8 @@ def run(cfg: dict, write: bool, force: bool, out: pathlib.Path | None,
     ok = edit_spans(src, dst, spans, expect=len(spans))
     if not ok:
         return 2
-    print(f"  wrote {len(spans)} cell(s) -> {rel(dst)}")
+    n_changed = sum(1 for _, d in spans_all if d or force)
+    print(f"  wrote {n_changed} cell(s) ({len(spans)} text node(s)) -> {rel(dst)}")
     if dst == src:
         print("  (mirror now stale: run refresh_mirrors.py --only)")
     elif versioned and out is None:

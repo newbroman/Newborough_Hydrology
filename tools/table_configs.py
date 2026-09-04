@@ -22,7 +22,10 @@ WHY THIS IS DATA AND NOT CODE
 SCHEMA (one dict per table)
 
   id          "report9/Table21" — chapter and ODF table:name; printed only
-  doc         chapter number, resolved through doc_paths.chapter_odt()
+  doc         a chapter number (report_edits/odt/reportN.odt, edited in place)
+              OR a repo-relative glob for a VERSIONED document
+              ("docs/report/Newborough_Methods_Supplement_v*.odt"): the newest
+              file is read and a --write goes to the next version's filename
   table_name  the table:name attribute in content.xml (stable across edits; the
               typed "Table 1.3" number is a caption FIELD and is not used)
   caption     what the table is, for a reader of this file
@@ -37,7 +40,9 @@ SCHEMA (one dict per table)
   columns     one spec per displayed column, in display order:
       col       CSV column of the row source
       lookup    (alias, key_col, value_col) — take value_col from the row of
-                `alias` whose key_col equals this row's key_col (a join)
+                `alias` whose key_col equals this row's key_col (a join); or
+                {"source": alias, "key": key_col, "col": value_col,
+                 "where": {col: value}} to pin the joined row further
       fmt       "text" | "int" | "fixed" | "pvalue" | "stars" | "map" |
                 "template" | "ci"
       dp        decimal places for fixed / pvalue / ci
@@ -74,7 +79,11 @@ SCHEMA (one dict per table)
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-09-04. Batch 2: ten more
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-09-04. Batch 3: the Methods
+#   Supplement, reached through the versioned-document resolver (`doc` is a
+#   glob; table_gen reads the newest file and writes the next). Four tables.
+#
+# v1.1.0  # Hollingham (2026) — 2026-09-04. Batch 2: ten more
 #   report9 tables (1.4a, 1.4b, 1.5, 1.6, 1.7, 1.8, 1.9, 1.11, 1.12, 1.13),
 #   each configured to reproduce the table AS PUBLISHED. A column marked
 #   "PRECISION" sits below three decimal places on a fixed float and is a
@@ -328,6 +337,84 @@ TABLES = [
             {"col": "R2", "fmt": "fixed", "dp": 3},
             {"col": "p_value_P_summer",     "fmt": "pvalue", "dp": 3},
             {"col": "p_value_h_max_winter", "fmt": "pvalue", "dp": 3},
+        ],
+    },
+    # ── 2026-09-04 batch 3: Methods Supplement (versioned; resolved by glob) ──
+    {
+        "id": "ms/Table12",
+        "doc": "docs/report/Newborough_Methods_Supplement_v*.odt",
+        "table_name": "Table12",
+        "caption": "Methods Supplement — cluster-centroid SSM coefficients (Script 03)",
+        "sources": {"co": "outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv"},
+        "rows": {"source": "co"},
+        "header": ["Cluster", "n", "β₁", "β₂", "β₃", "R²", "LCSC"],
+        "columns": [
+            {"col": "Cluster_Label", "fmt": "text"},
+            {"col": "n", "fmt": "int"},
+            {"col": "beta_1_recharge",         "fmt": "fixed", "dp": 2},   # PRECISION: 2 dp as published
+            {"col": "beta_2_atmospheric_draw", "fmt": "fixed", "dp": 2},   # PRECISION: 2 dp as published
+            {"col": "beta_3_drainage",         "fmt": "fixed", "dp": 3},
+            {"col": "R2",                      "fmt": "fixed", "dp": 3},
+            {"col": "LCSC_percent",            "fmt": "fixed", "dp": 1},   # PRECISION: 1 dp as published
+        ],
+    },
+    {
+        "id": "ms/Table42",
+        "doc": "docs/report/Newborough_Methods_Supplement_v*.odt",
+        "table_name": "Table42",
+        "caption": "Methods Supplement — depth-coupled PET benchmark per cluster (Script 15)",
+        "sources": {"bm": "outputs/15_depth_dependent_pet/15_03_benchmark_table.csv",
+                    "bp": "outputs/15_depth_dependent_pet/15_04_best_params.csv"},
+        "rows": {"source": "bm"},
+        "header": ["Cluster", "SSM NSE", "Depth-coupled NSE", "Δ NSE", "Best κ (m⁻¹)",
+                   "Mean upstand (m)"],
+        "columns": [
+            {"col": "Label", "fmt": "text", "re": [r"^(C\d) \((.+)\)$", r"\1 \2"]},
+            {"col": "SSM_Iterative_NSE", "fmt": "fixed", "dp": 2},   # PRECISION: 2 dp as published
+            {"col": "DDP_Iterative_NSE", "fmt": "fixed", "dp": 2},   # PRECISION
+            {"col": "Delta_NSE",         "fmt": "fixed", "dp": 2, "sign": True},   # PRECISION
+            {"col": "Best_Kappa_m-1",    "fmt": "fixed", "dp": 2},   # PRECISION
+            {"lookup": ("bp", "Cluster", "Mean_Upstand_m"), "fmt": "fixed", "dp": 2},   # PRECISION
+        ],
+    },
+    {
+        "id": "ms/Table71",
+        "doc": "docs/report/Newborough_Methods_Supplement_v*.odt",
+        "table_name": "Table71",
+        "caption": "Methods Supplement — spring transfer functions per cluster (Script 11)",
+        "sources": {"tf": "outputs/11_forecasting_thresholds/11_forecast_spring_transfer_functions.csv"},
+        "rows": {"source": "tf"},
+        "header": ["Cluster", "β(h_max, winter)", "β(P_win→spr)", "β(PET_win→spr)",
+                   "Intercept (m)", "R²", "n"],
+        "columns": [
+            {"col": "Block", "fmt": "map",
+             "map": {"Lake_Edge": "C1 Lake Edge", "Eastern_Block": "C2 Dune",
+                     "Western_Block": "C3 Western Residual", "Forest": "C4 Main Forest",
+                     "Coastal_Forest": "C5 Coastal Forest"}},
+            {"col": "alpha_W_h_max_winter", "fmt": "fixed", "dp": 3, "sign": True},
+            {"col": "a_P_win_to_spr",       "fmt": "fixed", "dp": 5, "sign": True},
+            {"col": "a_PET_win_to_spr",     "fmt": "fixed", "dp": 5, "sign": True},
+            {"col": "intercept",            "fmt": "fixed", "dp": 3, "sign": True},
+            {"col": "R2",                   "fmt": "fixed", "dp": 3},
+            {"col": "n_hydrological_years", "fmt": "int"},
+        ],
+    },
+    {
+        "id": "ms/Table73",
+        "doc": "docs/report/Newborough_Methods_Supplement_v*.odt",
+        "table_name": "Table73",
+        "caption": "Methods Supplement — UKCP18 MSL5 projections per cluster (Script 26b)",
+        "sources": {"pj": "outputs/26b_van_willegen_msl_projections/26b_msl5_ukcp18_projection_summary.csv"},
+        "rows": {"source": "pj", "filter": {"scenario": "2050s"}},   # one row per cluster; 2080s by lookup
+        "header": ["Cluster", "β₁", "β₂", "ΔMSL5 2050s (m)", "ΔMSL5 2080s (m)"],
+        "columns": [
+            {"col": "cluster_label", "fmt": "text", "re": [r"^(C\d) \((.+)\)$", r"\1 \2"]},
+            {"col": "beta_1_recharge",         "fmt": "fixed", "dp": 2},   # PRECISION: 2 dp as published
+            {"col": "beta_2_atmospheric_draw", "fmt": "fixed", "dp": 2},   # PRECISION
+            {"col": "msl5_shift_mean_m", "fmt": "fixed", "dp": 3, "sign": True},
+            {"lookup": {"source": "pj", "key": "cluster_id", "col": "msl5_shift_mean_m",
+                        "where": {"scenario": "2080s"}},
+             "fmt": "fixed", "dp": 3, "sign": True},
         ],
     },
 ]

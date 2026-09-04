@@ -94,7 +94,16 @@ Curreli, A. et al. (2013) — SD15b/SD16 threshold reference lines.
 
 from __future__ import annotations
 
-__version__ = "1.8.0"  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
+__version__ = "1.9.0"  # Hollingham (2026) — 2026-09-04. Emits three table
+#   sources that were computed but never written to CSV:
+#   26_msl_5yr_cluster_threshold_summary.csv (Table 1.16: per-cluster MSL5 at the
+#   latest window-end plus counts below SD15b/SD16 over window-ends >=
+#   MSL_TRAJECTORY_START_YEAR), 26_ebf_prediction_summary.csv (Table 1.17: r/CI,
+#   RMSE/CI per metric plus the Williams test) and 26_ebf_band_summary.csv
+#   (Table 1.18: A-D match-band well counts). Emission only - the underlying
+#   statistics are unchanged and already fed the trajectory and scatter figures.
+#   See CHANGELOG_delta 2026-09-04o.
+# v1.8.0  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
 #   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
 # v1.7.0  # Hollingham (2026) — 2026-08-13
 # v1.7.0 (2026-08-13): dead upstand plumbing removed — _ground_offset() and the
@@ -155,6 +164,7 @@ OUT_MAP       = paths.OUT_26_MAP
 OUT_TRAJ      = paths.OUT_26_TRAJECTORY
 OUT_QUADRAT   = paths.OUT_26_QUADRAT_WELLS
 OUT_TXT       = paths.OUT_26_RESULTS_TXT
+OUT_MSL5_THRESHOLD_SUMMARY = paths.OUT_26_MSL5_THRESHOLD_SUMMARY
 # EWI outputs (v1.3.0) — canonical paths from utils.paths.
 OUT_EWI       = paths.OUT_26_EWI_PER_WELL
 OUT_EWI_COMPARISON = paths.OUT_26_EWI_MSL5_COMPARISON
@@ -412,6 +422,37 @@ def attach_cluster_ids(per_well: pd.DataFrame,
     df["cluster_label"] = df["cluster_id"].map(config.CLUSTER_LABELS)
     df["network"] = df["Network"].fillna("Reference")
     return df.drop(columns=["cluster_id_ref", "cluster_id_ext", "Network"])
+
+
+def msl5_cluster_threshold_summary(per_cluster: pd.DataFrame, start_year: int) -> pd.DataFrame:
+    """Per-cluster MSL5 at the latest window-end plus threshold-crossing counts.
+
+    Table 1.16 source. For each cluster, over window-ends from `start_year`
+    (config.MSL_TRAJECTORY_START_YEAR, the trajectory figure's span) to the
+    latest available: the current (latest) window-end with its cluster-mean MSL5
+    and well count, and the number of those window-ends in which the cluster-mean
+    MSL5 sat below the Curreli et al. (2013) SD15b and SD16 thresholds. MSL5 is in
+    the depth-below-ground frame (negative below surface), so "below SD15b" is
+    MSL5 < -config.SD15b. Counts and current values are read straight off the
+    committed per-cluster trajectory; nothing new is computed.
+    """
+    w = per_cluster[per_cluster["window_end_year"] >= start_year].copy()
+    rows = []
+    for cid, g in w.groupby("cluster_id"):
+        g = g.sort_values("window_end_year")
+        cur = g.iloc[-1]
+        rows.append(dict(
+            cluster_id=int(cid),
+            cluster_label=cur["cluster_label"],
+            window_start=int(g["window_end_year"].min()),
+            window_end_current=int(cur["window_end_year"]),
+            n_windows=int(len(g)),
+            n_wells_current=int(cur["n_wells"]),
+            MSL5_current_m_bg=float(cur["MSL5_m_bg_mean"]),
+            n_windows_below_SD15b=int((g["MSL5_m_bg_mean"] < -config.SD15b).sum()),
+            n_windows_below_SD16=int((g["MSL5_m_bg_mean"] < -config.SD16).sum()),
+        ))
+    return pd.DataFrame(rows).sort_values("cluster_id").reset_index(drop=True)
 
 
 def cluster_trajectory(per_well_with_cluster: pd.DataFrame) -> pd.DataFrame:
@@ -1800,6 +1841,9 @@ def main() -> int:
     print(f"\nPass 3 — cluster trajectories (Method A, per-well aggregation): "
           f"{len(per_cluster)} (cluster, year) rows")
     saved(f"{OUT_CLUSTER.name}")
+    _msl5_thr = msl5_cluster_threshold_summary(per_cluster, TRAJECTORY_START_YEAR)
+    _msl5_thr.to_csv(OUT_MSL5_THRESHOLD_SUMMARY, index=False)
+    saved(f"{OUT_MSL5_THRESHOLD_SUMMARY.name}")
 
     # ── Pass 3b — Cluster-centroid trajectory (Method B) ───────────────────
     # Aggregates from Script 03's cluster-centroid monthly series (reference
@@ -1892,6 +1936,28 @@ def main() -> int:
     if ebf_df is not None:
         ebf_df.to_csv(paths.OUT_26_EBF_COMPARISON, index=False)
         saved(f"{paths.OUT_26_EBF_COMPARISON.name}")
+        # Table 1.17 / 1.18 sources: the prediction stats and match bands that
+        # already annotate the scatter figure, written to CSV (emission only).
+        _mlab = {"MSL5": "MSL5", "EWI_annual": "EWI (annual)", "EWI_spring": "EWI (spring)"}
+        _pred = []
+        for _m, _fm in ebf_summary["fit"].items():
+            _pred.append(dict(
+                metric=_m, metric_label=_mlab.get(_m, _m), n=ebf_summary["n"],
+                pearson_r=_fm["r"], r_ci_lo=_fm["r_lo"], r_ci_hi=_fm["r_hi"],
+                rmse_ebf=_fm["rmse"], rmse_ci_lo=_fm["rmse_lo"], rmse_ci_hi=_fm["rmse_hi"],
+                williams_t_vs_ewi_annual=(ebf_summary["williams_t"] if _m == "MSL5" else float("nan")),
+                williams_p_vs_ewi_annual=(ebf_summary["williams_p"] if _m == "MSL5" else float("nan")),
+            ))
+        pd.DataFrame(_pred).to_csv(paths.OUT_26_EBF_PREDICTION_SUMMARY, index=False)
+        saved(f"{paths.OUT_26_EBF_PREDICTION_SUMMARY.name}")
+        _brange = {"A": "<= 0.15", "B": "0.15-0.30", "C": "0.30-0.50", "D": "> 0.50"}
+        _blabel = {"A": "A (excellent)", "B": "B (good)", "C": "C (moderate)", "D": "D (poor)"}
+        _bands = [dict(band=_b, band_label=_blabel.get(_b, _b),
+                       abs_error_ebf_range=_brange.get(_b, ""),
+                       n_wells_MSL5=int(_v[0]), n_wells_EWI=int(_v[1]))
+                  for _b, _v in ebf_summary["bands"].items()]
+        pd.DataFrame(_bands).to_csv(paths.OUT_26_EBF_BAND_SUMMARY, index=False)
+        saved(f"{paths.OUT_26_EBF_BAND_SUMMARY.name}")
         f = ebf_summary["fit"]
         info(f"  EbF ~ MSL5:  r={f['MSL5']['r']:+.3f} [{f['MSL5']['r_lo']:+.2f},{f['MSL5']['r_hi']:+.2f}]  "
              f"RMSE={f['MSL5']['rmse']:.3f} EbF-units")

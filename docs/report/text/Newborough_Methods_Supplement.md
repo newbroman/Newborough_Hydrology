@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_101.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_102.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 1.9.101 (September 2026).
+Document version: 1.9.102 (September 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -1487,7 +1487,7 @@ All loading goes through *clearfell_common.load_clearfell_data()*, which merges 
 
 (Note: a standalone "Coastal Forest" counterfactual is *not* run in 10a --- the C5 Coastal wells enter only through the Combined pool. The two Coastal wells are mechanistically distinct from the C4 interior, with lower β₂ and a confounding coastal-retreat signal that 10b's climate correction is designed to absorb. Treating C5 as a third standalone counterfactual would give it more weight in the inference than its sample size and confound structure can carry.)
 
-**Supplementary far-field control.** A fourth control tier, *FarField* (NW4B, WMC1, CEH5, L7, CEH6), is fitted alongside the three primary counterfactuals but answers a different question. Its members are admitted on distance to the coast, not on setting: admission requires a coast distance beyond *config.FAR_FIELD_REACH_MULTIPLE* (= 1.6) times the fitted cross-shore reach L of the Script 25 coastal gradient, re-derived on each run by *far_field_tier_audit()* against Script 25's committed panel fit (falling back to the documented first-pass reach with a console warning when that table has not yet been written). Because the tier sits far inland it feels the coastal drawdown gradient most strongly, which makes it the sharpest test of the coastal-drift reading rather than a mechanistic clearfell counterfactual: its drift coefficient ξ reverses sign (−1.51 at Impact, −1.98 at Edge, both rejecting unity at p \< 0.001) where ξ sits near the network amplitude at the Forest tiers. It is therefore read as a coastal diagnostic and not treated as a fourth standalone counterfactual for the clearfell step; its felling steps (−81 mm Impact, p = 0.19; −158 mm Edge, p = 0.02) are reported for completeness, and the Script 25 coastal-gradient chapter (S.15) carries the corroboration in full.
+**Supplementary far-field control.** A fourth control tier, *FarField* (NW4B, WMC1, CEH5, L7, CEH6), is fitted alongside the three primary counterfactuals but answers a different question. Its members are admitted on distance to the coast, not on setting: admission requires a coast distance beyond *config.FAR_FIELD_REACH_MULTIPLE* (= 1.6) times the fitted cross-shore reach L_cg of the Script 25 coastal gradient, re-derived on each run by *far_field_tier_audit()* against Script 25's committed panel fit (falling back to the documented first-pass reach with a console warning when that table has not yet been written). Because the tier sits far inland it feels the coastal drawdown gradient most strongly, which makes it the sharpest test of the coastal-drift reading rather than a mechanistic clearfell counterfactual: its drift coefficient ξ reverses sign (−1.51 at Impact, −1.98 at Edge, both rejecting unity at p \< 0.001) where ξ sits near the network amplitude at the Forest tiers. It is therefore read as a coastal diagnostic and not treated as a fourth standalone counterfactual for the clearfell step; its felling steps (−81 mm Impact, p = 0.19; −158 mm Edge, p = 0.02) are reported for completeness, and the Script 25 coastal-gradient chapter (S.15) carries the corroboration in full.
 
 For each (control, zone) pairing the script:
 

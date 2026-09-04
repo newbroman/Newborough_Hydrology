@@ -1,0 +1,4 @@
+pattern,kind,reason,superseded_by
+26.42,literal,"the old coast-edge delta_0 headline of -26.42 mm/yr, retired by D-046 (selection-on-the-fitted-axis error)","the land-cover-free -31.33 mm/yr (D-046)"
+DCoast_2015,literal,"a coastline layer deleted on evidence (D-087): it lay seaward of the 2012 line despite being three years later, and reproducing D-060's rate did not need it","the 1899 -> re-digitised 2006 anchor (D-087)"
+245 m,literal,"the historical lambda = 245 m forest-interception reach, retired (M25); the live value is ~230 m","drawdown_lambda in 20_report_numbers.csv (~230 m)"

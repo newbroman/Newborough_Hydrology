@@ -167,6 +167,7 @@ echo "── geographic inputs ────────────────�
 # it. What would be a real failure is a layer with no entry at all, or an entry
 # pointing at a file that has gone.
 python3 tools/geo_provenance.py || true
+python3 tools/geo_consistency.py || true   # W73: withdrawn geo values must not reappear (advisory)
 
 echo
 echo "── manifest (is the committed one what the orchestrator produces?) ───"

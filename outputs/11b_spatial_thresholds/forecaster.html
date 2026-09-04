@@ -1590,11 +1590,11 @@ const DATA = {
       "peak_month": 2
     },
     {
-      "name": "pw",
-      "display_name": "pw",
-      "E": 242056.0,
-      "N": 363286.0,
-      "ground_elev": 6.88,
+      "name": "pe",
+      "display_name": "pe",
+      "E": 242739.0,
+      "N": 362823.0,
+      "ground_elev": 5.15,
       "cluster": "C2",
       "nearest_cluster_only": false,
       "default_h_prev": -0.8991328367348385,
@@ -2271,11 +2271,11 @@ const DATA = {
       "default_h_max": -0.4442641444302426
     },
     {
-      "name": "pe",
-      "display_name": "pe",
-      "E": 242739.0,
-      "N": 362823.0,
-      "ground_elev": 5.15,
+      "name": "pw",
+      "display_name": "pw",
+      "E": 242056.0,
+      "N": 363286.0,
+      "ground_elev": 6.88,
       "cluster": "C3",
       "nearest_cluster_only": false,
       "default_h_prev": -1.106776497907581,
@@ -5836,7 +5836,7 @@ function renderForecasts(w){
 
   // ═════════════════════════════════════════════════════════════════════
   // FORECAST 1: next winter peak — Table 6 transfer function
-  //   h_peak = β₁·P_winter + β₂·h_min + intercept
+  //   h_peak = a_P·P_winter + a_h·h_min + intercept
   //
   // Uses h_min from the summer-min-input field. When the current month is
   // before this cluster's trough_month, this year's summer minimum has
@@ -5882,7 +5882,7 @@ function renderForecasts(w){
 
   // ═════════════════════════════════════════════════════════════════════
   // FORECAST 2: following summer minimum — Table 7 transfer function
-  //   h_min_summer = β₁·P_summer + β₂·h_max_winter + intercept
+  //   h_min_summer = a_P·P_summer + a_h·h_max_winter + intercept
   //
   // Uses cluster-mean winter maximum (default_h_max) and climatological
   // summer rainfall.

@@ -69,6 +69,9 @@ SKIP_PARTS = {".git", ".git-working", "backups", "_recovered_2026-08-25",
 EXEMPT = {
     # glob patterns in tool configuration, not filenames
     "*.md", "**/*.md", "*.py", "text/*.md",
+    # the *_results.md memo pattern (scripts build a <script>_results.md memo);
+    # written as prose in apply_main_guards.py and DECISION_LOG.md, not a filename
+    "_results.md",
     # a filename built at runtime from a template
     "{name}.md", "{stem}.md",
     # tools/build_diary.py names its own --public output, which exists only once

@@ -54,7 +54,11 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.5.1"  # Hollingham (2026) — 2026-09-04. Withdraws fmt "sum"
+__version__ = "1.6.0"  # Hollingham (2026) — 2026-09-04. Adds fmt "val_p"
+#   ("estimate (p-value)" composite: value fixed at dp + p rendered by the
+#   pvalue rule) and rows.require (keep rows where the named column(s) are
+#   non-empty, to select one block of a multi-block CSV). For report9 Table 1.19.
+# v1.5.1  # Hollingham (2026) — 2026-09-04. Withdraws fmt "sum"
 #   (added and reverted same day): D-126 keeps the config data-only and has the
 #   SCRIPT emit derived quantities, so report9 Table 1.20's climate + far-field
 #   column is now Script 25's committed climate_plus_far_field_mm_yr rendered
@@ -207,7 +211,7 @@ def render(spec: dict, row: dict, sources: dict) -> str:
             raise ValueError(f"lookup {lk}: {len(hits)} match(es) "
                              f"for {key_col}={row[key_col]!r}")
         raw = hits[0][value_col]
-    elif fmt in ("template", "ci"):
+    elif fmt in ("template", "ci", "val_p"):
         raw = None
     else:
         raw = row[spec["col"]]
@@ -239,6 +243,15 @@ def render(spec: dict, row: dict, sources: dict) -> str:
         d = spec["dp"]
         text = (f"[{_num(lo):{sign}.{d}f}, {_num(hi):{sign}.{d}f}]"
                 .replace("-", MINUS))
+    elif fmt == "val_p":
+        # "estimate (p-value)" in one cell: cols=[value_col, p_col]. The value
+        # renders as fixed at dp (Unicode minus); the p-value uses the pvalue
+        # rule (<0.001 below that threshold) at dp. Rendering only, no maths.
+        vc, pc = spec["cols"]
+        d = spec["dp"]
+        pv = _num(row[pc])
+        ptxt = "<0.001" if pv < 0.001 else f"{pv:.{d}f}"
+        text = f"{_num(row[vc]):{sign}.{d}f}".replace("-", MINUS) + f" ({ptxt})"
     else:
         raise ValueError(f"unknown fmt {fmt!r}")
 
@@ -262,6 +275,8 @@ def expected_grid(cfg: dict) -> list[list[str | None]]:
     for col, val in cfg["rows"].get("filter", {}).items():
         keep = set(val) if isinstance(val, (list, tuple)) else {val}
         rows = [r for r in rows if r[col] in keep]
+    for col in cfg["rows"].get("require", []):   # keep rows where col is non-empty
+        rows = [r for r in rows if (r.get(col) or "").strip()]
     order = cfg["rows"].get("order")
     if order:                              # stable: ties keep CSV order
         col, values = order["col"], list(order["values"])

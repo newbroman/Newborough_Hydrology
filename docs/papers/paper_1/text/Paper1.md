@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_34.odt — do not edit.
+<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_35.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 A parameter-sparse state-space framework for characterizing coastal dune-aquifer architecture from manual dipwell records
@@ -344,7 +344,7 @@ The C5 Coastal Forest row is reported with a caveat rather than as a firmly quan
   C1 Lake Edge                  1819             −11.0      0                 +2.8               −13.8         0
   C2 Dune                       1473             −11.1      0                 +2.8               −13.9         0
   C3 Western Residual           803              −14.2      −3.2              +2.8               −13.8         23
-  C4 Main Forest (n = 4)        889              −6.5       −0.2              +2.8               −9.1          3
+  C4 Main Forest (n = 4)        889              −6.5       −0.2              +2.8               −9.2          3
   C5 Coastal Forest (n = 3) †   372              −16.1      −18.3             +2.8               −0.7          113 †
   ----------------------------- ---------------- ---------- ----------------- ------------------ ------------- -----------
 

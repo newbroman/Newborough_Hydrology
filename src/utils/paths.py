@@ -640,6 +640,7 @@ OUT_11B_PFLOOD_MAP      = DIR_11B / "11b_03_pflood.png"
 OUT_11B_PFLOOD_PER_WELL = DIR_11B / "11b_03_pflood_per_well.csv"
 OUT_11B_FLOOD_FREQ      = DIR_11B / "11b_04_flood_frequency.png"
 OUT_11B_TABLE10         = DIR_11B / "11b_05_table10_pflood_spreadsheet.csv"
+OUT_11B_PFLOOD_CLUSTER_SUMMARY = DIR_11B / "11b_06_pflood_cluster_summary.csv"  # per-cluster P_flood n/min/max/median + m_P (report9 Table 1.14)
 OUT_11B_FORECASTER_HTML = DIR_11B / "forecaster.html"
 
 # The forecast-engine feed for the Well Logger app. Written by

@@ -1038,6 +1038,23 @@ TABLES = [
             {"col": "n_wells",       "fmt": "int"},
         ],
     },
+    {
+        "id": "report9/Table16",
+        "doc": 9,
+        "table_name": "Table16",
+        "caption": "Table 1.14 \u2014 per-cluster P_flood summary across the 88-well classified network (Script 11b)",
+        "sources": {"pf": "outputs/11b_spatial_thresholds/11b_06_pflood_cluster_summary.csv"},
+        "rows": {"source": "pf"},
+        "header": ["Cluster", "n", "P_flood range (mm)", "Median (mm)", "m_P"],
+        "columns": [
+            {"col": "Cluster_Label", "fmt": "text", "re": [r"^(C\d) \(([^)]+)\)$", r"\1 \2"]},
+            {"col": "n", "fmt": "int"},
+            # min-max with an en dash and thousands separators ("692\u20131,200")
+            {"fmt": "template", "template": "{pflood_min:,.0f}\u2013{pflood_max:,.0f}"},
+            {"fmt": "template", "template": "{pflood_median:,.0f}"},
+            {"col": "m_P", "fmt": "fixed", "dp": 2},
+        ],
+    },
 ]
 
 

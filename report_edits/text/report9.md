@@ -550,11 +550,11 @@ The summer minimum depth map (Figure 37; Section 3.6.5) classifies each well aga
 The P_flood map (Figure 38) quantifies the rainfall demand implied by these summer minima and reveals a progressive, cluster-ordered closure of the operational window (Table 14). Almost every well in the classified network requires winter rainfall above its climatological mean to reach the slack floor: 87 of the 88 wells have m_P \> 1.0, the single exception (m_P = 0.98) flooding marginally below an average winter. Under mildly wet winters ****(1.0 ≤ m_P \< 1.5), 59 wells (67%)**** become reachable; ****a further 24 (27%) require wet winters of varying rarity (1.5 ≤ m_P \< 2.5). The remaining 4 wells (5%) have m_P ≥ 2.5 --- they require at least 2.5 times the climatological mean winter rainfall, a total well beyond the wettest winter in the \~95-year RAF Valley record. For these wells the slack floor is not reachable under any winter rainfall yet observed: the wettest winter on record (745 mm in 2001, 1.51× the climatological mean) delivers only 60% of the m_P = 2.5 demand.****
 
   --------------------- ---- ------------ ------- ------
-  C1 Lake Edge          8    418--485     431     1.08
-  C2 Dune               32   420--734     469     1.17
-  C3 Western Residual   25   545--940     589     1.27
-  C4 Main Forest        13   692--1,200   818     1.76
-  C5 Coastal Forest     10   711--1,536   1,044   2.25
+  C1 Lake Edge          8    422--486     431     1.08
+  C2 Dune               32   420--738     469     1.17
+  C3 Western Residual   25   545--934     591     1.28
+  C4 Main Forest        13   690--1,198   822     1.78
+  C5 Coastal Forest     10   709--1,532   1,044   2.26
   --------------------- ---- ------------ ------- ------
 
 **Table :** Per-cluster P_flood summary across the 88 well classified network. m_P = P_flood / Σ P_clim; values above 1.0 indicate rainfall above the climatological mean is required. (Source: 11b_03_pflood_per_well.csv).

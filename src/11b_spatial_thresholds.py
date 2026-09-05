@@ -74,7 +74,11 @@ Dependencies
     Skeletonisation: not required (map_utils handles DEM/IDW)
 """
 
-__version__ = "1.8.0"  # Hollingham (2026) — 2026-09-04: the P_flood map's two
+__version__ = "1.9.0"  # Hollingham (2026) — 2026-09-05. Emits
+#   11b_06_pflood_cluster_summary.csv: per-cluster P_flood n/min/max/median and
+#   m_P = median / P_clim_mm (report9 Table 1.14). Emission only; full precision
+#   (D-035). See CHANGELOG_delta 2026-09-05j.
+# v1.8.0  # Hollingham (2026) — 2026-09-04: the P_flood map's two
 #   colourbar reference lines are drawn from OUT_11_PFLOOD_SUMMARY
 #   (11_forecast_pflood_summary.csv), not hard-coded. Removes P_CLIM_5MO=464 and
 #   P_CLIM_6MO=524 (stale values, labelled one month too long). One dashed line
@@ -133,6 +137,7 @@ from utils.paths import (
     OUT_03_MECHANISTIC_TABLE, OUT_11_TABLE8_THRESHOLDS, OUT_11_TABLE6_WINTER,
     OUT_11_TABLE7_SUMMER, OUT_11_PFLOOD_SUMMARY, DIR_11B, OUT_11B_SUMMER_MAP, OUT_11B_WINTER_MAP,
     OUT_11B_PFLOOD_MAP, OUT_11B_PFLOOD_PER_WELL, OUT_11B_FLOOD_FREQ,
+    OUT_11B_PFLOOD_CLUSTER_SUMMARY,
     OUT_11B_TABLE10, OUT_11B_FORECASTER_HTML, SRC_FORECASTER_TEMPLATE,
 )
 from utils.map_utils import load_dem_hillshade, add_idw_surface, add_kml_features, _safe_read_kml
@@ -1158,6 +1163,23 @@ def plot_pflood_map(df: pd.DataFrame, dpi: int = 300) -> None:
 
     # Export per-well CSV for citation in report
     pf.to_csv(OUT_11B_PFLOOD_PER_WELL, index=False)
+
+    # Per-cluster P_flood summary (report9 Table 1.14): n, min/max/median of
+    # pflood_mm over the classified network, and m_P = median / P_clim_mm (the
+    # per-cluster threshold from OUT_11_PFLOOD_SUMMARY). Full precision (D-035);
+    # the config renders dp/thousands.
+    _pfs = pd.read_csv(OUT_11_PFLOOD_SUMMARY)
+    _pclim = {int(str(c)[1:]): p for c, p in zip(_pfs["Cluster"], _pfs["P_clim_mm"])}
+    _pf_summary = (pf.groupby("cluster")["pflood_mm"]
+                   .agg(n="count", pflood_min="min", pflood_max="max",
+                        pflood_median="median")
+                   .reset_index())
+    _pf_summary["Cluster_Label"] = _pf_summary["cluster"].map(CLUSTER_LABELS)
+    _pf_summary["m_P"] = _pf_summary["pflood_median"] / _pf_summary["cluster"].map(_pclim)
+    _pf_summary = _pf_summary[["Cluster_Label", "n", "pflood_min", "pflood_max",
+                               "pflood_median", "m_P"]]
+    _pf_summary.to_csv(OUT_11B_PFLOOD_CLUSTER_SUMMARY, index=False)
+    saved(f"{OUT_11B_PFLOOD_CLUSTER_SUMMARY.name}")
 
     # ── Figure ───────────────────────────────────────────────────────────
     fig, ax = plt.subplots(figsize=(12, 10), facecolor="white")

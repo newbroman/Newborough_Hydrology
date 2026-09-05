@@ -144,6 +144,7 @@ import sys
 import textwrap
 import datetime
 import json
+import hashlib
 import os
 import re
 import time
@@ -151,7 +152,11 @@ import uuid
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.9.0"  # 2026-09-03: Emit per-step "phase" in the manifest step
+__version__ = "2.10.0"  # 2026-09-05: Record input_provenance (SHA-256 +
+#   byte length of the REQUIRED_DATA raw inputs) in the manifest on a
+#   from-step-1 full run; carry it forward unchanged on --manifest-only and
+#   a --from N>1 resume. Gated by tools/input_provenance_lint.py (W132).
+#   2.9.0 (2026-09-03): Emit per-step "phase" in the manifest step
 #   records (1-based ALL_PHASES position via _PHASE_NUM), so pipeline_manifest.json
 #   is the complete committed source for (index, total, phase) per script, consumed
 #   by tools/step_number_lint.py to keep the Methods Supplement step/phase numbering
@@ -538,7 +543,24 @@ def _ver_tuple(v: str) -> tuple:
     return tuple(out)
 
 
-def build_manifest(write: bool = True) -> dict:
+def _capture_input_provenance() -> dict:
+    """SHA-256 + byte length of each authoritative raw input (REQUIRED_DATA),
+    keyed by repo-relative path. Recorded on a real from-the-top run so that a
+    later edit of the raw record under a corpus of committed outputs is
+    detectable (W132). Recorded IN pipeline_manifest.json so it survives a
+    checkout, which rewrites mtimes."""
+    prov = {}
+    for name in REQUIRED_DATA:
+        rel = f"data/{name}"
+        try:
+            b = (DATA_DIR / name).read_bytes()
+            prov[rel] = {"sha256": hashlib.sha256(b).hexdigest(), "bytes": len(b)}
+        except OSError:
+            prov[rel] = {"sha256": None, "bytes": None, "missing": True}
+    return prov
+
+
+def build_manifest(write: bool = True, record_inputs: bool = False) -> dict:
     """Build (and, by default, write) outputs/pipeline_manifest.json — the
     committed, machine-readable source of truth for step/phase totals and
     per-step tags. Also runs the analytical-count drift guard."""
@@ -576,6 +598,19 @@ def build_manifest(write: bool = True) -> dict:
         "generated": datetime.datetime.now().isoformat(timespec="seconds"),
         "steps": steps_out,
     }
+    # W132: input-provenance certification. A real from-the-top run records the
+    # SHA-256 of each raw input it consumed; every other manifest write (
+    # --manifest-only, a --from N>1 resume) carries the prior run's hashes
+    # forward, so a registry rewrite neither loses nor falsifies the record.
+    if record_inputs:
+        manifest["input_provenance"] = _capture_input_provenance()
+    else:
+        try:
+            _prior_ip = json.loads(OUT_MANIFEST.read_text(encoding="utf-8"))
+            if "input_provenance" in _prior_ip:
+                manifest["input_provenance"] = _prior_ip["input_provenance"]
+        except Exception:
+            pass
     if write:
         # Refuse to downgrade SILENTLY. A run from a tree older than the one that
         # last wrote this file reverted it to 50 steps on 2026-08-29, dropping a
@@ -1118,7 +1153,7 @@ def run_phase(phase_label: str, from_step: int = 1, include_optin: bool = False,
 
 def run_full_pipeline(from_step: int = 1, include_supplementary: bool = False) -> None:
     ensure_paths()
-    build_manifest(write=True)
+    build_manifest(write=True, record_inputs=(from_step == 1))
     _t_start = time.time()
 
     _PHASE17_LABEL = ALL_PHASES[-1][0]

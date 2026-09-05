@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_110.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_111.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 1.9.110 (September 2026).
+Document version: 1.9.111 (September 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -2992,6 +2992,8 @@ Both forms are tried at each specification, and AIC is used to compare them.
 2.  **Forest-free network.** C1, C2, and C3 only; C4 and C5 excluded entirely. If the distance-decay signal survives the removal of both forest clusters, forest cover cannot be the principal driver of the apparent gradient. This is the *headline* specification --- used downstream for cluster attribution and BACI corroboration.
 3.  **C3 only.** The single non-forested cluster with wells at intermediate distances. The closest C3 well sits at d ≈ 400 m, so a 3-parameter fit on this restricted distance range is under-identified --- *c_far* is held to the forest-free value. The C3-only fit is the sensitivity check: if the gradient is real, it should reproduce on a single cluster.
 4.  **Canopy-controlled full network (v1.9.0).** Rather than dropping forest wells, the full network is refitted with a canopy × time regressor keyed on the *in_forest* land-cover flag (D-046), so forest cover is controlled rather than excluded. The absorbed coefficient --- *beta_forest_mm_yr* in *25_01_panel_fit_parameters.csv* (source *full_canopy*), and *Canopy_extra_drift* in *25_report_numbers.csv* --- is how much faster the table falls under pine net of distance to the coast: −9.0 ± 2.5 mm yr⁻¹ (linear-capped). The coast-edge amplitude barely moves (δ₀ −32.40 mm yr⁻¹ under canopy control, against the forest-free headline of −31.35 and full-network fits spanning −29.0 to −31.7), so the gradient survives explicit canopy control --- the same conclusion the exclusion ladder reaches by a different route. It is a cross-check, not the headline: the headline remains the forest-free fit, because the canopy-controlled δ₀ rests on a modelled canopy term (D-046). *full* and *full_canopy* must not be compared on AIC, as the canopy term is absorbed in the within-group step and is not counted in the parameter penalty.
+
+**Naming (the δ₀ family).** Unqualified δ₀ throughout the report and this Supplement denotes the forest-free linear-capped fit --- the headline specification above (−31.35 mm yr⁻¹). The coast-edge amplitudes of the other specifications are named wherever they are quoted: full-network δ₀, canopy-controlled δ₀, C3-only δ₀, and spring δ₀ (the MAM-only refit). Each is a fitted row of *25_01_panel_fit_parameters.csv* (sources *forest_free*, *full*, *full_canopy*, *c3_only*, *forest_free_mam*). All are the decay amplitude at zero distance and hence an extrapolation beyond the network; the headline coastal figure is the reference-distance rate at 150 m (−26.19 mm yr⁻¹), not δ₀.
 
 **Per-well summer-minimum slopes.** Script 25 fits its own per-well annual summer-minimum slopes; it does *not* load per-well slopes from Script 14 (which produces cluster-centroid slopes only). For each well with at least 8 hydrological years (*PANEL_OBS_MIN_YEARS = 8*) of April--September observations, an OLS regression of summer-minimum depth on hydrological year returns a slope (m yr⁻¹) and standard error. These appear in the scatter visualization (panel a of the diagnostic figure) and as a per-well mean reported alongside the Script-14 centroid in the cluster partition.
 

@@ -54,7 +54,16 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.7.0"  # Hollingham (2026) — 2026-09-04. Methods Supplement
+__version__ = "1.8.0"  # Hollingham (2026) — 2026-09-05. Papers/Summary
+#   batch (D-131). `lookup` gains `skey`: the SOURCE-side key column name,
+#   defaulting to `key`, so a row can join a second CSV that carries the same
+#   key under a different column name (03_03 `Cluster` int ↔ 07_coeff_05
+#   `Cluster_ID`) — the n-wells join Paper 1 Table 1 needs. Matching only, no
+#   maths, no computation in config (D-126 preserved). fmt "fixed" also
+#   gains `zero_text`: a value that rounds to zero at dp renders as the
+#   document's negligible-marker (Paper 1 Table 2 residuals show "<0.001",
+#   never a signed "-0.000").
+# v1.7.0  # Hollingham (2026) — 2026-09-04. Methods Supplement
 #   batch. (1) `lookup` gains `key_re`: the key columns on BOTH sides are
 #   reduced to the pattern's first group before comparison, so a row can join
 #   to its own variant in the same CSV (17_wtf_01's "C4 (Main Forest)" and
@@ -216,8 +225,10 @@ def render(spec: dict, row: dict, sources: dict) -> str:
         if isinstance(lk, dict):
             alias, key_col, value_col = lk["source"], lk["key"], lk["col"]
             where, key_re = lk.get("where", {}), lk.get("key_re")
+            skey_col = lk.get("skey", key_col)   # source-side key name (defaults to key)
         else:
             (alias, key_col, value_col), where, key_re = lk, {}, None
+            skey_col = key_col
 
         def _key(v):
             # key_re: both sides reduced to the pattern's first group, so a
@@ -229,7 +240,7 @@ def render(spec: dict, row: dict, sources: dict) -> str:
                 raise ValueError(f"lookup key_re {key_re!r} does not match {v!r}")
             return m.group(1)
         want_key = _key(row[key_col])
-        hits = [r for r in sources[alias] if _key(r[key_col]) == want_key
+        hits = [r for r in sources[alias] if _key(r[skey_col]) == want_key
                 and all(r[c] == v for c, v in where.items())]
         if len(hits) != 1:
             raise ValueError(f"lookup {lk}: {len(hits)} match(es) "
@@ -246,8 +257,16 @@ def render(spec: dict, row: dict, sources: dict) -> str:
     elif fmt == "int":
         text = str(int(round(_num(raw)))) if _is_num(raw) else raw
     elif fmt == "fixed":
-        text = (f"{_num(raw) * spec.get('scale', 1):{sign}.{spec['dp']}f}"
-                .replace("-", MINUS) if _is_num(raw) else raw)
+        if _is_num(raw):
+            v = _num(raw) * spec.get("scale", 1)
+            # zero_text: a value that rounds to zero at dp renders as the
+            # document's negligible-marker (e.g. "<0.001"), never "-0.000"
+            if "zero_text" in spec and round(v, spec["dp"]) == 0:
+                text = spec["zero_text"]
+            else:
+                text = f"{v:{sign}.{spec['dp']}f}".replace("-", MINUS)
+        else:
+            text = raw
     elif fmt == "pvalue":
         if _is_num(raw):
             v = _num(raw)

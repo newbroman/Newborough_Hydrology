@@ -366,8 +366,8 @@ the document it was made from.
 ## What is deliberately not reproduced
 
 `_to_delete/`, `_audit_tmp/`, and the three graveyards the 2026-08-27
-restructure moved into `scratch/` and renamed flat — `scratch/report_edits__frozen/`,
-`scratch/report_edits__superseded/` and `scratch/report_edits_backups/` — a few gigabytes of pre-edit snapshots, each superseded the moment
+restructure moved into `scratch/` and renamed flat — `scratch/report_edits__frozen/`, <!-- former path -->
+`scratch/report_edits__superseded/` and `scratch/report_edits_backups/` — a few gigabytes of pre-edit snapshots, each superseded the moment <!-- former path -->
 the edit it guarded was verified. They are excluded from the Drive archive and
 from both repositories. If you find yourself wanting one, the git history of the
 public repository and the bundle taken before the 2026-08-24 rewrite are the

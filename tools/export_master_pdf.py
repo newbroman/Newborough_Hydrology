@@ -62,7 +62,11 @@ EXIT
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-09-02. JPEG quality
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-09-05. Refactored onto
+#   tools/uno_pdf.py (W137/D-135): connect/refresh/store are now shared with
+#   export_odt_pdf.py so the two PDF paths cannot drift; report.pdf output is
+#   unchanged (same load props, refresh sequence and filter data). Prior:
+# v1.2.0  # Hollingham (2026) — 2026-09-02. JPEG quality
 #   90 -> 80, matching Martin's hand export on the L14. W126 recorded a
 #   bridge-built report.pdf 27% larger than the published one and blamed the
 #   LibreOffice version; the cause was this line. Content is unaffected —
@@ -84,6 +88,9 @@ import uuid
 REPO = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO / "tools"))
 from doc_paths import MASTER_ODM                      # noqa: E402
+import uno_pdf                                       # noqa: E402
+_find_soffice = uno_pdf.find_soffice          # kept: used by main()
+_uno_available = uno_pdf.uno_available        # kept: used by main()
 
 PUBLISHED = REPO / "docs/report/report.pdf"
 FIGREF = REPO / "tools/figref_lint.py"
@@ -132,179 +139,22 @@ def _fail(msg: str, code: int = 1) -> int:
     return code
 
 
-def _find_soffice() -> str | None:
-    for name in ("soffice", "libreoffice"):
-        p = shutil.which(name)
-        if p:
-            return p
-    return None
-
-
-def _uno_available() -> bool:
-    try:
-        import uno  # noqa: F401
-        return True
-    except ImportError:
-        return False
-
-
-def _connect(port: int, profile: pathlib.Path, soffice: str):
-    """Start a private headless soffice and return (desktop, context, proc).
-
-    A PRIVATE PROFILE, every time. Sharing the user's profile means this
-    refuses to start whenever LibreOffice is already open — which, on the
-    machine where the document is being edited, is most of the time.
-    """
-    import uno
-    from com.sun.star.connection import NoConnectException
-
-    proc = subprocess.Popen(
-        [soffice, "--headless", "--norestore", "--invisible", "--nologo",
-         "--nodefault", "--nolockcheck",
-         f"-env:UserInstallation=file://{profile}",
-         f"--accept=socket,host=127.0.0.1,port={port};urp;"],
-        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-
-    local = uno.getComponentContext()
-    resolver = local.ServiceManager.createInstanceWithContext(
-        "com.sun.star.bridge.UnoUrlResolver", local)
-    url = (f"uno:socket,host=127.0.0.1,port={port};urp;"
-           f"StarOffice.ComponentContext")
-    deadline = time.time() + 120
-    while True:
-        try:
-            ctx = resolver.resolve(url)
-            break
-        except NoConnectException:
-            if time.time() > deadline:
-                proc.terminate()
-                raise TimeoutError("soffice did not accept a UNO connection "
-                                   "within 120 s")
-            time.sleep(0.5)
-    desktop = ctx.ServiceManager.createInstanceWithContext(
-        "com.sun.star.frame.Desktop", ctx)
-    return desktop, ctx, proc
-
-
-def _prop(name, value):
-    import uno
-    from com.sun.star.beans import PropertyValue
-    p = PropertyValue()
-    p.Name, p.Value = name, value
-    return p
-
-
-# PDF EXPORT SETTINGS ARE PINNED, BECAUSE THE DEFAULTS ARE NOT THE HAND EXPORT'S.
-#
-# The first automated run produced a PDF that passed every check and was
-# **26% larger** than the hand export it replaced: 36.6 MB against 28.9 MB.
-# Nothing was wrong with it — the images were simply compressed differently,
-# because `storeToURL` with no FilterData takes the API defaults and the hand
-# route took whatever was set in the GUI.
-#
-# That matters more now than it did, and the reason is the automation itself.
-# report.pdf is a ~30 MB binary committed to git; while it was hand-exported it
-# was rebuilt rarely, and every rebuild now costs its full size in history
-# whether or not the prose changed. Making the export cheap makes its size a
-# standing cost rather than an occasional one.
-#
-# So the settings are named here rather than inherited. JPEG at quality 90 and
-# a 300 DPI ceiling are LibreOffice's own dialog defaults for a print-quality
-# export, and 300 DPI is the figure resolution this project already targets
-# (config.FIG_TARGET_PRINT_DPI). Change them deliberately, and expect the size
-# report below to tell you.
-PDF_FILTER_DATA = {
-    "UseLosslessCompression": False,   # JPEG, not PNG-in-PDF
-    "Quality": 80,                     # MATCHES MARTIN'S HAND EXPORT ON THE L14.
-    #   LibreOffice's own default is 90, and that is what this tool used until
-    #   2026-09-02 — which is why W126 found a bridge-built report.pdf at
-    #   36.8 MB against 28.9 MB published, +27%, and attributed it to the
-    #   LibreOffice version. It was not the version: it was ten points of JPEG
-    #   quality on several hundred figure images. Martin compresses to 80 by
-    #   hand, so the tool now does the same and SIZE_WARN_FRACTION stops firing
-    #   on a correct export.
-    "ReduceImageResolution": True,
-    "MaxImageResolution": 300,         # matches config.FIG_TARGET_PRINT_DPI
-    "ExportBookmarks": True,           # the master's headings, for navigation
-    "UseTaggedPDF": True,              # accessibility; a journal will want it
-}
 # Warn above this, as a fraction of the currently published file. Not a gate:
 # a report that genuinely grew is not a defect, and a size check that blocks a
 # correct export teaches people to pass --force.
 SIZE_WARN_FRACTION = 0.15
 
 
-def _filter_data():
-    return tuple(_prop(k, v) for k, v in PDF_FILTER_DATA.items())
-
-
 def export(out_pdf: pathlib.Path) -> bool:
-    import uno  # noqa: F401
-    soffice = _find_soffice()
-    port = 2002 + (os.getpid() % 500)
-    profile = pathlib.Path(f"/tmp/lo_master_{uuid.uuid4().hex[:8]}")
-    profile.mkdir(parents=True, exist_ok=True)
-    desktop = proc = None
-    doc = None
-    try:
-        desktop, _ctx, proc = _connect(port, profile, soffice)
-        src = uno.systemPathToFileUrl(str(MASTER_ODM))
-        # UpdateDocMode.FULL_UPDATE = 3. Named as an integer because the
-        # constant group is not always importable from python3-uno.
-        load = (_prop("Hidden", True),
-                _prop("UpdateDocMode", 3),
-                _prop("ReadOnly", False))
-        print(f"  opening {MASTER_ODM.relative_to(REPO)} ...")
-        doc = desktop.loadComponentFromURL(src, "_blank", 0, load)
-        if doc is None:
-            return not _fail("LibreOffice returned no document")
+    """Refresh (links, fields, indexes) and export the master to out_pdf.
 
-        # 1. links — the sub-documents. Without this the master is a shell.
-        try:
-            doc.updateLinks()
-            print("  links updated (sub-documents pulled)")
-        except AttributeError:
-            print("  note: this document exposes no XLinkUpdate — "
-                  "not a master, or already flat")
-
-        # 2. fields — the Figure/Table sequence numbers.
-        doc.getTextFields().refresh()
-        print("  text fields refreshed")
-
-        # 3. indexes — contents and the figure index.
-        idx = doc.getDocumentIndexes()
-        for i in range(idx.getCount()):
-            idx.getByIndex(i).update()
-        print(f"  {idx.getCount()} index(es) rebuilt")
-
-        # 4. fields again — an index rebuild moves page numbers under them.
-        doc.getTextFields().refresh()
-        doc.refresh()
-
-        out_pdf.parent.mkdir(parents=True, exist_ok=True)
-        dst = uno.systemPathToFileUrl(str(out_pdf))
-        print("  exporting PDF ...")
-        doc.storeToURL(dst, (_prop("FilterName", "writer_pdf_Export"),
-                             _prop("FilterData", uno.Any(
-                                 "[]com.sun.star.beans.PropertyValue",
-                                 _filter_data()))))
-        return True
-    finally:
-        try:
-            if doc is not None:
-                doc.close(False)
-        except Exception:
-            pass
-        try:
-            if desktop is not None:
-                desktop.terminate()
-        except Exception:
-            pass
-        if proc is not None:
-            try:
-                proc.wait(timeout=60)
-            except subprocess.TimeoutExpired:
-                proc.kill()
+    The connect/refresh/store plumbing lives in tools/uno_pdf.py since 1.3.0.
+    profile_prefix stays "lo_master" so lock_is_our_own_corpse() still
+    recognises this tool's own stale locks. update_links=True pulls the
+    eleven linked sub-documents — the step that makes this a master export.
+    """
+    return uno_pdf.export_pdf(MASTER_ODM, out_pdf, update_links=True,
+                              profile_prefix="lo_master")
 
 
 def caption_count(pdf: pathlib.Path) -> int | None:

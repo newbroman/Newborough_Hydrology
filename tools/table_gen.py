@@ -54,7 +54,12 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.9.0"  # Hollingham (2026) — 2026-09-05. fmt "fixed" gains
+__version__ = "1.10.0"  # Hollingham (2026) — 2026-09-05. The cell parser
+#   (_SPAN_P) accepts a paragraph carrying inert inline markers — a self-closing
+#   <text:bookmark/> anchoring a section (Paper 2 Table 1 n cell) — alongside
+#   text and spans; markers are preserved in place and the tag-sequence guard
+#   backstops the write. Was refusing the whole table over one such cell.
+# v1.9.0  # Hollingham (2026) — 2026-09-05. fmt "fixed" gains
 #   `plus_if`: prefix "+" to an otherwise-unsigned magnitude when a sibling
 #   column equals a given value — a relief shown "+N%" beside same-direction
 #   rows shown unsigned (report10 Table 1, D-132). Rendering only.
@@ -172,9 +177,17 @@ _CELL = re.compile(
     r"|<table:table-cell\b[^>]*>(.*?)</table:table-cell>", re.S)
 _ROW = re.compile(r"<table:table-row\b[^>]*>(.*?)</table:table-row>", re.S)
 _PLAIN_P = re.compile(r"^<text:p\b[^>]*>([^<]*)</text:p>$", re.S)
-# A cell whose paragraph holds only text and <text:span> tags: the runs
-# LibreOffice leaves behind when a value is re-typed. Anything else refuses.
-_SPAN_P = re.compile(r"^<text:p\b[^>]*>((?:[^<]|<text:span\b[^>]*>|</text:span>)*)</text:p>$", re.S)
+# A cell whose paragraph holds text, <text:span> runs (the runs LibreOffice
+# leaves behind when a value is re-typed), and/or inert inline markers — a
+# self-closing <text:bookmark(-start|-end)/> anchoring a section (Paper 2
+# Table 1's n cell). Markers carry no display text and are preserved in place
+# by the tag-split in _cell_nodes; the tag-sequence guard backstops the write.
+# Anything else refuses.
+_SPAN_P = re.compile(
+    r"^<text:p\b[^>]*>("
+    r"(?:[^<]|<text:span\b[^>]*>|</text:span>"
+    r"|<text:bookmark(?:-start|-end)?\b[^>]*/>)*"
+    r")</text:p>$", re.S)
 _EMPTY_P = re.compile(r"^<text:p\b[^>]*/>$")
 _VALUE_ATTR = re.compile(r'\boffice:value="([^"]*)"')
 

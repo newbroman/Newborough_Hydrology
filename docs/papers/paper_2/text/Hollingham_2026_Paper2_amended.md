@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_2/Hollingham_2026_Paper2_amended_v16.odt — do not edit.
+<!-- GENERATED MIRROR of docs/papers/paper_2/Hollingham_2026_Paper2_amended_v17.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Hydrological response of a coastal dune aquifer to plantation clearfell and dune scraping: a BACI analysis of a 21-year manual record
@@ -149,14 +149,14 @@ C5 captures a larger per-area clearfell response than C4 --- about a quarter mor
 
 **Table 1.** Three-counterfactual ANCOVA-BACI clearfell-step estimates (m) against each control tier, with the scraping covariate. The Forest control is the primary test. Climate- and Combined-control rows are contaminated by the coastal-retreat gradient; the Climate-control null is discussed in the text as a convergence result rather than as an independent clearfell estimate. Values read from the live pipeline (10a_report_numbers.csv).
 
-  ---------- -------- -------- -------------------- --------- -------- --------- ------ -------------------------------------------------
-  Forest     Impact   +0.113   \[+0.042, +0.183\]   0.002     +0.324   0.004     0.24   163
-  Forest     Edge     +0.029   \[−0.021, +0.080\]   0.25      +0.568   \<0.001   0.46   159
-  Climate    Impact   −0.014   \[−0.063, +0.034\]   0.56      +0.029   0.81      0.21   147
-  Climate    Edge     −0.106   \[−0.167, −0.046\]   \<0.001   +0.291   0.46      0.24   144
-  Combined   Impact   +0.069   \[+0.034, +0.105\]   \<0.001   +0.076   0.31      0.26   145
-  Combined   Edge     −0.020   \[−0.046, +0.006\]   0.13      +0.311   0.01      0.48   142[]{#results}[]{#forest-management-scenarios}
-  ---------- -------- -------- -------------------- --------- -------- --------- ------ -------------------------------------------------
+  ---------- -------- -------- -------------------- --------- -------- --------- ------- -------------------------------------------------
+  Forest     Impact   +0.113   \[+0.042, +0.184\]   0.002     +0.324   0.004     0.241   163
+  Forest     Edge     +0.030   \[−0.021, +0.080\]   0.249     +0.569   \<0.001   0.457   159
+  Climate    Impact   −0.015   \[−0.063, +0.034\]   0.555     +0.028   0.814     0.206   147
+  Climate    Edge     −0.107   \[−0.167, −0.046\]   \<0.001   +0.289   0.456     0.241   144
+  Combined   Impact   +0.070   \[+0.034, +0.105\]   \<0.001   +0.077   0.305     0.256   145
+  Combined   Edge     −0.020   \[−0.046, +0.006\]   0.129     +0.311   0.009     0.484   142[]{#results}[]{#forest-management-scenarios}
+  ---------- -------- -------- -------------------- --------- -------- --------- ------- -------------------------------------------------
 
 # 5. Discussion
 

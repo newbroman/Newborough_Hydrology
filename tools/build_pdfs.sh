@@ -82,7 +82,9 @@ if [[ $CHECK -eq 0 ]]; then
 fi
 
 # Decide per row; collect the ones that need building.
-declare -a B_SRC B_OUT
+# Explicit empty-array assignment (not `declare -a`): under set -u a declared-but-
+# never-assigned array errors on ${#arr[@]} when nothing is stale (bash 5.1).
+B_SRC=(); B_OUT=()
 for row in "${MAP[@]}"; do
   glob="${row%%|*}"; out="${row##*|}"
   src="$(latest "$glob")"

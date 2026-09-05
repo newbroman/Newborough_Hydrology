@@ -53,7 +53,11 @@ References:
     Freeman, S. (2008) Hydrological impact of Corsican pine at Newborough Warren.
 """
 
-__version__ = "1.9.2"  # Hollingham (2026) — 2026-08-19. Reads the per-well
+__version__ = "1.10.0"  # Hollingham (2026) — 2026-09-05. Emits
+#   18_wtf_08_cluster_half_life_summary.csv: per-cluster t half min/median/max
+#   and n over the non-excluded wells (Paper 1 Table 7). Emission only; the
+#   per-well 18_wtf_05 is unchanged. Full precision (D-035).
+# v1.9.2  # Hollingham (2026) — 2026-08-19. Reads the per-well
 #   WTF Sy table from OUT_18_WELL_SY_TABLE; INT_WTF_WELL_SY is retired
 #   (D-038). Pure path/symbol change, values identical.
 #   Also drops the duplicate write of well_results to the retired
@@ -100,6 +104,7 @@ from utils.paths import (
     OUT_18_STORAGE_DRAINAGE_INDEX_CSV,
     OUT_18_AQUIFER_SYNTHESIS, OUT_18_REPORT_NUMBERS,
     OUT_18_SY_SPATIAL_TRENDS,
+    OUT_18_CLUSTER_HALFLIFE_SUMMARY,
 )
 from utils.report_numbers_utils import ReportNumbers
 from utils.config import (
@@ -1314,6 +1319,20 @@ def main(supplementary=True):
         sdi_df = compute_storage_drainage_index(well_results)
         sdi_df.to_csv(OUT_18_STORAGE_DRAINAGE_INDEX_CSV, index=False)
         print(f"  Saved → {OUT_18_STORAGE_DRAINAGE_INDEX_CSV.name}")
+
+        # Per-cluster t½ summary (Paper 1 Table 7): min/median/max and the well
+        # count over the NON-EXCLUDED wells (the same exclusions the per-well
+        # table applies). Full precision — the config renders dp (D-035).
+        valid_sdi = sdi_df[~sdi_df["Excluded"]]
+        hl_summary = (valid_sdi.groupby("Cluster")["half_life_months"]
+                      .agg(t_half_min="min", t_half_median="median",
+                           t_half_max="max", n_wells="count")
+                      .reset_index())
+        hl_summary["Cluster_Label"] = hl_summary["Cluster"].map(CLUSTER_LABELS)
+        hl_summary = hl_summary[["Cluster_Label", "t_half_min", "t_half_median",
+                                 "t_half_max", "n_wells"]]
+        hl_summary.to_csv(OUT_18_CLUSTER_HALFLIFE_SUMMARY, index=False)
+        print(f"  Saved → {OUT_18_CLUSTER_HALFLIFE_SUMMARY.name}")
 
         # ── Fig 48 — Aquifer diagnostic synthesis scatter ─────────────────
         print("\nGenerating aquifer diagnostic synthesis scatter (Fig 48)...")

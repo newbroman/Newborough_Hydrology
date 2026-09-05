@@ -832,6 +832,7 @@ OUT_18_HALFLIFE_MAP         = DIR_18 / "18_wtf_05_halflife_map.png"
 OUT_18_STORAGE_DRAINAGE_INDEX_CSV = DIR_18 / "18_wtf_05_storage_drainage_index.csv"
 OUT_18_AQUIFER_SYNTHESIS    = DIR_18 / "18_wtf_06_aquifer_diagnostic_synthesis.png"
 OUT_18_SY_SPATIAL_TRENDS    = DIR_18 / "18_wtf_07_sy_spatial_trends.csv"  # open-dune Sy plane + within-forest Sy correlations
+OUT_18_CLUSTER_HALFLIFE_SUMMARY = DIR_18 / "18_wtf_08_cluster_half_life_summary.csv"  # per-cluster t half min/median/max + n over non-excluded wells (Paper 1 Table 7)
 OUT_18_REPORT_NUMBERS       = DIR_18 / "18_report_numbers.csv"        # §4.9.3 half-life / 1/β₃ stats
 
 # Script 19 — Spatial groundwater analysis

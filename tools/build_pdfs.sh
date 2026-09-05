@@ -14,6 +14,11 @@
 # chapters nor refreshes the sequence fields the figure numbers live in. Since
 # 2026-08-28 tools/export_master_pdf.py does that through UNO and lints the result
 # before publishing it; nrg_git.sh offers it immediately after this script runs.
+#
+# Since 2026-09-05 (W137/D-135) the per-document export refreshes the TOC and
+# sequence fields first, through UNO (tools/export_odt_pdf.py, sharing
+# tools/uno_pdf.py with the master export). If python3-uno is not importable it
+# WARNS and falls back to a plain --convert-to (page/figure numbers unrefreshed).
 
 set -euo pipefail
 # Work from the repo root no matter where this script lives (root, tools/, …).
@@ -54,8 +59,30 @@ manifest_line() {  # $1 pdf  $2 src ; use the PDF's own mtime (accurate whether 
   echo "$1  <-  $(basename "$2")  |  $when"
 }
 
-built=0; current=0; stale=0; missing=0; noodt=0
+built=0; current=0; stale=0; missing=0; noodt=0; fellback=0
 NEW_MANIFEST="$TMP/manifest"; : > "$NEW_MANIFEST"
+
+# Find a UNO-capable interpreter for the refreshing export. python3-uno lives in
+# the system dist-packages; a venv built without --system-site-packages cannot
+# import it (the nrg_git 1.13.0 lesson). Empty => fall back to --convert-to.
+UNO_PY=""
+if [[ $CHECK -eq 0 ]]; then
+  for c in python3 /usr/bin/python3 python3.12 /usr/bin/python3.12; do
+    if command -v "$c" >/dev/null 2>&1 && "$c" -c 'import uno' >/dev/null 2>&1; then
+      UNO_PY="$c"; break
+    fi
+  done
+  if [[ -z "$UNO_PY" ]]; then
+    echo "  WARNING: python3-uno not importable by any interpreter tried."
+    echo "           Falling back to 'soffice --convert-to' — the TOC page numbers"
+    echo "           and figure/table numbers will NOT be refreshed (W137)."
+    echo "           Install python3-uno for refreshed PDFs."
+    echo
+  fi
+fi
+
+# Decide per row; collect the ones that need building.
+declare -a B_SRC B_OUT
 for row in "${MAP[@]}"; do
   glob="${row%%|*}"; out="${row##*|}"
   src="$(latest "$glob")"
@@ -74,16 +101,35 @@ for row in "${MAP[@]}"; do
   fi
 
   mkdir -p "$(dirname "$out")"
-  "$SOFFICE" --headless --convert-to pdf --outdir "$TMP" "$src" >/dev/null 2>&1 || true
-  gen="$TMP/$(basename "${src%.odt}").pdf"
-  if [[ -f "$gen" ]]; then
-    mv -f "$gen" "$out"
-    echo "  built     $out  <- $(basename "$src")"; built=$((built+1))
-    manifest_line "$out" "$src" >> "$NEW_MANIFEST"
-  else
-    echo "  FAILED    $out  <- $(basename "$src")"
-  fi
+  B_SRC+=("$src"); B_OUT+=("$out")
 done
+
+# Build the collected rows, in one soffice session where UNO is available.
+if [[ $CHECK -eq 0 && ${#B_SRC[@]} -gt 0 ]]; then
+  marker="$TMP/.mk"; touch -d '1 second ago' "$marker" 2>/dev/null || touch "$marker"
+  if [[ -n "$UNO_PY" ]]; then
+    ARGS=(); for k in "${!B_SRC[@]}"; do ARGS+=("${B_SRC[$k]}" "${B_OUT[$k]}"); done
+    "$UNO_PY" tools/export_odt_pdf.py "${ARGS[@]}" || true
+  else
+    for k in "${!B_SRC[@]}"; do
+      src="${B_SRC[$k]}"; out="${B_OUT[$k]}"
+      "$SOFFICE" --headless --convert-to pdf --outdir "$TMP" "$src" >/dev/null 2>&1 || true
+      gen="$TMP/$(basename "${src%.odt}").pdf"
+      [[ -f "$gen" ]] && mv -f "$gen" "$out"
+    done
+  fi
+  # A file is built iff it was written after the marker (src ODTs are older).
+  for k in "${!B_OUT[@]}"; do
+    src="${B_SRC[$k]}"; out="${B_OUT[$k]}"
+    if [[ -f "$out" && "$out" -nt "$marker" ]]; then
+      if [[ -n "$UNO_PY" ]]; then echo "  built     $out  <- $(basename "$src")"
+      else echo "  built*    $out  <- $(basename "$src")  (unrefreshed fallback)"; fellback=$((fellback+1)); fi
+      built=$((built+1)); manifest_line "$out" "$src" >> "$NEW_MANIFEST"
+    else
+      echo "  FAILED    $out  <- $(basename "$src")"
+    fi
+  done
+fi
 
 echo
 if [[ $CHECK -eq 1 ]]; then
@@ -92,7 +138,8 @@ if [[ $CHECK -eq 1 ]]; then
 else
   { echo "# published PDF  <-  source ODT  |  built (UTC)"; sort "$NEW_MANIFEST"; } > "$MANIFEST"
   echo "Rebuilt $built PDF(s); $current already current. Manifest: $MANIFEST"
+  [[ $fellback -gt 0 ]] && echo "  NOTE: $fellback built via --convert-to fallback (UNrefreshed) — install python3-uno."
   echo "Note: report.pdf (from report.odm) is not built here — a master document needs its"
-echo "      links, fields and indexes refreshed first. tools/export_master_pdf.py does that"
-echo "      and lints the result; nrg_git.sh offers it straight after this step."
+  echo "      links, fields and indexes refreshed first. tools/export_master_pdf.py does that"
+  echo "      and lints the result; nrg_git.sh offers it straight after this step."
 fi

@@ -18,8 +18,14 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.5.0 - 2026-08-31
+# VERSION 1.6.0 - 2026-09-05
 # CHANGELOG
+#   1.6.0 (2026-09-05): venv self-guard. The gate now activates the project
+#     venv itself when no virtualenv is active, so a forgotten activate no
+#     longer drops the run onto system python. env_audit still gates right
+#     after, so the guard removes a manual step without ever masking a wrong
+#     interpreter. Prompted by a 2026-09-05 run under system python (numpy
+#     1.26 vs recorded 2.4.6, cairosvg missing) reading as a FAIL.
 #   1.5.0 (2026-08-31): output_lag GATES (D-102). It ran advisory since
 #     2026-08-27 because it cannot tell a coefficient change from a docstring
 #     edit, and a check that cries stale over comments is one people learn to
@@ -57,6 +63,18 @@ cd "$(dirname "$0")/.." || exit 1
 FIX=0
 [ "${1:-}" = "--fix" ] && FIX=1
 rc=0
+
+# Run under the project venv (the recorded interpreter) unless a virtualenv is
+# already active. Spares a forgotten `source venv/bin/activate` dropping the run
+# onto system python (env_audit then fails on the wrong libs, as it did on
+# 2026-09-05). This NEVER masks a mismatch: env_audit runs immediately below and
+# gates, so a machine whose venv is not the recorded interpreter still fails
+# loudly. A venv already active (direnv, manual activate, or a bridge shim that
+# exports VIRTUAL_ENV) is left untouched.
+if [ -z "${VIRTUAL_ENV:-}" ] && [ -f venv/bin/activate ]; then
+  # shellcheck disable=SC1091
+  source venv/bin/activate
+fi
 
 # FIRST, deliberately. Several checks below print a version and act on it -
 # refresh_mirrors refuses to write under an old pandoc, figref_lint needs

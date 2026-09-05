@@ -18,8 +18,11 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.6.0 - 2026-09-05
+# VERSION 1.7.0 - 2026-09-05
 # CHANGELOG
+#   1.7.0 (2026-09-05): input_provenance_lint gate (W132) beside output_lag —
+#     watches the input->output boundary. Skips cleanly until run_analysis.py
+#     records the raw-input hashes; --selftest first.
 #   1.6.0 (2026-09-05): venv self-guard. The gate now activates the project
 #     venv itself when no virtualenv is active, so a forgotten activate no
 #     longer drops the run onto system python. env_audit still gates right
@@ -357,6 +360,16 @@ python3 tools/export_lag.py --no-pages | grep -E "^  (STALE|MISSING|UNMAPPED|UNB
 # `python3 run_analysis.py --full --with-supplementary`, and this is the gate
 # that enforces it.
 python3 tools/output_lag.py --quiet --gate || rc=1
+
+echo
+echo "── input provenance (do the outputs match the committed INPUTS?) ────"
+# W132: output_lag watches script->output; this watches input->output. A raw
+# record can change under a corpus of committed numbers with every other gate
+# green (the D-115 case). Skips cleanly until run_analysis.py records the
+# hashes. --selftest first, because a green gate proves nothing if its
+# detection has stopped working.
+python3 tools/input_provenance_lint.py --selftest >/dev/null || rc=1
+python3 tools/input_provenance_lint.py --gate || rc=1
 
 echo
 echo "── archive (are the canonical documents anywhere but this disk?) ─────"

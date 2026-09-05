@@ -999,6 +999,29 @@ TABLES = [
              "plus_if": {"gain_or_loss": "gain"}, "re": [r"$", "%"]},
         ],
     },
+    {
+        "id": "paper2/Table1",
+        "doc": "docs/papers/paper_2/Hollingham_2026_Paper2_amended_v*.odt",
+        "table_name": "Table1",
+        "caption": "Paper 2 - ANCOVA-BACI clearfell and scraping steps by control and zone (Script 10a)",
+        # same joined grid as report9 Table 1.7 (10a_01), minus the Sig column
+        "sources": {"anc": "outputs/10_clearfell_baci/10a_01_ancova_comparison_table.csv"},
+        "rows": {"source": "anc",
+                 "filter": {"Control": ["Forest", "Climate", "Combined"]}},   # FarField not shown
+        "header": ["Control", "Zone", "Clearfell step (m)", "95% CI", "p",
+                   "Scraping step (m)", "Scraping p", "R²", "n"],
+        "columns": [
+            {"col": "Control", "fmt": "text"},
+            {"col": "Zone",    "fmt": "text"},
+            {"col": "Clearfell_step_m", "fmt": "fixed", "dp": 3, "sign": True},
+            {"fmt": "ci", "cols": ["Clearfell_CI_lo_m", "Clearfell_CI_hi_m"], "dp": 3, "sign": True},
+            {"col": "Clearfell_p",   "fmt": "pvalue", "dp": 3},
+            {"col": "Scraping_step_m", "fmt": "fixed", "dp": 3, "sign": True},
+            {"col": "Scraping_p",    "fmt": "pvalue", "dp": 3},
+            {"col": "R2",            "fmt": "fixed", "dp": 3},
+            {"col": "N",             "fmt": "int"},
+        ],
+    },
 ]
 
 

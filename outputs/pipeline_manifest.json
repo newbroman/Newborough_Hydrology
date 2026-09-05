@@ -14,7 +14,7 @@
   "analytical_phases": 15,
   "scraping_substeps": 5,
   "clearfell_substeps": 14,
-  "generated": "2026-09-05T17:36:27",
+  "generated": "2026-09-05T18:44:37",
   "steps": [
     {
       "index": 1,
@@ -484,5 +484,19 @@
       "exec": "default",
       "phase": 17
     }
-  ]
+  ],
+  "input_provenance": {
+    "data/Newborough_Cleaned_For_Model.csv": {
+      "sha256": "34c9acae8d2dfd080de9f00dc2c441752878376fb649ed1d67a986a2004ad31b",
+      "bytes": 107817
+    },
+    "data/RAF_Valley_Climate.csv": {
+      "sha256": "4919c822504c42959faa52403ec3daad852719e39e1343fd43c3fa70a3bb092f",
+      "bytes": 32094
+    },
+    "data/well_metadata.csv": {
+      "sha256": "44f7fc688250f9fca92c3a6d7347cdbef5a639819ed2a82ebabcbc06a0a2d7c4",
+      "bytes": 7035
+    }
+  }
 }

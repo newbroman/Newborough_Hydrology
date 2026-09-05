@@ -1022,6 +1022,22 @@ TABLES = [
             {"col": "N",             "fmt": "int"},
         ],
     },
+    {
+        "id": "paper1/Table7",
+        "doc": "docs/papers/paper_1/Paper1_v*.odt",
+        "table_name": "Table7",
+        "caption": "Paper 1 - drainage decay half-life t half by cluster (Script 18)",
+        "sources": {"hl": "outputs/18_wtf_spatial/18_wtf_08_cluster_half_life_summary.csv"},
+        "rows": {"source": "hl"},
+        "header": ["Cluster", "t½ min", "t½ median", "t½ max", "n "],   # "n " — trailing space is in the ODT header cell
+        "columns": [
+            {"col": "Cluster_Label", "fmt": "text", "re": [r"^(C\d) \(([^)]+)\)$", r"\1 \2"]},
+            {"col": "t_half_min",    "fmt": "fixed", "dp": 1},   # months, 1 dp (D-131 3dp is for coefficients; months to 3dp is spurious)
+            {"col": "t_half_median", "fmt": "fixed", "dp": 1},
+            {"col": "t_half_max",    "fmt": "fixed", "dp": 1},
+            {"col": "n_wells",       "fmt": "int"},
+        ],
+    },
 ]
 
 

@@ -970,6 +970,35 @@ TABLES = [
             {"col": "LCSC_percent",            "fmt": "fixed", "dp": 3, "scale": 0.01},
         ],
     },
+    {
+        "id": "report10/Table1",
+        "doc": 10,
+        "table_name": "Table1",
+        "caption": "Table 1 - driver footing: site-mean equivalent depth and share of coastal retreat (Script 37b)",
+        "sources": {"df": "outputs/37b_driver_footing/37b_driver_footing.csv"},
+        # the five drivers the table shows, in published order; slr and the two
+        # scrape sub-rows are dropped (the net scrape is shown).
+        "rows": {"source": "df",
+                 "filter": {"component": ["climate", "coast_erosion", "scrape_net",
+                                          "clearfell", "broadleaf"]},
+                 "order": {"col": "component",
+                           "values": ["climate", "coast_erosion", "scrape_net",
+                                      "clearfell", "broadleaf"]}},
+        "header": ["Driver", "Equivalent depth (site-mean, 20 yr)",
+                   "Relative to coastal retreat"],
+        "columns": [
+            {"col": "component", "fmt": "map", "map": {
+                "climate": "Unexplained (uniform)", "coast_erosion": "Coastal retreat",
+                "scrape_net": "Dune scrape (net)", "clearfell": "Clearfell (relief)",
+                "broadleaf": "Broadleaf restock"}},
+            {"col": "equivalent_depth_site_mean_mm", "fmt": "fixed", "dp": 0,
+             "sign": True, "re": [r"$", " mm"]},
+            # share of coastal retreat; the relief (a gain) shown "+N%" as published,
+            # same-direction losses unsigned (plus_if on gain_or_loss; D-132)
+            {"col": "pct_of_coast", "fmt": "fixed", "dp": 0,
+             "plus_if": {"gain_or_loss": "gain"}, "re": [r"$", "%"]},
+        ],
+    },
 ]
 
 

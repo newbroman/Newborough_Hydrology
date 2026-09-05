@@ -152,7 +152,12 @@ import uuid
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.10.0"  # 2026-09-05: Record input_provenance (SHA-256 +
+__version__ = "2.11.0"  # 2026-09-05: run_full_pipeline warns (never blocks)
+#   when the checkout is behind its upstream, so a run does not produce
+#   committed outputs from stale code (the 2026-09-05 case where a run under
+#   an out-of-date run_analysis wrote a manifest a version behind HEAD and
+#   the input_provenance recording was silently missed).
+#   2.10.0 (2026-09-05): Record input_provenance (SHA-256 +
 #   byte length of the REQUIRED_DATA raw inputs) in the manifest on a
 #   from-step-1 full run; carry it forward unchanged on --manifest-only and
 #   a --from N>1 resume. Gated by tools/input_provenance_lint.py (W132).
@@ -1151,7 +1156,40 @@ def run_phase(phase_label: str, from_step: int = 1, include_optin: bool = False,
 
 # ── Pipeline runners ──────────────────────────────────────────────────────────
 
+def _warn_if_stale() -> None:
+    """Best-effort, NEVER blocking: warn when this checkout is behind its remote,
+    so a run does not silently produce committed outputs from stale pipeline code.
+    On 2026-09-05 a run under an out-of-date run_analysis wrote a manifest a
+    version behind HEAD and the input_provenance recording (W132) was missed. A
+    short quiet fetch refreshes the remote view; anything that fails here
+    (offline, no upstream, not a work tree, no git) is ignored."""
+    import subprocess
+    def _git(*a, timeout=10):
+        return subprocess.run(["git", "-C", str(ROOT_DIR), *a],
+                              capture_output=True, text=True, timeout=timeout)
+    try:
+        if _git("rev-parse", "--is-inside-work-tree").stdout.strip() != "true":
+            return
+        try:
+            _git("fetch", "--quiet", timeout=12)
+        except Exception:
+            pass
+        up = _git("rev-parse", "--abbrev-ref", "--symbolic-full-name",
+                  "@{u}").stdout.strip()
+        if not up:
+            return
+        behind = _git("rev-list", "--count", "HEAD..%s" % up).stdout.strip()
+        if behind.isdigit() and int(behind) > 0:
+            say_warn("this checkout is %s commit(s) BEHIND %s - pull before a run "
+                     "you intend to commit, or the outputs and manifest will be "
+                     "produced from stale code (running run_analysis %s)."
+                     % (behind, up, __version__))
+    except Exception:
+        pass
+
+
 def run_full_pipeline(from_step: int = 1, include_supplementary: bool = False) -> None:
+    _warn_if_stale()
     ensure_paths()
     build_manifest(write=True, record_inputs=(from_step == 1))
     _t_start = time.time()

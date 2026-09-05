@@ -40,6 +40,9 @@ trend_annual_rain_1960_2025,,1960-2025,0.5663730299551362,mm/yr,"OLS trend in an
 trend_annual_rain_1960_2025_t,,1960-2025,0.8018990477231848,,t-statistic of trend_annual_rain_1960_2025
 trend_annual_rain_1990_2025,,1990-2025,3.6217374517374514,mm/yr,"OLS trend in annual rainfall over the 1990-2025 window, n=36. Nested with the other rainfall windows and sharing an end year, exactly as the PET windows are: evidence about long standing, NOT a test of acceleration."
 trend_annual_rain_1990_2025_t,,1990-2025,1.9744066089780061,,t-statistic of trend_annual_rain_1990_2025
+mean_annual_rain_pre_felling,,2006-2017,887.2999999999998,mm,mean annual precipitation over complete well-record years up to and including the 2017 clearfell (n=12); split derived from config.CLEARFELL_DATE_ISO.
+mean_annual_rain_post_felling,,2018-2025,896.2249999999999,mm,mean annual precipitation over complete well-record years after the clearfell (n=8).
+rain_pre_post_felling_diff,,2018-2025 vs 2006-2017,8.925000000000068,mm,"post minus pre; small relative to interannual variability, the basis for 'no meaningful rainfall difference' either side of the fell."
 var_annual_pet_mean,,2007-2025,651.9939101030369,mm,"mean of the annual series, n=19"
 var_annual_pet_sd,,2007-2025,20.23759876694094,mm,standard deviation of the annual series
 var_annual_pet_cv_pct,,2007-2025,3.103955183222911,%,coefficient of variation: sd as a percentage of the mean. This is why PET separates from zero and a larger winter rainfall trend does not.

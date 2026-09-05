@@ -813,6 +813,163 @@ TABLES = [
             {"col": "Clearfell_p", "fmt": "pvalue", "dp": 3, "re": [r"^<", "< "]},   # "< 0.001" with the space, as published
         ],
     },
+    {
+        "id": "paper1/Table1",
+        "doc": "docs/papers/paper_1/Paper1_v*.odt",
+        "table_name": "Table1",
+        "caption": "Paper 1 - cluster mechanistic characterization (Script 03)",
+        # n wells is the cluster membership count (7/24/21/9/5), NOT the CSV's
+        # `n` (observation count); it is joined from 07_coeff_05 on the integer
+        # cluster id (co `Cluster` <-> nw `Cluster_ID`) via lookup skey.
+        "sources": {"co": "outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv",
+                    "nw": "outputs/07_spatial_coefficients/07_coeff_05_cluster_ranges.csv"},
+        "rows": {"source": "co"},
+        "header": ["Cluster", "n wells", "β₁", "β₂", "−β₃", "LCSC (%)", "R²"],
+        "columns": [
+            {"col": "Cluster_Label", "fmt": "text", "re": [r"^(C\d) \(([^)]+)\)$", r"\1 \2"]},
+            {"lookup": {"source": "nw", "key": "Cluster", "skey": "Cluster_ID", "col": "n"}, "fmt": "int"},
+            {"col": "beta_1_recharge",         "fmt": "fixed", "dp": 3},   # 3 dp house policy (D-131)
+            {"col": "beta_2_atmospheric_draw", "fmt": "fixed", "dp": 3},
+            # header reads -β₃; beta_3_drainage is stored positive, shown as-is
+            {"col": "beta_3_drainage",         "fmt": "fixed", "dp": 3},
+            {"col": "LCSC_percent",            "fmt": "fixed", "dp": 3},
+            {"col": "R2",                      "fmt": "fixed", "dp": 3},
+        ],
+    },
+    {
+        "id": "paper1/Table2",
+        "doc": "docs/papers/paper_1/Paper1_v*.odt",
+        "table_name": "Table2",
+        "caption": "Paper 1 - mean monthly head-space water balance (Script 16)",
+        "sources": {"wb": "outputs/16_water_balance/16_water_bal_table.csv"},
+        "rows": {"source": "wb"},
+        "header": ["Cluster", "Recharge", "Atm. draw", "Drainage", "Total loss",
+                   "Residual", "Drain % / ET %"],
+        "columns": [
+            {"col": "Label", "fmt": "text", "re": [r"^(C\d) \(([^)]+)\)$", r"\1 \2"]},
+            {"col": "Recharge_m_month",   "fmt": "fixed", "dp": 3},
+            {"col": "ET_draw_m_month",    "fmt": "fixed", "dp": 3},
+            {"col": "Drainage_m_month",   "fmt": "fixed", "dp": 3},
+            {"col": "Total_loss_m_month", "fmt": "fixed", "dp": 3},
+            {"col": "Residual_m_month",   "fmt": "fixed", "dp": 3, "sign": True, "zero_text": "<0.001"},
+            {"fmt": "template", "template": "{Drainage_pct:.0f} / {ET_pct:.0f}"},
+        ],
+    },
+    {
+        "id": "paper1/Table3",
+        "doc": "docs/papers/paper_1/Paper1_v*.odt",
+        "table_name": "Table3",
+        "caption": "Paper 1 - annual volumetric water balance (Script 16)",
+        "sources": {"vb": "outputs/16_water_balance/16_water_bal_vol_table.csv"},
+        "rows": {"source": "vb"},
+        "header": ["Cluster", "P", "I", "P_net", "ET (mid)", "Drainage (mid)"],
+        "columns": [
+            {"col": "Label", "fmt": "text", "re": [r"^(C\d) \(([^)]+)\)$", r"\1 \2"]},
+            # annual mm/yr are whole-mm quantities: integer, as report9 renders them
+            {"col": "P_mm_yr",         "fmt": "fixed", "dp": 0},
+            {"col": "I_mm_yr",         "fmt": "fixed", "dp": 0},
+            {"col": "P_net_mm_yr",     "fmt": "fixed", "dp": 0},
+            {"col": "ET_mid_mm_yr",    "fmt": "fixed", "dp": 0},
+            {"col": "Drain_mid_mm_yr", "fmt": "fixed", "dp": 0},
+        ],
+    },
+    {
+        "id": "paper1/Table4",
+        "doc": "docs/papers/paper_1/Paper1_v*.odt",
+        "table_name": "Table4",
+        "caption": "Paper 1 - specific yield by cluster, WTF method (Script 17)",
+        # one row per cluster (the uncorrected base rows); the corrected WTF
+        # median for C4/C5 is joined from the same CSV's `(corrected)` rows.
+        "sources": {"sy": "outputs/17_wtf_specific_yield/17_wtf_01_sy_estimates.csv"},
+        "rows": {"source": "sy", "filter": {"Corrected": "False"}},
+        "header": ["Cluster", "Sy assumed", "Sy WTF median (uncorr.)",
+                   "Sy WTF median (corrected)"],
+        "columns": [
+            {"col": "Cluster", "fmt": "text", "re": [r"^(C\d) \(([^)]+)\)$", r"\1 \2"]},
+            {"col": "Sy_assumed",      "fmt": "fixed", "dp": 2},   # the assumed constants, as published
+            {"col": "Sy_event_median", "fmt": "fixed", "dp": 3},
+            {"lookup": {"source": "sy", "key": "Cluster", "col": "Sy_event_median",
+                        "where": {"Corrected": "True"},
+                        "key_re": r"^(C\d \([^)]+\))"},
+             "fmt": "fixed", "dp": 3,
+             "when": {"Cluster": ["C4 (Main Forest)", "C5 (Coastal Forest)"]}, "else": "—"},
+        ],
+    },
+    {
+        "id": "paper1/Table5",
+        "doc": "docs/papers/paper_1/Paper1_v*.odt",
+        "table_name": "Table5",
+        "caption": "Paper 1 - SSM vs traditional-linear-model benchmarking (Script 08)",
+        # the paper shows the four summary metrics only; the three per-well
+        # diagnostic rows (Max NSE improvement, CEH6, CEH14) are not tabled.
+        "sources": {"bm": "outputs/08_model_benchmarking/08_lcsc_04_table3_benchmark_summary.csv"},
+        "rows": {"source": "bm",
+                 "filter": {"Metric": ["Median one-step R2", "Median iterative R2",
+                                        "Median iterative NSE", "Wells with iterative NSE > 0"]}},
+        "header": ["Metric", "TLM (A)", "SSM (B)", "Δ (B−A)"],
+        "columns": [
+            {"col": "Metric",              "fmt": "text", "re": [r"R2", "R²"]},
+            {"col": "Traditional_Model_A", "fmt": "fixed", "dp": 3},
+            {"col": "StateSpace_Model_B",  "fmt": "fixed", "dp": 3},
+            {"col": "Delta_B_minus_A",     "fmt": "fixed", "dp": 4},   # as report9/Table7
+        ],
+    },
+    {
+        "id": "paper1/Table6",
+        "doc": "docs/papers/paper_1/Paper1_v*.odt",
+        "table_name": "Table6",
+        "caption": "Paper 1 - per-well SSM coefficient ranges by cluster (Script 07)",
+        "sources": {"cr": "outputs/07_spatial_coefficients/07_coeff_05_cluster_ranges.csv"},
+        "rows": {"source": "cr"},
+        "header": ["Cluster", "β₁ range", "β₂ range", "β₃ range"],
+        "columns": [
+            {"col": "Cluster", "fmt": "text", "re": [r"^(C\d) \(([^)]+)\)$", r"\1 \2"]},
+            {"fmt": "template", "template": "{beta_1_recharge_min:.3f}–{beta_1_recharge_max:.3f}"},
+            {"fmt": "template", "template": "{beta_2_atmospheric_draw_min:.3f}–{beta_2_atmospheric_draw_max:.3f}"},
+            {"fmt": "template", "template": "{beta_3_drainage_min:.3f}–{beta_3_drainage_max:.3f}"},
+        ],
+    },
+    {
+        "id": "paper1/Table8",
+        "doc": "docs/papers/paper_1/Paper1_v*.odt",
+        "table_name": "Table8",
+        "caption": "Paper 1 - within-forest spatial predictors of SSM coefficients (Script 10c)",
+        "sources": {"fz": "outputs/10c_forest_zone_analysis/10c_forest_zone_correlations.csv"},
+        "rows": {"source": "fz", "require": ["r_vs_Elevation"]},
+        "header": ["Coefficient", "vs Elevation", "vs Dist. from ridge", "vs Easting"],
+        "columns": [
+            {"col": "Coefficient", "fmt": "map", "map": {
+                "β₁_recharge": "β₁ recharge",
+                "β₂_atm_draw": "β₂ atm. draw",
+                "β₃_drainage": "β₃ drainage"}},
+            {"fmt": "val_p", "cols": ["r_vs_Elevation", "p_vs_Elevation"], "dp": 3},
+            {"fmt": "val_p", "cols": ["r_vs_Dist_from_ridge", "p_vs_Dist_from_ridge"], "dp": 3},
+            {"fmt": "val_p", "cols": ["r_vs_Easting", "p_vs_Easting"], "dp": 3},
+        ],
+    },
+    {
+        "id": "summary/Table1",
+        "doc": "docs/academic_summaries/academic_Summary_v*.odt",
+        "table_name": "Table1",
+        "caption": "Academic Summary - cluster SSM coefficients (Script 03)",
+        "sources": {"co": "outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv",
+                    "nw": "outputs/07_spatial_coefficients/07_coeff_05_cluster_ranges.csv"},
+        "rows": {"source": "co"},
+        "header": ["Zone", "n", "β₁ recharge", "β₂ atm. draw", "β₃ drainage", "LCSC"],
+        "columns": [
+            {"col": "Cluster_Label", "fmt": "map", "map": {
+                "C1 (Lake Edge)": "C1 Lake Edge", "C2 (Dune)": "C2 Dune",
+                "C3 (Western Residual)": "C3 W. Residual",
+                "C4 (Main Forest)": "C4 Main Forest",
+                "C5 (Coastal Forest)": "C5 Coastal Forest"}},
+            {"lookup": {"source": "nw", "key": "Cluster", "skey": "Cluster_ID", "col": "n"}, "fmt": "int"},
+            {"col": "beta_1_recharge",         "fmt": "fixed", "dp": 3},
+            {"col": "beta_2_atmospheric_draw", "fmt": "fixed", "dp": 3},
+            {"col": "beta_3_drainage",         "fmt": "fixed", "dp": 3},
+            # the Summary shows LCSC as a fraction, not a percent
+            {"col": "LCSC_percent",            "fmt": "fixed", "dp": 3, "scale": 0.01},
+        ],
+    },
 ]
 
 

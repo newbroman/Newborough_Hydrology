@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/academic_summaries/academic_Summary_v1_13.odt — do not edit.
+<!-- GENERATED MIRROR of docs/academic_summaries/academic_Summary_v1_14.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Newborough Warren Groundwater Study
@@ -23,14 +23,14 @@ Aquifer characterisation
 
 The k=5 partition yields five zones with distinct SSM coefficient profiles (Table 1). The Main Forest (C4) exhibits the lowest recharge sensitivity and highest atmospheric draw, driven by pine interception and thin substrate over irregular bedrock. The Lake Edge (C1) has the highest recharge sensitivity and fastest drainage, buffered by the adjacent lake. Coastal Forest (C5) shows the steepest summer minimum decline of all zones. Ground elevation explains approximately 95% of the variance in β₂ within the forested area, confirming that substrate thickness rather than canopy cover is the primary control on summer drawdown intensity.
 
-  ------------------- ---- ------------- -------------- ------------- ------
+  ------------------- ---- ------------- -------------- ------------- -------
   Zone                n    β₁ recharge   β₂ atm. draw   β₃ drainage   LCSC
-  C1 Lake Edge        7    4.58          0.92           0.09          0.22
-  C2 Dune             24   3.97          1.74           0.06          0.25
-  C3 W. Residual      21   3.57          1.81           0.06          0.28
-  C4 Main Forest      9    2.48          2.56           0.02          0.4
-  C5 Coastal Forest   5    2.43          1.27           0.04          0.41
-  ------------------- ---- ------------- -------------- ------------- ------
+  C1 Lake Edge        7    4.578         0.923          0.089         0.218
+  C2 Dune             24   3.972         1.742          0.064         0.252
+  C3 W. Residual      21   3.573         1.807          0.057         0.280
+  C4 Main Forest      9    2.477         2.563          0.018         0.404
+  C5 Coastal Forest   5    2.428         1.274          0.045         0.412
+  ------------------- ---- ------------- -------------- ------------- -------
 
 Table 1. SSM mechanistic coefficients by cluster (cluster-centroid fits). β₁, β₂ dimensionless; β₃ month⁻¹. LCSC = lumped climate-storage contribution (100/β₁), the reciprocal of recharge sensitivity.
 

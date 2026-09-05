@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_108.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_109.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 1.9.108 (September 2026).
+Document version: 1.9.109 (September 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -4137,7 +4137,7 @@ Phase 16 (steps 42--46/52; the first three opt-in --- *\--with-supplementary* --
 
 **Outputs.** *outputs/38_coastal_transect/*: *38_coast_inland_difference.jpg* (the δ₀ headline figure); *38_transect_profile.jpg* (two-panel: raw and climate-corrected); *38_transect.csv*; *38_results.txt*.
 
-**Limitations and known caveats.** Trend −28.16 mm yr⁻¹, 95 % CI \[−34.23, −21.98\], n = 14 --- sitting essentially on the modelled δ₀ (−31.33 mm yr⁻¹ from Script 25). The coast falls −21.9 mm yr⁻¹ in absolute terms; the inland anchor is near-flat, so the divergence is the coast dropping, not the inland rising. Anchor-referenced coastal-end ordering Spearman −0.873 (raw −0.321), and spring CWB does not trend over the window (VIF ≈ 1.0), so the metric is not a disguised climate trend. Caveats: n = 14, so a jackknife shows the *magnitude* robust (all leave-one-out slopes −19 to −37 mm yr⁻¹) but formal significance is borderline on shorter sub-windows; one line and four/five wells, so a *growing* gradient is erosion-specific but a *flat* one would mean erosion is undetectable *here*, not absent; a growing gradient separates erosion-like from substrate-geometry-like, but not erosion from a *time-varying* substrate effect. The result is stated as *consistent with* the modelled δ₀, independently and observationally --- not as confirmation. The cored SW--NE transect remains the mechanism-resolving test.
+**Limitations and known caveats.** Trend −28.16 mm yr⁻¹, 95 % CI \[−34.23, −21.98\], n = 14 --- sitting essentially on the modelled δ₀ (−31.35 mm yr⁻¹ from Script 25). The coast falls −21.9 mm yr⁻¹ in absolute terms; the inland anchor is near-flat, so the divergence is the coast dropping, not the inland rising. Anchor-referenced coastal-end ordering Spearman −0.873 (raw −0.321), and spring CWB does not trend over the window (VIF ≈ 1.0), so the metric is not a disguised climate trend. Caveats: n = 14, so a jackknife shows the *magnitude* robust (all leave-one-out slopes −19 to −37 mm yr⁻¹) but formal significance is borderline on shorter sub-windows; one line and four/five wells, so a *growing* gradient is erosion-specific but a *flat* one would mean erosion is undetectable *here*, not absent; a growing gradient separates erosion-like from substrate-geometry-like, but not erosion from a *time-varying* substrate effect. The result is stated as *consistent with* the modelled δ₀, independently and observationally --- not as confirmation. The cored SW--NE transect remains the mechanism-resolving test.
 
 **Where it appears in the report.** ⟨§5.7 --- coastal driver subsection⟩, as the one observational support for the modelled coastal field and the lead-in to the cored-transect structural prediction.
 

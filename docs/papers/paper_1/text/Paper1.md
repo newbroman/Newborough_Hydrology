@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_33.odt — do not edit.
+<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_34.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 A parameter-sparse state-space framework for characterizing coastal dune-aquifer architecture from manual dipwell records
@@ -171,14 +171,14 @@ The five clusters are characterized mechanistically by the displacement-formulat
 
 **Table 1.** Cluster mechanistic characterization. β₁ = recharge sensitivity (mm rise per mm rainfall); β₂ = atmospheric draw (mm decline per mm PET); −β₃ = proportional drainage decay (fraction of displacement above the 3.7 m datum dissipated per month); LCSC = 100/β₁, the reciprocal of β₁ (mm of rainfall per 100 mm of water-table rise); R² = one-step diagnostic fit.
 
-  --------------------- --------- ------ ------ ------ ---------- ------
-  Cluster               n wells   β₁     β₂     −β₃    LCSC (%)   R²
-  C1 Lake Edge          7         4.58   0.92   0.09   21.8       0.73
-  C2 Dune               24        3.97   1.74   0.06   25.2       0.75
-  C3 Western Residual   21        3.57   1.81   0.06   28.0       0.81
-  C4 Main Forest        9         2.48   2.56   0.02   40.4       0.72
-  C5 Coastal Forest     5         2.43   1.27   0.04   41.2       0.68
-  --------------------- --------- ------ ------ ------ ---------- ------
+  --------------------- --------- ------- ------- ------- ---------- -------
+  Cluster               n wells   β₁      β₂      −β₃     LCSC (%)   R²
+  C1 Lake Edge          7         4.578   0.923   0.089   21.841     0.732
+  C2 Dune               24        3.972   1.742   0.064   25.176     0.747
+  C3 Western Residual   21        3.573   1.807   0.057   27.989     0.812
+  C4 Main Forest        9         2.477   2.563   0.018   40.370     0.722
+  C5 Coastal Forest     5         2.428   1.274   0.045   41.187     0.683
+  --------------------- --------- ------- ------- ------- ---------- -------
 
 Recharge sensitivity β₁ is highest at the Lake Edge (C1: 4.58), indicating that each millimetre of rainfall drives a proportionally larger water-table rise in the shallow-till eastern aquifer than in the Dune (C2: 3.97) or Western Residual (C3: 3.57). The two forested clusters return near-identical and substantially lower recharge sensitivities (C4: 2.48, C5: 2.43), consistent with canopy interception suppressing the rainfall signal reaching the water table. Expressed as LCSC (100/β₁), about 22--25 mm of rainfall raises the water table by 100 mm at the Lake Edge and Dune, 28 mm in the Western Residual, and 40--41 mm beneath the plantation --- nearly twice as much rain for the same rise beneath the canopy.
 
@@ -194,11 +194,11 @@ The head-space water-balance decomposition (Table 2; Figure 7) closes to within 
 
   --------------------- ---------- ----------- ---------- ------------ ---------- ----------------
   Cluster               Recharge   Atm. draw   Drainage   Total loss   Residual   Drain % / ET %
-  C1 Lake Edge          0.34       0.05        0.29       0.34         −0.004     85 / 15
-  C2 Dune               0.30       0.09        0.20       0.30         −0.003     68 / 32
-  C3 Western Residual   0.27       0.10        0.17       0.27         \<0.001    63 / 37
-  C4 Main Forest        0.18       0.14        0.04       0.18         \<0.001    24 / 76
-  C5 Coastal Forest     0.18       0.07        0.11       0.18         −0.003     62 / 38
+  C1 Lake Edge          0.340      0.050       0.294      0.345        −0.004     85 / 15
+  C2 Dune               0.295      0.095       0.204      0.298        −0.003     68 / 32
+  C3 Western Residual   0.265      0.098       0.167      0.265        \<0.001    63 / 37
+  C4 Main Forest        0.184      0.140       0.044      0.184        \<0.001    24 / 76
+  C5 Coastal Forest     0.180      0.069       0.114      0.184        −0.003     62 / 38
   --------------------- ---------- ----------- ---------- ------------ ---------- ----------------
 
 The indicative volumetric conversion (Table 3) places all clusters under ≈892 mm/yr rainfall, with canopy interception removing ≈214 mm/yr at the forested clusters to leave ≈678 mm/yr of throughfall. The ET/drainage partition mid-point ranges from drainage-dominated at C1 (≈649 mm/yr drainage vs ≈243 mm/yr ET) to ET-dominated at C4 (≈248 vs ≈430 mm/yr).
@@ -224,11 +224,11 @@ The water-table-fluctuation specific-yield estimates (Table 4; Figure 8) provide
 
   --------------------- ------------ ------------------------- ---------------------------
   Cluster               Sy assumed   Sy WTF median (uncorr.)   Sy WTF median (corrected)
-  C1 Lake Edge          0.08         0.21                      ---
-  C2 Dune               0.12         0.27                      ---
-  C3 Western Residual   0.12         0.33                      ---
-  C4 Main Forest        0.12         0.31                      0.26
-  C5 Coastal Forest     0.12         0.35                      0.32
+  C1 Lake Edge          0.08         0.210                     ---
+  C2 Dune               0.12         0.267                     ---
+  C3 Western Residual   0.12         0.327                     ---
+  C4 Main Forest        0.12         0.312                     0.260
+  C5 Coastal Forest     0.12         0.355                     0.321
   --------------------- ------------ ------------------------- ---------------------------
 
 ![](Pictures/100000010000076600000616E444E17A.png){width="16.055cm" height="14.78cm"}
@@ -243,9 +243,9 @@ In one-step diagnostic mode the SSM and TLM are nearly indistinguishable (median
 
   ------------------------------- --------- --------- ---------
   Metric                          TLM (A)   SSM (B)   Δ (B−A)
-  Median one-step R²              0.91      0.92      0.00
-  Median iterative R²             0.64      0.77      0.14
-  Median iterative NSE            −0.03     0.72      0.82
+  Median one-step R²              0.914     0.919     0.0032
+  Median iterative R²             0.638     0.773     0.1374
+  Median iterative NSE            −0.025    0.719     0.8244
   Wells with iterative NSE \> 0   30 / 66   65 / 66   ---
   ------------------------------- --------- --------- ---------
 
@@ -259,14 +259,14 @@ Per-well drainage-datum optimization shows the R²-maximizing datum varying syst
 
 **Table 6.** Per-well SSM coefficient ranges by cluster.
 
-  --------------------- ------------ ------------- ---------------
-  Cluster               β₁ range     β₂ range      β₃ range
-  C1 Lake Edge          4.27--6.24   −0.39--1.28   0.087--0.134
-  C2 Dune               3.35--5.52   1.13--2.56    0.055--0.108
-  C3 Western Residual   2.33--4.84   0.91--2.23    0.033--0.101
-  C4 Main Forest        2.07--3.48   2.04--3.83    −0.021--0.040
-  C5 Coastal Forest     2.06--2.75   0.80--1.38    0.038--0.057
-  --------------------- ------------ ------------- ---------------
+  --------------------- -------------- --------------- ---------------
+  Cluster               β₁ range       β₂ range        β₃ range
+  C1 Lake Edge          4.269--6.240   −0.388--1.276   0.087--0.134
+  C2 Dune               3.354--5.525   1.130--2.561    0.055--0.108
+  C3 Western Residual   2.335--4.841   0.908--2.230    0.033--0.101
+  C4 Main Forest        2.069--3.481   2.038--3.828    −0.021--0.040
+  C5 Coastal Forest     2.062--2.753   0.797--1.384    0.038--0.057
+  --------------------- -------------- --------------- ---------------
 
 ![](Pictures/100000010000094B0000077E3B314DC1.png){width="14.774cm" height="11.22cm"}
 
@@ -306,7 +306,7 @@ Where the canopy is uniform but the per-well coefficients span much of the site-
   -------------- ------------------ ------------------ ----------------
   β₁ recharge    0.192 (0.512)      −0.512 (0.061)     0.579 (0.030)
   β₂ atm. draw   0.983 (\<0.001)    −0.905 (\<0.001)   0.750 (0.002)
-  β₃ drainage    −0.831 (\<0.001)   0.644 (0.013)      −0.480 (0.082)
+  β₃ drainage    −0.831 (\<0.001)   0.644 (0.013)      −0.480 (0.083)
   -------------- ------------------ ------------------ ----------------
 
 ## 4.9 Mean water-table surface and flow field

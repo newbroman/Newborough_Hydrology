@@ -1,9 +1,9 @@
-component,label,driver_group,mechanism_type,gain_or_loss,observed_or_modelled,peak_mm,area_mm_ha,volume_m3,n_wells_evaluated,sd15b_crossings_worsen,sd15b_crossings_relieve,sd16_crossings_worsen,sd16_crossings_relieve
-coast_erosion,Coastal erosion (chronic drawdown),Coast,progressive,loss,modelled,-627.0,-80228.3,-247329.4,66.0,0.0,0.0,6.0,0.0
-slr,Sea-level rise (head gain),Coast,progressive,gain,modelled,20.0,2806.1,8650.6,66.0,0.0,0.0,0.0,1.0
-clearfell,Clearfell (canopy removed),Forest management,step,gain,observed,113.1,5981.4,16221.4,66.0,0.0,0.0,0.0,2.0
-broadleaf,Broadleaf restock (canopy added),Forest management,progressive,loss,modelled,-56.2,-3812.7,-10339.8,66.0,0.0,0.0,1.0,0.0
-scrape_onsite,Scrape on-site (slack rise),Dune scraping,step,gain,observed,129.4,613.1,1890.0,66.0,0.0,0.0,0.0,1.0
-scrape_offsite,Scrape off-site (drain cone),Dune scraping,redistributive,loss,observed,-54.5,-21685.8,-66853.4,66.0,0.0,0.0,5.0,0.0
-climate,"Unexplained uniform decline (central estimate, not resolved)",Unexplained (uniform),uniform,loss,modelled,-220.2,-209026.5,-644390.9,66.0,0.0,0.0,26.0,0.0
-scrape_net,Scrape NET (on-site + off-site),Dune scraping,redistributive,net,observed+modelled,,-21072.7,-64963.4,,,,,
+component,label,driver_group,mechanism_type,gain_or_loss,observed_or_modelled,peak_mm,area_mm_ha,volume_m3,n_wells_evaluated,sd15b_crossings_worsen,sd15b_crossings_relieve,sd16_crossings_worsen,sd16_crossings_relieve,equivalent_depth_site_mean_mm,pct_of_coast
+coast_erosion,Coastal erosion (chronic drawdown),Coast,progressive,loss,modelled,-627.0,-80228.3,-247329.4,66.0,0.0,0.0,6.0,0.0,-84.51756649986832,100.0
+slr,Sea-level rise (head gain),Coast,progressive,gain,modelled,20.0,2806.1,8650.6,66.0,0.0,0.0,0.0,1.0,2.956123255201475,3.4976435995777053
+clearfell,Clearfell (canopy removed),Forest management,step,gain,observed,113.1,5981.4,16221.4,66.0,0.0,0.0,0.0,2.0,6.301185146168027,7.455473941240186
+broadleaf,Broadleaf restock (canopy added),Forest management,progressive,loss,modelled,-56.2,-3812.7,-10339.8,66.0,0.0,0.0,1.0,0.0,-4.01653937318936,4.752313086529317
+scrape_onsite,Scrape on-site (slack rise),Dune scraping,step,gain,observed,129.4,613.1,1890.0,66.0,0.0,0.0,0.0,1.0,0.6458783249934159,0.764194180856381
+scrape_offsite,Scrape off-site (drain cone),Dune scraping,redistributive,loss,observed,-54.5,-21685.8,-66853.4,66.0,0.0,0.0,5.0,0.0,-22.84519357387411,27.030112815552616
+climate,"Unexplained uniform decline (central estimate, not resolved)",Unexplained (uniform),uniform,loss,modelled,-220.2,-209026.5,-644390.9,66.0,0.0,0.0,26.0,0.0,-220.2017382143798,260.5396100877122
+scrape_net,Scrape NET (on-site + off-site),Dune scraping,redistributive,net,observed+modelled,,-21072.7,-64963.4,,,,,,-22.199315248880698,26.265918634696238

@@ -490,7 +490,7 @@ The term is carried on the common footing below as an unexplained uniform declin
 Expressed as an equivalent depth averaged over the 949 ha site at a common twenty-year horizon and referenced to coastal retreat, the largest term the record resolves, the drivers rank as follows:
 
   ----------------------- --------- ------
-  Unexplained (uniform)   −220 mm   260%
+  Unexplained (uniform)   −220 mm   261%
   Coastal retreat         −85 mm    100%
   Dune scrape (net)       −22 mm    26%
   Clearfell (relief)      +6 mm     +7%

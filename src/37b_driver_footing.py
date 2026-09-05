@@ -89,7 +89,14 @@ Runs after Script 37 (Part A) in the driver-validation phase; the canonical
 step index is in outputs/pipeline_manifest.json.
 """
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-08-22. The uniform driver row
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-09-05. Emits two derived
+#   columns for report10 Table 1 (D-132): equivalent_depth_site_mean_mm =
+#   area_mm_ha / site_area_ha (head field over the whole site mask, no Sy), and
+#   pct_of_coast = |depth| / |coast depth| x 100 (share of coastal retreat),
+#   both at full precision (D-035; the config renders dp0).
+#   Emission only; no existing value changes. The config renders them (report10
+#   Table 1); the cross-row ratio to coast must be script-side (D-126).
+# v1.3.0  # Hollingham (2026) — 2026-08-22. The uniform driver row
 #   is the MEASURED residual, not the panel's fitted constant. load_climate_c()
 #   read c, which is not separately identified (D-039), so the footing ranked a
 #   quantity with no rate — and when c moved the row moved with it, from -127 mm
@@ -963,6 +970,19 @@ def main() -> int:
 
     phase(7, "Assemble comparison table and write outputs")
     df = build_comparison_table(peaks, integrals, crossings)
+    # report10 Table 1 columns, emitted here so the config never computes (D-126):
+    # site-mean equivalent depth = the driver's head field integrated over the site
+    # mask (area_mm_ha, no Sy) spread across the whole site; and each driver's share
+    # of coastal retreat (a magnitude; direction is carried by gain_or_loss and the
+    # signed depth). Rounding is left to the display point.
+    # full precision at store time (D-035: rounding is a display decision); the
+    # config renders these at dp0 for report10 Table 1.
+    site_area_ha = int(mask.sum()) * cell_area_ha
+    df["equivalent_depth_site_mean_mm"] = df["area_mm_ha"] / site_area_ha
+    coast_depth = df.loc[df.component == "coast_erosion",
+                         "equivalent_depth_site_mean_mm"].iloc[0]
+    df["pct_of_coast"] = (df["equivalent_depth_site_mean_mm"].abs()
+                          / abs(coast_depth) * 100)
     df.to_csv(OUT_COMPARISON, index=False)
     saved(OUT_COMPARISON)
 

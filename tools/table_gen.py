@@ -54,7 +54,11 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.8.0"  # Hollingham (2026) — 2026-09-05. Papers/Summary
+__version__ = "1.9.0"  # Hollingham (2026) — 2026-09-05. fmt "fixed" gains
+#   `plus_if`: prefix "+" to an otherwise-unsigned magnitude when a sibling
+#   column equals a given value — a relief shown "+N%" beside same-direction
+#   rows shown unsigned (report10 Table 1, D-132). Rendering only.
+# v1.8.0  # Hollingham (2026) — 2026-09-05. Papers/Summary
 #   batch (D-131). `lookup` gains `skey`: the SOURCE-side key column name,
 #   defaulting to `key`, so a row can join a second CSV that carries the same
 #   key under a different column name (03_03 `Cluster` int ↔ 07_coeff_05
@@ -265,6 +269,13 @@ def render(spec: dict, row: dict, sources: dict) -> str:
                 text = spec["zero_text"]
             else:
                 text = f"{v:{sign}.{spec['dp']}f}".replace("-", MINUS)
+                # plus_if: prefix "+" to an otherwise-unsigned magnitude when a
+                # sibling column marks this row (a relief shown "+N%" beside
+                # same-direction rows shown unsigned — report10 Table 1).
+                if "plus_if" in spec:
+                    pc, pv = next(iter(spec["plus_if"].items()))
+                    if row.get(pc) == pv and not text.startswith(("+", MINUS)):
+                        text = "+" + text
         else:
             text = raw
     elif fmt == "pvalue":

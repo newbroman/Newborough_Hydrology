@@ -69,8 +69,8 @@ report9.odt,Figure,1.36,11b_02_winter_maxima_depth.png
 report9.odt,Figure,1.37,11b_04_flood_frequency.png
 report9.odt,Table,1.15,11_forecast_pflood_summary.csv
 report9.odt,Table,1.16,26_msl_5yr_cluster_threshold_summary.csv
-report9.odt,Figure,1.59,25_05_fit_diagnostic.jpg
-report9.odt,Figure,1.61,38_coast_inland_difference.jpg
+report9.odt,Figure,1.48,25_05_fit_diagnostic.jpg
+report9.odt,Figure,1.50,38_coast_inland_difference.jpg
 report9.odt,Table,1.17,26_ebf_prediction_summary.csv
 report9.odt,Figure,1.38,Script 26c output fig_msl5_trajectory_report.png
 report9.odt,Figure,1.39,26_msl_5yr_map.png
@@ -83,33 +83,33 @@ report9.odt,Figure,1.44,03_10_well_r2_gain_map.png
 report9.odt,Figure,1.43,07_coeff_04_r2_quality.png
 report9.odt,Figure,1.43,
 report9.odt,Figure,1.44,18_wtf_05_halflife_map.png
-report9.odt,Figure,1.45,20_drawdown_propagation_nohead.png
-report9.odt,Figure,1.46,18_wtf_06_aquifer_diagnostic_synthesis.png
+report9.odt,Figure,1.54,20_drawdown_propagation_nohead.png
+report9.odt,Figure,1.45,18_wtf_06_aquifer_diagnostic_synthesis.png
 report9.odt,Figure,56,
-report9.odt,Figure,1.62,20_coastal_erosion.png
-report9.odt,Figure,1.63,20_slr_response.png
-report9.odt,Figure,1.64,Script 20 output 20_coastal_net_effect.png
-report9.odt,Figure,1.65,(Source: 20_scrape_drawdown_nohead.png
-report9.odt,Figure,1.66,20_clearfell_baseline_drawdown.png
+report9.odt,Figure,1.51,20_coastal_erosion.png
+report9.odt,Figure,1.52,20_slr_response.png
+report9.odt,Figure,1.53,Script 20 output 20_coastal_net_effect.png
+report9.odt,Figure,1.55,(Source: 20_scrape_drawdown_nohead.png
+report9.odt,Figure,1.56,20_clearfell_baseline_drawdown.png
 report9.odt,Table,1.20,25_03_cluster_partition.csv
-report9.odt,Figure,1.47,20_head_surface_streams.png
-report9.odt,Figure,1.48,20_residual_ssm.png
-report9.odt,Figure,1.49,20_clearfell_gain.png
+report9.odt,Figure,1.46,20_head_surface_streams.png
+report9.odt,Figure,1.47,20_residual_ssm.png
+report9.odt,Figure,1.57,20_clearfell_gain.png
 report9.odt,Figure,60,
-report9.odt,Figure,1.50,20_net_state_map.png
-report9.odt,Figure,1.51,20_driver_change_20yr.png
+report9.odt,Figure,1.58,20_net_state_map.png
+report9.odt,Figure,1.59,20_driver_change_20yr.png
 report9.odt,Figure,62,
-report9.odt,Figure,1.52,20_msl5_change_2017_2023.png
+report9.odt,Figure,1.60,20_msl5_change_2017_2023.png
 report9.odt,Figure,63,
-report9.odt,Figure,1.53,32_differential_movement_2011_2025.png
+report9.odt,Figure,1.61,32_differential_movement_2011_2025.png
 report9.odt,Figure,63,
-report9.odt,Figure,1.54,36_absolute_climate_trend_2005_2025.png
-report9.odt,Figure,1.55,33_amplification_field.png
-report9.odt,Figure,1.56,33_dry_spring_depth.png
+report9.odt,Figure,1.62,36_absolute_climate_trend_2005_2025.png
+report9.odt,Figure,1.63,33_amplification_field.png
+report9.odt,Figure,1.64,33_dry_spring_depth.png
 report9.odt,Figure,60,
 report9.odt,Figure,65,
-report9.odt,Figure,1.57,37_implied_delta0_trajectory.png
-report9.odt,Figure,1.58,37b_driver_footing.png
+report9.odt,Figure,1.65,37_implied_delta0_trajectory.png
+report9.odt,Figure,1.66,37b_driver_footing.png
 report9.odt,Figure,1.67,fig_msl5_vs_summer_min_projection.png
 Newborough_Methods_Supplement_v1_9_6.odt,Table,2,
 Newborough_Methods_Supplement_v1_9_6.odt,Table,3,

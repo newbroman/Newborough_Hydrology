@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_113.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_114.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,11 +7,11 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 1.9.113 (September 2026).
+Document version: 1.9.114 (September 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
-*run_analysis.py*\*\* --- 52 registered steps across 17 phases\*\* (canonical count: committed *outputs/pipeline_manifest.json*, emitted on every run --- cite that, not this line, if the two ever disagree). Those 52 steps are classified two independent ways. By tier: 42 analytical, 4 display/utility (Scripts 26c, 09f, 09g, 27) and 6 diagnostic. By execution: 49 run in a default pass, and 3 --- Scripts 24b, 31 and 31b, the Phase 16 remainder --- run only with *\--with-supplementary*. The two classifications each account for the same 52 steps and are not additive with one another.
+*run_analysis.py*\*\* --- 53 registered steps across 17 phases\*\* (canonical count: committed *outputs/pipeline_manifest.json*, emitted on every run --- cite that, not this line, if the two ever disagree). Those 53 steps are classified two independent ways. By tier: 42 analytical, 5 display/utility (Scripts 26c, 09f, 09g, 27, 43) and 6 diagnostic. By execution: 50 run in a default pass, and 3 --- Scripts 24b, 31 and 31b, the Phase 16 remainder --- run only with *\--with-supplementary*. The two classifications each account for the same 53 steps and are not additive with one another.
 
   ------- --------- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ------------------------
   Group   Scripts   Coverage                                                                                                                                                                                            Supplement §
@@ -44,7 +44,7 @@ The main report's §3 *Methods* is calibrated to a journal-paper length: approxi
 
 This supplement is for those audiences. Four are anticipated. **Hydrogeological and ecohydrological researchers** rebuilding parts of the analysis on their own sites need the per-script methodological detail that the main report compresses. **Conservation managers at Newborough Warren NNR**, and at Natural Resources Wales more broadly, need to know what each result is and is not telling them --- particularly which findings are robust, which are conditional on a methodological choice that could reasonably have gone the other way, and which are honestly tentative. **Future site investigators** --- including, almost certainly, future PhD or MSc students at the warren --- need a starting point that does not require them to reconstruct the methodological reasoning from the code. And **the author**, three years on, needs to be able to defend any particular methodological choice without re-deriving why it was made.
 
-The supplement covers the registered pipeline steps (Phases 1--17) in script-by-script chapters. The registered total is not typed here: it is \`total_registered\` in the committed pipeline_manifest.json, which run_analysis.py guards against a recount, and the manifest counts the pipeline on two independent axes --- execution and tier --- which must not be mixed. Script 40 is documented in §S.22b and Script 41 in §S.23. Four of those steps are display/utility rather than analytical: Script 26c (MSL5 report-format figures, step 32, §S.18c), Script 09f (spatial-reach synthesis, step 50, §S.15c), Script 09g (mechanism diagrams, step 51, §S.15d), and Script 27 (greyscale, step 52, Appendix A). Each chapter addresses seven concerns: motivation, inputs, methodology, site-specific choices and rationale, outputs, limitations and known caveats, and where the result appears in the report. Some chapters are short (figure-only or post-processing scripts); some are longer (Scripts 01, 02, 03, 10 suite, 17, 21, 25, 26). Total document length is approximately 260 pages.
+The supplement covers the registered pipeline steps (Phases 1--17) in script-by-script chapters. The registered total is not typed here: it is \`total_registered\` in the committed pipeline_manifest.json, which run_analysis.py guards against a recount, and the manifest counts the pipeline on two independent axes --- execution and tier --- which must not be mixed. Script 40 is documented in §S.22b and Script 41 in §S.23. Five of those steps are display/utility rather than analytical: Script 26c (MSL5 report-format figures, step 32, §S.18c), Script 09f (spatial-reach synthesis, step 50, §S.15c), Script 09g (mechanism diagrams, step 51, §S.15d), and Script 27 (greyscale, step 52, Appendix A), and Script 43 (Ranwell 1959 historical water-table sites, step 53; chapter forthcoming). Each chapter addresses seven concerns: motivation, inputs, methodology, site-specific choices and rationale, outputs, limitations and known caveats, and where the result appears in the report. Some chapters are short (figure-only or post-processing scripts); some are longer (Scripts 01, 02, 03, 10 suite, 17, 21, 25, 26). Total document length is approximately 260 pages.
 
 This document is **not** a tutorial on Python or scientific computing. It is not a literature review --- references appear where they are required for methods provenance, not as a research review. It is not a redo of the main report's results; results appear only as concrete examples of what the methods produce. And it is not exhaustive code documentation --- the scripts in *src/* are the code documentation. This supplement is the methodological narrative.
 
@@ -288,29 +288,29 @@ The Fetter values are literature specific yields for unconfined dune sand, cited
 
 The scripts in the post-Phase-2 region of the pipeline carry filename prefixes, orchestrator step numbers, and chapter assignments aligned as follows:
 
--   **Script 11c** (*11c_pflood_achievability.py*) --- Per-well P_flood achievability categorical priority map. Operationalises Conclusion 4's m_P \< 1.5 priority criterion. Step 13/52, Phase 3. Routed from the 2026-05-29 post-review cascade. Documented in S.9.3.
--   **Script 14b** (*14b_year_of_crossing.py*) --- Bootstrap year-of-crossing for Curreli (2013) ecological thresholds. Step 16/52, Phase 4. Routed from the 2026-05-29 post-review cascade. Documented in S.8.5.
--   **Script 25** (*25_coastal_gradient.py*) --- Coastal-retreat gradient analysis. Step 26/52, Phase 11. Documented in S.15.
--   **Script 26** (*26_van_willegen_msl.py*) --- Van Willegen 2025 observational 5-year MSL aggregation, plus (v1.3.2) the equilibrium wetness index and its Ellenberg-F cross-validation. Step 30/52, Phase 13. Documented in S.18.
--   **Script 26b** (*26b_van_willegen_msl_projections.py*) --- UKCP18 RCP8.5 MSL5 climate projections (Tool B). Step 31/52, Phase 13. Documented in S.18b.
--   **Script 26c** (*26c_msl5_report_figures.py*) --- MSL5 report-format figures for §4.8.3 and §4.13.1 of the main report. Display-only companion to Scripts 26 and 26b; reads only canonical outputs from Scripts 26, 26b, and 19; no recomputation. Step 32/52, Phase 13. Display/utility tier, not analytical. Documented in S.18c.
--   **Script 28** (*28_c3_detrend_check.py*) --- C3 detrend check; quantitative validation of the aquifer-architecture framing. Step 33/52, Phase 14. Routed from the 2026-05-29 post-review cascade. Documented in S.19.1.
--   **Script 29** (*29_c3_within_variance_check.py*) --- Within-C3 variance attribution. Step 34/52, Phase 14. Routed from the 2026-05-29 post-review cascade. Documented in S.19.2.
--   **Script 30** (*30_c4_drainage_identifiability.py*) --- C4 drainage identifiability diagnostic and reported sensitivities. Step 35/52, Phase 14. Added 2026-06-23 as a constrained-β₃ triangulation sensitivity; superseded by the identifiability diagnostic 2026-07-24. Documented in S.19.3.
--   **Script 32** (*32_differential_movement.py*) --- Secular differential water-table movement; report Figure 64. Step 36/52, Phase 15. Documented in S.20.1.
--   **Script 33** (*33_envelope_amplification.py*) --- Climate-swing amplification and dry-year spring floor; report Figures 66 and 67. Step 37/52, Phase 15. Documented in S.20.2.
--   **Script 35** (*35_per_well_amplification.py*) --- Per-well climate-sensitivity coefficient (discrete companion to the Figure 66 surface). Step 38/52, Phase 15. Documented in S.20.3.
--   **Script 36** (*36_absolute_climate_trend.py*) --- Absolute climate-removed per-well secular trend map. Step 39/52, Phase 15. **Analytical tier** (promoted 2026-07-13, Task E). Documented in S.20.4.
--   **Script 37** (*37_driver_validation.py*) --- Predicted-vs-observed driver-change validation (scatter + residual map). Step 40/52, Phase 15. **Analytical tier** (promoted 2026-07-13, Task E). Documented in S.20.5.
--   **Script 37b** (*37b_driver_footing.py*) --- Part B: comparative driver footing --- forest, scrape, and coastal-retreat effects on common currencies (peak local head change, area-integrated volume, ecological-threshold crossings). Step 41/52, Phase 15. **Analytical tier** (promoted 2026-07-13, Task E). Documented in S.20.6.
--   **Script 24b** (*24b_residual_climatology.py*) --- Cluster-stratified residual climatology; supplementary diagnostic. Step 42/52, Phase 16. **Opt-in diagnostic tier.** Documented in S.21.1.
--   **Script 31** (*31_cluster_validation.py*) --- Independent k=5 partition validation; supplementary diagnostic. Step 43/52, Phase 16. **Opt-in diagnostic tier.** Documented in S.21.2.
--   **Script 31b** (*31b_separation_vs_recoverability.py*) --- Cluster separation versus recoverability; supplementary diagnostic. Step 44/52, Phase 16. **Opt-in diagnostic tier.** Documented in S.21.3.
--   **Script 34** (*34_window_sensitivity.py*) --- MSL5 two-window sensitivity demonstration. Step 45/52, Phase 16. **Analytical tier** (promoted 2026-07-13, Task E). Documented in S.21.4.
--   **Script 38** (*38_coastal_transect.py*) --- Coast-to-inland MAM transect; observational delta_0 (coastal-retreat) diagnostic distinguishing a growing (erosion-consistent) from a static (substrate-geometry) coast-inland head gradient. Step 46/52, Phase 16. **Analytical tier** (promoted 2026-07-13, Task E; wired into *run_analysis.py* 2026-07-08, previously standalone). Documented in S.21.5.
--   **Script 09f** (*09f_management_effects.py*) --- Management-interventions-versus-coastal-retreat spatial-reach synthesis figure. Step 50/52, Phase 17. Display/utility tier, not analytical. Documented in §S.15c.
--   **Script 09g** (*09g_mechanism_diagrams.py*) --- Mechanism-diagram suite: the §5.8 combined schematic grid and the standalone coastal-vs-climate reach figure. Step 51/52, Phase 17. Display/utility tier, not analytical. Reads only committed outputs of Scripts 09f, 10m and 10a; no recomputation. Documented in §S.15d.
--   **Script 27** (*27_greyscale_figures.py*) --- Post-pipeline greyscale figure-rendering utility. Step 52/52, Phase 17. Display/utility tier, not analytical. Documented in Appendix A.
+-   **Script 11c** (*11c_pflood_achievability.py*) --- Per-well P_flood achievability categorical priority map. Operationalises Conclusion 4's m_P \< 1.5 priority criterion. Step 13/53, Phase 3. Routed from the 2026-05-29 post-review cascade. Documented in S.9.3.
+-   **Script 14b** (*14b_year_of_crossing.py*) --- Bootstrap year-of-crossing for Curreli (2013) ecological thresholds. Step 16/53, Phase 4. Routed from the 2026-05-29 post-review cascade. Documented in S.8.5.
+-   **Script 25** (*25_coastal_gradient.py*) --- Coastal-retreat gradient analysis. Step 26/53, Phase 11. Documented in S.15.
+-   **Script 26** (*26_van_willegen_msl.py*) --- Van Willegen 2025 observational 5-year MSL aggregation, plus (v1.3.2) the equilibrium wetness index and its Ellenberg-F cross-validation. Step 30/53, Phase 13. Documented in S.18.
+-   **Script 26b** (*26b_van_willegen_msl_projections.py*) --- UKCP18 RCP8.5 MSL5 climate projections (Tool B). Step 31/53, Phase 13. Documented in S.18b.
+-   **Script 26c** (*26c_msl5_report_figures.py*) --- MSL5 report-format figures for §4.8.3 and §4.13.1 of the main report. Display-only companion to Scripts 26 and 26b; reads only canonical outputs from Scripts 26, 26b, and 19; no recomputation. Step 32/53, Phase 13. Display/utility tier, not analytical. Documented in S.18c.
+-   **Script 28** (*28_c3_detrend_check.py*) --- C3 detrend check; quantitative validation of the aquifer-architecture framing. Step 33/53, Phase 14. Routed from the 2026-05-29 post-review cascade. Documented in S.19.1.
+-   **Script 29** (*29_c3_within_variance_check.py*) --- Within-C3 variance attribution. Step 34/53, Phase 14. Routed from the 2026-05-29 post-review cascade. Documented in S.19.2.
+-   **Script 30** (*30_c4_drainage_identifiability.py*) --- C4 drainage identifiability diagnostic and reported sensitivities. Step 35/53, Phase 14. Added 2026-06-23 as a constrained-β₃ triangulation sensitivity; superseded by the identifiability diagnostic 2026-07-24. Documented in S.19.3.
+-   **Script 32** (*32_differential_movement.py*) --- Secular differential water-table movement; report Figure 64. Step 36/53, Phase 15. Documented in S.20.1.
+-   **Script 33** (*33_envelope_amplification.py*) --- Climate-swing amplification and dry-year spring floor; report Figures 66 and 67. Step 37/53, Phase 15. Documented in S.20.2.
+-   **Script 35** (*35_per_well_amplification.py*) --- Per-well climate-sensitivity coefficient (discrete companion to the Figure 66 surface). Step 38/53, Phase 15. Documented in S.20.3.
+-   **Script 36** (*36_absolute_climate_trend.py*) --- Absolute climate-removed per-well secular trend map. Step 39/53, Phase 15. **Analytical tier** (promoted 2026-07-13, Task E). Documented in S.20.4.
+-   **Script 37** (*37_driver_validation.py*) --- Predicted-vs-observed driver-change validation (scatter + residual map). Step 40/53, Phase 15. **Analytical tier** (promoted 2026-07-13, Task E). Documented in S.20.5.
+-   **Script 37b** (*37b_driver_footing.py*) --- Part B: comparative driver footing --- forest, scrape, and coastal-retreat effects on common currencies (peak local head change, area-integrated volume, ecological-threshold crossings). Step 41/53, Phase 15. **Analytical tier** (promoted 2026-07-13, Task E). Documented in S.20.6.
+-   **Script 24b** (*24b_residual_climatology.py*) --- Cluster-stratified residual climatology; supplementary diagnostic. Step 42/53, Phase 16. **Opt-in diagnostic tier.** Documented in S.21.1.
+-   **Script 31** (*31_cluster_validation.py*) --- Independent k=5 partition validation; supplementary diagnostic. Step 43/53, Phase 16. **Opt-in diagnostic tier.** Documented in S.21.2.
+-   **Script 31b** (*31b_separation_vs_recoverability.py*) --- Cluster separation versus recoverability; supplementary diagnostic. Step 44/53, Phase 16. **Opt-in diagnostic tier.** Documented in S.21.3.
+-   **Script 34** (*34_window_sensitivity.py*) --- MSL5 two-window sensitivity demonstration. Step 45/53, Phase 16. **Analytical tier** (promoted 2026-07-13, Task E). Documented in S.21.4.
+-   **Script 38** (*38_coastal_transect.py*) --- Coast-to-inland MAM transect; observational delta_0 (coastal-retreat) diagnostic distinguishing a growing (erosion-consistent) from a static (substrate-geometry) coast-inland head gradient. Step 46/53, Phase 16. **Analytical tier** (promoted 2026-07-13, Task E; wired into *run_analysis.py* 2026-07-08, previously standalone). Documented in S.21.5.
+-   **Script 09f** (*09f_management_effects.py*) --- Management-interventions-versus-coastal-retreat spatial-reach synthesis figure. Step 50/53, Phase 17. Display/utility tier, not analytical. Documented in §S.15c.
+-   **Script 09g** (*09g_mechanism_diagrams.py*) --- Mechanism-diagram suite: the §5.8 combined schematic grid and the standalone coastal-vs-climate reach figure. Step 51/53, Phase 17. Display/utility tier, not analytical. Reads only committed outputs of Scripts 09f, 10m and 10a; no recomputation. Documented in §S.15d.
+-   **Script 27** (*27_greyscale_figures.py*) --- Post-pipeline greyscale figure-rendering utility. Step 52/53, Phase 17. Display/utility tier, not analytical. Documented in Appendix A.
 
 ### []{#anchor-50}[]{#anchor-51}[]{#anchor-52}MSL aggregation --- constants and conventions
 
@@ -2942,7 +2942,7 @@ On the live pipeline data the loaded multiplier is 1.0315 (Edge ratio 0.9830 min
 
 # []{#anchor-405}[]{#anchor-406}[]{#anchor-407}Phase 5 --- Post-pipeline supplementary analyses
 
-The eleven Phase 4 chapters (S.8--S.14) cover the climate-and-spatial scripts that feed §4 of the report. Phase 5 collects six further chapters whose methodological purpose is supplementary: each consumes pipeline intermediates, none feeds downstream pipeline scripts, and the conclusions they produce inform the report's discussion rather than its core results chain. S.15 covers Script 25 (coastal-retreat gradient, step 26/52, Phase 11 in *run_analysis.py*). S.15c covers Script 09f (spatial-reach synthesis figure, step 50/52, Phase 17; display/utility). S.15d covers Script 09g (mechanism-diagram suite, step 51/52, Phase 17; display/utility). S.16 covers Scripts 22, 23, and 24 (residual diagnostics, steps 27--29/52, Phase 12 in *run_analysis.py*). S.18 covers Script 26 (van Willegen 5-year MSL aggregation, step 30/52, Phase 13). S.18b covers Script 11 Section 5 (Tool A --- spring MSL transfer function, embedded in Script 11 at step 11/52, Phase 3) together with Script 26b (Tool B --- UKCP18 RCP8.5 MSL5 projections, step 31/52, Phase 13). S.18c covers Script 26c (MSL5 report-format figures, step 32/52, Phase 13). S.19 covers Scripts 28, 29 and 30 (cluster framework diagnostics, steps 33--35/52, Phase 14). S.20 covers Scripts 32, 33, 35, 36, 37 and 37b (observed differential change, climate-response envelope, and driver validation; steps 36--41/52, Phase 15, all analytical-default as of 2026-07-13). S.21 covers Scripts 24b, 31, 31b, 34 and 38 (supplementary standalone diagnostics, steps 42--46/52, Phase 16 --- 34/38 analytical-default as of 2026-07-13; 24b/31/31b opt-in). Three further chapters were added after that group: S.22 covers Script 39 (SSM hindcast against the 1989--96 CCW record), S.22b covers Script 40 (shoreline retreat from the digitised coastline epochs), and S.23 covers Script 41 (canopy and forest cover from the dated aerial series). S.24 is appendices; there is no chapter S.17, which is the number the appendices carried when the supplement ended at S.16, renumbered on 2026-08-31 once they came to sit after S.23. All scripts in S.15, S.15c, S.15d, S.16, S.18, S.18b, S.18c, S.19, S.20, S.21, S.22, S.22b and S.23 are part of the pipeline orchestrated by *run_analysis.py*; the "post-pipeline supplementary" framing reflects their role in the report (discussion-feeding rather than results-feeding), not their orchestration status. Scripts 26c (MSL5 report-format figures, Phase 13), 09f (spatial-reach synthesis, Phase 17), 09g (mechanism diagrams, Phase 17), and 27 (greyscale figures, Phase 17) are display/utility steps rather than analytical; Script 26c is documented in S.18c, Script 09f in S.15c, Script 09g in S.15d, and Script 27 in Appendix A.
+The eleven Phase 4 chapters (S.8--S.14) cover the climate-and-spatial scripts that feed §4 of the report. Phase 5 collects six further chapters whose methodological purpose is supplementary: each consumes pipeline intermediates, none feeds downstream pipeline scripts, and the conclusions they produce inform the report's discussion rather than its core results chain. S.15 covers Script 25 (coastal-retreat gradient, step 26/53, Phase 11 in *run_analysis.py*). S.15c covers Script 09f (spatial-reach synthesis figure, step 50/53, Phase 17; display/utility). S.15d covers Script 09g (mechanism-diagram suite, step 51/53, Phase 17; display/utility). S.16 covers Scripts 22, 23, and 24 (residual diagnostics, steps 27--29/53, Phase 12 in *run_analysis.py*). S.18 covers Script 26 (van Willegen 5-year MSL aggregation, step 30/53, Phase 13). S.18b covers Script 11 Section 5 (Tool A --- spring MSL transfer function, embedded in Script 11 at step 11/53, Phase 3) together with Script 26b (Tool B --- UKCP18 RCP8.5 MSL5 projections, step 31/53, Phase 13). S.18c covers Script 26c (MSL5 report-format figures, step 32/53, Phase 13). S.19 covers Scripts 28, 29 and 30 (cluster framework diagnostics, steps 33--35/53, Phase 14). S.20 covers Scripts 32, 33, 35, 36, 37 and 37b (observed differential change, climate-response envelope, and driver validation; steps 36--41/53, Phase 15, all analytical-default as of 2026-07-13). S.21 covers Scripts 24b, 31, 31b, 34 and 38 (supplementary standalone diagnostics, steps 42--46/53, Phase 16 --- 34/38 analytical-default as of 2026-07-13; 24b/31/31b opt-in). Three further chapters were added after that group: S.22 covers Script 39 (SSM hindcast against the 1989--96 CCW record), S.22b covers Script 40 (shoreline retreat from the digitised coastline epochs), and S.23 covers Script 41 (canopy and forest cover from the dated aerial series). S.24 is appendices; there is no chapter S.17, which is the number the appendices carried when the supplement ended at S.16, renumbered on 2026-08-31 once they came to sit after S.23. All scripts in S.15, S.15c, S.15d, S.16, S.18, S.18b, S.18c, S.19, S.20, S.21, S.22, S.22b and S.23 are part of the pipeline orchestrated by *run_analysis.py*; the "post-pipeline supplementary" framing reflects their role in the report (discussion-feeding rather than results-feeding), not their orchestration status. Scripts 26c (MSL5 report-format figures, Phase 13), 09f (spatial-reach synthesis, Phase 17), 09g (mechanism diagrams, Phase 17), and 27 (greyscale figures, Phase 17) are display/utility steps rather than analytical; Script 26c is documented in S.18c, Script 09f in S.15c, Script 09g in S.15d, and Script 27 in Appendix A.
 
 ## []{#anchor-407}[]{#anchor-408}[]{#anchor-409}S.15 Script 25 --- Coastal-retreat gradient
 
@@ -3079,7 +3079,7 @@ All paths resolve through *utils/paths.py* (*OUT_25_FIT_PARAMETERS*, *OUT_25_PER
 
 ## []{#anchor-427}[]{#anchor-428}[]{#anchor-429}S.15c Script 09f --- Management-interventions-versus-coastal-retreat spatial reach
 
-Step 50/52, Phase 17. Display/utility tier, not analytical. Documented here as a companion to §S.15 (Script 25, coastal gradient), whose outputs it reads.
+Step 50/53, Phase 17. Display/utility tier, not analytical. Documented here as a companion to §S.15 (Script 25, coastal gradient), whose outputs it reads.
 
 ### []{#anchor-429}[]{#anchor-430}[]{#anchor-431}Motivation
 
@@ -3137,7 +3137,7 @@ Every curve is a single-mechanism steady-state construction anchored at only one
 
 ## []{#anchor-445}[]{#anchor-446}[]{#anchor-447}S.15d Script 09g --- Mechanism diagrams (§5.8 schematic figure)
 
-**Step 51/52, Phase 17. Display/utility (***tier=\"D\"***); not analytical. Added 2026-07-18 (***run_analysis.py*\*\* v2.2.0). Reads only committed outputs of Scripts 09f, 10m and 10a; no recomputation.\*\*
+**Step 51/53, Phase 17. Display/utility (***tier=\"D\"***); not analytical. Added 2026-07-18 (***run_analysis.py*\*\* v2.2.0). Reads only committed outputs of Scripts 09f, 10m and 10a; no recomputation.\*\*
 
 ### []{#anchor-448}[]{#anchor-449}[]{#anchor-450}Motivation
 
@@ -3196,7 +3196,7 @@ The combined grid is the §5.8 conceptual figure of the main report (figure numb
 
 ## []{#anchor-464}[]{#anchor-465}[]{#anchor-466}S.16 Scripts 22, 23, 24 --- Residual diagnostics
 
-**Steps 27--29/52 in the orchestrator (Phase 12 --- Residual Diagnostics in ***run_analysis.py***); analytical tier; second chapter under Phase 5 --- Post-pipeline supplementary analyses in the supplement.**
+**Steps 27--29/53 in the orchestrator (Phase 12 --- Residual Diagnostics in ***run_analysis.py***); analytical tier; second chapter under Phase 5 --- Post-pipeline supplementary analyses in the supplement.**
 
 ### []{#anchor-466}[]{#anchor-467}[]{#anchor-468}Motivation
 
@@ -3277,7 +3277,7 @@ The phase analysis uses a circular mean rather than an arithmetic mean to handle
 
 ### []{#anchor-478}[]{#anchor-479}[]{#anchor-480}Diagnostic --- cluster-stratified residual climatology (Script 24b, non-pipeline)
 
-Script 24b (*24b_residual_climatology.py*) is step 42/52 in the orchestrated pipeline, wired into Phase 16 alongside Scripts 31, 31b, 34, and 38 (§S.21). It runs after the canonical residual-diagnostics suite (Scripts 22--24) and reads their committed outputs. Its purpose is to ask whether the seasonal residual signature uncovered by Script 24 carries any cluster-level structure that would discriminate between candidate mechanisms --- in particular, whether the winter-spring residual is concentrated in the forested clusters (as a canopy-interception over-estimation would predict) or in the open-dune cluster (as a recharge-nonlinearity would predict). Full documentation is in §S.21.1.
+Script 24b (*24b_residual_climatology.py*) is step 42/53 in the orchestrated pipeline, wired into Phase 16 alongside Scripts 31, 31b, 34, and 38 (§S.21). It runs after the canonical residual-diagnostics suite (Scripts 22--24) and reads their committed outputs. Its purpose is to ask whether the seasonal residual signature uncovered by Script 24 carries any cluster-level structure that would discriminate between candidate mechanisms --- in particular, whether the winter-spring residual is concentrated in the forested clusters (as a canopy-interception over-estimation would predict) or in the open-dune cluster (as a recharge-nonlinearity would predict). Full documentation is in §S.21.1.
 
 The method reads Script 22's per-well residuals *e(t)* directly --- there is no SSM re-fit, so the diagnostic inherits whatever the canonical Model B has fitted at each well. For every well meeting Script 22's 140-month minimum, it computes a per-well *winter-minus-summer contrast* defined as the mean of e(t) across all calendar DJF months (December, January, February) minus the mean across all calendar JJA months (June, July, August). The five clusters are then aggregated by a well-level bootstrap with 1000 resamples within each cluster, producing a cluster-mean contrast, a 95 % confidence interval on the cluster mean, and a two-sided one-sample *t*-test of the cluster mean against zero. Per-well distance-to-ridge and a signed distance-to-forest-edge are attached as covariates --- the forest-edge geometry comes from the "Forest" polygon in *Features.kml*, reprojected to OSGB36 / EPSG:27700, with positive values denoting wells inside the forest and negative values denoting wells outside. The ridge reference point is defined locally in the diagnostic, mirroring Script 24's coordinates, so the script can run standalone against a clean *main* with no shared-file edits.
 
@@ -3575,7 +3575,7 @@ End of chapter S.18.
 
 ## []{#anchor-520}[]{#anchor-521}[]{#anchor-522}S.18b --- Spring MSL forecasting tools (Script 11 Section 5, Script 26b)
 
-**Step 31/52 for Script 26b (Phase 13 --- Van Willegen MSL Analyses in ***run_analysis.py***); Script 11 Section 5 lives in Phase 3 at step 11/52 inside ***11_forecasting_thresholds.py***. Companion to S.18; followed in the supplement by S.18c which documents Script 26c's display-only report-format figures.**
+**Step 31/53 for Script 26b (Phase 13 --- Van Willegen MSL Analyses in ***run_analysis.py***); Script 11 Section 5 lives in Phase 3 at step 11/53 inside ***11_forecasting_thresholds.py***. Companion to S.18; followed in the supplement by S.18c which documents Script 26c's display-only report-format figures.**
 
 ### []{#anchor-522}[]{#anchor-523}[]{#anchor-524}S.18b.1 Purpose and editorial weighting
 
@@ -3891,7 +3891,7 @@ A methodological aside emerges from the regression: the Script 25 exponential co
 
 ### []{#anchor-559}[]{#anchor-560}[]{#anchor-561}S.19.3 Script 30 --- C4 drainage identifiability diagnostic and reported sensitivities
 
-Step 35/52, Phase 14; tier X, but executed by default --- the committed *pipeline_manifest.json* gives *exec=\"default\"* at index 35 (cite the manifest rather than these counts). Added 2026-06-23 as a constrained-β₃ triangulation sensitivity (v1.0.0--v1.1.0); replaced 2026-07-24 (v2.1.0) by the direct identifiability diagnostic documented here, after the degeneracy premise the earlier script rested on was tested and not supported; per-well two-basis panel and centroid exclusion sensitivity added 2026-08-16 (v2.2.0); results removed from the script's own docstring, comments and console strings in favour of run-time derivation 2026-08-16 (v2.2.1). The retired script's archived outputs remain committed under *outputs/30_c4_constrained_fit/* but are produced by no live script.
+Step 35/53, Phase 14; tier X, but executed by default --- the committed *pipeline_manifest.json* gives *exec=\"default\"* at index 35 (cite the manifest rather than these counts). Added 2026-06-23 as a constrained-β₃ triangulation sensitivity (v1.0.0--v1.1.0); replaced 2026-07-24 (v2.1.0) by the direct identifiability diagnostic documented here, after the degeneracy premise the earlier script rested on was tested and not supported; per-well two-basis panel and centroid exclusion sensitivity added 2026-08-16 (v2.2.0); results removed from the script's own docstring, comments and console strings in favour of run-time derivation 2026-08-16 (v2.2.1). The retired script's archived outputs remain committed under *outputs/30_c4_constrained_fit/* but are produced by no live script.
 
 **Motivation.** C4 Main Forest returns the network's lowest drainage coefficient and its highest atmospheric draw. Because β₂·PET and β₃·h_disp are the two loss terms in the SSM, the obvious objection is that they are collinear at a cluster with a deep water table, so that the low β₃ is an artefact of the fit rather than a property of the cluster. The earlier version of this script accepted that premise and constrained β₃ to an open-dune anchor. This version tests the premise instead, at the cluster-centroid scale the report cites, and reports two sensitivities that bound the coefficient without revising it.
 
@@ -3937,7 +3937,7 @@ End of chapter S.19.
 
 ## []{#anchor-562}[]{#anchor-563}[]{#anchor-564}S.20 Scripts 32, 33, 35, 36, 37, 37b --- Observed differential change and the climate-response envelope
 
-Phase 15 (steps 36--41/52; 32/33/35 analytical-default, 36/37/37b also analytical-default --- the committed *pipeline_manifest.json* gives all six *exec=\"default\"*). Six analyses that characterize observed network change and driver attribution directly, independently of (and, for 37/37b, in comparison against) the single-mechanism driver model of §S.13--§S.14: where the spring water table is moving relative to the site (Script 32, Figure 64), how far it swings between climate extremes (Script 33, Figure 66), how deep it sits in dry years against the ecological thresholds (Script 33, Figure 67), a per-well frame-independent coefficient extending the amplification metric to short-record wells (Script 35), an absolute climate-removed secular trend map placing the coastal and forest drying on one figure without mean-referencing or residual-construction artefacts (Script 36), a predicted-versus-observed validation of the modelled driver-change map (Script 37), and a comparative footing of forest/scrape/coastal effects on common currencies (Script 37b, Part B). All six read committed pipeline outputs and re-fit nothing in the SSM; their value layers are observational.
+Phase 15 (steps 36--41/53; 32/33/35 analytical-default, 36/37/37b also analytical-default --- the committed *pipeline_manifest.json* gives all six *exec=\"default\"*). Six analyses that characterize observed network change and driver attribution directly, independently of (and, for 37/37b, in comparison against) the single-mechanism driver model of §S.13--§S.14: where the spring water table is moving relative to the site (Script 32, Figure 64), how far it swings between climate extremes (Script 33, Figure 66), how deep it sits in dry years against the ecological thresholds (Script 33, Figure 67), a per-well frame-independent coefficient extending the amplification metric to short-record wells (Script 35), an absolute climate-removed secular trend map placing the coastal and forest drying on one figure without mean-referencing or residual-construction artefacts (Script 36), a predicted-versus-observed validation of the modelled driver-change map (Script 37), and a comparative footing of forest/scrape/coastal effects on common currencies (Script 37b, Part B). All six read committed pipeline outputs and re-fit nothing in the SSM; their value layers are observational.
 
 ### []{#anchor-564}[]{#anchor-565}[]{#anchor-566}S.20.1 Script 32 --- Secular differential water-table movement (Figure 64)
 
@@ -3987,7 +3987,7 @@ Phase 15 (steps 36--41/52; 32/33/35 analytical-default, 36/37/37b also analytica
 
 ### []{#anchor-572}[]{#anchor-573}[]{#anchor-574}S.20.4 Script 36 --- Absolute climate-removed secular trend (Phase 15)
 
-**Step 39/52, Phase 15. Added 2026-07-05 (v1.0.4); promoted to analytical tier (***exec=\"default\"***) 2026-07-13 per the Task E signed-off audit. Analytical tier. See the Pipeline-at-a-glance table and ***outputs/pipeline_manifest.json***.**
+**Step 39/53, Phase 15. Added 2026-07-05 (v1.0.4); promoted to analytical tier (***exec=\"default\"***) 2026-07-13 per the Task E signed-off audit. Analytical tier. See the Pipeline-at-a-glance table and ***outputs/pipeline_manifest.json***.**
 
 **Motivation.** Script 32's differential map (Figure 64) answers "where relative to the site", re-referencing every well to the network mean, which over a wet-spring-lifted window inverts the reading (the forest interior reads as rising because it amplifies the lifted mean, not because it is genuinely wetting). The MSL5 change map (Figure 63) is absolute but retains the common climate signal, so the whole site deepens together and spatial structure is masked. Script 36 fills the gap: an **absolute** per-well secular trend with the climate signal removed by an **external** index (spring CWB), not re-referenced to the network mean, so the real site-wide recharge decline and coastal drying survive while the inter-annual climate wobble is removed.
 
@@ -4021,7 +4021,7 @@ All at *outputs/36_absolute_climate_trend/*.
 
 ### []{#anchor-574}[]{#anchor-575}[]{#anchor-576}S.20.5 Script 37 --- Driver validation (per-driver scale-factor regression)
 
-**Step 40/52, Phase 15. Analytical tier (***exec=\"default\"***), promoted 2026-07-13 per the Task E signed-off audit.**
+**Step 40/53, Phase 15. Analytical tier (***exec=\"default\"***), promoted 2026-07-13 per the Task E signed-off audit.**
 
 **Motivation.** Sections S.19--S.20 characterise each driver's *modelled* spatial field (forest canopy, scrape dipole, coastal retreat). Script 37 asks the complementary question: do those fields, at their modelled amplitudes, actually account for the observed climate-corrected change across the well network, and can their amplitudes be recovered independently from the data? It is a validation step, not a fitting step --- it does not set any driver amplitude used elsewhere.
 
@@ -4053,7 +4053,7 @@ Each field is β₃-corrected per well so a scale factor is dimensionless --- s 
 
 ### []{#anchor-576}[]{#anchor-577}[]{#anchor-578}S.20.6 Script 37b --- Comparative driver footing (Part B)
 
-**Step 41/52, Phase 15. v1.0.1 (2026-07-07); promoted to analytical tier (***exec=\"default\"***) 2026-07-13 per the Task E signed-off audit. Analytical tier.**
+**Step 41/53, Phase 15. v1.0.1 (2026-07-07); promoted to analytical tier (***exec=\"default\"***) 2026-07-13 per the Task E signed-off audit. Analytical tier.**
 
 **Motivation.** The report weighs interventions and natural processes against one another, but the drivers are mechanistically incommensurate (equilibrium suppression vs local redistribution vs progressive accumulation). Script 37b places forest, scraping and coast on a common footing by expressing each in three shared currencies over a common 2005→2025 horizon, so the comparison is explicit rather than rhetorical.
 
@@ -4073,7 +4073,7 @@ End of chapter S.20.
 
 ## []{#anchor-578}[]{#anchor-579}[]{#anchor-580}S.21 Scripts 24b, 31, 31b, 34, 38 --- Supplementary standalone diagnostics
 
-Phase 16 (steps 42--46/52; the first three opt-in --- *\--with-supplementary* --- the last two running by default). Five standalone diagnostics wired into the orchestrator so they regenerate whenever upstream data change, each addressing a specific robustness question raised elsewhere in the analysis: the mechanism behind the seasonal SSM residual (Script 24b), whether the k=5 partition is corroborated by evidence the clustering never used (Scripts 31 and 31b), whether the two-window MSL5 method can resolve absolute site-wide change (Script 34), and whether the coast-to-inland MAM head gradient is growing (erosion-consistent) or static (substrate-geometry) as a model-free corroboration of the coastal-retreat rate δ₀ (Script 38). None re-fits the SSM; all read committed pipeline outputs.
+Phase 16 (steps 42--46/53; the first three opt-in --- *\--with-supplementary* --- the last two running by default). Five standalone diagnostics wired into the orchestrator so they regenerate whenever upstream data change, each addressing a specific robustness question raised elsewhere in the analysis: the mechanism behind the seasonal SSM residual (Script 24b), whether the k=5 partition is corroborated by evidence the clustering never used (Scripts 31 and 31b), whether the two-window MSL5 method can resolve absolute site-wide change (Script 34), and whether the coast-to-inland MAM head gradient is growing (erosion-consistent) or static (substrate-geometry) as a model-free corroboration of the coastal-retreat rate δ₀ (Script 38). None re-fits the SSM; all read committed pipeline outputs.
 
 ### []{#anchor-580}[]{#anchor-581}[]{#anchor-582}S.21.1 Script 24b --- Cluster-stratified residual climatology
 
@@ -4109,7 +4109,7 @@ Phase 16 (steps 42--46/52; the first three opt-in --- *\--with-supplementary* --
 
 ### []{#anchor-586}[]{#anchor-587}[]{#anchor-588}S.21.4 Script 34 --- MSL5 two-window sensitivity demonstration
 
-**Step 45/52, Phase 16. Analytical tier (***exec=\"default\"***), promoted 2026-07-13 per the Task E signed-off audit.**
+**Step 45/53, Phase 16. Analytical tier (***exec=\"default\"***), promoted 2026-07-13 per the Task E signed-off audit.**
 
 **Motivation.** A deliberate cautionary demonstration: how strongly an apparent "site-mean water-table change" depends on which two five-year spring windows are differenced. The §4.12 headline differences window-end 2017 against window-end 2023 and reports −96.8 mm; Script 34 places that single comparison inside the envelope of every admissible window pair, so §5.7.5 can show from a committed, reproducible figure that the two-window MSL5 method cannot resolve absolute site-wide change.
 
@@ -4127,7 +4127,7 @@ Phase 16 (steps 42--46/52; the first three opt-in --- *\--with-supplementary* --
 
 ### []{#anchor-588}[]{#anchor-589}[]{#anchor-590}S.21.5 Script 38 --- Coast-to-inland MAM transect (observational δ₀)
 
-**Step 46/52, Phase 16. v1.3.0 (2026-07-08, wired into ***run_analysis.py*\*\* --- previously standalone); promoted to analytical tier (***exec=\"default\"***) 2026-07-13 per the Task E signed-off audit. Analytical tier.\*\*
+**Step 46/53, Phase 16. v1.3.0 (2026-07-08, wired into ***run_analysis.py*\*\* --- previously standalone); promoted to analytical tier (***exec=\"default\"***) 2026-07-13 per the Task E signed-off audit. Analytical tier.\*\*
 
 **Motivation.** Script 37 could not confirm the modelled coastal field spatially. Script 38 takes a different, model-free route: a single coast-to-inland transect, viewed through time, tests whether the coast-to-inland head *gradient grows* --- which only a moving coastal boundary (erosion) can produce; a static substrate geometry gives a constant offset. It is the one observational handle on δ₀ the network affords.
 
@@ -4147,7 +4147,7 @@ End of chapter S.21.
 
 ## []{#anchor-590}[]{#anchor-591}S.22 Script 39 --- SSM hindcast against the 1989--96 CCW record
 
-**Step 47/52, Phase 16 in ***run_analysis.py***. Analytical tier (***exec=\"default\"***). The step skips cleanly when the historic inputs are absent, so a default full run cannot fail over an optional raw input.**
+**Step 47/53, Phase 16 in ***run_analysis.py***. Analytical tier (***exec=\"default\"***). The step skips cleanly when the historic inputs are absent, so a default full run cannot fail over an optional raw input.**
 
 ### []{#anchor-592}[]{#anchor-593}Motivation
 
@@ -4219,7 +4219,7 @@ End of chapter S.22.
 
 ## []{#anchor-616}S.22b Script 40 --- Shoreline retreat from the digitised coastline epochs
 
-**Step 48/52, Phase 16 in ***run_analysis.py***. Analytical tier (***exec=\"default\"***). Added 2026-08-29; D-085, D-086, D-098. The step withholds its rate rather than the pipeline, so a default full run cannot fail over it.**
+**Step 48/53, Phase 16 in ***run_analysis.py***. Analytical tier (***exec=\"default\"***). Added 2026-08-29; D-085, D-086, D-098. The step withholds its rate rather than the pipeline, so a default full run cannot fail over it.**
 
 **Motivation. **The coastal-retreat rate the pipeline needs --- the divisor that turns the Script 25 coastal-gradient deepening δ₀ into a head change per metre of shoreline lost (§S.15, §3.4.5) --- began as a session computation in a working note. Under D-006 nothing that lives only in a note is citable, and D-060's Revisit-if asks for exactly this promotion: make the retreat a pipeline output so the downstream field reads a rate rather than inheriting a hand-carried number. But a retreat figure that cannot tell a rigid shift of a digitised line from real erosion is not a measurement, so the diagnostics that decide whether the number means anything are the substance of this chapter, not an appendix to it.
 
@@ -4237,7 +4237,7 @@ End of chapter S.22.
 
 ## []{#anchor-617}[]{#anchor-618}S.23 Script 41 --- canopy and forest cover from the dated aerial series
 
-**Step 49/52, Phase 16 in ***run_analysis.py***. Analytical tier (***exec=\"default\"***). The step skips cleanly when the imagery is absent, so a default full run in a clone cannot fail over an optional raw input.**
+**Step 49/53, Phase 16 in ***run_analysis.py***. Analytical tier (***exec=\"default\"***). The step skips cleanly when the imagery is absent, so a default full run in a clone cannot fail over an optional raw input.**
 
 ### []{#anchor-619}[]{#anchor-620}Motivation
 
@@ -4323,9 +4323,9 @@ python src/27_greyscale_figures.py \[\--enhanced\] \[\--dpi DPI\] \[\--skip-maps
 
 \[\--exclude-problem\] \[\--dry-run\]
 
-with *\--dpi* overriding the source DPI, *\--skip-maps* excluding the spatial-map outputs that benefit from manual review, and *\--dry-run* listing the files that would be converted without writing anything. Script 27 is orchestrated by *run_analysis.py* as PHASE_17 (step 52/52) but is a post-analysis utility rather than an analytical step --- it is display/utility rather than analytical and lives here in Appendix A. The script is idempotent: deleting *outputs_bw/* and re-running rebuilds it cleanly.
+with *\--dpi* overriding the source DPI, *\--skip-maps* excluding the spatial-map outputs that benefit from manual review, and *\--dry-run* listing the files that would be converted without writing anything. Script 27 is orchestrated by *run_analysis.py* as PHASE_17 (step 52/53) but is a post-analysis utility rather than an analytical step --- it is display/utility rather than analytical and lives here in Appendix A. The script is idempotent: deleting *outputs_bw/* and re-running rebuilds it cleanly.
 
-Script 27's filename prefix (*27\_*) and orchestrator step number (52/52) deliberately do not match --- the same convention applied to Script 26 (*26_van_willegen_msl.py* at step 30/52), Script 26b (*26b_van_willegen_msl_projections.py* at step 31/52), Script 26c (*26c_msl5_report_figures.py* at step 32/52), Script 09f (*09f_management_effects.py* at step 50/52), and Script 09g (*09g_mechanism_diagrams.py* at step 51/52). The filename groups Script 27 alphabetically with the other *2x\_* scripts; the orchestrator number reflects its position in the run order at the end of Phase 17. Script 27 carries no analytical-step number of its own --- it is the post-analysis utility documented in this appendix. Script 26c, the MSL5 report-format figure-rendering companion, is similarly display/utility and is documented in §S.18c. Script 09f, the spatial-reach synthesis figure, is also excluded and is documented in §S.15c. Script 09g, the mechanism-diagram companion to 09f, is likewise excluded and is documented in §S.15d.
+Script 27's filename prefix (*27\_*) and orchestrator step number (52/53) deliberately do not match --- the same convention applied to Script 26 (*26_van_willegen_msl.py* at step 30/53), Script 26b (*26b_van_willegen_msl_projections.py* at step 31/53), Script 26c (*26c_msl5_report_figures.py* at step 32/53), Script 09f (*09f_management_effects.py* at step 50/53), and Script 09g (*09g_mechanism_diagrams.py* at step 51/53). The filename groups Script 27 alphabetically with the other *2x\_* scripts; the orchestrator number reflects its position in the run order at the end of Phase 17. Script 27 carries no analytical-step number of its own --- it is the post-analysis utility documented in this appendix. Script 26c, the MSL5 report-format figure-rendering companion, is similarly display/utility and is documented in §S.18c. Script 09f, the spatial-reach synthesis figure, is also excluded and is documented in §S.15c. Script 09g, the mechanism-diagram companion to 09f, is likewise excluded and is documented in §S.15d.
 
 ### []{#anchor-640}[]{#anchor-641}[]{#anchor-642}B. Canonical sources of truth --- reference table
 
@@ -4493,9 +4493,9 @@ The convention throughout the supplement is that there is one place to change a 
   make_all_dirs()                                                           F.5 / *paths.py*                                        Directory creation helper
   run_analysis.py                                                           S.1 (introduction)                                      Pipeline orchestrator; CLI flags for phases
   Two-pass workflow                                                         F.4 / *PIPELINE_README.md*                              First pass uses fallbacks; second uses canonical Sy / β₂ multipliers
-  Greyscale post-processor                                                  Appendix A (this chapter) / *27_greyscale_figures.py*   Phase 17 in *run_analysis.py* (step 52/52); display/utility rather than analytical
-  Spatial-reach synthesis figure                                            §S.15c / *09f_management_effects.py*                    Phase 17 in *run_analysis.py* (step 50/52); display/utility; display/utility rather than analytical
-  Mechanism-diagram suite                                                   §S.15d / *09g_mechanism_diagrams.py*                    Phase 17 in *run_analysis.py* (step 51/52); display/utility; display/utility rather than analytical
+  Greyscale post-processor                                                  Appendix A (this chapter) / *27_greyscale_figures.py*   Phase 17 in *run_analysis.py* (step 52/53); display/utility rather than analytical
+  Spatial-reach synthesis figure                                            §S.15c / *09f_management_effects.py*                    Phase 17 in *run_analysis.py* (step 50/53); display/utility; display/utility rather than analytical
+  Mechanism-diagram suite                                                   §S.15d / *09g_mechanism_diagrams.py*                    Phase 17 in *run_analysis.py* (step 51/53); display/utility; display/utility rather than analytical
   Script 11c / 14b / 25 / 26 / 26b / 26c / 27 / 28 / 29 naming convention   F.4                                                     Filename prefix, orchestrator step number, and chapter assignment aligned
   *paths.DIR_26*, *paths.OUT_26\_\**                                        F.5 / *utils/paths.py* / S.18                           All Script 26 outputs (Method A + Method B parallel CSVs; quadrat-wells figure; MSL5 map)
   *paths.DIR_26B*, *paths.OUT_26B\_\**                                      F.5 / *utils/paths.py* / S.18b                          All Script 26b outputs (UKCP18 projection figure, summary table, monthly Δh table, results transcript)

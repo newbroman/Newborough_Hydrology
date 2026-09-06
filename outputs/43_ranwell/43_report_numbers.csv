@@ -1,0 +1,7 @@
+key,value,unit,note
+ranwell_sites_total,17.0,count,"water-table pipe sites in Ranwell 1959 Fig 3 (numbered 1-16, 18)"
+ranwell_sites_registered,14.0,count,sites with a digitised pixel and a Route-A OSGB position
+ranwell_sites_pending_digitisation,3.0,count,sites not yet confidently digitised (provisional label-proxy pass)
+ranwell_route_b_median_abs_resid_m,0.681,m,median |DEM height - tabulated OD height| across registered sites
+ranwell_shore_misfit_m,68.3,m,median distance of transformed figure shore points to coast2006
+ranwell_modern_wells_with_analogue,7.0,count,modern wells within 100 m of a 1950s site

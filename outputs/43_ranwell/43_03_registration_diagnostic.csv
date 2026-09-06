@@ -1,0 +1,2 @@
+n_sites_total,n_sites_digitised,n_sites_pending,scale_m_per_px,penlon_easting,penlon_northing,route_b_median_abs_resid_m,route_b_flagged_sites,shore_misfit_m,rotation_assumption
+17,14,3,1.7476,242497.5,364845.3,0.681,3,68.3,grid-north-up (documented; not fitted)

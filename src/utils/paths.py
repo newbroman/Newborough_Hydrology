@@ -11,7 +11,7 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.12.0"  # Hollingham (2026) — 2026-09-03.
+__version__ = "1.13.0"  # Hollingham (2026) — 2026-09-03.
 #                        OUT_38_REPORT_NUMBERS, so Script 38's transect
 #                        trend can be gated instead of living in prose.
 #                        Additive only.
@@ -223,6 +223,8 @@ DATA_ELLENBERG_EXT  = DATA_DIR / "Ecohydrology_dataset.xlsx"
 # Geographic inputs — all resolved via data_geo() (files live in data/geo/).
 DATA_DEM               = data_geo("newborough_dem.tif")
 DATA_KML_FEATURES      = data_geo("Features.kml")
+DATA_RANWELL_CONTROL   = data_geo("ranwell_1959_control.csv")   # W95 (D-081 derived)
+DATA_RANWELL_SITES_PX  = data_geo("ranwell_1959_sites_px.csv")  # W95 (D-081 derived)
 DATA_KML_STREAMS       = data_geo("streams.kml")
 DATA_KML_CLEARFELL     = data_geo("clearfell.kml")
 DATA_KML_SITE_BOUNDARY = data_geo("site_boundary.kml")
@@ -1049,6 +1051,16 @@ OUT_41_CHANGE         = DIR_41 / "41_02_change_events.csv"
 OUT_41_REGISTRATION   = DIR_41 / "41_03_registration.csv"
 OUT_41_SERIES_FIG     = DIR_41 / "41_04_canopy_series.png"
 OUT_41_REPORT_NUMBERS = DIR_41 / "41_report_numbers.csv"
+
+# Script 43 - Ranwell (1959) historical water-table sites, georeferenced (W95)
+DIR_43 = OUT_DIR / "43_ranwell"
+DIR_43.mkdir(parents=True, exist_ok=True)
+OUT_43_SITES          = DIR_43 / "43_01_ranwell_sites.csv"
+OUT_43_NEAREST        = DIR_43 / "43_02_nearest_well.csv"
+OUT_43_DIAGNOSTIC     = DIR_43 / "43_03_registration_diagnostic.csv"
+OUT_43_OVERLAY        = DIR_43 / "43_04_overlay.png"
+OUT_43_VECTOR         = DIR_43 / "43_05_ranwell_sites.geojson"
+OUT_43_REPORT_NUMBERS = DIR_43 / "43_report_numbers.csv"
 OUT_40_FIG             = DIR_40 / "40_01_alongshore_profile.png"
 
 # Coastline epochs. coast1899.kml carries TWO placemarks and labels neither;

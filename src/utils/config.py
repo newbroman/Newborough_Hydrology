@@ -40,7 +40,7 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.28.1"  # Hollingham (2026) - 2026-09-04. W66: BL_CANOPY_FRACTION_2005
+__version__ = "1.29.0"  # Hollingham (2026) - 2026-09-04. W66: BL_CANOPY_FRACTION_2005
 #   basis corrected - 0.4 is confirmed against the aerial photography at the
 #   2005/2006 baseline (observation-anchored), not a seasons-since-restock
 #   judgement, so the D-082 restock-year change (1998->1995) does not move it.
@@ -1145,6 +1145,18 @@ LEAF_OFF_MONTHS       = (11, 12, 1, 2)   # bare
 LEAF_EMERGING_MONTHS  = (3, 4)           # leaves coming out
 LEAF_FULL_MONTHS      = (5, 6, 7)        # full leaf out - the comparison basis
 LEAF_SENESCING_MONTHS = (8, 9, 10)       # turning
+
+# ── Script 43 — Ranwell (1959) historical water-table sites (W95) ────────────
+# Georeferencing Ranwell 1959 Fig 3's 17 pipe sites into OSGB. Only fixed inputs
+# live here (D-075); the digitised pixels are DATA (data/geo/ranwell_1959_*.csv)
+# and the fitted positions are outputs. Route A is a grid-north-up similarity:
+# Penlon Lake anchors it, the scale bar sets scale, north-up is assumed (the
+# inset arrow is not in the main-map frame). Route B (DEM vs the tabulated OD
+# heights) is the independent check.
+RANWELL_SCALEBAR_M       = 250.0            # m; the figure's 1/4 km scale bar
+RANWELL_PENLON_NAME      = "Llyn Rhos Ddu"  # Features.kml placemark = Penlon Lake
+RANWELL_ANALOGUE_RADIUS_M = 100.0           # m; a modern well has a 1950s analogue within this
+RANWELL_ROUTE_B_FLAG_M   = 2.0              # m; |DEM - tabulated OD height| above this flags a site
 
 # Broadleaf summer β₂ multiplier — deciduous phenology effect on ET.
 # Derived from Script 21's monthly β₂ profile (Hollingham, 2026), averaged

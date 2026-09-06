@@ -152,7 +152,7 @@ import uuid
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.11.0"  # 2026-09-05: run_full_pipeline warns (never blocks)
+__version__ = "2.12.0"  # 2026-09-05: run_full_pipeline warns (never blocks)
 #   when the checkout is behind its upstream, so a run does not produce
 #   committed outputs from stale code (the 2026-09-05 case where a run under
 #   an out-of-date run_analysis wrote a manifest a version behind HEAD and
@@ -406,6 +406,7 @@ PHASE_17 = [
     Step("09f_management_effects.py",  "Figure: management-interventions + coastal-retreat spatial reach (\u00a75.8; two-pass, reads Scripts 20/25/09d/10a)",   "D"),
     Step("09g_mechanism_diagrams.py",  "Figure: mechanism grid + coastal reach (\u00a75.8 conceptual; display only, reads 09f/10m/10a)", "D"),
     Step("27_greyscale_figures.py",    "Greyscale figure conversion (journal-ready B&W)",                                                                       "D"),
+    Step("43_ranwell_sites.py",       "Ranwell (1959) Fig 3 historical water-table sites georeferenced into OSGB and matched to the modern network; two routes (geometric + elevational). Skips when its digitised inputs are absent. Site positions provisional (W95)", "D"),
 ]
 
 ALL_PHASES = [
@@ -425,7 +426,7 @@ ALL_PHASES = [
     ("PHASE 14 \u2014 Cluster Framework Diagnostics (Scripts 28\u201330)",   PHASE_14),
     ("PHASE 15 \u2014 Observed Differential Change, Envelope, and Driver Validation (Scripts 32, 33, 35, 36, 37, 37b)", PHASE_15),
     ("PHASE 16 \u2014 Window Sensitivity, Coastal Transect, and Supplementary Cluster Diagnostics (Scripts 34, 38 default; 24b, 31, 31b opt-in)", PHASE_16),
-    ("PHASE 17 \u2014 Synthesis Figures and Greyscale Conversion (Scripts 09f, 09g, 27)",  PHASE_17),
+    ("PHASE 17 \u2014 Synthesis Figures, Greyscale Conversion, and Historical Site Georeferencing (Scripts 09f, 09g, 27, 43)",  PHASE_17),
 ]
 
 # Phase number = 1-based position in ALL_PHASES (the orchestrator phase order).
@@ -454,12 +455,12 @@ _PHASE_NUM = {label: i for i, (label, _entries) in enumerate(ALL_PHASES, start=1
 # this pipeline and is cited in the report, which is what puts it in tier A
 # rather than among the opt-in diagnostics.
 _DOCUMENTED_COUNTS = {
-    "total_registered":            52,
+    "total_registered":            53,
     "total_phases":                17,
     "by_tier.analytical_toplevel": 42,
-    "by_tier.display_utility":      4,
+    "by_tier.display_utility":      5,
     "by_tier.optin_diagnostic":     6,
-    "by_exec.default":             49,
+    "by_exec.default":             50,
     "by_exec.optin":                3,
     "analytical_phases":           15,   # phases carrying >=1 tier-A step; emitted
                                          # for completeness, NOT cited in any document

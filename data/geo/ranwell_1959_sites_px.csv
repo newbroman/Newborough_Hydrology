@@ -1,0 +1,18 @@
+site_no,px_x,px_y,height_m_od,slack_type,confidence,note
+1,1473,1172,9.11,,high,
+2,,,10.89,,undigitised,"not confidently locatable in the render — pending precise digitisation"
+3,,,7.42,,undigitised,"not confidently locatable in the render — pending precise digitisation"
+4,1092,1437,11.62,,high,
+5,1207,1650,11.21,,high,
+6,1225,1723,10.56,,high,
+7,,,6.75,,undigitised,"not confidently locatable in the render — pending precise digitisation"
+8,1123,2172,6.85,,medium,"dense lower slack cluster (18/37/8/9/A.S.)"
+9,1107,2265,6.18,,medium,"dense lower slack cluster"
+10,1072,2340,4.38,,high,"lowest site, nearest the shore"
+11,1240,1460,11.08,,high,
+12,1062,1587,10.83,,high,
+13,1026,1555,11.41,,high,
+14,1223,1587,10.65,,high,
+15,1118,1895,9.67,,high,
+16,1380,1272,10.28,,high,
+18,1127,2083,7.07,,medium,"top of the dense lower cluster"

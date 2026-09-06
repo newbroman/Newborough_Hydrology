@@ -1,0 +1,6 @@
+role,px_x,px_y,note
+penlon_lake_centroid,1415,1075,"Penlon Lake dotted ellipse centre; OSGB from Features.kml 'Llyn Rhos Ddu' at runtime — the sole hard point anchor"
+scalebar_zero,1225,2420,"'0' tick of the 1/4 km scale bar"
+scalebar_quarter,1368,2416,"'1/4' tick of the scale bar; RANWELL_SCALEBAR_M apart from scalebar_zero"
+shore_point_a,860,2380,"NW end of the figure Shore Line (diagnostic: transformed and compared to coast2006.kml)"
+shore_point_b,1150,2520,"SE end of the figure Shore Line (diagnostic)"

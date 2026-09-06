@@ -132,7 +132,7 @@ Ecological badge thresholds:
 
 Calculates the cumulative rainfall (in mm) over the cluster's horizon period needed to bring groundwater from its current depth to the slack floor (0 m). The equation is displayed inline:
 
-P_flood = A · d + B
+P_flood = A · d_w + B
 
 The result is also expressed as m_P, the multiple of climatological rainfall:
 

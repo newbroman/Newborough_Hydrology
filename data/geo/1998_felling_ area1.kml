@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+<Document>
+	<name>1998_felling_ area1.kml</name>
+	<StyleMap id="msn_ylw-pushpin">
+		<Pair>
+			<key>normal</key>
+			<styleUrl>#sn_ylw-pushpin</styleUrl>
+		</Pair>
+		<Pair>
+			<key>highlight</key>
+			<styleUrl>#sh_ylw-pushpin</styleUrl>
+		</Pair>
+	</StyleMap>
+	<Style id="sh_ylw-pushpin">
+		<IconStyle>
+			<scale>1.3</scale>
+			<Icon>
+				<href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+			</Icon>
+			<hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
+		</IconStyle>
+		<BalloonStyle>
+		</BalloonStyle>
+		<PolyStyle>
+			<color>ff00aaaa</color>
+			<fill>0</fill>
+		</PolyStyle>
+	</Style>
+	<Style id="sn_ylw-pushpin">
+		<IconStyle>
+			<scale>1.1</scale>
+			<Icon>
+				<href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+			</Icon>
+			<hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
+		</IconStyle>
+		<BalloonStyle>
+		</BalloonStyle>
+		<PolyStyle>
+			<color>ff00aaaa</color>
+			<fill>0</fill>
+		</PolyStyle>
+	</Style>
+	<Placemark>
+		<name>1998_felling_ area1</name>
+		<snippet></snippet>
+		<styleUrl>#msn_ylw-pushpin</styleUrl>
+		<MultiGeometry>
+			<Polygon>
+				<tessellate>1</tessellate>
+				<outerBoundaryIs>
+					<LinearRing>
+						<coordinates>
+							-4.380416913703458,53.14821518430054,0 -4.380911430971093,53.14738864416468,0 -4.379867623757939,53.14687084846648,0 -4.379513539549416,53.14674241450994,0 -4.379794447273607,53.14638088508408,0 -4.379884887222567,53.14584793710225,0 -4.379804502580225,53.14535051341723,0 -4.379204580747393,53.1449498032751,0 -4.378690343989767,53.1457100974113,0 -4.378283423943229,53.14580892466233,0 -4.378188903851726,53.14602965929173,0 -4.377968427102168,53.14625310043085,0 -4.377496115142925,53.14651925561392,0 -4.376881896239716,53.14705908631837,0 -4.377334355926683,53.14754460723179,0 -4.378120882066271,53.14786144081596,0 -4.380416913703458,53.14821518430054,0 
+						</coordinates>
+					</LinearRing>
+				</outerBoundaryIs>
+			</Polygon>
+			<Polygon>
+				<tessellate>1</tessellate>
+				<outerBoundaryIs>
+					<LinearRing>
+						<coordinates>
+							-4.379057827775728,53.14392364237029,0 -4.378696894797754,53.14408554745444,0 -4.37812344994545,53.14446353212287,0 -4.377626432417726,53.14483042000156,0 -4.376724978068599,53.14539277258035,0 -4.37795187799794,53.14597184990816,0 -4.379181522222484,53.14454116324104,0 -4.379570625403749,53.14390827182882,0 -4.379057827775728,53.14392364237029,0 
+						</coordinates>
+					</LinearRing>
+				</outerBoundaryIs>
+			</Polygon>
+			<Polygon>
+				<tessellate>1</tessellate>
+				<outerBoundaryIs>
+					<LinearRing>
+						<coordinates>
+							-4.378158935691002,53.14953404729085,0 -4.377505958232638,53.14928857594258,0 -4.376718461356149,53.14904284536428,0 -4.376559080624856,53.14910021493434,0 -4.375355237134433,53.14919071486633,0 -4.375032386217532,53.14958436129044,0 -4.374874365834234,53.14973281360737,0 -4.374167557018848,53.15024533100692,0 -4.374430361914253,53.15049345776907,0 -4.374767663214883,53.15062977969543,0 -4.375184666791563,53.15063014128826,0 -4.375331641185718,53.15043792896648,0 -4.37560832729719,53.1502519254194,0 -4.375871852279905,53.15026784351942,0 -4.376158694058486,53.15038325258512,0 -4.376249576164007,53.15050100229342,0 -4.376135123279217,53.15064892660802,0 -4.376366936410077,53.15082648181323,0 -4.376966512460326,53.15104955993453,0 -4.378158935691002,53.14953404729085,0 
+						</coordinates>
+					</LinearRing>
+				</outerBoundaryIs>
+			</Polygon>
+		</MultiGeometry>
+		<atom:link rel="app" href="https://www.google.com/earth/about/versions/#earth-pro" title="Google Earth Pro 7.3.7.1155"></atom:link>
+	</Placemark>
+</Document>
+</kml>

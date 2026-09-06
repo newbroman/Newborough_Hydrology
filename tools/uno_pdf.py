@@ -32,7 +32,11 @@ and `find_soffice()` are provided so callers can check by name and fall back.
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-09-06. Adds
+__version__ = "1.1.1"  # Hollingham (2026) — 2026-09-06. Shim fix:
+#   ensure_uno_interpreter() no longer skips a candidate whose realpath
+#   matches this interpreter — a venv python symlinks to the system python,
+#   so that skip wrongly rejected /usr/bin/python3 and the re-exec never fired.
+# v1.1.0  # Hollingham (2026) — 2026-09-06. Adds
 #   ensure_uno_interpreter(): re-exec under a python3-uno-capable
 #   interpreter when the launching one (e.g. an active venv) cannot import
 #   uno — the report.pdf rebuild trap. Guarded against re-exec loops.
@@ -98,10 +102,16 @@ def ensure_uno_interpreter(candidates=("python3", "/usr/bin/python3",
         return False                       # already handed off once; do not loop
     import shutil
     import sys
-    here = os.path.realpath(sys.executable)
+    # Re-exec to the first candidate whose OWN `import uno` succeeds. Do NOT skip a
+    # candidate whose realpath equals this interpreter's: a venv python is typically
+    # a symlink to the system python, so the binaries share a realpath, yet the venv
+    # invocation cannot see python3-uno (no system-site-packages) while a DIRECT
+    # /usr/bin/python3 invocation can. The subprocess `import uno` test is the real
+    # discriminator; the NRG_UNO_REEXEC guard above prevents any loop. (The realpath
+    # skip here was the 2026-09-06 bug that left report.pdf unbuildable from a venv.)
     for cand in candidates:
         path = shutil.which(cand)
-        if not path or os.path.realpath(path) == here:
+        if not path:
             continue
         try:
             ok = subprocess.run([path, "-c", "import uno"],

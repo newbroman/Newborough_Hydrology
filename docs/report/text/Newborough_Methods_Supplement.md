@@ -4508,7 +4508,11 @@ The convention throughout the supplement is that there is one place to change a 
   paths.OUT_25_CLUSTER_DECOMP_FIG                                           F.5 / *utils/paths.py* / S.15                           Script 25 v1.1.0 fold-in: per-cluster decomposition stacked-bar figure (§4.10.2 of the main report)
   ------------------------------------------------------------------------- ------------------------------------------------------- --------------------------------------------------------------------------------------------------------------------------------------
 
-## []{#anchor-654}Mathematical symbols
+### []{#anchor-654}C. Notation and abbreviations
+
+This appendix gives the complete set of mathematical symbols, abbreviations, identifier conventions and statistics used across the report and this supplement; the report's own Notation chapter carries the reader-facing subset. Symbol forms are as implemented in the pipeline symbol register after the W20 disambiguation (Decision Log D-136).
+
+**Mathematical symbols**
 
   ----------------------- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ------------------------------ -------------------------------------------------------------------
   Δh                      Change in water-table level during month *t*; the SSM response variable                                                                                                               m/month                        Report §3.4; `build_ssm_frame()`
@@ -4568,7 +4572,7 @@ The convention throughout the supplement is that there is one place to change a 
   *n*, *N*                Sample size (wells, months or panel observations, as stated at use)                                                                                                                   count                          Standard usage
   ----------------------- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ------------------------------ -------------------------------------------------------------------
 
-## []{#anchor-654}Abbreviations and acronyms
+**Abbreviations and acronyms**
 
   ----------------- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ -------------------------------------------- ------------------------------------------------------------------
   SSM               State-Space Model --- the three-term monthly water-balance model, `Δh = β₁·P + β₂·(−PET) + β₃·(−h_disp_prev)`                                                                  ---                                          Report §3.4; `model_utils.fit_ssm()`
@@ -4627,7 +4631,7 @@ The convention throughout the supplement is that there is one place to change a 
   C1--C5            Cluster labels: C1 Lake Edge, C2 Dune, C3 Western Residual, C4 Main Forest, C5 Coastal Forest                                                                                  ---                                          `config.CLUSTER_LABELS`
   ----------------- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ -------------------------------------------- ------------------------------------------------------------------
 
-## []{#anchor-654}Identifier conventions
+**Identifier conventions**
 
   --------------------------------------------- --------------------------------------------------------------------------------------------------------------------------------------------------- ----------------------------------------------------------------
   `cehNN`                                       Reference-network dipwell, the CEH monitoring series                                                                                                `Well_locations_height.csv`; `02_07_cluster_membership_k5.csv`
@@ -4638,7 +4642,7 @@ The convention throughout the supplement is that there is one place to change a 
   Cluster IDs                                   Canonical labels come from `config.CLUSTER_LABELS`. The raw Ward integer IDs in `02_07_cluster_membership_k5.csv` are pre-remap and non-canonical   `config.CLUSTER_LABELS`
   --------------------------------------------- --------------------------------------------------------------------------------------------------------------------------------------------------- ----------------------------------------------------------------
 
-## []{#anchor-654}Statistics, and how to read them
+**Statistics, and how to read them**
 
   ----------------------------------------------------- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ---------------------------------------------------------------------- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   **NSE** (Nash--Sutcliffe Efficiency)                  How much of the observed variance the simulated series reproduces, relative to simply predicting the record mean                                                           −∞ to 1                                                                A value of 1 is a perfect forecast; a value of 0 indicates the model does no better than the mean; negative values indicate it does worse                                                   Iterative NSE is the study's hardest test, because the model is run forward from one initial condition and its errors compound. The SSM-over-TLM gain, ΔNSE, is what quantifies the value of the explicit drainage term, and it is one of the three axes on which the five clusters separate

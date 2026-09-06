@@ -39,7 +39,13 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "2.1.0"  # Hollingham (2026) — 2026-09-05. Promoted to tools/ (tracked).
+__version__ = "2.2.0"  # Hollingham (2026) — 2026-09-06. classify() is negation-aware.
+#   A done marker was matched as a plain substring, so "not done" contained "done"
+#   and read as done: Lane 5 reported S4 and S9 done when both cells say "not done",
+#   and S1/S3 done when they are partial ("Paper 2 DONE … Paper 1 not started").
+#   That published 5 of 11 JHRS requirements met against a true 1 done / 2 partial —
+#   progress that had not happened, the same error D-123 exists to prevent.
+# v2.1.0  # Hollingham (2026) — 2026-09-05. Promoted to tools/ (tracked).
 # v2.0.0  # Hollingham (2026) — 2026-09-05. Rebuilt from D-123 after the scratch/
 #   clear-up; header-name column lookup, unset counted apart from open.
 
@@ -58,6 +64,24 @@ PARTIAL_MARKERS = ("partly", "partial")
 EMPTY = {"", "-", "\u2014", "\u2013", "n/a", "na", "tbd", "unset"}
 
 CLASSES = ("done", "open", "blocked", "partial", "unset")
+
+# A done marker only counts where it is not negated. "not done" and "not started"
+# are removed from the cell BEFORE the positive test, so the remaining text is
+# what the row actually claims: nothing left means open, a surviving marker beside
+# a negation means partly done.
+NEGATED = re.compile(
+    r"\bnot\s+(?:yet\s+)?"
+    r"(?:done|started|built|applied|written|drafted|closed|complete\w*|resolved)\b"
+    r"|\bnot\s+yet\b|\bnever\b"
+    # A residual stated without "not": "Paper 1 highlights still unchecked".
+    # Deliberately NOT the bare word "still", which is common in the prose that
+    # narrates what a closure fixed and would demote closed rows to partial.
+    r"|\bstill\s+(?:unchecked|outstanding|owed|open|pending|to\b|not\b)"
+    r"|\bun(?:checked|written|applied|verified|started|resolved|reviewed)\b", re.I)
+_EMPH = re.compile(r"[*`~_]+")
+_DONE_ALT = "|".join(DONE_MARKERS)
+HEAD_DONE = re.compile(r"^\W*(?:%s)\b" % _DONE_ALT, re.I)   # a verdict at the head settles it
+ANY_DONE = re.compile(r"\b(?:%s)\b" % _DONE_ALT, re.I)
 
 _SEP = re.compile(r"^\|[\s:\-|]+\|?\s*$")
 
@@ -152,16 +176,29 @@ def classify(row: list[str], header: list[str], s_idx: int | None,
     item = row[1] if len(row) > 1 else ""
     status = _status_value(row, header, s_idx)
     blocked = row[b_idx] if (b_idx is not None and b_idx < len(row)) else ""
-    st = status.lower()
-    if any(m in st for m in DONE_MARKERS):
+    cell = _EMPH.sub("", status).strip()
+    st = cell.lower()
+    negated = bool(NEGATED.search(cell))
+    # Test the positive claim on the cell with its negated phrases removed, so
+    # "not done" cannot satisfy it while "Paper 2 DONE … Paper 1 not started" can.
+    positive = bool(ANY_DONE.search(NEGATED.sub(" ", cell)))
+    # A verdict at the HEAD settles it: the prose after a closure routinely
+    # narrates what was still wrong before, and must not reopen the row.
+    if HEAD_DONE.match(cell):
         return "done"
-    if item.strip().startswith("~~"):          # struck-through Item = closed (D-123)
+    if item.strip().startswith("~~") and not negated:    # struck Item = closed (D-123)
         return "done"
+    if positive and negated:                   # done in part, not in whole
+        return "partial"
     if any(m in st for m in PARTIAL_MARKERS):
         return "partial"
+    if positive:
+        return "done"
     if "block" in st or blocked.strip().lower() not in EMPTY:
         return "blocked"
-    if status.strip().lower() in EMPTY:
+    # "unset" means a status column EXISTS and says nothing. A lane with no
+    # status column (Lane 3) is judged on its Item and BLOCKED-BY above.
+    if s_idx is not None and st in EMPTY:
         return "unset"
     return "open"
 

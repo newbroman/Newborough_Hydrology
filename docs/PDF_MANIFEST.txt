@@ -3,7 +3,7 @@ docs/academic_summaries/academic_summary.pdf  <-  academic_Summary_v1_14.odt  | 
 docs/academic_summaries/crynodeb_academaidd.pdf  <-  crynodeb_academaidd_v1_9.odt  |  2026-09-05T22:49:35Z
 docs/papers/paper_1/Paper1.pdf  <-  Paper1_v1_38.odt  |  2026-09-06T06:28:34Z
 docs/papers/paper_1/PAPER1_SI_methods.pdf  <-  PAPER1_SI_methods_v1_16.odt  |  2026-09-05T22:49:42Z
-docs/papers/paper_2/Hollingham_2026_Paper2_amended.pdf  <-  Hollingham_2026_Paper2_amended_v17.odt  |  2026-09-05T22:49:41Z
+docs/papers/paper_2/Hollingham_2026_Paper2_amended.pdf  <-  Hollingham_2026_Paper2_amended_v18.odt  |  2026-09-06T10:33:49Z
 docs/public_summaries/Newborough_Warren_Podsumowanie.pdf  <-  public_summary_PL.odt  |  2026-09-05T22:49:36Z
 docs/public_summaries/Newborough_Warren_Public_Summary.pdf  <-  public_summary_EN.odt  |  2026-09-05T22:49:35Z
 docs/public_summaries/Niwbwrch_Crynodeb_Cyhoeddus.pdf  <-  public_summary_CY.odt  |  2026-09-05T22:49:35Z

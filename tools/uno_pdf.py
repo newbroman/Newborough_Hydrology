@@ -32,7 +32,11 @@ and `find_soffice()` are provided so callers can check by name and fall back.
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-09-05. Extracted from
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-09-06. Adds
+#   ensure_uno_interpreter(): re-exec under a python3-uno-capable
+#   interpreter when the launching one (e.g. an active venv) cannot import
+#   uno — the report.pdf rebuild trap. Guarded against re-exec loops.
+# v1.0.0  # Hollingham (2026) — 2026-09-05. Extracted from
 #   export_master_pdf.py 1.2.0 (W137 / D-135): the connect / refresh / store
 #   plumbing, unchanged, so the master export and the new per-ODT export share
 #   one routine. The master's report.pdf output is unchanged by the extraction.
@@ -73,6 +77,42 @@ def uno_available() -> bool:
         return True
     except ImportError:
         return False
+
+
+def ensure_uno_interpreter(candidates=("python3", "/usr/bin/python3",
+                                       "python3.12", "/usr/bin/python3.12")):
+    """If `uno` cannot be imported in THIS interpreter, re-exec the running
+    script under one that can. python3-uno installs into the SYSTEM interpreter's
+    dist-packages; a venv built without --system-site-packages cannot see it, so
+    `python tool.py` from an active venv fails to import uno even on a machine
+    that has it (the 2026-09-06 report.pdf rebuild trap). Rather than fail, find a
+    UNO-capable interpreter -- the same search build_pdfs.sh uses -- and hand off.
+
+    A one-shot guard (NRG_UNO_REEXEC) prevents a loop: if the chosen interpreter
+    still cannot import uno, control returns and the caller's own uno_available()
+    check reports it cleanly. Returns True if uno is importable in this process,
+    False if no capable interpreter was found (no re-exec happened)."""
+    if uno_available():
+        return True
+    if os.environ.get("NRG_UNO_REEXEC") == "1":
+        return False                       # already handed off once; do not loop
+    import shutil
+    import sys
+    here = os.path.realpath(sys.executable)
+    for cand in candidates:
+        path = shutil.which(cand)
+        if not path or os.path.realpath(path) == here:
+            continue
+        try:
+            ok = subprocess.run([path, "-c", "import uno"],
+                                capture_output=True).returncode == 0
+        except OSError:
+            ok = False
+        if ok:
+            print(f"  (re-exec under {path} for python3-uno)")
+            os.execve(path, [path] + sys.argv,
+                      dict(os.environ, NRG_UNO_REEXEC="1"))   # never returns
+    return False
 
 
 def prop(name, value):

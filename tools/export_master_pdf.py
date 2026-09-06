@@ -62,7 +62,11 @@ EXIT
 """
 from __future__ import annotations
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-09-05. Refactored onto
+__version__ = "1.3.1"  # Hollingham (2026) — 2026-09-06. main() calls
+#   uno_pdf.ensure_uno_interpreter() so `python tools/export_master_pdf.py`
+#   from an active venv re-execs under the system python3-uno instead of
+#   failing (the report.pdf rebuild trap, 2026-09-06).
+# v1.3.0  # Hollingham (2026) — 2026-09-05. Refactored onto
 #   tools/uno_pdf.py (W137/D-135): connect/refresh/store are now shared with
 #   export_odt_pdf.py so the two PDF paths cannot drift; report.pdf output is
 #   unchanged (same load props, refresh sequence and filter data). Prior:
@@ -187,6 +191,12 @@ def main() -> int:
                     help="skip the caption-count comparison with the "
                          "published PDF")
     a = ap.parse_args()
+
+    # Re-exec under a python3-uno-capable interpreter if this one
+    # cannot import uno (e.g. launched by an active venv). No-op when
+    # uno is already importable; the _uno_available() check below is
+    # the clean fallback if no capable interpreter exists.
+    uno_pdf.ensure_uno_interpreter()
 
     print()
     print("=" * 78)

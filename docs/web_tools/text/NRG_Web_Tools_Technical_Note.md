@@ -55,9 +55,9 @@ R² values range from 0.41 (Lake Edge summer) to 0.92 (Forest summer). When R² 
 
 Forecast 3 (cumulative rainfall to slack floor):
 
-**P_flood (mm) = A · d + B**
+**P_flood (mm) = A · d_w + B**
 
-where d is depth below ground (m, positive), A is slope (mm/m), and B is intercept (mm). The result is normalised as m_P = P_flood / P_clim_total.
+where d_w is depth below ground (m, positive), A is slope (mm/m), and B is intercept (mm). The result is normalised as m_P = P_flood / P_clim_total.
 
 # A4. Cluster and Block Mapping
 

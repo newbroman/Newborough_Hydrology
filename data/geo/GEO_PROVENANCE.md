@@ -1046,3 +1046,16 @@ Measured against each frame's own open-water level (90th percentile of the
 imaged sea), all four read darker than open water in **every** usable frame of
 both viewpoints; R3 is the strongest, reaching 0.199 of open water in its
 darkest quartile on 22 April 2017. The full table is in the W117 register entry.
+
+### `ranwell_1959_control.csv`
+- **What:** digitised pixel↔OSGB control points for georeferencing Ranwell (1959) Fig 3 — Penlon Lake (Llyn Rhos Ddu), shore-line fixes, the ¼-km scale bar, the north arrow.
+- **Source:** pixel coordinates read from a 200-dpi render of **Ranwell 1959 Fig 3** (*J. Ecology* 47(3):577). The render is **not committed** — `literature/` is gitignored and the JSTOR scan is in-copyright (D-081 shape; regenerates via `pdftoppm -r 200 -f 8 -l 8 -png 'literature/Ranwell 1 dune.pdf'`).
+- **Digitised by:** Claude (Cowork session 01S1HBJn3), 2026-09-06; provisional label-position proxy, certified by the Route-A/Route-B cross-check in `43_03`.
+- **CRS:** OSGB36 / EPSG:27700 for the target coordinates.
+- **Read by:** `src/43_ranwell_sites.py` (Script 43; W95 / D-140).
+- **Licence:** derived coordinates only; the scan stays out of the repos.
+
+### `ranwell_1959_sites_px.csv`
+- **What:** digitised pixel positions of the 17 water-table pipe sites (numbered 1–16 and 18) in Ranwell 1959 Fig 3, with each site's number, slack type (open/closed), and height in m OD transcribed from the figure's own table (4.38–11.62 m).
+- **Source / copyright / digitiser:** as `ranwell_1959_control.csv` above (same figure, same session, D-081 shape).
+- **Read by:** `src/43_ranwell_sites.py` (Script 43; W95 / D-140).

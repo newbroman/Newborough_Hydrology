@@ -31,7 +31,7 @@ carried through and reported, not guessed.
 Tier D (display/utility): a locational cross-reference; nothing downstream
 consumes it.  Skips cleanly when its inputs are absent.
 """
-__version__ = "1.0.0"  # Hollingham (2026) - 2026-09-06. W95: new tier-D step;
+__version__ = "1.0.1"  # 1.0.1 (2026-09-06): D-035 - drop store-time round() at 8 sites; store full precision, round at display  # Hollingham (2026) - 2026-09-06. W95: new tier-D step;
 #                         Ranwell 1959 Fig 3 sites georeferenced, two routes,
 #                         nearest-well table. Site positions PROVISIONAL
 #                         (label-position proxy; sites 2/3/7 undigitised).
@@ -235,7 +235,7 @@ def main():
             "ranwell_site": int(r.site_no),
             "nearest_well": top.iloc[0]["well"],
             "nearest_well_network": top.iloc[0]["network"],
-            "nearest_well_dist_m": round(float(top_d[0]), 3),
+            "nearest_well_dist_m": float(top_d[0]),
             "nearest_3_wells": "; ".join(
                 f"{w} ({dist:.0f} m)" for w, dist in zip(top["well"], top_d)),
         })
@@ -257,7 +257,7 @@ def main():
                 "modern_well": w.well,
                 "network": w.network,
                 "nearest_ranwell_site": int(digit.iloc[j]["site_no"]),
-                "dist_m": round(dmin, 3),
+                "dist_m": dmin,
             })
     reverse = pd.DataFrame(rev_rows).sort_values("dist_m") if rev_rows else pd.DataFrame(
         columns=["modern_well", "network", "nearest_ranwell_site", "dist_m"])
@@ -268,8 +268,6 @@ def main():
                  "confidence", "dem_height_m", "route_b_resid_m", "route_b_flag",
                  "nearest_well", "nearest_well_dist_m"]
     out_sites = digit[[c for c in site_cols if c in digit.columns]].copy()
-    for c in ("easting", "northing"):
-        out_sites[c] = out_sites[c].round(3)
     out_sites.to_csv(OUT_43_SITES, index=False)
     saved(OUT_43_SITES.name)
     nearest.to_csv(OUT_43_NEAREST, index=False)
@@ -279,12 +277,12 @@ def main():
         "n_sites_total": len(sites),
         "n_sites_digitised": len(digit),
         "n_sites_pending": len(undig),
-        "scale_m_per_px": round(m_per_px, 4),
-        "penlon_easting": round(penlon_en[0], 1),
-        "penlon_northing": round(penlon_en[1], 1),
-        "route_b_median_abs_resid_m": round(med_resid, 3) if med_resid == med_resid else np.nan,
+        "scale_m_per_px": m_per_px,
+        "penlon_easting": penlon_en[0],
+        "penlon_northing": penlon_en[1],
+        "route_b_median_abs_resid_m": med_resid if med_resid == med_resid else np.nan,
         "route_b_flagged_sites": int(digit["route_b_flag"].sum()),
-        "shore_misfit_m": round(shore_m, 1) if shore_m == shore_m else np.nan,
+        "shore_misfit_m": shore_m if shore_m == shore_m else np.nan,
         "rotation_assumption": "grid-north-up (documented; not fitted)",
     }])
     diag.to_csv(OUT_43_DIAGNOSTIC, index=False)

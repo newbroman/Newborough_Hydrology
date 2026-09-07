@@ -45,6 +45,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from odt_edit import edit_spans                                   # noqa: E402
+import odt_edit                                   # noqa: E402
+odt_edit.REASON = "fix_stale_refs"   # mechanical caller, exempt from the D-144 prose freeze
+
 from repoint_refs import _text_view, _xml_edits, _versioned      # noqa: E402
 from doc_paths import chapter_odt, REPO
 

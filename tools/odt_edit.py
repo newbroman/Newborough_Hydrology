@@ -52,7 +52,18 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.4.1"  # Hollingham (2026) — 2026-09-04. edit_spans() gains
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-09-07. The document-phase gate
+#   (D-144). Every write path — _write (edit, edit_spans), edit_entries,
+#   insert_figure — first calls _tier_gate(dst): a family with no row in
+#   tools/doc_tier.csv is refused; a FROZEN family is written only when the
+#   module-level REASON names an exempt mechanical tool (table_gen, repoint_refs,
+#   symbol_apply, fix_stale_refs, ...) or a record — a D-number or a changelog
+#   delta id — and every such write is appended to working/doc_tier_log.csv.
+#   REASON can also arrive as the ODT_EDIT_REASON environment variable, for
+#   shell callers. The check sits here and not in a wrapper because every tool
+#   imports edit_spans directly; a wrapper is a check that can be walked round.
+#
+# v1.4.1  # Hollingham (2026) — 2026-09-04. edit_spans() gains
 #   allow_tag_change (default False, so every existing caller is unchanged),
 #   the parameter edit() has always had. table_gen 1.4.0 needs it for ONE
 #   tag change — the office:value attribute of a cell LibreOffice typed as a
@@ -116,13 +127,47 @@ __version__ = "1.4.1"  # Hollingham (2026) — 2026-09-04. edit_spans() gains
 #   <text:span> open and close counts across the whole document and aborted a
 #   valid edit twice. The guard now compares the before/after delta.
 
+import os
 import pathlib
 import re
 import shutil
 import sys
 import zipfile
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import doc_tier                                   # noqa: E402
+
 EM_SPACE = chr(0x2003)
+
+# Why this write is allowed to touch a FROZEN document: an exempt tool name, a
+# D-number, or a changelog delta id. Set once by the caller:
+#     import odt_edit; odt_edit.REASON = "table_gen"      (mechanical tool)
+#     odt_edit.REASON = "D-144"  /  "2026-09-07k"           (a recorded reason)
+# or export ODT_EDIT_REASON=... for a shell caller. Unset = a free prose edit,
+# which a frozen document refuses (D-144).
+REASON: str | None = os.environ.get("ODT_EDIT_REASON") or None
+
+
+def _tier_gate(dst, n_subs: int = 0, tag_change: bool = False) -> bool:
+    """Refuse, with the rule and the remedy, unless this write is allowed."""
+    fam = doc_tier.family(dst)
+    if fam is None:                       # not an ODT/ODM: nothing to gate
+        return True
+    st = doc_tier.state(fam)
+    if st is None:
+        print(f"  REFUSED {pathlib.Path(dst).name}: family {fam!r} has no row in "
+              f"tools/doc_tier.csv — add one (with the D-entry that places it) first.")
+        return False
+    if st == "live":
+        return True
+    if doc_tier.reason_is_valid(REASON):
+        doc_tier.log_write(fam, dst, REASON, n_subs, tag_change)
+        return True
+    print(f"  REFUSED {pathlib.Path(dst).name}: {fam!r} is FROZEN (numbers-only, D-144). "
+          f"A sentence changes only with its reason: set odt_edit.REASON to the D-number or "
+          f"changelog id that requires this edit (or ODT_EDIT_REASON in the shell). "
+          f"Tables, references, versions and symbols go through their own tools, which are exempt.")
+    return False
 
 
 def _span_balance(xml: str) -> tuple[int, int]:
@@ -169,6 +214,8 @@ def _guards(orig_xml: str, xml: str, zin, name: str,
 
 
 def _write(src, dst, xml: str, zin, names) -> bool:
+    if not _tier_gate(dst, tag_change=False):
+        return False
     data = xml.encode("utf-8")
     tmp = pathlib.Path("/tmp") / (dst.name + ".ziptmp")
     with zipfile.ZipFile(tmp, "w") as zout:
@@ -306,6 +353,8 @@ def edit_entries(src, dst, entry_subs: dict, expect: int) -> bool:
     """
     import xml.etree.ElementTree as ET
     src, dst = pathlib.Path(src), pathlib.Path(dst)
+    if not _tier_gate(dst, tag_change=True):
+        return False
     zin = zipfile.ZipFile(src)
     names = zin.namelist()
     if names[0] != "mimetype":
@@ -409,6 +458,8 @@ def insert_figure(src, dst, image_path, before: str, caption: str,
     import xml.etree.ElementTree as ET
 
     src, dst, image_path = pathlib.Path(src), pathlib.Path(dst), pathlib.Path(image_path)
+    if not _tier_gate(dst, tag_change=True):
+        return False
     if not image_path.exists():
         print(f"  ABORT: no such image {image_path}")
         return False

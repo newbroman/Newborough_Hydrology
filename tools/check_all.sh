@@ -18,8 +18,12 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.8.0 - 2026-09-07
+# VERSION 1.9.0 - 2026-09-07
 # CHANGELOG
+#   1.9.0 (2026-09-07): phases gate (D-144). doc_tier_lint: every ODT family has
+#     a doc_tier.csv row, `current` agrees with the phase, every set_by and every
+#     logged frozen-document write cites a real D-number or changelog id. The
+#     refusal itself lives in odt_edit._write; this checks the register it reads.
 #   1.8.0 (2026-09-07): records gate (D-143). session_handover.py --check fails
 #     when the project's own records are stale: DECISION_INDEX behind the log,
 #     the newest HANDOFF older than the newest substantive commit, no dated
@@ -256,6 +260,14 @@ echo "── records (did the last session leave the records a session needs?) �
 # If this fails, the fix is to WRITE the record it names, never to skip it.
 python3 tools/session_handover.py --selftest >/dev/null || rc=1
 python3 tools/session_handover.py --check || rc=1
+
+echo
+echo "── phases (which document is live; is every frozen write reasoned?) ──"
+# D-144: one live document family at a time. odt_edit refuses a prose write to a
+# frozen family without a recorded reason; this gate keeps the register it
+# consults complete and consistent, so the refusal never fires for a missing row.
+python3 tools/doc_tier_lint.py --selftest >/dev/null || rc=1
+python3 tools/doc_tier_lint.py || rc=1
 
 echo
 echo "── ledgers (does SCRIPT_LEDGER still describe the code?) ─────────────"

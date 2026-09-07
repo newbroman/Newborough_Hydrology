@@ -11,7 +11,17 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.13.0"  # Hollingham (2026) — 2026-09-03.
+__version__ = "1.15.0"  # Hollingham (2026) - 2026-09-07. W96/D-141: figure
+#   paths OUT_41_TRAJECTORY_FIG (41_05) and OUT_10A_ERA_FIG (10a_14).
+#
+# v1.14.0  # Hollingham (2026) - 2026-09-06. W96/D-141:
+#                        canopy-confound inputs and outputs. Inputs
+#                        DATA_FELLING_1998_1/2/3 and DATA_BROADLEAF_RESTOCK
+#                        (committed EPSG:27700 GeoJSON, produced by
+#                        tools/reproject_kml_to_osgb_geojson.py); outputs
+#                        OUT_10A_REPLANT_PROXIMITY / OUT_10A_CONTROL_SUBSET /
+#                        OUT_10A_ERA_SPLIT. Additive only.
+# v1.13.0  # Hollingham (2026) — 2026-09-03.
 #                        OUT_38_REPORT_NUMBERS, so Script 38's transect
 #                        trend can be gated instead of living in prose.
 #                        Additive only.
@@ -248,6 +258,16 @@ DATA_FOREST_BOUNDARY   = data_geo("forest_boundary.geojson")
 # for automatic rendering via add_kml_features(); this entry retained for
 # any script that loads the boundary explicitly.
 KML_BROADLEAF        = data_geo("broadleaf_restock.kml")
+# Canopy-confound geometry (W96 / D-141). The three 1998 forest felling
+# compartments around the 2017 clearfell and the 1993/1995 broadleaf restock
+# block, reprojected WGS84 -> EPSG:27700 once and committed as GeoJSON (the
+# same dependency-free pattern as forest_boundary.geojson), so Script 01 can
+# flag well/replant proximity with pure numpy and no CRS dependency. Produced
+# from the committed KMLs by tools/reproject_kml_to_osgb_geojson.py.
+DATA_FELLING_1998_1    = data_geo("felling_1998_1.geojson")
+DATA_FELLING_1998_2    = data_geo("felling_1998_2.geojson")
+DATA_FELLING_1998_3    = data_geo("felling_1998_3.geojson")
+DATA_BROADLEAF_RESTOCK = data_geo("broadleaf_restock.geojson")
 DATA_WELL_ELEVATIONS = DATA_WELL_METADATA  # consolidated; was Well_locations_height.csv
 
 # Perpendicular distance from each dipwell to the eroding Caernarfon Bay
@@ -510,6 +530,12 @@ OUT_10A_REPORT              = DIR_10 / "10a_report_numbers.csv"
 # spread that must be reported beside every tier estimate.  Read by Script 25,
 # which carries it through to the BACI corroboration spread table.
 OUT_10A_CONTROL_WELL_SPREAD = DIR_10 / "10a_09_control_well_spread.csv"
+# Canopy-confound sensitivity outputs (W96 / D-141, Script 10a v1.12.0).
+# Additive to the headline BACI estimator (10a_01..10a_10 unchanged).
+OUT_10A_REPLANT_PROXIMITY   = DIR_10 / "10a_11_replant_proximity.csv"
+OUT_10A_CONTROL_SUBSET      = DIR_10 / "10a_12_control_subset_sensitivity.csv"
+OUT_10A_ERA_SPLIT           = DIR_10 / "10a_13_era_split.csv"
+OUT_10A_ERA_FIG             = DIR_10 / "10a_14_era_split_decay.png"
 
 # Script 10b — Spatial step-change maps (scraping + clearfell)
 OUT_10B_SCRAPE_RAW          = DIR_10 / "10b_spatial_scrape_raw.png"
@@ -1050,6 +1076,7 @@ OUT_41_INDEX          = DIR_41 / "41_01_canopy_index.csv"
 OUT_41_CHANGE         = DIR_41 / "41_02_change_events.csv"
 OUT_41_REGISTRATION   = DIR_41 / "41_03_registration.csv"
 OUT_41_SERIES_FIG     = DIR_41 / "41_04_canopy_series.png"
+OUT_41_TRAJECTORY_FIG = DIR_41 / "41_05_canopy_trajectory.png"
 OUT_41_REPORT_NUMBERS = DIR_41 / "41_report_numbers.csv"
 
 # Script 43 - Ranwell (1959) historical water-table sites, georeferenced (W95)

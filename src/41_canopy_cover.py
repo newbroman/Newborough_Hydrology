@@ -150,11 +150,14 @@ THE IMAGERY IS NOT IN THE REPOSITORY BY DEFAULT
   frames are the test of the marker change, and a recovered frame with a poor
   residual is a false-positive match, not a recovery.
 
-__version__ : 2.2.1
+__version__ : 2.5.0
 """
 from __future__ import annotations
 
-__version__ = "2.2.1"  # Hollingham (2026) — 2026-09-03. Creates DIR_41 in
+__version__ = "2.5.0"  # Hollingham (2026) - 2026-09-07. v2.5.0: W96/D-141 -- 41_05 report canopy-trajectory figure (ratio_to_conifer, pre/post-clearfell fits, solid pre-2026 + dotted incl-2026; all regions incl. forest_control, warren_control & broadleaf).
+# v2.4.0  # Hollingham (2026) - 2026-09-07. v2.4.0: W96/D-141 -- untouched-forest control added as region forest_control -- MH's Forest_Control.kml (four hand-drawn plantation patches, pooled, kind 'observed', so the conifer control is unchanged); explicit CLOUD_WITHHOLD for the five 2020 frame-region pairs MH flagged for cloud/shadow; broadleaf_restock already a region.
+# v2.3.0  # Hollingham (2026) - 2026-09-06. W96 -- the three 1998 felling areas added as kind 'observed' regions (measured, NOT subtracted from the control, so forest_in_view / W110-112 are unchanged).
+# v2.2.1 — 2026-09-03. Creates DIR_41 in
 #   main() rather than relying on paths.py doing it at import. No behavioural
 #   change. See paths.py 1.11.0 and task_register T-18.
 # v2.2.0  # Hollingham (2026) — 2026-08-31. THE RESOLUTION GATE,
@@ -229,7 +232,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from utils.paths import (                                    # noqa: E402
     AERIAL_DIR, AERIAL_MANIFEST, KML_BROADLEAF, DATA_GEO_DIR, DIR_41,
     OUT_41_INDEX, OUT_41_CHANGE, OUT_41_REGISTRATION,
-    OUT_41_SERIES_FIG, OUT_41_REPORT_NUMBERS, INT_LOCATIONS,
+    OUT_41_SERIES_FIG, OUT_41_TRAJECTORY_FIG, OUT_41_REPORT_NUMBERS, INT_LOCATIONS,
 )
 from utils.config import (                                   # noqa: E402
     CANOPY_TEXTURE_WINDOW, CANOPY_MIN_REGION_PX, CANOPY_MIN_REF_SEPARATION,
@@ -241,7 +244,7 @@ from utils.config import (                                   # noqa: E402
     CANOPY_MIN_CONTROL_POINTS, CANOPY_MATCH_RADII_NARROW, CANOPY_MATCH_RADII_WIDE,
     CANOPY_MATCH_MAX_ITER, CANOPY_MAX_GSD_M,
     LEAF_OFF_MONTHS, LEAF_EMERGING_MONTHS, LEAF_FULL_MONTHS,
-    LEAF_SENESCING_MONTHS,
+    LEAF_SENESCING_MONTHS, CLEARFELL_DATE_ISO,
 )
 from utils.console_utils import banner, phase, step, info, warn, saved  # noqa: E402
 from utils.render_utils import render_figure                 # noqa: E402
@@ -251,10 +254,27 @@ from utils.render_utils import render_figure                 # noqa: E402
 CONTROL_KML = "broadleaf_restock"
 
 # Analysis regions: name -> (kml stem or Features.kml layer name, kind)
+# Frame-region values withheld for CLOUD / SHADOW contamination (visual
+# inspection, MH 2026-09-07). The automatic gates -- registration, GSD, pixel
+# count, reference separation -- do not detect cloud; these are set by eye.
+# Keyed by (region, imagery-date 'YYYY-MM-DD'). W96/D-141.
+CLOUD_WITHHOLD = {
+    ("clearfell",         "2020-03-31"): "cloud shadow over the compartment (visual inspection)",
+    ("felling_experiment","2020-03-31"): "cloud shadow over the compartment (visual inspection)",
+    ("felling_1998_1",    "2020-03-31"): "cloud shadow over the block (visual inspection)",
+    ("felling_1998_2",    "2020-03-31"): "cloud shadow over the block (visual inspection)",
+    ("felling_1998_3",    "2020-04-24"): "cloud over the block (visual inspection)",
+}
+
 REGIONS = [
     ("broadleaf_restock", "kml:broadleaf_restock", "managed"),
     ("clearfell",         "kml:clearfell",         "managed"),
     ("felling_experiment", "features:Felling experiment", "managed"),
+    ("felling_1998_1",    "kml:felling_1998_1",    "observed"),
+    ("felling_1998_2",    "kml:felling_1998_2",    "observed"),
+    ("felling_1998_3",    "kml:felling_1998_3",    "observed"),
+    ("forest_control",    "kml:Forest_Control",    "observed"),
+    ("warren_control",    "kml:warren_control",    "observed"),
     ("forest_in_view",    "features:Forest",       "control"),
 ]
 
@@ -980,6 +1000,9 @@ def main() -> int:
                 reason = f"region {npx} px < {CANOPY_MIN_REGION_PX}"
             elif not np.isfinite(sep) or sep < CANOPY_MIN_REF_SEPARATION:
                 reason = f"reference separation {sep:.4f} < {CANOPY_MIN_REF_SEPARATION}"
+            _cw = CLOUD_WITHHOLD.get((name, str(d.date())))
+            if _cw:
+                reason = _cw
             val = np.nan if reason else (r_stat - o_stat) / sep
             vals_this_frame[name] = None if reason else float(val)
             idx_rows.append({"region": name, "imagery_date": d.date(),
@@ -1098,6 +1121,65 @@ def main() -> int:
               title_fontsize=7)
     render_figure(fig, OUT_41_SERIES_FIG)
     saved(OUT_41_SERIES_FIG.name)
+
+    # ---- 41_05: report canopy-trajectory figure (W96 / D-141) -----------------
+    # ratio_to_conifer, aerial only. Straight-line fits each side of the Dec-2017
+    # clearfell for the felling regions; the post-fell fit is SOLID over the
+    # frames before the 2020->2026 imagery gap and DOTTED including the isolated
+    # 2026 frame, so the short-frame trend is shown without leaning on 2026.
+    _cf_yr = pd.Timestamp(CLEARFELL_DATE_ISO).year + (pd.Timestamp(CLEARFELL_DATE_ISO).month - 1) / 12.0
+    traj = idx[(idx["viewpoint"] == "aerial") & idx["ratio_to_conifer"].notna()].copy()
+    _d = pd.to_datetime(traj["imagery_date"])
+    traj["yr"] = _d.dt.year + (_d.dt.month - 1) / 12.0
+    fig2, ax2 = plt.subplots(figsize=(9.2, 7.2))
+    series = [
+        ("clearfell",         "2017 clearfell (kept clear, grazed)", "#b2182b", "o"),
+        ("forest_control",    "untouched forest control (4 patches)", "#1a9850", "o"),
+        ("broadleaf_restock", "broadleaf restock",                   "#8c6bb1", "v"),
+        ("warren_control",    "vegetated warren (open dune)",         "#d8b365", "*"),
+        ("felling_1998_1",    "1998 replant block 1",                "#2166ac", "s"),
+        ("felling_1998_2",    "1998 replant block 2",                "#4393c3", "^"),
+        ("felling_1998_3",    "1998 replant block 3",                "#92c5de", "D"),
+    ]
+    for reg, lab, col, mk in series:
+        s2 = traj[traj["region"] == reg].sort_values("yr")
+        if not len(s2):
+            continue
+        xs = s2["yr"].to_numpy(); ys = s2["ratio_to_conifer"].to_numpy()
+        ax2.plot(xs, ys, mk, color=col, ms=4, alpha=0.30, lw=0, label=lab)
+        pre = xs < _cf_yr
+        if pre.sum() >= 2:
+            b = np.polyfit(xs[pre], ys[pre], 1)
+            ax2.plot([xs[pre].min(), xs[pre].max()],
+                     np.polyval(b, [xs[pre].min(), xs[pre].max()]), "-", color=col, lw=2.0)
+        xp = xs[xs >= _cf_yr]; yp = ys[xs >= _cf_yr]
+        o = np.argsort(xp); xp, yp = xp[o], yp[o]
+        if len(xp) >= 3:
+            b = np.polyfit(xp[:-1], yp[:-1], 1)
+            ax2.plot([xp[0], xp[-2]], np.polyval(b, [xp[0], xp[-2]]), "-", color=col, lw=2.0)
+        if len(xp) >= 2:
+            b = np.polyfit(xp, yp, 1)
+            ax2.plot([xp[0], xp[-1]], np.polyval(b, [xp[0], xp[-1]]), ":", color=col, lw=1.7)
+    ref = traj[traj["region"] == "forest_in_view"]
+    if len(ref):
+        ax2.plot([ref["yr"].min(), ref["yr"].max()], [1, 1], "--", color="#555", lw=1.4,
+                 label="unfelled conifer reference")
+    ax2.axvline(_cf_yr, color="k", lw=1, ls=":")
+    ax2.text(_cf_yr + 0.15, 1.66, "Dec 2017\nclearfell", fontsize=8, va="top")
+    ax2.axhline(1.0, color="#bbb", lw=0.7, ls=":")
+    ax2.set_ylabel("canopy-texture index (ratio to mature conifer)")
+    ax2.set_xlabel("year"); ax2.set_ylim(-0.5, 1.75)
+    ax2.set_title("Canopy trajectories — aerial (contaminated 2020 frames withheld; "
+                  "solid = fit to pre-2026 frames, dotted = incl. 2026 frame)")
+    from matplotlib.lines import Line2D
+    _h, _l = ax2.get_legend_handles_labels()
+    _h += [Line2D([0], [0], color="#555", ls="-", lw=2),
+           Line2D([0], [0], color="#555", ls=":", lw=1.7)]
+    _l += ["fit to pre-2026 frames", "fit incl. 2026"]
+    ax2.legend(_h, _l, fontsize=7.5, loc="upper center", bbox_to_anchor=(0.5, -0.10),
+               ncol=3, framealpha=0.92)
+    render_figure(fig2, OUT_41_TRAJECTORY_FIG)
+    saved(OUT_41_TRAJECTORY_FIG.name)
 
     # Report numbers on a FULL-LEAF basis only. A deciduous region's index is
     # not comparable across leaf states — the emerging class scatters five times

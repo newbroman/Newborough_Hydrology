@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+<Document>
+	<name>Forest_Control.kml</name>
+	<StyleMap id="msn_ylw-pushpin">
+		<Pair>
+			<key>normal</key>
+			<styleUrl>#sn_ylw-pushpin</styleUrl>
+		</Pair>
+		<Pair>
+			<key>highlight</key>
+			<styleUrl>#sh_ylw-pushpin</styleUrl>
+		</Pair>
+	</StyleMap>
+	<Style id="sh_ylw-pushpin">
+		<IconStyle>
+			<scale>1.3</scale>
+			<Icon>
+				<href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+			</Icon>
+			<hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
+		</IconStyle>
+		<BalloonStyle>
+		</BalloonStyle>
+		<PolyStyle>
+			<fill>0</fill>
+		</PolyStyle>
+	</Style>
+	<Style id="sn_ylw-pushpin">
+		<IconStyle>
+			<scale>1.1</scale>
+			<Icon>
+				<href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+			</Icon>
+			<hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
+		</IconStyle>
+		<BalloonStyle>
+		</BalloonStyle>
+		<PolyStyle>
+			<fill>0</fill>
+		</PolyStyle>
+	</Style>
+	<Placemark>
+		<name>Forest_Ctl_ceh20</name>
+		<snippet></snippet>
+		<description>B</description>
+		<styleUrl>#msn_ylw-pushpin</styleUrl>
+		<gx:balloonVisibility>1</gx:balloonVisibility>
+		<MultiGeometry>
+			<Polygon>
+				<tessellate>1</tessellate>
+				<outerBoundaryIs>
+					<LinearRing>
+						<coordinates>
+							-4.383333255468838,53.14830308716546,0 -4.380981585218774,53.14739329993124,0 -4.38036756056788,53.14824028274962,0 -4.378083396681235,53.1478525110812,0 -4.377281073755508,53.1475431750866,0 -4.3768996694499,53.147079710052,0 -4.375849594602474,53.14854586353122,0 -4.375513074833743,53.14912842346622,0 -4.376664182265138,53.14904656976835,0 -4.377674756118097,53.1492933593556,0 -4.379275806877427,53.1498966626614,0 -4.380656238232402,53.15038836057506,0 -4.383333255468838,53.14830308716546,0 
+						</coordinates>
+					</LinearRing>
+				</outerBoundaryIs>
+			</Polygon>
+			<Polygon>
+				<tessellate>1</tessellate>
+				<outerBoundaryIs>
+					<LinearRing>
+						<coordinates>
+							-4.374626544998721,53.14977378661647,0 -4.375162446498627,53.14931041410052,0 -4.376080005980372,53.14802237374536,0 -4.373382611302002,53.14692475025779,0 -4.370090574673723,53.15010450721406,0 -4.372956421181428,53.15095392697771,0 -4.374626544998721,53.14977378661647,0 
+						</coordinates>
+					</LinearRing>
+				</outerBoundaryIs>
+			</Polygon>
+			<Polygon>
+				<tessellate>1</tessellate>
+				<outerBoundaryIs>
+					<LinearRing>
+						<coordinates>
+							-4.378290601480513,53.14433282314384,0 -4.379042803465753,53.14392214779296,0 -4.379535908223239,53.1438966953711,0 -4.379673500867667,53.14365812455655,0 -4.377649125396113,53.14273432846814,0 -4.375475599852895,53.14485712197371,0 -4.376694376160572,53.14539448883274,0 -4.378290601480513,53.14433282314384,0 
+						</coordinates>
+					</LinearRing>
+				</outerBoundaryIs>
+			</Polygon>
+			<Polygon>
+				<tessellate>1</tessellate>
+				<outerBoundaryIs>
+					<LinearRing>
+						<coordinates>
+							-4.380230322101818,53.14701105755716,0 -4.383555848664773,53.14546737588778,0 -4.379776338217552,53.14376167832841,0 -4.379501289711821,53.14396018676095,0 -4.379102831526494,53.14474113688728,0 -4.379854289913251,53.14530653288377,0 -4.379850379675357,53.14640539368158,0 -4.379534538345208,53.14672481924684,0 -4.380230322101818,53.14701105755716,0 
+						</coordinates>
+					</LinearRing>
+				</outerBoundaryIs>
+			</Polygon>
+		</MultiGeometry>
+		<atom:link rel="app" href="https://www.google.com/earth/about/versions/#earth-pro" title="Google Earth Pro 7.3.7.1155"></atom:link>
+	</Placemark>
+</Document>
+</kml>

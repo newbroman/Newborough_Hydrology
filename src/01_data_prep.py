@@ -15,7 +15,13 @@ Requirements:
     pandas, numpy
 """
 
-__version__ = "1.14.0"  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
+__version__ = "1.15.0"  # Hollingham (2026) - 2026-09-06. W96/D-141: adds the
+#   replant-proximity land-cover columns to 01_locations.csv - in_1998_replant,
+#   dist_1998_replant_m, dist_broadleaf_restock_m - derived by _replant_proximity()
+#   from committed EPSG:27700 GeoJSON with the same pure-numpy point-in-polygon and
+#   point-to-polyline convention as _in_forest / _validate_dist_coast. Additive
+#   columns; no existing value changes. Read by Script 10a v1.12.0.
+# v1.14.0  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
 #   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
 # v1.13.0  # Hollingham (2026) -- 2026-08-23. D-070: the Met
 #     Office's "---" (more than two days unmeasured) is read as MISSING rather
@@ -82,6 +88,8 @@ from utils.paths import (
     DATA_WELL_ELEVATIONS,
     DATA_DIR,
     INT_LOCATIONS, DATA_FOREST_BOUNDARY, INT_CLIMATE, INT_WELLS_CLEAN, INT_WELLS_CLEAN_MAOD,
+    DATA_FELLING_1998_1, DATA_FELLING_1998_2, DATA_FELLING_1998_3,
+    DATA_BROADLEAF_RESTOCK,
     INT_WELLS_PROVENANCE,
     INT_WELLS_REFERENCE, INT_WELLS_EXTENDED,
     INT_WELL_ELEVATIONS,
@@ -371,6 +379,103 @@ def _in_forest(easting, northing) -> np.ndarray:
         x_int = (bx - ax) * (northing - ay) / (by - ay) + ax
         inside ^= crosses & (easting < x_int)
     return inside
+
+def _replant_proximity(easting, northing) -> dict:
+    """Proximity of each well to the older 1998 felled-and-replanted blocks.
+
+    Mirrors _in_forest (even-odd ray cast for inside/outside) and the
+    point-to-polyline minimum distance of _validate_dist_coast(), both pure
+    numpy against committed EPSG:27700 GeoJSON rings, so the pipeline needs no
+    CRS or GIS dependency. For each well returns three parallel arrays:
+
+      in_1998_replant          area id "1"/"2"/"3" of the block it is inside,
+                               or "" if it is in none of the three.
+      dist_1998_replant_m      0.0 if inside any of the three, else the minimum
+                               distance to the nearest of the three block rings.
+      dist_broadleaf_restock_m 0.0 if inside the broadleaf restock, else the
+                               distance to its ring.
+
+    The maturing 1998 replant sits at and around the BACI forest controls and
+    the Edge wells (W96 / D-141); this is the land-cover column the canopy-
+    confound sensitivity in Script 10a reads. Graceful fallback (warn, "" / NaN)
+    if a GeoJSON is missing, so a fresh checkout still runs.
+    """
+    easting = np.asarray(easting, dtype=float)
+    northing = np.asarray(northing, dtype=float)
+    n = easting.shape[0]
+
+    def _load_ring(path):
+        if not path.exists():
+            warn(f"Replant geometry not found: {path.name}; "
+                 "the wells it would flag are left unset.")
+            return None
+        gj = json.loads(path.read_text())
+        ring = np.asarray(
+            gj["features"][0]["geometry"]["coordinates"][0], dtype=float)
+        if ring.ndim != 2 or len(ring) < 4:
+            warn(f"Replant geometry is not a usable polygon: {path.name}; "
+                 "the wells it would flag are left unset.")
+            return None
+        return ring
+
+    def _inside(ring):
+        x1, y1 = ring[:-1, 0], ring[:-1, 1]
+        x2, y2 = ring[1:, 0], ring[1:, 1]
+        inside = np.zeros(easting.shape, dtype=bool)
+        for ax, ay, bx, by in zip(x1, y1, x2, y2):
+            if ay == by:                  # horizontal edge casts no crossing
+                continue
+            crosses = (ay > northing) != (by > northing)
+            x_int = (bx - ax) * (northing - ay) / (by - ay) + ax
+            inside ^= crosses & (easting < x_int)
+        return inside
+
+    def _dist(ring):
+        seg_a = ring[:-1]
+        seg_b = ring[1:]
+        seg_ab = seg_b - seg_a
+        seg_ab2 = (seg_ab ** 2).sum(axis=1)
+        out = np.empty(n, dtype=float)
+        for i in range(n):
+            pt = np.array([easting[i], northing[i]], dtype=float)
+            ap = pt - seg_a
+            t = np.clip((ap * seg_ab).sum(axis=1)
+                        / np.where(seg_ab2 == 0.0, 1.0, seg_ab2), 0.0, 1.0)
+            proj = seg_a + t[:, None] * seg_ab
+            out[i] = float(np.sqrt(((pt - proj) ** 2).sum(axis=1)).min())
+        return out
+
+    # ── the three 1998 blocks ────────────────────────────────────────
+    blocks = [("1", DATA_FELLING_1998_1),
+              ("2", DATA_FELLING_1998_2),
+              ("3", DATA_FELLING_1998_3)]
+    in_area = np.array([""] * n, dtype=object)
+    dist_1998 = None
+    for area_id, path in blocks:
+        ring = _load_ring(path)
+        if ring is None:
+            continue
+        inside = _inside(ring)
+        dcand = np.where(inside, 0.0, _dist(ring))   # floor to 0 inside
+        dist_1998 = dcand if dist_1998 is None else np.minimum(dist_1998, dcand)
+        assign = inside & (in_area == "")            # first containing block names it
+        in_area[assign] = area_id
+    if dist_1998 is None:
+        dist_1998 = np.full(n, np.nan)
+
+    # ── broadleaf restock ────────────────────────────────────────────
+    bl_ring = _load_ring(DATA_BROADLEAF_RESTOCK)
+    if bl_ring is None:
+        dist_bl = np.full(n, np.nan)
+    else:
+        dist_bl = np.where(_inside(bl_ring), 0.0, _dist(bl_ring))
+
+    return {
+        "in_1998_replant": in_area,
+        "dist_1998_replant_m": dist_1998,
+        "dist_broadleaf_restock_m": dist_bl,
+    }
+
 
 def _validate_dist_coast(tol_m: float = 25.0):
     """Regenerate-and-validate the well-to-coast perpendicular distance.
@@ -746,6 +851,13 @@ if __name__ == "__main__":
     locs_out["in_forest"] = _in_forest(locs_out["E"], locs_out["N"])
     info(f"in_forest: {int(locs_out['in_forest'].sum())} of {len(locs_out)} "
          "wells inside the plantation boundary.")
+    _rp = _replant_proximity(locs_out["E"], locs_out["N"])
+    locs_out["in_1998_replant"] = _rp["in_1998_replant"]
+    locs_out["dist_1998_replant_m"] = _rp["dist_1998_replant_m"]
+    locs_out["dist_broadleaf_restock_m"] = _rp["dist_broadleaf_restock_m"]
+    info(f"replant proximity: "
+         f"{int((locs_out['in_1998_replant'] != '').sum())} of {len(locs_out)} "
+         "wells inside a 1998 replant block.")
     locs_out.to_csv(INT_LOCATIONS, index=False)
 
     # Climate

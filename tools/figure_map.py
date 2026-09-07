@@ -38,7 +38,7 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-08-23.
+__version__ = "1.1.0"  # Hollingham (2026); 2026-09-07 caption source column.
 
 import argparse
 import collections
@@ -65,6 +65,56 @@ def _clean(s: str) -> str:
     s = _TAG.sub("", s)
     s = s.replace("&amp;", "&").replace("&lt;", "<").replace("&gt;", ">")
     return " ".join(s.split())
+
+
+# --- caption source marker -> resolved pipeline output ------------------------
+# Every report figure caption ends with a source marker naming the file that
+# produced it, e.g. "(Source: 41_05_canopy_trajectory.png)". That marker is the
+# authoritative, self-travelling source of truth (Martin, 2026-09-07): it moves
+# with the figure and covers freshly inserted figures the side registries lag.
+_SRC_MARK = re.compile(r"(?i)\bsource\b\s*:?\s*(.*)$")
+_SRC_FN = re.compile(r"([A-Za-z0-9][A-Za-z0-9_\-]*\.(?:png|jpg|jpeg))")
+_SRC_BARE = re.compile(r"\b(\d{2}[a-z]?_[A-Za-z0-9_]+|fig_[A-Za-z0-9_]+)\b")
+_SRC_CACHE: dict[str, str | None] = {}
+
+
+def _resolve_output(fn: str) -> str | None:
+    """A bare output filename -> its repo-relative path, if it exists."""
+    if fn in _SRC_CACHE:
+        return _SRC_CACHE[fn]
+    hit = None
+    if (REPO / fn).exists():
+        hit = fn
+    else:
+        for base in ("outputs", "docs"):
+            found = list((REPO / base).rglob(fn))
+            if found:
+                hit = str(found[0].relative_to(REPO))
+                break
+    _SRC_CACHE[fn] = hit
+    return hit
+
+
+def caption_source(caption: str) -> str:
+    """Resolved source path parsed from a caption's Source: marker, or ''.
+
+    Tolerates the prose forms in the corpus ("Script 26c output X", doubled
+    "Source: (Source: X)") and a missing extension.
+    """
+    m = _SRC_MARK.search(caption)
+    if not m:
+        return ""
+    tail = m.group(1)
+    fn = _SRC_FN.search(tail)
+    if fn:
+        return _resolve_output(fn.group(1)) or ""
+    bare = _SRC_BARE.search(tail)
+    if bare:
+        for ext in (".png", ".jpg", ".jpeg"):
+            r = _resolve_output(bare.group(1) + ext)
+            if r:
+                return r
+    return ""
 
 
 def build() -> list[dict]:
@@ -101,7 +151,8 @@ def build() -> list[dict]:
                 n += 1
                 rows.append({"number": n, "document": f"{stem}.odt",
                              "section": sec_no, "section_heading": sec_txt,
-                             "caption": txt[:110]})
+                             "caption": txt[:110],
+                             "source": caption_source(txt)})
     return rows
 
 

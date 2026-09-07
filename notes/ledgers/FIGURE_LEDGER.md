@@ -198,44 +198,46 @@
 | 34 | report9.odt | Climate-corrected spatial step-change map for the clearfell era (December 2017 – end of re |
 | 35 | report9.odt | Before- and after-clearfell SSM coefficient estimates with 95% CI for all 17 wells in the |
 | 36 | report9.odt | Clearfell transect: post-felling step change vs distance from felling compartment centroid |
-| 37 | report9.odt | Spatial distribution of mean annual summer minimum water table depth below ground across t |
-| 38 | report9.odt | Spatial distribution of P_flood — the minimum cumulative winter rainfall (mm) required to |
-| 39 | report9.odt | Spatial distribution of mean annual winter maximum water table depth below ground across t |
-| 40 | report9.odt | Winter flooding frequency across the full dipwell network (66 reference wells and 22 exten |
-| 41 | report9.odt | Cluster-mean 5-year mean spring water level (MSL5) trajectory, window-ends 2014–2025, for |
-| 42 | report9.odt | Spatial pattern of the latest available 5-year mean spring water level (MSL5) per well, ID |
-| 43 | report9.odt | Climate trajectory and threshold exceedance analysis for Newborough Warren, 2005–2025. Pan |
-| 44 | report9.odt | Between-well prediction of mean Ellenberg-F moisture by three water-table metrics, across |
-| 45 | report9.odt | a: Per-well optimal SSM drainage datum across the 66-well reference network, Newborough Wa |
-| 46 | report9.odt | Spatial SSM coefficient atlas for the 66-well reference network, Newborough Warren. Per-we |
-| 47 | report9.odt | Drainage decay half-life (t½ = ln(2)/β₃, months) across the 66-well reference network (CEH |
-| 48 | report9.odt | Aquifer diagnostic synthesis across the reference well network, Newborough Warren 2005–202 |
-| 49 | report9.odt | Mean annual water table elevation (m AOD) across the Newborough Warren dune aquifer, 2005– |
-| 50 | report9.odt | SSM water balance residual across the Newborough Warren dune aquifer, 2005–2026. The resid |
-| 51 | report9.odt | Network-scale coastal-retreat gradient. Per-well summer-minimum slope (mm yr⁻¹, error bars |
-| 52 | report9.odt | Fixed-length rolling-window sensitivity of the cross-shore decay fit. One panel per window |
-| 53 | report9.odt | Independent, model-free estimate of the coastal drawdown rate. The coast-minus-inland MAM |
-| 54 | report9.odt | Coastal-erosion drawdown at the western dune margin, Newborough Warren, on the DEM hillsha |
-| 55 | report9.odt | Sea-level-rise head response at the western dune margin, on the same hillshade base and cl |
-| 56 | report9.odt | Net coastal-margin change at the western dune margin: the cell-by-cell difference between |
-| 57 | report9.odt | Forest drawdown propagation across the Newborough Warren dune aquifer, showing the estimat |
-| 58 | report9.odt | Dune-scrape drawdown across all eight mapped cuts, Newborough Warren (Feb 2013, Apr 2015, |
-| 59 | report9.odt | Combined drawdown imposed on the clearfell pre-fell baseline (Oct 2017): the cell-by-cell |
-| 60 | report9.odt | Clearfell step-change map — climate-corrected mean water-table shift, pre-felling (scrapin |
-| 61 | report9.odt | Net water-table state — parametric combination of five simultaneous annual-mean drivers: f |
-| 62 | report9.odt | Modelled water-table change across Newborough Warren, 2005–2025 — full-window (20-year) co |
-| 63 | report9.odt | Observed MSL5 change: window end 2017 (springs 2013–2017, pre-clearfell) vs window end 202 |
-| 64 | report9.odt | Secular differential movement of the spring (March,April, May) water table, 2011–2025. For |
-| 65 | report9.odt | Absolute climate-removed secular trend of the spring (March, April, May) water table, 2005 |
-| 66 | report9.odt | The climate-response envelope of the spring water table. Relative amplification field — ea |
-| 67 | report9.odt | The climate-response envelope of the spring water table: Dry-year spring water-table depth |
-| 68 | report9.odt | Independent test of the chronic coastal-drying assumption: implied coastal decline rate δ₀ |
-| 69 | report9.odt | Comparative footing of the drivers over the 2005–2025 horizon, on three common measures — |
-| 70 | report9.odt | Projected shift in the five-year mean spring water level (ΔMSL5, blue) compared with the p |
-| 71 | report10.odt | Bootstrap year-of-crossing for the five-cluster summer-minimum trends against the Curreli |
-| 72 | report10.odt | Synthetic mean-year hydrograph for the C4 Forest cluster under four management scenarios: |
-| 73 | report10.odt | Spatial reach and development timescale of the management interventions and coastal retrea |
-| 74 | report10.odt | Four drivers of the Newborough water table — schematic cross-sections (not to scale; verti |
-| 75 | report10.odt | Per-well achievability categorization against the P_flood rainfall multiplier (m_P), the c |
+| 37 | report9.odt | Canopy-texture trajectories from the dated aerial series, 2006 to 2026, relative to the un |
+| 38 | report9.odt | Early versus late clearfell BACI step against the Forest control, split at January 2021, f |
+| 39 | report9.odt | Spatial distribution of mean annual summer minimum water table depth below ground across t |
+| 40 | report9.odt | Spatial distribution of P_flood — the minimum cumulative winter rainfall (mm) required to |
+| 41 | report9.odt | Spatial distribution of mean annual winter maximum water table depth below ground across t |
+| 42 | report9.odt | Winter flooding frequency across the full dipwell network (66 reference wells and 22 exten |
+| 43 | report9.odt | Cluster-mean 5-year mean spring water level (MSL5) trajectory, window-ends 2014–2025, for |
+| 44 | report9.odt | Spatial pattern of the latest available 5-year mean spring water level (MSL5) per well, ID |
+| 45 | report9.odt | Climate trajectory and threshold exceedance analysis for Newborough Warren, 2005–2025. Pan |
+| 46 | report9.odt | Between-well prediction of mean Ellenberg-F moisture by three water-table metrics, across |
+| 47 | report9.odt | a: Per-well optimal SSM drainage datum across the 66-well reference network, Newborough Wa |
+| 48 | report9.odt | Spatial SSM coefficient atlas for the 66-well reference network, Newborough Warren. Per-we |
+| 49 | report9.odt | Drainage decay half-life (t½ = ln(2)/β₃, months) across the 66-well reference network (CEH |
+| 50 | report9.odt | Aquifer diagnostic synthesis across the reference well network, Newborough Warren 2005–202 |
+| 51 | report9.odt | Mean annual water table elevation (m AOD) across the Newborough Warren dune aquifer, 2005– |
+| 52 | report9.odt | SSM water balance residual across the Newborough Warren dune aquifer, 2005–2026. The resid |
+| 53 | report9.odt | Network-scale coastal-retreat gradient. Per-well summer-minimum slope (mm yr⁻¹, error bars |
+| 54 | report9.odt | Fixed-length rolling-window sensitivity of the cross-shore decay fit. One panel per window |
+| 55 | report9.odt | Independent, model-free estimate of the coastal drawdown rate. The coast-minus-inland MAM |
+| 56 | report9.odt | Coastal-erosion drawdown at the western dune margin, Newborough Warren, on the DEM hillsha |
+| 57 | report9.odt | Sea-level-rise head response at the western dune margin, on the same hillshade base and cl |
+| 58 | report9.odt | Net coastal-margin change at the western dune margin: the cell-by-cell difference between |
+| 59 | report9.odt | Forest drawdown propagation across the Newborough Warren dune aquifer, showing the estimat |
+| 60 | report9.odt | Dune-scrape drawdown across all eight mapped cuts, Newborough Warren (Feb 2013, Apr 2015, |
+| 61 | report9.odt | Combined drawdown imposed on the clearfell pre-fell baseline (Oct 2017): the cell-by-cell |
+| 62 | report9.odt | Clearfell step-change map — climate-corrected mean water-table shift, pre-felling (scrapin |
+| 63 | report9.odt | Net water-table state — parametric combination of five simultaneous annual-mean drivers: f |
+| 64 | report9.odt | Modelled water-table change across Newborough Warren, 2005–2025 — full-window (20-year) co |
+| 65 | report9.odt | Observed MSL5 change: window end 2017 (springs 2013–2017, pre-clearfell) vs window end 202 |
+| 66 | report9.odt | Secular differential movement of the spring (March,April, May) water table, 2011–2025. For |
+| 67 | report9.odt | Absolute climate-removed secular trend of the spring (March, April, May) water table, 2005 |
+| 68 | report9.odt | The climate-response envelope of the spring water table. Relative amplification field — ea |
+| 69 | report9.odt | The climate-response envelope of the spring water table: Dry-year spring water-table depth |
+| 70 | report9.odt | Independent test of the chronic coastal-drying assumption: implied coastal decline rate δ₀ |
+| 71 | report9.odt | Comparative footing of the drivers over the 2005–2025 horizon, on three common measures — |
+| 72 | report9.odt | Projected shift in the five-year mean spring water level (ΔMSL5, blue) compared with the p |
+| 73 | report10.odt | Bootstrap year-of-crossing for the five-cluster summer-minimum trends against the Curreli |
+| 74 | report10.odt | Synthetic mean-year hydrograph for the C4 Forest cluster under four management scenarios: |
+| 75 | report10.odt | Spatial reach and development timescale of the management interventions and coastal retrea |
+| 76 | report10.odt | Four drivers of the Newborough water table — schematic cross-sections (not to scale; verti |
+| 77 | report10.odt | Per-well achievability categorization against the P_flood rainfall multiplier (m_P), the c |
 
-*Generated 2026-09-04 by `tools/build_figure_ledger.py` v1.0.0.*
+*Generated 2026-09-07 by `tools/build_figure_ledger.py` v1.0.0.*

@@ -5,8 +5,19 @@ prepared for *Journal of Hydrology: Regional Studies*: two companion papers, a
 technical report, a Methods Supplement and a Supplementary Material. Martin
 Hollingham is the author. **This repository is public.**
 
-`BOOTSTRAP.md` sets the project up on a new machine. This file is for a new
-*session* — the things that have cost previous sessions hours to rediscover.
+`BOOTSTRAP.md` sets the project up on a new machine. This file is the traps
+and the non-negotiables — the things that have cost previous sessions hours to
+rediscover. It carries no counts and no state: those live in the manifest, in
+what `check_all` prints, and in the generated HANDOFF.
+
+**Start here, every session — two lines (D-143):**
+
+1. Read `working/HANDOVER_BOOTSTRAP.md` — the Tier-0 read order, its budget,
+   and `tools/context_for.py`, which surfaces the decisions that bind a file
+   *at the moment you touch it*.
+2. Run `python3 tools/session_handover.py` — the state of the tree, generated.
+   End every session with `--write`, a dated entry (≤40 lines) at the top of
+   `working/updates/HANDOVER_NOTE.md`, and `--check` green. `check_all` gates it.
 
 ---
 
@@ -25,10 +36,9 @@ of them reads the outputs and finds them self-consistent. That happened to
 than advice and is what enforces this; if it fails, the fix is to re-run the
 script it names, never to skip the check.
 
-Sixteen gates: document versions, mirrors, pipeline literals, record basis,
-store-time rounding, **artefacts**, decisions, ledgers, document references,
-tasks, symbols, typed references, references-by-meaning, export lag, claims,
-citations (advisory). **artefacts** checks an output against ITSELF — row
+The gates are the sections `check_all` prints — read them from the run, never
+from a list here (this file said "sixteen" while the script ran twenty-seven).
+Two need explaining: **artefacts** checks an output against ITSELF — row
 arithmetic, the empty artefact, and (since 2026-09-01) the PDF *Producer*. It
 exists because three failures that week all sat in the gap where no gate looked.
 **typed references** covers tables AND figures: `--kind figure` asks whether a

@@ -18,8 +18,13 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.10.0 - 2026-09-07
+# VERSION 1.11.0 - 2026-09-07
 # CHANGELOG
+#   1.11.0 (2026-09-07): step provenance gate (S1). provenance_lint reads
+#     outputs/pipeline_provenance.json (run_analysis 2.15.0) and fails when a
+#     committed output was produced from an upstream that has since changed, or
+#     rests on a documented first-pass default. Skips until the first recorded
+#     run, as input_provenance did. --selftest first.
 #   1.10.0 (2026-09-07): ms_chapters gate (D-144 §4) beside the ledgers: every
 #     registered step has a Methods Supplement chapter heading naming it and a
 #     SCRIPT_LEDGER row. run_analysis.py refuses registration on the same
@@ -408,6 +413,14 @@ echo "── input provenance (do the outputs match the committed INPUTS?) ─�
 # detection has stopped working.
 python3 tools/input_provenance_lint.py --selftest >/dev/null || rc=1
 python3 tools/input_provenance_lint.py --gate || rc=1
+
+echo
+echo "── step provenance (was each output made from the committed upstream?) ─"
+# S1: D-133 records what the pipeline STARTED from; this records what each step
+# READ from other steps and whether it fell back on a default. The remedy a
+# failure names is the step to re-run, never skipping the check (D-102).
+python3 tools/provenance_lint.py --selftest >/dev/null || rc=1
+python3 tools/provenance_lint.py || rc=1
 
 echo
 echo "── archive (are the canonical documents anywhere but this disk?) ─────"

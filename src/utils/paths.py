@@ -739,6 +739,7 @@ OUT_17_REGRESSION           = DIR_17 / "17_wtf_02_regression.png"
 OUT_17_BOXPLOT              = DIR_17 / "17_wtf_03_event_boxplot.png"
 OUT_17_SUMMARY              = DIR_17 / "17_wtf_04_summary.txt"
 OUT_17_RAPID_EVENTS         = DIR_17 / "17_wtf_05_rapid_events.png"
+OUT_17_INTERCEPTION_SWEEP   = DIR_17 / "17_wtf_06_interception_sweep.csv"   # F sweep, 2026-09-07
 # INT_WTF_WELL_SY (outputs/17_wtf_well_sy.csv) RETIRED 2026-08-19, D-038.
 # Script 18 wrote the same well_results frame to two paths; the "17_" prefix
 # named a script that never produced it. All consumers now read

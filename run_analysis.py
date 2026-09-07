@@ -152,7 +152,14 @@ import uuid
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.13.0"  # 2026-09-07: registration REFUSES an undocumented step
+__version__ = "2.14.0"  # 2026-09-07: step selection by SCRIPT NUMBER. The
+#   step prompt (menu 2/3) and a new --step KEY flag resolve "17", "10a", "43"
+#   to the script of that number, "s21" to step index 21, and any filename
+#   fragment ("17_wtf") to the unique script it matches; a bare integer that is
+#   only a step index still works. The step list prints in columns so it fits a
+#   screen — in a tmux session without scrollback the 53-line list hid the
+#   prompt (Martin, 2026-09-07). No registry change.
+#   2.13.0 (2026-09-07): registration REFUSES an undocumented step
 #   (D-144 §4). build_manifest() calls tools/ms_chapters.unmapped_steps(): a
 #   registered script with no Methods Supplement chapter heading naming it, or
 #   no SCRIPT_LEDGER row, stops the run with the missing item named. The rule
@@ -1363,30 +1370,90 @@ def render_menu() -> str:
     ]
     return "\n".join(out)
 
-def show_step_list() -> None:
+_SCRIPT_KEY_RE = re.compile(r"^(?:run_)?(\d{1,2}[a-z]?)_")
+
+
+def _script_key(script: str) -> str:
+    """'17_wtf_specific_yield.py' -> '17'; '10a_ancova_baci.py' -> '10a'; sub-runners by number."""
+    m = _SCRIPT_KEY_RE.match(script)
+    return m.group(1) if m else script
+
+
+def show_step_list(compact: bool = True) -> None:
+    """The registered steps. Compact (default) prints `step:script-key` in
+    columns so the whole list fits one screen — in a tmux pane without
+    scrollback the one-per-line form pushed the prompt off the top."""
     print()
     _banner("Pipeline Step List", _Ansi.CYAN)
-    for phase_label, _phase_entries in ALL_PHASES:
-        print("\n  " + paint(phase_label, _Ansi.BCYAN, _Ansi.BOLD))
-        for rs in _STEPS_BY_PHASE.get(phase_label, []):
-            present = (SRC_DIR / rs.script).exists()
-            tag = paint(GLYPH_OK, _Ansi.GREEN) if present else paint(GLYPH_FAIL, _Ansi.BRED)
-            optin_tag = paint(" [opt-in]", _Ansi.YELLOW) if rs.exec == "optin" else ""
-            print(f"    {tag}  " + paint(f"step {rs.index:>2}", _Ansi.BOLD)
-                  + f"  {rs.script}{optin_tag}")
+    if not compact:
+        for phase_label, _phase_entries in ALL_PHASES:
+            print("\n  " + paint(phase_label, _Ansi.BCYAN, _Ansi.BOLD))
+            for rs in _STEPS_BY_PHASE.get(phase_label, []):
+                present = (SRC_DIR / rs.script).exists()
+                tag = paint(GLYPH_OK, _Ansi.GREEN) if present else paint(GLYPH_FAIL, _Ansi.BRED)
+                optin_tag = paint(" [opt-in]", _Ansi.YELLOW) if rs.exec == "optin" else ""
+                print(f"    {tag}  " + paint(f"step {rs.index:>2}", _Ansi.BOLD)
+                      + f"  {rs.script}{optin_tag}")
+        print()
+        return
+    cells = []
+    for rs in _ALL_STEPS:
+        present = (SRC_DIR / rs.script).exists()
+        tag = paint(GLYPH_OK, _Ansi.GREEN) if present else paint(GLYPH_FAIL, _Ansi.BRED)
+        key = _script_key(rs.script) + ("*" if rs.exec == "optin" else " ")
+        cells.append(f"{tag} s{rs.index:>2} \u2192 {key:<5}")
+    ncol = 4
+    rows = (len(cells) + ncol - 1) // ncol
+    for r in range(rows):
+        print("   " + "   ".join(cells[r + rows * c] for c in range(ncol) if r + rows * c < len(cells)))
+    print("\n   sNN = step index; the number after \u2192 is the SCRIPT number (* = opt-in).")
+    print("   Enter a script number (17, 10a, 43), a step index (s21), or a filename fragment (17_wtf).")
     print()
+
+
+def resolve_step(raw: str) -> tuple[int | None, str]:
+    """Resolve what the user typed to a step index. Returns (index, message).
+
+    Order of resolution, most specific first: 'sNN' is a step index; an exact
+    script key ('17', '10a', '09f') is that script; a bare integer with no script
+    of that number is a step index; anything else is a filename fragment that
+    must match exactly one script."""
+    raw = raw.strip().lower()
+    if not raw:
+        return None, "nothing entered"
+    m = re.fullmatch(r"s(\d{1,2})", raw)
+    if m:
+        n = int(m.group(1))
+        return (n, f"step {n}") if n in _STEP_MAP else (None, f"step index {n} not registered")
+    by_key = {_script_key(rs.script): rs for rs in _ALL_STEPS}
+    key = raw
+    m = re.fullmatch(r"(\d{1,2})([a-z]?)", raw)
+    if m:
+        key = f"{int(m.group(1)):02d}{m.group(2)}"           # '9f' -> '09f', '9' -> '09'
+        if key not in by_key and m.group(1) in by_key:          # '10a' -> the 10 sub-runner
+            rs = by_key[m.group(1)]
+            return rs.index, f"script {key} runs inside step {rs.index} ({rs.script})"
+    if key in by_key:
+        rs = by_key[key]
+        return rs.index, f"script {key} = step {rs.index}"
+    if raw.isdigit() and int(raw) in _STEP_MAP:
+        return int(raw), f"step {int(raw)} (no script numbered {raw})"
+    hits = [rs for rs in _ALL_STEPS if raw in rs.script.lower()]
+    if len(hits) == 1:
+        return hits[0].index, f"{hits[0].script} = step {hits[0].index}"
+    if len(hits) > 1:
+        return None, "ambiguous: " + ", ".join(h.script for h in hits[:6])
+    return None, f"{raw!r} matches no script"
+
 
 def _prompt_step(prompt: str) -> int | None:
     show_step_list()
     raw = input(f"  {prompt}: ").strip()
-    try:
-        n = int(raw)
-    except ValueError:
-        print("  Invalid input — returning to menu.")
+    n, why = resolve_step(raw)
+    if n is None:
+        print(f"  {why} — returning to menu.")
         return None
-    if n not in _STEP_MAP:
-        print(f"  Step {n} not recognised — returning to menu.")
-        return None
+    print(f"  ({why})")
     return n
 
 def menu_run_from() -> None:
@@ -1775,6 +1842,9 @@ def main() -> None:
     parser.add_argument("--log", nargs="?", const="AUTO", default=None, metavar="PATH",
                         help="With --full: record all console output to a log file "
                              "(optional PATH; default outputs/logs/run_<timestamp>.log)")
+    parser.add_argument("--step", dest="single_step", metavar="KEY",
+                        help="run ONE step, non-interactively, by script number "
+                             "(17, 10a, 43), step index (s21) or filename fragment")
     parser.add_argument("--from",   dest="from_step", type=int, metavar="N",
                         help="Resume from step N non-interactively")
     parser.add_argument("--viewer", action="store_true",
@@ -1870,6 +1940,17 @@ def main() -> None:
             finally:
                 if log_active:
                     stop_logging()
+        elif args.single_step is not None:
+            _banner("NEWBOROUGH WARREN GROUNDWATER ANALYSIS PIPELINE")
+            n, why = resolve_step(args.single_step)
+            if n is None:
+                say_err(f"--step {args.single_step}: {why}")
+                sys.exit(2)
+            script, label, extra = _STEP_MAP[n]
+            say_info(f"--step {args.single_step}: {why} ({script})")
+            warn_missing_upstream(n, interactive=False)
+            ensure_paths()
+            run_script(script, label, extra)
         elif args.from_step is not None:
             _banner("NEWBOROUGH WARREN GROUNDWATER ANALYSIS PIPELINE")
             warn_missing_upstream(args.from_step, interactive=False)

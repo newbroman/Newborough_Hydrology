@@ -30,7 +30,16 @@ S.12 §"Forest interception correction"; see also `wtf_interception_methodology.
 in the project store.
 """
 
-__version__ = "1.4.3"  # Hollingham (2026) — 2026-08-30. WINTER_MONTHS now imported
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-09-07. Interception-fraction
+#   sweep (17_wtf_06_interception_sweep.csv): Approach-B event-median Sy for the
+#   forest clusters re-evaluated at every F on config's INTERCEPTION_SWEEP grid,
+#   with the open-dune range (min/max of the uncorrected non-forest event
+#   medians, from the same run) and a within-range flag per row. Answers the
+#   reviewer question "would a different F give a different convergence?" with a
+#   committed CSV rather than an argument (Paper 1 R1/R2). Emission-only: the
+#   existing outputs are unchanged.
+#
+# v1.4.3  # Hollingham (2026) — 2026-08-30. WINTER_MONTHS now imported
 #   from config.WINTER_WET_CLIMATE_MONTHS — same months, one definition
 #   (D-100). No behavioural change; asserted equal to the literal it replaced.
 #
@@ -68,12 +77,14 @@ from utils.config import (
     CLUSTER_COLOURS as _CFG_CLUSTER_COLOURS,
     FOREST_CIDS,
     FOREST_INTERCEPTION,
+    INTERCEPTION_SWEEP_MIN, INTERCEPTION_SWEEP_MAX, INTERCEPTION_SWEEP_STEP,
     WTF_C_DRY_BASELINE, WTF_C_MIN_RISE_M, WTF_C_MAX_DURATION,
     WTF_C_SY_MIN, WTF_C_SY_MAX, WTF_C_BOOTSTRAP_N, WTF_RAPID_BOOT_SEED,
 )
 from utils.paths import (
     make_all_dirs, OUT_DIR, DIR_17, INT_MASTER_DATA, OUT_17_SY_TABLE,
     OUT_17_REGRESSION, OUT_17_BOXPLOT, OUT_17_SUMMARY, OUT_17_RAPID_EVENTS,
+    OUT_17_INTERCEPTION_SWEEP,
 )
 from utils.render_utils import render_figure
 make_all_dirs()
@@ -331,6 +342,67 @@ def approach_b_events(df):
               f"IQR [{q25:.3f}, {q75:.3f}]  n = {n}")
 
     return results
+
+
+def _event_median_sy(df, cid, r_col):
+    """Approach-B event-median Sy for one cluster and one recharge column —
+    the same selection as approach_b_events(), factored so the sweep cannot
+    drift from the headline computation."""
+    sub = df[[r_col, f"dh_{cid}"]].dropna().copy()
+    events = sub[(sub[r_col] > MIN_NET_RECH) & (sub[f"dh_{cid}"] > MIN_RISE_M)].copy()
+    events["sy_i"] = events[r_col] / events[f"dh_{cid}"]
+    events = events[(events["sy_i"] > 0.01) & (events["sy_i"] < 0.50)]
+    return (float(events["sy_i"].median()), float(events["sy_i"].quantile(0.25)),
+            float(events["sy_i"].quantile(0.75)), int(len(events)))
+
+
+def approach_b_interception_sweep(df, b_results):
+    """
+    Sensitivity of the Approach-B forest-cluster Sy to the interception fraction.
+
+    For every F on the config grid, recompute the forest clusters' event-median Sy
+    with R_eff = (1 - F)·P - PET and compare it with the open-dune range - the
+    min and max of the UNCORRECTED event medians of the non-forest clusters in
+    this same run (so the range is never typed). One row per (F, cluster), plus
+    the F-interval over which each forest cluster sits inside the range, printed
+    and returned. F = FOREST_INTERCEPTION is always included in the grid so the
+    headline row is present exactly.
+    """
+    open_dune = [b_results[f"C{i}"]["sy_median"] for i in CLUSTER_IDS
+                 if i not in FOREST_CIDS and f"C{i}" in b_results
+                 and np.isfinite(b_results[f"C{i}"]["sy_median"])]
+    lo, hi = (min(open_dune), max(open_dune)) if open_dune else (np.nan, np.nan)
+    grid = np.arange(INTERCEPTION_SWEEP_MIN, INTERCEPTION_SWEEP_MAX + 1e-9,
+                     INTERCEPTION_SWEEP_STEP)
+    grid = np.unique(np.append(grid, FOREST_INTERCEPTION))
+    rows = []
+    for F in grid:
+        r_col = "_sweep_R"
+        df[r_col] = df["P_m"] * (1.0 - F) - df["PET"]
+        for i in FOREST_CIDS:
+            cid = f"C{i}"
+            if f"dh_{cid}" not in df.columns:
+                continue
+            med, q25, q75, n = _event_median_sy(df, cid, r_col)
+            rows.append(dict(F=float(F), cluster=cid, label=CLUSTER_LABELS[cid],
+                             Sy_event_median=med, Sy_event_Q25=q25, Sy_event_Q75=q75,
+                             Sy_event_n=n, open_dune_min=lo, open_dune_max=hi,
+                             within_open_dune_range=bool(np.isfinite(med) and lo <= med <= hi),
+                             is_headline_F=bool(np.isclose(F, FOREST_INTERCEPTION))))
+        df.drop(columns=[r_col], inplace=True)
+    sweep = pd.DataFrame(rows)
+    print(f"  open-dune range (uncorrected event medians, non-forest clusters): "
+          f"[{lo:.3f}, {hi:.3f}]")
+    for i in FOREST_CIDS:
+        cid = f"C{i}"
+        inside = sweep[(sweep.cluster == cid) & sweep.within_open_dune_range]
+        if len(inside):
+            print(f"  {CLUSTER_LABELS[cid]:<20} inside the range for F in "
+                  f"[{inside.F.min():.2f}, {inside.F.max():.2f}] "
+                  f"({len(inside)} of {int((sweep.cluster == cid).sum())} grid points)")
+        else:
+            print(f"  {CLUSTER_LABELS[cid]:<20} never inside the range on this grid")
+    return sweep
 
 
 def approach_c_rapid_events(df):
@@ -860,6 +932,9 @@ def main():
     print("\nApproach C — Rapid recharge events (Crosbie et al., 2005):")
     c_results = approach_c_rapid_events(df)
 
+    print("\nApproach B sensitivity — interception-fraction sweep:")
+    sweep = approach_b_interception_sweep(df, b_results)
+
     print("\nGenerating figures...")
     plot_regression(df, a_results, path_reg)
     plot_event_boxplot(b_results, path_box)
@@ -867,6 +942,8 @@ def main():
 
     print("\nExporting outputs...")
     export_csv(a_results, b_results, c_results, path_table)
+    sweep.to_csv(OUT_17_INTERCEPTION_SWEEP, index=False)   # full precision (D-035)
+    saved(OUT_17_INTERCEPTION_SWEEP)
     write_summary(a_results, b_results, c_results, path_summary)
 
     print("\nAll outputs written to", out_dir)

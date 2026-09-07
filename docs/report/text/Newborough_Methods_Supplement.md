@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_115.odt — do not edit.
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_116.odt — do not edit.
      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 1.9.115 (September 2026).
+Document version: 1.9.116 (September 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -2480,14 +2480,15 @@ Three cross-approach observations: C3 has the tightest spread of the five cluste
 
 #### []{#anchor-349}[]{#anchor-350}Outputs
 
-  ----------------------------- ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ---------------------------------------------------------------
-  Output                        Description                                                                                                                                                                               Reference
-  17_wtf_01_sy_estimates.csv    Per-cluster Approach A and B estimates with SE/IQR and n; corrected variants for forest clusters; six *Sy_rapid\_\** columns for Approach C (median, 95 % CI bounds, n, bootstrap seed)   Paper 1 Table 4c
-  17_wtf_02_regression.png      OLS regression plots for Approach A, one panel per cluster                                                                                                                                Supplementary figure
-  17_wtf_03_event_boxplot.png   Sy distribution boxplot for Approach B, including the corrected forest variants                                                                                                           Supplementary figure
-  17_wtf_05_rapid_events.png    Approach C rapid-event Sy per cluster: median, 95 % CI, per-episode points; interception-corrected for C4/C5                                                                              Supplementary figure (not placed as a numbered report figure)
-  17_wtf_04_summary.txt         Plain-text summary for report cross-reference                                                                                                                                             Author reference
-  ----------------------------- ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ---------------------------------------------------------------
+  ---------------------------------- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ----------------------------------------------------------------------------------------------
+  Output                             Description                                                                                                                                                                                                                                                                                                                                                           Reference
+  17_wtf_01_sy_estimates.csv         Per-cluster Approach A and B estimates with SE/IQR and n; corrected variants for forest clusters; six *Sy_rapid\_\** columns for Approach C (median, 95 % CI bounds, n, bootstrap seed)                                                                                                                                                                               Paper 1 Table 4c
+  17_wtf_02_regression.png           OLS regression plots for Approach A, one panel per cluster                                                                                                                                                                                                                                                                                                            Supplementary figure
+  17_wtf_03_event_boxplot.png        Sy distribution boxplot for Approach B, including the corrected forest variants                                                                                                                                                                                                                                                                                       Supplementary figure
+  17_wtf_05_rapid_events.png         Approach C rapid-event Sy per cluster: median, 95 % CI, per-episode points; interception-corrected for C4/C5                                                                                                                                                                                                                                                          Supplementary figure (not placed as a numbered report figure)
+  17_wtf_06_interception_sweep.csv   Approach B interception-fraction sensitivity: forest-cluster event-median Sy at every F on the config grid (INTERCEPTION_SWEEP_MIN/MAX/STEP), with the open-dune range (min/max of the uncorrected non-forest event medians of the same run) and a within-range flag per row; the F = FOREST_INTERCEPTION row reproduces the corrected medians in 17_wtf_01 exactly   Paper 1 §4.5 (the F-interval over which the forest clusters fall within the open-dune range)
+  17_wtf_04_summary.txt              Plain-text summary for report cross-reference                                                                                                                                                                                                                                                                                                                         Author reference
+  ---------------------------------- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ----------------------------------------------------------------------------------------------
 
 ### []{#anchor-350}[]{#anchor-351}[]{#anchor-352}Sub-script 18 --- *18_wtf_spatial.py* (per-well Sy and the drainage half-life map)
 

@@ -364,6 +364,16 @@ UKCP18_SCENARIOS = {
 # See INTERCEPTION_TREATMENT.md for the full derivation.
 FOREST_INTERCEPTION = 0.24
 
+# Interception-fraction sweep (Script 17, 17_wtf_06). FOREST_INTERCEPTION is a
+# literature value (Freeman 2008), not a fitted one, so the Approach-B result
+# "corrected forest Sy falls within the open-dune range" is conditional on it.
+# The sweep re-evaluates the forest clusters' event-median Sy at every F on this
+# grid and reports the F-interval over which the result holds. Added 2026-09-07
+# (Paper 1 R1/R2; reviewer-facing sensitivity).
+INTERCEPTION_SWEEP_MIN  = 0.00
+INTERCEPTION_SWEEP_MAX  = 0.40
+INTERCEPTION_SWEEP_STEP = 0.02
+
 # Cluster IDs carrying forest canopy (Corsican pine). These receive the
 # interception correction in water-balance, WTF, and scenario scripts.
 # Under k=5: C4 (Main Forest) and C5 (Coastal Forest).

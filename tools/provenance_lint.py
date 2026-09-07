@@ -28,7 +28,11 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-09-07. Ledger Emits cells parsed with
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-09-07. Multi-writer REGISTRY files
+#   (pipeline_scenario_params.csv, pipeline_site_observations.csv) are advisory, not
+#   gating: the second pass rewrites them after their early readers by design, so a
+#   whole-file hash can never settle; the fallback check covers defaults read from them.
+#   1.1.0 (2026-09-07): ledger Emits cells parsed with
 #   their own shorthand ({csv,png}, *, …, .png/.jpg) as fnmatch patterns; the first
 #   activation run reported ".png" and "_transfer_functions.csv" as unwritten files.
 #   1.0.0 (2026-09-07): first issue (S1 spec).
@@ -107,14 +111,31 @@ def ledger_emits() -> dict[str, set[str]]:
 def evaluate(prov: dict, current_sha, emits_by_script: dict) -> tuple[list[str], list[str], list[str]]:
     """(gate faults, fallback faults, advisories). `current_sha(rel) -> sha | None`."""
     stale, fallbacks, advisory = [], [], []
+    # A file several steps write in one run is a REGISTRY (pipeline_scenario_params.csv:
+    # seeded by 01, betas by 03, multipliers by 10e, Sy by 17/18; pipeline_site_observations
+    # appended by 01/09/10/16). Whether a reader's columns changed after it read is not
+    # decidable from a whole-file hash, and every pass rewrites such a file after its
+    # early readers — so a file-level FAIL would be permanent and meaningless. Reported as
+    # advisory naming the later writers; the fallback check still catches a reader that
+    # consumed a default from it (load_params notes those). Single-writer inputs gate.
+    writers: dict[str, set] = {}
+    for script, rec in prov.get("steps", {}).items():
+        for rel in rec.get("emitted", {}):
+            writers.setdefault(rel, set()).add(script)
     for script, rec in sorted(prov.get("steps", {}).items()):
         for rel, recorded in sorted(rec.get("inputs", {}).items()):
             now = current_sha(rel)
             if now is None:
                 stale.append(f"{script}: input {rel} recorded at run time is now MISSING")
             elif now != recorded:
-                stale.append(f"{script}: produced from {rel} which has since changed — "
-                             f"re-run from this step")
+                others = sorted(writers.get(rel, set()) - {script})
+                if len(writers.get(rel, set())) > 1:
+                    advisory.append(f"{script}: read registry {Path(rel).name}, later rewritten by "
+                                    f"{', '.join(others)} — a multi-writer file, staleness not "
+                                    f"decidable at file level (columns it uses may be unchanged)")
+                else:
+                    stale.append(f"{script}: produced from {rel} which has since changed — "
+                                 f"re-run from this step")
         fb = rec.get("fallbacks") or []
         if fb:
             keys = sorted({str(f.get("key")) for f in fb})
@@ -157,6 +178,15 @@ def selftest() -> int:
     s, _, _ = evaluate(prov, lambda r: {"outputs/17/17_01.csv": "E1"}.get(r), emits)
     if not any("MISSING" in x for x in s):
         bad.append("missing input not detected")
+    reg = {"steps": {
+        "01_a.py": {"inputs": {}, "emitted": {"outputs/reg.csv": "R1"}, "fallbacks": []},
+        "09_b.py": {"inputs": {"outputs/reg.csv": "R2"}, "emitted": {}, "fallbacks": []},
+        "03_c.py": {"inputs": {}, "emitted": {"outputs/reg.csv": "R2"}, "fallbacks": []},
+        "10_d.py": {"inputs": {}, "emitted": {"outputs/reg.csv": "R3"}, "fallbacks": []},
+    }}
+    s, _, a = evaluate(reg, lambda r: {"outputs/reg.csv": "R3"}.get(r), {})
+    if s or not any("registry" in x for x in a):
+        bad.append(f"multi-writer registry gated or not advised: {s} {a}")
     lp = ledger_patterns("03_08_datum_sensitivity.{csv,png}, 11_forecast_*_transfer_functions.csv, 21_forestry_01…05_*.png/.jpg, x.csv")
     want = {"03_08_datum_sensitivity.csv", "03_08_datum_sensitivity.png", "11_forecast_*_transfer_functions.csv",
             "21_forestry_*_*.png", "21_forestry_*_*.jpg", "x.csv"}

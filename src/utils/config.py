@@ -40,7 +40,11 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.29.0"  # Hollingham (2026) - 2026-09-04. W66: BL_CANOPY_FRACTION_2005
+__version__ = "1.30.0"  # Hollingham (2026) - 2026-09-06. W96/D-141: CLEARFELL_ERA_SPLIT
+#   added - the 2021-01-01 early/late boundary for the clearfell BACI decay split
+#   (Script 10a 10a_13_era_split.csv). Additive constant; no value changes.
+#
+# v1.29.0  # Hollingham (2026) - 2026-09-04. W66: BL_CANOPY_FRACTION_2005
 #   basis corrected - 0.4 is confirmed against the aerial photography at the
 #   2005/2006 baseline (observation-anchored), not a seasons-since-restock
 #   judgement, so the D-082 restock-year change (1998->1995) does not move it.
@@ -990,6 +994,12 @@ CLEARFELL_DATE_ISO  = "2017-12-01"   # December 2017 pine clearfell
 SCRAPING_DATE_0_ISO = "2013-02-01"   # February 2013 — CEH40/41/42 unmonitored cuts
 SCRAPING_DATE_ISO   = "2015-04-01"   # April 2015 — CEH36 scrape (documented)
 SCRAPING_DATE_2_ISO = "2023-10-01"   # October 2023 — re-scraping
+
+# ── Clearfell BACI era split (W96 / D-141) ────────────────────────────────────
+# The Dec-2017 -> present post-clearfell window rendered into a ~3-yr early and
+# ~5-yr late half, so Script 10a can report the clearfell step decaying as the
+# 1998 replant and felled-margin canopy mature. Stored (not hardcoded in 10a).
+CLEARFELL_ERA_SPLIT = "2021-01-01"  # early/late boundary for the clearfell BACI decay split (W96/D-141)
 
 # ── Broadleaf restock canopy-establishment fractions (2005→2025 driver map) ────
 # The broadleaf restock block (data/geo/broadleaf_restock.kml) was felled 1993,

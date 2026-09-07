@@ -1059,3 +1059,15 @@ darkest quartile on 22 April 2017. The full table is in the W117 register entry.
 - **What:** digitised pixel positions of the 17 water-table pipe sites (numbered 1–16 and 18) in Ranwell 1959 Fig 3, with each site's number, slack type (open/closed), and height in m OD transcribed from the figure's own table (4.38–11.62 m).
 - **Source / copyright / digitiser:** as `ranwell_1959_control.csv` above (same figure, same session, D-081 shape).
 - **Read by:** `src/43_ranwell_sites.py` (Script 43; W95 / D-140).
+
+### `felling_1998_1.kml`, `felling_1998_2.kml`, `felling_1998_3.kml`
+- **What:** the three 1998 forest felling compartments around the 2017 clearfell, each a single polygon. Split from `1998_felling_ area1.kml` (one MultiGeometry placemark, 3 polygons) into one polygon per file so Script 41 can measure each separately. Centroids (OSGB via lon/lat): area 1 ≈ −4.3790°,53.1466° (W of the clearfell), area 2 ≈ −4.3784°,53.1446° (S), area 3 ≈ −4.3760°,53.1501° (N).
+- **Source:** digitised by **Martin Hollingham** (KMZ → KML), 2026-09-06, from his knowledge of the 1998 felling; delineates the older felled-and-replanted blocks whose canopy-closure state W96 measures.
+- **CRS:** WGS84 lon/lat in the KML; reprojected to EPSG:27700 in Script 41.
+- **Read by:** `src/41_canopy_cover.py` v2.3.0 (regions `felling_1998_1/2/3`, kind `observed` — measured, not subtracted from the forest control). W96.
+
+### `felling_1998_1.geojson`, `felling_1998_2.geojson`, `felling_1998_3.geojson`, `broadleaf_restock.geojson` — EPSG:27700 reprojections (W96 / D-141)
+- **What:** committed EPSG:27700 GeoJSON reprojections of the three `felling_1998_{1,2,3}.kml` compartments (above) and of `broadleaf_restock.kml` (the 1993/1995 broadleaf restock block). Each is a `FeatureCollection` with one `Polygon`, structured to match `forest_boundary.geojson` — the outer ring is `features[0].geometry.coordinates[0]` as `[[E, N], ...]`.
+- **Source:** produced from the committed WGS84 KMLs by `tools/reproject_kml_to_osgb_geojson.py` (`gpd.read_file(kml).to_crs("EPSG:27700")`), 2026-09-06. Reprojected once and committed so the pipeline reads them with pure numpy and no CRS/GIS dependency — the same dependency-free pattern as `forest_boundary.geojson` and `coastline_eroding_hwm.geojson`.
+- **CRS:** EPSG:27700, declared in each file's `crs` member.
+- **Read by:** `src/01_data_prep.py` v1.15.0 `_replant_proximity()` (the `in_1998_replant` / `dist_1998_replant_m` / `dist_broadleaf_restock_m` columns of `01_locations.csv`) and `src/10a_ancova_baci.py` v1.12.0 (the exposure index of `10a_11_replant_proximity.csv`). W96 / D-141 canopy-confound sensitivity.

@@ -1,0 +1,62 @@
+{
+ "type": "FeatureCollection",
+ "crs": {
+  "type": "name",
+  "properties": {
+   "name": "urn:ogc:def:crs:EPSG::27700"
+  }
+ },
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "felling_1998_2",
+    "source": "data/geo/felling_1998_2.kml",
+    "note": "WGS84 KML polygon reprojected to EPSG:27700 once and committed so the pipeline needs no CRS dependency (same pattern as forest_boundary.geojson). Produced by tools/reproject_kml_to_osgb_geojson.py."
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       240977.36470731575,
+       363397.5820338397
+      ],
+      [
+       241002.09990388222,
+       363414.78686436324
+      ],
+      [
+       241041.8447776089,
+       363455.5520801704
+      ],
+      [
+       241076.43717675298,
+       363495.2532339156
+      ],
+      [
+       241138.79613790888,
+       363555.7960375999
+      ],
+      [
+       241058.89297028087,
+       363622.92731312034
+      ],
+      [
+       240971.37645649904,
+       363466.53827532975
+      ],
+      [
+       240943.01563659386,
+       363397.0127316796
+      ],
+      [
+       240977.36470731575,
+       363397.5820338397
+      ]
+     ]
+    ]
+   }
+  }
+ ]
+}

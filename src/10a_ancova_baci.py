@@ -33,7 +33,28 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.11.1"  # Hollingham (2026) - 2026-09-02. 1.11.0 DID NOT
+__version__ = "1.14.0"  # Hollingham (2026) - 2026-09-07. W96/D-141: 10a_14
+#   era-split decay figure (Impact/Edge early vs late x 4 drift modes).
+# v1.13.0  # Hollingham (2026) - 2026-09-06. W96/D-141: 10a_13
+#   era-split gains a drift-treatment axis (fixed_s25 / none / free_global /
+#   free_per_era) so the early->late Forest-control decay can be tested for a
+#   coastal-drift artefact before it is interpreted; new drift_mode column
+#   (5 contrasts x 4 modes x 2 eras = 40 rows). report_numbers Canopy_era_*
+#   still read the fixed_s25 rows -- values unchanged. No headline change.
+# v1.12.1  # Hollingham (2026) - 2026-09-06. W96/D-141: fix
+#   10a_13 era-split predictor build -- index-comparison arrays are already
+#   ndarrays, dropped the erroneous .values on _d_early/_d_late (was
+#   AttributeError). No numeric change to any committed output.
+# v1.12.0  # Hollingham (2026) - 2026-09-06. W96/D-141: additive
+#   canopy-confound sensitivity outputs. 10a_11_replant_proximity.csv (per-well
+#   1998-replant proximity + exposure index), 10a_12_control_subset_sensitivity.csv
+#   (Impact step under Forest-control subsets x {free_trend, fixed_s1, no_trend})
+#   and 10a_13_era_split.csv (early/late decay, drift fixed to the Script 25
+#   field). Reads the new 01_locations replant columns and drawdown_lambda from
+#   20_report_numbers.csv. A GUARD asserts the all5/free_trend Forest/Impact step
+#   still reproduces the committed 10a_01 headline (~+113.1 mm) -- 10a_01..10a_10
+#   are byte-identical in method. New report-number rows. NO new registered step.
+# v1.11.1  # Hollingham (2026) - 2026-09-02. 1.11.0 DID NOT
 #   IMPORT THE PATH IT USED. OUT_10A_DRIFT_EQUIVALENCE was added to paths.py and
 #   referenced at module level here, but not added to the `from utils.paths
 #   import ...` list - so the module raised NameError on import and run_10 failed
@@ -181,8 +202,12 @@ from utils.clearfell_common import (
     well_distances_to_coast, tier_distance_stats, far_field_tier_audit,
 )
 from utils.paths import (make_all_dirs, DIR_10, OUT_10A_CONTROL_WELL_SPREAD,
-                        OUT_10A_DRIFT_EQUIVALENCE)
-from utils.config import BACI_DRIFT_DESIGN
+                        OUT_10A_DRIFT_EQUIVALENCE,
+                        OUT_10A_REPLANT_PROXIMITY, OUT_10A_CONTROL_SUBSET,
+                        OUT_10A_ERA_SPLIT, OUT_10A_ERA_FIG, OUT_20_REPORT_NUMBERS, INT_LOCATIONS,
+                        DATA_FELLING_1998_1, DATA_FELLING_1998_2,
+                        DATA_FELLING_1998_3)
+from utils.config import BACI_DRIFT_DESIGN, CLEARFELL_ERA_SPLIT
 from utils.clearfell_common import (
     drift_term, coastal_differential_mm_yr, CONTROL_TIER_COMPOSITION,
     DRIFT_COLUMNS,
@@ -195,6 +220,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from scipy import stats as sp_stats
 import warnings
+import json
 warnings.filterwarnings('ignore')
 
 def main():
@@ -1488,6 +1514,354 @@ def main():
     saved(f"{OUT_FIG_SCATTER_3P.name}")
 
     # ============================================================================
+    # CANOPY-CONFOUND SENSITIVITY (W96 / D-141) -- ADDITIVE, HEADLINE UNTOUCHED
+    # ============================================================================
+    # Martin's point (W96): the maturing 1998 replant at and around the BACI forest
+    # controls and the Edge wells muddies the clearfell BACI. These outputs bound
+    # the control-side confound and show the +113 mm step decaying as the developing
+    # canopy matures. The headline estimator (10a_01..10a_10) is NOT touched.
+    phase(8, "Canopy-confound sensitivity (W96 / D-141)")
+
+    # -- forest-drawdown reach lambda, live from Script 20 (documented fallback) --
+    def _load_drawdown_lambda():
+        try:
+            _d = pd.read_csv(OUT_20_REPORT_NUMBERS)
+            _row = _d[_d['Parameter'] == 'drawdown_lambda']
+            if not _row.empty:
+                return float(_row['Value'].iloc[0])
+        except (FileNotFoundError, KeyError, ValueError):
+            pass
+        from utils.pipeline_params import default_value
+        lam = float(default_value('drawdown_lambda_m'))
+        warn(f"20_report_numbers.csv not read -- exposure uses fallback "
+             f"lambda = {lam:.1f} m (run Script 20 for the live value).")
+        return lam
+
+    lam_reach = _load_drawdown_lambda()
+
+    # -- per-well replant proximity from 01_locations (Script 01 v1.15.0) ---------
+    rp = {}
+    if INT_LOCATIONS.exists():
+        _loc = pd.read_csv(INT_LOCATIONS)
+        _need = {'Match_ID', 'in_1998_replant', 'dist_1998_replant_m',
+                 'dist_broadleaf_restock_m'}
+        if _need.issubset(_loc.columns):
+            for _, _r in _loc.iterrows():
+                _w = str(_r['Match_ID']).lower().replace(' ', '')
+                _ia = _r['in_1998_replant']
+                _ia = '' if (pd.isna(_ia) or str(_ia) == 'nan') else str(_ia)
+                rp[_w] = {
+                    'in_1998_replant': _ia,
+                    'dist_1998_replant_m': (float(_r['dist_1998_replant_m'])
+                        if pd.notna(_r['dist_1998_replant_m']) else np.nan),
+                    'dist_broadleaf_restock_m': (float(_r['dist_broadleaf_restock_m'])
+                        if pd.notna(_r['dist_broadleaf_restock_m']) else np.nan),
+                }
+        else:
+            warn("01_locations.csv lacks the replant columns -- run Script 01 "
+                 "v1.15.0 first; canopy-confound proximity fields left blank.")
+    else:
+        warn("01_locations.csv not found; canopy-confound proximity fields blank.")
+
+    def _rp(w, key, default=np.nan):
+        return rp.get(w, {}).get(key, default)
+
+    # -- exposure index: sum_b exp(-d_block / lambda) over the three 1998 blocks --
+    _felling_rings = []
+    for _fp in (DATA_FELLING_1998_1, DATA_FELLING_1998_2, DATA_FELLING_1998_3):
+        if _fp.exists():
+            _gj = json.loads(_fp.read_text())
+            _felling_rings.append(
+                np.asarray(_gj['features'][0]['geometry']['coordinates'][0],
+                           dtype=float))
+        else:
+            _felling_rings.append(None)
+            warn(f"{_fp.name} not found; exposure index omits that block.")
+
+    def _pt_in_ring(E, N, ring):
+        x1, y1 = ring[:-1, 0], ring[:-1, 1]
+        x2, y2 = ring[1:, 0], ring[1:, 1]
+        inside = False
+        for ax, ay, bx, by in zip(x1, y1, x2, y2):
+            if ay == by:
+                continue
+            if ((ay > N) != (by > N)) and (E < (bx - ax) * (N - ay) / (by - ay) + ax):
+                inside = not inside
+        return inside
+
+    def _pt_ring_dist(E, N, ring):
+        seg_a = ring[:-1]
+        seg_b = ring[1:]
+        seg_ab = seg_b - seg_a
+        seg_ab2 = (seg_ab ** 2).sum(axis=1)
+        pt = np.array([E, N], dtype=float)
+        ap = pt - seg_a
+        t = np.clip((ap * seg_ab).sum(axis=1)
+                    / np.where(seg_ab2 == 0.0, 1.0, seg_ab2), 0.0, 1.0)
+        proj = seg_a + t[:, None] * seg_ab
+        return float(np.sqrt(((pt - proj) ** 2).sum(axis=1)).min())
+
+    def _exposure(E, N):
+        tot = 0.0
+        for ring in _felling_rings:
+            if ring is None:
+                continue
+            d = 0.0 if _pt_in_ring(E, N, ring) else _pt_ring_dist(E, N, ring)
+            tot += float(np.exp(-d / lam_reach))
+        return tot
+
+    # tier membership for the proximity table
+    _tier_of = {}
+    for _wl, _tl in ((IMPACT_WELLS, 'Impact'), (EDGE_WELLS, 'Edge'),
+                     (FOREST_CONTROL_WELLS, 'Forest'),
+                     (COASTAL_CONTROL_WELLS, 'Coastal'),
+                     (CLIMATE_CONTROL_WELLS, 'Climate'),
+                     (FAR_FIELD_CONTROL_WELLS, 'FarField')):
+        for _w in _wl:
+            _tier_of.setdefault(_w, _tl)
+
+    # ---- 10a_11: per-well replant proximity + exposure -------------------------
+    prox_rows = []
+    for _w, _tier in _tier_of.items():
+        _loc = well_locations.get(_w)
+        _E = float(_loc['easting']) if _loc else np.nan
+        _N = float(_loc['northing']) if _loc else np.nan
+        _expo = _exposure(_E, _N) if (_loc and any(r is not None for r in _felling_rings)) else np.nan
+        prox_rows.append({
+            'well': _w,
+            'tier': _tier,
+            'E': _E,
+            'N': _N,
+            'in_1998_replant': _rp(_w, 'in_1998_replant', ''),
+            'dist_1998_replant_m': _rp(_w, 'dist_1998_replant_m'),
+            'dist_broadleaf_restock_m': _rp(_w, 'dist_broadleaf_restock_m'),
+            'exposure': _expo,
+        })
+    prox_df = pd.DataFrame(prox_rows)
+    prox_df.to_csv(OUT_10A_REPLANT_PROXIMITY, index=False)
+    saved(f"{OUT_10A_REPLANT_PROXIMITY.name} ({len(prox_df)} rows)")
+
+    # in-block / clean-outside control sets, derived from the proximity columns --
+    in_block_ctrls = [w for w in FOREST_CONTROL_WELLS
+                      if str(_rp(w, 'in_1998_replant', '')) not in ('', 'nan')]
+    outside_ctrls = [w for w in FOREST_CONTROL_WELLS
+                     if (_rp(w, 'dist_1998_replant_m') > 0)
+                     and (_rp(w, 'dist_broadleaf_restock_m') > 0)]
+    info(f"forest controls in a 1998 block: "
+         f"{', '.join(w.upper() for w in in_block_ctrls) or 'none'}; "
+         f"clean-outside: {', '.join(w.upper() for w in outside_ctrls) or 'none'}")
+
+    # ---- 10a_12: control-subset sensitivity + HEADLINE GUARD -------------------
+    def _forest_subset_step(ctrl_wells, variant):
+        """Clearfell step for the Impact zone under a Forest-control subset.
+
+        variant: 'free_trend' (the published coastal_free design), 'fixed_s1'
+        (coastal drift pinned to the Script 25 field, subtracted as an offset --
+        the 10a_10 mechanism) or 'no_trend' (no drift term).
+        """
+        if not ctrl_wells:
+            return None
+        dfx = build_ancova_frame(
+            wells, climate, IMPACT_WELLS, ctrl_wells, well_locations,
+            lambda_m=SCRAPING_DECAY_LAMBDA, control_label='Forest',
+            zone_label='Impact')
+        if dfx is None or len(dfx) < 20:
+            return None
+        if variant == 'fixed_s1':
+            d_delta = coastal_differential_mm_yr('Forest', 'Impact')
+            off = (d_delta / 12.0 / 1000.0) * dfx['months_since'].values
+            cols = ['cwb_c', 'D_scrape', 'D_fell', 'cwb_x_fell']
+            X = np.column_stack([np.ones(len(dfx))] + [dfx[c].values for c in cols])
+            f1 = ols_fit(dfx['baci_disp'].values - off, X)
+            j = 3   # clearfell, with the intercept prepended
+            return dict(step_m=float(f1['b'][j]), se_m=float(f1['se'][j]),
+                        p=float(f1['p'][j]), n=len(ctrl_wells))
+        fit = run_ancova(dfx, include_drift=(variant == 'free_trend'))
+        ci = fit['col_names'].index('clearfell')
+        return dict(step_m=float(fit['clearfell_step']), se_m=float(fit['se'][ci]),
+                    p=float(fit['clearfell_p']), n=len(ctrl_wells))
+
+    forest_subsets = {
+        'all5': list(FOREST_CONTROL_WELLS),
+        'drop_in_block': [w for w in FOREST_CONTROL_WELLS if w not in in_block_ctrls],
+        'drop_CEH32': [w for w in FOREST_CONTROL_WELLS if w != 'ceh32'],
+        'outside_only': list(outside_ctrls),
+        'drop_NW10': [w for w in FOREST_CONTROL_WELLS if w != 'nw10'],
+        'in_block_only': list(in_block_ctrls),
+    }
+    subset_rows = []
+    subset_lookup = {}
+    for _sub_name, _sub_wells in forest_subsets.items():
+        for _variant in ('free_trend', 'fixed_s1', 'no_trend'):
+            _res = _forest_subset_step(_sub_wells, _variant)
+            if _res is None:
+                continue
+            subset_lookup[(_sub_name, _variant)] = _res
+            subset_rows.append({
+                'subset': _sub_name,
+                'drift_variant': _variant,
+                'n_controls': _res['n'],
+                'controls_used': ';'.join(_sub_wells),
+                'step_mm': _res['step_m'] * 1000.0,
+                'se_mm': _res['se_m'] * 1000.0,
+                'p': _res['p'],
+            })
+    subset_df = pd.DataFrame(subset_rows)
+    subset_df.to_csv(OUT_10A_CONTROL_SUBSET, index=False)
+    saved(f"{OUT_10A_CONTROL_SUBSET.name} ({len(subset_df)} rows)")
+
+    # GUARD: the all5/free_trend Forest/Impact step is the headline, recomputed.
+    # It MUST reproduce the committed 10a_01 value (~+113.1 mm) to machine
+    # precision -- these outputs are additive and may not move the headline.
+    _all5 = subset_lookup.get(('all5', 'free_trend'))
+    _headline = float(results[('Forest', 'Impact')]['clearfell_step'])
+    if _all5 is None or not np.isclose(_all5['step_m'], _headline, rtol=0, atol=1e-9):
+        raise AssertionError(
+            "10a_12 GUARD FAILED: the all5/free_trend Forest/Impact clearfell step "
+            f"({'None' if _all5 is None else format(_all5['step_m'] * 1000, '+.4f') + ' mm'}) "
+            "does not reproduce the committed 10a_01 headline "
+            f"({_headline * 1000:+.4f} mm; ~+113.1 mm expected) to 1e-9 m. The "
+            "canopy-confound outputs are ADDITIVE and must not move the headline -- "
+            "STOP and reconcile rather than rebaselining.")
+    info(f"10a_12 guard OK: all5/free_trend step {_all5['step_m'] * 1000:+.1f} mm "
+         "reproduces the 10a_01 headline to 1e-9 m.")
+
+    # ---- 10a_13: era split x drift-treatment robustness -----------------------
+    # W96/D-141 gate: is the early->late decay of the Forest-control step a real
+    # relaxation, or an artefact of pinning the coastal drift to one whole-record
+    # value while retreat may have accelerated post-split? Each contrast is
+    # refitted under four drift treatments and the early/late steps compared; if
+    # the decay survives all four it is not a drift artefact.
+    #   fixed_s25    - drift pinned to the Script 25 field (the D-111 convention)
+    #   none         - no drift term
+    #   free_global  - one free linear drift slope over the whole record
+    #   free_per_era - a free linear drift slope in EACH era (the direct test of
+    #                  an accelerating-retreat confound); months_since is centred
+    #                  within each era so the era dummies stay era-mean levels.
+    _split = pd.Timestamp(CLEARFELL_ERA_SPLIT)
+    _cd_fi = coastal_differential_mm_yr('Forest', 'Impact')
+    _cd_fe = coastal_differential_mm_yr('Forest', 'Edge')
+
+    def _outside_lbl():
+        return '(' + '+'.join(w.upper() for w in outside_ctrls) + ')'
+
+    era_contrasts = [
+        ('WMC3-Forest5', IMPACT_WELLS, list(FOREST_CONTROL_WELLS), _cd_fi),
+        ('Edge-Forest5', EDGE_WELLS, list(FOREST_CONTROL_WELLS), _cd_fe),
+        ('WMC3-Edge', IMPACT_WELLS, EDGE_WELLS, _cd_fi - _cd_fe),
+    ]
+    if in_block_ctrls and outside_ctrls:
+        era_contrasts.append(
+            ('(' + '+'.join(w.upper() for w in in_block_ctrls) + ')-' + _outside_lbl(),
+             list(in_block_ctrls), list(outside_ctrls), 0.0))
+    if outside_ctrls:
+        era_contrasts.append(
+            ('NW10-' + _outside_lbl(), ['nw10'], list(outside_ctrls), 0.0))
+
+    _DRIFT_MODES = ('fixed_s25', 'none', 'free_global', 'free_per_era')
+    _early_end = _split - pd.DateOffset(months=1)
+    era_rows = []
+    era_lookup = {}
+    for _c_name, _tgt, _ctl, _diff_mm_yr in era_contrasts:
+        dfe = build_ancova_frame(
+            wells, climate, _tgt, _ctl, well_locations,
+            lambda_m=SCRAPING_DECAY_LAMBDA, control_label=None, zone_label='Impact')
+        if dfe is None or len(dfe) < 20:
+            skipped(f"era split {_c_name}: insufficient data")
+            continue
+        _ms = dfe['months_since'].values.astype(float)
+        _base = np.column_stack([
+            np.ones(len(dfe)), dfe['cwb_c'].values, dfe['D_scrape'].values])
+        _d_early = ((dfe.index >= CLEARFELL_DATE) & (dfe.index < _split)).astype(float)
+        _d_late = (dfe.index >= _split).astype(float)
+        _fell = dfe['cwb_x_fell'].values
+        _off_s25 = (_diff_mm_yr / 12.0 / 1000.0) * _ms
+        _e_mask = _d_early.astype(bool)
+        _l_mask = _d_late.astype(bool)
+        _lbl_early = f"{CLEARFELL_DATE.strftime('%Y-%m')}..{_early_end.strftime('%Y-%m')}"
+        _lbl_late = f"{_split.strftime('%Y-%m')}..{dfe.index.max().strftime('%Y-%m')}"
+        for _mode in _DRIFT_MODES:
+            if _mode == 'fixed_s25':
+                _y = dfe['baci_disp'].values - _off_s25
+                X = np.column_stack([_base, _d_early, _d_late, _fell])
+            elif _mode == 'none':
+                _y = dfe['baci_disp'].values
+                X = np.column_stack([_base, _d_early, _d_late, _fell])
+            elif _mode == 'free_global':
+                _y = dfe['baci_disp'].values
+                X = np.column_stack([_base, _d_early, _d_late, _fell, _ms])
+            else:  # free_per_era: era-centred free drift slopes
+                _y = dfe['baci_disp'].values
+                _me = _ms[_e_mask].mean() if _e_mask.any() else 0.0
+                _ml = _ms[_l_mask].mean() if _l_mask.any() else 0.0
+                _sl_e = (_ms - _me) * _d_early
+                _sl_l = (_ms - _ml) * _d_late
+                X = np.column_stack([_base, _d_early, _d_late, _fell, _sl_e, _sl_l])
+            fe = ols_fit(_y, X)
+            if not np.all(np.isfinite(fe['se'][:5])):
+                warn(f"era split {_c_name}/{_mode}: singular design, SE not finite")
+            for _era_lbl, _j, _ndum in ((_lbl_early, 3, _d_early),
+                                        (_lbl_late, 4, _d_late)):
+                era_rows.append({
+                    'contrast': _c_name,
+                    'drift_mode': _mode,
+                    'era': _era_lbl,
+                    'step_mm': float(fe['b'][_j]) * 1000.0,
+                    'se_mm': float(fe['se'][_j]) * 1000.0,
+                    'p': float(fe['p'][_j]),
+                    'n_months': int(_ndum.sum()),
+                })
+            if _mode == 'fixed_s25':
+                era_lookup[_c_name] = {
+                    'early': float(fe['b'][3]) * 1000.0,
+                    'late': float(fe['b'][4]) * 1000.0,
+                    'lbl_early': _lbl_early, 'lbl_late': _lbl_late,
+                }
+        print(f"   {_c_name:<28} early -> late by drift mode:")
+        for _m in _DRIFT_MODES:
+            _rr = [r for r in era_rows
+                   if r['contrast'] == _c_name and r['drift_mode'] == _m]
+            _ee = next((r['step_mm'] for r in _rr if r['era'] == _lbl_early), float('nan'))
+            _ll = next((r['step_mm'] for r in _rr if r['era'] == _lbl_late), float('nan'))
+            print(f"       {_m:<13} {_ee:+7.0f} -> {_ll:+7.0f} mm  (delta {_ee - _ll:+.0f})")
+    era_df = pd.DataFrame(era_rows)
+    era_df.to_csv(OUT_10A_ERA_SPLIT, index=False)
+    saved(f"{OUT_10A_ERA_SPLIT.name} ({len(era_df)} rows)")
+
+    # ---- 10a_14: era-split decay figure (W96 / D-141) -------------------------
+    try:
+        _eras = sorted(era_df['era'].unique())   # early era sorts before late
+        if len(_eras) == 2:
+            _xpos = {_eras[0]: 0, _eras[1]: 1}
+            _figE, _axE = plt.subplots(figsize=(7.0, 5.2))
+            _cs = {'WMC3-Forest5': ('Impact - Forest control', '#b2182b'),
+                   'Edge-Forest5': ('Edge - Forest control', '#ef8a62')}
+            for _cn, (_lab, _col) in _cs.items():
+                _sub = era_df[era_df['contrast'] == _cn]
+                _fx = _sub[_sub['drift_mode'] == 'fixed_s25']
+                if len(_fx) == 2:
+                    _fx = _fx.set_index('era').loc[_eras]
+                    _axE.errorbar([0, 1], _fx['step_mm'].to_numpy(),
+                                  yerr=_fx['se_mm'].to_numpy(), color=_col, marker='o',
+                                  ms=8, lw=2.2, capsize=4, zorder=5,
+                                  label=f'{_lab} (published drift)')
+                for _m in ('none', 'free_global', 'free_per_era'):
+                    for _, _r in _sub[_sub['drift_mode'] == _m].iterrows():
+                        _axE.plot(_xpos[_r['era']] + 0.10, _r['step_mm'], 'o', ms=4.5,
+                                  mfc='white', mec=_col, mew=1.1, alpha=0.8, zorder=3)
+            _axE.axhline(0, color='#999', lw=0.8)
+            _axE.set_xticks([0, 1]); _axE.set_xticklabels(_eras)
+            _axE.set_ylabel('BACI step (mm)')
+            _axE.set_title('Clearfell step: early vs late era, four drift treatments')
+            _axE.annotate('filled = published drift +/- 1 SE\nopen = no-drift, free-global, free-per-era',
+                          xy=(0.02, 0.03), xycoords='axes fraction', fontsize=7, va='bottom')
+            _axE.legend(fontsize=8, loc='upper right')
+            render_figure(_figE, OUT_10A_ERA_FIG, facecolor='white')
+            saved(OUT_10A_ERA_FIG.name)
+    except Exception as _e:
+        warn(f"10a_14 era-split figure skipped: {_e}")
+
+    # ============================================================================
     # EXPORT: REPORT NUMBERS
     # ============================================================================
     phase(9, "Exporting report numbers")
@@ -1857,6 +2231,30 @@ def main():
             rpt.add("Scraping_distance_weight", wt, unit="",
                     well=w.upper(), note=f"d={d:.0f}m, λ={SCRAPING_DECAY_LAMBDA:.0f}m")
             print(f"     {w.upper():<8}  d = {d:6.0f} m   weight = {wt:.3f}")
+
+    # -- canopy-confound quotable figures (W96 / D-141) --------------------------
+    _dib = subset_lookup.get(('drop_in_block', 'free_trend'))
+    if _dib is not None:
+        rpt.add("Canopy_drop_in_block_step", _dib['step_m'],
+                well="Impact", era="Post_felling",
+                note=f"Forest controls minus in-block (CEH32/CEH33); "
+                     f"{_dib['step_m'] * 1000:+.1f} mm, p={format_p(_dib['p'])}; "
+                     f"~+93 mm expected")
+    rpt.add("Canopy_n_controls_in_block", float(len(in_block_ctrls)),
+            unit="wells", well="Forest",
+            note="forest controls inside a 1998 replant block "
+                 f"({', '.join(w.upper() for w in in_block_ctrls) or 'none'})")
+    for _cn, _pfx in (('WMC3-Forest5', 'Canopy_era_Impact'),
+                      ('Edge-Forest5', 'Canopy_era_Edge')):
+        _e = era_lookup.get(_cn)
+        if _e is None:
+            continue
+        rpt.add(f"{_pfx}_early_step", _e['early'] / 1000.0,
+                well=_cn, era=_e['lbl_early'],
+                note=f"{_e['early']:+.1f} mm (early era)")
+        rpt.add(f"{_pfx}_late_step", _e['late'] / 1000.0,
+                well=_cn, era=_e['lbl_late'],
+                note=f"{_e['late']:+.1f} mm (late era)")
 
     n_saved = rpt.save(OUT_REPORT)
     saved(f"{OUT_REPORT.name} ({n_saved} rows)")

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2"><Document>
+<Placemark><name>felling_1998_2</name><Polygon>
+				<tessellate>1</tessellate>
+				<outerBoundaryIs>
+					<LinearRing>
+						<coordinates>
+							-4.379057827775728,53.14392364237029,0 -4.378696894797754,53.14408554745444,0 -4.37812344994545,53.14446353212287,0 -4.377626432417726,53.14483042000156,0 -4.376724978068599,53.14539277258035,0 -4.37795187799794,53.14597184990816,0 -4.379181522222484,53.14454116324104,0 -4.379570625403749,53.14390827182882,0 -4.379057827775728,53.14392364237029,0 
+						</coordinates>
+					</LinearRing>
+				</outerBoundaryIs>
+			</Polygon></Placemark>
+</Document></kml>

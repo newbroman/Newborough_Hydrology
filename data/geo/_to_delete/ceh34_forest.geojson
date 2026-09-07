@@ -1,0 +1,39 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "source": "well-centred 80 m box on CEH34 (E241334 N363887), EPSG:27700",
+    "note": "Untouched-forest canopy sample (WELL_CANOPY_BUFFER_M); same shape as forest_boundary.geojson."
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       241294.0,
+       363847.0
+      ],
+      [
+       241374.0,
+       363847.0
+      ],
+      [
+       241374.0,
+       363927.0
+      ],
+      [
+       241294.0,
+       363927.0
+      ],
+      [
+       241294.0,
+       363847.0
+      ]
+     ]
+    ]
+   }
+  }
+ ]
+}

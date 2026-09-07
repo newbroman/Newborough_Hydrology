@@ -174,3 +174,9 @@ Scraping_distance_weight,WMC1,,0.004228823223582265,,"d=1640m, λ=300m"
 Scraping_distance_weight,CEH5,,0.0025846282743240395,,"d=1787m, λ=300m"
 Scraping_distance_weight,L7,,0.0013703470646300004,,"d=1978m, λ=300m"
 Scraping_distance_weight,CEH6,,0.0011272491525912752,,"d=2036m, λ=300m"
+Canopy_drop_in_block_step,Impact,Post_felling,0.0929458664851031,m,"Forest controls minus in-block (CEH32/CEH33); +92.9 mm, p=0.0107; ~+93 mm expected"
+Canopy_n_controls_in_block,Forest,,2.0,wells,"forest controls inside a 1998 replant block (CEH32, CEH33)"
+Canopy_era_Impact_early_step,WMC3-Forest5,2017-12..2020-12,0.15373489495299777,m,+153.7 mm (early era)
+Canopy_era_Impact_late_step,WMC3-Forest5,2021-01..2026-02,0.03614354913886691,m,+36.1 mm (late era)
+Canopy_era_Edge_early_step,Edge-Forest5,2017-12..2020-12,0.06381397503886335,m,+63.8 mm (early era)
+Canopy_era_Edge_late_step,Edge-Forest5,2021-01..2026-02,-0.010998331102052927,m,-11.0 mm (late era)

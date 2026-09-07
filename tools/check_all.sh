@@ -18,8 +18,12 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.9.0 - 2026-09-07
+# VERSION 1.10.0 - 2026-09-07
 # CHANGELOG
+#   1.10.0 (2026-09-07): ms_chapters gate (D-144 §4) beside the ledgers: every
+#     registered step has a Methods Supplement chapter heading naming it and a
+#     SCRIPT_LEDGER row. run_analysis.py refuses registration on the same
+#     check; this makes the gate read red before the pipeline does.
 #   1.9.0 (2026-09-07): phases gate (D-144). doc_tier_lint: every ODT family has
 #     a doc_tier.csv row, `current` agrees with the phase, every set_by and every
 #     logged frozen-document write cites a real D-number or changelog id. The
@@ -271,6 +275,11 @@ python3 tools/doc_tier_lint.py || rc=1
 
 echo
 echo "── ledgers (does SCRIPT_LEDGER still describe the code?) ─────────────"
+# D-144 §4: a registered step the Supplement does not document is refused at
+# registration; the same derived check runs here so a missing chapter is red
+# before anyone runs the pipeline.
+python3 tools/ms_chapters.py --selftest >/dev/null || rc=1
+python3 tools/ms_chapters.py || rc=1
 # Gates on structural faults only — a script with no row, a row with no script.
 # Version drift is printed and counted but does not gate: it was 29 rows deep on
 # the day this landed, and a gate that fails from birth is a gate that gets

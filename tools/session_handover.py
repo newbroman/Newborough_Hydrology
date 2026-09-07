@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-session_handover — generate the *state* half of a session handover.
+session_handover — generate the *state* half of a session handover, and GATE the
+records a session must leave behind.
 
 Why this exists.
 
@@ -25,31 +26,81 @@ Why this exists.
                               out of date with the tree it describes, and cannot
                               be forgotten at the end of a session.
 
-  The narrative — what was actually decided and why — belongs in neither. It goes
-  in `working/updates/`, `working/changelogs/` and `working/DECISION_LOG.md` as
-  it happens, which is what makes an abrupt ending survivable.
+    working/updates/HANDOVER_NOTE.md
+                              the NARRATIVE half — one rolling file, newest entry
+                              first, one dated `## YYYY-MM-DD — title` entry per
+                              session of at most NOTE_MAX_LINES lines: what was
+                              done, what is owed, which D-numbers. Replaces the
+                              free-form HANDOVER_cowork_<date>.md documents
+                              (D-143): a 6,000-word handover is excellent and is
+                              not read; the next session needs forty lines.
+
+  The reasoning — what was actually decided and why — belongs in none of these.
+  It goes in `working/changelogs/` and `working/DECISION_LOG.md` as it happens,
+  where `context_for.py` can find it by subject.
+
+Why --check exists (D-143).
+
+  On 2026-08-28 this tool, HANDOVER_BOOTSTRAP.md and context_for.py were built
+  so that a new session would start from a generated, budgeted Tier 0. HANDOFF
+  files exist for 08-28, 08-29 and 08-30 — and then stop. Every session after
+  wrote a free-form handover in a different format, DECISION_INDEX.md sat at
+  D-110 while the log reached D-142, and check_all was green throughout,
+  because no gate read any of these records. A rule that lives only in prose,
+  an artefact nothing consumes, and a verdict that depends on neither: the same
+  shape as D-102 (output_lag) and D-133 (input provenance), applied to the
+  project's own records. --check makes the records a gate. If it fails, the fix
+  is to write the record, never to skip the check.
 
 Usage:
-    python3 tools/session_handover.py              # print to stdout
+    python3 tools/session_handover.py              # print the state to stdout
     python3 tools/session_handover.py --write      # write working/updates/HANDOFF_<date>.md
     python3 tools/session_handover.py --lag        # include the (slower) pipeline lag check
+    python3 tools/session_handover.py --check      # GATE: exit 1 if the records are stale
+    python3 tools/session_handover.py --selftest   # exercise the --check detectors
 """
 from __future__ import annotations
 
-__version__ = "1.6.0"  # Hollingham (2026) — 2026-08-28. First cut: the volatile
-#   half of a handover, generated rather than remembered.
+__version__ = "2.0.0"  # Hollingham (2026).
+#   2.0.0 (2026-09-07): --check gate (D-143). Five detectors: DECISION_INDEX
+#     count vs DECISION_LOG; newest HANDOFF older than the newest substantive
+#     commit; HANDOVER_NOTE.md missing an entry for the newest commit day, or an
+#     entry over NOTE_MAX_LINES; script commits in the last CHANGELOG_WINDOW_DAYS
+#     with no CHANGELOG_delta naming them; Tier-0 prose over budget. HANDOFF
+#     header now carries an ISO timestamp so age is measured against commits,
+#     not against the filename's day. Tier 0 reads the rolling HANDOVER_NOTE.md
+#     (the dated HANDOVER_NOTE_<date>.md is superseded). --selftest.
+#   1.6.0 (2026-08-28): first cut — the volatile half of a handover, generated
+#     rather than remembered.
 
 import re
 import subprocess
 import sys
-from datetime import date
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 PRIVATE_GIT = REPO / ".git-working"
-REGISTER = REPO / "working" / "updates" / "NRG_WORK_REGISTER.md"
+UPDATES = REPO / "working" / "updates"
+REGISTER = UPDATES / "NRG_WORK_REGISTER.md"
 DECISIONS = REPO / "working" / "DECISION_LOG.md"
+INDEX = REPO / "working" / "DECISION_INDEX.md"
 BOOTSTRAP = REPO / "working" / "HANDOVER_BOOTSTRAP.md"
+NOTE = UPDATES / "HANDOVER_NOTE.md"
+CHANGELOGS = REPO / "working" / "changelogs"
+
+# --check parameters. Named here, not scattered, so the gate's tolerances are
+# one lookup away when they need arguing with.
+NOTE_MAX_LINES = 40          # per dated entry in HANDOVER_NOTE.md
+TIER0_PROSE_BUDGET = 600     # lines, excluding the one-line-per-decision index (D-080)
+CHANGELOG_WINDOW_DAYS = 3    # script commits this recent must have a changelog
+CHANGELOG_LEAD_DAYS = 2      # a changelog may precede its commit by this much
+# Records the gate itself produces; a commit that touches only these does not
+# make the HANDOFF stale, or the gate would fail the moment its output was committed.
+RECORD_PATHS = ("working/updates/HANDOFF_", "working/updates/HANDOVER_NOTE.md",
+                "working/DECISION_INDEX.md")
+CODE_SUFFIXES = (".py", ".sh")
+CODE_ROOTS = ("src/", "tools/", "run_analysis.py", "run_09_scraping.py", "run_10_clearfell.py")
 
 DOC_DIRS = [REPO / "docs" / "report",
             REPO / "docs" / "papers" / "paper_1",
@@ -83,6 +134,8 @@ def _version_key(stem: str):
         return ()
     return tuple(int(p) for p in m.group(1).split("_"))
 
+
+# ---------------------------------------------------------------- state sections
 
 def section_repos() -> str:
     out = ["## Repository state", ""]
@@ -190,16 +243,20 @@ def section_deferred() -> str:
     return "\n".join(out)
 
 
-def section_decisions() -> str:
-    out = ["## Decision log", ""]
-    if not DECISIONS.is_file():
-        return "\n".join(out + ["- not found", ""])
+def _decision_entries():
     # Parse through context_for rather than with a second regex of our own. Two
     # parsers of one format drift, and this repo's characteristic defect is
     # exactly that: a derived artifact outliving agreement with its source.
     sys.path.insert(0, str(REPO / "tools"))
     from context_for import parse_entries          # noqa: E402
-    ids = [(e["id"], e["title"], e["date"], e["status"]) for e in parse_entries()]
+    return parse_entries()
+
+
+def section_decisions() -> str:
+    out = ["## Decision log", ""]
+    if not DECISIONS.is_file():
+        return "\n".join(out + ["- not found", ""])
+    ids = [(e["id"], e["title"], e["date"], e["status"]) for e in _decision_entries()]
     active = [i for i in ids if i[3].strip().startswith("active")]
     if ids:
         other = len(ids) - len(active)
@@ -217,9 +274,10 @@ def section_decisions() -> str:
     rc, _, _ = _run([sys.executable, "tools/decision_lint.py"])
     out += [f"`decision_lint`: **{'OK' if rc == 0 else 'FAILING'}**", ""]
     # Keep the one-line index in step with the log it indexes. Regenerating it
-    # here means it cannot drift from the log between sessions.
+    # here means it cannot drift from the log between sessions — and --check
+    # fails if it has.
     _run([sys.executable, "tools/context_for.py", "--index"])
-    out += ["Scan `working/DECISION_INDEX.md` for the whole set in ~85 lines. "
+    out += ["Scan `working/DECISION_INDEX.md` for the whole set. "
             "**Do not read the log itself** — query it:", "",
             "```", 'python3 tools/context_for.py "report10 §4.2.3"',
             "python3 tools/context_for.py --changed", "```", ""]
@@ -247,6 +305,24 @@ def section_environment() -> str:
     return "\n".join(out)
 
 
+def _latest_handoff() -> Path | None:
+    files = sorted(UPDATES.glob("HANDOFF_*.md"))
+    return files[-1] if files else None
+
+
+def tier0_measure() -> tuple[int, int, list[str]]:
+    """(total lines, prose lines, per-member rows). The index is excluded from prose."""
+    members = [BOOTSTRAP, _latest_handoff(), NOTE if NOTE.is_file() else None, INDEX]
+    total, rows = 0, []
+    for m in members:
+        if m and m.is_file():
+            n = len(m.read_text(encoding="utf-8").splitlines())
+            total += n
+            rows.append(f"- `{m.relative_to(REPO)}` — {n} lines")
+    index_lines = len(INDEX.read_text(encoding="utf-8").splitlines()) if INDEX.is_file() else 0
+    return total, total - index_lines, rows
+
+
 def section_tier0() -> str:
     """Measure the read-every-session set, so its growth is visible rather than felt.
 
@@ -254,37 +330,16 @@ def section_tier0() -> str:
     placed to measure it — it is regenerated every time the set changes.
     """
     out = ["## Tier 0 budget", ""]
-    index = REPO / "working" / "DECISION_INDEX.md"
-    latest = sorted((REPO / "working" / "updates").glob("HANDOFF_*.md"))
-    # The hand-written narrative note joined the read order on 2026-08-29 and was
-    # not being counted, so this measured a Tier 0 that no longer existed. A gate
-    # that measures the wrong set is worse than none: it reported "over budget"
-    # while omitting the largest member.
-    note = sorted((REPO / "working" / "updates").glob("HANDOVER_NOTE_*.md"))
-    members = [BOOTSTRAP, latest[-1] if latest else None,
-               note[-1] if note else None, index]
-    total, rows = 0, []
-    for m in members:
-        if m and m.is_file():
-            n = len(m.read_text(encoding="utf-8").splitlines())
-            total += n
-            rows.append(f"- `{m.relative_to(REPO)}` — {n} lines")
-    rows.append(f"- **total {total} lines**")
-    out += rows + [""]
+    total, prose, rows = tier0_measure()
+    out += rows + [f"- **total {total} lines**", ""]
     # The index costs about one line per decision and grows with the log; that is
-    # the right price. The prose is what must be held down.
-    prose = total - (len(index.read_text(encoding="utf-8").splitlines())
-                     if index.is_file() else 0)
-    # 600 lines of prose, ~8k tokens. The original 250 was set on 2026-08-29
-    # before the narrative note existed and was a guess, not a measurement; it
-    # was tight enough that the honest response to breaching it would have been
-    # to delete useful orientation. Re-set against what Tier 0 actually holds,
-    # with the principle unchanged: nothing joins without something leaving.
-    BUDGET = 600
+    # the right price. The prose is what must be held down. 600 lines of prose,
+    # ~8k tokens, re-set 2026-08-29 against what Tier 0 actually holds, with the
+    # principle unchanged: nothing joins without something leaving.
     out.append(f"Prose portion (excluding the one-line-per-decision index): "
-               f"**{prose} lines**, against a D-080 budget of **{BUDGET}**. "
-               + ("Within budget." if prose <= BUDGET else
-                  f"**Over by {prose - BUDGET}** — something must leave Tier 0 "
+               f"**{prose} lines**, against a D-080 budget of **{TIER0_PROSE_BUDGET}**. "
+               + ("Within budget." if prose <= TIER0_PROSE_BUDGET else
+                  f"**Over by {prose - TIER0_PROSE_BUDGET}** — something must leave Tier 0 "
                   "before anything joins it."))
     out.append("")
     return "\n".join(out)
@@ -300,14 +355,16 @@ def section_lag() -> str:
 
 
 def build(include_lag: bool) -> str:
-    today = date.today().isoformat()
+    now = datetime.now().astimezone()
     parts = [
-        f"# Session handover — {today}",
+        f"# Session handover — {now.date().isoformat()}",
         "",
-        "**Generated by `tools/session_handover.py`. Do not hand-edit — regenerate it.**",
+        f"**Generated by `tools/session_handover.py` at {now.isoformat(timespec='seconds')}. "
+        "Do not hand-edit — regenerate it.**",
         "",
         f"The stable half of the handover is `{BOOTSTRAP.relative_to(REPO)}`; read that "
-        "first. This file is only the state of the tree at the moment it was written.",
+        f"first. The narrative half is `{NOTE.relative_to(REPO)}` (newest entry first). "
+        "This file is only the state of the tree at the moment it was written.",
         "",
         "---",
         "",
@@ -326,23 +383,237 @@ def build(include_lag: bool) -> str:
         "",
         "## Before finishing a session",
         "",
-        "1. Every finding written to `working/updates/`, every code change to a "
-        "`working/changelogs/CHANGELOG_delta_*` file, every judgement call to "
-        "`working/DECISION_LOG.md`. These are appended as they happen, not at the end.",
+        "1. Every code change to a `working/changelogs/CHANGELOG_delta_*` file, every "
+        "judgement call to `working/DECISION_LOG.md`, findings to `working/updates/`. "
+        "These are appended as they happen, not at the end.",
         "2. A register row in `working/updates/NRG_WORK_REGISTER.md` — with the status "
         "cell saying **open** if a ruling is owed, so this script surfaces it.",
-        "3. Regenerate this file: `python3 tools/session_handover.py --write` "
-        "(which refreshes `working/DECISION_INDEX.md` with it).",
+        f"3. A dated entry at the TOP of `{NOTE.relative_to(REPO)}` — at most "
+        f"{NOTE_MAX_LINES} lines: what was done, what is owed, which D-numbers (or 'none').",
+        "4. Regenerate this file: `python3 tools/session_handover.py --write` "
+        "(which refreshes `working/DECISION_INDEX.md` with it), then "
+        "`python3 tools/session_handover.py --check` must say OK.",
         "",
     ]
     return "\n".join(parts)
 
 
+# ------------------------------------------------------------------- the gate
+
+def _parse_iso(s: str) -> datetime | None:
+    try:
+        return datetime.fromisoformat(s.strip())
+    except ValueError:
+        return None
+
+
+def handoff_timestamp(path: Path) -> datetime:
+    """When the HANDOFF was generated. Header timestamp (2.0.0+); older files
+    carry only a date in the filename and are taken as the end of that day."""
+    head = path.read_text(encoding="utf-8", errors="replace")[:400] if path.is_file() else ""
+    m = re.search(r"at (\d{4}-\d{2}-\d{2}T[0-9:]{8}[+-]\d{2}:\d{2})", head)
+    if m and (ts := _parse_iso(m.group(1))):
+        return ts
+    m = re.search(r"HANDOFF_(\d{4}-\d{2}-\d{2})", path.name)
+    d = date.fromisoformat(m.group(1)) if m else date.min
+    return datetime.combine(d, datetime.max.time()).astimezone()
+
+
+def newest_substantive_commit() -> tuple[datetime | None, str]:
+    """Newest commit on either repo that touched something other than the
+    records this gate produces. Returns (timestamp, 'repo hash subject')."""
+    best, label = None, ""
+    excl = [f":(exclude,glob){p}*" for p in RECORD_PATHS]
+    for name, private in (("public", False), ("private", True)):
+        if private and not PRIVATE_GIT.exists():
+            continue
+        rc, out, _ = _git("log", "-1", "--format=%cI|%h %s", "--", ".", *excl, private=private)
+        if rc != 0 or not out:
+            continue
+        ts_s, _, rest = out.partition("|")
+        ts = _parse_iso(ts_s)
+        if ts and (best is None or ts > best):
+            best, label = ts, f"{name} {rest}"
+    return best, label
+
+
+def note_entries(text: str) -> list[tuple[date | None, str, int]]:
+    """[(date, heading, line count)] for each `## YYYY-MM-DD — title` entry."""
+    entries, cur, count = [], None, 0
+    for line in text.splitlines():
+        m = re.match(r"^## (\d{4}-\d{2}-\d{2})\b(.*)$", line)
+        if m:
+            if cur is not None:
+                entries.append((*cur, count))
+            try:
+                d = date.fromisoformat(m.group(1))
+            except ValueError:
+                d = None
+            cur, count = (d, line.strip()), 0
+        elif cur is not None:
+            count += 1
+    if cur is not None:
+        entries.append((*cur, count))
+    return entries
+
+
+def script_commits(window_days: int) -> list[tuple[date, str, list[str]]]:
+    """[(commit date, 'hash subject', [changed code basenames])] within the window."""
+    since = (date.today() - timedelta(days=window_days)).isoformat()
+    rc, out, _ = _git("log", f"--since={since}", "--format=@@%cs|%h %s", "--name-only",
+                      "--", *CODE_ROOTS)
+    commits, cur = [], None
+    for line in out.splitlines():
+        if line.startswith("@@"):
+            ds, _, rest = line[2:].partition("|")
+            cur = (date.fromisoformat(ds), rest, [])
+            commits.append(cur)
+        elif cur and line.strip():
+            p = line.strip()
+            if p.endswith(CODE_SUFFIXES) and ".bak" not in p:
+                cur[2].append(Path(p).name)
+    return [c for c in commits if c[2]]
+
+
+def changelog_mentions(stem: str, lo: date, hi: date) -> bool:
+    """Does any CHANGELOG_delta dated in [lo, hi] name this script?"""
+    pats = [re.escape(stem)]
+    m = re.match(r"^(\d{2}[a-z]?)_", stem)        # 43_ranwell_sites -> 'Script 43'
+    if m:
+        pats.append(r"[Ss]cript\s+0?" + re.escape(m.group(1).lstrip("0")) + r"\b")
+    rx = re.compile("|".join(pats))
+    for f in CHANGELOGS.glob("CHANGELOG_delta_*.md"):
+        dm = re.search(r"(\d{4}-\d{2}-\d{2})", f.name)
+        if not dm:
+            continue
+        d = date.fromisoformat(dm.group(1))
+        if lo <= d <= hi and rx.search(f.read_text(encoding="utf-8", errors="replace")):
+            return True
+    return False
+
+
+def check(verbose: bool = True) -> int:
+    """The gate. Prints one line per detector; returns 1 if any fails."""
+    fails = []
+    say = print if verbose else (lambda *a, **k: None)
+
+    # 1. Index agrees with the log.
+    n_log = len(_decision_entries()) if DECISIONS.is_file() else 0
+    n_idx = len(re.findall(r"^\| \*\*D-\d+\*\*", INDEX.read_text(encoding="utf-8"), re.M)) \
+        if INDEX.is_file() else 0
+    if n_log != n_idx:
+        fails.append(f"DECISION_INDEX has {n_idx} entries, DECISION_LOG {n_log} — "
+                     "run: python3 tools/context_for.py --index")
+    say(f"  {'ok   ' if n_log == n_idx else 'FAIL '} decision index {n_idx} / log {n_log}")
+
+    # 2. HANDOFF newer than the newest substantive commit.
+    ho = _latest_handoff()
+    commit_ts, commit_label = newest_substantive_commit()
+    if ho is None:
+        fails.append("no working/updates/HANDOFF_*.md — run: python3 tools/session_handover.py --write")
+        say("  FAIL  no HANDOFF found")
+    elif commit_ts and handoff_timestamp(ho) < commit_ts:
+        fails.append(f"{ho.name} predates the newest commit ({commit_label}) — "
+                     "run: python3 tools/session_handover.py --write")
+        say(f"  FAIL  {ho.name} older than {commit_label}")
+    else:
+        say(f"  ok    {ho.name} current against {commit_label or 'no commits'}")
+
+    # 3. HANDOVER_NOTE has an entry for the newest commit day, entries within length.
+    if not NOTE.is_file():
+        fails.append(f"{NOTE.relative_to(REPO)} missing")
+        say("  FAIL  HANDOVER_NOTE.md missing")
+    else:
+        ents = note_entries(NOTE.read_text(encoding="utf-8"))
+        dates = [e[0] for e in ents if e[0]]
+        newest = max(dates) if dates else None
+        need = commit_ts.astimezone().date() if commit_ts else None
+        if not ents:
+            fails.append("HANDOVER_NOTE.md has no `## YYYY-MM-DD — title` entries")
+            say("  FAIL  HANDOVER_NOTE.md has no dated entries")
+        elif need and (newest is None or newest < need):
+            fails.append(f"HANDOVER_NOTE.md newest entry {newest} predates the newest commit "
+                         f"day {need} — add a dated entry at the top (≤{NOTE_MAX_LINES} lines)")
+            say(f"  FAIL  HANDOVER_NOTE newest entry {newest} < commit day {need}")
+        else:
+            say(f"  ok    HANDOVER_NOTE newest entry {newest}")
+        long = [(h, n) for _, h, n in ents if n > NOTE_MAX_LINES]
+        for h, n in long:
+            fails.append(f"HANDOVER_NOTE entry over {NOTE_MAX_LINES} lines ({n}): {h[:60]}")
+            say(f"  FAIL  {n}-line entry: {h[:60]}")
+        if ents and ents != sorted(ents, key=lambda e: e[0] or date.min, reverse=True):
+            fails.append("HANDOVER_NOTE.md entries are not newest-first")
+            say("  FAIL  HANDOVER_NOTE entries not newest-first")
+
+    # 4. Recent script commits have a changelog naming them.
+    uncovered = []
+    for d, label, names in script_commits(CHANGELOG_WINDOW_DAYS):
+        missing = [n for n in names
+                   if not changelog_mentions(Path(n).stem, d - timedelta(days=CHANGELOG_LEAD_DAYS),
+                                             date.today())]
+        if missing:
+            uncovered.append((label, missing))
+    if uncovered:
+        for label, missing in uncovered:
+            fails.append(f"no CHANGELOG_delta names {', '.join(missing)} (commit {label})")
+            say(f"  FAIL  {label}: {', '.join(missing)}")
+    else:
+        say(f"  ok    every script commit in the last {CHANGELOG_WINDOW_DAYS} days has a changelog")
+
+    # 5. Tier-0 prose budget.
+    _total, prose, _rows = tier0_measure()
+    if prose > TIER0_PROSE_BUDGET:
+        fails.append(f"Tier 0 prose {prose} lines over the {TIER0_PROSE_BUDGET} budget (D-080)")
+    say(f"  {'ok   ' if prose <= TIER0_PROSE_BUDGET else 'FAIL '} Tier 0 prose {prose}/{TIER0_PROSE_BUDGET} lines")
+
+    if fails:
+        print("session_handover --check: FAIL")
+        for f in fails:
+            print(f"    - {f}")
+        return 1
+    print("session_handover --check: OK")
+    return 0
+
+
+def selftest() -> int:
+    """Exercise the parsers the gate relies on. A green gate proves nothing if
+    its detectors have stopped detecting."""
+    bad = []
+    ents = note_entries("# t\n\n## 2026-09-07 — a\nx\ny\n\n## 2026-09-06 — b\nz\n")
+    if [(e[0].isoformat(), e[2]) for e in ents] != [("2026-09-07", 3), ("2026-09-06", 1)]:
+        bad.append(f"note_entries: {ents}")
+    ents2 = note_entries("## 2026-09-06 — b\n## 2026-09-07 — a\n")
+    if ents2 == sorted(ents2, key=lambda e: e[0], reverse=True):
+        bad.append("newest-first detector accepted an out-of-order note")
+    fake = ("# Session handover — 2026-09-07\n\n**Generated by `tools/session_handover.py` "
+            "at 2026-09-07T15:40:12+01:00. Do not**")
+    m = re.search(r"at (\d{4}-\d{2}-\d{2}T[0-9:]{8}[+-]\d{2}:\d{2})", fake)
+    if not (m and _parse_iso(m.group(1))):
+        bad.append("HANDOFF timestamp regex does not match its own header")
+    if not re.search(r"[Ss]cript\s+0?43\b", "Script 43 v1.0.0 emits"):
+        bad.append("Script NN mention pattern")
+    # The gate must be able to fail: an unreachable HANDOFF date must read as stale.
+    ancient = UPDATES / ("HANDOFF_2000-01-01" + ".md")   # built, not a literal: docref_lint reads literals as citations
+    if not handoff_timestamp(ancient) < datetime.now().astimezone():
+        bad.append("handoff_timestamp fallback did not read a filename date")
+    if bad:
+        print("session_handover --selftest: FAIL")
+        for b in bad:
+            print(f"    - {b}")
+        return 1
+    print("session_handover --selftest: OK")
+    return 0
+
+
 def main(argv):
+    if "--selftest" in argv:
+        return selftest()
+    if "--check" in argv:
+        return check(verbose="--quiet" not in argv)
     include_lag = "--lag" in argv
     text = build(include_lag)
     if "--write" in argv:
-        dest = REPO / "working" / "updates" / f"HANDOFF_{date.today().isoformat()}.md"
+        dest = UPDATES / f"HANDOFF_{date.today().isoformat()}.md"
         dest.write_text(text, encoding="utf-8")
         print(f"  WROTE  {dest.relative_to(REPO)}  ({len(text.splitlines())} lines)")
     else:

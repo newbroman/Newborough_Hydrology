@@ -18,8 +18,17 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.7.0 - 2026-09-05
+# VERSION 1.8.0 - 2026-09-07
 # CHANGELOG
+#   1.8.0 (2026-09-07): records gate (D-143). session_handover.py --check fails
+#     when the project's own records are stale: DECISION_INDEX behind the log,
+#     the newest HANDOFF older than the newest substantive commit, no dated
+#     HANDOVER_NOTE entry for the newest commit day (or one over 40 lines), a
+#     script commit in the last 3 days with no changelog naming it, Tier 0 over
+#     budget. Exists because the Tier-0 machinery built 2026-08-28 was bypassed
+#     within three days and the index sat 32 decisions behind while every gate
+#     read green - the D-102/D-133 shape, applied to the records themselves.
+#     --selftest first, as for input_provenance.
 #   1.7.0 (2026-09-05): input_provenance_lint gate (W132) beside output_lag —
 #     watches the input->output boundary. Skips cleanly until run_analysis.py
 #     records the raw-input hashes; --selftest first.
@@ -239,6 +248,14 @@ python3 tools/context_for.py --audit || true
 # tracked. Nothing else would notice the two drifting apart, and the public one
 # is the only one a reader outside this machine can see.
 python3 tools/build_public_decisions.py --check || rc=1
+
+echo
+echo "── records (did the last session leave the records a session needs?) ──"
+# D-143. A rule that lives only in prose, an artefact nothing consumes and a
+# verdict that depends on neither is how the onboarding system was forgotten.
+# If this fails, the fix is to WRITE the record it names, never to skip it.
+python3 tools/session_handover.py --selftest >/dev/null || rc=1
+python3 tools/session_handover.py --check || rc=1
 
 echo
 echo "── ledgers (does SCRIPT_LEDGER still describe the code?) ─────────────"

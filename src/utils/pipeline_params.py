@@ -40,7 +40,13 @@ File location: outputs/01_data_prep/pipeline_scenario_params.csv
 """
 from __future__ import annotations
 
-__version__ = "1.11.0"  # Hollingham (2026) — 2026-09-07. Every fallback the
+__version__ = "1.11.1"  # Hollingham (2026) — 2026-09-07. default_value(key,
+#   record=True): a caller that reads a default only to INITIALISE a table it then
+#   resolves from the live CSVs (mechanism_fig_utils.EDGE_DH_MM) passes
+#   record=False, so the first S1 activation's six false "fallbacks" at 09g do
+#   not recur; the real fallback branches there now record explicitly.
+#
+# v1.11.0  # Hollingham (2026) — 2026-09-07. Every fallback the
 #   module serves is RECORDED: default_value() and the load_params() defaults
 #   branch append {script, key, source} to outputs/_run/fallbacks.jsonl, which
 #   run_analysis folds into pipeline_provenance.json per step (S1 spec). Until
@@ -764,19 +770,22 @@ def note_fallback(key, source="default_value"):
         pass
 
 
-def default_value(key):
+def default_value(key, record=True):
     """Return a documented first-pass default from _DEFAULTS.
 
     Public accessor so scripts (e.g. Script 09f) can fall back to the
     centralised first-pass defaults without importing the private dict.
-    Raises KeyError if the key is not a defined default. Every call is
-    recorded through note_fallback() — calling this IS using a fallback.
+    Raises KeyError if the key is not a defined default. By default every call
+    is recorded through note_fallback() — calling this IS using a fallback.
+    Pass record=False ONLY when the value is a placeholder the caller resolves
+    from live CSVs before use (and record the real fallback where it happens).
     """
     if key not in _DEFAULTS:
         raise KeyError(
             f"{key!r} is not a defined pipeline default; "
             f"available: {sorted(_DEFAULTS)}")
-    note_fallback(key)
+    if record:
+        note_fallback(key)
     return _DEFAULTS[key]
 
 

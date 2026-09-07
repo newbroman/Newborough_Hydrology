@@ -152,7 +152,18 @@ import uuid
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.14.0"  # 2026-09-07: step selection by SCRIPT NUMBER. The
+__version__ = "2.15.0"  # 2026-09-07: inter-step PROVENANCE (S1 spec; D-133
+#   extended inward). run_script() now records, per step, into
+#   outputs/pipeline_provenance.json: the SHA-256 of every declared input
+#   (the SCRIPT_LEDGER Consumes cell, resolved under outputs/ and data/), the
+#   SHA-256 of every file under outputs/ the step actually changed or created
+#   (measured, not declared), every fallback pipeline_params served during the
+#   step (outputs/_run/fallbacks.jsonl), the script's __version__ and the
+#   elapsed time. Partial runs update only the steps they ran. Gated by
+#   tools/provenance_lint.py: an output produced from an upstream that has
+#   since changed, or resting on a documented default, is red with the step
+#   to re-run named. No registry change.
+#   2.14.0 (2026-09-07): step selection by SCRIPT NUMBER. The
 #   step prompt (menu 2/3) and a new --step KEY flag resolve "17", "10a", "43"
 #   to the script of that number, "s21" to step index 21, and any filename
 #   fragment ("17_wtf") to the unique script it matches; a bare integer that is
@@ -234,6 +245,14 @@ OUT_MANIFEST = OUT_DIR / "pipeline_manifest.json"
 # unrun. This is the run log the manifest was never claiming to be: one entry per
 # step, written as each finishes, carrying the status the manifest cannot.
 OUT_RUN_LOG = OUT_DIR / "pipeline_run_log.json"
+
+# Inter-step provenance (2.15.0). What each step READ (declared, hashed), what it
+# WROTE (measured, hashed) and which documented defaults it fell back on. Kept
+# apart from the manifest so manifest_lint's contract is untouched.
+OUT_PROVENANCE = OUT_DIR / "pipeline_provenance.json"
+RUN_SCRATCH    = OUT_DIR / "_run"                      # gitignored
+FALLBACK_LOG   = RUN_SCRATCH / "fallbacks.jsonl"       # written by pipeline_params.note_fallback
+_PROV_EXCLUDE  = {OUT_RUN_LOG.name, OUT_PROVENANCE.name, "pipeline_manifest.json"}
 
 # ── Console styling (ANSI colour, auto-detected) ──────────────────────────────
 # Colour is enabled only when stdout is a real terminal and not disabled via
@@ -1079,6 +1098,150 @@ def _record_run(script_name: str, status: str, seconds: float, label: str) -> No
         pass
 
 
+# ── Inter-step provenance (2.15.0) ───────────────────────────────────────────
+# Observed at the orchestrator, not inside the 74 scripts: paths.py is a name
+# registry, not an I/O layer, and instrumenting 331 read_csv calls would touch
+# every script. Around each step: hash the declared inputs, stat outputs/, run,
+# re-stat, hash what changed. Cost is one hash per changed file per step.
+
+def _sha256(path: Path) -> str:
+    h = hashlib.sha256()
+    with open(path, "rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def _snapshot_outputs() -> dict:
+    """{repo-relative path: (mtime_ns, size)} for every file under outputs/,
+    excluding the run scratch and the three registry/log files."""
+    snap = {}
+    if not OUT_DIR.is_dir():
+        return snap
+    for p in OUT_DIR.rglob("*"):
+        if not p.is_file() or RUN_SCRATCH in p.parents or p.name in _PROV_EXCLUDE:
+            continue
+        try:
+            st = p.stat()
+        except OSError:
+            continue
+        snap[p.relative_to(ROOT_DIR).as_posix()] = (st.st_mtime_ns, st.st_size)
+    return snap
+
+
+_LEDGER_ROWS_CACHE = None
+
+
+def _ledger_rows():
+    """SCRIPT_LEDGER rows through ledger_lint's own parser (one parser, D-143)."""
+    global _LEDGER_ROWS_CACHE
+    if _LEDGER_ROWS_CACHE is None:
+        try:
+            tools_dir = ROOT_DIR / "tools"
+            if str(tools_dir) not in sys.path:
+                sys.path.insert(0, str(tools_dir))
+            from ledger_lint import rows as _rows, LEDGER as _LEDGER
+            _LEDGER_ROWS_CACHE = _rows(_LEDGER.read_text(encoding="utf-8"))
+        except Exception:
+            _LEDGER_ROWS_CACHE = []
+    return _LEDGER_ROWS_CACHE
+
+
+_FILE_TOKEN = re.compile(r"[\w./-]+\.(?:csv|json|geojson|kml|kmz|tif|tiff|png|jpg|txt|parquet)\b")
+
+
+def _declared_inputs(script_name: str) -> tuple[dict, list]:
+    """Hash the files the ledger says this step consumes. A sub-runner
+    (run_NN_*) consumes the union of its NN[a-z] scripts' rows. Returns
+    ({repo-relative path: sha256}, [names that resolved nowhere])."""
+    m = re.match(r"(?:run_)?(\d{1,2})([a-z]?)_", script_name)
+    key_num = m.group(1) if m else None
+    is_runner = script_name.startswith("run_")
+    names = set()
+    for r in _ledger_rows():
+        rm = re.match(r"(\d{1,2})([a-z]?)_", r["script"])
+        if not rm:
+            continue
+        same = (r["script"] == script_name) or (is_runner and rm.group(1) == key_num and rm.group(2))
+        if same and len(r["cells"]) > 3:
+            names.update(Path(t).name for t in _FILE_TOKEN.findall(r["cells"][3]))
+    found, unresolved = {}, []
+    for name in sorted(names):
+        hits = [p for base in (OUT_DIR, DATA_DIR) for p in base.rglob(name)
+                if p.is_file() and RUN_SCRATCH not in p.parents]
+        if not hits:
+            unresolved.append(name)
+            continue
+        for p in hits[:3]:                          # a name that exists in two places: record both
+            try:
+                found[p.relative_to(ROOT_DIR).as_posix()] = _sha256(p)
+            except OSError:
+                pass
+    return found, unresolved
+
+
+def _script_version(script_name: str) -> str | None:
+    try:
+        m = re.search(r'^__version__\s*=\s*["\']([^"\']+)["\']', (SRC_DIR / script_name).read_text(encoding="utf-8"), re.M)
+        return m.group(1) if m else None
+    except OSError:
+        return None
+
+
+def _fallback_offset() -> int:
+    try:
+        return FALLBACK_LOG.stat().st_size if FALLBACK_LOG.exists() else 0
+    except OSError:
+        return 0
+
+
+def _fallbacks_since(offset: int) -> list:
+    try:
+        if not FALLBACK_LOG.exists():
+            return []
+        with FALLBACK_LOG.open("rb") as fh:
+            fh.seek(offset)
+            lines = fh.read().decode("utf-8", errors="replace").splitlines()
+        out = []
+        for ln in lines:
+            ln = ln.strip()
+            if ln:
+                try:
+                    out.append(json.loads(ln))
+                except ValueError:
+                    pass
+        return out
+    except OSError:
+        return []
+
+
+def _reset_fallback_log() -> None:
+    try:
+        RUN_SCRATCH.mkdir(parents=True, exist_ok=True)
+        FALLBACK_LOG.write_text("", encoding="utf-8")
+    except OSError:
+        pass
+
+
+def _record_provenance(script_name: str, record: dict) -> None:
+    """Merge one step's record into outputs/pipeline_provenance.json (carrying
+    every other step forward). Wrapped: losing the record must never cost a run."""
+    try:
+        prov = {}
+        if OUT_PROVENANCE.exists():
+            try:
+                prov = json.loads(OUT_PROVENANCE.read_text(encoding="utf-8"))
+            except (ValueError, OSError):
+                prov = {}
+        prov["orchestrator"] = __version__
+        prov["generated"] = datetime.datetime.now().isoformat(timespec="seconds")
+        prov.setdefault("steps", {})[script_name] = record
+        OUT_DIR.mkdir(exist_ok=True)
+        OUT_PROVENANCE.write_text(json.dumps(prov, indent=1, sort_keys=True), encoding="utf-8")
+    except Exception as exc:                        # noqa: BLE001 — never block a run
+        say_warn(f"provenance not recorded for {script_name}: {exc}")
+
+
 def run_script(script_name: str, label: str, extra_args: list = None) -> None:
     script_path = SRC_DIR / script_name
     if not script_path.exists():
@@ -1090,6 +1253,15 @@ def run_script(script_name: str, label: str, extra_args: list = None) -> None:
     print("  " + paint("─" * 66, _Ansi.GREY))
     _emit_step_dep_notes(label)
     cmd = [sys.executable, str(script_path)] + (extra_args or [])
+    # provenance: what the step is about to read, and the state of outputs/
+    try:
+        inputs, unresolved = _declared_inputs(script_name)
+        snap0 = _snapshot_outputs()
+    except Exception as exc:                        # noqa: BLE001
+        say_warn(f"provenance pre-snapshot failed ({exc}); step runs unrecorded")
+        inputs, unresolved, snap0 = {}, [], None
+    fb0 = _fallback_offset()
+    started = datetime.datetime.now().isoformat(timespec="seconds")
     t0 = time.time()
     try:
         _run_subprocess(cmd, cwd=str(ROOT_DIR))
@@ -1100,6 +1272,30 @@ def run_script(script_name: str, label: str, extra_args: list = None) -> None:
         raise
     dt = time.time() - t0
     _record_run(script_name, "ok", dt, step_txt)
+    if snap0 is not None:
+        try:
+            snap1 = _snapshot_outputs()
+            changed = [p for p, sig in snap1.items() if snap0.get(p) != sig]
+            emitted = {}
+            for rel in changed:
+                try:
+                    emitted[rel] = _sha256(ROOT_DIR / rel)
+                except OSError:
+                    pass
+            fallbacks = _fallbacks_since(fb0)
+            _record_provenance(script_name, {
+                "version": _script_version(script_name), "started": started,
+                "seconds": round(dt, 1), "inputs": inputs, "inputs_unresolved": unresolved,
+                "emitted": emitted,
+                "fallbacks": [{"key": f.get("key"), "source": f.get("source"),
+                               "script": f.get("script")} for f in fallbacks],
+            })
+            note = f"  provenance: {len(inputs)} input(s) hashed, {len(emitted)} file(s) emitted"
+            if fallbacks:
+                note += paint(f", {len(fallbacks)} FALLBACK(s) served", _Ansi.YELLOW)
+            print("  " + paint(note, _Ansi.GREY))
+        except Exception as exc:                    # noqa: BLE001
+            say_warn(f"provenance post-snapshot failed for {script_name}: {exc}")
     print("  " + paint(f"{GLYPH_OK} done", _Ansi.BGREEN, _Ansi.BOLD)
           + paint(f"  ({dt:0.1f}s)", _Ansi.GREY))
 
@@ -1235,6 +1431,7 @@ def _warn_if_stale() -> None:
 def run_full_pipeline(from_step: int = 1, include_supplementary: bool = False) -> None:
     _warn_if_stale()
     ensure_paths()
+    _reset_fallback_log()
     build_manifest(write=True, record_inputs=(from_step == 1))
     _t_start = time.time()
 

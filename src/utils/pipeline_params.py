@@ -40,7 +40,14 @@ File location: outputs/01_data_prep/pipeline_scenario_params.csv
 """
 from __future__ import annotations
 
-__version__ = "1.10.0"  # Hollingham (2026) — 2026-09-02. Refreshes four
+__version__ = "1.11.0"  # Hollingham (2026) — 2026-09-07. Every fallback the
+#   module serves is RECORDED: default_value() and the load_params() defaults
+#   branch append {script, key, source} to outputs/_run/fallbacks.jsonl, which
+#   run_analysis folds into pipeline_provenance.json per step (S1 spec). Until
+#   now "a first-pass result is provisional" was prose; a committed output that
+#   rests on a default is now a field a gate can read. Values unchanged.
+#
+# v1.10.0  # Hollingham (2026) — 2026-09-02. Refreshes four
 #   fallbacks after the D-115 PE/PW correction and its pipeline run. Two wells
 #   exchanging their reading series moves the coastal fit: forest_free /
 #   linear_capped goes delta_0 -31.33 -> -31.35 mm/yr and L 895 -> 894 m, and
@@ -736,17 +743,40 @@ def update_peak_months(peak_by_cluster):
 # READER — called by downstream scripts (09b, 09d, 19, 21, 31, 31b)
 # ============================================================================
 
+# Where a fallback is recorded when one is served. Under outputs/ so it lives
+# with the run (gitignored; run_analysis truncates it at the start of a run and
+# reads the lines appended during each step). A failed write never blocks: the
+# record is a convenience, the computation is not.
+FALLBACK_LOG = Path(__file__).resolve().parents[2] / "outputs" / "_run" / "fallbacks.jsonl"
+
+
+def note_fallback(key, source="default_value"):
+    """Record that a documented default was served in place of a live value."""
+    try:
+        import json as _json, sys as _sys
+        from datetime import datetime as _dt
+        FALLBACK_LOG.parent.mkdir(parents=True, exist_ok=True)
+        with FALLBACK_LOG.open("a", encoding="utf-8") as fh:
+            fh.write(_json.dumps({"script": Path(_sys.argv[0]).name if _sys.argv else "?",
+                                  "key": str(key), "source": source,
+                                  "ts": _dt.now().isoformat(timespec="seconds")}) + "\n")
+    except OSError:
+        pass
+
+
 def default_value(key):
     """Return a documented first-pass default from _DEFAULTS.
 
     Public accessor so scripts (e.g. Script 09f) can fall back to the
     centralised first-pass defaults without importing the private dict.
-    Raises KeyError if the key is not a defined default.
+    Raises KeyError if the key is not a defined default. Every call is
+    recorded through note_fallback() — calling this IS using a fallback.
     """
     if key not in _DEFAULTS:
         raise KeyError(
             f"{key!r} is not a defined pipeline default; "
             f"available: {sorted(_DEFAULTS)}")
+    note_fallback(key)
     return _DEFAULTS[key]
 
 
@@ -786,6 +816,8 @@ def load_params(warn_defaults=True):
         print(f"  WARNING: pipeline_scenario_params.csv contains default "
               f"values for: {', '.join(default_fields)}")
         print("  Run the full pipeline twice for canonical values.")
+        for fld in default_fields:
+            note_fallback(fld, source="pipeline_scenario_params.csv defaults")
 
     # Build cluster params dict
     clusters = {}

@@ -1,0 +1,15 @@
+# phase=1 set_by=D-144 -- one live family at a time; see tools/doc_tier.py and D-144
+family,phase_live,current,set_by,note
+report,1,live,D-144,report6-16 chapter ODTs and report.odm; live until Martin declares the report settled (phase 2)
+Newborough_Methods_Supplement,1,live,D-144,live ONLY until the Script 43 chapter lands; then frozen with the changelog id that flips it
+Paper1,2,frozen,D-144,pending prose edits (R1) go in with reason=
+PAPER1_SI_methods,2,frozen,D-144,
+Hollingham_2026_Paper2_amended,2,frozen,D-144,W32/W135 wait on phase 2
+Supplementary_Material,-,frozen,D-144,
+academic_Summary,-,frozen,D-144,one refresh pass at phase 2
+crynodeb_academaidd,-,frozen,D-144,W129 stays open; refresh at phase 2
+NRG_Web_Tools_User_Manual,-,frozen,D-144,
+NRG_Web_Tools_Technical_Note,-,frozen,D-144,
+public_summary_EN,-,frozen,D-144,public summaries; refresh at phase 2
+public_summary_CY,-,frozen,D-144,
+public_summary_PL,-,frozen,D-144,

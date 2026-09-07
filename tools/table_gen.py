@@ -163,6 +163,9 @@ import zipfile
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from doc_paths import REPO, chapter_odt, rel      # noqa: E402
 from odt_edit import edit_spans                   # noqa: E402
+import odt_edit                                   # noqa: E402
+odt_edit.REASON = "table_gen"   # mechanical caller, exempt from the D-144 prose freeze
+
 from refresh_mirrors import _version_key, _VER    # noqa: E402
 import table_configs                              # noqa: E402
 

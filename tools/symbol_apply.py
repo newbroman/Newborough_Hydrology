@@ -47,6 +47,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import symbol_check as sc          # noqa: E402  — occurrence guard + classifier
 from odt_edit import edit_spans    # noqa: E402
+import odt_edit                                   # noqa: E402
+odt_edit.REASON = "symbol_apply"   # mechanical caller, exempt from the D-144 prose freeze
+
 from doc_paths import ODT_GLOB, ODM_GLOB
 
 REPO = Path(__file__).resolve().parents[1]

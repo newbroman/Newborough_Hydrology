@@ -79,6 +79,13 @@ tracked publicly.
   its round-trip drops namespace declarations and produces a file LibreOffice
   will not open. `odt_edit` gives counted substitutions and four guards. After
   any edit, open the result in headless LibreOffice and read the passage back.
+- **One document family is live at a time; the rest are numbers-only (D-144).**
+  `tools/doc_tier.csv` says which. `odt_edit` refuses a prose write to a frozen
+  document unless `odt_edit.REASON` (or `ODT_EDIT_REASON`) names the D-number or
+  changelog id that requires it; tables, references, versions and symbols go
+  through their own tools and are exempt. Numbers always regenerate. A sentence
+  in a frozen document changes now only if a gate is red; otherwise it waits for
+  the next phase's refresh pass.
 - **ODTs are versioned.** Edit `Doc_v1_9_46.odt` → write `Doc_v1_9_47.odt`.
   Mirrors follow the highest version automatically.
 - **Mirrors need pandoc ≥ 3.0** and are byte-reproducible on 3.1.3.

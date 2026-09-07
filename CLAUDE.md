@@ -85,7 +85,9 @@ tracked publicly.
   changelog id that requires it; tables, references, versions and symbols go
   through their own tools and are exempt. Numbers always regenerate. A sentence
   in a frozen document changes now only if a gate is red; otherwise it waits for
-  the next phase's refresh pass.
+  the next phase's refresh pass. The Methods Supplement follows the pipeline by
+  refusal: `run_analysis.py` will not register a step without a Supplement chapter
+  heading naming it and a `SCRIPT_LEDGER` row (`tools/ms_chapters.py`).
 - **ODTs are versioned.** Edit `Doc_v1_9_46.odt` → write `Doc_v1_9_47.odt`.
   Mirrors follow the highest version automatically.
 - **Mirrors need pandoc ≥ 3.0** and are byte-reproducible on 3.1.3.

@@ -152,7 +152,14 @@ import uuid
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.12.0"  # 2026-09-05: run_full_pipeline warns (never blocks)
+__version__ = "2.13.0"  # 2026-09-07: registration REFUSES an undocumented step
+#   (D-144 §4). build_manifest() calls tools/ms_chapters.unmapped_steps(): a
+#   registered script with no Methods Supplement chapter heading naming it, or
+#   no SCRIPT_LEDGER row, stops the run with the missing item named. The rule
+#   "add the chapter" lived in prose and Scripts 40 and 43 were both registered
+#   without one; the Supplement now follows the pipeline by refusal. No step or
+#   count change, so _DOCUMENTED_COUNTS is untouched.
+#   2.12.0 (2026-09-05): run_full_pipeline warns (never blocks)
 #   when the checkout is behind its upstream, so a run does not produce
 #   committed outputs from stale code (the 2026-09-05 case where a run under
 #   an out-of-date run_analysis wrote a manifest a version behind HEAD and
@@ -643,7 +650,36 @@ def build_manifest(write: bool = True, record_inputs: bool = False) -> dict:
             json.dump(manifest, fh, indent=2)
     _check_documented_counts(manifest)
     _check_version_guard()
+    _check_ms_chapters(manifest)
     return manifest
+
+
+def _check_ms_chapters(manifest: dict) -> None:
+    """D-144 §4: refuse to register a step the Methods Supplement does not document.
+
+    A pipeline step exists for the reader through its Supplement chapter and its
+    SCRIPT_LEDGER row; a step without either is code nobody can trace. This was a
+    prose rule and it failed twice (Scripts 40 and 43). The check is derived — the
+    chapter map is parsed from the Supplement mirror's headings by
+    tools/ms_chapters.py, the same module check_all runs — so a heading renumber
+    cannot desynchronise it, and the ledger rule is ledger_lint's own."""
+    tools_dir = ROOT_DIR / "tools"
+    if str(tools_dir) not in sys.path:
+        sys.path.insert(0, str(tools_dir))
+    try:
+        from ms_chapters import unmapped_steps
+    except ImportError as exc:                     # tools/ absent: say so, do not guess
+        say_warn(f"ms_chapters unavailable ({exc}); registration not checked against the Supplement")
+        return
+    faults = unmapped_steps([s["script"] for s in manifest["steps"]])
+    if not faults:
+        return
+    say_err(f"REFUSED: {len(faults)} registered step(s) are undocumented (D-144 §4):")
+    for script, why in faults:
+        say_info(f"    {script}: {why}")
+    say_info("    Write the Methods Supplement chapter and the SCRIPT_LEDGER row, then re-run. "
+             "python3 tools/ms_chapters.py shows the same list.")
+    sys.exit(2)
 
 
 def _check_version_guard() -> None:

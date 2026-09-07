@@ -79,7 +79,18 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.9.4"  # Hollingham (2026) — 2026-08-18. Per-well beta_3 <= 0 is
+__version__ = "1.10.0"  # Hollingham (2026) — 2026-09-07. Model B persistence
+#   committed (03_16_model_b_persistence.csv): every centroid (full record,
+#   RB-03 basis) and every reference well (comparison window, RB-04 basis)
+#   fitted with fit_ssm_intercept() beside the Model A fit of the same series,
+#   emitting the datum-free beta_3, its e-folding time and half-life, and the
+#   A/B half-life ratio. D-109 states that the persistence of a spring anomaly
+#   is a datum-free quantity distinct from t½ at the datum and put it at ~4-5
+#   months from a working note; this makes it a committed number the documents
+#   can quote (R3 route a; spec NRG_spec_model_b_persistence_2026-09-07). Model
+#   A outputs are untouched; nothing downstream consumes the new file.
+#
+# v1.9.4  # Hollingham (2026) — 2026-08-18. Per-well beta_3 <= 0 is
 #   now reported by name. assert_physical_signs() carries the soft warning but
 #   runs only on the centroid fits, so CEH14's negative drainage coefficient
 #   passed through silently - and it is the direct cause of the SSM scoring
@@ -171,6 +182,7 @@ from utils.paths import (
     OUT_03_SIGNATURES, OUT_03_CLUSTER_SUMMARY, OUT_03_MECHANISTIC_TABLE,
     OUT_03_DATUM_CONFOUND, OUT_03_PARTITION_VS_DATUM, OUT_03_DATUM_REGIME_FIG,
     OUT_03_CENTROID_WINDOW_SENS, OUT_03_PER_WELL_WINDOW_SENS,
+    OUT_03_MODEL_B_PERSISTENCE,
     DIR_03,
     OUT_02_AMP_PER_WELL,
     DATA_DIR,
@@ -181,7 +193,8 @@ from utils.config import (
     HEADLINE_LAG, BW_MODE, BW_LINESTYLES, CENTROID_COMPOSITION_REF_DATE,
     LCSC_DATA_LIMIT, SSM_MIN_OBS,
 )
-from utils.model_utils import fit_ssm, assert_physical_signs, build_ssm_frame
+from utils.model_utils import (fit_ssm, fit_ssm_intercept, assert_physical_signs,
+                               build_ssm_frame)
 from utils.render_utils import render_figure
 
 
@@ -825,6 +838,94 @@ def centroid_headline_fits(centroids: dict[int, pd.Series],
         warnings.extend(soft)
 
     return pd.DataFrame(rows), violations, warnings
+
+
+def _persistence_row(fit_a, fit_b) -> dict:
+    """The A/B comparison columns for one series. NA where a coefficient is
+    non-positive (a half-life of a non-decaying term is undefined) — the
+    CEH13/CEH14 rule: keep the row, never guess."""
+    def _hl(b3):
+        return (np.log(2.0) / b3) if (b3 is not None and np.isfinite(b3) and b3 > 0) else np.nan
+    def _ef(b3):
+        return (1.0 / b3) if (b3 is not None and np.isfinite(b3) and b3 > 0) else np.nan
+    b3a = fit_a["beta_3_drainage"] if fit_a else np.nan
+    b3b = fit_b["beta_3_drainage"] if fit_b else np.nan
+    row = {
+        "beta_3_A": b3a, "pvalue_beta_3_A": fit_a["pvalue_beta_3"] if fit_a else np.nan,
+        "t_half_A_months": _hl(b3a), "R2_A": fit_a["R2"] if fit_a else np.nan,
+        "alpha_B": fit_b["alpha"] if fit_b else np.nan,
+        "pvalue_alpha_B": fit_b["pvalue_alpha"] if fit_b else np.nan,
+        "beta_1_B": fit_b["beta_1_recharge"] if fit_b else np.nan,
+        "beta_2_B": fit_b["beta_2_atmospheric_draw"] if fit_b else np.nan,
+        "beta_3_B": b3b, "pvalue_beta_3_B": fit_b["pvalue_beta_3"] if fit_b else np.nan,
+        "t_efold_B_months": _ef(b3b), "t_half_B_months": _hl(b3b),
+        "R2_B": fit_b["R2"] if fit_b else np.nan,
+        "drainage_datum_m": DRAINAGE_DATUM,
+    }
+    row["ratio_t_half_A_over_B"] = (row["t_half_A_months"] / row["t_half_B_months"]
+                                    if np.isfinite(row["t_half_A_months"]) and np.isfinite(row["t_half_B_months"])
+                                    else np.nan)
+    notes = []
+    if fit_a is None:
+        notes.append("Model A fit unavailable")
+    elif not (np.isfinite(b3a) and b3a > 0):
+        notes.append("Model A beta_3 <= 0: t_half_A undefined")
+    if fit_b is None:
+        notes.append("Model B fit unavailable")
+    elif not (np.isfinite(b3b) and b3b > 0):
+        notes.append("Model B beta_3 <= 0: persistence undefined")
+    row["note"] = "; ".join(notes)
+    return row
+
+
+def model_b_persistence(centroids: dict[int, pd.Series],
+                        master_df: pd.DataFrame,
+                        wells_clean: pd.DataFrame,
+                        well_col_lookup: dict[str, str],
+                        climate: pd.DataFrame) -> pd.DataFrame:
+    """
+    Datum-free persistence beside the datum-carried one (D-109; R3 route a).
+
+    Model A (no intercept, the published form) carries the datum in beta_3, so
+    t½ = ln2/beta_3 is the recession constant of the drainage term AT the
+    datum. Model B frees the intercept, which absorbs the datum shift, and its
+    beta_3 is datum-invariant: ln2/beta_3_B is the persistence of a fluctuation
+    about the mean, which is what "how long a spring anomaly lasts" asks. Both
+    are fitted here on the SAME series and the SAME basis as the committed
+    Model A fits - centroids on the full record (RB-03), wells on the
+    comparison window (RB-04) - so the A columns reproduce 03_03 / 03_master_data
+    exactly and the only difference between A and B in a row is the intercept.
+    """
+    rows = []
+    for cid in sorted(centroids):
+        fit_a = fit_ssm(centroids[cid], climate, lag=HEADLINE_LAG, window=None)
+        fit_b = fit_ssm_intercept(centroids[cid], climate, lag=HEADLINE_LAG, window=None)
+        span = _fit_span(fit_a) if fit_a else ("", "")
+        rows.append({"level": "centroid", "Cluster": cid,
+                     "Cluster_Label": CLUSTER_LABELS.get(cid, f"C{cid}"), "well": "",
+                     "fit_basis": "full_record", "n": fit_a["n"] if fit_a else 0,
+                     "fit_start": span[0], "fit_end": span[1], **_persistence_row(fit_a, fit_b)})
+    for _, r in master_df.iterrows():
+        target_col = well_col_lookup.get(normalize_well_name(r["Name_Original"]))
+        if target_col is None:
+            continue
+        h_series = wells_clean[target_col]
+        fit_a = fit_ssm(h_series, climate, lag=HEADLINE_LAG, window=LCSC_DATA_LIMIT,
+                        min_obs=MIN_OBS_PER_WELL)
+        fit_b = fit_ssm_intercept(h_series, climate, lag=HEADLINE_LAG, window=LCSC_DATA_LIMIT,
+                                  min_obs=MIN_OBS_PER_WELL)
+        span = _fit_span(fit_a) if fit_a else ("", "")
+        cid = r.get("Cluster")
+        try:
+            cid_i = int(cid)
+        except (TypeError, ValueError):
+            cid_i = cid
+        rows.append({"level": "well", "Cluster": cid_i,
+                     "Cluster_Label": CLUSTER_LABELS.get(cid_i, f"C{cid_i}"),
+                     "well": r["Name_Original"], "fit_basis": "comparison_window",
+                     "n": fit_a["n"] if fit_a else 0,
+                     "fit_start": span[0], "fit_end": span[1], **_persistence_row(fit_a, fit_b)})
+    return pd.DataFrame(rows)
 
 
 def lag_diagnostic(centroids: dict[int, pd.Series],
@@ -2197,6 +2298,20 @@ def main() -> None:
     mech_df, violations, b3_warnings = centroid_headline_fits(centroids, climate)
     mech_df.to_csv(OUT_03_MECHANISTIC_TABLE, index=False)
     saved(f"{OUT_03_MECHANISTIC_TABLE.name}")
+
+    # ---- Model B persistence beside Model A (D-109; R3 route a) --------------
+    step("Model B (intercept) persistence beside Model A, same bases...")
+    mb_df = model_b_persistence(centroids, master_df, wells_clean, well_col_lookup, climate)
+    mb_df.to_csv(OUT_03_MODEL_B_PERSISTENCE, index=False)
+    for _, r in mb_df[mb_df["level"] == "centroid"].iterrows():
+        info(f"  {r['Cluster_Label']:22s} beta_3 A {r['beta_3_A']:.4f} -> t½ {r['t_half_A_months']:5.1f} mo"
+             f"   |   B {r['beta_3_B']:.4f} -> t½ {r['t_half_B_months']:5.1f} mo"
+             f"   (A/B {r['ratio_t_half_A_over_B']:.2f})")
+    w = mb_df[(mb_df["level"] == "well") & mb_df["t_half_B_months"].notna()]
+    if len(w):
+        info(f"  wells: median t½  A {w['t_half_A_months'].median():.1f} mo,  B {w['t_half_B_months'].median():.1f} mo"
+             f"  (n={len(w)}; B undefined at {int((mb_df['level'] == 'well').sum()) - len(w)})")
+    saved(f"{OUT_03_MODEL_B_PERSISTENCE.name}")
 
     # ---- Centroid window sensitivity: both bases, side by side (D-034) -------
     step("Centroid window sensitivity (full record vs comparison window)...")

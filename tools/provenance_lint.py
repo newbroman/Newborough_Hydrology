@@ -28,7 +28,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-09-07. First issue (S1 spec).
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-09-07. Ledger Emits cells parsed with
+#   their own shorthand ({csv,png}, *, …, .png/.jpg) as fnmatch patterns; the first
+#   activation run reported ".png" and "_transfer_functions.csv" as unwritten files.
+#   1.0.0 (2026-09-07): first issue (S1 spec).
 
 import hashlib
 import json
@@ -40,7 +43,37 @@ REPO = Path(__file__).resolve().parent.parent
 PROV = REPO / "outputs" / "pipeline_provenance.json"
 sys.path.insert(0, str(REPO / "tools"))
 
-_FILE_TOKEN = re.compile(r"[\w./-]+\.(?:csv|json|geojson|kml|kmz|tif|tiff|png|jpg|txt|parquet)\b")
+_EXTS = r"(?:csv|json|geojson|kml|kmz|tif|tiff|png|jpg|txt|parquet|md|svg|html)"
+_FILE_TOKEN = re.compile(r"[\w.*/…-]+\.(?:\{[\w,]+\}|" + _EXTS + r"\b)")
+
+
+def ledger_patterns(cell: str) -> list[str]:
+    """Filename patterns named in a ledger cell, with the ledger's own shorthand
+    expanded: `x.{csv,png}` -> x.csv, x.png; `01…05_*.png/.jpg` -> two globs;
+    a bare `*` stays a glob. Returned as fnmatch patterns (a plain name is its
+    own pattern)."""
+    out = []
+    for tok in _FILE_TOKEN.findall(cell):
+        tok = re.sub(r"\d+…\d+", "*", tok).replace("…", "*")   # 01…05_ -> a range: glob it
+        m = re.match(r"^(.*)\.\{([\w,]+)\}$", tok)
+        if m:
+            out += [f"{m.group(1)}.{e}" for e in m.group(2).split(",")]
+            continue
+        out.append(tok)
+    # "a.png/.jpg" — the second extension as an alternative to the first
+    expanded = []
+    for pat in out:
+        m = re.match(r"^(.*)\.(\w+)/\.(\w+)$", pat)
+        if m:
+            expanded += [f"{m.group(1)}.{m.group(2)}", f"{m.group(1)}.{m.group(3)}"]
+        else:
+            expanded.append(pat)
+    return [Path(p).name for p in expanded]
+
+
+def _matches(name: str, patterns) -> bool:
+    import fnmatch
+    return any(fnmatch.fnmatch(name, pat) for pat in patterns)
 
 
 def sha256(path: Path) -> str | None:
@@ -61,11 +94,11 @@ def ledger_emits() -> dict[str, set[str]]:
         out = {}
         for r in rows(LEDGER.read_text(encoding="utf-8")):
             cells = r["cells"]
-            names = set()
+            pats = []
             for i in (4, 5):
                 if len(cells) > i:
-                    names.update(Path(t).name for t in _FILE_TOKEN.findall(cells[i]))
-            out[r["script"]] = names
+                    pats += ledger_patterns(cells[i])
+            out[r["script"]] = set(pats)
         return out
     except Exception:
         return {}
@@ -89,9 +122,9 @@ def evaluate(prov: dict, current_sha, emits_by_script: dict) -> tuple[list[str],
                              f"— run the second pass")
         if script in emits_by_script:
             measured = {Path(p).name for p in rec.get("emitted", {})}
-            declared = emits_by_script[script]
-            extra = sorted(measured - declared)
-            missing = sorted(declared - measured)
+            declared = emits_by_script[script]          # fnmatch patterns
+            extra = sorted(n for n in measured if not _matches(n, declared))
+            missing = sorted(pat for pat in declared if not any(_matches(n, [pat]) for n in measured))
             if extra:
                 advisory.append(f"{script}: wrote {len(extra)} file(s) the ledger does not list "
                                 f"({', '.join(extra[:4])}{'…' if len(extra) > 4 else ''})")
@@ -124,6 +157,13 @@ def selftest() -> int:
     s, _, _ = evaluate(prov, lambda r: {"outputs/17/17_01.csv": "E1"}.get(r), emits)
     if not any("MISSING" in x for x in s):
         bad.append("missing input not detected")
+    lp = ledger_patterns("03_08_datum_sensitivity.{csv,png}, 11_forecast_*_transfer_functions.csv, 21_forestry_01…05_*.png/.jpg, x.csv")
+    want = {"03_08_datum_sensitivity.csv", "03_08_datum_sensitivity.png", "11_forecast_*_transfer_functions.csv",
+            "21_forestry_*_*.png", "21_forestry_*_*.jpg", "x.csv"}
+    if set(lp) != want:
+        bad.append(f"ledger_patterns: {sorted(lp)}")
+    if not _matches("11_forecast_spring_transfer_functions.csv", ["11_forecast_*_transfer_functions.csv"]):
+        bad.append("glob match")
     if bad:
         print("provenance_lint --selftest: FAIL")
         for b in bad:

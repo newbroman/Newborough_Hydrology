@@ -56,8 +56,14 @@ printed checks) and writes the outputs via paths.py.
 """
 from __future__ import annotations
 
-__version__ = "1.11.1"
+__version__ = "1.11.2"
 # CHANGELOG
+#   1.11.2 (2026-09-07): EDGE_DH_MM is initialised with default_value(...,
+#       record=False) — it is a placeholder table that load_amplitudes()
+#       resolves from 09f_01 / 10m before any use — and the two genuine
+#       fallback branches in load_amplitudes() now call note_fallback(). The
+#       first S1 activation run recorded six "fallbacks" at 09g that were this
+#       initialiser, while the log showed the live values were loaded.
 #   1.11.1 (2026-08-26): _r_txt no longer puts an escaped quote inside an
 #       f-string expression, which was 3.12-only syntax and the tree's only
 #       undeclared version constraint. NOT a live defect — the machine that runs
@@ -145,7 +151,7 @@ import numpy as np
 import pandas as pd
 
 from utils.console_utils import info, warn
-from utils.pipeline_params import default_value
+from utils.pipeline_params import default_value, note_fallback
 from utils.paths import OUT_09F_REACH_CSV, OUT_10M_REPORT, OUT_10A_REPORT
 from utils.config import (
     MECHANISM_HORIZON_YEARS, COAST_CHRONIC_YEARS,
@@ -241,7 +247,7 @@ _09F_COLMAP = {                  # EDGE_DH_MM key -> 09f_01 column (row 0 = dist
 }
 
 # initialised to documented first-pass defaults; load_amplitudes() resolves live values
-EDGE_DH_MM = {k: float(default_value(v)) for k, v in _EDGE_FALLBACK_KEYS.items()}
+EDGE_DH_MM = {k: float(default_value(v, record=False)) for k, v in _EDGE_FALLBACK_KEYS.items()}  # placeholders; load_amplitudes() resolves
 
 
 def load_amplitudes():
@@ -259,12 +265,15 @@ def load_amplitudes():
     except (FileNotFoundError, KeyError, IndexError) as e:
         warn(f"09f_01_reach_profile.csv unavailable ({e.__class__.__name__}) — mechanism "
              "amplitudes from first-pass defaults (run Script 09f for live values).")
+        for k in _09F_COLMAP:
+            note_fallback(_EDGE_FALLBACK_KEYS[k], source="mechanism_fig_utils.load_amplitudes")
     try:
         df = pd.read_csv(OUT_10M_REPORT)
         v = float(df.loc[df["Parameter"] == "WMC3_BACI_DiD_step_2015_scraping", "Value"].iloc[0])
         EDGE_DH_MM['scrape_offslack'] = v * 1000.0   # m -> mm
         info(f"scrape_offslack = {EDGE_DH_MM['scrape_offslack']:.1f} mm (measured WMC3 BACI, 10m)")
     except (FileNotFoundError, KeyError, IndexError):
+        note_fallback(_EDGE_FALLBACK_KEYS['scrape_offslack'], source="mechanism_fig_utils.load_amplitudes")
         warn(f"10m_report_numbers.csv unavailable — scrape off-cut from default "
              f"{EDGE_DH_MM['scrape_offslack']:.1f} mm (measured WMC3; run Script 10m for live).")
     return dict(EDGE_DH_MM)

@@ -61,7 +61,13 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "2.0.0"  # Hollingham (2026).
+__version__ = "2.0.1"  # Hollingham (2026).
+#   2.0.1 (2026-09-07): detector 2 measures the HANDOFF against max(its header
+#     timestamp, the newest private commit that carried a HANDOFF). Without
+#     this a private commit bundling the fresh HANDOFF with changelogs was
+#     itself "newer than the HANDOFF" and the gate failed on its first L14 run
+#     (17:11, seconds after the records commit). A commit that ships the HANDOFF
+#     is the records commit; only what lands AFTER it can make it stale.
 #   2.0.0 (2026-09-07): --check gate (D-143). Five detectors: DECISION_INDEX
 #     count vs DECISION_LOG; newest HANDOFF older than the newest substantive
 #     commit; HANDOVER_NOTE.md missing an entry for the newest commit day, or an
@@ -419,6 +425,15 @@ def handoff_timestamp(path: Path) -> datetime:
     return datetime.combine(d, datetime.max.time()).astimezone()
 
 
+def newest_handoff_commit() -> datetime | None:
+    """Timestamp of the newest private commit that carried a HANDOFF file."""
+    if not PRIVATE_GIT.exists():
+        return None
+    rc, out, _ = _git("log", "-1", "--format=%cI", "--", "working/updates/HANDOFF_*.md",
+                      private=True)
+    return _parse_iso(out) if rc == 0 and out else None
+
+
 def newest_substantive_commit() -> tuple[datetime | None, str]:
     """Newest commit on either repo that touched something other than the
     records this gate produces. Returns (timestamp, 'repo hash subject')."""
@@ -512,12 +527,20 @@ def check(verbose: bool = True) -> int:
     if ho is None:
         fails.append("no working/updates/HANDOFF_*.md — run: python3 tools/session_handover.py --write")
         say("  FAIL  no HANDOFF found")
-    elif commit_ts and handoff_timestamp(ho) < commit_ts:
-        fails.append(f"{ho.name} predates the newest commit ({commit_label}) — "
-                     "run: python3 tools/session_handover.py --write")
-        say(f"  FAIL  {ho.name} older than {commit_label}")
     else:
-        say(f"  ok    {ho.name} current against {commit_label or 'no commits'}")
+        # Written-at, or committed-at, whichever is later: the commit that ships
+        # the HANDOFF is the records commit and cannot make it stale (2.0.1).
+        ref = handoff_timestamp(ho)
+        hc = newest_handoff_commit()
+        if hc and hc > ref:
+            ref = hc
+        if commit_ts and ref < commit_ts:
+            fails.append(f"{ho.name} predates the newest commit ({commit_label}) — "
+                         "run: python3 tools/session_handover.py --write (nrg_git.sh "
+                         "option 2 does this before the private commit)")
+            say(f"  FAIL  {ho.name} older than {commit_label}")
+        else:
+            say(f"  ok    {ho.name} current against {commit_label or 'no commits'}")
 
     # 3. HANDOVER_NOTE has an entry for the newest commit day, entries within length.
     if not NOTE.is_file():

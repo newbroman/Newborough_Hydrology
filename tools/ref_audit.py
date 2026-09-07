@@ -14,10 +14,11 @@ THE PROBLEM THIS SOLVES
   same breath as the figure number. So the number is checkable against the
   thing it claims to be:
 
-      figure_table_sources.csv   sub-figure id  ->  source PNG
-      figure_map.csv             sub-figure id  ->  global number
+      figure_map.csv   source (from each caption's Source: marker)  ->  global number
 
-  Chain those and a script name yields the figure number it must be cited by.
+  A script or PNG name in the prose yields the figure number it must be cited by,
+  the source being the figure's own caption marker (Martin, 2026-09-07: the
+  source lives in the caption). figure_table_sources.csv is no longer read here.
 
 WHAT IT DOES NOT DO
 
@@ -34,7 +35,7 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-08-23. Two corrections after
+__version__ = "1.3.0"  # 2026-09-07 caption-derived source (retires figure_table_sources here).
 #   the first run: a script named WITHOUT its extension ("#### Step 17 —
 #   12_figure_site_overview") is a script mention too, and the candidate set is
 #   taken from the NEAREST mention rather than everything inside the window. The
@@ -59,7 +60,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from repoint_refs import _text_view                                # noqa: E402
 
 REPO = Path(__file__).resolve().parents[1]
-SOURCES = REPO / "tools/figure_table_sources.csv"
 FIGMAP = REPO / "tools/figure_map.csv"
 DEFAULT = ["PIPELINE_README.md", "readme.md"]
 
@@ -70,21 +70,19 @@ SCRIPT_NUM = re.compile(r'(?i)\bscript\s+(\d{2}[a-z]?)\b')
 
 
 def truth() -> tuple[dict, dict]:
-    """(png stem -> global number, script id -> {global numbers})."""
-    sub_to_png = {}
-    for r in csv.DictReader(SOURCES.open(encoding="utf-8")):
-        sub_to_png[(r["document"], r["number"])] = r["source"]
+    """(png filename -> global number, script id -> {global numbers}).
 
+    The source of each figure is its caption's Source: marker, carried in
+    figure_map.csv's `source` column (figure_map.caption_source). No side
+    registry is consulted.
+    """
     png_to_global, script_to_global = {}, {}
     for r in csv.DictReader(FIGMAP.open(encoding="utf-8")):
+        src = (r.get("source") or "").strip()
+        if not src:
+            continue
+        png = src.rsplit("/", 1)[-1]                 # basename
         n = int(r["number"])
-        # figure_map's caption carries the sub-figure id it was rendered with
-        m = re.match(r"\s*Figure\s+([\d.]+)\s*:", r["caption"])
-        if not m:
-            continue
-        png = sub_to_png.get((r["document"], m.group(1)))
-        if not png:
-            continue
         png_to_global[png] = n
         sm = re.match(r"(\d{2}[a-z]?)_", png)
         if sm:
@@ -108,7 +106,7 @@ def main() -> int:
     png_to_global, script_to_global = truth()
     if not png_to_global:
         raise SystemExit("no figure source could be resolved — check figure_map "
-                         "captions still carry their sub-figure id")
+                         "rows still carry a resolvable caption Source: marker")
     print(f"  {len(png_to_global)} figure(s) resolved to a pipeline output; "
           f"{len(script_to_global)} script(s) produce one\n")
 

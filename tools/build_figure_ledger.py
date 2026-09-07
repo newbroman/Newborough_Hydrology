@@ -1,117 +1,119 @@
 #!/usr/bin/env python3
 """
-build_figure_ledger.py — the figure ledger, derived rather than written.
+build_figure_ledger.py — the figure ledger, derived from figure_map captions.
 
-WHY DERIVED
+WHY
 
-  notes/ledgers/README.md listed FIGURE_LEDGER.md as one of three ledgers "to
-  build", seeded from tools/figure_table_manifest.csv. A hand-maintained figure
-  ledger would go stale the first time a figure was renumbered or a PNG moved —
-  exactly the decay the ledgers exist to prevent. So it is generated from the
-  manifest, which the figure/table pipeline already keeps current.
+  v1 seeded the ledger from tools/figure_table_manifest.csv, a hand-maintained
+  file that went stale the instant a figure was renumbered.
 
-WHAT IT ANSWERS
+  The authoritative source is the figure's own caption. Every report figure
+  caption ends with a marker naming the file that produced it, e.g.
+  "(Source: 41_05_canopy_trajectory.png)" (Martin, 2026-09-07). figure_map.py
+  parses that marker (caption_source) and resolves it on disk, so the whole
+  ledger — global number, section, caption title AND source PNG — is derived
+  live from the ODTs, current by construction, with no side registry to lag.
+  A figure whose caption carries no resolvable marker is listed and FLAGGED,
+  not dropped, so a genuine gap shows up rather than being silently wrong.
 
-  For each report figure: which document carries it, its number there, the
-  source file (script output / PNG), and whether that output resolves on disk or
-  is flagged. This is the "figure no. -> source -> PNG -> regen state" lookup.
-
-  Global caption titles live in tools/reference_index_figure.csv under a
-  different (sequential) numbering; the cross-reference that once bridged the two
-  schemes (NRG_report_figure_xref_2026-08-13.csv) was lost and could not be
-  recovered under T-10, so titles are listed in their own section rather than
-  joined row-by-row. The join is a future enhancement if the xref is rebuilt.
-
-  Seeded from tools/figure_table_manifest.csv (type == Figure) and, for the
-  caption index, tools/reference_index_figure.csv. Pure stdlib.
+  figure_map covers the report master (report7-16), which carries the captioned
+  Source: markers; the papers, Methods Supplement and academic summary caption
+  their figures without such markers and are not listed here.
 
   Regenerate with: python3 tools/build_figure_ledger.py
+
+CHANGELOG
+  2.2.0  2026-09-07  Pure caption-derived; figure_table_sources.csv retired for
+                     figures (its Figure rows removed), so the registry appendix
+                     is gone.
+  2.1.0  2026-09-07  Source column from the caption Source: marker via
+                     figure_map.caption_source.
+  2.0.0  2026-09-07  Rederive the list from figure_map (live).
+  1.0.0             Seeded from figure_table_manifest.csv.
 """
 from __future__ import annotations
 
 import argparse
-import csv
-import pathlib
 import datetime
+import pathlib
+import re
+import sys
 
-__version__ = "1.0.0"
+__version__ = "2.2.0"
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
-MANIFEST = REPO / "tools" / "figure_table_manifest.csv"
-INDEX = REPO / "tools" / "reference_index_figure.csv"
+sys.path.insert(0, str(REPO / "tools"))
+import figure_map as fm                                          # noqa: E402
+
 DEFAULT_OUT = REPO / "notes" / "ledgers" / "FIGURE_LEDGER.md"
 
-KIND = "Figure"
+_TITLE = re.compile(r"\s*Figure\s+[\d.]+[ab]?\s*:\s*(.*)", re.I)
+
 BANNER = (
     "<!-- GENERATED LEDGER — do not edit.\n"
-    "     Regenerate with: python3 tools/build_figure_ledger.py -->\n\n"
+    "     Regenerate with: python3 tools/build_figure_ledger.py -->"
 )
 
 
-def _numkey(s: str):
-    """Sort '1.10' after '1.2' by splitting into integer parts where possible."""
-    parts = []
-    for p in str(s).replace("-", ".").split("."):
-        parts.append((0, int(p)) if p.isdigit() else (1, p))
-    return parts
-
-
-def _resolves(status: str) -> bool:
-    """A manifest cell that names a path resolves iff that path exists."""
-    s = (status or "").strip()
-    if "/" in s and not s.lower().startswith(("missing", "pending", "unbuilt")):
-        return (REPO / s).exists()
-    return False
-
-
 def build() -> str:
-    rows = [r for r in csv.DictReader(MANIFEST.open(encoding="utf-8"))
-            if r.get("type", "").strip().lower() == KIND.lower()]
+    rows = fm.build()                       # live: number..caption, source
+
+    docs: list[str] = []
     by_doc: dict[str, list[dict]] = {}
     for r in rows:
-        by_doc.setdefault(r["document"].strip(), []).append(r)
+        d = r["document"]
+        if d not in by_doc:
+            by_doc[d] = []
+            docs.append(d)
+        by_doc[d].append(r)
 
     n_total = len(rows)
-    n_ok = sum(1 for r in rows if _resolves(r.get("resolved_path_or_status", "")))
-    n_flag = n_total - n_ok
+    n_resolved = 0
+    flagged: list[int] = []
 
-    out = [BANNER.rstrip("\n"), "",
-           "# FIGURE_LEDGER — figures by document, source, and resolution",
+    out = [BANNER, "",
+           "# FIGURE_LEDGER — figures by document, number, section and source",
            "",
-           "*Generated from `tools/figure_table_manifest.csv` (Figure rows). "
-           "Living current-state; regenerate, do not hand-edit.*",
-           "",
-           f"**{n_total} figures** across {len(by_doc)} documents — "
-           f"{n_ok} resolve on disk, {n_flag} flagged (status shown).",
+           "*Derived live from `tools/figure_map.py`: the Source column is each "
+           "figure's caption `Source:` marker, resolved on disk. Regenerate, do "
+           "not hand-edit.*",
            ""]
 
-    for doc in sorted(by_doc):
-        out.append(f"## {doc}")
-        out.append("")
-        out.append("| Figure | Source file | Resolved path / status | On disk |")
-        out.append("|---|---|---|---|")
-        for r in sorted(by_doc[doc], key=lambda x: _numkey(x["number"])):
-            status = (r.get("resolved_path_or_status", "") or "").strip()
-            ok = "yes" if _resolves(status) else "—"
-            src = (r.get("source_file", "") or "").strip()
-            out.append(f"| {r['number']} | `{src}` | `{status}` | {ok} |")
-        out.append("")
+    body: list[str] = []
+    for d in docs:
+        body.append(f"## {d}")
+        body.append("")
+        body.append("| Fig. | § | Caption | Source | On disk |")
+        body.append("|---|---|---|---|---|")
+        for r in by_doc[d]:
+            gnum = r["number"]
+            cap = r["caption"]
+            mt = _TITLE.match(cap)
+            title = (mt.group(1) if mt else cap).replace("|", "\\|").strip()[:70]
+            src = (r.get("source") or "").strip()
+            if src:
+                n_resolved += 1
+                srccell = f"`{src}`"
+                disk = "yes"
+            else:
+                srccell = "*no source marker*"
+                disk = "—"
+                flagged.append(int(gnum))
+            body.append(f"| {gnum} | {r['section']} | {title} | {srccell} | {disk} |")
+        body.append("")
 
-    # Caption index (separate scheme — see module docstring)
-    if INDEX.exists():
-        idx = list(csv.DictReader(INDEX.open(encoding="utf-8")))
-        out.append("## Caption index (global numbering)")
+    n_flag = len(flagged)
+    out.append(f"**{n_total} report figures** across {len(docs)} documents — "
+               f"{n_resolved} resolve to a source on disk, "
+               f"{n_flag} flagged"
+               + (f" (numbers: {', '.join(map(str, sorted(flagged)))})"
+                  if flagged else "") + ".")
+    out.append("")
+    if flagged:
+        out.append("*Flagged = the caption carries no resolvable `Source:` "
+                   "marker. Add one to the figure's caption in the ODT.*")
         out.append("")
-        out.append("*From `tools/reference_index_figure.csv`. Numbered globally, "
-                   "not per-document; the xref bridging this to the manifest "
-                   "numbers above was lost under T-10.*")
-        out.append("")
-        out.append("| No. | Document | Title |")
-        out.append("|---|---|---|")
-        for r in idx:
-            title = (r.get("title", "") or "").replace("|", "\\|").strip()
-            out.append(f"| {r['number']} | {r['document']} | {title} |")
-        out.append("")
+    out.extend(body)
 
     stamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
     out.append(f"*Generated {stamp} by `tools/build_figure_ledger.py` "
@@ -131,8 +133,7 @@ def main() -> int:
         return 0
     dest = pathlib.Path(a.out) if a.out else DEFAULT_OUT
     dest.write_text(text, encoding="utf-8")
-    print(f"wrote {dest.relative_to(REPO)}: "
-          f"{text.count(chr(10))} lines")
+    print(f"wrote {dest.relative_to(REPO)}: {text.count(chr(10))} lines")
     return 0
 
 

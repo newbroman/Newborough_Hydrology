@@ -46,10 +46,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-08-23.
+__version__ = "1.1.0"  # 2026-09-07 caption-derived sources (retires figure_table_sources).
 
 import argparse
-import csv
 import hashlib
 import re
 import shutil
@@ -61,10 +60,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from repoint_refs import ODTS                                    # noqa: E402
+import figure_map as fm                                          # noqa: E402
 
 REPO = Path(__file__).resolve().parents[1]
-SOURCES = REPO / "tools/figure_table_sources.csv"
-FIGMAP = REPO / "tools/figure_map.csv"
 HISTORY_DEPTH = 25
 
 
@@ -98,12 +96,19 @@ def outputs_index() -> dict[str, Path]:
     return idx
 
 
-def global_numbers() -> dict[tuple[str, str], str]:
-    out = {}
-    for r in csv.DictReader(FIGMAP.open(encoding="utf-8")):
-        m = re.match(r"\s*Figure\s+([\d.]+)\s*:", r["caption"])
-        if m:
-            out[(r["document"], m.group(1))] = r["number"]
+def fig_sources_by_doc() -> dict[str, list[tuple[str, str]]]:
+    """document name -> [(global figure number, source basename)].
+
+    Source is each figure's caption Source: marker (figure_map.caption_source);
+    figure_table_sources.csv is no longer consulted for figures.
+    """
+    out: dict[str, list[tuple[str, str]]] = {}
+    for r in fm.build():
+        src = (r.get("source") or "").strip()
+        if not src:
+            continue
+        out.setdefault(r["document"], []).append(
+            (str(r["number"]), src.rsplit("/", 1)[-1]))
     return out
 
 
@@ -127,7 +132,7 @@ def history_ids(path: Path) -> list[tuple[str, str]]:
     return pairs
 
 
-def plan_for(odt: Path, srcidx, gnum, skip) -> tuple[list, list]:
+def plan_for(odt: Path, srcidx, figsrc, skip) -> tuple[list, list]:
     z = zipfile.ZipFile(odt)
     embedded = {}
     for i in z.infolist():
@@ -136,10 +141,7 @@ def plan_for(odt: Path, srcidx, gnum, skip) -> tuple[list, list]:
             embedded[blob_id(data)] = (i.filename, data)
 
     jobs, problems = [], []
-    for r in csv.DictReader(SOURCES.open(encoding="utf-8")):
-        if r["document"] != odt.name or r["type"] != "Figure":
-            continue
-        base = r["source"].split("/")[-1].replace("Script 26c output ", "").strip()
+    for num, base in figsrc.get(odt.name, []):
         if base in skip:
             continue
         cur = srcidx.get(base)
@@ -153,7 +155,6 @@ def plan_for(odt: Path, srcidx, gnum, skip) -> tuple[list, list]:
             if bid in embedded:
                 hit = (i, rev, *embedded[bid])
                 break
-        num = gnum.get((odt.name, r["number"]), "?")
         if hit is None:
             problems.append((num, base,
                              "no version in this file's history is embedded — "
@@ -236,7 +237,7 @@ def main() -> int:
     if not (args.apply or args.dry_run):
         ap.error("choose --dry-run or --apply")
 
-    srcidx, gnum, skip = outputs_index(), global_numbers(), set(args.skip)
+    srcidx, figsrc, skip = outputs_index(), fig_sources_by_doc(), set(args.skip)
     total = 0
     for name, rel in ODTS.items():
         if args.only and args.only.lower() not in name.lower():
@@ -244,7 +245,7 @@ def main() -> int:
         odt = REPO / rel
         if odt.suffix not in (".odt", ".odm") or not odt.exists():
             continue
-        jobs, problems = plan_for(odt, srcidx, gnum, skip)
+        jobs, problems = plan_for(odt, srcidx, figsrc, skip)
         if not jobs and not problems:
             continue
         print(f"\n  {odt.name}")

@@ -33,7 +33,9 @@ __version__ = "1.4.0"  # Hollingham (2026) — 2026-08-23. Second batch: the
 #   script producing the figure. Those two documents are on an older baseline
 #   than the report, so the 2026-08-23 permutation moved several of them from
 #   one wrong number to another; the corrections below are derived by
-#   tools/ref_audit.py from figure_table_sources.csv, not judged.
+#   tools/ref_audit.py from figure_table_sources.csv (its source at the time;
+#   since D-142 ref_audit derives the source from each caption's Source: marker),
+#   not judged.
 
 import argparse
 import re
@@ -97,8 +99,9 @@ FIXES = [
 # SECOND BATCH — PIPELINE_README.md and readme.md, 2026-08-23
 #
 # These two documents cite the SCRIPT beside the figure number, so the number is
-# checkable without judgement: figure_table_sources.csv maps a sub-figure id to
-# its source PNG and figure_map.csv maps it to a global number. Chained:
+# checkable without judgement: each figure's caption Source: marker names its
+# source PNG and figure_map.csv maps it to a global number (D-142; this batch
+# predates that and used figure_table_sources.csv for the source). Chained:
 #
 #     32_differential_movement_2011_2025.png  -> 1.60 -> Figure 56
 #     36_absolute_climate_trend_2005_2025.png -> 1.61 -> Figure 57

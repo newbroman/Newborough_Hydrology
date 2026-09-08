@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of report_edits/odt/report13.odt — do not edit. source-sha256=adf07e1a277a3288 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report13.odt — do not edit. source-sha256=6668cd7f0b41b688 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}References
@@ -117,8 +117,6 @@ Hypolite, J., Arvor, D., Bertrand, G., & Fovet, O. (2021) A state-space approach
 
 Jennings, T.A.H. (1990) The changing hydrology of the Newborough Dune System due to afforestation. Unpublished M.Sc. dissertation, University of North Wales, Bangor.
 
-Jones, M.L.M., Sowerby, A. and Wallace, H.A. (2007) Better Understanding of Soil Resources --- Dune Stabilization and Rates of Soil Development on Welsh Dune Systems. CCW Contract Science Report No. 796. Bangor: Countryside Council for Wales / Centre for Ecology and Hydrology.
-
 ****Jones, ****M.****L.****M****, Rooney, P., Rhymes, J. and Dynamic Dunescapes partners (2021)**** **The Sand Dune Managers Handbook**, Version 1, June 2021. Produced for the Dynamic Dunescapes (DuneLIFE) project, LIFE17 NAT/UK/000570.
 
 Jordahl, K., den Bossche, J. V., Fleischmann, M., Wasserman, J., McBride, P., Gerard, J., \... & Ward, B. (2020). *geopandas/geopandas: v0.8.1*. Zenodo. **https://doi.org/10.5281/zenodo.3946761**
@@ -193,6 +191,8 @@ Stratford, C. (2006) Review of Hydrological Reports for Newborough Warren, Angle
 
 Stratford, C., Ratcliffe, J., Hughes, A.G., Roberts, J. and Robins, N.S. (2007) Complex interaction between shallow groundwater and changing woodland, surface water, grazing and other influences in partly wooded duneland in Anglesey, Wales. In: Ribeiro, L., Chambel, A. and Condesso de Melo, M.T. (eds) IAH 35th Congress, Groundwater and Ecosystems, Lisbon.
 
+Sun, G., Caldwell, P.V. and McNulty, S.G. (2015) Modelling the potential role of forest thinning in maintaining water supplies under a changing climate across the conterminous United States. Hydrological Processes, 29, pp. 5016--5030. https://doi.org/10.1002/hyp.10469
+
 Stuyfzand, P. J. (1993) *Hydrochemistry and hydrology of the coastal dune area of the Western Netherlands*. (Doctoral dissertation, Vrije Universiteit Amsterdam)
 
 Taylor, C.J. and Alley, W.M. (2001) Ground-Water-Level Monitoring and the Importance of Long-Term Water-Level Data. U.S. Geological Survey Circular 1217. Denver, CO: U.S. Geological Survey.
@@ -218,5 +218,3 @@ Wu, X., Koch, M. and Xu, Y. (2021) Unsupervised learning for groundwater level c
 Young, P.C. (2011) Recursive Estimation and Time-Series Analysis: An Introduction for the Student and Practitioner. Berlin: Springer.
 
 Yuan, C. and Yang, H. (2019) Research on K-value selection method of K-means clustering algorithm. J, 2(2), pp. 226--235.
-
-Zanotti, C., Rotiroti, M., Fumagalli, L., Stefania, G.A., Canonaco, F., Prevot, A.S.H., Leoni, B., Nava, V. and Bonomi, T. (2022) Groundwater and surface water quality characterization through positive matrix factorization combined with GIS approach. Water Research, 218, 118520.

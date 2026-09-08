@@ -187,3 +187,12 @@ outputs/number_index.csv
 outputs/number_ledger.csv
 # per-run scratch the orchestrator reads back (fallback log); the durable record is outputs/pipeline_provenance.json
 outputs/_run/
+
+# Ranwell (1959) Fig. 3 — in-copyright JSTOR figure (D-081): the render and Martin's
+# georeferenced GeoTIFF of it stay LOCAL. What is committed is derived data only:
+# ranwell_1959_sites_georef_px.csv (numeral positions read off the georeference) and
+# the KMLs/CSVs of digitised features.
+data/geo/ranwell_map*.png
+data/geo/ranwell_map*.tif
+data/geo/ranwell_map*.tif.aux.xml
+data/geo/ranwell_map*.points

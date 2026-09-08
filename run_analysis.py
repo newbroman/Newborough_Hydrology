@@ -152,7 +152,13 @@ import uuid
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.15.0"  # 2026-09-07: inter-step PROVENANCE (S1 spec; D-133
+__version__ = "2.16.0"  # 2026-09-08: Script 44 REGISTERED (tier A, default,
+#   Phase 17 after Script 43, whose basins it reads) and Script 43's entry
+#   reworded for v2 (D-140 revisited, D-145). Counts move: total_registered
+#   53->54, analytical_toplevel 42->43, by_exec.default 50->51, and Phase 17
+#   now carries a tier-A step so analytical_phases 15->16. _DOCUMENTED_COUNTS
+#   updated with it; the documents quote the manifest.
+#   2.15.0 (2026-09-07): inter-step PROVENANCE (S1 spec; D-133
 #   extended inward). run_script() now records, per step, into
 #   outputs/pipeline_provenance.json: the SHA-256 of every declared input
 #   (the SCRIPT_LEDGER Consumes cell, resolved under outputs/ and data/), the
@@ -439,7 +445,8 @@ PHASE_17 = [
     Step("09f_management_effects.py",  "Figure: management-interventions + coastal-retreat spatial reach (\u00a75.8; two-pass, reads Scripts 20/25/09d/10a)",   "D"),
     Step("09g_mechanism_diagrams.py",  "Figure: mechanism grid + coastal reach (\u00a75.8 conceptual; display only, reads 09f/10m/10a)", "D"),
     Step("27_greyscale_figures.py",    "Greyscale figure conversion (journal-ready B&W)",                                                                       "D"),
-    Step("43_ranwell_sites.py",       "Ranwell (1959) Fig 3 historical water-table sites georeferenced into OSGB and matched to the modern network; two routes (geometric + elevational). Skips when its digitised inputs are absent. Site positions provisional (W95)", "D"),
+    Step("43_ranwell_sites.py",       "Ranwell (1959) Fig 3 water-table sites: hand placement over a georeferenced sketch, height-checked against the DEM, basin-tested; slack floors as a diagnostic layer (W95, D-140 revisited). Skips when Route M's input is absent", "D"),
+    Step("44_ranwell_hindcast.py",    "Ranwell's 1951\u201353 readings (recovered from his figures) against the SSM hindcast and the modern water-table surface \u2014 out-of-sample validation fifty-four years before calibration and the climate-corrected level change since 1951 (D-145). Skips when the digitised inputs are absent", "A"),
 ]
 
 ALL_PHASES = [
@@ -459,7 +466,7 @@ ALL_PHASES = [
     ("PHASE 14 \u2014 Cluster Framework Diagnostics (Scripts 28\u201330)",   PHASE_14),
     ("PHASE 15 \u2014 Observed Differential Change, Envelope, and Driver Validation (Scripts 32, 33, 35, 36, 37, 37b)", PHASE_15),
     ("PHASE 16 \u2014 Window Sensitivity, Coastal Transect, and Supplementary Cluster Diagnostics (Scripts 34, 38 default; 24b, 31, 31b opt-in)", PHASE_16),
-    ("PHASE 17 \u2014 Synthesis Figures, Greyscale Conversion, and Historical Site Georeferencing (Scripts 09f, 09g, 27, 43)",  PHASE_17),
+    ("PHASE 17 \u2014 Synthesis Figures, Greyscale Conversion, and the Ranwell 1951\u201353 Record (Scripts 09f, 09g, 27, 43, 44)",  PHASE_17),
 ]
 
 # Phase number = 1-based position in ALL_PHASES (the orchestrator phase order).
@@ -488,14 +495,14 @@ _PHASE_NUM = {label: i for i, (label, _entries) in enumerate(ALL_PHASES, start=1
 # this pipeline and is cited in the report, which is what puts it in tier A
 # rather than among the opt-in diagnostics.
 _DOCUMENTED_COUNTS = {
-    "total_registered":            53,
+    "total_registered":            54,
     "total_phases":                17,
-    "by_tier.analytical_toplevel": 42,
+    "by_tier.analytical_toplevel": 43,
     "by_tier.display_utility":      5,
     "by_tier.optin_diagnostic":     6,
-    "by_exec.default":             50,
+    "by_exec.default":             51,
     "by_exec.optin":                3,
-    "analytical_phases":           15,   # phases carrying >=1 tier-A step; emitted
+    "analytical_phases":           16,   # phases carrying >=1 tier-A step; emitted
                                          # for completeness, NOT cited in any document
 }
 

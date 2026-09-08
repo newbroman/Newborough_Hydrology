@@ -301,8 +301,8 @@
    "step": "53/54  Ranwell (1959) Fig 3 water-table sites: hand placement over a georeferenced sketch, height-checked against the DEM, basin-tested; slack floors as a diagnostic layer (W95, D-140 revisited). Skips when Route M's input is absent"
   },
   "44_ranwell_hindcast.py": {
-   "last_run": "2026-09-08T13:41:39",
-   "seconds": 3.1,
+   "last_run": "2026-09-08T19:51:23",
+   "seconds": 3.8,
    "status": "ok",
    "step": "54/54  Ranwell's 1951\u201353 readings (recovered from his figures) against the SSM hindcast and the modern water-table surface \u2014 out-of-sample validation fifty-four years before calibration and the climate-corrected level change since 1951 (D-145). Skips when the digitised inputs are absent"
   },
@@ -319,5 +319,5 @@
    "step": "10/53  Clear-fell BACI analysis suite (10a\u201310m)"
   }
  },
- "updated": "2026-09-08T13:41:39"
+ "updated": "2026-09-08T19:51:23"
 }

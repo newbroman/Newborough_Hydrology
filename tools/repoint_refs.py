@@ -34,7 +34,11 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # 2026-08-23. THE LOOKAHEAD BUG. v1.0 wrote (?![\d.]) to
+__version__ = "1.3.0"  # 2026-09-08. report6, report7 and the master report.odm join ODTS -
+#   every typed figure/table/section reference in the report is now inside the renumber scope
+#   (the Abstract's stale "Figure 65" of 09-07 was outside it). Matchers unchanged; the SEC
+#   matcher still covers 4.x only, by design (a separate decision).
+#   1.2.0 — 2026-08-23. THE LOOKAHEAD BUG. v1.0 wrote (?![\d.]) to
 #   stop "Figure 1.66" (a chapter-prefixed CAPTION) matching on its leading "1".
 #   It also rejected every SENTENCE-FINAL reference — "shown in Figure 44." — and
 #   did so in silence: 15 figure references across five documents were left on
@@ -68,7 +72,7 @@ import odt_edit                                   # noqa: E402
 odt_edit.REASON = "repoint_refs"   # mechanical caller, exempt from the D-144 prose freeze
 
 from refresh_mirrors import resolve                          # noqa: E402
-from doc_paths import chapter_odt, REPO
+from doc_paths import chapter_odt, MASTER_ODM, REPO
 
 REPO = Path(__file__).resolve().parents[1]
 PLAN = Path(__file__).resolve().parent / "renumber_plan.csv"
@@ -91,6 +95,15 @@ def _versioned(stem: str) -> str:
 
 
 ODTS = {
+    # report6, report7 and the master were outside this list until 2026-09-08:
+    # report6 carries a dozen typed section references (the introduction's
+    # forward pointers), report7 six figure references, and the master's
+    # Abstract one of each - the Abstract's "Figure 65" went stale on 09-07 for
+    # exactly that reason. The master is an .odm; process() and odt_edit read
+    # and write it like any chapter (doc_tier family "report").
+    "report6":  str(chapter_odt(6).relative_to(REPO)),
+    "report7":  str(chapter_odt(7).relative_to(REPO)),
+    "report":   str(MASTER_ODM.relative_to(REPO)),
     "report8":  str(chapter_odt(8).relative_to(REPO)),
     "report9":  str(chapter_odt(9).relative_to(REPO)),
     "report10": str(chapter_odt(10).relative_to(REPO)),

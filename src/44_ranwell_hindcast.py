@@ -65,14 +65,25 @@ Outputs (outputs/44_ranwell_hindcast/):
     44_04_hindcast_metrics.csv        r, NSE after offset, ranges, timing, beta_1 envelope
     44_05_level_change.csv            per-site Delta with the four error terms; COMBINED rows
     44_06_climate_check.csv           Parc Mawr (Fig. 2) vs RAF Valley, 1950-53
-    44_07_hindcast.png                the printed series against the hindcast
+    44_07_hindcast.png                the printed series against the hindcast (annotated; MS)
+    44_07b_hindcast_report.png        the same, caption-free, for the report
     44_08_level_change.png            Ranwell mean vs modern surface, per site
     44_report_numbers.csv
 """
 
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-09-08. First issue (D-145).
+__version__ = "1.1.2"  # Hollingham (2026) — 2026-09-08. Report render: legend on the
+#   top panel only — on the lower panels it covered the August 1951 minimum.
+#   1.1.1 (2026-09-08): Forcing check: restore the
+#   "month" index name after the Parc Mawr / RAF Valley join — pandas 2.1 on the
+#   L14 drops it and the span filter raised KeyError. No number moves.
+#   1.1.0 (2026-09-08): Report render of the
+#   hindcast figure: 44_07b_hindcast_report.png, the same three panels drawn by
+#   the same function with report=True — no suptitle, panel titles name site,
+#   slack and paired well only, legend without values (captions live in the
+#   document text). 44_07 unchanged; no number moves.
+#   1.0.0 (2026-09-08): first issue (D-145).
 
 import sys
 import pathlib
@@ -255,7 +266,20 @@ def coast_distance(e, n) -> float:
 
 
 # ── figures ───────────────────────────────────────────────────────────────────
-def plot_hindcast(series: pd.DataFrame, metrics: pd.DataFrame, fig_path):
+SLACK_NAMES = {"PL": "Penlon slack", "CG": "Clwt Gwlyb", "AS": "the coastal slack", "BS": "the 2–15 slack"}
+
+
+def plot_hindcast(series: pd.DataFrame, metrics: pd.DataFrame, fig_path, report: bool = False):
+    """Ranwell's monthly means against the offset-removed, surface-capped hindcast.
+
+    report=False — the Methods Supplement / diagnostic render: panel titles carry
+      r, NSE-after-offset and the ranges, the legend carries the offset, a suptitle
+      names the model.
+    report=True — the report render: captions live in the document text (house
+      rule), so no suptitle, panel titles name only the site, its slack and the
+      paired well, and the legend names the series without values. Same data,
+      same axes, same drawing code.
+    """
     sites = sorted(series["site_no"].unique())
     fig, axes = plt.subplots(len(sites), 1, figsize=(10, 2.8 * len(sites)), sharex=True)
     axes = np.atleast_1d(axes)
@@ -263,18 +287,31 @@ def plot_hindcast(series: pd.DataFrame, metrics: pd.DataFrame, fig_path):
         sub = series[(series["site_no"] == s) & series["headline"]]
         m = metrics[(metrics["site_no"] == s) & metrics["headline"]].iloc[0]
         t = sub["month"].dt.to_timestamp()
-        ax.plot(t, sub["obs_level_m_od"], "o-", ms=4, color="#1B9E77", label="Ranwell (monthly mean of readings)")
-        ax.plot(t, np.minimum(sub["model_level_m_od"] + m["offset_m"], m["ground_m_od"]), "-", color="#D95F02",
-                label=f"SSM hindcast at {m['well']} ({m['offset_m']:+.2f} m offset, capped at the surface)")
+        capped = np.minimum(sub["model_level_m_od"] + m["offset_m"], m["ground_m_od"])
+        if report:
+            ax.plot(t, sub["obs_level_m_od"], "o-", ms=4, color="#1B9E77",
+                    label="Ranwell 1951–53, monthly mean of readings")
+            ax.plot(t, capped, "-", color="#D95F02",
+                    label="SSM hindcast, offset removed, capped at the ground surface")
+            ax.set_title(f"Ranwell Site {s} ({SLACK_NAMES.get(m['sketch_slack'], m['sketch_slack'])}), "
+                         f"paired with {m['well']}", fontsize=9, loc="left")
+            ax.set_ylabel("Water-table level (m OD)", fontsize=9)
+        else:
+            ax.plot(t, sub["obs_level_m_od"], "o-", ms=4, color="#1B9E77", label="Ranwell (monthly mean of readings)")
+            ax.plot(t, capped, "-", color="#D95F02",
+                    label=f"SSM hindcast at {m['well']} ({m['offset_m']:+.2f} m offset, capped at the surface)")
+            ax.set_title(f"Site {s} ({m['sketch_slack']}): r {m['r']:.2f}, NSE after offset "
+                         f"{m['nse_after_offset']:.2f}, range obs {m['range_obs_m']:.2f} vs model "
+                         f"{m['range_model_m']:.2f} m", fontsize=9, loc="left")
+            ax.set_ylabel("level (m OD)", fontsize=9)
         ax.axhline(m["ground_m_od"], color="grey", lw=0.7, ls=":")
-        ax.set_ylabel("level (m OD)", fontsize=9)
-        ax.set_title(f"Site {s} ({m['sketch_slack']}): r {m['r']:.2f}, NSE after offset "
-                     f"{m['nse_after_offset']:.2f}, range obs {m['range_obs_m']:.2f} vs model "
-                     f"{m['range_model_m']:.2f} m", fontsize=9, loc="left")
         ax.grid(alpha=0.3)
-        ax.legend(fontsize=8, loc="lower left", framealpha=0.9)
-    fig.suptitle("Ranwell's 1951–53 series against the SSM driven by RAF Valley climate "
-                 "(coefficients fitted 2005–26)", fontsize=10)
+        if not report or ax is axes[0]:
+            # one legend in the report render: on the lower panels it covers the 1951 minimum
+            ax.legend(fontsize=8, loc="lower left", framealpha=0.9)
+    if not report:
+        fig.suptitle("Ranwell's 1951–53 series against the SSM driven by RAF Valley climate "
+                     "(coefficients fitted 2005–26)", fontsize=10)
     fig.tight_layout()
     render_figure(fig, fig_path)
     plt.close(fig)
@@ -487,6 +524,7 @@ def main() -> int:
     raf.index = raf.index.to_period("M")
     cc = pd.DataFrame({"month": pm_idx, "parc_mawr_mm": pm["rain_mm"].values}).set_index("month")
     cc = cc.join(raf.rename("raf_valley_mm"), how="inner")
+    cc.index.name = "month"  # the join drops the index name on some pandas builds
     cc["ratio"] = cc["parc_mawr_mm"] / cc["raf_valley_mm"]
     cc = cc.reset_index()
     in_span = cc[(cc["month"] >= SPAN[0]) & (cc["month"] <= SPAN[1])]
@@ -518,6 +556,8 @@ def main() -> int:
         series["month"] = pd.PeriodIndex(series["month"], freq="M")
         plot_hindcast(series, metrics, paths.OUT_44_HINDCAST_FIG)
         saved(paths.OUT_44_HINDCAST_FIG.name)
+        plot_hindcast(series, metrics, paths.OUT_44_HINDCAST_REPORT_FIG, report=True)
+        saved(paths.OUT_44_HINDCAST_REPORT_FIG.name)
     plot_level_change(lc, paths.OUT_44_CHANGE_FIG)
     saved(paths.OUT_44_CHANGE_FIG.name)
 

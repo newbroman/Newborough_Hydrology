@@ -1,0 +1,4 @@
+kind,old,new,typed_refs,documents
+figure,75,76,3,report10.md;report8.md;report9.md
+figure,76,77,2,report10.md
+figure,77,78,2,report10.md;report12.md

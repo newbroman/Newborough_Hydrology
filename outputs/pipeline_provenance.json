@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-08T13:41:39",
+ "generated": "2026-09-08T19:51:23",
  "orchestrator": "2.16.0",
  "steps": {
   "00_climate_summary.py": {
@@ -1197,6 +1197,7 @@
     "outputs/44_ranwell_hindcast/44_05_level_change.csv": "9a911351eeee12a8fff43ec4087b0d728a4227782bc6df17f48bcf8b55adcb8d",
     "outputs/44_ranwell_hindcast/44_06_climate_check.csv": "682a1022f4dc9d1d3196c4d9c219d71dd980426415fa8f1118994540c7d7c683",
     "outputs/44_ranwell_hindcast/44_07_hindcast.png": "38bdf82b38ffb08ac0cd3310959c3b754a809605ba7155b82d46277c9a521548",
+    "outputs/44_ranwell_hindcast/44_07b_hindcast_report.png": "d1d33c6841eaceb6a36e2597cbe8758327df1fb8871993459c85db33978786fa",
     "outputs/44_ranwell_hindcast/44_08_level_change.png": "37993644db2db5abd901049a6a3c2668e0406f64a21aebb2ef63bcf93efd222b",
     "outputs/44_ranwell_hindcast/44_report_numbers.csv": "79add5572b5a7312dd725cee76fbcdb321180a225d1f090b163fa391aa0d8d74"
    },
@@ -1216,9 +1217,9 @@
     "outputs/43_ranwell/43_07_modern_well_basins.csv": "d4938d352e042a18d2a05ca3f3fe519f06fde5fe8b13b262e953493a489dfa92"
    },
    "inputs_unresolved": [],
-   "seconds": 3.1,
-   "started": "2026-09-08T13:41:36",
-   "version": "1.0.0"
+   "seconds": 3.8,
+   "started": "2026-09-08T19:51:19",
+   "version": "1.1.2"
   },
   "run_09_scraping.py": {
    "emitted": {

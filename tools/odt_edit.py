@@ -52,7 +52,17 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-09-07. The document-phase gate
+__version__ = "1.6.0"  # Hollingham (2026) — 2026-09-08. insert_figure gains
+#   layout="nested" | "plain". "nested" is the report9 form (outer text-box
+#   frame carrying image and caption); "plain" is the report10 form — a Cap
+#   paragraph holding one image frame (fr6, anchor paragraph, rel-width 100%)
+#   followed by a Cap paragraph with the sequence-numbered caption. The
+#   declared-style guard checks only the frame styles the chosen layout emits,
+#   plus the paragraph and run styles (report10's empty trailing span after the
+#   frame is not emitted — it carries nothing and would trip the span-balance
+#   guard). Manifest entry, sha-named Pictures/
+#   entry, marker check, em-space guard and LibreOffice read-back unchanged.
+# 1.5.0 — 2026-09-07. The document-phase gate
 #   (D-144). Every write path — _write (edit, edit_spans), edit_entries,
 #   insert_figure — first calls _tier_gate(dst): a family with no row in
 #   tools/doc_tier.csv is refused; a FROZEN family is written only when the
@@ -421,7 +431,7 @@ def insert_figure(src, dst, image_path, before: str, caption: str,
                   width_cm: float, height_cm: float,
                   outer_style: str = "fr10", inner_style: str = "fr18",
                   para_style: str = "Cap", run_style: str = "T79",
-                  frame_prefix: str = "NRGFrame") -> bool:
+                  frame_prefix: str = "NRGFrame", layout: str = "nested") -> bool:
     """Insert a captioned, auto-numbered figure before the marker `before`.
 
     WHY THIS IS NOT edit()
@@ -451,6 +461,13 @@ def insert_figure(src, dst, image_path, before: str, caption: str,
       and the new figure looks like its neighbours.
 
     THE CAPTION TEXT IS THE PART AFTER THE COLON. "Figure N: " is generated.
+
+    layout="nested" (default) emits report9's form above. layout="plain" emits
+    report10's: a para_style paragraph holding ONE image frame (inner_style,
+    anchor paragraph, style:rel-width="100%"), then a second para_style paragraph
+    carrying the run_style spans and the sequence field. outer_style is unused
+    and unchecked in that layout; pass inner_style="fr6", run_style="T29" for
+    report10.
 
     Returns True on success; on any failed guard prints why and leaves dst alone.
     """
@@ -486,32 +503,57 @@ def insert_figure(src, dst, image_path, before: str, caption: str,
         print(f"  ABORT: marker found {xml.count(before)}x, expected exactly 1")
         zin.close(); return False
 
-    for st in (outer_style, inner_style):
+    if layout not in ("nested", "plain"):
+        print(f"  ABORT: unknown layout {layout!r} (nested | plain)")
+        zin.close(); return False
+    frame_styles = (outer_style, inner_style) if layout == "nested" else (inner_style,)
+    for st in frame_styles:
         if f'draw:style-name="{st}"' not in xml:
             print(f"  ABORT: frame style {st} is not used in this document")
             zin.close(); return False
+    for st in (para_style, run_style):
+        if f'text:style-name="{st}"' not in xml:
+            print(f"  ABORT: text style {st} is not used in this document")
+            zin.close(); return False
 
     name = f"{frame_prefix}{hashlib.sha1(blob).hexdigest()[:6]}"
-    figure = (
-        f'<text:p text:style-name="{para_style}">'
-        f'<draw:frame draw:style-name="{outer_style}" draw:name="{name}Box" '
-        f'text:anchor-type="char" svg:width="{width_cm:.3f}cm" '
-        f'svg:height="{height_cm + 2.2:.3f}cm" style:rel-height="scale-min" '
-        f'draw:z-index="0"><draw:text-box>'
-        f'<text:p text:style-name="{para_style}">'
-        f'<draw:frame draw:style-name="{inner_style}" draw:name="{name}Img" '
-        f'text:anchor-type="paragraph" svg:width="{width_cm:.3f}cm" '
-        f'svg:height="{height_cm:.3f}cm" style:rel-height="scale" '
-        f'draw:z-index="1">'
-        f'<draw:image xlink:href="{pic}" xlink:type="simple" xlink:show="embed" '
-        f'xlink:actuate="onLoad" draw:mime-type="{media}"/></draw:frame>'
+    caption_spans = (
         f'<text:span text:style-name="{run_style}">Figure </text:span>'
         f'<text:span text:style-name="{run_style}">'
         f'<text:sequence text:name="Figure" text:formula="ooow:Figure+1" '
         f'style:num-format="1">0</text:sequence></text:span>'
         f'<text:span text:style-name="{run_style}">: </text:span>{caption}'
-        f'</text:p></draw:text-box></draw:frame></text:p>'
     )
+    if layout == "plain":
+        figure = (
+            f'<text:p text:style-name="{para_style}">'
+            f'<draw:frame draw:style-name="{inner_style}" draw:name="{name}Img" '
+            f'text:anchor-type="paragraph" svg:x="0cm" svg:y="0.217cm" '
+            f'svg:width="{width_cm:.3f}cm" style:rel-width="100%" '
+            f'svg:height="{height_cm:.3f}cm" style:rel-height="scale" '
+            f'draw:z-index="0">'
+            f'<draw:image xlink:href="{pic}" xlink:type="simple" xlink:show="embed" '
+            f'xlink:actuate="onLoad" draw:mime-type="{media}"/></draw:frame>'
+            f'</text:p>'
+            f'<text:p text:style-name="{para_style}">{caption_spans}</text:p>'
+        )
+    else:
+        figure = (
+            f'<text:p text:style-name="{para_style}">'
+            f'<draw:frame draw:style-name="{outer_style}" draw:name="{name}Box" '
+            f'text:anchor-type="char" svg:width="{width_cm:.3f}cm" '
+            f'svg:height="{height_cm + 2.2:.3f}cm" style:rel-height="scale-min" '
+            f'draw:z-index="0"><draw:text-box>'
+            f'<text:p text:style-name="{para_style}">'
+            f'<draw:frame draw:style-name="{inner_style}" draw:name="{name}Img" '
+            f'text:anchor-type="paragraph" svg:width="{width_cm:.3f}cm" '
+            f'svg:height="{height_cm:.3f}cm" style:rel-height="scale" '
+            f'draw:z-index="1">'
+            f'<draw:image xlink:href="{pic}" xlink:type="simple" xlink:show="embed" '
+            f'xlink:actuate="onLoad" draw:mime-type="{media}"/></draw:frame>'
+            f'{caption_spans}'
+            f'</text:p></draw:text-box></draw:frame></text:p>'
+        )
     xml = xml.replace(before, figure + before, 1)
 
     man = zin.read("META-INF/manifest.xml").decode("utf-8")

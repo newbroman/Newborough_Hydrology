@@ -11,7 +11,9 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.16.0"  # Hollingham (2026) - 2026-09-08. W95/D-140 and D-145:
+__version__ = "1.16.1"  # Hollingham (2026) - 2026-09-08. OUT_44_HINDCAST_REPORT_FIG (44_07b).
+#
+# v1.16.0  # Hollingham (2026) - 2026-09-08. W95/D-140 and D-145:
 #   Script 43 v2 inputs (DATA_RANWELL_SITES_MARTIN, DATA_RANWELL_SITES_GEOREF_PX,
 #   DATA_KML_RANWELL_FEATURES, DATA_KML_RANWELL_RIDGE) and outputs (OUT_43_FLOORS,
 #   OUT_43_FLOOR_STATS, OUT_43_WELL_BASINS); Script 44 raw inputs (RANWELL_LEVELS, RANWELL_RANGES,
@@ -1119,6 +1121,7 @@ OUT_44_METRICS        = DIR_44 / "44_04_hindcast_metrics.csv"
 OUT_44_LEVEL_CHANGE   = DIR_44 / "44_05_level_change.csv"
 OUT_44_CLIMATE_CHECK  = DIR_44 / "44_06_climate_check.csv"
 OUT_44_HINDCAST_FIG   = DIR_44 / "44_07_hindcast.png"
+OUT_44_HINDCAST_REPORT_FIG = DIR_44 / "44_07b_hindcast_report.png"   # caption-free render for report10
 OUT_44_CHANGE_FIG     = DIR_44 / "44_08_level_change.png"
 OUT_44_REPORT_NUMBERS = DIR_44 / "44_report_numbers.csv"
 OUT_40_FIG             = DIR_40 / "40_01_alongshore_profile.png"

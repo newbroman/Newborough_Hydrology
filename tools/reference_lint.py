@@ -60,7 +60,10 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-09-01. FIGURES ARE NOW LIVE.
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-09-08. The typed-reference census now reads the
+#   master's own mirror (report.md) after the sub-documents, so the Abstract's references are
+#   counted and resolved like any chapter's. Captions and the snapshot are unchanged.
+#   1.1.0 — 2026-09-01. FIGURES ARE NOW LIVE.
 #   No code changed: --kind figure already worked, and v1.0.0 predicted it would.
 #   What was missing was the pinned snapshot and a line in check_all.sh. Pinned
 #   2026-09-01 from a corpus at check_all: OK - 75 captions, 277 typed references
@@ -145,7 +148,10 @@ def references(kind: str) -> dict[str, list[int]]:
     word = kind.capitalize()
     pat = re.compile(rf"\b{word}s?\s+(\d+)")
     found: dict[str, list[int]] = {}
-    for name in master_order():
+    # The master's own text (title block, Abstract) is mirrored as report.md and
+    # carries typed references too - the Abstract's "Figure 65" was stale on
+    # 2026-09-07 while this census, reading sub-documents only, said all resolved.
+    for name in master_order() + [MASTER.name]:
         mirror = MIRROR_DIR / (pathlib.Path(name).stem + ".md")
         if not mirror.exists():
             continue

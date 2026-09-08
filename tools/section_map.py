@@ -49,7 +49,12 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) - 2026-09-04. --check-refs resolves per document family (W36): a Paper reference checks against that Paper own numbering, not the report chapter map.
+__version__ = "1.2.0"  # Hollingham (2026) - 2026-09-08. --check: rebuild in memory and compare with
+#   the committed section_map.csv; exit 1 and list the differing rows, write nothing. The map
+#   was found stale twice (09-07, 09-08: a new section missing) while section_ref_audit and
+#   --check-refs scored against it and reported OK. refresh_mirrors 1.2.0 now regenerates the
+#   map after mirroring, and check_all runs --check before section_ref_audit.
+#   1.1.0 (2026-09-04): --check-refs resolves per document family (W36): a Paper reference checks against that Paper own numbering, not the report chapter map.
 
 import argparse
 import csv
@@ -198,13 +203,48 @@ def check_refs(rows: list[dict]) -> int:
     return 1
 
 
+def check_current(rows: list[dict]) -> int:
+    """Does section_map.csv still describe the ODTs? Exit 1 and say what moved if not.
+
+    Keyed on (document, number): a heading renamed, added or removed shows as a
+    differing row. Nothing is written - the fix is to regenerate, which
+    refresh_mirrors now does, and the point of this mode is that a stale map
+    fails check_all instead of silently under-scoring section_ref_audit.
+    """
+    if not OUT.exists():
+        print(f"  section_map: {OUT.name} missing - run python3 tools/section_map.py")
+        return 1
+    with OUT.open(encoding="utf8") as fh:
+        have = {(r["document"], r["number"]): r["heading"] for r in csv.DictReader(fh)}
+    want = {(r["document"], r["number"]): r["heading"] for r in rows}
+    added = sorted(k for k in want if k not in have)
+    gone = sorted(k for k in have if k not in want)
+    renamed = sorted(k for k in want if k in have and want[k] != have[k])
+    if not (added or gone or renamed):
+        print(f"  section_map: {OUT.name} current - {len(rows)} heading(s) agree with the ODTs")
+        return 0
+    print(f"  section_map: {OUT.name} is STALE - {len(added)} added, {len(gone)} removed, "
+          f"{len(renamed)} renamed since it was written; regenerate with python3 tools/section_map.py")
+    for k in added:
+        print(f"      + {k[1]:<10} {want[k][:60]}   ({k[0]})")
+    for k in gone:
+        print(f"      - {k[1]:<10} {have[k][:60]}   ({k[0]})")
+    for k in renamed:
+        print(f"      ~ {k[1]:<10} {have[k][:40]!r} -> {want[k][:40]!r}   ({k[0]})")
+    return 1
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--print", dest="show", action="store_true")
     ap.add_argument("--check-refs", action="store_true")
+    ap.add_argument("--check", action="store_true",
+                    help="compare the map the ODTs give now with section_map.csv; write nothing")
     args = ap.parse_args()
 
     rows = build()
+    if args.check:
+        return check_current(rows)
     with OUT.open("w", newline="", encoding="utf8") as fh:
         wr = csv.DictWriter(fh, fieldnames=list(rows[0].keys()))
         wr.writeheader(); wr.writerows(rows)

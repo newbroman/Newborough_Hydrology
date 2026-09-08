@@ -24,7 +24,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) - 2026-08-20. report.odm, the
+__version__ = "1.2.0"  # Hollingham (2026) - 2026-09-08. Regenerates tools/section_map.csv
+#        after mirroring any report chapter or the master, so the section map cannot lag the
+#        mirrors (it did, on 09-07 and 09-08). section_map.py 1.2.0 --check gates it in check_all.
+#   1.1.0 (2026-08-20): report.odm, the
 #        LibreOffice MASTER document, joins the mirror set. The master is not
 #        an empty shell of links: it carries the title block and the whole
 #        ABSTRACT, text that exists in no chapter file. The source glob was
@@ -275,6 +278,19 @@ def main() -> int:
         return 1
     if args.check:
         print("\nAll mirrors current.")
+        return 0
+    # The section map is read from the same ODTs the mirrors are: regenerate it
+    # whenever a report chapter or the master was mirrored, so map and mirror
+    # cannot diverge (section_map.py has promised this since it was written and
+    # nothing did it; the map went stale on 09-07 and 09-08). Not for --only on
+    # a non-report document: the map covers the report chapters only.
+    if any(src.name.startswith("report") for src, _ in jobs):
+        import subprocess
+        r = subprocess.run([sys.executable, str(REPO / "tools" / "section_map.py")],
+                           capture_output=True, text=True)
+        print(r.stdout.rstrip().splitlines()[0] if r.stdout.strip() else "  section_map: (no output)")
+        if r.returncode:
+            print(r.stderr.rstrip()); return 1
     return 0
 
 

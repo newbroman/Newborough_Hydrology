@@ -39,7 +39,11 @@ import pathlib
 import re
 import sys
 
-__version__ = "2.2.0"
+__version__ = "2.3.0"  # Hollingham (2026) — 2026-09-08. --check: regenerate in memory and exit 1
+#   when any caption is flagged (no resolvable Source: marker) or the committed ledger differs
+#   from what the captions now give. Gated in check_all 1.12.0. Until now the flag was visible
+#   only to whoever regenerated the ledger by hand (it caught Figure 75 on 2026-09-08).
+#   2.2.0: previous issue.
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "tools"))
@@ -55,7 +59,7 @@ BANNER = (
 )
 
 
-def build() -> str:
+def build(flag_out: list | None = None) -> str:
     rows = fm.build()                       # live: number..caption, source
 
     docs: list[str] = []
@@ -103,6 +107,8 @@ def build() -> str:
         body.append("")
 
     n_flag = len(flagged)
+    if flag_out is not None:
+        flag_out.extend(sorted(flagged))
     out.append(f"**{n_total} report figures** across {len(docs)} documents — "
                f"{n_resolved} resolve to a source on disk, "
                f"{n_flag} flagged"
@@ -126,8 +132,28 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--stdout", action="store_true", help="print, write nothing")
     ap.add_argument("--out", help="write somewhere other than the default")
+    ap.add_argument("--check", action="store_true",
+                    help="fail if any caption lacks a resolvable Source: marker or the committed ledger is stale; write nothing")
     a = ap.parse_args()
-    text = build()
+    flagged: list = []
+    text = build(flagged)
+    if a.check:
+        rc = 0
+        if flagged:
+            print(f"  figure_ledger: {len(flagged)} caption(s) with no resolvable Source: marker "
+                  f"(numbers: {', '.join(map(str, flagged))}) — add one to the caption in the ODT")
+            rc = 1
+        have = DEFAULT_OUT.read_text(encoding="utf-8") if DEFAULT_OUT.exists() else ""
+        # The footer carries the generation date and tool version; neither is a
+        # fact about the figures, so the comparison ignores that line.
+        strip = lambda t: "\n".join(l for l in t.splitlines() if not l.startswith("*Generated "))
+        if strip(have) != strip(text):
+            print(f"  figure_ledger: {DEFAULT_OUT.relative_to(REPO)} is STALE against the captions — "
+                  f"regenerate with python3 tools/build_figure_ledger.py")
+            rc = 1
+        if rc == 0:
+            print(f"  figure_ledger: OK — every caption resolves to a source on disk and the ledger is current")
+        return rc
     if a.stdout:
         print(text)
         return 0

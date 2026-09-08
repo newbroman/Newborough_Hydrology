@@ -44,11 +44,13 @@ WHAT IT CANNOT SEE
     thing you most needed reminding of.
   * Deferrals recorded anywhere but the decision log and config.py.
 
-__version__ : 1.2.0
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-09-02. Two precision
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-09-08. An entry ends at the next heading of
+#   any level; the "## Candidates not yet written up" section no longer reads as part of
+#   the last D-entry before it (D-050, falsely deferred since 2026-08-21).
+#   1.2.0 — 2026-09-02. Two precision
 #   faults, both found by this tool flagging D-116 the hour it was written.
 #
 #   THE LABEL RULE WAS DEFEATED BY A PARENTHETICAL. v1.1.0 exempts a marker
@@ -252,9 +254,15 @@ def decision_blocks(text: str):
     """(id, title, date, status, body) per decision entry."""
     lines = text.splitlines()
     starts = [i for i, l in enumerate(lines) if HEAD_RE.match(l)]
+    # An entry ends at the next heading of ANY level, not only the next D-entry.
+    # Until 1.3.0 the last entry before a section heading swallowed that whole
+    # section: D-050 was reported "deferred" for a fortnight because the log's
+    # "## Candidates not yet written up" heading - a different section - carried
+    # the marker "not yet written" and sat inside D-050's block.
+    stops = [i for i, l in enumerate(lines) if l.startswith("## ") or l.startswith("### ")]
     for n, i in enumerate(starts):
         m = HEAD_RE.match(lines[i])
-        end = starts[n + 1] if n + 1 < len(starts) else len(lines)
+        end = next((j for j in stops if j > i), len(lines))
         yield m.group(1), m.group(2), m.group(3), m.group(4), lines[i + 1:end]
 
 

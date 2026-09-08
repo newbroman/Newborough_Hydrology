@@ -181,7 +181,16 @@ tracked publicly.
   **On the L14 that condition is now MET** — `.git/credentials` exists,
   written 2026-09-02, and `credential.helper` is `store --file=.git/credentials`,
   which is inside the mount and therefore visible to the sandbox. So a push
-  from the bridge should work on this machine; ASK FIRST regardless (below).
+  from the bridge works on this machine, and **Martin authorised it as standing
+  practice on 2026-09-08** ("but you have my push credentials"): first bridge
+  pushes were `72dabec` (public) and `1c20e7e` (private, via `working/wgit`,
+  whose helper is `store --file=.git-working/credentials`). Run every gate the
+  bridge can first and quote the verdict — `check_all` itself reads FAIL here on
+  the ENVIRONMENT line alone, by design, so the L14 verdict comes from Martin's
+  `./working/nrg_git.sh --ship` (1.16.0), which also rebuilds report.pdf and
+  archives to Drive. Sweep the lock/tmp_obj residue into `_to_delete/` after
+  each git write. Stage by NAME, not `add -A`: `Claude outputs/` is untracked
+  and not ignored.
   **A claim made here on 2026-09-02 that the project-instructions box states
   this unconditionally was WRONG, and is withdrawn.** The box reads *"Pushes
   cannot be made from the bridge UNLESS a credential helper has been

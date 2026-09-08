@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+<Document>
+	<name>MARTIN-RANWELL-WELLS.kml</name>
+	<StyleMap id="m_ylw-pushpin">
+		<Pair>
+			<key>normal</key>
+			<styleUrl>#s_ylw-pushpin</styleUrl>
+		</Pair>
+		<Pair>
+			<key>highlight</key>
+			<styleUrl>#s_ylw-pushpin_hl</styleUrl>
+		</Pair>
+	</StyleMap>
+	<Style id="s_ylw-pushpin">
+		<IconStyle>
+			<scale>1.1</scale>
+			<Icon>
+				<href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+			</Icon>
+			<hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
+		</IconStyle>
+	</Style>
+	<Style id="s_ylw-pushpin_hl">
+		<IconStyle>
+			<scale>1.3</scale>
+			<Icon>
+				<href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+			</Icon>
+			<hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
+		</IconStyle>
+	</Style>
+	<Placemark>
+		<name>R1</name>
+		<snippet></snippet>
+		<description><![CDATA[<img style="max-width:500px;" src="file:///tmp/b9uqqA.png">]]></description>
+		<LookAt>
+			<longitude>-4.3603996675645</longitude>
+			<latitude>53.1512451068702</latitude>
+			<altitude>0</altitude>
+			<heading>-0.4005537990941789</heading>
+			<tilt>0.3318760731523113</tilt>
+			<range>2251.839388829268</range>
+			<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+		</LookAt>
+		<styleUrl>#m_ylw-pushpin</styleUrl>
+		<MultiGeometry>
+			<Point>
+				<gx:drawOrder>1</gx:drawOrder>
+				<coordinates>-4.355599643311189,53.15504990908077,0</coordinates>
+			</Point>
+			<Point>
+				<gx:drawOrder>1</gx:drawOrder>
+				<coordinates>-4.359426949013373,53.15358668272963,0</coordinates>
+			</Point>
+			<Point>
+				<gx:drawOrder>1</gx:drawOrder>
+				<coordinates>-4.366113809114857,53.15239400757242,0</coordinates>
+			</Point>
+			<Point>
+				<gx:drawOrder>1</gx:drawOrder>
+				<coordinates>-4.36239698889024,53.15182356520184,0</coordinates>
+			</Point>
+			<Point>
+				<gx:drawOrder>1</gx:drawOrder>
+				<coordinates>-4.362033798294092,53.15080273205632,0</coordinates>
+			</Point>
+			<Point>
+				<gx:drawOrder>1</gx:drawOrder>
+				<coordinates>-4.362079181546099,53.15059856487447,0</coordinates>
+			</Point>
+			<Point>
+				<gx:drawOrder>1</gx:drawOrder>
+				<coordinates>-4.362896134511935,53.1497546975572,0</coordinates>
+			</Point>
+			<Point>
+				<gx:drawOrder>1</gx:drawOrder>
+				<coordinates>-4.362747665287801,53.14803344400202,0</coordinates>
+			</Point>
+			<Point>
+				<gx:drawOrder>1</gx:drawOrder>
+				<coordinates>-4.365364607336161,53.14585215733366,0</coordinates>
+			</Point>
+			<Point>
+				<gx:drawOrder>1</gx:drawOrder>
+				<coordinates>-4.3687450741817,53.1505658448989,0</coordinates>
+			</Point>
+			<Point>
+				<gx:drawOrder>1</gx:drawOrder>
+				<coordinates>-4.367860579234586,53.15039568246274,0</coordinates>
+			</Point>
+			<Point>
+				<gx:drawOrder>1</gx:drawOrder>
+				<coordinates>-4.367544711207412,53.14320909157011,0</coordinates>
+			</Point>
+			<Point>
+				<gx:drawOrder>1</gx:drawOrder>
+				<coordinates>-4.366726852685705,53.14276903427615,0</coordinates>
+			</Point>
+			<Point>
+				<gx:drawOrder>1</gx:drawOrder>
+				<coordinates>-4.367920070118974,53.14279230332183,0</coordinates>
+			</Point>
+			<Point>
+				<gx:drawOrder>1</gx:drawOrder>
+				<coordinates>-4.368903914879655,53.14165802779111,0</coordinates>
+			</Point>
+			<Point>
+				<gx:drawOrder>1</gx:drawOrder>
+				<coordinates>-4.371258057404884,53.13998846204377,0</coordinates>
+			</Point>
+		</MultiGeometry>
+		<atom:link rel="app" href="https://www.google.com/earth/about/versions/#earth-pro" title="Google Earth Pro 7.3.7.1155"></atom:link>
+	</Placemark>
+</Document>
+</kml>

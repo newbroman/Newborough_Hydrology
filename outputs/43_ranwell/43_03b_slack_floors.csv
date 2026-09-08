@@ -1,0 +1,5 @@
+group,n_sites,delta_m,floor_m,area_ha,bounded_by,n_sites_on_floor
+PL,2,0.3,9.478749752044678,22.5508,reach,1
+CG,4,0.3,11.310250377655029,27.9236,reach,3
+AS,6,0.75,6.430000066757202,6.4788,dem,5
+BS,5,0.3,10.837499618530273,16.7976,reach,5

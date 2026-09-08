@@ -1,15 +1,18 @@
-ranwell_site,nearest_well,nearest_well_network,nearest_well_dist_m,nearest_3_wells
-1,ceh6,reference,54.210390765580414,ceh6 (54 m); ceh25 (94 m); llyn rhos (150 m)
-4,ceh27,reference,138.12750768317298,ceh27 (138 m); nw13 (175 m); wmc4 (176 m)
-5,D5,reference,79.44583105771207,D5 (79 m); nw3 (107 m); D15 (163 m)
-6,D5,reference,205.89701333575638,D5 (206 m); nw3 (238 m); nw4b (252 m)
-8,WMC2,reference,125.05700250031057,WMC2 (125 m); ceh42 (228 m); nw5 (291 m)
-9,WMC2,reference,116.69338558801095,WMC2 (117 m); ceh42 (163 m); nw5 (358 m)
-10,WMC2,reference,221.62951799869333,WMC2 (222 m); ceh42 (248 m); nw5 (431 m)
-11,ceh28,reference,148.26119744346929,ceh28 (148 m); D6 (169 m); ceh26 (191 m)
-12,D15,reference,114.03571337492374,D15 (114 m); D5 (209 m); nw3 (212 m)
-13,nw2,reference,155.89090938573358,nw2 (156 m); nw1 (162 m); nw13 (183 m)
-14,nw3,reference,70.86287058248872,nw3 (71 m); D6 (85 m); D5 (92 m)
-15,ceh40,reference,83.00762618968025,ceh40 (83 m); pw (148 m); ceh39 (260 m)
-16,ceh5,reference,91.80146383526497,ceh5 (92 m); ceh23 (133 m); p2 (145 m)
-18,pw,extended,211.51768697525438,pw (212 m); D25 (229 m); WMC2 (253 m)
+ranwell_site,nearest_well,nearest_well_network,nearest_well_dist_m,nearest_well_same_basin,nearest_3_wells
+1,ceh25,reference,92.60119537563357,True,"ceh25 (93 m, same basin); ceh5 (135 m, same basin); ceh6 (146 m, same basin)"
+2,D6,reference,106.42490782235151,True,"D6 (106 m, same basin); ceh28 (190 m); nw3 (192 m, same basin)"
+3,ceh39,reference,188.0026595556563,False,"ceh39 (188 m); ceh9 (212 m); nw5 (223 m, same basin)"
+4,ceh27,reference,132.68373953878918,True,"ceh27 (133 m, same basin); wmc4 (173 m, same basin); nw13 (173 m, same basin)"
+5,D6,reference,37.13993006185478,True,"D6 (37 m, same basin); nw3 (72 m, same basin); D5 (109 m, same basin)"
+6,D5,reference,83.21225746847588,True,"D5 (83 m, same basin); nw3 (121 m, same basin); D15 (128 m, same basin)"
+7,ceh39,reference,208.61430919284115,False,"ceh39 (209 m); ceh9 (234 m); nw5 (234 m, same basin)"
+8,nw5,reference,118.09280866335517,True,"nw5 (118 m, same basin); ceh21 (257 m); nw6 (281 m)"
+9,nw5,reference,105.9115775446717,True,"nw5 (106 m, same basin); ceh21 (151 m); ceh22 (251 m)"
+10,ceh21,reference,14.836899305436315,True,"ceh21 (15 m, same basin); ceh22 (115 m); nw5 (241 m)"
+11,ceh26,reference,133.39114978889364,True,"ceh26 (133 m, same basin); ceh27 (147 m); D6 (218 m)"
+12,nw2,reference,50.87038812512201,True,"nw2 (51 m, same basin); nw1 (53 m, same basin); nw13 (88 m, same basin)"
+13,nw2,reference,11.595032902068542,True,"nw2 (12 m, same basin); nw1 (42 m, same basin); wmc4 (96 m, same basin)"
+14,D6,reference,83.60616607045161,True,"D6 (84 m, same basin); nw3 (169 m, same basin); ceh28 (195 m)"
+15,ceh9,reference,225.32018876480277,False,ceh9 (225 m); ceh39 (233 m); ceh40 (243 m)
+16,ceh23,reference,0.828068233921827,True,"ceh23 (1 m, same basin); p2 (131 m, same basin); ceh26 (167 m, same basin)"
+18,ceh39,reference,144.70055286697155,False,"ceh39 (145 m); ceh9 (170 m); nw5 (271 m, same basin)"

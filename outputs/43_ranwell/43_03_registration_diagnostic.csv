@@ -1,2 +1,2 @@
-n_sites_total,n_sites_digitised,n_sites_pending,scale_m_per_px,penlon_easting,penlon_northing,route_b_median_abs_resid_m,route_b_flagged_sites,shore_misfit_m,rotation_assumption
-17,14,3,1.7475682032382769,242497.45177799012,364845.27523711615,0.6812499713897706,3,68.3267269561435,grid-north-up (documented; not fitted)
+n_sites,datum_offset_m,datum_offset_mad_m,n_gentle_sites,h_sigma_m,d_sigma_m,search_radius_m,n_sites_within_0p3m,n_sites_flank,n_basins,n_sites_basin_consistent,basin_exceptions,routeA_rms_error_m,rotation_assumption_v1
+17,0.16187500715255743,0.1396875143051144,14,0.15,40.0,80.0,11,3,31,17,,254.96736827960487,grid-north-up (retired 2026-09-08; sketch non-metric)

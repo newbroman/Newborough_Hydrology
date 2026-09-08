@@ -11,7 +11,13 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.15.0"  # Hollingham (2026) - 2026-09-07. W96/D-141: figure
+__version__ = "1.16.0"  # Hollingham (2026) - 2026-09-08. W95/D-140 and D-145:
+#   Script 43 v2 inputs (DATA_RANWELL_SITES_MARTIN, DATA_RANWELL_SITES_GEOREF_PX,
+#   DATA_KML_RANWELL_FEATURES, DATA_KML_RANWELL_RIDGE) and outputs (OUT_43_FLOORS,
+#   OUT_43_FLOOR_STATS, OUT_43_WELL_BASINS); Script 44 raw inputs (RANWELL_LEVELS, RANWELL_RANGES,
+#   RANWELL_PARC_MAWR_RAIN) and the DIR_44 block. Additive only.
+#
+# v1.15.0  # Hollingham (2026) - 2026-09-07. W96/D-141: figure
 #   paths OUT_41_TRAJECTORY_FIG (41_05) and OUT_10A_ERA_FIG (10a_14).
 #
 # v1.14.0  # Hollingham (2026) - 2026-09-06. W96/D-141:
@@ -235,6 +241,10 @@ DATA_DEM               = data_geo("newborough_dem.tif")
 DATA_KML_FEATURES      = data_geo("Features.kml")
 DATA_RANWELL_CONTROL   = data_geo("ranwell_1959_control.csv")   # W95 (D-081 derived)
 DATA_RANWELL_SITES_PX  = data_geo("ranwell_1959_sites_px.csv")  # W95 (D-081 derived)
+DATA_RANWELL_SITES_MARTIN    = data_geo("ranwell_1959_sites_martin.csv")     # Script 43 v2 Route M (hand placement)
+DATA_RANWELL_SITES_GEOREF_PX = data_geo("ranwell_1959_sites_georef_px.csv")  # numeral positions on the georeferenced sketch
+DATA_KML_RANWELL_FEATURES    = data_geo("ranwell_features.kml")               # Martin's traced slack outlines (overlay only)
+DATA_KML_RANWELL_RIDGE       = data_geo("ranwell_ridge.kml")                  # Martin's traced ridge (overlay only)
 DATA_KML_STREAMS       = data_geo("streams.kml")
 DATA_KML_CLEARFELL     = data_geo("clearfell.kml")
 DATA_KML_SITE_BOUNDARY = data_geo("site_boundary.kml")
@@ -1033,6 +1043,11 @@ OUT_25_COVARIATE_SPEC_RANGE             = DIR_25 / "25_15_covariate_specificatio
 # Script 24 for sunshine hours.
 CCW_DEPTHS   = DATA_DIR / "ccw_1989_1996_depths.csv"
 CCW_CODE_MAP = DATA_DIR / "ccw_1989_1996_code_map.csv"
+# Ranwell (1959) water-table data recovered from Figs 2, 4 and 7 - raw inputs of
+# Script 44 (D-145; provenance in data/RANWELL_PROVENANCE.md).
+RANWELL_LEVELS          = DATA_DIR / "ranwell_1951_53_water_levels.csv"
+RANWELL_RANGES          = DATA_DIR / "ranwell_1951_53_monthly_ranges.csv"
+RANWELL_PARC_MAWR_RAIN  = DATA_DIR / "ranwell_1950_53_parc_mawr_rain.csv"
 # Canopy state in 1989 and felling year per well, from site history. Optional:
 # Script 39 emits blank columns without it. The modern in_forest flag cannot
 # stand in for this — several of these wells were felled between the two epochs.
@@ -1089,7 +1104,23 @@ OUT_43_NEAREST        = DIR_43 / "43_02_nearest_well.csv"
 OUT_43_DIAGNOSTIC     = DIR_43 / "43_03_registration_diagnostic.csv"
 OUT_43_OVERLAY        = DIR_43 / "43_04_overlay.png"
 OUT_43_VECTOR         = DIR_43 / "43_05_ranwell_sites.geojson"
+OUT_43_FLOORS         = DIR_43 / "43_06_slack_floors.geojson"
+OUT_43_FLOOR_STATS    = DIR_43 / "43_03b_slack_floors.csv"
+OUT_43_WELL_BASINS    = DIR_43 / "43_07_modern_well_basins.csv"
 OUT_43_REPORT_NUMBERS = DIR_43 / "43_report_numbers.csv"
+
+# Script 44 - Ranwell's 1951-53 record against the modern network and the SSM hindcast (D-145)
+DIR_44 = OUT_DIR / "44_ranwell_hindcast"
+DIR_44.mkdir(parents=True, exist_ok=True)
+OUT_44_READINGS       = DIR_44 / "44_01_ranwell_readings.csv"
+OUT_44_RANGES         = DIR_44 / "44_02_ranwell_monthly_ranges.csv"
+OUT_44_SERIES         = DIR_44 / "44_03_hindcast_series.csv"
+OUT_44_METRICS        = DIR_44 / "44_04_hindcast_metrics.csv"
+OUT_44_LEVEL_CHANGE   = DIR_44 / "44_05_level_change.csv"
+OUT_44_CLIMATE_CHECK  = DIR_44 / "44_06_climate_check.csv"
+OUT_44_HINDCAST_FIG   = DIR_44 / "44_07_hindcast.png"
+OUT_44_CHANGE_FIG     = DIR_44 / "44_08_level_change.png"
+OUT_44_REPORT_NUMBERS = DIR_44 / "44_report_numbers.csv"
 OUT_40_FIG             = DIR_40 / "40_01_alongshore_profile.png"
 
 # Coastline epochs. coast1899.kml carries TWO placemarks and labels neither;

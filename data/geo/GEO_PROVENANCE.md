@@ -1060,6 +1060,25 @@ darkest quartile on 22 April 2017. The full table is in the W117 register entry.
 - **Source / copyright / digitiser:** as `ranwell_1959_control.csv` above (same figure, same session, D-081 shape).
 - **Read by:** `src/43_ranwell_sites.py` (Script 43; W95 / D-140).
 
+### `ranwell_1959_sites_martin.csv` — Script 43 v2 Route M (D-140 amended 2026-09-08)
+- **What:** the 17 Ranwell (1959) water-table pipe sites (numbered 1–16 and 18) as OSGB positions, with `sketch_slack` (the slack the sketch draws each site in: PL, CG, AS, BS), the tabulated OD height, and the source placemark file per row.
+- **Source:** **hand-placed by Martin Hollingham** in Google Earth on 2026-09-08 over his own georeferenced warp of Ranwell's Fig 3 (`ranwell_map_modified.tif`, EPSG:27700, 2.23 m/px — **in-copyright, local-only, gitignored**, D-081), exported as `MARTIN-RANWELL-WELLS.kml` (16 sites) and `R9.kml` (site 9); site numbers assigned by nearest neighbour to `ranwell_1959_sites_georef_px.csv`. The sketch was found non-metric on 2026-09-07, which is why the positions are a placement and not a registration.
+- **CRS:** OSGB36 / EPSG:27700.
+- **Read by:** `src/43_ranwell_sites.py` v2.0.0 (Route M, the headline); the positions, basins and heights then reach `src/44_ranwell_hindcast.py`.
+- **Licence:** derived coordinates only; the warp and the scan stay out of the repos.
+
+### `ranwell_1959_sites_georef_px.csv` — the numeral positions on the warp
+- **What:** pixel (`tif_px_x/y`) and OSGB position of each site's printed numeral on `ranwell_map_modified.tif`; a label-position proxy that recovered sites 2, 3 and 7 and is carried in `43_01` as `georef_easting/northing` so the hand move from it is visible.
+- **Source:** read off the warp by Claude (Cowork session `01PhSvhMMGSWW9UnSFdTK5GU`), 2026-09-07/08.
+- **CRS / licence / read by:** as above.
+
+### `ranwell_features.kml`, `ranwell_ridge.kml` — Martin's traced slack outlines and ridge (overlay only)
+- **What:** two slack outlines (LineStrings) and one ridge line traced by **Martin Hollingham** in Google Earth from the sketch, 2026-09-07/08. `ranwell_ridge.kml` was renamed on 2026-09-08 from its original space-separated filename (moved to `_to_delete/`).
+- **Read by:** `src/43_ranwell_sites.py` v2.0.0, drawn on `43_04_overlay.png` for comparison only — no test reads them (the 2026-09-08 sweep showed the sketch's slack outlines are not metric objects either).
+
+### `ranwell_1959_sites_refined.csv` — 2026-09-08 bridge prototype of Route H (superseded)
+- **What:** the first height-refinement table (16 sites; site 9 absent), kept because the D-140 amendment cites its numbers (offset +0.06 m, moves of 44/42 m at sites 1 and 12). Superseded by `outputs/43_ranwell/43_01_ranwell_sites.csv`, whose Route H uses bilinear DEM sampling and a 5 m-smoothed slope and therefore gives a different offset (+0.16 m, MAD 0.14). Not read by any script.
+
 ### `felling_1998_1.kml`, `felling_1998_2.kml`, `felling_1998_3.kml`
 - **What:** the three 1998 forest felling compartments around the 2017 clearfell, each a single polygon. Split from `1998_felling_ area1.kml` (one MultiGeometry placemark, 3 polygons) into one polygon per file so Script 41 can measure each separately. Centroids (OSGB via lon/lat): area 1 ≈ −4.3790°,53.1466° (W of the clearfell), area 2 ≈ −4.3784°,53.1446° (S), area 3 ≈ −4.3760°,53.1501° (N).
 - **Source:** digitised by **Martin Hollingham** (KMZ → KML), 2026-09-06, from his knowledge of the 1998 felling; delineates the older felled-and-replanted blocks whose canopy-closure state W96 measures.

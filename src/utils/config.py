@@ -40,7 +40,12 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.30.0"  # Hollingham (2026) - 2026-09-06. W96/D-141: CLEARFELL_ERA_SPLIT
+__version__ = "1.31.0"  # Hollingham (2026) - 2026-09-08. W95/D-140 revisited and
+#   Script 44 (D-145): the RANWELL_* block grows from four constants to the
+#   full set behind Script 43 v2 (height check, basin test, slack floors) and
+#   Script 44 (hindcast span, IDW, error terms). Additive; no value changes.
+#
+# v1.30.0  # Hollingham (2026) - 2026-09-06. W96/D-141: CLEARFELL_ERA_SPLIT
 #   added - the 2021-01-01 early/late boundary for the clearfell BACI decay split
 #   (Script 10a 10a_13_era_split.csv). Additive constant; no value changes.
 #
@@ -1177,6 +1182,43 @@ RANWELL_SCALEBAR_M       = 250.0            # m; the figure's 1/4 km scale bar
 RANWELL_PENLON_NAME      = "Llyn Rhos Ddu"  # Features.kml placemark = Penlon Lake
 RANWELL_ANALOGUE_RADIUS_M = 100.0           # m; a modern well has a 1950s analogue within this
 RANWELL_ROUTE_B_FLAG_M   = 2.0              # m; |DEM - tabulated OD height| above this flags a site
+
+# Script 43 v2 (2026-09-08, D-140 revisited): the sketch is non-metric, so the
+# headline positions are Martin's hand placement and these constants govern the
+# checks, not a registration.
+# Route H - Ranwell's levelled OD heights against the DEM.
+RANWELL_H_SIGMA_M     = 0.15   # m; height residual scale in the refinement cost
+RANWELL_D_SIGMA_M     = 40.0   # m; move scale in the refinement cost
+RANWELL_H_SEARCH_M    = 80.0   # m; refinement search radius
+RANWELL_H_ACCEPT_M    = 0.20   # m; a cell "matches" the height within this
+RANWELL_GENTLE_SLOPE  = 0.05   # m/m; below this the ground is gentle (datum-offset sites)
+RANWELL_SLOPE_SMOOTH_M = 5.0   # m; Gaussian sigma of the DEM the slope is read from
+RANWELL_FLAT_CELLS    = 400    # matching cells within the radius above which the floor is flat
+# Route T - DEM basin segmentation (watershed of the smoothed DEM).
+RANWELL_DEM_SMOOTH_M  = 10.0   # m; Gaussian sigma before segmentation
+RANWELL_BASIN_HMIN_M  = 1.0    # m; h-minima depth that seeds a basin
+RANWELL_DEM_MARGIN_M  = 400.0  # m; DEM window margin around the sites
+# Route F - slack floors per sketch group (diagnostic layer).
+RANWELL_SLACK_GROUPS  = ("PL", "CG", "AS", "BS")   # Penlon, Clwt Gwlyb, the 3-7-8-9-10-18 slack, the 2-5-6-14-15 slack
+RANWELL_FLOOR_WINDOW_M = 100.0  # m; window for a site's local floor
+RANWELL_FLOOR_PCT     = 5.0     # percentile of the DEM in that window = the local floor
+RANWELL_SLACK_DELTA_M = {"AS": 0.75, "BS": 0.30, "CG": 0.30, "PL": 0.30}  # m above the local floor (2026-09-08 sweep: the values at which every site stands on its floor)
+RANWELL_SLACK_REACH_M = 300.0   # m; a floor is clipped to this reach of its sites
+# Script 44 - Ranwell's 1951-53 record against the modern network (D-145).
+RANWELL_HINDCAST_SPAN = ("1951-02", "1953-08")  # Ranwell's reading span
+RANWELL_IDW_K         = 6       # wells behind the modern surface at a site
+RANWELL_IDW_RADIUS_M  = 400.0   # m; search radius for those wells
+RANWELL_IDW_POWER     = 2.0     # IDW exponent
+RANWELL_IDW_MIN_DIST_M = 5.0    # m; distance floor in the IDW weight
+RANWELL_MIN_MODERN_N  = 60      # monthly readings a modern well needs to enter the surface
+RANWELL_PAIR_MAX_M    = 300.0   # m; a hindcast pairing must be same-basin and within this
+RANWELL_GRAD_STEP_M   = 20.0    # m; central-difference step for the surface gradient
+RANWELL_POS_SIGMA_M   = 40.0    # m; positional uncertainty of a flat-floor site (Route H)
+RANWELL_SAMPLING_SIGMA_M = 0.05 # m; Fig. 4 reading-mean vs Fig. 7 mid-range mean
+RANWELL_MEAN_MID_YEAR = 1952.0  # midpoint of Ranwell's record, for the rate
+RANWELL_LOO_MIN_WELLS = 3       # contributing wells needed for a leave-one-out error
+RANWELL_LOO_MAX_M     = 0.5     # m; a site whose modern-surface LOO error exceeds this is unconstrained
+RANWELL_SURFACE_CENSOR_M = 0.05 # m; a reading within this of the ground is a flooded (censored) slack
 
 # Broadleaf summer β₂ multiplier — deciduous phenology effect on ET.
 # Derived from Script 21's monthly β₂ profile (Hollingham, 2026), averaged

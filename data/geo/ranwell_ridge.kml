@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+<Document id="root_doc">
+	<name>ranwell ridge.kml</name>
+	<atom:link rel="app" href="https://www.google.com/earth/about/versions/#earth-pro" title="Google Earth Pro 7.3.7.1155"></atom:link>
+	<Schema name="ranwell_ridge" id="ranwell_ridge">
+		<SimpleField type="float" name="id">
+		</SimpleField>
+		<SimpleField type="float" name="ridge">
+		</SimpleField>
+	</Schema>
+	<Folder>
+		<name>ranwell_ridge</name>
+		<Placemark>
+			<Style>
+				<LineStyle>
+					<color>ff0000ff</color>
+				</LineStyle>
+				<PolyStyle>
+					<fill>0</fill>
+				</PolyStyle>
+			</Style>
+			<ExtendedData>
+				<SchemaData schemaUrl="#ranwell_ridge">
+					<SimpleData name="id">1</SimpleData>
+					<SimpleData name="ridge">1</SimpleData>
+				</SchemaData>
+			</ExtendedData>
+			<MultiGeometry>
+				<LineString>
+					<coordinates>
+						-4.37220770939711,53.14486906035489,0 -4.37096544690006,53.145501711809,0 -4.3704141868348,53.1461205894049,0 -4.3692267795433,53.1467841240666,0 -4.36816714353385,53.1468692022284,0 -4.36756970281162,53.1476169630921,0 -4.36663218430088,53.14798754896,0 -4.36611465402914,53.1482537949921,0 -4.36486868983913,53.1488224653796,0 -4.36431378694322,53.1493773966221,0 -4.36342409543077,53.1496510229188,0 -4.36266002547222,53.15027408840871,0 -4.36258354215899,53.1508195131972,0 -4.3618089104914,53.15125081550679,0 -4.36102724610205,53.1515542741603,0 -4.36062298266325,53.1519462265479,0 -4.35983779029163,53.1521857581871,0 -4.35900818821762,53.1525861371072,0 -4.35860740192054,53.1530420023639,0 -4.35806112566555,53.1537567042943,0 -4.35744239405388,53.1541208995618,0 -4.35691359955269,53.1551551940587,0 -4.35619439396226,53.1546575220325,0 -4.35637554722826,53.1540780358519,0 -4.35644335887724,53.15337281546149,0 -4.35616352093121,53.1531223996925,0 -4.35616352093121,53.1531223996925,0 
+					</coordinates>
+				</LineString>
+			</MultiGeometry>
+		</Placemark>
+	</Folder>
+</Document>
+</kml>

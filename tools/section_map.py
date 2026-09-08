@@ -49,7 +49,12 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) - 2026-09-08. --check: rebuild in memory and compare with
+__version__ = "1.3.0"  # Hollingham (2026) - 2026-09-08. Meaning snapshot: --snapshot pins
+#   (document, number) -> heading to section_map_snapshot.csv; --check now also fails when a
+#   pinned number's heading has changed or vanished - the section analogue of reference_lint's
+#   figure/table snapshot (spec NRG_spec_sec_widening_master_snapshot_2026-09-08). Advisory
+#   until the snapshot exists.
+#   1.2.0 - 2026-09-08. --check: rebuild in memory and compare with
 #   the committed section_map.csv; exit 1 and list the differing rows, write nothing. The map
 #   was found stale twice (09-07, 09-08: a new section missing) while section_ref_audit and
 #   --check-refs scored against it and reported OK. refresh_mirrors 1.2.0 now regenerates the
@@ -68,6 +73,7 @@ REPO = Path(__file__).resolve().parents[1]
 MASTER = MASTER_ODM
 ODT_DIR = _ODT_DIR
 OUT = Path(__file__).resolve().parent / "section_map.csv"
+SNAP = Path(__file__).resolve().parent / "section_map_snapshot.csv"
 
 _H = re.compile(r'<text:h\b([^>]*)>(.*?)</text:h>', re.S)
 _LEVEL = re.compile(r'text:outline-level="(\d+)"')
@@ -203,6 +209,50 @@ def check_refs(rows: list[dict]) -> int:
     return 1
 
 
+def write_snapshot(rows: list[dict]) -> int:
+    """Pin the meaning of every section number: (document, number) -> heading."""
+    with SNAP.open("w", newline="", encoding="utf8") as fh:
+        wr = csv.writer(fh)
+        wr.writerow(["document", "number", "heading"])
+        for r in rows:
+            wr.writerow([r["document"], r["number"], r["heading"]])
+    print(f"  section_map: snapshot written {SNAP.name} ({len(rows)} rows)")
+    return 0
+
+
+def check_meaning(rows: list[dict]) -> int:
+    """Does each section number still MEAN what it did when the snapshot was pinned?
+
+    --check-refs proves a typed "Section 4.9.4" points at a heading that exists;
+    it cannot tell that the heading is a different one from the day the
+    reference was written. This is reference_lint's snapshot idea for sections:
+    pin (document, number) -> heading, and fail when a number's heading has
+    changed or vanished - the signal that typed references need re-pointing,
+    after which the snapshot is re-pinned with --snapshot. Advisory only until a
+    snapshot exists.
+    """
+    if not SNAP.exists():
+        print(f"  section_map: no meaning snapshot at {SNAP.name} - run --snapshot to pin the "
+              f"current headings before editing")
+        return 0
+    with SNAP.open(encoding="utf8") as fh:
+        was = {(r["document"], r["number"]): r["heading"] for r in csv.DictReader(fh)}
+    now = {(r["document"], r["number"]): r["heading"] for r in rows}
+    moved = [(k, was[k], now[k]) for k in was if k in now and was[k] != now[k]]
+    gone = [k for k in was if k not in now]
+    if not (moved or gone):
+        print(f"  section_map: snapshot agrees - every section number still means what it did "
+              f"({len(was)} rows)")
+        return 0
+    print(f"  section_map: MEANING CHANGED since the snapshot - typed references to these numbers "
+          f"may now point elsewhere ({len(moved)} changed, {len(gone)} gone); re-point them, then --snapshot")
+    for k, b, a in moved:
+        print(f"      Section {k[1]:<10} was: {b[:48]!r}  now: {a[:48]!r}   ({k[0]})")
+    for k in gone:
+        print(f"      Section {k[1]:<10} no longer exists (was: {was[k][:48]!r})   ({k[0]})")
+    return 1
+
+
 def check_current(rows: list[dict]) -> int:
     """Does section_map.csv still describe the ODTs? Exit 1 and say what moved if not.
 
@@ -239,12 +289,18 @@ def main() -> int:
     ap.add_argument("--print", dest="show", action="store_true")
     ap.add_argument("--check-refs", action="store_true")
     ap.add_argument("--check", action="store_true",
-                    help="compare the map the ODTs give now with section_map.csv; write nothing")
+                    help="compare the map the ODTs give now with section_map.csv and with the "
+                         "meaning snapshot; write nothing")
+    ap.add_argument("--snapshot", action="store_true",
+                    help="pin what each section number MEANS now (its heading) to "
+                         "section_map_snapshot.csv - run once the typed references agree with it")
     args = ap.parse_args()
 
     rows = build()
+    if args.snapshot:
+        return write_snapshot(rows)
     if args.check:
-        return check_current(rows)
+        return check_current(rows) or check_meaning(rows)
     with OUT.open("w", newline="", encoding="utf8") as fh:
         wr = csv.DictWriter(fh, fieldnames=list(rows[0].keys()))
         wr.writeheader(); wr.writerows(rows)

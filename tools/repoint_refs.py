@@ -34,7 +34,14 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.3.0"  # 2026-09-08. report6, report7 and the master report.odm join ODTS -
+__version__ = "1.4.0"  # 2026-09-08. SEC and the --symbol-only § matcher widened from 4.x to
+#   chapters 1-7 (spec NRG_spec_sec_widening_master_snapshot_2026-09-08). Guard: a section plan
+#   whose targets are not headings in tools/section_map.csv is REFUSED before any document is
+#   read; a typed section number that is no heading is reported under "left for review". New
+#   dependency: tools/section_map.csv (read, never rebuilt here). Known limit, unchanged: a
+#   plural or range list ("Sections 3.6 and 4.8", "Sections 4.8.1-4.8.2") moves its first
+#   number only - there is no PLURAL_SEC; a separate design.
+#   1.3.0 - 2026-09-08. report6, report7 and the master report.odm join ODTS -
 #   every typed figure/table/section reference in the report is now inside the renumber scope
 #   (the Abstract's stale "Figure 65" of 09-07 was outside it). Matchers unchanged; the SEC
 #   matcher still covers 4.x only, by design (a separate decision).
@@ -126,7 +133,12 @@ TEXTS = ["PIPELINE_README.md", "readme.md"]
 # match here: after "fig" comes "u", and \\b requires a boundary.
 FIG = re.compile(r'(?i)(\bfigures?\b|\bfigs?\.?(?=\s*\d))((?:</?[^>]+>|\s)*?)(\d{1,3})(?!\d)(?!\.\d)')
 FIG_ABBR = re.compile(r'(?i)(\bfigs?\.?(?=\s*\d))((?:</?[^>]+>|\s)*?)(\d{1,3})(?!\d)(?!\.\d)')
-SEC = re.compile(r'(?i)(\bsections?\b)((?:</?[^>]+>|\s)*?)(4\.\d+(?:\.\d+){0,2})(?!\d)')
+# Chapters 1-7 (was 4.x only until 1.4.0 - an inherited scope from the first plan, whose
+# rows were all 4.x, not a reasoned limit; 814 typed references across chapters 1-7 were
+# measured on 2026-09-08 and every one resolves against section_map.csv). Chapters 8-11
+# carry no typed references and stay out. What a matched number is checked against is
+# the section map, in _section_guard() below.
+SEC = re.compile(r'(?i)(\bsections?\b)((?:</?[^>]+>|\s)*?)([1-7]\.\d+(?:\.\d+){0,2})(?!\d)')
 TAB = re.compile(r'(?i)(\btables?\b)((?:</?[^>]+>|\s)*?)(\d{1,3})(?!\d)(?!\.\d)')
 # PLURAL "Figures" governs every number in the list that follows, so the list is
 # matched as a whole and each number rewritten. This is not a guess: "Figures 65
@@ -276,6 +288,28 @@ def _xml_edits(idx, a: int, b: int, new: str):
     return edits
 
 
+def _section_map_numbers() -> set[str]:
+    """Every section number the report chapters carry now (tools/section_map.csv)."""
+    import csv
+    path = REPO / "tools" / "section_map.csv"
+    if not path.exists():
+        return set()
+    with path.open(encoding="utf8") as fh:
+        return {r["number"] for r in csv.DictReader(fh)}
+
+
+def _section_guard(sec: dict) -> list[str]:
+    """Plan targets that are not headings. A section plan is applied AFTER the
+    headings have moved, so every `new` must exist in the regenerated map; a
+    target that does not is a typo in the plan or a map nobody regenerated, and
+    either way rewriting references to it would point them at nothing."""
+    have = _section_map_numbers()
+    if not have:
+        return []
+    return sorted((n for n in set(sec.values()) if n not in have),
+                  key=lambda x: [int(p) for p in x.split(".")])
+
+
 def spans_for(text_or_xml: str, fig: dict, sec: dict, tab: dict | None = None,
               is_xml: bool = True):
     """[(start, end, new, kind, old)] in XML coordinates, plus notes."""
@@ -302,11 +336,18 @@ def spans_for(text_or_xml: str, fig: dict, sec: dict, tab: dict | None = None,
             claimed.add((s, e))
             out.append((s, e, val, kind, old))
 
+    known = _section_map_numbers()
     for rx, table, kind in ((FIG, fig, "figure"), (SEC, sec, "section"),
                             (TAB, tab, "table")):
         for m in rx.finditer(text):
             num = m.group(3)
             new = table.get(num)
+            if kind == "section" and sec and known and num not in known and new is None:
+                # a typed section number that is no heading anywhere: not moved,
+                # but said, because it is exactly the stale reference a renumber
+                # is meant to find (only reported while a section plan is loaded)
+                skipped.append(f"section {num} is not a heading in section_map.csv")
+                continue
             if new is None or new == num:
                 continue
             add(m.start(3), m.end(3), new, kind, num)
@@ -429,7 +470,7 @@ def main() -> int:
         globals()["PLURAL_TAB"] = re.compile(r'(?!)')
         print("  --abbrev-only: 'Fig N' references only\n")
     if args.symbol_only:
-        globals()["SEC"] = re.compile(r'(§)(\s?)(4\.\d+(?:\.\d+){0,2})(?!\d)')
+        globals()["SEC"] = re.compile(r'(§)(\s?)([1-7]\.\d+(?:\.\d+){0,2})(?!\d)')
         globals()["FIG"] = re.compile(r'(?!)')
         globals()["TAB"] = re.compile(r'(?!)')
         globals()["PLURAL"] = re.compile(r'(?!)')
@@ -452,6 +493,17 @@ def main() -> int:
         globals()["PLAN"] = Path(args.plan)
         print(f"  plan file: {args.plan}")
     fig, sec, tab = load_plan(kinds)
+    if sec:
+        missing = _section_guard(sec)
+        if missing:
+            verb = "REFUSED" if args.apply else "WARNING"
+            print(f"  {verb}: {len(missing)} section target(s) in the plan are not headings in "
+                  f"tools/section_map.csv: {', '.join(missing)}")
+            print("  regenerate the map (python3 tools/section_map.py) after moving the headings, "
+                  "or fix the plan" + ("; nothing written" if args.apply else
+                  " (an already-applied historical plan reads this way once later restructures move its targets)"))
+            if args.apply:
+                return 1
     print(f"  kinds: {', '.join(kinds)}")
     print(f"  plan: {len(fig)} figure, {len(sec)} section and {len(tab)} "
           f"table mapping(s)\n")

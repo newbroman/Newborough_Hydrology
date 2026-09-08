@@ -1,5 +1,5 @@
-<!-- GENERATED MIRROR of docs/report/Supplementary_Material_v1_28.odt — do not edit.
-     Regenerate with: python3 tools/refresh_mirrors.py -->
+<!-- GENERATED MIRROR of docs/report/Supplementary_Material_v1_28.odt — do not edit. source-sha256=6179b485e4f8acf2 pandoc=3.1.3 -->
+<!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Supplementary Material
 

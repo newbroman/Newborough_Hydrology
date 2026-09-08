@@ -18,8 +18,14 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.12.1 - 2026-09-08
+# VERSION 1.13.0 - 2026-09-08
 # CHANGELOG
+#   1.13.0 (2026-09-08): bibliography gate. bib_lint checks report13's entries
+#     against the report corpus in both directions (an entry nobody cites; a
+#     citation with no entry), with a reasoned allowlist in bib_exemptions.csv.
+#     Six uncited entries and one orphaned citation (Sun et al., 2015) were found
+#     by hand on 2026-09-08 - and (Jennings, 1990) was orphaned by an edit the
+#     same morning - with nothing to report either. Sits beside docref_lint.
 #   1.12.1 (2026-09-08): section_map.py --check (1.3.0) now also compares the
 #     headings with tools/section_map_snapshot.csv - a section number whose
 #     heading changed or vanished since the pin fails here, the way a figure
@@ -314,6 +320,12 @@ echo "── document references (does every cited .md exist?) ─────�
 docref_out="$(python3 tools/docref_lint.py 2>&1)" || rc=1
 printf '%s\n' "$docref_out" | grep -E "known-missing document|^  docref_lint: (OK|FAULT)" || true
 
+
+echo
+echo "── bibliography (is every entry cited, and every citation an entry?) ──"
+# Both directions against the report mirrors; exemptions carry a reason and a date.
+python3 tools/bib_lint.py 2>&1 | grep -E "^  (UNCITED|UNRESOLVED|EXEMPT)|^bib_lint:" || true
+python3 tools/bib_lint.py >/dev/null 2>&1 || rc=1
 echo
 echo "── tasks (is any outstanding job now finished, or newly broken?) ─────"
 # Gates ONLY on a check that could not answer. An open task is work in hand and

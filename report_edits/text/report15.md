@@ -1,5 +1,5 @@
-<!-- GENERATED MIRROR of report_edits/odt/report15.odt — do not edit.
-     Regenerate with: python3 tools/refresh_mirrors.py -->
+<!-- GENERATED MIRROR of report_edits/odt/report15.odt — do not edit. source-sha256=23dbdd21c028992b pandoc=3.1.3 -->
+<!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}Data Availability
 

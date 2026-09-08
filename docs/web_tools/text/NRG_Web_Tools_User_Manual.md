@@ -1,5 +1,5 @@
-<!-- GENERATED MIRROR of docs/web_tools/NRG_Web_Tools_User_Manual.odt — do not edit.
-     Regenerate with: python3 tools/refresh_mirrors.py -->
+<!-- GENERATED MIRROR of docs/web_tools/NRG_Web_Tools_User_Manual.odt — do not edit. source-sha256=7a8920c6184b57bc pandoc=3.1.3 -->
+<!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 2
 

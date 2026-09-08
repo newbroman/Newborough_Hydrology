@@ -1,5 +1,5 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_119.odt — do not edit.
-     Regenerate with: python3 tools/refresh_mirrors.py -->
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_119.odt — do not edit. source-sha256=0ee26b8c7259b317 pandoc=3.1.3 -->
+<!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
 

@@ -1,5 +1,5 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_40.odt — do not edit.
-     Regenerate with: python3 tools/refresh_mirrors.py -->
+<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_40.odt — do not edit. source-sha256=cd28bcbe7b3002d1 pandoc=3.1.3 -->
+<!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 A parameter-sparse state-space framework for characterizing coastal dune-aquifer architecture from manual dipwell records
 

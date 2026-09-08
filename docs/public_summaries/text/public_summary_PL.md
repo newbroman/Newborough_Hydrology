@@ -1,5 +1,5 @@
-<!-- GENERATED MIRROR of docs/public_summaries/public_summary_PL.odt — do not edit.
-     Regenerate with: python3 tools/refresh_mirrors.py -->
+<!-- GENERATED MIRROR of docs/public_summaries/public_summary_PL.odt — do not edit. source-sha256=8f7e5532c38709ec pandoc=3.1.3 -->
+<!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}Newborough Warren: co dzieje się z poziomem wód gruntowych w wydmach
 

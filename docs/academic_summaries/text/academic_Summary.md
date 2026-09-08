@@ -1,5 +1,5 @@
-<!-- GENERATED MIRROR of docs/academic_summaries/academic_Summary_v1_15.odt — do not edit.
-     Regenerate with: python3 tools/refresh_mirrors.py -->
+<!-- GENERATED MIRROR of docs/academic_summaries/academic_Summary_v1_15.odt — do not edit. source-sha256=3444c69ea6a68b6a pandoc=3.1.3 -->
+<!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Newborough Warren Groundwater Study
 

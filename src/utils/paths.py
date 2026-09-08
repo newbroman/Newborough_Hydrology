@@ -11,7 +11,11 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.16.1"  # Hollingham (2026) - 2026-09-08. OUT_44_HINDCAST_REPORT_FIG (44_07b).
+__version__ = "1.16.2"  # Hollingham (2026) - 2026-09-08. DIR_43 / DIR_44 no longer mkdir on
+#                        import - the side effect v1.11.0 removed had come back with
+#                        Scripts 43 and 44; both create their directory in their body.
+#                        import_audit --static clean; closes task T-18.
+# v1.16.1  # Hollingham (2026) - 2026-09-08. OUT_44_HINDCAST_REPORT_FIG (44_07b).
 #
 # v1.16.0  # Hollingham (2026) - 2026-09-08. W95/D-140 and D-145:
 #   Script 43 v2 inputs (DATA_RANWELL_SITES_MARTIN, DATA_RANWELL_SITES_GEOREF_PX,
@@ -1100,7 +1104,6 @@ OUT_41_REPORT_NUMBERS = DIR_41 / "41_report_numbers.csv"
 
 # Script 43 - Ranwell (1959) historical water-table sites, georeferenced (W95)
 DIR_43 = OUT_DIR / "43_ranwell"
-DIR_43.mkdir(parents=True, exist_ok=True)
 OUT_43_SITES          = DIR_43 / "43_01_ranwell_sites.csv"
 OUT_43_NEAREST        = DIR_43 / "43_02_nearest_well.csv"
 OUT_43_DIAGNOSTIC     = DIR_43 / "43_03_registration_diagnostic.csv"
@@ -1113,7 +1116,6 @@ OUT_43_REPORT_NUMBERS = DIR_43 / "43_report_numbers.csv"
 
 # Script 44 - Ranwell's 1951-53 record against the modern network and the SSM hindcast (D-145)
 DIR_44 = OUT_DIR / "44_ranwell_hindcast"
-DIR_44.mkdir(parents=True, exist_ok=True)
 OUT_44_READINGS       = DIR_44 / "44_01_ranwell_readings.csv"
 OUT_44_RANGES         = DIR_44 / "44_02_ranwell_monthly_ranges.csv"
 OUT_44_SERIES         = DIR_44 / "44_03_hindcast_series.csv"

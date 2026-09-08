@@ -1,5 +1,5 @@
-<!-- GENERATED MIRROR of report_edits/odt/report12.odt — do not edit.
-     Regenerate with: python3 tools/refresh_mirrors.py -->
+<!-- GENERATED MIRROR of report_edits/odt/report12.odt — do not edit. source-sha256=f8903a06791f213f pandoc=3.1.3 -->
+<!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}Conclusions
 

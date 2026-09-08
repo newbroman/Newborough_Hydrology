@@ -1,5 +1,5 @@
-<!-- GENERATED MIRROR of docs/public_summaries/public_summary_CY.odt — do not edit.
-     Regenerate with: python3 tools/refresh_mirrors.py -->
+<!-- GENERATED MIRROR of docs/public_summaries/public_summary_CY.odt — do not edit. source-sha256=3d2fc82c73a5c7aa pandoc=3.1.3 -->
+<!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}Cwningar Niwbwrch: beth sy'n digwydd i lefel y dŵr yn y twyni
 

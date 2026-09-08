@@ -1,5 +1,5 @@
-<!-- GENERATED MIRROR of docs/public_summaries/public_summary_EN.odt — do not edit.
-     Regenerate with: python3 tools/refresh_mirrors.py -->
+<!-- GENERATED MIRROR of docs/public_summaries/public_summary_EN.odt — do not edit. source-sha256=c81b79695694ed85 pandoc=3.1.3 -->
+<!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Newborough Warren: what is happening to the dune water table
 

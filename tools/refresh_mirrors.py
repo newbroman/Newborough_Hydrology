@@ -24,7 +24,16 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) - 2026-09-08. Regenerates tools/section_map.csv
+__version__ = "1.3.0"  # Hollingham (2026) - 2026-09-08. --check reads a content
+#        stamp (source-sha256 of the source's content.xml, plus the pandoc version) now
+#        written into every mirror's header on write. A mirror whose stamped hash no
+#        longer matches its live source reports STALE (content); a mirror stamped by a
+#        pandoc below MIN_PANDOC reports FOREIGN — both fail --check, closing the gap
+#        where mtime-only comparison read a foreign or byte-identical-but-wrong mirror
+#        as current. A mirror with no stamp (every mirror before this version) reports
+#        OK (legacy, mtime only) and is advisory, not a failure; stamps arrive as
+#        mirrors are naturally regenerated. --verify is unchanged.
+#   1.2.0 (2026-09-08): Regenerates tools/section_map.csv
 #        after mirroring any report chapter or the master, so the section map cannot lag the
 #        mirrors (it did, on 09-07 and 09-08). section_map.py 1.2.0 --check gates it in check_all.
 #   1.1.0 (2026-08-20): report.odm, the
@@ -44,10 +53,12 @@ __version__ = "1.2.0"  # Hollingham (2026) - 2026-09-08. Regenerates tools/secti
 #        __version__ constant previously.
 
 import argparse
+import hashlib
 import re
 import subprocess
 import sys
 import tempfile
+import zipfile
 from pathlib import Path
 from doc_paths import ODT_GLOB, ODM_GLOB, MIRROR_DIR
 
@@ -115,6 +126,43 @@ _VER = re.compile(r"_v(\d+(?:[_.]\d+)*)\.odt$")
 # pandoc ABORTS. --check WARNS and does not gate, because a "drift" report that
 # is really a version difference would train the reader to ignore the gate.
 MIN_PANDOC = (3, 0)
+
+
+def _source_content_hash(src: Path) -> str:
+    """First 16 hex of sha256 of content.xml inside src's ODT/ODM zip.
+
+    The zip's own mtimes churn without the content changing, and the zip
+    bytes themselves are not stable across LibreOffice saves that touch
+    nothing semantic — content.xml is the actual text and markup, so it is
+    what the stamp hashes.
+    """
+    with zipfile.ZipFile(src) as zf:
+        data = zf.read("content.xml")
+    return hashlib.sha256(data).hexdigest()[:16]
+
+
+# Header stamp fields, written by convert() and read back by --check. Kept as
+# module-level patterns (not inline in the two call sites) so the write side
+# and the read side cannot drift out of sync with each other.
+_STAMP_SHA_RE = re.compile(r"source-sha256=([0-9a-f]{16})")
+_STAMP_PANDOC_RE = re.compile(r"pandoc=(\d+)\.(\d+)\.(\d+)")
+
+
+def _read_stamp(dst: Path) -> tuple[str | None, tuple[int, ...] | None]:
+    """Return (source_sha256, pandoc_version) parsed from a mirror's header.
+
+    Either or both come back None when the mirror predates this stamp (every
+    mirror written before 1.3.0) — that is the legacy case, not an error.
+    Reads only the first couple of lines: mirrors can be large and the stamp
+    always lives in the header.
+    """
+    with dst.open("r", encoding="utf8", errors="replace") as f:
+        head = f.readline() + f.readline()
+    sha_m = _STAMP_SHA_RE.search(head)
+    pandoc_m = _STAMP_PANDOC_RE.search(head)
+    sha = sha_m.group(1) if sha_m else None
+    pandoc = tuple(int(g) for g in pandoc_m.groups()) if pandoc_m else None
+    return sha, pandoc
 
 
 def _pandoc_version() -> tuple:
@@ -189,8 +237,11 @@ def convert(src: Path, dst: Path) -> None:
             check=True, capture_output=True,
         )
         text = (Path(tmp) / "out.md").read_text(encoding="utf8")
-    banner = (f"<!-- GENERATED MIRROR of {src.relative_to(REPO)} — do not edit.\n"
-              f"     Regenerate with: python3 tools/refresh_mirrors.py -->\n\n")
+    src_hash = _source_content_hash(src)
+    pandoc_str = ".".join(str(n) for n in PANDOC_VERSION)
+    banner = (f"<!-- GENERATED MIRROR of {src.relative_to(REPO)} — do not edit. "
+              f"source-sha256={src_hash} pandoc={pandoc_str} -->\n"
+              f"<!--      Regenerate with: python3 tools/refresh_mirrors.py -->\n\n")
     dst.write_text(banner + text, encoding="utf8")
 
 
@@ -262,6 +313,8 @@ def main() -> int:
         return 0
 
     stale = []
+    foreign = []
+    legacy = 0
     for src, dst in jobs:
         fresh = dst.exists() and dst.stat().st_mtime >= src.stat().st_mtime
         if args.check:
@@ -269,15 +322,38 @@ def main() -> int:
                   f"   <- {src.relative_to(REPO)}")
             if not fresh:
                 stale.append(dst)
+            # Content stamp check, independent of the mtime comparison above:
+            # a mirror can be newer than its source (mtime "OK") while its
+            # stamped hash no longer matches, or while it was written by a
+            # pandoc below MIN_PANDOC. Neither of those is visible to mtime.
+            if dst.exists():
+                sha, pandoc = _read_stamp(dst)
+                if sha is not None:
+                    live_hash = _source_content_hash(src)
+                    if sha != live_hash:
+                        print(f"       STALE (content)  {dst.relative_to(REPO)}")
+                        if dst not in stale:
+                            stale.append(dst)
+                if pandoc is not None and pandoc < MIN_PANDOC:
+                    v = ".".join(str(n) for n in pandoc)
+                    print(f"       FOREIGN (pandoc {v})  {dst.relative_to(REPO)}")
+                    if dst not in foreign:
+                        foreign.append(dst)
+                if sha is None and pandoc is None:
+                    print(f"       OK (legacy, mtime only)  {dst.relative_to(REPO)}")
+                    legacy += 1
             continue
         convert(src, dst)
         print(f"  wrote {dst.relative_to(REPO)}  <- {src.relative_to(REPO)}")
 
-    if args.check and stale:
-        print(f"\n{len(stale)} mirror(s) stale — run tools/refresh_mirrors.py")
+    if args.check and (stale or foreign):
+        print(f"\n{len(stale)} mirror(s) stale, {len(foreign)} foreign-pandoc "
+              f"— run tools/refresh_mirrors.py")
+        print(f"{legacy} mirror(s) still legacy (no content stamp; advisory only).")
         return 1
     if args.check:
-        print("\nAll mirrors current.")
+        print(f"\nAll mirrors current. {legacy} mirror(s) still legacy "
+              f"(no content stamp; advisory only).")
         return 0
     # The section map is read from the same ODTs the mirrors are: regenerate it
     # whenever a report chapter or the master was mirrored, so map and mirror

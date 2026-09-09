@@ -29,11 +29,12 @@ Why this exists.
     working/updates/HANDOVER_NOTE.md
                               the NARRATIVE half — one rolling file, newest entry
                               first, one dated `## YYYY-MM-DD — title` entry per
-                              session of at most NOTE_MAX_LINES lines: what was
-                              done, what is owed, which D-numbers. Replaces the
-                              free-form HANDOVER_cowork_<date>.md documents
-                              (D-143): a 6,000-word handover is excellent and is
-                              not read; the next session needs forty lines.
+                              session, as long as that session's work warrants
+                              (D-150): what was done, what is owed, which
+                              D-numbers. Replaces the free-form
+                              HANDOVER_cowork_<date>.md documents (D-143): a
+                              6,000-word handover is excellent and is not read.
+                              Tier 0's TOTAL budget is the binding constraint.
 
   The reasoning — what was actually decided and why — belongs in none of these.
   It goes in `working/changelogs/` and `working/DECISION_LOG.md` as it happens,
@@ -71,7 +72,8 @@ __version__ = "2.0.1"  # Hollingham (2026).
 #   2.0.0 (2026-09-07): --check gate (D-143). Five detectors: DECISION_INDEX
 #     count vs DECISION_LOG; newest HANDOFF older than the newest substantive
 #     commit; HANDOVER_NOTE.md missing an entry for the newest commit day, or an
-#     entry over NOTE_MAX_LINES; script commits in the last CHANGELOG_WINDOW_DAYS
+#     entry over NOTE_LONG_ENTRY (advisory since D-150); script commits in the
+#     last CHANGELOG_WINDOW_DAYS
 #     with no CHANGELOG_delta naming them; Tier-0 prose over budget. HANDOFF
 #     header now carries an ISO timestamp so age is measured against commits,
 #     not against the filename's day. Tier 0 reads the rolling HANDOVER_NOTE.md
@@ -97,7 +99,14 @@ CHANGELOGS = REPO / "working" / "changelogs"
 
 # --check parameters. Named here, not scattered, so the gate's tolerances are
 # one lookup away when they need arguing with.
-NOTE_MAX_LINES = 40          # per dated entry in HANDOVER_NOTE.md
+# ADVISORY, not a gate (D-150). It was a hard cap until 2026-09-09, when a
+# thirteen-batch day hit it three times in one session and each collision cost a
+# round of compression that removed detail the changelogs had to carry instead.
+# Martin's ruling: "long days get long entries." The real cost of Tier 0 is its
+# TOTAL length, and TIER0_PROSE_BUDGET already gates that — a per-entry cap was a
+# proxy for it, and a proxy that punishes a productive day is the wrong shape.
+# Entries over this are still printed, so growth stays visible rather than felt.
+NOTE_LONG_ENTRY = 40         # per dated entry in HANDOVER_NOTE.md — advisory
 TIER0_PROSE_BUDGET = 600     # lines, excluding the one-line-per-decision index (D-080)
 CHANGELOG_WINDOW_DAYS = 3    # script commits this recent must have a changelog
 CHANGELOG_LEAD_DAYS = 2      # a changelog may precede its commit by this much
@@ -394,8 +403,8 @@ def build(include_lag: bool) -> str:
         "These are appended as they happen, not at the end.",
         "2. A register row in `working/updates/NRG_WORK_REGISTER.md` — with the status "
         "cell saying **open** if a ruling is owed, so this script surfaces it.",
-        f"3. A dated entry at the TOP of `{NOTE.relative_to(REPO)}` — at most "
-        f"{NOTE_MAX_LINES} lines: what was done, what is owed, which D-numbers (or 'none').",
+        f"3. A dated entry at the TOP of `{NOTE.relative_to(REPO)}` — as long as the "
+        "session's work warrants: what was done, what is owed, which D-numbers (or 'none').",
         "4. Regenerate this file: `python3 tools/session_handover.py --write` "
         "(which refreshes `working/DECISION_INDEX.md` with it), then "
         "`python3 tools/session_handover.py --check` must say OK.",
@@ -556,14 +565,14 @@ def check(verbose: bool = True) -> int:
             say("  FAIL  HANDOVER_NOTE.md has no dated entries")
         elif need and (newest is None or newest < need):
             fails.append(f"HANDOVER_NOTE.md newest entry {newest} predates the newest commit "
-                         f"day {need} — add a dated entry at the top (≤{NOTE_MAX_LINES} lines)")
+                         f"day {need} — add a dated entry at the top")
             say(f"  FAIL  HANDOVER_NOTE newest entry {newest} < commit day {need}")
         else:
             say(f"  ok    HANDOVER_NOTE newest entry {newest}")
-        long = [(h, n) for _, h, n in ents if n > NOTE_MAX_LINES]
-        for h, n in long:
-            fails.append(f"HANDOVER_NOTE entry over {NOTE_MAX_LINES} lines ({n}): {h[:60]}")
-            say(f"  FAIL  {n}-line entry: {h[:60]}")
+        # Advisory since D-150: reported so growth is visible, never failed.
+        # TIER0_PROSE_BUDGET below is what actually binds.
+        for h, n in [(h, n) for _, h, n in ents if n > NOTE_LONG_ENTRY]:
+            say(f"  note  {n}-line entry (over {NOTE_LONG_ENTRY}, advisory): {h[:56]}")
         if ents and ents != sorted(ents, key=lambda e: e[0] or date.min, reverse=True):
             fails.append("HANDOVER_NOTE.md entries are not newest-first")
             say("  FAIL  HANDOVER_NOTE entries not newest-first")

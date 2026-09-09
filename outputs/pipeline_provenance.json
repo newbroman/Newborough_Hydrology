@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-09T08:56:48",
+ "generated": "2026-09-09T10:07:43",
  "orchestrator": "2.16.0",
  "steps": {
   "00_climate_summary.py": {
@@ -692,7 +692,7 @@
   },
   "25_coastal_gradient.py": {
    "emitted": {
-    "outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv": "039a8a9ab99ae4178bd51242ec0e2ba372af91bbda7fc15f0565aa13dc275b5c",
+    "outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv": "c5c2a7cd00c6d3a1f82836ffe33076d840ef55b9017b217bffce825cba6d7e13",
     "outputs/25_coastal_gradient/25_02_per_well_spring_mean_slopes.csv": "41a54cbd70c11af5c36508257aac7e190807cb5f3e5f0660787c237818d687ba",
     "outputs/25_coastal_gradient/25_02_per_well_summer_min_slopes.csv": "34bbc823c8ff45b251971398a8b2266d54b18336bb7d9ffd9e12ad10f1d19cb4",
     "outputs/25_coastal_gradient/25_03_cluster_partition.csv": "81520814afd0a9e0780637038999625489660fc7bf92257d8f04d296ffb7d25c",
@@ -737,9 +737,9 @@
     "outputs/20_spatial_figures/20_msl5_change_perwell.csv": "f3a6abcb04f6e14c892fc3ddfea20ddd1677a79cb6d7da618c294f6ceb3a200d"
    },
    "inputs_unresolved": [],
-   "seconds": 66.5,
-   "started": "2026-09-09T08:55:42",
-   "version": "1.27.0"
+   "seconds": 68.1,
+   "started": "2026-09-09T10:06:34",
+   "version": "1.28.0"
   },
   "26_van_willegen_msl.py": {
    "emitted": {

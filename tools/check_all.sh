@@ -214,6 +214,14 @@ echo "── seasons (is any seasonal window defined outside config.py?) ──�
 python3 tools/season_lint.py --quiet || rc=1
 echo
 
+echo "── document media (does every stripped ODT still rebuild?) ──────────"
+# Superseded versions carry their images in docs/media_store rather than inside
+# the zip (W154, D-149). The guarantee is byte-identity, so it is checked rather
+# than assumed: every stripped document is rebuilt IN MEMORY and compared with
+# the md5 recorded when it was stripped. If this fails, an archived version can
+# no longer be reconstituted, which is the only thing the design gives up.
+python3 tools/odt_media.py verify || rc=1
+
 echo "── rounding (has new store-time rounding appeared?) ─────────────────"
 python3 tools/rounding_lint.py || rc=1
 

@@ -1,0 +1,458 @@
+{
+ "tool_version": "1.0.0",
+ "odt_md5": "e31e9a58c1e70eeb33f7e4b5c2b308c9",
+ "odt_bytes": 26035077,
+ "order": [
+  "mimetype",
+  "Configurations2/menubar/",
+  "Configurations2/popupmenu/",
+  "Configurations2/progressbar/",
+  "Configurations2/toolbar/",
+  "Configurations2/statusbar/",
+  "Configurations2/floater/",
+  "Configurations2/images/Bitmaps/",
+  "Configurations2/toolpanel/",
+  "Configurations2/accelerator/",
+  "styles.xml",
+  "manifest.rdf",
+  "meta.xml",
+  "settings.xml",
+  "Pictures/10000000000005F00000027AB8E82EAA.png",
+  "Pictures/1000000000000748000004849F266D1F.jpg",
+  "Pictures/10000000000006400000045FEDE74D3A.jpg",
+  "Pictures/100000010000075D0000061E2DE81B46.png",
+  "Pictures/1000000000000640000004B4D7FF729F.jpg",
+  "Pictures/1000000000000640000004BFE6E5DA1E.jpg",
+  "Pictures/100000010000074F0000057675994AC6.png",
+  "Pictures/1000000000000640000005955E7F5B3D.jpg",
+  "Pictures/100000010000076600000616E444E17A.png",
+  "Pictures/1000000100000755000007DC999AED6D.png",
+  "Pictures/10000000000006400000023BAAACB04C.jpg",
+  "Pictures/100000010000074E000004D901E520C9.png",
+  "Pictures/100000010000094B0000077E3B314DC1.png",
+  "Pictures/100000010000076B0000040163C9C874.png",
+  "Pictures/1000000000000640000002EB86B42986.jpg",
+  "Pictures/1000000000000CEC00000B0C1A478986.jpg",
+  "Pictures/100000010000074F000004F9345EE1F6.png",
+  "Pictures/10000000000006400000048790FAA59C.jpg",
+  "Pictures/1000000000000640000003EA9FB80F41.jpg",
+  "Pictures/100000010000074F000004F9FBDA02EE.png",
+  "Pictures/10000000000005BE00000640EA9072DD.jpg",
+  "Pictures/1000000000000755000002E7FC9D104D.jpg",
+  "Pictures/10000000000006400000048B7A7A5B76.jpg",
+  "Pictures/10000000000006400000048711075A2E.jpg",
+  "Thumbnails/thumbnail.png",
+  "META-INF/manifest.xml",
+  "content.xml"
+ ],
+ "pictures": {
+  "Pictures/10000000000005F00000027AB8E82EAA.png": {
+   "md5": "eda9901fdffd559a130dbffc9b2fa57b",
+   "ext": ".png",
+   "compress_type": 8,
+   "date_time": [
+    2026,
+    8,
+    12,
+    4,
+    5,
+    34
+   ],
+   "external_attr": 25165824,
+   "create_system": 3,
+   "extra": "",
+   "bytes": 94860
+  },
+  "Pictures/1000000000000748000004849F266D1F.jpg": {
+   "md5": "0c80aa2022c1f4eb471fd6bed59e5726",
+   "ext": ".jpg",
+   "compress_type": 8,
+   "date_time": [
+    2026,
+    8,
+    12,
+    4,
+    5,
+    34
+   ],
+   "external_attr": 25165824,
+   "create_system": 3,
+   "extra": "",
+   "bytes": 154913
+  },
+  "Pictures/10000000000006400000045FEDE74D3A.jpg": {
+   "md5": "a480d1a87ffd35a3ab5032369f66bb2f",
+   "ext": ".jpg",
+   "compress_type": 8,
+   "date_time": [
+    2026,
+    8,
+    12,
+    4,
+    5,
+    34
+   ],
+   "external_attr": 25165824,
+   "create_system": 3,
+   "extra": "",
+   "bytes": 495090
+  },
+  "Pictures/100000010000075D0000061E2DE81B46.png": {
+   "md5": "adcf309d09b643795c98611be805e1b0",
+   "ext": ".png",
+   "compress_type": 8,
+   "date_time": [
+    2026,
+    8,
+    12,
+    4,
+    5,
+    34
+   ],
+   "external_attr": 25165824,
+   "create_system": 3,
+   "extra": "",
+   "bytes": 2934096
+  },
+  "Pictures/1000000000000640000004B4D7FF729F.jpg": {
+   "md5": "1412bdc7649a59fedfef5f99c411b61d",
+   "ext": ".jpg",
+   "compress_type": 8,
+   "date_time": [
+    2026,
+    8,
+    12,
+    4,
+    5,
+    34
+   ],
+   "external_attr": 25165824,
+   "create_system": 3,
+   "extra": "",
+   "bytes": 596317
+  },
+  "Pictures/1000000000000640000004BFE6E5DA1E.jpg": {
+   "md5": "eacd59171ac1bbd114161d0317fc56b8",
+   "ext": ".jpg",
+   "compress_type": 8,
+   "date_time": [
+    2026,
+    8,
+    12,
+    4,
+    5,
+    34
+   ],
+   "external_attr": 25165824,
+   "create_system": 3,
+   "extra": "",
+   "bytes": 606746
+  },
+  "Pictures/100000010000074F0000057675994AC6.png": {
+   "md5": "94b3dc4fe2dba794df37b63645ce0f83",
+   "ext": ".png",
+   "compress_type": 8,
+   "date_time": [
+    2026,
+    8,
+    12,
+    4,
+    5,
+    34
+   ],
+   "external_attr": 25165824,
+   "create_system": 3,
+   "extra": "",
+   "bytes": 217190
+  },
+  "Pictures/1000000000000640000005955E7F5B3D.jpg": {
+   "md5": "6f288dba6a8b193322102b64efb13f90",
+   "ext": ".jpg",
+   "compress_type": 8,
+   "date_time": [
+    2026,
+    8,
+    12,
+    4,
+    5,
+    34
+   ],
+   "external_attr": 25165824,
+   "create_system": 3,
+   "extra": "",
+   "bytes": 426500
+  },
+  "Pictures/100000010000076600000616E444E17A.png": {
+   "md5": "a54a8761bd917ff4f72f546b6c5121d6",
+   "ext": ".png",
+   "compress_type": 8,
+   "date_time": [
+    2026,
+    8,
+    12,
+    4,
+    5,
+    34
+   ],
+   "external_attr": 25165824,
+   "create_system": 3,
+   "extra": "",
+   "bytes": 2994082
+  },
+  "Pictures/1000000100000755000007DC999AED6D.png": {
+   "md5": "74e407207eda86a418c16ae53837fd5b",
+   "ext": ".png",
+   "compress_type": 8,
+   "date_time": [
+    2026,
+    8,
+    12,
+    4,
+    5,
+    34
+   ],
+   "external_attr": 25165824,
+   "create_system": 3,
+   "extra": "",
+   "bytes": 576023
+  },
+  "Pictures/10000000000006400000023BAAACB04C.jpg": {
+   "md5": "d253a9a2efe5d9f032a78fb3929b438b",
+   "ext": ".jpg",
+   "compress_type": 8,
+   "date_time": [
+    2026,
+    8,
+    12,
+    4,
+    5,
+    34
+   ],
+   "external_attr": 25165824,
+   "create_system": 3,
+   "extra": "",
+   "bytes": 96778
+  },
+  "Pictures/100000010000074E000004D901E520C9.png": {
+   "md5": "2080ba10444c0ad26958ca8536164555",
+   "ext": ".png",
+   "compress_type": 8,
+   "date_time": [
+    2026,
+    8,
+    12,
+    4,
+    5,
+    34
+   ],
+   "external_attr": 25165824,
+   "create_system": 3,
+   "extra": "",
+   "bytes": 3042644
+  },
+  "Pictures/100000010000094B0000077E3B314DC1.png": {
+   "md5": "94ed5ea48c167251d6831213d24ebdca",
+   "ext": ".png",
+   "compress_type": 8,
+   "date_time": [
+    2026,
+    8,
+    12,
+    4,
+    5,
+    34
+   ],
+   "external_attr": 25165824,
+   "create_system": 3,
+   "extra": "",
+   "bytes": 5497977
+  },
+  "Pictures/100000010000076B0000040163C9C874.png": {
+   "md5": "7241847edad99e2f98c740e7de233a5d",
+   "ext": ".png",
+   "compress_type": 8,
+   "date_time": [
+    2026,
+    8,
+    12,
+    4,
+    5,
+    34
+   ],
+   "external_attr": 25165824,
+   "create_system": 3,
+   "extra": "",
+   "bytes": 142083
+  },
+  "Pictures/1000000000000640000002EB86B42986.jpg": {
+   "md5": "06458069b5785129b7885c88fc7f747a",
+   "ext": ".jpg",
+   "compress_type": 8,
+   "date_time": [
+    2026,
+    8,
+    12,
+    4,
+    5,
+    34
+   ],
+   "external_attr": 25165824,
+   "create_system": 3,
+   "extra": "",
+   "bytes": 132862
+  },
+  "Pictures/1000000000000CEC00000B0C1A478986.jpg": {
+   "md5": "9246027c30f10def5ed60f7a6de93a63",
+   "ext": ".jpg",
+   "compress_type": 8,
+   "date_time": [
+    2026,
+    8,
+    12,
+    4,
+    5,
+    34
+   ],
+   "external_attr": 25165824,
+   "create_system": 3,
+   "extra": "",
+   "bytes": 1317182
+  },
+  "Pictures/100000010000074F000004F9345EE1F6.png": {
+   "md5": "7bf9e0b5223a31abe7b448217707ad68",
+   "ext": ".png",
+   "compress_type": 8,
+   "date_time": [
+    2026,
+    8,
+    12,
+    4,
+    5,
+    34
+   ],
+   "external_attr": 25165824,
+   "create_system": 3,
+   "extra": "",
+   "bytes": 2991294
+  },
+  "Pictures/10000000000006400000048790FAA59C.jpg": {
+   "md5": "778ceab7b3779ce7fa03bad70672a7f4",
+   "ext": ".jpg",
+   "compress_type": 8,
+   "date_time": [
+    2026,
+    8,
+    12,
+    4,
+    5,
+    34
+   ],
+   "external_attr": 25165824,
+   "create_system": 3,
+   "extra": "",
+   "bytes": 331520
+  },
+  "Pictures/1000000000000640000003EA9FB80F41.jpg": {
+   "md5": "e1357ad89760c7369eef88122da763f2",
+   "ext": ".jpg",
+   "compress_type": 8,
+   "date_time": [
+    2026,
+    8,
+    12,
+    4,
+    5,
+    34
+   ],
+   "external_attr": 25165824,
+   "create_system": 3,
+   "extra": "",
+   "bytes": 260486
+  },
+  "Pictures/100000010000074F000004F9FBDA02EE.png": {
+   "md5": "09281cecaf0ce061f8665efdfed78e61",
+   "ext": ".png",
+   "compress_type": 8,
+   "date_time": [
+    2026,
+    8,
+    12,
+    4,
+    5,
+    34
+   ],
+   "external_attr": 25165824,
+   "create_system": 3,
+   "extra": "",
+   "bytes": 2925508
+  },
+  "Pictures/10000000000005BE00000640EA9072DD.jpg": {
+   "md5": "d0a3e5f9d053e2ec06fc41fe8ee05c1d",
+   "ext": ".jpg",
+   "compress_type": 8,
+   "date_time": [
+    2026,
+    8,
+    12,
+    4,
+    5,
+    34
+   ],
+   "external_attr": 25165824,
+   "create_system": 3,
+   "extra": "",
+   "bytes": 236010
+  },
+  "Pictures/1000000000000755000002E7FC9D104D.jpg": {
+   "md5": "f6dacd3bd51119cb2c7bad0fbae37ad6",
+   "ext": ".jpg",
+   "compress_type": 8,
+   "date_time": [
+    2026,
+    8,
+    12,
+    4,
+    5,
+    34
+   ],
+   "external_attr": 25165824,
+   "create_system": 3,
+   "extra": "",
+   "bytes": 158660
+  },
+  "Pictures/10000000000006400000048B7A7A5B76.jpg": {
+   "md5": "f4dd17920dc6bba9c7020c7507f0dbb9",
+   "ext": ".jpg",
+   "compress_type": 8,
+   "date_time": [
+    2026,
+    8,
+    12,
+    4,
+    5,
+    34
+   ],
+   "external_attr": 25165824,
+   "create_system": 3,
+   "extra": "",
+   "bytes": 332043
+  },
+  "Pictures/10000000000006400000048711075A2E.jpg": {
+   "md5": "9c8a15df0f4f6644eecbe5ec92d9c944",
+   "ext": ".jpg",
+   "compress_type": 8,
+   "date_time": [
+    2026,
+    8,
+    12,
+    4,
+    5,
+    34
+   ],
+   "external_attr": 25165824,
+   "create_system": 3,
+   "extra": "",
+   "bytes": 331299
+  }
+ }
+}

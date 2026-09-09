@@ -26,6 +26,13 @@
 + **/*.odt
 + **/*.odm
 
+# --- the media store and its manifests (W154, D-149). Superseded versions no
+# --- longer carry their own images; without these the archive holds documents
+# --- that cannot be reconstituted. The store is CONTENT-ADDRESSED, so it is
+# --- append-only and `copy` uploads each image exactly once, ever.
++ docs/media_store/**
++ **/*.media.json
+
 # --- everything else stays out. Without this catch-all rclone would upload the
 # --- entire repository, which is already in git twice over.
 - **

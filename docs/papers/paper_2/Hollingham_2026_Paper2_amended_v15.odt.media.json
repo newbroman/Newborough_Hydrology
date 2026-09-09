@@ -1,0 +1,168 @@
+{
+ "tool_version": "1.0.0",
+ "odt_md5": "0053d43fa2800a6476ef29718d5e9ca8",
+ "odt_bytes": 2162917,
+ "order": [
+  "mimetype",
+  "Configurations2/toolpanel/",
+  "Configurations2/floater/",
+  "Configurations2/statusbar/",
+  "Configurations2/toolbar/",
+  "Configurations2/progressbar/",
+  "Configurations2/popupmenu/",
+  "Configurations2/menubar/",
+  "styles.xml",
+  "manifest.rdf",
+  "meta.xml",
+  "settings.xml",
+  "Pictures/10000000000003B4000006A4DE419255.jpg",
+  "Pictures/10000000000006A40000036E69B54230.jpg",
+  "Pictures/10000000000006A4000004877D5E708D.jpg",
+  "Pictures/10000000000006A400000491FE2941B6.jpg",
+  "Pictures/10000000000006A40000042931C57575.jpg",
+  "Pictures/10000000000006A4000004C87E925B49.jpg",
+  "Pictures/10000000000006A4000003887E0D7A80.jpg",
+  "Pictures/10000000000006A4000005EDCD30A0FC.jpg",
+  "Thumbnails/thumbnail.png",
+  "META-INF/manifest.xml",
+  "content.xml"
+ ],
+ "pictures": {
+  "Pictures/10000000000003B4000006A4DE419255.jpg": {
+   "md5": "319cf3d115f26d4ef0a0ad6c5ef27a8e",
+   "ext": ".jpg",
+   "compress_type": 8,
+   "date_time": [
+    2026,
+    7,
+    22,
+    5,
+    47,
+    2
+   ],
+   "external_attr": 25165824,
+   "create_system": 3,
+   "extra": "",
+   "bytes": 232180
+  },
+  "Pictures/10000000000006A40000036E69B54230.jpg": {
+   "md5": "1e69bac78c34ba65e4cf303e67cdbf9d",
+   "ext": ".jpg",
+   "compress_type": 8,
+   "date_time": [
+    2026,
+    7,
+    22,
+    5,
+    47,
+    2
+   ],
+   "external_attr": 25165824,
+   "create_system": 3,
+   "extra": "",
+   "bytes": 191463
+  },
+  "Pictures/10000000000006A4000004877D5E708D.jpg": {
+   "md5": "81ed503841a4896512b49743fea22a4e",
+   "ext": ".jpg",
+   "compress_type": 8,
+   "date_time": [
+    2026,
+    7,
+    22,
+    5,
+    47,
+    2
+   ],
+   "external_attr": 25165824,
+   "create_system": 3,
+   "extra": "",
+   "bytes": 593348
+  },
+  "Pictures/10000000000006A400000491FE2941B6.jpg": {
+   "md5": "4079d6991cc37b8bd0c670424589a57f",
+   "ext": ".jpg",
+   "compress_type": 8,
+   "date_time": [
+    2026,
+    7,
+    22,
+    5,
+    47,
+    2
+   ],
+   "external_attr": 25165824,
+   "create_system": 3,
+   "extra": "",
+   "bytes": 570030
+  },
+  "Pictures/10000000000006A40000042931C57575.jpg": {
+   "md5": "145895a9050582e018898f059564d728",
+   "ext": ".jpg",
+   "compress_type": 8,
+   "date_time": [
+    2026,
+    7,
+    22,
+    5,
+    47,
+    2
+   ],
+   "external_attr": 25165824,
+   "create_system": 3,
+   "extra": "",
+   "bytes": 170354
+  },
+  "Pictures/10000000000006A4000004C87E925B49.jpg": {
+   "md5": "97b06f549ca01abbdcdad69fa3159c05",
+   "ext": ".jpg",
+   "compress_type": 8,
+   "date_time": [
+    2026,
+    7,
+    22,
+    5,
+    47,
+    2
+   ],
+   "external_attr": 25165824,
+   "create_system": 3,
+   "extra": "",
+   "bytes": 247749
+  },
+  "Pictures/10000000000006A4000003887E0D7A80.jpg": {
+   "md5": "7d5b43889371736381d1f9449fa36192",
+   "ext": ".jpg",
+   "compress_type": 8,
+   "date_time": [
+    2026,
+    7,
+    22,
+    5,
+    47,
+    2
+   ],
+   "external_attr": 25165824,
+   "create_system": 3,
+   "extra": "",
+   "bytes": 131410
+  },
+  "Pictures/10000000000006A4000005EDCD30A0FC.jpg": {
+   "md5": "ccff2e501f07e68488521cf954c76fab",
+   "ext": ".jpg",
+   "compress_type": 8,
+   "date_time": [
+    2026,
+    7,
+    22,
+    5,
+    47,
+    2
+   ],
+   "external_attr": 25165824,
+   "create_system": 3,
+   "extra": "",
+   "bytes": 307990
+  }
+ }
+}

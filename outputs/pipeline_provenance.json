@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-09T07:48:04",
+ "generated": "2026-09-09T08:56:48",
  "orchestrator": "2.16.0",
  "steps": {
   "00_climate_summary.py": {
@@ -719,7 +719,7 @@
     "outputs/25_coastal_gradient/25_15_covariate_specification_range.csv": "b18782fd5b90e474e0982f37575a443ff0c542e365b124aa4ad37605e8acf573",
     "outputs/25_coastal_gradient/25_16_delta0_leave_one_out.csv": "dcefa8babf2edc913f187a185456fac5ccd12cae2b3541367b17bed9ace03783",
     "outputs/25_coastal_gradient/25_16_delta0_leave_one_out.png": "e32e19931ee1f4c825fc795bf3d92c7de604af68c22b05826222fc564cf7f299",
-    "outputs/25_coastal_gradient/25_report_numbers.csv": "85a2b3840768f9389b6e72a00c73ce5da5b7f9d4b6cfcf6ca1c11e5838030fd2"
+    "outputs/25_coastal_gradient/25_report_numbers.csv": "4231350d984828acb2fd342ce9dcb07b5d059beed104d7889007cf9084ed4310"
    },
    "fallbacks": [],
    "inputs": {
@@ -737,9 +737,9 @@
     "outputs/20_spatial_figures/20_msl5_change_perwell.csv": "f3a6abcb04f6e14c892fc3ddfea20ddd1677a79cb6d7da618c294f6ceb3a200d"
    },
    "inputs_unresolved": [],
-   "seconds": 66.3,
-   "started": "2026-09-09T07:46:58",
-   "version": "1.26.0"
+   "seconds": 66.5,
+   "started": "2026-09-09T08:55:42",
+   "version": "1.27.0"
   },
   "26_van_willegen_msl.py": {
    "emitted": {

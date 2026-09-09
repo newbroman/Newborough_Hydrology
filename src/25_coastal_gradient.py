@@ -125,7 +125,16 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
-__version__ = "1.26.0"  # Hollingham (2026) — 2026-09-09. Leave-one-out leverage of
+__version__ = "1.27.0"  # Hollingham (2026) — 2026-09-09. Well-basis uncertainty (D-147):
+#   the delete-one refits of 1.26.0 also give a standard error for delta_0, the
+#   reference-distance rate and L_cg with the WELL as the unit of independence,
+#   which is what the documents now quote. New report numbers
+#   delta0_well_basis_se_mm_yr (renamed from delta0_loo_jackknife_se_mm_yr),
+#   delta_ref_well_basis_se_mm_yr, L_well_basis_se_m and their *_ci_lo/_ci_hi at
+#   +/-1.96 SE. The fitted (row-basis) SEs stay in 25_01 as the model's nominal
+#   precision. Emission only; no point estimate and no other output changes.
+#   Spec NRG_spec_well_based_se_2026-09-09.md.
+# v1.26.0  # Hollingham (2026) — 2026-09-09. Leave-one-out leverage of
 #   delta_0 on the headline panel: 25_16_delta0_leave_one_out.csv (one row per
 #   forest-free well, the headline refitted with that well withheld) and eight
 #   delta0_loo_* keys in 25_report_numbers.csv (highest-leverage well and shift,
@@ -3217,6 +3226,7 @@ def delta0_leave_one_out(df: pd.DataFrame, fit_ref: dict, decay_func, p0, bounds
     out.attrs["delta_0_headline"] = d0_ref
     out.attrs["delta_0_headline_se"] = float(fit_ref["perr"][0])
     out.attrs["delta_ref_headline"] = float(ref_all["value"])
+    out.attrs["L_headline"] = float(fit_ref["popt"][1])
     return out
 
 
@@ -3224,7 +3234,17 @@ def loo_summary(loo: pd.DataFrame, d_ref: float) -> dict:
     """The eight quantities the documents quote, from the LOO table."""
     n = len(loo)
     d0 = loo["delta_0_loo_mm_yr"].to_numpy(dtype=float)
-    jk_se = float(np.sqrt((n - 1) / n * np.sum((d0 - d0.mean()) ** 2)))
+
+    def _well_se(x):
+        # delete-one estimate of the standard error, the well as the unit of
+        # independence: sqrt((n-1)/n * sum((x_i - mean)^2))
+        return float(np.sqrt((n - 1) / n * np.sum((x - x.mean()) ** 2)))
+    jk_se = _well_se(d0)
+    ref_se = _well_se(loo["delta_ref_loo_mm_yr"].to_numpy(dtype=float))
+    L_se = _well_se(loo["L_loo_m"].to_numpy(dtype=float))
+    d0_hat = float(loo.attrs.get("delta_0_headline", np.nan))
+    ref_hat = float(loo.attrs.get("delta_ref_headline", np.nan))
+    L_hat = float(loo.attrs.get("L_headline", np.nan))
     top = loo.iloc[0]
     second = loo.iloc[1] if n > 1 else top
     return {
@@ -3234,7 +3254,15 @@ def loo_summary(loo: pd.DataFrame, d_ref: float) -> dict:
         "delta0_loo_max_shift_mm_yr": float(top["d_delta_0_mm_yr"]),
         "delta0_loo_second_well": str(second["well"]),
         "delta0_loo_second_shift_mm_yr": float(second["d_delta_0_mm_yr"]),
-        "delta0_loo_jackknife_se_mm_yr": jk_se,
+        "delta0_well_basis_se_mm_yr": jk_se,
+        "delta0_well_basis_ci_lo_mm_yr": d0_hat - 1.96 * jk_se,
+        "delta0_well_basis_ci_hi_mm_yr": d0_hat + 1.96 * jk_se,
+        "delta_ref_well_basis_se_mm_yr": ref_se,
+        "delta_ref_well_basis_ci_lo_mm_yr": ref_hat - 1.96 * ref_se,
+        "delta_ref_well_basis_ci_hi_mm_yr": ref_hat + 1.96 * ref_se,
+        "L_well_basis_se_m": L_se,
+        "L_well_basis_ci_lo_m": L_hat - 1.96 * L_se,
+        "L_well_basis_ci_hi_m": L_hat + 1.96 * L_se,
         "delta0_loo_range_mm_yr": float(d0.max() - d0.min()),
         "delta_ref_loo_max_shift_mm_yr": float(
             loo.loc[loo["d_delta_ref_mm_yr"].abs().idxmax(), "d_delta_ref_mm_yr"]),
@@ -3335,6 +3363,7 @@ def build_report_numbers(fits: dict,
                                f"{COASTAL_REFERENCE_DISTANCE_M:.0f} m from the "
                                f"eroding shoreline. Forest-free linear-capped, "
                                f"n_wells={ff['n_wells']}, {_se}"
+                               f"well-basis SE and CI in delta_ref_well_basis_se_mm_yr / _ci_lo / _ci_hi (D-147: the quoted uncertainty); "
                                f"delta-method SE over the full parameter "
                                f"covariance.{_spread}")})
         rows.append({"Parameter": "Headline_reference_distance",
@@ -3516,12 +3545,21 @@ def build_report_numbers(fits: dict,
         _units = {"delta0_loo_n_wells": "wells", "delta0_loo_max_well": "well",
                   "delta0_loo_max_well_dist_m": "m", "delta0_loo_max_shift_mm_yr": "mm/yr",
                   "delta0_loo_second_well": "well", "delta0_loo_second_shift_mm_yr": "mm/yr",
-                  "delta0_loo_jackknife_se_mm_yr": "mm/yr", "delta0_loo_range_mm_yr": "mm/yr",
+                  "delta0_well_basis_se_mm_yr": "mm/yr", "delta0_well_basis_ci_lo_mm_yr": "mm/yr",
+                  "delta0_well_basis_ci_hi_mm_yr": "mm/yr", "delta_ref_well_basis_se_mm_yr": "mm/yr",
+                  "delta_ref_well_basis_ci_lo_mm_yr": "mm/yr", "delta_ref_well_basis_ci_hi_mm_yr": "mm/yr",
+                  "L_well_basis_se_m": "m", "L_well_basis_ci_lo_m": "m", "L_well_basis_ci_hi_m": "m",
+                  "delta0_loo_range_mm_yr": "mm/yr",
                   "delta_ref_loo_max_shift_mm_yr": "mm/yr", "delta_ref_loo_max_shift_well": "well"}
         _notes = {
             "delta0_loo_max_shift_mm_yr": "delta_0 with the highest-leverage well withheld minus the headline delta_0: the single-well shift D-046 requires to be stated wherever delta_0 is quoted.",
             "delta0_loo_second_shift_mm_yr": "the runner-up single-well shift, so the leader can be stated as a multiple of the next.",
-            "delta0_loo_jackknife_se_mm_yr": "sqrt((n-1)/n * sum((delta_0_i - mean)^2)) over the LOO estimates: a model-free standard error on delta_0 to set beside the fitted SE in 25_01.",
+            "delta0_well_basis_se_mm_yr": "sqrt((n-1)/n * sum((delta_0_i - mean)^2)) over the delete-one refits: the standard error on delta_0 with the WELL as the unit of independence. THIS is the uncertainty the documents quote (D-147); the fitted SE in 25_01 treats the monthly rows as independent and is the model's nominal precision, not quoted as an uncertainty.",
+            "delta_ref_well_basis_se_mm_yr": "the same delete-one standard error for the headline rate at the reference distance; the quoted uncertainty on the headline (D-147).",
+            "L_well_basis_se_m": "the same delete-one standard error for the inland reach L_cg (D-147).",
+            "delta0_well_basis_ci_lo_mm_yr": "headline delta_0 minus 1.96 well-basis SE.", "delta0_well_basis_ci_hi_mm_yr": "headline delta_0 plus 1.96 well-basis SE.",
+            "delta_ref_well_basis_ci_lo_mm_yr": "headline reference-distance rate minus 1.96 well-basis SE.", "delta_ref_well_basis_ci_hi_mm_yr": "headline reference-distance rate plus 1.96 well-basis SE.",
+            "L_well_basis_ci_lo_m": "headline L_cg minus 1.96 well-basis SE.", "L_well_basis_ci_hi_m": "headline L_cg plus 1.96 well-basis SE.",
             "delta0_loo_range_mm_yr": "max minus min of the LOO delta_0 estimates.",
             "delta_ref_loo_max_shift_mm_yr": f"largest single-well shift in the rate at the {_ls['d_ref_m']:.0f} m reference distance (the quoted headline), delta-method value from each refit.",
         }
@@ -3890,8 +3928,9 @@ def main() -> None:
           f"{_ls['delta0_loo_max_well']} ({_ls['delta0_loo_max_well_dist_m']:.0f} m): "
           f"δ₀ shifts {_ls['delta0_loo_max_shift_mm_yr']:+.2f} mm/yr when withheld "
           f"(next {_ls['delta0_loo_second_well']} {_ls['delta0_loo_second_shift_mm_yr']:+.2f}); "
-          f"jackknife SE {_ls['delta0_loo_jackknife_se_mm_yr']:.2f} against fitted "
-          f"{loo.attrs['delta_0_headline_se']:.2f}")
+          f"well-basis SE {_ls['delta0_well_basis_se_mm_yr']:.2f} against fitted "
+          f"{loo.attrs['delta_0_headline_se']:.2f}; reference rate SE "
+          f"{_ls['delta_ref_well_basis_se_mm_yr']:.2f}, L SE {_ls['L_well_basis_se_m']:.0f} m")
     _lo = cov_range[cov_range["covariate"] == "specification_range_min"].iloc[0]
     _hi = cov_range[cov_range["covariate"] == "specification_range_max"].iloc[0]
     print(f"    δ₀ spans {_lo['delta_0_mm_yr']:+.2f} to "

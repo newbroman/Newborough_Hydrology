@@ -68,6 +68,10 @@ Outputs
                                        range of delta_0 and L across
                                        them as two endpoint rows.
                                        Reported only; nothing adopted.
+25_16_delta0_leave_one_out.csv         The headline fit refitted once per
+                                       well with that well withheld: the
+                                       leverage each well carries in
+                                       delta_0 (D-046). + .png diagnostic.
 25_02_per_well_summer_min_slopes.csv   Per-well OLS slopes
 25_03_cluster_partition.csv            Cluster attribution table — the
                                        balanced annual-mean observed decline
@@ -121,7 +125,17 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
-__version__ = "1.25.0"  # Hollingham (2026) — 2026-09-04. Emits
+__version__ = "1.26.0"  # Hollingham (2026) — 2026-09-09. Leave-one-out leverage of
+#   delta_0 on the headline panel: 25_16_delta0_leave_one_out.csv (one row per
+#   forest-free well, the headline refitted with that well withheld) and eight
+#   delta0_loo_* keys in 25_report_numbers.csv (highest-leverage well and shift,
+#   runner-up, jackknife SE, range). D-046 requires the ceh3 sensitivity to be
+#   stated wherever delta_0 is quoted; until now the figure lived in a changelog
+#   working table and no document could quote it. Emission only; every existing
+#   output is untouched (the LOO reads the fits, never writes them). A withhold-
+#   nothing control must reproduce the headline to machine precision (assert).
+#   Spec NRG_spec_script25_delta0_loo_2026-09-09.md.
+# v1.25.0  # Hollingham (2026) — 2026-09-04. Emits
 #   climate_plus_far_field_mm_yr = climate_cwb_mm_yr + far_field_offset_mm_yr in
 #   25_03_cluster_partition.csv, the identified "climate + far-field" component
 #   report9 Table 1.20 displays. Committed as a first-class pipeline number so the
@@ -3135,12 +3149,132 @@ def _check2_correlation_rows(per_well: pd.DataFrame) -> list[dict]:
     ]
 
 
+def delta0_leave_one_out(df: pd.DataFrame, fit_ref: dict, decay_func, p0, bounds,
+                         d_ref: float) -> pd.DataFrame:
+    """Refit the headline specification once per well with that well withheld.
+
+    WHY THIS EXISTS
+
+      D-046 moved the forest-free panel from the cluster rule to the land-cover
+      flag, which admitted ceh3 - 176 m from the shore, the second-nearest well
+      - and moved delta_0 by several mm/yr. The entry requires that sensitivity
+      to be STATED wherever delta_0 is quoted: one well carrying that much of a
+      headline is a fact about a network with few near-shore wells, not a defect
+      to hide. It could not be quoted because it existed only in a changelog's
+      working table. This makes it a committed number that moves with the fit.
+
+    WHAT IT DOES
+
+      For each well in `df`, drop that well's rows and call fit_panel() with the
+      SAME decay form, starting values and bounds as the headline; evaluate the
+      reference-distance rate with delta_at_distance(). Nothing is reimplemented
+      and nothing about the headline fit is touched. A withhold-nothing control
+      is fitted first and must reproduce `fit_ref` to machine precision - the
+      guard against the loop silently fitting something other than the headline.
+
+    Returns one row per well: the refit parameters, the shift each withholding
+    produces (d_delta_0 = delta_0_loo - delta_0_headline), and a rank by |shift|.
+    The jackknife standard error over the rows is a model-free SE on delta_0 to
+    set beside the fitted one; it is computed by the caller from this table.
+    """
+    import time as _time
+    t0 = _time.time()
+    d0_ref = float(fit_ref["popt"][0])
+    control = fit_panel(df, decay_func, p0=p0, bounds=bounds, label="loo_control")
+    if not np.allclose(control["popt"], fit_ref["popt"], rtol=0, atol=1e-9):
+        raise RuntimeError(
+            "delta0_leave_one_out: the withhold-nothing control does not reproduce "
+            f"the headline fit ({control['popt']} vs {fit_ref['popt']}); the loop would "
+            "not be measuring leverage on the headline. Nothing written.")
+    meta = (df.groupby("well")
+              .agg(cluster=("cluster", "first"), dist_coast_m=("dist_coast_m", "first"),
+                   n_obs=("h_depth", "size"))
+              .reset_index())
+    rows = []
+    for _, m in meta.iterrows():
+        w = m["well"]
+        sub = df[df["well"] != w]
+        fit = fit_panel(sub, decay_func, p0=p0, bounds=bounds, label=f"loo_{w}")
+        ref = delta_at_distance(fit, decay_func, d_ref)
+        rows.append({
+            "well": w,
+            "cluster": int(m["cluster"]) if pd.notna(m["cluster"]) else None,
+            "dist_coast_m": float(m["dist_coast_m"]),
+            "n_obs_withheld": int(m["n_obs"]),
+            "delta_0_loo_mm_yr": float(fit["popt"][0]),
+            "delta_0_loo_se": float(fit["perr"][0]),
+            "L_loo_m": float(fit["popt"][1]),
+            "c_loo_mm_yr": float(fit["popt"][2]) if fit["c_fixed"] is None else float(fit["c_fixed"]),
+            "delta_ref_loo_mm_yr": float(ref["value"]),
+            "d_delta_0_mm_yr": float(fit["popt"][0]) - d0_ref,
+        })
+    out = pd.DataFrame(rows)
+    ref_all = delta_at_distance(fit_ref, decay_func, d_ref)
+    out["d_delta_ref_mm_yr"] = out["delta_ref_loo_mm_yr"] - float(ref_all["value"])
+    out["abs_rank"] = out["d_delta_0_mm_yr"].abs().rank(ascending=False, method="first").astype(int)
+    out = out.sort_values("abs_rank").reset_index(drop=True)
+    out.attrs["elapsed_s"] = _time.time() - t0
+    out.attrs["delta_0_headline"] = d0_ref
+    out.attrs["delta_0_headline_se"] = float(fit_ref["perr"][0])
+    out.attrs["delta_ref_headline"] = float(ref_all["value"])
+    return out
+
+
+def loo_summary(loo: pd.DataFrame, d_ref: float) -> dict:
+    """The eight quantities the documents quote, from the LOO table."""
+    n = len(loo)
+    d0 = loo["delta_0_loo_mm_yr"].to_numpy(dtype=float)
+    jk_se = float(np.sqrt((n - 1) / n * np.sum((d0 - d0.mean()) ** 2)))
+    top = loo.iloc[0]
+    second = loo.iloc[1] if n > 1 else top
+    return {
+        "delta0_loo_n_wells": n,
+        "delta0_loo_max_well": str(top["well"]),
+        "delta0_loo_max_well_dist_m": float(top["dist_coast_m"]),
+        "delta0_loo_max_shift_mm_yr": float(top["d_delta_0_mm_yr"]),
+        "delta0_loo_second_well": str(second["well"]),
+        "delta0_loo_second_shift_mm_yr": float(second["d_delta_0_mm_yr"]),
+        "delta0_loo_jackknife_se_mm_yr": jk_se,
+        "delta0_loo_range_mm_yr": float(d0.max() - d0.min()),
+        "delta_ref_loo_max_shift_mm_yr": float(
+            loo.loc[loo["d_delta_ref_mm_yr"].abs().idxmax(), "d_delta_ref_mm_yr"]),
+        "delta_ref_loo_max_shift_well": str(
+            loo.loc[loo["d_delta_ref_mm_yr"].abs().idxmax(), "well"]),
+        "d_ref_m": float(d_ref),
+    }
+
+
+def plot_delta0_leave_one_out(loo: pd.DataFrame, fig_path: Path) -> None:
+    """Shift in delta_0 from withholding each well, against its distance to the coast."""
+    fig, ax = plt.subplots(figsize=(8.0, 4.8))
+    se = float(loo.attrs.get("delta_0_headline_se", np.nan))
+    ax.axhline(0.0, color="grey", lw=0.8)
+    if np.isfinite(se):
+        for sgn in (-1, 1):
+            ax.axhline(sgn * se, color="grey", lw=0.8, ls="--")
+        ax.text(loo["dist_coast_m"].max(), se, "  ± fitted SE", va="bottom", ha="right",
+                fontsize=8, color="grey")
+    ax.scatter(loo["dist_coast_m"], loo["d_delta_0_mm_yr"], s=22, color="#1B9E77", zorder=3)
+    for _, r in loo.head(3).iterrows():
+        ax.annotate(f"{r['well']} ({r['dist_coast_m']:.0f} m)",
+                    (r["dist_coast_m"], r["d_delta_0_mm_yr"]),
+                    textcoords="offset points", xytext=(6, 4), fontsize=8)
+    ax.set_xlabel("Distance to coast (m)")
+    ax.set_ylabel("Shift in δ₀ when the well is withheld (mm/yr)")
+    ax.set_title("Leave-one-out leverage of δ₀, forest-free linear-capped headline panel",
+                 fontsize=9, loc="left")
+    ax.grid(alpha=0.3)
+    fig.tight_layout()
+    render_figure(fig, fig_path)
+
+
 def build_report_numbers(fits: dict,
                           partition: pd.DataFrame,
                           baci_corr: pd.DataFrame,
                           per_well: pd.DataFrame,
                           decay_funcs: dict | None = None,
-                          cov_range: pd.DataFrame | None = None) -> pd.DataFrame:
+                          cov_range: pd.DataFrame | None = None,
+                          loo: pd.DataFrame | None = None) -> pd.DataFrame:
     """Headline numbers in the project-standard
     `Parameter, Well, Era, Value, Unit, Note` format.
 
@@ -3371,6 +3505,32 @@ def build_report_numbers(fits: dict,
                              f"climate covariate is chosen differently. "
                              f"Source {paths.OUT_25_COVARIATE_SPEC_RANGE.name}; "
                              f"{_r['basis']}.")})
+    # Leave-one-out leverage of delta_0 (D-046). Each key names its source file
+    # and basis so the documents can quote it and cite_check can hold it.
+    if loo is not None and len(loo):
+        _ls = loo_summary(loo, COASTAL_REFERENCE_DISTANCE_M)
+        _base = (f"Source {paths.OUT_25_DELTA0_LOO.name}: the forest-free linear-capped "
+                 f"headline fit refitted once per well with that well withheld, "
+                 f"{_ls['delta0_loo_n_wells']} wells, same starting values, bounds and "
+                 f"covariate as the headline. ")
+        _units = {"delta0_loo_n_wells": "wells", "delta0_loo_max_well": "well",
+                  "delta0_loo_max_well_dist_m": "m", "delta0_loo_max_shift_mm_yr": "mm/yr",
+                  "delta0_loo_second_well": "well", "delta0_loo_second_shift_mm_yr": "mm/yr",
+                  "delta0_loo_jackknife_se_mm_yr": "mm/yr", "delta0_loo_range_mm_yr": "mm/yr",
+                  "delta_ref_loo_max_shift_mm_yr": "mm/yr", "delta_ref_loo_max_shift_well": "well"}
+        _notes = {
+            "delta0_loo_max_shift_mm_yr": "delta_0 with the highest-leverage well withheld minus the headline delta_0: the single-well shift D-046 requires to be stated wherever delta_0 is quoted.",
+            "delta0_loo_second_shift_mm_yr": "the runner-up single-well shift, so the leader can be stated as a multiple of the next.",
+            "delta0_loo_jackknife_se_mm_yr": "sqrt((n-1)/n * sum((delta_0_i - mean)^2)) over the LOO estimates: a model-free standard error on delta_0 to set beside the fitted SE in 25_01.",
+            "delta0_loo_range_mm_yr": "max minus min of the LOO delta_0 estimates.",
+            "delta_ref_loo_max_shift_mm_yr": f"largest single-well shift in the rate at the {_ls['d_ref_m']:.0f} m reference distance (the quoted headline), delta-method value from each refit.",
+        }
+        for _k, _v in _ls.items():
+            if _k == "d_ref_m":
+                continue
+            rows.append({"Parameter": _k, "Well": "", "Era": "",
+                         "Value": _v, "Unit": _units.get(_k, ""),
+                         "Note": _base + _notes.get(_k, "")})
     return pd.DataFrame(rows)
 
 
@@ -3713,6 +3873,25 @@ def main() -> None:
             f"{paths.OUT_25_COVARIATE_SPEC_RANGE.name} has been LEFT ALONE.")
     cov_range.to_csv(paths.OUT_25_COVARIATE_SPEC_RANGE, index=False)
     saved(paths.OUT_25_COVARIATE_SPEC_RANGE.name)
+
+    # ── Leave-one-out leverage of delta_0 on the headline panel (D-046) ──
+    # The same p0/bounds as the headline call above, passed through unchanged.
+    print("\n  Leave-one-out leverage of δ₀ (forest-free lin-cap) ...")
+    loo = delta0_leave_one_out(df_ff, fit_ff_l, model_linear_capped,
+                               p0=[-30.0, 1000.0, -5.0],
+                               bounds=([-200, 100, -30], [50, 10000, 30]),
+                               d_ref=COASTAL_REFERENCE_DISTANCE_M)
+    loo.to_csv(paths.OUT_25_DELTA0_LOO, index=False)
+    saved(paths.OUT_25_DELTA0_LOO.name)
+    plot_delta0_leave_one_out(loo, paths.OUT_25_DELTA0_LOO_FIG)
+    saved(paths.OUT_25_DELTA0_LOO_FIG.name)
+    _ls = loo_summary(loo, COASTAL_REFERENCE_DISTANCE_M)
+    print(f"    {len(loo)} refits in {loo.attrs['elapsed_s']:.0f} s; highest leverage "
+          f"{_ls['delta0_loo_max_well']} ({_ls['delta0_loo_max_well_dist_m']:.0f} m): "
+          f"δ₀ shifts {_ls['delta0_loo_max_shift_mm_yr']:+.2f} mm/yr when withheld "
+          f"(next {_ls['delta0_loo_second_well']} {_ls['delta0_loo_second_shift_mm_yr']:+.2f}); "
+          f"jackknife SE {_ls['delta0_loo_jackknife_se_mm_yr']:.2f} against fitted "
+          f"{loo.attrs['delta_0_headline_se']:.2f}")
     _lo = cov_range[cov_range["covariate"] == "specification_range_min"].iloc[0]
     _hi = cov_range[cov_range["covariate"] == "specification_range_max"].iloc[0]
     print(f"    δ₀ spans {_lo['delta_0_mm_yr']:+.2f} to "
@@ -3918,12 +4097,13 @@ def main() -> None:
     if "summer_min" in partitions:
         report = build_report_numbers(
             fits, partitions["summer_min"], baci_corr, per_wells["summer_min"],
-            decay_funcs=decay_funcs, cov_range=cov_range)
+            decay_funcs=decay_funcs, cov_range=cov_range, loo=loo)
         report.to_csv(paths.OUT_25_REPORT_NUMBERS, index=False)
 
     print(f"\n  Outputs written to: {paths.DIR_25}/")
     print("    25_01_panel_fit_parameters.csv  (all-season + MAM sensitivity)")
     print("    25_15_covariate_specification_range.csv  (climate-covariate range)")
+    print("    25_16_delta0_leave_one_out.csv + .png  (δ₀ leverage per well, D-046)")
     print("    25_02_per_well_summer_min_slopes.csv / _spring_mean_slopes.csv")
     print("    25_03_cluster_partition.csv / _spring.csv")
     print("    25_04_baci_corroboration.csv")

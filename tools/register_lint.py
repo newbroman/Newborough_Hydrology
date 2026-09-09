@@ -79,10 +79,8 @@ ID_OK = re.compile(r"^[A-Z]+\d+[a-z]?(?:-[a-z]+)?$")
 # gate that gets switched off. Each is printed on every run, so pinning is not
 # hiding. Split one and delete its line.
 BUNDLED_PINNED = {
-    # Six of Martin's own calls in one row. Splitting them needs him, because
-    # each M item's verdict is his.
-    "M15, M17, M18, M20, M24, M27",
-    # Closed 2026-08-23. Splitting a closed bundle buys nothing but churn.
+    # Closed 2026-08-23, and every item in it verifiably so. Splitting a closed
+    # bundle whose closures check out buys nothing but churn.
     "W12\u2013W15, W19, W21, W22, W25, W27",
 }
 TASK_REF = re.compile(r"\bT-(\d{2})\b")

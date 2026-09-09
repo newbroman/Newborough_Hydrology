@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/academic_summaries/academic_Summary_v1_15.odt — do not edit. source-sha256=3444c69ea6a68b6a pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/academic_summaries/academic_Summary_v1_16.odt — do not edit. source-sha256=652c2ef9eee40fdc pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Newborough Warren Groundwater Study
@@ -60,7 +60,7 @@ CEH18/CEH21 (October 2023): Insufficient post-intervention record (\<2 years) fo
 
 Clearfell BACI --- December 2017 (8.4 ha)
 
-Five-tier ANCOVA-BACI design: 17 wells, three independent control definitions (Forest, Climate, Combined). Headline result (Forest control, WMC3 impact well): clearfell step +0.113 m (p \< 0.001, CI \[0.050, 0.189\]). Forest Edge: +0.033 m (p = 0.193). Synthetic extension (10h, WMC3+FE1+FE2 centroid): +0.085 m (p \< 0.001). Summer-only ANCOVA (Jun--Sep subset): +0.046 m (p = 0.436) --- not significant. The summer non-result is robust across all control definitions.
+Five-tier ANCOVA-BACI design: 17 wells, three independent control definitions (Forest, Climate, Combined). Headline result (Forest control, WMC3 impact well): clearfell step +0.113 m (p = 0.002, CI \[0.042, 0.184\]). Forest Edge: +0.030 m (p = 0.249). Synthetic extension (10h, WMC3+FE1+FE2 centroid): +0.085 m (p \< 0.001). Summer-only ANCOVA (Jun--Sep subset): +0.046 m (p = 0.436) --- not significant. The summer non-result is robust across all control definitions.
 
 The null summer result is consistent with a dual canopy role: interception removal increases winter recharge but exposure increases direct summer evapotranspiration from the now-unshaded soil. These effects approximately cancel in the June--September window. A site-wide decline in recharge efficiency (β₁ declining over time across all clusters) is identified as the primary driver of summer minimum deterioration, operating independently of canopy management.
 

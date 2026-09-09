@@ -23,6 +23,16 @@ living/output/
 # --- LibreOffice lock files ---
 .~lock.*#
 
+# --- The document media store (W154, D-149) -------------------------------
+# Superseded ODT versions keep their images here instead of inside the zip.
+# It stays OUT of the repository for D-081's reason, not for size: these figures
+# derive from licensed aerial imagery, and a public repository attached to a
+# journal submission is exactly where a share-alike or non-commercial term
+# reaches. It goes to Drive with the ODTs, through tools/rclone-odt-filter.txt.
+# The .media.json manifests beside each document ARE committed — they are text,
+# they carry md5s and no image data, and they are the integrity record.
+docs/media_store/
+
 # --- Large local working document (189 MB) — keep the PDF, not the docx ---
 report.docx
 *.odt

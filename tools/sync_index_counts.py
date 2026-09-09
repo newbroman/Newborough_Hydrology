@@ -5,8 +5,13 @@ sync_index_counts.py — stamp index.html's pipeline counts from the manifest
 ====================================================================================
 
 Purpose:
-    index.html is hand-maintained and is the only project document that states
-    the pipeline step counts without quoting outputs/pipeline_manifest.json.
+    index.html and PIPELINE_README.md are hand-maintained and state the pipeline
+    step counts in prose. (Until 2026-09-09 this docstring claimed index.html was
+    the ONLY such document. It was not: a sweep that day found the counts typed
+    in seven places at FOUR different vintages — 43 in the Welsh summary, 52 in
+    the English summary and PIPELINE_README, 53 in four report chapters, 54 in
+    the Methods Supplement and here. Every one of them also said, in the same
+    sentence, that the canonical count lives in the manifest.)
     On 2026-08-07 it was found carrying "46 analytical steps across 17 phases,
     plus a single post-processing phase" — an eighteenth phase that does not
     exist, Phase 17 being the post-processing phase and already inside the 17.
@@ -97,6 +102,10 @@ __version__ = "1.2.0"  # Hollingham (2026) — 2026-08-09
 
 _ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_INDEX = _ROOT / "index.html"
+# Every hand-maintained file carrying PL markers. Both are plain text in the
+# repository, so they can be STAMPED. The ODT-backed documents cannot be, and
+# are gated instead by tools/pipeline_count_lint.py.
+DEFAULT_TARGETS = (_ROOT / "index.html", _ROOT / "PIPELINE_README.md")
 DEFAULT_MANIFEST = _ROOT / "outputs" / "pipeline_manifest.json"
 
 # marker key -> how to pull the value out of the manifest
@@ -223,46 +232,56 @@ def _summarise(values: dict[str, int]) -> str:
 def main() -> int:
     ap = argparse.ArgumentParser(
         description="Stamp index.html's pipeline counts from pipeline_manifest.json.")
-    ap.add_argument("--index", type=Path, default=DEFAULT_INDEX)
+    ap.add_argument("--index", type=Path, default=None,
+                    help="stamp only this file (default: every PL-marked target)")
     ap.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
     ap.add_argument("--check", action="store_true",
-                    help="report only; exit 1 if index.html is stale")
+                    help="report only; exit 1 if any target is stale")
     args = ap.parse_args()
 
-    if not args.index.is_file():
-        _fail(f"index.html not found: {args.index}")
-
+    targets = [args.index] if args.index else list(DEFAULT_TARGETS)
     values = load_manifest(args.manifest)
-    original = args.index.read_text(encoding="utf-8")
+    rc = 0
 
-    total_markers = sum(original.count(f"<!--PL:{k}-->") for k in _KEYS)
-    if total_markers == 0:
-        _fail(f"no PL markers found in {args.index.name} — "
-              f"has it been replaced by an unmarkered copy?")
+    for target in targets:
+        if not target.is_file():
+            _fail(f"target not found: {target}")
+        original = target.read_text(encoding="utf-8")
 
-    updated, changes = stamp(original, values)
-    unmanaged = audit_unmanaged(original)
+        total_markers = sum(original.count(f"<!--PL:{k}-->") for k in _KEYS)
+        if total_markers == 0:
+            _fail(f"no PL markers found in {target.name} — "
+                  f"has it been replaced by an unmarkered copy?")
 
-    if not changes:
-        print(f"  OK index.html counts already current "
-              f"({total_markers} marker sites; "
-              f"{_summarise(values)})")
-        _report_unmanaged(unmanaged)
-        return 0
+        updated, changes = stamp(original, values)
+        # The unmanaged audit is written for index.html, a page with a handful of
+        # numbers in prose. PIPELINE_README is a script-by-script reference that
+        # names a step number on nearly every line, so the same audit returns
+        # ~286 hits there — all of them step IDs, none of them totals. A warning
+        # that cries wolf 286 times is a warning nobody reads, so it is scoped to
+        # the page it was written for.
+        unmanaged = audit_unmanaged(original) if target.suffix == ".html" else []
 
-    if args.check:
-        print("  x index.html counts are stale:")
+        if not changes:
+            print(f"  OK {target.name} counts already current "
+                  f"({total_markers} marker sites; {_summarise(values)})")
+            _report_unmanaged(unmanaged)
+            continue
+
+        if args.check:
+            print(f"  x {target.name} counts are stale:")
+            for line in changes:
+                print(f"      {line}")
+            _report_unmanaged(unmanaged)
+            rc = 1
+            continue
+
+        target.write_text(updated, encoding="utf-8")
+        print(f"  OK {target.name} counts updated:")
         for line in changes:
             print(f"      {line}")
         _report_unmanaged(unmanaged)
-        return 1
-
-    args.index.write_text(updated, encoding="utf-8")
-    print("  OK index.html counts updated:")
-    for line in changes:
-        print(f"      {line}")
-    _report_unmanaged(unmanaged)
-    return 0
+    return rc
 
 
 if __name__ == "__main__":

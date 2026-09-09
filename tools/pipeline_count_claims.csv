@@ -1,0 +1,15 @@
+claim_id,doc,context,field
+report8_total,report_edits/text/report8.md,The pipeline comprises 54 registered steps,total_registered
+report8_analytical,report_edits/text/report8.md,By tier: 43 analytical,by_tier.analytical_toplevel
+report8_default,report_edits/text/report8.md,By execution: 51 run in a default pass,by_exec.default
+report8_same_total,report_edits/text/report8.md,each account for the same 54 steps,total_registered
+report_abstract_total,report_edits/text/report.md,analytical pipeline of 54 steps,total_registered
+report12_total,report_edits/text/report12.md,analytical pipeline of 54 steps,total_registered
+report15_total,report_edits/text/report15.md,comprises 54 steps,total_registered
+summary_en_total,docs/academic_summaries/text/academic_Summary.md,a 54-step reproducible Python pipeline,total_registered
+summary_cy_total,docs/academic_summaries/text/crynodeb_academaidd.md,piblinell Python ailadroddadwy 54-cam,total_registered
+ms_total,docs/report/text/Newborough_Methods_Supplement.md,54 registered steps,total_registered
+ms_analytical,docs/report/text/Newborough_Methods_Supplement.md,43 analytical,by_tier.analytical_toplevel
+ms_default,docs/report/text/Newborough_Methods_Supplement.md,51 run in,by_exec.default
+ms_those_steps,docs/report/text/Newborough_Methods_Supplement.md,Those 54 steps are classified,total_registered
+ms_same_total,docs/report/text/Newborough_Methods_Supplement.md,each account for the same 54 steps,total_registered

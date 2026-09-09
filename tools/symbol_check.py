@@ -46,7 +46,18 @@ Usage
 
 from __future__ import annotations
 
-__version__ = "1.8.0"  # Hollingham (2026) — 2026-09-04. check_register
+__version__ = "1.9.0"  # Hollingham (2026) — 2026-09-09. classify() reads
+#   the corpus as PANDOC MARKDOWN, so a phrase can no longer be hidden by
+#   emphasis or by formula spacing (W150, T5): asterisks are dropped and
+#   whitespace against punctuation is removed, which is the bulk of the
+#   remaining d and c backlog. Two guards keep that from over-matching:
+#   is_bare_use() excludes subscripted and functional forms from the ambiguity
+#   report, and a phrase whose edge token is a SINGLE LETTER is matched against
+#   a letter boundary, so "model b" cannot match the heading "Model
+#   benchmarking" — which it did, and claimed the TLM benchmark's intercept for
+#   alpha_intercept. A plain \\b on both ends was tried first and lost seven
+#   true matches to subscripts and plurals; the guard is narrow for that reason.
+# v1.8.0  # Hollingham (2026) — 2026-09-04. check_register
 #   validates the status/form vocabularies (T12, D-129): status in
 #   {canonical, displaced, retired, registered}, form in {bare, subscripted},
 #   canonical bare-only and registered subscripted-only. The canonical map is
@@ -407,6 +418,14 @@ def is_qualified(text: str, end: int) -> bool:
     return bool(QUALIFIED_NEXT.match(text[end:end + 2]))
 
 
+def _edge_token(phrase: str, side: str) -> str:
+    """The run of word characters at one end of a phrase, or "" if it ends in
+    punctuation. A one-letter run is a symbol and must stand alone; a longer
+    one is a word and may take a suffix."""
+    m = (re.match(r"^\w+", phrase) if side == "left" else re.search(r"\w+$", phrase))
+    return m.group(0) if m else ""
+
+
 def classify(text: str, span, senses: list[dict]) -> list[str]:
     """Which registered senses the context around `span` matches."""
     s, e = span
@@ -419,18 +438,46 @@ def classify(text: str, span, senses: list[dict]) -> list[str]:
     # d and c backlog. Asterisks only -- underscores are load-bearing here
     # (dist_coast, L_cg, c_far), so they are left exactly as they are.
     window = window.replace("*", "")
-    # Whitespace is not meaning. The register lists "exp(−d/L_s)"; the Methods
-    # Supplement writes "exp(−d / L_s)". Matching literally on the raw window
-    # made every spacing variant a miss, and the occurrence was then reported as
-    # though the document had not said which quantity it meant. Both sides are
-    # collapsed, so spacing cannot decide whether a sense matches.
-    window = re.sub(r"\s+", "", window)
+    # Whitespace inside a FORMULA is not meaning: the register lists
+    # "exp(−d/L_s)", the Methods Supplement writes "exp(−d / L_s)". Spaces are
+    # removed only where they sit against punctuation, so formula spacing stops
+    # mattering while the boundaries BETWEEN WORDS survive.
+    #
+    # Removing whitespace outright was tried first and was wrong: it turned the
+    # heading "Model benchmarking" into "modelbenchmarking", which contains
+    # "modelb", so alpha_intercept's "Model B" matched a section title and
+    # claimed the benchmark model's intercept (W150). Word phrases are matched
+    # with boundaries below for the same reason -- "model b" must not match
+    # "model benchmarking".
+    window = re.sub(r"\s*([^\w\s])\s*", r"\1", window)
+    window = re.sub(r"\s+", " ", window)
     hits = []
     for sense in senses:
-        phrases = [re.sub(r"\s+", "", p.strip().lower())
-                   for p in sense["context_any"].split("|") if p.strip()]
-        if any(p in window for p in phrases):
-            hits.append(sense["sense_id"])
+        for raw in sense["context_any"].split("|"):
+            raw = raw.strip().lower()
+            if not raw:
+                continue
+            phrase = re.sub(r"\s*([^\w\s])\s*", r"\1", raw)
+            phrase = re.sub(r"\s+", " ", phrase)
+            # A phrase whose edge token is a SINGLE LETTER must not be
+            # swallowed by a longer alphabetic word: "model b" cannot match
+            # "model benchmarking". The guard is deliberately narrow --
+            # a plain \b on both ends was tried and lost seven true matches,
+            # because the corpus continues a symbol with a subscript or an
+            # inflection that \b treats as a word character: "+c+ε" is written
+            # "+c+ε_i", "κ·d" is written "exp(−κ·d_w)", "h(i,t)=α" is written
+            # "=α₀", and "residual" must still match "residuals". So the
+            # boundary is asserted against LETTERS only, and only where the
+            # edge token is one character -- i.e. where the phrase ends in a
+            # symbol rather than a word.
+            pat = re.escape(phrase)
+            if re.fullmatch(r"[^\W\d_]", _edge_token(phrase, "left")):
+                pat = r"(?<![^\W\d_])" + pat
+            if re.fullmatch(r"[^\W\d_]", _edge_token(phrase, "right")):
+                pat = pat + r"(?![^\W\d_])"
+            if re.search(pat, window):
+                hits.append(sense["sense_id"])
+                break
     return hits
 
 

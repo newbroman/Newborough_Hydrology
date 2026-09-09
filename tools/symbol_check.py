@@ -411,9 +411,24 @@ def classify(text: str, span, senses: list[dict]) -> list[str]:
     """Which registered senses the context around `span` matches."""
     s, e = span
     window = text[max(0, s - CONTEXT_WINDOW): e + CONTEXT_WINDOW].lower()
+    # The corpus these windows come from is PANDOC MARKDOWN, where a symbol is
+    # emphasised: the SI methods write "delta(*d*)" and "*d*/*L_cg*" for what the
+    # register lists as "δ(d)" and "d/L_cg". Every such phrase failed to match,
+    # and the occurrence was reported as though the document had not said which
+    # quantity it meant. Measured 2026-09-09: this is the bulk of the remaining
+    # d and c backlog. Asterisks only -- underscores are load-bearing here
+    # (dist_coast, L_cg, c_far), so they are left exactly as they are.
+    window = window.replace("*", "")
+    # Whitespace is not meaning. The register lists "exp(−d/L_s)"; the Methods
+    # Supplement writes "exp(−d / L_s)". Matching literally on the raw window
+    # made every spacing variant a miss, and the occurrence was then reported as
+    # though the document had not said which quantity it meant. Both sides are
+    # collapsed, so spacing cannot decide whether a sense matches.
+    window = re.sub(r"\s+", "", window)
     hits = []
     for sense in senses:
-        phrases = [p.strip().lower() for p in sense["context_any"].split("|") if p.strip()]
+        phrases = [re.sub(r"\s+", "", p.strip().lower())
+                   for p in sense["context_any"].split("|") if p.strip()]
         if any(p in window for p in phrases):
             hits.append(sense["sense_id"])
     return hits

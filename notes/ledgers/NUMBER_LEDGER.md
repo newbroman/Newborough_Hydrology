@@ -128,7 +128,7 @@ report Fig 50 = Paper 1 Fig 19 (**Script 20**, not 09f).
 | N-33 | Median one-step R² | same | stable | |
 | N-34 | Clearfell ANCOVA step (Forest Impact) | `10a_report_numbers.csv` | **volatile** | the "+0.113 m" headline; retrace every time |
 | N-35 | Scraping ANCOVA step | `10a_report_numbers.csv` | volatile | model R² 0.2737, n = 162 months |
-| N-36 | CEH34 hindcast R² | `10i_report_numbers.csv` `CEH34_hindcast_r2` | volatile | ⚠ **the 2026-08-14 audit was wrong here**: it claimed the committed value was 0.89 and the report's 0.91 was stale. The committed value is 0.9115 — the report is right. Donor CEH9; α −0.1485, slope 1.0515; RMSE 0.1246 m; 80-month calibration, 51-month synthetic extension |
+| N-36 | CEH34 hindcast R² | `10i_report_numbers.csv` `CEH34_hindcast_r2` | volatile | ⚠ **the 2026-08-14 audit was wrong here**: it claimed the committed value was 0.89 and the report's 0.91 was stale. The committed value is 0.9115 — the report is right. Donor CEH9; α₀ −0.1485, slope 1.0515; RMSE 0.1246 m; 80-month calibration, 51-month synthetic extension |
 | N-37 | CEH36 pure-scraping BACI shift | `09_scrape_report_numbers.csv` | volatile | net benefit vs CEH21 coastal benchmark: +0.1435 m |
 
 ## H. Water balance — `16_water_bal_table.csv` (**Sy-free**, D-021)

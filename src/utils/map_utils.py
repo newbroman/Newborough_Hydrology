@@ -45,7 +45,13 @@ plot_metric_map(map_df, value_col, title, output_path, cmap, data_dir, vmin, vma
     cluster-shape markers, dual colorbars, and legend.
 """
 
-__version__ = "1.6.0"  # Hollingham (2026) — 2026-07-19
+__version__ = "1.7.0"  # Hollingham (2026) — 2026-09-09. Map
+#   label placement is bounded by ITERATIONS, not the clock (W145): adjust_text()
+#   takes iter_lim=config.LABEL_ADJUST_ITER_LIM. It previously passed neither
+#   limit, so adjustText defaulted to time_lim = 1 SECOND of wall clock and the
+#   labels settled wherever the machine's speed left them — the figure differed
+#   run to run on an unchanged tree. Placement only; no data, no other output.
+# v1.6.0  # Hollingham (2026) — 2026-07-19
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -67,6 +73,7 @@ from pathlib import Path
 
 from utils.config import (
     BW_MODE, CLUSTER_LABELS, CLUSTER_MARKERS, DEM_VMIN, DEM_VCENTER, DEM_VMAX,
+    LABEL_ADJUST_ITER_LIM,
     FEATURE_COLOUR_SCRAPE, SCRAPE_KML_FILES,
     SITE_MAP_EAST_MIN, SITE_MAP_EAST_MAX, SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX,
 )
@@ -977,7 +984,8 @@ def plot_metric_map(
                 )
                 texts.append(t)
         try:
-            adjust_text(texts, ax=ax, arrowprops=dict(arrowstyle="-", color="#999", lw=0.4))
+            adjust_text(texts, ax=ax, arrowprops=dict(arrowstyle="-", color="#999", lw=0.4),
+                        iter_lim=LABEL_ADJUST_ITER_LIM)
         except Exception:
             pass  # adjust_text not critical
 

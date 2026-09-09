@@ -9,7 +9,13 @@ Purpose:
     all remaining wells.
 ====================================================================================
 """
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-08-12
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-09-09. Map
+#   label placement is bounded by ITERATIONS, not the clock (W145): the explicit
+#   time_lim=5.0 is REPLACED by iter_lim=config.LABEL_ADJUST_ITER_LIM (not added
+#   beside it — adjustText warns when both are set and uses whichever is faster,
+#   which puts the clock straight back). Five seconds of wall clock made this
+#   figure differ run to run. Placement only; no data, no other output.
+# v1.0.0  # Hollingham (2026) — 2026-08-12
 #
 # This module previously carried no __version__ constant; 1.0.0 marks its
 # introduction, not the start of the module's history. Prior revisions are the
@@ -54,6 +60,7 @@ from utils.paths import (
 )
 from utils.config import (
     CLUSTER_COLOURS, CLUSTER_COLOURS_BW, CLUSTER_LABELS, BW_MODE,
+    LABEL_ADJUST_ITER_LIM,
 )
 from utils.data_utils import normalize_well_name
 from utils.map_utils import load_dem_layer, add_kml_features, add_en_axes
@@ -357,7 +364,7 @@ def main():
         force_text=(0.4, 0.8),
         force_static=(0.3, 0.6),
         min_arrow_len=3,
-        time_lim=5.0,
+        iter_lim=LABEL_ADJUST_ITER_LIM,
         arrowprops=dict(arrowstyle="-", color="gray", lw=0.5),
     )
 

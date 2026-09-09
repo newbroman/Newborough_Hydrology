@@ -25,20 +25,20 @@
    "step": "3/54  State-space regression + LCSC"
   },
   "04_cluster_visualisations.py": {
-   "last_run": "2026-09-09T10:33:43",
-   "seconds": 11.3,
+   "last_run": "2026-09-09T12:16:43",
+   "seconds": 14.6,
    "status": "ok",
    "step": "4/54  Core cluster visualisation"
   },
   "05_pearson_affinity.py": {
-   "last_run": "2026-09-09T10:33:57",
-   "seconds": 14.4,
+   "last_run": "2026-09-09T12:16:59",
+   "seconds": 15.7,
    "status": "ok",
    "step": "5/54  Pearson membership audit"
   },
   "06_pearson_extended.py": {
-   "last_run": "2026-09-09T10:34:13",
-   "seconds": 15.3,
+   "last_run": "2026-09-09T12:17:29",
+   "seconds": 28.0,
    "status": "ok",
    "step": "6/54  Pearson extended network integration"
   },
@@ -85,14 +85,14 @@
    "step": "13/54  P_flood achievability categorical map (\u00a75.9 / Conclusion 4)"
   },
   "12_figure_site_overview.py": {
-   "last_run": "2026-09-09T10:38:36",
-   "seconds": 14.0,
+   "last_run": "2026-09-09T12:17:58",
+   "seconds": 27.8,
    "status": "ok",
    "step": "17/54  Figure: DEM site overview"
   },
   "13_figure_experimental_design.py": {
-   "last_run": "2026-09-09T10:38:46",
-   "seconds": 10.4,
+   "last_run": "2026-09-09T12:18:16",
+   "seconds": 17.0,
    "status": "ok",
    "step": "18/54  Figure: Experimental design GIS map"
   },
@@ -229,8 +229,8 @@
    "step": "44/54  Cluster separation vs recoverability (supplementary diagnostic)"
   },
   "32_differential_movement.py": {
-   "last_run": "2026-09-09T10:44:06",
-   "seconds": 36.7,
+   "last_run": "2026-09-09T12:16:27",
+   "seconds": 36.4,
    "status": "ok",
    "step": "36/54  Figure: secular differential water-table drift (report Fig 59)"
   },
@@ -319,5 +319,5 @@
    "step": "10/54  Clear-fell BACI analysis suite (10a\u201310m)"
   }
  },
- "updated": "2026-09-09T10:47:54"
+ "updated": "2026-09-09T12:18:16"
 }

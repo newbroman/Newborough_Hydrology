@@ -1,0 +1,3 @@
+claim_id,doc,context,csv,key_col,key,value_from,relation,threshold,note
+clearfell_step_p_en,docs/academic_summaries/text/academic_Summary.md,"clearfell step +0.113 m (p \< 0.001, CI \[0.050, 0.189\])",outputs/10_clearfell_baci/10a_report_numbers.csv,Parameter,ANCOVA_Forest_Impact_clearfell_step,note_p,lt,0.001,"D-061 headline. The committed p is 0.0021, so this claim is false; it is the occurrence T15b was written about."
+clearfell_step_p_cy,docs/academic_summaries/text/crynodeb_academaidd.md,"cam clirdorri +0.113 m (p \< 0.001, CI \[0.050, 0.189\])",outputs/10_clearfell_baci/10a_report_numbers.csv,Parameter,ANCOVA_Forest_Impact_clearfell_step,note_p,lt,0.001,"Welsh twin of clearfell_step_p_en, carrying the same false claim. Wording change needs a translator (W129)."

@@ -1,0 +1,5 @@
+Dune-aquifer architecture resolved from manual dipwells and one climate station
+State-space model with a displacement datum closes the water balance to within 1.8%
+Iterative forecast skill rises from NSE −0.03 to 0.72 over a linear benchmark
+Interception-corrected specific yields converge: contrasts surface-led, not storage
+Coastal retreat resolved as a forcing distinct from climate on long-term decline

@@ -214,6 +214,15 @@ echo "── seasons (is any seasonal window defined outside config.py?) ──�
 python3 tools/season_lint.py --quiet || rc=1
 echo
 
+echo "── pipeline counts (does the corpus agree with the manifest?) ──────"
+# CLAUDE.md's first non-negotiable is that the step count is derived, never
+# hard-typed. On 2026-09-09 it was found typed in nine places at FOUR different
+# vintages (43 / 52 / 53 / 54), every one of them in a sentence that also told
+# the reader the canonical count lives in the manifest. sync_index_counts.py
+# stamps the two plain-text files; this gates the ones inside ODTs, which no
+# script can rewrite safely.
+python3 tools/pipeline_count_lint.py || rc=1
+
 echo "── document media (does every stripped ODT still rebuild?) ──────────"
 # Superseded versions carry their images in docs/media_store rather than inside
 # the zip (W154, D-149). The guarantee is byte-identity, so it is checked rather

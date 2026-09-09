@@ -28,19 +28,31 @@ deliberately narrow, because a gate that guesses gets switched off.
   3. EXISTENCE. A cell asserting that a file does not exist yet ("no X yet",
      "X does not exist") is stale once X exists.
 
-  4. TYPED COUNTS (advisory). A cell stating "N entries/rows/wells/PDFs" has
+  4. BUNDLED IDS. A row whose ID cell names more than one work item hides
+     those items behind a count of one. `W1, W2, W3, W4, W7, W8, W10` was one
+     row for three weeks, so `nrg_status` printed "open 6" and then named
+     twelve; four of the seven turned out to have no recoverable description at
+     all, because nothing had ever been required to state one. A range
+     (`W12-W15`) is the same defect. One row, one item.
+
+  5. TYPED COUNTS (advisory). A cell stating "N entries/rows/wells/PDFs" has
      written down a number that its own command will contradict the next time it
      runs. Reported, never failed, because some are legitimately historical —
      but every one is a drift waiting to happen.
 
 Usage:
-    python3 tools/register_lint.py            # 1-3 gate, 4 advisory
+    python3 tools/register_lint.py            # 1-4 gate, 5 advisory
     python3 tools/register_lint.py --counts   # also list every typed count
     python3 tools/register_lint.py --selftest # prove the checks can fail
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-09-09. First version.
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-09-09. Check 4: a row
+#   whose ID cell names more than one work item. Found by Martin, who noticed
+#   the ledger showed more open items than the count claimed: one row read
+#   `W1, W2, W3, W4, W7, W8, W10`, so the lane counted 6 open and named 12.
+#   Four of those seven had no description left anywhere in either repository.
+# v1.0.0  # Hollingham (2026) — 2026-09-09. First version.
 
 import re
 import subprocess
@@ -51,7 +63,28 @@ REPO = Path(__file__).resolve().parents[1]
 REGISTER = REPO / "working" / "updates" / "NRG_WORK_REGISTER.md"
 CHECK_ALL = REPO / "tools" / "check_all.sh"
 
-ROW = re.compile(r"^\|\s*\*\*(?P<id>[A-Z]+\d+[a-z]?)\*\*\s*\|(?P<body>.*)\|\s*$")
+# The ID cell is taken WHOLE, not as a single well-formed id. The narrow
+# pattern `[A-Z]+\d+[a-z]?` silently skipped every bundled row — which is
+# precisely the row this lint most needs to see, and it would have made
+# check 4 dead code. A cell that is not a single id is a finding, not a
+# line to skip.
+ROW = re.compile(r"^\|\s*\*\*(?P<id>[^|*]{1,80})\*\*\s*\|(?P<body>.*)\|\s*$")
+# A single id, optionally with a word suffix naming a facet of the same item
+# (`W98-history` is one row about one thing, not two rows in a trench coat).
+ID_OK = re.compile(r"^[A-Z]+\d+[a-z]?(?:-[a-z]+)?$")
+
+# Bundles that already exist. Pinned rather than demanded-fixed, the same shape
+# as symbol_check's definition snapshot: the gate's job is to stop the register
+# GAINING bundles, and a gate that first requires a backlog to be cleared is a
+# gate that gets switched off. Each is printed on every run, so pinning is not
+# hiding. Split one and delete its line.
+BUNDLED_PINNED = {
+    # Six of Martin's own calls in one row. Splitting them needs him, because
+    # each M item's verdict is his.
+    "M15, M17, M18, M20, M24, M27",
+    # Closed 2026-08-23. Splitting a closed bundle buys nothing but churn.
+    "W12\u2013W15, W19, W21, W22, W25, W27",
+}
 TASK_REF = re.compile(r"\bT-(\d{2})\b")
 DONE_ALT = r"done|closed|resolved|retired|superseded|withdrawn|complete\\w*"
 OPEN_ALT = r"open|awaiting|not started|not done|outstanding|owed|todo|reopened|quick win|blocked"
@@ -61,6 +94,9 @@ NEGATED = re.compile(r"\b(?:not|never|no longer|un)\s+(?:done|started|closed|com
 IN_CHECKALL = re.compile(r"in\s+`?check_all`?", re.I)
 TOOLNAME = re.compile(r"`?\b([a-z_][a-z0-9_]{3,})\.py\b`?|`([a-z_][a-z0-9_]{3,})`")
 NO_FILE_YET = re.compile(r"no\s+`?([\w./-]+\.(?:kml|csv|md|txt|json|py|odt|pdf))`?\s+(?:in\s+`?[\w./-]+`?\s+)?yet", re.I)
+# An ID cell naming more than one item: a comma- or slash-separated list, or a
+# range written with any of the dashes the register actually uses.
+BUNDLED_ID = re.compile(r"[,/]|\s(?:and|&)\s|[0-9]\s*[-\u2010-\u2015]\s*[A-Za-z0-9]", re.I)
 TYPED_COUNT = re.compile(r"\b(\d{1,5})\s+(entries|rows|wells|PDFs|files|occurrences|decisions|steps|documents)\b", re.I)
 
 
@@ -153,9 +189,22 @@ def main(argv: list[str]) -> int:
                       f"it does — {hits[0].relative_to(REPO)}")
                 bad += 1
 
-        # 4. typed counts (advisory)
+        # 4. bundled IDs
+        if not ID_OK.match(rid.strip()) and rid.strip() not in BUNDLED_PINNED:
+            print(f"  BUNDLED  {rid!r} (line {lineno}): one row naming more than one "
+                  f"work item — the lane counts it once and no gate can see the rest. "
+                  f"Split it, one row per item.")
+            bad += 1
+
+        # 5. typed counts (advisory)
         for m in TYPED_COUNT.finditer(status):
             counts.append(f"    {rid} (line {lineno}): \"{m.group(0)}\"")
+
+    if BUNDLED_PINNED:
+        print(f"\n  {len(BUNDLED_PINNED)} pinned bundle(s) — rows naming more than one "
+              f"work item, not yet split:")
+        for b in sorted(BUNDLED_PINNED):
+            print(f"    {b}")
 
     if counts:
         print(f"\n  {len(counts)} typed count(s) in status cells — advisory. Each is a number "

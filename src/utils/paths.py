@@ -11,7 +11,9 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.16.2"  # Hollingham (2026) - 2026-09-08. DIR_43 / DIR_44 no longer mkdir on
+__version__ = "1.17.0"  # Hollingham (2026) - 2026-09-09. OUT_25_DELTA0_LOO / _FIG (25_16):
+#                        Script 25 leave-one-out leverage of delta_0 (D-046). Additive only.
+# v1.16.2  # Hollingham (2026) - 2026-09-08. DIR_43 / DIR_44 no longer mkdir on
 #                        import - the side effect v1.11.0 removed had come back with
 #                        Scripts 43 and 44; both create their directory in their body.
 #                        import_audit --static clean; closes task T-18.
@@ -1041,6 +1043,11 @@ OUT_25_CORRECTION_DIAGNOSTIC_SPRING     = DIR_25 / "25_14_correction_diagnostic_
 # output, and the banded wording in the Methods Supplement was cited from a
 # working note that no script could regenerate.
 OUT_25_COVARIATE_SPEC_RANGE             = DIR_25 / "25_15_covariate_specification_range.csv"
+# Leave-one-out leverage of delta_0 on the headline panel (D-046 requires the
+# ceh3 sensitivity to be stated wherever delta_0 is quoted; a number can only be
+# quoted from a committed CSV). One row per headline-panel well.
+OUT_25_DELTA0_LOO                       = DIR_25 / "25_16_delta0_leave_one_out.csv"
+OUT_25_DELTA0_LOO_FIG                   = DIR_25 / "25_16_delta0_leave_one_out.png"
 
 
 # --- Script 39: SSM hindcast against the 1989-96 CCW record (standalone) -------

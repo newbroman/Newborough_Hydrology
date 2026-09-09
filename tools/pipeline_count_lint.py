@@ -35,6 +35,14 @@ manifest field:
 The number is read out of the context by position, so the register never repeats
 it — there is no second copy of the count to go stale.
 
+WHAT IT CANNOT CHECK. A count expressed as a RANGE of identifiers rather than a
+number — "sub-scripts 10a-10n", which implies fourteen without writing it — has
+no single number to read, and the exactly-one-number guard refuses it rather
+than checking the wrong digits. The manifest carries `clearfell_substeps` and
+`scraping_substeps`, so those two claims are real and unwatched; expressing them
+would need a range mode, which is more machinery than two rows justify. They are
+named here so the gap is recorded rather than assumed away.
+
 Usage:
     python3 tools/pipeline_count_lint.py            # check, exit 1 on drift
     python3 tools/pipeline_count_lint.py --backlog  # unregistered count-like text

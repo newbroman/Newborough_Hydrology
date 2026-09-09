@@ -354,6 +354,34 @@ def is_code_literal(text: str, s0: int, e0: int) -> bool:
             and any(after.startswith(q) for q in _QUOTES))
 
 
+SUBSCRIPTS = "\u2080\u2081\u2082\u2083\u2084\u2085\u2086\u2087\u2088\u2089"
+
+
+def is_bare_use(text: str, end: int) -> bool:
+    """Is this occurrence a BARE use of the glyph?
+
+    occurrences() matches the glyph with a bare re.escape and no guard, on
+    purpose: for COLLISION detection a subscripted form is still an occurrence
+    of the base glyph, and the register's fault gate needs that. But sense
+    matching below considers only senses with form == "bare", so a subscripted
+    or functional occurrence cannot match any of them BY CONSTRUCTION, and
+    reporting that failure as "no sense matched" says the document did not
+    specify which quantity it meant when the subscript is exactly that
+    specification.
+
+    Measured 2026-09-09: 207 of 340 ambiguous entries had no bare occurrence at
+    all -- 175 of them delta0, whose sense (delta0_coast, form: subscripted) is
+    filtered out before matching. 162 of those contexts already contained one of
+    its registered phrases. The backlog was mostly this, not real ambiguity.
+
+    So the AMBIGUITY REPORT skips non-bare occurrences; nothing else changes.
+    The count of skipped occurrences is printed, because a number that quietly
+    drops is how a backlog stops being read.
+    """
+    nxt = text[end:end + 1]
+    return not (nxt in SUBSCRIPTS or nxt == "_" or nxt == "(")
+
+
 def is_qualified(text: str, end: int) -> bool:
     """Is the occurrence ending at `end` already qualified — subscript or argument?
 
@@ -649,9 +677,12 @@ def main() -> int:
                                               text[max(0, s0 - 70):e0 + 70]).strip(),
                         })
                 else:
+                    s0, e0 = span
+                    if not is_bare_use(text, e0):
+                        totals["non_bare_skipped"] = totals.get("non_bare_skipped", 0) + 1
+                        continue
                     table[(glyph, doc)]["ambiguous"] += 1
                     totals["ambiguous"] += 1
-                    s0, e0 = span
                     if len(ambiguous_examples[glyph]) < args.show_ambiguous:
                         ambiguous_examples[glyph].append(
                             (doc, len(hits), re.sub(r"\s+", " ",
@@ -707,6 +738,11 @@ def main() -> int:
     print()
     print("  register faults %d (gate)   ambiguous %d (advisory)"
           % (register_faults, totals["ambiguous"]))
+    _nb = totals.get("non_bare_skipped", 0)
+    if _nb:
+        print("  %d non-bare occurrence(s) not counted as ambiguous — subscripted or "
+              "functional\n  forms, which no bare sense can match by construction "
+              "(see is_bare_use)." % _nb)
     if register_faults:
         print("symbol_check: FAIL — the register contradicts itself")
         return 1

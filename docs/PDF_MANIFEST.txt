@@ -1,6 +1,6 @@
 # published PDF  <-  source ODT  |  built (UTC)
-docs/academic_summaries/academic_summary.pdf  <-  academic_Summary_v1_15.odt  |  2026-09-08T16:09:06Z
-docs/academic_summaries/crynodeb_academaidd.pdf  <-  crynodeb_academaidd_v1_9.odt  |  2026-09-05T22:49:35Z
+docs/academic_summaries/academic_summary.pdf  <-  academic_Summary_v1_16.odt  |  2026-09-09T15:39:31Z
+docs/academic_summaries/crynodeb_academaidd.pdf  <-  crynodeb_academaidd_v1_10.odt  |  2026-09-09T15:39:33Z
 docs/papers/paper_1/Paper1.pdf  <-  Paper1_v1_43.odt  |  2026-09-09T15:01:28Z
 docs/papers/paper_1/PAPER1_SI_methods.pdf  <-  PAPER1_SI_methods_v1_18.odt  |  2026-09-09T08:28:40Z
 docs/papers/paper_2/Hollingham_2026_Paper2_amended.pdf  <-  Hollingham_2026_Paper2_amended_v19.odt  |  2026-09-09T15:01:29Z

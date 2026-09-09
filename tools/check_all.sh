@@ -344,6 +344,13 @@ printf '%s\n' "$task_out" | grep -E "^  [0-9]+ open|OPEN |task\(s\): " || true
 # exist that does. Typed counts are advisory.
 python3 tools/register_lint.py || rc=1
 
+# "p < 0.001" carries no number, so every numeric check in this project is blind
+# to it: the academic summaries stated it for a committed p = 0.0021 and nothing
+# could see it (W148, fixed 2026-09-09). inequality_lint checks registered
+# inequality claims against the committed value. It says so loudly when the
+# register is empty, because a gate that checks nothing must not read as cover.
+python3 tools/inequality_lint.py || rc=1
+
 echo
 echo "── symbols (does the register contradict itself?) ───────────────────"
 # The register GATES; the ambiguous-glyph inventory is advisory and prints only.

@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of report_edits/odt/report9.odt — do not edit. source-sha256=0e8f95484d71fdb8 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report9.odt — do not edit. source-sha256=41247f2e0bd58c82 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}Results
@@ -388,7 +388,7 @@ The coastal-drift covariate in Table 7\'s ANCOVA design absorbs progressive dive
 
 The joint fit returns three primary zone-versus-Forest monthly contrasts: Impact−Forest +0.024 m (95% CI \[+0.001, +0.047\], p = 0.043), Edge−Forest −0.039 m (p = 0.064, ns), and C3/Warren−Forest +0.009 m (p = 0.485, ns); joint model R² = 0.848, N = 2489 well-months. The four-zone result is consistent with the principal analysis. The joint-fit Impact−Forest step (+0.024 m) is smaller in magnitude than the three-counterfactual Forest × Impact step (+0.113 m); the two estimators partition climate variance differently --- the joint panel estimates climate sensitivity from the full cross-zone monthly record, so a portion of the monthly variance the separately-fitted ANCOVA attributes to the felling step is attributed to climate in the joint fit. The felling response is positive and statistically significant under both estimators, and only the magnitude is sensitive to the partitioning choice. Dropping the easting × time covariate moves the joint-fit Impact step only from +0.024 m to +0.026 m, significance unchanged.
 
-The Impact−Edge difference of +0.063 m is an exact arithmetic combination of two primary contrasts; its standard error is covariance-dependent and not comparable to a primary contrast, so it is not cited with a p-value here. It is instead corroborated independently by the two-zone Impact-versus-Edge estimator (Script 10j), which returns a monthly Impact−Edge step of +0.065 m (p = 0.0001) --- the close agreement between the two estimators is the warrant for the contrast.
+The Impact−Edge difference of +0.063 m is an exact arithmetic combination of two primary contrasts; its standard error is covariance-dependent and not comparable to a primary contrast, so it is not cited with a p-value here. It is instead corroborated independently by the two-zone Impact-versus-Edge estimator (Script 10j), which returns a monthly Impact−Edge step of +0.065 m (p = 0.0003) --- the close agreement between the two estimators is the warrant for the contrast.
 
 ### []{#anchor-22}**Summer Minima**
 

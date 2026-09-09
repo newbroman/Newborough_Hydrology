@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/academic_summaries/crynodeb_academaidd_v1_9.odt — do not edit. source-sha256=427b40912f851384 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/academic_summaries/crynodeb_academaidd_v1_10.odt — do not edit. source-sha256=52a5568009a2f6d3 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Astudiaeth Dŵr Daear Cwningar Niwbwrch
@@ -60,7 +60,7 @@ CEH18/CEH21 (Hydref 2023): Cofnod ôl-ymyrraeth annigonol (\<2 flynedd) ar gyfer
 
 BACI clirdorri --- Rhagfyr 2017 (8.4 ha)
 
-Cynllun ANCOVA-BACI pum haen: 17 ffynnon, tri diffiniad rheoli annibynnol (Coedwig, Hinsawdd, Cyfunol). Prif ganlyniad (rheolydd Coedwig, ffynnon effaith WMC3): cam clirdorri +0.113 m (p \< 0.001, CI \[0.050, 0.189\]). Ymyl y Goedwig: +0.033 m (p = 0.193). Estyniad synthetig (10h, centroid WMC3+FE1+FE2): +0.085 m (p \< 0.001). ANCOVA haf yn unig (is-set Meh--Medi): +0.046 m (p = 0.436) --- heb fod yn arwyddocaol. Mae\'r di-ganlyniad haf yn gadarn ar draws pob diffiniad rheoli.
+Cynllun ANCOVA-BACI pum haen: 17 ffynnon, tri diffiniad rheoli annibynnol (Coedwig, Hinsawdd, Cyfunol). Prif ganlyniad (rheolydd Coedwig, ffynnon effaith WMC3): cam clirdorri +0.113 m (p = 0.002, CI \[0.042, 0.184\]). Ymyl y Goedwig: +0.030 m (p = 0.249). Estyniad synthetig (10h, centroid WMC3+FE1+FE2): +0.085 m (p \< 0.001). ANCOVA haf yn unig (is-set Meh--Medi): +0.046 m (p = 0.436) --- heb fod yn arwyddocaol. Mae\'r di-ganlyniad haf yn gadarn ar draws pob diffiniad rheoli.
 
 Mae\'r di-ganlyniad haf yn gyson â rôl ddeuol i\'r canopi: mae tynnu rhyng-gipiad yn cynyddu ailwefru\'r gaeaf ond mae dinoethiad yn cynyddu anwedddrydarthiad haf uniongyrchol o\'r pridd sydd bellach heb ei gysgodi. Mae\'r effeithiau hyn tua\'n canslo ei gilydd yn ffenestr Mehefin--Medi. Nodir gostyngiad ar draws y safle mewn effeithlonrwydd ailwefru (β₁ yn gostwng dros amser ar draws pob clwstwr) fel prif yrrwr dirywiad yr isafswm haf, gan weithredu\'n annibynnol ar reoli\'r canopi.
 

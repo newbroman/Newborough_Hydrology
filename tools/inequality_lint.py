@@ -146,8 +146,13 @@ def main(argv: list[str]) -> int:
 
     # Backlog: occurrences the register does not cover.
     total = sum(len(occurrences(t)) for t in corpus.values())
-    print(f"\n  {len(rows)} registered claim(s); {total} inequality-form statement(s) "
-          f"in the corpus")
+    if not rows:
+        print(f"  0 registered claim(s) — THIS GATE IS CHECKING NOTHING. {total} "
+              f"inequality-form statement(s)\n  sit in the corpus unwatched; register the ones "
+              f"carrying a headline (see the module docstring).")
+    else:
+        print(f"\n  {len(rows)} registered claim(s); {total} inequality-form statement(s) "
+              f"in the corpus")
     if "--backlog" in argv:
         for doc, text in sorted(corpus.items()):
             for m in INEQ.finditer(text):

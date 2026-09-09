@@ -337,6 +337,13 @@ echo "── tasks (is any outstanding job now finished, or newly broken?) ─�
 task_out="$(python3 tools/task_lint.py --open 2>&1)" || rc=1
 printf '%s\n' "$task_out" | grep -E "^  [0-9]+ open|OPEN |task\(s\): " || true
 
+# The work register's own status cells are prose and prose does not fail. On
+# 2026-09-09 sixteen were wrong at once and the dashboard published the error.
+# register_lint checks only what is mechanically decidable: a cell contradicting
+# task_lint, a claimed check_all gate that is not invoked, a file said not to
+# exist that does. Typed counts are advisory.
+python3 tools/register_lint.py || rc=1
+
 echo
 echo "── symbols (does the register contradict itself?) ───────────────────"
 # The register GATES; the ambiguous-glyph inventory is advisory and prints only.

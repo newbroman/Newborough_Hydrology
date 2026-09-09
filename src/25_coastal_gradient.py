@@ -60,7 +60,8 @@ outputs/20_spatial_figures/20_msl5_change_perwell.csv
 
 Outputs
 -------
-25_01_panel_fit_parameters.csv         All fits (3 specs × 2 forms)
+25_01_panel_fit_parameters.csv         All fits (3 specs × 2 forms), with
+                                       n_obs and n_wells per row
 25_15_covariate_specification_range.csv
                                        The forest-free linear-capped
                                        fit repeated against a family of
@@ -125,7 +126,15 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
-__version__ = "1.27.0"  # Hollingham (2026) — 2026-09-09. Well-basis uncertainty (D-147):
+__version__ = "1.28.0"  # Hollingham (2026) — 2026-09-09. Panel SIZE becomes a
+#   committed cell: 25_01_panel_fit_parameters.csv gains n_wells beside n_obs,
+#   the count of distinct wells actually fitted in that row's panel. fit_panel()
+#   has returned n_wells since the matched-window subsets needed it (25_11); the
+#   parameters table simply never wrote it out, so the report described its own
+#   panels in prose from a count no artefact held — which is how "72 wells"
+#   survived D-046 and D-048 in report9 §4.10.2 and report8 (W141). Emission
+#   only: one new column, no point estimate and no other output changes.
+# v1.27.0  # Hollingham (2026) — 2026-09-09. Well-basis uncertainty (D-147):
 #   the delete-one refits of 1.26.0 also give a standard error for delta_0, the
 #   reference-distance rate and L_cg with the WELL as the unit of independence,
 #   which is what the documents now quote. New report numbers
@@ -1223,6 +1232,9 @@ def fit_panel(df: pd.DataFrame, decay_func, p0, bounds,
         "beta_forest_se_mm_yr": _beta_forest_se,
         "date_min": df["date"].min(),
         "date_max": df["date"].max(),
+        # Panel SIZE as fitted, alongside n (the row count). The two answer
+        # different questions and the documents quote both; counting wells
+        # anywhere but here invites a count taken before the exclusions.
         "n_wells": int(df["well"].nunique()),
     }
 
@@ -3080,6 +3092,7 @@ def build_fit_parameters_table(fits: dict, decay_funcs: dict) -> pd.DataFrame:
             "source": source,
             "model": model,
             "n_obs": fit["n"],
+            "n_wells": fit["n_wells"],
             "AIC": round(fit["aic"], 1),
             "delta_0_mm_yr": round(float(d0), 2),
             "delta_0_se": round(float(d0_se), 2),

@@ -1,7 +1,7 @@
 # published PDF  <-  source ODT  |  built (UTC)
 docs/academic_summaries/academic_summary.pdf  <-  academic_Summary_v1_16.odt  |  2026-09-09T16:06:51Z
-docs/academic_summaries/crynodeb_academaidd.pdf  <-  crynodeb_academaidd_v1_10.odt  |  2026-09-09T15:39:33Z
-docs/papers/paper_1/Paper1.pdf  <-  Paper1_v1_43.odt  |  2026-09-09T15:01:28Z
+docs/academic_summaries/crynodeb_academaidd.pdf  <-  crynodeb_academaidd_v1_11.odt  |  2026-09-09T16:27:15Z
+docs/papers/paper_1/Paper1.pdf  <-  Paper1_v1_44.odt  |  2026-09-09T16:27:20Z
 docs/papers/paper_1/PAPER1_SI_methods.pdf  <-  PAPER1_SI_methods_v1_18.odt  |  2026-09-09T08:28:40Z
 docs/papers/paper_2/Hollingham_2026_Paper2_amended.pdf  <-  Hollingham_2026_Paper2_amended_v19.odt  |  2026-09-09T15:01:29Z
 docs/public_summaries/Newborough_Warren_Podsumowanie.pdf  <-  public_summary_PL.odt  |  2026-09-05T22:49:36Z

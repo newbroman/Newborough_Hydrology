@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_121.odt — do not edit. source-sha256=82181dcc799dc139 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v1_9_122.odt — do not edit. source-sha256=75e236bab744fc66 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -4716,5 +4716,9 @@ This appendix gives the complete set of mathematical symbols, abbreviations, ide
 ### []{#anchor-654}[]{#anchor-655}[]{#anchor-656}Closing remarks
 
 The Methods Supplement closes here. The chapters S.1--S.23 together document the Newborough Warren analytical pipeline as registered in the committed *pipeline_manifest.json*, the design choices behind each step, the rationale for site-specific parameters, and the verification chain by which pipeline outputs feed the main report. Script 26c (*26c_msl5_report_figures.py*, Phase 13 in *run_analysis.py*) is a display-only figure-rendering companion to Scripts 26 and 26b, display/utility rather than analytical, covered in §S.18c; Script 09f (*09f_management_effects.py*, Phase 17 in *run_analysis.py*) is the spatial-reach synthesis figure, display/utility rather than analytical, covered in §S.15c; Script 09g (*09g_mechanism_diagrams.py*, Phase 17 in *run_analysis.py*) is the mechanism-diagram companion to 09f, display/utility rather than analytical, covered in §S.15d; and Script 27 (*27_greyscale_figures.py*, Phase 17 in *run_analysis.py*) is a post-analysis figure-conversion utility, also display/utility rather than analytical, covered in Appendix A. Readers needing a specific topic should consult the canonical-sources table in Appendix B; readers needing the canonical implementation of any function or constant should consult the live *main* branch of <https://github.com/newbroman/Newborough_Hydrology>, which remains the source of truth. The supplement is a guide to what the repository contains and why each choice was made; the repository itself is the deliverable.
+
+# Declaration of generative AI and AI-assisted technologies in the manuscript preparation process
+
+During the preparation of this work the author used Anthropic's Claude (successive Claude Opus and Claude Fable models, accessed through the Claude desktop application) for substantial drafting and editing of the manuscript text: composing prose from the author's analytical outputs and decisions, structuring and restructuring sections, and correcting the text against the study's committed analytical outputs. The conception and design of the study, the twenty-one-year manual dipwell record on which it rests, the analytical decisions, and the interpretation of the results are the author's own. Numerical values in the manuscript were verified against the committed outputs of the analysis pipeline, and a decision log records the methodological and editorial calls made by the author during the work. After using this tool the author reviewed and edited the content as needed and takes full responsibility for the content of the published article.
 
 End of the Methods Supplement.

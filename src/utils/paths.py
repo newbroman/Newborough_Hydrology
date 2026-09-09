@@ -426,6 +426,7 @@ OUT_03_PARTITION_VS_DATUM  = DIR_03 / "03_12_partition_vs_datum.csv"
 OUT_03_CENTROID_WINDOW_SENS = DIR_03 / "03_14_centroid_window_sensitivity.csv"
 OUT_03_PER_WELL_WINDOW_SENS = DIR_03 / "03_15_per_well_window_sensitivity.csv"
 OUT_03_MODEL_B_PERSISTENCE  = DIR_03 / "03_16_model_b_persistence.csv"   # datum-free persistence (Model B), 2026-09-07
+OUT_03_UPSTAND_FRAME_SENS   = DIR_03 / "03_17_upstand_frame_sensitivity.csv"  # datum/upstand frame sensitivity, 2026-09-09
 OUT_03_DATUM_REGIME_FIG    = DIR_03 / "03_12_datum_regime.png"
 
 # Script 04 — Cluster visualisations

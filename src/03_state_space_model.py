@@ -79,7 +79,18 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.10.0"  # Hollingham (2026) — 2026-09-07. Model B persistence
+__version__ = "1.11.0"  # Hollingham (2026) — 2026-09-09. Level-frame (upstand)
+#   sensitivity emitted (03_17_upstand_frame_sensitivity.csv). Each reference
+#   well is fitted twice on the comparison window — as it stands, and with its
+#   own upstand subtracted, which is the retired pipe-top frame — and each
+#   coefficient difference is correlated against the upstand. These are the three
+#   correlations report8 §3.1.1 and the Methods Supplement quote for the
+#   no-intercept datum argument. They were measured ONCE, when the residual
+#   subtraction was removed in v1.3.0, and typed into both documents as +0.789,
+#   -0.724 and -0.846; recomputed 2026-09-09 they are +0.793, -0.728 and -0.853.
+#   The method reproduces; the values drifted with the trailing window and
+#   nothing compared them. Now a committed cell.
+# v1.10.0  # Hollingham (2026) — 2026-09-07. Model B persistence
 #   committed (03_16_model_b_persistence.csv): every centroid (full record,
 #   RB-03 basis) and every reference well (comparison window, RB-04 basis)
 #   fitted with fit_ssm_intercept() beside the Model A fit of the same series,
@@ -182,7 +193,7 @@ from utils.paths import (
     OUT_03_SIGNATURES, OUT_03_CLUSTER_SUMMARY, OUT_03_MECHANISTIC_TABLE,
     OUT_03_DATUM_CONFOUND, OUT_03_PARTITION_VS_DATUM, OUT_03_DATUM_REGIME_FIG,
     OUT_03_CENTROID_WINDOW_SENS, OUT_03_PER_WELL_WINDOW_SENS,
-    OUT_03_MODEL_B_PERSISTENCE,
+    OUT_03_MODEL_B_PERSISTENCE, OUT_03_UPSTAND_FRAME_SENS,
     DIR_03,
     OUT_02_AMP_PER_WELL,
     DATA_DIR,
@@ -2184,6 +2195,78 @@ def export_cluster_peak_months(centroids: dict[int, pd.Series]) -> None:
 # MAIN
 # ==========================================================================
 
+def upstand_frame_sensitivity(wells_clean, climate, well_col_lookup,
+                              upstand_lookup) -> pd.DataFrame:
+    """How far does the LEVEL FRAME move the coefficients? (2026-09-09)
+
+    The series arrives ground-referenced — the master applies each well's
+    upstand on export — and no script re-applies it. That is a specification
+    choice, not a presentational one, because the headline SSM is fitted WITHOUT
+    an intercept: a constant offset in h_disp_prev has no free term to absorb it
+    and redistributes across beta_1, beta_2 and beta_3 instead.
+
+    This measures the size of that. Each reference well is fitted twice on the
+    comparison window — once as it stands, once with its own upstand subtracted,
+    which is the retired pipe-top frame — and each coefficient difference is
+    correlated against the upstand itself.
+
+    WHY IT IS COMPUTED RATHER THAN QUOTED. The result was measured once, when
+    the residual per-well subtraction was removed in v1.3.0, and the three
+    correlations have been carried in the Methods Supplement and report8 §3.1.1
+    ever since as typed numbers: r = +0.789, -0.724 and -0.846. Recomputed on
+    2026-09-09 against the grown record they are +0.793, -0.728 and -0.853 — the
+    method reproduces exactly, the values have drifted with the trailing window,
+    and nothing was comparing the two. Emitting them lets the documents quote a
+    committed cell, which is the rule everywhere else in this project.
+    """
+    rows = []
+    for norm, col in well_col_lookup.items():
+        u = upstand_lookup.get(norm)
+        if u is None or not np.isfinite(u):
+            continue
+        series = wells_clean[col].dropna()
+        try:
+            ground = fit_ssm(h_series=series, climate=climate,
+                             lag=HEADLINE_LAG, window=LCSC_DATA_LIMIT)
+            pipe = fit_ssm(h_series=series - u, climate=climate,
+                           lag=HEADLINE_LAG, window=LCSC_DATA_LIMIT)
+        except Exception:
+            continue
+        if not ground or not pipe:
+            continue
+        rows.append({
+            "block": "per_well",
+            "key": col,
+            "upstand_m": u,
+            "d_beta_1": ground["beta_1_recharge"] - pipe["beta_1_recharge"],
+            "d_beta_2": ground["beta_2_atmospheric_draw"] - pipe["beta_2_atmospheric_draw"],
+            "d_beta_3": ground["beta_3_drainage"] - pipe["beta_3_drainage"],
+            "beta_3_ground_frame": ground["beta_3_drainage"],
+            "value": np.nan,
+        })
+    per_well = pd.DataFrame(rows)
+    if per_well.empty:
+        return per_well
+
+    stats = []
+
+    def _stat(key, value):
+        stats.append({"block": "summary", "key": key, "upstand_m": np.nan,
+                      "d_beta_1": np.nan, "d_beta_2": np.nan, "d_beta_3": np.nan,
+                      "beta_3_ground_frame": np.nan, "value": float(value)})
+
+    for col, name in (("d_beta_1", "beta_1"), ("d_beta_2", "beta_2"),
+                      ("d_beta_3", "beta_3")):
+        _stat(f"corr_upstand_vs_d_{name}",
+              np.corrcoef(per_well["upstand_m"], per_well[col])[0, 1])
+    pct = (per_well["d_beta_3"].abs() / per_well["beta_3_ground_frame"].abs()) * 100.0
+    _stat("beta_3_shift_pct_median", pct.median())
+    _stat("beta_3_shift_pct_max", pct.max())
+    _stat("n_wells", len(per_well))
+    return pd.concat([per_well, pd.DataFrame(stats)], ignore_index=True)
+
+
+
 def main() -> None:
     banner("03", "State-Space Regression & LCSC", version=__version__)
     make_all_dirs()
@@ -2485,6 +2568,23 @@ def main() -> None:
 
     well_fig_path = DIR_03 / "03_09_well_optimal_datums.png"
     make_well_datum_figure(well_opt_df, DRAINAGE_DATUM, well_fig_path)
+
+    # ---- Level-frame (upstand) sensitivity ----
+    # The three correlations report8 §3.1.1 and the Methods Supplement quote for
+    # the no-intercept datum argument. Emitted so they are read from a committed
+    # cell rather than carried as numbers measured once in v1.3.0.
+    print("\n -> Level-frame (upstand) sensitivity of the coefficients...")
+    frame_df = upstand_frame_sensitivity(
+        wells_clean, climate, well_col_lookup, upstand_lookup
+    )
+    if not frame_df.empty:
+        frame_df.to_csv(OUT_03_UPSTAND_FRAME_SENS, index=False)
+        saved(f"{OUT_03_UPSTAND_FRAME_SENS.name}")
+        s = frame_df[frame_df["block"] == "summary"].set_index("key")["value"]
+        info(f"upstand vs Δβ₁ r = {s['corr_upstand_vs_d_beta_1']:+.3f}, "
+             f"Δβ₂ r = {s['corr_upstand_vs_d_beta_2']:+.3f}, "
+             f"Δβ₃ r = {s['corr_upstand_vs_d_beta_3']:+.3f} "
+             f"(n = {int(s['n_wells'])})")
 
     # ---- Datum / mean water-table depth confound diagnostics ----
     print("\n -> Datum confound diagnostics (vs mean water-table depth)...")

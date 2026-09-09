@@ -4,7 +4,13 @@ Inputs:  02_cluster_stats.csv, 01_locations.csv
 Outputs: outputs/04_cluster_visualisations/04_01_core_architecture_map.png
 """
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-08-12
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-09-09. Map
+#   label placement is bounded by ITERATIONS, not the clock (W145): adjust_text()
+#   takes iter_lim=config.LABEL_ADJUST_ITER_LIM. It previously passed neither
+#   limit, so adjustText defaulted to time_lim = 1 SECOND of wall clock and the
+#   labels settled wherever the machine's speed left them — the figure differed
+#   run to run on an unchanged tree. Placement only; no data, no other output.
+# v1.0.0  # Hollingham (2026) — 2026-08-12
 #
 # This module previously carried no __version__ constant; 1.0.0 marks its
 # introduction, not the start of the module's history. Prior revisions are the
@@ -23,7 +29,8 @@ import fiona
 from adjustText import adjust_text
 from matplotlib.lines import Line2D
 
-from utils.config import CLUSTER_COLOURS, CLUSTER_LABELS, CLUSTER_MARKERS, BW_MODE
+from utils.config import (CLUSTER_COLOURS, CLUSTER_LABELS, CLUSTER_MARKERS, BW_MODE,
+                          LABEL_ADJUST_ITER_LIM)
 from utils.data_utils import normalize_well_name
 from utils.map_utils import load_dem_layer, add_kml_features, add_osm_basemap, add_en_axes
 from utils.paths import make_all_dirs, DATA_DIR, INT_CLUSTER_STATS, INT_LOCATIONS, OUT_04_ARCHITECTURE_MAP
@@ -70,7 +77,8 @@ def main():
                    marker=CLUSTER_MARKERS.get(cid, "o"),
                    s=150, edgecolor="black", linewidth=1.2, alpha=0.95, zorder=5)
     texts = [ax.text(row["E"], row["N"], row["Match_ID"].upper(), fontsize=8.5, fontweight="bold", zorder=10) for _, row in map_df.iterrows()]
-    adjust_text(texts, arrowprops=dict(arrowstyle="-", color="black", lw=0.5), ax=ax)
+    adjust_text(texts, arrowprops=dict(arrowstyle="-", color="black", lw=0.5), ax=ax,
+                iter_lim=LABEL_ADJUST_ITER_LIM)
     ax.set_title("Spatial Mapping of Groundwater Clusters at Newborough Warren", fontsize=15, fontweight="bold")
     add_en_axes(ax)
     if dem_layer is not None and not BW_MODE:

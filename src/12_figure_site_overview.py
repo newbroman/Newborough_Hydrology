@@ -31,7 +31,13 @@ The northern break in slope (v1.4.0, D-099)
 ====================================================================================
 """
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-08-30
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-09-09. Map
+#   label placement is bounded by ITERATIONS, not the clock (W145): adjust_text()
+#   takes iter_lim=config.LABEL_ADJUST_ITER_LIM. It previously passed neither
+#   limit, so adjustText defaulted to time_lim = 1 SECOND of wall clock and the
+#   labels settled wherever the machine's speed left them — the figure differed
+#   run to run on an unchanged tree. Placement only; no data, no other output.
+# v1.4.0  # Hollingham (2026) — 2026-08-30
 #
 # Changelog
 #   1.4.0 (2026-08-30) — THE NORTHERN BREAK IN SLOPE. Script 12 becomes a
@@ -264,6 +270,7 @@ def generate_dem_map():
         well_labels,
         arrowprops=dict(arrowstyle="-", color='gray', lw=0.5),
         ax=ax,
+        iter_lim=config.LABEL_ADJUST_ITER_LIM,
     )
 
     # Save in high resolution to outputs folder

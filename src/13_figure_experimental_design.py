@@ -24,7 +24,13 @@ Outputs:
 ====================================================================================
 """
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-07-19
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-09-09. Map
+#   label placement is bounded by ITERATIONS, not the clock (W145): adjust_text()
+#   takes iter_lim=config.LABEL_ADJUST_ITER_LIM. It previously passed neither
+#   limit, so adjustText defaulted to time_lim = 1 SECOND of wall clock and the
+#   labels settled wherever the machine's speed left them — the figure differed
+#   run to run on an unchanged tree. Placement only; no data, no other output.
+# v1.2.0  # Hollingham (2026) — 2026-07-19
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -53,6 +59,7 @@ import geopandas as gpd
 import contextily as ctx
 import fiona
 from adjustText import adjust_text
+from utils.config import LABEL_ADJUST_ITER_LIM
 from matplotlib.lines import Line2D
 
 from utils.console_utils import (
@@ -420,7 +427,8 @@ def main():
     plt.grid(True, linestyle='--', alpha=0.4)
 
     phase(4, "Repelling text labels")
-    adjust_text(texts, arrowprops=dict(arrowstyle="-", color='gray', lw=0.5), ax=ax)
+    adjust_text(texts, arrowprops=dict(arrowstyle="-", color='gray', lw=0.5), ax=ax,
+                iter_lim=LABEL_ADJUST_ITER_LIM)
 
     plt.tight_layout()
     output_file = OUT_13_EXPERIMENTAL_MAP

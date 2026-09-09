@@ -241,6 +241,21 @@ BW_MODE = _os.environ.get("NRG_BW_MODE", "").strip().lower() in ("1", "true", "y
 if BW_MODE:
     print("  [config.py] BW_MODE=True (NRG_BW_MODE env var detected)")
 
+# --- Map label placement (W145) --------------------------------------------
+# adjust_text() stops on ITERATIONS, never on the clock. Given neither limit it
+# defaults to time_lim = 1 SECOND of wall clock (adjustText 1.4.0
+# __init__.py 608-609), so the number of solver steps depends on how busy the
+# machine was and the labels come to rest somewhere different every run. Four
+# map figures re-rendered on an unchanged tree for exactly this reason, which
+# meant `git status` could not tell a real figure change from label jitter.
+# adjustText seeds its own RNG at 42, so a seed is not the fix and never was.
+#
+# The solver exits early when it has resolved every overlap (`while error > 0`),
+# so this bound binds only on maps too crowded to converge — which is the case
+# the clock was truncating. Pass it as iter_lim, never alongside time_lim:
+# adjustText warns and uses whichever is faster, which puts the clock back.
+LABEL_ADJUST_ITER_LIM = 500
+
 CLUSTER_COLOURS = {
     1: "#1a6faf",   # C1 Lake — old C1 blue
     2: "#2ca02c",   # C2 Dune — old C2 green
@@ -1563,6 +1578,28 @@ MSL5_EXCLUDED_WELLS = {
 # Standalone figures: Fig 59 (secular differential drift) and Fig 60 (climate-swing
 # amplification + drought-floor surface). Spring season uses MSL_SPRING_MONTHS.
 # Spec-locked 2026-06-26; see CHANGELOG deltas for scripts 32 and 33.
+# Wells excluded from the MAPPED differential trends (D-148, W144). This is a
+# SEPARATE exclusion from MSL5_EXCLUDED_WELLS and must not be written as a
+# reference to it: D-146 scopes that set to the MSL5 analysis and names its reuse
+# as a blacklist elsewhere as the misuse it exists to prevent. The membership
+# coincides; the reason is stated here on its own footing.
+#
+# The reason: this figure ranks wells by how fast their spring level is moving
+# RELATIVE to the site, and CEH13 and CEH14 have a near-zero and a negative SSM
+# drainage coefficient respectively. A well that barely drains cannot take up or
+# shed a differential head the way the rest of the network does, so its trend is
+# not measuring the same physical quantity the map is contouring — it is a well
+# out of hydraulic communication with the recession geometry the figure is about.
+# That disqualifies them from the map whether or not the metric itself uses the
+# SSM, which is where the withdrawn 2026-06-27 blanket-include went wrong: it
+# argued from how the METRIC is computed (observational, no SSM) when the
+# question is whether the WELL belongs in the comparison.
+#
+# Scope: applied in per_well_trends() only. Both wells REMAIN in the site-mean
+# reference panel, which is a mean of raw spring levels — a quantity their
+# drainage coefficients say nothing against — so no other well's anomaly moves.
+DIFF_EXCLUDED_WELLS = ("ceh13", "ceh14")
+
 DIFF_PANEL_MIN_FRACTION = 13.0 / 15.0       # site-mean reference-panel coverage threshold
 DIFF_PER_WELL_MIN_YEARS = 8                 # min spring-years for a per-well trend
 DIFF_PERIODS = {"2011_2025": (2011, 2025), "2005_2025": (2005, 2025)}

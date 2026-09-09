@@ -28,8 +28,9 @@ Method (signed-off spec, 2026-06-26):
   * Per-well trend requires >= PER_WELL_MIN_YEARS spring-years in the period.
   * Significance: lag-1 AR-corrected t-test (effective N), cross-checked against a
     moving-block bootstrap CI. Significant wells drawn solid; non-significant hollow.
-  * Exclusions: the Llyn Rhos-Ddu lake gauge only. CEH13/CEH14 (MSL5/SSM-excluded for SSM
-  *   reasons) are INCLUDED — the differential anomaly trend is observational, not SSM-derived.
+  * Exclusions: the Llyn Rhos-Ddu lake gauge, and config.DIFF_EXCLUDED_WELLS (CEH13,
+  *   CEH14 — near-zero/negative drainage coefficient) from the MAPPED trends (D-148).
+  *   Both remain in the site-mean reference panel.
     All other wells retained on equal footing — coastal wells are NOT flagged or
     dropped; cause is the text layer, not a data surgery.
   * Periods: 2011-2025 primary; 2005-2025 robustness check.
@@ -97,7 +98,25 @@ from utils.map_utils import load_dem_hillshade, add_kml_features, add_en_axes
 from utils.console_utils import banner, phase, step, info, saved, note, result, done, hr
 from utils.render_utils import render_figure
 
-__version__ = "1.4.0"  # 2026-08-22.
+__version__ = "1.5.0"  # 2026-09-09. CEH13 and CEH14 are EXCLUDED from the
+#   mapped differential trends (D-148, W144), via the script's own
+#   config.DIFF_EXCLUDED_WELLS and NOT by inheriting MSL5_EXCLUDED_WELLS, which
+#   D-146 scopes to the MSL5 analysis. The 2026-06-27 blanket-include is
+#   withdrawn: Martin's ruling, 2026-09-09. It argued from how the metric is
+#   computed (observational, no SSM) when the question is whether the well
+#   belongs in the comparison — a well that barely drains cannot move
+#   differentially the way the map assumes. Figure 66's caption has said throughout that
+#   these two are excluded, so this makes the code agree with the published
+#   figure rather than the other way round, and report9's "72 wells" and
+#   "75 wells" become correct without a document edit (74 -> 72, 77 -> 75).
+#   Scope: the exclusion is applied where every other exclusion is, in
+#   per_well_trends(), so the two wells lose their markers and rows. They REMAIN
+#   in the site-mean reference panel, which is built before the filter, so no
+#   other well's anomaly, slope, p-value or significance moves; the site-mean
+#   uses raw spring levels, which is not what their SSM coefficients make
+#   unreliable. Neither well was individually significant in either window, so
+#   the significant counts stay 8 and 13.
+# v1.4.0  # 2026-08-22.
 #   Store-time rounding removed from the two columns added at v1.3.0, resid_sd_mm and
 #   min_detectable_mm_yr (D-035): the store now
 #   carries what the pipeline computed and rounding happens where the number
@@ -131,6 +150,10 @@ IDW_POWER = config.DIFF_IDW_POWER
 IDW_GRID_M = config.DIFF_IDW_GRID_M
 IDW_MASK_M = config.DIFF_IDW_MASK_M
 LAKE_GAUGE_KEYS = config.LAKE_GAUGE_KEYS
+# Mapped-trend exclusion (D-148). Its own constant, NOT config.MSL5_EXCLUDED_WELLS:
+# D-146 scopes that set to the MSL5 analysis and forbids inheriting it as a
+# blacklist. The membership coincides, the reason does not — see config.
+DIFF_EXCLUDED_WELLS = config.DIFF_EXCLUDED_WELLS
 BOOT_N = config.DIFF_BOOT_N
 BOOT_BLOCK = config.DIFF_BOOT_BLOCK
 BOOT_SEED = config.DIFF_BOOT_SEED
@@ -404,14 +427,26 @@ def main() -> int:
     phase(1, "Load inputs")
     levels, loc, master = load_inputs()
     yr = spring_year_table(levels)
-    # Blanket include (2026-06-27): the differential anomaly trend is OBSERVATIONAL (well minus
-    # site-mean spring level), independent of the SSM, so the SSM-failure exclusion that keeps
-    # CEH13/CEH14 out of the MSL5 analysis does not apply here. They are included; only the lake
-    # gauge is excluded. (They were already in the site-mean panel; this adds their markers.)
-    excluded = set(LAKE_GAUGE_KEYS)
+    # WITHDRAWN 2026-09-09 (D-148, W144). The 2026-06-27 blanket-include argued that
+    # the anomaly trend is OBSERVATIONAL — well minus site-mean spring level, no SSM —
+    # so CEH13/CEH14 belonged on the map, and their markers were added. Martin's
+    # ruling, 2026-09-09: that reasoning is wrong. It argues from how the METRIC is
+    # computed when the question is whether the WELL belongs in the comparison, and a
+    # well with a near-zero or negative drainage coefficient cannot take up or shed a
+    # differential head the way the rest of the network does — its trend is not the
+    # quantity this map contours. Figure 66's caption has named the two as excluded
+    # since it was written, so the code was the half that had drifted.
+    #
+    # DIFF_EXCLUDED_WELLS, not MSL5_EXCLUDED_WELLS: D-146 scopes that set to the MSL5
+    # analysis and names its reuse as a blacklist elsewhere as the misuse it prevents.
+    #
+    # They stay in the SITE-MEAN panel, built in _panel_and_site() before this filter:
+    # the reference is a mean of raw spring levels, which is not what their drainage
+    # coefficients call into question, and dropping them would move every other well.
+    excluded = set(LAKE_GAUGE_KEYS) | set(DIFF_EXCLUDED_WELLS)
     info(f"spring-year table: {yr.shape[1]} wells x {yr.shape[0]} years "
          f"({int(yr.index.min())}-{int(yr.index.max())})")
-    note("excluded from trends: lake gauge only (CEH13/CEH14 blanket-included — observational metric)")
+    note(f"excluded from trends: lake gauge + {sorted(DIFF_EXCLUDED_WELLS)} (D-148)")
 
     all_results: dict[str, pd.DataFrame] = {}
     site_trend_rows: list[dict] = []

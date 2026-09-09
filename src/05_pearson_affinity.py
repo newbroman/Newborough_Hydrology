@@ -8,7 +8,13 @@ Full per-script methodology: see chapter S.4 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.3.1"  # Hollingham (2026) — last revised 2026-08-12
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-09-09. Map
+#   label placement is bounded by ITERATIONS, not the clock (W145): the explicit
+#   time_lim=5.0 is REPLACED by iter_lim=config.LABEL_ADJUST_ITER_LIM (not added
+#   beside it — adjustText warns when both are set and uses whichever is faster,
+#   which puts the clock straight back). Five seconds of wall clock made this
+#   figure differ run to run. Placement only; no data, no other output.
+# v1.3.1  # Hollingham (2026) — last revised 2026-08-12
 #
 # Changelog
 #   1.3.1 (2026-08-12) — Well labels: adjust_text() now runs against explicit
@@ -31,7 +37,8 @@ import numpy as np, pandas as pd, matplotlib.pyplot as plt
 import geopandas as gpd, fiona
 from adjustText import adjust_text
 from matplotlib.lines import Line2D
-from utils.config import CLUSTER_COLOURS, CLUSTER_LABELS, BW_MODE
+from utils.config import (CLUSTER_COLOURS, CLUSTER_LABELS, BW_MODE,
+                          LABEL_ADJUST_ITER_LIM)
 from utils.data_utils import normalize_well_name
 from utils.map_utils import load_dem_layer, add_kml_features, add_osm_basemap, add_en_axes
 from utils.paths import (make_all_dirs, DATA_DIR,
@@ -288,7 +295,7 @@ def main():
                 force_text=(0.4, 0.8),
                 force_static=(0.3, 0.6),
                 min_arrow_len=3,
-                time_lim=5.0,
+                iter_lim=LABEL_ADJUST_ITER_LIM,
                 arrowprops=dict(arrowstyle="-", color="gray", lw=0.5),
             )
         plt.tight_layout(); render_figure(plt.gcf(), OUT_05_CONFIDENCE_MAP); plt.close()

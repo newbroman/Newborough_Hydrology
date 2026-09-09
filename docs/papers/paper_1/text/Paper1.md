@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_42.odt — do not edit. source-sha256=1bf546b021551735 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_43.odt — do not edit. source-sha256=d1fe3857fde7f018 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 A parameter-sparse state-space framework for characterizing coastal dune-aquifer architecture from manual dipwell records
@@ -470,6 +470,10 @@ For review only --- every figure and table below traces to a committed file in t
   Figure 20 --- episodic coastal reach                                                         schematic; parameters from 25_coastal_gradient/25_report_numbers.csv and config.py (COAST_RETREAT\_\*)
   Figure 21 --- spatial reach and development timescale of interventions and coastal retreat   09g_coastal_vs_climate_reach.png; schematic, δ₀/L_cg from 25_coastal_gradient/25_01_panel_fit_parameters.csv, rendered via Script 09g
   -------------------------------------------------------------------------------------------- -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Declaration of generative AI and AI-assisted technologies in the manuscript preparation process
+
+During the preparation of this work the author used Anthropic's Claude (successive Claude Opus and Claude Fable models, accessed through the Claude desktop application) for substantial drafting and editing of the manuscript text: composing prose from the author's analytical outputs and decisions, structuring and restructuring sections, and correcting the text against the study's committed analytical outputs. The conception and design of the study, the twenty-one-year manual dipwell record on which it rests, the analytical decisions, and the interpretation of the results are the author's own. Numerical values in the manuscript were verified against the committed outputs of the analysis pipeline, and a decision log records the methodological and editorial calls made by the author during the work. After using this tool the author reviewed and edited the content as needed and takes full responsibility for the content of the published article.
 
 # []{#anchor-19}References
 

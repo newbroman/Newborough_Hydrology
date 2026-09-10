@@ -5,7 +5,7 @@ prepared for *Journal of Hydrology: Regional Studies*: two companion papers, a
 technical report, a Methods Supplement and a Supplementary Material. Martin
 Hollingham is the author. **This repository is public.**
 
-`BOOTSTRAP.md` sets the project up on a new machine. This file is the traps
+`MACHINE_SETUP.md` sets the project up on a new machine (renamed from `BOOTSTRAP.md` on 2026-09-10; it collided with `working/HANDOVER_BOOTSTRAP.md`, the SESSION bootstrap). <!-- former path --> This file is the traps
 and the non-negotiables — the things that have cost previous sessions hours to
 rediscover. It carries no counts and no state: those live in the manifest, in
 what `check_all` prints, and in the generated HANDOFF.

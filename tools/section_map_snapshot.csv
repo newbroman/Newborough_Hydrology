@@ -20,8 +20,7 @@ report8.odt,3.4.1,Modelling the Cluster water levels
 report8.odt,3.4.2,State-Space vs. Traditional Linear Model Benchmark
 report8.odt,3.4.3,Spatial Coefficient Mapping
 report8.odt,3.4.4,Within-Forest Spatial Coefficient Analysis
-report8.odt,3.4.5,Drawdown-Field visualization
-report8.odt,3.4.6,Drainage Decay Half-life and Aquifer Diagnostic Synthesis
+report8.odt,3.4.5,Drainage Timescales and Aquifer Diagnostic Synthesis
 report8.odt,3.5,Anthropogenic Interventions
 report8.odt,3.5.1,The Before-After Control-Impact (BACI) Design
 report8.odt,3.5.2,Hierarchical Nested Control Application
@@ -43,7 +42,9 @@ report8.odt,3.7.5,Five-Year Mean Spring Water Level (MSL5) and Associated Foreca
 report8.odt,3.7.6,Equilibrium Wetness Index and Vegetation Cross-Validation
 report8.odt,3.8,Spatial Analysis
 report8.odt,3.8.1,"Baseline Fields, Combined Drivers and Network Change"
-report8.odt,3.8.2,Scenario Framework and Interactive Viewer
+report8.odt,3.8.2,Drawdown-Field visualization
+report8.odt,3.8.3,Drainage Half-life Field
+report8.odt,3.8.4,Scenario Framework and Interactive Viewer
 report8.odt,3.9,Computational Implementation
 report8.odt,3.9.1,Data Pre-processing and Time-Series Management
 report8.odt,3.9.2,Statistical and Predictive Modelling
@@ -160,6 +161,7 @@ report11.odt,6.9,Water balance closure as weak validation
 report11.odt,6.10,"Topographic proxies, aeolian deflation, and bedrock causation"
 report11.odt,6.11,MSL5 metric: application beyond its intended domain
 report12.odt,7,Conclusions
+report13.odt,8,Declaration of generative AI and AI-assisted technologies in the manuscript preparation process
 report13.odt,8,References
 report14.odt,9,Acknowledgements
 report15.odt,10,Data Availability

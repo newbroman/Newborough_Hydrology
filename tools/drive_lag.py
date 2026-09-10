@@ -13,7 +13,7 @@ WHY
     Google Drive.** Between an edit and the next `rclone copy`, a document exists
     once.
 
-    BOOTSTRAP.md already knew this. Its step 4 ends:
+    MACHINE_SETUP.md already knew this. Its step 4 ends:
 
         touch .last_drive_archive
 

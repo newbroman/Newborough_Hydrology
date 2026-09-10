@@ -79,17 +79,24 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.11.0"  # Hollingham (2026) — 2026-09-09. Level-frame (upstand)
-#   sensitivity emitted (03_17_upstand_frame_sensitivity.csv). Each reference
-#   well is fitted twice on the comparison window — as it stands, and with its
-#   own upstand subtracted, which is the retired pipe-top frame — and each
-#   coefficient difference is correlated against the upstand. These are the three
-#   correlations report8 §3.1.1 and the Methods Supplement quote for the
-#   no-intercept datum argument. They were measured ONCE, when the residual
-#   subtraction was removed in v1.3.0, and typed into both documents as +0.789,
-#   -0.724 and -0.846; recomputed 2026-09-09 they are +0.793, -0.728 and -0.853.
-#   The method reproduces; the values drifted with the trailing window and
-#   nothing compared them. Now a committed cell.
+__version__ = "1.13.0"  # Hollingham (2026) — 2026-09-09. The three upstand
+#   correlations now emit their two-sided p-values beside them
+#   (corr_upstand_vs_d_beta_*_p), so the Methods Supplement sentence traces to
+#   committed cells end to end rather than half-and-half. scipy_stats.pearsonr
+#   replaces np.corrcoef and returns both; the r values are unchanged.
+#
+# v1.12.0 (2026-09-09): Level-frame (upstand)
+#   sensitivity basis fixed and stated. 1.11.0 emitted
+#   03_17_upstand_frame_sensitivity.csv but its call site passed a lookup built
+#   from every wells_clean column, so it fitted 78 series — the reference
+#   network, the surviving extended wells AND the Llyn Rhos-Ddu lake gauge,
+#   which is not a dipwell and has no upstand to subtract. Martin's ruling
+#   (2026-09-09): the basis is the REFERENCE NETWORK, which is what both
+#   documents already claim and what the original v1.3.0 measurement used. The
+#   loop now takes its keys from cluster_df, so this analysis and the per-well
+#   store (RB-04) stand on one basis and cannot drift apart. The conclusion is
+#   basis-insensitive — r(upstand, d_beta_3) is -0.853 here against -0.852 over
+#   all 78 — which is why the mismatch survived unnoticed.
 # v1.10.0  # Hollingham (2026) — 2026-09-07. Model B persistence
 #   committed (03_16_model_b_persistence.csv): every centroid (full record,
 #   RB-03 basis) and every reference well (comparison window, RB-04 basis)
@@ -2196,7 +2203,7 @@ def export_cluster_peak_months(centroids: dict[int, pd.Series]) -> None:
 # ==========================================================================
 
 def upstand_frame_sensitivity(wells_clean, climate, well_col_lookup,
-                              upstand_lookup) -> pd.DataFrame:
+                              upstand_lookup, cluster_df) -> pd.DataFrame:
     """How far does the LEVEL FRAME move the coefficients? (2026-09-09)
 
     The series arrives ground-referenced — the master applies each well's
@@ -2205,22 +2212,30 @@ def upstand_frame_sensitivity(wells_clean, climate, well_col_lookup,
     an intercept: a constant offset in h_disp_prev has no free term to absorb it
     and redistributes across beta_1, beta_2 and beta_3 instead.
 
-    This measures the size of that. Each reference well is fitted twice on the
+    This measures the size of that. Each REFERENCE well is fitted twice on the
     comparison window — once as it stands, once with its own upstand subtracted,
     which is the retired pipe-top frame — and each coefficient difference is
-    correlated against the upstand itself.
+    correlated against the upstand itself. The basis is the reference network,
+    taken from cluster_df so that it is RB-04's basis by construction rather
+    than by coincidence; extended wells and the Llyn Rhos-Ddu lake gauge are
+    out. Read n_wells out of the emitted summary block rather than typing a
+    count.
 
     WHY IT IS COMPUTED RATHER THAN QUOTED. The result was measured once, when
     the residual per-well subtraction was removed in v1.3.0, and the three
     correlations have been carried in the Methods Supplement and report8 §3.1.1
     ever since as typed numbers: r = +0.789, -0.724 and -0.846. Recomputed on
-    2026-09-09 against the grown record they are +0.793, -0.728 and -0.853 — the
-    method reproduces exactly, the values have drifted with the trailing window,
-    and nothing was comparing the two. Emitting them lets the documents quote a
-    committed cell, which is the rule everywhere else in this project.
+    2026-09-09 against the grown record the method reproduces exactly and the
+    values have drifted with the trailing window, while nothing was comparing
+    the two. Emitting them lets the documents quote a committed cell, which is
+    the rule everywhere else in this project.
     """
+    reference = {normalize_well_name(k) for k in cluster_df["Match_ID"]}
+
     rows = []
     for norm, col in well_col_lookup.items():
+        if norm not in reference:
+            continue                      # reference network only — RB-04's basis
         u = upstand_lookup.get(norm)
         if u is None or not np.isfinite(u):
             continue
@@ -2255,10 +2270,15 @@ def upstand_frame_sensitivity(wells_clean, climate, well_col_lookup,
                       "d_beta_1": np.nan, "d_beta_2": np.nan, "d_beta_3": np.nan,
                       "beta_3_ground_frame": np.nan, "value": float(value)})
 
+    # Correlation AND its two-sided p-value. The p-values are quoted in the
+    # Methods Supplement beside the r values; until 2026-09-09 they were typed
+    # from a v1.3.0 measurement while only the r values were emitted, so half
+    # the sentence traced to a committed cell and half did not.
     for col, name in (("d_beta_1", "beta_1"), ("d_beta_2", "beta_2"),
                       ("d_beta_3", "beta_3")):
-        _stat(f"corr_upstand_vs_d_{name}",
-              np.corrcoef(per_well["upstand_m"], per_well[col])[0, 1])
+        r_val, p_val = scipy_stats.pearsonr(per_well["upstand_m"], per_well[col])
+        _stat(f"corr_upstand_vs_d_{name}", r_val)
+        _stat(f"corr_upstand_vs_d_{name}_p", p_val)
     pct = (per_well["d_beta_3"].abs() / per_well["beta_3_ground_frame"].abs()) * 100.0
     _stat("beta_3_shift_pct_median", pct.median())
     _stat("beta_3_shift_pct_max", pct.max())
@@ -2575,7 +2595,7 @@ def main() -> None:
     # cell rather than carried as numbers measured once in v1.3.0.
     print("\n -> Level-frame (upstand) sensitivity of the coefficients...")
     frame_df = upstand_frame_sensitivity(
-        wells_clean, climate, well_col_lookup, upstand_lookup
+        wells_clean, climate, well_col_lookup, upstand_lookup, cluster_df
     )
     if not frame_df.empty:
         frame_df.to_csv(OUT_03_UPSTAND_FRAME_SENS, index=False)

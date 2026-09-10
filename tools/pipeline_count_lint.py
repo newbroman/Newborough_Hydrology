@@ -43,6 +43,16 @@ than checking the wrong digits. The manifest carries `clearfell_substeps` and
 would need a range mode, which is more machinery than two rows justify. They are
 named here so the gap is recorded rather than assumed away.
 
+The same guard refuses two further shapes, found 2026-09-09 when `by_exec.ondemand`
+was added. A count written as a WORD - "and one (Script 27, greyscale conversion)"
+in report8 - carries no digit to read; and a count sitting beside an identifier -
+"and 1 - Script 27, ..." in the Methods Supplement - puts two numbers in the
+context, so the exactly-one-number guard cannot tell the count from the script
+number. Narrowing the context to isolate the digit would pin the row to a fragment
+too short to stay unique. Both were tried, both refused, and neither is registered:
+`by_exec.ondemand` is 1 and moves only if a second on-demand step is ever added, so
+the cost of the machinery exceeds the risk. Recorded, not assumed away.
+
 Usage:
     python3 tools/pipeline_count_lint.py            # check, exit 1 on drift
     python3 tools/pipeline_count_lint.py --backlog  # unregistered count-like text
@@ -50,7 +60,11 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-09-09. First version.
+__version__ = "1.0.1"  # Hollingham (2026) — 2026-09-10. Two further unregisterable
+#   shapes documented (word-form counts; a count adjacent to a script number),
+#   found when by_exec.ondemand was added. No behaviour change.
+#
+# v1.0.0 (2026-09-09): First version.
 
 import csv
 import json

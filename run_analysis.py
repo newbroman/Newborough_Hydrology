@@ -352,7 +352,12 @@ def say_info(msg: str) -> None:
 # outputs/pipeline_manifest.json is the citable artefact for current totals.
 #
 #   tier: "A" analytical | "D" display/utility | "X" opt-in diagnostic
-#   exec: "default" (part of a normal --full run) | "optin" (--with-supplementary only)
+#   exec: "default" (part of a normal --full run) | "optin" (--with-supplementary
+#         only) | "ondemand" (neither; reached only by its own flag). "ondemand"
+#         was added 2026-09-09 for 27_greyscale_figures.py, which had carried
+#         exec="default" by namedtuple default while five call sites excluded it
+#         from --full by name -- a label that said it ran by default when nothing
+#         ran it.
 #   n_substeps: 1, except the two sub-runner suites (run_09, run_10), whose
 #               constituent module counts are read from MODULES / SUBSCRIPTS
 #               in run_09_scraping.py / run_10_clearfell.py at manifest-build
@@ -444,7 +449,7 @@ PHASE_16 = [
 PHASE_17 = [
     Step("09f_management_effects.py",  "Figure: management-interventions + coastal-retreat spatial reach (\u00a75.8; two-pass, reads Scripts 20/25/09d/10a)",   "D"),
     Step("09g_mechanism_diagrams.py",  "Figure: mechanism grid + coastal reach (\u00a75.8 conceptual; display only, reads 09f/10m/10a)", "D"),
-    Step("27_greyscale_figures.py",    "Greyscale figure conversion (journal-ready B&W)",                                                                       "D"),
+    Step("27_greyscale_figures.py",    "Greyscale figure conversion (journal-ready B&W) \u2014 on demand only, via --greyscale / --greyscale-full; not part of --full or the opt-in tier", "D", "ondemand"),
     Step("43_ranwell_sites.py",       "Ranwell (1959) Fig 3 water-table sites: hand placement over a georeferenced sketch, height-checked against the DEM, basin-tested; slack floors as a diagnostic layer (W95, D-140 revisited). Skips when Route M's input is absent", "D"),
     Step("44_ranwell_hindcast.py",    "Ranwell's 1951\u201353 readings (recovered from his figures) against the SSM hindcast and the modern water-table surface \u2014 out-of-sample validation fifty-four years before calibration and the climate-corrected level change since 1951 (D-145). Skips when the digitised inputs are absent", "A"),
 ]
@@ -500,8 +505,9 @@ _DOCUMENTED_COUNTS = {
     "by_tier.analytical_toplevel": 43,
     "by_tier.display_utility":      5,
     "by_tier.optin_diagnostic":     6,
-    "by_exec.default":             51,
+    "by_exec.default":             50,
     "by_exec.optin":                3,
+    "by_exec.ondemand":             1,
     "analytical_phases":           16,   # phases carrying >=1 tier-A step; emitted
                                          # for completeness, NOT cited in any document
 }
@@ -611,7 +617,7 @@ def build_manifest(write: bool = True, record_inputs: bool = False) -> dict:
     committed, machine-readable source of truth for step/phase totals and
     per-step tags. Also runs the analytical-count drift guard."""
     by_tier = {"analytical_toplevel": 0, "display_utility": 0, "optin_diagnostic": 0}
-    by_exec = {"default": 0, "optin": 0}
+    by_exec = {"default": 0, "optin": 0, "ondemand": 0}
     steps_out = []
     for rs in _ALL_STEPS:
         if rs.tier == "A":
@@ -1390,6 +1396,11 @@ def run_phase(phase_label: str, from_step: int = 1, include_optin: bool = False,
     print(paint("━" * 70, _Ansi.CYAN))
     for rs in steps:
         if rs.script in exclude_scripts:
+            continue
+        if rs.exec == "ondemand":
+            print("  " + paint(
+                f"{GLYPH_SKIP} skip step {rs.label.strip()}  (on demand — use --greyscale)",
+                _Ansi.GREY))
             continue
         if rs.exec == "optin" and not include_optin:
             print("  " + paint(

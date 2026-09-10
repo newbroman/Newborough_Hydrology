@@ -34,7 +34,11 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.4.0"  # 2026-09-08. SEC and the --symbol-only § matcher widened from 4.x to
+__version__ = "1.5.0"  # 2026-09-10. report13-16 join ODTS. report16 carried four
+#   typed section references that no repoint pass could read, found when 3.4.5 moved to
+#   3.8.2; the same class of gap as Paper 2's glob and the 09-08 report6/report7 addition.
+#   Matchers unchanged.
+#   1.4.0 - 2026-09-08. SEC and the --symbol-only § matcher widened from 4.x to
 #   chapters 1-7 (spec NRG_spec_sec_widening_master_snapshot_2026-09-08). Guard: a section plan
 #   whose targets are not headings in tools/section_map.csv is REFUSED before any document is
 #   read; a typed section number that is no heading is reported under "left for review". New
@@ -116,6 +120,16 @@ ODTS = {
     "report10": str(chapter_odt(10).relative_to(REPO)),
     "report11": str(chapter_odt(11).relative_to(REPO)),
     "report12": str(chapter_odt(12).relative_to(REPO)),
+    # report13-16 joined on 2026-09-10, the THIRD time a document in the corpus
+    # turned out to be outside this list (Paper 2 behind a glob that matched
+    # nothing; report6/report7/the master on 09-08). report16 was carrying FOUR
+    # typed section references that went stale the moment 3.4.5 moved, and no
+    # pass could see them. 13-15 carry none today and are listed anyway, so the
+    # scope is "every chapter" rather than "every chapter someone remembered".
+    "report13": str(chapter_odt(13).relative_to(REPO)),
+    "report14": str(chapter_odt(14).relative_to(REPO)),
+    "report15": str(chapter_odt(15).relative_to(REPO)),
+    "report16": str(chapter_odt(16).relative_to(REPO)),
     "Newborough_Methods_Supplement": _versioned("Newborough_Methods_Supplement"),
     "Supplementary_Material":        _versioned("Supplementary_Material"),
     "academic_Summary":              _versioned("academic_Summary"),

@@ -35,10 +35,10 @@ SOFFICE="$(command -v soffice || command -v libreoffice || true)"
 
 # Convention: each working ODT lives in the SAME folder as its published PDF.
 MAP=(
-  "docs/report/Newborough_Methods_Supplement_v1_*.odt|docs/report/Newborough_Methods_Supplement.pdf"
-  "docs/report/Supplementary_Material_v1_*.odt|docs/report/Supplementary_Material.pdf"
-  "docs/academic_summaries/academic_Summary_v1_*.odt|docs/academic_summaries/academic_summary.pdf"
-  "docs/academic_summaries/crynodeb_academaidd_v1_*.odt|docs/academic_summaries/crynodeb_academaidd.pdf"
+  "docs/report/Newborough_Methods_Supplement_v*.odt|docs/report/Newborough_Methods_Supplement.pdf"
+  "docs/report/Supplementary_Material_v*.odt|docs/report/Supplementary_Material.pdf"
+  "docs/academic_summaries/academic_Summary_v*.odt|docs/academic_summaries/academic_summary.pdf"
+  "docs/academic_summaries/crynodeb_academaidd_v*.odt|docs/academic_summaries/crynodeb_academaidd.pdf"
   "docs/public_summaries/public_summary_EN.odt|docs/public_summaries/Newborough_Warren_Public_Summary.pdf"
   "docs/public_summaries/public_summary_CY.odt|docs/public_summaries/Niwbwrch_Crynodeb_Cyhoeddus.pdf"
   "docs/public_summaries/public_summary_PL.odt|docs/public_summaries/Newborough_Warren_Podsumowanie.pdf"
@@ -48,9 +48,9 @@ MAP=(
   # published PDFs were only ever exported by hand and drifted four days behind
   # the working ODTs. Same convention as every row above: newest versioned ODT
   # in, stable published filename out.
-  "docs/papers/paper_1/Paper1_v1_*.odt|docs/papers/paper_1/Paper1.pdf"
+  "docs/papers/paper_1/Paper1_v*.odt|docs/papers/paper_1/Paper1.pdf"
   "docs/papers/paper_2/Hollingham_2026_Paper2_amended_v*.odt|docs/papers/paper_2/Hollingham_2026_Paper2_amended.pdf"
-  "docs/papers/paper_1/PAPER1_SI_methods_v1_*.odt|docs/papers/paper_1/PAPER1_SI_methods.pdf"
+  "docs/papers/paper_1/PAPER1_SI_methods_v*.odt|docs/papers/paper_1/PAPER1_SI_methods.pdf"
 )
 latest() { ls -v $1 2>/dev/null | tail -1; }        # highest version matching the glob
 
@@ -88,7 +88,15 @@ B_SRC=(); B_OUT=()
 for row in "${MAP[@]}"; do
   glob="${row%%|*}"; out="${row##*|}"
   src="$(latest "$glob")"
-  if [[ -z "$src" ]]; then echo "  NO-ODT    $out"; noodt=$((noodt+1)); continue; fi
+  # A MAP glob that resolves to nothing is a DEFECT, not a skip. Paper 2 sat
+  # outside the corpus for months behind a pattern that matched no file, and
+  # this loop printed NO-ODT and carried on. Six rows also pinned "_v1_*",
+  # so the first document to reach v2 would have vanished the same way
+  # (widened to _v* on 2026-09-10). Fail loudly instead.
+  if [[ -z "$src" ]]; then
+    echo "  NO-ODT    $out   <- glob matched NOTHING: $glob"
+    noodt=$((noodt+1)); continue
+  fi
 
   if [[ $CHECK -eq 1 ]]; then
     if [[ ! -f "$out" ]]; then echo "  MISSING   $out  <- $(basename "$src")"; stale=$((stale+1))
@@ -140,8 +148,16 @@ if [[ $CHECK -eq 1 ]]; then
 else
   { echo "# published PDF  <-  source ODT  |  built (UTC)"; sort "$NEW_MANIFEST"; } > "$MANIFEST"
   echo "Rebuilt $built PDF(s); $current already current. Manifest: $MANIFEST"
+  if [[ $noodt -gt 0 ]]; then
+    echo "  ERROR: $noodt MAP row(s) matched no ODT — a published PDF has no source."
+    echo "         Fix the glob; do NOT hand-edit $MANIFEST."
+    NOODT_FAIL=1
+  fi
   [[ $fellback -gt 0 ]] && echo "  NOTE: $fellback built via --convert-to fallback (UNrefreshed) — install python3-uno."
   echo "Note: report.pdf (from report.odm) is not built here — a master document needs its"
   echo "      links, fields and indexes refreshed first. tools/export_master_pdf.py does that"
   echo "      and lints the result; nrg_git.sh offers it straight after this step."
 fi
+
+[[ "${NOODT_FAIL:-0}" -eq 1 ]] && exit 1
+exit 0

@@ -181,7 +181,7 @@ SECTION 5: SPRING MSL TRANSFER FUNCTIONS  (MSL_y from winter peak and Oct-May fo
     p-values:  h_max_winter = 0.0000   P = 0.0605   PET = 0.6114   intercept = 0.1431
 
   Spring transfer table → 11_forecast_spring_transfer_functions.csv
-  ✓ Saved: 11_forecast_02_spring_calibration.png  (145 dpi)
+  [1m[32m✓[0m Saved: [1m[32m11_forecast_02_spring_calibration.png[0m  (145 dpi)
   Calibration figure → 11_forecast_02_spring_calibration.png
 
 

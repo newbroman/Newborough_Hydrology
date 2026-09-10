@@ -99,7 +99,15 @@ Cluster scope (k=5 partition):
 ====================================================================================
 """
 
-__version__ = "1.3.3"  # Hollingham (2026) - 2026-09-02. Two console banners
+__version__ = "1.3.4"  # Hollingham (2026) - 2026-09-10. The reviewer summary's
+#   horizon label came from a hand-written {2:'Feb',3:'Mar',4:'Apr'} dict, written
+#   when the cluster peaks WERE February and March. C1 and C2 have since moved to
+#   January, so the label fell through to the f"M{peak_month}" fallback and shipped
+#   as "Oct-M1 (4 mo)" in a reviewer-facing file. Now calendar.month_abbr, which
+#   cannot go stale when the partition moves. The report carried the same stale
+#   assumption in prose and is corrected in the same batch (2026-09-10i). LABEL
+#   ONLY - no computed value changes.
+# v1.3.3  # Hollingham (2026) - 2026-09-02. Two console banners
 #   still printed the old symbols and went on printing them into the COMMITTED
 #   transcript 11_forecast_01_results.txt. They survived the v1.3.2 sweep because
 #   they are written as escape sequences - \u03b2\u2081, not the literal glyph -
@@ -177,6 +185,7 @@ from utils.config import (
 )
 from utils.model_utils import pflood_lambda
 from utils.render_utils import render_figure
+import calendar
 import os
 import sys
 from io import IOBase
@@ -731,11 +740,16 @@ def run_critical_flood_thresholds(results_dict: dict, df: pd.DataFrame) -> None:
     df_full = pd.DataFrame(table8_rows)
     df_summary = df_full[summary_cols].rename(columns=summary_rename)
 
-    # Add horizon label for readability
-    _end_month_names = {2: 'Feb', 3: 'Mar', 4: 'Apr'}
+    # Add horizon label for readability. The month name comes from calendar, not
+    # a hand-written dict: the original {2:'Feb',3:'Mar',4:'Apr'} was written when
+    # the cluster peaks were February and March, and when C1 and C2 moved to
+    # January the label fell through to the "M1" fallback and shipped that way in
+    # a reviewer-facing file (v1.3.4). A twelve-month lookup cannot go stale when
+    # the partition moves, and a peak month outside 1-12 now raises rather than
+    # printing silently.
     def _horizon_label(row):
         n = row['horizon_n_months']
-        end = _end_month_names.get(row['peak_month'], f"M{row['peak_month']}")
+        end = calendar.month_abbr[int(row['peak_month'])]
         return f"Oct\u2013{end} ({n} mo)"
 
     df_summary.insert(

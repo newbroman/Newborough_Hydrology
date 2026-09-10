@@ -8,13 +8,14 @@
     "optin_diagnostic": 6
   },
   "by_exec": {
-    "default": 51,
-    "optin": 3
+    "default": 50,
+    "optin": 3,
+    "ondemand": 1
   },
   "analytical_phases": 16,
   "scraping_substeps": 5,
   "clearfell_substeps": 14,
-  "generated": "2026-09-09T22:02:15",
+  "generated": "2026-09-10T09:29:58",
   "steps": [
     {
       "index": 1,
@@ -479,9 +480,9 @@
       "index": 52,
       "total": 54,
       "script": "27_greyscale_figures.py",
-      "desc": "Greyscale figure conversion (journal-ready B&W)",
+      "desc": "Greyscale figure conversion (journal-ready B&W) \u2014 on demand only, via --greyscale / --greyscale-full; not part of --full or the opt-in tier",
       "tier": "D",
-      "exec": "default",
+      "exec": "ondemand",
       "phase": 17
     },
     {

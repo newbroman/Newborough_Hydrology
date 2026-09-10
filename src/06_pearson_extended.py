@@ -9,7 +9,11 @@ Purpose:
     all remaining wells.
 ====================================================================================
 """
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-09-09. Map
+__version__ = "1.2.0"  # Hollingham (2026) - 2026-09-09. DELTA_THRESH and
+#   MCA_THRESH now alias config.PEARSON_DELTA_THRESH / PEARSON_MCA_THRESH
+#   rather than carrying their own literals. This script already used the >=
+#   form the report documents; Script 05 did not, and the two are now one.
+#   No behaviour change here.
 #   label placement is bounded by ITERATIONS, not the clock (W145): the explicit
 #   time_lim=5.0 is REPLACED by iter_lim=config.LABEL_ADJUST_ITER_LIM (not added
 #   beside it — adjustText warns when both are set and uses whichever is faster,
@@ -59,6 +63,7 @@ from utils.paths import (
     OUT_06_INTEGRATION_MAP,
 )
 from utils.config import (
+    PEARSON_DELTA_THRESH, PEARSON_MCA_THRESH,
     CLUSTER_COLOURS, CLUSTER_COLOURS_BW, CLUSTER_LABELS, BW_MODE,
     LABEL_ADJUST_ITER_LIM,
 )
@@ -95,8 +100,8 @@ OUT_BAR = OUT_06_AFFINITY_CHART
 OUT_MAP = OUT_06_INTEGRATION_MAP
 
 EXPECTED_CLUSTERS = sorted(CLUSTER_LABELS.keys())
-DELTA_THRESH = 0.05
-MCA_THRESH = 0.90
+DELTA_THRESH = PEARSON_DELTA_THRESH   # config.py is the one home (2026-09-09)
+MCA_THRESH   = PEARSON_MCA_THRESH
 
 # Aesthetics
 plt.rcParams.update({'font.family': 'sans-serif', 'axes.labelsize': 11, 'legend.fontsize': 9})

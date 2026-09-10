@@ -489,7 +489,7 @@ echo "── archive (are the canonical documents anywhere but this disk?) ─�
 # Advisory, like export_lag and for the same reason: an rclone copy is slow and
 # manual. But it is the only check on the ONE risk the .gitignore creates - the
 # .odt/.odm documents are in no repository, so between an edit and the next sync
-# they exist once. BOOTSTRAP.md told a new machine to touch .last_drive_archive
+# they exist once. MACHINE_SETUP.md told a new machine to touch .last_drive_archive
 # and nothing ever read it; this is the check that marker was written for.
 python3 tools/drive_lag.py || true
 

@@ -209,3 +209,13 @@ data/geo/ranwell_map*.points
 
 # Cowork session metadata written beside the tree by the desktop bridge (2026-09-08)
 .claude/
+
+# Cowork delivery folder (2026-09-10). The desktop app drops files it hands over
+# beside the tree; by 09-10 this held 28 of them. Every one was a DUPLICATE of
+# something already in its proper home - the three Ranwell CSVs byte-identical to
+# data/ (checked), the changelog already in working/changelogs/, ten specs and
+# drafts already in the project store, and figure PNGs the pipeline regenerates.
+# Ignored rather than deleted: it is a landing area, and the next session will
+# add to it. Anything in here that matters belongs somewhere else in the tree,
+# so if a file is ONLY here, that is the bug - file it, do not commit this folder.
+Claude outputs/

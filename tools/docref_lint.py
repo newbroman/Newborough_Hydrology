@@ -72,6 +72,14 @@ EXEMPT = {
     # the *_results.md memo pattern (scripts build a <script>_results.md memo);
     # written as prose in apply_main_guards.py and DECISION_LOG.md, not a filename
     "_results.md",
+    # BOOTSTRAP.md was renamed MACHINE_SETUP.md on 2026-09-10, because it collided
+    # with working/HANDOVER_BOOTSTRAP.md - the SESSION bootstrap every session is
+    # told to read first - and a reader could open the wrong one. The live
+    # references were repointed; the five in DECISION_LOG.md and the one they
+    # generate in DECISIONS_PUBLIC.md are DATED RECORDS and are not rewritten
+    # (the same rule that keeps changelogs out of repoint_refs). They name what
+    # the file was called when the entry was written, which is correct.
+    "BOOTSTRAP.md",
     # a filename built at runtime from a template
     "{name}.md", "{stem}.md",
     # tools/build_diary.py names its own --public output, which exists only once
@@ -228,7 +236,7 @@ def resolves(ref, basenames):
 # after the restructure renamed both.
 SIGNPOSTS = [
     "working/WORK_REGISTER.md", "working/README_WORKING.md",
-    "BOOTSTRAP.md", "CLAUDE.md", "readme.md", "PIPELINE_README.md",
+    "MACHINE_SETUP.md", "CLAUDE.md", "readme.md", "PIPELINE_README.md",
 ]
 # A line may name a path deliberately dead — the "was -> is" table in
 # WORK_REGISTER.md documents exactly the names that stopped working. Marking the

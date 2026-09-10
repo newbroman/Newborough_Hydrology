@@ -21,7 +21,7 @@ python3 run_analysis.py          # opens interactive menu
 Not a venv, and **not** `pip install -r requirements.txt`. The reference
 environment is Ubuntu 24.04's apt packages; that file is a `pip freeze` from an
 environment this project has never run in, and pins numpy and pandas two major
-versions past what produced the published numbers. `BOOTSTRAP.md` §1 has the
+versions past what produced the published numbers. `MACHINE_SETUP.md` §1 has the
 full story.
 
 ---

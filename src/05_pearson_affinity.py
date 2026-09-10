@@ -8,7 +8,15 @@ Full per-script methodology: see chapter S.4 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-09-09. Map
+__version__ = "1.5.0"  # Hollingham (2026) - 2026-09-09. Core/Fuzzy boundary
+#   repaired and the thresholds de-duplicated. The Core test was `delta > 0.05`
+#   here and `delta >= 0.05` in Script 06, so a well sitting exactly on the
+#   margin was Fuzzy in one script and Core in the other; report8 SS3.3.2
+#   documents the >= form and that is now what both run. 0.05 and 0.90 are no
+#   longer typed here at all - they come from config.PEARSON_DELTA_THRESH and
+#   config.PEARSON_MCA_THRESH, one home for one quantity. No committed value
+#   moves: no reference well has a margin of exactly 0.05 (nearest 0.0495,
+#   0.0524), verified by re-running and diffing the audit CSV.
 #   label placement is bounded by ITERATIONS, not the clock (W145): the explicit
 #   time_lim=5.0 is REPLACED by iter_lim=config.LABEL_ADJUST_ITER_LIM (not added
 #   beside it — adjustText warns when both are set and uses whichever is faster,
@@ -38,7 +46,8 @@ import geopandas as gpd, fiona
 from adjustText import adjust_text
 from matplotlib.lines import Line2D
 from utils.config import (CLUSTER_COLOURS, CLUSTER_LABELS, BW_MODE,
-                          LABEL_ADJUST_ITER_LIM)
+                          LABEL_ADJUST_ITER_LIM,
+                          PEARSON_DELTA_THRESH, PEARSON_MCA_THRESH)
 from utils.data_utils import normalize_well_name
 from utils.map_utils import load_dem_layer, add_kml_features, add_osm_basemap, add_en_axes
 from utils.paths import (make_all_dirs, DATA_DIR,
@@ -100,7 +109,7 @@ def classify(assigned, corr_row):
     delta = ar-best_other if pd.notna(best_other) and pd.notna(ar) else np.nan
     if pd.isna(ar): return "Unclassified",delta,best_c,ar,best_r
     if best_c!=int(assigned): return "Spy",delta,best_c,ar,best_r
-    if pd.notna(delta) and delta>0.05: return "Core",delta,best_c,ar,best_r
+    if pd.notna(delta) and delta>=PEARSON_DELTA_THRESH: return "Core",delta,best_c,ar,best_r
     return "Fuzzy",delta,best_c,ar,best_r
 
 def main():
@@ -141,7 +150,7 @@ def main():
             "Assigned_Cluster": int(assigned) if not pd.isna(assigned) else pd.NA,
             "Best_Match_Cluster":best_c,"Secondary_Cluster":sec_c,
             "Assigned_r":ar,"Best_Match_r":br,"Delta_Assigned_vs_NextBest":delta,
-            "Class":cl,"MCA_Count_r_gt_0_90":int((corr_df.loc[wid]>0.90).sum())})
+            "Class":cl,"MCA_Count_r_gt_0_90":int((corr_df.loc[wid]>PEARSON_MCA_THRESH).sum())})
 
     audit_df = pd.DataFrame(audit_rows).sort_values("Well_Normalised").reset_index(drop=True)
     audit_df["MCA_Flag"] = audit_df["MCA_Count_r_gt_0_90"]>=3
@@ -149,7 +158,7 @@ def main():
         audit_df[f"r_Cluster_{cl}"] = audit_df["Well_Normalised"].map(corr_df[f"Cluster_{cl}"])
 
     def mca_label(row):
-        pairs = [(cl,row.get(f"r_Cluster_{cl}",np.nan)) for cl in EXPECTED_CLUSTERS if pd.notna(row.get(f"r_Cluster_{cl}",np.nan)) and row.get(f"r_Cluster_{cl}",np.nan)>0.90]
+        pairs = [(cl,row.get(f"r_Cluster_{cl}",np.nan)) for cl in EXPECTED_CLUSTERS if pd.notna(row.get(f"r_Cluster_{cl}",np.nan)) and row.get(f"r_Cluster_{cl}",np.nan)>PEARSON_MCA_THRESH]
         if len(pairs)<3: return ""
         return "/".join([f"C{cl}" for cl in sorted([c for c,_ in sorted(pairs,key=lambda x:x[1],reverse=True)[:3]])])
     audit_df["MCA_Cluster_Label"] = audit_df.apply(mca_label, axis=1)

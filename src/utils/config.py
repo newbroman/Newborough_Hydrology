@@ -40,7 +40,14 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.31.0"  # Hollingham (2026) - 2026-09-08. W95/D-140 revisited and
+__version__ = "1.32.0"  # Hollingham (2026) - 2026-09-09. PEARSON_DELTA_THRESH
+#   and PEARSON_MCA_THRESH added: the Pearson affinity thresholds shared by
+#   Scripts 05 and 06, which held them in two places (bare literals in 05,
+#   module constants in 06) and had already drifted apart at the boundary -
+#   `> 0.05` against `>= 0.05`. Latent only because no well sits exactly on
+#   0.05. Additive here; the operator fix is Script 05 1.5.0.
+#
+# v1.31.0 (2026-09-08): W95/D-140 revisited and
 #   Script 44 (D-145): the RANWELL_* block grows from four constants to the
 #   full set behind Script 43 v2 (height check, basin test, slack floors) and
 #   Script 44 (hindcast span, IDW, error terms). Additive; no value changes.
@@ -255,6 +262,26 @@ if BW_MODE:
 # the clock was truncating. Pass it as iter_lim, never alongside time_lim:
 # adjustText warns and uses whichever is faster, which puts the clock back.
 LABEL_ADJUST_ITER_LIM = 500
+
+# ── Pearson affinity classification thresholds ───────────────────────────────
+# Shared by Script 05 (reference-network membership audit) and Script 06 (the
+# same procedure extended to the wider array). They lived in two places until
+# 2026-09-09 — bare literals inline in 05, module constants in 06 — and had
+# already drifted apart at the boundary: 05 classified Core on `delta > 0.05`
+# and 06 on `delta >= 0.05`, so a well sitting exactly on the threshold was
+# Fuzzy in one script and Core in the other. No well does today (the nearest
+# margins are 0.0495 and 0.0524), which is why nothing caught it. Report8
+# §3.3.2 documents the >= form, and that is the form kept here.
+#
+# PEARSON_DELTA_THRESH — the affinity margin dr = r_1st - r_2nd at or above
+#   which a well is Core rather than Fuzzy. Empirical, and the sensitivity is
+#   reported: at 0.03 and 0.10 respectively, 21 and 13 of the 63 Core/Fuzzy
+#   reference wells change tier. It labels CONFIDENCE only — cluster assignment
+#   comes from the Ward's linkage solution and no well changes cluster with it.
+# PEARSON_MCA_THRESH — the correlation above which a cluster centroid counts
+#   towards the Multi-Cluster Affinity flag, which is raised at three or more.
+PEARSON_DELTA_THRESH = 0.05
+PEARSON_MCA_THRESH   = 0.90
 
 CLUSTER_COLOURS = {
     1: "#1a6faf",   # C1 Lake — old C1 blue

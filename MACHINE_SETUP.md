@@ -33,7 +33,7 @@ Everything the second repository owns lives under it and nothing else does.
 
 ```
 NRG/
-├── readme.md  CLAUDE.md  PIPELINE_README.md  BOOTSTRAP.md
+├── readme.md  CLAUDE.md  PIPELINE_README.md  MACHINE_SETUP.md
 ├── run_analysis.py        the pipeline entry point
 ├── index.html  scenario_viewer.html  seasonal_extremes_scatter.html
 │                          staged web tools — see §6

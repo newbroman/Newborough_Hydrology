@@ -31,7 +31,13 @@ The northern break in slope (v1.4.0, D-099)
 ====================================================================================
 """
 
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-09-09. Map
+__version__ = "1.6.0"  # Hollingham (2026) - 2026-09-11.
+#   UNSILENCED (D-155): the blanket warnings.filterwarnings('ignore') is
+#   removed. It hid every DeprecationWarning and RuntimeWarning this script
+#   raised, which is the class of signal that would have flagged the fiona
+#   1.10 KML change and the pyogrio/fiona engine split before either broke a
+#   run. Python's default shows each unique warning once per location.
+# v1.5.0  # Hollingham (2026) — 2026-09-09. Map
 #   label placement is bounded by ITERATIONS, not the clock (W145): adjust_text()
 #   takes iter_lim=config.LABEL_ADJUST_ITER_LIM. It previously passed neither
 #   limit, so adjustText defaulted to time_lim = 1 SECOND of wall clock and the
@@ -115,7 +121,6 @@ import matplotlib.pyplot as plt
 import contextily as ctx
 import fiona
 from adjustText import adjust_text
-import warnings
 
 from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
@@ -128,7 +133,6 @@ fiona.drvsupport.supported_drivers['KML'] = 'rw'
 fiona.drvsupport.supported_drivers['LIBKML'] = 'rw'
 
 # Suppress messy warnings for the reviewer's terminal output
-warnings.filterwarnings('ignore')
 
 # Publication-quality typography
 plt.rcParams.update({

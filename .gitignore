@@ -178,6 +178,13 @@ docs/papers/paper_2/PAPER2_EDITS.md
 # attribution, which is the part a reader needs.
 data/geo/aerial*.png
 data/geo/site*.png
+# sea*.png added 2026-09-11. The prefix rule is per-prefix BY CONSTRUCTION, so a
+# new capture prefix falls outside it silently - GEO_PROVENANCE.md has warned of
+# exactly this since the seabed frames were added, and on 2026-09-11 six licensed
+# frames (sea1-sea4, sea7-2019a/b) landed unignored. `sea*` also covers `seabed*`
+# above; the earlier line is kept so the reason for each is legible. ANY new
+# capture prefix needs a line here IN THE SAME BATCH as the first file.
+data/geo/sea*.png
 # seabed*.png added 2026-08-30: the wide Caernarfon Bay viewpoint (6.30 km eye
 # altitude, Llanddwyn to Abermenai Point). Same source, same licence, same
 # ruling — the rule was per-prefix and a new prefix therefore arrived

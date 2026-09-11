@@ -105,6 +105,27 @@ dependencies adjustText, contextily and cairosvg. Its own header used to
 disclaim it as *"a pip freeze from an environment this project has never run
 in"*; that disclaimer was backwards and has been corrected.
 
+**KML reading must not depend on a GDAL driver, and `utils/kml_io.py` is how.**
+The pipeline reads a dozen `.kml` inputs, and whether GDAL can open them is a
+property of how GDAL was *built*, not of the data. `gpd.read_file(path)` with no
+`driver=` lets fiona sniff, fiona picks **LIBKML**, and LIBKML is a separate GDAL
+build option Ubuntu's packaged GDAL does not enable — that killed Script 29 on
+2026-08-27. Naming `driver="KML"` fixed it until **fiona 1.10** stopped listing
+KML in `supported_drivers` at all, which killed Script 41 on 2026-09-11.
+
+So there is no version of "install the right GDAL" to write here. Instead
+`src/utils/kml_io.py` `read_kml()` tries **KML**, then **LIBKML**, then a
+**pure-XML route** — ElementTree plus pyproj and shapely — that needs no GDAL
+driver of any kind and therefore cannot be broken by a packaging change. It
+reports which route worked, and raises only if all three fail, naming each
+attempt, so a driver problem can never present as an empty result.
+
+**Every KML read in the pipeline goes through it.** A new script calling
+`gpd.read_file` on a `.kml` will work on the machine it was written on and fail
+on a reviewer's. That is the whole reason this paragraph exists: the failure is
+environmental, it is silent in one of its three forms, and no `requirements.txt`
+pin prevents it.
+
 Non-Python tools still come from apt, and pandoc's version matters (below):
 
 ```bash

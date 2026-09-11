@@ -37,7 +37,22 @@ Read-only on pipeline outputs; writes to outputs/29_within_c3_variance/.
 
 from __future__ import annotations
 
-__version__ = "1.7.0"  # Hollingham (2026) - 2026-09-03. WINTER_MONTHS hoisted to
+__version__ = "1.9.0"  # Hollingham (2026) - 2026-09-11. THE FIRST THING THE
+#   UNSILENCING CAUGHT. `GeoSeries.unary_union` is a deprecated ATTRIBUTE in
+#   geopandas 1.x and is replaced by the `union_all()` METHOD; the
+#   DeprecationWarning had been suppressed here since the filter went in, and
+#   surfaced on the first run after 1.8.0 removed it. Same geometry, no number
+#   moves — this is the class of notice D-155 exists to hear, months before the
+#   attribute is removed and the script stops running. `requirements.txt` pins
+#   geopandas 1.1.3, so `union_all()` is guaranteed and needs no hasattr guard;
+#   24b's guard at its own call predates the pin.
+# v1.8.0  # Hollingham (2026) - 2026-09-11.
+#   UNSILENCED (D-155): the blanket warnings.filterwarnings('ignore') is
+#   removed. It hid every DeprecationWarning and RuntimeWarning this script
+#   raised, which is the class of signal that would have flagged the fiona
+#   1.10 KML change and the pyogrio/fiona engine split before either broke a
+#   run. Python's default shows each unique warning once per location.
+# v1.7.0  # Hollingham (2026) - 2026-09-03. WINTER_MONTHS hoisted to
 #   module level (function-local since 1.6.0) so season_lint sees it and its D-100
 #   exemption stays active/enforced. Value and type unchanged ([12,1,2] list);
 #   empty-diff verified. WINTER_MONTHS stays LOCAL and distinct per D-100 — the
@@ -65,7 +80,6 @@ __version__ = "1.7.0"  # Hollingham (2026) - 2026-09-03. WINTER_MONTHS hoisted t
 # with a console warning on a first pass).
 
 import sys
-import warnings
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -74,7 +88,6 @@ from scipy import stats
 from shapely.geometry import Point
 from pathlib import Path
 
-warnings.filterwarnings("ignore")
 
 # ── Seasonal window (module level so season_lint sees it; D-100 exempt) ──────
 # The window in which Script 29 seeks the ANNUAL WINTER MAXIMUM head (see the
@@ -171,7 +184,7 @@ def main():
     # does not enable — DriverError, 2026-08-27. Every other KML reader in this tree
     # asks for "KML" by name; this one did not.
     forest_gdf = read_kml(F_FOREST_KML, "EPSG:27700")
-    forest_geom = forest_gdf[forest_gdf["Name"] == "Forest"].unary_union
+    forest_geom = forest_gdf[forest_gdf["Name"] == "Forest"].union_all()
     print(f"Forest geometry: area = {forest_geom.area/1e6:.2f} km²")
 
 

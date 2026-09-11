@@ -72,7 +72,13 @@ This is a supplementary diagnostic (Phase 14, opt-in). It does NOT revise the
 canonical C4 coefficients; nothing downstream reads its outputs.
 """
 from __future__ import annotations
-__version__ = "2.3.0"  # Hollingham (2026) — 2026-08-28. Derives the ReportNumbers
+__version__ = "2.4.0"  # Hollingham (2026) - 2026-09-11.
+#   UNSILENCED (D-155): the blanket warnings.filterwarnings('ignore') is
+#   removed. It hid every DeprecationWarning and RuntimeWarning this script
+#   raised, which is the class of signal that would have flagged the fiona
+#   1.10 KML change and the pyogrio/fiona engine split before either broke a
+#   run. Python's default shows each unique warning once per location.
+# v2.3.0  # Hollingham (2026) — 2026-08-28. Derives the ReportNumbers
 #   note= ranks that v2.2.1 left hard-coded (D-011, T-18a).
 # v2.2.1  # Hollingham (2026) — 2026-08-16. Removes every hard-coded
 #   value and asserted result from the docstring, comments and console strings.
@@ -97,7 +103,6 @@ __version__ = "2.3.0"  # Hollingham (2026) — 2026-08-28. Derives the ReportNum
 #   sensitivity from the retired script is retained as test D.
 
 import sys
-import warnings
 import importlib.util
 from pathlib import Path
 
@@ -124,7 +129,6 @@ from utils.paths import (
 from utils.report_numbers_utils import ReportNumbers
 from utils.render_utils import render_figure
 
-warnings.filterwarnings("ignore")
 plt.rcParams.update({"font.family": "sans-serif", "axes.labelsize": 10,
                      "figure.dpi": 110})
 

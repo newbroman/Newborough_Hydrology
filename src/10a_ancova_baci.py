@@ -33,7 +33,13 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.14.0"  # Hollingham (2026) - 2026-09-07. W96/D-141: 10a_14
+__version__ = "1.15.0"  # Hollingham (2026) - 2026-09-11.
+#   UNSILENCED (D-155): the blanket warnings.filterwarnings('ignore') is
+#   removed. It hid every DeprecationWarning and RuntimeWarning this script
+#   raised, which is the class of signal that would have flagged the fiona
+#   1.10 KML change and the pyogrio/fiona engine split before either broke a
+#   run. Python's default shows each unique warning once per location.
+# v1.14.0  # Hollingham (2026) - 2026-09-07. W96/D-141: 10a_14
 #   era-split decay figure (Impact/Edge early vs late x 4 drift modes).
 # v1.13.0  # Hollingham (2026) - 2026-09-06. W96/D-141: 10a_13
 #   era-split gains a drift-treatment axis (fixed_s25 / none / free_global /
@@ -219,9 +225,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from scipy import stats as sp_stats
-import warnings
 import json
-warnings.filterwarnings('ignore')
 
 def main():
     make_all_dirs()

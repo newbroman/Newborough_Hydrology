@@ -115,7 +115,12 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds (config.SD15b / config.SD16)
 """
 
-__version__ = "1.41.0"  # Hollingham (2026) — 2026-08-29. The coastal edge
+__version__ = "1.42.0"  # Hollingham (2026) - 2026-09-11.
+#   KML reads migrated to utils.kml_io.read_kml (D-153): a driver-named
+#   gpd.read_file is a machine-dependent call, and fiona 1.10 dropping KML
+#   from supported_drivers broke Script 41 on the publishing machine while
+#   leaving the bridge sandbox working. No numeric change.
+# v1.41.0  # Hollingham (2026) — 2026-08-29. The coastal edge
 #   drawdown h₀ now reaches a committed CSV. It was computed inside the plotting
 #   functions and rendered straight into the figure, so no *_report_numbers.csv
 #   carried it and neither audit_number_drift nor cite_check could bind the
@@ -279,6 +284,7 @@ def quote_reach_m(length_m: float) -> float:
 
 from utils.render_utils import render_figure
 from utils.coastal_utils import coastal_edge_h0, load_measured_retreat_rate
+from utils.kml_io import read_kml
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CONSTANTS
@@ -491,13 +497,12 @@ def load_site_polygon():
         import geopandas as gpd
         import fiona
         from shapely.ops import unary_union
-        fiona.drvsupport.supported_drivers["KML"] = "rw"
         site_path = DATA_KML_SITE_BOUNDARY
         if not site_path.exists():
             print("  [WARNING] site_boundary.kml not found — "
                   "falling back to rectangular sea mask")
             return None
-        gdf = gpd.read_file(str(site_path), driver="KML").to_crs("EPSG:27700")
+        gdf = read_kml(site_path)
         merged = unary_union([g for g in gdf.geometry if g is not None])
         # Light simplify to keep the polygon manageable for point-in-poly
         # tests without losing the coastline/estuary shape.
@@ -1326,7 +1331,6 @@ def plot_drawdown_propagation(wt, features, dpi=300, show_head=True):
     from shapely.geometry import Point
     from shapely.prepared import prep
 
-    fiona.drvsupport.supported_drivers["KML"] = "rw"
 
     # ── Parameters ────────────────────────────────────────────────────────
     # Hydraulic diffusivity D = K·b/Sy and decay length λ = √(D/β₃) are
@@ -1390,7 +1394,7 @@ def plot_drawdown_propagation(wt, features, dpi=300, show_head=True):
 
     # Forest mask from KML
     forest_geom = None
-    gdf_kml = gpd.read_file(str(DATA_KML_FEATURES), driver="KML").to_crs("EPSG:27700")
+    gdf_kml = read_kml(DATA_KML_FEATURES)
     name_col = gdf_kml["Name"].fillna("").astype(str)
     for idx, row in gdf_kml.iterrows():
         nm = name_col.iloc[idx].lower()
@@ -2639,7 +2643,7 @@ def _forest_field(gx, gy):
     import geopandas as gpd
     forest_geom = None
     try:
-        gdf = gpd.read_file(str(DATA_KML_FEATURES), driver="KML").to_crs("EPSG:27700")
+        gdf = read_kml(DATA_KML_FEATURES)
         name_col = gdf["Name"].fillna("").astype(str)
         for idx, row in gdf.iterrows():
             nm = name_col.iloc[idx].lower()
@@ -2690,7 +2694,7 @@ def _broadleaf_field(gx, gy):
     if not KML_BROADLEAF.exists():
         return None, None, None, None
     try:
-        gdf = gpd.read_file(str(KML_BROADLEAF), driver="KML").to_crs("EPSG:27700")
+        gdf = read_kml(KML_BROADLEAF)
         from shapely.ops import unary_union
         bl_geom = unary_union(list(gdf.geometry))
     except Exception:
@@ -3127,7 +3131,7 @@ def plot_clearfell_gain(wt, features, dpi=300):
     fell_geom   = None
     forest_geom = None
     try:
-        gdf = gpd.read_file(str(DATA_KML_FEATURES), driver="KML").to_crs("EPSG:27700")
+        gdf = read_kml(DATA_KML_FEATURES)
         name_col = gdf["Name"].fillna("").astype(str)
         for idx, row in gdf.iterrows():
             nm = name_col.iloc[idx].lower()
@@ -3349,8 +3353,7 @@ def plot_msl5_change(wt, features, dpi=300):
     # ── KML overlays ──────────────────────────────────────────────────────
     fell_geom = forest_geom = None
     try:
-        gdf = gpd.read_file(str(DATA_KML_FEATURES),
-                            driver="KML").to_crs("EPSG:27700")
+        gdf = read_kml(DATA_KML_FEATURES)
         nc  = gdf["Name"].fillna("").astype(str)
         for idx, row in gdf.iterrows():
             nm = nc.iloc[idx].lower()
@@ -3631,7 +3634,7 @@ def plot_observed_change(wt, features, dpi=300):
     # ── KML overlays ──────────────────────────────────────────────────────
     fell_geom = forest_geom = None
     try:
-        gdf = gpd.read_file(str(DATA_KML_FEATURES), driver="KML").to_crs("EPSG:27700")
+        gdf = read_kml(DATA_KML_FEATURES)
         nc  = gdf["Name"].fillna("").astype(str)
         for idx, row in gdf.iterrows():
             nm = nc.iloc[idx].lower()
@@ -3773,7 +3776,7 @@ def plot_net_state_map(wt, features, dpi=300):
     fell_geom = None
     try:
         import geopandas as gpd
-        gdf = gpd.read_file(str(DATA_KML_FEATURES), driver="KML").to_crs("EPSG:27700")
+        gdf = read_kml(DATA_KML_FEATURES)
         name_col = gdf["Name"].fillna("").astype(str)
         for idx, row in gdf.iterrows():
             nm = name_col.iloc[idx].lower()
@@ -3982,7 +3985,7 @@ def _driver_change_net(gx, gy, coast_years, clearfell_mm):
     fell_geom = None
     try:
         import geopandas as gpd
-        gdf = gpd.read_file(str(DATA_KML_FEATURES), driver="KML").to_crs("EPSG:27700")
+        gdf = read_kml(DATA_KML_FEATURES)
         name_col = gdf["Name"].fillna("").astype(str)
         for idx, row in gdf.iterrows():
             nm = name_col.iloc[idx].lower()
@@ -4269,7 +4272,6 @@ def plot_scrape_drawdown(wt, features, dpi=300, show_head=True):
     from shapely.affinity import rotate as shp_rotate
     from shapely.prepared import prep
 
-    fiona.drvsupport.supported_drivers["KML"] = "rw"
 
     # ── Parameters (λ identical basis to Fig 3; C3 propagation medium) ─────
     K = DRAWDOWN_K_MDAY            # m/day (Betson 2002), shared with drawdown/SLR maps

@@ -117,7 +117,12 @@ Observed Differential Change, Envelope, and Validation. Runs after Script 36
 in the driver-validation phase; step index in outputs/pipeline_manifest.json.
 """
 
-__version__ = "3.4.0"  # Hollingham (2026) — 2026-08-31. TWO FIXES to the same
+__version__ = "3.5.0"  # Hollingham (2026) - 2026-09-11.
+#   KML reads migrated to utils.kml_io.read_kml (D-153): a driver-named
+#   gpd.read_file is a machine-dependent call, and fiona 1.10 dropping KML
+#   from supported_drivers broke Script 41 on the publishing machine while
+#   leaving the bridge sandbox working. No numeric change.
+# v3.4.0  # Hollingham (2026) — 2026-08-31. TWO FIXES to the same
 #   defect, one of them load-bearing. (1) The E/N repair block could never fire:
 #   its candidate id columns were ("key","col","Name_Original") and
 #   01_locations.csv has none of them (Name, Match_ID), so id_col was always
@@ -169,7 +174,9 @@ from utils.map_utils import (
     load_dem_hillshade, add_idw_surface, add_en_axes, add_kml_features,
 )
 from utils.console_utils import banner, phase, step, info, note, warn, result, saved, done
+
 from utils.render_utils import render_figure
+from utils.kml_io import read_kml
 
 # ---------------------------------------------------------------------------
 # Output paths
@@ -608,7 +615,7 @@ def _build_spatial(s20, E: np.ndarray, N: np.ndarray,
         try:
             import geopandas as gpd
             from shapely.geometry import Point as _Pt
-            gdf = gpd.read_file(str(paths.DATA_KML_FEATURES), driver="KML").to_crs("EPSG:27700")
+            gdf = read_kml(paths.DATA_KML_FEATURES)
             name_col  = gdf["Name"].fillna("").astype(str)
             fell_geom = None
             for idx2, gdf_row in gdf.iterrows():

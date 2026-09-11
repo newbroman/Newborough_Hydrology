@@ -89,7 +89,12 @@ Runs after Script 37 (Part A) in the driver-validation phase; the canonical
 step index is in outputs/pipeline_manifest.json.
 """
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-09-05. Emits two derived
+__version__ = "1.5.0"  # Hollingham (2026) - 2026-09-11.
+#   KML reads migrated to utils.kml_io.read_kml (D-153): a driver-named
+#   gpd.read_file is a machine-dependent call, and fiona 1.10 dropping KML
+#   from supported_drivers broke Script 41 on the publishing machine while
+#   leaving the bridge sandbox working. No numeric change.
+# v1.4.0  # Hollingham (2026) — 2026-09-05. Emits two derived
 #   columns for report10 Table 1 (D-132): equivalent_depth_site_mean_mm =
 #   area_mm_ha / site_area_ha (head field over the whole site mask, no Sy), and
 #   pct_of_coast = |depth| / |coast depth| x 100 (share of coastal retreat),
@@ -140,8 +145,10 @@ from utils.paths import (
 from utils.config import CLUSTER_LABELS
 from utils.map_utils import make_site_mask
 from utils.console_utils import banner, phase, step, info, note, warn, result, saved, done
+
 from utils import pipeline_params
 from utils.render_utils import render_figure
+from utils.kml_io import read_kml
 
 # ---------------------------------------------------------------------------
 # Output paths
@@ -447,7 +454,7 @@ def build_grid():
 def load_felling_geom():
     try:
         import geopandas as gpd
-        gdf = gpd.read_file(str(DATA_KML_FEATURES), driver="KML").to_crs("EPSG:27700")
+        gdf = read_kml(DATA_KML_FEATURES)
         name_col = gdf["Name"].fillna("").astype(str)
         for idx, row in gdf.iterrows():
             nm = name_col.iloc[idx].lower()

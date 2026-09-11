@@ -38,7 +38,18 @@ NOT DONE HERE, AND WHY
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) - 2026-09-11. SLACKS, delineated from
+__version__ = "1.2.0"  # Hollingham (2026) - 2026-09-11. THE HOLLOW AND THE
+#   SLACK ARE SEPARATED. A depression was SELECTED on holding SLACK_MIN_DEPTH_M
+#   and then DRAWN floor-to-spill, so every internal rise inside it was mapped as
+#   slack - the ridge Martin can see near CEH32. Measured on that node: 5.60 ha
+#   drawn, 0.01 ha wet at floor + 0.10 m, 89 % of it more than 0.5 m above its
+#   own floor; area-weighted over 400 slacks the wet fraction is 0.05. Phase 6
+#   now emits BOTH - `W94_06_hollows.*`, the node extent, which is the
+#   attribution unit, and `W94_06_slacks.*`, the surface at floor +
+#   SLACK_MIN_DEPTH_M, which is the wet area and the thing a photograph can be
+#   compared with. "Hollow" rather than the spec's "basin" because phases 4 and 5
+#   already use `basin` for the Ranwell catchments. D-159.
+# v1.1.0  # Hollingham (2026) - 2026-09-11. SLACKS, delineated from
 #   the DEM as closed depressions, replace the Ranwell prototype basins as the
 #   scoring unit (Martin: "the basins are too large and don't represent the
 #   slacks"). Phase 4 now reports both, so the scale difference is visible
@@ -453,6 +464,42 @@ def main() -> int:
          f"lake removed {n_lake}; shore (floor < {SLACK_MIN_FLOOR_M} m) removed "
          f"{n_shore}; {len(sg0)} slack(s) remain, "
          f"{before_ha:.1f} -> {sg0.area.sum() / 1e4:.1f} ha")
+    # THE HOLLOW IS NOT THE SLACK, and conflating them is what put a ridge
+    # inside a mapped "slack" near CEH32 (Martin, 2026-09-11). `sg0` is the
+    # node's extent - everything that drains to the floor, up to the spill - so
+    # it answers "which depression does this belong to". It does NOT answer
+    # "what is under water", because the node is drawn to its spill while the
+    # criterion is a depth. The wet surface is the cells at or below
+    # floor + SLACK_MIN_DEPTH_M, and it is a different polygon: at the CEH32
+    # node, 0.01 ha of 5.60. Both are emitted, named differently, and the maps
+    # and the scoring each take the one they mean.
+    floor_lut = np.zeros(len(nodes) + 1, dtype="float64")
+    floor_lut[:] = np.inf
+    for _k, _f in zip(sdf["slack"], sdf["floor_m"]):
+        floor_lut[int(_k)] = float(_f)
+    wet_cells = (lab > 0) & (arr <= floor_lut[lab] + SLACK_MIN_DEPTH_M)
+    wet_lab = np.where(wet_cells & keep_arr[lab], lab, 0).astype("int32")
+    wpolys, wids = [], []
+    for geom, val in shapes(wet_lab, mask=(wet_lab > 0), transform=tr):
+        wpolys.append(shapely_shape(geom))
+        wids.append(int(val))
+    sw0 = gpd.GeoDataFrame({"slack": wids}, geometry=wpolys, crs=OSGB)
+    sw0 = sw0.dissolve(by="slack", as_index=False)
+    sw0["geometry"] = sw0.geometry.intersection(w_ref)
+    sw0 = sw0[~sw0.geometry.is_empty].copy()
+    sw0 = sw0[sw0["slack"].isin(set(sg0["slack"]))].copy()
+    _wet = dict(zip(sw0["slack"], sw0.area))
+    sdf["wet_area_m2"] = sdf["slack"].map(_wet)
+    sdf["wet_area_ha"] = (sdf["wet_area_m2"] / 1e4).round(4)
+    _hol = dict(zip(sg0["slack"], sg0.area))
+    sdf["wet_frac"] = (sdf["slack"].map(_wet)
+                       / sdf["slack"].map(_hol)).round(3)
+    _hw, _ww = sg0.area.sum() / 1e4, sw0.area.sum() / 1e4
+    step(f"hollows {len(sg0)}, {_hw:.1f} ha drawn to their spill; "
+         f"WET at floor + {SLACK_MIN_DEPTH_M * 100:.0f} cm, {_ww:.1f} ha "
+         f"({100 * _ww / _hw:.1f} % of the drawn area) across {len(sw0)} "
+         f"slack(s). THE SECOND NUMBER IS THE ONE THAT FLOODS.")
+
     # The clipped area is the one that counts, so it replaces the tree's.
     clipped = dict(zip(sg0["slack"], (sg0.area / 1e4).round(4)))
     sdf["area_ha_clipped"] = sdf["slack"].map(clipped)
@@ -496,36 +543,47 @@ def main() -> int:
          "frame at scoring time, so the ground truth does not depend on which "
          "photographs happen to exist.")
 
-    sg = sg0.merge(
-        sdf[["slack", "area_ha", "floor_m", "spill_m", "depth_m",
-             "in_warren", "readable", "area_ha_clipped", "wells_inside",
-             "wells_wet_at_m", "nearest_well", "nearest_well_m"]],
-        on="slack", how="left")
-    p = OUT / "W94_06_slacks.geojson"
-    p.write_text(sg.to_json(), encoding="utf-8")
-    saved(p.name)
-    tmp = Path(tempfile.mkdtemp()) / "slacks.kml"
-    sg.to_crs("EPSG:4326").to_file(tmp, driver="KML")
-    p = OUT / "W94_06_slacks.kml"
-    p.write_bytes(tmp.read_bytes())
-    shutil.rmtree(tmp.parent, ignore_errors=True)
-    saved(p.name)
+    _attrs = ["slack", "area_ha", "floor_m", "spill_m", "depth_m",
+              "in_warren", "readable", "area_ha_clipped", "wet_area_ha",
+              "wet_frac", "wells_inside", "wells_wet_at_m", "nearest_well",
+              "nearest_well_m"]
+    # THE HOLLOW — the node extent, floor to spill. The ATTRIBUTION unit: which
+    # depression a flood body belongs to. Never an area that floods.
+    sh = sg0.merge(sdf[_attrs], on="slack", how="left")
+    # THE SLACK — the surface at floor + SLACK_MIN_DEPTH_M. The WET area: what a
+    # photograph is compared with, and what is recognised on the ground.
+    sg = sw0.merge(sdf[_attrs], on="slack", how="left")
+    for _name, _gdf, _stem in (("hollows", sh, "W94_06_hollows"),
+                               ("slacks", sg, "W94_06_slacks")):
+        q = OUT / f"{_stem}.geojson"
+        q.write_text(_gdf.to_json(), encoding="utf-8")
+        saved(q.name)
+        tmp = Path(tempfile.mkdtemp()) / f"{_name}.kml"
+        _gdf.to_crs("EPSG:4326").to_file(tmp, driver="KML")
+        q = OUT / f"{_stem}.kml"
+        q.write_bytes(tmp.read_bytes())
+        shutil.rmtree(tmp.parent, ignore_errors=True)
+        saved(q.name)
 
     phase(7, "Map — the slacks, for recognition on the ground")
     fig2, ax2 = plt.subplots(figsize=(11.5, 9.8))
     load_dem_hillshade(ax2, DATA_GEO_DIR, alpha=0.6)
     gpd.GeoSeries([w_ref], crs=OSGB).plot(ax=ax2, facecolor="none",
                                           edgecolor="#08519c", lw=1.0, zorder=3)
+    # The hollow is drawn as an OUTLINE and the wet surface as the fill, so the
+    # difference between them is visible on the map rather than collapsed into
+    # one blue polygon — the collapse that made a ridge read as slack.
+    sh.plot(ax=ax2, facecolor="none", edgecolor="#6baed6", lw=0.4, zorder=3.5)
     sg.plot(ax=ax2, facecolor="#2171b5", edgecolor="#08306b", lw=0.35,
             alpha=0.85, zorder=4)
     wpts.plot(ax=ax2, color="#d94801", markersize=8, zorder=5)
-    joined = gpd.sjoin(wpts, sg[["slack", "geometry"]], how="inner",
+    joined = gpd.sjoin(wpts, sh[["slack", "geometry"]], how="inner",
                        predicate="within")
     for _, r in joined.iterrows():
         ax2.annotate(r["well"], (r.geometry.x, r.geometry.y), fontsize=6,
                      xytext=(3, 3), textcoords="offset points", zorder=6,
                      color="#7f2704")
-    sg_area = sg.assign(ha=sg.area / 1e4)
+    sg_area = sh.assign(ha=sh.area / 1e4)
     for _, r in sg_area.nlargest(14, "ha").iterrows():
         c = r.geometry.representative_point()
         ax2.annotate(f"{r['ha']:.1f} ha", (c.x, c.y), fontsize=6, ha="center",
@@ -534,9 +592,12 @@ def main() -> int:
     ax2.set_ylim(SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX)
     add_en_axes(ax2, apply_extent=False)
     ax2.set_title(
-        f"W94 — slacks holding at least {SLACK_MIN_DEPTH_M * 100:.0f} cm, in the "
-        f"warren\n{len(sg)} depressions, {sg.area.sum() / 1e4:.0f} ha; lake and "
-        f"shore excluded; wells orange, largest slacks labelled")
+        f"W94 — slacks in the warren: WET area under "
+        f"{SLACK_MIN_DEPTH_M * 100:.0f} cm of water (solid), inside the hollow "
+        f"that holds it (outline)\n{len(sh)} hollows, "
+        f"{sh.area.sum() / 1e4:.0f} ha drawn to their spill; wet "
+        f"{sg.area.sum() / 1e4:.1f} ha; lake and shore excluded; wells orange, "
+        f"hollows labelled by their own area")
     p = OUT / "W94_07_slacks.png"
     render_figure(fig2, p)
     saved(p.name)

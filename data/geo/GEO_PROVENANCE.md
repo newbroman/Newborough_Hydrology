@@ -1047,6 +1047,45 @@ imaged sea), all four read darker than open water in **every** usable frame of
 both viewpoints; R3 is the strongest, reaching 0.199 of open water in its
 darkest quartile on 22 April 2017. The full table is in the W117 register entry.
 
+## `warren.kml` — the warren boundary (added 2026-09-11)
+
+**Martin's own digitisation, drawn by eye over Google Maps on 2026-09-11.** One placemark, `warren`,
+a single polygon of **447.2 ha**, bounds E 240957-243795, N 362091-364882. Not derived from any
+pipeline output and not traced from a licensed product - an observer's outline over a basemap, so it
+carries no third-party rights and belongs in the repository (D-081 governs the imagery, not a
+digitisation made from it). CRS OSGB36 / EPSG:27700.
+
+**Why it exists.** `site_boundary.kml` reaches over the **estuary** and the foreshore, so it cannot
+bound the warren for flood work: the 2026-09-11 flood read returned a patch in the estuary, and wet
+intertidal sand returns closed DEM hollows down to -1.52 m AOD that survive a site-boundary clip.
+This polygon is the warren proper.
+
+**Read by:** `src/utils/warren_mask.py` (`WARREN_KML`), whose `warren_on(date)` subtracts the canopy
+as at that date; and through it `tools/warren_flood_prep.py`. D-159 governs the use.
+
+**Note the area change.** The site-boundary-derived warren measured 656.9 ha; this is 447.2 ha before
+any canopy subtraction. Any figure carrying the older basis predates 2026-09-11 19:26 and must be
+recomputed, not converted.
+
+### `warren_control.kml` — Script 41's negative-control region (added 2026-09-11)
+
+- **What:** one polygon, **19.15 ha**, bounds E 241265-241861, N 363367-364043, lying **entirely
+  inside `warren.kml`**. Open warren carrying no conifer canopy, so the canopy index measured over it
+  should not trend: it is the negative control against which a real canopy change is judged. The
+  placemark is named `warren cintrol` in the file - the typo is in the source and is left alone,
+  because `src/41_canopy_cover.py` and the committed `41_01_canopy_index.csv` /
+  `41_02_change_events.csv` key on the region name `warren_control` as resolved, and renaming the
+  placemark would silently orphan fourteen change events.
+- **Source:** **Martin's own digitisation, drawn by eye over Google Maps**, supplied 2026-09-07. Not
+  derived from any pipeline output and not traced from a licensed product - an observer's outline over
+  a basemap, so it carries no third-party rights and belongs in the repository (D-081 governs the
+  imagery, not a digitisation made from it).
+- **CRS:** OSGB36 / EPSG:27700.
+- **Read by:** `src/41_canopy_cover.py` as an analysis region; reaches `41_01_canopy_index.csv` and
+  `41_02_change_events.csv`, and through `warren_mask.closure_dates()` the canopy closure dates that
+  `warren_on(date)` subtracts.
+- **Licence:** derived coordinates only.
+
 ### `ranwell_1959_control.csv`
 - **What:** digitised pixel↔OSGB control points for georeferencing Ranwell (1959) Fig 3 — Penlon Lake (Llyn Rhos Ddu), shore-line fixes, the ¼-km scale bar, the north arrow.
 - **Source:** pixel coordinates read from a 200-dpi render of **Ranwell 1959 Fig 3** (*J. Ecology* 47(3):577). The render is **not committed** — `literature/` is gitignored and the JSTOR scan is in-copyright (D-081 shape; regenerates via `pdftoppm -r 200 -f 8 -l 8 -png 'literature/Ranwell 1 dune.pdf'`).

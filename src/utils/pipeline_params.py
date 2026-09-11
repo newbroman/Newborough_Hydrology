@@ -40,7 +40,20 @@ File location: outputs/01_data_prep/pipeline_scenario_params.csv
 """
 from __future__ import annotations
 
-__version__ = "1.11.1"  # Hollingham (2026) — 2026-09-07. default_value(key,
+__version__ = "1.12.0"  # Hollingham (2026) - 2026-09-11. EXACT ROUND TRIP.
+#   EVERY read and write of this store goes through utils/store_io (D-157).
+#   This file writes ONE row by reading the whole store and writing the whole
+#   store back, and pandas' default C float parser is not correctly rounded, so
+#   each write silently moved every OTHER row by up to a few ULP while leaving
+#   that row's `updated` and `run_id` asserting it came from an earlier run.
+#   Measured 2026-09-11: the next write under the old code would have changed 1
+#   line of pipeline_site_observations.csv and 5 of pipeline_scenario_params.csv
+#   with nothing recomputed. read_store() parses with float_precision=
+#   "round_trip", so a read-modify-write is exact for every untouched row.
+#   The reads of OTHER pipeline CSVs here are routed too, because their
+#   values are written INTO this store: a value parsed loosely and then stored
+#   claims to be the producer's number while differing from it.
+# v1.11.1  # Hollingham (2026) — 2026-09-07. default_value(key,
 #   record=True): a caller that reads a default only to INITIALISE a table it then
 #   resolves from the live CSVs (mechanism_fig_utils.EDGE_DH_MM) passes
 #   record=False, so the first S1 activation's six false "fallbacks" at 09g do
@@ -151,6 +164,8 @@ from pathlib import Path
 
 import pandas as pd
 
+from utils.store_io import read_store, write_store
+
 
 def _params_path():
     """Return the path to the pipeline scenario params CSV."""
@@ -196,7 +211,7 @@ def get_cluster_ids(strict: bool = True, source=None) -> list[int]:
     candidates = [Path(source)] if source is not None else _partition_sources()
     for path in candidates:
         if Path(path).exists():
-            df = pd.read_csv(path)
+            df = read_store(path)
             if "Cluster" not in df.columns:
                 continue
             ids = pd.to_numeric(df["Cluster"], errors="coerce").dropna().astype(int)
@@ -424,7 +439,7 @@ def write_initial_params(wells_clean, climate):
     beta_by_cluster = {}
     if OUT_03_MECHANISTIC_TABLE.exists():
         try:
-            coeff = pd.read_csv(OUT_03_MECHANISTIC_TABLE)
+            coeff = read_store(OUT_03_MECHANISTIC_TABLE)
             for _, row in coeff.iterrows():
                 cl = int(row["Cluster"])
                 beta_by_cluster[cl] = {
@@ -440,7 +455,7 @@ def write_initial_params(wells_clean, climate):
     peak_by_cluster = {}
     if INT_CLUSTER_PEAK_MONTHS.exists():
         try:
-            pm_df = pd.read_csv(INT_CLUSTER_PEAK_MONTHS)
+            pm_df = read_store(INT_CLUSTER_PEAK_MONTHS)
             for _, row in pm_df.iterrows():
                 cl = int(row["cluster_id"])
                 peak_by_cluster[cl] = int(row["peak_month"])
@@ -463,7 +478,7 @@ def write_initial_params(wells_clean, climate):
     h_disp_by_cluster = {}
     if INT_MASTER_DATA.exists() and clusters:
         try:
-            master = pd.read_csv(INT_MASTER_DATA)
+            master = read_store(INT_MASTER_DATA)
             master["match"] = master["Name_Original"].str.lower().str.replace(" ", "")
             wells_lower = wells_clean.copy()
             wells_lower.columns = wells_lower.columns.str.lower().str.replace(" ", "")
@@ -497,7 +512,7 @@ def write_initial_params(wells_clean, climate):
     sy_by_cluster = {}
     if OUT_18_WELL_SY_TABLE.exists() and clusters:
         try:
-            sy_df = pd.read_csv(OUT_18_WELL_SY_TABLE)
+            sy_df = read_store(OUT_18_WELL_SY_TABLE)
             sy_median = sy_df.groupby("Cluster")["Sy_median"].median()
             for cl in clusters:
                 if cl in sy_median.index:
@@ -541,7 +556,7 @@ def write_initial_params(wells_clean, climate):
     df = pd.DataFrame(rows, columns=_PARAM_COLUMNS)
     out_path = _params_path()
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(out_path, index=False)
+    write_store(df, out_path)
 
     # Summary
     source_cols = [c for c in df.columns if c.startswith("source_")]
@@ -626,7 +641,7 @@ def update_beta_coefficients(coeff_df):
         print(f"  WARNING: {path.name} not found — skipping β update")
         return
 
-    df = pd.read_csv(path)
+    df = read_store(path)
     appended = 0
     for _, row in coeff_df.iterrows():
         cl = f"C{int(row['Cluster'])}"
@@ -641,7 +656,7 @@ def update_beta_coefficients(coeff_df):
         df.loc[mask, "source_beta"] = "pipeline"
 
     df = df.sort_values("Cluster").reset_index(drop=True)
-    df.to_csv(path, index=False)
+    write_store(df, path)
     extra = f" (+{appended} cluster row(s) seeded from partition)" if appended else ""
     print(f"  Pipeline params updated: β coefficients from Script 03{extra}")
 
@@ -659,12 +674,12 @@ def update_b2_multipliers(clearfell_mult, thinning_mult):
         print(f"  WARNING: {path.name} not found — skipping B2 update")
         return
 
-    df = pd.read_csv(path)
+    df = read_store(path)
     df["clearfell_b2_mult"] = float(clearfell_mult)
     df["thinning_b2_mult"] = float(thinning_mult)
     df["source_b2_mult"] = "pipeline"
 
-    df.to_csv(path, index=False)
+    write_store(df, path)
     print(f"  Pipeline params updated: β₂ multipliers from Script 10e "
           f"(clearfell={clearfell_mult:.4f}, thinning={thinning_mult:.4f})")
 
@@ -682,7 +697,7 @@ def update_specific_yield(sy_by_cluster):
         print(f"  WARNING: {path.name} not found — skipping Sy update")
         return
 
-    df = pd.read_csv(path)
+    df = read_store(path)
     for cl_id, sy_val in sy_by_cluster.items():
         cl = f"C{cl_id}" if isinstance(cl_id, int) else cl_id
         mask = df["Cluster"] == cl
@@ -690,7 +705,7 @@ def update_specific_yield(sy_by_cluster):
             df.loc[mask, "Sy"] = float(sy_val)
             df.loc[mask, "source_Sy"] = "pipeline"
 
-    df.to_csv(path, index=False)
+    write_store(df, path)
     print(f"  Pipeline params updated: Sy from Script 17 "
           f"({len(sy_by_cluster)} clusters)")
 
@@ -708,7 +723,7 @@ def update_h_disp(h_disp_by_cluster):
         print(f"  WARNING: {path.name} not found — skipping h_disp update")
         return
 
-    df = pd.read_csv(path)
+    df = read_store(path)
     for cl_id, h_val in h_disp_by_cluster.items():
         cl = f"C{cl_id}" if isinstance(cl_id, int) else cl_id
         mask = df["Cluster"] == cl
@@ -716,7 +731,7 @@ def update_h_disp(h_disp_by_cluster):
             df.loc[mask, "h_disp"] = float(h_val)
             df.loc[mask, "source_h_disp"] = "pipeline"
 
-    df.to_csv(path, index=False)
+    write_store(df, path)
 
 
 def update_peak_months(peak_by_cluster):
@@ -732,7 +747,7 @@ def update_peak_months(peak_by_cluster):
         print(f"  WARNING: {path.name} not found — skipping peak_month update")
         return
 
-    df = pd.read_csv(path)
+    df = read_store(path)
     for cl_id, pm in peak_by_cluster.items():
         cl = f"C{cl_id}" if isinstance(cl_id, int) else cl_id
         mask = df["Cluster"] == cl
@@ -740,7 +755,7 @@ def update_peak_months(peak_by_cluster):
             df.loc[mask, "peak_month"] = int(pm)
             df.loc[mask, "source_peak_month"] = "pipeline"
 
-    df.to_csv(path, index=False)
+    write_store(df, path)
     print(f"  Pipeline params updated: peak months from Script 03 "
           f"({len(peak_by_cluster)} clusters)")
 
@@ -813,7 +828,7 @@ def load_params(warn_defaults=True):
         raise FileNotFoundError(
             f"{path.name} not found. Run Script 01 (data prep) first.")
 
-    df = pd.read_csv(path)
+    df = read_store(path)
 
     # Check for remaining defaults
     source_cols = [c for c in df.columns if c.startswith("source_")]

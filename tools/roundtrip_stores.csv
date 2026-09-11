@@ -1,0 +1,3 @@
+store,owner_module,reason
+outputs/01_data_prep/pipeline_site_observations.csv,src/utils/site_observations.py,"update_site_observation() writes one row by reading and rewriting the whole file; every other row must survive unchanged, including its updated/run_id stamp"
+outputs/01_data_prep/pipeline_scenario_params.csv,src/utils/pipeline_params.py,"the scenario-parameter store is rebuilt and patched in place by several updaters; a row nobody asked to change must not move"

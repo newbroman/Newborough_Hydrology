@@ -235,6 +235,17 @@ echo "── rounding (has new store-time rounding appeared?) ──────
 python3 tools/rounding_lint.py || rc=1
 
 echo
+echo "── store round trip (does rewriting a store move rows nobody touched?) ─"
+# The sibling of rounding_lint, and the only check that can see this fault.
+# A store written one row at a time is read whole and rewritten whole, and
+# pandas' default C float parser is not correctly rounded — so every write moved
+# every OTHER row by a few ULP while leaving its updated/run_id stamp pointing
+# at an earlier run. provenance_lint cannot see it: it hashes each output AS
+# WRITTEN, so a store that drifts on every write hashes consistently. D-157.
+python3 tools/store_roundtrip_lint.py --selftest || rc=1
+python3 tools/store_roundtrip_lint.py || rc=1
+
+echo
 echo "── artefacts (is a committed output truthful about itself?) ─────────"
 # The gate the other fifteen did not cover: an output checked against ITSELF.
 # Row arithmetic (a quantity must be reproduced by the columns that define it)

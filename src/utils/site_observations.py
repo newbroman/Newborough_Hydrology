@@ -63,7 +63,38 @@ Adding a new observation
    pipeline-sourced values rather than defaults.
 """
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-08-31. Adds the run_id
+__version__ = "1.6.0"  # Hollingham (2026) - 2026-09-11. write_initial_site_
+#   observations() FILLS GAPS, IT NO LONGER RESETS THE STORE (Martin,
+#   2026-09-11; D-158). It used to rebuild the file from _KNOWN_OBSERVATIONS on
+#   every call, with every value set to its registered DEFAULT and every source
+#   to "defaults". Script 01 calls it near the start of a pass, so in a FULL
+#   pass the damage was invisible: 09a, 10j, 10k, 10l and the rest re-ran
+#   afterwards and overwrote their own rows. Run Script 01 ALONE — as happened
+#   on 2026-09-11 — and the store was silently gutted: 15 rows of committed
+#   pipeline results replaced by placeholders, among them
+#   impact_vs_edge_clearfell_monthly_step 0.0653363682133117 -> 0.063 and four
+#   four_zone rows set to 0.0. It read as a successful run.
+#
+#   Now: a missing file is created exactly as before; an existing file keeps
+#   EVERY existing row's value, source, updated and run_id, and only gains rows
+#   for registered observations it lacks. The registry-owned METADATA columns
+#   (unit, producer_script, description) ARE refreshed from _KNOWN_OBSERVATIONS,
+#   because the registry is their authority and a stale description in this file
+#   is reviewer-facing; the count of refreshed rows is reported rather than
+#   done quietly. A row in the store that is no longer registered is KEPT and
+#   warned about — deleting a measured value because its registry entry was
+#   renamed is the same class of loss this change exists to prevent.
+# v1.5.0  # Hollingham (2026) - 2026-09-11. EXACT ROUND TRIP.
+#   EVERY read and write of this store goes through utils/store_io (D-157).
+#   This file writes ONE row by reading the whole store and writing the whole
+#   store back, and pandas' default C float parser is not correctly rounded, so
+#   each write silently moved every OTHER row by up to a few ULP while leaving
+#   that row's `updated` and `run_id` asserting it came from an earlier run.
+#   Measured 2026-09-11: the next write under the old code would have changed 1
+#   line of pipeline_site_observations.csv and 5 of pipeline_scenario_params.csv
+#   with nothing recomputed. read_store() parses with float_precision=
+#   "round_trip", so a read-modify-write is exact for every untouched row.
+# v1.4.0  # Hollingham (2026) — 2026-08-31. Adds the run_id
 #   column and the standalone-run guard (D-101). This file is RUN-SCOPED:
 #   write_initial_site_observations() resets it to placeholders near the start
 #   of each pass and seven producers overwrite their own rows, so a producer run
@@ -89,6 +120,8 @@ import os
 from datetime import date, datetime
 
 import pandas as pd
+
+from utils.store_io import read_store, write_store
 
 
 # ============================================================================
@@ -255,44 +288,115 @@ def _path():
 # WRITER — called by Script 01
 # ============================================================================
 
-def write_initial_site_observations():
-    """Create ``pipeline_site_observations.csv`` with placeholder rows.
+COLUMNS = ["observation", "value", "unit", "source", "producer_script",
+           "description", "updated", "run_id"]
 
-    Called by Script 01 near the start of the pipeline.  Always
-    overwrites any existing file (the producer scripts re-populate
-    their rows downstream).
+#: Columns the REGISTRY owns, and may refresh on an existing row. `value`,
+#: `source`, `updated` and `run_id` are owned by whichever producer last wrote
+#: the row and are never touched here.
+_REGISTRY_OWNED = ("unit", "producer_script", "description")
 
-    All known observations are written with ``source="defaults"``,
-    ``producer_script`` set to the registered producer, and the
-    registered default value.  Producers will overwrite their rows
-    later in the pipeline via ``update_site_observation()``.
 
-    Returns
-    -------
-    path : pathlib.Path
-        Path to the written CSV.
-    """
-    rows = []
-    today = date.today().isoformat()
-    token, _ = _run_token()
-    for key, meta in _KNOWN_OBSERVATIONS.items():
-        rows.append({
-            "observation":     key,
+def _default_row(key, meta, today, token):
+    return {"observation":     key,
             "value":           meta["default"],
             "unit":            meta["unit"],
             "source":          "defaults",
             "producer_script": meta["producer"],
             "description":     meta["description"],
             "updated":         today,
-            "run_id":          token,
-        })
-    df = pd.DataFrame(rows, columns=[
-        "observation", "value", "unit",
-        "source", "producer_script", "description", "updated", "run_id"
-    ])
+            "run_id":          token}
+
+
+def write_initial_site_observations():
+    """Ensure every registered observation has a row. Fill gaps; reset nothing.
+
+    Called by Script 01 near the start of a pass. Until 1.6.0 this rebuilt the
+    file from `_KNOWN_OBSERVATIONS` every time, so every producer's value was
+    replaced by its registered default and every `source` by "defaults". In a
+    full pass that was invisible — the producers re-ran afterwards. Run Script 01
+    alone and the store was gutted without a word (D-158).
+
+    So: a missing file is created with default rows, as before. An EXISTING file
+    keeps every row's `value`, `source`, `updated` and `run_id` exactly as it
+    found them, and gains a default row for each registered observation it
+    lacks. The registry-owned metadata columns are refreshed, and a row whose
+    observation is no longer registered is kept and warned about.
+
+    Returns
+    -------
+    path : pathlib.Path
+        Path to the written CSV.
+    """
+    from utils.console_utils import info as _info, warn as _warn
+
+    today = date.today().isoformat()
+    token, _ = _run_token()
     path = _path()
     path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(path, index=False)
+
+    if not path.exists():
+        df = pd.DataFrame(
+            [_default_row(k, m, today, token)
+             for k, m in _KNOWN_OBSERVATIONS.items()], columns=COLUMNS)
+        write_store(df, path)
+        _info(f"{path.name}: created with {len(df)} default row(s)")
+        return path
+
+    df = read_store(path)
+    for col in COLUMNS:
+        if col not in df.columns:
+            # A file from a pass that predates the column. "unstamped" rather
+            # than back-filled with this call's token, which would assert that
+            # this run produced rows it did not.
+            df[col] = "unstamped:pre-column" if col == "run_id" else ""
+
+    have = set(df["observation"].astype(str))
+    added = [_default_row(k, m, today, token)
+             for k, m in _KNOWN_OBSERVATIONS.items() if k not in have]
+    if added:
+        df = pd.concat([df, pd.DataFrame(added, columns=COLUMNS)],
+                       ignore_index=True)
+
+    # Registry-owned metadata only. Counted and reported, never silent: a
+    # description that changes under a committed value is worth one line.
+    refreshed = 0
+    for i, key in df["observation"].astype(str).items():
+        meta = _KNOWN_OBSERVATIONS.get(key)
+        if meta is None:
+            continue
+        for col, val in (("unit", meta["unit"]),
+                         ("producer_script", meta["producer"]),
+                         ("description", meta["description"])):
+            if str(df.at[i, col]) != str(val):
+                df.at[i, col] = val
+                refreshed += 1
+
+    unregistered = sorted(set(df["observation"].astype(str))
+                          - set(_KNOWN_OBSERVATIONS))
+    # Registry order first, then anything unregistered, so the file reads as the
+    # registry does and an orphan is visible at the end rather than buried.
+    order = {k: n for n, k in enumerate(_KNOWN_OBSERVATIONS)}
+    df["_ord"] = df["observation"].astype(str).map(
+        lambda k: order.get(k, len(order)))
+    df = df.sort_values("_ord", kind="stable").drop(columns="_ord")
+    df = df[COLUMNS]
+
+    write_store(df, path)
+    kept = len(df) - len(added)
+    _info(f"{path.name}: {kept} existing row(s) left untouched, "
+          f"{len(added)} gap(s) filled"
+          + (f", {refreshed} metadata field(s) refreshed from the registry"
+             if refreshed else ""))
+    for row in added:
+        _info(f"    added {row['observation']} at its registered default "
+              f"({row['value']}) — its producer ({row['producer_script']}) has "
+              f"not run yet")
+    if unregistered:
+        _warn(f"{path.name} holds {len(unregistered)} observation(s) no longer "
+              f"in _KNOWN_OBSERVATIONS: {', '.join(unregistered)}. They are "
+              f"KEPT — a measured value is not deleted because its registry "
+              f"entry was renamed. Re-register or remove them deliberately.")
     return path
 
 
@@ -366,7 +470,7 @@ def update_site_observation(observation, value, producer_script,
         # concern.
         write_initial_site_observations()
 
-    df = pd.read_csv(path)
+    df = read_store(path)
     if "run_id" not in df.columns:
         # A file left by a pass that predates this guard. The other rows'
         # provenance is genuinely unknown and must not be guessed: they are
@@ -395,7 +499,7 @@ def update_site_observation(observation, value, producer_script,
         df.loc[mask, "updated"]         = date.today().isoformat()
         df.loc[mask, "run_id"]          = token
 
-    df.to_csv(path, index=False)
+    write_store(df, path)
 
 
 # ============================================================================
@@ -471,7 +575,7 @@ def load_site_observation_row(observation):
             f"Site observations CSV not found at {path}.  "
             f"Run Script 01 first (it calls write_initial_site_observations).")
 
-    df = pd.read_csv(path)
+    df = read_store(path)
     mask = df["observation"] == observation
     if not mask.any():
         raise KeyError(
@@ -497,4 +601,4 @@ def load_all_site_observations():
         raise FileNotFoundError(
             f"Site observations CSV not found at {path}.  "
             f"Run Script 01 first (it calls write_initial_site_observations).")
-    return pd.read_csv(path)
+    return read_store(path)

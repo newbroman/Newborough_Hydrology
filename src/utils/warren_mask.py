@@ -59,7 +59,12 @@ WHAT IS NOT HERE
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) - 2026-09-11. Geometry cached by
+__version__ = "1.3.0"  # Hollingham (2026) - 2026-09-11. The warren is
+#   data/geo/warren.kml, digitised by Martin (447.2 ha), NOT site_boundary less
+#   the forest (657 ha). The site boundary reaches over the estuary, which the
+#   first flood read duly classified as flooding; no mask could remove it
+#   because the boundary itself included it.
+# v1.2.0  # Hollingham (2026) - 2026-09-11. Geometry cached by
 #   CANOPY STATE rather than by date: sixteen dates collapse to five states, and
 #   site.difference(canopy) on an 11,715-part boundary is expensive enough that
 #   recomputing it per call was what stopped the step-1 tool finishing.
@@ -223,13 +228,24 @@ def canopy_on(date, closures: dict | None = None):
     return canopy
 
 
+#: The warren's own boundary, digitised by Martin 2026-09-11 (447.2 ha).
+#:
+#: `site_boundary.kml` is 861.6 ha and is NOT the warren: it reaches over the
+#: Cefni estuary and the northern farmland, so a flood read clipped to it
+#: classified estuary water as slack flooding and no mask could remove it —
+#: subtracting the forest does not touch that edge, and neither
+#: `cluster_regions.kml` (same footprint) nor `warren_control.kml` (the 19 ha
+#: comparator) draws the line where the dune system actually ends.
+WARREN_KML = "warren"
+
+
 def warren_on(date, closures: dict | None = None):
-    """The open-dune warren on `date`: the site boundary less the canopy."""
+    """The open-dune warren on `date`: Martin's warren boundary less the canopy."""
     closures = closures if closures is not None else closure_dates()
     key = ("warren",) + _state(date, closures)
     if key in _STATE_CACHE:
         return _STATE_CACHE[key]
-    site = _geom("site_boundary")
+    site = _geom(WARREN_KML)
     out = site.difference(canopy_on(date, closures))
     _STATE_CACHE[key] = out
     return out

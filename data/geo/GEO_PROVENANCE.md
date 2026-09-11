@@ -1090,3 +1090,76 @@ darkest quartile on 22 April 2017. The full table is in the W117 register entry.
 - **Source:** produced from the committed WGS84 KMLs by `tools/reproject_kml_to_osgb_geojson.py` (`gpd.read_file(kml).to_crs("EPSG:27700")`), 2026-09-06. Reprojected once and committed so the pipeline reads them with pure numpy and no CRS/GIS dependency — the same dependency-free pattern as `forest_boundary.geojson` and `coastline_eroding_hwm.geojson`.
 - **CRS:** EPSG:27700, declared in each file's `crs` member.
 - **Read by:** `src/01_data_prep.py` v1.15.0 `_replant_proximity()` (the `in_1998_replant` / `dist_1998_replant_m` / `dist_broadleaf_restock_m` columns of `01_locations.csv`) and `src/10a_ancova_baci.py` v1.12.0 (the exposure index of `10a_11_replant_proximity.csv`). W96 / D-141 canopy-confound sensitivity.
+
+## `seabed_control_2026-09-11.kml` / `.csv` — offshore registration control (added 2026-09-11)
+
+**Generated, not digitised.** 78 synthetic control points produced by Cowork session
+`01EX1apYKoBc2ZK6JygAcaBh` (`claude-opus-5`) on 2026-09-11 from two committed sources —
+`sea_ridge.kml` (to exclude the ridges) and `outputs/01_locations.csv` (to exclude the wells). No
+imagery was traced and nothing was drawn by eye; the positions carry no observational content and are
+**not** a feature delineation. They exist only to give Google Earth captures detectable markers with
+known ground coordinates where the dipwell network cannot reach.
+
+- **Why they were needed.** Registration seeds on the well-marker constellation, and the wells stop at
+  N 362615 while ridge R4 runs south to N 361686, entirely offshore of them. A frame tight enough to
+  resolve R4 contains **no wells at all**, so it could not be registered from pins. With this file
+  loaded a 1.15 km capture over R4 carries 20 control points.
+- **CRS.** Positions generated in OSGB36 / EPSG:27700 and converted to WGS84 for the KML via pyproj
+  3.7.1. The `.csv` carries both: `name, easting, northing, lon, lat`. **The CSV is the control table** —
+  the KML is only the thing Google Earth renders.
+- **Placement rules, each with a reason:**
+  - **Pseudo-random, never a grid.** Script 41 v2.0.0 recorded `site24-3-2021m` yielding 97 marker blobs
+    and still matching four: a lattice makes every local neighbourhood identical and the constellation
+    vote has nothing to lock onto. Jitter makes each local pattern unique. Seed 117, reproducible.
+  - **None inside a ridge, none within 45 m of one** — a marker must never occlude the pixels being
+    measured.
+  - **None within 70 m of a well**, because `CANOPY_MARKER_DILATE` is measured off for merging adjacent
+    markers.
+  - **Minimum separation 107 m** — about 54 px at 2 m/px, clear of the `CANOPY_MARKER_MIN_PX` = 12 to
+    `CANOPY_MARKER_MAX_PX` = 1500 blob range.
+- **Read by:** nothing yet. Intended for the Script 42 registration path (W117) and available to any
+  capture needing offshore control.
+- **Licence:** derived coordinates only, generated from committed project data. No third-party rights.
+
+## `seabed22-4-2017-o.png`, `-w.png`, `-e.png` — tighter 22 April 2017 captures (added 2026-09-11)
+
+Three Google Earth Pro screen captures of the **same date and provider** as `seabed22-4-2017.png`,
+taken closer in to defeat the resolution limit that disqualifies the seabed viewpoint. Martin
+Hollingham, 2026-09-11. Imagery **© 2026 Maxar Technologies**; date, eye altitude and centre read from
+the rendered status bar; attribution read from the rendered image. Not orthophotos. Markers ON —
+dipwells plus `seabed_control_2026-09-11`.
+
+| file | eye alt | centre | coverage |
+|---|---|---|---|
+| `-o` | 3.59 km | 53°08'10.53"N 4°22'44.87"W | Llanddwyn Bay overview |
+| `-w` | 1.99 km | 53°08'15.39"N 4°22'48.92"W | bay west |
+| `-e` | 1.99 km | 53°07'53.31"N 4°22'01.37"W | bay east, toward Abermenai |
+
+**Ground sampling distance is the point of them.** Scaled from the committed 4.765 m/px at 6.30 km, the
+1.99 km pair sits near **1.5 m/px — inside `CANOPY_MAX_GSD_M` = 2.0**, where the 6.30 km frames are 2.4×
+outside it. The overview is near 2.7 m/px and remains outside. **These are estimates.** The real figure
+comes from each frame's fitted transform and is emitted as `gsd_m` in `41_03_registration.csv`; quote
+that, never the estimate.
+
+**Two defects recorded so they are not rediscovered:**
+
+1. **They are 1920 × 1040, where every earlier frame is 1920 × 1080, and the side panel is open.** The
+   crop margins are fractions (corrected 2026-08-31 for exactly this class of problem), so the height
+   change is absorbed. **The width is not.** Measured from the pixels, the map area starts at **x = 204**
+   in `seabed22-4-2017.png` and at **x = 349** in these three, because the Places panel is wider.
+   `CANOPY_CROP_FRAC_LEFT` = 0.112 is 215 px, so roughly **134 px of user interface falls inside the
+   analysed window** — harmless to a sea ROI derived by inverting the transform, but not to any
+   frame-quality gate that reads whole-frame luminance, saturation or glint statistics. Either
+   re-capture with the sidebar collapsed and the imagery slider closed, or give these three their own
+   crop fractions and say why.
+2. **They are not viewpoint vp3.** `_viewpoint()` keys on the filename prefix, so "seabed" anything is
+   pooled with the 6.30 km pair — and that function exists because the texture index is comparable
+   within a viewpoint and not between. A threefold GSD difference is not one viewpoint. The manifest's
+   `viewpoint` column should govern instead of the filename. Proposed **vp4** for the 1.99 km pair (same
+   scale, different centres, so different coverage rather than repeats) and **vp5** for the overview.
+
+**Not yet in `aerial_manifest.csv`**, so Script 41 cannot see them. Draft rows, column-compatible, are
+at `working/updates/seabed_manifest_rows_2026-09-11.csv` pending the vp4/vp5 decision.
+
+**Licence:** the frames are licensed imagery and stay out of the public repository — `data/geo/*.png` is
+gitignored per prefix and `seabed*.png` covers these names (checked 2026-09-11). D-081 / D-124 govern.

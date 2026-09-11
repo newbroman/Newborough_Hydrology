@@ -150,11 +150,85 @@ THE IMAGERY IS NOT IN THE REPOSITORY BY DEFAULT
   frames are the test of the marker change, and a recovered frame with a poor
   residual is a false-positive match, not a recovery.
 
-__version__ : 2.5.0
+__version__ : 2.11.0
 """
 from __future__ import annotations
 
-__version__ = "2.5.0"  # Hollingham (2026) - 2026-09-07. v2.5.0: W96/D-141 -- 41_05 report canopy-trajectory figure (ratio_to_conifer, pre/post-clearfell fits, solid pre-2026 + dotted incl-2026; all regions incl. forest_control, warren_control & broadleaf).
+__version__ = "2.11.0"  # Hollingham (2026) - 2026-09-11. THE REPORT BASIS IS A
+#   MANIFEST VIEWPOINT LABEL, NOT THE LITERAL "aerial" — a 2.6.0 regression that
+#   emptied a committed file in silence. 2.6.0 moved viewpoint labelling to the
+#   manifest, where the aerial series is `vp1`. Four places still filtered on
+#   `viewpoint == "aerial"`: the series figure, the trajectory figure, the
+#   full-leaf report-number basis, and a figure title. Every one matched NOTHING
+#   from 2.6.0 onward, so `41_report_numbers.csv` was written from an empty
+#   frame — no rows, not even a header — and both report figures lost every
+#   series. `artefact_lint` (empty) caught the file; nothing caught the figures.
+#   The basis is now CANOPY_REPORT_VIEWPOINT in config.py, `vp1`, which is the
+#   same twelve frames the literal selected before 2.6.0, so the restored
+#   numbers are the pre-regression numbers.
+#
+#   TWO GUARDS, because the failure was silent and a label is exactly the kind
+#   of thing that goes stale: the label is checked against the manifest's own
+#   viewpoints at phase 4 and warns by name if it matches none; and an empty
+#   summary is REFUSED rather than written, leaving the committed file alone —
+#   the `_write_or_preserve` rule `artefact_lint` states, applied here.
+# v2.10.0  # Hollingham (2026) - 2026-09-11. PER-GROUP MASKS
+#   (Martin, 2026-09-11). The region masks are now rasterised once PER
+#   CONSTELLATION GROUP, through THAT group's own fitted transform and at that
+#   group's frame size, and cached on (group, width, height).
+#
+#   What this replaces. Until 2.9.0 one pixel-space raster was built from the
+#   FIRST frame's group transform, at that frame's size, and applied to every
+#   frame. That is geometrically wrong for any frame in another group — the
+#   same pixels are a different patch of ground — and it raises outright when
+#   the sizes differ, which is what killed the step when the 2026-09-11
+#   captures came in at 1920x1040 against the series' 1920x1080. 2.9.0
+#   withheld mismatched frames with a stated reason; that guard remains as a
+#   defence but can no longer fire, because a mask is now built at the frame's
+#   own size by construction.
+#
+#   THIS MOVES COMMITTED VALUES, deliberately. Any frame outside the first
+#   frame's constellation group was previously measured through the wrong
+#   transform; it is now measured through its own. The exposure is narrow
+#   because the GSD gate already withholds the site and seabed series, so the
+#   frame that changes in practice is aerial31-3-2026.png, which sits alone in
+#   its own group and was measured through group 0's mask.
+#
+#   Region pixel counts now differ BETWEEN GROUPS. That is correct, not a
+#   regression: the index is a texture contrast normalised by the in-frame
+#   reference separation, not a pixel count, and n_px is written per frame so
+#   the difference is visible in the output rather than hidden by a single
+#   raster. CANOPY_MIN_REGION_PX is therefore applied per frame, against that
+#   frame's own count, which is what it was always meant to test.
+#
+#   The per-group mask inventory is logged where it is built (phase 2), not
+#   once in phase 1, so the console says which transform each count came from.
+# v2.8.0  # Hollingham (2026) - 2026-09-11.
+#   UNSILENCED (D-155): the blanket warnings.filterwarnings('ignore') is
+#   removed. It hid every DeprecationWarning and RuntimeWarning this script
+#   raised, which is the class of signal that would have flagged the fiona
+#   1.10 KML change and the pyogrio/fiona engine split before either broke a
+#   run. Python's default shows each unique warning once per location.
+# v2.7.0  # Hollingham (2026) - 2026-09-11. EVERY KML READ NOW
+#   GOES THROUGH utils.kml_io.read_kml. Script 41 called gpd.read_file with
+#   driver="KML" directly in four places, and on 2026-09-11 that stopped
+#   working: fiona 1.10.1 no longer lists KML in supported_drivers, so every
+#   read raised DriverError and the whole step died. kml_io has existed since
+#   2026-08-27 for exactly this failure -- it tries KML, then LIBKML, then a
+#   pure-XML route that needs no GDAL driver at all -- and Script 41 was one
+#   of the readers that never adopted it. No numeric change: the same
+#   geometries, reprojected to EPSG:27700 as before.
+# v2.6.0  # Hollingham (2026) - 2026-09-11. THE MANIFEST NOW
+#   DECIDES THE VIEWPOINT, NOT THE FILENAME. _viewpoint() parsed the name
+#   prefix, so every "seabed*" frame returned one viewpoint -- and the
+#   2026-09-11 captures span 1.5 to 4.8 m/px, three scales that the index is
+#   explicitly NOT comparable across. A naming convention was the only thing
+#   standing between that and a silently pooled mean. aerial_manifest.csv has
+#   carried a viewpoint column all along and nothing read it; it is now the
+#   authority, and a frame absent from it WARNS before falling back to the
+#   prefix. No committed value changes: every pre-existing frame's manifest
+#   viewpoint already equals what the prefix returned.
+# v2.5.0  # Hollingham (2026) - 2026-09-07. v2.5.0: W96/D-141 -- 41_05 report canopy-trajectory figure (ratio_to_conifer, pre/post-clearfell fits, solid pre-2026 + dotted incl-2026; all regions incl. forest_control, warren_control & broadleaf).
 # v2.4.0  # Hollingham (2026) - 2026-09-07. v2.4.0: W96/D-141 -- untouched-forest control added as region forest_control -- MH's Forest_Control.kml (four hand-drawn plantation patches, pooled, kind 'observed', so the conifer control is unchanged); explicit CLOUD_WITHHOLD for the five 2020 frame-region pairs MH flagged for cloud/shadow; broadleaf_restock already a region.
 # v2.3.0  # Hollingham (2026) - 2026-09-06. W96 -- the three 1998 felling areas added as kind 'observed' regions (measured, NOT subtracted from the control, so forest_in_view / W110-112 are unchanged).
 # v2.2.1 — 2026-09-03. Creates DIR_41 in
@@ -242,12 +316,13 @@ from utils.config import (                                   # noqa: E402
     CANOPY_CROP_FRAC_BOTTOM, CANOPY_CHANGE_GRID_M,
     CANOPY_CONSTELLATION_TOL_PX, CANOPY_GROUP_MIN_FRACTION, CANOPY_CHAIN_MIN_TIPS,
     CANOPY_MIN_CONTROL_POINTS, CANOPY_MATCH_RADII_NARROW, CANOPY_MATCH_RADII_WIDE,
-    CANOPY_MATCH_MAX_ITER, CANOPY_MAX_GSD_M,
+    CANOPY_MATCH_MAX_ITER, CANOPY_MAX_GSD_M, CANOPY_REPORT_VIEWPOINT,
     LEAF_OFF_MONTHS, LEAF_EMERGING_MONTHS, LEAF_FULL_MONTHS,
     LEAF_SENESCING_MONTHS, CLEARFELL_DATE_ISO,
 )
 from utils.console_utils import banner, phase, step, info, warn, saved  # noqa: E402
 from utils.render_utils import render_figure                 # noqa: E402
+from utils.kml_io import read_kml                            # noqa: E402
 
 # The control polygon: its outline is drawn in every frame, so it is what the
 # per-viewpoint affine is measured FROM. Declared, not guessed.
@@ -283,6 +358,12 @@ REGIONS = [
 CONTROL_REGION = "forest_in_view"
 
 
+# Frame -> viewpoint, populated from aerial_manifest.csv in main(). Module level
+# because _viewpoint() is called per frame-region row and re-reading the CSV
+# there would be thousands of reads.
+_MANIFEST_VIEWPOINT: dict[str, str] = {}
+
+
 def _viewpoint(frame_name: str) -> str:
     """Which camera position a frame was captured from.
 
@@ -297,11 +378,26 @@ def _viewpoint(frame_name: str) -> str:
     on obliquity, and these are three different views of the same ground. It
     means the index is comparable WITHIN a viewpoint and not between viewpoints,
     the way it is comparable within a leaf state and not between them.
+
+    THE MANIFEST DECIDES THIS, NOT THE FILENAME (v2.6.0). The prefix parse below
+    is a fallback that WARNS, because a frame reaching here without a manifest row
+    is an anomaly: the frame list is built from that same manifest. The parse was
+    the sole implementation until 2026-09-11, when six captures at 1.99 and
+    2.65 km eye altitude joined two at 6.30 km -- all named `seabed*`, all
+    therefore pooled into one viewpoint spanning 1.5 to 4.8 m/px. Nothing failed;
+    it would simply have averaged three scales and reported the mean.
     """
-    n = frame_name.strip().lower()
+    name = frame_name.strip()
+    vp = _MANIFEST_VIEWPOINT.get(name)
+    if isinstance(vp, str) and vp.strip():
+        return vp.strip()
+    n = name.lower()
     for v in ("aerial", "seabed", "site"):
         if n.startswith(v):
+            warn(f"{name}: no viewpoint in the manifest; falling back to the "
+                 f"filename prefix '{v}'. Add a viewpoint to its manifest row.")
             return v
+    warn(f"{name}: no manifest viewpoint and no recognised prefix.")
     return "unknown"
 
 
@@ -385,14 +481,13 @@ def _load_geometries():
     """
     import geopandas as gpd
     import warnings
-    warnings.filterwarnings("ignore")
     from shapely.ops import unary_union
 
     out = {}
-    feats = gpd.read_file(str(DATA_GEO_DIR / "Features.kml"), driver="KML").to_crs("EPSG:27700")
+    feats = read_kml(DATA_GEO_DIR / "Features.kml")
     for name, spec, kind in REGIONS:
         if spec.startswith("kml:"):
-            g = gpd.read_file(str(DATA_GEO_DIR / f"{spec[4:]}.kml"), driver="KML").to_crs("EPSG:27700")
+            g = read_kml(DATA_GEO_DIR / f"{spec[4:]}.kml")
             geom = unary_union([x for x in g.geometry if x.geom_type in ("Polygon", "MultiPolygon")])
         else:
             sel = feats[feats["Name"] == spec.split(":", 1)[1]]
@@ -408,7 +503,7 @@ def _load_geometries():
     managed = unary_union([out[n][0] for n, _, k in REGIONS
                            if n in out and k == "managed"])
     conifer_ref = forest.difference(managed.buffer(CANOPY_REF_BUFFER_M))
-    site = gpd.read_file(str(DATA_GEO_DIR / "site_boundary.kml"), driver="KML").to_crs("EPSG:27700")
+    site = read_kml(DATA_GEO_DIR / "site_boundary.kml")
     site_u = unary_union(list(site.geometry))
     open_ref = site_u.difference(forest.buffer(CANOPY_REF_BUFFER_M))
 
@@ -846,6 +941,14 @@ def main() -> int:
     man = man[man["role"] == "registration"].copy()
     man["imagery_date"] = pd.to_datetime(man["imagery_date"])
     man = man.sort_values("imagery_date")
+    _MANIFEST_VIEWPOINT.clear()
+    if "viewpoint" in man.columns:
+        _MANIFEST_VIEWPOINT.update(
+            {str(k): str(v) for k, v in zip(man["filename"], man["viewpoint"])
+             if isinstance(v, str) and v.strip()})
+    else:
+        warn("aerial_manifest.csv has no viewpoint column; every frame will "
+             "fall back to its filename prefix.")
     paths = [AERIAL_DIR / f for f in man["filename"]]
     missing = [p.name for p in paths if not p.exists()]
     if missing:
@@ -857,11 +960,8 @@ def main() -> int:
     regions, conifer_ref, open_ref, ctrl_overlap = _load_geometries()
     import geopandas as gpd
     import warnings
-    warnings.filterwarnings("ignore")
     from shapely.ops import unary_union
-    ctrl = unary_union(list(gpd.read_file(
-        str(DATA_GEO_DIR / f"{CONTROL_KML}.kml"), driver="KML")
-        .to_crs("EPSG:27700").geometry))
+    ctrl = unary_union(list(read_kml(DATA_GEO_DIR / f"{CONTROL_KML}.kml").geometry))
 
     if ctrl_overlap > 0:
         info(f"control region {CONTROL_REGION}: {ctrl_overlap / 10000.0:.2f} ha "
@@ -913,22 +1013,19 @@ def main() -> int:
     N_all = _w[_nc].values.astype(float)
     reg, groups = _register_all(paths, ctrl, E_all, N_all)
 
-    # The masks are rasterised through the transform of the group the FIRST
-    # frame belongs to, because the region pixel counts have to be one thing.
-    first = reg.get(paths[0].name, {})
-    project = first.get("fitted") or to_px
-    if first.get("fitted") is None:
-        warn("the first frame's group did not register; masks fall back to the "
-             "control-polygon affine, which does not model the perspective")
-
-    def mask_of(geom):
+    # Masks are rasterised PER CONSTELLATION GROUP, through that group's own
+    # fitted transform and at the frame's own size, and cached on
+    # (group, width, height). One raster shared across groups measures a
+    # different patch of ground for every group but the first; see the 2.10.0
+    # version note.
+    def _rasterise(geom, project, w_, h_):
         """Rasterise a projected polygon in PIXEL space.
 
         The transform is a homography, not an affine, so a north-up raster
         transform cannot express it. Projecting the vertices and filling in
         pixel space is exact for the model we actually fitted.
         """
-        img = Image.new("1", (w, h), 0)
+        img = Image.new("1", (int(w_), int(h_)), 0)
         d = ImageDraw.Draw(img)
         polys = (list(geom.geoms) if geom.geom_type == "MultiPolygon" else [geom])
         for poly in polys:
@@ -941,14 +1038,39 @@ def main() -> int:
                 d.polygon(list(zip(np.asarray(xs), np.asarray(ys))), fill=0)
         return np.array(img, dtype=bool)
 
-    map_area = _apply_window(np.ones((h, w), bool))
-    masks = {n: mask_of(g) & map_area for n, (g, _) in regions.items()}
-    ref_con = mask_of(conifer_ref) & map_area
-    ref_opn = mask_of(open_ref) & map_area
-    for n, m in masks.items():
-        info(f"  region {n:20s} {int(m.sum()):7d} px in view")
-    info(f"  reference conifer      {int(ref_con.sum()):7d} px")
-    info(f"  reference open         {int(ref_opn.sum()):7d} px")
+    _mask_cache = {}
+
+    def _masks_for(frame_name, w_, h_):
+        """(masks, ref_con, ref_opn) for one frame's group, at its own size."""
+        r = reg.get(frame_name, {})
+        gi = r.get("group")
+        key = (gi, int(w_), int(h_))
+        if key in _mask_cache:
+            return _mask_cache[key]
+        project = r.get("fitted")
+        fallback = project is None
+        if fallback:
+            # An unregistered group has no transform of its own. The
+            # control-polygon affine keeps the pixel counts defined so the
+            # frame can still be reported, but it does not model the
+            # perspective — and every region on such a frame is withheld a few
+            # lines below on the registration test anyway.
+            project = to_px
+        area = _apply_window(np.ones((int(h_), int(w_)), bool))
+        ms = {n: _rasterise(g, project, w_, h_) & area
+              for n, (g, _) in regions.items()}
+        rc = _rasterise(conifer_ref, project, w_, h_) & area
+        ro = _rasterise(open_ref, project, w_, h_) & area
+        info(f"  masks for constellation group {gi} at {int(w_)} x {int(h_)} px:")
+        if fallback:
+            warn(f"    group {gi} did not register; masks fall back to the "
+                 f"control-polygon affine, which does not model the perspective")
+        for n, m in ms.items():
+            info(f"    region {n:20s} {int(m.sum()):7d} px in view")
+        info(f"    reference conifer      {int(rc.sum()):7d} px")
+        info(f"    reference open         {int(ro.sum()):7d} px")
+        _mask_cache[key] = (ms, rc, ro)
+        return _mask_cache[key]
 
     phase(2, "Texture index per frame")
     reg_rows, idx_rows, cache, transforms = [], [], {}, {}
@@ -967,20 +1089,39 @@ def main() -> int:
         lum = _lum(a)
         tex = _texture(lum, CANOPY_TEXTURE_WINDOW)
         cache[p.name] = (lum, tex)
+        # This frame's own masks: its group's transform, its own pixel size.
+        masks, ref_con, ref_opn = _masks_for(p.name, lum.shape[1], lum.shape[0])
         registered = (fitted is not None and np.isfinite(p95)
                       and p95 <= CANOPY_MAX_RESIDUAL_M)
         if registered:
             transforms[p.name] = fitted
-        c_stat, _ = _region_stat(tex, lum, ref_con)
-        o_stat, _ = _region_stat(tex, lum, ref_opn)
+        if lum.shape != ref_con.shape:
+            c_stat = o_stat = np.nan
+        else:
+            c_stat, _ = _region_stat(tex, lum, ref_con)
+            o_stat, _ = _region_stat(tex, lum, ref_opn)
         sep = c_stat - o_stat
         # The registration test comes FIRST. A frame that did not register
         # cannot have a meaningful reference separation either, and v1.0.0
         # reported that downstream symptom instead of the cause.
         vals_this_frame = {}
+        # A mask is a PIXEL-SPACE raster and cannot be indexed by a frame of a
+        # different size — numpy raises rather than silently misaligning. Since
+        # 2.10.0 each frame's masks are built at that frame's own size, so this
+        # cannot fire; it stays as a defence, because the failure it catches is
+        # an IndexError that kills the step rather than a wrong number.
+        _shape_mismatch = (lum.shape != next(iter(masks.values())).shape
+                           if masks else False)
         for name, m in masks.items():
-            r_stat, npx = _region_stat(tex, lum, m)
+            if _shape_mismatch:
+                r_stat, npx = np.nan, 0
+            else:
+                r_stat, npx = _region_stat(tex, lum, m)
             reason = ""
+            if _shape_mismatch:
+                reason = (f"frame is {lum.shape[1]}x{lum.shape[0]} px; the region "
+                          f"masks were rasterised at "
+                          f"{m.shape[1]}x{m.shape[0]} and cannot be applied to it")
             _gsd = r.get("gsd_m", np.nan)
             if np.isfinite(_gsd) and _gsd > CANOPY_MAX_GSD_M:
                 reason = (f"ground sampling distance {_gsd:.2f} m/px > "
@@ -1095,13 +1236,28 @@ def main() -> int:
     saved(OUT_41_CHANGE.name)
 
     phase(4, "Figure and report numbers")
+    # The report basis is ONE viewpoint, named in config as a MANIFEST label.
+    # Check it against the manifest's own labels before anything is filtered on
+    # it: a label that matches nothing silently empties this phase, which is
+    # what 2.6.0 did for four versions.
+    _vp_seen = sorted(set(str(v) for v in idx["viewpoint"].unique()))
+    if CANOPY_REPORT_VIEWPOINT not in _vp_seen:
+        warn(f"CANOPY_REPORT_VIEWPOINT is {CANOPY_REPORT_VIEWPOINT!r}, which no "
+             f"frame carries — the manifest labels present are "
+             f"{', '.join(_vp_seen)}. The report figures and numbers will be "
+             f"empty. Fix the label in config.py or the manifest's viewpoint "
+             f"column; do not leave them disagreeing.")
+    else:
+        info(f"report basis: viewpoint {CANOPY_REPORT_VIEWPOINT} "
+             f"({int((idx['viewpoint'] == CANOPY_REPORT_VIEWPOINT).sum())} "
+             f"region-frame rows, of {len(_vp_seen)} viewpoints present)")
     import matplotlib.pyplot as plt
     fig, ax = plt.subplots(figsize=(9, 5))
     marks = {"full_leaf": "o", "emerging": "s", "leaf_off": "^",
              "senescing": "v", "unclassified": "x"}
-    for name in masks:
+    for name in regions:
         sub = idx[(idx["region"] == name) & idx["index"].notna()
-                  & (idx["viewpoint"] == "aerial")]
+                  & (idx["viewpoint"] == CANOPY_REPORT_VIEWPOINT)]
         if not len(sub):
             continue
         line, = ax.plot(pd.to_datetime(sub["imagery_date"]), sub["index"],
@@ -1113,8 +1269,8 @@ def main() -> int:
                         color=line.get_color(), ms=6, ls="none")
     ax.set_ylabel("texture index  (0 = open ground, 1 = mature conifer)")
     ax.set_xlabel("imagery date")
-    ax.set_title("Canopy texture index — aerial viewpoint "
-                 "(the index is not comparable between viewpoints)")
+    ax.set_title(f"Canopy texture index — viewpoint {CANOPY_REPORT_VIEWPOINT} "
+                 f"(the index is not comparable between viewpoints)")
     ax.axhline(0, lw=0.6, color="0.6")
     ax.axhline(1, lw=0.6, color="0.6", ls=":")
     ax.legend(fontsize=8, title="marker = leaf state (o full, s emerging, ^ off)",
@@ -1128,7 +1284,8 @@ def main() -> int:
     # frames before the 2020->2026 imagery gap and DOTTED including the isolated
     # 2026 frame, so the short-frame trend is shown without leaning on 2026.
     _cf_yr = pd.Timestamp(CLEARFELL_DATE_ISO).year + (pd.Timestamp(CLEARFELL_DATE_ISO).month - 1) / 12.0
-    traj = idx[(idx["viewpoint"] == "aerial") & idx["ratio_to_conifer"].notna()].copy()
+    traj = idx[(idx["viewpoint"] == CANOPY_REPORT_VIEWPOINT)
+               & idx["ratio_to_conifer"].notna()].copy()
     _d = pd.to_datetime(traj["imagery_date"])
     traj["yr"] = _d.dt.year + (_d.dt.month - 1) / 12.0
     fig2, ax2 = plt.subplots(figsize=(9.2, 7.2))
@@ -1185,11 +1342,12 @@ def main() -> int:
     # not comparable across leaf states — the emerging class scatters five times
     # as much — so a summary that mixes them is not a summary of anything.
     rn = []
-    # AERIAL viewpoint only. The index is not comparable between viewpoints
-    # (see _viewpoint), and every earlier finding rests on the aerial series
-    # because it was the only one that registered.
+    # ONE viewpoint only — CANOPY_REPORT_VIEWPOINT. The index is not comparable
+    # between viewpoints (see _viewpoint), and every earlier finding rests on the
+    # aerial series because it is the only one that both registers and passes the
+    # GSD gate.
     full = idx[(idx["leaf_state"] == "full_leaf") & idx["index"].notna()
-               & (idx["viewpoint"] == "aerial")]
+               & (idx["viewpoint"] == CANOPY_REPORT_VIEWPOINT)]
     bl = full[full["region"] == "broadleaf_restock"]
     if len(bl):
         rr = bl["ratio_to_conifer"].dropna()
@@ -1224,8 +1382,18 @@ def main() -> int:
                    "Note": ("the clearfell area is deliberately kept clear of "
                             "trees (Martin, 2026-08-31), so a low value is a "
                             "management outcome and not failed regeneration")})
-    pd.DataFrame(rn).to_csv(OUT_41_REPORT_NUMBERS, index=False)
-    saved(OUT_41_REPORT_NUMBERS.name)
+    # An empty summary is REFUSED, not written. A step that could not produce
+    # its numbers must leave the committed file alone rather than replace it with
+    # nothing — `pd.DataFrame([]).to_csv()` writes a file with no header at all,
+    # which is how the 2.6.0 regression reached the repository.
+    if rn:
+        pd.DataFrame(rn).to_csv(OUT_41_REPORT_NUMBERS, index=False)
+        saved(OUT_41_REPORT_NUMBERS.name)
+    else:
+        warn(f"no report numbers on the {CANOPY_REPORT_VIEWPOINT} full-leaf "
+             f"basis; {OUT_41_REPORT_NUMBERS.name} is LEFT AS COMMITTED rather "
+             f"than overwritten with an empty file. This is a fault, not a "
+             f"finding: check the viewpoint label and the leaf-state classes.")
 
     withheld = int(idx["withheld_reason"].astype(bool).sum())
     step(f"{len(idx)} region-frame values, {withheld} withheld")

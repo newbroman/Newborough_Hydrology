@@ -141,6 +141,40 @@ the Newborough dataset where the fallbacks are tuned).
 
 import subprocess
 import sys
+
+# ── Run under the project venv, the recorded interpreter (D-155, 2026-09-11) ──
+# tools/check_all.sh has done this since its v1.6.0 and run_analysis.py did not,
+# so the GATE ran pinned while the PIPELINE ran on whatever `python3` resolved
+# to. On 2026-09-11 that cost four failed steps and an hour of misdiagnosis:
+# system python has no pyogrio, so geopandas fell back to the fiona engine and
+# fiona 1.10 does not list the KML driver (Script 41, DriverError); and its
+# matplotlib predates ContourSet becoming a Collection, so QuadContourSet has no
+# get_paths (Scripts 20, 37, 37b, AttributeError). Both read as code faults and
+# neither was one. env_audit reported "nothing has moved" throughout, because
+# env_audit runs inside check_all — inside the venv.
+#
+# Re-exec rather than warn: a warning printed at the top of a long run is a
+# warning nobody reads. NRG_VENV_REEXEC stops a loop if the venv python is
+# itself somehow not the venv python.
+def _reexec_under_venv() -> None:
+    import os
+    from pathlib import Path
+    if os.environ.get("VIRTUAL_ENV") or os.environ.get("NRG_VENV_REEXEC"):
+        return
+    venv_py = Path(__file__).resolve().parent / "venv" / "bin" / "python3"
+    if not venv_py.exists():
+        return
+    try:
+        if Path(sys.executable).resolve() == venv_py.resolve():
+            return
+    except OSError:
+        return
+    os.environ["NRG_VENV_REEXEC"] = "1"
+    print(f"  [venv] re-executing under the recorded interpreter: {venv_py}")
+    os.execv(str(venv_py), [str(venv_py), *sys.argv])
+
+
+_reexec_under_venv()
 import textwrap
 import datetime
 import json
@@ -152,7 +186,11 @@ import uuid
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.16.0"  # 2026-09-08: Script 44 REGISTERED (tier A, default,
+__version__ = "2.17.0"  # 2026-09-11: VENV SELF-GUARD. The orchestrator now
+#   re-execs under venv/bin/python3 unless a virtualenv is already active,
+#   matching what check_all.sh has done since its v1.6.0. See D-155 and the
+#   note beside _reexec_under_venv(). No change to any step or output.
+# v2.16.0  # 2026-09-08: Script 44 REGISTERED (tier A, default,
 #   Phase 17 after Script 43, whose basins it reads) and Script 43's entry
 #   reworded for v2 (D-140 revisited, D-145). Counts move: total_registered
 #   53->54, analytical_toplevel 42->43, by_exec.default 50->51, and Phase 17

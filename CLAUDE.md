@@ -301,3 +301,26 @@ the text-only linters; leave anything that produces a published artefact to his
 machine.
 
 Show your working. He checks.
+
+## The bridge is not the pipeline's machine (D-155)
+
+Outputs committed to the repo are produced by the **publishing machine** running
+`run_analysis.py`. A bridge run reads, inspects, lints and proves a script parses
+— it does **not** produce committable artefacts.
+
+The two environments are genuinely different. The publishing machine resolves
+`geopandas` from `/usr/lib/python3/dist-packages` with **fiona and no pyogrio**,
+so geopandas falls back to the fiona engine; the bridge has its own `~/.local`
+site-packages **with pyogrio**, which does not. The same line succeeds in one and
+raises in the other — that is how Script 41 broke on 2026-09-11 while "working"
+when tested through the bridge.
+
+It is also why re-running Script 11 through the bridge moved **54 committed
+numbers by up to one ULP** and tripped `provenance_lint`: different numeric
+build, same arithmetic. Nothing was wrong with either result; they were produced
+by different machines.
+
+**No script silences its warnings.** The blanket
+`warnings.filterwarnings('ignore')` is retired — it is the signal class that
+would have given notice of both faults above. Silence a warning individually,
+by message and module, with the reason beside it.

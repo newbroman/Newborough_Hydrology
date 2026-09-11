@@ -40,7 +40,17 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.32.0"  # Hollingham (2026) - 2026-09-09. PEARSON_DELTA_THRESH
+__version__ = "1.34.0"  # Hollingham (2026) - 2026-09-11.
+#   CANOPY_REPORT_VIEWPOINT added. Script 41's report numbers and its two report
+#   figures are computed on ONE viewpoint, because the texture index is not
+#   comparable between viewpoints. That viewpoint was the string literal
+#   "aerial" in four places in Script 41, and Script 41 2.6.0 moved viewpoint
+#   labelling to the manifest, where the full-site aerial series is `vp1`. The
+#   literals then matched nothing, SILENTLY: 41_report_numbers.csv was written
+#   with no rows at all and both figures lost every series. Named here so there
+#   is one copy of the answer and a wrong value fails loudly rather than
+#   emptying a file.
+# v1.33.0  # Hollingham (2026) - 2026-09-09. PEARSON_DELTA_THRESH
 #   and PEARSON_MCA_THRESH added: the Pearson affinity thresholds shared by
 #   Scripts 05 and 06, which held them in two places (bare literals in 05,
 #   module constants in 06) and had already drifted apart at the boundary -
@@ -489,6 +499,25 @@ BACI_COASTAL_DONOR_FIT = "full_lincap_canopy"
 # Previously hardcoded as in-function locals in Script 20.
 DRAWDOWN_H0_MM  = 150.0
 DRAWDOWN_K_MDAY = 6.0
+# DRAWDOWN_B_M IS AN ASSUMPTION, NOT A MEASUREMENT (documented 2026-09-11).
+# Its neighbour cites Betson 2002; this one cites nothing, and it is the weakest
+# input to λ. NOTHING IN THE REPOSITORY CONSTRAINS IT: the DEM carries no
+# bathymetry, there are no borehole logs, and 01_dry_depths.csv gives depth to
+# water, not depth to base. Any value here stands until someone augers to the
+# till.
+#
+# λ = √(Kb/(Sy·β₃)) goes as √b, which makes the reach forgiving of it: b at 3 m
+# gives λ ≈ 176 m and b at 8 m gives ≈ 287 m against ≈ 226 m here — a factor of
+# two in b is ±41% in λ, inside the "roughly a factor of two of input
+# uncertainty" REACH_QUOTE_NEAREST_M already declares below.
+#
+# What the 2026-09-11 drumlin reading changes is the CHARACTER of the
+# uncertainty, not its size. If the aquifer floor is glacial till moulded into
+# NE-SW drumlinoid ridges (BGS: ice flowed NE->SW across Anglesey; drumlin long
+# axes lie NE-SW with the striae), then b is not merely uncertain but SPATIALLY
+# PATTERNED — systematically thinner over the crests and thicker in the troughs,
+# along a known axis. A single λ is then a site average standing in for a field.
+# Read by Script 20 only, so the exposure is contained.
 DRAWDOWN_B_M    = 5.0
 
 # Display granularity for the modelled reach. λ is derived from an assumed
@@ -1191,6 +1220,14 @@ CANOPY_MAX_GSD_M        = 2.0    # metres per pixel. Above this the texture
                                  # resolve a crown. The aerial captures sit at
                                  # ~1.5 and pass; the site and seabed captures
                                  # sit at ~3 and are withheld.
+# The viewpoint Script 41's REPORT NUMBERS and report figures are computed on.
+# This is a manifest `viewpoint` label, not a filename prefix: the manifest is
+# what assigns viewpoints (Script 41 2.6.0), and `vp1` is the twelve full-site
+# aerial captures - the only series that both registers and passes the GSD gate.
+# The index is not comparable between viewpoints, so a summary over more than
+# one of them is not a summary of anything. Script 41 checks this label against
+# the manifest and refuses to write an empty summary over a committed one.
+CANOPY_REPORT_VIEWPOINT = "vp1"
 CANOPY_CHANGE_GRID_M    = 2.0    # ground resolution for change detection. Frames
                                  # are differenced on a common OSGB grid, never
                                  # pixel-to-pixel: they differ in size and

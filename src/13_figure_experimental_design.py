@@ -24,7 +24,12 @@ Outputs:
 ====================================================================================
 """
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-09-09. Map
+__version__ = "1.4.0"  # Hollingham (2026) - 2026-09-11.
+#   KML reads migrated to utils.kml_io.read_kml (D-153): a driver-named
+#   gpd.read_file is a machine-dependent call, and fiona 1.10 dropping KML
+#   from supported_drivers broke Script 41 on the publishing machine while
+#   leaving the bridge sandbox working. No numeric change.
+# v1.3.0  # Hollingham (2026) — 2026-09-09. Map
 #   label placement is bounded by ITERATIONS, not the clock (W145): adjust_text()
 #   takes iter_lim=config.LABEL_ADJUST_ITER_LIM. It previously passed neither
 #   limit, so adjustText defaulted to time_lim = 1 SECOND of wall clock and the
@@ -63,10 +68,12 @@ from utils.config import LABEL_ADJUST_ITER_LIM
 from matplotlib.lines import Line2D
 
 from utils.console_utils import (
+
     banner, phase, step, info, saved, warn, error, note, done, result,
     hr, skipped,
 )
 from utils.render_utils import render_figure
+from utils.kml_io import read_kml
 
 # Enable KML driver in GeoPandas/Fiona
 def main():
@@ -119,7 +126,7 @@ def main():
     kml_file = DATA_DIR / 'clearfell.kml'
     kml_clearfell_exists = os.path.exists(kml_file)
     if kml_clearfell_exists:
-        gdf_clearfell = gpd.read_file(kml_file, driver='KML').to_crs("EPSG:27700")
+        gdf_clearfell = read_kml(kml_file)
 
     # ==========================================
     # 2. CATEGORISE WELLS BY EXPERIMENTAL ROLE

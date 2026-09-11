@@ -40,7 +40,25 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.34.0"  # Hollingham (2026) - 2026-09-11.
+__version__ = "1.38.0"  # Hollingham (2026) - 2026-09-11. SLACK_MIN_FLOOR_M and
+#   SLACK_LAKE_OVERLAP_FRAC: exclude the shore and the lake (Martin). Clipping
+#   to the warren removed neither - the site boundary includes the foreshore,
+#   and subtracting the mapped lake outline left its rim behind.
+# v1.37.0  # Hollingham (2026) - 2026-09-11. SLACK_MIN_DEPTH_M
+#   0.25 -> 0.10 m (Martin, on the mapped delineation). See the constant.
+# v1.36.0  # Hollingham (2026) - 2026-09-11.
+#   SLACK_MIN_DEPTH_M and SLACK_MIN_AREA_M2 (D-159). The Ranwell prototype
+#   basins are catchment scale - 108 and 80 ha - and do not represent slacks
+#   (Martin, 2026-09-11). Slacks are delineated instead as closed depressions in
+#   the 2 m DEM: priority-flood the surface, difference it against the original,
+#   and label what is deeper than SLACK_MIN_DEPTH_M.
+# v1.35.0  # Hollingham (2026) - 2026-09-11.
+#   W94 flood-surface constants (D-159): CANOPY_FLOOD_MIN_PATCH_PX and
+#   CANOPY_CLOSURE_RATIO. Both are thresholds, not dates and not areas - the
+#   canopy closure DATES are derived per block from Script 41's committed
+#   restock index each run and are deliberately NOT written here, because a date
+#   typed here is a second copy of a measurement.
+# v1.34.0  # Hollingham (2026) - 2026-09-11.
 #   CANOPY_REPORT_VIEWPOINT added. Script 41's report numbers and its two report
 #   figures are computed on ONE viewpoint, because the texture index is not
 #   comparable between viewpoints. That viewpoint was the string literal
@@ -1228,6 +1246,60 @@ CANOPY_MAX_GSD_M        = 2.0    # metres per pixel. Above this the texture
 # one of them is not a summary of anything. Script 41 checks this label against
 # the manifest and refuses to write an empty summary over a committed one.
 CANOPY_REPORT_VIEWPOINT = "vp1"
+# ── W94 flood surface on the warren (D-159) ─────────────────────────────────
+# A closed depression in the DEM counts as a SLACK when it holds at least this
+# depth of water before spilling into its neighbour. Martin, 2026-09-11, on
+# seeing the delineation mapped: "something like 10 centimetres of flooding".
+#
+# The record corroborates the choice rather than merely permitting it: wells
+# falling INSIDE a delineated slack go from 37 at 0.25 m to 53 at 0.10 m, over
+# half the network. The delineation starts agreeing with where the wells
+# actually are, which is the only independent check available on this threshold.
+SLACK_MIN_DEPTH_M       = 0.10
+# The floor on a delineated depression's area, in square metres. Deliberately
+# well BELOW anything a frame can be read at: the slack map is a property of the
+# GROUND and the per-frame readability filter (CANOPY_FLOOD_MIN_PATCH_PX at that
+# frame's own GSD) is applied later, at scoring time. Mixing the two here would
+# make the ground truth depend on which photographs happen to exist.
+SLACK_MIN_AREA_M2       = 100.0
+# Below this elevation a "depression" in the DEM is the SHORE, not a slack:
+# wet intertidal sand returns closed hollows down to -1.52 m AOD, and eighteen
+# of them, 7.4 ha, reached the first delineation. Clipping to the warren does
+# not remove them because the site boundary includes the foreshore.
+# Placed by measurement: the lowest dipwell ground in the network is 2.748 m
+# (D45) and the lowest floor of a slack holding a dipwell is 2.75 m, while the
+# highest shore artefact reaches 0.6 m. 2.0 m sits below every measured slack
+# and above every artefact. Revisit if a real slack floor below 2 m is found.
+SLACK_MIN_FLOOR_M       = 2.0
+# A delineated depression that holds at least this fraction OF THE LAKE is the
+# lake's basin, and is excluded. Llyn Rhos-Ddu is permanent open water, not a
+# flooded slack, and counting it as a true positive is the error that keeping
+# the lake gauge out of the 88 dipwells exists to prevent.
+#
+# THE DENOMINATOR IS THE LAKE, NOT THE DEPRESSION, and the first attempt got it
+# the wrong way round. The mapped outline is 2.00 ha while the DEM hollow around
+# it is 5.41 ha - the lake sits inside a larger basin - so the depression is
+# only 37 % lake and a test on its own area let it through. It holds 100 % of
+# the lake, which is the question worth asking.
+SLACK_LAKE_OVERLAP_FRAC = 0.5
+# The smallest flood patch admitted for reading a water-surface elevation, as an
+# AREA IN IMAGE PIXELS at the frame's own GSD. Derived, not chosen: at the site
+# frames' 2.92 m/px one pixel is 8.53 m2, and a compact patch of N px has roughly
+# 2*sqrt(N) DEM cells along its outline. 60 px is ~510 m2, ~23 m across, ~31 edge
+# cells, so the median edge elevation carries a standard error near 0.006 m -
+# an order below the +0.050 m systematic that DEM-minus-DGPS shows at 81 wells.
+# Above this size the level precision is set by the DEM, not by the patch, which
+# is where a threshold belongs. It excludes a 204 m2 puddle with too little
+# outline to read a level from.
+CANOPY_FLOOD_MIN_PATCH_PX = 60
+# A felled or replanted block counts as CANOPY on a frame once its Script 41
+# texture index reaches this fraction of the untouched-forest control in the SAME
+# frame. A fraction rather than a date: the dates are a measurement and are
+# derived from the committed index (utils/warren_mask.closure_dates). Applied
+# MONOTONICALLY - the first date after which the ratio never falls below it -
+# because a canopy does not re-open, and the per-frame test flip-flops
+# (felling_1998_3 reads 0.856 in 2017-04 and 0.603 in 2018-06).
+CANOPY_CLOSURE_RATIO    = 0.85
 CANOPY_CHANGE_GRID_M    = 2.0    # ground resolution for change detection. Frames
                                  # are differenced on a common OSGB grid, never
                                  # pixel-to-pixel: they differ in size and

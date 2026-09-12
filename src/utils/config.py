@@ -40,7 +40,25 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.38.0"  # Hollingham (2026) - 2026-09-11. SLACK_MIN_FLOOR_M and
+__version__ = "1.42.0"  # Hollingham (2026) - 2026-09-11. W94 phase 8: the cut
+#   is EACH FRAME'S OWN Otsu threshold, and FLOOD_OTSU_MAX_Z gates on where that
+#   threshold falls. Measured on five frames, FLOOD_LUM_Z and FLOOD_BIMODAL_MIN
+#   were the wrong pair: the variance fraction separates wet from dry by only
+#   0.713 against 0.604, while the threshold POSITION separates by 1.15 z. So
+#   nothing is frozen from one frame onto fifteen others, and the gate carries
+#   the falsification instead of the cut. FLOOD_LUM_Z and FLOOD_BIMODAL_MIN are
+#   retired the day they were added, never having been committed with a value.
+# v1.42.0 - 2026-09-11: SCRAPE_DEM_CORRECTION_M moved here from a per-script
+#   local in 11b_spatial_thresholds.py (the mirrored-constant pattern the working
+#   rules forbid); three W94 analyses need the same values.
+# v1.40.1 - 2026-09-11: FLOOD_OTSU_MAX_Z widened -0.75 -> -0.30 after the
+#   falsification test had been run and passed at -0.75; see the note there.
+# v1.39.0  # Hollingham (2026) - 2026-09-11. W94 phase 8, the flood
+#   read: FLOOD_LUM_Z, FLOOD_BIMODAL_MIN, FLOOD_NEAR_GROUND_M (D-159). The cut is
+#   on a per-frame OPEN-DUNE normalisation, not on raw luminance, because the
+#   series spans five rights-holders at different exposures; the bimodality gate
+#   exists so a dry frame can return DRY, which plain Otsu cannot.
+# v1.38.0  # Hollingham (2026) - 2026-09-11. SLACK_MIN_FLOOR_M and
 #   SLACK_LAKE_OVERLAP_FRAC: exclude the shore and the lake (Martin). Clipping
 #   to the warren removed neither - the site boundary includes the foreshore,
 #   and subtracting the mapped lake outline left its rim behind.
@@ -1299,6 +1317,69 @@ CANOPY_FLOOD_MIN_PATCH_PX = 60
 # MONOTONICALLY - the first date after which the ratio never falls below it -
 # because a canopy does not re-open, and the per-frame test flip-flops
 # (felling_1998_3 reads 0.856 in 2017-04 and 0.603 in 2018-06).
+# ── W94 phase 8, the flood read (D-159) ────────────────────────────────────
+# THE CUT IS NOT ON RAW LUMINANCE. The frames come from Maxar, Airbus, CNES,
+# Getmapping and Bluesky at different exposures, so a level frozen on one frame
+# does not transfer. Each frame is normalised against its OWN OPEN DUNE - the
+# warren less the mapped hollows, which by construction is never flooded - as a
+# robust z-score, (lum - median) / (1.4826 * MAD). Water is then "dark relative
+# to this frame's own dry dune", which needs no cross-frame assumption.
+#
+# THE CUT IS EACH FRAME'S OWN OTSU THRESHOLD on that z-scale — nothing is
+# frozen from one frame onto the others. What IS fixed is where that threshold
+# is allowed to fall: a flood classification is accepted only when the frame's
+# own largest split lands BELOW its own dry dune, which is what having a dark
+# population means. On a dry frame Otsu still returns a threshold — it always
+# does — but it splits bright from brighter, at or above the dune median, and
+# the frame is declared DRY before any cut is applied.
+#
+# THIS IS THE GATE THAT MAKES THE METHOD FALSIFIABLE, and it is measured, not
+# chosen. Five frames, 2026-09-11: the one frame the record says is flooded
+# (2021-03-24, 36 wells at or above ground) splits at z = -1.32; the four the
+# record says are dry split at -0.17, +0.02, +0.08 and +3.38. The value below is
+# the midpoint of that gap. The between-class variance fraction, specified
+# first, was the wrong statistic — 0.713 wet against 0.604 dry is no gap at all
+# — and is reported as a diagnostic only.
+#
+# WIDENED TO -0.30 (Martin, 2026-09-11), AFTER the falsification test was run
+# and passed. The blind midpoint, -0.75, called both May negatives DRY as
+# required, and thirteen of sixteen frames DRY — but it also missed 2021-04-04
+# (14 wells at or above ground, splitting at -0.44) and 2017-03-24 (4 wells,
+# -0.49). Across the whole series every frame the record says is dry splits at
+# **-0.20 or above** and every frame it says is flooded splits at -0.44 or
+# below, so -0.30 separates the two populations completely with 0.10 of margin
+# on the dry side and 0.14 on the wet.
+#
+# THE ORDER MATTERS AND IS RECORDED RATHER THAN GLOSSED: the test was run
+# against the blind value and passed, and this widening was set afterwards from
+# the full series. It is therefore FITTED to the series it is quoted on, the two
+# May frames included, and the frame-level result at -0.30 is NOT an independent
+# test of the method. The independent result is the one at -0.75. D-159.
+FLOOD_OTSU_MAX_Z        = -0.30
+# Ground removed by mechanical scraping AFTER the LiDAR DEM was flown, in metres,
+# so any DEM-derived elevation at these wells reads that much too high.
+#
+# THE DATE IS WHAT PUTS A WELL IN THIS DICT, and both dates are on the record:
+# the NRW 2 m DTM was captured MARCH 2023, and the cuts are February 2013
+# (CEH40, CEH41, CEH42), April 2015 (CEH36, Scrape A, Scrape B) and OCTOBER 2023
+# (CEH18, CEH21, and a re-scrape of CEH36) - report Sections 4.5 / 3.8.1. Only
+# the October 2023 cuts post-date the survey; the 2013 and 2015 cuts are already
+# IN the DEM and must NOT be corrected, or the correction is applied twice.
+#
+# Moved here 2026-09-11 from a per-script local in `11b_spatial_thresholds.py`,
+# where it was the only copy while three other analyses needed it. Note
+# `01_well_elevations.csv` carries the UNCORRECTED ground for both wells, so a
+# consumer of that file must apply this itself.
+#
+# CEH36's October 2023 re-scrape has NO correction here because none has been
+# measured; its depth is unrecorded. That is a gap, not a zero.
+SCRAPE_DEM_CORRECTION_M = {
+    "ceh18": 0.50,   # October 2023
+    "ceh21": 0.70,   # October 2023
+}
+
+FLOOD_NEAR_GROUND_M     = 0.15
+
 CANOPY_CLOSURE_RATIO    = 0.85
 CANOPY_CHANGE_GRID_M    = 2.0    # ground resolution for change detection. Frames
                                  # are differenced on a common OSGB grid, never

@@ -74,7 +74,10 @@ Dependencies
     Skeletonisation: not required (map_utils handles DEM/IDW)
 """
 
-__version__ = "1.9.0"  # Hollingham (2026) — 2026-09-05. Emits
+__version__ = "1.9.1"  # Hollingham (2026) - 2026-09-11. SCRAPED reads
+#   config.SCRAPE_DEM_CORRECTION_M instead of defining the values locally; the
+#   dict shape and every downstream use are unchanged. No numeric change.
+# v1.9.0  # Hollingham (2026) — 2026-09-05. Emits
 #   11b_06_pflood_cluster_summary.csv: per-cluster P_flood n/min/max/median and
 #   m_P = median / P_clim_mm (report9 Table 1.14). Emission only; full precision
 #   (D-035). See CHANGELOG_delta 2026-09-05j.
@@ -143,6 +146,7 @@ from utils.paths import (
 from utils.map_utils import load_dem_hillshade, add_idw_surface, add_kml_features, _safe_read_kml
 from utils.config import (
     CLUSTER_LABELS, CLUSTER_COLOURS, SD15b, SD15b_REC, SD16, SD16_REC,
+    SCRAPE_DEM_CORRECTION_M,
     SITE_MAP_EAST_MIN, SITE_MAP_EAST_MAX,
     SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX,
 )
@@ -189,10 +193,11 @@ SEA_WEST_E  = 239200   # m OSGB36 — western estuary
 # observed record is used for both summer minima and winter maxima.
 # Only the DEM is corrected.  See _summer_mins / _winter_maxima docstrings.
 # ─────────────────────────────────────────────────────────────────────────────
-SCRAPED = {
-    "ceh18": {"dem_correction": 0.50},  # Oct 2023, ~0.50 m removed
-    "ceh21": {"dem_correction": 0.70},  # Oct 2023, ~0.70 m removed
-}
+# The values live in config.SCRAPE_DEM_CORRECTION_M (moved 2026-09-11): they are
+# a property of the site, not of this script, and three W94 analyses need them.
+# The shape here is unchanged so nothing downstream of `SCRAPED` moves.
+SCRAPED = {w: {"dem_correction": d}
+           for w, d in SCRAPE_DEM_CORRECTION_M.items()}
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Wells whose Best_Match_Cluster is a "nearest-cluster" pattern match, NOT a

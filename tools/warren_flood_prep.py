@@ -38,7 +38,26 @@ NOT DONE HERE, AND WHY
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) - 2026-09-11. THE HOLLOW AND THE
+__version__ = "1.4.0"  # Hollingham (2026) - 2026-09-11. PHASE 8, the flood read
+#   (D-159, spec NRG_spec_W94_phase8_flood_read_2026-09-11.md). The photographs
+#   classify and the DEM only names the result. Each frame is normalised against
+#   its OWN OPEN DUNE - the warren less the hollows, never flooded by
+#   construction - so the cut is exposure-free across five rights-holders; a
+#   BIMODALITY GATE lets a dry frame return DRY, which plain Otsu cannot, and
+#   that is what makes the two May negatives a test the method can fail. The vp2
+#   transform is cached as CONTROL POINTS (registration costs two minutes), and
+#   one transform serves every vp2 frame - measured, which is what lets
+#   2010-05-27 be read at all. `--phase` and `--date` added; the tool is no
+#   longer all-or-nothing. THE CUT IS EACH FRAME'S OWN OTSU THRESHOLD, gated on
+#   where that threshold falls (config 1.40.0): measured on five frames, the
+#   between-class variance separates wet from dry by 0.713 against 0.604 and the
+#   threshold POSITION by 1.15 z, so the gate moved to the statistic that
+#   carries the signal and no value is frozen from one frame onto fifteen.
+#   --calibrate MERGES by date rather than overwriting:
+#   the cut comes from a wet frame and the gate from frames the record says are
+#   dry, so the file is built up across runs.
+# v1.3.0 superseded within the day; see the note above.
+# v1.2.0  # Hollingham (2026) - 2026-09-11. THE HOLLOW AND THE
 #   SLACK ARE SEPARATED. A depression was SELECTED on holding SLACK_MIN_DEPTH_M
 #   and then DRAWN floor-to-spill, so every internal rise inside it was mapped as
 #   slack - the ridge Martin can see near CEH32. Measured on that node: 5.60 ha
@@ -79,10 +98,30 @@ from utils.warren_mask import (OSGB, _features, canopy_on, closure_dates,
 OUT = REPO / "working" / "updates"
 MANIFEST = DATA_GEO_DIR / "aerial_manifest.csv"
 BASINS = DATA_GEO_DIR / "ranwell_dem_basins_prototype.geojson"
+# The vp2 frame the shared transform is fitted on. Any vp2 frame would do -
+# phase-correlating every one of them against this frame returns (0, 0) px -
+# and this one is named because it is the frame the twin test was run on.
+VP2_REFERENCE_FRAME = "site24-3-2021m.png"
 
 
 def main() -> int:
+    import argparse                                          # noqa: PLC0415
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--phase", type=int, default=None,
+                    help="run one phase only (8 is the flood read)")
+    ap.add_argument("--date", action="append", default=None,
+                    help="restrict phase 8 to this frame date; repeatable")
+    ap.add_argument("--calibrate", action="store_true",
+                    help="phase 8: report the open-dune z at wet and dry wells "
+                         "and write W94_08_calibration.csv, writing no result")
+    args = ap.parse_args()
+
     banner("W94 step 1 — the warren mask by frame date", __version__)
+    if args.phase == 8:
+        return phase8(dates=args.date, calibrate=args.calibrate)
+    if args.phase is not None:
+        warn(f"--phase {args.phase} is not separable; phases 1-7 run together")
+        return 1
 
     phase(1, "Canopy closure, derived from the committed Script 41 index")
     info(f"a block is canopy once its index reaches {CANOPY_CLOSURE_RATIO} of the "
@@ -608,5 +647,542 @@ def main() -> int:
     return 0
 
 
+def _vp2_transform():
+    """The vp2 homography, cached as CONTROL POINTS rather than as a function.
+
+    Registration costs about two minutes — `_register_all` detects markers on
+    every registration frame in the manifest — and phase 8 needs it on every
+    run. The cache is `W94_08_vp2_control.csv`: the well positions and their
+    fitted pixel coordinates, from which `_homography` refits the same eight
+    parameters exactly (measured: 2.4e-10 px maximum disagreement). A table of
+    correspondences is auditable in a way a pickled closure is not, and it is
+    the evidence for the fit rather than the fit itself.
+
+    ONE TRANSFORM SERVES EVERY vp2 FRAME. Measured 2026-09-11: phase-correlating
+    every vp2 frame against `site24-3-2021.png` returns (0, 0) px with the peak
+    200-430x the noise sd, and the markers-ON twin returns r = 0.9954. That is
+    what lets 2010-05-27 — the only measurement frame with no twin, and a May
+    negative — be read at all.
+    """
+    import importlib.util                                    # noqa: PLC0415
+    from shapely.ops import unary_union                      # noqa: PLC0415
+    from utils.kml_io import read_kml                        # noqa: PLC0415
+    from utils.paths import INT_LOCATIONS                    # noqa: PLC0415
+
+    spec = importlib.util.spec_from_file_location(
+        "m41", str(REPO / "src" / "41_canopy_cover.py"))
+    m41 = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m41)
+
+    cache = OUT / "W94_08_vp2_control.csv"
+    if cache.exists():
+        c = pd.read_csv(cache, float_precision="round_trip")
+        info(f"vp2 transform from {cache.name} ({len(c)} control point(s))")
+    else:
+        info("no cached vp2 transform; registering — about two minutes")
+        ctrl = unary_union(list(
+            read_kml(DATA_GEO_DIR / f"{m41.CONTROL_KML}.kml").geometry))
+        w = pd.read_csv(INT_LOCATIONS, float_precision="round_trip")
+        ec = next(x for x in w.columns if x.lower() in ("easting", "e", "x"))
+        nc = next(x for x in w.columns if x.lower() in ("northing", "n", "y"))
+        E = w[ec].values.astype(float)
+        N = w[nc].values.astype(float)
+        man = pd.read_csv(MANIFEST, float_precision="round_trip")
+        man = man[man["role"] == "registration"]
+        paths = [m41.AERIAL_DIR / f for f in man["filename"]
+                 if (m41.AERIAL_DIR / f).exists()]
+        reg, _ = m41._register_all(paths, ctrl, E, N)
+        r = reg.get(VP2_REFERENCE_FRAME)
+        if r is None or r.get("fitted") is None:
+            warn(f"{VP2_REFERENCE_FRAME} did not register; phase 8 cannot run")
+            return None, m41
+        px, py = r["fitted"](E, N)
+        c = pd.DataFrame({"E": E, "N": N, "px": px, "py": py})
+        c.to_csv(cache, index=False)
+        saved(cache.name)
+    P = np.column_stack([c["E"].values, c["N"].values,
+                         c["px"].values, c["py"].values])
+    H = m41._homography(P)
+    u, v = H(P[:, 0], P[:, 1])
+    err = float(np.max(np.hypot(u - P[:, 2], v - P[:, 3])))
+    info(f"refit reproduces the cached control points to {err:.2e} px")
+    return H, m41
+
+
+def _otsu(x):
+    """(threshold, between-class variance as a fraction of the total).
+
+    The FRACTION is the point. Otsu's threshold always exists; the fraction says
+    whether the histogram it split was two populations or one.
+    """
+    x = x[np.isfinite(x)]
+    if x.size < 100:
+        return float("nan"), 0.0
+    lo, hi = np.percentile(x, [0.5, 99.5])
+    if not np.isfinite(lo) or not np.isfinite(hi) or hi <= lo:
+        return float("nan"), 0.0
+    hist, edges = np.histogram(np.clip(x, lo, hi), bins=256, range=(lo, hi))
+    p = hist.astype(float) / max(hist.sum(), 1)
+    mids = 0.5 * (edges[1:] + edges[:-1])
+    w0 = np.cumsum(p)
+    m0 = np.cumsum(p * mids)
+    mt = m0[-1]
+    with np.errstate(invalid="ignore", divide="ignore"):
+        between = (mt * w0 - m0) ** 2 / (w0 * (1.0 - w0))
+    between = np.where(np.isfinite(between), between, 0.0)
+    k = int(np.argmax(between))
+    total = float(np.sum(p * (mids - mt) ** 2))
+    return float(mids[k]), (float(between[k] / total) if total > 0 else 0.0)
+
+
+def phase8(dates=None, calibrate=False) -> int:
+    """The flood read: the photographs classify, the DEM names the result."""
+    from rasterio.features import geometry_mask, shapes      # noqa: PLC0415
+    from rasterio.transform import from_origin                # noqa: PLC0415
+    from scipy import ndimage as ndi                         # noqa: PLC0415
+    from shapely.geometry import shape as shapely_shape      # noqa: PLC0415
+    from PIL import Image                                    # noqa: PLC0415
+
+    from utils.config import (CANOPY_CHANGE_GRID_M,          # noqa: PLC0415
+                              CANOPY_FLOOD_MIN_PATCH_PX,
+                              FLOOD_NEAR_GROUND_M, FLOOD_OTSU_MAX_Z)
+
+    phase(8, "The flood read — the photographs classify, the DEM names")
+    hol_p = OUT / "W94_06_hollows.geojson"
+    if not hol_p.exists():
+        warn("phase 6 has not run: W94_06_hollows.geojson is missing")
+        return 1
+    hollows = gpd.read_file(hol_p).set_crs(OSGB, allow_override=True)
+    info(f"{len(hollows)} hollow(s) from phase 6, "
+         f"{hollows.area.sum() / 1e4:.1f} ha")
+
+    man = pd.read_csv(MANIFEST, float_precision="round_trip")
+    meas = man[(man["viewpoint"].astype(str).str.startswith("vp2"))
+               & (man["role"] == "measurement")].copy()
+    if dates:
+        meas = meas[meas["imagery_date"].isin(dates)]
+    meas = meas.sort_values("imagery_date")
+    if not len(meas):
+        warn("no vp2 measurement frame matches; nothing to read")
+        return 1
+    info(f"{len(meas)} frame(s) to read: "
+         f"{', '.join(meas['imagery_date'].astype(str))}")
+
+    H, m41 = _vp2_transform()
+    if H is None:
+        return 1
+
+    # THE FRAME'S OWN GEOMETRY, from the COMMITTED registration rather than
+    # typed here: `gsd_m` converts the patch-size threshold from image pixels to
+    # ground, and `residual_median_m` is how well the frame can localise a well
+    # at all. Both are properties of the fit Script 41 published, so neither is
+    # a number this tool is free to choose.
+    rg = pd.read_csv(REPO / "outputs" / "41_canopy_cover" / "41_03_registration.csv",
+                     float_precision="round_trip")
+    rg = rg[rg["frame"] == VP2_REFERENCE_FRAME]
+    if not len(rg):
+        warn(f"{VP2_REFERENCE_FRAME} is not in the committed registration")
+        return 1
+    gsd = float(rg["gsd_m"].iloc[0])
+    resid = float(rg["residual_median_m"].iloc[0])
+    info(f"vp2 registration: {gsd:.3f} m/px, median residual {resid:.2f} m "
+         f"(from 41_03_registration.csv)")
+
+    # THE GROUND GRID. Luminance is compared on the ground, never in pixel
+    # space: the frames differ in viewpoint, so a pixel difference measures the
+    # perspective rather than the ground.
+    res = float(CANOPY_CHANGE_GRID_M)
+    minx, miny, maxx, maxy = hollows.total_bounds
+    minx, miny = np.floor(minx / res) * res - 200.0, np.floor(miny / res) * res - 200.0
+    maxx, maxy = np.ceil(maxx / res) * res + 200.0, np.ceil(maxy / res) * res + 200.0
+    ge = np.arange(minx, maxx + res, res)
+    gn = np.arange(maxy, miny - res, -res)
+    EE, NN = np.meshgrid(ge, gn)
+    gtr = from_origin(minx - res / 2, maxy + res / 2, res, res)
+    info(f"ground grid {EE.shape[1]} x {EE.shape[0]} at {res:.0f} m")
+
+    # THE DEM ON THE SAME GRID. Used for two things only, both of which are
+    # relative and so immune to the +0.22 m offset the raster carries: the 1 m
+    # elevation band that splits welded water bodies, and nothing else.
+    with rasterio.open(DATA_DEM) as ds:
+        dem = np.array(list(ds.sample(
+            np.column_stack([EE.ravel(), NN.ravel()])))).astype(float)[:, 0]
+        nod = ds.nodata
+    if nod is not None:
+        dem[dem == nod] = np.nan
+    dem = dem.reshape(EE.shape)
+
+    hol_mask = geometry_mask(list(hollows.geometry), out_shape=EE.shape,
+                             transform=gtr, invert=True)
+    wells = pd.read_csv(REPO / "outputs" / "01_well_elevations.csv",
+                        float_precision="round_trip")
+    lev = pd.read_csv(REPO / "outputs" / "01_wells_clean.csv",
+                      float_precision="round_trip")
+    lev = lev.rename(columns={lev.columns[0]: "month"})
+    lev["month"] = pd.to_datetime(lev["month"])
+
+    rows, calib = [], []
+    for _, fr in meas.iterrows():
+        date = str(fr["imagery_date"])
+        frame = str(fr["filename"])
+        step(f"{date} — {frame}")
+        fp = m41.AERIAL_DIR / frame
+        if not fp.exists():
+            rows.append({"date": date, "frame": frame, "verdict": "SKIPPED",
+                         "reason": "frame not on disk"})
+            warn("  frame not on disk")
+            continue
+        a = np.asarray(Image.open(fp).convert("RGB")).astype(float)
+        lum = 0.2126 * a[:, :, 0] + 0.7152 * a[:, :, 1] + 0.0722 * a[:, :, 2]
+        grid, ok = m41._sample_to_grid(lum, H, EE, NN)
+
+        # THE MASK IS DATE-DEPENDENT. `warren_on` subtracts the canopy as at
+        # this date, so a block that had closed by now is not read as ground.
+        wmask = geometry_mask([warren_on(date)], out_shape=EE.shape,
+                              transform=gtr, invert=True)
+        usable = wmask & ok & np.isfinite(grid) & np.isfinite(dem)
+        if usable.sum() < 1000:
+            rows.append({"date": date, "frame": frame, "verdict": "SKIPPED",
+                         "reason": "the warren is barely in this frame's window"})
+            warn("  the warren is barely inside this frame's usable window")
+            continue
+
+        # NORMALISE AGAINST THIS FRAME'S OWN OPEN DUNE — the warren less the
+        # mapped hollows, which by construction never floods. Robust, because a
+        # few genuinely dark cells in it must not move the reference.
+        dune = usable & ~hol_mask
+        ref = grid[dune]
+        med = float(np.median(ref))
+        mad = float(np.median(np.abs(ref - med)))
+        sigma = 1.4826 * mad if mad > 0 else float("nan")
+        if not np.isfinite(sigma) or sigma <= 0:
+            rows.append({"date": date, "frame": frame, "verdict": "SKIPPED",
+                         "reason": "the open-dune reference has no spread"})
+            warn("  the open-dune reference has no spread")
+            continue
+        z = (grid - med) / sigma
+        info(f"  open dune: median {med:.1f}, MAD {mad:.1f} over "
+             f"{int(dune.sum())} cell(s); {int(usable.sum())} usable")
+
+        # THE CUT IS THIS FRAME'S OWN OTSU THRESHOLD, and the GATE is where that
+        # threshold falls. A dry frame fails here on its own evidence rather
+        # than being argued away afterwards: Otsu always returns a threshold,
+        # but on a dry frame it splits bright from brighter, at or above the
+        # dune median, because there is no dark population to find.
+        thr, frac = _otsu(z[usable])
+        info(f"  Otsu on z: threshold {thr:.2f} (gate {FLOOD_OTSU_MAX_Z}), "
+             f"between-class variance {frac:.3f} of total (diagnostic only)")
+
+        if calibrate:
+            wl = _well_levels(lev, wells, date)
+            for _, wr in wl.iterrows():
+                c, r0 = ~gtr * (wr["E"], wr["N"])
+                c, r0 = int(c), int(r0)
+                if 0 <= r0 < z.shape[0] and 0 <= c < z.shape[1] and usable[r0, c]:
+                    calib.append({"date": date, "well": wr["well"],
+                                  "h_m": wr["h_m"], "wet_truth": wr["h_m"] >= 0,
+                                  "lum": float(grid[r0, c]),
+                                  "z": float(z[r0, c]),
+                                  "otsu_z": thr, "bimodal_frac": frac})
+            continue
+
+        if not np.isfinite(thr) or thr > FLOOD_OTSU_MAX_Z:
+            rows.append({"date": date, "frame": frame, "n_bodies": 0,
+                         "flood_ha": 0.0, "otsu_z": round(float(thr), 4),
+                         "bimodal_frac": round(frac, 4), "verdict": "DRY",
+                         "reason": f"the frame's own split falls at "
+                                   f"{thr:.2f}, above {FLOOD_OTSU_MAX_Z} — no "
+                                   f"dark population"})
+            step("  DRY — the frame's own split is not on the dark side of its "
+                 "own dune; no cut applied")
+            continue
+
+        wet = usable & (z <= thr)
+        # A WATER BODY IS LEVEL, and that is a filter. Labelling flood cells in
+        # plan alone welded 45.7 ha across 13.4 m of relief — slacks joined by
+        # dark threads over the ridges between them. Labelling within 1 m
+        # elevation bands splits them without cutting genuine water in half,
+        # which tighter bands do (D-159).
+        band = np.floor(np.where(np.isfinite(dem), dem, 0.0)).astype(int)
+        lab = np.zeros(wet.shape, dtype=np.int32)
+        nxt = 0
+        for b in np.unique(band[wet]):
+            m_ = wet & (band == b)
+            ll, nn_ = ndi.label(m_)
+            ll[ll > 0] += nxt
+            lab = np.where(m_, ll, lab)
+            nxt += nn_
+        if nxt:
+            # CANOPY_FLOOD_MIN_PATCH_PX IS IN IMAGE PIXELS at the frame's own
+            # GSD — that is how config.py derives it — and the labelling here is
+            # on the 2 m GROUND grid. Comparing the two directly applied a
+            # threshold two-fifths of the documented size.
+            min_cells = int(round(CANOPY_FLOOD_MIN_PATCH_PX * gsd * gsd
+                                  / (res * res)))
+            counts = np.bincount(lab.ravel())
+            small = np.flatnonzero(counts < min_cells)
+            drop = np.zeros(counts.size, bool)
+            drop[small] = True
+            drop[0] = True
+            lab = np.where(drop[lab], 0, lab)
+        n_bodies = int(len(np.unique(lab)) - 1)
+        polys, ids = [], []
+        for geom, val in shapes(lab, mask=(lab > 0), transform=gtr):
+            polys.append(shapely_shape(geom))
+            ids.append(int(val))
+        if not polys:
+            rows.append({"date": date, "frame": frame, "n_bodies": 0,
+                         "flood_ha": 0.0, "otsu_z": round(float(thr), 4),
+                         "bimodal_frac": round(frac, 4),
+                         "verdict": "READ", "reason": "no body survived the "
+                                                      "minimum patch size"})
+            step("  no body survived the minimum patch size")
+            continue
+        fg = gpd.GeoDataFrame({"body_id": ids}, geometry=polys, crs=OSGB)
+        fg = fg.dissolve(by="body_id", as_index=False)
+        fg["area_m2"] = fg.area.round(1)
+        fg["elev_band_m"] = [int(np.floor(np.nanmedian(dem[lab == i])))
+                             for i in fg["body_id"]]
+        fg["median_z"] = [round(float(np.nanmedian(z[lab == i])), 3)
+                          for i in fg["body_id"]]
+        # ATTRIBUTION, not delineation: the hollow NAMES the body. The DEM does
+        # not decide where water is allowed to be (D-159's inversion).
+        j = gpd.sjoin(fg[["body_id", "geometry"]], hollows[["slack", "geometry"]],
+                      how="left", predicate="intersects")
+        j = j.drop_duplicates("body_id")[["body_id", "slack"]]
+        fg = fg.merge(j, on="body_id", how="left")
+        fg["slack"] = fg["slack"].astype("Int64")
+
+        sc = _score(fg, lev, wells, date, gtr, usable, FLOOD_NEAR_GROUND_M,
+                    resid)
+        _flood_map(date, frame, fg, hollows, sc, thr)
+        if len(sc["per_well"]):
+            p = OUT / f"W94_08_wells_{date}.csv"
+            sc["per_well"].to_csv(p, index=False)
+            saved(p.name)
+        else:
+            # NO FILE RATHER THAN AN EMPTY ONE. A zero-row frame wrote a
+            # headerless CSV that every later reader choked on; 2026-03-31 has
+            # no dipwell month at all, the record ending at
+            # REFERENCE_CUTOFF_DATE, and that is a fact to state, not a file.
+            warn(f"  no dipwell month for {date}: the read cannot be scored")
+        for stem, gdf in ((f"W94_08_flood_{date}", fg),):
+            q = OUT / f"{stem}.geojson"
+            q.write_text(gdf.to_json(), encoding="utf-8")
+            saved(q.name)
+            tmp = Path(tempfile.mkdtemp()) / "flood.kml"
+            gdf.to_crs("EPSG:4326").to_file(tmp, driver="KML")
+            q = OUT / f"{stem}.kml"
+            q.write_bytes(tmp.read_bytes())
+            shutil.rmtree(tmp.parent, ignore_errors=True)
+            saved(q.name)
+        row = {"date": date, "frame": frame, "transform_source": "vp2 (shared)",
+               "n_bodies": n_bodies, "flood_ha": round(fg.area.sum() / 1e4, 3),
+               "otsu_z": round(float(thr), 4),
+               "bimodal_frac": round(frac, 4), "verdict": "READ", "reason": ""}
+        row.update(sc["summary"])
+        rows.append(row)
+        step(f"  {n_bodies} body(ies), {fg.area.sum() / 1e4:.2f} ha; "
+             f"recall {sc['summary']['recall']}, "
+             f"precision {sc['summary']['precision']}, "
+             f"agreement {sc['summary']['agreement']} at "
+             f"{sc['summary']['n_wells']} wells")
+
+    if calibrate:
+        if not calib:
+            warn("no calibration rows — no well fell in a usable cell")
+            return 1
+        cdf = pd.DataFrame(calib)
+        # MERGE BY DATE, never overwrite. Calibration is built up one frame at a
+        # time — the wet frame sets the cut, the record's dry frames set the
+        # gate — and a run that replaced the file lost the frame before it.
+        p = OUT / "W94_08_calibration.csv"
+        if p.exists():
+            prev = pd.read_csv(p, float_precision="round_trip")
+            prev = prev[~prev["date"].isin(cdf["date"].unique())]
+            cdf = pd.concat([prev, cdf], ignore_index=True)
+        cdf = cdf.sort_values(["date", "well"])
+        cdf.to_csv(p, index=False)
+        saved(p.name)
+        for d, g in cdf.groupby("date"):
+            wet_, dry_ = g[g.wet_truth], g[~g.wet_truth]
+            info(f"  {d}: {len(wet_)} wet / {len(dry_)} dry wells; "
+                 f"z median wet "
+                 f"{(wet_['z'].median() if len(wet_) else float('nan')):.2f}, "
+                 f"dry {(dry_['z'].median() if len(dry_) else float('nan')):.2f}; "
+                 f"bimodal {g['bimodal_frac'].iloc[0]:.3f}")
+        info("FREEZE FLOOD_LUM_Z between the two medians and FLOOD_BIMODAL_MIN "
+             "below the calibration frame's fraction, in config.py, then run "
+             "without --calibrate.")
+        return 0
+
+    sdf = pd.DataFrame(rows)
+    p = OUT / "W94_09_scores.csv"
+    sdf.to_csv(p, index=False)
+    saved(p.name)
+    return 0
+
+
+def _flood_map(date, frame, fg, hollows, sc, thr):
+    """The read, on the ground: water solid, hollows outlined, wells scored.
+
+    The map is where a false positive stops being a number and becomes a place —
+    which is how the CEH32 ridge was found, and how the estuary patch was.
+    """
+    import matplotlib.pyplot as plt                          # noqa: PLC0415
+    from utils.config import (SITE_MAP_EAST_MAX,             # noqa: PLC0415
+                              SITE_MAP_EAST_MIN, SITE_MAP_NORTH_MAX,
+                              SITE_MAP_NORTH_MIN)
+    from utils.map_utils import add_en_axes, load_dem_hillshade  # noqa: PLC0415
+    from utils.render_utils import render_figure             # noqa: PLC0415
+    from shapely.geometry import Point                       # noqa: PLC0415
+
+    fig, ax = plt.subplots(figsize=(11.5, 9.8))
+    load_dem_hillshade(ax, DATA_GEO_DIR, alpha=0.6)
+    gpd.GeoSeries([warren_on(date)], crs=OSGB).plot(
+        ax=ax, facecolor="none", edgecolor="#08519c", lw=1.0, zorder=3)
+    hollows.plot(ax=ax, facecolor="none", edgecolor="#bdd7e7", lw=0.3,
+                 zorder=3.5)
+    fg.plot(ax=ax, facecolor="#2171b5", edgecolor="#08306b", lw=0.3,
+            alpha=0.85, zorder=4)
+    per = sc["per_well"]
+    if len(per):
+        el = pd.read_csv(REPO / "outputs" / "01_well_elevations.csv",
+                         float_precision="round_trip")
+        en = {str(n).lower(): (x, y) for n, x, y in
+              zip(el["Name"], el["E"], el["N"])}
+        # FOUR OUTCOMES, four colours. An agreement figure hides WHERE it
+        # disagrees, and the where is the evidence.
+        style = {(True, True): ("#238b45", "o", "wet, found"),
+                 (True, False): ("#cb181d", "v", "wet, missed"),
+                 (False, True): ("#fd8d3c", "^", "dry, called wet"),
+                 (False, False): ("#737373", ".", "dry, agreed")}
+        for key, (col, mk, lab) in style.items():
+            sel = per[(per["wet_truth"] == key[0]) & (per["wet_pred"] == key[1])]
+            pts = [en.get(str(w).lower()) for w in sel["well"]]
+            pts = [q for q in pts if q is not None]
+            if not pts:
+                continue
+            gpd.GeoSeries([Point(*q) for q in pts], crs=OSGB).plot(
+                ax=ax, color=col, marker=mk, markersize=26, zorder=5,
+                label=f"{lab} ({len(pts)})")
+        for _, r in per[per["wet_truth"] != per["wet_pred"]].iterrows():
+            q = en.get(str(r["well"]).lower())
+            if q:
+                ax.annotate(str(r["well"]), q, fontsize=7, xytext=(4, 4),
+                            textcoords="offset points", zorder=6)
+        ax.legend(loc="lower left", fontsize=8, framealpha=0.9)
+    ax.set_xlim(SITE_MAP_EAST_MIN, SITE_MAP_EAST_MAX)
+    ax.set_ylim(SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX)
+    add_en_axes(ax, apply_extent=False)
+    sm = sc["summary"]
+    ax.set_title(
+        f"W94 — flood read from {frame}, {date}\n"
+        f"{len(fg)} water bod(ies), {fg.area.sum() / 1e4:.1f} ha; cut at this "
+        f"frame's own Otsu z = {thr:.2f} against its open dune; "
+        f"recall {sm['recall']}, precision {sm['precision']} "
+        f"(a LOWER bound — edge-sited wells) at {sm['n_wells']} wells")
+    q = OUT / f"W94_08_flood_{date}.png"
+    render_figure(fig, q)
+    saved(q.name)
+
+
+def _well_levels(lev, wells, date):
+    """Wells reporting in the frame's month, with their level.
+
+    BUCKETING IS SCRIPT 01's, not a new convention: a reading on day > 15
+    belongs to the same month, day <= 15 to the previous. So 2021-03-24 is
+    March 2021, and the frame is compared with the level for the month it
+    falls in.
+    """
+    d = pd.Timestamp(date)
+    month = (d - pd.offsets.MonthBegin(1)) if d.day <= 15 else d
+    key = pd.Timestamp(month.year, month.month, 1)
+    row = lev[lev["month"] == key]
+    out = []
+    if not len(row):
+        return pd.DataFrame(columns=["well", "h_m", "E", "N"])
+    row = row.iloc[0]
+    byname = {str(n).lower(): (e, nn) for n, e, nn
+              in zip(wells["Name"], wells["E"], wells["N"])}
+    for c in lev.columns:
+        if c == "month":
+            continue
+        v = pd.to_numeric(pd.Series([row[c]]), errors="coerce").iloc[0]
+        if pd.isna(v):
+            continue
+        en = byname.get(str(c).lower())
+        if en is None:
+            continue
+        out.append({"well": c, "h_m": float(v), "E": en[0], "N": en[1]})
+    return pd.DataFrame(out)
+
+
+def _score(fg, lev, wells, date, gtr, usable, near_m, tol_m):
+    """Score the flood bodies against the dipwell record for that month.
+
+    PRECISION IS A LOWER BOUND AND RECALL IS NOT. Wells were sited at slack
+    EDGES for ease of measurement (Martin, 2026-09-10; CEH1, CEH9 and NW6
+    named), so a well can read below ground while its slack is flooded, and
+    every such well scores as a FALSE POSITIVE when the method is right. Delta,
+    which would correct it, is not known. The near-ground band is reported
+    separately so the size of the effect is visible rather than asserted.
+    """
+    from shapely.geometry import Point                       # noqa: PLC0415
+    wl = _well_levels(lev, wells, date)
+    if not len(wl):
+        return {"per_well": pd.DataFrame(),
+                "summary": {"n_wells": 0, "recall": None, "precision": None,
+                            "agreement": None, "tp": 0, "fp": 0, "fn": 0,
+                            "tn": 0}}
+    pts = gpd.GeoDataFrame(
+        wl, geometry=[Point(x, y) for x, y in zip(wl["E"], wl["N"])], crs=OSGB)
+    keep = []
+    for _, r in pts.iterrows():
+        c, r0 = ~gtr * (r["E"], r["N"])
+        c, r0 = int(c), int(r0)
+        keep.append(0 <= r0 < usable.shape[0] and 0 <= c < usable.shape[1]
+                    and bool(usable[r0, c]))
+    pts = pts[pd.Series(keep, index=pts.index)].copy()
+    if not len(pts):
+        return {"per_well": pd.DataFrame(),
+                "summary": {"n_wells": 0, "recall": None, "precision": None,
+                            "agreement": None, "tp": 0, "fp": 0, "fn": 0,
+                            "tn": 0}}
+    # A WELL IS NOT LOCALISED TO A POINT IN THIS FRAME. `tol_m` is the
+    # registration's OWN median residual against the 88 surveyed positions, read
+    # from the committed 41_03 — the frame cannot place a well better than that,
+    # so a boundary drawn finer than it is spurious precision. It is not a
+    # tuning knob: measured 2026-09-11, eleven of eleven false negatives at
+    # strict containment had water within 10.1 m and six within 3.8 m, which is
+    # the waterline running through the pipe, not a classification error. The
+    # value is whatever Script 41 published; this tool does not choose it.
+    j = gpd.sjoin_nearest(pts, fg[["body_id", "slack", "geometry"]], how="left",
+                          max_distance=tol_m, distance_col="body_dist_m")
+    j = j.sort_values("body_dist_m").drop_duplicates(subset=["well"])
+    j["wet_pred"] = j["body_id"].notna()
+    j["wet_truth"] = j["h_m"] >= 0.0
+    j["near_ground"] = j["h_m"].abs() <= near_m
+    tp = int((j.wet_truth & j.wet_pred).sum())
+    fp = int((~j.wet_truth & j.wet_pred).sum())
+    fn = int((j.wet_truth & ~j.wet_pred).sum())
+    tn = int((~j.wet_truth & ~j.wet_pred).sum())
+    n = tp + fp + fn + tn
+    per = j[["well", "h_m", "wet_truth", "wet_pred", "body_id", "slack",
+             "body_dist_m", "near_ground"]].copy()
+    per["body_dist_m"] = per["body_dist_m"].round(2)
+    per["h_m"] = per["h_m"].round(3)
+    return {"per_well": per.sort_values("well"),
+            "summary": {
+                "n_wells": n,
+                "recall": round(tp / (tp + fn), 3) if (tp + fn) else None,
+                "precision": round(tp / (tp + fp), 3) if (tp + fp) else None,
+                "agreement": round((tp + tn) / n, 3) if n else None,
+                "tp": tp, "fp": fp, "fn": fn, "tn": tn,
+                "fp_near_ground": int((~j.wet_truth & j.wet_pred
+                                       & j.near_ground).sum())}}
+
+
 if __name__ == "__main__":
     sys.exit(main())
+

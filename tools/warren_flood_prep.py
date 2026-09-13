@@ -38,7 +38,14 @@ NOT DONE HERE, AND WHY
 """
 from __future__ import annotations
 
-__version__ = "1.18.0"  # Hollingham (2026) - 2026-09-13. Phase 16 diagnoses the
+__version__ = "1.19.0"  # Hollingham (2026) - 2026-09-13. --form depth builds the
+#   water table as h interpolated onto the SMOOTHED ground rather than as an
+#   absolute elevation, which is the variable the SSM is written in. Specced with
+#   its gate stated first, and IT FAILS THAT GATE: the wettest date goes 17.43 ->
+#   34.77 ha and much closer to the imagery, but 2010-05-27 - a dry control with
+#   ZERO wet dipwells - goes 2.31 -> 16.14 ha and the margin falls 4.50 -> 2.2 : 1,
+#   below DRY_CONTROL_MIN_RATIO. NOT adopted; elevation remains the default.
+# v1.18.0  # Hollingham (2026) - 2026-09-13. Phase 16 diagnoses the
 #   per-slack shortfall: of 1,236 slack units the imagery says are wet, the model
 #   misses 714 by a MEDIAN OF 1.278 m, with an IQR of 1.453 m - too wide and far
 #   too large to be a constant. The missed slacks sit at a median floor of 9.10 m
@@ -234,6 +241,13 @@ def main() -> int:
                          "near 1.0 m/px); 'vp2' is the sensitivity check at "
                          "2.884 m/px. Artefacts are kept apart by a _tiles tag "
                          "so neither overwrites the other.")
+    ap.add_argument("--form", choices=("elevation", "depth"),
+                    default="elevation",
+                    help="how the water table is interpolated. 'elevation' "
+                         "interpolates ground+h and flattens the mound; "
+                         "'depth' interpolates h alone and takes the topography "
+                         "from the DEM, which is the variable the SSM is "
+                         "written in")
     ap.add_argument("--kml", action="store_true",
                     help="phase 13: also write the model's predicted flood as "
                          "KML per date, to be opened in Google Earth on that "
@@ -277,7 +291,7 @@ def main() -> int:
     if args.phase == 13:
         return phase13(dates=args.date,
                        z_b=(float(args.z_b) if args.z_b else None),
-                       kml=args.kml)
+                       kml=args.kml, form=args.form)
     if args.phase == 12:
         return phase12(dates=args.date,
                        datums=([float(x) for x in args.datums.split(",")]
@@ -1013,6 +1027,11 @@ SERIES_STRIP_HA_MAX = 25.0
 # clipped by a water body's edge rather than being under it, and an edge cell
 # says nothing about whether the slack flooded.
 SHORTFALL_MIN_WET_FRAC = 0.50
+# The scale over which the ground the depth form adds h to is smoothed. The
+# water-table mound is a regional form; the DEM is not. 0 m collapses the
+# construction (4.67 ha on the wettest date, 0.00 on every dry control) and
+# 500 m and beyond loses the dry-control margin. Swept, not chosen: see phase 17.
+SURFACE_GROUND_SMOOTH_M = 100.0
 # WELLS WHOSE GROUND ELEVATION CAME FROM THE DEM CANNOT MEASURE THE DEM'S BIAS.
 # The measurement is median(DEM along the waterline) - (ground + h). Where ground
 # is itself a DEM read at the well, the raster's bias appears on both sides and
@@ -2433,6 +2452,63 @@ def _idw(xs, ys, vs, X, Y, power=2.0, eps=1e-6):
     return (wgt * vs).sum(axis=0) / wgt.sum(axis=0)
 
 
+def _wet_cells(form, xs, ys, hh, ground_at_well, BE, BN, zb, EE, NN, Z,
+               unit_ok, dem_at_bnd=None, ground_reg=None):
+    """Where the water table stands above the ground, in one of two forms.
+
+    ELEVATION FORM (the original): interpolate ground + h at the wells and
+    compare the result with the cell's floor. A dune water table is a MOUND, and
+    inverse-distance weighting pulls toward the mean of its control points away
+    from them, so this under-predicts the head exactly where the mound stands
+    highest. Phase 16 measured the consequence: the slacks it misses sit at a
+    median floor of 9.10 m AOD against 4.17 m for those it gets.
+
+    DEPTH FORM: interpolate h ALONE and add it to the DEM. The topography then
+    comes from the raster, which knows it at 2 m, and the interpolator carries
+    only the residual depth field — small, smooth, and the thing a dipwell
+    actually measures. This is also the variable the SSM is written in (Martin,
+    2026-09-13) and the one D-163 found the data prefer: a drainage base that
+    follows the topography rather than a regional one.
+
+    A SLACK'S WATER TABLE IS ONE LEVEL, NOT A FIELD. In the depth form it is
+    evaluated at the unit's own floor — WT = floor + h(floor) — and the flooded
+    cells are that slack's hypsometry below it. Comparing each cell against its
+    OWN ground instead would not be a water surface at all, which is the error in
+    the first quick test of this idea.
+
+    The estuary boundary keeps its meaning in both: at the estuary the water
+    table is z_b, so its depth below the local ground is z_b - DEM there.
+    """
+    if form == "elevation":
+        wt = [g + h for g, h in zip(ground_at_well, hh)]
+        X = np.concatenate([xs, BE]) if len(BE) else np.asarray(xs)
+        Y = np.concatenate([ys, BN]) if len(BE) else np.asarray(ys)
+        V = (np.concatenate([wt, np.full(len(BE), zb)]) if len(BE)
+             else np.asarray(wt))
+        surf = _idw(X, Y, V, EE, NN)
+        wet = Z < surf
+        return wet, (surf - Z)[wet]
+
+    X = np.concatenate([xs, BE]) if len(BE) else np.asarray(xs)
+    Y = np.concatenate([ys, BN]) if len(BE) else np.asarray(ys)
+    V = (np.concatenate([hh, zb - np.asarray(dem_at_bnd)]) if len(BE)
+         else np.asarray(hh))
+    h_s = _idw(X, Y, V, EE, NN)
+    # THE GROUND h IS MEASURED AGAINST IS THE REGIONAL SURFACE, NOT THE PIXEL.
+    # A dipwell's h is its depth below the ground AT THE WELL, and the water
+    # table between wells is nearly flat while the ground is not. Adding h to
+    # the RAW DEM therefore drives the water surface down into every hollow it
+    # crosses, and the construction collapses: measured, the wettest date
+    # returns 4.67 ha and every dry control 0.00. Adding it to the DEM smoothed
+    # at SURFACE_GROUND_SMOOTH_M keeps the mound the elevation form flattens
+    # without inheriting the metre-scale roughness the water table does not
+    # have. The smoothing length is a physical statement about the water-table
+    # mound's scale and is swept in phase 17.
+    wt = (ground_reg if ground_reg is not None else Z) + h_s
+    wet = Z < wt
+    return wet, (wt - Z)[wet]
+
+
 def _fit_well(lev, climate, well, datum):
     """Fit one well at one datum, ONCE. The fit does not depend on the date, and
     refitting per date cost six times what the sweep needed."""
@@ -2978,7 +3054,7 @@ def _estuary_control(site):
     return np.asarray(E), np.asarray(N)
 
 
-def phase13(dates=None, z_b=None, kml=False) -> int:
+def phase13(dates=None, z_b=None, kml=False, form="elevation") -> int:
     """Flooded extent: where the water table stands above the slack floor.
 
     MARTIN'S DEFINITION (2026-09-13): *"flooded means above slack floor"*. So the
@@ -3061,6 +3137,18 @@ def phase13(dates=None, z_b=None, kml=False) -> int:
     cell_ha = res * res / 1e4
 
     BE, BN = _estuary_control(site)
+    # The DEM under each boundary point, so the depth form can express z_b as a
+    # depth below the local ground there.
+    from scipy.ndimage import uniform_filter                 # noqa: PLC0415
+    _k = max(1, int(round(SURFACE_GROUND_SMOOTH_M / res)))
+    GS = uniform_filter(arr, size=_k, mode="nearest") if _k > 1 else arr
+    GR = GS[rows_, cols_]
+    DB = np.zeros(0)
+    if len(BE):
+        _rr, _cc = rasterio.transform.rowcol(tr, BE, BN)
+        _rr = np.clip(np.asarray(_rr), 0, arr.shape[0] - 1)
+        _cc = np.clip(np.asarray(_cc), 0, arr.shape[1] - 1)
+        DB = GS[_rr, _cc]
     info(f"estuary boundary: {len(BE)} control point(s) at "
          f"{ESTUARY_POINT_SPACING_M:.0f} m along {ESTUARY_KML}.kml, held at "
          f"{zb:+.2f} m AOD")
@@ -3071,27 +3159,24 @@ def phase13(dates=None, z_b=None, kml=False) -> int:
         if wl is None or not len(wl):
             warn(f"  {d}: no dipwell month")
             continue
-        xs, ys, wt = [], [], []
+        xs, ys, hh, gw = [], [], [], []
         for _, r in wl.iterrows():
             k = str(r["well"]).lower()
             # THE LAKE GAUGE IS NOT A DIPWELL and must not set the water table.
             if k in ground and k != LAKE_GAUGE_NAME:
                 xs.append(float(r["E"]))
                 ys.append(float(r["N"]))
-                wt.append(ground[k] + float(r["h_m"]))
+                hh.append(float(r["h_m"]))
+                gw.append(ground[k])
         if len(xs) < MIN_WELLS_FOR_SURFACE:
             warn(f"  {d}: only {len(xs)} well(s); surface not computed")
             continue
-        X = np.concatenate([xs, BE]) if len(BE) else np.asarray(xs)
-        Y = np.concatenate([ys, BN]) if len(BE) else np.asarray(ys)
-        V = (np.concatenate([wt, np.full(len(BE), zb)]) if len(BE)
-             else np.asarray(wt))
-        surf = _idw(X, Y, V, EE, NN)
-        wet = Z < surf
-        dep = (surf - Z)[wet]
+        wet, dep = _wet_cells(form, xs, ys, hh, gw, BE, BN, zb, EE, NN, Z,
+                              unit[ok], dem_at_bnd=DB, ground_reg=GR)
         n_wet_wells = int((wl[wl["well"].str.lower() != LAKE_GAUGE_NAME]["h_m"]
                            >= 0).sum())
-        r_ = {"date": d, "wells": len(xs), "wet_wells": n_wet_wells,
+        r_ = {"date": d, "form": form,
+              "wells": len(xs), "wet_wells": n_wet_wells,
               "flooded_ha": round(float(wet.sum()) * cell_ha, 3),
               "median_depth_m": (round(float(np.median(dep)), 3)
                                  if dep.size else None),
@@ -3115,12 +3200,16 @@ def phase13(dates=None, z_b=None, kml=False) -> int:
     p = OUT / "W94_40_flooded_extent.csv"
     if p.exists():
         prev = pd.read_csv(p, float_precision="round_trip")
-        prev = prev[~prev["date"].astype(str).isin(D["date"].astype(str))]
+        if "form" not in prev.columns:
+            prev["form"] = "elevation"
+        prev = prev[~(prev["date"].astype(str).isin(D["date"].astype(str))
+                      & (prev["form"] == form))]
         D = pd.concat([prev, D], ignore_index=True)
-    D = D.sort_values("date")
+    D = D.sort_values(["form", "date"])
     D.to_csv(p, index=False)
     saved(p.name)
 
+    D = D[D["form"] == form]
     ctrl = D[D["dry_control"]]
     live = D[~D["dry_control"]]
     if len(ctrl):
@@ -3131,8 +3220,9 @@ def phase13(dates=None, z_b=None, kml=False) -> int:
         if len(live):
             best = float(live["flooded_ha"].max())
             info(f"  against {best:.2f} ha on the wettest date — a margin of "
-                 f"{best / floor:.1f} to 1")
-            if best < floor * DRY_CONTROL_MIN_RATIO:
+                 + (f"{best / floor:.1f} to 1" if floor > 0
+                    else "infinity: the dry controls return nothing"))
+            if floor > 0 and best < floor * DRY_CONTROL_MIN_RATIO:
                 warn(f"  THE MARGIN IS BELOW {DRY_CONTROL_MIN_RATIO}:1. No "
                      f"flooded area from this run should be quoted.")
     info("Every area here is NET OF NOTHING: the dry-control floor is not "

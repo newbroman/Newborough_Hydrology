@@ -3076,7 +3076,7 @@ def _units_for(site, cache):
 
 
 def _series_frame(month, EE, NN, ok, wet, dep, area_ha, n_wells, site, out_dir,
-                  so_far=None):
+                  so_far=None, weak=False, panel_n=None):
     """One map for one month, on a fixed extent so the frames register.
 
     Every frame carries its own month, area and well count burnt in, because a
@@ -3108,6 +3108,18 @@ def _series_frame(month, EE, NN, ok, wet, dep, area_ha, n_wells, site, out_dir,
     add_en_axes(ax)
     ax.set_title(f"{month:%b %Y}   —   {area_ha:.2f} ha flooded   "
                  f"({n_wells} wells)", loc="left", fontsize=12)
+    # THE CAVEAT TRAVELS WITH THE PICTURE (Martin, 2026-09-13). A frame will be
+    # lifted out of the animation and shown on its own, so a month computed on a
+    # part-reporting network says so on its own face rather than in a caption
+    # somebody else writes.
+    if weak:
+        ax.text(0.5, 0.972,
+                f"REDUCED NETWORK — {n_wells} of {panel_n} panel wells "
+                f"reporting; indicative only",
+                transform=ax.transAxes, ha="center", va="top", fontsize=9,
+                color="#8c2d04", zorder=8,
+                bbox=dict(boxstyle="round,pad=0.35", facecolor="#fee6ce",
+                          edgecolor="#e6550d", lw=0.8, alpha=0.95))
     ax.text(0.99, 0.01, "modelled water table above slack floor; "
             "net of nothing", transform=ax.transAxes, ha="right", va="bottom",
             fontsize=7, color="#555555")
@@ -3130,6 +3142,11 @@ def _series_frame(month, EE, NN, ok, wet, dep, area_ha, n_wells, site, out_dir,
             ins.spines[sp].set_visible(False)
         ins.tick_params(length=0)
         ins.patch.set_alpha(0.75)
+    # The directory is re-asserted per frame, not once at the start. A 229-month
+    # render is a twenty-minute job and anything that removes the directory
+    # underneath it - a tidy-up, a sync, a session working in the same tree -
+    # otherwise loses the whole run at whatever month it had reached.
+    out_dir.mkdir(parents=True, exist_ok=True)
     p = out_dir / f"frame_{month:%Y_%m}.png"
     fig.savefig(p, dpi=SERIES_FRAME_DPI, bbox_inches="tight",
                 facecolor="white")
@@ -3176,8 +3193,27 @@ def _series_plot(D):
         ax.scatter(im["t"], im["flooded_ha"], s=34, facecolor="none",
                    edgecolor="#238b45", lw=1.2, zorder=5,
                    label="imagery month (validated)")
+    # THE WEAK SPAN IS MARKED ON THE FIGURE, not truncated out of it (Martin,
+    # 2026-09-13). The panel's MEMBERSHIP is fixed from the start but its
+    # REPORTING is not: before it is substantially complete the surface rests on
+    # 20-30 wells at roughly half again the leave-one-out error. Those months are
+    # real and are shown; they are simply not comparable with the rest, and the
+    # figure says so where a reader cannot miss it.
+    W = S[S["panel_frac"] < SERIES_PANEL_COMPLETE_FRAC] if "panel_frac" in S \
+        else S.iloc[0:0]
+    if len(W):
+        lo, hi = W["t"].min(), W["t"].max()
+        for a_ in (ax, bx):
+            a_.axvspan(lo, hi, color="#fee6ce", alpha=0.75, lw=0, zorder=0)
+        ax.axvline(hi, color="#e6550d", lw=0.9, ls="--", zorder=2)
+        ax.text(lo, ax.get_ylim()[1] * 0.97,
+                f"  reduced network — {int(W['n_wells'].median())} of "
+                f"{int(S['n_wells'].max())} wells, LOO "
+                f"{W['loo_m'].median():.2f} m\n  indicative only, not "
+                f"comparable month to month",
+                ha="left", va="top", fontsize=8.5, color="#8c2d04", zorder=6)
     ax.set_ylabel("flooded area (ha)")
-    ax.legend(frameon=False, fontsize=9, ncol=2)
+    ax.legend(frameon=False, fontsize=9, ncol=2, loc="upper right")
     ax.set_title("Newborough Warren — modelled flooded area, monthly. "
                  "Every area is net of nothing.", loc="left")
     bx.fill_between(S["t"], 0, S["n_wells"], color="#999999", alpha=0.5, lw=0)
@@ -3332,7 +3368,10 @@ def phase14(frames=False, basis="both", months=0) -> int:
                           if r["basis"] == "panel"
                           and r["flooded_ha"] is not None]
                 _series_frame(month, EE, NN, ok, wet, dep, area, len(xs),
-                              site, frame_dir, so_far=so_far)
+                              site, frame_dir, so_far=so_far,
+                              weak=(len(xs) / len(names)
+                                    < SERIES_PANEL_COMPLETE_FRAC),
+                              panel_n=len(names))
 
     D = pd.DataFrame(rows)
     p = OUT / "W94_50_flood_series.csv"

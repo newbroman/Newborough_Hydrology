@@ -38,7 +38,15 @@ NOT DONE HERE, AND WHY
 """
 from __future__ import annotations
 
-__version__ = "1.13.0"  # Hollingham (2026) - 2026-09-13. Phase 13 reads the
+__version__ = "1.14.0"  # Hollingham (2026) - 2026-09-13. Phase 9: the raster bias
+#   is measured from DGPS-surveyed wells ONLY (PHASE9_BIAS_GROUND_SOURCES) - a well
+#   whose ground came from the DEM cannot measure the DEM, and those six pairs sat
+#   at -0.037 m / MAD 0.153 against the DGPS pairs' +0.302 / 0.083 - and the
+#   waterline basis is PINNED to vp2 (PHASE9_WATERLINE_BASIS) rather than taken
+#   from whichever polygons exist, which had the code on tiles while the committed
+#   constant was vp2's. PHASE9_DEM_BIAS_M 0.282 -> 0.302, pending the read-back.
+#   The unthresholded frame was tested here and rejected: two pairs, both circular.
+# v1.13.0  # Hollingham (2026) - 2026-09-13. Phase 13 reads the
 #   UNTHRESHOLDED level frame via _level_frame(): 01_wells_all.csv when Script 01
 #   >= 1.16.0 has emitted it, else 01_wells_clean.csv with a warning. Recovers the
 #   five DGPS-surveyed south-eastern wells (D31/D33/D34/D39/D45) that Script 01's
@@ -908,7 +916,23 @@ CHANGE_SIGMA = 3.0
 # and that well's own water surface, repeating within a well at a median sd of
 # 0.018 m. Subtracted from every DEM floor, because a floor is only as good as
 # the raster it is read from.
-PHASE9_DEM_BIAS_M = 0.282
+PHASE9_DEM_BIAS_M = 0.302
+# WHICH FLOOD READ THE BIAS IS MEASURED FROM, pinned rather than left to whichever
+# polygons happen to exist. The tiles are the higher-resolution instrument and the
+# tile waterline should be the better contour, but there is ONE tile date against
+# three vp2 dates, and on DGPS pairs the two bases differ by 3.2 cm (+0.302 vp2,
+# +0.270 tiles) — more than any other choice in this measurement. Three dates of
+# averaging beats one date of resolution until more tile dates exist, so the basis
+# is vp2 and the switch is a deliberate edit here, not a side effect of a re-run.
+PHASE9_WATERLINE_BASIS = "vp2"
+# WELLS WHOSE GROUND ELEVATION CAME FROM THE DEM CANNOT MEASURE THE DEM'S BIAS.
+# The measurement is median(DEM along the waterline) - (ground + h). Where ground
+# is itself a DEM read at the well, the raster's bias appears on both sides and
+# largely cancels: the six such pairs return -0.037 m with a MAD of 0.153 against
+# the 29 DGPS pairs' +0.302 at 0.083. Same principle as the scraped-well exclusion
+# already applied below - a well whose ground has CHANGED since the LiDAR cannot
+# measure the LiDAR, and neither can a well whose ground IS the LiDAR.
+PHASE9_BIAS_GROUND_SOURCES = ("dgps",)
 # The vp2 registration residual, the distance inside which a well and a slack
 # cannot be told apart by the registration — the same tolerance phase 8 uses.
 VP2_RESIDUAL_M = 3.93
@@ -3148,6 +3172,31 @@ def phase9() -> int:
     DGPS ground plus its reading. The median is the raster's local bias and it
     repeats per well across dates, which is what makes it the local ground
     rather than noise.
+
+    TWO CHOICES IN THAT MEASUREMENT ARE PINNED, 2026-09-13, because both were
+    being made by accident:
+
+      1. **Only DGPS-surveyed ground contributes** (`PHASE9_BIAS_GROUND_SOURCES`).
+         Where ground came from the DEM, the bias appears on both sides of the
+         subtraction and cancels: those pairs returned -0.037 m at MAD 0.153
+         against the DGPS pairs' +0.302 at 0.083, scattered about zero, which is
+         what a cancelled measurement looks like. Excluding them tightens the
+         scatter by a quarter. It is the scraped-well exclusion's own logic: a
+         well whose ground has CHANGED since the LiDAR cannot measure the LiDAR,
+         and neither can a well whose ground IS the LiDAR.
+      2. **The basis is vp2** (`PHASE9_WATERLINE_BASIS`). This file previously
+         took the tiles wherever they existed, while the committed constant was
+         the vp2 number - so a re-run would have moved the bias from +0.282 to
+         +0.220 with nothing recording the change. Three vp2 dates beat one tile
+         date until more tile dates exist; switching is now an edit, not a side
+         effect.
+
+    UNCHANGED BY EITHER: the unthresholded level frame was tested and REJECTED
+    here. It adds two pairs, both LiDAR-ground, because a pair needs a well at or
+    above ground ON A READ DATE and the short-record wells span none; it moved the
+    constant 1 cm and widened the MAD from 0.111 to 0.141. `01_wells_all.csv` is
+    right for phase 13 and wrong for this, which is D-164's lesson pointing the
+    other way: the basis follows what the analysis does with it.
     """
     import math                                              # noqa: PLC0415
     from rasterio.mask import mask as rio_mask2              # noqa: PLC0415
@@ -3168,17 +3217,19 @@ def phase9() -> int:
           in zip(wells["Name"], wells["E"], wells["N"])}
     ground = {str(n).lower(): float(g) for n, g
               in zip(wells["Name"], wells["ground_elev_m"])}
+    gsrc = {str(n).lower(): str(v).lower() for n, v
+            in zip(wells["Name"], wells["ground_source"])}
 
-    # THE TILE READ IS PRIMARY, so phase 9 measures Delta from the tile polygons
+    # THE WATERLINE BASIS IS PINNED, so phase 9 measures Delta from the tile polygons
     # where they exist and falls back to the vp2 ones. Which it used is stated,
     # because Delta is read off the waterline and the waterline's precision is
     # the whole reason the tiles were captured.
-    floods = sorted(OUT.glob("W94_08_flood_tiles_*.geojson"))
-    basis = "tiles"
-    if not floods:
+    basis = PHASE9_WATERLINE_BASIS
+    if basis == "tiles":
+        floods = sorted(OUT.glob("W94_08_flood_tiles_*.geojson"))
+    else:
         floods = [q for q in sorted(OUT.glob("W94_08_flood_*.geojson"))
                   if "_tiles_" not in q.name]
-        basis = "vp2"
     if floods:
         info(f"Delta is measured from the {basis} flood read")
     if not floods:
@@ -3224,6 +3275,7 @@ def phase9() -> int:
                           "well_surface_m": round(ground[nm] + r["h_m"], 3),
                           "bias_m": round(float(np.median(v))
                                           - (ground[nm] + r["h_m"]), 3),
+                          "ground_source": gsrc.get(nm, "unknown"),
                           "scraped": nm in SCRAPE_DEM_CORRECTION_M})
     if not pairs:
         warn("no flood body holds a gauged well; cannot measure the bias")
@@ -3232,11 +3284,23 @@ def phase9() -> int:
     p = OUT / "W94_11_waterline_vs_well.csv"
     P.to_csv(p, index=False)
     saved(p.name)
-    clean = P[~P["scraped"]]
+    clean = P[(~P["scraped"])
+              & P["ground_source"].isin(PHASE9_BIAS_GROUND_SOURCES)]
+    dropped = P[~P.index.isin(clean.index)]
     off = float(clean["bias_m"].median())
     mad = float((clean["bias_m"] - off).abs().median())
     step(f"raster bias from {len(clean)} waterline/well pair(s) over "
-         f"{P['date'].nunique()} date(s): {off:+.3f} m, MAD {mad:.3f}")
+         f"{clean['date'].nunique()} date(s), basis {basis}, ground "
+         f"{'/'.join(PHASE9_BIAS_GROUND_SOURCES)}: {off:+.3f} m, MAD {mad:.3f}")
+    if len(dropped):
+        by = dropped.groupby("ground_source")["bias_m"].agg(["size", "median"])
+        for src_, r_ in by.iterrows():
+            info(f"  excluded {int(r_['size'])} pair(s) on ground_source="
+                 f"{src_} (median {r_['median']:+.3f} m) — a well whose ground "
+                 f"came from the DEM cannot measure the DEM")
+        n_scr = int(dropped["scraped"].sum())
+        if n_scr:
+            info(f"  and {n_scr} scraped pair(s), as before")
     rep = P.groupby("well")["bias_m"].agg(["size", "std"])
     rep = rep[rep["size"] >= 2]
     if len(rep):

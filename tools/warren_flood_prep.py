@@ -38,7 +38,16 @@ NOT DONE HERE, AND WHY
 """
 from __future__ import annotations
 
-__version__ = "1.16.0"  # Hollingham (2026) - 2026-09-13. Phase 15 sweeps
+__version__ = "1.17.0"  # Hollingham (2026) - 2026-09-13. DEFECT FIX in
+#   _well_levels: the day <= 15 branch used `d - MonthBegin(1)`, which from a
+#   mid-month date rolls back to the first of the SAME month, so the bucketing the
+#   docstring describes was never applied. One read date has day <= 15 and it is
+#   the one Martin queried: the 2021-04-04 frame was scored against the
+#   END-OF-APRIL water table (median -0.260 m, 14 wells at or above ground) when
+#   it was taken on the 4th, eleven days after 2021-03-24 whose end-of-March level
+#   is +0.020 m with 41 wells at or above ground. 13.21 -> 17.43 ha, now equal to
+#   2021-03-24 because both frames sit within days of the same month end.
+# v1.16.0  # Hollingham (2026) - 2026-09-13. Phase 15 sweeps
 #   SLACK_MIN_DEPTH_M against the imagery, because only 28.8 % of the water the
 #   2021-03-24 read sees lies inside a slack unit at all. The merge tree does not
 #   depend on the threshold, so _slack_units now takes depth/area and caches the
@@ -3735,8 +3744,21 @@ def _well_levels(lev, wells, date):
     falls in.
     """
     d = pd.Timestamp(date)
-    month = (d - pd.offsets.MonthBegin(1)) if d.day <= 15 else d
-    key = pd.Timestamp(month.year, month.month, 1)
+    # DEFECT FIXED 2026-09-13. This read `d - pd.offsets.MonthBegin(1)`, which
+    # from a mid-month date rolls back to the FIRST OF THE SAME MONTH, not to the
+    # previous month — so the day <= 15 branch was a no-op and the convention the
+    # docstring describes was never applied. It bit exactly one read date, and it
+    # is the one Martin queried: the 2021-04-04 frame was compared against the
+    # END-OF-APRIL water table (median -0.260 m, 14 wells at or above ground)
+    # when the frame was taken on the 4th, eleven days after 2021-03-24, whose
+    # end-of-March level is median +0.020 m with 41 wells at or above ground. The
+    # warren does not drain that fast, and it did not: the model was reading a
+    # month into the frame's future.
+    if d.day <= 15:
+        prev = d.replace(day=1) - pd.Timedelta(days=1)
+        key = pd.Timestamp(prev.year, prev.month, 1)
+    else:
+        key = pd.Timestamp(d.year, d.month, 1)
     row = lev[lev["month"] == key]
     out = []
     if not len(row):

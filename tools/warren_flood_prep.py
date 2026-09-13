@@ -38,7 +38,14 @@ NOT DONE HERE, AND WHY
 """
 from __future__ import annotations
 
-__version__ = "1.15.0"  # Hollingham (2026) - 2026-09-13. Phase 14: the monthly
+__version__ = "1.16.0"  # Hollingham (2026) - 2026-09-13. Phase 15 sweeps
+#   SLACK_MIN_DEPTH_M against the imagery, because only 28.8 % of the water the
+#   2021-03-24 read sees lies inside a slack unit at all. The merge tree does not
+#   depend on the threshold, so _slack_units now takes depth/area and caches the
+#   tree; the sweep rebuilds nothing. Phase 13 gains --kml, writing the predicted
+#   flood as polygons to be judged on the imagery in Google Earth rather than
+#   against a number.
+# v1.15.0  # Hollingham (2026) - 2026-09-13. Phase 14: the monthly
 #   flooded-area series, phase 13 run over every month instead of eight imagery
 #   dates. TWO bases, because the network trebles across the record and a series on
 #   whatever wells exist each month cannot separate a rising water table from a
@@ -212,6 +219,10 @@ def main() -> int:
                          "near 1.0 m/px); 'vp2' is the sensitivity check at "
                          "2.884 m/px. Artefacts are kept apart by a _tiles tag "
                          "so neither overwrites the other.")
+    ap.add_argument("--kml", action="store_true",
+                    help="phase 13: also write the model's predicted flood as "
+                         "KML per date, to be opened in Google Earth on that "
+                         "date's own imagery and judged there")
     ap.add_argument("--months", type=int, default=0,
                     help="phase 14: compute only the first N months of each "
                          "basis. For smoke-testing the phase; a partial series "
@@ -239,12 +250,16 @@ def main() -> int:
     if args.phase == 11:
         return phase11(wet=args.wet, dry=args.dry, shift=args.shift,
                        series=args.series)
+    if args.phase == 15:
+        return phase15(depths=([x for x in args.datums.split(",")]
+                              if args.datums else None))
     if args.phase == 14:
         return phase14(frames=args.frames, basis=args.basis,
                        months=args.months)
     if args.phase == 13:
         return phase13(dates=args.date,
-                       z_b=(float(args.z_b) if args.z_b else None))
+                       z_b=(float(args.z_b) if args.z_b else None),
+                       kml=args.kml)
     if args.phase == 12:
         return phase12(dates=args.date,
                        datums=([float(x) for x in args.datums.split(",")]
@@ -2736,7 +2751,10 @@ def phase12(dates=None, datums=None, mode="step") -> int:
     return 0
 
 
-def _slack_units(site, bias_m):
+_TREE_CACHE = {}
+
+
+def _slack_units(site, bias_m, depth_m=None, area_m2=None, quiet=False):
     """The slack inventory, from the merge tree rather than from the hollows.
 
     WHY NOT THE PHASE 6 HOLLOWS. A hollow is whatever the delineation closed
@@ -2761,6 +2779,51 @@ def _slack_units(site, bias_m):
     from utils.slacks import merge_tree                         # noqa: PLC0415
     from rasterio.features import geometry_mask                 # noqa: PLC0415
 
+    # THE TREE DOES NOT DEPEND ON THE THRESHOLDS, only the selection off it
+    # does, so a depth sweep rebuilds nothing. Cached on the mask and the bias,
+    # which are what the tree is actually a function of.
+    depth = SLACK_MIN_DEPTH_M if depth_m is None else float(depth_m)
+    area = SLACK_MIN_AREA_M2 if area_m2 is None else float(area_m2)
+    ckey = (hash(site.wkb), round(float(bias_m), 6))
+
+    if ckey in _TREE_CACHE:
+        arr, tr, leafc, par, fl, ml, op, n = _TREE_CACHE[ckey]
+    else:
+        arr, tr, leafc, par, fl, ml, op, n = _build_tree(site, bias_m)
+        _TREE_CACHE[ckey] = (arr, tr, leafc, par, fl, ml, op, n)
+
+    dep = np.where(op, -1.0, ml - fl)
+    pick = np.full(n, -1, dtype=np.int64)
+    for i in range(n):
+        cur = i
+        for _ in range(200):
+            if (not op[cur]) and dep[cur] >= depth:
+                pick[i] = cur
+                break
+            nxt = int(par[cur])
+            if nxt < 0 or nxt == cur:
+                break
+            cur = nxt
+    unit = pick[leafc]
+    inside = geometry_mask([site], out_shape=arr.shape, transform=tr,
+                           invert=True)
+    unit = np.where(inside, unit, -1)
+    res = abs(tr.a)
+    uids, counts = np.unique(unit[unit >= 0], return_counts=True)
+    keep = uids[counts * res * res >= area]
+    ok = np.isin(unit, keep) & (unit >= 0)
+    if not quiet:
+        info(f"{n} merge-tree node(s), {int(op.sum())} open (draining to the "
+             f"edge — not slacks); {len(uids)} unit(s), {len(keep)} above "
+             f"{area:.0f} m2 at depth >= {depth:.2f} m, "
+             f"{ok.sum() * res * res / 1e4:.1f} ha")
+    return arr, unit, ok, tr, res
+
+
+def _build_tree(site, bias_m):
+    """The merge tree for one warren mask, which the thresholds then select off."""
+    from utils.slacks import merge_tree                         # noqa: PLC0415
+
     ds = rasterio.open(DATA_DEM)
     db, b = ds.bounds, site.bounds
     rb = (max(b[0], db.left), max(b[1], db.bottom),
@@ -2782,29 +2845,46 @@ def _slack_units(site, bias_m):
     fl = np.fromiter((q["floor_m"] for q in nodes), dtype=float, count=n)
     ml = np.fromiter((q["merge_level_m"] for q in nodes), dtype=float, count=n)
     op = np.fromiter((q["open"] for q in nodes), dtype=bool, count=n)
-    dep = np.where(op, -1.0, ml - fl)
-    pick = np.full(n, -1, dtype=np.int64)
-    for i in range(n):
-        cur = i
-        for _ in range(200):
-            if (not op[cur]) and dep[cur] >= SLACK_MIN_DEPTH_M:
-                pick[i] = cur
-                break
-            nxt = int(par[cur])
-            if nxt < 0 or nxt == cur:
-                break
-            cur = nxt
-    unit = pick[leafc]
-    inside = geometry_mask([site], out_shape=arr.shape, transform=tr, invert=True)
-    unit = np.where(inside, unit, -1)
-    res = abs(tr.a)
-    uids, counts = np.unique(unit[unit >= 0], return_counts=True)
-    keep = uids[counts * res * res >= SLACK_MIN_AREA_M2]
-    ok = np.isin(unit, keep) & (unit >= 0)
-    info(f"{n} merge-tree node(s), {int(op.sum())} open (draining to the edge — "
-         f"not slacks); {len(uids)} unit(s), {len(keep)} above "
-         f"{SLACK_MIN_AREA_M2:.0f} m2, {ok.sum() * res * res / 1e4:.1f} ha")
-    return arr, unit, ok, tr, res
+    return arr, tr, leafc, par, fl, ml, op, n
+
+
+def _model_flood_kml(date, EE, NN, wet, res, path):
+    """The model's predicted flood, as KML, so it can be judged ON the imagery.
+
+    A number cannot be argued with usefully and a matplotlib frame is not the
+    photograph. This writes what the model says is under water as polygons in
+    WGS84, to be opened in Google Earth on that date's own imagery at full
+    resolution — which is the only comparison that settles whether the model is
+    missing water or the read is over-reading it.
+    """
+    from shapely.geometry import box                           # noqa: PLC0415
+    from shapely.ops import unary_union                        # noqa: PLC0415
+
+    if not wet.any():
+        return None
+    h = res / 2.0
+    cells = [box(x - h, y - h, x + h, y + h)
+             for x, y in zip(EE[wet], NN[wet])]
+    g = gpd.GeoDataFrame(geometry=[unary_union(cells)], crs=OSGB)
+    g = g.explode(index_parts=False).to_crs(4326)
+    k = ['<?xml version="1.0" encoding="UTF-8"?>',
+         '<kml xmlns="http://www.opengis.net/kml/2.2"><Document>',
+         f"<name>model flood {date}</name>",
+         '<Style id="mw"><LineStyle><color>ff9c3c1f</color><width>1</width>'
+         '</LineStyle><PolyStyle><color>7fb46f1f</color></PolyStyle></Style>']
+    for geom in g.geometry:
+        ring = ""
+        for poly in (list(geom.geoms) if geom.geom_type == "MultiPolygon"
+                     else [geom]):
+            cc = " ".join(f"{x:.7f},{y:.7f},0"
+                          for x, y in poly.exterior.coords)
+            ring += ("<Polygon><outerBoundaryIs><LinearRing><coordinates>"
+                     f"{cc}</coordinates></LinearRing></outerBoundaryIs>"
+                     "</Polygon>")
+        k.append(f"<Placemark><styleUrl>#mw</styleUrl>{ring}</Placemark>")
+    k.append("</Document></kml>")
+    path.write_text("\n".join(k), encoding="utf-8")
+    return len(g)
 
 
 def _level_frame():
@@ -2875,7 +2955,7 @@ def _estuary_control(site):
     return np.asarray(E), np.asarray(N)
 
 
-def phase13(dates=None, z_b=None) -> int:
+def phase13(dates=None, z_b=None, kml=False) -> int:
     """Flooded extent: where the water table stands above the slack floor.
 
     MARTIN'S DEFINITION (2026-09-13): *"flooded means above slack floor"*. So the
@@ -2996,6 +3076,11 @@ def phase13(dates=None, z_b=None) -> int:
               "z_b_m_aod": zb,
               "dry_control": d in DRY_CALIBRATION_DATES}
         out.append(r_)
+        if kml:
+            q = OUT / f"W94_41_model_flood_{d}.kml"
+            nk = _model_flood_kml(d, EE, NN, wet, res, q)
+            if nk:
+                saved(f"{q.name}  ({nk} polygon(s))")
         info(f"  {d}  {n_wet_wells:2d} wet dipwell(s)  "
              f"{r_['flooded_ha']:7.2f} ha  median depth "
              f"{r_['median_depth_m']}" + ("   [DRY CONTROL]" if r_["dry_control"]
@@ -3413,6 +3498,168 @@ def phase14(frames=False, basis="both", months=0) -> int:
     info("EVERY AREA IS NET OF NOTHING and the series is MODELLED: eight "
          "months are validated against the imagery read, the rest are "
          "interpolation. Quote the area, the floor and the basis together.")
+    return 0
+
+def phase15(depths=None) -> int:
+    """Is SLACK_MIN_DEPTH_M defensible against the imagery? A sweep.
+
+    THE QUESTION. Only 28.8 % of the water the imagery reads on 2021-03-24 lies
+    inside a merge-tree slack unit at all (22.81 of 79.15 ha); the phase 6
+    hollows contain 58.2 %. So the unit definition, not the water table, sets
+    most of the gap between the model and the photograph — and the constant
+    doing the excluding is SLACK_MIN_DEPTH_M, which has never been tested against
+    this evidence. Martin, 2026-09-13: *"test the slack depth against the
+    imagery"*.
+
+    WHAT IS SWEPT AND WHAT IS NOT. Only the selection off the merge tree. The
+    tree itself does not depend on the threshold, so nothing is rebuilt and no
+    other constant moves: the bias, z_b, the estuary boundary, the level frame
+    and SLACK_MIN_AREA_M2 are all held.
+
+    THE FALSIFICATION CRITERIA, stated before the run:
+
+      1. A lower threshold that raises the DRY CONTROLS as fast as it raises the
+         wet dates has bought nothing — it is admitting noise, not slacks. The
+         test is the MARGIN, wettest over the worst dry control, which must not
+         fall below DRY_CONTROL_MIN_RATIO.
+      2. A threshold whose reachable fraction rises while the margin holds is a
+         real improvement, and the size of the improvement is the size of the
+         case for changing the constant.
+      3. If the margin falls monotonically as the threshold falls, the committed
+         0.10 m is doing exactly what it was put there to do and the 29 % is a
+         property of the ground rather than of the constant. That is a NO, and
+         it is as useful an answer as a yes.
+
+    NOTHING IS WRITTEN TO config.py BY THIS PHASE. It reports a curve. Changing
+    SLACK_MIN_DEPTH_M moves every slack floor, the extent series and D-164's dry
+    controls together, so it belongs in a D-entry.
+    """
+    from utils.warren_mask import warren_on                     # noqa: PLC0415
+    from utils.config import SLACK_MIN_DEPTH_M                  # noqa: PLC0415
+    phase(15, "SLACK_MIN_DEPTH_M against the imagery")
+
+    ds_ = sorted(set(list(DRY_CALIBRATION_DATES)
+                     + ["2021-03-24", "2021-04-04", "2020-03-31", "2017-03-24"]))
+    sweep = ([float(x) for x in depths] if depths
+             else [0.02, 0.04, 0.06, 0.08, 0.10, 0.15, 0.20, 0.30])
+    if SLACK_MIN_DEPTH_M not in sweep:
+        sweep = sorted(set(sweep + [SLACK_MIN_DEPTH_M]))
+
+    zb = ESTUARY_LEVEL_M_AOD
+    wells = pd.read_csv(REPO / "outputs" / "01_well_elevations.csv",
+                        float_precision="round_trip")
+    lev = _level_frame()
+    ground = {str(n).lower(): float(g) for n, g
+              in zip(wells["Name"], wells["ground_elev_m"])}
+
+    site = warren_on(max(ds_))
+    BE, BN = _estuary_control(site)
+
+    # The imagery water this date, for the reachable-fraction measurement. The
+    # vp2 read is the one with three dates; the tile read is one date and is
+    # reported beside it where it exists.
+    reads = {}
+    for f in sorted(OUT.glob("W94_08_flood_*.geojson")):
+        tag = "tiles" if "_tiles_" in f.name else "vp2"
+        d = f.stem.split("flood_")[1].replace("tiles_", "")
+        reads[(tag, d)] = gpd.read_file(f).set_crs(OSGB, allow_override=True)
+    step(f"{len(reads)} imagery read(s) for the reachable fraction: "
+         f"{', '.join(sorted({k[1] for k in reads}))}")
+
+    rows = []
+    for depth in sweep:
+        arr, unit, ok, tr, res = _slack_units(site, PHASE9_DEM_BIAS_M,
+                                              depth_m=depth, quiet=True)
+        rows_, cols_ = np.nonzero(ok)
+        EE, NN = rasterio.transform.xy(tr, rows_, cols_)
+        EE = np.asarray(EE)
+        NN = np.asarray(NN)
+        Z = arr[ok]
+        cell_ha = res * res / 1e4
+        ceiling = float(ok.sum()) * cell_ha
+
+        # how much of each imagery read this unit set can reach
+        reach = {}
+        pts = gpd.GeoDataFrame(geometry=gpd.points_from_xy(EE, NN), crs=OSGB)
+        for (tag, d), g in reads.items():
+            tot = float(g.area.sum()) / 1e4
+            inside = gpd.sjoin(pts, g[["geometry"]], how="inner",
+                               predicate="within")
+            reach[(tag, d)] = (len(inside) * cell_ha, tot)
+
+        for d in ds_:
+            wl = _well_levels(lev, wells, d)
+            if wl is None or not len(wl):
+                continue
+            xs, ys, wt = [], [], []
+            for _, r in wl.iterrows():
+                k = str(r["well"]).lower()
+                if k in ground and k != LAKE_GAUGE_NAME:
+                    xs.append(float(r["E"]))
+                    ys.append(float(r["N"]))
+                    wt.append(ground[k] + float(r["h_m"]))
+            if len(xs) < MIN_WELLS_FOR_SURFACE:
+                continue
+            X = np.concatenate([xs, BE]) if len(BE) else np.asarray(xs)
+            Y = np.concatenate([ys, BN]) if len(BE) else np.asarray(ys)
+            V = (np.concatenate([wt, np.full(len(BE), zb)]) if len(BE)
+                 else np.asarray(wt))
+            wet = Z < _idw(X, Y, V, EE, NN)
+            rch = reach.get(("vp2", d)) or reach.get(("tiles", d))
+            rows.append({
+                "slack_min_depth_m": depth, "date": d,
+                "ceiling_ha": round(ceiling, 3),
+                "flooded_ha": round(float(wet.sum()) * cell_ha, 3),
+                "dry_control": d in DRY_CALIBRATION_DATES,
+                "imagery_ha": round(rch[1], 3) if rch else None,
+                "reachable_ha": round(rch[0], 3) if rch else None,
+                "reachable_frac": (round(rch[0] / rch[1], 4)
+                                   if rch and rch[1] else None),
+                "committed": depth == SLACK_MIN_DEPTH_M})
+        S = pd.DataFrame([r for r in rows
+                          if r["slack_min_depth_m"] == depth])
+        dry = S[S["dry_control"]]["flooded_ha"].max()
+        wetm = S[~S["dry_control"]]["flooded_ha"].max()
+        rr = S["reachable_frac"].dropna()
+        info(f"  depth {depth:.2f} m  ceiling {ceiling:6.1f} ha  "
+             f"reachable {rr.max() * 100 if len(rr) else float('nan'):5.1f}%  "
+             f"dry max {dry:6.2f}  wettest {wetm:6.2f}  "
+             f"margin {wetm / dry if dry else float('nan'):5.2f}:1"
+             + ("   [COMMITTED]" if depth == SLACK_MIN_DEPTH_M else ""))
+
+    D = pd.DataFrame(rows)
+    p = OUT / "W94_60_slack_depth_sweep.csv"
+    D.to_csv(p, index=False)
+    saved(p.name)
+
+    g = D.groupby("slack_min_depth_m")
+    summ = pd.DataFrame({
+        "ceiling_ha": g["ceiling_ha"].first(),
+        "reachable_frac": g["reachable_frac"].max(),
+        "dry_max_ha": g.apply(lambda x: x[x.dry_control]["flooded_ha"].max(),
+                              include_groups=False),
+        "wettest_ha": g.apply(lambda x: x[~x.dry_control]["flooded_ha"].max(),
+                              include_groups=False)})
+    summ["margin"] = summ["wettest_ha"] / summ["dry_max_ha"]
+    q = OUT / "W94_61_slack_depth_summary.csv"
+    summ.round(4).to_csv(q)
+    saved(q.name)
+
+    best = summ[summ["margin"] >= DRY_CONTROL_MIN_RATIO]
+    if len(best):
+        pick = best["reachable_frac"].idxmax()
+        step(f"the deepest reach with the margin still above "
+             f"{DRY_CONTROL_MIN_RATIO}:1 is depth {pick:.2f} m — "
+             f"{summ.loc[pick, 'reachable_frac'] * 100:.1f}% of the imagery "
+             f"reachable at margin {summ.loc[pick, 'margin']:.2f}:1, against "
+             f"{summ.loc[SLACK_MIN_DEPTH_M, 'reachable_frac'] * 100:.1f}% and "
+             f"{summ.loc[SLACK_MIN_DEPTH_M, 'margin']:.2f}:1 committed")
+    else:
+        warn("  NO depth in the sweep holds the margin — the committed value "
+             "stands and the 29 % is a property of the ground")
+    info("NOTHING IS WRITTEN TO config.py. Changing SLACK_MIN_DEPTH_M moves "
+         "every slack floor, the extent series and D-164's dry controls "
+         "together; it belongs in a D-entry, not in a tool.")
     return 0
 
 def _flood_map(date, frame, fg, hollows, sc, thr, tag=""):

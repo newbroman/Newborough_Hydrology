@@ -38,7 +38,15 @@ NOT DONE HERE, AND WHY
 """
 from __future__ import annotations
 
-__version__ = "1.20.0"  # Hollingham (2026) - 2026-09-13. Phase 17 regresses the
+__version__ = "1.21.0"  # Hollingham (2026) - 2026-09-13. Readings collected after
+#   the pipeline's raw inputs were frozen reach the flood work through
+#   data/flood_calibration_levels.csv and _merge_calibration(), NOT through
+#   Newborough_Cleaned_For_Model.csv. Appending March 2026 to the pipeline input
+#   instead re-fitted everything downstream and moved the synthetic clearfell step
+#   from p = 0.000879 to p = 0.0010117, breaking a published p < 0.001 claim.
+#   Calibrating a map must not move a significance test. The merge never
+#   overwrites a month the pipeline already has.
+# v1.20.0  # Hollingham (2026) - 2026-09-13. Phase 17 regresses the
 #   hollow wet fraction on site wetness and place properties, trained on both reads.
 #   It learns WHERE well - depth, area, floor and EWI all strongly signed - and WHEN
 #   badly: leave-one-DATE-out returns 156.94 ha against 46.09 observed on
@@ -248,6 +256,11 @@ def main() -> int:
                          "near 1.0 m/px); 'vp2' is the sensitivity check at "
                          "2.884 m/px. Artefacts are kept apart by a _tiles tag "
                          "so neither overwrites the other.")
+    ap.add_argument("--force-read", dest="force_read", action="store_true",
+                    help="phase 8: read a frame whose own Otsu split is above "
+                         "the gate. For frames whose water is specular and so "
+                         "defeats a darkness test; every row written is "
+                         "flagged forced")
     ap.add_argument("--form", choices=("elevation", "depth"),
                     default="elevation",
                     help="how the water table is interpolated. 'elevation' "
@@ -280,7 +293,7 @@ def main() -> int:
     banner("W94 step 1 — the warren mask by frame date", __version__)
     if args.phase == 8:
         return phase8(dates=args.date, calibrate=args.calibrate,
-                      series=args.series)
+                      series=args.series, force_read=args.force_read)
     if args.phase == 10:
         return phase10(dates=args.date, calibrate=args.calibrate)
     if args.phase == 11:
@@ -1196,7 +1209,8 @@ def _mosaic(date, m41, EE, NN, dune_prior):
     return grid, ok, gsd, resid, len(used), float(ok.sum())
 
 
-def phase8(dates=None, calibrate=False, series="vp2") -> int:
+def phase8(dates=None, calibrate=False, series="vp2",
+           force_read=False) -> int:
     """The flood read: the photographs classify, the DEM names the result.
 
     TWO SERIES, ONE METHOD, AND THE PRIMARY ONE IS NAMED IN ADVANCE. `series`
@@ -1441,7 +1455,19 @@ def phase8(dates=None, calibrate=False, series="vp2") -> int:
                                   "otsu_z": thr, "bimodal_frac": frac})
             continue
 
-        if not np.isfinite(thr) or thr > FLOOD_OTSU_MAX_Z:
+        if force_read and np.isfinite(thr) and thr > FLOOD_OTSU_MAX_Z:
+            # THE GATE IS OVERRIDDEN FOR THIS FRAME, ON MARTIN'S JUDGEMENT OF
+            # THE IMAGE (2026-09-13, for 2017-03-24). The gate is not wrong in
+            # general: on a frame with no dark population Otsu splits bright
+            # from brighter and the cut is arbitrary. But it is a test of
+            # DARKNESS, and water that is specular - brighter than its rim and
+            # colourless - defeats it, which is a known failure here. A read
+            # produced this way is flagged `forced` in every row it writes so it
+            # can never be mistaken for one the frame's own evidence supported.
+            warn(f"  GATE OVERRIDDEN: split at {thr:.2f} is above "
+                 f"{FLOOD_OTSU_MAX_Z}; reading anyway on instruction, and the "
+                 f"row is flagged forced")
+        elif not np.isfinite(thr) or thr > FLOOD_OTSU_MAX_Z:
             rows.append({"date": date, "frame": frame, "n_bodies": 0,
                          "flood_ha": 0.0, "otsu_z": round(float(thr), 4),
                          "bimodal_frac": round(frac, 4), "verdict": "DRY",
@@ -1543,7 +1569,7 @@ def phase8(dates=None, calibrate=False, series="vp2") -> int:
                "unseen_hollow_ha": (round(cov.get(date, {}).get("unseen_ha", 0.0), 2)
                                     if series == "tiles" else None),
                "n_bodies": n_bodies, "flood_ha": round(fg.area.sum() / 1e4, 3),
-               "otsu_z": round(float(thr), 4),
+               "otsu_z": round(float(thr), 4), "forced": bool(force_read),
                "bimodal_frac": round(frac, 4), "verdict": "READ", "reason": ""}
         row.update(sc["summary"])
         rows.append(row)
@@ -3015,6 +3041,51 @@ def _level_frame():
     lev = pd.read_csv(pth, float_precision="round_trip")
     lev = lev.rename(columns={lev.columns[0]: "month"})
     lev["month"] = pd.to_datetime(lev["month"])
+    return _merge_calibration(lev)
+
+
+def _merge_calibration(lev):
+    """Overlay readings the pipeline's raw inputs do not yet contain.
+
+    A flood frame needs the dipwell month it was taken in, and the pipeline's
+    inputs are frozen earlier. These readings therefore live in
+    `data/flood_calibration_levels.csv`, OUTSIDE the pipeline, and are merged
+    here and nowhere else — see the note on DATA_FLOOD_CAL_LEVELS in paths.py for
+    why that boundary is load-bearing rather than tidy.
+
+    Bucketing is Script 01's: a reading on day > 15 belongs to that month, day
+    <= 15 to the previous one. An existing month is NOT overwritten — the
+    pipeline's own value wins wherever it has one, so this can only add.
+    """
+    from utils.paths import DATA_FLOOD_CAL_LEVELS                # noqa: PLC0415
+
+    if not DATA_FLOOD_CAL_LEVELS.exists():
+        return lev
+    C = pd.read_csv(DATA_FLOOD_CAL_LEVELS, float_precision="round_trip")
+    if not len(C):
+        return lev
+    d = pd.to_datetime(C["date"])
+    mo = d.where(d.dt.day > 15, d - pd.offsets.MonthBegin(1))
+    C["month"] = pd.to_datetime(
+        mo.dt.year.astype(str) + "-" + mo.dt.month.astype(str).str.zfill(2)
+        + "-01")
+    have = set(lev["month"])
+    added = 0
+    for month, g in C.groupby("month"):
+        if month in have:
+            continue
+        row = {"month": month}
+        for _, r in g.iterrows():
+            w = str(r["well"])
+            if w in lev.columns:
+                row[w] = float(r["h_m"])
+        lev = pd.concat([lev, pd.DataFrame([row])], ignore_index=True)
+        added += 1
+        info(f"  calibration month {month:%Y-%m} added from "
+             f"{DATA_FLOOD_CAL_LEVELS.name}: {len(row) - 1} well(s) — NOT a "
+             f"pipeline input, and no pipeline number moves")
+    if added:
+        lev = lev.sort_values("month").reset_index(drop=True)
     return lev
 
 

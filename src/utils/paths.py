@@ -319,6 +319,29 @@ INT_WELLS_CLEAN     = OUT_DIR / "01_wells_clean.csv"
 # llyn rhos (a lake surface) and pdfs (a tidal signature) are excluded here too,
 # because that exclusion is physical and not a record-length criterion.
 INT_WELLS_ALL       = OUT_DIR / "01_wells_all.csv"
+
+# ── THE FLOOD-CALIBRATION FILES: READINGS THE PIPELINE DELIBERATELY CANNOT SEE ──
+# Dipwell levels and RAF Valley months collected AFTER the pipeline's raw inputs
+# were frozen, held for the imagery flood work alone (W94) and read by
+# tools/warren_flood_prep.py ONLY. No numbered script reads them and none may:
+# they are not in `pipeline_manifest.json`, no provenance hash covers them, and
+# nothing downstream is recomputed when they change.
+#
+# WHY THIS EXISTS, AND IT IS A REAL BOUNDARY (Martin, 2026-09-13). A flood frame
+# needs the dipwell month it was taken in; the pipeline's inputs end earlier. On
+# 2026-09-13 the March 2026 column was appended to
+# `Newborough_Cleaned_For_Model.csv` instead, and one extra month re-fitted
+# everything downstream and pushed the synthetic clearfell step from p = 0.000879
+# to p = 0.0010117 — breaking a `p < 0.001` claim in report12 AND in the abstract,
+# which `inequality_lint` caught. Calibrating a map must not move a published
+# significance test.
+#
+# The barrier already exists in the other direction: `living/` is WRITTEN by the
+# pipeline and consumed by an external app, and no downstream script reads it
+# back. These files are the read-side of the same barrier — current data reaching
+# a tool without passing through the pipeline.
+DATA_FLOOD_CAL_LEVELS  = DATA_DIR / "flood_calibration_levels.csv"
+DATA_FLOOD_CAL_CLIMATE = DATA_DIR / "flood_calibration_climate.csv"
 # Audit of the in-pipeline dist_coast_m regeneration (Script 01): per-well
 # committed vs recomputed perpendicular distance to the eroding shoreline.
 INT_DIST_COAST_VALIDATION = OUT_DIR / "01_dist_coast_validation.csv"

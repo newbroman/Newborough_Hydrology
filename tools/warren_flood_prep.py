@@ -38,7 +38,16 @@ NOT DONE HERE, AND WHY
 """
 from __future__ import annotations
 
-__version__ = "1.14.0"  # Hollingham (2026) - 2026-09-13. Phase 9: the raster bias
+__version__ = "1.15.0"  # Hollingham (2026) - 2026-09-13. Phase 14: the monthly
+#   flooded-area series, phase 13 run over every month instead of eight imagery
+#   dates. TWO bases, because the network trebles across the record and a series on
+#   whatever wells exist each month cannot separate a rising water table from a
+#   growing dipwell network: a fixed 57-well panel (SERIES_PANEL_*) as the headline
+#   and all-available as the sensitivity. Measured LOO saturates at ~55 wells, so
+#   fixing composition costs nothing. --frames renders one map per month for an
+#   animation (tools/make_flood_animation.sh); the frames are working files and are
+#   gitignored. --months N smoke-tests the phase; a partial series is not an artefact.
+# v1.14.0  # Hollingham (2026) - 2026-09-13. Phase 9: the raster bias
 #   is measured from DGPS-surveyed wells ONLY (PHASE9_BIAS_GROUND_SOURCES) - a well
 #   whose ground came from the DEM cannot measure the DEM, and those six pairs sat
 #   at -0.037 m / MAD 0.153 against the DGPS pairs' +0.302 / 0.083 - and the
@@ -203,6 +212,19 @@ def main() -> int:
                          "near 1.0 m/px); 'vp2' is the sensitivity check at "
                          "2.884 m/px. Artefacts are kept apart by a _tiles tag "
                          "so neither overwrites the other.")
+    ap.add_argument("--months", type=int, default=0,
+                    help="phase 14: compute only the first N months of each "
+                         "basis. For smoke-testing the phase; a partial series "
+                         "is never an artefact.")
+    ap.add_argument("--frames", action="store_true",
+                    help="phase 14: render one map per month into "
+                         "W94_frames/ for an animation. Adds several minutes "
+                         "and about 60 MB; the frames are working files, not "
+                         "artefacts, and are not committed.")
+    ap.add_argument("--basis", choices=("both", "panel", "all"), default="both",
+                    help="phase 14: which series to compute. 'panel' is the "
+                         "fixed-composition headline, 'all' the longer "
+                         "all-available sensitivity, 'both' the pair.")
     ap.add_argument("--calibrate", action="store_true",
                     help="phase 8: report the open-dune z at wet and dry wells "
                          "and write W94_08_calibration.csv, writing no result")
@@ -217,6 +239,9 @@ def main() -> int:
     if args.phase == 11:
         return phase11(wet=args.wet, dry=args.dry, shift=args.shift,
                        series=args.series)
+    if args.phase == 14:
+        return phase14(frames=args.frames, basis=args.basis,
+                       months=args.months)
     if args.phase == 13:
         return phase13(dates=args.date,
                        z_b=(float(args.z_b) if args.z_b else None))
@@ -925,6 +950,31 @@ PHASE9_DEM_BIAS_M = 0.302
 # averaging beats one date of resolution until more tile dates exist, so the basis
 # is vp2 and the switch is a deliberate edit here, not a side effect of a re-run.
 PHASE9_WATERLINE_BASIS = "vp2"
+# THE MONTHLY SERIES IS BUILT ON A FIXED PANEL. The network trebles across the
+# record (a median of 7 wells reporting in 2005 against 79 from 2020), so a
+# series on whatever wells exist each month cannot separate a rising water table
+# from a growing dipwell network. Measured leave-one-out error of the surface
+# saturates at about 55 wells - 0.613 m on 25, 0.521 on 57, 0.527 on every
+# available well - so holding composition constant costs nothing. Wells qualify
+# by reporting in at least this fraction of months from this start.
+SERIES_PANEL_START = "2007-01"
+SERIES_PANEL_MIN_COVERAGE = 0.80
+# Membership is fixed from SERIES_PANEL_START, but REPORTING is not: the 57-well
+# panel only reaches this share of itself in 2010-03, and reports 20-30 wells
+# before that. The series is computed from the start and carries panel_frac on
+# every row; this is the threshold above which months are comparable with one
+# another, and it is a reporting fact about the record, not a tuning knob.
+SERIES_PANEL_COMPLETE_FRAC = 0.80
+# Frame rendering. The depth scale is FIXED across frames or the animation reads
+# as a colour change rather than a water-level change.
+SERIES_DEPTH_VMAX_M = 1.0
+SERIES_FRAME_DPI = 80
+SERIES_FRAME_CELL_PT = 1.4
+SERIES_WATER_COLOUR = "#1f6fb4"
+# The strip inset's axes. Fixed across frames for the same reason the depth
+# scale would have been: a strip that rescales shows nothing moving.
+SERIES_STRIP_MONTHS = 240
+SERIES_STRIP_HA_MAX = 25.0
 # WELLS WHOSE GROUND ELEVATION CAME FROM THE DEM CANNOT MEASURE THE DEM'S BIAS.
 # The measurement is median(DEM along the waterline) - (ground + h). Where ground
 # is itself a DEM read at the well, the raster's bias appears on both sides and
@@ -966,6 +1016,12 @@ DRY_CONTROL_MIN_RATIO = 3.0
 # managed 0.09 and produced a result that looked plausible and was noise.
 PAIR_MIN_R = 0.20
 DRY_CALIBRATION_DATES = ("2009-04-20", "2010-05-27", "2012-05-26", "2019-07-29")
+# The months the imagery read covers, so the series can mark which of its rows
+# are validated and which are interpolation. Derived from the read dates, not
+# typed twice.
+_DRY_MONTHS = {d[:7] for d in DRY_CALIBRATION_DATES}
+_IMAGERY_MONTHS = _DRY_MONTHS | {"2017-03", "2020-03", "2021-03", "2021-04",
+                                 "2026-03"}
 
 
 def _tile_frames(date):
@@ -2976,6 +3032,349 @@ def phase13(dates=None, z_b=None) -> int:
          "the area and the floor together.")
     return 0
 
+
+def _series_panel(lev, ground):
+    """The fixed well panel, and why the series is built on one.
+
+    THE NETWORK TREBLES ACROSS THE RECORD — a median of 7 wells reporting in
+    2005, 24-28 in 2006-07, 31-36 in 2008-09, and 73-80 from 2010 on. A series
+    computed on whatever wells exist in each month therefore confounds any
+    long-term signal with the history of when CEH installed dipwells, and the
+    confound runs the same way as the science: more wells means a surface pinned
+    in more places, changing both its level and its variance.
+
+    THE FIX IS NEARLY FREE. Leave-one-out error of the IDW surface, measured
+    over every month: a 25-well panel returns 0.613 m, a 57-well panel 0.521 m,
+    and every available well 0.527 m. Surface quality SATURATES at about 55
+    wells, so a fixed panel is as good as the full network and better behaved in
+    its tail, while holding composition constant so a change in the series is a
+    change in the water table. Returns the panel and the all-available column
+    list; the run computes both and the pair is the sensitivity.
+    """
+    cols = [c for c in lev.columns
+            if c != "month" and str(c).lower() in ground
+            and str(c).lower() != LAKE_GAUGE_NAME]
+    idx = pd.to_datetime(lev["month"])
+    late = lev.loc[idx >= pd.Timestamp(SERIES_PANEL_START), cols]
+    cov = late.notna().mean()
+    panel = sorted(cov[cov >= SERIES_PANEL_MIN_COVERAGE].index)
+    return panel, sorted(cols)
+
+
+def _units_for(site, cache):
+    """Slack units for this warren mask, built once per CANOPY EPOCH.
+
+    The merge tree is the expensive part of phase 13 and it depends only on the
+    mask, which changes when a forest group's canopy closes or is felled - four
+    boundaries across the record, not 229. Keyed on the mask's own geometry so
+    the cache cannot go stale against a mask it did not build.
+    """
+    key = hash(site.wkb)
+    if key not in cache:
+        cache[key] = _slack_units(site, PHASE9_DEM_BIAS_M)
+    return cache[key]
+
+
+def _series_frame(month, EE, NN, ok, wet, dep, area_ha, n_wells, site, out_dir,
+                  so_far=None):
+    """One map for one month, on a fixed extent so the frames register.
+
+    Every frame carries its own month, area and well count burnt in, because a
+    frame lifted out of an animation and shown on its own must still say what it
+    is and what it rests on.
+    """
+    import matplotlib                                        # noqa: PLC0415
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt                          # noqa: PLC0415
+    from utils.config import (SITE_MAP_EAST_MAX,             # noqa: PLC0415
+                              SITE_MAP_EAST_MIN, SITE_MAP_NORTH_MAX,
+                              SITE_MAP_NORTH_MIN)
+    from utils.map_utils import add_en_axes, load_dem_hillshade  # noqa: PLC0415
+
+    fig, ax = plt.subplots(figsize=(7.6, 6.4))
+    load_dem_hillshade(ax, DATA_GEO_DIR, alpha=0.55)
+    gpd.GeoSeries([site], crs=OSGB).plot(ax=ax, facecolor="none",
+                                         edgecolor="#08519c", lw=0.9, zorder=3)
+    # ONE SOLID COLOUR, not a depth ramp. A shallow cell on a Blues ramp is
+    # almost white against a grey hillshade, so a depth-coloured animation reads
+    # as water appearing and disappearing rather than spreading. Depth is in the
+    # CSV, where it can be read properly; the frame answers "where", not "how
+    # deep".
+    if wet.any():
+        ax.scatter(EE[wet], NN[wet], c=SERIES_WATER_COLOUR,
+                   s=SERIES_FRAME_CELL_PT, marker="s", linewidths=0, zorder=4)
+    ax.set_xlim(SITE_MAP_EAST_MIN, SITE_MAP_EAST_MAX)
+    ax.set_ylim(SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX)
+    add_en_axes(ax)
+    ax.set_title(f"{month:%b %Y}   —   {area_ha:.2f} ha flooded   "
+                 f"({n_wells} wells)", loc="left", fontsize=12)
+    ax.text(0.99, 0.01, "modelled water table above slack floor; "
+            "net of nothing", transform=ax.transAxes, ha="right", va="bottom",
+            fontsize=7, color="#555555")
+    # THE SERIES SO FAR, drawn inside the frame. A map alone cannot say whether
+    # this month is unusual; the strip grows as the animation plays, so each
+    # frame carries its own context instead of needing a caption.
+    if so_far is not None and len(so_far) > 1:
+        ins = ax.inset_axes([0.045, 0.055, 0.42, 0.15])
+        xs_ = list(range(len(so_far)))
+        ins.fill_between(xs_, 0, so_far, color=SERIES_WATER_COLOUR, alpha=0.55,
+                         lw=0)
+        ins.plot(xs_, so_far, color=SERIES_WATER_COLOUR, lw=0.8)
+        ins.scatter([xs_[-1]], [so_far[-1]], s=9, color="#08306b", zorder=5)
+        ins.set_xlim(0, SERIES_STRIP_MONTHS)
+        ins.set_ylim(0, SERIES_STRIP_HA_MAX)
+        ins.set_yticks([0, SERIES_STRIP_HA_MAX])
+        ins.set_yticklabels(["0", f"{SERIES_STRIP_HA_MAX:.0f} ha"], fontsize=6)
+        ins.set_xticks([])
+        for sp in ("top", "right", "bottom"):
+            ins.spines[sp].set_visible(False)
+        ins.tick_params(length=0)
+        ins.patch.set_alpha(0.75)
+    p = out_dir / f"frame_{month:%Y_%m}.png"
+    fig.savefig(p, dpi=SERIES_FRAME_DPI, bbox_inches="tight",
+                facecolor="white")
+    plt.close(fig)
+    return p
+
+
+def _series_plot(D):
+    """The series, both bases, with the imagery months and the floor marked.
+
+    The dry-control months are drawn ON the series rather than quoted beside it,
+    because D-164's rule - that an area and its false-positive floor are quoted
+    together or not at all - is easier to honour in a figure than in a caption.
+    """
+    import matplotlib                                        # noqa: PLC0415
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt                          # noqa: PLC0415
+
+    P = D[D["flooded_ha"].notna()].copy()
+    if not len(P):
+        return
+    P["t"] = pd.to_datetime(P["month"] + "-01")
+    fig, (ax, bx) = plt.subplots(2, 1, figsize=(13.5, 7.6), sharex=True,
+                                 height_ratios=[3, 1])
+    for label, colour, lw in (("all", "#a8c8e4", 1.0),
+                              ("panel", SERIES_WATER_COLOUR, 1.4)):
+        S = P[P["basis"] == label].sort_values("t")
+        if not len(S):
+            continue
+        ax.plot(S["t"], S["flooded_ha"], color=colour, lw=lw,
+                label=("fixed panel" if label == "panel"
+                       else "all available (sensitivity)"), zorder=3)
+    S = P[P["basis"] == "panel"].sort_values("t")
+    if not len(S):
+        S = P.sort_values("t")
+    dc = S[S["dry_control_month"]]
+    im = S[S["imagery_month"] & ~S["dry_control_month"]]
+    if len(dc):
+        ax.scatter(dc["t"], dc["flooded_ha"], s=34, color="#d95f02",
+                   zorder=5, label="dry control (the false-positive floor)")
+        ax.axhline(float(dc["flooded_ha"].max()), color="#d95f02", lw=0.8,
+                   ls=":", zorder=2)
+    if len(im):
+        ax.scatter(im["t"], im["flooded_ha"], s=34, facecolor="none",
+                   edgecolor="#238b45", lw=1.2, zorder=5,
+                   label="imagery month (validated)")
+    ax.set_ylabel("flooded area (ha)")
+    ax.legend(frameon=False, fontsize=9, ncol=2)
+    ax.set_title("Newborough Warren — modelled flooded area, monthly. "
+                 "Every area is net of nothing.", loc="left")
+    bx.fill_between(S["t"], 0, S["n_wells"], color="#999999", alpha=0.5, lw=0)
+    bx.set_ylabel("wells")
+    bx.set_xlabel("")
+    for a_ in (ax, bx):
+        for sp in ("top", "right"):
+            a_.spines[sp].set_visible(False)
+    fig.tight_layout()
+    q = OUT / "W94_51_flood_series.png"
+    fig.savefig(q, dpi=150, facecolor="white")
+    plt.close(fig)
+    saved(q.name)
+
+
+def phase14(frames=False, basis="both", months=0) -> int:
+    """The monthly flooded-area series, 2005-2026.
+
+    Phase 13 run over every month in the record instead of the eight imagery
+    dates. Nothing about the method changes: PHASE9_DEM_BIAS_M, z_b, the lake
+    gauge excluded, the estuary boundary condition, floors from merge-tree slack
+    units - all as D-164 and D-165 settled them.
+
+    TWO SERIES, AND THE PAIR IS THE POINT (Martin, 2026-09-13). The headline is
+    a FIXED PANEL, because the network trebles across the record and a series on
+    all available wells cannot separate a rising water table from a growing
+    dipwell network (see `_series_panel`). The all-available series is computed
+    alongside, over the longer span, and the two are plotted together so the
+    density effect is visible where they overlap rather than argued about.
+
+    WHAT THIS SERIES IS NOT. It is MODELLED: eight of its months are validated
+    against the imagery read, the rest are interpolation between wells, and the
+    leave-one-out error is carried on every row so no figure can be quoted
+    without it. EVERY AREA IS NET OF NOTHING - the dry-control false-positive
+    floor is not subtracted, because D-164 records that it is not known to be
+    uniform across dates. The four dry controls are themselves months of this
+    series, so the floor is legible INSIDE it rather than being a footnote.
+    And producing the series is not fitting a trend to it: that is a separate
+    job with its own attribution question.
+    """
+    import contextlib                                          # noqa: PLC0415
+    import io                                                   # noqa: PLC0415
+
+    from utils.warren_mask import (closure_dates,               # noqa: PLC0415
+                                   warren_on)
+    phase(14, "The monthly flooded-area series")
+    # The canopy table is printed by closure_dates and is the same every month.
+    # Resolve it ONCE and pass it in, or 229 months print it 229 times and the
+    # run's own findings are lost in it.
+    closures = closure_dates()
+
+    zb = ESTUARY_LEVEL_M_AOD
+    wells = pd.read_csv(REPO / "outputs" / "01_well_elevations.csv",
+                        float_precision="round_trip")
+    lev = _level_frame()
+    ground = {str(n).lower(): float(g) for n, g
+              in zip(wells["Name"], wells["ground_elev_m"])}
+    en = {str(n).lower(): (float(e), float(nn)) for n, e, nn
+          in zip(wells["Name"], wells["E"], wells["N"])}
+
+    panel, every = _series_panel(lev, ground)
+    step(f"fixed panel: {len(panel)} well(s) with >= "
+         f"{SERIES_PANEL_MIN_COVERAGE:.0%} coverage from {SERIES_PANEL_START}; "
+         f"all-available: {len(every)} well(s)")
+
+    runs = []
+    if basis in ("both", "panel"):
+        runs.append(("panel", panel, pd.Timestamp(SERIES_PANEL_START)))
+    if basis in ("both", "all"):
+        runs.append(("all", every, None))
+
+    mon = pd.to_datetime(lev["month"])
+    cache = {}
+    frame_dir = OUT / "W94_frames"
+    if frames:
+        frame_dir.mkdir(exist_ok=True)
+
+    rows = []
+    for label, names, start in runs:
+        sel = mon if start is None else mon[mon >= start]
+        if months:
+            sel = sel.iloc[:months]
+        step(f"{label}: {len(sel)} month(s)")
+        for month in sel:
+            row = lev.loc[mon == month].iloc[0]
+            xs, ys, wt = [], [], []
+            for c in names:
+                v = pd.to_numeric(pd.Series([row[c]]), errors="coerce").iloc[0]
+                if pd.isna(v):
+                    continue
+                k = str(c).lower()
+                xs.append(en[k][0])
+                ys.append(en[k][1])
+                wt.append(ground[k] + float(v))
+            if len(xs) < MIN_WELLS_FOR_SURFACE:
+                rows.append({"basis": label, "month": f"{month:%Y-%m}",
+                             "n_wells": len(xs), "flooded_ha": None,
+                             "units_flooded": None, "median_depth_m": None,
+                             "loo_m": None, "wet_wells": None,
+                             "panel_frac": (round(len(xs) / len(names), 3)
+                                            if names else None),
+                             "warren_ha": None, "imagery_month": False,
+                             "dry_control_month": False})
+                continue
+            with contextlib.redirect_stdout(io.StringIO()):
+                site = warren_on(f"{month:%Y-%m-15}", closures=closures)
+            arr, unit, ok, tr, res = _units_for(site, cache)
+            rows_, cols_ = np.nonzero(ok)
+            EE, NN = rasterio.transform.xy(tr, rows_, cols_)
+            EE = np.asarray(EE)
+            NN = np.asarray(NN)
+            Z = arr[ok]
+            cell_ha = res * res / 1e4
+
+            BE, BN = _estuary_control(site)
+            X = np.concatenate([xs, BE]) if len(BE) else np.asarray(xs)
+            Y = np.concatenate([ys, BN]) if len(BE) else np.asarray(ys)
+            V = (np.concatenate([wt, np.full(len(BE), zb)]) if len(BE)
+                 else np.asarray(wt))
+            surf = _idw(X, Y, V, EE, NN)
+            wet = Z < surf
+            dep = (surf - Z)[wet]
+            area = float(wet.sum()) * cell_ha
+
+            # Leave-one-out at the wells, on THIS month's panel: the honest
+            # statement of how much the interpolation between them matters.
+            ax_, ay_, av_ = np.asarray(xs), np.asarray(ys), np.asarray(wt)
+            loo = []
+            for i in range(len(ax_)):
+                m_ = np.ones(len(ax_), bool)
+                m_[i] = False
+                d_ = np.hypot(ax_[m_] - ax_[i], ay_[m_] - ay_[i]) + 1e-6
+                w_ = 1.0 / d_ ** 2
+                loo.append((w_ * av_[m_]).sum() / w_.sum() - av_[i])
+            rows.append({
+                "basis": label, "month": f"{month:%Y-%m}", "n_wells": len(xs),
+                "flooded_ha": round(area, 3),
+                "units_flooded": int(len(np.unique(unit[ok][wet]))),
+                "median_depth_m": (round(float(np.median(dep)), 3)
+                                   if dep.size else None),
+                "loo_m": round(float(np.median(np.abs(loo))), 3),
+                "wet_wells": int(sum(1 for c in names
+                                     if pd.notna(row.get(c))
+                                     and float(row[c]) >= 0.0)),
+                "panel_frac": (round(len(xs) / len(names), 3)
+                               if names else None),
+                "warren_ha": round(site.area / 1e4, 2),
+                "imagery_month": f"{month:%Y-%m}" in _IMAGERY_MONTHS,
+                "dry_control_month": f"{month:%Y-%m}" in _DRY_MONTHS})
+            if frames and label == "panel":
+                so_far = [r["flooded_ha"] for r in rows
+                          if r["basis"] == "panel"
+                          and r["flooded_ha"] is not None]
+                _series_frame(month, EE, NN, ok, wet, dep, area, len(xs),
+                              site, frame_dir, so_far=so_far)
+
+    D = pd.DataFrame(rows)
+    p = OUT / "W94_50_flood_series.csv"
+    D.to_csv(p, index=False)
+    saved(p.name)
+
+    for label in D["basis"].unique():
+        S = D[(D["basis"] == label) & D["flooded_ha"].notna()]
+        if not len(S):
+            continue
+        info(f"  {label}: {len(S)} month(s) computed, "
+             f"{int((D['basis'] == label).sum()) - len(S)} skipped for too few "
+             f"wells; area {S['flooded_ha'].min():.2f}-"
+             f"{S['flooded_ha'].max():.2f} ha, median "
+             f"{S['flooded_ha'].median():.2f}; LOO median "
+             f"{S['loo_m'].median():.3f} m")
+        if label == "panel" and "panel_frac" in S:
+            full = S[S["panel_frac"] >= SERIES_PANEL_COMPLETE_FRAC]
+            if len(full):
+                info(f"    the panel is >= "
+                     f"{SERIES_PANEL_COMPLETE_FRAC:.0%} complete from "
+                     f"{full['month'].min()}; before that it reports "
+                     f"{int(S[S['panel_frac'] < SERIES_PANEL_COMPLETE_FRAC]['n_wells'].median())} "
+                     f"well(s) at a median LOO of "
+                     f"{S[S['panel_frac'] < SERIES_PANEL_COMPLETE_FRAC]['loo_m'].median():.3f} m "
+                     f"against {full['loo_m'].median():.3f} m after — MEMBERSHIP "
+                     f"is fixed from the start, REPORTING is not, and only the "
+                     f"complete span is comparable month to month")
+        dc = S[S["dry_control_month"]]
+        if len(dc):
+            info(f"    the dry-control months sit at "
+                 f"{dc['flooded_ha'].min():.2f}-{dc['flooded_ha'].max():.2f} ha "
+                 f"— the false-positive floor, INSIDE the series")
+    _series_plot(D)
+    if frames:
+        n = len(list(frame_dir.glob("frame_*.png")))
+        step(f"{n} frame(s) in {frame_dir.name}/ — build the animation with "
+             f"tools/make_flood_animation.sh")
+    info("EVERY AREA IS NET OF NOTHING and the series is MODELLED: eight "
+         "months are validated against the imagery read, the rest are "
+         "interpolation. Quote the area, the floor and the basis together.")
+    return 0
 
 def _flood_map(date, frame, fg, hollows, sc, thr, tag=""):
     """The read, on the ground: water solid, hollows outlined, wells scored.

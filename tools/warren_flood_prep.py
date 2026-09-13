@@ -38,7 +38,17 @@ NOT DONE HERE, AND WHY
 """
 from __future__ import annotations
 
-__version__ = "1.21.0"  # Hollingham (2026) - 2026-09-13. Readings collected after
+__version__ = "1.22.0"  # Hollingham (2026) - 2026-09-13. PHASE 18 (T-27):
+#   the hollow as a dipwell. Script 11b's collapsed threshold P_flood = A*d + B
+#   is applied at a slack floor instead of a well's ground, and the flooded area
+#   inside a hollow comes from that hollow's own DEM hypsometry. Mode C is
+#   climatological; Mode V re-runs it with the year's observed summer minimum and
+#   the winter's actual P and PET, truncated at the read month (Martin, 2026-09-13),
+#   scored against every read and the four dry controls. NOTHING IS FITTED TO THE
+#   IMAGERY, which is what phase 17 could not say. A self-test drives the forward
+#   recurrence with the closed form's own solution and refuses to run if they
+#   disagree. Outputs to working/updates only: NOT a pipeline step, pending Mode V.
+# v1.21.0  # Hollingham (2026) - 2026-09-13. Readings collected after
 #   the pipeline's raw inputs were frozen reach the flood work through
 #   data/flood_calibration_levels.csv and _merge_calibration(), NOT through
 #   Newborough_Cleaned_For_Model.csv. Appending March 2026 to the pipeline input
@@ -285,6 +295,13 @@ def main() -> int:
                     help="phase 14: which series to compute. 'panel' is the "
                          "fixed-composition headline, 'all' the longer "
                          "all-available sensitivity, 'both' the pair.")
+    ap.add_argument("--pf-mode", dest="pf_mode", choices=("C", "both"),
+                    default="both",
+                    help="phase 18: C for the climatological map alone; both "
+                         "runs Mode V against the imagery and the dry controls")
+    ap.add_argument("--sens", action="store_true",
+                    help="phase 18: vary the IDW power and report the spread in "
+                         "d and in area, which is the dominant uncertainty")
     ap.add_argument("--calibrate", action="store_true",
                     help="phase 8: report the open-dune z at wet and dry wells "
                          "and write W94_08_calibration.csv, writing no result")
@@ -299,6 +316,8 @@ def main() -> int:
     if args.phase == 11:
         return phase11(wet=args.wet, dry=args.dry, shift=args.shift,
                        series=args.series)
+    if args.phase == 18:
+        return phase18(mode=args.pf_mode, sens=args.sens)
     if args.phase == 17:
         return phase17()
     if args.phase == 16:
@@ -4738,6 +4757,523 @@ def phase9() -> int:
          "measurement offered for adoption, and adoption is a decision.")
     return 0
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PHASE 18 — THE HOLLOW AS A DIPWELL (T-27)
+# ─────────────────────────────────────────────────────────────────────────────
+# Script 11b already answers, for every dipwell, "how much cumulative winter
+# rainfall brings the water table to this surface" — the iterated closed form of
+# Section 3.6.3, shipped in forecaster.html. Martin, 2026-09-13: "aren't we
+# replicating the work of the flood forecaster?" Largely, yes.
+#
+# The collapsed form is P_flood = A·d + B, where d is the depth of the
+# antecedent water table below THE SURFACE YOU WANT WETTED. For a well that
+# surface is its own ground. NOTHING IN THE DERIVATION REQUIRES IT TO BE, and
+# that is the whole of this phase: put the hollow floor there instead. The area
+# mapping is then DERIVED from the DEM's hypsometry rather than fitted to four
+# imagery dates, which is what dissolves the n = 3 problem that killed phase 17
+# and turns the imagery from training data into a test set.
+
+PFLOOD_IDW_POWER = 2.0
+PFLOOD_SENS_POWERS = (1.0, 2.0, 3.0)
+PFLOOD_SUMMER_MONTHS = (8, 9)
+PFLOOD_CLUSTER_MASS_MIN = 0.50   # below this the hollow's cluster is ambiguous
+PFLOOD_C1_CAVEAT_WELL = "ceh11"  # C1 by SSM behaviour, 2.1 km from the lake
+
+
+def _pflood_wells():
+    """Per-well cluster and antecedent geometry, from Script 11b's committed CSV.
+
+    `dem` and `depth_bg` are the two numbers this phase interpolates: the well's
+    ground elevation and the depth of its MEAN SUMMER MINIMUM below that ground.
+    Both are already in the file that feeds the forecaster, so nothing here
+    re-derives a published quantity.
+    """
+    from utils.paths import OUT_11B_PFLOOD_PER_WELL              # noqa: PLC0415
+    P = pd.read_csv(OUT_11B_PFLOOD_PER_WELL, float_precision="round_trip")
+    P["well"] = P["well"].astype(str).str.lower().str.strip()
+    P = P.dropna(subset=["E", "N", "dem", "depth_bg", "cluster"])
+    return P.reset_index(drop=True)
+
+
+def _pflood_cluster_betas():
+    """Cluster β in the units the closed form wants: metres of head per mm."""
+    from utils.paths import OUT_03_MECHANISTIC_TABLE             # noqa: PLC0415
+    cc = pd.read_csv(OUT_03_MECHANISTIC_TABLE, float_precision="round_trip")
+    out = {}
+    for _, r in cc.iterrows():
+        cid = int(str(r["Cluster"]).lstrip("Cc"))
+        out[cid] = {"b1": float(r["beta_1_recharge"]) / 1000.0,
+                    "b2": float(r["beta_2_atmospheric_draw"]) / 1000.0,
+                    "b3": abs(float(r["beta_3_drainage"])),
+                    "label": str(r["Cluster_Label"])}
+    return out
+
+
+def _pflood_climate():
+    """(actual monthly series, rainfall climatology, PET climatology)."""
+    from utils.paths import INT_REGIONAL_AVG                     # noqa: PLC0415
+    ra = pd.read_csv(INT_REGIONAL_AVG, parse_dates=["Date"],
+                     float_precision="round_trip")
+    P_act = {(d.year, d.month): float(v)
+             for d, v in zip(ra["Date"], ra["P_mm"]) if pd.notna(v)}
+    E_act = {(d.year, d.month): float(v)
+             for d, v in zip(ra["Date"], ra["PET_mm"]) if pd.notna(v)}
+    P_clim = ra.groupby(ra["Date"].dt.month)["P_mm"].mean().to_dict()
+    E_clim = ra.groupby(ra["Date"].dt.month)["PET_mm"].mean().to_dict()
+
+    # Months later than the pipeline's frozen climate input reach this phase the
+    # same way the well readings do (D-166) and no other way. RAINFALL ONLY: a
+    # Thornthwaite PET needs the whole year's mean temperatures for its heat
+    # index, and the calibration file carries one month, so the month's PET
+    # CLIMATOLOGY stands in and every row that used it says so.
+    from utils.paths import DATA_FLOOD_CAL_CLIMATE                # noqa: PLC0415
+    borrowed = set()
+    if DATA_FLOOD_CAL_CLIMATE.exists():
+        cc = pd.read_csv(DATA_FLOOD_CAL_CLIMATE, float_precision="round_trip")
+        rain = [c for c in cc.columns if "rain" in str(c).lower()]
+        for _, r in cc.iterrows():
+            try:
+                d = pd.Timestamp(pd.to_datetime(str(r[cc.columns[0]]),
+                                                format="%b %y"))
+            except Exception:                                     # noqa: BLE001
+                continue
+            k = (d.year, d.month)
+            if k in P_act or not rain:
+                continue
+            P_act[k] = float(r[rain[0]])
+            E_act[k] = float(E_clim[d.month])
+            borrowed.add(k)
+            info(f"  calibration climate {d:%Y-%m} added from "
+                 f"{DATA_FLOOD_CAL_CLIMATE.name}: P {P_act[k]:.1f} mm, PET from "
+                 f"the month's climatology ({E_act[k]:.1f} mm) — NOT a pipeline "
+                 f"input")
+    return P_act, E_act, P_clim, E_clim, borrowed
+
+
+def _pflood_peak_months():
+    from utils.paths import INT_CLUSTER_PEAK_MONTHS              # noqa: PLC0415
+    cp = pd.read_csv(INT_CLUSTER_PEAK_MONTHS)
+    return {int(r["cluster_id"]): int(r["peak_month"])
+            for _, r in cp.iterrows()}
+
+
+def _horizon_truncated(peak_month, stop_month=None):
+    """October to the cluster's peak, TRUNCATED AT THE READ MONTH (Martin's call).
+
+    A late-March read sits past C1 and C2's January peak and inside C3-C5's
+    February one. Truncation keeps every read date usable and is the same closed
+    form over a shorter month list — but it means C1 and C2 are evaluated over a
+    horizon their own peak month says is already over, and that asymmetry is
+    stated on every output rather than smoothed away.
+    """
+    from utils.model_utils import horizon_months                 # noqa: PLC0415
+    hz = horizon_months(int(peak_month))
+    if stop_month is None:
+        return hz, False
+    if stop_month in hz:
+        return hz[:hz.index(stop_month) + 1], False
+    return hz, True                    # read is past the peak: horizon runs out
+
+
+def _horizon_read(stop_month):
+    """October to the READ MONTH, however far past the cluster peak that is.
+
+    Martin's ruling was to truncate at the read date. Truncation is only half of
+    it: a read INSIDE the horizon cuts it short, and a read PAST the peak must
+    EXTEND it, because the question Mode V asks is what the water table was doing
+    ON THE DAY THE PHOTOGRAPH WAS TAKEN. The first run of this phase used the
+    cluster horizon for both and so scored four spring and summer dry controls at
+    the FOLLOWING JANUARY OR FEBRUARY PEAK - it predicted 33-53 ha of water in
+    photographs with none, and failed its own dry-control gate at 1.31 : 1 for
+    that reason alone. Extending is not extrapolation: the recurrence is defined
+    for every month and is driven here by that month's measured P and PET. What
+    the cluster peak still decides is Mode C, where the question IS the winter
+    maximum.
+    """
+    months, m = [], 10
+    for _ in range(12):
+        months.append(m)
+        if m == int(stop_month):
+            break
+        m = (m % 12) + 1
+    return months
+
+
+def _pflood_hypsometry(hollows, ds, bias_m):
+    """Each hollow's DEM cells, debiased and sorted — its hypsometric curve.
+
+    THE AREA MAPPING LIVES HERE and nowhere else. Given a water level the
+    threshold says is reached, the flooded area inside a hollow is the count of
+    its own cells below that level times the cell area. No interpolation, no
+    fitting, no constant chosen to make an area come out right.
+    """
+    from rasterio.mask import mask as rio_mask                   # noqa: PLC0415
+    cell = abs(ds.transform.a * ds.transform.e)
+    out = {}
+    for _, h in hollows.iterrows():
+        if pd.isna(h.get("slack")):
+            continue
+        try:
+            a, _ = rio_mask(ds, [h.geometry.__geo_interface__], crop=True,
+                            filled=True, nodata=np.nan)
+        except Exception:                                        # noqa: BLE001
+            continue
+        z = a[0][np.isfinite(a[0])]
+        if ds.nodata is not None:
+            z = z[z != ds.nodata]
+        if z.size < 3:
+            continue
+        out[int(h["slack"])] = (np.sort(z.astype(float)) - bias_m, cell)
+    return out
+
+
+def _pflood_geometry(hollows, hyps, W, power=PFLOOD_IDW_POWER, k=0,
+                     depth_col="depth_bg"):
+    """d at every hollow floor, and the cluster whose dynamics it inherits.
+
+    d = IDW(well depth below ground) + (floor - IDW(well ground elevation)).
+
+    THE INTERPOLATED QUANTITY IS A DEPTH, NOT AN ELEVATION, and that is
+    deliberate. The two forms are algebraically identical; only the error
+    structure differs. Phase 16 measured what interpolating an ABSOLUTE water
+    table costs here - 714 of 1,236 observed-wet slacks missed by a median
+    1.278 m, the misses at a median floor of 9.10 m AOD against 4.17 m, the
+    shortfall correlating with distance to the nearest well at r = +0.51 - which
+    is IDW flattening a mound. A depth field has a range of about 1.7 m across
+    the site; the topography comes from the DEM, where it is known to 2 m.
+    """
+    ids = sorted(hyps)
+    cen = {int(r["slack"]): r.geometry.centroid
+           for _, r in hollows.iterrows() if pd.notna(r.get("slack"))}
+    X = np.array([cen[i].x for i in ids], float)
+    Y = np.array([cen[i].y for i in ids], float)
+    wx, wy = W["E"].to_numpy(float), W["N"].to_numpy(float)
+
+    if k and k < len(W):
+        dep, dem = [], []
+        for x, y in zip(X, Y):
+            o = np.argsort((wx - x) ** 2 + (wy - y) ** 2)[:k]
+            dep.append(_idw(wx[o], wy[o], W[depth_col].to_numpy(float)[o],
+                            [x], [y], power=power)[0])
+            dem.append(_idw(wx[o], wy[o], W["dem"].to_numpy(float)[o],
+                            [x], [y], power=power)[0])
+        dep, dem = np.asarray(dep), np.asarray(dem)
+    else:
+        dep = _idw(wx, wy, W[depth_col].to_numpy(float), X, Y, power=power)
+        dem = _idw(wx, wy, W["dem"].to_numpy(float), X, Y, power=power)
+
+    floor = np.array([float(hyps[i][0][0]) for i in ids])
+    dz = floor - dem
+    d = dep + dz
+
+    # cluster: nearest well, with the ambiguity reported rather than hidden
+    d2 = ((wx[:, None] - X[None, :]) ** 2 + (wy[:, None] - Y[None, :]) ** 2)
+    near = np.argmin(d2, axis=0)
+    cl = W["cluster"].to_numpy()[near].astype(int)
+    nm = W["well"].to_numpy()[near]
+    wgt = 1.0 / (np.sqrt(d2) + 1e-6) ** power
+    mass = {}
+    for c in sorted(set(W["cluster"].astype(int))):
+        mass[c] = wgt[(W["cluster"].astype(int) == c).to_numpy()].sum(axis=0)
+    tot = np.sum([mass[c] for c in mass], axis=0)
+    top = np.max([mass[c] / tot for c in mass], axis=0)
+    return pd.DataFrame({"slack": ids, "E": X, "N": Y, "floor_m": floor,
+                         "dem_interp_m": dem, "depth_interp_m": dep,
+                         "dz_m": dz, "d_m": d, "cluster": cl,
+                         "nearest_well": nm, "cluster_mass": top,
+                         "cluster_ambiguous": top < PFLOOD_CLUSTER_MASS_MIN,
+                         "c1_via_caveat_well": (cl == 1)
+                         & (nm == PFLOOD_C1_CAVEAT_WELL)})
+
+
+def _pflood_iterate(d, b1, b2, b3, months, P, E, datum):
+    """The SSM recurrence, run forward from the floor. Returns head above floor.
+
+    h(t) = (1-b3)*h(t-1) + b1*P(t) - b2*PET(t) - b3*D, the recurrence
+    model_utils.pflood_lambda solves in closed form. Run here with the year's
+    ACTUAL monthly rainfall and PET instead of a multiplier on climatology, so
+    Mode V asks nothing of the rainfall's within-winter shape. The self-test in
+    phase18() drives this loop with the closed form's own solution and requires
+    the two to agree, which is what stops the recurrence drifting from 11b's.
+    """
+    h = -float(d)
+    for m in months:
+        h = (1.0 - b3) * h + b1 * P[m] - b2 * E[m] - b3 * datum
+    return h
+
+
+def _pflood_area(hyps_entry, level):
+    """Hectares of a hollow below a level, from its own cells."""
+    z, cell = hyps_entry
+    return float(np.searchsorted(z, level) * cell / 1e4)
+
+
+def _pflood_read_dates():
+    """The imagery reads, plus the dry controls, as (date, path-or-None)."""
+    reads = {}
+    for f in sorted(OUT.glob("W94_08_flood_*.geojson")):
+        if "_tiles_" in f.name:
+            continue
+        reads[f.stem.split("flood_")[1]] = f
+    for d in DRY_CALIBRATION_DATES:
+        reads.setdefault(d, None)
+    return dict(sorted(reads.items()))
+
+
+def _pflood_bucket(date_str):
+    """(winter-start year, read month) under Script 01's bucketing."""
+    d = pd.Timestamp(date_str)
+    m = d.month if d.day > 15 else (d - pd.Timedelta(days=d.day)).month
+    y = d.year if (d.day > 15 or d.month > 1) else d.year - 1
+    return (y if m >= 10 else y - 1), m
+
+
+def _pflood_antecedent(lev, W, winter_year):
+    """Each well's OBSERVED summer minimum before that winter, as a depth.
+
+    Mode V asks what the aquifer actually did, so the antecedent state is that
+    year's August-September minimum and not the climatological one. A well with
+    no reading in either month keeps its published mean, and the count of those
+    is reported: at the early end of the record most wells fall back, which is
+    the same thinning network that made the phase 14 series two-based.
+    """
+    sub = lev[(lev["month"].dt.year == winter_year)
+              & (lev["month"].dt.month.isin(PFLOOD_SUMMER_MONTHS))]
+    obs, fell = [], 0
+    for _, r in W.iterrows():
+        w = r["well"]
+        v = np.nan
+        if w in sub.columns and len(sub):
+            s = pd.to_numeric(sub[w], errors="coerce").dropna()
+            if len(s):
+                v = -float(s.min())          # h is negative below ground
+        if not np.isfinite(v):
+            v = float(r["depth_bg"])
+            fell += 1
+        obs.append(v)
+    out = W.copy()
+    out["depth_year"] = obs
+    return out, fell
+
+
+def phase18(mode="both", power=PFLOOD_IDW_POWER, sens=False) -> int:
+    """The hollow as a dipwell: Script 11b's threshold, put on a slack floor.
+
+    MODE C is the publishable product - which hollows flood in an average
+    winter, from the climatological summer minimum and the collapsed form
+    P_flood = A*d + B. MODE V is what earns it: the same construction with that
+    year's OBSERVED summer minimum and that winter's ACTUAL monthly rainfall and
+    PET, scored against every imagery read and against the four dry controls,
+    which must come out near zero. That gate is what --form depth failed.
+
+    NOTHING IS FITTED TO THE IMAGERY. A, B, the horizon, the betas and the
+    climatology are committed pipeline outputs; the geometry is the DEM. Four
+    dates are a thin training set and an adequate test set, which is the whole
+    reason for inverting the order after phase 17.
+
+    WHAT IT DOES NOT DO. It predicts flooding IN MAPPED HOLLOWS: phase 16 put
+    37.7 % of the 2021-03-24 water outside any closed basin, and no hollow-based
+    method recovers that ground. The interpolated depth field is the dominant
+    uncertainty AND IT IS MULTIPLIED BY A - at 174-383 mm/m a 0.3 m error in d
+    is 52-115 mm of P_flood - which is why --sens exists and why its spread is
+    quoted beside any area this produces.
+    """
+    from utils.config import DRAINAGE_DATUM                      # noqa: PLC0415
+    from utils.model_utils import pflood_lambda                  # noqa: PLC0415
+    phase(18, "The hollow as a dipwell — 11b's threshold on a slack floor")
+
+    W = _pflood_wells()
+    betas = _pflood_cluster_betas()
+    peaks = _pflood_peak_months()
+    P_act, E_act, P_clim, E_clim, borrowed = _pflood_climate()
+    step(f"{len(W)} well(s) from 11b_03_pflood_per_well.csv; clusters "
+         + ", ".join(f"C{c} {n}" for c, n in
+                     sorted(W['cluster'].astype(int).value_counts().items())))
+
+    # ── the self-test: this recurrence must be 11b's ─────────────────────
+    worst = 0.0
+    for c, b in betas.items():
+        hz, _ = _horizon_truncated(peaks[c])
+        r = pflood_lambda(h_target=0.0, h_0=-1.0, b1=b["b1"], b2=b["b2"],
+                          b3=b["b3"], months=hz, P_clim=P_clim,
+                          PET_clim=E_clim)
+        Pl = {m: r["lam"] * P_clim[m] for m in hz}
+        worst = max(worst, abs(_pflood_iterate(1.0, b["b1"], b["b2"], b["b3"],
+                                               hz, Pl, E_clim, DRAINAGE_DATUM)))
+    if worst > 1e-9:
+        warn(f"the forward recurrence disagrees with the closed form by "
+             f"{worst:.3e} m — phase 18 is NOT 11b and must not be used")
+        return 1
+    info(f"self-test: the forward recurrence reproduces 11b's closed form to "
+         f"{worst:.1e} m at every cluster")
+
+    hol_p = OUT / "W94_06_hollows.geojson"
+    hollows = gpd.read_file(hol_p).set_crs(OSGB, allow_override=True)
+    ds = rasterio.open(DATA_DEM)
+    hyps = _pflood_hypsometry(hollows, ds, PHASE9_DEM_BIAS_M)
+    ds.close()
+    rim = {i: float(hyps[i][0][-1]) for i in hyps}
+    step(f"{len(hyps)} hollow(s) with a hypsometric curve, DEM bias "
+         f"{PHASE9_DEM_BIAS_M:+.3f} m (D-165)")
+
+    # ── MODE C — the climatological map ──────────────────────────────────
+    G = _pflood_geometry(hollows, hyps, W, power=power)
+    AB = {}
+    for c, b in betas.items():
+        hz, _ = _horizon_truncated(peaks[c])
+        r = pflood_lambda(h_target=0.0, h_0=0.0, b1=b["b1"], b2=b["b2"],
+                          b3=b["b3"], months=hz, P_clim=P_clim,
+                          PET_clim=E_clim)
+        AB[c] = (float(r["slope_A"]), float(r["intercept_B"]),
+                 float(r["P_clim_total"]), len(hz), peaks[c])
+    rows = []
+    for _, g in G.iterrows():
+        c = int(g["cluster"])
+        if c not in AB:
+            continue
+        A, B, Pc, n, pk = AB[c]
+        pf = A * float(g["d_m"]) + B
+        head = (Pc - pf) / A
+        lvl = min(float(g["floor_m"]) + max(head, 0.0), rim[int(g["slack"])])
+        rows.append({
+            "slack": int(g["slack"]), "E": round(float(g["E"]), 1),
+            "N": round(float(g["N"]), 1), "cluster": c,
+            "cluster_label": betas[c]["label"],
+            "nearest_well": g["nearest_well"],
+            "floor_m": round(float(g["floor_m"]), 3),
+            "dem_interp_m": round(float(g["dem_interp_m"]), 3),
+            "depth_interp_m": round(float(g["depth_interp_m"]), 3),
+            "dz_m": round(float(g["dz_m"]), 3),
+            "d_m": round(float(g["d_m"]), 3),
+            "slope_A_mm_per_m": round(A, 3), "intercept_B_mm": round(B, 3),
+            "horizon_n_months": n, "peak_month": pk,
+            "P_clim_total_mm": round(Pc, 3),
+            "pflood_mm": round(pf, 3),
+            "floods_average_winter": bool(pf <= Pc),
+            "head_above_floor_m": round(head, 3),
+            "area_ha_average_winter": round(
+                _pflood_area(hyps[int(g["slack"])], lvl) if head > 0 else 0.0, 4),
+            "cluster_mass": round(float(g["cluster_mass"]), 3),
+            "cluster_ambiguous": bool(g["cluster_ambiguous"]),
+            "c1_via_caveat_well": bool(g["c1_via_caveat_well"]),
+        })
+    C = pd.DataFrame(rows)
+    p = OUT / "W94_90_pflood_per_hollow.csv"
+    C.to_csv(p, index=False)
+    saved(f"{p.name}  ({len(C)} hollow(s))")
+    step(f"MODE C: {int(C['floods_average_winter'].sum())} of {len(C)} hollow(s) "
+         f"flood in an average winter, {C['area_ha_average_winter'].sum():.2f} ha; "
+         f"P_flood median {C['pflood_mm'].median():.0f} mm "
+         f"(wells: {W['pflood_mm'].median():.0f} mm)")
+    info(f"  {int(C['cluster_ambiguous'].sum())} hollow(s) with an ambiguous "
+         f"cluster (top mass < {PFLOOD_CLUSTER_MASS_MIN:.2f}); "
+         f"{int(C['c1_via_caveat_well'].sum())} assigned C1 through "
+         f"{PFLOOD_C1_CAVEAT_WELL} — 2.1 km from the lake and below lake level, "
+         f"so no lake-edge reading of those")
+
+    if mode == "C":
+        return 0
+
+    # ── MODE V — the same construction, year by year, against the reads ──
+    lev = _level_frame()
+    V = []
+    for date, path in _pflood_read_dates().items():
+        wy, rm = _pflood_bucket(date)
+        Wy, fell = _pflood_antecedent(lev, W, wy)
+        Gy = _pflood_geometry(hollows, hyps, Wy, power=power,
+                              depth_col="depth_year")
+        pred, n_wet, past = 0.0, 0, False
+        for _, g in Gy.iterrows():
+            c = int(g["cluster"])
+            if c not in betas:
+                continue
+            hz = _horizon_read(rm)
+            past = past or (rm not in _horizon_truncated(peaks[c])[0])
+            try:
+                Pm = {m: P_act[(wy if m >= 10 else wy + 1, m)] for m in hz}
+                Em = {m: E_act[(wy if m >= 10 else wy + 1, m)] for m in hz}
+            except KeyError:
+                continue
+            b = betas[c]
+            h = _pflood_iterate(float(g["d_m"]), b["b1"], b["b2"], b["b3"],
+                                hz, Pm, Em, DRAINAGE_DATUM)
+            if h > 0:
+                n_wet += 1
+                sid = int(g["slack"])
+                pred += _pflood_area(hyps[sid],
+                                     min(float(g["floor_m"]) + h, rim[sid]))
+        obs_tot = obs_hol = np.nan
+        if path is not None:
+            r = gpd.read_file(path).set_crs(OSGB, allow_override=True)
+            u = r.geometry.union_all()
+            obs_tot = float(u.area / 1e4)
+            obs_hol = float(sum(hollows.geometry.intersection(u).area) / 1e4)
+        else:
+            obs_tot = obs_hol = 0.0
+        hz0 = _horizon_read(rm)
+        Pr = sum(P_act.get((wy if m >= 10 else wy + 1, m), np.nan) for m in hz0)
+        V.append({"date": date, "winter_start": wy, "read_month": rm,
+                  "pet_borrowed_months": sum(
+                      1 for m in hz0
+                      if (wy if m >= 10 else wy + 1, m) in borrowed),
+                  "dry_control": date in DRY_CALIBRATION_DATES,
+                  "wells_fallback": fell, "n_wells": len(W),
+                  "horizon_n_months": len(hz0),
+                  "realised_P_mm": round(float(Pr), 1),
+                  "past_peak_month": past,
+                  "hollows_flooded": n_wet,
+                  "predicted_ha": round(pred, 3),
+                  "observed_ha_in_hollows": round(obs_hol, 3),
+                  "observed_ha_total": round(obs_tot, 3)})
+        info(f"  {date}  predicted {pred:7.2f} ha over {n_wet:4d} hollow(s)   "
+             f"observed {obs_hol:7.2f} ha in hollows ({obs_tot:6.2f} total)"
+             + ("   [DRY CONTROL]" if date in DRY_CALIBRATION_DATES else "")
+             + (f"   [{fell} well(s) on the climatological mean]" if fell else ""))
+    D = pd.DataFrame(V)
+    p = OUT / "W94_91_pflood_validation.csv"
+    D.to_csv(p, index=False)
+    saved(p.name)
+
+    wet = D[~D["dry_control"]]
+    dry = D[D["dry_control"]]
+    if len(wet) and len(dry):
+        margin = (wet["predicted_ha"].max() / dry["predicted_ha"].max()
+                  if dry["predicted_ha"].max() > 0 else np.inf)
+        step(f"THE GATE: wettest {wet['predicted_ha'].max():.2f} ha against a "
+             f"worst dry control of {dry['predicted_ha'].max():.2f} ha — margin "
+             f"{margin:.2f} : 1 (DRY_CONTROL_MIN_RATIO "
+             f"{DRY_CONTROL_MIN_RATIO:.2f})")
+        if margin < DRY_CONTROL_MIN_RATIO:
+            warn("MODE V FAILS ITS DRY-CONTROL GATE — do not adopt this")
+
+    if sens:
+        S = []
+        for pw in PFLOOD_SENS_POWERS:
+            Gs = _pflood_geometry(hollows, hyps, W, power=pw)
+            tot = 0.0
+            for _, g in Gs.iterrows():
+                c = int(g["cluster"])
+                if c not in AB:
+                    continue
+                A, B, Pc, _, _ = AB[c]
+                head = (Pc - (A * float(g["d_m"]) + B)) / A
+                if head > 0:
+                    sid = int(g["slack"])
+                    tot += _pflood_area(hyps[sid],
+                                        min(float(g["floor_m"]) + head,
+                                            rim[sid]))
+            S.append({"idw_power": pw, "d_median_m": round(float(Gs["d_m"].median()), 3),
+                      "area_ha_average_winter": round(tot, 3)})
+            info(f"  IDW power {pw:.1f}: median d {Gs['d_m'].median():.3f} m, "
+                 f"average-winter area {tot:.2f} ha")
+        pd.DataFrame(S).to_csv(OUT / "W94_92_pflood_sensitivity.csv", index=False)
+        saved("W94_92_pflood_sensitivity.csv")
+
+    info("NOT ADOPTED and not in the pipeline. Mode C is a CLIMATOLOGICAL "
+         "statement about mapped hollows; quote it only with the Mode V table "
+         "and the sensitivity spread beside it.")
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

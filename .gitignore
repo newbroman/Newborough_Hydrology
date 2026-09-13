@@ -226,3 +226,12 @@ data/geo/ranwell_map*.points
 # add to it. Anything in here that matters belongs somewhere else in the tree,
 # so if a file is ONLY here, that is the bug - file it, do not commit this folder.
 Claude outputs/
+
+# data/geo/slacks/ — 551 MB of raw Google Earth screen captures (the 2026-09-12
+# slack-edge series), the unprocessed source behind the flood read. Same rule as
+# the aerial_*/site_* captures above: the IMAGES stay local, the derived geometry
+# and the manifests are what get committed. Ignored rather than deleted because
+# the series is re-read whenever the classifier changes; if a capture here is the
+# only copy of something that matters, that is the bug - derive it and commit the
+# derivative, not the folder.
+data/geo/slacks/

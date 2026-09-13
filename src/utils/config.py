@@ -40,7 +40,10 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.42.0"  # Hollingham (2026) - 2026-09-11. W94 phase 8: the cut
+__version__ = "1.44.0"  # Hollingham (2026) - 2026-09-13. New:
+#   SLACK_WET_SCORE_MIN = 2.17, the slack-edge classifier's cut, set from
+#   the dry controls' 99th percentile before any wet date was read.
+# 1.43.0  Hollingham (2026) - 2026-09-11. W94 phase 8: the cut
 #   is EACH FRAME'S OWN Otsu threshold, and FLOOD_OTSU_MAX_Z gates on where that
 #   threshold falls. Measured on five frames, FLOOD_LUM_Z and FLOOD_BIMODAL_MIN
 #   were the wrong pair: the variance fraction separates wet from dry by only
@@ -48,6 +51,8 @@ __version__ = "1.42.0"  # Hollingham (2026) - 2026-09-11. W94 phase 8: the cut
 #   nothing is frozen from one frame onto fifteen others, and the gate carries
 #   the falsification instead of the cut. FLOOD_LUM_Z and FLOOD_BIMODAL_MIN are
 #   retired the day they were added, never having been committed with a value.
+# v1.43.0 - 2026-09-12: FLOOD_OTSU_MAX_Z returned to the blind -0.75 after the
+#   whole range -0.75 to -0.15 was measured; -0.15 fails the negative control.
 # v1.42.0 - 2026-09-11: SCRAPE_DEM_CORRECTION_M moved here from a per-script
 #   local in 11b_spatial_thresholds.py (the mirrored-constant pattern the working
 #   rules forbid); three W94 analyses need the same values.
@@ -1341,21 +1346,58 @@ CANOPY_FLOOD_MIN_PATCH_PX = 60
 # first, was the wrong statistic — 0.713 wet against 0.604 dry is no gap at all
 # — and is reported as a diagnostic only.
 #
-# WIDENED TO -0.30 (Martin, 2026-09-11), AFTER the falsification test was run
-# and passed. The blind midpoint, -0.75, called both May negatives DRY as
-# required, and thirteen of sixteen frames DRY — but it also missed 2021-04-04
-# (14 wells at or above ground, splitting at -0.44) and 2017-03-24 (4 wells,
-# -0.49). Across the whole series every frame the record says is dry splits at
-# **-0.20 or above** and every frame it says is flooded splits at -0.44 or
-# below, so -0.30 separates the two populations completely with 0.10 of margin
-# on the dry side and 0.14 on the wet.
+# SET TO THE BLIND MIDPOINT, -0.75 (Martin, 2026-09-12: "move it to what you
+# think is the best"). The value was fixed BEFORE the series was read, from the
+# one frame the record says is flooded (-1.32) and four it says are dry (-0.17,
+# +0.02, +0.08, +3.38), and the falsification test was then run against it and
+# passed — but see the CORRECTION below before quoting that test.
+# Thirteen of sixteen frames return DRY, every summer and autumn frame refusing
+# itself.
 #
-# THE ORDER MATTERS AND IS RECORDED RATHER THAN GLOSSED: the test was run
-# against the blind value and passed, and this widening was set afterwards from
-# the full series. It is therefore FITTED to the series it is quoted on, the two
-# May frames included, and the frame-level result at -0.30 is NOT an independent
-# test of the method. The independent result is the one at -0.75. D-159.
-FLOOD_OTSU_MAX_Z        = -0.30
+# CORRECTED 2026-09-12: THERE IS ONE INDEPENDENT MAY NEGATIVE, NOT TWO.
+# The 6/19/2011 timeline entry is the 5/27/2010 IMAGERY WITH A NEWER PATCH
+# GRAFTED IN (Martin, from Google Earth): the two frames differ on 1.16 % of the
+# image, in a strip at the far left, and are identical everywhere else — maximum
+# difference 0 across 574,057 frame pixels INSIDE THE WARREN. The patch lies
+# outside the warren, so over the analysis area the two carry ONE measurement.
+# Both files are correctly named and dated by their own status bars.
+# The 2011-06-19 frame was one of the four dry frames this midpoint was set
+# from, so the "2010-05-27" control was IN the calibration set. The blind
+# negative is 2012-05-26 alone, and it splits at +0.31 — it stays DRY at every
+# gate down to -0.15, so it never had the power to fail. D-159.
+#
+# THE WHOLE RANGE HAS BEEN MEASURED, and this is the only value in it that is
+# both blind and precise:
+#   -0.75  every dry frame DRY; misses 2017-03-24 (4 wells wet), 2021-04-04 (14)
+#   -0.30  every dry frame DRY; admits those two at precision 0.091 / 0.333, where
+#          simply calling them dry scores 0.925 and 0.736 - a NET LOSS
+#   -0.20  identical admissions to -0.30, with 0.003 of margin to the nearest
+#          dry frame (2009-04-20 at -0.197) instead of 0.13
+#   -0.17  2010-05-27 survives by 0.0015; admits 2009-04-20 at 87.9 ha, recall 0
+#   -0.15  2010-05-27 READ: 260 bodies, 124.7 ha, on a month when NO well in the
+#          network reached ground. The falsification test FAILS.
+# Widening buys two weak events and pays with the precision that makes the
+# method worth having; at -0.44 and -0.49 what the split finds is not water.
+FLOOD_OTSU_MAX_Z        = -0.75
+# The slack-edge classifier's cut (W94 phase 10), on the COMBINED contrast score
+# -dL + dBR + dS: a slack's floor against its own rim, one tile at a time, in
+# luminance, blue-minus-red and saturation, oriented so water is positive.
+#
+# SET FROM THE DRY CONTROLS ALONE, AND BEFORE ANY WET DATE WAS READ — the same
+# discipline as FLOOD_OTSU_MAX_Z. +2.17 is the 99th percentile of the score over
+# 2,099 slack-dates on 2009-04-20 and 2012-05-26, so it admits ONE DRY SLACK IN A
+# HUNDRED by construction: that is the false-positive rate chosen, not a number
+# tuned until a wet date looked right. The 99.5th percentile, +2.62, was the
+# alternative and was declined because recall has been the scarce commodity in
+# every method tried on this site (Martin, 2026-09-13).
+#
+# Why a combined score rather than three thresholds: measured on 2021-03-24
+# against the dipwell record, each channel separates wet-well slacks from
+# dry-well ones in the direction physics predicts (dL -0.64 against +0.03, dBR
+# +0.67 against 0.00, dS +0.38 against -0.15) but every wet median still falls
+# inside the dry controls' own 1-99 percentile range on its own channel. Three
+# weak separators sum to one that separates.
+SLACK_WET_SCORE_MIN     = 2.17
 # Ground removed by mechanical scraping AFTER the LiDAR DEM was flown, in metres,
 # so any DEM-derived elevation at these wells reads that much too high.
 #

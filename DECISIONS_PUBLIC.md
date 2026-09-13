@@ -1327,6 +1327,46 @@ The figure's own caption marker is the source of record. `figure_map.py` (`capti
 
 **Revisit if** `doc_tier_log.csv` shows a frozen family needing reasoned prose edits repeatedly between phase transitions (it is live in practice: move it, or split the phase); a co-author needs a live paper while the report is live (two live families are allowed if the D-entry says which two and why); or `doc_version_sync` / `reembed_figures`, which write ODTs through their own zip paths and are exempt by construction, ever gain a prose-editing capability (route them through `odt_edit`).
 
+### D-160 — A regular control net cannot register a frame: the tiles are tied to the vp2 homography by image features
+
+*2026-09-13*
+
+**no, all 81 were wrong, and the cause is the regularity itself.** A 200 m lattice looks the same shifted by 200 m, so the matcher can align detected rings to the wrong nodes, converge, and report a small residual because every ring does sit near *a* grid point. Measured: all 25 candidate offsets for one tile returned **39 matched points at 0.57 px, identical to two decimals**. Each tile chose independently, so two tiles of one date correlated at **0.02–0.09** where two captures of one surface must agree. The dipwell net worked precisely because it is irregular: 88 pipes in no pattern admit exactly one match. The irregularity was the feature. **Registration is now SIFT feature matching against the committed vp2 frames**, whose homography is the only one this project has verified independently (its markers-ON/OFF twins, sampled to the ground grid, agree at r = 0.994): features on tile and reference, ratio-test matching, a RANSAC homography tile→vp2, composed with the vp2 ground transform. 155 of 157 captures registered, agreement r 0.55–0.98, GSD median 1.00 m. **And no fit is accepted on its own residual.** A fit stands only where it agrees on the ground with another capture of the same place (`TILE_AGREE_MIN_R` = 0.50). A residual states how well you fitted the assignment you happened to make; only a second independent capture tests whether the assignment was right. A second route was closed on the way: Google Earth's status bar prints the position **under the pointer**, not the view centre — two captures of the same ground at the same altitude quote coordinates 1.7 km apart — so it cannot serve as a position datum.
+
+**Revisit if** a capture series has no vp2 frame within reach to tie to (ten frames — the two December composites and 2020-04-24 — already tie across dates and are flagged `same_date_reference = False`); or SIFT fails on imagery with too little texture, which the agreement gate will show as a refusal rather than a bad fit.
+
+### D-161 — Coverage is judged by the hollow a date cannot see, not by covered area
+
+*2026-09-13*
+
+**retire the threshold** (Martin, 2026-09-13). Covered-area fraction is the wrong quantity: a gap can only hide flood where there is a hollow to hold it, and a gap over bare ridge costs nothing. Every tile-derived area is reported with `unseen_hollow_ha` — the hollow area inside the gap, which is the most the total can be understated by — so a number reads "88.31 ha, at most +3.20 ha unseen" rather than as a whole-warren claim. One hard exclusion remains for the case where the bound swallows the measurement, at `HOLLOW_UNSEEN_MAX_FRAC` = 0.10.
+
+**Revisit if** a flood read is adopted that measures something other than area inside hollows (the bound is specific to that quantity); or the hollow map itself changes materially, since the bound is computed against it.
+
+### D-162 — The slack-edge classifier: three contrasts combined, cut at the dry controls' 99th percentile
+
+*2026-09-13*
+
+Each slack's floor is compared with **its own rim**, inside one tile, in three channels — luminance `dL`, blue-minus-red `dBR`, saturation `dS` — each in units of the rim's own robust spread. The DEM supplies geometry only and **never promotes a slack**: no contrast means DRY, not unknown, so D-159's direction ("the photographs classify, the DEM names the result") survives and the read stays falsifiable. The three are **combined into one signed score**, `−dL + dBR + dS`, cut at `SLACK_WET_SCORE_MIN` = **2.17** — the 99th percentile of that score over 2,099 slack-dates on the dry controls, so it admits one dry slack in a hundred by construction. Set from the dry dates alone, before any wet date was read; +2.62 (p99.5) was the alternative and was declined because recall has been the scarce commodity in every method tried here. **The glare branch is removed.** It tested for brighter-and-desaturated; measurement says wet slacks are *more* saturated than their rims, so it voted against its own signal. Glare applies to 2021-04-04 alone (Martin, 2026-09-13) and is an exception handled by inspection. **Phase 10 yields a classification, not an area.** A dry control returns 10.53 ha of flagged hollow against 33.90 ha on the wet date — a 3:1 margin, against 33:1 for phase 11 on vp2 — because area is dominated by the largest slacks and one false positive among them costs ten hectares.
+
+**Revisit if** the false-positive rate on **held-out** dry dates departs from the designed 1 % (2010-05-27 and 2019-07-29, which the threshold never saw, return 1 in 70); or a large-slack treatment is built, at which point phase 10's area may become quotable and this entry's last clause is superseded.
+
+### D-163 — `DRAINAGE_DATUM` is a modelling convention, not a measurable quantity — four routes, none of which constrains it
+
+*2026-09-13*
+
+**nothing available constrains it, the reformulation that could is worse than what it would replace, and `DRAINAGE_DATUM` = 3.7 m stands on D-007's grounds** — the shallowest reference depth at which all five clusters return a positive and significant β₃. Four routes were tried, each with its falsification criterion stated before it was run (spec: `working/updates/NRG_spec_W94_phase12_flood_prediction_and_datum.md`):
+
+**Revisit if** an observable is found that depends on the *absolute* head rather than on its changes — a flux measurement, a tracer, or a discharge record at the estuary boundary would all qualify, and none is in the network; or the model gains an intercept as its published form, at which point D-109's account of what the datum does no longer applies.
+
+### D-164 — Flooded extent is water table above the slack floor, measured on merge-tree units against a tidal boundary — and a record-length threshold that gates a FIT must not gate an INTERPOLATION
+
+*2026-09-13*
+
+**flooded extent is the DEM below an interpolated water table, cell by cell, inside a merge-tree slack unit** — not the imagery's wet floor and not its open water, which are two different quantities about the same ground. Four corrections separate the usable construction from the first attempt, each measured rather than tuned: 1. **Merge-tree slack units** in place of the phase 6 hollows, which removes composites and every basin draining to the sea. 2. **The lake gauge is out of the interpolation.** `llyn rhos` is not a dipwell and was the only point at or above ground on both dry controls, so its presence alone made them look wet. 3. **The estuary as a boundary condition** (`ESTUARY_KML`, `ESTUARY_LEVEL_M_AOD`): the aquifer discharges to the Malltraeth estuary, so the water table is pinned near tide level along that margin and IDW has no way to know it. The alternative considered and rejected was a distance cap, which bought its improvement by discarding that flank on EVERY date, including the dates when its flooding is real. 4. **The level frame is the unthresholded one** (`01_wells_all.csv`, Script 01 >= 1.16.0). This is the general point and it is the one worth carrying elsewhere: **`MIN_MONTHS_THRESH` and `MIN_EXTENDED_MONTHS` are admission criteria for the clustering and the SSM, and they are correct for that** — at 17-18 months a record cannot be fitted at all (`SSM_MIN_OBS` = 30). They are wrong for an analysis that interpolates OBSERVED head and fits nothing, and the cost fell in the worst possible place: D31, D33, D34, D39 and D45 are DGPS-surveyed at 2.75-4.61 m AOD in the south-east, exactly where the long-record network has no well and the surface was extrapolating. **A threshold that gates a fit must not be inherited by an interpolation.**
+
+**Revisit if** a dry control returns an area within a factor of two of the wettest date, which would mean the false-positive floor has stopped being a floor; or the slack floors are recalibrated, since the whole construction rests on them and D-163's metre-deep hollow-minimum problem is only avoided, not solved, by the merge-tree units; or a tide-gauge or piezometric record at the Malltraeth margin becomes available, which would replace `z_b` with a measurement instead of a tested choice; or the south-eastern wells are resurveyed or extended, since five short records are currently carrying that flank alone.
+
 ---
 
-159 decisions. Generated by `tools/build_public_decisions.py`.
+164 decisions. Generated by `tools/build_public_decisions.py`.

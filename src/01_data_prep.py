@@ -6,6 +6,7 @@ outputs and reference/extended network splits for downstream scripts.
 Outputs (intermediate — outputs/ root):
     01_locations.csv
     01_climate.csv
+    01_wells_all.csv
     01_wells_clean.csv
     01_wells_provenance.csv
     01_wells_reference.csv
@@ -15,7 +16,17 @@ Requirements:
     pandas, numpy
 """
 
-__version__ = "1.15.0"  # Hollingham (2026) - 2026-09-06. W96/D-141: adds the
+__version__ = "1.16.0"  # Hollingham (2026) - 2026-09-13. W94: emits
+#   01_wells_all.csv - the cleaned monthly frame with NO record-length threshold,
+#   alongside the existing thresholded files. Purely additive: wells_clean, the
+#   reference/extended split, the provenance file and every downstream consumer are
+#   unchanged. Exists because MIN_MONTHS_THRESH and MIN_EXTENDED_MONTHS are
+#   SSM/clustering admission criteria and were silently excluding five DGPS-surveyed
+#   south-eastern wells (D31, D33, D34, D39, D45; 17-18 months, 2010-03 to 2011-08)
+#   from analyses that interpolate observed levels and fit nothing. Not to be used to
+#   fit an SSM or to define a network. EXTENDED_NETWORK_BLACKLIST still applies:
+#   llyn rhos and pdfs are excluded on physical grounds, not length.
+# v1.15.0  # Hollingham (2026) - 2026-09-06. W96/D-141: adds the
 #   replant-proximity land-cover columns to 01_locations.csv - in_1998_replant,
 #   dist_1998_replant_m, dist_broadleaf_restock_m - derived by _replant_proximity()
 #   from committed EPSG:27700 GeoJSON with the same pure-numpy point-in-polygon and
@@ -87,7 +98,7 @@ from utils.paths import (
     DATA_WELLS_RAW, DATA_LOCATIONS_RAW, DATA_CLIMATE_RAW,
     DATA_WELL_ELEVATIONS,
     DATA_DIR,
-    INT_LOCATIONS, DATA_FOREST_BOUNDARY, INT_CLIMATE, INT_WELLS_CLEAN, INT_WELLS_CLEAN_MAOD,
+    INT_LOCATIONS, DATA_FOREST_BOUNDARY, INT_CLIMATE, INT_WELLS_CLEAN, INT_WELLS_ALL, INT_WELLS_CLEAN_MAOD,
     DATA_FELLING_1998_1, DATA_FELLING_1998_2, DATA_FELLING_1998_3,
     DATA_BROADLEAF_RESTOCK,
     INT_WELLS_PROVENANCE,
@@ -938,6 +949,27 @@ if __name__ == "__main__":
         cleaned_col, prov_col = clean_well_series(wells[col], return_provenance=True)
         wells[col] = cleaned_col
         provenance[col] = prov_col
+
+    # EVERY well in the cleaned frame, before any record-length threshold.
+    # MIN_MONTHS_THRESH (below) and MIN_EXTENDED_MONTHS (the network split) are
+    # both admission criteria for the clustering and the SSM, which cannot fit a
+    # short record (SSM_MIN_OBS = 30). An analysis that interpolates OBSERVED
+    # levels and fits nothing needs neither threshold, and is actively harmed by
+    # them: D31/D33/D34/D39/D45 carry 17-18 months of DGPS-surveyed head in the
+    # south-east, where the long-record network has no well at all, so they are
+    # dropped from all three files and any interpolated surface is left
+    # extrapolating exactly where it is weakest. See the INT_WELLS_ALL note in
+    # paths.py. Networks, clustering and every beta are unchanged by this file.
+    # THE BLACKLIST SURVIVES THE THRESHOLD DROP, because it is not a threshold.
+    # EXTENDED_NETWORK_BLACKLIST excludes llyn rhos (a lake surface) and pdfs (a
+    # tidal signature) on the ground that neither hydrograph is a water-table
+    # response at all — a physical exclusion, not a record-length one. A file
+    # that dropped it would put a tidal well into any interpolated water table
+    # built from this frame, at the tidal margin, which is the one place such a
+    # surface is already weakest.
+    _all = wells[[c for c in wells.columns
+                  if normalize_well_name(c) not in EXTENDED_NETWORK_BLACKLIST]]
+    _all.to_csv(INT_WELLS_ALL)
 
     wells_clean = wells.dropna(axis=1, thresh=MIN_MONTHS_THRESH)
     wells_clean.to_csv(INT_WELLS_CLEAN)

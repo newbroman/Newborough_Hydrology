@@ -1,7 +1,7 @@
 {
- "generated": "2026-09-12T00:42:34Z",
- "last_changed": "2026-09-12T00:42:34Z",
- "hash": "3ec3cd61c8750e54",
+ "generated": "2026-09-13T10:17:50Z",
+ "last_changed": "2026-09-13T10:17:50Z",
+ "hash": "9e68b9e5550b2051",
  "schema": "nw-engine-1",
  "source": "11b_spatial_thresholds DATA (base_layer excluded)",
  "cluster_coeffs": {
@@ -89,7 +89,7 @@
    "b2": 0.0025625958969997765,
    "b3": 0.0184550843266805,
    "peak_month": 2,
-   "slope_A": 383.48280877653184,
+   "slope_A": 383.4828087765319,
    "intercept_B": 275.2048700361255,
    "P_clim_total_mm": 461.3628571428571,
    "horizon_months": 5,
@@ -266,7 +266,7 @@
   "11": 27.24549611350159,
   "12": 19.39361402987791
  },
- "winter_climatology_mm": 515.8699999999998,
+ "winter_climatology_mm": 515.87,
  "wells": [
   {
    "name": "ceh11",

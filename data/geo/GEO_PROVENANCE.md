@@ -1067,6 +1067,86 @@ as at that date; and through it `tools/warren_flood_prep.py`. D-159 governs the 
 any canopy subtraction. Any figure carrying the older basis predates 2026-09-11 19:26 and must be
 recomputed, not converted.
 
+### `site 27-5-2010.png` carries the SAME IMAGERY as `site19-6-2011.png` (found 2026-09-12)
+
+- **What:** two vp2 measurement frames whose rendered status bars read "Imagery Date: 5/27/2010" and
+  "Imagery Date: 6/19/2011" respectively — both read from the pixels on 2026-09-12 — and which are
+  **identical over the warren**: across the 574,057 frame pixels inside the warren and Script 41's
+  analysed window, the maximum difference is **0**. They differ on 1.16 % of the whole image, in a
+  strip at the far left outside the warren, plus the status-bar text. `md5sum` differs, because of
+  that text; the ground does not.
+- **Why:** the **6/19/2011 entry is the 5/27/2010 imagery with a newer patch grafted in** (Martin,
+  from Google Earth, 2026-09-12). The patch is the 1.16 % strip at the far left; it lies OUTSIDE the
+  warren. **Neither file is misnamed or misdated** — the dates are what Google Earth reports — but
+  over the analysis area the two carry ONE measurement, not two. Google Earth's timeline entries are
+  composites, so a distinct DATE does not imply distinct GROUND at a given place.
+- **Consequence:** the two must never be counted as independent evidence. They were, in the W94
+  falsification test (D-159, corrected 2026-09-12), which cost that test half its negatives and put
+  the survivor in the calibration set.
+- **Checked:** a pairwise sweep of all fourteen readable vp2 measurement frames over the warren finds
+  this pair and **no other**.
+- **Owed:** a duplicate-detection check over the analysed area before a frame is counted as evidence.
+
+### Google Earth composites a timeline entry from several captures — `site31-3-2020.png` proves it
+
+- **What:** Martin, inspecting Google Earth on 2026-09-12: the March 2020 frame *"has small area to
+  the east which is stale imagery from sept 19 which is dry, you can tell by the vertical break in
+  colour"*. **Measured and confirmed the same day:** comparing `site31-3-2020.png` against
+  `site11-9-2019.png` there is a **hard vertical break at frame column x = 1587** — west of it 0 % of
+  warren pixels are identical, east of it **100 %**. The block east of the break is
+  **60,799 frame pixels, 10.6 % of the warren in that frame**, and it is September 2019 imagery.
+- **Why it matters:** the record puts September 2019 at ONE well at or above ground, so that block is
+  **dry imagery presented as a March 2020 flood frame** and will be read as dry. **No scored well
+  falls in it** — the eastern warren edge has no dipwell reporting that month — so the 2020-03-31
+  score (recall 1.000, precision 0.500) is unaffected, but the flood EXTENT there is
+  under-read, and no well in the network could reveal it.
+- **The general lesson, which is larger than this frame:** a Google Earth timeline entry is a
+  **composite**, not a capture. A frame's status-bar date describes the imagery under the view centre,
+  not every pixel in it. The extent of the problem is measured rather than assumed — see the sweep
+  below — so a per-frame quantity does not have to be distrusted, but the sweep must be run before
+  two frames are treated as independent, and any overlap stated.
+
+### Pairwise overlap of the vp2 measurement frames over the warren (measured 2026-09-12)
+
+Share of the 574,177 warren pixels that are IDENTICAL between each pair, across the fourteen readable
+frames. Any pair above a few per cent shares ground and is not independent evidence there:
+
+| share | pair | note |
+|---|---|---|
+| **100.0 %** | 2010-05-27 <-> 2011-06-19 | one measurement, not two (above) |
+| **74.7 %** | 2018-06-28 <-> 2018-07-08 | Martin's enumeration lists a single **May 18** |
+| 11.2 % | 2019-09-11 <-> 2020-03-31 | the stale eastern block (above) |
+| 2.0 % | 2021-03-24 <-> 2021-04-04 | both scored frames |
+| 1.4 % | 2012-05-26 <-> 2017-03-24 | |
+| 0.5-0.8 % | five further pairs | |
+
+Martin inspected every frame by eye on 2026-09-12 and found the two that matter; the sweep confirms
+both, adds the 2018 pair his enumeration already implied, and finds the small strips he noted an eye
+would miss.
+- **Owed:** a stale-patch check per frame (compare each frame against every other over the analysed
+  area and report identical blocks), and a decision on whether to mask the stale block out of the
+  2020-03-31 read.
+
+### Martin's own enumeration of the DISTINCT vp2 images (Google Earth, 2026-09-12)
+
+Read from Google Earth's timeline by Martin rather than from the captured frames, and recorded here
+because it does not agree with `aerial_manifest.csv` in several places and the disagreement must be
+resolved before any frame count is quoted:
+
+  **Dec 06** (wet, but only just), **June 09**, **May 10**, **May 12**, **May 17**, **Apr 17**,
+  **May 18**, **July 19**, **Sept 19**, **March 20** (wet), **March 21** (wet), **April 21** (wet),
+  **March 26** (wet).
+
+Thirteen distinct images. **June 2011 is absent**, which is the finding above. The manifest instead
+carries 2006-01-01, 2009-04-20, 2012-05-26, 2017-03-24, 2018-06-28 and 2018-07-08 where this list has
+Dec 06, June 09, May 12, May 17 and a single May 18 — **six dates to reconcile**. The manifest's dates
+were read from rendered status bars, which report the imagery under the view centre; Martin's are the
+timeline entries. **Not changed here** — resolving it is a decision, and the manifest is evidence.
+
+**Also owed (Martin, 2026-09-12):** an area in the east carries trees that grow across 2006-2026, plus
+two large trees, to be digitised and masked; a canopy that thickens over the series is a darkening
+that is not water.
+
 ### `warren_control.kml` — Script 41's negative-control region (added 2026-09-11)
 
 - **What:** one polygon, **19.15 ha**, bounds E 241265-241861, N 363367-364043, lying **entirely
@@ -1202,3 +1282,108 @@ at `working/updates/seabed_manifest_rows_2026-09-11.csv` pending the vp4/vp5 dec
 
 **Licence:** the frames are licensed imagery and stay out of the public repository — `data/geo/*.png` is
 gitignored per prefix and `seabed*.png` covers these names (checked 2026-09-11). D-081 / D-124 govern.
+
+---
+
+## The 2026-09-12 tiled capture series — registration inventory (157 frames)
+
+**What the series is.** 157 screenshots taken on 2026-09-12 between 16:58 and 17:47 BST, tiling the
+warren at eye altitudes of roughly 1.0–2.3 km across fourteen readable imagery dates, with
+`data/geo/georef_grid.kml` (180 control points on a 200 m OSGB grid) overlaid for registration.
+
+**They are markers-ON / markers-OFF PAIRS, and that is why half of them will not register on their
+own.** In timestamp order the registered/unregistered sequence reads `R R . . R R . .` almost without
+exception, at gaps of 5–12 s. Measured over the analysed window — Script 41's `_frame_window`, less the
+top 48 rows, because the time slider sits inside it and moves with the timeline date — an accepted
+twin pair differs on **0.33–0.88 % of the area (median 0.45 %), in a few dozen blobs of about
+170 px**: the pin icons being switched off, and nothing else. A pair that is not the same view
+differs on **62.7–75.5 %**. The two frames' status-bar dates, read independently from the pixels,
+**never contradict**: 52 pairs agree, 15 have one side unread, 0 disagree.
+
+So a markers-OFF frame inherits its partner's homography exactly. The test is the frame difference
+itself, and it is also the guard: the frames that are *not* the same view differ on 33–89 % and are
+refused.
+
+**The brightness threshold was the second cause.** `ingest_capture.py` 1.3.0 detected rings at
+min-channel > 200; on the 16 frames the pair fill could not reach, sweeping the threshold down
+registers **7 more, every one of them below 200** (170 ×4, 145, 120), four at 1.00 m/px with
+residuals of 0.58–0.99 m. A white icon over dark pine does not reach 200 in its dimmest channel.
+1.4.0 sweeps and lets the grid fit choose.
+
+**Where it stands: 154 of 157 located — 81 registered on a control net, 73 inherited from a twin,
+3 open.** Direct fits: GSD median 2.04 m/px (33 of 81 at ≤ 1.6 m/px), residual median 1.41 m, against
+2.884 m/px and 3.93 m for the committed site series. The three open frames are all markers-OFF
+captures: `Screenshot from 2026-09-12 17-00-52.png` (2017-04-22) and `…17-24-17.png` (2009-04-20),
+whose twins also failed, and `…17-09-26.png` (2006-01-01), whose twin was captured at a different
+window size (see below). Every date keeps at least three direct registrations, so no date is lost —
+only tile coverage on three of them. Seven registered frames still carry no date: their bars would
+not read and they have no twin to borrow one from.
+
+**ONE FRAME WAS CAPTURED AT A DIFFERENT WINDOW SIZE.** `…17-09-19.png` is 1920 × 1080; the other 156
+are 1920 × 1040. It registers on its own, but its twin cannot inherit from it, because a 40-row
+difference puts the map area somewhere else and the transform does not carry.
+
+The inventory — one row per capture, status, source frame where inherited, the measured difference
+from it, and the fit — is `working/updates/W159_registration_inventory.csv`. The fill is a pass in
+`tools/ingest_capture.py` 1.5.0 (`_same_view`, `_twin_fill`), not a measurement beside it.
+
+**Licence:** these frames are licensed imagery and stay out of the public repository. D-081 / D-124
+govern.
+
+### Dates: all 157 captures dated, two timeline entries new, and two bars overruled
+
+The seven registered captures whose status bar would not read were read from Google Earth by Martin
+(2026-09-12). `data/geo/capture_dates_by_hand.csv` is the register, one row per frame with the reason,
+and `tools/ingest_capture.py` 1.6.0 reads it: a hand reading **overrides the bar**, and is the only
+route by which a date outside `aerial_manifest.csv` can enter. The candidate set the OCR matches
+against grows with it, from sixteen dates to eighteen.
+
+**Two imagery dates were not in the enumerated set: 2009-12-31 and 2016-12-31.** Google Earth renders
+an annual composite layer at 31 December, and two tiles in this series sit on one. Two captures each.
+
+**And two status bars are wrong about their own imagery — measured, not supposed.**
+
+| capture | bar reads | imagery is | evidence |
+|---|---|---|---|
+| `…17-05-08.png` | 5/27/2010 | **2009-12-31** | same ground as `…17-04-59.png`, whose bar reads 12/31/2009: 0.44 % of the window differs, in 41 icon blobs |
+| `…17-05-56.png` | 3/24/2017 | **2016-12-31** | same ground as `…17-05-50.png`, whose bar reads 12/31/2016: 0.47 % of the window differs, in 43 icon blobs |
+
+So **the bar is the timeline position, not the capture** — the same lesson as the 2010-05-27 /
+2011-06-19 duplicate of the vp2 series, but this time with both labels legible and a twin pair to
+prove the ground is one surface. A frame's date is a claim to check wherever it matters.
+
+**What it does NOT establish.** These are 1.0–2.3 km tiles; Google Earth serves different imagery at
+different zoom levels for the same timeline position, so nothing here shows that the committed vp2
+frames at 3.70 km labelled 2010-05-27 and 2017-03-24 are mislabelled. **It is a reason to check them
+against these tiles where they overlap, and that check has not been made.** Both labels matter: one is
+the flood read's negative control, the other is the frame `FLOOD_OTSU_MAX_Z` = −0.75 excludes.
+
+Every capture in the series now carries a date: **sixteen dates across 157 frames**, none undetermined.
+
+### Capture convention from 2026-09-13: NO OVERLAYS, and overlap instead of twins
+
+**Markers are no longer captured, and the ON/OFF twin discipline is retired for new frames.**
+Registration is now SIFT feature matching against the committed vp2 frames
+(`tools/tile_register_sift.py`), which keys on ground texture and not on placemarks, so every overlay
+is pure cost: it covers ground that is being measured and it adds features the reference frame does not
+have. Measured 2026-09-13: the markers-OFF captures register on their own merit at the same agreement
+as the markers-ON ones (r 0.55-0.98, median 0.93, across 155 of 157 frames).
+
+Capture with the georef grid OFF, the dipwell placemarks OFF, and the `warren` polygon OFF — that last
+one renders as a white fill over the north-west forest and blanks the very texture the match needs.
+The status bar stays, because the imagery date is still read from it.
+
+**What the twins provided, overlap now provides.** A fit is accepted only where it agrees on the ground
+with another capture of the same place, so each new frame needs a neighbour overlapping it by roughly a
+third — and, at the edge of the existing block, overlapping the already-registered tiles too. Two
+frames of the identical view no longer buy anything.
+
+Every frame should carry some dune ridge: a frame that is mostly beach and sea has too little texture
+to match on. The agreement gate refuses such a frame rather than mis-placing it, but the capture is
+wasted.
+
+**Outstanding gap, measured 2026-09-13** (`W159_coverage_gap.png`): the north-west block against the
+seaward boundary, about E 241100-242100 / N 363350-364080 — 53 ha missing on 2020-03-31, 2010-05-27 and
+2017-03-24, and 10 ha on 2021-03-24 and 2009-04-20. A southern-tip triangle of roughly 2 ha below
+N 362400 is missed on every date. Priority is 2020-03-31: it is a wet date and the gap is 14 % of the
+warren.

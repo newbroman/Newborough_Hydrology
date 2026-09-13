@@ -305,6 +305,20 @@ DATA_DIST_COAST     = DATA_WELL_METADATA  # consolidated; was well_distance_to_c
 INT_LOCATIONS       = OUT_DIR / "01_locations.csv"
 INT_CLIMATE         = OUT_DIR / "01_climate.csv"
 INT_WELLS_CLEAN     = OUT_DIR / "01_wells_clean.csv"
+# EVERY well in the cleaned monthly frame, BEFORE any record-length threshold.
+# INT_WELLS_CLEAN is cut at MIN_MONTHS_THRESH (a reference-network admission
+# criterion) and the reference/extended split is cut again at
+# MIN_EXTENDED_MONTHS, so five DGPS-surveyed south-eastern wells with 17-18
+# months of measured head (D31, D33, D34, D39, D45) appear in none of the three.
+# Those thresholds are right for clustering and for the SSM (SSM_MIN_OBS = 30),
+# which cannot fit a record that short. They are wrong for an analysis that
+# interpolates OBSERVED levels and fits nothing: there, 18 months of surveyed
+# head is ground truth wherever the long-record network is absent. Same cleaning
+# and same bucketing as INT_WELLS_CLEAN; no threshold. Do NOT use this file to
+# fit an SSM or to define a network. EXTENDED_NETWORK_BLACKLIST still applies —
+# llyn rhos (a lake surface) and pdfs (a tidal signature) are excluded here too,
+# because that exclusion is physical and not a record-length criterion.
+INT_WELLS_ALL       = OUT_DIR / "01_wells_all.csv"
 # Audit of the in-pipeline dist_coast_m regeneration (Script 01): per-well
 # committed vs recomputed perpendicular distance to the eroding shoreline.
 INT_DIST_COAST_VALIDATION = OUT_DIR / "01_dist_coast_validation.csv"

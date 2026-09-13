@@ -47,6 +47,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 SRC = REPO / "src"
+ROOT = SRC.parent
 TABLE = REPO / "tools" / "record_basis.csv"
 FIT_CALLS = {"fit_ssm", "fit_ssm_intercept", "build_ssm_frame"}
 G, Y, R, B, N = "\033[0;32m", "\033[1;33m", "\033[0;31m", "\033[1m", "\033[0m"
@@ -116,7 +117,16 @@ def main() -> int:
             continue
 
         for s in scripts:
+            # A declared script is resolved under src/ first, then from the
+            # repository root. EVERY ROW USED TO NAME A NUMBERED PIPELINE SCRIPT,
+            # so src/ alone was enough; the register's job is to say which record
+            # an analysis uses, and an analysis that lives in tools/ can get that
+            # wrong just as easily as one in src/. Root resolution admits it
+            # without changing what any existing row means or what this gate
+            # reports about one.
             p = SRC / s
+            if not p.exists():
+                p = ROOT / s
             if not p.exists():
                 print(f"  {R}FAIL{N}   {rid}  {s} does not exist")
                 fail += 1

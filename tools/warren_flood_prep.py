@@ -38,7 +38,14 @@ NOT DONE HERE, AND WHY
 """
 from __future__ import annotations
 
-__version__ = "1.19.0"  # Hollingham (2026) - 2026-09-13. --form depth builds the
+__version__ = "1.20.0"  # Hollingham (2026) - 2026-09-13. Phase 17 regresses the
+#   hollow wet fraction on site wetness and place properties, trained on both reads.
+#   It learns WHERE well - depth, area, floor and EWI all strongly signed - and WHEN
+#   badly: leave-one-DATE-out returns 156.94 ha against 46.09 observed on
+#   2021-03-24 and 0.00 against 20.10 on 2020-03-31, because three informative
+#   dates cannot support a temporal coefficient. NOT usable for a series yet; the
+#   constraint is dated reads, not the fit.
+# v1.19.0  # Hollingham (2026) - 2026-09-13. --form depth builds the
 #   water table as h interpolated onto the SMOOTHED ground rather than as an
 #   absolute elevation, which is the variable the SSM is written in. Specced with
 #   its gate stated first, and IT FAILS THAT GATE: the wettest date goes 17.43 ->
@@ -279,6 +286,8 @@ def main() -> int:
     if args.phase == 11:
         return phase11(wet=args.wet, dry=args.dry, shift=args.shift,
                        series=args.series)
+    if args.phase == 17:
+        return phase17()
     if args.phase == 16:
         return phase16(date=(args.date[0] if args.date else "2021-03-24"),
                        series=args.series)
@@ -3964,6 +3973,226 @@ def _shortfall_plot(D, date):
     fig.savefig(p, dpi=140, facecolor="white")
     plt.close(fig)
     saved(p.name)
+
+def _hollow_predictors():
+    """The hollows, with the place-properties the fit reasons about.
+
+    EWI is the one that carries the SSM. Script 26's Equilibrium Wetness Index is
+    the steady-state spring level each well's OWN coefficients imply under
+    long-term mean climate - a property of the place, not of the month - so
+    interpolating it to each hollow is how the cluster SSM behaviour enters a
+    model of WHERE flooding occurs. Everything else is geometry the hollows layer
+    already carries.
+    """
+    H = gpd.read_file(OUT / "W94_06_hollows.geojson").set_crs(OSGB,
+                                                              allow_override=True)
+    E = pd.read_csv(REPO / "outputs" / "26_van_willegen_msl"
+                    / "26_equilibrium_wetness_index_per_well.csv",
+                    float_precision="round_trip")
+    E = E.dropna(subset=["EWI_m_bg", "E", "N"])
+    cen = H.geometry.centroid
+    H["cx"] = cen.x
+    H["cy"] = cen.y
+    H["ewi_m_bg"] = _idw(E["E"].to_numpy(), E["N"].to_numpy(),
+                         E["EWI_m_bg"].to_numpy(), H["cx"].to_numpy(),
+                         H["cy"].to_numpy())
+    H["log_area"] = np.log10(H["area_ha"].clip(lower=1e-4))
+    keep = ["id", "area_ha", "log_area", "floor_m", "depth_m",
+            "nearest_well_m", "ewi_m_bg", "cx", "cy", "geometry"]
+    H = H[[c for c in keep if c in H.columns]].copy()
+    info(f"{len(H)} hollow(s); EWI interpolated from {len(E)} well(s), "
+         f"range {H['ewi_m_bg'].min():+.2f} to {H['ewi_m_bg'].max():+.2f} m "
+         f"below ground")
+    return H
+
+
+def _wet_fraction(H, path):
+    """Each hollow's share of area the read maps as water."""
+    g = gpd.read_file(path).set_crs(OSGB, allow_override=True)
+    u = g.geometry.union_all()
+    out = []
+    for geom, a in zip(H.geometry, H["area_ha"]):
+        try:
+            out.append(min(1.0, (geom.intersection(u).area / 1e4) / a)
+                       if a > 0 else 0.0)
+        except Exception:                                     # noqa: BLE001
+            out.append(0.0)
+    return np.asarray(out, float)
+
+
+def _site_index(lev, wells):
+    """The measured wetness of the site, month by month.
+
+    The fraction of REPORTING dipwells standing at or above ground. It is a
+    measurement, it exists for every month of the record, and the whole-warren
+    SSM's only job in this model is to reproduce it where there are no dipwells
+    to measure - which is why it, and not the SSM, is the training predictor.
+    """
+    ground = {str(n).lower() for n in wells["Name"]}
+    cols = [c for c in lev.columns
+            if c != "month" and str(c).lower() in ground
+            and str(c).lower() != LAKE_GAUGE_NAME]
+    V = lev[cols].apply(pd.to_numeric, errors="coerce")
+    n = V.notna().sum(axis=1)
+    frac = (V >= 0).sum(axis=1) / n.replace(0, np.nan)
+    return pd.DataFrame({"month": pd.to_datetime(lev["month"]),
+                         "n_wells": n, "wet_well_frac": frac})
+
+
+def phase17(min_wells=20) -> int:
+    """Flooding regressed on wetness, per hollow, trained on the imagery.
+
+    THE ORDER IS INVERTED, and that is the point. Phases 12-14 interpolate a
+    water table, difference it against DEM floors, and only then meet an
+    observation - two error sources compounding before anything is checked.
+    Phase 16 measured the first (714 of 1,236 observed-wet slacks missed by a
+    median of 1.278 m, structured on distance to the nearest well) and --form
+    depth the second. THIS asks the imagery which hollows flood under which site
+    conditions and fits that directly. No surface, no floors, and no
+    PHASE9_DEM_BIAS_M, SLACK_MIN_DEPTH_M or SLACK_MIN_AREA_M2 anywhere in it.
+
+    THE UNIT IS THE HOLLOW, NOT THE DATE. 1,078 hollows on each read date, with
+    the hollow's WET FRACTION as the response, so the thinness of the date list
+    limits how much the fit can learn about TIME, not about PLACE.
+
+    TWO READS, NEVER AVERAGED. Panel A (tiles, 1.00 m/px) and panel B (vp2,
+    2.884 m/px) agree on 69.38 ha of 2021-03-24 - 78.6 % of A, 87.7 % of B - so
+    the disagreement is a margin at the edges of a shared core. Both are fitted
+    and every prediction is the pair. AN ASYMMETRY TO STATE: the tile read exists
+    for ONE date, so fit A is fit B with 2021-03-24 swapped for the tile read,
+    and the difference between them is the read uncertainty on the one date they
+    share - not two independent models.
+
+    WHAT IT IS NOT. Not a physical model, and it must never be called one; it is
+    a calibrated empirical relationship. It predicts flooding IN MAPPED HOLLOWS,
+    and phase 16 put 37.7 % of the 2021-03-24 water outside any closed basin, so
+    its totals are slack flooding and are stated as such.
+    """
+    import statsmodels.api as sm                              # noqa: PLC0415
+    phase(17, "Flooding regressed on wetness, per hollow")
+
+    H = _hollow_predictors()
+    wells = pd.read_csv(REPO / "outputs" / "01_well_elevations.csv",
+                        float_precision="round_trip")
+    lev = _level_frame()
+    SI = _site_index(lev, wells)
+
+    reads = {}
+    for f in sorted(OUT.glob("W94_08_flood_*.geojson")):
+        tag = "A_tiles" if "_tiles_" in f.name else "B_vp2"
+        d = f.stem.split("flood_")[1].replace("tiles_", "")
+        reads[(tag, d)] = f
+    dry = [(d, None) for d in DRY_CALIBRATION_DATES]
+    step(f"reads: {', '.join(f'{t.split(chr(95))[0]} {d}' for t, d in reads)}"
+         f"  |  dry controls as zeros: {', '.join(d for d, _ in dry)}")
+
+    rows = []
+    for (tag, d), f in reads.items():
+        wf = _wet_fraction(H, f)
+        rows.append(pd.DataFrame({"read": tag, "date": d, "id": H["id"],
+                                  "wet_frac": wf}))
+        info(f"  {tag} {d}: hollow-weighted water "
+             f"{float((wf * H['area_ha']).sum()):.2f} ha over "
+             f"{int((wf > 0).sum())} hollow(s)")
+    for d, _ in dry:
+        for tag in sorted({t for t, _ in reads}):
+            rows.append(pd.DataFrame({"read": tag, "date": d, "id": H["id"],
+                                      "wet_frac": 0.0}))
+    T = pd.concat(rows, ignore_index=True)
+    T = T.merge(H.drop(columns="geometry"), on="id", how="left")
+    T["month"] = pd.to_datetime(T["date"]).dt.to_period("M").dt.to_timestamp()
+    T = T.merge(SI, on="month", how="left")
+    T["is_dry_control"] = T["date"].isin(DRY_CALIBRATION_DATES)
+    T["cells"] = (T["area_ha"] * 1e4 / 4.0).clip(lower=1.0)
+    p = OUT / "W94_80_training_table.csv"
+    T.to_csv(p, index=False)
+    saved(f"{p.name}  ({len(T)} row(s))")
+
+    PRED = ["wet_well_frac", "ewi_m_bg", "depth_m", "log_area", "floor_m",
+            "nearest_well_m"]
+    fits, coefs = {}, []
+    # Fit A is fit B with the shared date's read swapped, not an independent
+    # model: the tile read covers one date.
+    base = T[T["read"] == "B_vp2"]
+    swap = T[(T["read"] == "A_tiles")]
+    setA = pd.concat([base[~base["date"].isin(swap["date"])], swap],
+                     ignore_index=True)
+    for name, D in (("B_vp2", base), ("A_tiles", setA)):
+        D = D.dropna(subset=PRED + ["wet_frac"])
+        X = sm.add_constant(D[PRED].astype(float))
+        m = sm.GLM(D["wet_frac"].astype(float), X,
+                   family=sm.families.Binomial(),
+                   freq_weights=D["cells"].astype(float)).fit()
+        fits[name] = (m, D)
+        for k in m.params.index:
+            coefs.append({"fit": name, "term": k,
+                          "coef": round(float(m.params[k]), 5),
+                          "se": round(float(m.bse[k]), 5),
+                          "z": round(float(m.tvalues[k]), 2),
+                          "p": float(m.pvalues[k])})
+        step(f"{name}: {len(D)} row(s) over {D['date'].nunique()} date(s); "
+             f"pseudo-R2 "
+             f"{1 - m.deviance / m.null_deviance:.3f}")
+        for k in PRED:
+            info(f"    {k:16s} {m.params[k]:+9.4f}  z {m.tvalues[k]:+7.1f}")
+    pd.DataFrame(coefs).to_csv(OUT / "W94_81_model_fits.csv", index=False)
+    saved("W94_81_model_fits.csv")
+
+    # LEAVE ONE DATE OUT, because hollows within a date share that day's wetness
+    loo = []
+    for name, (_, D) in fits.items():
+        for d in sorted(D["date"].unique()):
+            tr_, te = D[D["date"] != d], D[D["date"] == d]
+            if tr_["date"].nunique() < 2 or not len(te):
+                continue
+            mm = sm.GLM(tr_["wet_frac"].astype(float),
+                        sm.add_constant(tr_[PRED].astype(float)),
+                        family=sm.families.Binomial(),
+                        freq_weights=tr_["cells"].astype(float)).fit()
+            pr = mm.predict(sm.add_constant(te[PRED].astype(float),
+                                            has_constant="add"))
+            loo.append({"fit": name, "date": d,
+                        "observed_ha": round(float((te["wet_frac"]
+                                                    * te["area_ha"]).sum()), 3),
+                        "predicted_ha": round(float((pr * te["area_ha"]).sum()),
+                                              3),
+                        "dry_control": bool(te["is_dry_control"].iloc[0])})
+    L = pd.DataFrame(loo)
+    L.to_csv(OUT / "W94_82_loo_by_date.csv", index=False)
+    saved("W94_82_loo_by_date.csv")
+    if len(L):
+        step("LEAVE-ONE-DATE-OUT — the only validation that means anything here")
+        for r in L.itertuples():
+            info(f"    {r.fit:8s} {r.date}  observed {r.observed_ha:7.2f} ha  "
+                 f"predicted {r.predicted_ha:7.2f} ha"
+                 + ("   [DRY CONTROL]" if r.dry_control else ""))
+
+    # the monthly series, on the MEASURED index, both fits
+    S = SI[SI["n_wells"] >= min_wells].copy()
+    out = []
+    for name, (m, _) in fits.items():
+        for r in S.itertuples():
+            G = H.drop(columns="geometry").copy()
+            G["wet_well_frac"] = r.wet_well_frac
+            pr = m.predict(sm.add_constant(G[PRED].astype(float),
+                                           has_constant="add"))
+            out.append({"fit": name, "month": f"{r.month:%Y-%m}",
+                        "n_wells": int(r.n_wells),
+                        "wet_well_frac": round(float(r.wet_well_frac), 4),
+                        "flooded_ha": round(float((pr * G["area_ha"]).sum()), 3)})
+    P = pd.DataFrame(out)
+    P.to_csv(OUT / "W94_83_predicted_area.csv", index=False)
+    saved(f"W94_83_predicted_area.csv  ({P['month'].nunique()} month(s))")
+    w = P.pivot(index="month", columns="fit", values="flooded_ha")
+    if {"A_tiles", "B_vp2"} <= set(w.columns):
+        band = (w["A_tiles"] - w["B_vp2"]).abs()
+        step(f"the A-against-B band is {band.median():.2f} ha at the median and "
+             f"{band.max():.2f} ha at its widest — that is the read "
+             f"disagreement, carried rather than averaged away")
+    info("NOT A PHYSICAL MODEL: a calibrated empirical relationship trained on "
+         "a handful of imagery dates, predicting flooding IN MAPPED HOLLOWS "
+         "only. Quote it with its band and its training dates.")
+    return 0
 
 def _flood_map(date, frame, fg, hollows, sc, thr, tag=""):
     """The read, on the ground: water solid, hollows outlined, wells scored.

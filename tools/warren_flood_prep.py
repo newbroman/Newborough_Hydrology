@@ -38,7 +38,13 @@ NOT DONE HERE, AND WHY
 """
 from __future__ import annotations
 
-__version__ = "1.17.0"  # Hollingham (2026) - 2026-09-13. DEFECT FIX in
+__version__ = "1.18.0"  # Hollingham (2026) - 2026-09-13. Phase 16 diagnoses the
+#   per-slack shortfall: of 1,236 slack units the imagery says are wet, the model
+#   misses 714 by a MEDIAN OF 1.278 m, with an IQR of 1.453 m - too wide and far
+#   too large to be a constant. The missed slacks sit at a median floor of 9.10 m
+#   AOD against 4.17 m for those the model gets, which is the signature of IDW on
+#   absolute elevation flattening the water-table MOUND. Not a tuning problem.
+# v1.17.0  # Hollingham (2026) - 2026-09-13. DEFECT FIX in
 #   _well_levels: the day <= 15 branch used `d - MonthBegin(1)`, which from a
 #   mid-month date rolls back to the first of the SAME month, so the bucketing the
 #   docstring describes was never applied. One read date has day <= 15 and it is
@@ -258,6 +264,9 @@ def main() -> int:
         return phase10(dates=args.date, calibrate=args.calibrate)
     if args.phase == 11:
         return phase11(wet=args.wet, dry=args.dry, shift=args.shift,
+                       series=args.series)
+    if args.phase == 16:
+        return phase16(date=(args.date[0] if args.date else "2021-03-24"),
                        series=args.series)
     if args.phase == 15:
         return phase15(depths=([x for x in args.datums.split(",")]
@@ -999,6 +1008,11 @@ SERIES_WATER_COLOUR = "#1f6fb4"
 # scale would have been: a strip that rescales shows nothing moving.
 SERIES_STRIP_MONTHS = 240
 SERIES_STRIP_HA_MAX = 25.0
+# A slack counts as observed-wet for the shortfall diagnosis when the imagery
+# covers at least this share of its cells. Not a tuning knob: below it a unit is
+# clipped by a water body's edge rather than being under it, and an edge cell
+# says nothing about whether the slack flooded.
+SHORTFALL_MIN_WET_FRAC = 0.50
 # WELLS WHOSE GROUND ELEVATION CAME FROM THE DEM CANNOT MEASURE THE DEM'S BIAS.
 # The measurement is median(DEM along the waterline) - (ground + h). Where ground
 # is itself a DEM read at the well, the raster's bias appears on both sides and
@@ -3670,6 +3684,196 @@ def phase15(depths=None) -> int:
          "every slack floor, the extent series and D-164's dry controls "
          "together; it belongs in a D-entry, not in a tool.")
     return 0
+
+def phase16(date="2021-03-24", series="tiles") -> int:
+    """Why the modelled surface does not reach the floors the imagery says are wet.
+
+    THE QUESTION THIS SETTLES. Decomposing the 2021-03-24 tile read cell by cell,
+    34.5 % of the observed water (30.4 of 88.2 ha) lies inside a properly mapped
+    slack unit whose floor the modelled water table never reaches. That is larger
+    than the area filter's effect and it is not about what counts as a slack: the
+    surface is simply too low. Martin, 2026-09-13. This measures the shortfall
+    per slack and asks what it is a function of.
+
+    THE DISCRIMINATION, stated before the run, because a shortfall that is one
+    thing looks like a shortfall that is another:
+
+      * **A UNIFORM OFFSET** - tight spread, no structure against distance to the
+        nearest well or to the estuary boundary - means a CONSTANT is wrong, and
+        the median shortfall is itself the size of the correction. PHASE9_DEM_BIAS_M
+        and z_b are the two candidates.
+      * **STRUCTURE AGAINST DISTANCE TO THE NEAREST WELL** means the interpolation
+        cannot resolve the water table between wells, which is a method limit to
+        be stated, not a constant to be tuned.
+      * **STRUCTURE AGAINST DISTANCE TO THE ESTUARY** means the boundary condition
+        is dragging the surface down, and z_b or the boundary's reach is the lever.
+      * **NO STRUCTURE AND A WIDE SPREAD** means the slack floors themselves are
+        wrong per slack, which sends the question back to the DEM.
+
+    The four are not exclusive and the point of measuring is to say which
+    dominates rather than to pick one.
+
+    NOTHING IS WRITTEN TO config.py. This reports a diagnosis.
+    """
+    from utils.warren_mask import warren_on                     # noqa: PLC0415
+    from rasterio.features import geometry_mask                 # noqa: PLC0415
+    phase(16, "The per-slack shortfall — why the surface misses the floors")
+
+    zb = ESTUARY_LEVEL_M_AOD
+    wells = pd.read_csv(REPO / "outputs" / "01_well_elevations.csv",
+                        float_precision="round_trip")
+    lev = _level_frame()
+    ground = {str(n).lower(): float(g) for n, g
+              in zip(wells["Name"], wells["ground_elev_m"])}
+
+    site = warren_on(date)
+    arr, unit, ok, tr, res = _slack_units(site, PHASE9_DEM_BIAS_M)
+    cell_ha = res * res / 1e4
+
+    tag = "tiles_" if series == "tiles" else ""
+    p = OUT / f"W94_08_flood_{tag}{date}.geojson"
+    if not p.exists():
+        warn(f"no {series} read for {date}: {p.name} is missing")
+        return 1
+    g = gpd.read_file(p).set_crs(OSGB, allow_override=True)
+    water = geometry_mask(list(g.geometry), out_shape=arr.shape,
+                          transform=tr, invert=True)
+    info(f"{series} read: {g.area.sum() / 1e4:.1f} ha over {len(g)} polygon(s)")
+
+    # the modelled surface, on every cell of every unit
+    BE, BN = _estuary_control(site)
+    wl = _well_levels(lev, wells, date)
+    xs, ys, wt = [], [], []
+    for _, r in wl.iterrows():
+        k = str(r["well"]).lower()
+        if k in ground and k != LAKE_GAUGE_NAME:
+            xs.append(float(r["E"]))
+            ys.append(float(r["N"]))
+            wt.append(ground[k] + float(r["h_m"]))
+    step(f"{len(xs)} well(s) on {date}; "
+         f"{int((wl['h_m'] >= 0).sum())} at or above ground")
+    rows_, cols_ = np.nonzero(ok)
+    EE, NN = rasterio.transform.xy(tr, rows_, cols_)
+    EE = np.asarray(EE)
+    NN = np.asarray(NN)
+    X = np.concatenate([xs, BE]) if len(BE) else np.asarray(xs)
+    Y = np.concatenate([ys, BN]) if len(BE) else np.asarray(ys)
+    V = (np.concatenate([wt, np.full(len(BE), zb)]) if len(BE)
+         else np.asarray(wt))
+    surf = _idw(X, Y, V, EE, NN)
+    Z = arr[ok]
+    uid = unit[ok]
+    wetobs = water[rows_, cols_]
+
+    WX, WY = np.asarray(xs), np.asarray(ys)
+    out = []
+    for u in np.unique(uid):
+        m = uid == u
+        n_cell = int(m.sum())
+        obs_frac = float(wetobs[m].mean())
+        if obs_frac < SHORTFALL_MIN_WET_FRAC:
+            continue
+        floor = float(Z[m].min())
+        # the surface over this slack, at its own cells
+        s_here = float(np.median(surf[m]))
+        ex, ey = float(EE[m].mean()), float(NN[m].mean())
+        dw = float(np.min(np.hypot(WX - ex, WY - ey))) if len(WX) else np.nan
+        de = (float(np.min(np.hypot(BE - ex, BN - ey)))
+              if len(BE) else np.nan)
+        out.append({"unit": int(u), "cells": n_cell,
+                    "area_ha": round(n_cell * cell_ha, 4),
+                    "obs_wet_frac": round(obs_frac, 3),
+                    "floor_m_aod": round(floor, 3),
+                    "surface_m_aod": round(s_here, 3),
+                    "shortfall_m": round(floor - s_here, 3),
+                    "modelled_flooded": bool(s_here > floor),
+                    "E": round(ex, 1), "N": round(ey, 1),
+                    "dist_well_m": round(dw, 1),
+                    "dist_estuary_m": round(de, 1)})
+    if not out:
+        warn("no slack unit is observed wet; nothing to diagnose")
+        return 1
+    D = pd.DataFrame(out)
+    q = OUT / f"W94_70_slack_shortfall_{date}.csv"
+    D.to_csv(q, index=False)
+    saved(q.name)
+
+    miss = D[~D["modelled_flooded"]]
+    step(f"{len(D)} slack unit(s) observed wet at >= "
+         f"{SHORTFALL_MIN_WET_FRAC:.0%} of their cells; the model floods "
+         f"{int(D['modelled_flooded'].sum())} and misses {len(miss)} "
+         f"({len(miss) / len(D) * 100:.0f}%)")
+    sf = miss["shortfall_m"]
+    if len(sf):
+        info(f"  shortfall on the missed slacks: median {sf.median():+.3f} m, "
+             f"IQR {sf.quantile(.25):+.3f} to {sf.quantile(.75):+.3f}, "
+             f"p90 {sf.quantile(.90):+.3f}")
+        for lab, col in (("distance to the nearest well", "dist_well_m"),
+                         ("distance to the estuary boundary",
+                          "dist_estuary_m"),
+                         ("slack area", "area_ha"),
+                         ("floor elevation", "floor_m_aod")):
+            r_ = miss[["shortfall_m", col]].corr().iloc[0, 1]
+            info(f"  shortfall vs {lab:34s} r = {r_:+.3f}")
+        iqr = float(sf.quantile(.75) - sf.quantile(.25))
+        step("READING IT: a tight spread with no structure is a CONSTANT; "
+             "structure against well distance is an interpolation limit; "
+             "structure against the estuary is the boundary condition.")
+        info(f"  the IQR of the shortfall is {iqr:.3f} m against a median of "
+             f"{sf.median():.3f} m — "
+             + ("TIGHT, which points at a constant"
+                if iqr < abs(sf.median()) else
+                "WIDE relative to the median, which does not"))
+    _shortfall_plot(D, date)
+    info("NOTHING IS WRITTEN TO config.py. This reports a diagnosis; the "
+         "correction it implies is a decision.")
+    return 0
+
+
+def _shortfall_plot(D, date):
+    """Four panels, because four explanations have to be told apart."""
+    import matplotlib                                          # noqa: PLC0415
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt                            # noqa: PLC0415
+
+    miss = D[~D["modelled_flooded"]]
+    fig, ax = plt.subplots(2, 2, figsize=(13, 9.5))
+    a = ax[0][0]
+    a.hist(D["shortfall_m"], bins=40, color="#9ecae1", edgecolor="#3182bd")
+    a.axvline(0, color="#333333", lw=1)
+    if len(miss):
+        a.axvline(miss["shortfall_m"].median(), color="#d95f02", lw=1.4,
+                  ls="--", label=f"median miss {miss['shortfall_m'].median():+.3f} m")
+        a.legend(frameon=False, fontsize=9)
+    a.set_xlabel("floor − modelled surface (m);  positive = model says dry")
+    a.set_ylabel("slack units")
+    a.set_title("How far short, and is it one number?", loc="left")
+    for a_, col, lab in ((ax[0][1], "dist_well_m", "distance to nearest well (m)"),
+                         (ax[1][0], "dist_estuary_m",
+                          "distance to estuary boundary (m)")):
+        a_.scatter(D[col], D["shortfall_m"], s=10, alpha=0.5,
+                   color=SERIES_WATER_COLOUR)
+        a_.axhline(0, color="#333333", lw=1)
+        a_.set_xlabel(lab)
+        a_.set_ylabel("shortfall (m)")
+        if len(miss):
+            r_ = miss[["shortfall_m", col]].corr().iloc[0, 1]
+            a_.set_title(f"r = {r_:+.3f} on the missed slacks", loc="left")
+    a = ax[1][1]
+    sc = a.scatter(D["E"], D["N"], c=D["shortfall_m"], s=12, cmap="RdBu_r",
+                   vmin=-1, vmax=1)
+    a.set_aspect("equal")
+    a.set_xlabel("Easting (m)")
+    a.set_ylabel("Northing (m)")
+    a.set_title("where the shortfall is — red = model too dry", loc="left")
+    fig.colorbar(sc, ax=a, shrink=0.8, label="shortfall (m)")
+    fig.suptitle(f"Newborough Warren {date} — slack units the imagery says are "
+                 f"wet, against the modelled water table", x=0.02, ha="left")
+    fig.tight_layout()
+    p = OUT / f"W94_71_slack_shortfall_{date}.png"
+    fig.savefig(p, dpi=140, facecolor="white")
+    plt.close(fig)
+    saved(p.name)
 
 def _flood_map(date, frame, fg, hollows, sc, thr, tag=""):
     """The read, on the ground: water solid, hollows outlined, wells scored.

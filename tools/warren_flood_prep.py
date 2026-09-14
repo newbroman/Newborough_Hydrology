@@ -38,7 +38,16 @@ NOT DONE HERE, AND WHY
 """
 from __future__ import annotations
 
-__version__ = "1.31.0"  # Hollingham (2026) - 2026-09-14. PHASE 23: the DEM
+__version__ = "1.32.0"  # Hollingham (2026) - 2026-09-14. PHASE 23 rungs 4b
+#   and 5. One global offset moves the model 0.277 -> 0.306 of a possible 0.461,
+#   so bias is under a fifth of the gap and the rest is STRUCTURE. Rung 5 sets
+#   each basin's level from a leave-one-out surface through its NEIGHBOURS'
+#   floors - slacks are deflation hollows cut to the water table, and the DEM
+#   holds 1078 of them against 88 wells - reaching IoU 0.302 at ONE parameter
+#   with recall 0.764, the theoretical maximum. Its floor surface scatters at
+#   IQR 1.170 m against the well field's 0.722, so it is a complement, not a
+#   replacement.
+# v1.31.0  # Hollingham (2026) - 2026-09-14. PHASE 23: the DEM
 #   against the imagery with nothing in between, as a ladder. Flat level IoU
 #   0.167, tilted plane 0.231 (at 231 ha, gradient on the search boundary),
 #   PHASE 18 AS IT STANDS 0.277, per-hollow ceiling fitted knowing the answer

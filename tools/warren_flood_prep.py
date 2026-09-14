@@ -38,7 +38,15 @@ NOT DONE HERE, AND WHY
 """
 from __future__ import annotations
 
-__version__ = "1.27.0"  # Hollingham (2026) - 2026-09-14. THE SLACK-BOTTOM
+__version__ = "1.28.0"  # Hollingham (2026) - 2026-09-14. PHASE 20: the mask
+#   sorted by what the DEM says and handed to Martin as an editable KML, and
+#   data/geo/shadow_mask.kml wired as an override that REPLACES the automatic
+#   layer. The measurement behind it: the median slope under the mask is 1.8
+#   degrees, only 0.17 ha of 42.50 sits on a slope steep enough to cast a
+#   shadow at all, and the northern half carries 34.86 ha against the south's
+#   7.64 over the same number of fragments. "Ridge shadow" was the wrong name
+#   for 99 % of it.
+# v1.27.0  # Hollingham (2026) - 2026-09-14. THE SLACK-BOTTOM
 #   DISCRIMINATOR (Martin): a slack bottom is dark on a dry frame too - a north
 #   wall shades it, slack vegetation is darker than dune sand - so masking it
 #   loses the very ground that floods, and the phase 8 restoration cannot save a
@@ -371,6 +379,8 @@ def main() -> int:
     if args.phase == 11:
         return phase11(wet=args.wet, dry=args.dry, shift=args.shift,
                        series=args.series)
+    if args.phase == 20:
+        return phase20()
     if args.phase == 19:
         return phase19(min_dates=args.mask_min_dates,
                        cut_z=(args.cut_z if args.cut_z is not None
@@ -5553,6 +5563,23 @@ def phase19(min_dates=FALSE_WET_MIN_DATES, cut_z=FALSE_WET_CUT_Z) -> int:
          f"(2020-03-31, 6 wells), so anything passing this cut on a dry day "
          f"would have been read as water on either")
 
+    # MARTIN'S FILE WINS. If he has edited the phase 20 map and saved it as
+    # SHADOW_MASK_KML, that IS the dark layer and the automatic union is not
+    # consulted at all. Phase 20 measured why this override exists: only 0.17 ha
+    # of a 42.50 ha automatic mask sits on a slope steep enough to cast a shadow,
+    # and the northern half carried 34.86 ha against the south's 7.64 over the
+    # same number of fragments. An eye on the imagery beats that, and the tool's
+    # job is to hand him a first draft, not to argue with the result.
+    if SHADOW_MASK_KML.exists():
+        hgs = gpd.read_file(SHADOW_MASK_KML).to_crs(OSGB)
+        dark = _valid(unary_union([_valid(x) for x in hgs.geometry]))
+        step(f"{SHADOW_MASK_KML.name} is present: {len(hgs)} feature(s), "
+             f"{dark.area / 1e4:.2f} ha. THIS REPLACES the automatic dark layer; "
+             f"the hand tree mask, the slack-floor rule and the drinking pools "
+             f"still apply on top")
+        dates, basis = ["hand"], f"{SHADOW_MASK_KML.name} (Martin's edit)"
+        return _phase19_finish(dark, basis, dates, cut_z)
+
     parts, dates, missing = [], [], []
     for d in FALSE_WET_FRAMES:
         f = OUT / f"W94_08_flood_fixedz_{d}.geojson"
@@ -5609,6 +5636,35 @@ def phase19(min_dates=FALSE_WET_MIN_DATES, cut_z=FALSE_WET_CUT_Z) -> int:
         warn(f"  {STANDING_WATER_KML.name} is absent: standing water present in "
              f"a dry frame would be masked as bush, which is the one error this "
              f"phase must not make")
+
+    return _phase19_finish(dark, basis, dates, cut_z)
+
+
+def _phase19_finish(dark, basis, dates, cut_z):
+    """Everything phase 19 does once it HAS a dark layer, whatever drew it."""
+    from rasterio.features import rasterize                   # noqa: PLC0415
+    from scipy import ndimage as ndi                          # noqa: PLC0415
+    from shapely.ops import unary_union                       # noqa: PLC0415
+    import rasterio.windows                                   # noqa: PLC0415
+
+    hand = None
+    if BUSH_MASK_KML.exists():
+        hg = gpd.read_file(BUSH_MASK_KML).to_crs(OSGB)
+        hand = _valid(unary_union([_valid(x) for x in hg.geometry]))
+        if f"+ {BUSH_MASK_KML.name}" not in basis:
+            dark = _valid(unary_union([dark, hand]))
+            basis += f" + {BUSH_MASK_KML.name}"
+
+    pool = _standing_water_geom()
+    if pool is not None and f"- {STANDING_WATER_KML.name}" not in basis:
+        n = len(list(pool.geoms)) if hasattr(pool, "geoms") else 1
+        keep_ = pool.buffer(STANDING_WATER_BUFFER_M)
+        lost = dark.intersection(keep_).area / 1e4
+        dark = _valid(dark.difference(keep_))
+        step(f"standing water held back: {n} pool(s), {pool.area / 1e4:.3f} ha, "
+             f"buffered {STANDING_WATER_BUFFER_M:.1f} m — {lost:.3f} ha of the "
+             f"dark ground was these and is NOT a bush")
+        basis += f" - {STANDING_WATER_KML.name}"
 
     # ── THE SLACK-BOTTOM DISCRIMINATOR ──────────────────────────────────
     # Martin, 2026-09-14: "there are still areas of water you are missing,
@@ -5737,6 +5793,206 @@ def phase19(min_dates=FALSE_WET_MIN_DATES, cut_z=FALSE_WET_CUT_Z) -> int:
          "phase 8, and needs no correction at all.")
     return 0
 
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PHASE 20 — THE SHADOW MAP, FOR MARTIN TO EDIT
+# ─────────────────────────────────────────────────────────────────────────────
+# Martin, 2026-09-14: "it still misses obvious dark water patches ... the ridge
+# shadow filter is removing more than it should especially in the northern half.
+# perhaps you should show me a map of shadows that I can edit."
+#
+# The measurement behind this phase says he is right and says why. Under the
+# current mask the MEDIAN SLOPE IS 1.8 DEGREES. A ridge shadow needs a ridge:
+# it falls on a slope, facing away from the sun. Flat dark ground is not shadow
+# at all - it is scrub, or slack floor the 0.5 m tolerance did not catch - and
+# the mask is over half flat. In the northern half it is 21.58 ha over 578
+# fragments against 20.92 ha over 928 in the south, so the northern fragments
+# are half again as large, which is what "removing more than it should" looks
+# like from the air.
+#
+# This phase does not decide. It sorts every fragment into folders by what the
+# DEM says about it, writes them as a KML with the numbers in the name, and
+# hands Martin the file. What he saves back as SHADOW_MASK_KML REPLACES the
+# automatic layer entirely: his judgement is authoritative and this tool's
+# is the first draft.
+
+SHADOW_MASK_KML = DATA_GEO_DIR / "shadow_mask.kml"
+SHADOW_MIN_SLOPE_DEG = 5.0       # below this there is no ridge to cast a shadow
+SHADOW_LIT_ASPECT = (135.0, 315.0)   # S and W faces: lit at a UK spring midday
+
+
+def _terrain(geoms):
+    """Slope, aspect and height above the nearest hollow floor, per fragment."""
+    from rasterio.features import rasterize                   # noqa: PLC0415
+    from scipy import ndimage as ndi                          # noqa: PLC0415
+    import rasterio.windows                                   # noqa: PLC0415
+
+    from shapely.ops import unary_union                       # noqa: PLC0415
+    dark = unary_union(geoms) if len(geoms) > 1 else geoms[0]
+    ds = rasterio.open(DATA_DEM)
+    minx, miny, maxx, maxy = dark.bounds
+    win = rasterio.windows.from_bounds(minx - 20, miny - 20, maxx + 20,
+                                       maxy + 20, ds.transform)
+    dem = ds.read(1, window=win).astype(float)
+    tr = ds.window_transform(win)
+    if ds.nodata is not None:
+        dem[dem == ds.nodata] = np.nan
+    ds.close()
+    res = abs(tr.a)
+    gy, gx = np.gradient(dem, res, res)
+    slope = np.degrees(np.arctan(np.hypot(gx, gy)))
+    aspect = np.degrees(np.arctan2(-gx, gy)) % 360.0          # 0 = north
+    fid = rasterize([(g, i + 1) for i, g in enumerate(geoms)],
+                    out_shape=dem.shape, transform=tr, fill=0, dtype="int32")
+    idx = np.arange(1, len(geoms) + 1)
+
+    def lc(a, f):
+        return ndi.labeled_comprehension(a, fid, idx, f, float, np.nan)
+
+    keep = fid > 0
+    med_slope = lc(np.where(keep, slope, np.nan),
+                   lambda v: float(np.nanmedian(v)))
+    sa = lc(np.where(keep, np.sin(np.radians(aspect)), np.nan),
+            lambda v: float(np.nanmean(v)))
+    ca = lc(np.where(keep, np.cos(np.radians(aspect)), np.nan),
+            lambda v: float(np.nanmean(v)))
+    asp = np.degrees(np.arctan2(sa, ca)) % 360.0
+    med_z = lc(np.where(keep, dem, np.nan), lambda v: float(np.nanmedian(v)))
+    return med_slope, asp, med_z, fid, tr, dem
+
+
+def _kml_folders(path, folders, title):
+    """A KML of named placemarks in folders, written as text.
+
+    Hand-written rather than driver-written because the point of this file is
+    that MARTIN EDITS IT: folders are what let him delete a whole class at once,
+    and the numbers belong in the name where Google Earth shows them without a
+    click. No driver here offers either.
+    """
+    def _ring(c):
+        return " ".join(f"{t_[0]:.7f},{t_[1]:.7f},0" for t_ in c)
+
+    def _poly(g):
+        out = []
+        for q in (g.geoms if hasattr(g, "geoms") else [g]):
+            if q.geom_type != "Polygon":
+                continue
+            inner = "".join(
+                f"<innerBoundaryIs><LinearRing><coordinates>{_ring(r.coords)}"
+                f"</coordinates></LinearRing></innerBoundaryIs>"
+                for r in q.interiors)
+            out.append(
+                f"<Polygon><outerBoundaryIs><LinearRing><coordinates>"
+                f"{_ring(q.exterior.coords)}</coordinates></LinearRing>"
+                f"</outerBoundaryIs>{inner}</Polygon>")
+        return ("<MultiGeometry>" + "".join(out) + "</MultiGeometry>"
+                if len(out) > 1 else (out[0] if out else ""))
+
+    S = ('<Style id="s"><LineStyle><color>ff0000ff</color><width>2</width>'
+         '</LineStyle><PolyStyle><color>4d0000ff</color></PolyStyle></Style>')
+    x = ['<?xml version="1.0" encoding="UTF-8"?>',
+         '<kml xmlns="http://www.opengis.net/kml/2.2"><Document>',
+         f"<name>{title}</name>", S]
+    for fname, note, items in folders:
+        x.append(f"<Folder><name>{fname}</name><description>{note}"
+                 f"</description>")
+        for nm, desc, g in items:
+            x.append(f"<Placemark><name>{nm}</name><description>{desc}"
+                     f"</description><styleUrl>#s</styleUrl>{_poly(g)}"
+                     f"</Placemark>")
+        x.append("</Folder>")
+    x.append("</Document></kml>")
+    Path(path).write_text("\n".join(x), encoding="utf-8")
+
+
+def phase20() -> int:
+    """Sort the mask by what the DEM says, and hand it over as an editable KML.
+
+    THREE FOLDERS, and the names are the argument:
+
+      1_real_shadow_candidates — on a slope of at least SHADOW_MIN_SLOPE_DEG,
+        facing away from a UK spring midday sun. These are the only fragments
+        for which "ridge shadow" is even a physical possibility.
+      2_flat_dark_ground — under SHADOW_MIN_SLOPE_DEG. NOT SHADOW. Scrub, or a
+        slack floor the tolerance missed. Most of the mask is here, which is the
+        finding.
+      3_on_a_lit_slope — sloped but facing the sun. Dark on a lit face is
+        vegetation, or water.
+
+    Delete what should not be masked, keep what should, and save the result as
+    `data/geo/shadow_mask.kml`. Phase 19 then uses THAT INSTEAD of its own
+    automatic layer — the hand mask and the slack-floor and pool rules still
+    apply on top, so nothing you have already drawn is lost.
+    """
+    from shapely.ops import unary_union                       # noqa: PLC0415
+    phase(20, "The shadow map, sorted by the DEM and handed over to be edited")
+    src = OUT / "W94_95_bush_mask.geojson"
+    if not src.exists():
+        warn("phase 19 has not run: W94_95_bush_mask.geojson is missing")
+        return 1
+    g = gpd.read_file(src).to_crs(OSGB)
+    dark = unary_union([_valid(x) for x in g.geometry])
+    frags = list(dark.geoms) if hasattr(dark, "geoms") else [dark]
+    step(f"{len(frags)} fragment(s), {dark.area / 1e4:.2f} ha")
+
+    slope, asp, medz, _, _, _ = _terrain(frags)
+    area = np.array([q.area for q in frags])
+    north = np.array([q.centroid.y for q in frags])
+    lit = (asp >= SHADOW_LIT_ASPECT[0]) & (asp < SHADOW_LIT_ASPECT[1])
+    steep = slope >= SHADOW_MIN_SLOPE_DEG
+    cls = np.where(~steep, 2, np.where(lit, 3, 1))
+
+    info(f"  median slope under the whole mask: {np.nanmedian(slope):.1f}° — a "
+         f"ridge shadow needs a ridge, and this is flat ground")
+    cut = float(np.median(north))
+    for lab, m in (("north half", north > cut), ("south half", north <= cut)):
+        info(f"  {lab}: {int(m.sum()):4d} fragment(s), "
+             f"{area[m].sum() / 1e4:6.2f} ha, mean fragment "
+             f"{area[m].mean() / 1e4:.4f} ha")
+
+    names = {1: ("1_real_shadow_candidates",
+                 f"On a slope of at least {SHADOW_MIN_SLOPE_DEG}° facing away "
+                 f"from a spring midday sun. The only fragments where 'ridge "
+                 f"shadow' is physically possible."),
+             2: ("2_flat_dark_ground",
+                 f"Under {SHADOW_MIN_SLOPE_DEG}° of slope. NOT SHADOW — there "
+                 f"is no ridge to cast one. Scrub, or slack floor the "
+                 f"{SLACK_BOTTOM_TOL_M} m tolerance missed."),
+             3: ("3_on_a_lit_slope",
+                 "Sloped, but facing the sun. Dark on a lit face is vegetation "
+                 "or water, not shadow.")}
+    folders, rows = [], []
+    wgs = gpd.GeoSeries(frags, crs=OSGB).to_crs("EPSG:4326")
+    for c in (1, 2, 3):
+        items = []
+        for i in np.flatnonzero(cls == c):
+            nm = (f"{c}_{i + 1:04d}  {area[i] / 1e4:.3f}ha  "
+                  f"{slope[i]:.1f}deg  {asp[i]:.0f}deg  {medz[i]:.1f}mAOD")
+            items.append((nm, f"area {area[i]:.0f} m2; median slope "
+                              f"{slope[i]:.1f}°; aspect {asp[i]:.0f}°; median "
+                              f"elevation {medz[i]:.2f} m AOD", wgs.iloc[i]))
+            rows.append({"fragment": int(i + 1), "class": names[c][0],
+                         "area_ha": round(area[i] / 1e4, 4),
+                         "slope_deg": round(float(slope[i]), 2),
+                         "aspect_deg": round(float(asp[i]), 1),
+                         "median_z_m": round(float(medz[i]), 3),
+                         "northing": round(float(north[i]), 1)})
+        folders.append((names[c][0], names[c][1], items))
+        info(f"  {names[c][0]:26s} {len(items):4d} fragment(s), "
+             f"{area[cls == c].sum() / 1e4:6.2f} ha")
+
+    q = OUT / "W94_98_shadow_map_editable.kml"
+    _kml_folders(q, folders, "W94 shadow map — delete what should not be masked")
+    saved(q.name)
+    r = OUT / "W94_98_shadow_fragments.csv"
+    pd.DataFrame(rows).to_csv(r, index=False)
+    saved(r.name)
+    step(f"EDIT AND SAVE AS {SHADOW_MASK_KML}. Phase 19 will then use your file "
+         f"in place of its own automatic layer; the hand tree mask, the "
+         f"slack-floor rule and the drinking pools all still apply on top, so "
+         f"nothing already drawn is lost")
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

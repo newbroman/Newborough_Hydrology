@@ -6630,6 +6630,97 @@ def phase23(date=TRUTH_DATE) -> int:
              f"What separates them is ONLY the choice of level in each basin — "
              f"same basins, same DEM, same metric")
 
+    # rung 4b — THE MODEL PLUS ONE GLOBAL OFFSET, swept. Rung 4 fits nothing and
+    # rung 5 fits one number, so comparing them directly is unfair to rung 4.
+    # This is the fair middle, and it also separates BIAS from STRUCTURE: if one
+    # constant recovers most of the gap to the ceiling, the model's level is
+    # merely displaced; if it does not, the error is structured and no constant
+    # will do.
+    if a1.exists():
+        best4b = None
+        for off in np.arange(-1.0, 1.5 + 1e-9, 0.05):
+            pr = np.zeros_like(obs)
+            for h, L in lv.items():
+                sl = objs[h - 1] if h - 1 < len(objs) else None
+                if sl is None:
+                    continue
+                sub = (hid[sl] == h) & inw[sl] & np.isfinite(dem[sl])
+                pr[sl] |= sub & (dem[sl] <= L + off)
+            iou, prec, rec = _iou(pr, obs)
+            if best4b is None or iou > best4b[0]:
+                best4b = (iou, prec, rec, float(off),
+                          float(pr.sum() * cell_ha))
+        step(f"RUNG 4b — THE MODEL PLUS ONE GLOBAL OFFSET: IoU {best4b[0]:.3f}, "
+             f"precision {best4b[1]:.3f}, recall {best4b[2]:.3f}, offset "
+             f"{best4b[3]:+.2f} m, {best4b[4]:.2f} ha")
+        info(f"  one constant moves the model {i4:.3f} -> {best4b[0]:.3f} of a "
+             f"possible {i3:.3f}; the rest of the gap is STRUCTURE, not bias")
+
+    # rung 5 — THE LEVEL FROM THE BASINS' OWN GEOMETRY, one free parameter.
+    # A dune slack is a DEFLATION HOLLOW: wind scours down until it reaches the
+    # water table and stops there. Slack floors are therefore a record of where
+    # the water table sits, and the DEM carries 1078 of them against the well
+    # network's 88 points over the same 446 ha. The interpolated depth field
+    # whose error phase 22 measured at an IQR of 0.722 m is built from the SPARSE
+    # source; this is built from the dense one.
+    #
+    #     level(basin) = (a surface through its NEIGHBOURS' floors) + offset
+    #
+    # LEAVE ONE OUT IS NOT OPTIONAL. A surface that saw the basin's own floor
+    # would predict it exactly and the test would be circular - every basin would
+    # flood at its own floor and the result would mean nothing.
+    #
+    # ONE FREE PARAMETER, fitted here, so the honest comparison is with rung 1
+    # (also one, IoU 0.167) and rung 2 (three, 0.231) - NOT with rung 4, which
+    # fits nothing.
+    fl = {}
+    for h in np.unique(hid[hid > 0]):
+        sl = objs[h - 1]
+        if sl is None:
+            continue
+        m = (hid[sl] == h) & inw[sl] & np.isfinite(dem[sl])
+        if m.any():
+            fl[int(h)] = float(np.min(dem[sl][m]))
+    ids = np.array(sorted(fl))
+    fz = np.array([fl[i] for i in ids])
+    cen = {int(r["slack"]): r.geometry.centroid
+           for _, r in hollows.iterrows() if pd.notna(r.get("slack"))}
+    fx = np.array([cen[i].x for i in ids])
+    fy = np.array([cen[i].y for i in ids])
+    d2 = ((fx[:, None] - fx[None, :]) ** 2 + (fy[:, None] - fy[None, :]) ** 2)
+    np.fill_diagonal(d2, np.inf)                 # LEAVE ONE OUT
+    wgt = 1.0 / (np.sqrt(d2) + 1.0) ** 2
+    surf = (wgt * fz[None, :]).sum(axis=1) / wgt.sum(axis=1)
+    resid = fz - surf
+    info(f"  the floor surface, leave-one-out over {len(ids)} basin(s): a "
+         f"basin's floor sits {np.median(resid):+.3f} m from its neighbours' "
+         f"surface at the median, IQR {np.subtract(*np.percentile(resid, [75, 25])):.3f} m")
+
+    best5 = None
+    for off in np.arange(-2.0, 2.0 + 1e-9, 0.05):
+        pred5 = np.zeros_like(obs)
+        for i, h in enumerate(ids):
+            sl = objs[h - 1]
+            if sl is None:
+                continue
+            m = (hid[sl] == h) & inw[sl] & np.isfinite(dem[sl])
+            if not m.any():
+                continue
+            L = surf[i] + off
+            if L <= fl[int(h)]:
+                continue
+            pred5[sl] |= m & (dem[sl] <= L)
+        iou, prec, rec = _iou(pred5, obs)
+        if best5 is None or iou > best5[0]:
+            best5 = (iou, prec, rec, float(off),
+                     float(pred5.sum() * cell_ha))
+    step(f"RUNG 5 — LEVEL FROM THE BASINS' OWN GEOMETRY (neighbours' floors "
+         f"+ one offset): IoU {best5[0]:.3f}, precision {best5[1]:.3f}, recall "
+         f"{best5[2]:.3f}, offset {best5[3]:+.2f} m, {best5[4]:.2f} ha")
+    info(f"  against one fitted parameter elsewhere: flat level {best[1]:.3f}, "
+         f"tilted plane {bestp[0]:.3f} (three), the model {i4:.3f} (none), "
+         f"ceiling {i3:.3f}")
+
     info("THIS IS THE CEILING. Any construction using wells, an SSM or an "
          "interpolated surface must beat these IoU values to have earned its "
          "complexity; one that does not is more machinery for less agreement.")

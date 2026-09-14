@@ -38,7 +38,13 @@ NOT DONE HERE, AND WHY
 """
 from __future__ import annotations
 
-__version__ = "1.22.0"  # Hollingham (2026) - 2026-09-13. PHASE 18 (T-27):
+__version__ = "1.23.0"  # Hollingham (2026) - 2026-09-14. PHASE 19, the
+#   false-wet mask (D-167). Martin: the dry frames were given so that dark
+#   features which look like water could be digitised and removed, NOT as a
+#   zero-water gate on a model. A forced read of 2009-04-20 - no water in it -
+#   returns 87.86 ha against 88.31 ha for the wettest frame in the corpus.
+#   Every imagery area published before today is an upper bound.
+# v1.22.0  # Hollingham (2026) - 2026-09-13. PHASE 18 (T-27):
 #   the hollow as a dipwell. Script 11b's collapsed threshold P_flood = A*d + B
 #   is applied at a slack floor instead of a well's ground, and the flooded area
 #   inside a hollow comes from that hollow's own DEM hypsometry. Mode C is
@@ -295,6 +301,10 @@ def main() -> int:
                     help="phase 14: which series to compute. 'panel' is the "
                          "fixed-composition headline, 'all' the longer "
                          "all-available sensitivity, 'both' the pair.")
+    ap.add_argument("--mask-min-dates", dest="mask_min_dates", type=int,
+                    default=FALSE_WET_MIN_DATES,
+                    help="phase 19: 1 unions the dry reads; 2 keeps only what "
+                         "is dark on two of them")
     ap.add_argument("--pf-mode", dest="pf_mode", choices=("C", "both"),
                     default="both",
                     help="phase 18: C for the climatological map alone; both "
@@ -316,6 +326,8 @@ def main() -> int:
     if args.phase == 11:
         return phase11(wet=args.wet, dry=args.dry, shift=args.shift,
                        series=args.series)
+    if args.phase == 19:
+        return phase19(min_dates=args.mask_min_dates)
     if args.phase == 18:
         return phase18(mode=args.pf_mode, sens=args.sens)
     if args.phase == 17:
@@ -5273,6 +5285,120 @@ def phase18(mode="both", power=PFLOOD_IDW_POWER, sens=False) -> int:
     info("NOT ADOPTED and not in the pipeline. Mode C is a CLIMATOLOGICAL "
          "statement about mapped hollows; quote it only with the Mode V table "
          "and the sensitivity spread beside it.")
+    return 0
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PHASE 19 — THE FALSE-WET MASK
+# ─────────────────────────────────────────────────────────────────────────────
+# MARTIN, 2026-09-14, correcting what the dry frames were FOR: "the reason why I
+# gave you what I said were dry years and wet years was so you could mark bushes
+# and other features which would be dark and look like wet patches and you could
+# then digitize those as false wet features."
+#
+# They were never a zero-water gate on a MODEL. They are a measurement of the
+# CLASSIFIER's false positives, and DRY_CONTROL_MIN_RATIO - invented here, not by
+# Martin - scored the model against an assumption those frames were never asked
+# to support. The first forced read of one settled it: 2009-04-20, a frame with
+# no water in it, reads 87.86 ha, against 88.31 ha for the wettest frame in the
+# corpus. Every area this tool has compared a model against carries that.
+
+FALSE_WET_MIN_DATES = 1      # 1 = union of the dry reads; 2 = seen on two dates
+
+
+def phase19(min_dates=FALSE_WET_MIN_DATES) -> int:
+    """What the classifier maps as water when there is none, and what it costs.
+
+    The dry reads are unioned into a persistent false-wet layer and subtracted
+    from every wet read. TWO STRENGTHS, because they answer different questions:
+    the UNION (min_dates 1) is everything ever mis-mapped and is the conservative
+    correction, while requiring TWO dates (min_dates 2) keeps only features that
+    are dark in more than one year and season - a bush rather than a shadow or a
+    wet ditch on the day - and is the one that survives a phenology objection.
+
+    THIS DOES NOT CORRECT THE MODEL. It corrects the OBSERVATION the model has
+    been scored against, which is the other half of every disagreement measured
+    in phases 13 to 18 and of the 12.1-88.3 ha bracket.
+    """
+    from shapely.ops import unary_union                        # noqa: PLC0415
+    phase(19, "The false-wet mask — what the classifier maps with no water there")
+
+    parts, dates = [], []
+    for d in DRY_CALIBRATION_DATES:
+        p = OUT / f"W94_08_flood_{d}.geojson"
+        if not p.exists():
+            warn(f"  {d}: no read — run --phase 8 --force-read --date {d}")
+            continue
+        g = gpd.read_file(p).set_crs(OSGB, allow_override=True)
+        u = g.geometry.union_all()
+        parts.append(u)
+        dates.append(d)
+        info(f"  {d}: {len(g)} body(ies), {u.area / 1e4:7.2f} ha mapped as water "
+             f"in a frame with none")
+    if not parts:
+        warn("no dry reads at all; the mask cannot be built")
+        return 1
+
+    if min_dates <= 1:
+        mask = unary_union(parts)
+        basis = f"union of {len(parts)} dry read(s)"
+    else:
+        pair = []
+        for i in range(len(parts)):
+            for j in range(i + 1, len(parts)):
+                inter = parts[i].intersection(parts[j])
+                if not inter.is_empty:
+                    pair.append(inter)
+        mask = unary_union(pair) if pair else None
+        basis = f"seen on >= 2 of {len(parts)} dry read(s)"
+    if mask is None or mask.is_empty:
+        warn("the mask is empty")
+        return 1
+
+    M = gpd.GeoDataFrame({"basis": [basis]}, geometry=[mask], crs=OSGB)
+    p = OUT / "W94_93_false_wet_mask.geojson"
+    M.to_file(p, driver="GeoJSON")
+    saved(f"{p.name}  ({mask.area / 1e4:.2f} ha, {basis})")
+
+    hol_p = OUT / "W94_06_hollows.geojson"
+    hollows = gpd.read_file(hol_p).set_crs(OSGB, allow_override=True)
+    hu = hollows.geometry.union_all()
+    inside = mask.intersection(hu).area / 1e4
+    step(f"the mask is {mask.area / 1e4:.2f} ha, of which {inside:.2f} ha "
+         f"({100 * inside / (mask.area / 1e4):.1f} %) falls inside a mapped "
+         f"hollow and {mask.area / 1e4 - inside:.2f} ha does not — dark ground "
+         f"where no closed basin exists cannot be water, and phase 16 attributed "
+         f"37.7 % of the 2021-03-24 read to exactly that")
+
+    rows = []
+    for f in sorted(OUT.glob("W94_08_flood_*.geojson")):
+        d = f.stem.split("flood_")[1].replace("tiles_", "")
+        if d in DRY_CALIBRATION_DATES:
+            continue
+        g = gpd.read_file(f).set_crs(OSGB, allow_override=True)
+        u = g.geometry.union_all()
+        cor = u.difference(mask)
+        rows.append({
+            "read": f.stem.split("W94_08_flood_")[1],
+            "date": d,
+            "read_ha": round(u.area / 1e4, 3),
+            "mask_overlap_ha": round(u.intersection(mask).area / 1e4, 3),
+            "corrected_ha": round(cor.area / 1e4, 3),
+            "corrected_ha_in_hollows": round(
+                float(sum(hollows.geometry.intersection(cor).area)) / 1e4, 3),
+            "removed_pct": round(100 * u.intersection(mask).area / u.area, 1),
+        })
+        info(f"  {rows[-1]['read']:22s} {rows[-1]['read_ha']:7.2f} ha -> "
+             f"{rows[-1]['corrected_ha']:7.2f} ha "
+             f"({rows[-1]['removed_pct']:5.1f} % removed), "
+             f"{rows[-1]['corrected_ha_in_hollows']:6.2f} ha of it in hollows")
+    R = pd.DataFrame(rows)
+    q = OUT / "W94_94_reads_corrected.csv"
+    R.to_csv(q, index=False)
+    saved(q.name)
+    info("EVERY AREA THIS TOOL HAS PUBLISHED FOR A WET FRAME IS SUPERSEDED by "
+         "the corrected column, including the 12.1-88.3 ha bracket and every "
+         "predicted-against-observed row in phases 16, 17 and 18.")
     return 0
 
 if __name__ == "__main__":

@@ -38,7 +38,16 @@ NOT DONE HERE, AND WHY
 """
 from __future__ import annotations
 
-__version__ = "1.26.0"  # Hollingham (2026) - 2026-09-14. THE BUSH MASK IS
+__version__ = "1.27.0"  # Hollingham (2026) - 2026-09-14. THE SLACK-BOTTOM
+#   DISCRIMINATOR (Martin): a slack bottom is dark on a dry frame too - a north
+#   wall shades it, slack vegetation is darker than dune sand - so masking it
+#   loses the very ground that floods, and the phase 8 restoration cannot save a
+#   slack whose whole floor is masked because there is then no wet "elsewhere"
+#   to restore from. Every mask fragment is now asked the DEM's question: within
+#   SLACK_BOTTOM_TOL_M of its hollow's floor, it leaves the mask. 493 of 1999
+#   fragments, 12.29 ha; mask 54.79 -> 42.50 ha. 2021-03-24 recall 0.750 ->
+#   0.788, precision 0.840 -> 0.867 over 48 wells against 43.
+# v1.26.0  # Hollingham (2026) - 2026-09-14. THE BUSH MASK IS
 #   TWO-SIDED (Martin): a tree reads as no water on a dry frame, but where it
 #   sits in a hollow that reads wet it COUNTS AS WET - the canopy hides the
 #   ground, it does not drain it. A bush cell carries no evidence of its own and
@@ -5485,6 +5494,7 @@ def phase18(mode="both", power=PFLOOD_IDW_POWER, sens=False) -> int:
 # corpus. Every area this tool has compared a model against carries that.
 
 _fixed_cut = False   # set by phase 8 when --cut-z supplies the threshold
+SLACK_BOTTOM_TOL_M = 0.50        # how near a hollow's floor is 'the bottom'
 STANDING_WATER_BUFFER_M = 3.0    # a hand-drawn edge against a 2 m cell
 FALSE_WET_MIN_DATES = 1          # 1 = union of the dry reads; 2 = seen twice
 from utils.config import FLOOD_OTSU_MAX_Z as _GATE_Z    # noqa: E402
@@ -5533,7 +5543,10 @@ def phase19(min_dates=FALSE_WET_MIN_DATES, cut_z=FALSE_WET_CUT_Z) -> int:
     bush is unreadable there, so an area is a lower bound by whatever of the
     mask falls inside a hollow.
     """
+    from rasterio.features import rasterize                   # noqa: PLC0415
+    from scipy import ndimage as ndi                          # noqa: PLC0415
     from shapely.ops import unary_union                       # noqa: PLC0415
+    import rasterio.windows                                   # noqa: PLC0415
     phase(19, "The bushes — dark ground that is not water")
     step(f"cut z = {cut_z:.3f} (the gate). The accepted wet frames cut at "
          f"-1.318 (2021-03-24, 36 wells at or above ground) and -1.116 "
@@ -5597,6 +5610,78 @@ def phase19(min_dates=FALSE_WET_MIN_DATES, cut_z=FALSE_WET_CUT_Z) -> int:
              f"a dry frame would be masked as bush, which is the one error this "
              f"phase must not make")
 
+    # ── THE SLACK-BOTTOM DISCRIMINATOR ──────────────────────────────────
+    # Martin, 2026-09-14: "there are still areas of water you are missing,
+    # perhaps mistaking for dune shadow. the way I discriminate for the march 21
+    # frame is to look at the previous frame and see if it is actually a slack
+    # bottom rather than a shadow."
+    #
+    # The temporal half of that rule is how this mask is built at all - dark on a
+    # dry day. The half that was missing is the DEM's. A slack bottom is dark on
+    # a dry frame too, because a north wall shades it and slack vegetation is
+    # darker than dune sand, and masking it is exactly wrong: that is the ground
+    # that floods. Worse, the phase 8 restoration cannot save it, because it
+    # restores only where the hollow reads wet SOMEWHERE ELSE, and if the whole
+    # floor is masked there is no elsewhere. A slack disappears entire, which is
+    # the recall this read has been losing.
+    #
+    # So every fragment is asked the DEM's question. If it sits within
+    # SLACK_BOTTOM_TOL_M of its hollow's floor it is a shadowed slack floor and
+    # leaves the mask, to be classified on its own evidence frame by frame -
+    # dark in March is water, and a dry frame is gated DRY so it reads nothing.
+    # If it sits higher, or in no closed basin at all, it stays masked.
+    hollows = gpd.read_file(OUT / "W94_06_hollows.geojson").set_crs(
+        OSGB, allow_override=True)
+    frags = list(dark.geoms) if hasattr(dark, "geoms") else [dark]
+    ds = rasterio.open(DATA_DEM)
+    minx, miny, maxx, maxy = dark.bounds
+    win = rasterio.windows.from_bounds(minx - 10, miny - 10, maxx + 10,
+                                       maxy + 10, ds.transform)
+    dem_a = ds.read(1, window=win).astype(float)
+    wtr = ds.window_transform(win)
+    if ds.nodata is not None:
+        dem_a[dem_a == ds.nodata] = np.nan
+    ds.close()
+    fid = rasterize([(g, i + 1) for i, g in enumerate(frags)],
+                    out_shape=dem_a.shape, transform=wtr, fill=0, dtype="int32")
+    flr = rasterize([(g, float(f)) for g, f in zip(hollows.geometry,
+                                                   hollows["floor_m"])
+                     if pd.notna(f)],
+                    out_shape=dem_a.shape, transform=wtr, fill=np.nan,
+                    dtype="float32")
+    idx = np.arange(1, len(frags) + 1)
+    ok_ = np.isfinite(dem_a) & (fid > 0)
+    med = ndi.labeled_comprehension(
+        np.where(ok_, dem_a, np.nan), fid, idx,
+        lambda v: float(np.nanmedian(v)) if np.isfinite(v).any() else np.nan,
+        float, np.nan)
+    fl = ndi.labeled_comprehension(
+        np.where(fid > 0, flr, np.nan), fid, idx,
+        lambda v: float(np.nanmin(v)) if np.isfinite(v).any() else np.nan,
+        float, np.nan)
+    is_bottom = np.isfinite(fl) & np.isfinite(med) & (med <= fl
+                                                     + SLACK_BOTTOM_TOL_M)
+    bottoms = [g for g, k in zip(frags, is_bottom) if k]
+    keep = [g for g, k in zip(frags, is_bottom) if not k]
+    if bottoms:
+        bg = _valid(unary_union(bottoms))
+        B = gpd.GeoDataFrame(
+            {"note": ["shadowed slack floor — dark on a dry frame, but at the "
+                      "bottom of a closed basin, so it is where water goes"]},
+            geometry=[bg], crs=OSGB)
+        u = OUT / "W94_97_shadowed_slack_floors.geojson"
+        B.to_file(u, driver="GeoJSON")
+        saved(f"{u.name}  ({bg.area / 1e4:.2f} ha, {len(bottoms)} fragment(s))")
+        step(f"{len(bottoms)} of {len(frags)} fragment(s), {bg.area / 1e4:.2f} "
+             f"ha, sit within {SLACK_BOTTOM_TOL_M:.2f} m of their hollow's "
+             f"floor and LEAVE THE MASK: a shadowed slack floor is where water "
+             f"goes, and masking it loses the whole slack")
+        dark = _valid(unary_union(keep)) if keep else None
+        if dark is None or dark.is_empty:
+            warn("every fragment was a slack floor; the mask is now empty")
+            return 0
+        basis += f" - slack floors within {SLACK_BOTTOM_TOL_M} m"
+
     M = gpd.GeoDataFrame({"basis": [basis], "cut_z": [cut_z],
                           "frames": [",".join(dates)]}, geometry=[dark],
                          crs=OSGB)
@@ -5610,8 +5695,6 @@ def phase19(min_dates=FALSE_WET_MIN_DATES, cut_z=FALSE_WET_CUT_Z) -> int:
         P.to_file(r, driver="GeoJSON")
         saved(f"{r.name}  ({pool.area / 1e4:.3f} ha)")
 
-    hollows = gpd.read_file(OUT / "W94_06_hollows.geojson").set_crs(
-        OSGB, allow_override=True)
     hu = _valid(unary_union([_valid(x) for x in hollows.geometry]))
     inside = dark.intersection(hu).area / 1e4
     tot = dark.area / 1e4

@@ -38,7 +38,14 @@ NOT DONE HERE, AND WHY
 """
 from __future__ import annotations
 
-__version__ = "1.28.0"  # Hollingham (2026) - 2026-09-14. PHASE 20: the mask
+__version__ = "1.29.0"  # Hollingham (2026) - 2026-09-14. PHASE 21: the
+#   imagery's wetness index against the forecaster's own recurrence, and the one
+#   W94 product that survives D-168 - there is NO AREA anywhere in it, so the
+#   vegetation ambiguity that retired the mapping never arises. Over 14 frames:
+#   z against mean observed head rho -0.659 (p 0.010), against mean MODELLED
+#   head -0.641 (p 0.014), modelled against observed +0.938. ORDINAL ONLY.
+#   RB-18.
+# v1.28.0  # Hollingham (2026) - 2026-09-14. PHASE 20: the mask
 #   sorted by what the DEM says and handed to Martin as an editable KML, and
 #   data/geo/shadow_mask.kml wired as an override that REPLACES the automatic
 #   layer. The measurement behind it: the median slope under the mask is 1.8
@@ -379,6 +386,8 @@ def main() -> int:
     if args.phase == 11:
         return phase11(wet=args.wet, dry=args.dry, shift=args.shift,
                        series=args.series)
+    if args.phase == 21:
+        return phase21()
     if args.phase == 20:
         return phase20()
     if args.phase == 19:
@@ -5992,6 +6001,177 @@ def phase20() -> int:
          f"in place of its own automatic layer; the hand tree mask, the "
          f"slack-floor rule and the drinking pools all still apply on top, so "
          f"nothing already drawn is lost")
+    return 0
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PHASE 21 — THE WETNESS INDEX AGAINST THE MODEL
+# ─────────────────────────────────────────────────────────────────────────────
+# The one positive result to come out of W94, and the only one that survives
+# D-168, because THERE IS NO AREA ANYWHERE IN IT.
+#
+# Otsu's split in z is where a frame's own histogram divides dark from bright,
+# measured against that frame's own open dune. It is not a map and it does not
+# delineate anything; it is one number per photograph. D-168 retired the area
+# mapping precisely because water in a slack and dark slack vegetation are not
+# separable in a single visible band - but that ambiguity is about WHICH CELLS
+# are water, and this number does not ask.
+
+Z_MODEL_MIN_WELLS = 5            # below this a frame's mean head means little
+
+
+def phase21() -> int:
+    """Does the forecaster's own recurrence predict what the photographs show?
+
+    For every calibrated frame: the SSM run forward from that year's observed
+    summer minimum, with that winter's actual monthly rainfall and PET, over
+    October to the read month - the phase 18 construction exactly - giving a
+    mean modelled head across the reporting wells. Against it, the frame's Otsu
+    split in z, and the mean OBSERVED head in the same month.
+
+    WHY THIS IS A REAL TEST AND THE AREA COMPARISONS WERE NOT. The imagery
+    contributes ONE NUMBER PER FRAME, taken from the whole histogram, so no cell
+    has to be adjudicated and the vegetation ambiguity that killed W94 never
+    arises. The model contributes a head in metres. Neither has seen the other.
+
+    WHAT IT CANNOT SUPPORT. Fourteen frames, heavily seasonal, and z is ORDINAL
+    - a rank, not a level. It licenses "the model orders these winters as the
+    photographs do", and not one word about how much water. One frame
+    (2006-01-01) rests on seven wells and is reported with its n so it can be
+    weighed or dropped.
+    """
+    import matplotlib.pyplot as plt                            # noqa: PLC0415
+    from scipy.stats import spearmanr                          # noqa: PLC0415
+    from utils.config import DRAINAGE_DATUM                    # noqa: PLC0415
+    from utils.render_utils import render_figure               # noqa: PLC0415
+    phase(21, "The wetness index against the model — no area in it")
+
+    cal = OUT / "W94_08_calibration.csv"
+    if not cal.exists():
+        warn("phase 8 --calibrate has not run: W94_08_calibration.csv missing")
+        return 1
+    C = pd.read_csv(cal, float_precision="round_trip")
+    Z = C.groupby("date").agg(otsu_z=("otsu_z", "first"),
+                              bimodal=("bimodal_frac", "first")).reset_index()
+
+    lev = _level_frame()
+    P_act, E_act, _, _, _ = _pflood_climate()
+    betas = _pflood_cluster_betas()
+    WL = _pflood_wells()
+
+    rows = []
+    for d in Z["date"]:
+        wy, rm = _pflood_bucket(d)
+        Wy, fell = _pflood_antecedent(lev, WL, wy)
+        hz = _horizon_read(rm)
+        key = pd.Timestamp(wy if rm >= 10 else wy + 1, rm, 1)
+        obs = lev[lev["month"] == key]
+        if not len(obs):
+            warn(f"  {d}: no level month {key:%Y-%m}; skipped")
+            continue
+        H, O = [], []
+        for _, r in Wy.iterrows():
+            b = betas.get(int(r["cluster"]))
+            w = r["well"]
+            if b is None or w not in lev.columns:
+                continue
+            try:
+                Pm = {m: P_act[(wy if m >= 10 else wy + 1, m)] for m in hz}
+                Em = {m: E_act[(wy if m >= 10 else wy + 1, m)] for m in hz}
+            except KeyError:
+                continue
+            o = pd.to_numeric(obs[w], errors="coerce").iloc[0]
+            if not np.isfinite(o):
+                continue
+            H.append(_pflood_iterate(float(r["depth_year"]), b["b1"], b["b2"],
+                                     b["b3"], hz, Pm, Em, DRAINAGE_DATUM))
+            O.append(float(o))
+        if len(O) < Z_MODEL_MIN_WELLS:
+            warn(f"  {d}: only {len(O)} well(s); below "
+                 f"{Z_MODEL_MIN_WELLS}, skipped")
+            continue
+        H, O = np.asarray(H), np.asarray(O)
+        rows.append({"date": d,
+                     "otsu_z": round(float(Z.loc[Z['date'] == d,
+                                                 'otsu_z'].iloc[0]), 4),
+                     "bimodal_frac": round(float(Z.loc[Z['date'] == d,
+                                                       'bimodal'].iloc[0]), 4),
+                     "n_wells": len(O),
+                     "wells_on_climatology": fell,
+                     "horizon_n_months": len(hz),
+                     "mean_observed_h_m": round(float(O.mean()), 4),
+                     "mean_modelled_h_m": round(float(H.mean()), 4),
+                     "observed_wet_frac": round(float((O >= 0).mean()), 4),
+                     "modelled_wet_frac": round(float((H >= 0).mean()), 4)})
+    if len(rows) < 4:
+        warn("too few frames to correlate")
+        return 1
+    D = pd.DataFrame(rows).sort_values("otsu_z").reset_index(drop=True)
+    p = OUT / "W94_99_z_against_model.csv"
+    D.to_csv(p, index=False)
+    saved(f"{p.name}  ({len(D)} frame(s))")
+
+    def sp(a, b):
+        r = spearmanr(D[a], D[b])
+        return float(r[0]), float(r[1])
+
+    zo, zop = sp("otsu_z", "mean_observed_h_m")
+    zm, zmp = sp("otsu_z", "mean_modelled_h_m")
+    mo, mop = sp("mean_modelled_h_m", "mean_observed_h_m")
+    step(f"Spearman over {len(D)} frame(s), all rank, no area:")
+    info(f"  z against MEAN OBSERVED head   rho {zo:+.3f}  p {zop:.4f}")
+    info(f"  z against MEAN MODELLED head   rho {zm:+.3f}  p {zmp:.4f}")
+    info(f"  modelled against observed head rho {mo:+.3f}  p {mop:.4f}")
+    if zm < 0 and zmp < 0.05:
+        step("THE MODEL ORDERS THESE WINTERS AS THE PHOTOGRAPHS DO. A negative "
+             "rho is the correct sign: a wetter site has a darker population, "
+             "so its split falls lower in z")
+    else:
+        warn("the model does NOT order the frames as the imagery does at "
+             "p < 0.05; do not quote this as validation")
+    thin = D[D["n_wells"] < 20]
+    for _, r in thin.iterrows():
+        info(f"  NOTE {r['date']}: {int(r['n_wells'])} well(s) only — weigh or "
+             f"drop it before quoting the coefficient")
+
+    fig, ax = plt.subplots(1, 2, figsize=(11.5, 5.2))
+    s = np.clip(D["n_wells"].to_numpy(), 5, None) * 4
+    ax[0].scatter(D["otsu_z"], D["mean_observed_h_m"], s=s, marker="o",
+                  facecolor="none", edgecolor="#1f4e79", label="observed")
+    ax[0].scatter(D["otsu_z"], D["mean_modelled_h_m"], s=s, marker="^",
+                  color="#c0504d", alpha=0.75, label="modelled")
+    for _, r in D.iterrows():
+        ax[0].annotate(r["date"][:7], (r["otsu_z"], r["mean_observed_h_m"]),
+                       fontsize=6, xytext=(3, 3), textcoords="offset points")
+    ax[0].axvline(_GATE_Z, ls="--", lw=0.8, color="0.4")
+    ax[0].annotate(f"gate {_GATE_Z}", (_GATE_Z, 0),
+                   fontsize=7, rotation=90, xytext=(3, 4),
+                   textcoords="offset points", color="0.4")
+    ax[0].set_xlabel("Otsu split in z (lower = darker population = wetter)")
+    ax[0].set_ylabel("mean head across reporting wells (m)")
+    ax[0].set_title(f"z against the site's state\nobserved rho {zo:+.3f} "
+                    f"(p {zop:.3f}) · modelled rho {zm:+.3f} (p {zmp:.3f})",
+                    fontsize=9)
+    ax[0].legend(fontsize=8, loc="lower left")
+
+    ax[1].scatter(D["mean_observed_h_m"], D["mean_modelled_h_m"], s=s,
+                  color="#1f4e79")
+    lo = float(min(D["mean_observed_h_m"].min(), D["mean_modelled_h_m"].min()))
+    hi = float(max(D["mean_observed_h_m"].max(), D["mean_modelled_h_m"].max()))
+    ax[1].plot([lo, hi], [lo, hi], ls="--", lw=0.8, color="0.4")
+    ax[1].set_xlabel("mean OBSERVED head (m)")
+    ax[1].set_ylabel("mean MODELLED head (m)")
+    ax[1].set_title(f"the model against the wells\nrho {mo:+.3f} "
+                    f"(p {mop:.4f}), 1:1 dashed", fontsize=9)
+    fig.suptitle("W94 phase 21 — the imagery's wetness index against the "
+                 "forecaster's own recurrence. ORDINAL: no area anywhere in it "
+                 "(D-168).", fontsize=9)
+    q = OUT / "W94_99_z_against_model.png"
+    render_figure(fig, q)
+    saved(q.name)
+    info("QUOTE THIS AS ORDER, NEVER AS AMOUNT. z is a rank statistic of one "
+         "photograph's histogram; it licenses 'the model orders these winters "
+         "as the photographs do' and nothing about how much water stood.")
     return 0
 
 if __name__ == "__main__":

@@ -38,7 +38,15 @@ NOT DONE HERE, AND WHY
 """
 from __future__ import annotations
 
-__version__ = "1.30.0"  # Hollingham (2026) - 2026-09-14. PHASE 22: phase 18
+__version__ = "1.31.0"  # Hollingham (2026) - 2026-09-14. PHASE 23: the DEM
+#   against the imagery with nothing in between, as a ladder. Flat level IoU
+#   0.167, tilted plane 0.231 (at 231 ha, gradient on the search boundary),
+#   PHASE 18 AS IT STANDS 0.277, per-hollow ceiling fitted knowing the answer
+#   0.461. The model beats every simpler alternative and reaches 60 % of the
+#   ceiling; 23.6 % of the extent lies outside any hollow and is unreachable.
+#   Rungs 2 and 3 are sort-and-cumsum, not a mask per level, which is what makes
+#   the phase finish at all.
+# v1.30.0  # Hollingham (2026) - 2026-09-14. PHASE 22: phase 18
 #   scored against data/geo/flood_truth_2021-03-24.kml, the extent Martin
 #   accepted. Totals 59.70 ha predicted against 47.81 observed in hollows - the
 #   closest this project has got - but per hollow precision 0.252, recall 0.632,
@@ -393,6 +401,8 @@ def main() -> int:
     if args.phase == 11:
         return phase11(wet=args.wet, dry=args.dry, shift=args.shift,
                        series=args.series)
+    if args.phase == 23:
+        return phase23(date=(args.date[0] if args.date else TRUTH_DATE))
     if args.phase == 22:
         return phase22(date=(args.date[0] if args.date else TRUTH_DATE))
     if args.phase == 21:
@@ -6382,6 +6392,247 @@ def phase22(date=TRUTH_DATE) -> int:
              f"judge the error's shape")
     info("NOTHING HERE IS FITTED. The accepted extent is the answer, not the "
          "training data, and one date can validate but cannot train.")
+    return 0
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PHASE 23 — THE DEM AGAINST THE IMAGERY, WITH NOTHING IN BETWEEN
+# ─────────────────────────────────────────────────────────────────────────────
+# Martin, 2026-09-14: "start over from scratch ... stick with vp2 imagery of the
+# 31/3/21 and the dem and see how closely these agree."
+#
+# NO WELLS, NO SSM, NO INTERPOLATION, NO HOLLOW INVENTORY, NO CLUSTER. Two
+# rasters and one free number: flood the DEM to a level and see how much of the
+# accepted extent it reproduces. Sweeping that level finds the best a flat water
+# surface can do, which is THE CEILING ON DEM-IMAGERY AGREEMENT - every
+# construction this project has built is more complicated than this and must
+# beat it to have earned anything.
+#
+# The second rung allows the surface to TILT. A dune water table is a mound, so
+# if a plane beats a level materially the mound is visible in the imagery alone,
+# with no dipwell involved; if it does not, the flat answer stands and the
+# interpolation apparatus was never the problem.
+
+PLANE_GRAD_MAX_M_PER_KM = 4.0
+PLANE_GRAD_STEP_M_PER_KM = 0.5
+LEVEL_STEP_M = 0.05
+
+
+def _iou(a, b):
+    """Intersection over union, plus precision and recall, on boolean rasters."""
+    i = int((a & b).sum())
+    u = int((a | b).sum())
+    return (i / u if u else float("nan"),
+            i / int(a.sum()) if a.any() else float("nan"),
+            i / int(b.sum()) if b.any() else float("nan"))
+
+
+def phase23(date=TRUTH_DATE) -> int:
+    """How closely do the DEM and the vp2 read agree, with nothing in between?
+
+    Three rungs, each adding exactly one thing:
+
+      0. THE EXTENT'S OWN GEOMETRY — how much of it is even below a level the
+         DEM could flood, and how much sits on ground the DEM calls high.
+      1. ONE FLAT LEVEL, swept. The single number that best reproduces the
+         extent, and the agreement it reaches. This is the ceiling.
+      2. A TILTED PLANE, three numbers. If the mound is real and visible, this
+         beats rung 1 and the gradient it fits is a measurement in its own
+         right - taken from imagery and topography alone, with no well in it.
+
+    WHAT A POOR RUNG 1 WOULD MEAN. Not that the model is wrong - there is no
+    model here. It would mean the DEM and the imagery disagree about where low
+    ground is, which is a registration or a vintage problem, and no amount of
+    hydrology fixes it. That is why this is the right thing to run first and why
+    it should have been run first.
+    """
+    from rasterio.features import geometry_mask, rasterize     # noqa: PLC0415
+    from shapely.ops import unary_union                        # noqa: PLC0415
+    phase(23, "The DEM against the imagery, with nothing in between")
+
+    if not TRUTH_KML.exists():
+        warn(f"no accepted extent at {TRUTH_KML}")
+        return 1
+    T = gpd.read_file(TRUTH_KML).to_crs(OSGB)
+    truth = _valid(unary_union([_valid(x) for x in T.geometry]))
+
+    ds = rasterio.open(DATA_DEM)
+    warren = _valid(warren_on(pd.Timestamp(date)))
+    minx, miny, maxx, maxy = warren.bounds
+    win = rasterio.windows.from_bounds(minx - 20, miny - 20, maxx + 20,
+                                       maxy + 20, ds.transform)
+    dem = ds.read(1, window=win).astype(float)
+    tr = ds.window_transform(win)
+    if ds.nodata is not None:
+        dem[dem == ds.nodata] = np.nan
+    ds.close()
+    dem = dem - PHASE9_DEM_BIAS_M
+    cell_ha = abs(tr.a * tr.e) / 1e4
+
+    inw = geometry_mask([warren], out_shape=dem.shape, transform=tr,
+                        invert=True) & np.isfinite(dem)
+    obs = rasterize([(truth, 1)], out_shape=dem.shape, transform=tr, fill=0,
+                    dtype="uint8").astype(bool) & inw
+    step(f"warren {inw.sum() * cell_ha:.1f} ha on the DEM grid; the accepted "
+         f"extent covers {obs.sum() * cell_ha:.2f} ha of it, at a debias of "
+         f"{PHASE9_DEM_BIAS_M:+.3f} m (D-165)")
+
+    # rung 0 — what the extent sits on
+    ze = dem[obs]
+    zw = dem[inw & ~obs]
+    info(f"  elevation under the WET extent: median {np.nanmedian(ze):.2f} m, "
+         f"10-90 {np.nanpercentile(ze, 10):.2f} to "
+         f"{np.nanpercentile(ze, 90):.2f} m")
+    info(f"  elevation of the DRY remainder:  median {np.nanmedian(zw):.2f} m, "
+         f"10-90 {np.nanpercentile(zw, 10):.2f} to "
+         f"{np.nanpercentile(zw, 90):.2f} m")
+    info(f"  the extent's 90th percentile is {np.nanpercentile(ze, 90):.2f} m "
+         f"and the dry ground's 10th is {np.nanpercentile(zw, 10):.2f} m — "
+         f"where these cross is how separable wet and dry are BY ELEVATION "
+         f"ALONE")
+
+    # rung 1 — one flat level
+    lo = float(np.nanpercentile(ze, 2))
+    hi = float(np.nanpercentile(ze, 99.5)) + 1.0
+    rows = []
+    best = None
+    for L in np.arange(lo, hi, LEVEL_STEP_M):
+        pred = inw & (dem <= L)
+        iou, prec, rec = _iou(pred, obs)
+        rows.append({"level_m": round(float(L), 3),
+                     "predicted_ha": round(float(pred.sum() * cell_ha), 3),
+                     "iou": round(iou, 4), "precision": round(prec, 4),
+                     "recall": round(rec, 4)})
+        if best is None or iou > best[1]:
+            best = (float(L), iou, prec, rec, float(pred.sum() * cell_ha))
+    pd.DataFrame(rows).to_csv(OUT / "W94_B1_flat_level_sweep.csv", index=False)
+    saved("W94_B1_flat_level_sweep.csv")
+    step(f"RUNG 1 — the best FLAT level is {best[0]:.2f} m AOD: IoU "
+         f"{best[1]:.3f}, precision {best[2]:.3f}, recall {best[3]:.3f}, "
+         f"{best[4]:.2f} ha against the extent's "
+         f"{obs.sum() * cell_ha:.2f} ha")
+
+    # rung 2 — a tilted plane
+    rr, cc = np.indices(dem.shape)
+    X = (tr.c + (cc + 0.5) * tr.a - float(np.mean(warren.bounds[::2]))) / 1000.0
+    Y = (tr.f + (rr + 0.5) * tr.e - float(np.mean(warren.bounds[1::2]))) / 1000.0
+    gs = np.arange(-PLANE_GRAD_MAX_M_PER_KM, PLANE_GRAD_MAX_M_PER_KM + 1e-9,
+                   PLANE_GRAD_STEP_M_PER_KM)
+    # Sort once per gradient pair, then every level is a PREFIX of that order and
+    # the IoU at all levels is two cumulative sums. The naive nested sweep -
+    # a full-grid comparison per gradient per level - takes minutes and is what
+    # stopped this phase finishing on 2026-09-14.
+    zf, of = dem[inw], obs[inw]
+    Xf, Yf = X[inw], Y[inw]
+    n_obs = int(of.sum())
+    bestp = None
+    for a in gs:
+        for b in gs:
+            tf = zf - (a * Xf + b * Yf)
+            o_ = np.argsort(tf, kind="stable")
+            ts, os_ = tf[o_], of[o_].astype(np.int64)
+            inter = np.cumsum(os_)
+            k = np.arange(1, len(ts) + 1)
+            iou_k = inter / (k + n_obs - inter)
+            j = int(np.argmax(iou_k))
+            if bestp is None or iou_k[j] > bestp[0]:
+                bestp = (float(iou_k[j]), float(inter[j] / k[j]),
+                         float(inter[j] / n_obs), float(a), float(b),
+                         float(ts[j]), float(k[j] * cell_ha))
+    step(f"RUNG 2 — the best TILTED plane is IoU {bestp[0]:.3f} "
+         f"(precision {bestp[1]:.3f}, recall {bestp[2]:.3f}), gradient "
+         f"{bestp[3]:+.1f} m/km east and {bestp[4]:+.1f} m/km north, "
+         f"{bestp[6]:.2f} ha")
+    gain = bestp[0] - best[1]
+    if gain > 0.05:
+        step(f"THE TILT EARNS ITS TWO EXTRA PARAMETERS (+{gain:.3f} IoU): the "
+             f"water surface is not flat, and the imagery says so WITHOUT ANY "
+             f"DIPWELL — the gradient above is an independent measurement")
+    else:
+        step(f"the tilt buys only +{gain:.3f} IoU, so on this date a FLAT "
+             f"surface is as good as a sloped one and the mound is not "
+             f"resolvable from the imagery alone")
+    pd.DataFrame([{"rung": "flat", "iou": round(best[1], 4),
+                   "precision": round(best[2], 4), "recall": round(best[3], 4),
+                   "level_m": round(best[0], 3), "grad_e_m_per_km": 0.0,
+                   "grad_n_m_per_km": 0.0, "area_ha": round(best[4], 3)},
+                  {"rung": "plane", "iou": round(bestp[0], 4),
+                   "precision": round(bestp[1], 4), "recall": round(bestp[2], 4),
+                   "level_m": round(bestp[5], 3),
+                   "grad_e_m_per_km": bestp[3], "grad_n_m_per_km": bestp[4],
+                   "area_ha": round(bestp[6], 3)}]).to_csv(
+        OUT / "W94_B2_ceiling.csv", index=False)
+    saved("W94_B2_ceiling.csv")
+    # rung 3 — EACH HOLLOW ITS OWN LEVEL, chosen to fit. This is the absolute
+    # ceiling for ANY hollow-based model: one free parameter per basin, set with
+    # knowledge of the answer. Nothing honest can beat it. If it too is low, the
+    # accepted extent is NOT a set of filled basins, and the failure is in the
+    # agreement between the two layers rather than in any hydrology.
+    hollows = gpd.read_file(OUT / "W94_06_hollows.geojson").set_crs(
+        OSGB, allow_override=True)
+    hid = rasterize([(g, int(s)) for g, s in zip(hollows.geometry,
+                                                 hollows["slack"])
+                     if pd.notna(s)],
+                    out_shape=dem.shape, transform=tr, fill=0, dtype="int32")
+    # Vectorised per hollow: sort the basin's cells by elevation once, then every
+    # candidate level is a PREFIX of that order, so the IoU at all levels is two
+    # cumulative sums. The naive form - a full-grid mask per hollow per level -
+    # is O(hollows x levels x grid) and does not finish.
+    from scipy import ndimage as ndi                           # noqa: PLC0415
+    pred3 = np.zeros_like(obs)
+    objs = ndi.find_objects(hid)
+    for h in np.unique(hid[hid > 0]):
+        sl = objs[h - 1]
+        if sl is None:
+            continue
+        sub_h, sub_z, sub_o, sub_w = (hid[sl] == h), dem[sl], obs[sl], inw[sl]
+        m = sub_h & sub_w & np.isfinite(sub_z)
+        if not m.any() or not (sub_o & m).any():
+            continue
+        z, o = sub_z[m], sub_o[m]
+        order = np.argsort(z, kind="stable")
+        z, o = z[order], o[order].astype(np.int64)
+        n_obs = int(o.sum())
+        inter = np.cumsum(o)
+        k = np.arange(1, len(z) + 1)
+        iou_k = inter / (k + n_obs - inter)
+        j = int(np.argmax(iou_k))
+        pred3[sl] |= m & (sub_z <= z[j])
+    i3, p3, r3 = _iou(pred3, obs)
+    step(f"RUNG 3 — EACH HOLLOW ITS OWN BEST-FIT LEVEL, chosen knowing the "
+         f"answer: IoU {i3:.3f}, precision {p3:.3f}, recall {r3:.3f}, "
+         f"{pred3.sum() * cell_ha:.2f} ha. NOTHING HONEST CAN BEAT THIS")
+    hol_frac = float((obs & (hid > 0)).sum()) / float(obs.sum())
+    info(f"  {100 * hol_frac:.1f} % of the accepted extent lies inside a mapped "
+         f"hollow at all; the remaining {100 * (1 - hol_frac):.1f} % is "
+         f"unreachable by any hollow-based model however it sets its levels")
+
+    # rung 4 — THE MODEL AS IT ACTUALLY STANDS, on the same rasters and the same
+    # metric, so the ceiling above is a scoreboard and not a rhetorical device.
+    a1 = OUT / "W94_A1_validation_per_hollow.csv"
+    if a1.exists():
+        V = pd.read_csv(a1, float_precision="round_trip")
+        lv = {int(r["slack"]): float(r["modelled_level_m"])
+              for _, r in V.iterrows()
+              if pd.notna(r.get("modelled_head_m")) and r["modelled_head_m"] > 0}
+        pred4 = np.zeros_like(obs)
+        for h, L in lv.items():
+            sl = objs[h - 1] if h - 1 < len(objs) else None
+            if sl is None:
+                continue
+            sub = (hid[sl] == h) & inw[sl] & np.isfinite(dem[sl])
+            pred4[sl] |= sub & (dem[sl] <= L)
+        i4, p4, r4 = _iou(pred4, obs)
+        step(f"RUNG 4 — THE MODEL AS IT STANDS (phase 18, no knowledge of the "
+             f"answer): IoU {i4:.3f}, precision {p4:.3f}, recall {r4:.3f}, "
+             f"{pred4.sum() * cell_ha:.2f} ha")
+        info(f"  it reaches {100 * i4 / i3:.0f} % of the per-hollow ceiling. "
+             f"What separates them is ONLY the choice of level in each basin — "
+             f"same basins, same DEM, same metric")
+
+    info("THIS IS THE CEILING. Any construction using wells, an SSM or an "
+         "interpolated surface must beat these IoU values to have earned its "
+         "complexity; one that does not is more machinery for less agreement.")
     return 0
 
 if __name__ == "__main__":

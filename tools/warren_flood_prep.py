@@ -38,7 +38,15 @@ NOT DONE HERE, AND WHY
 """
 from __future__ import annotations
 
-__version__ = "1.23.0"  # Hollingham (2026) - 2026-09-14. PHASE 19, the
+__version__ = "1.24.0"  # Hollingham (2026) - 2026-09-14. --cut-z: phase 8
+#   cuts at a threshold the frame did not choose, written to a _fixedz set of
+#   its own. z is standardised against each frame's own open dune, so a cut in z
+#   transfers between frames. The gate's own z = -0.75 applied to 2019-09-11
+#   returns 76 bodies and 16.48 ha with all 50 wells agreed, against 668 bodies
+#   and 288.44 ha when that frame chose its own split. Phase 19 rebuilt on the
+#   fixed-cut reads; the figure caption no longer calls a fixed cut the frame's
+#   own. D-167.
+# v1.23.0  # Hollingham (2026) - 2026-09-14. PHASE 19, the
 #   false-wet mask (D-167). Martin: the dry frames were given so that dark
 #   features which look like water could be digitised and removed, NOT as a
 #   zero-water gate on a model. A forced read of 2009-04-20 - no water in it -
@@ -301,6 +309,12 @@ def main() -> int:
                     help="phase 14: which series to compute. 'panel' is the "
                          "fixed-composition headline, 'all' the longer "
                          "all-available sensitivity, 'both' the pair.")
+    ap.add_argument("--cut-z", dest="cut_z", type=float, default=None,
+                    help="phase 8: cut at this z instead of the frame's own "
+                         "Otsu split, and write to a _fixedz set of its own. "
+                         "The threshold an ACCEPTED wet frame set, applied to a "
+                         "dry frame, is how a false-wet feature is identified "
+                         "(D-167)")
     ap.add_argument("--mask-min-dates", dest="mask_min_dates", type=int,
                     default=FALSE_WET_MIN_DATES,
                     help="phase 19: 1 unions the dry reads; 2 keeps only what "
@@ -320,14 +334,17 @@ def main() -> int:
     banner("W94 step 1 — the warren mask by frame date", __version__)
     if args.phase == 8:
         return phase8(dates=args.date, calibrate=args.calibrate,
-                      series=args.series, force_read=args.force_read)
+                      series=args.series, force_read=args.force_read,
+                      cut_z=args.cut_z)
     if args.phase == 10:
         return phase10(dates=args.date, calibrate=args.calibrate)
     if args.phase == 11:
         return phase11(wet=args.wet, dry=args.dry, shift=args.shift,
                        series=args.series)
     if args.phase == 19:
-        return phase19(min_dates=args.mask_min_dates)
+        return phase19(min_dates=args.mask_min_dates,
+                       cut_z=(args.cut_z if args.cut_z is not None
+                              else FALSE_WET_CUT_Z))
     if args.phase == 18:
         return phase18(mode=args.pf_mode, sens=args.sens)
     if args.phase == 17:
@@ -1241,7 +1258,7 @@ def _mosaic(date, m41, EE, NN, dune_prior):
 
 
 def phase8(dates=None, calibrate=False, series="vp2",
-           force_read=False) -> int:
+           force_read=False, cut_z=None) -> int:
     """The flood read: the photographs classify, the DEM names the result.
 
     TWO SERIES, ONE METHOD, AND THE PRIMARY ONE IS NAMED IN ADVANCE. `series`
@@ -1281,7 +1298,11 @@ def phase8(dates=None, calibrate=False, series="vp2",
     info(f"{len(hollows)} hollow(s) from phase 6, "
          f"{hollows.area.sum() / 1e4:.1f} ha")
 
+    globals()["_fixed_cut"] = cut_z is not None
     tag = "" if series == "vp2" else f"_{series}"
+    if cut_z is not None:
+        # A FIXED CUT IS NOT A READ OF THIS FRAME and must never overwrite one.
+        tag = tag + "_fixedz"
     if series == "vp2":
         man = pd.read_csv(MANIFEST, float_precision="round_trip")
         meas = man[(man["viewpoint"].astype(str).str.startswith("vp2"))
@@ -1486,7 +1507,28 @@ def phase8(dates=None, calibrate=False, series="vp2",
                                   "otsu_z": thr, "bimodal_frac": frac})
             continue
 
-        if force_read and np.isfinite(thr) and thr > FLOOD_OTSU_MAX_Z:
+        if cut_z is not None:
+            # THE CUT COMES FROM ANOTHER FRAME, AND THAT IS THE POINT (D-167).
+            # z is standardised against each frame's OWN open dune - median and
+            # 1.4826*MAD - so a threshold in z is comparable between frames in a
+            # way a luminance is not. Applying an ACCEPTED wet frame's cut to a
+            # frame with no water asks the only question a dry frame can answer:
+            # what is still darker than water-dark when there is no water? That
+            # is a bush, a shadow, a dark ditch - a FALSE WET FEATURE, which is
+            # what Martin gave these frames for (2026-09-14).
+            #
+            # Letting the dry frame choose its own Otsu instead is what produced
+            # 87.86 ha on 2009-04-20 and 288.44 ha here on 2019-09-11, because
+            # Otsu always returns a threshold and on a dry frame it splits
+            # bright from brighter: 2019-09-11's own split sits at z = +1.79,
+            # ABOVE its dune median, so everything but a sunlit crest came out
+            # as water. The gate exists to refuse exactly that, and --force-read
+            # overrode the one measurement that was working.
+            step(f"  FIXED CUT z = {cut_z:.3f} applied in place of this frame's "
+                 f"own split ({thr:.2f}); the gate does not apply because the "
+                 f"threshold is not this frame's to choose")
+            thr = float(cut_z)
+        elif force_read and np.isfinite(thr) and thr > FLOOD_OTSU_MAX_Z:
             # THE GATE IS OVERRIDDEN FOR THIS FRAME, ON MARTIN'S JUDGEMENT OF
             # THE IMAGE (2026-09-13, for 2017-03-24). The gate is not wrong in
             # general: on a frame with no dark population Otsu splits bright
@@ -1601,6 +1643,7 @@ def phase8(dates=None, calibrate=False, series="vp2",
                                     if series == "tiles" else None),
                "n_bodies": n_bodies, "flood_ha": round(fg.area.sum() / 1e4, 3),
                "otsu_z": round(float(thr), 4), "forced": bool(force_read),
+               "cut_z_fixed": (None if cut_z is None else round(float(cut_z), 4)),
                "bimodal_frac": round(frac, 4), "verdict": "READ", "reason": ""}
         row.update(sc["summary"])
         rows.append(row)
@@ -4351,8 +4394,14 @@ def _flood_map(date, frame, fg, hollows, sc, thr, tag=""):
     sm = sc["summary"]
     ax.set_title(
         f"W94 — flood read from {frame}, {date}\n"
-        f"{len(fg)} water bod(ies), {fg.area.sum() / 1e4:.1f} ha; cut at this "
-        f"frame's own Otsu z = {thr:.2f} against its open dune; "
+        f"{len(fg)} water bod(ies), {fg.area.sum() / 1e4:.1f} ha; "
+        # A FIXED CUT MUST NOT BE CAPTIONED AS THE FRAME'S OWN. The two say
+        # opposite things about where the threshold came from, and a caption
+        # that gets that wrong is how a false-wet map becomes a flood map.
+        + (f"cut at a FIXED z = {thr:.2f}, transferred from an accepted wet "
+           f"frame, not chosen by this one; " if _fixed_cut else
+           f"cut at this frame's own Otsu z = {thr:.2f} against its open dune; ")
+        +
         f"recall {sm['recall']}, precision {sm['precision']} "
         f"(a LOWER bound — edge-sited wells) at {sm['n_wells']} wells")
     q = OUT / f"W94_08_flood{tag}_{date}.png"
@@ -5303,103 +5352,137 @@ def phase18(mode="both", power=PFLOOD_IDW_POWER, sens=False) -> int:
 # no water in it, reads 87.86 ha, against 88.31 ha for the wettest frame in the
 # corpus. Every area this tool has compared a model against carries that.
 
-FALSE_WET_MIN_DATES = 1      # 1 = union of the dry reads; 2 = seen on two dates
+_fixed_cut = False   # set by phase 8 when --cut-z supplies the threshold
+FALSE_WET_MIN_DATES = 1          # 1 = union of the dry reads; 2 = seen twice
+from utils.config import FLOOD_OTSU_MAX_Z as _GATE_Z    # noqa: E402
+FALSE_WET_CUT_Z = _GATE_Z        # the gate: the shallowest cut ever accepted
+FALSE_WET_FRAMES = ("2019-09-11", "2019-07-29", "2012-05-26", "2010-05-27",
+                    "2009-04-20")
+#   2019-09-11 is Martin's pick and the best of them: September, so the water
+#   table is at its annual minimum and well below the surface, 10 registered
+#   captures at ~1.0 m/px, residuals 0.47-2.1 m. Its OWN Otsu split is z = +1.79
+#   and 2019-07-29's is +3.38 - both far above the dune median - which is why
+#   neither may choose its own cut.
 
 
-def phase19(min_dates=FALSE_WET_MIN_DATES) -> int:
-    """What the classifier maps as water when there is none, and what it costs.
+def phase19(min_dates=FALSE_WET_MIN_DATES, cut_z=FALSE_WET_CUT_Z) -> int:
+    """The false-wet features: what is still water-dark when there is no water.
 
-    The dry reads are unioned into a persistent false-wet layer and subtracted
-    from every wet read. TWO STRENGTHS, because they answer different questions:
-    the UNION (min_dates 1) is everything ever mis-mapped and is the conservative
-    correction, while requiring TWO dates (min_dates 2) keeps only features that
-    are dark in more than one year and season - a bush rather than a shadow or a
-    wet ditch on the day - and is the one that survives a phenology objection.
+    Every dry frame is cut at a threshold it did not choose. `z` is standardised
+    against each frame's own open dune, so a cut in z transfers between frames;
+    the default is FLOOD_OTSU_MAX_Z, the gate, which is the SHALLOWEST cut this
+    project has ever accepted as water and therefore the most generous to the
+    mask. 2021-03-24, the wettest accepted frame, set z = -1.318 and 2020-03-31
+    set -1.116, so a feature dark enough to pass -0.75 on a dry frame would have
+    been read as water on either of them. THAT is the false positive.
 
-    THIS DOES NOT CORRECT THE MODEL. It corrects the OBSERVATION the model has
-    been scored against, which is the other half of every disagreement measured
-    in phases 13 to 18 and of the 12.1-88.3 ha bracket.
+    The reads it consumes come from `--phase 8 --cut-z`. A dry frame cut at its
+    OWN Otsu is worthless and measures nothing: 2009-04-20 returned 87.86 ha and
+    2019-09-11 returned 288.44 ha over 668 bodies - more than the whole 147.8 ha
+    hollow inventory, the entire warren but its sunlit crests - because Otsu
+    always returns a threshold and on a dry frame it splits bright from brighter.
+
+    TWO STRENGTHS. The union (min_dates 1) is everything ever dark on a dry day
+    and is the conservative correction. Requiring TWO dates keeps only what is
+    dark in more than one year and season - a bush rather than one day's shadow
+    or a wet ditch - and is the version that survives a phenology objection.
+
+    THIS CORRECTS AN OBSERVATION, NEVER A MODEL. Phase 18 predicting water on a
+    dry frame is a separate fault with a separate cause, and the well-level
+    check already located it in the hollow geometry.
     """
-    from shapely.ops import unary_union                        # noqa: PLC0415
-    phase(19, "The false-wet mask — what the classifier maps with no water there")
+    from shapely.ops import unary_union                       # noqa: PLC0415
+    phase(19, "The false-wet features — water-dark ground with no water in it")
+    step(f"cut z = {cut_z:.3f} (the gate). For reference the accepted wet frames "
+         f"cut at -1.318 (2021-03-24, 36 wells at or above ground) and -1.116 "
+         f"(2020-03-31, 6 wells) — a dry-frame feature passing this cut would "
+         f"have been read as water on either")
 
-    parts, dates = [], []
-    for d in DRY_CALIBRATION_DATES:
-        p = OUT / f"W94_08_flood_{d}.geojson"
-        if not p.exists():
-            warn(f"  {d}: no read — run --phase 8 --force-read --date {d}")
+    parts, dates, missing = [], [], []
+    for d in FALSE_WET_FRAMES:
+        f = OUT / f"W94_08_flood_fixedz_{d}.geojson"
+        if not f.exists():
+            missing.append(d)
             continue
-        g = gpd.read_file(p).set_crs(OSGB, allow_override=True)
+        g = gpd.read_file(f).set_crs(OSGB, allow_override=True)
         u = g.geometry.union_all()
         parts.append(u)
         dates.append(d)
-        info(f"  {d}: {len(g)} body(ies), {u.area / 1e4:7.2f} ha mapped as water "
-             f"in a frame with none")
+        info(f"  {d}: {len(g)} feature(s), {u.area / 1e4:7.2f} ha still "
+             f"water-dark with no water present")
+    if missing:
+        warn(f"  no fixed-cut read for {', '.join(missing)} — run: "
+             f"--phase 8 --cut-z {cut_z} "
+             + " ".join(f"--date {d}" for d in missing))
     if not parts:
-        warn("no dry reads at all; the mask cannot be built")
+        warn("no fixed-cut dry reads at all; the mask cannot be built")
         return 1
 
     if min_dates <= 1:
         mask = unary_union(parts)
-        basis = f"union of {len(parts)} dry read(s)"
+        basis = f"union of {len(parts)} dry frame(s) at z <= {cut_z}"
     else:
-        pair = []
-        for i in range(len(parts)):
-            for j in range(i + 1, len(parts)):
-                inter = parts[i].intersection(parts[j])
-                if not inter.is_empty:
-                    pair.append(inter)
+        pair = [parts[i].intersection(parts[j])
+                for i in range(len(parts)) for j in range(i + 1, len(parts))]
+        pair = [g for g in pair if not g.is_empty]
         mask = unary_union(pair) if pair else None
-        basis = f"seen on >= 2 of {len(parts)} dry read(s)"
+        basis = f"dark on >= 2 of {len(parts)} dry frame(s) at z <= {cut_z}"
     if mask is None or mask.is_empty:
-        warn("the mask is empty")
-        return 1
+        step("THE MASK IS EMPTY — at this cut, no ground is water-dark on a dry "
+             "frame, and the classifier has no measurable false-positive area")
+        return 0
 
-    M = gpd.GeoDataFrame({"basis": [basis]}, geometry=[mask], crs=OSGB)
-    p = OUT / "W94_93_false_wet_mask.geojson"
-    M.to_file(p, driver="GeoJSON")
-    saved(f"{p.name}  ({mask.area / 1e4:.2f} ha, {basis})")
+    M = gpd.GeoDataFrame({"basis": [basis], "cut_z": [cut_z],
+                          "frames": [",".join(dates)]}, geometry=[mask],
+                         crs=OSGB)
+    q = OUT / "W94_93_false_wet_mask.geojson"
+    M.to_file(q, driver="GeoJSON")
+    saved(f"{q.name}  ({mask.area / 1e4:.2f} ha, {basis})")
 
-    hol_p = OUT / "W94_06_hollows.geojson"
-    hollows = gpd.read_file(hol_p).set_crs(OSGB, allow_override=True)
+    hollows = gpd.read_file(OUT / "W94_06_hollows.geojson").set_crs(
+        OSGB, allow_override=True)
     hu = hollows.geometry.union_all()
     inside = mask.intersection(hu).area / 1e4
-    step(f"the mask is {mask.area / 1e4:.2f} ha, of which {inside:.2f} ha "
-         f"({100 * inside / (mask.area / 1e4):.1f} %) falls inside a mapped "
-         f"hollow and {mask.area / 1e4 - inside:.2f} ha does not — dark ground "
-         f"where no closed basin exists cannot be water, and phase 16 attributed "
-         f"37.7 % of the 2021-03-24 read to exactly that")
+    tot = mask.area / 1e4
+    step(f"the mask is {tot:.2f} ha, {inside:.2f} ha of it inside a mapped "
+         f"hollow and {tot - inside:.2f} ha outside one — dark ground in no "
+         f"closed basin cannot be water, and is where a false positive is most "
+         f"likely to be real")
 
     rows = []
     for f in sorted(OUT.glob("W94_08_flood_*.geojson")):
+        if "_fixedz_" in f.name:
+            continue
         d = f.stem.split("flood_")[1].replace("tiles_", "")
-        if d in DRY_CALIBRATION_DATES:
+        if d in FALSE_WET_FRAMES:
             continue
         g = gpd.read_file(f).set_crs(OSGB, allow_override=True)
         u = g.geometry.union_all()
         cor = u.difference(mask)
-        rows.append({
-            "read": f.stem.split("W94_08_flood_")[1],
-            "date": d,
-            "read_ha": round(u.area / 1e4, 3),
-            "mask_overlap_ha": round(u.intersection(mask).area / 1e4, 3),
-            "corrected_ha": round(cor.area / 1e4, 3),
-            "corrected_ha_in_hollows": round(
-                float(sum(hollows.geometry.intersection(cor).area)) / 1e4, 3),
-            "removed_pct": round(100 * u.intersection(mask).area / u.area, 1),
-        })
-        info(f"  {rows[-1]['read']:22s} {rows[-1]['read_ha']:7.2f} ha -> "
-             f"{rows[-1]['corrected_ha']:7.2f} ha "
-             f"({rows[-1]['removed_pct']:5.1f} % removed), "
-             f"{rows[-1]['corrected_ha_in_hollows']:6.2f} ha of it in hollows")
-    R = pd.DataFrame(rows)
-    q = OUT / "W94_94_reads_corrected.csv"
-    R.to_csv(q, index=False)
-    saved(q.name)
-    info("EVERY AREA THIS TOOL HAS PUBLISHED FOR A WET FRAME IS SUPERSEDED by "
-         "the corrected column, including the 12.1-88.3 ha bracket and every "
-         "predicted-against-observed row in phases 16, 17 and 18.")
+        rows.append({"read": f.stem.split("W94_08_flood_")[1], "date": d,
+                     "cut_z": cut_z,
+                     "read_ha": round(u.area / 1e4, 3),
+                     "mask_overlap_ha": round(u.intersection(mask).area / 1e4, 3),
+                     "corrected_ha": round(cor.area / 1e4, 3),
+                     "corrected_ha_in_hollows": round(
+                         float(sum(hollows.geometry.intersection(cor).area))
+                         / 1e4, 3),
+                     "removed_pct": round(100 * u.intersection(mask).area
+                                          / u.area, 1)})
+        r = rows[-1]
+        info(f"  {r['read']:22s} {r['read_ha']:7.2f} ha -> "
+             f"{r['corrected_ha']:7.2f} ha ({r['removed_pct']:5.1f} % removed), "
+             f"{r['corrected_ha_in_hollows']:6.2f} ha of it in hollows")
+    if rows:
+        R = pd.DataFrame(rows)
+        s = OUT / "W94_94_reads_corrected.csv"
+        R.to_csv(s, index=False)
+        saved(s.name)
+    info("The corrected column is a LOWER bound: where a bush stands inside a "
+         "slack that genuinely floods, the mask takes real water with it. The "
+         "read is the upper bound, and the truth is between them.")
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

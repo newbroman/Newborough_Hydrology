@@ -6136,33 +6136,50 @@ def phase21() -> int:
 
     fig, ax = plt.subplots(1, 2, figsize=(11.5, 5.2))
     s = np.clip(D["n_wells"].to_numpy(), 5, None) * 4
+    # A LEGEND THAT NAMES THE MARKER BUT NOT THE SIZE IS AN INCOMPLETE LEGEND
+    # (Martin asked what the symbols were, 2026-09-14). Size carries n_wells
+    # here, which is the difference between a frame worth weighing and
+    # 2006-01-01's seven wells, so it is named in the legend like any other
+    # channel. The pair for one date shares an x, so the vertical gap between a
+    # circle and its triangle IS the model's error for that month.
     ax[0].scatter(D["otsu_z"], D["mean_observed_h_m"], s=s, marker="o",
-                  facecolor="none", edgecolor="#1f4e79", label="observed")
+                  facecolor="none", edgecolor="#1f4e79",
+                  label="OBSERVED mean head (wells)")
     ax[0].scatter(D["otsu_z"], D["mean_modelled_h_m"], s=s, marker="^",
-                  color="#c0504d", alpha=0.75, label="modelled")
+                  color="#c0504d", alpha=0.75,
+                  label="MODELLED mean head (SSM)")
+    for _n in (10, 30, 50):
+        ax[0].scatter([], [], s=max(_n, 5) * 4, marker="o", facecolor="none",
+                      edgecolor="0.45", label=f"n = {_n} wells")
     for _, r in D.iterrows():
         ax[0].annotate(r["date"][:7], (r["otsu_z"], r["mean_observed_h_m"]),
                        fontsize=6, xytext=(3, 3), textcoords="offset points")
     ax[0].axvline(_GATE_Z, ls="--", lw=0.8, color="0.4")
-    ax[0].annotate(f"gate {_GATE_Z}", (_GATE_Z, 0),
-                   fontsize=7, rotation=90, xytext=(3, 4),
-                   textcoords="offset points", color="0.4")
-    ax[0].set_xlabel("Otsu split in z (lower = darker population = wetter)")
+    ax[0].annotate(f"read gate {_GATE_Z} — left of this line a frame was "
+                   f"accepted as showing water on its own evidence",
+                   (_GATE_Z, float(D["mean_observed_h_m"].max())), fontsize=6.5,
+                   rotation=90, va="top", ha="right", xytext=(-3, 0),
+                   textcoords="offset points", color="0.35")
+    ax[0].set_xlabel("Otsu split in z  (lower = darker population = wetter)")
     ax[0].set_ylabel("mean head across reporting wells (m)")
     ax[0].set_title(f"z against the site's state\nobserved rho {zo:+.3f} "
                     f"(p {zop:.3f}) · modelled rho {zm:+.3f} (p {zmp:.3f})",
                     fontsize=9)
-    ax[0].legend(fontsize=8, loc="lower left")
+    ax[0].legend(fontsize=7, loc="upper right", labelspacing=0.9,
+                 title="marker = quantity, size = wells reporting",
+                 title_fontsize=7)
 
     ax[1].scatter(D["mean_observed_h_m"], D["mean_modelled_h_m"], s=s,
-                  color="#1f4e79")
+                  color="#1f4e79", label="one calibrated frame (size = wells)")
     lo = float(min(D["mean_observed_h_m"].min(), D["mean_modelled_h_m"].min()))
     hi = float(max(D["mean_observed_h_m"].max(), D["mean_modelled_h_m"].max()))
     ax[1].plot([lo, hi], [lo, hi], ls="--", lw=0.8, color="0.4")
     ax[1].set_xlabel("mean OBSERVED head (m)")
     ax[1].set_ylabel("mean MODELLED head (m)")
     ax[1].set_title(f"the model against the wells\nrho {mo:+.3f} "
-                    f"(p {mop:.4f}), 1:1 dashed", fontsize=9)
+                    f"(p {mop:.4f})", fontsize=9)
+    ax[1].plot([], [], ls="--", lw=0.8, color="0.4", label="1:1")
+    ax[1].legend(fontsize=7, loc="upper left")
     fig.suptitle("W94 phase 21 — the imagery's wetness index against the "
                  "forecaster's own recurrence. ORDINAL: no area anywhere in it "
                  "(D-168).", fontsize=9)

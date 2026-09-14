@@ -38,7 +38,15 @@ NOT DONE HERE, AND WHY
 """
 from __future__ import annotations
 
-__version__ = "1.24.0"  # Hollingham (2026) - 2026-09-14. --cut-z: phase 8
+__version__ = "1.25.0"  # Hollingham (2026) - 2026-09-14. Bushes are EXCLUDED
+#   at source: phase 8 drops the mask's cells from `usable` before the open-dune
+#   reference and before any threshold, so scrub cannot be read as water on any
+#   frame. The mask is phase 19's dry-frame dark ground plus Martin's
+#   warren_tree_mask.kml (8.34 ha, on disk since 09-12 and previously read by no
+#   code) LESS drinking_pools.kml, the standing water that survives a drought and
+#   must never be masked. 20.39 ha, 3.55 ha of it inside a hollow - which is the
+#   stated cost, every area being a lower bound by that much. D-167.
+# v1.24.0  # Hollingham (2026) - 2026-09-14. --cut-z: phase 8
 #   cuts at a threshold the frame did not choose, written to a _fixedz set of
 #   its own. z is standardised against each frame's own open dune, so a cut in z
 #   transfers between frames. The gate's own z = -0.75 applied to 2019-09-11
@@ -244,6 +252,10 @@ from utils.warren_mask import (OSGB, _features, canopy_on, closure_dates,
 
 OUT = REPO / "working" / "updates"
 MANIFEST = DATA_GEO_DIR / "aerial_manifest.csv"
+# Ground that is dark in every frame and is not water (Martin, 2026-09-14), and
+# the standing water that must never be mistaken for it.
+BUSH_MASK_KML = DATA_GEO_DIR / "warren_tree_mask.kml"
+STANDING_WATER_KML = DATA_GEO_DIR / "drinking_pools.kml"
 BASINS = DATA_GEO_DIR / "ranwell_dem_basins_prototype.geojson"
 # The vp2 frame the shared transform is fitted on. Any vp2 frame would do -
 # phase-correlating every one of them against this frame returns (0, 0) px -
@@ -1462,6 +1474,28 @@ def phase8(dates=None, calibrate=False, series="vp2",
         wmask = geometry_mask([warren_on(date)], out_shape=EE.shape,
                               transform=gtr, invert=True)
         usable = wmask & ok & np.isfinite(grid) & np.isfinite(dem)
+
+        # BUSHES ARE EXCLUDED FROM THE ANALYSIS, not subtracted from its result
+        # (Martin, 2026-09-14: "mark these as bushes and exclude from the
+        # analysis"). A cell under scrub cannot be classified as water on ANY
+        # frame, so the correction cannot be forgotten by a later reader, cannot
+        # be applied twice, and never enters the open-dune reference either.
+        # The cost is stated rather than hidden: a slack that genuinely floods
+        # UNDER a bush is unreadable there, so every area is a lower bound by
+        # whatever of the mask falls inside a hollow.
+        #
+        # NOT APPLIED UNDER --cut-z, because the fixed-cut read of a dry frame is
+        # what BUILDS the mask (phase 19) and masking its own source would erase
+        # the measurement.
+        if cut_z is None:
+            bm = _bush_mask_geom()
+            if bm is not None:
+                before = int(usable.sum())
+                bmask = geometry_mask([bm], out_shape=EE.shape, transform=gtr,
+                                      invert=True)
+                usable = usable & ~bmask
+                info(f"  bush mask: {before - int(usable.sum())} cell(s) "
+                     f"excluded before any threshold is applied")
         if usable.sum() < 1000:
             rows.append({"date": date, "frame": frame, "verdict": "SKIPPED",
                          "reason": "the warren is barely in this frame's window"})
@@ -2542,6 +2576,56 @@ def _slack_floors(hollows, ds, bias_m):
                     "E": float(h.geometry.centroid.x),
                     "N": float(h.geometry.centroid.y)})
     return pd.DataFrame(out)
+
+
+def _valid(g):
+    """Geometry from a hand-drawn KML, made usable without changing what it says."""
+    if g is None or g.is_empty:
+        return g
+    if not g.is_valid:
+        try:
+            from shapely.validation import make_valid            # noqa: PLC0415
+            g = make_valid(g)
+        except Exception:                                        # noqa: BLE001
+            g = g.buffer(0)
+    return g
+
+
+def _bush_mask_geom():
+    """The persistent bush layer: phase 19's, or Martin's hand mask, or both.
+
+    Read fresh on every use rather than cached, so a redrawn KML takes effect on
+    the next run without anything having to be invalidated.
+    """
+    from shapely.ops import unary_union                          # noqa: PLC0415
+    parts = []
+    for src in (OUT / "W94_95_bush_mask.geojson", BUSH_MASK_KML):
+        if not src.exists():
+            continue
+        try:
+            g = gpd.read_file(src).to_crs(OSGB)
+        except Exception:                                        # noqa: BLE001
+            continue
+        u = _valid(unary_union([_valid(x) for x in g.geometry]))
+        if u is not None and not u.is_empty:
+            parts.append(u)
+    if not parts:
+        return None
+    return _valid(unary_union(parts))
+
+
+def _standing_water_geom():
+    """Water present even in a dry frame — drinking pools. NEVER masked.
+
+    Martin dug these out of the July 2019 imagery precisely because they are the
+    one thing in a dry frame that IS water, and a mask that swallowed them would
+    teach the classifier to ignore real standing water everywhere it occurs.
+    """
+    from shapely.ops import unary_union                          # noqa: PLC0415
+    if not STANDING_WATER_KML.exists():
+        return None
+    g = gpd.read_file(STANDING_WATER_KML).to_crs(OSGB)
+    return _valid(unary_union([_valid(x) for x in g.geometry]))
 
 
 def _idw(xs, ys, vs, X, Y, power=2.0, eps=1e-6):
@@ -5353,6 +5437,7 @@ def phase18(mode="both", power=PFLOOD_IDW_POWER, sens=False) -> int:
 # corpus. Every area this tool has compared a model against carries that.
 
 _fixed_cut = False   # set by phase 8 when --cut-z supplies the threshold
+STANDING_WATER_BUFFER_M = 3.0    # a hand-drawn edge against a 2 m cell
 FALSE_WET_MIN_DATES = 1          # 1 = union of the dry reads; 2 = seen twice
 from utils.config import FLOOD_OTSU_MAX_Z as _GATE_Z    # noqa: E402
 FALSE_WET_CUT_Z = _GATE_Z        # the gate: the shallowest cut ever accepted
@@ -5366,37 +5451,46 @@ FALSE_WET_FRAMES = ("2019-09-11", "2019-07-29", "2012-05-26", "2010-05-27",
 
 
 def phase19(min_dates=FALSE_WET_MIN_DATES, cut_z=FALSE_WET_CUT_Z) -> int:
-    """The false-wet features: what is still water-dark when there is no water.
+    """The bushes: dark ground that is not water, marked and excluded.
 
-    Every dry frame is cut at a threshold it did not choose. `z` is standardised
-    against each frame's own open dune, so a cut in z transfers between frames;
-    the default is FLOOD_OTSU_MAX_Z, the gate, which is the SHALLOWEST cut this
-    project has ever accepted as water and therefore the most generous to the
-    mask. 2021-03-24, the wettest accepted frame, set z = -1.318 and 2020-03-31
-    set -1.116, so a feature dark enough to pass -0.75 on a dry frame would have
-    been read as water on either of them. THAT is the false positive.
+    Martin, 2026-09-14, having looked at the fixed-cut read of 2019-09-11:
+    "the other blue areas ... are trees and bushes, some of which I have already
+    masked. you should mark these as bushes and exclude from the analysis." And,
+    separately, "I have saved the places that have standing water in july 2019 as
+    drinking_pool1.kml" — so the frame holds BOTH, and telling them apart is the
+    whole job.
 
-    The reads it consumes come from `--phase 8 --cut-z`. A dry frame cut at its
-    OWN Otsu is worthless and measures nothing: 2009-04-20 returned 87.86 ha and
-    2019-09-11 returned 288.44 ha over 668 bodies - more than the whole 147.8 ha
-    hollow inventory, the entire warren but its sunlit crests - because Otsu
-    always returns a threshold and on a dry frame it splits bright from brighter.
+    THE CONSTRUCTION.
+      bushes = (dry frames cut at a threshold they did not choose)
+               + Martin's own warren_tree_mask.kml
+               - the drinking pools
 
-    TWO STRENGTHS. The union (min_dates 1) is everything ever dark on a dry day
-    and is the conservative correction. Requiring TWO dates keeps only what is
-    dark in more than one year and season - a bush rather than one day's shadow
-    or a wet ditch - and is the version that survives a phenology objection.
+    Every dry frame is cut at `cut_z`, defaulting to FLOOD_OTSU_MAX_Z, the gate:
+    the shallowest cut this project has ever accepted as water, and so the most
+    generous a mask can be. A feature dark enough to pass it on a day with no
+    water would have been read as water on 2021-03-24 (z = -1.318) or 2020-03-31
+    (-1.116). That is the false positive.
 
-    THIS CORRECTS AN OBSERVATION, NEVER A MODEL. Phase 18 predicting water on a
-    dry frame is a separate fault with a separate cause, and the well-level
-    check already located it in the hollow geometry.
+    THE POOLS ARE SUBTRACTED FIRST AND WITH A BUFFER. They are real standing
+    water, about 0.26 ha over five bodies, and a mask that swallowed them would
+    blind every future read to standing water at exactly the places that hold it
+    in a drought. The buffer is `STANDING_WATER_BUFFER_M`, because a hand-drawn
+    pool edge and a 2 m classified cell will not agree to the metre and the
+    error must fall on the side of keeping water.
+
+    EXCLUSION, NOT SUBTRACTION. Phase 8 drops these cells from `usable` before
+    any threshold is applied, so a bush cannot be classified as water on any
+    frame and the correction cannot be forgotten, double-applied, or argued
+    about later. The cost is stated on every run: a slack that floods UNDER a
+    bush is unreadable there, so an area is a lower bound by whatever of the
+    mask falls inside a hollow.
     """
     from shapely.ops import unary_union                       # noqa: PLC0415
-    phase(19, "The false-wet features — water-dark ground with no water in it")
-    step(f"cut z = {cut_z:.3f} (the gate). For reference the accepted wet frames "
-         f"cut at -1.318 (2021-03-24, 36 wells at or above ground) and -1.116 "
-         f"(2020-03-31, 6 wells) — a dry-frame feature passing this cut would "
-         f"have been read as water on either")
+    phase(19, "The bushes — dark ground that is not water")
+    step(f"cut z = {cut_z:.3f} (the gate). The accepted wet frames cut at "
+         f"-1.318 (2021-03-24, 36 wells at or above ground) and -1.116 "
+         f"(2020-03-31, 6 wells), so anything passing this cut on a dry day "
+         f"would have been read as water on either")
 
     parts, dates, missing = [], [], []
     for d in FALSE_WET_FRAMES:
@@ -5405,7 +5499,7 @@ def phase19(min_dates=FALSE_WET_MIN_DATES, cut_z=FALSE_WET_CUT_Z) -> int:
             missing.append(d)
             continue
         g = gpd.read_file(f).set_crs(OSGB, allow_override=True)
-        u = g.geometry.union_all()
+        u = _valid(unary_union([_valid(x) for x in g.geometry]))
         parts.append(u)
         dates.append(d)
         info(f"  {d}: {len(g)} feature(s), {u.area / 1e4:7.2f} ha still "
@@ -5419,35 +5513,65 @@ def phase19(min_dates=FALSE_WET_MIN_DATES, cut_z=FALSE_WET_CUT_Z) -> int:
         return 1
 
     if min_dates <= 1:
-        mask = unary_union(parts)
+        dark = _valid(unary_union(parts))
         basis = f"union of {len(parts)} dry frame(s) at z <= {cut_z}"
     else:
-        pair = [parts[i].intersection(parts[j])
-                for i in range(len(parts)) for j in range(i + 1, len(parts))]
-        pair = [g for g in pair if not g.is_empty]
-        mask = unary_union(pair) if pair else None
+        pair = [_valid(parts[a].intersection(parts[b]))
+                for a in range(len(parts)) for b in range(a + 1, len(parts))]
+        pair = [g for g in pair if g is not None and not g.is_empty]
+        dark = _valid(unary_union(pair)) if pair else None
         basis = f"dark on >= 2 of {len(parts)} dry frame(s) at z <= {cut_z}"
-    if mask is None or mask.is_empty:
-        step("THE MASK IS EMPTY — at this cut, no ground is water-dark on a dry "
-             "frame, and the classifier has no measurable false-positive area")
+    if dark is None or dark.is_empty:
+        step("nothing is water-dark on a dry frame at this cut")
         return 0
 
+    hand = None
+    if BUSH_MASK_KML.exists():
+        hg = gpd.read_file(BUSH_MASK_KML).to_crs(OSGB)
+        hand = _valid(unary_union([_valid(x) for x in hg.geometry]))
+        info(f"  {BUSH_MASK_KML.name}: {hand.area / 1e4:.2f} ha already masked "
+             f"by hand")
+        dark = _valid(unary_union([dark, hand]))
+        basis += f" + {BUSH_MASK_KML.name}"
+
+    pool = _standing_water_geom()
+    if pool is not None:
+        n = len(list(pool.geoms)) if hasattr(pool, "geoms") else 1
+        keep = pool.buffer(STANDING_WATER_BUFFER_M)
+        lost = dark.intersection(keep).area / 1e4
+        dark = _valid(dark.difference(keep))
+        step(f"standing water held back: {n} pool(s), {pool.area / 1e4:.3f} ha, "
+             f"buffered {STANDING_WATER_BUFFER_M:.1f} m — {lost:.3f} ha of the "
+             f"dark ground was these and is NOT a bush")
+        basis += f" - {STANDING_WATER_KML.name}"
+    else:
+        warn(f"  {STANDING_WATER_KML.name} is absent: standing water present in "
+             f"a dry frame would be masked as bush, which is the one error this "
+             f"phase must not make")
+
     M = gpd.GeoDataFrame({"basis": [basis], "cut_z": [cut_z],
-                          "frames": [",".join(dates)]}, geometry=[mask],
+                          "frames": [",".join(dates)]}, geometry=[dark],
                          crs=OSGB)
-    q = OUT / "W94_93_false_wet_mask.geojson"
+    q = OUT / "W94_95_bush_mask.geojson"
     M.to_file(q, driver="GeoJSON")
-    saved(f"{q.name}  ({mask.area / 1e4:.2f} ha, {basis})")
+    saved(f"{q.name}  ({dark.area / 1e4:.2f} ha, {basis})")
+    if pool is not None:
+        P = gpd.GeoDataFrame({"note": ["standing water in a dry frame — never "
+                                       "masked"]}, geometry=[pool], crs=OSGB)
+        r = OUT / "W94_96_standing_water.geojson"
+        P.to_file(r, driver="GeoJSON")
+        saved(f"{r.name}  ({pool.area / 1e4:.3f} ha)")
 
     hollows = gpd.read_file(OUT / "W94_06_hollows.geojson").set_crs(
         OSGB, allow_override=True)
-    hu = hollows.geometry.union_all()
-    inside = mask.intersection(hu).area / 1e4
-    tot = mask.area / 1e4
-    step(f"the mask is {tot:.2f} ha, {inside:.2f} ha of it inside a mapped "
-         f"hollow and {tot - inside:.2f} ha outside one — dark ground in no "
-         f"closed basin cannot be water, and is where a false positive is most "
-         f"likely to be real")
+    hu = _valid(unary_union([_valid(x) for x in hollows.geometry]))
+    inside = dark.intersection(hu).area / 1e4
+    tot = dark.area / 1e4
+    step(f"the bush mask is {tot:.2f} ha, {inside:.2f} ha of it inside a mapped "
+         f"hollow and {tot - inside:.2f} ha outside one. THE {inside:.2f} ha "
+         f"INSIDE A HOLLOW IS THE COST: ground that may flood and can no "
+         f"longer be read, so every area from here is a lower bound by up to "
+         f"that much")
 
     rows = []
     for f in sorted(OUT.glob("W94_08_flood_*.geojson")):
@@ -5457,30 +5581,28 @@ def phase19(min_dates=FALSE_WET_MIN_DATES, cut_z=FALSE_WET_CUT_Z) -> int:
         if d in FALSE_WET_FRAMES:
             continue
         g = gpd.read_file(f).set_crs(OSGB, allow_override=True)
-        u = g.geometry.union_all()
-        cor = u.difference(mask)
+        u = _valid(unary_union([_valid(x) for x in g.geometry]))
+        cor = _valid(u.difference(dark))
         rows.append({"read": f.stem.split("W94_08_flood_")[1], "date": d,
                      "cut_z": cut_z,
                      "read_ha": round(u.area / 1e4, 3),
-                     "mask_overlap_ha": round(u.intersection(mask).area / 1e4, 3),
+                     "bush_overlap_ha": round(u.intersection(dark).area / 1e4, 3),
                      "corrected_ha": round(cor.area / 1e4, 3),
                      "corrected_ha_in_hollows": round(
-                         float(sum(hollows.geometry.intersection(cor).area))
-                         / 1e4, 3),
-                     "removed_pct": round(100 * u.intersection(mask).area
+                         cor.intersection(hu).area / 1e4, 3),
+                     "removed_pct": round(100 * u.intersection(dark).area
                                           / u.area, 1)})
         r = rows[-1]
         info(f"  {r['read']:22s} {r['read_ha']:7.2f} ha -> "
-             f"{r['corrected_ha']:7.2f} ha ({r['removed_pct']:5.1f} % removed), "
+             f"{r['corrected_ha']:7.2f} ha ({r['removed_pct']:5.1f} % bush), "
              f"{r['corrected_ha_in_hollows']:6.2f} ha of it in hollows")
     if rows:
-        R = pd.DataFrame(rows)
         s = OUT / "W94_94_reads_corrected.csv"
-        R.to_csv(s, index=False)
+        pd.DataFrame(rows).to_csv(s, index=False)
         saved(s.name)
-    info("The corrected column is a LOWER bound: where a bush stands inside a "
-         "slack that genuinely floods, the mask takes real water with it. The "
-         "read is the upper bound, and the truth is between them.")
+    info("These rows are the RETROSPECTIVE correction of reads taken before the "
+         "mask existed. Every read from here excludes the mask at source, in "
+         "phase 8, and needs no correction at all.")
     return 0
 
 

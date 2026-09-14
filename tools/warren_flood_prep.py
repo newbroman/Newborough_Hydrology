@@ -38,7 +38,16 @@ NOT DONE HERE, AND WHY
 """
 from __future__ import annotations
 
-__version__ = "1.25.0"  # Hollingham (2026) - 2026-09-14. Bushes are EXCLUDED
+__version__ = "1.26.0"  # Hollingham (2026) - 2026-09-14. THE BUSH MASK IS
+#   TWO-SIDED (Martin): a tree reads as no water on a dry frame, but where it
+#   sits in a hollow that reads wet it COUNTS AS WET - the canopy hides the
+#   ground, it does not drain it. A bush cell carries no evidence of its own and
+#   takes it from its hollow, restored only where the hollow holds classified
+#   water elsewhere AND the cell sits at or below that water's level (D-159:
+#   water is level). The dry case needs no special rule: no water classified,
+#   nothing restored. 2021-03-24 reads 62.57 ha with 21.63 ha restored,
+#   precision 0.84 against 0.75 before.
+# v1.25.0  # Hollingham (2026) - 2026-09-14. Bushes are EXCLUDED
 #   at source: phase 8 drops the mask's cells from `usable` before the open-dune
 #   reference and before any threshold, so scrub cannot be read as water on any
 #   frame. The mask is phase 19's dry-frame dark ground plus Martin's
@@ -1487,6 +1496,7 @@ def phase8(dates=None, calibrate=False, series="vp2",
         # NOT APPLIED UNDER --cut-z, because the fixed-cut read of a dry frame is
         # what BUILDS the mask (phase 19) and masking its own source would erase
         # the measurement.
+        bmask = None
         if cut_z is None:
             bm = _bush_mask_geom()
             if bm is not None:
@@ -1494,8 +1504,10 @@ def phase8(dates=None, calibrate=False, series="vp2",
                 bmask = geometry_mask([bm], out_shape=EE.shape, transform=gtr,
                                       invert=True)
                 usable = usable & ~bmask
-                info(f"  bush mask: {before - int(usable.sum())} cell(s) "
-                     f"excluded before any threshold is applied")
+                info(f"  bush mask: {before - int(usable.sum())} cell(s) held "
+                     f"out of the classification and out of the open-dune "
+                     f"reference; those inside a hollow that reads wet are "
+                     f"restored below")
         if usable.sum() < 1000:
             rows.append({"date": date, "frame": frame, "verdict": "SKIPPED",
                          "reason": "the warren is barely in this frame's window"})
@@ -1587,6 +1599,42 @@ def phase8(dates=None, calibrate=False, series="vp2",
             continue
 
         wet = usable & (z <= thr)
+
+        # A TREE IN A WET HOLLOW IS STANDING IN WATER (Martin, 2026-09-14:
+        # "in wet frames where the trees sit in hollows you count as wet").
+        # The canopy hides the ground; it does not drain it. So the mask is not
+        # a blanket exclusion - it says only that a bush cell carries NO
+        # EVIDENCE of its own, and the evidence is then taken from the hollow
+        # around it.
+        #
+        # THE DRY CASE FALLS OUT WITH NO SPECIAL RULE: a dry frame classifies no
+        # water, so no hollow qualifies, so nothing is restored and the bushes
+        # read as no water. That is the whole point of the two-sided rule.
+        #
+        # TWO CONDITIONS, because neither alone is defensible. The bush must lie
+        # in a hollow that holds classified water SOMEWHERE ELSE - a bush in a
+        # dry hollow stays dry - and it must sit AT OR BELOW the highest water
+        # cell in that hollow, because water is level (D-159). A bush on the rim
+        # of a flooded slack is not in the water.
+        if bmask is not None and wet.any():
+            from rasterio.features import rasterize            # noqa: PLC0415
+            hid = rasterize(
+                [(g, int(s)) for g, s in zip(hollows.geometry, hollows["slack"])
+                 if pd.notna(s)],
+                out_shape=EE.shape, transform=gtr, fill=0, dtype="int32")
+            add = np.zeros_like(wet)
+            for h in np.unique(hid[wet & (hid > 0)]):
+                inh = hid == h
+                lvl = np.nanmax(np.where(wet & inh, dem, np.nan))
+                if not np.isfinite(lvl):
+                    continue
+                add |= inh & bmask & ~wet & np.isfinite(dem) & (dem <= lvl)
+            if add.any():
+                wet = wet | add
+                info(f"  {int(add.sum())} bush cell(s) restored as wet "
+                     f"({add.sum() * res * res / 1e4:.2f} ha): in a hollow that "
+                     f"reads wet, at or below its water level")
+
         # A WATER BODY IS LEVEL, and that is a filter. Labelling flood cells in
         # plan alone welded 45.7 ha across 13.4 m of relief — slacks joined by
         # dark threads over the ridges between them. Labelling within 1 m
@@ -5568,10 +5616,11 @@ def phase19(min_dates=FALSE_WET_MIN_DATES, cut_z=FALSE_WET_CUT_Z) -> int:
     inside = dark.intersection(hu).area / 1e4
     tot = dark.area / 1e4
     step(f"the bush mask is {tot:.2f} ha, {inside:.2f} ha of it inside a mapped "
-         f"hollow and {tot - inside:.2f} ha outside one. THE {inside:.2f} ha "
-         f"INSIDE A HOLLOW IS THE COST: ground that may flood and can no "
-         f"longer be read, so every area from here is a lower bound by up to "
-         f"that much")
+         f"hollow and {tot - inside:.2f} ha outside one. The {inside:.2f} ha "
+         f"inside a hollow is NOT lost: phase 8 restores it as wet wherever its "
+         f"hollow reads wet and it sits at or below that water's level, and "
+         f"leaves it dry otherwise. The {tot - inside:.2f} ha outside any "
+         f"closed basin is excluded outright, having nowhere for water to stand")
 
     rows = []
     for f in sorted(OUT.glob("W94_08_flood_*.geojson")):

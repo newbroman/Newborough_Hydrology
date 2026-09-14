@@ -38,7 +38,14 @@ NOT DONE HERE, AND WHY
 """
 from __future__ import annotations
 
-__version__ = "1.29.0"  # Hollingham (2026) - 2026-09-14. PHASE 21: the
+__version__ = "1.30.0"  # Hollingham (2026) - 2026-09-14. PHASE 22: phase 18
+#   scored against data/geo/flood_truth_2021-03-24.kml, the extent Martin
+#   accepted. Totals 59.70 ha predicted against 47.81 observed in hollows - the
+#   closest this project has got - but per hollow precision 0.252, recall 0.632,
+#   and the level error has an IQR of 0.722 m against a pre-stated bar of 0.25
+#   with r +0.276 on well distance. NOT a calibratable offset: one date may
+#   validate here, it may not train. RB-19.
+# v1.29.0  # Hollingham (2026) - 2026-09-14. PHASE 21: the
 #   imagery's wetness index against the forecaster's own recurrence, and the one
 #   W94 product that survives D-168 - there is NO AREA anywhere in it, so the
 #   vegetation ambiguity that retired the mapping never arises. Over 14 frames:
@@ -386,6 +393,8 @@ def main() -> int:
     if args.phase == 11:
         return phase11(wet=args.wet, dry=args.dry, shift=args.shift,
                        series=args.series)
+    if args.phase == 22:
+        return phase22(date=(args.date[0] if args.date else TRUTH_DATE))
     if args.phase == 21:
         return phase21()
     if args.phase == 20:
@@ -6189,6 +6198,190 @@ def phase21() -> int:
     info("QUOTE THIS AS ORDER, NEVER AS AMOUNT. z is a rank statistic of one "
          "photograph's histogram; it licenses 'the model orders these winters "
          "as the photographs do' and nothing about how much water stood.")
+    return 0
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PHASE 22 — THE MODEL AGAINST AN ACCEPTED EXTENT
+# ─────────────────────────────────────────────────────────────────────────────
+# Martin, 2026-09-14: "we should just base the model on
+# W94_08_flood_2021-03-24_1.kml which I think is close enough", and then
+# "please validate".
+#
+# ONE HAND-ACCEPTED DATE IS A TEST SET, NOT A TRAINING SET, and that distinction
+# is the whole design. Phase 17 died fitting six coefficients to three dates.
+# Nothing here is fitted: phase 18's per-hollow threshold is computed from
+# committed coefficients and the DEM, then scored. The extent's only role is to
+# be the answer.
+#
+# The output that decides what happens next is the SHAPE OF THE ERROR. If the
+# modelled water level sits a constant distance from the accepted one, that is a
+# calibratable offset and a single constant can carry it. If it scatters, or if
+# it correlates with distance to the nearest well, the construction is wrong in
+# a way no constant fixes - which is exactly what phase 16 found for the old
+# surface, and what must not be assumed away here.
+
+TRUTH_KML = DATA_GEO_DIR / "flood_truth_2021-03-24.kml"
+TRUTH_DATE = "2021-03-24"
+TRUTH_WET_FRAC_MIN = 0.05        # a hollow counts as observed-wet above this
+
+
+def phase22(date=TRUTH_DATE) -> int:
+    """Score phase 18's per-hollow prediction against the accepted extent.
+
+    Reported, in the order that decides what to do next:
+
+      1. TOTALS — predicted against observed area, over mapped hollows, which is
+         all either can speak for.
+      2. PER HOLLOW — a confusion table on wet/dry, and the area overlap
+         (intersection over union) of what both call wet.
+      3. THE ERROR'S SHAPE — for every hollow the extent calls wet, the observed
+         water level from the DEM under the accepted polygon against the modelled
+         level, as a median, an IQR, and a correlation with distance to the
+         nearest well. A TIGHT IQR IS A CALIBRATABLE OFFSET; a wide one, or a
+         correlation with well distance, is not.
+    """
+    from rasterio.features import rasterize                   # noqa: PLC0415
+    from shapely.ops import unary_union                       # noqa: PLC0415
+    from utils.config import DRAINAGE_DATUM                   # noqa: PLC0415
+    phase(22, "The model against an accepted extent")
+
+    if not TRUTH_KML.exists():
+        warn(f"no accepted extent at {TRUTH_KML}")
+        return 1
+    T = gpd.read_file(TRUTH_KML).to_crs(OSGB)
+    truth = _valid(unary_union([_valid(x) for x in T.geometry]))
+    step(f"{TRUTH_KML.name}: {len(T)} feature(s), {truth.area / 1e4:.2f} ha "
+         f"accepted as the wet extent on {date}")
+
+    hollows = gpd.read_file(OUT / "W94_06_hollows.geojson").set_crs(
+        OSGB, allow_override=True)
+    ds = rasterio.open(DATA_DEM)
+    hyps = _pflood_hypsometry(hollows, ds, PHASE9_DEM_BIAS_M)
+
+    # the DEM under the accepted polygon, at the analysis grid, so an observed
+    # WATER LEVEL can be read per hollow rather than only an area
+    minx, miny, maxx, maxy = hollows.total_bounds
+    win = rasterio.windows.from_bounds(minx - 20, miny - 20, maxx + 20,
+                                       maxy + 20, ds.transform)
+    dem_a = ds.read(1, window=win).astype(float)
+    wtr = ds.window_transform(win)
+    if ds.nodata is not None:
+        dem_a[dem_a == ds.nodata] = np.nan
+    ds.close()
+    dem_a = dem_a - PHASE9_DEM_BIAS_M
+    tmask = rasterize([(truth, 1)], out_shape=dem_a.shape, transform=wtr,
+                      fill=0, dtype="uint8").astype(bool)
+    hid = rasterize([(g, int(s)) for g, s in zip(hollows.geometry,
+                                                 hollows["slack"])
+                     if pd.notna(s)],
+                    out_shape=dem_a.shape, transform=wtr, fill=0,
+                    dtype="int32")
+
+    # the model, exactly as phase 18 Mode V computes it
+    W = _pflood_wells()
+    betas = _pflood_cluster_betas()
+    P_act, E_act, _, _, _ = _pflood_climate()
+    lev = _level_frame()
+    wy, rm = _pflood_bucket(date)
+    Wy, fell = _pflood_antecedent(lev, W, wy)
+    G = _pflood_geometry(hollows, hyps, Wy, depth_col="depth_year")
+    hz = _horizon_read(rm)
+    info(f"  antecedent: summer {wy}, horizon {hz[0]}-{hz[-1]} "
+         f"({len(hz)} month(s)), {fell} well(s) on the climatological mean")
+
+    rows = []
+    for _, g in G.iterrows():
+        sid = int(g["slack"])
+        c = int(g["cluster"])
+        if c not in betas or sid not in hyps:
+            continue
+        try:
+            Pm = {m: P_act[(wy if m >= 10 else wy + 1, m)] for m in hz}
+            Em = {m: E_act[(wy if m >= 10 else wy + 1, m)] for m in hz}
+        except KeyError:
+            continue
+        b = betas[c]
+        h = _pflood_iterate(float(g["d_m"]), b["b1"], b["b2"], b["b3"], hz,
+                            Pm, Em, DRAINAGE_DATUM)
+        floor = float(g["floor_m"])
+        rim = float(hyps[sid][0][-1])
+        pred_ha = (_pflood_area(hyps[sid], min(floor + h, rim)) if h > 0
+                   else 0.0)
+        inh = hid == sid
+        cells = int(inh.sum())
+        wet_cells = int((inh & tmask).sum())
+        cell_ha = abs(wtr.a * wtr.e) / 1e4
+        obs_ha = wet_cells * cell_ha
+        z_wet = dem_a[inh & tmask & np.isfinite(dem_a)]
+        obs_level = float(np.nanpercentile(z_wet, 95)) if z_wet.size else np.nan
+        rows.append({"slack": sid, "cluster": c,
+                     "hollow_ha": round(cells * cell_ha, 4),
+                     "floor_m": round(floor, 3),
+                     "d_m": round(float(g["d_m"]), 3),
+                     "nearest_well_m": round(float(
+                         np.hypot(W["E"] - g["E"], W["N"] - g["N"]).min()), 1),
+                     "modelled_head_m": round(float(h), 4),
+                     "modelled_level_m": round(floor + h, 3),
+                     "observed_level_m": (round(obs_level, 3)
+                                          if np.isfinite(obs_level) else None),
+                     "predicted_ha": round(pred_ha, 4),
+                     "observed_ha": round(obs_ha, 4),
+                     "observed_wet_frac": round(
+                         obs_ha / (cells * cell_ha), 4) if cells else 0.0})
+    R = pd.DataFrame(rows)
+    p = OUT / "W94_A1_validation_per_hollow.csv"
+    R.to_csv(p, index=False)
+    saved(f"{p.name}  ({len(R)} hollow(s))")
+
+    # 1 — totals
+    hu = _valid(unary_union([_valid(x) for x in hollows.geometry]))
+    obs_in = truth.intersection(hu).area / 1e4
+    step(f"TOTALS over mapped hollows: predicted {R['predicted_ha'].sum():.2f} "
+         f"ha, observed {R['observed_ha'].sum():.2f} ha "
+         f"(the extent puts {obs_in:.2f} ha in a hollow and "
+         f"{truth.area / 1e4 - obs_in:.2f} ha outside one, which no "
+         f"hollow-based model can reach)")
+
+    # 2 — per hollow
+    pw = R["predicted_ha"] > 0
+    ow = R["observed_wet_frac"] >= TRUTH_WET_FRAC_MIN
+    tp, fp, fn, tn = int((pw & ow).sum()), int((pw & ~ow).sum()), \
+        int((~pw & ow).sum()), int((~pw & ~ow).sum())
+    prec = tp / (tp + fp) if tp + fp else float("nan")
+    rec = tp / (tp + fn) if tp + fn else float("nan")
+    step(f"PER HOLLOW at a {TRUTH_WET_FRAC_MIN:.0%} wet-fraction bar: "
+         f"{tp} hit, {fp} predicted-wet-but-dry, {fn} missed, {tn} agreed dry "
+         f"— precision {prec:.3f}, recall {rec:.3f}")
+
+    # 3 — the shape of the error, which decides what happens next
+    S = R.dropna(subset=["observed_level_m"])
+    S = S[S["observed_wet_frac"] >= TRUTH_WET_FRAC_MIN].copy()
+    if len(S) >= 10:
+        S["level_err_m"] = S["modelled_level_m"] - S["observed_level_m"]
+        q1, med, q3 = (float(S["level_err_m"].quantile(x))
+                       for x in (0.25, 0.5, 0.75))
+        rr = float(np.corrcoef(S["nearest_well_m"], S["level_err_m"])[0, 1])
+        step(f"THE SHAPE OF THE ERROR over {len(S)} observed-wet hollow(s): "
+             f"modelled level minus observed, median {med:+.3f} m, "
+             f"IQR {q3 - q1:.3f} m, correlation with distance to the nearest "
+             f"well r {rr:+.3f}")
+        if (q3 - q1) < 0.25 and abs(rr) < 0.3:
+            step("A TIGHT, UNSTRUCTURED OFFSET: one constant could carry this, "
+                 "and calibrating it against this single date would be "
+                 "defensible")
+        else:
+            warn("NOT a clean offset — the error is wide or structured on well "
+                 "distance, so no single constant fixes it and this date must "
+                 "not be used to set one (phase 16 found the same for the old "
+                 "surface)")
+        S.to_csv(OUT / "W94_A2_level_error.csv", index=False)
+        saved("W94_A2_level_error.csv")
+    else:
+        warn(f"only {len(S)} observed-wet hollow(s) carry a level; too few to "
+             f"judge the error's shape")
+    info("NOTHING HERE IS FITTED. The accepted extent is the answer, not the "
+         "training data, and one date can validate but cannot train.")
     return 0
 
 if __name__ == "__main__":

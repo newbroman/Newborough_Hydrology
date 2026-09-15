@@ -6312,10 +6312,12 @@ def phase21() -> int:
 # vetted body by body in Google Earth by Martin. 1,646 bodies, 106.47 ha.
 # Supersedes flood_truth_2021-03-24.kml (62.57 ha), which came through the
 # 3.7 km perspective capture's single homography and sat 5-40 m off the ground
-# in places (phase 24 note, 2026-09-14). The old file is kept as the record of
-# what phases 22-24 were first scored against.
+# in places (phase 24 note, 2026-09-14). The old file was REMOVED from the tree
+# on 2026-09-15 at Martin's instruction (with the digitise_*.kml work orders:
+# every KML that derived slack floors from GE imagery without his hand on it);
+# git history holds it at 5391523 and D-169 carries a note.
 TRUTH_KML = DATA_GEO_DIR / "flood_extent_2021-03-24_vetted.kml"
-TRUTH_KML_SUPERSEDED = DATA_GEO_DIR / "flood_truth_2021-03-24.kml"
+TRUTH_KML_SUPERSEDED = DATA_GEO_DIR / "flood_truth_2021-03-24.kml"   # git 5391523 only
 TRUTH_DATE = "2021-03-24"
 TRUTH_WET_FRAC_MIN = 0.05        # a hollow counts as observed-wet above this
 

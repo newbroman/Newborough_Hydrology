@@ -1387,3 +1387,47 @@ seaward boundary, about E 241100-242100 / N 363350-364080 — 53 ha missing on 2
 2017-03-24, and 10 ha on 2021-03-24 and 2009-04-20. A southern-tip triangle of roughly 2 ha below
 N 362400 is missed on every date. Priority is 2020-03-31: it is a wet date and the gap is 14 % of the
 warren.
+
+## The nadir capture series and the random control net (added 2026-09-15; D-169)
+
+### `georef_random.kml` / `georef_random.csv` — the control net that registers a capture
+220 blue pushpins, Poisson-disc placed inside `warren.kml` + 150 m, no two within 120 m
+(nearest-neighbour spacing 120–207 m), OSGB coordinates in the CSV, WGS84 in the KML via the
+same Helmert path every other KML here uses. **Random because D-160 showed a regular lattice
+(`georef_grid.kml`) aliases against itself**: with no repeating pattern a partial view registers
+with no prior, by a translation vote. Measured: 80–120 pins per frame at 0.27–0.48 px on every
+capture so far. `georef_grid.*` stays because `ingest_capture.py` still references it; it is not
+used for registration any more.
+
+### `Screenshot from 2026-09-14 20-20-*.png` (4) and `Screenshot from 2026-09-15 09-*.png` (19)
+Google Earth Pro, **top-down, Terrain OFF**, eye altitude 2.18 km (2021 set) and 2.04 km (the
+rest), the random net drawn on, ~1.4–1.5 m/px. Dates and roles in **`nadir_captures.csv`**
+(filename, imagery_date, pin_tip_n_m, note). `pin_tip_n_m` is the distance the placemark anchor
+sits north of the point the detector returns and depends on the icon scale GE drew (7 m at 0.9,
+10 m at 0.5 — measured by Martin on the imagery); it belongs to the capture, not to code. The
+2026-09-15 frames are markers-on/off twins; the clean twin supplies the pixels. Gitignored
+(`data/geo/Screenshot*.png`) for D-081's reason; attribution as the status bar prints it (CNES /
+Airbus for 2021 and 2019; Maxar for 2012).
+
+### `flood_extent_2021-03-24_vetted.kml` — the accepted extent (D-169)
+1,646 bodies, 106.47 ha. Read by `warren_flood_prep.py` phase 26 from the four 2021 nadir
+captures (luminance ≤ 80 = 27 below the frame median, inside `warren.kml`, ≥ 10 m² at the time),
+then **vetted body by body by Martin in Google Earth on the 24/3/2021 imagery**: the three folders
+under 25 m² unticked wholesale, 139 bodies deleted, six drawn by hand. It is `TRUTH_KML`. What it
+maps is standing water mostly under 15 cm over the slack sward together with saturated floor —
+*wet slack floor*, the wording the documents use.
+
+### `flood_extent_2021-03-24_review.kml` — Martin's decisions, as saved from Google Earth
+The file he saved: every body from the read with `<visibility>0</visibility>` on the ones he
+unticked, the deleted ones absent, his own polygons present. Kept beside the vetted file as the
+provenance of the vet.
+
+### REMOVED 2026-09-15 (Martin: keep the KMLs he edited; remove those that derived slack floors
+from GE imagery without his hand on them)
+- `flood_truth_2021-03-24.kml` — the 62.57 ha extent read through the 3.7 km capture's single
+  homography, 5–40 m off the ground in places. Git history `5391523`; D-169 note.
+- `digitise_2012-05-26.kml`, `digitise_2020-03-31.kml`, `digitise_2021-03-24.kml`,
+  `digitise_2021-04-04.kml` — the tiled-series "work order" outlines of 2026-09-12. Same commit.
+- `slacks/` (untracked; the 2026-09-12 tiled captures, 552 MB, ruled out by Martin — "vp2 only"),
+  the dipwell-registered dry screenshots of 2026-09-15 08:xx (unusable: 17–27 pins, ~4 m, drifting
+  between them), `site4-4-2021_vp2b_*.png`, `DELETABLE.csv` — deleted from disk.

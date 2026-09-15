@@ -24,6 +24,33 @@ WHAT IT DOES
 
   Everything here is polygon and DEM work. No imagery is read.
 
+WHICH PHASES ARE LIVE (T-28; D-168, D-169 — status as of 2026-09-15)
+
+  LIVE
+    26  the nadir-capture read: random-net registration, relative darkness,
+        >= 25 m2 — the series method (D-169). Reads data/geo/nadir_captures.csv.
+    21  the imagery wetness index (Otsu split in z per frame) — ORDINAL only.
+    22-24  the scoreboard against TRUTH_KML (the vetted extent): rungs, shift
+        sweep, membership dropped. Numbers scored before 2026-09-15 were on the
+        superseded extent and are history.
+    18  per-hollow flooded area from 11b's climate-forced P_flood — the ENGINE
+        phase 27 (hindcast, spec 2026-09-15) will run to every month.
+    25  the summer-green floor inventory with the GE vet loop — BUILT, UNRUN:
+        the dry-date union from phase 26 now does its job.
+  SUPERSEDED — kept in place as the record of what was tried; none may be
+  quoted as a measurement of flooded area (D-168, D-169):
+    8-10  the vp2/tile flood reads through the 3.7 km homography (5-40 m off
+        the ground; the georeferencing was the fault).
+    11   wet-minus-dry change detection — SUPERSEDED by the relative read; the
+        dry-against-dry control it promised now runs but is not the method.
+    12-14  IDW of absolute elevation (flattens the mound; phase 16 measured it),
+        --form depth (fails its own dry-control gate), the phase 14 series.
+    15-17  datum sweep (D-163 declined it), the shortfall diagnostic (KEPT as
+        diagnostic), regression on site wetness (n=3; SUPERSEDED).
+    19-20  false-wet mask and shadow mask — every discriminator worked and none
+        helped (D-168); SUPERSEDED by the floor-inventory reading of dry-dark
+        ground.
+
 NOT DONE HERE, AND WHY
 
   **The repeat-floor drift test cannot run yet.** The specification lists it as
@@ -38,7 +65,11 @@ NOT DONE HERE, AND WHY
 """
 from __future__ import annotations
 
-__version__ = "1.36.0"  # Hollingham (2026) - 2026-09-15. PHASE 26: the
+__version__ = "1.36.1"  # Hollingham (2026) - 2026-09-15. T-28: the module
+#   docstring now says WHICH PHASES ARE LIVE and which are superseded (D-168,
+#   D-169), so the next session can tell without reading 7,800 lines. No code
+#   change.
+# v1.36.0  # Hollingham (2026) - 2026-09-15. PHASE 26: the
 #   nadir-capture read. Registers each Google Earth capture on the RANDOM
 #   control net (data/geo/georef_random.csv) with no prior - a translation vote
 #   over a scale scan, then a homography refined at tightening radii; 80-120

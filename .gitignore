@@ -178,6 +178,10 @@ docs/papers/paper_2/PAPER2_EDITS.md
 # attribution, which is the part a reader needs.
 data/geo/aerial*.png
 data/geo/site*.png
+# Screenshot*.png added 2026-09-15: the nadir Google Earth captures read by
+# warren_flood_prep.py phase 26 (listed in data/geo/nadir_captures.csv). Same
+# reason as the two prefixes above — imagery is not in the repository (D-081).
+data/geo/Screenshot*.png
 # sea*.png added 2026-09-11. The prefix rule is per-prefix BY CONSTRUCTION, so a
 # new capture prefix falls outside it silently - GEO_PROVENANCE.md has warned of
 # exactly this since the seabed frames were added, and on 2026-09-11 six licensed

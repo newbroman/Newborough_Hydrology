@@ -38,7 +38,39 @@ NOT DONE HERE, AND WHY
 """
 from __future__ import annotations
 
-__version__ = "1.32.0"  # Hollingham (2026) - 2026-09-14. PHASE 23 rungs 4b
+__version__ = "1.36.0"  # Hollingham (2026) - 2026-09-15. PHASE 26: the
+#   nadir-capture read. Registers each Google Earth capture on the RANDOM
+#   control net (data/geo/georef_random.csv) with no prior - a translation vote
+#   over a scale scan, then a homography refined at tightening radii; 80-120
+#   pins at 0.3 px. Clean twins tie by phase correlation. Luminance is read
+#   onto a 1.5 m ground grid, cut NADIR_DARK_BELOW_MEDIAN below the frame's own
+#   median inside warren.kml, bodies >= NADIR_MIN_BODY_M2 - the read that
+#   matches Martin's hand vet of 2021-03-24 at IoU 0.963. Captures and their
+#   pin-tip offsets are listed in data/geo/nadir_captures.csv.
+# v1.35.0  # Hollingham (2026) - 2026-09-15. TRUTH_KML now the
+#   VETTED extent: nadir captures, random-net registration at 0.4 m, Martin's
+#   body-by-body review - 106.47 ha against the superseded 62.57 ha. Phases
+#   22-24 score against it from here on.
+# v1.34.0  # Hollingham (2026) - 2026-09-14. PHASE 25: the
+#   slack-floor inventory from the SUMMER frames - Martin's cue that the darker
+#   green in summer is where the water will stand - as a persistence map across
+#   every vp2 summer frame, one placemark per body, to be VETTED in Google Earth
+#   (untick/delete/edit, Save Place As data/geo/slack_floors_reviewed.kml) and
+#   read back with --review into W94_25_floor_decisions.csv and the accepted
+#   inventory. _vp2_surface is now a wrapper over _vp2_channels, which adds a
+#   greenness channel on request. Phase 11's dry-against-dry control, promised
+#   by its docstring and refused by its argument check, now runs.
+# v1.33.0  # Hollingham (2026) - 2026-09-14. PHASE 24: geometric
+#   or spectral. Phase 23 left the ceiling at precision 0.571 - inside a hollow
+#   the extent is NOT a level set of the DEM - and three causes can do that.
+#   (A) the extent is slid over the DEM +-REG_SHIFT_MAX_CELLS each way and rungs
+#   1 and 3 re-scored at every offset; a registration error peaks off centre,
+#   a spectral one stays centred. (B) per hollow, the extent's height above
+#   the floor and the vector from the fitted level set to the extent; a
+#   consistent direction is geometry, scatter is D-168's vegetation or the DEM
+#   vintage. Sort orders are computed once, not per shift. Writes
+#   W94_C1_shift_sweep.csv and W94_C2_hollow_displacement.csv.
+# v1.32.0  # Hollingham (2026) - 2026-09-14. PHASE 23 rungs 4b
 #   and 5. One global offset moves the model 0.277 -> 0.306 of a possible 0.461,
 #   so bias is under a fifth of the gap and the rest is STRUCTURE. Rung 5 sets
 #   each basin's level from a leave-one-out surface through its NEIGHBOURS'
@@ -395,6 +427,9 @@ def main() -> int:
     ap.add_argument("--sens", action="store_true",
                     help="phase 18: vary the IDW power and report the spread in "
                          "d and in area, which is the dominant uncertainty")
+    ap.add_argument("--review", action="store_true",
+                    help="phase 25: read Martin's vetted slack_floors_reviewed.kml "
+                         "back and write the accepted inventory")
     ap.add_argument("--calibrate", action="store_true",
                     help="phase 8: report the open-dune z at wet and dry wells "
                          "and write W94_08_calibration.csv, writing no result")
@@ -410,6 +445,12 @@ def main() -> int:
     if args.phase == 11:
         return phase11(wet=args.wet, dry=args.dry, shift=args.shift,
                        series=args.series)
+    if args.phase == 26:
+        return phase26(dates=args.date)
+    if args.phase == 25:
+        return phase25(review=args.review)
+    if args.phase == 24:
+        return phase24(date=(args.date[0] if args.date else TRUTH_DATE))
     if args.phase == 23:
         return phase23(date=(args.date[0] if args.date else TRUTH_DATE))
     if args.phase == 22:
@@ -2296,7 +2337,20 @@ def _date_surface(date, m41, EE, NN, dune_prior):
 
 
 def _vp2_surface(date, H, m41, EE, NN, dune_prior):
-    """One vp2 frame as three normalised surfaces, through the SHARED transform.
+    """One vp2 frame as three normalised surfaces (L, BR, S). Thin wrapper over
+    `_vp2_channels`, kept so every existing caller is unchanged."""
+    ch, ok, gsd, fname = _vp2_channels(date, H, m41, EE, NN, dune_prior)
+    if ch is None:
+        return None, None, None, None, None, None
+    return ch["L"], ch["BR"], ch["S"], ok, gsd, fname
+
+
+def _vp2_channels(date, H, m41, EE, NN, dune_prior, extra=()):
+    """One vp2 frame as normalised surfaces, through the SHARED transform.
+
+    Channels L (luminance), BR (blue minus red), S (saturation), and on
+    request "G" (greenness, G minus the mean of R and B — phase 25's slack
+    sward). Each is z-scored against the frame's own open dune.
 
     THE PAIR NEEDS NO ALIGNMENT, and that is the whole reason this exists. Every
     vp2 frame is read through one homography — phase-correlating the series
@@ -2316,10 +2370,10 @@ def _vp2_surface(date, H, m41, EE, NN, dune_prior):
             & (man["viewpoint"].astype(str).str.startswith("vp2"))
             & (man["role"] == "measurement")]
     if not len(m):
-        return None, None, None, None, None, None
+        return None, None, None, None
     fp = m41.AERIAL_DIR / str(m["filename"].iloc[0])
     if not fp.exists():
-        return None, None, None, None, None, None
+        return None, None, None, None
     a = np.asarray(Image.open(fp).convert("RGB")).astype(float)
     mx = a.max(axis=2)
     chans = {
@@ -2328,6 +2382,8 @@ def _vp2_surface(date, H, m41, EE, NN, dune_prior):
         "S": np.where(mx > 0, (mx - a.min(axis=2)) / np.maximum(mx, 1.0), 0.0)
         * 100.0,
     }
+    if "G" in extra:
+        chans["G"] = a[:, :, 1] - 0.5 * (a[:, :, 0] + a[:, :, 2])
     out, ok = {}, None
     for k, arr in chans.items():
         gg, ok_ = m41._sample_to_grid(arr, H, EE, NN)
@@ -2336,19 +2392,19 @@ def _vp2_surface(date, H, m41, EE, NN, dune_prior):
     ok = ok & np.isfinite(out["L"])
     d_ = ok & dune_prior
     if int(d_.sum()) < 500:
-        return None, None, None, None, None, None
+        return None, None, None, None
     for k in list(out):
         ref = out[k][d_]
         med = float(np.median(ref))
         mad = float(np.median(np.abs(ref - med)))
         if not (mad > 0):
-            return None, None, None, None, None, None
+            return None, None, None, None
         out[k] = (out[k] - med) / (1.4826 * mad)
     rg = pd.read_csv(REPO / "outputs" / "41_canopy_cover"
                      / "41_03_registration.csv", float_precision="round_trip")
     rg = rg[rg["frame"] == VP2_REFERENCE_FRAME]
     gsd = float(rg["gsd_m"].iloc[0]) if len(rg) else float("nan")
-    return out["L"], out["BR"], out["S"], ok, gsd, str(m["filename"].iloc[0])
+    return out, ok, gsd, str(m["filename"].iloc[0])
 
 
 def _align(a, aok, b, bok, stable, shift):
@@ -2424,8 +2480,16 @@ def phase11(wet=None, dry=None, shift=3, series="tiles") -> int:
                               SLACK_MIN_AREA_M2)
     phase(11, "Change detection — the wet date against a dry one")
 
+    if not wet and dry and len(dry) >= 2:
+        # THE DRY-AGAINST-DRY CONTROL the docstring promises. The first dry date
+        # stands in the wet slot; the arithmetic is the same and whatever it
+        # returns is the method's false positive. Fixed 2026-09-14h - this check
+        # refused the very run the docstring asks for.
+        wet, dry = dry[0], dry[1:]
+        info(f"dry-against-dry CONTROL: {wet} in the wet slot")
     if not wet or not dry:
-        warn("give one --wet date and at least one --dry date")
+        warn("give one --wet date and at least one --dry date, or two --dry "
+             "dates and no --wet for the control")
         return 1
     hol_p = OUT / "W94_06_hollows.geojson"
     if not hol_p.exists():
@@ -6240,7 +6304,18 @@ def phase21() -> int:
 # a way no constant fixes - which is exactly what phase 16 found for the old
 # surface, and what must not be assumed away here.
 
-TRUTH_KML = DATA_GEO_DIR / "flood_truth_2021-03-24.kml"
+# THE ACCEPTED EXTENT, 2026-09-15: dark bodies read from four NADIR Google Earth
+# captures of the 24/3/2021 imagery (Terrain off, 2.18 km eye altitude,
+# ~1.5 m/px), registered on the RANDOM control net data/geo/georef_random.kml
+# (median residual 0.4 m, 79-120 pins per frame, +7 m N pin-tip correction),
+# luminance <= 80 inside data/geo/warren.kml, bodies under 10 m2 dropped, then
+# vetted body by body in Google Earth by Martin. 1,646 bodies, 106.47 ha.
+# Supersedes flood_truth_2021-03-24.kml (62.57 ha), which came through the
+# 3.7 km perspective capture's single homography and sat 5-40 m off the ground
+# in places (phase 24 note, 2026-09-14). The old file is kept as the record of
+# what phases 22-24 were first scored against.
+TRUTH_KML = DATA_GEO_DIR / "flood_extent_2021-03-24_vetted.kml"
+TRUTH_KML_SUPERSEDED = DATA_GEO_DIR / "flood_truth_2021-03-24.kml"
 TRUTH_DATE = "2021-03-24"
 TRUTH_WET_FRAC_MIN = 0.05        # a hollow counts as observed-wet above this
 
@@ -6733,6 +6808,1036 @@ def phase23(date=TRUTH_DATE) -> int:
     info("THIS IS THE CEILING. Any construction using wells, an SSM or an "
          "interpolated surface must beat these IoU values to have earned its "
          "complexity; one that does not is more machinery for less agreement.")
+    return 0
+
+# ---------------------------------------------------------------------------
+# PHASE 24 — is the disagreement GEOMETRIC or SPECTRAL?
+# ---------------------------------------------------------------------------
+REG_SHIFT_MAX_CELLS = 6      # +-6 cells of 2 m = +-12 m, four times vp2's
+#                              3.93 m median homography residual
+REG_FLOOR_BAND_M = 0.25      # "on the floor" = within this of the basin minimum
+
+
+def _truth_grid(date):
+    """Phase 23's rasters, factored so phase 24 scores on IDENTICAL ground:
+    the debiased DEM window, the warren mask, the accepted extent, the
+    phase-6 hollow id raster and its per-hollow slices."""
+    from rasterio.features import geometry_mask, rasterize     # noqa: PLC0415
+    from shapely.ops import unary_union                        # noqa: PLC0415
+    from scipy import ndimage as ndi                           # noqa: PLC0415
+    T = gpd.read_file(TRUTH_KML).to_crs(OSGB)
+    truth = _valid(unary_union([_valid(x) for x in T.geometry]))
+    ds = rasterio.open(DATA_DEM)
+    warren = _valid(warren_on(pd.Timestamp(date)))
+    minx, miny, maxx, maxy = warren.bounds
+    win = rasterio.windows.from_bounds(minx - 20, miny - 20, maxx + 20,
+                                       maxy + 20, ds.transform)
+    dem = ds.read(1, window=win).astype(float)
+    tr = ds.window_transform(win)
+    if ds.nodata is not None:
+        dem[dem == ds.nodata] = np.nan
+    ds.close()
+    dem = dem - PHASE9_DEM_BIAS_M
+    inw = geometry_mask([warren], out_shape=dem.shape, transform=tr,
+                        invert=True) & np.isfinite(dem)
+    obs = rasterize([(truth, 1)], out_shape=dem.shape, transform=tr, fill=0,
+                    dtype="uint8").astype(bool) & inw
+    hollows = gpd.read_file(OUT / "W94_06_hollows.geojson").set_crs(
+        OSGB, allow_override=True)
+    hid = rasterize([(g, int(s)) for g, s in zip(hollows.geometry,
+                                                 hollows["slack"])
+                     if pd.notna(s)],
+                    out_shape=dem.shape, transform=tr, fill=0, dtype="int32")
+    return dem, tr, inw, obs, hollows, hid, ndi.find_objects(hid), warren
+
+
+def _shifted(obs, dr, dc):
+    """The extent moved dr rows (south is +) and dc columns (east is +),
+    with the wrapped edge zeroed rather than rolled round."""
+    s = np.roll(np.roll(obs, dr, axis=0), dc, axis=1)
+    if dr > 0:
+        s[:dr, :] = False
+    elif dr < 0:
+        s[dr:, :] = False
+    if dc > 0:
+        s[:, :dc] = False
+    elif dc < 0:
+        s[:, dc:] = False
+    return s
+
+
+def _best_prefix_iou(o_sorted):
+    """IoU of the best level set given the observed flags in elevation order."""
+    o = o_sorted.astype(np.int64)
+    n_obs = int(o.sum())
+    if n_obs == 0:
+        return 0.0, 0, 0
+    inter = np.cumsum(o)
+    k = np.arange(1, len(o) + 1)
+    iou_k = inter / (k + n_obs - inter)
+    j = int(np.argmax(iou_k))
+    return float(iou_k[j]), int(inter[j]), int(k[j])
+
+
+def phase24(date=TRUTH_DATE) -> int:
+    """Phase 23 measured that the accepted extent is NOT a level set of the DEM
+    even inside a hollow (rung 3 precision 0.571). Three things can do that:
+    the extent holds dark vegetation that is not water (D-168); the imagery
+    sits displaced or tilted against the DEM; or the 2023 DEM is not the 2021
+    ground. This phase separates the first two without any new capture.
+
+      A. THE SHIFT SWEEP. The extent is slid over the DEM in whole cells,
+         +-REG_SHIFT_MAX_CELLS each way, and rungs 1 and 3 are re-scored at
+         every offset. A registration error shows as the ceiling PEAKING OFF
+         CENTRE; a spectral error leaves it centred, because moving
+         vegetation does not make it water.
+      B. WHERE THE EXTENT SITS IN ITS BASIN. Water and dark slack vegetation
+         both lie ON THE FLOOR; a displaced extent climbs the walls. Per
+         hollow: the extent's height above the floor, and the vector from
+         the fitted level set's centroid to the extent's centroid. Consistent
+         direction across hollows means geometry; scatter means spectrum.
+    """
+    phase(24, "Geometric or spectral: the extent slid over the DEM")
+    if not TRUTH_KML.exists():
+        warn(f"no accepted extent at {TRUTH_KML}")
+        return 1
+    dem, tr, inw, obs, hollows, hid, objs, warren = _truth_grid(date)
+    cell_ha = abs(tr.a * tr.e) / 1e4
+    cell_m = abs(tr.a)
+    step(f"warren {inw.sum() * cell_ha:.1f} ha, extent {obs.sum() * cell_ha:.2f} "
+         f"ha, cell {cell_m:.1f} m, debias {PHASE9_DEM_BIAS_M:+.3f} m (D-165)")
+
+    # sort orders that do not depend on the shift: once, not 169 times
+    zf = dem[inw]
+    o_flat = np.argsort(zf, kind="stable")
+    flat_idx = np.flatnonzero(inw.ravel())[o_flat]
+    per_h = {}
+    for h in np.unique(hid[hid > 0]):
+        sl = objs[h - 1]
+        if sl is None:
+            continue
+        m = (hid[sl] == h) & inw[sl] & np.isfinite(dem[sl])
+        if not m.any():
+            continue
+        z = dem[sl][m]
+        order = np.argsort(z, kind="stable")
+        per_h[int(h)] = (sl, m, order, z[order])
+
+    S = REG_SHIFT_MAX_CELLS
+    rows = []
+    for dr in range(-S, S + 1):
+        for dc in range(-S, S + 1):
+            ob = _shifted(obs, dr, dc) & inw
+            n_obs = int(ob.sum())
+            i1, _, _ = _best_prefix_iou(ob.ravel()[flat_idx])
+            inter3 = pred3 = 0
+            for h, (sl, m, order, _z) in per_h.items():
+                o = ob[sl][m][order]
+                if not o.any():
+                    continue
+                _, i_, k_ = _best_prefix_iou(o)
+                inter3 += i_
+                pred3 += k_
+            i3 = inter3 / (pred3 + n_obs - inter3) if n_obs else float("nan")
+            rows.append({"shift_east_m": round(dc * cell_m, 1),
+                         "shift_north_m": round(-dr * cell_m, 1),
+                         "flat_iou": round(i1, 4),
+                         "ceiling_iou": round(i3, 4),
+                         "ceiling_precision": round(inter3 / pred3, 4) if pred3 else float("nan"),
+                         "ceiling_recall": round(inter3 / n_obs, 4) if n_obs else float("nan"),
+                         "ceiling_area_ha": round(pred3 * cell_ha, 3)})
+    R = pd.DataFrame(rows)
+    R.to_csv(OUT / "W94_C1_shift_sweep.csv", index=False)
+    saved("W94_C1_shift_sweep.csv")
+    at0 = R[(R.shift_east_m == 0) & (R.shift_north_m == 0)].iloc[0]
+    pk = R.loc[R.ceiling_iou.idxmax()]
+    pk1 = R.loc[R.flat_iou.idxmax()]
+    step(f"A. CEILING at zero shift IoU {at0.ceiling_iou:.3f}; best "
+         f"{pk.ceiling_iou:.3f} at {pk.shift_east_m:+.0f} m E, "
+         f"{pk.shift_north_m:+.0f} m N (precision {pk.ceiling_precision:.3f}, "
+         f"recall {pk.ceiling_recall:.3f})")
+    info(f"  flat level: {at0.flat_iou:.3f} at zero, best {pk1.flat_iou:.3f} "
+         f"at {pk1.shift_east_m:+.0f} m E, {pk1.shift_north_m:+.0f} m N")
+    gain = float(pk.ceiling_iou - at0.ceiling_iou)
+    off = float(np.hypot(pk.shift_east_m, pk.shift_north_m))
+    if off >= 2 * cell_m and gain >= 0.03:
+        step(f"THE CEILING PEAKS OFF CENTRE by {off:.0f} m for +{gain:.3f} "
+             f"IoU: a REGISTRATION component is present and a shift of that "
+             f"size is the cheapest fix available")
+    else:
+        step(f"the ceiling is CENTRED (best gain +{gain:.3f} within "
+             f"{off:.0f} m): whole-image displacement is not what limits "
+             f"agreement, and the residual is spectral or in the DEM")
+    # the surface's shape: how sharply it falls off tells whether the extent is
+    # made of small bodies (steep) or broad ones (flat)
+    ring = R[np.maximum(R.shift_east_m.abs(), R.shift_north_m.abs()) == cell_m]
+    info(f"  one-cell ring: ceiling IoU is a mean {ring.ceiling_iou.mean():.3f} "
+         f"at {cell_m:.0f} m — how steeply the surface falls off")
+
+    # B. per hollow, at zero shift: height above floor and displacement vector
+    rr, cc = np.indices(dem.shape)
+    X = tr.c + (cc + 0.5) * tr.a
+    Y = tr.f + (rr + 0.5) * tr.e
+    hrows = []
+    for h, (sl, m, order, zs) in per_h.items():
+        o = obs[sl][m]
+        if not o.any():
+            continue
+        z = dem[sl][m]
+        floor = float(zs[0])
+        _, i_, k_ = _best_prefix_iou(o[order])
+        lev = float(zs[k_ - 1])
+        pred = np.zeros_like(m)
+        pred[m] = z <= lev
+        xo, yo = X[sl][m][o], Y[sl][m][o]
+        xp, yp = X[sl][pred], Y[sl][pred]
+        hab = z[o] - floor
+        hrows.append({"slack": h,
+                      "n_extent": int(o.sum()), "n_fit": int(k_),
+                      "fit_level_m": round(lev, 3),
+                      "floor_m": round(floor, 3),
+                      "extent_hab_median_m": round(float(np.median(hab)), 3),
+                      "extent_hab_p90_m": round(float(np.percentile(hab, 90)), 3),
+                      "extent_on_floor_frac": round(float((hab <= REG_FLOOR_BAND_M).mean()), 3),
+                      "extent_above_fit_frac": round(float((z[o] > lev).mean()), 3),
+                      "dx_m": round(float(xo.mean() - xp.mean()), 2),
+                      "dy_m": round(float(yo.mean() - yp.mean()), 2)})
+    H = pd.DataFrame(hrows)
+    H.to_csv(OUT / "W94_C2_hollow_displacement.csv", index=False)
+    saved("W94_C2_hollow_displacement.csv")
+    H["fit_over_extent"] = H.n_fit / H.n_extent
+    big = H[H.n_extent >= 25]                       # >= 0.1 ha of extent
+    w = big.n_extent.to_numpy(float)
+
+    def _resultant(d, wt=None):
+        wt = np.ones(len(d)) if wt is None else wt
+        mx, my = np.average(d.dx_m, weights=wt), np.average(d.dy_m, weights=wt)
+        L = np.hypot(d.dx_m, d.dy_m)
+        return mx, my, (float(np.hypot(mx, my) / np.average(L, weights=wt))
+                        if L.any() else 0.0)
+    step(f"B. {len(big)} hollow(s) with >= 0.1 ha of extent: the extent sits "
+         f"{H.extent_hab_median_m.median():.2f} m above its basin floor at "
+         f"the median hollow; {100 * np.average(big.extent_on_floor_frac, weights=w):.0f} % "
+         f"of extent cells are within {REG_FLOOR_BAND_M} m of the floor, "
+         f"{100 * np.average(big.extent_above_fit_frac, weights=w):.0f} % lie "
+         f"ABOVE the hollow's own best-fit level")
+    q = big.fit_over_extent.quantile([0.25, 0.5, 0.75])
+    info(f"  the best-fit level set floods {q[0.5]:.2f}x the extent at the "
+         f"median hollow (IQR {q[0.25]:.2f}-{q[0.75]:.2f}); the six largest "
+         f"hollows hold {100 * H.n_extent.nlargest(6).sum() / H.n_extent.sum():.0f} % "
+         f"of all extent cells")
+    mxw, myw, rw = _resultant(big, w)
+    mxu, myu, ru = _resultant(big)
+    small = big[big.n_extent < 1000]                 # under 0.4 ha
+    mxs, mys, rs = _resultant(small)
+    info(f"  extent minus level-set centroid, weighted by extent cells: "
+         f"{mxw:+.1f} m E, {myw:+.1f} m N, resultant {rw:.2f}; unweighted "
+         f"{mxu:+.1f} m E, {myu:+.1f} m N, resultant {ru:.2f}; hollows under "
+         f"0.4 ha (n={len(small)}) {mxs:+.1f} m E, {mys:+.1f} m N, resultant "
+         f"{rs:.2f}  (1 = every hollow displaced the same way, 0 = random)")
+    # THE SMALL HOLLOWS DECIDE. A composite basin displaces its extent from its
+    # level set for a reason that has nothing to do with registration: the
+    # level set fills the deepest sub-basin first and the water is standing in
+    # another one. The weighted resultant is dominated by exactly those basins.
+    # Measured 2026-09-14: weighted 0.84 pointing 20 m north, unweighted 0.39,
+    # small hollows 0.20 - random.
+    if rs >= 0.5:
+        step("THE SMALL HOLLOWS DISPLACE THE SAME WAY: what the level set "
+             "cannot reach is offset consistently even where a basin cannot "
+             "be composite, which is geometry - registration or relief "
+             "displacement - not vegetation")
+    else:
+        step("THE SMALL HOLLOWS SCATTER: no registration signal. Where the "
+             "extent and the level set part company it is in the LARGE "
+             "hollows, whose level set floods the deepest sub-basin while the "
+             "water stands in another - the composite-basin fault D-164 "
+             "already named, on the units phase 23 still scored on")
+
+    # C. THE CEILING ON THE MERGE-TREE UNITS (D-164's unit of extent). Same
+    # construction as rung 3 - each unit its own best level, chosen knowing the
+    # answer - on the units that split composites at their saddles. If this
+    # rises well above the phase-6 ceiling, the disagreement was the unit of
+    # analysis and not the imagery.
+    from rasterio.features import geometry_mask, rasterize     # noqa: PLC0415
+    from shapely.ops import unary_union                        # noqa: PLC0415
+    from scipy import ndimage as ndi                           # noqa: PLC0415
+    Tk = gpd.read_file(TRUTH_KML).to_crs(OSGB)
+    truth = _valid(unary_union([_valid(x) for x in Tk.geometry]))
+    arr, unit, ok, tr2, res2 = _slack_units(warren, PHASE9_DEM_BIAS_M)
+    inw2 = geometry_mask([warren], out_shape=arr.shape, transform=tr2,
+                         invert=True) & np.isfinite(arr)
+    obs2 = rasterize([(truth, 1)], out_shape=arr.shape, transform=tr2, fill=0,
+                     dtype="uint8").astype(bool) & inw2
+    cell2 = res2 * res2 / 1e4
+    uid = np.where(ok, unit + 1, 0).astype(np.int32)   # 0 = no unit
+    objs2 = ndi.find_objects(uid)
+    inter = pred = 0
+    n_obs2 = int(obs2.sum())
+    urows = []
+    for u in np.unique(uid[uid > 0]):
+        sl = objs2[u - 1]
+        if sl is None:
+            continue
+        m = (uid[sl] == u)
+        o = obs2[sl][m]
+        n_ext = int(o.sum())
+        if n_ext == 0:
+            urows.append({"unit": int(u - 1), "n_cells": int(m.sum()),
+                          "n_extent": 0, "n_fit": 0, "extent_frac": 0.0})
+            continue
+        z = arr[sl][m]
+        order = np.argsort(z, kind="stable")
+        _, i_, k_ = _best_prefix_iou(o[order])
+        inter += i_
+        pred += k_
+        urows.append({"unit": int(u - 1), "n_cells": int(m.sum()),
+                      "n_extent": n_ext, "n_fit": int(k_),
+                      "extent_frac": round(n_ext / int(m.sum()), 3)})
+    U = pd.DataFrame(urows)
+    U.to_csv(OUT / "W94_C3_unit_ceiling.csv", index=False)
+    saved("W94_C3_unit_ceiling.csv")
+    iou_u = inter / (pred + n_obs2 - inter)
+    in_unit = float((obs2 & (uid > 0)).sum()) / n_obs2
+    step(f"C. CEILING ON THE MERGE-TREE UNITS: IoU {iou_u:.3f}, precision "
+         f"{inter / pred:.3f}, recall {inter / n_obs2:.3f}, "
+         f"{pred * cell2:.2f} ha against the extent's {n_obs2 * cell2:.2f} ha; "
+         f"{100 * in_unit:.1f} % of the extent lies inside a unit at all "
+         f"(so recall cannot exceed {in_unit:.3f})")
+    wet_units = int((U.n_extent > 0).sum())
+    info(f"  {wet_units} of {len(U)} unit(s) hold any extent; at unit level, "
+         f"{int((U.extent_frac >= 0.5).sum())} are at least half flooded")
+    if iou_u > 0.55:
+        step("THE UNITS LIFT THE CEILING WELL ABOVE THE PHASE-6 HOLLOWS: the "
+             "disagreement was the unit of analysis, and any slack-level "
+             "scoring should be built on these units")
+    else:
+        step("THE UNITS DO NOT LIFT THE CEILING: composites were not the "
+             "limit either, and what remains is spectral or the DEM vintage")
+
+    # D. THE EXTENT OUTSIDE ANY HOLLOW. 23.6 % of it (phase 23) and 62 % of it
+    # relative to the merge-tree units. Where does it sit against the fitted
+    # level of the nearest hollow that holds extent? At that level and near it
+    # is one sheet of water the delineation cut through; well above it, or far
+    # from it, is D-168's vegetation or the DEM vintage.
+    lev_of = {int(r.slack): float(r.fit_level_m) for r in H.itertuples()}
+    wet_h = np.isin(hid, list(lev_of)) & (hid > 0)
+    dist, (ir, ic) = ndi.distance_transform_edt(~wet_h, return_indices=True)
+    near = hid[ir, ic]
+    outside = obs & (hid == 0)
+    lv_near = np.vectorize(lambda h: lev_of.get(int(h), np.nan))(near[outside])
+    dz = dem[outside] - lv_near
+    dd = dist[outside] * cell_m
+    okd = np.isfinite(dz)
+    dz, dd = dz[okd], dd[okd]
+    pd.DataFrame({"dz_to_nearest_fit_level_m": np.round(dz, 3),
+                  "dist_to_nearest_wet_hollow_m": np.round(dd, 1)}).to_csv(
+        OUT / "W94_C4_extent_outside_hollows.csv", index=False)
+    saved("W94_C4_extent_outside_hollows.csv")
+    step(f"D. {outside.sum() * cell_ha:.2f} ha of extent lies outside every "
+         f"hollow. Against the fitted level of the nearest flooded hollow it "
+         f"sits {np.median(dz):+.2f} m (IQR {np.percentile(dz, 25):+.2f} to "
+         f"{np.percentile(dz, 75):+.2f}), at a median {np.median(dd):.0f} m "
+         f"from that hollow (90th pct {np.percentile(dd, 90):.0f} m)")
+    within = float(((np.abs(dz) <= 0.3) & (dd <= 20)).mean())
+    info(f"  {100 * within:.0f} % of it is within 0.3 m of that level AND "
+         f"within 20 m of the hollow - the share that is one sheet of water "
+         f"the delineation cut through")
+    if within >= 0.5:
+        step("THE OUTSIDE EXTENT IS THE SAME WATER: it stands at the "
+             "neighbouring hollow's level, just past the boundary the "
+             "delineation drew. The basin inventory, not the imagery, is what "
+             "caps every ceiling above; flooded extent should be scored as "
+             "DEM-below-surface, cell by cell, with no hollow membership")
+    else:
+        step("THE OUTSIDE EXTENT IS NOT AT THE NEIGHBOURING LEVEL: it is "
+             "either higher ground read as wet (D-168) or ground the 2023 "
+             "DEM does not describe as it was in 2021")
+
+    # E. THE SAME TWO LEVELS WITH NO MEMBERSHIP. Every cell in the warren takes
+    # the level of its NEAREST flooded hollow and floods if the DEM is below
+    # it; the hollow boundary plays no part. Once as the ceiling (levels fitted
+    # knowing the answer, part B) and once as the model (phase 18's modelled
+    # level per hollow, which knows nothing). If D is right, both rise.
+    def _spread(levels):
+        keys = [h for h in levels if h in objs_ok]
+        mask = np.isin(hid, keys) & (hid > 0)
+        _, (jr, jc) = ndi.distance_transform_edt(~mask, return_indices=True)
+        nh = hid[jr, jc]
+        L = np.vectorize(lambda h: levels.get(int(h), np.nan))(nh)
+        return inw & np.isfinite(L) & (dem <= L)
+    objs_ok = {int(h) for h in np.unique(hid[hid > 0])}
+    predE = _spread(lev_of)
+    iE, pE, rE = _iou(predE, obs)
+    step(f"E. CEILING WITH NO MEMBERSHIP (each cell at its nearest fitted "
+         f"hollow's level): IoU {iE:.3f}, precision {pE:.3f}, recall {rE:.3f}, "
+         f"{predE.sum() * cell_ha:.2f} ha - against 0.461 inside hollows")
+    a1 = OUT / "W94_A1_validation_per_hollow.csv"
+    if a1.exists():
+        V = pd.read_csv(a1, float_precision="round_trip")
+        lv = {int(r["slack"]): float(r["modelled_level_m"])
+              for _, r in V.iterrows()
+              if pd.notna(r.get("modelled_head_m")) and r["modelled_head_m"] > 0}
+        predM = _spread(lv)
+        iM, pM, rM = _iou(predM, obs)
+        step(f"   THE MODEL WITH NO MEMBERSHIP (phase 18's level per hollow, "
+             f"spread to the nearest cell): IoU {iM:.3f}, precision {pM:.3f}, "
+             f"recall {rM:.3f}, {predM.sum() * cell_ha:.2f} ha - against "
+             f"0.277 inside hollows (phase 23 rung 4)")
+        bestM = None
+        for off in np.arange(-1.0, 1.5 + 1e-9, 0.05):
+            pr = _spread({h: L + off for h, L in lv.items()})
+            iou, prec, rec = _iou(pr, obs)
+            if bestM is None or iou > bestM[0]:
+                bestM = (iou, prec, rec, float(off), float(pr.sum() * cell_ha))
+        step(f"   plus one global offset: IoU {bestM[0]:.3f}, precision "
+             f"{bestM[1]:.3f}, recall {bestM[2]:.3f} at {bestM[3]:+.2f} m, "
+             f"{bestM[4]:.2f} ha - against 0.306 inside hollows (rung 4b)")
+        rows = [{"construction": "ceiling_no_membership", "iou": round(iE, 4),
+                 "precision": round(pE, 4), "recall": round(rE, 4),
+                 "area_ha": round(predE.sum() * cell_ha, 3), "offset_m": 0.0},
+                {"construction": "model_no_membership", "iou": round(iM, 4),
+                 "precision": round(pM, 4), "recall": round(rM, 4),
+                 "area_ha": round(predM.sum() * cell_ha, 3), "offset_m": 0.0},
+                {"construction": "model_no_membership_offset",
+                 "iou": round(bestM[0], 4), "precision": round(bestM[1], 4),
+                 "recall": round(bestM[2], 4), "area_ha": round(bestM[4], 3),
+                 "offset_m": bestM[3]}]
+        pd.DataFrame(rows).to_csv(OUT / "W94_C5_no_membership.csv", index=False)
+        saved("W94_C5_no_membership.csv")
+    return 0
+
+
+# ---------------------------------------------------------------------------
+# PHASE 25 — the slack-floor inventory from the SUMMER frames, vetted in GE
+# ---------------------------------------------------------------------------
+FLOOR_SUMMER_MONTHS = (5, 6, 7, 8, 9)   # a vp2 measurement frame in these months
+#                                         is a summer frame (Martin: Sept counts)
+FLOOR_SCORE_MIN_Z = 1.5   # greener AND darker than the open dune by this many
+#                           robust sd on one frame = that frame calls it floor
+FLOOR_PERSIST_MIN = 0.5   # the share of summer frames that must call it floor.
+#                           Persistence is what separates a slack floor from one
+#                           year's scrub shadow
+FLOOR_MIN_FRAMES = 3      # a cell seen by fewer summer frames is not judged
+FLOOR_REVIEW_KML = DATA_GEO_DIR / "slack_floors_reviewed.kml"
+
+
+def _phase11_grid(hollows):
+    """The ground grid phases 8 and 11 read frames onto, factored for reuse."""
+    from rasterio.transform import from_origin               # noqa: PLC0415
+    from utils.config import CANOPY_CHANGE_GRID_M            # noqa: PLC0415
+    res = float(CANOPY_CHANGE_GRID_M)
+    minx, miny, maxx, maxy = hollows.total_bounds
+    minx, miny = np.floor(minx / res) * res - 200.0, np.floor(miny / res) * res - 200.0
+    maxx, maxy = np.ceil(maxx / res) * res + 200.0, np.ceil(maxy / res) * res + 200.0
+    ge = np.arange(minx, maxx + res, res)
+    gn = np.arange(maxy, miny - res, -res)
+    EE, NN = np.meshgrid(ge, gn)
+    gtr = from_origin(minx - res / 2, maxy + res / 2, res, res)
+    return EE, NN, gtr, res
+
+
+def _bodies_to_kml(gdf, path, name, style_line="ff00ffff", id_col="id",
+                   fields=()):
+    """One placemark per body, NO FILL, so the imagery shows through and each
+    can be ticked or unticked in Google Earth. `Save Place As` writes
+    <visibility>0</visibility> for an unticked placemark, which is how a
+    rejection comes back to the tool (phase 25 --review)."""
+    g = gdf.to_crs(4326)
+    k = ['<?xml version="1.0" encoding="UTF-8"?>',
+         '<kml xmlns="http://www.opengis.net/kml/2.2"><Document>',
+         f"<name>{name}</name>",
+         f'<Style id="b"><LineStyle><color>{style_line}</color><width>2</width>'
+         '</LineStyle><PolyStyle><fill>0</fill><outline>1</outline></PolyStyle>'
+         '</Style>']
+    for _, r in g.iterrows():
+        ring = ""
+        geom = r.geometry
+        for poly in (list(geom.geoms) if geom.geom_type == "MultiPolygon"
+                     else [geom]):
+            cc = " ".join(f"{x:.7f},{y:.7f},0" for x, y in poly.exterior.coords)
+            ring += ("<Polygon><outerBoundaryIs><LinearRing><coordinates>"
+                     f"{cc}</coordinates></LinearRing></outerBoundaryIs>"
+                     "</Polygon>")
+        desc = "; ".join(f"{f} {r[f]}" for f in fields if f in r)
+        ext = "".join(f'<Data name="{f}"><value>{r[f]}</value></Data>'
+                      for f in fields if f in r)
+        k.append(f"<Placemark><name>{r[id_col]}</name><description>{desc}"
+                 f"</description><styleUrl>#b</styleUrl>"
+                 f"<ExtendedData>{ext}</ExtendedData>{ring}</Placemark>")
+    k.append("</Document></kml>")
+    path.write_text("\n".join(k), encoding="utf-8")
+
+
+def _read_reviewed_kml(path):
+    """Placemarks with their VISIBILITY, which utils.kml_io does not carry.
+    Returns a GeoDataFrame in OSGB: name, visible, geometry."""
+    import xml.etree.ElementTree as ET                       # noqa: PLC0415
+    from shapely.geometry import Polygon                     # noqa: PLC0415
+    ns = "{http://www.opengis.net/kml/2.2}"
+    root = ET.parse(str(path)).getroot()
+    rows = []
+    for pm in root.iter(f"{ns}Placemark"):
+        nm = pm.find(f"{ns}name")
+        name = (nm.text or "").strip() if nm is not None else ""
+        vis_el = pm.find(f"{ns}visibility")
+        # KML default is visible; GE writes 0 only for an unticked item, and a
+        # folder unticked as a whole propagates to its children on save.
+        visible = True if vis_el is None else (vis_el.text or "1").strip() != "0"
+        for poly in pm.iter(f"{ns}Polygon"):
+            outer = poly.find(f".//{ns}outerBoundaryIs//{ns}coordinates")
+            if outer is None or not outer.text:
+                continue
+            pts = [tuple(float(v) for v in t.split(",")[:2])
+                   for t in outer.text.split()]
+            if len(pts) >= 4:
+                rows.append({"name": name, "visible": visible,
+                             "geometry": Polygon(pts)})
+    if not rows:
+        return gpd.GeoDataFrame(columns=["name", "visible", "geometry"],
+                                geometry="geometry", crs=OSGB)
+    return gpd.GeoDataFrame(rows, geometry="geometry", crs=4326).to_crs(OSGB)
+
+
+def phase25(review=False) -> int:
+    """The slack-floor inventory, read from the vegetation rather than the DEM.
+
+    MARTIN'S CUE (2026-09-14): "generally you can identify where the flooded
+    areas will be by looking at the darker green in the summer frames." A dune
+    slack floor carries a wet-slack sward that stays green when the dune has
+    dried off, and it is greener and darker than the open dune on EVERY summer
+    frame, whereas a shadow or a scrub patch is dark on one. So the inventory
+    is a persistence map: each summer vp2 frame is normalised against its own
+    open dune (as phase 8 does), scored on greenness minus luminance, cut at
+    FLOOR_SCORE_MIN_Z, and a cell is floor where at least FLOOR_PERSIST_MIN of
+    the frames that saw it agree.
+
+    WHY NOT THE DEM HOLLOWS. Phase 24 part D measured that the accepted 2021
+    extent outside every hollow stands at the neighbouring hollow's own water
+    level, 6 m from its boundary — one sheet of water the delineation cut
+    through — and only 37.8 % of it lies in a merge-tree unit at all. The DEM
+    inventory clips the water; the vegetation sees where it stands.
+
+    THE INVENTORY IS VETTED, NOT ACCEPTED. Every body goes to Google Earth as
+    its own placemark, unfilled, to be judged on the imagery at any date and
+    zoom; Martin unticks what is not a slack floor (or deletes it, or moves
+    its vertices) and saves the file to FLOOR_REVIEW_KML. `--review` reads it
+    back: unticked or missing is rejected, a changed outline is accepted as
+    edited, a placemark with an unknown name is one Martin drew and is
+    accepted as his. The decisions are written to a CSV so the map's
+    provenance is "read by the tool, vetted by Martin", body by body.
+    """
+    from rasterio.features import geometry_mask, shapes       # noqa: PLC0415
+    from scipy import ndimage as ndi                          # noqa: PLC0415
+    from shapely.geometry import shape as shapely_shape       # noqa: PLC0415
+    from utils.config import SLACK_MIN_AREA_M2                # noqa: PLC0415
+
+    phase(25, "The slack-floor inventory from the summer frames"
+              + (" — reading Martin's review back" if review else ""))
+    inv_p = OUT / "W94_25_slack_floors.geojson"
+
+    if review:
+        if not FLOOR_REVIEW_KML.exists():
+            warn(f"no reviewed file at {FLOOR_REVIEW_KML}; in Google Earth, "
+                 f"untick or delete what is not a slack floor, then Save Place "
+                 f"As to that path")
+            return 1
+        if not inv_p.exists():
+            warn("no inventory to review against; run phase 25 first")
+            return 1
+        inv = gpd.read_file(inv_p).set_crs(OSGB, allow_override=True)
+        rv = _read_reviewed_kml(FLOOR_REVIEW_KML)
+        info(f"inventory {len(inv)} bod(ies); reviewed file {len(rv)} "
+             f"placemark(s), {int((~rv.visible).sum())} unticked")
+        seen = {}
+        rows, keep = [], []
+        for _, r in rv.iterrows():
+            seen[r["name"]] = r
+        for _, b in inv.iterrows():
+            r = seen.get(b["id"])
+            if r is None:
+                rows.append({"id": b["id"], "decision": "rejected",
+                             "how": "deleted", "area_m2": round(b.geometry.area, 1)})
+                continue
+            if not r["visible"]:
+                rows.append({"id": b["id"], "decision": "rejected",
+                             "how": "unticked", "area_m2": round(b.geometry.area, 1)})
+                continue
+            g = r.geometry
+            edited = abs(g.area - b.geometry.area) > 0.01 * b.geometry.area \
+                or g.symmetric_difference(b.geometry).area > 0.02 * b.geometry.area
+            rows.append({"id": b["id"],
+                         "decision": "accepted",
+                         "how": "edited" if edited else "as read",
+                         "area_m2": round(g.area, 1)})
+            keep.append({"id": b["id"], "source": "tool, edited" if edited
+                         else "tool", "area_m2": round(g.area, 1), "geometry": g})
+        known = set(inv["id"])
+        n_new = 0
+        for _, r in rv.iterrows():
+            if r["name"] in known or not r["visible"]:
+                continue
+            n_new += 1
+            nid = r["name"] if r["name"] else f"M{n_new:04d}"
+            rows.append({"id": nid, "decision": "accepted", "how": "drawn by Martin",
+                         "area_m2": round(r.geometry.area, 1)})
+            keep.append({"id": nid, "source": "Martin",
+                         "area_m2": round(r.geometry.area, 1), "geometry": r.geometry})
+        D = pd.DataFrame(rows)
+        D.to_csv(OUT / "W94_25_floor_decisions.csv", index=False)
+        saved("W94_25_floor_decisions.csv")
+        A = gpd.GeoDataFrame(keep, geometry="geometry", crs=OSGB)
+        A.to_file(OUT / "W94_25_floors_accepted.geojson", driver="GeoJSON")
+        saved("W94_25_floors_accepted.geojson")
+        _bodies_to_kml(A, OUT / "W94_25_floors_accepted.kml",
+                       "slack floors — accepted", style_line="ff00ff00",
+                       fields=("source", "area_m2"))
+        saved("W94_25_floors_accepted.kml")
+        c = D.decision.value_counts()
+        h = D.how.value_counts()
+        step(f"{int(c.get('accepted', 0))} accepted ({int(h.get('edited', 0))} "
+             f"edited, {int(h.get('drawn by Martin', 0))} drawn), "
+             f"{int(c.get('rejected', 0))} rejected ({int(h.get('unticked', 0))} "
+             f"unticked, {int(h.get('deleted', 0))} deleted); accepted floors "
+             f"{A.geometry.area.sum() / 1e4:.2f} ha")
+        return 0
+
+    # --- the read -------------------------------------------------------
+    hol_p = OUT / "W94_06_hollows.geojson"
+    if not hol_p.exists():
+        warn("phase 6 has not run: W94_06_hollows.geojson is missing")
+        return 1
+    hollows = gpd.read_file(hol_p).set_crs(OSGB, allow_override=True)
+    H, m41 = _vp2_transform()
+    if H is None:
+        return 1
+    EE, NN, gtr, res = _phase11_grid(hollows)
+    hol_mask = geometry_mask(list(hollows.geometry), out_shape=EE.shape,
+                             transform=gtr, invert=True)
+    man = pd.read_csv(MANIFEST, float_precision="round_trip")
+    man = man[man["viewpoint"].astype(str).str.startswith("vp2")
+              & (man["role"] == "measurement")]
+    dates = sorted(d for d in man["imagery_date"].astype(str).unique()
+                   if pd.Timestamp(d).month in FLOOR_SUMMER_MONTHS)
+    info(f"summer frames (months {FLOOR_SUMMER_MONTHS}): {', '.join(dates)}")
+    votes = np.zeros(EE.shape, int)
+    seen = np.zeros(EE.shape, int)
+    score_sum = np.zeros(EE.shape, float)
+    used = []
+    for d in dates:
+        wm = geometry_mask([warren_on(d)], out_shape=EE.shape, transform=gtr,
+                           invert=True)
+        ch, ok, gsd, fname = _vp2_channels(d, H, m41, EE, NN, wm & ~hol_mask,
+                                           extra=("G",))
+        if ch is None:
+            warn(f"  {d}: no usable frame")
+            continue
+        s = ch["G"] - ch["L"]                 # greener AND darker than the dune
+        m = ok & wm
+        fl = m & (s >= FLOOR_SCORE_MIN_Z)
+        seen += m
+        votes += fl
+        score_sum += np.where(m, s, 0.0)
+        used.append(d)
+        info(f"  {d} ({fname}): floor on {fl.sum() * res * res / 1e4:.1f} ha "
+             f"of {m.sum() * res * res / 1e4:.1f} ha seen")
+    if len(used) < FLOOR_MIN_FRAMES:
+        warn(f"only {len(used)} summer frame(s) read; need {FLOOR_MIN_FRAMES}")
+        return 1
+    judged = seen >= FLOOR_MIN_FRAMES
+    persist = np.where(judged, votes / np.maximum(seen, 1), 0.0)
+    floor = judged & (persist >= FLOOR_PERSIST_MIN)
+    min_cells = int(round(SLACK_MIN_AREA_M2 / (res * res)))
+    lab, nn = ndi.label(floor)
+    if nn:
+        counts = np.bincount(lab.ravel())
+        drop = counts < min_cells
+        drop[0] = True
+        lab = np.where(drop[lab], 0, lab)
+    ids = [i for i in np.unique(lab) if i > 0]
+    step(f"{len(used)} frames; floor on {floor.sum() * res * res / 1e4:.1f} ha "
+         f"at persistence >= {FLOOR_PERSIST_MIN}; {len(ids)} bod(ies) above "
+         f"{SLACK_MIN_AREA_M2:.0f} m2")
+    if not ids:
+        warn("no bodies; nothing written")
+        return 1
+    polys, keys = [], []
+    for geom, val in shapes(lab.astype("int32"), mask=(lab > 0), transform=gtr):
+        polys.append(shapely_shape(geom))
+        keys.append(int(val))
+    g = gpd.GeoDataFrame({"lab": keys}, geometry=polys, crs=OSGB)
+    g = g.dissolve(by="lab", as_index=False)
+    per = ndi.mean(persist, lab, g["lab"].tolist())
+    sc = ndi.mean(score_sum / np.maximum(seen, 1), lab, g["lab"].tolist())
+    inh = ndi.mean(hol_mask.astype(float), lab, g["lab"].tolist())
+    g["id"] = [f"F{i:04d}" for i in range(1, len(g) + 1)]
+    g["area_m2"] = g.geometry.area.round(1)
+    g["persistence"] = np.round(per, 3)
+    g["score_z"] = np.round(sc, 2)
+    g["in_dem_hollow"] = np.round(inh, 2)
+    g = g[["id", "area_m2", "persistence", "score_z", "in_dem_hollow", "geometry"]]
+    g.to_file(inv_p, driver="GeoJSON")
+    saved(inv_p.name)
+    g.drop(columns="geometry").to_csv(OUT / "W94_25_slack_floors.csv", index=False)
+    saved("W94_25_slack_floors.csv")
+    _bodies_to_kml(g, OUT / "W94_25_slack_floors.kml",
+                   "slack floors from the summer frames — VET IN GOOGLE EARTH",
+                   fields=("area_m2", "persistence", "score_z", "in_dem_hollow"))
+    saved("W94_25_slack_floors.kml")
+    step(f"{len(g)} bod(ies), {g.area_m2.sum() / 1e4:.2f} ha; "
+         f"{100 * float((g.in_dem_hollow * g.area_m2).sum() / g.area_m2.sum()):.0f} % "
+         f"of that area lies inside a DEM hollow")
+    info(f"NEXT: open W94_25_slack_floors.kml in Google Earth, untick or delete "
+         f"what is not a slack floor, adjust outlines if you like, then Save "
+         f"Place As -> {FLOOR_REVIEW_KML} and run --phase 25 --review")
+    return 0
+
+# ---------------------------------------------------------------------------
+# PHASE 26 — the nadir-capture read: random-net registration, relative darkness
+# ---------------------------------------------------------------------------
+NADIR_MANIFEST = DATA_GEO_DIR / "nadir_captures.csv"
+NADIR_NET_CSV = DATA_GEO_DIR / "georef_random.csv"
+NADIR_WARREN_KML = DATA_GEO_DIR / "warren.kml"
+NADIR_GRID_M = 1.5            # ground grid; the captures are 1.4-1.5 m/px
+NADIR_DARK_BELOW_MEDIAN = 27  # luminance levels below the frame's own median.
+#                               2021-03-24: median 107, split 80 (its Otsu).
+#                               An ABSOLUTE threshold does not travel: 2019-07-29
+#                               renders at median 77 and <= 80 calls 61 % of the
+#                               warren wet. Measured 2026-09-15.
+NADIR_MIN_BODY_M2 = 25.0      # the size at which the raw read reproduces
+#                               Martin's hand vet: IoU 0.963 (>= 10 m2: 0.947)
+NADIR_PIN_BLOB_PX = (4, 600)  # blue pushpin head, at any icon scale
+NADIR_SCALE_SCAN = (1.20, 2.00, 0.01)   # m/px scanned for the translation vote
+NADIR_MATCH_RADII = (40, 20, 10, 6)     # px, tightening
+NADIR_MIN_PINS = 8
+NADIR_CHROME = dict(top=80, bottom=1000, left=210)   # Google Earth's own pixels
+NADIR_ATTRIBUTION = (930, 975, 930, 1210)  # rows, cols of "Image (c) ..." text
+NADIR_GE_LOGO = (965, 1015, 1720, 1920)    # rows, cols of the Google Earth logo
+NADIR_TWIN_MIN_SNR = 200      # phase-correlation peak / sd for a clean twin
+
+
+def _nadir_manifest():
+    """One row per screenshot: filename, imagery_date, pin_tip_n_m, note.
+
+    pin_tip_n_m is the distance the placemark's anchor sits NORTH of the point
+    the detector returns, in metres, and it depends on how large Google Earth
+    drew the icon: measured by Martin on the imagery at 7 m for the 0.9-scale
+    pushpins of the 2021-03-24 set and 10 m for the 0.5-scale set of
+    2026-09-15. It is a property of the CAPTURE, so it lives in the manifest,
+    not in code.
+    """
+    if not NADIR_MANIFEST.exists():
+        warn(f"no {NADIR_MANIFEST.name}: one row per screenshot — filename, "
+             f"imagery_date, pin_tip_n_m, note")
+        return None
+    m = pd.read_csv(NADIR_MANIFEST, float_precision="round_trip")
+    m["imagery_date"] = m["imagery_date"].astype(str)
+    return m
+
+
+def _detect_pins(a):
+    """Blue placemark heads -> (x, y) per pin, and the blob mask.
+
+    For a head taller than 12 px the point is the bottom-centre of its bounding
+    box (Script 41's tip convention); for a small head, its centre. Either way
+    the anchor is pin_tip_n_m further north — see `_nadir_manifest`."""
+    from scipy import ndimage as ndi                          # noqa: PLC0415
+    r, g, b = a[..., 0].astype(int), a[..., 1].astype(int), a[..., 2].astype(int)
+    pin = (b > 150) & (b - r > 45) & (b - g > 30)
+    pin[:NADIR_CHROME["top"], :] = False
+    pin[NADIR_CHROME["bottom"]:, :] = False
+    pin[:, :NADIR_CHROME["left"]] = False
+    lab, n = ndi.label(pin)
+    if n == 0:
+        return np.zeros((0, 2)), pin
+    sz = ndi.sum(pin, lab, range(1, n + 1))
+    objs = ndi.find_objects(lab)
+    keep = [k for k in range(n) if NADIR_PIN_BLOB_PX[0] < sz[k] < NADIR_PIN_BLOB_PX[1]]
+    if not keep:
+        return np.zeros((0, 2)), pin
+    # ONE CONVENTION PER FRAME, decided by the median head height: a per-blob
+    # rule straddled the 0.9-scale pins and cost 1.5 px of residual (2026-09-15).
+    heights = [objs[k][0].stop - objs[k][0].start for k in keep]
+    small = float(np.median(heights)) < 12
+    tips = []
+    for k in keep:
+        sy, sx = objs[k]
+        cx = (sx.start + sx.stop - 1) / 2.0
+        cy = (sy.start + sy.stop - 1) / 2.0 if small else float(sy.stop - 1)
+        tips.append((cx, cy))
+    return np.asarray(tips, float), pin
+
+
+def _homography_dlt(E, N, px, py):
+    """Ground -> pixel, eight parameters, normalised DLT."""
+    def norm(x, y):
+        mx, my = x.mean(), y.mean()
+        s = np.sqrt(2) / np.mean(np.hypot(x - mx, y - my))
+        return np.array([[s, 0, -s * mx], [0, s, -s * my], [0, 0, 1]])
+    T1, T2 = norm(E, N), norm(px, py)
+    a = T1 @ np.vstack([E, N, np.ones_like(E)])
+    b = T2 @ np.vstack([px, py, np.ones_like(px)])
+    A = []
+    for i in range(len(E)):
+        x, y, u, v = a[0, i], a[1, i], b[0, i], b[1, i]
+        A.append([-x, -y, -1, 0, 0, 0, u * x, u * y, u])
+        A.append([0, 0, 0, -x, -y, -1, v * x, v * y, v])
+    _, _, Vt = np.linalg.svd(np.array(A))
+    return np.linalg.inv(T2) @ Vt[-1].reshape(3, 3) @ T1
+
+
+def _apply_h(H, E, N):
+    p = H @ np.vstack([np.asarray(E, float).ravel(), np.asarray(N, float).ravel(),
+                       np.ones(np.size(E))])
+    return p[0] / p[2], p[1] / p[2]
+
+
+def _register_nadir(a, E, N):
+    """Register one capture on the random net with NO prior.
+
+    The net has no repeating pattern (D-160 is why), so a translation vote
+    suffices: for each scale in NADIR_SCALE_SCAN, every (pin, net point) pair
+    votes for the translation that would align them; the true one is the only
+    offset many pairs agree on. Then match within tightening radii and refit
+    the homography each time. Returns (H, n_matched, median residual px, gsd)
+    or None."""
+    tips, _ = _detect_pins(a)
+    if len(tips) < NADIR_MIN_PINS:
+        return None
+    best = None
+    for gsd in np.arange(*NADIR_SCALE_SCAN):
+        u, v = E / gsd, -N / gsd
+        du = (tips[:, 0][:, None] - u[None, :]).ravel()
+        dv = (tips[:, 1][:, None] - v[None, :]).ravel()
+        hx, xe, ye = np.histogram2d(du, dv, bins=[np.arange(du.min(), du.max() + 30, 30),
+                                                  np.arange(dv.min(), dv.max() + 30, 30)])
+        k = np.unravel_index(hx.argmax(), hx.shape)
+        if best is None or hx.max() > best[0]:
+            best = (hx.max(), gsd, xe[k[0]] + 15, ye[k[1]] + 15)
+    _, gsd, tx, ty = best
+
+    def match(pu, pv, rad):
+        d = np.hypot(tips[:, 0][:, None] - pu[None, :], tips[:, 1][:, None] - pv[None, :])
+        j = d.argmin(1)
+        ok = d[np.arange(len(tips)), j] < rad
+        pairs = {}
+        for t in np.flatnonzero(ok):
+            if j[t] not in pairs or d[t, j[t]] < d[pairs[j[t]], j[t]]:
+                pairs[j[t]] = t
+        return np.array(list(pairs.values()), int), np.array(list(pairs.keys()), int)
+    pu, pv = E / gsd + tx, -N / gsd + ty
+    H = None
+    for rad in NADIR_MATCH_RADII:
+        ti, ni = match(pu, pv, rad)
+        if len(ti) < NADIR_MIN_PINS:
+            return None
+        H = _homography_dlt(E[ni], N[ni], tips[ti, 0], tips[ti, 1])
+        pu, pv = _apply_h(H, E, N)
+    ti, ni = match(pu, pv, NADIR_MATCH_RADII[-1])
+    res = np.hypot(tips[ti, 0] - pu[ni], tips[ti, 1] - pv[ni])
+    u, v = _apply_h(H, E[ni], N[ni])
+    dpx = np.hypot(np.diff(u), np.diff(v))
+    dm = np.hypot(np.diff(E[ni]), np.diff(N[ni]))
+    okd = dpx > 1
+    gsd_fit = float(np.median(dm[okd] / dpx[okd]))
+    return H, int(len(ti)), float(np.median(res)), gsd_fit
+
+
+def _nadir_texture(a):
+    """High-passed luminance of the imagery area, for tying a clean twin."""
+    from scipy import ndimage as ndi                          # noqa: PLC0415
+    L = a.mean(axis=2)[NADIR_CHROME["top"]:NADIR_CHROME["bottom"], NADIR_CHROME["left"]:]
+    return L - ndi.uniform_filter(L, 51)
+
+
+def _tie_twin(A, B):
+    """Integer shift of A relative to B by phase correlation, and its peak/sd."""
+    R = np.fft.fft2(A) * np.conj(np.fft.fft2(B))
+    R /= np.abs(R) + 1e-9
+    c = np.real(np.fft.ifft2(R))
+    k = np.unravel_index(c.argmax(), c.shape)
+    dy, dx = k
+    dy = dy - c.shape[0] if dy > c.shape[0] // 2 else dy
+    dx = dx - c.shape[1] if dx > c.shape[1] // 2 else dx
+    return int(dx), int(dy), float(c.max() / (c.std() + 1e-9))
+
+
+def phase26(dates=None) -> int:
+    """Read every nadir capture in the manifest: register, mosaic, threshold.
+
+    THIS IS THE READ THAT REPRODUCES A HAND VET. Built 2026-09-14/15 with
+    Martin, in this order: the 3.7 km perspective captures could not be
+    georeferenced to better than tens of metres between the well pins, so
+    the warren was recaptured top-down with Terrain OFF at ~2.1 km with a
+    RANDOM control net drawn on (`georef_random.kml`, 220 pins, no two within
+    120 m); each frame registers on 80-120 pins at 0.3 px; the pins are
+    blanked and the frame's luminance is read onto a ground grid; the
+    threshold is NADIR_DARK_BELOW_MEDIAN below the frame's own median, inside
+    `warren.kml`; bodies under NADIR_MIN_BODY_M2 are dropped. On 2021-03-24
+    that read matches Martin's body-by-body vet at IoU 0.963.
+
+    TWINS. A capture with the pins on registers; its pixel-identical twin with
+    the pins off (same view, same date) supplies the pixels. The twin is found
+    by phase correlation of high-passed luminance against every registered
+    frame; a peak/sd above NADIR_TWIN_MIN_SNR is a tie, and the shift is
+    usually (0, 0). A pinned frame with no twin is read with its pins blanked.
+
+    WHAT IS WRITTEN, per date: W94_26_<date>_dark.kml (one unfilled placemark
+    per body, for Google Earth), .geojson (OSGB), and a row in
+    W94_26_summary.csv; W94_26_registration.csv carries every frame's fit.
+    Nothing here reads the DEM, the wells or the SSM.
+    """
+    from PIL import Image                                     # noqa: PLC0415
+    from rasterio.features import rasterize, shapes           # noqa: PLC0415
+    from rasterio.transform import from_origin                # noqa: PLC0415
+    from scipy import ndimage as ndi                          # noqa: PLC0415
+    from shapely.geometry import shape as shapely_shape       # noqa: PLC0415
+    from shapely.ops import unary_union                       # noqa: PLC0415
+    from utils.kml_io import read_kml                         # noqa: PLC0415
+
+    phase(26, "The nadir-capture read — random-net registration, relative darkness")
+    man = _nadir_manifest()
+    if man is None:
+        return 1
+    if not NADIR_NET_CSV.exists():
+        warn(f"no control net at {NADIR_NET_CSV}")
+        return 1
+    net = pd.read_csv(NADIR_NET_CSV, float_precision="round_trip")
+    E, N = net["easting"].values.astype(float), net["northing"].values.astype(float)
+    warren = _valid(unary_union(list(read_kml(NADIR_WARREN_KML).to_crs(OSGB).geometry)))
+    res = NADIR_GRID_M
+    minx, miny, maxx, maxy = warren.bounds
+    minx, miny = np.floor(minx / res) * res - 30, np.floor(miny / res) * res - 30
+    maxx, maxy = np.ceil(maxx / res) * res + 30, np.ceil(maxy / res) * res + 30
+    nx, ny = int((maxx - minx) / res), int((maxy - miny) / res)
+    gtr = from_origin(minx, maxy, res, res)
+    EE, NN = np.meshgrid(minx + (np.arange(nx) + 0.5) * res,
+                         maxy - (np.arange(ny) + 0.5) * res)
+    Wm = rasterize([(warren, 1)], out_shape=(ny, nx), transform=gtr, fill=0,
+                   dtype="uint8").astype(bool)
+    info(f"ground grid {nx} x {ny} at {res} m; warren {Wm.sum() * res * res / 1e4:.1f} ha")
+
+    # 1. register every frame that carries pins
+    frames = {}
+    reg_rows = []
+    imgs = {}
+    for _, r in man.iterrows():
+        fp = DATA_GEO_DIR / str(r["filename"])
+        if not fp.exists():
+            warn(f"  {r['filename']}: missing")
+            continue
+        a = np.asarray(Image.open(fp).convert("RGB")).astype(float)
+        imgs[r["filename"]] = a
+        fit = _register_nadir(a, E, N)
+        if fit is not None:
+            H, n, rpx, gsd = fit
+            frames[r["filename"]] = dict(date=r["imagery_date"], H=H, via="pins",
+                                         tip=float(r["pin_tip_n_m"]), gsd=gsd)
+            reg_rows.append({"filename": r["filename"], "imagery_date": r["imagery_date"],
+                             "via": "pins", "n_pins": n, "residual_px": round(rpx, 3),
+                             "gsd_m": round(gsd, 3), "pin_tip_n_m": r["pin_tip_n_m"]})
+            info(f"  {r['filename']}: {n} pins, {rpx:.2f} px, {gsd:.2f} m/px")
+    # 2. tie the clean frames to a registered one
+    pinned = list(frames)
+    tex = {f: _nadir_texture(imgs[f]) for f in pinned}
+    for _, r in man.iterrows():
+        f = r["filename"]
+        if f in frames or f not in imgs:
+            continue
+        A = _nadir_texture(imgs[f])
+        best = None
+        for g in pinned:
+            dx, dy, snr = _tie_twin(A, tex[g])
+            if best is None or snr > best[2]:
+                best = (dx, dy, snr, g)
+        if best is None or best[2] < NADIR_TWIN_MIN_SNR:
+            warn(f"  {f}: no registered frame it ties to; not read")
+            reg_rows.append({"filename": f, "imagery_date": r["imagery_date"],
+                             "via": "UNTIED", "n_pins": 0, "residual_px": None,
+                             "gsd_m": None, "pin_tip_n_m": r["pin_tip_n_m"]})
+            continue
+        dx, dy, snr, g = best
+        Tm = np.array([[1, 0, dx], [0, 1, dy], [0, 0, 1]], float)
+        frames[f] = dict(date=r["imagery_date"], H=Tm @ frames[g]["H"], via=f"twin of {g}",
+                         tip=float(r["pin_tip_n_m"]), gsd=frames[g]["gsd"])
+        reg_rows.append({"filename": f, "imagery_date": r["imagery_date"],
+                         "via": f"twin of {g} ({dx:+d},{dy:+d}) snr {snr:.0f}",
+                         "n_pins": 0, "residual_px": None,
+                         "gsd_m": round(frames[g]["gsd"], 3), "pin_tip_n_m": r["pin_tip_n_m"]})
+        info(f"  {f}: twin of {g} at ({dx:+d},{dy:+d}) px, peak/sd {snr:.0f}")
+    pd.DataFrame(reg_rows).to_csv(OUT / "W94_26_registration.csv", index=False)
+    saved("W94_26_registration.csv")
+
+    # 3. per date: mosaic (clean twins first), threshold, vectorise
+    all_dates = sorted({v["date"] for v in frames.values()})
+    if dates:
+        all_dates = [d for d in all_dates if d in set(dates)]
+    summary = []
+    for date in all_dates:
+        order = ([f for f, v in frames.items() if v["date"] == date and v["via"] != "pins"]
+                 + [f for f, v in frames.items() if v["date"] == date and v["via"] == "pins"])
+        Lg = np.full((ny, nx), np.nan)
+        seen = np.zeros((ny, nx), bool)
+        for f in order:
+            v = frames[f]
+            a = imgs[f]
+            L = a.mean(axis=2)
+            _, pin = _detect_pins(a)
+            valid = np.ones(L.shape, bool)
+            valid[:NADIR_CHROME["top"], :] = False
+            valid[NADIR_CHROME["bottom"]:, :] = False
+            valid[:, :NADIR_CHROME["left"]] = False
+            r0, r1, c0, c1 = NADIR_ATTRIBUTION
+            valid[r0:r1, c0:c1] = False
+            r0, r1, c0, c1 = NADIR_GE_LOGO
+            valid[r0:r1, c0:c1] = False
+            valid &= ~ndi.binary_dilation(pin, iterations=4)
+            px, py = _apply_h(v["H"], EE, NN - v["tip"])
+            px, py = np.rint(px).astype(int), np.rint(py).astype(int)
+            ok = (px >= 0) & (px < L.shape[1]) & (py >= 0) & (py < L.shape[0])
+            ok[ok] &= valid[py[ok], px[ok]]
+            vals = np.full(EE.size, np.nan)
+            vals[ok] = L[py[ok], px[ok]]
+            vals = vals.reshape(EE.shape)
+            take = np.isfinite(vals) & ~seen
+            Lg[take] = vals[take]
+            seen |= take
+        cov = seen & Wm
+        if not cov.any():
+            warn(f"  {date}: nothing covers the warren")
+            continue
+        vv = Lg[cov]
+        med = float(np.median(vv))
+        thr = med - NADIR_DARK_BELOW_MEDIAN
+        dark = cov & (Lg <= thr)
+        lab, n = ndi.label(dark)
+        sz = ndi.sum(dark, lab, range(1, n + 1)) * res * res
+        keep = [i + 1 for i in range(n) if sz[i] >= NADIR_MIN_BODY_M2]
+        lab = np.where(np.isin(lab, keep), lab, 0).astype("int32")
+        feats = {}
+        for geom, val in shapes(lab, mask=(lab > 0), transform=gtr):
+            feats.setdefault(int(val), []).append(shapely_shape(geom))
+        ids = sorted(feats, key=lambda i: -sz[i - 1])
+        g = gpd.GeoDataFrame({"id": [f"D{j:04d}" for j in range(1, len(ids) + 1)],
+                              "area_m2": [round(float(sz[i - 1]), 1) for i in ids]},
+                             geometry=[unary_union(feats[i]) for i in ids], crs=OSGB)
+        g.to_file(OUT / f"W94_26_{date}_dark.geojson", driver="GeoJSON")
+        _bodies_to_kml(g, OUT / f"W94_26_{date}_dark.kml",
+                       f"dark {date} — {NADIR_DARK_BELOW_MEDIAN} below the frame median "
+                       f"(median {med:.0f}, threshold {thr:.0f}), at least "
+                       f"{NADIR_MIN_BODY_M2:.0f} m2", fields=("area_m2",))
+        saved(f"W94_26_{date}_dark.kml")
+        tot = float(g.area_m2.sum())
+        covf = 100 * cov.sum() / Wm.sum()
+        step(f"{date}: {len(order)} frame(s), {covf:.1f} % of the warren covered; "
+             f"median luminance {med:.0f} -> threshold {thr:.0f}; {len(g)} bod(ies), "
+             f"{tot / 1e4:.2f} ha = {100 * tot / (cov.sum() * res * res):.2f} % of covered warren")
+        summary.append({"imagery_date": date, "n_frames": len(order),
+                        "warren_covered_pct": round(covf, 1),
+                        "luminance_median": round(med, 1), "threshold": round(thr, 1),
+                        "n_bodies": len(g), "dark_ha": round(tot / 1e4, 3),
+                        "dark_pct_of_covered": round(100 * tot / (cov.sum() * res * res), 2)})
+    pd.DataFrame(summary).to_csv(OUT / "W94_26_summary.csv", index=False)
+    saved("W94_26_summary.csv")
     return 0
 
 if __name__ == "__main__":

@@ -46,7 +46,10 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) - 2026-09-15. First cut, from the
+__version__ = "1.0.1"  # Hollingham (2026) - 2026-09-15. A progress bar with
+#   elapsed and remaining time on every scene (Martin's rule, CLAUDE.md
+#   "SHOW PROGRESS"); the 20-scene ticker looked hung.
+# v1.0.0  # Hollingham (2026) - 2026-09-15. First cut, from the
 #   2026-09-15 sandbox series; see CHANGELOG_delta_2026-09-15b.
 
 import argparse
@@ -61,7 +64,7 @@ sys.path.insert(0, str(REPO / "src"))
 import numpy as np                                            # noqa: E402
 import pandas as pd                                           # noqa: E402
 
-from utils.console_utils import banner, info, phase, saved, step, warn  # noqa: E402
+from utils.console_utils import banner, info, phase, progress, saved, step, warn  # noqa: E402
 from utils.paths import DATA_FLOOD_CAL_LEVELS, DATA_GEO_DIR   # noqa: E402
 
 OUT = REPO / "working" / "updates"
@@ -247,7 +250,11 @@ def main() -> int:
     info(f"{len(byd)} candidate date(s) at tile cloud < {TILE_CLOUD_MAX:.0f} %")
     phase(2, "Reading scenes (cached; safe to interrupt and resume)")
     rows = []
+    import time                                               # noqa: PLC0415
+    t0 = time.time()
+    total = len(byd)
     for n, (date, item) in enumerate(sorted(byd.items()), 1):
+        progress(n, total, date, started=t0)
         try:
             r = read_scene(date, item, Wm)
         except Exception as ex:                               # noqa: BLE001
@@ -267,8 +274,7 @@ def main() -> int:
                      "wet_floor_pct": round(100 * dark.sum() / clear.sum(), 2),
                      "ndwi_open_water_ha": round((clear & (ndwi > 0)).sum() * 0.01 * scale, 2),
                      "month": _scene_month(date)})
-        if n % 20 == 0:
-            info(f"  {n}/{len(byd)}")
+    print(flush=True)
     S = pd.DataFrame(rows)
     if not len(S):
         warn("no usable scene")

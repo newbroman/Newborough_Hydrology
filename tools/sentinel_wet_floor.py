@@ -46,7 +46,10 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.0.1"  # Hollingham (2026) - 2026-09-15. A progress bar with
+__version__ = "1.0.2"  # Hollingham (2026) - 2026-09-15. A cloudy scene cached as
+#   an empty placeholder was returned as if usable on the next pass and
+#   crashed main() (IndexError at np.median); read_scene now returns None.
+# v1.0.1  # Hollingham (2026) - 2026-09-15. A progress bar with
 #   elapsed and remaining time on every scene (Martin's rule, CLAUDE.md
 #   "SHOW PROGRESS"); the 20-scene ticker looked hung.
 # v1.0.0  # Hollingham (2026) - 2026-09-15. First cut, from the
@@ -183,6 +186,8 @@ def read_scene(date, item, Wm):
     p = CACHE / f"{date}.npz"
     if p.exists():
         z = np.load(p)
+        if z["bright"].size == 0:      # cloudy placeholder cached by an earlier pass
+            return None
         return z["bright"], z["ndwi"], z["clear"]
     scl = _fetch(item, ["scl"])["scl"]
     clear = Wm & ~np.isin(scl, SCL_BAD)

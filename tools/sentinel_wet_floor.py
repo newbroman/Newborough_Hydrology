@@ -47,7 +47,15 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) - 2026-09-15. --validate DATE: the fixed
+__version__ = "1.2.1"  # Hollingham (2026) - 2026-09-15. The phase 29 mask is
+#   now the FLOOR mask (cells scored only where the DEM says water can lie);
+#   --validate scores whole-warren and floor-only, the series carries
+#   wet_floor_pct_masked on the floor.
+# v1.2.0  # Hollingham (2026) - 2026-09-15. Haze gate tightened
+#   (TILE_CLOUD_MAX 45 -> 25, CLEAR_MIN_PCT 85 -> 95) after 2019-03-26; the
+#   phase 29 shade mask applied in --validate (scored with and without) and as
+#   wet_floor_pct_masked in the series.
+# v1.1.0  # Hollingham (2026) - 2026-09-15. --validate DATE: the fixed
 #   rule scored on a second vetted extent (2020-03-30) inside the ground the
 #   Google Earth frames cover (W94_26_<date>_covered.geojson); no refit.
 # v1.0.2  # Hollingham (2026) - 2026-09-15. A cloudy scene cached as
@@ -83,8 +91,13 @@ TRUTH_KML = DATA_GEO_DIR / "flood_extent_2021-03-24_vetted.kml"
 WELLS_ALL = REPO / "outputs" / "01_wells_all.csv"
 # the analysis window, OSGB, 10 m cells — the warren with a margin
 GRID = dict(left=239770, bottom=362090, right=244360, top=364940, res=10)
-TILE_CLOUD_MAX = 45.0        # STAC tile-level cloud cover admitted to the search
-CLEAR_MIN_PCT = 85.0         # share of the warren cloud-free (SCL) for a scene to count
+TILE_CLOUD_MAX = 25.0        # STAC tile-level cloud cover admitted to the search. Was 45
+#                              until 2026-09-15: 2019-03-26 (40 % tile cloud, median 1186 against
+#                              824 two days earlier) read 44 % dark — thin cloud brightens the
+#                              median and the relative rule then floods the frame
+CLEAR_MIN_PCT = 95.0         # share of the warren cloud-free (SCL) for a scene to count (was 85)
+FLOOR_MASK = OUT / "W94_29_floor_mask.geojson"   # warren_flood_prep phase 29; optional
+FLOOR_CELL_MIN = 0.5         # a 10 m cell at least this much on the floor is scored
 SCL_BAD = (0, 1, 3, 8, 9, 10)  # nodata, saturated, cloud shadow, cloud (med/high), cirrus
 SENTINEL_DARK_RATIO = 0.86   # brightness <= this x scene median = wet floor. Calibrated
 #                              on 2021-04-04 against the vetted extent (IoU 0.684); --calibrate refits
@@ -105,6 +118,21 @@ def _grid():
     W = int((g["right"] - g["left"]) / g["res"])
     H = int((g["top"] - g["bottom"]) / g["res"])
     return W, H, from_origin(g["left"], g["top"], g["res"], g["res"])
+
+
+def _shade_mask():
+    """Cells to LEAVE OUT: less than FLOOR_CELL_MIN on the phase 29 floor, or None."""
+    if not FLOOR_MASK.exists():
+        return None
+    import geopandas as gpd                                   # noqa: PLC0415
+    from rasterio.features import rasterize                   # noqa: PLC0415
+    from rasterio.transform import from_origin                # noqa: PLC0415
+    W, H, _ = _grid()
+    g = GRID
+    fine = from_origin(g["left"], g["top"], 1.0, 1.0)
+    Sf = rasterize([(x, 1) for x in gpd.read_file(FLOOR_MASK).geometry],
+                   out_shape=(H * 10, W * 10), transform=fine, fill=0, dtype="uint8").astype(float)
+    return Sf.reshape(H, 10, W, 10).mean(axis=(1, 3)) < FLOOR_CELL_MIN
 
 
 def _warren_mask():
@@ -276,6 +304,9 @@ def validate(Wm, date):
     else:
         cov = Wm
         warn(f"no {covp.name}: scoring on the whole warren (run phase 26 for {date})")
+    shade = _shade_mask()
+    if shade is None:
+        warn(f"no {FLOOR_MASK.name}: scoring without the floor mask (phase 29 builds it)")
     t = pd.Timestamp(date)
     byd = _search((t - pd.Timedelta(days=VALIDATE_WINDOW_DAYS)).date().isoformat(),
                   (t + pd.Timedelta(days=VALIDATE_WINDOW_DAYS)).date().isoformat())
@@ -290,29 +321,32 @@ def validate(Wm, date):
             continue
         bright, ndwi, clear = r
         med = float(np.median(bright[clear]))            # the SERIES' median: whole warren
-        ok = clear & cov
-        tcell = ok & (frac >= 0.5)
-        p = ok & (bright <= med * SENTINEL_DARK_RATIO)
-        i = (p & tcell).sum()
-        iou = i / max(1, (p | tcell).sum())
-        best = None
-        for ratio in np.arange(0.40, 0.98, 0.01):
-            q = ok & (bright <= med * ratio)
-            j = (q & tcell).sum()
-            v = j / max(1, (q | tcell).sum())
-            if best is None or v > best[0]:
-                best = (v, ratio)
-        rows.append({"vetted_date": date, "scene_date": sd, "days_off": (pd.Timestamp(sd) - t).days,
-                     "clear_pct_of_covered": round(100 * ok.sum() / cov.sum(), 1),
-                     "ratio": SENTINEL_DARK_RATIO, "iou": round(iou, 3),
-                     "precision": round(i / max(1, p.sum()), 3), "recall": round(i / max(1, tcell.sum()), 3),
-                     "wet_floor_ha": round(p.sum() * 0.01, 2), "vetted_ha": round(tcell.sum() * 0.01, 2),
-                     "ndwi_open_water_ha": round((ok & (ndwi > 0)).sum() * 0.01, 2),
-                     "best_ratio_here": round(best[1], 2), "best_iou_here": round(best[0], 3)})
-        step(f"  {sd} ({rows[-1]['days_off']:+d} d): IoU {iou:.3f} at ratio {SENTINEL_DARK_RATIO} "
-             f"(precision {rows[-1]['precision']:.2f}, recall {rows[-1]['recall']:.2f}); "
-             f"{rows[-1]['wet_floor_ha']:.1f} ha read vs {rows[-1]['vetted_ha']:.1f} ha vetted; "
-             f"best ratio on this date {best[1]:.2f} -> IoU {best[0]:.3f}")
+        for masked in ([False, True] if shade is not None else [False]):
+            ok = clear & cov & (~shade if masked else True)
+            tcell = ok & (frac >= 0.5)
+            p = ok & (bright <= med * SENTINEL_DARK_RATIO)
+            i = (p & tcell).sum()
+            iou = i / max(1, (p | tcell).sum())
+            best = None
+            for ratio in np.arange(0.40, 0.98, 0.01):
+                q = ok & (bright <= med * ratio)
+                j = (q & tcell).sum()
+                v = j / max(1, (q | tcell).sum())
+                if best is None or v > best[0]:
+                    best = (v, ratio)
+            rows.append({"vetted_date": date, "scene_date": sd, "days_off": (pd.Timestamp(sd) - t).days,
+                         "floor_only": masked,
+                         "clear_pct_of_covered": round(100 * ok.sum() / cov.sum(), 1),
+                         "ratio": SENTINEL_DARK_RATIO, "iou": round(iou, 3),
+                         "precision": round(i / max(1, p.sum()), 3), "recall": round(i / max(1, tcell.sum()), 3),
+                         "wet_floor_ha": round(p.sum() * 0.01, 2), "vetted_ha": round(tcell.sum() * 0.01, 2),
+                         "ndwi_open_water_ha": round((ok & (ndwi > 0)).sum() * 0.01, 2),
+                         "best_ratio_here": round(best[1], 2), "best_iou_here": round(best[0], 3)})
+            step(f"  {sd} ({rows[-1]['days_off']:+d} d){' floor-only' if masked else ''}: "
+                 f"IoU {iou:.3f} at ratio {SENTINEL_DARK_RATIO} "
+                 f"(precision {rows[-1]['precision']:.2f}, recall {rows[-1]['recall']:.2f}); "
+                 f"{rows[-1]['wet_floor_ha']:.1f} ha read vs {rows[-1]['vetted_ha']:.1f} ha vetted; "
+                 f"best ratio on this date {best[1]:.2f} -> IoU {best[0]:.3f}")
     if not rows:
         warn("no clear scene in the window")
         return 1
@@ -343,6 +377,9 @@ def main() -> int:
     byd = _search(args.since, args.until)
     info(f"{len(byd)} candidate date(s) at tile cloud < {TILE_CLOUD_MAX:.0f} %")
     phase(2, "Reading scenes (cached; safe to interrupt and resume)")
+    shade = _shade_mask()
+    if shade is None:
+        warn(f"no {FLOOR_MASK.name}: wet_floor_pct_masked will be blank (phase 29 builds it)")
     rows = []
     import time                                               # noqa: PLC0415
     t0 = time.time()
@@ -367,6 +404,8 @@ def main() -> int:
                      "wet_floor_ha": round(dark.sum() * 0.01 * scale, 2),
                      "wet_floor_pct": round(100 * dark.sum() / clear.sum(), 2),
                      "ndwi_open_water_ha": round((clear & (ndwi > 0)).sum() * 0.01 * scale, 2),
+                     "wet_floor_pct_masked": (round(100 * (dark & ~shade).sum() / (clear & ~shade).sum(), 2)
+                                              if shade is not None else None),
                      "month": _scene_month(date)})
     print(flush=True)
     S = pd.DataFrame(rows)

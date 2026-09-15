@@ -28,7 +28,11 @@ WHICH PHASES ARE LIVE (T-28; D-168, D-169 — status as of 2026-09-15)
 
   LIVE
     26  the nadir-capture read: random-net registration, relative darkness,
-        >= 25 m2 — the series method (D-169). Reads data/geo/nadir_captures.csv.
+        >= 25 m2 — the series method (D-169). Reads data/geo/nadir_captures.csv,
+        including a mosaic seam per frame (seam_x_px); writes the covered area.
+    29  the FLOOR mask from the DEM (where water can lie) that the Sentinel
+        scoring applies to read and truth alike; the GE vets reject the
+        off-floor dark by hand.
     21  the imagery wetness index (Otsu split in z per frame) — ORDINAL only.
     22-24  the scoreboard against TRUTH_KML (the vetted extent): rungs, shift
         sweep, membership dropped. Numbers scored before 2026-09-15 were on the
@@ -65,7 +69,17 @@ NOT DONE HERE, AND WHY
 """
 from __future__ import annotations
 
-__version__ = "1.37.1"  # Hollingham (2026) - 2026-09-15. Phase 26 also writes
+__version__ = "1.38.1"  # Hollingham (2026) - 2026-09-15. Phase 29 is now the
+#   FLOOR mask from the DEM (relief above the local minimum, slope) — where
+#   water can lie — replacing the shade mask of 1.38.0, which removed 30 % of
+#   the vetted water (the bush layer sits on slack floors; slope/aspect at
+#   1.5 m from a 2 m DEM is noise). W94_29_floor_mask.geojson/.kml.
+# v1.38.0  # Hollingham (2026) - 2026-09-15. PHASE 29: the
+#   persistent-shade mask (trees, bushes, north-facing dune faces from the DEM)
+#   for scoring the darkness reads on slack floors only; the vets' rejected
+#   bodies were tested as a mask and do not transfer (half of 2020's rejections
+#   were 2021 water). W94_29_shade_mask.geojson/.kml.
+# v1.37.1  # Hollingham (2026) - 2026-09-15. Phase 26 also writes
 #   W94_26_<date>_covered.geojson, the part of the warren the date's frames
 #   show, so the Sentinel validation scores the same ground on both sides.
 # v1.37.0  # Hollingham (2026) - 2026-09-15. Phase 26 honours a
@@ -357,6 +371,7 @@ __version__ = "1.37.1"  # Hollingham (2026) - 2026-09-15. Phase 26 also writes
 #   rather than asserted.
 # v1.0.0  # Hollingham (2026) - 2026-09-11. New, for D-159 step 1.
 
+import os
 import shutil
 import sys
 import tempfile
@@ -483,6 +498,8 @@ def main() -> int:
     if args.phase == 11:
         return phase11(wet=args.wet, dry=args.dry, shift=args.shift,
                        series=args.series)
+    if args.phase == 29:
+        return phase29()
     if args.phase == 26:
         return phase26(dates=args.date)
     if args.phase == 25:
@@ -7553,6 +7570,19 @@ NADIR_CHROME = dict(top=80, bottom=1000, left=210)   # Google Earth's own pixels
 NADIR_ATTRIBUTION = (930, 975, 930, 1210)  # rows, cols of "Image (c) ..." text
 NADIR_GE_LOGO = (965, 1015, 1720, 1920)    # rows, cols of the Google Earth logo
 NADIR_TWIN_MIN_SNR = 200      # phase-correlation peak / sd for a clean twin
+FLOOR_RELIEF_M = 1.5          # a cell within this of the lowest ground ...
+FLOOR_RADIUS_M = 30.0         # ... within this radius is slack floor. Set for the
+#                               WETTEST case: 0.5 m / 50 m kept only 53 % of the
+#                               2021-03-24 vetted water (2026-09-15 sweep)
+FLOOR_SLOPE_MAX_DEG = 8.0     # and not a dune face
+FLOOR_DILATE_CELLS = 2        # the floor reaches this many DEM cells up its margin:
+#                               the slope test alone lost 13 % of the 2021 water at
+#                               slack edges where floor and face share a 2 m cell
+FLOOR_SWEEP_DILATE = (0, 1, 2, 3)
+FLOOR_SWEEP_RELIEF_M = (0.5, 1.0, 1.5, 2.0, 3.0)
+FLOOR_SWEEP_RADIUS_M = (20, 30, 50)
+FLOOR_SWEEP_SLOPE_DEG = (5.0, 8.0, 12.0)
+FLOOR_MASK_GEOJSON = OUT / "W94_29_floor_mask.geojson"
 
 
 def _nadir_manifest():
@@ -7719,6 +7749,110 @@ def _tie_twin(A, B):
     dy = dy - c.shape[0] if dy > c.shape[0] // 2 else dy
     dx = dx - c.shape[1] if dx > c.shape[1] // 2 else dx
     return int(dx), int(dy), float(c.max() / (c.std() + 1e-9))
+
+
+def phase29() -> int:
+    """The floor mask: where water CAN lie, from the DEM alone.
+
+    WHY. Both darkness reads class shaded scrub and north-facing dune faces
+    as dark. Two masks were tried first and both failed the test that matters,
+    how much VETTED water they remove: the vets' own rejected bodies do not
+    transfer (half of 2020-03-30's rejections were 2021-03-24 water), and a
+    shade mask from the bush layers plus north-facing slopes removed 30 % of
+    the vetted water on both dates — the bush layer sits on slack floors, and
+    a slope/aspect read at 1.5 m from a 2 m DEM is noise (Martin: "almost
+    random"). So the mask is the ground's shape instead: a cell is FLOOR when
+    it lies within FLOOR_RELIEF_M of the lowest ground within FLOOR_RADIUS_M
+    and its slope is under FLOOR_SLOPE_MAX_DEG. Water in a dune slack is on
+    the floor by definition; a dark cell off the floor is scrub, a dune face
+    or shadow. Drinking pools are always floor.
+
+    The constants are chosen for RETENTION, not fit: the phase prints a sweep
+    of relief x radius against every vetted extent (share of vetted water kept,
+    share of the warren kept) so the choice is visible. Writes
+    W94_29_floor_mask.geojson/.kml (the area KEPT) and prints the retention.
+    """
+    from rasterio.features import rasterize, shapes           # noqa: PLC0415
+    from rasterio.transform import from_origin                # noqa: PLC0415
+    from scipy import ndimage as ndi                          # noqa: PLC0415
+    from shapely.geometry import shape as shapely_shape       # noqa: PLC0415
+    from shapely.ops import unary_union                       # noqa: PLC0415
+    from utils.kml_io import read_kml                         # noqa: PLC0415
+
+    phase(29, "The floor mask — where the DEM says water can lie")
+    warren = _valid(unary_union(list(read_kml(NADIR_WARREN_KML).to_crs(OSGB).geometry)))
+    with rasterio.open(DATA_DEM) as ds:
+        res = float(ds.res[0])
+        dem = ds.read(1).astype(float)
+        if ds.nodata is not None:
+            dem[dem == ds.nodata] = np.nan
+        gtr = ds.transform
+        ny, nx = dem.shape
+    Wm = rasterize([(warren, 1)], out_shape=(ny, nx), transform=gtr, fill=0,
+                   dtype="uint8").astype(bool)
+    fill = np.nan_to_num(dem, nan=np.nanmax(dem))
+    dzdy, dzdx = np.gradient(fill, res)
+    slope = np.degrees(np.arctan(np.hypot(dzdx, dzdy)))
+    cell = res * res / 1e4
+    vets = {}
+    for vk in sorted(DATA_GEO_DIR.glob("flood_extent_*_vetted.kml")):
+        v = _valid(unary_union([_valid(x) for x in read_kml(vk).to_crs(OSGB).geometry]))
+        vets[vk.name] = rasterize([(v, 1)], out_shape=(ny, nx), transform=gtr, fill=0,
+                                  dtype="uint8").astype(bool) & Wm
+    pools = _standing_water_geom()
+    pm = (rasterize([(pools, 1)], out_shape=(ny, nx), transform=gtr, fill=0,
+                    dtype="uint8").astype(bool) if pools is not None else np.zeros_like(Wm))
+
+    def floor_for(relief, radius, slope_max, dilate=0):
+        k = max(1, int(round(radius / res)))
+        lo = ndi.minimum_filter(fill, size=2 * k + 1, mode="nearest")
+        f = (fill - lo <= relief) & (slope <= slope_max)
+        if dilate:
+            f = ndi.binary_dilation(f, iterations=int(dilate))
+        return Wm & (f | pm)
+
+    info("sweep — relief m x radius m x slope deg: % of warren kept | % of each vetted extent kept")
+    hdr = " | ".join(f"{n[13:23]}" for n in vets)
+    info(f"  relief  radius  slope  warren | {hdr}")
+    for slope_max in FLOOR_SWEEP_SLOPE_DEG:
+        if slope_max != FLOOR_SLOPE_MAX_DEG and not os.environ.get("FLOOR_FULL_SWEEP"):
+            continue                      # FLOOR_FULL_SWEEP=1 prints every slope
+        for relief in FLOOR_SWEEP_RELIEF_M:
+            for radius in FLOOR_SWEEP_RADIUS_M:
+                fm = floor_for(relief, radius, slope_max)
+                kept = " | ".join(f"{100 * (fm & vm).sum() / max(1, vm.sum()):9.1f}" for vm in vets.values())
+                mark = (" <-" if (relief, radius, slope_max) ==
+                        (FLOOR_RELIEF_M, FLOOR_RADIUS_M, FLOOR_SLOPE_MAX_DEG) else "")
+                info(f"  {relief:6.2f}  {radius:6.0f}  {slope_max:5.0f}  "
+                     f"{100 * fm.sum() / Wm.sum():6.1f} | {kept}{mark}")
+    info(f"dilation at {FLOOR_RELIEF_M} m / {FLOOR_RADIUS_M:.0f} m / {FLOOR_SLOPE_MAX_DEG:.0f} deg — "
+         f"cells: % of warren kept | % of each vetted extent kept")
+    for d in FLOOR_SWEEP_DILATE:
+        fm = floor_for(FLOOR_RELIEF_M, FLOOR_RADIUS_M, FLOOR_SLOPE_MAX_DEG, d)
+        kept = " | ".join(f"{100 * (fm & vm).sum() / max(1, vm.sum()):9.1f}" for vm in vets.values())
+        info(f"  {d:2d} cell(s) ({d * res:.0f} m)  {100 * fm.sum() / Wm.sum():6.1f} | {kept}"
+             f"{' <-' if d == FLOOR_DILATE_CELLS else ''}")
+    fm = floor_for(FLOOR_RELIEF_M, FLOOR_RADIUS_M, FLOOR_SLOPE_MAX_DEG, FLOOR_DILATE_CELLS)
+    step(f"floor: within {FLOOR_RELIEF_M} m of the lowest ground in {FLOOR_RADIUS_M:.0f} m, "
+         f"slope <= {FLOOR_SLOPE_MAX_DEG:.0f} deg, +{FLOOR_DILATE_CELLS * res:.0f} m at the margin: "
+         f"{fm.sum() * cell:.1f} ha = {100 * fm.sum() / Wm.sum():.1f} % of the warren")
+    for n, vm in vets.items():
+        info(f"  {n}: {vm.sum() * cell:.2f} ha vetted, {100 * (fm & vm).sum() / max(1, vm.sum()):.1f} % on the floor")
+    geom = unary_union([shapely_shape(gm) for gm, _ in
+                        shapes(fm.astype("uint8"), mask=fm, transform=gtr)])
+    gpd.GeoDataFrame({"id": ["floor"], "area_m2": [round(float(fm.sum() * res * res), 1)]},
+                     geometry=[geom], crs=OSGB).to_file(FLOOR_MASK_GEOJSON, driver="GeoJSON")
+    saved(FLOOR_MASK_GEOJSON.name)
+    parts = gpd.GeoDataFrame(geometry=list(getattr(geom, "geoms", [geom])), crs=OSGB)
+    parts["id"] = [f"L{j:04d}" for j in range(1, len(parts) + 1)]
+    parts["area_m2"] = parts.geometry.area.round(1)
+    _bodies_to_kml(parts, OUT / "W94_29_floor_mask.kml",
+                   f"floor — within {FLOOR_RELIEF_M} m of the lowest ground in "
+                   f"{FLOOR_RADIUS_M:.0f} m, slope <= {FLOOR_SLOPE_MAX_DEG:.0f} deg, "
+                   f"+{FLOOR_DILATE_CELLS * res:.0f} m at the margin (water can lie here)",
+                   style_line="ff00a5ff", fields=("area_m2",))
+    saved("W94_29_floor_mask.kml")
+    return 0
 
 
 def phase26(dates=None) -> int:

@@ -65,7 +65,10 @@ NOT DONE HERE, AND WHY
 """
 from __future__ import annotations
 
-__version__ = "1.37.0"  # Hollingham (2026) - 2026-09-15. Phase 26 honours a
+__version__ = "1.37.1"  # Hollingham (2026) - 2026-09-15. Phase 26 also writes
+#   W94_26_<date>_covered.geojson, the part of the warren the date's frames
+#   show, so the Sentinel validation scores the same ground on both sides.
+# v1.37.0  # Hollingham (2026) - 2026-09-15. Phase 26 honours a
 #   mosaic seam: nadir_captures.csv columns seam_x_px / seam_side exclude the
 #   part of a frame that shows another imagery date (the 2020-03-30 capture
 #   is 2019-09-11 east of a north-south tile edge). _nadir_seam().
@@ -7886,6 +7889,13 @@ def phase26(dates=None) -> int:
                               "area_m2": [round(float(sz[i - 1]), 1) for i in ids]},
                              geometry=[unary_union(feats[i]) for i in ids], crs=OSGB)
         g.to_file(OUT / f"W94_26_{date}_dark.geojson", driver="GeoJSON")
+        # the part of the warren this date's frames actually show, for anything
+        # that scores another read against this one (the seam and the frame
+        # edges are outside it)
+        cov_geom = unary_union([shapely_shape(gm) for gm, _ in
+                                shapes(cov.astype("uint8"), mask=cov, transform=gtr)])
+        gpd.GeoDataFrame({"imagery_date": [date]}, geometry=[cov_geom], crs=OSGB).to_file(
+            OUT / f"W94_26_{date}_covered.geojson", driver="GeoJSON")
         _bodies_to_kml(g, OUT / f"W94_26_{date}_dark.kml",
                        f"dark {date} — {NADIR_DARK_BELOW_MEDIAN} below the frame median "
                        f"(median {med:.0f}, threshold {thr:.0f}), at least "

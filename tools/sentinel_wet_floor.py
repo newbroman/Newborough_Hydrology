@@ -40,13 +40,17 @@ USAGE
   python3 tools/sentinel_wet_floor.py                 # whole archive, resume-safe
   python3 tools/sentinel_wet_floor.py --since 2020-10-01 --until 2021-04-30
   python3 tools/sentinel_wet_floor.py --calibrate     # refit SENTINEL_DARK_RATIO on TRUTH_KML
+  python3 tools/sentinel_wet_floor.py --validate 2020-03-30   # score the FIXED rule on a 2nd vet
 
   Needs `pystac-client` (pip install pystac-client) and network. Per-scene
   rasters are cached under working/updates/sentinel_cache/ (gitignored size).
 """
 from __future__ import annotations
 
-__version__ = "1.0.2"  # Hollingham (2026) - 2026-09-15. A cloudy scene cached as
+__version__ = "1.1.0"  # Hollingham (2026) - 2026-09-15. --validate DATE: the fixed
+#   rule scored on a second vetted extent (2020-03-30) inside the ground the
+#   Google Earth frames cover (W94_26_<date>_covered.geojson); no refit.
+# v1.0.2  # Hollingham (2026) - 2026-09-15. A cloudy scene cached as
 #   an empty placeholder was returned as if usable on the next pass and
 #   crashed main() (IndexError at np.median); read_scene now returns None.
 # v1.0.1  # Hollingham (2026) - 2026-09-15. A progress bar with
@@ -85,6 +89,7 @@ SCL_BAD = (0, 1, 3, 8, 9, 10)  # nodata, saturated, cloud shadow, cloud (med/hig
 SENTINEL_DARK_RATIO = 0.86   # brightness <= this x scene median = wet floor. Calibrated
 #                              on 2021-04-04 against the vetted extent (IoU 0.684); --calibrate refits
 CALIBRATION_SCENES = ("2021-04-04", "2021-03-30")
+VALIDATE_WINDOW_DAYS = 14    # scenes scored either side of a vetted date
 WINTER_MONTHS = (11, 12, 1, 2, 3)
 
 os.environ.setdefault("GDAL_HTTP_TIMEOUT", "120")
@@ -237,11 +242,92 @@ def calibrate(Wm):
     info(f"SENTINEL_DARK_RATIO in this file is {SENTINEL_DARK_RATIO}; change it by hand if the refit moves it")
 
 
+def validate(Wm, date):
+    """Score the FIXED rule against a second vetted extent — validation, not a refit.
+
+    Reads data/geo/flood_extent_<date>_vetted.kml and, when phase 26 wrote it,
+    working/updates/W94_26_<date>_covered.geojson (the part of the warren the
+    Google Earth frames show — a mosaic seam or a frame edge is outside it), and
+    scores every clear scene within VALIDATE_WINDOW_DAYS on the cells that are
+    clear AND covered. SENTINEL_DARK_RATIO is applied as it stands; the best
+    ratio on this date is printed beside it for information only. Writes
+    W94_27_validation_<date>.csv.
+    """
+    from rasterio.features import rasterize                   # noqa: PLC0415
+    from rasterio.transform import from_origin                # noqa: PLC0415
+    from utils.kml_io import read_kml                         # noqa: PLC0415
+    truth = DATA_GEO_DIR / f"flood_extent_{date}_vetted.kml"
+    if not truth.exists():
+        warn(f"no vetted extent at {truth}")
+        return 1
+    W, H, tr = _grid()
+    g = GRID
+    fine = from_origin(g["left"], g["top"], 1.0, 1.0)
+    vet = read_kml(truth).to_crs("EPSG:27700")
+    Vf = rasterize([(x, 1) for x in vet.geometry], out_shape=(H * 10, W * 10),
+                   transform=fine, fill=0, dtype="uint8").astype(float)
+    frac = Vf.reshape(H, 10, W, 10).mean(axis=(1, 3))
+    covp = OUT / f"W94_26_{date}_covered.geojson"
+    if covp.exists():
+        import geopandas as gpd                               # noqa: PLC0415
+        cov = rasterize([(x, 1) for x in gpd.read_file(covp).geometry], out_shape=(H, W),
+                        transform=tr, fill=0, dtype="uint8").astype(bool) & Wm
+        info(f"scoring on the {100 * cov.sum() / Wm.sum():.1f} % of the warren the frames cover")
+    else:
+        cov = Wm
+        warn(f"no {covp.name}: scoring on the whole warren (run phase 26 for {date})")
+    t = pd.Timestamp(date)
+    byd = _search((t - pd.Timedelta(days=VALIDATE_WINDOW_DAYS)).date().isoformat(),
+                  (t + pd.Timedelta(days=VALIDATE_WINDOW_DAYS)).date().isoformat())
+    truth_ha = (cov & (frac >= 0.5)).sum() * 0.01
+    step(f"vetted {date}: {len(vet)} bodies, {vet.area.sum() / 1e4:.2f} ha; "
+         f"{truth_ha:.2f} ha of 10 m cells at least half wet inside the covered warren")
+    rows = []
+    for sd in sorted(byd):
+        r = read_scene(sd, byd[sd], Wm)
+        if r is None:
+            info(f"  {sd}: too cloudy")
+            continue
+        bright, ndwi, clear = r
+        med = float(np.median(bright[clear]))            # the SERIES' median: whole warren
+        ok = clear & cov
+        tcell = ok & (frac >= 0.5)
+        p = ok & (bright <= med * SENTINEL_DARK_RATIO)
+        i = (p & tcell).sum()
+        iou = i / max(1, (p | tcell).sum())
+        best = None
+        for ratio in np.arange(0.40, 0.98, 0.01):
+            q = ok & (bright <= med * ratio)
+            j = (q & tcell).sum()
+            v = j / max(1, (q | tcell).sum())
+            if best is None or v > best[0]:
+                best = (v, ratio)
+        rows.append({"vetted_date": date, "scene_date": sd, "days_off": (pd.Timestamp(sd) - t).days,
+                     "clear_pct_of_covered": round(100 * ok.sum() / cov.sum(), 1),
+                     "ratio": SENTINEL_DARK_RATIO, "iou": round(iou, 3),
+                     "precision": round(i / max(1, p.sum()), 3), "recall": round(i / max(1, tcell.sum()), 3),
+                     "wet_floor_ha": round(p.sum() * 0.01, 2), "vetted_ha": round(tcell.sum() * 0.01, 2),
+                     "ndwi_open_water_ha": round((ok & (ndwi > 0)).sum() * 0.01, 2),
+                     "best_ratio_here": round(best[1], 2), "best_iou_here": round(best[0], 3)})
+        step(f"  {sd} ({rows[-1]['days_off']:+d} d): IoU {iou:.3f} at ratio {SENTINEL_DARK_RATIO} "
+             f"(precision {rows[-1]['precision']:.2f}, recall {rows[-1]['recall']:.2f}); "
+             f"{rows[-1]['wet_floor_ha']:.1f} ha read vs {rows[-1]['vetted_ha']:.1f} ha vetted; "
+             f"best ratio on this date {best[1]:.2f} -> IoU {best[0]:.3f}")
+    if not rows:
+        warn("no clear scene in the window")
+        return 1
+    pd.DataFrame(rows).to_csv(OUT / f"W94_27_validation_{date}.csv", index=False)
+    saved(f"W94_27_validation_{date}.csv")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--since", default="2016-01-01")
     ap.add_argument("--until", default=pd.Timestamp.today().date().isoformat())
     ap.add_argument("--calibrate", action="store_true")
+    ap.add_argument("--validate", metavar="DATE",
+                    help="score the fixed rule on data/geo/flood_extent_DATE_vetted.kml")
     args = ap.parse_args()
     warnings.filterwarnings("ignore", category=UserWarning, module="rasterio")
     banner("Sentinel-2 wet slack floor series", __version__)
@@ -250,6 +336,9 @@ def main() -> int:
         phase(1, "Calibrating the darkness ratio on the vetted extent")
         calibrate(Wm)
         return 0
+    if args.validate:
+        phase(1, f"Validating the fixed rule on the vetted {args.validate} extent")
+        return validate(Wm, args.validate)
     phase(1, f"Searching {args.since} to {args.until}")
     byd = _search(args.since, args.until)
     info(f"{len(byd)} candidate date(s) at tile cloud < {TILE_CLOUD_MAX:.0f} %")

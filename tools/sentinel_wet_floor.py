@@ -47,7 +47,11 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.2.1"  # Hollingham (2026) - 2026-09-15. The phase 29 mask is
+__version__ = "1.3.0"  # Hollingham (2026) - 2026-09-15. --swir-test: MNDWI, NDMI
+#   and the SWIR ratio (B11) against the vetted extents, first date's threshold
+#   carried to the second — does SWIR split flooded from damp floor? A test;
+#   the series is unchanged.
+# v1.2.1  # Hollingham (2026) - 2026-09-15. The phase 29 mask is
 #   now the FLOOR mask (cells scored only where the DEM says water can lie);
 #   --validate scores whole-warren and floor-only, the series carries
 #   wet_floor_pct_masked on the floor.
@@ -355,6 +359,104 @@ def validate(Wm, date):
     return 0
 
 
+SWIR_TEST_INDICES = ("mndwi", "ndmi", "swir_ratio", "bright_ratio")
+
+
+def _truth_cells(date):
+    """(frac wet per 10 m cell, covered mask) for a vetted date."""
+    from rasterio.features import rasterize                   # noqa: PLC0415
+    from rasterio.transform import from_origin                # noqa: PLC0415
+    from utils.kml_io import read_kml                         # noqa: PLC0415
+    W, H, tr = _grid()
+    g = GRID
+    fine = from_origin(g["left"], g["top"], 1.0, 1.0)
+    vet = read_kml(DATA_GEO_DIR / f"flood_extent_{date}_vetted.kml").to_crs("EPSG:27700")
+    Vf = rasterize([(x, 1) for x in vet.geometry], out_shape=(H * 10, W * 10),
+                   transform=fine, fill=0, dtype="uint8").astype(float)
+    frac = Vf.reshape(H, 10, W, 10).mean(axis=(1, 3))
+    covp = OUT / f"W94_26_{date}_covered.geojson"
+    cov = None
+    if covp.exists():
+        import geopandas as gpd                               # noqa: PLC0415
+        cov = rasterize([(x, 1) for x in gpd.read_file(covp).geometry], out_shape=(H, W),
+                        transform=tr, fill=0, dtype="uint8").astype(bool)
+    return frac, cov
+
+
+def swir_test(Wm, dates):
+    """Does SWIR split flooded floor from damp floor where the visible bands cannot?
+
+    For every clear scene within VALIDATE_WINDOW_DAYS of each vetted date,
+    fetches green, NIR, SWIR (B11, 20 m native, resampled to the 10 m grid) and
+    scores four indices on the floor: MNDWI (green-SWIR), NDMI (NIR-SWIR), the
+    SWIR ratio to the scene median, and the visible brightness ratio as the
+    control. Each index is swept for its best threshold ON EACH SCENE (a fit),
+    and the threshold best on the FIRST date is then applied to the others
+    (the transfer — the number that matters). Writes W94_27_swir_test.csv.
+    Nothing here changes the series.
+    """
+    shade = _shade_mask()
+    scenes = []
+    for date in dates:
+        frac, cov = _truth_cells(date)
+        ok0 = Wm & (cov if cov is not None else True) & (~shade if shade is not None else True)
+        t = pd.Timestamp(date)
+        byd = _search((t - pd.Timedelta(days=VALIDATE_WINDOW_DAYS)).date().isoformat(),
+                      (t + pd.Timedelta(days=VALIDATE_WINDOW_DAYS)).date().isoformat())
+        for sd in sorted(byd):
+            r = read_scene(sd, byd[sd], Wm)
+            if r is None:
+                continue
+            _, _, clear = r
+            b = _fetch(byd[sd], ["green", "nir", "swir16"])
+            ok = ok0 & clear
+            med = lambda a: float(np.median(a[clear]))    # noqa: E731
+            idx = {"mndwi": (b["green"] - b["swir16"]) / (b["green"] + b["swir16"] + 1e-9),
+                   "ndmi": (b["nir"] - b["swir16"]) / (b["nir"] + b["swir16"] + 1e-9),
+                   "swir_ratio": -b["swir16"] / med(b["swir16"]),        # negated: wet = high
+                   "bright_ratio": -b["green"] / med(b["green"])}      # the visible control
+            scenes.append(dict(vet=date, scene=sd, ok=ok, truth=ok & (frac >= 0.5), idx=idx))
+            info(f"  {sd} for {date}: fetched")
+
+    def score(mask_pred, truth):
+        i = (mask_pred & truth).sum()
+        return i / max(1, (mask_pred | truth).sum()), i / max(1, mask_pred.sum()), i / max(1, truth.sum())
+
+    rows = []
+    first = dates[0]
+    for name in SWIR_TEST_INDICES:
+        # best threshold per scene, and the first date's threshold carried to the rest
+        fit = {}
+        for sc in scenes:
+            v = sc["idx"][name]
+            qs = np.quantile(v[sc["ok"]], np.linspace(0.02, 0.98, 97))
+            best = max(((score(sc["ok"] & (v >= q), sc["truth"])[0], q) for q in qs))
+            fit[sc["scene"]] = best
+        ref = np.median([fit[sc["scene"]][1] for sc in scenes if sc["vet"] == first])
+        for sc in scenes:
+            v = sc["idx"][name]
+            iou_t, prec, rec = score(sc["ok"] & (v >= ref), sc["truth"])
+            rows.append({"index": name, "vetted_date": sc["vet"], "scene_date": sc["scene"],
+                         "best_iou_here": round(fit[sc["scene"]][0], 3),
+                         "best_thr_here": round(float(fit[sc["scene"]][1]), 4),
+                         f"thr_from_{first}": round(float(ref), 4),
+                         "iou_transfer": round(iou_t, 3), "precision": round(prec, 3),
+                         "recall": round(rec, 3),
+                         "read_ha": round((sc["ok"] & (v >= ref)).sum() * 0.01, 1),
+                         "vetted_ha": round(sc["truth"].sum() * 0.01, 1)})
+    R = pd.DataFrame(rows)
+    R.to_csv(OUT / "W94_27_swir_test.csv", index=False)
+    saved("W94_27_swir_test.csv")
+    for name in SWIR_TEST_INDICES:
+        sub = R[R["index"] == name]
+        step(name)
+        for _, r in sub.iterrows():
+            info(f"    {r['vetted_date']} <- {r['scene_date']}: fit IoU {r['best_iou_here']:.3f}; "
+                 f"with the {first} threshold IoU {r['iou_transfer']:.3f} "
+                 f"(P {r['precision']:.2f} R {r['recall']:.2f}) {r['read_ha']:.1f} vs {r['vetted_ha']:.1f} ha")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--since", default="2016-01-01")
@@ -362,6 +464,8 @@ def main() -> int:
     ap.add_argument("--calibrate", action="store_true")
     ap.add_argument("--validate", metavar="DATE",
                     help="score the fixed rule on data/geo/flood_extent_DATE_vetted.kml")
+    ap.add_argument("--swir-test", nargs="+", metavar="DATE",
+                    help="SWIR indices against these vetted dates; first date sets the threshold")
     args = ap.parse_args()
     warnings.filterwarnings("ignore", category=UserWarning, module="rasterio")
     banner("Sentinel-2 wet slack floor series", __version__)
@@ -370,6 +474,9 @@ def main() -> int:
         phase(1, "Calibrating the darkness ratio on the vetted extent")
         calibrate(Wm)
         return 0
+    if args.swir_test:
+        phase(1, "SWIR against the vetted extents — can it split flooded from damp floor?")
+        return swir_test(Wm, args.swir_test)
     if args.validate:
         phase(1, f"Validating the fixed rule on the vetted {args.validate} extent")
         return validate(Wm, args.validate)

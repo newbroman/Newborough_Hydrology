@@ -147,6 +147,13 @@ tracked publicly.
   He still sees it scroll; the session reads the file and can grep it rather
   than being handed 400 lines. Adopted 2026-09-02 at his request — copying long
   terminal output by hand was the friction. `tee -a` to accumulate a session.
+- **SHOW PROGRESS.** Anything handed to Martin to run that takes more than a few
+  seconds must print a completion indicator — a percentage, `n/N`, or a bar with
+  elapsed and remaining time — on its own line as it goes, not only at the end.
+  Adopted 2026-09-15 at his request: a 45-minute Sentinel download printed one
+  line per twenty scenes and looked hung. `console_utils` is the place for a
+  shared `progress()` helper; until it exists, print `  [ 37 %  112/298  4m12s left ]`
+  by hand. A silent long run is a defect, whoever wrote it.
 - **The mount refuses `unlink`.** `rm -f` on a stale git lock *fails silently*.
   Move it instead:
   ```bash

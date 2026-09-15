@@ -43,7 +43,8 @@ Usage quick-reference
 
 from __future__ import annotations
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"  # 2026-09-15: progress() — Martin's rule that a long run
+#   must show it is running (CLAUDE.md "SHOW PROGRESS"). Additive; nothing else changed.
 
 import sys
 from pathlib import Path
@@ -222,6 +223,33 @@ def done(script_id: str | None = None) -> None:
     hr()
     print(f"{_green('Done')}{_dim(label)}")
     print()
+
+
+def progress(n: int, total: int, label: str = "", started: float | None = None,
+             width: int = 30) -> None:
+    """
+    One-line, in-place completion bar with elapsed and remaining time.
+
+    Martin's rule (2026-09-15): anything he is handed to run must show that it is
+    running. Call once per unit of work; prints a carriage-return line, so the
+    caller should `print()` once after the loop to end it. `started` is the
+    `time.time()` at the loop's start; without it only the count is shown.
+
+    Example output:
+         [##########....................]  37 %  112/298  2019-07-29  4m elapsed, ~7m left
+    """
+    import time                                               # noqa: PLC0415
+    n = max(0, min(n, total))
+    fill = int(width * n / total) if total else width
+    bar = "#" * fill + "." * (width - fill)
+    pct = 100.0 * n / total if total else 100.0
+    timing = ""
+    if started is not None and n > 0:
+        el = time.time() - started
+        eta = el / n * (total - n)
+        timing = f"  {el / 60:.0f}m elapsed, ~{eta / 60:.0f}m left"
+    sys.stdout.write(f"\r  [{bar}] {pct:3.0f} %  {n}/{total}  {label}{timing}   ")
+    sys.stdout.flush()
 
 
 def result(label: str, value: str) -> None:

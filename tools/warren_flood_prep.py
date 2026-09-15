@@ -65,7 +65,11 @@ NOT DONE HERE, AND WHY
 """
 from __future__ import annotations
 
-__version__ = "1.36.1"  # Hollingham (2026) - 2026-09-15. T-28: the module
+__version__ = "1.37.0"  # Hollingham (2026) - 2026-09-15. Phase 26 honours a
+#   mosaic seam: nadir_captures.csv columns seam_x_px / seam_side exclude the
+#   part of a frame that shows another imagery date (the 2020-03-30 capture
+#   is 2019-09-11 east of a north-south tile edge). _nadir_seam().
+# v1.36.1  # Hollingham (2026) - 2026-09-15. T-28: the module
 #   docstring now says WHICH PHASES ARE LIVE and which are superseded (D-168,
 #   D-169), so the next session can tell without reading 7,800 lines. No code
 #   change.
@@ -7549,7 +7553,8 @@ NADIR_TWIN_MIN_SNR = 200      # phase-correlation peak / sd for a clean twin
 
 
 def _nadir_manifest():
-    """One row per screenshot: filename, imagery_date, pin_tip_n_m, note.
+    """One row per screenshot: filename, imagery_date, pin_tip_n_m, note,
+    and optionally seam_x_px / seam_side (see _nadir_seam).
 
     pin_tip_n_m is the distance the placemark's anchor sits NORTH of the point
     the detector returns, in metres, and it depends on how large Google Earth
@@ -7565,6 +7570,25 @@ def _nadir_manifest():
     m = pd.read_csv(NADIR_MANIFEST, float_precision="round_trip")
     m["imagery_date"] = m["imagery_date"].astype(str)
     return m
+
+
+def _nadir_seam(r):
+    """(column, side) if the manifest row marks a mosaic seam, else None.
+
+    Google Earth's historical imagery is a mosaic: on 2020-03-30 the tiles east
+    of a north-south line are 2019-09-11. The manifest columns seam_x_px (the
+    screen column of the seam, found as the largest step in the frame's column
+    means and checked by eye) and seam_side ("E": the columns from seam_x_px
+    eastwards are the other date; "W": the columns before it) exclude the
+    foreign tile from the read. The excluded part counts as not covered, so
+    warren_covered_pct in the summary says how much of the warren the date
+    actually shows. Both columns blank, or absent, means one date per frame.
+    """
+    sx = r.get("seam_x_px")
+    if sx is None or (isinstance(sx, float) and np.isnan(sx)) or str(sx).strip() == "":
+        return None
+    side = str(r.get("seam_side", "E")).strip().upper() or "E"
+    return int(float(sx)), side
 
 
 def _detect_pins(a):
@@ -7764,7 +7788,8 @@ def phase26(dates=None) -> int:
         if fit is not None:
             H, n, rpx, gsd = fit
             frames[r["filename"]] = dict(date=r["imagery_date"], H=H, via="pins",
-                                         tip=float(r["pin_tip_n_m"]), gsd=gsd)
+                                         tip=float(r["pin_tip_n_m"]), gsd=gsd,
+                                         seam=_nadir_seam(r))
             reg_rows.append({"filename": r["filename"], "imagery_date": r["imagery_date"],
                              "via": "pins", "n_pins": n, "residual_px": round(rpx, 3),
                              "gsd_m": round(gsd, 3), "pin_tip_n_m": r["pin_tip_n_m"]})
@@ -7791,7 +7816,8 @@ def phase26(dates=None) -> int:
         dx, dy, snr, g = best
         Tm = np.array([[1, 0, dx], [0, 1, dy], [0, 0, 1]], float)
         frames[f] = dict(date=r["imagery_date"], H=Tm @ frames[g]["H"], via=f"twin of {g}",
-                         tip=float(r["pin_tip_n_m"]), gsd=frames[g]["gsd"])
+                         tip=float(r["pin_tip_n_m"]), gsd=frames[g]["gsd"],
+                         seam=_nadir_seam(r))
         reg_rows.append({"filename": f, "imagery_date": r["imagery_date"],
                          "via": f"twin of {g} ({dx:+d},{dy:+d}) snr {snr:.0f}",
                          "n_pins": 0, "residual_px": None,
@@ -7823,6 +7849,12 @@ def phase26(dates=None) -> int:
             valid[r0:r1, c0:c1] = False
             r0, r1, c0, c1 = NADIR_GE_LOGO
             valid[r0:r1, c0:c1] = False
+            if v.get("seam") is not None:          # a second imagery date in the frame
+                sx, side = v["seam"]
+                if side == "E":
+                    valid[:, sx:] = False
+                else:
+                    valid[:, :sx] = False
             valid &= ~ndi.binary_dilation(pin, iterations=4)
             px, py = _apply_h(v["H"], EE, NN - v["tip"])
             px, py = np.rint(px).astype(int), np.rint(py).astype(int)

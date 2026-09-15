@@ -1409,6 +1409,16 @@ sits north of the point the detector returns and depends on the icon scale GE dr
 (`data/geo/Screenshot*.png`) for D-081's reason; attribution as the status bar prints it (CNES /
 Airbus for 2021 and 2019; Maxar for 2012).
 
+### `Screenshot from 2026-09-15 16-1*.png` (8) — the 2020-03-30 set, with a mosaic seam
+Same viewpoints (the `capture_guide_4_frames.kml` frames), 2.04 km, Terrain OFF, pins at icon
+scale 0.5 with clean twins. **Google Earth's 30/3/2020 layer is a mosaic**: east of a
+north–south tile edge the imagery is 11/9/2019 (Martin, from the status bar). The seam's screen
+column in each frame (`seam_x_px`, side `E` in `nadir_captures.csv`) was found as the largest
+step in the frame's column means and confirmed by eye; phase 26 excludes the eastern tile, so
+the date's `warren_covered_pct` is the part of the warren the 2020 imagery actually shows.
+Captured to VALIDATE the Sentinel-2 wet-floor rule at a second wetness (Sentinel 2020-03-25 read
+13.8 % wet floor against 25 % on 2021-04-04), not to recalibrate it.
+
 ### `flood_extent_2021-03-24_vetted.kml` — the accepted extent (D-169)
 1,646 bodies, 106.47 ha. Read by `warren_flood_prep.py` phase 26 from the four 2021 nadir
 captures (luminance ≤ 80 = 27 below the frame median, inside `warren.kml`, ≥ 10 m² at the time),

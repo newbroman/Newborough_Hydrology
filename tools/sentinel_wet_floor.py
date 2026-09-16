@@ -41,13 +41,20 @@ USAGE
   python3 tools/sentinel_wet_floor.py --since 2020-10-01 --until 2021-04-30
   python3 tools/sentinel_wet_floor.py --calibrate     # refit SENTINEL_DARK_RATIO on TRUTH_KML
   python3 tools/sentinel_wet_floor.py --validate 2020-03-30   # score the FIXED rule on a 2nd vet
+  python3 tools/sentinel_wet_floor.py --two-class [--animate]  # the wet-area model (D-178)
 
   Needs `pystac-client` (pip install pystac-client) and network. Per-scene
   rasters are cached under working/updates/sentinel_cache/ (gitignored size).
 """
 from __future__ import annotations
 
-__version__ = "1.5.0"  # Hollingham (2026) - 2026-09-16. --cells: a supervised
+__version__ = "1.6.0"  # Hollingham (2026) - 2026-09-16. --two-class: THE WET-AREA
+#   MODEL (D-178) — open water (B8 <= 0.5 x median) and wet floor (0.5-0.8)
+#   on the floor, each fitted a*exp(b*h) against the well level at the scene
+#   date, no vet in the fit; per-cell switching levels from the scene stack;
+#   phase 27's SSM level through the curves; --animate the monthly MP4.
+#   Consolidates the 2026-09-16 sandbox runs into the tool.
+# v1.5.0  # Hollingham (2026) - 2026-09-16. --cells: a supervised
 #   per-cell classifier (all five bands relative to the scene median + NDWI,
 #   NDMI, MNDWI; logistic, Newton) trained on the vetted 2021 extent and
 #   applied unchanged to 2020 — Martin: the single ratio under-rates Sentinel.
@@ -86,6 +93,7 @@ __version__ = "1.5.0"  # Hollingham (2026) - 2026-09-16. --cells: a supervised
 #   2026-09-15 sandbox series; see CHANGELOG_delta_2026-09-15b.
 
 import argparse
+import time
 import os
 import sys
 import warnings
@@ -488,7 +496,7 @@ def _cell_features(item, clear):
     for k in CELL_BANDS:
         med = float(np.median(b[k][clear]))
         feats.append(np.log(np.clip(b[k], 1, None) / max(med, 1.0)))
-    g, r, n, sw = b["green"], b["red"], b["nir"], b["swir16"]
+    g, n, sw = b["green"], b["nir"], b["swir16"]
     feats.append((g - n) / (g + n + 1e-9))
     feats.append((n - sw) / (n + sw + 1e-9))
     feats.append((g - sw) / (g + sw + 1e-9))
@@ -641,6 +649,230 @@ def cells(Wm, dates):
     return 0
 
 
+# ── the two-class wet-area model (D-178) ──────────────────────────────────────
+NIR_BLACK_RATIO = 0.50        # B8 <= this x the scene's clear-floor median = open water
+NIR_DARK_RATIO = 0.80         # B8 <= this (and above BLACK) = wet floor
+TWO_CLASS_EXCLUDE = ("2016-12-26",)   # a 12-degree-sun December scene, 3.5x off the curve
+CELL_MIN_SCENES = 10          # a cell seen in fewer scenes gets no switching level
+HINDCAST_MONTHLY = OUT / "W94_27_hindcast_monthly.csv"   # phase 27's levels (warren_flood_prep)
+
+
+def _b8_scene(date, item, Wm):
+    """B8 for one usable scene, cached beside the visible read."""
+    p = CACHE / f"b8_{date}.npz"
+    if p.exists():
+        z = np.load(p)
+        return z["nir"], z["clear"]
+    r = read_scene(date, item, Wm)
+    if r is None:
+        return None
+    nir = _fetch(item, ["nir"])["nir"].astype("float32")
+    np.savez_compressed(p, nir=nir, clear=r[2])
+    return nir, r[2]
+
+
+def _level_at(date, end):
+    """Median well level interpolated to a date from the bracketing month-end
+    readings, and the rate of change (m/month); NaN when the gap exceeds 45 d."""
+    d = pd.Timestamp(date)
+    after, before = end[end.index >= d], end[end.index < d]
+    if not len(after) or not len(before):
+        return np.nan, np.nan
+    t1, h1, t0, h0 = after.index[0], after.iloc[0], before.index[-1], before.iloc[-1]
+    if (t1 - t0).days > 45:
+        return np.nan, np.nan
+    f = (d - t0).days / (t1 - t0).days
+    return h0 + f * (h1 - h0), (h1 - h0) / ((t1 - t0).days / 30.4)
+
+
+def _fit_exp(y, h):
+    """log-linear fit y = a·exp(b·h); returns a, b, sigma (log), Spearman rho."""
+    ly = np.log(np.clip(y, 0.3, None))
+    b, la = np.polyfit(h, ly, 1)
+    sd = float((ly - (la + b * h)).std())
+    rho = float(pd.Series(y).rank().corr(pd.Series(h).rank()))
+    return float(np.exp(la)), float(b), sd, rho
+
+
+def _cell_switch_levels(cls, seen, h):
+    """Per cell, the lowest level at which the cell is in the class — the step on
+    the scene-date level that best explains the cell's own history (scenes sorted
+    by h). inf = never in the class, or seen in fewer than CELL_MIN_SCENES."""
+    n, H, W = cls.shape
+    inc = (cls & seen).astype(np.int16)
+    notc = (~cls & seen).astype(np.int16)
+    cum_in, cum_not, tot_not = np.cumsum(inc, 0), np.cumsum(notc, 0), notc.sum(0)
+    best_err = np.full((H, W), 10 ** 6, np.int32)
+    best_k = np.full((H, W), n, np.int16)
+    for k in range(n + 1):
+        err = (cum_in[k - 1] if k else 0) + tot_not - (cum_not[k - 1] if k else 0)
+        better = err < best_err
+        best_err[better], best_k[better] = err[better], k
+    lvl = np.where(best_k >= n, np.inf, h[np.minimum(best_k, n - 1)])
+    lvl[seen.sum(0) < CELL_MIN_SCENES] = np.inf
+    return lvl, best_err
+
+
+def two_class(Wm, animate=False):
+    """The hands-free wet-area model: open water and wet floor from B8 alone,
+    each a function of the median well level; the per-cell switching levels;
+    the SSM drive; the figures. D-178. Reads the series CSV (run the series
+    first). Writes W94_27_two_class_series.csv, W94_27_wet_area_model.csv (the
+    four parameters and their sigmas — the model), W94_27_cell_thresholds.npz,
+    W94_27_ssm_through_nir_curves.csv/.png when phase 27's levels exist, and
+    the fit figure; --animate adds the month-by-month MP4 (Mode R).
+    """
+    import matplotlib                                         # noqa: PLC0415
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt                           # noqa: PLC0415
+    shade = _shade_mask()
+    floor = Wm & (~shade if shade is not None else True)
+    S = pd.read_csv(OUT / "W94_27_sentinel_wet_floor.csv")
+    S = S[S["winter"] & S["h_median"].notna() & ~S["date"].isin(TWO_CLASS_EXCLUDE)]
+    M = _wells_monthly()["h_median"].dropna()
+    end = pd.Series(M.values, index=M.index + pd.offsets.MonthEnd(0))
+    byd = {}
+    for y in sorted({d[:4] for d in S["date"]}):
+        byd.update(_search(f"{y}-01-01", f"{y}-12-31"))
+    phase(1, f"Reading B8 for {len(S)} winter scenes (cached)")
+    rows, stack = [], []
+    t0 = time.time()
+    for n, (_, r) in enumerate(S.iterrows(), 1):
+        progress(n, len(S), r["date"], started=t0)
+        h, dh = _level_at(r["date"], end)
+        if np.isnan(h) or r["date"] not in byd:
+            continue
+        b = _b8_scene(r["date"], byd[r["date"]], Wm)
+        if b is None:
+            continue
+        nir, clear = b
+        ok = floor & clear
+        med = float(np.median(nir[ok]))
+        black, dark = ok & (nir <= NIR_BLACK_RATIO * med), ok & (nir <= NIR_DARK_RATIO * med)
+        sc = floor.sum() / ok.sum() * 0.01
+        rows.append({"date": r["date"], "h_scene": round(h, 3), "dh_month": round(dh, 3),
+                     "phase": "wetting" if dh > 0.02 else ("drying" if dh < -0.02 else "flat"),
+                     "open_water_ha": round(black.sum() * sc, 2),
+                     "wet_floor_ha": round((dark.sum() - black.sum()) * sc, 2),
+                     "dark_total_ha": round(dark.sum() * sc, 2)})
+        stack.append((h, ok, black, dark))
+    print(flush=True)
+    R = pd.DataFrame(rows)
+    R.to_csv(OUT / "W94_27_two_class_series.csv", index=False)
+    saved("W94_27_two_class_series.csv")
+    phase(2, "Fitting the two curves on the scenes alone")
+    fits = {}
+    for cls in ("open_water", "wet_floor", "dark_total"):
+        a, b, sd, rho = _fit_exp(R[f"{cls}_ha"].values, R["h_scene"].values)
+        fits[cls] = dict(cls=cls, a=a, b=b, sigma_log=sd, sigma_factor=float(np.exp(sd)), rho=rho,
+                         n=len(R), h_min=float(R["h_scene"].min()), h_max=float(R["h_scene"].max()))
+        step(f"{cls}: {a:.1f} * exp({b:.2f} h) ha; sigma x/÷ {np.exp(sd):.2f}; rho {rho:+.2f}; n {len(R)}")
+    pd.DataFrame(fits.values()).to_csv(OUT / "W94_27_wet_area_model.csv", index=False)
+    saved("W94_27_wet_area_model.csv  (the model)")
+    hh = np.linspace(R["h_scene"].min() - 0.05, R["h_scene"].max() + 0.1, 60)
+    fig, ax = plt.subplots(figsize=(8.5, 5.4))
+    for cls, c, lab in (("open_water", "#0b6e8f", "open water (B8 <= 0.5 x median)"),
+                        ("wet_floor", "#d4a017", "wet floor (0.5-0.8)")):
+        f = fits[cls]
+        ax.scatter(R["h_scene"], R[f"{cls}_ha"], s=24, color=c, alpha=0.85)
+        ax.fill_between(hh, f["a"] * np.exp(f["b"] * hh - f["sigma_log"]),
+                        f["a"] * np.exp(f["b"] * hh + f["sigma_log"]), color=c, alpha=0.12)
+        ax.plot(hh, f["a"] * np.exp(f["b"] * hh), color=c, lw=2,
+                label=f"{lab}: {f['a']:.0f}·exp({f['b']:.2f}·h) ha, rho {f['rho']:+.2f}")
+    ax.set_xlabel("median well level at the scene date, m (0 = ground)")
+    ax.set_ylabel("area, ha (whole warren)")
+    ax.set_title(f"The wet-area model — {len(R)} winter Sentinel-2 scenes, B8 alone, no vet (D-178)", fontsize=9.5)
+    ax.grid(alpha=0.3); ax.legend(fontsize=8, loc="upper left")
+    fig.tight_layout(); fig.savefig(OUT / "W94_27_wet_area_model.png", dpi=160); plt.close(fig)
+    saved("W94_27_wet_area_model.png")
+    phase(3, "Per-cell switching levels")
+    order = np.argsort([s_[0] for s_ in stack])
+    h = np.array([stack[i][0] for i in order])
+    seen = np.stack([stack[i][1] for i in order]); black = np.stack([stack[i][2] for i in order])
+    dark = np.stack([stack[i][3] for i in order])
+    hb, eb = _cell_switch_levels(black, seen, h)
+    hd, ed = _cell_switch_levels(dark, seen, h)
+    hd = np.minimum(hd, hb)
+    np.savez_compressed(OUT / "W94_27_cell_thresholds.npz", h_open_water=hb, h_wet_floor=hd,
+                        err_open_water=eb, err_wet_floor=ed, n_seen=seen.sum(0), floor=floor,
+                        grid=np.array([GRID["left"], GRID["bottom"], GRID["right"], GRID["top"], GRID["res"]]))
+    step(f"{int((np.isfinite(hb) & floor).sum())} cells ever open water, "
+         f"{int((np.isfinite(hd) & floor).sum())} ever wet floor, of {int(floor.sum())} on the floor")
+    saved("W94_27_cell_thresholds.npz")
+    if not HINDCAST_MONTHLY.exists():
+        warn(f"no {HINDCAST_MONTHLY.name}: the SSM drive needs phase 27's levels")
+        return 0
+    phase(4, "The SSM's monthly level through the two curves")
+    Hc = pd.read_csv(HINDCAST_MONTHLY)
+    for cls in ("open_water", "wet_floor"):
+        f = fits[cls]
+        Hc[f"{cls}_ha_modelled"] = f["a"] * np.exp(f["b"] * Hc["median_level_modelled_m"])
+        Hc[f"{cls}_ha_observed"] = np.where(Hc["median_level_observed_m"].notna(),
+                                            f["a"] * np.exp(f["b"] * Hc["median_level_observed_m"]), np.nan)
+    keep = ["month", "mode", "median_level_modelled_m", "median_level_observed_m", "n_wells_observed",
+            "open_water_ha_modelled", "wet_floor_ha_modelled", "open_water_ha_observed",
+            "wet_floor_ha_observed", "sentinel_index"]
+    Hc[keep].round(3).to_csv(OUT / "W94_27_ssm_through_nir_curves.csv", index=False)
+    saved("W94_27_ssm_through_nir_curves.csv")
+    for m, g in Hc.groupby("mode"):
+        ok = g["median_level_observed_m"].notna() & (g["n_wells_observed"] >= 20)
+        for cls in ("open_water", "wet_floor"):
+            e = np.log(g.loc[ok, f"{cls}_ha_modelled"]) - np.log(g.loc[ok, f"{cls}_ha_observed"])
+            step(f"Mode {m} {cls}: median x{np.exp(np.median(e)):.2f}, 68 % range "
+                 f"x{np.exp(np.percentile(e, 16)):.2f}-{np.exp(np.percentile(e, 84)):.2f} over {int(ok.sum())} months")
+    t = pd.to_datetime(Hc["month"])
+    fig, axes = plt.subplots(2, 1, figsize=(12, 7), sharex=True)
+    for ax, m in zip(axes, ("R", "C")):
+        g = Hc[Hc["mode"] == m]; tt = t[g.index]
+        ax.fill_between(tt, 0, g["open_water_ha_modelled"], color="#0b6e8f", alpha=0.85, label="open water, SSM level")
+        ax.fill_between(tt, g["open_water_ha_modelled"], g["open_water_ha_modelled"] + g["wet_floor_ha_modelled"],
+                        color="#d4a017", alpha=0.55, label="wet floor, SSM level")
+        o = g[g["median_level_observed_m"].notna() & (g["n_wells_observed"] >= 20)]
+        ax.plot(t[o.index], o["open_water_ha_observed"] + o["wet_floor_ha_observed"], color="black", lw=0.8,
+                label="same curves on the observed level")
+        ax.set_ylabel("ha (whole warren)"); ax.grid(alpha=0.3); ax.legend(fontsize=7.5, loc="upper left")
+        ax.set_title(f"Mode {m} — SSM monthly level through the two curves", fontsize=9.5)
+    fig.tight_layout(); fig.savefig(OUT / "W94_27_ssm_through_nir_curves.png", dpi=150); plt.close(fig)
+    saved("W94_27_ssm_through_nir_curves.png")
+    if animate:
+        _animate(Hc, hb, hd, floor)
+    return 0
+
+
+def _animate(Hc, hb, hd, floor):
+    """Month-by-month MP4 of the two classes under the SSM Mode R level, each
+    cell switched at its own observed level. An illustration of the area model
+    on the Sentinel grid, not a flood map (D-177 stands)."""
+    import imageio                                            # noqa: PLC0415
+    import matplotlib.pyplot as plt                           # noqa: PLC0415
+    from PIL import Image                                     # noqa: PLC0415
+    R = Hc[Hc["mode"] == "R"].reset_index(drop=True)
+    bg = OUT / "W94_27_scene_2021-04-04.png"
+    base = (np.array(Image.open(bg).convert("L")).astype(float) / 255 if bg.exists()
+            else np.full(floor.shape, 0.6))
+    rgb = np.stack([base * 0.55 + 0.25] * 3, -1)
+    fig = plt.figure(figsize=(9.2, 6.4), dpi=100); gs = fig.add_gridspec(5, 1)
+    ax, ax2 = fig.add_subplot(gs[:4]), fig.add_subplot(gs[4])
+    t, lvl = pd.to_datetime(R["month"]), R["median_level_modelled_m"].values
+    ax2.plot(t, lvl, color="black", lw=0.8); ax2.axhline(0, color="grey", lw=0.6, ls=":")
+    ax2.set_ylabel("SSM level, m", fontsize=8); ax2.tick_params(labelsize=7); ax2.set_ylim(-1.3, 0.2)
+    marker = ax2.axvline(t[0], color="#c0504d", lw=1.4)
+    im = ax.imshow(rgb); ax.set_axis_off(); title = ax.set_title("", fontsize=10)
+    frames = []
+    for i in range(len(R)):
+        h = lvl[i]; img = rgb.copy(); y, b = floor & (hd <= h), floor & (hb <= h)
+        img[y] = [0.85, 0.68, 0.10]; img[b] = [0.04, 0.43, 0.56]
+        im.set_data(img); marker.set_xdata([t[i], t[i]])
+        title.set_text(f"{t[i].strftime('%B %Y')} — SSM Mode R level {h:+.2f} m   open water "
+                       f"{b.sum() * 0.01:.0f} ha   wet floor {y.sum() * 0.01 - b.sum() * 0.01:.0f} ha")
+        fig.canvas.draw(); a = np.asarray(fig.canvas.buffer_rgba())[..., :3]
+        frames.append(a[:a.shape[0] // 2 * 2, :a.shape[1] // 2 * 2].copy())
+    plt.close(fig)
+    imageio.mimwrite(OUT / "W94_27_wet_area_animation_modeR.mp4", frames, fps=8, codec="libx264",
+                     quality=8, macro_block_size=None)
+    saved("W94_27_wet_area_animation_modeR.mp4")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--since", default="2016-01-01")
@@ -650,6 +882,10 @@ def main() -> int:
                     help="score the fixed rule on data/geo/flood_extent_DATE_vetted.kml")
     ap.add_argument("--swir-test", nargs="+", metavar="DATE",
                     help="SWIR indices against these vetted dates; first date sets the threshold")
+    ap.add_argument("--two-class", action="store_true",
+                    help="the wet-area model (D-178): open water and wet floor from B8 vs the "
+                         "wells, per-cell switching levels, the SSM drive; needs the series")
+    ap.add_argument("--animate", action="store_true", help="with --two-class: the monthly MP4")
     ap.add_argument("--cells", nargs="+", metavar="DATE",
                     help="supervised per-cell classifier trained on the first vetted date, "
                          "tested on the rest; writes vettable KMLs and true-colour overlays")
@@ -661,6 +897,8 @@ def main() -> int:
         phase(1, "Calibrating the darkness ratio on the vetted extent")
         calibrate(Wm)
         return 0
+    if args.two_class:
+        return two_class(Wm, animate=args.animate)
     if args.cells:
         phase(1, "Per-cell classifier trained on the vetted extent, every band")
         return cells(Wm, args.cells)
@@ -678,7 +916,6 @@ def main() -> int:
     if shade is None:
         warn(f"no {FLOOR_MASK.name}: wet_floor_pct_masked will be blank (phase 29 builds it)")
     rows = []
-    import time                                               # noqa: PLC0415
     t0 = time.time()
     total = len(byd)
     for n, (date, item) in enumerate(sorted(byd.items()), 1):

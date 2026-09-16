@@ -74,7 +74,73 @@ NOT DONE HERE, AND WHY
 """
 from __future__ import annotations
 
-__version__ = "1.39.0"  # Hollingham (2026) - 2026-09-16. PHASE 27: the
+__version__ = "1.42.0"  # Hollingham (2026) - 2026-09-16. THE BOUNDARY'S NAMES
+#   NOW SAY WHAT IT IS (D-176, Martin: "rename them too"). It is a tidal
+#   fixed-head boundary at the shoreline; it was called an estuary, and after
+#   D-175 its source constant was called COAST_BOUNDARY_SOURCE while the file it
+#   reads is a coastline. `_estuary_control` -> `_tidal_control`, `ESTUARY_*` and
+#   the day-old `COAST_BOUNDARY_SOURCE*` -> `TIDAL_*`, `HINDCAST_ESTUARY_BC` ->
+#   `HINDCAST_TIDAL_BC`, `--coast-source` -> `--tidal-source`, `--hc-no-estuary`
+#   -> `--hc-no-tidal`. TIDAL_ because COAST_ is already a busy namespace here
+#   (COAST_RETREAT_RATE, COAST_SHORE_LEVEL_M, COAST_ANCHOR and more, all about
+#   shoreline RETREAT), and because "a tidal boundary ... a constant-head sea
+#   boundary" is Paper 1's own phrase. NO BEHAVIOUR CHANGES and no number moves,
+#   with ONE exception stated rather than buried: phase 16's emitted column
+#   `dist_estuary_m` is now `dist_tidal_m`, so the committed
+#   W94_70_slack_shortfall_2021-03-24.csv carries the old header until phase 16
+#   is re-run. The prose that described the SEAWARD flank as estuary-facing is
+#   corrected with it; "estuarine deposits" and the excluded Malltraeth estuary
+#   are geology and are left alone.
+# v1.41.0  # Hollingham (2026) - 2026-09-16. THE TIDAL BOUNDARY
+#   READS THE COMMITTED COASTLINE (D-175, Martin: "use coastline_hwm.geojson
+#   instead of moad.kml"). `_tidal_control` laid its control points along
+#   `moad.kml`, a 36-vertex Google Earth line of no stated provenance that
+#   `GEO_PROVENANCE.md` had recorded as used by nothing at all on 2026-08-28,
+#   three weeks before 2026-09-13 made it the site's boundary condition. It now
+#   reads `data/geo/coastline_hwm.geojson` - OpenStreetMap `natural=coastline`
+#   via Overpass, ODbL, extracted 2026-06-30, EPSG:27700, Malltraeth excluded -
+#   which Script 20 already uses as the fixed-head boundary for the
+#   method-of-images scrape drawdown, so one sourced geometry now serves both.
+#   Measured rather than assumed: inside `site.buffer(400)` it yields 130 control
+#   points against moad's 68, and every moad point has a coastline point a median
+#   35 m away (182 m at worst) - the same margin at roughly twice the density.
+#   `--tidal-source moad` reproduces the old geometry. AFFECTS phases 13, 14, 15,
+#   16 and 27, whose areas will move slightly; all of them are NOT ADOPTED and
+#   write only to working/updates (RB-16 to RB-22), and no document cites them,
+#   so no published number moves. Also corrects the margin's NAME throughout: the
+#   aquifer discharges to Caernarfon Bay and the Menai Strait, NOT the Malltraeth
+#   estuary, which lies beyond the bedrock ridge and drains a hydrologically
+#   separate dune system the study excludes (Paper 1 section 2; report7). See the
+#   2026-09-16 Note on D-164.
+# v1.40.0  # Hollingham (2026) - 2026-09-16. PHASE 27's SPATIAL
+#   STEP IS REPLACED (D-174, spec NRG_spec_phase27_smooth_surface_2026-09-16).
+#   The nearest-hollow spread is retired: every cell took its nearest hollow's
+#   level, so the surface was a Voronoi tiling of the hollow inventory and one
+#   hollow flipping wet-to-dry flipped its whole cell with it. In its place the
+#   water table is INTERPOLATED to the 2 m grid from every hollow as a control
+#   point, wet and dry alike, and wet is the debiased DEM below it.
+#   `HINDCAST_SURFACE` selects the construction and all three stay runnable:
+#   `tiled` (part E, for the third self-test and the record), `idw` (the spec as
+#   first written - the water-table ELEVATION, no boundary condition), and
+#   `idw_depth` (adopted: the DEPTH form, and the seaward tidal boundary
+#   condition — Caernarfon Bay and the Menai Strait, NOT Malltraeth; see
+#   `_tidal_control` and the Note appended to D-164 on 2026-09-16).
+#   The two corrections are this repository's own measurements, not preferences:
+#   phase 16 measured interpolating an absolute water table here at 714 of 1,236
+#   observed-wet slacks missed by a median 1.278 m with the shortfall on distance
+#   to the nearest control point at r = +0.51, and `_tidal_control` exists
+#   because without it a dry control returned 20.85 ha on the seaward
+#   flank. Neither is asserted over the spec - `--hc-surface` runs either, and
+#   anything but the adopted construction writes under `W94_27_<surface>_*` so
+#   the three sit on disk together. The control net does not move, so the IDW
+#   weights are built ONCE (k = HINDCAST_IDW_K = 12 nearest, the global form
+#   being a dense n_control x n_cell matrix on this grid) and the substitution is
+#   MEASURED against the global form on the checked months rather than assumed.
+#   New beside the existing outputs: `W94_27_surface_<mode>_<YYYY-MM>.tif`, the
+#   water table itself; the permanently wet floor reported BESIDE comparison 4
+#   as a fixed offset rather than counted against it. Phases 18 and 24 untouched;
+#   comparison 1 does not depend on the surface and does not move.
+# v1.39.0  # Hollingham (2026) - 2026-09-16. PHASE 27: the
 #   wet-floor hindcast (spec NRG_spec_phase27_hindcast_v2_2026-09-15, D-170).
 #   Phase 18's engine run to EVERY month from HINDCAST_START to the end of the
 #   climate record, in Mode R (restart each October from the observed Aug-Sep
@@ -308,8 +374,8 @@ __version__ = "1.39.0"  # Hollingham (2026) - 2026-09-16. PHASE 27: the
 #   slack floor. Three corrections make it survive its own controls:
 #   merge-tree slack units instead of hollows (composites and basins that
 #   drain to the sea are gone), the lake gauge out of the interpolation, and
-#   the ESTUARY AS A BOUNDARY CONDITION (Martin), which fixes the
-#   estuary-facing flank for a physical reason where a distance cap would
+#   the SEA AS A BOUNDARY CONDITION (Martin), which fixes the
+#   seaward flank for a physical reason where a distance cap would
 #   have discarded a fifth of the warren on every date.
 # 1.11.0  Hollingham (2026) - 2026-09-13. Phase 10's three
 #   contrasts are COMBINED into one signed score rather than thresholded
@@ -412,7 +478,8 @@ from utils.config import CANOPY_CLOSURE_RATIO                 # noqa: E402
 from utils.console_utils import (banner, info, phase, progress, saved, step,
                                 warn)  # noqa: E402
 from utils.buckets import month_bucket                       # noqa: E402
-from utils.paths import DATA_DEM, DATA_GEO_DIR                # noqa: E402
+from utils.paths import (DATA_COASTLINE_HWM, DATA_DEM,         # noqa: E402
+                         DATA_GEO_DIR)
 from utils.warren_mask import (OSGB, _features, canopy_on, closure_dates,
                                warren_on)  # noqa: E402
 
@@ -441,8 +508,8 @@ def main() -> int:
                          "structurally blind to the datum; 'equilibrium' uses "
                          "the level recent climate sustains, which is not")
     ap.add_argument("--z-b", dest="z_b", default="",
-                    help="phase 13: the estuary boundary level, m AOD "
-                         "(default ESTUARY_LEVEL_M_AOD)")
+                    help="phase 13: the tidal boundary level, m AOD "
+                         "(default TIDAL_LEVEL_M_AOD)")
     ap.add_argument("--datums", default="",
                     help="phase 12: comma-separated datum sweep, metres")
     ap.add_argument("--wet", default=None,
@@ -513,6 +580,37 @@ def main() -> int:
                          "observed August-September well minimum; C is seeded "
                          "once and never sees a well again. Both, by default, "
                          "because the comparison between them is the point")
+    ap.add_argument("--tidal-source", dest="tidal_source",
+                    choices=TIDAL_SOURCES,
+                    default=TIDAL_SOURCE,
+                    help="the tidal boundary line for phases 13-16 and 27. "
+                         "'coastline_hwm' is the committed OSM MHW coastline "
+                         "(ODbL, EPSG:27700, Malltraeth excluded) that Script 20 "
+                         "already uses; 'moad' is the hand-drawn line it "
+                         "replaced (D-175), kept so the committed phase 13 "
+                         "numbers can be reproduced")
+    ap.add_argument("--hc-surface", dest="hc_surface",
+                    choices=HINDCAST_SURFACES, default=HINDCAST_SURFACE,
+                    help="phase 27: the spatial step. 'idw_depth' is D-174's "
+                         "adopted construction (the water table interpolated in "
+                         "the depth form, with the seaward tidal boundary); "
+                         "'idw' is the same interpolation in the elevation form "
+                         "and with no boundary, as the spec first wrote it; "
+                         "'tiled' is phase 24 part E's retired nearest-hollow "
+                         "spread, kept so the replacement is measured against "
+                         "it. Anything but the adopted one writes its artefacts "
+                         "under W94_27_<surface>_*")
+    ap.add_argument("--hc-idw-k", dest="hc_idw_k", type=int,
+                    default=HINDCAST_IDW_K,
+                    help="phase 27: nearest control points per cell; 0 is every "
+                         "one of them, which this grid cannot hold")
+    ap.add_argument("--hc-no-tidal", dest="hc_no_tidal",
+                    action="store_true",
+                    help="phase 27: drop the seaward tidal boundary "
+                         "condition (Caernarfon Bay and the Menai Strait). "
+                         "Before it existed a dry control returned 20.85 ha of "
+                         "flooding in one band on the seaward flank, so "
+                         "this is a diagnostic and not a way to run")
     ap.add_argument("--no-rasters", dest="no_rasters", action="store_true",
                     help="phase 27: skip the GTiff and KML writes for the "
                          "vetted and extreme months. The comparisons are "
@@ -523,6 +621,13 @@ def main() -> int:
     args = ap.parse_args()
 
     banner("W94 step 1 — the warren mask by frame date", __version__)
+    if args.tidal_source != TIDAL_SOURCE:
+        # Rebound once, here, rather than threaded through five phases that all
+        # call _tidal_control(site) with no say in the matter. The run says
+        # which line it used on every phase that lays a boundary point.
+        globals()["TIDAL_SOURCE"] = args.tidal_source
+        warn(f"tidal boundary source overridden to {args.tidal_source} "
+             f"({_tidal_source_name()}) — D-175 adopts coastline_hwm")
     if args.phase == 8:
         return phase8(dates=args.date, calibrate=args.calibrate,
                       series=args.series, force_read=args.force_read,
@@ -542,7 +647,9 @@ def main() -> int:
                  f"choose from {', '.join(HINDCAST_MODES)}")
             return 1
         return phase27(modes=md, months=args.months,
-                       rasters=not args.no_rasters)
+                       rasters=not args.no_rasters,
+                       surface=args.hc_surface, idw_k=args.hc_idw_k,
+                       tidal_bc=not args.hc_no_tidal)
     if args.phase == 26:
         return phase26(dates=args.date)
     if args.phase == 25:
@@ -1333,17 +1440,43 @@ VP2_RESIDUAL_M = 3.93
 # sweep is run so a flat curve cannot be read as a preference.
 DATUM_CURVE_MIN_SPAN = 0.02
 # ── the tidal boundary (phase 13) ──────────────────────────────────────────
-# The aquifer discharges to the Malltraeth estuary, so the water table is pinned
-# near tide level along that margin. `moad.kml` is the line; 0 m AOD is
+# THE MARGIN IS THE SEAWARD ONE, NOT MALLTRAETH (corrected 2026-09-16, Martin:
+# "nothing discharges to malltreath"). The aquifer discharges principally across
+# the south-western foreshore of Caernarfon Bay and the southern and eastern
+# coast of the Menai Strait (Paper 1 section 2; report7), and the water table is
+# pinned near tide level along THAT margin. The dune terrain on the north-western
+# flank of the bedrock ridge, which does drain toward the Malltraeth estuary, is
+# hydrologically SEPARATE from this aquifer and is outside the study area; the
+# Methods Supplement excludes Malltraeth Sands from `coastline_hwm.geojson` for
+# the same reason. `moad.kml` is the line, and it always was the seaward one:
+# its 36 vertices sit a median 75 m from `coastline_hwm.geojson` (29 of 36 within
+# 200 m), so the GEOMETRY and the physics were right from 2026-09-13 and only the
+# name attached to them was wrong. 0 m AOD is
 # approximately mean sea level and is the conservative end of the defensible
 # range (a water table at a tidal margin usually sits a little ABOVE mean tide,
 # towards MHW). The choice is nearly additive — measured 2026-09-13, +1 m of z_b
 # adds about 3.5 ha to every date and changes no ranking — so it is stated here
 # rather than tuned, and its sensitivity is reported with any area.
-ESTUARY_KML = "moad"
-ESTUARY_LEVEL_M_AOD = 0.0
-ESTUARY_POINT_SPACING_M = 50.0
-ESTUARY_REACH_M = 400.0
+# THE SOURCE IS THE COMMITTED COASTLINE, NOT THE HAND-DRAWN LINE (D-175,
+# Martin 2026-09-16: "use coastline_hwm.geojson instead of moad.kml").
+# `coastline_hwm.geojson` is OpenStreetMap `natural=coastline` via Overpass,
+# ODbL, extracted 2026-06-30, reprojected to EPSG:27700 and simplified to 5 m,
+# with the Malltraeth estuary excluded, and it is already the fixed-head boundary
+# for Script 20's method-of-images scrape drawdown. `moad.kml` is a 36-vertex
+# Google Earth line of no stated provenance that GEO_PROVENANCE.md recorded as
+# inert on 2026-08-28, three weeks before 2026-09-13 made it this boundary.
+# MEASURED, so the swap is not taken on faith: inside site.buffer(400) the
+# coastline yields 130 control points against moad's 68 (15.2 km of line against
+# 9.3 km), and every moad point has a coastline point a median 35 m away, 182 m
+# at worst. The same margin, roughly twice the control density.
+# `moad` stays selectable (`--tidal-source moad`) so the committed phase 13
+# numbers can be reproduced.
+TIDAL_SOURCES = ("coastline_hwm", "moad")
+TIDAL_SOURCE = "coastline_hwm"
+TIDAL_LEGACY_KML = "moad"             # the legacy source, kept reachable
+TIDAL_LEVEL_M_AOD = 0.0
+TIDAL_POINT_SPACING_M = 50.0
+TIDAL_REACH_M = 400.0
 # The Llyn Rhos-Ddu lake gauge, which is NOT in the classified dipwell network
 # and must never set the water table: it is the only point at or above ground on
 # both dry controls, and its presence alone made them look wet.
@@ -2935,7 +3068,7 @@ def _wet_cells(form, xs, ys, hh, ground_at_well, BE, BN, zb, EE, NN, Z,
     OWN ground instead would not be a water surface at all, which is the error in
     the first quick test of this idea.
 
-    The estuary boundary keeps its meaning in both: at the estuary the water
+    The tidal boundary keeps its meaning in both: at the shoreline the water
     table is z_b, so its depth below the local ground is z_b - DEM there.
     """
     if form == "elevation":
@@ -3513,15 +3646,44 @@ def _merge_calibration(lev):
     return lev
 
 
-def _estuary_control(site):
+def _tidal_source_name():
+    """The boundary line in use, named, so every run says which it was."""
+    return (f"{TIDAL_LEGACY_KML}.kml" if TIDAL_SOURCE == "moad"
+            else DATA_COASTLINE_HWM.name)
+
+
+def _tidal_control(site):
     """Pseudo-control points along the tidal boundary, held at a fixed level.
 
+    THE LINE IS `coastline_hwm.geojson` (D-175, Martin 2026-09-16). It is
+    OpenStreetMap `natural=coastline` via Overpass, ODbL, extracted 2026-06-30,
+    EPSG:27700, Malltraeth excluded, and Script 20 already uses it as the
+    fixed-head boundary for the method-of-images scrape drawdown — so the tidal
+    boundary is now one sourced geometry across the project rather than two. It
+    replaces `moad.kml`, which had no provenance and which GEO_PROVENANCE.md had
+    recorded as used by nothing. `--tidal-source moad` still reaches the old one.
+
     MARTIN'S DESIGN (2026-09-13), and it is a boundary condition rather than a
-    patch. The aquifer discharges to the Malltraeth estuary, so the water table
-    is pinned near tide level along that margin; inverse-distance weighting has
-    no way to know that and holds the surface up at the inland wells' level all
-    the way to the shore. Measured before the boundary was added, a dry control
-    returned 20.85 ha of flooding concentrated in one band on the estuary-facing
+    patch. The aquifer discharges principally across the south-western foreshore
+    of Caernarfon Bay and the southern and eastern coast of the Menai Strait
+    (Paper 1 section 2; report7), so the water table is pinned near tide level
+    along that seaward margin; inverse-distance weighting has no way to know that
+    and holds the surface up at the inland wells' level all the way to the shore.
+
+    NOT THE MALLTRAETH ESTUARY, and this docstring said so until 2026-09-16.
+    Martin: *"nothing discharges to malltreath. Read the site description."* He
+    is right and the site description is unambiguous: the dune terrain on the
+    north-western flank of the bedrock ridge, which DOES drain toward Malltraeth,
+    is hydrologically separate from this aquifer and is not part of the study
+    area, and the Methods Supplement excludes Malltraeth Sands from
+    `coastline_hwm.geojson` on the same grounds. The misnaming entered with this
+    function and reached D-164 item 3, its Revisit-if, and D-174. **Nothing
+    computed changes:** `moad.kml`'s 36 vertices sit a median 75 m from that
+    excluded-Malltraeth coastline (29 of 36 within 200 m), so the line has always
+    traced the seaward margin, and `z_b` was tested against MHWS from the
+    CAERNARFON tide tables. The geometry and the physics were right; the label
+    was not. Measured before the boundary was added, a dry control
+    returned 20.85 ha of flooding concentrated in one band on the seaward
     flank — ground at 2.76-5.42 m AOD where the nearest wells sit inland and
     higher, and where five surveyed wells (D31, D33, D34, D39, D45, at 2.75-4.61 m) are
     absent from `01_wells_clean.csv` — NOT for want of readings. CORRECTED
@@ -3538,21 +3700,28 @@ def _estuary_control(site):
     when its flooding is real, and it threw away a fifth of the warren to do it.
     """
     from shapely.geometry import MultiLineString                # noqa: PLC0415
-    from utils.kml_io import read_kml                           # noqa: PLC0415
-    p = DATA_GEO_DIR / f"{ESTUARY_KML}.kml"
-    if not p.exists():
-        warn(f"  {p.name} is missing; no boundary condition applied")
-        return np.zeros(0), np.zeros(0)
-    g = read_kml(p)
-    if g.crs is None or g.crs.to_epsg() == 4326:
-        g = g.set_crs("EPSG:4326", allow_override=True).to_crs(OSGB)
+    if TIDAL_SOURCE == "moad":
+        from utils.kml_io import read_kml                       # noqa: PLC0415
+        p = DATA_GEO_DIR / f"{TIDAL_LEGACY_KML}.kml"
+        if not p.exists():
+            warn(f"  {p.name} is missing; no boundary condition applied")
+            return np.zeros(0), np.zeros(0)
+        g = read_kml(p)
+        if g.crs is None or g.crs.to_epsg() == 4326:
+            g = g.set_crs("EPSG:4326", allow_override=True).to_crs(OSGB)
+    else:
+        p = DATA_COASTLINE_HWM
+        if not p.exists():
+            warn(f"  {p.name} is missing; no boundary condition applied")
+            return np.zeros(0), np.zeros(0)
+        g = gpd.read_file(p).to_crs(OSGB)
     E, N = [], []
     for geom in g.geometry:
         segs = list(geom.geoms) if isinstance(geom, MultiLineString) else [geom]
         for s in segs:
-            for d in np.arange(0, s.length, ESTUARY_POINT_SPACING_M):
+            for d in np.arange(0, s.length, TIDAL_POINT_SPACING_M):
                 q = s.interpolate(d)
-                if site.buffer(ESTUARY_REACH_M).contains(q):
+                if site.buffer(TIDAL_REACH_M).contains(q):
                     E.append(q.x)
                     N.append(q.y)
     return np.asarray(E), np.asarray(N)
@@ -3577,7 +3746,7 @@ def phase13(dates=None, z_b=None, kml=False, form="elevation") -> int:
          dipwell (it is the Llyn Rhos-Ddu lake gauge, outside the classified
          network) and it is the ONLY point at or above ground on both dry
          controls — so its presence made them look wet when no dipwell was.
-      3. **The estuary as a boundary condition.** See `_estuary_control`.
+      3. **The sea as a boundary condition.** See `_tidal_control`.
 
     THE DRY CONTROLS ARE THE STANDING TEST, not a footnote. 2012-05-26 and
     2019-07-29 have ZERO dipwells at or above ground; whatever this returns on
@@ -3612,7 +3781,7 @@ def phase13(dates=None, z_b=None, kml=False, form="elevation") -> int:
 
     Raising it DOUBLES the false-positive floor and cuts the margin by a third,
     so it is not needed — which is itself the measured wells' doing. They pin the
-    surface near the estuary at 1.96-2.79 m AOD (D45, 776 m from the coast), so
+    surface near the shore at 1.96-2.79 m AOD (D45, 776 m from the coast), so
     the boundary no longer has to carry that flank and holding it higher only
     floods ground the readings say is dry. The ordering in wet-well count is
     monotonic at both levels, confirming z_b changes no ranking.
@@ -3620,7 +3789,7 @@ def phase13(dates=None, z_b=None, kml=False, form="elevation") -> int:
     from utils.warren_mask import warren_on                     # noqa: PLC0415
     phase(13, "Flooded extent — water table above the slack floor")
 
-    zb = ESTUARY_LEVEL_M_AOD if z_b is None else float(z_b)
+    zb = TIDAL_LEVEL_M_AOD if z_b is None else float(z_b)
     wells = pd.read_csv(REPO / "outputs" / "01_well_elevations.csv",
                         float_precision="round_trip")
     lev = _level_frame()
@@ -3640,7 +3809,7 @@ def phase13(dates=None, z_b=None, kml=False, form="elevation") -> int:
     Z = arr[ok]
     cell_ha = res * res / 1e4
 
-    BE, BN = _estuary_control(site)
+    BE, BN = _tidal_control(site)
     # The DEM under each boundary point, so the depth form can express z_b as a
     # depth below the local ground there.
     from scipy.ndimage import uniform_filter                 # noqa: PLC0415
@@ -3653,9 +3822,9 @@ def phase13(dates=None, z_b=None, kml=False, form="elevation") -> int:
         _rr = np.clip(np.asarray(_rr), 0, arr.shape[0] - 1)
         _cc = np.clip(np.asarray(_cc), 0, arr.shape[1] - 1)
         DB = GS[_rr, _cc]
-    info(f"estuary boundary: {len(BE)} control point(s) at "
-         f"{ESTUARY_POINT_SPACING_M:.0f} m along {ESTUARY_KML}.kml, held at "
-         f"{zb:+.2f} m AOD")
+    info(f"tidal boundary: {len(BE)} control point(s) at "
+         f"{TIDAL_POINT_SPACING_M:.0f} m along "
+         f"{_tidal_source_name()}, held at {zb:+.2f} m AOD")
 
     out = []
     for d in dts:
@@ -3936,7 +4105,7 @@ def phase14(frames=False, basis="both", months=0) -> int:
 
     Phase 13 run over every month in the record instead of the eight imagery
     dates. Nothing about the method changes: PHASE9_DEM_BIAS_M, z_b, the lake
-    gauge excluded, the estuary boundary condition, floors from merge-tree slack
+    gauge excluded, the tidal boundary condition, floors from merge-tree slack
     units - all as D-164 and D-165 settled them.
 
     TWO SERIES, AND THE PAIR IS THE POINT (Martin, 2026-09-13). The headline is
@@ -3967,7 +4136,7 @@ def phase14(frames=False, basis="both", months=0) -> int:
     # run's own findings are lost in it.
     closures = closure_dates()
 
-    zb = ESTUARY_LEVEL_M_AOD
+    zb = TIDAL_LEVEL_M_AOD
     wells = pd.read_csv(REPO / "outputs" / "01_well_elevations.csv",
                         float_precision="round_trip")
     lev = _level_frame()
@@ -4030,7 +4199,7 @@ def phase14(frames=False, basis="both", months=0) -> int:
             Z = arr[ok]
             cell_ha = res * res / 1e4
 
-            BE, BN = _estuary_control(site)
+            BE, BN = _tidal_control(site)
             X = np.concatenate([xs, BE]) if len(BE) else np.asarray(xs)
             Y = np.concatenate([ys, BN]) if len(BE) else np.asarray(ys)
             V = (np.concatenate([wt, np.full(len(BE), zb)]) if len(BE)
@@ -4130,7 +4299,7 @@ def phase15(depths=None) -> int:
 
     WHAT IS SWEPT AND WHAT IS NOT. Only the selection off the merge tree. The
     tree itself does not depend on the threshold, so nothing is rebuilt and no
-    other constant moves: the bias, z_b, the estuary boundary, the level frame
+    other constant moves: the bias, z_b, the tidal boundary, the level frame
     and SLACK_MIN_AREA_M2 are all held.
 
     THE FALSIFICATION CRITERIA, stated before the run:
@@ -4162,7 +4331,7 @@ def phase15(depths=None) -> int:
     if SLACK_MIN_DEPTH_M not in sweep:
         sweep = sorted(set(sweep + [SLACK_MIN_DEPTH_M]))
 
-    zb = ESTUARY_LEVEL_M_AOD
+    zb = TIDAL_LEVEL_M_AOD
     wells = pd.read_csv(REPO / "outputs" / "01_well_elevations.csv",
                         float_precision="round_trip")
     lev = _level_frame()
@@ -4170,7 +4339,7 @@ def phase15(depths=None) -> int:
               in zip(wells["Name"], wells["ground_elev_m"])}
 
     site = warren_on(max(ds_))
-    BE, BN = _estuary_control(site)
+    BE, BN = _tidal_control(site)
 
     # The imagery water this date, for the reachable-fraction measurement. The
     # vp2 read is the one with three dates; the tile read is one date and is
@@ -4293,13 +4462,13 @@ def phase16(date="2021-03-24", series="tiles") -> int:
     thing looks like a shortfall that is another:
 
       * **A UNIFORM OFFSET** - tight spread, no structure against distance to the
-        nearest well or to the estuary boundary - means a CONSTANT is wrong, and
+        nearest well or to the tidal boundary - means a CONSTANT is wrong, and
         the median shortfall is itself the size of the correction. PHASE9_DEM_BIAS_M
         and z_b are the two candidates.
       * **STRUCTURE AGAINST DISTANCE TO THE NEAREST WELL** means the interpolation
         cannot resolve the water table between wells, which is a method limit to
         be stated, not a constant to be tuned.
-      * **STRUCTURE AGAINST DISTANCE TO THE ESTUARY** means the boundary condition
+      * **STRUCTURE AGAINST DISTANCE TO THE TIDAL BOUNDARY** means it
         is dragging the surface down, and z_b or the boundary's reach is the lever.
       * **NO STRUCTURE AND A WIDE SPREAD** means the slack floors themselves are
         wrong per slack, which sends the question back to the DEM.
@@ -4313,7 +4482,7 @@ def phase16(date="2021-03-24", series="tiles") -> int:
     from rasterio.features import geometry_mask                 # noqa: PLC0415
     phase(16, "The per-slack shortfall — why the surface misses the floors")
 
-    zb = ESTUARY_LEVEL_M_AOD
+    zb = TIDAL_LEVEL_M_AOD
     wells = pd.read_csv(REPO / "outputs" / "01_well_elevations.csv",
                         float_precision="round_trip")
     lev = _level_frame()
@@ -4335,7 +4504,7 @@ def phase16(date="2021-03-24", series="tiles") -> int:
     info(f"{series} read: {g.area.sum() / 1e4:.1f} ha over {len(g)} polygon(s)")
 
     # the modelled surface, on every cell of every unit
-    BE, BN = _estuary_control(site)
+    BE, BN = _tidal_control(site)
     wl = _well_levels(lev, wells, date)
     xs, ys, wt = [], [], []
     for _, r in wl.iterrows():
@@ -4383,7 +4552,7 @@ def phase16(date="2021-03-24", series="tiles") -> int:
                     "modelled_flooded": bool(s_here > floor),
                     "E": round(ex, 1), "N": round(ey, 1),
                     "dist_well_m": round(dw, 1),
-                    "dist_estuary_m": round(de, 1)})
+                    "dist_tidal_m": round(de, 1)})
     if not out:
         warn("no slack unit is observed wet; nothing to diagnose")
         return 1
@@ -4403,8 +4572,8 @@ def phase16(date="2021-03-24", series="tiles") -> int:
              f"IQR {sf.quantile(.25):+.3f} to {sf.quantile(.75):+.3f}, "
              f"p90 {sf.quantile(.90):+.3f}")
         for lab, col in (("distance to the nearest well", "dist_well_m"),
-                         ("distance to the estuary boundary",
-                          "dist_estuary_m"),
+                         ("distance to the tidal boundary",
+                          "dist_tidal_m"),
                          ("slack area", "area_ha"),
                          ("floor elevation", "floor_m_aod")):
             r_ = miss[["shortfall_m", col]].corr().iloc[0, 1]
@@ -4412,7 +4581,7 @@ def phase16(date="2021-03-24", series="tiles") -> int:
         iqr = float(sf.quantile(.75) - sf.quantile(.25))
         step("READING IT: a tight spread with no structure is a CONSTANT; "
              "structure against well distance is an interpolation limit; "
-             "structure against the estuary is the boundary condition.")
+             "structure against the tidal boundary is that condition.")
         info(f"  the IQR of the shortfall is {iqr:.3f} m against a median of "
              f"{sf.median():.3f} m — "
              + ("TIGHT, which points at a constant"
@@ -4443,8 +4612,8 @@ def _shortfall_plot(D, date):
     a.set_ylabel("slack units")
     a.set_title("How far short, and is it one number?", loc="left")
     for a_, col, lab in ((ax[0][1], "dist_well_m", "distance to nearest well (m)"),
-                         (ax[1][0], "dist_estuary_m",
-                          "distance to estuary boundary (m)")):
+                         (ax[1][0], "dist_tidal_m",
+                          "distance to tidal boundary (m)")):
         a_.scatter(D[col], D["shortfall_m"], s=10, alpha=0.5,
                    color=SERIES_WATER_COLOUR)
         a_.axhline(0, color="#333333", lw=1)
@@ -4693,7 +4862,7 @@ def _flood_map(date, frame, fg, hollows, sc, thr, tag=""):
     """The read, on the ground: water solid, hollows outlined, wells scored.
 
     The map is where a false positive stops being a number and becomes a place —
-    which is how the CEH32 ridge was found, and how the estuary patch was.
+    which is how the CEH32 ridge was found, and how the seaward patch was.
     """
     import matplotlib.pyplot as plt                          # noqa: PLC0415
     from utils.config import (SITE_MAP_EAST_MAX,             # noqa: PLC0415
@@ -8189,6 +8358,41 @@ HINDCAST_SELFTEST_TOL_M = 1e-9   # chaining against the loop, and 11b's closed f
 HINDCAST_WINTER_MONTHS = (11, 12, 1, 2, 3)   # as the Sentinel series defines it
 HINDCAST_DRY_LIST_MAX = 12       # dry-control failures named in the console
 
+# THE SPATIAL STEP, AND IT IS NO LONGER THE TILING (D-174). The spread gave
+# every cell its nearest hollow's level, so the surface was a Voronoi tiling of
+# the hollow inventory and one hollow flipping wet-to-dry flipped its whole cell
+# with it. A water table is a smooth surface; that construction was not. It is
+# kept as "tiled" for the third self-test and the record, and is not the default.
+#
+#   tiled      phase 24 part E, unchanged.
+#   idw        the same interpolation in the ELEVATION form: the water-table
+#              elevation itself is what is interpolated, as the spec of
+#              2026-09-16 first wrote it. Kept runnable so the correction is
+#              measured against it rather than asserted over it.
+#   idw_depth  the DEPTH form, which is what D-174 adopts.
+#
+# THE BOUNDARY CONDITION IS THE SEAWARD ONE and is A SEPARATE SWITCH
+# (HINDCAST_TIDAL_BC, off with
+# --hc-no-tidal) and is ON for every construction by default, so idw against
+# idw_depth varies the FORM ALONE and --hc-no-tidal isolates the boundary.
+# The spec exactly as first written is therefore `--hc-surface idw
+# --hc-no-tidal`: the elevation form with no boundary condition, which is the
+# one arm of the four that carries both of the defects D-174 records.
+HINDCAST_SURFACES = ("tiled", "idw", "idw_depth")
+HINDCAST_SURFACE = "idw_depth"
+HINDCAST_IDW_POWER = 2.0         # as _idw and PFLOOD_IDW_POWER already use
+HINDCAST_IDW_K = 12              # nearest control points; 0 = every one of
+#   them, the global form _idw uses. The control net here is ~1,000 hollow
+#   centroids against a grid of millions of cells, and the global form is a
+#   dense n_control x n_cell matrix — tens of gigabytes. k = 12 is the spec's
+#   own figure; _pflood_geometry already carries the same k-nearest option. The
+#   run reports the two against each other on the vetted months rather than
+#   leaving the substitution unmeasured.
+HINDCAST_IDW_EPS = 1e-6          # _idw's own, so a control point is not a pole
+HINDCAST_TIDAL_BC = True       # the seaward tidal boundary (Caernarfon
+#   Bay and the Menai Strait, NOT Malltraeth — see _tidal_control), on
+HINDCAST_IDW_CHECK_N = 20000     # cells sampled to measure k against global
+
 
 def _spread_levels(hid, dem, levels, valid_ids=None):
     """Phase 24 part E's construction: every cell takes its NEAREST hollow's
@@ -8225,6 +8429,133 @@ def _spread_levels(hid, dem, levels, valid_ids=None):
     j = np.clip(np.searchsorted(ks, nh), 0, len(ks) - 1)
     L = np.where(ks[j] == nh, vs[j], np.nan)
     return np.isfinite(L) & np.isfinite(dem) & (dem <= L)
+
+
+def _smooth_ground(dem, res, length_m=SURFACE_GROUND_SMOOTH_M):
+    """The REGIONAL ground surface: the DEM averaged over `length_m`, NaN-aware.
+
+    The depth form adds an interpolated head to this rather than to the raw
+    raster, and `_wet_cells` records what the raw raster does — the construction
+    collapses, 4.67 ha on the wettest date and 0.00 on every dry control —
+    because h is a depth below the REGIONAL surface and the ground between
+    hollows is not regional at all. The smoothing length is a physical statement
+    about the water-table mound's scale, is swept in phase 17, and is the same
+    constant phase 13 uses.
+
+    `uniform_filter` propagates NaN and this DEM has NaN outside the capture, so
+    the mean is taken as sum-over-valid / count-of-valid.
+    """
+    from scipy.ndimage import uniform_filter                  # noqa: PLC0415
+    k = max(1, int(round(float(length_m) / float(res))))
+    if k <= 1:
+        return np.array(dem, float)
+    ok = np.isfinite(dem)
+    num = uniform_filter(np.where(ok, dem, 0.0).astype(float), size=k,
+                         mode="nearest")
+    den = uniform_filter(ok.astype(float), size=k, mode="nearest")
+    out = np.full(dem.shape, np.nan)
+    good = den > 0
+    out[good] = num[good] / den[good]
+    return out
+
+
+def _sample_at(A, tr, X, Y):
+    """A raster's value at map coordinates, nearest cell, clipped to the grid."""
+    inv = ~tr
+    out = np.empty(len(X), float)
+    for i, (x, y) in enumerate(zip(np.asarray(X, float), np.asarray(Y, float))):
+        c, r = inv * (float(x), float(y))
+        out[i] = A[int(np.clip(int(r), 0, A.shape[0] - 1)),
+                   int(np.clip(int(c), 0, A.shape[1] - 1))]
+    return out
+
+
+def _surface_weights(X, Y, EE, NN, k=HINDCAST_IDW_K, power=HINDCAST_IDW_POWER):
+    """Normalised inverse-distance weights for a FIXED control net (D-174).
+
+    Phase 27 interpolates the same control points 246 times per mode and only
+    their VALUES change, so the geometry is computed ONCE: the k nearest control
+    points of every evaluation cell and their weights, normalised here so a month
+    costs one gather and one weighted sum.
+
+    k = 0 means every control point — the global form `_idw` uses — and on this
+    grid that is a dense n_control x n_cell matrix. It is for the vetted-month
+    check only, never for the 246-month run.
+    """
+    from scipy.spatial import cKDTree                         # noqa: PLC0415
+    P = np.column_stack([np.asarray(X, float), np.asarray(Y, float)])
+    Q = np.column_stack([np.asarray(EE, float), np.asarray(NN, float)])
+    kk = len(P) if not k else int(min(int(k), len(P)))
+    d, idx = cKDTree(P).query(Q, k=kk, workers=-1)
+    if kk == 1:
+        d, idx = d[:, None], idx[:, None]
+    # IN PLACE AND IN float32 FROM HERE. This table is (n_cell x k) and n_cell
+    # is millions; the obvious expression builds four arrays of that size at
+    # once. float32 carries the weights to a part in 1e7, against a DEM known to
+    # a decimetre.
+    w = d.astype(np.float32)
+    del d
+    w += np.float32(HINDCAST_IDW_EPS)
+    np.power(w, np.float32(power), out=w)
+    np.reciprocal(w, out=w)
+    w /= w.sum(axis=1, keepdims=True)
+    return idx.astype(np.int32), w
+
+
+def _surface_control(form, ids, floors, h_h, gs_ctrl, zb, gs_bnd, n_bnd):
+    """One control value per point, in the form's own units (D-174).
+
+    EVERY hollow is a control point, wet or dry. A dry hollow's water table is a
+    real, low point on the surface, and using only the wet ones — which the
+    tiling did — is part of what made it a tiling: the surface could then only be
+    pulled up, never down.
+
+    The tidal boundary points come last, in the order `_surface_weights` was
+    given them: at the shoreline the water table is `zb`, which in the depth form
+    is `zb` minus the regional ground there, as `_wet_cells` expresses it.
+    """
+    lvl = np.array([float(floors[i]) + float(h_h[s])
+                    for i, s in enumerate(ids)], float)
+    if form == "elevation":
+        v, b = lvl, np.full(int(n_bnd), float(zb))
+    else:
+        v = lvl - np.asarray(gs_ctrl, float)
+        b = float(zb) - np.asarray(gs_bnd, float)
+    return np.concatenate([v, b]) if n_bnd else v
+
+
+def _surface_table(form, idx, w, vals, gs_e):
+    """The interpolated water table at the evaluation cells, m AOD (D-174).
+
+    ELEVATION FORM: the control values ARE water-table elevations and what is
+    interpolated is the table itself. DEPTH FORM: the control values are heads
+    above the REGIONAL ground at the control point, and the table is that
+    interpolated head added back to the regional ground at the cell.
+
+    The two are not equal, and the difference is the point. `_pflood_geometry`
+    states the principle this phase already follows everywhere else: phase 16
+    measured interpolating an absolute water table here at 714 of 1,236
+    observed-wet slacks missed by a median 1.278 m, the misses at a median floor
+    of 9.10 m AOD against 4.17 m for those it caught, the shortfall correlating
+    with distance to the nearest control point at r = +0.51. That is IDW
+    flattening a mound. In the depth form the topography comes from the raster,
+    where it is known at 2 m, and the interpolator carries only the residual
+    head, whose range across this site is about 1.7 m.
+    """
+    s = np.einsum("ij,ij->i", w, np.asarray(vals, np.float32)[idx],
+                  optimize=False)
+    return s if form == "elevation" else np.asarray(gs_e, np.float32) + s
+
+
+def _write_surface_raster(path, er, ec, vals, shape, tr, crs):
+    """The interpolated water table itself as a float GTiff — the surface, not
+    the wet/dry read of it, so it can be looked at in QGIS."""
+    A = np.full(shape, np.nan, "float32")
+    A[er, ec] = np.asarray(vals, "float32")
+    with rasterio.open(path, "w", driver="GTiff", height=int(shape[0]),
+                       width=int(shape[1]), count=1, dtype="float32", crs=crs,
+                       transform=tr, nodata=np.nan, compress="deflate") as dst:
+        dst.write(A, 1)
 
 
 def _hindcast_grid():
@@ -8375,7 +8706,9 @@ def _wet_bodies(wet, tr):
         geometry=geoms, crs=OSGB)
 
 
-def phase27(modes=HINDCAST_MODES, months=0, rasters=True) -> int:
+def phase27(modes=HINDCAST_MODES, months=0, rasters=True,
+            surface=HINDCAST_SURFACE, idw_k=HINDCAST_IDW_K,
+            tidal_bc=HINDCAST_TIDAL_BC) -> int:
     """The wet-floor hindcast: phase 18's engine, every month, 2005-2026.
 
     Four comparisons, each with its failure condition fixed before the run and
@@ -8517,6 +8850,33 @@ def phase27(modes=HINDCAST_MODES, months=0, rasters=True) -> int:
          f"{want:.4f}), precision {p_got:.4f}, recall {r_got:.4f}")
     del dem_t, inw_t, obs_t, hid_t, got
 
+    # ── where this run's artefacts go, and the tiled run kept beside them ────
+    if surface not in HINDCAST_SURFACES:
+        warn(f"--hc-surface {surface} is not a construction; choose from "
+             f"{', '.join(HINDCAST_SURFACES)}")
+        return 1
+    sform = "depth" if surface == "idw_depth" else "elevation"
+
+    # The ADOPTED construction owns the plain `W94_27_*` names; every other arm
+    # carries its own, so the four can sit on disk together and be read against
+    # each other rather than overwriting one another.
+    _tag = ("" if (surface == HINDCAST_SURFACE and tidal_bc)
+            else f"_{surface}" + ("" if tidal_bc else "_nobc"))
+
+    def _p(name):
+        return OUT / f"W94_27{_tag}_{name}"
+
+    if not _tag:
+        # D-174 retires the spread but keeps its run as the baseline the
+        # replacement must beat; the first adopted run copies it aside rather
+        # than overwriting it.
+        for _nm in ("hindcast_monthly.csv", "hindcast_summary.csv",
+                    "area_vs_vets.csv", "well_fit.csv", "hindcast.png"):
+            _s, _d = OUT / f"W94_27_{_nm}", OUT / f"W94_27_tiled_{_nm}"
+            if _s.exists() and not _d.exists():
+                shutil.copy2(_s, _d)
+                info(f"  the previous run is kept as {_d.name} (D-174)")
+
     # ── the warren by canopy epoch ───────────────────────────────────────────
     closures = closure_dates()
 
@@ -8617,6 +8977,66 @@ def phase27(modes=HINDCAST_MODES, months=0, rasters=True) -> int:
             dd.append(float(g["d_m"]))
         return ids, cl, fl_, dd
 
+    # ── the interpolated surface's geometry, computed ONCE (D-174) ───────────
+    # The control net does not move: the same hollow centroids are interpolated
+    # 246 times per mode and only their VALUES change. So the weights are built
+    # here and the month costs a gather and a weighted sum.
+    ids0, floors0 = None, None
+    S_IDX = S_W = GS_E = DEM_E = er = ec = gs_ctrl = None
+    n_bnd, gs_bnd = 0, np.zeros(0)
+    if surface != "tiled":
+        ids0, _c0, floors0, _d0 = _hollow_state(G_clim)
+        if not ids0:
+            warn("no hollow can be run, so no surface can be interpolated")
+            return 1
+        cen = {int(r["slack"]): (float(r["E"]), float(r["N"]))
+               for _, r in G_clim.iterrows()}
+        hx = np.array([cen[s][0] for s in ids0], float)
+        hy = np.array([cen[s][1] for s in ids0], float)
+        GS = _smooth_ground(dem, abs(tr.a))
+        # every cell the run can be asked about: the widest warren the record
+        # holds, plus the present floor. The canopy only closes, so the union is
+        # the earliest epoch — but it is taken over the epochs actually visited
+        # rather than assumed to be.
+        wu, seen = np.zeros(dem.shape, bool), set()
+        for _m in all_months:
+            _k = _canopy_state(_m)
+            if _k in seen:
+                continue
+            seen.add(_k)
+            wu |= _warren_mask(_m)
+        evalm = (wu | floor) & np.isfinite(dem) & np.isfinite(GS)
+        er, ec = np.nonzero(evalm)
+        EE = tr.c + (ec + 0.5) * tr.a + (er + 0.5) * tr.b
+        NN = tr.f + (ec + 0.5) * tr.d + (er + 0.5) * tr.e
+        DEM_E = dem[er, ec].astype(np.float32)
+        GS_E = GS[er, ec].astype(np.float32)
+        gs_ctrl = _sample_at(GS, tr, hx, hy)
+        if not np.isfinite(gs_ctrl).all():
+            warn(f"  {int((~np.isfinite(gs_ctrl)).sum())} hollow centroid(s) "
+                 f"fall where the regional ground is undefined; the surface "
+                 f"cannot be built in the depth form")
+            return 1
+        BE, BN = (_tidal_control(_site) if tidal_bc
+                  else (np.zeros(0), np.zeros(0)))
+        n_bnd = int(len(BE))
+        gs_bnd = _sample_at(GS, tr, BE, BN) if n_bnd else np.zeros(0)
+        cx = np.concatenate([hx, BE]) if n_bnd else hx
+        cy = np.concatenate([hy, BN]) if n_bnd else hy
+        S_IDX, S_W = _surface_weights(cx, cy, EE, NN, k=idw_k)
+        step(f"surface '{surface}' ({sform} form): {len(ids0)} hollow control "
+             f"point(s)"
+             + (f" and {n_bnd} tidal boundary point(s) along "
+                f"{_tidal_source_name()} at {TIDAL_LEVEL_M_AOD:+.2f} m AOD"
+                if n_bnd else " and NO tidal boundary condition")
+             + f"; {len(er)} evaluation cell(s); k = {idw_k or 'all'}, power "
+               f"{HINDCAST_IDW_POWER:g}")
+        if not n_bnd:
+            warn("  NO BOUNDARY CONDITION. Before _tidal_control existed a "
+                 "dry control returned 20.85 ha of flooding in one band on the "
+                 "seaward flank; this run carries that")
+        del wu, evalm, EE, NN, GS
+
     # ── the two vetted months, and the Sentinel extremes, kept for rasters ───
     S = _hindcast_sentinel()
     vet_month = {d: _month_of(d) for d in (HINDCAST_VET_WET, HINDCAST_VET_DRY)}
@@ -8631,10 +9051,12 @@ def phase27(modes=HINDCAST_MODES, months=0, rasters=True) -> int:
 
     # ── the run ──────────────────────────────────────────────────────────────
     monthly, wellfit, wet_keep = [], [], {}
+    tab_keep, ctrl_keep, perm_wet = {}, {}, {}
     for mode in modes:
         ids = cl = floors = None
         h_h = {}                      # hollow head above its own floor
         h_w = None                    # well head relative to ground
+        perm = None                   # cells wet in EVERY month of the run
         t0 = time.time()
 
         def tag_of(mm):
@@ -8647,6 +9069,12 @@ def phase27(modes=HINDCAST_MODES, months=0, rasters=True) -> int:
             G = G_year[y] if mode == "R" else G_clim
             if ids is None or (mode == "R" and mon == 10):
                 ids, cl, floors, dd = _hollow_state(G)
+                if surface != "tiled" and list(ids) != list(ids0):
+                    warn(f"  {tag_of(m)}: the hollow control net changed "
+                         f"between years ({len(ids)} against {len(ids0)}); the "
+                         f"interpolation weights are built once and cannot "
+                         f"follow it")
+                    return 1
                 h_h = {s: -d for s, d in zip(ids, dd)}
                 src = (W_year[y]["depth_year"].to_numpy(float) if mode == "R"
                        else W["depth_bg"].to_numpy(float))
@@ -8682,15 +9110,30 @@ def phase27(modes=HINDCAST_MODES, months=0, rasters=True) -> int:
                 lvl_all[s] = f_ + h_h[s]
                 if h_h[s] > 0:
                     lvl_wet[s] = min(f_ + h_h[s], rim[s])
-            wet = _spread_levels(hid, dem, lvl_wet, valid_ids=ids)
+            if surface == "tiled":
+                wet = _spread_levels(hid, dem, lvl_wet, valid_ids=ids)
+                tbl = None
+            else:
+                # THE CONTROL SET IS EVERY HOLLOW, WET OR DRY, and the level is
+                # the water TABLE at the hollow, unclipped: a rim clip belongs
+                # to a flooded-area construction, not to a water table.
+                cv = _surface_control(sform, ids0, floors0, h_h, gs_ctrl,
+                                      TIDAL_LEVEL_M_AOD, gs_bnd, n_bnd)
+                tbl = _surface_table(sform, S_IDX, S_W, cv, GS_E)
+                wet = np.zeros(dem.shape, bool)
+                wet[er, ec] = DEM_E < tbl
             inw = _warren_mask(m)
             wet_raw = wet & inw
             wet_fl = wet & floor
             tag = m.strftime("%Y-%m")
             # kept whether or not rasters are written: comparison 2 scores these
             # months and must not depend on an output switch
+            perm = wet_fl.copy() if perm is None else (perm & wet_fl)
             if tag in keep:
                 wet_keep[(mode, tag)] = (wet_raw.copy(), wet_fl.copy())
+                if tbl is not None:
+                    tab_keep[(mode, tag)] = tbl.astype(np.float32).copy()
+                    ctrl_keep[(mode, tag)] = cv.copy()
             # the wells, both readings
             obs = (OBS.loc[m].to_numpy(float) if m in OBS.index
                    else np.full(len(wells), np.nan))
@@ -8731,6 +9174,8 @@ def phase27(modes=HINDCAST_MODES, months=0, rasters=True) -> int:
             })
             progress(k, len(all_months), f"mode {mode} {tag}", t0)
         print()
+        perm_wet[mode] = (perm if perm is not None
+                          else np.zeros(dem.shape, bool))
         M = pd.DataFrame([r for r in monthly if r["mode"] == mode])
         step(f"MODE {mode}: wet floor area {M['wet_ha_floor'].min():.3f} to "
              f"{M['wet_ha_floor'].max():.3f} ha (median "
@@ -8738,11 +9183,11 @@ def phase27(modes=HINDCAST_MODES, months=0, rasters=True) -> int:
              f"{M.loc[M['wet_ha_floor'].idxmax(), 'month']}")
 
     MON = pd.DataFrame(monthly)
-    p = OUT / "W94_27_hindcast_monthly.csv"
+    p = _p("hindcast_monthly.csv")
     MON.to_csv(p, index=False)
     saved(f"{p.name}  ({len(MON)} row(s))")
     WF = pd.DataFrame(wellfit)
-    p = OUT / "W94_27_well_fit.csv"
+    p = _p("well_fit.csv")
     WF.to_csv(p, index=False)
     saved(f"{p.name}  ({len(WF)} well-month(s))")
 
@@ -8883,7 +9328,7 @@ def phase27(modes=HINDCAST_MODES, months=0, rasters=True) -> int:
                               f"ha) - the dry end has two sides (D-172)")
     if rows_v:
         V = pd.DataFrame(rows_v)
-        p = OUT / "W94_27_area_vs_vets.csv"
+        p = _p("area_vs_vets.csv")
         V.to_csv(p, index=False)
         saved(p.name)
         for r in rows_v:
@@ -9017,9 +9462,9 @@ def phase27(modes=HINDCAST_MODES, months=0, rasters=True) -> int:
                               "model_wettest": m_best,
                               "agree": bool(s_best == m_best)})
             if trows:
-                pd.DataFrame(trows).to_csv(
-                    OUT / f"W94_27_timing_{mode}.csv", index=False)
-                saved(f"W94_27_timing_{mode}.csv")
+                _tp = _p(f"timing_{mode}.csv")
+                pd.DataFrame(trows).to_csv(_tp, index=False)
+                saved(_tp.name)
                 step(f"  mode {mode}: the model picks the same wettest month as "
                      f"Sentinel in {hit} of {tot} winter(s) with two or more "
                      f"scored scenes")
@@ -9050,7 +9495,7 @@ def phase27(modes=HINDCAST_MODES, months=0, rasters=True) -> int:
                      f"({int(r['n_wells_observed'])} well(s) read)")
             if len(bad) > HINDCAST_DRY_LIST_MAX:
                 info(f"    ... and {len(bad) - HINDCAST_DRY_LIST_MAX} more, all "
-                     f"in {(OUT / 'W94_27_hindcast_monthly.csv').name}")
+                     f"in {_p('hindcast_monthly.csv').name}")
             _add(4, "months with no well at ground above the dry bar", mode,
                  f"a month with no well at ground must model below {bar:.3f} ha "
                  f"on the floor (the {HINDCAST_VET_DRY} vet scaled from its "
@@ -9064,20 +9509,85 @@ def phase27(modes=HINDCAST_MODES, months=0, rasters=True) -> int:
              "below the scaled dry vet", "", "not run",
              f"W94_26_{HINDCAST_VET_DRY}_covered.geojson absent")
 
+    # ── the dry floor: cells wet in EVERY month (spec step 4, D-174) ─────────
+    if surface != "tiled":
+        phase("27.5", "The dry floor — cells wet in EVERY month of the run")
+        info("  a cell the DEM puts below any plausible level is a FIXED OFFSET "
+             "the dry control must state, not a month-by-month failure, so this "
+             "is reported BESIDE comparison 4 and not counted against it")
+        pm = (_grid_mask(STANDING_WATER_KML, tr, dem.shape, kml=True)
+              if STANDING_WATER_KML.exists() else None)
+        for mode in modes:
+            pw = perm_wet.get(mode)
+            if pw is None:
+                continue
+            ha = float(pw.sum()) * cell_ha
+            inp = (float((pw & pm).sum()) * cell_ha if pm is not None
+                   else float("nan"))
+            z = dem[pw]
+            z = z[np.isfinite(z)]
+            step(f"  mode {mode}: {ha:.3f} ha wet in all {len(all_months)} "
+                 f"month(s)" + (f", {inp:.3f} ha of it inside a mapped "
+                                f"drinking pool" if pm is not None else ""))
+            zt = ""
+            if z.size:
+                zt = (f"debiased DEM {float(z.min()):.2f} to "
+                      f"{float(z.max()):.2f} m AOD, median "
+                      f"{float(np.median(z)):.2f} m")
+                info(f"    {zt}")
+            _add(4, "permanently wet floor (HINDCAST_PERMANENT_WET_HA)", mode,
+                 "reported beside comparison 4, NOT counted against it",
+                 f"{ha:.3f} ha", "reported",
+                 (f"{inp:.3f} ha in a mapped drinking pool; "
+                  if pm is not None else "") + zt)
+
+    # ── k nearest against the global form, measured rather than assumed ──────
+    if surface != "tiled" and tab_keep:
+        ns = int(min(HINDCAST_IDW_CHECK_N, len(er)))
+        sel = np.random.default_rng(0).choice(len(er), ns, replace=False)
+        gi, gw = _surface_weights(
+            cx, cy,
+            tr.c + (ec[sel] + 0.5) * tr.a + (er[sel] + 0.5) * tr.b,
+            tr.f + (ec[sel] + 0.5) * tr.d + (er[sel] + 0.5) * tr.e, k=0)
+        for (mode, tag), tb in sorted(tab_keep.items()):
+            g = _surface_table(sform, gi, gw, ctrl_keep[(mode, tag)],
+                               GS_E[sel])
+            dd_ = np.asarray(tb)[sel] - g
+            rms = float(np.sqrt(np.mean(dd_ ** 2)))
+            flip = float(np.mean((DEM_E[sel] < np.asarray(tb)[sel])
+                                 != (DEM_E[sel] < g)))
+            info(f"  k = {idw_k} against the global IDW, mode {mode} {tag}: "
+                 f"the table differs by RMS {rms:.4f} m (max "
+                 f"{float(np.abs(dd_).max()):.4f}); the wet/dry verdict changes "
+                 f"on {100 * flip:.2f} % of {ns} sampled cell(s)")
+            _add(2, f"k = {idw_k} against the global IDW", mode,
+                 "reported: the run cannot afford the global form on this grid, "
+                 "so the substitution is measured rather than assumed",
+                 f"RMS {rms:.4f} m, verdict flips {100 * flip:.2f} %",
+                 "reported", f"{tag}, n {ns} sampled cell(s)")
+        del gi, gw
+
     SUM = pd.DataFrame(summary)
-    p = OUT / "W94_27_hindcast_summary.csv"
+    p = _p("hindcast_summary.csv")
     SUM.to_csv(p, index=False)
     saved(f"{p.name}  ({len(SUM)} row(s))")
 
     # ── rasters and KML for the named months ─────────────────────────────────
     if rasters and wet_keep:
         for (mode, tag), (w_raw, w_fl) in sorted(wet_keep.items()):
-            rp = OUT / f"W94_27_wet_{mode}_{tag}.tif"
+            rp = _p(f"wet_{mode}_{tag}.tif")
             _write_wet_raster(rp, w_raw, tr, crs)
             saved(rp.name)
+            if (mode, tag) in tab_keep:
+                # the water table ITSELF, not the wet/dry read of it, so the
+                # surface can be looked at rather than inferred from its contour
+                sp = _p(f"surface_{mode}_{tag}.tif")
+                _write_surface_raster(sp, er, ec, tab_keep[(mode, tag)],
+                                      dem.shape, tr, crs)
+                saved(sp.name)
             bodies = _wet_bodies(w_fl, tr)
             if len(bodies):
-                kp = OUT / f"W94_27_wet_{mode}_{tag}.kml"
+                kp = _p(f"wet_{mode}_{tag}.kml")
                 _bodies_to_kml(bodies, kp,
                                f"modelled wet floor {tag}, mode {mode} — phase "
                                f"27 hindcast, on the phase 29 floor",
@@ -9085,7 +9595,7 @@ def phase27(modes=HINDCAST_MODES, months=0, rasters=True) -> int:
                 saved(kp.name)
 
     # ── the figure ───────────────────────────────────────────────────────────
-    _hindcast_figure(MON, S, modes)
+    _hindcast_figure(MON, S, modes, _p("hindcast.png"))
 
     info("NOT ADOPTED and not in the pipeline: this phase writes to "
          "working/updates only. It rules on nothing — Mode R against Mode C, "
@@ -9094,7 +9604,7 @@ def phase27(modes=HINDCAST_MODES, months=0, rasters=True) -> int:
     return 0
 
 
-def _hindcast_figure(MON, S, modes):
+def _hindcast_figure(MON, S, modes, path=None):
     """Wet floor fraction by month for each mode, the Sentinel index over it,
     and the wells' share at ground beneath."""
     import matplotlib.pyplot as plt                            # noqa: PLC0415
@@ -9134,7 +9644,7 @@ def _hindcast_figure(MON, S, modes):
     ax[1].set_xlabel("month")
     ax[1].legend(loc="upper left", fontsize=8, frameon=False, ncol=3)
     fig.tight_layout()
-    p = OUT / "W94_27_hindcast.png"
+    p = path if path is not None else OUT / "W94_27_hindcast.png"
     render_figure(fig, p)          # reports its own save line
     plt.close(fig)
 

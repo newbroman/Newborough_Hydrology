@@ -47,7 +47,12 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.4.0"  # Hollingham (2026) - 2026-09-16. T-32: _scene_month and
+__version__ = "1.5.0"  # Hollingham (2026) - 2026-09-16. --cells: a supervised
+#   per-cell classifier (all five bands relative to the scene median + NDWI,
+#   NDMI, MNDWI; logistic, Newton) trained on the vetted 2021 extent and
+#   applied unchanged to 2020 — Martin: the single ratio under-rates Sentinel.
+#   Writes vettable cell KMLs and true-colour GroundOverlays per scene.
+# v1.4.0  # Hollingham (2026) - 2026-09-16. T-32: _scene_month and
 #   _wells_monthly both bucketed with `d - pd.offsets.MonthBegin(1)`, a no-op for
 #   days 2-15, so 49 of the 110 scenes carried the wrong month and were joined to
 #   the wrong dipwell reading. Both now call the single
@@ -470,6 +475,172 @@ def swir_test(Wm, dates):
     return 0
 
 
+CELL_BANDS = ("blue", "green", "red", "nir", "swir16")
+CELL_TRAIN_DAYS = 14          # scenes this close to a vetted date train or test on it
+
+
+def _cell_features(item, clear):
+    """Per-cell feature matrix from one scene: each band relative to its own
+    clear-warren median (so illumination and haze divide out), plus NDWI, NDMI
+    and MNDWI. Returns (X, bands dict) with X shaped (H*W, n_features)."""
+    b = _fetch(item, list(CELL_BANDS))
+    feats = []
+    for k in CELL_BANDS:
+        med = float(np.median(b[k][clear]))
+        feats.append(np.log(np.clip(b[k], 1, None) / max(med, 1.0)))
+    g, r, n, sw = b["green"], b["red"], b["nir"], b["swir16"]
+    feats.append((g - n) / (g + n + 1e-9))
+    feats.append((n - sw) / (n + sw + 1e-9))
+    feats.append((g - sw) / (g + sw + 1e-9))
+    X = np.stack([f.ravel() for f in feats], axis=1)
+    return X, b
+
+
+def _logit_fit(X, y, l2=1e-2, iters=60):
+    """Logistic regression by Newton's method (no sklearn on the L14). Returns
+    (w, b) on standardised features; the standardisation is returned too."""
+    mu, sd = X.mean(0), X.std(0) + 1e-9
+    Z = np.column_stack([np.ones(len(X)), (X - mu) / sd])
+    w = np.zeros(Z.shape[1])
+    # balance the classes: wet cells are the minority
+    pw = 0.5 / max(1, y.sum()) * len(y)
+    wt = np.where(y, pw, 1.0)
+    for _ in range(iters):
+        p = 1 / (1 + np.exp(-Z @ w))
+        grad = Z.T @ (wt * (p - y)) + l2 * np.r_[0, w[1:]]
+        Hm = (Z * (wt * p * (1 - p))[:, None]).T @ Z + l2 * np.diag(np.r_[0, np.ones(len(w) - 1)])
+        step = np.linalg.solve(Hm, grad)
+        w -= step
+        if np.abs(step).max() < 1e-6:
+            break
+    return w, mu, sd
+
+
+def _logit_predict(w, mu, sd, X):
+    Z = np.column_stack([np.ones(len(X)), (X - mu) / sd])
+    return 1 / (1 + np.exp(-Z @ w))
+
+
+def _cells_to_kml(mask, prob, path, name):
+    """One placemark per 10 m cell, NO FILL, in folders by probability, so the
+    classification can be vetted in Google Earth over the imagery."""
+    from pyproj import Transformer                            # noqa: PLC0415
+    W, H, tr = _grid()
+    t = Transformer.from_crs(27700, 4326, always_xy=True)
+    g = GRID
+    k = ['<?xml version="1.0" encoding="UTF-8"?>',
+         '<kml xmlns="http://www.opengis.net/kml/2.2"><Document>', f"<name>{name}</name>",
+         '<Style id="c"><LineStyle><color>ff00ffff</color><width>1.5</width></LineStyle>'
+         '<PolyStyle><fill>0</fill><outline>1</outline></PolyStyle></Style>']
+    edges = (0.9, 0.7, 0.5)
+    rows, cols = np.where(mask)
+    for i, lo in enumerate(edges):
+        hi = 1.01 if i == 0 else edges[i - 1]
+        sel = (prob[rows, cols] >= lo) & (prob[rows, cols] < hi)
+        if not sel.any():
+            continue
+        k.append(f"<Folder><name>p {lo:.1f}-{min(hi, 1):.1f} ({int(sel.sum())})</name><open>0</open>")
+        for rr, cc in zip(rows[sel], cols[sel]):
+            x0 = g["left"] + cc * g["res"]; y1 = g["top"] - rr * g["res"]
+            pts = [(x0, y1), (x0 + g["res"], y1), (x0 + g["res"], y1 - g["res"]), (x0, y1 - g["res"]), (x0, y1)]
+            ll = " ".join("%.7f,%.7f,0" % t.transform(x, y) for x, y in pts)
+            k.append(f"<Placemark><name>c{rr}_{cc}</name><description>p {prob[rr, cc]:.2f}</description>"
+                     f"<styleUrl>#c</styleUrl><Polygon><outerBoundaryIs><LinearRing><coordinates>{ll}"
+                     "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>")
+        k.append("</Folder>")
+    k.append("</Document></kml>")
+    path.write_text("\n".join(k), encoding="utf-8")
+
+
+def _overlay_png(b, clear, path, kml_path, name):
+    """True-colour PNG of the scene with a KML GroundOverlay so it can be viewed
+    in Google Earth, image-only (no numbers) — for Martin to look at."""
+    from PIL import Image                                     # noqa: PLC0415
+    from pyproj import Transformer                            # noqa: PLC0415
+    rgb = np.stack([b["red"], b["green"], b["blue"]], axis=-1)
+    lo, hi = np.percentile(rgb[clear], [1, 99])
+    img = np.clip((rgb - lo) / (hi - lo), 0, 1)
+    Image.fromarray((img * 255).astype("uint8")).save(path)
+    g = GRID
+    t = Transformer.from_crs(27700, 4326, always_xy=True)
+    w_, s_ = t.transform(g["left"], g["bottom"]); e_, n_ = t.transform(g["right"], g["top"])
+    kml_path.write_text(
+        '<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://www.opengis.net/kml/2.2">'
+        f"<GroundOverlay><name>{name}</name><Icon><href>{path.name}</href></Icon>"
+        f"<LatLonBox><north>{n_:.6f}</north><south>{s_:.6f}</south><east>{e_:.6f}</east>"
+        f"<west>{w_:.6f}</west></LatLonBox></GroundOverlay></kml>", encoding="utf-8")
+
+
+def cells(Wm, dates):
+    """A SUPERVISED per-cell classifier trained on the first vetted date.
+
+    Martin (2026-09-16): the single darkness ratio under-rates Sentinel; train
+    on the vetted extent instead. Features are every band Sentinel has, each
+    relative to the scene's own median, plus three water indices; a logistic
+    model is fitted on the floor cells of the scenes within CELL_TRAIN_DAYS of
+    dates[0] (cell wet = at least half inside the vetted extent) and applied
+    UNCHANGED to the scenes around every later date — the transfer score is
+    the one that matters. Writes W94_27_cells_scores.csv; per scene, the
+    classified cells as a vettable KML (folders by probability), the true-colour
+    scene as a Google Earth ground overlay, and the probability raster.
+    """
+    shade = _shade_mask()
+    scenes = []
+    for date in dates:
+        frac, cov = _truth_cells(date)
+        ok0 = Wm & (cov if cov is not None else True) & (~shade if shade is not None else True)
+        t = pd.Timestamp(date)
+        byd = _search((t - pd.Timedelta(days=CELL_TRAIN_DAYS)).date().isoformat(),
+                      (t + pd.Timedelta(days=CELL_TRAIN_DAYS)).date().isoformat())
+        for sd in sorted(byd):
+            r = read_scene(sd, byd[sd], Wm)
+            if r is None:
+                continue
+            clear = r[2]
+            X, b = _cell_features(byd[sd], clear)
+            ok = ok0 & clear
+            scenes.append(dict(vet=date, scene=sd, X=X, ok=ok, truth=ok & (frac >= 0.5), bands=b, clear=clear))
+            info(f"  {sd} for {date}: {int(ok.sum())} floor cells, {int((ok & (frac >= 0.5)).sum())} vetted wet")
+    train = [sc for sc in scenes if sc["vet"] == dates[0]]
+    if not train:
+        warn("no training scene")
+        return 1
+    Xt = np.concatenate([sc["X"][sc["ok"].ravel()] for sc in train])
+    yt = np.concatenate([sc["truth"].ravel()[sc["ok"].ravel()] for sc in train]).astype(float)
+    w, mu, sd = _logit_fit(Xt, yt)
+    names = [f"log_{k}" for k in CELL_BANDS] + ["ndwi", "ndmi", "mndwi"]
+    step("fitted on " + ", ".join(sc["scene"] for sc in train) +
+         f": {len(yt)} cells, {int(yt.sum())} wet; standardised weights " +
+         ", ".join(f"{n} {v:+.2f}" for n, v in zip(names, w[1:])))
+    W_, H_, _ = _grid()
+    rows = []
+    for sc in scenes:
+        p = _logit_predict(w, mu, sd, sc["X"]).reshape(H_, W_)
+        p[~sc["ok"]] = 0
+        pred = sc["ok"] & (p >= 0.5)
+        tr = sc["truth"]
+        i = (pred & tr).sum()
+        best = max(((((sc["ok"] & (p >= q)) & tr).sum() / max(1, ((sc["ok"] & (p >= q)) | tr).sum()), q)
+                    for q in np.arange(0.1, 0.95, 0.05)))
+        rows.append({"vetted_date": sc["vet"], "scene_date": sc["scene"],
+                     "role": "train" if sc["vet"] == dates[0] else "TEST",
+                     "iou": round(i / max(1, (pred | tr).sum()), 3),
+                     "precision": round(i / max(1, pred.sum()), 3), "recall": round(i / max(1, tr.sum()), 3),
+                     "pred_ha": round(pred.sum() * 0.01, 2), "vetted_ha": round(tr.sum() * 0.01, 2),
+                     "best_iou_here": round(best[0], 3), "best_p_here": round(float(best[1]), 2)})
+        step(f"  {sc['scene']} [{rows[-1]['role']}] IoU {rows[-1]['iou']:.3f} (P {rows[-1]['precision']:.2f} "
+             f"R {rows[-1]['recall']:.2f}) {rows[-1]['pred_ha']:.1f} vs {rows[-1]['vetted_ha']:.1f} ha; "
+             f"best p {best[1]:.2f} -> {best[0]:.3f}")
+        _cells_to_kml(sc["ok"] & (p >= 0.5), p, OUT / f"W94_27_cells_{sc['scene']}.kml",
+                      f"Sentinel wet cells {sc['scene']} — trained on {dates[0]}")
+        _overlay_png(sc["bands"], sc["clear"], OUT / f"W94_27_scene_{sc['scene']}.png",
+                     OUT / f"W94_27_scene_{sc['scene']}.kml", f"Sentinel-2 true colour {sc['scene']}")
+        np.save(OUT / f"W94_27_cells_{sc['scene']}_p.npy", p)
+    pd.DataFrame(rows).to_csv(OUT / "W94_27_cells_scores.csv", index=False)
+    saved("W94_27_cells_scores.csv; W94_27_cells_<scene>.kml, W94_27_scene_<scene>.kml/.png")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--since", default="2016-01-01")
@@ -479,6 +650,9 @@ def main() -> int:
                     help="score the fixed rule on data/geo/flood_extent_DATE_vetted.kml")
     ap.add_argument("--swir-test", nargs="+", metavar="DATE",
                     help="SWIR indices against these vetted dates; first date sets the threshold")
+    ap.add_argument("--cells", nargs="+", metavar="DATE",
+                    help="supervised per-cell classifier trained on the first vetted date, "
+                         "tested on the rest; writes vettable KMLs and true-colour overlays")
     args = ap.parse_args()
     warnings.filterwarnings("ignore", category=UserWarning, module="rasterio")
     banner("Sentinel-2 wet slack floor series", __version__)
@@ -487,6 +661,9 @@ def main() -> int:
         phase(1, "Calibrating the darkness ratio on the vetted extent")
         calibrate(Wm)
         return 0
+    if args.cells:
+        phase(1, "Per-cell classifier trained on the vetted extent, every band")
+        return cells(Wm, args.cells)
     if args.swir_test:
         phase(1, "SWIR against the vetted extents — can it split flooded from damp floor?")
         return swir_test(Wm, args.swir_test)

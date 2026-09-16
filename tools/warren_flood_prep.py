@@ -74,7 +74,11 @@ NOT DONE HERE, AND WHY
 """
 from __future__ import annotations
 
-__version__ = "1.43.0"  # Hollingham (2026) - 2026-09-16. Phase 26's dark KML
+__version__ = "1.44.0"  # Hollingham (2026) - 2026-09-16. Phase 27 --hc-start:
+#   the hindcast from any month of the climate record (1930-12 onward), its
+#   outputs tagged W94_27_from<YYYY>_* so the 2005 record is never overwritten.
+#   For the long Mode C run behind D-178's animation.
+# v1.43.0  # Hollingham (2026) - 2026-09-16. Phase 26's dark KML
 #   now carries the bodies in folders by size (VET_SIZE_BINS_M2) — the file
 #   Martin vets, as he did 2020-03-30 by hand-sorted folders. _bodies_to_kml
 #   gains size_col; no read changed.
@@ -619,6 +623,10 @@ def main() -> int:
                          "Before it existed a dry control returned 20.85 ha of "
                          "flooding in one band on the seaward flank, so "
                          "this is a diagnostic and not a way to run")
+    ap.add_argument("--hc-start", dest="hc_start", default=HINDCAST_START, metavar="YYYY-MM",
+                    help="phase 27: first month of the hindcast (default HINDCAST_START). "
+                         "Another start writes W94_27_from<YYYY>_* beside the 2005 record; "
+                         "the climate record begins 1930-12; use --hc-modes C")
     ap.add_argument("--no-rasters", dest="no_rasters", action="store_true",
                     help="phase 27: skip the GTiff and KML writes for the "
                          "vetted and extreme months. The comparisons are "
@@ -657,7 +665,7 @@ def main() -> int:
         return phase27(modes=md, months=args.months,
                        rasters=not args.no_rasters,
                        surface=args.hc_surface, idw_k=args.hc_idw_k,
-                       tidal_bc=not args.hc_no_tidal)
+                       tidal_bc=not args.hc_no_tidal, start=args.hc_start)
     if args.phase == 26:
         if args.ingest:
             n = _nadir_ingest(args.ingest)
@@ -8679,15 +8687,17 @@ def _grid_mask(path, tr, shape, kml=False):
                      dtype="uint8").astype(bool)
 
 
-def _hindcast_months(P_act, E_act):
-    """Every month from HINDCAST_START to the end of the climate record.
+def _hindcast_months(P_act, E_act, start=HINDCAST_START):
+    """Every month from `start` (HINDCAST_START by default) to the end of the
+    climate record.
 
     The end is the last month for which BOTH P and PET are available, which
     includes any month the D-166 calibration file supplied — its PET is the
     month's climatology, and every row that used one says so.
     """
     have = sorted(set(P_act) & set(E_act))
-    start = pd.Timestamp(HINDCAST_START + "-01")
+    start = max(pd.Timestamp(start + "-01"),
+                pd.Timestamp(year=have[0][0], month=have[0][1], day=1))
     end = pd.Timestamp(year=have[-1][0], month=have[-1][1], day=1)
     return list(pd.date_range(start, end, freq="MS"))
 
@@ -8776,7 +8786,7 @@ def _wet_bodies(wet, tr):
 
 def phase27(modes=HINDCAST_MODES, months=0, rasters=True,
             surface=HINDCAST_SURFACE, idw_k=HINDCAST_IDW_K,
-            tidal_bc=HINDCAST_TIDAL_BC) -> int:
+            tidal_bc=HINDCAST_TIDAL_BC, start=HINDCAST_START) -> int:
     """The wet-floor hindcast: phase 18's engine, every month, 2005-2026.
 
     Four comparisons, each with its failure condition fixed before the run and
@@ -8930,6 +8940,13 @@ def phase27(modes=HINDCAST_MODES, months=0, rasters=True,
     # each other rather than overwriting one another.
     _tag = ("" if (surface == HINDCAST_SURFACE and tidal_bc)
             else f"_{surface}" + ("" if tidal_bc else "_nobc"))
+    if start != HINDCAST_START:
+        # a run from another start (the 1930 climate record for the long
+        # hindcast, D-178's animation) never overwrites the 2005 record
+        _tag += f"_from{start[:4]}"
+        if "R" in modes:
+            warn("  Mode R re-seeds from observed wells each October; before the "
+                 "record it falls back every year. Mode C is the long-run mode.")
 
     def _p(name):
         return OUT / f"W94_27{_tag}_{name}"
@@ -9007,7 +9024,7 @@ def phase27(modes=HINDCAST_MODES, months=0, rasters=True,
         OBS[w] = (pd.to_numeric(LEV[w], errors="coerce") if w in LEV.columns
                   else np.nan)
 
-    all_months = _hindcast_months(P_act, E_act)
+    all_months = _hindcast_months(P_act, E_act, start)
     if months:
         all_months = all_months[:int(months)]
     step(f"hindcast {all_months[0]:%Y-%m} to {all_months[-1]:%Y-%m} "

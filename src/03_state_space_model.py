@@ -79,7 +79,24 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.13.0"  # Hollingham (2026) — 2026-09-09. The three upstand
+__version__ = "1.14.1"  # Hollingham (2026) — 2026-09-16. Corrects 1.14.0 the
+#   same day: the outer join was unclipped, so it pulled in the WHOLE of
+#   01_climate.csv back to 1930-12 and the file went from 250 rows to 1,143, 893
+#   of them climate with no head. Script 14 fits trends on this file and Script 16
+#   sums its P and PET, so that was a worse fault than the two months it recovered.
+#   The climate is now clipped to the centroid span before the join: 252 rows,
+#   2005-06 and 2022-12 recovered, nothing else added.
+# v1.14.0  # Hollingham (2026) — 2026-09-16. T-33 / D-171:
+#   export_regional_averages joins the climate OUTER rather than left. The frame
+#   is indexed on the cluster centroids, which exist only for months with dipwell
+#   readings, so the climate of any unmeasured month was dropped with it: 2005-06
+#   and 2022-12 were absent from 03_regional_averages.csv altogether — 250 rows
+#   where the span needs 252 — and 2022-12 carried 91.8 mm of rain. Both are
+#   present in the raw record and in 01_climate.csv; the loss was here. The file
+#   gains two rows whose cluster columns are NaN, which is what "no observed
+#   head" should look like. THIS MOVES NUMBERS in Scripts 14, 16, 17 and 28,
+#   which read this file for climate; see D-171.
+# v1.13.0  # Hollingham (2026) — 2026-09-09. The three upstand
 #   correlations now emit their two-sided p-values beside them
 #   (corr_upstand_vs_d_beta_*_p), so the Methods Supplement sentence traces to
 #   committed cells end to end rather than half-and-half. scipy_stats.pearsonr
@@ -2105,7 +2122,35 @@ def export_regional_averages(centroids: dict[int, pd.Series],
             print(f" {block:16s} : {val:.1f}%")
     print("=" * 50)
 
-    df_export = df_export.join(climate[["P_m", "PET"]])
+    # OUTER, not left (T-33, D-171). df_export is indexed on the cluster
+    # CENTROIDS, which exist only for months with dipwell readings. A left join
+    # therefore DROPPED THE CLIMATE of any month nobody measured: 2005-06 and
+    # 2022-12 vanished from this file entirely — 250 rows where the span needs
+    # 252 — and 2022-12 carried 91.8 mm of rain. Both months are present in the
+    # raw RAF Valley record and in 01_climate.csv, so nothing was ever missing
+    # upstream; it was lost here. Anything iterating months from this file
+    # inherited the hole, including the flood work's climate loader.
+    #
+    # The cluster columns are NaN in such a month, which is correct and honest:
+    # there is no observed head to report. Consumers that need a complete
+    # climate series should prefer 01_climate.csv (D-171); this file remains a
+    # WELL-INDEXED frame that also carries climate.
+    # ... BUT CLIPPED TO THE CENTROIDS' OWN SPAN. A bare outer join brought in the
+    # WHOLE climate record — 01_climate.csv begins in 1930-12, so the file went
+    # from 250 rows to 1,143, with 893 of them carrying climate and no head at
+    # all. Measured 2026-09-16, on the first run after the outer join went in:
+    # that is a far worse fault than the two months it was meant to recover,
+    # because Script 14 fits climate TRENDS on this file and Script 16 sums its
+    # P and PET. The intent was never "every month of climate ever recorded" but
+    # "every month of the STUDY PERIOD, whether or not a well was read". So the
+    # climate is clipped to the centroid span before the join, which recovers
+    # 2005-06 and 2022-12 and nothing else.
+    clim = climate[["P_m", "PET"]]
+    if len(df_export.index):
+        lo, hi = df_export.index.min(), df_export.index.max()
+        clim = clim[(clim.index >= lo) & (clim.index <= hi)]
+    df_export = df_export.join(clim, how="outer")
+    df_export = df_export.sort_index()
     df_export = df_export.rename(columns={"P_m": "P_mm", "PET": "PET_mm"})
     df_export["P_mm"]   *= 1000
     df_export["PET_mm"] *= 1000

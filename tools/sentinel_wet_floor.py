@@ -47,7 +47,16 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.3.0"  # Hollingham (2026) - 2026-09-15. --swir-test: MNDWI, NDMI
+__version__ = "1.4.0"  # Hollingham (2026) - 2026-09-16. T-32: _scene_month and
+#   _wells_monthly both bucketed with `d - pd.offsets.MonthBegin(1)`, a no-op for
+#   days 2-15, so 49 of the 110 scenes carried the wrong month and were joined to
+#   the wrong dipwell reading. Both now call the single
+#   utils.model_utils.month_bucket. Measured effect on the headline: the
+#   floor-only rank correlation with the median well level moves +0.711 -> +0.707
+#   with n 36 -> 44, so D-170's finding stands (dated Note appended there).
+#   REGENERATE the series after this change; the 215 MB scene cache makes it a
+#   re-read, not a re-download.
+# v1.3.0  # Hollingham (2026) - 2026-09-15. --swir-test: MNDWI, NDMI
 #   and the SWIR ratio (B11) against the vetted extents, first date's threshold
 #   carried to the second — does SWIR split flooded from damp floor? A test;
 #   the series is unchanged.
@@ -84,6 +93,7 @@ import numpy as np                                            # noqa: E402
 import pandas as pd                                           # noqa: E402
 
 from utils.console_utils import banner, info, phase, progress, saved, step, warn  # noqa: E402
+from utils.buckets import month_bucket                      # noqa: E402
 from utils.paths import DATA_FLOOD_CAL_LEVELS, DATA_GEO_DIR   # noqa: E402
 
 OUT = REPO / "working" / "updates"
@@ -202,8 +212,7 @@ def _wells_monthly():
     if DATA_FLOOD_CAL_LEVELS.exists():
         c = pd.read_csv(DATA_FLOOD_CAL_LEVELS, float_precision="round_trip")
         d = pd.to_datetime(c["date"])
-        mo = d.where(d.dt.day > 15, d - pd.offsets.MonthBegin(1))
-        c["month"] = pd.to_datetime(mo.dt.strftime("%Y-%m-01"))
+        c["month"] = month_bucket(d)          # T-32: was a MonthBegin no-op
         for m, g in c.groupby("month"):
             if m not in lev.index:
                 rows.append((m, len(g), float(g["h_m"].median()), float((g["h_m"] >= 0).mean())))
@@ -212,9 +221,13 @@ def _wells_monthly():
 
 
 def _scene_month(date):
-    d = pd.Timestamp(date)
-    m = d if d.day > 15 else d - pd.offsets.MonthBegin(1)
-    return pd.Timestamp(m.year, m.month, 1)
+    """The dipwell month a scene belongs to, by Script 01's rule.
+
+    T-32: this read `d - pd.offsets.MonthBegin(1)`, which is a no-op for days
+    2-15, so 49 of the 110 scenes carried the wrong month and were joined to the
+    wrong well reading. The rule now has one implementation.
+    """
+    return month_bucket(date)
 
 
 def read_scene(date, item, Wm):

@@ -48,7 +48,10 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.6.0"  # Hollingham (2026) - 2026-09-16. --two-class: THE WET-AREA
+__version__ = "1.6.1"  # Hollingham (2026) - 2026-09-16. --animate falls back to a GIF
+#   when imageio-ffmpeg is absent (the L14: imageio routed the MP4 to tifffile
+#   and rejected fps). The model, the thresholds and the drive were unaffected.
+# v1.6.0  # Hollingham (2026) - 2026-09-16. --two-class: THE WET-AREA
 #   MODEL (D-178) — open water (B8 <= 0.5 x median) and wet floor (0.5-0.8)
 #   on the floor, each fitted a*exp(b*h) against the well level at the scene
 #   date, no vet in the fit; per-cell switching levels from the scene stack;
@@ -868,9 +871,19 @@ def _animate(Hc, hb, hd, floor):
         fig.canvas.draw(); a = np.asarray(fig.canvas.buffer_rgba())[..., :3]
         frames.append(a[:a.shape[0] // 2 * 2, :a.shape[1] // 2 * 2].copy())
     plt.close(fig)
-    imageio.mimwrite(OUT / "W94_27_wet_area_animation_modeR.mp4", frames, fps=8, codec="libx264",
-                     quality=8, macro_block_size=None)
-    saved("W94_27_wet_area_animation_modeR.mp4")
+    try:
+        import imageio_ffmpeg                                 # noqa: PLC0415,F401
+        imageio.mimwrite(OUT / "W94_27_wet_area_animation_modeR.mp4", frames, fps=8, codec="libx264",
+                         quality=8, macro_block_size=None)
+        saved("W94_27_wet_area_animation_modeR.mp4")
+    except ImportError:
+        # no ffmpeg plugin on this machine (imageio falls through to tifffile and
+        # rejects fps): write an animated GIF instead, same frames, same rate
+        warn("imageio-ffmpeg not installed (pip install imageio-ffmpeg for the MP4); writing a GIF")
+        Image.fromarray(frames[0]).save(OUT / "W94_27_wet_area_animation_modeR.gif", save_all=True,
+                                        append_images=[Image.fromarray(f) for f in frames[1:]],
+                                        duration=125, loop=0)
+        saved("W94_27_wet_area_animation_modeR.gif")
 
 
 def main() -> int:

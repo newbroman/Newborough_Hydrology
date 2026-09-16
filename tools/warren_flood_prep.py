@@ -74,7 +74,11 @@ NOT DONE HERE, AND WHY
 """
 from __future__ import annotations
 
-__version__ = "1.42.0"  # Hollingham (2026) - 2026-09-16. THE BOUNDARY'S NAMES
+__version__ = "1.43.0"  # Hollingham (2026) - 2026-09-16. Phase 26's dark KML
+#   now carries the bodies in folders by size (VET_SIZE_BINS_M2) — the file
+#   Martin vets, as he did 2020-03-30 by hand-sorted folders. _bodies_to_kml
+#   gains size_col; no read changed.
+# v1.42.0  # Hollingham (2026) - 2026-09-16. THE BOUNDARY'S NAMES
 #   NOW SAY WHAT IT IS (D-176, Martin: "rename them too"). It is a tidal
 #   fixed-head boundary at the shoreline; it was called an estuary, and after
 #   D-175 its source constant was called COAST_BOUNDARY_SOURCE while the file it
@@ -574,6 +578,10 @@ def main() -> int:
     ap.add_argument("--review", action="store_true",
                     help="phase 25: read Martin's vetted slack_floors_reviewed.kml "
                          "back and write the accepted inventory")
+    ap.add_argument("--ingest", metavar="DATE",
+                    help="phase 26: add every data/geo/Screenshot*.png not yet in "
+                         "nadir_captures.csv as a capture of this imagery date "
+                         "(pin tip 10 m, no seam), then read that date")
     ap.add_argument("--hc-modes", dest="hc_modes", default=",".join(HINDCAST_MODES),
                     help="phase 27: which seeding modes to run, comma "
                          "separated. R restarts each October from that year's "
@@ -651,6 +659,12 @@ def main() -> int:
                        surface=args.hc_surface, idw_k=args.hc_idw_k,
                        tidal_bc=not args.hc_no_tidal)
     if args.phase == 26:
+        if args.ingest:
+            n = _nadir_ingest(args.ingest)
+            if n == 0:
+                warn("no new screenshot to ingest")
+                return 1
+            return phase26(dates=[args.ingest])
         return phase26(dates=args.date)
     if args.phase == 25:
         return phase25(review=args.review)
@@ -7539,12 +7553,20 @@ def _phase11_grid(hollows):
     return EE, NN, gtr, res
 
 
+VET_SIZE_BINS_M2 = tuple(range(25, 105, 5)) + (200, 500, 1000, None)  # folder edges for a vet
+
+
 def _bodies_to_kml(gdf, path, name, style_line="ff00ffff", id_col="id",
-                   fields=()):
+                   fields=(), size_col=None):
     """One placemark per body, NO FILL, so the imagery shows through and each
     can be ticked or unticked in Google Earth. `Save Place As` writes
     <visibility>0</visibility> for an unticked placemark, which is how a
-    rejection comes back to the tool (phase 25 --review)."""
+    rejection comes back to the tool (phase 25 --review).
+
+    With `size_col`, the bodies go into FOLDERS by that column's value at the
+    VET_SIZE_BINS_M2 edges (5 m² steps to 100, then 100–200, 200–500,
+    500–1000, over 1000), so a whole size class can be unticked at once —
+    Martin's vetting workflow of 2026-09-15 (D-169, D-170)."""
     g = gdf.to_crs(4326)
     k = ['<?xml version="1.0" encoding="UTF-8"?>',
          '<kml xmlns="http://www.opengis.net/kml/2.2"><Document>',
@@ -7552,6 +7574,30 @@ def _bodies_to_kml(gdf, path, name, style_line="ff00ffff", id_col="id",
          f'<Style id="b"><LineStyle><color>{style_line}</color><width>2</width>'
          '</LineStyle><PolyStyle><fill>0</fill><outline>1</outline></PolyStyle>'
          '</Style>']
+    if size_col is not None:
+        edges = VET_SIZE_BINS_M2
+        groups = []
+        for i in range(len(edges) - 1):
+            lo, hi = edges[i], edges[i + 1]
+            sel = (g[size_col] >= lo) & ((g[size_col] < hi) if hi is not None else True)
+            if sel.any():
+                groups.append((f"{lo}-{hi} m2" if hi is not None else f"over {lo} m2", g[sel]))
+        below = g[g[size_col] < edges[0]]
+        if len(below):
+            groups.insert(0, (f"under {edges[0]} m2", below))
+    else:
+        groups = [(None, g)]
+    for label, gg in groups:
+        if label is not None:
+            k.append(f"<Folder><name>{label} ({len(gg)})</name><open>0</open>")
+        _placemarks_into(k, gg, id_col, fields)
+        if label is not None:
+            k.append("</Folder>")
+    k.append("</Document></kml>")
+    path.write_text("\n".join(k), encoding="utf-8")
+
+
+def _placemarks_into(k, g, id_col, fields):
     for _, r in g.iterrows():
         ring = ""
         geom = r.geometry
@@ -7567,8 +7613,6 @@ def _bodies_to_kml(gdf, path, name, style_line="ff00ffff", id_col="id",
         k.append(f"<Placemark><name>{r[id_col]}</name><description>{desc}"
                  f"</description><styleUrl>#b</styleUrl>"
                  f"<ExtendedData>{ext}</ExtendedData>{ring}</Placemark>")
-    k.append("</Document></kml>")
-    path.write_text("\n".join(k), encoding="utf-8")
 
 
 def _read_reviewed_kml(path):
@@ -7849,6 +7893,29 @@ def _nadir_manifest():
     m = pd.read_csv(NADIR_MANIFEST, float_precision="round_trip")
     m["imagery_date"] = m["imagery_date"].astype(str)
     return m
+
+
+def _nadir_ingest(date, pin_tip_n_m=10):
+    """Append every unregistered data/geo/Screenshot*.png to the manifest as a
+    capture of `date`. Pin tip 10 m is the 0.5-scale pushpin of every set since
+    2026-09-15; the note says 'ingested', and phase 26's registration report
+    is what confirms which frame is pinned and which is a twin. A mosaic seam
+    (seam_x_px / seam_side) is still added by hand — the tool cannot know a
+    frame carries two imagery dates."""
+    man = _nadir_manifest()
+    known = set(man["filename"].astype(str)) if man is not None else set()
+    new = sorted(f.name for f in DATA_GEO_DIR.glob("Screenshot*.png") if f.name not in known)
+    if not new:
+        return 0
+    hdr = NADIR_MANIFEST.read_text().splitlines()[0].split(",") if NADIR_MANIFEST.exists() else []
+    with NADIR_MANIFEST.open("a", encoding="utf-8") as fh:
+        for f in new:
+            row = {"filename": f, "imagery_date": date, "pin_tip_n_m": pin_tip_n_m,
+                   "note": f"ingested {pd.Timestamp.today().date()} by --ingest; pinned/twin per W94_26_registration.csv"}
+            fh.write(",".join(('"' + str(row.get(c, "")) + '"') if c == "note" else str(row.get(c, ""))
+                              for c in hdr) + "\n")
+    info(f"ingested {len(new)} screenshot(s) as {date}: " + ", ".join(new))
+    return len(new)
 
 
 def _nadir_seam(r):
@@ -8279,8 +8346,9 @@ def phase26(dates=None) -> int:
         _bodies_to_kml(g, OUT / f"W94_26_{date}_dark.kml",
                        f"dark {date} — {NADIR_DARK_BELOW_MEDIAN} below the frame median "
                        f"(median {med:.0f}, threshold {thr:.0f}), at least "
-                       f"{NADIR_MIN_BODY_M2:.0f} m2", fields=("area_m2",))
-        saved(f"W94_26_{date}_dark.kml")
+                       f"{NADIR_MIN_BODY_M2:.0f} m2", fields=("area_m2",),
+                       size_col="area_m2")
+        saved(f"W94_26_{date}_dark.kml  (folders by size — the file to vet)")
         tot = float(g.area_m2.sum())
         covf = 100 * cov.sum() / Wm.sum()
         step(f"{date}: {len(order)} frame(s), {covf:.1f} % of the warren covered; "

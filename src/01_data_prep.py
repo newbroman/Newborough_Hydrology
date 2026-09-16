@@ -16,7 +16,14 @@ Requirements:
     pandas, numpy
 """
 
-__version__ = "1.16.0"  # Hollingham (2026) - 2026-09-13. W94: emits
+__version__ = "1.17.0"  # Hollingham (2026) - 2026-09-16. T-32: both month
+#   bucketing sites now call utils.buckets.month_bucket instead of carrying their
+#   own copy of the day<=15 rule. NO OUTPUT CAN MOVE - tools/month_bucket_lint.py
+#   proves the helper identical to both of this script's former forms on every
+#   date from 1990 to 2040, and that gate runs in check_all. The reason for the
+#   change is that the rule existed in eight places, three of them written as
+#   `d - pd.offsets.MonthBegin(1)`, which is a no-op for days 2-15.
+# v1.16.0  # Hollingham (2026) - 2026-09-13. W94: emits
 #   01_wells_all.csv - the cleaned monthly frame with NO record-length threshold,
 #   alongside the existing thresholded files. Purely additive: wells_clean, the
 #   reference/extended split, the provenance file and every downstream consumer are
@@ -109,6 +116,7 @@ from utils.paths import (
     INT_OBS_STATE_CONFLICTS, INT_PEAR_AUDIT_SITEWIDE,
     DATA_WELL_METADATA, DATA_COASTLINE_ERODING, INT_DIST_COAST_VALIDATION,
 )
+from utils.buckets import month_bucket
 from utils.data_utils import normalize_well_name, parse_met_date, clean_well_series
 from utils.comment_states import parse_comment_states, assemble_observation_states
 from utils.config import (REFERENCE_CUTOFF_DATE, RAF_VALLEY_LAT_DEG, CLUSTER_LABELS,
@@ -617,12 +625,7 @@ def _excluded_presence(months, names):
     want = {n.lower() for n in names}
     mset = set(months)
 
-    def bucket(d):
-        d = pd.Timestamp(d)
-        if d.day > 15:
-            return pd.Timestamp(d.year, d.month, 1)
-        b = d.replace(day=1) - pd.offsets.MonthBegin(1)
-        return pd.Timestamp(b.year, b.month, 1)
+    bucket = month_bucket          # THE rule, from utils.buckets (T-32)
 
     for r in range(g.shape[0]):
         wid = g.iat[r, 10] if g.shape[1] > 10 else None
@@ -924,9 +927,7 @@ if __name__ == "__main__":
     # the climate record without requiring a compensating lag-1 shift in
     # downstream regressions. HEADLINE_LAG in config.py is set to 0.
     d = pd.to_datetime(wells.index, dayfirst=True, errors="coerce")
-    prev_month = (d.to_period("M") - 1).to_timestamp()
-    this_month = d.to_period("M").to_timestamp()
-    wells.index = np.where(d.day <= 15, prev_month, this_month)
+    wells.index = month_bucket(d)       # THE rule, from utils.buckets (T-32)
     wells = wells.apply(pd.to_numeric, errors="coerce").groupby(level=0).mean()
     if "NW8" in wells.columns and "NW8b" in wells.columns:
         wells["NW8"] = wells["NW8b"].combine_first(wells["NW8"])

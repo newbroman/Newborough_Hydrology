@@ -195,6 +195,18 @@ echo "── record basis (does §F.6 still describe the code?) ─────�
 python3 tools/record_basis_lint.py --quiet || rc=1
 
 echo
+echo "── month bucketing (one implementation of Script 01's day<=15 rule?) ──"
+# T-32. The rule had five correct implementations and three written as
+# `d - pd.offsets.MonthBegin(1)`, which is a NO-OP for days 2-15: the day<=15
+# branch reads as applied and is not. It was fixed in one place on 2026-09-13
+# and reintroduced in a new tool two days later, because the rule lived in a
+# comment at each call site. This gate proves utils.buckets.month_bucket
+# equivalent to every correct variant over every date from 1990 to 2040 - an
+# exhaustive proof, not a sample, because dates are the whole input domain - and
+# fails if any live line buckets with MonthBegin again.
+python3 tools/month_bucket_lint.py || rc=1
+
+echo
 echo "── table sources (config, map and caption agree on number->source?) ──"
 python3 tools/table_source_lint.py || rc=1
 

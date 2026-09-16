@@ -37,8 +37,13 @@ WHICH PHASES ARE LIVE (T-28; D-168, D-169 — status as of 2026-09-15)
     22-24  the scoreboard against TRUTH_KML (the vetted extent): rungs, shift
         sweep, membership dropped. Numbers scored before 2026-09-15 were on the
         superseded extent and are history.
+    27  the WET-FLOOR HINDCAST: phase 18's engine run to every month from
+        2005-10, in Mode R and Mode C, spread by phase 24 part E, scored
+        against the wells monthly, the two VETTED extents on their dates and
+        the ORDINAL Sentinel index (D-170). Three self-tests bind it to the
+        committed artefacts of phases 18 and 24; neither is edited.
     18  per-hollow flooded area from 11b's climate-forced P_flood — the ENGINE
-        phase 27 (hindcast, spec 2026-09-15) will run to every month.
+        phase 27 runs to every month.
     25  the summer-green floor inventory with the GE vet loop — BUILT, UNRUN:
         the dry-date union from phase 26 now does its job.
   SUPERSEDED — kept in place as the record of what was tried; none may be
@@ -69,7 +74,24 @@ NOT DONE HERE, AND WHY
 """
 from __future__ import annotations
 
-__version__ = "1.38.1"  # Hollingham (2026) - 2026-09-15. Phase 29 is now the
+__version__ = "1.39.0"  # Hollingham (2026) - 2026-09-16. PHASE 27: the
+#   wet-floor hindcast (spec NRG_spec_phase27_hindcast_v2_2026-09-15, D-170).
+#   Phase 18's engine run to EVERY month from HINDCAST_START to the end of the
+#   climate record, in Mode R (restart each October from the observed Aug-Sep
+#   minimum) and Mode C (seeded once, never sees a well again), spread to the
+#   surface by phase 24 part E's nearest-hollow construction, reported raw
+#   inside warren_on(month) and clipped to the phase 29 floor. Four comparisons,
+#   each with its failure condition written beside its result: the wells every
+#   month, area against the two VETTED extents (the gate), rank and timing
+#   against the ORDINAL Sentinel index, and the dry control. Neither phase 18
+#   nor phase 24 is edited - three self-tests bind the borrowed pieces to their
+#   COMMITTED artefacts instead (chaining against the loop, the loop against
+#   11b's closed form, _spread_levels against W94_C5_no_membership.csv), so no
+#   published number moves and no other phase needs re-running to prove this
+#   one. W94_27_hindcast_monthly/_summary/_area_vs_vets/_well_fit/_timing_<mode>,
+#   the wet rasters and KML for the vetted and extreme months, and
+#   W94_27_hindcast.png.
+# v1.38.1  # Hollingham (2026) - 2026-09-15. Phase 29 is now the
 #   FLOOR mask from the DEM (relief above the local minimum, slope) — where
 #   water can lie — replacing the shade mask of 1.38.0, which removed 30 % of
 #   the vetted water (the bush layer sits on slack floors; slope/aspect at
@@ -189,7 +211,7 @@ __version__ = "1.38.1"  # Hollingham (2026) - 2026-09-15. Phase 29 is now the
 #   stated cost, every area being a lower bound by that much. D-167.
 # v1.24.0  # Hollingham (2026) - 2026-09-14. --cut-z: phase 8
 #   cuts at a threshold the frame did not choose, written to a _fixedz set of
-#   its own. z is standardised against each frame's own open dune, so a cut in z
+#   its own. z is standardized against each frame's own open dune, so a cut in z
 #   transfers between frames. The gate's own z = -0.75 applied to 2019-09-11
 #   returns 76 bodies and 16.48 ha with all 50 wells agreed, against 668 bodies
 #   and 288.44 ha when that frame chose its own split. Phase 19 rebuilt on the
@@ -197,7 +219,7 @@ __version__ = "1.38.1"  # Hollingham (2026) - 2026-09-15. Phase 29 is now the
 #   own. D-167.
 # v1.23.0  # Hollingham (2026) - 2026-09-14. PHASE 19, the
 #   false-wet mask (D-167). Martin: the dry frames were given so that dark
-#   features which look like water could be digitised and removed, NOT as a
+#   features which look like water could be digitized and removed, NOT as a
 #   zero-water gate on a model. A forced read of 2009-04-20 - no water in it -
 #   returns 87.86 ha against 88.31 ha for the wettest frame in the corpus.
 #   Every imagery area published before today is an upper bound.
@@ -327,7 +349,7 @@ __version__ = "1.38.1"  # Hollingham (2026) - 2026-09-15. Phase 29 is now the
 #   Artefacts carry a _tiles tag, and W94_09_scores is now merged by date
 #   instead of overwritten by a partial run.  # Hollingham (2026) - 2026-09-11. PHASE 8, the flood read
 #   (D-159, spec NRG_spec_W94_phase8_flood_read_2026-09-11.md). The photographs
-#   classify and the DEM only names the result. Each frame is normalised against
+#   classify and the DEM only names the result. Each frame is normalized against
 #   its OWN OPEN DUNE - the warren less the hollows, never flooded by
 #   construction - so the cut is exposure-free across five rights-holders; a
 #   BIMODALITY GATE lets a dry frame return DRY, which plain Otsu cannot, and
@@ -387,7 +409,9 @@ import rasterio                                              # noqa: E402
 from rasterio.mask import mask as rio_mask                    # noqa: E402
 
 from utils.config import CANOPY_CLOSURE_RATIO                 # noqa: E402
-from utils.console_utils import banner, info, phase, saved, step, warn  # noqa: E402
+from utils.console_utils import (banner, info, phase, progress, saved, step,
+                                warn)  # noqa: E402
+from utils.buckets import month_bucket                       # noqa: E402
 from utils.paths import DATA_DEM, DATA_GEO_DIR                # noqa: E402
 from utils.warren_mask import (OSGB, _features, canopy_on, closure_dates,
                                warren_on)  # noqa: E402
@@ -483,6 +507,16 @@ def main() -> int:
     ap.add_argument("--review", action="store_true",
                     help="phase 25: read Martin's vetted slack_floors_reviewed.kml "
                          "back and write the accepted inventory")
+    ap.add_argument("--hc-modes", dest="hc_modes", default=",".join(HINDCAST_MODES),
+                    help="phase 27: which seeding modes to run, comma "
+                         "separated. R restarts each October from that year's "
+                         "observed August-September well minimum; C is seeded "
+                         "once and never sees a well again. Both, by default, "
+                         "because the comparison between them is the point")
+    ap.add_argument("--no-rasters", dest="no_rasters", action="store_true",
+                    help="phase 27: skip the GTiff and KML writes for the "
+                         "vetted and extreme months. The comparisons are "
+                         "unaffected — they hold those months either way")
     ap.add_argument("--calibrate", action="store_true",
                     help="phase 8: report the open-dune z at wet and dry wells "
                          "and write W94_08_calibration.csv, writing no result")
@@ -500,6 +534,15 @@ def main() -> int:
                        series=args.series)
     if args.phase == 29:
         return phase29()
+    if args.phase == 27:
+        md = tuple(x.strip().upper() for x in args.hc_modes.split(",") if x.strip())
+        bad = [x for x in md if x not in HINDCAST_MODES]
+        if bad:
+            warn(f"--hc-modes: {', '.join(bad)} is not a mode; "
+                 f"choose from {', '.join(HINDCAST_MODES)}")
+            return 1
+        return phase27(modes=md, months=args.months,
+                       rasters=not args.no_rasters)
     if args.phase == 26:
         return phase26(dates=args.date)
     if args.phase == 25:
@@ -817,7 +860,7 @@ def main() -> int:
     # Map every node to its kept ancestor by POINTER JUMPING, then index the
     # leaf raster through it. Two earlier drafts were too slow to finish: a loop
     # over 264k leaf labels against 3.8M cells (10^12 comparisons), and a Python
-    # chain-walk over all 516k nodes. This is a handful of vectorised passes.
+    # chain-walk over all 516k nodes. This is a handful of vectorized passes.
     N = len(nodes)
     par = np.fromiter((nd["parent"] for nd in nodes), dtype=np.int64, count=N)
     idx = np.arange(N, dtype=np.int64)
@@ -874,13 +917,13 @@ def main() -> int:
     # Nearest well to each slack, recorded rather than thresholded.
     #
     # POLYGONISE ONLY WHAT IS USED. The tree keeps thousands of slacks, most of
-    # them a handful of cells, and vectorising every one then dissolving was the
+    # them a handful of cells, and vectorizing every one then dissolving was the
     # step that would not finish. Polygons are built for slacks in the warren at
     # or above POLY_MIN_AREA_M2; the CSV keeps them all, so nothing is lost that
     # a later step cannot recover.
     from shapely.geometry import Point                       # noqa: PLC0415
     keep_ids = set(sdf.loc[sdf["in_warren"], "slack"])
-    info(f"polygonising {len(keep_ids)} slack(s) that touch the warren; "
+    info(f"polygonizing {len(keep_ids)} slack(s) that touch the warren; "
          f"the CSV keeps all {len(sdf)}")
     keep_arr = np.zeros(len(nodes) + 1, dtype=bool)
     for k in keep_ids:
@@ -1013,7 +1056,7 @@ def main() -> int:
     # depression a flood body belongs to. Never an area that floods.
     sh = sg0.merge(sdf[_attrs], on="slack", how="left")
     # THE SLACK — the surface at floor + SLACK_MIN_DEPTH_M. The WET area: what a
-    # photograph is compared with, and what is recognised on the ground.
+    # photograph is compared with, and what is recognized on the ground.
     sg = sw0.merge(sdf[_attrs], on="slack", how="left")
     for _name, _gdf, _stem in (("hollows", sh, "W94_06_hollows"),
                                ("slacks", sg, "W94_06_slacks")):
@@ -1064,7 +1107,7 @@ def main() -> int:
     render_figure(fig2, p)
     saved(p.name)
 
-    info("the repeat-floor drift test is NOT run here — it needs digitised "
+    info("the repeat-floor drift test is NOT run here — it needs digitized "
          "outlines on two dates, which do not exist yet. See the module "
          "docstring.")
     return 0
@@ -1360,8 +1403,8 @@ def _mosaic(date, m41, EE, NN, dune_prior):
     to 14.2 for a single vp2 frame, which inflates sigma, compresses z toward
     zero, and pushed the frame's own Otsu threshold to -0.63 — so the wettest
     frame in the series came back DRY at the gate. The fix is to do what the
-    method already says: normalise against THE FRAME'S own open dune, one frame
-    at a time, and mosaic the z values. The second normalisation downstream then
+    method already says: normalize against THE FRAME'S own open dune, one frame
+    at a time, and mosaic the z values. The second normalization downstream then
     operates on a surface that has no inter-tile offset left in it, and is
     approximately the identity.
 
@@ -1388,7 +1431,7 @@ def _mosaic(date, m41, EE, NN, dune_prior):
         ok_ = ok_ & np.isfinite(gg)
         d_ = ok_ & dune_prior
         if int(d_.sum()) < 500:
-            refused.append((name, "sees too little open dune to normalise"))
+            refused.append((name, "sees too little open dune to normalize"))
             continue
         ref = gg[d_]
         med = float(np.median(ref))
@@ -1416,7 +1459,7 @@ def _mosaic(date, m41, EE, NN, dune_prior):
     resid = float(np.median(rr)) if rr else float("nan")
     agr = [f["agree_r"] for n_, _, _, _, _ in used
            for f in [_all_tiles().get(n_, {})] if f.get("agree_r") is not None]
-    info(f"  mosaic of {len(used)} tile(s), each normalised against its own open "
+    info(f"  mosaic of {len(used)} tile(s), each normalized against its own open "
          f"dune: per-cell GSD median {gsd:.3f} m (best "
          f"{float(np.min(best[ok])):.3f}), "
          + (f"agreement r median {np.median(agr):.2f}" if agr
@@ -1438,7 +1481,7 @@ def phase8(dates=None, calibrate=False, series="vp2",
     chooses the imagery: "vp2" reads one committed 2.884 m/px frame per date
     through the shared vp2 homography, and "tiles" reads a mosaic of the
     2026-09-12 captures at a per-cell median near 1.0 m/px. Everything after the
-    sampling step — the open-dune normalisation, the frame's own Otsu, the gate,
+    sampling step — the open-dune normalization, the frame's own Otsu, the gate,
     the elevation-banded labelling, the scoring — is identical code, so a
     difference between the two is a difference of resolution and registration
     and not of method.
@@ -1545,7 +1588,7 @@ def phase8(dates=None, calibrate=False, series="vp2",
 
     # THE FRAME'S OWN GEOMETRY, from the COMMITTED registration rather than
     # typed here: `gsd_m` converts the patch-size threshold from image pixels to
-    # ground, and `residual_median_m` is how well the frame can localise a well
+    # ground, and `residual_median_m` is how well the frame can localize a well
     # at all. Both are properties of the fit Script 41 published, so neither is
     # a number this tool is free to choose.
     gsd = resid = None
@@ -1616,7 +1659,7 @@ def phase8(dates=None, calibrate=False, series="vp2",
             grid, ok = m41._sample_to_grid(lum, H, EE, NN)
         else:
             # The date's own warren mask is needed BEFORE sampling here, because
-            # each tile normalises against the open dune it can see.
+            # each tile normalizes against the open dune it can see.
             wm0 = geometry_mask([warren_on(date)], out_shape=EE.shape,
                                 transform=gtr, invert=True)
             grid, ok, gsd, resid, n_used, _ = _mosaic(
@@ -1707,7 +1750,7 @@ def phase8(dates=None, calibrate=False, series="vp2",
 
         if cut_z is not None:
             # THE CUT COMES FROM ANOTHER FRAME, AND THAT IS THE POINT (D-167).
-            # z is standardised against each frame's OWN open dune - median and
+            # z is standardized against each frame's OWN open dune - median and
             # 1.4826*MAD - so a threshold in z is comparable between frames in a
             # way a luminance is not. Applying an ACCEPTED wet frame's cut to a
             # frame with no water asks the only question a dry frame can answer:
@@ -1948,7 +1991,7 @@ def _stale_cells(date, m41, EE, NN, dune_prior):
     answer we are about to question. Identity needs neither: a stale block is not
     merely similar to the earlier imagery, it IS the earlier imagery, pixel for
     pixel, and the same test that found the 2010-05-27 / 2011-06-19 duplicate
-    finds it at cell level. It also generalises — every date is checked against
+    finds it at cell level. It also generalizes — every date is checked against
     every earlier one, which is the per-frame stale-patch check GEO_PROVENANCE
     has had as owed since 2026-09-11.
 
@@ -2032,7 +2075,7 @@ def _all_tiles():
 def phase10(dates=None, calibrate=False) -> int:
     """The slack-edge classifier: each slack judged against its OWN rim.
 
-    WHY THE OPEN-DUNE REFERENCE HAD TO GO. Phase 8 normalises a whole frame
+    WHY THE OPEN-DUNE REFERENCE HAD TO GO. Phase 8 normalizes a whole frame
     against the warren's open dune and cuts at the frame's own Otsu threshold.
     That works at the vp2 viewpoint's 2.884 m/px and it does not survive the
     2026-09-12 captures, measured 2026-09-12: the open-dune MAD is 7-32 at tile
@@ -2146,7 +2189,7 @@ def phase10(dates=None, calibrate=False) -> int:
 
     # FLOORS AND RIMS AS TWO LABEL RASTERS, in two passes over the grid rather
     # than two per slack. Rasterising each of 1078 hollows separately means 2156
-    # full-grid rasterisations and does not finish; labelling once and assigning
+    # full-grid rasterizations and does not finish; labelling once and assigning
     # every background cell to its NEAREST slack by an exact Euclidean transform
     # gives the same answer in two passes. It also settles, rather than leaves
     # arbitrary, what happens where two slacks are within a rim's width of each
@@ -2329,10 +2372,10 @@ def phase10(dates=None, calibrate=False) -> int:
 
 
 def _date_surface(date, m41, EE, NN, dune_prior):
-    """One date's tiles as three normalised, mosaicked surfaces.
+    """One date's tiles as three normalized, mosaicked surfaces.
 
     Returns (L, BR, S, ok, gsd) where each surface is in units of that TILE's own
-    open-dune spread — normalised per tile before compositing, because every
+    open-dune spread — normalized per tile before compositing, because every
     Google Earth capture carries its own exposure and a composite of raw
     luminance has variance BETWEEN tiles on top of the variance within each
     (measured 2026-09-12: open-dune MAD 26.9 composited against 7-32 per tile).
@@ -2392,7 +2435,7 @@ def _date_surface(date, m41, EE, NN, dune_prior):
 
 
 def _vp2_surface(date, H, m41, EE, NN, dune_prior):
-    """One vp2 frame as three normalised surfaces (L, BR, S). Thin wrapper over
+    """One vp2 frame as three normalized surfaces (L, BR, S). Thin wrapper over
     `_vp2_channels`, kept so every existing caller is unchanged."""
     ch, ok, gsd, fname = _vp2_channels(date, H, m41, EE, NN, dune_prior)
     if ch is None:
@@ -2401,7 +2444,7 @@ def _vp2_surface(date, H, m41, EE, NN, dune_prior):
 
 
 def _vp2_channels(date, H, m41, EE, NN, dune_prior, extra=()):
-    """One vp2 frame as normalised surfaces, through the SHARED transform.
+    """One vp2 frame as normalized surfaces, through the SHARED transform.
 
     Channels L (luminance), BR (blue minus red), S (saturation), and on
     request "G" (greenness, G minus the mean of R and B — phase 25's slack
@@ -3445,11 +3488,11 @@ def _merge_calibration(lev):
     C = pd.read_csv(DATA_FLOOD_CAL_LEVELS, float_precision="round_trip")
     if not len(C):
         return lev
-    d = pd.to_datetime(C["date"])
-    mo = d.where(d.dt.day > 15, d - pd.offsets.MonthBegin(1))
-    C["month"] = pd.to_datetime(
-        mo.dt.year.astype(str) + "-" + mo.dt.month.astype(str).str.zfill(2)
-        + "-01")
+    # T-32: this bucketed with `d - pd.offsets.MonthBegin(1)`, a no-op for days
+    # 2-15. LATENT here rather than harmful — the only calibration date is
+    # 2026-03-30, day 30 — but a reading on the 5th would have been filed a month
+    # late. One implementation now.
+    C["month"] = month_bucket(pd.to_datetime(C["date"]))
     have = set(lev["month"])
     added = 0
     for month, g in C.groupby("month"):
@@ -4724,7 +4767,11 @@ def _well_levels(lev, wells, date):
     March 2021, and the frame is compared with the level for the month it
     falls in.
     """
-    d = pd.Timestamp(date)
+    # BUCKETED BY utils.model_utils.month_bucket since 2026-09-16 (T-32): the rule
+    # has one implementation and a gate, month_bucket_lint, that proves every
+    # variant equivalent over every date from 1990 to 2040. The account below is
+    # kept because it is WHY that gate exists.
+    #
     # DEFECT FIXED 2026-09-13. This read `d - pd.offsets.MonthBegin(1)`, which
     # from a mid-month date rolls back to the FIRST OF THE SAME MONTH, not to the
     # previous month — so the day <= 15 branch was a no-op and the convention the
@@ -4735,11 +4782,7 @@ def _well_levels(lev, wells, date):
     # end-of-March level is median +0.020 m with 41 wells at or above ground. The
     # warren does not drain that fast, and it did not: the model was reading a
     # month into the frame's future.
-    if d.day <= 15:
-        prev = d.replace(day=1) - pd.Timedelta(days=1)
-        key = pd.Timestamp(prev.year, prev.month, 1)
-    else:
-        key = pd.Timestamp(d.year, d.month, 1)
+    key = month_bucket(date)
     row = lev[lev["month"] == key]
     out = []
     if not len(row):
@@ -5179,16 +5222,48 @@ def _pflood_cluster_betas():
 
 
 def _pflood_climate():
-    """(actual monthly series, rainfall climatology, PET climatology)."""
-    from utils.paths import INT_REGIONAL_AVG                     # noqa: PLC0415
-    ra = pd.read_csv(INT_REGIONAL_AVG, parse_dates=["Date"],
+    """(actual monthly series, rainfall climatology, PET climatology).
+
+    READS `01_climate.csv`, THE CLIMATE RECORD — not `03_regional_averages.csv`
+    (T-33, D-171). That file is indexed on the cluster CENTROIDS, which exist only
+    for months with dipwell readings, so until 2026-09-16 it joined climate LEFT
+    onto them and dropped the climate of any unmeasured month: 2005-06 and 2022-12
+    were absent altogether, and 2022-12 carried 91.8 mm of rain. Phase 18 and
+    phase 27 read that file as though it were a climate record, so the hindcast
+    modelled the winter of 2022-23 with no December rainfall. The join is outer at
+    source now as well, but the right source for a CLIMATE series is the climate
+    file: Script 01 writes it complete, and it needs no well to exist.
+    """
+    from utils.paths import INT_CLIMATE                           # noqa: PLC0415
+    ra = pd.read_csv(INT_CLIMATE, parse_dates=["Date"],
                      float_precision="round_trip")
+    # 01_climate.csv is in METRES (P_m, PET); 03_regional_averages.csv carried the
+    # same numbers x1000 as P_mm/PET_mm. Convert once, here, so every caller
+    # downstream goes on working in mm exactly as before.
+    ra = ra.rename(columns={"P_m": "P_mm", "PET": "PET_mm"})
+    ra["P_mm"] = ra["P_mm"] * 1000.0
+    ra["PET_mm"] = ra["PET_mm"] * 1000.0
+    # THE CLIMATOLOGY IS OVER THE MONITORED RECORD, NOT THE WHOLE CLIMATE FILE.
+    # 01_climate.csv begins in 1930; 03_regional_averages.csv, which this used to
+    # read, could only span the months that carried a dipwell reading. Averaging
+    # the full file would silently widen the climatology from ~21 years to ~96 and
+    # move phase 18's Mode C constants, which is not what T-33 is for. So the
+    # ACTUAL series keeps every month the climate record has — that is the whole
+    # point — while the CLIMATOLOGY is clipped to the span of the well record.
+    from utils.paths import INT_WELLS_ALL                          # noqa: PLC0415
+    rec = pd.read_csv(INT_WELLS_ALL, usecols=[0], float_precision="round_trip")
+    rm = pd.to_datetime(rec[rec.columns[0]])
+    clim_src = ra[(ra["Date"] >= rm.min()) & (ra["Date"] <= rm.max())]
+    info(f"  climate from {INT_CLIMATE.name}: {len(ra)} month(s) "
+         f"{ra['Date'].min():%Y-%m} to {ra['Date'].max():%Y-%m}; climatology over "
+         f"the monitored record, {rm.min():%Y-%m} to {rm.max():%Y-%m} "
+         f"({len(clim_src)} month(s))")
     P_act = {(d.year, d.month): float(v)
              for d, v in zip(ra["Date"], ra["P_mm"]) if pd.notna(v)}
     E_act = {(d.year, d.month): float(v)
              for d, v in zip(ra["Date"], ra["PET_mm"]) if pd.notna(v)}
-    P_clim = ra.groupby(ra["Date"].dt.month)["P_mm"].mean().to_dict()
-    E_clim = ra.groupby(ra["Date"].dt.month)["PET_mm"].mean().to_dict()
+    P_clim = clim_src.groupby(clim_src["Date"].dt.month)["P_mm"].mean().to_dict()
+    E_clim = clim_src.groupby(clim_src["Date"].dt.month)["PET_mm"].mean().to_dict()
 
     # Months later than the pipeline's frozen climate input reach this phase the
     # same way the well readings do (D-166) and no other way. RAINFALL ONLY: a
@@ -5390,11 +5465,13 @@ def _pflood_read_dates():
 
 
 def _pflood_bucket(date_str):
-    """(winter-start year, read month) under Script 01's bucketing."""
-    d = pd.Timestamp(date_str)
-    m = d.month if d.day > 15 else (d - pd.Timedelta(days=d.day)).month
-    y = d.year if (d.day > 15 or d.month > 1) else d.year - 1
-    return (y if m >= 10 else y - 1), m
+    """(winter-start year, read month) under Script 01's bucketing.
+
+    The bucketing is `month_bucket`'s (T-32); what is local to this function is
+    only the October-starting winter year.
+    """
+    b = month_bucket(date_str)
+    return (b.year if b.month >= 10 else b.year - 1), int(b.month)
 
 
 def _pflood_antecedent(lev, W, winter_year):
@@ -7363,7 +7440,7 @@ def phase25(review=False) -> int:
     slack floor carries a wet-slack sward that stays green when the dune has
     dried off, and it is greener and darker than the open dune on EVERY summer
     frame, whereas a shadow or a scrub patch is dark on one. So the inventory
-    is a persistence map: each summer vp2 frame is normalised against its own
+    is a persistence map: each summer vp2 frame is normalized against its own
     open dune (as phase 8 does), scored on greenness minus luminance, cut at
     FLOOR_SCORE_MIN_Z, and a cell is floor where at least FLOOR_PERSIST_MIN of
     the frames that saw it agree.
@@ -7658,7 +7735,7 @@ def _detect_pins(a):
 
 
 def _homography_dlt(E, N, px, py):
-    """Ground -> pixel, eight parameters, normalised DLT."""
+    """Ground -> pixel, eight parameters, normalized DLT."""
     def norm(x, y):
         mx, my = x.mean(), y.mean()
         s = np.sqrt(2) / np.mean(np.hypot(x - mx, y - my))
@@ -7963,7 +8040,7 @@ def phase26(dates=None) -> int:
     pd.DataFrame(reg_rows).to_csv(OUT / "W94_26_registration.csv", index=False)
     saved("W94_26_registration.csv")
 
-    # 3. per date: mosaic (clean twins first), threshold, vectorise
+    # 3. per date: mosaic (clean twins first), threshold, vectorize
     all_dates = sorted({v["date"] for v in frames.values()})
     if dates:
         all_dates = [d for d in all_dates if d in set(dates)]
@@ -8048,6 +8125,1019 @@ def phase26(dates=None) -> int:
     pd.DataFrame(summary).to_csv(OUT / "W94_26_summary.csv", index=False)
     saved("W94_26_summary.csv")
     return 0
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PHASE 27 — THE WET-FLOOR HINDCAST, 2005-2026
+# ─────────────────────────────────────────────────────────────────────────────
+# Spec: working/updates/NRG_spec_phase27_hindcast_v2_2026-09-15.md (D-170).
+#
+# Phase 18's engine run to EVERY month instead of to a handful of imagery dates,
+# driven by the RAF Valley record alone, and asked four questions in an order
+# fixed before the run: does it track the wells every month, and does the annual
+# restart earn its keep; does it reproduce the two VETTED extents on their own
+# dates; does it rank the Sentinel winters at least as well as the wells' own
+# level does; and does it stay dry in the months when no well is at ground.
+#
+# WHAT IS NEW HERE AND WHAT IS BORROWED. None of the hydrology is new. The
+# recurrence is `_pflood_iterate`, called one month at a time; the geometry is
+# `_pflood_geometry`; the area mapping is the DEM's own hypsometry through
+# `_pflood_area`; the surface is phase 24 part E's nearest-hollow spread. What is
+# new is the BOOKKEEPING — two seeding modes over the whole climate record, three
+# independent yardsticks — and THREE SELF-TESTS that refuse the run if any
+# borrowed piece has drifted from the phase it came from. Neither phase 18 nor
+# phase 24 is edited to make this phase possible: the self-tests bind to their
+# COMMITTED ARTEFACTS instead, so no published number is disturbed by building
+# this and no other phase needs re-running to prove it.
+#
+# THE SENTINEL COLUMN IS ORDINAL (D-170). It is never converted to hectares and
+# never quoted as a flooded area. It enters through a RANK correlation and a
+# which-month-was-wettest comparison, and through nothing else.
+#
+# THE WARREN MASK MOVES AND THE FLOOR DOES NOT. The raw figure is inside
+# `warren_on(month)`, so part of its change through the record is the canopy
+# closing rather than water; the floor figure is clipped to the PRESENT floor
+# mask (phase 29) with a fixed denominator, and it is the floor figure that
+# every comparison uses. Martin's call, 2026-09-15: the rank test must not carry
+# a canopy-area trend.
+
+HINDCAST_START = "2005-10"
+HINDCAST_MODES = ("R", "C")
+#   R restarts each October from that year's OBSERVED August-September well
+#   minimum; C starts once, at HINDCAST_START, from the published mean summer
+#   minimum (`depth_bg`) and never sees a well again. The spec's first
+#   comparison is what decides between them: if C does as well as R, the annual
+#   restart is doing nothing and is dropped.
+HINDCAST_AREA_FAIL_LOW = 0.5     # of the WETTEST vet: flood less than this ...
+HINDCAST_AREA_FAIL_HIGH = 2.0    # ... or more than this of the DRIEST vet, and
+#   the spread construction is REJECTED before any phase 28 overlay is built.
+HINDCAST_AREA_FAIL_DRY_LOW = 0.5  # AND the missing side of that band (D-172):
+#   the dry end was an UPPER bound only, so a mode flooding NOTHING on 2020-03
+#   passed a test written to catch over-flooding. Mode C did exactly that on
+#   2026-09-16 - 0.000 ha against 16.979 ha vetted, IoU 0.000, recall 0.000 - and
+#   the gate reported "not rejected". Same multiplier as the wet end, so this is
+#   the missing side of an existing condition, not a new kind of condition.
+HINDCAST_VET_WET = "2021-03-24"  # the wet end (D-169)
+HINDCAST_VET_DRY = "2020-03-30"  # the middle, scored on the part of the warren
+#   its own frames cover (D-170); the covered polygon is phase 26's.
+HINDCAST_EXTREME_SCENES = 4      # rasters for the N wettest and N driest scenes
+HINDCAST_SENTINEL_CSV = OUT / "W94_27_sentinel_wet_floor.csv"
+HINDCAST_SENTINEL_COL = "wet_floor_pct_masked"   # ORDINAL. Never hectares.
+HINDCAST_SPREAD_SELFTEST = OUT / "W94_C5_no_membership.csv"
+HINDCAST_SPREAD_SELFTEST_ROW = "model_no_membership"
+HINDCAST_SPREAD_TOL = 5e-4       # W94_C5 carries four decimals; this is that
+HINDCAST_SELFTEST_TOL_M = 1e-9   # chaining against the loop, and 11b's closed form
+HINDCAST_WINTER_MONTHS = (11, 12, 1, 2, 3)   # as the Sentinel series defines it
+HINDCAST_DRY_LIST_MAX = 12       # dry-control failures named in the console
+
+
+def _spread_levels(hid, dem, levels, valid_ids=None):
+    """Phase 24 part E's construction: every cell takes its NEAREST hollow's
+    level and is wet where the debiased DEM lies below it.
+
+    Hollow membership plays no part, which is the whole point. 37.7 % of the
+    2021 vetted extent lies outside every phase-6 hollow (D-169), and part D
+    measured that the water outside stands at the neighbouring hollow's level,
+    just past the boundary the delineation drew — one sheet of water that the
+    delineation cut through, so the hollow inventory was what clipped it.
+
+    Returned WITHOUT any warren or floor mask, so one call serves both the raw
+    and the floor-clipped figure. `levels` maps slack id to a level in m AOD;
+    hollows absent from it play no part in the spread, exactly as part E passes
+    only the hollows the model floods.
+
+    THE LOOKUP IS VECTORISED WHERE PART E USED `np.vectorize`, which is a
+    Python-level call per cell — tolerable twice, not five hundred times. The
+    substitution is not asserted to be equivalent: phase 27's third self-test
+    MEASURES it against the committed W94_C5_no_membership.csv, on phase 24's
+    own grid, before the run proceeds.
+    """
+    from scipy import ndimage as ndi                          # noqa: PLC0415
+    ids = ({int(h) for h in np.unique(hid[hid > 0])} if valid_ids is None
+           else {int(h) for h in valid_ids})
+    keys = sorted(int(h) for h in levels if int(h) in ids)
+    if not keys:
+        return np.zeros(dem.shape, bool)
+    mask = np.isin(hid, keys) & (hid > 0)
+    _, (jr, jc) = ndi.distance_transform_edt(~mask, return_indices=True)
+    nh = hid[jr, jc].astype(np.int64)
+    ks = np.asarray(keys, dtype=np.int64)
+    vs = np.asarray([float(levels[int(k)]) for k in keys], dtype=float)
+    j = np.clip(np.searchsorted(ks, nh), 0, len(ks) - 1)
+    L = np.where(ks[j] == nh, vs[j], np.nan)
+    return np.isfinite(L) & np.isfinite(dem) & (dem <= L)
+
+
+def _hindcast_grid():
+    """The grid this phase runs on, over the WHOLE site rather than one date's
+    warren: the debiased DEM, the phase-6 hollow ids, the present floor mask
+    (phase 29) and the site polygon. `None` if the floor mask is absent.
+    """
+    from rasterio.features import rasterize                   # noqa: PLC0415
+    from shapely.ops import unary_union                       # noqa: PLC0415
+    from utils.kml_io import read_kml                         # noqa: PLC0415
+
+    if not FLOOR_MASK_GEOJSON.exists():
+        warn(f"{FLOOR_MASK_GEOJSON.name} absent — run --phase 29 first; the "
+             f"floor is what every comparison here is scored on")
+        return None
+    site = _valid(unary_union([_valid(g) for g in
+                               read_kml(NADIR_WARREN_KML).to_crs(OSGB).geometry]))
+    ds = rasterio.open(DATA_DEM)
+    minx, miny, maxx, maxy = site.bounds
+    win = rasterio.windows.from_bounds(minx - 20, miny - 20, maxx + 20,
+                                       maxy + 20, ds.transform)
+    dem = ds.read(1, window=win).astype(float)
+    tr = ds.window_transform(win)
+    if ds.nodata is not None:
+        dem[dem == ds.nodata] = np.nan
+    crs = ds.crs
+    ds.close()
+    dem = dem - PHASE9_DEM_BIAS_M                  # D-165, as every other phase
+    hollows = gpd.read_file(OUT / "W94_06_hollows.geojson").set_crs(
+        OSGB, allow_override=True)
+    hid = rasterize([(g, int(s)) for g, s in zip(hollows.geometry,
+                                                 hollows["slack"])
+                     if pd.notna(s)],
+                    out_shape=dem.shape, transform=tr, fill=0, dtype="int32")
+    fl = gpd.read_file(FLOOR_MASK_GEOJSON).set_crs(OSGB, allow_override=True)
+    floor = rasterize([(g, 1) for g in fl.geometry], out_shape=dem.shape,
+                      transform=tr, fill=0, dtype="uint8").astype(bool)
+    floor &= np.isfinite(dem)
+    return dem, tr, crs, hid, hollows, floor, site
+
+
+def _grid_mask(path, tr, shape, kml=False):
+    """A GeoJSON or KML file's union, rasterized on this phase's grid."""
+    from rasterio.features import rasterize                   # noqa: PLC0415
+    from shapely.ops import unary_union                       # noqa: PLC0415
+    if kml:
+        from utils.kml_io import read_kml                     # noqa: PLC0415
+        g = read_kml(path).to_crs(OSGB)
+    else:
+        g = gpd.read_file(path).set_crs(OSGB, allow_override=True)
+    u = _valid(unary_union([_valid(x) for x in g.geometry]))
+    return rasterize([(u, 1)], out_shape=shape, transform=tr, fill=0,
+                     dtype="uint8").astype(bool)
+
+
+def _hindcast_months(P_act, E_act):
+    """Every month from HINDCAST_START to the end of the climate record.
+
+    The end is the last month for which BOTH P and PET are available, which
+    includes any month the D-166 calibration file supplied — its PET is the
+    month's climatology, and every row that used one says so.
+    """
+    have = sorted(set(P_act) & set(E_act))
+    start = pd.Timestamp(HINDCAST_START + "-01")
+    end = pd.Timestamp(year=have[-1][0], month=have[-1][1], day=1)
+    return list(pd.date_range(start, end, freq="MS"))
+
+
+def _hydro_year(month):
+    """The October-starting year a month belongs to."""
+    m = pd.Timestamp(month)
+    return m.year if m.month >= 10 else m.year - 1
+
+
+def _month_of(date):
+    """Script 01's bucket for a capture or scene date. A local name because this
+    phase reads it often; the rule is `month_bucket`'s (T-32)."""
+    return month_bucket(date)
+
+
+def _spearman(a, b):
+    """Spearman's rho over the pairs where both are finite, with n."""
+    x, y = np.asarray(a, float), np.asarray(b, float)
+    ok = np.isfinite(x) & np.isfinite(y)
+    if int(ok.sum()) < 3:
+        return float("nan"), int(ok.sum())
+    from scipy.stats import spearmanr                          # noqa: PLC0415
+    return float(spearmanr(x[ok], y[ok]).statistic), int(ok.sum())
+
+
+def _hindcast_sentinel():
+    """The Sentinel index, WINTER scenes only, one row per scene.
+
+    `wet_floor_pct_masked` is ORDINAL (D-170). It is read; nothing else in the
+    file is trusted.
+
+    THE MONTH IS RE-DERIVED FROM THE SCENE DATE and the file's own `month`
+    column is discarded, because that column was written with the MonthBegin
+    form `_month_of` documents: every scene on days 2-15 carries the wrong
+    month there. The wells' columns are discarded for the same reason — they
+    were joined on that month — and the bar for comparison 3 is recomputed
+    from the level frame here instead.
+    """
+    if not HINDCAST_SENTINEL_CSV.exists():
+        return None
+    s = pd.read_csv(HINDCAST_SENTINEL_CSV, float_precision="round_trip")
+    if HINDCAST_SENTINEL_COL not in s.columns:
+        warn(f"{HINDCAST_SENTINEL_CSV.name} has no {HINDCAST_SENTINEL_COL} "
+             f"column — comparison 3 cannot run")
+        return None
+    s = s[pd.notna(s[HINDCAST_SENTINEL_COL])].copy()
+    s["month_as_written"] = s["month"].astype(str)
+    s["month"] = [_month_of(d) for d in s["date"]]
+    moved = int((s["month"].dt.strftime("%Y-%m") != s["month_as_written"]).sum())
+    if moved:
+        warn(f"  {moved} of {len(s)} Sentinel scene(s) carry the wrong month in "
+             f"{HINDCAST_SENTINEL_CSV.name} (the MonthBegin bucketing defect); "
+             f"re-derived from the scene date here. The file itself is not "
+             f"corrected by this phase")
+    s = s[s["month"].dt.month.isin(HINDCAST_WINTER_MONTHS)]
+    return s.sort_values("date").reset_index(drop=True)
+
+
+def _write_wet_raster(path, wet, tr, crs):
+    """The wet surface as a one-byte GTiff on this phase's grid — what the
+    forecaster map reads. 1 wet, 0 dry, no nodata: every cell in the window has
+    an answer."""
+    with rasterio.open(path, "w", driver="GTiff", height=int(wet.shape[0]),
+                       width=int(wet.shape[1]), count=1, dtype="uint8",
+                       crs=crs, transform=tr, compress="deflate") as dst:
+        dst.write(wet.astype("uint8"), 1)
+
+
+def _wet_bodies(wet, tr):
+    """The wet raster as bodies at or above the size rule the vets were read at."""
+    from rasterio.features import shapes                       # noqa: PLC0415
+    from shapely.geometry import shape as shapely_shape         # noqa: PLC0415
+    geoms = []
+    for gm, _ in shapes(wet.astype("uint8"), mask=wet, transform=tr):
+        g = _valid(shapely_shape(gm))
+        if g is None or g.is_empty or g.area < NADIR_MIN_BODY_M2:
+            continue
+        geoms.append(g)
+    geoms.sort(key=lambda g: -g.area)
+    return gpd.GeoDataFrame(
+        {"id": [f"W{j:04d}" for j in range(1, len(geoms) + 1)],
+         "area_m2": [round(float(g.area), 1) for g in geoms]},
+        geometry=geoms, crs=OSGB)
+
+
+def phase27(modes=HINDCAST_MODES, months=0, rasters=True) -> int:
+    """The wet-floor hindcast: phase 18's engine, every month, 2005-2026.
+
+    Four comparisons, each with its failure condition fixed before the run and
+    written beside its result in W94_27_hindcast_summary.csv:
+
+      1. THE WELLS, every month. The modelled level at each well against the
+         observed one, TWO ways — the recurrence run at the well itself (which
+         tests the recurrence alone) and the level the surface puts on the
+         well's nearest hollow (which tests the recurrence and the spread
+         together). Mode R must beat Mode C; if it does not, the annual restart
+         is doing nothing and the spec says to drop it.
+      2. AREA, two dates — THE GATE. The modelled wet area for the two vetted
+         months against the two VETTED extents, each inside its own covered area
+         and on the floor. Flood less than HINDCAST_AREA_FAIL_LOW of the wet vet
+         or more than HINDCAST_AREA_FAIL_HIGH of the dry one and the spread
+         construction is REJECTED — no phase 28 overlay is built on it.
+      3. RANK AND TIMING against the Sentinel index. The bar is the wells' own
+         rank correlation, recomputed here on the same scenes: if the model
+         ranks the winters worse than the well level does, the model adds
+         nothing the wells did not, and D-170's third Revisit-if is met.
+      4. THE DRY CONTROL. Every month with no well at ground must model less
+         than the driest vetted extent, scaled from its covered area to the
+         whole floor. Failures are counted and listed, not fatal.
+
+    WHAT THIS PHASE DOES NOT DO. It rules on nothing. The numbers go to the
+    handover; the reading of them — Mode R against Mode C, and whether phase 28
+    may be built — is Martin's.
+    """
+    import time                                               # noqa: PLC0415
+    from utils.config import DRAINAGE_DATUM                    # noqa: PLC0415
+    from utils.model_utils import pflood_lambda                # noqa: PLC0415
+    phase(27, "The wet-floor hindcast — phase 18's engine, every month")
+
+    W = _pflood_wells()
+    betas = _pflood_cluster_betas()
+    peaks = _pflood_peak_months()
+    P_act, E_act, P_clim, E_clim, borrowed = _pflood_climate()
+    step(f"{len(W)} well(s), clusters "
+         + ", ".join(f"C{c} {n}" for c, n in
+                     sorted(W['cluster'].astype(int).value_counts().items())))
+
+    # ── SELF-TEST 1: chaining is the loop ────────────────────────────────────
+    # This phase runs the recurrence ONE MONTH AT A TIME, re-entering
+    # _pflood_iterate with d = -h_prev so that h starts where it left off. That
+    # is the only new arithmetic here, so it is the first thing tested: the
+    # chain must reproduce a single call over the whole month list, exactly.
+    hz_t = [10, 11, 12, 1, 2, 3]
+    Pt = {m: float(P_clim[m]) for m in hz_t}
+    Et = {m: float(E_clim[m]) for m in hz_t}
+    worst = 0.0
+    for c, b in betas.items():
+        one = _pflood_iterate(1.0, b["b1"], b["b2"], b["b3"], hz_t, Pt, Et,
+                              DRAINAGE_DATUM)
+        h = -1.0
+        for m in hz_t:
+            h = _pflood_iterate(-h, b["b1"], b["b2"], b["b3"], [m],
+                                {m: Pt[m]}, {m: Et[m]}, DRAINAGE_DATUM)
+        worst = max(worst, abs(h - one))
+    if worst > HINDCAST_SELFTEST_TOL_M:
+        warn(f"month-at-a-time chaining disagrees with the loop by "
+             f"{worst:.3e} m — phase 27's recurrence is NOT phase 18's")
+        return 1
+    info(f"self-test 1: chaining reproduces the loop to {worst:.1e} m at every "
+         f"cluster")
+
+    # ── SELF-TEST 2: and the loop is still 11b's closed form ─────────────────
+    # Phase 18's own gate, restated rather than refactored out of it: phase 18
+    # is live and its artefacts are committed, and this session does not touch
+    # it. A second copy of a TEST is cheap; a second copy of the arithmetic
+    # would not be, and there isn't one.
+    worst_cf = 0.0
+    for c, b in betas.items():
+        hz, _ = _horizon_truncated(peaks[c])
+        r = pflood_lambda(h_target=0.0, h_0=-1.0, b1=b["b1"], b2=b["b2"],
+                          b3=b["b3"], months=hz, P_clim=P_clim, PET_clim=E_clim)
+        Pl = {m: r["lam"] * P_clim[m] for m in hz}
+        worst_cf = max(worst_cf, abs(_pflood_iterate(1.0, b["b1"], b["b2"],
+                                                     b["b3"], hz, Pl, E_clim,
+                                                     DRAINAGE_DATUM)))
+    if worst_cf > HINDCAST_SELFTEST_TOL_M:
+        warn(f"the forward recurrence disagrees with 11b's closed form by "
+             f"{worst_cf:.3e} m — do not use this")
+        return 1
+    info(f"self-test 2: the recurrence reproduces 11b's closed form to "
+         f"{worst_cf:.1e} m")
+
+    # ── the grid, the hollows, the floor ─────────────────────────────────────
+    G0 = _hindcast_grid()
+    if G0 is None:
+        return 1
+    dem, tr, crs, hid, hollows, floor, _site = G0
+    cell_ha = abs(tr.a * tr.e) / 1e4
+    ds = rasterio.open(DATA_DEM)
+    hyps = _pflood_hypsometry(hollows, ds, PHASE9_DEM_BIAS_M)
+    ds.close()
+    rim = {i: float(hyps[i][0][-1]) for i in hyps}
+    floor_ha = float(floor.sum()) * cell_ha
+    if floor_ha <= 0:
+        warn(f"{FLOOR_MASK_GEOJSON.name} rasterizes to nothing on this grid — "
+             f"every floor figure would divide by zero")
+        return 1
+    step(f"grid {dem.shape[0]}x{dem.shape[1]} at {abs(tr.a):.1f} m; "
+         f"{len(hyps)} hollow(s) with a hypsometric curve; floor "
+         f"{floor_ha:.3f} ha; DEM bias {PHASE9_DEM_BIAS_M:+.3f} m (D-165)")
+
+    # ── SELF-TEST 3: the spread IS phase 24 part E's ─────────────────────────
+    # Fed phase 18's own modelled levels on phase 24's own grid, _spread_levels
+    # must reproduce the committed W94_C5_no_membership.csv row to the four
+    # decimals that file carries. This is what makes "part E's construction" a
+    # measurement instead of a claim, and it is why phase 24 is left alone.
+    a1 = OUT / "W94_A1_validation_per_hollow.csv"
+    if not (a1.exists() and HINDCAST_SPREAD_SELFTEST.exists()):
+        warn(f"cannot self-test the spread: {a1.name} or "
+             f"{HINDCAST_SPREAD_SELFTEST.name} is absent. Run phase 18 then "
+             f"phase 24 — this phase will not run an unverified spread")
+        return 1
+    A1 = pd.read_csv(a1, float_precision="round_trip")
+    lv_test = {int(r["slack"]): float(r["modelled_level_m"])
+               for _, r in A1.iterrows()
+               if pd.notna(r.get("modelled_head_m")) and r["modelled_head_m"] > 0}
+    dem_t, _tr_t, inw_t, obs_t, _h_t, hid_t, _o_t, _w_t = _truth_grid(TRUTH_DATE)
+    got = _spread_levels(hid_t, dem_t, lv_test) & inw_t
+    i_got, p_got, r_got = _iou(got, obs_t)
+    C5 = pd.read_csv(HINDCAST_SPREAD_SELFTEST, float_precision="round_trip")
+    row = C5[C5["construction"] == HINDCAST_SPREAD_SELFTEST_ROW]
+    if not len(row):
+        warn(f"{HINDCAST_SPREAD_SELFTEST.name} has no "
+             f"{HINDCAST_SPREAD_SELFTEST_ROW} row")
+        return 1
+    want = float(row.iloc[0]["iou"])
+    if abs(i_got - want) > HINDCAST_SPREAD_TOL:
+        warn(f"the spread does NOT reproduce phase 24 part E: IoU {i_got:.4f} "
+             f"against the committed {want:.4f} (difference "
+             f"{abs(i_got - want):.4f}). Either this spread or part E's has "
+             f"moved — find out which before any hindcast is quoted")
+        return 1
+    info(f"self-test 3: the spread reproduces part E's "
+         f"{HINDCAST_SPREAD_SELFTEST_ROW} at IoU {i_got:.4f} (committed "
+         f"{want:.4f}), precision {p_got:.4f}, recall {r_got:.4f}")
+    del dem_t, inw_t, obs_t, hid_t, got
+
+    # ── the warren by canopy epoch ───────────────────────────────────────────
+    closures = closure_dates()
+
+    def _canopy_state(month):
+        return tuple(sorted(b for b, d in closures.items()
+                            if d is not None
+                            and pd.Timestamp(d) <= pd.Timestamp(month)))
+
+    wcache = {}
+
+    def _warren_mask(month):
+        """The open-dune warren that month, rasterized once per canopy epoch."""
+        k = _canopy_state(month)
+        if k not in wcache:
+            from rasterio.features import rasterize            # noqa: PLC0415
+            g = _valid(warren_on(pd.Timestamp(month), closures))
+            wcache[k] = (rasterize([(g, 1)], out_shape=dem.shape, transform=tr,
+                                   fill=0, dtype="uint8").astype(bool)
+                         & np.isfinite(dem))
+        return wcache[k]
+
+    # Every cell's nearest hollow among ALL of them, once. This is what gives a
+    # well a modelled level in a month when nothing near it is wet, which the
+    # wet-only spread cannot; it serves comparison 1's second reading and
+    # nothing else.
+    from scipy import ndimage as ndi                            # noqa: PLC0415
+    _, (ar, ac) = ndi.distance_transform_edt(~(hid > 0), return_indices=True)
+    nh_all = hid[ar, ac]
+    inv = ~tr
+    wells = [str(w) for w in W["well"]]
+    well_dem = W["dem"].to_numpy(float)
+    well_cl = W["cluster"].to_numpy().astype(int)
+    # a well whose cluster carries no β cannot be run, and must not enter the
+    # medians either — silently seeding it and never advancing it would drag the
+    # modelled median towards its own summer minimum
+    well_ok = np.array([int(c) in betas for c in well_cl])
+    if not well_ok.all():
+        warn(f"  {int((~well_ok).sum())} well(s) have a cluster with no β and "
+             f"are excluded from the well comparison")
+    well_hollow = []
+    for e, n in zip(W["E"].to_numpy(float), W["N"].to_numpy(float)):
+        c_, r_ = inv * (float(e), float(n))
+        r_i = int(np.clip(int(r_), 0, dem.shape[0] - 1))
+        c_i = int(np.clip(int(c_), 0, dem.shape[1] - 1))
+        well_hollow.append(int(nh_all[r_i, c_i]))
+    del nh_all, ar, ac
+    info(f"  {sum(1 for h in well_hollow if h > 0)} of {len(W)} well(s) have a "
+         f"nearest hollow on the grid")
+
+    # ── the observed level frame ─────────────────────────────────────────────
+    lev = _level_frame()
+    LEV = lev.set_index("month")
+    if LEV.index.has_duplicates:
+        n_dup = int(LEV.index.duplicated().sum())
+        warn(f"  the level frame carries {n_dup} duplicated month(s); the first "
+             f"of each is kept, because OBS.loc[month] must be one row")
+        LEV = LEV[~LEV.index.duplicated(keep="first")]
+    OBS = pd.DataFrame(index=LEV.index)
+    for w in wells:
+        OBS[w] = (pd.to_numeric(LEV[w], errors="coerce") if w in LEV.columns
+                  else np.nan)
+
+    all_months = _hindcast_months(P_act, E_act)
+    if months:
+        all_months = all_months[:int(months)]
+    step(f"hindcast {all_months[0]:%Y-%m} to {all_months[-1]:%Y-%m} "
+         f"({len(all_months)} month(s)) x {len(modes)} mode(s); "
+         f"{len(borrowed)} month(s) of borrowed PET (D-166)")
+
+    # the geometry: per hydrological year for Mode R, once for Mode C
+    G_clim = _pflood_geometry(hollows, hyps, W, power=PFLOOD_IDW_POWER)
+    years = sorted({_hydro_year(m) for m in all_months})
+    G_year, W_year, fell_year = {}, {}, {}
+    t0 = time.time()
+    for k, y in enumerate(years, 1):
+        Wy, fell = _pflood_antecedent(lev, W, y)
+        W_year[y] = Wy
+        G_year[y] = _pflood_geometry(hollows, hyps, Wy, power=PFLOOD_IDW_POWER,
+                                     depth_col="depth_year")
+        fell_year[y] = int(fell)
+        progress(k, len(years), f"antecedent {y}", t0)
+    print()
+    info(f"  Mode R antecedents: {min(fell_year.values())}-"
+         f"{max(fell_year.values())} well(s) per year fall back to the "
+         f"published mean where August-September is missing")
+
+    def _hollow_state(G):
+        """(ids, clusters, floors, d) for the hollows this mode can run."""
+        ids, cl, fl_, dd = [], [], [], []
+        for _, g in G.iterrows():
+            c = int(g["cluster"])
+            sid = int(g["slack"])
+            if c not in betas or sid not in hyps:
+                continue
+            ids.append(sid)
+            cl.append(c)
+            fl_.append(float(g["floor_m"]))
+            dd.append(float(g["d_m"]))
+        return ids, cl, fl_, dd
+
+    # ── the two vetted months, and the Sentinel extremes, kept for rasters ───
+    S = _hindcast_sentinel()
+    vet_month = {d: _month_of(d) for d in (HINDCAST_VET_WET, HINDCAST_VET_DRY)}
+    keep = {m.strftime("%Y-%m") for m in vet_month.values()}
+    if S is not None and len(S):
+        srt = S.sort_values(HINDCAST_SENTINEL_COL)
+        for m in (list(srt["month"].head(HINDCAST_EXTREME_SCENES))
+                  + list(srt["month"].tail(HINDCAST_EXTREME_SCENES))):
+            keep.add(pd.Timestamp(m).strftime("%Y-%m"))
+    sent_by_month = ({} if S is None else
+                     S.groupby("month")[HINDCAST_SENTINEL_COL].mean().to_dict())
+
+    # ── the run ──────────────────────────────────────────────────────────────
+    monthly, wellfit, wet_keep = [], [], {}
+    for mode in modes:
+        ids = cl = floors = None
+        h_h = {}                      # hollow head above its own floor
+        h_w = None                    # well head relative to ground
+        t0 = time.time()
+
+        def tag_of(mm):
+            return pd.Timestamp(mm).strftime("%Y-%m")
+
+        for k, m in enumerate(all_months, 1):
+            y = _hydro_year(m)
+            mon = int(m.month)
+            key = (m.year, mon)
+            G = G_year[y] if mode == "R" else G_clim
+            if ids is None or (mode == "R" and mon == 10):
+                ids, cl, floors, dd = _hollow_state(G)
+                h_h = {s: -d for s, d in zip(ids, dd)}
+                src = (W_year[y]["depth_year"].to_numpy(float) if mode == "R"
+                       else W["depth_bg"].to_numpy(float))
+                h_w = -src.astype(float).copy()
+            if key not in P_act or key not in E_act:
+                warn(f"  {tag_of(m)}: no P or PET in the climate record — the "
+                     f"month is SKIPPED and the recurrence carries over. "
+                     f"_hindcast_months spans a contiguous range, so this means "
+                     f"a hole inside it")
+                progress(k, len(all_months), f"mode {mode} {tag_of(m)}", t0)
+                continue
+            Pm = {mon: float(P_act[key])}
+            Em = {mon: float(E_act[key])}
+            # one month of the recurrence, per hollow and per well, through
+            # phase 18's own function
+            for s, c in zip(ids, cl):
+                b = betas[c]
+                h_h[s] = _pflood_iterate(-h_h[s], b["b1"], b["b2"], b["b3"],
+                                         [mon], Pm, Em, DRAINAGE_DATUM)
+            for i, c in enumerate(well_cl):
+                if not well_ok[i]:
+                    continue
+                b = betas[int(c)]
+                h_w[i] = _pflood_iterate(-h_w[i], b["b1"], b["b2"], b["b3"],
+                                         [mon], Pm, Em, DRAINAGE_DATUM)
+            # The surface: a level for every hollow that holds water, clipped at
+            # its own rim exactly as phase 18 clips them. `lvl_all` is NOT
+            # clipped and is not a flooded surface — it is the water TABLE at
+            # the hollow, which is what comparison 1's second reading needs at a
+            # well in a month when nothing is wet.
+            lvl_wet, lvl_all = {}, {}
+            for s, f_ in zip(ids, floors):
+                lvl_all[s] = f_ + h_h[s]
+                if h_h[s] > 0:
+                    lvl_wet[s] = min(f_ + h_h[s], rim[s])
+            wet = _spread_levels(hid, dem, lvl_wet, valid_ids=ids)
+            inw = _warren_mask(m)
+            wet_raw = wet & inw
+            wet_fl = wet & floor
+            tag = m.strftime("%Y-%m")
+            # kept whether or not rasters are written: comparison 2 scores these
+            # months and must not depend on an output switch
+            if tag in keep:
+                wet_keep[(mode, tag)] = (wet_raw.copy(), wet_fl.copy())
+            # the wells, both readings
+            obs = (OBS.loc[m].to_numpy(float) if m in OBS.index
+                   else np.full(len(wells), np.nan))
+            mod_b = np.array([lvl_all.get(hh, np.nan) - dm
+                              for hh, dm in zip(well_hollow, well_dem)])
+            for i, w in enumerate(wells):
+                if not (well_ok[i] and np.isfinite(obs[i])):
+                    continue
+                wellfit.append({"mode": mode, "month": tag, "well": w,
+                                "observed_h_m": round(float(obs[i]), 3),
+                                "modelled_h_recurrence_m": round(float(h_w[i]), 3),
+                                "modelled_h_nearest_hollow_m":
+                                    (round(float(mod_b[i]), 3)
+                                     if np.isfinite(mod_b[i]) else "")})
+            obs_ok = obs[well_ok]
+            n_obs = int(np.isfinite(obs_ok).sum())
+            hw_ok = h_w[well_ok]
+            monthly.append({
+                "month": tag, "mode": mode,
+                "wet_ha_raw": round(float(wet_raw.sum()) * cell_ha, 3),
+                "wet_ha_floor": round(float(wet_fl.sum()) * cell_ha, 3),
+                "wet_frac_floor": round(float(wet_fl.sum()) * cell_ha / floor_ha, 6),
+                "warren_ha": round(float(inw.sum()) * cell_ha, 3),
+                "hollows_wet": int(sum(1 for s in ids if h_h[s] > 0)),
+                "hollows_run": len(ids),
+                "median_level_modelled_m": round(float(np.median(hw_ok)), 3),
+                "share_at_ground_modelled": round(float((hw_ok >= 0).mean()), 4),
+                "median_level_observed_m": (round(float(np.nanmedian(obs_ok)), 3)
+                                            if n_obs else ""),
+                "share_at_ground_observed": (
+                    round(float((obs_ok[np.isfinite(obs_ok)] >= 0).mean()), 4)
+                    if n_obs else ""),
+                "n_wells_observed": n_obs,
+                "sentinel_index": (round(float(sent_by_month[m]), 3)
+                                   if m in sent_by_month else ""),
+                "pet_borrowed": bool(key in borrowed),
+                "wells_fallback": (fell_year[y] if mode == "R" else ""),
+            })
+            progress(k, len(all_months), f"mode {mode} {tag}", t0)
+        print()
+        M = pd.DataFrame([r for r in monthly if r["mode"] == mode])
+        step(f"MODE {mode}: wet floor area {M['wet_ha_floor'].min():.3f} to "
+             f"{M['wet_ha_floor'].max():.3f} ha (median "
+             f"{M['wet_ha_floor'].median():.3f}); wettest "
+             f"{M.loc[M['wet_ha_floor'].idxmax(), 'month']}")
+
+    MON = pd.DataFrame(monthly)
+    p = OUT / "W94_27_hindcast_monthly.csv"
+    MON.to_csv(p, index=False)
+    saved(f"{p.name}  ({len(MON)} row(s))")
+    WF = pd.DataFrame(wellfit)
+    p = OUT / "W94_27_well_fit.csv"
+    WF.to_csv(p, index=False)
+    saved(f"{p.name}  ({len(WF)} well-month(s))")
+
+    # ═════════════════════════════════════════════════════════════════════════
+    # THE COMPARISONS — failure condition stated beside every result
+    # ═════════════════════════════════════════════════════════════════════════
+    summary = []
+
+    def _add(comparison, quantity, mode, fail_condition, value, verdict,
+             notes=""):
+        summary.append({"comparison": comparison, "quantity": quantity,
+                        "mode": mode, "fail_condition": fail_condition,
+                        "value": value, "verdict": verdict, "notes": notes})
+
+    # ── 1. the wells, every month ────────────────────────────────────────────
+    phase("27.1", "The wells, every month — and whether the restart earns itself")
+    fit = {}
+    if not len(WF):
+        warn("  no well-month has both an observation and a modelled level — "
+             "comparison 1 cannot run")
+        _add(1, "well fit", "-", "Mode R's RMSE must be below Mode C's", "",
+             "not run", "no overlapping well-month")
+    for mode in modes:
+        sub = WF[WF["mode"] == mode]
+        if not len(sub):
+            continue
+        o = sub["observed_h_m"].to_numpy(float)
+        for lab, col in (("recurrence", "modelled_h_recurrence_m"),
+                         ("nearest_hollow", "modelled_h_nearest_hollow_m")):
+            mm = pd.to_numeric(sub[col], errors="coerce").to_numpy(float)
+            ok = np.isfinite(mm) & np.isfinite(o)
+            if ok.sum() < 3:
+                continue
+            res = mm[ok] - o[ok]
+            rho, n = _spearman(mm[ok], o[ok])
+            fit[(mode, lab)] = {
+                "n": int(ok.sum()),
+                "rmse_m": float(np.sqrt(np.mean(res ** 2))),
+                "bias_m": float(np.mean(res)),
+                "rho": rho}
+            info(f"  mode {mode}, {lab}: n {ok.sum()}, RMSE "
+                 f"{fit[(mode, lab)]['rmse_m']:.3f} m, bias "
+                 f"{fit[(mode, lab)]['bias_m']:+.3f} m, rho {rho:+.3f}")
+    for lab in ("recurrence", "nearest_hollow"):
+        if ("R", lab) in fit and ("C", lab) in fit:
+            rR, rC = fit[("R", lab)]["rmse_m"], fit[("C", lab)]["rmse_m"]
+            v = "R beats C" if rR < rC else "R DOES NOT beat C"
+            caveat = ("" if lab == "recurrence" else
+                      " NOT COMPARABLE with the recurrence RMSE: this reading is "
+                      "the nearest HOLLOW's water table minus the well's ground, "
+                      "so it carries the hollow-floor-to-well-ground offset and "
+                      "is metres by construction. Only R against C is meaningful "
+                      "within this row.")
+            _add(1, f"well RMSE ({lab}), m", "R vs C",
+                 "Mode R's RMSE must be below Mode C's; if not, the annual "
+                 "restart is doing nothing and is dropped",
+                 f"R {rR:.3f} / C {rC:.3f}", v,
+                 f"n {fit[('R', lab)]['n']} well-month(s); rho R "
+                 f"{fit[('R', lab)]['rho']:+.3f}, C "
+                 f"{fit[('C', lab)]['rho']:+.3f}.{caveat}")
+            step(f"{lab}: RMSE R {rR:.3f} m against C {rC:.3f} m — {v}")
+    for (mode, lab), f_ in sorted(fit.items()):
+        _add(1, f"well fit ({lab})", mode, "reported, not gated",
+             f"RMSE {f_['rmse_m']:.3f} m, bias {f_['bias_m']:+.3f} m, "
+             f"rho {f_['rho']:+.3f}", "reported", f"n {f_['n']}")
+    # the aggregate series, month by month
+    for mode in modes:
+        M = MON[MON["mode"] == mode]
+        a = pd.to_numeric(M["share_at_ground_observed"], errors="coerce")
+        b = pd.to_numeric(M["wet_frac_floor"], errors="coerce")
+        rho, n = _spearman(a, b)
+        _add(1, "modelled wet floor fraction vs observed share at ground",
+             mode, "reported, not gated", f"rho {rho:+.3f}", "reported",
+             f"n {n} month(s)")
+        info(f"  mode {mode}: modelled wet floor fraction against the observed "
+             f"share of wells at ground, rho {rho:+.3f} over {n} month(s)")
+
+    # ── 2. area against the two vetted extents — the gate ────────────────────
+    phase("27.2", "Area against the two vetted extents — the gate")
+    cover, vetm, vet_ha_on, vet_vector_ha = {}, {}, {}, {}
+    rows_v = []
+    reject = []
+    for d in (HINDCAST_VET_WET, HINDCAST_VET_DRY):
+        cp = OUT / f"W94_26_{d}_covered.geojson"
+        vp = DATA_GEO_DIR / f"flood_extent_{d}_vetted.kml"
+        if not (cp.exists() and vp.exists()):
+            warn(f"  {d}: {cp.name if not cp.exists() else vp.name} absent — "
+                 f"this date cannot be scored")
+            continue
+        cover[d] = _grid_mask(cp, tr, dem.shape) & floor
+        vetm[d] = _grid_mask(vp, tr, dem.shape, kml=True)
+        vet_ha_on[d] = float((vetm[d] & cover[d]).sum()) * cell_ha
+        from utils.kml_io import read_kml                       # noqa: PLC0415
+        vec_ha = float(read_kml(vp).to_crs(OSGB).geometry.area.sum()) / 1e4
+        ras_ha = float(vetm[d].sum()) * cell_ha
+        vet_vector_ha[d] = vec_ha
+        info(f"  {d}: vetted {vec_ha:.3f} ha as drawn; {ras_ha:.3f} ha "
+             f"RASTERISED at {abs(tr.a):.1f} m ({100 * (ras_ha / vec_ha - 1):+.1f} %, "
+             f"cells over-covering many small bodies); {vet_ha_on[d]:.3f} ha of "
+             f"that on the covered floor, out of "
+             f"{float(cover[d].sum()) * cell_ha:.3f} ha of floor covered. THE "
+             f"SCORES BELOW USE THE RASTERISED FIGURE on both sides; the vetted "
+             f"area to quote is the one as drawn")
+    for mode in modes:
+        for d in sorted(cover):
+            tag = vet_month[d].strftime("%Y-%m")
+            kp = wet_keep.get((mode, tag))
+            if kp is None:
+                continue
+            w_on = kp[1] & cover[d]
+            v_on = vetm[d] & cover[d]
+            iou, prec, rec = _iou(w_on, v_on)
+            mha = float(w_on.sum()) * cell_ha
+            rows_v.append({"mode": mode, "vet_date": d, "month": tag,
+                           "iou": round(iou, 4), "precision": round(prec, 4),
+                           "recall": round(rec, 4),
+                           "model_ha_on_covered_floor": round(mha, 3),
+                           "vetted_ha_on_covered_floor": round(vet_ha_on[d], 3),
+                           "vetted_ha_rasterised_total":
+                               round(float(vetm[d].sum()) * cell_ha, 3),
+                           "vetted_ha_as_drawn": round(vet_vector_ha[d], 3),
+                           "covered_floor_ha": round(float(cover[d].sum()) * cell_ha, 3)})
+            step(f"  mode {mode}, {d} ({tag}): IoU {iou:.3f}, precision "
+                 f"{prec:.3f}, recall {rec:.3f}, model {mha:.3f} ha against "
+                 f"{vet_ha_on[d]:.3f} ha vetted on the covered floor")
+            if d == HINDCAST_VET_WET and mha < HINDCAST_AREA_FAIL_LOW * vet_ha_on[d]:
+                reject.append(f"mode {mode}: {mha:.3f} ha is below "
+                              f"{HINDCAST_AREA_FAIL_LOW:.2f} x the {d} vet "
+                              f"({HINDCAST_AREA_FAIL_LOW * vet_ha_on[d]:.3f} ha)")
+            if d == HINDCAST_VET_DRY and mha > HINDCAST_AREA_FAIL_HIGH * vet_ha_on[d]:
+                reject.append(f"mode {mode}: {mha:.3f} ha is above "
+                              f"{HINDCAST_AREA_FAIL_HIGH:.2f} x the {d} vet "
+                              f"({HINDCAST_AREA_FAIL_HIGH * vet_ha_on[d]:.3f} ha)")
+            if d == HINDCAST_VET_DRY and mha < HINDCAST_AREA_FAIL_DRY_LOW * vet_ha_on[d]:
+                reject.append(f"mode {mode}: {mha:.3f} ha is below "
+                              f"{HINDCAST_AREA_FAIL_DRY_LOW:.2f} x the {d} vet "
+                              f"({HINDCAST_AREA_FAIL_DRY_LOW * vet_ha_on[d]:.3f} "
+                              f"ha) - the dry end has two sides (D-172)")
+    if rows_v:
+        V = pd.DataFrame(rows_v)
+        p = OUT / "W94_27_area_vs_vets.csv"
+        V.to_csv(p, index=False)
+        saved(p.name)
+        for r in rows_v:
+            _add(2, f"area vs the {r['vet_date']} vet", r["mode"],
+                 f"reject the spread if the model floods below "
+                 f"{HINDCAST_AREA_FAIL_LOW:.2f} x the {HINDCAST_VET_WET} vet, or "
+                 f"outside [{HINDCAST_AREA_FAIL_DRY_LOW:.2f}, "
+                 f"{HINDCAST_AREA_FAIL_HIGH:.2f}] x the {HINDCAST_VET_DRY} vet, "
+                 f"on its own covered floor",
+                 f"{r['model_ha_on_covered_floor']:.3f} ha against "
+                 f"{r['vetted_ha_on_covered_floor']:.3f} ha, IoU {r['iou']:.4f}",
+                 "REJECTS" if any(f"mode {r['mode']}" in x
+                                  and r["vet_date"] in x for x in reject)
+                 else "passes",
+                 "two points, stated as two points")
+    scored = {(r["mode"], r["vet_date"]) for r in rows_v}
+    # EXPECTED IS THE CONFIGURED PAIR, not the files that happen to be present:
+    # scoring only the wet end and calling the gate passed would be the same
+    # vacuity in a smaller disguise — the band has two sides and needs both.
+    expected = {(m, d) for m in modes
+                for d in (HINDCAST_VET_WET, HINDCAST_VET_DRY)}
+    if not rows_v or scored != expected:
+        missing = sorted(expected - scored) or ["no vetted date was scored at all"]
+        warn(f"COMPARISON 2 DID NOT RUN in full and therefore CANNOT be read as a "
+             f"pass: {len(scored)} of {len(expected)} mode/date pair(s) scored. "
+             f"Missing: {missing}. The usual cause is a run window that does not "
+             f"reach the vetted months ({', '.join(f'{d} -> {vet_month[d]:%Y-%m}' for d in sorted(vet_month))}) "
+             f"— a smoke test with --months cannot judge this gate")
+        _add(2, "the gate", "both",
+             f"any mode below {HINDCAST_AREA_FAIL_LOW:.2f} x the wet vet, or "
+             f"outside [{HINDCAST_AREA_FAIL_DRY_LOW:.2f}, "
+             f"{HINDCAST_AREA_FAIL_HIGH:.2f}] x the dry vet, rejects it",
+             f"{len(scored)} of {len(expected)} pair(s) scored",
+             "NOT RUN — not a pass",
+             f"missing: {missing}")
+    elif reject:
+        warn("THE SPREAD CONSTRUCTION IS REJECTED BY COMPARISON 2 — no phase 28 "
+             "overlay may be built on it:")
+        for r_ in reject:
+            warn(f"  {r_}")
+        _add(2, "the gate", "both",
+             f"any mode below {HINDCAST_AREA_FAIL_LOW:.2f} x the wet vet, or "
+             f"outside [{HINDCAST_AREA_FAIL_DRY_LOW:.2f}, "
+             f"{HINDCAST_AREA_FAIL_HIGH:.2f}] x the dry vet, rejects it",
+             f"{len(reject)} rejection(s)", "REJECTED", "; ".join(reject))
+    else:
+        step("comparison 2: the spread construction is NOT rejected — both "
+             "vetted dates, both modes, fall inside the band fixed before the run")
+        _add(2, "the gate", "both",
+             f"any mode below {HINDCAST_AREA_FAIL_LOW:.2f} x the wet vet, or "
+             f"outside [{HINDCAST_AREA_FAIL_DRY_LOW:.2f}, "
+             f"{HINDCAST_AREA_FAIL_HIGH:.2f}] x the dry vet, rejects it",
+             f"0 rejection(s) over {len(scored)} pair(s)", "not rejected", "")
+
+    # ── 3. rank and timing against the Sentinel index ────────────────────────
+    phase("27.3", "Rank and timing against the Sentinel index (ORDINAL, D-170)")
+    if S is None or not len(S):
+        warn("  no Sentinel series — comparison 3 cannot run")
+        _add(3, "rank correlation", "-", "the model must rank the scenes at "
+             "least as well as the well level does", "", "not run",
+             f"{HINDCAST_SENTINEL_CSV.name} absent or empty")
+    else:
+        # THE BAR IS RECOMPUTED HERE, from the level frame at each scene's
+        # re-derived month, and not read from the file's own well columns:
+        # those were joined on the mis-bucketed month (see _month_of).
+        obs_med = []
+        for _, r in S.iterrows():
+            mm = pd.Timestamp(r["month"])
+            if mm in OBS.index:
+                v = OBS.loc[mm].to_numpy(float)[well_ok]
+                obs_med.append(float(np.nanmedian(v))
+                               if np.isfinite(v).any() else np.nan)
+            else:
+                obs_med.append(np.nan)
+        S = S.assign(h_median_rebucketed=obs_med)
+        rho_w, n_w = _spearman(S["h_median_rebucketed"],
+                               S[HINDCAST_SENTINEL_COL])
+        info(f"  the bar — the wells' own rank correlation with the index, "
+             f"recomputed from the level frame on these {n_w} scene(s): rho "
+             f"{rho_w:+.3f}")
+        if "h_median" in S.columns:
+            rho_old, n_old = _spearman(S["h_median"], S[HINDCAST_SENTINEL_COL])
+            info(f"  (the file's own h_median column, joined on the mis-bucketed "
+                 f"month, gives rho {rho_old:+.3f} over {n_old} scene(s) — "
+                 f"reported so the difference is visible, not used)")
+        for mode in modes:
+            M = MON[MON["mode"] == mode].set_index("month")
+            idx, mod = [], []
+            for _, r in S.iterrows():
+                tg = pd.Timestamp(r["month"]).strftime("%Y-%m")
+                if tg in M.index:
+                    idx.append(float(r[HINDCAST_SENTINEL_COL]))
+                    mod.append(float(M.loc[tg, "wet_frac_floor"]))
+            rho_m, n_m = _spearman(mod, idx)
+            bar_txt = ("the model must rank the winter scenes at least as well as "
+                       "the median well level does; below that it adds nothing the "
+                       "wells did not, and D-170's third Revisit-if is met")
+            if not (np.isfinite(rho_m) and np.isfinite(rho_w)):
+                warn(f"  mode {mode}: the rank test DID NOT RUN — {n_m} scene "
+                     f"month(s) overlap the hindcast, so it is not a pass. A run "
+                     f"window short of 2016 cannot judge this")
+                _add(3, "Spearman rho against the Sentinel index", mode, bar_txt,
+                     f"n {n_m} overlapping scene(s)", "NOT RUN — not a pass",
+                     "the index is ORDINAL and is never hectares")
+                continue
+            worse = rho_m < rho_w
+            step(f"  mode {mode}: rho {rho_m:+.3f} over {n_m} scene(s) against "
+                 f"the wells' {rho_w:+.3f}"
+                 + ("  — WORSE than the wells" if worse else ""))
+            _add(3, "Spearman rho against the Sentinel index", mode, bar_txt,
+                 f"{rho_m:+.3f} against the wells' {rho_w:+.3f}",
+                 "adds nothing" if worse else "at least the wells",
+                 f"n {n_m} scene(s); the index is ORDINAL and is never hectares")
+            # timing: the wettest month of each winter, model against Sentinel
+            hit = tot = 0
+            trows = []
+            for wl, g in S.assign(
+                    winter_label=[pd.Timestamp(x).year + (1 if pd.Timestamp(x).month >= 11 else 0)
+                                  for x in S["month"]]).groupby("winter_label"):
+                gm = g.groupby(g["month"].dt.strftime("%Y-%m"))[
+                    HINDCAST_SENTINEL_COL].mean()
+                cand = [t for t in gm.index if t in M.index]
+                if len(cand) < 2:
+                    continue
+                s_best = max(cand, key=lambda t: float(gm[t]))
+                m_best = max(cand, key=lambda t: float(M.loc[t, "wet_frac_floor"]))
+                tot += 1
+                hit += int(s_best == m_best)
+                trows.append({"winter": int(wl), "n_scenes": len(cand),
+                              "sentinel_wettest": s_best,
+                              "model_wettest": m_best,
+                              "agree": bool(s_best == m_best)})
+            if trows:
+                pd.DataFrame(trows).to_csv(
+                    OUT / f"W94_27_timing_{mode}.csv", index=False)
+                saved(f"W94_27_timing_{mode}.csv")
+                step(f"  mode {mode}: the model picks the same wettest month as "
+                     f"Sentinel in {hit} of {tot} winter(s) with two or more "
+                     f"scored scenes")
+                _add(3, "wettest month of the winter", mode,
+                     "reported, not gated", f"{hit} of {tot} winter(s) agree",
+                     "reported", "")
+
+    # ── 4. the dry control ───────────────────────────────────────────────────
+    phase("27.4", "The dry control — months with no well at ground")
+    if HINDCAST_VET_DRY in cover:
+        cov_frac = float(cover[HINDCAST_VET_DRY].sum()) / float(floor.sum())
+        bar = vet_ha_on[HINDCAST_VET_DRY] / cov_frac if cov_frac else float("nan")
+        info(f"  the bar: {vet_ha_on[HINDCAST_VET_DRY]:.3f} ha vetted on "
+             f"{100 * cov_frac:.1f} % of the floor, scaled to the whole floor = "
+             f"{bar:.3f} ha")
+        for mode in modes:
+            M = MON[MON["mode"] == mode]
+            obs_share = pd.to_numeric(M["share_at_ground_observed"],
+                                      errors="coerce")
+            drym = M[(obs_share == 0.0)
+                     & (pd.to_numeric(M["n_wells_observed"]) > 0)]
+            bad = drym[drym["wet_ha_floor"] > bar]
+            step(f"  mode {mode}: {len(drym)} month(s) with no well at ground, "
+                 f"{len(bad)} above {bar:.3f} ha")
+            for _, r in bad.sort_values("wet_ha_floor", ascending=False).head(
+                    HINDCAST_DRY_LIST_MAX).iterrows():
+                info(f"    {r['month']}  {r['wet_ha_floor']:.3f} ha "
+                     f"({int(r['n_wells_observed'])} well(s) read)")
+            if len(bad) > HINDCAST_DRY_LIST_MAX:
+                info(f"    ... and {len(bad) - HINDCAST_DRY_LIST_MAX} more, all "
+                     f"in {(OUT / 'W94_27_hindcast_monthly.csv').name}")
+            _add(4, "months with no well at ground above the dry bar", mode,
+                 f"a month with no well at ground must model below {bar:.3f} ha "
+                 f"on the floor (the {HINDCAST_VET_DRY} vet scaled from its "
+                 f"covered area); counted and listed, not fatal",
+                 f"{len(bad)} of {len(drym)}",
+                 "clean" if not len(bad) else "failures counted",
+                 f"worst {bad['wet_ha_floor'].max():.3f} ha" if len(bad) else "")
+    else:
+        warn("  the dry vet is unavailable — comparison 4 cannot run")
+        _add(4, "dry control", "-", "a month with no well at ground must model "
+             "below the scaled dry vet", "", "not run",
+             f"W94_26_{HINDCAST_VET_DRY}_covered.geojson absent")
+
+    SUM = pd.DataFrame(summary)
+    p = OUT / "W94_27_hindcast_summary.csv"
+    SUM.to_csv(p, index=False)
+    saved(f"{p.name}  ({len(SUM)} row(s))")
+
+    # ── rasters and KML for the named months ─────────────────────────────────
+    if rasters and wet_keep:
+        for (mode, tag), (w_raw, w_fl) in sorted(wet_keep.items()):
+            rp = OUT / f"W94_27_wet_{mode}_{tag}.tif"
+            _write_wet_raster(rp, w_raw, tr, crs)
+            saved(rp.name)
+            bodies = _wet_bodies(w_fl, tr)
+            if len(bodies):
+                kp = OUT / f"W94_27_wet_{mode}_{tag}.kml"
+                _bodies_to_kml(bodies, kp,
+                               f"modelled wet floor {tag}, mode {mode} — phase "
+                               f"27 hindcast, on the phase 29 floor",
+                               style_line="ff00ffff", fields=("area_m2",))
+                saved(kp.name)
+
+    # ── the figure ───────────────────────────────────────────────────────────
+    _hindcast_figure(MON, S, modes)
+
+    info("NOT ADOPTED and not in the pipeline: this phase writes to "
+         "working/updates only. It rules on nothing — Mode R against Mode C, "
+         "and whether phase 28 may be built, are Martin's to read from "
+         "W94_27_hindcast_summary.csv.")
+    return 0
+
+
+def _hindcast_figure(MON, S, modes):
+    """Wet floor fraction by month for each mode, the Sentinel index over it,
+    and the wells' share at ground beneath."""
+    import matplotlib.pyplot as plt                            # noqa: PLC0415
+
+    from utils.render_utils import apply_house_style, render_figure  # noqa: PLC0415
+    apply_house_style()
+    fig, ax = plt.subplots(2, 1, figsize=(11.0, 6.6), sharex=True,
+                           gridspec_kw={"height_ratios": [2.0, 1.0]})
+    x = {}
+    for mode in modes:
+        M = MON[MON["mode"] == mode].copy()
+        M["t"] = pd.to_datetime(M["month"] + "-01")
+        x[mode] = M
+        ax[0].plot(M["t"], 100 * pd.to_numeric(M["wet_frac_floor"]),
+                   lw=1.1, label=f"mode {mode}")
+    if S is not None and len(S):
+        ax2 = ax[0].twinx()
+        ax2.scatter(pd.to_datetime(S["month"]), S[HINDCAST_SENTINEL_COL],
+                    s=13, marker="^", color="0.35", zorder=5,
+                    label="Sentinel index (ordinal)")
+        ax2.set_ylabel("Sentinel wet-floor index (%, ORDINAL — not an area)")
+        ax2.legend(loc="upper right", fontsize=8, frameon=False)
+    ax[0].set_ylabel("modelled wet floor (% of the present floor)")
+    ax[0].legend(loc="upper left", fontsize=8, frameon=False)
+    ax[0].set_title("Phase 27 — the wet-floor hindcast, driven by the RAF "
+                    "Valley record alone")
+    for mode in modes:
+        M = x[mode]
+        ax[1].plot(M["t"], 100 * pd.to_numeric(M["share_at_ground_modelled"],
+                                               errors="coerce"),
+                   lw=1.0, label=f"modelled, mode {mode}")
+    M0 = x[modes[0]]
+    ax[1].plot(M0["t"], 100 * pd.to_numeric(M0["share_at_ground_observed"],
+                                            errors="coerce"),
+               lw=1.2, color="k", label="observed")
+    ax[1].set_ylabel("wells at ground (%)")
+    ax[1].set_xlabel("month")
+    ax[1].legend(loc="upper left", fontsize=8, frameon=False, ncol=3)
+    fig.tight_layout()
+    p = OUT / "W94_27_hindcast.png"
+    render_figure(fig, p)          # reports its own save line
+    plt.close(fig)
+
 
 if __name__ == "__main__":
     sys.exit(main())

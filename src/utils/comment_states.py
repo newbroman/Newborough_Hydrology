@@ -57,6 +57,7 @@ import re
 
 import pandas as pd
 
+from utils.buckets import month_bucket
 from utils.config import (
     OBSERVATION_STATE_RULES,
     OBSERVATION_FLOOD_LEVEL_HINTS,
@@ -118,11 +119,13 @@ def parse_dry_depth(text: str) -> float | None:
 
 
 def _bucket_to_month(d) -> pd.Timestamp:
-    """Field-convention bucketing: a reading on day <= 15 belongs to the
-    previous month; day > 15 belongs to the same month. Returns YYYY-MM-01."""
-    d = pd.Timestamp(d)
-    m = d.replace(day=1) if d.day > 15 else d.replace(day=1) - pd.offsets.MonthBegin(1)
-    return pd.Timestamp(m.year, m.month, 1)
+    """Field-convention bucketing: a reading on day <= 15 belongs to the previous
+    month, day > 15 to the same one. Returns YYYY-MM-01.
+
+    Delegates to utils.buckets.month_bucket since 2026-09-16 (T-32) rather than
+    carrying its own copy; month_bucket_lint proves the two identical over every
+    date from 1990 to 2040."""
+    return month_bucket(d)
 
 
 # ── public: parse comments -> long state table ───────────────────────────────

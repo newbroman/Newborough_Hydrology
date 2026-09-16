@@ -45,8 +45,23 @@ from utils.config import (
     LCSC_DATA_LIMIT as _LCSC_DATA_LIMIT,
 )
 
+# Script 01's month bucketing. THE implementation is utils.buckets, which imports
+# nothing heavy so that the pipeline's first script and the lint can both have it;
+# this re-export keeps `from utils.model_utils import month_bucket` working and
+# keeps the rule visible on the SSM module's own surface (T-32).
+from utils.buckets import month_bucket                            # noqa: F401,E402
 
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-08-16. LCSC_DATA_LIMIT is now
+
+__version__ = "1.6.0"  # Hollingham (2026) — 2026-09-16. month_bucket(): Script
+#   01's field-convention month bucketing, in ONE place (T-32). A reading on
+#   day > 15 belongs to that month, day <= 15 to the previous one. The tree
+#   carried FIVE correct implementations and THREE written as
+#   `d - pd.offsets.MonthBegin(1)`, which is a no-op for days 2-15 and had cost
+#   49 of 110 Sentinel scenes their month; the same defect was fixed once on
+#   2026-09-13 and reintroduced two days later, because the rule lived in a
+#   comment at each call site. Equivalence to every correct variant is proved
+#   exhaustively over 1990-2040 by tools/month_bucket_lint.py, a check_all gate.
+# v1.5.0  # Hollingham (2026) — 2026-08-16. LCSC_DATA_LIMIT is now
 #   imported from config.py rather than declared here; the name survives as a
 #   re-export so existing importers resolve unchanged (D-016). Value unchanged.
 #   Also clears three attributions left stale by v1.4.0: the LCSC_DATA_LIMIT

@@ -606,7 +606,7 @@ so each file states its own origin:
 | `broadleaf_restock.kml` | Google Earth | yes | `19`, `20`, `config.py`, `living/` |
 | `streams.kml` — **derived from `site_boundary.kml`**, not an independent input | | | |
 | `clay.kml` | Google Earth | yes | **nothing** |
-| `moad.kml` | Google Earth | yes | **nothing — see below** |
+| `moad.kml` | Google Earth | yes | **legacy only** — `--coast-source moad` (D-175); **see below** |
 
 Three do not match "digitised in Google Earth", and the difference is in the
 files rather than in anyone's memory: `site_boundary.kml` and `clearfell.kml`
@@ -614,14 +614,44 @@ are QGIS exports, and `streams.kml` and `Features.kml` carry no tool signature
 at all. Worth a second look at those two, since `Features.kml` is the most
 widely read vector layer in the project.
 
-### `moad.kml` — used by nothing at all
+### `moad.kml` — inert until 2026-09-13, load-bearing since
 
-A full-repository search for the string `moad` — every `.py`, `.sh`, `.md`,
-`.csv`, `.json` and `.ipynb` outside this record — returns **nothing**. No
-script, no config constant, no path helper, no document, no note. It is
-committed, and it is inert. Martin asked directly on 2026-08-28 whether anything
-uses it; the answer is no. Nothing here needs it, and it can go whenever he
-says.
+**This section said the opposite until 2026-09-16 and the correction matters.** As
+written on 2026-08-28, in answer to a direct question of Martin's, a
+full-repository search for `moad` returned nothing: no script, no constant, no
+path helper, no document. It was committed and inert, and the entry said it could
+go whenever he said so.
+
+**It is now the site's tidal boundary.** On 2026-09-13 (D-164 item 3)
+`warren_flood_prep.py` took it as `ESTUARY_KML`, and `_estuary_control` reads it
+to lay pseudo-control points at `ESTUARY_LEVEL_M_AOD` = 0.0 along the seaward
+margin for every interpolated water-table surface — phases 13, 14, 15, 16 and,
+from 1.40.0, phase 27. **Deleting it would silently remove the boundary condition
+from all of them** (`_estuary_control` warns and returns no points rather than
+failing). This record was not updated at the time, which is the second half of the
+defect the 2026-09-16 Note on D-164 describes.
+
+**What it actually is, measured 2026-09-16 rather than assumed.** A 36-vertex line
+with no stated provenance beyond "digitised in Google Earth". Its vertices sit a
+**median 75 m** from `coastline_hwm.geojson` — the Caernarfon Bay MHW and Menai
+Strait coastline, from which Malltraeth Sands is explicitly excluded — with 29 of
+36 within 200 m. So it traces the **seaward** margin the site description names as
+the discharge boundary, and the "Malltraeth estuary" label attached to it from
+2026-09-13 to 2026-09-16 was wrong about the name alone.
+
+**Settled the same day: it does not hold the boundary any more (D-175).** Martin,
+2026-09-16: *"use coastline_hwm.geojson instead of moad.kml"*. From
+`warren_flood_prep.py` 1.41.0 `_estuary_control` reads
+`coastline_hwm.geojson` — sourced, licensed (OSM ODbL, extracted 2026-06-30),
+documented in the Methods Supplement, and already the fixed-head boundary for
+Script 20's scrape-drawdown image term. Inside `site.buffer(400)` it gives **130**
+control points against `moad`'s **68**, along the same margin (every `moad` point
+has a coastline point a median 35 m away).
+
+`moad.kml` is now reachable only through `--coast-source moad`, which exists so
+the phase 13-16 figures computed on it before 2026-09-16 can be reproduced. It is
+**no longer inert and must not be deleted on the strength of the 2026-08-28
+paragraph above**, but nothing adopted depends on it.
 
 ### `site_boundary.kml` — the GRASS stream network, used as a mask (settled, D-082)
 

@@ -1439,6 +1439,38 @@ Each slack's floor is compared with **its own rim**, inside one tile, in three c
 
 **Revisit if** a further network-wide interpolation appears, which would change the 46.2 % and reopen item 2; or the Methods Supplement leaves its phase-1 freeze (D-144), at which point item 4 can be settled in the ordinary refresh pass rather than as a reasoned exception; or Script 01's interpolation policy changes from `limit=1`, since both breaks are single months and a looser limit would fill different ground; or the two months are ever excluded from a PUBLISHED fit, which would make the table in `NRG_interpolated_sensitivity.csv` the new baseline rather than a sensitivity.
 
+### D-174 — The nearest-hollow spread is retired as phase 27's spatial step and replaced by an interpolated water table; the recurrence, the vets and W94 as a line all stand
+
+*2026-09-16*
+
+**the narrowest of the three readings, and the construction is replaced rather than merely removed.** Settled with Martin, 2026-09-16, on the spec `NRG_spec_phase27_smooth_surface_2026-09-16.md`: *"if we can improve the mapping let's proceed."* 1. **Phase 24 part E's nearest-hollow spread is retired as the spatial step of the hindcast.** It survives in the code as `HINDCAST_SURFACE` = `tiled`, for the self-test and the record, and is not run by default. 2. **Phase 28 stays gated, not closed**, on comparison 2 of the surface that replaces it. The forecaster map layer waits on the same. 3. **Nothing else is retired.** Not the monthly recurrence and its well-level results (comparison 1: RMSE R 0.229 / C 0.366 m; modelled wet floor fraction against the observed share of wells at ground R +0.768 / C +0.630), not the two vetted extents, not the Sentinel index as an ordinal, and not W94 as a line.
+
+**Revisit if** the interpolated surface also fails comparisons 2 and 3 — in which case the surface was never the problem, the spatial line closes on its own evidence rather than on a construction's, and reading 3 of the handover's three becomes the live question; or a vetted extent arrives at an intermediate wetness (D-170's own Revisit-if), which would let the area band be set from three points; or the hollow inventory is re-delineated, since 37.7 % of the 2021 vetted water lies outside every phase-6 hollow (D-169) and the control net is that inventory.
+
+### D-175 — The tidal boundary reads the committed OSM coastline; `moad.kml` is retired as the site's boundary geometry
+
+*2026-09-16*
+
+**yes.** Martin, 2026-09-16: *"use coastline_hwm.geojson instead of moad.kml"*. `COAST_BOUNDARY_SOURCE` = `"coastline_hwm"` and `_estuary_control` reads `DATA_COASTLINE_HWM` — OpenStreetMap `natural=coastline` via Overpass, ODbL, extracted 2026-06-30, reprojected to EPSG:27700 and simplified to 5 m, **Malltraeth estuary excluded**. `moad.kml` stays reachable as `--coast-source moad` so the committed phase 13 figures can be reproduced, and is retired as the adopted geometry.
+
+**Revisit if** the OSM coastline is re-extracted, or its MHW definition is found to drift against the OS MHW used for `dist_coast_m` (D-060 raised exactly that drift for the 1899 comparison), since the boundary would then be moving for a reason outside this decision; or a tide-gauge or piezometric record at the seaward margin becomes available, which would replace `z_b` with a measurement and make the line's exact position matter more than it does at 0 m AOD; or `ESTUARY_REACH_M` is changed, since the 130-against-68 comparison above is specific to 400 m.
+
+### D-176 — The tidal boundary's names say what it is: `_estuary_control` and `ESTUARY_*` become `_tidal_control` and `TIDAL_*`
+
+*2026-09-16*
+
+**renamed throughout `tools/warren_flood_prep.py` (>= 1.42.0), with no behaviour change and one stated exception.** The prefix is **`TIDAL_`**, for two checkable reasons: `COAST_` is already a busy namespace in this project — `COAST_RETREAT_RATE`, `COAST_RETREAT_2005_2025_M`, `COAST_SHORE_LEVEL_M`, `COAST_ANCHOR`, `COAST_DUNE_OFFSET_M`, `COAST_EAST_CUT_E` — all of it about shoreline **retreat** and coastal geometry, and putting a boundary condition there would blur two different things (`COAST_SHORE_LEVEL_M` is already one character of confusion away from a boundary level); and `TIDAL_` was entirely unused, while *"the discharging foreshore is a tidal boundary … a constant-head sea boundary"* is Paper 1's own phrase for this object.
+
+**Revisit if** the boundary ever genuinely includes an estuarine margin — the Braint or the Cefni — at which point `TIDAL_` still holds but the single-line description does not; or `src/` grows its own reference to this boundary, since the rename's safety here rests on the symbols being confined to one file.
+
+### D-177 — The modelled flooded extent closes as a spatial product; the recurrence, the ordinal series and the vetted extents survive
+
+*2026-09-16*
+
+**the modelled flooded EXTENT closes as a spatial product.** Martin, 2026-09-16, having asked for and been given a recommendation: *"close the spatial line, write it up."* This is reading 3 of the three the 2026-09-16 handover set out, and it is the widest of them.
+
+**Revisit if** a third vetted extent arrives at a wetness between the two (D-170's own Revisit-if) — **this is the live one**, since every dry-vet IoU above rests on a single date with 17 ha vetted across 262 ha of covered floor and is close enough to noise that it is the weakest part of the case; or multispectral or NIR imagery becomes available, which D-168 identified as dissolving the spectral failure that put 37.7 % of the water outside the hollows in the first place; or a control net is built that represents water outside mapped hollows, since that is the constraint rather than the interpolation; or a physically based groundwater model replaces the interpolation, which is a different undertaking and not a tuning of this one.
+
 ---
 
-173 decisions. Generated by `tools/build_public_decisions.py`.
+177 decisions. Generated by `tools/build_public_decisions.py`.

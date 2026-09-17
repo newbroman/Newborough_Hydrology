@@ -239,3 +239,8 @@ Claude outputs/
 # only copy of something that matters, that is the bug - derive it and commit the
 # derivative, not the folder.
 data/geo/slacks/
+
+# Script 45's bare cut: the same film with the technical caption and no guide
+# slides. Written every run, deliberately NOT tracked - only the presentation cut
+# goes to git (Martin, 2026-09-17). T-39.
+outputs/45_hindcast_film/45_03_hindcast_film.mp4

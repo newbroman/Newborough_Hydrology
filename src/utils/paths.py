@@ -1174,6 +1174,25 @@ OUT_44_HINDCAST_FIG   = DIR_44 / "44_07_hindcast.png"
 OUT_44_HINDCAST_REPORT_FIG = DIR_44 / "44_07b_hindcast_report.png"   # caption-free render for report10
 OUT_44_CHANGE_FIG     = DIR_44 / "44_08_level_change.png"
 OUT_44_REPORT_NUMBERS = DIR_44 / "44_report_numbers.csv"
+
+# ── Script 45 — the century hindcast film (T-39, D-178) ──────────────────────
+# Display tier, on demand only. DIR_45 is NOT mkdir'd here: the directory is
+# created by the script when it runs, so a clone that never renders the film
+# does not carry an empty folder (the DIR_43 / DIR_44 rule, paths 1.16.2).
+DIR_45 = OUT_DIR / "45_hindcast_film"
+OUT_45_LEVEL_MONTHLY   = DIR_45 / "45_01_hindcast_level_monthly.csv"
+OUT_45_CALIBRATION     = DIR_45 / "45_02_calibration.csv"
+OUT_45_QUANTILE_MAP    = DIR_45 / "45_02_quantile_map.csv"
+OUT_45_PRESENTATION    = DIR_45 / "45_03_hindcast_presentation.mp4"   # tracked
+OUT_45_FILM            = DIR_45 / "45_03_hindcast_film.mp4"           # gitignored
+OUT_45_CAVEATS         = DIR_45 / "45_05_frame_caveats.txt"
+OUT_45_BACKGROUND      = DIR_45 / "45_00_background_2021-04-04.png"
+
+
+def out_45_still(month: str):
+    """45_04_hindcast_still_<YYYY-MM>.png — the name carries the month because
+    which month is wettest is a result, not a constant."""
+    return DIR_45 / f"45_04_hindcast_still_{month}.png"
 OUT_40_FIG             = DIR_40 / "40_01_alongshore_profile.png"
 
 # Coastline epochs. coast1899.kml carries TWO placemarks and labels neither;

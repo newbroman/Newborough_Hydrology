@@ -1714,6 +1714,45 @@ WINTER_METEOROLOGICAL_MONTHS = (12, 1, 2)              # DJF
 # not the same as one definition, which is why it is here.
 SUMMER_MINIMUM_MONTHS        = (6, 7, 8, 9)           # Jun-Sep
 
+# The months a free-running hindcast is SEEDED from, and deliberately NOT
+# SUMMER_MINIMUM_MONTHS. Phase 27 restarts Mode R, and seeds Mode C, from each
+# well's AUGUST-SEPTEMBER minimum (warren_flood_prep: "R restarts each October
+# from that year's OBSERVED August-September well minimum"), which is the driest
+# fortnight of the year and the point the recharge season starts from. The
+# Jun-Sep window above is a different quantity - the summer minimum as the
+# reports define it - and is shared by seven scripts. Seeding from it would sit
+# the century run lower than phase 27's and make the one check Script 45 is
+# verified by (its Mode C against W94_27_from1930_hindcast_monthly.csv) a
+# comparison of two different constructions rather than a test. Martin,
+# 2026-09-17: keep them separate.
+HINDCAST_SEED_MONTHS         = (8, 9)                 # Aug-Sep
+
+# ── The century hindcast film (Script 45, T-39, D-178) ───────────────────────
+# The first years of a free run are the model settling from its seed and are
+# flagged rather than trimmed, so the CSV carries the whole record and the reader
+# decides. Two years is what the plain-English guide already tells the viewer to
+# ignore.
+HINDCAST_SPIN_UP_YEARS       = 2
+
+# The quantile map that calibrates the free run to the well period. A month
+# counts as observed only with at least QMAP_MIN_WELLS wells read, and the map is
+# refused altogether below QMAP_MIN_MONTHS such months — a map fitted on a short
+# record would carry its own sampling into the whole century. Beyond either end
+# of the fitted range the map continues on the outer QMAP_TAIL_FRACTION of the
+# distribution's own slope rather than flattening, because the months the film
+# exists for are precisely the ones outside it.
+QMAP_MIN_WELLS               = 20
+QMAP_MIN_MONTHS              = 60
+QMAP_TAIL_FRACTION           = 0.10
+
+# The render. WORDS_PER_MINUTE times a slide's word count sets how long it holds,
+# so the guide slides time themselves and stay right when the words change.
+FILM_FPS                     = 12
+FILM_WORDS_PER_MINUTE        = 250.0
+FILM_SLIDE_LEAD_S            = 1.5
+FILM_QUALITY_PRESENTATION    = 6      # imageio/x264: the cut that goes into git
+FILM_QUALITY_FULL            = 8      # the bare cut, gitignored
+
 # Drought and recession season, Apr-Sep. The COMPLEMENT of
 # WINTER_RECHARGE_MONTHS: the two partition the year, six months each, and
 # changing either without the other would leave months belonging to both seasons

@@ -1,49 +1,49 @@
-# THE PROJECT'S DEPENDENCY LIST. See BOOTSTRAP.md §1.
 #
-# This file pins the environment the pipeline runs in: `venv/` at the repository
-# root, python 3.12.3, installed with `pip install -r requirements.txt`.
 #
-# CORRECTED 2026-08-29. Between 2026-08-27 and that date this header said the
-# opposite — that the list was "a pip freeze from an environment this project has
-# never run in", and that the real environment was Ubuntu 24.04's apt packages
-# (numpy 1.26.4, pandas 2.1.4, scipy 1.11.4, matplotlib 3.6.3, and so on). That
-# was wrong, and the audit that produced it compared this file against a
-# `tools/environment.json` recorded before the venv existed.
 #
-# Three things settle it:
 #
-#   1. The `*.dist-info` directories under venv/lib/python3.12/site-packages are
-#      exactly this file, all nineteen packages.
-#   2. The pipeline run log of 2026-08-29 carries a warning emitted from
-#      venv/lib/python3.12/site-packages/geopandas/plotting.py.
-#   3. The apt environment CANNOT RUN THE PIPELINE. Built to the old apt line and
-#      verified library-for-library against the old record, it dies at Step 3:
+#
+#
+#
+#
+#
 #      03_state_space_model.py calls ax.boxplot(tick_labels=...), added in
+#      exactly this file, all nineteen packages.
 #      matplotlib 3.9, and noble ships 3.6.3.
-#
-# So the caution the old header raised — that installing this file would "run and
-# quietly give different numbers" — applies to the apt list instead. Every
-# published number came from the versions below.
-#
-# statsmodels 0.14.6 is the one package that also matches noble; that is a
-# coincidence of versions, not evidence of the apt route.
-#
-# VERIFY RATHER THAN TRUST
+#      venv/lib/python3.12/site-packages/geopandas/plotting.py.
+#      verified library-for-library against the old record, it dies at Step 3:
 #     python3 tools/env_audit.py       # against tools/environment.json
 #     python3 tools/import_audit.py    # MISSING-DEP names anything absent
-#
-# pandoc must be 3.x (3.1.3 reproduces the mirrors byte for byte) and comes from
-# apt, not from here.
-#
+#   1. The `*.dist-info` directories under venv/lib/python3.12/site-packages are
+#   2. The pipeline run log of 2026-08-29 carries a warning emitted from
+#   3. The apt environment CANNOT RUN THE PIPELINE. Built to the old apt line and
+# (numpy 1.26.4, pandas 2.1.4, scipy 1.11.4, matplotlib 3.6.3, and so on). That
 # --- the pinned list ---
+# `tools/environment.json` recorded before the venv existed.
+# apt, not from here.
+# coincidence of versions, not evidence of the apt route.
+# CORRECTED 2026-08-29. Between 2026-08-27 and that date this header said the
+# never run in", and that the real environment was Ubuntu 24.04's apt packages
+# opposite — that the list was "a pip freeze from an environment this project has
+# pandoc must be 3.x (3.1.3 reproduces the mirrors byte for byte) and comes from
+# published number came from the versions below.
+# quietly give different numbers" — applies to the apt list instead. Every
+# root, python 3.12.3, installed with `pip install -r requirements.txt`.
+# So the caution the old header raised — that installing this file would "run and
+# statsmodels 0.14.6 is the one package that also matches noble; that is a
+# THE PROJECT'S DEPENDENCY LIST. See BOOTSTRAP.md §1.
+# This file pins the environment the pipeline runs in: `venv/` at the repository
+# Three things settle it:
+# VERIFY RATHER THAN TRUST
+# was wrong, and the audit that produced it compared this file against a
 adjustText==1.4.0
 affine==2.4.0
 attrs==26.1.0
 cairosvg==2.9.0
 certifi==2026.5.20
 charset-normalizer==3.4.7
-click==8.4.1
 click-plugins==1.1.1.2
+click==8.4.1
 cligj==0.7.2
 contextily==1.7.0
 contourpy==1.3.3
@@ -54,6 +54,7 @@ geographiclib==2.1
 geopandas==1.1.3
 geopy==2.4.1
 idna==3.18
+imageio-ffmpeg==0.6.0
 ImageIO==2.37.3
 joblib==1.5.3
 kiwisolver==1.5.0

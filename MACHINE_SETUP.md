@@ -406,3 +406,21 @@ the ODTs for a different reason: LibreOffice rewrites the whole file on every
 save, so a daemon would re-upload 123 MB each time `report9` is touched, and a
 zip captured mid-save is a corrupt document. `rclone copy`, run on demand, is
 the whole of the sync story.
+
+## The hindcast film needs an ffmpeg binary
+
+`src/45_hindcast_film.py` (on demand, `run_analysis.py --hindcast-film`) writes
+MP4s through `imageio`, which needs the **ffmpeg binary** — a separate thing from
+the `imageio` wheel. `imageio-ffmpeg` carries one:
+
+```bash
+source venv/bin/activate
+pip install imageio-ffmpeg
+```
+
+Without it the script stops at its render phase with that message and writes no
+video. There is deliberately **no GIF fallback**: the tracked artefact is
+`45_03_hindcast_presentation.mp4`, and a GIF silently substituted for it would be
+committed as though it were the same thing. (`tools/sentinel_wet_floor.py` does
+fall back to a GIF — that is a working-store animation nobody commits, which is
+why the two differ.)

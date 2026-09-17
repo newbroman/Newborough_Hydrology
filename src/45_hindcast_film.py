@@ -508,12 +508,18 @@ def build_text(feed: dict, floor_ha: float) -> tuple:
     return caption, caption_beyond, before, after
 
 
-def write_caveats(caption, caption_beyond, before, after, feed) -> None:
+def write_caveats(caption, caption_beyond, before, after, feed, arrivals=None) -> None:
     """Every string the film shows, in one file, so the wording is lint-visible
     and diffable — a frame is not."""
     DIR_45.mkdir(parents=True, exist_ok=True)
     L = [f"# Frame text — 45_hindcast_film.py {__version__}",
-         f"# wet-area model {feed['source_hash']} ({feed['source']})", "",
+         f"# wet-area model {feed['source_hash']} ({feed['source']})"]
+    if arrivals:
+        L.append("# the trace's arrival lines — the level at which each class first covers 1 ha "
+                 "of the study area: " + ", ".join(
+                     f"{k} {('%+.3f m' % v) if v is not None else 'never'}"
+                     for k, v in sorted(arrivals.items())))
+    L += ["",
          "## CAPTION (every frame)", caption, "",
          "## CAPTION, appended when the month is beyond the fitted range",
          caption_beyond.strip(), ""]
@@ -528,6 +534,42 @@ def write_caveats(caption, caption_beyond, before, after, feed) -> None:
 # ─────────────────────────────────────────────────────────────────────────────
 # THE RENDER
 # ─────────────────────────────────────────────────────────────────────────────
+def first_hectare_levels(cells, hectares: float = 1.0) -> dict:
+    """The level at which each class first covers `hectares` of the study area.
+
+    NOT the minimum switching level. One cell is 0.01 ha and invisible at this
+    frame size, so a line drawn at the first cell would tell the viewer "yellow
+    appears" while the map still looks empty. The level at which a hectare is lit
+    is the level at which the colour actually arrives on screen (Martin,
+    2026-09-17).
+
+    `open_water` is the blue array directly. `wet_floor` is the RING, so it is the
+    dark-total count less the open-water count at the same level — the same
+    subtraction the frame draws, not the dark-total array on its own.
+    """
+    hb, hd, floor = cells
+    need = int(round(hectares * 100))          # 10 m cells: 100 to the hectare
+    ow = np.sort(hb[floor & np.isfinite(hb)])          # open-water switching levels
+    dk = np.sort(hd[floor & np.isfinite(hd)])          # dark-total switching levels
+    out = {"open_water": float(ow[need - 1]) if ow.size >= need else None}
+    # The ring count at a level h is (dark <= h) - (open <= h). The count can only
+    # change at a dark level, so evaluate it at each of those: the open-water count
+    # there is a binary search, and the dark count is just the position in the
+    # sorted array. Exact, and O(n log n) rather than a scan of every pair.
+    if dk.size:
+        ring_n = np.arange(1, dk.size + 1) - np.searchsorted(ow, dk, side="right")
+        hit = np.flatnonzero(ring_n >= need)
+        out["wet_floor"] = float(dk[hit[0]]) if hit.size else None
+    else:
+        out["wet_floor"] = None
+    for k, v in out.items():
+        if v is None:
+            warn(f"no level reaches {hectares:.0f} ha of {k} anywhere in the record")
+        else:
+            step(f"{k}: first {hectares:.0f} ha at {v:+.3f} m")
+    return out
+
+
 def _background(shape):
     """The greyscale Sentinel-2 scene behind the cells, or a flat grey."""
     from PIL import Image                                     # noqa: PLC0415
@@ -542,7 +584,7 @@ def _background(shape):
     return np.stack([base * 0.55 + 0.25] * 3, -1)
 
 
-def render(level, cells, feed, floor_ha, text, presentation, still_month=None):
+def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_month=None):
     """The film. One frame a month, plus the guide slides on the presentation cut.
 
     Returns the still's frame when `still_month` is given, so the PNG and the film
@@ -613,6 +655,17 @@ def render(level, cells, feed, floor_ha, text, presentation, still_month=None):
     ax2.fill_between(t, -1.4, 0.4, where=t < wells_from, color="#eeeeee", zorder=0)
     ax2.plot(t, lvl, color="black", lw=0.6)
     ax2.axhline(0, color="grey", lw=0.6, ls=":")
+    # Where each colour arrives. Drawn in its own colour so the line and the cells
+    # it describes cannot be mixed up, and labelled, because an unlabelled
+    # horizontal line on a hydrograph reads as a threshold someone chose.
+    for cls, colour, label in (("wet_floor", COL_FLOOR, "wet floor appears"),
+                               ("open_water", COL_WATER, "open water appears")):
+        hv = arrivals.get(cls)
+        if hv is None:
+            continue
+        ax2.axhline(hv, color=colour, lw=0.9, ls="-", alpha=0.9)
+        ax2.text(t[len(t) - 1], hv, f"  {label} ({hv:+.2f} m)", fontsize=6.5,
+                 color=colour, va="center", ha="left", clip_on=False)
     ax2.axhline(hmax, color="#0b6e8f", lw=0.6, ls="--")
     ax2.fill_between(t, hmax, 0.4, color="#e8734a", alpha=0.10)
     ax2.set_ylim(-1.4, 0.4)
@@ -721,9 +774,12 @@ def main(no_film: bool = False, check_phase27: str | None = None) -> int:
     result("beyond the fitted range", f"{n_over} of {len(level)} month(s); wettest {wettest} "
                                      f"at {level['open_water_ha'].max():.0f} ha open water")
 
+    step("The level at which each colour arrives on the map")
+    arrivals = first_hectare_levels((ow, wf, floor))
+
     phase(5, "The words")
     text = build_text(feed, floor_ha)
-    write_caveats(*text, feed)
+    write_caveats(*text, feed, arrivals)
 
     if no_film:
         info("--no-film: the CSVs and the text only")
@@ -738,9 +794,9 @@ def main(no_film: bool = False, check_phase27: str | None = None) -> int:
              "`pip install imageio-ffmpeg` in the project venv; see MACHINE_SETUP.md. "
              "There is no GIF fallback here — the tracked artefact is an MP4.")
         return 1
-    rc = render(level, (ow, wf, floor), feed, floor_ha, text, presentation=True,
+    rc = render(level, (ow, wf, floor), feed, floor_ha, text, arrivals, presentation=True,
                 still_month=wettest)
-    rc |= render(level, (ow, wf, floor), feed, floor_ha, text, presentation=False)
+    rc |= render(level, (ow, wf, floor), feed, floor_ha, text, arrivals, presentation=False)
     done("45")
     return rc
 

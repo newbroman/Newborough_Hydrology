@@ -24,11 +24,11 @@ WHAT IT CHECKS, AND WHY EACH CHECK IS WORTH MAKING
 
   3. THE CELL DECODE, against the array it came from. The page decodes base64
      int16 centimetres out of the feed; here the cell counts at a given level are
-     taken straight from working/updates/W94_27_cell_thresholds.npz. The
+     taken straight from data/sentinel/cell_thresholds.npz. The
      encode/decode round trip must not move a single cell.
 
   4. THE CURVES AT A KNOWN MONTH. The two areas at February 2021's modelled Mode
-     R level must reproduce W94_27_ssm_through_nir_curves.csv's own figures for
+     R level must reproduce outputs/45_wet_area/45_02_ssm_through_nir_curves.csv's own figures for
      that month — the film still W94_27_wet_area_frame_2021-02.png is the same
      month for the eye, but the CSV is what is compared.
 
@@ -39,11 +39,11 @@ WHAT IT CHECKS, AND WHY EACH CHECK IS WORTH MAKING
      the cell layer at a month from the record, taking that month's level from
      the feed. A transcription slip there would put the wrong month on the screen
      and nothing else would notice, so every month and mode is compared with
-     W94_27_ssm_through_nir_curves.csv. A feed with no history is not a failure.
+     outputs/45_wet_area/45_02_ssm_through_nir_curves.csv. A feed with no history is not a failure.
 
   7. THE MODES' FIT, recomputed. The page quotes each mode's RMSE and rho where it
      explains what Mode R and Mode C are, so a wrong figure is a wrong sentence on a
-     public page. They are recomputed here from W94_27_well_fit.csv — and phase 27's
+     public page. They are recomputed here from data/sentinel/well_fit.csv — and phase 27's
      own fail condition, that Mode R must beat Mode C, is asserted, because the page
      offers R as its default.
 
@@ -57,12 +57,12 @@ USAGE
 from __future__ import annotations
 
 __version__ = "1.2.0"  # Hollingham (2026) - 2026-09-17. Check 7: the per-mode
-#   RMSE and rho the feed carries, recomputed here from W94_27_well_fit.csv, and the
+#   RMSE and rho the feed carries, recomputed here from data/sentinel/well_fit.csv, and the
 #   summary CSV's own fail condition (Mode R must beat Mode C) asserted. The page
 #   quotes these where it explains the two modes, so a wrong one is a wrong sentence
 #   on a public page.
 # v1.1.0  # Hollingham (2026) - 2026-09-17. Check 6: the feed's
-#   `history` block against W94_27_ssm_through_nir_curves.csv, month for month and
+#   `history` block against outputs/45_wet_area/45_02_ssm_through_nir_curves.csv, month for month and
 #   mode for mode. The page's history control draws the cell layer from it, so a
 #   transcription slip there would put the wrong month on the screen silently.
 # v1.0.0  # Hollingham (2026) - 2026-09-16. First cut, T-37.
@@ -85,9 +85,9 @@ from utils.console_utils import banner, phase, result, saved, step, warn  # noqa
 
 PAGE = REPO / "outputs" / "11b_spatial_thresholds" / "forecaster.html"
 FEED = REPO / "living" / "wet_area_model.json"
-NPZ = REPO / "working" / "updates" / "W94_27_cell_thresholds.npz"
-SSM_CSV = REPO / "working" / "updates" / "W94_27_ssm_through_nir_curves.csv"
-WELL_FIT = REPO / "working" / "updates" / "W94_27_well_fit.csv"
+NPZ = REPO / "data" / "sentinel" / "cell_thresholds.npz"
+SSM_CSV = REPO / "outputs" / "45_wet_area" / "45_02_ssm_through_nir_curves.csv"
+WELL_FIT = REPO / "data" / "sentinel" / "well_fit.csv"
 STILL = REPO / "working" / "updates" / "W94_27_wet_area_frame_2021-02.png"
 TOL_HA = 1e-6          # the two implementations run the same arithmetic in doubles
 TOL_LAM = 1e-6
@@ -310,7 +310,7 @@ def main() -> int:
            f"well-scenarios, worst |dlambda| {worst_lam:.3e}")
     failures += bad
 
-    phase(3, "The cell decode against W94_27_cell_thresholds.npz")
+    phase(3, "The cell decode against data/sentinel/cell_thresholds.npz")
     if page["cells"] is None or not NPZ.exists():
         warn("skipped: no 2021-02 row in the SSM CSV, or no npz on this machine")
     else:
@@ -333,7 +333,7 @@ def main() -> int:
         result("cell decode", ('OK — not one cell moved' if ok else 'MISMATCH')
                + (f"; the eye check is {STILL.name}" if STILL.exists() else ""))
 
-    phase(4, "The curves at February 2021 against W94_27_ssm_through_nir_curves.csv")
+    phase(4, "The curves at February 2021 against outputs/45_wet_area/45_02_ssm_through_nir_curves.csv")
     if ssm is None or scen["cell_level"] is None:
         warn("skipped: no SSM CSV")
     else:
@@ -383,7 +383,7 @@ def main() -> int:
     else:
         result("page vs feed", f"the same model ({baked})")
 
-    phase(6, "The feed's history against W94_27_ssm_through_nir_curves.csv")
+    phase(6, "The feed's history against outputs/45_wet_area/45_02_ssm_through_nir_curves.csv")
     H = feed.get("history")
     if H is None:
         warn("the feed carries no history block (phase 4 has not run); the page's history "
@@ -423,7 +423,7 @@ def main() -> int:
         failures += bad6
         result("history vs the drive CSV", "OK" if not bad6 else f"{bad6} MISMATCH")
 
-    phase(7, "The modes' fit, recomputed from W94_27_well_fit.csv")
+    phase(7, "The modes' fit, recomputed from data/sentinel/well_fit.csv")
     fit = (H or {}).get("fit") if H else None
     if fit is None:
         warn("the feed carries no mode fit; the page will explain the modes without numbers. "

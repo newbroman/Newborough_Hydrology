@@ -824,16 +824,6 @@ def two_class(Wm):
     return 0
 
 
-# ── the public feed the forecaster reads (T-36 item 1, D-178) ────────────────
-# WHY THIS TOOL WRITES IT. W94_27_wet_area_model.csv and W94_27_cell_thresholds.npz
-# live in the private store; the forecaster is public and reads from living/. The
-# feed is therefore written by the thing that COMPUTES the model — route (a) of the
-# 2026-09-16 spec — on D-096's reasoning: a feed the page trusts has to be emitted
-# by the code that produced its numbers, not by a second reader of its outputs.
-# Nothing in nrg_git.sh objects: the public repo stages living/ with `git add -A`,
-# living/wet_area_model.json is not gitignored, and this tool is ALREADY a public
-# file (the spec's route (b) was argued from "keeps the tool private-only", which
-# is not the case — tools/sentinel_wet_floor.py is tracked in the public repo).
 #
 # It reads the two artefacts back from disk rather than serialising the in-memory
 # fit, so the feed is provably the committed model and carries its hash.

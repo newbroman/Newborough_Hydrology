@@ -427,7 +427,11 @@ def build_text(feed: dict, floor_ha: float) -> tuple:
           "the reserve as it stands today had lived through the weather of each of those years.",
           "Newborough Warren is a sand-dune reserve on Anglesey. Between the dunes lie hundreds of low "
           "hollows called slacks. In a wet winter the water table rises into them: the ground goes "
-          "damp, pools appear, and in a very wet spring whole slacks stand under water."],
+          "damp, pools appear, and in a very wet spring whole slacks stand under water.",
+          "Only the warren is modelled, not the forest. Everything here is about the open dune slacks "
+          "of Newborough Warren — the study area outlined on the map. The planted forest beside them "
+          "is not part of the model and is not assessed; absence of yellow and blue cells does not "
+          "imply an absence of flooding, rather it has not been modelled."],
          "Newborough Warren hydrology study, 2026 · Martin Hollingham"),
         ("How to read the film",
          ["YELLOW is wet floor: saturated ground, or a thin sheet of water hidden in the grass.",

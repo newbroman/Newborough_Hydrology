@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-17T20:06:14",
+ "generated": "2026-09-17T22:54:46",
  "orchestrator": "2.18.0",
  "steps": {
   "00_climate_summary.py": {
@@ -1230,10 +1230,10 @@
     "outputs/47_hindcast_film/47_01_hindcast_level_monthly.csv": "af41c5df7b6eb612605f212ba5c6782c1ab575cd45c14677802bcdccd4a2df7d",
     "outputs/47_hindcast_film/47_02_calibration.csv": "fa9b4834a96dd7c4e67d3171db4b304b0ab42b95b5b5a42480336b9b056e49a6",
     "outputs/47_hindcast_film/47_02_quantile_map.csv": "ca4ef9eced51dd072a587d929a3ec61735155bc0849bc7d5d36b1a892fcb33ee",
-    "outputs/47_hindcast_film/47_03_hindcast_film.mp4": "d4d286aa1033ccaba10556bbe513dd7de07318007eeb2c8238a85a127588df12",
-    "outputs/47_hindcast_film/47_03_hindcast_presentation.mp4": "0f3c38caa545fd884fb503afd669eb901206317db5007e199bfcb88b18df04d0",
-    "outputs/47_hindcast_film/47_04_hindcast_still_2001-02.png": "bd4246accb411d6f63d905702734203ff378444405384933ef7ca1e55354807f",
-    "outputs/47_hindcast_film/47_05_frame_caveats.txt": "32104cb9dc61df31f39bbde43fa3975cb9409788d94846aa7d5e42d43526f35a"
+    "outputs/47_hindcast_film/47_03_hindcast_film.mp4": "10da1c33c63008cb48be15be9fda03b30feac4f38cd28778e1acec82408e8bc1",
+    "outputs/47_hindcast_film/47_03_hindcast_presentation.mp4": "f7829770d22ba8fac0efb68c61f51f98e6ebcfa2b71fb96bb7f5e7dc8cf2fe6e",
+    "outputs/47_hindcast_film/47_04_hindcast_still_2001-02.png": "3ba76846b62fad6cf758f30d5f91544cc9721beb1571f13d83b8c24d75d43074",
+    "outputs/47_hindcast_film/47_05_frame_caveats.txt": "2acace248bd5af563994c025e855596c067ade0d5a2557528751df931abb7077"
    },
    "fallbacks": [],
    "inputs": {
@@ -1248,8 +1248,8 @@
    "inputs_unresolved": [
     "wet_area_model.json"
    ],
-   "seconds": 152.0,
-   "started": "2026-09-17T20:03:42",
+   "seconds": 147.8,
+   "started": "2026-09-17T22:52:18",
    "version": "1.0.0"
   },
   "run_09_scraping.py": {

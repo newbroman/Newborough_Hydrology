@@ -410,7 +410,7 @@ def build_text(feed: dict, floor_ha: float) -> tuple:
     s_ow, s_wf = float(ow["sigma_factor"]), float(wf["sigma_factor"])
     rng = feed["fitted_range_m"]
     caption = (
-        "Today's reserve — forest and all — under the\nweather of each past month. Not what actually\n"
+        "Today's reserve under the\nweather of each past month. Not what actually\n"
         "happened: a what-if. The model's water table is\ncorrected to match the wells over 2005–2026.\n\n"
         "Blue: open water.  Yellow: wet floor.\n10 m squares from satellite pictures, 2016–2026.\n"
         "Not a flood map: puddles and margins are too\nsmall to show.\n\n"

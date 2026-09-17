@@ -231,6 +231,46 @@
     font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;
   }
   .legend-row{display:flex;align-items:center;gap:.4rem;margin:.15rem 0}
+  /* ── wet-area panel and cell layer (D-178) ── */
+  .wa-table{width:100%;border-collapse:collapse;font-size:.78rem;margin:.3rem 0 .5rem}
+  .wa-table th{text-align:left;font-weight:600;border-bottom:1px solid var(--border);padding:.2rem .3rem;
+               color:var(--text-light);font-size:.72rem}
+  .wa-table td{padding:.18rem .3rem;border-bottom:1px solid rgba(0,0,0,.05)}
+  .wa-table .wa-num{text-align:right;font-variant-numeric:tabular-nums}
+  .wa-table tbody tr{cursor:pointer}
+  .wa-table tbody tr:hover{background:rgba(11,110,143,.07)}
+  .wa-table tbody tr.wa-sel{background:rgba(11,110,143,.14)}
+  .wa-band{display:block;font-size:.66rem;color:var(--text-light);font-variant-numeric:tabular-nums}
+  .wa-held{display:inline-block;margin-left:.3rem;padding:0 .25rem;border-radius:3px;font-size:.6rem;
+           background:#e8e2d0;color:#7a6a3a;border:1px solid #d9cfae;cursor:help}
+  .wa-note{font-size:.7rem;line-height:1.35;color:var(--text-light)}
+  .wa-stale{font-size:.7rem;line-height:1.4;background:#fdf0d5;border:1px solid #e0b877;
+            border-left:3px solid #c0504d;border-radius:2px;padding:.45rem .55rem;margin:.3rem 0 .5rem;color:#6b4a1f}
+  .wa-stale code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.66rem;background:rgba(0,0,0,.05);padding:0 .2rem;border-radius:2px}
+  .wa-prov{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.62rem;opacity:.75}
+  /* Sits under the rainfall slider on the right; the P_flood legend holds
+     the top-left corner and the zoom buttons the bottom-left. */
+  .wa-layer-ctl{position:absolute;top:10.75rem;right:.75rem;width:260px;box-sizing:border-box;
+                background:rgba(255,255,255,.92);border:1px solid var(--border);border-radius:2px;
+                padding:.6rem .85rem;font-size:.72rem;backdrop-filter:blur(3px);z-index:5}
+  .wa-toggle{display:flex;align-items:center;gap:.35rem;font-weight:600;cursor:pointer}
+  .wa-layer-ctl select{margin-top:.3rem;width:100%;font-size:.72rem}
+  .wa-layer-status{margin-top:.25rem;font-size:.66rem;color:var(--text-light);font-style:italic}
+  .wa-legend{margin-top:.35rem;border-top:1px solid var(--border);padding-top:.3rem}
+  .wa-legend-note{font-size:.62rem;line-height:1.3;color:var(--text-light);margin-top:.25rem}
+  .wa-modes{display:flex;gap:.6rem;margin:.35rem 0 .3rem;font-size:.7rem}
+  .wa-modes label{display:flex;align-items:center;gap:.2rem;cursor:pointer}
+  .wa-layer-ctl input[type=number]{width:5.5rem;font-size:.72rem}
+  .wa-units{font-size:.66rem;color:var(--text-light)}
+  .wa-obs{display:flex;align-items:center;gap:.25rem;margin-top:.25rem;font-size:.66rem;
+          color:var(--text-light);cursor:pointer}
+  #wa-hist-month,#wa-hist-mode{font-size:.72rem;margin-top:.2rem}
+  #wa-hist-month{width:100%}
+  .legend-dash{width:14px;height:0;border-top:2px dashed #0b6e8f;flex:none}
+  .wa-mode-note{margin-top:.3rem;font-size:.63rem;line-height:1.35;color:var(--text-light)}
+  .wa-note a{color:inherit}
+  .wa-readout{margin-top:.35rem;font-size:.66rem;line-height:1.35;font-variant-numeric:tabular-nums}
+  .wa-readout .wa-r-head{font-weight:600}
   .legend-dot{width:10px;height:10px;border-radius:50%;border:1px solid #2a3338}
   .rainfall-slider-wrap{
     position:absolute;top:.75rem;right:.75rem;
@@ -397,6 +437,47 @@
         <div class="legend-row"><div class="legend-dot" style="background:var(--red)"></div>Exceptional winter (1.3–2.0×)</div>
         <div class="legend-row"><div class="legend-dot" style="background:var(--grey)"></div>Structurally unreachable (&gt;2.0×)</div>
       </div>
+      <div class="wa-layer-ctl" id="wa-layer-ctl">
+        <label class="wa-toggle"><input type="checkbox" id="wa-layer-on"> Wet-area cells</label>
+        <div class="wa-layer-body" id="wa-layer-body" style="display:none">
+          <!-- Three ways to choose the level the cells are drawn at. The layer is a
+               function of the median level and NOTHING else, so "Level" is the honest
+               primitive and the other two are conveniences that compute one. -->
+          <div class="wa-modes" id="wa-modes">
+            <label><input type="radio" name="wa-mode" value="forecast" checked> Forecast</label>
+            <label id="wa-mode-history" style="display:none"><input type="radio" name="wa-mode" value="history"> History</label>
+            <label><input type="radio" name="wa-mode" value="level"> Level</label>
+          </div>
+          <div id="wa-forecast-wrap">
+            <select id="wa-month" title="Month ahead the cell layer draws"></select>
+          </div>
+          <div id="wa-history-wrap" style="display:none">
+            <select id="wa-hist-month" title="Month of the record"></select>
+            <select id="wa-hist-mode" title="SSM mode — R is the one the film animates"></select>
+            <label class="wa-obs"><input type="checkbox" id="wa-hist-obs">
+              use the observed level where recorded</label>
+            <div class="wa-mode-note" id="wa-mode-note"></div>
+          </div>
+          <div id="wa-level-wrap" style="display:none">
+            <input type="number" id="wa-level" step="0.01" min="-2.5" max="1" value="-0.08">
+            <span class="wa-units">m median well level (0 = ground)</span>
+          </div>
+          <div class="wa-readout" id="wa-readout"></div>
+          <div class="wa-layer-status" id="wa-layer-status" style="display:none"></div>
+          <div class="wa-legend" id="wa-legend">
+            <div class="legend-row"><div class="legend-dot" style="background:#0b6e8f"></div>Open water</div>
+            <div class="legend-row"><div class="legend-dot" style="background:#d4a017"></div>Wet floor</div>
+            <div class="legend-row"><div class="legend-dash"></div>Warren study area</div>
+            <div class="wa-legend-note"><strong>The Sentinel data covers the warren study area
+              only</strong> — the dashed boundary. The forest and the rest of the site are
+              excluded from it, so blank ground outside the boundary means <em>not measured</em>,
+              not dry. The hectares in the panel are hectares of warren.
+              <br>Cells switch at the level Sentinel-2 saw them switch in 2016–2026; an
+              illustration of the area model on the Sentinel grid, not a prediction of where
+              water will stand.</div>
+          </div>
+        </div>
+      </div>
       <div class="map-zoom">
         <button id="zoom-in"    title="Zoom in (or scroll on the map)" aria-label="Zoom in">+</button>
         <button id="zoom-out"   title="Zoom out" aria-label="Zoom out">−</button>
@@ -417,6 +498,14 @@
   <aside class="panel">
     <div class="panel-heading">Forecasts — selected well</div>
     <div id="forecast-panel"></div>
+
+    <div id="wet-area-block" style="display:none">
+      <div class="panel-heading" style="margin-top:1.5rem">Wet area — whole warren</div>
+      <div id="wet-area-panel"></div>
+      <!-- The panel's own computed numbers, for the offline check
+           (tools/verify_wet_area_panel.py). Also on window.WA_VERIFY. -->
+      <pre id="wa-verify" hidden></pre>
+    </div>
   </aside>
 </main>
 
@@ -734,6 +823,283 @@ const DATA = {
     "12": 19.126359586429942
   },
   "winter_climatology_mm": 515.87,
+  "drainage_datum": 3.7,
+  "wet_area": {
+    "schema": "nw-wet-area-1",
+    "decision": "D-178",
+    "source": "sentinel_wet_floor.py 1.9.0 --two-class",
+    "source_hash": "42ace095fa40a709",
+    "source_cells_hash": "3f3613ff1af1c410",
+    "generated": "2026-09-17T09:17:27+00:00",
+    "level_definition": "median of the monthly dipwell readings across the recorded network (01_wells_all + D-166 months), m, 0 at ground",
+    "area_definition": "hectares on the slack floors, scaled to the whole warren by the scene's clear fraction; NOT a flood map (D-177)",
+    "curve_form": "area_ha = a * exp(b * h); sigma is a log-space factor (x/div sigma_factor)",
+    "curves": {
+      "open_water": {
+        "a": 24.932771164189795,
+        "b": 4.432727242069894,
+        "sigma_log": 0.7356704093524397,
+        "sigma_factor": 2.086880587900481,
+        "rho": 0.804832929459964,
+        "n": 43
+      },
+      "wet_floor": {
+        "a": 56.0929203123104,
+        "b": 0.9541606495867276,
+        "sigma_log": 0.1369476294701692,
+        "sigma_factor": 1.1467680900952948,
+        "rho": 0.8498942917547568,
+        "n": 43
+      },
+      "dark_total": {
+        "a": 79.13324512271052,
+        "b": 1.4065234973631475,
+        "sigma_log": 0.1876104225686246,
+        "sigma_factor": 1.2063634518176145,
+        "rho": 0.846723044397463,
+        "n": 43
+      }
+    },
+    "fitted_range_m": {
+      "min": -0.796,
+      "max": 0.03
+    },
+    "classes": {
+      "open_water": "B8 <= 0.50 x the scene's clear-floor median",
+      "wet_floor": "0.50 < B8 <= 0.80 x median"
+    },
+    "grid": {
+      "left": 239770,
+      "bottom": 362090,
+      "right": 244360,
+      "top": 364940,
+      "res": 10,
+      "crs": "EPSG:27700",
+      "cols": 459,
+      "rows": 285
+    },
+    "colours": {
+      "open_water": "#0b6e8f",
+      "wet_floor": "#d4a017"
+    },
+    "caveat": "cells switch at the level Sentinel-2 saw them switch in 2016-2026; an illustration of the area model on the Sentinel grid, not a prediction of where water will stand (D-177)",
+    "cells_meta": {
+      "dtype": "int16",
+      "byte_order": "little",
+      "order": "row-major, row 0 = NORTH edge (top), column 0 = WEST edge (left)",
+      "units": "centimetres of median well level (0 = ground)",
+      "never": 32767,
+      "encoding": "base64 of an int16 array, one value per 10 m cell: the median well level at which the cell switches into the class; 32767 = never seen in the class, seen in fewer than 10 scenes, or not on the phase 29 floor. NOTE the asymmetry with `curves`: `cells.wet_floor` is the DARK-TOTAL switching level (B8 <= 0.80 x median, i.e. open water OR wet floor), exactly as sentinel_wet_floor._animate uses it \u2014 draw it as the yellow layer and overdraw open water in blue; the wet-floor-only cells are (wet_floor <= h) AND NOT (open_water <= h). `curves.wet_floor` is the RING alone (0.50-0.80).",
+      "n_open_water": 4483,
+      "n_wet_floor": 11703,
+      "n_floor": 30697
+    },
+    "cells_url": "../../living/wet_area_model.json",
+    "mask_outline": [
+      [
+        [
+          240957.1,
+          363125.8
+        ],
+        [
+          241633.4,
+          362522.0
+        ],
+        [
+          241928.5,
+          362274.3
+        ],
+        [
+          242225.2,
+          362091.5
+        ],
+        [
+          242481.7,
+          362294.5
+        ],
+        [
+          242495.4,
+          362331.3
+        ],
+        [
+          242545.4,
+          362337.7
+        ],
+        [
+          242673.3,
+          362391.8
+        ],
+        [
+          242769.9,
+          362423.9
+        ],
+        [
+          242887.3,
+          362520.6
+        ],
+        [
+          243012.2,
+          362605.3
+        ],
+        [
+          243180.2,
+          362731.1
+        ],
+        [
+          243363.3,
+          362841.2
+        ],
+        [
+          243550.9,
+          362981.9
+        ],
+        [
+          243614.7,
+          363072.0
+        ],
+        [
+          243689.9,
+          363173.5
+        ],
+        [
+          243734.0,
+          363248.9
+        ],
+        [
+          243739.5,
+          363313.8
+        ],
+        [
+          243764.9,
+          363404.9
+        ],
+        [
+          243795.0,
+          363511.2
+        ],
+        [
+          243766.2,
+          363603.8
+        ],
+        [
+          243687.5,
+          363701.5
+        ],
+        [
+          243600.4,
+          363757.2
+        ],
+        [
+          243548.9,
+          363846.5
+        ],
+        [
+          243542.2,
+          363884.9
+        ],
+        [
+          243595.3,
+          364006.0
+        ],
+        [
+          243565.2,
+          364037.3
+        ],
+        [
+          243493.0,
+          364069.6
+        ],
+        [
+          243403.9,
+          364181.8
+        ],
+        [
+          243332.1,
+          364138.5
+        ],
+        [
+          243279.4,
+          364044.7
+        ],
+        [
+          243228.3,
+          364211.2
+        ],
+        [
+          243158.8,
+          364379.7
+        ],
+        [
+          243124.0,
+          364459.2
+        ],
+        [
+          243053.1,
+          364435.9
+        ],
+        [
+          242941.9,
+          364408.6
+        ],
+        [
+          242884.5,
+          364525.2
+        ],
+        [
+          242861.7,
+          364615.9
+        ],
+        [
+          242714.6,
+          364554.5
+        ],
+        [
+          242682.4,
+          364675.4
+        ],
+        [
+          242654.9,
+          364781.2
+        ],
+        [
+          242637.4,
+          364881.8
+        ],
+        [
+          242487.7,
+          364715.3
+        ],
+        [
+          242346.3,
+          364683.8
+        ],
+        [
+          242233.1,
+          364571.5
+        ],
+        [
+          241984.3,
+          364457.5
+        ],
+        [
+          241811.6,
+          364376.7
+        ],
+        [
+          241378.6,
+          363702.1
+        ],
+        [
+          241238.8,
+          363525.5
+        ],
+        [
+          240957.1,
+          363125.8
+        ]
+      ]
+    ]
+  },
   "wells": [
     {
       "name": "ceh11",
@@ -4991,6 +5357,584 @@ function clusterToBlock(clusterKey){
   return null;
 }
 
+
+/* ═══════════════════════════════════════════════════════════════════
+   THE WET-AREA MODEL (D-178) — the monthly recurrence, the two curves
+   ═══════════════════════════════════════════════════════════════════
+   Everything between the two markers below is PURE: no DOM, no fetch, no
+   globals but what it defines. tools/verify_wet_area_panel.py extracts this
+   block VERBATIM from the rendered forecaster.html and runs it under node
+   against the same feed, so the offline check exercises the page's own code
+   rather than a second implementation of it. Do not put UI in here.
+
+   The recurrence is Section 3.6.3's, forward instead of solved for lambda:
+
+       h(t) = (1 - b3)*h(t-1) + b1*lambda*P_clim(t) - b2*PET_clim(t) - b3*D
+
+   which is exactly the relation utils/model_utils.pflood_lambda inverts
+   (alpha = 1 - b3; the b3*D terms sum to D*(1 - alpha^n)). The verifier
+   closes that loop: it iterates forward to h_n here, hands h_n back to
+   pflood_lambda as h_target, and requires the lambda that comes out to be
+   the lambda that went in.                                                  */
+/*__WA_CORE_START__*/
+var WA_MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+/* One month of the recurrence for one well. */
+function waStep(h, c, lam, month, P_clim, PET_clim, D){
+  var P = P_clim[month], E = PET_clim[month];
+  if(P === undefined || E === undefined) return NaN;
+  return (1 - c.b3) * h + c.b1 * lam * P - c.b2 * E - c.b3 * D;
+}
+
+/* Project every well forward `nMonths` from its own starting level.
+   starts: {wellName: h0 (m, negative below ground)}.
+   Returns [{ahead, month, year, label, levels:{name:h}, median}]. */
+function waProject(wells, clusterCoeffs, starts, lam, startMonth, startYear, nMonths,
+                   P_clim, PET_clim, D){
+  var h = {}, i, w, k;
+  for(i = 0; i < wells.length; i++){
+    w = wells[i];
+    if(starts[w.name] !== undefined && isFinite(starts[w.name])) h[w.name] = starts[w.name];
+  }
+  var out = [], m = startMonth, y = startYear;
+  for(k = 0; k < nMonths; k++){
+    m = m + 1; if(m > 12){ m = 1; y = y + 1; }
+    var levels = {}, vals = [];
+    for(i = 0; i < wells.length; i++){
+      w = wells[i];
+      if(h[w.name] === undefined) continue;
+      var c = clusterCoeffs[w.cluster];
+      if(!c) continue;
+      var hn = waStep(h[w.name], c, lam, m, P_clim, PET_clim, D);
+      if(!isFinite(hn)) continue;
+      h[w.name] = hn; levels[w.name] = hn; vals.push(hn);
+    }
+    out.push({ahead: k + 1, month: m, year: y,
+              label: WA_MONTH_NAMES[m - 1] + ' ' + y,
+              levels: levels, n: vals.length, median: waMedian(vals)});
+  }
+  return out;
+}
+
+function waMedian(a){
+  if(!a || !a.length) return NaN;
+  var s = a.slice().sort(function(x, y){ return x - y; }), n = s.length, i = n >> 1;
+  return (n % 2) ? s[i] : (s[i - 1] + s[i]) / 2;
+}
+
+/* The two curves at one level. Held at the fitted edge beyond the fitted
+   range -- NEVER extrapolated, which for the open-water curve (b ~ 4.4, so
+   0.1 m of level is ~55 % of area) is the whole point. */
+function waAreas(curves, range, h){
+  var hc = h, held = null;
+  if(h > range.max){ hc = range.max; held = 'above'; }
+  else if(h < range.min){ hc = range.min; held = 'below'; }
+  var out = {h: h, h_used: hc, held: held};
+  var keys = ['open_water', 'wet_floor'];
+  for(var i = 0; i < keys.length; i++){
+    var k = keys[i], c = curves[k];
+    if(!c){ continue; }
+    var A = c.a * Math.exp(c.b * hc), s = c.sigma_factor || 1;
+    out[k] = {ha: A, lo: A / s, hi: A * s};
+  }
+  return out;
+}
+
+/* base64 -> Int16Array (little-endian, row-major, row 0 = north). */
+function waDecodeCells(b64){
+  var bin = (typeof atob === 'function')
+    ? atob(b64)
+    : Buffer.from(b64, 'base64').toString('binary');
+  var n = bin.length, buf = new ArrayBuffer(n), u8 = new Uint8Array(buf), i;
+  for(i = 0; i < n; i++) u8[i] = bin.charCodeAt(i) & 0xff;
+  return new Int16Array(buf);
+}
+
+/* Cell counts at a level, with the film's layering: the dark-total array
+   (cells.wet_floor) is the yellow layer, open water overdraws it in blue, and
+   the wet-floor RING is the difference -- see the feed's cells.encoding note. */
+function waCellCounts(ow, wf, h, never){
+  var lv = Math.round(h * 100), nOW = 0, nDark = 0, i, v;
+  for(i = 0; i < ow.length; i++){
+    v = ow[i]; if(v !== never && v <= lv) nOW++;
+    v = wf[i]; if(v !== never && v <= lv) nDark++;
+  }
+  return {open_water: nOW, dark_total: nDark, wet_floor_ring: nDark - nOW};
+}
+/*__WA_CORE_END__*/
+
+/* ── Wet-area panel and cell layer: page-side wiring ──────────────────
+   The curves, the fitted range, the grid and the provenance are baked into
+   DATA.wet_area by Script 11b. The two ~250 kB cell arrays are NOT: they are
+   fetched from the living feed the first time the layer is switched on, and
+   the feed's source_hash is checked against the baked one so a feed that has
+   moved past the curves on the page is visible rather than silent.          */
+var WA = {
+  cells: null,        // {ow: Int16Array, wf: Int16Array, never, cols, rows}
+  state: 'idle',      // idle | loading | ready | error
+  err: '',
+  on: false,          // layer toggled on
+  ahead: 1,           // which month ahead the layer draws
+  months: [],         // the current projection
+  imgHref: null,      // cached data URL for the current (ahead, level)
+  imgKey: '',
+  stale: null,        // {fetched, baked} when the feed has moved past the baked curves
+  // How the layer's level is chosen. The layer is a function of the median level
+  // and nothing else, so 'level' is the primitive and the other two compute one.
+  layerMode: 'forecast',   // forecast | history | level
+  history: null,      // the feed's history block, when it carries one
+  histIdx: 0, histMode: null, histObs: false,
+  level: -0.08,       // the 'level' mode's own value, m
+  readKey: '', readHtml: ''
+};
+
+function waModel(){ return (typeof DATA !== 'undefined' && DATA.wet_area) ? DATA.wet_area : null; }
+
+/* Each well's starting level, in metres, negative below ground. Same
+   precedence as the well-details panel: this well's latest reading, then its
+   cluster's current mean, then the cluster's long-term climatology for the
+   reference month, then the cluster default. */
+function waStartLevels(){
+  var m = refMonthYear().month, starts = {}, i;
+  for(i = 0; i < DATA.wells.length; i++){
+    var w = DATA.wells[i], c = DATA.cluster_coeffs[w.cluster];
+    if(!c) continue;
+    var lw = liveWellLevel(w), lc = liveClusterLevel(w), d = null;
+    if(lw && lw.depth_below_ground !== undefined && lw.depth_below_ground !== null) d = lw.depth_below_ground;
+    else if(lc && lc.mean_depth_below_ground !== undefined && lc.mean_depth_below_ground !== null) d = lc.mean_depth_below_ground;
+    else if(c.monthly_clim && c.monthly_clim[m] !== undefined) d = c.monthly_clim[m];
+    else d = w.default_h_prev;
+    if(d === null || d === undefined || !isFinite(d)) continue;
+    starts[w.name] = -Math.abs(d);
+  }
+  return starts;
+}
+
+function waStartSource(){
+  if(LIVE_LEVELS && LIVE_LEVELS.wells && Object.keys(LIVE_LEVELS.wells).length)
+    return 'the ' + asOfLabel() + ' field round';
+  return 'the long-term monthly climatology (no live readings loaded)';
+}
+
+var WA_HORIZON = 12;
+// Relative, like the living feeds, so it resolves on Pages and under a local
+// server from outputs/11b_spatial_thresholds/. The PDF is tracked; the ODT is not.
+var WA_MANUAL_URL = "../../docs/web_tools/NRG_Web_Tools_User_Manual.pdf";
+
+/* What Mode R and Mode C ARE. Both run the same monthly recurrence over the same
+   climate record; they differ only in what they are started from and how often.
+   The prose is the phase 27 specification's; the fit figures come from the feed,
+   so a refit moves them and nothing here has to be retyped. */
+function waModeNote(mode){
+  var H = WA.history, txt;
+  if(mode === 'C'){
+    txt = '<strong>Continuous</strong> \u2014 started once, in October 2005, from the ' +
+          'wells\u2019 mean summer minimum, and never re-seeded since. It is what the model ' +
+          'produces from the climate record alone, with no help from the readings.';
+  }else{
+    txt = '<strong>Restarted</strong> \u2014 each hydrological year begins in October from ' +
+          'that year\u2019s <em>observed</em> August\u2013September minimum at the wells, and ' +
+          'runs to the following September. Re-seeded annually, so it follows the record ' +
+          'closely; it is the mode the film animates.';
+  }
+  var f = (H && H.fit && H.fit.modes) ? H.fit.modes[mode] : null;
+  if(f){
+    txt += ' Against the wells: RMSE <strong>' + f.rmse_m.toFixed(3) + ' m</strong>, ' +
+           '\u03c1 ' + (f.rho >= 0 ? '+' : '') + f.rho.toFixed(3) + ' over ' +
+           f.n.toLocaleString() + ' well-months.';
+  }
+  return txt;
+}
+
+function waComputeMonths(){
+  var M = waModel();
+  if(!M) return [];
+  var r = refMonthYear();
+  return waProject(DATA.wells, DATA.cluster_coeffs, waStartLevels(), GLOBAL_LAMBDA_MULT,
+                   r.month, r.year, WA_HORIZON, DATA.P_clim, DATA.PET_clim,
+                   DATA.drainage_datum);
+}
+
+function waFmt(x){ return (x >= 100) ? x.toFixed(0) : (x >= 10 ? x.toFixed(1) : x.toFixed(2)); }
+
+function renderWetArea(){
+  var host = document.getElementById('wet-area-panel');
+  if(!host) return;
+  var M = waModel();
+  if(!M){
+    host.innerHTML = '';
+    var wrap = document.getElementById('wet-area-block');
+    if(wrap) wrap.style.display = 'none';
+    var ctl = document.getElementById('wa-layer-ctl');
+    if(ctl) ctl.style.display = 'none';
+    if(!WA._warned){
+      WA._warned = true;
+      console.warn('[wet area] DATA.wet_area is absent: living/wet_area_model.json was ' +
+                   'missing or unreadable when Script 11b built this page. Panel and cell ' +
+                   'layer omitted. Regenerate with: ' +
+                   'python3 tools/sentinel_wet_floor.py --emit-feed && python3 src/11b_spatial_thresholds.py');
+    }
+    return;
+  }
+  WA.months = waComputeMonths();
+  var rng = M.fitted_range_m, ow = M.curves.open_water, wf = M.curves.wet_floor;
+  // The class rules are the feed's own words, so a change to NIR_BLACK_RATIO or
+  // NIR_DARK_RATIO reaches the page instead of leaving a stale sentence behind.
+  var cls = M.classes || {open_water: 'the darkest floor class',
+                          wet_floor: 'the intermediate floor class'};
+  var rows = '', anyHeld = false, verify = [];
+  for(var i = 0; i < WA.months.length; i++){
+    var mo = WA.months[i], A = waAreas(M.curves, rng, mo.median);
+    if(A.held) anyHeld = true;
+    var tag = A.held
+      ? '<span class="wa-held" title="the projected level is outside the range the curves were ' +
+        'fitted over (' + rng.min.toFixed(2) + ' to ' + rng.max.toFixed(2) + ' m); the areas are ' +
+        'held at the edge and not extrapolated">held</span>'
+      : '';
+    rows += '<tr' + (WA.on && WA.layerMode === 'forecast' && WA.ahead === mo.ahead
+                     ? ' class="wa-sel"' : '') +
+            ' data-ahead="' + mo.ahead + '">' +
+            '<td>' + mo.label + '</td>' +
+            '<td class="wa-num">' + mo.median.toFixed(2) + tag + '</td>' +
+            '<td class="wa-num"><strong>' + waFmt(A.open_water.ha) + '</strong>' +
+              '<span class="wa-band">' + waFmt(A.open_water.lo) + '–' + waFmt(A.open_water.hi) + '</span></td>' +
+            '<td class="wa-num"><strong>' + waFmt(A.wet_floor.ha) + '</strong>' +
+              '<span class="wa-band">' + waFmt(A.wet_floor.lo) + '–' + waFmt(A.wet_floor.hi) + '</span></td>' +
+            '</tr>';
+    verify.push({ahead: mo.ahead, label: mo.label, n_wells: mo.n,
+                 median_h: mo.median, h_used: A.h_used, held: A.held,
+                 open_water_ha: A.open_water.ha, open_water_lo: A.open_water.lo,
+                 open_water_hi: A.open_water.hi,
+                 wet_floor_ha: A.wet_floor.ha, wet_floor_lo: A.wet_floor.lo,
+                 wet_floor_hi: A.wet_floor.hi});
+  }
+  var staleHtml = '';
+  if(WA.stale){
+    staleHtml =
+      '<div class="wa-stale"><strong>These figures and the cell layer are from different fits.</strong> ' +
+      'The page was built against model <code>' + WA.stale.baked + '</code>; the feed it just ' +
+      'fetched is <code>' + WA.stale.fetched + '</code>' +
+      (WA.stale.generated ? ' (' + WA.stale.generated + ')' : '') + '. The hectares below are ' +
+      'the page\u2019s baked curves; the coloured cells are the newer model. Re-run Script 11b ' +
+      'to put them back in step.</div>';
+  }
+  host.innerHTML = staleHtml +
+    '<table class="wa-table"><thead><tr><th>Month</th><th class="wa-num">Median level (m)</th>' +
+    '<th class="wa-num">Open water (ha)</th><th class="wa-num">Wet floor (ha)</th></tr></thead>' +
+    '<tbody>' + rows + '</tbody></table>' +
+    '<div class="wa-note">' +
+      '<strong>Open water</strong>: ' + cls.open_water + '. ' +
+      '<strong>Wet floor</strong>: ' + cls.wet_floor + '. Whole-warren totals on the slack ' +
+      'floors — <em>not a flood map</em>. ' +
+      'Each area is <em>a</em>·exp(<em>b</em>·<em>h</em>) ha on the median well level ' +
+      '<em>h</em>, fitted over ' + rng.min.toFixed(2) + ' to ' + rng.max.toFixed(2) + ' m on ' +
+      ow.n + ' winter scenes 2016–2026 (D-178); the second figure is the ±1σ band ' +
+      '(×/÷ ' + ow.sigma_factor.toFixed(2) + ' open water, ×/÷ ' +
+      wf.sigma_factor.toFixed(2) + ' wet floor).' +
+      (anyHeld ? ' Rows tagged <span class="wa-held">held</span> are beyond the fitted range and ' +
+                 'are held at its edge.' : '') +
+      '<br>The level is the <strong>median over all ' + DATA.wells.length + ' wells the page ' +
+      'iterates</strong>, not a cluster or a subset, because the curves were fitted on the ' +
+      'recorded network’s monthly median (' + M.level_definition + '). Started from ' +
+      waStartSource() + ' and carried forward with h(t) = (1−β₃)h(t−1) + ' +
+      'β₁λ·P − β₂·PET − β₃D at λ = ' +
+      GLOBAL_LAMBDA_MULT.toFixed(2) + '×.' +
+      '<br><br><strong>How the two areas are made.</strong> The two classes are counted on ' +
+      'the Sentinel-2 near-infrared band, on the slack floors, in every usable winter scene ' +
+      '2016\u20132026. <strong>The measurement covers the warren study area only</strong> \u2014 ' +
+      'the forest and the rest of the site are excluded from it (D-159), so every hectare ' +
+      'quoted here is a hectare of warren and the map shows nothing outside the dashed ' +
+      'boundary because nothing was measured there. Each class is scaled to the whole warren ' +
+      'by that scene\u2019s clear fraction, then fitted as ' +
+      '<em>a</em>\u00b7exp(<em>b</em>\u00b7<em>h</em>) against the median well level at the ' +
+      'scene date \u2014 there is no human classification anywhere in the fit. The panel runs ' +
+      'those two equations on the projected level.' +
+      '<br><strong>The map layer is a different object.</strong> Each 10 m floor cell carries ' +
+      'the level at which Sentinel-2 was seen to enter each class, and the layer lights the ' +
+      'cells the projected level has reached: where the classes have appeared at that level ' +
+      'before, not where water will stand. Its hectares differ from the curves\u2019 because ' +
+      'the cells are floor-only and unscaled while the curves are whole-warren totals. ' +
+      'Neither is a flood map, and neither says how deep the water is.' +
+      '<br><a href="' + WA_MANUAL_URL + '" target="_blank" rel="noopener">Web Tools User ' +
+      'Manual \u2014 the wet-area section</a> has the method in full, including what the two ' +
+      'hand-vetted extents do and do not contribute.' +
+      '<br><span class="wa-prov">' + M.source + ' · model ' + M.source_hash +
+      ' · ' + (M.generated || '') + '</span>' +
+    '</div>';
+  var blk = document.getElementById('wet-area-block');
+  if(blk) blk.style.display = '';
+  var pre = document.getElementById('wa-verify');
+  if(pre) pre.textContent = JSON.stringify(
+    {lambda: GLOBAL_LAMBDA_MULT, ref: refMonthYear(), horizon: WA_HORIZON,
+     source_hash: M.source_hash, n_wells_iterated: DATA.wells.length, months: verify}, null, 1);
+  if(typeof window !== 'undefined') window.WA_VERIFY = verify;
+  host.querySelectorAll('tr[data-ahead]').forEach(function(tr){
+    tr.addEventListener('click', function(){
+      WA.ahead = parseInt(tr.dataset.ahead, 10);
+      var sel = document.getElementById('wa-month');
+      if(sel) sel.value = String(WA.ahead);
+      // Clicking a row means "show me this month", so it takes the layer back
+      // out of history or level mode rather than doing nothing visible.
+      var r = document.querySelector('input[name="wa-mode"][value="forecast"]');
+      if(r && WA.layerMode !== 'forecast'){ r.checked = true; waSetLayerMode('forecast'); return; }
+      if(WA.on){ WA.imgKey = ''; WA.readKey = ''; renderMap(); }
+      renderWetArea();
+    });
+  });
+  waSyncMonthSelect();
+  waUpdateReadout();
+}
+
+function waSyncMonthSelect(){
+  var sel = document.getElementById('wa-month');
+  if(!sel) return;
+  var want = WA.months.map(function(m){ return m.ahead + '|' + m.label; }).join(',');
+  if(sel.dataset.built !== want){
+    sel.innerHTML = WA.months.map(function(m){
+      return '<option value="' + m.ahead + '">' + m.label + '</option>';
+    }).join('');
+    sel.dataset.built = want;
+  }
+  sel.value = String(WA.ahead);
+}
+
+/* ── the cell layer ─────────────────────────────────────────────────── */
+async function waLoadCells(){
+  var M = waModel();
+  if(!M || WA.state === 'loading' || WA.state === 'ready') return;
+  WA.state = 'loading'; waSetLayerStatus('loading the cell grid…');
+  try{
+    var r = await fetch(M.cells_url, {cache: 'no-store'});
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    var feed = await r.json();
+    if(feed.schema !== M.schema) throw new Error('feed schema ' + feed.schema);
+    if(feed.source_hash !== M.source_hash){
+      // A console line is not enough at a monthly cadence: nobody has devtools open.
+      // Raise it into the panel itself as well.
+      WA.stale = {fetched: feed.source_hash, baked: M.source_hash,
+                  generated: feed.generated || '', source: feed.source || ''};
+      console.warn('[wet area] the fetched feed (' + feed.source_hash + ') is not the model ' +
+                   'baked into this page (' + M.source_hash + '): the cell layer and the panel ' +
+                   'are from different fits. Re-run Script 11b.');
+      waSetLayerStatus('feed moved since this page was built — see the panel');
+    } else {
+      WA.stale = null;
+    }
+    var g = feed.grid, c = feed.cells;
+    WA.cells = {ow: waDecodeCells(c.open_water), wf: waDecodeCells(c.wet_floor),
+                never: (c.never === undefined ? 32767 : c.never),
+                cols: g.cols, rows: g.rows, grid: g};
+    if(WA.cells.ow.length !== g.cols * g.rows) throw new Error('cell array is not cols x rows');
+    WA.history = feed.history || null;
+    waBuildHistory();
+    WA.state = 'ready'; WA.imgKey = ''; WA.readKey = '';
+    waSetLayerStatus('');
+    renderMap(); renderWetArea();
+  }catch(ex){
+    WA.state = 'error'; WA.err = String(ex && ex.message ? ex.message : ex);
+    console.warn('[wet area] cell grid unavailable: ' + WA.err + ' (fetched ' + M.cells_url +
+                 '). The page only resolves ../../living/* when served from ' +
+                 'outputs/11b_spatial_thresholds/.');
+    waSetLayerStatus('cell grid unavailable — ' + WA.err);
+  }
+}
+
+function waSetLayerStatus(t){
+  var el = document.getElementById('wa-layer-status');
+  if(el){ el.textContent = t || ''; el.style.display = t ? '' : 'none'; }
+}
+
+/* WHICH LEVEL THE LAYER DRAWS. Returns {h, label, note} or null. `h` is the raw
+   level; the caller clips it to the fitted range, because the layer freezes at
+   the edge exactly as the films do. */
+function waLayerLevel(){
+  var i;
+  if(WA.layerMode === 'level'){
+    if(!isFinite(WA.level)) return null;
+    return {h: WA.level, label: 'h = ' + WA.level.toFixed(2) + ' m', note: 'level entered by hand'};
+  }
+  if(WA.layerMode === 'history'){
+    var H = WA.history;
+    if(!H || !H.months.length) return null;
+    i = Math.max(0, Math.min(H.months.length - 1, WA.histIdx));
+    var mode = WA.histMode || H.default_mode;
+    var h = null, note;
+    if(WA.histObs && H.level_observed_m && H.level_observed_m[i] !== null &&
+       H.level_observed_m[i] !== undefined){
+      h = H.level_observed_m[i];
+      note = 'observed median' + (H.n_wells_observed && H.n_wells_observed[i]
+        ? ' of ' + H.n_wells_observed[i] + ' wells' : '');
+    }else{
+      h = (H.level_m[mode] || [])[i];
+      note = 'SSM mode ' + mode + (WA.histObs ? ' — no observed level that month' : '');
+    }
+    if(h === null || h === undefined || !isFinite(h)) return null;
+    return {h: h, label: H.months[i], note: note};
+  }
+  if(!WA.months.length) return null;
+  for(i = 0; i < WA.months.length; i++){
+    if(WA.months[i].ahead === WA.ahead && isFinite(WA.months[i].median)){
+      return {h: WA.months[i].median, label: WA.months[i].label,
+              note: 'projected, \u03bb = ' + GLOBAL_LAMBDA_MULT.toFixed(2) + '\u00d7'};
+    }
+  }
+  return null;
+}
+
+/* The numbers beside the picture: the curves' hectares at this level, and the
+   cells' own count. They are not the same quantity and the readout says so --
+   the curves are whole-warren, the cells are the floor only and unscaled, which
+   is why they differ by a few hectares rather than not at all. */
+function waUpdateReadout(){
+  var el = document.getElementById('wa-readout');
+  if(!el) return;
+  var M = waModel(), L = waLayerLevel();
+  if(!M || !L){ el.innerHTML = ''; return; }
+  var rng = M.fitted_range_m, A = waAreas(M.curves, rng, L.h);
+  var hc = A.h_used;
+  var key = WA.layerMode + ':' + hc.toFixed(4) + ':' + (WA.state === 'ready' ? '1' : '0');
+  if(WA.readKey === key){ el.innerHTML = WA.readHtml; return; }
+  var cellTxt = '';
+  if(WA.state === 'ready' && WA.cells){
+    var c = waCellCounts(WA.cells.ow, WA.cells.wf, hc, WA.cells.never);
+    cellTxt = '<br>cells ' + (c.open_water * 0.01).toFixed(1) + ' / ' +
+              (c.wet_floor_ring * 0.01).toFixed(1) + ' ha <span class="wa-units">' +
+              '(floor only, unscaled)</span>';
+  }
+  WA.readKey = key;
+  WA.readHtml =
+    '<span class="wa-r-head">' + L.label + '</span> \u00b7 h = ' + L.h.toFixed(3) + ' m' +
+    (A.held ? ' <span class="wa-held">held ' + A.held + '</span>' : '') +
+    '<br><span class="wa-units">' + L.note + '</span>' +
+    '<br>curves ' + A.open_water.ha.toFixed(1) + ' / ' + A.wet_floor.ha.toFixed(1) +
+    ' ha <span class="wa-units">(whole warren)</span>' + cellTxt;
+  el.innerHTML = WA.readHtml;
+}
+
+/* The cell image for the selected month, as a data URL. Built on an offscreen
+   canvas at the grid's own 459 x 285 and stretched to the map frame, so the
+   cost is one putImageData per (month, level) rather than 130,000 SVG rects. */
+function waCellImage(){
+  if(!WA.cells) return null;
+  var M = waModel(), rng = M.fitted_range_m, i;
+  var L = waLayerLevel();
+  if(!L) return null;
+  var h = Math.min(rng.max, Math.max(rng.min, L.h));   // the layer freezes at the edge
+  var key = h.toFixed(4);
+  if(WA.imgKey === key && WA.imgHref) return WA.imgHref;
+  var lv = Math.round(h * 100), cols = WA.cells.cols, rows = WA.cells.rows;
+  var cv = document.createElement('canvas');
+  cv.width = cols; cv.height = rows;
+  var ctx = cv.getContext('2d'), img = ctx.createImageData(cols, rows), d = img.data;
+  var ow = WA.cells.ow, wf = WA.cells.wf, nev = WA.cells.never;
+  for(i = 0; i < ow.length; i++){
+    var j = i * 4, v = wf[i];
+    if(v !== nev && v <= lv){ d[j] = 0xd4; d[j+1] = 0xa0; d[j+2] = 0x17; d[j+3] = 200; }
+    v = ow[i];
+    if(v !== nev && v <= lv){ d[j] = 0x0b; d[j+1] = 0x6e; d[j+2] = 0x8f; d[j+3] = 225; }
+  }
+  ctx.putImageData(img, 0, 0);
+  WA.imgKey = key; WA.imgHref = cv.toDataURL('image/png');
+  return WA.imgHref;
+}
+
+/* The SVG fragment for the layer, in the map's own projected frame — the cells,
+   and the boundary of the ground they cover.
+
+   The boundary is not decoration. The cell image is a rectangular grid window
+   with a margin around the warren, so an absent cell looks exactly like a dry
+   one; over the forest, which D-159 excludes from the study area entirely, every
+   cell is absent. Without the outline the map invites the reading "the forest is
+   dry" when what it actually says is "the forest was never measured". */
+function waLayerSvg(bounds){
+  if(!WA.on || WA.state !== 'ready') return '';
+  var href = waCellImage();
+  if(!href) return '';
+  var g = WA.cells.grid, out = '';
+  var tl = project(g.left, g.top, bounds), br = project(g.right, g.bottom, bounds);
+  out += '<image x="' + tl.x.toFixed(2) + '" y="' + tl.y.toFixed(2) + '" width="' +
+         (br.x - tl.x).toFixed(2) + '" height="' + (br.y - tl.y).toFixed(2) + '" href="' + href +
+         '" preserveAspectRatio="none" clip-path="url(#map-clip)" ' +
+         'style="image-rendering:pixelated" opacity="0.9"/>';
+  var M = waModel(), rings = M ? M.mask_outline : null;
+  if(rings && rings.length){
+    out += '<g clip-path="url(#map-clip)">';
+    for(var r = 0; r < rings.length; r++){
+      var pts = rings[r].map(function(c){
+        var q = project(c[0], c[1], bounds);
+        return q.x.toFixed(1) + ',' + q.y.toFixed(1);
+      }).join(' ');
+      out += '<polyline class="kml-line" data-sw="2.2" points="' + pts + '" fill="none" ' +
+             'stroke="#0b6e8f" stroke-width="2.2" stroke-dasharray="7,4" opacity="0.85"/>';
+    }
+    out += '</g>';
+  }
+  return out;
+}
+
+function waToggleLayer(on){
+  var M = waModel();
+  if(!M) return;
+  WA.on = on;
+  var body = document.getElementById('wa-layer-body');
+  if(body) body.style.display = on ? '' : 'none';
+  if(on && WA.state === 'idle'){ waLoadCells(); return; }
+  if(on && WA.state === 'error'){ WA.state = 'idle'; waLoadCells(); return; }
+  waSetLayerMode(WA.layerMode);
+}
+
+/* Show the controls the chosen mode needs and redraw. */
+function waSetLayerMode(mode){
+  WA.layerMode = mode;
+  var show = function(id, on){
+    var el = document.getElementById(id);
+    if(el) el.style.display = on ? '' : 'none';
+  };
+  show('wa-forecast-wrap', mode === 'forecast');
+  show('wa-history-wrap', mode === 'history');
+  show('wa-level-wrap', mode === 'level');
+  WA.imgKey = ''; WA.readKey = '';
+  renderMap(); renderWetArea();
+}
+
+/* The history control exists only when the feed carries a history block --
+   phase 4 of --two-class may not have run, and that is not a fault. */
+function waBuildHistory(){
+  var H = WA.history, wrapLabel = document.getElementById('wa-mode-history');
+  if(!H || !H.months || !H.months.length){
+    if(wrapLabel) wrapLabel.style.display = 'none';
+    return;
+  }
+  if(wrapLabel) wrapLabel.style.display = '';
+  var msel = document.getElementById('wa-hist-month');
+  var dsel = document.getElementById('wa-hist-mode');
+  if(msel && msel.dataset.built !== String(H.months.length)){
+    msel.innerHTML = H.months.map(function(m, i){
+      return '<option value="' + i + '">' + m + '</option>';
+    }).join('');
+    msel.dataset.built = String(H.months.length);
+    // Open on the last month of the record rather than 2005.
+    WA.histIdx = H.months.length - 1;
+    msel.value = String(WA.histIdx);
+  }
+  var modes = Object.keys(H.level_m || {}).sort();
+  if(dsel && dsel.dataset.built !== modes.join(',')){
+    dsel.innerHTML = modes.map(function(m){
+      return '<option value="' + m + '">mode ' + m + (m === H.default_mode ? ' (the film)' : '') + '</option>';
+    }).join('');
+    dsel.dataset.built = modes.join(',');
+    WA.histMode = H.default_mode || modes[0];
+    dsel.value = WA.histMode;
+  }
+  waRenderModeNote();
+}
+
+function waRenderModeNote(){
+  var el = document.getElementById('wa-mode-note');
+  if(!el) return;
+  el.innerHTML = (WA.history && WA.histMode) ? waModeNote(WA.histMode) : '';
+}
+
 /* ═══════════════════════════════════════════════════════════════════
    LIVE MET OFFICE DATA
    Fetch valleydata.txt, parse monthly rainfall, compute live λ for
@@ -5058,6 +6002,11 @@ async function loadLevels(){
   }
   // Refresh the selected well so its default + meta reflect the feeds.
   if(SELECTED) selectWell(SELECTED);
+  // The wet-area projection starts from those readings, so it has to be
+  // recomputed once they land (init() renders it from climatology first).
+  WA.imgKey = '';
+  renderWetArea();
+  if(WA.on) renderMap();
   return true;
 }
 
@@ -5327,6 +6276,9 @@ function renderMap(){
       href="data:image/png;base64,${bl.hillshade_png}"
       preserveAspectRatio="none" opacity="0.85" clip-path="url(#map-clip)"/>`;
   }
+
+  // ── Layer 1b: the wet-area cells (D-178), under the KML lines and dots ──
+  html += waLayerSvg(bounds);
 
   // ── Layer 2: KML feature polylines (clipped to plot area) ──────────
   if(bl.features && bl.features.length){
@@ -5998,6 +6950,8 @@ function init(){
       const w = DATA.wells.find(x=>x.name===SELECTED);
       if(w) renderForecasts(w);
     }
+    WA.imgKey = '';          // lambda moves every projected level
+    renderWetArea();
     renderMap();
   });
 
@@ -6123,6 +7077,44 @@ function init(){
   }
 
   updateSliderLabel();
+
+  // ── wet-area panel and cell layer (D-178) ──
+  const waOn = document.getElementById('wa-layer-on');
+  if(waOn) waOn.addEventListener('change', e => waToggleLayer(e.target.checked));
+  const waMonth = document.getElementById('wa-month');
+  if(waMonth) waMonth.addEventListener('change', e => {
+    WA.ahead = parseInt(e.target.value, 10);
+    WA.imgKey = ''; WA.readKey = '';
+    renderMap(); renderWetArea();
+  });
+  document.querySelectorAll('input[name="wa-mode"]').forEach(r => {
+    r.addEventListener('change', e => { if(e.target.checked) waSetLayerMode(e.target.value); });
+  });
+  const waHistMonth = document.getElementById('wa-hist-month');
+  if(waHistMonth) waHistMonth.addEventListener('change', e => {
+    WA.histIdx = parseInt(e.target.value, 10);
+    WA.imgKey = ''; WA.readKey = ''; renderMap(); renderWetArea();
+  });
+  const waHistMode = document.getElementById('wa-hist-mode');
+  if(waHistMode) waHistMode.addEventListener('change', e => {
+    WA.histMode = e.target.value;
+    waRenderModeNote();
+    WA.imgKey = ''; WA.readKey = ''; renderMap(); renderWetArea();
+  });
+  const waHistObs = document.getElementById('wa-hist-obs');
+  if(waHistObs) waHistObs.addEventListener('change', e => {
+    WA.histObs = e.target.checked;
+    WA.imgKey = ''; WA.readKey = ''; renderMap(); renderWetArea();
+  });
+  const waLevel = document.getElementById('wa-level');
+  if(waLevel) waLevel.addEventListener('input', e => {
+    const v = parseFloat(e.target.value);
+    if(!isFinite(v)) return;
+    WA.level = v;
+    WA.imgKey = ''; WA.readKey = ''; renderMap(); renderWetArea();
+  });
+  renderWetArea();
+
   loadLiveData();   // kick off Met Office fetch asynchronously
   loadLevels();     // kick off living-feed fetch (current levels + MSL5)
 }

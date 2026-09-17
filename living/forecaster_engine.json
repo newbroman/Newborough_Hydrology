@@ -1,7 +1,7 @@
 {
- "generated": "2026-09-16T04:17:13Z",
- "last_changed": "2026-09-16T04:17:13Z",
- "hash": "8b41ba6714f7101b",
+ "generated": "2026-09-17T08:25:33Z",
+ "last_changed": "2026-09-17T08:25:33Z",
+ "hash": "3ceb58b5432c616c",
  "schema": "nw-engine-1",
  "source": "11b_spatial_thresholds DATA (base_layer excluded)",
  "cluster_coeffs": {
@@ -2468,5 +2468,6 @@
    "trough_month": 9,
    "peak_month": 2
   }
- ]
+ ],
+ "drainage_datum": 3.7
 }

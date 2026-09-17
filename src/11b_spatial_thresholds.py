@@ -74,7 +74,24 @@ Dependencies
     Skeletonisation: not required (map_utils handles DEM/IDW)
 """
 
-__version__ = "1.9.1"  # Hollingham (2026) - 2026-09-11. SCRAPED reads
+__version__ = "1.11.0"  # Hollingham (2026) - 2026-09-17. The wet_area
+#   block gains `mask_outline` - data/geo/warren.kml as OSGB rings - so the page can
+#   draw the boundary of the ground the Sentinel cells cover whenever the layer is
+#   on. Martin: nothing on the page said the wet-cell data is the WARREN only, and
+#   blank ground over the forest reads as dry rather than as unsurveyed - the wrong
+#   reading of an area D-159 excludes. Drawn only with the layer, so the P_flood map
+#   is unchanged.
+# v1.10.0  Hollingham (2026) - 2026-09-16. T-37: the
+#   forecaster gains a WET-AREA PANEL and a CELL LAYER (D-178). The bundle gains
+#   `wet_area` - the two curves, the fitted range, the grid and the provenance read
+#   from living/wet_area_model.json (absent is allowed: the panel hides itself and
+#   says why in the console). The ~500 kB of base64 cell arrays are NOT baked in;
+#   the page fetches them from ../../living/wet_area_model.json when the layer is
+#   first switched on, and checks the fetched source_hash against the baked one.
+#   The bundle also gains `drainage_datum` (config.DRAINAGE_DATUM), which the
+#   page's new monthly recurrence needs; it joins ENGINE_KEYS (D-096 Revisit-if),
+#   so living/forecaster_engine.json moves once on the next run.
+# v1.9.1  # Hollingham (2026) - 2026-09-11. SCRAPED reads
 #   config.SCRAPE_DEM_CORRECTION_M instead of defining the values locally; the
 #   dict shape and every downstream use are unchanged. No numeric change.
 # v1.9.0  # Hollingham (2026) — 2026-09-05. Emits
@@ -142,11 +159,12 @@ from utils.paths import (
     OUT_11B_PFLOOD_MAP, OUT_11B_PFLOOD_PER_WELL, OUT_11B_FLOOD_FREQ,
     OUT_11B_PFLOOD_CLUSTER_SUMMARY,
     OUT_11B_TABLE10, OUT_11B_FORECASTER_HTML, SRC_FORECASTER_TEMPLATE,
+    LIVING_WET_AREA_MODEL,
 )
 from utils.map_utils import load_dem_hillshade, add_idw_surface, add_kml_features, _safe_read_kml
 from utils.config import (
     CLUSTER_LABELS, CLUSTER_COLOURS, SD15b, SD15b_REC, SD16, SD16_REC,
-    SCRAPE_DEM_CORRECTION_M,
+    SCRAPE_DEM_CORRECTION_M, DRAINAGE_DATUM,
     SITE_MAP_EAST_MIN, SITE_MAP_EAST_MAX,
     SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX,
 )
@@ -1542,6 +1560,104 @@ def _raf_valley_winter_mean(fallback: float = 521.0) -> float:
     return float(mean_mm)
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# THE WET-AREA MODEL FEED (D-178, T-36/T-37)
+# ─────────────────────────────────────────────────────────────────────────────
+WET_AREA_SCHEMA = "nw-wet-area-1"
+WET_AREA_URL = "../../living/wet_area_model.json"   # relative to outputs/11b_spatial_thresholds/
+
+
+def _warren_outline() -> list | None:
+    """data/geo/warren.kml as OSGB rings, for the forecaster to draw around the
+    ground the Sentinel cells cover.
+
+    Why it is worth the bytes. The cell layer is drawn inside a rectangular grid
+    window with a margin, so a cell that is absent looks exactly like a cell that
+    is dry. It is neither: outside `warren.kml` nothing was measured at all —
+    D-159 excludes the forest and leaves the warren as the study area — and the
+    hectares the panel quotes are hectares of warren, not of the site. Without the
+    boundary on screen the honest reading is not available to the reader.
+
+    Read here rather than carried in living/wet_area_model.json because the feed
+    is written by a tool that must run on a host with no geopandas; 11b already
+    reads this KML's neighbours for the base layer.
+    """
+    kml_path = data_geo("warren.kml")
+    if not kml_path.exists():
+        note("No data/geo/warren.kml; the forecaster's cell layer will carry no boundary")
+        return None
+    try:
+        gdf = _safe_read_kml(kml_path)
+        if gdf is None or gdf.empty:
+            return None
+        gdf.set_crs(epsg=4326, inplace=True, allow_override=True)
+        gdf = gdf.to_crs("EPSG:27700")
+        rings = []
+        for geom in gdf.geometry:
+            if geom is None:
+                continue
+            for coords in _extract_coords(geom):
+                rings.append([[round(c[0], 1), round(c[1], 1)] for c in coords])
+        return rings or None
+    except Exception as exc:                                  # noqa: BLE001
+        warn(f"warren.kml unreadable ({type(exc).__name__}); cell layer drawn without a boundary")
+        return None
+
+
+def _load_wet_area_model() -> dict | None:
+    """The wet-area model's PARAMETERS for the forecaster bundle, or None.
+
+    What is baked in and what is not. The curves, the fitted range, the grid and
+    the provenance are ~1 kB and are baked into forecaster.html, so the panel's
+    numbers are reproducible from the rendered page alone and do not depend on a
+    fetch. The two per-cell arrays are ~250 kB of base64 each; baking them would
+    add half a megabyte to a page that already carries a 2 MB hillshade, and
+    would freeze the cell layer at pipeline-run time. They stay in the living
+    feed and the page fetches them lazily when the layer is first switched on
+    (D-063: living/ is a separate lane; D-096: the feed is read live, not baked).
+
+    The baked `source_hash` is what lets the page notice that the feed it fetched
+    is no longer the model whose curves it is drawing.
+
+    Absent, unreadable or wrong-schema all return None, and the page then hides
+    the panel and logs the reason — the feed is written by a private-store tool
+    (tools/sentinel_wet_floor.py --emit-feed) that is not part of run_analysis.py,
+    so a clone that has never run it is a normal state, not a fault.
+    """
+    if not LIVING_WET_AREA_MODEL.exists():
+        note(f"No {LIVING_WET_AREA_MODEL.name} in living/; forecaster wet-area panel omitted "
+             f"(run: python3 tools/sentinel_wet_floor.py --emit-feed)")
+        return None
+    try:
+        feed = json.loads(LIVING_WET_AREA_MODEL.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as ex:
+        warn(f"{LIVING_WET_AREA_MODEL.name} unreadable ({type(ex).__name__}); panel omitted")
+        return None
+    if feed.get("schema") != WET_AREA_SCHEMA:
+        warn(f"{LIVING_WET_AREA_MODEL.name} schema {feed.get('schema')!r} is not "
+             f"{WET_AREA_SCHEMA!r}; panel omitted")
+        return None
+    curves = feed.get("curves") or {}
+    missing = [c for c in ("open_water", "wet_floor") if c not in curves]
+    if missing:
+        warn(f"{LIVING_WET_AREA_MODEL.name} has no curve for {', '.join(missing)}; panel omitted")
+        return None
+    cells = feed.get("cells") or {}
+    out = {k: feed[k] for k in ("schema", "decision", "source", "source_hash",
+                               "source_cells_hash", "generated", "level_definition",
+                               "area_definition", "curve_form", "curves", "fitted_range_m",
+                               "classes", "grid", "colours", "caveat") if k in feed}
+    # Everything about the cells EXCEPT the two arrays: the page needs the
+    # encoding contract to decode what it fetches, not the payload.
+    out["cells_meta"] = {k: v for k, v in cells.items() if k not in ("open_water", "wet_floor")}
+    out["cells_url"] = WET_AREA_URL
+    out["mask_outline"] = _warren_outline()
+    step(f"wet-area model: {curves['open_water']['a']:.1f}·exp({curves['open_water']['b']:.2f}·h) / "
+         f"{curves['wet_floor']['a']:.1f}·exp({curves['wet_floor']['b']:.2f}·h) ha, "
+         f"n {curves['open_water'].get('n')}, source {feed.get('source_hash')}")
+    return out
+
+
 def _build_forecaster_data_bundle() -> dict:
     """
     Assemble the runtime data bundle for the interactive forecaster from
@@ -1680,6 +1796,18 @@ def _build_forecaster_data_bundle() -> dict:
     # which biases any rainfall average computed from it downwards. The
     # Met Office file has no such gaps for 2005-2026.
     bundle["winter_climatology_mm"] = _raf_valley_winter_mean(fallback=521.0)
+
+    # The displacement reference depth of the monthly recurrence
+    #   h(t) = (1-b3)*h(t-1) + b1*lambda*P_clim(t) - b2*PET_clim(t) - b3*D
+    # (model_utils.pflood_lambda, Section 3.6.3). The page now runs that
+    # recurrence forward for the wet-area panel, so D has to travel with the
+    # coefficients rather than being a constant only Python knows.
+    bundle["drainage_datum"] = float(DRAINAGE_DATUM)
+
+    # ── The wet-area model (D-178): curves + provenance, cells fetched live ──
+    wa = _load_wet_area_model()
+    if wa is not None:
+        bundle["wet_area"] = wa
 
     # ── Well list: merge locations, elevations, cluster assignments, summer/winter defaults ──
     locs  = pd.read_csv(INT_LOCATIONS)

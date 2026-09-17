@@ -68,8 +68,11 @@ import hashlib
 import datetime
 from pathlib import Path
 
+# `drainage_datum` joined 2026-09-16 (11b 1.10.0, D-096 Revisit-if): it is a
+# constant of the monthly recurrence the app runs, not a page detail, so the app
+# must be able to read it from the feed. Adding it moves `last_changed` once.
 ENGINE_KEYS = ("cluster_coeffs", "block_tf", "P_clim",
-               "PET_clim", "winter_climatology_mm", "wells")
+               "PET_clim", "winter_climatology_mm", "wells", "drainage_datum")
 SCHEMA = "nw-engine-1"
 
 # All I/O via paths.py. The feed is a LIVING artefact: the code is pipeline

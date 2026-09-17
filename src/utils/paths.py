@@ -734,6 +734,9 @@ OUT_11B_FORECASTER_HTML = DIR_11B / "forecaster.html"
 # consumed live from raw.githubusercontent by a separate app, alongside the
 # other living feeds, and is not a pipeline output any downstream script reads.
 LIVING_FORECASTER_ENGINE = ROOT_DIR / "living" / "forecaster_engine.json"
+# The wet-area model feed (D-178, T-36). Written by tools/sentinel_wet_floor.py,
+# read by 11b for the forecaster's wet-area panel; absent is allowed.
+LIVING_WET_AREA_MODEL = ROOT_DIR / "living" / "wet_area_model.json"
 
 # Script 11c — P_flood achievability categorical map (Phase 3, step 12b)
 OUT_11C_ACHIEVABILITY_MAP    = DIR_11B / "11c_pflood_achievability.png"

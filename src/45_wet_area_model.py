@@ -43,7 +43,12 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) - 2026-09-17. First cut: T-40, promoting
+__version__ = "1.1.0"  # Hollingham (2026) - 2026-09-17. Figures carry R^2: the
+#   log-linear fit R^2 per class on 45_01, and the SSM-vs-observed area R^2 for
+#   open water and wet floor in each mode (R, C) on 45_02, with observed open
+#   water overlaid. Figure annotations only — the model CSV and the feed are
+#   unchanged (R^2 is recomputed at render, not stored), so no re-emit is needed.
+# v1.0.0  Hollingham (2026) - 2026-09-17. First cut: T-40, promoting
 #   the Sentinel wet-area line into the pipeline. The fit (Phase 2) and the SSM
 #   drive (Phase 4) of tools/sentinel_wet_floor.py --two-class, moved here
 #   unchanged in substance and re-pointed at the committed data/sentinel/ inputs.
@@ -125,11 +130,17 @@ def plot_model(R: pd.DataFrame, fits: dict) -> None:
     for cls, c, lab in (("open_water", "#0b6e8f", "open water (B8 <= 0.5 x median)"),
                         ("wet_floor", "#d4a017", "wet floor (0.5-0.8)")):
         f = fits[cls]
+        # R^2 of the log-linear fit (the space the curve is fitted in): the
+        # fraction of the scatter in ln(area) the exponential explains.
+        ly = np.log(np.clip(R[f"{cls}_ha"].values, 0.3, None))
+        pred = np.log(f["a"]) + f["b"] * R["h_scene"].values
+        ss_tot = float(((ly - ly.mean()) ** 2).sum())
+        r2 = 1.0 - float(((ly - pred) ** 2).sum()) / ss_tot if ss_tot else float("nan")
         ax.scatter(R["h_scene"], R[f"{cls}_ha"], s=24, color=c, alpha=0.85)
         ax.fill_between(hh, f["a"] * np.exp(f["b"] * hh - f["sigma_log"]),
                         f["a"] * np.exp(f["b"] * hh + f["sigma_log"]), color=c, alpha=0.12)
         ax.plot(hh, f["a"] * np.exp(f["b"] * hh), color=c, lw=2,
-                label=f"{lab}: {f['a']:.0f}·exp({f['b']:.2f}·h) ha, rho {f['rho']:+.2f}")
+                label=f"{lab}: {f['a']:.0f}·exp({f['b']:.2f}·h) ha, rho {f['rho']:+.2f}, R² {r2:.2f}")
     ax.set_xlabel("median well level at the scene date, m (0 = ground)")
     ax.set_ylabel("area, ha (whole warren)")
     ax.set_title(f"The wet-area model — {fits['open_water']['n']} winter Sentinel-2 scenes, "
@@ -185,18 +196,34 @@ def _plot_ssm(Hc: pd.DataFrame) -> None:
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt                            # noqa: PLC0415
     t = pd.to_datetime(Hc["month"])
+
+    def _r2(mod, obs):
+        """R^2 = squared Pearson correlation of the SSM-modelled area against the
+        area the OBSERVED level gives, over the months carrying an observed level."""
+        mod = np.asarray(mod, float); obs = np.asarray(obs, float)
+        ok = np.isfinite(mod) & np.isfinite(obs)
+        if ok.sum() < 2:
+            return float("nan"), int(ok.sum())
+        r = np.corrcoef(mod[ok], obs[ok])[0, 1]
+        return float(r * r), int(ok.sum())
+
     fig, axes = plt.subplots(2, 1, figsize=(12, 7), sharex=True)
     for ax, m in zip(axes, ("R", "C")):
         g = Hc[Hc["mode"] == m]
         tt = t[g.index]
+        o = g[g["median_level_observed_m"].notna() & (g["n_wells_observed"] >= 20)]
+        r2_ow, n_ow = _r2(o["open_water_ha_modelled"], o["open_water_ha_observed"])
+        r2_wf, n_wf = _r2(o["wet_floor_ha_modelled"], o["wet_floor_ha_observed"])
         ax.fill_between(tt, 0, g["open_water_ha_modelled"], color="#0b6e8f", alpha=0.85,
-                        label="open water, SSM level")
+                        label=f"open water, SSM level  (R²={r2_ow:.2f} vs observed, n={n_ow})")
         ax.fill_between(tt, g["open_water_ha_modelled"],
                         g["open_water_ha_modelled"] + g["wet_floor_ha_modelled"],
-                        color="#d4a017", alpha=0.55, label="wet floor, SSM level")
-        o = g[g["median_level_observed_m"].notna() & (g["n_wells_observed"] >= 20)]
+                        color="#d4a017", alpha=0.55,
+                        label=f"wet floor, SSM level  (R²={r2_wf:.2f} vs observed)")
         ax.plot(t[o.index], o["open_water_ha_observed"] + o["wet_floor_ha_observed"],
-                color="black", lw=0.8, label="same curves on the observed level")
+                color="black", lw=0.8, label="observed-level total")
+        ax.scatter(t[o.index], o["open_water_ha_observed"], s=12, color="#0b6e8f",
+                   edgecolor="white", linewidth=0.3, zorder=5, label="observed open water")
         ax.set_ylabel("ha (whole warren)")
         ax.grid(alpha=0.3)
         ax.legend(fontsize=7.5, loc="upper left")

@@ -1,6 +1,6 @@
 {
- "generated": "2026-09-16T15:02:23",
- "orchestrator": "2.17.0",
+ "generated": "2026-09-17T20:06:14",
+ "orchestrator": "2.18.0",
  "steps": {
   "00_climate_summary.py": {
    "emitted": {
@@ -1224,6 +1224,33 @@
    "seconds": 4.0,
    "started": "2026-09-16T15:02:19",
    "version": "1.1.2"
+  },
+  "47_hindcast_film.py": {
+   "emitted": {
+    "outputs/47_hindcast_film/47_01_hindcast_level_monthly.csv": "af41c5df7b6eb612605f212ba5c6782c1ab575cd45c14677802bcdccd4a2df7d",
+    "outputs/47_hindcast_film/47_02_calibration.csv": "fa9b4834a96dd7c4e67d3171db4b304b0ab42b95b5b5a42480336b9b056e49a6",
+    "outputs/47_hindcast_film/47_02_quantile_map.csv": "ca4ef9eced51dd072a587d929a3ec61735155bc0849bc7d5d36b1a892fcb33ee",
+    "outputs/47_hindcast_film/47_03_hindcast_film.mp4": "d4d286aa1033ccaba10556bbe513dd7de07318007eeb2c8238a85a127588df12",
+    "outputs/47_hindcast_film/47_03_hindcast_presentation.mp4": "0f3c38caa545fd884fb503afd669eb901206317db5007e199bfcb88b18df04d0",
+    "outputs/47_hindcast_film/47_04_hindcast_still_2001-02.png": "bd4246accb411d6f63d905702734203ff378444405384933ef7ca1e55354807f",
+    "outputs/47_hindcast_film/47_05_frame_caveats.txt": "32104cb9dc61df31f39bbde43fa3975cb9409788d94846aa7d5e42d43526f35a"
+   },
+   "fallbacks": [],
+   "inputs": {
+    "outputs/01_climate.csv": "af3384628d1c66eb29c5b7b118408a3ad385d5b33610d35e614f7af00125bab3",
+    "outputs/01_wells_clean.csv": "2925326ed5da8aad6a637147559bc2224bec8cbf24666db41a800d3675916a77",
+    "outputs/01_wells_reference.csv": "e11f549be2c26e93340d0b80006afca9150d373ff2367dc3f2f1e7be2326fd50",
+    "outputs/03_master_data.csv": "cbd8405624f015b285caf03fcfa1eb8351ef2baa5fbc5a00fc4c75fa464f4bc9",
+    "outputs/03_regional_averages.csv": "4f951ad3322098f8ab1713d7b1557f7789d3310bc8d92b4d2314dad24df40ee3",
+    "outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv": "8aa1be4ddaa9618922c027efa80eb627dcaae10ffceeb1d4a8902212f8d5382c",
+    "outputs/47_hindcast_film/47_00_background_2021-04-04.png": "9e7e2a23b04648cc67a1858aa56c814a82b421497444013a05bb1f0b6de3b4f1"
+   },
+   "inputs_unresolved": [
+    "wet_area_model.json"
+   ],
+   "seconds": 152.0,
+   "started": "2026-09-17T20:03:42",
+   "version": "1.0.0"
   },
   "run_09_scraping.py": {
    "emitted": {

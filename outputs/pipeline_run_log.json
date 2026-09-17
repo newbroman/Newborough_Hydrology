@@ -306,6 +306,12 @@
    "status": "ok",
    "step": "54/54  Ranwell's 1951\u201353 readings (recovered from his figures) against the SSM hindcast and the modern water-table surface \u2014 out-of-sample validation fifty-four years before calibration and the climate-corrected level change since 1951 (D-145). Skips when the digitised inputs are absent"
   },
+  "47_hindcast_film.py": {
+   "last_run": "2026-09-17T20:06:14",
+   "seconds": 152.0,
+   "status": "ok",
+   "step": "57/57  The century hindcast film (T-39, D-178): a free-running SSM from 1930 through the wet-area model, calibrated to the well period. On demand only (--hindcast-film); renders a frame per month and needs ffmpeg, so it is not part of --full"
+  },
   "run_09_scraping.py": {
    "last_run": "2026-09-16T14:48:08",
    "seconds": 9.9,
@@ -319,5 +325,5 @@
    "step": "10/54  Clear-fell BACI analysis suite (10a\u201310m)"
   }
  },
- "updated": "2026-09-16T15:02:23"
+ "updated": "2026-09-17T20:06:14"
 }

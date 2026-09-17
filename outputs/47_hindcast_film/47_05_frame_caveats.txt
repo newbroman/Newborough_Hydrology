@@ -1,5 +1,5 @@
 # Frame text — 47_hindcast_film.py 1.0.0
-# wet-area model 42ace095fa40a709 (sentinel_wet_floor.py 1.10.0 --two-class)
+# wet-area model 42ace095fa40a709 (46_wet_area_feed.py 1.0.0)
 # the trace's arrival lines — the level at which each class first covers 1 ha of the study area: open_water -0.500 m, wet_floor -0.800 m
 
 ## CAPTION (every frame)
@@ -33,6 +33,7 @@ anything on record, where exactly unknown.
 ### Newborough Warren under a century of weather
 A film of how wet the dune slacks would have been, month by month, from 1930 to 2026 — if the reserve as it stands today had lived through the weather of each of those years.
 Newborough Warren is a sand-dune reserve on Anglesey. Between the dunes lie hundreds of low hollows called slacks. In a wet winter the water table rises into them: the ground goes damp, pools appear, and in a very wet spring whole slacks stand under water.
+Only the warren is modelled, not the forest. Everything here is about the open dune slacks of Newborough Warren — the study area outlined on the map. The planted forest beside them is not part of the model and is not assessed; absence of yellow and blue cells does not imply an absence of flooding, rather it has not been modelled.
 [footer] Newborough Warren hydrology study, 2026 · Martin Hollingham
 
 ### How to read the film

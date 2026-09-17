@@ -1,0 +1,76 @@
+# Frame text — 47_hindcast_film.py 1.0.0
+# wet-area model 42ace095fa40a709 (sentinel_wet_floor.py 1.10.0 --two-class)
+# the trace's arrival lines — the level at which each class first covers 1 ha of the study area: open_water -0.500 m, wet_floor -0.800 m
+
+## CAPTION (every frame)
+Today's reserve — forest and all — under the
+weather of each past month. Not what actually
+happened: a what-if. The model's water table is
+corrected to match the wells over 2005–2026.
+
+Blue: open water.  Yellow: wet floor.
+10 m squares from satellite pictures, 2016–2026.
+Not a flood map: puddles and margins are too
+small to show.
+
+The outline is the study area: the warren slack
+floor. Nothing outside it is assessed.
+
+Totals in the title are from the corrected water
+table; open water is right to within a
+factor of 2.1, wet floor to about 15 %.
+
+## CAPTION, appended when the month is beyond the fitted range
+THIS MONTH IS BEYOND THE RECORD.
+The water table is above the 2021 flood, the
+wettest ever measured. The totals are the curves
+run past the end of the data; pale orange is
+slack floor never seen wet — wetter than
+anything on record, where exactly unknown.
+
+## SLIDES BEFORE THE FILM
+
+### Newborough Warren under a century of weather
+A film of how wet the dune slacks would have been, month by month, from 1930 to 2026 — if the reserve as it stands today had lived through the weather of each of those years.
+Newborough Warren is a sand-dune reserve on Anglesey. Between the dunes lie hundreds of low hollows called slacks. In a wet winter the water table rises into them: the ground goes damp, pools appear, and in a very wet spring whole slacks stand under water.
+[footer] Newborough Warren hydrology study, 2026 · Martin Hollingham
+
+### How to read the film
+YELLOW is wet floor: saturated ground, or a thin sheet of water hidden in the grass.
+BLUE is open water: pools you could see from the air.
+The outline on the map is the study area — 307 hectares of slack floor within the warren. Everything the film says is about the ground inside it. Blank ground outside the outline was not assessed; it is not a claim that it was dry.
+The title gives the total of each across the study area, in hectares (a hectare is a little larger than a rugby pitch).
+The line at the bottom is the water table — how far below or above the ground the groundwater sits, averaged over the reserve's monitoring wells. The red marker is where the film has got to. The clock runs at a year a second.
+
+### How it was made: three things joined together
+1.  A weather-driven groundwater model. Since 2005 the reserve's dipwells have been read every month, and from them we learned a simple rule for how the water table rises with rain and falls with evaporation and drainage. RAF Valley has kept weather records since 1930, so the rule can be run through the whole century, steered by nothing but the weather. Where the wells exist, the model's water table is corrected to match them, and that correction is carried back through the years before the wells.
+2.  Satellite pictures. Sentinel-2 has photographed the warren every few days since 2016 in 10 m squares. In the near-infrared, water is black and grass is bright, so a wet slack floor is a dark patch. Counting the dark squares in 43 clear winter pictures and comparing with the water table gives two smooth curves — one for open water, one for wet floor.
+3.  Where the water goes. Each 10 m square has its own history in those pictures, so we know the water-table level at which it usually turns dark. The film lights each square when the model reaches that level. WHERE the colours appear was learned from the satellite; WHEN is the model.
+
+### Please read this before watching
+It is today's warren, not the warren of the time. The rules were learned from 2005–2026 and the ground is the 2023 survey, with Newborough Forest at its present size. The forest was only planted between 1947 and 1965, and a forest lowers the water table around it. In 1939 there was no forest. The film answers a what-if — what would the reserve as it is now have done under that weather — not what actually happened.
+The map covers the warren study area only; blank outside it means not assessed, not dry.
+
+### The biggest floods go beyond anything measured
+The wettest spring on record was 2021. In some months — 1939, 1959, 1961–62 and 2000–01 — the model pushes the water table higher than that, above the +0.03 m the curves were fitted to.
+No picture has seen the warren like that. So those months are marked BEYOND THE RECORD, the totals are the curves run past the end of the data, and the rest of the slack floor turns PALE ORANGE: wetter than anything on record, where exactly we cannot say.
+The honest claim for those winters is that they were bigger than 2021, nothing finer.
+
+### And a little more
+It is not a flood map. The squares are 10 m across; narrow margins, small pools and thin sheets over grass are invisible at that size — roughly a third of the water in a big flood. The moment a square lights is known only to within five or ten centimetres of water table.
+The model's mistakes carry through. Even corrected to the wells, it reproduces the measured water table to about twenty centimetres, and it still runs about ten centimetres low in the wettest months. A ten-centimetre error changes the open-water area by about half, because pools appear suddenly once the water nears the surface. Yellow is the steadier colour, good to about 15 %; blue is right to within a factor of 2.1. The first two years are the model settling from its starting guess.
+Winter rules all year. The curves come from November-to-March pictures; summer months show what the water table would imply, not what a summer photograph would show.
+
+## SLIDES AFTER THE FILM
+
+### What the film says, cautions attached
+The 1960s were the wet decade, with several times the open water of an average winter in any other decade.
+The winters of 1961–62 and 2000–01 stand out as the two great floods of the century, with 1938–39 and 1958–59 behind them; 2015–16 was the wettest of the satellite era after 2021.
+The 1970s and 1990s were the dry decades, with almost no open water in an average winter.
+All of it is the model's account of what the weather would do to the reserve as it stands today.
+
+### Credits and sources
+Newborough Warren hydrology study, 2026 — Martin Hollingham.
+Weather: RAF Valley monthly record, 1930–2026. Water table: the reserve's dipwell network, 2005–2026. Imagery: Copernicus Sentinel-2, 2016–2026 (free and open under the Copernicus licence). Ground: 2023 survey.
+Model, code and data: github.com/newbroman/Newborough_Hydrology. The method is recorded as decision D-178; the full written guide accompanies this film.
+

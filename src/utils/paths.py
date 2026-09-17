@@ -1175,24 +1175,46 @@ OUT_44_HINDCAST_REPORT_FIG = DIR_44 / "44_07b_hindcast_report.png"   # caption-f
 OUT_44_CHANGE_FIG     = DIR_44 / "44_08_level_change.png"
 OUT_44_REPORT_NUMBERS = DIR_44 / "44_report_numbers.csv"
 
-# ── Script 45 — the century hindcast film (T-39, D-178) ──────────────────────
-# Display tier, on demand only. DIR_45 is NOT mkdir'd here: the directory is
+# ── Scripts 45 & 46 — the Sentinel wet-area model (T-40, D-178) ──────────────
+# The externally-derived committed inputs of the wet-area line live under
+# data/sentinel/. A re-runner pulls the Copernicus scenes listed in the manifest
+# and regenerates two_class_series.csv + cell_thresholds.npz via
+# tools/sentinel_wet_floor.py; well_fit.csv and hindcast_monthly.csv are phase-27
+# products the feed's mode block and Step 45's SSM drive read. input_provenance
+# hashes all five as raw inputs.
+DATA_SENTINEL_DIR         = DATA_DIR / "sentinel"
+SENTINEL_TWO_CLASS_SERIES = DATA_SENTINEL_DIR / "two_class_series.csv"
+SENTINEL_CELL_THRESHOLDS  = DATA_SENTINEL_DIR / "cell_thresholds.npz"
+SENTINEL_SCENE_MANIFEST   = DATA_SENTINEL_DIR / "sentinel_scene_manifest.csv"
+SENTINEL_WELL_FIT         = DATA_SENTINEL_DIR / "well_fit.csv"
+SENTINEL_HINDCAST_MONTHLY = DATA_SENTINEL_DIR / "hindcast_monthly.csv"
+
+# Step 45 — the fit and the SSM drive. Default tier; DIR_45 is self-created by
+# the script (the DIR_43 / DIR_44 / DIR_47 rule) rather than in make_all_dirs.
+DIR_45 = OUT_DIR / "45_wet_area"
+OUT_45_MODEL          = DIR_45 / "45_01_wet_area_model.csv"
+OUT_45_MODEL_FIG      = DIR_45 / "45_01_wet_area_model.png"
+OUT_45_SSM_CURVES     = DIR_45 / "45_02_ssm_through_nir_curves.csv"
+OUT_45_SSM_CURVES_FIG = DIR_45 / "45_02_ssm_through_nir_curves.png"
+
+# ── Script 47 — the century hindcast film (T-39, D-178) ──────────────────────
+# Display tier, on demand only. DIR_47 is NOT mkdir'd here: the directory is
 # created by the script when it runs, so a clone that never renders the film
 # does not carry an empty folder (the DIR_43 / DIR_44 rule, paths 1.16.2).
-DIR_45 = OUT_DIR / "45_hindcast_film"
-OUT_45_LEVEL_MONTHLY   = DIR_45 / "45_01_hindcast_level_monthly.csv"
-OUT_45_CALIBRATION     = DIR_45 / "45_02_calibration.csv"
-OUT_45_QUANTILE_MAP    = DIR_45 / "45_02_quantile_map.csv"
-OUT_45_PRESENTATION    = DIR_45 / "45_03_hindcast_presentation.mp4"   # tracked
-OUT_45_FILM            = DIR_45 / "45_03_hindcast_film.mp4"           # gitignored
-OUT_45_CAVEATS         = DIR_45 / "45_05_frame_caveats.txt"
-OUT_45_BACKGROUND      = DIR_45 / "45_00_background_2021-04-04.png"
+DIR_47 = OUT_DIR / "47_hindcast_film"
+OUT_47_LEVEL_MONTHLY   = DIR_47 / "47_01_hindcast_level_monthly.csv"
+OUT_47_CALIBRATION     = DIR_47 / "47_02_calibration.csv"
+OUT_47_QUANTILE_MAP    = DIR_47 / "47_02_quantile_map.csv"
+OUT_47_PRESENTATION    = DIR_47 / "47_03_hindcast_presentation.mp4"   # tracked
+OUT_47_FILM            = DIR_47 / "47_03_hindcast_film.mp4"           # gitignored
+OUT_47_CAVEATS         = DIR_47 / "47_05_frame_caveats.txt"
+OUT_47_BACKGROUND      = DIR_47 / "47_00_background_2021-04-04.png"
 
 
-def out_45_still(month: str):
-    """45_04_hindcast_still_<YYYY-MM>.png — the name carries the month because
+def out_47_still(month: str):
+    """47_04_hindcast_still_<YYYY-MM>.png — the name carries the month because
     which month is wettest is a result, not a constant."""
-    return DIR_45 / f"45_04_hindcast_still_{month}.png"
+    return DIR_47 / f"47_04_hindcast_still_{month}.png"
 OUT_40_FIG             = DIR_40 / "40_01_alongshore_profile.png"
 
 # Coastline epochs. coast1899.kml carries TWO placemarks and labels neither;

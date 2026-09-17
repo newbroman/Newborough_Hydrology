@@ -41,16 +41,30 @@ USAGE
   python3 tools/sentinel_wet_floor.py --since 2020-10-01 --until 2021-04-30
   python3 tools/sentinel_wet_floor.py --calibrate     # refit SENTINEL_DARK_RATIO on TRUTH_KML
   python3 tools/sentinel_wet_floor.py --validate 2020-03-30   # score the FIXED rule on a 2nd vet
-  python3 tools/sentinel_wet_floor.py --two-class [--animate]  # the wet-area model (D-178)
-  python3 tools/sentinel_wet_floor.py --emit-feed      # living/wet_area_model.json from
-                                                       # the committed CSV + npz alone
+  python3 tools/sentinel_wet_floor.py --two-class      # regenerate data/sentinel/ inputs (D-178)
+  python3 tools/sentinel_wet_floor.py --write-manifest # data/sentinel/sentinel_scene_manifest.csv
 
   Needs `pystac-client` (pip install pystac-client) and network. Per-scene
   rasters are cached under working/updates/sentinel_cache/ (gitignored size).
 """
 from __future__ import annotations
 
-__version__ = "1.10.0"  # Hollingham (2026) - 2026-09-17. `cells.floor`: the
+__version__ = "1.12.0"  # Hollingham (2026) - 2026-09-17. T-40: the wet-area line
+#   is now the pipeline. This tool keeps only the two scene-dependent steps —
+#   --two-class writes the scene series and the per-cell switching levels into
+#   data/sentinel/, --write-manifest writes the scene list there — and no longer
+#   fits, drives the SSM, animates, or writes the feed: those are Steps 45
+#   (src/45_wet_area_model.py) and 46 (src/46_wet_area_feed.py). The grid, class
+#   ratios and cell-min move to utils.config; --emit-feed and --animate are gone.
+# v1.11.0  Hollingham (2026) - 2026-09-17. --write-manifest:
+#   sentinel_scene_manifest.csv, the LIST of Copernicus scenes the D-178
+#   fit consumes (T-40, promoting this line into the pipeline). One row per fitted
+#   scene: date, STAC id, tile, collection, cloud/clear, used_in_fit, and the
+#   sha256 of its cached B8 array. The scenes are NOT bundled (Martin 2026-09-17):
+#   a re-runner pulls their own from Copernicus by STAC id and verifies the
+#   derivation against the committed series. Pure pandas + hashlib; no network,
+#   no rasterio, so it runs anywhere.
+# v1.10.0  Hollingham (2026) - 2026-09-17. `cells.floor`: the
 #   phase 29 floor mask inside the warren, packbits-ed and base64-ed (~22 kB). The
 #   feed could say which cells have a switching level but not which cells are FLOOR
 #   - 11,703 of 30,697 - so a reader confined to the feed (Script 45, T-39) could
@@ -140,7 +154,15 @@ import pandas as pd                                           # noqa: E402
 
 from utils.console_utils import banner, info, phase, progress, saved, step, warn  # noqa: E402
 from utils.buckets import month_bucket                      # noqa: E402
-from utils.paths import DATA_FLOOD_CAL_LEVELS, DATA_GEO_DIR   # noqa: E402
+from utils.paths import (                                    # noqa: E402
+    DATA_FLOOD_CAL_LEVELS, DATA_GEO_DIR, DATA_SENTINEL_DIR,
+    SENTINEL_TWO_CLASS_SERIES, SENTINEL_CELL_THRESHOLDS, SENTINEL_SCENE_MANIFEST,
+)
+# The model's grid, class ratios and cell-min are shared with Steps 45/46 (T-40),
+# so they live in utils.config, not here.
+from utils.config import (                                   # noqa: E402
+    WET_AREA_GRID as GRID, NIR_BLACK_RATIO, NIR_DARK_RATIO, CELL_MIN_SCENES,
+)
 
 OUT = REPO / "working" / "updates"
 CACHE = OUT / "sentinel_cache"
@@ -149,8 +171,6 @@ COLLECTION = "sentinel-2-l2a"
 WARREN_KML = DATA_GEO_DIR / "warren.kml"
 TRUTH_KML = DATA_GEO_DIR / "flood_extent_2021-03-24_vetted.kml"
 WELLS_ALL = REPO / "outputs" / "01_wells_all.csv"
-# the analysis window, OSGB, 10 m cells — the warren with a margin
-GRID = dict(left=239770, bottom=362090, right=244360, top=364940, res=10)
 TILE_CLOUD_MAX = 25.0        # STAC tile-level cloud cover admitted to the search. Was 45
 #                              until 2026-09-15: 2019-03-26 (40 % tile cloud, median 1186 against
 #                              824 two days earlier) read 44 % dark — thin cloud brightens the
@@ -683,11 +703,9 @@ def cells(Wm, dates):
 
 
 # ── the two-class wet-area model (D-178) ──────────────────────────────────────
-NIR_BLACK_RATIO = 0.50        # B8 <= this x the scene's clear-floor median = open water
-NIR_DARK_RATIO = 0.80         # B8 <= this (and above BLACK) = wet floor
+# NIR_BLACK_RATIO, NIR_DARK_RATIO and CELL_MIN_SCENES are imported from utils.config
+# (shared with Steps 45/46 since T-40).
 TWO_CLASS_EXCLUDE = ("2016-12-26",)   # a 12-degree-sun December scene, 3.5x off the curve
-CELL_MIN_SCENES = 10          # a cell seen in fewer scenes gets no switching level
-HINDCAST_MONTHLY = OUT / "W94_27_hindcast_monthly.csv"   # phase 27's levels (warren_flood_prep)
 
 
 def _b8_scene(date, item, Wm):
@@ -718,15 +736,6 @@ def _level_at(date, end):
     return h0 + f * (h1 - h0), (h1 - h0) / ((t1 - t0).days / 30.4)
 
 
-def _fit_exp(y, h):
-    """log-linear fit y = a·exp(b·h); returns a, b, sigma (log), Spearman rho."""
-    ly = np.log(np.clip(y, 0.3, None))
-    b, la = np.polyfit(h, ly, 1)
-    sd = float((ly - (la + b * h)).std())
-    rho = float(pd.Series(y).rank().corr(pd.Series(h).rank()))
-    return float(np.exp(la)), float(b), sd, rho
-
-
 def _cell_switch_levels(cls, seen, h):
     """Per cell, the lowest level at which the cell is in the class — the step on
     the scene-date level that best explains the cell's own history (scenes sorted
@@ -746,18 +755,18 @@ def _cell_switch_levels(cls, seen, h):
     return lvl, best_err
 
 
-def two_class(Wm, animate=False):
-    """The hands-free wet-area model: open water and wet floor from B8 alone,
-    each a function of the median well level; the per-cell switching levels;
-    the SSM drive; the figures. D-178. Reads the series CSV (run the series
-    first). Writes W94_27_two_class_series.csv, W94_27_wet_area_model.csv (the
-    four parameters and their sigmas — the model), W94_27_cell_thresholds.npz,
-    W94_27_ssm_through_nir_curves.csv/.png when phase 27's levels exist, and
-    the fit figure; --animate adds the month-by-month MP4 (Mode R).
+def two_class(Wm):
+    """Regenerate the two committed wet-area inputs from the Sentinel-2 scenes
+    (T-40, D-178): the scene series and the per-cell switching levels.
+
+    Phase 1 reads B8 for every winter scene and writes the series (h_scene and
+    the class areas). Phase 2 turns the scene stack into the per-cell switching
+    levels. Both land in data/sentinel/, the committed inputs of record. The FIT
+    and the SSM drive are Step 45 (src/45_wet_area_model.py); the public feed is
+    Step 46 (src/46_wet_area_feed.py) — this tool no longer produces them. Needs
+    the scenes, so it runs only where the cache and rasterio are; run the series
+    first.
     """
-    import matplotlib                                         # noqa: PLC0415
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt                           # noqa: PLC0415
     shade = _shade_mask()
     floor = Wm & (~shade if shade is not None else True)
     S = pd.read_csv(OUT / "W94_27_sentinel_wet_floor.csv")
@@ -791,34 +800,10 @@ def two_class(Wm, animate=False):
         stack.append((h, ok, black, dark))
     print(flush=True)
     R = pd.DataFrame(rows)
-    R.to_csv(OUT / "W94_27_two_class_series.csv", index=False)
-    saved("W94_27_two_class_series.csv")
-    phase(2, "Fitting the two curves on the scenes alone")
-    fits = {}
-    for cls in ("open_water", "wet_floor", "dark_total"):
-        a, b, sd, rho = _fit_exp(R[f"{cls}_ha"].values, R["h_scene"].values)
-        fits[cls] = dict(cls=cls, a=a, b=b, sigma_log=sd, sigma_factor=float(np.exp(sd)), rho=rho,
-                         n=len(R), h_min=float(R["h_scene"].min()), h_max=float(R["h_scene"].max()))
-        step(f"{cls}: {a:.1f} * exp({b:.2f} h) ha; sigma x/÷ {np.exp(sd):.2f}; rho {rho:+.2f}; n {len(R)}")
-    pd.DataFrame(fits.values()).to_csv(OUT / "W94_27_wet_area_model.csv", index=False)
-    saved("W94_27_wet_area_model.csv  (the model)")
-    hh = np.linspace(R["h_scene"].min() - 0.05, R["h_scene"].max() + 0.1, 60)
-    fig, ax = plt.subplots(figsize=(8.5, 5.4))
-    for cls, c, lab in (("open_water", "#0b6e8f", "open water (B8 <= 0.5 x median)"),
-                        ("wet_floor", "#d4a017", "wet floor (0.5-0.8)")):
-        f = fits[cls]
-        ax.scatter(R["h_scene"], R[f"{cls}_ha"], s=24, color=c, alpha=0.85)
-        ax.fill_between(hh, f["a"] * np.exp(f["b"] * hh - f["sigma_log"]),
-                        f["a"] * np.exp(f["b"] * hh + f["sigma_log"]), color=c, alpha=0.12)
-        ax.plot(hh, f["a"] * np.exp(f["b"] * hh), color=c, lw=2,
-                label=f"{lab}: {f['a']:.0f}·exp({f['b']:.2f}·h) ha, rho {f['rho']:+.2f}")
-    ax.set_xlabel("median well level at the scene date, m (0 = ground)")
-    ax.set_ylabel("area, ha (whole warren)")
-    ax.set_title(f"The wet-area model — {len(R)} winter Sentinel-2 scenes, B8 alone, no vet (D-178)", fontsize=9.5)
-    ax.grid(alpha=0.3); ax.legend(fontsize=8, loc="upper left")
-    fig.tight_layout(); fig.savefig(OUT / "W94_27_wet_area_model.png", dpi=160); plt.close(fig)
-    saved("W94_27_wet_area_model.png")
-    phase(3, "Per-cell switching levels")
+    SENTINEL_TWO_CLASS_SERIES.parent.mkdir(parents=True, exist_ok=True)
+    R.to_csv(SENTINEL_TWO_CLASS_SERIES, index=False)
+    saved(f"data/sentinel/{SENTINEL_TWO_CLASS_SERIES.name}  (Step 45 fits the curves from this)")
+    phase(2, "Per-cell switching levels")
     order = np.argsort([s_[0] for s_ in stack])
     h = np.array([stack[i][0] for i in order])
     seen = np.stack([stack[i][1] for i in order]); black = np.stack([stack[i][2] for i in order])
@@ -826,97 +811,17 @@ def two_class(Wm, animate=False):
     hb, eb = _cell_switch_levels(black, seen, h)
     hd, ed = _cell_switch_levels(dark, seen, h)
     hd = np.minimum(hd, hb)
-    np.savez_compressed(OUT / "W94_27_cell_thresholds.npz", h_open_water=hb, h_wet_floor=hd,
+    SENTINEL_CELL_THRESHOLDS.parent.mkdir(parents=True, exist_ok=True)
+    np.savez_compressed(SENTINEL_CELL_THRESHOLDS, h_open_water=hb, h_wet_floor=hd,
                         err_open_water=eb, err_wet_floor=ed, n_seen=seen.sum(0), floor=floor,
                         grid=np.array([GRID["left"], GRID["bottom"], GRID["right"], GRID["top"], GRID["res"]]))
     step(f"{int((np.isfinite(hb) & floor).sum())} cells ever open water, "
          f"{int((np.isfinite(hd) & floor).sum())} ever wet floor, of {int(floor.sum())} on the floor")
-    saved("W94_27_cell_thresholds.npz")
-    if not HINDCAST_MONTHLY.exists():
-        warn(f"no {HINDCAST_MONTHLY.name}: the SSM drive needs phase 27's levels")
-        phase(4, "The public feed the forecaster reads")
-        return write_wet_area_feed()
-    phase(4, "The SSM's monthly level through the two curves")
-    Hc = pd.read_csv(HINDCAST_MONTHLY)
-    for cls in ("open_water", "wet_floor"):
-        f = fits[cls]
-        Hc[f"{cls}_ha_modelled"] = f["a"] * np.exp(f["b"] * Hc["median_level_modelled_m"])
-        Hc[f"{cls}_ha_observed"] = np.where(Hc["median_level_observed_m"].notna(),
-                                            f["a"] * np.exp(f["b"] * Hc["median_level_observed_m"]), np.nan)
-    keep = ["month", "mode", "median_level_modelled_m", "median_level_observed_m", "n_wells_observed",
-            "open_water_ha_modelled", "wet_floor_ha_modelled", "open_water_ha_observed",
-            "wet_floor_ha_observed", "sentinel_index"]
-    Hc[keep].round(3).to_csv(OUT / "W94_27_ssm_through_nir_curves.csv", index=False)
-    saved("W94_27_ssm_through_nir_curves.csv")
-    for m, g in Hc.groupby("mode"):
-        ok = g["median_level_observed_m"].notna() & (g["n_wells_observed"] >= 20)
-        for cls in ("open_water", "wet_floor"):
-            e = np.log(g.loc[ok, f"{cls}_ha_modelled"]) - np.log(g.loc[ok, f"{cls}_ha_observed"])
-            step(f"Mode {m} {cls}: median x{np.exp(np.median(e)):.2f}, 68 % range "
-                 f"x{np.exp(np.percentile(e, 16)):.2f}-{np.exp(np.percentile(e, 84)):.2f} over {int(ok.sum())} months")
-    t = pd.to_datetime(Hc["month"])
-    fig, axes = plt.subplots(2, 1, figsize=(12, 7), sharex=True)
-    for ax, m in zip(axes, ("R", "C")):
-        g = Hc[Hc["mode"] == m]; tt = t[g.index]
-        ax.fill_between(tt, 0, g["open_water_ha_modelled"], color="#0b6e8f", alpha=0.85, label="open water, SSM level")
-        ax.fill_between(tt, g["open_water_ha_modelled"], g["open_water_ha_modelled"] + g["wet_floor_ha_modelled"],
-                        color="#d4a017", alpha=0.55, label="wet floor, SSM level")
-        o = g[g["median_level_observed_m"].notna() & (g["n_wells_observed"] >= 20)]
-        ax.plot(t[o.index], o["open_water_ha_observed"] + o["wet_floor_ha_observed"], color="black", lw=0.8,
-                label="same curves on the observed level")
-        ax.set_ylabel("ha (whole warren)"); ax.grid(alpha=0.3); ax.legend(fontsize=7.5, loc="upper left")
-        ax.set_title(f"Mode {m} — SSM monthly level through the two curves", fontsize=9.5)
-    fig.tight_layout(); fig.savefig(OUT / "W94_27_ssm_through_nir_curves.png", dpi=150); plt.close(fig)
-    saved("W94_27_ssm_through_nir_curves.png")
-    if animate:
-        _animate(Hc, hb, hd, floor)
-    phase(5, "The public feed the forecaster reads")
-    write_wet_area_feed()
+    saved(f"data/sentinel/{SENTINEL_CELL_THRESHOLDS.name}  (Step 46 reads the cell layer from this)")
+    step("The fit and the SSM drive are Step 45 (src/45_wet_area_model.py); the public feed is "
+         "Step 46 (src/46_wet_area_feed.py). Run `python3 run_analysis.py` to rebuild them, or "
+         "--write-manifest here to refresh the scene list.")
     return 0
-
-
-def _animate(Hc, hb, hd, floor):
-    """Month-by-month MP4 of the two classes under the SSM Mode R level, each
-    cell switched at its own observed level. An illustration of the area model
-    on the Sentinel grid, not a flood map (D-177 stands)."""
-    import imageio                                            # noqa: PLC0415
-    import matplotlib.pyplot as plt                           # noqa: PLC0415
-    from PIL import Image                                     # noqa: PLC0415
-    R = Hc[Hc["mode"] == "R"].reset_index(drop=True)
-    bg = OUT / "W94_27_scene_2021-04-04.png"
-    base = (np.array(Image.open(bg).convert("L")).astype(float) / 255 if bg.exists()
-            else np.full(floor.shape, 0.6))
-    rgb = np.stack([base * 0.55 + 0.25] * 3, -1)
-    fig = plt.figure(figsize=(9.2, 6.4), dpi=100); gs = fig.add_gridspec(5, 1)
-    ax, ax2 = fig.add_subplot(gs[:4]), fig.add_subplot(gs[4])
-    t, lvl = pd.to_datetime(R["month"]), R["median_level_modelled_m"].values
-    ax2.plot(t, lvl, color="black", lw=0.8); ax2.axhline(0, color="grey", lw=0.6, ls=":")
-    ax2.set_ylabel("SSM level, m", fontsize=8); ax2.tick_params(labelsize=7); ax2.set_ylim(-1.3, 0.2)
-    marker = ax2.axvline(t[0], color="#c0504d", lw=1.4)
-    im = ax.imshow(rgb); ax.set_axis_off(); title = ax.set_title("", fontsize=10)
-    frames = []
-    for i in range(len(R)):
-        h = lvl[i]; img = rgb.copy(); y, b = floor & (hd <= h), floor & (hb <= h)
-        img[y] = [0.85, 0.68, 0.10]; img[b] = [0.04, 0.43, 0.56]
-        im.set_data(img); marker.set_xdata([t[i], t[i]])
-        title.set_text(f"{t[i].strftime('%B %Y')} — SSM Mode R level {h:+.2f} m   open water "
-                       f"{b.sum() * 0.01:.0f} ha   wet floor {y.sum() * 0.01 - b.sum() * 0.01:.0f} ha")
-        fig.canvas.draw(); a = np.asarray(fig.canvas.buffer_rgba())[..., :3]
-        frames.append(a[:a.shape[0] // 2 * 2, :a.shape[1] // 2 * 2].copy())
-    plt.close(fig)
-    try:
-        import imageio_ffmpeg                                 # noqa: PLC0415,F401
-        imageio.mimwrite(OUT / "W94_27_wet_area_animation_modeR.mp4", frames, fps=8, codec="libx264",
-                         quality=8, macro_block_size=None)
-        saved("W94_27_wet_area_animation_modeR.mp4")
-    except ImportError:
-        # no ffmpeg plugin on this machine (imageio falls through to tifffile and
-        # rejects fps): write an animated GIF instead, same frames, same rate
-        warn("imageio-ffmpeg not installed (pip install imageio-ffmpeg for the MP4); writing a GIF")
-        Image.fromarray(frames[0]).save(OUT / "W94_27_wet_area_animation_modeR.gif", save_all=True,
-                                        append_images=[Image.fromarray(f) for f in frames[1:]],
-                                        duration=125, loop=0)
-        saved("W94_27_wet_area_animation_modeR.gif")
 
 
 # ── the public feed the forecaster reads (T-36 item 1, D-178) ────────────────
@@ -932,237 +837,81 @@ def _animate(Hc, hb, hd, floor):
 #
 # It reads the two artefacts back from disk rather than serialising the in-memory
 # fit, so the feed is provably the committed model and carries its hash.
-LIVING_FEED = REPO / "living" / "wet_area_model.json"
-FEED_SCHEMA = "nw-wet-area-1"
-CELL_NEVER = 32767            # int16 sentinel: never in the class, or not on the floor.
-#   NOT -1, which the spec proposed: -1 cm is a LEGAL switching level (-0.01 m) and
-#   the fitted range runs -0.80 to +0.03 m, so -1 collides with real data.
-LEVEL_DEFINITION = ("median of the monthly dipwell readings across the recorded network "
-                    "(01_wells_all + D-166 months), m, 0 at ground")
 
 
-def _sha16(path) -> str:
+# The manifest and the fitted-scene series are committed under data/sentinel/
+# (T-40); SERIES_CSV (all scenes, cloud/clear) stays the working-store intermediate.
+SERIES_CSV = OUT / "W94_27_sentinel_wet_floor.csv"       # scene ids + cloud/clear, all scenes
+
+
+def write_scene_manifest() -> int:
+    """data/sentinel/sentinel_scene_manifest.csv — the Copernicus scenes the D-178
+    fit consumes, LISTED not bundled (T-40, D-179).
+
+    Martin, 2026-09-17: "list the sentinel inputs; others rerunning the analysis
+    will have to pull their own copies from Copernicus." So this is the input of
+    record for the wet-area line: the scene identifiers a re-runner fetches from
+    the Copernicus / Earth Search archive, with enough to know which fed the fit
+    and a checksum of the derived B8 array so a re-fetch can be verified. The
+    226 MB scene cache stays gitignored working-store; this list is what the
+    pipeline commits.
+
+    Pure pandas + hashlib — no scene read, no network, no rasterio — so it runs on
+    any host, including the bridge. Dispatched before _warren_mask() for that
+    reason.
+    """
     import hashlib                                            # noqa: PLC0415
-    h = hashlib.sha256()
-    with open(path, "rb") as fh:
-        for chunk in iter(lambda: fh.read(1 << 20), b""):
-            h.update(chunk)
-    return h.hexdigest()[:16]
-
-
-SSM_CURVES = OUT / "W94_27_ssm_through_nir_curves.csv"   # phase 4's drive; optional
-WELL_FIT = OUT / "W94_27_well_fit.csv"                  # phase 27's per-well-month fit
-
-
-def _mode_fit():
-    """Each hindcast mode's fit against the wells: RMSE and Spearman rho over every
-    well-month with both an observed and a modelled level.
-
-    COMPUTED, not scraped. `W94_27_hindcast_summary.csv` states the same figures, but
-    in a prose `value` cell ("R 0.229 / C 0.366") and a prose `notes` cell — a regex
-    over those would go on returning a number long after the format moved. The raw
-    per-well-month table is right there; rank correlation is done the way `_fit_exp`
-    does it, so this still runs on a host with no scipy.
-    """
-    if not WELL_FIT.exists():
-        return None
-    F = pd.read_csv(WELL_FIT)
-    need = {"mode", "observed_h_m", "modelled_h_recurrence_m"}
-    if not need.issubset(F.columns):
-        warn(f"{WELL_FIT.name} has no {sorted(need - set(F.columns))}; mode fit omitted")
-        return None
-    out = {"source": WELL_FIT.name, "source_hash": _sha16(WELL_FIT),
-           "definition": ("modelled_h_recurrence_m against observed_h_m over every "
-                          "well-month carrying both; rho is Spearman"),
-           "modes": {}}
-    for mode, g in F.groupby("mode"):
-        d = g[["observed_h_m", "modelled_h_recurrence_m"]].dropna()
-        if len(d) < 2:
-            continue
-        err = d["modelled_h_recurrence_m"].to_numpy(float) - d["observed_h_m"].to_numpy(float)
-        rho = float(d["modelled_h_recurrence_m"].rank().corr(d["observed_h_m"].rank()))
-        out["modes"][str(mode)] = {"rmse_m": round(float(np.sqrt((err ** 2).mean())), 3),
-                                   "rho": round(rho, 3), "n": int(len(d))}
-    return out if out["modes"] else None
-
-
-def _wet_area_history():
-    """The SSM's monthly median level through the record, for the forecaster's
-    history control — or None when phase 4 has not run.
-
-    WHY IT IS IN THIS FEED. It is an SSM product, not a Sentinel one, which is a
-    fair objection. It is here because the cell layer is a function of the median
-    level and nothing else, so a level series is the only thing that lets the page
-    show a month that has already happened — and because the film
-    (`_animate`) draws exactly these levels, so a page fed from anywhere else
-    could not be compared with it. Mode R is the film's mode. The observed level
-    travels with it, unrounded from the CSV's own 3 dp, so the page can say which
-    of the two it is drawing.
-    """
-    if not SSM_CURVES.exists():
-        return None
-    H = pd.read_csv(SSM_CURVES)
-    need = {"month", "mode", "median_level_modelled_m"}
-    if not need.issubset(H.columns):
-        warn(f"{SSM_CURVES.name} has no {sorted(need - set(H.columns))}; history omitted")
-        return None
-    months = sorted(H["month"].astype(str).unique())
-    idx = {m: i for i, m in enumerate(months)}
-    level = {}
-    for mode, g in H.groupby("mode"):
-        col = [None] * len(months)
-        for _, r in g.iterrows():
-            v = r["median_level_modelled_m"]
-            col[idx[str(r["month"])]] = None if pd.isna(v) else round(float(v), 3)
-        level[str(mode)] = col
-    obs = [None] * len(months)
-    nobs = [None] * len(months)
-    if "median_level_observed_m" in H.columns:
-        for _, r in H.iterrows():
-            i = idx[str(r["month"])]
-            v = r["median_level_observed_m"]
-            if obs[i] is None and not pd.isna(v):
-                obs[i] = round(float(v), 3)
-            if "n_wells_observed" in H.columns and nobs[i] is None and not pd.isna(r["n_wells_observed"]):
-                nobs[i] = int(r["n_wells_observed"])
-    fit = _mode_fit()
-    return {"source": SSM_CURVES.name, "source_hash": _sha16(SSM_CURVES),
-            "fit": fit,
-            "definition": ("the SSM's monthly median well level (phase 27 recurrence) driving the "
-                           "curves, D-178 item 3; mode R is the one the film animates"),
-            "default_mode": "R" if "R" in level else sorted(level)[0],
-            "months": months, "level_m": level,
-            "level_observed_m": obs, "n_wells_observed": nobs}
-
-
-def write_wet_area_feed() -> int:
-    """living/wet_area_model.json — the two curves and the per-cell switching
-    levels, as a public feed for the forecaster (T-36 item 1).
-
-    Hash-gated like the engine feed (D-096): a run that does not move anything
-    but `generated` rewrites nothing, so the file's timestamp stays a provenance
-    claim rather than a byproduct of having run the tool again.
-    """
-    import base64                                             # noqa: PLC0415
-    import json                                               # noqa: PLC0415
-    from datetime import datetime, timezone                   # noqa: PLC0415
-    model_csv = OUT / "W94_27_wet_area_model.csv"
-    npz_path = OUT / "W94_27_cell_thresholds.npz"
-    for p in (model_csv, npz_path):
-        if not p.exists():
-            warn(f"no {p.name} — run --two-class first; feed not written")
+    for pth in (SERIES_CSV, SENTINEL_TWO_CLASS_SERIES):
+        if not pth.exists():
+            warn(f"no {pth.name} — run the series and --two-class first; manifest not written")
             return 1
-    M = pd.read_csv(model_csv).set_index("cls")
-    z = np.load(npz_path)
-    floor = z["floor"].astype(bool)
-    W = int((GRID["right"] - GRID["left"]) / GRID["res"])
-    H = int((GRID["top"] - GRID["bottom"]) / GRID["res"])
-    if floor.shape != (H, W):
-        warn(f"{npz_path.name} is {floor.shape}, GRID says {(H, W)} — feed not written")
-        return 1
-
-    def _encode(a):
-        """metres -> int16 centimetres, row-major, row 0 = NORTH (from_origin(left, top));
-        CELL_NEVER where the cell is off the floor or was never seen in the class."""
-        cm = np.rint(np.asarray(a, dtype="float64") * 100.0)
-        out = np.full(cm.shape, CELL_NEVER, dtype="<i2")
-        ok = floor & np.isfinite(cm) & (np.abs(cm) < CELL_NEVER)
-        out[ok] = cm[ok].astype("<i2")
-        return base64.b64encode(out.tobytes(order="C")).decode("ascii"), int(ok.sum())
-
-    ow_b64, n_ow = _encode(z["h_open_water"])
-    wf_b64, n_wf = _encode(z["h_wet_floor"])
-    # The floor mask itself. A switching level says a cell HAS been seen in the
-    # class; it cannot say a cell is floor that never was. 11,703 cells carry a
-    # dark-total level against 30,697 on the floor, so the difference is most of
-    # the study area and all of the film's "never seen wet" fill.
-    floor_b64 = base64.b64encode(np.packbits(floor, axis=None).tobytes()).decode("ascii")
-    curves = {}
-    for cls in ("open_water", "wet_floor", "dark_total"):
-        if cls not in M.index:
-            continue
-        r = M.loc[cls]
-        curves[cls] = {"a": float(r["a"]), "b": float(r["b"]),
-                       "sigma_log": float(r["sigma_log"]),
-                       "sigma_factor": float(r["sigma_factor"]),
-                       "rho": float(r["rho"]), "n": int(r["n"])}
-    hmin = float(M["h_min"].min())
-    hmax = float(M["h_max"].max())
-    history = _wet_area_history()
-    body = {
-        "schema": FEED_SCHEMA,
-        "decision": "D-178",
-        "source": f"sentinel_wet_floor.py {__version__} --two-class",
-        "source_hash": _sha16(model_csv),
-        "source_cells_hash": _sha16(npz_path),
-        "level_definition": LEVEL_DEFINITION,
-        "area_definition": ("hectares on the slack floors, scaled to the whole warren by the "
-                            "scene's clear fraction; NOT a flood map (D-177)"),
-        "curves": curves,
-        "curve_form": "area_ha = a * exp(b * h); sigma is a log-space factor (x/div sigma_factor)",
-        "fitted_range_m": {"min": hmin, "max": hmax},
-        "classes": {
-            "open_water": f"B8 <= {NIR_BLACK_RATIO:.2f} x the scene's clear-floor median",
-            "wet_floor": f"{NIR_BLACK_RATIO:.2f} < B8 <= {NIR_DARK_RATIO:.2f} x median",
-        },
-        "grid": {"left": GRID["left"], "bottom": GRID["bottom"], "right": GRID["right"],
-                 "top": GRID["top"], "res": GRID["res"], "crs": "EPSG:27700",
-                 "cols": W, "rows": H},
-        "cells": {
-            "dtype": "int16", "byte_order": "little",
-            "order": "row-major, row 0 = NORTH edge (top), column 0 = WEST edge (left)",
-            "units": "centimetres of median well level (0 = ground)",
-            "never": CELL_NEVER,
-            "encoding": (
-                "base64 of an int16 array, one value per 10 m cell: the median well level at "
-                f"which the cell switches into the class; {CELL_NEVER} = never seen in the class, "
-                f"seen in fewer than {CELL_MIN_SCENES} scenes, or not on the phase 29 floor. "
-                "NOTE the asymmetry with `curves`: `cells.wet_floor` is the DARK-TOTAL switching "
-                "level (B8 <= 0.80 x median, i.e. open water OR wet floor), exactly as "
-                "sentinel_wet_floor._animate uses it — draw it as the yellow layer and overdraw "
-                "open water in blue; the wet-floor-only cells are (wet_floor <= h) AND NOT "
-                "(open_water <= h). `curves.wet_floor` is the RING alone (0.50-0.80)."),
-            "n_open_water": n_ow, "n_wet_floor": n_wf,
-            "n_floor": int(floor.sum()), "floor_ha": round(float(floor.sum()) * 0.01, 2),
-            "floor_encoding": ("base64 of numpy.packbits over the row-major boolean mask, "
-                               "MSB first; unpack with numpy.unpackbits and reshape to "
-                               "(rows, cols). True = on the phase 29 slack floor inside the "
-                               "warren, which is the study area the whole model applies to"),
-            "open_water": ow_b64, "wet_floor": wf_b64, "floor": floor_b64,
-        },
-        "history": history,
-        "colours": {"open_water": "#0b6e8f", "wet_floor": "#d4a017"},
-        "caveat": ("cells switch at the level Sentinel-2 saw them switch in 2016-2026; an "
-                   "illustration of the area model on the Sentinel grid, not a prediction of "
-                   "where water will stand (D-177)"),
-    }
-    if LIVING_FEED.exists():
-        try:
-            old = json.loads(LIVING_FEED.read_text(encoding="utf-8"))
-            old.pop("generated", None)
-            if old == json.loads(json.dumps(body)):
-                info(f"{LIVING_FEED.name} unchanged (hash gate) — not rewritten")
-                return 0
-        except Exception:                                     # noqa: BLE001
-            pass
-    feed = {"generated": datetime.now(timezone.utc).isoformat(timespec="seconds")}
-    feed.update(body)
-    LIVING_FEED.parent.mkdir(parents=True, exist_ok=True)
-    LIVING_FEED.write_text(json.dumps(feed, indent=1) + "\n", encoding="utf-8")
-    if history:
-        step(f"history: {len(history['months'])} months {history['months'][0]} to "
-             f"{history['months'][-1]}, modes {'/'.join(sorted(history['level_m']))}")
-        if history.get("fit"):
-            for m, f in sorted(history["fit"]["modes"].items()):
-                step(f"  mode {m}: RMSE {f['rmse_m']:.3f} m, rho {f['rho']:+.3f}, n {f['n']}")
-        else:
-            warn(f"no {WELL_FIT.name}: the page will explain the modes without their fit")
-    else:
-        warn(f"no {SSM_CURVES.name}: the feed carries no history and the page's history "
-             f"control will be hidden")
-    step(f"{n_ow} cells with an open-water switching level, {n_wf} with a dark-total one, "
-         f"of {int(floor.sum())} on the floor; {LIVING_FEED.stat().st_size / 1024:.0f} kB")
-    saved(f"living/{LIVING_FEED.name}  (the public feed — D-178, T-36)")
+    S = pd.read_csv(SERIES_CSV)
+    fitted = set(pd.read_csv(SENTINEL_TWO_CLASS_SERIES)["date"].astype(str))
+    # The fit takes the winter scenes with a well level, minus the excluded ones;
+    # the two_class_series IS that set, so it is the authority for used_in_fit.
+    rows = []
+    for _, r in S.iterrows():
+        date = str(r["date"])
+        stac = str(r["scene"])
+        parts = stac.split("_")
+        tile = parts[1] if len(parts) > 1 else ""
+        b8 = CACHE / f"b8_{date}.npz"
+        sha = ""
+        if b8.exists():
+            h = hashlib.sha256()
+            with open(b8, "rb") as fh:
+                for chunk in iter(lambda: fh.read(1 << 20), b""):
+                    h.update(chunk)
+            sha = h.hexdigest()
+        rows.append({
+            "date": date, "stac_id": stac, "tile": tile, "collection": COLLECTION,
+            "tile_cloud_pct": round(float(r["tile_cloud_pct"]), 1),
+            "clear_pct": round(float(r["clear_pct"]), 1),
+            "winter": bool(r["winter"]),
+            "used_in_fit": date in fitted,
+            "excluded": date in TWO_CLASS_EXCLUDE,
+            "b8_sha256": sha,
+        })
+    M = pd.DataFrame(rows).sort_values("date").reset_index(drop=True)
+    SENTINEL_SCENE_MANIFEST.parent.mkdir(parents=True, exist_ok=True)
+    header = (
+        f"# Sentinel-2 scene manifest for the Newborough wet-area model (D-178, T-40).\n"
+        f"# The INPUT of record for the wet-area line: these Copernicus scenes are LISTED,\n"
+        f"# not committed. Re-fetch each stac_id from {STAC_URL} (collection {COLLECTION}),\n"
+        f"# reproject onto the {GRID['res']} m OSGB grid "
+        f"[{GRID['left']},{GRID['bottom']},{GRID['right']},{GRID['top']}], and the derivation\n"
+        f"# should reproduce data/sentinel/two_class_series.csv. b8_sha256 is the sha256 of\n"
+        f"# this session's cached B8 array for the scene (working-store; blank where not cached).\n"
+        f"# Classes: open water B8<={NIR_BLACK_RATIO} x floor median; wet floor {NIR_BLACK_RATIO}-{NIR_DARK_RATIO}.\n"
+        f"# Generated by sentinel_wet_floor.py {__version__} --write-manifest.\n"
+    )
+    with open(SENTINEL_SCENE_MANIFEST, "w", encoding="utf-8", newline="") as fh:
+        fh.write(header)
+        M.to_csv(fh, index=False)
+    n_fit = int(M["used_in_fit"].sum())
+    step(f"{len(M)} scene(s) listed, {n_fit} used in the fit, "
+         f"{int((M['b8_sha256'] != '').sum())} with a B8 checksum")
+    saved(f"data/sentinel/{SENTINEL_SCENE_MANIFEST.name}  (the scene input list — T-40, D-179)")
     return 0
 
 
@@ -1176,31 +925,29 @@ def main() -> int:
     ap.add_argument("--swir-test", nargs="+", metavar="DATE",
                     help="SWIR indices against these vetted dates; first date sets the threshold")
     ap.add_argument("--two-class", action="store_true",
-                    help="the wet-area model (D-178): open water and wet floor from B8 vs the "
-                         "wells, per-cell switching levels, the SSM drive; needs the series")
-    ap.add_argument("--animate", action="store_true", help="with --two-class: the monthly MP4")
-    ap.add_argument("--emit-feed", action="store_true",
-                    help="rewrite living/wet_area_model.json from the committed "
-                         "W94_27_wet_area_model.csv and W94_27_cell_thresholds.npz; no scene "
-                         "read, no network, no rasterio")
+                    help="regenerate the committed wet-area inputs (T-40, D-178): the scene "
+                         "series and the per-cell switching levels, into data/sentinel/; needs "
+                         "the series. The fit and feed are Steps 45/46, not this tool")
+    ap.add_argument("--write-manifest", action="store_true",
+                    help="write data/sentinel/sentinel_scene_manifest.csv (the scene input "
+                         "list, T-40); no network, no rasterio")
     ap.add_argument("--cells", nargs="+", metavar="DATE",
                     help="supervised per-cell classifier trained on the first vetted date, "
                          "tested on the rest; writes vettable KMLs and true-colour overlays")
     args = ap.parse_args()
     warnings.filterwarnings("ignore", category=UserWarning, module="rasterio")
     banner("Sentinel-2 wet slack floor series", __version__)
-    if args.emit_feed:
-        # Before _warren_mask(): the feed is a re-read of two committed artefacts and
-        # must run on a host without rasterio.
-        phase(1, "The public feed the forecaster reads")
-        return write_wet_area_feed()
+    if args.write_manifest:
+        # Before _warren_mask(): pure pandas + hashlib, runs on any host.
+        phase(1, "The scene input list")
+        return write_scene_manifest()
     Wm = _warren_mask()
     if args.calibrate:
         phase(1, "Calibrating the darkness ratio on the vetted extent")
         calibrate(Wm)
         return 0
     if args.two_class:
-        return two_class(Wm, animate=args.animate)
+        return two_class(Wm)
     if args.cells:
         phase(1, "Per-cell classifier trained on the vetted extent, every band")
         return cells(Wm, args.cells)

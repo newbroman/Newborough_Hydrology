@@ -1649,7 +1649,10 @@ def _load_wet_area_model() -> dict | None:
                                "classes", "grid", "colours", "caveat") if k in feed}
     # Everything about the cells EXCEPT the two arrays: the page needs the
     # encoding contract to decode what it fetches, not the payload.
-    out["cells_meta"] = {k: v for k, v in cells.items() if k not in ("open_water", "wet_floor")}
+    # The three big arrays stay out of the page: two switching-level arrays at
+    # ~250 kB each and, since the feed's 1.10.0, the packed floor mask at ~22 kB.
+    _ARRAYS = ("open_water", "wet_floor", "floor")
+    out["cells_meta"] = {k: v for k, v in cells.items() if k not in _ARRAYS}
     out["cells_url"] = WET_AREA_URL
     out["mask_outline"] = _warren_outline()
     step(f"wet-area model: {curves['open_water']['a']:.1f}·exp({curves['open_water']['b']:.2f}·h) / "

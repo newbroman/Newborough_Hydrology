@@ -50,7 +50,14 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.9.0"  # Hollingham (2026) - 2026-09-17. The history block
+__version__ = "1.10.0"  # Hollingham (2026) - 2026-09-17. `cells.floor`: the
+#   phase 29 floor mask inside the warren, packbits-ed and base64-ed (~22 kB). The
+#   feed could say which cells have a switching level but not which cells are FLOOR
+#   - 11,703 of 30,697 - so a reader confined to the feed (Script 45, T-39) could
+#   not draw the study area, nor the "floor never seen wet" fill the film uses for
+#   a month beyond the record. Without it that reader has to open the private npz,
+#   which is the one thing the feed exists to avoid.
+# v1.9.0  Hollingham (2026) - 2026-09-17. The history block
 #   carries each mode's fit against the wells - RMSE and Spearman rho, COMPUTED from
 #   W94_27_well_fit.csv rather than scraped out of the summary CSV's prose value
 #   cells. The forecaster quotes them where it explains Mode R and Mode C, so they
@@ -1065,6 +1072,11 @@ def write_wet_area_feed() -> int:
 
     ow_b64, n_ow = _encode(z["h_open_water"])
     wf_b64, n_wf = _encode(z["h_wet_floor"])
+    # The floor mask itself. A switching level says a cell HAS been seen in the
+    # class; it cannot say a cell is floor that never was. 11,703 cells carry a
+    # dark-total level against 30,697 on the floor, so the difference is most of
+    # the study area and all of the film's "never seen wet" fill.
+    floor_b64 = base64.b64encode(np.packbits(floor, axis=None).tobytes()).decode("ascii")
     curves = {}
     for cls in ("open_water", "wet_floor", "dark_total"):
         if cls not in M.index:
@@ -1111,8 +1123,12 @@ def write_wet_area_feed() -> int:
                 "open water in blue; the wet-floor-only cells are (wet_floor <= h) AND NOT "
                 "(open_water <= h). `curves.wet_floor` is the RING alone (0.50-0.80)."),
             "n_open_water": n_ow, "n_wet_floor": n_wf,
-            "n_floor": int(floor.sum()),
-            "open_water": ow_b64, "wet_floor": wf_b64,
+            "n_floor": int(floor.sum()), "floor_ha": round(float(floor.sum()) * 0.01, 2),
+            "floor_encoding": ("base64 of numpy.packbits over the row-major boolean mask, "
+                               "MSB first; unpack with numpy.unpackbits and reshape to "
+                               "(rows, cols). True = on the phase 29 slack floor inside the "
+                               "warren, which is the study area the whole model applies to"),
+            "open_water": ow_b64, "wet_floor": wf_b64, "floor": floor_b64,
         },
         "history": history,
         "colours": {"open_water": "#0b6e8f", "wet_floor": "#d4a017"},

@@ -1,5 +1,6 @@
 # Frame text — 45_hindcast_film.py 1.0.0
 # wet-area model 42ace095fa40a709 (sentinel_wet_floor.py 1.10.0 --two-class)
+# the trace's arrival lines — the level at which each class first covers 1 ha of the study area: open_water -0.500 m, wet_floor -0.800 m
 
 ## CAPTION (every frame)
 Today's reserve — forest and all — under the

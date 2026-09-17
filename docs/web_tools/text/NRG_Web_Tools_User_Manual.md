@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/web_tools/NRG_Web_Tools_User_Manual.odt — do not edit. source-sha256=7a8920c6184b57bc pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/web_tools/NRG_Web_Tools_User_Manual.odt — do not edit. source-sha256=a6f1928fc95fc470 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 2
@@ -182,6 +182,54 @@ Some wells are flagged with an asterisk (\*) and display a nearest-type assignme
 Part B
 
 Hydrological Scenario Viewer
+
+# A11. The Wet-Area Panel and Cell Layer
+
+## A11.1 What the panel shows
+
+For the scenario you have set --- the starting readings, the rainfall multiplier, and today as the starting month --- the panel gives, for each of the next twelve months, the projected median well level across the whole recorded network and two areas in hectares: open water and wet floor. Under each figure is that curve\'s plus-or-minus one sigma band, which is the fit\'s own scatter rather than a confidence interval on the forecast.
+
+The level is the median over every well the page iterates, not a cluster and not a subset, because the curves were fitted against the recorded network\'s monthly median. Clicking a row moves the map layer to that month.
+
+## A11.2 How the two areas are derived
+
+Both come from Sentinel-2\'s near-infrared band, read directly from the public archive, over every usable winter scene between 2016 and 2026. Within each scene, on the slack floors inside the warren boundary, the near-infrared brightness is compared with that scene\'s own clear-floor median, so nothing depends on an absolute brightness that would not travel between dates: open water is at or below 0.50 times that median, and wet floor lies above 0.50 and at or below 0.80 times it.
+
+Each class is scaled up to the whole warren by the fraction of it the scene sees clearly, then fitted against the median well level at the scene\'s date as an exponential, area equals a times the exponential of b times the level. No human classification enters the fit at any point. The current parameters are published in living/wet_area_model.json and are quoted at the foot of the panel with the hash of the model they came from.
+
+The two hand-vetted flood extents, of 24 March 2021 and 30 March 2020, are not in the fit. They say what the classes mean: the vetted extent, which is surface water and damp ground together, falls between the two curves on both dates. Open water at 10 m resolution is the pool core of a flood; the wet-floor class is the shallow flooded and saturated sward around it.
+
+## A11.3 Where the data applies --- the warren only
+
+Everything in this panel and on this layer is the warren study area and nothing else. The Sentinel-2 classes are counted inside the warren boundary; the forest and the remainder of the site are excluded from the measurement altogether, under Decision D-159, which puts the warren at 647.5 ha of the 861.6 ha site.
+
+Two consequences are worth stating plainly. Every hectare quoted --- open water, wet floor, the sigma bands --- is a hectare of warren, and none of them is a fraction of the site. And on the map, ground outside the dashed boundary has no data: it is not dry ground, it was never measured. The cell grid is a rectangle with a margin, so without the boundary drawn an unmeasured cell and a dry cell look identical. The boundary appears automatically whenever the cell layer is switched on.
+
+## A11.4 The map layer, and what it is not
+
+Ticking Wet-area cells draws the 10 m floor cells in blue for open water and yellow for wet floor. Each cell carries the level at which Sentinel-2 was actually seen to enter that class over 2016 to 2026, and a cell lights when the level you have chosen reaches it.
+
+It is an illustration of the area model on the Sentinel grid. It shows where these classes have appeared at that level before. It is not a prediction of where water will stand, it does not say how deep anything is, and it is not a flood map. Sub-cell water is invisible to it, and each cell\'s switching level is known only to the spacing of the scenes that saw it.
+
+The layer\'s hectares and the panel\'s hectares are different quantities and will not match exactly: the cells are floor-only and unscaled, the curves are whole-warren totals. A few hectares between them is the scaling, not an error. The readout under the layer control gives both figures side by side for exactly this reason.
+
+## A11.5 Choosing the level: Forecast, History and Level
+
+The layer is a function of the median well level and of nothing else, so there are three ways to give it one. Forecast takes a month from the twelve-month projection and is the default. History takes a month from the modelled record, October 2005 to March 2026. Level lets you type a level in metres directly.
+
+In History you also choose between two hindcast modes. Both run the same monthly recurrence over the same climate record and differ only in what they are started from and how often. Mode R, restarted, begins each hydrological year in October from that year\'s observed August-to-September minimum at the wells and runs to the following September; because it is re-seeded annually it follows the record closely, and it is the mode the animation uses. Mode C, continuous, was started once in October 2005 from the wells\' mean summer minimum and has never been re-seeded, so it shows what the model produces from the climate record alone with no help from the readings. Each mode\'s fit against the wells is quoted on the page and comes from the feed, so it moves with a refit.
+
+Mode R is the better fit by construction, and phase 27 requires it to be: if the annual restart did not improve the fit it would not be worth doing. Mode C is the more honest test of the model as a model. Ticking the observed-level box substitutes the month\'s actual median well level for the modelled one, where enough wells were read.
+
+## A11.6 Held --- the fitted range
+
+The curves were fitted over a range of water-table levels which is stated in the panel. Outside it, the panel holds the areas at the range edge, tags the row as held, and the layer freezes there.
+
+This matters most at the wet end. The open-water curve is steep --- a tenth of a metre of level is about half its area --- and extrapolating it upward off the top of the fitted range would produce a confident number with nothing behind it. A run of identical held rows is the page telling you the projection has left the ground the model was built on, not a fault.
+
+## A11.7 Provenance
+
+The panel and the layer both read living/wet_area_model.json, which is written by the sentinel_wet_floor tool from the committed model and is stamped with the hash of the file it came from. That stamp appears at the foot of the panel. If the feed and the page ever disagree, the page says so rather than drawing two fits at once.
 
 # B1. Introduction
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-45_hindcast_film.py — the century hindcast film: a free-running SSM from 1930,
+47_hindcast_film.py — the century hindcast film: a free-running SSM from 1930,
 calibrated to the well period, through the wet-area model (T-39, D-178)
 ==========================================================================
 
@@ -44,13 +44,13 @@ INPUTS — all committed; nothing from the private store
   living/wet_area_model.json .............. the curves, the grid and the cells
 
   The background is a greyscale Copernicus Sentinel-2 scene of 2021-04-04,
-  committed beside the outputs as 45_00_background_2021-04-04.png. Sentinel-2
+  committed beside the outputs as 47_00_background_2021-04-04.png. Sentinel-2
   data are free and open under the Copernicus licence.
 
 USAGE
   python3 run_analysis.py --hindcast-film
-  python3 src/45_hindcast_film.py --no-film      # the CSVs only, no rendering
-  python3 src/45_hindcast_film.py --check-phase27 PATH   # recurrence check only
+  python3 src/47_hindcast_film.py --no-film      # the CSVs only, no rendering
+  python3 src/47_hindcast_film.py --check-phase27 PATH   # recurrence check only
 """
 from __future__ import annotations
 
@@ -79,9 +79,9 @@ import pandas as pd                                           # noqa: E402
 from utils.paths import (                                     # noqa: E402
     INT_CLIMATE, INT_MASTER_DATA, INT_WELLS_CLEAN, INT_WELLS_REFERENCE,
     LIVING_WET_AREA_MODEL, OUT_03_MECHANISTIC_TABLE,
-    DIR_45, OUT_45_LEVEL_MONTHLY, OUT_45_CALIBRATION, OUT_45_QUANTILE_MAP,
-    OUT_45_PRESENTATION, OUT_45_FILM, OUT_45_CAVEATS, OUT_45_BACKGROUND,
-    out_45_still,
+    DIR_47, OUT_47_LEVEL_MONTHLY, OUT_47_CALIBRATION, OUT_47_QUANTILE_MAP,
+    OUT_47_PRESENTATION, OUT_47_FILM, OUT_47_CAVEATS, OUT_47_BACKGROUND,
+    out_47_still,
 )
 from utils.config import (                                    # noqa: E402
     DRAINAGE_DATUM, HINDCAST_SEED_MONTHS, HINDCAST_SPIN_UP_YEARS,
@@ -353,7 +353,7 @@ def calibrate(level: pd.DataFrame) -> tuple:
           & (level["n_wells_observed"] >= QMAP_MIN_WELLS))
     if int(ok.sum()) < QMAP_MIN_MONTHS:
         warn(f"{int(ok.sum())} month(s) with >= {QMAP_MIN_WELLS} wells — fewer than "
-             f"{QMAP_MIN_MONTHS}; the run is left RAW and said so in 45_02")
+             f"{QMAP_MIN_MONTHS}; the run is left RAW and said so in 47_02")
         return level["median_level_modelled_m"].to_numpy(float), None, None
     qm, m, o = quantile_map(level.loc[ok, "median_level_modelled_m"],
                             level.loc[ok, "median_level_observed_m"])
@@ -511,8 +511,8 @@ def build_text(feed: dict, floor_ha: float) -> tuple:
 def write_caveats(caption, caption_beyond, before, after, feed, arrivals=None) -> None:
     """Every string the film shows, in one file, so the wording is lint-visible
     and diffable — a frame is not."""
-    DIR_45.mkdir(parents=True, exist_ok=True)
-    L = [f"# Frame text — 45_hindcast_film.py {__version__}",
+    DIR_47.mkdir(parents=True, exist_ok=True)
+    L = [f"# Frame text — 47_hindcast_film.py {__version__}",
          f"# wet-area model {feed['source_hash']} ({feed['source']})"]
     if arrivals:
         L.append("# the trace's arrival lines — the level at which each class first covers 1 ha "
@@ -527,8 +527,8 @@ def write_caveats(caption, caption_beyond, before, after, feed, arrivals=None) -
         L += [f"## {name}", ""]
         for title, paras, foot in slides:
             L += [f"### {title}"] + list(paras) + ([f"[footer] {foot}"] if foot else []) + [""]
-    OUT_45_CAVEATS.write_text("\n".join(L) + "\n", encoding="utf-8")
-    saved(OUT_45_CAVEATS.name)
+    OUT_47_CAVEATS.write_text("\n".join(L) + "\n", encoding="utf-8")
+    saved(OUT_47_CAVEATS.name)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -573,13 +573,13 @@ def first_hectare_levels(cells, hectares: float = 1.0) -> dict:
 def _background(shape):
     """The greyscale Sentinel-2 scene behind the cells, or a flat grey."""
     from PIL import Image                                     # noqa: PLC0415
-    if OUT_45_BACKGROUND.exists():
-        base = np.array(Image.open(OUT_45_BACKGROUND).convert("L")).astype(float) / 255.0
+    if OUT_47_BACKGROUND.exists():
+        base = np.array(Image.open(OUT_47_BACKGROUND).convert("L")).astype(float) / 255.0
         if base.shape != shape:
-            warn(f"{OUT_45_BACKGROUND.name} is {base.shape}, the grid is {shape}; flat grey used")
+            warn(f"{OUT_47_BACKGROUND.name} is {base.shape}, the grid is {shape}; flat grey used")
             base = np.full(shape, 0.6)
     else:
-        warn(f"no {OUT_45_BACKGROUND.name}; flat grey behind the cells")
+        warn(f"no {OUT_47_BACKGROUND.name}; flat grey behind the cells")
         base = np.full(shape, 0.6)
     return np.stack([base * 0.55 + 0.25] * 3, -1)
 
@@ -718,15 +718,15 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
         for title_, paras, foot in after:
             frames += slide(title_, paras, foot)
 
-    target = OUT_45_PRESENTATION if presentation else OUT_45_FILM
+    target = OUT_47_PRESENTATION if presentation else OUT_47_FILM
     quality = FILM_QUALITY_PRESENTATION if presentation else FILM_QUALITY_FULL
     imageio.mimwrite(target, frames, fps=FILM_FPS, codec="libx264", quality=quality,
                      macro_block_size=None)
     saved(target.name, f"{len(frames) / FILM_FPS:.0f} s, {len(frames)} frames, quality {quality}")
     if still:
         m, a = next(iter(still.items()))
-        Image.fromarray(a).save(out_45_still(m))
-        saved(out_45_still(m).name)
+        Image.fromarray(a).save(out_47_still(m))
+        saved(out_47_still(m).name)
     return 0
 
 
@@ -734,7 +734,7 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
 # ENTRY POINT
 # ─────────────────────────────────────────────────────────────────────────────
 def main(no_film: bool = False, check_phase27: str | None = None) -> int:
-    banner("45", "The century hindcast film", version=__version__)
+    banner("47", "The century hindcast film", version=__version__)
     phase(1, "Committed inputs")
     clim = load_climate()
     betas = load_betas()
@@ -757,18 +757,18 @@ def main(no_film: bool = False, check_phase27: str | None = None) -> int:
     ow, wf, floor = decode_cells(feed)
     floor_ha = float(floor.sum()) * 0.01
     level = areas(level, feed, floor_ha)
-    DIR_45.mkdir(parents=True, exist_ok=True)
+    DIR_47.mkdir(parents=True, exist_ok=True)
     keep = ["month", "median_level_modelled_m", "median_level_calibrated_m", "n_wells_run",
             "median_level_observed_m", "n_wells_observed", "above_fitted_range", "spin_up",
             "climate_flagged", "open_water_ha", "wet_floor_ha",
             "open_water_ha_raw_level", "wet_floor_ha_raw_level"]
-    level[keep].round(3).to_csv(OUT_45_LEVEL_MONTHLY, index=False)
-    saved(OUT_45_LEVEL_MONTHLY.name)
+    level[keep].round(3).to_csv(OUT_47_LEVEL_MONTHLY, index=False)
+    saved(OUT_47_LEVEL_MONTHLY.name)
     if stats is not None:
-        pd.DataFrame([stats]).round(3).to_csv(OUT_45_CALIBRATION, index=False)
-        saved(OUT_45_CALIBRATION.name)
-        qmap.round(3).to_csv(OUT_45_QUANTILE_MAP, index=False)
-        saved(OUT_45_QUANTILE_MAP.name)
+        pd.DataFrame([stats]).round(3).to_csv(OUT_47_CALIBRATION, index=False)
+        saved(OUT_47_CALIBRATION.name)
+        qmap.round(3).to_csv(OUT_47_QUANTILE_MAP, index=False)
+        saved(OUT_47_QUANTILE_MAP.name)
     n_over = int(level["above_fitted_range"].sum())
     wettest = level.loc[level["open_water_ha"].idxmax(), "month"]
     result("beyond the fitted range", f"{n_over} of {len(level)} month(s); wettest {wettest} "

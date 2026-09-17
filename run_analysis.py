@@ -186,7 +186,18 @@ import uuid
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.17.0"  # 2026-09-11: VENV SELF-GUARD. The orchestrator now
+__version__ = "2.18.0"  # 2026-09-17: PHASE 18 — the Sentinel wet-area line
+#   REGISTERED (T-40, D-178). Scripts 45 (fit), 46 (feed) and 47 (film, ondemand)
+#   join as a new phase, all display tier. _DOCUMENTED_COUNTS moves deliberately:
+#   total_registered 54->57, total_phases 17->18, by_tier.display_utility 5->8,
+#   by_exec.default 50->52, by_exec.ondemand 1->2. analytical_toplevel (43) and
+#   analytical_phases (16) are UNCHANGED — the line is display, not analytical
+#   (D-177: an illustration, not a flood map). The five committed data/sentinel/
+#   inputs are added to REQUIRED_DATA so input_provenance hashes them; --hindcast-film
+#   renders Script 47 on demand. Docs cite total_registered (10 sentences) and
+#   by_exec.default (2), updated in the same push; total_phases/analytical_phases
+#   are cited nowhere. See working/updates/T40_stage3_design_2026-09-17.md.
+# v2.17.0  # 2026-09-11: VENV SELF-GUARD. The orchestrator now
 #   re-execs under venv/bin/python3 unless a virtualenv is already active,
 #   matching what check_all.sh has done since its v1.6.0. See D-155 and the
 #   note beside _reexec_under_venv(). No change to any step or output.
@@ -491,6 +502,11 @@ PHASE_17 = [
     Step("43_ranwell_sites.py",       "Ranwell (1959) Fig 3 water-table sites: hand placement over a georeferenced sketch, height-checked against the DEM, basin-tested; slack floors as a diagnostic layer (W95, D-140 revisited). Skips when Route M's input is absent", "D"),
     Step("44_ranwell_hindcast.py",    "Ranwell's 1951\u201353 readings (recovered from his figures) against the SSM hindcast and the modern water-table surface \u2014 out-of-sample validation fifty-four years before calibration and the climate-corrected level change since 1951 (D-145). Skips when the digitised inputs are absent", "A"),
 ]
+PHASE_18 = [
+    Step("45_wet_area_model.py", "The Sentinel-2 wet-area model (D-178): the two curves fitted from the committed scene series, and phase 27's SSM level through them. Display tier — an illustration of the area model, not a flood map (D-177)", "D"),
+    Step("46_wet_area_feed.py",  "The public wet-area feed living/wet_area_model.json (D-178, T-36): the curves, the per-cell switching levels and the SSM history the scenario viewer and the film read. Assembles committed products; fits nothing", "D"),
+    Step("47_hindcast_film.py",  "The century hindcast film (T-39, D-178): a free-running SSM from 1930 through the wet-area model, calibrated to the well period. On demand only (--hindcast-film); renders a frame per month and needs ffmpeg, so it is not part of --full", "D", "ondemand"),
+]
 
 ALL_PHASES = [
     ("PHASE 1  — Core LCSC Chain",                              PHASE_1),
@@ -510,6 +526,7 @@ ALL_PHASES = [
     ("PHASE 15 \u2014 Observed Differential Change, Envelope, and Driver Validation (Scripts 32, 33, 35, 36, 37, 37b)", PHASE_15),
     ("PHASE 16 \u2014 Window Sensitivity, Coastal Transect, and Supplementary Cluster Diagnostics (Scripts 34, 38 default; 24b, 31, 31b opt-in)", PHASE_16),
     ("PHASE 17 \u2014 Synthesis Figures, Greyscale Conversion, and the Ranwell 1951\u201353 Record (Scripts 09f, 09g, 27, 43, 44)",  PHASE_17),
+    ("PHASE 18 \u2014 Sentinel Wet-Area Model (Scripts 45, 46; film 47 on demand)",  PHASE_18),
 ]
 
 # Phase number = 1-based position in ALL_PHASES (the orchestrator phase order).
@@ -538,14 +555,14 @@ _PHASE_NUM = {label: i for i, (label, _entries) in enumerate(ALL_PHASES, start=1
 # this pipeline and is cited in the report, which is what puts it in tier A
 # rather than among the opt-in diagnostics.
 _DOCUMENTED_COUNTS = {
-    "total_registered":            54,
-    "total_phases":                17,
+    "total_registered":            57,
+    "total_phases":                18,
     "by_tier.analytical_toplevel": 43,
-    "by_tier.display_utility":      5,
+    "by_tier.display_utility":      8,
     "by_tier.optin_diagnostic":     6,
-    "by_exec.default":             50,
+    "by_exec.default":             52,
     "by_exec.optin":                3,
-    "by_exec.ondemand":             1,
+    "by_exec.ondemand":             2,
     "analytical_phases":           16,   # phases carrying >=1 tier-A step; emitted
                                          # for completeness, NOT cited in any document
 }
@@ -894,6 +911,15 @@ REQUIRED_DATA = [
     "Newborough_Cleaned_For_Model.csv",
     "RAF_Valley_Climate.csv",
     "well_metadata.csv",          # consolidated; replaced Well_locations_height.csv + well_distance_to_coast.csv
+    # The Sentinel wet-area line's committed inputs (T-40, D-178). Externally
+    # derived — a re-runner regenerates the scene products from Copernicus via
+    # tools/sentinel_wet_floor.py; well_fit / hindcast_monthly are phase-27
+    # products. input_provenance hashes all five so a later edit is detectable.
+    "sentinel/two_class_series.csv",
+    "sentinel/cell_thresholds.npz",
+    "sentinel/sentinel_scene_manifest.csv",
+    "sentinel/well_fit.csv",
+    "sentinel/hindcast_monthly.csv",
 ]
 REQUIRED_PHASE1_OUTPUTS = [
     "01_wells_reference.csv",
@@ -1436,8 +1462,9 @@ def run_phase(phase_label: str, from_step: int = 1, include_optin: bool = False,
         if rs.script in exclude_scripts:
             continue
         if rs.exec == "ondemand":
+            _od_flag = "--hindcast-film" if rs.script == "47_hindcast_film.py" else "--greyscale"
             print("  " + paint(
-                f"{GLYPH_SKIP} skip step {rs.label.strip()}  (on demand — use --greyscale)",
+                f"{GLYPH_SKIP} skip step {rs.label.strip()}  (on demand — use {_od_flag})",
                 _Ansi.GREY))
             continue
         if rs.exec == "optin" and not include_optin:
@@ -1828,6 +1855,19 @@ def run_greyscale(full_rerun: bool = False) -> None:
         say_ok(f"{n_figs} greyscale figures in: {bw_dir}/")
     print()
 
+
+def run_hindcast_film() -> None:
+    """Render the century hindcast film (Script 47, on demand — T-39, D-178).
+
+    Reads only committed inputs and the wet-area feed (Steps 45/46). Renders a
+    frame per month of the climate record and needs the ffmpeg binary
+    (imageio-ffmpeg; see MACHINE_SETUP.md), which is why it is not part of --full.
+    """
+    rs = _STEP_BY_SCRIPT["47_hindcast_film.py"]
+    say_info(f"Rendering the century hindcast film (step {rs.index}); needs ffmpeg.")
+    run_script(rs.script, rs.label)
+
+
 def show_help() -> None:
     """Print a structured, colour-coded explanation of the pipeline and menu."""
     H = lambda s: paint(s, _Ansi.BCYAN, _Ansi.BOLD)
@@ -2108,6 +2148,8 @@ def main() -> None:
                         help="Convert existing figures to greyscale (Script 27 only)")
     parser.add_argument("--greyscale-full", action="store_true",
                         help="Re-run full pipeline in B&W mode then convert (best quality)")
+    parser.add_argument("--hindcast-film", dest="hindcast_film", action="store_true",
+                        help="Render the century hindcast film (Script 47 only; needs ffmpeg)")
     parser.add_argument("--manifest-only", dest="manifest_only", action="store_true",
                         help="Write outputs/pipeline_manifest.json and exit "
                              "(no steps are run)")
@@ -2178,6 +2220,9 @@ def main() -> None:
         elif args.greyscale:
             _banner("NEWBOROUGH WARREN GROUNDWATER ANALYSIS PIPELINE")
             run_greyscale(full_rerun=False)
+        elif args.hindcast_film:
+            _banner("NEWBOROUGH WARREN GROUNDWATER ANALYSIS PIPELINE")
+            run_hindcast_film()
         elif args.supplementary:
             _banner("NEWBOROUGH WARREN GROUNDWATER ANALYSIS PIPELINE")
             run_supplementary()

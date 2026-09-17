@@ -1,11 +1,11 @@
-<!-- GENERATED MIRROR of report_edits/odt/report8.odt — do not edit. source-sha256=4c70851b25a8ba38 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report8.odt — do not edit. source-sha256=06b531184b1ff4f4 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}Methods
 
 ## []{#anchor-1}Data Sources and Preparation
 
-All analyses were implemented as a numbered Python pipeline orchestrated by run_analysis.py. The pipeline comprises 54 registered steps across 17 phases. Those steps are classified two independent ways. By tier: 43 analytical, five display/utility (Script 26c, MSL5 report-format figures; Script 09f, the management-effects synthesis figure; Script 09g, the mechanism-diagram figure suite; Script 27, the greyscale figure-conversion utility; and Script 43, the Ranwell 1959 historical water-table site georeference), and six diagnostic. By execution: 50 run in a default pass, three (Scripts 24b, 31 and 31b) only behind the \--with-supplementary switch, and one (Script 27, greyscale conversion) only on demand behind its own \--greyscale flags. The two classifications each account for the same 54 steps and are not additive with one another; current values are written to outputs/pipeline_manifest.json on every run.
+All analyses were implemented as a numbered Python pipeline orchestrated by run_analysis.py. The pipeline comprises 57 registered steps across 18 phases. Those steps are classified two independent ways. By tier: 43 analytical, eight display/utility (Script 26c, MSL5 report-format figures; Script 09f, the management-effects synthesis figure; Script 09g, the mechanism-diagram figure suite; Script 27, the greyscale figure-conversion utility; Script 43, the Ranwell 1959 historical water-table site georeference; and Scripts 45, 46 and 47, the Sentinel wet-area model, its public feed and the century hindcast film), and six diagnostic. By execution: 52 run in a default pass, three (Scripts 24b, 31 and 31b) only behind the \--with-supplementary switch, and two (Script 27, greyscale conversion; and Script 47, the century hindcast film) only on demand behind their own flags. The two classifications each account for the same 57 steps and are not additive with one another; current values are written to outputs/pipeline_manifest.json on every run.
 
 -   **Phases 1--11** produce the analytical chain presented in this report --- clustering, state-space modelling, intervention analysis, forecasting, water balance, scenario evaluation and the network-scale coastal-retreat gradient regression.
 -   **Phase 12** contains supplementary residual diagnostics (Scripts 22--24).

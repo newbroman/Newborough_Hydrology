@@ -1753,6 +1753,27 @@ FILM_SLIDE_LEAD_S            = 1.5
 FILM_QUALITY_PRESENTATION    = 6      # imageio/x264: the cut that goes into git
 FILM_QUALITY_FULL            = 8      # the bare cut, gitignored
 
+# ── The Sentinel wet-area model (Scripts 45 & 46, T-40, D-178) ───────────────
+# The two-class wet-area model, promoted from the tools/ lane into the pipeline
+# (T-40). These constants define the model's classes, the analysis grid and the
+# public feed's contract. They are shared by Step 45 (the fit and the SSM drive),
+# Step 46 (the feed) and tools/sentinel_wet_floor.py (which regenerates the
+# committed inputs from the Copernicus scenes), so they live here once rather
+# than being defined in each of the three.
+WET_AREA_GRID = dict(left=239770, bottom=362090, right=244360, top=364940, res=10)  # OSGB, 10 m
+NIR_BLACK_RATIO  = 0.50   # B8 <= this x the scene's clear-floor median = open water
+NIR_DARK_RATIO   = 0.80   # B8 <= this (and above BLACK) = wet floor
+CELL_MIN_SCENES  = 10     # a cell seen in fewer scenes gets no switching level
+WET_AREA_CLASSES = ("open_water", "wet_floor", "dark_total")
+
+# The public feed, living/wet_area_model.json.
+WET_AREA_FEED_SCHEMA = "nw-wet-area-1"
+WET_AREA_CELL_NEVER  = 32767   # int16 sentinel: never in the class, or not on the floor.
+#   NOT -1, which the D-178 spec first proposed: -1 cm is a LEGAL switching level
+#   (-0.01 m) and the fitted range runs -0.80 to +0.03 m, so -1 collides with data.
+WET_AREA_LEVEL_DEFINITION = ("median of the monthly dipwell readings across the recorded "
+                             "network (01_wells_all + D-166 months), m, 0 at ground")
+
 # Drought and recession season, Apr-Sep. The COMPLEMENT of
 # WINTER_RECHARGE_MONTHS: the two partition the year, six months each, and
 # changing either without the other would leave months belonging to both seasons

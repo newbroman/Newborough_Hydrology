@@ -409,7 +409,7 @@ the whole of the sync story.
 
 ## The hindcast film needs an ffmpeg binary
 
-`src/45_hindcast_film.py` (on demand, `run_analysis.py --hindcast-film`) writes
+`src/47_hindcast_film.py` (on demand, `run_analysis.py --hindcast-film`) writes
 MP4s through `imageio`, which needs the **ffmpeg binary** — a separate thing from
 the `imageio` wheel. `imageio-ffmpeg` carries one:
 
@@ -420,7 +420,7 @@ pip install imageio-ffmpeg
 
 Without it the script stops at its render phase with that message and writes no
 video. There is deliberately **no GIF fallback**: the tracked artefact is
-`45_03_hindcast_presentation.mp4`, and a GIF silently substituted for it would be
+`47_03_hindcast_presentation.mp4`, and a GIF silently substituted for it would be
 committed as though it were the same thing. (`tools/sentinel_wet_floor.py` does
 fall back to a GIF — that is a working-store animation nobody commits, which is
 why the two differ.)

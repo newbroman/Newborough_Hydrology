@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-17T22:54:46",
+ "generated": "2026-09-18T19:51:40",
  "orchestrator": "2.18.0",
  "steps": {
   "00_climate_summary.py": {
@@ -7,16 +7,16 @@
     "outputs/00_climate_summary/00_01_annual_climate_summary.csv": "a93dacf79d435506605c25e591ca2aca67ef7a40a1ab65bd0e8cefebc7d09adc",
     "outputs/00_climate_summary/00_01_annual_climate_summary_short.csv": "c1036d634eba56458fb96d9376b9ff03ea9fbb6f734ccd7f0f3770e5ef83841f",
     "outputs/00_climate_summary/00_01_climate_timeseries.png": "b630d035a6de564d690e2ab426b1cafda229e16e884833d0628fe7b97c37653e",
-    "outputs/00_climate_summary/00_01_climate_timeseries_short.png": "8cfe44c49166252ab1b12d9fd45ae1d6c1a50a6020c9f16a025efe4b4a2754b7",
-    "outputs/00_climate_summary/00_02_well_network_summary.csv": "380e66a66c47c0233b83cc6e6b04d04fe6a076947a94147f4d05d70c88d0177a",
-    "outputs/00_climate_summary/00_02_well_network_summary.png": "9d10cfb007f6cb66f5ac0dd45385d3b0ee1e27db6f2b37e641a6dbc4add6a0c7",
-    "outputs/00_climate_summary/00_02_well_network_summary_short.csv": "380e66a66c47c0233b83cc6e6b04d04fe6a076947a94147f4d05d70c88d0177a",
-    "outputs/00_climate_summary/00_02_well_network_summary_short.png": "9d10cfb007f6cb66f5ac0dd45385d3b0ee1e27db6f2b37e641a6dbc4add6a0c7",
+    "outputs/00_climate_summary/00_01_climate_timeseries_short.png": "d8b0153b2530be438ba259dc904bcbcf1902e4cd805f4557a22e7ad2854406a9",
+    "outputs/00_climate_summary/00_02_well_network_summary.csv": "79a1aebe4203dda9be0110ec389bf5fa355844fdbd2d1a75776056d16d20102d",
+    "outputs/00_climate_summary/00_02_well_network_summary.png": "264683c4dd824c9d458a1550ed100e1c0eef8e12784c01f0de65d56cb4842c8e",
+    "outputs/00_climate_summary/00_02_well_network_summary_short.csv": "79a1aebe4203dda9be0110ec389bf5fa355844fdbd2d1a75776056d16d20102d",
+    "outputs/00_climate_summary/00_02_well_network_summary_short.png": "264683c4dd824c9d458a1550ed100e1c0eef8e12784c01f0de65d56cb4842c8e",
     "outputs/00_climate_summary/00_03_summer_warming_stats.csv": "dd429bf4b584f02aaf4ea1fca6a0ebd2c7b7a92c4b3fc289277a5b49f2212611",
     "outputs/00_climate_summary/00_03_summer_warming_trend.png": "43ff133ef61a6d3dd623f51daba0a1e3caf65788b46eaea637a5eabdbb0fa419",
     "outputs/00_climate_summary/00_04_climatology.csv": "0746f51cc2b2c9fa7cdbfcb602705bf1e8ff060af9ae4283ff86e20620a70d17",
     "outputs/00_climate_summary/00_05_pet_warming_response.csv": "b8de30e0c7ea270c0664495b38a7d52c6e5d9377fc38f42c504b767fb7cadc8f",
-    "outputs/00_climate_summary/00_report_numbers.csv": "cdac75b9c2e81ff0adf2173e574363260982d8b845bb781c6b326ee13870d4a8"
+    "outputs/00_climate_summary/00_report_numbers.csv": "8440b51eb4504e23f0b98f33bc842d57a677ee96ec03811dfe4490592470a655"
    },
    "fallbacks": [],
    "inputs": {
@@ -24,9 +24,9 @@
     "outputs/01_wells_clean.csv": "2925326ed5da8aad6a637147559bc2224bec8cbf24666db41a800d3675916a77"
    },
    "inputs_unresolved": [],
-   "seconds": 6.6,
-   "started": "2026-09-16T14:51:03",
-   "version": "1.5.0"
+   "seconds": 7.0,
+   "started": "2026-09-18T19:51:29",
+   "version": "1.6.0"
   },
   "01_data_prep.py": {
    "emitted": {
@@ -386,7 +386,7 @@
     "outputs/14_climate_projections/14_climate_trajectory_stacked.png": "ae042f002f313fda5b29758cf67d19135b69476919f8b03aa567ef984b35d557",
     "outputs/14_climate_projections/14_climate_trajectory_summer.png": "e4b76fb75b0cc5542f570a6bdd70ccd6a1970e63ae14e026598acd28e51826a8",
     "outputs/14_climate_projections/14_climate_trajectory_winter_flooding.png": "fa55f32717ad8d5f5ed978deba0660ce15f7e03812f781f0b9dac38fdecf7986",
-    "outputs/14_climate_projections/14_seasonal_extremes_scatter.html": "1ed9fb1518b1cf86f0b79ed442a0ac9f8694e320c3e8915420cad4651bb4f208",
+    "outputs/14_climate_projections/14_seasonal_extremes_scatter.html": "1c5b4dea4732f730976b6300159b0a7365a76755a8e93afebe1aff2bc8ce9f33",
     "outputs/14_climate_projections/14_spring_trend_stats.csv": "4b9f7d0319b197178b8ecad151ead44d03b584dd33e8ec4510252aa0915dc64c",
     "outputs/14_climate_projections/14_summer_trend_stats.csv": "04dd86ba4a800f9f71523eccae6fdc8544341320f5e4214e998932c9edb6ab46",
     "outputs/14_climate_projections/14_winter_exceedance.csv": "044e9bd6815bf34d898a3e7a47d6adf578af8a9f1c2b87e2138a80b5779720ed",
@@ -394,13 +394,13 @@
    },
    "fallbacks": [],
    "inputs": {
-    "outputs/00_climate_summary/00_02_well_network_summary.csv": "380e66a66c47c0233b83cc6e6b04d04fe6a076947a94147f4d05d70c88d0177a",
+    "outputs/00_climate_summary/00_02_well_network_summary.csv": "79a1aebe4203dda9be0110ec389bf5fa355844fdbd2d1a75776056d16d20102d",
     "outputs/02_cluster_stats.csv": "7870fe7596d16d03062c4b2efaf3bb30c0bfdf2048982cd42ba275126038e701",
     "outputs/03_regional_averages.csv": "4f951ad3322098f8ab1713d7b1557f7789d3310bc8d92b4d2314dad24df40ee3"
    },
    "inputs_unresolved": [],
-   "seconds": 3.6,
-   "started": "2026-09-16T14:51:10",
+   "seconds": 3.4,
+   "started": "2026-09-18T19:51:37",
    "version": "1.5.0"
   },
   "14b_year_of_crossing.py": {

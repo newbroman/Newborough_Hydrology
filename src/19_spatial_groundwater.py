@@ -23,7 +23,12 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.18.0"  # Hollingham (2026) - 2026-09-17 (T-38, D-178): the scenario
+__version__ = "2.19.0"  # Hollingham (2026) - 2026-09-18 (T-38, D-178): the wet-area panel
+#   gains a WINTER (Nov-Mar) readout beside the spring one, on the curves' native frame, so the
+#   flood-season extent is shown, not only the climate-insulated spring baseline; _msl5One is
+#   parametrised by month-window (WINTER_DH added), and a note points to the summer-minimum /
+#   P_flood story for the large climate signal (Martin, 2026-09-18).
+__version_prev__ = "2.18.0"  # Hollingham (2026) - 2026-09-17 (T-38, D-178): the scenario
 #   viewer gains a wet-area panel. Reads living/wet_area_model.json at build and embeds the two
 #   curves; per scenario reports open-water and wet-floor ha (baseline, scenario, difference) with
 #   sigma bands, on the spring baseline (median of reference wells' ph-dg) plus per-cluster spring
@@ -1081,44 +1086,56 @@ def basis_labels():
 
 def _wa_js(embed: str) -> str:
     """The scenario wet-area panel JS (D-178, T-38). Returned as a .format ARGUMENT,
-    so its braces are inserted literally and need no doubling. Reuses the forecaster's
-    waAreas() math; the spring baseline level per reference well is (ph mAOD - ground
-    elevation) and the scenario shift is the per-cluster spring dh (MSL5)."""
+    so its braces stay literal. Two windows: winter (Nov-Mar, the curves' native frame,
+    when the slacks flood) and spring (Mar-May, the ecological MSL5 baseline). Each level
+    is the median over reference wells of (head mAOD - ground elevation) plus that cluster's
+    per-window scenario dh (WINTER_DH / MSL5). A note points to the summer / P_flood story."""
+    NOTE = ("Hectares are totals for the warren study area; ground outside it is not assessed, not dry "
+            "— an illustration of the area–level relationship, not a flood map. These are first-order "
+            "level shifts: the large climate signal is in the <strong>summer minimum</strong> (habitat drought "
+            "stress) and in the winter rainfall a slack needs to flood at all (<strong>P<sub>flood</sub></strong>), "
+            "not in these extents — see the report §4.7–4.8 and §4.13.1. Projected winters are "
+            "wetter and projected summer minima deeper, pulling the winter figure in opposite directions, and the "
+            "multi-month antecedent memory that decides real flooding is not carried here.")
+    SCRAPE = (" <b>Scrape scenario:</b> this is the scenario level through an UNCHANGED slack floor; a scrape "
+              "reshapes the ground the curves do not represent.")
     return (
         "var WET_AREA=" + embed + ";\n"
         "function waAreas(curves,range,h){var lo=range[0],hi=range[1],hc=Math.max(lo,Math.min(hi,h)),"
         "o={clipped:(h<lo||h>hi)};['open_water','wet_floor'].forEach(function(k){var c=curves[k],"
         "A=c.a*Math.exp(c.b*hc),s=c.sigma_factor||1;o[k]={A:A,lo:A/s,hi:A*s};});return o;}\n"
+        "function _waMed(a){a=a.slice().sort(function(x,y){return x-y;});var n=a.length;"
+        "return n?(n%2?a[(n-1)/2]:0.5*(a[n/2-1]+a[n/2])):null;}\n"
+        "function _waLevels(hkey,dhmap){var b=[],s=[];for(var i=0;i<WELLS.length;i++){var w=WELLS[i];"
+        "if(w.b1==null||w[hkey]==null||w.dg==null)continue;var base=w[hkey]-w.dg;"
+        "var d=(dhmap&&dhmap[w.cl]!=null)?dhmap[w.cl]:0;b.push(base);s.push(base+d);}"
+        "return b.length<5?null:[_waMed(b),_waMed(s)];}\n"
+        "function _waTable(title,lev,sub){if(!lev)return '';var cv=WET_AREA.curves,rng=WET_AREA.fitted_range_m,"
+        "A0=waAreas(cv,rng,lev[0]),A1=waAreas(cv,rng,lev[1]);"
+        "function r(nm,k){var b=A0[k],s=A1[k],dd=s.A-b.A;return '<tr><td>'+nm+'</td>"
+        "<td>'+b.A.toFixed(1)+' <span style=\"color:#888\">('+b.lo.toFixed(1)+'–'+b.hi.toFixed(1)+')</span></td>"
+        "<td>'+s.A.toFixed(1)+' <span style=\"color:#888\">('+s.lo.toFixed(1)+'–'+s.hi.toFixed(1)+')</span></td>"
+        "<td>'+(dd>=0?'+':'')+dd.toFixed(1)+'</td></tr>';}"
+        "var beyond=(A0.open_water.clipped||A1.open_water.clipped||A0.wet_floor.clipped||A1.wet_floor.clipped);"
+        "return '<div style=\"font-weight:600;margin:8px 0 2px\">'+title+'</div>'"
+        "+'<table style=\"width:100%;border-collapse:collapse;font-size:12px\"><tr><th style=\"text-align:left\"></th>"
+        "<th>baseline</th><th>scenario</th><th>Δ ha</th></tr>'+r('Open water','open_water')+r('Wet floor','wet_floor')+'</table>'"
+        "+'<div style=\"font-size:10.5px;color:#777;margin:2px 0 0\">'+sub+(beyond?' Held at the fitted level range.':'')+'</div>';}\n"
         "function renderWetArea(){var el=document.getElementById('wetArea');if(!el)return;"
         "if(!WET_AREA||!WET_AREA.curves){el.style.display='none';if(!window._waW){console.warn("
         "'[wet area] living/wet_area_model.json was absent at build; wet-area panel hidden. "
         "Regenerate: python3 tools/sentinel_wet_floor.py --emit-feed && python3 src/19_spatial_groundwater.py');"
-        "window._waW=1;}return;}el.style.display='block';var hb=[],hs=[];"
-        "for(var i=0;i<WELLS.length;i++){var w=WELLS[i];if(w.b1==null||w.ph==null||w.dg==null)continue;"
-        "var base=w.ph-w.dg;var d=(typeof MSL5!=='undefined'&&MSL5&&MSL5[w.cl]!=null)?MSL5[w.cl]:0;"
-        "hb.push(base);hs.push(base+d);}if(hb.length<5){el.style.display='none';return;}"
-        "function med(a){a=a.slice().sort(function(x,y){return x-y;});var n=a.length;"
-        "return n%2?a[(n-1)/2]:0.5*(a[n/2-1]+a[n/2]);}"
-        "var h0=med(hb),h1=med(hs),rng=WET_AREA.fitted_range_m,cv=WET_AREA.curves,"
-        "A0=waAreas(cv,rng,h0),A1=waAreas(cv,rng,h1);"
-        "function row(nm,k){var b=A0[k],s=A1[k],dd=s.A-b.A;return '<tr><td>'+nm+'</td>"
-        "<td>'+b.A.toFixed(1)+' <span style=\"color:#888\">('+b.lo.toFixed(1)+'\\u2013'+b.hi.toFixed(1)+')</span></td>"
-        "<td>'+s.A.toFixed(1)+' <span style=\"color:#888\">('+s.lo.toFixed(1)+'\\u2013'+s.hi.toFixed(1)+')</span></td>"
-        "<td>'+(dd>=0?'+':'')+dd.toFixed(1)+'</td></tr>';}"
+        "window._waW=1;}return;}el.style.display='block';"
+        "var winter=_waLevels('wh',typeof WINTER_DH!=='undefined'?WINTER_DH:null);"
+        "var spring=_waLevels('ph',typeof MSL5!=='undefined'?MSL5:null);"
         "var scrape=(typeof CUR_SC!=='undefined'&&/scrape/i.test(CUR_SC));"
-        "var beyond=(A0.open_water.clipped||A1.open_water.clipped||A0.wet_floor.clipped||A1.wet_floor.clipped);"
-        "var html='<div style=\"font-weight:600;margin:6px 0 2px\">Slack-floor wet area (spring) \\u2014 warren study area, 306.97 ha</div>'"
-        "+'<table style=\"width:100%;border-collapse:collapse;font-size:12px\"><tr><th style=\"text-align:left\"></th>"
-        "<th>baseline</th><th>scenario</th><th>\\u0394 ha</th></tr>'+row('Open water','open_water')+row('Wet floor','wet_floor')+'</table>'"
-        "+'<div style=\"font-size:11px;color:#666;margin-top:4px\">Hectares are totals for the warren study area; "
-        "ground outside it is not assessed, not dry. Curves are fitted on winter Sentinel-2 scenes, so spring-window "
-        "areas are indicative \\u2014 an illustration of the area-level relationship, not a flood map.'"
-        "+(beyond?' Held at the fitted level range.':'')"
-        "+(scrape?' <b>Scrape scenario:</b> this is the scenario water level through an UNCHANGED slack floor; "
-        "a scrape reshapes the ground itself, which these curves do not represent.':'')"
+        "var html='<div style=\"font-weight:600;margin:6px 0 2px\">Slack-floor wet area — warren study area, 306.97 ha</div>'"
+        "+_waTable('Winter (Nov–Mar) — when the slacks flood',winter,'On the curves’ native winter frame.')"
+        "+_waTable('Spring (Mar–May) — the ecological baseline (MSL5)',spring,'Curves are winter-fitted, so spring areas are indicative.')"
+        "+'<div style=\"font-size:11px;color:#666;margin-top:6px\">" + NOTE + "'"
+        "+(scrape?'" + SCRAPE + "':'')"
         "+'</div>';el.innerHTML=html;}\n"
     )
-
 
 def serialise_wells(wt):
     rows = []
@@ -1630,7 +1647,7 @@ var WARN={{
   ukcp18_2080s: 'UKCP18 2080s central estimate, RCP8.5, Wales. Winter +20% P / +10% PET, summer \u221230% P / +35% PET. Steady-state equilibrium response only. See Section 5.6 for interpretive caveats.',
 }};
 var sea='annual',mm='dh',cm='dh',hChart=null;
-var DH={{}},SH={{}},MSL5={{}},CUR_SL={{}},CUR_SC='baseline';
+var DH={{}},SH={{}},MSL5={{}},WINTER_DH={{}},CUR_SL={{}},CUR_SC='baseline';
 var MW=0,MH=0;
 
 function gs(){{return{{sP_w:+document.getElementById('sP_w').value,sP_s:+document.getElementById('sP_s').value,sPET_w:+document.getElementById('sPET_w').value,sPET_s:+document.getElementById('sPET_s').value,sI_c4:+document.getElementById('sI_c4').value,sI_c5:+document.getElementById('sI_c5').value,sB2_w:+document.getElementById('sB2_w').value,sB2_s:+document.getElementById('sB2_s').value,sSyMode:+document.getElementById('sSyMode').value}};}}
@@ -1732,7 +1749,7 @@ function go(){{
   // companion); always uses the per-cluster mean β₁/β₂ rather than per-
   // well betas so the displayed value matches 26b's centroid output.
   // Independent of the season tab — spring is its own fixed window.
-  function _msl5One(b1,b2){{
+  function _msl5One(b1,b2,idxs){{
     if(b1==null||b2==null)return null;
     var P_m=CLIMATE.monthly_arrays_m.P, PET_m=CLIMATE.monthly_arrays_m.PET;
     var sPm=new Array(12), sPETm=new Array(12);
@@ -1742,18 +1759,20 @@ function go(){{
     for(var k=0;k<WIN.length;k++){{ var m=WIN[k]; sPm[m-1]=sl.sP_w; sPETm[m-1]=sl.sPET_w; }}
     for(var k=0;k<SUM.length;k++){{ var m=SUM[k]; sPm[m-1]=sl.sP_s; sPETm[m-1]=sl.sPET_s; }}
     for(var k=0;k<SHO.length;k++){{ var m=SHO[k]; sPm[m-1]=0.5*(sl.sP_w+sl.sP_s); sPETm[m-1]=0.5*(sl.sPET_w+sl.sPET_s); }}
+    idxs = idxs || [2,3,4];   // default: spring Mar-Apr-May (ΔMSL5)
     var sum=0;
-    for(var idx=2;idx<=4;idx++){{                      // Mar=2, Apr=3, May=4
+    for(var j=0;j<idxs.length;j++){{ var idx=idxs[j];
       sum += b1*P_m[idx]*(sPm[idx]-1.0) - b2*PET_m[idx]*(sPETm[idx]-1.0);
     }}
-    return sum/3.0;
+    return sum/idxs.length;
   }}
-  var msl5={{}};
+  var msl5={{}}, windh={{}};
   for(var cl=1;cl<=5;cl++){{
     var cb=clB(cl);
-    msl5[cl]=_msl5One(cb.b1,cb.b2);
+    msl5[cl]=_msl5One(cb.b1,cb.b2,[2,3,4]);         // spring Mar-May
+    windh[cl]=_msl5One(cb.b1,cb.b2,[10,11,0,1,2]);  // winter Nov-Mar
   }}
-  MSL5=msl5;
+  MSL5=msl5; WINTER_DH=windh;
   for(var i=0;i<WELLS.length;i++){{
     WELLS[i]._dh=well_dh[WELLS[i].n]!=null?well_dh[WELLS[i].n]:null;
     var hb=sea==='annual'?WELLS[i].mh:sea==='winter'?WELLS[i].wh:WELLS[i].sh;

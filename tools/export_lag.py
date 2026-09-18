@@ -256,7 +256,12 @@ def run(strict: bool, only: str | None = None) -> int:
 PAGES_ROOT = ["index.html", "scenario_viewer.html",
               "seasonal_extremes_scatter.html", "hindcast_film.html",
               "outputs/47_hindcast_film/47_03_hindcast_presentation.mp4",
-              "outputs/47_hindcast_film/47_04_hindcast_still_2001-02.png"]
+              "outputs/47_hindcast_film/47_04_hindcast_still_2001-02.png",
+              # forecaster runtime feeds (fetched by JS, not href-linked)
+              "living/latest_readings.json",
+              "living/forecaster_msl5.json",
+              "living/forecaster_indices.json",
+              "living/wet_area_model.json"]
 PAGES_BRANCH = "gh-pages"
 _SITE = "https://newbroman.github.io/Newborough_Hydrology/"
 _HREF = re.compile(r'href="([^"]+)"')

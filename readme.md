@@ -53,18 +53,18 @@ All documents are in [`docs/`](docs/) and linked from the
 
 | Option | Description |
 |--------|-------------|
-| **1 — Run full pipeline** | Runs all 52 steps in order from the beginning |
+| **1 — Run full pipeline** | Runs the default pass (52 of 57 registered steps) in order from the beginning |
 | **2 — Resume from step** | Skips completed steps; useful after a partial run |
 | **3 — Run a single step** | Runs one script in isolation for debugging or re-running |
 | **4 — Prepare scenario viewer** | Runs script 19 to build the self-contained HTML viewer |
 | **5 — Run supplementary diagnostics** | Runs scripts 22–24 (residual lag, ridge recharge, seasonality) |
 | **6 — Convert figures to greyscale** | Journal-ready B&W conversion (sub-options 6a quick / 6b full B&W re-run / 6h help) |
-| **7 — Show step list** | Lists all 52 steps with script names and availability status |
+| **7 — Show step list** | Lists all 57 registered steps with script names and availability status |
 
 For non-interactive use (e.g. in a batch job):
 
 ```bash
-python run_analysis.py --full          # run all 52 steps
+python run_analysis.py --full          # run the default pass (52 steps)
 python run_analysis.py --from 14       # resume from step 14
 python run_analysis.py --viewer        # build scenario viewer only
 python run_analysis.py --supplementary # run supplementary diagnostics (22–24) only
@@ -104,7 +104,7 @@ Newborough_Hydrology/
 │   │   └── scenario_viewer.html        ← self-contained interactive viewer (standalone)
 │   ├── outputs_bw/                      ← greyscale figure tree (built by Phase 17, Script 27)
 │   └── [other output directories]
-├── src/                         Analysis scripts (52 steps; script 19 also builds the viewer)
+├── src/                         Analysis scripts (57 steps; script 19 also builds the viewer)
 │   ├── utils/
 │   │   ├── config.py            Cluster colours, labels, DRAINAGE_DATUM, HEADLINE_LAG, FOREST_INTERCEPTION
 │   │   ├── data_utils.py        Cleaning and normalisation helpers
@@ -145,11 +145,12 @@ Newborough_Hydrology/
 
 ## Pipeline Phases
 
-The pipeline comprises **52 registered steps across 17 phases**. Those 52 steps
-are classified two independent ways: by tier — 42 analytical, 4 display/utility
-(Scripts 26c, 09f, 09g and 27) and 6 diagnostic; and by execution — 49 run in a
-default pass, 3 (Scripts 24b, 31 and 31b) only under `--with-supplementary`.
-The two breakdowns each account for the same 52 steps and are not additive with
+The pipeline comprises **57 registered steps across 18 phases**. Those 57 steps
+are classified two independent ways: by tier — 43 analytical, 8 display/utility
+(Scripts 26c, 09f, 09g, 27, 43, 45, 46 and 47) and 6 diagnostic; and by execution — 52 run in a
+default pass, 3 (Scripts 24b, 31 and 31b) only under `--with-supplementary`, and 2
+(Scripts 27 greyscale conversion and 47 the century hindcast film) only on demand.
+The two breakdowns each account for the same 57 steps and are not additive with
 one another. Current values are written to `outputs/pipeline_manifest.json` on
 every run — cite that file if it disagrees with this text. Validation
 checkpoints run after Phases 1, 3, 9, and 10.
@@ -197,6 +198,7 @@ colours and labels are centralised in `src/utils/config.py`.
 | 15 | 32, 33, 35, 36, 37, 37b (observed differential change, envelope, and driver validation) | 36–41 | Secular differential water-table drift (32, report Fig 68); climate-swing amplification + drought-floor surface (33, report Figs 70 and 59); per-well climate-sensitivity coefficient (35); absolute climate-removed per-well secular trend (36, Figure 69); predicted-vs-observed driver validation (37); comparative driver footing across forest/scrape/coast on common currencies (37b) — all analytical-default |
 | 16 | 24b, 31, 31b (opt-in), 34, 38 (analytical-default) | 42–46 | Cluster-stratified residual climatology (24b), independent k=5 partition validation (31) and its separation-vs-recoverability companion (31b) — opt-in supplementary diagnostics; the MSL5 two-window sensitivity demonstration figure for §5.7.5 (34) and the coast-to-inland MAM transect observational δ₀ diagnostic for §4.10.4 (38) — both analytical-default |
 | 17 | 09f, 09g, 27 | 47–49 | Management-interventions-vs-coastal-retreat spatial-reach synthesis figure for §5.8 (09f, display/utility, two-pass — reads Scripts 20/25/09d/10a); mechanism grid + coastal reach for §5.8 (09g, display/utility — reads 09f/10m/10a); greyscale figure conversion utility (27, journal-ready B&W) — post-processing |
+| 18 | 45, 46, 47 | 55–57 | Sentinel-2 wet-area model (D-178), all display tier: the two Band-8 slack-floor area curves against the median well level (45), its public feed `living/wet_area_model.json` (46), and the century hindcast film rendered on demand (47) — an illustration of the area–level relationship, not a flood map |
 
 Phases 1–11 produce the main analytical results documented in the report. Phase 12
 (Scripts 22–24) runs supplementary residual diagnostics. Phase 13 runs the van
@@ -265,6 +267,8 @@ The interactive scenario viewer is built by running **option 4** from the menu (
 - `outputs/19_spatial_groundwater/scenario_viewer.html` — standalone self-contained file; opens directly in any browser with no server required
 
 Scenario Δh values are computed dynamically in JavaScript via the SSM equilibrium equation — no precomputed difference maps are produced. The viewer supports interactive exploration of seven scenarios (baseline, UKCP18 2050s, UKCP18 2080s, clearfell, broadleaf, thinning, scraping) with per-well Δh visualisation.
+
+Each scenario also reports the modelled **slack-floor wet area** — open water and wet floor in hectares, baseline, scenario and difference, with uncertainty bands — from the Sentinel-2 area model (D-178). The hectares are totals for the warren study area; ground outside it is not assessed, and the curves are winter-fitted, so the spring-window figures are indicative, an illustration of the area–level relationship rather than a flood map.
 
 **Colour convention:** red = drier / deeper than baseline; blue = wetter / shallower than baseline.
 

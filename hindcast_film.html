@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Century hindcast film — Newborough Warren</title>
+  <meta name="description" content="A film of how wet the dune slacks of Newborough Warren would have been, month by month, 1930–2026, under a century of weather — the reserve as it stands today.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --sand:#f4f0e6; --sand-dark:#e8e0cc; --dune:#c8b878; --slate:#3a4a52;
+      --water:#4a7a8a; --pine:#3d5c3a; --text:#2a3338; --text-light:#5a6a72; --border:#d4c8a8;
+    }
+    body{font-family:'Source Sans 3',sans-serif;background:var(--sand);color:var(--text);
+         line-height:1.65;-webkit-font-smoothing:antialiased;}
+    header{background:var(--slate);color:#fff;padding:2.2rem 1rem 2rem;text-align:center;
+           border-bottom:4px solid;border-image:linear-gradient(90deg,var(--dune),var(--water),var(--pine)) 1;}
+    header h1{font-family:'Libre Baskerville',serif;font-weight:700;font-size:1.9rem;line-height:1.2;}
+    header p{color:var(--dune);margin-top:.5rem;font-size:1.02rem;max-width:44rem;margin-left:auto;margin-right:auto;}
+    .back{display:inline-block;margin:1rem auto 0;color:#cfe0e6;text-decoration:none;font-size:.92rem;}
+    .back:hover{text-decoration:underline;}
+    main{max-width:62rem;margin:0 auto;padding:2rem 1rem 3rem;}
+    .stage{background:#000;border-radius:8px;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,.18);}
+    video{display:block;width:100%;height:auto;}
+    .dl{font-size:.9rem;color:var(--text-light);text-align:center;margin:.7rem 0 2rem;}
+    .dl a{color:var(--water);}
+    h2{font-family:'Libre Baskerville',serif;font-size:1.3rem;color:var(--slate);
+       margin:2rem 0 .6rem;padding-bottom:.3rem;border-bottom:1px solid var(--border);}
+    p{margin:.7rem 0;} ul{margin:.6rem 0 .6rem 1.3rem;} li{margin:.35rem 0;}
+    .note{background:var(--sand-dark);border-left:4px solid var(--dune);border-radius:4px;
+          padding:1rem 1.2rem;margin:1.4rem 0;}
+    .note strong{color:var(--pine);}
+    footer{border-top:1px solid var(--border);margin-top:2.5rem;padding:1.4rem 1rem;
+           text-align:center;color:var(--text-light);font-size:.88rem;}
+    @media(max-width:520px){header h1{font-size:1.45rem;}}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Newborough Warren under a century of weather</h1>
+    <p>How wet the dune slacks would have been, month by month, from 1930 to 2026 — if the reserve as it stands today had lived through the weather of each of those years.</p>
+    <a class="back" href="index.html">&larr; Back to the research home</a>
+  </header>
+
+  <main>
+    <div class="stage">
+      <video controls preload="none" playsinline
+             poster="outputs/47_hindcast_film/47_04_hindcast_still_2001-02.png">
+        <source src="outputs/47_hindcast_film/47_03_hindcast_presentation.mp4" type="video/mp4">
+        Your browser cannot play this video.
+        <a href="outputs/47_hindcast_film/47_03_hindcast_presentation.mp4">Download the film (MP4)</a>.
+      </video>
+    </div>
+    <p class="dl"><a href="outputs/47_hindcast_film/47_03_hindcast_presentation.mp4">Download the film (MP4, ~9&nbsp;MB)</a></p>
+
+    <div class="note">
+      <strong>Only the warren is modelled, not the forest.</strong> Everything here is about the open
+      dune slacks of Newborough Warren — the study area outlined on the map. The planted forest beside
+      them is not part of the model and is not assessed; the absence of yellow and blue cells does not
+      imply an absence of flooding, only that it has not been modelled. The map covers the warren study
+      area only (307&nbsp;hectares of slack floor); blank ground outside the outline means not assessed,
+      not dry.
+    </div>
+
+    <h2>How to read the film</h2>
+    <ul>
+      <li><strong>Yellow</strong> is wet floor: saturated ground, or a thin sheet of water hidden in the grass.</li>
+      <li><strong>Blue</strong> is open water: pools you could see from the air.</li>
+      <li>The title gives the total of each across the study area, in hectares.</li>
+      <li>The line at the bottom is the water table — how far below or above the ground the groundwater
+          sits, averaged over the reserve's monitoring wells. The red marker is where the film has got
+          to; the clock runs at about a year a second.</li>
+    </ul>
+
+    <h2>How it was made</h2>
+    <p>Three things joined together:</p>
+    <ul>
+      <li><strong>A weather-driven groundwater model.</strong> Since 2005 the reserve's dipwells have
+          been read monthly, and from them a simple rule was learned for how the water table rises with
+          rain and falls with evaporation and drainage. RAF Valley has kept weather records since 1930,
+          so the rule can be run through the whole century, steered by nothing but the weather. Where the
+          wells exist, the model's water table is corrected to match them.</li>
+      <li><strong>Satellite pictures.</strong> Sentinel-2 has photographed the warren every few days since
+          2016 in 10&nbsp;m squares. In the near-infrared, water is dark and grass is bright, so a wet
+          slack floor is a dark patch. Counting the dark squares in 43 clear winter scenes and comparing
+          with the water table gives two smooth curves — one for open water, one for wet floor.</li>
+      <li><strong>Where the water goes.</strong> Each 10&nbsp;m square has its own history in those
+          pictures, so we know the level at which it usually turns dark. The film lights each square when
+          the model reaches that level: <em>where</em> the colours appear was learned from the satellite,
+          <em>when</em> is the model.</li>
+    </ul>
+
+    <h2>Please read this before watching</h2>
+    <p>It is today's warren, not the warren of the time. The rules were learned from 2005–2026 and the
+       ground is the 2023 survey, with Newborough Forest at its present size. The forest was only planted
+       between 1947 and 1965, and a forest lowers the water table around it — in 1939 there was no forest.
+       The film answers a what-if: what the reserve <em>as it is now</em> would have done under that
+       weather, not what actually happened. It is an illustration of the area–level relationship, not a
+       flood map.</p>
+
+    <h2>The biggest floods go beyond anything measured</h2>
+    <p>The wettest spring on record was 2021. In some months — 1939, 1959, 1961–62 and 2000–01 — the model
+       pushes the water table higher than that, above the level the curves were fitted to. No satellite
+       picture has seen the warren that wet, so those months are marked <em>beyond the record</em>: the
+       totals are the curves run past the end of the data, and the rest of the slack floor turns pale
+       orange — wetter than anything on record, where exactly we cannot say. The honest claim for those
+       winters is that they were bigger than 2021, nothing finer.</p>
+  </main>
+
+  <footer>
+    Newborough Warren hydrology study, 2026 &middot; Martin Hollingham &middot;
+    <a href="index.html" style="color:var(--water);">research home</a>
+  </footer>
+</body>
+</html>

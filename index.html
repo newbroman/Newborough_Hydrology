@@ -542,6 +542,7 @@
     <li><a href="#about">About</a></li>
     <li><a href="#documents">Documents</a></li>
     <li><a href="#models">Models</a></li>
+    <li><a href="#film">Film</a></li>
     <li><a href="#pipeline">Pipeline</a></li>
   </ul>
 </nav>
@@ -773,7 +774,7 @@
         <p>
           Explore groundwater dynamics under climate and management scenarios
           for all five clusters. IDW-interpolated map surface, cluster bar charts,
-          and per-well data tables with UKCP18, clearfell, broadleaf and thinning presets.
+          and per-well data tables with UKCP18, clearfell, broadleaf and thinning presets. Each scenario also reports the modelled slack-floor wet area (open water and wet floor, in hectares) from the Sentinel-2 area model.
         </p>
         <a class="btn btn-primary"
            href="https://newbroman.github.io/Newborough_Hydrology/scenario_viewer.html"
@@ -813,6 +814,32 @@
       </div>
 
     </div>
+  </section>
+
+  <!-- ===== SECTION: Film ===== -->
+  <section id="film">
+    <p class="section-label">Visualisation</p>
+    <h2>Century hindcast film</h2>
+    <p>
+      A century of weather on today&rsquo;s warren: the modelled slack-floor water table driven through
+      every month of the RAF Valley rainfall and temperature record, 1930&ndash;2026. It is a what-if,
+      not history &mdash; the rules were learned from 2005&ndash;2026 and the ground is today&rsquo;s,
+      with the forest at its present extent.
+    </p>
+    <a href="hindcast_film.html" style="display:block;max-width:860px;margin:1rem auto 0;">
+      <img src="outputs/47_hindcast_film/47_04_hindcast_still_2001-02.png"
+           alt="Still from the century hindcast film"
+           style="width:100%;border-radius:6px;display:block;">
+    </a>
+    <p style="text-align:center;margin:1rem 0;">
+      <a class="btn btn-primary" href="hindcast_film.html">Watch the century film &rarr;</a>
+    </p>
+    <p style="font-size:0.9em;color:#555;max-width:860px;margin:0 auto;">
+      <strong>Only the warren is modelled, not the forest</strong> &mdash; the absence of cells outside
+      the study area means &ldquo;not assessed&rdquo;, not &ldquo;dry&rdquo;; it is an illustration of the
+      area&ndash;level relationship, not a flood map. Full detail on the
+      <a href="hindcast_film.html">film page</a>.
+    </p>
   </section>
 
   <!-- ══════════════════════════════════════════════════════

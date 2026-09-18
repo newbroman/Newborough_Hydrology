@@ -48,6 +48,8 @@ from utils.paths import (
     make_all_dirs,
     INT_CLIMATE,
     INT_WELLS_CLEAN,
+    INT_WELLS_REFERENCE,
+    INT_WELLS_ALL,
     DATA_CLIMATE_RAW,
     OUT_00_CLIMATE_TIMESERIES,
     OUT_00_WELL_NETWORK_FIG,
@@ -71,7 +73,19 @@ import re
 import os
 from scipy.stats import linregress
 
-__version__ = "1.5.0"  # Hollingham (2026) -- 2026-09-04. Emits pre- and
+__version__ = "1.6.0"  # Hollingham (2026) -- 2026-09-18. Figures 4 & 6 now
+#   characterise the 66-well REFERENCE network (INT_WELLS_REFERENCE) rather than the
+#   77-well length-only INT_WELLS_CLEAN they wrongly used: INT_WELLS_CLEAN applies only
+#   the 100-month record-length gate, not the recency (record reaches the reference
+#   cutoff) or reference/treatment gates that define the network the captions and
+#   Section 4.1.2 describe (median 191 mo, 139-250 mo). Figure 6 panel (a) is recast
+#   from a bare record-length histogram (which started at 100 and could not show why the
+#   threshold was chosen) to a record-length-vs-recency selection diagram over ALL 96
+#   monitored wells, with both admission gates drawn: 66 reference, 19 short-record, 11
+#   not-current/treatment. New: _load_reference_network, _candidate_selection,
+#   _panel_reference_selection. 00_02 CSV is now 66 rows; report-only, no downstream
+#   consumer. See CHANGELOG_delta_2026-09-18f.
+# __version__ = "1.5.0"  # Hollingham (2026) -- 2026-09-04. Emits pre- and
 #   post-clearfell mean annual rainfall (mean_annual_rain_pre_felling /
 #   _post_felling / rain_pre_post_felling_diff) to 00_report_numbers.csv so
 #   report9 section 4.1's 887/896 mm either side of the December 2017 fell trace
@@ -111,6 +125,7 @@ CB_GREEN = "#009E73"
 CB_ORANGE = "#E69F00"
 CB_RED = "#D55E00"
 CB_BROWN = "#8C564B"
+CB_GREY = "#9E9E9E"
 CUTOFF_DATE = pd.Timestamp(REFERENCE_CUTOFF_DATE)
 MIN_RECORD_MONTHS = 100
 DETREND_START = pd.Timestamp("2004-12-01")
@@ -178,6 +193,83 @@ def _filter_wells_min_record(
     valid_counts = subset.notna().sum(axis=0)
     keep = valid_counts[valid_counts >= min_months].index.tolist()
     return wells[keep].copy()
+
+
+def _load_reference_network() -> pd.DataFrame:
+    """The 66-well reference network (INT_WELLS_REFERENCE), Llyn Rhos-ddu lake gauge
+    excluded. This is the network the captions and Section 4.1.2 describe, and the set
+    Figures 4 (panel d) and 6 (panels b–d) characterise. Admission requires BOTH the
+    100-month record length AND a record extending to the reference cutoff (recency,
+    Script 01), and being a reference — not treatment/extended — well; the earlier use
+    of the 77-well INT_WELLS_CLEAN over-counted the network (it is only the length gate)."""
+    wells = pd.read_csv(INT_WELLS_REFERENCE, index_col=0, parse_dates=True).sort_index()
+    drop = [c for c in wells.columns if c.lower().replace(" ", "") == "llynrhos"]
+    return wells.drop(columns=drop, errors="ignore")
+
+
+def _candidate_selection(cutoff: pd.Timestamp = CUTOFF_DATE,
+                         min_months: int = MIN_RECORD_MONTHS) -> pd.DataFrame:
+    """Per-candidate record length, record end and reference-network membership — feeds
+    Figure 6 panel (a). Every monitored well (INT_WELLS_ALL, Llyn lake gauge excluded) is
+    classified: `reference` (a member of INT_WELLS_REFERENCE), `short` (fails the record-
+    length gate, < min_months), or `other` (>= min_months but excluded on recency or as a
+    treatment/extended well). Columns: N_months, Last (record end), Category."""
+    allw = pd.read_csv(INT_WELLS_ALL, index_col=0, parse_dates=True).sort_index()
+    ref = pd.read_csv(INT_WELLS_REFERENCE, index_col=0, parse_dates=True)
+    drop = [c for c in allw.columns if c.lower().replace(" ", "") == "llynrhos"]
+    allw = allw.drop(columns=drop, errors="ignore")
+    refset = {c.lower().replace(" ", "") for c in ref.columns
+              if c.lower().replace(" ", "") != "llynrhos"}
+    sub = allw.loc[allw.index <= cutoff]
+    rows = []
+    for col in allw.columns:
+        valid = sub[col].dropna()
+        n = int(valid.shape[0])
+        last = valid.index.max() if n else pd.NaT
+        if col.lower().replace(" ", "") in refset:
+            cat = "reference"
+        elif n < min_months:
+            cat = "short"
+        else:
+            cat = "other"
+        rows.append({"Well": col, "N_months": n, "Last": last, "Category": cat})
+    return pd.DataFrame(rows).set_index("Well")
+
+
+def _panel_reference_selection(ax, candidates: pd.DataFrame) -> None:
+    """Figure 6 panel (a): the reference-network selection as record length (x) against
+    record end (y), with the two admission gates drawn as lines — the record-length gate
+    (MIN_RECORD_MONTHS, vertical) and the recency gate (the reference cutoff, horizontal).
+    The reference network is the set clearing both gates and admitted as reference rather
+    than treatment/extended; the `other` markers sitting on the recency line but excluded
+    are the treatment/extended wells (see caption)."""
+    import matplotlib.dates as mdates
+    styles = [
+        ("reference", CB_BLUE, "o", "reference network"),
+        ("short", CB_GREY, "s", f"excluded: < {MIN_RECORD_MONTHS} mo record"),
+        ("other", CB_ORANGE, "^", "excluded: not current / treatment"),
+    ]
+    for cat, col, mk, lab in styles:
+        s = candidates[candidates["Category"] == cat]
+        last = pd.to_datetime(s["Last"], errors="coerce")
+        good = last.notna()
+        ax.scatter(pd.to_numeric(s["N_months"], errors="coerce")[good], last[good],
+                   c=col, marker=mk, s=42, alpha=0.85, edgecolor="white", linewidth=0.5,
+                   label=f"{lab} (n={int(good.sum())})")
+    ax.axvline(MIN_RECORD_MONTHS, color=CB_RED, linestyle="--", linewidth=1.4)
+    ax.axhline(CUTOFF_DATE, color="black", linestyle=":", linewidth=1.2)
+    y0, _ = ax.get_ylim()
+    ax.text(MIN_RECORD_MONTHS, y0, f" {MIN_RECORD_MONTHS}-mo record gate", color=CB_RED,
+            fontsize=10, va="bottom", ha="left", rotation=90)
+    ax.text(ax.get_xlim()[1], CUTOFF_DATE, "record reaches cutoff  ",
+            fontsize=10, va="bottom", ha="right")
+    ax.yaxis.set_major_locator(mdates.YearLocator(3))
+    ax.yaxis.set_major_formatter(mdates.DateFormatter("%Y"))
+    ax.set_title("Reference-Network Selection")
+    ax.set_xlabel("Record length (months)")
+    ax.set_ylabel("Record end")
+    ax.legend(frameon=False, fontsize=9, loc="lower right")
+    ax.grid(linestyle=":", alpha=0.35)
 
 
 def _restrict_to_well_record_period(
@@ -544,19 +636,25 @@ def compute_climatology(climate: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     return clim.reset_index(), stats
 
 
-def make_figure2_well_network(wells: pd.DataFrame, table2: pd.DataFrame, out_png: str) -> None:
+def make_figure2_well_network(wells: pd.DataFrame, table2: pd.DataFrame, out_png: str,
+                              candidates: "pd.DataFrame | None" = None) -> None:
     fig, axs = plt.subplots(2, 2, figsize=(14, 10), dpi=300)
     ax_tl, ax_tr, ax_bl, ax_br = axs.flatten()
 
-    # Top-left: record lengths
-    rec_lengths = pd.to_numeric(table2["N_months"], errors="coerce").dropna()
-    ax_tl.hist(rec_lengths, bins=14, color=CB_BLUE, alpha=0.85, edgecolor="white")
-    ax_tl.axvline(100, color=CB_RED, linestyle="--", linewidth=1.4, label="100-month threshold")
-    ax_tl.set_title("Record Length Distribution")
-    ax_tl.set_xlabel("Months")
-    ax_tl.set_ylabel("Well count")
-    ax_tl.legend(frameon=False)
-    ax_tl.grid(axis="y", linestyle=":", alpha=0.35)
+    # Top-left: the reference-network selection (record length vs recency, both gates).
+    # Falls back to the plain record-length histogram when the candidate frame is absent.
+    if candidates is not None:
+        _panel_reference_selection(ax_tl, candidates)
+    else:
+        rec_lengths = pd.to_numeric(table2["N_months"], errors="coerce").dropna()
+        ax_tl.hist(rec_lengths, bins=14, color=CB_BLUE, alpha=0.85, edgecolor="white")
+        ax_tl.axvline(MIN_RECORD_MONTHS, color=CB_RED, linestyle="--", linewidth=1.4,
+                      label=f"{MIN_RECORD_MONTHS}-month threshold")
+        ax_tl.set_title("Record Length Distribution")
+        ax_tl.set_xlabel("Months")
+        ax_tl.set_ylabel("Well count")
+        ax_tl.legend(frameon=False)
+        ax_tl.grid(axis="y", linestyle=":", alpha=0.35)
 
     # Top-right: distribution of mean water levels
     well_means = pd.to_numeric(table2["Mean_WL_m"], errors="coerce").dropna()
@@ -815,8 +913,12 @@ def pet_warming_response(climate_full: pd.DataFrame, out_csv: str) -> dict:
 def _run_all() -> None:
     """Generate all Script 00 outputs — full-record and monitoring-period — in one pass."""
 
-    climate_full, wells_all = _load_inputs()
-    wells_full = _filter_wells_min_record(wells_all)
+    climate_full, _wells_clean = _load_inputs()
+    # The network characterised here is the 66-well REFERENCE network, not the 77-well
+    # length-only INT_WELLS_CLEAN (which fails to apply the recency and reference/treatment
+    # gates). `candidates` carries all monitored wells for the panel-(a) selection diagram.
+    wells_full = _load_reference_network()
+    candidates = _candidate_selection()
 
     # --- Full-record outputs -----------------------------------------------
     print("\n--- Full-record outputs ---")
@@ -824,7 +926,7 @@ def _run_all() -> None:
     table1_full = make_table1_annual_climate(climate_full, paths_full["table1"])
     table2_full = make_table2_well_network(wells_full, paths_full["table2"])
     make_figure1_climate_timeseries(climate_full, wells_full, paths_full["fig1"], "full")
-    make_figure2_well_network(wells_full, table2_full, paths_full["fig2"])
+    make_figure2_well_network(wells_full, table2_full, paths_full["fig2"], candidates=candidates)
     print("Generating Figure 3 — RAF Valley summer warming trend (95-year record)...")
     make_figure3_summer_warming(paths_full["fig3"], paths_full["table3"])
 
@@ -837,7 +939,7 @@ def _run_all() -> None:
     table1_short = make_table1_annual_climate(climate_short, paths_short["table1"])
     table2_short = make_table2_well_network(wells_short, paths_short["table2"])
     fig1_stats = make_figure1_climate_timeseries(climate_short, wells_short, paths_short["fig1"], "short")
-    make_figure2_well_network(wells_short, table2_short, paths_short["fig2"])
+    make_figure2_well_network(wells_short, table2_short, paths_short["fig2"], candidates=candidates)
 
     # --- §4.1.1 traceable climate report numbers (Fig 3) --------------------
     clim_df, clim_stats = compute_climatology(climate_short)

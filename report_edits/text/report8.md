@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of report_edits/odt/report8.odt — do not edit. source-sha256=e38dec8ffaffee87 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report8.odt — do not edit. source-sha256=1f99f05fa73c1996 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}Methods
@@ -728,7 +728,7 @@ The equilibrium wetness index and its MSL5 comparison are implemented in 26_van_
 
 An independent, satellite-derived measure of slack-floor wetness tests the modelled water table in space (Results, Section 4.8.5). Sentinel-2 L2A scenes over the warren (2016--2026) are read at 10 m from the Earth Search archive; scenes with tile cloud above 25 % or with less than 95 % of the warren cloud-free by the scene-classification layer are discarded, leaving 43 winter scenes each with a dipwell reading in the same month. On the open dune-slack floor of the warren --- a fixed 306.97 ha mask of 30,697 cells, the planted forest excluded --- each scene\'s near-infrared reflectance (Band 8) is normalised by that scene\'s own clear-floor median and split at two fixed fractions: at or below 0.50, open water; between 0.50 and 0.80, wet floor. No manual classification enters.
 
-Each class\'s area is regressed on the reference-network median water level as area = a·exp(b·h), and the fitted curves are driven by the modelled level to test the wetted extent out of sample (Section 4.8.5). The full acquisition and classification recipe, the per-cell switching levels and the pipeline steps (Scripts 45--47) are given in the Methods Supplement (§D). The result is an illustration of the area--level relationship, not a flood map; which individual slacks carry the water is not resolved.
+Each class\'s area is regressed on the reference-network median water level as area = a·exp(b·h), and the fitted curves are driven by the modelled level to test the wetted extent out of sample (Section 4.8.5). The full acquisition and classification recipe, the per-cell switching levels and the pipeline steps (Scripts 45--47) are given in the Methods Supplement (§D). The result is an illustration of the area--level relationship, not a flood map; which individual slacks carry the water is not resolved. The state-space model driving these curves is fitted to 2005--February 2026; the wet-area analysis uses winter scenes through March 2026, that month's water level drawn from continued monitoring held separately from the model inputs.
 
 ## []{#anchor-30}Spatial Analysis
 

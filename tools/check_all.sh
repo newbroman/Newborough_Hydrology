@@ -114,6 +114,14 @@ rc=0
 # gates, so a machine whose venv is not the recorded interpreter still fails
 # loudly. A venv already active (direnv, manual activate, or a bridge shim that
 # exports VIRTUAL_ENV) is left untouched.
+
+# --fast / --docs: hand off to the document-only gate profile (review phase).
+# Runs the doc-facing gates only (~1 min) and skips the pipeline/provenance/
+# output/analysis gates, which cannot change during a text-only review. NOT a
+# substitute for the full run before a push that includes pipeline changes.
+case "${1:-}" in
+  --fast|--docs) exec bash "$(dirname "$0")/check_docs.sh" "${@:2}" ;;
+esac
 if [ -z "${VIRTUAL_ENV:-}" ] && [ -f venv/bin/activate ]; then
   # shellcheck disable=SC1091
   source venv/bin/activate

@@ -23,7 +23,12 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.17.1"  # Hollingham (2026) - 2026-09-04 (T-14 item 15, cosmetic): the "Forest wells (C4+C5)" console label now reads config.FOREST_CIDS instead of the cl==4|cl==5 literal. No behaviour or output change - a console label only.
+__version__ = "2.18.0"  # Hollingham (2026) - 2026-09-17 (T-38, D-178): the scenario
+#   viewer gains a wet-area panel. Reads living/wet_area_model.json at build and embeds the two
+#   curves; per scenario reports open-water and wet-floor ha (baseline, scenario, difference) with
+#   sigma bands, on the spring baseline (median of reference wells' ph-dg) plus per-cluster spring
+#   dh. Study-area totals + winter-fit + scrape-floor caveats; hides if the feed is absent.
+__version_prev__ = "2.17.1"  # Hollingham (2026) - 2026-09-04 (T-14 item 15, cosmetic): the "Forest wells (C4+C5)" console label now reads config.FOREST_CIDS instead of the cl==4|cl==5 literal. No behaviour or output change - a console label only.
 # v2.17.0  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS from config.SUMMER_DRY_CLIMATE_MONTHS and SPRING_MONTHS from config.MSL_SPRING_MONTHS - the last local copy of the van Willegen spring window, which nine other scripts already imported.
 #   Batch two of the seasonal-windows migration (D-100): the window's
 #   MONTHS ARE UNCHANGED and the constant is asserted equal to the literal it
@@ -808,9 +813,11 @@ def build_well_table(loc, cl, md, elev, maod, clim, sy_df):
     heads_all = maod.mean()
     heads_win = maod[maod.index.month.isin(WINTER_MONTHS)].mean()
     heads_sum = maod[maod.index.month.isin(SUMMER_MONTHS)].mean()
+    heads_spr = maod[maod.index.month.isin(SPRING_MONTHS)].mean()   # T-38: spring baseline for the wet-area panel
     wt["mh"] = wt["id"].map(heads_all)
     wt["wh"] = wt["id"].map(heads_win)
     wt["sh"] = wt["id"].map(heads_sum)
+    wt["ph"] = wt["id"].map(heads_spr)
     if sy_df is not None:
         sy_map = dict(zip(sy_df["id"], sy_df["Sy_median"]))
         wt["sy"] = wt["id"].map(sy_map)
@@ -1072,6 +1079,47 @@ def basis_labels():
     return out
 
 
+def _wa_js(embed: str) -> str:
+    """The scenario wet-area panel JS (D-178, T-38). Returned as a .format ARGUMENT,
+    so its braces are inserted literally and need no doubling. Reuses the forecaster's
+    waAreas() math; the spring baseline level per reference well is (ph mAOD - ground
+    elevation) and the scenario shift is the per-cluster spring dh (MSL5)."""
+    return (
+        "var WET_AREA=" + embed + ";\n"
+        "function waAreas(curves,range,h){var lo=range[0],hi=range[1],hc=Math.max(lo,Math.min(hi,h)),"
+        "o={clipped:(h<lo||h>hi)};['open_water','wet_floor'].forEach(function(k){var c=curves[k],"
+        "A=c.a*Math.exp(c.b*hc),s=c.sigma_factor||1;o[k]={A:A,lo:A/s,hi:A*s};});return o;}\n"
+        "function renderWetArea(){var el=document.getElementById('wetArea');if(!el)return;"
+        "if(!WET_AREA||!WET_AREA.curves){el.style.display='none';if(!window._waW){console.warn("
+        "'[wet area] living/wet_area_model.json was absent at build; wet-area panel hidden. "
+        "Regenerate: python3 tools/sentinel_wet_floor.py --emit-feed && python3 src/19_spatial_groundwater.py');"
+        "window._waW=1;}return;}el.style.display='block';var hb=[],hs=[];"
+        "for(var i=0;i<WELLS.length;i++){var w=WELLS[i];if(w.b1==null||w.ph==null||w.dg==null)continue;"
+        "var base=w.ph-w.dg;var d=(typeof MSL5!=='undefined'&&MSL5&&MSL5[w.cl]!=null)?MSL5[w.cl]:0;"
+        "hb.push(base);hs.push(base+d);}if(hb.length<5){el.style.display='none';return;}"
+        "function med(a){a=a.slice().sort(function(x,y){return x-y;});var n=a.length;"
+        "return n%2?a[(n-1)/2]:0.5*(a[n/2-1]+a[n/2]);}"
+        "var h0=med(hb),h1=med(hs),rng=WET_AREA.fitted_range_m,cv=WET_AREA.curves,"
+        "A0=waAreas(cv,rng,h0),A1=waAreas(cv,rng,h1);"
+        "function row(nm,k){var b=A0[k],s=A1[k],dd=s.A-b.A;return '<tr><td>'+nm+'</td>"
+        "<td>'+b.A.toFixed(1)+' <span style=\"color:#888\">('+b.lo.toFixed(1)+'\\u2013'+b.hi.toFixed(1)+')</span></td>"
+        "<td>'+s.A.toFixed(1)+' <span style=\"color:#888\">('+s.lo.toFixed(1)+'\\u2013'+s.hi.toFixed(1)+')</span></td>"
+        "<td>'+(dd>=0?'+':'')+dd.toFixed(1)+'</td></tr>';}"
+        "var scrape=(typeof CUR_SC!=='undefined'&&/scrape/i.test(CUR_SC));"
+        "var beyond=(A0.open_water.clipped||A1.open_water.clipped||A0.wet_floor.clipped||A1.wet_floor.clipped);"
+        "var html='<div style=\"font-weight:600;margin:6px 0 2px\">Slack-floor wet area (spring) \\u2014 warren study area, 306.97 ha</div>'"
+        "+'<table style=\"width:100%;border-collapse:collapse;font-size:12px\"><tr><th style=\"text-align:left\"></th>"
+        "<th>baseline</th><th>scenario</th><th>\\u0394 ha</th></tr>'+row('Open water','open_water')+row('Wet floor','wet_floor')+'</table>'"
+        "+'<div style=\"font-size:11px;color:#666;margin-top:4px\">Hectares are totals for the warren study area; "
+        "ground outside it is not assessed, not dry. Curves are fitted on winter Sentinel-2 scenes, so spring-window "
+        "areas are indicative \\u2014 an illustration of the area-level relationship, not a flood map.'"
+        "+(beyond?' Held at the fitted level range.':'')"
+        "+(scrape?' <b>Scrape scenario:</b> this is the scenario water level through an UNCHANGED slack floor; "
+        "a scrape reshapes the ground itself, which these curves do not represent.':'')"
+        "+'</div>';el.innerHTML=html;}\n"
+    )
+
+
 def serialise_wells(wt):
     rows = []
     for _, r in wt.iterrows():
@@ -1079,6 +1127,7 @@ def serialise_wells(wt):
         rows.append({"n": r["id"], "cl": cl_int,
                      "E": round(float(r["E"])), "N": round(float(r["N"])),
                      "mh": _r(r["mh"],3), "wh": _r(r["wh"],3), "sh": _r(r["sh"],3),
+                     "ph": _r(r.get("ph"),3),
                      "sy": _r(r["sy"],4), "b1": _r(r["b1"],6),
                      "b2": _r(r["b2"],6), "b3": _r(r["b3"],6),
                      "b1f": _r(r.get("b1f"), 6), "b2f": _r(r.get("b2f"), 6),
@@ -1440,6 +1489,7 @@ footer a:hover{{text-decoration:underline;}}
   <div id="extremeBox" class="warn warn-extreme" style="display:none"></div>
   <div class="baseline-label">All &#916;h values relative to 2005&#8211;2026 climatological mean (baseline era)</div>
   <div class="metrics" id="mrow"></div>
+  <div id="wetArea" style="margin-top:6px"></div>
 
   <div class="panel">
     <div class="phead">
@@ -1537,6 +1587,7 @@ footer a:hover{{text-decoration:underline;}}
 
 <script>
 var WELLS={wells_json};
+{wet_area_block}
 var POLYS={polys_json};
 var CLIMATE={climate_json};
 var SY_FLOOR={sy_floor_json};
@@ -1708,7 +1759,7 @@ function go(){{
     var hb=sea==='annual'?WELLS[i].mh:sea==='winter'?WELLS[i].wh:WELLS[i].sh;
     WELLS[i]._sh=(hb!=null&&WELLS[i]._dh!=null)?hb+WELLS[i]._dh:null;
   }}
-  drawMap();renderBar();renderTable();renderMetrics();
+  drawMap();renderBar();renderTable();renderMetrics();renderWetArea();
 }}
 
 function dhCol(t){{t=Math.max(-1,Math.min(1,t));if(t>0){{var f=t;return[Math.round(255*(1-f*0.75)),Math.round(255*(1-f*0.75)),255];}}if(t<0){{var f=-t;return[255,Math.round(255*(1-f*0.75)),Math.round(255*(1-f*0.75))];}}return[255,255,255];}}
@@ -2518,6 +2569,20 @@ def main(out_path=None):
     print("  Building DEM grid for ridge masking...")
     dem_grid = build_dem_grid(polys.get("site"))
 
+    _wa_path = DIR_19.parents[1] / "living" / "wet_area_model.json"
+    if _wa_path.exists():
+        _wa = json.loads(_wa_path.read_text(encoding="utf-8"))
+        _wr = _wa["fitted_range_m"]   # feed stores it as {min,max}; the JS wants [lo,hi]
+        _wrange = ([float(_wr["min"]), float(_wr["max"])] if isinstance(_wr, dict)
+                   else [float(x) for x in _wr])
+        _wc = {k: {kk: (float(vv) if isinstance(vv, str) else vv) for kk, vv in v.items()}
+               for k, v in _wa["curves"].items()}   # coerce any stringised curve params
+        _wa_embed = json.dumps({"curves": _wc, "fitted_range_m": _wrange},
+                               separators=(",", ":"))
+    else:
+        _wa_embed = "null"
+        print("  [wet area] living/wet_area_model.json absent - scenario wet-area panel will hide")
+    wet_area_block = _wa_js(_wa_embed)
     html = HTML_TEMPLATE.format(
         n_wells=len(wt),
         wells_json=json.dumps(wells_list, separators=(",", ":")),
@@ -2546,6 +2611,7 @@ def main(out_path=None):
         cluster_colours_json=json.dumps(
             {str(k): CLUSTER_COLOURS[k] for k in CLUSTER_LABELS},
             separators=(",", ":")),
+        wet_area_block=wet_area_block,
         **basis_labels(),
     )
 

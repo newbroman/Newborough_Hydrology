@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of report_edits/odt/report8.odt — do not edit. source-sha256=3af91d09134706a8 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report8.odt — do not edit. source-sha256=e38dec8ffaffee87 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}Methods
@@ -723,6 +723,12 @@ The MSL5 metric of Section 3.7.5 measures spring wetness directly from the water
 **Vegetation cross-validation. **To test both metrics against the ecological target directly, the co-located Ellenberg-F moisture indicator values (the wetness indicator, scale 1--12; Hill et al., 1999) of van Willegen et al. (2025) were obtained from the associated open dataset (van Willegen et al., 2024) and aggregated to a mean per piezometer. Observed MSL5 and the equilibrium index were each regressed on mean Ellenberg-F between wells, and the difference between the two correlations --- dependent, since they share the response variable --- was tested by Williams\' test (Williams, 1959). This cross-validation draws on an external dataset and is computed once rather than as part of the recurring pipeline.
 
 The equilibrium wetness index and its MSL5 comparison are implemented in 26_van_willegen_msl.py; the vegetation cross-validation uses the van Willegen open dataset.
+
+###  Wet Area from Sentinel-2
+
+An independent, satellite-derived measure of slack-floor wetness tests the modelled water table in space (Results, Section 4.8.5). Sentinel-2 L2A scenes over the warren (2016--2026) are read at 10 m from the Earth Search archive; scenes with tile cloud above 25 % or with less than 95 % of the warren cloud-free by the scene-classification layer are discarded, leaving 43 winter scenes each with a dipwell reading in the same month. On the open dune-slack floor of the warren --- a fixed 306.97 ha mask of 30,697 cells, the planted forest excluded --- each scene\'s near-infrared reflectance (Band 8) is normalised by that scene\'s own clear-floor median and split at two fixed fractions: at or below 0.50, open water; between 0.50 and 0.80, wet floor. No manual classification enters.
+
+Each class\'s area is regressed on the reference-network median water level as area = a·exp(b·h), and the fitted curves are driven by the modelled level to test the wetted extent out of sample (Section 4.8.5). The full acquisition and classification recipe, the per-cell switching levels and the pipeline steps (Scripts 45--47) are given in the Methods Supplement (§D). The result is an illustration of the area--level relationship, not a flood map; which individual slacks carry the water is not resolved.
 
 ## []{#anchor-30}Spatial Analysis
 

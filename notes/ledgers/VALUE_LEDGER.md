@@ -152,7 +152,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | C3 · we_mean_mm | Δh | water-level change / amplitude | `19_scenario_summary.csv` | 0 |  | Supplementary_Material, VALUE_LEDGER_report, report9 | ok |
 | C3/Warren · clearfell_p |  |  | `10k_01_four_zone_results.csv` | 0.485432 |  | Supplementary_Material, VALUE_LEDGER_report, report9 | ok |
 | C3_Sy_max |  |  | `29_report_numbers.csv` | 0.397824 |  | Newborough_Methods_Supplement, Supplementary_Material, VALUE_LEDGER_report, report10, report9 | ok |
-| C3_Sy_min |  |  | `29_report_numbers.csv` | 0.245514 |  | Supplementary_Material, VALUE_LEDGER_report, report9 | ok |
+| C3_Sy_min |  |  | `29_report_numbers.csv` | 0.245514 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
 | C3_beta1_vs_inland_r | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `29_report_numbers.csv` | 0.848324 |  | VALUE_LEDGER_report, report9 | ok |
 | C3_beta3_mean | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_report_numbers.csv` | 0.056856 |  | VALUE_LEDGER_report | ok |
 | C3_median_dNSE |  |  | `08_report_numbers.csv` | 0.622502 |  | Supplementary_Material, VALUE_LEDGER_report, report9 | ok |

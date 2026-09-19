@@ -18,6 +18,12 @@ Outputs:
   notes/ledgers/VALUE_LEDGER.md          per-quantity master (tracked source of truth)
   notes/ledgers/VALUE_LEDGER_report.md   report reading-order view
   notes/ledgers/VALUE_LEDGER.html        both, navigable/searchable
+  notes/ledgers/VALUE_LEDGER_report.html report reading order, navigable/searchable
+
+The report reading-order views (VALUE_LEDGER_report.*) additionally list
+"untracked" prose values — numbers that appear in the prose but are not tracked
+in citation_index — as a reading aid; they are never drift-checked and never
+affect drift_rows() or the --check gate.
 
 Usage:
   python3 tools/build_value_ledger.py --write | --check | --stdout
@@ -26,7 +32,7 @@ from __future__ import annotations
 import argparse, csv, html, pathlib, re, sys
 from collections import defaultdict
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 REPO = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "tools"))
 import cite_check as cc  # noqa: E402  reuse the authoritative value/drift logic
@@ -129,6 +135,128 @@ def section_for(text, headings, context, quoted):
             best_off, best = h, (num, head)
     return best
 
+# --- untracked prose-value extraction (report reading-order view only) --------
+# Numeric values that appear in the prose but are NOT covered by a tracked
+# citation_index quantity. A READING AID for the report view only: never
+# drift-checked, never affecting drift_rows() or the --check gate.
+_U_NUM = r"[−\-]?\d[\d,]*(?:\.\d+)?"
+_U_UNIT = (r"(?:m\s?below\s?ground|m\s?AOD|mm\s?yr⁻¹|m\s?yr⁻¹|mm/yr|m/month|month⁻¹"
+           r"|months?|years?|wells?|records?|mm|cm|km|m|%)")
+_U_NUMUNIT = re.compile(rf"(?<![A-Za-z\d])({_U_NUM})\s?({_U_UNIT})?")
+_U_COUNT = re.compile(r"\s*(?:wells?|records?|of\s+\d|lie|exceed|fall|remain|require|become|have|show)\b")
+_U_DROP_BEFORE = re.compile(r"(?:Section|Figure|Fig\.?|Table|Note\s?S|Chapter|§|Script|Phase|RCP|UKCP|SD|CEH|NW|WMC|FE|LIS|k\s*=|=)\s*$")
+_U_RULE = re.compile(r"^\s*[-─]{3,}(?:[ \t]+[-─]{3,})*\s*$")
+_U_DASHES = "−-–—"
+
+def _norm_num(s):
+    return s.replace("−", "-").lstrip("+")
+
+def extract_untracked(text):
+    """Numeric prose values in `text`; table cells and citation refs excluded.
+
+    Returns [{value, numnorm, before, context}]. `before` (~40 chars) feeds
+    section_for(); `numnorm` is the sign-normalised number string used to dedupe
+    against tracked quantities. Pandoc simple/multiline table regions in the
+    mirrors are skipped so their cells never flood the list.
+    """
+    t = cc.strip_markup(text)
+    t = cc._IMGREF.sub(" ", t)
+    t = re.sub(r"\{[^}]*\}", " ", t)
+    out, in_table = [], False
+    for line in t.split("\n"):
+        if _U_RULE.match(line):
+            in_table = not in_table
+            continue
+        if in_table or len(re.findall(r" {3,}", line)) >= 2 or line.count("|") >= 2:
+            continue
+        for m in _U_NUMUNIT.finditer(line):
+            numstr, unit = m.group(1), m.group(2)
+            s, end = m.start(1), m.end()
+            has_unit = bool(unit)
+            # a word-unit that is only the prefix of a longer word is not a unit
+            if has_unit and unit[-1:].isalpha() and line[end:end + 1].isalpha():
+                has_unit, end = False, m.end(1)
+            # short bare units (m/mm/cm/km) need whitespace or a decimal point,
+            # else this is a script/sub-script id like "10m", not "10 m"
+            if (has_unit and unit in ("m", "mm", "cm", "km")
+                    and m.start(2) == m.end(1) and "." not in numstr):
+                has_unit, end = False, m.end(1)
+            signed = numstr[0] in _U_DASHES
+            range_dash = signed and s > 0 and line[s - 1] in _U_DASHES  # 2nd of "--"/en dash
+            if range_dash:
+                signed = False
+            nxt = line[m.end():m.end() + 28]
+            if not (has_unit or signed or bool(_U_COUNT.match(nxt))):
+                continue
+            if _U_DROP_BEFORE.search(line[max(0, s - 8):s]):
+                continue
+            if re.search(r"script", line[max(0, s - 12):s], re.IGNORECASE):
+                continue  # "Script 21", "sub-script 10m" — pipeline ids, not values
+            if (not has_unit) and line[m.end(1):m.end(1) + 1].isalpha():
+                continue
+            core = numstr.lstrip(_U_DASHES).replace(",", "")
+            if (not has_unit) and (not signed) and re.fullmatch(r"\d{4}", core):
+                continue
+            val = line[s:end]
+            if range_dash:
+                val = val.lstrip(_U_DASHES)
+            numnorm = _norm_num(numstr.lstrip(_U_DASHES) if range_dash else numstr)
+            out.append({"value": val.strip(), "numnorm": numnorm,
+                        "before": line[max(0, s - 40):s],
+                        "context": line[max(0, s - 34):min(len(line), end + 30)].strip()})
+    return out
+
+def _untracked_for_doc(doc, text, headings, tracked_items):
+    """{section_number: [(section_head, candidate), ...]} of untracked values.
+
+    Deduped against tracked quantities by sign-normalised number string within
+    the SAME section, so a value already shown as tracked is not repeated.
+    """
+    if _short(doc).startswith("VALUE_LEDGER"):
+        return defaultdict(list)   # never harvest the ledger's own generated outputs
+    tracked_by_sec = defaultdict(set)
+    for num, head, k, q, o in tracked_items:
+        tracked_by_sec[num or "zzz"].add(_norm_num(o["quoted"]))
+    bysec = defaultdict(list)
+    seen_val = defaultdict(set)   # per-section: distinct displayed value strings
+    for c in extract_untracked(text):
+        num, head = section_for(text, headings, c["before"], c["value"])
+        sec = num or "zzz"
+        if c["numnorm"] in tracked_by_sec.get(sec, set()):
+            continue
+        vkey = _norm_num(c["value"])
+        if vkey in seen_val[sec]:
+            continue                # keep only the first entry per distinct value
+        seen_val[sec].add(vkey)
+        bysec[sec].append((head, c))
+    return bysec
+
+def _dedup_tracked(items):
+    """Indices to keep after collapsing per-section repeats of (key, value).
+
+    A quantity key rendering the same quoted value more than once within a
+    section collapses to a single entry; a confirmed-drift occurrence is
+    preferred over a clean one so no ⚠ is lost. Display-only: drift_rows() and
+    --check are untouched.
+    """
+    best = {}
+    for idx, (num, head, k, q, o) in enumerate(items):
+        key = (num, k, _norm_num(o["quoted"]))
+        if key not in best or (o["drift"] and not items[best[key]][4]["drift"]):
+            best[key] = idx
+    return set(best.values())
+
+def _emit_untracked_md(L, untr, secnum):
+    for _head, c in untr.get(secnum, []):
+        L.append(f"- _(untracked)_ {c['value']} — …{c['context']}…")
+
+def _emit_untracked_html(body, untr, secnum, _h):
+    for _head, c in untr.get(secnum, []):
+        body.append(f'<div class="v untracked"><span class=val>{_h.escape(c["value"])}</span>'
+                    f'<span class=uctx>…{_h.escape(c["context"])}…</span>'
+                    f'<span class=utag>untracked</span></div>')
+
+
 def build():
     current, source_by_key = {}, {}
     for source, label, v in cc.collect_values():
@@ -224,15 +352,27 @@ def render_report_md(qu, smap):
             items.append((num or "zzz", head, k, q, o))
         items.sort(key=lambda t: ([int(x) for x in re.findall(r"\d+", t[0])] or [99]))
         L.append(f"\n## {_short(doc).replace('.md','')}\n")
-        cur = None
-        for num, head, k, q, o in items:
+        untr = _untracked_for_doc(doc, text, headings, items)
+        kept = _dedup_tracked(items)
+        seen = set(); cur = None; cur_sec = None
+        for idx, (num, head, k, q, o) in enumerate(items):
             if head and head != cur:
-                cur = head; L.append(f"\n### §{num} {head}\n")
+                _emit_untracked_md(L, untr, cur_sec); seen.add(cur_sec)
+                cur = head; cur_sec = num; L.append(f"\n### §{num} {head}\n")
+            if idx not in kept:
+                continue
             sym = f"[{q['sym']['glyph']}]" if q["sym"] else ""
             dfn = _defn(q["sym"])
             flag = " ⚠" if o["drift"] else ""
             L.append(f"- **{k}** {sym} — quoted {o['quoted']} vs committed {_num(q['committed'])}{flag}  ·  `{_short(q['src'])}`"
                      + (f"  — _{dfn}_" if dfn else ""))
+        _emit_untracked_md(L, untr, cur_sec); seen.add(cur_sec)
+        for sec in sorted(untr, key=lambda s: ([int(x) for x in re.findall(r"\d+", s)] or [99])):
+            if sec in seen:
+                continue
+            head = next((h for h, _c in untr[sec] if h), "") or "(unsectioned)"
+            L.append(f"\n### §{'' if sec == 'zzz' else sec} {head}\n")
+            _emit_untracked_md(L, untr, sec)
     return "\n".join(L) + "\n"
 
 def render_report_html(qu, smap):
@@ -249,6 +389,7 @@ def render_report_html(qu, smap):
         m=re.search(r"report(\d+)", n); num=int(m.group(1)) if m else 0
         return (pri, num, n)
     ndrift = len(drift_rows(qu))
+    n_untracked = 0
     nav, body = [], []
     for doc in sorted(bydoc, key=_dorder):
         text = docs.get(doc, "")
@@ -258,15 +399,21 @@ def render_report_html(qu, smap):
             num,head = section_for(text, headings, o["context"], o["quoted"])
             items.append((num or "zzz", head, k, q, o))
         items.sort(key=lambda t:([int(x) for x in re.findall(r"\d+",t[0])] or [99]))
+        untr = _untracked_for_doc(doc, text, headings, items)
+        kept = _dedup_tracked(items)
+        n_untracked += sum(len(v) for v in untr.values())
         did=_short(doc).replace(".md","")
         docdrift=sum(1 for _,_,_,_,o in items if o["drift"])
         nav.append(f'<a href="#{_h.escape(did)}">{_h.escape(did)}{" ⚠" if docdrift else ""}</a>')
         body.append(f'<section id="{_h.escape(did)}"><h2>{_h.escape(did)}'
                     f'{f" <span class=pill>{docdrift} ⚠</span>" if docdrift else ""}</h2>')
-        cur=None
-        for num,head,k,q,o in items:
+        seen=set(); cur=None; cur_sec=None
+        for idx,(num,head,k,q,o) in enumerate(items):
             if head and head!=cur:
-                cur=head; body.append(f'<h3>§{_h.escape(num)} {_h.escape(head)}</h3>')
+                _emit_untracked_html(body, untr, cur_sec, _h); seen.add(cur_sec)
+                cur=head; cur_sec=num; body.append(f'<h3>§{_h.escape(num)} {_h.escape(head)}</h3>')
+            if idx not in kept:
+                continue
             sym=q["sym"]["glyph"] if q["sym"] else ""
             dfn=_defn(q["sym"])
             cls=" class=drift" if o["drift"] else ""
@@ -276,6 +423,13 @@ def render_report_html(qu, smap):
                         f' <span class=val>quoted {_h.escape(o["quoted"])} · committed {_h.escape(_num(q["committed"]))}{flag}</span>'
                         f'{f"<span class=def>{_h.escape(dfn)}</span>" if dfn else ""}'
                         f'<span class=src><code>{_h.escape(_short(q["src"]))}</code></span></div>')
+        _emit_untracked_html(body, untr, cur_sec, _h); seen.add(cur_sec)
+        for sec in sorted(untr, key=lambda s:([int(x) for x in re.findall(r"\d+",s)] or [99])):
+            if sec in seen:
+                continue
+            head = next((h for h,_c in untr[sec] if h), "") or "(unsectioned)"
+            body.append(f'<h3>§{_h.escape("" if sec=="zzz" else sec)} {_h.escape(head)}</h3>')
+            _emit_untracked_html(body, untr, sec, _h)
         body.append("</section>")
     return f"""<!doctype html><html lang=en><head><meta charset=utf-8>
 <meta name=viewport content="width=device-width,initial-scale=1"><title>Value Ledger — reading order</title>
@@ -293,9 +447,11 @@ h3{{font-size:13px;color:var(--mut);margin:14px 0 4px;font-weight:600}}
 .v.drift{{background:var(--drift)}}.k{{font-weight:600}}.sym{{color:var(--accent);font-family:ui-monospace,Menlo,monospace}}
 .val{{color:var(--fg)}}.v.drift .val{{color:var(--driftfg);font-weight:600}}.def{{color:var(--mut);font-size:12px;flex-basis:100%}}
 .src code{{font:11px/1.3 ui-monospace,Menlo,monospace;color:var(--mut)}}.pill{{font-size:12px;color:var(--driftfg);font-weight:600}}
+.v.untracked{{background:transparent}}.untracked .val{{color:var(--mut);font-weight:600}}
+.uctx{{color:var(--mut);font-size:12px;flex-basis:100%}}.utag{{color:var(--mut);font-size:10px;text-transform:uppercase;letter-spacing:.04em;border:1px solid var(--line);border-radius:99px;padding:0 6px;align-self:center}}
 </style></head><body>
 <header><h1>Value Ledger — report reading order</h1>
-<div class=sub>{len(qu)} quantities · {ndrift} confirmed drift · read top-to-bottom alongside the document, or jump:</div>
+<div class=sub>{len(qu)} tracked quantities · {ndrift} confirmed drift · {n_untracked} untracked prose values · read top-to-bottom alongside the document, or jump:</div>
 <nav>{''.join(nav)}</nav>
 <input id=q placeholder="filter values (e.g. Sy, β₃, ⚠)…"></header>
 <main>{''.join(body)}</main>

@@ -35,7 +35,7 @@
 | 12 | 4.2.4 | Interpolated WTF specific yield surface for the combined reference and | `outputs/18_wtf_spatial/18_wtf_04_sy_contour_extended.png` | yes |
 | 13 | 4.3 | Pearson affinity analysis of selected reference and extended network w | `outputs/06_pearson_extended/06_pear_01_affinity_chart_extended.png` | yes |
 | 14 | 4.3 | Spatial distribution of the five primary hydrogeological clusters vali | `outputs/05_pearson_affinity/05_pear_01_spatial_confidence_map.png` | yes |
-| 15 | 4.4 | Dual-model performance comparison at dune well CEH6. Upper panel: one- | `outputs/08_model_benchmarking/08_lcsc_01_ceh6_showdown.png` | yes |
+| 15 | 4.4 | Dual-model performance comparison at Lake Edge well CEH6. Upper panel: | `outputs/08_model_benchmarking/08_lcsc_01_ceh6_showdown.png` | yes |
 | 16 | 4.4 | SSM gain over TLM across all 66 reference wells. Panel (a): iterative  | `outputs/08_model_benchmarking/08_lcsc_02_r2_improvement_map.png` | yes |
 | 17 | 4.5.1 | Tier 1 background environmental drift analysis. CUSUM time series for  | `outputs/09_scraping_intervention/09_scrape_05_tier1_background_drift.png` | yes |
 | 18 | 4.5.2 | Tier 2 paired CUSUM analysis at treatment wells CEH36 (top), CEH18 (ce | `outputs/09_scraping_intervention/09_scrape_06_tier2_scraping_signal.png` | yes |
@@ -107,4 +107,4 @@
 | 79 | 5.8.2 | Four drivers of the Newborough water table — schematic cross-sections  | `outputs/09_scraping_intervention/09g_mechanism_grid.png` | yes |
 | 80 | 5.9 | Per-well achievability categorization against the P_flood rainfall mul | `outputs/11b_spatial_thresholds/11c_pflood_achievability.png` | yes |
 
-*Generated 2026-09-18 by `tools/build_figure_ledger.py` v2.3.0.*
+*Generated 2026-09-19 by `tools/build_figure_ledger.py` v2.3.0.*

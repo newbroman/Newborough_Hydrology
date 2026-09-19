@@ -52,7 +52,29 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.6.0"  # Hollingham (2026) — 2026-09-08. insert_figure gains
+__version__ = "1.7.0"  # Hollingham (2026) — 2026-09-19. Adds insert_table(),
+#   the table counterpart of insert_figure. Written the day Table 1.4b went in
+#   BY HAND: the row markup was assembled in a throwaway script, the automatic
+#   styles were borrowed from a neighbouring table by eye, the free table:name
+#   was found by printing the list of names and looking for a gap, the caption's
+#   sequence field was typed out, and the two source registries were edited
+#   separately and could as easily have been forgotten — which is exactly what
+#   happened to tools/figure_map.csv after the Figure 12 insert the same morning.
+#   Each of those is a silent-failure mode. insert_table takes a TEMPLATE TABLE
+#   already in the document and copies its column widths, row styles and per-cell
+#   automatic styles, so the new table cannot reference an undeclared style and
+#   looks like its neighbours by construction.
+#
+#   The guard that earns its place is _block_boundary(). The Figure 12 insert
+#   put a <text:p> inside a <text:span> inside a paragraph because the caller's
+#   marker sat mid-sentence; the archive rezipped, LibreOffice opened it, and
+#   pandoc dropped the figure without a word. Nothing downstream noticed. The
+#   boundary check counts open against closed for every block element in the
+#   text preceding the marker and refuses an insertion point inside any of them.
+#   A table spliced inside a paragraph is invalid ODF in a way that is invisible
+#   until a reader opens the PDF.
+#
+# v1.6.0  # Hollingham (2026) — 2026-09-08. insert_figure gains
 #   layout="nested" | "plain". "nested" is the report9 form (outer text-box
 #   frame carrying image and caption); "plain" is the report10 form — a Cap
 #   paragraph holding one image frame (fr6, anchor paragraph, rel-width 100%)
@@ -608,3 +630,295 @@ def insert_figure(src, dst, image_path, before: str, caption: str,
     print("      the caption carries a sequence FIELD; open in LibreOffice and "
           "Tools > Update > Fields to render its number")
     return True
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# TABLE INSERTION
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Block elements an insertion point must not be INSIDE. The Figure 12 insert of
+# 2026-09-19 landed inside a text:span inside a text:p; the archive rezipped,
+# LibreOffice opened the file, pandoc silently dropped the figure and no gate
+# noticed. A table spliced into a paragraph is invalid ODF the same way.
+_BLOCK_ELEMENTS = (
+    "text:p", "text:h", "text:span", "text:a", "text:list", "text:list-item",
+    "table:table", "table:table-row", "table:table-cell",
+    "table:table-header-rows", "draw:frame", "draw:text-box",
+    "office:annotation",
+)
+
+
+def _xesc(t) -> str:
+    """XML-escape a cell value or caption. Cells are DATA, never markup."""
+    return (str(t).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
+
+
+def _block_boundary(prefix: str) -> str | None:
+    """Return the name of the first element still OPEN at `prefix`'s end.
+
+    None means every block element opened before the insertion point has been
+    closed, i.e. the point sits between two block-level siblings and a
+    <table:table> may legally be placed there. The negative lookahead excludes
+    self-closing tags (<text:p .../> is an empty paragraph, opened and closed).
+    """
+    for tag in _BLOCK_ELEMENTS:
+        # (?![\w:-]) not \b: "\b" after "table:table" matches before the hyphen
+        # of <table:table-row>, so the open count came back 350 against 4 closed
+        # on the first live call. The same trap sits under text:list /
+        # text:list-item and table:table-cell.
+        opens = len(re.findall(rf"<{re.escape(tag)}(?![\w:-])(?![^>]*/>)", prefix))
+        closes = len(re.findall(rf"</{re.escape(tag)}>", prefix))
+        if opens != closes:
+            return f"{tag} ({opens} open, {closes} closed)"
+    return None
+
+
+def _parse_template_table(xml: str, name: str):
+    """Pull a table's shape out of content.xml: columns, row styles, cell styles.
+
+    Returns (columns_xml, n_cols, header_wrapped, rows) where rows is a list of
+    {"row_style", "cells": [{"cell_style", "para_style"}]} in document order,
+    the first being the header row. Everything the new table emits comes from
+    here, so every style name it uses is one the document already declares —
+    the declared-style guard cannot fail on a style this function chose.
+    """
+    m = re.search(rf'<table:table table:name="{re.escape(name)}"[^>]*>', xml)
+    if m is None:
+        return None, f"template table {name!r} is not in this document"
+    body = xml[m.end():]
+    end = body.find("</table:table>")
+    if end < 0:
+        return None, f"template table {name!r} has no closing element"
+    tpl = body[:end]
+    if "<table:table " in tpl:
+        return None, f"template table {name!r} contains a nested table"
+
+    cols = re.findall(r"<table:table-column\b[^>]*/>", tpl)
+    n_cols = 0
+    for c in cols:
+        r = re.search(r'table:number-columns-repeated="(\d+)"', c)
+        n_cols += int(r.group(1)) if r else 1
+    if not cols:
+        return None, f"template table {name!r} declares no columns"
+
+    header_wrapped = "<table:table-header-rows>" in tpl
+    rows = []
+    for row in re.findall(r"<table:table-row\b.*?</table:table-row>", tpl, re.S):
+        rs = re.search(r'<table:table-row\b[^>]*table:style-name="([^"]+)"', row)
+        cells = []
+        for cell in re.findall(r"<table:table-cell\b.*?</table:table-cell>", row, re.S):
+            cs = re.search(r'<table:table-cell\b[^>]*table:style-name="([^"]+)"', cell)
+            ps = re.search(r'<text:p\b[^>]*text:style-name="([^"]+)"', cell)
+            cells.append({"cell_style": cs.group(1) if cs else None,
+                          "para_style": ps.group(1) if ps else None})
+        rows.append({"row_style": rs.group(1) if rs else None, "cells": cells})
+    if len(rows) < 2:
+        return None, (f"template table {name!r} has {len(rows)} row(s); a header row "
+                      f"and at least one body row are needed to copy both styles")
+    return (cols, n_cols, header_wrapped, rows), None
+
+
+def insert_table(src, dst, before: str, header, rows, template_table: str,
+                 caption: str, table_name: str | None = None,
+                 caption_para_style: str = "Cap",
+                 caption_run_style: str = "T75",
+                 caption_letter_style: str | None = None,
+                 letter: str = "", seq_ref_name: str | None = None,
+                 seq_fallback: str = "0",
+                 caption_is_markup: bool = False,
+                 trailing_blank: bool = True) -> bool:
+    """Insert a captioned table before the marker `before`, styled like a neighbour.
+
+    WHY THIS IS NOT edit()
+
+      A table is not text. Its cells carry per-row, per-column AUTOMATIC styles
+      (Table5.C4 and no other name will do), its column widths live in a run of
+      <table:table-column> elements that must total the header width, and its
+      caption is a numbering FIELD, not a typed digit. Hand-assembling that in a
+      one-off script — which is how Table 1.4b went in — gets the document open
+      and looking right while leaving four different ways to be quietly wrong.
+
+    HOW THE STYLING IS CHOSEN: IT ISN'T
+
+      `template_table` names a table ALREADY IN THE DOCUMENT with the same
+      column count. Its column elements are copied verbatim, its header row
+      supplies the header styling and its body rows supply the body styling. A
+      new table therefore cannot reference a style the document has not
+      declared, and it matches its neighbours without anyone choosing a font.
+      If the new table has more rows than the template, the template's LAST body
+      row's styles are reused for the overflow — those names are declared, which
+      an extrapolated "Table5.C9" would not be.
+
+    THE CAPTION
+
+      Two forms, chosen by `letter`:
+
+        letter=""   a table with its OWN NUMBER. Emits a <text:sequence
+                    text:name="Table"> field, so every later table renumbers
+                    itself. Use this by default.
+        letter="b"  a lettered member of an existing group (1.4a, 1.4b, ...).
+                    Emits a <text:sequence-ref> to `seq_ref_name` plus the
+                    literal letter. Note what this costs: the letter is PLAIN
+                    TEXT, so reference_lint cannot pin it, repoint_refs cannot
+                    move it, and tools/reference_index_table.csv will not record
+                    the table at all. Only use it to extend a group that already
+                    exists.
+
+      `caption` is the text AFTER the number and separator; "Table N: " is
+      generated. It is XML-escaped unless caption_is_markup is set.
+
+    Returns True on success; on any failed guard prints why and leaves dst alone.
+    """
+    import xml.etree.ElementTree as ET
+
+    src, dst = pathlib.Path(src), pathlib.Path(dst)
+    if not _tier_gate(dst, tag_change=True):
+        return False
+
+    zin = zipfile.ZipFile(src)
+    names = zin.namelist()
+    if names[0] != "mimetype":
+        print(f"  ABORT {src.name}: mimetype is not the first archive entry")
+        zin.close(); return False
+    xml = orig_xml = zin.read("content.xml").decode("utf-8")
+
+    # ── the marker ────────────────────────────────────────────────────────────
+    n = xml.count(before)
+    if n != 1:
+        print(f"  ABORT: marker found {n}x, expected exactly 1")
+        zin.close(); return False
+    open_el = _block_boundary(xml[:xml.index(before)])
+    if open_el is not None:
+        print(f"  ABORT: the marker is inside an open {open_el} — a table cannot be "
+              f"placed there. Move the marker to the start of a block-level "
+              f"element (a <text:p ...> or <table:table ...> opening tag).")
+        zin.close(); return False
+
+    # ── the template ──────────────────────────────────────────────────────────
+    shape, err = _parse_template_table(xml, template_table)
+    if shape is None:
+        print(f"  ABORT: {err}")
+        zin.close(); return False
+    cols, n_cols, header_wrapped, tpl_rows = shape
+    if n_cols != len(header):
+        print(f"  ABORT: template {template_table!r} has {n_cols} column(s), "
+              f"header has {len(header)}. Pick a template of the right width — "
+              f"this tool copies column widths, it does not invent them.")
+        zin.close(); return False
+    bad = [i for i, r in enumerate(rows) if len(r) != len(header)]
+    if bad:
+        print(f"  ABORT: row(s) {bad} do not have {len(header)} cell(s)")
+        zin.close(); return False
+    if not rows:
+        print("  ABORT: no data rows")
+        zin.close(); return False
+
+    # ── the name ──────────────────────────────────────────────────────────────
+    used = set(re.findall(r'<table:table table:name="([^"]+)"', xml))
+    if table_name is None:
+        # Both namespaces must be free. report9 had Table3 unused while
+        # refTable3 was live (it is the 1.4a-d group's sequence, declared on
+        # Table4's caption), so allocating on table:name alone handed back a
+        # name whose own-number caption could not be built.
+        i = 1
+        while f"Table{i}" in used or f'text:ref-name="refTable{i}"' in xml:
+            i += 1
+        table_name = f"Table{i}"
+        print(f"  table:name not given; allocated {table_name}")
+    elif table_name in used:
+        print(f"  ABORT: table:name {table_name!r} is already used in this document")
+        zin.close(); return False
+
+    # ── caption styles must already be in use ─────────────────────────────────
+    for st in (caption_para_style, caption_run_style,
+               caption_letter_style or caption_run_style):
+        if f'text:style-name="{st}"' not in xml:
+            print(f"  ABORT: text style {st} is not used in this document")
+            zin.close(); return False
+
+    # ── the caption ───────────────────────────────────────────────────────────
+    lstyle = caption_letter_style or caption_run_style
+    body_text = caption if caption_is_markup else _xesc(caption)
+    if letter:
+        if not seq_ref_name:
+            print("  ABORT: letter= needs seq_ref_name= (the group's sequence field)")
+            zin.close(); return False
+        if f'text:ref-name="{seq_ref_name}"' not in xml:
+            print(f"  ABORT: no sequence named {seq_ref_name!r} in this document")
+            zin.close(); return False
+        number = (f'<text:span text:style-name="{caption_run_style}">'
+                  f'<text:sequence-ref text:reference-format="value" '
+                  f'text:ref-name="{seq_ref_name}">{seq_fallback}</text:sequence-ref>'
+                  f'</text:span>'
+                  f'<text:span text:style-name="{lstyle}">{_xesc(letter)}</text:span>')
+        print(f"  note: lettered caption ({letter!r}) — the letter is plain text, so "
+              f"reference_lint cannot pin it and repoint_refs cannot move it")
+    else:
+        ref = f"ref{table_name}"
+        if f'text:ref-name="{ref}"' in xml:
+            print(f"  ABORT: ref-name {ref!r} is already taken — pass a different "
+                  f"table_name, or leave table_name unset and let this function "
+                  f"allocate one whose ref-name is free too")
+            zin.close(); return False
+        number = (f'<text:span text:style-name="{caption_run_style}">'
+                  f'<text:sequence text:ref-name="{ref}" text:name="Table" '
+                  f'text:formula="ooow:Table+1" style:num-format="1">0</text:sequence>'
+                  f'</text:span>')
+    cap_xml = (f'<text:p text:style-name="{caption_para_style}">'
+               f'<text:span text:style-name="{caption_run_style}">Table </text:span>'
+               f'{number}'
+               f'<text:span text:style-name="{caption_run_style}">: </text:span>'
+               f'{body_text}</text:p>')
+    if trailing_blank:
+        cap_xml += f'<text:p text:style-name="{caption_para_style}"/>'
+
+    # ── the table ─────────────────────────────────────────────────────────────
+    def _row(spec, values):
+        cells = spec["cells"]
+        out = []
+        for i, v in enumerate(values):
+            c = cells[i] if i < len(cells) else cells[-1]
+            cs = f' table:style-name="{c["cell_style"]}"' if c["cell_style"] else ""
+            ps = f' text:style-name="{c["para_style"]}"' if c["para_style"] else ""
+            out.append(f'<table:table-cell{cs} office:value-type="string">'
+                       f'<text:p{ps}>{_xesc(v)}</text:p></table:table-cell>')
+        rs = f' table:style-name="{spec["row_style"]}"' if spec["row_style"] else ""
+        return f"<table:table-row{rs}>" + "".join(out) + "</table:table-row>"
+
+    tstyle = re.search(rf'<table:table table:name="{re.escape(template_table)}"'
+                       rf'[^>]*table:style-name="([^"]+)"', xml)
+    head = _row(tpl_rows[0], header)
+    if header_wrapped:
+        head = f"<table:table-header-rows>{head}</table:table-header-rows>"
+    body = "".join(_row(tpl_rows[min(i + 1, len(tpl_rows) - 1)], r)
+                   for i, r in enumerate(rows))
+    if len(rows) > len(tpl_rows) - 1:
+        print(f"  note: {len(rows)} data row(s) against the template's "
+              f"{len(tpl_rows) - 1}; the overflow reuses the last body row's styles")
+    tbl_xml = (f'<table:table table:name="{table_name}"'
+               + (f' table:style-name="{tstyle.group(1)}"' if tstyle else "")
+               + ">" + "".join(cols) + head + body + "</table:table>")
+
+    xml = xml.replace(before, tbl_xml + cap_xml + before, 1)
+
+    # ── guards ────────────────────────────────────────────────────────────────
+    if not _guards(orig_xml, xml, zin, src.name, allow_tag_change=True):
+        zin.close(); return False
+    try:
+        ET.fromstring(xml)
+    except ET.ParseError as exc:
+        print(f"  ABORT: content.xml would not parse after the insert ({exc})")
+        zin.close(); return False
+
+    ok = _write(src, dst, xml, zin, names)
+    zin.close()
+    if ok:
+        print(f"      {table_name}: {len(header)} column(s) x {len(rows)} row(s), "
+              f"styled from {template_table}")
+        print("      the caption carries a sequence FIELD; open in LibreOffice and "
+              "Tools > Update > Fields to render its number")
+        print("      still to do by hand: a tools/table_configs.py entry so "
+              "table_gen owns the cells; a row in tools/figure_table_sources.csv "
+              "and tools/figure_table_manifest.csv; and, for an own-number "
+              "caption, reference_lint --kind table --snapshot")
+    return ok

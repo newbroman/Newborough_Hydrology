@@ -11,6 +11,9 @@ Produces the outputs supporting Section 4.2.3 of the report:
   Table 3b (volumetric partition):
     16_water_bal_vol_table.csv
 
+  Table 1.4b (seasonal-recession partition):
+    16_water_bal_rec_table.csv
+
   Figure 8 (two-panel combined):
     16_water_bal_bar_ms.png         — manuscript (white, 300 dpi)
     16_water_bal_bar_lay.png        — lay version (coloured background)
@@ -76,7 +79,15 @@ References:
       for water table depths. WRR 36(1), 181–188.
 """
 
-__version__ = "1.2.0"  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS now imported from config.SUMMER_MINIMUM_MONTHS.
+__version__ = "1.3.0"  # Hollingham (2026) - 2026-09-19. The seasonal-recession
+#   partition is now REPORTED, not just consumed: save_recession_table writes
+#   16_water_bal_rec_table.csv with the winter and summer mean recession rates,
+#   the month counts behind each, and the recession / SSM / midpoint drainage
+#   fractions at full precision. The vol table rounds its fractions to 1 dp at
+#   write time, which is not enough to tabulate the bracket. Report §4.2.3,
+#   Table 1.4c. No existing output changes.
+#
+# v1.2.0  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS now imported from config.SUMMER_MINIMUM_MONTHS.
 #   Batch two of the seasonal-windows migration (D-100): the window's
 #   MONTHS ARE UNCHANGED and the constant is asserted equal to the literal it
 #   replaced, in value and in type, read mechanically out of git HEAD. No
@@ -112,6 +123,7 @@ import matplotlib.patches as mpatches
 
 from utils.paths import (
     make_all_dirs, INT_REGIONAL_AVG, OUT_16_TABLE, OUT_16_VOL_TABLE,
+    OUT_16_REC_TABLE,
     OUT_16_BAR_LAY, OUT_16_BAR_MS, OUT_03_MECHANISTIC_TABLE,
 )
 from utils.config import (
@@ -399,6 +411,50 @@ def save_volumetric_table(summary, recession, path):
     saved(f"{path.name}")
 
 
+def save_recession_table(summary, recession, path):
+    """Save Table 1.4c: the seasonal-recession partition, method by method.
+
+    The ET/drainage split quoted in Table 1.4b is the midpoint of two
+    estimators. This file reports the second of them — the seasonal recession
+    ratio — in full, so the bracket in Figure 11b can be read as numbers:
+
+      winter_dh   mean month-on-month decline over Nov–Feb months with dh < 0
+      summer_dh   the same over Jun–Sep
+      drain_frac  winter_dh / summer_dh — winter loss is drainage-only to the
+                  extent that winter PET is negligible, so its share of the
+                  summer loss estimates the drainage fraction
+
+    Both rates are head declines, so specific yield cancels in the ratio: the
+    partition is Sy-free (§S.11). n_winter and n_summer are the numbers of
+    falling months behind each mean, not events — the estimator is a ratio of
+    two seasonal means, not a per-event distribution.
+    """
+    rows = []
+    for cid in sorted(summary.keys()):
+        s = summary[cid]
+        r = recession.get(cid, {})
+        rec_drain = r.get("drain_frac", np.nan)
+        ssm_drain = s["drain_pct"] / 100.0
+        rows.append({
+            "Cluster": cid,
+            "Label": _CFG_LABELS[cid],
+            "Winter_dh_mm_month": r.get("winter_rate", np.nan) * 1000,
+            "N_winter":           r.get("n_winter", np.nan),
+            "Summer_dh_mm_month": r.get("summer_rate", np.nan) * 1000,
+            "N_summer":           r.get("n_summer", np.nan),
+            "Rec_drain_frac":     rec_drain,
+            "Rec_ET_frac":        r.get("et_frac", np.nan),
+            "SSM_drain_frac":     ssm_drain,
+            "SSM_ET_frac":        s["et_pct"] / 100.0,
+            "Mid_drain_frac":     (ssm_drain + rec_drain) / 2 if pd.notna(rec_drain)
+                                  else ssm_drain,
+            "Spread_pp":          abs(ssm_drain - rec_drain) * 100 if pd.notna(rec_drain)
+                                  else np.nan,
+        })
+    pd.DataFrame(rows).to_csv(path, index=False, float_format="%.4f")
+    saved(f"{path.name}")
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # FIGURE
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -670,6 +726,7 @@ def main():
                   f"{r['drain_frac']:>7.2f} {r['n_winter']:>5} {r['n_summer']:>5}")
 
     save_volumetric_table(summary, recession, OUT_16_VOL_TABLE)
+    save_recession_table(summary, recession, OUT_16_REC_TABLE)
 
     # ── Figure 8 ──
     # Manuscript version

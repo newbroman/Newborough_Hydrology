@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_4.odt — do not edit. source-sha256=a3578f47a18e09b9 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_5.odt — do not edit. source-sha256=5e1db255269aa4af pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 2.0.4 (September 2026).
+Document version: 2.0.5 (September 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -275,11 +275,11 @@ Two per-cluster specific-yield references are cited in the report: literature va
 
   --------------------- ------------ ------------------ ---------------------------
   Cluster               Sy assumed   Approach A (OLS)   Approach B (event median)
-  C1 Lake Edge          0.08         0.342              0.210
-  C2 Dune               0.12         0.338              0.267
-  C3 Western Residual   0.12         0.352              0.327
-  C4 Main Forest        0.12         0.297              0.260 (corr)
-  C5 Coastal Forest     0.12         0.412              0.321 (corr)
+  C1 Lake Edge          0.08         0.348              0.210
+  C2 Dune               0.12         0.362              0.269
+  C3 Western Residual   0.12         0.373              0.328
+  C4 Main Forest        0.12         0.305              0.260 (corr)
+  C5 Coastal Forest     0.12         0.418              0.326 (corr)
   --------------------- ------------ ------------------ ---------------------------
 
 The Fetter values are literature specific yields for unconfined dune sand, cited as a comparison benchmark; they do not enter Script 16\'s water-balance partition, which is Sy-free (§S.11). The WTF values are the empirical estimates from rising-limb event analysis (Script 17, Table 4c). They are not in conflict; they are independent references --- one from the literature, one empirical --- and the report cites both. The Phase 6 chapter explains why the corrected and uncorrected C4 medians both appear in Table 4c, and the Phase 8 chapter explains why the well-level cluster mean (0.202 for C4) is lower than the cluster-aggregate value (0.227).
@@ -2457,11 +2457,11 @@ Rearranging to estimate Sy gives R = Sy · (Δh + β₃·\|h_prev\|), so the OLS
 
   ----------------------- ------------- ------- ------- ---- --------------- ------------------ ----------
   Cluster                 Sy (A, OLS)   SE      R²      n    Sy (B, event)   IQR                n events
-  C1 (Lake Edge)          0.342         0.045   0.594   40   0.210           \[0.127, 0.255\]   58
-  C2 (Dune)               0.338         0.034   0.666   51   0.267           \[0.194, 0.369\]   62
-  C3 (Western Residual)   0.352         0.022   0.837   53   0.327           \[0.281, 0.393\]   56
-  C4 (Main Forest)        0.297         0.019   0.845   48   0.260 (corr)    \[0.181, 0.324\]   63
-  C5 (Coastal Forest)     0.412         0.023   0.863   50   0.321 (corr)    \[0.244, 0.388\]   51
+  C1 (Lake Edge)          0.348         0.047   0.590   39   0.210           \[0.127, 0.255\]   57
+  C2 (Dune)               0.362         0.035   0.690   50   0.269           \[0.195, 0.370\]   61
+  C3 (Western Residual)   0.373         0.021   0.864   52   0.328           \[0.286, 0.398\]   55
+  C4 (Main Forest)        0.305         0.019   0.853   47   0.260 (corr)    \[0.182, 0.330\]   62
+  C5 (Coastal Forest)     0.418         0.024   0.865   49   0.326 (corr)    \[0.247, 0.391\]   50
   ----------------------- ------------- ------- ------- ---- --------------- ------------------ ----------
 
   --------------------- ---------------------- ------------------ ----
@@ -2469,7 +2469,7 @@ Rearranging to estimate Sy gives R = Sy · (Δh + β₃·\|h_prev\|), so the OLS
   C1 Lake Edge          0.180                  \[0.097, 0.220\]   19
   C2 Dune               0.260                  \[0.180, 0.333\]   20
   C3 Western Residual   0.319                  \[0.274, 0.409\]   16
-  C4 Main Forest        0.273 (corr)           \[0.235, 0.348\]   13
+  C4 Main Forest        0.306 (corr)           \[0.245, 0.360\]   13
   C5 Coastal Forest     0.311 (corr)           \[0.270, 0.376\]   13
   --------------------- ---------------------- ------------------ ----
 
@@ -3613,11 +3613,11 @@ The five-cluster table of fitted coefficients is reproduced below (full numerica
 
   --------------------- ------------------ -------------- ---------------- --------------- ------- ----
   Cluster               β(h_max, winter)   β(P_win→spr)   β(PET_win→spr)   Intercept (m)   R²      n
-  C1 Lake Edge          +0.142             +0.00111       −0.00179         −0.513          0.726   19
-  C2 Dune               +0.387             +0.00131       −0.00214         −0.554          0.843   20
-  C3 Western Residual   +0.641             +0.00096       −0.00138         −0.585          0.888   20
-  C4 Main Forest        +0.839             +0.00087       +0.00001         −0.833          0.958   19
-  C5 Coastal Forest     +0.754             +0.00039       −0.00055         −0.519          0.960   19
+  C1 Lake Edge          +0.131             +0.00120       −0.00149         −0.658          0.771   19
+  C2 Dune               +0.367             +0.00143       −0.00180         −0.733          0.867   20
+  C3 Western Residual   +0.633             +0.00103       −0.00115         −0.706          0.896   20
+  C4 Main Forest        +0.842             +0.00089       +0.00010         −0.875          0.959   19
+  C5 Coastal Forest     +0.754             +0.00042       −0.00047         −0.558          0.960   19
   --------------------- ------------------ -------------- ---------------- --------------- ------- ----
 
 Coefficients on h_max_winter, P_win_to_spr are positive everywhere and statistically significant (p \< 0.05) at all clusters except two: the winter-peak coefficient (h_max_winter) is small (+0.14) and non-significant at Lake Edge (p = 0.45), and the rainfall coefficient (P_win_to_spr) is non-significant at Coastal Forest (p = 0.06). PET_win_to_spr coefficients are negative at all clusters except Main Forest, where the value (+0.00001) is essentially zero and statistically non-significant (p = 0.995). Physical interpretation: rainfall over the October-to-May window raises the next spring's MSL; potential evapotranspiration lowers it; and the previous winter peak --- when statistically distinguishable from zero --- carries information about the antecedent groundwater state.
@@ -4165,7 +4165,7 @@ A second question is older than the model. The water table of the early 1990s wa
 
 ### []{#anchor-594}[]{#anchor-595}Data provenance and permission
 
-The 1989--96 dipwell records are held by Natural Resources Wales and were supplied for this study. Access is covered by the Environmental Information Regulations 2004; re-use and republication are separate matters, governed by whatever licence attaches. Written confirmation of those terms has been sought and was outstanding when this chapter was written, and the chapter is reported on that basis. The derived results below are this study's own; the underlying records are not.
+The 1989--96 dipwell records are held by Natural Resources Wales and were supplied for this study. Access is covered by the Environmental Information Regulations 2004; re-use and republication are governed by the Open Government Licence v3.0, under which Natural Resources Wales has confirmed these records may be reproduced with the attribution "Contains Natural Resources Wales information © Natural Resources Wales and database right. All rights reserved." The derived results below are this study's own; the underlying records are not.
 
 ### []{#anchor-596}[]{#anchor-597}Inputs
 

@@ -219,6 +219,13 @@ echo "── table sources (config, map and caption agree on number->source?) �
 python3 tools/table_source_lint.py || rc=1
 
 echo
+echo "── table cells (does every generated table cell match its source CSV?) ──"
+# Gate added 2026-09-19: table_source_lint checks a table DECLARES its source;
+# this checks the cells MATCH it. 110 stale cells across 9 tables sat behind a
+# green gate until this was wired (the W101/D-006 failure, for tables).
+python3 tools/table_gen.py --check || rc=1
+
+echo
 echo "── drift term (does any consumer name 10a's drift column by literal?) ──"
 # D-111 swept the PRODUCER and not the consumers: 10a stopped emitting
 # easting_x_time, Script 25 went on filtering on that literal, matched nothing,
@@ -529,7 +536,15 @@ echo "── claims ────────────────────
 python3 tools/cite_check.py --claims-only || rc=1
 
 echo
-echo "── citations (advisory: triage list, does not gate) ──────────────────"
+echo "── citation drift (confirmed rows must match the committed CSV) ──────"
+# Gate added 2026-09-19: the confirmed-citation index-check. cite_check exits
+# non-zero when a CONFIRMED citation no longer renders equal to its committed
+# value. This is the drift that caught the 13 stale Sy citations; it was run
+# advisory-only before, so confirmed drift passed green (W101/D-006, for prose).
+python3 tools/cite_check.py --index-only || rc=1
+
+echo
+echo "── citations (advisory: full triage list, does not gate) ─────────────"
 # The claims gate above is instant. This triage LINE runs the full sweep —
 # 1,700 committed values against 30 documents — and since the minus-tolerant
 # match and the constants sources landed it takes the best part of a minute,

@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of report_edits/odt/report12.odt — do not edit. source-sha256=86be4a8ecd1a6e7f pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report12.odt — do not edit. source-sha256=10e5ad4588326d9b pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}Conclusions
@@ -23,7 +23,7 @@ This study provides the first network-wide, multi-method quantitative characteri
 
 9.  Forest management perturbations do not propagate to the open dune clusters where ecological need is greatest. The drawdown propagation analysis (Figure 61) shows that the steady-state head perturbation from the existing 75-year-old plantation is negligible (≤1 mm) at all C1 and eastern C2 wells. The BACI transect analysis shows no felling-specific spatial gradient. The operational domain for direct hydrological intervention is the C1/C2 zone where P_flood thresholds remain achievable.
 
-10. WTF-derived specific yields are broadly convergent once canopy interception is corrected. C4\'s corrected estimate (0.259) falls within the open dune range (0.210--0.328) and the interpolated yield surface shows no discontinuity at the cluster margins; C5\'s (0.321) sits at the upper edge but is constrained by the plausibility clip and is only weakly corroborative. The plantation\'s distinctive β-coefficient signature therefore derives largely from canopy boundary conditions at the surface rather than from differences in subsurface storage architecture.
+10. WTF-derived specific yields are broadly convergent once canopy interception is corrected. C4\'s corrected estimate (0.259) falls within the open dune range (0.210--0.328) and the interpolated yield surface shows no discontinuity at the cluster margins; C5\'s (0.326) sits at the upper edge but is constrained by the plausibility clip and is only weakly corroborative. The plantation\'s distinctive β-coefficient signature therefore derives largely from canopy boundary conditions at the surface rather than from differences in subsurface storage architecture.
 
 11. **The water balance closes to within 2.5% under the displacement formulation, and the per-well residual field shows no coherent spatial structure.** Residual magnitudes are small and uncorrelated with position on either East or North axis, and show no forest-margin or ridge-flank concentration; no well exceeds +0.02 m/month, and the largest positive values --- CEH4 at +0.0049 m/month, with NW7 and NW6 close behind --- fall in the open dune rather than in the forest. The field carries a small systematic negative offset (median −0.0045 m/month, 58 of 66 wells negative). Two independent diagnostic tests for a ridge-derived lateral input --- a rainfall--residual lag-distance test and a sunshine-hours test for unmodelled evaporative demand --- returned null results, consistent with the residual field itself.
 

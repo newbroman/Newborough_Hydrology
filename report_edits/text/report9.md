@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of report_edits/odt/report9.odt — do not edit. source-sha256=d139cd1499755110 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report9.odt — do not edit. source-sha256=39a803f1af461afd pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}Results
@@ -597,11 +597,11 @@ As a worked example, at a typical C3 well with a mean summer minimum of 1.0 m be
 
   --------- ------------------ ----------------- ----------------------- ---------------
   Cluster   Label              Horizon           P_flood equation (mm)   Σ P_clim (mm)
-  C1        Lake Edge          Oct--Jan (4 mo)   173.97·d + 311.21       400
-  C2        Dune               Oct--Jan (4 mo)   214.11·d + 289.56       400
-  C3        Western Residual   Oct--Feb (5 mo)   237.59·d + 365.47       461
-  C4        Main Forest        Oct--Feb (5 mo)   383.49·d + 274.93       461
-  C5        Coastal Forest     Oct--Feb (5 mo)   362.49·d + 414.65       461
+  C1        Lake Edge          Oct--Jan (4 mo)   173.97·d_w + 311.21     400
+  C2        Dune               Oct--Jan (4 mo)   214.11·d_w + 289.56     400
+  C3        Western Residual   Oct--Feb (5 mo)   237.59·d_w + 365.47     461
+  C4        Main Forest        Oct--Feb (5 mo)   383.49·d_w + 274.93     461
+  C5        Coastal Forest     Oct--Feb (5 mo)   362.49·d_w + 414.65     461
   --------- ------------------ ----------------- ----------------------- ---------------
 
 **Table : **Cluster-specific linear forms derived from the iterated closed-form P_flood solution of Section 3.6.3, reduced by substituting fitted SSM coefficients (β₁, β₂, β₃), cluster recharge horizons (n = 4 for C1/C2, 5 for C3/C4/C5), and RAF Valley long-term monthly rainfall and PET climatology (2005--2026). Input variable d_w is the observed mean summer minimum water table depth below ground in metres, entered as a positive number (e.g. d_w = 1.26 for a water table 1.26 m below the surface). Output P_flood is the cumulative rainfall (mm) required over the cluster\'s recharge horizon (October to the historical mean peak month) to raise the water table to the slack floor (h_target = 0 m), assuming monthly rainfall scales uniformly by a multiplier m_P and monthly PET follows climatological means. The rainfall multiplier is m_P = P_flood / Σ P̄ᵢ; values above 1.0 indicate rainfall above the climatological mean is required. (Source: 11_forecast_pflood_summary.csv).

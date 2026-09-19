@@ -523,25 +523,64 @@ TABLES = [
         ],
     },
     {
+        "id": "report9/Table3",
+        "doc": 9,
+        "table_name": "Table3",
+        "caption": "Table 1.4 (b) \u2014 seasonal-recession partition per cluster (Script 16)",
+        # Inserted 2026-09-19. The recession ratio was used (it is half the
+        # bracket behind Table 1.4c's mid-point and Figure 11b's hatched band)
+        # but never reported. Table_name "Table3" was the free slot in report9;
+        # the table shares Table5's automatic styles by design, so a restyle of
+        # one restyles both.
+        "sources": {"rec": "outputs/16_water_balance/16_water_bal_rec_table.csv"},
+        "rows": {"source": "rec"},
+        "header": ["Cluster", "Label", "Winter decline (mm/month)",
+                   "Summer decline (mm/month)", "n months (winter/summer)",
+                   "Drainage fraction (recession)", "Drainage fraction (SSM)"],
+        "columns": [
+            {"fmt": "template", "template": "C{Cluster}"},
+            {"col": "Label", "fmt": "text", "re": [r"^C\d \((.+)\)$", r"\1"]},
+            # declines are negative in the CSV; tabulated as positive magnitudes
+            # because the column header already says "decline"
+            {"col": "Winter_dh_mm_month", "fmt": "fixed", "dp": 1, "scale": -1},
+            {"col": "Summer_dh_mm_month", "fmt": "fixed", "dp": 1, "scale": -1},
+            {"fmt": "template", "template": "{N_winter:.0f} / {N_summer:.0f}"},
+            {"col": "Rec_drain_frac", "fmt": "fixed", "dp": 2},
+            {"col": "SSM_drain_frac", "fmt": "fixed", "dp": 2},
+        ],
+    },
+    {
         "id": "report9/Table6",
         "doc": 9,
         "table_name": "Table6",
-        "caption": "Table 1.4 (c) — WTF specific-yield estimates by cluster (Script 17)",
+        "caption": "Table 1.4 (c) \u2014 WTF specific-yield estimates by cluster, three estimators (Script 17)",
         "sources": {"sy": "outputs/17_wtf_specific_yield/17_wtf_01_sy_estimates.csv"},
         "rows": {"source": "sy"},
-        "header": ["Cluster", "n events", "Sy assumed", "WTF event-median", "OLS-winter",
-                   "Q25", "Q75", "Interception corrected?"],
+        # Symmetric layout: each estimator carries its estimate and the number
+        # of observations it rests on. Uncertainty is NOT tabulated here (the
+        # event IQR and the rapid-event bootstrap CI were removed 2026-09-19):
+        # if per-method errors are wanted they get a table per method. The
+        # interception correction is carried by the row LABEL via the Cluster
+        # regex below, not by a column.
+        "header": ["Cluster", "Sy assumed", "WTF event-median", "n events",
+                   "OLS-winter", "n months", "Rapid-event median", "n episodes"],
         "columns": [
             {"col": "Cluster", "fmt": "text", "re": [r"^(C\d) \(([^)]+)\)", r"\1 \2"]},   # "C4 (Main Forest) (corrected)" -> "C4 Main Forest (corrected)"
-            {"col": "Sy_event_n",  "fmt": "int"},
-            {"col": "Sy_assumed",  "fmt": "fixed", "dp": 2},   # PRECISION: the assumed constants, as published
+            {"col": "Sy_assumed",  "fmt": "fixed", "dp": 2},   # PRECISION: Fetter (2001) literature values, as published
             {"col": "Sy_event_median", "fmt": "fixed", "dp": 3},
+            {"col": "Sy_event_n",  "fmt": "int"},
+            # Approaches A and C are not fitted to the separately tabulated
+            # interception-corrected rows, so both estimate and n show "\u2014"
+            # there. (The rapid-event estimate is itself interception-corrected
+            # on the C4/C5 uncorrected rows - see the caption.)
             {"col": "Sy_OLS_winter",   "fmt": "fixed", "dp": 3,
-             "when": {"Corrected": "False"}, "else": "—"},    # no OLS fit on the corrected rows
-            {"col": "Sy_event_Q25",    "fmt": "fixed", "dp": 3},
-            {"col": "Sy_event_Q75",    "fmt": "fixed", "dp": 3},
-            {"col": "Corrected", "fmt": "map",
-             "map": {"False": "No", "True": "Yes — Freeman (2008)"}},
+             "when": {"Corrected": "False"}, "else": "\u2014"},
+            {"col": "Sy_OLS_n",        "fmt": "int",
+             "when": {"Corrected": "False"}, "else": "\u2014"},
+            {"col": "Sy_rapid_median", "fmt": "fixed", "dp": 3,
+             "when": {"Corrected": "False"}, "else": "\u2014"},
+            {"col": "Sy_rapid_n",      "fmt": "int",
+             "when": {"Corrected": "False"}, "else": "\u2014"},
         ],
     },
     {

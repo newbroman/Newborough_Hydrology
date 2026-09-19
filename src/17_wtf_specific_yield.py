@@ -30,7 +30,20 @@ S.12 §"Forest interception correction"; see also `wtf_interception_methodology.
 in the project store.
 """
 
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-09-07. Interception-fraction
+__version__ = "1.6.0"  # Hollingham (2026) — 2026-09-19. Event-selection funnel
+#   and censoring disclosure. approach_b_events() now records the attrition at
+#   each selection stage (months -> net R > 10 mm -> Δh > 5 mm -> 0.01 < Sy <
+#   0.50) and the UNCLIPPED event median, emitted as seven new columns on
+#   17_wtf_01_sy_estimates.csv (appended after the historical columns, so the
+#   existing order stays byte-stable). 17_wtf_03_event_boxplot.png now draws
+#   the 0.50 plausibility ceiling — previously off-axis at ylim 0.45 — and
+#   annotates the censored fraction per run. Answers "why do the per-cluster
+#   event counts differ (35-62), and is the analysis balanced?": the recharge
+#   bar is climate-common, the rise bar tracks responsiveness, and the ceiling
+#   censors 24-60% of qualifying events (C5 worst), biasing every event-median
+#   low. Emission-only: no existing value changes.
+#
+# 1.5.0 (2026-09-07). Interception-fraction
 #   sweep (17_wtf_06_interception_sweep.csv): Approach-B event-median Sy for the
 #   forest clusters re-evaluated at every F on config's INTERCEPTION_SWEEP grid,
 #   with the open-dune range (min/max of the uncorrected non-forest event
@@ -317,15 +330,32 @@ def approach_b_events(df):
 
         if f"dh_{cid}" not in df.columns:
             results[rkey] = dict(sy_median=np.nan, q25=np.nan, q75=np.nan,
-                                 n=0, sy_values=np.array([]))
+                                 n=0, sy_values=np.array([]),
+                                 n_months=0, n_pass_R=0, n_pass_dh=0,
+                                 n_both=0, n_censored=0,
+                                 pct_censored=np.nan,
+                                 sy_median_unclipped=np.nan)
             continue
 
         sub = df[[r_col, f"dh_{cid}"]].dropna().copy()
-        events = sub[
-            (sub[r_col]      > MIN_NET_RECH) &
-            (sub[f"dh_{cid}"] > MIN_RISE_M)
-        ].copy()
+        pass_R  = sub[r_col]        > MIN_NET_RECH
+        pass_dh = sub[f"dh_{cid}"]  > MIN_RISE_M
+        events = sub[pass_R & pass_dh].copy()
         events["sy_i"] = events[r_col] / events[f"dh_{cid}"]
+        # SELECTION FUNNEL. The per-cluster event counts differ (35-62), which
+        # invites the charge that the analysis is unbalanced. Record the
+        # attrition at each stage so it can be explained rather than merely
+        # reported: the net-recharge bar is climate-driven and near-identical
+        # across clusters, the rise bar tracks cluster responsiveness, and the
+        # 0.50 ceiling is the dominant term. The 0.01 floor removes nothing at
+        # any cluster; the ceiling censors the UPPER tail only, so every
+        # event-median is biased low by an amount that scales with pct_censored.
+        n_months  = int(len(sub))
+        n_pass_R  = int(pass_R.sum())
+        n_pass_dh = int(pass_dh.sum())
+        n_both    = int(len(events))
+        n_cens    = int((events["sy_i"] >= 0.50).sum())
+        med_unclipped = float(events["sy_i"].median()) if n_both else float("nan")
         # Drop physically implausible Sy values
         events = events[(events["sy_i"] > 0.01) & (events["sy_i"] < 0.50)]
 
@@ -337,6 +367,10 @@ def approach_b_events(df):
         results[rkey] = dict(
             sy_median=float(med), q25=float(q25), q75=float(q75),
             n=n, sy_values=events["sy_i"].values,
+            n_months=n_months, n_pass_R=n_pass_R, n_pass_dh=n_pass_dh,
+            n_both=n_both, n_censored=n_cens,
+            pct_censored=(100.0 * n_cens / n_both) if n_both else float("nan"),
+            sy_median_unclipped=med_unclipped,
         )
         print(f"  {_entry_label(cid, corrected):<32}  Sy median = {med:.3f}  "
               f"IQR [{q25:.3f}, {q75:.3f}]  n = {n}")
@@ -667,7 +701,7 @@ def plot_regression(df, a_results, out_path):
 
 def plot_event_boxplot(b_results, out_path):
     """Figure: Sy distribution from Approach B event method (k=5 + forest-corrected)."""
-    fig, ax = plt.subplots(figsize=(11, 5.5), facecolor="white")
+    fig, ax = plt.subplots(figsize=(11, 5.9), facecolor="white")
     ax.set_facecolor("#FAFAFA")
 
     runs = _build_runs()
@@ -699,22 +733,52 @@ def plot_event_boxplot(b_results, out_path):
         med = b_results[rk]["sy_median"]
         if not np.isnan(med):
             ax.text(pos, med + 0.005, f"{med:.3f}",
-                    ha="center", va="bottom", fontsize=8.5, fontweight="bold")
+                    ha="center", va="bottom", fontsize=9, fontweight="bold")
+
+    # Censored fraction per run, folded into the tick labels — the dominant term
+    # behind the differing event counts, and invisible once the clipped values
+    # are dropped from the boxes. Kept here rather than floating near the ceiling
+    # so each figure ties to its own cluster and nothing collides with the legend.
+    tick_labels = []
+    for lab, rk in zip(labels, rkeys):
+        # Three short HORIZONTAL lines — key / name / n + censored — rather than
+        # one long tilted string. Tilted labels were hard to read and, kept
+        # legible, forced a font small enough to trip the 160 mm legibility gate.
+        corrected_run = " (corrected)" in lab
+        base = lab.replace(" (corrected)", "")
+        if " (" in base:
+            head, rest = base.split(" (", 1)
+            name = rest.partition(")")[0]
+        else:
+            head, name = base, ""
+        if corrected_run:
+            head += " (corr.)"
+        pct = b_results[rk].get("pct_censored", np.nan)
+        n_k = b_results[rk].get("n", 0)
+        tail = ("" if (pct is None or np.isnan(pct))
+                else f"\nn = {n_k} \u00b7 {pct:.0f}% cens.")
+        tick_labels.append(f"{head}\n{name}{tail}")
 
     ax.set_xticks(positions)
-    ax.set_xticklabels(labels, fontsize=8, rotation=20, ha="right")
+    ax.set_xticklabels(tick_labels, fontsize=9, rotation=0, ha="center")
     ax.set_ylabel("Specific yield Sy  (dimensionless)")
-    ax.set_ylim(0, 0.45)
+    # Raised from 0.45 so the plausibility ceiling is ON the axis (the clipped
+    # boxes alone cannot show that 39-60% of qualifying events were censored),
+    # and on to 0.70 so the legend sits in clear headroom ABOVE the ceiling
+    # instead of clashing with the boxes.
+    ax.set_ylim(0, 0.70)
+    ax.axhline(0.50, color="#b3261e", lw=1.3, alpha=0.9,
+               label="Plausibility ceiling = 0.50 (upper tail censored)")
     ax.axhline(0.12, color="gray", lw=1.0, ls=":", alpha=0.7,
                label="Assumed Sy non-C1 = 0.12")
     ax.axhline(0.08, color="gray", lw=1.0, ls="--", alpha=0.7,
                label="Assumed Sy C1 = 0.08")
-    ax.legend(fontsize=8.5, framealpha=0.9, loc="upper left")
+    ax.legend(fontsize=9, framealpha=0.92, loc="upper left", ncol=2)
     ax.grid(axis="y", lw=0.4, alpha=0.5)
     ax.set_title(
         "Approach B — WTF Specific Yield: Event-Based Estimates\n"
-        "Distribution of monthly Sy estimates from rising-limb events "
-        "(Δh > 5 mm, net R > 10 mm)\n"
+        "Monthly Sy from rising-limb events "
+        "(Δh > 5 mm, net R > 10 mm, 0.01 < Sy < 0.50)\n"
         f"Forest corrected: R = (1−{FOREST_INTERCEPTION:g})P − PET (Freeman, 2008); "
         "hatched boxes = interception-corrected",
         fontsize=10, fontweight="bold",
@@ -762,6 +826,15 @@ def export_csv(a_results, b_results, c_results, out_path):
             "Sy_rapid_n":            c["n"]             if c else np.nan,
             "Sy_rapid_mean_dur":     c["mean_duration"] if c else np.nan,
             "Sy_rapid_mean_rise_m":  c["mean_rise"]     if c else np.nan,
+            # Selection funnel — appended after the historical columns so the
+            # existing column order stays byte-stable for table_gen.
+            "Sy_event_n_months":         b.get("n_months",  np.nan),
+            "Sy_event_n_pass_R":         b.get("n_pass_R",  np.nan),
+            "Sy_event_n_pass_dh":        b.get("n_pass_dh", np.nan),
+            "Sy_event_n_qualifying":     b.get("n_both",    np.nan),
+            "Sy_event_n_censored":       b.get("n_censored", np.nan),
+            "Sy_event_pct_censored":     b.get("pct_censored", np.nan),
+            "Sy_event_median_unclipped": b.get("sy_median_unclipped", np.nan),
         })
     pd.DataFrame(rows).to_csv(out_path, index=False)
     print(f"CSV saved → {out_path.name}")

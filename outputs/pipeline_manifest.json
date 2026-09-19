@@ -15,7 +15,7 @@
   "analytical_phases": 16,
   "scraping_substeps": 5,
   "clearfell_substeps": 14,
-  "generated": "2026-09-19T15:55:09",
+  "generated": "2026-09-19T20:13:11",
   "steps": [
     {
       "index": 1,
@@ -543,6 +543,26 @@
     "data/well_metadata.csv": {
       "sha256": "44f7fc688250f9fca92c3a6d7347cdbef5a639819ed2a82ebabcbc06a0a2d7c4",
       "bytes": 7035
+    },
+    "data/sentinel/two_class_series.csv": {
+      "sha256": "0ba92d4bcc210a37dfdd51ce07e20d80af44d4b036a308b304bbcbd2b57e4088",
+      "bytes": 2149
+    },
+    "data/sentinel/cell_thresholds.npz": {
+      "sha256": "3f3613ff1af1c410aed4d18cec869f5560d2b735617b5669d0469b0fdcd80295",
+      "bytes": 77112
+    },
+    "data/sentinel/sentinel_scene_manifest.csv": {
+      "sha256": "885a0de8e810445ca035f70fdcecec24ecccb1571fe577af180337a046447550",
+      "bytes": 12878
+    },
+    "data/sentinel/well_fit.csv": {
+      "sha256": "3e1d2b4baf6ced41e3b249db5e224ead54cbeb3ee76a2ef4a009c94749eb1e8c",
+      "bytes": 767542
+    },
+    "data/sentinel/hindcast_monthly.csv": {
+      "sha256": "4488b25c2e77482772a60d9698f5beca48be394483f0516499889494b534a4b7",
+      "bytes": 41539
     }
   }
 }

@@ -787,6 +787,7 @@ OUT_02_SPAGHETTI            = DIR_02 / "02_03b_cluster_spaghetti.png"
 DIR_01_CLIMATE              = DIR_00          # climate summary shares DIR_00
 OUT_16_TABLE                = DIR_16 / "16_water_bal_table.csv"
 OUT_16_VOL_TABLE            = DIR_16 / "16_water_bal_vol_table.csv"
+OUT_16_REC_TABLE            = DIR_16 / "16_water_bal_rec_table.csv"
 OUT_16_BAR_LAY              = DIR_16 / "16_water_bal_bar_lay.png"
 OUT_16_BAR_MS               = DIR_16 / "16_water_bal_bar_ms.png"
 # (removed 2026-05-17: OUT_16_VOL_MS, OUT_16_VOL_LAY, OUT_16_VOL_WTF_TABLE,

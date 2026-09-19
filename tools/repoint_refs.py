@@ -34,7 +34,23 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.5.0"  # 2026-09-10. report13-16 join ODTS. report16 carried four
+__version__ = "1.6.1"  # 2026-09-19. --abbrev-only now REFUSES unless
+#   --pre-1-6-catchup is also given. It was written as a one-off catch-up for
+#   "Fig N", which no matcher before 1.6.0 could see. At 1.6.0 the FIG pattern
+#   itself gained `\bfigs?\.?(?=\s*\d)`, so a default pass ALREADY moves the
+#   abbreviated form — and running --abbrev-only after one moves it a SECOND
+#   time. On 2026-09-19 that silently pushed 12 references two places instead of
+#   one (PIPELINE_README.md 8, readme.md 4): "report Fig 68" for Script 32
+#   became "Fig 70" when Figure 69 was correct. Nothing caught it at the time.
+#   reference_lint could not: the numbers it checks are the captions', and every
+#   caption was right. Only ref_audit, which asks whether a reference agrees
+#   with the OUTPUT the surrounding text names, saw it — four of the twelve
+#   named a script output and disagreed; the other eight were invisible to every
+#   gate and were found by diffing each reference against its pre-pass value.
+#   The switch is kept rather than deleted so that a genuinely pre-1.6.0
+#   document can still be repaired, but it now says what it costs first.
+#
+# v1.5.0  # 2026-09-10. report13-16 join ODTS. report16 carried four
 #   typed section references that no repoint pass could read, found when 3.4.5 moved to
 #   3.8.2; the same class of gap as Paper 2's glob and the 09-08 report6/report7 addition.
 #   Matchers unchanged.
@@ -461,7 +477,12 @@ def main() -> int:
     # One-off catch-up for the abbreviated form, which no pass before 1.6.0
     # could see. Same shape as --symbol-only and for the same reason.
     ap.add_argument("--abbrev-only", action="store_true",
-                    help="only 'Fig 59' references; the full word is untouched")
+                    help="only 'Fig 59' references; PRE-1.6.0 REPAIR ONLY — the "
+                         "default pass already moves them, so this double-moves "
+                         "anything a default pass has touched")
+    ap.add_argument("--pre-1-6-catchup", action="store_true",
+                    help="confirm the --abbrev-only document has NOT had a "
+                         "default pass applied since repoint_refs 1.6.0")
     ap.add_argument("--symbol-only", action="store_true",
                     help="only '§4.9.6' references; figures and tables untouched")
     ap.add_argument("--missed-only", action="store_true",
@@ -476,6 +497,17 @@ def main() -> int:
     if args.symbol_only and args.missed_only:
         ap.error("--symbol-only and --missed-only are different repairs; "
                  "run them separately")
+    if args.abbrev_only and not args.pre_1_6_catchup:
+        ap.error(
+            "--abbrev-only double-moves references.\n"
+            "  Since 1.6.0 the FIG pattern matches 'Fig N' as well as 'Figure N',\n"
+            "  so a default pass has already moved the abbreviated form. Running\n"
+            "  this afterwards moves it again — 12 references went two places\n"
+            "  instead of one on 2026-09-19 and only ref_audit noticed, for four\n"
+            "  of them.\n"
+            "  If the document genuinely has not had a post-1.6.0 default pass,\n"
+            "  add --pre-1-6-catchup. Otherwise there is nothing to catch up:\n"
+            "  run the default pass and check with tools/ref_audit.py.")
     if args.abbrev_only:
         globals()["FIG"] = FIG_ABBR
         globals()["SEC"] = re.compile(r'(?!)')

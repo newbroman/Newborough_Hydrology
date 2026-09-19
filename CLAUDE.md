@@ -138,15 +138,26 @@ tracked publicly.
   refuses results from a machine that is not the recorded one — which is the
   gate that makes the foreign-PDF class of error catchable. **Pipeline runs and
   PDF builds are Martin's, by design.** Everything text-only runs here.
-- **ASK FOR A LOG FILE, NOT A PASTE.** `scratch/` is gitignored and inside the
-  mount, so anything he runs can be captured where this session can read it:
+- **DON'T HAND MARTIN WHAT THE BRIDGE CAN DO — RUN IT HERE, `tee` IT, READ IT.**
+  Before handing over ANY command, ask what actually needs his machine. The
+  bridge can install pandoc 3.1.3 (above), run `refresh_mirrors.py`,
+  `build_citation_index.py`, `build_value_ledger.py`, every doc/table/citation
+  gate, and commit/push (credentials are populated — see below). DO those here
+  and read the result — never rely on Martin pasting output back. `scratch/` is
+  gitignored and inside the mount, so capture anything into it and grep the file:
   ```bash
+  export PATH="$HOME/bin:$PATH"                          # the pandoc 3.1.3 installed above
+  python3 tools/refresh_mirrors.py 2>&1 | tee scratch/refresh.log
   bash tools/check_all.sh 2>&1 | tee scratch/last_run.log
-  python3 src/10a_ancova_baci.py 2>&1 | tee scratch/10a.log
   ```
-  He still sees it scroll; the session reads the file and can grep it rather
-  than being handed 400 lines. Adopted 2026-09-02 at his request — copying long
-  terminal output by hand was the friction. `tee -a` to accumulate a session.
+  He still sees it scroll; the session reads the file rather than being handed
+  400 lines. `tee -a` to accumulate a session. Adopted 2026-09-02 (log-not-paste,
+  at his request); **widened 2026-09-19** after a session handed him
+  `refresh_mirrors`/`build_citation_index`/`check_all` it could have run itself.
+  What is genuinely HIS: pipeline runs (scipy/statsmodels/sklearn/geopandas not
+  importable here), the `report.pdf` rebuild, and the env-verified
+  `./working/nrg_git.sh --ship` — `env_audit` fails here by design, so the
+  authoritative `check_all` verdict is his.
 - **SHOW PROGRESS.** Anything handed to Martin to run that takes more than a few
   seconds must print a completion indicator — a percentage, a count of N, or a bar with
   elapsed and remaining time — on its own line as it goes, not only at the end.

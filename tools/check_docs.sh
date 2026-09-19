@@ -60,6 +60,8 @@ echo "── document gates ─────────────────�
 run "doc_version_sync"        python3 tools/doc_version_sync.py --check --quiet
 run "reference_lint (table)"  python3 tools/reference_lint.py --kind table
 run "reference_lint (figure)" python3 tools/reference_lint.py --kind figure
+run "table_cells"            python3 tools/table_gen.py --check
+run "citation_drift"         python3 tools/cite_check.py --index-only
 run "section_map"             python3 tools/section_map.py --check
 run "section_ref_audit"       python3 tools/section_ref_audit.py
 run "rounding_lint"           python3 tools/rounding_lint.py

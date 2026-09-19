@@ -113,8 +113,8 @@ df["net_R_forest_corr"] = df["P_m"] * (1 - FOREST_INTERCEPTION) - df["PET"]
 No β is involved, so nothing here knows about the canopy and the correction must
 be explicit. Uncorrected, the method attributes intercepted rainfall to recharge
 and inflates apparent Sy — the observed artefact exactly: raw forest medians
-(C4 0.312, C5 0.355) sit at or above the open-dune range and fall inside it once
-corrected (C4 0.260, C5 0.321).
+(C4 0.313, C5 0.358) sit at or above the open-dune range and fall inside it once
+corrected (C4 0.260, C5 0.326).
 
 **PET stays gross.** §S.12 gives the reason: Thornthwaite PET is an energy-based
 atmospheric demand computed from temperature and daylength, independent of land
@@ -160,7 +160,7 @@ inside the filter. So the corrected pool is *larger* than the uncorrected one �
 today 63 events against 51 at C4, 51 against 36 at C5 — and the median moves by
 a competition between two effects: downward from the smaller numerator, upward
 from the recovered events. In April the recovery won at C4 (0.215 → 0.227);
-under the current partition the numerator wins (0.312 → 0.260). Both are the
+under the current partition the numerator wins (0.313 → 0.260). Both are the
 same mechanism. Which way it resolves depends on how many events sit near the
 0.50 clip, which is exactly why C5 — where a majority of rising limbs are
 clip-constrained — is reported as only weakly corroborative.

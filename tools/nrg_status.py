@@ -39,7 +39,14 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "2.2.0"  # Hollingham (2026) — 2026-09-06. classify() is negation-aware.
+__version__ = "2.3.0"  # Hollingham (2026) — 2026-09-19. The blocked test needs a word
+#   boundary. It was `"block" in st`, a bare substring, so it fired on UNBLOCKED and on
+#   the NOUN "block". On 2026-09-19 that reported M19 and S5 as blocked on the morning
+#   after the NRW grant unblocked them both — M19 for "the CCW block may be re-used",
+#   S5 for the word UNBLOCKED itself. Same defect class as v2.2.0's "not done".
+#   `\bblocked\b` matches neither: "unblocked" has no word boundary before "blocked",
+#   and the noun "block" is not the adjective.
+# v2.2.0  # Hollingham (2026) — 2026-09-06. classify() is negation-aware.
 #   A done marker was matched as a plain substring, so "not done" contained "done"
 #   and read as done: Lane 5 reported S4 and S9 done when both cells say "not done",
 #   and S1/S3 done when they are partial ("Paper 2 DONE … Paper 1 not started").
@@ -79,6 +86,9 @@ NEGATED = re.compile(
     r"|\bstill\s+(?:unchecked|outstanding|owed|open|pending|to\b|not\b)"
     r"|\bun(?:checked|written|applied|verified|started|resolved|reviewed)\b", re.I)
 _EMPH = re.compile(r"[*`~_]+")
+# The ADJECTIVE only. "unblocked" carries no word boundary before "blocked", and the
+# noun "block" (as in "the CCW block") is not a state.
+BLOCKED_WORD = re.compile(r"\bblocked\b", re.I)
 _DONE_ALT = "|".join(DONE_MARKERS)
 HEAD_DONE = re.compile(r"^\W*(?:%s)\b" % _DONE_ALT, re.I)   # a verdict at the head settles it
 ANY_DONE = re.compile(r"\b(?:%s)\b" % _DONE_ALT, re.I)
@@ -194,7 +204,7 @@ def classify(row: list[str], header: list[str], s_idx: int | None,
         return "partial"
     if positive:
         return "done"
-    if "block" in st or blocked.strip().lower() not in EMPTY:
+    if BLOCKED_WORD.search(cell) or blocked.strip().lower() not in EMPTY:
         return "blocked"
     # "unset" means a status column EXISTS and says nothing. A lane with no
     # status column (Lane 3) is judged on its Item and BLOCKED-BY above.

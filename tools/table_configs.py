@@ -583,7 +583,7 @@ TABLES = [
             {"col": "peak_month", "fmt": "map",
              "map": {"1": "Oct–Jan ({horizon_n_months} mo)",
                      "2": "Oct–Feb ({horizon_n_months} mo)"}},
-            {"fmt": "template", "template": "{slope_A:.2f}·d + {intercept_B:.2f}"},   # PRECISION: 2 dp as published
+            {"fmt": "template", "template": "{slope_A:.2f}·d_w + {intercept_B:.2f}"},   # PRECISION: 2 dp; d_w per symbol register (2026-09-19)
             {"col": "P_clim_mm", "fmt": "fixed", "dp": 0},   # PRECISION: 0 dp as published (mm)
         ],
     },

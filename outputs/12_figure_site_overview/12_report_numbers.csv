@@ -1,5 +1,11 @@
 Parameter,Well,Era,Value,Unit,Note
-site_overview_points_plotted,,,99.0,count,"measuring points drawn on Figure 1 = rows of well_metadata.csv (dipwells, the lake gauge, and any located point without a series)"
+site_overview_points_plotted,,,89.0,count,"active measuring points drawn on Figure 1: the 01_wells_reference + 01_wells_extended dipwells plus the Llyn Rhos-Ddu gauge, located from well_metadata.csv"
+located_points_not_shown,,,10.0,count,rows of well_metadata.csv outside the active network (short-record dipwells and any point without a series)
+network_envelope_e_km,,,3.0468030000000144,km,east-west extent of the active network's bounding box
+network_envelope_n_km,,,2.132591000000015,km,north-south extent of the active network's bounding box
+study_area_ha,,,845.6054357085488,ha,"planar OSGB area of data/geo/hydrological study area.kml (Martin, 2026-09-20)"
+study_area_envelope_e_km,,,4.293588764522487,km,east-west extent of the study-area polygon's bounding box
+study_area_envelope_n_km,,,3.5330413708792765,km,north-south extent of the study-area polygon's bounding box
 break_n_columns,,,835.0,count,easting columns of the 2 m DEM resolving a break inside the window
 break_elevation_median_m,,,11.387250945681616,m AOD,median elevation of the northern break in slope
 break_elevation_p10_m,,,8.918849277496339,m AOD,10th percentile

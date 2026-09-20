@@ -31,14 +31,17 @@ The northern break in slope (v1.4.0, D-099)
 ====================================================================================
 """
 
-__version__ = "1.7.0"  # Hollingham (2026) - 2026-09-20. Figure 1 no longer draws
-#   the scrape footprint outlines (Martin: "the scraped kml's need to be removed";
-#   they belong to Figure 2 and the scrape figures), the legend calls the points what
-#   they are — measuring points, since well_metadata.csv carries the lake gauge and a
-#   point with no series — and the count plotted is EMITTED
-#   (site_overview_points_plotted in 12_report_numbers.csv) because the caption said
-#   "117-point network" while the map showed 99 and the text said 89: three typed
-#   counts, none of them read from a file.
+__version__ = "1.8.0"  # Hollingham (2026) - 2026-09-20. Figure 1 draws the ACTIVE
+#   network only (Martin: "option a"): the 88 classified dipwells of
+#   01_wells_reference/extended plus the Llyn Rhos-Ddu gauge, located from
+#   well_metadata.csv; the nine short-record dipwells and L4 (no series) are dropped.
+#   The scrape outlines STAY (Martin: "otherwise they aren't mapped"; 1.7.0 had removed
+#   them for an hour). The study-area polygon (data/geo/hydrological study area.kml,
+#   Martin 2026-09-20) is drawn and its area and envelope EMITTED, as are the network's
+#   envelope and the count plotted — report7 §2 typed 1,172 ha (the site boundary's
+#   bounding box), 720 ha (the points' bounding box) and a 117-point network no file
+#   holds (E27; caption/text/map said 117/89/99).
+# v1.7.0  # Hollingham (2026) - 2026-09-20. Scrape outlines removed; count emitted.
 # v1.6.0  # Hollingham (2026) - 2026-09-11.
 #   UNSILENCED (D-155): the blanket warnings.filterwarnings('ignore') is
 #   removed. It hid every DeprecationWarning and RuntimeWarning this script
@@ -112,8 +115,8 @@ _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
 from utils.paths import (
     make_all_dirs,
     DATA_DIR,
-    DATA_LOCATIONS_RAW,
-    INT_LOCATIONS,
+    DATA_LOCATIONS_RAW, DATA_KML_STUDY_AREA,
+    INT_LOCATIONS, INT_WELLS_REFERENCE, INT_WELLS_EXTENDED,
     OUT_12_DEM_OVERVIEW,
     OUT_12_BREAK_IN_SLOPE,
     OUT_12_BREAK_FIG,
@@ -170,6 +173,19 @@ def generate_dem_map():
 
     wells = pd.read_csv(wells_path)
     wells.columns = wells.columns.str.strip()
+    # The ACTIVE network only: the classified dipwells (columns of the Script 01
+    # reference and extended files) and the lake gauge. well_metadata.csv also
+    # locates nine short-record dipwells and L4, which has no series — not shown.
+    active = set()
+    for f in (INT_WELLS_REFERENCE, INT_WELLS_EXTENDED):
+        cols = pd.read_csv(f, nrows=0).columns
+        active |= {c.strip().lower().replace(" ", "") for c in cols if not c.lower().startswith("unnamed") and c.lower() != "date"}
+    key = wells["Name"].astype(str).str.strip().str.lower().str.replace(" ", "", regex=False)
+    is_lake = key.str.contains("llyn|rhos")
+    dropped = sorted(wells.loc[~(key.isin(active) | is_lake), "Name"].astype(str))
+    wells = wells[key.isin(active) | is_lake].reset_index(drop=True)
+    info(f"Active network: {len(wells)} measuring points ({int((~is_lake[key.isin(active) | is_lake]).sum())} dipwells + lake); "
+         f"not shown: {', '.join(dropped) or 'none'}")
 
     # Convert to a GeoDataFrame using British National Grid (EPSG:27700)
     gdf_wells = gpd.GeoDataFrame(
@@ -213,7 +229,11 @@ def generate_dem_map():
     # 4. KML Site Features (via map_utils — includes broadleaf restock block)
     # =======================================================
     info("Adding KML site features...")
-    site_handles = add_kml_features(ax, DATA_DIR, include_scrapes=False)   # scrapes are Figure 2's
+    site_handles = add_kml_features(ax, DATA_DIR)
+    # the study-area polygon (E27): drawn, and measured for the report numbers
+    study = _read_study_area()
+    if study is not None:
+        study.boundary.plot(ax=ax, color='black', linewidth=1.6, linestyle=(0, (6, 3)), zorder=5)
 
     # 5. Overlay the Monitoring Wells
     info("Plotting Monitoring Wells...")
@@ -266,7 +286,9 @@ def generate_dem_map():
     from matplotlib.lines import Line2D
     well_handle = Line2D([0], [0], marker='o', color='w', markerfacecolor='red',
                          markeredgecolor='black', markersize=8,
-                         label=f'Measuring points (n={len(gdf_wells)})')
+                         label=f'Active measuring points (n={len(gdf_wells)})')
+    if study is not None:
+        site_handles = [Line2D([0], [0], color='black', linewidth=1.6, linestyle=(0, (6, 3)), label='Hydrological study area')] + list(site_handles)
     ax.legend(handles=[well_handle] + list(site_handles),
               loc='lower left', framealpha=0.9, edgecolor='black')
 
@@ -291,7 +313,31 @@ def generate_dem_map():
     render_figure(plt.gcf(), output_filename)
     print(f"  [SUCCESS] Map saved locally as {output_filename}")
     plt.close()
-    return len(gdf_wells)
+    b = gdf_wells.total_bounds                       # the network's envelope, m OSGB
+    _POINTS_PLOTTED[0] = {"n": len(gdf_wells), "not_shown": len(dropped),
+                          "e_km": (b[2] - b[0]) / 1e3, "n_km": (b[3] - b[1]) / 1e3}
+    if study is not None:
+        sb = study.total_bounds
+        _POINTS_PLOTTED[0].update({"study_ha": float(study.area.sum()) / 1e4,
+                                   "study_e_km": (sb[2] - sb[0]) / 1e3, "study_n_km": (sb[3] - sb[1]) / 1e3})
+    return _POINTS_PLOTTED[0]["n"]
+
+
+def _read_study_area():
+    """The study-area polygon in OSGB, or None when the KML is absent."""
+    if not DATA_KML_STUDY_AREA.exists():
+        warn(f"{DATA_KML_STUDY_AREA.name} not found — study area not drawn or measured")
+        return None
+    g = gpd.read_file(DATA_KML_STUDY_AREA, driver="KML")
+    g = g[g.geometry.type.isin(["Polygon", "MultiPolygon"])]
+    if g.empty:
+        warn(f"{DATA_KML_STUDY_AREA.name} carries no polygon")
+        return None
+    g = g.set_crs(epsg=4326, allow_override=True).to_crs("EPSG:27700")
+    # KML polygons carry altitude; drop the z so the area is planar OSGB
+    from shapely.ops import transform
+    g["geometry"] = g.geometry.apply(lambda geom: transform(lambda x, y, z=None: (x, y), geom))
+    return g
 
 # ======================================================================
 # The northern break in slope (D-099)
@@ -422,7 +468,7 @@ def _break_gate(df):
     return (len(reasons) == 0), reasons, sd
 
 
-_POINTS_PLOTTED = [None]          # set by generate_dem_map(); read by _break_report_numbers()
+_POINTS_PLOTTED = [{}]            # set by generate_dem_map(); read by _break_report_numbers()
 
 
 def _break_report_numbers(df, sd, lake):
@@ -433,9 +479,21 @@ def _break_report_numbers(df, sd, lake):
     k = int(np.argmin(np.abs(e - lake["E"])))
     lake_break_n, lake_break_z = float(nf[k]), float(z[k])
     rows = [
-        ("site_overview_points_plotted", _POINTS_PLOTTED[0], "count",
-         "measuring points drawn on Figure 1 = rows of well_metadata.csv (dipwells, the lake gauge, "
-         "and any located point without a series)"),
+        ("site_overview_points_plotted", _POINTS_PLOTTED[0].get("n"), "count",
+         "active measuring points drawn on Figure 1: the 01_wells_reference + 01_wells_extended "
+         "dipwells plus the Llyn Rhos-Ddu gauge, located from well_metadata.csv"),
+        ("located_points_not_shown", _POINTS_PLOTTED[0].get("not_shown"), "count",
+         "rows of well_metadata.csv outside the active network (short-record dipwells and any point without a series)"),
+        ("network_envelope_e_km", _POINTS_PLOTTED[0].get("e_km"), "km",
+         "east-west extent of the active network's bounding box"),
+        ("network_envelope_n_km", _POINTS_PLOTTED[0].get("n_km"), "km",
+         "north-south extent of the active network's bounding box"),
+        ("study_area_ha", _POINTS_PLOTTED[0].get("study_ha"), "ha",
+         "planar OSGB area of data/geo/hydrological study area.kml (Martin, 2026-09-20)"),
+        ("study_area_envelope_e_km", _POINTS_PLOTTED[0].get("study_e_km"), "km",
+         "east-west extent of the study-area polygon's bounding box"),
+        ("study_area_envelope_n_km", _POINTS_PLOTTED[0].get("study_n_km"), "km",
+         "north-south extent of the study-area polygon's bounding box"),
         ("break_n_columns", len(df), "count",
          "easting columns of the 2 m DEM resolving a break inside the window"),
         ("break_elevation_median_m", float(np.median(z)), "m AOD",
@@ -569,6 +627,6 @@ if __name__ == "__main__":
     banner("12", "Figure — Site Overview", version=__version__)
     make_all_dirs()
     phase(1, "Site overview map (report Figure 1)")
-    _POINTS_PLOTTED[0] = generate_dem_map()
+    generate_dem_map()
     measure_break_in_slope()
     done("12")

@@ -78,7 +78,16 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.9.0"  # Hollingham (2026) — 2026-09-20. Every match is TYPED. The
+__version__ = "1.10.0"  # Hollingham (2026) — 2026-09-20. Every red number carries its
+#   HISTORY: the changelogs, decision log, working notes, ledgers and scripts are
+#   indexed once, and a number no CSV holds shows where it has been discussed or
+#   hard-coded, ranked by the words it shares with the sentence (Martin: "grep the
+#   project chats and changelogs and decisions to pin down all the numbers").
+#   Also: the page retires items the store marks done; sentence lookback fixed;
+#   "±" is a magnitude; index-keyed rows weak; raw-input and matrix cells never
+#   candidates; unscoped sections need outside evidence; the sentence's row or
+#   script vouches for a weak candidate.
+# v1.9.0  2026-09-20. Every match is TYPED. The
 #   token gets a dimension from the unit beside it (°C, mm, m, %, ha, months, "p =",
 #   "×") and a season from its clause; the candidate gets both from its column or
 #   key name (_mm, _m, pct, temp, _p, months, summer). A KNOWN mismatch is a veto,
@@ -1828,6 +1837,72 @@ def main() -> int:
     return 0
 
 
+# ---------------------------------------------------------------------------
+# the written record: where a red number has been discussed before
+# ---------------------------------------------------------------------------
+# Martin, 2026-09-20: "you are going to have to grep the project chats and
+# changelogs and decisions to pin down all the numbers". A number no CSV carries
+# usually has a history — the changelog that introduced it, the decision that set
+# it, the script whose comment or literal holds it. That history is indexed once
+# and attached to every red number's tooltip and work-list row, so the reader
+# sees where it came from before deciding what should emit it.
+HISTORY_GLOBS = ("working/changelogs/*.md", "working/updates/*.md", "working/DECISION_LOG.md",
+                 "working/WORK_REGISTER.md", "working/PROJECT_DIARY.md", "notes/**/*.md",
+                 "DECISIONS_PUBLIC.md", "CLAUDE.md", "src/*.py", "src/utils/*.py")
+HISTORY_MAX = 3
+_HIST: dict[str, list] | None = None
+_HIST_NUM = re.compile(r"(?<![\w.\-])\d[\d,]*\.\d+|(?<![\w.\-])\d{3,}(?![\w.])")
+
+
+def _history_index() -> dict:
+    """rendering -> [(file, snippet)] over the written record, built once."""
+    global _HIST
+    if _HIST is not None:
+        return _HIST
+    idx: dict[str, list] = defaultdict(list)
+    for g in HISTORY_GLOBS:
+        for p in sorted(REPO.glob(g)):
+            if not p.is_file() or p.stat().st_size > 2_000_000:
+                continue
+            try:
+                txt = p.read_text(encoding="utf8", errors="ignore")
+            except OSError:
+                continue
+            rel = str(p.relative_to(REPO))
+            seen = set()
+            for m in _HIST_NUM.finditer(txt):
+                key = m.group().replace(",", "")
+                if key in seen or _YEAR.match(key) or len(key.replace(".", "")) < 3:
+                    continue
+                seen.add(key)
+                snip = " ".join(txt[max(0, m.start() - 70):m.end() + 50].split())
+                idx[key].append((rel, snip))
+    _HIST = idx
+    return idx
+
+
+def history_of(value: str, clause: str = "") -> str:
+    key = _norm_num(value).replace(",", "").lstrip("-")
+    hits = _history_index().get(key, [])
+    if not hits:
+        return ""
+    # a snippet that shares the sentence's own words ("wet area", "study area") is
+    # the number's history; one that merely contains the digits is a coincidence.
+    # Changelogs and decisions before notes and scripts; the proof-copy changelog
+    # itself last, since it quotes every red number it discusses
+    cw = {w for w in _WORD.findall(clause.lower()) if len(w) >= 5 and w not in cc._STOPWORDS}
+    order = {"working/changelogs": 0, "working/DECISION_LOG.md": 1, "working/updates": 2, "notes": 3}
+    def rank(h):
+        f, s = h
+        shared = len(cw & {w for w in _WORD.findall(s.lower()) if len(w) >= 5})
+        selfref = 1 if ("proof_copy" in f or "HANDOVER_NOTE" in f or "HANDOFF_" in f) else 0
+        return (-shared, selfref, next((v for k, v in order.items() if f.startswith(k)), 5))
+    hits = sorted(hits, key=rank)
+    shown = hits[:HISTORY_MAX]
+    more = f" (+{len(hits) - HISTORY_MAX} more)" if len(hits) > HISTORY_MAX else ""
+    return " ‖ history: " + " | ".join(f"{pathlib.Path(f).name}: …{s}…" for f, s in shown) + more
+
+
 def one(name, values, look, out_dir, a):
     global TEXT_CACHE
     _SPAN_SEQ[0] = 0
@@ -1840,6 +1915,9 @@ def one(name, values, look, out_dir, a):
     scope_map = section_scope(text, secs, mirror.stem)
     idx = index_spans(mask_markup(text), rel, values)
     marks = add_corpus_echo(classify(text, look, idx, secs, scope_map), rel)
+    _m = mask_markup(text)
+    marks = [(s, e, v, d + (history_of(text[s:e], _sentence(_m, s, e)) if v in ("untraced", "elsewhere", "stale") else ""))
+             for s, e, v, d in marks]
     page, counts = paint(text, marks, secs, mirror.stem, a.section, scope_map)
     (out_dir / f"{mirror.stem}.html").write_text(page, encoding="utf8")
 

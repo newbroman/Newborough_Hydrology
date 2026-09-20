@@ -11,7 +11,8 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.19.0"  # Hollingham (2026) - 2026-09-20. OUT_45_REPORT_NUMBERS: Script 45
+__version__ = "1.20.0"  # Hollingham (2026) - 2026-09-20. DATA_KML_STUDY_AREA (Script 12, E27).
+# 1.19.0 - 2026-09-20. OUT_45_REPORT_NUMBERS: Script 45
 #   emits the wet-area analysis's report numbers (study area, fit and out-of-sample
 #   statistics) that the abstract and §4.8.5 quote (E16). Additive.
 #
@@ -255,6 +256,7 @@ DATA_ELLENBERG_EXT  = DATA_DIR / "Ecohydrology_dataset.xlsx"
 # Geographic inputs — all resolved via data_geo() (files live in data/geo/).
 DATA_DEM               = data_geo("newborough_dem.tif")
 DATA_KML_FEATURES      = data_geo("Features.kml")
+DATA_KML_STUDY_AREA    = data_geo("hydrological study area.kml")   # Martin, 2026-09-20: the study-area polygon (E27)
 DATA_RANWELL_CONTROL   = data_geo("ranwell_1959_control.csv")   # W95 (D-081 derived)
 DATA_RANWELL_SITES_PX  = data_geo("ranwell_1959_sites_px.csv")  # W95 (D-081 derived)
 DATA_RANWELL_SITES_MARTIN    = data_geo("ranwell_1959_sites_martin.csv")     # Script 43 v2 Route M (hand placement)

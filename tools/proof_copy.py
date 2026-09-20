@@ -78,7 +78,15 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.13.0"  # Hollingham (2026) — 2026-09-20. From the fifth queue (report6
+__version__ = "1.14.0"  # Hollingham (2026) — 2026-09-20. From the sixth queue (report7 §2,
+#   the front matter): a literature citation in an EARLIER sentence of the same paragraph
+#   still covers an untraced number ("The northern 700 hectares …" after Stratford et al.,
+#   2007); "(about 0.6% of the plantation)" is the RATIO of two numbers in its own
+#   sentence (4.4 / 700) and is painted as derived, not untraced; anchors match across a
+#   word family ("scrapes" finds "scraping", "felled" finds "felling") so a key's words
+#   are not missed on an inflection; a number whose sentence names the well and the
+#   intervention now reaches 10m_report_numbers (WMC3 DiD steps) instead of Script 37.
+# v1.13.0  2026-09-20. From the fifth queue (report6
 #   §1, the front matter): a number is what the sentence makes it. A two-digit number
 #   after "1951--" is a YEAR-RANGE END; "p. 17" is a PAGE; "SH 406 636" is a GRID
 #   REFERENCE; "(1) … (2) …" are LIST MARKERS; "66-well" is a COUNT and no longer glued
@@ -265,9 +273,12 @@ def anchored_here(text: str, start: int, end: int, label: str,
         return not strict
     if w is None:
         w = _window(text, start, end)
+    def present(k):
+        fam = _FAMILY_OF.get(k)
+        return (k in w) or (fam is not None and any(m in w for m in fam))
     if strict and subj and quant:
-        return any(k in w for k in subj) and any(k in w for k in quant)
-    return any(k in w for k in subj) or any(k in w for k in quant)
+        return any(present(k) for k in subj) and any(present(k) for k in quant)
+    return any(present(k) for k in subj) or any(present(k) for k in quant)
 
 
 # ---------------------------------------------------------------------------
@@ -946,10 +957,21 @@ def mask_markup(text: str) -> str:
 _WORD = re.compile(r"[a-z0-9²½₀₁₂₃βδλκτ]+")
 
 
+_FAMILIES = [("scrap", ["scrape", "scrapes", "scraped", "scraping"]), ("fell", ["felled", "felling", "clearfell", "clearfelled"]),
+             ("thin", ["thinning", "thinned"]), ("drain", ["drainage", "drained", "draining", "drains"]),
+             ("rechar", ["recharge", "recharged", "recharging"]), ("interc", ["interception", "intercepted"]),
+             ("flood", ["flood", "flooded", "flooding", "floods"]), ("retreat", ["retreat", "retreating", "retreated"])]
+_FAMILY_OF = {m: fam for stem, fam in _FAMILIES for m in fam}
+
+
 def _hit(a: str, w: str, ws: set) -> bool:
     """An anchor is present: whole-word for short anchors ("rec" must not match
-    "record"), substring for longer ones (so "amplif" catches "amplification")."""
+    "record"), substring for longer ones (so "amplif" catches "amplification");
+    a word family counts as one word ("scrapes" is "scraping" — report front
+    matter, 2026-09-20)."""
     a = a.lower()
+    if a in _FAMILY_OF:
+        return any(m in ws for m in _FAMILY_OF[a])
     if len(a) <= 4 and " " not in a:
         return a in ws
     return a in w
@@ -1124,6 +1146,35 @@ def _script_of(rel: str) -> str:
     name = pathlib.Path(rel).name
     m = _SCRIPT_PREFIX.match(name) or _SCRIPT_PREFIX.match(pathlib.Path(rel).parent.name)
     return m.group(1) if m else rel
+
+
+def _derived_ratio(masked: str, s: int, e: int, marks) -> str:
+    """"(about 0.6% of the plantation)": a percentage that is the ratio of two numbers
+    earlier in its sentence (4.4 / 700). Returns the derivation, or ''."""
+    if not _PCT_AFTER.match(masked[e:e + 12]):
+        return ""
+    try:
+        x = float(_norm_num(masked[s:e]).replace(",", "").lstrip("+"))
+    except ValueError:
+        return ""
+    lo = masked.rfind("\n", 0, s) + 1
+    for m in _FULL_END.finditer(masked, max(lo, s - 400), s):
+        lo = m.end()
+    nums = []
+    for m in _NUM.finditer(masked, lo, s):
+        try:
+            v = float(_norm_num(m.group()).replace(",", "").lstrip("+"))
+        except ValueError:
+            continue
+        if v > 0 and not _YEAR.match(_norm_num(m.group()).replace(",", "").lstrip("+-")):
+            nums.append((m.group(), v))
+    dp = _dp_of(_norm_num(masked[s:e]).lstrip("+-"))
+    for i, (ta, a) in enumerate(nums):
+        for tb, b in nums[i + 1:]:
+            for num, den, tn, td in ((a, b, ta, tb), (b, a, tb, ta)):
+                if den and abs(100 * num / den - x) <= 0.5 * 10 ** -dp + 1e-9:
+                    return f"derived: {tn} / {td} = {100 * num / den:.{dp + 1}f} % — a ratio of two numbers in this sentence"
+    return ""
 
 
 def _row_of(rel: str, lab: str) -> dict:
@@ -1415,6 +1466,11 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
             cands = [c for c in cands if not (float(c.value).is_integer() and _cand_dim(c)[0] in ("", "count", "id"))]
         if tok[0] == "count" and "." not in unsigned:
             cands = [c for c in cands if float(c.value).is_integer()]   # "11 donor wells" is not 11.4587 of anything
+        if tok[0] == "pct" and re.match(r"(?i)\s*(?:%|per cent|percent)\s+of\b", masked[e:e + 14]):
+            ratio = _derived_ratio(masked, s, e, prelim)
+            if ratio:
+                prelim.append((s, e, "count", ratio, []))   # "(about 0.6% of the plantation)" = 4.4 / 700
+                continue
         if tok[0] == "pct" and unsigned in ("100", "0"):
             prelim.append((s, e, "count", "nominal percentage — a statement, not a value", []))
             continue
@@ -1561,11 +1617,20 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
                 det += f"; also matches {options[1][1].label} [{pathlib.Path(options[1][1].rel).name}]"
             marks.append((s, e, verdict, det))
         elif v in ("untraced", "count") and not options:
+            ratio = _derived_ratio(masked, s, e, marks)
             cite = _CITATION.search(_sentence(masked, s, e))
-            if cite and not (v == "count" and len(_norm_num(masked[s:e]).lstrip("-+")) <= 1):
+            where = "clause"
+            if not cite:
+                # an earlier sentence of the SAME paragraph: "… (Stratford et al., 2007). The
+                # northern 700 hectares were afforested …" (Martin: "Stratford 2007 again")
+                bol = masked.rfind("\n", 0, s) + 1
+                cite = _CITATION.search(masked[bol:s]); where = "paragraph"
+            if ratio:
+                marks.append((s, e, "count", ratio))
+            elif cite and not (v == "count" and len(_norm_num(masked[s:e]).lstrip("-+")) <= 1):
                 # "approximately 1,300 hectares … (Stratford et al., 2007)": the literature's
                 # figure, not the pipeline's (Martin, 2026-09-20). Only when nothing traces.
-                marks.append((s, e, "cited", f"literature value — the clause cites {cite.group(0).strip()}; no committed value carries it"))
+                marks.append((s, e, "cited", f"literature value — the {where} cites {cite.group(0).strip()}; no committed value carries it"))
             else:
                 marks.append((s, e, v, d))
         else:

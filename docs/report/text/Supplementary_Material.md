@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Supplementary_Material_v1_29.odt — do not edit. source-sha256=8c228d004e3e083e pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/report/Supplementary_Material_v1_29.odt — do not edit. source-sha256=e202c42160032465 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Supplementary Material
@@ -128,7 +128,7 @@ Three limitations on the interpretation of these outputs apply. First, the pertu
 
 Forest management scenarios (full clearfell, 50% thinning, broadleaf conversion) apply canopy parameter changes only to the C4 and C5 Forest wells, and the framework correctly produces a response confined to the C4/C5 zone. This is a feature of the framework, not a bug: under the SSM parameterisation, canopy management directly affects only the wells beneath the canopy, and there is no structural mechanism for canopy effects to propagate into the open dune clusters beyond the hydraulic gradient already implicit in the baseline heads. The BACI monitoring record provides empirical corroboration of this structural feature: post-felling displacement is concentrated at the core impact wells, and wells outside the C4 cluster show no detectable felling-specific response once common-mode climate variability is accounted for (§4.6.4).
 
-The clearfell scenario applies a β₂ multiplier of ×1.019 at C4 and C5 wells, derived dynamically from the BACI-corrected Edge-tier post-felling β₂ ratio reported in §4.6.6 (Table 13): Edge mean ratio 0.944 minus Climate Control mean drift 0.925, plus 1.0. Canopy interception is set to 0%. The framework predicts modest annual water table rises at both forest clusters (C4: +0.041 m/month head, equivalent to +10.0 mm w.e./month; C5: +0.040 m/month head, +12.2 mm w.e./month), with a strongly asymmetric seasonal profile reflecting the dominance of summer PET in the β₂ sacrificial shielding mechanism established in §4.6.6 and §5.5.2.
+The clearfell scenario applies a β₂ multiplier of ×1.019 at C4 and C5 wells, derived dynamically from the BACI-corrected Edge-tier post-felling β₂ ratio reported in §4.6.6 (Table 14): Edge mean ratio 0.944 minus Climate Control mean drift 0.925, plus 1.0. Canopy interception is set to 0%. The framework predicts modest annual water table rises at both forest clusters (C4: +0.041 m/month head, equivalent to +10.0 mm w.e./month; C5: +0.040 m/month head, +12.2 mm w.e./month), with a strongly asymmetric seasonal profile reflecting the dominance of summer PET in the β₂ sacrificial shielding mechanism established in §4.6.6 and §5.5.2.
 
 The thinning scenario applies a β₂ multiplier of ×1.009 (half the clearfell perturbation) with canopy interception reduced from 24% to 12%. The framework predicts approximately half the clearfell response at both forest clusters (C4: +0.020 m/month, +5.0 mm w.e./month; C5: +0.020 m/month, +6.1 mm w.e./month), as expected.
 
@@ -506,7 +506,7 @@ Figure S9.1 (03_12_datum_regime.png). Datum-regime diagnostic: fitted drainage f
 
 ## S9.4 Reproducibility
 
-Script 03 (v1.5.0); outputs 03_12_partition_vs_datum.csv and 03_12_datum_regime.png. The diagnostic is additive: all pre-existing Script 03 outputs reproduce byte-identically under the v1.5.0 edit. Shares evaluated at the 3.7 m datum reproduce the Table 5 partition of the main report to within about 0.1% (the h̄ window convention).
+Script 03 (v1.5.0); outputs 03_12_partition_vs_datum.csv and 03_12_datum_regime.png. The diagnostic is additive: all pre-existing Script 03 outputs reproduce byte-identically under the v1.5.0 edit. Shares evaluated at the 3.7 m datum reproduce the Table 6 partition of the main report to within about 0.1% (the h̄ window convention).
 
 # Supplementary Note S10: Reading the Network-Change Maps (Figures 69--72)
 

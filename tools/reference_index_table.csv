@@ -2,24 +2,25 @@ number,document,title
 1,report9.odt,Annual climate summary for RAF Valley station over the well-monitoring period. Annual prec
 2,report9.odt,Negative values indicate amplitude reduction (damping); positive values indicate amplitude
 3,report9.odt,Cluster mechanistic characterization derived from the displacement-formulation SSM (Sectio
-4,report9.odt,"Mean monthly head-space water balance decomposition by hydrogeological cluster, Newborough"
-5,report9.odt,Seasonal-recession partition of water-table losses by cluster (Section 3.7.2). Winter and 
-6,report9.odt,"Indicative annual volumetric water balance by cluster, 2005–2026. At steady state, total l"
-7,report9.odt,Specific yield (Sy) estimates by hydrogeological cluster derived from the water table fluc
-8,report9.odt,Model benchmarking summary comparing the Traditional Linear Model (TLM) and State-Space Mo
-9,report9.odt,Era-specific β₃ storage decay coefficients at scraping treatment and control wells with 95
-10,report9.odt,Three-counterfactual ANCOVA-BACI results for the December 2017 clearfell. Each row reports
-11,report9.odt,The coastal-drift term fitted in each ANCOVA contrast (Section 4.6.3). ξ is the amplitude 
-12,report9.odt,Per-well pre- vs post-felling shifts in annual summer minimum depth gap (well minus Forest
-13,report9.odt,"Mixed-effects model results: pooled clearfell step by tier against Forest control, with ra"
-14,report9.odt,Before- and after-clearfell SSM coefficient estimates for all 17 wells in the BACI network
-15,report9.odt,"Winter peak prediction equations fitted at hydrological-year resolution (Section 3.6.2), o"
-16,report9.odt,Summer drought prediction equations (Section 3.6.2). P_summer = total April–September rain
-17,report9.odt,Per-cluster P_flood summary across the 88 well classified network. m_P = P_flood / Σ P_cli
-18,report9.odt,Cluster-specific linear forms derived from the iterated closed-form P_flood solution of Se
-19,report9.odt,"Cluster-mean 5-year mean spring water level (MSL5) at window-end 2025, with counts of wind"
-20,report9.odt,Between-well prediction of mean Ellenberg-F moisture by observed MSL5 and by the equilibri
-21,report9.odt,"Ellenberg-F prediction accuracy by match band, MSL5 versus the equilibrium wetness index ("
-22,report9.odt,Per-well spatial predictors of SSM coefficient variation within the forest zone (C4 Main F
-23,report9.odt,Per-cluster decomposition of the observed summer-minimum decline under the forest-free lin
-24,report10.odt,Site-wide footing of each water-table driver. Equivalent depth averaged over the 949 ha si
+4,report9.odt,"Within-cluster range of the per-well SSM coefficients, reference network (Script 07). Each"
+5,report9.odt,"Mean monthly head-space water balance decomposition by hydrogeological cluster, Newborough"
+6,report9.odt,Seasonal-recession partition of water-table losses by cluster (Section 3.7.2). Winter and 
+7,report9.odt,"Indicative annual volumetric water balance by cluster, 2005–2026. At steady state, total l"
+8,report9.odt,Specific yield (Sy) estimates by hydrogeological cluster derived from the water table fluc
+9,report9.odt,Model benchmarking summary comparing the Traditional Linear Model (TLM) and State-Space Mo
+10,report9.odt,Era-specific β₃ storage decay coefficients at scraping treatment and control wells with 95
+11,report9.odt,Three-counterfactual ANCOVA-BACI results for the December 2017 clearfell. Each row reports
+12,report9.odt,The coastal-drift term fitted in each ANCOVA contrast (Section 4.6.3). ξ is the amplitude 
+13,report9.odt,Per-well pre- vs post-felling shifts in annual summer minimum depth gap (well minus Forest
+14,report9.odt,"Mixed-effects model results: pooled clearfell step by tier against Forest control, with ra"
+15,report9.odt,Before- and after-clearfell SSM coefficient estimates for all 17 wells in the BACI network
+16,report9.odt,"Winter peak prediction equations fitted at hydrological-year resolution (Section 3.6.2), o"
+17,report9.odt,Summer drought prediction equations (Section 3.6.2). P_summer = total April–September rain
+18,report9.odt,Per-cluster P_flood summary across the 88 well classified network. m_P = P_flood / Σ P_cli
+19,report9.odt,Cluster-specific linear forms derived from the iterated closed-form P_flood solution of Se
+20,report9.odt,"Cluster-mean 5-year mean spring water level (MSL5) at window-end 2025, with counts of wind"
+21,report9.odt,Between-well prediction of mean Ellenberg-F moisture by observed MSL5 and by the equilibri
+22,report9.odt,"Ellenberg-F prediction accuracy by match band, MSL5 versus the equilibrium wetness index ("
+23,report9.odt,Per-well spatial predictors of SSM coefficient variation within the forest zone (C4 Main F
+24,report9.odt,Per-cluster decomposition of the observed summer-minimum decline under the forest-free lin
+25,report10.odt,Site-wide footing of each water-table driver. Equivalent depth averaged over the 949 ha si

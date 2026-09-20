@@ -275,6 +275,74 @@ person's machines, not a mutex.
 
 Never run `refresh_mirrors.py` on a machine whose ODTs you have not just pulled.
 
+## 4c. The bridge: what it can do, and three ways to break it (2026-09-20)
+
+LibreOffice **and UNO both work on the bridge** — `soffice` is on PATH,
+`import uno` succeeds, and `export_master_pdf.py` and `build_pdfs.sh` both run
+there. Rendering a chapter to PDF is the fastest way to *check* a layout change
+rather than assume it. **git over HTTPS also works**, despite `nrg_autopush.sh`'s
+header; keep autopush on the publishing machine for anything with deletions,
+for its mass-deletion guard.
+
+**Nothing survives a `device_bash` call.** `nohup`, `setsid`, `&` all die with
+it, so there is no start-and-poll. The practical ceiling is ~120 s. D-155 still
+holds: the bridge does not produce committable pipeline artefacts.
+
+Three traps, each of which bit on 2026-09-20:
+
+1. **A timed-out shell orphans `soffice`** — the driver dies, the process does
+   not, and the next export hangs on the stale UNO listener. Before any export:
+   `pgrep -x soffice.bin` and `ls report_edits/odt/.~lock*`.
+2. **`pkill -f soffice` kills the shell asking** — its own command line matches.
+3. **`pgrep -f 'office.bin'` returned pids 1, 2, 3** — the VM's init, which then
+   received `kill -9`. **Always `pgrep -x soffice.bin`.**
+
+**A long `git commit -m` message does not survive a paste.** Two commits were
+believed pushed and were not; a day's work sat untracked. Hand over
+`git commit -F - <<'MSG' … MSG`, and verify with `git log --oneline -1` —
+"pushed" is a belief until the log shows it.
+
+Full account: `notes/findings/NRG_bridge_gates_ledgers_2026-09-20.md`.
+
+## 4d. What the gates do not catch (2026-09-20)
+
+- **`reference_lint` cannot see a reference that moved TWICE.** It checks
+  references against captions, and a double-moved reference still points at a
+  caption that exists. Twelve went undetected. Only `ref_audit` saw any, and
+  only the 4 that name a script output. **Run `tools/repoint_verify.py` after a
+  repoint pass and before any hand repair.**
+- **The renumber recipe lost a step**: plan pass → `figure_map.py` →
+  `repoint_verify` → `reference_lint --snapshot` → `ref_audit`. No separate
+  `--abbrev-only` pass — since repoint_refs 1.6.0 the default pattern already
+  matches `Fig N`, and 1.6.1 now refuses the flag.
+- **A generated ledger with no `--check` in `check_all` rots silently.**
+  TABLE_LEDGER did (19 empty sources, a five-versions-old document list) while
+  FIGURE_LEDGER, built identically, stayed correct — the only difference was the
+  gate. Every generated artefact gets its `--check` on the day it is written.
+- **A new caption's sequence field reads "Table 0"** in the ODT's cached text and
+  the mirror until LibreOffice recalculates it: Tools ▸ Update ▸ Fields → save →
+  `refresh_mirrors` → `reference_lint --snapshot`. And **`pdftotext` is not a
+  witness** to field numbering — it reported a duplicate and a gap in a correct
+  document.
+- **Running one script standalone breaks `pipeline_lint --check runid`** —
+  `pipeline_site_observations.csv` is run-scoped. The remedy is a full
+  `run_analysis.py --full --with-supplementary`.
+
+## 4e. The ledgers are keyed by OUTPUT FILE (2026-09-20)
+
+`PROVENANCE_LEDGER.md` (exhibits) and `VALUE_REGISTER.md` (cited values and
+symbols) answer the question a document-keyed ledger cannot: *this script's
+output changed — what has to be re-read?* `table_provenance_lint.py` enforces
+Martin's rule that **a table cannot have no CSV; that breaks the line of truth
+from the pipeline to the documents**. All 24 report tables trace to an output.
+
+**When auditing references, relate them to the CSV.** The report, Paper 1 and
+Paper 2 each number tables from 1. Prose similarity left 150 of 211 references
+unresolved; the CSV link left none. Registry rows are parsed field by field and
+prose is scoped to the sentence — a character window reaches into the
+neighbouring table's caption. A *reference* has no CSV: it names a table, and
+the table carries the provenance.
+
 ## 5. Where numbers come from
 
 **The committed CSVs under `outputs/` are the truth.** Documents quote them;

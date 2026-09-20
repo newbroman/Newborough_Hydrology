@@ -45,7 +45,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.21.0"  # Hollingham (2026) — 2026-09-20. 09b_04_scenario_comparison
+__version__ = "1.22.0"  # Hollingham (2026) — 2026-09-20. 00_06_pet_monthly_trends joins
+#   the value map keyed (window, month): the May/June/July PET trends the abstract
+#   and report10 §5.6 quote, emitted by Script 00 1.7.0 (E12).
+# v1.21.0  # Hollingham (2026) — 2026-09-20. 09b_04_scenario_comparison
 #   joins the value map, keyed (Scenario, Cluster): the abstract's forestry and
 #   dry/wet climate figures come from it (Martin: "take the current csvs as
 #   up-to-date, revert to 09b numbers"), and it was registered nowhere.
@@ -419,6 +422,8 @@ EXTRA_VALUE_TABLES = [
      ["dh_mean_m", "dh_median_m", "we_mean_mm", "we_median_mm"]),
     ("outputs/09_scraping_intervention/09b_04_scenario_comparison.csv", ("Scenario", "Cluster"),
      ["Delta_vol_mm_per_month"]),
+    ("outputs/00_climate_summary/00_06_pet_monthly_trends.csv", ("window", "month"),
+     ["slope_mm_per_yr", "p_value", "r2", "n_years"]),
     ("outputs/03_state_space_model/03_04_lag_diagnostic.csv", "Cluster_Label",
      ["R2"]),
     ("outputs/32_differential_movement/32_site_mean_trend.csv", "period",

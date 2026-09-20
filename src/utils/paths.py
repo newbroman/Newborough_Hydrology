@@ -11,7 +11,11 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.17.0"  # Hollingham (2026) - 2026-09-09. OUT_25_DELTA0_LOO / _FIG (25_16):
+__version__ = "1.18.0"  # Hollingham (2026) - 2026-09-20. OUT_00_PET_MONTHLY_TRENDS
+#   (00_06): Script 00 emits the per-calendar-month PET trend over two windows,
+#   the numbers the abstract and report10 §5.6 quote for May-July. Additive.
+#
+# v1.17.0  # Hollingham (2026) - 2026-09-09. OUT_25_DELTA0_LOO / _FIG (25_16):
 #                        Script 25 leave-one-out leverage of delta_0 (D-046). Additive only.
 # v1.16.2  # Hollingham (2026) - 2026-09-08. DIR_43 / DIR_44 no longer mkdir on
 #                        import - the side effect v1.11.0 removed had come back with
@@ -407,6 +411,7 @@ OUT_00_ANNUAL_CLIMATE_TABLE = DIR_00 / "00_01_annual_climate_summary.csv"
 OUT_00_WELL_NETWORK_TABLE   = DIR_00 / "00_02_well_network_summary.csv"
 OUT_00_SUMMER_WARMING_TABLE = DIR_00 / "00_03_summer_warming_stats.csv"
 OUT_00_PET_WARMING          = DIR_00 / "00_05_pet_warming_response.csv"  # how much
+OUT_00_PET_MONTHLY_TRENDS   = DIR_00 / "00_06_pet_monthly_trends.csv"    # per-calendar-month PET trend, two windows (abstract, §5.6)
                                                                         # of the station's
                                                                         # warming reaches PET
 OUT_00_CLIMATOLOGY          = DIR_00 / "00_04_climatology.csv"          # §4.1.1 12-month P/PET climatology (full-years well period)

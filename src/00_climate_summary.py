@@ -61,7 +61,7 @@ from utils.paths import (
     OUT_00_REPORT_NUMBERS,
 )
 from utils.report_numbers_utils import ReportNumbers
-from utils.paths import OUT_00_PET_WARMING
+from utils.paths import OUT_00_PET_WARMING, OUT_00_PET_MONTHLY_TRENDS
 from utils.config import REFERENCE_CUTOFF_DATE, CLEARFELL_DATE_ISO
 from utils.render_utils import render_figure
 
@@ -73,7 +73,17 @@ import re
 import os
 from scipy.stats import linregress
 
-__version__ = "1.6.0"  # Hollingham (2026) -- 2026-09-18. Figures 4 & 6 now
+__version__ = "1.7.0"  # Hollingham (2026) -- 2026-09-20. pet_monthly_trends():
+#   the OLS trend of each calendar month's PET against year, over the full record
+#   and over the well record, to 00_06_pet_monthly_trends.csv. The abstract and
+#   report10 §5.6 quote "significant increases in May (+0.066 mm month⁻¹ yr⁻¹,
+#   p = 0.002), June (+0.047, p = 0.030) and July (+0.062, p = 0.006)" and no script
+#   wrote them (emit list E12; Martin: "all these numbers should come from
+#   script 00, as they are a stat based on the climate"). Both windows are emitted
+#   because the printed values are the FULL-record fit while the sentence that
+#   carries them says "across the monitoring record", over which no month is
+#   significant — the table makes the choice visible. Additive; no other output moves.
+# v1.6.0  # Hollingham (2026) -- 2026-09-18. Figures 4 & 6 now
 #   characterise the 66-well REFERENCE network (INT_WELLS_REFERENCE) rather than the
 #   77-well length-only INT_WELLS_CLEAN they wrongly used: INT_WELLS_CLEAN applies only
 #   the 100-month record-length gate, not the recency (record reaches the reference
@@ -950,6 +960,8 @@ def _run_all() -> None:
 
     print("Computing PET response to warming (full record)...")
     pet_resp = pet_warming_response(climate_full, str(OUT_00_PET_WARMING))
+    print("Computing per-calendar-month PET trends (full record and well record)...")
+    pet_monthly_trends(climate_full, climate_short, str(OUT_00_PET_MONTHLY_TRENDS))
 
     rr = ReportNumbers()
     # Seasonal-redistribution trends — the committed home for the numbers
@@ -1201,6 +1213,48 @@ def seasonal_redistribution_trends(climate, year_first: int = 2007,
         slope, tstat, n = _ols(series.values, series.index.values)
         out[key] = {"slope": slope, "t": tstat, "n": n}
     out["era"] = f"{year_first}-{year_last}"
+    return out
+
+
+def pet_monthly_trends(climate_full: pd.DataFrame, climate_short: pd.DataFrame,
+                       out_csv: str) -> pd.DataFrame:
+    """OLS trend of each calendar month's PET (mm) against year, for the full record
+    and for the well record, one row per (window, month).
+
+    WHY TWO WINDOWS
+
+      The abstract's "May +0.066 mm month⁻¹ yr⁻¹, p = 0.002" is a full-record fit
+      (1931 onward); over the monitoring record alone no calendar month's PET
+      trend separates from zero. A sentence that names one window and quotes the
+      other is the failure this table exists to make visible: read the `window`
+      column before quoting a row. Complete calendar years only, as everywhere
+      else in this script; the fit is scipy's linregress, the same estimator as
+      Figure 3's summer-warming trend.
+    """
+    rows = []
+    for window, clim in (("full_record", climate_full), ("well_record", climate_short)):
+        d = clim[["PET"]].copy()
+        d["yr"] = d.index.year
+        d["mo"] = d.index.month
+        complete = d.groupby("yr")["mo"].nunique()
+        d = d[d["yr"].isin(complete[complete == 12].index)]
+        for mo in range(1, 13):
+            g = d[d["mo"] == mo]
+            yrs = g["yr"].to_numpy(dtype=float)
+            pet_mm = g["PET"].to_numpy(dtype=float) * 1000.0
+            if len(yrs) < 3:
+                continue
+            reg = linregress(yrs, pet_mm)
+            rows.append({
+                "window": window, "month": mo,
+                "year_first": int(yrs.min()), "year_last": int(yrs.max()), "n_years": int(len(yrs)),
+                "slope_mm_per_yr": float(reg.slope), "intercept_mm": float(reg.intercept),
+                "p_value": float(reg.pvalue), "r2": float(reg.rvalue ** 2),
+                "stderr_mm_per_yr": float(reg.stderr),
+            })
+    out = pd.DataFrame(rows)
+    out.to_csv(out_csv, index=False)
+    print(f"  Saved PET monthly trends → {os.path.basename(out_csv)} ({len(out)} rows, two windows)")
     return out
 
 

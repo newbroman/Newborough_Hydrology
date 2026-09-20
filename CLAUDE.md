@@ -343,6 +343,31 @@ prose is scoped to the sentence — a character window reaches into the
 neighbouring table's caption. A *reference* has no CSV: it names a table, and
 the table carries the provenance.
 
+## 4f. A ship is TWO pushes (2026-09-20)
+
+`working/` is **not untracked**. It is tracked by a second repository —
+`.git-working` → `Newborough_Hydrology_working` — and each repo excludes the
+other's half. `.git/info/exclude` explains why it is done there and not in
+`.gitignore`. **Do not "fix" that exclude**: deleting it sweeps 676 MB of the
+private half into the public repo and publishes material kept out of it
+deliberately.
+
+The public repo carries code, tools and mirrors. The working repo carries the
+reasoning that explains them — changelogs, the decision log, the handover note,
+the register. **A public commit without its working commit is a change nobody
+can account for later.** On 2026-09-20 `.git-working` was found three shipping
+cycles behind: 19f, 20a and 20b had shipped publicly while the records
+explaining them sat on one machine, which is exactly the crash exposure the two
+repositories exist to prevent.
+
+`working/nrg_git.sh` does both on the publishing machine. A bridge session
+cannot run it, so:
+
+    git push
+    git --git-dir=.git-working --work-tree=. add -A working/
+    git --git-dir=.git-working --work-tree=. commit -F - <<'MSG' … MSG
+    git --git-dir=.git-working --work-tree=. push
+
 ## 5. Where numbers come from
 
 **The committed CSVs under `outputs/` are the truth.** Documents quote them;

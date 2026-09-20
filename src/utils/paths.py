@@ -11,7 +11,11 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.18.0"  # Hollingham (2026) - 2026-09-20. OUT_00_PET_MONTHLY_TRENDS
+__version__ = "1.19.0"  # Hollingham (2026) - 2026-09-20. OUT_45_REPORT_NUMBERS: Script 45
+#   emits the wet-area analysis's report numbers (study area, fit and out-of-sample
+#   statistics) that the abstract and §4.8.5 quote (E16). Additive.
+#
+# v1.18.0  # Hollingham (2026) - 2026-09-20. OUT_00_PET_MONTHLY_TRENDS
 #   (00_06): Script 00 emits the per-calendar-month PET trend over two windows,
 #   the numbers the abstract and report10 §5.6 quote for May-July. Additive.
 #
@@ -1202,6 +1206,7 @@ OUT_45_MODEL          = DIR_45 / "45_01_wet_area_model.csv"
 OUT_45_MODEL_FIG      = DIR_45 / "45_01_wet_area_model.png"
 OUT_45_SSM_CURVES     = DIR_45 / "45_02_ssm_through_nir_curves.csv"
 OUT_45_SSM_CURVES_FIG = DIR_45 / "45_02_ssm_through_nir_curves.png"
+OUT_45_REPORT_NUMBERS = DIR_45 / "45_report_numbers.csv"   # study area, fit R², out-of-sample R²/n/ratio (E16)
 
 # ── Script 47 — the century hindcast film (T-39, D-178) ──────────────────────
 # Display tier, on demand only. DIR_47 is NOT mkdir'd here: the directory is

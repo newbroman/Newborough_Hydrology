@@ -177,7 +177,13 @@ EXCLUDE_PREFIXES = ("living/", "working/DECISION_LOG.md",
                     # in context), so sweeping it would report the corpus
                     # back as its own backlog. Same rationale as EQUATION_LEDGER.
                     "notes/ledgers/VALUE_LEDGER.md",
-                    "notes/ledgers/VALUE_LEDGER_report.md")
+                    "notes/ledgers/VALUE_LEDGER_report.md",
+                    # Same reason, 2026-09-19: these are generated output-keyed
+                    # ledgers. They quote glyphs because they INDEX them; a bare
+                    # d or delta in a generated index is not a document using
+                    # the glyph, and sweeping them reopened T-01 with 8 hits.
+                    "notes/ledgers/PROVENANCE_LEDGER.md",
+                    "notes/ledgers/VALUE_REGISTER.md")
 
 
 def _excluded(rel: str) -> bool:

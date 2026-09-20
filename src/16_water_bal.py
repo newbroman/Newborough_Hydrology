@@ -79,7 +79,13 @@ References:
       for water table depths. WRR 36(1), 181–188.
 """
 
-__version__ = "1.3.0"  # Hollingham (2026) - 2026-09-19. The seasonal-recession
+__version__ = "1.4.0"  # Hollingham (2026) - 2026-09-19. save_recession_table
+#   gains ET_mm_month = |summer| - |winter|, the drainage/ET split in depth
+#   units rather than as a ratio. Report Table 4b showed winter, summer and
+#   a fraction; the subtraction between them was left to the reader and was
+#   misread once on the day it shipped.
+#
+# v1.3.0  # Hollingham (2026) - 2026-09-19. The seasonal-recession
 #   partition is now REPORTED, not just consumed: save_recession_table writes
 #   16_water_bal_rec_table.csv with the winter and summer mean recession rates,
 #   the month counts behind each, and the recession / SSM / midpoint drainage
@@ -442,6 +448,12 @@ def save_recession_table(summary, recession, path):
             "N_winter":           r.get("n_winter", np.nan),
             "Summer_dh_mm_month": r.get("summer_rate", np.nan) * 1000,
             "N_summer":           r.get("n_summer", np.nan),
+            # summer loss less the drainage-only winter loss. The fraction is
+            # the ratio of the two rates; this is the same arithmetic in depth
+            # units, put in the table so a reader does not have to do it (the
+            # header says "fraction", and on 2026-09-19 that was read as a depth).
+            "ET_mm_month":        (abs(r.get("summer_rate", np.nan))
+                                   - abs(r.get("winter_rate", np.nan))) * 1000,
             "Rec_drain_frac":     rec_drain,
             "Rec_ET_frac":        r.get("et_frac", np.nan),
             "SSM_drain_frac":     ssm_drain,

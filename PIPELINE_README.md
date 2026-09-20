@@ -389,7 +389,7 @@ src/
 
 #### Step 8 — 08_model_benchmarking
 
-**Purpose.** LCSC vs Traditional Linear Model benchmarking (NSE/R² improvement maps, CEH6 showdown figure, Table 3).
+**Purpose.** LCSC vs Traditional Linear Model benchmarking (NSE/R² improvement maps, CEH6 showdown figure, Table 8). The source CSV is named 08_lcsc_04_table3_benchmark_summary.csv for historical reasons; the table it fills is report Table 8.
 
 **Reads.**
 
@@ -713,7 +713,7 @@ Summer climate via `scraping_common.load_summer_climate()`. Scenario constants
 
 #### Step 11 — 11_forecasting_thresholds
 
-**Purpose.** Closed-form P_flood derivation, winter/summer transfer functions (Tables 6, 7, 8), and a per-cluster empirical spring MSL transfer function (Section 5, "Tool A").
+**Purpose.** Closed-form P_flood derivation, winter/summer transfer functions (Tables 9, 10, 11), and a per-cluster empirical spring MSL transfer function (Section 5, "Tool A").
 
 Section 5 is the predictive companion to Script 26's observational MSL5 monitoring metric. For each cluster, an OLS-with-intercept fit on `03_regional_averages.csv` produces an equation of the form
 
@@ -735,7 +735,7 @@ R² ranges 0.73–0.96 across the five clusters (C4 Main Forest and C5 Coastal F
 - `11_forecast_winter_transfer_functions.csv`
 - `11_forecast_summer_transfer_functions.csv`
 - `11_forecast_pflood_threshold_equations.csv`
-- `11_forecast_spring_transfer_functions.csv` — Section 5 per-cluster equations (Tool A, Table 9)
+- `11_forecast_spring_transfer_functions.csv` — Section 5 per-cluster equations (Tool A; in the report these appear as an inline equation in §3.6, not a numbered table)
 - `11_forecast_02_spring_calibration.png` — Section 5 5-panel calibration scatter
 
 
@@ -1480,24 +1480,29 @@ Step 50 — `09f_management_effects.py` — the spatial-reach synthesis figure (
 
 | Table | Description | Script | File |
 |---|---|---|---|
-| Table 1 | Annual climate summary | 00 | `00_01_annual_climate_summary.csv` |
+| Table 1 | Annual climate summary | 00 | `00_01_annual_climate_summary_short.csv` |
 | Table 2 | Cluster amplitude damping | 02 | `02_09_cluster_amplitude_summary.csv` |
 | Table 3 | Cluster mechanistic coefficients | 03 | `03_03_cluster_mechanistic_coefficients.csv` |
-| Table 4a | Head-space water balance | 16 | `16_water_bal_table.csv` |
-| Table 4b | Volumetric water balance | 16 | `16_water_bal_vol_table.csv` |
-| Table 4c | WTF specific yield | 17 | `17_wtf_01_sy_table.csv` |
-| Table 5 | Model benchmarking (SSM vs TLM) | 08 | `08_lcsc_04_table3_benchmark_summary.csv` |
-| Table 6 | Scraping β₃ era coefficients | 09a | `09_scrape_04b_beta3_era_summary.csv` |
-| Table 7 | Clearfell ANCOVA-BACI results | 10a | `10a_report_numbers.csv` |
-| Table 8 | Per-well summer min shifts | 10d | `10d_04_summer_minima_forest_ctrl.png` (source CSV) |
-| Table 9 | Mixed-effects clearfell step | 10d | (embedded in 10d output) |
-| Table 10 | Before/after clearfell SSM coefficients | 10e | `10e_01_coefficient_shifts.csv` |
-| Table 11 | *Withdrawn* — predicted-vs-observed comparison removed in 10e v1.4.0 | 10e | (no longer produced) |
-| Table 12 | Winter peak prediction equations | 11 | `11_forecast_winter_transfer_functions.csv` |
-| Table 13 | Summer drought prediction equations | 11 | `11_forecast_summer_transfer_functions.csv` |
-| Table 14 | Per-cluster P_flood summary | 11 | `11_forecast_pflood_threshold_equations.csv` |
-| Table 15 | P_flood linear forms | 11 | `11_forecast_pflood_threshold_equations.csv` |
-| Table 19 | Forest zone spatial predictors | 10c | `10c_forest_zone_correlations.csv` |
+| Table 4 | Head-space water balance | 16 | `16_water_bal_table.csv` |
+| Table 5 | Seasonal-recession partition | 16 | `16_water_bal_rec_table.csv` |
+| Table 6 | Volumetric water balance | 16 | `16_water_bal_vol_table.csv` |
+| Table 7 | WTF specific yield | 17 | `17_wtf_01_sy_estimates.csv` |
+| Table 8 | Model benchmarking (SSM vs TLM) | 08 | `08_lcsc_04_table3_benchmark_summary.csv` |
+| Table 9 | Scraping β₃ era coefficients | 09a | `09_scrape_04b_beta3_era_summary.csv` |
+| Table 10 | Clearfell ANCOVA-BACI results | 10a | `10a_01_ancova_comparison_table.csv` |
+| Table 11 | BACI corroboration of the coastal differential | 25 | `25_04_baci_corroboration.csv` |
+| Table 12 | Per-well summer minimum shifts | 10d | `10d_02_summer_minima_shifts.csv` |
+| Table 13 | Mixed-effects clearfell step by tier | 10d | `10d_03_mixed_model_results.csv` |
+| Table 14 | Before/after clearfell SSM coefficients | 10e | `10e_01_coefficient_shifts.csv` |
+| Table 15 | Winter peak prediction equations | 11 | `11_forecast_winter_transfer_functions.csv` |
+| Table 16 | Summer drought prediction equations | 11 | `11_forecast_summer_transfer_functions.csv` |
+| Table 17 | Per-cluster P_flood summary (88-well network) | 11b | `11b_06_pflood_cluster_summary.csv` |
+| Table 18 | P_flood linear forms | 11 | `11_forecast_pflood_summary.csv` |
+| Table 19 | Cluster-mean MSL5 at window-end | 26 | `26_msl_5yr_cluster_threshold_summary.csv` |
+| Table 20 | Between-well Ellenberg-F prediction | 26 | `26_ebf_prediction_summary.csv` |
+| Table 21 | Ellenberg-F accuracy by match band | 26 | `26_ebf_band_summary.csv` |
+| Table 22 | Forest zone spatial predictors | 10c | `10c_forest_zone_correlations.csv` |
+| Table 23 | Summer-minimum decline decomposition | 25 | `25_03_cluster_partition.csv` |
 
 ## Paper figures — quick reference
 

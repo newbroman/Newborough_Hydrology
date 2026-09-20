@@ -485,7 +485,12 @@ def plan(cfg: dict, xml: str):
     offsets of the office:value attribute writes among those groups."""
     s, e = locate_table(xml, cfg["table_name"])
     rows = read_cells(xml, s, e)
-    header = [unescape(c[2]) if c else None for c in rows[0][1]]
+    # U+200B is a BREAK OPPORTUNITY, not content. tools/header_breaks.py puts one
+    # after each "/" in a header cell so LibreOffice wraps "(mm/month)" after the
+    # slash instead of mid-word ("(mm/mo" / "nth)", as Table 1.4b rendered on
+    # 2026-09-19). The configs stay plain ASCII and the comparison ignores it.
+    header = [unescape(c[2]).replace("\u200b", "") if c else None
+              for c in rows[0][1]]
     if header != cfg["header"]:
         raise ValueError(f"header mismatch\n    odt: {header}\n    cfg: {cfg['header']}")
     data = rows[1:]

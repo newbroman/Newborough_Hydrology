@@ -153,7 +153,15 @@ ODTS = {
 # Plain-text files that are re-pointed. changelogs/ and DECISION_LOG.md are NOT:
 # they are dated records, and rewriting them would falsify what was true when
 # they were written (Martin, 2026-08-23).
-TEXTS = ["PIPELINE_README.md", "readme.md"]
+# notes/ledgers/SCRIPT_LEDGER.md joined 2026-09-19. It annotates script
+# outputs with the report figure they become ("33_amplification_field.png
+# (Fig 66)") and was in no pass, so those annotations drifted with every
+# renumber and nothing looked at them. Six were wrong by 1 to 6 places when
+# repoint_verify first asked; the oldest predated the Figure 12 insert by
+# several moves. The generated ledgers (FIGURE_LEDGER, TABLE_LEDGER) are not
+# here and must not be: they are rebuilt from the captions, not re-pointed.
+TEXTS = ["PIPELINE_README.md", "readme.md",
+         "notes/ledgers/SCRIPT_LEDGER.md"]
 
 # word, optional markup/whitespace, digit run
 # The ABBREVIATED form is matched too. PIPELINE_README and readme write
@@ -238,6 +246,10 @@ def load_plan(kinds):
             raise SystemExit(f"no {PLAN_TABLE.name} — run tools/table_renumber_plan.py")
         with PLAN_TABLE.open(encoding="utf8") as fh:
             for r in csv.DictReader(fh):
+                # A shared plan file carries a kind column; a table-only one may
+                # not. Either way a figure row must never land in the table map.
+                if (r.get("kind") or "table").strip() != "table":
+                    continue
                 tab[r["old"]] = r["new"]
     return fig, sec, tab
 
@@ -537,6 +549,15 @@ def main() -> int:
         ap.error(f"unknown kind(s): {', '.join(sorted(bad))}")
     if args.plan:
         globals()["PLAN"] = Path(args.plan)
+        # --plan overrode PLAN only, so `--plan mine.csv --kind table` printed
+        # "plan file: mine.csv" and then loaded renumber_plan_table.csv anyway —
+        # a HISTORICAL plan, already applied. A dry run on 2026-09-19 reported
+        # five mappings from a sixteen-row file and would, applied, have moved
+        # an already-moved permutation a second time. A switch that appears to
+        # take effect and does not is the same failure as --abbrev-only, one
+        # layer down. It now overrides both maps.
+        if "table" in kinds:
+            globals()["PLAN_TABLE"] = Path(args.plan)
         print(f"  plan file: {args.plan}")
     fig, sec, tab = load_plan(kinds)
     if sec:

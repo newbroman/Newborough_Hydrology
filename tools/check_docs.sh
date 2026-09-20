@@ -67,6 +67,8 @@ run "section_ref_audit"       python3 tools/section_ref_audit.py
 run "rounding_lint"           python3 tools/rounding_lint.py
 run "symbol_check"            python3 tools/symbol_check.py
 run "build_figure_ledger"     python3 tools/build_figure_ledger.py --check
+run "provenance_ledger"       python3 tools/build_provenance_ledger.py --check
+run "value_register"          python3 tools/build_value_register.py --check
 run "odt_media verify"        python3 tools/odt_media.py verify
 run "pipeline_count_lint"     python3 tools/pipeline_count_lint.py
 run "decision_lint"           python3 tools/decision_lint.py --quiet

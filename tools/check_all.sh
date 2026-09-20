@@ -451,6 +451,12 @@ python3 tools/reference_lint.py --kind figure || rc=1
 # Every caption carries a "(Source: file)" marker that figure_map resolves on disk;
 # FIGURE_LEDGER is generated from them. A missing marker or a stale ledger fails.
 python3 tools/build_figure_ledger.py --check || rc=1
+# PROVENANCE_LEDGER (exhibits by output file) and VALUE_REGISTER (cited values
+# and symbols by output file). Gated for the reason TABLE_LEDGER was not: it was
+# the only generated ledger with no --check in this file, and by 2026-09-19 it
+# carried 19 empty sources and named a supplement version five bumps old.
+python3 tools/build_provenance_ledger.py --check || rc=1
+python3 tools/build_value_register.py --check || rc=1
 
 echo
 echo "── references by meaning (does a number point at what the text names?) ─"

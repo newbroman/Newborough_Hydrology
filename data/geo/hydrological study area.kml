@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+<Document>
+	<name>hydrological study area.kml</name>
+	<StyleMap id="m_ylw-pushpin">
+		<Pair>
+			<key>normal</key>
+			<styleUrl>#s_ylw-pushpin</styleUrl>
+		</Pair>
+		<Pair>
+			<key>highlight</key>
+			<styleUrl>#s_ylw-pushpin_hl</styleUrl>
+		</Pair>
+	</StyleMap>
+	<Style id="s_ylw-pushpin">
+		<IconStyle>
+			<scale>1.1</scale>
+			<Icon>
+				<href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+			</Icon>
+			<hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
+		</IconStyle>
+	</Style>
+	<Style id="s_ylw-pushpin_hl">
+		<IconStyle>
+			<scale>1.3</scale>
+			<Icon>
+				<href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+			</Icon>
+			<hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
+		</IconStyle>
+	</Style>
+	<Placemark>
+		<name>hydrological study area</name>
+		<styleUrl>#m_ylw-pushpin</styleUrl>
+		<Polygon>
+			<tessellate>1</tessellate>
+			<outerBoundaryIs>
+				<LinearRing>
+					<coordinates>
+						-4.375549306649801,53.1601956349575,0 -4.387949399140028,53.15476993021012,0 -4.391755532822525,53.15325718154978,0 -4.394181731880144,53.15183011688588,0 -4.397225619175501,53.14834836345007,0 -4.40060184650673,53.14571420189326,0 -4.391942561520144,53.14488858445274,0 -4.382475535311409,53.14286401612914,0 -4.377338218288214,53.14069585866343,0 -4.373650379734669,53.13920978976679,0 -4.368228388011282,53.13615680152932,0 -4.363092504497997,53.13393102682915,0 -4.358717848511736,53.13244693225961,0 -4.354674676089193,53.13455771643136,0 -4.349204128222,53.13723861574816,0 -4.344446941457624,53.13912053141306,0 -4.340783379839152,53.14085991148752,0 -4.33726126886206,53.14362633978875,0 -4.3364030262391,53.14588001402739,0 -4.337162920406811,53.14724974234588,0 -4.338446825984304,53.14784928136113,0 -4.339327635470972,53.14830481319679,0 -4.339281830900995,53.14990606460363,0 -4.338034319979879,53.15153365231277,0 -4.337187434522108,53.15294786420694,0 -4.340613228972117,53.15447005461058,0 -4.340657692888525,53.15452344268261,0 -4.343861298239235,53.15575190044564,0 -4.343994822420636,53.15575193229689,0 -4.345997065481936,53.15660640712446,0 -4.3490230937586,53.15740768114651,0 -4.350357646947538,53.15855552731787,0 -4.350802278182369,53.159329573194,0 -4.351647462486023,53.16021044905094,0 -4.360815372291761,53.16417118734334,0 -4.375549306649801,53.1601956349575,0 
+					</coordinates>
+				</LinearRing>
+			</outerBoundaryIs>
+		</Polygon>
+		<atom:link rel="app" href="https://www.google.com/earth/about/versions/#earth-pro" title="Google Earth Pro 7.3.7.1155"></atom:link>
+	</Placemark>
+</Document>
+</kml>
